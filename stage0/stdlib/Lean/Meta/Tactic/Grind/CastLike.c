@@ -63,7 +63,7 @@ LEAN_EXPORT uint8_t l_Lean_Meta_Grind_isCastLikeFn(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_isCastLikeFn___boxed(lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Meta_Grind_isCastLikeApp(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_isCastLikeApp___boxed(lean_object*);
-LEAN_EXPORT uint8_t l_Lean_Meta_Grind_isCastLikeDeclName(lean_object* v_declName_30_){
+uint8_t l_Lean_Meta_Grind_isCastLikeDeclName(lean_object* v_declName_30_){
 _start:
 {
 uint8_t v___y_32_; lean_object* v___x_37_; uint8_t v___x_38_; 
@@ -108,62 +108,83 @@ return v___y_32_;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Meta_Grind_isCastLikeDeclName___boxed(lean_object* v_declName_41_){
+LEAN_EXPORT void l_Lean_Meta_Grind_isCastLikeDeclName_0interp(lean_interpreter_value* stack)
+{
+lean_object* v_declName_30_ = stack[0].m_obj;
+uint8_t v_res_41_;
+v_res_41_ = l_Lean_Meta_Grind_isCastLikeDeclName(v_declName_30_);
+stack->m_num = v_res_41_;
+}
+LEAN_EXPORT lean_object* l_Lean_Meta_Grind_isCastLikeDeclName___boxed(lean_object* v_declName_42_){
 _start:
 {
-uint8_t v_res_42_; lean_object* v_r_43_; 
-v_res_42_ = l_Lean_Meta_Grind_isCastLikeDeclName(v_declName_41_);
-lean_dec(v_declName_41_);
-v_r_43_ = lean_box(v_res_42_);
-return v_r_43_;
+uint8_t v_res_43_; lean_object* v_r_44_; 
+v_res_43_ = l_Lean_Meta_Grind_isCastLikeDeclName(v_declName_42_);
+lean_dec(v_declName_42_);
+v_r_44_ = lean_box(v_res_43_);
+return v_r_44_;
 }
 }
-LEAN_EXPORT uint8_t l_Lean_Meta_Grind_isCastLikeFn(lean_object* v_f_44_){
+uint8_t l_Lean_Meta_Grind_isCastLikeFn(lean_object* v_f_45_){
 _start:
 {
-if (lean_obj_tag(v_f_44_) == 4)
+if (lean_obj_tag(v_f_45_) == 4)
 {
-lean_object* v_declName_45_; uint8_t v___x_46_; 
-v_declName_45_ = lean_ctor_get(v_f_44_, 0);
-v___x_46_ = l_Lean_Meta_Grind_isCastLikeDeclName(v_declName_45_);
-return v___x_46_;
+lean_object* v_declName_46_; uint8_t v___x_47_; 
+v_declName_46_ = lean_ctor_get(v_f_45_, 0);
+v___x_47_ = l_Lean_Meta_Grind_isCastLikeDeclName(v_declName_46_);
+return v___x_47_;
 }
 else
 {
-uint8_t v___x_47_; 
-v___x_47_ = 0;
-return v___x_47_;
+uint8_t v___x_48_; 
+v___x_48_ = 0;
+return v___x_48_;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Meta_Grind_isCastLikeFn___boxed(lean_object* v_f_48_){
+LEAN_EXPORT void l_Lean_Meta_Grind_isCastLikeFn_0interp(lean_interpreter_value* stack)
+{
+lean_object* v_f_45_ = stack[0].m_obj;
+uint8_t v_res_49_;
+v_res_49_ = l_Lean_Meta_Grind_isCastLikeFn(v_f_45_);
+stack->m_num = v_res_49_;
+}
+LEAN_EXPORT lean_object* l_Lean_Meta_Grind_isCastLikeFn___boxed(lean_object* v_f_50_){
 _start:
 {
-uint8_t v_res_49_; lean_object* v_r_50_; 
-v_res_49_ = l_Lean_Meta_Grind_isCastLikeFn(v_f_48_);
-lean_dec_ref(v_f_48_);
-v_r_50_ = lean_box(v_res_49_);
-return v_r_50_;
+uint8_t v_res_51_; lean_object* v_r_52_; 
+v_res_51_ = l_Lean_Meta_Grind_isCastLikeFn(v_f_50_);
+lean_dec_ref(v_f_50_);
+v_r_52_ = lean_box(v_res_51_);
+return v_r_52_;
 }
 }
-LEAN_EXPORT uint8_t l_Lean_Meta_Grind_isCastLikeApp(lean_object* v_e_51_){
+uint8_t l_Lean_Meta_Grind_isCastLikeApp(lean_object* v_e_53_){
 _start:
 {
-lean_object* v___x_52_; uint8_t v___x_53_; 
-v___x_52_ = l_Lean_Expr_getAppFn(v_e_51_);
-v___x_53_ = l_Lean_Meta_Grind_isCastLikeFn(v___x_52_);
-lean_dec_ref(v___x_52_);
-return v___x_53_;
+lean_object* v___x_54_; uint8_t v___x_55_; 
+v___x_54_ = l_Lean_Expr_getAppFn(v_e_53_);
+v___x_55_ = l_Lean_Meta_Grind_isCastLikeFn(v___x_54_);
+lean_dec_ref(v___x_54_);
+return v___x_55_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Meta_Grind_isCastLikeApp___boxed(lean_object* v_e_54_){
+LEAN_EXPORT void l_Lean_Meta_Grind_isCastLikeApp_0interp(lean_interpreter_value* stack)
+{
+lean_object* v_e_53_ = stack[0].m_obj;
+uint8_t v_res_56_;
+v_res_56_ = l_Lean_Meta_Grind_isCastLikeApp(v_e_53_);
+stack->m_num = v_res_56_;
+}
+LEAN_EXPORT lean_object* l_Lean_Meta_Grind_isCastLikeApp___boxed(lean_object* v_e_57_){
 _start:
 {
-uint8_t v_res_55_; lean_object* v_r_56_; 
-v_res_55_ = l_Lean_Meta_Grind_isCastLikeApp(v_e_54_);
-lean_dec_ref(v_e_54_);
-v_r_56_ = lean_box(v_res_55_);
-return v_r_56_;
+uint8_t v_res_58_; lean_object* v_r_59_; 
+v_res_58_ = l_Lean_Meta_Grind_isCastLikeApp(v_e_57_);
+lean_dec_ref(v_e_57_);
+v_r_59_ = lean_box(v_res_58_);
+return v_r_59_;
 }
 }
 lean_object* runtime_initialize_Lean_Expr(uint8_t builtin);

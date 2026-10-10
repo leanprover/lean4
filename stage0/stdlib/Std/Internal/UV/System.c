@@ -2071,244 +2071,451 @@ lean_dec(v_prec_855_);
 return v_res_856_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Internal_UV_System_getProcessTitle___boxed(lean_object* v_a_00___x40___internal___hyg_864_){
+LEAN_EXPORT void l_Std_Internal_UV_System_getProcessTitle_0interp(lean_interpreter_value* stack)
+{
+lean_object* v_res_864_;
+v_res_864_ = lean_uv_get_process_title();
+stack->m_obj
+ = v_res_864_;
+}
+LEAN_EXPORT lean_object* l_Std_Internal_UV_System_getProcessTitle___boxed(lean_object* v_a_00___x40___internal___hyg_865_){
 _start:
 {
-lean_object* v_res_865_; 
-v_res_865_ = lean_uv_get_process_title();
-return v_res_865_;
+lean_object* v_res_866_; 
+v_res_866_ = lean_uv_get_process_title();
+return v_res_866_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Internal_UV_System_setProcessTitle___boxed(lean_object* v_a_00___x40___internal___hyg_868_, lean_object* v_a_00___x40___internal___hyg_869_){
+LEAN_EXPORT void l_Std_Internal_UV_System_setProcessTitle_0interp(lean_interpreter_value* stack)
+{
+lean_object* v_a_00___x40___internal___hyg_867_ = stack[0].m_obj;
+lean_object* v_res_869_;
+v_res_869_ = lean_uv_set_process_title(v_a_00___x40___internal___hyg_867_);
+stack->m_obj
+ = v_res_869_;
+}
+LEAN_EXPORT lean_object* l_Std_Internal_UV_System_setProcessTitle___boxed(lean_object* v_a_00___x40___internal___hyg_870_, lean_object* v_a_00___x40___internal___hyg_871_){
 _start:
 {
-lean_object* v_res_870_; 
-v_res_870_ = lean_uv_set_process_title(v_a_00___x40___internal___hyg_868_);
-lean_dec_ref(v_a_00___x40___internal___hyg_868_);
-return v_res_870_;
+lean_object* v_res_872_; 
+v_res_872_ = lean_uv_set_process_title(v_a_00___x40___internal___hyg_870_);
+lean_dec_ref(v_a_00___x40___internal___hyg_870_);
+return v_res_872_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Internal_UV_System_uptime___boxed(lean_object* v_a_00___x40___internal___hyg_872_){
-_start:
+LEAN_EXPORT void l_Std_Internal_UV_System_uptime_0interp(lean_interpreter_value* stack)
 {
-lean_object* v_res_873_; 
-v_res_873_ = lean_uv_uptime();
-return v_res_873_;
+lean_object* v_res_874_;
+v_res_874_ = lean_uv_uptime();
+stack->m_obj
+ = v_res_874_;
 }
-}
-LEAN_EXPORT lean_object* l_Std_Internal_UV_System_osGetPid___boxed(lean_object* v_a_00___x40___internal___hyg_875_){
+LEAN_EXPORT lean_object* l_Std_Internal_UV_System_uptime___boxed(lean_object* v_a_00___x40___internal___hyg_875_){
 _start:
 {
 lean_object* v_res_876_; 
-v_res_876_ = lean_uv_os_getpid();
+v_res_876_ = lean_uv_uptime();
 return v_res_876_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Internal_UV_System_osGetPpid___boxed(lean_object* v_a_00___x40___internal___hyg_878_){
+LEAN_EXPORT void l_Std_Internal_UV_System_osGetPid_0interp(lean_interpreter_value* stack)
+{
+lean_object* v_res_878_;
+v_res_878_ = lean_uv_os_getpid();
+stack->m_obj
+ = v_res_878_;
+}
+LEAN_EXPORT lean_object* l_Std_Internal_UV_System_osGetPid___boxed(lean_object* v_a_00___x40___internal___hyg_879_){
 _start:
 {
-lean_object* v_res_879_; 
-v_res_879_ = lean_uv_os_getppid();
-return v_res_879_;
+lean_object* v_res_880_; 
+v_res_880_ = lean_uv_os_getpid();
+return v_res_880_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Internal_UV_System_cpuInfo___boxed(lean_object* v_a_00___x40___internal___hyg_881_){
+LEAN_EXPORT void l_Std_Internal_UV_System_osGetPpid_0interp(lean_interpreter_value* stack)
+{
+lean_object* v_res_882_;
+v_res_882_ = lean_uv_os_getppid();
+stack->m_obj
+ = v_res_882_;
+}
+LEAN_EXPORT lean_object* l_Std_Internal_UV_System_osGetPpid___boxed(lean_object* v_a_00___x40___internal___hyg_883_){
 _start:
 {
-lean_object* v_res_882_; 
-v_res_882_ = lean_uv_cpu_info();
-return v_res_882_;
+lean_object* v_res_884_; 
+v_res_884_ = lean_uv_os_getppid();
+return v_res_884_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Internal_UV_System_cwd___boxed(lean_object* v_a_00___x40___internal___hyg_884_){
+LEAN_EXPORT void l_Std_Internal_UV_System_cpuInfo_0interp(lean_interpreter_value* stack)
+{
+lean_object* v_res_886_;
+v_res_886_ = lean_uv_cpu_info();
+stack->m_obj
+ = v_res_886_;
+}
+LEAN_EXPORT lean_object* l_Std_Internal_UV_System_cpuInfo___boxed(lean_object* v_a_00___x40___internal___hyg_887_){
 _start:
 {
-lean_object* v_res_885_; 
-v_res_885_ = lean_uv_cwd();
-return v_res_885_;
+lean_object* v_res_888_; 
+v_res_888_ = lean_uv_cpu_info();
+return v_res_888_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Internal_UV_System_chdir___boxed(lean_object* v_a_00___x40___internal___hyg_888_, lean_object* v_a_00___x40___internal___hyg_889_){
+LEAN_EXPORT void l_Std_Internal_UV_System_cwd_0interp(lean_interpreter_value* stack)
+{
+lean_object* v_res_890_;
+v_res_890_ = lean_uv_cwd();
+stack->m_obj
+ = v_res_890_;
+}
+LEAN_EXPORT lean_object* l_Std_Internal_UV_System_cwd___boxed(lean_object* v_a_00___x40___internal___hyg_891_){
 _start:
 {
-lean_object* v_res_890_; 
-v_res_890_ = lean_uv_chdir(v_a_00___x40___internal___hyg_888_);
-lean_dec_ref(v_a_00___x40___internal___hyg_888_);
-return v_res_890_;
+lean_object* v_res_892_; 
+v_res_892_ = lean_uv_cwd();
+return v_res_892_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Internal_UV_System_osHomedir___boxed(lean_object* v_a_00___x40___internal___hyg_892_){
+LEAN_EXPORT void l_Std_Internal_UV_System_chdir_0interp(lean_interpreter_value* stack)
+{
+lean_object* v_a_00___x40___internal___hyg_893_ = stack[0].m_obj;
+lean_object* v_res_895_;
+v_res_895_ = lean_uv_chdir(v_a_00___x40___internal___hyg_893_);
+stack->m_obj
+ = v_res_895_;
+}
+LEAN_EXPORT lean_object* l_Std_Internal_UV_System_chdir___boxed(lean_object* v_a_00___x40___internal___hyg_896_, lean_object* v_a_00___x40___internal___hyg_897_){
 _start:
 {
-lean_object* v_res_893_; 
-v_res_893_ = lean_uv_os_homedir();
-return v_res_893_;
+lean_object* v_res_898_; 
+v_res_898_ = lean_uv_chdir(v_a_00___x40___internal___hyg_896_);
+lean_dec_ref(v_a_00___x40___internal___hyg_896_);
+return v_res_898_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Internal_UV_System_osTmpdir___boxed(lean_object* v_a_00___x40___internal___hyg_895_){
+LEAN_EXPORT void l_Std_Internal_UV_System_osHomedir_0interp(lean_interpreter_value* stack)
+{
+lean_object* v_res_900_;
+v_res_900_ = lean_uv_os_homedir();
+stack->m_obj
+ = v_res_900_;
+}
+LEAN_EXPORT lean_object* l_Std_Internal_UV_System_osHomedir___boxed(lean_object* v_a_00___x40___internal___hyg_901_){
 _start:
 {
-lean_object* v_res_896_; 
-v_res_896_ = lean_uv_os_tmpdir();
-return v_res_896_;
+lean_object* v_res_902_; 
+v_res_902_ = lean_uv_os_homedir();
+return v_res_902_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Internal_UV_System_osGetPasswd___boxed(lean_object* v_a_00___x40___internal___hyg_898_){
+LEAN_EXPORT void l_Std_Internal_UV_System_osTmpdir_0interp(lean_interpreter_value* stack)
+{
+lean_object* v_res_904_;
+v_res_904_ = lean_uv_os_tmpdir();
+stack->m_obj
+ = v_res_904_;
+}
+LEAN_EXPORT lean_object* l_Std_Internal_UV_System_osTmpdir___boxed(lean_object* v_a_00___x40___internal___hyg_905_){
 _start:
 {
-lean_object* v_res_899_; 
-v_res_899_ = lean_uv_os_get_passwd();
-return v_res_899_;
+lean_object* v_res_906_; 
+v_res_906_ = lean_uv_os_tmpdir();
+return v_res_906_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Internal_UV_System_osGetGroup___boxed(lean_object* v_a_00___x40___internal___hyg_902_, lean_object* v_a_00___x40___internal___hyg_903_){
+LEAN_EXPORT void l_Std_Internal_UV_System_osGetPasswd_0interp(lean_interpreter_value* stack)
+{
+lean_object* v_res_908_;
+v_res_908_ = lean_uv_os_get_passwd();
+stack->m_obj
+ = v_res_908_;
+}
+LEAN_EXPORT lean_object* l_Std_Internal_UV_System_osGetPasswd___boxed(lean_object* v_a_00___x40___internal___hyg_909_){
 _start:
 {
-uint64_t v_a_00___x40___internal___hyg_1__boxed_904_; lean_object* v_res_905_; 
-v_a_00___x40___internal___hyg_1__boxed_904_ = lean_unbox_uint64(v_a_00___x40___internal___hyg_902_);
-lean_dec_ref(v_a_00___x40___internal___hyg_902_);
-v_res_905_ = lean_uv_os_get_group(v_a_00___x40___internal___hyg_1__boxed_904_);
-return v_res_905_;
+lean_object* v_res_910_; 
+v_res_910_ = lean_uv_os_get_passwd();
+return v_res_910_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Internal_UV_System_osEnviron___boxed(lean_object* v_a_00___x40___internal___hyg_907_){
+LEAN_EXPORT void l_Std_Internal_UV_System_osGetGroup_0interp(lean_interpreter_value* stack)
+{
+uint64_t v_a_00___x40___internal___hyg_911_ = stack[0].m_num;
+lean_object* v_res_913_;
+v_res_913_ = lean_uv_os_get_group(v_a_00___x40___internal___hyg_911_);
+stack->m_obj
+ = v_res_913_;
+}
+LEAN_EXPORT lean_object* l_Std_Internal_UV_System_osGetGroup___boxed(lean_object* v_a_00___x40___internal___hyg_914_, lean_object* v_a_00___x40___internal___hyg_915_){
 _start:
 {
-lean_object* v_res_908_; 
-v_res_908_ = lean_uv_os_environ();
-return v_res_908_;
+uint64_t v_a_00___x40___internal___hyg_1__boxed_916_; lean_object* v_res_917_; 
+v_a_00___x40___internal___hyg_1__boxed_916_ = lean_unbox_uint64(v_a_00___x40___internal___hyg_914_);
+lean_dec_ref(v_a_00___x40___internal___hyg_914_);
+v_res_917_ = lean_uv_os_get_group(v_a_00___x40___internal___hyg_1__boxed_916_);
+return v_res_917_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Internal_UV_System_osGetenv___boxed(lean_object* v_a_00___x40___internal___hyg_911_, lean_object* v_a_00___x40___internal___hyg_912_){
+LEAN_EXPORT void l_Std_Internal_UV_System_osEnviron_0interp(lean_interpreter_value* stack)
+{
+lean_object* v_res_919_;
+v_res_919_ = lean_uv_os_environ();
+stack->m_obj
+ = v_res_919_;
+}
+LEAN_EXPORT lean_object* l_Std_Internal_UV_System_osEnviron___boxed(lean_object* v_a_00___x40___internal___hyg_920_){
 _start:
 {
-lean_object* v_res_913_; 
-v_res_913_ = lean_uv_os_getenv(v_a_00___x40___internal___hyg_911_);
-lean_dec_ref(v_a_00___x40___internal___hyg_911_);
-return v_res_913_;
+lean_object* v_res_921_; 
+v_res_921_ = lean_uv_os_environ();
+return v_res_921_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Internal_UV_System_osSetenv___boxed(lean_object* v_a_00___x40___internal___hyg_917_, lean_object* v_a_00___x40___internal___hyg_918_, lean_object* v_a_00___x40___internal___hyg_919_){
+LEAN_EXPORT void l_Std_Internal_UV_System_osGetenv_0interp(lean_interpreter_value* stack)
+{
+lean_object* v_a_00___x40___internal___hyg_922_ = stack[0].m_obj;
+lean_object* v_res_924_;
+v_res_924_ = lean_uv_os_getenv(v_a_00___x40___internal___hyg_922_);
+stack->m_obj
+ = v_res_924_;
+}
+LEAN_EXPORT lean_object* l_Std_Internal_UV_System_osGetenv___boxed(lean_object* v_a_00___x40___internal___hyg_925_, lean_object* v_a_00___x40___internal___hyg_926_){
 _start:
 {
-lean_object* v_res_920_; 
-v_res_920_ = lean_uv_os_setenv(v_a_00___x40___internal___hyg_917_, v_a_00___x40___internal___hyg_918_);
-lean_dec_ref(v_a_00___x40___internal___hyg_918_);
-lean_dec_ref(v_a_00___x40___internal___hyg_917_);
-return v_res_920_;
+lean_object* v_res_927_; 
+v_res_927_ = lean_uv_os_getenv(v_a_00___x40___internal___hyg_925_);
+lean_dec_ref(v_a_00___x40___internal___hyg_925_);
+return v_res_927_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Internal_UV_System_osUnsetenv___boxed(lean_object* v_a_00___x40___internal___hyg_923_, lean_object* v_a_00___x40___internal___hyg_924_){
+LEAN_EXPORT void l_Std_Internal_UV_System_osSetenv_0interp(lean_interpreter_value* stack)
+{
+lean_object* v_a_00___x40___internal___hyg_928_ = stack[0].m_obj;
+lean_object* v_a_00___x40___internal___hyg_929_ = stack[1].m_obj;
+lean_object* v_res_931_;
+v_res_931_ = lean_uv_os_setenv(v_a_00___x40___internal___hyg_928_, v_a_00___x40___internal___hyg_929_);
+stack->m_obj
+ = v_res_931_;
+}
+LEAN_EXPORT lean_object* l_Std_Internal_UV_System_osSetenv___boxed(lean_object* v_a_00___x40___internal___hyg_932_, lean_object* v_a_00___x40___internal___hyg_933_, lean_object* v_a_00___x40___internal___hyg_934_){
 _start:
 {
-lean_object* v_res_925_; 
-v_res_925_ = lean_uv_os_unsetenv(v_a_00___x40___internal___hyg_923_);
-lean_dec_ref(v_a_00___x40___internal___hyg_923_);
-return v_res_925_;
+lean_object* v_res_935_; 
+v_res_935_ = lean_uv_os_setenv(v_a_00___x40___internal___hyg_932_, v_a_00___x40___internal___hyg_933_);
+lean_dec_ref(v_a_00___x40___internal___hyg_933_);
+lean_dec_ref(v_a_00___x40___internal___hyg_932_);
+return v_res_935_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Internal_UV_System_osGetHostname___boxed(lean_object* v_a_00___x40___internal___hyg_927_){
+LEAN_EXPORT void l_Std_Internal_UV_System_osUnsetenv_0interp(lean_interpreter_value* stack)
+{
+lean_object* v_a_00___x40___internal___hyg_936_ = stack[0].m_obj;
+lean_object* v_res_938_;
+v_res_938_ = lean_uv_os_unsetenv(v_a_00___x40___internal___hyg_936_);
+stack->m_obj
+ = v_res_938_;
+}
+LEAN_EXPORT lean_object* l_Std_Internal_UV_System_osUnsetenv___boxed(lean_object* v_a_00___x40___internal___hyg_939_, lean_object* v_a_00___x40___internal___hyg_940_){
 _start:
 {
-lean_object* v_res_928_; 
-v_res_928_ = lean_uv_os_gethostname();
-return v_res_928_;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Internal_UV_System_osGetPriority___boxed(lean_object* v_a_00___x40___internal___hyg_931_, lean_object* v_a_00___x40___internal___hyg_932_){
-_start:
-{
-uint64_t v_a_00___x40___internal___hyg_1__boxed_933_; lean_object* v_res_934_; 
-v_a_00___x40___internal___hyg_1__boxed_933_ = lean_unbox_uint64(v_a_00___x40___internal___hyg_931_);
-lean_dec_ref(v_a_00___x40___internal___hyg_931_);
-v_res_934_ = lean_uv_os_getpriority(v_a_00___x40___internal___hyg_1__boxed_933_);
-return v_res_934_;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Internal_UV_System_osSetPriority___boxed(lean_object* v_a_00___x40___internal___hyg_938_, lean_object* v_a_00___x40___internal___hyg_939_, lean_object* v_a_00___x40___internal___hyg_940_){
-_start:
-{
-uint64_t v_a_00___x40___internal___hyg_1__boxed_941_; uint64_t v_a_00___x40___internal___hyg_2__boxed_942_; lean_object* v_res_943_; 
-v_a_00___x40___internal___hyg_1__boxed_941_ = lean_unbox_uint64(v_a_00___x40___internal___hyg_938_);
-lean_dec_ref(v_a_00___x40___internal___hyg_938_);
-v_a_00___x40___internal___hyg_2__boxed_942_ = lean_unbox_uint64(v_a_00___x40___internal___hyg_939_);
+lean_object* v_res_941_; 
+v_res_941_ = lean_uv_os_unsetenv(v_a_00___x40___internal___hyg_939_);
 lean_dec_ref(v_a_00___x40___internal___hyg_939_);
-v_res_943_ = lean_uv_os_setpriority(v_a_00___x40___internal___hyg_1__boxed_941_, v_a_00___x40___internal___hyg_2__boxed_942_);
-return v_res_943_;
+return v_res_941_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Internal_UV_System_osUname___boxed(lean_object* v_a_00___x40___internal___hyg_945_){
+LEAN_EXPORT void l_Std_Internal_UV_System_osGetHostname_0interp(lean_interpreter_value* stack)
+{
+lean_object* v_res_943_;
+v_res_943_ = lean_uv_os_gethostname();
+stack->m_obj
+ = v_res_943_;
+}
+LEAN_EXPORT lean_object* l_Std_Internal_UV_System_osGetHostname___boxed(lean_object* v_a_00___x40___internal___hyg_944_){
 _start:
 {
-lean_object* v_res_946_; 
-v_res_946_ = lean_uv_os_uname();
-return v_res_946_;
+lean_object* v_res_945_; 
+v_res_945_ = lean_uv_os_gethostname();
+return v_res_945_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Internal_UV_System_hrtime___boxed(lean_object* v_a_00___x40___internal___hyg_948_){
+LEAN_EXPORT void l_Std_Internal_UV_System_osGetPriority_0interp(lean_interpreter_value* stack)
+{
+uint64_t v_a_00___x40___internal___hyg_946_ = stack[0].m_num;
+lean_object* v_res_948_;
+v_res_948_ = lean_uv_os_getpriority(v_a_00___x40___internal___hyg_946_);
+stack->m_obj
+ = v_res_948_;
+}
+LEAN_EXPORT lean_object* l_Std_Internal_UV_System_osGetPriority___boxed(lean_object* v_a_00___x40___internal___hyg_949_, lean_object* v_a_00___x40___internal___hyg_950_){
 _start:
 {
-lean_object* v_res_949_; 
-v_res_949_ = lean_uv_hrtime();
-return v_res_949_;
+uint64_t v_a_00___x40___internal___hyg_1__boxed_951_; lean_object* v_res_952_; 
+v_a_00___x40___internal___hyg_1__boxed_951_ = lean_unbox_uint64(v_a_00___x40___internal___hyg_949_);
+lean_dec_ref(v_a_00___x40___internal___hyg_949_);
+v_res_952_ = lean_uv_os_getpriority(v_a_00___x40___internal___hyg_1__boxed_951_);
+return v_res_952_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Internal_UV_System_random___boxed(lean_object* v_a_00___x40___internal___hyg_952_, lean_object* v_a_00___x40___internal___hyg_953_){
+LEAN_EXPORT void l_Std_Internal_UV_System_osSetPriority_0interp(lean_interpreter_value* stack)
+{
+uint64_t v_a_00___x40___internal___hyg_953_ = stack[0].m_num;
+uint64_t v_a_00___x40___internal___hyg_954_ = stack[1].m_num;
+lean_object* v_res_956_;
+v_res_956_ = lean_uv_os_setpriority(v_a_00___x40___internal___hyg_953_, v_a_00___x40___internal___hyg_954_);
+stack->m_obj
+ = v_res_956_;
+}
+LEAN_EXPORT lean_object* l_Std_Internal_UV_System_osSetPriority___boxed(lean_object* v_a_00___x40___internal___hyg_957_, lean_object* v_a_00___x40___internal___hyg_958_, lean_object* v_a_00___x40___internal___hyg_959_){
 _start:
 {
-uint64_t v_a_00___x40___internal___hyg_1__boxed_954_; lean_object* v_res_955_; 
-v_a_00___x40___internal___hyg_1__boxed_954_ = lean_unbox_uint64(v_a_00___x40___internal___hyg_952_);
-lean_dec_ref(v_a_00___x40___internal___hyg_952_);
-v_res_955_ = lean_uv_random(v_a_00___x40___internal___hyg_1__boxed_954_);
-return v_res_955_;
+uint64_t v_a_00___x40___internal___hyg_1__boxed_960_; uint64_t v_a_00___x40___internal___hyg_2__boxed_961_; lean_object* v_res_962_; 
+v_a_00___x40___internal___hyg_1__boxed_960_ = lean_unbox_uint64(v_a_00___x40___internal___hyg_957_);
+lean_dec_ref(v_a_00___x40___internal___hyg_957_);
+v_a_00___x40___internal___hyg_2__boxed_961_ = lean_unbox_uint64(v_a_00___x40___internal___hyg_958_);
+lean_dec_ref(v_a_00___x40___internal___hyg_958_);
+v_res_962_ = lean_uv_os_setpriority(v_a_00___x40___internal___hyg_1__boxed_960_, v_a_00___x40___internal___hyg_2__boxed_961_);
+return v_res_962_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Internal_UV_System_getrusage___boxed(lean_object* v_a_00___x40___internal___hyg_957_){
+LEAN_EXPORT void l_Std_Internal_UV_System_osUname_0interp(lean_interpreter_value* stack)
+{
+lean_object* v_res_964_;
+v_res_964_ = lean_uv_os_uname();
+stack->m_obj
+ = v_res_964_;
+}
+LEAN_EXPORT lean_object* l_Std_Internal_UV_System_osUname___boxed(lean_object* v_a_00___x40___internal___hyg_965_){
 _start:
 {
-lean_object* v_res_958_; 
-v_res_958_ = lean_uv_getrusage();
-return v_res_958_;
+lean_object* v_res_966_; 
+v_res_966_ = lean_uv_os_uname();
+return v_res_966_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Internal_UV_System_exePath___boxed(lean_object* v_a_00___x40___internal___hyg_960_){
-_start:
+LEAN_EXPORT void l_Std_Internal_UV_System_hrtime_0interp(lean_interpreter_value* stack)
 {
-lean_object* v_res_961_; 
-v_res_961_ = lean_uv_exepath();
-return v_res_961_;
+lean_object* v_res_968_;
+v_res_968_ = lean_uv_hrtime();
+stack->m_obj
+ = v_res_968_;
 }
-}
-LEAN_EXPORT lean_object* l_Std_Internal_UV_System_freeMemory___boxed(lean_object* v_a_00___x40___internal___hyg_963_){
-_start:
-{
-lean_object* v_res_964_; 
-v_res_964_ = lean_uv_get_free_memory();
-return v_res_964_;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Internal_UV_System_totalMemory___boxed(lean_object* v_a_00___x40___internal___hyg_966_){
-_start:
-{
-lean_object* v_res_967_; 
-v_res_967_ = lean_uv_get_total_memory();
-return v_res_967_;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Internal_UV_System_constrainedMemory___boxed(lean_object* v_a_00___x40___internal___hyg_969_){
+LEAN_EXPORT lean_object* l_Std_Internal_UV_System_hrtime___boxed(lean_object* v_a_00___x40___internal___hyg_969_){
 _start:
 {
 lean_object* v_res_970_; 
-v_res_970_ = lean_uv_get_constrained_memory();
+v_res_970_ = lean_uv_hrtime();
 return v_res_970_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Internal_UV_System_availableMemory___boxed(lean_object* v_a_00___x40___internal___hyg_972_){
+LEAN_EXPORT void l_Std_Internal_UV_System_random_0interp(lean_interpreter_value* stack)
+{
+uint64_t v_a_00___x40___internal___hyg_971_ = stack[0].m_num;
+lean_object* v_res_973_;
+v_res_973_ = lean_uv_random(v_a_00___x40___internal___hyg_971_);
+stack->m_obj
+ = v_res_973_;
+}
+LEAN_EXPORT lean_object* l_Std_Internal_UV_System_random___boxed(lean_object* v_a_00___x40___internal___hyg_974_, lean_object* v_a_00___x40___internal___hyg_975_){
 _start:
 {
-lean_object* v_res_973_; 
-v_res_973_ = lean_uv_get_available_memory();
-return v_res_973_;
+uint64_t v_a_00___x40___internal___hyg_1__boxed_976_; lean_object* v_res_977_; 
+v_a_00___x40___internal___hyg_1__boxed_976_ = lean_unbox_uint64(v_a_00___x40___internal___hyg_974_);
+lean_dec_ref(v_a_00___x40___internal___hyg_974_);
+v_res_977_ = lean_uv_random(v_a_00___x40___internal___hyg_1__boxed_976_);
+return v_res_977_;
+}
+}
+LEAN_EXPORT void l_Std_Internal_UV_System_getrusage_0interp(lean_interpreter_value* stack)
+{
+lean_object* v_res_979_;
+v_res_979_ = lean_uv_getrusage();
+stack->m_obj
+ = v_res_979_;
+}
+LEAN_EXPORT lean_object* l_Std_Internal_UV_System_getrusage___boxed(lean_object* v_a_00___x40___internal___hyg_980_){
+_start:
+{
+lean_object* v_res_981_; 
+v_res_981_ = lean_uv_getrusage();
+return v_res_981_;
+}
+}
+LEAN_EXPORT void l_Std_Internal_UV_System_exePath_0interp(lean_interpreter_value* stack)
+{
+lean_object* v_res_983_;
+v_res_983_ = lean_uv_exepath();
+stack->m_obj
+ = v_res_983_;
+}
+LEAN_EXPORT lean_object* l_Std_Internal_UV_System_exePath___boxed(lean_object* v_a_00___x40___internal___hyg_984_){
+_start:
+{
+lean_object* v_res_985_; 
+v_res_985_ = lean_uv_exepath();
+return v_res_985_;
+}
+}
+LEAN_EXPORT void l_Std_Internal_UV_System_freeMemory_0interp(lean_interpreter_value* stack)
+{
+lean_object* v_res_987_;
+v_res_987_ = lean_uv_get_free_memory();
+stack->m_obj
+ = v_res_987_;
+}
+LEAN_EXPORT lean_object* l_Std_Internal_UV_System_freeMemory___boxed(lean_object* v_a_00___x40___internal___hyg_988_){
+_start:
+{
+lean_object* v_res_989_; 
+v_res_989_ = lean_uv_get_free_memory();
+return v_res_989_;
+}
+}
+LEAN_EXPORT void l_Std_Internal_UV_System_totalMemory_0interp(lean_interpreter_value* stack)
+{
+lean_object* v_res_991_;
+v_res_991_ = lean_uv_get_total_memory();
+stack->m_obj
+ = v_res_991_;
+}
+LEAN_EXPORT lean_object* l_Std_Internal_UV_System_totalMemory___boxed(lean_object* v_a_00___x40___internal___hyg_992_){
+_start:
+{
+lean_object* v_res_993_; 
+v_res_993_ = lean_uv_get_total_memory();
+return v_res_993_;
+}
+}
+LEAN_EXPORT void l_Std_Internal_UV_System_constrainedMemory_0interp(lean_interpreter_value* stack)
+{
+lean_object* v_res_995_;
+v_res_995_ = lean_uv_get_constrained_memory();
+stack->m_obj
+ = v_res_995_;
+}
+LEAN_EXPORT lean_object* l_Std_Internal_UV_System_constrainedMemory___boxed(lean_object* v_a_00___x40___internal___hyg_996_){
+_start:
+{
+lean_object* v_res_997_; 
+v_res_997_ = lean_uv_get_constrained_memory();
+return v_res_997_;
+}
+}
+LEAN_EXPORT void l_Std_Internal_UV_System_availableMemory_0interp(lean_interpreter_value* stack)
+{
+lean_object* v_res_999_;
+v_res_999_ = lean_uv_get_available_memory();
+stack->m_obj
+ = v_res_999_;
+}
+LEAN_EXPORT lean_object* l_Std_Internal_UV_System_availableMemory___boxed(lean_object* v_a_00___x40___internal___hyg_1000_){
+_start:
+{
+lean_object* v_res_1001_; 
+v_res_1001_ = lean_uv_get_available_memory();
+return v_res_1001_;
 }
 }
 lean_object* runtime_initialize_Init_System_Promise(uint8_t builtin);

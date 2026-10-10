@@ -65,7 +65,7 @@ LEAN_EXPORT uint8_t l___private_Lean_Compiler_NeverExtractAttr_0__Lean_hasNeverE
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_NeverExtractAttr_0__Lean_hasNeverExtractAttribute_visit___boxed(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_hasNeverExtractAttribute(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_hasNeverExtractAttribute___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Lean_Compiler_NeverExtractAttr_0__Lean_initFn___lam__0_00___x40_Lean_Compiler_NeverExtractAttr_1636298006____hygCtx___hyg_2_(lean_object* v_x_1_, lean_object* v___y_2_, lean_object* v___y_3_){
+lean_object* l___private_Lean_Compiler_NeverExtractAttr_0__Lean_initFn___lam__0_00___x40_Lean_Compiler_NeverExtractAttr_1636298006____hygCtx___hyg_2_(lean_object* v_x_1_, lean_object* v___y_2_, lean_object* v___y_3_){
 _start:
 {
 lean_object* v___x_5_; lean_object* v___x_6_; 
@@ -75,135 +75,182 @@ lean_ctor_set(v___x_6_, 0, v___x_5_);
 return v___x_6_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Compiler_NeverExtractAttr_0__Lean_initFn___lam__0_00___x40_Lean_Compiler_NeverExtractAttr_1636298006____hygCtx___hyg_2____boxed(lean_object* v_x_7_, lean_object* v___y_8_, lean_object* v___y_9_, lean_object* v___y_10_){
+LEAN_EXPORT void l___private_Lean_Compiler_NeverExtractAttr_0__Lean_initFn___lam__0_00___x40_Lean_Compiler_NeverExtractAttr_1636298006____hygCtx___hyg_2__0interp(lean_interpreter_value* stack)
+{
+lean_object* v_x_1_ = stack[0].m_obj;
+lean_object* v___y_2_ = stack[1].m_obj;
+lean_object* v___y_3_ = stack[2].m_obj;
+lean_object* v_res_7_;
+v_res_7_ = l___private_Lean_Compiler_NeverExtractAttr_0__Lean_initFn___lam__0_00___x40_Lean_Compiler_NeverExtractAttr_1636298006____hygCtx___hyg_2_(v_x_1_, v___y_2_, v___y_3_);
+stack->m_obj
+ = v_res_7_;
+}
+LEAN_EXPORT lean_object* l___private_Lean_Compiler_NeverExtractAttr_0__Lean_initFn___lam__0_00___x40_Lean_Compiler_NeverExtractAttr_1636298006____hygCtx___hyg_2____boxed(lean_object* v_x_8_, lean_object* v___y_9_, lean_object* v___y_10_, lean_object* v___y_11_){
 _start:
 {
-lean_object* v_res_11_; 
-v_res_11_ = l___private_Lean_Compiler_NeverExtractAttr_0__Lean_initFn___lam__0_00___x40_Lean_Compiler_NeverExtractAttr_1636298006____hygCtx___hyg_2_(v_x_7_, v___y_8_, v___y_9_);
-lean_dec(v___y_9_);
-lean_dec_ref(v___y_8_);
-lean_dec(v_x_7_);
-return v_res_11_;
+lean_object* v_res_12_; 
+v_res_12_ = l___private_Lean_Compiler_NeverExtractAttr_0__Lean_initFn___lam__0_00___x40_Lean_Compiler_NeverExtractAttr_1636298006____hygCtx___hyg_2_(v_x_8_, v___y_9_, v___y_10_);
+lean_dec(v___y_10_);
+lean_dec_ref(v___y_9_);
+lean_dec(v_x_8_);
+return v_res_12_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Compiler_NeverExtractAttr_0__Lean_initFn_00___x40_Lean_Compiler_NeverExtractAttr_1636298006____hygCtx___hyg_2_(){
+lean_object* l___private_Lean_Compiler_NeverExtractAttr_0__Lean_initFn_00___x40_Lean_Compiler_NeverExtractAttr_1636298006____hygCtx___hyg_2_(){
 _start:
 {
-lean_object* v___f_23_; lean_object* v___x_24_; lean_object* v___x_25_; lean_object* v___x_26_; uint8_t v___x_27_; lean_object* v___x_28_; uint8_t v___x_29_; lean_object* v___x_30_; 
-v___f_23_ = ((lean_object*)(l___private_Lean_Compiler_NeverExtractAttr_0__Lean_initFn___closed__0_00___x40_Lean_Compiler_NeverExtractAttr_1636298006____hygCtx___hyg_2_));
-v___x_24_ = ((lean_object*)(l___private_Lean_Compiler_NeverExtractAttr_0__Lean_initFn___closed__2_00___x40_Lean_Compiler_NeverExtractAttr_1636298006____hygCtx___hyg_2_));
-v___x_25_ = ((lean_object*)(l___private_Lean_Compiler_NeverExtractAttr_0__Lean_initFn___closed__3_00___x40_Lean_Compiler_NeverExtractAttr_1636298006____hygCtx___hyg_2_));
-v___x_26_ = ((lean_object*)(l___private_Lean_Compiler_NeverExtractAttr_0__Lean_initFn___closed__6_00___x40_Lean_Compiler_NeverExtractAttr_1636298006____hygCtx___hyg_2_));
-v___x_27_ = 0;
-v___x_28_ = lean_box(2);
-v___x_29_ = 0;
-v___x_30_ = l_Lean_registerTagAttribute(v___x_24_, v___x_25_, v___f_23_, v___x_26_, v___x_27_, v___x_28_, v___x_29_);
-return v___x_30_;
+lean_object* v___f_24_; lean_object* v___x_25_; lean_object* v___x_26_; lean_object* v___x_27_; uint8_t v___x_28_; lean_object* v___x_29_; uint8_t v___x_30_; lean_object* v___x_31_; 
+v___f_24_ = ((lean_object*)(l___private_Lean_Compiler_NeverExtractAttr_0__Lean_initFn___closed__0_00___x40_Lean_Compiler_NeverExtractAttr_1636298006____hygCtx___hyg_2_));
+v___x_25_ = ((lean_object*)(l___private_Lean_Compiler_NeverExtractAttr_0__Lean_initFn___closed__2_00___x40_Lean_Compiler_NeverExtractAttr_1636298006____hygCtx___hyg_2_));
+v___x_26_ = ((lean_object*)(l___private_Lean_Compiler_NeverExtractAttr_0__Lean_initFn___closed__3_00___x40_Lean_Compiler_NeverExtractAttr_1636298006____hygCtx___hyg_2_));
+v___x_27_ = ((lean_object*)(l___private_Lean_Compiler_NeverExtractAttr_0__Lean_initFn___closed__6_00___x40_Lean_Compiler_NeverExtractAttr_1636298006____hygCtx___hyg_2_));
+v___x_28_ = 0;
+v___x_29_ = lean_box(2);
+v___x_30_ = 0;
+v___x_31_ = l_Lean_registerTagAttribute(v___x_25_, v___x_26_, v___f_24_, v___x_27_, v___x_28_, v___x_29_, v___x_30_);
+return v___x_31_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Compiler_NeverExtractAttr_0__Lean_initFn_00___x40_Lean_Compiler_NeverExtractAttr_1636298006____hygCtx___hyg_2____boxed(lean_object* v_a_31_){
-_start:
+LEAN_EXPORT void l___private_Lean_Compiler_NeverExtractAttr_0__Lean_initFn_00___x40_Lean_Compiler_NeverExtractAttr_1636298006____hygCtx___hyg_2__0interp(lean_interpreter_value* stack)
 {
-lean_object* v_res_32_; 
+lean_object* v_res_32_;
 v_res_32_ = l___private_Lean_Compiler_NeverExtractAttr_0__Lean_initFn_00___x40_Lean_Compiler_NeverExtractAttr_1636298006____hygCtx___hyg_2_();
-return v_res_32_;
+stack->m_obj
+ = v_res_32_;
 }
-}
-LEAN_EXPORT lean_object* l___private_Lean_Compiler_NeverExtractAttr_0__Lean_neverExtractAttr___regBuiltin_Lean_neverExtractAttr_docString__1(){
+LEAN_EXPORT lean_object* l___private_Lean_Compiler_NeverExtractAttr_0__Lean_initFn_00___x40_Lean_Compiler_NeverExtractAttr_1636298006____hygCtx___hyg_2____boxed(lean_object* v_a_33_){
 _start:
 {
-lean_object* v___x_35_; lean_object* v___x_36_; lean_object* v___x_37_; 
-v___x_35_ = ((lean_object*)(l___private_Lean_Compiler_NeverExtractAttr_0__Lean_initFn___closed__6_00___x40_Lean_Compiler_NeverExtractAttr_1636298006____hygCtx___hyg_2_));
-v___x_36_ = ((lean_object*)(l___private_Lean_Compiler_NeverExtractAttr_0__Lean_neverExtractAttr___regBuiltin_Lean_neverExtractAttr_docString__1___closed__0));
-v___x_37_ = l_Lean_addBuiltinDocString(v___x_35_, v___x_36_);
-return v___x_37_;
+lean_object* v_res_34_; 
+v_res_34_ = l___private_Lean_Compiler_NeverExtractAttr_0__Lean_initFn_00___x40_Lean_Compiler_NeverExtractAttr_1636298006____hygCtx___hyg_2_();
+return v_res_34_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Compiler_NeverExtractAttr_0__Lean_neverExtractAttr___regBuiltin_Lean_neverExtractAttr_docString__1___boxed(lean_object* v_a_38_){
+lean_object* l___private_Lean_Compiler_NeverExtractAttr_0__Lean_neverExtractAttr___regBuiltin_Lean_neverExtractAttr_docString__1(){
 _start:
 {
-lean_object* v_res_39_; 
-v_res_39_ = l___private_Lean_Compiler_NeverExtractAttr_0__Lean_neverExtractAttr___regBuiltin_Lean_neverExtractAttr_docString__1();
-return v_res_39_;
+lean_object* v___x_37_; lean_object* v___x_38_; lean_object* v___x_39_; 
+v___x_37_ = ((lean_object*)(l___private_Lean_Compiler_NeverExtractAttr_0__Lean_initFn___closed__6_00___x40_Lean_Compiler_NeverExtractAttr_1636298006____hygCtx___hyg_2_));
+v___x_38_ = ((lean_object*)(l___private_Lean_Compiler_NeverExtractAttr_0__Lean_neverExtractAttr___regBuiltin_Lean_neverExtractAttr_docString__1___closed__0));
+v___x_39_ = l_Lean_addBuiltinDocString(v___x_37_, v___x_38_);
+return v___x_39_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Compiler_NeverExtractAttr_0__Lean_neverExtractAttr___regBuiltin_Lean_neverExtractAttr_declRange__3(){
+LEAN_EXPORT void l___private_Lean_Compiler_NeverExtractAttr_0__Lean_neverExtractAttr___regBuiltin_Lean_neverExtractAttr_docString__1_0interp(lean_interpreter_value* stack)
+{
+lean_object* v_res_40_;
+v_res_40_ = l___private_Lean_Compiler_NeverExtractAttr_0__Lean_neverExtractAttr___regBuiltin_Lean_neverExtractAttr_docString__1();
+stack->m_obj
+ = v_res_40_;
+}
+LEAN_EXPORT lean_object* l___private_Lean_Compiler_NeverExtractAttr_0__Lean_neverExtractAttr___regBuiltin_Lean_neverExtractAttr_docString__1___boxed(lean_object* v_a_41_){
 _start:
 {
-lean_object* v___x_66_; lean_object* v___x_67_; lean_object* v___x_68_; 
-v___x_66_ = ((lean_object*)(l___private_Lean_Compiler_NeverExtractAttr_0__Lean_initFn___closed__6_00___x40_Lean_Compiler_NeverExtractAttr_1636298006____hygCtx___hyg_2_));
-v___x_67_ = ((lean_object*)(l___private_Lean_Compiler_NeverExtractAttr_0__Lean_neverExtractAttr___regBuiltin_Lean_neverExtractAttr_declRange__3___closed__6));
-v___x_68_ = l_Lean_addBuiltinDeclarationRanges(v___x_66_, v___x_67_);
-return v___x_68_;
+lean_object* v_res_42_; 
+v_res_42_ = l___private_Lean_Compiler_NeverExtractAttr_0__Lean_neverExtractAttr___regBuiltin_Lean_neverExtractAttr_docString__1();
+return v_res_42_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Compiler_NeverExtractAttr_0__Lean_neverExtractAttr___regBuiltin_Lean_neverExtractAttr_declRange__3___boxed(lean_object* v_a_69_){
+lean_object* l___private_Lean_Compiler_NeverExtractAttr_0__Lean_neverExtractAttr___regBuiltin_Lean_neverExtractAttr_declRange__3(){
 _start:
 {
-lean_object* v_res_70_; 
-v_res_70_ = l___private_Lean_Compiler_NeverExtractAttr_0__Lean_neverExtractAttr___regBuiltin_Lean_neverExtractAttr_declRange__3();
-return v_res_70_;
+lean_object* v___x_69_; lean_object* v___x_70_; lean_object* v___x_71_; 
+v___x_69_ = ((lean_object*)(l___private_Lean_Compiler_NeverExtractAttr_0__Lean_initFn___closed__6_00___x40_Lean_Compiler_NeverExtractAttr_1636298006____hygCtx___hyg_2_));
+v___x_70_ = ((lean_object*)(l___private_Lean_Compiler_NeverExtractAttr_0__Lean_neverExtractAttr___regBuiltin_Lean_neverExtractAttr_declRange__3___closed__6));
+v___x_71_ = l_Lean_addBuiltinDeclarationRanges(v___x_69_, v___x_70_);
+return v___x_71_;
 }
 }
-LEAN_EXPORT uint8_t l___private_Lean_Compiler_NeverExtractAttr_0__Lean_hasNeverExtractAttribute_visit(lean_object* v_env_71_, lean_object* v_n_72_){
+LEAN_EXPORT void l___private_Lean_Compiler_NeverExtractAttr_0__Lean_neverExtractAttr___regBuiltin_Lean_neverExtractAttr_declRange__3_0interp(lean_interpreter_value* stack)
+{
+lean_object* v_res_72_;
+v_res_72_ = l___private_Lean_Compiler_NeverExtractAttr_0__Lean_neverExtractAttr___regBuiltin_Lean_neverExtractAttr_declRange__3();
+stack->m_obj
+ = v_res_72_;
+}
+LEAN_EXPORT lean_object* l___private_Lean_Compiler_NeverExtractAttr_0__Lean_neverExtractAttr___regBuiltin_Lean_neverExtractAttr_declRange__3___boxed(lean_object* v_a_73_){
 _start:
 {
-lean_object* v___x_73_; uint8_t v___x_74_; 
-v___x_73_ = l_Lean_neverExtractAttr;
-lean_inc(v_n_72_);
-lean_inc_ref(v_env_71_);
-v___x_74_ = l_Lean_TagAttribute_hasTag(v___x_73_, v_env_71_, v_n_72_);
-if (v___x_74_ == 0)
+lean_object* v_res_74_; 
+v_res_74_ = l___private_Lean_Compiler_NeverExtractAttr_0__Lean_neverExtractAttr___regBuiltin_Lean_neverExtractAttr_declRange__3();
+return v_res_74_;
+}
+}
+uint8_t l___private_Lean_Compiler_NeverExtractAttr_0__Lean_hasNeverExtractAttribute_visit(lean_object* v_env_75_, lean_object* v_n_76_){
+_start:
 {
-uint8_t v___x_75_; 
-v___x_75_ = l_Lean_Name_isInternal(v_n_72_);
-if (v___x_75_ == 0)
+lean_object* v___x_77_; uint8_t v___x_78_; 
+v___x_77_ = l_Lean_neverExtractAttr;
+lean_inc(v_n_76_);
+lean_inc_ref(v_env_75_);
+v___x_78_ = l_Lean_TagAttribute_hasTag(v___x_77_, v_env_75_, v_n_76_);
+if (v___x_78_ == 0)
 {
-lean_dec(v_n_72_);
-lean_dec_ref(v_env_71_);
-return v___x_75_;
+uint8_t v___x_79_; 
+v___x_79_ = l_Lean_Name_isInternal(v_n_76_);
+if (v___x_79_ == 0)
+{
+lean_dec(v_n_76_);
+lean_dec_ref(v_env_75_);
+return v___x_79_;
 }
 else
 {
-lean_object* v___x_76_; 
-v___x_76_ = l_Lean_Name_getPrefix(v_n_72_);
-lean_dec(v_n_72_);
-v_n_72_ = v___x_76_;
+lean_object* v___x_80_; 
+v___x_80_ = l_Lean_Name_getPrefix(v_n_76_);
+lean_dec(v_n_76_);
+v_n_76_ = v___x_80_;
 goto _start;
 }
 }
 else
 {
-lean_dec(v_n_72_);
-lean_dec_ref(v_env_71_);
-return v___x_74_;
+lean_dec(v_n_76_);
+lean_dec_ref(v_env_75_);
+return v___x_78_;
 }
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Compiler_NeverExtractAttr_0__Lean_hasNeverExtractAttribute_visit___boxed(lean_object* v_env_78_, lean_object* v_n_79_){
+LEAN_EXPORT void l___private_Lean_Compiler_NeverExtractAttr_0__Lean_hasNeverExtractAttribute_visit_0interp(lean_interpreter_value* stack)
+{
+lean_object* v_env_75_ = stack[0].m_obj;
+lean_object* v_n_76_ = stack[1].m_obj;
+uint8_t v_res_82_;
+v_res_82_ = l___private_Lean_Compiler_NeverExtractAttr_0__Lean_hasNeverExtractAttribute_visit(v_env_75_, v_n_76_);
+stack->m_num = v_res_82_;
+}
+LEAN_EXPORT lean_object* l___private_Lean_Compiler_NeverExtractAttr_0__Lean_hasNeverExtractAttribute_visit___boxed(lean_object* v_env_83_, lean_object* v_n_84_){
 _start:
 {
-uint8_t v_res_80_; lean_object* v_r_81_; 
-v_res_80_ = l___private_Lean_Compiler_NeverExtractAttr_0__Lean_hasNeverExtractAttribute_visit(v_env_78_, v_n_79_);
-v_r_81_ = lean_box(v_res_80_);
-return v_r_81_;
+uint8_t v_res_85_; lean_object* v_r_86_; 
+v_res_85_ = l___private_Lean_Compiler_NeverExtractAttr_0__Lean_hasNeverExtractAttribute_visit(v_env_83_, v_n_84_);
+v_r_86_ = lean_box(v_res_85_);
+return v_r_86_;
 }
 }
-LEAN_EXPORT uint8_t l_Lean_hasNeverExtractAttribute(lean_object* v_env_82_, lean_object* v_n_83_){
+uint8_t l_Lean_hasNeverExtractAttribute(lean_object* v_env_87_, lean_object* v_n_88_){
 _start:
 {
-uint8_t v___x_84_; 
-v___x_84_ = l___private_Lean_Compiler_NeverExtractAttr_0__Lean_hasNeverExtractAttribute_visit(v_env_82_, v_n_83_);
-return v___x_84_;
+uint8_t v___x_89_; 
+v___x_89_ = l___private_Lean_Compiler_NeverExtractAttr_0__Lean_hasNeverExtractAttribute_visit(v_env_87_, v_n_88_);
+return v___x_89_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_hasNeverExtractAttribute___boxed(lean_object* v_env_85_, lean_object* v_n_86_){
+LEAN_EXPORT void l_Lean_hasNeverExtractAttribute_0interp(lean_interpreter_value* stack)
+{
+lean_object* v_env_87_ = stack[0].m_obj;
+lean_object* v_n_88_ = stack[1].m_obj;
+uint8_t v_res_90_;
+v_res_90_ = l_Lean_hasNeverExtractAttribute(v_env_87_, v_n_88_);
+stack->m_num = v_res_90_;
+}
+LEAN_EXPORT lean_object* l_Lean_hasNeverExtractAttribute___boxed(lean_object* v_env_91_, lean_object* v_n_92_){
 _start:
 {
-uint8_t v_res_87_; lean_object* v_r_88_; 
-v_res_87_ = l_Lean_hasNeverExtractAttribute(v_env_85_, v_n_86_);
-v_r_88_ = lean_box(v_res_87_);
-return v_r_88_;
+uint8_t v_res_93_; lean_object* v_r_94_; 
+v_res_93_ = l_Lean_hasNeverExtractAttribute(v_env_91_, v_n_92_);
+v_r_94_ = lean_box(v_res_93_);
+return v_r_94_;
 }
 }
 lean_object* runtime_initialize_Lean_Attributes(uint8_t builtin);

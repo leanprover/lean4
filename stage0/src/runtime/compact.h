@@ -78,6 +78,7 @@ class LEAN_EXPORT object_compactor {
     object_offset insert_ref(object * o);
     object_offset insert_mpz(object * o);
     object_offset insert_closure(object * o);
+    object_offset insert_interp_cache(object * o);
 public:
     object_compactor(void * base_addr = nullptr, std::vector<region_view> dep_regions = {},
                      bool allow_closures = false);
@@ -132,6 +133,7 @@ class LEAN_EXPORT region_reader {
     void fix_promise(object * o);
     void fix_mpz(object * o);
     void fix_closure(object * o);
+    void fix_interp_cache(object * o);
 public:
     /* Creates a read context over the given just-mapped buffer. Does not take ownership of the
        buffer; see the class comment. */

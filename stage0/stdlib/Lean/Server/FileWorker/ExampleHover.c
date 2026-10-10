@@ -982,7 +982,7 @@ lean_dec_ref(v_s_294_);
 return v_res_296_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Server_FileWorker_Hover_rewriteExamples_spec__3(lean_object* v_as_299_, size_t v_sz_300_, size_t v_i_301_, lean_object* v_b_302_){
+lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Server_FileWorker_Hover_rewriteExamples_spec__3(lean_object* v_as_299_, size_t v_sz_300_, size_t v_i_301_, lean_object* v_b_302_){
 _start:
 {
 lean_object* v_a_304_; uint8_t v___x_308_; 
@@ -1308,42 +1308,53 @@ goto _start;
 }
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Server_FileWorker_Hover_rewriteExamples_spec__3___boxed(lean_object* v_as_379_, lean_object* v_sz_380_, lean_object* v_i_381_, lean_object* v_b_382_){
+LEAN_EXPORT void l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Server_FileWorker_Hover_rewriteExamples_spec__3_0interp(lean_interpreter_value* stack)
+{
+lean_object* v_as_299_ = stack[0].m_obj;
+size_t v_sz_300_ = stack[1].m_num;
+size_t v_i_301_ = stack[2].m_num;
+lean_object* v_b_302_ = stack[3].m_obj;
+lean_object* v_res_379_;
+v_res_379_ = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Server_FileWorker_Hover_rewriteExamples_spec__3(v_as_299_, v_sz_300_, v_i_301_, v_b_302_);
+stack->m_obj
+ = v_res_379_;
+}
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Server_FileWorker_Hover_rewriteExamples_spec__3___boxed(lean_object* v_as_380_, lean_object* v_sz_381_, lean_object* v_i_382_, lean_object* v_b_383_){
 _start:
 {
-size_t v_sz_boxed_383_; size_t v_i_boxed_384_; lean_object* v_res_385_; 
-v_sz_boxed_383_ = lean_unbox_usize(v_sz_380_);
-lean_dec(v_sz_380_);
-v_i_boxed_384_ = lean_unbox_usize(v_i_381_);
-lean_dec(v_i_381_);
-v_res_385_ = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Server_FileWorker_Hover_rewriteExamples_spec__3(v_as_379_, v_sz_boxed_383_, v_i_boxed_384_, v_b_382_);
-lean_dec_ref(v_as_379_);
-return v_res_385_;
+size_t v_sz_boxed_384_; size_t v_i_boxed_385_; lean_object* v_res_386_; 
+v_sz_boxed_384_ = lean_unbox_usize(v_sz_381_);
+lean_dec(v_sz_381_);
+v_i_boxed_385_ = lean_unbox_usize(v_i_382_);
+lean_dec(v_i_382_);
+v_res_386_ = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Server_FileWorker_Hover_rewriteExamples_spec__3(v_as_380_, v_sz_boxed_384_, v_i_boxed_385_, v_b_383_);
+lean_dec_ref(v_as_380_);
+return v_res_386_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_Hover_rewriteExamples(lean_object* v_docstring_389_){
+LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_Hover_rewriteExamples(lean_object* v_docstring_390_){
 _start:
 {
-lean_object* v_lines_390_; lean_object* v___x_391_; size_t v_sz_392_; size_t v___x_393_; lean_object* v___x_394_; lean_object* v_fst_395_; 
-v_lines_390_ = l___private_Lean_Server_FileWorker_ExampleHover_0__Lean_Server_FileWorker_Hover_lines(v_docstring_389_);
-v___x_391_ = ((lean_object*)(l_Lean_Server_FileWorker_Hover_rewriteExamples___closed__0));
-v_sz_392_ = lean_array_size(v_lines_390_);
-v___x_393_ = ((size_t)0ULL);
-v___x_394_ = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Server_FileWorker_Hover_rewriteExamples_spec__3(v_lines_390_, v_sz_392_, v___x_393_, v___x_391_);
-lean_dec_ref(v_lines_390_);
-v_fst_395_ = lean_ctor_get(v___x_394_, 0);
-lean_inc(v_fst_395_);
-lean_dec_ref(v___x_394_);
-return v_fst_395_;
+lean_object* v_lines_391_; lean_object* v___x_392_; size_t v_sz_393_; size_t v___x_394_; lean_object* v___x_395_; lean_object* v_fst_396_; 
+v_lines_391_ = l___private_Lean_Server_FileWorker_ExampleHover_0__Lean_Server_FileWorker_Hover_lines(v_docstring_390_);
+v___x_392_ = ((lean_object*)(l_Lean_Server_FileWorker_Hover_rewriteExamples___closed__0));
+v_sz_393_ = lean_array_size(v_lines_391_);
+v___x_394_ = ((size_t)0ULL);
+v___x_395_ = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Server_FileWorker_Hover_rewriteExamples_spec__3(v_lines_391_, v_sz_393_, v___x_394_, v___x_392_);
+lean_dec_ref(v_lines_391_);
+v_fst_396_ = lean_ctor_get(v___x_395_, 0);
+lean_inc(v_fst_396_);
+lean_dec_ref(v___x_395_);
+return v_fst_396_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_Hover_rewriteExamples___boxed(lean_object* v_docstring_396_){
+LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_Hover_rewriteExamples___boxed(lean_object* v_docstring_397_){
 _start:
 {
-lean_object* v_res_397_; 
-v_res_397_ = l_Lean_Server_FileWorker_Hover_rewriteExamples(v_docstring_396_);
-lean_dec_ref(v_docstring_396_);
-return v_res_397_;
+lean_object* v_res_398_; 
+v_res_398_ = l_Lean_Server_FileWorker_Hover_rewriteExamples(v_docstring_397_);
+lean_dec_ref(v_docstring_397_);
+return v_res_398_;
 }
 }
 lean_object* runtime_initialize_Lean_Elab_Do(uint8_t builtin);

@@ -8,7 +8,9 @@ structure Foo :=
 (h    : USize  := 0)
 (xs   : List Nat := [])
 
-set_option trace.compiler.ir.init true
+set_option trace.Compiler.toImpure true
+set_option pp.letVarTypes true
+set_option pp.funBinderTypes true
 
 def f (s : Foo) : Foo :=
 { s with x := s.x + 1 }

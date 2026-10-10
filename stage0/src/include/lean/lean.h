@@ -110,7 +110,8 @@ void lean_notify_assert(const char * fileName, int line, const char * condition)
 
 #define LEAN_BYTE(Var, Index) *(((uint8_t*)&Var)+Index)
 
-#define LeanMaxCtorTag  243
+#define LeanMaxCtorTag  242
+#define LeanInterpCache 243
 #define LeanPromise     244
 #define LeanClosure     245
 #define LeanArray       246
@@ -124,8 +125,9 @@ void lean_notify_assert(const char * fileName, int line, const char * condition)
 #define LeanExternal    254
 #define LeanReserved    255
 
-#define LEAN_MAX_CTOR_FIELDS 256
-#define LEAN_MAX_CTOR_SCALARS_SIZE 1024
+// The number of object fields must be storable in `m_other:8`.
+#define LEAN_MAX_CTOR_NUM_OBJS 255
+#define LEAN_MAX_CTOR_SCALARS_SIZE 1023
 
 static inline bool lean_is_big_object_tag(uint8_t tag) {
     return tag == LeanArray || tag == LeanStructArray || tag == LeanScalarArray || tag == LeanString;
@@ -358,6 +360,14 @@ typedef struct {
 } lean_external_object;
 
 static inline LEAN_ALWAYS_INLINE uint8_t lean_is_scalar(lean_object * o) { return ((size_t)(o) & 1) == 1; }
+
+typedef union {
+    lean_object * m_obj;
+    uint64_t      m_num;
+    float         m_float32;
+    double        m_float;
+} lean_interpreter_value;
+
 static inline lean_object * lean_box(size_t n) { return (lean_object*)(((size_t)(n) << 1) | 1); }
 static inline size_t lean_unbox(lean_object * o) { return (size_t)(o) >> 1; }
 
@@ -752,6 +762,7 @@ static inline bool lean_is_task(lean_object * o) { return lean_ptr_tag(o) == Lea
 static inline bool lean_is_promise(lean_object * o) { return lean_ptr_tag(o) == LeanPromise; }
 static inline bool lean_is_external(lean_object * o) { return lean_ptr_tag(o) == LeanExternal; }
 static inline bool lean_is_ref(lean_object * o) { return lean_ptr_tag(o) == LeanRef; }
+static inline bool lean_is_interp_cache(lean_object * o) { return lean_ptr_tag(o) == LeanInterpCache; }
 
 static inline unsigned lean_obj_tag(lean_object * o) {
     if (lean_is_scalar(o)) return lean_unbox(o); else return lean_ptr_tag(o);
@@ -850,7 +861,7 @@ static inline uint8_t * lean_ctor_scalar_cptr(lean_object * o) {
 }
 
 static inline lean_object * lean_alloc_ctor(unsigned tag, unsigned num_objs, unsigned scalar_sz) {
-    assert(tag <= LeanMaxCtorTag && num_objs < LEAN_MAX_CTOR_FIELDS && scalar_sz < LEAN_MAX_CTOR_SCALARS_SIZE);
+    assert(tag <= LeanMaxCtorTag && num_objs <= LEAN_MAX_CTOR_NUM_OBJS && scalar_sz <= LEAN_MAX_CTOR_SCALARS_SIZE);
     lean_object * o = lean_alloc_ctor_memory(lean_usize_add_checked(lean_usize_add_checked(sizeof(lean_ctor_object), lean_usize_mul_checked(sizeof(void*), num_objs)), scalar_sz));
     lean_set_st_header(o, tag, num_objs);
     return o;
@@ -3205,7 +3216,7 @@ static inline lean_obj_res lean_io_result_take_value(lean_obj_arg r) {
     return v;
 }
 
-LEAN_EXPORT void lean_io_result_show_error(b_lean_obj_arg r);
+LEAN_EXPORT lean_object * lean_io_result_show_error(b_lean_obj_arg r);
 LEAN_EXPORT void lean_io_mark_end_initialization(void);
 static inline lean_obj_res lean_io_result_mk_ok(lean_obj_arg a) {
     lean_object * r = lean_alloc_ctor(0, 1, 0);
@@ -3622,8 +3633,8 @@ static inline uint64_t lean_expr_data(lean_obj_arg expr) {
 #pragma GCC diagnostic ignored "-Wunused-parameter"
 #endif
 
-static inline lean_obj_res lean_get_max_ctor_fields(lean_obj_arg _unit) {
-    return lean_box(LEAN_MAX_CTOR_FIELDS);
+static inline lean_obj_res lean_get_max_ctor_num_objs(lean_obj_arg _unit) {
+    return lean_box(LEAN_MAX_CTOR_NUM_OBJS);
 }
 
 static inline lean_obj_res lean_get_max_ctor_scalars_size(lean_obj_arg _unit) {
@@ -3772,6 +3783,30 @@ static inline double lean_float_once(double* loc, lean_once_cell_t* tok, double 
 }
 
 LEAN_EXPORT lean_object * lean_run_main(lean_object * (*main_fn)(int, char **), int argc, char ** argv);
+
+typedef struct {
+    // Amount of parameters the function expects for m_arity != 0, m_arity == 0 for a constant
+    // highest bit set for a native interpreter declaration
+    unsigned m_arity;
+    // Native symbol address; `nullptr` if no native symbol is available
+    void * m_native;
+    // Reference to bytecode object (if applicable)
+    lean_object * m_object;
+} lean_interp_decl_cache_entry;
+
+typedef struct {
+    lean_object m_header;
+    lean_once_cell_t m_once_cell;
+    size_t m_count;
+    lean_object * m_value;
+    lean_interp_decl_cache_entry m_entries[];
+} lean_interp_decl_cache_object;
+
+static inline lean_interp_decl_cache_object * lean_to_interp_cache(lean_object * o) { assert(lean_is_interp_cache(o)); return (lean_interp_decl_cache_object*)(o); }
+
+static inline size_t lean_interp_cache_byte_size(lean_object * o) {
+    return sizeof(lean_interp_decl_cache_object) + sizeof(lean_interp_decl_cache_entry)*lean_to_interp_cache(o)->m_count;
+}
 
 #ifdef __cplusplus
 }

@@ -15,13 +15,21 @@ extern "C" {
 #endif
 lean_object* lean_nat_log2(lean_object*);
 LEAN_EXPORT lean_object* l_Nat_log2___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Nat_log2___boxed(lean_object* v_n_2_){
+LEAN_EXPORT void l_Nat_log2_0interp(lean_interpreter_value* stack)
+{
+lean_object* v_n_1_ = stack[0].m_obj;
+lean_object* v_res_2_;
+v_res_2_ = lean_nat_log2(v_n_1_);
+stack->m_obj
+ = v_res_2_;
+}
+LEAN_EXPORT lean_object* l_Nat_log2___boxed(lean_object* v_n_3_){
 _start:
 {
-lean_object* v_res_3_; 
-v_res_3_ = lean_nat_log2(v_n_2_);
-lean_dec(v_n_2_);
-return v_res_3_;
+lean_object* v_res_4_; 
+v_res_4_ = lean_nat_log2(v_n_3_);
+lean_dec(v_n_3_);
+return v_res_4_;
 }
 }
 lean_object* runtime_initialize_Init_Grind_Tactics(uint8_t builtin);

@@ -135,10 +135,13 @@ def mkSigDeclExt (phase : Phase) (name : Name := by exact decl_name%) :
     addEntryFn := fun s sig => s.insert sig.name sig
     exportEntriesFnEx env s := Id.run do
       let all := sortedEntries s sigLt
-      let exported := all.filterMap fun sig => do
+      return .uniform <| if env.header.isModule then
+        all.filterMap fun sig => do
+        if isDeclMeta env sig.name then
+          return sig
         guard <| isDeclPublic env sig.name
         some sig
-      return { exported, server := exported, «private» := all }
+      else all
     statsFn := statsFn,
     asyncMode := .sync,
     replay? := some (replayFn phase)

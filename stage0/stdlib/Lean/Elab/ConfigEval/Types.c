@@ -29,7 +29,7 @@ static lean_once_cell_t l_Lean_Elab_ConfigEval_throwUnsupportedExpr___redArg___c
 static lean_object* l_Lean_Elab_ConfigEval_throwUnsupportedExpr___redArg___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Elab_ConfigEval_throwUnsupportedExpr___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_ConfigEval_throwUnsupportedExpr(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Lean_Elab_ConfigEval_Types_0__Lean_Elab_ConfigEval_initFn_00___x40_Lean_Elab_ConfigEval_Types_3111895740____hygCtx___hyg_2_(){
+lean_object* l___private_Lean_Elab_ConfigEval_Types_0__Lean_Elab_ConfigEval_initFn_00___x40_Lean_Elab_ConfigEval_Types_3111895740____hygCtx___hyg_2_(){
 _start:
 {
 lean_object* v___x_7_; lean_object* v___x_8_; 
@@ -38,44 +38,51 @@ v___x_8_ = l_Lean_registerInternalExceptionId(v___x_7_);
 return v___x_8_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Elab_ConfigEval_Types_0__Lean_Elab_ConfigEval_initFn_00___x40_Lean_Elab_ConfigEval_Types_3111895740____hygCtx___hyg_2____boxed(lean_object* v_a_9_){
+LEAN_EXPORT void l___private_Lean_Elab_ConfigEval_Types_0__Lean_Elab_ConfigEval_initFn_00___x40_Lean_Elab_ConfigEval_Types_3111895740____hygCtx___hyg_2__0interp(lean_interpreter_value* stack)
+{
+lean_object* v_res_9_;
+v_res_9_ = l___private_Lean_Elab_ConfigEval_Types_0__Lean_Elab_ConfigEval_initFn_00___x40_Lean_Elab_ConfigEval_Types_3111895740____hygCtx___hyg_2_();
+stack->m_obj
+ = v_res_9_;
+}
+LEAN_EXPORT lean_object* l___private_Lean_Elab_ConfigEval_Types_0__Lean_Elab_ConfigEval_initFn_00___x40_Lean_Elab_ConfigEval_Types_3111895740____hygCtx___hyg_2____boxed(lean_object* v_a_10_){
 _start:
 {
-lean_object* v_res_10_; 
-v_res_10_ = l___private_Lean_Elab_ConfigEval_Types_0__Lean_Elab_ConfigEval_initFn_00___x40_Lean_Elab_ConfigEval_Types_3111895740____hygCtx___hyg_2_();
-return v_res_10_;
+lean_object* v_res_11_; 
+v_res_11_ = l___private_Lean_Elab_ConfigEval_Types_0__Lean_Elab_ConfigEval_initFn_00___x40_Lean_Elab_ConfigEval_Types_3111895740____hygCtx___hyg_2_();
+return v_res_11_;
 }
 }
 static lean_object* _init_l_Lean_Elab_ConfigEval_throwUnsupportedExpr___redArg___closed__0(void){
 _start:
 {
-lean_object* v___x_11_; lean_object* v___x_12_; lean_object* v___x_13_; 
-v___x_11_ = lean_box(0);
-v___x_12_ = l_Lean_Elab_ConfigEval_unsupportedExprExceptionId;
-v___x_13_ = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(v___x_13_, 0, v___x_12_);
-lean_ctor_set(v___x_13_, 1, v___x_11_);
-return v___x_13_;
+lean_object* v___x_12_; lean_object* v___x_13_; lean_object* v___x_14_; 
+v___x_12_ = lean_box(0);
+v___x_13_ = l_Lean_Elab_ConfigEval_unsupportedExprExceptionId;
+v___x_14_ = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(v___x_14_, 0, v___x_13_);
+lean_ctor_set(v___x_14_, 1, v___x_12_);
+return v___x_14_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Elab_ConfigEval_throwUnsupportedExpr___redArg(lean_object* v_inst_14_){
+LEAN_EXPORT lean_object* l_Lean_Elab_ConfigEval_throwUnsupportedExpr___redArg(lean_object* v_inst_15_){
 _start:
 {
-lean_object* v_throw_15_; lean_object* v___x_16_; lean_object* v___x_17_; 
-v_throw_15_ = lean_ctor_get(v_inst_14_, 0);
-lean_inc(v_throw_15_);
-lean_dec_ref(v_inst_14_);
-v___x_16_ = lean_obj_once(&l_Lean_Elab_ConfigEval_throwUnsupportedExpr___redArg___closed__0, &l_Lean_Elab_ConfigEval_throwUnsupportedExpr___redArg___closed__0_once, _init_l_Lean_Elab_ConfigEval_throwUnsupportedExpr___redArg___closed__0);
-v___x_17_ = lean_apply_2(v_throw_15_, lean_box(0), v___x_16_);
-return v___x_17_;
+lean_object* v_throw_16_; lean_object* v___x_17_; lean_object* v___x_18_; 
+v_throw_16_ = lean_ctor_get(v_inst_15_, 0);
+lean_inc(v_throw_16_);
+lean_dec_ref(v_inst_15_);
+v___x_17_ = lean_obj_once(&l_Lean_Elab_ConfigEval_throwUnsupportedExpr___redArg___closed__0, &l_Lean_Elab_ConfigEval_throwUnsupportedExpr___redArg___closed__0_once, _init_l_Lean_Elab_ConfigEval_throwUnsupportedExpr___redArg___closed__0);
+v___x_18_ = lean_apply_2(v_throw_16_, lean_box(0), v___x_17_);
+return v___x_18_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Elab_ConfigEval_throwUnsupportedExpr(lean_object* v_m_18_, lean_object* v_00_u03b1_19_, lean_object* v_inst_20_){
+LEAN_EXPORT lean_object* l_Lean_Elab_ConfigEval_throwUnsupportedExpr(lean_object* v_m_19_, lean_object* v_00_u03b1_20_, lean_object* v_inst_21_){
 _start:
 {
-lean_object* v___x_21_; 
-v___x_21_ = l_Lean_Elab_ConfigEval_throwUnsupportedExpr___redArg(v_inst_20_);
-return v___x_21_;
+lean_object* v___x_22_; 
+v___x_22_ = l_Lean_Elab_ConfigEval_throwUnsupportedExpr___redArg(v_inst_21_);
+return v___x_22_;
 }
 }
 lean_object* runtime_initialize_Lean_Elab_Term_TermElabM(uint8_t builtin);

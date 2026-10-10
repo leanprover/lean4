@@ -65,7 +65,7 @@ return v___x_16_;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Std_HashMap_Equiv_instTrans___redArg(){
+lean_object* l_Std_HashMap_Equiv_instTrans___redArg(){
 _start:
 {
 lean_object* v___x_18_; 
@@ -73,30 +73,37 @@ v___x_18_ = lean_box(0);
 return v___x_18_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_HashMap_Equiv_instTrans___redArg___boxed(lean_object* v___dummy_19_){
+LEAN_EXPORT void l_Std_HashMap_Equiv_instTrans___redArg_0interp(lean_interpreter_value* stack)
+{
+lean_object* v_res_19_;
+v_res_19_ = l_Std_HashMap_Equiv_instTrans___redArg();
+stack->m_obj
+ = v_res_19_;
+}
+LEAN_EXPORT lean_object* l_Std_HashMap_Equiv_instTrans___redArg___boxed(lean_object* v___dummy_20_){
 _start:
 {
-lean_object* v_res_20_; 
-v_res_20_ = l_Std_HashMap_Equiv_instTrans___redArg();
-return v_res_20_;
+lean_object* v_res_21_; 
+v_res_21_ = l_Std_HashMap_Equiv_instTrans___redArg();
+return v_res_21_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_HashMap_Equiv_instTrans(lean_object* v_00_u03b1_21_, lean_object* v_00_u03b2_22_, lean_object* v_x_23_, lean_object* v_x_24_){
+LEAN_EXPORT lean_object* l_Std_HashMap_Equiv_instTrans(lean_object* v_00_u03b1_22_, lean_object* v_00_u03b2_23_, lean_object* v_x_24_, lean_object* v_x_25_){
 _start:
 {
-lean_object* v___x_25_; 
-v___x_25_ = lean_box(0);
-return v___x_25_;
+lean_object* v___x_26_; 
+v___x_26_ = lean_box(0);
+return v___x_26_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_HashMap_Equiv_instTrans___boxed(lean_object* v_00_u03b1_26_, lean_object* v_00_u03b2_27_, lean_object* v_x_28_, lean_object* v_x_29_){
+LEAN_EXPORT lean_object* l_Std_HashMap_Equiv_instTrans___boxed(lean_object* v_00_u03b1_27_, lean_object* v_00_u03b2_28_, lean_object* v_x_29_, lean_object* v_x_30_){
 _start:
 {
-lean_object* v_res_30_; 
-v_res_30_ = l_Std_HashMap_Equiv_instTrans(v_00_u03b1_26_, v_00_u03b2_27_, v_x_28_, v_x_29_);
+lean_object* v_res_31_; 
+v_res_31_ = l_Std_HashMap_Equiv_instTrans(v_00_u03b1_27_, v_00_u03b2_28_, v_x_29_, v_x_30_);
+lean_dec_ref(v_x_30_);
 lean_dec_ref(v_x_29_);
-lean_dec_ref(v_x_28_);
-return v_res_30_;
+return v_res_31_;
 }
 }
 lean_object* runtime_initialize_Std_Data_DHashMap_Lemmas(uint8_t builtin);

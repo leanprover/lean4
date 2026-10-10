@@ -17,7 +17,7 @@ lean_object* l_Lean_RArray_getImpl___redArg(lean_object*, lean_object*);
 uint8_t l_Nat_testBit(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Std_Tactic_BVDecide_BVExpr_Assignment_toAIGAssignment(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVExpr_Assignment_toAIGAssignment___boxed(lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_Std_Tactic_BVDecide_BVExpr_Assignment_toAIGAssignment(lean_object* v_assign_1_, lean_object* v_bit_2_){
+uint8_t l_Std_Tactic_BVDecide_BVExpr_Assignment_toAIGAssignment(lean_object* v_assign_1_, lean_object* v_bit_2_){
 _start:
 {
 lean_object* v_var_3_; lean_object* v_idx_4_; lean_object* v___x_5_; lean_object* v_bv_6_; uint8_t v___x_7_; 
@@ -32,15 +32,23 @@ lean_dec(v_bv_6_);
 return v___x_7_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVExpr_Assignment_toAIGAssignment___boxed(lean_object* v_assign_8_, lean_object* v_bit_9_){
+LEAN_EXPORT void l_Std_Tactic_BVDecide_BVExpr_Assignment_toAIGAssignment_0interp(lean_interpreter_value* stack)
+{
+lean_object* v_assign_1_ = stack[0].m_obj;
+lean_object* v_bit_2_ = stack[1].m_obj;
+uint8_t v_res_8_;
+v_res_8_ = l_Std_Tactic_BVDecide_BVExpr_Assignment_toAIGAssignment(v_assign_1_, v_bit_2_);
+stack->m_num = v_res_8_;
+}
+LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVExpr_Assignment_toAIGAssignment___boxed(lean_object* v_assign_9_, lean_object* v_bit_10_){
 _start:
 {
-uint8_t v_res_10_; lean_object* v_r_11_; 
-v_res_10_ = l_Std_Tactic_BVDecide_BVExpr_Assignment_toAIGAssignment(v_assign_8_, v_bit_9_);
-lean_dec_ref(v_bit_9_);
-lean_dec_ref(v_assign_8_);
-v_r_11_ = lean_box(v_res_10_);
-return v_r_11_;
+uint8_t v_res_11_; lean_object* v_r_12_; 
+v_res_11_ = l_Std_Tactic_BVDecide_BVExpr_Assignment_toAIGAssignment(v_assign_9_, v_bit_10_);
+lean_dec_ref(v_bit_10_);
+lean_dec_ref(v_assign_9_);
+v_r_12_ = lean_box(v_res_11_);
+return v_r_12_;
 }
 }
 lean_object* runtime_initialize_Std_Sat_AIG_Basic(uint8_t builtin);

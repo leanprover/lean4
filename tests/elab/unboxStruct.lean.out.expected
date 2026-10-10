@@ -1,9 +1,10 @@
-[Compiler.IR] [result]
-    def test2 (x_1 : u32) (x_2 : void) : obj :=
-      let x_3 : obj := foo x_1 ◾;
-      ret x_3
-    def test2._boxed (x_1 : tobj) (x_2 : tagged) : obj :=
-      let x_3 : u32 := unbox x_1;
-      dec x_1;
-      let x_4 : obj := test2 x_3 x_2;
-      ret x_4
+[Compiler.result] size: 1
+    def test2 (addrSpace : UInt32) (a.1 : lcVoid) : obj :=
+      let _x.2 : obj := foo addrSpace ◾;
+      return _x.2
+[Compiler.result] size: 3
+    def test2._boxed (addrSpace : tobj) (a.1 : tagged) : obj :=
+      let addrSpace.boxed : UInt32 := unbox addrSpace;
+      dec addrSpace;
+      let res : obj := test2 addrSpace.boxed a.1;
+      return res

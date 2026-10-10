@@ -12,8 +12,7 @@ add_library(
   time_task.cpp
   formatter.cpp
   elab_environment.cpp
-  init_attribute.cpp
   llvm.cpp
-  ir_interpreter.cpp
   instantiate_mvars.cpp
+  bytecode_interpreter.cpp
 )

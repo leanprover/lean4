@@ -57,7 +57,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_List_
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_List_0__List_reduceReplicate___regBuiltin_List_reduceReplicate_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_List_4079200032____hygCtx___hyg_23____boxed(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_List_0__List_reduceReplicate___regBuiltin_List_reduceReplicate_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_List_4079200032____hygCtx___hyg_25_();
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_List_0__List_reduceReplicate___regBuiltin_List_reduceReplicate_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_List_4079200032____hygCtx___hyg_25____boxed(lean_object*);
-LEAN_EXPORT lean_object* l_List_reduceReplicate___redArg(lean_object* v_e_8_, lean_object* v_a_9_, lean_object* v_a_10_, lean_object* v_a_11_, lean_object* v_a_12_){
+lean_object* l_List_reduceReplicate___redArg(lean_object* v_e_8_, lean_object* v_a_9_, lean_object* v_a_10_, lean_object* v_a_11_, lean_object* v_a_12_){
 _start:
 {
 lean_object* v___x_17_; 
@@ -401,106 +401,154 @@ return v___x_16_;
 }
 }
 }
-LEAN_EXPORT lean_object* l_List_reduceReplicate___redArg___boxed(lean_object* v_e_83_, lean_object* v_a_84_, lean_object* v_a_85_, lean_object* v_a_86_, lean_object* v_a_87_, lean_object* v_a_88_){
+LEAN_EXPORT void l_List_reduceReplicate___redArg_0interp(lean_interpreter_value* stack)
+{
+lean_object* v_e_8_ = stack[0].m_obj;
+lean_object* v_a_9_ = stack[1].m_obj;
+lean_object* v_a_10_ = stack[2].m_obj;
+lean_object* v_a_11_ = stack[3].m_obj;
+lean_object* v_a_12_ = stack[4].m_obj;
+lean_object* v_res_83_;
+v_res_83_ = l_List_reduceReplicate___redArg(v_e_8_, v_a_9_, v_a_10_, v_a_11_, v_a_12_);
+stack->m_obj
+ = v_res_83_;
+}
+LEAN_EXPORT lean_object* l_List_reduceReplicate___redArg___boxed(lean_object* v_e_84_, lean_object* v_a_85_, lean_object* v_a_86_, lean_object* v_a_87_, lean_object* v_a_88_, lean_object* v_a_89_){
 _start:
 {
-lean_object* v_res_89_; 
-v_res_89_ = l_List_reduceReplicate___redArg(v_e_83_, v_a_84_, v_a_85_, v_a_86_, v_a_87_);
-lean_dec(v_a_87_);
-lean_dec_ref(v_a_86_);
-lean_dec(v_a_85_);
-lean_dec_ref(v_a_84_);
-return v_res_89_;
+lean_object* v_res_90_; 
+v_res_90_ = l_List_reduceReplicate___redArg(v_e_84_, v_a_85_, v_a_86_, v_a_87_, v_a_88_);
+lean_dec(v_a_88_);
+lean_dec_ref(v_a_87_);
+lean_dec(v_a_86_);
+lean_dec_ref(v_a_85_);
+return v_res_90_;
 }
 }
-LEAN_EXPORT lean_object* l_List_reduceReplicate(lean_object* v_e_90_, lean_object* v_a_91_, lean_object* v_a_92_, lean_object* v_a_93_, lean_object* v_a_94_, lean_object* v_a_95_, lean_object* v_a_96_, lean_object* v_a_97_){
+lean_object* l_List_reduceReplicate(lean_object* v_e_91_, lean_object* v_a_92_, lean_object* v_a_93_, lean_object* v_a_94_, lean_object* v_a_95_, lean_object* v_a_96_, lean_object* v_a_97_, lean_object* v_a_98_){
 _start:
 {
-lean_object* v___x_99_; 
-v___x_99_ = l_List_reduceReplicate___redArg(v_e_90_, v_a_94_, v_a_95_, v_a_96_, v_a_97_);
-return v___x_99_;
+lean_object* v___x_100_; 
+v___x_100_ = l_List_reduceReplicate___redArg(v_e_91_, v_a_95_, v_a_96_, v_a_97_, v_a_98_);
+return v___x_100_;
 }
 }
-LEAN_EXPORT lean_object* l_List_reduceReplicate___boxed(lean_object* v_e_100_, lean_object* v_a_101_, lean_object* v_a_102_, lean_object* v_a_103_, lean_object* v_a_104_, lean_object* v_a_105_, lean_object* v_a_106_, lean_object* v_a_107_, lean_object* v_a_108_){
+LEAN_EXPORT void l_List_reduceReplicate_0interp(lean_interpreter_value* stack)
+{
+lean_object* v_e_91_ = stack[0].m_obj;
+lean_object* v_a_92_ = stack[1].m_obj;
+lean_object* v_a_93_ = stack[2].m_obj;
+lean_object* v_a_94_ = stack[3].m_obj;
+lean_object* v_a_95_ = stack[4].m_obj;
+lean_object* v_a_96_ = stack[5].m_obj;
+lean_object* v_a_97_ = stack[6].m_obj;
+lean_object* v_a_98_ = stack[7].m_obj;
+lean_object* v_res_101_;
+v_res_101_ = l_List_reduceReplicate(v_e_91_, v_a_92_, v_a_93_, v_a_94_, v_a_95_, v_a_96_, v_a_97_, v_a_98_);
+stack->m_obj
+ = v_res_101_;
+}
+LEAN_EXPORT lean_object* l_List_reduceReplicate___boxed(lean_object* v_e_102_, lean_object* v_a_103_, lean_object* v_a_104_, lean_object* v_a_105_, lean_object* v_a_106_, lean_object* v_a_107_, lean_object* v_a_108_, lean_object* v_a_109_, lean_object* v_a_110_){
 _start:
 {
-lean_object* v_res_109_; 
-v_res_109_ = l_List_reduceReplicate(v_e_100_, v_a_101_, v_a_102_, v_a_103_, v_a_104_, v_a_105_, v_a_106_, v_a_107_);
+lean_object* v_res_111_; 
+v_res_111_ = l_List_reduceReplicate(v_e_102_, v_a_103_, v_a_104_, v_a_105_, v_a_106_, v_a_107_, v_a_108_, v_a_109_);
+lean_dec(v_a_109_);
+lean_dec_ref(v_a_108_);
 lean_dec(v_a_107_);
 lean_dec_ref(v_a_106_);
 lean_dec(v_a_105_);
 lean_dec_ref(v_a_104_);
 lean_dec(v_a_103_);
-lean_dec_ref(v_a_102_);
-lean_dec(v_a_101_);
-return v_res_109_;
+return v_res_111_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_List_0____regBuiltin_List_reduceReplicate_declare__6_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_List_4079200032____hygCtx___hyg_21_(){
+lean_object* l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_List_0____regBuiltin_List_reduceReplicate_declare__6_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_List_4079200032____hygCtx___hyg_21_(){
 _start:
 {
-lean_object* v___x_126_; lean_object* v___x_127_; lean_object* v___x_128_; lean_object* v___x_129_; 
-v___x_126_ = ((lean_object*)(l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_List_0____regBuiltin_List_reduceReplicate_declare__6___closed__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_List_4079200032____hygCtx___hyg_21_));
-v___x_127_ = ((lean_object*)(l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_List_0____regBuiltin_List_reduceReplicate_declare__6___closed__3_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_List_4079200032____hygCtx___hyg_21_));
-v___x_128_ = lean_alloc_closure((void*)(l_List_reduceReplicate___boxed), 9, 0);
-v___x_129_ = l_Lean_Meta_Simp_registerBuiltinDSimproc(v___x_126_, v___x_127_, v___x_128_);
-return v___x_129_;
+lean_object* v___x_128_; lean_object* v___x_129_; lean_object* v___x_130_; lean_object* v___x_131_; 
+v___x_128_ = ((lean_object*)(l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_List_0____regBuiltin_List_reduceReplicate_declare__6___closed__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_List_4079200032____hygCtx___hyg_21_));
+v___x_129_ = ((lean_object*)(l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_List_0____regBuiltin_List_reduceReplicate_declare__6___closed__3_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_List_4079200032____hygCtx___hyg_21_));
+v___x_130_ = lean_alloc_closure((void*)(l_List_reduceReplicate___boxed), 9, 0);
+v___x_131_ = l_Lean_Meta_Simp_registerBuiltinDSimproc(v___x_128_, v___x_129_, v___x_130_);
+return v___x_131_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_List_0____regBuiltin_List_reduceReplicate_declare__6_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_List_4079200032____hygCtx___hyg_21____boxed(lean_object* v_a_130_){
+LEAN_EXPORT void l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_List_0____regBuiltin_List_reduceReplicate_declare__6_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_List_4079200032____hygCtx___hyg_21__0interp(lean_interpreter_value* stack)
+{
+lean_object* v_res_132_;
+v_res_132_ = l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_List_0____regBuiltin_List_reduceReplicate_declare__6_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_List_4079200032____hygCtx___hyg_21_();
+stack->m_obj
+ = v_res_132_;
+}
+LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_List_0____regBuiltin_List_reduceReplicate_declare__6_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_List_4079200032____hygCtx___hyg_21____boxed(lean_object* v_a_133_){
 _start:
 {
-lean_object* v_res_131_; 
-v_res_131_ = l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_List_0____regBuiltin_List_reduceReplicate_declare__6_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_List_4079200032____hygCtx___hyg_21_();
-return v_res_131_;
+lean_object* v_res_134_; 
+v_res_134_ = l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_List_0____regBuiltin_List_reduceReplicate_declare__6_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_List_4079200032____hygCtx___hyg_21_();
+return v_res_134_;
 }
 }
 static lean_object* _init_l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_List_0__List_reduceReplicate___regBuiltin_List_reduceReplicate_declare__1___closed__0_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_List_4079200032____hygCtx___hyg_23_(void){
 _start:
 {
-lean_object* v___x_132_; lean_object* v___x_133_; 
-v___x_132_ = lean_alloc_closure((void*)(l_List_reduceReplicate___boxed), 9, 0);
-v___x_133_ = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(v___x_133_, 0, v___x_132_);
-return v___x_133_;
+lean_object* v___x_135_; lean_object* v___x_136_; 
+v___x_135_ = lean_alloc_closure((void*)(l_List_reduceReplicate___boxed), 9, 0);
+v___x_136_ = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(v___x_136_, 0, v___x_135_);
+return v___x_136_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_List_0__List_reduceReplicate___regBuiltin_List_reduceReplicate_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_List_4079200032____hygCtx___hyg_23_(){
+lean_object* l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_List_0__List_reduceReplicate___regBuiltin_List_reduceReplicate_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_List_4079200032____hygCtx___hyg_23_(){
 _start:
 {
-lean_object* v___x_135_; uint8_t v___x_136_; lean_object* v___x_137_; lean_object* v___x_138_; 
-v___x_135_ = ((lean_object*)(l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_List_0____regBuiltin_List_reduceReplicate_declare__6___closed__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_List_4079200032____hygCtx___hyg_21_));
-v___x_136_ = 1;
-v___x_137_ = lean_obj_once(&l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_List_0__List_reduceReplicate___regBuiltin_List_reduceReplicate_declare__1___closed__0_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_List_4079200032____hygCtx___hyg_23_, &l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_List_0__List_reduceReplicate___regBuiltin_List_reduceReplicate_declare__1___closed__0_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_List_4079200032____hygCtx___hyg_23__once, _init_l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_List_0__List_reduceReplicate___regBuiltin_List_reduceReplicate_declare__1___closed__0_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_List_4079200032____hygCtx___hyg_23_);
-v___x_138_ = l_Lean_Meta_Simp_addSimprocBuiltinAttr(v___x_135_, v___x_136_, v___x_137_);
-return v___x_138_;
+lean_object* v___x_138_; uint8_t v___x_139_; lean_object* v___x_140_; lean_object* v___x_141_; 
+v___x_138_ = ((lean_object*)(l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_List_0____regBuiltin_List_reduceReplicate_declare__6___closed__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_List_4079200032____hygCtx___hyg_21_));
+v___x_139_ = 1;
+v___x_140_ = lean_obj_once(&l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_List_0__List_reduceReplicate___regBuiltin_List_reduceReplicate_declare__1___closed__0_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_List_4079200032____hygCtx___hyg_23_, &l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_List_0__List_reduceReplicate___regBuiltin_List_reduceReplicate_declare__1___closed__0_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_List_4079200032____hygCtx___hyg_23__once, _init_l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_List_0__List_reduceReplicate___regBuiltin_List_reduceReplicate_declare__1___closed__0_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_List_4079200032____hygCtx___hyg_23_);
+v___x_141_ = l_Lean_Meta_Simp_addSimprocBuiltinAttr(v___x_138_, v___x_139_, v___x_140_);
+return v___x_141_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_List_0__List_reduceReplicate___regBuiltin_List_reduceReplicate_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_List_4079200032____hygCtx___hyg_23____boxed(lean_object* v_a_139_){
+LEAN_EXPORT void l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_List_0__List_reduceReplicate___regBuiltin_List_reduceReplicate_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_List_4079200032____hygCtx___hyg_23__0interp(lean_interpreter_value* stack)
+{
+lean_object* v_res_142_;
+v_res_142_ = l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_List_0__List_reduceReplicate___regBuiltin_List_reduceReplicate_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_List_4079200032____hygCtx___hyg_23_();
+stack->m_obj
+ = v_res_142_;
+}
+LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_List_0__List_reduceReplicate___regBuiltin_List_reduceReplicate_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_List_4079200032____hygCtx___hyg_23____boxed(lean_object* v_a_143_){
 _start:
 {
-lean_object* v_res_140_; 
-v_res_140_ = l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_List_0__List_reduceReplicate___regBuiltin_List_reduceReplicate_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_List_4079200032____hygCtx___hyg_23_();
-return v_res_140_;
+lean_object* v_res_144_; 
+v_res_144_ = l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_List_0__List_reduceReplicate___regBuiltin_List_reduceReplicate_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_List_4079200032____hygCtx___hyg_23_();
+return v_res_144_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_List_0__List_reduceReplicate___regBuiltin_List_reduceReplicate_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_List_4079200032____hygCtx___hyg_25_(){
+lean_object* l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_List_0__List_reduceReplicate___regBuiltin_List_reduceReplicate_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_List_4079200032____hygCtx___hyg_25_(){
 _start:
 {
-lean_object* v___x_142_; uint8_t v___x_143_; lean_object* v___x_144_; lean_object* v___x_145_; 
-v___x_142_ = ((lean_object*)(l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_List_0____regBuiltin_List_reduceReplicate_declare__6___closed__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_List_4079200032____hygCtx___hyg_21_));
-v___x_143_ = 1;
-v___x_144_ = lean_obj_once(&l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_List_0__List_reduceReplicate___regBuiltin_List_reduceReplicate_declare__1___closed__0_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_List_4079200032____hygCtx___hyg_23_, &l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_List_0__List_reduceReplicate___regBuiltin_List_reduceReplicate_declare__1___closed__0_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_List_4079200032____hygCtx___hyg_23__once, _init_l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_List_0__List_reduceReplicate___regBuiltin_List_reduceReplicate_declare__1___closed__0_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_List_4079200032____hygCtx___hyg_23_);
-v___x_145_ = l_Lean_Meta_Simp_addSEvalprocBuiltinAttr(v___x_142_, v___x_143_, v___x_144_);
-return v___x_145_;
+lean_object* v___x_146_; uint8_t v___x_147_; lean_object* v___x_148_; lean_object* v___x_149_; 
+v___x_146_ = ((lean_object*)(l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_List_0____regBuiltin_List_reduceReplicate_declare__6___closed__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_List_4079200032____hygCtx___hyg_21_));
+v___x_147_ = 1;
+v___x_148_ = lean_obj_once(&l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_List_0__List_reduceReplicate___regBuiltin_List_reduceReplicate_declare__1___closed__0_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_List_4079200032____hygCtx___hyg_23_, &l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_List_0__List_reduceReplicate___regBuiltin_List_reduceReplicate_declare__1___closed__0_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_List_4079200032____hygCtx___hyg_23__once, _init_l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_List_0__List_reduceReplicate___regBuiltin_List_reduceReplicate_declare__1___closed__0_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_List_4079200032____hygCtx___hyg_23_);
+v___x_149_ = l_Lean_Meta_Simp_addSEvalprocBuiltinAttr(v___x_146_, v___x_147_, v___x_148_);
+return v___x_149_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_List_0__List_reduceReplicate___regBuiltin_List_reduceReplicate_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_List_4079200032____hygCtx___hyg_25____boxed(lean_object* v_a_146_){
+LEAN_EXPORT void l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_List_0__List_reduceReplicate___regBuiltin_List_reduceReplicate_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_List_4079200032____hygCtx___hyg_25__0interp(lean_interpreter_value* stack)
+{
+lean_object* v_res_150_;
+v_res_150_ = l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_List_0__List_reduceReplicate___regBuiltin_List_reduceReplicate_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_List_4079200032____hygCtx___hyg_25_();
+stack->m_obj
+ = v_res_150_;
+}
+LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_List_0__List_reduceReplicate___regBuiltin_List_reduceReplicate_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_List_4079200032____hygCtx___hyg_25____boxed(lean_object* v_a_151_){
 _start:
 {
-lean_object* v_res_147_; 
-v_res_147_ = l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_List_0__List_reduceReplicate___regBuiltin_List_reduceReplicate_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_List_4079200032____hygCtx___hyg_25_();
-return v_res_147_;
+lean_object* v_res_152_; 
+v_res_152_ = l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_List_0__List_reduceReplicate___regBuiltin_List_reduceReplicate_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_List_4079200032____hygCtx___hyg_25_();
+return v_res_152_;
 }
 }
 lean_object* runtime_initialize_Lean_Meta_Tactic_Simp_BuiltinSimprocs_Nat(uint8_t builtin);

@@ -99,7 +99,7 @@ v___x_37_ = l_Lean_NameSet_insert(v___x_36_, v___x_35_);
 return v___x_37_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Linter_Extra_0__Lean_Linter_initFn_00___x40_Lean_Linter_Extra_4111276407____hygCtx___hyg_2_(){
+lean_object* l___private_Lean_Linter_Extra_0__Lean_Linter_initFn_00___x40_Lean_Linter_Extra_4111276407____hygCtx___hyg_2_(){
 _start:
 {
 lean_object* v___x_39_; lean_object* v___x_40_; lean_object* v___x_41_; 
@@ -109,12 +109,19 @@ v___x_41_ = l_Lean_Linter_addBuiltinLinterSet(v___x_39_, v___x_40_);
 return v___x_41_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Linter_Extra_0__Lean_Linter_initFn_00___x40_Lean_Linter_Extra_4111276407____hygCtx___hyg_2____boxed(lean_object* v_a_42_){
+LEAN_EXPORT void l___private_Lean_Linter_Extra_0__Lean_Linter_initFn_00___x40_Lean_Linter_Extra_4111276407____hygCtx___hyg_2__0interp(lean_interpreter_value* stack)
+{
+lean_object* v_res_42_;
+v_res_42_ = l___private_Lean_Linter_Extra_0__Lean_Linter_initFn_00___x40_Lean_Linter_Extra_4111276407____hygCtx___hyg_2_();
+stack->m_obj
+ = v_res_42_;
+}
+LEAN_EXPORT lean_object* l___private_Lean_Linter_Extra_0__Lean_Linter_initFn_00___x40_Lean_Linter_Extra_4111276407____hygCtx___hyg_2____boxed(lean_object* v_a_43_){
 _start:
 {
-lean_object* v_res_43_; 
-v_res_43_ = l___private_Lean_Linter_Extra_0__Lean_Linter_initFn_00___x40_Lean_Linter_Extra_4111276407____hygCtx___hyg_2_();
-return v_res_43_;
+lean_object* v_res_44_; 
+v_res_44_ = l___private_Lean_Linter_Extra_0__Lean_Linter_initFn_00___x40_Lean_Linter_Extra_4111276407____hygCtx___hyg_2_();
+return v_res_44_;
 }
 }
 lean_object* runtime_initialize_Lean_Linter_Extra_DupNamespace(uint8_t builtin);

@@ -17,7 +17,7 @@ lean_object* l_Lake_importConfigFile(lean_object*, lean_object*);
 lean_object* l_Lake_LakefileConfig_loadFromEnv(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_loadLeanConfig(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_loadLeanConfig___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_loadLeanConfig(lean_object* v_cfg_1_, lean_object* v_a_2_){
+lean_object* l_Lake_loadLeanConfig(lean_object* v_cfg_1_, lean_object* v_a_2_){
 _start:
 {
 lean_object* v___x_4_; 
@@ -84,12 +84,21 @@ return v___x_15_;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lake_loadLeanConfig___boxed(lean_object* v_cfg_18_, lean_object* v_a_19_, lean_object* v_a_20_){
+LEAN_EXPORT void l_Lake_loadLeanConfig_0interp(lean_interpreter_value* stack)
+{
+lean_object* v_cfg_1_ = stack[0].m_obj;
+lean_object* v_a_2_ = stack[1].m_obj;
+lean_object* v_res_18_;
+v_res_18_ = l_Lake_loadLeanConfig(v_cfg_1_, v_a_2_);
+stack->m_obj
+ = v_res_18_;
+}
+LEAN_EXPORT lean_object* l_Lake_loadLeanConfig___boxed(lean_object* v_cfg_19_, lean_object* v_a_20_, lean_object* v_a_21_){
 _start:
 {
-lean_object* v_res_21_; 
-v_res_21_ = l_Lake_loadLeanConfig(v_cfg_18_, v_a_19_);
-return v_res_21_;
+lean_object* v_res_22_; 
+v_res_22_ = l_Lake_loadLeanConfig(v_cfg_19_, v_a_20_);
+return v_res_22_;
 }
 }
 lean_object* runtime_initialize_Lake_Config_Package(uint8_t builtin);

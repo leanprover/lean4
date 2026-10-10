@@ -30,7 +30,7 @@ LEAN_EXPORT lean_object* l_Std_Http_Internal_instEncodeV11Version___lam__0___box
 static const lean_closure_object l_Std_Http_Internal_instEncodeV11Version___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Std_Http_Internal_instEncodeV11Version___lam__0___boxed, .m_arity = 2, .m_num_fixed = 0, .m_objs = {} };
 static const lean_object* l_Std_Http_Internal_instEncodeV11Version___closed__0 = (const lean_object*)&l_Std_Http_Internal_instEncodeV11Version___closed__0_value;
 LEAN_EXPORT const lean_object* l_Std_Http_Internal_instEncodeV11Version = (const lean_object*)&l_Std_Http_Internal_instEncodeV11Version___closed__0_value;
-LEAN_EXPORT lean_object* l_Std_Http_Internal_instEncodeV11Version___lam__0(lean_object* v_buffer_5_, uint8_t v___y_6_){
+lean_object* l_Std_Http_Internal_instEncodeV11Version___lam__0(lean_object* v_buffer_5_, uint8_t v___y_6_){
 _start:
 {
 lean_object* v___y_8_; 
@@ -120,13 +120,22 @@ return v___x_19_;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Std_Http_Internal_instEncodeV11Version___lam__0___boxed(lean_object* v_buffer_26_, lean_object* v___y_27_){
+LEAN_EXPORT void l_Std_Http_Internal_instEncodeV11Version___lam__0_0interp(lean_interpreter_value* stack)
+{
+lean_object* v_buffer_5_ = stack[0].m_obj;
+uint8_t v___y_6_ = stack[1].m_num;
+lean_object* v_res_26_;
+v_res_26_ = l_Std_Http_Internal_instEncodeV11Version___lam__0(v_buffer_5_, v___y_6_);
+stack->m_obj
+ = v_res_26_;
+}
+LEAN_EXPORT lean_object* l_Std_Http_Internal_instEncodeV11Version___lam__0___boxed(lean_object* v_buffer_27_, lean_object* v___y_28_){
 _start:
 {
-uint8_t v___y_52__boxed_28_; lean_object* v_res_29_; 
-v___y_52__boxed_28_ = lean_unbox(v___y_27_);
-v_res_29_ = l_Std_Http_Internal_instEncodeV11Version___lam__0(v_buffer_26_, v___y_52__boxed_28_);
-return v_res_29_;
+uint8_t v___y_52__boxed_29_; lean_object* v_res_30_; 
+v___y_52__boxed_29_ = lean_unbox(v___y_28_);
+v_res_30_ = l_Std_Http_Internal_instEncodeV11Version___lam__0(v_buffer_27_, v___y_52__boxed_29_);
+return v_res_30_;
 }
 }
 lean_object* runtime_initialize_Std_Http_Internal_ChunkedBuffer(uint8_t builtin);

@@ -21,7 +21,7 @@ LEAN_EXPORT uint8_t l_instDecidableEqPLift___redArg(lean_object*, lean_object*, 
 LEAN_EXPORT lean_object* l_instDecidableEqPLift___redArg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_instDecidableEqPLift(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instDecidableEqPLift___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_instDecidableEqPLift_decEq___redArg(lean_object* v_inst_1_, lean_object* v_x_2_, lean_object* v_x_3_){
+uint8_t l_instDecidableEqPLift_decEq___redArg(lean_object* v_inst_1_, lean_object* v_x_2_, lean_object* v_x_3_){
 _start:
 {
 lean_object* v___x_4_; uint8_t v___x_5_; 
@@ -30,67 +30,103 @@ v___x_5_ = lean_unbox(v___x_4_);
 return v___x_5_;
 }
 }
-LEAN_EXPORT lean_object* l_instDecidableEqPLift_decEq___redArg___boxed(lean_object* v_inst_6_, lean_object* v_x_7_, lean_object* v_x_8_){
+LEAN_EXPORT void l_instDecidableEqPLift_decEq___redArg_0interp(lean_interpreter_value* stack)
+{
+lean_object* v_inst_1_ = stack[0].m_obj;
+lean_object* v_x_2_ = stack[1].m_obj;
+lean_object* v_x_3_ = stack[2].m_obj;
+uint8_t v_res_6_;
+v_res_6_ = l_instDecidableEqPLift_decEq___redArg(v_inst_1_, v_x_2_, v_x_3_);
+stack->m_num = v_res_6_;
+}
+LEAN_EXPORT lean_object* l_instDecidableEqPLift_decEq___redArg___boxed(lean_object* v_inst_7_, lean_object* v_x_8_, lean_object* v_x_9_){
 _start:
 {
-uint8_t v_res_9_; lean_object* v_r_10_; 
-v_res_9_ = l_instDecidableEqPLift_decEq___redArg(v_inst_6_, v_x_7_, v_x_8_);
-v_r_10_ = lean_box(v_res_9_);
-return v_r_10_;
+uint8_t v_res_10_; lean_object* v_r_11_; 
+v_res_10_ = l_instDecidableEqPLift_decEq___redArg(v_inst_7_, v_x_8_, v_x_9_);
+v_r_11_ = lean_box(v_res_10_);
+return v_r_11_;
 }
 }
-LEAN_EXPORT uint8_t l_instDecidableEqPLift_decEq(lean_object* v_00_u03b1_11_, lean_object* v_inst_12_, lean_object* v_x_13_, lean_object* v_x_14_){
+uint8_t l_instDecidableEqPLift_decEq(lean_object* v_00_u03b1_12_, lean_object* v_inst_13_, lean_object* v_x_14_, lean_object* v_x_15_){
 _start:
 {
-lean_object* v___x_15_; uint8_t v___x_16_; 
-v___x_15_ = lean_apply_2(v_inst_12_, v_x_13_, v_x_14_);
-v___x_16_ = lean_unbox(v___x_15_);
-return v___x_16_;
+lean_object* v___x_16_; uint8_t v___x_17_; 
+v___x_16_ = lean_apply_2(v_inst_13_, v_x_14_, v_x_15_);
+v___x_17_ = lean_unbox(v___x_16_);
+return v___x_17_;
 }
 }
-LEAN_EXPORT lean_object* l_instDecidableEqPLift_decEq___boxed(lean_object* v_00_u03b1_17_, lean_object* v_inst_18_, lean_object* v_x_19_, lean_object* v_x_20_){
+LEAN_EXPORT void l_instDecidableEqPLift_decEq_0interp(lean_interpreter_value* stack)
+{
+lean_object* v_inst_13_ = stack[1].m_obj;
+lean_object* v_x_14_ = stack[2].m_obj;
+lean_object* v_x_15_ = stack[3].m_obj;
+uint8_t v_res_18_;
+v_res_18_ = l_instDecidableEqPLift_decEq(lean_box(0), v_inst_13_, v_x_14_, v_x_15_);
+stack->m_num = v_res_18_;
+}
+LEAN_EXPORT lean_object* l_instDecidableEqPLift_decEq___boxed(lean_object* v_00_u03b1_19_, lean_object* v_inst_20_, lean_object* v_x_21_, lean_object* v_x_22_){
 _start:
 {
-uint8_t v_res_21_; lean_object* v_r_22_; 
-v_res_21_ = l_instDecidableEqPLift_decEq(v_00_u03b1_17_, v_inst_18_, v_x_19_, v_x_20_);
-v_r_22_ = lean_box(v_res_21_);
-return v_r_22_;
+uint8_t v_res_23_; lean_object* v_r_24_; 
+v_res_23_ = l_instDecidableEqPLift_decEq(v_00_u03b1_19_, v_inst_20_, v_x_21_, v_x_22_);
+v_r_24_ = lean_box(v_res_23_);
+return v_r_24_;
 }
 }
-LEAN_EXPORT uint8_t l_instDecidableEqPLift___redArg(lean_object* v_inst_23_, lean_object* v_x_24_, lean_object* v_x_25_){
+uint8_t l_instDecidableEqPLift___redArg(lean_object* v_inst_25_, lean_object* v_x_26_, lean_object* v_x_27_){
 _start:
 {
-lean_object* v___x_26_; uint8_t v___x_27_; 
-v___x_26_ = lean_apply_2(v_inst_23_, v_x_24_, v_x_25_);
-v___x_27_ = lean_unbox(v___x_26_);
-return v___x_27_;
+lean_object* v___x_28_; uint8_t v___x_29_; 
+v___x_28_ = lean_apply_2(v_inst_25_, v_x_26_, v_x_27_);
+v___x_29_ = lean_unbox(v___x_28_);
+return v___x_29_;
 }
 }
-LEAN_EXPORT lean_object* l_instDecidableEqPLift___redArg___boxed(lean_object* v_inst_28_, lean_object* v_x_29_, lean_object* v_x_30_){
+LEAN_EXPORT void l_instDecidableEqPLift___redArg_0interp(lean_interpreter_value* stack)
+{
+lean_object* v_inst_25_ = stack[0].m_obj;
+lean_object* v_x_26_ = stack[1].m_obj;
+lean_object* v_x_27_ = stack[2].m_obj;
+uint8_t v_res_30_;
+v_res_30_ = l_instDecidableEqPLift___redArg(v_inst_25_, v_x_26_, v_x_27_);
+stack->m_num = v_res_30_;
+}
+LEAN_EXPORT lean_object* l_instDecidableEqPLift___redArg___boxed(lean_object* v_inst_31_, lean_object* v_x_32_, lean_object* v_x_33_){
 _start:
 {
-uint8_t v_res_31_; lean_object* v_r_32_; 
-v_res_31_ = l_instDecidableEqPLift___redArg(v_inst_28_, v_x_29_, v_x_30_);
-v_r_32_ = lean_box(v_res_31_);
-return v_r_32_;
+uint8_t v_res_34_; lean_object* v_r_35_; 
+v_res_34_ = l_instDecidableEqPLift___redArg(v_inst_31_, v_x_32_, v_x_33_);
+v_r_35_ = lean_box(v_res_34_);
+return v_r_35_;
 }
 }
-LEAN_EXPORT uint8_t l_instDecidableEqPLift(lean_object* v_00_u03b1_33_, lean_object* v_inst_34_, lean_object* v_x_35_, lean_object* v_x_36_){
+uint8_t l_instDecidableEqPLift(lean_object* v_00_u03b1_36_, lean_object* v_inst_37_, lean_object* v_x_38_, lean_object* v_x_39_){
 _start:
 {
-lean_object* v___x_37_; uint8_t v___x_38_; 
-v___x_37_ = lean_apply_2(v_inst_34_, v_x_35_, v_x_36_);
-v___x_38_ = lean_unbox(v___x_37_);
-return v___x_38_;
+lean_object* v___x_40_; uint8_t v___x_41_; 
+v___x_40_ = lean_apply_2(v_inst_37_, v_x_38_, v_x_39_);
+v___x_41_ = lean_unbox(v___x_40_);
+return v___x_41_;
 }
 }
-LEAN_EXPORT lean_object* l_instDecidableEqPLift___boxed(lean_object* v_00_u03b1_39_, lean_object* v_inst_40_, lean_object* v_x_41_, lean_object* v_x_42_){
+LEAN_EXPORT void l_instDecidableEqPLift_0interp(lean_interpreter_value* stack)
+{
+lean_object* v_inst_37_ = stack[1].m_obj;
+lean_object* v_x_38_ = stack[2].m_obj;
+lean_object* v_x_39_ = stack[3].m_obj;
+uint8_t v_res_42_;
+v_res_42_ = l_instDecidableEqPLift(lean_box(0), v_inst_37_, v_x_38_, v_x_39_);
+stack->m_num = v_res_42_;
+}
+LEAN_EXPORT lean_object* l_instDecidableEqPLift___boxed(lean_object* v_00_u03b1_43_, lean_object* v_inst_44_, lean_object* v_x_45_, lean_object* v_x_46_){
 _start:
 {
-uint8_t v_res_43_; lean_object* v_r_44_; 
-v_res_43_ = l_instDecidableEqPLift(v_00_u03b1_39_, v_inst_40_, v_x_41_, v_x_42_);
-v_r_44_ = lean_box(v_res_43_);
-return v_r_44_;
+uint8_t v_res_47_; lean_object* v_r_48_; 
+v_res_47_ = l_instDecidableEqPLift(v_00_u03b1_43_, v_inst_44_, v_x_45_, v_x_46_);
+v_r_48_ = lean_box(v_res_47_);
+return v_r_48_;
 }
 }
 lean_object* runtime_initialize_Init_Core(uint8_t builtin);

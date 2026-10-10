@@ -1,4 +1,6 @@
-set_option trace.compiler.ir.result true
+set_option trace.Compiler.result true
+set_option pp.letVarTypes true
+set_option pp.funBinderTypes true
 
 -- All generated case and ctor instructions should use the _impl version
 

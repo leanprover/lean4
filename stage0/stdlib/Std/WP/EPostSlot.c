@@ -46,7 +46,7 @@ lean_dec(v_x_6_);
 return v_res_8_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_WP_instEPostSlotFun___redArg(){
+lean_object* l_Std_WP_instEPostSlotFun___redArg(){
 _start:
 {
 lean_object* v___f_11_; 
@@ -54,158 +54,172 @@ v___f_11_ = ((lean_object*)(l_Std_WP_instEPostSlotFun___redArg___closed__0));
 return v___f_11_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_WP_instEPostSlotFun___redArg___boxed(lean_object* v___dummy_12_){
+LEAN_EXPORT void l_Std_WP_instEPostSlotFun___redArg_0interp(lean_interpreter_value* stack)
+{
+lean_object* v_res_12_;
+v_res_12_ = l_Std_WP_instEPostSlotFun___redArg();
+stack->m_obj
+ = v_res_12_;
+}
+LEAN_EXPORT lean_object* l_Std_WP_instEPostSlotFun___redArg___boxed(lean_object* v___dummy_13_){
 _start:
 {
-lean_object* v_res_13_; 
-v_res_13_ = l_Std_WP_instEPostSlotFun___redArg();
-return v_res_13_;
+lean_object* v_res_14_; 
+v_res_14_ = l_Std_WP_instEPostSlotFun___redArg();
+return v_res_14_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_WP_instEPostSlotFun(lean_object* v_00_u03b5_14_, lean_object* v_EPred_15_){
+LEAN_EXPORT lean_object* l_Std_WP_instEPostSlotFun(lean_object* v_00_u03b5_15_, lean_object* v_EPred_16_){
 _start:
 {
-lean_object* v___f_16_; 
-v___f_16_ = ((lean_object*)(l_Std_WP_instEPostSlotFun___redArg___closed__0));
-return v___f_16_;
+lean_object* v___f_17_; 
+v___f_17_ = ((lean_object*)(l_Std_WP_instEPostSlotFun___redArg___closed__0));
+return v___f_17_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_WP_instEPostSlotHead___redArg___lam__0(lean_object* v_R_17_, lean_object* v_eposts_18_){
+LEAN_EXPORT lean_object* l_Std_WP_instEPostSlotHead___redArg___lam__0(lean_object* v_R_18_, lean_object* v_eposts_19_){
 _start:
 {
-lean_object* v_snd_19_; lean_object* v___x_21_; uint8_t v_isShared_22_; uint8_t v_isSharedCheck_26_; 
-v_snd_19_ = lean_ctor_get(v_eposts_18_, 1);
-v_isSharedCheck_26_ = !lean_is_exclusive(v_eposts_18_);
-if (v_isSharedCheck_26_ == 0)
+lean_object* v_snd_20_; lean_object* v___x_22_; uint8_t v_isShared_23_; uint8_t v_isSharedCheck_27_; 
+v_snd_20_ = lean_ctor_get(v_eposts_19_, 1);
+v_isSharedCheck_27_ = !lean_is_exclusive(v_eposts_19_);
+if (v_isSharedCheck_27_ == 0)
 {
-lean_object* v_unused_27_; 
-v_unused_27_ = lean_ctor_get(v_eposts_18_, 0);
-lean_dec(v_unused_27_);
-v___x_21_ = v_eposts_18_;
-v_isShared_22_ = v_isSharedCheck_26_;
-goto v_resetjp_20_;
+lean_object* v_unused_28_; 
+v_unused_28_ = lean_ctor_get(v_eposts_19_, 0);
+lean_dec(v_unused_28_);
+v___x_22_ = v_eposts_19_;
+v_isShared_23_ = v_isSharedCheck_27_;
+goto v_resetjp_21_;
 }
 else
 {
-lean_inc(v_snd_19_);
-lean_dec(v_eposts_18_);
-v___x_21_ = lean_box(0);
-v_isShared_22_ = v_isSharedCheck_26_;
-goto v_resetjp_20_;
+lean_inc(v_snd_20_);
+lean_dec(v_eposts_19_);
+v___x_22_ = lean_box(0);
+v_isShared_23_ = v_isSharedCheck_27_;
+goto v_resetjp_21_;
 }
-v_resetjp_20_:
+v_resetjp_21_:
 {
-lean_object* v___x_24_; 
-if (v_isShared_22_ == 0)
+lean_object* v___x_25_; 
+if (v_isShared_23_ == 0)
 {
-lean_ctor_set(v___x_21_, 0, v_R_17_);
-v___x_24_ = v___x_21_;
-goto v_reusejp_23_;
+lean_ctor_set(v___x_22_, 0, v_R_18_);
+v___x_25_ = v___x_22_;
+goto v_reusejp_24_;
 }
 else
 {
-lean_object* v_reuseFailAlloc_25_; 
-v_reuseFailAlloc_25_ = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(v_reuseFailAlloc_25_, 0, v_R_17_);
-lean_ctor_set(v_reuseFailAlloc_25_, 1, v_snd_19_);
-v___x_24_ = v_reuseFailAlloc_25_;
-goto v_reusejp_23_;
+lean_object* v_reuseFailAlloc_26_; 
+v_reuseFailAlloc_26_ = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(v_reuseFailAlloc_26_, 0, v_R_18_);
+lean_ctor_set(v_reuseFailAlloc_26_, 1, v_snd_20_);
+v___x_25_ = v_reuseFailAlloc_26_;
+goto v_reusejp_24_;
 }
-v_reusejp_23_:
+v_reusejp_24_:
 {
-return v___x_24_;
+return v___x_25_;
 }
 }
 }
 }
-LEAN_EXPORT lean_object* l_Std_WP_instEPostSlotHead___redArg(){
+lean_object* l_Std_WP_instEPostSlotHead___redArg(){
 _start:
 {
-lean_object* v___f_30_; 
-v___f_30_ = ((lean_object*)(l_Std_WP_instEPostSlotHead___redArg___closed__0));
-return v___f_30_;
+lean_object* v___f_31_; 
+v___f_31_ = ((lean_object*)(l_Std_WP_instEPostSlotHead___redArg___closed__0));
+return v___f_31_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_WP_instEPostSlotHead___redArg___boxed(lean_object* v___dummy_31_){
-_start:
+LEAN_EXPORT void l_Std_WP_instEPostSlotHead___redArg_0interp(lean_interpreter_value* stack)
 {
-lean_object* v_res_32_; 
+lean_object* v_res_32_;
 v_res_32_ = l_Std_WP_instEPostSlotHead___redArg();
-return v_res_32_;
+stack->m_obj
+ = v_res_32_;
 }
-}
-LEAN_EXPORT lean_object* l_Std_WP_instEPostSlotHead(lean_object* v_00_u03b5_33_, lean_object* v_EPred_34_, lean_object* v_EPosts_35_){
+LEAN_EXPORT lean_object* l_Std_WP_instEPostSlotHead___redArg___boxed(lean_object* v___dummy_33_){
 _start:
 {
-lean_object* v___f_36_; 
-v___f_36_ = ((lean_object*)(l_Std_WP_instEPostSlotHead___redArg___closed__0));
-return v___f_36_;
+lean_object* v_res_34_; 
+v_res_34_ = l_Std_WP_instEPostSlotHead___redArg();
+return v_res_34_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_WP_instEPostSlotTail___redArg___lam__0(lean_object* v_inst_37_, lean_object* v_R_38_, lean_object* v_eposts_39_){
+LEAN_EXPORT lean_object* l_Std_WP_instEPostSlotHead(lean_object* v_00_u03b5_35_, lean_object* v_EPred_36_, lean_object* v_EPosts_37_){
 _start:
 {
-lean_object* v_fst_40_; lean_object* v_snd_41_; lean_object* v___x_43_; uint8_t v_isShared_44_; uint8_t v_isSharedCheck_49_; 
-v_fst_40_ = lean_ctor_get(v_eposts_39_, 0);
-v_snd_41_ = lean_ctor_get(v_eposts_39_, 1);
-v_isSharedCheck_49_ = !lean_is_exclusive(v_eposts_39_);
-if (v_isSharedCheck_49_ == 0)
+lean_object* v___f_38_; 
+v___f_38_ = ((lean_object*)(l_Std_WP_instEPostSlotHead___redArg___closed__0));
+return v___f_38_;
+}
+}
+LEAN_EXPORT lean_object* l_Std_WP_instEPostSlotTail___redArg___lam__0(lean_object* v_inst_39_, lean_object* v_R_40_, lean_object* v_eposts_41_){
+_start:
 {
-v___x_43_ = v_eposts_39_;
-v_isShared_44_ = v_isSharedCheck_49_;
-goto v_resetjp_42_;
+lean_object* v_fst_42_; lean_object* v_snd_43_; lean_object* v___x_45_; uint8_t v_isShared_46_; uint8_t v_isSharedCheck_51_; 
+v_fst_42_ = lean_ctor_get(v_eposts_41_, 0);
+v_snd_43_ = lean_ctor_get(v_eposts_41_, 1);
+v_isSharedCheck_51_ = !lean_is_exclusive(v_eposts_41_);
+if (v_isSharedCheck_51_ == 0)
+{
+v___x_45_ = v_eposts_41_;
+v_isShared_46_ = v_isSharedCheck_51_;
+goto v_resetjp_44_;
 }
 else
 {
-lean_inc(v_snd_41_);
-lean_inc(v_fst_40_);
-lean_dec(v_eposts_39_);
-v___x_43_ = lean_box(0);
-v_isShared_44_ = v_isSharedCheck_49_;
-goto v_resetjp_42_;
+lean_inc(v_snd_43_);
+lean_inc(v_fst_42_);
+lean_dec(v_eposts_41_);
+v___x_45_ = lean_box(0);
+v_isShared_46_ = v_isSharedCheck_51_;
+goto v_resetjp_44_;
 }
-v_resetjp_42_:
+v_resetjp_44_:
 {
-lean_object* v___x_45_; lean_object* v___x_47_; 
-v___x_45_ = lean_apply_2(v_inst_37_, v_R_38_, v_snd_41_);
-if (v_isShared_44_ == 0)
+lean_object* v___x_47_; lean_object* v___x_49_; 
+v___x_47_ = lean_apply_2(v_inst_39_, v_R_40_, v_snd_43_);
+if (v_isShared_46_ == 0)
 {
-lean_ctor_set(v___x_43_, 1, v___x_45_);
-v___x_47_ = v___x_43_;
-goto v_reusejp_46_;
+lean_ctor_set(v___x_45_, 1, v___x_47_);
+v___x_49_ = v___x_45_;
+goto v_reusejp_48_;
 }
 else
 {
-lean_object* v_reuseFailAlloc_48_; 
-v_reuseFailAlloc_48_ = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(v_reuseFailAlloc_48_, 0, v_fst_40_);
-lean_ctor_set(v_reuseFailAlloc_48_, 1, v___x_45_);
-v___x_47_ = v_reuseFailAlloc_48_;
-goto v_reusejp_46_;
+lean_object* v_reuseFailAlloc_50_; 
+v_reuseFailAlloc_50_ = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(v_reuseFailAlloc_50_, 0, v_fst_42_);
+lean_ctor_set(v_reuseFailAlloc_50_, 1, v___x_47_);
+v___x_49_ = v_reuseFailAlloc_50_;
+goto v_reusejp_48_;
 }
-v_reusejp_46_:
+v_reusejp_48_:
 {
-return v___x_47_;
+return v___x_49_;
 }
 }
 }
 }
-LEAN_EXPORT lean_object* l_Std_WP_instEPostSlotTail___redArg(lean_object* v_inst_50_){
+LEAN_EXPORT lean_object* l_Std_WP_instEPostSlotTail___redArg(lean_object* v_inst_52_){
 _start:
 {
-lean_object* v___f_51_; 
-v___f_51_ = lean_alloc_closure((void*)(l_Std_WP_instEPostSlotTail___redArg___lam__0), 3, 1);
-lean_closure_set(v___f_51_, 0, v_inst_50_);
-return v___f_51_;
+lean_object* v___f_53_; 
+v___f_53_ = lean_alloc_closure((void*)(l_Std_WP_instEPostSlotTail___redArg___lam__0), 3, 1);
+lean_closure_set(v___f_53_, 0, v_inst_52_);
+return v___f_53_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_WP_instEPostSlotTail(lean_object* v_00_u03b5_52_, lean_object* v_00_u03b5_x27_53_, lean_object* v_EPred_54_, lean_object* v_EPred_x27_55_, lean_object* v_EPosts_56_, lean_object* v_inst_57_){
+LEAN_EXPORT lean_object* l_Std_WP_instEPostSlotTail(lean_object* v_00_u03b5_54_, lean_object* v_00_u03b5_x27_55_, lean_object* v_EPred_56_, lean_object* v_EPred_x27_57_, lean_object* v_EPosts_58_, lean_object* v_inst_59_){
 _start:
 {
-lean_object* v___f_58_; 
-v___f_58_ = lean_alloc_closure((void*)(l_Std_WP_instEPostSlotTail___redArg___lam__0), 3, 1);
-lean_closure_set(v___f_58_, 0, v_inst_57_);
-return v___f_58_;
+lean_object* v___f_60_; 
+v___f_60_ = lean_alloc_closure((void*)(l_Std_WP_instEPostSlotTail___redArg___lam__0), 3, 1);
+lean_closure_set(v___f_60_, 0, v_inst_59_);
+return v___f_60_;
 }
 }
 lean_object* runtime_initialize_Std_WP_Assertion(uint8_t builtin);

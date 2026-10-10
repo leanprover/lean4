@@ -72,14 +72,15 @@ true
 true
 true
 true
-[Compiler.IR] [result]
-    def _private.elab.sint_basic.0.myId8 (x_1 : u8) : u8 :=
-      ret x_1
-    def _private.elab.sint_basic.0.myId8._boxed (x_1 : tagged) : tagged :=
-      let x_2 : u8 := unbox x_1;
-      let x_3 : u8 := _private.elab.sint_basic.0.myId8 x_2;
-      let x_4 : tagged := box x_3;
-      ret x_4
+[Compiler.result] size: 0
+    def _private.elab.sint_basic.0.myId8 (x : UInt8) : UInt8 :=
+      return x
+[Compiler.result] size: 3
+    def _private.elab.sint_basic.0.myId8._boxed (x : tagged) : tagged :=
+      let x.boxed : UInt8 := unbox x;
+      let res : UInt8 := _private.elab.sint_basic.0.myId8 x.boxed;
+      let r : tagged := box res;
+      return r
 Int16 : Type
 20
 -20
@@ -154,14 +155,15 @@ true
 true
 true
 true
-[Compiler.IR] [result]
-    def _private.elab.sint_basic.0.myId16 (x_1 : u16) : u16 :=
-      ret x_1
-    def _private.elab.sint_basic.0.myId16._boxed (x_1 : tagged) : tagged :=
-      let x_2 : u16 := unbox x_1;
-      let x_3 : u16 := _private.elab.sint_basic.0.myId16 x_2;
-      let x_4 : tagged := box x_3;
-      ret x_4
+[Compiler.result] size: 0
+    def _private.elab.sint_basic.0.myId16 (x : UInt16) : UInt16 :=
+      return x
+[Compiler.result] size: 3
+    def _private.elab.sint_basic.0.myId16._boxed (x : tagged) : tagged :=
+      let x.boxed : UInt16 := unbox x;
+      let res : UInt16 := _private.elab.sint_basic.0.myId16 x.boxed;
+      let r : tagged := box res;
+      return r
 Int32 : Type
 20
 -20
@@ -236,15 +238,16 @@ true
 true
 true
 true
-[Compiler.IR] [result]
-    def _private.elab.sint_basic.0.myId32 (x_1 : u32) : u32 :=
-      ret x_1
-    def _private.elab.sint_basic.0.myId32._boxed (x_1 : tobj) : tobj :=
-      let x_2 : u32 := unbox x_1;
-      dec x_1;
-      let x_3 : u32 := _private.elab.sint_basic.0.myId32 x_2;
-      let x_4 : tobj := box x_3;
-      ret x_4
+[Compiler.result] size: 0
+    def _private.elab.sint_basic.0.myId32 (x : UInt32) : UInt32 :=
+      return x
+[Compiler.result] size: 4
+    def _private.elab.sint_basic.0.myId32._boxed (x : tobj) : tobj :=
+      let x.boxed : UInt32 := unbox x;
+      dec x;
+      let res : UInt32 := _private.elab.sint_basic.0.myId32 x.boxed;
+      let r : tobj := box res;
+      return r
 Int64 : Type
 20
 -20
@@ -319,15 +322,16 @@ true
 true
 true
 true
-[Compiler.IR] [result]
-    def _private.elab.sint_basic.0.myId64 (x_1 : u64) : u64 :=
-      ret x_1
-    def _private.elab.sint_basic.0.myId64._boxed (x_1 : obj) : obj :=
-      let x_2 : u64 := unbox x_1;
-      dec x_1;
-      let x_3 : u64 := _private.elab.sint_basic.0.myId64 x_2;
-      let x_4 : obj := box x_3;
-      ret x_4
+[Compiler.result] size: 0
+    def _private.elab.sint_basic.0.myId64 (x : UInt64) : UInt64 :=
+      return x
+[Compiler.result] size: 4
+    def _private.elab.sint_basic.0.myId64._boxed (x : obj) : obj :=
+      let x.boxed : UInt64 := unbox x;
+      dec[ref] x;
+      let res : UInt64 := _private.elab.sint_basic.0.myId64 x.boxed;
+      let r : obj := box res;
+      return r
 ISize : Type
 20
 -20
@@ -402,12 +406,13 @@ true
 true
 true
 true
-[Compiler.IR] [result]
-    def _private.elab.sint_basic.0.myIdSize (x_1 : usize) : usize :=
-      ret x_1
-    def _private.elab.sint_basic.0.myIdSize._boxed (x_1 : tobj) : tobj :=
-      let x_2 : usize := unbox x_1;
-      dec x_1;
-      let x_3 : usize := _private.elab.sint_basic.0.myIdSize x_2;
-      let x_4 : tobj := box x_3;
-      ret x_4
+[Compiler.result] size: 0
+    def _private.elab.sint_basic.0.myIdSize (x : USize) : USize :=
+      return x
+[Compiler.result] size: 4
+    def _private.elab.sint_basic.0.myIdSize._boxed (x : tobj) : tobj :=
+      let x.boxed : USize := unbox x;
+      dec x;
+      let res : USize := _private.elab.sint_basic.0.myIdSize x.boxed;
+      let r : tobj := box res;
+      return r

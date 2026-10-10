@@ -42,7 +42,7 @@ static const lean_closure_object l_Lean_Meta_Grind_Action_linarith___closed__1_v
 static const lean_object* l_Lean_Meta_Grind_Action_linarith___closed__1 = (const lean_object*)&l_Lean_Meta_Grind_Action_linarith___closed__1_value;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Action_linarith(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Action_linarith___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Action_linarith___lam__0(lean_object* v___y_12_, lean_object* v___y_13_, lean_object* v___y_14_, lean_object* v___y_15_, lean_object* v___y_16_, lean_object* v___y_17_, lean_object* v___y_18_, lean_object* v___y_19_, lean_object* v___y_20_){
+lean_object* l_Lean_Meta_Grind_Action_linarith___lam__0(lean_object* v___y_12_, lean_object* v___y_13_, lean_object* v___y_14_, lean_object* v___y_15_, lean_object* v___y_16_, lean_object* v___y_17_, lean_object* v___y_18_, lean_object* v___y_19_, lean_object* v___y_20_){
 _start:
 {
 lean_object* v_ref_22_; uint8_t v___x_23_; lean_object* v___x_24_; lean_object* v___x_25_; lean_object* v___x_26_; lean_object* v___x_27_; lean_object* v___x_28_; lean_object* v___x_29_; 
@@ -61,38 +61,75 @@ lean_ctor_set(v___x_29_, 0, v___x_28_);
 return v___x_29_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Action_linarith___lam__0___boxed(lean_object* v___y_30_, lean_object* v___y_31_, lean_object* v___y_32_, lean_object* v___y_33_, lean_object* v___y_34_, lean_object* v___y_35_, lean_object* v___y_36_, lean_object* v___y_37_, lean_object* v___y_38_, lean_object* v___y_39_){
+LEAN_EXPORT void l_Lean_Meta_Grind_Action_linarith___lam__0_0interp(lean_interpreter_value* stack)
+{
+lean_object* v___y_12_ = stack[0].m_obj;
+lean_object* v___y_13_ = stack[1].m_obj;
+lean_object* v___y_14_ = stack[2].m_obj;
+lean_object* v___y_15_ = stack[3].m_obj;
+lean_object* v___y_16_ = stack[4].m_obj;
+lean_object* v___y_17_ = stack[5].m_obj;
+lean_object* v___y_18_ = stack[6].m_obj;
+lean_object* v___y_19_ = stack[7].m_obj;
+lean_object* v___y_20_ = stack[8].m_obj;
+lean_object* v_res_30_;
+v_res_30_ = l_Lean_Meta_Grind_Action_linarith___lam__0(v___y_12_, v___y_13_, v___y_14_, v___y_15_, v___y_16_, v___y_17_, v___y_18_, v___y_19_, v___y_20_);
+stack->m_obj
+ = v_res_30_;
+}
+LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Action_linarith___lam__0___boxed(lean_object* v___y_31_, lean_object* v___y_32_, lean_object* v___y_33_, lean_object* v___y_34_, lean_object* v___y_35_, lean_object* v___y_36_, lean_object* v___y_37_, lean_object* v___y_38_, lean_object* v___y_39_, lean_object* v___y_40_){
 _start:
 {
-lean_object* v_res_40_; 
-v_res_40_ = l_Lean_Meta_Grind_Action_linarith___lam__0(v___y_30_, v___y_31_, v___y_32_, v___y_33_, v___y_34_, v___y_35_, v___y_36_, v___y_37_, v___y_38_);
-lean_dec(v___y_38_);
-lean_dec_ref(v___y_37_);
-lean_dec(v___y_36_);
-lean_dec_ref(v___y_35_);
-lean_dec(v___y_34_);
-lean_dec_ref(v___y_33_);
-lean_dec(v___y_32_);
-lean_dec_ref(v___y_31_);
-lean_dec(v___y_30_);
-return v_res_40_;
+lean_object* v_res_41_; 
+v_res_41_ = l_Lean_Meta_Grind_Action_linarith___lam__0(v___y_31_, v___y_32_, v___y_33_, v___y_34_, v___y_35_, v___y_36_, v___y_37_, v___y_38_, v___y_39_);
+lean_dec(v___y_39_);
+lean_dec_ref(v___y_38_);
+lean_dec(v___y_37_);
+lean_dec_ref(v___y_36_);
+lean_dec(v___y_35_);
+lean_dec_ref(v___y_34_);
+lean_dec(v___y_33_);
+lean_dec_ref(v___y_32_);
+lean_dec(v___y_31_);
+return v_res_41_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Action_linarith(lean_object* v_a_43_, lean_object* v_kna_44_, lean_object* v_kp_45_, lean_object* v_a_46_, lean_object* v_a_47_, lean_object* v_a_48_, lean_object* v_a_49_, lean_object* v_a_50_, lean_object* v_a_51_, lean_object* v_a_52_, lean_object* v_a_53_, lean_object* v_a_54_){
+lean_object* l_Lean_Meta_Grind_Action_linarith(lean_object* v_a_44_, lean_object* v_kna_45_, lean_object* v_kp_46_, lean_object* v_a_47_, lean_object* v_a_48_, lean_object* v_a_49_, lean_object* v_a_50_, lean_object* v_a_51_, lean_object* v_a_52_, lean_object* v_a_53_, lean_object* v_a_54_, lean_object* v_a_55_){
 _start:
 {
-lean_object* v___f_56_; lean_object* v___x_57_; lean_object* v___x_58_; 
-v___f_56_ = ((lean_object*)(l_Lean_Meta_Grind_Action_linarith___closed__0));
-v___x_57_ = ((lean_object*)(l_Lean_Meta_Grind_Action_linarith___closed__1));
-v___x_58_ = l_Lean_Meta_Grind_Action_terminalAction(v___x_57_, v___f_56_, v_a_43_, v_kna_44_, v_kp_45_, v_a_46_, v_a_47_, v_a_48_, v_a_49_, v_a_50_, v_a_51_, v_a_52_, v_a_53_, v_a_54_);
-return v___x_58_;
+lean_object* v___f_57_; lean_object* v___x_58_; lean_object* v___x_59_; 
+v___f_57_ = ((lean_object*)(l_Lean_Meta_Grind_Action_linarith___closed__0));
+v___x_58_ = ((lean_object*)(l_Lean_Meta_Grind_Action_linarith___closed__1));
+v___x_59_ = l_Lean_Meta_Grind_Action_terminalAction(v___x_58_, v___f_57_, v_a_44_, v_kna_45_, v_kp_46_, v_a_47_, v_a_48_, v_a_49_, v_a_50_, v_a_51_, v_a_52_, v_a_53_, v_a_54_, v_a_55_);
+return v___x_59_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Action_linarith___boxed(lean_object* v_a_59_, lean_object* v_kna_60_, lean_object* v_kp_61_, lean_object* v_a_62_, lean_object* v_a_63_, lean_object* v_a_64_, lean_object* v_a_65_, lean_object* v_a_66_, lean_object* v_a_67_, lean_object* v_a_68_, lean_object* v_a_69_, lean_object* v_a_70_, lean_object* v_a_71_){
+LEAN_EXPORT void l_Lean_Meta_Grind_Action_linarith_0interp(lean_interpreter_value* stack)
+{
+lean_object* v_a_44_ = stack[0].m_obj;
+lean_object* v_kna_45_ = stack[1].m_obj;
+lean_object* v_kp_46_ = stack[2].m_obj;
+lean_object* v_a_47_ = stack[3].m_obj;
+lean_object* v_a_48_ = stack[4].m_obj;
+lean_object* v_a_49_ = stack[5].m_obj;
+lean_object* v_a_50_ = stack[6].m_obj;
+lean_object* v_a_51_ = stack[7].m_obj;
+lean_object* v_a_52_ = stack[8].m_obj;
+lean_object* v_a_53_ = stack[9].m_obj;
+lean_object* v_a_54_ = stack[10].m_obj;
+lean_object* v_a_55_ = stack[11].m_obj;
+lean_object* v_res_60_;
+v_res_60_ = l_Lean_Meta_Grind_Action_linarith(v_a_44_, v_kna_45_, v_kp_46_, v_a_47_, v_a_48_, v_a_49_, v_a_50_, v_a_51_, v_a_52_, v_a_53_, v_a_54_, v_a_55_);
+stack->m_obj
+ = v_res_60_;
+}
+LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Action_linarith___boxed(lean_object* v_a_61_, lean_object* v_kna_62_, lean_object* v_kp_63_, lean_object* v_a_64_, lean_object* v_a_65_, lean_object* v_a_66_, lean_object* v_a_67_, lean_object* v_a_68_, lean_object* v_a_69_, lean_object* v_a_70_, lean_object* v_a_71_, lean_object* v_a_72_, lean_object* v_a_73_){
 _start:
 {
-lean_object* v_res_72_; 
-v_res_72_ = l_Lean_Meta_Grind_Action_linarith(v_a_59_, v_kna_60_, v_kp_61_, v_a_62_, v_a_63_, v_a_64_, v_a_65_, v_a_66_, v_a_67_, v_a_68_, v_a_69_, v_a_70_);
+lean_object* v_res_74_; 
+v_res_74_ = l_Lean_Meta_Grind_Action_linarith(v_a_61_, v_kna_62_, v_kp_63_, v_a_64_, v_a_65_, v_a_66_, v_a_67_, v_a_68_, v_a_69_, v_a_70_, v_a_71_, v_a_72_);
+lean_dec(v_a_72_);
+lean_dec_ref(v_a_71_);
 lean_dec(v_a_70_);
 lean_dec_ref(v_a_69_);
 lean_dec(v_a_68_);
@@ -100,9 +137,7 @@ lean_dec_ref(v_a_67_);
 lean_dec(v_a_66_);
 lean_dec_ref(v_a_65_);
 lean_dec(v_a_64_);
-lean_dec_ref(v_a_63_);
-lean_dec(v_a_62_);
-return v_res_72_;
+return v_res_74_;
 }
 }
 lean_object* runtime_initialize_Lean_Meta_Tactic_Grind_Action(uint8_t builtin);

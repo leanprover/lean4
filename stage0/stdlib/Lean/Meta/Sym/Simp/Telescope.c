@@ -38,7 +38,7 @@ lean_dec(v_a_4_);
 return v_res_14_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Meta_Sym_Simp_simpTelescope(lean_object* v_e_15_, lean_object* v_a_16_, lean_object* v_a_17_, lean_object* v_a_18_, lean_object* v_a_19_, lean_object* v_a_20_, lean_object* v_a_21_, lean_object* v_a_22_, lean_object* v_a_23_, lean_object* v_a_24_){
+lean_object* l_Lean_Meta_Sym_Simp_simpTelescope(lean_object* v_e_15_, lean_object* v_a_16_, lean_object* v_a_17_, lean_object* v_a_18_, lean_object* v_a_19_, lean_object* v_a_20_, lean_object* v_a_21_, lean_object* v_a_22_, lean_object* v_a_23_, lean_object* v_a_24_){
 _start:
 {
 switch(lean_obj_tag(v_e_15_))
@@ -75,6 +75,23 @@ return v___x_34_;
 }
 }
 }
+}
+LEAN_EXPORT void l_Lean_Meta_Sym_Simp_simpTelescope_0interp(lean_interpreter_value* stack)
+{
+lean_object* v_e_15_ = stack[0].m_obj;
+lean_object* v_a_16_ = stack[1].m_obj;
+lean_object* v_a_17_ = stack[2].m_obj;
+lean_object* v_a_18_ = stack[3].m_obj;
+lean_object* v_a_19_ = stack[4].m_obj;
+lean_object* v_a_20_ = stack[5].m_obj;
+lean_object* v_a_21_ = stack[6].m_obj;
+lean_object* v_a_22_ = stack[7].m_obj;
+lean_object* v_a_23_ = stack[8].m_obj;
+lean_object* v_a_24_ = stack[9].m_obj;
+lean_object* v_res_35_;
+v_res_35_ = l_Lean_Meta_Sym_Simp_simpTelescope(v_e_15_, v_a_16_, v_a_17_, v_a_18_, v_a_19_, v_a_20_, v_a_21_, v_a_22_, v_a_23_, v_a_24_);
+stack->m_obj
+ = v_res_35_;
 }
 lean_object* runtime_initialize_Lean_Meta_Sym_Simp_SimpM(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Meta_Sym_Simp_Have(uint8_t builtin);

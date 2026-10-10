@@ -83,10 +83,12 @@ def collectParams (seq : List TGrind) : CoreM (Array TParam) := do
   return params ++ anchors
 
 /--
-Given a `grind` tactic sequence, extracts parameters and builds an terminal `finish only` tactic.
+Given a `grind` tactic sequence, extracts parameters and builds a terminal `finish only` tactic.
+The `extraParams` are additional parameters (e.g., from the original `finish?` call) that
+should always be included.
 -/
-public def mkFinishTactic (seq : List TGrind) : CoreM TGrind := do
-  let params ← collectParams seq
+public def mkFinishTactic (seq : List TGrind) (extraParams : Array TParam := #[]) : CoreM TGrind := do
+  let params := (← collectParams seq) ++ extraParams
   `(grind| finish only [$params,*])
 
 /--

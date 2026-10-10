@@ -49,6 +49,14 @@ private def symInit (goal : Goal) : GrindM (List TGrind × Goal) := do
   let `(grind| finish? $[$configItems]* $[only%$only]? $[[$params?,*]]?) := stx | throwUnsupportedSyntax
   withConfigItems configItems do
   let params := params?.getD {}
+  let preserved ← getPreservedParams params
+  /-
+  Suggestions are checked at the goal *before* `withParams` asserts the parameters, i.e.,
+  where a replay of the suggestion starts. Checking after would accept suggestions that
+  only work because the parameters are still active.
+  -/
+  let goal₀ ← getMainGoal
+  let saved₀ ← liftGrindM Meta.Grind.saveState
   withParams (← read).params params only.isSome do
     let a ← Action.mkFinish
     let goal ← getMainGoal
@@ -56,20 +64,24 @@ private def symInit (goal : Goal) : GrindM (List TGrind × Goal) := do
     let sym := (← read).sym
     withTracing do
     let solved ← liftGrindM do
-      let saved ← saveState
       let (initSeq, goal') ← if sym then symInit goal else pure ([], goal)
       match (← a.run goal') with
       | .closed seq =>
         let seq := initSeq ++ seq
-        let finishTac ← mkFinishTactic seq
-        let seq := Action.mkGrindSeq seq
-        if (← Action.checkSeqAt saved goal [finishTac]) then
-          Tactic.TryThis.addSuggestions stx #[
-            { suggestion := .tsyntax seq },
-            { suggestion := .tsyntax finishTac }
-          ]
+        let finishTac ← mkFinishTactic seq preserved
+        let seqTac := Action.mkGrindSeq seq
+        let mut suggestions : Array Tactic.TryThis.Suggestion := #[]
+        -- The script cannot carry the preserved parameters, so offer it only if it does not need them.
+        if preserved.isEmpty || (← Action.checkSeqAt saved₀ goal₀ seq) then
+          suggestions := suggestions.push { suggestion := .tsyntax seqTac }
+        if (← Action.checkSeqAt saved₀ goal₀ [finishTac]) then
+          suggestions := suggestions.push { suggestion := .tsyntax finishTac }
+        if suggestions.isEmpty then
+          suggestions := #[{ suggestion := .tsyntax seqTac }]
+        if suggestions.size == 1 then
+          Tactic.TryThis.addSuggestion stx suggestions[0]!
         else
-          Tactic.TryThis.addSuggestion stx { suggestion := .tsyntax seq }
+          Tactic.TryThis.addSuggestions stx suggestions
         return true
       | .stuck gs =>
         let goal :: _ := gs | throwError "`finish?` failed, but resulting goal is not available"

@@ -34,9 +34,11 @@ against a {name}`Nat` reference count, which no increment can overflow and no th
 
 What an adjustment decides is a function of the count alone, but running it is not one step: the
 thread-shared paths test the count and only then run their {lit}`atomic_fetch_sub` or
-{lit}`atomic_fetch_add`, against a count another thread may have moved in between. The last section
-fractures an adjustment at that point and runs arbitrary interleavings of the halves. That costs
-exactness, which survives only while no threshold has discarded an adjustment.
+{lit}`atomic_fetch_add`, against a count another thread may have moved in between. This model treats
+each adjustment as a serial step. It does not model interleavings between the test and the atomic
+operation. {lit}`tests/misc_dir/rc_graph/Concurrent.lean` separately proves the shared-counter
+invariant across guard/update histories; {lit}`ConcurrentRefinement.lean` binds the production
+release decision to that invariant. The C++ memory model remains a native contract.
 -/
 
 /-- {lit}`#define LEAN_RC_STICKY      (INT_MIN + 0x10000000)` -/
@@ -595,7 +597,7 @@ abbrev tracks : Option Int32 → Option Nat → Bool
   | some rc, some k => isNeverFreed rc || refCountNat rc == k
 
 /-- One adjustment preserves {name}`tracks`, which is the whole content of {lit}`run_spec`. -/
-private theorem tracks_step (op : Op) (s : Option Int32) (t : Option Nat) (h : tracks s t) :
+theorem tracks_step (op : Op) (s : Option Int32) (t : Option Nat) (h : tracks s t) :
     tracks (s.bind op.apply) (t.bind op.applyIdeal) := by
   match s, t with
   | none, none => simp

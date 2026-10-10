@@ -7,6 +7,7 @@ module
 
 prelude
 public import Init.Data.Range.Polymorphic.Instances
+import Init.Data.Option.Lemmas
 import Init.Omega
 
 public section
@@ -56,5 +57,40 @@ instance : Rxc.IsAlwaysFinite Int := inferInstance
 instance : Rxo.HasSize Int := .ofClosed
 instance : Rxo.LawfulHasSize Int := inferInstance
 instance : Rxo.IsAlwaysFinite Int := inferInstance
+
+instance : DownwardEnumerable Int where
+  pred? x := some (x - 1)
+  predMany? n x := some (x - n)
+
+instance : LawfulDownwardEnumerable Int where
+  ne_of_lt := by
+    simp only [DownwardEnumerable.LT, DownwardEnumerable.predMany?, Option.some.injEq]
+    omega
+  predMany?_zero := by simp [DownwardEnumerable.predMany?]
+  predMany?_add_one := by
+    simp only [DownwardEnumerable.predMany?, DownwardEnumerable.pred?, Option.bind_some,
+      Option.some.injEq]
+    omega
+
+instance : InfinitelyDownwardEnumerable Int where
+  isSome_pred? x := by simp [DownwardEnumerable.pred?]
+
+instance : LawfulDownwardEnumerableLE Int where
+  le_iff x y := by
+    simp [DownwardEnumerable.LE, DownwardEnumerable.predMany?, Int.le_def, Int.nonneg_def,
+      Int.sub_eq_iff_eq_add']
+    constructor <;> rintro ⟨n, h⟩ <;> exists n <;> omega
+
+instance : LawfulUpwardEnumerableLT Int := inferInstance
+
+instance : Rcx.IsAlwaysFiniteRev Int where
+  finite init lo := ⟨(init - lo).toNat + 1, by
+    simp only [DownwardEnumerable.predMany?, Option.elim_some]
+    omega⟩
+
+instance : Rox.IsAlwaysFiniteRev Int where
+  finite init lo := ⟨(init - lo).toNat + 1, by
+    simp only [DownwardEnumerable.predMany?, Option.elim_some]
+    omega⟩
 
 end Std.PRange

@@ -93,3 +93,75 @@ in increasing order.
 @[always_inline, inline]
 def Std.Rii.iter [Least? α] (_ : Rii α) : Iter (α := Rxi.Iterator α) α :=
   ⟨⟨Least?.least?⟩⟩
+
+/--
+Returns an iterator over the given range. This iterator will emit the elements of the range
+in increasing order.
+-/
+@[always_inline, inline]
+def Std.Rcc.iterRev (r : Rcc α) : Iter (α := Rcx.Iterator α) α :=
+  ⟨⟨some r.upper, r.lower⟩⟩
+
+/--
+Returns an iterator over the given range. This iterator will emit the elements of the range
+in increasing order.
+-/
+@[always_inline, inline]
+def Std.Roc.iterRev (r : Roc α) : Iter (α := Rox.Iterator α) α :=
+  ⟨⟨some r.upper, r.lower⟩⟩
+
+/--
+Returns an iterator over the given range. This iterator will emit the elements of the range
+in increasing order.
+-/
+@[always_inline, inline]
+def Std.Ric.iterRev (r : Ric α) : Iter (α := Rix.Iterator α) α :=
+  ⟨⟨some r.upper⟩⟩
+
+/--
+Returns an iterator over the given range. This iterator will emit the elements of the range
+in increasing order.
+-/
+@[always_inline, inline]
+def Std.Rco.iterRev [DownwardEnumerable α] (r : Rco α) : Iter (α := Rcx.Iterator α) α :=
+  ⟨⟨DownwardEnumerable.pred? r.upper, r.lower⟩⟩
+
+/--
+Returns an iterator over the given range. This iterator will emit the elements of the range
+in increasing order.
+-/
+@[always_inline, inline]
+def Std.Roo.iterRev [DownwardEnumerable α] (r : Roo α) : Iter (α := Rox.Iterator α) α :=
+  ⟨⟨DownwardEnumerable.pred? r.upper, r.lower⟩⟩
+
+/--
+Returns an iterator over the given range. This iterator will emit the elements of the range
+in increasing order.
+-/
+@[always_inline, inline]
+def Std.Rio.iterRev [DownwardEnumerable α] (r : Rio α) : Iter (α := Rix.Iterator α) α :=
+  ⟨⟨DownwardEnumerable.pred? r.upper⟩⟩
+
+/--
+Returns an iterator over the given range. This iterator will emit the elements of the range
+in increasing order.
+-/
+@[always_inline, inline]
+def Std.Rci.iterRev [Greatest? α] (r : Rci α) : Iter (α := Rcx.Iterator α) α :=
+  ⟨⟨Greatest?.greatest?, r.lower⟩⟩
+
+/--
+Returns an iterator over the given range. This iterator will emit the elements of the range
+in increasing order.
+-/
+@[always_inline, inline]
+def Std.Roi.iterRev [Greatest? α] (r : Roi α) : Iter (α := Rox.Iterator α) α :=
+  ⟨⟨Greatest?.greatest?, r.lower⟩⟩
+
+/--
+Returns an iterator over the given range. This iterator will emit the elements of the range
+in increasing order.
+-/
+@[always_inline, inline]
+def Std.Rii.iterRev [Greatest? α] (_ : Rii α) : Iter (α := Rix.Iterator α) α :=
+  ⟨⟨Greatest?.greatest?⟩⟩

@@ -181,8 +181,26 @@ private def expectAccepted (env : Environment) (label : String) (decl : Declarat
   | .error error => throwError "{label}: {error.toMessageData (← getOptions)}"
 
 /--
-error: eager-projection-seed: (kernel) type expected
-  resultSort gateWitness
+info: HISTORY CONTROL eager-projection-seed: accepted; axioms=[]
+---
+info: HISTORY CONTROL seed-then-unlock: accepted; axioms=[]
+---
+info: HISTORY CONTROL honest-Unit-endpoint: accepted; axioms=[propext]
+---
+info: HISTORY TARGET REJECT: (kernel) application type mismatch
+  identityValue Empty ⋯ (identityValue Unit ⋯ ())
+argument has type
+  preserveType Unit
+but function has type
+  preserveType Empty → preserveType Empty
+---
+info: HISTORY UNIT INFERRED: Lean.Expr.forallE
+  `p
+  (Lean.Expr.const `Issue.ModeP [])
+  (Lean.Expr.app (Lean.Expr.const `Issue.preserveType []) (Lean.Expr.const `Unit []))
+  (Lean.BinderInfo.default)
+---
+info: TRANSPORTED HISTORY COMPLETE: candidate rejected; no False
 -/
 #guard_msgs in
 run_meta do

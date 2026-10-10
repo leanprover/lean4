@@ -391,7 +391,8 @@ def evalGrindTraceCore (stx : Syntax) (trace := true) (verbose := true) (useSorr
   let params ← mkGrindParams config only paramStxs mvarId
   Grind.withProtectedMCtx config mvarId fun mvarId' => do
     let (tacs, _) ← Grind.GrindTacticM.runAtGoal mvarId' params do
-      let finish ← Grind.Action.mkFinish
+      -- Replays the generated script at the initial goal and warns if it fails.
+      let finish := Grind.Action.checkTactic (warnOnly := true) >> (← Grind.Action.mkFinish)
       let goal :: _ ← Grind.getGoals
         | -- Goal was closed during initialization
           let configStx' := filterSuggestionsAndLocalsFromGrindConfig configStx

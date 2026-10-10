@@ -51,9 +51,9 @@ private def symInit (goal : Goal) : GrindM (List TGrind × Goal) := do
   let params := params?.getD {}
   let preserved ← getPreservedParams params
   /-
-  Suggestions are checked at the goal *before* `withParams` asserts the parameters, i.e.,
-  where a replay of the suggestion starts. Checking after would accept suggestions that
-  only work because the parameters are still active.
+  Suggestions are validated at the goal *before* `withParams` asserts the parameters, i.e.,
+  where a replay starts. Validating after would accept suggestions that only work because
+  the parameters are active.
   -/
   let goal₀ ← getMainGoal
   let saved₀ ← liftGrindM Meta.Grind.saveState
@@ -71,12 +71,13 @@ private def symInit (goal : Goal) : GrindM (List TGrind × Goal) := do
         let finishTac ← mkFinishTactic seq preserved
         let seqTac := Action.mkGrindSeq seq
         let mut suggestions : Array Tactic.TryThis.Suggestion := #[]
-        -- The script cannot carry the preserved parameters, so offer it only if it does not need them.
-        if preserved.isEmpty || (← Action.checkSeqAt saved₀ goal₀ seq) then
+        if (← Action.checkSeqAt saved₀ goal₀ seq) then
           suggestions := suggestions.push { suggestion := .tsyntax seqTac }
         if (← Action.checkSeqAt saved₀ goal₀ [finishTac]) then
           suggestions := suggestions.push { suggestion := .tsyntax finishTac }
         if suggestions.isEmpty then
+          /- If `suggestions` is empty, then both `Action.checkSeqAt` calls above have failed and none of the generated tactics could close the goal. -/
+          logWarning m!"generated tactic cannot close the goal{indentD (← Action.mkGrindNext seq)}\nInitial goal\n{goal₀.mvarId}"
           suggestions := #[{ suggestion := .tsyntax seqTac }]
         if suggestions.size == 1 then
           Tactic.TryThis.addSuggestion stx suggestions[0]!

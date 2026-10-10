@@ -412,7 +412,16 @@ def closeUsingOrAdmit (tac : GrindTacticM Unit) : GrindTacticM Unit := do
 def GrindTacticM.run (x : GrindTacticM α) (ctx : Context) (s : State) : TermElabM (α × State) :=
   x ctx |>.run s
 
-def mkEvalTactic' (elaborator : Name) (params : Params) : TermElabM (Goal → TSyntax `grind → GrindM (List Goal)) := do
+/--
+Creates the evaluator used to replay `grind` scripts from `GrindM` (e.g., `Action.checkSeqAt`).
+The returned function runs a script at the given goal in a fresh `GrindTacticM` context and
+returns the remaining goals.
+
+The context must mirror the one the script will run in when pasted by the user. In particular,
+`sym` must be set in `sym =>` mode, otherwise scripts containing `sym`-only steps such as
+`intros` and `by_contra` are rejected.
+-/
+def mkEvalTactic' (elaborator : Name) (params : Params) (sym : Bool) : TermElabM (Goal → TSyntax `grind → GrindM (List Goal)) := do
   let termState ← getThe Term.State
   let termCtx ← readThe Term.Context
   let eval (goal : Goal) (stx : TSyntax `grind) : GrindM (List Goal) := do
@@ -424,7 +433,7 @@ def mkEvalTactic' (elaborator : Name) (params : Params) : TermElabM (Goal → TS
     -- **Note**: we discard changes to `Term.State`
     let (subgoals, grindState', symState') ← Term.TermElabM.run' (ctx := termCtx) (s := termState) do
       let (_, s) ← GrindTacticM.run
-            (ctx := { recover := false, methods, ctx := grindCtx, sctx := symCtx, params, elaborator })
+            (ctx := { recover := false, methods, ctx := grindCtx, sctx := symCtx, params, elaborator, sym })
             (s := { grindState, symState, goals := [goal] }) do
         evalGrindTactic stx.raw
         pruneSolvedGoals
@@ -434,11 +443,11 @@ def mkEvalTactic' (elaborator : Name) (params : Params) : TermElabM (Goal → TS
     return subgoals
   return eval
 
-def mkEvalTactic (params : Params) : TacticM (Goal → TSyntax `grind → GrindM (List Goal)) := do
-  mkEvalTactic' (← read).elaborator params
+def mkEvalTactic (params : Params) (sym : Bool := false) : TacticM (Goal → TSyntax `grind → GrindM (List Goal)) := do
+  mkEvalTactic' (← read).elaborator params sym
 
 def GrindTacticM.runAtGoal (mvarId : MVarId) (params : Params) (k : GrindTacticM α) (sym : Bool := false) : TacticM (α × State) := do
-  let evalTactic ← mkEvalTactic params
+  let evalTactic ← mkEvalTactic params sym
   /-
   **Note**: We don't want to close branches using `sorry` after applying `intros + assertAll`.
   Reconsider the option `useSorry`.

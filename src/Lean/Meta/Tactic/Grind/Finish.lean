@@ -12,9 +12,17 @@ namespace Lean.Meta.Grind.Action
 
 public abbrev maxIterationsDefault := 10000 -- **TODO**: Add option
 
+/--
+The `finish` action: introduces hypotheses, asserts all pending facts, and then repeats
+the solvers, E-matching, case-splitting, and model-based theory combination until the goal is
+closed, no step applies, or `maxIterations` is reached.
+
+The action does not validate the script it generates when tracing. Callers that report the
+script (e.g., `grind?` and `finish?`) replay it at the goal they consider appropriate.
+-/
 public def mkFinish (maxIterations : Nat := maxIterationsDefault) : IO Action := do
   let solvers ← Solvers.mkAction
   let step : Action := solvers <|> instantiate <|> splitNext <|> mbtc
-  return checkTactic (warnOnly := true) >> intros 0 >> assertAll >> step.loop maxIterations
+  return intros 0 >> assertAll >> step.loop maxIterations
 
 end Lean.Meta.Grind.Action

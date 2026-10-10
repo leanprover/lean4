@@ -575,6 +575,16 @@ inductive ToProcessElement where
   enclosing application are still being internalized.
   -/
   | propagateUp (e : Expr)
+  /--
+  Run the `newEq` callback of the solver `solverId` on its terms `lhs` and `rhs`.
+  `SolverExtension.markTerm` queues this instead of running the callback eagerly. `markTerm`
+  runs inside the `internalize` hook of a solver, that is, while the enclosing applications of
+  the term being internalized may still have unvisited arguments. The callback may internalize
+  new terms containing such an application. See `GoalState.internalizing`.
+  -/
+  | solverEq (solverId : Nat) (lhs rhs : Expr)
+  /-- Run the `newDiseq` callback of the solver `solverId`. See `solverEq`. -/
+  | solverDiseq (solverId : Nat) (lhs rhs : Expr)
 
 -- This type should be considered opaque outside this module.
 @[expose]  -- for codegen
@@ -1026,8 +1036,22 @@ structure GoalState where
   `appMap`'s domain. We use this collection during theorem activation.
   -/
   indicesFound : PHashSet HeadIndex := {}
-  /-- Pending work for `processToDo`: equalities, facts, and upward propagations. -/
+  /-- Pending work for `processToDo`: equalities, facts, upward propagations, and solver callbacks. -/
   toProcess    : Array ToProcessElement := #[]
+  /--
+  Applications whose internalization is in progress, outermost first. Maintained only when
+  `isDebugEnabled` holds, and empty whenever no internalization is in progress.
+
+  The internalizer creates the `ENode` of an application before visiting its arguments. While
+  the arguments are being visited, the application is on this stack. We say `u` is a
+  *strict ancestor* of `t` if `u` is on this stack and `t` is one of its proper subterms.
+  While `t` is being internalized, solver code must not call `internalize` on a term that is,
+  or contains, a strict ancestor of `t`: the strict ancestor looks internalized to the core, but
+  some of its arguments have no `ENode` yet. The internalizer checks this invariant against
+  this stack. Solver code that must state a fact about such a term queues it with
+  `pushNewFactCore`.
+  -/
+  internalizing : Array Expr := #[]
   /-- `inconsistent := true` if `ENode`s for `True` and `False` are in the same equivalence class. -/
   inconsistent : Bool := false
   /-- Next unique index for creating ENodes -/
@@ -1327,6 +1351,14 @@ def hasSameType (a b : Expr) : MetaM Bool := do
 /-- Queues the upward propagation of `e`. See `ToProcessElement.propagateUp`. -/
 def pushPropagateUp (e : Expr) : GoalM Unit :=
   modify fun s => { s with toProcess := s.toProcess.push <| .propagateUp e }
+
+/--
+Queues the fact `prop` with the given `proof`, without preprocessing it. `prop` is internalized
+when the fact is processed, so this is the way to assert a fact about a term that must not be
+internalized yet. See `GoalState.internalizing`.
+-/
+def pushNewFactCore (prop proof : Expr) (generation : Nat) : GoalM Unit :=
+  modify fun s => { s with toProcess := s.toProcess.push <| .fact prop proof generation }
 
 /-- Pushes `lhs ≍ rhs` with `proof` to `newEqs`. -/
 @[inline] def pushHEq (lhs rhs proof : Expr) : GoalM Unit :=
@@ -2043,7 +2075,11 @@ where
       else
         go (.next id₁ lhs lhsTerms) rhsTerms
 
-private def propagateDiseqOf (id : Nat) (lhs rhs : Expr) : GoalM Unit := do
+/--
+If both `lhs` and `rhs` have a term of the solver `id`, runs `k` on these terms.
+-/
+@[specialize]
+private def withSolverTermsOf (id : Nat) (lhs rhs : Expr) (k : Expr → Expr → GoalM Unit) : GoalM Unit := do
   visitLhs (← getRootENode lhs).sTerms
 where
   visitLhs (sTerms : SolverTerms) : GoalM Unit := do
@@ -2062,16 +2098,40 @@ where
     | .nil => return ()
     | .next id' e sTerms =>
       if id == id' then
-        let rhsTerm := e
-        (← solverExtensionsRef.get)[id]!.newDiseq lhsTerm rhsTerm
+        k lhsTerm e
       else if id < id' then
         return ()
       else
         visitRhs lhsTerm sTerms
 
+/-- Runs the `newDiseq` callback of the solver `id` if both `lhs` and `rhs` have a term of it. -/
+private def propagateDiseqOf (id : Nat) (lhs rhs : Expr) : GoalM Unit :=
+  withSolverTermsOf id lhs rhs fun lhsTerm rhsTerm => do
+    (← solverExtensionsRef.get)[id]!.newDiseq lhsTerm rhsTerm
+
+/-- Queues the `newDiseq` callback of the solver `id` if both `lhs` and `rhs` have a term of it. -/
+private def pushSolverDiseqOf (id : Nat) (lhs rhs : Expr) : GoalM Unit :=
+  withSolverTermsOf id lhs rhs fun lhsTerm rhsTerm =>
+    modify fun s => { s with toProcess := s.toProcess.push <| .solverDiseq id lhsTerm rhsTerm }
+
+/-- Runs the queued `newEq` callback. See `ToProcessElement.solverEq`. -/
+def Solvers.newEq (solverId : Nat) (lhs rhs : Expr) : GoalM Unit := do
+  (← solverExtensionsRef.get)[solverId]!.newEq lhs rhs
+
+/-- Runs the queued `newDiseq` callback. See `ToProcessElement.solverDiseq`. -/
+def Solvers.newDiseq (solverId : Nat) (lhs rhs : Expr) : GoalM Unit := do
+  (← solverExtensionsRef.get)[solverId]!.newDiseq lhs rhs
+
 def isSameSolverTerms (a b : SolverTerms) : Bool :=
   unsafe ptrEq a b
 
+/--
+Registers `e` as a term of the solver `ext`. If the equivalence class of `e` already has a term
+`e'` of this solver, the solver learns `e = e'`; if a class disequal to it has a term of this
+solver, the solver learns that disequality. These callbacks are queued, not run here: `markTerm`
+is called from `internalize` hooks, where the callbacks must not internalize new terms yet.
+See `ToProcessElement.solverEq` and `GoalState.internalizing`.
+-/
 def SolverExtension.markTerm (ext : SolverExtension σ) (e : Expr) : GoalM Unit := do
   let root ← getRootENode e
   let id := ext.id
@@ -2083,7 +2143,7 @@ def SolverExtension.markTerm (ext : SolverExtension σ) (e : Expr) : GoalM Unit 
         -- Skip if `e` and `e'` have different types (e.g., they were merged via `HEq` from `cast`).
         -- This can happen when we have heterogeneous equalities in an equivalence class containing types such as `Fin n` and `Fin m`
         if (← pure !root.heqProofs <||> hasSameType e e') then
-          (← solverExtensionsRef.get)[id]!.newEq e e'
+          modify fun s => { s with toProcess := s.toProcess.push <| .solverEq id e e' }
         return sTerms
       else if id < id' then
         return .next id e sTerms
@@ -2096,7 +2156,7 @@ def SolverExtension.markTerm (ext : SolverExtension σ) (e : Expr) : GoalM Unit 
   let sTermsNew ← go root.sTerms
   unless isSameSolverTerms sTermsNew root.sTerms do
     setENode root.self { root with sTerms := sTermsNew }
-    forEachDiseq (← getParents root.self) (propagateDiseqOf id)
+    forEachDiseq (← getParents root.self) (pushSolverDiseqOf id)
 
 /--
 Returns `some t` if `t` is the solver term for `ext` associated with `e`.

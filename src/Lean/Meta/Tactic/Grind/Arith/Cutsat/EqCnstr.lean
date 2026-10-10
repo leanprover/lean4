@@ -723,7 +723,11 @@ def internalize (e : Expr) (parent? : Option Expr) : GoalM Unit := do
         return ()
     if (← hasVar e) then return ()
     let internalizeMarker (marker : Expr) : GoalM Unit := do
-      Grind.internalize marker (← getGeneration e)
+      -- The marker may be an enclosing application whose internalization is in progress: this
+      -- hook runs for `e` when the marker visits it. The marker's own hook runs once its
+      -- arguments are internalized. See `GoalState.internalizing`.
+      unless (← alreadyInternalized marker) do
+        Grind.internalize marker (← getGeneration e)
     match_expr type with
     | Fin n =>
       internalizeMarker <| ← shareCommon (mkApp2 (mkConst ``Fin.val) n e)

@@ -395,6 +395,19 @@ def Invariants.base {pat s : Slice} {needlePos stackPos : String.Pos.Raw}
     (h : Invariants pat s needlePos stackPos) : s.Pos :=
   s.pos _ h.isValidForSlice
 
+theorem Invariants.base_eq_pos! {pat s : Slice} {needlePos stackPos : String.Pos.Raw} {h : Invariants pat s needlePos stackPos} :
+    Invariants.base h = s.pos! (stackPos.unoffsetBy needlePos) := by
+  simp [base, pos!_eq_pos h.isValidForSlice]
+
+theorem Invariants.offset_base {pat s : Slice} {needlePos stackPos : String.Pos.Raw} {h : Invariants pat s needlePos stackPos} :
+    h.base.offset = stackPos.unoffsetBy needlePos := by
+  simp [base]
+
+@[simp]
+theorem Slice.offset_pos! {s : Slice} {off} (h : Pos.Raw.IsValidForSlice s off) :
+    (s.pos! off).offset = off := by
+  simp [pos!_eq_pos h]
+
 theorem Invariants.zero_of_eq {pat s : Slice} {stackPos needlePos : String.Pos.Raw}
     (h : Invariants pat s needlePos stackPos) (h' : needlePos = pat.rawEndPos) :
     Invariants pat s 0 stackPos := by
@@ -446,7 +459,9 @@ theorem Invariants.isValidSearchFrom_toList {pat s : Slice} {stackPos needlePos 
     (heq : it = Std.Iter.mk (.proper pat table ht stackPos needlePos hn))
     {p : s.Pos} (hp : p = h.base) :
     IsValidSearchFrom pat p it.toList := by
-  induction it using Std.Iter.inductSteps generalizing p stackPos needlePos with | step it ihy ihs
+  rcases p with ⟨p, hp'⟩
+  replace hp' : p = h.base.offset := by simp [← hp]
+  induction it using Std.Iter.inductSteps generalizing p hp' stackPos needlePos with | step it ihy ihs
   cases heq
   cases hp
   rw [Std.Iter.toList_eq_match_step]
@@ -466,24 +481,23 @@ theorem Invariants.isValidSearchFrom_toList {pat s : Slice} {stackPos needlePos 
         have hzero := hinc.zero_of_eq h₃
         rw [s.pos!_eq_pos hinc.isValidForSlice, s.pos!_eq_pos (hzero.isValidForSlice' rfl)] at hit''
         simp only [← hit'', Pos.Raw.inc_unoffsetBy_inc] at ⊢ plausible
-        apply IsValidSearchFrom.matched_of_eq (ihy plausible hzero rfl rfl) _ rfl
+        apply IsValidSearchFrom.matched_of_eq (ihy plausible hzero rfl _ _ rfl (by simp [offset_base])) _ rfl
         simpa [base] using hinc.isLongestMatchAt h₃
 
       · -- Case 2: matched the next character, but not yet the full pattern
         simp only [Id.run_pure, Std.Shrink.inflate_deflate, Std.IterM.Step.toPure_skip,
           Std.PlausibleIterStep.skip, Std.IterM.toIter_mk] at hit''
         simp only [← hit''] at ⊢ plausible
-        exact ihs plausible (h.inc _ _ h₂.symm) rfl (by simp [base])
+        exact ihs plausible (h.inc _ _ h₂.symm) rfl _ _ (by ext; simp [base]) (by simp [offset_base])
 
     · split at hit'' <;> rename_i h₃
       · -- Case 3: mismatch at the start of the pattern -> jump to next position
         simp only [Id.run_pure, Std.Shrink.inflate_deflate, Std.IterM.Step.toPure_yield,
           Std.PlausibleIterStep.yield, Std.IterM.toIter_mk] at hit''
         cases h₃
-        rw [s.pos!_eq_pos (h.isValidForSlice' rfl)] at hit''
         simp only [← hit''] at ⊢ plausible
-        apply IsValidSearchFrom.mismatched_of_eq _ (by simp [base]) _ (by simp [base])
-        · exact ihy plausible (.offset h.isEmpty_eq_false) rfl rfl
+        apply IsValidSearchFrom.mismatched_of_eq _ (by simp [base]) _ (by ext; simp; rw [Slice.offset_pos! (by assumption)])
+        · exact ihy plausible (.offset h.isEmpty_eq_false) rfl _ _ rfl (by simp [offset_base])
         · simp only [base, Pos.Raw.unoffsetBy_zero, Pos.le_iff, offset_pos, lt_posGT_iff]
           intro pos hp₁ hp₂
           obtain rfl : stackPos = pos.offset := Std.le_antisymm hp₁ hp₂
@@ -500,8 +514,8 @@ theorem Invariants.isValidSearchFrom_toList {pat s : Slice} {stackPos needlePos 
             Std.PlausibleIterStep.yield, Std.IterM.toIter_mk] at hit''
           rw [s.pos!_eq_pos h.isValidForSlice] at hit''
           simp only [← hit''] at ⊢ plausible
-          apply IsValidSearchFrom.mismatched_of_eq _ _ _ (by simp [base])
-          · exact ihy plausible (.offset h.isEmpty_eq_false) rfl rfl
+          apply IsValidSearchFrom.mismatched_of_eq _ _ _ (by (ext; simp [base]))
+          · exact ihy plausible (.offset h.isEmpty_eq_false) rfl _ _ rfl (by simp [offset_base])
           · have := h.partialMatch.needlePos_le_stackPos
             simp only [Pos.Raw.ext_iff, Pos.Raw.byteIdx_zero, base, lt_posGE_iff, offset_pos,
               Pos.Raw.lt_iff, Pos.Raw.byteIdx_unoffsetBy, gt_iff_lt] at ⊢ h₃
@@ -515,8 +529,8 @@ theorem Invariants.isValidSearchFrom_toList {pat s : Slice} {stackPos needlePos 
           rw [s.pos!_eq_pos h.isValidForSlice,
             s.pos!_eq_pos (h.of_prefixFunction_eq h₃ rfl (by omega)).isValidForSlice] at hit''
           simp only [← hit''] at ⊢ plausible
-          apply IsValidSearchFrom.mismatched_of_eq _ _ _ (by simp [base])
-          · exact ihy plausible (h.of_prefixFunction_eq h₃ rfl (by omega)) rfl rfl
+          apply IsValidSearchFrom.mismatched_of_eq _ _ _ (by (ext; simp [base]))
+          · exact ihy plausible (h.of_prefixFunction_eq h₃ rfl (by omega)) rfl _ _ rfl (by simp [offset_base])
           · have h₅ := h.partialMatch.needlePos_le_stackPos
             simp [base, Pos.lt_iff, Pos.Raw.ext_iff] at ⊢ h₃ h₅
             apply Pos.Raw.unoffsetBy_lt_unoffsetBy_of_le_of_lt
@@ -529,7 +543,7 @@ theorem Invariants.isValidSearchFrom_toList {pat s : Slice} {stackPos needlePos 
         Std.PlausibleIterStep.yield, Std.IterM.toIter_mk] at hit''
       rw [s.pos!_eq_pos h.isValidForSlice] at hit''
       simp only [← hit''] at ⊢ plausible
-      apply IsValidSearchFrom.mismatched_of_eq _ _ _ (by simp [base])
+      apply IsValidSearchFrom.mismatched_of_eq _ _ _ (by (ext; simp [base]))
       · rw [Std.Iter.toList_eq_match_step, Std.Iter.step_eq]
         simpa [Std.Iter.toIterM] using IsValidSearchFrom.endPos
       · simp only [Pos.Raw.lt_iff, Pos.Raw.byteIdx_unoffsetBy, byteIdx_rawEndPos, base, Pos.lt_iff,

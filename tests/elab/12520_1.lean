@@ -1,5 +1,6 @@
 import Lean
 
+/-! Ensures partially-applied structure constructors are appropriately eta-expanded during defeq. -/
 
 structure T where
   val : Bool

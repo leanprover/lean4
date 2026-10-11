@@ -174,7 +174,7 @@ private def isDefEqEtaStruct (a b : Expr) : MetaM Bool := do
     else
       return false
 where
-    -- if `b` is a *partially* applied constructor, we compare eta-expanded versions of `a` and `b`.
+  /-- if `b` is a *partially* applied constructor, we compare eta-expanded versions of `a` and `b`.-/
   expandIfNeeded ctorVal k := do
     if ctorVal.numParams + ctorVal.numFields == b.getAppNumArgs then
       k a b

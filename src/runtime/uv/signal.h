@@ -28,16 +28,16 @@ enum signal_state {
 
 // Structure for managing a single UV signal object, including promise handling, signal number, and
 // repeating behavior. The repeating behavior exists to "set" a handler and avoid it not getting signals
-// between the creation of oneshot signal handlers.
-typedef struct {
-    uv_signal_t     m_uv_signal;   // LibUV signal handle.
-    lean_object *   m_promise;     // The associated promise for asynchronous results.
-    int             m_signum;      // Signal number to watch for.
-    int             m_lean_signum; // `m_signum` in the encoding of `Signal.toInt32`, reported to waiters.
-    bool            m_repeating;   // Flag indicating if the signal handler is repeating.
-    bool            m_received;    // Whether a repeating signal arrived while no promise was pending.
-    signal_state    m_state;       // The state of the signal.
-} lean_uv_signal_object;
+// between the creation of oneshot signal handlers. Allocated with `new`; the close callback deletes it.
+struct lean_uv_signal_object {
+    uv_signal_t     m_uv_signal;                      // LibUV signal handle.
+    lean_object *   m_promise = nullptr;              // The associated promise for asynchronous results.
+    int             m_signum = 0;                     // Signal number to watch for.
+    int             m_lean_signum = 0;                // `m_signum` in the encoding of `Signal.toInt32`, reported to waiters.
+    bool            m_repeating = false;              // Flag indicating if the signal handler is repeating.
+    bool            m_received = false;               // Whether a repeating signal arrived while no promise was pending.
+    signal_state    m_state = SIGNAL_STATE_INITIAL;   // The state of the signal.
+};
 
 // `m_promise` may be NULL in any state: `stop` leaves a FINISHED signal without one, and `cancel`
 // leaves it RUNNING without one. A repeating signal also keeps its last

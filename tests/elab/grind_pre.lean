@@ -54,16 +54,20 @@ h_2 : b = false
   [facts] Asserted facts
     [prop] a = true ∧ (b = true ∨ c = true)
     [prop] p ∧ q
+    [prop] b = false ∨ a = false
     [prop] b = false
   [eqc] True propositions
     [prop] p
     [prop] q
     [prop] p ∧ q
     [prop] a = true ∧ (b = true ∨ c = true)
+    [prop] b = false ∨ a = false
     [prop] b = true ∨ c = true
     [prop] a = true
+    [prop] b = false
     [prop] c = true
   [eqc] False propositions
+    [prop] a = false
     [prop] b = true
   [eqc] Equivalence classes
     [eqc] {a, c, true}

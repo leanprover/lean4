@@ -261,3 +261,24 @@ example {M : Type u} [NatModule M] (a b : M) :
     atomAlias a + b = a + b := by
   fail_if_success module_eq
   rfl
+
+-- Metadata on additive operations must not hide their structure (#15619).
+run_meta do
+  withLocalDeclD `a (mkConst ``Int) fun a => do
+    let add ← mkAppM ``HAdd.hAdd #[a, a]
+    let sub ← mkAppM ``HSub.hSub #[a, a]
+    let neg ← mkAppM ``Neg.neg #[a]
+    let smul ← mkAppM ``HSMul.hSMul #[toExpr (3 : Int), a]
+    for e in [add, sub, neg, smul] do
+      let annotated := mkMData {} e
+      let some proof ← SymM.run (Arith.proveAddEq? (← mkEq annotated e))
+        | throwError "metadata prevented additive equality normalization"
+      checkWithKernel proof
+      for input in [annotated, ← mkAppM ``HAdd.hAdd #[annotated, a]] do
+        let .step output proof .. ← SymM.run (Arith.normalizeAdd? input)
+          | throwError "metadata prevented additive term normalization"
+        if (output.find? (· matches .mdata ..)).isSome then
+          throwError "normalization retained metadata"
+        unless ← isDefEq (← inferType proof) (← mkEq input output) do
+          throwError "unexpected metadata certificate type"
+        checkWithKernel proof

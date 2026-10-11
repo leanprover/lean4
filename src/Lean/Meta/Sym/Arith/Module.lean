@@ -98,6 +98,11 @@ private partial def visitModuleAtoms [Monad m] [MonadLiftT SymM m] [MonadLiftT M
       let rf ← (Simp.mkCongrArg fa f a ra h' : SymM Simp.Result)
       (Simp.mkCongr e fa b rf rb (h' ▸ h) : SymM Simp.Result)
     | _ => unreachable!
+  -- `match_expr` ignores metadata, but the structural matches above do not.
+  if let .mdata _ b := e then
+    match (← visitModuleAtoms integers simpAtom b) with
+    | .rfl _ cd => return .step b (← Sym.mkEqRefl b) (contextDependent := cd)
+    | r => return r
   match_expr e with
   | HAdd.hAdd _ _ _ _ _ _ => bin
   | HSub.hSub _ _ _ _ _ _ => if integers then bin else simpAtom e
@@ -231,8 +236,8 @@ inside arbitrary propositions, including goals that remain open after normalizat
 def normalizeAdd? [Monad m] [MonadLiftT SymM m] [MonadLiftT MetaM m] [MonadControlT MetaM m]
     (e : Expr) (simpAtom : Expr → m Simp.Result := fun _ => pure .rfl) : m Simp.Result :=
     withNewMCtxDepth do
-  unless e.isAppOfArity ``HAdd.hAdd 6 || e.isAppOfArity ``HSub.hSub 6 ||
-      e.isAppOfArity ``Neg.neg 3 || e.isAppOfArity ``HSMul.hSMul 6 do return .rfl
+  unless e.isAppOfArity' ``HAdd.hAdd 6 || e.isAppOfArity' ``HSub.hSub 6 ||
+      e.isAppOfArity' ``Neg.neg 3 || e.isAppOfArity' ``HSMul.hSMul 6 do return .rfl
   let e ← shareCommon e
   let type ← Meta.inferType e
   let some (ctx, inst, u, integers) ← getModule? type | return .rfl

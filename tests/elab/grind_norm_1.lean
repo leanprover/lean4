@@ -1126,3 +1126,34 @@ example : k 2 = b := by grind_norm check; sorry
 
 end NormAttrs
 end norm_attrs
+
+section dep_binders
+variable (a : Array Nat) (i : Nat) (f : (a : Array Nat) → (i : Nat) → i < a.size → Bool)
+
+#guard_msgs in
+example : ∀ h : i < a.size, f a i h = true := by grind_norm check; sorry
+
+#guard_msgs in
+example : ∀ j, ∀ h : j < a.size, f a j h = true := by grind_norm check; sorry
+
+#guard_msgs in
+example : ∀ j, ∀ h : j < a.size, ∀ k, k < j → f a j h = true := by grind_norm check; sorry
+
+#guard_msgs in
+example : (∀ h : i < a.size, f a i h = true) → i < a.size := by grind_norm check; sorry
+
+-- Accepted difference: only the cast proof of `h` differs. Legacy rewrites the domain with
+-- `exists_prop_congr` (`Iff.mpr`), `Sym.simp` with `exists_prop_congr_dom` (`Eq.substr`).
+/--
+error: `grind_norm` discrepancy (in hidden arguments)
+legacy:
+  ∃ h, f a i ⋯ = true
+sym:
+  ∃ h, f a i ⋯ = true
+-/
+#guard_msgs in
+example : ∃ h : i < a.size, f a i h = true := by grind_norm check; sorry
+
+#guard_msgs in
+example : ¬ ∃ h : i < a.size, f a i h = true := by grind_norm check; sorry
+end dep_binders

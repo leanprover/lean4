@@ -106,9 +106,15 @@ def elabElab : CommandElab
     let kind ← elabSyntax <|← `(
       $[$doc?:docComment]? $[@[$attrs?,*]]? $attrKind:attrKind
       syntax%$tk$[:$prec?]? $[(name := $name?)]? (priority := $(quote prio):num) $[$stxParts]* : $cat)
+    -- Elide `scoped` for `elab_rules`; this allows for using scoped macros in unscoped macros
+    -- for back-compat and unlike with `local`, there would be no benefit to enforcing `scoped`.
+    let mut rulesKind := attrKind
+    if rulesKind matches `(attrKind| scoped) then
+      rulesKind ← `(attrKind| )
     let pat := ⟨mkNode kind patArgs⟩
     elabCommand <|← `(
-      $[$doc?:docComment]? elab_rules : $cat $[<= $expectedType?]? | `($pat) => $rhs)
+      $[$doc?:docComment]? $rulesKind:attrKind
+      elab_rules : $cat $[<= $expectedType?]? | `($pat) => $rhs)
   | _ => throwUnsupportedSyntax
 
 end Lean.Elab.Command

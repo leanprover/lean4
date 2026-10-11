@@ -329,6 +329,13 @@ private partial def visitAtoms (kind : Kind) (isField : Bool) (simpAtom : Expr �
   let castLit : m Result := do
     let some (e₂, h) ← liftNorm kind (mkCastLitStep? kind e) | return .rfl
     return .step e₂ h
+  -- Metadata is transparent to the kernel and `grind` never internalizes it, so an annotated node
+  -- (e.g., an inaccessible pattern of a `match` equation) is normalized without the annotation.
+  -- Note that `match_expr` ignores metadata, but the structural matches in `bin` and `un` do not.
+  if let .mdata _ b := e then
+    match (← visitAtoms kind isField simpAtom b) with
+    | .rfl _ cd => return .step b (← Sym.mkEqRefl b) (contextDependent := cd)
+    | r => return r
   match_expr e with
   | HAdd.hAdd _ _ _ _ _ _ => bin
   | HMul.hMul _ _ _ _ _ _ => bin
@@ -421,6 +428,8 @@ private partial def canonArith (e : Expr) : NormM Expr := do
     let f' ← canonExpr f
     if isSameExpr f f' then return e
     mkAppS f' a
+  -- Metadata is dropped, see `visitAtoms`.
+  if let .mdata _ b := e then return (← canonArith b)
   match_expr e with
   | HAdd.hAdd _ _ _ _ a b => bin e a b
   | HMul.hMul _ _ _ _ a b => bin e a b

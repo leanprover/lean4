@@ -27,8 +27,7 @@ struct udp_send_req_t {
 static void udp_socket_finalizer(void* ptr) {
     lean_uv_udp_socket_object* udp_socket = (lean_uv_udp_socket_object*)ptr;
 
-    lean_always_assert(udp_socket->m_promise_read == nullptr);
-    lean_always_assert(udp_socket->m_byte_array == nullptr);
+    lean_always_assert(!udp_socket->m_read.pending() && udp_socket->m_read.m_payload.get() == nullptr);
 
     event_loop_guard guard;
 
@@ -37,7 +36,7 @@ static void udp_socket_finalizer(void* ptr) {
     udp_socket->m_uv_udp.data = udp_socket;
 
     uv_close((uv_handle_t*)&udp_socket->m_uv_udp, [](uv_handle_t* handle) {
-        free(handle->data);
+        delete static_cast<lean_uv_udp_socket_object*>(handle->data);
     });
 }
 
@@ -45,16 +44,12 @@ void initialize_libuv_udp_socket() {
     g_uv_udp_socket_external_class = lean_register_external_class(udp_socket_finalizer, [](void* obj, lean_object* f) {
         lean_uv_udp_socket_object* udp_socket = (lean_uv_udp_socket_object*)obj;
 
-        if (udp_socket->m_promise_read != nullptr) {
-            lean_inc(f);
-            lean_inc(udp_socket->m_promise_read);
-            lean_dec(lean_apply_1(f, udp_socket->m_promise_read));
-        }
-
-        if (udp_socket->m_byte_array != nullptr) {
-            lean_inc(f);
-            lean_inc(udp_socket->m_byte_array);
-            lean_dec(lean_apply_1(f, udp_socket->m_byte_array));
+        for (lean_object * o : {udp_socket->m_read.m_promise.get(), udp_socket->m_read.m_payload.get()}) {
+            if (o != nullptr) {
+                lean_inc(f);
+                lean_inc(o);
+                lean_dec(lean_apply_1(f, o));
+            }
         }
     });
 }
@@ -64,13 +59,10 @@ void initialize_libuv_udp_socket() {
 
 /* Std.Internal.UV.UDP.Socket.new : IO Socket */
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_new() {
-    lean_uv_udp_socket_object* udp_socket = (lean_uv_udp_socket_object*)malloc(sizeof(lean_uv_udp_socket_object));
+    lean_uv_udp_socket_object* udp_socket = new (std::nothrow) lean_uv_udp_socket_object;
     if (udp_socket == nullptr) {
         return io_result_mk_enomem();
     }
-
-    udp_socket->m_promise_read = nullptr;
-    udp_socket->m_byte_array = nullptr;
 
     int result;
 
@@ -80,7 +72,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_new() {
     }
 
     if (result != 0) {
-        free(udp_socket);
+        delete udp_socket;
 
         return io_result_mk_uv_error(result);
     }
@@ -200,8 +192,8 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_recv(b_obj_arg socket, uint64_t 
     auto alloc_cb = [](uv_handle_t *handle, size_t suggested_size, uv_buf_t *buf) {
         lean_uv_udp_socket_object *udp_socket = lean_to_uv_udp_socket((lean_object*)handle->data);
 
-        buf->base = (char*)lean_sarray_cptr(udp_socket->m_byte_array);
-        buf->len = lean_sarray_capacity(udp_socket->m_byte_array);
+        buf->base = (char*)lean_sarray_cptr(udp_socket->m_read.m_payload.get());
+        buf->len = lean_sarray_capacity(udp_socket->m_read.m_payload.get());
     };
 
     auto recv_cb = [](uv_udp_t *handle, ssize_t nread, const uv_buf_t *buf, const struct sockaddr *addr, unsigned flags) {
@@ -210,17 +202,16 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_recv(b_obj_arg socket, uint64_t 
         uv_udp_recv_stop(handle);
 
         lean_uv_udp_socket_object *udp_socket = lean_to_uv_udp_socket((lean_object*)handle->data);
-        lean_object* promise = udp_socket->m_promise_read;
-        lean_object* byte_array = udp_socket->m_byte_array;
 
-        udp_socket->m_promise_read = nullptr;
-        udp_socket->m_byte_array = nullptr;
+        // The event loop does not own the socket anymore. Declared first so it is released last.
+        owned_ref keep_alive((lean_object*)handle->data);
+        uv_pending_op op = std::move(udp_socket->m_read);
+        lean_object* promise = op.m_promise.get();
 
         if (nread >= 0 && (flags & UV_UDP_PARTIAL) != 0) {
-            lean_dec(byte_array);
             lean_promise_resolve(mk_except_err(lean_decode_uv_error(UV_EMSGSIZE, nullptr)), promise);
         } else if (nread >= 0) {
-            byte_array = fit_read_buffer(byte_array, nread);
+            lean_object* byte_array = fit_read_buffer(op.m_payload.release(), nread);
 
             lean_object* addr_obj;
 
@@ -235,25 +226,19 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_recv(b_obj_arg socket, uint64_t 
             lean_ctor_set(prod, 1, addr_obj);
 
             lean_promise_resolve(mk_except_ok(prod), promise);
-        } else if (nread < 0) {
-            lean_dec(byte_array);
+        } else {
             lean_promise_resolve(mk_except_err(lean_decode_uv_error(nread, nullptr)), promise);
         }
-
-        lean_dec(promise);
-
-        // The event loop does not own the object anymore.
-        lean_dec((lean_object*)handle->data);
     };
 
-    lean_object* byte_array;
-    lean_object* promise;
+    owned_ref promise;
+    uv_pending_op failed;
     int result;
     {
-        // Locking earlier to avoid parallelism issues with m_promise_read.
+        // Locking earlier to avoid parallelism issues with `m_read`.
         event_loop_guard guard;
 
-        if (udp_socket->m_promise_read != nullptr) {
+        if (udp_socket->m_read.pending()) {
             return io_result_mk_uv_error(UV_EALREADY);
         }
 
@@ -261,34 +246,24 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_recv(b_obj_arg socket, uint64_t 
             return size_error;
         }
 
-        byte_array = lean_alloc_sarray(1, 0, buffer_size);
-        promise = mk_mt_promise();
-
-        udp_socket->m_byte_array = byte_array;
-        udp_socket->m_promise_read = promise;
-
-        // The event loop owns the socket.
-        lean_inc(promise);
-        lean_inc(socket);
+        promise = owned_ref(mk_mt_promise());
+        udp_socket->m_read = uv_pending_op{owned_ref::retain(promise.get()), owned_ref(lean_alloc_sarray(1, 0, buffer_size))};
 
         result = uv_udp_recv_start(&udp_socket->m_uv_udp, alloc_cb, recv_cb);
 
         if (result < 0) {
-            udp_socket->m_byte_array = nullptr;
-            udp_socket->m_promise_read = nullptr;
+            failed = std::move(udp_socket->m_read);
+        } else {
+            // The event loop owns the socket.
+            lean_inc(socket);
         }
     }
 
     if (result < 0) {
-        lean_dec(byte_array);
-        lean_dec(promise); // The structure does not own it.
-        lean_dec(promise); // We are not going to return it.
-        lean_dec(socket);
-
         return io_result_mk_uv_error(result);
     }
 
-    return lean_io_result_mk_ok(promise);
+    return lean_io_result_mk_ok(promise.release());
 }
 
 /* Std.Internal.UV.UDP.Socket.waitReadable (socket : @& Socket) : IO (IO.Promise (Except IO.Error Unit)) */
@@ -310,9 +285,11 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_wait_readable(b_obj_arg socket) 
         uv_udp_recv_stop(handle);
 
         lean_uv_udp_socket_object *udp_socket = lean_to_uv_udp_socket((lean_object*)handle->data);
-        lean_object* promise = udp_socket->m_promise_read;
 
-        udp_socket->m_promise_read = nullptr;
+        // The event loop does not own the socket anymore. Declared first so it is released last.
+        owned_ref keep_alive((lean_object*)handle->data);
+        uv_pending_op op = std::move(udp_socket->m_read);
+        lean_object* promise = op.m_promise.get();
 
         if (nread < 0 && nread != UV_ENOBUFS) {
             lean_promise_resolve(mk_except_err(lean_decode_uv_error(nread, nullptr)), promise);
@@ -322,77 +299,55 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_wait_readable(b_obj_arg socket) 
             // readable, so report that rather than aborting the process.
             lean_promise_resolve(mk_except_ok(lean_box(0)), promise);
         }
-
-        lean_dec(promise);
-
-        // The event loop does not own the object anymore.
-        lean_dec((lean_object*)handle->data);
     };
 
-    lean_object* promise;
+    owned_ref promise;
+    uv_pending_op failed;
     int result;
     {
-        // Locking earlier to avoid parallelism issues with m_promise_read.
+        // Locking earlier to avoid parallelism issues with `m_read`.
         event_loop_guard guard;
 
-        if (udp_socket->m_promise_read != nullptr) {
+        if (udp_socket->m_read.pending()) {
             return io_result_mk_uv_error(UV_EALREADY);
         }
 
-        promise = mk_mt_promise();
-
-        udp_socket->m_promise_read = promise;
-
-        // The event loop owns the socket.
-        lean_inc(promise);
-        lean_inc(socket);
+        promise = owned_ref(mk_mt_promise());
+        udp_socket->m_read = uv_pending_op{owned_ref::retain(promise.get())};
 
         result = uv_udp_recv_start(&udp_socket->m_uv_udp, alloc_cb, recv_cb);
 
         if (result < 0) {
-            udp_socket->m_promise_read = nullptr;
+            failed = std::move(udp_socket->m_read);
+        } else {
+            // The event loop owns the socket.
+            lean_inc(socket);
         }
     }
 
     if (result < 0) {
-        lean_dec(promise); // The structure does not own it.
-        lean_dec(promise); // We are not going to return it.
-        lean_dec(socket);
-
         return io_result_mk_uv_error(result);
     }
 
-    return lean_io_result_mk_ok(promise);
+    return lean_io_result_mk_ok(promise.release());
 }
 
 /* Std.Internal.UV.UDP.Socket.cancelRecv (socket : @& Socket) : IO Unit */
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_cancel_recv(b_obj_arg socket) {
     lean_uv_udp_socket_object* udp_socket = lean_to_uv_udp_socket(socket);
 
-    lean_object* promise = nullptr;
-    lean_object* byte_array = nullptr;
+    // Released after the unlock, the socket last.
+    owned_ref keep_alive;
+    uv_pending_op op;
     {
         event_loop_guard guard;
 
-        if (udp_socket->m_promise_read != nullptr) {
+        if (udp_socket->m_read.pending()) {
             uv_udp_recv_stop(&udp_socket->m_uv_udp);
 
-            promise = udp_socket->m_promise_read;
-            byte_array = udp_socket->m_byte_array;
-
-            udp_socket->m_promise_read = nullptr;
-            udp_socket->m_byte_array = nullptr;
+            op = std::move(udp_socket->m_read);
+            keep_alive = owned_ref(socket);
         }
-    }
-
-    if (promise != nullptr) {
-        lean_dec(promise);
-
-        if (byte_array != nullptr) {
-            lean_dec(byte_array);
-        }
-
-        lean_dec(socket);
     }
 
     return lean_io_result_mk_ok(lean_box(0));

@@ -6,6 +6,7 @@ Author: Sofia Rodrigues, Henrik Böving
 */
 #include "runtime/uv/timer.h"
 #include "runtime/uv/util.h"
+#include <new>
 
 namespace lean {
 #ifndef LEAN_EMSCRIPTEN
@@ -28,7 +29,7 @@ static void timer_finalizer(void* ptr) {
         timer->m_uv_timer.data = timer;
 
         uv_close((uv_handle_t*)&timer->m_uv_timer, [](uv_handle_t* handle) {
-            free(handle->data);
+            delete static_cast<lean_uv_timer_object*>(handle->data);
         });
 
         // The close callback may free `timer` as soon as the lock is released.
@@ -109,15 +110,13 @@ void handle_timer_event(uv_timer_t* handle) {
 
 /* Std.Internal.UV.Timer.mk (timeout : UInt64) (repeating : Bool) : IO Timer */
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_mk(uint64_t timeout, uint8_t repeating) {
-    lean_uv_timer_object * timer = (lean_uv_timer_object*)malloc(sizeof(lean_uv_timer_object));
+    lean_uv_timer_object * timer = new (std::nothrow) lean_uv_timer_object;
     if (timer == nullptr) {
         return io_result_mk_enomem();
     }
     // libuv treats a repeat period of 0 as a one-shot timer.
     timer->m_timeout = repeating && timeout == 0 ? 1 : timeout;
     timer->m_repeating = repeating;
-    timer->m_state = TIMER_STATE_INITIAL;
-    timer->m_promise = NULL;
 
     int result;
 
@@ -127,7 +126,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_mk(uint64_t timeout, uint8_t r
     }
 
     if (result != 0) {
-        free(timer);
+        delete timer;
         return io_result_mk_uv_error(result);
     }
 

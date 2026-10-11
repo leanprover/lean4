@@ -7,7 +7,7 @@ Author: Sofia Rodrigues
 #include <lean/lean.h>
 #include "runtime/uv/event_loop.h"
 #include "runtime/uv/net_addr.h"
-#include "runtime/object_ref.h"
+#include "runtime/uv/util.h"
 
 #ifndef LEAN_EMSCRIPTEN
 #include <uv.h>
@@ -20,19 +20,16 @@ void initialize_libuv_tcp_socket();
 
 #ifndef LEAN_EMSCRIPTEN
 
-// Structure for managing a single TCP socket object, including promise handling,
-// connection state, and read/write buffers.
-typedef struct {
-    uv_tcp_t       m_uv_tcp;           // LibUV TCP handle.
-    lean_object*   m_promise_accept;   // The associated promise for asynchronous results for accepting new sockets.
-    lean_object*   m_promise_read;     // The associated promise for asynchronous results for reading from the socket.
-    lean_object*   m_promise_shutdown; // The associated promise for asynchronous results to shutdown the socket.
-    lean_object*   m_client;           // Cached client that is going to be used in the next accept, or `nullptr` for `waitAcceptable`.
-    lean_object*   m_byte_array;       //  Buffer for storing data received via `recv_start`.
-    bool           m_shutdown_requested; // Whether `uv_shutdown` was already requested for this socket.
-    bool           m_listening;        // Whether `uv_listen` succeeded on this socket.
-    unsigned       m_pending_connections; // Connections the listen callback reported that nobody accepted yet.
-} lean_uv_tcp_socket_object;
+// A TCP socket. Allocated with `new`; the close callback deletes it.
+struct lean_uv_tcp_socket_object {
+    uv_tcp_t      m_uv_tcp;                     // LibUV TCP handle.
+    uv_pending_op m_read;                       // `recv?` (payload: the receive buffer) or `waitReadable` (none).
+    uv_pending_op m_accept;                     // `accept` (payload: the client socket) or `waitAcceptable` (none).
+    owned_ref     m_promise_shutdown;           // The pending `shutdown`.
+    bool          m_shutdown_requested = false; // Whether `uv_shutdown` was already requested for this socket.
+    bool          m_listening = false;          // Whether `uv_listen` succeeded on this socket.
+    unsigned      m_pending_connections = 0;    // Connections the listen callback reported that nobody accepted yet.
+};
 
 // =======================================
 // Tcp socket object manipulation functions.

@@ -1,6 +1,6 @@
 ---
 name: stage2-olean-test
-description: Diagnose a spurious stage1 test failure caused by olean-persisted compiler changes. Use when a stage1 test fails unexpectedly and the change adds or modifies an environment extension or other information persisted into .olean files.
+description: Diagnose a spurious stage1 test or CI failure caused by olean-persisted compiler changes. Use when a stage1 test, or a CI post-build job, fails unexpectedly and the change adds or modifies an environment extension or other information persisted into .olean files.
 allowed-tools: Bash, Read
 ---
 
@@ -20,3 +20,17 @@ Building stage2 is expensive, so **confirm with the user before switching to a s
 
 For the actual build/test commands (`make stage2`, `clean-stdlib`, per-module Lake builds, and
 running tests against stage2), use the **`stage2-build`** skill.
+
+## Making CI test stage2
+
+A local `make stage2` validation does not change what CI does: CI still builds the change with stage0
+(and its Lake artifact cache), so the same stale-olean mismatch surfaces there — often as a spurious
+error far from the change (e.g. `error: cannot import non-`module` X from `module``) in a post-build
+step or a cached build job.
+
+To make CI rebootstrap and compile everything with the new compiler (the consistency `make stage2`
+gives locally), push a separate **`chore: test stage2`** commit that edits
+`stage0/src/stdlib_flags.h`. Touching a `stage0/` file triggers CI's rebootstrap path.
+
+This is the one sanctioned exception to "never edit `stage0/`", so **only make this commit after asking
+the user for confirmation.**

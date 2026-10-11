@@ -50,6 +50,15 @@ public:
     }
 };
 
+// An operation in flight on a handle: its promise and an optional payload. The event loop holds a
+// reference to the handle exactly while `m_promise` is set.
+struct uv_pending_op {
+    owned_ref m_promise;
+    owned_ref m_payload;
+
+    bool pending() const { return m_promise.get() != nullptr; }
+};
+
 // The loop thread resolves and releases the promise, so its refcount has to be atomic.
 inline lean_obj_res mk_mt_promise() {
     lean_object * promise = lean_promise_new();

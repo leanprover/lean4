@@ -5,6 +5,7 @@ Author: Sofia Rodrigues
 */
 #include "runtime/uv/signal.h"
 #include "runtime/uv/util.h"
+#include <new>
 
 namespace lean {
 #ifndef LEAN_EMSCRIPTEN
@@ -25,7 +26,7 @@ static void signal_finalizer(void* ptr) {
         signal->m_uv_signal.data = signal;
 
         uv_close((uv_handle_t*)&signal->m_uv_signal, [](uv_handle_t* handle) {
-            free(handle->data);
+            delete static_cast<lean_uv_signal_object*>(handle->data);
         });
 
         // The close callback may free `signal` as soon as the lock is released.
@@ -136,16 +137,13 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_signal_mk(uint32_t signum_obj, uint8
         default: signum = 0; break;
     }
 
-    lean_uv_signal_object * signal = (lean_uv_signal_object*)malloc(sizeof(lean_uv_signal_object));
+    lean_uv_signal_object * signal = new (std::nothrow) lean_uv_signal_object;
     if (signal == nullptr) {
         return io_result_mk_enomem();
     }
     signal->m_signum = signum;
     signal->m_lean_signum = (int)(int32_t)signum_obj;
     signal->m_repeating = repeating;
-    signal->m_received = false;
-    signal->m_state = SIGNAL_STATE_INITIAL;
-    signal->m_promise = NULL;
 
     int result;
 
@@ -155,7 +153,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_signal_mk(uint32_t signum_obj, uint8
     }
 
     if (result != 0) {
-        free(signal);
+        delete signal;
         return io_result_mk_uv_error(result);
     }
 

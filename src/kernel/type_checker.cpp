@@ -1161,7 +1161,6 @@ bool type_checker::is_def_eq_unit_like(expr const & t, expr const & s) {
     expr t_type = whnf(infer_type(t));
     if (!is_unit_like(t_type))
         return false;
-    // This `is_def_eq_core` should always be true under then kernel invariant that terms that get compared must be known to have defeq types, why keep it ?
     return is_def_eq_core(t_type, infer_type(s));
 }
 

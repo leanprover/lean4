@@ -26,15 +26,15 @@ enum timer_state {
     TIMER_STATE_FINISHED,
 };
 
-// Structure for managing a single UV timer object, including promise handling, timeout, and
-// repeating behavior.
-typedef struct {
-    uv_timer_t      m_uv_timer;    // LibUV timer handle.
-    lean_object *   m_promise;     // The associated promise for asynchronous results.
-    uint64_t        m_timeout;     // Timeout duration in milliseconds.
-    bool            m_repeating;   // Flag indicating if the timer is repeating.
-    timer_state     m_state;       // The state of the timer.
-} lean_uv_timer_object;
+// A UV timer, including promise handling, timeout, and repeating behavior. Allocated with `new`; the
+// close callback deletes it.
+struct lean_uv_timer_object {
+    uv_timer_t      m_uv_timer;                        // LibUV timer handle.
+    lean_object *   m_promise = nullptr;               // The associated promise for asynchronous results.
+    uint64_t        m_timeout = 0;                     // Timeout duration in milliseconds.
+    bool            m_repeating = false;               // Flag indicating if the timer is repeating.
+    timer_state     m_state = TIMER_STATE_INITIAL;     // The state of the timer.
+};
 
 // `m_promise` may be NULL in any state: `stop` leaves a FINISHED timer without one, and a tick or
 // `cancel` leaves a repeating timer RUNNING without one.

@@ -1,3 +1,5 @@
+/-! Checks that majors in recursor applications whose types are subsingleton structures get appropriately eta-expanded. Furthermore, ensure that eta-expansion is done *before* attempting to reduce the major. If not done in this order, the non-termination of reduction for proof terms could still leak to non-proof terms.-/
+
 
 section
 variable (P Q : Prop) (A : Type) (f : P → Q → A) (x : P ∧ Q)

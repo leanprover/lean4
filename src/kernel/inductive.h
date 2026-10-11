@@ -65,10 +65,10 @@ inline expr to_cnstr_when_structure(environment const & env, recursor_val const 
         return e;
     expr e_type = whnf(infer_type(e));
     expr const fn = get_app_fn(e_type);
-    if (!is_constant(fn, induct_name))  // Why is this check done ? if we're reducing, we already know the recursor expression to be type-correct, checking it again here should be not useful
+    if (!is_constant(fn, induct_name))
         return e;
     names non_nested_ind_params = env.get(head(rec_val.get_all())).get_lparams();
-    /* We do not perform eta for non-singleton propositions.
+    /*We do not perform eta for non-singleton propositions.
       To know whether a recursor is large-eliminating, it is not enough to look at its major's type's number of universes and and see if it differs from the recursor's. Consider the following types:
       ```
       inductive StructLike (α : Type u) where
@@ -80,7 +80,8 @@ inline expr to_cnstr_when_structure(environment const & env, recursor_val const 
       ```
       Here, the aux recursive Nested.rec_1 has one universe, but its major being of inductive type StructLike also has one. They have the same number of universes, but the type indeed has large-elimination.
       Instead, we look at the first inductive type in the defined mutual inductive block, and compare that type's universes to the recursor's.
-      TODO once the "large elimination" flag is added to recursors, use that instead. */
+      TODO once the "large elimination" flag is added to recursors, use that instead.
+    */
     if (length(rec_val.to_constant_val().get_lparams()) == length(non_nested_ind_params))
         return e;
     return expand_eta_struct(env, e_type, e);

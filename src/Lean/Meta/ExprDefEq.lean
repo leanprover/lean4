@@ -204,6 +204,9 @@ where
       else
         return false
 
+/-- Partial applications of recursors of k-like and structure types may progress from getting eta-expanded.
+  See https://github.com/leanprover/lean4/issues/12520
+-/
 private def shouldEtaRecursor (a : Expr) : MetaM Nat := do
   let afn := a.getAppFn
   let args := a.getAppArgs
@@ -215,15 +218,9 @@ private def shouldEtaRecursor (a : Expr) : MetaM Nat := do
     return 0
   return recVal.getMajorIdx + 1 - args.size
 
-private def shouldEta (a b : Expr) : MetaM Nat :=
-  if a.isLambda && !b.isLambda then
-    return 1
-  else
-    shouldEtaRecursor b
-
-/--
-  Try to solve `a := (fun x => t) =?= b` by eta-expanding `b`,
+/-- Try to solve `a := (fun x => t) =?= b` by eta-expanding `b`,
   resulting in `t =?= b x` (with a fresh free variable `x`).
+  We also eta-expand `b` when it is a partial application of a recursor of k-like and structure type.
 
   Remark: eta-reduction is not a good alternative even in a system without universe cumulativity like Lean.
   Example:
@@ -237,7 +234,13 @@ private def shouldEta (a b : Expr) : MetaM Nat :=
   Backtracking after η-expansion results in lots of duplicate δ-reductions,
   because we can δ-reduce `a` before and after the η-expansion.
   The fresh free variable `x` also busts the cache.
-  See https://github.com/leanprover/lean4/pull/2002 -/
+  See https://github.com/leanprover/lean4/pull/2002-/
+private def shouldEta (a b : Expr) : MetaM Nat :=
+  if a.isLambda && !b.isLambda then
+    return 1
+  else
+    shouldEtaRecursor b
+
 private def isDefEqEta (a b : Expr) : MetaM LBool := do
   let n_exps ← shouldEta a b
   if n_exps = 0 then

@@ -183,13 +183,23 @@ private def addNonRecAux (docCtx : LocalContext × LocalInstances) (preDef : Pre
     let preDef ← if abstractProofs then abstractNestedProofs (cache := cacheProofs) preDef else pure preDef
     let preDef ← letToHaveType preDef
     let preDef ← if cleanupValue then letToHaveValue preDef else pure preDef
-    let mkDefDecl : TermElabM Declaration :=
+    let attrRecudibilityHint? : Option ReducibilityHints :=
+      if preDef.modifiers.anyAttr (·.name matches `kernel_abbrev) then
+        some .abbrev
+      else
+       none
+    let mkDefDecl : TermElabM Declaration := do
+      let env ← getEnv
       return Declaration.defnDecl {
           name := preDef.declName, levelParams := preDef.levelParams, type := preDef.type, value := preDef.value
-          hints := ReducibilityHints.regular (getMaxHeight (← getEnv) preDef.value + 1)
+          hints := match attrRecudibilityHint? with
+          | some hint => hint
+          | none => ReducibilityHints.regular (getMaxHeight env preDef.value + 1)
           safety := if preDef.modifiers.isUnsafe then DefinitionSafety.unsafe else DefinitionSafety.safe,
           all }
     let mkThmDecl : TermElabM Declaration := do
+      if attrRecudibilityHint?.isSome then
+        logWarning "Declaration `{preDef.name}` cannot be tagged as `kernel_abbrev`: it is a theorem and is thus never unfolded."
       let d := {
         name := preDef.declName, levelParams := preDef.levelParams, type := preDef.type, value := preDef.value, all
       }
@@ -199,11 +209,15 @@ private def addNonRecAux (docCtx : LocalContext × LocalInstances) (preDef : Pre
       match preDef.kind with
       | DefKind.«theorem» => mkThmDecl
       | DefKind.«opaque»  =>
+        if attrRecudibilityHint?.isSome then
+          logWarning s!"Declaration `{preDef.declName}` cannot be tagged as `kernel_abbrev`: it is an opaque declaration and is thus never unfolded."
         pure <| Declaration.opaqueDecl {
           name := preDef.declName, levelParams := preDef.levelParams, type := preDef.type, value := preDef.value
           isUnsafe := preDef.modifiers.isUnsafe, all
         }
       | DefKind.«abbrev»  =>
+        if attrRecudibilityHint?.isSome then
+          logWarning s!"Tagging {preDef.declName} as `kernel_abbrev` is redundant, `abbrev` declarations are always ma"
         pure <| Declaration.defnDecl {
           name := preDef.declName, levelParams := preDef.levelParams, type := preDef.type, value := preDef.value
           hints := ReducibilityHints.«abbrev»
@@ -213,6 +227,7 @@ private def addNonRecAux (docCtx : LocalContext × LocalInstances) (preDef : Pre
       | DefKind.«instance» => if ← Meta.isProp preDef.type then mkThmDecl else mkDefDecl
     addDecl decl
     if isRecursive then markAsRecursive preDef.declName
+    let preDef := preDef.filterAttrs fun attr => attr.name != `kernel_abbrev
     applyAttributesOf #[preDef] AttributeApplicationTime.afterTypeChecking
     match preDef.modifiers.computeKind with
     -- Tags may have been added by `elabMutualDef` already, but that is not the only caller

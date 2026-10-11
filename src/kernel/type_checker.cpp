@@ -917,7 +917,7 @@ lbool type_checker::is_def_eq_proof_irrel(expr const & t, expr const & s) {
     if (!is_prop(t_type))
         return l_undef;
     expr s_type = infer_type(s);
-    return to_lbool(is_def_eq(t_type, s_type)); // An invariant of the kernel is that two terms getting compared should have the same type, this test shouldn't be needed.
+    return to_lbool(is_def_eq(t_type, s_type));
 }
 
 bool type_checker::failed_before(expr const & t, expr const & s) const {

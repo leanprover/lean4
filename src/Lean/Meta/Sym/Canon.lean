@@ -327,15 +327,34 @@ where
       withReader (fun ctx => { ctx with insideType := true }) <| canon e
 
   /--
-  Canonicalize `e : type` where `e` is an instance by trying to resynthesize `type`.
-  If `report` is `true`, we report an issue when the instance cannot be resynthesized.
+  Canonicalize `e : type` where `e` is an instance.
+
+  If `type` can be resynthesized, the synthesized instance is the canonical one (see
+  `checkDefEqInst`). Otherwise, if `e` is an application of a class projection, it is
+  canonicalized as an application. This covers class fields that are not global instances,
+  e.g., `NatCast α` via `Grind.Semiring.natCast α inst`: the same field may be spelled through
+  different parent paths (`Ring.toSemiring ..` vs `CommSemiring.toSemiring ..`), and
+  canonicalizing the class instance argument makes the spellings converge.
+  If `report` is `true`, we report an issue when neither applies.
+
+  The fallback is for exceptional cases. In the `Grind` algebraic hierarchy only
+  `Semiring.natCast` and `Ring.intCast` are not global instances (to avoid conflicts with
+  `NatCast`/`IntCast` instances in downstream libraries), and such terms are produced by `grind`'s
+  own normalization rules, not by users. Limitations: only spellings of the same field converge,
+  since two different fields (or a field and a global instance) are never compared; and a
+  genuinely missing instance is not reported when `e` is an application of a class projection.
   -/
   canonInstCore (e : Expr) (type : Expr) (report := true) : CanonM Expr := do
-    let some inst ← Sym.synthInstance? type |
+    if let some inst ← Sym.synthInstance? type then
+      checkDefEqInst e inst
+    else
+      if let .const declName _ := e.getAppFn then
+        if let some info ← getProjectionFnInfo? declName then
+          if e.isApp && info.fromClass then
+            return (← canonAppDefault e)
       if report then
         reportIssue! "failed to canonicalize instance{indentExpr e}\nfailed to synthesize{indentExpr type}"
       return e
-    checkDefEqInst e inst
 
   /--
   Canonicalize an instance by trying to resynthesize it without caching.

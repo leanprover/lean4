@@ -393,7 +393,7 @@ def evalGrindTraceCore (stx : Syntax) (trace := true) (verbose := true) (useSorr
     let (tacs, _) ← Grind.GrindTacticM.runAtGoal mvarId' params do
       -- Replays the generated script at the initial goal and warns if it fails.
       let finish := Grind.Action.checkTactic (warnOnly := true) >> (← Grind.Action.mkFinish)
-      let goal :: _ ← Grind.getGoals
+      let goal :: goals ← Grind.getGoals
         | -- Goal was closed during initialization
           let configStx' := filterSuggestionsAndLocalsFromGrindConfig configStx
           if termParamStxs.isEmpty then
@@ -405,26 +405,33 @@ def evalGrindTraceCore (stx : Syntax) (trace := true) (verbose := true) (useSorr
       Grind.liftGrindM do
         -- **Note**: If we get failures when using the first suggestion, we should test is using `saved`
         -- let saved ← saveState
-        match (← finish.run goal) with
-        | .closed seq =>
-          let configStx' := filterSuggestionsAndLocalsFromGrindConfig configStx
-          let tacs ← Grind.mkGrindOnlyTactics configStx' seq termParamStxs
-          let seq := Grind.Action.mkGrindSeq seq
-          /-
-          **Note**: The script must carry the preserved parameters (e.g., types marked for
-          case-splitting). The tactic was verified with these parameters active, and `cases`
-          steps may fail without them.
-          -/
-          let tac ← if termParamStxs.isEmpty then
-            `(tactic| grind $configStx':optConfig => $seq:grindSeq)
-          else
-            `(tactic| grind $configStx':optConfig [$termParamStxs,*] => $seq:grindSeq)
-          let tacs := tacs.push tac
-          return tacs
-        | .stuck gs =>
-          let goal :: _ := gs | throwError "`grind?` failed, but resulting goal is not available"
-          let result ← Grind.mkResult params (some goal)
-          throwError "`grind?` failed\n{← result.toMessageData}"
+        /-
+        Asserting the parameters may split the goal (e.g., a fact whose type is marked
+        `cases eager`), so there may be several goals. Each one gets its own script.
+        -/
+        let mut seqs := #[]
+        for goal in goal :: goals do
+          match (← finish.run goal) with
+          | .closed seq => seqs := seqs.push seq
+          | .stuck gs =>
+            let goal :: _ := gs | throwError "`grind?` failed, but resulting goal is not available"
+            let result ← Grind.mkResult params (some goal)
+            throwError "`grind?` failed\n{← result.toMessageData}"
+        let seq ← if h : seqs.size = 1 then pure seqs[0] else seqs.toList.mapM fun seq => Grind.Action.mkGrindNext seq
+        let configStx' := filterSuggestionsAndLocalsFromGrindConfig configStx
+        let tacs ← Grind.mkGrindOnlyTactics configStx' seq termParamStxs
+        let seq := Grind.Action.mkGrindSeq seq
+        /-
+        **Note**: The script must carry the preserved parameters (e.g., types marked for
+        case-splitting). The tactic was verified with these parameters active, and `cases`
+        steps may fail without them.
+        -/
+        let tac ← if termParamStxs.isEmpty then
+          `(tactic| grind $configStx':optConfig => $seq:grindSeq)
+        else
+          `(tactic| grind $configStx':optConfig [$termParamStxs,*] => $seq:grindSeq)
+        let tacs := tacs.push tac
+        return tacs
     return tacs
 
 @[builtin_tactic Lean.Parser.Tactic.grindTrace] def evalGrindTrace : Tactic := fun stx => do

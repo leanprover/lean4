@@ -135,7 +135,8 @@ private unsafe def Arg.updateFVarImp (arg : Arg pu) (fvarId' : FVarId) : Arg pu 
 
    - `name` is the Name of the Constructor in Lean.
    - `cidx` is the Constructor index (aka tag).
-   - `size` is the number of arguments of type `object/tobject`.
+   - `size` is the number of arguments of type `object/tobject`. From `ctorBigNumObjs` on, the
+     first of them is the hidden field holding `size` itself.
    - `usize` is the number of arguments of type `usize`.
    - `ssize` is the number of bytes used to store scalar values.
 
@@ -155,6 +156,10 @@ def CtorInfo.isRef (info : CtorInfo) : Bool :=
 
 def CtorInfo.isScalar (info : CtorInfo) : Bool :=
   !info.isRef
+
+/-- Whether the first object field is the hidden field holding `info.size`. -/
+def CtorInfo.hasNumObjsField (info : CtorInfo) : Bool :=
+  info.size ≥ ctorBigNumObjs
 
 def CtorInfo.type (info : CtorInfo) : Expr :=
   if info.isRef then ImpureType.object else ImpureType.tagged

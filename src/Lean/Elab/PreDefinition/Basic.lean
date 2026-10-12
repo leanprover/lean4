@@ -217,7 +217,7 @@ private def addNonRecAux (docCtx : LocalContext × LocalInstances) (preDef : Pre
         }
       | DefKind.«abbrev»  =>
         if attrRecudibilityHint?.isSome then
-          logWarning s!"Tagging {preDef.declName} as `kernel_abbrev` is redundant, `abbrev` declarations are always ma"
+          logWarning s!"Tagging {preDef.declName} as `kernel_abbrev` is redundant, `abbrev` declarations are always kernel abbreviations."
         pure <| Declaration.defnDecl {
           name := preDef.declName, levelParams := preDef.levelParams, type := preDef.type, value := preDef.value
           hints := ReducibilityHints.«abbrev»

@@ -1050,6 +1050,56 @@ theorem forIn_eq_forIn_toArray [Monad m] [LawfulMonad m] {f : α → δ → m (F
 
 end monadic
 
+theorem all_eq_not_any_not {p : α → Bool} :
+    t.all p = ! t.any (fun a => ! p a) :=
+  TreeMap.all_eq_not_any_not
+
+theorem any_eq_not_all_not {p : α → Bool} :
+    t.any p = ! t.all (fun a => ! p a) :=
+  TreeMap.any_eq_not_all_not
+
+@[simp]
+theorem any_toList {p : α → Bool} :
+    t.toList.any p = t.any p :=
+  TreeMap.any_keys
+
+theorem any_eq_true_iff_exists_mem_get [TransCmp cmp] {p : α → Bool} :
+    t.any p = true ↔ ∃ (a : α) (h : a ∈ t), p (t.get a h) :=
+  TreeMap.any_eq_true_iff_exists_mem_getKey_getElem
+
+theorem any_eq_true_iff_exists_mem [TransCmp cmp] [LawfulEqCmp cmp] {p : α → Bool} :
+    t.any p = true ↔ ∃ (a : α), a ∈ t ∧ p a := by
+  simp [any_eq_true_iff_exists_mem_get, get_eq]
+
+theorem any_eq_false_iff_forall_mem_get [TransCmp cmp] {p : α → Bool} :
+    t.any p = false ↔ ∀ (a : α) (h : a ∈ t), p (t.get a h) = false :=
+  TreeMap.any_eq_false_iff_forall_mem_getKey_getElem
+
+theorem any_eq_false_iff_forall_mem [TransCmp cmp] [LawfulEqCmp cmp] {p : α → Bool} :
+    t.any p = false ↔ ∀ (a : α), a ∈ t → p a = false := by
+  simp [any_eq_false_iff_forall_mem_get, get_eq]
+
+@[simp]
+theorem all_toList {p : α → Bool} :
+    t.toList.all p = t.all p :=
+  TreeMap.all_keys
+
+theorem all_eq_true_iff_forall_mem_get [TransCmp cmp] {p : α → Bool} :
+    t.all p = true ↔ ∀ (a : α) (h : a ∈ t), p (t.get a h) :=
+  TreeMap.all_eq_true_iff_forall_mem_getKey_getElem
+
+theorem all_eq_true_iff_forall_mem [TransCmp cmp] [LawfulEqCmp cmp] {p : α → Bool} :
+    t.all p = true ↔ ∀ (a : α), a ∈ t → p a := by
+  simp [all_eq_true_iff_forall_mem_get, get_eq]
+
+theorem all_eq_false_iff_exists_mem_get [TransCmp cmp] {p : α → Bool} :
+    t.all p = false ↔ ∃ (a : α) (h : a ∈ t), p (t.get a h) = false :=
+  TreeMap.all_eq_false_iff_exists_mem_getKey_getElem
+
+theorem all_eq_false_iff_exists_mem [TransCmp cmp] [LawfulEqCmp cmp] {p : α → Bool} :
+    t.all p = false ↔ ∃ (a : α), a ∈ t ∧ p a = false := by
+  simp [all_eq_false_iff_exists_mem_get, get_eq]
+
 @[simp, grind =]
 theorem insertMany_nil :
     t.insertMany [] = t :=

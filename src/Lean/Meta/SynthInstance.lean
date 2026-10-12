@@ -525,14 +525,15 @@ private def removeUnusedArguments? (mctx : MetavarContext) (mvar : Expr) : MetaM
       return none
     else
       forallTelescope mvarType fun xs body => do
-        let ys ← xs.foldrM (init := []) fun x ys => do
-          if body.containsFVar x.fvarId! then
-            return x :: ys
-          else if (← ys.anyM fun y => return (← inferType y).containsFVar x.fvarId!) then
-            return x :: ys
-          else
-            return ys
-        let ys := ys.toArray
+        -- Traverse shared subexpressions once. A retained binder's type can
+        -- only depend on earlier binders, so propagate dependencies backwards.
+        let mut used := collectFVars {} body
+        let mut ys := #[]
+        for x in xs.reverse do
+          if used.fvarSet.contains x.fvarId! then
+            ys := ys.push x
+            used := collectFVars used (← inferType x)
+        ys := ys.reverse
         let mvarType' ← mkForallFVars ys body
         withLocalDeclD `redf mvarType' fun f => do
           let transformer ← mkLambdaFVars #[f] (← mkLambdaFVars xs (mkAppN f ys) (etaReduce := true)) (etaReduce := true)

@@ -8,9 +8,34 @@ structure Foo (A B: Type) where
 
 example (p q : Foo Nat Unit) : p = q := rfl
 
+/--
+error: Type mismatch
+  rfl
+has type
+  ?m.3 = ?m.3
+but is expected to have type
+  p = q
+-/
+#guard_msgs in
+example  (p q : Foo Nat Nat) : p = q := rfl
+
 structure Bar : Type where
     bar : True
 
 example (p q : Bar) : p = q := rfl
 
 example (p q : id (α → id Unit)) : p = q := rfl
+
+structure BoolWrap where
+    b : Bool
+
+/--
+error: Type mismatch
+  rfl
+has type
+  ?m.6 = ?m.6
+but is expected to have type
+  p = q
+-/
+#guard_msgs in
+example (a b : BoolWrap) : p = q := rfl

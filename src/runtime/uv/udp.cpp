@@ -27,7 +27,9 @@ struct udp_send_req_t {
 static void udp_socket_finalizer(void* ptr) {
     lean_uv_udp_socket_object* udp_socket = (lean_uv_udp_socket_object*)ptr;
 
-    lean_always_assert(!udp_socket->m_read.pending() && udp_socket->m_read.m_payload.get() == nullptr);
+    for (owned_ref * ref : udp_socket->lean_refs()) {
+        lean_always_assert(ref->get() == nullptr);
+    }
 
     event_loop_guard guard;
 
@@ -41,17 +43,7 @@ static void udp_socket_finalizer(void* ptr) {
 }
 
 void initialize_libuv_udp_socket() {
-    g_uv_udp_socket_external_class = lean_register_external_class(udp_socket_finalizer, [](void* obj, lean_object* f) {
-        lean_uv_udp_socket_object* udp_socket = (lean_uv_udp_socket_object*)obj;
-
-        for (lean_object * o : {udp_socket->m_read.m_promise.get(), udp_socket->m_read.m_payload.get()}) {
-            if (o != nullptr) {
-                lean_inc(f);
-                lean_inc(o);
-                lean_dec(lean_apply_1(f, o));
-            }
-        }
-    });
+    g_uv_udp_socket_external_class = lean_register_external_class(udp_socket_finalizer, uv_foreach_refs<lean_uv_udp_socket_object>);
 }
 
 // =======================================

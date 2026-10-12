@@ -18,7 +18,6 @@ inline lean_external_class * g_uv_signal_external_class = nullptr;
 void initialize_libuv_signal();
 
 #ifndef LEAN_EMSCRIPTEN
-using namespace std;
 
 enum signal_state {
     SIGNAL_STATE_INITIAL,

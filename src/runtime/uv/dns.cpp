@@ -17,9 +17,7 @@ Author: Sofia Rodrigues, Henrik Böving
 namespace lean {
 #ifndef LEAN_EMSCRIPTEN
 
-using namespace std;
-
-bool is_safe_ascii_str(const char *s, size_t len) {
+static bool is_safe_ascii_str(const char *s, size_t len) {
     while (len > 0) {
         char c = *s++;
         if (!((c >= 'a' && c <= 'z') ||
@@ -35,6 +33,8 @@ bool is_safe_ascii_str(const char *s, size_t len) {
     return true;
 }
 
+namespace {
+
 // A DNS request and the promise its callback settles. The callback deletes it, and so does a failed
 // submit. libuv copies the host, service, hints and address it is given.
 template<class Req>
@@ -45,6 +45,8 @@ struct dns_req_t {
 
 using getaddrinfo_req_t = dns_req_t<uv_getaddrinfo_t>;
 using getnameinfo_req_t = dns_req_t<uv_getnameinfo_t>;
+
+}
 
 // Std.Internal.IO.Async.DNS.getAddrInfo (host service : @& String) (family : UInt8) : IO (IO.Promise (Except IO.Error (Array IPAddr)))
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_dns_get_info(b_obj_arg name, b_obj_arg service, uint8_t family) {

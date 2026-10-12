@@ -13,7 +13,7 @@ Author: Sofia Rodrigues
 namespace lean {
 #ifndef LEAN_EMSCRIPTEN
 
-using namespace std;
+namespace {
 
 // A `uv_random` request. The callback fills `byte_array` and deletes it, and so does a failed submit.
 struct random_req_t {
@@ -21,6 +21,8 @@ struct random_req_t {
     owned_ref   promise;
     owned_ref   byte_array;
 };
+
+}
 
 /* Std.Internal.UV.System.getProcessTitle : IO String */
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_get_process_title() {

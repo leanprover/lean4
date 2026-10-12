@@ -24,6 +24,11 @@ void initialize_libuv_udp_socket();
 struct lean_uv_udp_socket_object {
     uv_udp_t      m_uv_udp; // LibUV UDP handle.
     uv_pending_op m_read;   // `recv` (payload: the receive buffer) or `waitReadable` (none).
+
+    // Every Lean reference the socket holds. The loop's reference to the socket itself is not one.
+    std::array<owned_ref *, 2> lean_refs() {
+        return {&m_read.m_promise, &m_read.m_payload};
+    }
 };
 
 // =======================================

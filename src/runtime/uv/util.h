@@ -8,6 +8,7 @@ Author: Sofia Rodrigues
 #include <lean/lean.h>
 #include "runtime/debug.h"
 #include "runtime/object.h"
+#include <array>
 #include <utility>
 
 namespace lean {
@@ -58,6 +59,18 @@ struct uv_pending_op {
 
     bool pending() const { return m_promise.get() != nullptr; }
 };
+
+// The `foreach` of a handle's external class: applies `f` to every Lean object `T::lean_refs()` lists.
+template<class T>
+void uv_foreach_refs(void * obj, b_obj_arg f) {
+    for (owned_ref * ref : static_cast<T*>(obj)->lean_refs()) {
+        if (lean_object * o = ref->get()) {
+            lean_inc(f);
+            lean_inc(o);
+            lean_dec(lean_apply_1(f, o));
+        }
+    }
+}
 
 // The loop thread resolves and releases the promise, so its refcount has to be atomic.
 inline lean_obj_res mk_mt_promise() {

@@ -664,7 +664,7 @@ _start:
 {
 lean_object* v_toGoalState_133_; uint8_t v_inconsistent_134_; 
 v_toGoalState_133_ = lean_ctor_get(v_goal_121_, 0);
-v_inconsistent_134_ = lean_ctor_get_uint8(v_toGoalState_133_, sizeof(void*)*17);
+v_inconsistent_134_ = lean_ctor_get_uint8(v_toGoalState_133_, sizeof(void*)*18);
 if (v_inconsistent_134_ == 0)
 {
 lean_object* v___x_135_; 
@@ -1359,7 +1359,7 @@ _start:
 {
 lean_object* v_toGoalState_629_; uint8_t v_inconsistent_630_; 
 v_toGoalState_629_ = lean_ctor_get(v_goal_618_, 0);
-v_inconsistent_630_ = lean_ctor_get_uint8(v_toGoalState_629_, sizeof(void*)*17);
+v_inconsistent_630_ = lean_ctor_get_uint8(v_toGoalState_629_, sizeof(void*)*18);
 if (v_inconsistent_630_ == 0)
 {
 lean_object* v_mvarId_631_; uint8_t v___x_632_; lean_object* v___x_633_; 
@@ -3906,7 +3906,7 @@ v_snd_1580_ = lean_ctor_get(v_a_1575_, 1);
 lean_inc(v_snd_1580_);
 lean_dec(v_a_1575_);
 v_toGoalState_1581_ = lean_ctor_get(v_snd_1580_, 0);
-v_inconsistent_1582_ = lean_ctor_get_uint8(v_toGoalState_1581_, sizeof(void*)*17);
+v_inconsistent_1582_ = lean_ctor_get_uint8(v_toGoalState_1581_, sizeof(void*)*18);
 if (v_inconsistent_1582_ == 0)
 {
 lean_object* v___x_1583_; 
@@ -6520,7 +6520,7 @@ v_a_2550_ = lean_ctor_get(v___x_2549_, 0);
 lean_inc(v_a_2550_);
 lean_dec_ref_known(v___x_2549_, 1);
 v_toGoalState_2551_ = lean_ctor_get(v_a_2550_, 0);
-v_inconsistent_2552_ = lean_ctor_get_uint8(v_toGoalState_2551_, sizeof(void*)*17);
+v_inconsistent_2552_ = lean_ctor_get_uint8(v_toGoalState_2551_, sizeof(void*)*18);
 if (v_inconsistent_2552_ == 0)
 {
 lean_object* v___x_2553_; 

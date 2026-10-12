@@ -41,9 +41,9 @@ struct tcp_send_req_t {
 static void tcp_socket_finalizer(void* ptr) {
     lean_uv_tcp_socket_object* tcp_socket = (lean_uv_tcp_socket_object*)ptr;
 
-    lean_always_assert(tcp_socket->m_promise_shutdown.get() == nullptr);
-    lean_always_assert(!tcp_socket->m_accept.pending() && tcp_socket->m_accept.m_payload.get() == nullptr);
-    lean_always_assert(!tcp_socket->m_read.pending() && tcp_socket->m_read.m_payload.get() == nullptr);
+    for (owned_ref * ref : tcp_socket->lean_refs()) {
+        lean_always_assert(ref->get() == nullptr);
+    }
 
     event_loop_guard guard;
 
@@ -57,19 +57,7 @@ static void tcp_socket_finalizer(void* ptr) {
 }
 
 void initialize_libuv_tcp_socket() {
-    g_uv_tcp_socket_external_class = lean_register_external_class(tcp_socket_finalizer, [](void* obj, lean_object* f) {
-        lean_uv_tcp_socket_object* tcp_socket = (lean_uv_tcp_socket_object*)obj;
-
-        for (lean_object * o : {tcp_socket->m_accept.m_promise.get(), tcp_socket->m_promise_shutdown.get(),
-                                tcp_socket->m_read.m_promise.get(), tcp_socket->m_read.m_payload.get(),
-                                tcp_socket->m_accept.m_payload.get()}) {
-            if (o != nullptr) {
-                lean_inc(f);
-                lean_inc(o);
-                lean_dec(lean_apply_1(f, o));
-            }
-        }
-    });
+    g_uv_tcp_socket_external_class = lean_register_external_class(tcp_socket_finalizer, uv_foreach_refs<lean_uv_tcp_socket_object>);
 }
 
 // =======================================

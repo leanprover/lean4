@@ -3045,7 +3045,7 @@ instance : DecidableEq Char := fun c d => {
 }
 
 /-- Returns the number of bytes required to encode this `Char` in UTF-8. -/
-@[implicit_reducible]
+@[implicit_reducible, inline]
 def Char.utf8Size (c : Char) : Nat :=
   let v := c.val
   ite (LE.le v (UInt32.ofNatLT 0x7F (of_decide_eq_true rfl))) 1

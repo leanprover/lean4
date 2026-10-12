@@ -2373,8 +2373,8 @@ private def isDefEqUnitLike (t : Expr) (s : Expr) : MetaM Bool := do
   match (← cachedUnitLike? key) with
     | some false => return false
     | some true => Meta.isExprDefEqAux tType (← inferType s)
-    | none => cacheUnitLike key <| ← do
-      let isUnit ← isUnitLikeType tType
+    | none => do
+      let isUnit ← cacheUnitLike key (← isUnitLikeType tType)
       if !isUnit then return false
       Meta.isExprDefEqAux tType (← inferType s)
 

@@ -58,9 +58,11 @@ relations differ in what `post` sees:
 The discharger `d` proves the side conditions `x ≠ 0` under which `x * x⁻¹` is cancelled in a
 field. With `lhsOnly := true`, relations over rings are normalized to `p = 0`, `p ≤ 0`, `p < 0`
 instead of being split by sign; see `Arith.normalize?`.
+With `commutative := false`, multiplication order is preserved even on commutative carriers.
 -/
-def simpArith (d : Discharger := dischargeNone) (lhsOnly : Bool := false) : Simproc := fun e => do
-  let r ← Arith.normalize? e simp (lhsOnly := lhsOnly) fun p => do
+def simpArith (d : Discharger := dischargeNone) (lhsOnly : Bool := false)
+    (commutative : Bool := true) : Simproc := fun e => do
+  let r ← Arith.normalize? e simp (lhsOnly := lhsOnly) (commutative := commutative) fun p => do
     match (← d p) with
     | .solved h _ => return some h
     | .failed _ => return none

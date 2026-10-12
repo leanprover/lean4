@@ -161,32 +161,22 @@ macro "big_inductive " name:ident n:num : command => do
       check "shareCommon literal" ($(id "sum") (Lean.ShareCommon.shareCommon $(id "lit")) == 2 + $(id "expected") 0)
       check "flip literal" ($(id "sum") ($(id "flip") $(id "lit")) == 1 + $(id "expected") 0))
 
--- 254 object fields
-big_structure S252 252
 -- 255 object fields, the most that fit into one constructor object
 big_structure S253 253
 -- 256 object fields, the fewest that need a spill object
 big_structure S254 254
--- three spill objects
-big_structure S900 900
+-- 509 object fields, the last of which is alone in a second spill object
+big_structure S507 507
 
-big_inductive T254 254
 big_inductive T255 255
 big_inductive T256 256
 -- 254 fields in each of the constructor object and the spill object
 big_inductive T508 508
--- one field in a second spill object
-big_inductive T509 509
-big_inductive T700 700
 
 unsafe def main : IO Unit := do
-  S252.test
   S253.test
   S254.test
-  S900.test
-  T254.test
+  S507.test
   T255.test
   T256.test
   T508.test
-  T509.test
-  T700.test

@@ -313,7 +313,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_wait_readable(b_obj_arg socket) 
         }
 
         promise = owned_ref(mk_mt_promise());
-        udp_socket->m_read = uv_pending_op{owned_ref::retain(promise.get())};
+        udp_socket->m_read = uv_pending_op{owned_ref::retain(promise.get()), owned_ref()};
 
         result = uv_udp_recv_start(&udp_socket->m_uv_udp, alloc_cb, recv_cb);
 

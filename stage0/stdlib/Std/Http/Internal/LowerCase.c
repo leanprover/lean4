@@ -20,7 +20,7 @@ static const lean_closure_object l_Std_Http_Internal_instDecidableIsLowerCase___
 static const lean_object* l_Std_Http_Internal_instDecidableIsLowerCase___closed__0 = (const lean_object*)&l_Std_Http_Internal_instDecidableIsLowerCase___closed__0_value;
 LEAN_EXPORT uint8_t l_Std_Http_Internal_instDecidableIsLowerCase(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Http_Internal_instDecidableIsLowerCase___boxed(lean_object*);
-LEAN_EXPORT uint8_t l_Std_Http_Internal_instDecidableIsLowerCase(lean_object* v_s_2_){
+uint8_t l_Std_Http_Internal_instDecidableIsLowerCase(lean_object* v_s_2_){
 _start:
 {
 lean_object* v___x_3_; lean_object* v___x_4_; uint8_t v___x_5_; 
@@ -41,13 +41,20 @@ return v___x_7_;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Std_Http_Internal_instDecidableIsLowerCase___boxed(lean_object* v_s_8_){
+LEAN_EXPORT void l_Std_Http_Internal_instDecidableIsLowerCase_0interp(lean_interpreter_value* stack)
+{
+lean_object* v_s_2_ = stack[0].m_obj;
+uint8_t v_res_8_;
+v_res_8_ = l_Std_Http_Internal_instDecidableIsLowerCase(v_s_2_);
+stack->m_num = v_res_8_;
+}
+LEAN_EXPORT lean_object* l_Std_Http_Internal_instDecidableIsLowerCase___boxed(lean_object* v_s_9_){
 _start:
 {
-uint8_t v_res_9_; lean_object* v_r_10_; 
-v_res_9_ = l_Std_Http_Internal_instDecidableIsLowerCase(v_s_8_);
-v_r_10_ = lean_box(v_res_9_);
-return v_r_10_;
+uint8_t v_res_10_; lean_object* v_r_11_; 
+v_res_10_ = l_Std_Http_Internal_instDecidableIsLowerCase(v_s_9_);
+v_r_11_ = lean_box(v_res_10_);
+return v_r_11_;
 }
 }
 lean_object* runtime_initialize_Init_Grind(uint8_t builtin);

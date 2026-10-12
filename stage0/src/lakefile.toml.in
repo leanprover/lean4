@@ -73,8 +73,6 @@ defaultFacets = ["static", "static.export"]
 globs = [
   # Library root
   "Lean",
-  # Deliberate orphan file so `import Lean` does not induce an LLVM dependency
-  "Lean.Compiler.IR.EmitLLVM",
   # New compiler orphan file used in tests
   "Lean.Compiler.LCNF.Probing",
 ]

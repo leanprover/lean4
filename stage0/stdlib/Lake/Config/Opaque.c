@@ -26,7 +26,7 @@ v___x_1_ = lean_box(0);
 return v___x_1_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lake_Config_Opaque_0__Lake_OpaqueTargetConfig_nonemptyType___redArg(){
+lean_object* l___private_Lake_Config_Opaque_0__Lake_OpaqueTargetConfig_nonemptyType___redArg(){
 _start:
 {
 lean_object* v___x_3_; 
@@ -34,30 +34,37 @@ v___x_3_ = lean_box(0);
 return v___x_3_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lake_Config_Opaque_0__Lake_OpaqueTargetConfig_nonemptyType___redArg___boxed(lean_object* v___dummy_4_){
+LEAN_EXPORT void l___private_Lake_Config_Opaque_0__Lake_OpaqueTargetConfig_nonemptyType___redArg_0interp(lean_interpreter_value* stack)
+{
+lean_object* v_res_4_;
+v_res_4_ = l___private_Lake_Config_Opaque_0__Lake_OpaqueTargetConfig_nonemptyType___redArg();
+stack->m_obj
+ = v_res_4_;
+}
+LEAN_EXPORT lean_object* l___private_Lake_Config_Opaque_0__Lake_OpaqueTargetConfig_nonemptyType___redArg___boxed(lean_object* v___dummy_5_){
 _start:
 {
-lean_object* v_res_5_; 
-v_res_5_ = l___private_Lake_Config_Opaque_0__Lake_OpaqueTargetConfig_nonemptyType___redArg();
-return v_res_5_;
+lean_object* v_res_6_; 
+v_res_6_ = l___private_Lake_Config_Opaque_0__Lake_OpaqueTargetConfig_nonemptyType___redArg();
+return v_res_6_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lake_Config_Opaque_0__Lake_OpaqueTargetConfig_nonemptyType(lean_object* v_pkgName_6_, lean_object* v_name_7_){
+LEAN_EXPORT lean_object* l___private_Lake_Config_Opaque_0__Lake_OpaqueTargetConfig_nonemptyType(lean_object* v_pkgName_7_, lean_object* v_name_8_){
 _start:
 {
-lean_object* v___x_8_; 
-v___x_8_ = lean_box(0);
-return v___x_8_;
+lean_object* v___x_9_; 
+v___x_9_ = lean_box(0);
+return v___x_9_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lake_Config_Opaque_0__Lake_OpaqueTargetConfig_nonemptyType___boxed(lean_object* v_pkgName_9_, lean_object* v_name_10_){
+LEAN_EXPORT lean_object* l___private_Lake_Config_Opaque_0__Lake_OpaqueTargetConfig_nonemptyType___boxed(lean_object* v_pkgName_10_, lean_object* v_name_11_){
 _start:
 {
-lean_object* v_res_11_; 
-v_res_11_ = l___private_Lake_Config_Opaque_0__Lake_OpaqueTargetConfig_nonemptyType(v_pkgName_9_, v_name_10_);
-lean_dec(v_name_10_);
-lean_dec(v_pkgName_9_);
-return v_res_11_;
+lean_object* v_res_12_; 
+v_res_12_ = l___private_Lake_Config_Opaque_0__Lake_OpaqueTargetConfig_nonemptyType(v_pkgName_10_, v_name_11_);
+lean_dec(v_name_11_);
+lean_dec(v_pkgName_10_);
+return v_res_12_;
 }
 }
 lean_object* runtime_initialize_Init_Prelude(uint8_t builtin);

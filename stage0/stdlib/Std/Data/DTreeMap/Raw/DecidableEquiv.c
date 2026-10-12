@@ -18,7 +18,7 @@ LEAN_EXPORT uint8_t l_Std_DTreeMap_Raw_instDecidableEquiv___redArg(lean_object*,
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Raw_instDecidableEquiv___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Std_DTreeMap_Raw_instDecidableEquiv(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Raw_instDecidableEquiv___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_Std_DTreeMap_Raw_instDecidableEquiv___redArg(lean_object* v_cmp_1_, lean_object* v_inst_2_, lean_object* v_t_u2081_3_, lean_object* v_t_u2082_4_){
+uint8_t l_Std_DTreeMap_Raw_instDecidableEquiv___redArg(lean_object* v_cmp_1_, lean_object* v_inst_2_, lean_object* v_t_u2081_3_, lean_object* v_t_u2082_4_){
 _start:
 {
 uint8_t v___x_5_; 
@@ -26,30 +26,50 @@ v___x_5_ = l_Std_DTreeMap_Internal_Impl_beq___redArg(v_cmp_1_, v_inst_2_, v_t_u2
 return v___x_5_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_DTreeMap_Raw_instDecidableEquiv___redArg___boxed(lean_object* v_cmp_6_, lean_object* v_inst_7_, lean_object* v_t_u2081_8_, lean_object* v_t_u2082_9_){
+LEAN_EXPORT void l_Std_DTreeMap_Raw_instDecidableEquiv___redArg_0interp(lean_interpreter_value* stack)
+{
+lean_object* v_cmp_1_ = stack[0].m_obj;
+lean_object* v_inst_2_ = stack[1].m_obj;
+lean_object* v_t_u2081_3_ = stack[2].m_obj;
+lean_object* v_t_u2082_4_ = stack[3].m_obj;
+uint8_t v_res_6_;
+v_res_6_ = l_Std_DTreeMap_Raw_instDecidableEquiv___redArg(v_cmp_1_, v_inst_2_, v_t_u2081_3_, v_t_u2082_4_);
+stack->m_num = v_res_6_;
+}
+LEAN_EXPORT lean_object* l_Std_DTreeMap_Raw_instDecidableEquiv___redArg___boxed(lean_object* v_cmp_7_, lean_object* v_inst_8_, lean_object* v_t_u2081_9_, lean_object* v_t_u2082_10_){
 _start:
 {
-uint8_t v_res_10_; lean_object* v_r_11_; 
-v_res_10_ = l_Std_DTreeMap_Raw_instDecidableEquiv___redArg(v_cmp_6_, v_inst_7_, v_t_u2081_8_, v_t_u2082_9_);
-v_r_11_ = lean_box(v_res_10_);
-return v_r_11_;
+uint8_t v_res_11_; lean_object* v_r_12_; 
+v_res_11_ = l_Std_DTreeMap_Raw_instDecidableEquiv___redArg(v_cmp_7_, v_inst_8_, v_t_u2081_9_, v_t_u2082_10_);
+v_r_12_ = lean_box(v_res_11_);
+return v_r_12_;
 }
 }
-LEAN_EXPORT uint8_t l_Std_DTreeMap_Raw_instDecidableEquiv(lean_object* v_00_u03b1_12_, lean_object* v_00_u03b2_13_, lean_object* v_cmp_14_, lean_object* v_inst_15_, lean_object* v_inst_16_, lean_object* v_inst_17_, lean_object* v_inst_18_, lean_object* v_t_u2081_19_, lean_object* v_t_u2082_20_, lean_object* v_h_u2081_21_, lean_object* v_h_u2082_22_){
+uint8_t l_Std_DTreeMap_Raw_instDecidableEquiv(lean_object* v_00_u03b1_13_, lean_object* v_00_u03b2_14_, lean_object* v_cmp_15_, lean_object* v_inst_16_, lean_object* v_inst_17_, lean_object* v_inst_18_, lean_object* v_inst_19_, lean_object* v_t_u2081_20_, lean_object* v_t_u2082_21_, lean_object* v_h_u2081_22_, lean_object* v_h_u2082_23_){
 _start:
 {
-uint8_t v___x_23_; 
-v___x_23_ = l_Std_DTreeMap_Internal_Impl_beq___redArg(v_cmp_14_, v_inst_17_, v_t_u2081_19_, v_t_u2082_20_);
-return v___x_23_;
+uint8_t v___x_24_; 
+v___x_24_ = l_Std_DTreeMap_Internal_Impl_beq___redArg(v_cmp_15_, v_inst_18_, v_t_u2081_20_, v_t_u2082_21_);
+return v___x_24_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_DTreeMap_Raw_instDecidableEquiv___boxed(lean_object* v_00_u03b1_24_, lean_object* v_00_u03b2_25_, lean_object* v_cmp_26_, lean_object* v_inst_27_, lean_object* v_inst_28_, lean_object* v_inst_29_, lean_object* v_inst_30_, lean_object* v_t_u2081_31_, lean_object* v_t_u2082_32_, lean_object* v_h_u2081_33_, lean_object* v_h_u2082_34_){
+LEAN_EXPORT void l_Std_DTreeMap_Raw_instDecidableEquiv_0interp(lean_interpreter_value* stack)
+{
+lean_object* v_cmp_15_ = stack[2].m_obj;
+lean_object* v_inst_18_ = stack[5].m_obj;
+lean_object* v_t_u2081_20_ = stack[7].m_obj;
+lean_object* v_t_u2082_21_ = stack[8].m_obj;
+uint8_t v_res_25_;
+v_res_25_ = l_Std_DTreeMap_Raw_instDecidableEquiv(lean_box(0), lean_box(0), v_cmp_15_, lean_box(0), lean_box(0), v_inst_18_, lean_box(0), v_t_u2081_20_, v_t_u2082_21_, lean_box(0), lean_box(0));
+stack->m_num = v_res_25_;
+}
+LEAN_EXPORT lean_object* l_Std_DTreeMap_Raw_instDecidableEquiv___boxed(lean_object* v_00_u03b1_26_, lean_object* v_00_u03b2_27_, lean_object* v_cmp_28_, lean_object* v_inst_29_, lean_object* v_inst_30_, lean_object* v_inst_31_, lean_object* v_inst_32_, lean_object* v_t_u2081_33_, lean_object* v_t_u2082_34_, lean_object* v_h_u2081_35_, lean_object* v_h_u2082_36_){
 _start:
 {
-uint8_t v_res_35_; lean_object* v_r_36_; 
-v_res_35_ = l_Std_DTreeMap_Raw_instDecidableEquiv(v_00_u03b1_24_, v_00_u03b2_25_, v_cmp_26_, v_inst_27_, v_inst_28_, v_inst_29_, v_inst_30_, v_t_u2081_31_, v_t_u2082_32_, v_h_u2081_33_, v_h_u2082_34_);
-v_r_36_ = lean_box(v_res_35_);
-return v_r_36_;
+uint8_t v_res_37_; lean_object* v_r_38_; 
+v_res_37_ = l_Std_DTreeMap_Raw_instDecidableEquiv(v_00_u03b1_26_, v_00_u03b2_27_, v_cmp_28_, v_inst_29_, v_inst_30_, v_inst_31_, v_inst_32_, v_t_u2081_33_, v_t_u2082_34_, v_h_u2081_35_, v_h_u2082_36_);
+v_r_38_ = lean_box(v_res_37_);
+return v_r_38_;
 }
 }
 lean_object* runtime_initialize_Std_Data_DTreeMap_Internal_Lemmas(uint8_t builtin);

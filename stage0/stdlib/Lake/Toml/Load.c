@@ -327,7 +327,7 @@ v___x_76_ = l_Lean_stringToMessageData(v___x_75_);
 return v___x_76_;
 }
 }
-LEAN_EXPORT lean_object* l_Lake_Toml_loadToml(lean_object* v_ictx_77_){
+lean_object* l_Lake_Toml_loadToml(lean_object* v_ictx_77_){
 _start:
 {
 lean_object* v___x_79_; uint32_t v___x_80_; lean_object* v___x_81_; 
@@ -860,12 +860,20 @@ return v___x_228_;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lake_Toml_loadToml___boxed(lean_object* v_ictx_231_, lean_object* v_a_232_){
+LEAN_EXPORT void l_Lake_Toml_loadToml_0interp(lean_interpreter_value* stack)
+{
+lean_object* v_ictx_77_ = stack[0].m_obj;
+lean_object* v_res_231_;
+v_res_231_ = l_Lake_Toml_loadToml(v_ictx_77_);
+stack->m_obj
+ = v_res_231_;
+}
+LEAN_EXPORT lean_object* l_Lake_Toml_loadToml___boxed(lean_object* v_ictx_232_, lean_object* v_a_233_){
 _start:
 {
-lean_object* v_res_233_; 
-v_res_233_ = l_Lake_Toml_loadToml(v_ictx_231_);
-return v_res_233_;
+lean_object* v_res_234_; 
+v_res_234_ = l_Lake_Toml_loadToml(v_ictx_232_);
+return v_res_234_;
 }
 }
 lean_object* runtime_initialize_Lean_Parser_Types(uint8_t builtin);

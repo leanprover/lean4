@@ -28,7 +28,7 @@ v___x_2_ = lean_nat_to_int(v___x_1_);
 return v___x_2_;
 }
 }
-LEAN_EXPORT uint8_t l_Int_Nonneg_num__cert(lean_object* v_a_3_){
+uint8_t l_Int_Nonneg_num__cert(lean_object* v_a_3_){
 _start:
 {
 lean_object* v___x_4_; uint8_t v___x_5_; 
@@ -37,14 +37,21 @@ v___x_5_ = lean_int_dec_le(v___x_4_, v_a_3_);
 return v___x_5_;
 }
 }
-LEAN_EXPORT lean_object* l_Int_Nonneg_num__cert___boxed(lean_object* v_a_6_){
+LEAN_EXPORT void l_Int_Nonneg_num__cert_0interp(lean_interpreter_value* stack)
+{
+lean_object* v_a_3_ = stack[0].m_obj;
+uint8_t v_res_6_;
+v_res_6_ = l_Int_Nonneg_num__cert(v_a_3_);
+stack->m_num = v_res_6_;
+}
+LEAN_EXPORT lean_object* l_Int_Nonneg_num__cert___boxed(lean_object* v_a_7_){
 _start:
 {
-uint8_t v_res_7_; lean_object* v_r_8_; 
-v_res_7_ = l_Int_Nonneg_num__cert(v_a_6_);
-lean_dec(v_a_6_);
-v_r_8_ = lean_box(v_res_7_);
-return v_r_8_;
+uint8_t v_res_8_; lean_object* v_r_9_; 
+v_res_8_ = l_Int_Nonneg_num__cert(v_a_7_);
+lean_dec(v_a_7_);
+v_r_9_ = lean_box(v_res_8_);
+return v_r_9_;
 }
 }
 lean_object* runtime_initialize_Init_Data_Nat_Div_Basic(uint8_t builtin);

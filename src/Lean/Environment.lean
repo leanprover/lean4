@@ -2229,7 +2229,7 @@ def mkModuleData (env : Environment) (level : OLeanLevel := .private)
   }
 
 set_option compiler.ignoreBorrowAnnotation true in
-@[extern "lean_ir_export_entries"]
+@[extern "lean_bytecode_export_entries"]
 private opaque exportIREntries (env : Environment) : Array (Name × Array EnvExtensionEntry)
 
 private def mkIRData (env : Environment) : ModuleData :=
@@ -2875,7 +2875,7 @@ def displayStats (env : Environment) : IO Unit := do
     IO.println ("  number of imported entries: " ++ toString (s.importedEntries.foldl (fun sum es => sum + es.size) 0))
 
 @[extern "lean_eval_const"]
-private unsafe opaque evalConstCore (α) (env : @& Environment) (opts : @& Options) (constName : @& Name) : Except String α
+private unsafe opaque evalConstCore (α) (env : Environment) (opts : Options) (constName : Name) : Except String α
 
 set_option compiler.ignoreBorrowAnnotation true in
 @[extern "lean_eval_check_meta"]

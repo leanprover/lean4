@@ -425,7 +425,7 @@ v___x_215_ = lean_task_pure(v___x_214_);
 return v___x_215_;
 }
 }
-LEAN_EXPORT lean_object* l_Lake_instInhabitedOptionIOTask___redArg(){
+lean_object* l_Lake_instInhabitedOptionIOTask___redArg(){
 _start:
 {
 lean_object* v___x_217_; 
@@ -433,28 +433,35 @@ v___x_217_ = lean_obj_once(&l_Lake_instInhabitedOptionIOTask___redArg___closed__
 return v___x_217_;
 }
 }
-LEAN_EXPORT lean_object* l_Lake_instInhabitedOptionIOTask___redArg___boxed(lean_object* v___dummy_218_){
+LEAN_EXPORT void l_Lake_instInhabitedOptionIOTask___redArg_0interp(lean_interpreter_value* stack)
+{
+lean_object* v_res_218_;
+v_res_218_ = l_Lake_instInhabitedOptionIOTask___redArg();
+stack->m_obj
+ = v_res_218_;
+}
+LEAN_EXPORT lean_object* l_Lake_instInhabitedOptionIOTask___redArg___boxed(lean_object* v___dummy_219_){
 _start:
 {
-lean_object* v_res_219_; 
-v_res_219_ = l_Lake_instInhabitedOptionIOTask___redArg();
-return v_res_219_;
+lean_object* v_res_220_; 
+v_res_220_ = l_Lake_instInhabitedOptionIOTask___redArg();
+return v_res_220_;
 }
 }
 static lean_object* _init_l_Lake_instInhabitedOptionIOTask___closed__0(void){
 _start:
 {
-lean_object* v___x_220_; 
-v___x_220_ = l_Lake_instInhabitedOptionIOTask___redArg();
-return v___x_220_;
+lean_object* v___x_221_; 
+v___x_221_ = l_Lake_instInhabitedOptionIOTask___redArg();
+return v___x_221_;
 }
 }
-LEAN_EXPORT lean_object* l_Lake_instInhabitedOptionIOTask(lean_object* v_00_u03b1_221_){
+LEAN_EXPORT lean_object* l_Lake_instInhabitedOptionIOTask(lean_object* v_00_u03b1_222_){
 _start:
 {
-lean_object* v___x_222_; 
-v___x_222_ = lean_obj_once(&l_Lake_instInhabitedOptionIOTask___closed__0, &l_Lake_instInhabitedOptionIOTask___closed__0_once, _init_l_Lake_instInhabitedOptionIOTask___closed__0);
-return v___x_222_;
+lean_object* v___x_223_; 
+v___x_223_ = lean_obj_once(&l_Lake_instInhabitedOptionIOTask___closed__0, &l_Lake_instInhabitedOptionIOTask___closed__0_once, _init_l_Lake_instInhabitedOptionIOTask___closed__0);
+return v___x_223_;
 }
 }
 lean_object* runtime_initialize_Init_Control_Option(uint8_t builtin);

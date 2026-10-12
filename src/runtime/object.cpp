@@ -221,6 +221,7 @@ extern "C" LEAN_EXPORT size_t lean_object_byte_size(lean_object * o) {
         case LeanScalarArray: return lean_sarray_byte_size(o);
         case LeanString:      return lean_string_byte_size(o);
         case LeanClosure:     return lean_closure_byte_size(o);
+        case LeanInterpCache: return lean_interp_cache_byte_size(o);
         default:              return lean_small_object_size(o);
         }
     } else {
@@ -230,6 +231,7 @@ extern "C" LEAN_EXPORT size_t lean_object_byte_size(lean_object * o) {
         case LeanScalarArray: return lean_sarray_byte_size(o);
         case LeanString:      return lean_string_byte_size(o);
         case LeanClosure:     return lean_closure_byte_size(o);
+        case LeanInterpCache: return lean_interp_cache_byte_size(o);
         default:              return o->m_cs_sz;
         }
     }
@@ -379,6 +381,15 @@ static object * lean_del_core_other(object * o, uint8 tag, object * todo) {
         object ** end = it + lean_array_size(o);
         for (; it != end; ++it) dec(*it, todo);
         lean_dealloc(o, lean_array_byte_size(o));
+        break;
+    }
+    case LeanInterpCache: {
+        lean_interp_decl_cache_object * t = lean_to_interp_cache(o);
+        for (size_t i = 0; i < t->m_count; i++) {
+            dec(t->m_entries[i].m_object, todo);
+        }
+        dec(t->m_value, todo);
+        lean_dealloc(o, lean_interp_cache_byte_size(o));
         break;
     }
     case LeanScalarArray:
@@ -624,6 +635,14 @@ extern "C" LEAN_EXPORT void lean_mark_persistent(object * o) {
                 case LeanRef:
                     if (object * v = lean_to_ref(o)->m_value) todo.push_back(v);
                     break;
+                case LeanInterpCache: {
+                    lean_interp_decl_cache_object * t = lean_to_interp_cache(o);
+                    for (size_t i = 0; i < t->m_count; i++) {
+                        todo.push_back(t->m_entries[i].m_object);
+                    }
+                    todo.push_back(t->m_value);
+                    break;
+                }
                 default:
                     lean_unreachable();
                     break;
@@ -710,6 +729,14 @@ extern "C" LEAN_EXPORT void lean_mark_mt(object * o) {
                 case LeanRef:
                     if (object * v = lean_to_ref(o)->m_value) todo.push_back(v);
                     break;
+                case LeanInterpCache: {
+                    lean_interp_decl_cache_object * t = lean_to_interp_cache(o);
+                    for (size_t i = 0; i < t->m_count; i++) {
+                        todo.push_back(t->m_entries[i].m_object);
+                    }
+                    todo.push_back(t->m_value);
+                    break;
+                }
                 default:
                     lean_unreachable();
                     break;

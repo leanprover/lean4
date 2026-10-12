@@ -16,7 +16,7 @@ extern "C" {
 LEAN_EXPORT lean_object* l_Std_HashMap_Raw_Equiv_instTrans___redArg();
 LEAN_EXPORT lean_object* l_Std_HashMap_Raw_Equiv_instTrans___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_HashMap_Raw_Equiv_instTrans(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_HashMap_Raw_Equiv_instTrans___redArg(){
+lean_object* l_Std_HashMap_Raw_Equiv_instTrans___redArg(){
 _start:
 {
 lean_object* v___x_2_; 
@@ -24,20 +24,27 @@ v___x_2_ = lean_box(0);
 return v___x_2_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_HashMap_Raw_Equiv_instTrans___redArg___boxed(lean_object* v___dummy_3_){
+LEAN_EXPORT void l_Std_HashMap_Raw_Equiv_instTrans___redArg_0interp(lean_interpreter_value* stack)
+{
+lean_object* v_res_3_;
+v_res_3_ = l_Std_HashMap_Raw_Equiv_instTrans___redArg();
+stack->m_obj
+ = v_res_3_;
+}
+LEAN_EXPORT lean_object* l_Std_HashMap_Raw_Equiv_instTrans___redArg___boxed(lean_object* v___dummy_4_){
 _start:
 {
-lean_object* v_res_4_; 
-v_res_4_ = l_Std_HashMap_Raw_Equiv_instTrans___redArg();
-return v_res_4_;
+lean_object* v_res_5_; 
+v_res_5_ = l_Std_HashMap_Raw_Equiv_instTrans___redArg();
+return v_res_5_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_HashMap_Raw_Equiv_instTrans(lean_object* v_00_u03b1_5_, lean_object* v_00_u03b2_6_){
+LEAN_EXPORT lean_object* l_Std_HashMap_Raw_Equiv_instTrans(lean_object* v_00_u03b1_6_, lean_object* v_00_u03b2_7_){
 _start:
 {
-lean_object* v___x_7_; 
-v___x_7_ = lean_box(0);
-return v___x_7_;
+lean_object* v___x_8_; 
+v___x_8_ = lean_box(0);
+return v___x_8_;
 }
 }
 lean_object* runtime_initialize_Std_Data_DHashMap_RawLemmas(uint8_t builtin);

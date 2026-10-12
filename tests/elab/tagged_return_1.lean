@@ -4,22 +4,25 @@
 opaque test (a : Nat) : Nat
 
 /--
-trace: [Compiler.IR] [result]
-    def useTest (x_1 : tobj) (x_2 : @& tobj) : tobj :=
-      inc x_1;
-      let x_3 : tagged := test x_1;
-      let x_4 : tobj := Nat.add x_3 x_1;
-      dec x_1;
-      let x_5 : tobj := Nat.add x_4 x_2;
-      dec x_4;
-      ret x_5
-    def useTest._boxed (x_1 : tobj) (x_2 : tobj) : tobj :=
-      let x_3 : tobj := useTest x_1 x_2;
-      dec x_2;
-      ret x_3
+trace: [Compiler.result] size: 6
+    def useTest (a : tobj) (b : @&tobj) : tobj :=
+      inc a;
+      let _x.1 : tagged := test a;
+      let _x.2 : tobj := Nat.add _x.1 a;
+      dec a;
+      let _x.3 : tobj := Nat.add _x.2 b;
+      dec _x.2;
+      return _x.3
+[Compiler.result] size: 2
+    def useTest._boxed (a : tobj) (b : tobj) : tobj :=
+      let res : tobj := useTest a b;
+      dec b;
+      return res
 -/
 #guard_msgs in
-set_option trace.compiler.ir.result true in
+set_option trace.Compiler.result true in
+set_option pp.letVarTypes true in
+set_option pp.funBinderTypes true in
 def useTest (a b : Nat) :=
   (test a + a) + b
 

@@ -16,7 +16,7 @@ extern "C" {
 uint8_t l_Std_Tactic_BVDecide_LRAT_Internal_check(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Std_Tactic_BVDecide_LRAT_check(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_check___boxed(lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_Std_Tactic_BVDecide_LRAT_check(lean_object* v_lratProof_1_, lean_object* v_cnf_2_){
+uint8_t l_Std_Tactic_BVDecide_LRAT_check(lean_object* v_lratProof_1_, lean_object* v_cnf_2_){
 _start:
 {
 uint8_t v___x_3_; 
@@ -24,14 +24,22 @@ v___x_3_ = l_Std_Tactic_BVDecide_LRAT_Internal_check(v_lratProof_1_, v_cnf_2_);
 return v___x_3_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_check___boxed(lean_object* v_lratProof_4_, lean_object* v_cnf_5_){
+LEAN_EXPORT void l_Std_Tactic_BVDecide_LRAT_check_0interp(lean_interpreter_value* stack)
+{
+lean_object* v_lratProof_1_ = stack[0].m_obj;
+lean_object* v_cnf_2_ = stack[1].m_obj;
+uint8_t v_res_4_;
+v_res_4_ = l_Std_Tactic_BVDecide_LRAT_check(v_lratProof_1_, v_cnf_2_);
+stack->m_num = v_res_4_;
+}
+LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_check___boxed(lean_object* v_lratProof_5_, lean_object* v_cnf_6_){
 _start:
 {
-uint8_t v_res_6_; lean_object* v_r_7_; 
-v_res_6_ = l_Std_Tactic_BVDecide_LRAT_check(v_lratProof_4_, v_cnf_5_);
-lean_dec_ref(v_lratProof_4_);
-v_r_7_ = lean_box(v_res_6_);
-return v_r_7_;
+uint8_t v_res_7_; lean_object* v_r_8_; 
+v_res_7_ = l_Std_Tactic_BVDecide_LRAT_check(v_lratProof_5_, v_cnf_6_);
+lean_dec_ref(v_lratProof_5_);
+v_r_8_ = lean_box(v_res_7_);
+return v_r_8_;
 }
 }
 lean_object* runtime_initialize_Std_Tactic_BVDecide_LRAT_Internal_Checker(uint8_t builtin);

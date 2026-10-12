@@ -16,7 +16,7 @@ extern "C" {
 uint32_t l_Lake_cli(lean_object*);
 LEAN_EXPORT lean_object* _lean_main(lean_object*);
 LEAN_EXPORT lean_object* l_main___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* _lean_main(lean_object* v_args_1_){
+lean_object* _lean_main(lean_object* v_args_1_){
 _start:
 {
 uint32_t v___x_3_; lean_object* v___x_4_; lean_object* v___x_5_; 
@@ -27,12 +27,20 @@ lean_ctor_set(v___x_5_, 0, v___x_4_);
 return v___x_5_;
 }
 }
-LEAN_EXPORT lean_object* l_main___boxed(lean_object* v_args_6_, lean_object* v_a_7_){
+LEAN_EXPORT void _lean_main_0interp(lean_interpreter_value* stack)
+{
+lean_object* v_args_1_ = stack[0].m_obj;
+lean_object* v_res_6_;
+v_res_6_ = _lean_main(v_args_1_);
+stack->m_obj
+ = v_res_6_;
+}
+LEAN_EXPORT lean_object* l_main___boxed(lean_object* v_args_7_, lean_object* v_a_8_){
 _start:
 {
-lean_object* v_res_8_; 
-v_res_8_ = _lean_main(v_args_6_);
-return v_res_8_;
+lean_object* v_res_9_; 
+v_res_9_ = _lean_main(v_args_7_);
+return v_res_9_;
 }
 }
 lean_object* runtime_initialize_Init_System_IO(uint8_t builtin);

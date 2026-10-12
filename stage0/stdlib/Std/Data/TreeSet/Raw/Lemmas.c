@@ -17,7 +17,7 @@ LEAN_EXPORT lean_object* l_Std_TreeSet_Raw_Equiv_instTrans___redArg();
 LEAN_EXPORT lean_object* l_Std_TreeSet_Raw_Equiv_instTrans___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_TreeSet_Raw_Equiv_instTrans(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_TreeSet_Raw_Equiv_instTrans___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_TreeSet_Raw_Equiv_instTrans___redArg(){
+lean_object* l_Std_TreeSet_Raw_Equiv_instTrans___redArg(){
 _start:
 {
 lean_object* v___x_2_; 
@@ -25,29 +25,36 @@ v___x_2_ = lean_box(0);
 return v___x_2_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_TreeSet_Raw_Equiv_instTrans___redArg___boxed(lean_object* v___dummy_3_){
+LEAN_EXPORT void l_Std_TreeSet_Raw_Equiv_instTrans___redArg_0interp(lean_interpreter_value* stack)
+{
+lean_object* v_res_3_;
+v_res_3_ = l_Std_TreeSet_Raw_Equiv_instTrans___redArg();
+stack->m_obj
+ = v_res_3_;
+}
+LEAN_EXPORT lean_object* l_Std_TreeSet_Raw_Equiv_instTrans___redArg___boxed(lean_object* v___dummy_4_){
 _start:
 {
-lean_object* v_res_4_; 
-v_res_4_ = l_Std_TreeSet_Raw_Equiv_instTrans___redArg();
-return v_res_4_;
+lean_object* v_res_5_; 
+v_res_5_ = l_Std_TreeSet_Raw_Equiv_instTrans___redArg();
+return v_res_5_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_TreeSet_Raw_Equiv_instTrans(lean_object* v_00_u03b1_5_, lean_object* v_cmp_6_){
+LEAN_EXPORT lean_object* l_Std_TreeSet_Raw_Equiv_instTrans(lean_object* v_00_u03b1_6_, lean_object* v_cmp_7_){
 _start:
 {
-lean_object* v___x_7_; 
-v___x_7_ = lean_box(0);
-return v___x_7_;
+lean_object* v___x_8_; 
+v___x_8_ = lean_box(0);
+return v___x_8_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_TreeSet_Raw_Equiv_instTrans___boxed(lean_object* v_00_u03b1_8_, lean_object* v_cmp_9_){
+LEAN_EXPORT lean_object* l_Std_TreeSet_Raw_Equiv_instTrans___boxed(lean_object* v_00_u03b1_9_, lean_object* v_cmp_10_){
 _start:
 {
-lean_object* v_res_10_; 
-v_res_10_ = l_Std_TreeSet_Raw_Equiv_instTrans(v_00_u03b1_8_, v_cmp_9_);
-lean_dec_ref(v_cmp_9_);
-return v_res_10_;
+lean_object* v_res_11_; 
+v_res_11_ = l_Std_TreeSet_Raw_Equiv_instTrans(v_00_u03b1_9_, v_cmp_10_);
+lean_dec_ref(v_cmp_10_);
+return v_res_11_;
 }
 }
 lean_object* runtime_initialize_Std_Data_TreeMap_Raw_Lemmas(uint8_t builtin);

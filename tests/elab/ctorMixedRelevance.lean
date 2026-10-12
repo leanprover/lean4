@@ -9,33 +9,39 @@ structure TwoThingies (α : Type) where
   value2 : Value2 α
 
 /--
-trace: [Compiler.IR] [result]
+trace: [Compiler.result] size: 1
     def test1._closed_0 : obj :=
-      let x_1 : obj := ctor_0[TwoThingies.mk] ◾ ◾;
-      ret x_1
+      let _x.1 : obj := ctor_0[TwoThingies.mk] ◾ ◾;
+      return _x.1
+[Compiler.result] size: 2
     def test1 : obj :=
-      let x_1 : obj := test1._closed_0;
-      inc x_1;
-      ret x_1
+      let _x.1 : obj := test1._closed_0;
+      inc[persistent][ref] _x.1;
+      return _x.1
 -/
 #guard_msgs in
-set_option trace.compiler.ir.result true in
+set_option trace.Compiler.result true in
+set_option pp.letVarTypes true in
+set_option pp.funBinderTypes true in
 def test1 : TwoThingies Prop := { value1.fst := True, value2.snd := False }
 
 /--
-trace: [Compiler.IR] [result]
+trace: [Compiler.result] size: 5
     def test2._closed_0 : obj :=
-      let x_1 : u8 := 0;
-      let x_2 : u8 := 1;
-      let x_3 : tobj := box x_2;
-      let x_4 : tobj := box x_1;
-      let x_5 : obj := ctor_0[TwoThingies.mk] x_3 x_4;
-      ret x_5
+      let _x.1 : UInt8 := 0;
+      let _x.2 : UInt8 := 1;
+      let _x.3 : tobj := box _x.2;
+      let _x.4 : tobj := box _x.1;
+      let _x.5 : obj := ctor_0[TwoThingies.mk] _x.3 _x.4;
+      return _x.5
+[Compiler.result] size: 2
     def test2 : obj :=
-      let x_1 : obj := test2._closed_0;
-      inc x_1;
-      ret x_1
+      let _x.1 : obj := test2._closed_0;
+      inc[persistent][ref] _x.1;
+      return _x.1
 -/
 #guard_msgs in
-set_option trace.compiler.ir.result true in
+set_option trace.Compiler.result true in
+set_option pp.letVarTypes true in
+set_option pp.funBinderTypes true in
 def test2 : TwoThingies Bool := { value1.fst := true, value2.snd := false }

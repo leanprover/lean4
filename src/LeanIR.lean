@@ -10,7 +10,7 @@ import Lean.Util.ForEachExpr
 import all Lean.Util.Path
 import all Lean.Environment
 import Lean.Compiler.Options
-import Lean.Compiler.IR.CompilerM
+import Lean.Compiler.Bytecode.Basic
 import Lean.Compiler.ModPkgExt
 
 import all Lean.Compiler.CSimpAttr
@@ -123,12 +123,15 @@ public def main (args : List String) : IO UInt32 := do
   -- Fill `declMapExt` with functions compiled already in `lean` so the set of "local" decls is
   -- unchanged and also for calculation of `extraConstNames` above
   -- TODO: we do manually-added externs only as others need more state sync around ground exprs etc
-  let is := Lean.IR.declMapExt.toEnvExtension.getState env
+  let is := Lean.Compiler.Bytecode.declMapExt.toEnvExtension.getState env
   let unbox : Name → Name
     | .str f "_boxed" => f
     | f => f
-  let newState :=  is.importedEntries[modIdx]!.foldl (fun (decls, m) d => if isExtern env (unbox d.name) then (d::decls, m.insert d.name d) else (decls, m)) is.state
-  let env := Lean.IR.declMapExt.toEnvExtension.setState (asyncMode := .sync) env { is with state := newState }
+  let newState :=  is.importedEntries[modIdx]!.foldl (fun (decls, m) d =>
+    if isExtern env (unbox d.name) then
+      (d::decls, m.insert d.name { d with cache := .mkEmpty .. })
+    else (decls, m)) is.state
+  let env := Lean.Compiler.Bytecode.declMapExt.toEnvExtension.setState (asyncMode := .sync) env { is with state := newState }
 
   let some mod := env.header.moduleData[modIdx]? | unreachable!
   -- Make sure we record the actual IR dependencies, not ourselves

@@ -57,7 +57,7 @@ lean_dec(v_a_4_);
 return v_res_6_;
 }
 }
-LEAN_EXPORT lean_object* l_Fin_instMin___redArg(){
+lean_object* l_Fin_instMin___redArg(){
 _start:
 {
 lean_object* v___f_9_; 
@@ -65,89 +65,103 @@ v___f_9_ = ((lean_object*)(l_Fin_instMin___redArg___closed__0));
 return v___f_9_;
 }
 }
-LEAN_EXPORT lean_object* l_Fin_instMin___redArg___boxed(lean_object* v___dummy_10_){
+LEAN_EXPORT void l_Fin_instMin___redArg_0interp(lean_interpreter_value* stack)
+{
+lean_object* v_res_10_;
+v_res_10_ = l_Fin_instMin___redArg();
+stack->m_obj
+ = v_res_10_;
+}
+LEAN_EXPORT lean_object* l_Fin_instMin___redArg___boxed(lean_object* v___dummy_11_){
 _start:
 {
-lean_object* v_res_11_; 
-v_res_11_ = l_Fin_instMin___redArg();
-return v_res_11_;
+lean_object* v_res_12_; 
+v_res_12_ = l_Fin_instMin___redArg();
+return v_res_12_;
 }
 }
-LEAN_EXPORT lean_object* l_Fin_instMin(lean_object* v_n_12_){
+LEAN_EXPORT lean_object* l_Fin_instMin(lean_object* v_n_13_){
 _start:
 {
-lean_object* v___f_13_; 
-v___f_13_ = ((lean_object*)(l_Fin_instMin___redArg___closed__0));
-return v___f_13_;
+lean_object* v___f_14_; 
+v___f_14_ = ((lean_object*)(l_Fin_instMin___redArg___closed__0));
+return v___f_14_;
 }
 }
-LEAN_EXPORT lean_object* l_Fin_instMin___boxed(lean_object* v_n_14_){
+LEAN_EXPORT lean_object* l_Fin_instMin___boxed(lean_object* v_n_15_){
 _start:
 {
-lean_object* v_res_15_; 
-v_res_15_ = l_Fin_instMin(v_n_14_);
-lean_dec(v_n_14_);
-return v_res_15_;
+lean_object* v_res_16_; 
+v_res_16_ = l_Fin_instMin(v_n_15_);
+lean_dec(v_n_15_);
+return v_res_16_;
 }
 }
-LEAN_EXPORT lean_object* l_Fin_instMax___redArg___lam__0(lean_object* v_a_16_, lean_object* v_b_17_){
+LEAN_EXPORT lean_object* l_Fin_instMax___redArg___lam__0(lean_object* v_a_17_, lean_object* v_b_18_){
 _start:
 {
-uint8_t v___x_18_; 
-v___x_18_ = lean_nat_dec_le(v_a_16_, v_b_17_);
-if (v___x_18_ == 0)
+uint8_t v___x_19_; 
+v___x_19_ = lean_nat_dec_le(v_a_17_, v_b_18_);
+if (v___x_19_ == 0)
 {
-lean_inc(v_a_16_);
-return v_a_16_;
+lean_inc(v_a_17_);
+return v_a_17_;
 }
 else
 {
-lean_inc(v_b_17_);
-return v_b_17_;
+lean_inc(v_b_18_);
+return v_b_18_;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Fin_instMax___redArg___lam__0___boxed(lean_object* v_a_19_, lean_object* v_b_20_){
+LEAN_EXPORT lean_object* l_Fin_instMax___redArg___lam__0___boxed(lean_object* v_a_20_, lean_object* v_b_21_){
 _start:
 {
-lean_object* v_res_21_; 
-v_res_21_ = l_Fin_instMax___redArg___lam__0(v_a_19_, v_b_20_);
-lean_dec(v_b_20_);
-lean_dec(v_a_19_);
-return v_res_21_;
+lean_object* v_res_22_; 
+v_res_22_ = l_Fin_instMax___redArg___lam__0(v_a_20_, v_b_21_);
+lean_dec(v_b_21_);
+lean_dec(v_a_20_);
+return v_res_22_;
 }
 }
-LEAN_EXPORT lean_object* l_Fin_instMax___redArg(){
+lean_object* l_Fin_instMax___redArg(){
 _start:
 {
-lean_object* v___f_24_; 
-v___f_24_ = ((lean_object*)(l_Fin_instMax___redArg___closed__0));
-return v___f_24_;
+lean_object* v___f_25_; 
+v___f_25_ = ((lean_object*)(l_Fin_instMax___redArg___closed__0));
+return v___f_25_;
 }
 }
-LEAN_EXPORT lean_object* l_Fin_instMax___redArg___boxed(lean_object* v___dummy_25_){
-_start:
+LEAN_EXPORT void l_Fin_instMax___redArg_0interp(lean_interpreter_value* stack)
 {
-lean_object* v_res_26_; 
+lean_object* v_res_26_;
 v_res_26_ = l_Fin_instMax___redArg();
-return v_res_26_;
+stack->m_obj
+ = v_res_26_;
 }
-}
-LEAN_EXPORT lean_object* l_Fin_instMax(lean_object* v_n_27_){
+LEAN_EXPORT lean_object* l_Fin_instMax___redArg___boxed(lean_object* v___dummy_27_){
 _start:
 {
-lean_object* v___f_28_; 
-v___f_28_ = ((lean_object*)(l_Fin_instMax___redArg___closed__0));
-return v___f_28_;
+lean_object* v_res_28_; 
+v_res_28_ = l_Fin_instMax___redArg();
+return v_res_28_;
 }
 }
-LEAN_EXPORT lean_object* l_Fin_instMax___boxed(lean_object* v_n_29_){
+LEAN_EXPORT lean_object* l_Fin_instMax(lean_object* v_n_29_){
 _start:
 {
-lean_object* v_res_30_; 
-v_res_30_ = l_Fin_instMax(v_n_29_);
-lean_dec(v_n_29_);
-return v_res_30_;
+lean_object* v___f_30_; 
+v___f_30_ = ((lean_object*)(l_Fin_instMax___redArg___closed__0));
+return v___f_30_;
+}
+}
+LEAN_EXPORT lean_object* l_Fin_instMax___boxed(lean_object* v_n_31_){
+_start:
+{
+lean_object* v_res_32_; 
+v_res_32_ = l_Fin_instMax(v_n_31_);
+lean_dec(v_n_31_);
+return v_res_32_;
 }
 }
 lean_object* runtime_initialize_Init_Data_Fin_Basic(uint8_t builtin);

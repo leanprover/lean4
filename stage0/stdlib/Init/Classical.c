@@ -17,7 +17,7 @@ LEAN_EXPORT uint8_t l_Classical_decidable__of__decidable__not___redArg(uint8_t);
 LEAN_EXPORT lean_object* l_Classical_decidable__of__decidable__not___redArg___boxed(lean_object*);
 LEAN_EXPORT uint8_t l_Classical_decidable__of__decidable__not(lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Classical_decidable__of__decidable__not___boxed(lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_Classical_decidable__of__decidable__not___redArg(uint8_t v_h_1_){
+uint8_t l_Classical_decidable__of__decidable__not___redArg(uint8_t v_h_1_){
 _start:
 {
 if (v_h_1_ == 0)
@@ -34,32 +34,46 @@ return v___x_3_;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Classical_decidable__of__decidable__not___redArg___boxed(lean_object* v_h_4_){
+LEAN_EXPORT void l_Classical_decidable__of__decidable__not___redArg_0interp(lean_interpreter_value* stack)
+{
+uint8_t v_h_1_ = stack[0].m_num;
+uint8_t v_res_4_;
+v_res_4_ = l_Classical_decidable__of__decidable__not___redArg(v_h_1_);
+stack->m_num = v_res_4_;
+}
+LEAN_EXPORT lean_object* l_Classical_decidable__of__decidable__not___redArg___boxed(lean_object* v_h_5_){
 _start:
 {
-uint8_t v_h_boxed_5_; uint8_t v_res_6_; lean_object* v_r_7_; 
-v_h_boxed_5_ = lean_unbox(v_h_4_);
-v_res_6_ = l_Classical_decidable__of__decidable__not___redArg(v_h_boxed_5_);
-v_r_7_ = lean_box(v_res_6_);
-return v_r_7_;
+uint8_t v_h_boxed_6_; uint8_t v_res_7_; lean_object* v_r_8_; 
+v_h_boxed_6_ = lean_unbox(v_h_5_);
+v_res_7_ = l_Classical_decidable__of__decidable__not___redArg(v_h_boxed_6_);
+v_r_8_ = lean_box(v_res_7_);
+return v_r_8_;
 }
 }
-LEAN_EXPORT uint8_t l_Classical_decidable__of__decidable__not(lean_object* v_p_8_, uint8_t v_h_9_){
+uint8_t l_Classical_decidable__of__decidable__not(lean_object* v_p_9_, uint8_t v_h_10_){
 _start:
 {
-uint8_t v___x_10_; 
-v___x_10_ = l_Classical_decidable__of__decidable__not___redArg(v_h_9_);
-return v___x_10_;
+uint8_t v___x_11_; 
+v___x_11_ = l_Classical_decidable__of__decidable__not___redArg(v_h_10_);
+return v___x_11_;
 }
 }
-LEAN_EXPORT lean_object* l_Classical_decidable__of__decidable__not___boxed(lean_object* v_p_11_, lean_object* v_h_12_){
+LEAN_EXPORT void l_Classical_decidable__of__decidable__not_0interp(lean_interpreter_value* stack)
+{
+uint8_t v_h_10_ = stack[1].m_num;
+uint8_t v_res_12_;
+v_res_12_ = l_Classical_decidable__of__decidable__not(lean_box(0), v_h_10_);
+stack->m_num = v_res_12_;
+}
+LEAN_EXPORT lean_object* l_Classical_decidable__of__decidable__not___boxed(lean_object* v_p_13_, lean_object* v_h_14_){
 _start:
 {
-uint8_t v_h_boxed_13_; uint8_t v_res_14_; lean_object* v_r_15_; 
-v_h_boxed_13_ = lean_unbox(v_h_12_);
-v_res_14_ = l_Classical_decidable__of__decidable__not(v_p_11_, v_h_boxed_13_);
-v_r_15_ = lean_box(v_res_14_);
-return v_r_15_;
+uint8_t v_h_boxed_15_; uint8_t v_res_16_; lean_object* v_r_17_; 
+v_h_boxed_15_ = lean_unbox(v_h_14_);
+v_res_16_ = l_Classical_decidable__of__decidable__not(v_p_13_, v_h_boxed_15_);
+v_r_17_ = lean_box(v_res_16_);
+return v_r_17_;
 }
 }
 lean_object* runtime_initialize_Init_PropLemmas(uint8_t builtin);

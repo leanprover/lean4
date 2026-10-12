@@ -17,7 +17,7 @@ lean_object* l_Lean_Expr_cleanupAnnotations(lean_object*);
 uint8_t lean_expr_has_loose_bvar(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Expr_hasUnusedForallBindersWhere(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_hasUnusedForallBindersWhere___boxed(lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_Lean_Expr_hasUnusedForallBindersWhere(lean_object* v_p_1_, lean_object* v_e_2_){
+uint8_t l_Lean_Expr_hasUnusedForallBindersWhere(lean_object* v_p_1_, lean_object* v_e_2_){
 _start:
 {
 lean_object* v___x_3_; 
@@ -82,13 +82,21 @@ return v___x_17_;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Expr_hasUnusedForallBindersWhere___boxed(lean_object* v_p_18_, lean_object* v_e_19_){
+LEAN_EXPORT void l_Lean_Expr_hasUnusedForallBindersWhere_0interp(lean_interpreter_value* stack)
+{
+lean_object* v_p_1_ = stack[0].m_obj;
+lean_object* v_e_2_ = stack[1].m_obj;
+uint8_t v_res_18_;
+v_res_18_ = l_Lean_Expr_hasUnusedForallBindersWhere(v_p_1_, v_e_2_);
+stack->m_num = v_res_18_;
+}
+LEAN_EXPORT lean_object* l_Lean_Expr_hasUnusedForallBindersWhere___boxed(lean_object* v_p_19_, lean_object* v_e_20_){
 _start:
 {
-uint8_t v_res_20_; lean_object* v_r_21_; 
-v_res_20_ = l_Lean_Expr_hasUnusedForallBindersWhere(v_p_18_, v_e_19_);
-v_r_21_ = lean_box(v_res_20_);
-return v_r_21_;
+uint8_t v_res_21_; lean_object* v_r_22_; 
+v_res_21_ = l_Lean_Expr_hasUnusedForallBindersWhere(v_p_19_, v_e_20_);
+v_r_22_ = lean_box(v_res_21_);
+return v_r_22_;
 }
 }
 lean_object* runtime_initialize_Lean_Expr(uint8_t builtin);

@@ -4,13 +4,15 @@ inductive E1 (n : Nat) where
   | c
 
 /--
-trace: [Compiler.IR] [result]
-    def e1 : u8 :=
-      let x_1 : u8 := 2;
-      ret x_1
+trace: [Compiler.result] size: 1
+    def e1 : UInt8 :=
+      let _x.1 : UInt8 := 2;
+      return _x.1
 -/
 #guard_msgs in
-set_option trace.compiler.ir.result true in
+set_option trace.Compiler.result true in
+set_option pp.letVarTypes true in
+set_option pp.funBinderTypes true in
 def e1 : E1 7 := .c
 
 inductive E2 where
@@ -19,13 +21,15 @@ inductive E2 where
   | c (p : 0 = 1)
 
 /--
-trace: [Compiler.IR] [result]
-    def e2 : u8 :=
-      let x_1 : u8 := 1;
-      ret x_1
+trace: [Compiler.result] size: 1
+    def e2 : UInt8 :=
+      let _x.1 : UInt8 := 1;
+      return _x.1
 -/
 #guard_msgs in
-set_option trace.compiler.ir.result true in
+set_option trace.Compiler.result true in
+set_option pp.letVarTypes true in
+set_option pp.funBinderTypes true in
 def e2 : E2 := .b rfl
 
 inductive E3 (m n : Nat) where
@@ -34,11 +38,13 @@ inductive E3 (m n : Nat) where
   | c (p : 0 = 0) (q : 1 = 1)
 
 /--
-trace: [Compiler.IR] [result]
-    def e3 : u8 :=
-      let x_1 : u8 := 2;
-      ret x_1
+trace: [Compiler.result] size: 1
+    def e3 : UInt8 :=
+      let _x.1 : UInt8 := 2;
+      return _x.1
 -/
 #guard_msgs in
-set_option trace.compiler.ir.result true in
+set_option trace.Compiler.result true in
+set_option pp.letVarTypes true in
+set_option pp.funBinderTypes true in
 def e3 : E3 7 11 := .c rfl rfl

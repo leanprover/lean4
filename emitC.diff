@@ -1,0 +1,91 @@
+diff --git a/src/Lean/Compiler/IR/EmitC.lean b/src/Lean/Compiler/IR/EmitC.lean
+index 07f1449052..fd9edba74b 100644
+--- a/src/Lean/Compiler/IR/EmitC.lean
++++ b/src/Lean/Compiler/IR/EmitC.lean
+@@ -79,6 +79,13 @@ def toCType : IRType → String
+   | IRType.struct _ _ => panic! "not implemented yet"
+   | IRType.union _ _  => panic! "not implemented yet"
+ 
++/--
++Returns whether `toCType type = "lean_object*"`
++-/
++def isPtrType : IRType → Bool
++  | .object | .tagged | .tobject | .erased | .void => true
++  | _ => false
++
+ def toHexDigit (c : Nat) : String :=
+   String.singleton c.digitChar
+ 
+@@ -802,6 +809,48 @@ partial def emitFnBody (b : FnBody) : M Unit := do
+ 
+ end
+ 
++def emitInterpDecl (decl : Decl) : M Unit := do
++  let f := decl.name
++  let xs := decl.params
++  let type := decl.resultType
++  let baseName ← toCName f
++  emit "LEAN_EXPORT void "; emit baseName; emitLn "_0interp(lean_interpreter_value* stack) {"
++  for h : i in *...xs.size do
++    let x := xs[i]
++    if x.ty.isVoid then
++      continue
++    emit (toCType x.ty); emit " x_"; emit i; emit " = "
++    match x.ty with
++    | .uint8 | .uint16 | .uint32 | .uint64 | .usize => emitLn s!"stack[{i}].m_num;"
++    | .float => emitLn s!"stack[{i}].m_float;"
++    | .float32 => emitLn s!"stack[{i}].m_float32;"
++    | .tagged | .object | .tobject | .erased => emitLn s!"stack[{i}].m_obj;"
++    | .void => unreachable!
++    | .struct .. | .union .. => panic! "not implemented yet"
++  emit (toCType type); emit " res = "
++  match decl with
++  | .fdecl .. =>
++    emit baseName; emit "("
++    let mut first := true
++    for h : i in *...xs.size do
++      let x := xs[i]
++      if x.ty.isVoid then
++        continue
++      unless first do
++        emit ","
++      emit "x_"; emit i
++      first := false
++    emitLn ");"
++  | .extern f xs _ ext =>
++    emitExternCall f xs ext (Array.ofFn fun i : Fin xs.size => .var ⟨i.val⟩)
++  match type with
++  | .uint8 | .uint16 | .uint32 | .uint64 | .usize => emitLn "stack->m_num = res;"
++  | .float => emitLn s!"stack->m_float = res;"
++  | .float32 => emitLn s!"stack->m_float32 = res;"
++  | .tagged | .object | .tobject | .erased | .void => emitLn s!"stack->m_obj = res;"
++  | .struct .. | .union .. => panic! "not implemented yet"
++  emitLn "}"
++
+ def emitDeclAux (d : Decl) : M Unit := do
+   let env ← getEnv
+   let (_, jpMap) := mkVarJPMaps d
+@@ -810,9 +859,11 @@ def emitDeclAux (d : Decl) : M Unit := do
+     match d with
+     | .fdecl (f := f) (xs := xs) (type := t) (body := b) .. =>
+       let baseName ← toCName f;
++      let needInterp := (xs.size > 16 || !xs.all (isPtrType ·.ty) ||
++        (xs.size > 0 && !isPtrType t)) && !isBoxedName f
+       if xs.size == 0 then
+         emit "static "
+-      else
++      else if !needInterp then
+         emit "LEAN_EXPORT "  -- make symbol visible to the interpreter
+       emit (toCType t); emit " ";
+       if xs.size > 0 then
+@@ -837,7 +888,9 @@ def emitDeclAux (d : Decl) : M Unit := do
+       emitLn "_start:";
+       withReader (fun ctx => { ctx with mainFn := f, mainParams := xs }) (emitFnBody b);
+       emitLn "}"
+-    | _ => pure ()
++      if needInterp then
++        emitInterpDecl d
++    | .extern (f := f) (xs := xs) (type := t) .. => emitInterpDecl d
+ 
+ def emitDecl (d : Decl) : M Unit := do
+   let d := d.normalizeIds; -- ensure we don't have gaps in the variable indices

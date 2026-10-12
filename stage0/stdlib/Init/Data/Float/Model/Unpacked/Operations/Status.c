@@ -19,7 +19,7 @@ LEAN_EXPORT uint8_t l_Float_Model_UnpackedFloat_isInf(lean_object*);
 LEAN_EXPORT lean_object* l_Float_Model_UnpackedFloat_isInf___boxed(lean_object*);
 LEAN_EXPORT uint8_t l_Float_Model_UnpackedFloat_isNaN(lean_object*);
 LEAN_EXPORT lean_object* l_Float_Model_UnpackedFloat_isNaN___boxed(lean_object*);
-LEAN_EXPORT uint8_t l_Float_Model_UnpackedFloat_isFinite(lean_object* v_x_1_){
+uint8_t l_Float_Model_UnpackedFloat_isFinite(lean_object* v_x_1_){
 _start:
 {
 switch(lean_obj_tag(v_x_1_))
@@ -45,68 +45,89 @@ return v___x_4_;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Float_Model_UnpackedFloat_isFinite___boxed(lean_object* v_x_5_){
+LEAN_EXPORT void l_Float_Model_UnpackedFloat_isFinite_0interp(lean_interpreter_value* stack)
+{
+lean_object* v_x_1_ = stack[0].m_obj;
+uint8_t v_res_5_;
+v_res_5_ = l_Float_Model_UnpackedFloat_isFinite(v_x_1_);
+stack->m_num = v_res_5_;
+}
+LEAN_EXPORT lean_object* l_Float_Model_UnpackedFloat_isFinite___boxed(lean_object* v_x_6_){
 _start:
 {
-uint8_t v_res_6_; lean_object* v_r_7_; 
-v_res_6_ = l_Float_Model_UnpackedFloat_isFinite(v_x_5_);
-lean_dec(v_x_5_);
-v_r_7_ = lean_box(v_res_6_);
-return v_r_7_;
+uint8_t v_res_7_; lean_object* v_r_8_; 
+v_res_7_ = l_Float_Model_UnpackedFloat_isFinite(v_x_6_);
+lean_dec(v_x_6_);
+v_r_8_ = lean_box(v_res_7_);
+return v_r_8_;
 }
 }
-LEAN_EXPORT uint8_t l_Float_Model_UnpackedFloat_isInf(lean_object* v_x_8_){
+uint8_t l_Float_Model_UnpackedFloat_isInf(lean_object* v_x_9_){
 _start:
 {
-if (lean_obj_tag(v_x_8_) == 0)
-{
-uint8_t v___x_9_; 
-v___x_9_ = 1;
-return v___x_9_;
-}
-else
+if (lean_obj_tag(v_x_9_) == 0)
 {
 uint8_t v___x_10_; 
-v___x_10_ = 0;
+v___x_10_ = 1;
 return v___x_10_;
-}
-}
-}
-LEAN_EXPORT lean_object* l_Float_Model_UnpackedFloat_isInf___boxed(lean_object* v_x_11_){
-_start:
-{
-uint8_t v_res_12_; lean_object* v_r_13_; 
-v_res_12_ = l_Float_Model_UnpackedFloat_isInf(v_x_11_);
-lean_dec(v_x_11_);
-v_r_13_ = lean_box(v_res_12_);
-return v_r_13_;
-}
-}
-LEAN_EXPORT uint8_t l_Float_Model_UnpackedFloat_isNaN(lean_object* v_x_14_){
-_start:
-{
-if (lean_obj_tag(v_x_14_) == 1)
-{
-uint8_t v___x_15_; 
-v___x_15_ = 1;
-return v___x_15_;
 }
 else
 {
-uint8_t v___x_16_; 
-v___x_16_ = 0;
-return v___x_16_;
+uint8_t v___x_11_; 
+v___x_11_ = 0;
+return v___x_11_;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Float_Model_UnpackedFloat_isNaN___boxed(lean_object* v_x_17_){
+LEAN_EXPORT void l_Float_Model_UnpackedFloat_isInf_0interp(lean_interpreter_value* stack)
+{
+lean_object* v_x_9_ = stack[0].m_obj;
+uint8_t v_res_12_;
+v_res_12_ = l_Float_Model_UnpackedFloat_isInf(v_x_9_);
+stack->m_num = v_res_12_;
+}
+LEAN_EXPORT lean_object* l_Float_Model_UnpackedFloat_isInf___boxed(lean_object* v_x_13_){
 _start:
 {
-uint8_t v_res_18_; lean_object* v_r_19_; 
-v_res_18_ = l_Float_Model_UnpackedFloat_isNaN(v_x_17_);
-lean_dec(v_x_17_);
-v_r_19_ = lean_box(v_res_18_);
-return v_r_19_;
+uint8_t v_res_14_; lean_object* v_r_15_; 
+v_res_14_ = l_Float_Model_UnpackedFloat_isInf(v_x_13_);
+lean_dec(v_x_13_);
+v_r_15_ = lean_box(v_res_14_);
+return v_r_15_;
+}
+}
+uint8_t l_Float_Model_UnpackedFloat_isNaN(lean_object* v_x_16_){
+_start:
+{
+if (lean_obj_tag(v_x_16_) == 1)
+{
+uint8_t v___x_17_; 
+v___x_17_ = 1;
+return v___x_17_;
+}
+else
+{
+uint8_t v___x_18_; 
+v___x_18_ = 0;
+return v___x_18_;
+}
+}
+}
+LEAN_EXPORT void l_Float_Model_UnpackedFloat_isNaN_0interp(lean_interpreter_value* stack)
+{
+lean_object* v_x_16_ = stack[0].m_obj;
+uint8_t v_res_19_;
+v_res_19_ = l_Float_Model_UnpackedFloat_isNaN(v_x_16_);
+stack->m_num = v_res_19_;
+}
+LEAN_EXPORT lean_object* l_Float_Model_UnpackedFloat_isNaN___boxed(lean_object* v_x_20_){
+_start:
+{
+uint8_t v_res_21_; lean_object* v_r_22_; 
+v_res_21_ = l_Float_Model_UnpackedFloat_isNaN(v_x_20_);
+lean_dec(v_x_20_);
+v_r_22_ = lean_box(v_res_21_);
+return v_r_22_;
 }
 }
 lean_object* runtime_initialize_Init_Data_Float_Model_Unpacked_Basic(uint8_t builtin);

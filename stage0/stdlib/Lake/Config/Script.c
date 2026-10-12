@@ -39,7 +39,7 @@ LEAN_EXPORT const lean_object* l_Lake_instInhabitedScript_default = (const lean_
 LEAN_EXPORT const lean_object* l_Lake_instInhabitedScript = (const lean_object*)&l_Lake_instInhabitedScript_default___closed__2_value;
 LEAN_EXPORT lean_object* l_Lake_Script_run(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Script_run___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_instInhabitedScript_default___lam__0(lean_object* v_x_11_, lean_object* v___y_12_){
+lean_object* l_Lake_instInhabitedScript_default___lam__0(lean_object* v_x_11_, lean_object* v___y_12_){
 _start:
 {
 lean_object* v___x_14_; lean_object* v___x_15_; 
@@ -49,35 +49,54 @@ lean_ctor_set(v___x_15_, 0, v___x_14_);
 return v___x_15_;
 }
 }
-LEAN_EXPORT lean_object* l_Lake_instInhabitedScript_default___lam__0___boxed(lean_object* v_x_16_, lean_object* v___y_17_, lean_object* v___y_18_){
+LEAN_EXPORT void l_Lake_instInhabitedScript_default___lam__0_0interp(lean_interpreter_value* stack)
+{
+lean_object* v_x_11_ = stack[0].m_obj;
+lean_object* v___y_12_ = stack[1].m_obj;
+lean_object* v_res_16_;
+v_res_16_ = l_Lake_instInhabitedScript_default___lam__0(v_x_11_, v___y_12_);
+stack->m_obj
+ = v_res_16_;
+}
+LEAN_EXPORT lean_object* l_Lake_instInhabitedScript_default___lam__0___boxed(lean_object* v_x_17_, lean_object* v___y_18_, lean_object* v___y_19_){
 _start:
 {
-lean_object* v_res_19_; 
-v_res_19_ = l_Lake_instInhabitedScript_default___lam__0(v_x_16_, v___y_17_);
-lean_dec(v___y_17_);
-lean_dec(v_x_16_);
-return v_res_19_;
+lean_object* v_res_20_; 
+v_res_20_ = l_Lake_instInhabitedScript_default___lam__0(v_x_17_, v___y_18_);
+lean_dec(v___y_18_);
+lean_dec(v_x_17_);
+return v_res_20_;
 }
 }
-LEAN_EXPORT lean_object* l_Lake_Script_run(lean_object* v_args_28_, lean_object* v_self_29_, lean_object* v_a_30_){
+lean_object* l_Lake_Script_run(lean_object* v_args_29_, lean_object* v_self_30_, lean_object* v_a_31_){
 _start:
 {
-lean_object* v_fn_32_; lean_object* v___x_33_; 
-v_fn_32_ = lean_ctor_get(v_self_29_, 1);
-lean_inc_ref(v_fn_32_);
-lean_dec_ref(v_self_29_);
-lean_inc(v_a_30_);
-v___x_33_ = lean_apply_3(v_fn_32_, v_args_28_, v_a_30_, lean_box(0));
-return v___x_33_;
+lean_object* v_fn_33_; lean_object* v___x_34_; 
+v_fn_33_ = lean_ctor_get(v_self_30_, 1);
+lean_inc_ref(v_fn_33_);
+lean_dec_ref(v_self_30_);
+lean_inc(v_a_31_);
+v___x_34_ = lean_apply_3(v_fn_33_, v_args_29_, v_a_31_, lean_box(0));
+return v___x_34_;
 }
 }
-LEAN_EXPORT lean_object* l_Lake_Script_run___boxed(lean_object* v_args_34_, lean_object* v_self_35_, lean_object* v_a_36_, lean_object* v_a_37_){
+LEAN_EXPORT void l_Lake_Script_run_0interp(lean_interpreter_value* stack)
+{
+lean_object* v_args_29_ = stack[0].m_obj;
+lean_object* v_self_30_ = stack[1].m_obj;
+lean_object* v_a_31_ = stack[2].m_obj;
+lean_object* v_res_35_;
+v_res_35_ = l_Lake_Script_run(v_args_29_, v_self_30_, v_a_31_);
+stack->m_obj
+ = v_res_35_;
+}
+LEAN_EXPORT lean_object* l_Lake_Script_run___boxed(lean_object* v_args_36_, lean_object* v_self_37_, lean_object* v_a_38_, lean_object* v_a_39_){
 _start:
 {
-lean_object* v_res_38_; 
-v_res_38_ = l_Lake_Script_run(v_args_34_, v_self_35_, v_a_36_);
-lean_dec(v_a_36_);
-return v_res_38_;
+lean_object* v_res_40_; 
+v_res_40_ = l_Lake_Script_run(v_args_36_, v_self_37_, v_a_38_);
+lean_dec(v_a_38_);
+return v_res_40_;
 }
 }
 lean_object* runtime_initialize_Init_Dynamic(uint8_t builtin);

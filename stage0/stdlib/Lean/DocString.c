@@ -32,7 +32,7 @@ LEAN_EXPORT lean_object* l_Lean_findMarkdownDocString_x3f___redArg(lean_object*,
 LEAN_EXPORT lean_object* l_Lean_findMarkdownDocString_x3f___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_findMarkdownDocString_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_findMarkdownDocString_x3f___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_findDocString_x3f(lean_object* v_env_1_, lean_object* v_declName_2_, uint8_t v_includeBuiltin_3_, lean_object* v_options_4_, lean_object* v_currNamespace_5_, lean_object* v_openDecls_6_){
+lean_object* l_Lean_findDocString_x3f(lean_object* v_env_1_, lean_object* v_declName_2_, uint8_t v_includeBuiltin_3_, lean_object* v_options_4_, lean_object* v_currNamespace_5_, lean_object* v_openDecls_6_){
 _start:
 {
 lean_object* v___y_9_; lean_object* v___x_34_; 
@@ -170,141 +170,220 @@ return v___x_13_;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lean_findDocString_x3f___boxed(lean_object* v_env_36_, lean_object* v_declName_37_, lean_object* v_includeBuiltin_38_, lean_object* v_options_39_, lean_object* v_currNamespace_40_, lean_object* v_openDecls_41_, lean_object* v_a_42_){
+LEAN_EXPORT void l_Lean_findDocString_x3f_0interp(lean_interpreter_value* stack)
+{
+lean_object* v_env_1_ = stack[0].m_obj;
+lean_object* v_declName_2_ = stack[1].m_obj;
+uint8_t v_includeBuiltin_3_ = stack[2].m_num;
+lean_object* v_options_4_ = stack[3].m_obj;
+lean_object* v_currNamespace_5_ = stack[4].m_obj;
+lean_object* v_openDecls_6_ = stack[5].m_obj;
+lean_object* v_res_36_;
+v_res_36_ = l_Lean_findDocString_x3f(v_env_1_, v_declName_2_, v_includeBuiltin_3_, v_options_4_, v_currNamespace_5_, v_openDecls_6_);
+stack->m_obj
+ = v_res_36_;
+}
+LEAN_EXPORT lean_object* l_Lean_findDocString_x3f___boxed(lean_object* v_env_37_, lean_object* v_declName_38_, lean_object* v_includeBuiltin_39_, lean_object* v_options_40_, lean_object* v_currNamespace_41_, lean_object* v_openDecls_42_, lean_object* v_a_43_){
 _start:
 {
-uint8_t v_includeBuiltin_boxed_43_; lean_object* v_res_44_; 
-v_includeBuiltin_boxed_43_ = lean_unbox(v_includeBuiltin_38_);
-v_res_44_ = l_Lean_findDocString_x3f(v_env_36_, v_declName_37_, v_includeBuiltin_boxed_43_, v_options_39_, v_currNamespace_40_, v_openDecls_41_);
-return v_res_44_;
+uint8_t v_includeBuiltin_boxed_44_; lean_object* v_res_45_; 
+v_includeBuiltin_boxed_44_ = lean_unbox(v_includeBuiltin_39_);
+v_res_45_ = l_Lean_findDocString_x3f(v_env_37_, v_declName_38_, v_includeBuiltin_boxed_44_, v_options_40_, v_currNamespace_41_, v_openDecls_42_);
+return v_res_45_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_findMarkdownDocString_x3f___redArg___lam__0(lean_object* v_____do__lift_45_, lean_object* v_declName_46_, uint8_t v_includeBuiltin_47_, lean_object* v_____do__lift_48_, lean_object* v_inst_49_, lean_object* v_____do__lift_50_){
+lean_object* l_Lean_findMarkdownDocString_x3f___redArg___lam__0(lean_object* v_____do__lift_46_, lean_object* v_declName_47_, uint8_t v_includeBuiltin_48_, lean_object* v_____do__lift_49_, lean_object* v_inst_50_, lean_object* v_____do__lift_51_){
 _start:
 {
-lean_object* v___x_51_; lean_object* v___x_52_; lean_object* v___x_53_; lean_object* v___x_54_; 
-v___x_51_ = l_Lean_Options_empty;
-v___x_52_ = lean_box(v_includeBuiltin_47_);
-v___x_53_ = lean_alloc_closure((void*)(l_Lean_findDocString_x3f___boxed), 7, 6);
-lean_closure_set(v___x_53_, 0, v_____do__lift_45_);
-lean_closure_set(v___x_53_, 1, v_declName_46_);
-lean_closure_set(v___x_53_, 2, v___x_52_);
-lean_closure_set(v___x_53_, 3, v___x_51_);
-lean_closure_set(v___x_53_, 4, v_____do__lift_48_);
-lean_closure_set(v___x_53_, 5, v_____do__lift_50_);
-v___x_54_ = lean_apply_2(v_inst_49_, lean_box(0), v___x_53_);
-return v___x_54_;
+lean_object* v___x_52_; lean_object* v___x_53_; lean_object* v___x_54_; lean_object* v___x_55_; 
+v___x_52_ = l_Lean_Options_empty;
+v___x_53_ = lean_box(v_includeBuiltin_48_);
+v___x_54_ = lean_alloc_closure((void*)(l_Lean_findDocString_x3f___boxed), 7, 6);
+lean_closure_set(v___x_54_, 0, v_____do__lift_46_);
+lean_closure_set(v___x_54_, 1, v_declName_47_);
+lean_closure_set(v___x_54_, 2, v___x_53_);
+lean_closure_set(v___x_54_, 3, v___x_52_);
+lean_closure_set(v___x_54_, 4, v_____do__lift_49_);
+lean_closure_set(v___x_54_, 5, v_____do__lift_51_);
+v___x_55_ = lean_apply_2(v_inst_50_, lean_box(0), v___x_54_);
+return v___x_55_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_findMarkdownDocString_x3f___redArg___lam__0___boxed(lean_object* v_____do__lift_55_, lean_object* v_declName_56_, lean_object* v_includeBuiltin_57_, lean_object* v_____do__lift_58_, lean_object* v_inst_59_, lean_object* v_____do__lift_60_){
+LEAN_EXPORT void l_Lean_findMarkdownDocString_x3f___redArg___lam__0_0interp(lean_interpreter_value* stack)
+{
+lean_object* v_____do__lift_46_ = stack[0].m_obj;
+lean_object* v_declName_47_ = stack[1].m_obj;
+uint8_t v_includeBuiltin_48_ = stack[2].m_num;
+lean_object* v_____do__lift_49_ = stack[3].m_obj;
+lean_object* v_inst_50_ = stack[4].m_obj;
+lean_object* v_____do__lift_51_ = stack[5].m_obj;
+lean_object* v_res_56_;
+v_res_56_ = l_Lean_findMarkdownDocString_x3f___redArg___lam__0(v_____do__lift_46_, v_declName_47_, v_includeBuiltin_48_, v_____do__lift_49_, v_inst_50_, v_____do__lift_51_);
+stack->m_obj
+ = v_res_56_;
+}
+LEAN_EXPORT lean_object* l_Lean_findMarkdownDocString_x3f___redArg___lam__0___boxed(lean_object* v_____do__lift_57_, lean_object* v_declName_58_, lean_object* v_includeBuiltin_59_, lean_object* v_____do__lift_60_, lean_object* v_inst_61_, lean_object* v_____do__lift_62_){
 _start:
 {
-uint8_t v_includeBuiltin_boxed_61_; lean_object* v_res_62_; 
-v_includeBuiltin_boxed_61_ = lean_unbox(v_includeBuiltin_57_);
-v_res_62_ = l_Lean_findMarkdownDocString_x3f___redArg___lam__0(v_____do__lift_55_, v_declName_56_, v_includeBuiltin_boxed_61_, v_____do__lift_58_, v_inst_59_, v_____do__lift_60_);
-return v_res_62_;
+uint8_t v_includeBuiltin_boxed_63_; lean_object* v_res_64_; 
+v_includeBuiltin_boxed_63_ = lean_unbox(v_includeBuiltin_59_);
+v_res_64_ = l_Lean_findMarkdownDocString_x3f___redArg___lam__0(v_____do__lift_57_, v_declName_58_, v_includeBuiltin_boxed_63_, v_____do__lift_60_, v_inst_61_, v_____do__lift_62_);
+return v_res_64_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_findMarkdownDocString_x3f___redArg___lam__1(lean_object* v_____do__lift_63_, lean_object* v_declName_64_, uint8_t v_includeBuiltin_65_, lean_object* v_inst_66_, lean_object* v_toBind_67_, lean_object* v_getOpenDecls_68_, lean_object* v_____do__lift_69_){
+lean_object* l_Lean_findMarkdownDocString_x3f___redArg___lam__1(lean_object* v_____do__lift_65_, lean_object* v_declName_66_, uint8_t v_includeBuiltin_67_, lean_object* v_inst_68_, lean_object* v_toBind_69_, lean_object* v_getOpenDecls_70_, lean_object* v_____do__lift_71_){
 _start:
 {
-lean_object* v___x_70_; lean_object* v___f_71_; lean_object* v___x_72_; 
-v___x_70_ = lean_box(v_includeBuiltin_65_);
-v___f_71_ = lean_alloc_closure((void*)(l_Lean_findMarkdownDocString_x3f___redArg___lam__0___boxed), 6, 5);
-lean_closure_set(v___f_71_, 0, v_____do__lift_63_);
-lean_closure_set(v___f_71_, 1, v_declName_64_);
-lean_closure_set(v___f_71_, 2, v___x_70_);
-lean_closure_set(v___f_71_, 3, v_____do__lift_69_);
-lean_closure_set(v___f_71_, 4, v_inst_66_);
-v___x_72_ = lean_apply_4(v_toBind_67_, lean_box(0), lean_box(0), v_getOpenDecls_68_, v___f_71_);
-return v___x_72_;
+lean_object* v___x_72_; lean_object* v___f_73_; lean_object* v___x_74_; 
+v___x_72_ = lean_box(v_includeBuiltin_67_);
+v___f_73_ = lean_alloc_closure((void*)(l_Lean_findMarkdownDocString_x3f___redArg___lam__0___boxed), 6, 5);
+lean_closure_set(v___f_73_, 0, v_____do__lift_65_);
+lean_closure_set(v___f_73_, 1, v_declName_66_);
+lean_closure_set(v___f_73_, 2, v___x_72_);
+lean_closure_set(v___f_73_, 3, v_____do__lift_71_);
+lean_closure_set(v___f_73_, 4, v_inst_68_);
+v___x_74_ = lean_apply_4(v_toBind_69_, lean_box(0), lean_box(0), v_getOpenDecls_70_, v___f_73_);
+return v___x_74_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_findMarkdownDocString_x3f___redArg___lam__1___boxed(lean_object* v_____do__lift_73_, lean_object* v_declName_74_, lean_object* v_includeBuiltin_75_, lean_object* v_inst_76_, lean_object* v_toBind_77_, lean_object* v_getOpenDecls_78_, lean_object* v_____do__lift_79_){
+LEAN_EXPORT void l_Lean_findMarkdownDocString_x3f___redArg___lam__1_0interp(lean_interpreter_value* stack)
+{
+lean_object* v_____do__lift_65_ = stack[0].m_obj;
+lean_object* v_declName_66_ = stack[1].m_obj;
+uint8_t v_includeBuiltin_67_ = stack[2].m_num;
+lean_object* v_inst_68_ = stack[3].m_obj;
+lean_object* v_toBind_69_ = stack[4].m_obj;
+lean_object* v_getOpenDecls_70_ = stack[5].m_obj;
+lean_object* v_____do__lift_71_ = stack[6].m_obj;
+lean_object* v_res_75_;
+v_res_75_ = l_Lean_findMarkdownDocString_x3f___redArg___lam__1(v_____do__lift_65_, v_declName_66_, v_includeBuiltin_67_, v_inst_68_, v_toBind_69_, v_getOpenDecls_70_, v_____do__lift_71_);
+stack->m_obj
+ = v_res_75_;
+}
+LEAN_EXPORT lean_object* l_Lean_findMarkdownDocString_x3f___redArg___lam__1___boxed(lean_object* v_____do__lift_76_, lean_object* v_declName_77_, lean_object* v_includeBuiltin_78_, lean_object* v_inst_79_, lean_object* v_toBind_80_, lean_object* v_getOpenDecls_81_, lean_object* v_____do__lift_82_){
 _start:
 {
-uint8_t v_includeBuiltin_boxed_80_; lean_object* v_res_81_; 
-v_includeBuiltin_boxed_80_ = lean_unbox(v_includeBuiltin_75_);
-v_res_81_ = l_Lean_findMarkdownDocString_x3f___redArg___lam__1(v_____do__lift_73_, v_declName_74_, v_includeBuiltin_boxed_80_, v_inst_76_, v_toBind_77_, v_getOpenDecls_78_, v_____do__lift_79_);
-return v_res_81_;
+uint8_t v_includeBuiltin_boxed_83_; lean_object* v_res_84_; 
+v_includeBuiltin_boxed_83_ = lean_unbox(v_includeBuiltin_78_);
+v_res_84_ = l_Lean_findMarkdownDocString_x3f___redArg___lam__1(v_____do__lift_76_, v_declName_77_, v_includeBuiltin_boxed_83_, v_inst_79_, v_toBind_80_, v_getOpenDecls_81_, v_____do__lift_82_);
+return v_res_84_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_findMarkdownDocString_x3f___redArg___lam__2(lean_object* v_inst_82_, lean_object* v_declName_83_, uint8_t v_includeBuiltin_84_, lean_object* v_inst_85_, lean_object* v_toBind_86_, lean_object* v_____do__lift_87_){
+lean_object* l_Lean_findMarkdownDocString_x3f___redArg___lam__2(lean_object* v_inst_85_, lean_object* v_declName_86_, uint8_t v_includeBuiltin_87_, lean_object* v_inst_88_, lean_object* v_toBind_89_, lean_object* v_____do__lift_90_){
 _start:
 {
-lean_object* v_getCurrNamespace_88_; lean_object* v_getOpenDecls_89_; lean_object* v___x_90_; lean_object* v___f_91_; lean_object* v___x_92_; 
-v_getCurrNamespace_88_ = lean_ctor_get(v_inst_82_, 0);
-lean_inc(v_getCurrNamespace_88_);
-v_getOpenDecls_89_ = lean_ctor_get(v_inst_82_, 1);
-lean_inc(v_getOpenDecls_89_);
-lean_dec_ref(v_inst_82_);
-v___x_90_ = lean_box(v_includeBuiltin_84_);
-lean_inc(v_toBind_86_);
-v___f_91_ = lean_alloc_closure((void*)(l_Lean_findMarkdownDocString_x3f___redArg___lam__1___boxed), 7, 6);
-lean_closure_set(v___f_91_, 0, v_____do__lift_87_);
-lean_closure_set(v___f_91_, 1, v_declName_83_);
-lean_closure_set(v___f_91_, 2, v___x_90_);
-lean_closure_set(v___f_91_, 3, v_inst_85_);
-lean_closure_set(v___f_91_, 4, v_toBind_86_);
-lean_closure_set(v___f_91_, 5, v_getOpenDecls_89_);
-v___x_92_ = lean_apply_4(v_toBind_86_, lean_box(0), lean_box(0), v_getCurrNamespace_88_, v___f_91_);
-return v___x_92_;
+lean_object* v_getCurrNamespace_91_; lean_object* v_getOpenDecls_92_; lean_object* v___x_93_; lean_object* v___f_94_; lean_object* v___x_95_; 
+v_getCurrNamespace_91_ = lean_ctor_get(v_inst_85_, 0);
+lean_inc(v_getCurrNamespace_91_);
+v_getOpenDecls_92_ = lean_ctor_get(v_inst_85_, 1);
+lean_inc(v_getOpenDecls_92_);
+lean_dec_ref(v_inst_85_);
+v___x_93_ = lean_box(v_includeBuiltin_87_);
+lean_inc(v_toBind_89_);
+v___f_94_ = lean_alloc_closure((void*)(l_Lean_findMarkdownDocString_x3f___redArg___lam__1___boxed), 7, 6);
+lean_closure_set(v___f_94_, 0, v_____do__lift_90_);
+lean_closure_set(v___f_94_, 1, v_declName_86_);
+lean_closure_set(v___f_94_, 2, v___x_93_);
+lean_closure_set(v___f_94_, 3, v_inst_88_);
+lean_closure_set(v___f_94_, 4, v_toBind_89_);
+lean_closure_set(v___f_94_, 5, v_getOpenDecls_92_);
+v___x_95_ = lean_apply_4(v_toBind_89_, lean_box(0), lean_box(0), v_getCurrNamespace_91_, v___f_94_);
+return v___x_95_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_findMarkdownDocString_x3f___redArg___lam__2___boxed(lean_object* v_inst_93_, lean_object* v_declName_94_, lean_object* v_includeBuiltin_95_, lean_object* v_inst_96_, lean_object* v_toBind_97_, lean_object* v_____do__lift_98_){
+LEAN_EXPORT void l_Lean_findMarkdownDocString_x3f___redArg___lam__2_0interp(lean_interpreter_value* stack)
+{
+lean_object* v_inst_85_ = stack[0].m_obj;
+lean_object* v_declName_86_ = stack[1].m_obj;
+uint8_t v_includeBuiltin_87_ = stack[2].m_num;
+lean_object* v_inst_88_ = stack[3].m_obj;
+lean_object* v_toBind_89_ = stack[4].m_obj;
+lean_object* v_____do__lift_90_ = stack[5].m_obj;
+lean_object* v_res_96_;
+v_res_96_ = l_Lean_findMarkdownDocString_x3f___redArg___lam__2(v_inst_85_, v_declName_86_, v_includeBuiltin_87_, v_inst_88_, v_toBind_89_, v_____do__lift_90_);
+stack->m_obj
+ = v_res_96_;
+}
+LEAN_EXPORT lean_object* l_Lean_findMarkdownDocString_x3f___redArg___lam__2___boxed(lean_object* v_inst_97_, lean_object* v_declName_98_, lean_object* v_includeBuiltin_99_, lean_object* v_inst_100_, lean_object* v_toBind_101_, lean_object* v_____do__lift_102_){
 _start:
 {
-uint8_t v_includeBuiltin_boxed_99_; lean_object* v_res_100_; 
-v_includeBuiltin_boxed_99_ = lean_unbox(v_includeBuiltin_95_);
-v_res_100_ = l_Lean_findMarkdownDocString_x3f___redArg___lam__2(v_inst_93_, v_declName_94_, v_includeBuiltin_boxed_99_, v_inst_96_, v_toBind_97_, v_____do__lift_98_);
-return v_res_100_;
+uint8_t v_includeBuiltin_boxed_103_; lean_object* v_res_104_; 
+v_includeBuiltin_boxed_103_ = lean_unbox(v_includeBuiltin_99_);
+v_res_104_ = l_Lean_findMarkdownDocString_x3f___redArg___lam__2(v_inst_97_, v_declName_98_, v_includeBuiltin_boxed_103_, v_inst_100_, v_toBind_101_, v_____do__lift_102_);
+return v_res_104_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_findMarkdownDocString_x3f___redArg(lean_object* v_inst_101_, lean_object* v_inst_102_, lean_object* v_inst_103_, lean_object* v_inst_104_, lean_object* v_declName_105_, uint8_t v_includeBuiltin_106_){
+lean_object* l_Lean_findMarkdownDocString_x3f___redArg(lean_object* v_inst_105_, lean_object* v_inst_106_, lean_object* v_inst_107_, lean_object* v_inst_108_, lean_object* v_declName_109_, uint8_t v_includeBuiltin_110_){
 _start:
 {
-lean_object* v_toBind_107_; lean_object* v_getEnv_108_; lean_object* v___x_109_; lean_object* v___f_110_; lean_object* v___x_111_; 
-v_toBind_107_ = lean_ctor_get(v_inst_101_, 1);
-lean_inc_n(v_toBind_107_, 2);
-lean_dec_ref(v_inst_101_);
-v_getEnv_108_ = lean_ctor_get(v_inst_102_, 0);
-lean_inc(v_getEnv_108_);
-lean_dec_ref(v_inst_102_);
-v___x_109_ = lean_box(v_includeBuiltin_106_);
-v___f_110_ = lean_alloc_closure((void*)(l_Lean_findMarkdownDocString_x3f___redArg___lam__2___boxed), 6, 5);
-lean_closure_set(v___f_110_, 0, v_inst_103_);
-lean_closure_set(v___f_110_, 1, v_declName_105_);
-lean_closure_set(v___f_110_, 2, v___x_109_);
-lean_closure_set(v___f_110_, 3, v_inst_104_);
-lean_closure_set(v___f_110_, 4, v_toBind_107_);
-v___x_111_ = lean_apply_4(v_toBind_107_, lean_box(0), lean_box(0), v_getEnv_108_, v___f_110_);
-return v___x_111_;
+lean_object* v_toBind_111_; lean_object* v_getEnv_112_; lean_object* v___x_113_; lean_object* v___f_114_; lean_object* v___x_115_; 
+v_toBind_111_ = lean_ctor_get(v_inst_105_, 1);
+lean_inc_n(v_toBind_111_, 2);
+lean_dec_ref(v_inst_105_);
+v_getEnv_112_ = lean_ctor_get(v_inst_106_, 0);
+lean_inc(v_getEnv_112_);
+lean_dec_ref(v_inst_106_);
+v___x_113_ = lean_box(v_includeBuiltin_110_);
+v___f_114_ = lean_alloc_closure((void*)(l_Lean_findMarkdownDocString_x3f___redArg___lam__2___boxed), 6, 5);
+lean_closure_set(v___f_114_, 0, v_inst_107_);
+lean_closure_set(v___f_114_, 1, v_declName_109_);
+lean_closure_set(v___f_114_, 2, v___x_113_);
+lean_closure_set(v___f_114_, 3, v_inst_108_);
+lean_closure_set(v___f_114_, 4, v_toBind_111_);
+v___x_115_ = lean_apply_4(v_toBind_111_, lean_box(0), lean_box(0), v_getEnv_112_, v___f_114_);
+return v___x_115_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_findMarkdownDocString_x3f___redArg___boxed(lean_object* v_inst_112_, lean_object* v_inst_113_, lean_object* v_inst_114_, lean_object* v_inst_115_, lean_object* v_declName_116_, lean_object* v_includeBuiltin_117_){
+LEAN_EXPORT void l_Lean_findMarkdownDocString_x3f___redArg_0interp(lean_interpreter_value* stack)
+{
+lean_object* v_inst_105_ = stack[0].m_obj;
+lean_object* v_inst_106_ = stack[1].m_obj;
+lean_object* v_inst_107_ = stack[2].m_obj;
+lean_object* v_inst_108_ = stack[3].m_obj;
+lean_object* v_declName_109_ = stack[4].m_obj;
+uint8_t v_includeBuiltin_110_ = stack[5].m_num;
+lean_object* v_res_116_;
+v_res_116_ = l_Lean_findMarkdownDocString_x3f___redArg(v_inst_105_, v_inst_106_, v_inst_107_, v_inst_108_, v_declName_109_, v_includeBuiltin_110_);
+stack->m_obj
+ = v_res_116_;
+}
+LEAN_EXPORT lean_object* l_Lean_findMarkdownDocString_x3f___redArg___boxed(lean_object* v_inst_117_, lean_object* v_inst_118_, lean_object* v_inst_119_, lean_object* v_inst_120_, lean_object* v_declName_121_, lean_object* v_includeBuiltin_122_){
 _start:
 {
-uint8_t v_includeBuiltin_boxed_118_; lean_object* v_res_119_; 
-v_includeBuiltin_boxed_118_ = lean_unbox(v_includeBuiltin_117_);
-v_res_119_ = l_Lean_findMarkdownDocString_x3f___redArg(v_inst_112_, v_inst_113_, v_inst_114_, v_inst_115_, v_declName_116_, v_includeBuiltin_boxed_118_);
-return v_res_119_;
+uint8_t v_includeBuiltin_boxed_123_; lean_object* v_res_124_; 
+v_includeBuiltin_boxed_123_ = lean_unbox(v_includeBuiltin_122_);
+v_res_124_ = l_Lean_findMarkdownDocString_x3f___redArg(v_inst_117_, v_inst_118_, v_inst_119_, v_inst_120_, v_declName_121_, v_includeBuiltin_boxed_123_);
+return v_res_124_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_findMarkdownDocString_x3f(lean_object* v_m_120_, lean_object* v_inst_121_, lean_object* v_inst_122_, lean_object* v_inst_123_, lean_object* v_inst_124_, lean_object* v_declName_125_, uint8_t v_includeBuiltin_126_){
+lean_object* l_Lean_findMarkdownDocString_x3f(lean_object* v_m_125_, lean_object* v_inst_126_, lean_object* v_inst_127_, lean_object* v_inst_128_, lean_object* v_inst_129_, lean_object* v_declName_130_, uint8_t v_includeBuiltin_131_){
 _start:
 {
-lean_object* v___x_127_; 
-v___x_127_ = l_Lean_findMarkdownDocString_x3f___redArg(v_inst_121_, v_inst_122_, v_inst_123_, v_inst_124_, v_declName_125_, v_includeBuiltin_126_);
-return v___x_127_;
+lean_object* v___x_132_; 
+v___x_132_ = l_Lean_findMarkdownDocString_x3f___redArg(v_inst_126_, v_inst_127_, v_inst_128_, v_inst_129_, v_declName_130_, v_includeBuiltin_131_);
+return v___x_132_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_findMarkdownDocString_x3f___boxed(lean_object* v_m_128_, lean_object* v_inst_129_, lean_object* v_inst_130_, lean_object* v_inst_131_, lean_object* v_inst_132_, lean_object* v_declName_133_, lean_object* v_includeBuiltin_134_){
+LEAN_EXPORT void l_Lean_findMarkdownDocString_x3f_0interp(lean_interpreter_value* stack)
+{
+lean_object* v_inst_126_ = stack[1].m_obj;
+lean_object* v_inst_127_ = stack[2].m_obj;
+lean_object* v_inst_128_ = stack[3].m_obj;
+lean_object* v_inst_129_ = stack[4].m_obj;
+lean_object* v_declName_130_ = stack[5].m_obj;
+uint8_t v_includeBuiltin_131_ = stack[6].m_num;
+lean_object* v_res_133_;
+v_res_133_ = l_Lean_findMarkdownDocString_x3f(lean_box(0), v_inst_126_, v_inst_127_, v_inst_128_, v_inst_129_, v_declName_130_, v_includeBuiltin_131_);
+stack->m_obj
+ = v_res_133_;
+}
+LEAN_EXPORT lean_object* l_Lean_findMarkdownDocString_x3f___boxed(lean_object* v_m_134_, lean_object* v_inst_135_, lean_object* v_inst_136_, lean_object* v_inst_137_, lean_object* v_inst_138_, lean_object* v_declName_139_, lean_object* v_includeBuiltin_140_){
 _start:
 {
-uint8_t v_includeBuiltin_boxed_135_; lean_object* v_res_136_; 
-v_includeBuiltin_boxed_135_ = lean_unbox(v_includeBuiltin_134_);
-v_res_136_ = l_Lean_findMarkdownDocString_x3f(v_m_128_, v_inst_129_, v_inst_130_, v_inst_131_, v_inst_132_, v_declName_133_, v_includeBuiltin_boxed_135_);
-return v_res_136_;
+uint8_t v_includeBuiltin_boxed_141_; lean_object* v_res_142_; 
+v_includeBuiltin_boxed_141_ = lean_unbox(v_includeBuiltin_140_);
+v_res_142_ = l_Lean_findMarkdownDocString_x3f(v_m_134_, v_inst_135_, v_inst_136_, v_inst_137_, v_inst_138_, v_declName_139_, v_includeBuiltin_boxed_141_);
+return v_res_142_;
 }
 }
 lean_object* runtime_initialize_Lean_DocString_Extension(uint8_t builtin);

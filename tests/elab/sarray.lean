@@ -38,6 +38,8 @@ def tst3 (n : Nat) (expected : UInt32) : IO Unit := do
 #guard_msgs in
 #eval tst3 100 4950
 
-set_option trace.compiler.ir.result true in
+set_option trace.Compiler.result true in
+set_option pp.letVarTypes true in
+set_option pp.funBinderTypes true in
 def computeByteHash (bytes : ByteArray) :=
    bytes.foldl (init := 1723) fun h b => mixHash h (hash b)

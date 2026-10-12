@@ -33,112 +33,187 @@ double lean_int64_to_float(uint64_t);
 LEAN_EXPORT lean_object* l_Int64_toFloat___boxed(lean_object*);
 double lean_isize_to_float(size_t);
 LEAN_EXPORT lean_object* l_ISize_toFloat___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Float_toInt8___boxed(lean_object* v_a_00___x40___internal___hyg_2_){
+LEAN_EXPORT void l_Float_toInt8_0interp(lean_interpreter_value* stack)
+{
+double v_a_00___x40___internal___hyg_1_ = stack[0].m_float;
+uint8_t v_res_2_;
+v_res_2_ = lean_float_to_int8(v_a_00___x40___internal___hyg_1_);
+stack->m_num = v_res_2_;
+}
+LEAN_EXPORT lean_object* l_Float_toInt8___boxed(lean_object* v_a_00___x40___internal___hyg_3_){
 _start:
 {
-double v_a_00___x40___internal___hyg_1__boxed_3_; uint8_t v_res_4_; lean_object* v_r_5_; 
-v_a_00___x40___internal___hyg_1__boxed_3_ = lean_unbox_float(v_a_00___x40___internal___hyg_2_);
-lean_dec_ref(v_a_00___x40___internal___hyg_2_);
-v_res_4_ = lean_float_to_int8(v_a_00___x40___internal___hyg_1__boxed_3_);
-v_r_5_ = lean_box(v_res_4_);
-return v_r_5_;
+double v_a_00___x40___internal___hyg_1__boxed_4_; uint8_t v_res_5_; lean_object* v_r_6_; 
+v_a_00___x40___internal___hyg_1__boxed_4_ = lean_unbox_float(v_a_00___x40___internal___hyg_3_);
+lean_dec_ref(v_a_00___x40___internal___hyg_3_);
+v_res_5_ = lean_float_to_int8(v_a_00___x40___internal___hyg_1__boxed_4_);
+v_r_6_ = lean_box(v_res_5_);
+return v_r_6_;
 }
 }
-LEAN_EXPORT lean_object* l_Float_toInt16___boxed(lean_object* v_a_00___x40___internal___hyg_7_){
+LEAN_EXPORT void l_Float_toInt16_0interp(lean_interpreter_value* stack)
+{
+double v_a_00___x40___internal___hyg_7_ = stack[0].m_float;
+uint16_t v_res_8_;
+v_res_8_ = lean_float_to_int16(v_a_00___x40___internal___hyg_7_);
+stack->m_num = v_res_8_;
+}
+LEAN_EXPORT lean_object* l_Float_toInt16___boxed(lean_object* v_a_00___x40___internal___hyg_9_){
 _start:
 {
-double v_a_00___x40___internal___hyg_1__boxed_8_; uint16_t v_res_9_; lean_object* v_r_10_; 
-v_a_00___x40___internal___hyg_1__boxed_8_ = lean_unbox_float(v_a_00___x40___internal___hyg_7_);
-lean_dec_ref(v_a_00___x40___internal___hyg_7_);
-v_res_9_ = lean_float_to_int16(v_a_00___x40___internal___hyg_1__boxed_8_);
-v_r_10_ = lean_box(v_res_9_);
-return v_r_10_;
+double v_a_00___x40___internal___hyg_1__boxed_10_; uint16_t v_res_11_; lean_object* v_r_12_; 
+v_a_00___x40___internal___hyg_1__boxed_10_ = lean_unbox_float(v_a_00___x40___internal___hyg_9_);
+lean_dec_ref(v_a_00___x40___internal___hyg_9_);
+v_res_11_ = lean_float_to_int16(v_a_00___x40___internal___hyg_1__boxed_10_);
+v_r_12_ = lean_box(v_res_11_);
+return v_r_12_;
 }
 }
-LEAN_EXPORT lean_object* l_Float_toInt32___boxed(lean_object* v_a_00___x40___internal___hyg_12_){
+LEAN_EXPORT void l_Float_toInt32_0interp(lean_interpreter_value* stack)
+{
+double v_a_00___x40___internal___hyg_13_ = stack[0].m_float;
+uint32_t v_res_14_;
+v_res_14_ = lean_float_to_int32(v_a_00___x40___internal___hyg_13_);
+stack->m_num = v_res_14_;
+}
+LEAN_EXPORT lean_object* l_Float_toInt32___boxed(lean_object* v_a_00___x40___internal___hyg_15_){
 _start:
 {
-double v_a_00___x40___internal___hyg_1__boxed_13_; uint32_t v_res_14_; lean_object* v_r_15_; 
-v_a_00___x40___internal___hyg_1__boxed_13_ = lean_unbox_float(v_a_00___x40___internal___hyg_12_);
-lean_dec_ref(v_a_00___x40___internal___hyg_12_);
-v_res_14_ = lean_float_to_int32(v_a_00___x40___internal___hyg_1__boxed_13_);
-v_r_15_ = lean_box_uint32(v_res_14_);
-return v_r_15_;
+double v_a_00___x40___internal___hyg_1__boxed_16_; uint32_t v_res_17_; lean_object* v_r_18_; 
+v_a_00___x40___internal___hyg_1__boxed_16_ = lean_unbox_float(v_a_00___x40___internal___hyg_15_);
+lean_dec_ref(v_a_00___x40___internal___hyg_15_);
+v_res_17_ = lean_float_to_int32(v_a_00___x40___internal___hyg_1__boxed_16_);
+v_r_18_ = lean_box_uint32(v_res_17_);
+return v_r_18_;
 }
 }
-LEAN_EXPORT lean_object* l_Float_toInt64___boxed(lean_object* v_a_00___x40___internal___hyg_17_){
+LEAN_EXPORT void l_Float_toInt64_0interp(lean_interpreter_value* stack)
+{
+double v_a_00___x40___internal___hyg_19_ = stack[0].m_float;
+uint64_t v_res_20_;
+v_res_20_ = lean_float_to_int64(v_a_00___x40___internal___hyg_19_);
+stack->m_num = v_res_20_;
+}
+LEAN_EXPORT lean_object* l_Float_toInt64___boxed(lean_object* v_a_00___x40___internal___hyg_21_){
 _start:
 {
-double v_a_00___x40___internal___hyg_1__boxed_18_; uint64_t v_res_19_; lean_object* v_r_20_; 
-v_a_00___x40___internal___hyg_1__boxed_18_ = lean_unbox_float(v_a_00___x40___internal___hyg_17_);
-lean_dec_ref(v_a_00___x40___internal___hyg_17_);
-v_res_19_ = lean_float_to_int64(v_a_00___x40___internal___hyg_1__boxed_18_);
-v_r_20_ = lean_box_uint64(v_res_19_);
-return v_r_20_;
+double v_a_00___x40___internal___hyg_1__boxed_22_; uint64_t v_res_23_; lean_object* v_r_24_; 
+v_a_00___x40___internal___hyg_1__boxed_22_ = lean_unbox_float(v_a_00___x40___internal___hyg_21_);
+lean_dec_ref(v_a_00___x40___internal___hyg_21_);
+v_res_23_ = lean_float_to_int64(v_a_00___x40___internal___hyg_1__boxed_22_);
+v_r_24_ = lean_box_uint64(v_res_23_);
+return v_r_24_;
 }
 }
-LEAN_EXPORT lean_object* l_Float_toISize___boxed(lean_object* v_a_00___x40___internal___hyg_22_){
+LEAN_EXPORT void l_Float_toISize_0interp(lean_interpreter_value* stack)
+{
+double v_a_00___x40___internal___hyg_25_ = stack[0].m_float;
+size_t v_res_26_;
+v_res_26_ = lean_float_to_isize(v_a_00___x40___internal___hyg_25_);
+stack->m_num = v_res_26_;
+}
+LEAN_EXPORT lean_object* l_Float_toISize___boxed(lean_object* v_a_00___x40___internal___hyg_27_){
 _start:
 {
-double v_a_00___x40___internal___hyg_1__boxed_23_; size_t v_res_24_; lean_object* v_r_25_; 
-v_a_00___x40___internal___hyg_1__boxed_23_ = lean_unbox_float(v_a_00___x40___internal___hyg_22_);
-lean_dec_ref(v_a_00___x40___internal___hyg_22_);
-v_res_24_ = lean_float_to_isize(v_a_00___x40___internal___hyg_1__boxed_23_);
-v_r_25_ = lean_box_usize(v_res_24_);
-return v_r_25_;
-}
-}
-LEAN_EXPORT lean_object* l_Int8_toFloat___boxed(lean_object* v_n_27_){
-_start:
-{
-uint8_t v_n_boxed_28_; double v_res_29_; lean_object* v_r_30_; 
-v_n_boxed_28_ = lean_unbox(v_n_27_);
-v_res_29_ = lean_int8_to_float(v_n_boxed_28_);
-v_r_30_ = lean_box_float(v_res_29_);
+double v_a_00___x40___internal___hyg_1__boxed_28_; size_t v_res_29_; lean_object* v_r_30_; 
+v_a_00___x40___internal___hyg_1__boxed_28_ = lean_unbox_float(v_a_00___x40___internal___hyg_27_);
+lean_dec_ref(v_a_00___x40___internal___hyg_27_);
+v_res_29_ = lean_float_to_isize(v_a_00___x40___internal___hyg_1__boxed_28_);
+v_r_30_ = lean_box_usize(v_res_29_);
 return v_r_30_;
 }
 }
-LEAN_EXPORT lean_object* l_Int16_toFloat___boxed(lean_object* v_n_32_){
+LEAN_EXPORT void l_Int8_toFloat_0interp(lean_interpreter_value* stack)
+{
+uint8_t v_n_31_ = stack[0].m_num;
+double v_res_32_;
+v_res_32_ = lean_int8_to_float(v_n_31_);
+stack->m_float
+ = v_res_32_;
+}
+LEAN_EXPORT lean_object* l_Int8_toFloat___boxed(lean_object* v_n_33_){
 _start:
 {
-uint16_t v_n_boxed_33_; double v_res_34_; lean_object* v_r_35_; 
-v_n_boxed_33_ = lean_unbox(v_n_32_);
-v_res_34_ = lean_int16_to_float(v_n_boxed_33_);
-v_r_35_ = lean_box_float(v_res_34_);
-return v_r_35_;
+uint8_t v_n_boxed_34_; double v_res_35_; lean_object* v_r_36_; 
+v_n_boxed_34_ = lean_unbox(v_n_33_);
+v_res_35_ = lean_int8_to_float(v_n_boxed_34_);
+v_r_36_ = lean_box_float(v_res_35_);
+return v_r_36_;
 }
 }
-LEAN_EXPORT lean_object* l_Int32_toFloat___boxed(lean_object* v_n_37_){
+LEAN_EXPORT void l_Int16_toFloat_0interp(lean_interpreter_value* stack)
+{
+uint16_t v_n_37_ = stack[0].m_num;
+double v_res_38_;
+v_res_38_ = lean_int16_to_float(v_n_37_);
+stack->m_float
+ = v_res_38_;
+}
+LEAN_EXPORT lean_object* l_Int16_toFloat___boxed(lean_object* v_n_39_){
 _start:
 {
-uint32_t v_n_boxed_38_; double v_res_39_; lean_object* v_r_40_; 
-v_n_boxed_38_ = lean_unbox_uint32(v_n_37_);
-lean_dec(v_n_37_);
-v_res_39_ = lean_int32_to_float(v_n_boxed_38_);
-v_r_40_ = lean_box_float(v_res_39_);
-return v_r_40_;
+uint16_t v_n_boxed_40_; double v_res_41_; lean_object* v_r_42_; 
+v_n_boxed_40_ = lean_unbox(v_n_39_);
+v_res_41_ = lean_int16_to_float(v_n_boxed_40_);
+v_r_42_ = lean_box_float(v_res_41_);
+return v_r_42_;
 }
 }
-LEAN_EXPORT lean_object* l_Int64_toFloat___boxed(lean_object* v_n_42_){
+LEAN_EXPORT void l_Int32_toFloat_0interp(lean_interpreter_value* stack)
+{
+uint32_t v_n_43_ = stack[0].m_num;
+double v_res_44_;
+v_res_44_ = lean_int32_to_float(v_n_43_);
+stack->m_float
+ = v_res_44_;
+}
+LEAN_EXPORT lean_object* l_Int32_toFloat___boxed(lean_object* v_n_45_){
 _start:
 {
-uint64_t v_n_boxed_43_; double v_res_44_; lean_object* v_r_45_; 
-v_n_boxed_43_ = lean_unbox_uint64(v_n_42_);
-lean_dec_ref(v_n_42_);
-v_res_44_ = lean_int64_to_float(v_n_boxed_43_);
-v_r_45_ = lean_box_float(v_res_44_);
-return v_r_45_;
+uint32_t v_n_boxed_46_; double v_res_47_; lean_object* v_r_48_; 
+v_n_boxed_46_ = lean_unbox_uint32(v_n_45_);
+lean_dec(v_n_45_);
+v_res_47_ = lean_int32_to_float(v_n_boxed_46_);
+v_r_48_ = lean_box_float(v_res_47_);
+return v_r_48_;
 }
 }
-LEAN_EXPORT lean_object* l_ISize_toFloat___boxed(lean_object* v_n_47_){
+LEAN_EXPORT void l_Int64_toFloat_0interp(lean_interpreter_value* stack)
+{
+uint64_t v_n_49_ = stack[0].m_num;
+double v_res_50_;
+v_res_50_ = lean_int64_to_float(v_n_49_);
+stack->m_float
+ = v_res_50_;
+}
+LEAN_EXPORT lean_object* l_Int64_toFloat___boxed(lean_object* v_n_51_){
 _start:
 {
-size_t v_n_boxed_48_; double v_res_49_; lean_object* v_r_50_; 
-v_n_boxed_48_ = lean_unbox_usize(v_n_47_);
-lean_dec(v_n_47_);
-v_res_49_ = lean_isize_to_float(v_n_boxed_48_);
-v_r_50_ = lean_box_float(v_res_49_);
-return v_r_50_;
+uint64_t v_n_boxed_52_; double v_res_53_; lean_object* v_r_54_; 
+v_n_boxed_52_ = lean_unbox_uint64(v_n_51_);
+lean_dec_ref(v_n_51_);
+v_res_53_ = lean_int64_to_float(v_n_boxed_52_);
+v_r_54_ = lean_box_float(v_res_53_);
+return v_r_54_;
+}
+}
+LEAN_EXPORT void l_ISize_toFloat_0interp(lean_interpreter_value* stack)
+{
+size_t v_n_55_ = stack[0].m_num;
+double v_res_56_;
+v_res_56_ = lean_isize_to_float(v_n_55_);
+stack->m_float
+ = v_res_56_;
+}
+LEAN_EXPORT lean_object* l_ISize_toFloat___boxed(lean_object* v_n_57_){
+_start:
+{
+size_t v_n_boxed_58_; double v_res_59_; lean_object* v_r_60_; 
+v_n_boxed_58_ = lean_unbox_usize(v_n_57_);
+lean_dec(v_n_57_);
+v_res_59_ = lean_isize_to_float(v_n_boxed_58_);
+v_r_60_ = lean_box_float(v_res_59_);
+return v_r_60_;
 }
 }
 lean_object* runtime_initialize_Init_Data_Float_Float(uint8_t builtin);

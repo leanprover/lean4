@@ -15,15 +15,25 @@ extern "C" {
 #endif
 lean_object* lean_nat_powmod(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Nat_powMod___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Nat_powMod___boxed(lean_object* v_b_4_, lean_object* v_e_5_, lean_object* v_m_6_){
+LEAN_EXPORT void l_Nat_powMod_0interp(lean_interpreter_value* stack)
+{
+lean_object* v_b_1_ = stack[0].m_obj;
+lean_object* v_e_2_ = stack[1].m_obj;
+lean_object* v_m_3_ = stack[2].m_obj;
+lean_object* v_res_4_;
+v_res_4_ = lean_nat_powmod(v_b_1_, v_e_2_, v_m_3_);
+stack->m_obj
+ = v_res_4_;
+}
+LEAN_EXPORT lean_object* l_Nat_powMod___boxed(lean_object* v_b_5_, lean_object* v_e_6_, lean_object* v_m_7_){
 _start:
 {
-lean_object* v_res_7_; 
-v_res_7_ = lean_nat_powmod(v_b_4_, v_e_5_, v_m_6_);
-lean_dec(v_m_6_);
-lean_dec(v_e_5_);
-lean_dec(v_b_4_);
-return v_res_7_;
+lean_object* v_res_8_; 
+v_res_8_ = lean_nat_powmod(v_b_5_, v_e_6_, v_m_7_);
+lean_dec(v_m_7_);
+lean_dec(v_e_6_);
+lean_dec(v_b_5_);
+return v_res_8_;
 }
 }
 lean_object* runtime_initialize_Init_Data_Nat_Lemmas(uint8_t builtin);

@@ -42,7 +42,7 @@ Initializers do not have corresponding Lean definitions, so they cannot be inter
 
 /-- Run the initializer for `decl` and store its value for global access. Should only be used while importing. -/
 @[extern "lean_run_init"]
-unsafe opaque runInit (env : @& Environment) (opts : @& Options) (decl initDecl : @& Name) : IO Unit
+unsafe opaque runInit (env : Environment) (opts : Options) (decl initDecl : Name) : IO Unit
 
 /-- Set of modules for which we have already run the module initializer in the interpreter. -/
 builtin_initialize interpretedModInits : IO.Ref NameSet ← IO.mkRef {}
@@ -122,7 +122,6 @@ def getBuiltinInitFnNameFor? (env : Environment) (fn : Name) : Option Name :=
 def getRegularInitFnNameFor? (env : Environment) (fn : Name) : Option Name :=
   getInitFnNameForCore? env regularInitAttr fn
 
-@[export lean_get_init_fn_name_for]
 def getInitFnNameFor? (env : Environment) (fn : Name) : Option Name :=
   getBuiltinInitFnNameFor? env fn <|> getRegularInitFnNameFor? env fn
 
@@ -140,6 +139,7 @@ def isIOUnitBuiltinInitFn (env : Environment) (fn : Name) : Bool :=
 def isIOUnitInitFn (env : Environment) (fn : Name) : Bool :=
   isIOUnitBuiltinInitFn env fn || isIOUnitRegularInitFn env fn
 
+@[export lean_has_init_attr]
 def hasInitAttr (env : Environment) (fn : Name) : Bool :=
   (getInitFnNameFor? env fn).isSome
 

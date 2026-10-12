@@ -54,7 +54,9 @@ theorem Nat.binind
     (n : Nat) : motive n :=
  binrec motive (fun _ => base) (fun b n ih => ind b n (ih ())) n
 
-set_option trace.compiler.ir.result true in
+set_option trace.Compiler.result true in
+set_option pp.letVarTypes true in
+set_option pp.funBinderTypes true in
 def Nat.toBit (n : Nat) : List Bool :=
   binrec (fun _ => List Bool)
     (fun _ => [])

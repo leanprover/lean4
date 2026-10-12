@@ -30,42 +30,75 @@ v___x_1_ = lean_box(0);
 return v___x_1_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Internal_UV_Signal_mk___boxed(lean_object* v_signum_5_, lean_object* v_repeating_6_, lean_object* v_a_00___x40___internal___hyg_7_){
+LEAN_EXPORT void l_Std_Internal_UV_Signal_mk_0interp(lean_interpreter_value* stack)
+{
+uint32_t v_signum_2_ = stack[0].m_num;
+uint8_t v_repeating_3_ = stack[1].m_num;
+lean_object* v_res_5_;
+v_res_5_ = lean_uv_signal_mk(v_signum_2_, v_repeating_3_);
+stack->m_obj
+ = v_res_5_;
+}
+LEAN_EXPORT lean_object* l_Std_Internal_UV_Signal_mk___boxed(lean_object* v_signum_6_, lean_object* v_repeating_7_, lean_object* v_a_00___x40___internal___hyg_8_){
 _start:
 {
-uint32_t v_signum_boxed_8_; uint8_t v_repeating_boxed_9_; lean_object* v_res_10_; 
-v_signum_boxed_8_ = lean_unbox_uint32(v_signum_5_);
-lean_dec(v_signum_5_);
-v_repeating_boxed_9_ = lean_unbox(v_repeating_6_);
-v_res_10_ = lean_uv_signal_mk(v_signum_boxed_8_, v_repeating_boxed_9_);
-return v_res_10_;
+uint32_t v_signum_boxed_9_; uint8_t v_repeating_boxed_10_; lean_object* v_res_11_; 
+v_signum_boxed_9_ = lean_unbox_uint32(v_signum_6_);
+lean_dec(v_signum_6_);
+v_repeating_boxed_10_ = lean_unbox(v_repeating_7_);
+v_res_11_ = lean_uv_signal_mk(v_signum_boxed_9_, v_repeating_boxed_10_);
+return v_res_11_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Internal_UV_Signal_next___boxed(lean_object* v_signal_13_, lean_object* v_a_00___x40___internal___hyg_14_){
+LEAN_EXPORT void l_Std_Internal_UV_Signal_next_0interp(lean_interpreter_value* stack)
+{
+lean_object* v_signal_12_ = stack[0].m_obj;
+lean_object* v_res_14_;
+v_res_14_ = lean_uv_signal_next(v_signal_12_);
+stack->m_obj
+ = v_res_14_;
+}
+LEAN_EXPORT lean_object* l_Std_Internal_UV_Signal_next___boxed(lean_object* v_signal_15_, lean_object* v_a_00___x40___internal___hyg_16_){
 _start:
 {
-lean_object* v_res_15_; 
-v_res_15_ = lean_uv_signal_next(v_signal_13_);
-lean_dec(v_signal_13_);
-return v_res_15_;
+lean_object* v_res_17_; 
+v_res_17_ = lean_uv_signal_next(v_signal_15_);
+lean_dec(v_signal_15_);
+return v_res_17_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Internal_UV_Signal_stop___boxed(lean_object* v_signal_18_, lean_object* v_a_00___x40___internal___hyg_19_){
-_start:
+LEAN_EXPORT void l_Std_Internal_UV_Signal_stop_0interp(lean_interpreter_value* stack)
 {
-lean_object* v_res_20_; 
+lean_object* v_signal_18_ = stack[0].m_obj;
+lean_object* v_res_20_;
 v_res_20_ = lean_uv_signal_stop(v_signal_18_);
-lean_dec(v_signal_18_);
-return v_res_20_;
+stack->m_obj
+ = v_res_20_;
 }
-}
-LEAN_EXPORT lean_object* l_Std_Internal_UV_Signal_cancel___boxed(lean_object* v_signal_23_, lean_object* v_a_00___x40___internal___hyg_24_){
+LEAN_EXPORT lean_object* l_Std_Internal_UV_Signal_stop___boxed(lean_object* v_signal_21_, lean_object* v_a_00___x40___internal___hyg_22_){
 _start:
 {
-lean_object* v_res_25_; 
-v_res_25_ = lean_uv_signal_cancel(v_signal_23_);
-lean_dec(v_signal_23_);
-return v_res_25_;
+lean_object* v_res_23_; 
+v_res_23_ = lean_uv_signal_stop(v_signal_21_);
+lean_dec(v_signal_21_);
+return v_res_23_;
+}
+}
+LEAN_EXPORT void l_Std_Internal_UV_Signal_cancel_0interp(lean_interpreter_value* stack)
+{
+lean_object* v_signal_24_ = stack[0].m_obj;
+lean_object* v_res_26_;
+v_res_26_ = lean_uv_signal_cancel(v_signal_24_);
+stack->m_obj
+ = v_res_26_;
+}
+LEAN_EXPORT lean_object* l_Std_Internal_UV_Signal_cancel___boxed(lean_object* v_signal_27_, lean_object* v_a_00___x40___internal___hyg_28_){
+_start:
+{
+lean_object* v_res_29_; 
+v_res_29_ = lean_uv_signal_cancel(v_signal_27_);
+lean_dec(v_signal_27_);
+return v_res_29_;
 }
 }
 lean_object* runtime_initialize_Init_System_Promise(uint8_t builtin);

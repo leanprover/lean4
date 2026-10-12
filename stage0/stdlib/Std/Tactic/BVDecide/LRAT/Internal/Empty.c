@@ -34,7 +34,7 @@ lean_ctor_set(v___x_5_, 1, v___x_3_);
 return v___x_5_;
 }
 }
-LEAN_EXPORT uint8_t l_Std_Tactic_BVDecide_LRAT_Internal_State_checkEmpty(lean_object* v_s_6_, lean_object* v_rupHints_7_){
+uint8_t l_Std_Tactic_BVDecide_LRAT_Internal_State_checkEmpty(lean_object* v_s_6_, lean_object* v_rupHints_7_){
 _start:
 {
 lean_object* v___x_8_; uint8_t v___x_9_; 
@@ -43,15 +43,23 @@ v___x_9_ = l_Std_Tactic_BVDecide_LRAT_Internal_State_checkRup(v_s_6_, v___x_8_, 
 return v___x_9_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_State_checkEmpty___boxed(lean_object* v_s_10_, lean_object* v_rupHints_11_){
+LEAN_EXPORT void l_Std_Tactic_BVDecide_LRAT_Internal_State_checkEmpty_0interp(lean_interpreter_value* stack)
+{
+lean_object* v_s_6_ = stack[0].m_obj;
+lean_object* v_rupHints_7_ = stack[1].m_obj;
+uint8_t v_res_10_;
+v_res_10_ = l_Std_Tactic_BVDecide_LRAT_Internal_State_checkEmpty(v_s_6_, v_rupHints_7_);
+stack->m_num = v_res_10_;
+}
+LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_State_checkEmpty___boxed(lean_object* v_s_11_, lean_object* v_rupHints_12_){
 _start:
 {
-uint8_t v_res_12_; lean_object* v_r_13_; 
-v_res_12_ = l_Std_Tactic_BVDecide_LRAT_Internal_State_checkEmpty(v_s_10_, v_rupHints_11_);
-lean_dec_ref(v_rupHints_11_);
-lean_dec_ref(v_s_10_);
-v_r_13_ = lean_box(v_res_12_);
-return v_r_13_;
+uint8_t v_res_13_; lean_object* v_r_14_; 
+v_res_13_ = l_Std_Tactic_BVDecide_LRAT_Internal_State_checkEmpty(v_s_11_, v_rupHints_12_);
+lean_dec_ref(v_rupHints_12_);
+lean_dec_ref(v_s_11_);
+v_r_14_ = lean_box(v_res_13_);
+return v_r_14_;
 }
 }
 lean_object* runtime_initialize_Std_Tactic_BVDecide_LRAT_Internal_Rup(uint8_t builtin);

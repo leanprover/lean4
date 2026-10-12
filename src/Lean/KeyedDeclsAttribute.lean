@@ -8,7 +8,7 @@ module
 prelude
 public import Lean.ScopedEnvExtension
 import Lean.Compiler.InitAttr
-import Lean.Compiler.IR.CompilerM
+import Lean.Compiler.Bytecode.Basic
 import Lean.ExtraModUses
 
 public section
@@ -161,7 +161,7 @@ protected unsafe def init {γ} (df : Def γ) (attrDeclName : Name := by exact de
     add             := fun declName stx attrKind => do
       ensureAttrDeclIsMeta attrDeclName declName attrKind
       let key ← df.evalKey false stx
-      match IR.getSorryDep (← getEnv) declName with
+      match Compiler.Bytecode.getSorryDep (← getEnv) declName with
       | none =>
         let val ← evalConstCheck γ df.valueTypeName declName
         ext.add { key := key, declName := declName, value := val, isBuiltin := true } attrKind

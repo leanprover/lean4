@@ -17,24 +17,42 @@ lean_object* lean_uv_dns_get_info(lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Std_Internal_UV_DNS_getAddrInfo___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_uv_dns_get_name(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_UV_DNS_getNameInfo___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Internal_UV_DNS_getAddrInfo___boxed(lean_object* v_host_5_, lean_object* v_service_6_, lean_object* v_family_7_, lean_object* v_a_00___x40___internal___hyg_8_){
+LEAN_EXPORT void l_Std_Internal_UV_DNS_getAddrInfo_0interp(lean_interpreter_value* stack)
+{
+lean_object* v_host_1_ = stack[0].m_obj;
+lean_object* v_service_2_ = stack[1].m_obj;
+uint8_t v_family_3_ = stack[2].m_num;
+lean_object* v_res_5_;
+v_res_5_ = lean_uv_dns_get_info(v_host_1_, v_service_2_, v_family_3_);
+stack->m_obj
+ = v_res_5_;
+}
+LEAN_EXPORT lean_object* l_Std_Internal_UV_DNS_getAddrInfo___boxed(lean_object* v_host_6_, lean_object* v_service_7_, lean_object* v_family_8_, lean_object* v_a_00___x40___internal___hyg_9_){
 _start:
 {
-uint8_t v_family_boxed_9_; lean_object* v_res_10_; 
-v_family_boxed_9_ = lean_unbox(v_family_7_);
-v_res_10_ = lean_uv_dns_get_info(v_host_5_, v_service_6_, v_family_boxed_9_);
-lean_dec_ref(v_service_6_);
-lean_dec_ref(v_host_5_);
-return v_res_10_;
+uint8_t v_family_boxed_10_; lean_object* v_res_11_; 
+v_family_boxed_10_ = lean_unbox(v_family_8_);
+v_res_11_ = lean_uv_dns_get_info(v_host_6_, v_service_7_, v_family_boxed_10_);
+lean_dec_ref(v_service_7_);
+lean_dec_ref(v_host_6_);
+return v_res_11_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Internal_UV_DNS_getNameInfo___boxed(lean_object* v_host_13_, lean_object* v_a_00___x40___internal___hyg_14_){
+LEAN_EXPORT void l_Std_Internal_UV_DNS_getNameInfo_0interp(lean_interpreter_value* stack)
+{
+lean_object* v_host_12_ = stack[0].m_obj;
+lean_object* v_res_14_;
+v_res_14_ = lean_uv_dns_get_name(v_host_12_);
+stack->m_obj
+ = v_res_14_;
+}
+LEAN_EXPORT lean_object* l_Std_Internal_UV_DNS_getNameInfo___boxed(lean_object* v_host_15_, lean_object* v_a_00___x40___internal___hyg_16_){
 _start:
 {
-lean_object* v_res_15_; 
-v_res_15_ = lean_uv_dns_get_name(v_host_13_);
-lean_dec_ref(v_host_13_);
-return v_res_15_;
+lean_object* v_res_17_; 
+v_res_17_ = lean_uv_dns_get_name(v_host_15_);
+lean_dec_ref(v_host_15_);
+return v_res_17_;
 }
 }
 lean_object* runtime_initialize_Init_System_Promise(uint8_t builtin);

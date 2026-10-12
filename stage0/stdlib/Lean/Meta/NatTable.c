@@ -297,7 +297,7 @@ v___x_89_ = l_Lean_mkConst(v___x_88_, v___x_87_);
 return v___x_89_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Meta_NatTable_0__Lean_mkNatLookupTable_go___redArg(lean_object* v_i_90_, lean_object* v_type_91_, lean_object* v_es_92_, lean_object* v_u_93_, lean_object* v_start_94_, lean_object* v_stop_95_){
+lean_object* l___private_Lean_Meta_NatTable_0__Lean_mkNatLookupTable_go___redArg(lean_object* v_i_90_, lean_object* v_type_91_, lean_object* v_es_92_, lean_object* v_u_93_, lean_object* v_start_94_, lean_object* v_stop_95_){
 _start:
 {
 lean_object* v___x_97_; lean_object* v___x_98_; uint8_t v___x_99_; 
@@ -384,166 +384,222 @@ return v___x_123_;
 }
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Meta_NatTable_0__Lean_mkNatLookupTable_go___redArg___boxed(lean_object* v_i_124_, lean_object* v_type_125_, lean_object* v_es_126_, lean_object* v_u_127_, lean_object* v_start_128_, lean_object* v_stop_129_, lean_object* v_a_130_){
+LEAN_EXPORT void l___private_Lean_Meta_NatTable_0__Lean_mkNatLookupTable_go___redArg_0interp(lean_interpreter_value* stack)
+{
+lean_object* v_i_90_ = stack[0].m_obj;
+lean_object* v_type_91_ = stack[1].m_obj;
+lean_object* v_es_92_ = stack[2].m_obj;
+lean_object* v_u_93_ = stack[3].m_obj;
+lean_object* v_start_94_ = stack[4].m_obj;
+lean_object* v_stop_95_ = stack[5].m_obj;
+lean_object* v_res_124_;
+v_res_124_ = l___private_Lean_Meta_NatTable_0__Lean_mkNatLookupTable_go___redArg(v_i_90_, v_type_91_, v_es_92_, v_u_93_, v_start_94_, v_stop_95_);
+stack->m_obj
+ = v_res_124_;
+}
+LEAN_EXPORT lean_object* l___private_Lean_Meta_NatTable_0__Lean_mkNatLookupTable_go___redArg___boxed(lean_object* v_i_125_, lean_object* v_type_126_, lean_object* v_es_127_, lean_object* v_u_128_, lean_object* v_start_129_, lean_object* v_stop_130_, lean_object* v_a_131_){
 _start:
 {
-lean_object* v_res_131_; 
-v_res_131_ = l___private_Lean_Meta_NatTable_0__Lean_mkNatLookupTable_go___redArg(v_i_124_, v_type_125_, v_es_126_, v_u_127_, v_start_128_, v_stop_129_);
-lean_dec(v_stop_129_);
-lean_dec(v_start_128_);
-lean_dec_ref(v_es_126_);
-return v_res_131_;
+lean_object* v_res_132_; 
+v_res_132_ = l___private_Lean_Meta_NatTable_0__Lean_mkNatLookupTable_go___redArg(v_i_125_, v_type_126_, v_es_127_, v_u_128_, v_start_129_, v_stop_130_);
+lean_dec(v_stop_130_);
+lean_dec(v_start_129_);
+lean_dec_ref(v_es_127_);
+return v_res_132_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Meta_NatTable_0__Lean_mkNatLookupTable_go(lean_object* v_i_132_, lean_object* v_type_133_, lean_object* v_es_134_, lean_object* v_u_135_, lean_object* v_start_136_, lean_object* v_stop_137_, lean_object* v_hstart_138_, lean_object* v_hstop_139_, lean_object* v_a_140_, lean_object* v_a_141_, lean_object* v_a_142_, lean_object* v_a_143_){
+lean_object* l___private_Lean_Meta_NatTable_0__Lean_mkNatLookupTable_go(lean_object* v_i_133_, lean_object* v_type_134_, lean_object* v_es_135_, lean_object* v_u_136_, lean_object* v_start_137_, lean_object* v_stop_138_, lean_object* v_hstart_139_, lean_object* v_hstop_140_, lean_object* v_a_141_, lean_object* v_a_142_, lean_object* v_a_143_, lean_object* v_a_144_){
 _start:
 {
-lean_object* v___x_145_; 
-v___x_145_ = l___private_Lean_Meta_NatTable_0__Lean_mkNatLookupTable_go___redArg(v_i_132_, v_type_133_, v_es_134_, v_u_135_, v_start_136_, v_stop_137_);
-return v___x_145_;
+lean_object* v___x_146_; 
+v___x_146_ = l___private_Lean_Meta_NatTable_0__Lean_mkNatLookupTable_go___redArg(v_i_133_, v_type_134_, v_es_135_, v_u_136_, v_start_137_, v_stop_138_);
+return v___x_146_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Meta_NatTable_0__Lean_mkNatLookupTable_go___boxed(lean_object* v_i_146_, lean_object* v_type_147_, lean_object* v_es_148_, lean_object* v_u_149_, lean_object* v_start_150_, lean_object* v_stop_151_, lean_object* v_hstart_152_, lean_object* v_hstop_153_, lean_object* v_a_154_, lean_object* v_a_155_, lean_object* v_a_156_, lean_object* v_a_157_, lean_object* v_a_158_){
+LEAN_EXPORT void l___private_Lean_Meta_NatTable_0__Lean_mkNatLookupTable_go_0interp(lean_interpreter_value* stack)
+{
+lean_object* v_i_133_ = stack[0].m_obj;
+lean_object* v_type_134_ = stack[1].m_obj;
+lean_object* v_es_135_ = stack[2].m_obj;
+lean_object* v_u_136_ = stack[3].m_obj;
+lean_object* v_start_137_ = stack[4].m_obj;
+lean_object* v_stop_138_ = stack[5].m_obj;
+lean_object* v_a_141_ = stack[8].m_obj;
+lean_object* v_a_142_ = stack[9].m_obj;
+lean_object* v_a_143_ = stack[10].m_obj;
+lean_object* v_a_144_ = stack[11].m_obj;
+lean_object* v_res_147_;
+v_res_147_ = l___private_Lean_Meta_NatTable_0__Lean_mkNatLookupTable_go(v_i_133_, v_type_134_, v_es_135_, v_u_136_, v_start_137_, v_stop_138_, lean_box(0), lean_box(0), v_a_141_, v_a_142_, v_a_143_, v_a_144_);
+stack->m_obj
+ = v_res_147_;
+}
+LEAN_EXPORT lean_object* l___private_Lean_Meta_NatTable_0__Lean_mkNatLookupTable_go___boxed(lean_object* v_i_148_, lean_object* v_type_149_, lean_object* v_es_150_, lean_object* v_u_151_, lean_object* v_start_152_, lean_object* v_stop_153_, lean_object* v_hstart_154_, lean_object* v_hstop_155_, lean_object* v_a_156_, lean_object* v_a_157_, lean_object* v_a_158_, lean_object* v_a_159_, lean_object* v_a_160_){
 _start:
 {
-lean_object* v_res_159_; 
-v_res_159_ = l___private_Lean_Meta_NatTable_0__Lean_mkNatLookupTable_go(v_i_146_, v_type_147_, v_es_148_, v_u_149_, v_start_150_, v_stop_151_, v_hstart_152_, v_hstop_153_, v_a_154_, v_a_155_, v_a_156_, v_a_157_);
+lean_object* v_res_161_; 
+v_res_161_ = l___private_Lean_Meta_NatTable_0__Lean_mkNatLookupTable_go(v_i_148_, v_type_149_, v_es_150_, v_u_151_, v_start_152_, v_stop_153_, v_hstart_154_, v_hstop_155_, v_a_156_, v_a_157_, v_a_158_, v_a_159_);
+lean_dec(v_a_159_);
+lean_dec_ref(v_a_158_);
 lean_dec(v_a_157_);
 lean_dec_ref(v_a_156_);
-lean_dec(v_a_155_);
-lean_dec_ref(v_a_154_);
-lean_dec(v_stop_151_);
-lean_dec(v_start_150_);
-lean_dec_ref(v_es_148_);
-return v_res_159_;
+lean_dec(v_stop_153_);
+lean_dec(v_start_152_);
+lean_dec_ref(v_es_150_);
+return v_res_161_;
 }
 }
-LEAN_EXPORT lean_object* l_panic___at___00Lean_mkNatLookupTable_spec__0(lean_object* v_msg_161_, lean_object* v___y_162_, lean_object* v___y_163_, lean_object* v___y_164_, lean_object* v___y_165_){
+lean_object* l_panic___at___00Lean_mkNatLookupTable_spec__0(lean_object* v_msg_163_, lean_object* v___y_164_, lean_object* v___y_165_, lean_object* v___y_166_, lean_object* v___y_167_){
 _start:
 {
-lean_object* v___f_167_; lean_object* v___x_135__overap_168_; lean_object* v___x_169_; 
-v___f_167_ = ((lean_object*)(l_panic___at___00Lean_mkNatLookupTable_spec__0___closed__0));
-v___x_135__overap_168_ = lean_panic_fn_borrowed(v___f_167_, v_msg_161_);
+lean_object* v___f_169_; lean_object* v___x_135__overap_170_; lean_object* v___x_171_; 
+v___f_169_ = ((lean_object*)(l_panic___at___00Lean_mkNatLookupTable_spec__0___closed__0));
+v___x_135__overap_170_ = lean_panic_fn_borrowed(v___f_169_, v_msg_163_);
+lean_inc(v___y_167_);
+lean_inc_ref(v___y_166_);
 lean_inc(v___y_165_);
 lean_inc_ref(v___y_164_);
-lean_inc(v___y_163_);
-lean_inc_ref(v___y_162_);
-v___x_169_ = lean_apply_5(v___x_135__overap_168_, v___y_162_, v___y_163_, v___y_164_, v___y_165_, lean_box(0));
-return v___x_169_;
+v___x_171_ = lean_apply_5(v___x_135__overap_170_, v___y_164_, v___y_165_, v___y_166_, v___y_167_, lean_box(0));
+return v___x_171_;
 }
 }
-LEAN_EXPORT lean_object* l_panic___at___00Lean_mkNatLookupTable_spec__0___boxed(lean_object* v_msg_170_, lean_object* v___y_171_, lean_object* v___y_172_, lean_object* v___y_173_, lean_object* v___y_174_, lean_object* v___y_175_){
+LEAN_EXPORT void l_panic___at___00Lean_mkNatLookupTable_spec__0_0interp(lean_interpreter_value* stack)
+{
+lean_object* v_msg_163_ = stack[0].m_obj;
+lean_object* v___y_164_ = stack[1].m_obj;
+lean_object* v___y_165_ = stack[2].m_obj;
+lean_object* v___y_166_ = stack[3].m_obj;
+lean_object* v___y_167_ = stack[4].m_obj;
+lean_object* v_res_172_;
+v_res_172_ = l_panic___at___00Lean_mkNatLookupTable_spec__0(v_msg_163_, v___y_164_, v___y_165_, v___y_166_, v___y_167_);
+stack->m_obj
+ = v_res_172_;
+}
+LEAN_EXPORT lean_object* l_panic___at___00Lean_mkNatLookupTable_spec__0___boxed(lean_object* v_msg_173_, lean_object* v___y_174_, lean_object* v___y_175_, lean_object* v___y_176_, lean_object* v___y_177_, lean_object* v___y_178_){
 _start:
 {
-lean_object* v_res_176_; 
-v_res_176_ = l_panic___at___00Lean_mkNatLookupTable_spec__0(v_msg_170_, v___y_171_, v___y_172_, v___y_173_, v___y_174_);
-lean_dec(v___y_174_);
-lean_dec_ref(v___y_173_);
-lean_dec(v___y_172_);
-lean_dec_ref(v___y_171_);
-return v_res_176_;
+lean_object* v_res_179_; 
+v_res_179_ = l_panic___at___00Lean_mkNatLookupTable_spec__0(v_msg_173_, v___y_174_, v___y_175_, v___y_176_, v___y_177_);
+lean_dec(v___y_177_);
+lean_dec_ref(v___y_176_);
+lean_dec(v___y_175_);
+lean_dec_ref(v___y_174_);
+return v_res_179_;
 }
 }
 static lean_object* _init_l_Lean_mkNatLookupTable___closed__3(void){
 _start:
 {
-lean_object* v___x_180_; lean_object* v___x_181_; lean_object* v___x_182_; lean_object* v___x_183_; lean_object* v___x_184_; lean_object* v___x_185_; 
-v___x_180_ = ((lean_object*)(l_Lean_mkNatLookupTable___closed__2));
-v___x_181_ = lean_unsigned_to_nat(4u);
-v___x_182_ = lean_unsigned_to_nat(27u);
-v___x_183_ = ((lean_object*)(l_Lean_mkNatLookupTable___closed__1));
-v___x_184_ = ((lean_object*)(l_Lean_mkNatLookupTable___closed__0));
-v___x_185_ = l_mkPanicMessageWithDecl(v___x_184_, v___x_183_, v___x_182_, v___x_181_, v___x_180_);
-return v___x_185_;
+lean_object* v___x_183_; lean_object* v___x_184_; lean_object* v___x_185_; lean_object* v___x_186_; lean_object* v___x_187_; lean_object* v___x_188_; 
+v___x_183_ = ((lean_object*)(l_Lean_mkNatLookupTable___closed__2));
+v___x_184_ = lean_unsigned_to_nat(4u);
+v___x_185_ = lean_unsigned_to_nat(27u);
+v___x_186_ = ((lean_object*)(l_Lean_mkNatLookupTable___closed__1));
+v___x_187_ = ((lean_object*)(l_Lean_mkNatLookupTable___closed__0));
+v___x_188_ = l_mkPanicMessageWithDecl(v___x_187_, v___x_186_, v___x_185_, v___x_184_, v___x_183_);
+return v___x_188_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_mkNatLookupTable(lean_object* v_i_186_, lean_object* v_type_187_, lean_object* v_es_188_, lean_object* v_a_189_, lean_object* v_a_190_, lean_object* v_a_191_, lean_object* v_a_192_){
+lean_object* l_Lean_mkNatLookupTable(lean_object* v_i_189_, lean_object* v_type_190_, lean_object* v_es_191_, lean_object* v_a_192_, lean_object* v_a_193_, lean_object* v_a_194_, lean_object* v_a_195_){
 _start:
 {
-lean_object* v___x_194_; lean_object* v___x_195_; uint8_t v___x_196_; 
-v___x_194_ = lean_array_get_size(v_es_188_);
-v___x_195_ = lean_unsigned_to_nat(0u);
-v___x_196_ = lean_nat_dec_eq(v___x_194_, v___x_195_);
-if (v___x_196_ == 0)
+lean_object* v___x_197_; lean_object* v___x_198_; uint8_t v___x_199_; 
+v___x_197_ = lean_array_get_size(v_es_191_);
+v___x_198_ = lean_unsigned_to_nat(0u);
+v___x_199_ = lean_nat_dec_eq(v___x_197_, v___x_198_);
+if (v___x_199_ == 0)
 {
-lean_object* v___x_197_; 
-lean_inc_ref(v_type_187_);
-v___x_197_ = l_Lean_Meta_getLevel(v_type_187_, v_a_189_, v_a_190_, v_a_191_, v_a_192_);
-if (lean_obj_tag(v___x_197_) == 0)
+lean_object* v___x_200_; 
+lean_inc_ref(v_type_190_);
+v___x_200_ = l_Lean_Meta_getLevel(v_type_190_, v_a_192_, v_a_193_, v_a_194_, v_a_195_);
+if (lean_obj_tag(v___x_200_) == 0)
 {
-lean_object* v_a_198_; lean_object* v___x_199_; 
-v_a_198_ = lean_ctor_get(v___x_197_, 0);
-lean_inc(v_a_198_);
-lean_dec_ref_known(v___x_197_, 1);
-v___x_199_ = l___private_Lean_Meta_NatTable_0__Lean_mkNatLookupTable_go___redArg(v_i_186_, v_type_187_, v_es_188_, v_a_198_, v___x_195_, v___x_194_);
-return v___x_199_;
+lean_object* v_a_201_; lean_object* v___x_202_; 
+v_a_201_ = lean_ctor_get(v___x_200_, 0);
+lean_inc(v_a_201_);
+lean_dec_ref_known(v___x_200_, 1);
+v___x_202_ = l___private_Lean_Meta_NatTable_0__Lean_mkNatLookupTable_go___redArg(v_i_189_, v_type_190_, v_es_191_, v_a_201_, v___x_198_, v___x_197_);
+return v___x_202_;
 }
 else
 {
-lean_object* v_a_200_; lean_object* v___x_202_; uint8_t v_isShared_203_; uint8_t v_isSharedCheck_207_; 
-lean_dec_ref(v_type_187_);
-lean_dec_ref(v_i_186_);
-v_a_200_ = lean_ctor_get(v___x_197_, 0);
-v_isSharedCheck_207_ = !lean_is_exclusive(v___x_197_);
-if (v_isSharedCheck_207_ == 0)
+lean_object* v_a_203_; lean_object* v___x_205_; uint8_t v_isShared_206_; uint8_t v_isSharedCheck_210_; 
+lean_dec_ref(v_type_190_);
+lean_dec_ref(v_i_189_);
+v_a_203_ = lean_ctor_get(v___x_200_, 0);
+v_isSharedCheck_210_ = !lean_is_exclusive(v___x_200_);
+if (v_isSharedCheck_210_ == 0)
 {
-v___x_202_ = v___x_197_;
-v_isShared_203_ = v_isSharedCheck_207_;
-goto v_resetjp_201_;
+v___x_205_ = v___x_200_;
+v_isShared_206_ = v_isSharedCheck_210_;
+goto v_resetjp_204_;
 }
 else
 {
-lean_inc(v_a_200_);
-lean_dec(v___x_197_);
-v___x_202_ = lean_box(0);
-v_isShared_203_ = v_isSharedCheck_207_;
-goto v_resetjp_201_;
+lean_inc(v_a_203_);
+lean_dec(v___x_200_);
+v___x_205_ = lean_box(0);
+v_isShared_206_ = v_isSharedCheck_210_;
+goto v_resetjp_204_;
 }
-v_resetjp_201_:
+v_resetjp_204_:
 {
-lean_object* v___x_205_; 
-if (v_isShared_203_ == 0)
+lean_object* v___x_208_; 
+if (v_isShared_206_ == 0)
 {
-v___x_205_ = v___x_202_;
-goto v_reusejp_204_;
+v___x_208_ = v___x_205_;
+goto v_reusejp_207_;
 }
 else
 {
-lean_object* v_reuseFailAlloc_206_; 
-v_reuseFailAlloc_206_ = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(v_reuseFailAlloc_206_, 0, v_a_200_);
-v___x_205_ = v_reuseFailAlloc_206_;
-goto v_reusejp_204_;
+lean_object* v_reuseFailAlloc_209_; 
+v_reuseFailAlloc_209_ = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(v_reuseFailAlloc_209_, 0, v_a_203_);
+v___x_208_ = v_reuseFailAlloc_209_;
+goto v_reusejp_207_;
 }
-v_reusejp_204_:
+v_reusejp_207_:
 {
-return v___x_205_;
+return v___x_208_;
 }
 }
 }
 }
 else
 {
-lean_object* v___x_208_; lean_object* v___x_209_; 
-lean_dec_ref(v_type_187_);
-lean_dec_ref(v_i_186_);
-v___x_208_ = lean_obj_once(&l_Lean_mkNatLookupTable___closed__3, &l_Lean_mkNatLookupTable___closed__3_once, _init_l_Lean_mkNatLookupTable___closed__3);
-v___x_209_ = l_panic___at___00Lean_mkNatLookupTable_spec__0(v___x_208_, v_a_189_, v_a_190_, v_a_191_, v_a_192_);
-return v___x_209_;
+lean_object* v___x_211_; lean_object* v___x_212_; 
+lean_dec_ref(v_type_190_);
+lean_dec_ref(v_i_189_);
+v___x_211_ = lean_obj_once(&l_Lean_mkNatLookupTable___closed__3, &l_Lean_mkNatLookupTable___closed__3_once, _init_l_Lean_mkNatLookupTable___closed__3);
+v___x_212_ = l_panic___at___00Lean_mkNatLookupTable_spec__0(v___x_211_, v_a_192_, v_a_193_, v_a_194_, v_a_195_);
+return v___x_212_;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lean_mkNatLookupTable___boxed(lean_object* v_i_210_, lean_object* v_type_211_, lean_object* v_es_212_, lean_object* v_a_213_, lean_object* v_a_214_, lean_object* v_a_215_, lean_object* v_a_216_, lean_object* v_a_217_){
+LEAN_EXPORT void l_Lean_mkNatLookupTable_0interp(lean_interpreter_value* stack)
+{
+lean_object* v_i_189_ = stack[0].m_obj;
+lean_object* v_type_190_ = stack[1].m_obj;
+lean_object* v_es_191_ = stack[2].m_obj;
+lean_object* v_a_192_ = stack[3].m_obj;
+lean_object* v_a_193_ = stack[4].m_obj;
+lean_object* v_a_194_ = stack[5].m_obj;
+lean_object* v_a_195_ = stack[6].m_obj;
+lean_object* v_res_213_;
+v_res_213_ = l_Lean_mkNatLookupTable(v_i_189_, v_type_190_, v_es_191_, v_a_192_, v_a_193_, v_a_194_, v_a_195_);
+stack->m_obj
+ = v_res_213_;
+}
+LEAN_EXPORT lean_object* l_Lean_mkNatLookupTable___boxed(lean_object* v_i_214_, lean_object* v_type_215_, lean_object* v_es_216_, lean_object* v_a_217_, lean_object* v_a_218_, lean_object* v_a_219_, lean_object* v_a_220_, lean_object* v_a_221_){
 _start:
 {
-lean_object* v_res_218_; 
-v_res_218_ = l_Lean_mkNatLookupTable(v_i_210_, v_type_211_, v_es_212_, v_a_213_, v_a_214_, v_a_215_, v_a_216_);
-lean_dec(v_a_216_);
-lean_dec_ref(v_a_215_);
-lean_dec(v_a_214_);
-lean_dec_ref(v_a_213_);
-lean_dec_ref(v_es_212_);
-return v_res_218_;
+lean_object* v_res_222_; 
+v_res_222_ = l_Lean_mkNatLookupTable(v_i_214_, v_type_215_, v_es_216_, v_a_217_, v_a_218_, v_a_219_, v_a_220_);
+lean_dec(v_a_220_);
+lean_dec_ref(v_a_219_);
+lean_dec(v_a_218_);
+lean_dec_ref(v_a_217_);
+lean_dec_ref(v_es_216_);
+return v_res_222_;
 }
 }
 lean_object* runtime_initialize_Lean_Meta_Basic(uint8_t builtin);

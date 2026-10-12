@@ -16,7 +16,7 @@ extern "C" {
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Raw_WF_instCoeTypeForall___redArg();
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Raw_WF_instCoeTypeForall___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Raw_WF_instCoeTypeForall(lean_object*);
-LEAN_EXPORT lean_object* l_Std_DTreeMap_Raw_WF_instCoeTypeForall___redArg(){
+lean_object* l_Std_DTreeMap_Raw_WF_instCoeTypeForall___redArg(){
 _start:
 {
 lean_object* v___x_2_; 
@@ -24,20 +24,27 @@ v___x_2_ = lean_box(0);
 return v___x_2_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_DTreeMap_Raw_WF_instCoeTypeForall___redArg___boxed(lean_object* v___dummy_3_){
+LEAN_EXPORT void l_Std_DTreeMap_Raw_WF_instCoeTypeForall___redArg_0interp(lean_interpreter_value* stack)
+{
+lean_object* v_res_3_;
+v_res_3_ = l_Std_DTreeMap_Raw_WF_instCoeTypeForall___redArg();
+stack->m_obj
+ = v_res_3_;
+}
+LEAN_EXPORT lean_object* l_Std_DTreeMap_Raw_WF_instCoeTypeForall___redArg___boxed(lean_object* v___dummy_4_){
 _start:
 {
-lean_object* v_res_4_; 
-v_res_4_ = l_Std_DTreeMap_Raw_WF_instCoeTypeForall___redArg();
-return v_res_4_;
+lean_object* v_res_5_; 
+v_res_5_ = l_Std_DTreeMap_Raw_WF_instCoeTypeForall___redArg();
+return v_res_5_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_DTreeMap_Raw_WF_instCoeTypeForall(lean_object* v_00_u03b1_5_){
+LEAN_EXPORT lean_object* l_Std_DTreeMap_Raw_WF_instCoeTypeForall(lean_object* v_00_u03b1_6_){
 _start:
 {
-lean_object* v___x_6_; 
-v___x_6_ = lean_box(0);
-return v___x_6_;
+lean_object* v___x_7_; 
+v___x_7_ = lean_box(0);
+return v___x_7_;
 }
 }
 lean_object* runtime_initialize_Std_Data_DTreeMap_Raw_AdditionalOperations(uint8_t builtin);

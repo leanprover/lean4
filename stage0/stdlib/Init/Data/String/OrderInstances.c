@@ -786,7 +786,7 @@ v___x_419_ = lean_obj_once(&l_String_Pos_Raw_instLinearOrderPackage___closed__8,
 return v___x_419_;
 }
 }
-LEAN_EXPORT lean_object* l_String_Pos_instTransLe___redArg(){
+lean_object* l_String_Pos_instTransLe___redArg(){
 _start:
 {
 lean_object* v___x_421_; 
@@ -794,134 +794,148 @@ v___x_421_ = lean_box(0);
 return v___x_421_;
 }
 }
-LEAN_EXPORT lean_object* l_String_Pos_instTransLe___redArg___boxed(lean_object* v___dummy_422_){
+LEAN_EXPORT void l_String_Pos_instTransLe___redArg_0interp(lean_interpreter_value* stack)
+{
+lean_object* v_res_422_;
+v_res_422_ = l_String_Pos_instTransLe___redArg();
+stack->m_obj
+ = v_res_422_;
+}
+LEAN_EXPORT lean_object* l_String_Pos_instTransLe___redArg___boxed(lean_object* v___dummy_423_){
 _start:
 {
-lean_object* v_res_423_; 
-v_res_423_ = l_String_Pos_instTransLe___redArg();
-return v_res_423_;
+lean_object* v_res_424_; 
+v_res_424_ = l_String_Pos_instTransLe___redArg();
+return v_res_424_;
 }
 }
-LEAN_EXPORT lean_object* l_String_Pos_instTransLe(lean_object* v_s_424_){
+LEAN_EXPORT lean_object* l_String_Pos_instTransLe(lean_object* v_s_425_){
 _start:
 {
-lean_object* v___x_425_; 
-v___x_425_ = lean_box(0);
-return v___x_425_;
+lean_object* v___x_426_; 
+v___x_426_ = lean_box(0);
+return v___x_426_;
 }
 }
-LEAN_EXPORT lean_object* l_String_Pos_instTransLe___boxed(lean_object* v_s_426_){
+LEAN_EXPORT lean_object* l_String_Pos_instTransLe___boxed(lean_object* v_s_427_){
 _start:
 {
-lean_object* v_res_427_; 
-v_res_427_ = l_String_Pos_instTransLe(v_s_426_);
-lean_dec_ref(v_s_426_);
-return v_res_427_;
+lean_object* v_res_428_; 
+v_res_428_ = l_String_Pos_instTransLe(v_s_427_);
+lean_dec_ref(v_s_427_);
+return v_res_428_;
 }
 }
-LEAN_EXPORT lean_object* l_String_Pos_instLinearOrderPackage(lean_object* v_s_428_){
+LEAN_EXPORT lean_object* l_String_Pos_instLinearOrderPackage(lean_object* v_s_429_){
 _start:
 {
-lean_object* v___f_429_; lean_object* v___f_430_; lean_object* v_this_431_; lean_object* v_this_432_; lean_object* v_this_433_; lean_object* v___x_434_; lean_object* v___f_435_; lean_object* v___x_436_; lean_object* v___f_437_; lean_object* v___x_438_; lean_object* v___x_439_; lean_object* v___x_440_; 
-v___f_429_ = ((lean_object*)(l_String_Pos_Raw_instLinearOrderPackage___closed__0));
-v___f_430_ = ((lean_object*)(l_String_Pos_Raw_instLinearOrderPackage___closed__1));
-v_this_431_ = lean_box(0);
-lean_inc_ref_n(v_s_428_, 2);
-v_this_432_ = lean_alloc_closure((void*)(l_String_instDecidableLePos___boxed), 3, 1);
-lean_closure_set(v_this_432_, 0, v_s_428_);
-v_this_433_ = lean_box(0);
-v___x_434_ = lean_alloc_closure((void*)(l_String_instDecidableEqPos___boxed), 3, 1);
-lean_closure_set(v___x_434_, 0, v_s_428_);
-v___f_435_ = lean_alloc_closure((void*)(l_instBEqOfDecidableEq___redArg___lam__0___boxed), 3, 1);
-lean_closure_set(v___f_435_, 0, v___x_434_);
-v___x_436_ = lean_alloc_closure((void*)(l_String_instDecidableLtPos___boxed), 3, 1);
-lean_closure_set(v___x_436_, 0, v_s_428_);
-lean_inc_ref(v_this_432_);
-v___f_437_ = lean_alloc_closure((void*)(l_Std_FactoryInstances_instOrdOfDecidableLE___redArg___lam__0___boxed), 3, 1);
-lean_closure_set(v___f_437_, 0, v_this_432_);
-v___x_438_ = lean_alloc_ctor(0, 5, 0);
-lean_ctor_set(v___x_438_, 0, v_this_431_);
-lean_ctor_set(v___x_438_, 1, v_this_433_);
-lean_ctor_set(v___x_438_, 2, v___f_435_);
-lean_ctor_set(v___x_438_, 3, v_this_432_);
-lean_ctor_set(v___x_438_, 4, v___x_436_);
-v___x_439_ = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(v___x_439_, 0, v___x_438_);
-lean_ctor_set(v___x_439_, 1, v___f_437_);
-v___x_440_ = lean_alloc_ctor(0, 3, 0);
+lean_object* v___f_430_; lean_object* v___f_431_; lean_object* v_this_432_; lean_object* v_this_433_; lean_object* v_this_434_; lean_object* v___x_435_; lean_object* v___f_436_; lean_object* v___x_437_; lean_object* v___f_438_; lean_object* v___x_439_; lean_object* v___x_440_; lean_object* v___x_441_; 
+v___f_430_ = ((lean_object*)(l_String_Pos_Raw_instLinearOrderPackage___closed__0));
+v___f_431_ = ((lean_object*)(l_String_Pos_Raw_instLinearOrderPackage___closed__1));
+v_this_432_ = lean_box(0);
+lean_inc_ref_n(v_s_429_, 2);
+v_this_433_ = lean_alloc_closure((void*)(l_String_instDecidableLePos___boxed), 3, 1);
+lean_closure_set(v_this_433_, 0, v_s_429_);
+v_this_434_ = lean_box(0);
+v___x_435_ = lean_alloc_closure((void*)(l_String_instDecidableEqPos___boxed), 3, 1);
+lean_closure_set(v___x_435_, 0, v_s_429_);
+v___f_436_ = lean_alloc_closure((void*)(l_instBEqOfDecidableEq___redArg___lam__0___boxed), 3, 1);
+lean_closure_set(v___f_436_, 0, v___x_435_);
+v___x_437_ = lean_alloc_closure((void*)(l_String_instDecidableLtPos___boxed), 3, 1);
+lean_closure_set(v___x_437_, 0, v_s_429_);
+lean_inc_ref(v_this_433_);
+v___f_438_ = lean_alloc_closure((void*)(l_Std_FactoryInstances_instOrdOfDecidableLE___redArg___lam__0___boxed), 3, 1);
+lean_closure_set(v___f_438_, 0, v_this_433_);
+v___x_439_ = lean_alloc_ctor(0, 5, 0);
+lean_ctor_set(v___x_439_, 0, v_this_432_);
+lean_ctor_set(v___x_439_, 1, v_this_434_);
+lean_ctor_set(v___x_439_, 2, v___f_436_);
+lean_ctor_set(v___x_439_, 3, v_this_433_);
+lean_ctor_set(v___x_439_, 4, v___x_437_);
+v___x_440_ = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(v___x_440_, 0, v___x_439_);
-lean_ctor_set(v___x_440_, 1, v___f_429_);
-lean_ctor_set(v___x_440_, 2, v___f_430_);
-return v___x_440_;
+lean_ctor_set(v___x_440_, 1, v___f_438_);
+v___x_441_ = lean_alloc_ctor(0, 3, 0);
+lean_ctor_set(v___x_441_, 0, v___x_440_);
+lean_ctor_set(v___x_441_, 1, v___f_430_);
+lean_ctor_set(v___x_441_, 2, v___f_431_);
+return v___x_441_;
 }
 }
-LEAN_EXPORT lean_object* l_String_Slice_Pos_instTransLe___redArg(){
+lean_object* l_String_Slice_Pos_instTransLe___redArg(){
 _start:
 {
-lean_object* v___x_442_; 
-v___x_442_ = lean_box(0);
-return v___x_442_;
+lean_object* v___x_443_; 
+v___x_443_ = lean_box(0);
+return v___x_443_;
 }
 }
-LEAN_EXPORT lean_object* l_String_Slice_Pos_instTransLe___redArg___boxed(lean_object* v___dummy_443_){
-_start:
+LEAN_EXPORT void l_String_Slice_Pos_instTransLe___redArg_0interp(lean_interpreter_value* stack)
 {
-lean_object* v_res_444_; 
+lean_object* v_res_444_;
 v_res_444_ = l_String_Slice_Pos_instTransLe___redArg();
-return v_res_444_;
+stack->m_obj
+ = v_res_444_;
 }
-}
-LEAN_EXPORT lean_object* l_String_Slice_Pos_instTransLe(lean_object* v_s_445_){
+LEAN_EXPORT lean_object* l_String_Slice_Pos_instTransLe___redArg___boxed(lean_object* v___dummy_445_){
 _start:
 {
-lean_object* v___x_446_; 
-v___x_446_ = lean_box(0);
-return v___x_446_;
+lean_object* v_res_446_; 
+v_res_446_ = l_String_Slice_Pos_instTransLe___redArg();
+return v_res_446_;
 }
 }
-LEAN_EXPORT lean_object* l_String_Slice_Pos_instTransLe___boxed(lean_object* v_s_447_){
+LEAN_EXPORT lean_object* l_String_Slice_Pos_instTransLe(lean_object* v_s_447_){
 _start:
 {
-lean_object* v_res_448_; 
-v_res_448_ = l_String_Slice_Pos_instTransLe(v_s_447_);
-lean_dec_ref(v_s_447_);
-return v_res_448_;
+lean_object* v___x_448_; 
+v___x_448_ = lean_box(0);
+return v___x_448_;
 }
 }
-LEAN_EXPORT lean_object* l_String_Slice_Pos_instLinearOrderPackage(lean_object* v_s_449_){
+LEAN_EXPORT lean_object* l_String_Slice_Pos_instTransLe___boxed(lean_object* v_s_449_){
 _start:
 {
-lean_object* v___f_450_; lean_object* v___f_451_; lean_object* v_this_452_; lean_object* v_this_453_; lean_object* v_this_454_; lean_object* v___x_455_; lean_object* v___f_456_; lean_object* v___x_457_; lean_object* v___f_458_; lean_object* v___x_459_; lean_object* v___x_460_; lean_object* v___x_461_; 
-v___f_450_ = ((lean_object*)(l_String_Pos_Raw_instLinearOrderPackage___closed__0));
-v___f_451_ = ((lean_object*)(l_String_Pos_Raw_instLinearOrderPackage___closed__1));
-v_this_452_ = lean_box(0);
-lean_inc_ref_n(v_s_449_, 2);
-v_this_453_ = lean_alloc_closure((void*)(l_String_instDecidableLePos__1___boxed), 3, 1);
-lean_closure_set(v_this_453_, 0, v_s_449_);
+lean_object* v_res_450_; 
+v_res_450_ = l_String_Slice_Pos_instTransLe(v_s_449_);
+lean_dec_ref(v_s_449_);
+return v_res_450_;
+}
+}
+LEAN_EXPORT lean_object* l_String_Slice_Pos_instLinearOrderPackage(lean_object* v_s_451_){
+_start:
+{
+lean_object* v___f_452_; lean_object* v___f_453_; lean_object* v_this_454_; lean_object* v_this_455_; lean_object* v_this_456_; lean_object* v___x_457_; lean_object* v___f_458_; lean_object* v___x_459_; lean_object* v___f_460_; lean_object* v___x_461_; lean_object* v___x_462_; lean_object* v___x_463_; 
+v___f_452_ = ((lean_object*)(l_String_Pos_Raw_instLinearOrderPackage___closed__0));
+v___f_453_ = ((lean_object*)(l_String_Pos_Raw_instLinearOrderPackage___closed__1));
 v_this_454_ = lean_box(0);
-v___x_455_ = lean_alloc_closure((void*)(l_String_Slice_instDecidableEqPos___boxed), 3, 1);
-lean_closure_set(v___x_455_, 0, v_s_449_);
-v___f_456_ = lean_alloc_closure((void*)(l_instBEqOfDecidableEq___redArg___lam__0___boxed), 3, 1);
-lean_closure_set(v___f_456_, 0, v___x_455_);
-v___x_457_ = lean_alloc_closure((void*)(l_String_instDecidableLtPos__1___boxed), 3, 1);
-lean_closure_set(v___x_457_, 0, v_s_449_);
-lean_inc_ref(v_this_453_);
-v___f_458_ = lean_alloc_closure((void*)(l_Std_FactoryInstances_instOrdOfDecidableLE___redArg___lam__0___boxed), 3, 1);
-lean_closure_set(v___f_458_, 0, v_this_453_);
-v___x_459_ = lean_alloc_ctor(0, 5, 0);
-lean_ctor_set(v___x_459_, 0, v_this_452_);
-lean_ctor_set(v___x_459_, 1, v_this_454_);
-lean_ctor_set(v___x_459_, 2, v___f_456_);
-lean_ctor_set(v___x_459_, 3, v_this_453_);
-lean_ctor_set(v___x_459_, 4, v___x_457_);
-v___x_460_ = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(v___x_460_, 0, v___x_459_);
-lean_ctor_set(v___x_460_, 1, v___f_458_);
-v___x_461_ = lean_alloc_ctor(0, 3, 0);
-lean_ctor_set(v___x_461_, 0, v___x_460_);
-lean_ctor_set(v___x_461_, 1, v___f_450_);
-lean_ctor_set(v___x_461_, 2, v___f_451_);
-return v___x_461_;
+lean_inc_ref_n(v_s_451_, 2);
+v_this_455_ = lean_alloc_closure((void*)(l_String_instDecidableLePos__1___boxed), 3, 1);
+lean_closure_set(v_this_455_, 0, v_s_451_);
+v_this_456_ = lean_box(0);
+v___x_457_ = lean_alloc_closure((void*)(l_String_Slice_instDecidableEqPos___boxed), 3, 1);
+lean_closure_set(v___x_457_, 0, v_s_451_);
+v___f_458_ = lean_alloc_closure((void*)(l_instBEqOfDecidableEq___redArg___lam__0___boxed), 3, 1);
+lean_closure_set(v___f_458_, 0, v___x_457_);
+v___x_459_ = lean_alloc_closure((void*)(l_String_instDecidableLtPos__1___boxed), 3, 1);
+lean_closure_set(v___x_459_, 0, v_s_451_);
+lean_inc_ref(v_this_455_);
+v___f_460_ = lean_alloc_closure((void*)(l_Std_FactoryInstances_instOrdOfDecidableLE___redArg___lam__0___boxed), 3, 1);
+lean_closure_set(v___f_460_, 0, v_this_455_);
+v___x_461_ = lean_alloc_ctor(0, 5, 0);
+lean_ctor_set(v___x_461_, 0, v_this_454_);
+lean_ctor_set(v___x_461_, 1, v_this_456_);
+lean_ctor_set(v___x_461_, 2, v___f_458_);
+lean_ctor_set(v___x_461_, 3, v_this_455_);
+lean_ctor_set(v___x_461_, 4, v___x_459_);
+v___x_462_ = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(v___x_462_, 0, v___x_461_);
+lean_ctor_set(v___x_462_, 1, v___f_460_);
+v___x_463_ = lean_alloc_ctor(0, 3, 0);
+lean_ctor_set(v___x_463_, 0, v___x_462_);
+lean_ctor_set(v___x_463_, 1, v___f_452_);
+lean_ctor_set(v___x_463_, 2, v___f_453_);
+return v___x_463_;
 }
 }
 lean_object* runtime_initialize_Init_Data_String_Defs(uint8_t builtin);

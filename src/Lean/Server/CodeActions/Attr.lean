@@ -7,7 +7,7 @@ module
 
 prelude
 public import Lean.Server.CodeActions.Basic
-import Lean.Compiler.IR.CompilerM
+import Lean.Compiler.Bytecode.Basic
 
 public section
 
@@ -55,7 +55,7 @@ builtin_initialize
       unless kind == AttributeKind.global do
         throwAttrMustBeGlobal `hole_code_action kind
       ensureAttrDeclIsMeta `hole_code_action decl kind
-      if (IR.getSorryDep (← getEnv) decl).isSome then return -- ignore in progress definitions
+      if (Compiler.Bytecode.getSorryDep (← getEnv) decl).isSome then return -- ignore in progress definitions
       modifyEnv (holeCodeActionExt.addEntry · (decl, ← mkHoleCodeAction decl))
   }
 
@@ -126,7 +126,7 @@ builtin_initialize
       ensureAttrDeclIsMeta `command_code_action decl kind
       let `(attr| command_code_action $args*) := stx | return
       let args ← args.mapM realizeGlobalConstNoOverloadWithInfo
-      if (IR.getSorryDep (← getEnv) decl).isSome then return -- ignore in progress definitions
+      if (Compiler.Bytecode.getSorryDep (← getEnv) decl).isSome then return -- ignore in progress definitions
       args.forM (recordExtraModUseFromDecl (isMeta := false))
       modifyEnv (cmdCodeActionExt.addEntry · (⟨decl, args⟩, ← mkCommandCodeAction decl))
   }
@@ -150,6 +150,6 @@ builtin_initialize
       let `(attr| builtin_command_code_action $args*) := stx |
         throwError "Unexpected `command_code_action` attribute syntax"
       let args ← args.mapM realizeGlobalConstNoOverloadWithInfo
-      if (IR.getSorryDep (← getEnv) decl).isSome then return -- ignore in progress definitions
+      if (Compiler.Bytecode.getSorryDep (← getEnv) decl).isSome then return -- ignore in progress definitions
       addBuiltin decl args
   }

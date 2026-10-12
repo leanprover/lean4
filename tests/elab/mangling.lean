@@ -1,5 +1,4 @@
 module
-import Lean.Compiler.IR.CompilerM
 import Lean.Compiler.NameMangling
 import Lean.Compiler.LCNF.ExplicitBoxing
 
@@ -7,7 +6,7 @@ import Lean.Compiler.LCNF.ExplicitBoxing
 # Test behavior of name mangling
 -/
 
-open Lean IR
+open Lean
 open Lean.Compiler.LCNF (mkBoxedName)
 
 def checkMangle (n : Name) (s : String) : IO Unit := do

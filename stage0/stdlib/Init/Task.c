@@ -60,7 +60,7 @@ v_res_19_ = l___private_Init_Task_0__Task_mapList_go___redArg___lam__2(v_x_12_, 
 return v_res_19_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Task_0__Task_mapList_go___redArg(lean_object* v_f_20_, lean_object* v_prio_21_, uint8_t v_sync_22_, lean_object* v_x_23_, lean_object* v_x_24_){
+lean_object* l___private_Init_Task_0__Task_mapList_go___redArg(lean_object* v_f_20_, lean_object* v_prio_21_, uint8_t v_sync_22_, lean_object* v_x_23_, lean_object* v_x_24_){
 _start:
 {
 if (lean_obj_tag(v_x_23_) == 0)
@@ -121,76 +121,135 @@ return v___x_37_;
 }
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Task_0__Task_mapList_go___redArg___lam__2(lean_object* v_x_38_, lean_object* v_f_39_, lean_object* v_prio_40_, uint8_t v_sync_41_, lean_object* v_tail_42_, lean_object* v_a_43_){
+LEAN_EXPORT void l___private_Init_Task_0__Task_mapList_go___redArg_0interp(lean_interpreter_value* stack)
+{
+lean_object* v_f_20_ = stack[0].m_obj;
+lean_object* v_prio_21_ = stack[1].m_obj;
+uint8_t v_sync_22_ = stack[2].m_num;
+lean_object* v_x_23_ = stack[3].m_obj;
+lean_object* v_x_24_ = stack[4].m_obj;
+lean_object* v_res_38_;
+v_res_38_ = l___private_Init_Task_0__Task_mapList_go___redArg(v_f_20_, v_prio_21_, v_sync_22_, v_x_23_, v_x_24_);
+stack->m_obj
+ = v_res_38_;
+}
+lean_object* l___private_Init_Task_0__Task_mapList_go___redArg___lam__2(lean_object* v_x_39_, lean_object* v_f_40_, lean_object* v_prio_41_, uint8_t v_sync_42_, lean_object* v_tail_43_, lean_object* v_a_44_){
 _start:
 {
-lean_object* v___x_44_; lean_object* v___x_45_; 
-v___x_44_ = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(v___x_44_, 0, v_a_43_);
-lean_ctor_set(v___x_44_, 1, v_x_38_);
-v___x_45_ = l___private_Init_Task_0__Task_mapList_go___redArg(v_f_39_, v_prio_40_, v_sync_41_, v_tail_42_, v___x_44_);
-return v___x_45_;
+lean_object* v___x_45_; lean_object* v___x_46_; 
+v___x_45_ = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(v___x_45_, 0, v_a_44_);
+lean_ctor_set(v___x_45_, 1, v_x_39_);
+v___x_46_ = l___private_Init_Task_0__Task_mapList_go___redArg(v_f_40_, v_prio_41_, v_sync_42_, v_tail_43_, v___x_45_);
+return v___x_46_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Task_0__Task_mapList_go___redArg___boxed(lean_object* v_f_46_, lean_object* v_prio_47_, lean_object* v_sync_48_, lean_object* v_x_49_, lean_object* v_x_50_){
+LEAN_EXPORT void l___private_Init_Task_0__Task_mapList_go___redArg___lam__2_0interp(lean_interpreter_value* stack)
+{
+lean_object* v_x_39_ = stack[0].m_obj;
+lean_object* v_f_40_ = stack[1].m_obj;
+lean_object* v_prio_41_ = stack[2].m_obj;
+uint8_t v_sync_42_ = stack[3].m_num;
+lean_object* v_tail_43_ = stack[4].m_obj;
+lean_object* v_a_44_ = stack[5].m_obj;
+lean_object* v_res_47_;
+v_res_47_ = l___private_Init_Task_0__Task_mapList_go___redArg___lam__2(v_x_39_, v_f_40_, v_prio_41_, v_sync_42_, v_tail_43_, v_a_44_);
+stack->m_obj
+ = v_res_47_;
+}
+LEAN_EXPORT lean_object* l___private_Init_Task_0__Task_mapList_go___redArg___boxed(lean_object* v_f_48_, lean_object* v_prio_49_, lean_object* v_sync_50_, lean_object* v_x_51_, lean_object* v_x_52_){
 _start:
 {
-uint8_t v_sync_boxed_51_; lean_object* v_res_52_; 
-v_sync_boxed_51_ = lean_unbox(v_sync_48_);
-v_res_52_ = l___private_Init_Task_0__Task_mapList_go___redArg(v_f_46_, v_prio_47_, v_sync_boxed_51_, v_x_49_, v_x_50_);
-return v_res_52_;
+uint8_t v_sync_boxed_53_; lean_object* v_res_54_; 
+v_sync_boxed_53_ = lean_unbox(v_sync_50_);
+v_res_54_ = l___private_Init_Task_0__Task_mapList_go___redArg(v_f_48_, v_prio_49_, v_sync_boxed_53_, v_x_51_, v_x_52_);
+return v_res_54_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Task_0__Task_mapList_go(lean_object* v_00_u03b1_53_, lean_object* v_00_u03b2_54_, lean_object* v_f_55_, lean_object* v_prio_56_, uint8_t v_sync_57_, lean_object* v_x_58_, lean_object* v_x_59_){
+lean_object* l___private_Init_Task_0__Task_mapList_go(lean_object* v_00_u03b1_55_, lean_object* v_00_u03b2_56_, lean_object* v_f_57_, lean_object* v_prio_58_, uint8_t v_sync_59_, lean_object* v_x_60_, lean_object* v_x_61_){
 _start:
 {
-lean_object* v___x_60_; 
-v___x_60_ = l___private_Init_Task_0__Task_mapList_go___redArg(v_f_55_, v_prio_56_, v_sync_57_, v_x_58_, v_x_59_);
-return v___x_60_;
+lean_object* v___x_62_; 
+v___x_62_ = l___private_Init_Task_0__Task_mapList_go___redArg(v_f_57_, v_prio_58_, v_sync_59_, v_x_60_, v_x_61_);
+return v___x_62_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Task_0__Task_mapList_go___boxed(lean_object* v_00_u03b1_61_, lean_object* v_00_u03b2_62_, lean_object* v_f_63_, lean_object* v_prio_64_, lean_object* v_sync_65_, lean_object* v_x_66_, lean_object* v_x_67_){
+LEAN_EXPORT void l___private_Init_Task_0__Task_mapList_go_0interp(lean_interpreter_value* stack)
+{
+lean_object* v_f_57_ = stack[2].m_obj;
+lean_object* v_prio_58_ = stack[3].m_obj;
+uint8_t v_sync_59_ = stack[4].m_num;
+lean_object* v_x_60_ = stack[5].m_obj;
+lean_object* v_x_61_ = stack[6].m_obj;
+lean_object* v_res_63_;
+v_res_63_ = l___private_Init_Task_0__Task_mapList_go(lean_box(0), lean_box(0), v_f_57_, v_prio_58_, v_sync_59_, v_x_60_, v_x_61_);
+stack->m_obj
+ = v_res_63_;
+}
+LEAN_EXPORT lean_object* l___private_Init_Task_0__Task_mapList_go___boxed(lean_object* v_00_u03b1_64_, lean_object* v_00_u03b2_65_, lean_object* v_f_66_, lean_object* v_prio_67_, lean_object* v_sync_68_, lean_object* v_x_69_, lean_object* v_x_70_){
 _start:
 {
-uint8_t v_sync_boxed_68_; lean_object* v_res_69_; 
-v_sync_boxed_68_ = lean_unbox(v_sync_65_);
-v_res_69_ = l___private_Init_Task_0__Task_mapList_go(v_00_u03b1_61_, v_00_u03b2_62_, v_f_63_, v_prio_64_, v_sync_boxed_68_, v_x_66_, v_x_67_);
-return v_res_69_;
+uint8_t v_sync_boxed_71_; lean_object* v_res_72_; 
+v_sync_boxed_71_ = lean_unbox(v_sync_68_);
+v_res_72_ = l___private_Init_Task_0__Task_mapList_go(v_00_u03b1_64_, v_00_u03b2_65_, v_f_66_, v_prio_67_, v_sync_boxed_71_, v_x_69_, v_x_70_);
+return v_res_72_;
 }
 }
-LEAN_EXPORT lean_object* l_Task_mapList___redArg(lean_object* v_f_70_, lean_object* v_tasks_71_, lean_object* v_prio_72_, uint8_t v_sync_73_){
+lean_object* l_Task_mapList___redArg(lean_object* v_f_73_, lean_object* v_tasks_74_, lean_object* v_prio_75_, uint8_t v_sync_76_){
 _start:
 {
-lean_object* v___x_74_; lean_object* v___x_75_; 
-v___x_74_ = lean_box(0);
-v___x_75_ = l___private_Init_Task_0__Task_mapList_go___redArg(v_f_70_, v_prio_72_, v_sync_73_, v_tasks_71_, v___x_74_);
-return v___x_75_;
+lean_object* v___x_77_; lean_object* v___x_78_; 
+v___x_77_ = lean_box(0);
+v___x_78_ = l___private_Init_Task_0__Task_mapList_go___redArg(v_f_73_, v_prio_75_, v_sync_76_, v_tasks_74_, v___x_77_);
+return v___x_78_;
 }
 }
-LEAN_EXPORT lean_object* l_Task_mapList___redArg___boxed(lean_object* v_f_76_, lean_object* v_tasks_77_, lean_object* v_prio_78_, lean_object* v_sync_79_){
+LEAN_EXPORT void l_Task_mapList___redArg_0interp(lean_interpreter_value* stack)
+{
+lean_object* v_f_73_ = stack[0].m_obj;
+lean_object* v_tasks_74_ = stack[1].m_obj;
+lean_object* v_prio_75_ = stack[2].m_obj;
+uint8_t v_sync_76_ = stack[3].m_num;
+lean_object* v_res_79_;
+v_res_79_ = l_Task_mapList___redArg(v_f_73_, v_tasks_74_, v_prio_75_, v_sync_76_);
+stack->m_obj
+ = v_res_79_;
+}
+LEAN_EXPORT lean_object* l_Task_mapList___redArg___boxed(lean_object* v_f_80_, lean_object* v_tasks_81_, lean_object* v_prio_82_, lean_object* v_sync_83_){
 _start:
 {
-uint8_t v_sync_boxed_80_; lean_object* v_res_81_; 
-v_sync_boxed_80_ = lean_unbox(v_sync_79_);
-v_res_81_ = l_Task_mapList___redArg(v_f_76_, v_tasks_77_, v_prio_78_, v_sync_boxed_80_);
-return v_res_81_;
+uint8_t v_sync_boxed_84_; lean_object* v_res_85_; 
+v_sync_boxed_84_ = lean_unbox(v_sync_83_);
+v_res_85_ = l_Task_mapList___redArg(v_f_80_, v_tasks_81_, v_prio_82_, v_sync_boxed_84_);
+return v_res_85_;
 }
 }
-LEAN_EXPORT lean_object* l_Task_mapList(lean_object* v_00_u03b1_82_, lean_object* v_00_u03b2_83_, lean_object* v_f_84_, lean_object* v_tasks_85_, lean_object* v_prio_86_, uint8_t v_sync_87_){
+lean_object* l_Task_mapList(lean_object* v_00_u03b1_86_, lean_object* v_00_u03b2_87_, lean_object* v_f_88_, lean_object* v_tasks_89_, lean_object* v_prio_90_, uint8_t v_sync_91_){
 _start:
 {
-lean_object* v___x_88_; 
-v___x_88_ = l_Task_mapList___redArg(v_f_84_, v_tasks_85_, v_prio_86_, v_sync_87_);
-return v___x_88_;
+lean_object* v___x_92_; 
+v___x_92_ = l_Task_mapList___redArg(v_f_88_, v_tasks_89_, v_prio_90_, v_sync_91_);
+return v___x_92_;
 }
 }
-LEAN_EXPORT lean_object* l_Task_mapList___boxed(lean_object* v_00_u03b1_89_, lean_object* v_00_u03b2_90_, lean_object* v_f_91_, lean_object* v_tasks_92_, lean_object* v_prio_93_, lean_object* v_sync_94_){
+LEAN_EXPORT void l_Task_mapList_0interp(lean_interpreter_value* stack)
+{
+lean_object* v_f_88_ = stack[2].m_obj;
+lean_object* v_tasks_89_ = stack[3].m_obj;
+lean_object* v_prio_90_ = stack[4].m_obj;
+uint8_t v_sync_91_ = stack[5].m_num;
+lean_object* v_res_93_;
+v_res_93_ = l_Task_mapList(lean_box(0), lean_box(0), v_f_88_, v_tasks_89_, v_prio_90_, v_sync_91_);
+stack->m_obj
+ = v_res_93_;
+}
+LEAN_EXPORT lean_object* l_Task_mapList___boxed(lean_object* v_00_u03b1_94_, lean_object* v_00_u03b2_95_, lean_object* v_f_96_, lean_object* v_tasks_97_, lean_object* v_prio_98_, lean_object* v_sync_99_){
 _start:
 {
-uint8_t v_sync_boxed_95_; lean_object* v_res_96_; 
-v_sync_boxed_95_ = lean_unbox(v_sync_94_);
-v_res_96_ = l_Task_mapList(v_00_u03b1_89_, v_00_u03b2_90_, v_f_91_, v_tasks_92_, v_prio_93_, v_sync_boxed_95_);
-return v_res_96_;
+uint8_t v_sync_boxed_100_; lean_object* v_res_101_; 
+v_sync_boxed_100_ = lean_unbox(v_sync_99_);
+v_res_101_ = l_Task_mapList(v_00_u03b1_94_, v_00_u03b2_95_, v_f_96_, v_tasks_97_, v_prio_98_, v_sync_boxed_100_);
+return v_res_101_;
 }
 }
 lean_object* runtime_initialize_Init_Core(uint8_t builtin);

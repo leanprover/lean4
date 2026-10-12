@@ -588,7 +588,7 @@ lean_dec_ref(v_spec_170_);
 return v_res_174_;
 }
 }
-LEAN_EXPORT lean_object* l_Float_Model_UnpackedFloat_roundWithAccuracy(lean_object* v_spec_175_, uint8_t v_sign_176_, lean_object* v_mantissa_177_, lean_object* v_exponent_178_, lean_object* v_accuracy_179_){
+lean_object* l_Float_Model_UnpackedFloat_roundWithAccuracy(lean_object* v_spec_175_, uint8_t v_sign_176_, lean_object* v_mantissa_177_, lean_object* v_exponent_178_, lean_object* v_accuracy_179_){
 _start:
 {
 lean_object* v___x_180_; lean_object* v_fst_181_; lean_object* v_snd_182_; lean_object* v_roundedEm_u2081_183_; lean_object* v___x_184_; lean_object* v___x_185_; lean_object* v_fst_186_; lean_object* v_snd_187_; lean_object* v_mantissa_188_; lean_object* v___x_189_; uint8_t v___x_190_; 
@@ -633,137 +633,171 @@ return v___x_192_;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Float_Model_UnpackedFloat_roundWithAccuracy___boxed(lean_object* v_spec_193_, lean_object* v_sign_194_, lean_object* v_mantissa_195_, lean_object* v_exponent_196_, lean_object* v_accuracy_197_){
+LEAN_EXPORT void l_Float_Model_UnpackedFloat_roundWithAccuracy_0interp(lean_interpreter_value* stack)
+{
+lean_object* v_spec_175_ = stack[0].m_obj;
+uint8_t v_sign_176_ = stack[1].m_num;
+lean_object* v_mantissa_177_ = stack[2].m_obj;
+lean_object* v_exponent_178_ = stack[3].m_obj;
+lean_object* v_accuracy_179_ = stack[4].m_obj;
+lean_object* v_res_193_;
+v_res_193_ = l_Float_Model_UnpackedFloat_roundWithAccuracy(v_spec_175_, v_sign_176_, v_mantissa_177_, v_exponent_178_, v_accuracy_179_);
+stack->m_obj
+ = v_res_193_;
+}
+LEAN_EXPORT lean_object* l_Float_Model_UnpackedFloat_roundWithAccuracy___boxed(lean_object* v_spec_194_, lean_object* v_sign_195_, lean_object* v_mantissa_196_, lean_object* v_exponent_197_, lean_object* v_accuracy_198_){
 _start:
 {
-uint8_t v_sign_boxed_198_; lean_object* v_res_199_; 
-v_sign_boxed_198_ = lean_unbox(v_sign_194_);
-v_res_199_ = l_Float_Model_UnpackedFloat_roundWithAccuracy(v_spec_193_, v_sign_boxed_198_, v_mantissa_195_, v_exponent_196_, v_accuracy_197_);
-lean_dec(v_accuracy_197_);
-lean_dec(v_exponent_196_);
-lean_dec_ref(v_spec_193_);
-return v_res_199_;
+uint8_t v_sign_boxed_199_; lean_object* v_res_200_; 
+v_sign_boxed_199_ = lean_unbox(v_sign_195_);
+v_res_200_ = l_Float_Model_UnpackedFloat_roundWithAccuracy(v_spec_194_, v_sign_boxed_199_, v_mantissa_196_, v_exponent_197_, v_accuracy_198_);
+lean_dec(v_accuracy_198_);
+lean_dec(v_exponent_197_);
+lean_dec_ref(v_spec_194_);
+return v_res_200_;
 }
 }
-LEAN_EXPORT lean_object* l_Float_Model_UnpackedFloat_decreaseExponent(lean_object* v_mantissa_200_, lean_object* v_exponent_201_, lean_object* v_targetExponent_202_){
+LEAN_EXPORT lean_object* l_Float_Model_UnpackedFloat_decreaseExponent(lean_object* v_mantissa_201_, lean_object* v_exponent_202_, lean_object* v_targetExponent_203_){
 _start:
 {
-lean_object* v___x_203_; lean_object* v_shiftAmount_204_; lean_object* v___x_205_; lean_object* v___x_206_; lean_object* v___x_207_; lean_object* v___x_208_; 
-v___x_203_ = lean_int_sub(v_exponent_201_, v_targetExponent_202_);
-v_shiftAmount_204_ = l_Int_toNat(v___x_203_);
-lean_dec(v___x_203_);
-v___x_205_ = lean_nat_shiftl(v_mantissa_200_, v_shiftAmount_204_);
-v___x_206_ = lean_nat_to_int(v_shiftAmount_204_);
-v___x_207_ = lean_int_sub(v_exponent_201_, v___x_206_);
-lean_dec(v___x_206_);
-v___x_208_ = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(v___x_208_, 0, v___x_205_);
-lean_ctor_set(v___x_208_, 1, v___x_207_);
-return v___x_208_;
+lean_object* v___x_204_; lean_object* v_shiftAmount_205_; lean_object* v___x_206_; lean_object* v___x_207_; lean_object* v___x_208_; lean_object* v___x_209_; 
+v___x_204_ = lean_int_sub(v_exponent_202_, v_targetExponent_203_);
+v_shiftAmount_205_ = l_Int_toNat(v___x_204_);
+lean_dec(v___x_204_);
+v___x_206_ = lean_nat_shiftl(v_mantissa_201_, v_shiftAmount_205_);
+v___x_207_ = lean_nat_to_int(v_shiftAmount_205_);
+v___x_208_ = lean_int_sub(v_exponent_202_, v___x_207_);
+lean_dec(v___x_207_);
+v___x_209_ = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(v___x_209_, 0, v___x_206_);
+lean_ctor_set(v___x_209_, 1, v___x_208_);
+return v___x_209_;
 }
 }
-LEAN_EXPORT lean_object* l_Float_Model_UnpackedFloat_decreaseExponent___boxed(lean_object* v_mantissa_209_, lean_object* v_exponent_210_, lean_object* v_targetExponent_211_){
+LEAN_EXPORT lean_object* l_Float_Model_UnpackedFloat_decreaseExponent___boxed(lean_object* v_mantissa_210_, lean_object* v_exponent_211_, lean_object* v_targetExponent_212_){
 _start:
 {
-lean_object* v_res_212_; 
-v_res_212_ = l_Float_Model_UnpackedFloat_decreaseExponent(v_mantissa_209_, v_exponent_210_, v_targetExponent_211_);
-lean_dec(v_targetExponent_211_);
-lean_dec(v_exponent_210_);
-lean_dec(v_mantissa_209_);
-return v_res_212_;
+lean_object* v_res_213_; 
+v_res_213_ = l_Float_Model_UnpackedFloat_decreaseExponent(v_mantissa_210_, v_exponent_211_, v_targetExponent_212_);
+lean_dec(v_targetExponent_212_);
+lean_dec(v_exponent_211_);
+lean_dec(v_mantissa_210_);
+return v_res_213_;
 }
 }
-LEAN_EXPORT lean_object* l_Float_Model_UnpackedFloat_round(lean_object* v_spec_213_, uint8_t v_sign_214_, lean_object* v_mantissa_215_, lean_object* v_exponent_216_){
+lean_object* l_Float_Model_UnpackedFloat_round(lean_object* v_spec_214_, uint8_t v_sign_215_, lean_object* v_mantissa_216_, lean_object* v_exponent_217_){
 _start:
 {
-lean_object* v___x_217_; lean_object* v_targetExponent_218_; lean_object* v___x_219_; lean_object* v_fst_220_; lean_object* v_snd_221_; lean_object* v___x_222_; lean_object* v___x_223_; 
-v___x_217_ = l_Float_Model_totalExponent(v_mantissa_215_, v_exponent_216_);
-v_targetExponent_218_ = l_Float_Model_Format_targetExponent(v_spec_213_, v___x_217_);
-lean_dec(v___x_217_);
-v___x_219_ = l_Float_Model_UnpackedFloat_decreaseExponent(v_mantissa_215_, v_exponent_216_, v_targetExponent_218_);
-lean_dec(v_targetExponent_218_);
-v_fst_220_ = lean_ctor_get(v___x_219_, 0);
-lean_inc(v_fst_220_);
-v_snd_221_ = lean_ctor_get(v___x_219_, 1);
-lean_inc(v_snd_221_);
-lean_dec_ref(v___x_219_);
-v___x_222_ = lean_box(0);
-v___x_223_ = l_Float_Model_UnpackedFloat_roundWithAccuracy(v_spec_213_, v_sign_214_, v_fst_220_, v_snd_221_, v___x_222_);
-lean_dec(v_snd_221_);
-return v___x_223_;
+lean_object* v___x_218_; lean_object* v_targetExponent_219_; lean_object* v___x_220_; lean_object* v_fst_221_; lean_object* v_snd_222_; lean_object* v___x_223_; lean_object* v___x_224_; 
+v___x_218_ = l_Float_Model_totalExponent(v_mantissa_216_, v_exponent_217_);
+v_targetExponent_219_ = l_Float_Model_Format_targetExponent(v_spec_214_, v___x_218_);
+lean_dec(v___x_218_);
+v___x_220_ = l_Float_Model_UnpackedFloat_decreaseExponent(v_mantissa_216_, v_exponent_217_, v_targetExponent_219_);
+lean_dec(v_targetExponent_219_);
+v_fst_221_ = lean_ctor_get(v___x_220_, 0);
+lean_inc(v_fst_221_);
+v_snd_222_ = lean_ctor_get(v___x_220_, 1);
+lean_inc(v_snd_222_);
+lean_dec_ref(v___x_220_);
+v___x_223_ = lean_box(0);
+v___x_224_ = l_Float_Model_UnpackedFloat_roundWithAccuracy(v_spec_214_, v_sign_215_, v_fst_221_, v_snd_222_, v___x_223_);
+lean_dec(v_snd_222_);
+return v___x_224_;
 }
 }
-LEAN_EXPORT lean_object* l_Float_Model_UnpackedFloat_round___boxed(lean_object* v_spec_224_, lean_object* v_sign_225_, lean_object* v_mantissa_226_, lean_object* v_exponent_227_){
+LEAN_EXPORT void l_Float_Model_UnpackedFloat_round_0interp(lean_interpreter_value* stack)
+{
+lean_object* v_spec_214_ = stack[0].m_obj;
+uint8_t v_sign_215_ = stack[1].m_num;
+lean_object* v_mantissa_216_ = stack[2].m_obj;
+lean_object* v_exponent_217_ = stack[3].m_obj;
+lean_object* v_res_225_;
+v_res_225_ = l_Float_Model_UnpackedFloat_round(v_spec_214_, v_sign_215_, v_mantissa_216_, v_exponent_217_);
+stack->m_obj
+ = v_res_225_;
+}
+LEAN_EXPORT lean_object* l_Float_Model_UnpackedFloat_round___boxed(lean_object* v_spec_226_, lean_object* v_sign_227_, lean_object* v_mantissa_228_, lean_object* v_exponent_229_){
 _start:
 {
-uint8_t v_sign_boxed_228_; lean_object* v_res_229_; 
-v_sign_boxed_228_ = lean_unbox(v_sign_225_);
-v_res_229_ = l_Float_Model_UnpackedFloat_round(v_spec_224_, v_sign_boxed_228_, v_mantissa_226_, v_exponent_227_);
-lean_dec(v_exponent_227_);
-lean_dec(v_mantissa_226_);
-lean_dec_ref(v_spec_224_);
-return v_res_229_;
+uint8_t v_sign_boxed_230_; lean_object* v_res_231_; 
+v_sign_boxed_230_ = lean_unbox(v_sign_227_);
+v_res_231_ = l_Float_Model_UnpackedFloat_round(v_spec_226_, v_sign_boxed_230_, v_mantissa_228_, v_exponent_229_);
+lean_dec(v_exponent_229_);
+lean_dec(v_mantissa_228_);
+lean_dec_ref(v_spec_226_);
+return v_res_231_;
 }
 }
 static lean_object* _init_l_Float_Model_UnpackedFloat_normalize___closed__0(void){
 _start:
 {
-lean_object* v___x_230_; lean_object* v___x_231_; 
-v___x_230_ = lean_unsigned_to_nat(0u);
-v___x_231_ = lean_nat_to_int(v___x_230_);
-return v___x_231_;
+lean_object* v___x_232_; lean_object* v___x_233_; 
+v___x_232_ = lean_unsigned_to_nat(0u);
+v___x_233_ = lean_nat_to_int(v___x_232_);
+return v___x_233_;
 }
 }
-LEAN_EXPORT lean_object* l_Float_Model_UnpackedFloat_normalize(lean_object* v_spec_232_, lean_object* v_mantissa_233_, lean_object* v_exponent_234_, uint8_t v_zeroSign_235_){
+lean_object* l_Float_Model_UnpackedFloat_normalize(lean_object* v_spec_234_, lean_object* v_mantissa_235_, lean_object* v_exponent_236_, uint8_t v_zeroSign_237_){
 _start:
 {
-lean_object* v___x_236_; uint8_t v___x_237_; 
-v___x_236_ = lean_obj_once(&l_Float_Model_UnpackedFloat_normalize___closed__0, &l_Float_Model_UnpackedFloat_normalize___closed__0_once, _init_l_Float_Model_UnpackedFloat_normalize___closed__0);
-v___x_237_ = lean_int_dec_lt(v_mantissa_233_, v___x_236_);
-if (v___x_237_ == 0)
+lean_object* v___x_238_; uint8_t v___x_239_; 
+v___x_238_ = lean_obj_once(&l_Float_Model_UnpackedFloat_normalize___closed__0, &l_Float_Model_UnpackedFloat_normalize___closed__0_once, _init_l_Float_Model_UnpackedFloat_normalize___closed__0);
+v___x_239_ = lean_int_dec_lt(v_mantissa_235_, v___x_238_);
+if (v___x_239_ == 0)
 {
-uint8_t v___x_238_; 
-v___x_238_ = lean_int_dec_eq(v_mantissa_233_, v___x_236_);
-if (v___x_238_ == 0)
+uint8_t v___x_240_; 
+v___x_240_ = lean_int_dec_eq(v_mantissa_235_, v___x_238_);
+if (v___x_240_ == 0)
 {
-uint8_t v___x_239_; lean_object* v___x_240_; lean_object* v___x_241_; 
-v___x_239_ = 1;
-v___x_240_ = l_Int_toNat(v_mantissa_233_);
-v___x_241_ = l_Float_Model_UnpackedFloat_round(v_spec_232_, v___x_239_, v___x_240_, v_exponent_234_);
-lean_dec(v___x_240_);
-return v___x_241_;
+uint8_t v___x_241_; lean_object* v___x_242_; lean_object* v___x_243_; 
+v___x_241_ = 1;
+v___x_242_ = l_Int_toNat(v_mantissa_235_);
+v___x_243_ = l_Float_Model_UnpackedFloat_round(v_spec_234_, v___x_241_, v___x_242_, v_exponent_236_);
+lean_dec(v___x_242_);
+return v___x_243_;
 }
 else
 {
-lean_object* v___x_242_; 
-v___x_242_ = lean_alloc_ctor(2, 0, 1);
-lean_ctor_set_uint8(v___x_242_, 0, v_zeroSign_235_);
-return v___x_242_;
+lean_object* v___x_244_; 
+v___x_244_ = lean_alloc_ctor(2, 0, 1);
+lean_ctor_set_uint8(v___x_244_, 0, v_zeroSign_237_);
+return v___x_244_;
 }
 }
 else
 {
-uint8_t v___x_243_; lean_object* v___x_244_; lean_object* v___x_245_; lean_object* v___x_246_; 
-v___x_243_ = 0;
-v___x_244_ = lean_int_neg(v_mantissa_233_);
-v___x_245_ = l_Int_toNat(v___x_244_);
-lean_dec(v___x_244_);
-v___x_246_ = l_Float_Model_UnpackedFloat_round(v_spec_232_, v___x_243_, v___x_245_, v_exponent_234_);
-lean_dec(v___x_245_);
-return v___x_246_;
+uint8_t v___x_245_; lean_object* v___x_246_; lean_object* v___x_247_; lean_object* v___x_248_; 
+v___x_245_ = 0;
+v___x_246_ = lean_int_neg(v_mantissa_235_);
+v___x_247_ = l_Int_toNat(v___x_246_);
+lean_dec(v___x_246_);
+v___x_248_ = l_Float_Model_UnpackedFloat_round(v_spec_234_, v___x_245_, v___x_247_, v_exponent_236_);
+lean_dec(v___x_247_);
+return v___x_248_;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Float_Model_UnpackedFloat_normalize___boxed(lean_object* v_spec_247_, lean_object* v_mantissa_248_, lean_object* v_exponent_249_, lean_object* v_zeroSign_250_){
+LEAN_EXPORT void l_Float_Model_UnpackedFloat_normalize_0interp(lean_interpreter_value* stack)
+{
+lean_object* v_spec_234_ = stack[0].m_obj;
+lean_object* v_mantissa_235_ = stack[1].m_obj;
+lean_object* v_exponent_236_ = stack[2].m_obj;
+uint8_t v_zeroSign_237_ = stack[3].m_num;
+lean_object* v_res_249_;
+v_res_249_ = l_Float_Model_UnpackedFloat_normalize(v_spec_234_, v_mantissa_235_, v_exponent_236_, v_zeroSign_237_);
+stack->m_obj
+ = v_res_249_;
+}
+LEAN_EXPORT lean_object* l_Float_Model_UnpackedFloat_normalize___boxed(lean_object* v_spec_250_, lean_object* v_mantissa_251_, lean_object* v_exponent_252_, lean_object* v_zeroSign_253_){
 _start:
 {
-uint8_t v_zeroSign_boxed_251_; lean_object* v_res_252_; 
-v_zeroSign_boxed_251_ = lean_unbox(v_zeroSign_250_);
-v_res_252_ = l_Float_Model_UnpackedFloat_normalize(v_spec_247_, v_mantissa_248_, v_exponent_249_, v_zeroSign_boxed_251_);
-lean_dec(v_exponent_249_);
-lean_dec(v_mantissa_248_);
-lean_dec_ref(v_spec_247_);
-return v_res_252_;
+uint8_t v_zeroSign_boxed_254_; lean_object* v_res_255_; 
+v_zeroSign_boxed_254_ = lean_unbox(v_zeroSign_253_);
+v_res_255_ = l_Float_Model_UnpackedFloat_normalize(v_spec_250_, v_mantissa_251_, v_exponent_252_, v_zeroSign_boxed_254_);
+lean_dec(v_exponent_252_);
+lean_dec(v_mantissa_251_);
+lean_dec_ref(v_spec_250_);
+return v_res_255_;
 }
 }
 lean_object* runtime_initialize_Init_Data_Float_Model_Unpacked_Basic(uint8_t builtin);

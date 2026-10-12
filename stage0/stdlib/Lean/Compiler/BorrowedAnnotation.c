@@ -32,7 +32,7 @@ v___x_6_ = l_Lean_mkAnnotation(v___x_5_, v_e_4_);
 return v___x_6_;
 }
 }
-LEAN_EXPORT uint8_t l_Lean_isMarkedBorrowed(lean_object* v_e_7_){
+uint8_t l_Lean_isMarkedBorrowed(lean_object* v_e_7_){
 _start:
 {
 lean_object* v___x_8_; lean_object* v___x_9_; 
@@ -53,14 +53,21 @@ return v___x_11_;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lean_isMarkedBorrowed___boxed(lean_object* v_e_12_){
+LEAN_EXPORT void l_Lean_isMarkedBorrowed_0interp(lean_interpreter_value* stack)
+{
+lean_object* v_e_7_ = stack[0].m_obj;
+uint8_t v_res_12_;
+v_res_12_ = l_Lean_isMarkedBorrowed(v_e_7_);
+stack->m_num = v_res_12_;
+}
+LEAN_EXPORT lean_object* l_Lean_isMarkedBorrowed___boxed(lean_object* v_e_13_){
 _start:
 {
-uint8_t v_res_13_; lean_object* v_r_14_; 
-v_res_13_ = l_Lean_isMarkedBorrowed(v_e_12_);
-lean_dec_ref(v_e_12_);
-v_r_14_ = lean_box(v_res_13_);
-return v_r_14_;
+uint8_t v_res_14_; lean_object* v_r_15_; 
+v_res_14_ = l_Lean_isMarkedBorrowed(v_e_13_);
+lean_dec_ref(v_e_13_);
+v_r_15_ = lean_box(v_res_14_);
+return v_r_15_;
 }
 }
 lean_object* runtime_initialize_Lean_Expr(uint8_t builtin);

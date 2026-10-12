@@ -17,7 +17,7 @@ lean_object* lean_nat_mod(lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Nat_decidable__dvd(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Nat_decidable__dvd___boxed(lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_Nat_decidable__dvd(lean_object* v_x_1_, lean_object* v_x_2_){
+uint8_t l_Nat_decidable__dvd(lean_object* v_x_1_, lean_object* v_x_2_){
 _start:
 {
 lean_object* v___x_3_; lean_object* v___x_4_; uint8_t v___x_5_; 
@@ -28,15 +28,23 @@ lean_dec(v___x_3_);
 return v___x_5_;
 }
 }
-LEAN_EXPORT lean_object* l_Nat_decidable__dvd___boxed(lean_object* v_x_6_, lean_object* v_x_7_){
+LEAN_EXPORT void l_Nat_decidable__dvd_0interp(lean_interpreter_value* stack)
+{
+lean_object* v_x_1_ = stack[0].m_obj;
+lean_object* v_x_2_ = stack[1].m_obj;
+uint8_t v_res_6_;
+v_res_6_ = l_Nat_decidable__dvd(v_x_1_, v_x_2_);
+stack->m_num = v_res_6_;
+}
+LEAN_EXPORT lean_object* l_Nat_decidable__dvd___boxed(lean_object* v_x_7_, lean_object* v_x_8_){
 _start:
 {
-uint8_t v_res_8_; lean_object* v_r_9_; 
-v_res_8_ = l_Nat_decidable__dvd(v_x_6_, v_x_7_);
+uint8_t v_res_9_; lean_object* v_r_10_; 
+v_res_9_ = l_Nat_decidable__dvd(v_x_7_, v_x_8_);
+lean_dec(v_x_8_);
 lean_dec(v_x_7_);
-lean_dec(v_x_6_);
-v_r_9_ = lean_box(v_res_8_);
-return v_r_9_;
+v_r_10_ = lean_box(v_res_9_);
+return v_r_10_;
 }
 }
 lean_object* runtime_initialize_Init_Data_Nat_Div_Basic(uint8_t builtin);

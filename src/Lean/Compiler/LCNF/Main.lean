@@ -6,14 +6,13 @@ Authors: Leonardo de Moura
 module
 prelude
 import Lean.Compiler.Options
-import Lean.Compiler.IR
+import Lean.Compiler.Bytecode
 import Lean.Compiler.LCNF.Passes
 import Lean.Compiler.LCNF.ToDecl
 import Lean.Compiler.LCNF.ToImpureType
 import Lean.Compiler.LCNF.Check
 import Lean.Meta.Match.MatcherInfo
 import Lean.Compiler.LCNF.SplitSCC
-public import Lean.Compiler.IR.Basic
 public import Lean.Compiler.LCNF.CompilerM
 
 public section
@@ -212,9 +211,8 @@ partial def run (declNames : Array Name) (baseOpts : Options) : CompilerM Unit :
 
       -- TODO consider doing this in one go afterwards in a separate mapM and running clearPure to save memory
       -- or consider running clear? unclear
-      profileitM Exception "compilation (IR)" (← getOptions) do
-        let irDecls ← IR.toIR decls
-        discard <| IR.compile irDecls
+      profileitM Exception "compilation (bytecode)" (← getOptions) do
+        Bytecode.compile decls
 where
   runPassManagerPart (inPhase outPhase : Purity) (profilerName : String)
       (passes : Array Pass) (decls : Array (Decl inPhase)) (isCheckEnabled : Bool) :

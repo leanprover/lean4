@@ -154,7 +154,7 @@ lean_dec(v_lo_36_);
 return v_res_38_;
 }
 }
-LEAN_EXPORT lean_object* l_BitVec_instRxcHasSize___redArg(){
+lean_object* l_BitVec_instRxcHasSize___redArg(){
 _start:
 {
 lean_object* v___f_41_; 
@@ -162,115 +162,129 @@ v___f_41_ = ((lean_object*)(l_BitVec_instRxcHasSize___redArg___closed__0));
 return v___f_41_;
 }
 }
-LEAN_EXPORT lean_object* l_BitVec_instRxcHasSize___redArg___boxed(lean_object* v___dummy_42_){
+LEAN_EXPORT void l_BitVec_instRxcHasSize___redArg_0interp(lean_interpreter_value* stack)
+{
+lean_object* v_res_42_;
+v_res_42_ = l_BitVec_instRxcHasSize___redArg();
+stack->m_obj
+ = v_res_42_;
+}
+LEAN_EXPORT lean_object* l_BitVec_instRxcHasSize___redArg___boxed(lean_object* v___dummy_43_){
 _start:
 {
-lean_object* v_res_43_; 
-v_res_43_ = l_BitVec_instRxcHasSize___redArg();
-return v_res_43_;
+lean_object* v_res_44_; 
+v_res_44_ = l_BitVec_instRxcHasSize___redArg();
+return v_res_44_;
 }
 }
-LEAN_EXPORT lean_object* l_BitVec_instRxcHasSize(lean_object* v_n_44_){
+LEAN_EXPORT lean_object* l_BitVec_instRxcHasSize(lean_object* v_n_45_){
 _start:
 {
-lean_object* v___f_45_; 
-v___f_45_ = ((lean_object*)(l_BitVec_instRxcHasSize___redArg___closed__0));
-return v___f_45_;
+lean_object* v___f_46_; 
+v___f_46_ = ((lean_object*)(l_BitVec_instRxcHasSize___redArg___closed__0));
+return v___f_46_;
 }
 }
-LEAN_EXPORT lean_object* l_BitVec_instRxcHasSize___boxed(lean_object* v_n_46_){
+LEAN_EXPORT lean_object* l_BitVec_instRxcHasSize___boxed(lean_object* v_n_47_){
 _start:
 {
-lean_object* v_res_47_; 
-v_res_47_ = l_BitVec_instRxcHasSize(v_n_46_);
-lean_dec(v_n_46_);
-return v_res_47_;
+lean_object* v_res_48_; 
+v_res_48_ = l_BitVec_instRxcHasSize(v_n_47_);
+lean_dec(v_n_47_);
+return v_res_48_;
 }
 }
-LEAN_EXPORT lean_object* l_BitVec_instRxoHasSize___redArg___lam__0(lean_object* v_lo_48_, lean_object* v_hi_49_){
+LEAN_EXPORT lean_object* l_BitVec_instRxoHasSize___redArg___lam__0(lean_object* v_lo_49_, lean_object* v_hi_50_){
 _start:
 {
-lean_object* v___x_50_; lean_object* v___x_51_; lean_object* v___x_52_; lean_object* v___x_53_; 
-v___x_50_ = lean_unsigned_to_nat(1u);
-v___x_51_ = lean_nat_add(v_hi_49_, v___x_50_);
-v___x_52_ = lean_nat_sub(v___x_51_, v_lo_48_);
-lean_dec(v___x_51_);
-v___x_53_ = lean_nat_sub(v___x_52_, v___x_50_);
+lean_object* v___x_51_; lean_object* v___x_52_; lean_object* v___x_53_; lean_object* v___x_54_; 
+v___x_51_ = lean_unsigned_to_nat(1u);
+v___x_52_ = lean_nat_add(v_hi_50_, v___x_51_);
+v___x_53_ = lean_nat_sub(v___x_52_, v_lo_49_);
 lean_dec(v___x_52_);
-return v___x_53_;
+v___x_54_ = lean_nat_sub(v___x_53_, v___x_51_);
+lean_dec(v___x_53_);
+return v___x_54_;
 }
 }
-LEAN_EXPORT lean_object* l_BitVec_instRxoHasSize___redArg___lam__0___boxed(lean_object* v_lo_54_, lean_object* v_hi_55_){
+LEAN_EXPORT lean_object* l_BitVec_instRxoHasSize___redArg___lam__0___boxed(lean_object* v_lo_55_, lean_object* v_hi_56_){
 _start:
 {
-lean_object* v_res_56_; 
-v_res_56_ = l_BitVec_instRxoHasSize___redArg___lam__0(v_lo_54_, v_hi_55_);
-lean_dec(v_hi_55_);
-lean_dec(v_lo_54_);
-return v_res_56_;
+lean_object* v_res_57_; 
+v_res_57_ = l_BitVec_instRxoHasSize___redArg___lam__0(v_lo_55_, v_hi_56_);
+lean_dec(v_hi_56_);
+lean_dec(v_lo_55_);
+return v_res_57_;
 }
 }
-LEAN_EXPORT lean_object* l_BitVec_instRxoHasSize___redArg(){
+lean_object* l_BitVec_instRxoHasSize___redArg(){
 _start:
 {
-lean_object* v___f_59_; 
-v___f_59_ = ((lean_object*)(l_BitVec_instRxoHasSize___redArg___closed__0));
-return v___f_59_;
+lean_object* v___f_60_; 
+v___f_60_ = ((lean_object*)(l_BitVec_instRxoHasSize___redArg___closed__0));
+return v___f_60_;
 }
 }
-LEAN_EXPORT lean_object* l_BitVec_instRxoHasSize___redArg___boxed(lean_object* v___dummy_60_){
-_start:
+LEAN_EXPORT void l_BitVec_instRxoHasSize___redArg_0interp(lean_interpreter_value* stack)
 {
-lean_object* v_res_61_; 
+lean_object* v_res_61_;
 v_res_61_ = l_BitVec_instRxoHasSize___redArg();
-return v_res_61_;
+stack->m_obj
+ = v_res_61_;
 }
-}
-LEAN_EXPORT lean_object* l_BitVec_instRxoHasSize(lean_object* v_n_62_){
+LEAN_EXPORT lean_object* l_BitVec_instRxoHasSize___redArg___boxed(lean_object* v___dummy_62_){
 _start:
 {
-lean_object* v___f_63_; 
-v___f_63_ = ((lean_object*)(l_BitVec_instRxoHasSize___redArg___closed__0));
-return v___f_63_;
+lean_object* v_res_63_; 
+v_res_63_ = l_BitVec_instRxoHasSize___redArg();
+return v_res_63_;
 }
 }
-LEAN_EXPORT lean_object* l_BitVec_instRxoHasSize___boxed(lean_object* v_n_64_){
+LEAN_EXPORT lean_object* l_BitVec_instRxoHasSize(lean_object* v_n_64_){
 _start:
 {
-lean_object* v_res_65_; 
-v_res_65_ = l_BitVec_instRxoHasSize(v_n_64_);
-lean_dec(v_n_64_);
-return v_res_65_;
+lean_object* v___f_65_; 
+v___f_65_ = ((lean_object*)(l_BitVec_instRxoHasSize___redArg___closed__0));
+return v___f_65_;
 }
 }
-LEAN_EXPORT lean_object* l_BitVec_instRxiHasSize___lam__0(lean_object* v_n_66_, lean_object* v_lo_67_){
+LEAN_EXPORT lean_object* l_BitVec_instRxoHasSize___boxed(lean_object* v_n_66_){
 _start:
 {
-lean_object* v___x_68_; lean_object* v___x_69_; lean_object* v___x_70_; 
-v___x_68_ = lean_unsigned_to_nat(2u);
-v___x_69_ = lean_nat_pow(v___x_68_, v_n_66_);
-v___x_70_ = lean_nat_sub(v___x_69_, v_lo_67_);
-lean_dec(v___x_69_);
-return v___x_70_;
+lean_object* v_res_67_; 
+v_res_67_ = l_BitVec_instRxoHasSize(v_n_66_);
+lean_dec(v_n_66_);
+return v_res_67_;
 }
 }
-LEAN_EXPORT lean_object* l_BitVec_instRxiHasSize___lam__0___boxed(lean_object* v_n_71_, lean_object* v_lo_72_){
+LEAN_EXPORT lean_object* l_BitVec_instRxiHasSize___lam__0(lean_object* v_n_68_, lean_object* v_lo_69_){
 _start:
 {
-lean_object* v_res_73_; 
-v_res_73_ = l_BitVec_instRxiHasSize___lam__0(v_n_71_, v_lo_72_);
-lean_dec(v_lo_72_);
-lean_dec(v_n_71_);
-return v_res_73_;
+lean_object* v___x_70_; lean_object* v___x_71_; lean_object* v___x_72_; 
+v___x_70_ = lean_unsigned_to_nat(2u);
+v___x_71_ = lean_nat_pow(v___x_70_, v_n_68_);
+v___x_72_ = lean_nat_sub(v___x_71_, v_lo_69_);
+lean_dec(v___x_71_);
+return v___x_72_;
 }
 }
-LEAN_EXPORT lean_object* l_BitVec_instRxiHasSize(lean_object* v_n_74_){
+LEAN_EXPORT lean_object* l_BitVec_instRxiHasSize___lam__0___boxed(lean_object* v_n_73_, lean_object* v_lo_74_){
 _start:
 {
-lean_object* v___f_75_; 
-v___f_75_ = lean_alloc_closure((void*)(l_BitVec_instRxiHasSize___lam__0___boxed), 2, 1);
-lean_closure_set(v___f_75_, 0, v_n_74_);
-return v___f_75_;
+lean_object* v_res_75_; 
+v_res_75_ = l_BitVec_instRxiHasSize___lam__0(v_n_73_, v_lo_74_);
+lean_dec(v_lo_74_);
+lean_dec(v_n_73_);
+return v_res_75_;
+}
+}
+LEAN_EXPORT lean_object* l_BitVec_instRxiHasSize(lean_object* v_n_76_){
+_start:
+{
+lean_object* v___f_77_; 
+v___f_77_ = lean_alloc_closure((void*)(l_BitVec_instRxiHasSize___lam__0___boxed), 2, 1);
+lean_closure_set(v___f_77_, 0, v_n_76_);
+return v___f_77_;
 }
 }
 lean_object* runtime_initialize_Init_Data_Range_Polymorphic_Instances(uint8_t builtin);

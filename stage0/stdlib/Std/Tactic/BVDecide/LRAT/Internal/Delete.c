@@ -60,7 +60,7 @@ lean_dec(v_idx_10_);
 return v_res_11_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Std_Tactic_BVDecide_LRAT_Internal_State_deleteMany_spec__0(lean_object* v_as_12_, size_t v_i_13_, size_t v_stop_14_, lean_object* v_b_15_){
+lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Std_Tactic_BVDecide_LRAT_Internal_State_deleteMany_spec__0(lean_object* v_as_12_, size_t v_i_13_, size_t v_stop_14_, lean_object* v_b_15_){
 _start:
 {
 lean_object* v___y_17_; uint8_t v___x_21_; 
@@ -104,67 +104,78 @@ goto _start;
 }
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Std_Tactic_BVDecide_LRAT_Internal_State_deleteMany_spec__0___boxed(lean_object* v_as_29_, lean_object* v_i_30_, lean_object* v_stop_31_, lean_object* v_b_32_){
+LEAN_EXPORT void l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Std_Tactic_BVDecide_LRAT_Internal_State_deleteMany_spec__0_0interp(lean_interpreter_value* stack)
+{
+lean_object* v_as_12_ = stack[0].m_obj;
+size_t v_i_13_ = stack[1].m_num;
+size_t v_stop_14_ = stack[2].m_num;
+lean_object* v_b_15_ = stack[3].m_obj;
+lean_object* v_res_29_;
+v_res_29_ = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Std_Tactic_BVDecide_LRAT_Internal_State_deleteMany_spec__0(v_as_12_, v_i_13_, v_stop_14_, v_b_15_);
+stack->m_obj
+ = v_res_29_;
+}
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Std_Tactic_BVDecide_LRAT_Internal_State_deleteMany_spec__0___boxed(lean_object* v_as_30_, lean_object* v_i_31_, lean_object* v_stop_32_, lean_object* v_b_33_){
 _start:
 {
-size_t v_i_boxed_33_; size_t v_stop_boxed_34_; lean_object* v_res_35_; 
-v_i_boxed_33_ = lean_unbox_usize(v_i_30_);
-lean_dec(v_i_30_);
-v_stop_boxed_34_ = lean_unbox_usize(v_stop_31_);
-lean_dec(v_stop_31_);
-v_res_35_ = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Std_Tactic_BVDecide_LRAT_Internal_State_deleteMany_spec__0(v_as_29_, v_i_boxed_33_, v_stop_boxed_34_, v_b_32_);
-lean_dec_ref(v_as_29_);
-return v_res_35_;
+size_t v_i_boxed_34_; size_t v_stop_boxed_35_; lean_object* v_res_36_; 
+v_i_boxed_34_ = lean_unbox_usize(v_i_31_);
+lean_dec(v_i_31_);
+v_stop_boxed_35_ = lean_unbox_usize(v_stop_32_);
+lean_dec(v_stop_32_);
+v_res_36_ = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Std_Tactic_BVDecide_LRAT_Internal_State_deleteMany_spec__0(v_as_30_, v_i_boxed_34_, v_stop_boxed_35_, v_b_33_);
+lean_dec_ref(v_as_30_);
+return v_res_36_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_State_deleteMany(lean_object* v_s_36_, lean_object* v_idxs_37_){
+LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_State_deleteMany(lean_object* v_s_37_, lean_object* v_idxs_38_){
 _start:
 {
-lean_object* v___x_38_; lean_object* v___x_39_; uint8_t v___x_40_; 
-v___x_38_ = lean_unsigned_to_nat(0u);
-v___x_39_ = lean_array_get_size(v_idxs_37_);
-v___x_40_ = lean_nat_dec_lt(v___x_38_, v___x_39_);
-if (v___x_40_ == 0)
-{
-return v_s_36_;
-}
-else
-{
-uint8_t v___x_41_; 
-v___x_41_ = lean_nat_dec_le(v___x_39_, v___x_39_);
+lean_object* v___x_39_; lean_object* v___x_40_; uint8_t v___x_41_; 
+v___x_39_ = lean_unsigned_to_nat(0u);
+v___x_40_ = lean_array_get_size(v_idxs_38_);
+v___x_41_ = lean_nat_dec_lt(v___x_39_, v___x_40_);
 if (v___x_41_ == 0)
 {
-if (v___x_40_ == 0)
-{
-return v_s_36_;
+return v_s_37_;
 }
 else
 {
-size_t v___x_42_; size_t v___x_43_; lean_object* v___x_44_; 
-v___x_42_ = ((size_t)0ULL);
-v___x_43_ = lean_usize_of_nat(v___x_39_);
-v___x_44_ = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Std_Tactic_BVDecide_LRAT_Internal_State_deleteMany_spec__0(v_idxs_37_, v___x_42_, v___x_43_, v_s_36_);
-return v___x_44_;
+uint8_t v___x_42_; 
+v___x_42_ = lean_nat_dec_le(v___x_40_, v___x_40_);
+if (v___x_42_ == 0)
+{
+if (v___x_41_ == 0)
+{
+return v_s_37_;
+}
+else
+{
+size_t v___x_43_; size_t v___x_44_; lean_object* v___x_45_; 
+v___x_43_ = ((size_t)0ULL);
+v___x_44_ = lean_usize_of_nat(v___x_40_);
+v___x_45_ = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Std_Tactic_BVDecide_LRAT_Internal_State_deleteMany_spec__0(v_idxs_38_, v___x_43_, v___x_44_, v_s_37_);
+return v___x_45_;
 }
 }
 else
 {
-size_t v___x_45_; size_t v___x_46_; lean_object* v___x_47_; 
-v___x_45_ = ((size_t)0ULL);
-v___x_46_ = lean_usize_of_nat(v___x_39_);
-v___x_47_ = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Std_Tactic_BVDecide_LRAT_Internal_State_deleteMany_spec__0(v_idxs_37_, v___x_45_, v___x_46_, v_s_36_);
-return v___x_47_;
+size_t v___x_46_; size_t v___x_47_; lean_object* v___x_48_; 
+v___x_46_ = ((size_t)0ULL);
+v___x_47_ = lean_usize_of_nat(v___x_40_);
+v___x_48_ = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Std_Tactic_BVDecide_LRAT_Internal_State_deleteMany_spec__0(v_idxs_38_, v___x_46_, v___x_47_, v_s_37_);
+return v___x_48_;
 }
 }
 }
 }
-LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_State_deleteMany___boxed(lean_object* v_s_48_, lean_object* v_idxs_49_){
+LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_State_deleteMany___boxed(lean_object* v_s_49_, lean_object* v_idxs_50_){
 _start:
 {
-lean_object* v_res_50_; 
-v_res_50_ = l_Std_Tactic_BVDecide_LRAT_Internal_State_deleteMany(v_s_48_, v_idxs_49_);
-lean_dec_ref(v_idxs_49_);
-return v_res_50_;
+lean_object* v_res_51_; 
+v_res_51_ = l_Std_Tactic_BVDecide_LRAT_Internal_State_deleteMany(v_s_49_, v_idxs_50_);
+lean_dec_ref(v_idxs_50_);
+return v_res_51_;
 }
 }
 lean_object* runtime_initialize_Std_Tactic_BVDecide_LRAT_Internal_Basic(uint8_t builtin);

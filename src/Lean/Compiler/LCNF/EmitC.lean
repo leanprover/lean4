@@ -43,6 +43,11 @@ def Lean.Expr.toCType : Expr → String
   | void => "lean_object*"
   | _ => unreachable!
 
+/-- Returns whether the type behaves like `tobject` -/
+def Lean.Expr.isPtrType : Expr → Bool
+  | object | tagged | tobject | erased => true
+  | _ => false
+
 def Lean.Expr.unboxOpName (t : Expr) : String :=
   match t with
   | usize => "lean_unbox_usize"
@@ -922,18 +927,69 @@ partial def emitCode (code : Code .impure) : EmitM Unit := do
 
 end
 
+def emitInterpDecl (decl : Decl .impure) : EmitM Unit := do
+  let f := decl.name
+  let xs := decl.params
+  let type := decl.type
+  let baseName := getSymbolStem (← getEnv) decl.name
+  emit "LEAN_EXPORT void "; emit baseName; emitLn "_0interp(lean_interpreter_value* stack)"
+  withEmitBlock do
+    let mut args : Array (Arg .impure) := #[]
+    let mut j := 0
+    for x in xs do
+      if x.type.isVoid then
+        args := args.push .erased
+        continue
+      else if x.type.isErased then
+        args := args.push .erased
+        j := j + 1
+        continue
+      args := args.push (.fvar x.fvarId)
+      emit x.type.toCType; emit " "; emit x.fvarId; emit " = "
+      match x.type with
+      | uint8 | uint16 | uint32 | uint64 | usize => emitLn s!"stack[{j}].m_num;"
+      | float => emitLn s!"stack[{j}].m_float;"
+      | float32 => emitLn s!"stack[{j}].m_float32;"
+      | tagged | object | tobject | erased => emitLn s!"stack[{j}].m_obj;"
+      | void => unreachable!
+      | _ => throwError "Type {x.type} not implemented yet for interpreter decls"
+      j := j + 1
+    let id ← modifyGetThe CompilerM.State fun s => (s.nextIdx, { s with nextIdx := s.nextIdx + 1 })
+    let resName := .num `res id
+    emit type.toCType; emit " "; emit resName; emitLn ";"
+    let letDecl ← mkLetDecl resName type (.fap f args)
+    emitLetDecl letDecl
+    match type with
+    | uint8 | uint16 | uint32 | uint64 | usize => emit "stack->m_num"
+    | float => emitLn s!"stack->m_float"
+    | float32 => emitLn s!"stack->m_float32"
+    | tagged | object | tobject | erased | void => emitLn s!"stack->m_obj"
+    | _ => throwError "Type {type} not implemented yet for interpreter decls"
+    emit " = "; emit resName; emitLn ";"
+
 def emitDecl (decl : Decl .impure) : EmitM Unit := do
   let env ← getEnv
   if hasInitAttr env decl.name || isSimpleGroundDecl env decl.name then
     return ()
   match decl.value with
-  | .extern .. => return ()
+  | .extern .. => emitInterpDecl decl
   | .code code =>
     let baseName ← toCName decl.name
     let ps := decl.params
+    /-
+    We only use a special interpreter convention for function with `<= closureMaxArgs` arguments
+    that take in and return pointers. For nullary functions (constants) this is not necessary.
+    Furthermore, every boxed declaration automatically has the right amount of args and thus
+    doesn't need an intepreter declaration.
+    -/
+    let needInterp :=
+      (ps.size > closureMaxArgs
+        || !ps.all (·.type.isPtrType) --
+        || (!ps.isEmpty && !decl.type.isPtrType))
+      && !isBoxedName decl.name
     if ps.isEmpty then
       emit "static "
-    else
+    else if !needInterp then -- no need to expose non-interpreter declarations
       -- make the symbol visible to the interpreter for native execution
       emit "LEAN_EXPORT "
 
@@ -964,6 +1020,8 @@ def emitDecl (decl : Decl .impure) : EmitM Unit := do
       emitLn "_start:"
       withReader (fun ctx => { ctx with currFn := decl.name, currParams := ps }) do
         emitCode code
+    if needInterp then
+      emitInterpDecl decl
 
 def emitFns : EmitM Unit := do
   (← getLocalDecls).forM go

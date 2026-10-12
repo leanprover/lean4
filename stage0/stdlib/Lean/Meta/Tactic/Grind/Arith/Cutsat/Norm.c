@@ -65,7 +65,7 @@ static const lean_ctor_object l_Lean_Meta_Grind_Arith_Cutsat_toLinearExpr___clos
 static const lean_object* l_Lean_Meta_Grind_Arith_Cutsat_toLinearExpr___closed__14 = (const lean_object*)&l_Lean_Meta_Grind_Arith_Cutsat_toLinearExpr___closed__14_value;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Cutsat_toLinearExpr(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Cutsat_toLinearExpr___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Cutsat_toLinearExpr(lean_object* v_e_26_, lean_object* v_generation_27_, lean_object* v_a_28_, lean_object* v_a_29_, lean_object* v_a_30_, lean_object* v_a_31_, lean_object* v_a_32_, lean_object* v_a_33_, lean_object* v_a_34_, lean_object* v_a_35_, lean_object* v_a_36_, lean_object* v_a_37_){
+lean_object* l_Lean_Meta_Grind_Arith_Cutsat_toLinearExpr(lean_object* v_e_26_, lean_object* v_generation_27_, lean_object* v_a_28_, lean_object* v_a_29_, lean_object* v_a_30_, lean_object* v_a_31_, lean_object* v_a_32_, lean_object* v_a_33_, lean_object* v_a_34_, lean_object* v_a_35_, lean_object* v_a_36_, lean_object* v_a_37_){
 _start:
 {
 lean_object* v_e_40_; lean_object* v___y_41_; lean_object* v___y_42_; lean_object* v___y_43_; lean_object* v___y_44_; lean_object* v___y_45_; lean_object* v___y_46_; lean_object* v___y_47_; lean_object* v___y_48_; lean_object* v___y_49_; lean_object* v___y_50_; lean_object* v___x_118_; 
@@ -1599,22 +1599,41 @@ return v___x_115_;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Cutsat_toLinearExpr___boxed(lean_object* v_e_304_, lean_object* v_generation_305_, lean_object* v_a_306_, lean_object* v_a_307_, lean_object* v_a_308_, lean_object* v_a_309_, lean_object* v_a_310_, lean_object* v_a_311_, lean_object* v_a_312_, lean_object* v_a_313_, lean_object* v_a_314_, lean_object* v_a_315_, lean_object* v_a_316_){
+LEAN_EXPORT void l_Lean_Meta_Grind_Arith_Cutsat_toLinearExpr_0interp(lean_interpreter_value* stack)
+{
+lean_object* v_e_26_ = stack[0].m_obj;
+lean_object* v_generation_27_ = stack[1].m_obj;
+lean_object* v_a_28_ = stack[2].m_obj;
+lean_object* v_a_29_ = stack[3].m_obj;
+lean_object* v_a_30_ = stack[4].m_obj;
+lean_object* v_a_31_ = stack[5].m_obj;
+lean_object* v_a_32_ = stack[6].m_obj;
+lean_object* v_a_33_ = stack[7].m_obj;
+lean_object* v_a_34_ = stack[8].m_obj;
+lean_object* v_a_35_ = stack[9].m_obj;
+lean_object* v_a_36_ = stack[10].m_obj;
+lean_object* v_a_37_ = stack[11].m_obj;
+lean_object* v_res_304_;
+v_res_304_ = l_Lean_Meta_Grind_Arith_Cutsat_toLinearExpr(v_e_26_, v_generation_27_, v_a_28_, v_a_29_, v_a_30_, v_a_31_, v_a_32_, v_a_33_, v_a_34_, v_a_35_, v_a_36_, v_a_37_);
+stack->m_obj
+ = v_res_304_;
+}
+LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Cutsat_toLinearExpr___boxed(lean_object* v_e_305_, lean_object* v_generation_306_, lean_object* v_a_307_, lean_object* v_a_308_, lean_object* v_a_309_, lean_object* v_a_310_, lean_object* v_a_311_, lean_object* v_a_312_, lean_object* v_a_313_, lean_object* v_a_314_, lean_object* v_a_315_, lean_object* v_a_316_, lean_object* v_a_317_){
 _start:
 {
-lean_object* v_res_317_; 
-v_res_317_ = l_Lean_Meta_Grind_Arith_Cutsat_toLinearExpr(v_e_304_, v_generation_305_, v_a_306_, v_a_307_, v_a_308_, v_a_309_, v_a_310_, v_a_311_, v_a_312_, v_a_313_, v_a_314_, v_a_315_);
-lean_dec(v_a_315_);
-lean_dec_ref(v_a_314_);
-lean_dec(v_a_313_);
-lean_dec_ref(v_a_312_);
-lean_dec(v_a_311_);
-lean_dec_ref(v_a_310_);
-lean_dec(v_a_309_);
-lean_dec_ref(v_a_308_);
+lean_object* v_res_318_; 
+v_res_318_ = l_Lean_Meta_Grind_Arith_Cutsat_toLinearExpr(v_e_305_, v_generation_306_, v_a_307_, v_a_308_, v_a_309_, v_a_310_, v_a_311_, v_a_312_, v_a_313_, v_a_314_, v_a_315_, v_a_316_);
+lean_dec(v_a_316_);
+lean_dec_ref(v_a_315_);
+lean_dec(v_a_314_);
+lean_dec_ref(v_a_313_);
+lean_dec(v_a_312_);
+lean_dec_ref(v_a_311_);
+lean_dec(v_a_310_);
+lean_dec_ref(v_a_309_);
+lean_dec(v_a_308_);
 lean_dec(v_a_307_);
-lean_dec(v_a_306_);
-return v_res_317_;
+return v_res_318_;
 }
 }
 lean_object* runtime_initialize_Lean_Meta_Tactic_Grind_Arith_Cutsat_Util(uint8_t builtin);

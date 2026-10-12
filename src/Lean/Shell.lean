@@ -34,21 +34,7 @@ opaque decodeLossyUTF8 (a : @& ByteArray) : String
 
 /- Runs the `main` function of the module with `args` using the Lean interpreter. -/
 @[extern "lean_eval_main"]
-opaque runMain (env : @& Environment) (opts : @& Options) (args : @& List String) : BaseIO UInt32
-
-/--
-Initializes the LLVM subsystem.
-If Lean lacks LLVM support, this function will fail with an assertion violation.
--/
-@[extern "lean_init_llvm"]
-opaque initLLVM : IO Unit
-
-/--
-Emits LLVM bitcode for the module.
-Before calling this function, the LLVM subsystem must first be successfully initialized.
--/
-@[extern "lean_emit_llvm"]
-opaque emitLLVM (env : Environment) (modName : Name) (filepath : FilePath) : IO Unit
+opaque runMain (env : Environment) (opts : Options) (args : List String) : BaseIO UInt32
 
 /-- Whether Lean was built with an address sanitizer enabled. -/
 @[extern "lean_internal_has_address_sanitizer"]
@@ -566,9 +552,7 @@ def shellMain (args : List String) (opts : ShellOptions) : IO UInt32 := do
             |>.toIO' { fileName, fileMap := default } { env }
           out.write data.toUTF8
     if let some bc := opts.bcFileName? then
-      initLLVM
-      profileitIO "LLVM code generation" opts.leanOpts do
-        emitLLVM env mainModuleName bc
+      throw <| .userError "Can't compile LLVM"
   displayCumulativeProfilingTimes
   if Internal.hasAddressSanitizer () then
     return if env?.isSome then 0 else 1

@@ -20,9 +20,7 @@ extern "C" object* initialize_Init(uint8_t);
 extern "C" object* initialize_Std(uint8_t);
 extern "C" object* initialize_Lean(uint8_t);
 extern "C" object* initialize_Lean_Compiler_ExportAttr(uint8_t);
-extern "C" object* initialize_Lean_Compiler_IR_CompilerM(uint8_t);
-extern "C" object* initialize_Lean_Compiler_IR_EmitLLVM(uint8_t);
-extern "C" object* initialize_Lean_Compiler_IR_Format(uint8_t);
+extern "C" object* initialize_Lean_Compiler_Bytecode_Eval(uint8_t);
 extern "C" object* initialize_Lean_Compiler_InitAttr(uint8_t);
 extern "C" object* initialize_Lean_Compiler_ModPkgExt(uint8_t);
 extern "C" object* initialize_Lean_Compiler_NameMangling(uint8_t);
@@ -53,9 +51,7 @@ static bool g_initialized = false;
    `src/initialize/CMakeLists.txt`. */
 static void initialize_minimal_core(uint8_t builtin) {
     consume_io_result(initialize_Lean_Compiler_ExportAttr(builtin));
-    consume_io_result(initialize_Lean_Compiler_IR_CompilerM(builtin));
-    consume_io_result(initialize_Lean_Compiler_IR_EmitLLVM(builtin));
-    consume_io_result(initialize_Lean_Compiler_IR_Format(builtin));
+    consume_io_result(initialize_Lean_Compiler_Bytecode_Eval(builtin));
     consume_io_result(initialize_Lean_Compiler_InitAttr(builtin));
     consume_io_result(initialize_Lean_Compiler_ModPkgExt(builtin));
     consume_io_result(initialize_Lean_Compiler_NameMangling(builtin));

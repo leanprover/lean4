@@ -40,142 +40,185 @@ static lean_object* l_System_Platform_target___closed__0;
 LEAN_EXPORT lean_object* l_System_Platform_target;
 uint32_t lean_internal_get_hardware_concurrency(lean_object*);
 LEAN_EXPORT lean_object* l_System_Platform_Internal_getHardwareConcurrency___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_System_Platform_getIsWindows___boxed(lean_object* v_a_00___x40___internal___hyg_2_){
+LEAN_EXPORT void l_System_Platform_getIsWindows_0interp(lean_interpreter_value* stack)
+{
+lean_object* v_a_00___x40___internal___hyg_1_ = stack[0].m_obj;
+uint8_t v_res_2_;
+v_res_2_ = lean_system_platform_windows(v_a_00___x40___internal___hyg_1_);
+stack->m_num = v_res_2_;
+}
+LEAN_EXPORT lean_object* l_System_Platform_getIsWindows___boxed(lean_object* v_a_00___x40___internal___hyg_3_){
 _start:
 {
-uint8_t v_res_3_; lean_object* v_r_4_; 
-v_res_3_ = lean_system_platform_windows(v_a_00___x40___internal___hyg_2_);
-v_r_4_ = lean_box(v_res_3_);
-return v_r_4_;
+uint8_t v_res_4_; lean_object* v_r_5_; 
+v_res_4_ = lean_system_platform_windows(v_a_00___x40___internal___hyg_3_);
+v_r_5_ = lean_box(v_res_4_);
+return v_r_5_;
 }
 }
-LEAN_EXPORT lean_object* l_System_Platform_getIsOSX___boxed(lean_object* v_a_00___x40___internal___hyg_6_){
-_start:
+LEAN_EXPORT void l_System_Platform_getIsOSX_0interp(lean_interpreter_value* stack)
 {
-uint8_t v_res_7_; lean_object* v_r_8_; 
+lean_object* v_a_00___x40___internal___hyg_6_ = stack[0].m_obj;
+uint8_t v_res_7_;
 v_res_7_ = lean_system_platform_osx(v_a_00___x40___internal___hyg_6_);
-v_r_8_ = lean_box(v_res_7_);
-return v_r_8_;
+stack->m_num = v_res_7_;
 }
-}
-LEAN_EXPORT lean_object* l_System_Platform_getIsLinux___boxed(lean_object* v_a_00___x40___internal___hyg_10_){
+LEAN_EXPORT lean_object* l_System_Platform_getIsOSX___boxed(lean_object* v_a_00___x40___internal___hyg_8_){
 _start:
 {
-uint8_t v_res_11_; lean_object* v_r_12_; 
-v_res_11_ = lean_system_platform_linux(v_a_00___x40___internal___hyg_10_);
-v_r_12_ = lean_box(v_res_11_);
-return v_r_12_;
+uint8_t v_res_9_; lean_object* v_r_10_; 
+v_res_9_ = lean_system_platform_osx(v_a_00___x40___internal___hyg_8_);
+v_r_10_ = lean_box(v_res_9_);
+return v_r_10_;
 }
 }
-LEAN_EXPORT lean_object* l_System_Platform_getIsEmscripten___boxed(lean_object* v_a_00___x40___internal___hyg_14_){
+LEAN_EXPORT void l_System_Platform_getIsLinux_0interp(lean_interpreter_value* stack)
+{
+lean_object* v_a_00___x40___internal___hyg_11_ = stack[0].m_obj;
+uint8_t v_res_12_;
+v_res_12_ = lean_system_platform_linux(v_a_00___x40___internal___hyg_11_);
+stack->m_num = v_res_12_;
+}
+LEAN_EXPORT lean_object* l_System_Platform_getIsLinux___boxed(lean_object* v_a_00___x40___internal___hyg_13_){
 _start:
 {
-uint8_t v_res_15_; lean_object* v_r_16_; 
-v_res_15_ = lean_system_platform_emscripten(v_a_00___x40___internal___hyg_14_);
-v_r_16_ = lean_box(v_res_15_);
-return v_r_16_;
+uint8_t v_res_14_; lean_object* v_r_15_; 
+v_res_14_ = lean_system_platform_linux(v_a_00___x40___internal___hyg_13_);
+v_r_15_ = lean_box(v_res_14_);
+return v_r_15_;
+}
+}
+LEAN_EXPORT void l_System_Platform_getIsEmscripten_0interp(lean_interpreter_value* stack)
+{
+lean_object* v_a_00___x40___internal___hyg_16_ = stack[0].m_obj;
+uint8_t v_res_17_;
+v_res_17_ = lean_system_platform_emscripten(v_a_00___x40___internal___hyg_16_);
+stack->m_num = v_res_17_;
+}
+LEAN_EXPORT lean_object* l_System_Platform_getIsEmscripten___boxed(lean_object* v_a_00___x40___internal___hyg_18_){
+_start:
+{
+uint8_t v_res_19_; lean_object* v_r_20_; 
+v_res_19_ = lean_system_platform_emscripten(v_a_00___x40___internal___hyg_18_);
+v_r_20_ = lean_box(v_res_19_);
+return v_r_20_;
 }
 }
 static uint8_t _init_l_System_Platform_isWindows___closed__0(void){
 _start:
 {
-lean_object* v___x_17_; uint8_t v___x_18_; 
-v___x_17_ = lean_box(0);
-v___x_18_ = lean_system_platform_windows(v___x_17_);
-return v___x_18_;
+lean_object* v___x_21_; uint8_t v___x_22_; 
+v___x_21_ = lean_box(0);
+v___x_22_ = lean_system_platform_windows(v___x_21_);
+return v___x_22_;
 }
 }
 static uint8_t _init_l_System_Platform_isWindows(void){
 _start:
 {
-uint8_t v___x_19_; 
-v___x_19_ = lean_uint8_once(&l_System_Platform_isWindows___closed__0, &l_System_Platform_isWindows___closed__0_once, _init_l_System_Platform_isWindows___closed__0);
-return v___x_19_;
+uint8_t v___x_23_; 
+v___x_23_ = lean_uint8_once(&l_System_Platform_isWindows___closed__0, &l_System_Platform_isWindows___closed__0_once, _init_l_System_Platform_isWindows___closed__0);
+return v___x_23_;
 }
 }
 static uint8_t _init_l_System_Platform_isOSX___closed__0(void){
 _start:
 {
-lean_object* v___x_20_; uint8_t v___x_21_; 
-v___x_20_ = lean_box(0);
-v___x_21_ = lean_system_platform_osx(v___x_20_);
-return v___x_21_;
+lean_object* v___x_24_; uint8_t v___x_25_; 
+v___x_24_ = lean_box(0);
+v___x_25_ = lean_system_platform_osx(v___x_24_);
+return v___x_25_;
 }
 }
 static uint8_t _init_l_System_Platform_isOSX(void){
 _start:
 {
-uint8_t v___x_22_; 
-v___x_22_ = lean_uint8_once(&l_System_Platform_isOSX___closed__0, &l_System_Platform_isOSX___closed__0_once, _init_l_System_Platform_isOSX___closed__0);
-return v___x_22_;
+uint8_t v___x_26_; 
+v___x_26_ = lean_uint8_once(&l_System_Platform_isOSX___closed__0, &l_System_Platform_isOSX___closed__0_once, _init_l_System_Platform_isOSX___closed__0);
+return v___x_26_;
 }
 }
 static uint8_t _init_l_System_Platform_isLinux___closed__0(void){
 _start:
 {
-lean_object* v___x_23_; uint8_t v___x_24_; 
-v___x_23_ = lean_box(0);
-v___x_24_ = lean_system_platform_linux(v___x_23_);
-return v___x_24_;
+lean_object* v___x_27_; uint8_t v___x_28_; 
+v___x_27_ = lean_box(0);
+v___x_28_ = lean_system_platform_linux(v___x_27_);
+return v___x_28_;
 }
 }
 static uint8_t _init_l_System_Platform_isLinux(void){
 _start:
 {
-uint8_t v___x_25_; 
-v___x_25_ = lean_uint8_once(&l_System_Platform_isLinux___closed__0, &l_System_Platform_isLinux___closed__0_once, _init_l_System_Platform_isLinux___closed__0);
-return v___x_25_;
+uint8_t v___x_29_; 
+v___x_29_ = lean_uint8_once(&l_System_Platform_isLinux___closed__0, &l_System_Platform_isLinux___closed__0_once, _init_l_System_Platform_isLinux___closed__0);
+return v___x_29_;
 }
 }
 static uint8_t _init_l_System_Platform_isEmscripten___closed__0(void){
 _start:
 {
-lean_object* v___x_26_; uint8_t v___x_27_; 
-v___x_26_ = lean_box(0);
-v___x_27_ = lean_system_platform_emscripten(v___x_26_);
-return v___x_27_;
+lean_object* v___x_30_; uint8_t v___x_31_; 
+v___x_30_ = lean_box(0);
+v___x_31_ = lean_system_platform_emscripten(v___x_30_);
+return v___x_31_;
 }
 }
 static uint8_t _init_l_System_Platform_isEmscripten(void){
 _start:
 {
-uint8_t v___x_28_; 
-v___x_28_ = lean_uint8_once(&l_System_Platform_isEmscripten___closed__0, &l_System_Platform_isEmscripten___closed__0_once, _init_l_System_Platform_isEmscripten___closed__0);
-return v___x_28_;
+uint8_t v___x_32_; 
+v___x_32_ = lean_uint8_once(&l_System_Platform_isEmscripten___closed__0, &l_System_Platform_isEmscripten___closed__0_once, _init_l_System_Platform_isEmscripten___closed__0);
+return v___x_32_;
 }
 }
-LEAN_EXPORT lean_object* l_System_Platform_getTarget___boxed(lean_object* v_a_00___x40___internal___hyg_30_){
+LEAN_EXPORT void l_System_Platform_getTarget_0interp(lean_interpreter_value* stack)
+{
+lean_object* v_a_00___x40___internal___hyg_33_ = stack[0].m_obj;
+lean_object* v_res_34_;
+v_res_34_ = lean_system_platform_target(v_a_00___x40___internal___hyg_33_);
+stack->m_obj
+ = v_res_34_;
+}
+LEAN_EXPORT lean_object* l_System_Platform_getTarget___boxed(lean_object* v_a_00___x40___internal___hyg_35_){
 _start:
 {
-lean_object* v_res_31_; 
-v_res_31_ = lean_system_platform_target(v_a_00___x40___internal___hyg_30_);
-return v_res_31_;
+lean_object* v_res_36_; 
+v_res_36_ = lean_system_platform_target(v_a_00___x40___internal___hyg_35_);
+return v_res_36_;
 }
 }
 static lean_object* _init_l_System_Platform_target___closed__0(void){
 _start:
 {
-lean_object* v___x_32_; lean_object* v___x_33_; 
-v___x_32_ = lean_box(0);
-v___x_33_ = lean_system_platform_target(v___x_32_);
-return v___x_33_;
+lean_object* v___x_37_; lean_object* v___x_38_; 
+v___x_37_ = lean_box(0);
+v___x_38_ = lean_system_platform_target(v___x_37_);
+return v___x_38_;
 }
 }
 static lean_object* _init_l_System_Platform_target(void){
 _start:
 {
-lean_object* v___x_34_; 
-v___x_34_ = lean_obj_once(&l_System_Platform_target___closed__0, &l_System_Platform_target___closed__0_once, _init_l_System_Platform_target___closed__0);
-return v___x_34_;
+lean_object* v___x_39_; 
+v___x_39_ = lean_obj_once(&l_System_Platform_target___closed__0, &l_System_Platform_target___closed__0_once, _init_l_System_Platform_target___closed__0);
+return v___x_39_;
 }
 }
-LEAN_EXPORT lean_object* l_System_Platform_Internal_getHardwareConcurrency___boxed(lean_object* v_a_00___x40___internal___hyg_36_){
+LEAN_EXPORT void l_System_Platform_Internal_getHardwareConcurrency_0interp(lean_interpreter_value* stack)
+{
+lean_object* v_a_00___x40___internal___hyg_40_ = stack[0].m_obj;
+uint32_t v_res_41_;
+v_res_41_ = lean_internal_get_hardware_concurrency(v_a_00___x40___internal___hyg_40_);
+stack->m_num = v_res_41_;
+}
+LEAN_EXPORT lean_object* l_System_Platform_Internal_getHardwareConcurrency___boxed(lean_object* v_a_00___x40___internal___hyg_42_){
 _start:
 {
-uint32_t v_res_37_; lean_object* v_r_38_; 
-v_res_37_ = lean_internal_get_hardware_concurrency(v_a_00___x40___internal___hyg_36_);
-v_r_38_ = lean_box_uint32(v_res_37_);
-return v_r_38_;
+uint32_t v_res_43_; lean_object* v_r_44_; 
+v_res_43_ = lean_internal_get_hardware_concurrency(v_a_00___x40___internal___hyg_42_);
+v_r_44_ = lean_box_uint32(v_res_43_);
+return v_r_44_;
 }
 }
 lean_object* runtime_initialize_Init_Data_Nat_Div_Basic(uint8_t builtin);

@@ -32,7 +32,7 @@ v___x_4_ = l_Array_toSubarray___redArg(v_xs_1_, v___x_2_, v___x_3_);
 return v___x_4_;
 }
 }
-LEAN_EXPORT lean_object* l_Vector_instToStreamSubarray___redArg(){
+lean_object* l_Vector_instToStreamSubarray___redArg(){
 _start:
 {
 lean_object* v___f_7_; 
@@ -40,29 +40,36 @@ v___f_7_ = ((lean_object*)(l_Vector_instToStreamSubarray___redArg___closed__0));
 return v___f_7_;
 }
 }
-LEAN_EXPORT lean_object* l_Vector_instToStreamSubarray___redArg___boxed(lean_object* v___dummy_8_){
+LEAN_EXPORT void l_Vector_instToStreamSubarray___redArg_0interp(lean_interpreter_value* stack)
+{
+lean_object* v_res_8_;
+v_res_8_ = l_Vector_instToStreamSubarray___redArg();
+stack->m_obj
+ = v_res_8_;
+}
+LEAN_EXPORT lean_object* l_Vector_instToStreamSubarray___redArg___boxed(lean_object* v___dummy_9_){
 _start:
 {
-lean_object* v_res_9_; 
-v_res_9_ = l_Vector_instToStreamSubarray___redArg();
-return v_res_9_;
+lean_object* v_res_10_; 
+v_res_10_ = l_Vector_instToStreamSubarray___redArg();
+return v_res_10_;
 }
 }
-LEAN_EXPORT lean_object* l_Vector_instToStreamSubarray(lean_object* v_00_u03b1_10_, lean_object* v_n_11_){
+LEAN_EXPORT lean_object* l_Vector_instToStreamSubarray(lean_object* v_00_u03b1_11_, lean_object* v_n_12_){
 _start:
 {
-lean_object* v___f_12_; 
-v___f_12_ = ((lean_object*)(l_Vector_instToStreamSubarray___redArg___closed__0));
-return v___f_12_;
+lean_object* v___f_13_; 
+v___f_13_ = ((lean_object*)(l_Vector_instToStreamSubarray___redArg___closed__0));
+return v___f_13_;
 }
 }
-LEAN_EXPORT lean_object* l_Vector_instToStreamSubarray___boxed(lean_object* v_00_u03b1_13_, lean_object* v_n_14_){
+LEAN_EXPORT lean_object* l_Vector_instToStreamSubarray___boxed(lean_object* v_00_u03b1_14_, lean_object* v_n_15_){
 _start:
 {
-lean_object* v_res_15_; 
-v_res_15_ = l_Vector_instToStreamSubarray(v_00_u03b1_13_, v_n_14_);
-lean_dec(v_n_14_);
-return v_res_15_;
+lean_object* v_res_16_; 
+v_res_16_ = l_Vector_instToStreamSubarray(v_00_u03b1_14_, v_n_15_);
+lean_dec(v_n_15_);
+return v_res_16_;
 }
 }
 lean_object* runtime_initialize_Init_Data_Stream(uint8_t builtin);

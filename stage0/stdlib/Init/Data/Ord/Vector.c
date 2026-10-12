@@ -20,7 +20,7 @@ LEAN_EXPORT uint8_t l_Vector_compareLex(lean_object*, lean_object*, lean_object*
 LEAN_EXPORT lean_object* l_Vector_compareLex___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Vector_instOrd___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Vector_instOrd(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_Vector_compareLex___redArg(lean_object* v_cmp_1_, lean_object* v_a_2_, lean_object* v_b_3_){
+uint8_t l_Vector_compareLex___redArg(lean_object* v_cmp_1_, lean_object* v_a_2_, lean_object* v_b_3_){
 _start:
 {
 lean_object* v___x_4_; uint8_t v___x_5_; 
@@ -29,58 +29,77 @@ v___x_5_ = l___private_Init_Data_Ord_Array_0__Array_compareLex_go(lean_box(0), v
 return v___x_5_;
 }
 }
-LEAN_EXPORT lean_object* l_Vector_compareLex___redArg___boxed(lean_object* v_cmp_6_, lean_object* v_a_7_, lean_object* v_b_8_){
+LEAN_EXPORT void l_Vector_compareLex___redArg_0interp(lean_interpreter_value* stack)
+{
+lean_object* v_cmp_1_ = stack[0].m_obj;
+lean_object* v_a_2_ = stack[1].m_obj;
+lean_object* v_b_3_ = stack[2].m_obj;
+uint8_t v_res_6_;
+v_res_6_ = l_Vector_compareLex___redArg(v_cmp_1_, v_a_2_, v_b_3_);
+stack->m_num = v_res_6_;
+}
+LEAN_EXPORT lean_object* l_Vector_compareLex___redArg___boxed(lean_object* v_cmp_7_, lean_object* v_a_8_, lean_object* v_b_9_){
 _start:
 {
-uint8_t v_res_9_; lean_object* v_r_10_; 
-v_res_9_ = l_Vector_compareLex___redArg(v_cmp_6_, v_a_7_, v_b_8_);
-lean_dec_ref(v_b_8_);
-lean_dec_ref(v_a_7_);
-v_r_10_ = lean_box(v_res_9_);
-return v_r_10_;
+uint8_t v_res_10_; lean_object* v_r_11_; 
+v_res_10_ = l_Vector_compareLex___redArg(v_cmp_7_, v_a_8_, v_b_9_);
+lean_dec_ref(v_b_9_);
+lean_dec_ref(v_a_8_);
+v_r_11_ = lean_box(v_res_10_);
+return v_r_11_;
 }
 }
-LEAN_EXPORT uint8_t l_Vector_compareLex(lean_object* v_00_u03b1_11_, lean_object* v_n_12_, lean_object* v_cmp_13_, lean_object* v_a_14_, lean_object* v_b_15_){
+uint8_t l_Vector_compareLex(lean_object* v_00_u03b1_12_, lean_object* v_n_13_, lean_object* v_cmp_14_, lean_object* v_a_15_, lean_object* v_b_16_){
 _start:
 {
-lean_object* v___x_16_; uint8_t v___x_17_; 
-v___x_16_ = lean_unsigned_to_nat(0u);
-v___x_17_ = l___private_Init_Data_Ord_Array_0__Array_compareLex_go(lean_box(0), v_cmp_13_, v_a_14_, v_b_15_, v___x_16_);
-return v___x_17_;
+lean_object* v___x_17_; uint8_t v___x_18_; 
+v___x_17_ = lean_unsigned_to_nat(0u);
+v___x_18_ = l___private_Init_Data_Ord_Array_0__Array_compareLex_go(lean_box(0), v_cmp_14_, v_a_15_, v_b_16_, v___x_17_);
+return v___x_18_;
 }
 }
-LEAN_EXPORT lean_object* l_Vector_compareLex___boxed(lean_object* v_00_u03b1_18_, lean_object* v_n_19_, lean_object* v_cmp_20_, lean_object* v_a_21_, lean_object* v_b_22_){
+LEAN_EXPORT void l_Vector_compareLex_0interp(lean_interpreter_value* stack)
+{
+lean_object* v_n_13_ = stack[1].m_obj;
+lean_object* v_cmp_14_ = stack[2].m_obj;
+lean_object* v_a_15_ = stack[3].m_obj;
+lean_object* v_b_16_ = stack[4].m_obj;
+uint8_t v_res_19_;
+v_res_19_ = l_Vector_compareLex(lean_box(0), v_n_13_, v_cmp_14_, v_a_15_, v_b_16_);
+stack->m_num = v_res_19_;
+}
+LEAN_EXPORT lean_object* l_Vector_compareLex___boxed(lean_object* v_00_u03b1_20_, lean_object* v_n_21_, lean_object* v_cmp_22_, lean_object* v_a_23_, lean_object* v_b_24_){
 _start:
 {
-uint8_t v_res_23_; lean_object* v_r_24_; 
-v_res_23_ = l_Vector_compareLex(v_00_u03b1_18_, v_n_19_, v_cmp_20_, v_a_21_, v_b_22_);
-lean_dec_ref(v_b_22_);
-lean_dec_ref(v_a_21_);
-lean_dec(v_n_19_);
-v_r_24_ = lean_box(v_res_23_);
-return v_r_24_;
+uint8_t v_res_25_; lean_object* v_r_26_; 
+v_res_25_ = l_Vector_compareLex(v_00_u03b1_20_, v_n_21_, v_cmp_22_, v_a_23_, v_b_24_);
+lean_dec_ref(v_b_24_);
+lean_dec_ref(v_a_23_);
+lean_dec(v_n_21_);
+v_r_26_ = lean_box(v_res_25_);
+return v_r_26_;
 }
 }
-LEAN_EXPORT lean_object* l_Vector_instOrd___redArg(lean_object* v_n_25_, lean_object* v_inst_26_){
+LEAN_EXPORT lean_object* l_Vector_instOrd___redArg(lean_object* v_n_27_, lean_object* v_inst_28_){
 _start:
 {
-lean_object* v___x_27_; 
-v___x_27_ = lean_alloc_closure((void*)(l_Vector_compareLex___boxed), 5, 3);
-lean_closure_set(v___x_27_, 0, lean_box(0));
-lean_closure_set(v___x_27_, 1, v_n_25_);
-lean_closure_set(v___x_27_, 2, v_inst_26_);
-return v___x_27_;
+lean_object* v___x_29_; 
+v___x_29_ = lean_alloc_closure((void*)(l_Vector_compareLex___boxed), 5, 3);
+lean_closure_set(v___x_29_, 0, lean_box(0));
+lean_closure_set(v___x_29_, 1, v_n_27_);
+lean_closure_set(v___x_29_, 2, v_inst_28_);
+return v___x_29_;
 }
 }
-LEAN_EXPORT lean_object* l_Vector_instOrd(lean_object* v_00_u03b1_28_, lean_object* v_n_29_, lean_object* v_inst_30_){
+LEAN_EXPORT lean_object* l_Vector_instOrd(lean_object* v_00_u03b1_30_, lean_object* v_n_31_, lean_object* v_inst_32_){
 _start:
 {
-lean_object* v___x_31_; 
-v___x_31_ = lean_alloc_closure((void*)(l_Vector_compareLex___boxed), 5, 3);
-lean_closure_set(v___x_31_, 0, lean_box(0));
-lean_closure_set(v___x_31_, 1, v_n_29_);
-lean_closure_set(v___x_31_, 2, v_inst_30_);
-return v___x_31_;
+lean_object* v___x_33_; 
+v___x_33_ = lean_alloc_closure((void*)(l_Vector_compareLex___boxed), 5, 3);
+lean_closure_set(v___x_33_, 0, lean_box(0));
+lean_closure_set(v___x_33_, 1, v_n_31_);
+lean_closure_set(v___x_33_, 2, v_inst_32_);
+return v___x_33_;
 }
 }
 lean_object* runtime_initialize_Init_Data_Order_Ord(uint8_t builtin);

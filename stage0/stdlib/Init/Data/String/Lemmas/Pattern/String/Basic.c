@@ -21,7 +21,7 @@ LEAN_EXPORT lean_object* l_String_Slice_Pattern_Model_ForwardStringSearcher_inst
 LEAN_EXPORT lean_object* l_String_Slice_Pattern_Model_ForwardStringSearcher_instPatternModel___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_Pattern_Model_ForwardStringSearcher_instPatternModel(lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_Pattern_Model_ForwardStringSearcher_instPatternModel___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_String_Slice_Pattern_Model_ForwardSliceSearcher_instPatternModel___redArg(){
+lean_object* l_String_Slice_Pattern_Model_ForwardSliceSearcher_instPatternModel___redArg(){
 _start:
 {
 lean_object* v___x_2_; 
@@ -29,62 +29,76 @@ v___x_2_ = lean_box(0);
 return v___x_2_;
 }
 }
-LEAN_EXPORT lean_object* l_String_Slice_Pattern_Model_ForwardSliceSearcher_instPatternModel___redArg___boxed(lean_object* v___dummy_3_){
+LEAN_EXPORT void l_String_Slice_Pattern_Model_ForwardSliceSearcher_instPatternModel___redArg_0interp(lean_interpreter_value* stack)
+{
+lean_object* v_res_3_;
+v_res_3_ = l_String_Slice_Pattern_Model_ForwardSliceSearcher_instPatternModel___redArg();
+stack->m_obj
+ = v_res_3_;
+}
+LEAN_EXPORT lean_object* l_String_Slice_Pattern_Model_ForwardSliceSearcher_instPatternModel___redArg___boxed(lean_object* v___dummy_4_){
 _start:
 {
-lean_object* v_res_4_; 
-v_res_4_ = l_String_Slice_Pattern_Model_ForwardSliceSearcher_instPatternModel___redArg();
-return v_res_4_;
+lean_object* v_res_5_; 
+v_res_5_ = l_String_Slice_Pattern_Model_ForwardSliceSearcher_instPatternModel___redArg();
+return v_res_5_;
 }
 }
-LEAN_EXPORT lean_object* l_String_Slice_Pattern_Model_ForwardSliceSearcher_instPatternModel(lean_object* v_pat_5_){
+LEAN_EXPORT lean_object* l_String_Slice_Pattern_Model_ForwardSliceSearcher_instPatternModel(lean_object* v_pat_6_){
 _start:
 {
-lean_object* v___x_6_; 
-v___x_6_ = lean_box(0);
-return v___x_6_;
+lean_object* v___x_7_; 
+v___x_7_ = lean_box(0);
+return v___x_7_;
 }
 }
-LEAN_EXPORT lean_object* l_String_Slice_Pattern_Model_ForwardSliceSearcher_instPatternModel___boxed(lean_object* v_pat_7_){
+LEAN_EXPORT lean_object* l_String_Slice_Pattern_Model_ForwardSliceSearcher_instPatternModel___boxed(lean_object* v_pat_8_){
 _start:
 {
-lean_object* v_res_8_; 
-v_res_8_ = l_String_Slice_Pattern_Model_ForwardSliceSearcher_instPatternModel(v_pat_7_);
-lean_dec_ref(v_pat_7_);
-return v_res_8_;
+lean_object* v_res_9_; 
+v_res_9_ = l_String_Slice_Pattern_Model_ForwardSliceSearcher_instPatternModel(v_pat_8_);
+lean_dec_ref(v_pat_8_);
+return v_res_9_;
 }
 }
-LEAN_EXPORT lean_object* l_String_Slice_Pattern_Model_ForwardStringSearcher_instPatternModel___redArg(){
+lean_object* l_String_Slice_Pattern_Model_ForwardStringSearcher_instPatternModel___redArg(){
 _start:
 {
-lean_object* v___x_10_; 
-v___x_10_ = lean_box(0);
-return v___x_10_;
+lean_object* v___x_11_; 
+v___x_11_ = lean_box(0);
+return v___x_11_;
 }
 }
-LEAN_EXPORT lean_object* l_String_Slice_Pattern_Model_ForwardStringSearcher_instPatternModel___redArg___boxed(lean_object* v___dummy_11_){
-_start:
+LEAN_EXPORT void l_String_Slice_Pattern_Model_ForwardStringSearcher_instPatternModel___redArg_0interp(lean_interpreter_value* stack)
 {
-lean_object* v_res_12_; 
+lean_object* v_res_12_;
 v_res_12_ = l_String_Slice_Pattern_Model_ForwardStringSearcher_instPatternModel___redArg();
-return v_res_12_;
+stack->m_obj
+ = v_res_12_;
 }
-}
-LEAN_EXPORT lean_object* l_String_Slice_Pattern_Model_ForwardStringSearcher_instPatternModel(lean_object* v_pat_13_){
+LEAN_EXPORT lean_object* l_String_Slice_Pattern_Model_ForwardStringSearcher_instPatternModel___redArg___boxed(lean_object* v___dummy_13_){
 _start:
 {
-lean_object* v___x_14_; 
-v___x_14_ = lean_box(0);
-return v___x_14_;
+lean_object* v_res_14_; 
+v_res_14_ = l_String_Slice_Pattern_Model_ForwardStringSearcher_instPatternModel___redArg();
+return v_res_14_;
 }
 }
-LEAN_EXPORT lean_object* l_String_Slice_Pattern_Model_ForwardStringSearcher_instPatternModel___boxed(lean_object* v_pat_15_){
+LEAN_EXPORT lean_object* l_String_Slice_Pattern_Model_ForwardStringSearcher_instPatternModel(lean_object* v_pat_15_){
 _start:
 {
-lean_object* v_res_16_; 
-v_res_16_ = l_String_Slice_Pattern_Model_ForwardStringSearcher_instPatternModel(v_pat_15_);
-lean_dec_ref(v_pat_15_);
-return v_res_16_;
+lean_object* v___x_16_; 
+v___x_16_ = lean_box(0);
+return v___x_16_;
+}
+}
+LEAN_EXPORT lean_object* l_String_Slice_Pattern_Model_ForwardStringSearcher_instPatternModel___boxed(lean_object* v_pat_17_){
+_start:
+{
+lean_object* v_res_18_; 
+v_res_18_ = l_String_Slice_Pattern_Model_ForwardStringSearcher_instPatternModel(v_pat_17_);
+lean_dec_ref(v_pat_17_);
+return v_res_18_;
 }
 }
 lean_object* runtime_initialize_Init_Data_String_Pattern_String(uint8_t builtin);

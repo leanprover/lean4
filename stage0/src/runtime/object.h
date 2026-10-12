@@ -464,7 +464,7 @@ inline bool io_result_is_ok(b_obj_arg r) { return lean_io_result_is_ok(r); }
 inline bool io_result_is_error(b_obj_arg r) { return lean_io_result_is_error(r); }
 inline b_obj_res io_result_get_value(b_obj_arg r) { return lean_io_result_get_value(r); }
 inline b_obj_res io_result_get_error(b_obj_arg r) { return lean_io_result_get_error(r); }
-inline void io_result_show_error(b_obj_arg r) { return lean_io_result_show_error(r); }
+inline void io_result_show_error(b_obj_arg r) { lean_io_result_show_error(r); }
 inline void io_mark_end_initialization() { return lean_io_mark_end_initialization(); }
 LEAN_EXPORT void io_eprintln(obj_arg s);
 

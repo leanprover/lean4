@@ -18,7 +18,7 @@ lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* lean_nat_land(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Nat_instDecidableIsPowerOfTwo(lean_object*);
 LEAN_EXPORT lean_object* l_Nat_instDecidableIsPowerOfTwo___boxed(lean_object*);
-LEAN_EXPORT uint8_t l_Nat_instDecidableIsPowerOfTwo(lean_object* v_n_1_){
+uint8_t l_Nat_instDecidableIsPowerOfTwo(lean_object* v_n_1_){
 _start:
 {
 lean_object* v___x_2_; uint8_t v___x_3_; 
@@ -43,14 +43,21 @@ return v___x_8_;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Nat_instDecidableIsPowerOfTwo___boxed(lean_object* v_n_9_){
+LEAN_EXPORT void l_Nat_instDecidableIsPowerOfTwo_0interp(lean_interpreter_value* stack)
+{
+lean_object* v_n_1_ = stack[0].m_obj;
+uint8_t v_res_9_;
+v_res_9_ = l_Nat_instDecidableIsPowerOfTwo(v_n_1_);
+stack->m_num = v_res_9_;
+}
+LEAN_EXPORT lean_object* l_Nat_instDecidableIsPowerOfTwo___boxed(lean_object* v_n_10_){
 _start:
 {
-uint8_t v_res_10_; lean_object* v_r_11_; 
-v_res_10_ = l_Nat_instDecidableIsPowerOfTwo(v_n_9_);
-lean_dec(v_n_9_);
-v_r_11_ = lean_box(v_res_10_);
-return v_r_11_;
+uint8_t v_res_11_; lean_object* v_r_12_; 
+v_res_11_ = l_Nat_instDecidableIsPowerOfTwo(v_n_10_);
+lean_dec(v_n_10_);
+v_r_12_ = lean_box(v_res_11_);
+return v_r_12_;
 }
 }
 lean_object* runtime_initialize_Init_Data_Nat_Power2_Basic(uint8_t builtin);

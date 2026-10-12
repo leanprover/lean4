@@ -28,7 +28,7 @@ lean_ctor_set(v___x_2_, 0, v_val_1_);
 return v___x_2_;
 }
 }
-LEAN_EXPORT lean_object* l_optionCoe___redArg(){
+lean_object* l_optionCoe___redArg(){
 _start:
 {
 lean_object* v___f_5_; 
@@ -36,20 +36,27 @@ v___f_5_ = ((lean_object*)(l_optionCoe___redArg___closed__0));
 return v___f_5_;
 }
 }
-LEAN_EXPORT lean_object* l_optionCoe___redArg___boxed(lean_object* v___dummy_6_){
+LEAN_EXPORT void l_optionCoe___redArg_0interp(lean_interpreter_value* stack)
+{
+lean_object* v_res_6_;
+v_res_6_ = l_optionCoe___redArg();
+stack->m_obj
+ = v_res_6_;
+}
+LEAN_EXPORT lean_object* l_optionCoe___redArg___boxed(lean_object* v___dummy_7_){
 _start:
 {
-lean_object* v_res_7_; 
-v_res_7_ = l_optionCoe___redArg();
-return v_res_7_;
+lean_object* v_res_8_; 
+v_res_8_ = l_optionCoe___redArg();
+return v_res_8_;
 }
 }
-LEAN_EXPORT lean_object* l_optionCoe(lean_object* v_00_u03b1_8_){
+LEAN_EXPORT lean_object* l_optionCoe(lean_object* v_00_u03b1_9_){
 _start:
 {
-lean_object* v___f_9_; 
-v___f_9_ = ((lean_object*)(l_optionCoe___redArg___closed__0));
-return v___f_9_;
+lean_object* v___f_10_; 
+v___f_10_ = ((lean_object*)(l_optionCoe___redArg___closed__0));
+return v___f_10_;
 }
 }
 lean_object* runtime_initialize_Init_Coe(uint8_t builtin);

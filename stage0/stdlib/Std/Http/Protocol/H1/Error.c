@@ -887,7 +887,7 @@ lean_dec(v_prec_305_);
 return v_res_306_;
 }
 }
-LEAN_EXPORT uint8_t l_Std_Http_Protocol_H1_instBEqError_beq(lean_object* v_x_309_, lean_object* v_x_310_){
+uint8_t l_Std_Http_Protocol_H1_instBEqError_beq(lean_object* v_x_309_, lean_object* v_x_310_){
 _start:
 {
 lean_object* v___x_311_; lean_object* v___x_312_; uint8_t v_decide_313_; 
@@ -915,106 +915,114 @@ return v_decide_313_;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Std_Http_Protocol_H1_instBEqError_beq___boxed(lean_object* v_x_317_, lean_object* v_x_318_){
+LEAN_EXPORT void l_Std_Http_Protocol_H1_instBEqError_beq_0interp(lean_interpreter_value* stack)
+{
+lean_object* v_x_309_ = stack[0].m_obj;
+lean_object* v_x_310_ = stack[1].m_obj;
+uint8_t v_res_317_;
+v_res_317_ = l_Std_Http_Protocol_H1_instBEqError_beq(v_x_309_, v_x_310_);
+stack->m_num = v_res_317_;
+}
+LEAN_EXPORT lean_object* l_Std_Http_Protocol_H1_instBEqError_beq___boxed(lean_object* v_x_318_, lean_object* v_x_319_){
 _start:
 {
-uint8_t v_res_319_; lean_object* v_r_320_; 
-v_res_319_ = l_Std_Http_Protocol_H1_instBEqError_beq(v_x_317_, v_x_318_);
+uint8_t v_res_320_; lean_object* v_r_321_; 
+v_res_320_ = l_Std_Http_Protocol_H1_instBEqError_beq(v_x_318_, v_x_319_);
+lean_dec(v_x_319_);
 lean_dec(v_x_318_);
-lean_dec(v_x_317_);
-v_r_320_ = lean_box(v_res_319_);
-return v_r_320_;
+v_r_321_ = lean_box(v_res_320_);
+return v_r_321_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Http_Protocol_H1_instToStringError___lam__0(lean_object* v_x_335_){
+LEAN_EXPORT lean_object* l_Std_Http_Protocol_H1_instToStringError___lam__0(lean_object* v_x_336_){
 _start:
 {
-switch(lean_obj_tag(v_x_335_))
+switch(lean_obj_tag(v_x_336_))
 {
 case 0:
 {
-lean_object* v___x_336_; 
-v___x_336_ = ((lean_object*)(l_Std_Http_Protocol_H1_instToStringError___lam__0___closed__0));
-return v___x_336_;
+lean_object* v___x_337_; 
+v___x_337_ = ((lean_object*)(l_Std_Http_Protocol_H1_instToStringError___lam__0___closed__0));
+return v___x_337_;
 }
 case 1:
 {
-lean_object* v___x_337_; 
-v___x_337_ = ((lean_object*)(l_Std_Http_Protocol_H1_instToStringError___lam__0___closed__1));
-return v___x_337_;
+lean_object* v___x_338_; 
+v___x_338_ = ((lean_object*)(l_Std_Http_Protocol_H1_instToStringError___lam__0___closed__1));
+return v___x_338_;
 }
 case 2:
 {
-lean_object* v___x_338_; 
-v___x_338_ = ((lean_object*)(l_Std_Http_Protocol_H1_instToStringError___lam__0___closed__2));
-return v___x_338_;
+lean_object* v___x_339_; 
+v___x_339_ = ((lean_object*)(l_Std_Http_Protocol_H1_instToStringError___lam__0___closed__2));
+return v___x_339_;
 }
 case 3:
 {
-lean_object* v___x_339_; 
-v___x_339_ = ((lean_object*)(l_Std_Http_Protocol_H1_instToStringError___lam__0___closed__3));
-return v___x_339_;
+lean_object* v___x_340_; 
+v___x_340_ = ((lean_object*)(l_Std_Http_Protocol_H1_instToStringError___lam__0___closed__3));
+return v___x_340_;
 }
 case 4:
 {
-lean_object* v___x_340_; 
-v___x_340_ = ((lean_object*)(l_Std_Http_Protocol_H1_instToStringError___lam__0___closed__4));
-return v___x_340_;
+lean_object* v___x_341_; 
+v___x_341_ = ((lean_object*)(l_Std_Http_Protocol_H1_instToStringError___lam__0___closed__4));
+return v___x_341_;
 }
 case 5:
 {
-lean_object* v___x_341_; 
-v___x_341_ = ((lean_object*)(l_Std_Http_Protocol_H1_instToStringError___lam__0___closed__5));
-return v___x_341_;
+lean_object* v___x_342_; 
+v___x_342_ = ((lean_object*)(l_Std_Http_Protocol_H1_instToStringError___lam__0___closed__5));
+return v___x_342_;
 }
 case 6:
 {
-lean_object* v___x_342_; 
-v___x_342_ = ((lean_object*)(l_Std_Http_Protocol_H1_instToStringError___lam__0___closed__6));
-return v___x_342_;
+lean_object* v___x_343_; 
+v___x_343_ = ((lean_object*)(l_Std_Http_Protocol_H1_instToStringError___lam__0___closed__6));
+return v___x_343_;
 }
 case 7:
 {
-lean_object* v___x_343_; 
-v___x_343_ = ((lean_object*)(l_Std_Http_Protocol_H1_instToStringError___lam__0___closed__7));
-return v___x_343_;
+lean_object* v___x_344_; 
+v___x_344_ = ((lean_object*)(l_Std_Http_Protocol_H1_instToStringError___lam__0___closed__7));
+return v___x_344_;
 }
 case 8:
 {
-lean_object* v___x_344_; 
-v___x_344_ = ((lean_object*)(l_Std_Http_Protocol_H1_instToStringError___lam__0___closed__8));
-return v___x_344_;
+lean_object* v___x_345_; 
+v___x_345_ = ((lean_object*)(l_Std_Http_Protocol_H1_instToStringError___lam__0___closed__8));
+return v___x_345_;
 }
 case 9:
 {
-lean_object* v___x_345_; 
-v___x_345_ = ((lean_object*)(l_Std_Http_Protocol_H1_instToStringError___lam__0___closed__9));
-return v___x_345_;
+lean_object* v___x_346_; 
+v___x_346_ = ((lean_object*)(l_Std_Http_Protocol_H1_instToStringError___lam__0___closed__9));
+return v___x_346_;
 }
 case 10:
 {
-lean_object* v___x_346_; 
-v___x_346_ = ((lean_object*)(l_Std_Http_Protocol_H1_instToStringError___lam__0___closed__10));
-return v___x_346_;
+lean_object* v___x_347_; 
+v___x_347_ = ((lean_object*)(l_Std_Http_Protocol_H1_instToStringError___lam__0___closed__10));
+return v___x_347_;
 }
 default: 
 {
-lean_object* v_message_347_; lean_object* v___x_348_; lean_object* v___x_349_; 
-v_message_347_ = lean_ctor_get(v_x_335_, 0);
-v___x_348_ = ((lean_object*)(l_Std_Http_Protocol_H1_instToStringError___lam__0___closed__11));
-v___x_349_ = lean_string_append(v___x_348_, v_message_347_);
-return v___x_349_;
+lean_object* v_message_348_; lean_object* v___x_349_; lean_object* v___x_350_; 
+v_message_348_ = lean_ctor_get(v_x_336_, 0);
+v___x_349_ = ((lean_object*)(l_Std_Http_Protocol_H1_instToStringError___lam__0___closed__11));
+v___x_350_ = lean_string_append(v___x_349_, v_message_348_);
+return v___x_350_;
 }
 }
 }
 }
-LEAN_EXPORT lean_object* l_Std_Http_Protocol_H1_instToStringError___lam__0___boxed(lean_object* v_x_350_){
+LEAN_EXPORT lean_object* l_Std_Http_Protocol_H1_instToStringError___lam__0___boxed(lean_object* v_x_351_){
 _start:
 {
-lean_object* v_res_351_; 
-v_res_351_ = l_Std_Http_Protocol_H1_instToStringError___lam__0(v_x_350_);
-lean_dec(v_x_350_);
-return v_res_351_;
+lean_object* v_res_352_; 
+v_res_352_ = l_Std_Http_Protocol_H1_instToStringError___lam__0(v_x_351_);
+lean_dec(v_x_351_);
+return v_res_352_;
 }
 }
 lean_object* runtime_initialize_Std_Time(uint8_t builtin);

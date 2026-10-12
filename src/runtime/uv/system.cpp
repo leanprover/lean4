@@ -161,7 +161,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_get_passwd() {
     lean_object* passwd_info = lean_alloc_ctor(0, 5, 0);
     lean_ctor_set(passwd_info, 0, lean_mk_string(passwd.username));
     lean_ctor_set(passwd_info, 1, passwd.uid != (unsigned long)(-1) ? mk_option_some(lean_box_uint64(passwd.uid)) : mk_option_none());
-    lean_ctor_set(passwd_info, 2, passwd.uid != (unsigned long)(-1) ? mk_option_some(lean_box_uint64(passwd.gid)) : mk_option_none());
+    lean_ctor_set(passwd_info, 2, passwd.gid != (unsigned long)(-1) ? mk_option_some(lean_box_uint64(passwd.gid)) : mk_option_none());
     lean_ctor_set(passwd_info, 3, passwd.shell ? mk_option_some(lean_mk_string(passwd.shell)) : mk_option_none());
     lean_ctor_set(passwd_info, 4, passwd.homedir ? mk_option_some(lean_mk_string(passwd.homedir)) : mk_option_none());
     return lean_io_result_mk_ok(passwd_info);

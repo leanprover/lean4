@@ -1474,7 +1474,41 @@ static inline lean_obj_res lean_string_propagate_mark(b_lean_obj_arg src, lean_o
     return lean_string_mark_linear(dst);
 }
 
-LEAN_EXPORT lean_obj_res lean_string_push(lean_obj_arg s, uint32_t c);
+LEAN_EXPORT lean_obj_res lean_string_push_cold(lean_obj_arg s, uint32_t c);
+static inline lean_obj_res lean_string_push(lean_obj_arg s, uint32_t c) {
+    if (LEAN_LIKELY(lean_is_exclusive(s))) {
+        lean_string_object * o = lean_to_string(s);
+        size_t sz = o->m_size; /* includes the terminating NUL */
+        if (LEAN_LIKELY(sz + 4 <= o->m_capacity)) {
+            unsigned char * d = (unsigned char *)o->m_data + sz - 1;
+            unsigned n;
+            if (c < 0x80) {
+                d[0] = (unsigned char)c;
+                n = 1;
+            } else if (c < 0x800) {
+                d[0] = (unsigned char)(0xc0 | (c >> 6));
+                d[1] = (unsigned char)(0x80 | (c & 0x3f));
+                n = 2;
+            } else if (c < 0x10000) {
+                d[0] = (unsigned char)(0xe0 | (c >> 12));
+                d[1] = (unsigned char)(0x80 | ((c >> 6) & 0x3f));
+                d[2] = (unsigned char)(0x80 | (c & 0x3f));
+                n = 3;
+            } else {
+                d[0] = (unsigned char)(0xf0 | (c >> 18));
+                d[1] = (unsigned char)(0x80 | ((c >> 12) & 0x3f));
+                d[2] = (unsigned char)(0x80 | ((c >> 6) & 0x3f));
+                d[3] = (unsigned char)(0x80 | (c & 0x3f));
+                n = 4;
+            }
+            d[n] = 0;
+            o->m_size = sz + n;
+            o->m_length++;
+            return s;
+        }
+    }
+    return lean_string_push_cold(s, c);
+}
 LEAN_EXPORT lean_obj_res lean_string_append(lean_obj_arg s1, b_lean_obj_arg s2);
 static inline lean_obj_res lean_string_length(b_lean_obj_arg s) { return lean_box(lean_string_len(s)); }
 LEAN_EXPORT lean_obj_res lean_string_mk(lean_obj_arg cs);

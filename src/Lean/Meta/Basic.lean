@@ -1116,8 +1116,8 @@ Create a constant with the given name and new universe metavariables.
 Example: ``mkConstWithFreshMVarLevels `Monad`` returns `@Monad.{?u, ?v}`
 -/
 def mkConstWithFreshMVarLevels (declName : Name) : MetaM Expr := do
-  let info ← getConstInfo declName
-  return mkConst declName (← mkFreshLevelMVarsFor info)
+  let info ← getConstVal declName
+  return mkConst declName (← mkFreshLevelMVars info.levelParams.length)
 
 /-- Return current transparency setting/mode. -/
 @[inline]

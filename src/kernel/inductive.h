@@ -60,7 +60,7 @@ expr expand_eta_struct(environment const & env, expr const & e_type, expr const 
 template<typename WHNF, typename INFER, typename IS_PROP>
 inline expr to_cnstr_when_structure(environment const & env, name const & induct_name, expr const & e,
                                     WHNF const & whnf, INFER const & infer_type, IS_PROP const & is_prop) {
-    if (!is_non_rec_structure(env, induct_name) || is_constructor_app(env, e))
+    if (!is_non_rec_structure(env, induct_name) || is_constructor_app(env, e) || is_string_lit(e))
         return e;
     expr e_type = whnf(infer_type(e));
     if (!is_constant(get_app_fn(e_type), induct_name))

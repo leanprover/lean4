@@ -2350,6 +2350,8 @@ private partial def isUnitLikeType (e : Expr) : MetaM Bool :=
   forallTelescopeReducing (whnfType := true) e fun _ tType => do
     let hd := tType.getAppFn
     matchConstNonRecStructure hd (fun _ => pure false) fun _ _ ctorVal => do
+      unless ← useEtaStruct ctorVal.induct do
+        return false
       let ctorType := ctorVal.type
           |>.instantiateLevelParams ctorVal.levelParams hd.constLevels!
           -- `tType` is a structure, and in particular has no indices. Furthermore, it is a type, so `args.size() = I_val.nparams()`

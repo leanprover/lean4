@@ -388,10 +388,10 @@ instance : BEq ExprConfigCacheKey where
 instance : Hashable ExprConfigCacheKey where
   hash := private fun { expr, configKey } => mixHash (hash expr) (hash configKey)
 
-abbrev InferTypeCache := PersistentHashMap ExprConfigCacheKey Expr
-abbrev FunInfoCache   := PersistentHashMap InfoCacheKey FunInfo
-abbrev WhnfCache      := PersistentHashMap ExprConfigCacheKey Expr
-abbrev IsUnitLikeCache    := PersistentHashMap ExprConfigCacheKey Bool
+abbrev InferTypeCache  := PersistentHashMap ExprConfigCacheKey Expr
+abbrev FunInfoCache    := PersistentHashMap InfoCacheKey FunInfo
+abbrev WhnfCache       := PersistentHashMap ExprConfigCacheKey Expr
+abbrev IsUnitLikeCache := PersistentHashMap ExprConfigCacheKey Bool
 
 structure DefEqCacheKey where
   private mk ::

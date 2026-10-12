@@ -118,7 +118,10 @@ jobs:
       - name: Set up env
         run: |
           echo "NPROC=$(nproc 2>/dev/null || sysctl -n hw.logicalcpu 2>/dev/null || echo 4)" >> $GITHUB_ENV
-          if ! diff src/stdlib_flags.h stage0/src/stdlib_flags.h; then
+          if [[ '${{ matrix.pack-stage2 }}' == true ]]; then
+            echo "release build, will test and pack stage 2"
+            echo "TARGET_STAGE=stage2" >> $GITHUB_ENV
+          elif ! diff src/stdlib_flags.h stage0/src/stdlib_flags.h; then
             echo "src/stdlib_flags.h and stage0/src/stdlib_flags.h differ, will test and pack stage 2"
             echo "TARGET_STAGE=stage2" >> $GITHUB_ENV
           else

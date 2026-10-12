@@ -630,9 +630,20 @@ def evalBitVecOfNat (n a : Expr) : EvalM Result := do
   let some a ← getNatValue? a |>.run | return .rfl
   -- `BitVec.ofNat` with a literal width is the normal form only when `bitVecOfNat := true`
   if (← getNatValue? n |>.run).isSome && (← read).bitVecOfNat then return .rfl
-  let some n ← evalNat n |>.run | return .rfl -- TODO: consider using dsimp
-  let r ← mkBitVecLit (BitVec.ofNat n a)
-  return .step r (mkRflBitVec r n) (done := true)
+  if let some nv ← evalNat n |>.run then -- TODO: consider using dsimp
+    let r ← mkBitVecLit (BitVec.ofNat nv a)
+    return .step r (mkRflBitVec r nv) (done := true)
+  else
+    /-
+    Symbolic width. With `bitVecOfNat := false`, `OfNat.ofNat` is the normal form for every
+    width, so `0#w` (e.g., in `BitVec.sdiv_zero`) must become `(0 : BitVec w)` to match
+    `(0 : BitVec 32)` after instantiation. The numeral is not reduced modulo `2^w`.
+    -/
+    if (← read).bitVecOfNat then return .rfl
+    let v := mkRawNatLit a
+    let type := mkBitVecType n
+    let r ← share <| mkApp3 (mkConst ``OfNat.ofNat [0]) type v (mkApp2 (mkConst ``BitVec.instOfNat) n v)
+    return .step r (mkApp2 (mkConst ``Eq.refl [1]) type r) (done := true)
 
 def evalBitVecOfNatClamp (n a : Expr) : EvalM Result := do
   let some nv := getNatValue? n | return .rfl

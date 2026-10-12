@@ -156,7 +156,14 @@ term. The result is definitionally equal to the input.
 -/
 public def normNumLit? (e : Expr) : MetaM (Option Expr) := do
   match_expr e with
-  | BitVec.ofNat _ _ => bitVecOfNatForm e
+  | BitVec.ofNat w a =>
+    if let some r ← bitVecOfNatForm e then
+      return some r
+    else
+      -- Symbolic width: `BitVec.ofNat w a` is definitionally `OfNat.ofNat (BitVec w) a`, but the
+      -- numeral cannot be reduced modulo `2^w`.
+      let some v ← getNatValue? a | return none
+      return some (← mkNumeral (mkApp (mkConst ``BitVec) w) v)
   | BitVec.ofNatLT _ _ _ => bitVecOfNatForm e
   | Fin.ofNat n _ a =>
     let some n ← getNatValue? n | return none

@@ -209,14 +209,14 @@ where
 -/
 private def shouldEtaRecursor (a : Expr) : MetaM Nat := do
   let afn := a.getAppFn
-  let args := a.getAppArgs
+  let nargs := a.getAppNumArgs
   let some a_name := afn.constName? | return 0
   let .recInfo recVal ← getConstInfo a_name | return 0
   unless recVal.k || isNonRecStructure (← getEnv) recVal.getMajorInduct do
     return 0
-  if args.size > recVal.getMajorIdx then
+  if nargs > recVal.getMajorIdx then
     return 0
-  return recVal.getMajorIdx + 1 - args.size
+  return recVal.getMajorIdx + 1 - nargs
 
 /-- Try to solve `a := (fun x => t) =?= b` by eta-expanding `b`,
   resulting in `t =?= b x` (with a fresh free variable `x`).
@@ -242,14 +242,16 @@ private def shouldEta (a b : Expr) : MetaM Nat :=
     shouldEtaRecursor b
 
 private def isDefEqEta (a b : Expr) : MetaM LBool := do
-  let n_exps ← shouldEta a b
-  if n_exps = 0 then
+  let nExps ← shouldEta a b
+  if nExps = 0 then
     return .undef
   let bType ← inferType b
-  trace[Meta.isDefEq.eta] "eta-expanding {n_exps} times {b}"
-  let b' ← forallBoundedTelescope (whnfType := true) bType (some n_exps) fun xs _ => do←
-    if xs.size != n_exps then return .undef
-    mkLambdaFVars xs (mkAppN b xs)
+  trace[Meta.isDefEq.eta] "eta-expanding {nExps} times {b}"
+  let b' ←
+    withTransparency .default do←
+      forallBoundedTelescope (whnfType := true) bType (some nExps) fun xs _ => do←
+        if xs.size != nExps then return .undef
+        mkLambdaFVars xs (mkAppN b xs)
   toLBoolM <| Meta.isExprDefEqAux a b'
 
 /-- Support for reducing Nat basic operations. -/

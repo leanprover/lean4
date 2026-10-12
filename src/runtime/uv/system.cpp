@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Sofia Rodrigues
 */
 #include <climits>
+#include <limits>
 #include <cstring>
 #include <memory>
 #include <new>
@@ -169,6 +170,9 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_get_passwd() {
 /* Std.Internal.UV.System.osGetGroup : IO (Option GroupInfo) */
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_get_group(uint64_t gid) {
 #if UV_VERSION_HEX >= 0x012D00
+    if (gid > std::numeric_limits<uv_uid_t>::max()) {
+        return io_result_mk_uv_error(UV_EINVAL);
+    }
     uv_group_t group;
     int result = uv_os_get_group(&group, gid);
     if (result == UV_ENOENT) {
@@ -289,6 +293,9 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_gethostname() {
 
 /* Std.Internal.UV.System.osGetPriority : UInt64 → IO Int64 */
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_getpriority(uint64_t pid) {
+    if (pid > (uint64_t)std::numeric_limits<uv_pid_t>::max()) {
+        return io_result_mk_uv_error(UV_EINVAL);
+    }
     int priority;
     int result = uv_os_getpriority(pid, &priority);
     if (result < 0) {
@@ -299,7 +306,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_getpriority(uint64_t pid) {
 
 /* Std.Internal.UV.System.osSetPriority : UInt64 → Int64 → IO Unit */
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_setpriority(uint64_t pid, int64_t priority) {
-    if (priority < INT_MIN || priority > INT_MAX) {
+    if (pid > (uint64_t)std::numeric_limits<uv_pid_t>::max() || priority < INT_MIN || priority > INT_MAX) {
         return io_result_mk_uv_error(UV_EINVAL);
     }
     int result = uv_os_setpriority(pid, (int)priority);

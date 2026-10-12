@@ -638,6 +638,9 @@ existing code. It may be removed in a future version of the library.
 * `@[deprecated myBetterDef +typeChanged]` indicates that the replacement intentionally has a
   different type. `(typeChanged := true)` is an equivalent syntax.
 * `@[deprecated (since := "2024-04-21")]` records when the deprecation was first applied.
+* the last two options can be combined:
+  `@[deprecated myBetterDef "use myBetterDef instead" (since := "2024-04-21")]`
+  customizes the deprecation message and specifies the deprecation date
 -/
 syntax (name := deprecated) "deprecated" (ppSpace ident)? (ppSpace str)?
     (deprecatedTypeChanged)? (" (" &"since" " := " str ")")? : attr

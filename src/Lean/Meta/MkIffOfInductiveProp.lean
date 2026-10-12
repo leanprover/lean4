@@ -24,7 +24,7 @@ open Lean Meta Elab
 
 /-- Has the effect of `refine ⟨e₁,e₂,⋯, ?_⟩`.
 -/
-private def MVarId.existsi (mvar : MVarId) (es : List Expr) : MetaM MVarId := do
+def MVarId.existsi (mvar : MVarId) (es : List Expr) : MetaM MVarId := do
   es.foldlM (fun mv e ↦ do
       let (subgoals,_) ← Elab.Term.TermElabM.run <| Elab.Tactic.run mv do
         Elab.Tactic.evalTactic (← `(tactic| refine ⟨?_,?_⟩))
@@ -38,7 +38,7 @@ Apply the `n`-th constructor of the target type,
 checking that it is an inductive type,
 and that there are the expected number of constructors.
 -/
-private def MVarId.nthConstructor
+def MVarId.nthConstructor
     (name : Name) (idx : Nat) (expected? : Option Nat := none) (goal : MVarId) :
     MetaM (List MVarId) := do
   goal.withContext do
@@ -56,7 +56,7 @@ private def MVarId.nthConstructor
 
 /-- `select m n` runs `right` `m` times; if `m < n`, then it also runs `left` once.
 Fails if `n < m`. -/
-private def select (m n : Nat) (goal : MVarId) : MetaM MVarId :=
+def select (m n : Nat) (goal : MVarId) : MetaM MVarId :=
   match m,n with
   | 0, 0             => pure goal
   | 0, (_ + 1)       => do
@@ -76,7 +76,7 @@ R := fun as ↦ ∃ bs, ⋀_i a_i = p_i[bs]
 This relation is user-visible, so we compact it by removing each `b_j` where a `p_i = b_j`, and
 hence `a_i = b_j`. We need to take care when there are `p_i` and `p_j` with `p_i = p_j = b_k`.
 -/
-private partial def compactRelation :
+partial def compactRelation :
     List Expr → List (Expr × Expr) → List (Option Expr) × List (Expr × Expr) × (Expr → Expr)
 | [],    as_ps => ([], as_ps, id)
 | b::bs, as_ps =>
@@ -90,14 +90,14 @@ private partial def compactRelation :
         compactRelation (bs.map i) ((ps₁ ++ ps₂).map (fun ⟨a, p⟩ ↦ (a, i p)))
       (none :: bs, as_ps', i ∘ subst)
 
-private def updateLambdaBinderInfoD! (e : Expr) : Expr :=
+def updateLambdaBinderInfoD! (e : Expr) : Expr :=
   match e with
   | .lam n domain body _ => .lam n domain body .default
   | _           => panic! "lambda expected"
 
 /-- Generates an expression of the form `∃ (args), inner`. `args` is assumed to be a list of fvars.
 When possible, `p ∧ q` is used instead of `∃ (_ : p), q`. -/
-private def mkExistsList (args : List Expr) (inner : Expr) : MetaM Expr :=
+def mkExistsList (args : List Expr) (inner : Expr) : MetaM Expr :=
   args.foldrM
     (fun arg i:Expr => do
       let t ← inferType arg
@@ -110,26 +110,26 @@ private def mkExistsList (args : List Expr) (inner : Expr) : MetaM Expr :=
 
 /-- `mkOpList op empty [x1, x2, ...]` is defined as `op x1 (op x2 ...)`.
   Returns `empty` if the list is empty. -/
-private def mkOpList (op : Expr) (empty : Expr) : List Expr → Expr
+def mkOpList (op : Expr) (empty : Expr) : List Expr → Expr
   | []        => empty
   | [e]       => e
   | (e :: es) => mkApp2 op e <| mkOpList op empty es
 
 /-- `mkAndList [x1, x2, ...]` is defined as `x1 ∧ (x2 ∧ ...)`, or `True` if the list is empty. -/
-private def mkAndList : List Expr → Expr := mkOpList (mkConst `And) (mkConst `True)
+def mkAndList : List Expr → Expr := mkOpList (mkConst `And) (mkConst `True)
 
 /-- `mkOrList [x1, x2, ...]` is defined as `x1 ∨ (x2 ∨ ...)`, or `False` if the list is empty. -/
-private def mkOrList : List Expr → Expr := mkOpList (mkConst `Or) (mkConst `False)
+def mkOrList : List Expr → Expr := mkOpList (mkConst `Or) (mkConst `False)
 
 /-- Drops the final element of a list. -/
-private def List.init : List α → List α
+def List.init : List α → List α
   | []     => []
   | [_]    => []
   | a::l => a::init l
 
 /-- Auxiliary data associated with a single constructor of an inductive declaration.
 -/
-private structure Shape : Type where
+structure Shape : Type where
   /-- For each forall-bound variable in the type of the constructor, minus
   the "params" that apply to the entire inductive type, this list contains `true`
   if that variable has been kept after `compactRelation`.
@@ -158,7 +158,7 @@ private structure Shape : Type where
 /-- Converts an inductive constructor `c` into a `Shape` that will be used later in
 while proving the iff theorem, and a proposition representing the constructor.
 -/
-private def constrToProp (univs : List Level) (params : List Expr) (idxs : List Expr) (c : Name) :
+def constrToProp (univs : List Level) (params : List Expr) (idxs : List Expr) (c : Name) :
     MetaM (Shape × Expr) := do
   let type := (← getConstInfo c).instantiateTypeLevelParams univs
   let type' ← Meta.forallBoundedTelescope type (params.length) fun fvars ty ↦ do
@@ -193,7 +193,7 @@ private def constrToProp (univs : List Level) (params : List Expr) (idxs : List 
 /-- Splits the goal `n` times via `refine ⟨?_,?_⟩`, and then applies `constructor` to
 close the resulting subgoals.
 -/
-private def splitThenConstructor (mvar : MVarId) (n : Nat) : MetaM Unit :=
+def splitThenConstructor (mvar : MVarId) (n : Nat) : MetaM Unit :=
 match n with
 | 0   => do
   let (subgoals',_) ← Term.TermElabM.run <| Tactic.run mvar do
@@ -212,7 +212,7 @@ match n with
 /-- Proves the left to right direction of a generated iff theorem.
 `shape` is the output of a call to `constrToProp`.
 -/
-private def toCases (mvar : MVarId) (shape : List Shape) : MetaM Unit :=
+def toCases (mvar : MVarId) (shape : List Shape) : MetaM Unit :=
 do
   let ⟨h, mvar'⟩ ← mvar.intro1
   let subgoals ← mvar'.cases h
@@ -246,7 +246,7 @@ match n with
 /-- Calls `cases` on `h` (assumed to be a binary product) `n` times, and returns
 the resulting subgoal and the new hypotheses.
 -/
-private def nCasesProd (n : Nat) (mvar : MVarId) (h : FVarId) : MetaM (MVarId × List FVarId) :=
+def nCasesProd (n : Nat) (mvar : MVarId) (h : FVarId) : MetaM (MVarId × List FVarId) :=
 match n with
 | 0 => pure (mvar, [h])
 | n' + 1 => do
@@ -265,7 +265,7 @@ Example:
 listBoolMerge [false, true, false, true] [0, 1, 2, 3, 4] = [none, (some 0), none, (some 1)]
 ```
 -/
-private def listBoolMerge : List Bool → List α → List (Option α)
+def listBoolMerge : List Bool → List α → List (Option α)
   | [], _ => []
   | false :: xs, ys => none :: listBoolMerge xs ys
   | true :: xs, y :: ys => some y :: listBoolMerge xs ys
@@ -273,7 +273,7 @@ private def listBoolMerge : List Bool → List α → List (Option α)
 
 /-- Proves the right to left direction of a generated iff theorem.
 -/
-private def toInductive (mvar : MVarId) (cs : List Name)
+def toInductive (mvar : MVarId) (cs : List Name)
     (gs : List Expr) (s : List Shape) (h : FVarId) :
     MetaM Unit := do
   match s.length with
@@ -322,7 +322,7 @@ private def toInductive (mvar : MVarId) (cs : List Name)
 /--
   Generates existential form of a prop-valued inductive type and proves the equivalence.
 -/
-private def mkIffOfInductivePropImpl (inductVal : InductiveVal) (rel : Name) : MetaM Unit := do
+def mkIffOfInductivePropImpl (inductVal : InductiveVal) (rel : Name) : MetaM Unit := do
   let constrs := inductVal.ctors
   let params := inductVal.numParams
   let type := inductVal.type

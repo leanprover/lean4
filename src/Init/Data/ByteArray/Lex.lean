@@ -63,7 +63,7 @@ instance : LawfulOrderOrd ByteArray where
   isLE_compare a b := by simp [← compare_data_data, isLE_compare]
   isGE_compare := by simp [← compare_data_data, isGE_compare]
 
-private theorem beq_eq {a b : ByteArray} : (a == b) = (a.data == b.data) := rfl
+theorem beq_eq {a b : ByteArray} : (a == b) = (a.data == b.data) := rfl
 
 instance : LawfulBEq ByteArray where
   rfl := by simp [beq_eq]

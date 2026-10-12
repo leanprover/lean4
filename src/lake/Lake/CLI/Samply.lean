@@ -29,19 +29,19 @@ namespace Lake.Samply
 open Lean (Json toJson)
 
 /-- Check that a command is available on PATH. -/
-private def requireCmd (cmd : String) (installHint : String) : IO Unit := do
+def requireCmd (cmd : String) (installHint : String) : IO Unit := do
   let result ← IO.Process.output { cmd := "sh", args := #["-c", s!"command -v {cmd}"] }
   if result.exitCode != 0 then
     throw <| IO.userError s!"'{cmd}' not found. {installHint}"
 
 /-- Escape a string for safe interpolation inside a POSIX single-quoted shell argument. -/
-private def shellQuote (s : String) : String :=
+def shellQuote (s : String) : String :=
   "'" ++ s.replace "'" "'\\''" ++ "'"
 
 /-- Extract the samply server token from its log output.
     Samply prints a URL like `http://127.0.0.1:{port}/{token}/...` (percent-encoded).
     We decode the URL, split on the known server prefix, and take the first path segment. -/
-private def extractToken (output : String) (port : Nat) : Option String := do
+def extractToken (output : String) (port : Nat) : Option String := do
   let decoded := System.Uri.unescapeUri output
   let serverUrl := s!"http://127.0.0.1:{port}/"
   let pos ← decoded.find? serverUrl
@@ -52,7 +52,7 @@ private def extractToken (output : String) (port : Nat) : Option String := do
 
 /-- Wait for samply server to be ready by polling the stderr log file.
     Returns the token extracted from the server URL. -/
-private def waitForServer (logFile : String) (proc : IO.Process.Child cfg)
+def waitForServer (logFile : String) (proc : IO.Process.Child cfg)
     (port : Nat) (timeoutMs : Nat := 30000) : IO String := do
   let startTime ← IO.monoMsNow
   repeat
@@ -65,7 +65,7 @@ private def waitForServer (logFile : String) (proc : IO.Process.Child cfg)
     IO.sleep 200
 
 /-- One stack per thread, with a parallel array mapping each requested frame to its function. -/
-private def buildSymbolicationRequest (profile : Json)
+def buildSymbolicationRequest (profile : Json)
     : IO (Json × Array (Array Nat)) := do
   let libs ← IO.ofExcept <| profile.getObjValAs? (Array Json) "libs"
   let memoryMap ← libs.mapM fun lib => do
@@ -103,7 +103,7 @@ private def buildSymbolicationRequest (profile : Json)
   return (Json.mkObj [("memoryMap", Json.arr memoryMap), ("stacks", Json.arr stacks)], funcMaps)
 
 /-- Update each thread's function names, leaving shared strings (e.g. marker labels) intact. -/
-private def applySymbols (profile response : Json)
+def applySymbols (profile response : Json)
     (funcMaps : Array (Array Nat)) : IO Json := do
   let results ← IO.ofExcept <| response.getObjValAs? (Array Json) "results"
   let some result := results[0]? | throw <| IO.userError "symbolication returned no results"
@@ -134,12 +134,12 @@ private def applySymbols (profile response : Json)
     |>.setObjVal! "meta" (metadata.setObjVal! "symbolicated" (Json.bool true))
 
 /-- Kill a child process, ignoring errors (e.g. if it already exited). -/
-private def killSafe {cfg : IO.Process.StdioConfig} (proc : IO.Process.Child cfg) : IO Unit :=
+def killSafe {cfg : IO.Process.StdioConfig} (proc : IO.Process.Child cfg) : IO Unit :=
   try proc.kill; let _ ← proc.wait catch _ => pure ()
 
 /-- Split a pass-through arg list on the first `--`.
     Returns `(samplyArgs, progArgs)`; if there is no `--`, all args are samply args. -/
-private def splitOnDash (args : Array String) : Array String × Array String :=
+def splitOnDash (args : Array String) : Array String × Array String :=
   match args.findIdx? (· == "--") with
   | some i => (args.take i, args.extract (i + 1) args.size)
   | none   => (args, #[])

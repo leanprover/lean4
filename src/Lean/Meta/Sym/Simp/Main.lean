@@ -22,7 +22,7 @@ Returns `true` if `e` is a numeral application whose arguments are not visited:
 `OfNat.ofNat _ n _`, `Char.ofNat n`, and `OfScientific.ofScientific _ _ m _ e` with raw
 literals `n`, `m`, `e`. Like `Meta.simp`, `simp` treats these as atoms; see `simpStep`.
 -/
-private def isLitApp (e : Expr) : Bool :=
+def isLitApp (e : Expr) : Bool :=
   (e.isAppOfArity ``OfNat.ofNat 3 && (e.getArg! 1).isRawNatLit) ||
   e.isCharLit ||
   (e.isAppOfArity ``OfScientific.ofScientific 5 && (e.getArg! 2).isRawNatLit && (e.getArg! 4).isRawNatLit)

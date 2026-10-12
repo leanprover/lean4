@@ -2164,7 +2164,6 @@ extern "C" LEAN_EXPORT object * lean_string_push_cold(object * s, unsigned c) {
     } else {
         r = string_ensure_capacity(s, 5);
     }
-    // `r` is now exclusive with room for any scalar value, so this takes the inline fast path.
     return lean_string_push(r, c);
 }
 

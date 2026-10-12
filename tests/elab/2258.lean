@@ -33,9 +33,9 @@ structure BoolWrap where
 error: Type mismatch
   rfl
 has type
-  ?m.6 = ?m.6
+  ?m.3 = ?m.3
 but is expected to have type
   p = q
 -/
 #guard_msgs in
-example (a b : BoolWrap) : p = q := rfl
+example (p q : BoolWrap) : p = q := rfl

@@ -863,10 +863,10 @@ bool type_checker::try_eta_struct_core(expr const & t_, expr const & s_) {
     if (!is_def_eq(t_type,s_type)) return false;
     flet<local_ctx> save_lctx(m_lctx, m_lctx);
     unsigned num_ctor_args = sf_val.get_nparams() + sf_val.get_nfields();
-    lean_assert(get_app_num_args(s) <= num_ctor_args)
+    lean_assert(get_app_num_args(s) <= num_ctor_args);
     if (get_app_num_args(s) < num_ctor_args) {
         buffer<expr> fvars;
-        /* note: `s` is a ctor application, its head's type must be of the form `As -> Sort _` where `As` are the structure's params. As such, no need to whnf its type here. If we were running the loop on `t_type` instead, whnfs would be necessary. */
+        /* note: `s` is a ctor application, its head's type must be of the form `As -> fields -> I As` where `As` are the structure's params, ad `fields` the constructor's fields. As such, no need to whnf its type here. If we were running the loop on `t_type` instead, whnfs would be necessary. */
         while (is_pi(s_type)) {
             expr hd = binding_domain(s_type);
             expr x  = m_lctx.mk_local_decl(m_st->m_ngen, binding_name(s_type), hd, binding_info(s_type));
@@ -876,7 +876,7 @@ bool type_checker::try_eta_struct_core(expr const & t_, expr const & s_) {
         t = mk_app(t, fvars);
         s = mk_app(s, fvars);
     };
-    lean_assert(get_app_num_args(s) == num_ctor_args)
+    lean_assert(get_app_num_args(s) == num_ctor_args);
     buffer<expr> s_args;
     get_app_args(s, s_args);
     for (unsigned i = sf_val.get_nparams(); i < s_args.size(); i++) {

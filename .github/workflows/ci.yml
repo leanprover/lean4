@@ -224,9 +224,9 @@ jobs:
             if echo "$labels" | grep -q "macos-arm-ci"; then
               macos_arm=true
             fi
-            if ! diff src/stdlib_flags.h stage0/src/stdlib_flags.h; then
-              target_stage=2
-            fi
+          fi
+          if ! diff src/stdlib_flags.h stage0/src/stdlib_flags.h; then
+            target_stage=2
           fi
 
           {
@@ -441,12 +441,9 @@ jobs:
               //   "CTEST_OPTIONS": "-R \"leantest_1007\\.lean|leantest_Format\\.lean|leanruntest\\_1037.lean|leanruntest_ac_rfl\\.lean|leanruntest_tempfile.lean\\.|leanruntest_libuv\\.lean\""
               // }
             ];
-            // Release binaries should be built from stage2, but normal
-            // non-release builds should continue to use the cheaper stage1.
+            // Stage that is built, tested and packed. Shipped (stamped) release builds use stage2.
             for (const job of matrix) {
-              if (job["release"] && level >= 2) {
-                job["pack-stage2"] = true;
-              }
+              job["target-stage"] = (job["release"] && stamped) ? 2 : target_stage;
             }
             if (lakeCi) {
               for (const job of matrix) {

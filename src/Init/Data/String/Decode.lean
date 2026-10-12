@@ -376,7 +376,7 @@ public theorem _root_.UInt8.isUTF8ContinuationByte_iff_toBitVec {b : UInt8} :
     UInt8.toBitVec_and, UInt8.toBitVec_ofNat]
   exact helper 6 b.toBitVec 0b10#2
 
-theorem _root_.UInt8.toBitVec_eq_of_isUTF8ContinuationByte {b : UInt8} (hb : b.isUTF8ContinuationByte) :
+public theorem _root_.UInt8.toBitVec_eq_of_isUTF8ContinuationByte {b : UInt8} (hb : b.isUTF8ContinuationByte) :
     b.toBitVec = 0b10#2 ++ b.toBitVec.setWidth 6 := by
   exact helper₂ 6 b.toBitVec (UInt8.isUTF8ContinuationByte_iff_toBitVec.1 hb)
 

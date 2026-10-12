@@ -20,13 +20,17 @@ Author: Sofia Rodrigues
 namespace lean {
 
 // `nullptr` if `size` is a valid receive buffer size. libuv reports an empty buffer as `UV_ENOBUFS`,
-// which would read as a resource shortage.
+// which would read as a resource shortage, and takes the length as 32 bits on Windows.
 inline lean_obj_res recv_size_error(uint64_t size) {
-    if (size != 0) {
-        return nullptr;
+    if (size == 0) {
+        return lean_io_result_mk_error(lean_mk_io_error_invalid_argument(EINVAL, lean_mk_string("receive buffer size must be positive")));
     }
 
-    return lean_io_result_mk_error(lean_mk_io_error_invalid_argument(EINVAL, lean_mk_string("receive buffer size must be positive")));
+    if (size > UINT_MAX) {
+        return lean_io_result_mk_error(lean_mk_io_error_invalid_argument(EINVAL, lean_mk_string("receive buffer size must be smaller than 4 GiB")));
+    }
+
+    return nullptr;
 }
 
 // Sets the size of a receive buffer to the `nread` bytes it received. A read that fills less than half

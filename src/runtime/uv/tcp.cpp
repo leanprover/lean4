@@ -293,7 +293,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_wait_readable(b_obj_arg socket) 
         }
 
         promise = owned_ref(mk_mt_promise());
-        tcp_socket->m_read = uv_pending_op{owned_ref::retain(promise.get())};
+        tcp_socket->m_read = uv_pending_op{owned_ref::retain(promise.get()), owned_ref()};
 
         result = uv_read_start((uv_stream_t*)&tcp_socket->m_uv_tcp, alloc_cb, read_cb);
 
@@ -538,7 +538,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_wait_acceptable(b_obj_arg socket
         if (!ready) {
             // The event loop owns the object. It will be released in the listen
             lean_inc(socket);
-            tcp_socket->m_accept = uv_pending_op{owned_ref::retain(promise.get())};
+            tcp_socket->m_accept = uv_pending_op{owned_ref::retain(promise.get()), owned_ref()};
         }
     }
 

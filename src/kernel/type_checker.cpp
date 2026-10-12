@@ -1126,7 +1126,6 @@ bool type_checker::is_unit_like(expr const & t) {
         fvars.push_back(x);
         I       = whnf(instantiate(binding_body(I), x));
     }
-    I = instantiate_rev(I, fvars.size(), fvars.data());
     I = get_app_args(I, args);
     if (!is_constant(I))
         return false;

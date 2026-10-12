@@ -90,23 +90,19 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_dns_get_info(b_obj_arg name, b_obj_a
         std::unique_ptr<addrinfo, decltype(&uv_freeaddrinfo)> owned_res(res, uv_freeaddrinfo);
         lean_object * arr = lean_alloc_array(0, 1);
 
-        for (struct addrinfo* ai = res; ai != NULL; ai = ai->ai_next) {
-            const struct sockaddr* sin_addr = (const struct sockaddr*)ai->ai_addr;
+        for (addrinfo * ai = res; ai != nullptr; ai = ai->ai_next) {
+            const sockaddr * sa = ai->ai_addr;
+            const void * ip;
 
-            in_addr_storage* storage_addr;
-
-            if (sin_addr->sa_family == AF_INET) {
-                struct sockaddr_in* ipv4 = (struct sockaddr_in*)sin_addr;
-                storage_addr = (in_addr_storage*)&(ipv4->sin_addr);
-            } else if (sin_addr->sa_family == AF_INET6) {
-                struct sockaddr_in6* ipv6 = (struct sockaddr_in6*)sin_addr;
-                storage_addr = (in_addr_storage*)&(ipv6->sin6_addr);
+            if (sa->sa_family == AF_INET) {
+                ip = &reinterpret_cast<const sockaddr_in*>(sa)->sin_addr;
+            } else if (sa->sa_family == AF_INET6) {
+                ip = &reinterpret_cast<const sockaddr_in6*>(sa)->sin6_addr;
             } else {
                 continue;
             }
 
-            lean_object* addr = lean_in_addr_storage_to_ip_addr((short)sin_addr->sa_family, storage_addr);
-            arr = lean_array_push(arr, addr);
+            arr = lean_array_push(arr, lean_in_addr_to_ip_addr(sa->sa_family, ip));
         }
 
         lean_promise_resolve(mk_except_ok(arr), req->promise.get());

@@ -11,8 +11,6 @@ Author: Sofia Rodrigues, Henrik Böving
 namespace lean {
 #ifndef LEAN_EMSCRIPTEN
 
-using namespace std;
-
 // The finalizer of the `Timer`.
 static void timer_finalizer(void* ptr) {
     lean_uv_timer_object * timer = (lean_uv_timer_object*) ptr;
@@ -44,7 +42,7 @@ void initialize_libuv_timer() {
     g_uv_timer_external_class = lean_register_external_class(timer_finalizer, uv_foreach_refs<lean_uv_timer_object>);
 }
 
-void handle_timer_event(uv_timer_t* handle) {
+static void handle_timer_event(uv_timer_t* handle) {
     lean_object * obj = (lean_object*)handle->data;
     lean_uv_timer_object * timer = lean_to_uv_timer(obj);
 

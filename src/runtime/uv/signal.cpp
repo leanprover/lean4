@@ -24,6 +24,8 @@ static void signal_finalizer(void* ptr) {
 
         // The close callback may free `signal` as soon as the lock is released.
         promise = std::move(signal->m_promise);
+        // While a promise is pending the loop holds a reference, so the signal cannot be finalized.
+        lean_assert(promise.get() == nullptr || promise_is_resolved(promise.get()));
 
         // The Lean object is being freed, so the close callback gets the struct instead. No callback
         // reads `data` as the Lean object after `uv_close`.

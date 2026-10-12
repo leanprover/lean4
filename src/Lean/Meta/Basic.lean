@@ -391,7 +391,7 @@ instance : Hashable ExprConfigCacheKey where
 abbrev InferTypeCache := PersistentHashMap ExprConfigCacheKey Expr
 abbrev FunInfoCache   := PersistentHashMap InfoCacheKey FunInfo
 abbrev WhnfCache      := PersistentHashMap ExprConfigCacheKey Expr
-abbrev isUnitLikeCache    := PersistentHashMap ExprConfigCacheKey Bool
+abbrev IsUnitLikeCache    := PersistentHashMap ExprConfigCacheKey Bool
 
 structure DefEqCacheKey where
   private mk ::
@@ -420,7 +420,7 @@ structure Cache where
   whnf           : WhnfCache := {}
   defEqTrans     : DefEqCache := {} -- transient cache for terms containing mvars or using nonstandard configuration options, it is frequently reset.
   defEqPerm      : DefEqCache := {} -- permanent cache for terms not containing mvars and using standard configuration options
-  isUnitLike     : isUnitLikeCache := {}
+  isUnitLike     : IsUnitLikeCache := {}
   deriving Inhabited
 
 /--

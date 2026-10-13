@@ -123,6 +123,10 @@ theorem forall_prop_congr_dom {p₁ p₂ : Prop} (h : p₁ = p₂) (q : p₁ →
     (∀ a : p₁, q a) = (∀ a : p₂, q (h.substr a)) :=
   h ▸ rfl
 
+theorem exists_prop_congr_dom {p₁ p₂ : Prop} (h : p₁ = p₂) (q : p₁ → Prop) :
+    Exists (fun a : p₁ => q a) = Exists (fun a : p₂ => q (h.substr a)) :=
+  h ▸ rfl
+
 theorem pi_congr {α : Sort u} {β β' : α → Sort v} (h : ∀ a, β a = β' a) : (∀ a, β a) = ∀ a, β' a :=
   (funext h : β = β') ▸ rfl
 

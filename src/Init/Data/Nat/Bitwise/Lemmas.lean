@@ -626,6 +626,9 @@ theorem or_div_two : (a ||| b) / 2 = a / 2 ||| b / 2 :=
 theorem or_mod_two_pow : (a ||| b) % 2 ^ n = a % 2 ^ n ||| b % 2 ^ n :=
   bitwise_mod_two_pow
 
+theorem or_mod_two : (a ||| b) % 2 = a % 2 ||| b % 2 :=
+  bitwise_mod_two_pow (n := 1)
+
 @[simp]
 theorem or_eq_zero_iff {n m : Nat} : n ||| m = 0 ↔ n = 0 ∧ m = 0 := by
   simp [Nat.eq_iff_testBit_eq, forall_and]
@@ -634,6 +637,21 @@ theorem or_eq_zero_iff {n m : Nat} : n ||| m = 0 ↔ n = 0 ∧ m = 0 := by
 theorem or_pos_iff {n m : Nat} : 0 < n ||| m ↔ 0 < n ∨ 0 < m := by
   rw [Nat.pos_iff_ne_zero, ne_eq, Nat.or_eq_zero_iff, Decidable.not_and_iff_not_or_not,
     Nat.pos_iff_ne_zero, Nat.pos_iff_ne_zero]
+
+private theorem add_eq_or_add_and (a b : Nat) :
+    a + b = (a % 2 ||| b % 2) + (a % 2 &&& b % 2) + 2 * (a / 2 + b / 2) := by
+  rw [← Nat.mod_add_div (a + b) 2]
+  obtain (ha|ha) := Nat.mod_two_eq_zero_or_one a <;> obtain (hb|hb) := Nat.mod_two_eq_zero_or_one b
+  all_goals (simp [ha, hb]; omega)
+
+theorem or_le_add {a b : Nat} : a ||| b ≤ a + b := by
+  induction b using Nat.div2Induction generalizing a with
+  | ind b hb =>
+    obtain (rfl|h) := Nat.eq_zero_or_pos b
+    · simp
+    · rw [add_eq_or_add_and, ← Nat.mod_add_div (a ||| b) 2, or_mod_two, or_div_two]
+      have := hb h (a := a / 2)
+      omega
 
 /-! ### xor -/
 

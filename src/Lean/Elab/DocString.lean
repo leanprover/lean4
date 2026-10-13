@@ -1621,7 +1621,7 @@ def throwUnknownDocElem {α β : Type}
 /--
 Returns the name of a footnote or link reference.
 -/
-private def refName (name : VersoRefName) : DocM String := do
+def refName (name : VersoRefName) : DocM String := do
   -- The parser reads a name with `refNameFn`, which allows the same set of characters as these. If
   -- this exception is thrown, it's due to metaprograms behaving badly.
   let str := name.getVersoRefName
@@ -2046,7 +2046,7 @@ that bare name (e.g. `` {given}`x` ``, rather than `` {Lean.Doc.given}`x` ``), r
 namespaces are open. Non-builtin elements use `MessageData.ofConstName` so they appear in their
 shortest unambiguous form.
 -/
-private def docElementMessage (extension : Name) : BaseIO MessageData := do
+def docElementMessage (extension : Name) : BaseIO MessageData := do
   if (← isBuiltin) then
     match extension with
     | .str _ s => return s

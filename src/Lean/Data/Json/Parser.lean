@@ -218,6 +218,7 @@ mutual
       Parser (Std.TreeMap.Raw String Json) := do
     lookahead (fun c => c == '"') "\""; skip;
     let k ← str; ws
+    if kvs.contains k then fail s!"duplicate object key {k.quote}"
     lookahead (fun c => c == ':') ":"; skip; ws
     let v ← anyCore
     let c ← any
@@ -283,6 +284,7 @@ end Json.Parser
 
 namespace Json
 
+/-- Parses a JSON value, surrounded by optional whitespace. Objects with duplicate keys are rejected. -/
 def parse (s : String) : Except String Lean.Json :=
   Parser.run Json.Parser.any s
 

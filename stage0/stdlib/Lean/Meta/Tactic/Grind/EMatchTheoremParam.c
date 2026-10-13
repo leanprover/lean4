@@ -3096,7 +3096,7 @@ _start:
 {
 lean_object* v_toGoalState_837_; lean_object* v_ematch_838_; lean_object* v_thms_839_; lean_object* v_newThms_840_; lean_object* v___x_841_; lean_object* v___x_842_; lean_object* v___x_843_; 
 v_toGoalState_837_ = lean_ctor_get(v_goal_826_, 0);
-v_ematch_838_ = lean_ctor_get(v_toGoalState_837_, 12);
+v_ematch_838_ = lean_ctor_get(v_toGoalState_837_, 13);
 v_thms_839_ = lean_ctor_get(v_ematch_838_, 2);
 v_newThms_840_ = lean_ctor_get(v_ematch_838_, 3);
 v___x_841_ = lean_obj_once(&l_Lean_Meta_Grind_getLocalTheoremAnchors___closed__1, &l_Lean_Meta_Grind_getLocalTheoremAnchors___closed__1_once, _init_l_Lean_Meta_Grind_getLocalTheoremAnchors___closed__1);

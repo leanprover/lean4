@@ -8725,7 +8725,7 @@ v___jp_2887_:
 {
 lean_object* v_toGoalState_2901_; uint8_t v_inconsistent_2902_; 
 v_toGoalState_2901_ = lean_ctor_get(v_snd_2889_, 0);
-v_inconsistent_2902_ = lean_ctor_get_uint8(v_toGoalState_2901_, sizeof(void*)*17);
+v_inconsistent_2902_ = lean_ctor_get_uint8(v_toGoalState_2901_, sizeof(void*)*18);
 if (v_inconsistent_2902_ == 0)
 {
 lean_object* v_mvarId_2903_; lean_object* v_config_2904_; lean_object* v___f_2905_; lean_object* v___x_2906_; 

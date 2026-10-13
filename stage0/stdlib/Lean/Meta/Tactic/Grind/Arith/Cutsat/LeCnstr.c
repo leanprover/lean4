@@ -11824,7 +11824,7 @@ goto v_resetjp_3715_;
 v_resetjp_3715_:
 {
 uint8_t v_lia_3718_; 
-v_lia_3718_ = lean_ctor_get_uint8(v_a_3714_, sizeof(void*)*14 + 23);
+v_lia_3718_ = lean_ctor_get_uint8(v_a_3714_, sizeof(void*)*14 + 24);
 lean_dec(v_a_3714_);
 if (v_lia_3718_ == 0)
 {

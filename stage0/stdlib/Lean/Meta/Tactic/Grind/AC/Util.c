@@ -1963,7 +1963,7 @@ goto v_resetjp_808_;
 v_resetjp_808_:
 {
 uint8_t v_ring_811_; 
-v_ring_811_ = lean_ctor_get_uint8(v_a_807_, sizeof(void*)*14 + 21);
+v_ring_811_ = lean_ctor_get_uint8(v_a_807_, sizeof(void*)*14 + 22);
 lean_dec(v_a_807_);
 if (v_ring_811_ == 0)
 {

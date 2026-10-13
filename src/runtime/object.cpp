@@ -2095,10 +2095,6 @@ extern "C" LEAN_EXPORT object * lean_mk_ascii_string_unchecked(char const * s) {
     return lean_mk_string_unchecked(s, len, len);
 }
 
-extern "C" LEAN_EXPORT obj_res lean_decode_lossy_utf8(b_obj_arg a) {
-    return lean_mk_string_from_bytes(reinterpret_cast<char *>(lean_sarray_cptr(a)), lean_sarray_size(a));
-}
-
 extern "C" LEAN_EXPORT obj_res lean_string_from_utf8_unchecked(obj_arg a) {
     obj_res ret = lean_mk_string_from_bytes_unchecked(reinterpret_cast<char *>(lean_sarray_cptr(a)), lean_sarray_size(a));
     lean_dec(a);
@@ -2156,7 +2152,7 @@ extern "C" LEAN_EXPORT obj_res lean_copy_string_nonlinear(obj_arg s, size_t cap)
     return lean_copy_string(s, cap);
 }
 
-extern "C" LEAN_EXPORT object * lean_string_push(object * s, unsigned c) {
+extern "C" LEAN_EXPORT object * lean_string_push_cold(object * s, unsigned c) {
     size_t sz  = lean_string_size(s);
     object * r;
     if (!lean_is_exclusive(s)) {
@@ -2164,11 +2160,7 @@ extern "C" LEAN_EXPORT object * lean_string_push(object * s, unsigned c) {
     } else {
         r = string_ensure_capacity(s, 5);
     }
-    unsigned consumed = push_unicode_scalar(w_string_cstr(r) + sz - 1, c);
-    lean_to_string(r)->m_size   = sz + consumed;
-    lean_to_string(r)->m_length++;
-    w_string_cstr(r)[sz + consumed - 1] = 0;
-    return r;
+    return lean_string_push(r, c);
 }
 
 extern "C" LEAN_EXPORT object * lean_string_append(object * s1, object * s2) {

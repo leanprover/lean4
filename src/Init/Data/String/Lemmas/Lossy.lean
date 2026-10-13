@@ -124,6 +124,7 @@ theorem fromUTF8Lossy.go_eq_fromUTF8Lossy_extract {b : ByteArray} {i : Nat}
     simp [ByteArray.extract_extract, Nat.add_assoc, Nat.add_sub_cancel' (Nat.le_of_lt h₁)]
   | case3 h =>
     rw [fromUTF8Lossy.go_of_not_lt (by simp; omega), String.append_empty]
+termination_by b.size - i
 
 public theorem fromUTF8Lossy_of_utf8DecodeChar?_eq_some {b : ByteArray} {c : Char}
     (hc : b.utf8DecodeChar? 0 = some c) :
@@ -211,7 +212,7 @@ public theorem fromUTF8Lossy_surrogate_append {x y : UInt8} {b : ByteArray}
       have hx' : UInt8.ofNat (160 + (x.toNat - 160)) = x := by simp [← UInt8.toNat_inj]; omega
       have hy' : UInt8.ofNat (128 + (y.toNat - 128)) = y := by simp [← UInt8.toNat_inj]; omega
       rw [← this (x.toNat - 160) (by omega) (y.toNat - 128) (by omega), hx', hy']
-    decide
+    decide +kernel
   · simp only [List.size_toByteArray, List.length_cons, List.length_nil, Nat.zero_add,
       Nat.reduceAdd, List.getElem_toByteArray]
     rintro (_|_|_|n)

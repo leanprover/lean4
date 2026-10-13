@@ -218,8 +218,8 @@ def setupGrindTarget (goal : Grind.Goal) : Grind.GrindM (Array FVarId × Grind.G
 def setupTarget : PreProcessM (Option (Array Hyp)) := do
   match ← PreProcessM.getTarget with
   | .mvarIdTarget g =>
-    let (_, g) ← symByContradiction g
     let g ← Sym.preprocessMVar g
+    let (_, g) ← symByContradiction g
     PreProcessM.setTarget <| .mvarIdTarget g
     g.withContext do
       return some <| ← (← getPropHyps).mapM fun fvarId =>

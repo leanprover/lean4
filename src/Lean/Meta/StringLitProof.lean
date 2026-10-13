@@ -7,6 +7,7 @@ module
 
 prelude
 public import Lean.Meta.AppBuilder
+import Init.Data.String.Csimp
 
 public section
 

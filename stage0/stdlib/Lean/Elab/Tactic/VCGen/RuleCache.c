@@ -388,7 +388,6 @@ lean_dec_ref(v___y_141_);
 lean_dec(v___y_140_);
 lean_dec(v___y_139_);
 lean_dec_ref(v___y_138_);
-lean_dec_ref(v_info_136_);
 return v_res_150_;
 }
 }

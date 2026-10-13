@@ -103,6 +103,16 @@ def h✝ (x✝ : Nat✝) : Id✝ Nat✝
 where
 finally
   | spec✝ => skip
+def t✝ (x✝ : Nat✝) : Except✝ String✝ Nat✝
+    requires x✝ > 0
+    ensures r✝ => r✝ = x✝
+    throws e✝ => e✝ = "err" :=
+  pure✝ x✝
+def t2✝ (x✝ : Nat✝)
+    ensures r✝ s✝ => r✝ = x✝
+    throws e✝ s✝ => e✝ = "err"
+    throws (e✝ : Nat✝) s✝ => e✝ = x✝ :=
+  pure✝ x✝
 def foo✝ := by
   · skip; skip
   · skip; skip

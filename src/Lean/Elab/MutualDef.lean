@@ -1266,6 +1266,10 @@ this warning can be disabled with `set_option warn.classDefReducibility false`."
   elabAsync header view declId := do
     assert! view.kind.isTheorem
     let env ← getEnv
+    let env :=
+      if env.header.isModule && !isPrivateName declId.declName then
+        recordOriginalConstKind env declId.declName .thm
+      else env
     let async ← env.addConstAsync declId.declName .thm
       (exportedKind? :=
         guard (!isPrivateName declId.declName || (← ResolveName.backward.privateInPublic.getM)) *>
@@ -1524,7 +1528,7 @@ def elabMutualDef (ds : Array Syntax) : CommandElabM Unit := do
   let mut reusedAllHeaders := true
   for h : i in *...ds.size, headerPromise in headerPromises do
     let d := ds[i]
-    let modifiers ← elabModifiers ⟨d[0]⟩
+    let modifiers ← elabModifiers ⟨d[0]⟩ (isExample := d[1].isOfKind ``Parser.Command.example)
     if ds.size > 1 && modifiers.isNonrec then
       throwErrorAt d "invalid use of 'nonrec' modifier in 'mutual' block"
     let mut view ←

@@ -19,13 +19,9 @@ inductive LocalDecl
 class local_decl : public object_ref {
     friend class local_ctx;
     friend class local_context;
-    friend void initialize_local_ctx();
     local_decl(unsigned idx, name const & n, name const & un, expr const & t, expr const & v);
-    local_decl(local_decl const & d, expr const & t, expr const & v);
     local_decl(unsigned idx, name const & n, name const & un, expr const & t, binder_info bi);
-    local_decl(local_decl const & d, expr const & t);
 public:
-    local_decl();
     local_decl(local_decl const & other):object_ref(other) {}
     local_decl(local_decl && other) noexcept:object_ref(std::move(other)) {}
     local_decl(obj_arg o):object_ref(o) {}
@@ -58,8 +54,6 @@ public:
     local_ctx & operator=(local_ctx const & other) { object_ref::operator=(other); return *this; }
     local_ctx & operator=(local_ctx && other) noexcept { object_ref::operator=(std::move(other)); return *this; }
 
-    bool empty() const;
-
     /* Low level `mk_local_decl` */
     local_decl mk_local_decl(name const & n, name const & un, expr const & type, binder_info bi);
     /* Low level `mk_local_decl` */
@@ -83,13 +77,6 @@ public:
     /* \brief Return type of the given free variable.
        \pre is_fvar(e) */
     expr get_type(expr const & e) const { return get_local_decl(e).get_type(); }
-
-    /** Return the free variable associated with the given name.
-        \pre get_local_decl(n) */
-    expr get_local(name const & n) const;
-
-    /** \brief Remove the given local decl. */
-    void clear(local_decl const & d);
 
     expr mk_lambda(unsigned num, expr const * fvars, expr const & e, bool remove_dead_let = false) const;
     expr mk_pi(unsigned num, expr const * fvars, expr const & e, bool remove_dead_let = false) const;

@@ -247,6 +247,10 @@ public theorem lt_trichotomy [LT α] [Std.Trichotomous (α := α) (· < ·)] (a 
     a < b ∨ a = b ∨ b < a :=
   Trichotomous.rel_or_eq_or_rel_swap
 
+public theorem eq_of_not_lt_of_not_gt [LT α] [Std.Trichotomous (α := α) (· < ·)] {a b : α} :
+    ¬ a < b → ¬ b < a → a = b :=
+  Trichotomous.trichotomous a b
+
 end LT
 end Std
 
@@ -286,6 +290,10 @@ public instance {α : Type u} [BEq α] [LE α] [LawfulOrderBEq α] [IsPartialOrd
   eq_of_beq := by
     simp only [beq_iff_le_and_ge, and_imp]
     apply le_antisymm
+
+public instance [LE α] [BEq α] [LawfulBEq α] [Refl (α := α) (· ≤ ·)]
+    [Antisymm (α := α) (· ≤ ·)] : LawfulOrderBEq α where
+  beq_iff_le_and_ge a b := by simp [le_antisymm_iff]
 
 end BEq
 end Std
@@ -635,6 +643,7 @@ public instance lawfulOrderSup_maxOfLe {α : Type u} [LE α] [DecidableLE α]
 end maxOfLe
 
 end Max
+
 end Std
 
 namespace Classical.Order

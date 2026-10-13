@@ -30,17 +30,14 @@ if (lean_obj_tag(v___x_8_) == 0)
 {
 lean_object* v_a_9_; 
 v_a_9_ = lean_ctor_get(v___x_8_, 0);
-lean_inc(v_a_9_);
 if (lean_obj_tag(v_a_9_) == 1)
 {
-lean_dec_ref_known(v_a_9_, 1);
 lean_dec(v_fvarId_2_);
 return v___x_8_;
 }
 else
 {
 lean_object* v___x_10_; 
-lean_dec(v_a_9_);
 lean_dec_ref_known(v___x_8_, 1);
 v___x_10_ = l_Lean_Compiler_LCNF_findLetValue_x3f___redArg(v_pu_1_, v_fvarId_2_, v_a_3_);
 lean_dec(v_fvarId_2_);

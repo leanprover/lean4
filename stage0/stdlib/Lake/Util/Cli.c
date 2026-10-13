@@ -2342,10 +2342,10 @@ return v___x_803_;
 LEAN_EXPORT lean_object* l_Lake_option___redArg___lam__1___boxed(lean_object* v_short_804_, lean_object* v___x_805_, lean_object* v_____r_806_){
 _start:
 {
-uint32_t v___x_890__boxed_807_; lean_object* v_res_808_; 
-v___x_890__boxed_807_ = lean_unbox_uint32(v___x_805_);
+uint32_t v___x_901__boxed_807_; lean_object* v_res_808_; 
+v___x_901__boxed_807_ = lean_unbox_uint32(v___x_805_);
 lean_dec(v___x_805_);
-v_res_808_ = l_Lake_option___redArg___lam__1(v_short_804_, v___x_890__boxed_807_, v_____r_806_);
+v_res_808_ = l_Lake_option___redArg___lam__1(v_short_804_, v___x_901__boxed_807_, v_____r_806_);
 return v_res_808_;
 }
 }

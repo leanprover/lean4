@@ -61,7 +61,7 @@ each in `State.invariants` (1-based stable index) and try to inline-elaborate
 its matching user alt. Returns the remaining non-invariant subgoals for `work`
 to enqueue. Eager handling here ensures dependent VCs see `?inv` assigned by
 the time they reach `emitVC`. -/
-private def handleInvariantSubgoals (subgoals : List MVarId) : VCGenM (Array MVarId) := do
+def handleInvariantSubgoals (subgoals : List MVarId) : VCGenM (Array MVarId) := do
   let env ← getEnv
   let mut others : Array MVarId := #[]
   for sg in subgoals do
@@ -89,7 +89,7 @@ public def emitVC (goal : Grind.Goal) : VCGenM Unit := do
   mvarId.setKind .syntheticOpaque
   modify fun s => { s with vcs := s.vcs.push { goal with mvarId } }
 
-private structure WorkItem where
+structure WorkItem where
   goal : Grind.Goal
   scope : Scope
 
@@ -128,7 +128,7 @@ public structure Result where
   unmatchedFrames : Array Syntax := #[]
 
 /--
-Generate verification conditions for a goal of the form `pre ⊑ wp e post epost s₁ ... sₙ` by repeatedly
+Generate verification conditions for a goal of the form `pre ⊑ wp e post eposts s₁ ... sₙ` by repeatedly
 decomposing `e` using registered `@[spec]` theorems.
 Return the VCs and invariant goals.
 

@@ -338,7 +338,7 @@ structure ToolchainCandidate where
   /-- Whether the candidate toolchain been fixed to particular version. -/
   fixed : Bool := false
 
-private structure ToolchainState where
+structure ToolchainState where
   /-- The name of depedency which provided the current candidate toolchain. -/
   src : Name
   /-- The current candidate toolchain version (if any). -/

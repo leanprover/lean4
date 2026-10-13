@@ -233,7 +233,7 @@ where go (inst expectedType : Expr) (isEta : Bool) : MetaM (Option Expr) := do
             try
               if let .some new ← trySynthInstance argExpectedType then
                 -- ignore instances from non-defeq diamonds
-                if (← withDefault <| isDefEq new arg) then
+                if (← withoutExporting (when := !exposeAux) <| withDefault <| isDefEq new arg) then
                   trace[Meta.wrapInstance] "using existing instance {new}"
                   mvarId.assign new
                   isEta := false
@@ -264,7 +264,7 @@ where go (inst expectedType : Expr) (isEta : Bool) : MetaM (Option Expr) := do
                 if let .some existingBaseClassInst ← trySynthInstance baseClassType then
                   let proj ← mkProjection existingBaseClassInst fieldInfo.fieldName
                   -- ignore instances from non-defeq diamonds
-                  if (← withDefault <| isDefEq proj arg) then
+                  if (← withoutExporting (when := !exposeAux) <| withDefault <| isDefEq proj arg) then
                     trace[Meta.wrapInstance] "using projection of existing instance `{existingBaseClassInst}`"
                     mvarId.assign proj
                     continue

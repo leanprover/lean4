@@ -76,7 +76,7 @@ def mkOrdTagMap
     return map.insert declName <| ← f declName
 
 /-- Load a `PackageDecl` from a configuration environment. -/
-private def PackageDecl.loadFromEnv
+def PackageDecl.loadFromEnv
   (env : Environment) (opts := Options.empty)
 : Except String PackageDecl := do
   let declName ←

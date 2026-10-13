@@ -15,7 +15,7 @@ Author: Sofia Rodrigues
 
 namespace lean {
 
-static lean_external_class* g_uv_tcp_socket_external_class = NULL;
+inline lean_external_class * g_uv_tcp_socket_external_class = nullptr;
 void initialize_libuv_tcp_socket();
 
 #ifndef LEAN_EMSCRIPTEN
@@ -23,13 +23,15 @@ void initialize_libuv_tcp_socket();
 // Structure for managing a single TCP socket object, including promise handling,
 // connection state, and read/write buffers.
 typedef struct {
-    uv_tcp_t*      m_uv_tcp;           // LibUV TCP handle.
+    uv_tcp_t       m_uv_tcp;           // LibUV TCP handle.
     lean_object*   m_promise_accept;   // The associated promise for asynchronous results for accepting new sockets.
     lean_object*   m_promise_read;     // The associated promise for asynchronous results for reading from the socket.
     lean_object*   m_promise_shutdown; // The associated promise for asynchronous results to shutdown the socket.
-    lean_object*   m_client;           // Cached client that is going to be used in the next accept.
+    lean_object*   m_client;           // Cached client that is going to be used in the next accept, or `nullptr` for `waitAcceptable`.
     lean_object*   m_byte_array;       //  Buffer for storing data received via `recv_start`.
     bool           m_shutdown_requested; // Whether `uv_shutdown` was already requested for this socket.
+    bool           m_listening;        // Whether `uv_listen` succeeded on this socket.
+    unsigned       m_pending_connections; // Connections the listen callback reported that nobody accepted yet.
 } lean_uv_tcp_socket_object;
 
 // =======================================
@@ -52,6 +54,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_listen(b_obj_arg socket, int32_t
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_accept(b_obj_arg socket);
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_cancel_accept(b_obj_arg socket);
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_try_accept(b_obj_arg socket);
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_wait_acceptable(b_obj_arg socket);
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_shutdown(b_obj_arg socket);
 
 // =======================================
@@ -60,6 +63,6 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_shutdown(b_obj_arg socket);
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_getpeername(b_obj_arg socket);
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_getsockname(b_obj_arg socket);
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_nodelay(b_obj_arg socket);
-extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_keepalive(b_obj_arg socket, int32_t enable, uint32_t delay);
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_keepalive(b_obj_arg socket, uint8_t enable, uint32_t delay);
 
 }

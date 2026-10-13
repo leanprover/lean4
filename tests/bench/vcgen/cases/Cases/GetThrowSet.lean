@@ -1,5 +1,5 @@
 import Lean
-import Std.Tactic.Do
+import Std.WP
 
 /-!
 Exception handling with `ExceptT String <| StateM Nat`: each `step` conditionally throws and
@@ -18,7 +18,7 @@ abbrev M := ExceptT String <| StateM Nat
 -- Partially evaluated specs for best performance.
 
 @[spec high] theorem spec_throw (e : String) {post : α → Nat → Prop} :
-    ⦃epost e⦄ (throw (m := M) e) ⦃post; estack⟨epost⟩⦄ := ⟨PartialOrder.rel_refl⟩
+    ⦃eposts e⦄ (throw (m := M) e) ⦃post; estack⟨eposts⟩⦄ := ⟨PartialOrder.rel_refl⟩
 
 @[spec high] theorem spec_set (x : Nat) :
     ⦃fun _ => post ⟨⟩ x⦄ (set (m := M) x) ⦃post⦄ := by

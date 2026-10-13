@@ -1,3 +1,8 @@
+Input: "$35.23"
 Success! Final stack:
-  (Lean.Doc.Syntax.text (str "\"$35.23\""))
+  (Lean.Doc.Parser.Inline.text
+   (Lean.Doc.Parser.versoText "$35.23"))
 All input consumed.
+Round-trip OK
+Decoded views:
+  text (content := "$35.23")

@@ -1,0 +1,28 @@
+Input: "_x {0}{1}_"
+2 failures:
+Failure: expected identifier
+ --> 1:4-1:5
+  |
+1 | _x {0}{1}_
+  |     ^
+  = consumed input prefix: 4 bytes
+
+Failure: unexpected '_'; expected '![', '$$', '$', '*', '[', '[^', '_', '`' or '{'
+ --> 1:6-1:7
+  |
+1 | _x {0}{1}_
+  |       ^
+  = consumed input prefix: 6 bytes
+
+Final stack:
+  (Lean.Doc.Parser.Inline.emph
+   (Lean.Doc.Parser.emphDelimiter "_")
+   [(Lean.Doc.Parser.Inline.text
+     (Lean.Doc.Parser.versoText "x "))
+    (Lean.Doc.Parser.Inline.role
+     "{"
+     <missing>
+     "}")])
+Remaining:
+"{1}_"
+Round-trip not reproduced, as the parse reported errors: leaf without original source info: <missing>

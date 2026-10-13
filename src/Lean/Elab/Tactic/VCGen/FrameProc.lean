@@ -31,8 +31,9 @@ spec's precondition. `W` is the weakest footprint the rule leaves.
 goal          : P ⊑ wp prog Q E s⃗
    │ frame rule, introducing ?frame
    ▼
-split VC      : P ⊑ (op ?frame W) s⃗      side goal: Frames op (wpTrans prog) ?frame
+split VC      : P ⊑ (op ?frame W) s⃗      side goal: Frames op (trans prog) ?frame G
    where        W = wp prog (fun a => adj (op ?frame) (Q a)) (adj (opE ?frame) E)
+                G = fun t⃗ => ⌜t⃗ = s⃗⌝ ⊓ P
    │ spec rule, at a target the frameproc named
    ▼
 spec target   : ?footprint ⊑ W t⃗
@@ -202,7 +203,7 @@ public def defaultFrameInferenceProc : FrameInferenceProc := fun i => do
   return .ofFrame i frame
 
 /-- The lattice meet operator over the goal's assertion type. -/
-private def meetOp (info : WPApp) : MetaM Expr :=
+def meetOp (info : WPApp) : MetaM Expr :=
   Meta.mkAppOptM ``Lean.Order.meet #[info.Pred, none]
 
 /-- The default frame operator: lattice meet `pre ⊓ frame`, the Hoare frame every complete lattice

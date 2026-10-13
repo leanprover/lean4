@@ -1091,9 +1091,7 @@ _start:
 lean_object* v___x_374_; lean_object* v_fst_375_; uint8_t v___x_376_; 
 v___x_374_ = l___private_Lean_Compiler_LCNF_PullFunDecls_0__Lean_Compiler_LCNF_PullFunDecls_attach_visited(v_i_372_, v_a_373_);
 v_fst_375_ = lean_ctor_get(v___x_374_, 0);
-lean_inc(v_fst_375_);
 v___x_376_ = lean_unbox(v_fst_375_);
-lean_dec(v_fst_375_);
 if (v___x_376_ == 0)
 {
 lean_object* v_snd_377_; lean_object* v_fst_378_; lean_object* v_snd_379_; lean_object* v___x_381_; uint8_t v_isShared_382_; uint8_t v_isSharedCheck_414_; 

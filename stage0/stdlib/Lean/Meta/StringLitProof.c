@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.StringLitProof
-// Imports: public import Lean.Meta.AppBuilder
+// Imports: public import Lean.Meta.AppBuilder import Init.Data.String.Csimp
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -20,7 +20,7 @@ lean_object* l_Lean_Expr_app___override(lean_object*, lean_object*);
 lean_object* lean_uint32_to_nat(uint32_t);
 lean_object* l_Lean_mkRawNatLit(lean_object*);
 lean_object* l_Lean_mkAppB(lean_object*, lean_object*, lean_object*);
-lean_object* lean_string_data(lean_object*);
+lean_object* l_String_toListImpl(lean_object*);
 lean_object* l_Lean_mkApp3(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkApp4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_lengthTR___redArg(lean_object*);
@@ -587,8 +587,8 @@ LEAN_EXPORT lean_object* l_Lean_Meta_mkStringLitNeProof(lean_object* v_s_u2081_2
 _start:
 {
 lean_object* v_l_u2081_220_; lean_object* v_l_u2082_221_; lean_object* v_type_222_; lean_object* v_nil_223_; lean_object* v___x_224_; lean_object* v_cons_225_; lean_object* v_l_u2081Expr_226_; lean_object* v_l_u2082Expr_227_; lean_object* v___y_229_; lean_object* v___y_230_; lean_object* v_listNeProof_231_; lean_object* v___y_243_; lean_object* v___y_244_; lean_object* v___y_245_; lean_object* v___y_246_; lean_object* v___y_247_; lean_object* v_listCharTy_250_; lean_object* v___x_251_; lean_object* v___x_252_; lean_object* v___y_254_; lean_object* v___y_255_; lean_object* v___y_256_; lean_object* v___y_257_; lean_object* v___y_258_; uint32_t v_fst_259_; lean_object* v_snd_260_; lean_object* v___y_274_; lean_object* v___y_275_; lean_object* v___y_276_; lean_object* v___y_328_; uint8_t v___x_336_; 
-v_l_u2081_220_ = lean_string_data(v_s_u2081_213_);
-v_l_u2082_221_ = lean_string_data(v_s_u2082_214_);
+v_l_u2081_220_ = l_String_toListImpl(v_s_u2081_213_);
+v_l_u2082_221_ = l_String_toListImpl(v_s_u2082_214_);
 v_type_222_ = lean_obj_once(&l_Lean_Meta_mkStringLitNeProof___closed__1, &l_Lean_Meta_mkStringLitNeProof___closed__1_once, _init_l_Lean_Meta_mkStringLitNeProof___closed__1);
 v_nil_223_ = lean_obj_once(&l_Lean_Meta_mkStringLitNeProof___closed__7, &l_Lean_Meta_mkStringLitNeProof___closed__7_once, _init_l_Lean_Meta_mkStringLitNeProof___closed__7);
 v___x_224_ = lean_obj_once(&l_Lean_Meta_mkStringLitNeProof___closed__10, &l_Lean_Meta_mkStringLitNeProof___closed__10_once, _init_l_Lean_Meta_mkStringLitNeProof___closed__10);
@@ -620,11 +620,11 @@ lean_inc_ref(v_l_u2081Expr_226_);
 v___x_234_ = l_Lean_Expr_app___override(v___x_233_, v_l_u2081Expr_226_);
 lean_inc_ref(v_l_u2082Expr_227_);
 v___x_235_ = l_Lean_Expr_app___override(v___x_233_, v_l_u2082Expr_227_);
-v_strEq_236_ = l_Lean_mkApp3(v___y_229_, v_strType_232_, v___x_234_, v___x_235_);
+v_strEq_236_ = l_Lean_mkApp3(v___y_230_, v_strType_232_, v___x_234_, v___x_235_);
 v___x_237_ = lean_obj_once(&l_Lean_Meta_mkStringLitNeProof___closed__20, &l_Lean_Meta_mkStringLitNeProof___closed__20_once, _init_l_Lean_Meta_mkStringLitNeProof___closed__20);
 v___x_238_ = lean_obj_once(&l_Lean_Meta_mkStringLitNeProof___closed__23, &l_Lean_Meta_mkStringLitNeProof___closed__23_once, _init_l_Lean_Meta_mkStringLitNeProof___closed__23);
 v___x_239_ = l_Lean_mkAppB(v___x_238_, v_l_u2081Expr_226_, v_l_u2082Expr_227_);
-v___x_240_ = l_Lean_mkApp4(v___x_237_, v_strEq_236_, v___y_230_, v___x_239_, v_listNeProof_231_);
+v___x_240_ = l_Lean_mkApp4(v___x_237_, v_strEq_236_, v___y_229_, v___x_239_, v_listNeProof_231_);
 v___x_241_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_241_, 0, v___x_240_);
 return v___x_241_;
@@ -633,10 +633,10 @@ v___jp_242_:
 {
 lean_object* v___x_248_; lean_object* v___x_249_; 
 v___x_248_ = lean_obj_once(&l_Lean_Meta_mkStringLitNeProof___closed__20, &l_Lean_Meta_mkStringLitNeProof___closed__20_once, _init_l_Lean_Meta_mkStringLitNeProof___closed__20);
-lean_inc_ref(v___y_246_);
-v___x_249_ = l_Lean_mkApp4(v___x_248_, v___y_246_, v___y_245_, v___y_243_, v___y_247_);
+lean_inc_ref(v___y_244_);
+v___x_249_ = l_Lean_mkApp4(v___x_248_, v___y_244_, v___y_243_, v___y_246_, v___y_247_);
 v___y_229_ = v___y_244_;
-v___y_230_ = v___y_246_;
+v___y_230_ = v___y_245_;
 v_listNeProof_231_ = v___x_249_;
 goto v___jp_228_;
 }
@@ -726,10 +726,10 @@ lean_dec(v_dropped_294_);
 v___x_298_ = lean_unbox_uint32(v___x_296_);
 lean_dec(v___x_296_);
 v___y_254_ = v___x_277_;
-v___y_255_ = v_congrArgFn_292_;
-v___y_256_ = v___x_278_;
-v___y_257_ = v_listEq_279_;
-v___y_258_ = v_dropEq_290_;
+v___y_255_ = v_dropEq_290_;
+v___y_256_ = v_listEq_279_;
+v___y_257_ = v_congrArgFn_292_;
+v___y_258_ = v___x_278_;
 v_fst_259_ = v___x_298_;
 v_snd_260_ = v___x_297_;
 goto v___jp_253_;
@@ -747,10 +747,10 @@ lean_dec(v_dropped_299_);
 v___x_303_ = lean_unbox_uint32(v___x_301_);
 lean_dec(v___x_301_);
 v___y_254_ = v___x_277_;
-v___y_255_ = v_congrArgFn_292_;
-v___y_256_ = v___x_278_;
-v___y_257_ = v_listEq_279_;
-v___y_258_ = v_dropEq_290_;
+v___y_255_ = v_dropEq_290_;
+v___y_256_ = v_listEq_279_;
+v___y_257_ = v_congrArgFn_292_;
+v___y_258_ = v___x_278_;
 v_fst_259_ = v___x_303_;
 v_snd_260_ = v___x_302_;
 goto v___jp_253_;
@@ -798,8 +798,8 @@ v___x_324_ = l_Lean_mkApp3(v___x_323_, v_projL1_315_, v_projL2_316_, v_a_322_);
 v___x_325_ = lean_obj_once(&l_Lean_Meta_mkStringLitNeProof___closed__20, &l_Lean_Meta_mkStringLitNeProof___closed__20_once, _init_l_Lean_Meta_mkStringLitNeProof___closed__20);
 lean_inc_ref(v_listEq_279_);
 v___x_326_ = l_Lean_mkApp4(v___x_325_, v_listEq_279_, v_projEq_317_, v_congrArgFn_319_, v___x_324_);
-v___y_229_ = v___x_278_;
-v___y_230_ = v_listEq_279_;
+v___y_229_ = v_listEq_279_;
+v___y_230_ = v___x_278_;
 v_listNeProof_231_ = v___x_326_;
 goto v___jp_228_;
 }
@@ -887,6 +887,7 @@ return v_res_360_;
 }
 }
 lean_object* runtime_initialize_Lean_Meta_AppBuilder(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_String_Csimp(uint8_t builtin);
 void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Meta_StringLitProof(uint8_t builtin) {
@@ -895,6 +896,9 @@ if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
 lean_initialize_runtime_module();
 res = runtime_initialize_Lean_Meta_AppBuilder(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_String_Csimp(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l___private_Init_Data_Range_Basic_0__Std_Legacy_Range_forIn_x27_loop___at___00Lean_Meta_mkStringLitNeProof_spec__1___redArg___boxed__const__1 = _init_l___private_Init_Data_Range_Basic_0__Std_Legacy_Range_forIn_x27_loop___at___00Lean_Meta_mkStringLitNeProof_spec__1___redArg___boxed__const__1();
@@ -909,12 +913,16 @@ _G_meta_initialized = true;
 return lean_io_result_mk_ok(lean_box(0));
 }
 lean_object* initialize_Lean_Meta_AppBuilder(uint8_t builtin);
+lean_object* initialize_Init_Data_String_Csimp(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Meta_StringLitProof(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
 res = initialize_Lean_Meta_AppBuilder(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_String_Csimp(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Lean_Meta_StringLitProof(builtin);

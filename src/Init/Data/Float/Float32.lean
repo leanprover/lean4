@@ -536,9 +536,69 @@ the C function `fabsf`.
 
 instance : HomogeneousPow Float32 := ⟨Float32.pow⟩
 
-instance : Min Float32 := minOfLe
+/--
+Computes the IEEE-754-2019 `minimum` operation of two floats.
 
-instance : Max Float32 := maxOfLe
+This operation returns `NaN` if one of the operands is `NaN`, and
+considers `-0` to be smaller than `+0`.
+
+See also `Float32.minimumNumber` for the variant that returns finite numbers
+over `NaN`.
+
+This function has a logical model in terms of `Float32.Model`. It is implemented in compiled code
+by a compiler intrinsic if available.
+-/
+@[extern "lean_float32_minimum"] def Float32.minimum : Float32 → Float32 → Float32 :=
+  fun a b => .ofModel (a.toModel.minimum b.toModel)
+
+/--
+Computes the IEEE-754-2019 `minimumNumber` operation of two floats.
+
+If one of the operands is `NaN` and the other is a number, then this
+operation will return that number.
+
+See also `Float32.minimum` for the variant that always propagates `NaN`.
+
+This function has a logical model in terms of `Float32.Model`. It is implemented in compiled code
+by a compiler intrinsic if available.
+-/
+@[extern "lean_float32_minimum_number"] def Float32.minimumNumber : Float32 → Float32 → Float32 :=
+  fun a b => .ofModel (a.toModel.minimumNumber b.toModel)
+
+/--
+Computes the IEEE-754-2019 `maximum` operation of two floats.
+
+This operation returns `NaN` if one of the operands is `NaN`, and
+considers `-0` to be smaller than `+0`.
+
+See also `Float32.maximumNumber` for the variant that returns finite numbers
+over `NaN`.
+
+This function has a logical model in terms of `Float32.Model`. It is implemented in compiled code
+by a compiler intrinsic if available.
+-/
+@[extern "lean_float32_maximum"] def Float32.maximum : Float32 → Float32 → Float32 :=
+  fun a b => .ofModel (a.toModel.maximum b.toModel)
+
+/--
+Computes the IEEE-754-2019 `maximumNumber` operation of two floats.
+
+If one of the operands is `NaN` and the other is a number, then this
+operation will return that number.
+
+See also `Float32.maximum` for the variant that always propagates `NaN`.
+
+This function has a logical model in terms of `Float32.Model`. It is implemented in compiled code
+by a compiler intrinsic if available.
+-/
+@[extern "lean_float32_maximum_number"] def Float32.maximumNumber : Float32 → Float32 → Float32 :=
+  fun a b => .ofModel (a.toModel.maximumNumber b.toModel)
+
+instance : Min Float32 where
+  min := Float32.minimum
+
+instance : Max Float32 where
+  max := Float32.maximum
 
 /--
 Efficiently computes `x * 2^i`.

@@ -6,7 +6,7 @@ Authors: Sofia Rodrigues
 module
 
 prelude
-public import Init.Data.ByteArray
+public import Init.Data.ByteArray.Basic
 public import Init.Data.Slice.Basic
 public import Init.Data.Slice.Notation
 public import Init.Data.Range.Polymorphic.Nat

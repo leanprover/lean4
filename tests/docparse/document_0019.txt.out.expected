@@ -1,0 +1,24 @@
+Input: "Some `code here\n\nAfter\n"
+Failure: unterminated inline code; expected '`'
+ --> 1:5-1:6
+  |
+1 | Some `code here
+  |      ^
+  = consumed input prefix: 15 bytes
+Final stack:
+  (Lean.Doc.Parser.document
+   [(Lean.Doc.Parser.Block.para
+     [(Lean.Doc.Parser.Inline.text
+       (Lean.Doc.Parser.versoText "Some "))
+      (Lean.Doc.Parser.Inline.code
+       (Lean.Doc.Parser.codeDelimiter "`")
+       (Lean.Doc.Parser.versoCode
+        [(Lean.Doc.Parser.versoCodeLine
+          "code here")])
+       <missing>)])
+    (Lean.Doc.Parser.Block.para
+     [(Lean.Doc.Parser.Inline.text
+       (Lean.Doc.Parser.versoText "After"))
+      (Lean.Doc.Parser.Inline.linebreak "\n")])])
+All input consumed.
+Round-trip not reproduced, as the parse reported errors: leaf without original source info: <missing>

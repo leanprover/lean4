@@ -31,7 +31,7 @@ size_t lean_usize_sub(size_t, size_t);
 lean_object* lean_array_uget_borrowed(lean_object*, size_t);
 lean_object* l_Lean_Expr_fvarId_x21(lean_object*);
 uint8_t l___private_Lean_Data_Name_0__Lean_Name_quickCmpImpl(lean_object*, lean_object*);
-lean_object* lean_local_ctx_erase(lean_object*, lean_object*);
+lean_object* l_Lean_LocalContext_erase(lean_object*, lean_object*);
 lean_object* l_Lean_LocalInstances_erase(lean_object*, lean_object*);
 lean_object* lean_infer_type(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
@@ -750,8 +750,7 @@ v___x_251_ = l_Std_DTreeMap_Internal_Impl_contains___at___00Lean_Meta_removeUnus
 if (v___x_251_ == 0)
 {
 lean_object* v___x_252_; lean_object* v___x_253_; lean_object* v___x_255_; 
-lean_inc(v___x_250_);
-v___x_252_ = lean_local_ctx_erase(v_fst_237_, v___x_250_);
+v___x_252_ = l_Lean_LocalContext_erase(v_fst_237_, v___x_250_);
 v___x_253_ = l_Lean_LocalInstances_erase(v_fst_241_, v___x_250_);
 if (v_isShared_244_ == 0)
 {

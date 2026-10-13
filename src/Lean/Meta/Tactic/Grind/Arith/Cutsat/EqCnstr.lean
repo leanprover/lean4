@@ -16,7 +16,7 @@ import Lean.Meta.Tactic.Grind.Arith.Cutsat.Nat
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.CommRing
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Norm
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Util
-import Lean.Meta.Tactic.Grind.Arith.EvalNum
+import Lean.Meta.Sym.Arith.EvalNum
 import Lean.Meta.NatInstTesters
 import Init.Omega
 public section
@@ -272,7 +272,7 @@ private def propagateNonlinearPow (x : Var) : GoalM Bool := do
       pure (kb.toNat, some cb)
     else
       return false
-  if (← checkExp kb |>.run).isNone then return false
+  if (← Sym.Arith.checkExp kb |>.run).isNone then return false
   let c' ← pure { p := .add 1 x (.num (-(ka^kb))), h := .pow ka ca? kb cb? : EqCnstr }
   c'.assert
   return true
@@ -723,7 +723,11 @@ def internalize (e : Expr) (parent? : Option Expr) : GoalM Unit := do
         return ()
     if (← hasVar e) then return ()
     let internalizeMarker (marker : Expr) : GoalM Unit := do
-      Grind.internalize marker (← getGeneration e)
+      -- The marker may be an enclosing application whose internalization is in progress: this
+      -- hook runs for `e` when the marker visits it. The marker's own hook runs once its
+      -- arguments are internalized. See `GoalState.internalizing`.
+      unless (← alreadyInternalized marker) do
+        Grind.internalize marker (← getGeneration e)
     match_expr type with
     | Fin n =>
       internalizeMarker <| ← shareCommon (mkApp2 (mkConst ``Fin.val) n e)

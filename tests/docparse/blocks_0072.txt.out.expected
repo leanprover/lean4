@@ -1,0 +1,17 @@
+Input: ": term\n"
+Failure: expected description body with indentation at least 1
+ --> 2:0
+  |
+2 | 
+  | ^
+  = consumed input prefix: 7 bytes
+Final stack:
+  [(Lean.Doc.Parser.Block.dl
+    [(Lean.Doc.Parser.DescItem.item
+      ":"
+      [(Lean.Doc.Parser.Inline.text
+        (Lean.Doc.Parser.versoText "term"))
+       (Lean.Doc.Parser.Inline.linebreak "\n")]
+      <missing>)])]
+All input consumed.
+Round-trip not reproduced, as the parse reported errors: leaf without original source info: <missing>

@@ -16,6 +16,7 @@ import Init.Data.Nat.Order
 import Init.Data.Order.Lemmas
 import Init.System.Platform
 import Lean.DeprecatedModule
+import Lean.Linter.Deprecated
 
 public section
 
@@ -26,20 +27,19 @@ namespace Lean.Elab.Command
     | return  -- must be from partial syntax, ignore
 
   match stx[1] with
-  | Syntax.atom _ val =>
+  | Syntax.node _ ``Lean.Parser.Command.commentBody #[.atom _ doc, _] =>
     if getMainVersoModuleDocs (← getEnv) |>.isEmpty then
-      let doc := String.Pos.Raw.extract val 0 (val.rawEndPos.unoffsetBy ⟨2⟩)
       modifyEnv fun env => addMainModuleDoc env ⟨doc, range⟩
     else
       throwError m!"Can't add Markdown-format module docs because there is already Verso-format content present."
-  | Syntax.node _ ``Lean.Parser.Command.versoCommentBody args =>
-    let docSyntax := args.getD 0 .missing
-    if docSyntax.getKind == `Lean.Doc.Syntax.parseFailure then
+  | Syntax.node _ ``Lean.Parser.Command.versoCommentBody _ =>
+    let view := VersoDocstringView.of ⟨stx⟩
+    match view.markup with
+    | .parseFailure _ =>
       -- Report parser errors without attempting elaboration
-      runTermElabM fun _ => reportVersoParseFailure docSyntax
-    else
-      runTermElabM fun _ => do
-        addVersoModDocString range ⟨docSyntax⟩
+      runTermElabM fun _ => reportVersoParseFailure view
+    | .document doc =>
+      runTermElabM fun _ => addVersoModDocString range doc
   | _ => throwErrorAt stx "unexpected module doc string{indentD <| stx}"
 
 private def addScope (isNewNamespace : Bool) (header : String) (newNamespace : Name)
@@ -415,7 +415,7 @@ private def replaceBinderAnnotation (binder : TSyntax ``Parser.Term.bracketedBin
     return #[binder]
 
 @[builtin_command_elab «variable»] def elabVariable : CommandElab
-  | `(variable%$tk $binders*) => do
+  | `($[$_:visibility]? variable%$tk $binders*) => do
     let binders ← binders.flatMapM replaceBinderAnnotation
     -- Try to elaborate `binders` for sanity checking
     runTermElabM fun _ => Term.withSynthesize <| Term.withAutoBoundImplicit <|
@@ -473,7 +473,7 @@ where
         -- Users might be testing out buggy elaborators. Let's typecheck before proceeding:
         withRef tk <| Meta.check e
       let e ← Term.levelMVarToParam (← instantiateMVars e)
-      withTheReader Core.Context (fun ctx => { ctx with options := ctx.options.set `smartUnfolding cfg.smartUnfolding }) do
+      withTheReader Core.Context (fun ctx => ctx.setOptions (ctx.options.set `smartUnfolding cfg.smartUnfolding)) do
         let e ← withTransparency (mode := cfg.transparency) <| reduce e (explicitOnly := !cfg.implicits) (skipProofs := !cfg.proofs) (skipTypes := !cfg.types)
         logInfoAt tk e
 
@@ -543,6 +543,7 @@ open Lean.Parser.Command.InternalSyntax in
     let declName ← liftCoreM <| realizeGlobalConstNoOverloadWithInfo id
     unless ((← getEnv).getModuleIdxFor? declName).isNone do
       throwError "invalid 'add_decl_doc', declaration is in an imported module"
+    throwIfHasDocString declName
     if let .none ← findDeclarationRangesCore? declName then
       -- this is only relevant for declarations added without a declaration range
       -- in particular `Quot.mk` et al which are added by `init_quot`
@@ -736,14 +737,15 @@ where
 /-- Elaborate `deprecated_module`, marking the current module as deprecated. -/
 @[builtin_command_elab Parser.Command.deprecated_module]
 def elabDeprecatedModule : CommandElab
-  | `(Parser.Command.deprecated_module| deprecated_module $[$msg?]? $[(since := $since?)]?) => do
+  | stx@`(Parser.Command.deprecated_module| deprecated_module $[$msg?]? $[(since := $since?)]?) => do
     let message? := msg?.map TSyntax.getString
     let since? := since?.map TSyntax.getString
     if (deprecatedModuleExt.getState (← getEnv)).isSome then
       logWarning "module is already marked as deprecated"
     if since?.isNone then
-      logWarning "`deprecated_module` should specify the date or library version \
-        at which the deprecation was introduced, using `(since := \"...\")`"
+      logWarning <| m!"`deprecated_module` should specify the date or library version \
+        at which the deprecation was introduced, using `(since := \"...\")`" ++
+        (← liftCoreM <| Linter.mkSinceHint stx)
     modifyEnv fun env => env.setDeprecatedModule (some { message?, since? })
   | _ => throwUnsupportedSyntax
 
@@ -778,8 +780,9 @@ def elabShowDeprecatedModules : CommandElab := fun _ => do
   let text? := if stx[2].isNone then none else stx[2][0].isStrLit?
   let since? := if stx[3].isNone then none else stx[3][3].isStrLit?
   if since?.isNone then
-    logWarning "`deprecated_syntax` should specify the date or library version at which the \
-      deprecation was introduced, using `(since := \"...\")`"
+    logWarning <| m!"`deprecated_syntax` should specify the date or library version at which the \
+      deprecation was introduced, using `(since := \"...\")`" ++
+      (← liftCoreM <| Linter.mkSinceHint stx)
   modifyEnv fun env =>
     deprecatedSyntaxExt.addEntry env { kind, text?, since? }
 

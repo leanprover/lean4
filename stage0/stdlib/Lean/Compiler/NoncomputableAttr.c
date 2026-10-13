@@ -14,7 +14,7 @@
 extern "C" {
 #endif
 lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
-lean_object* l_Lean_mkTagDeclarationExtension(lean_object*, lean_object*);
+lean_object* l_Lean_mkTagDeclarationExtension(lean_object*, lean_object*, uint8_t);
 uint8_t l_Lean_TagDeclarationExtension_isTagged(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_TagDeclarationExtension_tag(lean_object*, lean_object*, lean_object*);
 static const lean_string_object l___private_Lean_Compiler_NoncomputableAttr_0__Lean_initFn___closed__0_00___x40_Lean_Compiler_NoncomputableAttr_174063325____hygCtx___hyg_2__value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 5, .m_capacity = 5, .m_length = 4, .m_data = "Lean"};
@@ -33,47 +33,48 @@ LEAN_EXPORT lean_object* l_Lean_isNoncomputable___boxed(lean_object*, lean_objec
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_NoncomputableAttr_0__Lean_initFn_00___x40_Lean_Compiler_NoncomputableAttr_174063325____hygCtx___hyg_2_(){
 _start:
 {
-lean_object* v___x_7_; lean_object* v___x_8_; lean_object* v___x_9_; 
+lean_object* v___x_7_; lean_object* v___x_8_; uint8_t v___x_9_; lean_object* v___x_10_; 
 v___x_7_ = ((lean_object*)(l___private_Lean_Compiler_NoncomputableAttr_0__Lean_initFn___closed__2_00___x40_Lean_Compiler_NoncomputableAttr_174063325____hygCtx___hyg_2_));
 v___x_8_ = lean_box(0);
-v___x_9_ = l_Lean_mkTagDeclarationExtension(v___x_7_, v___x_8_);
-return v___x_9_;
+v___x_9_ = 0;
+v___x_10_ = l_Lean_mkTagDeclarationExtension(v___x_7_, v___x_8_, v___x_9_);
+return v___x_10_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Compiler_NoncomputableAttr_0__Lean_initFn_00___x40_Lean_Compiler_NoncomputableAttr_174063325____hygCtx___hyg_2____boxed(lean_object* v_a_10_){
+LEAN_EXPORT lean_object* l___private_Lean_Compiler_NoncomputableAttr_0__Lean_initFn_00___x40_Lean_Compiler_NoncomputableAttr_174063325____hygCtx___hyg_2____boxed(lean_object* v_a_11_){
 _start:
 {
-lean_object* v_res_11_; 
-v_res_11_ = l___private_Lean_Compiler_NoncomputableAttr_0__Lean_initFn_00___x40_Lean_Compiler_NoncomputableAttr_174063325____hygCtx___hyg_2_();
-return v_res_11_;
+lean_object* v_res_12_; 
+v_res_12_ = l___private_Lean_Compiler_NoncomputableAttr_0__Lean_initFn_00___x40_Lean_Compiler_NoncomputableAttr_174063325____hygCtx___hyg_2_();
+return v_res_12_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_addNoncomputable(lean_object* v_env_12_, lean_object* v_declName_13_){
+LEAN_EXPORT lean_object* l_Lean_addNoncomputable(lean_object* v_env_13_, lean_object* v_declName_14_){
 _start:
 {
-lean_object* v___x_14_; lean_object* v___x_15_; 
-v___x_14_ = l_Lean_noncomputableExt;
-v___x_15_ = l_Lean_TagDeclarationExtension_tag(v___x_14_, v_env_12_, v_declName_13_);
-return v___x_15_;
+lean_object* v___x_15_; lean_object* v___x_16_; 
+v___x_15_ = l_Lean_noncomputableExt;
+v___x_16_ = l_Lean_TagDeclarationExtension_tag(v___x_15_, v_env_13_, v_declName_14_);
+return v___x_16_;
 }
 }
-LEAN_EXPORT uint8_t l_Lean_isNoncomputable(lean_object* v_env_16_, lean_object* v_declName_17_, lean_object* v_asyncMode_18_){
+LEAN_EXPORT uint8_t l_Lean_isNoncomputable(lean_object* v_env_17_, lean_object* v_declName_18_, lean_object* v_asyncMode_19_){
 _start:
 {
-lean_object* v___x_19_; uint8_t v___x_20_; 
-v___x_19_ = l_Lean_noncomputableExt;
-v___x_20_ = l_Lean_TagDeclarationExtension_isTagged(v___x_19_, v_env_16_, v_declName_17_, v_asyncMode_18_);
-return v___x_20_;
+lean_object* v___x_20_; uint8_t v___x_21_; 
+v___x_20_ = l_Lean_noncomputableExt;
+v___x_21_ = l_Lean_TagDeclarationExtension_isTagged(v___x_20_, v_env_17_, v_declName_18_, v_asyncMode_19_);
+return v___x_21_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_isNoncomputable___boxed(lean_object* v_env_21_, lean_object* v_declName_22_, lean_object* v_asyncMode_23_){
+LEAN_EXPORT lean_object* l_Lean_isNoncomputable___boxed(lean_object* v_env_22_, lean_object* v_declName_23_, lean_object* v_asyncMode_24_){
 _start:
 {
-uint8_t v_res_24_; lean_object* v_r_25_; 
-v_res_24_ = l_Lean_isNoncomputable(v_env_21_, v_declName_22_, v_asyncMode_23_);
-lean_dec(v_asyncMode_23_);
-v_r_25_ = lean_box(v_res_24_);
-return v_r_25_;
+uint8_t v_res_25_; lean_object* v_r_26_; 
+v_res_25_ = l_Lean_isNoncomputable(v_env_22_, v_declName_23_, v_asyncMode_24_);
+lean_dec(v_asyncMode_24_);
+v_r_26_ = lean_box(v_res_25_);
+return v_r_26_;
 }
 }
 lean_object* runtime_initialize_Lean_EnvExtension(uint8_t builtin);

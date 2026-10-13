@@ -1153,7 +1153,7 @@ def throwTypeMismatchError (header? : Option MessageData) (expectedType : Expr) 
   | some f => Meta.throwAppTypeMismatch f e
 
 def withoutMacroStackAtErr (x : TermElabM α) : TermElabM α :=
-  withTheReader Core.Context (fun (ctx : Core.Context) => { ctx with options := pp.macroStack.set ctx.options false }) x
+  withTheReader Core.Context (fun (ctx : Core.Context) => ctx.setOptions (pp.macroStack.set ctx.options false)) x
 
 namespace ContainsPendingMVar
 
@@ -1438,7 +1438,7 @@ def withSavedContext (savedCtx : SavedContext) (x : TermElabM α) : TermElabM α
         errToSorry := savedCtx.errToSorry,
         fixedTermElabs := savedCtx.fixedTermElabs,
       }) <|
-    withTheReader Core.Context (fun ctx => { ctx with options := savedCtx.options, openDecls := savedCtx.openDecls }) <|
+    withTheReader Core.Context (fun ctx => { ctx.setOptions savedCtx.options with openDecls := savedCtx.openDecls }) <|
       withLevelNames savedCtx.levelNames x
 
 /--
@@ -2143,7 +2143,7 @@ def isLetRecAuxMVar (mvarId : MVarId) : TermElabM Bool := do
   trace[Elab.letrec] "mvarId root: {mkMVar mvarId}"
   return (← get).letRecsToLift.any (·.mvarId == mvarId)
 
-public def checkDeprecatedCore (constName : Name) (allowSuggestion := true) : TermElabM Unit := do
+def checkDeprecatedCore (constName : Name) (allowSuggestion := true) : TermElabM Unit := do
   if (← read).checkDeprecated then
     Linter.checkDeprecated constName allowSuggestion
 

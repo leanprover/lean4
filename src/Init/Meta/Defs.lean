@@ -71,14 +71,14 @@ def toolchain :=
       String.Internal.append
         (String.Internal.append
           (String.Internal.append
-            (String.Internal.append origin ":")
+            (String.Internal.append origin ":v")
             versionStringCore)
           "-")
         version.specialDesc
     else
       String.Internal.append (String.Internal.append origin ":") version.specialDesc
   else if version.isRelease then
-    String.Internal.append (String.Internal.append origin ":") versionStringCore
+    String.Internal.append (String.Internal.append origin ":v") versionStringCore
   else
     ""
 
@@ -324,7 +324,6 @@ def appendIndexAfter (n : Name) (idx : Nat) : Name :=
     | str p s => Name.mkStr p (String.Internal.append (String.Internal.append s "_") (toString idx))
     | n       => Name.mkStr n (String.Internal.append "_" (toString idx))
 
-@[export lean_name_append_before]
 def appendBefore (n : Name) (pre : String) : Name :=
   n.modifyBase fun
     | anonymous => Name.mkStr anonymous pre
@@ -719,6 +718,23 @@ To refer to a specific constant without a risk of variable capture, use `mkCIden
 -/
 def mkIdentFrom (src : Syntax) (val : Name) (canonical := false) : Ident :=
   ⟨Syntax.ident (SourceInfo.fromRef src canonical) (Name.Internal.Meta.toString val).toRawSubstring val []⟩
+
+/--
+Creates a documentation comment whose text is read as Markdown, with its position copied from `src`.
+-/
+def mkMarkdownDocCommentFrom (src : Syntax) (text : String) (canonical := false) :
+    TSyntax `Lean.Parser.Command.docComment :=
+  let info := SourceInfo.fromRef src canonical
+  let body := Syntax.node .none `Lean.Parser.Command.commentBody
+    #[Syntax.atom info text, Syntax.atom info "-/"]
+  ⟨Syntax.node .none `Lean.Parser.Command.docComment #[Syntax.atom info "/--", body]⟩
+
+/--
+Creates a documentation comment whose text is read as Markdown. The resulting comment has no source
+position.
+-/
+def mkMarkdownDocComment (text : String) : TSyntax `Lean.Parser.Command.docComment :=
+  mkMarkdownDocCommentFrom .missing text
 
 /--
 Creates an identifier with its position copied from the syntax returned by `getRef`.
@@ -1671,8 +1687,8 @@ def expandInterpolatedStr (interpStr : TSyntax interpolatedStrKind) (type : Term
 
 def getDocString (stx : TSyntax `Lean.Parser.Command.docComment) : String :=
   match stx.raw[1] with
-  | Syntax.atom _ val => String.Internal.extract val 0 (String.Pos.Raw.Internal.sub val.rawEndPos ⟨2⟩)
-  | _                 => ""
+  | .node _ `Lean.Parser.Command.commentBody #[.atom _ text, _] => text
+  | _ => ""
 
 end TSyntax
 

@@ -3,8 +3,11 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Author: Sofia Rodrigues
 */
+#include <climits>
 #include <cstring>
+#include <string>
 #include "runtime/uv/system.h"
+#include "runtime/uv/util.h"
 
 namespace lean {
 #ifndef LEAN_EMSCRIPTEN
@@ -24,7 +27,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_get_process_title() {
     int result = uv_get_process_title(title, sizeof(title));
 
     if (result < 0) {
-        return lean_io_result_mk_error(lean_decode_uv_error(result, nullptr));
+        return io_result_mk_uv_error(result);
     }
 
     lean_object* lean_title = lean_mk_string(title);
@@ -40,7 +43,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_set_process_title(b_obj_arg title) {
     int result = uv_set_process_title(title_str);
 
     if (result < 0) {
-        return lean_io_result_mk_error(lean_decode_uv_error(result, nullptr));
+        return io_result_mk_uv_error(result);
     }
 
     return lean_io_result_mk_ok(lean_box(0));
@@ -53,7 +56,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_uptime() {
     int result = uv_uptime(&uptime);
 
     if (result < 0) {
-        return lean_io_result_mk_error(lean_decode_uv_error(result, nullptr));
+        return io_result_mk_uv_error(result);
     }
 
     lean_object* lean_uptime = lean_box_uint64((uint64_t)uptime);
@@ -81,7 +84,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_cpu_info() {
     int result = uv_cpu_info(&cpu_infos, &count);
 
     if (result < 0) {
-        return lean_io_result_mk_error(lean_decode_uv_error(result, nullptr));
+        return io_result_mk_uv_error(result);
     }
 
     lean_object* lean_cpu_infos = lean_alloc_array(count, count);
@@ -109,19 +112,29 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_cpu_info() {
     return lean_io_result_mk_ok(lean_cpu_infos);
 }
 
-// Std.Internal.UV.System.cwd : IO String
-extern "C" LEAN_EXPORT lean_obj_res lean_uv_cwd() {
-    char buffer[PATH_MAX];
-    size_t size = sizeof(buffer);
+// Calls a libuv function that writes a string into a caller-provided buffer, retrying with the size it
+// asks for when the buffer is too small.
+static lean_obj_res get_uv_string(int (*get)(char *, size_t *)) {
+    std::string buffer(PATH_MAX, '\0');
+    size_t size = buffer.size();
 
-    int result = uv_cwd(buffer, &size);
+    int result = get(&buffer[0], &size);
 
-    if (result < 0) {
-        return lean_io_result_mk_error(lean_decode_uv_error(result, nullptr));
+    if (result == UV_ENOBUFS) {
+        buffer.resize(size);
+        result = get(&buffer[0], &size);
     }
 
-    lean_object* lean_cwd = lean_mk_string(buffer);
-    return lean_io_result_mk_ok(lean_cwd);
+    if (result < 0) {
+        return io_result_mk_uv_error(result);
+    }
+
+    return lean_io_result_mk_ok(lean_mk_string_from_bytes(buffer.data(), size));
+}
+
+// Std.Internal.UV.System.cwd : IO String
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_cwd() {
+    return get_uv_string(uv_cwd);
 }
 
 // Std.Internal.UV.System.chdir : @& String → IO Unit
@@ -142,32 +155,12 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_chdir(b_obj_arg path) {
 
 // Std.Internal.UV.System.osHomedir : IO String
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_homedir() {
-    char buffer[PATH_MAX];
-    size_t size = sizeof(buffer);
-
-    int result = uv_os_homedir(buffer, &size);
-
-    if (result < 0) {
-        return lean_io_result_mk_error(lean_decode_uv_error(result, nullptr));
-    }
-
-    lean_object* lean_homedir = lean_mk_string(buffer);
-    return lean_io_result_mk_ok(lean_homedir);
+    return get_uv_string(uv_os_homedir);
 }
 
 // Std.Internal.UV.System.osTmpdir : IO String
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_tmpdir() {
-    char buffer[PATH_MAX];
-    size_t size = sizeof(buffer);
-
-    int result = uv_os_tmpdir(buffer, &size);
-
-    if (result < 0) {
-        return lean_io_result_mk_error(lean_decode_uv_error(result, nullptr));
-    }
-
-    lean_object* lean_tmpdir = lean_mk_string(buffer);
-    return lean_io_result_mk_ok(lean_tmpdir);
+    return get_uv_string(uv_os_tmpdir);
 }
 
 // Std.Internal.UV.System.osGetPasswd : IO PasswdInfo
@@ -177,7 +170,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_get_passwd() {
     int result = uv_os_get_passwd(&passwd);
 
     if (result < 0) {
-        return lean_io_result_mk_error(lean_decode_uv_error(result, nullptr));
+        return io_result_mk_uv_error(result);
     }
 
     lean_object* username = lean_mk_string(passwd.username);
@@ -209,7 +202,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_get_group(uint64_t gid) {
     }
 
     if (result < 0) {
-        return lean_io_result_mk_error(lean_decode_uv_error(result, nullptr));
+        return io_result_mk_uv_error(result);
     }
 
     lean_object* groupname = lean_mk_string(group.groupname);
@@ -249,7 +242,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_environ() {
     int result = uv_os_environ(&env, &count);
 
     if (result < 0) {
-        return lean_io_result_mk_error(lean_mk_string(uv_strerror(result)));
+        return io_result_mk_uv_error(result);
     }
 
     lean_object* env_array = lean_mk_empty_array();
@@ -286,7 +279,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_getenv(b_obj_arg name) {
     } else if (result == UV_ENOBUFS) {
         char* heap_buffer = static_cast<char*>(malloc(size));
         if (heap_buffer == nullptr) {
-            return lean_io_result_mk_error(decode_io_error(ENOMEM, nullptr));
+            return io_result_mk_enomem();
         }
 
         result = uv_os_getenv(name_str, heap_buffer, &size);
@@ -296,7 +289,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_getenv(b_obj_arg name) {
             return lean_io_result_mk_ok(lean_box(0));
         } else if (result < 0) {
             free(heap_buffer);
-            return lean_io_result_mk_error(lean_decode_uv_error(result, nullptr));
+            return io_result_mk_uv_error(result);
         }
 
         lean_object* value = lean_mk_string(heap_buffer);
@@ -305,7 +298,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_getenv(b_obj_arg name) {
         free(heap_buffer);
         return lean_io_result_mk_ok(some_value);
     } else if (result < 0) {
-        return lean_io_result_mk_error(lean_decode_uv_error(result, nullptr));
+        return io_result_mk_uv_error(result);
     }
 
     lean_object* value = lean_mk_string(stack_buffer);
@@ -329,7 +322,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_setenv(b_obj_arg name, b_obj_arg 
     int result = uv_os_setenv(name_str, value_str);
 
     if (result < 0) {
-        return lean_io_result_mk_error(lean_decode_uv_error(result, nullptr));
+        return io_result_mk_uv_error(result);
     }
 
     return lean_io_result_mk_ok(lean_box(0));
@@ -345,7 +338,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_unsetenv(b_obj_arg name) {
     int result = uv_os_unsetenv(name_str);
 
     if (result < 0) {
-        return lean_io_result_mk_error(lean_decode_uv_error(result, nullptr));
+        return io_result_mk_uv_error(result);
     }
 
     return lean_io_result_mk_ok(lean_box(0));
@@ -359,7 +352,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_gethostname() {
     int result = uv_os_gethostname(hostname, &size);
 
     if (result < 0) {
-        return lean_io_result_mk_error(lean_decode_uv_error(result, nullptr));
+        return io_result_mk_uv_error(result);
     }
 
     lean_object* lean_hostname = lean_mk_string(hostname);
@@ -373,18 +366,22 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_getpriority(uint64_t pid) {
     int result = uv_os_getpriority(pid, &priority);
 
     if (result < 0) {
-        return lean_io_result_mk_error(lean_decode_uv_error(result, nullptr));
+        return io_result_mk_uv_error(result);
     }
 
     return lean_io_result_mk_ok(lean_box_uint64(priority));
 }
 
-// Std.Internal.UV.System.osSetPriority : UInt64 → Int → IO Unit
+// Std.Internal.UV.System.osSetPriority : UInt64 → Int64 → IO Unit
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_setpriority(uint64_t pid, int64_t priority) {
-    int result = uv_os_setpriority(pid, priority);
+    if (priority < INT_MIN || priority > INT_MAX) {
+        return io_result_mk_uv_error(UV_EINVAL);
+    }
+
+    int result = uv_os_setpriority(pid, (int)priority);
 
     if (result < 0) {
-        return lean_io_result_mk_error(lean_decode_uv_error(result, nullptr));
+        return io_result_mk_uv_error(result);
     }
 
     return lean_io_result_mk_ok(lean_box(0));
@@ -397,7 +394,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_uname() {
     int result = uv_os_uname(&uname_info);
 
     if (result < 0) {
-        return lean_io_result_mk_error(lean_decode_uv_error(result, nullptr));
+        return io_result_mk_uv_error(result);
     }
 
     lean_object* sysname = lean_mk_string(uname_info.sysname);
@@ -420,15 +417,19 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_hrtime() {
     return lean_io_result_mk_ok(lean_box_uint64(time));
 }
 
-// Std.Internal.UV.System.random : UInt64 → IO (IO.Promise (Except IO.Error (Array UInt8)))
+// Std.Internal.UV.System.random : UInt64 → IO (IO.Promise (Except IO.Error ByteArray))
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_random(uint64_t size) {
-    random_req_t* req = (random_req_t*)malloc(sizeof(random_req_t));
-    if (req == nullptr) {
-        return lean_io_result_mk_error(decode_io_error(ENOMEM, nullptr));
+    // libuv rejects larger requests with `UV_E2BIG`; checking first avoids allocating the array.
+    if (size > 0x7FFFFFFF) {
+        return io_result_mk_uv_error(UV_E2BIG);
     }
 
-    lean_object* promise = lean_promise_new();
-    mark_mt(promise);
+    random_req_t* req = (random_req_t*)malloc(sizeof(random_req_t));
+    if (req == nullptr) {
+        return io_result_mk_enomem();
+    }
+
+    lean_object * promise = mk_mt_promise();
     req->promise = promise;
 
     lean_object* byte_array = lean_alloc_sarray(1, 0, size);
@@ -438,31 +439,27 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_random(uint64_t size) {
 
     lean_inc(promise);
 
-    event_loop_lock(&global_ev);
+    auto on_random = [](uv_random_t* uv_req, int status, void* buf, size_t buflen) {
+        random_req_t* req = (random_req_t*)uv_req;
 
-    int result = uv_random(
-        global_ev.loop,
-        &req->req,
-        lean_sarray_cptr(byte_array),
-        size,
-        0,
-        [](uv_random_t* uv_req, int status, void* buf, size_t buflen) {
-            random_req_t* req = (random_req_t*)uv_req;
-
-            if (status < 0) {
-                lean_dec(req->byte_array);
-                lean_promise_resolve(mk_except_err(lean_decode_uv_error(status, nullptr)), req->promise);
-            } else {
-                lean_sarray_set_size(req->byte_array, buflen);
-                lean_promise_resolve(mk_except_ok(req->byte_array), req->promise);
-            }
-
-            lean_dec(req->promise);
-            free(req);
+        if (status < 0) {
+            lean_dec(req->byte_array);
+            lean_promise_resolve(mk_except_err(lean_decode_uv_error(status, nullptr)), req->promise);
+        } else {
+            lean_sarray_set_size(req->byte_array, buflen);
+            lean_promise_resolve(mk_except_ok(req->byte_array), req->promise);
         }
-    );
 
-    event_loop_unlock(&global_ev);
+        lean_dec(req->promise);
+        free(req);
+    };
+
+    int result;
+
+    {
+        event_loop_guard guard;
+        result = uv_random(global_ev.m_loop, &req->req, lean_sarray_cptr(byte_array), size, 0, on_random);
+    }
 
     if (result < 0) {
         lean_dec(byte_array);
@@ -470,7 +467,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_random(uint64_t size) {
         lean_dec(promise);
         free(req);
 
-        return lean_io_result_mk_error(lean_decode_uv_error(result, nullptr));
+        return io_result_mk_uv_error(result);
     }
 
     return lean_io_result_mk_ok(promise);
@@ -485,7 +482,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_getrusage() {
     uv_rusage_t usage;
     int result = uv_getrusage(&usage);
     if (result < 0) {
-        return lean_io_result_mk_error(lean_decode_uv_error(result, nullptr));
+        return io_result_mk_uv_error(result);
     }
 
     lean_object* r = lean_alloc_ctor(0, 0, 16 * sizeof(uint64_t));
@@ -516,7 +513,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_exepath() {
 
     int result = uv_exepath(buffer, &size);
     if (result < 0) {
-        return lean_io_result_mk_error(lean_decode_uv_error(result, nullptr));
+        return io_result_mk_uv_error(result);
     }
 
     lean_object* path = lean_mk_string(buffer);
@@ -681,7 +678,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_getpriority(uint64_t pid) {
     );
 }
 
-// Std.Internal.UV.System.osSetPriority : UInt64 → Int → IO Unit
+// Std.Internal.UV.System.osSetPriority : UInt64 → Int64 → IO Unit
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_setpriority(uint64_t pid, int64_t priority) {
     lean_always_assert(
         false && ("Please build a version of Lean4 with libuv to invoke this.")
@@ -702,7 +699,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_hrtime() {
     );
 }
 
-// Std.Internal.UV.System.random : UInt64 → IO (IO.Promise (Except IO.Error (Array UInt8)))
+// Std.Internal.UV.System.random : UInt64 → IO (IO.Promise (Except IO.Error ByteArray))
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_random(uint64_t size) {
     lean_always_assert(
         false && ("Please build a version of Lean4 with libuv to invoke this.")

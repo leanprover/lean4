@@ -11,6 +11,8 @@ public import Lean.Meta.Sym.SymM
 public import Lean.Meta.Tactic.Grind.Attr
 public import Lean.Meta.Tactic.Grind.CheckResult
 public import Lean.Meta.Sym.Canon
+public import Lean.Meta.Sym.Simp.SimpM
+public import Lean.Meta.Sym.DSimp.DSimpM
 meta import Init.Data.String.Basic
 import Lean.Meta.AbstractNestedProofs
 import Lean.Meta.Match.MatchEqsExt
@@ -67,6 +69,11 @@ def isInterpreted (e : Expr) : MetaM Bool := do
 register_builtin_option grind.debug : Bool := {
   defValue := false
   descr    := "check invariants after updates"
+}
+
+register_builtin_option backward.grind.normalizer : Bool := {
+  defValue := true
+  descr    := "use the legacy `simp`-based `grind` normalizer instead of the `Sym.simp`-based one"
 }
 
 register_builtin_option grind.debug.proofs : Bool := {
@@ -161,6 +168,10 @@ inductive EMatchDiagSource where
 structure Context where
   simp         : Simp.Context
   simpMethods  : Simp.Methods
+  /-- Methods of the `Sym.simp`-based normalizer. Unused when `backward.grind.normalizer` is set. -/
+  symSimpMethods  : Sym.Simp.Methods := {}
+  /-- Methods of the `Sym.dsimp`-based normalizer. Unused when `backward.grind.normalizer` is set. -/
+  symDSimpMethods : Sym.DSimp.Methods := {}
   config       : Grind.Config
   /--
   If `anchorRefs? := some anchorRefs`, then only local instances and case-splits in `anchorRefs`
@@ -259,6 +270,10 @@ structure State where
   -/
   congrThms  : PHashMap CongrTheoremCacheKey CongrTheorem := {}
   simp       : Simp.State := {}
+  /-- State (cache) of the `Sym.simp`-based normalizer. -/
+  symSimp    : Sym.Simp.State := {}
+  /-- State (cache) of the `Sym.dsimp`-based normalizer. -/
+  symDSimp   : Sym.DSimp.State := {}
   /--
   Used to generate trace messages of the for `[grind] working on <tag>`,
   and implement the macro `trace_goal`.
@@ -550,14 +565,26 @@ def ENode.isRoot (n : ENode) :=
 def ENode.isCongrRoot (n : ENode) :=
   isSameExpr n.self n.congr
 
-/-- New equalities and facts to be processed. -/
-inductive NewFact where
+/-- Work queued for `processToDo`: equalities and facts to assert, and terms to propagate. -/
+inductive ToProcessElement where
   | eq (lhs rhs proof : Expr) (isHEq : Bool)
   | fact (prop proof : Expr) (generation : Nat)
-
-def NewFact.toExpr : NewFact → MetaM Expr
-  | .eq lhs rhs _ _ => mkEq lhs rhs
-  | .fact p _ _ => return p
+  /--
+  Run the upward propagators of `e`. Internalization queues this instead of propagating
+  eagerly: a propagator may internalize terms, and must not do so while the arguments of an
+  enclosing application are still being internalized.
+  -/
+  | propagateUp (e : Expr)
+  /--
+  Run the `newEq` callback of the solver `solverId` on its terms `lhs` and `rhs`.
+  `SolverExtension.markTerm` queues this instead of running the callback eagerly. `markTerm`
+  runs inside the `internalize` hook of a solver, that is, while the enclosing applications of
+  the term being internalized may still have unvisited arguments. The callback may internalize
+  new terms containing such an application. See `GoalState.internalizing`.
+  -/
+  | solverEq (solverId : Nat) (lhs rhs : Expr)
+  /-- Run the `newDiseq` callback of the solver `solverId`. See `solverEq`. -/
+  | solverDiseq (solverId : Nat) (lhs rhs : Expr)
 
 -- This type should be considered opaque outside this module.
 @[expose]  -- for codegen
@@ -1009,8 +1036,15 @@ structure GoalState where
   `appMap`'s domain. We use this collection during theorem activation.
   -/
   indicesFound : PHashSet HeadIndex := {}
-  /-- Equations and propositions to be processed. -/
-  newFacts     : Array NewFact := #[]
+  /-- Pending work for `processToDo`: equalities, facts, upward propagations, and solver callbacks. -/
+  toProcess    : Array ToProcessElement := #[]
+  /--
+  Applications whose `ENode` exists but whose arguments are still being visited, outermost
+  first. Maintained only when `isDebugEnabled` holds, and empty whenever no internalization is
+  in progress. The internalizer uses it to check that solver code never internalizes one of these
+  applications; see the section on re-entrant internalization in `Lean.Meta.Tactic.Grind.Internalize`.
+  -/
+  internalizing : Array Expr := #[]
   /-- `inconsistent := true` if `ENode`s for `True` and `False` are in the same equivalence class. -/
   inconsistent : Bool := false
   /-- Next unique index for creating ENodes -/
@@ -1291,7 +1325,7 @@ def pushEqCore (lhs rhs proof : Expr) (isHEq : Bool) : GoalM Unit := do
             with proof{indentExpr proof}\nwhich has type{indentExpr (← inferType proof)}\n\
             which is not definitionally equal with `reducible` transparency setting"
       trace[grind.debug] "pushEqCore: {expectedType}"
-  modify fun s => { s with newFacts := s.newFacts.push <| .eq lhs rhs proof isHEq }
+  modify fun s => { s with toProcess := s.toProcess.push <| .eq lhs rhs proof isHEq }
 
 /-- Return `true` if `a` and `b` have the same type. -/
 def hasSameType (a b : Expr) : MetaM Bool := do
@@ -1306,6 +1340,18 @@ def hasSameType (a b : Expr) : MetaM Bool := do
 /-- Pushes `lhs = rhs` with `proof` to `newEqs`. -/
 @[inline] def pushEq (lhs rhs proof : Expr) : GoalM Unit :=
   pushEqCore lhs rhs proof (isHEq := false)
+
+/-- Queues the upward propagation of `e`. See `ToProcessElement.propagateUp`. -/
+def pushPropagateUp (e : Expr) : GoalM Unit :=
+  modify fun s => { s with toProcess := s.toProcess.push <| .propagateUp e }
+
+/--
+Queues the fact `prop` with the given `proof`, without preprocessing it. `prop` is internalized
+when the fact is processed, so this is the way to assert a fact about a term that must not be
+internalized yet. See `GoalState.internalizing`.
+-/
+def pushNewFactCore (prop proof : Expr) (generation : Nat) : GoalM Unit :=
+  modify fun s => { s with toProcess := s.toProcess.push <| .fact prop proof generation }
 
 /-- Pushes `lhs ≍ rhs` with `proof` to `newEqs`. -/
 @[inline] def pushHEq (lhs rhs proof : Expr) : GoalM Unit :=
@@ -1453,8 +1499,8 @@ opaque mkHEqProof (a b : Expr) : GoalM Expr
 
 -- Forward definition
 set_option compiler.ignoreBorrowAnnotation true in
-@[extern "lean_grind_process_new_facts"]
-opaque processNewFacts : GoalM Unit
+@[extern "lean_grind_process_to_do"]
+opaque processToDo : GoalM Unit
 
 -- Forward definition
 set_option compiler.ignoreBorrowAnnotation true in
@@ -1481,7 +1527,7 @@ def internalizeLocalDecl (localDecl : LocalDecl) : GoalM Unit := do
   /-
   **Note**: `internalize` may add new facts (e.g., `etaStruct` equality)
   -/
-  processNewFacts
+  processToDo
 
 /--
 Returns a proof that `a = b` if they have the same type. Otherwise, returns a proof of `a ≍ b`.
@@ -1803,12 +1849,12 @@ def addLookaheadCandidate (sinfo : SplitInfo) : GoalM Unit := do
   updateSplitArgPosMap sinfo
 
 /--
-Helper function for executing `x` with a fresh `newFacts` and without modifying
+Helper function for executing `x` with a fresh `toProcess` and without modifying
 the goal state.
 -/
 def withoutModifyingState (x : GoalM α) : GoalM α := do
   let saved ← get
-  modify fun goal => { goal with newFacts := {} }
+  modify fun goal => { goal with toProcess := {} }
   try
     x
   finally
@@ -1961,7 +2007,7 @@ def Solvers.check? : GoalM (Option (Array Nat)) := do
     if (← ext.check) then
       result := result.push ext.id
   if !result.isEmpty then
-    processNewFacts
+    processToDo
     return some result
   else
     return none
@@ -2022,7 +2068,11 @@ where
       else
         go (.next id₁ lhs lhsTerms) rhsTerms
 
-private def propagateDiseqOf (id : Nat) (lhs rhs : Expr) : GoalM Unit := do
+/--
+If both `lhs` and `rhs` have a term of the solver `id`, runs `k` on these terms.
+-/
+@[specialize]
+private def withSolverTermsOf (id : Nat) (lhs rhs : Expr) (k : Expr → Expr → GoalM Unit) : GoalM Unit := do
   visitLhs (← getRootENode lhs).sTerms
 where
   visitLhs (sTerms : SolverTerms) : GoalM Unit := do
@@ -2041,16 +2091,40 @@ where
     | .nil => return ()
     | .next id' e sTerms =>
       if id == id' then
-        let rhsTerm := e
-        (← solverExtensionsRef.get)[id]!.newDiseq lhsTerm rhsTerm
+        k lhsTerm e
       else if id < id' then
         return ()
       else
         visitRhs lhsTerm sTerms
 
+/-- Runs the `newDiseq` callback of the solver `id` if both `lhs` and `rhs` have a term of it. -/
+private def propagateDiseqOf (id : Nat) (lhs rhs : Expr) : GoalM Unit :=
+  withSolverTermsOf id lhs rhs fun lhsTerm rhsTerm => do
+    (← solverExtensionsRef.get)[id]!.newDiseq lhsTerm rhsTerm
+
+/-- Queues the `newDiseq` callback of the solver `id` if both `lhs` and `rhs` have a term of it. -/
+private def pushSolverDiseqOf (id : Nat) (lhs rhs : Expr) : GoalM Unit :=
+  withSolverTermsOf id lhs rhs fun lhsTerm rhsTerm =>
+    modify fun s => { s with toProcess := s.toProcess.push <| .solverDiseq id lhsTerm rhsTerm }
+
+/-- Runs the queued `newEq` callback. See `ToProcessElement.solverEq`. -/
+def Solvers.newEq (solverId : Nat) (lhs rhs : Expr) : GoalM Unit := do
+  (← solverExtensionsRef.get)[solverId]!.newEq lhs rhs
+
+/-- Runs the queued `newDiseq` callback. See `ToProcessElement.solverDiseq`. -/
+def Solvers.newDiseq (solverId : Nat) (lhs rhs : Expr) : GoalM Unit := do
+  (← solverExtensionsRef.get)[solverId]!.newDiseq lhs rhs
+
 def isSameSolverTerms (a b : SolverTerms) : Bool :=
   unsafe ptrEq a b
 
+/--
+Registers `e` as a term of the solver `ext`. If the equivalence class of `e` already has a term
+`e'` of this solver, the solver learns `e = e'`; if a class disequal to it has a term of this
+solver, the solver learns that disequality. These callbacks are queued, not run here: `markTerm`
+is called from `internalize` hooks, where the callbacks must not internalize new terms yet.
+See `ToProcessElement.solverEq` and `GoalState.internalizing`.
+-/
 def SolverExtension.markTerm (ext : SolverExtension σ) (e : Expr) : GoalM Unit := do
   let root ← getRootENode e
   let id := ext.id
@@ -2062,7 +2136,7 @@ def SolverExtension.markTerm (ext : SolverExtension σ) (e : Expr) : GoalM Unit 
         -- Skip if `e` and `e'` have different types (e.g., they were merged via `HEq` from `cast`).
         -- This can happen when we have heterogeneous equalities in an equivalence class containing types such as `Fin n` and `Fin m`
         if (← pure !root.heqProofs <||> hasSameType e e') then
-          (← solverExtensionsRef.get)[id]!.newEq e e'
+          modify fun s => { s with toProcess := s.toProcess.push <| .solverEq id e e' }
         return sTerms
       else if id < id' then
         return .next id e sTerms
@@ -2075,7 +2149,7 @@ def SolverExtension.markTerm (ext : SolverExtension σ) (e : Expr) : GoalM Unit 
   let sTermsNew ← go root.sTerms
   unless isSameSolverTerms sTermsNew root.sTerms do
     setENode root.self { root with sTerms := sTermsNew }
-    forEachDiseq (← getParents root.self) (propagateDiseqOf id)
+    forEachDiseq (← getParents root.self) (pushSolverDiseqOf id)
 
 /--
 Returns `some t` if `t` is the solver term for `ext` associated with `e`.

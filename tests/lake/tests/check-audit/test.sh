@@ -21,6 +21,6 @@ test_status_out 2 'has no `lake-manifest.json`' check
 "$LAKE" resolve-deps
 
 test_status_out 0 'Lean default kernel accepts the solution' check
-match_text 'Uses axioms: Classical.choice, propext, Quot.sound' produced.out
+match_text 'Uses axioms: propext, Quot.sound, Classical.choice' produced.out
 
 rm -f produced.out

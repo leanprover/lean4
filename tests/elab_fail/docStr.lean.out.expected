@@ -1,23 +1,23 @@
-"Foo structure is just a test "
-"main name "
-"documentation for the second field "
-"documenting test axiom "
+"Foo structure is just a test"
+"main name"
+"documentation for the second field"
+"documenting test axiom"
 doc string for 'Boo' is not available
-"Boo constructor has a custom name "
-"Boo.x docString "
+"Boo constructor has a custom name"
+"Boo.x docString"
 doc string for 'Boo.y' is not available
-"inductive datatype Tree documentation "
-"Tree.node documentation "
-"Tree.leaf stores the values "
-"documenting definition in namespace "
-"We can document 'where' functions too\n\n... and indentation is stripped, even after an empty line. "
+"inductive datatype Tree documentation"
+"Tree.node documentation"
+"Tree.leaf stores the values"
+"documenting definition in namespace"
+"We can document 'where' functions too\n\n... and indentation is stripped, even after an empty line."
 doc string for 'f' is not available
-"let rec documentation at f "
+"let rec documentation at f"
 doc string for 'g' is not available
-"let rec documentation at g "
-"Gadget for optional parameter support.\n\nA binder like `(x : α := default)` in a declaration is syntax sugar for\n`x : optParam α default`, and triggers the elaborator to attempt to use\n`default` to supply the argument if it is not supplied.\n"
-"Auxiliary declaration used to implement named patterns like `x@h:p`. "
-"Similar to `forallTelescope`, but given `type` of the form `forall xs, A`,\nit reduces `A` and continues building the telescope if it is a `forall`.\n\nIf `cleanupAnnotations` is `true`, we apply `Expr.cleanupAnnotations` to each type in the telescope.\n\nIf `whnfType` is `true`, we give `k` the `whnf` of the resulting type. This is a free operation.\n"
+"let rec documentation at g"
+"Gadget for optional parameter support.\n\nA binder like `(x : α := default)` in a declaration is syntax sugar for\n`x : optParam α default`, and triggers the elaborator to attempt to use\n`default` to supply the argument if it is not supplied."
+"Auxiliary declaration used to implement named patterns like `x@h:p`."
+"Similar to `forallTelescope`, but given `type` of the form `forall xs, A`,\nit reduces `A` and continues building the telescope if it is a `forall`.\n\nIf `cleanupAnnotations` is `true`, we apply `Expr.cleanupAnnotations` to each type in the telescope.\n\nIf `whnfType` is `true`, we give `k` the `whnf` of the resulting type. This is a free operation."
 Foo :=
   { range := { pos := { line := 3, column := 0 },
                charUtf16 := 0,

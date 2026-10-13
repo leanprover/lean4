@@ -419,11 +419,11 @@ return v___x_43_;
 LEAN_EXPORT lean_object* l_panic___at___00__private_Lean_Meta_Tactic_Grind_Arith_Linear_Inv_0__Lean_Grind_Linarith_Poly_checkOccs_go_spec__1(lean_object* v_msg_44_, lean_object* v___y_45_, lean_object* v___y_46_, lean_object* v___y_47_, lean_object* v___y_48_, lean_object* v___y_49_, lean_object* v___y_50_, lean_object* v___y_51_, lean_object* v___y_52_, lean_object* v___y_53_, lean_object* v___y_54_, lean_object* v___y_55_){
 _start:
 {
-lean_object* v___x_57_; lean_object* v___f_58_; lean_object* v___x_1769__overap_59_; lean_object* v___x_60_; 
+lean_object* v___x_57_; lean_object* v___f_58_; lean_object* v___x_1664__overap_59_; lean_object* v___x_60_; 
 v___x_57_ = lean_obj_once(&l_panic___at___00__private_Lean_Meta_Tactic_Grind_Arith_Linear_Inv_0__Lean_Grind_Linarith_Poly_checkOccs_go_spec__1___closed__0, &l_panic___at___00__private_Lean_Meta_Tactic_Grind_Arith_Linear_Inv_0__Lean_Grind_Linarith_Poly_checkOccs_go_spec__1___closed__0_once, _init_l_panic___at___00__private_Lean_Meta_Tactic_Grind_Arith_Linear_Inv_0__Lean_Grind_Linarith_Poly_checkOccs_go_spec__1___closed__0);
 v___f_58_ = lean_alloc_closure((void*)(l_instInhabitedForall___redArg___lam__0___boxed), 2, 1);
 lean_closure_set(v___f_58_, 0, v___x_57_);
-v___x_1769__overap_59_ = lean_panic_fn_borrowed(v___f_58_, v_msg_44_);
+v___x_1664__overap_59_ = lean_panic_fn_borrowed(v___f_58_, v_msg_44_);
 lean_dec_ref(v___f_58_);
 lean_inc(v___y_55_);
 lean_inc_ref(v___y_54_);
@@ -436,7 +436,7 @@ lean_inc_ref(v___y_48_);
 lean_inc(v___y_47_);
 lean_inc(v___y_46_);
 lean_inc(v___y_45_);
-v___x_60_ = lean_apply_12(v___x_1769__overap_59_, v___y_45_, v___y_46_, v___y_47_, v___y_48_, v___y_49_, v___y_50_, v___y_51_, v___y_52_, v___y_53_, v___y_54_, v___y_55_, lean_box(0));
+v___x_60_ = lean_apply_12(v___x_1664__overap_59_, v___y_45_, v___y_46_, v___y_47_, v___y_48_, v___y_49_, v___y_50_, v___y_51_, v___y_52_, v___y_53_, v___y_54_, v___y_55_, lean_box(0));
 return v___x_60_;
 }
 }
@@ -9483,7 +9483,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Linear_checkInvariants(lean_obj
 _start:
 {
 uint8_t v_debug_3539_; 
-v_debug_3539_ = lean_ctor_get_uint8(v_a_3530_, sizeof(void*)*8 + 2);
+v_debug_3539_ = lean_ctor_get_uint8(v_a_3530_, sizeof(void*)*10 + 2);
 if (v_debug_3539_ == 0)
 {
 lean_object* v___x_3540_; lean_object* v___x_3541_; 

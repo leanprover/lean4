@@ -106,13 +106,19 @@ private def checkEqInjection? (declName : Name) : MetaM (Option Name) := do
 
 /--
 Validates and registers a `[grind hom]` theorem, recording the source type of
-`=`-injection rules. See `validateHomoTheorem`.
+`=`-injection rules. See `validateHomoTheorem`. With `fallback := true`, the theorem is
+tried only when no other homomorphism rule applies (`Sym.Simp.Theorem.fallback`).
 -/
-def addHomoAttr (declName : Name) (attrKind : AttributeKind) : MetaM Unit := do
-  Sym.Simp.addSymSimpDecl homoExt declName attrKind (validate := fun declName => do
+def addHomoAttr (declName : Name) (attrKind : AttributeKind) (fallback := false) : MetaM Unit := do
+  let validate (declName : Name) : MetaM Unit := do
     validateHomoTheorem declName
     if let some F ← checkEqInjection? declName then
-      homoSourceTypesExt.add F attrKind)
+      homoSourceTypesExt.add F attrKind
+  if fallback then
+    validate declName
+    homoExt.add { (← Sym.Simp.mkTheoremFromDecl declName) with fallback := true } attrKind
+  else
+    Sym.Simp.addSymSimpDecl homoExt declName attrKind (validate := validate)
 
 /-- A theorem tagged with the `[grind hom_pred]` attribute. -/
 structure HomoPredTheorem where

@@ -44,7 +44,7 @@ Converts a Lean `IntModule` expression `e` into a `LinExpr`
 If `skipVar` is `true`, then the result is `none` if `e` is not an interpreted `IntModule` term.
 We use `skipVar := false` when processing inequalities, and `skipVar := true` for equalities and disequalities
 -/
-partial def reify? (e : Expr) (skipVar : Bool) (generation : Nat := 0) : LinearM (Option LinExpr) := do
+partial def reify? (e : Expr) (skipVar : Bool) : LinearM (Option LinExpr) := do
   match_expr e with
   | HAdd.hAdd _ _ _ i a b =>
     if isAddInst (← getStruct) i then return some (.add (← go a) (← go b)) else asTopVar e
@@ -66,11 +66,9 @@ partial def reify? (e : Expr) (skipVar : Bool) (generation : Nat := 0) : LinearM
   | _ => toTopVar e
 where
   toVar (e : Expr) : LinearM LinExpr := do
-    if (← alreadyInternalized e) then
-      return .var (← mkVar e)
-    else
-      internalize e generation
-      return .var (← mkVar e)
+    unless (← alreadyInternalized e) do
+      throwError "`grind` internal error, linarith term has not been internalized{indentExpr e}"
+    return .var (← mkVar e)
   asVar (e : Expr) : LinearM LinExpr := do
     reportInstIssue e
     toVar e

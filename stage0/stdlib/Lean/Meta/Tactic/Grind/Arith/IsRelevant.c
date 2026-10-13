@@ -431,9 +431,7 @@ if (lean_obj_tag(v___x_122_) == 0)
 {
 lean_object* v_a_123_; uint8_t v___x_124_; 
 v_a_123_ = lean_ctor_get(v___x_122_, 0);
-lean_inc(v_a_123_);
 v___x_124_ = lean_unbox(v_a_123_);
-lean_dec(v_a_123_);
 if (v___x_124_ == 0)
 {
 lean_dec_ref_known(v___x_122_, 1);

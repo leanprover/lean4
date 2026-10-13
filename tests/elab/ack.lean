@@ -85,8 +85,6 @@ trace: [simp] Diagnostics
   use `set_option diagnostics.threshold <num>` to control threshold for reporting counters
 ---
 trace: [diag] Diagnostics
-  [def_eq] heuristic for solving `f a =?= f b` (max: 60, num: 1):
-    [def_eq] ack ↦ 60
   [kernel] unfolded declarations (max: 84, num: 1):
     [kernel] OfNat.ofNat ↦ 84
   use `set_option diagnostics.threshold <num>` to control threshold for reporting counters

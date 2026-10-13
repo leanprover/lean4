@@ -1,5 +1,7 @@
 module
 
+public import Lean
+
 class C (α : Type) where
   c : α → α
 
@@ -179,5 +181,43 @@ Nat.zero
 -/
 #guard_msgs in
 #print instInhabitedIsExposed._aux_1
+
+/-! Test the reuse of instances of `NotExposed` (#14470). -/
+
+class Base' (α : Type) where
+  b : α
+
+class Foo' (α : Type) extends Base' α where
+  a : α
+
+class Bar' (α : Type) extends Base' α where
+  c : α
+
+class FooBar' (α : Type) extends Foo' α, Bar' α
+
+instance : FooBar' Nat where
+  a := 0
+  b := 1
+  c := 2
+
+namespace NotExposed
+
+noncomputable instance : Foo' NotExposed := inferInstanceAs (Foo' Nat)
+noncomputable instance : Bar' NotExposed := inferInstanceAs (Bar' Nat)
+noncomputable instance : FooBar' NotExposed := inferInstanceAs (FooBar' Nat)
+
+open Lean Elab Tactic in
+elab "with_exporting" tac:tacticSeq : tactic =>
+  Lean.withExporting (isExporting := true) (Lean.Elab.Tactic.evalTactic tac)
+
+-- The instances must be reused for these defeqs to hold publicly.
+
+example : instFooBar'.toFoo' = instFoo' := by
+  with_exporting with_reducible_and_instances rfl
+
+example : instFooBar'.toBar' = instBar' := by
+  with_exporting with_reducible_and_instances rfl
+
+end NotExposed
 
 end

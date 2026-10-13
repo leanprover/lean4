@@ -17,11 +17,11 @@ lean_object* lean_closure_max_args(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_closureMaxArgsFn___boxed(lean_object*);
 lean_object* lean_max_small_nat(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_maxSmallNatFn___boxed(lean_object*);
-lean_object* lean_get_max_ctor_fields(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_getMaxCtorFields___boxed(lean_object*);
-static lean_once_cell_t l_Lean_maxCtorFields___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_Lean_maxCtorFields___closed__0;
-LEAN_EXPORT lean_object* l_Lean_maxCtorFields;
+lean_object* lean_get_max_ctor_num_objs(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_getMaxCtorNumObjs___boxed(lean_object*);
+static lean_once_cell_t l_Lean_maxCtorNumObjs___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
+static lean_object* l_Lean_maxCtorNumObjs___closed__0;
+LEAN_EXPORT lean_object* l_Lean_maxCtorNumObjs;
 lean_object* lean_get_max_ctor_scalars_size(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_getMaxCtorScalarsSize___boxed(lean_object*);
 static lean_once_cell_t l_Lean_maxCtorScalarsSize___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
@@ -69,28 +69,28 @@ v_res_6_ = lean_max_small_nat(v_a_00___x40___internal___hyg_5_);
 return v_res_6_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_getMaxCtorFields___boxed(lean_object* v_a_00___x40___internal___hyg_8_){
+LEAN_EXPORT lean_object* l_Lean_getMaxCtorNumObjs___boxed(lean_object* v_a_00___x40___internal___hyg_8_){
 _start:
 {
 lean_object* v_res_9_; 
-v_res_9_ = lean_get_max_ctor_fields(v_a_00___x40___internal___hyg_8_);
+v_res_9_ = lean_get_max_ctor_num_objs(v_a_00___x40___internal___hyg_8_);
 return v_res_9_;
 }
 }
-static lean_object* _init_l_Lean_maxCtorFields___closed__0(void){
+static lean_object* _init_l_Lean_maxCtorNumObjs___closed__0(void){
 _start:
 {
 lean_object* v___x_10_; lean_object* v___x_11_; 
 v___x_10_ = lean_box(0);
-v___x_11_ = lean_get_max_ctor_fields(v___x_10_);
+v___x_11_ = lean_get_max_ctor_num_objs(v___x_10_);
 return v___x_11_;
 }
 }
-static lean_object* _init_l_Lean_maxCtorFields(void){
+static lean_object* _init_l_Lean_maxCtorNumObjs(void){
 _start:
 {
 lean_object* v___x_12_; 
-v___x_12_ = lean_obj_once(&l_Lean_maxCtorFields___closed__0, &l_Lean_maxCtorFields___closed__0_once, _init_l_Lean_maxCtorFields___closed__0);
+v___x_12_ = lean_obj_once(&l_Lean_maxCtorNumObjs___closed__0, &l_Lean_maxCtorNumObjs___closed__0_once, _init_l_Lean_maxCtorNumObjs___closed__0);
 return v___x_12_;
 }
 }
@@ -264,8 +264,8 @@ lean_initialize_runtime_module();
 res = runtime_initialize_Init_Prelude(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_maxCtorFields = _init_l_Lean_maxCtorFields();
-lean_mark_persistent(l_Lean_maxCtorFields);
+l_Lean_maxCtorNumObjs = _init_l_Lean_maxCtorNumObjs();
+lean_mark_persistent(l_Lean_maxCtorNumObjs);
 l_Lean_maxCtorScalarsSize = _init_l_Lean_maxCtorScalarsSize();
 lean_mark_persistent(l_Lean_maxCtorScalarsSize);
 l_Lean_maxCtorTag = _init_l_Lean_maxCtorTag();

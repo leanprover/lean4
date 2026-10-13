@@ -180,16 +180,18 @@ structure TagAttribute where
 def registerTagAttribute (name : Name) (descr : String)
     (validate : Name → AttrM Unit := fun _ => pure ()) (ref : Name := by exact decl_name%)
     (applicationTime := AttributeApplicationTime.afterTypeChecking)
-    (asyncMode : EnvExtension.AsyncMode := .mainOnly) : IO TagAttribute := do
+    (asyncMode : EnvExtension.AsyncMode := .mainOnly)
+    (logWrites : Bool := false) : IO TagAttribute := do
   let ext : PersistentEnvExtension Name Name NameSet ← registerPersistentEnvExtension {
     name            := ref
+    logWrites       := logWrites
     mkInitial       := pure {}
     addImportedFn   := fun _ _ => pure {}
     addEntryFn      := fun (s : NameSet) n => s.insert n
     exportEntriesFnEx := fun env es =>
       let all : Array Name := es.foldl (fun a e => a.push e) #[] |>.qsort Name.quickLt
       -- Do not export info for private defs at exported/server levels
-      let exported := all.filter ((env.setExporting true).contains (skipRealize := false))
+      let exported := all.filter ((env.setExporting true).contains)
       { exported, server := exported, «private» := all }
     statsFn         := fun s => "tag attribute" ++ Format.line ++ "number of local entries: " ++ format s.size
     asyncMode       := asyncMode
@@ -210,7 +212,7 @@ def registerTagAttribute (name : Name) (descr : String)
       unless ext.toEnvExtension.asyncMayModify env decl do
         throwAttrNotInAsyncCtx name decl env.asyncPrefix?
       validate decl
-      modifyEnv fun env => ext.addEntry (asyncDecl := decl) env decl
+      modifyEnv (ext.addEntry (asyncDecl := decl) (log := .decl decl) · decl)
   }
   registerBuiltinAttribute attrImpl
   return { attr := attrImpl, ext := ext }
@@ -258,14 +260,16 @@ structure ParametricAttributeImpl (α : Type) extends AttributeImplCore where
   only params on public declarations are exported.
   -/
   filterExport : Environment → Name → α → Bool := fun env n _ =>
-    env.contains (skipRealize := false) n
+    env.contains n
 
 def registerParametricAttributeExt (ref : Name) (preserveOrder : Bool := false)
     (filterExport : Environment → Name → α → Bool := fun env n _ =>
-      env.contains (skipRealize := false) n) :
+      env.contains n)
+    (logWrites : Bool := false) :
     IO (PersistentEnvExtension (Name × α) (Name × α) (List Name × NameMap α)) :=
   registerPersistentEnvExtension {
     name            := ref
+    logWrites       := logWrites
     mkInitial       := pure ([], {})
     addImportedFn   := fun _ => pure ([], {})
     addEntryFn      := fun (decls, m) (p : Name × α) => (p.1 :: decls, m.insert p.1 p.2)
@@ -291,7 +295,7 @@ def registerParametricAttributeForExt (impl : ParametricAttributeImpl α)
       unless (env.getModuleIdxFor? decl).isNone do
         throwAttrDeclInImportedModule impl.name decl
       let val ← impl.getParam decl stx
-      modifyEnv fun env => ext.addEntry (asyncDecl := decl) env (decl, val)
+      modifyEnv (ext.addEntry (asyncDecl := decl) (log := .decl decl) · (decl, val))
       try impl.afterSet decl val catch _ => setEnv env
   }
   registerBuiltinAttribute attrImpl
@@ -355,7 +359,7 @@ def registerEnumAttributes (attrDescrs : List (Name × String × α))
     exportEntriesFnEx := fun env m =>
       let all : Array (Name × α) := m.foldl (fun a n p => a.push (n, p)) #[] |>.qsort (fun a b => Name.quickLt a.1 b.1)
       -- Do not export info for private defs at exported/server levels
-      let exported := all.filter ((env.setExporting true).contains (skipRealize := false) ·.1)
+      let exported := all.filter ((env.setExporting true).contains ·.1)
       { exported, server := exported, «private» := all }
     statsFn         := fun s => "enumeration attribute extension" ++ Format.line ++ "number of local entries: " ++ format s.size
     -- We assume (and check in `modifyState`) that, if used asynchronously, enum attributes are set

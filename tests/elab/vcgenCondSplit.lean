@@ -1,5 +1,4 @@
 import Std.WP
-import Std.Tactic.Do
 
 /-!
 `vcgen` splits a program headed by `cond` (`bif c then t else e`) into one verification

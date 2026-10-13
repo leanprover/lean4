@@ -80,10 +80,7 @@ myWrapperCmd
 set_option linter.deprecated.syntax false in
 myDepCmd
 
--- Test 10: missing since emits a warning
-deprecated_syntax Lean.Parser.Term.show
-
--- Test 11: deprecated syntax inside a `@[deprecated]` definition → no warning,
+-- Test 10: deprecated syntax inside a `@[deprecated]` definition → no warning,
 -- matching the suppression rule for deprecated constants (RFC #8942)
 @[deprecated "use something else" (since := "2026-07-24")]
 def deprecatedUsesOldTerm : Nat := oldThing
@@ -91,5 +88,20 @@ def deprecatedUsesOldTerm : Nat := oldThing
 @[deprecated "use something else" (since := "2026-07-24")]
 theorem deprecatedUsesOldTac : True := by myDepTac
 
--- Test 11b: the same syntax outside a deprecated definition still warns
+-- Test 10b: the same syntax outside a deprecated definition still warns
 def freshUsesOldTerm : Nat := oldThing
+
+-- Test 11: a deprecated tactic warns once, although its expansion uses itself and the deprecated
+-- `myDepTac`
+syntax (name := depRec) "depRec " num : tactic
+macro_rules
+  | `(tactic| depRec 0) => `(tactic| myDepTac)
+  | `(tactic| depRec $n) => `(tactic| depRec $(Lean.quote (n.getNat - 1)))
+deprecated_syntax depRec "use `trivial` instead" (since := "2026-09-23")
+
+example : True := by depRec 2
+
+-- Test 11b: a macro that expands to the deprecated tactic still warns once at its call site
+macro "wrapsDepRec" : tactic => `(tactic| depRec 1)
+
+example : True := by wrapsDepRec

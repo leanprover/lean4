@@ -17,29 +17,13 @@ import Init.Omega
 namespace Lean.Compiler.LCNF
 namespace Specialize
 
-public abbrev Cache := SMap Expr Name
+public abbrev Cache := PHashMap Expr Name
 
-public structure CacheEntry where
-  key : Expr
-  declName : Name
-  deriving Inhabited
-
-public def addEntry (cache : Cache) (e : CacheEntry) : Cache :=
-  cache.insert e.key e.declName
-
-builtin_initialize specCacheExt : SimplePersistentEnvExtension CacheEntry Cache ←
-  registerSimplePersistentEnvExtension {
-    addEntryFn    := addEntry
-    addImportedFn := fun es => (mkStateFromImportedEntries addEntry {} es).switch
-    exportEntriesFnEx? := some fun _ _ entries =>
-      { exported := #[], server := #[], «private» := entries.toArray }
-    asyncMode     := .sync
-    replay?       := some <| SimplePersistentEnvExtension.replayOfFilter
-      (!·.contains ·.key) addEntry
-  }
+builtin_initialize specCacheExt : EnvExtension Cache ←
+  registerEnvExtension (pure {}) (asyncMode := .sync)
 
 public def cacheSpec (key : Expr) (declName : Name) : CoreM Unit :=
-  modifyEnv fun env => specCacheExt.addEntry env { key, declName }
+  modifyEnv fun env => specCacheExt.modifyState env fun s => s.insert key declName
 
 public def findSpecCache? (key : Expr) : CoreM (Option Name) :=
   return specCacheExt.getState (← getEnv) |>.find? key

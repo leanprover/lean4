@@ -22,6 +22,7 @@ Author: Leonardo de Moura
 #include "runtime/interrupt.h"
 #include "runtime/buffer.h"
 #include "runtime/io.h"
+#include "runtime/libuv.h"
 #include "runtime/hash.h"
 
 #if defined(__GLIBC__) || defined(__APPLE__)
@@ -1182,6 +1183,9 @@ public:
         for (auto & t : m_std_workers)
             t->join();
 #endif
+        // The workers finish with the event loop still running, so a task blocked on a libuv promise completes. Stopping
+        // the loop releases references, which takes the lock and can discard tasks.
+        finalize_libuv();
         lock.lock();
         m_std_workers.clear();
         g_in_shutdown = false;

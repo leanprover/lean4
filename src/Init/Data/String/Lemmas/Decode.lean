@@ -127,17 +127,10 @@ theorem utf8EncodeChar_le_utf8EncodeChar {c d : Char} (h : c ≤ d) :
   · exact Std.le_of_lt (String.utf8EncodeChar_lt_utf8EncodeChar h)
   · exact Std.le_refl _
 
-theorem lt_of_utf8EncodeChar_lt_utf8EncodeChar {c d : Char}
-    (h : String.utf8EncodeChar c < String.utf8EncodeChar d) : c < d := by
-  obtain (hc|rfl|hc) := Std.lt_trichotomy c d
-  · exact hc
-  · simp [Std.lt_irrefl] at h
-  · exact False.elim (Std.not_gt_of_lt h (String.utf8EncodeChar_lt_utf8EncodeChar hc))
-
 @[simp]
 public theorem utf8EncodeChar_lt_utf8EncodeChar_iff {c d : Char} :
     String.utf8EncodeChar c < String.utf8EncodeChar d ↔ c < d :=
-  ⟨String.lt_of_utf8EncodeChar_lt_utf8EncodeChar, String.utf8EncodeChar_lt_utf8EncodeChar⟩
+  Std.lt_iff_of_strictMono (fun _ _ => utf8EncodeChar_lt_utf8EncodeChar)
 
 @[simp]
 public theorem compare_utf8EncodeChar_utf8EncodeChar {c d : Char} :

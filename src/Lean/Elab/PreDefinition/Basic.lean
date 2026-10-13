@@ -184,7 +184,7 @@ private def addNonRecAux (docCtx : LocalContext × LocalInstances) (preDef : Pre
     let preDef ← letToHaveType preDef
     let preDef ← if cleanupValue then letToHaveValue preDef else pure preDef
     let attrRecudibilityHint? : Option ReducibilityHints :=
-      if preDef.modifiers.anyAttr (·.name matches `kernel_abbrev) then
+      if preDef.modifiers.anyAttr (·.name matches `lazy_delta_abbrev) then
         some .abbrev
       else
        none
@@ -199,7 +199,7 @@ private def addNonRecAux (docCtx : LocalContext × LocalInstances) (preDef : Pre
           all }
     let mkThmDecl : TermElabM Declaration := do
       if attrRecudibilityHint?.isSome then
-        logWarning "Declaration `{preDef.name}` cannot be tagged as `kernel_abbrev`: it is a theorem and is thus never unfolded."
+        logWarning "Declaration `{preDef.name}` cannot be tagged as `lazy_delta_abbrev`: it is a theorem and is thus never unfolded."
       let d := {
         name := preDef.declName, levelParams := preDef.levelParams, type := preDef.type, value := preDef.value, all
       }
@@ -210,14 +210,14 @@ private def addNonRecAux (docCtx : LocalContext × LocalInstances) (preDef : Pre
       | DefKind.«theorem» => mkThmDecl
       | DefKind.«opaque»  =>
         if attrRecudibilityHint?.isSome then
-          logWarning s!"Declaration `{preDef.declName}` cannot be tagged as `kernel_abbrev`: it is an opaque declaration and is thus never unfolded."
+          logWarning s!"Declaration `{preDef.declName}` cannot be tagged as `lazy_delta_abbrev`: it is an opaque declaration and is thus never unfolded."
         pure <| Declaration.opaqueDecl {
           name := preDef.declName, levelParams := preDef.levelParams, type := preDef.type, value := preDef.value
           isUnsafe := preDef.modifiers.isUnsafe, all
         }
       | DefKind.«abbrev»  =>
         if attrRecudibilityHint?.isSome then
-          logWarning s!"Tagging {preDef.declName} as `kernel_abbrev` is redundant, `abbrev` declarations are always kernel abbreviations."
+          logWarning s!"Tagging {preDef.declName} as `lazy_delta_abbrev` is redundant, `abbrev` declarations are always kernel abbreviations."
         pure <| Declaration.defnDecl {
           name := preDef.declName, levelParams := preDef.levelParams, type := preDef.type, value := preDef.value
           hints := ReducibilityHints.«abbrev»
@@ -227,7 +227,7 @@ private def addNonRecAux (docCtx : LocalContext × LocalInstances) (preDef : Pre
       | DefKind.«instance» => if ← Meta.isProp preDef.type then mkThmDecl else mkDefDecl
     addDecl decl
     if isRecursive then markAsRecursive preDef.declName
-    let preDef := preDef.filterAttrs fun attr => attr.name != `kernel_abbrev
+    let preDef := preDef.filterAttrs fun attr => attr.name != `lazy_delta_abbrev
     applyAttributesOf #[preDef] AttributeApplicationTime.afterTypeChecking
     match preDef.modifiers.computeKind with
     -- Tags may have been added by `elabMutualDef` already, but that is not the only caller

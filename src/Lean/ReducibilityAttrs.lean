@@ -299,21 +299,15 @@ def setIrreducibleAttribute [MonadEnv m] (declName : Name) : m Unit :=
 
 
 /--
-Marks a definition as `[kernel_abbrev]`, meaning it is unfolded eagerly during lazy-delta reduction
-
-Applied to type class instances and instance-like support symbols (e.g., subobject projections
-to class parents). The `instance` command automatically adds `[instance_reducible]`.
-
-Applying `[implicit_reducible]` to an `[instance_reducible]` declaration moves it to the higher
-implicit reducibility level; it will no longer unfold at `.instances` transparency.
+Marks a def
 -/
 builtin_initialize
   registerBuiltinAttribute {
     ref             := by exact decl_name%
-    name            := `kernel_abbrev
+    name            := `lazy_delta_abbrev
     descr           := "instance reducible declaration"
     add             := fun decl stx kind => do
-      throwError "Cannot add attribute `[kernel_abbrev]`: This attribute can only be added when declaring a `def`"
+      throwError "Cannot add attribute `[lazy_delta_abbrev]`: This attribute can only be added when declaring a `def`"
     applicationTime := .afterTypeChecking
  }
 

@@ -10,35 +10,29 @@ a b c : Bool
 p q : Prop
 h : (f a && (b || f (f c))) = true
 h' : p ∧ q
-h_1 : (b && a) = false
+h_1 : b = false ∨ a = false
 ⊢ False
 [grind] Goal diagnostics
   [facts] Asserted facts
     [prop] a = true ∧ (b = true ∨ c = true)
     [prop] p ∧ q
-    [prop] (b && a) = false
+    [prop] b = false ∨ a = false
   [eqc] True propositions
     [prop] p
     [prop] q
     [prop] p ∧ q
     [prop] a = true ∧ (b = true ∨ c = true)
+    [prop] b = false ∨ a = false
     [prop] b = true ∨ c = true
     [prop] a = true
+    [prop] b = false
     [prop] c = true
   [eqc] False propositions
+    [prop] a = false
     [prop] b = true
   [eqc] Equivalence classes
     [eqc] {a, c, true}
-    [eqc] {b, false, b && a}
-  [assoc] Operator `and`
-    [basis] Basis
-      [_] a = true
-    [diseqs] Disequalities
-      [_] b ≠ true
-    [properties] Properties
-      [_] commutative
-      [_] idempotent
-      [_] identity: `true`
+    [eqc] {b, false}
 -/
 #guard_msgs (error) in
 theorem ex (h : (f a && (b || f (f c))) = true) (h' : p ∧ q) : b && a := by
@@ -49,18 +43,18 @@ attribute [local grind cases eager] Or
 
 /--
 error: `grind` failed
-case grind
+case grind.1
 a b c : Bool
 p q : Prop
 h : (f a && (b || f (f c))) = true
 h' : p ∧ q
-h_1 : (b && a) = false
+h_2 : b = false
 ⊢ False
 [grind] Goal diagnostics
   [facts] Asserted facts
     [prop] a = true ∧ (b = true ∨ c = true)
     [prop] p ∧ q
-    [prop] (b && a) = false
+    [prop] b = false
   [eqc] True propositions
     [prop] p
     [prop] q
@@ -73,16 +67,10 @@ h_1 : (b && a) = false
     [prop] b = true
   [eqc] Equivalence classes
     [eqc] {a, c, true}
-    [eqc] {b, false, b && a}
-  [assoc] Operator `and`
-    [basis] Basis
-      [_] a = true
-    [diseqs] Disequalities
-      [_] b ≠ true
-    [properties] Properties
-      [_] commutative
-      [_] idempotent
-      [_] identity: `true`
+    [eqc] {b, false}
+[grind] Diagnostics
+  [cases] Cases instances
+    [cases] Or ↦ 1
 -/
 #guard_msgs (error) in
 theorem ex2 (h : (f a && (b || f (f c))) = true) (h' : p ∧ q) : b && a := by

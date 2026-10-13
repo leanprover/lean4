@@ -1,0 +1,20 @@
+Input: "\t\n"
+2 failures:
+Failure: tabs are not allowed; please configure your editor to expand them
+ --> 1:0-1:1
+  |
+1 |  
+  | ^
+  = consumed input prefix: 0 bytes
+
+Failure: unexpected end of input; expected '![', '$$', '$', '*', '[', '[^', '_', '`', '{', block opener (at line start: '#', '>', ':', '*', '-', '+', '1.', '```', '%%%', '{…}') or newline
+ --> 2:0
+  |
+2 | 
+  | ^
+  = consumed input prefix: 2 bytes
+
+Final stack:
+  [(Lean.Doc.Parser.Block.para [<missing>])]
+All input consumed.
+Round-trip not reproduced, as the parse reported errors: leaf without original source info: <missing>

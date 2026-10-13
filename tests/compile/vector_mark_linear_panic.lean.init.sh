@@ -1,0 +1,2 @@
+export LEAN_ABORT_ON_NONLINEAR=1
+TEST_EXIT=nonzero

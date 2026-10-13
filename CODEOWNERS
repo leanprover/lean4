@@ -53,3 +53,5 @@
 /src/Init/Data/Slice @datokrat
 /src/Init/Data/Iterators @datokrat
 /src/Std/Data/Iterators @datokrat
+/src/lake/Lake/Check/ @hargoniX
+/src/lake/Lake/CLI/Check.lean @hargoniX

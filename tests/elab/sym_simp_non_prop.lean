@@ -6,7 +6,7 @@ that cannot be used as a simp theorem is provided as a parameter.
 -/
 
 /--
-error: cannot use `HAdd.hAdd` as a simp theorem, it is a reducible definition or a projection, and `Sym.simp` does not support unfolding them
+error: cannot use `HAdd.hAdd` as a simp theorem, it is a projection, and `Sym.simp` does not support unfolding projections
 -/
 #guard_msgs in
 example : 1 + 1 = 2 := by

@@ -58,7 +58,7 @@ multiple times in the same file.
 -/
 @[builtin_command_parser]
 def moduleDoc := leading_parser ppDedent <|
-  "/-!" >> Doc.Parser.ifVersoModuleDocs versoCommentBody commentBody >> ppLine
+  docCommentOpen "/-!" >> Doc.Parser.ifVersoModuleDocs versoCommentBody commentBody >> ppLine
 
 
 def namedPrio := leading_parser
@@ -133,23 +133,27 @@ def declSig := leading_parser
 `requires` and `ensures` clauses. A logical variable belongs to the specification alone. -/
 def givenClause := leading_parser
   ppIndent (ppLine >> nonReservedSymbol "given" >>
-    withForbiddens #["requires", "ensures"]
+    withForbiddens #["requires", "ensures", "throws"]
       (many1 (ppSpace >> (Term.binderIdent <|> Term.bracketedBinder))))
 /-- The `requires P` precondition clause of a `def` contract. The form `requires s => P s` binds the
 arguments of the assertion itself, such as the state of a state monad. -/
 def requiresClause := leading_parser
   ppIndent (ppLine >> nonReservedSymbol "requires" >>
-    withForbidden "ensures" (atomic Term.basicFun <|> (ppSpace >> termParser)))
+    withForbiddens #["ensures", "throws"] (atomic Term.basicFun <|> (ppSpace >> termParser)))
 /-- The `ensures b => Q` postcondition clause of a `def` contract, binding the result `b`. -/
 def ensuresClause := leading_parser
-  ppIndent (ppLine >> nonReservedSymbol "ensures" >> Term.basicFun)
-/-- The `: type` of a `def`. It may carry contract clauses, so we forbid `given`, `requires` and
-`ensures` in the type. -/
-def defTypeSpec := withForbiddens #["given", "requires", "ensures"] Term.typeSpec
+  ppIndent (ppLine >> nonReservedSymbol "ensures" >> withForbidden "throws" Term.basicFun)
+/-- The `throws e => R` exception clause of a `def` contract, binding the raised exception `e`.
+An ascription `throws (e : ε) => R` selects the exception layer of type `ε`. -/
+def throwsClause := leading_parser
+  ppIndent (ppLine >> nonReservedSymbol "throws" >> withForbidden "throws" Term.basicFun)
+/-- The `: type` of a `def`. It may carry contract clauses, so we forbid `given`, `requires`,
+`ensures` and `throws` in the type. -/
+def defTypeSpec := withForbiddens #["given", "requires", "ensures", "throws"] Term.typeSpec
 /-- `optDeclSig` matches the signature of a declaration with optional type: a list of binders and then possibly `: type` -/
 -- @[builtin_doc] -- FIXME: suppress the hover
 def optDeclSig := leading_parser
-  withForbiddens #["given", "requires", "ensures"]
+  withForbiddens #["given", "requires", "ensures", "throws"]
     (many (ppSpace >> (Term.binderIdent <|> Term.bracketedBinder))) >>
   optional defTypeSpec
 /-- Right-hand side of a `:=` in a declaration, a term. -/
@@ -203,12 +207,11 @@ def whereStructInst  := leading_parser
   -- Issue #753 shows an example that fails to be parsed when we used `Term.whereDecls`.
   withAntiquot (mkAntiquot "declVal" decl_name% (isPseudoKind := true)) <|
     declValSimple <|> declValEqns <|> whereStructInst
-/-- `given xs`/`requires P`/`ensures b => Q` contract clauses followed by the value of a `def`.
-Tried only after `declVal` fails, so contract-free definitions parse without probing for the
-clauses. `withoutInfo` avoids collecting `declVal`'s tokens and kinds a second time at startup; they
-are already registered through the `declVal` alternative of `definition`. -/
+/-- `given xs`/`requires P`/`ensures b => Q`/`throws e => R` contract clauses followed by the value
+of a `def`. Tried only after `declVal` fails. -/
 def contractDeclVal := leading_parser
-  optional givenClause >> optional requiresClause >> optional ensuresClause >> withoutInfo declVal
+  optional givenClause >> optional requiresClause >> optional ensuresClause >>
+  many throwsClause >> withoutInfo declVal
 def «abbrev»         := leading_parser
   "abbrev " >> declId >> ppIndent optDeclSig >> declVal
 def derivingClass    := leading_parser
@@ -243,6 +246,13 @@ def computedField    := leading_parser
 def computedFields   := leading_parser
   "with" >> manyIndent (ppLine >> ppGroup computedField)
 /--
+Manually prove that the predicate functor is `Lean.Order.monotone`, instead of relying on the
+proof search performed by the `Lean.Order.monotonicity` tactic. Only supported on `coinductive`
+predicates and on `inductive` predicates that share a `mutual` block with a `coinductive` one.
+-/
+@[builtin_doc] def monotonicityBy := leading_parser
+  ppDedent ppLine >> "monotonicity_by " >> Tactic.tacticSeqIndentGt
+/--
 In Lean, every concrete type other than the universes
 and every type constructor other than dependent arrows
 is an instance of a general family of type constructions known as inductive types.
@@ -263,10 +273,10 @@ for more information.
 -/
 @[builtin_doc] def «inductive» := leading_parser
   "inductive " >> recover declId skipUntilWsOrDelim >> ppIndent optDeclSig >> optional (symbol " :=" <|> " where") >>
-  many ctor >> optional (ppDedent ppLine >> computedFields) >> optDeriving
+  many ctor >> optional (ppDedent ppLine >> computedFields) >> optDeriving >> optional monotonicityBy
 @[builtin_doc] def «coinductive» := leading_parser
   "coinductive " >> recover declId skipUntilWsOrDelim >> ppIndent optDeclSig >> optional (symbol " :=" <|> " where") >>
-  many ctor >> optional (ppDedent ppLine >> computedFields) >> optDeriving
+  many ctor >> optional (ppDedent ppLine >> computedFields) >> optDeriving >> optional monotonicityBy
 def classInductive   := leading_parser
   atomic (group (symbol "class " >> "inductive ")) >>
   recover declId skipUntilWsOrDelim >> ppIndent optDeclSig >>
@@ -309,6 +319,18 @@ def «structure»          := leading_parser
   declModifiers false >>
   («abbrev» <|> definition <|> «theorem» <|> «opaque» <|> «instance» <|> «axiom» <|> «example» <|>
    «inductive» <|> «coinductive» <|> classInductive <|> «structure»)
+
+/--
+`recall` restates a previous declaration for illustrative purposes and checks that its type and
+optional value are definitionally equal to the original declaration.
+-/
+@[builtin_command_parser] def recallCmd := leading_parser
+  optional docComment >> "recall " >> ident >> ppIndent optDeclSig >> optional declVal
+
+/-- `recall?` suggests a `recall` statement for a previous declaration. -/
+@[builtin_command_parser] def recallQuestionCmd := leading_parser
+  "recall? " >> ident
+
 @[builtin_command_parser] def «deriving»     := leading_parser
   "deriving " >> optional "noncomputable " >> "instance " >> derivingClasses >> " for " >> sepBy1 (recover termParser skip) ", "
 def sectionHeader := leading_parser

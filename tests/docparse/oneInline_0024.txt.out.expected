@@ -1,0 +1,23 @@
+Input: "**a {role}[x]**"
+Success! Final stack:
+  (Lean.Doc.Parser.Inline.bold
+   (Lean.Doc.Parser.boldDelimiter "**")
+   [(Lean.Doc.Parser.Inline.text
+     (Lean.Doc.Parser.versoText "a "))
+    (Lean.Doc.Parser.Inline.role
+     "{"
+     `role
+     []
+     "}"
+     ["["]
+     [(Lean.Doc.Parser.Inline.text
+       (Lean.Doc.Parser.versoText "x"))]
+     ["]"])]
+   (Lean.Doc.Parser.boldDelimiter "**"))
+All input consumed.
+Round-trip OK
+Decoded views:
+  bold (opener := "**") (closer := "**")
+    text (content := "a ")
+    role (braceOpen := "{") (name := role) (args := []) (braceClose := "}") (brackets := some ("[", "]"))
+      text (content := "x")

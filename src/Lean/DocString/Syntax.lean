@@ -8,135 +8,709 @@ module
 
 prelude
 public import Lean.Parser.Term.Basic
-public meta import Lean.Parser.Term.Basic
+public import Lean.DocString.Types
+meta import Lean.Parser.Term.Basic
 
 
 /-!
+This module declares the syntax of Verso documents.
 
-This module contains an internal syntax that's used to represent documents.
+The concrete syntax falls outside what Lean's parsing framework can express, so Verso has a separate
+parser, in `Lean.DocString.Parser`, written with the lower-level parts of Lean's parser. The node
+kinds it produces are declared here, in `Lean.Doc.Parser`, together with the tokens that store
+literal content and the accessors that decode them.
 
-Ordinarily, a syntax declaration is used to extend the Lean parser. The parser produces `Syntax`,
-which is flexible enough to represent essentially anything. However, each syntax declaration will
-produce parsed syntax trees with a predictable form, and these syntax trees can be matched using
-quasiquotation patterns. In other words, syntax declarations really do all of the following:
+Consumers read this syntax through the views in `Lean.DocString.View`, which is the only place that
+matches document syntax directly.
 
- * They extend Lean's parser
- * They establish expectations for valid subsets of `Syntax`
- * They provide a way to pattern-match against the valid `Syntax` that they induce
-
-The syntax declarations in this module are used somewhat differently. They're not generally intended
-for direct use with the Lean parser, because the concrete syntax of Verso documents falls outside
-what can be implemented with Lean's parsing framework. Thus, Verso has a separate parser, written
-using the lower-level parts of Lean's parser. These syntax declarations are, however, a
-specification for the syntax trees produced by said parser. The Verso parser is in the module
-`Lean.DocString.Parser`. Specifying the Verso document syntax as is done here also allows
-quasiquotation patterns that match against the output of the Verso parser.
-
-Importantly, Lean quasiquotation patterns do not match the string contents of atoms. This means that
-the Verso parser may produce a node of kind `` `Lean.Doc.Syntax.li `` in which the first atom is
-`"1."` rather than `"*'` when parsing an ordered list.
-
-Parsed Verso documents are transformed into Lean syntax that represents Verso document ASTs (see
-module `Lean.DocString.Types`). This process potentially invokes user-written metaprograms - while
-Verso's concrete syntax is not extensible, roles, directives and code blocks all contain explicit
-hooks for extensibility. This translation step is defined in the module `Lean.DocString.Elab`.
-
+Elaboration turns a parsed document into Lean syntax for the Verso document AST of
+`Lean.DocString.Types`, and may invoke user-written metaprograms on the way: the concrete syntax is
+not extensible, but roles, directives, and code blocks are hooks for extension. That step is in
+`Lean.Elab.DocString`.
 -/
 
-open Lean.Parser (rawIdent)
 
-namespace Lean.Doc.Syntax
+namespace Lean.Doc.Parser
 
 public section
 
-/-- Argument values -/
-declare_syntax_cat arg_val
-scoped syntax (name:=arg_str) str : arg_val
-scoped syntax (name:=arg_ident) ident : arg_val
-scoped syntax (name:=arg_num) num : arg_val
+/-!
+The tokens that store literal Verso content. The Verso parser builds them itself, so each
+declaration below supplies only the antiquotation that can be used in Lean syntax quasiquotations.
+Its own name is the token's syntax node kind.
+-/
 
-/-- Arguments -/
-declare_syntax_cat doc_arg
-/-- Anonymous positional argument -/
-@[builtin_doc]
-scoped syntax (name:=anon) arg_val : doc_arg
-/-- Named argument -/
-@[builtin_doc]
-scoped syntax (name:=named) "(" ident " := " arg_val ")": doc_arg
-@[inherit_doc named, builtin_doc]
-scoped syntax (name:=named_no_paren) ident " := " arg_val : doc_arg
-/-- Boolean flag, turned on -/
-@[builtin_doc]
-scoped syntax (name:=flag_on) "+" ident : doc_arg
-/-- Boolean flag, turned off -/
-@[builtin_doc]
-scoped syntax (name:=flag_off) "-" ident : doc_arg
+open Lean.Parser in
+/--
+Wraps a parser so that it is built when it is first used rather than when the module is
+initialized. The parser's info is empty because the Verso grammar supplies its information through
+`Lean.Doc.Parser.documentInfo`. These parsers are used for metaprogramming and quotation only,
+rather than general docstrings, so most clients shouldn't pay for them.
 
-/-- Link targets, which may be URLs or named references -/
-declare_syntax_cat link_target
-/-- A URL target, written explicitly. Use square brackets for a named target. -/
-@[builtin_doc]
-scoped syntax (name:=url) "(" str ")" : link_target
-/-- A named reference to a URL defined elsewhere. Use parentheses to write the URL here. -/
-@[builtin_doc]
-scoped syntax (name:=ref) "[" str "]" : link_target
+When the parsers were defined in the usual way, there was a significant startup overhead because
+evaluating them occurred in an initializer. `onFirstUse` places the parser value under a lambda,
+triggering the compiler's closed term extraction. Extracted closed terms are evaluated lazily, at
+first access, instead of eagerly in the initializer.
+
+If compiler changes lead to this no longer being the case, then onFirstUse should be reconsidered.
+To check whether closed term extraction is still happening, enable `trace.compiler.ir.result` on one
+of the parsers in this module ahd look for `_closed_N` as the body of the last displayed entry.  To
+check that compilation still produces the lazily-evaluated version, inspect the generated C code and
+look for `lean_obj_once`.
+-/
+@[inline] private def onFirstUse (p : Unit → Parser) : Parser :=
+  { fn := fun c s => (p ()).fn c s }
+
+open Lean.Parser in
+/-- Literal text content. -/
+def versoText : Parser := onFirstUse fun _ => mkAntiquot "versoText" decl_name%
+
+open Lean.Parser in
+/-- The name of a footnote or a link reference. -/
+def versoRef : Parser := onFirstUse fun _ => mkAntiquot "versoRef" decl_name%
+
+open Lean.Parser in
+/-- The URL of a link or an image. -/
+def versoLinkUrl : Parser := onFirstUse fun _ => mkAntiquot "versoLinkUrl" decl_name%
+
+open Lean.Parser in
+/-- The URL that a link reference definition provides. -/
+def versoLinkRefUrl : Parser := onFirstUse fun _ => mkAntiquot "versoLinkRefUrl" decl_name%
+
+open Lean.Parser in
+/-- The alternate text of an image. -/
+def versoImageAlt : Parser := onFirstUse fun _ => mkAntiquot "versoImageAlt" decl_name%
+
+open Lean.Parser in
+/-- Literal inline code content. -/
+def versoCode : Parser := onFirstUse fun _ => mkAntiquot "versoCode" decl_name%
+
+open Lean.Parser in
+/-- One source line of inline code or code block content. -/
+def versoCodeLine : Parser := onFirstUse fun _ => mkAntiquot "versoCodeLine" decl_name%
+
+open Lean.Parser in
+/-- Literal code block content. -/
+def versoCodeBlock : Parser := onFirstUse fun _ => mkAntiquot "versoCodeBlock" decl_name%
+
+end
+
+end Lean.Doc.Parser
+
+namespace Lean.Doc
+open Lean.Doc.Parser
+
+public section
+
+/-!
+The kinds of the tokens that store literal content, and the `TSyntax` types over them. A token
+contains the source text exactly as written, keeping escape sequences, boundary spaces, and
+indentation. The `getVerso*` accessors decode it.
+-/
+
+/-- Tokens that contain Verso text content. -/
+def versoTextKind : SyntaxNodeKind := ``versoText
+
+/-- The name of a Verso footnote or link reference name. -/
+def versoRefKind : SyntaxNodeKind := ``versoRef
+
+/-- The URL of a Verso link or image. -/
+def versoLinkUrlKind : SyntaxNodeKind := ``versoLinkUrl
+
+/-- The URL that a Verso link reference definition provides. -/
+def versoLinkRefUrlKind : SyntaxNodeKind := ``versoLinkRefUrl
+
+/-- The alternate text of a Verso image. -/
+def versoImageAltKind : SyntaxNodeKind := ``versoImageAlt
+
+/-- The contents of Verso inline code. -/
+def versoCodeKind : SyntaxNodeKind := ``versoCode
+
+/-- One source line inside Verso inline code or a Verso code block. -/
+def versoCodeLineKind : SyntaxNodeKind := ``versoCodeLine
+
+/-- The contents of a Verso code block. -/
+def versoCodeBlockKind : SyntaxNodeKind := ``versoCodeBlock
+
+/-- The text of a Verso docstring whose markup does not parse. -/
+def parseFailureKind : SyntaxNodeKind := `Lean.Doc.Parser.parseFailure
 
 /--
-Verso inline objects. These are part of the ordinary text flow of a paragraph.
-
-This syntax uses the following conventions:
- * Sequences of inline items are in square brackets
- * Literal data, like strings or numbers, are in parentheses
- * Verso metaprogram names and arguments are in curly braces
+Text content in a Verso document. The token contains the source text with escape sequences
+intact. Use `VersoText.view` or `TSyntax.getVersoText` to decode it.
 -/
-declare_syntax_cat inline
-scoped syntax (name:=text) str : inline
+abbrev VersoText := TSyntax ``versoText
+
+/--
+The name of a footnote or a link reference in a Verso document. Use `VersoRefName.view` or
+`TSyntax.getVersoRefName` to decode its name to a string.
+-/
+abbrev VersoRefName := TSyntax ``versoRef
+
+/--
+The URL of a link or an image in a Verso document. Use `VersoLinkUrl.view` or
+`TSyntax.getVersoLinkUrl` to decode the URL to a string.
+-/
+abbrev VersoLinkUrl := TSyntax ``versoLinkUrl
+
+/--
+The URL that a link reference definition provides in a Verso document. Use
+`VersoLinkRefUrl.view` or `TSyntax.getVersoLinkRefUrl` to decode the URL to a string.
+-/
+abbrev VersoLinkRefUrl := TSyntax ``versoLinkRefUrl
+
+/--
+The alternate text of an image in a Verso document. Use `VersoImageAlt.view` or
+`TSyntax.getVersoImageAlt` to decode the alternate text to a string.
+-/
+abbrev VersoImageAlt := TSyntax ``versoImageAlt
+
+/--
+Inline code content in a Verso document, with one `versoCodeLine` token per source line. Use
+`VersoCode.view` or `TSyntax.getVersoCode` to decode it to a string.
+-/
+abbrev VersoCode := TSyntax ``versoCode
+
+/--
+A single source line of code content in a Verso document, inside inline code or a code block. Only
+indentation that is semantically part of the line of code is included in the atom, while
+indentation of a code block or docstring as a whole is part of the tokens' whitespace.
+
+Use `VersoCodeLine.view` or `TSyntax.getVersoCodeLine` to decode the line to a string.
+-/
+abbrev VersoCodeLine := TSyntax ``versoCodeLine
+
+/--
+Code block content in a Verso document, with one `versoCodeLine` token per source line. The code
+block's indentation is whitespace between tokens. Use `VersoCodeBlock.view` or
+`TSyntax.getVersoCodeBlock` to decode it to a string.
+-/
+abbrev VersoCodeBlock := TSyntax ``versoCodeBlock
+
+/--
+The length of the longest run of backticks in `str`. A delimiter of inline code, and the fence of a
+code block, is longer than every run of backticks in the content it surrounds.
+-/
+def longestBacktickRun (str : String) : Nat := Id.run do
+  let mut best : Nat := 0
+  let mut run : Nat := 0
+  for c in str do
+    if c == '`' then
+      run := run + 1
+      if run > best then best := run
+    else run := 0
+  best
+
+/--
+Whether `str` begins and ends with a space and contains a character other than a space.
+
+In a code element, this sequence denotes the content with a space removed from each end. The parser
+records those two spaces as whitespace rather than content.
+-/
+def versoCodeBoundarySpaces (str : String) : Bool :=
+  str.startsWith " " && str.endsWith " " && str.any (· != ' ')
+
+/--
+Removes the escaping backslashes from Verso content: `\c` denotes the character `c`.
+
+Verso does not use escapes such as `\n` for newlines.
+-/
+private def unescapeVerso (str : String) : String := Id.run do
+  let mut out := ""
+  let mut iter := str.startPos
+  while h : ¬iter.IsAtEnd do
+    let c := iter.get h
+    iter := iter.next h
+    if c == '\\' then
+      if h : ¬iter.IsAtEnd then
+        out := out.push (iter.get h)
+        iter := iter.next h
+    else
+      out := out.push c
+  out
+
+/--
+Escapes the characters of `value` that would otherwise end the content, so that decoding the result
+gives `value` back. The escape character escapes itself.
+-/
+private def escapeVersoDelimited (delimiters : List Char) (value : String) : String :=
+  value.foldl (init := "") fun out c =>
+    if c == '\\' || c ∈ delimiters then out.push '\\' |>.push c else out.push c
+
+/-- Escapes `value` so that `getVersoLinkUrl` reads it back unchanged. -/
+def escapeVersoLinkUrl (value : String) : String := escapeVersoDelimited [')'] value
+
+/-- Escapes `value` so that `getVersoImageAlt` reads it back unchanged. -/
+def escapeVersoImageAlt (value : String) : String := escapeVersoDelimited [']'] value
+
+end
+
+end Lean.Doc
+
+namespace Lean.TSyntax
+
+public section
+
+open Lean.Doc
+
+/--
+Decodes the text that a Verso text token denotes, interpreting escape sequences.
+-/
+def getVersoText (s : VersoText) : String :=
+  unescapeVerso <| (Syntax.isLit? versoTextKind s.raw).getD ""
+
+/--
+Returns the text of a Verso text token as it was written, with its escape sequences intact.
+-/
+def getVersoTextSource (s : VersoText) : String :=
+  (Syntax.isLit? versoTextKind s.raw).getD ""
+
+/--
+Decodes the name that a Verso footnote or link reference token contains.
+-/
+def getVersoRefName (s : VersoRefName) : String :=
+  (Syntax.isLit? versoRefKind s.raw).getD ""
+
+/--
+Decodes the URL that a Verso link or image token contains, interpreting escape sequences.
+-/
+def getVersoLinkUrl (s : VersoLinkUrl) : String :=
+  unescapeVerso <| (Syntax.isLit? versoLinkUrlKind s.raw).getD ""
+
+/--
+Returns the URL that a Verso link reference definition token contains. These positions do not
+support escape sequences.
+-/
+def getVersoLinkRefUrl (s : VersoLinkRefUrl) : String :=
+  (Syntax.isLit? versoLinkRefUrlKind s.raw).getD ""
+
+/--
+Decodes the alternate text that a Verso image token contains, interpreting escape sequences.
+-/
+def getVersoImageAlt (s : VersoImageAlt) : String :=
+  unescapeVerso <| (Syntax.isLit? versoImageAltKind s.raw).getD ""
+
+/--
+Returns the text of one source line inside Verso inline code or a Verso code block.
+-/
+def getVersoCodeLine (s : VersoCodeLine) : String :=
+  (Syntax.isLit? versoCodeLineKind s.raw).getD ""
+
+/--
+Returns the source lines of Verso inline code, in order.
+-/
+def getVersoCodeLines (s : VersoCode) : TSyntaxArray ``Parser.versoCodeLine :=
+  -- The repetition that reads the lines groups them in a null node.
+  .mk s.raw[0].getArgs
+
+/--
+Returns the code that Verso inline code content denotes, which is the text of its lines in order.
+-/
+def getVersoCode (s : VersoCode) : String := Id.run do
+  let mut str := ""
+  for line in s.getVersoCodeLines do
+    str := str ++ line.getVersoCodeLine
+  str
+
+/--
+Returns the source lines of a Verso code block, in order.
+-/
+def getVersoCodeBlockLines (s : VersoCodeBlock) : TSyntaxArray ``Parser.versoCodeLine :=
+  -- The repetition that reads the lines groups them in a null node.
+  .mk s.raw[0].getArgs
+
+/--
+Returns the contents of a Verso code block, which are the texts of its lines in order.
+-/
+def getVersoCodeBlock (s : VersoCodeBlock) : String := Id.run do
+  let mut out := ""
+  for line in s.getVersoCodeBlockLines do
+    out := out ++ line.getVersoCodeLine
+  out
+
+end
+
+end Lean.TSyntax
+
+namespace Lean.Doc
+
+public section
+
+@[inherit_doc TSyntax.getVersoText]
+def VersoText.view (s : VersoText) : String := s.getVersoText
+
+@[inherit_doc TSyntax.getVersoRefName]
+def VersoRefName.view (s : VersoRefName) : String := s.getVersoRefName
+
+@[inherit_doc TSyntax.getVersoLinkUrl]
+def VersoLinkUrl.view (s : VersoLinkUrl) : String := s.getVersoLinkUrl
+
+@[inherit_doc TSyntax.getVersoLinkRefUrl]
+def VersoLinkRefUrl.view (s : VersoLinkRefUrl) : String := s.getVersoLinkRefUrl
+
+@[inherit_doc TSyntax.getVersoImageAlt]
+def VersoImageAlt.view (s : VersoImageAlt) : String := s.getVersoImageAlt
+
+@[inherit_doc TSyntax.getVersoCodeLine]
+def VersoCodeLine.view (s : VersoCodeLine) : String := s.getVersoCodeLine
+
+@[inherit_doc TSyntax.getVersoCode]
+def VersoCode.view (s : VersoCode) : String := s.getVersoCode
+
+@[inherit_doc TSyntax.getVersoCodeBlock]
+def VersoCodeBlock.view (s : VersoCodeBlock) : String := s.getVersoCodeBlock
+
+end
+
+end Lean.Doc
+
+/-!
+The kinds of the nodes that the Verso parser builds, grouped by syntax category as
+`Lean.Parser.Term` and `Lean.Parser.Command` are. The tokens that store literal content are
+declared above, with the accessors that decode them.
+-/
+
+namespace Lean.Doc.Parser
+
+public section
+
+namespace ArgVal
+
+open Lean.Parser in
+def str : Lean.Parser.Parser := onFirstUse fun _ =>
+  nodeWithAntiquot "ArgVal.str" decl_name% Lean.Parser.strLit
+open Lean.Parser in
+def ident : Lean.Parser.Parser := onFirstUse fun _ =>
+  nodeWithAntiquot "ArgVal.ident" decl_name% Lean.Parser.ident
+open Lean.Parser in
+def num : Lean.Parser.Parser := onFirstUse fun _ =>
+  nodeWithAntiquot "ArgVal.num" decl_name% Lean.Parser.numLit
+
+end ArgVal
+
+open Lean.Parser in
+/--
+Argument values. Quotations may use antiquotations for any of the forms.
+-/
+def argVal : Lean.Parser.Parser := onFirstUse fun _ =>
+  withAntiquot (mkAntiquot "argVal" decl_name% (isPseudoKind := true)) <|
+    ArgVal.str <|> ArgVal.ident <|> ArgVal.num
+
+namespace Arg
+
+open Lean.Parser in
+/-- Anonymous positional argument -/
+@[builtin_doc]
+def anon : Lean.Parser.Parser := onFirstUse fun _ => nodeWithAntiquot "anon" decl_name% argVal
+open Lean.Parser in
+/-- Named argument -/
+@[builtin_doc]
+def named : Lean.Parser.Parser := onFirstUse fun _ =>
+  nodeWithAntiquot "named" decl_name% ("(" >> Lean.Parser.ident >> " := " >> argVal >> ")")
+open Lean.Parser in
+@[inherit_doc named, builtin_doc]
+def named_no_paren : Lean.Parser.Parser := onFirstUse fun _ =>
+  nodeWithAntiquot "named_no_paren" decl_name% (Lean.Parser.ident >> " := " >> argVal)
+open Lean.Parser in
+/-- Boolean flag, turned on -/
+@[builtin_doc]
+def flag_on : Lean.Parser.Parser := onFirstUse fun _ =>
+  nodeWithAntiquot "flag_on" decl_name% ("+" >> Lean.Parser.ident)
+open Lean.Parser in
+/-- Boolean flag, turned off -/
+@[builtin_doc]
+def flag_off : Lean.Parser.Parser := onFirstUse fun _ =>
+  nodeWithAntiquot "flag_off" decl_name% ("-" >> Lean.Parser.ident)
+
+end Arg
+
+open Lean.Parser in
+/--
+Arguments to a role, directive, command, or code block.
+-/
+def arg : Lean.Parser.Parser := onFirstUse fun _ =>
+  withAntiquot (mkAntiquot "arg" decl_name% (isPseudoKind := true)) <|
+    Arg.named <|> Arg.flag_on <|> Arg.flag_off <|>
+      atomic Arg.named_no_paren <|> Arg.anon
+
+namespace LinkTarget
+
+open Lean.Parser in
+/-- A URL target, written explicitly. Use square brackets for a named target. -/
+@[builtin_doc]
+def url : Lean.Parser.Parser := onFirstUse fun _ =>
+  nodeWithAntiquot "url" decl_name% ("(" >> versoLinkUrl >> ")")
+open Lean.Parser in
+/-- A named reference to a URL defined elsewhere. Use parentheses to write the URL here. -/
+@[builtin_doc]
+def ref : Lean.Parser.Parser := onFirstUse fun _ =>
+  nodeWithAntiquot "ref" decl_name% ("[" >> versoRef >> "]")
+
+end LinkTarget
+
+open Lean.Parser in
+/--
+The target of a link or image.
+-/
+def linkTarget : Lean.Parser.Parser := onFirstUse fun _ =>
+  withAntiquot (mkAntiquot "linkTarget" decl_name% (isPseudoKind := true)) <|
+    LinkTarget.url <|> LinkTarget.ref
+
+open Lean.Parser in
+/-- Matches the literal characters of `s`, producing a single atom that takes a position binder. -/
+private def atomOf (s : String) : Lean.Parser.Parser :=
+  tokenWithAntiquot {
+    fn := rawFn (trailingWs := true) fun c st =>
+      let chars := s.toList.foldl (init := (fun _ st => st : ParserFn))
+        fun p ch => p >> satisfyFn (· == ch) ch.toString
+      let st' := chars c st
+      -- The characters are read one at a time, so a failure names the one that did not match. The
+      -- atom is what was expected, and reporting it at the start says where it would have begun.
+      if st'.hasError then st'.mkErrorAt s!"'{s}'" st.pos else st'
+  }
+
+open Lean.Parser in
+/-- Matches a run of one or more `c`, producing a single atom. -/
+private def charRun (ch : Char) : Lean.Parser.Parser :=
+  tokenWithAntiquot {
+    fn := rawFn (trailingWs := true) fun c st =>
+      let st' := takeWhile1Fn (· == ch) s!"'{ch}'" c st
+      if st'.hasError then st'.mkErrorAt s!"one or more '{ch}'" st.pos else st'
+  }
+
+open Lean.Parser in
+/-- Matches an unordered list item's marker, producing a single atom. -/
+private def bulletAtom : Lean.Parser.Parser := onFirstUse fun _ =>
+  tokenWithAntiquot {
+    -- A single scan, so that nothing pushes a wrapper node beside the atom.
+    fn := rawFn (trailingWs := true) fun c s =>
+      if h : c.atEnd s.pos then s.mkEOIError
+      else
+        let ch := c.get' s.pos h
+        if ch == '*' || ch == '-' || ch == '+' then s.next' c s.pos h
+        else s.mkErrorAt "'*', '-', or '+'" s.pos
+  }
+
+open Lean.Parser in
+/-- Matches an ordered list item's marker, producing a single atom. -/
+private def numberAtom : Lean.Parser.Parser := onFirstUse fun _ =>
+  tokenWithAntiquot {
+    fn := rawFn (trailingWs := true) fun c s =>
+      let s' := (takeWhile1Fn (·.isDigit) "'0'-'9'" >>
+        satisfyFn (fun c => c == '.' || c == ')') "'.' or ')'") c s
+      if s'.hasError then s'.mkErrorAt "a number followed by '.' or ')'" s.pos else s'
+  }
+
+open Lean.Parser Lean.Parser.Term in
+/--
+Metadata block contents, which are the fields of a structure instance.
+
+The fields occur between delimiters that are not otherwise tokens, so `%%%` is added to the
+token table while reading them.
+-/
+private def metadataContentsLit : Lean.Parser.Parser := onFirstUse fun _ => {
+  fn :=
+    adaptUncacheableContextFn (fun c => { c with tokens := c.tokens.insert "%%%" "%%%" })
+      (withAntiquot (mkAntiquot "metadataContents" ``Lean.Parser.Term.structInstFields)
+        (structInstFields (sepByIndent structInstField ", " (allowTrailingSep := true)))).fn }
+
+open Lean.Parser in
+/--
+The sequence of `#` characters that introduces a header. Its length determines the header's level.
+-/
+def headerMarker : Lean.Parser.Parser := onFirstUse fun _ =>
+  nodeWithAntiquot "headerMarker" decl_name% (charRun '#')
+
+open Lean.Parser in
+/--
+The marker that introduces a list item. An unordered list uses `*`, `-`, or `+`. An ordered list
+uses a number followed by `.` or `)`.
+-/
+def listMarker : Lean.Parser.Parser := onFirstUse fun _ =>
+  nodeWithAntiquot "listMarker" decl_name% (atomic bulletAtom <|> numberAtom)
+
+open Lean.Parser in
+/-- The marker of an item in an unordered list. -/
+private def unorderedListMarker : Lean.Parser.Parser := onFirstUse fun _ =>
+  nodeWithAntiquot "listMarker" ``listMarker bulletAtom
+
+open Lean.Parser in
+/-- The marker of an item in an ordered list. -/
+private def orderedListMarker : Lean.Parser.Parser := onFirstUse fun _ =>
+  nodeWithAntiquot "listMarker" ``listMarker numberAtom
+
+open Lean.Parser in
+/--
+The `:` that introduces an item in a description list.
+-/
+private def descItemMarker : Lean.Parser.Parser := onFirstUse fun _ =>
+  atomic (atomOf ":" >> notFollowedBy { fn := satisfyFn (· == ':') "':'" } "':'")
+
+open Lean.Parser in
+/-- The run of `_` characters that delimits emphasis. -/
+def emphDelimiter : Lean.Parser.Parser := onFirstUse fun _ =>
+  nodeWithAntiquot "emphDelimiter" decl_name% (charRun '_')
+
+open Lean.Parser in
+/-- The sequence of `*` characters that delimits bold text. -/
+def boldDelimiter : Lean.Parser.Parser := onFirstUse fun _ =>
+  nodeWithAntiquot "boldDelimiter" decl_name% (charRun '*')
+
+open Lean.Parser in
+/--
+The sequence of backticks that delimits inline code. Longer delimiters allow backticks in the
+content.
+-/
+def codeDelimiter : Lean.Parser.Parser := onFirstUse fun _ =>
+  nodeWithAntiquot "codeDelimiter" decl_name% (charRun '`')
+
+open Lean.Parser in
+/--
+The fence that surrounds a code block. Longer fences allow more backticks in the content.
+-/
+def codeBlockFence : Lean.Parser.Parser := onFirstUse fun _ =>
+  nodeWithAntiquot "codeBlockFence" decl_name% (charRun '`')
+
+open Lean.Parser in
+/--
+The `$` that introduces inline mathematical notation. `$` begins an antiquotation, so a quotation
+splices this atom in as `$m:inlineMathMarker`.
+-/
+def inlineMathMarker : Lean.Parser.Parser := onFirstUse fun _ =>
+  nodeWithAntiquot "inlineMathMarker" decl_name% (atomOf "$")
+
+open Lean.Parser in
+@[inherit_doc inlineMathMarker]
+def displayMathMarker : Lean.Parser.Parser := onFirstUse fun _ =>
+  nodeWithAntiquot "displayMathMarker" decl_name% (atomOf "$$")
+
+open Lean.Parser in
+/-- The sequence of `:` characters that delimits a directive. -/
+def directiveDelimiter : Lean.Parser.Parser := onFirstUse fun _ =>
+  nodeWithAntiquot "directiveDelimiter" decl_name% (charRun ':')
+
+/--
+The number of characters in a delimiter atom. Returns `none` when the argument is not an atom.
+-/
+private def runLength : Syntax → Option Nat
+  | .node _ _ #[.atom _ val] => some val.length
+  | _ => none
+
+open Lean.Parser in
+/--
+Matches `contents` between two delimiters that consist of `ch`, read by `delim`. The closing
+delimiter must have the same length as the opening delimiter.
+-/
+private def matchingDelimiterLengths (delim : Lean.Parser.Parser) (ch : Char) (contents : Lean.Parser.Parser) :
+    ParserFn := fun c s =>
+  let s := delim.fn c s
+  if s.hasError then s
+  else
+    let opener := s.stxStack.back
+    let s := contents.fn c s
+    if s.hasError then s
+    else
+      let closerPos := s.pos
+      let s := delim.fn c s
+      if s.hasError then s
+      else
+        match runLength opener, runLength s.stxStack.back with
+        | some open', some close' =>
+          if open' == close' then s
+          else s.mkErrorAt s!"'{"".pushn ch open'}' to close what '{"".pushn ch open'}' opened"
+            closerPos
+        | _, _ => s
+
+open Lean.Parser in
+/--
+Inline code, used on its own and as the content of mathematical notation.
+-/
+private def inlineCode : Lean.Parser.Parser := onFirstUse fun _ =>
+  nodeWithAntiquot "code" `Lean.Doc.Parser.Inline.code
+    { fn := matchingDelimiterLengths codeDelimiter '`' versoCode }
+
+-- The inline productions are mutually recursive. Recursive `Parser` values cannot express that,
+-- so the `*Quot` definitions below break the recursion at the `ParserFn` level.
+open Lean.Parser in
+mutual
+  private partial def inlineQuot : ParserFn := fun c s =>
+    -- Once an antiquotation parses, `withAntiquotFn` skips the alternatives. `para` and friends
+    -- have no opening delimiter, so backtracking into them would let `$x` parse as an inline inside
+    -- one of them. The ambiguity would then resolve against the writer's intent.
+    -- A footnote's `[^` is longer than a link's `[`, so it comes first to allow fallback.
+    let alts : Parser :=
+      { fn := textQuot } <|> { fn := emphQuot } <|> { fn := boldQuot } <|> inlineCode <|>
+      { fn := mathQuot } <|> { fn := footnoteQuot } <|> { fn := linkQuot } <|>
+      { fn := imageQuot } <|> { fn := linebreakQuot } <|> { fn := roleQuot }
+    withAntiquotFn (mkAntiquot "inline" `Lean.Doc.Parser.inline (isPseudoKind := true)).fn
+      alts.fn (antiquotBehavior := .acceptLhs) c s
+
+  private partial def textQuot : ParserFn :=
+    (nodeWithAntiquot "text" `Lean.Doc.Parser.Inline.text versoText).fn
+
+  private partial def emphQuot : ParserFn :=
+    (nodeWithAntiquot "emph" `Lean.Doc.Parser.Inline.emph
+      { fn := matchingDelimiterLengths emphDelimiter '_' (many (atomic { fn := inlineQuot })) }).fn
+
+  private partial def boldQuot : ParserFn :=
+    (nodeWithAntiquot "bold" `Lean.Doc.Parser.Inline.bold
+      { fn := matchingDelimiterLengths boldDelimiter '*' (many (atomic { fn := inlineQuot })) }).fn
+
+  private partial def displayMathQuot : ParserFn :=
+    (nodeWithAntiquot "display_math" `Lean.Doc.Parser.Inline.display_math
+      (displayMathMarker >> inlineCode)).fn
+
+  private partial def inlineMathQuot : ParserFn :=
+    (nodeWithAntiquot "inline_math" `Lean.Doc.Parser.Inline.inline_math
+      (inlineMathMarker >> inlineCode)).fn
+
+  private partial def mathQuot : ParserFn :=
+    (atomic { fn := displayMathQuot } <|> ({ fn := inlineMathQuot } : Parser)).fn
+
+  private partial def linkQuot : ParserFn :=
+    (nodeWithAntiquot "link" `Lean.Doc.Parser.Inline.link
+      (atomOf "[" >> many (atomic { fn := inlineQuot }) >> atomOf "]" >> linkTarget)).fn
+
+  private partial def imageQuot : ParserFn :=
+    (nodeWithAntiquot "image" `Lean.Doc.Parser.Inline.image
+      (atomOf "![" >> versoImageAlt >> atomOf "]" >> linkTarget)).fn
+
+  private partial def footnoteQuot : ParserFn :=
+    (nodeWithAntiquot "footnote" `Lean.Doc.Parser.Inline.footnote
+      (atomOf "[^" >> versoRef >> atomOf "]")).fn
+
+  private partial def linebreakQuot : ParserFn :=
+    (nodeWithAntiquot "linebreak" `Lean.Doc.Parser.Inline.linebreak (charRun '\n')).fn
+
+  private partial def roleQuot : ParserFn :=
+    (nodeWithAntiquot "role" `Lean.Doc.Parser.Inline.role
+      (atomOf "{" >> Lean.Parser.ident >> many arg >> atomOf "}" >>
+        -- Each bracket sits in a group, so that an omitted bracket is an empty group, which
+        -- matches what the Verso parser produces.
+        ((node nullKind (atomOf "[") >> many (atomic { fn := inlineQuot }) >>
+           node nullKind (atomOf "]")) <|>
+         (node nullKind skip >> many1 (atomic { fn := inlineQuot }) >> node nullKind skip)))).fn
+end
+
+namespace Inline
+
+def text : Lean.Parser.Parser := { fn := textQuot }
 /--
 Emphasis, often rendered as italics.
 
-Emphasis may be nested by using longer sequences of `_` for the outer delimiters. For example:
-```
-Remember: __always butter the _rugbrød_ before adding toppings!__
-```
-Here, the outer `__` is used to emphasize the instructions, while the inner `_` indicates the use of
-a non-English word.
+Emphasis may be nested by using longer sequences of `_` for the outer delimiters.
 -/
 @[builtin_doc]
-scoped syntax (name:=emph) "_[" inline* "]" : inline
+def emph : Lean.Parser.Parser := { fn := emphQuot }
 /--
 Bold emphasis.
 
-A single `*` suffices to make text bold. Using `_` for emphasis.
+A single `*` suffices to make text bold. Use `_` for emphasis.
 
 Bold text may be nested by using longer sequences of `*` for the outer delimiters.
 -/
 @[builtin_doc]
-scoped syntax (name:=bold) "*[" inline* "]" : inline
-/--
-A link. The link's target may either be a concrete URL (written in parentheses) or a named URL
-(written in square brackets).
--/
-@[builtin_doc]
-scoped syntax (name:=link) "link[" inline* "]" link_target : inline
-/--
-An image, with alternate text and a URL.
-
-The alternate text is a plain string, rather than Verso markup.
-
-The image URL may either be a concrete URL (written in parentheses) or a named URL (written in
-square brackets).
--/
-
-@[builtin_doc]
-scoped syntax (name:=image) "image(" str ")" link_target : inline
-/--
-A footnote use site.
-
-Footnotes must be defined elsewhere using the `[^NAME]: TEXT` syntax.
--/
-@[builtin_doc]
-scoped syntax (name:=footnote) "footnote(" str ")" : inline
-scoped syntax (name:=linebreak) "line!" str : inline
+def bold : Lean.Parser.Parser := { fn := boldQuot }
 /--
 Literal code.
 
@@ -149,9 +723,39 @@ the resulting string has a single space stripped from each end. Thus, ``` `` `x 
 ``"`x"``, not ``" `x "``.
 -/
 @[builtin_doc]
-scoped syntax (name:=code) "code(" str ")" : inline
+def code : Lean.Parser.Parser := inlineCode
+/-- Inline mathematical notation (equivalent to LaTeX's `$` notation) -/
+@[builtin_doc]
+def inline_math : Lean.Parser.Parser := { fn := inlineMathQuot }
+/-- Display-mode mathematical notation -/
+@[builtin_doc]
+def display_math : Lean.Parser.Parser := { fn := displayMathQuot }
 /--
-A _role_: an extension to the Verso document language in an inline position.
+A link. The link's target may either be a concrete URL (written in parentheses) or a named URL
+(written in square brackets).
+-/
+@[builtin_doc]
+def link : Lean.Parser.Parser := { fn := linkQuot }
+/--
+An image, with alternate text and a URL.
+
+The alternate text is a plain string, rather than Verso markup.
+
+The image URL may either be a concrete URL (written in parentheses) or a named URL (written in
+square brackets).
+-/
+@[builtin_doc]
+def image : Lean.Parser.Parser := { fn := imageQuot }
+/--
+A footnote use site.
+
+Footnotes must be defined elsewhere using the `[^NAME]: TEXT` syntax.
+-/
+@[builtin_doc]
+def footnote : Lean.Parser.Parser := { fn := footnoteQuot }
+def linebreak : Lean.Parser.Parser := { fn := linebreakQuot }
+/--
+A _role_ is an extension to the Verso document language in an inline position.
 
 Text is given a role using the following syntax: `{NAME ARGS*}[CONTENT]`. The `NAME` is an
 identifier that determines which role is being used, akin to a function name. Each of the `ARGS` may
@@ -166,57 +770,123 @@ the `[` and `]` may be omitted. In particular, `` {NAME ARGS*}`x` `` is equivale
 ``{NAME ARGS*}[`x`]``.
 -/
 @[builtin_doc]
-scoped syntax (name:=role) "role{" ident doc_arg* "}" "[" inline* "]"  : inline
-/-- Inline mathematical notation (equivalent to LaTeX's `$` notation) -/
-@[builtin_doc]
-scoped syntax (name:=inline_math) "\\math" code : inline
-/-- Display-mode mathematical notation -/
-@[builtin_doc]
-scoped syntax (name:=display_math) "\\displaymath" code : inline
+def role : Lean.Parser.Parser := { fn := roleQuot }
 
-/--
-Block-level elements, such as paragraphs, headers, and lists.
+end Inline
 
-Conventions:
- * When there's concrete syntax that can be written as Lean atoms, do so (code blocks are ` ``` `,
-   directives `:::`)
- * When Verso's syntax requires a newline, use `|` because `"\n"` is not a valid Lean token
- * Directive bodies are in `{` and `}` to avoid quotation parsing issues with `:::` ... `:::`
- * If there's no concrete syntax per se, such as for paragraphs or lists, use a name with brackets
-   and braces
- * Use parentheses around required literals, such as the starting number of an ordered list
- * Use square brackets around sequences of literals
- * Use curly braces around blocks or lists items (because names and arguments a la roles are always
-   newline-separated for directives and code)
--/
-declare_syntax_cat block
+/-- Any inline element. -/
+def inline : Lean.Parser.Parser := { fn := inlineQuot }
 
-/-- Items from both ordered and unordered lists -/
-declare_syntax_cat list_item
+open Lean.Parser in
+mutual
+  private partial def blockQuot : ParserFn := fun c s =>
+    -- A footnote definition's `[^` is checked before a link reference's `[` to allow backtracking.
+    -- A paragraph opens with the content of its first inline rather than a delimiter of its own,
+    -- so it comes last.
+    let alts : Parser :=
+      { fn := ulQuot } <|> { fn := olQuot } <|> { fn := dlQuot } <|>
+      { fn := blockquoteQuot } <|> { fn := codeblockQuot } <|> { fn := directiveQuot } <|>
+      { fn := headerQuot } <|> { fn := footnoteRefQuot } <|> { fn := linkRefQuot } <|>
+      { fn := metadataQuot } <|> { fn := commandQuot } <|> { fn := paraQuot }
+    withAntiquotFn (mkAntiquot "block" `Lean.Doc.Parser.block (isPseudoKind := true)).fn
+      alts.fn (antiquotBehavior := .acceptLhs) c s
+
+  private partial def paraQuot : ParserFn :=
+    (nodeWithAntiquot "para" `Lean.Doc.Parser.Block.para (many1 (atomic { fn := inlineQuot }))).fn
+
+  private partial def listItemQuot (marker : Lean.Parser.Parser) : ParserFn :=
+    (nodeWithAntiquot "ListItem.item" `Lean.Doc.Parser.ListItem.item
+      (marker >> many (atomic { fn := blockQuot }))).fn
+
+  private partial def descItemQuot : ParserFn :=
+    (nodeWithAntiquot "DescItem.item" `Lean.Doc.Parser.DescItem.item
+      (descItemMarker >> many (atomic { fn := inlineQuot }) >>
+        many (atomic { fn := blockQuot }))).fn
+
+  private partial def ulQuot : ParserFn :=
+    (nodeWithAntiquot "ul" `Lean.Doc.Parser.Block.ul
+      (many1 (atomic { fn := listItemQuot unorderedListMarker }))).fn
+
+  private partial def olQuot : ParserFn :=
+    (nodeWithAntiquot "ol" `Lean.Doc.Parser.Block.ol
+      (many1 (atomic { fn := listItemQuot orderedListMarker }))).fn
+
+  private partial def dlQuot : ParserFn :=
+    (nodeWithAntiquot "dl" `Lean.Doc.Parser.Block.dl (many1 (atomic { fn := descItemQuot }))).fn
+
+  private partial def blockquoteQuot : ParserFn :=
+    (nodeWithAntiquot "blockquote" `Lean.Doc.Parser.Block.blockquote
+      (atomOf ">" >> many (atomic { fn := blockQuot }))).fn
+
+  private partial def codeblockQuot : ParserFn :=
+    (nodeWithAntiquot "codeblock" `Lean.Doc.Parser.Block.codeblock
+      (codeBlockFence >> optional (Lean.Parser.ident >> many arg) >>
+        versoCodeBlock >> codeBlockFence)).fn
+
+  private partial def directiveQuot : ParserFn :=
+    (nodeWithAntiquot "directive" `Lean.Doc.Parser.Block.directive
+      (directiveDelimiter >> Lean.Parser.ident >> many arg >>
+        many (atomic { fn := blockQuot }) >> directiveDelimiter)).fn
+
+  private partial def headerQuot : ParserFn :=
+    (nodeWithAntiquot "header" `Lean.Doc.Parser.Block.header
+      (headerMarker >> many1 (atomic { fn := inlineQuot }))).fn
+
+  private partial def linkRefQuot : ParserFn :=
+    (nodeWithAntiquot "link_ref" `Lean.Doc.Parser.Block.link_ref
+      (atomOf "[" >> versoRef >> atomOf "]:" >> versoLinkRefUrl)).fn
+
+  private partial def footnoteRefQuot : ParserFn :=
+    (nodeWithAntiquot "footnote_ref" `Lean.Doc.Parser.Block.footnote_ref
+      (atomOf "[^" >> versoRef >> atomOf "]:" >> many (atomic { fn := inlineQuot }))).fn
+
+  private partial def metadataQuot : ParserFn :=
+    (nodeWithAntiquot "metadata_block" `Lean.Doc.Parser.Block.metadata_block
+      (atomOf "%%%" >> metadataContentsLit >> atomOf "%%%")).fn
+
+  private partial def commandQuot : ParserFn :=
+    (nodeWithAntiquot "command" `Lean.Doc.Parser.Block.command
+      (atomOf "{" >> Lean.Parser.ident >> many arg >> atomOf "}")).fn
+end
+
+namespace ListItem
+
 /-- A list item -/
 @[builtin_doc]
-syntax (name:=li) "*" block* : list_item
+def item : Lean.Parser.Parser := { fn := listItemQuot listMarker }
+
+end ListItem
+
+namespace DescItem
 
 /-- A description of an item -/
-declare_syntax_cat desc_item
-/-- A description of an item -/
 @[builtin_doc]
-scoped syntax (name:=desc) ":" inline* "=>" block* : desc_item
+def item : Lean.Parser.Parser := { fn := descItemQuot }
+
+end DescItem
+
+namespace Block
 
 /-- Paragraph -/
 @[builtin_doc]
-scoped syntax (name:=para) "para[" inline+ "]" : block
+def para : Lean.Parser.Parser := { fn := paraQuot }
 /-- Unordered List -/
 @[builtin_doc]
-scoped syntax (name:=ul) "ul{" list_item* "}" : block
-/-- Description list -/
-@[builtin_doc]
-scoped syntax (name:=dl) "dl{" desc_item* "}" : block
+def ul : Lean.Parser.Parser := { fn := ulQuot }
 /-- Ordered list -/
 @[builtin_doc]
-scoped syntax (name:=ol) "ol(" num ")" "{" list_item* "}" : block
+def ol : Lean.Parser.Parser := { fn := olQuot }
+/-- Description list -/
+@[builtin_doc]
+def dl : Lean.Parser.Parser := { fn := dlQuot }
 /--
-A code block that contains literal code.
+A quotation, which contains a sequence of blocks that are at least as indented as the `>`.
+-/
+@[builtin_doc]
+def blockquote : Lean.Parser.Parser := { fn := blockquoteQuot }
+/--
+A code block that contains literal code. The contents of a code block are not written in Verso
+syntax.
 
 Code blocks have the following syntax:
 ````
@@ -226,15 +896,16 @@ CONTENT
 ````
 
 `CONTENT` is a literal string. If the `CONTENT` contains a sequence of three or more backticks, then
-the opening and closing ` ``` ` (called _fences_) should have more backticks than the longest
-sequence in `CONTENT`. Additionally, the opening and closing fences should have the same number of
+the opening and closing ` ``` ` (called _fences_) must have more backticks than the longest
+sequence in `CONTENT`. Additionally, the opening and closing fences must have the same number of
 backticks.
 
 If `NAME` and `ARGS` are not provided, then the code block represents literal text. If provided, the
 `NAME` is an identifier that selects an interpretation of the block. Unlike Markdown, this name is
 not necessarily the language in which the code is written, though many custom code blocks are, in
-practice, named after the language that they contain. `NAME` is more akin to a function name. Each
-of the `ARGS` may have the following forms:
+practice, named after the language that they contain. `NAME` is more akin to a function name that
+determines the interpretation of the code block's contents. Each of the `ARGS` may have the
+following forms:
 * A value, which is a string literal, natural number, or identifier
 * A named argument, of the form `(NAME := VALUE)`
 * A flag, of the form `+NAME` or `-NAME`
@@ -243,24 +914,11 @@ The `CONTENT` is interpreted according to the indentation of the fences. If the 
 `n` spaces, then `n` spaces are removed from the start of each line of `CONTENT`.
 -/
 @[builtin_doc]
-scoped syntax (name:=codeblock) "```" (ident doc_arg*)? "|" str "```" : block
+def codeblock : Lean.Parser.Parser := { fn := codeblockQuot }
+
 /--
-A quotation, which contains a sequence of blocks that are at least as indented as the `>`.
--/
-@[builtin_doc]
-scoped syntax (name:=blockquote) ">" block* : block
-/--
-A named URL that can be used in links and images.
--/
-@[builtin_doc]
-scoped syntax (name:=link_ref)  "[" str "]:" str : block
-/--
-A footnote definition.
--/
-@[builtin_doc]
-scoped syntax (name:=footnote_ref) "[^" str "]:" inline* : block
-/--
-A _directive_, which is an extension to the Verso language in block position.
+A _directive_, which is an extension to the Verso language in block position. The contents of a
+directive are written in Verso syntax.
 
 Directives have the following syntax:
 ```
@@ -289,7 +947,7 @@ A paragraph.
 
 -/
 @[builtin_doc]
-scoped syntax (name:=directive) ":::" rawIdent doc_arg* "{" block:max* "}" : block
+def directive : Lean.Parser.Parser := { fn := directiveQuot }
 /--
 A header
 
@@ -297,18 +955,22 @@ Headers must be correctly nested to form a tree structure. The first header in a
 start with `#`, and subsequent headers must have at most one more `#` than the preceding header.
 -/
 @[builtin_doc]
-scoped syntax (name:=header) "header(" num ")" "{" inline+ "}" : block
-
-open Lean.Parser Term in
-meta def metadataContents : Lean.Parser.Parser :=
-  structInstFields (sepByIndent structInstField ", " (allowTrailingSep := true))
-
+def header : Lean.Parser.Parser := { fn := headerQuot }
+/--
+A named URL that can be used in links and images.
+-/
+@[builtin_doc]
+def link_ref : Lean.Parser.Parser := { fn := linkRefQuot }
+/--
+A footnote definition.
+-/
+@[builtin_doc]
+def footnote_ref : Lean.Parser.Parser := { fn := footnoteRefQuot }
 /--
 Metadata for the preceding header.
 -/
 @[builtin_doc]
-scoped syntax (name:=metadata_block) "%%%" metadataContents "%%%" : block
-
+def metadata_block : Lean.Parser.Parser := { fn := metadataQuot }
 /--
 A block-level command, which invokes an extension during documentation processing.
 
@@ -319,4 +981,125 @@ Each of the `ARGS` may have the following forms:
 * A flag, of the form `+NAME` or `-NAME`
 -/
 @[builtin_doc]
-scoped syntax (name:=command) "command{" rawIdent doc_arg* "}" : block
+def command : Lean.Parser.Parser := { fn := commandQuot }
+
+end Block
+
+/-- Any block element. -/
+def block : Lean.Parser.Parser := { fn := blockQuot }
+
+open Lean.Parser in
+/-- A Verso document, which is a sequence of blocks. -/
+def document : Lean.Parser.Parser := onFirstUse fun _ =>
+  nodeWithAntiquot "document" decl_name% (many (atomic block))
+
+end
+
+end Lean.Doc.Parser
+
+
+namespace Lean.Doc
+
+public section
+
+/--
+An inline element of a Verso document, such as text, emphasis, or a link.
+
+Use `VersoInline.view` to inspect it.
+-/
+abbrev VersoInline := TSyntax ``Parser.inline
+
+/--
+A block-level element of a Verso document, such as a paragraph, a list, or a code block.
+
+Use `VersoBlock.view` to inspect it.
+-/
+abbrev VersoBlock := TSyntax ``Parser.block
+
+/--
+A delimiter of a Verso element, such as the backticks around a code literal or the asterisks around
+bold text. The markers that introduce a header, a list item, and mathematical notation are
+delimiters too.
+
+Each sits in a node of its own, so that a quotation can splice one in place of writing it out. Use
+`VersoDelimiter.view` or `TSyntax.getVersoDelimiter` to read its characters.
+-/
+abbrev VersoDelimiter :=
+  TSyntax [``Parser.emphDelimiter, ``Parser.boldDelimiter,
+    ``Parser.codeDelimiter, ``Parser.codeBlockFence,
+    ``Parser.directiveDelimiter, ``Parser.headerMarker,
+    ``Parser.listMarker, ``Parser.inlineMathMarker,
+    ``Parser.displayMathMarker]
+
+end
+
+end Lean.Doc
+
+namespace Lean.TSyntax
+
+public section
+
+open Lean.Doc
+
+/--
+Extracts the blocks of a Verso document.
+-/
+def getVersoBlocks (doc : VersoDocument) : TSyntaxArray ``Parser.block :=
+  -- The repetition that reads the blocks groups them in a null node.
+  doc.raw[0].getArgs.map (⟨·⟩)
+
+/--
+Returns the characters that make up a Verso delimiter.
+-/
+def getVersoDelimiter (delim : VersoDelimiter) : String :=
+  delim.raw[0].getAtomVal
+
+end
+
+end Lean.TSyntax
+
+namespace Lean.Doc
+
+public section
+
+@[inherit_doc TSyntax.getVersoBlocks]
+def VersoDocument.view (doc : VersoDocument) : Array VersoBlock := doc.getVersoBlocks
+
+@[inherit_doc TSyntax.getVersoDelimiter]
+def VersoDelimiter.view (delim : VersoDelimiter) : String := delim.getVersoDelimiter
+
+/-- A document stands for the blocks it contains. -/
+instance : Coe VersoDocument (TSyntaxArray ``Parser.block) where
+  coe doc := doc.getVersoBlocks
+
+/-!
+Each inline and block element can be used where its category is expected, so an element with a
+known kind can be spliced into a quotation.
+-/
+
+instance : Coe (TSyntax ``Parser.Inline.text) (TSyntax ``Parser.inline) where coe s := ⟨s⟩
+instance : Coe (TSyntax ``Parser.Inline.emph) (TSyntax ``Parser.inline) where coe s := ⟨s⟩
+instance : Coe (TSyntax ``Parser.Inline.bold) (TSyntax ``Parser.inline) where coe s := ⟨s⟩
+instance : Coe (TSyntax ``Parser.Inline.code) (TSyntax ``Parser.inline) where coe s := ⟨s⟩
+instance : Coe (TSyntax ``Parser.Inline.inline_math) (TSyntax ``Parser.inline) where coe s := ⟨s⟩
+instance : Coe (TSyntax ``Parser.Inline.display_math) (TSyntax ``Parser.inline) where coe s := ⟨s⟩
+instance : Coe (TSyntax ``Parser.Inline.link) (TSyntax ``Parser.inline) where coe s := ⟨s⟩
+instance : Coe (TSyntax ``Parser.Inline.image) (TSyntax ``Parser.inline) where coe s := ⟨s⟩
+instance : Coe (TSyntax ``Parser.Inline.footnote) (TSyntax ``Parser.inline) where coe s := ⟨s⟩
+instance : Coe (TSyntax ``Parser.Inline.linebreak) (TSyntax ``Parser.inline) where coe s := ⟨s⟩
+instance : Coe (TSyntax ``Parser.Inline.role) (TSyntax ``Parser.inline) where coe s := ⟨s⟩
+
+instance : Coe (TSyntax ``Parser.Block.para) (TSyntax ``Parser.block) where coe s := ⟨s⟩
+instance : Coe (TSyntax ``Parser.Block.ul) (TSyntax ``Parser.block) where coe s := ⟨s⟩
+instance : Coe (TSyntax ``Parser.Block.ol) (TSyntax ``Parser.block) where coe s := ⟨s⟩
+instance : Coe (TSyntax ``Parser.Block.dl) (TSyntax ``Parser.block) where coe s := ⟨s⟩
+instance : Coe (TSyntax ``Parser.Block.blockquote) (TSyntax ``Parser.block) where coe s := ⟨s⟩
+instance : Coe (TSyntax ``Parser.Block.codeblock) (TSyntax ``Parser.block) where coe s := ⟨s⟩
+instance : Coe (TSyntax ``Parser.Block.directive) (TSyntax ``Parser.block) where coe s := ⟨s⟩
+instance : Coe (TSyntax ``Parser.Block.header) (TSyntax ``Parser.block) where coe s := ⟨s⟩
+instance : Coe (TSyntax ``Parser.Block.link_ref) (TSyntax ``Parser.block) where coe s := ⟨s⟩
+instance : Coe (TSyntax ``Parser.Block.footnote_ref) (TSyntax ``Parser.block) where coe s := ⟨s⟩
+instance : Coe (TSyntax ``Parser.Block.metadata_block) (TSyntax ``Parser.block) where coe s := ⟨s⟩
+instance : Coe (TSyntax ``Parser.Block.command) (TSyntax ``Parser.block) where coe s := ⟨s⟩
+
+end

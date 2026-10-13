@@ -21,6 +21,7 @@ A syntax category for specifying `pre` and `post` dsimproc chains in `Sym.dsimp`
 - `zeta_delta [ids]` - zeta delta reduction
 - `proj` - reduce projections
 - `match` - reduce match-expressions
+- `rewrite [thm₁, thm₂, ...]` — rewrites using `rfl`-theorems and unfolds definitions
 
 ## Combinators
 - `a >> b` — apply `a`, then apply `b` to the result (andThen)
@@ -51,6 +52,9 @@ syntax (name := proj) "proj" : sym_dsimproc
 
 /-- `match`-expression reduction. -/
 syntax (name := reduceMatch) "match" : sym_dsimproc
+
+/-- Rewrite using `rfl`-theorems, and unfold definitions. -/
+syntax (name := rewriteInline) "rewrite" " [" ident,* "]" : sym_dsimproc
 
 -- DSimproc combinators
 

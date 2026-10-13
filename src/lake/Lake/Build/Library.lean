@@ -51,7 +51,7 @@ where
       col := {col with modSet := col.modSet.insert root}
       -- Importers report failures reached through imports. Directly reached modules
       -- stay in the collection so their build jobs report those failures.
-      let some imps ← (← root.imports.fetch).wait?
+      let some imps ← (← root.imports.fetch).waitUnlessCanceled?
         | let col' := {col with hasErrors := true}
           return if viaImport then col' else {col' with mods := col'.mods.push root}
       for mod in imps do
@@ -64,16 +64,27 @@ where
 def LeanLib.modulesFacetConfig : LibraryFacetConfig modulesFacet :=
   mkFacetJobConfig LeanLib.recCollectLocalModules (buildable := false)
 
-def LeanLib.recBuildLean
-  (self : LeanLib) : FetchM (Job Unit)
-:= do
+def LeanLib.recBuildElabArts (self : LeanLib) : FetchM (Job Unit) := do
   let mods ← (← self.modules.fetch).await
   mods.foldlM (init := Job.nil) fun job mod => do
-    return job.mix <| ← mod.leanArts.fetch
+    return job.mix <| ← mod.elabArts.fetch
+
+/-- The `LibraryFacetConfig` for the builtin `elabArtsFacet`. -/
+public def LeanLib.elabArtsFacetConfig : LibraryFacetConfig elabArtsFacet :=
+  mkFacetJobConfig recBuildElabArts
+
+def LeanLib.recBuildIRArts (self : LeanLib) : FetchM (Job Unit) := do
+  let mods ← (← self.modules.fetch).await
+  mods.foldlM (init := Job.nil) fun job mod => do
+    return job.mix <| ← mod.irArts.fetch
+
+/-- The `LibraryFacetConfig` for the builtin `irArtsFacet`. -/
+public def LeanLib.irArtsFacetConfig : LibraryFacetConfig irArtsFacet :=
+  mkFacetJobConfig recBuildIRArts
 
 /-- The `LibraryFacetConfig` for the builtin `leanArtsFacet`. -/
 public def LeanLib.leanArtsFacetConfig : LibraryFacetConfig leanArtsFacet :=
-  mkFacetJobConfig LeanLib.recBuildLean
+  mkFacetJobConfig (memoize := false) (·.irArts.fetch)
 
 @[specialize] def LeanLib.recBuildStatic
   (self : LeanLib) (shouldExport : Bool) : FetchM (Job FilePath)
@@ -191,6 +202,8 @@ public def LeanLib.initFacetConfigs : DNameMap LeanLibFacetConfig :=
   DNameMap.empty
   |>.insert defaultFacet defaultFacetConfig
   |>.insert modulesFacet modulesFacetConfig
+  |>.insert elabArtsFacet elabArtsFacetConfig
+  |>.insert irArtsFacet irArtsFacetConfig
   |>.insert leanArtsFacet leanArtsFacetConfig
   |>.insert staticFacet staticFacetConfig
   |>.insert staticExportFacet staticExportFacetConfig

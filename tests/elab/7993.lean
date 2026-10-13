@@ -42,6 +42,9 @@ abbrev Bar := Nat
 warning: `Foo.foo` is itself deprecated in favor of `Foo.bar`; consider deprecating `Bar.bar` in favor of `Foo.bar` instead
 
 Note: This warning can be disabled with `set_option linter.deprecated.deprecatedTarget false`
+
+Hint: Deprecate in favor of `Foo.bar` instead:
+  Foo.f̵o̵o̵b̲a̲r̲
 -/
 #guard_msgs in
 @[deprecated Foo.foo (since := "2025-01-01")]

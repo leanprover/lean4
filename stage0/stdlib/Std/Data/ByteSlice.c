@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Data.ByteSlice
-// Imports: public import Init.Data.ByteArray public import Init.Data.Slice.Basic public import Init.Data.Slice.Notation public import Init.Data.Range.Polymorphic.Nat import Init.Omega
+// Imports: public import Init.Data.ByteArray.Basic public import Init.Data.Slice.Basic public import Init.Data.Slice.Notation public import Init.Data.Range.Polymorphic.Nat import Init.Omega
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -610,9 +610,9 @@ return v___x_197_;
 LEAN_EXPORT lean_object* l_ByteSlice_foldr___redArg___lam__0___boxed(lean_object* v_f_198_, lean_object* v_x1_199_, lean_object* v_x2_200_){
 _start:
 {
-uint8_t v_x1_85__boxed_201_; lean_object* v_res_202_; 
-v_x1_85__boxed_201_ = lean_unbox(v_x1_199_);
-v_res_202_ = l_ByteSlice_foldr___redArg___lam__0(v_f_198_, v_x1_85__boxed_201_, v_x2_200_);
+uint8_t v_x1_86__boxed_201_; lean_object* v_res_202_; 
+v_x1_86__boxed_201_ = lean_unbox(v_x1_199_);
+v_res_202_ = l_ByteSlice_foldr___redArg___lam__0(v_f_198_, v_x1_86__boxed_201_, v_x2_200_);
 return v_res_202_;
 }
 }
@@ -1540,7 +1540,7 @@ lean_dec_ref(v_xs_549_);
 return v_res_551_;
 }
 }
-lean_object* runtime_initialize_Init_Data_ByteArray(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_ByteArray_Basic(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Slice_Basic(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Slice_Notation(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Range_Polymorphic_Nat(uint8_t builtin);
@@ -1552,7 +1552,7 @@ lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
 lean_initialize_runtime_module();
-res = runtime_initialize_Init_Data_ByteArray(builtin);
+res = runtime_initialize_Init_Data_ByteArray_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Init_Data_Slice_Basic(builtin);
@@ -1576,7 +1576,7 @@ if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_meta_initialized = true;
 return lean_io_result_mk_ok(lean_box(0));
 }
-lean_object* initialize_Init_Data_ByteArray(uint8_t builtin);
+lean_object* initialize_Init_Data_ByteArray_Basic(uint8_t builtin);
 lean_object* initialize_Init_Data_Slice_Basic(uint8_t builtin);
 lean_object* initialize_Init_Data_Slice_Notation(uint8_t builtin);
 lean_object* initialize_Init_Data_Range_Polymorphic_Nat(uint8_t builtin);
@@ -1586,7 +1586,7 @@ LEAN_EXPORT lean_object* initialize_Std_Data_ByteSlice(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_ByteArray(builtin);
+res = initialize_Init_Data_ByteArray_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Slice_Basic(builtin);

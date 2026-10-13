@@ -1,0 +1,24 @@
+Input: "*a**b*\n"
+Success! Final stack:
+  (Lean.Doc.Parser.document
+   [(Lean.Doc.Parser.Block.para
+     [(Lean.Doc.Parser.Inline.bold
+       (Lean.Doc.Parser.boldDelimiter "*")
+       [(Lean.Doc.Parser.Inline.text
+         (Lean.Doc.Parser.versoText "a"))]
+       (Lean.Doc.Parser.boldDelimiter "*"))
+      (Lean.Doc.Parser.Inline.bold
+       (Lean.Doc.Parser.boldDelimiter "*")
+       [(Lean.Doc.Parser.Inline.text
+         (Lean.Doc.Parser.versoText "b"))]
+       (Lean.Doc.Parser.boldDelimiter "*"))
+      (Lean.Doc.Parser.Inline.linebreak "\n")])])
+All input consumed.
+Round-trip OK
+Decoded views:
+  para
+    bold (opener := "*") (closer := "*")
+      text (content := "a")
+    bold (opener := "*") (closer := "*")
+      text (content := "b")
+    linebreak (newline := "\n")

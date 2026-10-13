@@ -1,9 +1,8 @@
 import Std.WP
 import Lean
 import Std
-import Std.Tactic.Do
 
-set_option mvcgen.warning false
+set_option experimental.vcgen true
 
 /-! `vcgen` must classify a program wrapped in an `mdata` node, such as the
 `save_info` annotation left behind by spec elaboration. -/

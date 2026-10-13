@@ -182,7 +182,7 @@ theorem f_struct_eq : f_struct 0 = 0 := by
 
 /-! `[inherit_doc]` should work independently of visibility. -/
 
-/-- info: some "A private definition. " -/
+/-- info: some "A private definition." -/
 #guard_msgs in
 open Lean in
 #eval show CoreM _ from do findDocString? (← getEnv) ``pubInheritDoc

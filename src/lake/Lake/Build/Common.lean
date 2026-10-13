@@ -387,6 +387,19 @@ public def cacheFileHash (file : FilePath) (text := false) : IO Unit := do
   let hash ← computeFileHash file text
   writeFileHash file hash
 
+/--
+If `file` exists, computes its hash and saves it to a `.hash` file.
+
+If `text := true`, `file` is hashed as a text file rather than a binary file.
+-/
+public def cacheFileHashIfExists (file : FilePath) (text := false) : IO Unit := do
+  try
+    let hash ← computeFileHash file text
+    writeFileHash file hash
+  catch
+    | .noFileOrDirectory .. => pure ()
+    | e => throw e
+
 /-- Remove the cached hash of a file (its `.hash` file) if it exists. -/
 public def clearFileHash (file : FilePath) : IO Unit := do
   removeFileIfExists <| file.toString ++ ".hash"
@@ -665,6 +678,10 @@ public def restoreArtifact (file : FilePath) (art : Artifact) (exe := false) : L
     writeFileHash file art.hash
   return art.useLocalFile file
 
+/-- **For internal use only.** -/
+@[inline] public def Internal.getOutputsRef? [Functor m] [MonadBuild m] (pkg : Package) : m (Option CacheRef) :=
+  readThe BuildContext <&> fun ctx => if pkg.wsIdx = ctx.outputsIdx then ctx.outputsRef? else none
+
 /--
 Uses the current job's trace to search Lake's local artifact cache for an artifact
 with a matching extension (`ext`) and content hash. If one is found, use it.
@@ -724,9 +741,8 @@ public def buildArtifactUnlessUpToDate
           if let some art ← fetchArt? (restore := true) then
             return art
         doBuild depTrace traceFile
-    if pkg.isRoot then
-      if let some outputsRef := (← getBuildContext).outputsRef? then
-        outputsRef.insert inputHash art.descr platformIndependent
+    if let some ref ← Internal.getOutputsRef? pkg then
+      ref.insert inputHash art.descr platformIndependent
     setTrace art.trace
     setMTime art traceFile
   else
@@ -851,24 +867,38 @@ which will be computed in the resulting `Job` before building.
     return art.path
 
 /--
+**For internal use only.**
 Build an object file from a source fie job (i.e, a `lean -c` output)
 using the Lean toolchain's C compiler.
 -/
-public def buildLeanO
+public def Internal.buildLeanO
   (oFile : FilePath) (srcJob : Job FilePath)
   (weakArgs traceArgs : Array String := #[])
-  (leanIncludeDir? : Option FilePath := none)
+  (leanIncludeDir? : Option (FilePath × BuildTrace) := none)
 : SpawnM (Job FilePath) :=
   srcJob.mapM fun srcFile => do
     addLeanTrace
+    if let some (_, trace) := leanIncludeDir? then
+      -- Lean-produced C files contain `#include <lean/lean.h>`.
+      -- Usually this dependency is captured by the Lean trace, but not with an override.
+      addTrace trace
     addPureTrace traceArgs "traceArgs"
     addPlatformTrace -- object files are platform-dependent artifacts
     let art ← buildArtifactUnlessUpToDate oFile (ext := "o") do
       let lean ← getLeanInstall
-      let includeDir := leanIncludeDir?.getD lean.includeDir
+      let includeDir := leanIncludeDir?.elim lean.includeDir (·.1)
       let args := #["-I", includeDir.toString] ++ lean.ccFlags ++ weakArgs ++ traceArgs
       compileO oFile srcFile args lean.cc
     return art.path
+
+/--
+Build an object file from a source fie job (i.e, a `lean -c` output)
+using the Lean toolchain's C compiler.
+-/
+@[inline] public def buildLeanO
+  (oFile : FilePath) (srcJob : Job FilePath)
+  (weakArgs traceArgs : Array String := #[])
+: SpawnM (Job FilePath) := Internal.buildLeanO oFile srcJob weakArgs traceArgs
 
 /-- Build a static library from object file jobs using the Lean toolchain's `ar`. -/
 public def buildStaticLib

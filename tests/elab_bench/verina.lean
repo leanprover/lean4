@@ -11,7 +11,7 @@ itself. Each fixture lives in its own namespace with `@[local grind]` lemmas.
 -/
 
 open Std.WP Lean.Order
-set_option mvcgen.warning false
+set_option experimental.vcgen true
 set_option experimental.intrinsic true
 set_option warn.sorry false
 set_option maxHeartbeats 1000000
@@ -498,6 +498,10 @@ attribute [grind] List.take_succ_eq_append_getElem
 theorem range_split_index {m : Nat} {pref suff : List Nat} {c : Nat}
     (h : [:m].toList = pref ++ c :: suff) : c = pref.length := sorry
 attribute [grind] List.take_length
+-- Splits `k ≤ ipref.length` into `k < ipref.length ∨ k = ipref.length`: the negated invariant is
+-- normalized to `∃ k, k ≤ ipref.length ∧ isMajorityElement …`, and the invariant's E-matching
+-- patterns only match the `k < ipref.length` literal.
+attribute [local grind →] Nat.lt_or_eq_of_le
 
 @[local grind →]
 theorem mem_getElem! (lst : List Int) (w : Int) (hw : w ∈ lst) :

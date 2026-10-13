@@ -116,7 +116,8 @@ where
 /-- Determine if tracing is available for a given class, checking ancestor classes if appropriate. -/
 @[inline]
 def isTracingEnabledFor (cls : Name) : m Bool := do
-  return checkTraceOption (← MonadTrace.getInheritedTraceOptions) (← getOptions) cls
+  -- unrestricted: trace collection only
+  return checkTraceOption (← MonadTrace.getInheritedTraceOptions) (← getOptionsUnrestricted) cls
 
 @[export lean_is_trace_class_enabled]
 private def isTracingEnabledForExport (opts : Options) (cls : Name) : BaseIO Bool := do
@@ -332,7 +333,8 @@ The `cls`, `collapsed`, and `tag` arguments are forwarded to the constructor of 
 def withTraceNode [always : MonadAlwaysExcept ε m] [MonadLiftT BaseIO m]
     [ExceptToTraceResult ε α] (cls : Name)
     (msg : Except ε α → m MessageData) (k : m α) (collapsed := true) (tag := "") : m α := do
-  let opts ← getOptions
+  -- unrestricted here and in `postCallback`: trace and profiler collection only
+  let opts ← getOptionsUnrestricted
   if !opts.hasTrace then
     return (← k)
   let clsEnabled ← isTracingEnabledFor cls
@@ -415,7 +417,8 @@ TODO: find better name for this function.
 def withTraceNodeBefore [MonadRef m] [AddMessageContext m] [MonadOptions m]
     [always : MonadAlwaysExcept ε m] [MonadLiftT BaseIO m] [ExceptToTraceResult ε α] (cls : Name)
     (msg : Unit → m MessageData) (k : m α) (collapsed := true) (tag := "") : m α := do
-  let opts ← getOptions
+  -- unrestricted here and in `postCallback`: trace and profiler collection only
+  let opts ← getOptionsUnrestricted
   if !opts.hasTrace then
     return (← k)
   let clsEnabled ← isTracingEnabledFor cls
@@ -445,7 +448,8 @@ where
     MonadExcept.ofExcept res
 
 def addTraceAsMessages [Monad m] [MonadRef m] [MonadLog m] [MonadTrace m] : m Unit := do
-  if trace.profiler.isExporting (← getOptions) then
+  -- unrestricted: profiler collection only
+  if trace.profiler.isExporting (← getOptionsUnrestricted) then
     -- do not add trace messages if the profile is being exported (`trace.profiler.output` or
     -- `trace.profiler.serve`) as it would be redundant, pretty printing the trace messages is
     -- expensive, and `getResetTraces` would consume the data we want to export

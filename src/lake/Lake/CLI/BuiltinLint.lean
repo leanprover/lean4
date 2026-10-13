@@ -109,6 +109,35 @@ private def collectTextLints
   Linter.getAllLints env |>.foldl (init := #[]) fun acc (mod, entries) =>
     if pkgRoot.isPrefixOf mod && !entries.isEmpty then acc.push (mod, entries) else acc
 
+/--
+Collects the code quality entries recorded during elaboration (via
+`Lean.Linter.logCodeQualityEntry` and `Lean.Linter.logCodeQualityEntryIf`) for the modules of
+the package rooted at `mod.getRoot` that are imported by `env`. Like text-linter warnings, these
+were persisted into `codeQualityLogExt` when each module was built (with the linter overrides
+applied via `leanOptOverrides`) and are recovered here from the `.olean`s, which requires an
+environment imported at the `server` olean level. With `--lint-only`, entries attributed to a
+linter option are additionally filtered to the explicitly enabled linters; unattributed entries
+(logged via `logCodeQualityEntry`) are always kept.
+
+Modules in `collectedModules` were already covered by an earlier lint target and are skipped, so
+that a module imported by several targets contributes its entries only once; the returned set
+extends it with the modules collected here.
+-/
+private def collectRecordedCodeQuality (args : Args) (linterOpts : Linter.LinterOptions)
+    (env : Environment) (mod : Name) (collectedModules : NameSet) :
+    Array CodeQuality.Entry × NameSet := Id.run do
+  let mut collected := collectedModules
+  let mut acc : Array CodeQuality.Entry := #[]
+  for (m, entries) in Linter.getAllCodeQualityEntries env do
+    unless mod.getRoot.isPrefixOf m && !collected.contains m do continue
+    collected := collected.insert m
+    let entries :=
+      if args.lintOnly then
+        entries.filter fun e => e.linter?.all (Lean.Linter.isLinterEnabledByOptions · linterOpts)
+      else entries
+    acc := acc ++ entries.map (·.entry)
+  return (acc, collected)
+
 @[noinline] private def getIsModule (modData : Lean.ModuleData) : BaseIO Bool :=
   return modData.isModule
 
@@ -421,6 +450,9 @@ public def run (args : Args) : IO UInt32 := do
   -- Modules whose deferred docstring checks have already been run. A module can appear in
   -- several targets' import closures, so this runs each such module's checks only once.
   let mut docCheckedModules : NameSet := {}
+  -- Modules whose recorded code quality entries have already been collected, so a module shared
+  -- between several targets' import closures does not contribute its entries more than once.
+  let mut metricsCollectedModules : NameSet := {}
   for mod in mods do
     unsafe Lean.enableInitializersExecution
     -- Peek at the .olean header to learn whether `mod` participates in the module system.
@@ -462,6 +494,10 @@ public def run (args : Args) : IO UInt32 := do
       codeQualityEntries := codeQualityEntries ++ entries
 
     if args.mode == .codeQuality then
+      let (recorded, collected) :=
+        collectRecordedCodeQuality args linterOpts env mod metricsCollectedModules
+      metricsCollectedModules := collected
+      codeQualityEntries := codeQualityEntries ++ recorded
       let ⟨entries, failed⟩ ← runPackageCodeQualityChecks sp env mod
       codeQualityEntries := codeQualityEntries ++ entries
       if failed then anyFailed := true

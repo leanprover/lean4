@@ -26,6 +26,7 @@ namespace Lean.Meta.Grind.Arith.Cutsat
 builtin_initialize registerTraceClass `grind.lia
 builtin_initialize registerTraceClass `grind.lia.nonlinear
 builtin_initialize registerTraceClass `grind.lia.model
+builtin_initialize registerTraceClass `grind.lia.reorder
 builtin_initialize registerTraceClass `grind.lia.assert
 builtin_initialize registerTraceClass `grind.lia.assert.trivial
 builtin_initialize registerTraceClass `grind.lia.assert.unsat

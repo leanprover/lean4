@@ -57,10 +57,10 @@ public structure BackwardRules where
   /-- The backward rule for `Lean.Order.le_of_imp_top_le`. Introduces a bare pure
   precondition on the `Prop` lattice. -/
   propPreIntro : BackwardRule
-  /-- The backward rule for `Lean.Order.ofProp_le`. Introduces an embedded pure
+  /-- The backward rule for `Lean.Order.CompleteLattice.ofProp_le`. Introduces an embedded pure
   precondition `⌜p⌝` on any complete lattice. -/
   ofPropPreIntro : BackwardRule
-  /-- The backward rule for `Lean.Order.ofProp_meet_le`. Introduces the guard of a
+  /-- The backward rule for `Lean.Order.CompleteLattice.ofProp_meet_le`. Introduces the guard of a
   `⌜p⌝ ⊓ P` precondition on any complete lattice, leaving `P`. -/
   ofPropMeetPreIntro : BackwardRule
   /-- The backward rule for `Lean.Order.iSup_le`. Eliminates an `iSup` precondition,
@@ -89,8 +89,8 @@ public def mkBackwardRules : MetaM BackwardRules := do
     tripleIntro := ← mkBackwardRuleFromDecl ``Std.WP.Triple.intro
     stateArgIntro := ← mkBackwardRuleFromDecl ``Lean.Order.le_of_forall_le
     propPreIntro := ← mkBackwardRuleFromDecl ``Lean.Order.le_of_imp_top_le
-    ofPropPreIntro := ← mkBackwardRuleFromDecl ``Lean.Order.ofProp_le
-    ofPropMeetPreIntro := ← mkBackwardRuleFromDecl ``Lean.Order.ofProp_meet_le
+    ofPropPreIntro := ← mkBackwardRuleFromDecl ``Lean.Order.CompleteLattice.ofProp_le
+    ofPropMeetPreIntro := ← mkBackwardRuleFromDecl ``Lean.Order.CompleteLattice.ofProp_meet_le
     iSupPreIntro := ← mkBackwardRuleFromDecl ``Lean.Order.iSup_le
     truePreIntro := ← mkBackwardRuleFromDecl ``Lean.Order.true_le_of_top_le
     elimPre := ← mkBackwardRuleFromDecl ``Lean.Order.top_le_prop
@@ -175,7 +175,7 @@ public structure State where
   sound because it is a subterm of the hash-consed goal target.
   -/
   latticeBackwardRuleCache : Std.HashMap (ExprPtr × Nat) BackwardRule := {}
-  /-- Caches the frame rule (`WP.Frames.op_wp_upperAdjoint_le_wp`), keyed by the `WPMonad` instance
+  /-- Caches the frame rule (`op_wp_upperAdjoint_le_wp`), keyed by the `WPMonad` instance
   and the number of excess state arguments. -/
   frameBackwardRuleCache : Std.HashMap (ExprPtr × Nat) FrameBackwardRule := {}
   /-- The frame database from the `frames` clause. -/

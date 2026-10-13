@@ -49,8 +49,6 @@ instance decidableNoneEq (o : Option α) : Decidable (none = o) :=
   | none => .isTrue rfl
   | some _ => .isFalse (fun h => Option.noConfusion rfl (heq_of_eq h))
 
-deriving instance BEq for Option
-
 @[simp, grind =] theorem getD_none : getD none a = a := rfl
 @[simp, grind =] theorem getD_some : getD (some a) b = a := rfl
 
@@ -286,6 +284,12 @@ instance (r : α → β → Prop) [s : DecidableRel r] : DecidableRel (Option.lt
   | some x, some y => s x y
   | some _, none   => isFalse not_false
   | none,   none   => isFalse not_false
+
+instance (r : α → β → Prop) [s : DecidableRel r] : DecidableRel (Option.le r)
+  | none,   some _ => isTrue trivial
+  | some x, some y => s x y
+  | some _, none   => isFalse not_false
+  | none,   none   => isTrue trivial
 
 namespace SomeLtNone
 

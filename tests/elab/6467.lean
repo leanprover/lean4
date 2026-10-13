@@ -2,8 +2,8 @@ theorem confuses_the_user : -(no_index (OfNat.ofNat <| nat_lit 2)) = -2 := by
   simp
 
 theorem ex : -(no_index (OfNat.ofNat <| nat_lit 2)) = (2 : Int) := by
-  simp only [Int.reduceNeg]
-  guard_target =ₛ -2 = 2
+  -- `-2` is already in normal form; the `no_index` annotation does not count as progress.
+  fail_if_success simp only [Int.reduceNeg]
   sorry
 
 theorem its_true_really : -(no_index (OfNat.ofNat <| nat_lit 2)) = -2 := by

@@ -49,10 +49,6 @@ inductive ReducibilityHints where
   | regular : UInt32 → ReducibilityHints
   deriving Inhabited, BEq
 
-@[export lean_mk_reducibility_hints_regular]
-def mkReducibilityHintsRegularEx (h : UInt32) : ReducibilityHints :=
-  ReducibilityHints.regular h
-
 @[export lean_reducibility_hints_get_height]
 def ReducibilityHints.getHeightEx (h : ReducibilityHints) : UInt32 :=
   match h with
@@ -102,14 +98,6 @@ structure AxiomVal extends ConstantVal where
   isUnsafe : Bool
   deriving Inhabited, BEq
 
-@[export lean_mk_axiom_val]
-def mkAxiomValEx (name : Name) (levelParams : List Name) (type : Expr) (isUnsafe : Bool) : AxiomVal := {
-  name := name,
-  levelParams := levelParams,
-  type := type,
-  isUnsafe := isUnsafe
-}
-
 @[export lean_axiom_val_is_unsafe] def AxiomVal.isUnsafeEx (v : AxiomVal) : Bool :=
   v.isUnsafe
 
@@ -147,11 +135,6 @@ structure TheoremVal extends ConstantVal where
   all : List Name := [name]
   deriving Inhabited, BEq
 
-@[export lean_mk_theorem_val]
-def mkTheoremValEx (name : Name) (levelParams : List Name) (type : Expr) (value : Expr) (all : List Name) : TheoremVal := {
-  name, levelParams, type, value, all
-}
-
 /-- Value for an opaque constant declaration `opaque x : t := e` -/
 structure OpaqueVal extends ConstantVal where
   value : Expr
@@ -161,11 +144,6 @@ structure OpaqueVal extends ConstantVal where
     See comment at `DefinitionVal.all`. -/
   all : List Name := [name]
   deriving Inhabited, BEq
-
-@[export lean_mk_opaque_val]
-def mkOpaqueValEx (name : Name) (levelParams : List Name) (type : Expr) (value : Expr) (isUnsafe : Bool) (all : List Name) : OpaqueVal := {
-  name, levelParams, type, value, isUnsafe, all
-}
 
 @[export lean_opaque_val_is_unsafe] def OpaqueVal.isUnsafeEx (v : OpaqueVal) : Bool :=
   v.isUnsafe
@@ -299,7 +277,7 @@ structure InductiveVal extends ConstantVal where
   -/
   isReflexive : Bool
 
-  deriving Inhabited
+  deriving Inhabited, BEq
 
 @[export lean_mk_inductive_val]
 def mkInductiveValEx (name : Name) (levelParams : List Name) (type : Expr) (numParams numIndices : Nat)
@@ -413,18 +391,16 @@ inductive QuotKind where
   | ctor  -- `Quot.mk`
   | lift  -- `Quot.lift`
   | ind   -- `Quot.ind`
-  deriving Inhabited
+  deriving Inhabited, BEq
 
 structure QuotVal extends ConstantVal where
   kind : QuotKind
-  deriving Inhabited
+  deriving Inhabited, BEq
 
 @[export lean_mk_quot_val]
 def mkQuotValEx (name : Name) (levelParams : List Name) (type : Expr) (kind : QuotKind) : QuotVal := {
   name := name, levelParams := levelParams, type := type, kind := kind
 }
-
-@[export lean_quot_val_kind] def QuotVal.kindEx (v : QuotVal) : QuotKind := v.kind
 
 /-- Information associated with constant declarations. -/
 inductive ConstantInfo where
@@ -436,7 +412,7 @@ inductive ConstantInfo where
   | inductInfo   (val : InductiveVal)
   | ctorInfo     (val : ConstructorVal)
   | recInfo      (val : RecursorVal)
-  deriving Inhabited
+  deriving Inhabited, BEq
 
 namespace ConstantInfo
 

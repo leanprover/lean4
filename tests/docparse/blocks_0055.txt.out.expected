@@ -1,6 +1,10 @@
+Input: "\\[> x"
 Success! Final stack:
-  [(Lean.Doc.Syntax.para
-    "para{"
-    [(Lean.Doc.Syntax.text (str "\"[> x\""))]
-    "}")]
+  [(Lean.Doc.Parser.Block.para
+    [(Lean.Doc.Parser.Inline.text
+      (Lean.Doc.Parser.versoText "\\[> x"))])]
 All input consumed.
+Round-trip OK
+Decoded views:
+  para
+    text (content := "[> x")

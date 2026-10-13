@@ -4,33 +4,10 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
-#include "runtime/array_ref.h"
-#include "runtime/pair_ref.h"
 #include "util/option_declarations.h"
 #include "util/io.h"
 
 namespace lean {
-typedef object_ref option_decl;
-
-extern "C" object * lean_data_value_to_string (obj_arg d);
-
-extern "C" object * lean_get_option_decls_array();
-
-option_declarations get_option_declarations() {
-    auto decl_array = get_io_result<array_ref<pair_ref<name, option_decl> > > (lean_get_option_decls_array());
-    option_declarations r;
-    for (pair_ref<name, option_decl> const & p : decl_array) {
-        option_decl decl = p.snd();
-        data_value def_val = cnstr_get_ref_t<data_value>(decl, 2);
-        string_ref def_str(lean_data_value_to_string(def_val.to_obj_arg()));
-        string_ref descr = cnstr_get_ref_t<string_ref>(decl, 3);
-        data_value_kind kind = static_cast<data_value_kind>(lean_obj_tag(def_val.raw()));
-        option_declaration d(p.fst(), kind, def_str.data(), descr.data());
-        r.insert(p.fst(), d);
-    }
-    return r;
-}
-
 data_value mk_data_value(data_value_kind k, char const * val) {
     switch (k) {
     case data_value_kind::String:

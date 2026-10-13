@@ -1,0 +1,4 @@
+name = "foo"
+
+[[lean_lib]]
+name = "Foo"

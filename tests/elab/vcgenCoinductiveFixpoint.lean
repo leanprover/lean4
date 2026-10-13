@@ -1,5 +1,4 @@
 import Std.WP
-import Std.Tactic.Do
 
 /-!
 # `coinductive_fixpoint` beside a `vcgen` proof
@@ -20,7 +19,7 @@ not. See the `mixed3` and `mixed4` cases of `coinductive_predicates.lean`, which
 
 open Std.WP Lean.Order
 
-set_option mvcgen.warning false
+set_option experimental.vcgen true
 
 /-! ## What works: a coinductive predicate beside a `vcgen` proof -/
 

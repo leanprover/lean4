@@ -300,6 +300,57 @@ partial def updateTrailing (trailing : Substring.Raw) : Syntax → Syntax
   | s => s
 
 open SourceInfo in
+/--
+Split an `ident` into its dot-separated components and `.` tokens while preserving source info.
+Yields `none` if `stx` or its `SourceInfo` cannot be preserved
+(e.g. in `` `foo.bla.boo._@._hyg.4 ``).
+If `nFields` is set, we take that many fields from the end and keep the remaining components
+as one name. For example, `` `foo.bla.boo `` with `(nFields := 1)` ↦ `` [`foo.bla, `boo] ``.
+-/
+def identComponents? (stx : Syntax) (nFields? : Option Nat := none) : Option (List Syntax × List Syntax) :=
+  match stx with
+  | ident (SourceInfo.original lead pos trail _) rawStr val _ => do
+    let val := val.eraseMacroScopes
+    -- With original info, we assume that `rawStr` represents `val`.
+    let nameComps := nameComps val nFields?
+    let rawComps := splitNameLit rawStr
+    if !rawComps.isEmpty then
+      let rawComps :=
+        if let some nFields := nFields? then
+          let nPrefix := rawComps.length - nFields
+          let prefixSz := rawComps.take nPrefix |>.foldl (init := 0) fun acc (ss : Substring.Raw) => acc + ss.bsize + 1
+          let prefixSz := prefixSz - 1 -- The last component has no dot
+          rawStr.extract 0 ⟨prefixSz⟩ :: rawComps.drop nPrefix
+        else
+          rawComps
+      if nameComps.length == rawComps.length then
+        let comps := nameComps.zip rawComps |>.map fun (id, ss) =>
+          let off := ss.startPos.unoffsetBy rawStr.startPos
+          let lead := if off == 0 then lead else "".toRawSubstring
+          let trail := if ss.stopPos == rawStr.stopPos then trail else "".toRawSubstring
+          let info := original lead (pos.offsetBy off) trail (pos.offsetBy off |>.offsetBy ⟨ss.bsize⟩)
+          ident info ss id []
+        let seps := rawComps.dropLast.map fun ss =>
+          -- One `.` after every raw component, except for the last one.
+          let off := ss.stopPos.unoffsetBy rawStr.startPos
+          let info := original "".toRawSubstring (pos.offsetBy off) "".toRawSubstring (pos.offsetBy off |>.offsetBy ⟨1⟩)
+          atom info "."
+        return (comps, seps)
+    none
+  | ident .. =>
+    none
+  | _ => unreachable!
+  where
+    nameComps (n : Name) (nFields? : Option Nat) : List Name :=
+      if let some nFields := nFields? then
+        let nameComps := n.components
+        let nPrefix := nameComps.length - nFields
+        let namePrefix := nameComps.take nPrefix |>.foldl (init := Name.anonymous) fun acc n => acc ++ n
+        namePrefix :: nameComps.drop nPrefix
+      else
+        n.components
+
+open SourceInfo in
 /-- Split an `ident` into its dot-separated components while preserving source info.
 Macro scopes are first erased.  For example, `` `foo.bla.boo._@._hyg.4 `` ↦ `` [`foo, `bla, `boo] ``.
 If `nFields` is set, we take that many fields from the end and keep the remaining components
@@ -312,27 +363,11 @@ def identComponents (stx : Syntax) (nFields? : Option Nat := none) : List Syntax
     if val.getNumParts ≤ 1 then
       return [ident si rawStr val []]
     match si with
-    | SourceInfo.original lead pos trail _ =>
-      -- With original info, we assume that `rawStr` represents `val`.
-      let nameComps := nameComps val nFields?
-      let rawComps := splitNameLit rawStr
-      if !rawComps.isEmpty then
-        let rawComps :=
-          if let some nFields := nFields? then
-            let nPrefix := rawComps.length - nFields
-            let prefixSz := rawComps.take nPrefix |>.foldl (init := 0) fun acc (ss : Substring.Raw) => acc + ss.bsize + 1
-            let prefixSz := prefixSz - 1 -- The last component has no dot
-            rawStr.extract 0 ⟨prefixSz⟩ :: rawComps.drop nPrefix
-          else
-            rawComps
-        if nameComps.length == rawComps.length then
-          return nameComps.zip rawComps |>.map fun (id, ss) =>
-            let off := ss.startPos.unoffsetBy rawStr.startPos
-            let lead := if off == 0 then lead else "".toRawSubstring
-            let trail := if ss.stopPos == rawStr.stopPos then trail else "".toRawSubstring
-            let info := original lead (pos.offsetBy off) trail (pos.offsetBy off |>.offsetBy ⟨ss.bsize⟩)
-            ident info ss id []
+    | SourceInfo.original .. =>
+      if let some (components, _) := identComponents? stx nFields? then
+        return components
       -- if re-parsing failed, just give them all the same span
+      let nameComps := nameComps val nFields?
       nameComps.map fun n => ident si n.toString.toRawSubstring n []
     | _ =>
       /- With non-original info:

@@ -6,7 +6,7 @@ Authors: Marc Huisinga
 module
 
 prelude
-public import Lean.Server.InfoUtils
+public import Lean.Elab.InfoTree.Util
 public import Lean.Server.Completion.CompletionUtils
 
 public section

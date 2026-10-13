@@ -18,6 +18,7 @@ public import Lean.Meta.Sym.DSimp.DSimpM
 import Lean.Meta.Sym.DSimp.Result
 public import Lean.Meta.Tactic.Grind.Types
 public import Lean.Meta.Tactic.Grind.BVDecide.Types
+public import Lean.Meta.Tactic.BVDecide.TacticContext
 
 public section
 
@@ -107,6 +108,7 @@ inductive HypSource where
   | structureProjection (e : Expr)
   | andFlattened (s : HypSource)
   | grind
+  | cegar
   deriving Inhabited, Hashable, BEq
 
 partial instance : ToMessageData HypSource where
@@ -120,6 +122,7 @@ where
     | .structureProjection e => m!"structure lemma projection: {e}"
     | .andFlattened s => m!"and flattening from {go (stripFlatten s)}"
     | .grind => m!"grind state"
+    | .cegar => m!"cegar refinement loop"
 
   stripFlatten (s : HypSource) : HypSource :=
     match s with
@@ -201,14 +204,26 @@ structure PreProcessContext where
   The mode that the pipeline runs in.
   -/
   mode : Mode
+  /--
+  Whether the caches should be dropped as soon as possible or kept until the end of the pipeline.
+  -/
+  keepCaches : Bool
 
 /--
 Creates the context for a run of the pipeline in `mode`, disabling all configuration options that
 `mode` does not support.
 -/
-def PreProcessContext.new (mode : Mode) (config : BVDecideConfig) : PreProcessContext where
-  config := mode.adjustConfig config
-  mode := mode
+def PreProcessContext.new (mode : Mode) (config : BVDecideConfig) (keepCaches : Option Bool := none) :
+    PreProcessContext :=
+  let keepCaches := keepCaches.getD <| config.needsIncremental || mode.isPush
+  {
+    config := mode.adjustConfig config
+    mode := mode
+    keepCaches := keepCaches
+  }
+
+public def _root_.Lean.Meta.Tactic.BVDecide.TacticContext.preProcessContext (ctx : TacticContext) : Normalize.PreProcessContext :=
+  .new (.solve ctx.restrictedTypes) ctx.config
 
 /--
 Identifies the `Sym.Simp` cache that a pass operates on.
@@ -350,7 +365,7 @@ Drops the caches of all passes that maintain one. In `bv_decide_push` mode this 
 caches are the very thing that we want to hand to the next invocation.
 -/
 def dropPassCaches : PreProcessM Unit := do
-  if !(← isPushMode) then
+  if !(← read).keepCaches then
     setCaches {}
 
 @[inline]

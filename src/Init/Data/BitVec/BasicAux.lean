@@ -7,6 +7,7 @@ module
 
 prelude
 public import Init.Grind.Tactics
+import Init.Data.Nat.Basic
 
 public section
 
@@ -25,6 +26,18 @@ instance instOfNat : OfNat (BitVec n) i where ofNat := .ofNat n i
 
 /-- Return the bound in terms of toNat. -/
 theorem isLt (x : BitVec w) : x.toNat < 2^w := x.toFin.isLt
+
+/--
+Converts a natural number to a bitvector of width `w`, returning the largest representable value
+if the number is too large.
+
+Returns `2^w - 1` for natural numbers greater than or equal to `2^w`.
+-/
+def ofNatClamp (w n : Nat) : BitVec w :=
+  if h : n < 2 ^ w then
+    BitVec.ofNatLT n h
+  else
+    BitVec.ofNatLT (2 ^ w - 1) (Nat.sub_lt (Nat.two_pow_pos w) Nat.one_pos)
 
 end Nat
 

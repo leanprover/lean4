@@ -1,0 +1,66 @@
+{"version": 1,
+ "uri": "file:///structGoTo.lean",
+ "isIncremental": false,
+ "diagnostics":
+ [{"source": "Lean 4",
+   "severity": 1,
+   "range":
+   {"start": {"line": 30, "character": 2}, "end": {"line": 30, "character": 3}},
+   "message": "Field `a` has already been declared",
+   "fullRange":
+   {"start": {"line": 30, "character": 2},
+    "end": {"line": 30, "character": 3}}},
+  {"source": "Lean 4",
+   "severity": 1,
+   "range":
+   {"start": {"line": 33, "character": 7},
+    "end": {"line": 33, "character": 15}},
+   "message": "Unknown identifier `SInvalid`",
+   "fullRange":
+   {"start": {"line": 33, "character": 7},
+    "end": {"line": 33, "character": 15}},
+   "code": "lean.unknownIdentifier"}]}
+{"textDocument": {"uri": "file:///structGoTo.lean"},
+ "position": {"line": 9, "character": 10}}
+[{"targetUri": "file:///structGoTo.lean",
+  "targetSelectionRange":
+  {"start": {"line": 7, "character": 2}, "end": {"line": 7, "character": 3}},
+  "targetRange":
+  {"start": {"line": 7, "character": 2}, "end": {"line": 7, "character": 3}},
+  "originSelectionRange":
+  {"start": {"line": 9, "character": 10}, "end": {"line": 9, "character": 11}}}]
+{"textDocument": {"uri": "file:///structGoTo.lean"},
+ "position": {"line": 12, "character": 13}}
+[{"targetUri": "file:///structGoTo.lean",
+  "targetSelectionRange":
+  {"start": {"line": 7, "character": 2}, "end": {"line": 7, "character": 3}},
+  "targetRange":
+  {"start": {"line": 7, "character": 2}, "end": {"line": 7, "character": 3}},
+  "originSelectionRange":
+  {"start": {"line": 12, "character": 13},
+   "end": {"line": 12, "character": 14}}}]
+{"textDocument": {"uri": "file:///structGoTo.lean"},
+ "position": {"line": 12, "character": 17}}
+[{"targetUri": "file:///structGoTo.lean",
+  "targetSelectionRange":
+  {"start": {"line": 9, "character": 2}, "end": {"line": 9, "character": 3}},
+  "targetRange":
+  {"start": {"line": 9, "character": 2}, "end": {"line": 9, "character": 3}},
+  "originSelectionRange":
+  {"start": {"line": 12, "character": 17},
+   "end": {"line": 12, "character": 18}}}]
+{"textDocument": {"uri": "file:///structGoTo.lean"},
+ "position": {"line": 19, "character": 21}}
+[{"targetUri": "file:///structGoTo.lean",
+  "targetSelectionRange":
+  {"start": {"line": 9, "character": 2}, "end": {"line": 9, "character": 3}},
+  "targetRange":
+  {"start": {"line": 9, "character": 2}, "end": {"line": 9, "character": 3}},
+  "originSelectionRange":
+  {"start": {"line": 19, "character": 21},
+   "end": {"line": 19, "character": 22}}}]
+{"textDocument": {"uri": "file:///structGoTo.lean"},
+ "position": {"line": 28, "character": 2}}
+{"range":
+ {"start": {"line": 28, "character": 2}, "end": {"line": 28, "character": 3}},
+ "contents": {"value": "```lean\na : Nat\n```", "kind": "markdown"}}

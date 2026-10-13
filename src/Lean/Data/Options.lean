@@ -125,13 +125,6 @@ def registerOption (name : Name) (decl : OptionDecl) : IO Unit := do
 
 def getOptionDecls : IO OptionDecls := optionDeclsRef.get
 
-@[export lean_get_option_decls_array]
-def getOptionDeclsArray : IO (Array (Name × OptionDecl)) := do
-  let decls ← getOptionDecls
-  return decls.foldl
-   (fun (r : Array (Name × OptionDecl)) k v => r.push (k, v))
-   #[]
-
 def getOptionDecl (name : Name) : IO OptionDecl := do
   let decls ← getOptionDecls
   let (some decl) ← pure (decls.find? name) | throw $ IO.userError s!"Unknown option `{name}`"
@@ -147,11 +140,19 @@ def getOptionDescr (name : Name) : IO String := do
 
 class MonadOptions (m : Type → Type) where
   getOptions : m Options
+  /--
+  Returns the options without the check of `getOptions` for recording computations. Only for reads
+  that cannot influence a result cached by such a computation: message rendering, trace and
+  profiler collection, diagnostics, and limits that are part of the cache key or throw when
+  exceeded. See `Lean.getRecordedOption`.
+  -/
+  getOptionsUnrestricted : m Options := getOptions
 
-export MonadOptions (getOptions)
+export MonadOptions (getOptions getOptionsUnrestricted)
 
 instance [MonadLift m n] [MonadOptions m] : MonadOptions n where
   getOptions := liftM (getOptions : m _)
+  getOptionsUnrestricted := liftM (getOptionsUnrestricted : m _)
 
 variable [Monad m] [MonadOptions m]
 

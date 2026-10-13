@@ -192,7 +192,10 @@ structure State where
   and no free variables.
   -/
   maxFVar : PHashMap ExprPtr (Option FVarId) := {}
+  /-- `ProofInstInfo` of global declarations, see `getProofInstInfo?`. -/
   proofInstInfo : PHashMap Name (Option ProofInstInfo) := {}
+  /-- `ProofInstInfo` of local declarations, see `getProofInstInfoOfExpr?`. -/
+  proofInstInfoFVar : PHashMap FVarId (Option ProofInstInfo) := {}
   /--
   Cache for `inferType` results, keyed by pointer equality.
   `SymM` uses a fixed configuration, so we can use a simpler key than `MetaM`.

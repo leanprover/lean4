@@ -1,4 +1,12 @@
-Failure @0 (⟨1, 0⟩): '>'; expected '%%%' or ': '
+Input: "\\[> x"
+Failure: '>'; expected '%%%' or ': '
+ --> 1:0-1:1
+  |
+1 | \[> x
+  | ^
+  = consumed input prefix: 0 bytes
 Final stack:
  empty
-Remaining: "\\[> x"
+Remaining:
+"\\[> x"
+Round-trip not tested: this parser classifies input rather than producing document syntax

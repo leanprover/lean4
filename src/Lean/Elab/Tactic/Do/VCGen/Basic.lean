@@ -22,7 +22,11 @@ builtin_initialize registerTraceClass `Elab.Tactic.Do.vcgen.split
 
 register_builtin_option mvcgen.warning : Bool := {
   defValue := true
-  descr    := "disable `mvcgen` usage warning"
+  descr    := "this option has no effect; `mvcgen` reports a deprecation warning controlled by \
+`linter.deprecated.syntax`"
+  deprecation? := some {
+    since := "2026-09-23"
+    text? := some "this option has no effect" }
 }
 
 inductive Fuel where

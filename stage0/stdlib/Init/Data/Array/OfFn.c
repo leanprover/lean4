@@ -13,122 +13,49 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
-lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* l_Array_push___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* l___private_Init_Data_Fin_Fold_0__Fin_foldlM_loop(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_OfFn_0__Array_ofFn_go_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_OfFn_0__Array_ofFn_go_match__1_splitter___redArg___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_OfFn_0__Array_ofFn_go_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_OfFn_0__Array_ofFn_go_match__1_splitter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_ofFnM___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_ofFnM___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_ofFnM(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_OfFn_0__Array_ofFn_go_match__1_splitter___redArg(lean_object* v_x_1_, lean_object* v_h__1_2_, lean_object* v_h__2_3_){
+LEAN_EXPORT lean_object* l_Array_ofFnM___redArg___lam__0(lean_object* v_toFunctor_1_, lean_object* v_f_2_, lean_object* v_xs_3_, lean_object* v_i_4_){
 _start:
 {
-lean_object* v_zero_4_; uint8_t v_isZero_5_; 
-v_zero_4_ = lean_unsigned_to_nat(0u);
-v_isZero_5_ = lean_nat_dec_eq(v_x_1_, v_zero_4_);
-if (v_isZero_5_ == 1)
-{
-lean_object* v___x_6_; 
-lean_dec(v_h__1_2_);
-v___x_6_ = lean_apply_1(v_h__2_3_, lean_box(0));
-return v___x_6_;
-}
-else
-{
-lean_object* v_one_7_; lean_object* v_n_8_; lean_object* v___x_9_; 
-lean_dec(v_h__2_3_);
-v_one_7_ = lean_unsigned_to_nat(1u);
-v_n_8_ = lean_nat_sub(v_x_1_, v_one_7_);
-v___x_9_ = lean_apply_2(v_h__1_2_, v_n_8_, lean_box(0));
-return v___x_9_;
+lean_object* v_map_5_; lean_object* v___x_6_; lean_object* v___x_7_; lean_object* v___x_8_; 
+v_map_5_ = lean_ctor_get(v_toFunctor_1_, 0);
+lean_inc(v_map_5_);
+lean_dec_ref(v_toFunctor_1_);
+v___x_6_ = lean_alloc_closure((void*)(l_Array_push___boxed), 3, 2);
+lean_closure_set(v___x_6_, 0, lean_box(0));
+lean_closure_set(v___x_6_, 1, v_xs_3_);
+v___x_7_ = lean_apply_1(v_f_2_, v_i_4_);
+v___x_8_ = lean_apply_4(v_map_5_, lean_box(0), lean_box(0), v___x_6_, v___x_7_);
+return v___x_8_;
 }
 }
-}
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_OfFn_0__Array_ofFn_go_match__1_splitter___redArg___boxed(lean_object* v_x_10_, lean_object* v_h__1_11_, lean_object* v_h__2_12_){
+LEAN_EXPORT lean_object* l_Array_ofFnM___redArg(lean_object* v_n_9_, lean_object* v_inst_10_, lean_object* v_f_11_){
 _start:
 {
-lean_object* v_res_13_; 
-v_res_13_ = l___private_Init_Data_Array_OfFn_0__Array_ofFn_go_match__1_splitter___redArg(v_x_10_, v_h__1_11_, v_h__2_12_);
-lean_dec(v_x_10_);
-return v_res_13_;
+lean_object* v_toApplicative_12_; lean_object* v_toFunctor_13_; lean_object* v___f_14_; lean_object* v___x_15_; lean_object* v___x_16_; lean_object* v___x_17_; 
+v_toApplicative_12_ = lean_ctor_get(v_inst_10_, 0);
+v_toFunctor_13_ = lean_ctor_get(v_toApplicative_12_, 0);
+lean_inc_ref(v_toFunctor_13_);
+v___f_14_ = lean_alloc_closure((void*)(l_Array_ofFnM___redArg___lam__0), 4, 2);
+lean_closure_set(v___f_14_, 0, v_toFunctor_13_);
+lean_closure_set(v___f_14_, 1, v_f_11_);
+v___x_15_ = lean_mk_empty_array_with_capacity(v_n_9_);
+v___x_16_ = lean_unsigned_to_nat(0u);
+v___x_17_ = l___private_Init_Data_Fin_Fold_0__Fin_foldlM_loop(lean_box(0), lean_box(0), v_inst_10_, v_n_9_, v___f_14_, v___x_15_, v___x_16_);
+return v___x_17_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_OfFn_0__Array_ofFn_go_match__1_splitter(lean_object* v_n_14_, lean_object* v_motive_15_, lean_object* v_x_16_, lean_object* v_x_17_, lean_object* v_h__1_18_, lean_object* v_h__2_19_){
+LEAN_EXPORT lean_object* l_Array_ofFnM(lean_object* v_m_18_, lean_object* v_00_u03b1_19_, lean_object* v_n_20_, lean_object* v_inst_21_, lean_object* v_f_22_){
 _start:
 {
-lean_object* v_zero_20_; uint8_t v_isZero_21_; 
-v_zero_20_ = lean_unsigned_to_nat(0u);
-v_isZero_21_ = lean_nat_dec_eq(v_x_16_, v_zero_20_);
-if (v_isZero_21_ == 1)
-{
-lean_object* v___x_22_; 
-lean_dec(v_h__1_18_);
-v___x_22_ = lean_apply_1(v_h__2_19_, lean_box(0));
-return v___x_22_;
-}
-else
-{
-lean_object* v_one_23_; lean_object* v_n_24_; lean_object* v___x_25_; 
-lean_dec(v_h__2_19_);
-v_one_23_ = lean_unsigned_to_nat(1u);
-v_n_24_ = lean_nat_sub(v_x_16_, v_one_23_);
-v___x_25_ = lean_apply_2(v_h__1_18_, v_n_24_, lean_box(0));
-return v___x_25_;
-}
-}
-}
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_OfFn_0__Array_ofFn_go_match__1_splitter___boxed(lean_object* v_n_26_, lean_object* v_motive_27_, lean_object* v_x_28_, lean_object* v_x_29_, lean_object* v_h__1_30_, lean_object* v_h__2_31_){
-_start:
-{
-lean_object* v_res_32_; 
-v_res_32_ = l___private_Init_Data_Array_OfFn_0__Array_ofFn_go_match__1_splitter(v_n_26_, v_motive_27_, v_x_28_, v_x_29_, v_h__1_30_, v_h__2_31_);
-lean_dec(v_x_28_);
-lean_dec(v_n_26_);
-return v_res_32_;
-}
-}
-LEAN_EXPORT lean_object* l_Array_ofFnM___redArg___lam__0(lean_object* v_toFunctor_33_, lean_object* v_f_34_, lean_object* v_xs_35_, lean_object* v_i_36_){
-_start:
-{
-lean_object* v_map_37_; lean_object* v___x_38_; lean_object* v___x_39_; lean_object* v___x_40_; 
-v_map_37_ = lean_ctor_get(v_toFunctor_33_, 0);
-lean_inc(v_map_37_);
-lean_dec_ref(v_toFunctor_33_);
-v___x_38_ = lean_alloc_closure((void*)(l_Array_push___boxed), 3, 2);
-lean_closure_set(v___x_38_, 0, lean_box(0));
-lean_closure_set(v___x_38_, 1, v_xs_35_);
-v___x_39_ = lean_apply_1(v_f_34_, v_i_36_);
-v___x_40_ = lean_apply_4(v_map_37_, lean_box(0), lean_box(0), v___x_38_, v___x_39_);
-return v___x_40_;
-}
-}
-LEAN_EXPORT lean_object* l_Array_ofFnM___redArg(lean_object* v_n_41_, lean_object* v_inst_42_, lean_object* v_f_43_){
-_start:
-{
-lean_object* v_toApplicative_44_; lean_object* v_toFunctor_45_; lean_object* v___f_46_; lean_object* v___x_47_; lean_object* v___x_48_; lean_object* v___x_49_; 
-v_toApplicative_44_ = lean_ctor_get(v_inst_42_, 0);
-v_toFunctor_45_ = lean_ctor_get(v_toApplicative_44_, 0);
-lean_inc_ref(v_toFunctor_45_);
-v___f_46_ = lean_alloc_closure((void*)(l_Array_ofFnM___redArg___lam__0), 4, 2);
-lean_closure_set(v___f_46_, 0, v_toFunctor_45_);
-lean_closure_set(v___f_46_, 1, v_f_43_);
-v___x_47_ = lean_mk_empty_array_with_capacity(v_n_41_);
-v___x_48_ = lean_unsigned_to_nat(0u);
-v___x_49_ = l___private_Init_Data_Fin_Fold_0__Fin_foldlM_loop(lean_box(0), lean_box(0), v_inst_42_, v_n_41_, v___f_46_, v___x_47_, v___x_48_);
-return v___x_49_;
-}
-}
-LEAN_EXPORT lean_object* l_Array_ofFnM(lean_object* v_m_50_, lean_object* v_00_u03b1_51_, lean_object* v_n_52_, lean_object* v_inst_53_, lean_object* v_f_54_){
-_start:
-{
-lean_object* v___x_55_; 
-v___x_55_ = l_Array_ofFnM___redArg(v_n_52_, v_inst_53_, v_f_54_);
-return v___x_55_;
+lean_object* v___x_23_; 
+v___x_23_ = l_Array_ofFnM___redArg(v_n_20_, v_inst_21_, v_f_22_);
+return v___x_23_;
 }
 }
 lean_object* runtime_initialize_Init_Data_Array_Basic(uint8_t builtin);

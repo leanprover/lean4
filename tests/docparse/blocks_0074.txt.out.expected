@@ -1,0 +1,20 @@
+Input: "- ```lean\n  body\n"
+Failure: unterminated code block opened on line 1; expected '```'
+ --> 1:2-1:5
+  |
+1 | - ```lean
+  |   ^^^
+  = consumed input prefix: 17 bytes
+Final stack:
+  [(Lean.Doc.Parser.Block.ul
+    [(Lean.Doc.Parser.ListItem.item
+      (Lean.Doc.Parser.listMarker "-")
+      [(Lean.Doc.Parser.Block.codeblock
+        (Lean.Doc.Parser.codeBlockFence "```")
+        [`lean []]
+        (Lean.Doc.Parser.versoCodeBlock
+         [(Lean.Doc.Parser.versoCodeLine
+           "body\n")])
+        <missing>)])])]
+All input consumed.
+Round-trip not reproduced, as the parse reported errors: leaf without original source info: <missing>

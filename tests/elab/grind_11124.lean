@@ -110,7 +110,7 @@ def Disjoint (s₁ s₂ : AList β) : Prop :=
 
 /--
 error: `grind` failed
-case grind.1.1.2.2.1.1.1
+case grind.1.1.2.2.1.1.1.1.1.1
 α : Type
 β : α → Type
 inst : DecidableEq α
@@ -128,17 +128,29 @@ right_2 : x ∈ (s₁.entries.kunion s₂.entries).keys
 w : β x
 h_5 : ⟨x, w⟩ ∈ s₁.entries.kunion s₂.entries
 left_3 : ¬find? (fun s => decide (x = s.fst)) (s₁.entries.kunion s₂.entries) = none
-right_3 : ¬∀ (x_1 : Sigma β), x_1 ∈ s₁.entries.kunion s₂.entries → decide (x = x_1.fst) = false
 w_1 : Sigma β
-h_8 : ¬(w_1 ∈ s₁.entries.kunion s₂.entries → decide (x = w_1.fst) = false)
+left_4 : w_1 ∈ s₁.entries.kunion s₂.entries
+right_4 : x = w_1.fst
 w_2 : Sigma β
-h_10 : ¬(w_2 ∈ s₁.entries.kunion s₂.entries → decide (w_1.fst = w_2.fst) = false)
+left_5 : w_2 ∈ s₁.entries.kunion s₂.entries
+right_5 : x = w_2.fst
 w_3 : Sigma β
-h_12 : ¬(w_3 ∈ s₁.entries.kunion s₂.entries → decide (w_2.fst = w_3.fst) = false)
-h_13 : (fun s => decide (w_1.fst = s.fst)) = fun s => decide (x = s.fst)
-h_14 : (fun s => decide (w_2.fst = s.fst)) = fun s => decide (x = s.fst)
-left_4 : ⟨x, w⟩ ∈ w_1 :: s₂.entries.kunion s₁.entries
-right_4 : ⟨x, w⟩ = w_1 ∨ ⟨x, w⟩ ∈ s₂.entries.kunion s₁.entries
+left_6 : w_3 ∈ s₁.entries.kunion s₂.entries
+right_6 : w_1.fst = w_3.fst
+w_4 : Sigma β
+left_7 : w_4 ∈ s₁.entries.kunion s₂.entries
+right_7 : w_2.fst = w_4.fst
+w_5 : Sigma β
+left_8 : w_5 ∈ s₁.entries.kunion s₂.entries
+right_8 : w_4.fst = w_5.fst
+h_16 : (fun s => decide (w_2.fst = s.fst)) = fun s => decide (x = s.fst)
+h_17 : (fun s => decide (w_1.fst = s.fst)) = fun s => decide (w_2.fst = s.fst)
+h_18 : (fun s => decide (w_4.fst = s.fst)) = fun s => decide (w_2.fst = s.fst)
+left_9 : ⟨x, w⟩ ∈ w_2 :: s₂.entries.kunion s₁.entries
+right_9 : ⟨x, w⟩ = w_2 ∨ ⟨x, w⟩ ∈ s₂.entries.kunion s₁.entries
+h_20 : (fun s => decide (w_3.fst = s.fst)) = fun s => decide (x = s.fst)
+left_10 : ⟨x, cast ⋯ w_2.snd⟩ ∈ w_1 :: s₂.entries.kunion s₁.entries
+right_10 : ⟨x, cast ⋯ w_2.snd⟩ = w_1 ∨ ⟨x, cast ⋯ w_2.snd⟩ ∈ s₂.entries.kunion s₁.entries
 ⊢ False
 -/
 #guard_msgs in

@@ -35,9 +35,9 @@ and rewrite every argument.
 
 /--
 Walks the application spine and `dsimp`s each argument unless `ProofInstInfo` marks it
-as a proof or instance. The function head itself is not recursively simplified — atomic
-heads (`.const`, `.fvar`) are no-ops anyway, and complex heads can be handled by
-user-supplied `pre`/`post` simprocs.
+as a proof or instance. The function head itself is not recursively simplified, so
+`pre`/`post` simprocs that rewrite heads (e.g. `zetaDelta` for let-bound `.fvar` heads,
+or beta for lambda heads) must match on the whole application.
 -/
 public def dsimpAppArgs (e : Expr) : DSimpM Result := do
   let numArgs := e.getAppNumArgs

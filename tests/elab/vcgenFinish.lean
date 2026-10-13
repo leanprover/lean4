@@ -4,7 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Graf
 -/
 import Std.WP
-import Std.Tactic.Do
 
 /-!
 `vcgen … with finish` internalises each branch before solving it: a dead `match` branch leaves no
@@ -14,7 +13,7 @@ before the `vcgen` step runs.
 -/
 
 open Std.WP Lean.Order
-set_option mvcgen.warning false
+set_option experimental.vcgen true
 set_option linter.unusedVariables false
 
 abbrev M := StateM (List Nat)
@@ -53,14 +52,14 @@ theorem eat_spec_finish (s0 : List Nat) (fuel : Nat) (hfuel : s0.length < fuel) 
 /-! An inconsistent local context closes the goal during initialisation, leaving nothing for the
 `vcgen` step. The first example is the same goal without the contradictory hypothesis. -/
 
-example : ⦃ True ⦄ (pure 3 : Id Nat) ⦃ r, r = 3 ⦄ := by
+example : ⦃ True ⦄ (pure 3 : Id Nat) ⦃ fun r => r = 3 ⦄ := by
   vcgen
 
-example (hFalse : false = true) : ⦃ True ⦄ (pure 3 : Id Nat) ⦃ r, r = 3 ⦄ := by
+example (hFalse : false = true) : ⦃ True ⦄ (pure 3 : Id Nat) ⦃ fun r => r = 3 ⦄ := by
   vcgen
 
-example (hFalse : False) : ⦃ True ⦄ (pure 3 : Id Nat) ⦃ r, r = 3 ⦄ := by
+example (hFalse : False) : ⦃ True ⦄ (pure 3 : Id Nat) ⦃ fun r => r = 3 ⦄ := by
   vcgen
 
-example (hFalse : false = true) : ⦃ True ⦄ (pure 3 : Id Nat) ⦃ r, r = 3 ⦄ := by
+example (hFalse : false = true) : ⦃ True ⦄ (pure 3 : Id Nat) ⦃ fun r => r = 3 ⦄ := by
   vcgen with finish

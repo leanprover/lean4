@@ -23,7 +23,7 @@ lean_object* l_Lean_Name_append(lean_object*, lean_object*);
 lean_object* l_Lean_mkIdent(lean_object*);
 size_t lean_usize_add(size_t, size_t);
 lean_object* l_String_toRawSubstring_x27(lean_object*);
-lean_object* l_Array_mkArray0(lean_object*);
+lean_object* l_Array_mkArray0___redArg();
 lean_object* l_Lean_Syntax_node2(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
@@ -567,7 +567,7 @@ static lean_object* _init_l___aux__Init__Data__UInt__Bitwise______macroRules__co
 _start:
 {
 lean_object* v___x_56_; 
-v___x_56_ = l_Array_mkArray0(lean_box(0));
+v___x_56_ = l_Array_mkArray0___redArg();
 return v___x_56_;
 }
 }

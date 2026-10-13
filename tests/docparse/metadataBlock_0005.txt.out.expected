@@ -1,0 +1,28 @@
+Input: "%%%\nfoo := 1, bar := 2\n%%%"
+Success! Final stack:
+  (Lean.Doc.Parser.Block.metadata_block
+   "%%%"
+   (Term.structInstFields
+    [(Term.structInstField
+      (Term.structInstLVal `foo [])
+      [[]
+       []
+       (Term.structInstFieldDef
+        ":="
+        []
+        (num "1"))])
+     ","
+     (Term.structInstField
+      (Term.structInstLVal `bar [])
+      [[]
+       []
+       (Term.structInstFieldDef
+        ":="
+        []
+        (num "2"))])
+     []])
+   "%%%")
+All input consumed.
+Round-trip OK
+Decoded views:
+  metadata (opener := "%%%") (fields := 2) (closer := "%%%")

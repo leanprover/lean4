@@ -197,8 +197,8 @@ def expandOptDocComment? [Monad m] [MonadError m] (optDocComment : Syntax) : m (
   match optDocComment.getOptional? with
   | none   => return none
   | some s => match s[1] with
-    | .atom _ val => return some (String.Pos.Raw.extract val 0 (val.rawEndPos.unoffsetBy ⟨2⟩))
-    | _           => throwErrorAt s "unexpected doc string{indentD s[1]}"
+    | .node _ `Lean.Parser.Command.commentBody #[.atom _ text, _] => return some text
+    | _ => throwErrorAt s "unexpected doc string{indentD s[1]}"
 
 section Methods
 

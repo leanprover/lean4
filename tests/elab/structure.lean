@@ -1,4 +1,7 @@
-import Lean
+module
+public import Lean
+
+public section
 
 open Lean
 
@@ -24,7 +27,7 @@ inductive D
   | mk (x y z : Nat) : D
 
 /--
-info: #[constants, quotInit, diagnostics, const2ModIdx, extensions, irBaseExts, header]
+info: #[constants, quotInit, diagnostics, const2ModIdx, extensions, irBaseExts, extGens, trackedGen, header]
 #[toS2, toS1, x, y, z, toS3, w, s]
 (some [S4.toS2, S2.toS1])
 #[S2, S3]
@@ -150,6 +153,36 @@ parent infos: #[(A1, (true, A5.toA1))]
 -/
 #guard_msgs in #eval dumpStructInfo `A5
 
+/-!
+Regression test: make sure unused `private` fields are not linted as unused.
+-/
+section
+set_option linter.unusedVariables true
+
+structure Unused1 where
+  private x : Nat
+  y : Nat
+class Unused2 where
+  private x : Nat
+  y : Nat
+
+structure State where
+  macroScope : MacroScope
+  private expandedMacroDecls : List Name := List.nil
+
+end
+
+/-!
+Regression test: make sure fields that look like constructor names are not linted.
+-/
+section
+set_option linter.constructorNameAsVariable true
+
+-- Used to say "Local variable 'zero' resembles constructor 'Nat.zero'"
+structure CtorLikeField where
+  zero : Nat
+
+end
 
 /-!
 Regression test: make sure mathlib `Type*` still elaborates with levels in correct order.

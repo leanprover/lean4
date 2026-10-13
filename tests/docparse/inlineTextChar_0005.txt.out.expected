@@ -1,4 +1,6 @@
+Input: "!abc"
 Success! Final stack:
  empty
 Remaining:
 "abc"
+Round-trip not tested: this parser classifies input rather than producing document syntax

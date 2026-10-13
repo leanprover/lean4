@@ -1,0 +1,1081 @@
+{
+  "widgetId": "slice-producing",
+  "rows": [
+    {
+      "columns": [
+        {
+          "cellValue": "String.slice",
+          "columnIdentifier": "String"
+        },
+        {
+          "cellValue": "String.Slice.slice",
+          "columnIdentifier": "String.Slice"
+        },
+        {
+          "cellValue": "String.Pos.slice",
+          "columnIdentifier": "string-pos-forwards"
+        },
+        {
+          "cellValue": "String.Pos.ofSlice",
+          "columnIdentifier": "string-pos-backwards"
+        },
+        {
+          "cellValue": "String.Slice.Pos.slice",
+          "columnIdentifier": "string-slice-pos-forwards"
+        },
+        {
+          "cellValue": "String.Slice.Pos.ofSlice",
+          "columnIdentifier": "string-slice-pos-backwards"
+        },
+        {
+          "cellValue": "String.Pos.sliceOrPanic",
+          "columnIdentifier": "string-pos-noproof"
+        },
+        {
+          "cellValue": "String.Slice.Pos.sliceOrPanic",
+          "columnIdentifier": "string-slice-pos-noproof"
+        }
+      ],
+      "title": "slice",
+      "uuid": "c8a13d6d-7ed6-4cd1-a386-23e2d55ce6f7"
+    },
+    {
+      "columns": [
+        {
+          "cellValue": "String.slice?",
+          "columnIdentifier": "String"
+        },
+        {
+          "cellValue": "String.Slice.slice?",
+          "columnIdentifier": "String.Slice"
+        }
+      ],
+      "title": "slice?",
+      "uuid": "21b4fdfd-f8b3-44f5-a59e-57f1dc1d6819"
+    },
+    {
+      "columns": [
+        {
+          "cellValue": "String.slice!",
+          "columnIdentifier": "String"
+        },
+        {
+          "cellValue": "String.Slice.slice!",
+          "columnIdentifier": "String.Slice"
+        },
+        {
+          "cellValue": "String.Pos.slice!",
+          "columnIdentifier": "string-pos-forwards"
+        },
+        {
+          "cellValue": "String.Pos.ofSlice!",
+          "columnIdentifier": "string-pos-backwards"
+        },
+        {
+          "cellValue": "String.Slice.Pos.slice!",
+          "columnIdentifier": "string-slice-pos-forwards"
+        },
+        {
+          "cellValue": "String.Slice.Pos.ofSlice!",
+          "columnIdentifier": "string-slice-pos-backwards"
+        }
+      ],
+      "title": "slice!",
+      "uuid": "6f2b6ecb-2f0c-4e45-9da3-eb7f2e15eff0"
+    },
+    {
+      "columns": [
+        {
+          "cellValue": "String.trimAsciiStart",
+          "columnIdentifier": "String"
+        },
+        {
+          "cellValue": "String.Slice.trimAsciiStart",
+          "columnIdentifier": "String.Slice"
+        }
+      ],
+      "title": "trimAsciiStart",
+      "uuid": "a3bdf66d-bc11-4019-aee9-2f1c1701de52"
+    },
+    {
+      "columns": [
+        {
+          "cellValue": "String.trimAsciiEnd",
+          "columnIdentifier": "String"
+        },
+        {
+          "cellValue": "String.Slice.trimAsciiEnd",
+          "columnIdentifier": "String.Slice"
+        }
+      ],
+      "title": "trimAsciiEnd",
+      "uuid": "f12b2730-7a4d-465c-8a6d-9d051c300fd5"
+    },
+    {
+      "columns": [
+        {
+          "cellValue": "String.trimAscii",
+          "columnIdentifier": "String"
+        },
+        {
+          "cellValue": "String.Slice.trimAscii",
+          "columnIdentifier": "String.Slice"
+        }
+      ],
+      "title": "trimAscii",
+      "uuid": "32307b55-d6d1-4756-a947-dbe4dfde573c"
+    },
+    {
+      "columns": [
+        {
+          "cellValue": "String.toSlice",
+          "columnIdentifier": "String"
+        },
+        {
+          "cellValue": "String.Pos.toSlice",
+          "columnIdentifier": "string-pos-forwards"
+        },
+        {
+          "cellValue": "String.Pos.ofToSlice",
+          "columnIdentifier": "string-pos-backwards"
+        }
+      ],
+      "title": "toSlice",
+      "uuid": "dce95a38-f55a-4d6a-ae79-078ffe4b5c15"
+    },
+    {
+      "columns": [
+        {
+          "cellValue": "String.Slice.str",
+          "columnIdentifier": "String.Slice"
+        },
+        {
+          "cellValue": "String.Slice.Pos.str",
+          "columnIdentifier": "string-slice-pos-forwards"
+        },
+        {
+          "cellValue": "String.Slice.Pos.ofStr",
+          "columnIdentifier": "string-slice-pos-backwards"
+        }
+      ],
+      "title": "str",
+      "uuid": "005a3f30-5dab-493f-b168-32c36a2bdf7c"
+    },
+    {
+      "columns": [
+        {
+          "cellValue": "String.drop",
+          "columnIdentifier": "String"
+        },
+        {
+          "cellValue": "String.Slice.drop",
+          "columnIdentifier": "String.Slice"
+        }
+      ],
+      "title": "drop",
+      "uuid": "5f1a154c-ae2f-43a1-9409-2ce95b163ef3"
+    },
+    {
+      "columns": [
+        {
+          "cellValue": "String.take",
+          "columnIdentifier": "String"
+        },
+        {
+          "cellValue": "String.Slice.take",
+          "columnIdentifier": "String.Slice"
+        }
+      ],
+      "title": "take",
+      "uuid": "179518d1-ad07-4b2b-8ffe-3b7616e4c4ab"
+    },
+    {
+      "columns": [
+        {
+          "cellValue": "String.dropWhile",
+          "columnIdentifier": "String"
+        },
+        {
+          "cellValue": "String.Slice.dropWhile",
+          "columnIdentifier": "String.Slice"
+        }
+      ],
+      "title": "dropWhile",
+      "uuid": "55c587fd-a7a8-4633-a4ae-e2c4e768ad28"
+    },
+    {
+      "columns": [
+        {
+          "cellValue": "String.takeWhile",
+          "columnIdentifier": "String"
+        },
+        {
+          "cellValue": "String.Slice.takeWhile",
+          "columnIdentifier": "String.Slice"
+        }
+      ],
+      "title": "takeWhile",
+      "uuid": "d4444684-4279-4400-9be2-561a7cdb32c1"
+    },
+    {
+      "columns": [
+        {
+          "cellValue": "String.dropEndWhile",
+          "columnIdentifier": "String"
+        },
+        {
+          "cellValue": "String.Slice.dropEndWhile",
+          "columnIdentifier": "String.Slice"
+        }
+      ],
+      "title": "dropEndWhile",
+      "uuid": "1c9e6689-65a0-4d4b-b001-256e83917d98"
+    },
+    {
+      "columns": [
+        {
+          "cellValue": "String.takeEndWhile",
+          "columnIdentifier": "String"
+        },
+        {
+          "cellValue": "String.Slice.takeEndWhile",
+          "columnIdentifier": "String.Slice"
+        }
+      ],
+      "title": "takeEndWhile",
+      "uuid": "b836052b-3470-4a8e-8989-6951c898de37"
+    },
+    {
+      "columns": [
+        {
+          "cellValue": "String.dropPrefix",
+          "columnIdentifier": "String"
+        },
+        {
+          "cellValue": "String.Slice.dropPrefix",
+          "columnIdentifier": "String.Slice"
+        }
+      ],
+      "title": "dropPrefix",
+      "uuid": "5aa777d8-9642-43d8-9e20-30400fb8bb9d"
+    },
+    {
+      "columns": [
+        {
+          "cellValue": "String.dropSuffix",
+          "columnIdentifier": "String"
+        },
+        {
+          "cellValue": "String.Slice.dropSuffix",
+          "columnIdentifier": "String.Slice"
+        }
+      ],
+      "title": "dropSuffix",
+      "uuid": "80e3869d-fcfe-459d-8433-fe221f7b3c7a"
+    },
+    {
+      "columns": [
+        {
+          "cellValue": "String.dropPrefix?",
+          "columnIdentifier": "String"
+        },
+        {
+          "cellValue": "String.Slice.dropPrefix?",
+          "columnIdentifier": "String.Slice"
+        }
+      ],
+      "title": "dropPrefix?",
+      "uuid": "4feda3e0-903b-4d52-b34e-0af70f7866e0"
+    },
+    {
+      "columns": [
+        {
+          "cellValue": "String.dropSuffix?",
+          "columnIdentifier": "String"
+        },
+        {
+          "cellValue": "String.Slice.dropSuffix?",
+          "columnIdentifier": "String.Slice"
+        }
+      ],
+      "title": "dropSuffix?",
+      "uuid": "45ca44c8-fbd5-4400-8297-a60778f302b0"
+    }
+  ],
+  "facts": [
+    {
+      "widgetId": "slice-producing",
+      "factId": "c8a13d6d-7ed6-4cd1-a386-23e2d55ce6f7",
+      "rowId": "c8a13d6d-7ed6-4cd1-a386-23e2d55ce6f7",
+      "rowState": [
+        {
+          "columnIdentifier": "String",
+          "cellValue": "String.slice",
+          "cellState": {
+            "constructor": "def",
+            "def": {
+              "isDeprecated": false,
+              "name": "String.slice",
+              "renderedStatement": "String.slice (s : String) (startInclusive endExclusive : s.Pos)\n  (h : startInclusive ≤ endExclusive) : String.Slice"
+            }
+          }
+        },
+        {
+          "columnIdentifier": "String.Slice",
+          "cellValue": "String.Slice.slice",
+          "cellState": {
+            "constructor": "def",
+            "def": {
+              "isDeprecated": false,
+              "name": "String.Slice.slice",
+              "renderedStatement": "String.Slice.slice (s : String.Slice) (newStart newEnd : s.Pos) (h : newStart ≤ newEnd) :\n  String.Slice"
+            }
+          }
+        },
+        {
+          "columnIdentifier": "string-pos-forwards",
+          "cellValue": "String.Pos.slice",
+          "cellState": {
+            "constructor": "def",
+            "def": {
+              "isDeprecated": false,
+              "name": "String.Pos.slice",
+              "renderedStatement": "String.Pos.slice {s : String} (pos p₀ p₁ : s.Pos) (h₁ : p₀ ≤ pos) (h₂ : pos ≤ p₁) :\n  (s.slice p₀ p₁ ⋯).Pos"
+            }
+          }
+        },
+        {
+          "columnIdentifier": "string-pos-backwards",
+          "cellValue": "String.Pos.ofSlice",
+          "cellState": {
+            "constructor": "def",
+            "def": {
+              "isDeprecated": false,
+              "name": "String.Pos.ofSlice",
+              "renderedStatement": "String.Pos.ofSlice {s : String} {p₀ p₁ : s.Pos} {h : p₀ ≤ p₁} (pos : (s.slice p₀ p₁ h).Pos) : s.Pos"
+            }
+          }
+        },
+        {
+          "columnIdentifier": "string-slice-pos-forwards",
+          "cellValue": "String.Slice.Pos.slice",
+          "cellState": {
+            "constructor": "def",
+            "def": {
+              "isDeprecated": false,
+              "name": "String.Slice.Pos.slice",
+              "renderedStatement": "String.Slice.Pos.slice {s : String.Slice} (pos p₀ p₁ : s.Pos) (h₁ : p₀ ≤ pos) (h₂ : pos ≤ p₁) :\n  (s.slice p₀ p₁ ⋯).Pos"
+            }
+          }
+        },
+        {
+          "columnIdentifier": "string-slice-pos-backwards",
+          "cellValue": "String.Slice.Pos.ofSlice",
+          "cellState": {
+            "constructor": "def",
+            "def": {
+              "isDeprecated": false,
+              "name": "String.Slice.Pos.ofSlice",
+              "renderedStatement": "String.Slice.Pos.ofSlice {s : String.Slice} {p₀ p₁ : s.Pos} {h : p₀ ≤ p₁}\n  (pos : (s.slice p₀ p₁ h).Pos) : s.Pos"
+            }
+          }
+        },
+        {
+          "columnIdentifier": "string-pos-noproof",
+          "cellValue": "String.Pos.sliceOrPanic",
+          "cellState": {
+            "constructor": "def",
+            "def": {
+              "isDeprecated": false,
+              "name": "String.Pos.sliceOrPanic",
+              "renderedStatement": "String.Pos.sliceOrPanic {s : String} (pos p₀ p₁ : s.Pos) {h : p₀ ≤ p₁} : (s.slice p₀ p₁ h).Pos"
+            }
+          }
+        },
+        {
+          "columnIdentifier": "string-slice-pos-noproof",
+          "cellValue": "String.Slice.Pos.sliceOrPanic",
+          "cellState": {
+            "constructor": "def",
+            "def": {
+              "isDeprecated": false,
+              "name": "String.Slice.Pos.sliceOrPanic",
+              "renderedStatement": "String.Slice.Pos.sliceOrPanic {s : String.Slice} (pos p₀ p₁ : s.Pos) {h : p₀ ≤ p₁} :\n  (s.slice p₀ p₁ h).Pos"
+            }
+          }
+        }
+      ],
+      "metadata": {
+        "comment": "",
+        "status": "done"
+      }
+    },
+    {
+      "widgetId": "slice-producing",
+      "factId": "21b4fdfd-f8b3-44f5-a59e-57f1dc1d6819",
+      "rowId": "21b4fdfd-f8b3-44f5-a59e-57f1dc1d6819",
+      "rowState": [
+        {
+          "columnIdentifier": "String",
+          "cellValue": "String.slice?",
+          "cellState": {
+            "constructor": "def",
+            "def": {
+              "isDeprecated": false,
+              "name": "String.slice?",
+              "renderedStatement": "String.slice? (s : String) (startInclusive endExclusive : s.Pos) : Option String.Slice"
+            }
+          }
+        },
+        {
+          "columnIdentifier": "String.Slice",
+          "cellValue": "String.Slice.slice?",
+          "cellState": {
+            "constructor": "def",
+            "def": {
+              "isDeprecated": false,
+              "name": "String.Slice.slice?",
+              "renderedStatement": "String.Slice.slice? (s : String.Slice) (newStart newEnd : s.Pos) : Option String.Slice"
+            }
+          }
+        }
+      ],
+      "metadata": {
+        "comment": "Would be good to have better support",
+        "status": "postponed"
+      }
+    },
+    {
+      "widgetId": "slice-producing",
+      "factId": "6f2b6ecb-2f0c-4e45-9da3-eb7f2e15eff0",
+      "rowId": "6f2b6ecb-2f0c-4e45-9da3-eb7f2e15eff0",
+      "rowState": [
+        {
+          "columnIdentifier": "String",
+          "cellValue": "String.slice!",
+          "cellState": {
+            "constructor": "def",
+            "def": {
+              "isDeprecated": false,
+              "name": "String.slice!",
+              "renderedStatement": "String.slice! (s : String) (p₁ p₂ : s.Pos) : String.Slice"
+            }
+          }
+        },
+        {
+          "columnIdentifier": "String.Slice",
+          "cellValue": "String.Slice.slice!",
+          "cellState": {
+            "constructor": "def",
+            "def": {
+              "isDeprecated": false,
+              "name": "String.Slice.slice!",
+              "renderedStatement": "String.Slice.slice! (s : String.Slice) (newStart newEnd : s.Pos) : String.Slice"
+            }
+          }
+        },
+        {
+          "columnIdentifier": "string-pos-forwards",
+          "cellValue": "String.Pos.slice!",
+          "cellState": {
+            "constructor": "def",
+            "def": {
+              "isDeprecated": false,
+              "name": "String.Pos.slice!",
+              "renderedStatement": "String.Pos.slice! {s : String} (pos p₀ p₁ : s.Pos) : (s.slice! p₀ p₁).Pos"
+            }
+          }
+        },
+        {
+          "columnIdentifier": "string-pos-backwards",
+          "cellValue": "String.Pos.ofSlice!",
+          "cellState": {
+            "constructor": "def",
+            "def": {
+              "isDeprecated": false,
+              "name": "String.Pos.ofSlice!",
+              "renderedStatement": "String.Pos.ofSlice! {s : String} {p₀ p₁ : s.Pos} (pos : (s.slice! p₀ p₁).Pos) : s.Pos"
+            }
+          }
+        },
+        {
+          "columnIdentifier": "string-slice-pos-forwards",
+          "cellValue": "String.Slice.Pos.slice!",
+          "cellState": {
+            "constructor": "def",
+            "def": {
+              "isDeprecated": false,
+              "name": "String.Slice.Pos.slice!",
+              "renderedStatement": "String.Slice.Pos.slice! {s : String.Slice} (pos p₀ p₁ : s.Pos) : (s.slice! p₀ p₁).Pos"
+            }
+          }
+        },
+        {
+          "columnIdentifier": "string-slice-pos-backwards",
+          "cellValue": "String.Slice.Pos.ofSlice!",
+          "cellState": {
+            "constructor": "def",
+            "def": {
+              "isDeprecated": false,
+              "name": "String.Slice.Pos.ofSlice!",
+              "renderedStatement": "String.Slice.Pos.ofSlice! {s : String.Slice} {p₀ p₁ : s.Pos} (pos : (s.slice! p₀ p₁).Pos) : s.Pos"
+            }
+          }
+        }
+      ],
+      "metadata": {
+        "comment": "",
+        "status": "done"
+      }
+    },
+    {
+      "widgetId": "slice-producing",
+      "factId": "a3bdf66d-bc11-4019-aee9-2f1c1701de52",
+      "rowId": "a3bdf66d-bc11-4019-aee9-2f1c1701de52",
+      "rowState": [
+        {
+          "columnIdentifier": "String",
+          "cellValue": "String.trimAsciiStart",
+          "cellState": {
+            "constructor": "def",
+            "def": {
+              "isDeprecated": false,
+              "name": "String.trimAsciiStart",
+              "renderedStatement": "String.trimAsciiStart (s : String) : String.Slice"
+            }
+          }
+        },
+        {
+          "columnIdentifier": "String.Slice",
+          "cellValue": "String.Slice.trimAsciiStart",
+          "cellState": {
+            "constructor": "def",
+            "def": {
+              "isDeprecated": false,
+              "name": "String.Slice.trimAsciiStart",
+              "renderedStatement": "String.Slice.trimAsciiStart (s : String.Slice) : String.Slice"
+            }
+          }
+        }
+      ],
+      "metadata": {
+        "comment": "Missing `of` version at least",
+        "status": "bad"
+      }
+    },
+    {
+      "widgetId": "slice-producing",
+      "factId": "f12b2730-7a4d-465c-8a6d-9d051c300fd5",
+      "rowId": "f12b2730-7a4d-465c-8a6d-9d051c300fd5",
+      "rowState": [
+        {
+          "columnIdentifier": "String",
+          "cellValue": "String.trimAsciiEnd",
+          "cellState": {
+            "constructor": "def",
+            "def": {
+              "isDeprecated": false,
+              "name": "String.trimAsciiEnd",
+              "renderedStatement": "String.trimAsciiEnd (s : String) : String.Slice"
+            }
+          }
+        },
+        {
+          "columnIdentifier": "String.Slice",
+          "cellValue": "String.Slice.trimAsciiEnd",
+          "cellState": {
+            "constructor": "def",
+            "def": {
+              "isDeprecated": false,
+              "name": "String.Slice.trimAsciiEnd",
+              "renderedStatement": "String.Slice.trimAsciiEnd (s : String.Slice) : String.Slice"
+            }
+          }
+        }
+      ],
+      "metadata": {
+        "comment": "Missing `of` version at least",
+        "status": "bad"
+      }
+    },
+    {
+      "widgetId": "slice-producing",
+      "factId": "32307b55-d6d1-4756-a947-dbe4dfde573c",
+      "rowId": "32307b55-d6d1-4756-a947-dbe4dfde573c",
+      "rowState": [
+        {
+          "columnIdentifier": "String",
+          "cellValue": "String.trimAscii",
+          "cellState": {
+            "constructor": "def",
+            "def": {
+              "isDeprecated": false,
+              "name": "String.trimAscii",
+              "renderedStatement": "String.trimAscii (s : String) : String.Slice"
+            }
+          }
+        },
+        {
+          "columnIdentifier": "String.Slice",
+          "cellValue": "String.Slice.trimAscii",
+          "cellState": {
+            "constructor": "def",
+            "def": {
+              "isDeprecated": false,
+              "name": "String.Slice.trimAscii",
+              "renderedStatement": "String.Slice.trimAscii (s : String.Slice) : String.Slice"
+            }
+          }
+        }
+      ],
+      "metadata": {
+        "comment": "Missing `of` version at least\n",
+        "status": "bad"
+      }
+    },
+    {
+      "widgetId": "slice-producing",
+      "factId": "dce95a38-f55a-4d6a-ae79-078ffe4b5c15",
+      "rowId": "dce95a38-f55a-4d6a-ae79-078ffe4b5c15",
+      "rowState": [
+        {
+          "columnIdentifier": "String",
+          "cellValue": "String.toSlice",
+          "cellState": {
+            "constructor": "def",
+            "def": {
+              "isDeprecated": false,
+              "name": "String.toSlice",
+              "renderedStatement": "String.toSlice (s : String) : String.Slice"
+            }
+          }
+        },
+        {
+          "columnIdentifier": "string-pos-forwards",
+          "cellValue": "String.Pos.toSlice",
+          "cellState": {
+            "constructor": "def",
+            "def": {
+              "isDeprecated": false,
+              "name": "String.Pos.toSlice",
+              "renderedStatement": "String.Pos.toSlice {s : String} (pos : s.Pos) : s.toSlice.Pos"
+            }
+          }
+        },
+        {
+          "columnIdentifier": "string-pos-backwards",
+          "cellValue": "String.Pos.ofToSlice",
+          "cellState": {
+            "constructor": "def",
+            "def": {
+              "isDeprecated": false,
+              "name": "String.Pos.ofToSlice",
+              "renderedStatement": "String.Pos.ofToSlice {s : String} (pos : s.toSlice.Pos) : s.Pos"
+            }
+          }
+        }
+      ],
+      "metadata": {
+        "comment": "",
+        "status": "done"
+      }
+    },
+    {
+      "widgetId": "slice-producing",
+      "factId": "005a3f30-5dab-493f-b168-32c36a2bdf7c",
+      "rowId": "005a3f30-5dab-493f-b168-32c36a2bdf7c",
+      "rowState": [
+        {
+          "columnIdentifier": "String.Slice",
+          "cellValue": "String.Slice.str",
+          "cellState": {
+            "constructor": "def",
+            "def": {
+              "isDeprecated": false,
+              "name": "String.Slice.str",
+              "renderedStatement": "String.Slice.str (self : String.Slice) : String"
+            }
+          }
+        },
+        {
+          "columnIdentifier": "string-slice-pos-forwards",
+          "cellValue": "String.Slice.Pos.str",
+          "cellState": {
+            "constructor": "def",
+            "def": {
+              "isDeprecated": false,
+              "name": "String.Slice.Pos.str",
+              "renderedStatement": "String.Slice.Pos.str {s : String.Slice} (pos : s.Pos) : s.str.Pos"
+            }
+          }
+        },
+        {
+          "columnIdentifier": "string-slice-pos-backwards",
+          "cellValue": "String.Slice.Pos.ofStr",
+          "cellState": {
+            "constructor": "def",
+            "def": {
+              "isDeprecated": false,
+              "name": "String.Slice.Pos.ofStr",
+              "renderedStatement": "String.Slice.Pos.ofStr {s : String.Slice} (pos : s.str.Pos) (h₁ : s.startInclusive ≤ pos)\n  (h₂ : pos ≤ s.endExclusive) : s.Pos"
+            }
+          }
+        }
+      ],
+      "metadata": {
+        "comment": "Missing `no proof` version\n",
+        "status": "bad"
+      }
+    },
+    {
+      "widgetId": "slice-producing",
+      "factId": "5f1a154c-ae2f-43a1-9409-2ce95b163ef3",
+      "rowId": "5f1a154c-ae2f-43a1-9409-2ce95b163ef3",
+      "rowState": [
+        {
+          "columnIdentifier": "String",
+          "cellValue": "String.drop",
+          "cellState": {
+            "constructor": "def",
+            "def": {
+              "isDeprecated": false,
+              "name": "String.drop",
+              "renderedStatement": "String.drop (s : String) (n : Nat) : String.Slice"
+            }
+          }
+        },
+        {
+          "columnIdentifier": "String.Slice",
+          "cellValue": "String.Slice.drop",
+          "cellState": {
+            "constructor": "def",
+            "def": {
+              "isDeprecated": false,
+              "name": "String.Slice.drop",
+              "renderedStatement": "String.Slice.drop (s : String.Slice) (n : Nat) : String.Slice"
+            }
+          }
+        }
+      ],
+      "metadata": {
+        "comment": "Missing position transformations",
+        "status": "bad"
+      }
+    },
+    {
+      "widgetId": "slice-producing",
+      "factId": "179518d1-ad07-4b2b-8ffe-3b7616e4c4ab",
+      "rowId": "179518d1-ad07-4b2b-8ffe-3b7616e4c4ab",
+      "rowState": [
+        {
+          "columnIdentifier": "String",
+          "cellValue": "String.take",
+          "cellState": {
+            "constructor": "def",
+            "def": {
+              "isDeprecated": false,
+              "name": "String.take",
+              "renderedStatement": "String.take (s : String) (n : Nat) : String.Slice"
+            }
+          }
+        },
+        {
+          "columnIdentifier": "String.Slice",
+          "cellValue": "String.Slice.take",
+          "cellState": {
+            "constructor": "def",
+            "def": {
+              "isDeprecated": false,
+              "name": "String.Slice.take",
+              "renderedStatement": "String.Slice.take (s : String.Slice) (n : Nat) : String.Slice"
+            }
+          }
+        }
+      ],
+      "metadata": {
+        "comment": "Missing position transformations",
+        "status": "bad"
+      }
+    },
+    {
+      "widgetId": "slice-producing",
+      "factId": "55c587fd-a7a8-4633-a4ae-e2c4e768ad28",
+      "rowId": "55c587fd-a7a8-4633-a4ae-e2c4e768ad28",
+      "rowState": [
+        {
+          "columnIdentifier": "String",
+          "cellValue": "String.dropWhile",
+          "cellState": {
+            "constructor": "def",
+            "def": {
+              "isDeprecated": false,
+              "name": "String.dropWhile",
+              "renderedStatement": "String.dropWhile {ρ : Type} (s : String) (pat : ρ) [String.Slice.Pattern.ForwardPattern pat] :\n  String.Slice"
+            }
+          }
+        },
+        {
+          "columnIdentifier": "String.Slice",
+          "cellValue": "String.Slice.dropWhile",
+          "cellState": {
+            "constructor": "def",
+            "def": {
+              "isDeprecated": false,
+              "name": "String.Slice.dropWhile",
+              "renderedStatement": "String.Slice.dropWhile {ρ : Type} (s : String.Slice) (pat : ρ)\n  [String.Slice.Pattern.ForwardPattern pat] : String.Slice"
+            }
+          }
+        }
+      ],
+      "metadata": {
+        "comment": "Missing position transformations",
+        "status": "bad"
+      }
+    },
+    {
+      "widgetId": "slice-producing",
+      "factId": "d4444684-4279-4400-9be2-561a7cdb32c1",
+      "rowId": "d4444684-4279-4400-9be2-561a7cdb32c1",
+      "rowState": [
+        {
+          "columnIdentifier": "String",
+          "cellValue": "String.takeWhile",
+          "cellState": {
+            "constructor": "def",
+            "def": {
+              "isDeprecated": false,
+              "name": "String.takeWhile",
+              "renderedStatement": "String.takeWhile {ρ : Type} (s : String) (pat : ρ) [String.Slice.Pattern.ForwardPattern pat] :\n  String.Slice"
+            }
+          }
+        },
+        {
+          "columnIdentifier": "String.Slice",
+          "cellValue": "String.Slice.takeWhile",
+          "cellState": {
+            "constructor": "def",
+            "def": {
+              "isDeprecated": false,
+              "name": "String.Slice.takeWhile",
+              "renderedStatement": "String.Slice.takeWhile {ρ : Type} (s : String.Slice) (pat : ρ)\n  [String.Slice.Pattern.ForwardPattern pat] : String.Slice"
+            }
+          }
+        }
+      ],
+      "metadata": {
+        "comment": "Missing position transformations",
+        "status": "bad"
+      }
+    },
+    {
+      "widgetId": "slice-producing",
+      "factId": "1c9e6689-65a0-4d4b-b001-256e83917d98",
+      "rowId": "1c9e6689-65a0-4d4b-b001-256e83917d98",
+      "rowState": [
+        {
+          "columnIdentifier": "String",
+          "cellValue": "String.dropEndWhile",
+          "cellState": {
+            "constructor": "def",
+            "def": {
+              "isDeprecated": false,
+              "name": "String.dropEndWhile",
+              "renderedStatement": "String.dropEndWhile {ρ : Type} (s : String) (pat : ρ) [String.Slice.Pattern.BackwardPattern pat] :\n  String.Slice"
+            }
+          }
+        },
+        {
+          "columnIdentifier": "String.Slice",
+          "cellValue": "String.Slice.dropEndWhile",
+          "cellState": {
+            "constructor": "def",
+            "def": {
+              "isDeprecated": false,
+              "name": "String.Slice.dropEndWhile",
+              "renderedStatement": "String.Slice.dropEndWhile {ρ : Type} (s : String.Slice) (pat : ρ)\n  [String.Slice.Pattern.BackwardPattern pat] : String.Slice"
+            }
+          }
+        }
+      ],
+      "metadata": {
+        "comment": "Missing position transformations",
+        "status": "bad"
+      }
+    },
+    {
+      "widgetId": "slice-producing",
+      "factId": "b836052b-3470-4a8e-8989-6951c898de37",
+      "rowId": "b836052b-3470-4a8e-8989-6951c898de37",
+      "rowState": [
+        {
+          "columnIdentifier": "String",
+          "cellValue": "String.takeEndWhile",
+          "cellState": {
+            "constructor": "def",
+            "def": {
+              "isDeprecated": false,
+              "name": "String.takeEndWhile",
+              "renderedStatement": "String.takeEndWhile {ρ : Type} (s : String) (pat : ρ) [String.Slice.Pattern.BackwardPattern pat] :\n  String.Slice"
+            }
+          }
+        },
+        {
+          "columnIdentifier": "String.Slice",
+          "cellValue": "String.Slice.takeEndWhile",
+          "cellState": {
+            "constructor": "def",
+            "def": {
+              "isDeprecated": false,
+              "name": "String.Slice.takeEndWhile",
+              "renderedStatement": "String.Slice.takeEndWhile {ρ : Type} (s : String.Slice) (pat : ρ)\n  [String.Slice.Pattern.BackwardPattern pat] : String.Slice"
+            }
+          }
+        }
+      ],
+      "metadata": {
+        "comment": "Missing position transformations",
+        "status": "bad"
+      }
+    },
+    {
+      "widgetId": "slice-producing",
+      "factId": "5aa777d8-9642-43d8-9e20-30400fb8bb9d",
+      "rowId": "5aa777d8-9642-43d8-9e20-30400fb8bb9d",
+      "rowState": [
+        {
+          "columnIdentifier": "String",
+          "cellValue": "String.dropPrefix",
+          "cellState": {
+            "constructor": "def",
+            "def": {
+              "isDeprecated": false,
+              "name": "String.dropPrefix",
+              "renderedStatement": "String.dropPrefix {ρ : Type} (s : String) (pat : ρ) [String.Slice.Pattern.ForwardPattern pat] :\n  String.Slice"
+            }
+          }
+        },
+        {
+          "columnIdentifier": "String.Slice",
+          "cellValue": "String.Slice.dropPrefix",
+          "cellState": {
+            "constructor": "def",
+            "def": {
+              "isDeprecated": false,
+              "name": "String.Slice.dropPrefix",
+              "renderedStatement": "String.Slice.dropPrefix {ρ : Type} (s : String.Slice) (pat : ρ)\n  [String.Slice.Pattern.ForwardPattern pat] : String.Slice"
+            }
+          }
+        }
+      ],
+      "metadata": {
+        "comment": "Missing position transformations",
+        "status": "bad"
+      }
+    },
+    {
+      "widgetId": "slice-producing",
+      "factId": "80e3869d-fcfe-459d-8433-fe221f7b3c7a",
+      "rowId": "80e3869d-fcfe-459d-8433-fe221f7b3c7a",
+      "rowState": [
+        {
+          "columnIdentifier": "String",
+          "cellValue": "String.dropSuffix",
+          "cellState": {
+            "constructor": "def",
+            "def": {
+              "isDeprecated": false,
+              "name": "String.dropSuffix",
+              "renderedStatement": "String.dropSuffix {ρ : Type} (s : String) (pat : ρ) [String.Slice.Pattern.BackwardPattern pat] :\n  String.Slice"
+            }
+          }
+        },
+        {
+          "columnIdentifier": "String.Slice",
+          "cellValue": "String.Slice.dropSuffix",
+          "cellState": {
+            "constructor": "def",
+            "def": {
+              "isDeprecated": false,
+              "name": "String.Slice.dropSuffix",
+              "renderedStatement": "String.Slice.dropSuffix {ρ : Type} (s : String.Slice) (pat : ρ)\n  [String.Slice.Pattern.BackwardPattern pat] : String.Slice"
+            }
+          }
+        }
+      ],
+      "metadata": {
+        "comment": "Missing position transformations",
+        "status": "bad"
+      }
+    },
+    {
+      "widgetId": "slice-producing",
+      "factId": "4feda3e0-903b-4d52-b34e-0af70f7866e0",
+      "rowId": "4feda3e0-903b-4d52-b34e-0af70f7866e0",
+      "rowState": [
+        {
+          "columnIdentifier": "String",
+          "cellValue": "String.dropPrefix?",
+          "cellState": {
+            "constructor": "def",
+            "def": {
+              "isDeprecated": false,
+              "name": "String.dropPrefix?",
+              "renderedStatement": "String.dropPrefix? {ρ : Type} (s : String) (pat : ρ) [String.Slice.Pattern.ForwardPattern pat] :\n  Option String.Slice"
+            }
+          }
+        },
+        {
+          "columnIdentifier": "String.Slice",
+          "cellValue": "String.Slice.dropPrefix?",
+          "cellState": {
+            "constructor": "def",
+            "def": {
+              "isDeprecated": false,
+              "name": "String.Slice.dropPrefix?",
+              "renderedStatement": "String.Slice.dropPrefix? {ρ : Type} (s : String.Slice) (pat : ρ)\n  [String.Slice.Pattern.ForwardPattern pat] : Option String.Slice"
+            }
+          }
+        }
+      ],
+      "metadata": {
+        "comment": "Missing position transformations",
+        "status": "postponed"
+      }
+    },
+    {
+      "widgetId": "slice-producing",
+      "factId": "45ca44c8-fbd5-4400-8297-a60778f302b0",
+      "rowId": "45ca44c8-fbd5-4400-8297-a60778f302b0",
+      "rowState": [
+        {
+          "columnIdentifier": "String",
+          "cellValue": "String.dropSuffix?",
+          "cellState": {
+            "constructor": "def",
+            "def": {
+              "isDeprecated": false,
+              "name": "String.dropSuffix?",
+              "renderedStatement": "String.dropSuffix? {ρ : Type} (s : String) (pat : ρ) [String.Slice.Pattern.BackwardPattern pat] :\n  Option String.Slice"
+            }
+          }
+        },
+        {
+          "columnIdentifier": "String.Slice",
+          "cellValue": "String.Slice.dropSuffix?",
+          "cellState": {
+            "constructor": "def",
+            "def": {
+              "isDeprecated": false,
+              "name": "String.Slice.dropSuffix?",
+              "renderedStatement": "String.Slice.dropSuffix? {ρ : Type} (s : String.Slice) (pat : ρ)\n  [String.Slice.Pattern.BackwardPattern pat] : Option String.Slice"
+            }
+          }
+        }
+      ],
+      "metadata": {
+        "comment": "Missing position transformations",
+        "status": "postponed"
+      }
+    }
+  ]
+}

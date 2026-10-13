@@ -1,0 +1,7 @@
+* note[^f]
+
+  [^f]: the footnote
+
+* See [docs][ref]
+
+  [ref]: https://example.com

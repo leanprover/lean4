@@ -1,0 +1,1 @@
+def Foo.hello := "foo"

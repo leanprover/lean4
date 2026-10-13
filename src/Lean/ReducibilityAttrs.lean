@@ -51,6 +51,7 @@ def ReducibilityStatus.toAttrString : ReducibilityStatus → String
 builtin_initialize reducibilityCoreExt : PersistentEnvExtension (Name × ReducibilityStatus) (Name × ReducibilityStatus) (NameMap ReducibilityStatus) ←
   registerPersistentEnvExtension {
     name            := `reducibilityCore
+    logWrites       := true
     mkInitial       := pure {}
     addImportedFn   := fun _ _ => pure {}
     addEntryFn      := fun (s : NameMap ReducibilityStatus) (p : Name × ReducibilityStatus) => s.insert p.1 p.2
@@ -71,6 +72,8 @@ builtin_initialize reducibilityCoreExt : PersistentEnvExtension (Name × Reducib
 builtin_initialize reducibilityExtraExt : SimpleScopedEnvExtension (Name × ReducibilityStatus) (SMap Name ReducibilityStatus) ←
   registerSimpleScopedEnvExtension {
     name := `reducibilityExtra
+    logWrites := true
+    entryDecl? := some (·.1)
     initial := {}
     addEntry := fun d (declName, status) => d.insert declName status
     finalizeImport := fun d => d.switch
@@ -95,7 +98,7 @@ private def setReducibilityStatusCore (env : Environment) (declName : Name) (sta
       reducibilityExtraExt.addEntry env (declName, status)
     | none =>
       let _ : Inhabited Environment := ⟨env⟩
-      reducibilityCoreExt.addEntry (asyncDecl := declName) env (declName, status)
+      reducibilityCoreExt.addEntry (asyncDecl := declName) (log := .decl declName) env (declName, status)
   else
     -- `scoped` and `local` must be handled by `reducibilityExtraExt`
     reducibilityExtraExt.addCore env (declName, status) attrKind currNamespace
@@ -117,6 +120,9 @@ attribute [reducible] foo
 
 Reason: the second one is problematic if user has add simp theorems or TC instances that include `foo`.
 Recall that the discrimination trees unfold `[reducible]` declarations while indexing new entries.
+
+The TC synth cache has learned to track such changes but it has not yet been integrated into other
+subsystems such as the ones mentioned above.
 -/
 
 register_builtin_option allowUnsafeReducibility : Bool := {

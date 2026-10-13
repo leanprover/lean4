@@ -1493,14 +1493,7 @@ if (v___x_442_ == 1)
 {
 uint8_t v___x_443_; 
 v___x_443_ = l_Lean_Lsp_instOrdPosition_ord(v_end_439_, v_end_441_);
-if (v___x_443_ == 1)
-{
 return v___x_443_;
-}
-else
-{
-return v___x_443_;
-}
 }
 else
 {

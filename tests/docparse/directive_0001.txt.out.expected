@@ -1,12 +1,16 @@
+Input: ":::: multiPara\nfoo\n::::"
 Success! Final stack:
-  (Lean.Doc.Syntax.directive
-   "::::"
+  (Lean.Doc.Parser.Block.directive
+   (Lean.Doc.Parser.directiveDelimiter "::::")
    `multiPara
    []
-   "\n"
-   [(Lean.Doc.Syntax.para
-     "para{"
-     [(Lean.Doc.Syntax.text (str "\"foo\""))]
-     "}")]
-   "::::")
+   [(Lean.Doc.Parser.Block.para
+     [(Lean.Doc.Parser.Inline.text
+       (Lean.Doc.Parser.versoText "foo"))])]
+   (Lean.Doc.Parser.directiveDelimiter "::::"))
 All input consumed.
+Round-trip OK
+Decoded views:
+  directive (opener := "::::") (name := multiPara) (args := []) (closer := "::::")
+    para
+      text (content := "foo")

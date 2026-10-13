@@ -164,6 +164,10 @@ public theorem fromUTF8Lossy_eq_of_isValidUTF8 {b : ByteArray} (h : b.IsValidUTF
   rcases h with ⟨l, rfl⟩
   simp [← String.toByteArray_inj]
 
+@[simp]
+public theorem fromUTF8Lossy_toByteArray {s : String} : fromUTF8Lossy s.toByteArray = s := by
+  rw [← String.utf8Encode_toList, fromUTF8Lossy_utf8Encode, String.ofList_toList]
+
 /--
 If decoding `l ++ b` fails at the first byte, all other bytes of `l` are continuation bytes and `b`
 does not start with a continuation byte, then `fromUTF8Lossy` replaces `l` with a single `�` and

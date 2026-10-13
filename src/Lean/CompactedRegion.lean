@@ -103,9 +103,14 @@ pointer fixup. The result is the root object reinterpreted at type `α` paired w
 `CompactedRegion`. Unsafe because `α` is type-erased at the extern boundary: it is the caller's
 responsibility to ensure `α` matches the type the data was saved at; mismatched types yield
 undefined behavior on use.
+
+If `prefault` is `true`, the OS is hinted (`madvise(MADV_WILLNEED)`) to read the whole mapping into
+the page cache asynchronously. This is worthwhile only when the caller will go on to read most of
+the region (e.g. an import that merges in all of a module's constants); for readers that touch a
+region only partially it would over-fetch.
 -/
 @[extern "lean_compacted_region_read"]
 public unsafe opaque CompactedRegion.read {α : Type} (fname : @& System.FilePath)
-    (depRegions : @& Array CompactedRegion) : IO (α × CompactedRegion)
+    (depRegions : @& Array CompactedRegion) (prefault : Bool := false) : IO (α × CompactedRegion)
 
 end Lean

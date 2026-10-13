@@ -35,7 +35,15 @@ static void udp_socket_finalizer(void* ptr) {
         lean_always_assert(ref->get() == nullptr);
     }
 
+    // Freed after the unlock when the teardown at exit already closed the handle.
+    std::unique_ptr<lean_uv_udp_socket_object> closed_at_exit;
+
     event_loop_guard guard;
+
+    if (uv_is_closing((uv_handle_t*)&udp_socket->m_uv_udp)) {
+        closed_at_exit.reset(udp_socket);
+        return;
+    }
 
     // The Lean object is being freed, so the close callback gets the struct instead. No callback
     // reads `data` as the Lean object after `uv_close`.
@@ -164,6 +172,9 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_send(b_obj_arg socket, obj_arg d
 
     auto on_send = [](uv_udp_send_t * uv, int status) {
         std::unique_ptr<udp_send_req_t> req(static_cast<udp_send_req_t*>(uv->data));
+        if (uv_dropped_at_exit(req->promise, req->socket, req->data)) {
+            return;
+        }
         resolve_with_code(status, req->promise.get());
     };
 
@@ -193,7 +204,8 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_recv(b_obj_arg socket, uint64_t 
     };
 
     auto recv_cb = [](uv_udp_t *handle, ssize_t nread, const uv_buf_t *buf, const struct sockaddr *addr, unsigned flags) {
-        if (nread == 0 && addr == nullptr) return;
+        // libuv before 1.45 can still report a receive on Windows once the handle is no longer receiving.
+        if ((nread == 0 && addr == nullptr) || !global_ev.running() || uv_is_closing((uv_handle_t*)handle)) return;
 
         uv_udp_recv_stop(handle);
 
@@ -275,8 +287,9 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_wait_readable(b_obj_arg socket) 
 
     auto recv_cb = [](uv_udp_t* handle, ssize_t nread, const uv_buf_t *buf, const struct sockaddr *addr, unsigned flags) {
         // `nread == 0` without an address is libuv's equivalent of `EAGAIN`: the socket is not
-        // actually readable, so keep waiting rather than resolving the promise.
-        if (nread == 0 && addr == nullptr) return;
+        // actually readable, so keep waiting rather than resolving the promise. libuv before 1.45 can still
+        // report a receive on Windows once the handle is no longer receiving.
+        if ((nread == 0 && addr == nullptr) || !global_ev.running() || uv_is_closing((uv_handle_t*)handle)) return;
 
         uv_udp_recv_stop(handle);
 

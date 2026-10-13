@@ -529,31 +529,15 @@ theorem IsPrefix.le [LT α] [Std.Irrefl (· < · : α → α → Prop)]
 theorem append_lt_append_iff_of_length_eq [LT α] {l₁ l₂ l₃ l₄ : List α}
     (h : l₁.length = l₂.length) :
     l₁ ++ l₃ < l₂ ++ l₄ ↔ l₁ < l₂ ∨ (l₁ = l₂ ∧ l₃ < l₄) := by
-  induction l₁ generalizing l₂ with
-  | nil =>
-    simp only [length_nil, eq_comm, length_eq_zero_iff] at h
-    simp [h]
-  | cons a as ih =>
-    cases l₂ with
-    | nil => simp at h
-    | cons b bs =>
-      simp [List.cons_lt_cons_iff, ih (l₂ := bs) (by simpa using h)]
-      refine ⟨?_, ?_⟩
-      · rintro (h|⟨rfl, (h₂|⟨rfl, h₂⟩)⟩) <;> simp_all
-      · rintro ((h|⟨rfl, h⟩)|⟨⟨rfl, rfl⟩, h⟩) <;> simp_all
+  induction l₁ generalizing l₂ <;> cases l₂ <;>
+    simp_all [List.cons_lt_cons_iff, and_or_left, or_assoc, and_assoc]
 
 theorem append_le_append_iff_of_length_eq [LT α] [Std.Asymm (· < · : α → α → Prop)]
     [Std.Trichotomous (· < · : α → α → Prop)] {l₁ l₂ l₃ l₄ : List α}
     (h : l₁.length = l₂.length) :
     l₁ ++ l₃ ≤ l₂ ++ l₄ ↔ l₁ < l₂ ∨ (l₁ = l₂ ∧ l₃ ≤ l₄) := by
-  rw [← List.not_lt, append_lt_append_iff_of_length_eq h.symm, not_or, List.not_lt, not_and,
-    List.not_lt]
-  refine ⟨?_, ?_⟩
-  · rintro ⟨h₁, h₂⟩
-    obtain (h₁|rfl) := List.le_iff_lt_or_eq.1 h₁ <;> simp_all
-  · rintro (h₁|⟨rfl, h₁⟩)
-    · exact ⟨Std.le_of_lt h₁, by rintro rfl; simp [Std.lt_irrefl] at h₁⟩
-    · simp_all
+  induction l₁ generalizing l₂ <;> cases l₂ <;>
+    simp_all [List.cons_lt_cons_iff, List.cons_le_cons_iff, and_or_left, or_assoc, and_assoc]
 
 theorem append_right_lt_iff_of_length_eq [LT α] [Std.Irrefl (· < · : α → α → Prop)]
     {l₁ l₂ : List α} (l₃ : List α) (h : l₁.length = l₂.length) :
@@ -577,17 +561,14 @@ theorem append_left_le_iff [LT α] [Std.Irrefl (· < · : α → α → Prop)] (
 
 theorem append_lt_append_of_lt_of_not_prefix [LT α] {l₁ l₂ l₃ l₄ : List α} (h₁ : l₁ < l₂)
     (h₂ : ¬ l₁ <+: l₂) : l₁ ++ l₃ < l₂ ++ l₄ := by
-  induction l₁ generalizing l₂ with
-  | nil => simp_all
-  | cons x xs ih =>
-    cases l₂ with
-    | nil => simp at h₁
-    | cons y ys =>
-      rw [List.cons_lt_cons_iff] at h₁
-      rw [List.cons_append, List.cons_append, List.cons_lt_cons_iff]
-      obtain (hxy|⟨rfl, hxy⟩) := h₁
-      · exact Or.inl hxy
-      · exact Or.inr ⟨rfl, ih (l₂ := ys) hxy (by simpa using h₂)⟩
+  revert h₁; induction l₁ generalizing l₂ <;> cases l₂ <;> simp_all [List.cons_lt_cons_iff, or_imp]
+
+attribute [local congr] and_congr_right_eq in
+theorem append_lt_append_iff_lt_of_prefix [LT α] {l₁ l₂ l₃ l₄ : List α}
+    (h₁ : l₁ <+: l₂ → l₁ = l₂) (h₂ : l₂ <+: l₁ → l₂ = l₁) :
+    l₁ ++ l₃ < l₂ ++ l₄ ↔ l₁ < l₂ ∨ (l₁ = l₂ ∧ l₃ < l₄) := by
+  induction l₁ generalizing l₂ <;> cases l₂ <;>
+    simp_all +contextual [List.cons_lt_cons_iff, and_or_left, or_assoc, and_assoc]
 
 protected theorem map_lt [LT α] [LT β]
     {l₁ l₂ : List α} {f : α → β} (w : ∀ x y, x < y → f x < f y) (h : l₁ < l₂) :
@@ -630,20 +611,35 @@ theorem map_lt_map_iff_of_injective [LT α] [LT β] (f : α → β) (hf : ∀ a 
     | nil => simp
     | cons a as => simp [List.cons_lt_cons_iff, ih, hf, hfinj.eq_iff]
 
+-- Move these to a better file
+theorem _root_.Std.lt_iff_of_strictMono [LT α] [Std.Trichotomous (· < · : α → α → Prop)]
+    [LT β] [Std.Asymm (· < · : β → β → Prop)] {f : α → β} (hf : ∀ x y : α, x < y → f x < f y)
+    {x y : α} : f x < f y ↔ x < y := by
+  refine ⟨fun hab => ?_, hf x y⟩
+  obtain (h | rfl | h) := lt_trichotomy x y
+  · exact h
+  · simp [Std.lt_irrefl] at hab
+  · exact False.elim (absurd hab (Std.not_gt_of_lt (hf _ _ h)))
+
+theorem _root_.Std.injective_of_strictMono [LT α] [Std.Trichotomous (· < · : α → α → Prop)]
+    [LT β] [Std.Irrefl (· < · : β → β → Prop)] {f : α → β} (hf : ∀ x y : α, x < y → f x < f y) :
+    f.Injective := by
+  intro a b hab
+  apply Std.Trichotomous.trichotomous (r := (· < ·)) <;>
+    intro hab' <;> have := hf _ _ hab' <;> simp [hab, Std.lt_irrefl] at this
+
+theorem _root_.Std.inj_of_strictMono [LT α] [Std.Trichotomous (· < · : α → α → Prop)]
+    [LT β] [Std.Irrefl (· < · : β → β → Prop)] {f : α → β} (hf : ∀ x y : α, x < y → f x < f y)
+    {x y : α} : f x = f y ↔ x = y :=
+  ⟨fun h => Std.injective_of_strictMono hf h, (· ▸ rfl)⟩
+
 /-- See `map_lt_map_iff_of_injective` for a variant which does not assume anything about the order
 on `α` and `β`, but with more assumptions on `f`. -/
 theorem map_lt_map_iff [LT α] [Std.Trichotomous (· < · : α → α → Prop)] [LT β]
     [Std.Asymm (· < · : β → β → Prop)] (f : α → β) (hf : ∀ a b, a < b → f a < f b)
-    {l₁ l₂ : List α} : l₁.map f < l₂.map f ↔ l₁ < l₂ := by
-  refine map_lt_map_iff_of_injective _ (fun a b => ⟨fun hab => ?_, hf a b⟩) (fun a b hab => ?_)
-  · obtain (h|rfl|h) := Std.lt_trichotomy a b
-    · exact h
-    · simp [Std.lt_irrefl] at hab
-    · exact False.elim (absurd hab (Std.not_gt_of_lt (hf _ _ h)))
-  · obtain (h|rfl|h) := Std.lt_trichotomy a b
-    · exact False.elim (absurd hab (Std.ne_of_lt (hf _ _ h)))
-    · rfl
-    · exact False.elim (absurd hab.symm (Std.ne_of_lt (hf _ _ h)))
+    {l₁ l₂ : List α} : l₁.map f < l₂.map f ↔ l₁ < l₂ :=
+  map_lt_map_iff_of_injective _ (fun _ _ => Std.lt_iff_of_strictMono hf)
+    (Std.injective_of_strictMono hf)
 
 theorem map_le_map_iff_of_injective [LT α] [LT β] (f : α → β) (hf : ∀ a b, f a < f b ↔ a < b)
     (hfinj : Function.Injective f) {l₁ l₂ : List α} :
@@ -662,31 +658,10 @@ theorem flatMap_lt_flatMap_iff [LT α] [Std.Trichotomous (· < · : α → α �
     (hx : ∀ a, f a ≠ [])
     {l₁ l₂ : List α} :
     l₁.flatMap f < l₂.flatMap f ↔ l₁ < l₂ := by
-  have hh {a b : α} {as bs : List α} (hab : a < b) : f a ++ as.flatMap f < f b ++ bs.flatMap f := by
-    apply append_lt_append_of_lt_of_not_prefix
-    · apply hf _ _ hab
-    · intro h
-      obtain rfl := hp _ _ h
-      exact Std.lt_irrefl (hf _ _ hab)
-  classical
-  induction l₂ generalizing l₁ with
-  | nil => simp
-  | cons b bs ih =>
-    cases l₁ with
-    | nil => simp [nil_lt_iff, hx b]
-    | cons a as =>
-      simp only [flatMap_cons, cons_lt_cons_iff, ← ih]
-      refine ⟨?_, ?_⟩
-      · rw [← Decidable.not_imp_not]
-        simp only [not_or, not_and, List.not_lt, and_imp]
-        rintro h₁ h₂
-        obtain (hab|rfl|hab) := Std.lt_trichotomy a b
-        · exact absurd hab h₁
-        · exact (append_left_le_iff (f a)).2 (h₂ rfl)
-        · exact Std.le_of_lt (hh hab)
-      · rintro (hab|⟨rfl, hab⟩)
-        · exact hh hab
-        · exact append_left_lt hab
+  induction l₂ generalizing l₁ <;> cases l₁ <;>
+    simp_all [List.nil_lt_iff, append_lt_append_iff_lt_of_prefix
+      (fun h => congrArg f (hp ..)) (fun h => congrArg f (hp ..)),
+      Std.lt_iff_of_strictMono hf, Std.inj_of_strictMono hf, List.cons_lt_cons_iff]
 
 theorem flatMap_le_flatMap_iff [LT α] [Std.Trichotomous (· < · : α → α → Prop)] [LT β]
     [Std.Asymm (· < · : β → β → Prop)] (f : α → List β)

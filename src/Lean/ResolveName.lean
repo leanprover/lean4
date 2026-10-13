@@ -571,8 +571,21 @@ def resolveLocalName [MonadLCtx m] (n : Name) : m (Option (Expr × List String))
         guard localDecl.isAuxDecl
         matchLocalDecl? localDecl givenName
   /-
+  Global names take precedence over projections through auxiliary declarations.
+  Defer their lookup until an auxiliary declaration matches a shortened name;
+  ordinary locals and failed local searches do not need this disambiguation.
+  -/
+  let rec hasGlobalDeclPrefix (n : Name) (numPrefixes : Nat) := do
+    match numPrefixes, n with
+    | numPrefixes + 1, .str pre _ =>
+      let r ← resolveGlobalName (enableLog := false) { view with name := n }.review
+      if r.any fun (_, fieldList) => fieldList.isEmpty then
+        return true
+      hasGlobalDeclPrefix pre numPrefixes
+    | _, _ => return false
+  /-
   We use the parameter `globalDeclFound` to decide whether we should skip auxiliary declarations or not.
-  We set it to true if we found a global declaration `n` as we iterate over the `loop`.
+  We set it to true if a previously traversed prefix resolves to a global declaration.
   Without this workaround, we would not be able to elaborate an example such as
   ```
   def foo.aux := 1
@@ -581,8 +594,7 @@ def resolveLocalName [MonadLCtx m] (n : Name) : m (Option (Expr × List String))
   ```
   See test `aStructPerfIssue.lean` for another example.
   We skip auxiliary declarations when `projs` is not empty and `globalDeclFound` is true.
-  Remark: we did not use to have the `globalDeclFound` parameter. Without this extra check we failed
-  to elaborate
+  We must still allow projections through auxiliary declarations when no longer global name exists:
   ```
   example : Nat :=
     let n := 0
@@ -595,8 +607,8 @@ def resolveLocalName [MonadLCtx m] (n : Name) : m (Option (Expr × List String))
   let rec loop (n : Name) (projs : List String) (globalDeclFound : Bool) := do
     let givenNameView := { view with name := n }
     /-
-    Note that we use `globalDeclFound` instead of `globalDeclFoundNext` in the following test.
-    Reason: a local should shadow a global with the same name.
+    Only prefixes traversed before the current name are tested for global declarations.
+    A local should shadow a global with the same name.
     Consider the following example. See issue #3079
     ```
     def foo : Nat := 1
@@ -607,17 +619,18 @@ def resolveLocalName [MonadLCtx m] (n : Name) : m (Option (Expr × List String))
       foo := 10
     ```
     -/
-    match findLocalDecl? givenNameView (skipAuxDecl := globalDeclFound && !projs.isEmpty) with
+    let mut globalDeclFound := globalDeclFound
+    let mut localDecl? := findLocalDecl? givenNameView
+      (skipAuxDecl := globalDeclFound && !projs.isEmpty)
+    if let some decl := localDecl? then
+      if decl.isAuxDecl && !projs.isEmpty && !globalDeclFound then
+        globalDeclFound ← hasGlobalDeclPrefix view.name projs.length
+        if globalDeclFound then
+          localDecl? := findLocalDecl? givenNameView (skipAuxDecl := true)
+    match localDecl? with
     | some decl => return some (decl.toExpr, projs)
     | none => match n with
-      | .str pre s =>
-        let mut globalDeclFoundNext := globalDeclFound
-        unless globalDeclFound do
-          let r ← resolveGlobalName (enableLog := false) givenNameView.review
-          let r := r.filter fun (_, fieldList) => fieldList.isEmpty
-          unless r.isEmpty do
-            globalDeclFoundNext := true
-        loop pre (s::projs) globalDeclFoundNext
+      | .str pre s => loop pre (s::projs) globalDeclFound
       | _ => return none
   loop view.name [] (globalDeclFound := false)
 

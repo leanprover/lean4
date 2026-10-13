@@ -29,7 +29,8 @@ private meta def checkImportedLookup : MetaM Unit := do
       throwError "expected imported constant: {name}"
   addDecl <| .defnDecl <| mkDefinitionValEx `localDef [] (mkConst ``Nat) (mkNatLit 0)
     .abbrev .safe []
-  addDecl <| .axiomDecl <| mkAxiomValEx `localAxiom [] (mkConst ``Nat) false
+  addDecl <| .axiomDecl {
+    name := `localAxiom, levelParams := [], type := mkConst ``Nat, isUnsafe := false }
   for mode in #[TransparencyMode.none, .reducible, .instances, .implicit, .default, .all] do
     withTransparency mode do
       for name in imported ++ #[`localDef, `localAxiom] do

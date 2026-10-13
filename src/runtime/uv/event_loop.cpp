@@ -116,6 +116,27 @@ void event_loop::exit_drop(owned_ref ref) {
     }
 }
 
+void event_loop::track(uv_tracked_req * link, uv_req_t * req) {
+    link->m_req = req;
+    link->m_prev = nullptr;
+    link->m_next = m_requests;
+    if (m_requests != nullptr) {
+        m_requests->m_prev = link;
+    }
+    m_requests = link;
+}
+
+void event_loop::untrack(uv_tracked_req * link) {
+    if (link->m_prev != nullptr) {
+        link->m_prev->m_next = link->m_next;
+    } else {
+        m_requests = link->m_next;
+    }
+    if (link->m_next != nullptr) {
+        link->m_next->m_prev = link->m_prev;
+    }
+}
+
 // Hands the Lean references of a handle's object to the loop: the loop's own references to the object,
 // then the ones the object holds. The handle is the object's first member.
 template<class T>
@@ -196,9 +217,11 @@ void event_loop::stop() {
         m_released.swap(*m_kept);
 
         uv_walk(m_loop, close_for_exit, nullptr);
+        for (uv_tracked_req * link = m_requests; link != nullptr; link = link->m_next) {
+            uv_cancel(link->m_req);
+        }
 
-        // Closing a handle cancels its requests, and threadpool requests run to completion. Their callbacks
-        // hand their references to `exit_drop`.
+        // Closing a handle cancels its requests, whose callbacks hand their references to `exit_drop`.
         uv_run(m_loop, UV_RUN_DEFAULT);
 
         int result = uv_loop_close(m_loop);

@@ -10,11 +10,14 @@ import Init.NotationExtra
 import Init.WFTactics
 
 /-!
-# Compilable Acc.rec, Acc.rec' and WellFounded.fix
+# Compilable Acc.rec' and WellFounded.fix
 
-This module supplies `@[csimp]` lemmas so that `Acc.rec`, `Acc.rec'`, `WellFounded.fixF` and
+This module supplies `@[csimp]` lemmas so that `Acc.rec'`, `WellFounded.fixF` and
 `WellFounded.fix` compile to direct recursive code, even though their logical definitions are
 noncomputable.
+
+`Acc.rec` is restricted to `Prop` motives, so the csimp rules are stated for `Acc.rec'` and
+friends, which have the unrestricted signature.
 
 Without this, the following code would fail to compile, as `WellFounded.fix` is noncomputable.
 
@@ -36,22 +39,14 @@ public instance wfRel {r : α → α → Prop} : WellFoundedRelation { val // Ac
   wf  := ⟨fun ac => InvImage.accessible _ ac.2⟩
 
 -- `@[csimp]` demands that both sides of a replacement theorem have identical universe parameter
--- lists, so the implementations below list the motive's universe first, as `Acc.rec` does.
-/-- A compilable version of `Acc.rec` and `Acc.rec'`. -/
+-- lists, so the implementations below list the motive's universe first, as `Acc.rec'` does.
+/-- A compilable version of `Acc.rec'`. -/
 @[specialize, elab_as_elim] public def recC {motive : (a : α) → Acc r a → Sort v}
     (intro : (x : α) → (h : ∀ (y : α), r y x → Acc r y) →
      ((y : α) → (hr : r y x) → motive y (h y hr)) → motive x (Acc.intro x h))
     {a : α} (t : Acc r a) : motive a t :=
   intro a (fun _ h => t.inv h) (fun _ hr => recC intro (t.inv hr))
 termination_by Subtype.mk a t
-
-@[csimp] public theorem rec_eq_recC : @Acc.rec = @Acc.recC := by
-  funext α r motive intro a t
-  induction t with
-  | intro x h ih =>
-    rw [recC]
-    dsimp only
-    congr; funext y hr; exact ih _ hr
 
 @[csimp] public theorem rec'_eq_recC : @Acc.rec' = @Acc.recC := by
   funext α r motive intro a t
@@ -70,28 +65,20 @@ termination_by Subtype.mk a t
   funext α r motive a t intro
   rw [Acc.recOn', rec'_eq_recC, Acc.recOnC]
 
-/-- A compilable version of `Acc.ndrec` and `Acc.ndrec'`. -/
+/-- A compilable version of `Acc.ndrec'`. -/
 @[inline] public abbrev ndrecC {C : α → Sort v}
     (m : (x : α) → ((y : α) → r y x → Acc r y) → ((y : α) → (a : r y x) → C y) → C x)
     {a : α} (n : Acc r a) : C a :=
   n.recC m
 
-@[csimp] public theorem ndrec_eq_ndrecC : @Acc.ndrec = @Acc.ndrecC := by
-  funext α r motive intro a t
-  rw [Acc.ndrec, rec_eq_recC, Acc.ndrecC]
-
 @[csimp] public theorem ndrec'_eq_ndrecC : @Acc.ndrec' = @Acc.ndrecC := by
   funext α r motive intro a t
   rw [Acc.ndrec', rec'_eq_recC, Acc.ndrecC]
 
-/-- A compilable version of `Acc.ndrecOn` and `Acc.ndrecOn'`. -/
+/-- A compilable version of `Acc.ndrecOn'`. -/
 @[inline] public abbrev ndrecOnC {C : α → Sort v} {a : α} (n : Acc r a)
     (m : (x : α) → ((y : α) → r y x → Acc r y) → ((y : α) → r y x → C y) → C x) : C a :=
   n.recC m
-
-@[csimp] public theorem ndrecOn_eq_ndrecOnC : @Acc.ndrecOn = @Acc.ndrecOnC := by
-  funext α r motive intro a t
-  rw [Acc.ndrecOn, rec_eq_recC, Acc.ndrecOnC]
 
 @[csimp] public theorem ndrecOn'_eq_ndrecOnC : @Acc.ndrecOn' = @Acc.ndrecOnC := by
   funext α r motive intro a t

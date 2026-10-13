@@ -9,8 +9,7 @@ version. The following list shows where this is not yet the case.
 -/
 
 /--
-info: (Acc.rec, Acc.recC)
-(Array.instDecidableEmpEq, Array.instDecidableEmpEqImpl)
+info: (Array.instDecidableEmpEq, Array.instDecidableEmpEqImpl)
 (Array.instDecidableEq, Array.instDecidableEqImpl)
 (Array.instDecidableEqEmp, Array.instDecidableEqEmpImpl)
 (Array.pmap, Array.pmapImpl)

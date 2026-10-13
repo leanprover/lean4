@@ -1,6 +1,7 @@
 /-!
-Tests `Acc.rec'`, the replacement for `Acc.rec` at motives that are not propositions. It is
-`@[irreducible]` and backed by `Classical.choice`, so unlike `Acc.rec` it has no iota rule.
+Tests `Acc.rec'`, the replacement for `Acc.rec` at motives that are not propositions.
+`Acc.rec` itself only eliminates into `Prop`, so definitions that recurse on an accessibility
+proof to produce data have to go through `Acc.rec'`, which has no iota rule.
 -/
 
 /-! `Acc.rec'` accepts a motive in any `Sort`, including one mentioning the `Acc` proof. -/

@@ -30,17 +30,6 @@ inductive Acc {α : Sort u} (r : α → α → Prop) : α → Prop where
   -/
   | intro (x : α) (h : (y : α) → r y x → Acc r y) : Acc r x
 
-noncomputable abbrev Acc.ndrec.{u1, u2} {α : Sort u2} {r : α → α → Prop} {C : α → Sort u1}
-    (m : (x : α) → ((y : α) → r y x → Acc r y) → ((y : α) → (a : r y x) → C y) → C x)
-    {a : α} (n : Acc r a) : C a :=
-  n.rec m
-
-noncomputable abbrev Acc.ndrecOn.{u1, u2} {α : Sort u2} {r : α → α → Prop} {C : α → Sort u1}
-    {a : α} (n : Acc r a)
-    (m : (x : α) → ((y : α) → r y x → Acc r y) → ((y : α) → (a : r y x) → C y) → C x)
-    : C a :=
-  n.rec m
-
 namespace Acc
 variable {α : Sort u} {r : α → α → Prop}
 

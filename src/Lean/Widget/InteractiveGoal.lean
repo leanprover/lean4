@@ -160,6 +160,7 @@ open Meta in
 def goalToInteractive (mvarId : MVarId) : MetaM InteractiveGoal := do
   let ppAuxDecls := pp.auxDecls.get (← getOptions)
   let ppImplDetailHyps := pp.implementationDetailHyps.get (← getOptions)
+  let ppInstantiateMVars := pp.instantiateMVars.get (← getOptions)
   withGoalCtx mvarId fun lctx mvarDecl => do
     -- See comment in `Lean.Meta.ppGoal` about this synthetic opaque heuristic.
     let tactic := mvarDecl.kind.isSyntheticOpaque
@@ -185,7 +186,7 @@ def goalToInteractive (mvarId : MVarId) : MetaM InteractiveGoal := do
           -- so the `userName`s of local hypotheses are already pretty-printed
           -- and it suffices to simply `toString` them.
           let varName := toString varName
-          let type ← instantiateMVars type
+          let type ← if ppInstantiateMVars then instantiateMVars type else pure type
           if prevType? == none || prevType? == some type then
             varNames := varNames.push (varName, fvarId)
           else
@@ -195,14 +196,12 @@ def goalToInteractive (mvarId : MVarId) : MetaM InteractiveGoal := do
         | LocalDecl.ldecl _index fvarId varName type val (nondep := false) .. => do
           let varName := toString varName
           hyps ← pushPending varNames prevType? hyps
-          let type ← instantiateMVars type
-          let val ← instantiateMVars val
+          let val ← if ppInstantiateMVars then instantiateMVars val else pure val
           hyps ← addInteractiveHypothesisBundle hyps #[(varName, fvarId)] type val tactic
           varNames := #[]
           prevType? := none
     hyps ← pushPending varNames prevType? hyps
-    let goalTp ← instantiateMVars mvarDecl.type
-    let goalFmt ← ppExprTagged goalTp
+    let goalFmt ← ppExprTagged mvarDecl.type
     let userName? := match mvarDecl.userName with
       | Name.anonymous => none
       | name           => some <| toString name.eraseMacroScopes

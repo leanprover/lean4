@@ -42,7 +42,7 @@ This creates a `Signal` in the initial state and doesn't start listening yet.
 - If `repeating` is `true` this constructs a signal handler that resolves each time the specified
   signal `signum` is received and continues listening. While it listens, a signal that arrives with
   no promise from `next` pending resolves the promise of the following `next`. A repeating signal handler
-  will only be freed after `Signal.stop` is called, or once nothing references it after `cancel`.
+  stops once nothing references it and no promise from `next` is pending.
 -/
 @[extern "lean_uv_signal_mk"]
 opaque mk (signum : Int32) (repeating : Bool) : IO Signal

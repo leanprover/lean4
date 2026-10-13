@@ -199,7 +199,7 @@ private def addNonRecAux (docCtx : LocalContext × LocalInstances) (preDef : Pre
           all }
     let mkThmDecl : TermElabM Declaration := do
       if attrRecudibilityHint?.isSome then
-        logWarning "Declaration `{preDef.name}` cannot be tagged as `lazy_delta_abbrev`: it is a theorem and is thus never unfolded."
+        logError s!"Declaration `{preDef.declName}` cannot be tagged as `lazy_delta_abbrev`: it is a theorem and is thus never unfolded."
       let d := {
         name := preDef.declName, levelParams := preDef.levelParams, type := preDef.type, value := preDef.value, all
       }
@@ -210,14 +210,14 @@ private def addNonRecAux (docCtx : LocalContext × LocalInstances) (preDef : Pre
       | DefKind.«theorem» => mkThmDecl
       | DefKind.«opaque»  =>
         if attrRecudibilityHint?.isSome then
-          logWarning s!"Declaration `{preDef.declName}` cannot be tagged as `lazy_delta_abbrev`: it is an opaque declaration and is thus never unfolded."
+          logError s!"Declaration `{preDef.declName}` cannot be tagged as `lazy_delta_abbrev`: it is an opaque declaration and is thus never unfolded."
         pure <| Declaration.opaqueDecl {
           name := preDef.declName, levelParams := preDef.levelParams, type := preDef.type, value := preDef.value
           isUnsafe := preDef.modifiers.isUnsafe, all
         }
       | DefKind.«abbrev»  =>
         if attrRecudibilityHint?.isSome then
-          logWarning s!"Tagging {preDef.declName} as `lazy_delta_abbrev` is redundant, `abbrev` declarations are always kernel abbreviations."
+          logError s!"Tagging `{preDef.declName}` as `lazy_delta_abbrev` is redundant, `abbrev` declarations are always kernel abbreviations."
         pure <| Declaration.defnDecl {
           name := preDef.declName, levelParams := preDef.levelParams, type := preDef.type, value := preDef.value
           hints := ReducibilityHints.«abbrev»

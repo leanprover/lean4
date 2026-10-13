@@ -8,6 +8,7 @@ if [ ! -x "$beam_prefix/bin/lean-beam$exe_suffix" ]; then
     echo "lean-beam not built; skipping"
     exit 0
 fi
+test -x "$beam_prefix/bin/lean-beam-mcp$exe_suffix" || fail "lean-beam-mcp not built"
 
 # Exercise relocation without copying the standard library's large module tree.
 toolchain="$TMP_DIR/toolchain with spaces"
@@ -21,6 +22,7 @@ for entry in "$beam_prefix"/lib/*; do
     fi
 done
 beam="$toolchain/bin/lean-beam$exe_suffix"
+mcp="$toolchain/bin/lean-beam-mcp$exe_suffix"
 project="$TMP_DIR/project"
 mkdir -p "$project"
 printf 'name = "beam_smoke"\n' > "$project/lakefile.toml"
@@ -89,6 +91,14 @@ python3 -c 'import json, sys; assert json.load(open(sys.argv[1]))["result"]["suc
 "$beam" --root "$project" stop
 wait "$owner_pid"
 owner_pid=""
+test ! -e "$TMP_DIR/missing-bundles"
+test ! -e "$project/.beam/bundles"
+
+"$mcp" --version | grep -q '^lean-beam-mcp '
+(cd "$project" && "$mcp" --self-check Main.lean) > "$TMP_DIR/mcp-check"
+grep -q 'Lean Beam MCP self-check passed' "$TMP_DIR/mcp-check"
+capture_fail "$mcp" --beam-cli /different/toolchain/bin/lean-beam --version
+check_out_contains 'bundled lean-beam-mcp uses only its containing toolchain'
 test ! -e "$TMP_DIR/missing-bundles"
 test ! -e "$project/.beam/bundles"
 

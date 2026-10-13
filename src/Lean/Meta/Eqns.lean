@@ -11,8 +11,6 @@ public import Lean.DefEqAttrib
 public import Lean.Meta.RecExt
 public import Lean.Meta.LetToHave
 import Lean.Meta.AppBuilder
-public import Lean.Meta.ExprDefEq
-public import Lean.Meta.WHNF
 
 public section
 
@@ -43,9 +41,7 @@ This is implemented by storing their values at definition time (when non-default
 extension, and restoring them when the equations are lazily realized.
 -/
 def eqnAffectingOptions : Array (Lean.Option Bool) :=
-  #[backward.eqns.nonrecursive, backward.eqns.deepRecursiveSplit, backward.defeqAttrib.useBackward,
-    backward.isDefEq.respectTransparency, backward.isDefEq.respectTransparency.types,
-    backward.whnf.reducibleClassField, smartUnfolding]
+  #[backward.eqns.nonrecursive, backward.eqns.deepRecursiveSplit, backward.defeqAttrib.useBackward]
 
 /-- Environment extension that stores the values of `eqnAffectingOptions` at definition time,
 keyed by declaration name. Only populated when at least one option has a non-default value.

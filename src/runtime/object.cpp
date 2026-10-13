@@ -2106,10 +2106,11 @@ extern "C" LEAN_EXPORT uint8 lean_string_validate_utf8(b_obj_arg a) {
     return validate_utf8(lean_sarray_cptr(a), lean_sarray_size(a), pos, i);
 }
 
-extern "C" LEAN_EXPORT obj_res lean_string_to_utf8(b_obj_arg s) {
+extern "C" LEAN_EXPORT obj_res lean_string_to_utf8(obj_arg s) {
     size_t sz = lean_string_size(s) - 1;
     obj_res r = lean_alloc_sarray(1, sz, sz);
     memcpy(lean_sarray_cptr(r), lean_string_cstr(s), sz);
+    lean_dec(s);
     return r;
 }
 

@@ -309,7 +309,6 @@ end Classical.Order
 namespace Std
 section Min
 
-@[simp]
 public theorem min_self {α : Type u} [Min α] [Std.IdempotentOp (min : α → α → α)] {a : α} :
     min a a = a :=
   Std.IdempotentOp.idempotent a
@@ -486,7 +485,6 @@ end Classical.Order
 namespace Std
 section Max
 
-@[simp]
 public theorem max_self {α : Type u} [Max α] [Std.IdempotentOp (max : α → α → α)] {a : α} :
     max a a = a :=
   Std.IdempotentOp.idempotent a

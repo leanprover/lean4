@@ -66,7 +66,7 @@ Decodes an array of bytes that encode a string as [UTF-8](https://en.wikipedia.o
 the corresponding string.
 -/
 @[inline, expose]
-def String.fromUTF8 (a : @& ByteArray) (h : a.IsValidUTF8) : String :=
+def String.fromUTF8 (a : ByteArray) (h : a.IsValidUTF8) : String :=
   .ofByteArray a h
 
 @[simp] theorem String.fromUTF8_eq_ofByteArray {a : ByteArray} {h : a.IsValidUTF8} :

@@ -8729,7 +8729,7 @@ goto v_resetjp_2730_;
 v_resetjp_2730_:
 {
 uint8_t v_ring_2733_; 
-v_ring_2733_ = lean_ctor_get_uint8(v_a_2729_, sizeof(void*)*14 + 21);
+v_ring_2733_ = lean_ctor_get_uint8(v_a_2729_, sizeof(void*)*14 + 22);
 lean_dec(v_a_2729_);
 if (v_ring_2733_ == 0)
 {

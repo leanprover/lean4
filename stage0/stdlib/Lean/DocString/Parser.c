@@ -6024,8 +6024,8 @@ lean_inc_ref(v_str_1091_);
 lean_inc_ref(v_str_1090_);
 lean_inc_ref(v_str_1089_);
 lean_inc_ref(v_args_1088_);
-lean_inc(v_info_1087_);
 lean_inc(v_pre_1086_);
+lean_inc(v_info_1087_);
 v_isSharedCheck_1254_ = !lean_is_exclusive(v___x_1081_);
 if (v_isSharedCheck_1254_ == 0)
 {

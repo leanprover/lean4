@@ -165,18 +165,15 @@ macro "big_inductive " name:ident n:num : command => do
 big_structure S253 253
 -- 256 object fields, the fewest that need a spill object
 big_structure S254 254
--- 509 object fields, the last of which is alone in a second spill object
-big_structure S507 507
 
 big_inductive T255 255
 big_inductive T256 256
--- 254 fields in each of the constructor object and the spill object
-big_inductive T508 508
+-- the last field is alone in a second spill object
+big_inductive T509 509
 
 unsafe def main : IO Unit := do
   S253.test
   S254.test
-  S507.test
   T255.test
   T256.test
-  T508.test
+  T509.test

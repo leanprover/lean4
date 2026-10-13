@@ -21,6 +21,7 @@ Author: Leonardo de Moura
 #include "runtime/interrupt.h"
 #include "runtime/buffer.h"
 #include "runtime/io.h"
+#include "runtime/libuv.h"
 #include "runtime/hash.h"
 
 #if defined(__GLIBC__) || defined(__APPLE__)
@@ -1133,12 +1134,14 @@ public:
 #ifndef LEAN_EMSCRIPTEN
         for (auto & t : m_std_workers)
             t->join();
-
-        lock.lock();
-        m_worker_done_cv.wait(lock, [&]() { return m_discarding == 0; });
         // never seems to terminate under Emscripten
-#else
+#endif
+        // The workers finish with the event loop still running, so a task blocked on a libuv promise completes. Stopping
+        // the loop releases references, which takes the lock and can discard tasks.
+        finalize_libuv();
         lock.lock();
+#ifndef LEAN_EMSCRIPTEN
+        m_worker_done_cv.wait(lock, [&]() { return m_discarding == 0; });
 #endif
         m_std_workers.clear();
         m_dormant = true;

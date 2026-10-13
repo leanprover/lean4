@@ -19,6 +19,7 @@ import Init.Data.List.Sublist
 import Init.Data.List.TakeDrop
 import Init.Data.Nat.Lemmas
 import Init.TacticsExtra
+import Init.Data.Order.LemmasExtra
 
 public section
 
@@ -612,26 +613,6 @@ theorem map_lt_map_iff_of_injective [LT α] [LT β] (f : α → β) (hf : ∀ a 
     | cons a as => simp [List.cons_lt_cons_iff, ih, hf, hfinj.eq_iff]
 
 -- Move these to a better file
-theorem _root_.Std.lt_iff_of_strictMono [LT α] [Std.Trichotomous (· < · : α → α → Prop)]
-    [LT β] [Std.Asymm (· < · : β → β → Prop)] {f : α → β} (hf : ∀ x y : α, x < y → f x < f y)
-    {x y : α} : f x < f y ↔ x < y := by
-  refine ⟨fun hab => ?_, hf x y⟩
-  obtain (h | rfl | h) := lt_trichotomy x y
-  · exact h
-  · simp [Std.lt_irrefl] at hab
-  · exact False.elim (absurd hab (Std.not_gt_of_lt (hf _ _ h)))
-
-theorem _root_.Std.injective_of_strictMono [LT α] [Std.Trichotomous (· < · : α → α → Prop)]
-    [LT β] [Std.Irrefl (· < · : β → β → Prop)] {f : α → β} (hf : ∀ x y : α, x < y → f x < f y) :
-    f.Injective := by
-  intro a b hab
-  apply Std.Trichotomous.trichotomous (r := (· < ·)) <;>
-    intro hab' <;> have := hf _ _ hab' <;> simp [hab, Std.lt_irrefl] at this
-
-theorem _root_.Std.inj_of_strictMono [LT α] [Std.Trichotomous (· < · : α → α → Prop)]
-    [LT β] [Std.Irrefl (· < · : β → β → Prop)] {f : α → β} (hf : ∀ x y : α, x < y → f x < f y)
-    {x y : α} : f x = f y ↔ x = y :=
-  ⟨fun h => Std.injective_of_strictMono hf h, (· ▸ rfl)⟩
 
 /-- See `map_lt_map_iff_of_injective` for a variant which does not assume anything about the order
 on `α` and `β`, but with more assumptions on `f`. -/

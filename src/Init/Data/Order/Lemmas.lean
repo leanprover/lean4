@@ -643,6 +643,7 @@ public instance lawfulOrderSup_maxOfLe {α : Type u} [LE α] [DecidableLE α]
 end maxOfLe
 
 end Max
+
 end Std
 
 namespace Classical.Order

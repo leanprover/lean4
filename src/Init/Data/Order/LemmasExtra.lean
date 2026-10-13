@@ -11,9 +11,11 @@ public import Init.Classical
 public import Init.Data.Order.Classes
 public import Init.Data.Order.ClassesExtra
 public import Init.Data.Order.Ord
+public import Init.Data.Function
 import Init.Data.Bool
 import Init.Data.Order.FactoriesExtra
 import Init.Data.Order.Lemmas
+import Init.RCases
 
 namespace Std
 
@@ -201,6 +203,31 @@ public instance lawfulOrderOrd_compareOfLessAndEq {α : Type u} [LE α] [LT α]
   · exact isGE_compareOfLessAndEq Std.le_antisymm Std.not_le (fun _ _ => Std.le_total)
 
 end compareOfLessAndEq
+
+section Mono
+
+public theorem lt_iff_of_strictMono [LT α] [Std.Trichotomous (· < · : α → α → Prop)]
+    [LT β] [Std.Asymm (· < · : β → β → Prop)] {f : α → β} (hf : ∀ x y : α, x < y → f x < f y)
+    {x y : α} : f x < f y ↔ x < y := by
+  refine ⟨fun hab => ?_, hf x y⟩
+  obtain (h | rfl | h) := lt_trichotomy x y
+  · exact h
+  · simp [Std.lt_irrefl] at hab
+  · exact False.elim (absurd hab (Std.not_gt_of_lt (hf _ _ h)))
+
+public theorem injective_of_strictMono [LT α] [Std.Trichotomous (· < · : α → α → Prop)]
+    [LT β] [Std.Irrefl (· < · : β → β → Prop)] {f : α → β} (hf : ∀ x y : α, x < y → f x < f y) :
+    f.Injective := by
+  intro a b hab
+  apply Std.Trichotomous.trichotomous (r := (· < ·)) <;>
+    intro hab' <;> have := hf _ _ hab' <;> simp [hab, Std.lt_irrefl] at this
+
+public theorem inj_of_strictMono [LT α] [Std.Trichotomous (· < · : α → α → Prop)]
+    [LT β] [Std.Irrefl (· < · : β → β → Prop)] {f : α → β} (hf : ∀ x y : α, x < y → f x < f y)
+    {x y : α} : f x = f y ↔ x = y :=
+  ⟨fun h => Std.injective_of_strictMono hf h, (· ▸ rfl)⟩
+
+end Mono
 
 end Std
 

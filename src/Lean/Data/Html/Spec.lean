@@ -9,6 +9,7 @@ prelude
 public import Init.Prelude
 import Init.Data.String.Modify
 import Init.Data.Array.BinSearch
+import Init.Data.String.Compare
 
 set_option doc.verso true
 

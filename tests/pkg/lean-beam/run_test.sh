@@ -1,4 +1,5 @@
 # Beam is built explicitly by release CI, like the external kernel checkers.
+# LEAN_BEAM_REQUIRED=1 makes a missing executable fail; ordinary builds may skip.
 exe_suffix=""
 beam_prefix="${LEAN_BEAM_TEST_PREFIX:-$BUILD_DIR}"
 [ ! -f "$beam_prefix/bin/lean-beam.exe" ] || exe_suffix=.exe

@@ -568,6 +568,23 @@ Eq.refl five
 #guard_msgs in
 #print instA._proof_1
 
+/-- Same for goals that `where finally` proves. -/
+
+public class AFinally where
+  a : five + 0 = 5
+  b : Nat
+
+public instance instAFinally : AFinally := { a := ?_, b := 0 }
+where finally
+  exact rfl
+
+/--
+info: theorem instAFinally._proof_1 : five + 0 = 5 :=
+rfl
+-/
+#guard_msgs in
+#print instAFinally._proof_1
+
 /-- Setup for #11715. -/
 
 public structure OpOperand2 where

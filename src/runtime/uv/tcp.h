@@ -30,6 +30,11 @@ struct lean_uv_tcp_socket_object {
     bool          m_listening = false;          // Whether `uv_listen` succeeded on this socket.
     unsigned      m_pending_connections = 0;    // Connections the listen callback reported that nobody accepted yet.
 
+    // The loop holds one reference to the socket for each pending read, accept and shutdown.
+    unsigned loop_refs() const {
+        return m_read.pending() + m_accept.pending() + (m_promise_shutdown.get() != nullptr);
+    }
+
     // Every Lean reference the socket holds. The loop's reference to the socket itself is not one.
     std::array<owned_ref *, 5> lean_refs() {
         return {&m_read.m_promise, &m_read.m_payload, &m_accept.m_promise, &m_accept.m_payload, &m_promise_shutdown};

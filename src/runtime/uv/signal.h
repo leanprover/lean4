@@ -34,6 +34,11 @@ struct lean_uv_signal_object {
     bool            m_received = false;                 // Whether a repeating signal arrived while no promise was pending.
     signal_state    m_state = signal_state::Initial;    // The state of the signal.
 
+    // The loop holds a reference to the signal while it is running with a promise.
+    unsigned loop_refs() const {
+        return m_state == signal_state::Running && m_promise.get() != nullptr;
+    }
+
     // Every Lean reference the signal holds. The loop's reference to the signal itself is not one.
     std::array<owned_ref *, 1> lean_refs() {
         return {&m_promise};

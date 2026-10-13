@@ -31,6 +31,11 @@ struct lean_uv_timer_object {
     bool            m_repeating = false;                // Flag indicating if the timer is repeating.
     timer_state     m_state = timer_state::Initial;     // The state of the timer.
 
+    // The loop holds a reference to the timer while it is running with a promise.
+    unsigned loop_refs() const {
+        return m_state == timer_state::Running && m_promise.get() != nullptr;
+    }
+
     // Every Lean reference the timer holds. The loop's reference to the timer itself is not one.
     std::array<owned_ref *, 1> lean_refs() {
         return {&m_promise};

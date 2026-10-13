@@ -14,6 +14,7 @@ import Lean.Data.Trie
 import Init.Data.String.Search
 import Init.Omega
 import Init.Data.String.Length
+import Init.Data.String.Pattern.String
 
 /-! # Version
 

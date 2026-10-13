@@ -7,6 +7,8 @@ module
 
 prelude
 public import Std.Data.HashMap.Basic
+public import Init.Control.State
+public import Init.Control.StateRef
 
 public section
 

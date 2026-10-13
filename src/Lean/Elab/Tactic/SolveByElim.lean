@@ -9,6 +9,7 @@ prelude
 public import Lean.Meta.Tactic.SolveByElim
 public import Lean.LibrarySuggestions.Basic
 import Lean.Elab.ConfigEval
+import Init.Data.Sum.Basic
 
 public section
 

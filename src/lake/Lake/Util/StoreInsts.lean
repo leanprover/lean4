@@ -6,7 +6,7 @@ Authors: Mac Malone
 module
 
 prelude
-public import Init.Data.Order
+public import Init.Control.StateRef
 public import Lean.Data.NameMap.Basic
 public import Lake.Util.RBArray
 public import Lake.Util.Family

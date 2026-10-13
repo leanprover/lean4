@@ -7,7 +7,6 @@ module
 prelude
 public import Lean.Meta.Sym.Arith.MonadRing
 public import Lean.Meta.Sym.Arith.MonadSemiring
-import Init.Grind.Ring
 public section
 namespace Lean.Meta.Sym.Arith
 

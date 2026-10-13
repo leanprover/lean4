@@ -10,6 +10,7 @@ public import Lean.Meta.Tactic.Rename
 public import Lean.Elab.PreDefinition.TerminationMeasure
 public import Lean.Elab.PreDefinition.FixedParams
 public import Lean.Meta.ArgsPacker
+import Init.Data.Iterators.Consumers.Stream
 
 public section
 

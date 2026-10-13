@@ -11,6 +11,7 @@ public import Lean.Data.PersistentHashMap
 public import Std.Data.HashMap.Iterator
 public import Lean.Data.Iterators.Producers.PersistentHashMap
 public import Init.Data.Iterators.Combinators.Append
+public import Init.Control.State
 
 public section
 universe u v w w'

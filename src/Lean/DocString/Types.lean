@@ -8,7 +8,8 @@ module
 
 prelude
 
-public import Init.Data.Ord
+public import Init.Data.Int.Repr
+public import Init.Data.Ord.String
 import Init.Data.Nat.Compare
 public import Init.Data.Array.GetLit
 

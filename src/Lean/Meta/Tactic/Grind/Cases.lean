@@ -7,6 +7,7 @@ module
 prelude
 public import Lean.Meta.Tactic.Cases
 public import Lean.Meta.Tactic.Grind.Extension
+import Init.Data.Range.Polymorphic.Nat
 public section
 namespace Lean.Meta.Grind
 -- TODO: delete

@@ -17,6 +17,7 @@ import Init.Data.List.TakeDrop
 import Init.Data.Nat.Lemmas
 import Init.Data.Prod
 import Init.Omega
+public import Init.Classical
 
 public section
 

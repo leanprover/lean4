@@ -7,6 +7,8 @@ module
 
 prelude
 public import Lean.Elab.Task
+public import Init.Data.Iterators.Producers.Monadic.List
+import Init.Data.Iterators.Producers.List
 
 /-!
 # Iterator-based parallelization for Lean's tactic monads.

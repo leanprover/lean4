@@ -7,7 +7,7 @@ module
 prelude
 public import Lean.Meta.Tactic.Simp.BuiltinSimprocs.Nat
 import Lean.Util.SafeExponentiation
-import Init.Data.Int.DivMod
+import Init.Data.Int.DivMod.Lemmas
 public section
 namespace Lean.Int
 open Meta Simp

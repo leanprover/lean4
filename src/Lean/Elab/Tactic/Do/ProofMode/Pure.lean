@@ -11,6 +11,7 @@ import Lean.Elab.Tactic.Meta
 import Lean.Elab.Tactic.Do.ProofMode.Basic
 import Lean.Elab.Tactic.Do.ProofMode.Focus
 import Lean.Meta.Tactic.Rfl
+import Std.Do.Triple.SpecLemmas
 
 public section
 

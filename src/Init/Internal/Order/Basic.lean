@@ -13,6 +13,8 @@ import all Init.Control.StateRef  -- for `MonoBind` instance
 import all Init.Control.Option  -- for `MonoBind` instance
 import all Init.System.ST  -- for `MonoBind` instance
 import Init.ByCases
+public import Init.Control.State
+public import Init.Control.StateRef
 
 public section
 

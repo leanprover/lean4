@@ -12,7 +12,7 @@ public import Lean.Data.FuzzyMatching
 public import Lean.Server.Requests
 public import Lean.Server.References
 public import Lean.Server.Completion.CompletionUtils
-public import Init.Data.List.Sort
+import Init.Data.List.Sort.Impl
 public import Std.Sync.Channel
 public import Lean.Server.Logging
 

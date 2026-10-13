@@ -19,6 +19,8 @@ import Lean.Meta.Tactic.FunIndInfo
 import Lean.Data.Array
 import Lean.Meta.Tactic.Replace
 import Init.Omega
+import Init.Data.Iterators.Consumers.Stream
+import Init.Data.String.Pattern.String
 
 /-!
 This module contains code to derive, from the definition of a recursive function (structural or

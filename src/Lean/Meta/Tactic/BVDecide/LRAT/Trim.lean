@@ -8,8 +8,12 @@ module
 prelude
 public import Std.Tactic.BVDecide.LRAT.Actions
 import Init.Data.Nat.Fold
-import Std.Data.HashMap
-import Init.Data.Range.Polymorphic
+import Init.Control.State
+import Init.Data.Option.BasicAux
+import Init.Data.Range.Polymorphic.GetElemTactic
+import Init.Data.Range.Polymorphic.Iterators
+import Init.Data.UInt.Package
+import Std.Data.HashMap.Basic
 import Init.Omega
 
 /-!

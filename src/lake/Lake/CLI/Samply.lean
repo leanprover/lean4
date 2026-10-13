@@ -16,6 +16,7 @@ import Init.Data.String.Search
 import Init.Data.String.TakeDrop
 import Init.System.Uri
 import Init.While
+import Init.Data.String.Pattern.String
 
 /-!
 # `lake samply`

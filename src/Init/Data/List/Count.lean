@@ -16,6 +16,7 @@ import Init.Data.List.Lemmas
 import Init.Data.List.Sublist
 import Init.Data.Option.Lemmas
 import Init.TacticsExtra
+import Init.Classical
 
 public section
 

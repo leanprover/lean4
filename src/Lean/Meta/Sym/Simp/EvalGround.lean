@@ -10,6 +10,7 @@ import Init.Sym.Lemmas
 import Lean.Meta.Sym.LitValues
 import Lean.Meta.StringLitProof
 import Lean.Meta.Offset
+import Init.Data.Int.Gcd
 namespace Lean.Meta.Sym.Simp
 
 /-!

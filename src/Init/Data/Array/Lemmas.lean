@@ -28,6 +28,7 @@ import Init.Data.Option.Lemmas
 import Init.Data.Prod
 import Init.Omega
 import Init.TacticsExtra
+import Init.Control.Lawful.Lemmas
 
 public section
 

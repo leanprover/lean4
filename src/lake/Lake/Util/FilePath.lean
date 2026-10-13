@@ -10,6 +10,7 @@ public import Lean.Data.Json
 import Init.Data.String.TakeDrop
 import Init.Data.String.Modify
 import Init.System.Platform
+import Init.Data.String.Pattern.String
 
 open System Lean
 

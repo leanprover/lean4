@@ -7,6 +7,7 @@ module
 
 prelude
 public import Lean.Compiler.LCNF.Internalize
+import Init.Data.Slice.Array.Basic
 
 public section
 

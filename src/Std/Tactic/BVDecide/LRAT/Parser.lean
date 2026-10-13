@@ -8,7 +8,7 @@ module
 prelude
 public import Init.System.IO
 public import Std.Tactic.BVDecide.LRAT.Actions
-public import Std.Internal.Parsec
+public import Std.Internal.Parsec.ByteArray
 
 public section
 

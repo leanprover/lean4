@@ -7,7 +7,6 @@ module
 
 prelude
 public import Lean.Server.Completion.CompletionCollectors
-public import Std.Data.HashMap
 
 public section
 

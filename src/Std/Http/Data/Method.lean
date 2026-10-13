@@ -6,8 +6,9 @@ Authors: Sofia Rodrigues
 module
 
 prelude
-public import Init.Data.ToString
-public import Std.Http.Internal
+public import Init.Grind.Cases
+public import Std.Http.Internal.Encode
+import Init.Data.ToString.Macro
 
 public section
 

@@ -12,6 +12,7 @@ public import Lean.Compiler.LCNF.Simp.Used
 public import Lean.Compiler.LCNF.Simp.DefaultAlt
 public import Lean.Compiler.LCNF.Simp.SimpValue
 public import Lean.Compiler.LCNF.Simp.ConstantFold
+public import Init.Data.Slice.Array.Basic
 
 public section
 

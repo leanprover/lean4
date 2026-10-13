@@ -8,6 +8,7 @@ module
 prelude
 public import Lean.EnvExtension
 import Init.Data.String.TakeDrop
+import Init.Data.String.Pattern.String
 
 public section
 

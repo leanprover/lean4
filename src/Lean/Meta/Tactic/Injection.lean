@@ -7,6 +7,7 @@ module
 
 prelude
 public import Lean.Meta.Tactic.Subst
+import Init.Data.Range.Polymorphic.Nat
 
 public section
 

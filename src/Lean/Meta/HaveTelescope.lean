@@ -11,6 +11,7 @@ import Lean.Util.CollectFVars
 import Lean.Util.CollectLooseBVars
 import Lean.Meta.AppBuilder
 import Init.While
+import Init.Data.Range.Polymorphic.Nat
 public section
 namespace Lean.Meta
 /-!

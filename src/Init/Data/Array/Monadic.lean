@@ -10,6 +10,7 @@ import all Init.Data.List.Control
 import all Init.Data.Array.Basic
 public import Init.Data.Array.Attach
 import Init.Data.Bool
+import Init.Control.Lawful.Lemmas
 
 public section
 

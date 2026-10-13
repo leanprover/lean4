@@ -7,7 +7,9 @@ module
 
 prelude
 public import Std.Data.Iterators.Lemmas.Producers.Monadic.Empty
-public import Init.Data.Iterators.Lemmas.Consumers
+public import Init.Data.Iterators.Consumers.Collect
+import Init.Data.Iterators.Lemmas.Consumers.Collect
+import Init.Data.Iterators.Lemmas.Consumers.Loop
 public import Std.Data.Iterators.Producers.Empty
 
 @[expose] public section

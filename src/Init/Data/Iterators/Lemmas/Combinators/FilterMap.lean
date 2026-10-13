@@ -17,6 +17,9 @@ import Init.Data.Iterators.Lemmas.Combinators.Monadic.FilterMap
 import Init.Data.Iterators.Lemmas.Consumers.Collect
 import Init.Data.Iterators.Lemmas.Consumers.Loop
 import Init.Data.Iterators.Lemmas.Consumers.Monadic.Loop
+import Init.Control.Lawful.MonadAttach.Lemmas
+import Init.Control.Lawful.MonadLift.Instances
+import Init.Control.Lawful.MonadLift.Lemmas
 
 public section
 

@@ -7,6 +7,7 @@ module
 prelude
 public import Lean.Meta.Tactic.BVDecide.Prover.Cegar.Basic
 import Lean.Meta.Sym.InferType
+import Std.Tactic.BVDecide.Bitblast.EfficientEval
 
 /-!
 This module contains the UF theory solver for the CEGAR loop. It detects model conflicts with

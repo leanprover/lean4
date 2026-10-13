@@ -7,6 +7,7 @@ module
 prelude
 public import Lean.Meta.FunInfo
 import Init.Data.Range.Polymorphic.Iterators
+import Init.Data.Range.Polymorphic.Nat
 public section
 namespace Lean
 

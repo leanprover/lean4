@@ -9,6 +9,7 @@ prelude
 public import Lean.Compiler.LCNF.CompilerM
 import Init.Data.Fin.Lemmas
 import Init.Omega
+import Init.Data.Range.Polymorphic.Nat
 
 public section
 

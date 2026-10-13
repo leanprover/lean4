@@ -6,7 +6,8 @@ Authors: Henrik Böving
 module
 
 prelude
-public import Std.Sat.AIG.RefVecOperator
+public import Std.Sat.AIG.RefVecOperator.Fold
+public import Std.Sat.AIG.RefVecOperator.Zip
 
 @[expose] public section
 

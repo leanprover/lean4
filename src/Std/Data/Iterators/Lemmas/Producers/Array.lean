@@ -12,6 +12,7 @@ import Init.Data.List.TakeDrop
 public import Std.Data.Iterators.Producers.Array
 public import Init.Data.Iterators.Producers.List
 public import Std.Data.Iterators.Lemmas.Producers.Monadic.Array
+public import Init.Data.Iterators.Consumers.Loop
 
 @[expose] public section
 

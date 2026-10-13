@@ -7,7 +7,7 @@ module
 
 prelude
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Basic
-public import Std.Sat.AIG.RefVecOperator
+public import Std.Sat.AIG.RefVecOperator.Map
 
 @[expose] public section
 

@@ -11,6 +11,7 @@ public import Lean.DocString.Syntax
 import Init.Data.Range.Polymorphic.Iterators
 meta import Init.Data.Range.Polymorphic.GetElemTactic
 import Lean.DocString.View
+import Init.Data.String.Pattern.String
 
 
 namespace Lean.Doc.Parser

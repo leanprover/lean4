@@ -8,17 +8,19 @@ module
 prelude
 public import Init.BinderNameHint
 public import Std.WP.Triple.Monad
-public import Std.WP.Monad
+public import Std.Internal.ForIn.Basic
+public import Std.WP.Monad.Instances
+import Init.Data.Array.Lemmas
+import Init.Data.Iterators.Lemmas.Combinators.Monadic.FilterMap
+import Init.Data.Iterators.Lemmas.Consumers.Loop
+import Init.Data.Iterators.Lemmas.Consumers.Monadic.Loop
+import Std.WP.Monad.Lemmas
 public import Std.Do.Triple.SpecLemmas
 public import Init.Data.Range.Polymorphic.Iterators
-import Init.Data.Range.Polymorphic
-public import Init.Data.Slice.Array
 
 -- This public import is a workaround for #10652.
 -- Without it, adding the `spec` attribute for `instMonadLiftTOfMonadLift` will fail.
 public import Init.Data.Iterators.Lemmas.Combinators.FilterMap
-public import Init.Data.Range
-import Init.Data.Iterators.Lemmas
 import Init.Data.List.Nat.Range
 import Init.Data.List.Nat.TakeDrop
 import Init.Data.List.Range
@@ -31,7 +33,6 @@ public import Init.Data.String.Iterate
 import Init.Data.String.Lemmas.Splits
 import Init.Data.String.Termination
 import Init.Data.String.Lemmas.Iterate
-public import Std.Internal.ForIn
 
 set_option linter.missingDocs true
 

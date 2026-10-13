@@ -8,7 +8,7 @@ module
 prelude
 import all Init.Data.BitVec.Basic
 import all Init.Data.UInt.Basic
-public import Init.Data.Nat.Bitwise
+public import Init.Data.Nat.Bitwise.Lemmas
 public import Init.Data.Nat.Lemmas
 public import Init.Data.UInt.Basic
 public import Init.Ext

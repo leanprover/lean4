@@ -7,7 +7,9 @@ module
 
 prelude
 public import Std.Do.WP.Monad
-public import Std.Do.Internal.Ensures
+public import Std.Do.Internal.Ensures.Def
+import Std.Do.Internal.Ensures.Lemmas
+import Std.Do.SPred.Laws
 public import Init.Control.Lawful.MonadAttach.Instances
 
 set_option linter.missingDocs true

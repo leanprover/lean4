@@ -7,7 +7,8 @@ module
 
 prelude
 public meta import Init.Data.ToString.Name
-import Init.Data.ToString
+import Init.Data.ToString.Macro
+import Init.Ext
 public import Init.Notation
 
 /-!

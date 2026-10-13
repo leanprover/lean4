@@ -11,6 +11,7 @@ import Lean.Meta.Injective -- for elimOptParam
 import Lean.Elab.PreDefinition.PartialFixpoint.Eqns
 import Init.Internal.Order.Basic
 import Lean.Meta.PProdN
+import Init.Data.String.Pattern.String
 
 namespace Lean.Elab.PartialFixpoint
 

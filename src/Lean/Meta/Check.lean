@@ -9,6 +9,7 @@ prelude
 public import Lean.Meta.Sorry
 import Init.Data.Range.Polymorphic.Iterators
 import Lean.OriginalConstKind
+import Init.Data.Range.Polymorphic.Nat
 
 public section
 

@@ -8,7 +8,16 @@ module
 prelude
 public import Init.Data.Float.Model.Format.Valid
 public import Init.Data.Float.Model.Unpacked.Pack.Lemmas
-public import Init.Data.Float.Model.Unpacked.Operations
+public import Init.Data.Float.Model.Unpacked.Operations.Add
+public import Init.Data.Float.Model.Unpacked.Operations.Fma
+public import Init.Data.Float.Model.Unpacked.Operations.MinMax
+public import Init.Data.Float.Model.Unpacked.Operations.OfNat
+public import Init.Data.Float.Model.Unpacked.Operations.OfScientific
+public import Init.Data.Float.Model.Unpacked.Operations.Sign
+public import Init.Data.Float.Model.Unpacked.Operations.Sqrt
+public import Init.Data.Float.Model.Unpacked.Operations.Status
+public import Init.Data.Float.Model.Unpacked.Operations.Sub
+public import Init.Data.Float.Model.Unpacked.Operations.ToNat
 
 -- This file is part of the logical model for floats which authors of float libraries
 -- need to rely on.

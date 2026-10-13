@@ -6,7 +6,8 @@ Authors: Mac Malone
 module
 
 prelude
-public import Init.Data.ToString
+public import Init.Data.String.Defs
+import Init.Data.ToString.Macro
 
 namespace Lake
 

@@ -6,8 +6,8 @@ Authors: Vladimir Gladshtein, Sebastian Graf
 module
 
 prelude
-public import Init.Internal.Order
-import Init.Classical
+public import Init.Classical
+public import Init.Internal.Order.Basic
 
 universe u v
 @[expose] public section

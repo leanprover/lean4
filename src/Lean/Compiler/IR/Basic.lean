@@ -8,6 +8,7 @@ module
 prelude
 public import Lean.Compiler.ExternAttr
 import Init.Data.Range.Polymorphic.Iterators
+import Init.Data.Range.Polymorphic.Nat
 
 public section
 /-!

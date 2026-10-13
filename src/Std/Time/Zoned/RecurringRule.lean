@@ -10,7 +10,8 @@ public import Std.Time.Date.Unit.Month
 public import Std.Time.Date.Unit.Week
 public import Std.Time.Date.Unit.Weekday
 public import Std.Time.Zoned.TimeZone
-public import Std.Time.Date
+public import Std.Time.Date.Unit.Year
+import Std.Time.Date.PlainDate
 
 /-!
 Types for recurring DST transition rules, used by `ZoneRules` and produced by POSIX TZ parsing.

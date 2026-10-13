@@ -7,7 +7,9 @@ module
 
 prelude
 public import Init.Data.Range.Polymorphic.BitVec
-public import Init.Data.UInt.Lemmas
+public import Init.Data.UInt.Basic
+import Init.Data.UInt.Lemmas
+import Init.Data.UInt.Package
 import Init.ByCases
 import Init.Data.BitVec.Lemmas
 import Init.Data.Option.Lemmas

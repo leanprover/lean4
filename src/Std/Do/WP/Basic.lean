@@ -7,6 +7,8 @@ module
 
 prelude
 public import Std.Do.PredTrans
+public import Init.Control.Reader
+import Std.Do.SPred.DerivedLaws
 
 @[expose] public section
 

@@ -7,7 +7,8 @@ module
 
 prelude
 public import Std.Http.Server
-public import Std.Async
+import Init.Data.String.Pattern.String
+import Std.Http.Data.Body.Full
 public import Std.Async.Timer
 import Init.Data.String.Legacy
 

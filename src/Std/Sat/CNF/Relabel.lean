@@ -9,6 +9,7 @@ prelude
 public import Std.Sat.CNF.Basic
 public import Std.Sat.CNF.Sat
 import Init.Data.List.Nat.Range
+import Init.Classical
 
 @[expose] public section
 

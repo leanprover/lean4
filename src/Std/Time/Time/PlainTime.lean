@@ -6,7 +6,9 @@ Authors: Sofia Rodrigues
 module
 
 prelude
-public import Std.Time.Time.Basic
+public import Std.Time.Time.Unit.Hour
+public import Std.Time.Time.Unit.Millisecond
+import Std.Time.Time.Unit.Basic
 
 public section
 

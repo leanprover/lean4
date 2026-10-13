@@ -15,3 +15,5 @@ public import Std.WP.Triple
 public import Std.WP.Gadget.Assert
 public import Std.WP.Gadget.ForIn
 public import Std.WP.Tactic
+-- the `PureForIn` instances that loop invariants are stated over
+public import Std.Internal.ForIn.Lemmas

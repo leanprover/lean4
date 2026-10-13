@@ -11,6 +11,7 @@ import Init.Data.String.TakeDrop
 import Init.Data.UInt.Lemmas
 import Init.Omega
 import Init.Data.String.Lemmas.FindPos
+import Init.Data.String.Pattern.String
 
 namespace String
 

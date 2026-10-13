@@ -8,6 +8,7 @@ prelude
 public import Lean.Meta.Tactic.Simp.SimpTheorems
 import Lean.Meta.Tactic.Simp.Main
 import Lean.Structure
+import Init.Data.String.Pattern.String
 namespace Lean
 
 open Meta

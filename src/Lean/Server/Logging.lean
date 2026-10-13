@@ -7,7 +7,7 @@ Author: Marc Huisinga
 module
 
 prelude
-import Std.Time
+import Std.Time.Format
 public import Lean.Data.Lsp.InitShutdown
 
 namespace Lean.Server.Logging

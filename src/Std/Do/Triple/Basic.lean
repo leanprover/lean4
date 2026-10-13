@@ -6,7 +6,9 @@ Authors: Sebastian Graf
 module
 
 prelude
-public import Std.Do.WP
+public import Std.Do.SPred.DerivedLaws
+public import Std.Do.WP.Monad
+import Std.Do.WP.SimpLemmas
 
 set_option linter.missingDocs true
 

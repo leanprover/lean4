@@ -6,7 +6,6 @@ Authors: Sofia Rodrigues
 module
 
 prelude
-public import Std.Time
 public import Std.Internal.UV.UDP
 public import Std.Async.Select
 

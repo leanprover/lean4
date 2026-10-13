@@ -6,10 +6,11 @@ Authors: Sofia Rodrigues
 module
 
 prelude
-public import Init.Data.ToString
-public import Std.Http.Internal
+public import Init.Data.LawfulHashable
+public import Std.Http.Internal.LowerCase
+public import Std.Http.Internal.String
+import Init.Data.String.Iter.Intercalate
 import Init.Data.String.Search
-import Init.Data.String.Iter
 
 public section
 

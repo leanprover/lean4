@@ -6,7 +6,9 @@ Authors: Josh Clune
 module
 
 prelude
-public import Std.Sat.CNF
+public import Init.Data.ToString.Extra
+public import Init.Data.ToString.Macro
+public import Std.Sat.CNF.Literal
 
 @[expose] public section
 

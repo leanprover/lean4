@@ -8,6 +8,8 @@ module
 prelude
 public import Lean.Elab.Tactic.Omega.OmegaM
 public import Lean.Elab.Tactic.Omega.MinNatAbs
+import Init.Data.Range.Polymorphic.Nat
+import Init.Data.String.Pattern.String
 
 public section
 

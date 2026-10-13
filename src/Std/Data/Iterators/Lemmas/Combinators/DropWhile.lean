@@ -8,7 +8,8 @@ module
 prelude
 public import Std.Data.Iterators.Combinators.DropWhile
 public import Std.Data.Iterators.Lemmas.Combinators.Monadic.DropWhile
-public import Init.Data.Iterators.Lemmas.Consumers
+public import Init.Data.Iterators.Consumers.Collect
+import Init.Data.Iterators.Lemmas.Consumers.Collect
 import Init.Data.Bool
 import Init.Data.Iterators.Lemmas.Basic
 import Init.Data.List.TakeDrop

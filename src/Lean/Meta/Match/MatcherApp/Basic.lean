@@ -7,6 +7,7 @@ module
 
 prelude
 public import Lean.Meta.Match.MatcherInfo
+import Init.Data.Slice.Array.Basic
 
 public section
 

@@ -11,6 +11,8 @@ public import Std.Time.Format.Modifier
 public import Std.Time.Format.DateFormat
 import Init.Data.String.TakeDrop
 import Init.Data.String.Search
+public import Std.Time.Time.HourMarker
+import Init.Data.String.Pattern.String
 
 public section
 

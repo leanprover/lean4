@@ -6,7 +6,6 @@ Authors: Sofia Rodrigues
 module
 
 prelude
-public import Std.Async
 public import Std.Async.ContextAsync
 public import Std.Http.Data.Chunk
 public import Std.Http.Data.Headers

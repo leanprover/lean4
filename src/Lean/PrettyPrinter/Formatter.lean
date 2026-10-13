@@ -12,6 +12,7 @@ public import Lean.ParserCompiler.Attribute
 public import Lean.PrettyPrinter.Basic
 public import Lean.PrettyPrinter.Delaborator.Options
 import Lean.ExtraModUses
+import Init.Data.String.Pattern.String
 
 public section
 

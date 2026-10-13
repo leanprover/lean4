@@ -17,6 +17,7 @@ import Init.Data.List.Sublist
 import Init.Data.List.TakeDrop
 import Init.Omega
 import Init.ByCases
+public import Init.Data.ByteArray.Basic
 
 public section
 

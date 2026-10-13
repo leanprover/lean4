@@ -9,6 +9,7 @@ prelude
 public import Init.Data.Iterators.Producers.Monadic.List
 import Init.Data.Iterators.Lemmas.Consumers.Monadic.Collect
 import Init.Data.List.ToArray
+public import Init.Data.Iterators.Consumers.Monadic.Collect
 
 @[expose] public section
 

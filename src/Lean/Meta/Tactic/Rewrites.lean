@@ -12,6 +12,7 @@ public import Lean.Meta.Tactic.Refl
 public import Lean.Meta.Tactic.SolveByElim
 public import Lean.Meta.Tactic.TryThis
 public import Lean.Util.Heartbeats
+import Init.Data.String.Pattern.String
 
 public section
 

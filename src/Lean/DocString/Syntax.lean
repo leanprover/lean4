@@ -10,6 +10,7 @@ prelude
 public import Lean.Parser.Term.Basic
 public import Lean.DocString.Types
 meta import Lean.Parser.Term.Basic
+import Init.Data.String.Pattern.String
 
 
 /-!

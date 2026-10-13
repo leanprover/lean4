@@ -10,6 +10,7 @@ prelude
 public import Lean.Meta.Transform
 import Init.Data.Range.Polymorphic.Iterators
 import Init.Omega
+import Init.Data.Range.Polymorphic.Nat
 
 public section
 

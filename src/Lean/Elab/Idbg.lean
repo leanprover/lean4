@@ -9,6 +9,7 @@ prelude
 public import Lean.Elab.Do.Basic
 meta import Lean.Parser.Do
 import Std.Async.TCP
+import Init.Data.String.Pattern.String
 
 /-!
 # Interactive Debug Expression Evaluator (`idbg`)

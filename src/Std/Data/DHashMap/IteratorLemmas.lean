@@ -6,12 +6,14 @@ Authors: Paul Reichert
 module
 
 prelude
-public import Std.Data.Iterators
+public import Init.Data.Iterators.Consumers.Collect
+import Init.Data.Iterators.Lemmas.Combinators.FilterMap
+import Init.Data.Iterators.Lemmas.Combinators.FlatMap
+import Std.Data.Iterators.Lemmas.Producers.Array
 public import Std.Data.DHashMap.Iterator
 import all Std.Data.DHashMap.Basic
 import all Std.Data.DHashMap.Raw
 import all Std.Data.DHashMap.Iterator
-import Init.Data.Iterators.Lemmas.Combinators
 import all Std.Data.DHashMap.Internal.Defs
 import Std.Data.DHashMap.RawLemmas
 import Std.Data.DHashMap.Lemmas

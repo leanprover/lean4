@@ -8,6 +8,7 @@ module
 prelude
 public import Lean.Compiler.LCNF.DependsOn
 public import Lean.Compiler.LCNF.PassManager
+import Init.Data.Range.Polymorphic.Nat
 
 public section
 

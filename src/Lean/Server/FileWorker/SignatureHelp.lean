@@ -10,6 +10,7 @@ public import Lean.Elab.InfoTree.Util
 public import Lean.Data.Lsp
 public import Init.Data.List.Sort.Basic
 import Lean.PrettyPrinter.Delaborator
+import Init.Data.String.Pattern.String
 
 public section
 

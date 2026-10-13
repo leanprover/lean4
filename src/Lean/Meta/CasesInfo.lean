@@ -8,6 +8,7 @@ module
 prelude
 public import Lean.Meta.Basic
 import Init.Data.Range.Polymorphic.Iterators
+import Init.Data.Range.Polymorphic.Nat
 
 open Lean Meta
 

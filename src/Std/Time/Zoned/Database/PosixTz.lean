@@ -6,7 +6,7 @@ Authors: Sofia Rodrigues
 module
 
 prelude
-public import Std.Internal.Parsec
+import Std.Internal.Parsec.String
 public import Std.Time.Zoned.ZoneRules
 
 /-!

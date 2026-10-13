@@ -16,6 +16,7 @@ public import Lean.Server.FileWorker.Utils
 
 
 public import Std.Sync.Mutex
+public import Init.Data.Ord.UInt
 
 public section
 

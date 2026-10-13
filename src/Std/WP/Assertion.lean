@@ -6,7 +6,6 @@ Authors: Vladimir Gladshtein, Sebastian Graf
 module
 
 prelude
-public import Init.Internal.Order
 public import Std.Internal.Order.OfProp
 public import Std.Internal.Order.PreservesSup
 public import Std.Internal.Order.Heyting

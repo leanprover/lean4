@@ -13,6 +13,7 @@ module
 prelude
 public import Lean.Structure
 public import Lean.CoreM
+import Init.Data.String.Pattern.String
 
 public section
 

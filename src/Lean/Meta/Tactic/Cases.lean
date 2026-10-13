@@ -12,6 +12,7 @@ public import Lean.Meta.Tactic.UnifyEq
 import Lean.Meta.Constructions.SparseCasesOn
 import Lean.Meta.Constructions.CtorIdx
 import Init.Omega
+import Init.Data.Slice.Array.Basic
 
 public section
 

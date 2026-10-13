@@ -15,6 +15,7 @@ import Init.System.Platform
 import Init.Data.String.Lossy
 import Lean.Compiler.Options
 import Std.Async.Process
+import Init.Data.String.Pattern.String
 
 /-  Lean companion to  `shell.cpp` -/
 

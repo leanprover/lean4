@@ -11,6 +11,7 @@ public import Lean.Meta.CollectFVars
 import Lean.Meta.Match.Value
 import Lean.Meta.AppBuilder
 import Lean.Meta.Match.NamedPatterns
+import Init.Data.String.Pattern.String
 
 public section
 

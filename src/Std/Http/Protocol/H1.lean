@@ -6,10 +6,8 @@ Authors: Sofia Rodrigues
 module
 
 prelude
-public import Std.Time
-public import Init.Data.Array
-public import Std.Http.Data
-public import Std.Http.Internal
+public import Std.Time.DateTime.PlainDateTime
+import Init.Data.Array.GetLit
 public import Std.Http.Protocol.H1.Parser
 public import Std.Http.Protocol.H1.Config
 public import Std.Http.Protocol.H1.Message

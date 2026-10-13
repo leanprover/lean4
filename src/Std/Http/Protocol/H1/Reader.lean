@@ -6,9 +6,6 @@ Authors: Sofia Rodrigues
 module
 
 prelude
-public import Std.Time
-public import Std.Http.Data
-public import Std.Http.Internal
 public import Std.Http.Protocol.H1.Parser
 public import Std.Http.Protocol.H1.Config
 public import Std.Http.Protocol.H1.Message

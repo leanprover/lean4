@@ -6,7 +6,7 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Lean.Expr
-public import Init.Data.Rat
+public import Init.Data.Rat.Basic
 public section
 namespace Lean.Meta.Sym
 /-!

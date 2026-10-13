@@ -8,7 +8,8 @@ module
 prelude
 public import Init.Grind
 public import Init.Data.Int.OfNat
-public import Std.Data.HashMap
+public import Std.Data.HashMap.Basic
+import Std.Data.HashMap.Lemmas
 
 public section
 

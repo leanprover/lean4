@@ -9,7 +9,6 @@ public import Lean.Meta.Sym.Arith.Insts
 import Lean.Meta.Sym.SynthInstance
 import Lean.Meta.Sym.Canon
 import Lean.Meta.DecLevel
-import Init.Grind.Ring
 public section
 
 namespace Lean.Meta.Sym.Arith

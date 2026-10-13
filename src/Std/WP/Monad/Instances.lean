@@ -8,6 +8,7 @@ module
 prelude
 public import Std.WP.EStack
 public import Std.WP.Monad.Basic
+public import Init.Control.Lawful.Instances
 universe u v w z
 @[expose] public section
 

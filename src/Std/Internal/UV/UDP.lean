@@ -7,7 +7,7 @@ module
 
 prelude
 public import Init.System.Promise
-public import Std.Net
+public import Std.Net.Addr
 
 public section
 

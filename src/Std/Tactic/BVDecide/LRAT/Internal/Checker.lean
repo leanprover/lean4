@@ -13,6 +13,7 @@ import Std.Tactic.BVDecide.LRAT.Internal.Empty
 import Std.Tactic.BVDecide.LRAT.Internal.Rat
 public import Std.Tactic.BVDecide.LRAT.Actions
 import Init.Omega
+public import Std.Sat.CNF.Sat
 
 namespace Std.Tactic.BVDecide.LRAT.Internal
 

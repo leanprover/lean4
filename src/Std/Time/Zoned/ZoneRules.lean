@@ -10,6 +10,7 @@ public import Std.Time.Zoned.TimeZone
 public import Std.Time.DateTime.Timestamp
 public import Std.Time.DateTime.WallTime
 public import Std.Time.Zoned.RecurringRule
+import Std.Time.Date.PlainDate
 
 public section
 

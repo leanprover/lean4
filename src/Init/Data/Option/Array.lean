@@ -7,7 +7,7 @@ module
 
 prelude
 import all Init.Data.Option.Instances
-public import Init.Control.Lawful
+public import Init.Control.Lawful.Basic
 public import Init.Data.Option.Lemmas
 import Init.Data.Array.Bootstrap
 import Init.Data.Array.Lemmas

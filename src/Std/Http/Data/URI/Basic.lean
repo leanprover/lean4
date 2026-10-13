@@ -6,9 +6,9 @@ Authors: Sofia Rodrigues
 module
 
 prelude
-import Init.Data.ToString
-public import Std.Net
-public import Std.Http.Internal
+public import Std.Http.Internal.Encode
+public import Std.Http.Internal.LowerCase
+public import Std.Net.Addr
 public import Std.Http.Data.URI.Encoding
 public import Init.Data.String.Search
 public import Init.Data.String.Length

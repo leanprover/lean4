@@ -6,9 +6,8 @@ Authors: Sofia Rodrigues
 module
 
 prelude
-public import Std.Time
+public import Std.Time.Time.Unit.Millisecond
 public import Std.Internal.UV.System
-public import Std.Data.HashMap
 import Init.Data.Ord.UInt
 
 public section

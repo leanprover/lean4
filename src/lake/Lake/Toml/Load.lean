@@ -10,7 +10,7 @@ public import Lean.Parser.Types
 public import Lake.Toml.Data.Value
 import Lake.Toml.Elab
 import Lake.Util.Message
-import Std.Do
+import Std.Do.Triple.SpecLemmas
 
 open Lean Parser
 

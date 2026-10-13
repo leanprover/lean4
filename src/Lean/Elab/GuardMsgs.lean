@@ -8,6 +8,7 @@ module
 prelude
 public import Lean.Elab.Notation
 public import Lean.Server.CodeActions.Attr
+import Init.Data.String.Pattern.String
 
 public section
 

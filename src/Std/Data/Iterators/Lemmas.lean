@@ -10,3 +10,4 @@ public import Std.Data.Iterators.Lemmas.Monadic
 public import Std.Data.Iterators.Lemmas.Combinators
 public import Std.Data.Iterators.Lemmas.Producers
 public import Std.Data.Iterators.Lemmas.Equivalence
+public import Std.Data.Iterators.Lemmas.Consumers

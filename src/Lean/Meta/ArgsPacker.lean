@@ -12,6 +12,7 @@ public import Lean.Meta.PProdN
 public import Lean.Meta.ArgsPacker.Basic
 import Init.Omega
 import Init.While
+import Init.Data.Range.Polymorphic.Nat
 
 public section
 

@@ -17,6 +17,7 @@ import Lean.Data.EditDistance
 public import Lean.Elab.DocString.Builtin.Keywords
 import Lean.Elab.InfoTree.Util
 import Init.Omega
+import Init.Data.String.Pattern.String
 
 
 namespace Lean.Doc

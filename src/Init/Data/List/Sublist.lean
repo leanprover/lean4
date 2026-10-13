@@ -14,6 +14,7 @@ import Init.Data.Bool
 import Init.Data.List.Lemmas
 import Init.Data.List.TakeDrop
 import Init.TacticsExtra
+import Init.Classical
 
 public section
 

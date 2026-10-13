@@ -6,7 +6,7 @@ Authors: Sofia Rodrigues
 module
 
 prelude
-public import Init.Data.Char
+import Init.Data.Char.Lemmas
 public import Init.Data.String.Basic
 public import Init.Data.Int.Basic
 public import Init.Grind

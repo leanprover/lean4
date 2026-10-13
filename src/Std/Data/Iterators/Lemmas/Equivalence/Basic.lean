@@ -6,7 +6,8 @@ Authors: Paul Reichert
 module
 
 prelude
-public import Init.Internal.Order
+public import Init.Internal.Order.Basic
+import Init.Control.Lawful.MonadLift.Lemmas
 public import Init.Data.Iterators.Basic
 public import Std.Data.Iterators.Lemmas.Equivalence.HetT
 

@@ -10,6 +10,7 @@ public import Lean.Compiler.LCNF.CompilerM
 public import Lean.Compiler.LCNF.PassManager
 import Lean.Compiler.LCNF.AlphaEqv
 import Init.Omega
+import Init.Data.Range.Polymorphic.Nat
 
 namespace Lean.Compiler.LCNF
 

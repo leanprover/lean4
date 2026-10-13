@@ -9,6 +9,7 @@ prelude
 public import Lean.Linter.Basic
 public import Lean.Elab.InfoTree.Util
 import Lean.Linter.Init
+import Init.Data.String.Pattern.String
 
 public section
 set_option linter.missingDocs true -- keep it documented

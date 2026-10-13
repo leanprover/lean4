@@ -7,6 +7,7 @@ module
 
 prelude
 public import Lean.Environment
+import Init.Data.Array.QSort.Basic
 
 public section
 

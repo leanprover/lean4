@@ -7,7 +7,7 @@ module
 
 prelude
 public import Init.Data.Hashable
-public import Init.Data.ToString
+public import Init.Ext
 
 @[expose] public section
 

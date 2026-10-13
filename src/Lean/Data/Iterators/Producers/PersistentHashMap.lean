@@ -9,7 +9,6 @@ prelude
 public import Init.Data.Array.Subarray
 public import Init.Data.Array.Subarray.Split
 public import Lean.Data.PersistentHashMap
-import Init.Data.Iterators.Consumers
 import Init.Omega
 import Init.Data.Slice.Array.Lemmas
 import Init.Data.Array.Mem

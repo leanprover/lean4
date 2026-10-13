@@ -8,6 +8,8 @@ module
 prelude
 public import Init.System.Promise
 public import Init.While
+public import Init.Control.State
+public import Init.Control.StateRef
 
 public section
 

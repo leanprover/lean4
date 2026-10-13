@@ -11,6 +11,7 @@ import Lean.Elab.InfoTree.Main
 meta import Lean.Parser.Attr
 import Lean.Parser.Extension
 import Lean.ExtraModUses
+public import Init.Data.Array.QSort.Basic
 
 public section
 

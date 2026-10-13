@@ -11,6 +11,7 @@ public import Lean.Elab.InfoTree.Main
 import Init.Data.Range.Polymorphic.Stream
 import Lean.Compiler.NameMangling
 import Lean.Compiler.ModPkgExt
+import Init.Data.Iterators.Consumers.Stream
 
 public section
 

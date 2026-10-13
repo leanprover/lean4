@@ -9,7 +9,8 @@ prelude
 public import Lean.Meta.Tactic.Split
 public import Lean.Elab.RecAppSyntax
 public import Lean.Elab.Tactic.Basic
-public import Init.Internal.Order
+public import Init.Internal.Order.Tactic
+import Init.Internal.Order.Basic
 
 public section
 

@@ -10,7 +10,7 @@ public import Init.Data.String.Basic
 import Init.Data.Vector.Basic
 import Init.Data.Nat.Order
 import Init.Data.Order.Lemmas
-import Init.Data.Range
+import Init.Data.Range.Basic
 import Init.While
 import Init.Data.String.Length
 

@@ -10,6 +10,8 @@ public import Lean.Elab.App
 public import Lean.Elab.DeclNameGen
 import Lean.Compiler.NoncomputableAttr
 import Lean.Meta.WrapInstance
+import Init.Data.Iterators.Consumers.Stream
+import Init.Data.String.Pattern.String
 
 public section
 

@@ -7,6 +7,9 @@ module
 
 prelude
 public import Std.Sat.CNF.RelabelFin
+import Init.Control.State
+import Init.Data.String.Defs
+import Init.Data.ToString.Macro
 
 namespace Std
 namespace Sat

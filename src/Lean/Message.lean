@@ -8,7 +8,7 @@ Message type used by the Lean frontend
 module
 
 prelude
-public import Init.Data.Slice.Array
+public import Init.Data.Slice.Array.Iterator
 public import Lean.Util.PPExt
 public import Lean.Util.Sorry
 import Init.Data.String.Search

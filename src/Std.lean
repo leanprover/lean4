@@ -13,5 +13,7 @@ public import Std.Sync
 public import Std.Time
 public import Std.Tactic
 public import Std.Internal
+public import Std.Async
+public import Std.Http
 public import Std.Net
 public import Std.WP

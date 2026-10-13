@@ -7,7 +7,7 @@ module
 
 prelude
 public import Init.Data.Array.Subarray.Split
-public import Init.Data.Slice.Array
+import Init.Data.Slice.Array.Lemmas
 import Init.Omega
 
 public section

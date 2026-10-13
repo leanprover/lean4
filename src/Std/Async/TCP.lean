@@ -6,7 +6,7 @@ Authors: Sofia Rodrigues
 module
 
 prelude
-public import Std.Time
+public import Std.Time.Time.Unit.Second
 public import Std.Internal.UV.TCP
 public import Std.Async.Select
 

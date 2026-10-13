@@ -9,6 +9,7 @@ prelude
 import all Init.Data.Vector.Basic
 public import Init.Data.Vector.Attach
 import Init.Data.Array.Monadic
+import Init.Control.Lawful.Lemmas
 
 public section
 

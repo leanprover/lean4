@@ -6,7 +6,10 @@ Authors: Sofia Rodrigues
 module
 
 prelude
-public import Std.Time.Date
+public import Std.Time.Date.Unit.Week
+public import Std.Time.Time.PlainTime
+public import Std.Time.Time.Unit.Basic
+import Std.Time.Date.Basic
 public import Init.Data.String.Basic
 public import Init.Data.String.Length
 

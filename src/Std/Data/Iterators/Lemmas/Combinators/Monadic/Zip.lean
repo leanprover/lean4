@@ -7,7 +7,6 @@ module
 
 prelude
 public import Std.Data.Iterators.Combinators.Monadic.Zip
-public import Init.Data.Iterators.Lemmas.Consumers.Monadic
 
 @[expose] public section
 

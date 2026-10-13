@@ -8,7 +8,6 @@ module
 prelude
 public import Init.BinderNameHint
 public import Std.WP.Triple.SpecLemmas
-public import Std.Internal.ForIn
 
 /-!
 # `forIn` loop-invariant gadgets

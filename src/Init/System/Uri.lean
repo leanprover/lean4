@@ -15,6 +15,7 @@ import Init.System.Platform
 import Init.While
 import Init.Data.String.Length
 import Init.Data.Iterators.Combinators.Take
+import Init.Data.String.Pattern.String
 
 public section
 

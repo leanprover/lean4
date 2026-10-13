@@ -12,6 +12,7 @@ public import Lean.Data.Lsp.Communication
 public import Lean.Data.Lsp.Diagnostics
 public import Lean.Data.Lsp.Extra
 public import Lean.Elab.InfoTree.Util
+import Init.Data.String.Pattern.String
 
 public section
 

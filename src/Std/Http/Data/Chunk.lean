@@ -6,7 +6,6 @@ Authors: Sofia Rodrigues
 module
 
 prelude
-public import Std.Http.Internal
 public import Std.Http.Data.Headers
 public meta import Std.Http.Internal.String
 

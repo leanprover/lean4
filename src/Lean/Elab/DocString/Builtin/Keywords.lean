@@ -15,6 +15,8 @@ public import Lean.DocString.View
 public import Lean.Elab.InfoTree
 public import Lean.Parser
 import Init.Omega
+public import Std.Do.Triple.SpecLemmas
+import Init.Data.String.Pattern.String
 
 
 namespace Lean.Doc

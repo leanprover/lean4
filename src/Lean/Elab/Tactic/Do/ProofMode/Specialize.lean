@@ -10,6 +10,7 @@ public import Lean.Elab.Tactic.ElabTerm
 public import Lean.Elab.Tactic.Do.ProofMode.MGoal
 import Lean.Elab.Tactic.Do.ProofMode.Basic
 import Lean.Elab.Tactic.Do.ProofMode.Focus
+import Std.Do.Triple.SpecLemmas
 
 public section
 

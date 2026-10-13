@@ -13,6 +13,7 @@ public import Lean.Elab.Tactic.Do.ProofMode.Intro
 public import Lean.Elab.Tactic.Do.ProofMode.Pure
 public import Lean.Elab.Tactic.Do.ProofMode.Frame
 public import Lean.Elab.Tactic.Do.ProofMode.Assumption
+import Std.Do.Triple.Basic
 
 namespace Lean.Elab.Tactic.Do
 open Lean Elab Tactic Meta

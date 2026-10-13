@@ -20,6 +20,7 @@ import Init.ByCases
 import Init.Data.Option.Lemmas
 import Init.Data.Iterators.Lemmas.Consumers.Collect
 import Init.Data.String.Lemmas.FindPos
+public import Init.Classical
 
 set_option doc.verso true
 

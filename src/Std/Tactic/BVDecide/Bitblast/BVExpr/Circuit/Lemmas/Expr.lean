@@ -23,6 +23,7 @@ public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Expr
 import Init.ByCases
 import Init.Data.Nat.Internal.Linear
 import Init.Omega
+import Std.Data.DHashMap.Lemmas
 
 @[expose] public section
 

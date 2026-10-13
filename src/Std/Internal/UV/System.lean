@@ -8,7 +8,6 @@ module
 prelude
 public import Init.System.Promise
 public import Init.Data.SInt.Basic
-public import Std.Net
 
 @[expose] public section
 
@@ -16,8 +15,6 @@ namespace Std
 namespace Internal
 namespace UV
 namespace System
-
-open Std.Net
 
 /--
 Represents resource usage statistics for a process or thread.

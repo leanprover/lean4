@@ -6,7 +6,9 @@ Authors: Paul Reichert
 module
 
 prelude
-import Init.Data.Iterators.Lemmas.Combinators
+public import Init.Data.Iterators.Consumers.Collect
+import Init.Data.Iterators.Lemmas.Combinators.FilterMap
+import Init.Data.Iterators.Lemmas.Consumers.Collect
 
 import Std.Data.DHashMap.IteratorLemmas
 public import Std.Data.HashMap.Iterator

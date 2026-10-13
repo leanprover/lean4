@@ -14,6 +14,9 @@ import all Init.Data.String.Search
 import Init.Data.String.Lemmas.Iterate
 import Std.Tactic.Do
 import Init.Data.List.Sublist
+import Std.Do.Triple.SpecLemmas
+import Std.Do.WP.SimpLemmas
+import Std.Do.WP.Sound
 
 section NoRepetition
 

@@ -7,7 +7,9 @@ module
 
 prelude
 public import Lean.Util.Profiler
-public import Std.Http
+import Init.Data.String.Pattern.String
+import Std.Http.Data.Body.Full
+import Std.Http.Server
 import Init.System.Platform
 import Init.System.IO
 

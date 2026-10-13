@@ -6,10 +6,10 @@ Authors: Mac Malone
 module
 
 prelude
-public import Init.Data.Order
+public import Init.Data.Order.Ord
+import Init.Data.String.Pattern.String
 import Lake.Util.Name
 import Init.Data.String.Search
-import Init.Data.Iterators.Consumers
 
 namespace Lake
 open Lean (Name)

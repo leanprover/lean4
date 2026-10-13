@@ -6,7 +6,6 @@ Authors: Kim Morrison, David Renshaw
 module
 
 prelude
-public import Init.Data.Sum
 public import Lean.LabelAttribute
 public import Lean.Meta.Tactic.Backtrack
 public import Lean.Meta.Tactic.Constructor

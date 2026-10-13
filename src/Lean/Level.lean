@@ -6,7 +6,8 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Init.Data.Array.QSort
+public import Init.Control.Reader
+import Init.Data.Array.QSort.Basic
 public import Lean.Data.PersistentHashSet
 public import Lean.Hygiene
 public import Init.Data.Option.Coe

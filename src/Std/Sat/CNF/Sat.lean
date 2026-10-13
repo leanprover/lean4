@@ -8,6 +8,7 @@ module
 prelude
 public import Std.Sat.CNF.Basic
 import Init.ByCases
+import Init.Classical
 
 public section
 

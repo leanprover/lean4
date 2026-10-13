@@ -14,6 +14,7 @@ public import Lake.Util.Git
 public import Lake.Util.Version
 import Init.Data.String.TakeDrop
 import Init.Data.ToString.Macro
+import Init.Data.String.Pattern.String
 
 /- # Package Dependency Configuration
 

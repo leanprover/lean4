@@ -9,7 +9,8 @@ prelude
 public import Init.ShareCommon
 public import Lean.Util.MonadCache
 public import Lean.LocalContext
-import Init.Data.Slice
+import Init.Data.Slice.Array.Basic
+import Init.Data.Slice.Array.Iterator
 import Init.Data.ToString.Macro
 import Init.Omega
 

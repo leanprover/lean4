@@ -11,6 +11,7 @@ public import Lean.Data.JsonRpc
 import Init.Data.String.TakeDrop
 import Init.Data.String.Search
 import Init.Data.Iterators.Consumers.Collect
+import Init.Data.String.Pattern.String
 
 public section
 

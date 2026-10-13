@@ -15,6 +15,7 @@ import Init.Data.Iterators.Lemmas.Combinators.Monadic.FilterMap
 import Init.Data.Iterators.Lemmas.Combinators.Monadic.FlatMap
 import Init.Data.List.Monadic
 import Init.Data.Option.Lemmas
+import Init.Control.Lawful.MonadLift.Instances
 
 namespace Std
 open Std.Internal Std.Iterators

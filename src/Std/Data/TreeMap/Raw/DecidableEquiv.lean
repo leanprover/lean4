@@ -9,6 +9,7 @@ prelude
 
 public import Std.Data.DTreeMap.DecidableEquiv
 public import Std.Data.TreeMap.Raw.Basic
+import Std.Data.DTreeMap.Raw.DecidableEquiv
 
 public section
 

@@ -8,6 +8,7 @@ module
 prelude
 public import Init.Data.List.Control
 public import Init.Data.List.Impl
+import Init.NotationExtra
 
 public section
 

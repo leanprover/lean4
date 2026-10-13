@@ -8,6 +8,7 @@ module
 prelude
 public import Lean.PostprocessTraces.Basic
 import Lean.CoreM
+import Init.Data.String.Pattern.String
 
 public section
 

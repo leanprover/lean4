@@ -7,6 +7,7 @@ module
 
 prelude
 public import Std.Data.Iterators.Lemmas.Equivalence.Basic
+import Init.Control.Lawful.MonadLift.Lemmas
 
 @[expose] public section
 

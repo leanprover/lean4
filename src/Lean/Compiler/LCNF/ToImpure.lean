@@ -10,6 +10,7 @@ import Lean.Compiler.LCNF.ToImpureType
 public import Lean.Compiler.LCNF.PassManager
 import Lean.Compiler.LCNF.PhaseExt
 import Init.Data.Format.Macro
+import Init.Data.Range.Polymorphic.Nat
 
 namespace Lean.Compiler.LCNF
 

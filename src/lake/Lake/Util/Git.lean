@@ -6,7 +6,7 @@ Authors: Gabriel Ebner, Sebastian Ullrich, Mac Malone
 module
 
 prelude
-public import Init.Data.ToString
+import Init.Data.String.Pattern.String
 public import Lake.Util.Proc
 import Init.Data.String.TakeDrop
 import Init.Data.String.Search

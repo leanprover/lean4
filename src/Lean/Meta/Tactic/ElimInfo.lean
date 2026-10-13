@@ -8,6 +8,7 @@ module
 prelude
 public import Lean.Meta.Check
 import Init.Data.Range.Polymorphic.Iterators
+import Init.Data.Slice.Array.Basic
 
 public section
 

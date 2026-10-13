@@ -9,6 +9,7 @@ public import Lean.Meta.DiscrTree.Types
 public import Lean.CoreM
 import Init.Data.Range.Polymorphic.Iterators
 import Init.Omega
+import Init.Data.Range.Polymorphic.Nat
 public section
 namespace Lean.Meta.DiscrTree
 

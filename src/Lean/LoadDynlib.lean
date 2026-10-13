@@ -9,6 +9,7 @@ prelude
 public import Init.System.IO
 import Init.Data.String.TakeDrop
 import Init.Data.ToString.Macro
+import Init.Data.String.Pattern.String
 
 public section
 

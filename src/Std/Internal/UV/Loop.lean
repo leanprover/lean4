@@ -38,6 +38,11 @@ opaque configure (options : @& Options) : IO Unit
 
 /--
 Checks if the event loop has pending work, i.e. an active handle or an in-flight request.
+
+The event loop is torn down when the program returns from `main`, after the tasks that are still
+running have finished: every handle is closed, and a promise still pending at that point is never
+resolved. A `(sync := true)` continuation that blocks on the event loop's thread delays the exit for
+as long as it blocks. `IO.Process.exit` skips the teardown.
 -/
 @[extern "lean_uv_event_loop_alive"]
 opaque alive : BaseIO Bool

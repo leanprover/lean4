@@ -185,16 +185,6 @@ public theorem fromUTF8Lossy_append_of_utf8DecodeChar?_eq_none {l b : ByteArray}
       simpa using hb (by simp only [ByteArray.size_append] at h'; omega)
   rw [this, ByteArray.extract_append_eq_right rfl ByteArray.size_append]
 
-@[simp]
-theorem foo0 : (237 : UInt8) &&& (128 : UInt8) = 128 := rfl
-
-@[simp]
-theorem foo1 : (237 : UInt8) &&& (224 : UInt8) = 224 := rfl
-
-@[simp]
-theorem foo : (237 : UInt8) &&& (240 : UInt8) = 224 := by
-  rfl
-
 /--
 The bytes `0xED x y` with `0xA0 ≤ x < 0xC0` and `0x80 ≤ y < 0xC0` would encode a surrogate code
 point (`U+D800` to `U+DFFF`), so `fromUTF8Lossy` replaces them with a single `�`, provided that `b`

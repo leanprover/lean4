@@ -12,6 +12,7 @@ public import Lean.Meta.Tactic.Revert
 public import Lean.Elab.InfoTree.Main
 public import Lean.Util.ForEachExpr
 import Lean.Meta.AppBuilder
+import Init.Data.Range.Polymorphic.Nat
 
 public section
 

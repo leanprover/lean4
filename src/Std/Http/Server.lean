@@ -6,7 +6,6 @@ Authors: Sofia Rodrigues
 module
 
 prelude
-public import Std.Async
 public import Std.Async.TCP
 public import Std.Sync.CancellationToken
 public import Std.Sync.Semaphore

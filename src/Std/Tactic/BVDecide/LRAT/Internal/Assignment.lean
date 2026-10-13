@@ -6,7 +6,9 @@ Authors: Henrik Böving
 module
 
 prelude
-public import Std.Data.HashMap
+public import Std.Data.HashMap.Basic
+import Std.Data.HashMap.Lemmas
+import Std.Do.WP.Sound
 public import Init.Data.Hashable
 public import Std.Sat.CNF.Unit
 import Std.Sat.CNF.SpecLemmas

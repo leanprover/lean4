@@ -18,6 +18,7 @@ public import Init.Data.Option.Instances
 import Init.Data.Bool
 import Init.Data.Option.Lemmas
 import Init.TacticsExtra
+public import Init.PropLemmas
 
 grind_annotated "2025-01-24"
 

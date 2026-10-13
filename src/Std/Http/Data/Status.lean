@@ -6,7 +6,9 @@ Authors: Sofia Rodrigues
 module
 
 prelude
-public import Std.Http.Internal
+public import Std.Http.Internal.Char
+public import Std.Http.Internal.Encode
+import Init.Data.String.Csimp
 
 public section
 

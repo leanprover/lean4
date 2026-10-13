@@ -7,7 +7,8 @@ module
 
 prelude
 import all Init.Data.Array.Basic
-public import Init.Control.Lawful
+public import Init.Control.Lawful.Basic
+public import Init.Ext
 public import Init.Data.Function
 import Init.Data.Array.Lemmas
 import Init.Data.List.Nat.TakeDrop

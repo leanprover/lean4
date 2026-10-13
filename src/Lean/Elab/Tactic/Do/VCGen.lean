@@ -14,6 +14,8 @@ import Lean.Meta.Tactic.TryThis
 
 public import Lean.Elab.Tactic.Do.VCGen.Basic
 import Lean.Elab.Tactic.Do.VCGen.SuggestInvariant
+import Init.Data.String.Pattern.String
+import Std.Do.Triple.SpecLemmas
 
 public section
 

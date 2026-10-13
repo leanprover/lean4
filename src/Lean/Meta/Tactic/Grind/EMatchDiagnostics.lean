@@ -6,7 +6,7 @@ Authors: Henrik Böving
 module
 prelude
 public import Lean.Meta.Tactic.Grind.Types
-import Init.Data.List.Sort
+import Init.Data.List.Sort.Impl
 
 /-!
 This module implements analysis tools for e-matching instantiation graphs. They are used to provide

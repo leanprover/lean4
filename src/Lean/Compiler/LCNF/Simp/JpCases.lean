@@ -9,6 +9,7 @@ prelude
 public import Lean.Compiler.LCNF.DependsOn
 public import Lean.Compiler.LCNF.Internalize
 public import Lean.Compiler.LCNF.Simp.DiscrM
+import Init.Data.Slice.Array.Basic
 
 public section
 

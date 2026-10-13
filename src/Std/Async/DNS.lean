@@ -6,8 +6,7 @@ Authors: Sofia Rodrigues
 module
 
 prelude
-public import Std.Time
-public import Std.Internal.UV
+public import Std.Internal.UV.DNS
 public import Std.Async.Basic
 public import Init.Data.Function
 

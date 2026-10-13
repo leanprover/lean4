@@ -6,8 +6,10 @@ Authors: Sofia Rodrigues
 module
 
 prelude
-public import Init.Data.ToString
-public import Std.Http.Internal
+public import Init.Data.String.Modify
+public import Init.Data.String.TakeDrop
+public import Std.Http.Internal.Char
+import Init.Data.String.Csimp
 
 public section
 

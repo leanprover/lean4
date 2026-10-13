@@ -6,7 +6,8 @@ Authors: Sebastian Graf
 module
 
 prelude
-public import Std.Do.SPred
+public import Std.Do.SPred.Notation
+import Std.Do.SPred.DerivedLaws
 
 @[expose] public section
 

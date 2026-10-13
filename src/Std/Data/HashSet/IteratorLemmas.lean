@@ -13,6 +13,7 @@ public import Std.Data.HashSet.Iterator
 import all Std.Data.HashSet.Iterator
 import Std.Data.HashSet.RawLemmas
 import all Std.Data.DHashMap.Basic
+public import Init.Data.Iterators.Consumers.Collect
 
 namespace Std.HashSet.Raw
 open Std.Iterators

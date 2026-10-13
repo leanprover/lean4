@@ -9,6 +9,7 @@ prelude
 public import Std.Sat.AIG.Relabel
 import Init.ByCases
 import Init.Omega
+import Std.Data.HashMap.Lemmas
 
 @[expose] public section
 

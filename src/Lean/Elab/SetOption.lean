@@ -8,6 +8,7 @@ module
 prelude
 public import Lean.Elab.InfoTree
 public import Init.Syntax
+import Init.Data.Slice.Array.Basic
 
 public section
 namespace Lean.Elab

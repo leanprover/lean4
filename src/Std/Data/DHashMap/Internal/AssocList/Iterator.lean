@@ -8,7 +8,7 @@ module
 prelude
 import Init.Data.Nat.Lemmas
 
-public import Init.Data.Iterators.Consumers
+public import Init.Data.Iterators.Consumers.Monadic.Loop
 
 public import Std.Data.DHashMap.Internal.AssocList.Basic
 

@@ -10,7 +10,7 @@ public import Init.Data.Iterators.Consumers.Monadic.Collect
 import all Init.Data.Iterators.Consumers.Monadic.Collect
 import all Init.Data.Iterators.Consumers.Monadic.Total
 import all Init.WFExtrinsicFix
-public import Init.Control.Lawful
+public import Init.Control.Lawful.Basic
 import Init.Data.Array.Bootstrap
 import Init.Data.Array.Lemmas
 import Init.Data.Iterators.Lemmas.Monadic.Basic

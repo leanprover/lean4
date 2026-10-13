@@ -22,6 +22,7 @@ import Init.Data.List.Nat.Find
 import Init.Data.List.Nat.TakeDrop
 import Init.Data.List.TakeDrop
 import Init.Omega
+public import Init.Classical
 
 public section
 

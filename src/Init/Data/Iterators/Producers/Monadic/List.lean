@@ -6,7 +6,7 @@ Authors: Paul Reichert
 module
 
 prelude
-public import Init.Data.Iterators.Consumers
+public import Init.Data.Iterators.Consumers.Monadic.Loop
 import Init.Data.Nat.Lemmas
 
 @[expose] public section

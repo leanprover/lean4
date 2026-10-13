@@ -6,7 +6,6 @@ Authors: Sofia Rodrigues
 module
 
 prelude
-public import Std.Sync
 public import Std.Http.Data.Request
 public import Std.Http.Data.Response
 public import Std.Http.Data.Body.Any

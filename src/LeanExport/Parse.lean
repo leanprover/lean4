@@ -6,7 +6,6 @@ Authors: Henrik Böving
 module
 
 prelude
-public import Std.Data.HashMap
 public import Lean.Declaration
 import Init.Data.Array.GetLit
 import Init.Data.String.Search

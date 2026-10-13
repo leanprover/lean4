@@ -6,7 +6,9 @@ Authors: Henrik Böving
 module
 
 prelude
-public import Std.Data.HashSet
+public import Init.Control.State
+public import Std.Data.HashSet.Basic
+import Std.Data.HashMap.Lemmas
 public import Init.Data.Vector.Basic
 public import Init.Data.Hashable
 public import Init.Data.String.Defs

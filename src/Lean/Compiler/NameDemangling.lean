@@ -12,6 +12,8 @@ import Init.Data.String.Search
 import Init.Data.String.Iterate
 import Lean.Data.NameTrie
 public import Lean.Compiler.NameMangling
+import Init.Data.Range.Basic
+import Init.Data.String.Pattern.String
 
 /-!
 # Name Demangling

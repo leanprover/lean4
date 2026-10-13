@@ -9,6 +9,7 @@ prelude
 public import Lean.Compiler.LCNF.Util
 public import Lean.Compiler.LCNF.BaseTypes
 public import Lean.Compiler.LCNF.Irrelevant
+import Init.Data.Slice.Array.Basic
 
 public section
 

@@ -15,6 +15,10 @@ import Init.Data.Bool
 import Init.Data.Iterators.Lemmas.Consumers.Monadic.Collect
 import Init.Data.Iterators.Lemmas.Consumers.Monadic.Loop
 import Init.Data.Iterators.Lemmas.Monadic.Basic
+import Init.Control.Lawful.Lemmas
+import Init.Control.Lawful.MonadAttach.Lemmas
+import Init.Control.Lawful.MonadLift.Instances
+import Init.Control.Lawful.MonadLift.Lemmas
 
 public section
 

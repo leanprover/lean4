@@ -10,6 +10,7 @@ prelude
 public import Lean.Widget
 import Lean.Server.FileWorker.WidgetRequests
 public import Lean.Server.GoTo
+import Init.Data.String.Pattern.String
 
 public section
 open Lean

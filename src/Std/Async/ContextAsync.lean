@@ -6,7 +6,6 @@ Authors: Sofia Rodrigues
 module
 
 prelude
-public import Std.Internal.UV
 public import Std.Async.Timer
 public import Std.Sync.CancellationContext
 

@@ -6,8 +6,10 @@ Authors: Sofia Rodrigues
 module
 
 prelude
-public import Std.Internal.Parsec
-public import Std.Http.Data
+public import Std.Http.Data.Chunk
+public import Std.Http.Data.Request
+public import Std.Http.Data.Response
+import Init.While
 public import Std.Internal.Parsec.ByteArray
 public import Std.Http.Protocol.H1.Config
 

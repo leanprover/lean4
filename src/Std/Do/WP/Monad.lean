@@ -8,6 +8,7 @@ module
 prelude
 public import Std.Do.WP.Basic
 import all Std.Do.WP.Basic
+public import Init.Control.Lawful.Instances
 
 @[expose] public section
 

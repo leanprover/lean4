@@ -15,6 +15,7 @@ import Lean.Elab.Tactic.VCGen.ExcessArgsFrame
 public import Lean.Meta.Sym.Apply
 public import Lean.Meta.Sym.Util
 meta import Std.WP.Frame
+import Std.Do.Triple.SpecLemmas
 
 open Lean Meta Elab Tactic Sym
 open Lean.Elab.Tactic.VCGen.SpecAttr

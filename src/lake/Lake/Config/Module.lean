@@ -8,6 +8,7 @@ module
 prelude
 public import Lake.Config.LeanLib
 public import Lean.Compiler.Options
+import Init.Data.String.Pattern.String
 
 namespace Lake
 open Lean System

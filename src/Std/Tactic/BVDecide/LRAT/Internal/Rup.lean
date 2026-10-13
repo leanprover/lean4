@@ -12,6 +12,7 @@ import Init.Omega
 import Init.ByCases
 import Std.Sat.CNF.SpecLemmas
 import Std.Tactic.Do
+import Std.Do.WP.Sound
 
 namespace Std.Tactic.BVDecide.LRAT.Internal
 

@@ -7,6 +7,7 @@ module
 
 prelude
 public import Lean.Meta.Basic
+import Init.Data.String.Pattern.String
 
 public section
 

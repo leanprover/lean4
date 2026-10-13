@@ -12,6 +12,7 @@ public import Std.Tactic.BVDecide.Syntax
 import Lean.Meta.Tactic.BVDecide.LRAT.Trim
 import Std.Tactic.BVDecide.LRAT.Parser
 import Lean.Meta.Tactic.BVDecide.External
+import Std.Sat.CNF.Dimacs
 
 /-!
 This module contains the logic for loading LRAT proofs into Lean.

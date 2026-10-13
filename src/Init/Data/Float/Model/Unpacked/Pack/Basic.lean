@@ -8,7 +8,7 @@ module
 prelude
 public import Init.Data.Float.Model.Unpacked.Basic
 public import Init.Data.Float.Model.Format.Basic
-public import Init.Data.Nat.Bitwise
+import Init.Data.Nat.Bitwise.Lemmas
 public import Init.Omega
 public import Init.Data.BitVec.Lemmas
 public import Init.Data.BitVec.Bootstrap

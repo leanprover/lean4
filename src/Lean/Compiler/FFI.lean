@@ -8,6 +8,7 @@ module
 prelude
 public import Init.System.FilePath
 import Init.Data.String.Search
+import Init.Data.String.Pattern.String
 
 public section
 

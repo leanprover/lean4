@@ -12,6 +12,7 @@ public import Lean.ProjFns
 public import Lean.Exception
 public import Init.While
 import Init.Data.Range.Polymorphic.Iterators
+public import Init.Data.Slice.Array.Basic
 
 public section
 

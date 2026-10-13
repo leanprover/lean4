@@ -6,8 +6,10 @@ Authors: Sofia Rodrigues
 module
 
 prelude
-import Init.Data.Array
-public import Std.Http.Data
+public import Std.Http.Data.Body.Length
+public import Std.Http.Data.Request
+public import Std.Http.Data.Response
+import Init.Data.Array.GetLit
 
 public section
 

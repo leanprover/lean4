@@ -8,7 +8,9 @@ module
 prelude
 public import Std.Tactic.BVDecide.LRAT.Checker
 public import Std.Tactic.BVDecide.LRAT.Parser
-public import Std.Tactic.BVDecide.Bitblast
+public import Init.Data.BitVec.Package
+public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Substructure
+import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas
 public import Std.Sat.AIG.CNF
 public import Std.Sat.AIG.RelabelNat
 

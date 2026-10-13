@@ -9,6 +9,7 @@ public import Std.Tactic.BVDecide.Bitblast.BVExpr.Basic
 import Init.System.IO
 import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Expr
 import Std.Data.HashMap.Basic
+import Init.Control.StateRef
 
 
 /-!

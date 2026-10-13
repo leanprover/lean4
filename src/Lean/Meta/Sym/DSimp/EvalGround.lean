@@ -8,6 +8,7 @@ prelude
 public import Lean.Meta.Sym.DSimp.DSimpM
 import Lean.Meta.Sym.LitValues
 import Lean.Meta.Offset
+import Init.Data.Int.Gcd
 namespace Lean.Meta.Sym.DSimp
 
 /-!

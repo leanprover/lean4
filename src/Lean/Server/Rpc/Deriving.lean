@@ -8,6 +8,7 @@ module
 
 prelude
 public import Lean.Elab.Deriving.Basic
+import Init.Data.String.Pattern.String
 
 
 public section

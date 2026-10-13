@@ -8,6 +8,7 @@ module
 prelude
 public import Std.Sat.CNF.Negation
 import Init.ByCases
+import Init.Classical
 
 /-!
 Formalizations of clause redundancy properties.

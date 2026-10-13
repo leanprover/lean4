@@ -8,6 +8,7 @@ prelude
 public import Lean.Meta.DiscrTree.Main
 import Init.Data.Range.Polymorphic.Iterators
 import Lean.Meta.FunInfo
+import Init.Data.Range.Polymorphic.Nat
 public section
 namespace Lean
 

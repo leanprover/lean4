@@ -12,6 +12,8 @@ import Init.Data.Bool
 import Init.Data.Option.Array
 import Init.Data.Option.List
 import Init.Data.Subtype.Basic
+import Init.Control.Lawful.Instances
+import Init.Control.Lawful.MonadAttach.Lemmas
 
 public section
 

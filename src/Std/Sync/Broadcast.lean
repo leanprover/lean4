@@ -6,9 +6,10 @@ Authors: Sofia Rodrigues
 module
 
 prelude
-public import Std.Data
+public import Init.Grind.Cases
+import Init.Data.Vector.Basic
+import Std.Data.TreeMap.Basic
 public import Init.Data.Queue
-public import Init.Data.Vector
 public import Std.Sync.Mutex
 public import Std.Async.IO
 

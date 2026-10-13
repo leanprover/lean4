@@ -15,6 +15,7 @@ import Init.While
 import Init.Syntax
 import Lean.Meta.Sym.Simp.DiscrTree
 import Lean.Meta.DiscrTree.Util
+import Std.Do.Triple.Basic
 
 public section
 

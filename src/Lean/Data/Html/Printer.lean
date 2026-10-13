@@ -9,6 +9,7 @@ prelude
 public import Lean.Data.Html.Basic
 import Lean.Data.Html.Spec
 import Init.Data.String.Search
+import Init.Data.String.Pattern.String
 
 set_option doc.verso true
 

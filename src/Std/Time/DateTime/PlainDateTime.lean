@@ -7,6 +7,7 @@ module
 
 prelude
 public import Std.Time.DateTime.WallTime
+public import Std.Time.Date.PlainDate
 
 public section
 

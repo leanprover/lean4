@@ -19,6 +19,7 @@ import Init.Data.List.Monadic
 import Init.Data.Option.BasicAux
 import Init.Data.ToString.Macro
 import Init.Data.String.Length
+import Init.Data.String.Pattern.String
 
 public section
 

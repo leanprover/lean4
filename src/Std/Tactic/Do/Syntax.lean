@@ -6,7 +6,7 @@ Authors: Sebastian Graf
 module
 
 prelude
-public import Std.Do
+import Std.Do.Triple.SpecLemmas
 public import Std.WP.Tactic
 public import Std.Tactic.Do.ProofMode -- For (meta) importing `mgoalStx`; otherwise users might experience
 public import Init.Data.Array.GetLit

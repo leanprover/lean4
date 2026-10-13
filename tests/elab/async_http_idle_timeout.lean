@@ -1,6 +1,7 @@
 module
 
 import Std.Http.Test.Helpers
+import Std.Http.Data.Body.Full
 public meta import Std.Http.Test.Helpers
 
 /-!

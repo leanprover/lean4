@@ -9,6 +9,8 @@ prelude
 public import Lean.Compiler.LCNF.PhaseExt
 public import Lean.Compiler.LCNF.OtherDecl
 import Init.Omega
+public import Init.Data.Range.Polymorphic.Nat
+import Init.Data.Slice.Array.Basic
 
 public section
 

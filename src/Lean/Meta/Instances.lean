@@ -14,6 +14,8 @@ import Lean.Meta.CollectFVars
 import Init.While
 import Lean.OriginalConstKind
 import Lean.ProjFns
+import Init.Data.Iterators.Consumers.Stream
+import Init.Data.Range.Polymorphic.Nat
 public section
 
 namespace Lean.Meta

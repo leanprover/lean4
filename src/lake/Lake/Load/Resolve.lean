@@ -19,6 +19,7 @@ import Init.Data.Range.Polymorphic.Iterators
 import Init.Data.Range.Polymorphic.Lemmas
 import Init.TacticsExtra
 import Lean.Runtime
+import Init.Data.Range.Polymorphic.Nat
 
 open System Lean
 

@@ -22,7 +22,10 @@ public import Lean.PrivateName
 public import Lean.LoadDynlib
 public import Lean.CompactedRegion
 public import Init.Dynamic
-import Init.Data.Slice
+public import Init.Control.StateRef
+import Init.Data.Array.QSort.Basic
+import Init.Data.Slice.Array.Basic
+import Init.Data.Slice.Array.Iterator
 import Init.Data.String.TakeDrop
 import Init.Data.Range.Polymorphic.Iterators
 import Init.While

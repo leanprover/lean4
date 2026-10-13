@@ -8,6 +8,8 @@ module
 prelude
 public import Std.Tactic.Do.ProofMode
 public import Std.Tactic.Do.Syntax
+-- `mvcgen` works with the whole `Std.Do` framework, including its specifications.
+public import Std.Do  -- umbrella_import: ignore
 
 @[expose] public section
 

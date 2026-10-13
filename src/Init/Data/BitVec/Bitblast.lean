@@ -7,7 +7,7 @@ module
 
 prelude
 import all Init.Data.Nat.Bitwise.Basic
-import all Init.Data.Int.DivMod
+import Init.Data.Int.DivMod.Lemmas
 import all Init.Data.BitVec.Basic
 public import Init.Data.BitVec.Folds
 public import Init.BinderPredicates

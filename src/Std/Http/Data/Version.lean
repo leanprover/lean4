@@ -6,7 +6,7 @@ Authors: Sofia Rodrigues
 module
 
 prelude
-import Init.Data.ToString
+import Init.Data.ToString.Macro
 public import Init.Data.String.Basic
 
 public section

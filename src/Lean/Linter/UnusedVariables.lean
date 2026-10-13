@@ -8,6 +8,7 @@ module
 prelude
 public import Lean.Elab.Command
 public import Lean.Linter.Util
+import Init.Data.String.Pattern.String
 
 public section
 set_option linter.missingDocs true -- keep it documented

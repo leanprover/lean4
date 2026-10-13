@@ -8,6 +8,8 @@ module
 prelude
 public import Std.Http.Server
 public import Std.Http.Test.Helpers
+public import Std.Http.Data
+public import Std.Http.Internal
 
 public section
 

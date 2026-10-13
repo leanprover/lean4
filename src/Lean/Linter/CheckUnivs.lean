@@ -14,6 +14,7 @@ public import Lean.Linter.Basic
 public import Lean.Linter.Util
 public import Lean.Util.CollectLevelParams
 public import Lean.Util.ForEachExpr
+import Init.Data.String.Pattern.String
 
 public section
 

@@ -19,6 +19,7 @@ public import Lean.Meta.Sym.Simp.Simproc
 public import Lean.Elab.Tactic.Grind.Main
 public import Lean.Elab.Tactic.Grind.Basic
 import Lean.Meta.Sym.ProofInstInfo
+import Init.Data.String.Pattern.String
 
 open Lean Parser Meta Elab Tactic Sym
 open Lean.Elab.Tactic.Do Lean.Elab.Tactic.VCGen.SpecAttr

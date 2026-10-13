@@ -1,4 +1,5 @@
 import Std.Async
+import Std.Internal.UV.Loop
 
 /-!
 A `Signal.Waiter` that a select checked keeps listening, but once it is dropped it must stop

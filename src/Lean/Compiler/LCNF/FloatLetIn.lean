@@ -9,6 +9,7 @@ prelude
 public import Lean.Compiler.LCNF.FVarUtil
 public import Lean.Compiler.LCNF.PassManager
 import Lean.Compiler.LCNF.PhaseExt
+import Init.Data.Range.Polymorphic.Nat
 
 public section
 

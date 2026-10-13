@@ -13,6 +13,7 @@ public import Lean.Meta.AbstractMVars
 public import Lean.Meta.Check
 import Init.While
 import Lean.Util.CollectFVars
+import Init.Data.Range.Polymorphic.Nat
 
 public section
 namespace Lean.Meta

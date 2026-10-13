@@ -8,7 +8,6 @@ module
 prelude
 import Init.While
 public import Init.Data.String.Basic
-public import Std.Internal.Parsec
 public import Std.Internal.Parsec.ByteArray
 public import Std.Http.Data.URI.Basic
 public import Std.Http.Data.URI.Config

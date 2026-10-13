@@ -9,6 +9,7 @@ public import Lean.Elab.Command
 import Init.Grind.Lint
 import Lean.Elab.Tactic.Grind.Config
 import Lean.Meta.Tactic.TryThis
+import Init.Data.String.Pattern.String
 namespace Lean.Elab.Tactic.Grind
 
 builtin_initialize skipExt : SimplePersistentEnvExtension Name NameSet ←

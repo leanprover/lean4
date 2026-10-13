@@ -6,8 +6,7 @@ Authors: Sofia Rodrigues
 module
 
 prelude
-public import Std.Http.Data
-public import Std.Http.Internal
+public import Std.Http.Data.Headers.Value
 
 public section
 
@@ -22,7 +21,7 @@ namespace Std.Http.Protocol.H1
 
 set_option linter.all true
 
-open Std Std.Internal Parsec ByteArray
+open Std Std.Internal
 
 /--
 Connection limits and parser bounds configuration.

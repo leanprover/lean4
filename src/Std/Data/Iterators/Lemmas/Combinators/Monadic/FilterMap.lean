@@ -8,6 +8,7 @@ module
 prelude
 public import Init.Data.Iterators.Lemmas.Combinators.Monadic.FilterMap
 public import Std.Data.Iterators.Lemmas.Equivalence.StepCongr
+import Init.Control.Lawful.MonadLift.Instances
 
 @[expose] public section
 

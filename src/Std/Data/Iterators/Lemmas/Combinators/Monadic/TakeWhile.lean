@@ -7,7 +7,7 @@ module
 
 prelude
 public import Std.Data.Iterators.Combinators.Monadic.TakeWhile
-public import Std.Data.Iterators.Lemmas.Consumers.Monadic
+import Init.Data.Bool
 
 @[expose] public section
 

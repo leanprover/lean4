@@ -11,6 +11,7 @@ meta import Lean.Parser.Module
 import Lean.Compiler.ModPkgExt
 public import Lean.DeprecatedModule
 import Init.Data.String.Modify
+import Init.Data.String.Pattern.String
 
 public section
 

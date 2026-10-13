@@ -9,7 +9,6 @@ prelude
 public import LeanExport.Parse
 import Lake.Check.Util
 import Init.Data.ToString.Macro
-import Std.Data.HashSet
 
 namespace Lake.Check
 

@@ -8,6 +8,7 @@ module
 prelude
 public import Lean.Server.Requests
 import Lean.DocString.View
+import Init.Data.String.Pattern.String
 
 public section
 

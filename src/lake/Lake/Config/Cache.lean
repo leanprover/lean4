@@ -19,7 +19,8 @@ import Lake.Util.Reservoir
 import Lake.Util.JsonObject
 import Lake.Util.IO
 import Init.System.Platform
-import Init.Data.String.Lemmas
+public import Init.Data.Vector.Basic
+import Init.Data.String.Lemmas.Search
 
 open Lean System
 

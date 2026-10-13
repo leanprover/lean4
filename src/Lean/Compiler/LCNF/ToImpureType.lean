@@ -10,6 +10,7 @@ public import Lean.Compiler.LCNF.Irrelevant
 import Lean.Compiler.LCNF.MonoTypes
 import Lean.Runtime
 import Init.Data.Format.Macro
+import Init.Data.Slice.Array.Basic
 
 namespace Lean.Compiler.LCNF
 

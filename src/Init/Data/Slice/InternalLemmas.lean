@@ -9,7 +9,7 @@ prelude
 public import Init.Data.Slice.Operations
 import all Init.Data.Slice.Operations
 public import Init.Data.Iterators.Consumers.Collect
-import Init.Data.Iterators.Lemmas.Consumers
+import Init.Data.Iterators.Lemmas.Consumers.Loop
 import Init.Data.List.Control
 
 public section

@@ -8,6 +8,7 @@ module
 prelude
 public import Lean.Compiler.LCNF.PassManager
 import Init.While
+import Init.Data.Range.Polymorphic.Nat
 
 /-!
 This pass expands pairs of reset-reuse instructions into explicit hot and cold paths. We do this on

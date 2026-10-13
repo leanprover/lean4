@@ -8,7 +8,7 @@ module
 
 prelude
 public import Lean.Data.Json.Basic
-public import Std.Internal.Parsec
+public import Std.Internal.Parsec.String
 
 public section
 

@@ -6,7 +6,8 @@ Authors: Henrik Böving
 module
 
 prelude
-public import Std.Tactic.BVDecide.Normalize
+import Std.Tactic.BVDecide.Normalize.BitVec
+import Std.Tactic.BVDecide.Normalize.Equal
 public import Lean.Meta.Tactic.BVDecide.Attr
 import Init.Data.BitVec.Package
 import Init.Omega

@@ -10,6 +10,7 @@ public import Lean.Meta.Basic
 import Lean.Meta.PProdN
 import Lean.Meta.Tactic.Cases
 import Lean.Meta.Tactic.Refl
+import Init.Data.Iterators.Consumers.Stream
 
 namespace Lean
 open Meta

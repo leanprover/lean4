@@ -7,7 +7,6 @@ Authors: Gabriel Ebner, Marc Huisinga
 module
 
 prelude
-public import Init.Data.Range
 public import Init.Data.OfScientific
 public import Init.Data.Hashable
 public import Std.Data.TreeMap.Raw.Basic

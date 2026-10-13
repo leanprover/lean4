@@ -13,6 +13,7 @@ import Lean.Meta.ProdN
 public import Lean.Parser
 meta import Lean.Parser.Do
 import Init.Omega
+public import Std.Do.Triple.SpecLemmas
 
 public section
 

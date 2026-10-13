@@ -11,6 +11,7 @@ public import Lean.Data.PersistentArray
 public import Lean.Expr
 import Init.Data.ToString.Macro
 import Init.Omega
+import Init.Data.Array.QSort.Basic
 
 public section
 

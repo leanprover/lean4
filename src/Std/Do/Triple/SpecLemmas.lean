@@ -8,16 +8,23 @@ module
 prelude
 public import Std.Do.Triple.Basic
 public import Init.Data.Range.Polymorphic.Iterators
-import Init.Data.Range.Polymorphic
-public import Init.Data.Slice.Array
+public import Init.Data.Range.Basic
+public import Init.Data.Slice.Operations
+import Init.Data.Array.Lemmas
+import Init.Data.Iterators.Lemmas.Combinators.Monadic.FilterMap
+import Init.Data.Iterators.Lemmas.Consumers.Collect
+import Init.Data.Iterators.Lemmas.Consumers.Loop
+import Init.Data.Iterators.Lemmas.Consumers.Monadic.Loop
+import Init.Data.Range.Lemmas
+import Init.Data.Range.Polymorphic.Lemmas
+-- Public so that the `spec` attribute accepts the `ReaderT`/`StateT` lemmas about `MonadExceptOf`.
+public import Std.Do.WP.SimpLemmas
 public import Init.While
 public import Init.Internal.Order.While
 
 -- This public import is a workaround for #10652.
 -- Without it, adding the `spec` attribute for `instMonadLiftTOfMonadLift` will fail.
 public import Init.Data.Iterators.Lemmas.Combinators.FilterMap
-public import Init.Data.Range
-import Init.Data.Iterators.Lemmas
 import Init.Data.List.Nat.Range
 import Init.Data.List.Nat.TakeDrop
 import Init.Data.List.Range

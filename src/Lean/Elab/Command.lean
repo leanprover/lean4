@@ -13,6 +13,7 @@ public import Lean.Elab.SetOption
 import Lean.Elab.DeprecatedSyntax
 public import Lean.Linter.PersistentLintLog
 public meta import Lean.Parser.Command
+import Init.Data.Iterators.Consumers.Stream
 
 public section
 

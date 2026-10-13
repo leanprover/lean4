@@ -17,6 +17,7 @@ import Init.Data.List.TakeDrop
 import Init.Data.Nat.Lemmas
 import Init.Data.Option.Lemmas
 import Init.Omega
+import Init.Control.Lawful.Instances
 
 public section
 

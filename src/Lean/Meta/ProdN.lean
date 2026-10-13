@@ -10,6 +10,7 @@ prelude
 public import Lean.Meta.InferType
 import Lean.Meta.DecLevel
 import Init.Data.Range.Polymorphic.Iterators
+import Init.Data.Range.Polymorphic.Nat
 
 public section
 

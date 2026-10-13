@@ -10,7 +10,8 @@ public import Init.Data.String.Slice
 public import Init.Data.String.TakeDrop
 public import Init.Data.String.Lemmas.Splits
 import Init.Data.String.Lemmas.Pattern.TakeDrop.Basic
-import Init.Data.String.Lemmas.Pattern.String
+public import Init.Data.String.Pattern.String
+import Init.Data.String.Lemmas.Pattern.String.ForwardPattern
 import Init.Data.List.Sublist
 import Init.Data.Option.Lemmas
 import Init.Data.String.Lemmas.Basic

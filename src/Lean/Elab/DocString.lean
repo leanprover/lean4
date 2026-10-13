@@ -13,6 +13,7 @@ import Lean.DocString.Syntax
 import Lean.DocString.Parser
 import Lean.BuiltinDocAttr
 import Init.Omega
+import Init.Data.String.Pattern.String
 
 set_option linter.missingDocs true
 

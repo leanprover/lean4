@@ -16,6 +16,7 @@ public import Init.Data.String.Search
 public import Init.Data.String.Length
 import Init.Data.ToString.Macro
 import Init.While
+import Init.Data.String.Pattern.String
 
 set_option linter.missingDocs true
 

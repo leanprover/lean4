@@ -6,7 +6,8 @@ Authors: Henrik Böving
 module
 
 prelude
-public import Std.Sat.CNF
+public import Std.Sat.CNF.Sat
+import Init.Data.Order.Ord
 public import Std.Sat.AIG.Lemmas
 import Init.ByCases
 import Init.Omega

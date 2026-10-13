@@ -6,7 +6,6 @@ Authors: Henrik Böving
 module
 
 prelude
-public import Std.Data.HashMap
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Basic
 import Lean.Data.RArray
 public import Lean.Meta.Sym.SymM

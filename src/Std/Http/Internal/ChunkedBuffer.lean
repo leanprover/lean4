@@ -6,7 +6,6 @@ Authors: Sofia Rodrigues
 module
 
 prelude
-import Init.Data.ToString
 import Init.Data.Array.Lemmas
 public import Init.Data.String.Basic
 public import Init.Data.ByteArray.Basic

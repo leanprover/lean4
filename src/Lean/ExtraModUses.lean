@@ -9,6 +9,8 @@ prelude
 public import Lean.CoreM
 public import Lean.Compiler.MetaAttr  -- TODO: public because of specializations
 import Init.Data.Range.Polymorphic.Stream
+import Init.Data.Iterators.Consumers.Stream
+import Init.Data.Range.Polymorphic.Nat
 
 /-!
 Infrastructure for recording extra import dependencies not implied by the environment constants for

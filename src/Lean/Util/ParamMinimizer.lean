@@ -6,7 +6,10 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Init.While
-public import Init.Data.Range.Polymorphic
+public import Init.Control.State
+public import Init.Data.Range.Polymorphic.RangeIterator
+import Init.Data.Range.Polymorphic.Iterators
+import Init.Data.Range.Polymorphic.Nat
 namespace Lean.Util.ParamMinimizer
 /-!
 A very simple parameter minimizer.

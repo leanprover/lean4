@@ -26,6 +26,7 @@ import Lean.Elab.Tactic.Grind.Anchor
 import Lean.Elab.Tactic.Grind.ShowState
 import Lean.Elab.Tactic.Grind.Config
 import Lean.Elab.Tactic.Grind.Param
+import Init.Data.Iterators.Consumers.Stream
 namespace Lean.Elab.Tactic.Grind
 
 def showStateAt (ref : Syntax) (filter? : Option (TSyntax `grind_filter)) : GrindTacticM Unit := do

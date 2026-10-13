@@ -12,6 +12,8 @@ import Init.Data.Format.Macro
 import Init.Data.Range.Polymorphic.Stream
 import Init.Task
 import Lean.Syntax
+import Init.Data.Iterators.Consumers.Stream
+import Init.Data.Range.Polymorphic.Nat
 
 public section
 

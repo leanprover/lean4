@@ -8,6 +8,7 @@ module
 prelude
 public import Std.Data.HashMap.Basic
 public import Init.Data.Option.Coe
+public import Init.Control.State
 
 public section
 

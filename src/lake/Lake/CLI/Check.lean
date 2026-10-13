@@ -13,6 +13,7 @@ public import Lake.Util.Exit
 public import Lean.Data.Json.FromToJson
 import Lean.Environment
 import Lean.Replay
+import Init.Data.String.Pattern.String
 import Init.Data.String.Search
 import Init.Data.String.TakeDrop
 import Init.Data.ToString.Macro

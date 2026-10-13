@@ -14,6 +14,7 @@ import all Lean.Elab.ErrorUtils
 import Lean.Elab.DeprecatedArg
 import Init.Omega
 import Init.Data.List.MapIdx
+import Init.Data.Iterators.Consumers.Stream
 
 public section
 

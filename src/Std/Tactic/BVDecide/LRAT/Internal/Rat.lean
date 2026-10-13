@@ -9,7 +9,9 @@ prelude
 public import Std.Tactic.BVDecide.LRAT.Internal.Rup
 public import Std.Tactic.BVDecide.LRAT.Internal.Add
 import Std.Tactic.Do
-import Std.Data.HashSet
+import Std.Data.HashSet.Lemmas
+import Std.Do.Triple.SpecLemmas
+import Std.Do.WP.Sound
 
 namespace Std.Tactic.BVDecide.LRAT.Internal
 

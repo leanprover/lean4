@@ -14,6 +14,7 @@ public import Lean.Elab.Tactic.ElabTerm
 public import Lean.Elab.Do
 import Lean.Meta.Tactic.Replace
 import Lean.Elab.Tactic.RenameInaccessibles
+import Init.Data.Iterators.Consumers.Stream
 public section
 
 namespace Lean.Elab.Tactic

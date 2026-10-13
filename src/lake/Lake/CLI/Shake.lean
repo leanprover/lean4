@@ -12,6 +12,7 @@ import Lean.ExtraModUses
 import Lean.Parser.Module
 import Init.Data.Range.Polymorphic.Iterators
 meta import Lean.Parser.Module
+import Init.Data.String.Pattern.String
 
 /-! # Shake: A Lean import minimizer
 

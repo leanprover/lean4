@@ -5,8 +5,8 @@ Authors: Leonardo de Moura
 -/
 module  -- shake: keep-all (almost-terminal module, `#grind_lint` does not track extra deps)
 prelude
-import Init
-import Std
+import Init -- umbrella_import: ignore
+import Std -- umbrella_import: ignore
 import Lean.Elab.Tactic.Grind.Lint
 
 -- We allow these as grind lemmas even though they triggers >20 further instantiations.

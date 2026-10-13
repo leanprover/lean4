@@ -6,7 +6,10 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Init.Grind.AC
-public import Init.Data.Ord
+public import Init.Data.Ord.Basic
+public import Init.Ext
+import Init.Data.Nat.Lemmas
+import Init.WFTactics
 import Init.Data.Nat.Internal.Linear
 public section
 namespace Lean.Grind.AC

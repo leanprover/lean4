@@ -8,7 +8,6 @@ module
 prelude
 public import Init.Data.Array.Subarray.Split
 public import Init.Data.Slice.Array.Iterator
-public import Init.Data.Range
 public import Std.Data.HashMap.Basic
 public import Init.Data.String.Basic
 public import Init.Data.Range.Polymorphic.RangeIterator

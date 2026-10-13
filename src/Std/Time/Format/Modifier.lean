@@ -8,6 +8,7 @@ module
 prelude
 public import Std.Time.Zoned
 import Init.Data.String.Search
+public import Std.Internal.Parsec.String
 
 public section
 

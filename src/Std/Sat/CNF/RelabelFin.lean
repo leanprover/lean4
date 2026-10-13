@@ -14,6 +14,7 @@ import Init.Data.List.Impl
 import Init.Data.List.MinMax
 public import Init.Data.Array.MinMax
 import Init.TacticsExtra
+public import Init.Classical
 
 @[expose] public section
 

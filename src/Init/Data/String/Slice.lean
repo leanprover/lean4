@@ -6,7 +6,8 @@ Authors: Henrik Böving, Markus Himmel
 module
 
 prelude
-public import Init.Data.String.Pattern
+public import Init.Data.String.Pattern.Char
+import Init.Data.String.Pattern.String  -- shake: keep (used in verso)
 public import Init.Data.Ord.Basic
 public import Init.Data.Iterators.Combinators.FilterMap
 public import Init.Data.String.ToSlice

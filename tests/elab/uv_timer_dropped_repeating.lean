@@ -1,4 +1,5 @@
 import Std.Async
+import Std.Internal.UV.Loop
 
 /-!
 Checks that a repeating timer that nothing waits on stops once it is dropped without `stop`. The

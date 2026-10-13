@@ -11,6 +11,7 @@ public import Lake.Build.Job.Monad
 import Lake.Build.Job.Register
 import Lake.Build.Common
 import Lake.Build.Infos
+import Init.Data.String.Pattern.String
 
 /-! # External Library Build
 Build function definitions for external libraries.

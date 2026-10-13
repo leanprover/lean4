@@ -7,6 +7,8 @@ module
 
 prelude
 public import Std.Http.Protocol.H1
+public import Std.Async.TCP
+public import Std.Sync.Channel
 
 public section
 

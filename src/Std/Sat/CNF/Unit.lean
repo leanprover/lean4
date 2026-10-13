@@ -11,6 +11,7 @@ public import Std.Sat.CNF.Sat
 public import Std.Sat.CNF.Relabel
 public import Std.Sat.CNF.Entails
 import Init.ByCases
+import Init.Classical
 
 public section
 

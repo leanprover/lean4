@@ -12,7 +12,7 @@ import Lake.Build.Infos
 import Lake.Build.Job.Monad
 public import Lake.Build.Job.Register
 import Lake.Util.IO
-import Init.Data.Iterators.Consumers
+import Init.Data.String.Pattern.String
 
 open System Lean
 

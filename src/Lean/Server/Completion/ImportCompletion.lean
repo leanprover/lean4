@@ -10,6 +10,7 @@ public import Lean.Util.LakePath
 public import Lean.Data.Lsp
 public import Lean.Parser.Module
 meta import Lean.Parser.Module
+import Init.Data.String.Pattern.String
 
 public section
 

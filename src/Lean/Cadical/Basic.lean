@@ -10,6 +10,7 @@ import Lean.Cadical.Internal
 public import Std.Sat.CNF.Basic
 public import Init.Data.SInt.Basic
 public import Init.System.IO
+import Init.Data.ToString.Macro
 
 namespace Lean.Cadical
 

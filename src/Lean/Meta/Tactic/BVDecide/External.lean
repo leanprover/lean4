@@ -10,6 +10,7 @@ import Std.Tactic.BVDecide.LRAT.Parser
 public import Lean.CoreM
 public import Std.Tactic.BVDecide.Syntax
 public import Lean.Cadical.Basic
+import Init.Data.String.Pattern.String
 
 /-!
 This module implements the logic to call CaDiCal (or CLI interface compatible SAT solvers) and

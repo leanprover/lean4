@@ -6,7 +6,9 @@ Authors: Gabriel Ebner, Sebastian Ullrich, Mac Malone
 module
 
 prelude
-public import Init.Data.ToString
+public import Init.Prelude
+import Init.Data.String.Defs
+import Init.Data.ToString.Macro
 import Lake.Version
 
 namespace Lake

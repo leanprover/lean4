@@ -14,6 +14,7 @@ import Init.Data.String.Lemmas.Pattern.Find.Basic
 import Init.Data.String.Lemmas.Pattern.String.ForwardSearcher
 import Init.Data.Iterators.Lemmas.Consumers.Loop
 import Init.Data.List.Sublist
+public import Init.Data.String.Pattern.String
 
 public section
 

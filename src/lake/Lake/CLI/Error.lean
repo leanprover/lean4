@@ -6,7 +6,9 @@ Authors: Mac Malone
 module
 
 prelude
-public import Init.Data.ToString
+public import Init.Ext
+import Init.Data.ToString.Macro
+import Init.Data.ToString.Name
 public import Init.System.FilePath
 
 open Lean (Name)

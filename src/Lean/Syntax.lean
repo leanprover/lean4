@@ -6,7 +6,8 @@ Author: Sebastian Ullrich, Leonardo de Moura
 module
 
 prelude
-public import Init.Data.Slice
+import Init.Data.Slice.Array.Basic
+import Init.Data.Slice.Array.Iterator
 public import Init.Data.Hashable
 public import Lean.Data.Format
 public import Init.Data.Option.Coe

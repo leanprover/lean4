@@ -8,6 +8,7 @@ module
 prelude
 public import Std.Time.Zoned.Database.Basic
 import Init.Data.String.TakeDrop
+import Init.Data.String.Pattern.String
 
 public section
 

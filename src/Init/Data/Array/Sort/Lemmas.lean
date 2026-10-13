@@ -18,6 +18,7 @@ import Init.Data.Array.Bootstrap
 import Init.Data.Array.Lemmas
 import Init.Data.Array.MapIdx
 import Init.ByCases
+public import Init.Data.Slice.Array.Iterator
 
 public section
 

@@ -6,7 +6,9 @@ Authors: Sebastian Graf
 module
 
 prelude
-public import Init.Control.Lawful
+public import Init.Control.Lawful.Basic
+public import Init.Control.State
+import Std.Do.SPred.DerivedLaws
 public import Std.Do.PostCond
 
 @[expose] public section

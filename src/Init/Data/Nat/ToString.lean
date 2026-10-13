@@ -16,7 +16,6 @@ import all Init.Data.Repr
 import Init.Omega
 import Init.RCases
 import Init.Data.Nat.Lemmas
-import Init.Data.Nat.Bitwise
 import Init.Data.Nat.Simproc
 import Init.WFTactics
 import Init.Data.Char.Lemmas

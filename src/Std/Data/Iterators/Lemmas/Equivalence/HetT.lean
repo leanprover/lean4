@@ -9,6 +9,7 @@ prelude
 public import Init.Data.Iterators.Internal.LawfulMonadLiftFunction
 public import Init.Data.Iterators.PostconditionMonad
 public import Init.Classical
+import Init.Control.Lawful.MonadLift.Lemmas
 
 @[expose] public section
 

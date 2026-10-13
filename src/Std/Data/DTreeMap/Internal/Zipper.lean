@@ -7,7 +7,7 @@ module
 
 prelude
 public import Std.Data.Iterators.Lemmas.Producers.Slice
-public import Init.Data.Slice
+public import Init.Data.Slice.Notation
 public import Std.Data.DTreeMap.Internal.Lemmas
 public import Init.Data.Iterators.Combinators.FilterMap
 import Init.Data.Iterators.Lemmas.Combinators.FilterMap

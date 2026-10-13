@@ -6,8 +6,7 @@ Authors: Sofia Rodrigues
 module
 
 prelude
-public import Std.Async
-public import Std.Http.Data
+public import Std.Http.Data.Body.Stream
 public import Std.Async.ContextAsync
 
 public section

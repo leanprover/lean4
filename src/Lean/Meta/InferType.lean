@@ -9,6 +9,7 @@ prelude
 public import Lean.Data.LBool
 public import Lean.Meta.Basic
 import Init.Data.Range.Polymorphic.Iterators
+import Init.Data.Slice.Array.Basic
 
 public section
 

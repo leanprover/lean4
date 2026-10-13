@@ -11,6 +11,7 @@ public import Lean.Compiler.LCNF.InferType
 public import Lean.Compiler.NoncomputableAttr
 public import Lean.Compiler.LCNF.MonoTypes
 import Init.While
+import Init.Data.Slice.Array.Basic
 
 public section
 

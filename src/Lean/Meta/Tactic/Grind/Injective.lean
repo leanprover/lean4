@@ -8,6 +8,7 @@ prelude
 public import Lean.Meta.Tactic.Grind.EMatchTheorem
 import Init.Data.Function
 import Init.Data.Range.Polymorphic.Iterators
+import Init.Data.Range.Polymorphic.Nat
 public section
 namespace Lean.Meta.Grind
 

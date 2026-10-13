@@ -7,6 +7,7 @@ module
 
 prelude
 public import Lean.Compiler.LCNF.Basic
+public import Init.Data.Range.Polymorphic.Nat
 
 public section
 

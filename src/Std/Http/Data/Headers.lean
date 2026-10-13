@@ -9,6 +9,7 @@ prelude
 public import Std.Http.Data.Headers.Basic
 public import Std.Http.Data.Headers.Name
 public import Std.Http.Data.Headers.Value
+public import Std.Http.Internal.IndexMultiMap
 
 public section
 

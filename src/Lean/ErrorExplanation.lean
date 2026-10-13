@@ -11,6 +11,7 @@ public import Lean.Message
 public import Lean.EnvExtension
 public import Lean.DocString.Links
 meta import Lean.Message
+public import Init.Data.Array.QSort.Basic
 
 public section
 

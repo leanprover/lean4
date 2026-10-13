@@ -12,6 +12,7 @@ import Init.Data.Ord.String
 import Init.Data.Ord.UInt
 import Init.Data.String.Search
 import Init.Data.String.Length
+import Init.Data.String.Pattern.String
 
 public section
 namespace Lean

@@ -7,7 +7,8 @@ module
 
 prelude
 public import Std.Data.Iterators.Producers.Monadic.Array
-public import Std.Data.Iterators.Lemmas.Consumers.Monadic
+import Init.Data.Iterators.Lemmas.Consumers.Monadic.Loop
+import Std.Data.Iterators.Lemmas.Consumers.Monadic.Collect
 public import Std.Data.Iterators.Lemmas.Producers.Monadic.List
 public import Init.Data.Array.Lemmas
 import Init.Data.List.Nat.TakeDrop

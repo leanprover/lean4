@@ -6,7 +6,7 @@ Authors: Henrik Böving
 module
 
 prelude
-public import Std.Time
+public import Std.Time.Time.Unit.Millisecond
 public import Std.Internal.UV.Timer
 public import Std.Async.Select
 

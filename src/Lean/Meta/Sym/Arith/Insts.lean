@@ -7,7 +7,6 @@ module
 prelude
 public import Lean.Meta.Sym.Arith.EvalNum
 import Lean.Meta.Sym.SynthInstance
-import Init.Grind.Ring
 public section
 
 namespace Lean.Meta.Sym.Arith

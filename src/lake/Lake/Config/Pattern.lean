@@ -14,6 +14,7 @@ import Init.Data.String.TakeDrop
 public import Init.Data.String.Basic
 import Init.Data.Option.Coe
 import Init.Omega
+import Init.Data.String.Pattern.String
 
 open System Lean
 

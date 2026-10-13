@@ -8,6 +8,7 @@ module
 prelude
 public import Lean.Util.CollectMVars
 public import Lean.Meta.Basic
+import Init.Data.Slice.Array.Basic
 
 public section
 

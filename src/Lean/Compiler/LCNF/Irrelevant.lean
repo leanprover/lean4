@@ -10,6 +10,7 @@ public import Lean.EnvExtension
 public import Lean.Compiler.LCNF.CompilerM
 import Lean.Compiler.LCNF.BaseTypes
 import Lean.Compiler.LCNF.Util
+import Init.Data.Slice.Array.Basic
 
 namespace Lean.Compiler.LCNF
 

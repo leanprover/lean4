@@ -14,6 +14,7 @@ import Init.Data.Nat.Order
 import Init.Data.Order.Lemmas
 import Lean.Elab.Binders
 import Lean.Meta.Tactic.Generalize
+import Std.Do.Triple.SpecLemmas
 
 
 public section

@@ -9,6 +9,7 @@ prelude
 public import Lean.PrettyPrinter.Delaborator.Options
 public import Lean.Compiler.LCNF.Internalize
 import Init.Data.Format.Macro
+import Init.Data.Slice.Array.Basic
 
 public section
 

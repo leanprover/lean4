@@ -13,6 +13,7 @@ import Init.ByCases
 import Init.Data.Bool
 import Init.Data.Option.Lemmas
 import Init.TacticsExtra
+import Init.Classical
 
 public section
 

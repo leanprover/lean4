@@ -240,6 +240,10 @@ add_custom_target(update-stage0-commit COMMAND $(MAKE) -C stage1 update-stage0-c
 
 add_custom_target(test COMMAND $(MAKE) -C stage1 test DEPENDS stage1)
 
+if(NOT CMAKE_SYSTEM_NAME MATCHES "Emscripten")
+  add_custom_target(lean-beam COMMAND $(MAKE) -C stage1 lean-beam DEPENDS stage1)
+endif()
+
 add_custom_target(
   bench
   COMMAND $(MAKE) -C stage2

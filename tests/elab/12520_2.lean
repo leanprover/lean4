@@ -54,3 +54,27 @@ but it is expected to have type
 -/
 #guard_msgs in
 example {g}: @Eq.rec = g := by unchecked_rfl
+
+/--
+error: Type mismatch
+  rfl
+has type
+  ?m.5 = ?m.5
+but is expected to have type
+  @And.rec = g
+-/
+#guard_msgs in
+example {g}: @And.rec = g := rfl
+
+/--
+error: (kernel) declaration type mismatch, '_example' has type
+  ∀ {g : {a b : Prop} → {motive : a ∧ b → Sort u_1} → ((left : a) → (right : b) → motive ⋯) → (t : a ∧ b) → motive t},
+    g = g
+but it is expected to have type
+  ∀ {g : {a b : Prop} → {motive : a ∧ b → Sort u_1} → ((left : a) → (right : b) → motive ⋯) → (t : a ∧ b) → motive t},
+    @And.rec = g
+-/
+#guard_msgs in
+example {g}: @And.rec = g := by unchecked_rfl
+
+example {g}: @Exists.rec = g := rfl

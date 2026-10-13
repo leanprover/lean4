@@ -41,32 +41,32 @@ trace: [Compiler.simpleGround] Marked stringTest2._closed_0 as simple ground exp
       let _x.1 := "C";
       return _x.1
 [Compiler.saveImpure] size: 4
-    def stringTest2._closed_3 : tobj :=
+    def stringTest2._closed_3 : obj :=
       let _x.1 := ctor_0[List.nil];
       let _x.2 := stringTest2._closed_2;
       inc[persistent][ref] _x.2;
       let _x.3 := ctor_1[List.cons] _x.2 _x.1;
       return _x.3
 [Compiler.saveImpure] size: 5
-    def stringTest2._closed_4 : tobj :=
+    def stringTest2._closed_4 : obj :=
       let _x.1 := stringTest2._closed_3;
       let _x.2 := stringTest2._closed_1;
-      inc[persistent] _x.1;
+      inc[persistent][ref] _x.1;
       inc[persistent][ref] _x.2;
       let _x.3 := ctor_1[List.cons] _x.2 _x.1;
       return _x.3
 [Compiler.saveImpure] size: 5
-    def stringTest2._closed_5 : tobj :=
+    def stringTest2._closed_5 : obj :=
       let _x.1 := stringTest2._closed_4;
       let _x.2 := stringTest2._closed_0;
-      inc[persistent] _x.1;
+      inc[persistent][ref] _x.1;
       inc[persistent][ref] _x.2;
       let _x.3 := ctor_1[List.cons] _x.2 _x.1;
       return _x.3
 [Compiler.saveImpure] size: 2
-    def stringTest2 : tobj :=
+    def stringTest2 : obj :=
       let _x.1 := stringTest2._closed_5;
-      inc[persistent] _x.1;
+      inc[persistent][ref] _x.1;
       return _x.1
 -/
 #guard_msgs in

@@ -9,7 +9,7 @@ public import Init.Data.Rat.Basic
 public import Init.Data.SInt.Basic
 public import Init.Data.Int.DivMod.Lemmas
 public import Init.Data.Nat.Dvd
-public import Init.Data.String.Basic
+public import Init.Data.String.Lemmas.StringOrder
 import Init.Data.BitVec.Lemmas
 import Init.Data.Int.Order
 import Init.Data.UInt.Lemmas

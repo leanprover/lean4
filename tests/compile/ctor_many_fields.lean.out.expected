@@ -36,25 +36,6 @@ shareCommon literal: true
 compact: true
 compact heap fields: true
 compact literal: true
-S507
-make: true
-match: true
-scalars: true
-update: true
-update scalars: true
-original: true
-heap fields: true
-task: true
-after task: true
-promise: true
-free: true
-literal: true
-shareCommon': true
-shareCommon: true
-shareCommon literal: true
-compact: true
-compact heap fields: true
-compact literal: true
 T255
 make: true
 flip shared: true
@@ -71,7 +52,7 @@ flip unique: true
 literal: true
 shareCommon literal: true
 flip literal: true
-T508
+T509
 make: true
 flip shared: true
 original: true

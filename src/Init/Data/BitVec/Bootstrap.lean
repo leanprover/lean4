@@ -53,7 +53,7 @@ theorem toNat_ofNat (x w : Nat) : (BitVec.ofNat w x).toNat = x % 2^w := by
   fun h => BitVec.eq_of_getLsbD_eq (h ↑·)
 
 @[simp] theorem toNat_append (x : BitVec m) (y : BitVec n) :
-    (x ++ y).toNat = x.toNat <<< n ||| y.toNat :=
+    (@HAppend.hAppend _ _ (no_index _) _ x y).toNat = x.toNat <<< n ||| y.toNat :=
   rfl
 
 @[simp, grind =] theorem toNat_ofBool (b : Bool) : (ofBool b).toNat = b.toNat := by

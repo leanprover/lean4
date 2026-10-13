@@ -3666,7 +3666,7 @@ implementation. Use `List.asString` instead. -/
 noncomputable def List.utf8Encode (l : List Char) : ByteArray :=
   l.flatMap String.utf8EncodeChar |>.toByteArray
 
-/-- A byte array is valid UTF-8 if it is of the form `List.Internal.utf8Encode m` for some `m`.
+/-- A byte array is valid UTF-8 if it is of the form `List.utf8Encode m` for some `m`.
 
 Note that in order for this definition to be well-behaved it is necessary to know that this `m`
 is unique. To show this, one defines UTF-8 decoding and shows that encoding and decoding are

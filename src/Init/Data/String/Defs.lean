@@ -75,8 +75,8 @@ def String.fromUTF8 (a : ByteArray) (h : a.IsValidUTF8) : String :=
 /--
 Encodes a string in UTF-8 as an array of bytes.
 -/
-@[extern "lean_string_to_utf8"]
-def String.toUTF8 (a : @& String) : ByteArray :=
+@[inline, expose]
+def String.toUTF8 (a : String) : ByteArray :=
   a.toByteArray
 
 @[simp] theorem String.toUTF8_eq_toByteArray {s : String} : s.toUTF8 = s.toByteArray := (rfl)

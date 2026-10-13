@@ -220,11 +220,29 @@ private def shouldEtaRecursor (a : Expr) : MetaM Nat := do
   let nargs := a.getAppNumArgs
   let some a_name := afn.constName? | return 0
   let .recInfo recVal ← getConstInfo a_name | return 0
-  unless recVal.k || isNonRecStructure (← getEnv) recVal.getMajorInduct do
-    return 0
   if nargs > recVal.getMajorIdx then
     return 0
-  return recVal.getMajorIdx + 1 - nargs
+  if isNonRecStructure (← getEnv) recVal.getMajorInduct then
+    return recVal.getMajorIdx + 1 - nargs
+  else if recVal.k then
+    /- If the recursor is that of a k-like type, we must inspect the major's type to see whether it would reduce (i.e if its type is equal to the generated `mkNullaryCtor`, same condition as `toCtorWhenK`'s).
+    It is also possible that the condition is met even if the current recursor partial application is missing indices and some parameters. e.g consider `@Eq.rec Unit`, any eta-expansion up to the major will reduce thanks to eta-for-unit.
+    TODO this check is needlessly repeating the work the eta-expansion and `toCtorWhenK` would do themselves. Optimise and return the appropriately eta-expanded and reduced term directly instead.
+    -/
+    let nExps := recVal.getMajorIdx + 1 - nargs
+    let aType ← inferType a
+    withTransparency .default do←
+      forallBoundedTelescope (whnfType := true) aType (some nExps) fun xs _ => do←
+        if xs.size != nExps then return 0
+        let majorType ← inferType xs.back!
+        let (some newCtorApp) ← mkNullaryCtor majorType recVal.numParams | return 0
+        let newType ← inferType newCtorApp
+        if (← withAtLeastTransparency TransparencyMode.default <| withNewMCtxDepth <| isDefEq majorType newType) then
+          return nExps
+        else
+          return 0
+  else
+    return 0
 
 /-- Try to solve `a := (fun x => t) =?= b` by eta-expanding `b`,
   resulting in `t =?= b x` (with a fresh free variable `x`).

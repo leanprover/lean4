@@ -843,9 +843,34 @@ unsigned type_checker::should_eta_recursor(expr const & s) {
     constant_info s_info = env().get(s_fn_name);
     if (!s_info.is_recursor()) return 0;
     recursor_val rec_val = s_info.to_recursor_val();
-    if (!rec_val.is_k() && !is_non_rec_structure(env(), rec_val.get_major_induct())) return 0;
     if (s_args.size() > rec_val.get_major_idx()) return 0;
-    return rec_val.get_major_idx() + 1 - s_args.size();
+    if (is_non_rec_structure(env(), rec_val.get_major_induct()))
+        return rec_val.get_major_idx() + 1 - s_args.size();
+    if (rec_val.is_k()) {
+        /* If the recursor is that of a k-like type, we must inspect the major's type to see whether it would reduce
+           (i.e if its type is equal to the generated `mkNullaryCtor`, same condition as `to_ctor_when_k`'s).
+           It is also possible that the condition is met even if the current recursor partial application is missing indices and some parameters. e.g consider `@Eq.rec Unit`, any eta-expansion up to the major will reduce thanks to eta-for-unit.
+           TODO this check is needlessly repeating the work the eta-expansion and `toCtorWhenK` would do themselves. Optimise and return the appropriately eta-expanded and reduced term directly instead.*/
+        unsigned n_exps = rec_val.get_major_idx() + 1 - s_args.size();
+        expr s_type = whnf(infer_type(s));
+        flet<local_ctx> save_lctx(m_lctx, m_lctx);
+        buffer<expr> fvars;
+        for(unsigned i = 0; i < n_exps; i++) {
+            if (!is_pi(s_type))
+                return false;
+            expr fvar = m_lctx.mk_local_decl(m_st->m_ngen, binding_name(s_type), binding_domain(s_type), binding_info(s_type));
+            fvars.push_back(fvar);
+            s_type = whnf(instantiate(binding_body(s_type), fvar));
+        };
+        expr const major_type = infer_type(fvars.back());
+        if (auto new_ctor_app = mk_nullary_cnstr(env(),major_type,rec_val.get_nparams())) {
+            expr const new_type = infer_type(*new_ctor_app);
+            if (is_def_eq(major_type, new_type)) {
+                return rec_val.get_major_idx() + 1 - s_args.size();
+            } else return 0;
+        } else return 0;
+    };
+    return 0;
 }
 
 /** \brief Return the number of times \c s should be eta-expanded.

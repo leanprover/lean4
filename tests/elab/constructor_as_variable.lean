@@ -131,6 +131,9 @@ Hint: Using one of these would be valid:
   [apply] `List.Pairwise.cons`
   [apply] `List.Perm.cons`
   [apply] `List.Sublist.cons`
+  [apply] `Lean.Level.SortedAssocList.cons`
+  [apply] `Lean.Level.SortedSet.cons`
+  [apply] `Lean.Level.SortedSetNode.cons`
   [apply] `List.Lex.below.cons`
   [apply] `List.Pairwise.below.cons`
   [apply] `List.Perm.below.cons`
@@ -168,6 +171,9 @@ Hint: Using one of these would be valid:
   [apply] `List.Pairwise.cons`
   [apply] `List.Perm.cons`
   [apply] `List.Sublist.cons`
+  [apply] `Lean.Level.SortedAssocList.cons`
+  [apply] `Lean.Level.SortedSet.cons`
+  [apply] `Lean.Level.SortedSetNode.cons`
   [apply] `List.Lex.below.cons`
   [apply] `List.Pairwise.below.cons`
   [apply] `List.Perm.below.cons`

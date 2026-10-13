@@ -20,10 +20,10 @@ Normalizes the body of `n` (atoms simplified by `simpAtom`, side conditions prov
 `discharge?`), prints the result, and kernel-checks the proof.
 -/
 def test (n : Name) (simpAtom : Expr → SymM Sym.Simp.Result := fun _ => return .rfl)
-    (discharge? : Expr → SymM (Option Expr) := fun _ => return none) : SymM Unit := do
+    (discharge? : Expr → SymM (Option Expr) := fun _ => return none) (distrib : Bool := true) : SymM Unit := do
   let e ← preprocessExpr (← getDefValue n)
   let cd (b : Bool) : String := if b then " (context-dependent)" else ""
-  match (← normalize? e simpAtom discharge?) with
+  match (← normalize? e simpAtom discharge? (distrib := distrib)) with
   | .rfl false _ => logInfo m!"{n}: unchanged"
   | .rfl true b => logInfo m!"{n}: {e} (normal){cd b}"
   | .step e' h done b =>
@@ -144,20 +144,50 @@ run_meta SymM.run do
   for n in [``s1, ``s2] do
     test n
 
--- Budget.
+-- Budget: a term over the budget is an atom (with its subterms normalized).
 def big : Int := (a + 1) ^ 100
 
-/-- info: big: unchanged -/
+/-- info: big: (a + 1) ^ 100 (normal) -/
 #guard_msgs in
 set_option sym.arith.maxDegree 8 in
 run_meta SymM.run do
   test ``big
 
-/-- info: big: unchanged -/
+/-- info: big: (a + 1) ^ 100 (normal) -/
 #guard_msgs in
 set_option sym.arith.maxTerms 8 in
 run_meta SymM.run do
   test ``big
+
+/-! ## `distrib := false`: products of non-constant polynomials are atoms -/
+
+def d1 : Int := (a + 1) * (b + 1)
+def d2 : Int := 2 * (a + b) + (a * b) * (2 * b)
+def d3 : Int := (a + b) * (a - b) * c
+def d4 : Int := a * (b + 1) + a * (1 + b)
+def d5 : Int := (a + 1) ^ 2 + (a * b) ^ 2
+def d6 : Nat := (x + 1) * (x + 1)
+def d7 : Prop := a * (b + 1) = a * (1 + b)
+
+/--
+info: d1: (a + 1) * (b + 1) (normal)
+---
+info: d2: 2 * (a * b ^ 2) + 2 * a + 2 * b
+---
+info: d3: c * ((a + b) * (a + -1 * b))
+---
+info: d4: 2 * (a * (b + 1))
+---
+info: d5: a ^ 2 * b ^ 2 + (a + 1) ^ 2
+---
+info: d6: (x + 1) * (x + 1) (normal)
+---
+info: d7: 0 = 0
+-/
+#guard_msgs in
+run_meta SymM.run do
+  for n in [``d1, ``d2, ``d3, ``d4, ``d5, ``d6, ``d7] do
+    test n (distrib := false)
 
 /-! ## Relations -/
 
@@ -375,10 +405,10 @@ run_meta SymM.run do
   for n in [``ap1, ``ap2, ``ap3, ``ap4] do
     test n simpP
 
--- The atom rewrite is kept (with `done := false`) when the budget is exceeded.
+-- When the budget is exceeded, the term is an atom whose subterms are normalized.
 def ap5 : Int := (p + 1) ^ 100
 
-/-- info: ap5: (q + 1) ^ 100 (not done) -/
+/-- info: ap5: (q + 1) ^ 100 -/
 #guard_msgs in
 set_option sym.arith.maxDegree 8 in
 run_meta SymM.run do

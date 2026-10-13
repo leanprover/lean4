@@ -105,7 +105,7 @@ def mkNormSymMethods (config : Grind.Config) (thms : NormSymTheorems) : Sym.Simp
     >> Sym.Simp.beta >> Sym.Simp.reduceProj >> Sym.Simp.reduceControl >> Sym.Simp.simpExistsPropDomain
   if config.zeta then pre := pre >> Sym.Simp.zeta
   if config.zetaDelta then pre := pre >> Sym.Simp.zetaDeltaAll
-  pre := pre >> NormSym.pushNot >> Sym.Simp.simpArith d (lhsOnly := true) >> thms.pre.rewrite d
+  pre := pre >> NormSym.pushNot >> Sym.Simp.simpArith d (lhsOnly := true) (distrib := config.distrib) >> thms.pre.rewrite d
   -- `grind` keeps bit-vector literals in `OfNat.ofNat` form.
   let post : Simproc := thms.post.rewrite d >> Sym.Simp.evalGround { bitVecOfNat := false } >> Sym.Simp.simpNatRel >> NormSym.simpEq >> NormSym.simpOr
     >> NormSym.simpDIte >> NormSym.reduceCtorEq >> NormSym.simpForall >> NormSym.simpExists

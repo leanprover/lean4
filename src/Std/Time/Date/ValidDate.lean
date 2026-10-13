@@ -72,7 +72,7 @@ def ofOrdinal (ordinal : Day.Ordinal.OfYear leap) : ValidDate leap :=
       else by
         let h₂ := Int.not_le.mp h₁
 
-        have h₃ : idx.val < 12 := Int.not_le.mp <| λh₃ => by
+        have h₃ : idx.val < 12 := Int.not_le.mp <| λ h₃ => by
           have h₅ := ordinal.property.right
           let eq := Int.eq_iff_le_and_ge.mpr (And.intro idx.property.right h₃)
           simp [monthDays, days, eq] at h₂

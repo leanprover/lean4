@@ -69,6 +69,9 @@ the corresponding string.
 def String.fromUTF8 (a : @& ByteArray) (h : a.IsValidUTF8) : String :=
   .ofByteArray a h
 
+@[simp] theorem String.fromUTF8_eq_ofByteArray {a : ByteArray} {h : a.IsValidUTF8} :
+    String.fromUTF8 a h = String.ofByteArray a h := rfl
+
 /--
 Encodes a string in UTF-8 as an array of bytes.
 -/

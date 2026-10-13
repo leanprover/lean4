@@ -380,6 +380,15 @@ public theorem _root_.UInt8.toBitVec_eq_of_isUTF8ContinuationByte {b : UInt8} (h
     b.toBitVec = 0b10#2 ++ b.toBitVec.setWidth 6 := by
   exact helper₂ 6 b.toBitVec (UInt8.isUTF8ContinuationByte_iff_toBitVec.1 hb)
 
+public theorem _root_.UInt8.isUTF8ContinuationByte_iff_le_and_lt {b : UInt8} :
+    b.isUTF8ContinuationByte ↔ 0x80 ≤ b ∧ b < 0xc0 := by
+  rw [UInt8.isUTF8ContinuationByte_iff_toBitVec, ← BitVec.toNat_inj,
+    BitVec.extractLsb'_toNat, UInt8.le_iff_toNat_le, UInt8.lt_iff_toNat_lt]
+  have := b.toNat_lt
+  simp only [UInt8.toNat_toBitVec, Nat.shiftRight_eq_div_pow, BitVec.toNat_ofNat,
+    UInt8.reduceToNat]
+  omega
+
 theorem parseFirstByte_eq_invalid_of_isUTF8ContinuationByte {b : UInt8}
     (hb : b.isUTF8ContinuationByte) : parseFirstByte b = .invalid := by
   replace hb := UInt8.toBitVec_eq_of_isUTF8ContinuationByte hb

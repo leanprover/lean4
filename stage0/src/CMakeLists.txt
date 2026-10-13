@@ -1150,7 +1150,7 @@ if(PREV_STAGE)
 endif()
 
 if(NOT CMAKE_SYSTEM_NAME MATCHES "Emscripten")
-  add_custom_target(leanir ALL DEPENDS leanshared COMMAND $(MAKE) -f ${CMAKE_BINARY_DIR}/stdlib.make leanir VERBATIM)
+  add_custom_target(leanir ALL DEPENDS leanshared initialize_minimal_shim COMMAND $(MAKE) -f ${CMAKE_BINARY_DIR}/stdlib.make leanir VERBATIM)
   add_custom_target(leanexport ALL DEPENDS leanshared COMMAND $(MAKE) -f ${CMAKE_BINARY_DIR}/stdlib.make leanexport VERBATIM)
 endif()
 

@@ -677,7 +677,7 @@ v___x_54_ = lean_st_ref_get(v___y_43_);
 v_toGoalState_55_ = lean_ctor_get(v___x_54_, 0);
 lean_inc_ref(v_toGoalState_55_);
 lean_dec(v___x_54_);
-v_facts_56_ = lean_ctor_get(v_toGoalState_55_, 10);
+v_facts_56_ = lean_ctor_get(v_toGoalState_55_, 11);
 lean_inc_ref(v_facts_56_);
 lean_dec_ref(v_toGoalState_55_);
 v___x_57_ = l_Lean_PersistentArray_toArray___redArg(v_facts_56_);

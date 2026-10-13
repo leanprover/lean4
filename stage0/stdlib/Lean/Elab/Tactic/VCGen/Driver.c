@@ -2991,7 +2991,7 @@ v_resetjp_1094_:
 lean_object* v_toGoalState_1097_; uint8_t v_inconsistent_1098_; 
 v_toGoalState_1097_ = lean_ctor_get(v_a_1093_, 0);
 lean_inc_ref(v_toGoalState_1097_);
-v_inconsistent_1098_ = lean_ctor_get_uint8(v_toGoalState_1097_, sizeof(void*)*17);
+v_inconsistent_1098_ = lean_ctor_get_uint8(v_toGoalState_1097_, sizeof(void*)*18);
 if (v_inconsistent_1098_ == 0)
 {
 lean_object* v_mvarId_1099_; lean_object* v___x_1101_; uint8_t v_isShared_1102_; uint8_t v_isSharedCheck_1156_; 
@@ -3518,7 +3518,7 @@ v_a_1258_ = lean_ctor_get(v___x_1257_, 0);
 lean_inc(v_a_1258_);
 lean_dec_ref_known(v___x_1257_, 1);
 v_toGoalState_1259_ = lean_ctor_get(v_a_1258_, 0);
-v_inconsistent_1260_ = lean_ctor_get_uint8(v_toGoalState_1259_, sizeof(void*)*17);
+v_inconsistent_1260_ = lean_ctor_get_uint8(v_toGoalState_1259_, sizeof(void*)*18);
 if (v_inconsistent_1260_ == 0)
 {
 lean_object* v_mvarId_1261_; lean_object* v___x_1262_; 

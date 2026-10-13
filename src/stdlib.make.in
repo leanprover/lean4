@@ -132,32 +132,14 @@ $(OUTLIB)/libleanshared$(SO): $(OUTLIB)/libInit_shared$(SO) ${LIB}/lean/libLean.
 ifeq "${CMAKE_SYSTEM_NAME}" "Windows"
 	@rm -f $(OUTLIB)/libleanshared_1$(SO)
 	@rm -f $(OUTLIB)/libleanshared_2$(SO)
-# initial DLL to avoid symbol limit: include leancpp except for `initialize.cpp`
-	$(LEANC_SH) -shared -o $(OUTLIB)/libleanshared_1$(SO) \
-	  -Wl,--start-group ${LIB}/lean/libLean.a.export -Wl,--whole-archive ${LIB}/temp/libleancpp_1.a -Wl,--no-whole-archive -Wl,--end-group -lInit_shared -Wl,--out-implib,${LIB}/lean/libleanshared_1.dll.a ${LEANSHARED_LINKER_FLAGS} ${TOOLCHAIN_SHARED_LINKER_FLAGS} ${LEANC_OPTS} -Wl,-Map=${LIB}/temp/libleanshared_1.map
-	echo -n "$(OUTLIB)/libleanshared_1$(SO) symbols: "
-	nm $(OUTLIB)/libleanshared_1$(SO) --extern-only | wc -l
-# now delete included symbols from libLean.a
-	cp ${LIB}/lean/libLean.a.export ${LIB}/lean/diff.a
-	sed -En 's/.*\s(\S*\.o\.export):.*/\1/p' ${LIB}/temp/libleanshared_1.map > ${LIB}/temp/diff.a.in
-# can't use bundled llvm-ar before LLVM 16, https://github.com/llvm/llvm-project/issues/55023
-	ar dP ${LIB}/lean/diff.a @${LIB}/temp/diff.a.in
-	#"${CMAKE_AR}" tP ${LIB}/lean/diff.a
-# now again up to `Lean.Meta` and `Lean.Elab.Tactic.Conv`; the roots should be import-only modules
-# as they are not deleted from `diff.a` below and so end up in `leanshared` as well
-	$(LEANC_SH) -shared -o $(OUTLIB)/libleanshared_2$(SO) \
-	  ${LIB}/lean/../temp/Lean/Meta.*o.export ${LIB}/lean/../temp/Lean/Elab/Tactic/Conv.*o.export ${LIB}/lean/diff.a -Wl,--no-whole-archive -lleanshared_1 -lInit_shared -Wl,--out-implib,${LIB}/lean/libleanshared_2.dll.a ${LEANSHARED_LINKER_FLAGS} ${TOOLCHAIN_SHARED_LINKER_FLAGS} ${LEANC_OPTS} -Wl,-Map=${LIB}/temp/libleanshared_2.map
-	echo -n "$(OUTLIB)/libleanshared_2$(SO) symbols: "
-	nm $(OUTLIB)/libleanshared_2$(SO) --extern-only | wc -l
-	sed -En 's/.*\s(\S*\.o\.export):.*/\1/p' ${LIB}/temp/libleanshared_2.map > ${LIB}/temp/diff.a.in
-	ar dP ${LIB}/lean/diff.a @${LIB}/temp/diff.a.in
-	#"${CMAKE_AR}" tP ${LIB}/lean/diff.a
-# now include `Lean` and the diff library in `leanshared`
+# empty libraries from when `leanshared` had to be split to stay below the limit of 65535 exported
+# symbols per DLL; kept so that linking against them continues to work
+	$(LEANC_SH) -shared -o $(OUTLIB)/libleanshared_1$(SO) ${LIB}/temp/empty.c -Wl,--out-implib,${LIB}/lean/libleanshared_1.dll.a ${TOOLCHAIN_SHARED_LINKER_FLAGS} ${LEANC_OPTS}
+	$(LEANC_SH) -shared -o $(OUTLIB)/libleanshared_2$(SO) ${LIB}/temp/empty.c -Wl,--out-implib,${LIB}/lean/libleanshared_2.dll.a ${TOOLCHAIN_SHARED_LINKER_FLAGS} ${LEANC_OPTS}
 	$(LEANC_SH) -shared -o $@ \
-	  -Wl,--whole-archive ${LIB}/lean/diff.a ${LIB}/temp/libleanshell.a ${LIB}/temp/libleaninitialize.a -Wl,--no-whole-archive -lleanshared_2 -lleanshared_1 -lInit_shared -Wl,--out-implib,${LIB}/lean/libleanshared.dll.a ${LEANSHARED_LINKER_FLAGS} ${TOOLCHAIN_SHARED_LINKER_FLAGS} ${LEANC_OPTS}
+	  -Wl,--whole-archive ${LIB}/lean/libLean.a.export ${LIB}/temp/libleancpp_1.a ${LIB}/temp/libleanshell.a ${LIB}/temp/libleaninitialize.a -Wl,--no-whole-archive -lInit_shared -Wl,--out-implib,${LIB}/lean/libleanshared.dll.a ${LEANSHARED_LINKER_FLAGS} ${TOOLCHAIN_SHARED_LINKER_FLAGS} ${LEANC_OPTS}
 	echo -n "$(OUTLIB)/libleanshared$(SO) symbols: "
 	nm $(OUTLIB)/libleanshared$(SO) --extern-only | wc -l
-	rm ${LIB}/lean/diff.a
 else
 # create empty library on platforms without restrictive symbol limits; avoids costly indirections and troubles with cross-library exceptions
 	$(LEANC_SH) -shared -o $(OUTLIB)/libleanshared_1$(SO) ${LIB}/temp/empty.c ${LEANSHARED_1_LINKER_FLAGS} ${TOOLCHAIN_SHARED_LINKER_FLAGS} ${LEANC_OPTS}

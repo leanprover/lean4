@@ -37,7 +37,6 @@ expr instantiate(expr const & a, unsigned s, unsigned n, expr const * subst) {
 }
 
 expr instantiate(expr const & e, unsigned n, expr const * s) { return instantiate(e, 0, n, s); }
-expr instantiate(expr const & e, std::initializer_list<expr> const & l) {  return instantiate(e, l.size(), l.begin()); }
 expr instantiate(expr const & e, unsigned i, expr const & s) { return instantiate(e, i, 1, &s); }
 expr instantiate(expr const & e, expr const & s) { return instantiate(e, 0, s); }
 
@@ -161,10 +160,6 @@ extern "C" LEAN_EXPORT object * lean_expr_instantiate_rev_range(b_obj_arg a, b_o
     }
 }
 
-bool is_head_beta(expr const & t) {
-    return is_app(t) && is_lambda(get_app_fn(t));
-}
-
 static expr apply_beta_rec(expr e, unsigned i, unsigned num_rev_args, expr const * rev_args, bool preserve_data, bool zeta) {
     if (is_lambda(e)) {
         if (i + 1 < num_rev_args) {
@@ -195,17 +190,6 @@ static expr apply_beta_rec(expr e, unsigned i, unsigned num_rev_args, expr const
 expr apply_beta(expr f, unsigned num_rev_args, expr const * rev_args, bool preserve_data, bool zeta) {
     if (num_rev_args == 0) return f;
     return apply_beta_rec(f, 0, num_rev_args, rev_args, preserve_data, zeta);
-}
-
-expr head_beta_reduce(expr const & t) {
-    if (!is_head_beta(t)) {
-        return t;
-    } else {
-        buffer<expr> args;
-        expr const & f = get_app_rev_args(t, args);
-        lean_assert(is_lambda(f));
-        return head_beta_reduce(apply_beta(f, args.size(), args.data()));
-    }
 }
 
 expr cheap_beta_reduce(expr const & e) {

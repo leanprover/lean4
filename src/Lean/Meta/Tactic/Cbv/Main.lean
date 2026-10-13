@@ -155,6 +155,13 @@ def tryCbvTheorems : Simproc := fun e => do
 def handleConstApp : Simproc := fun e => do
   tryEquations <|> tryUnfold <| e
 
+def isPartialApp (e : Expr) : Sym.SymM Bool := do
+  let eType ← Sym.inferType e
+  -- Fast path: a syntactically functional type cannot whnf to a non-function.
+  if eType matches .forallE .. then return true
+  let eType ← whnfD eType
+  return eType matches .forallE ..
+
 /--
 Post-pass handler for applications. For a constant-headed application, if the
 constant is `@[cbv_opaque]`, only `@[cbv_eval]` rules are tried (and the result
@@ -167,6 +174,8 @@ def handleApp : Simproc := fun e => do
   match fn with
   | .const constName _ =>
     if (← isCbvOpaque constName) then
+      return markAsDoneIfFailed <| ← tryCbvTheorems e
+    if (← isPartialApp e) then
       return markAsDoneIfFailed <| ← tryCbvTheorems e
     let info ← getConstInfo constName
     tryCbvTheorems <|> (guardSimproc (fun _ => info.hasValue) handleConstApp) <|> reduceRecMatcher <| e
@@ -316,11 +325,7 @@ def handleConst : Simproc := fun e => do
   let .const n lvls := e | return .rfl
   let info ← getConstInfo n
   unless info.isDefinition do return .rfl
-  let eType := info.type
-  -- Fast path: a syntactically functional type cannot whnf to a non-function.
-  if eType matches .forallE .. then return .rfl
-  let eType ← whnfD eType
-  if eType matches .forallE .. then return .rfl
+  if (← isPartialApp e) then return .rfl
   unless info.hasValue && info.levelParams.length == lvls.length do return .rfl
   let fBody ← instantiateValueLevelParams info lvls
   let fBody ← Sym.unfoldReducible fBody

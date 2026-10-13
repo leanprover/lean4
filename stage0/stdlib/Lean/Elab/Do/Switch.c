@@ -18,12 +18,13 @@ lean_object* l_Lean_Syntax_setKind(lean_object*, lean_object*);
 lean_object* l_Lean_replaceRef(lean_object*, lean_object*);
 lean_object* l_Lean_SourceInfo_fromRef(lean_object*, uint8_t);
 lean_object* l_Lean_Name_mkStr1(lean_object*);
-lean_object* l_Array_mkArray0(lean_object*);
+lean_object* l_Array_mkArray0___redArg();
 lean_object* l_Lean_Syntax_node2(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_node1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_addBuiltinDeclarationRanges(lean_object*, lean_object*);
 extern lean_object* l_Lean_Elab_macroAttribute;
 lean_object* l_Lean_KeyedDeclsAttribute_addBuiltin___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Core_instMonadOptionsCoreM_checkedOptions(lean_object*);
 lean_object* l_Lean_Name_mkStr3(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr6(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_register_option(lean_object*, lean_object*);
@@ -434,7 +435,7 @@ static lean_object* _init_l___private_Lean_Elab_Do_Switch_0__Lean_Elab_Term_toDo
 _start:
 {
 lean_object* v___x_85_; 
-v___x_85_ = l_Array_mkArray0(lean_box(0));
+v___x_85_ = l_Array_mkArray0___redArg();
 return v___x_85_;
 }
 }
@@ -756,10 +757,11 @@ return v_r_390_;
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_elabDo(lean_object* v_stx_391_, lean_object* v_expectedType_x3f_392_, lean_object* v_a_393_, lean_object* v_a_394_, lean_object* v_a_395_, lean_object* v_a_396_, lean_object* v_a_397_, lean_object* v_a_398_){
 _start:
 {
-lean_object* v_options_400_; lean_object* v___x_401_; uint8_t v___x_402_; 
-v_options_400_ = lean_ctor_get(v_a_397_, 2);
+lean_object* v___x_400_; lean_object* v___x_401_; uint8_t v___x_402_; 
+v___x_400_ = l_Lean_Core_instMonadOptionsCoreM_checkedOptions(v_a_397_);
 v___x_401_ = l_Lean_Elab_Term_backward_do_legacy;
-v___x_402_ = l_Lean_Option_get___at___00Lean_Elab_Term_elabDo_spec__0(v_options_400_, v___x_401_);
+v___x_402_ = l_Lean_Option_get___at___00Lean_Elab_Term_elabDo_spec__0(v___x_400_, v___x_401_);
+lean_dec_ref(v___x_400_);
 if (v___x_402_ == 0)
 {
 lean_object* v___x_403_; 
@@ -811,10 +813,11 @@ return v_res_428_;
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_elabTermNestedAction___redArg(lean_object* v_stx_429_, lean_object* v_a_430_, lean_object* v_a_431_, lean_object* v_a_432_, lean_object* v_a_433_, lean_object* v_a_434_, lean_object* v_a_435_){
 _start:
 {
-lean_object* v_options_437_; lean_object* v___x_438_; uint8_t v___x_439_; 
-v_options_437_ = lean_ctor_get(v_a_434_, 2);
+lean_object* v___x_437_; lean_object* v___x_438_; uint8_t v___x_439_; 
+v___x_437_ = l_Lean_Core_instMonadOptionsCoreM_checkedOptions(v_a_434_);
 v___x_438_ = l_Lean_Elab_Term_backward_do_legacy;
-v___x_439_ = l_Lean_Option_get___at___00Lean_Elab_Term_elabDo_spec__0(v_options_437_, v___x_438_);
+v___x_439_ = l_Lean_Option_get___at___00Lean_Elab_Term_elabDo_spec__0(v___x_437_, v___x_438_);
+lean_dec_ref(v___x_437_);
 if (v___x_439_ == 0)
 {
 lean_object* v___x_440_; 

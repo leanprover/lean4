@@ -716,6 +716,15 @@ theorem isEmpty_inter_iff [TransCmp cmp] :
     (t₁ ∩ t₂).isEmpty ↔ ∀ k, k ∈ t₁ → k ∉ t₂ :=
   ExtTreeMap.isEmpty_inter_iff
 
+theorem isEmpty_inter_comm [TransCmp cmp] :
+    (t₁ ∩ t₂).isEmpty = (t₂ ∩ t₁).isEmpty :=
+  ExtTreeMap.isEmpty_inter_comm
+
+theorem inter_eq_empty_comm [TransCmp cmp] :
+    t₁ ∩ t₂ = ∅ ↔ t₂ ∩ t₁ = ∅ := by
+  rw [← isEmpty_iff, ← isEmpty_iff, ← Bool.eq_iff_iff]
+  exact isEmpty_inter_comm
+
 end Inter
 
 section Diff

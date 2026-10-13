@@ -94,19 +94,34 @@ where
     if !perm then return true
     acLt result e
 
-public def Theorems.rewrite (thms : Theorems) (d : Discharger := dischargeNone) : Simproc := fun e => do
+/--
+Tries to rewrite `e` using the given `candidates`. `anyCD` is the context-dependency flag
+accumulated by previous attempts. Returns the result and the updated flag.
+-/
+private def rewriteUsing (candidates : Array (Theorem × Nat)) (e : Expr) (d : Discharger) (anyCD : Bool) : SimpM (Result × Bool) := do
   -- Track `cd` across all attempted theorems. If theorem A fails with cd=true
   -- and theorem B succeeds with cd=false, the result is still cd=true: in another
   -- context A might succeed (with higher priority) and produce a different result.
-  let mut anyCD := false
-  for (thm, numExtra) in thms.getMatchWithExtra (← getMCtx) e do
+  let mut anyCD := anyCD
+  for (thm, numExtra) in candidates do
     let result ← if numExtra == 0 then
       thm.rewrite e d
     else
       simpOverApplied e numExtra (thm.rewrite · d)
     anyCD := anyCD || result.isContextDependent
     if !result.isRfl then
-      return if anyCD && !result.isContextDependent then result.withContextDependent else result
-  return mkRflResultCD anyCD
+      return (if anyCD && !result.isContextDependent then result.withContextDependent else result, anyCD)
+  return (mkRflResultCD anyCD, anyCD)
+
+/--
+Rewrites `e` using the first applicable theorem in `thms`. The fallback theorems
+(`Theorem.fallback`) are tried only when no other theorem rewrites `e`.
+-/
+public def Theorems.rewrite (thms : Theorems) (d : Discharger := dischargeNone) : Simproc := fun e => do
+  let mctx ← getMCtx
+  let (result, anyCD) ← rewriteUsing (thms.getMatchWithExtra mctx e) e d false
+  if result.isRfl && !thms.fallback.root.isEmpty then
+    return (← rewriteUsing (thms.getFallbackMatchWithExtra mctx e) e d anyCD).1
+  return result
 
 end Lean.Meta.Sym.Simp

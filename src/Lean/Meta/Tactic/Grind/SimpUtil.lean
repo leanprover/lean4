@@ -100,8 +100,8 @@ builtin_simproc_decl pushNot (Not _) := fun e => do
    | Nat => return .visit { expr := mkNatLE (mkNatAdd b (mkNatLit 1)) a, proof? := some <| mkApp2 (mkConst ``Nat.not_le_eq) a b }
    | _ => return .continue
  | _ =>
-  if let .forallE n α b info := e then
-    if α.isProp && !b.hasLooseBVars then
+  if let .forallE n α b info := p then
+    if !b.hasLooseBVars && (← isProp α) then
       return .visit { expr := mkAnd α (mkNot b), proof? := some <| mkApp2 (mkConst ``Grind.not_implies) α b }
     else
       let p    := mkLambda n info α b
@@ -201,11 +201,5 @@ protected def getSimpContext (config : Grind.Config) : MetaM Simp.Context := do
         implicitDefEqProofs := false })
     (simpTheorems := #[thms])
     (congrTheorems := (← getSimpCongrTheorems))
-
-set_option compiler.ignoreBorrowAnnotation true in
-@[export lean_grind_normalize]
-def normalizeImp (e : Expr) (config : Grind.Config) : MetaM Expr := do
-  let (r, _) ← Meta.simp e (← Grind.getSimpContext config) (← Grind.getSimprocs)
-  return r.expr
 
 end Lean.Meta.Grind

@@ -14,7 +14,7 @@ public import Lean.Linter.Basic
 public import Lean.Meta.ForEachExpr
 public import Lean.Meta.Sorry
 public import Lean.PrivateName
-public import Lean.Server.InfoUtils
+public import Lean.Elab.InfoTree.Util
 public import Lean.Linter.Util
 
 public section

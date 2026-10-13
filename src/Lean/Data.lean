@@ -8,6 +8,7 @@ module
 prelude
 public import Lean.Data.AssocList
 public import Lean.Data.Format
+public import Lean.Data.Html
 public import Lean.Data.Json
 public import Lean.Data.JsonRpc
 public import Lean.Data.KVMap

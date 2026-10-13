@@ -16,6 +16,7 @@ extern "C" {
 lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_register_option(lean_object*, lean_object*);
+lean_object* l_Lean_Core_instMonadOptionsCoreM_checkedOptions(lean_object*);
 lean_object* l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at___00Lean_NameMap_find_x3f_spec__0___redArg(lean_object*, lean_object*);
 lean_object* l_Lean_SourceInfo_fromRef(lean_object*, uint8_t);
 lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -282,15 +283,16 @@ return v_r_74_;
 LEAN_EXPORT lean_object* l_Lean_Elab_WF_applyCleanWfTactic(lean_object* v_a_103_, lean_object* v_a_104_, lean_object* v_a_105_, lean_object* v_a_106_, lean_object* v_a_107_, lean_object* v_a_108_, lean_object* v_a_109_, lean_object* v_a_110_){
 _start:
 {
-lean_object* v_options_112_; lean_object* v_ref_113_; lean_object* v___x_114_; uint8_t v___x_115_; 
-v_options_112_ = lean_ctor_get(v_a_109_, 2);
-v_ref_113_ = lean_ctor_get(v_a_109_, 5);
-v___x_114_ = l_Lean_Elab_WF_debug_rawDecreasingByGoal;
-v___x_115_ = l_Lean_Option_get___at___00Lean_Elab_WF_applyCleanWfTactic_spec__0(v_options_112_, v___x_114_);
-if (v___x_115_ == 0)
+lean_object* v___x_112_; lean_object* v___x_113_; uint8_t v___x_114_; 
+v___x_112_ = l_Lean_Core_instMonadOptionsCoreM_checkedOptions(v_a_109_);
+v___x_113_ = l_Lean_Elab_WF_debug_rawDecreasingByGoal;
+v___x_114_ = l_Lean_Option_get___at___00Lean_Elab_WF_applyCleanWfTactic_spec__0(v___x_112_, v___x_113_);
+lean_dec_ref(v___x_112_);
+if (v___x_114_ == 0)
 {
-lean_object* v___x_116_; lean_object* v___x_117_; lean_object* v___x_118_; lean_object* v___x_119_; lean_object* v___x_120_; lean_object* v___x_121_; lean_object* v___x_122_; lean_object* v___x_123_; lean_object* v___x_124_; lean_object* v___x_125_; lean_object* v___x_126_; lean_object* v___x_127_; lean_object* v___x_128_; lean_object* v___x_129_; lean_object* v___x_130_; lean_object* v___x_131_; 
-v___x_116_ = l_Lean_SourceInfo_fromRef(v_ref_113_, v___x_115_);
+lean_object* v_ref_115_; lean_object* v___x_116_; lean_object* v___x_117_; lean_object* v___x_118_; lean_object* v___x_119_; lean_object* v___x_120_; lean_object* v___x_121_; lean_object* v___x_122_; lean_object* v___x_123_; lean_object* v___x_124_; lean_object* v___x_125_; lean_object* v___x_126_; lean_object* v___x_127_; lean_object* v___x_128_; lean_object* v___x_129_; lean_object* v___x_130_; lean_object* v___x_131_; 
+v_ref_115_ = lean_ctor_get(v_a_109_, 2);
+v___x_116_ = l_Lean_SourceInfo_fromRef(v_ref_115_, v___x_114_);
 v___x_117_ = ((lean_object*)(l_Lean_Elab_WF_applyCleanWfTactic___closed__3));
 v___x_118_ = ((lean_object*)(l_Lean_Elab_WF_applyCleanWfTactic___closed__4));
 lean_inc_n(v___x_116_, 6);

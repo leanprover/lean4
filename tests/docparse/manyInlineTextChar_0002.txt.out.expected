@@ -1,4 +1,12 @@
-Failure @0 (⟨1, 0⟩): unexpected '*' (use '\*' to escape); expected text
+Input: "*"
+Failure: unexpected '*' (use '\*' to escape); expected text
+ --> 1:0-1:1
+  |
+1 | *
+  | ^
+  = consumed input prefix: 0 bytes
 Final stack:
   [<missing>]
-Remaining: "*"
+Remaining:
+"*"
+Round-trip not reproduced, as the parse reported errors: leaf without original source info: <missing>

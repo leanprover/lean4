@@ -1035,6 +1035,7 @@ where
                          numBinders, fvar := fieldFVar, default? := none,
                          binfo := view.binderInfo, paramInfoOverrides,
                          kind := StructFieldKind.newField }
+          Term.addTermInfo' view.nameId fieldFVar (isBinder := true)
           withExporting (isExporting := wasExporting) do
             go (i+1)
       | some info =>
@@ -1579,16 +1580,18 @@ def elabStructureCommand : InductiveElabDescr where
                   -- Add field docstrings here (after @[class] attribute is applied)
                   -- so that Verso docstrings can use the class.
                   for field in view.fields do
-                    -- may not exist if overriding inherited field
-                    if (← getEnv).contains field.declName then
-                      if let some doc := field.modifiers.docString? then
-                        addDocString field.declName field.binders doc
+                    withoutExporting (when := isPrivateName field.declName) do
+                      -- may not exist if overriding inherited field
+                      if (← getEnv).contains field.declName then
+                        if let some doc := field.modifiers.docString? then
+                          addDocString field.declName field.binders doc
                   -- Add terminfo after docstrings so hovers include the docstring.
                   withSaveInfoContext do
                     for field in view.fields do
-                      -- may not exist if overriding inherited field
-                      if (← getEnv).contains field.declName then
-                        Term.addTermInfo' field.ref (← mkConstWithLevelParams field.declName) (isBinder := true)
+                      withoutExporting (when := isPrivateName field.declName) do
+                        -- may not exist if overriding inherited field
+                        if (← getEnv).contains field.declName then
+                          Term.addTermInfo' field.ref (← mkConstWithLevelParams field.declName) (isBinder := true)
                     -- Add terminfo for parents now that all parent projections exist.
                     for parent in parents do
                       if parent.addTermInfo then

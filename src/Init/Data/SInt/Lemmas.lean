@@ -57,10 +57,22 @@ macro "declare_int_theorems" typeName:ident _bits:term:arg : command => do
   @[simp] protected theorem toBitVec_div {a b : $typeName} : (a / b).toBitVec = a.toBitVec.sdiv b.toBitVec := (rfl)
   @[simp] protected theorem toBitVec_mod {a b : $typeName} : (a % b).toBitVec = a.toBitVec.srem b.toBitVec := (rfl)
 
+  protected theorem min_def {a b : $typeName} : min a b = if a ≤ b then a else b := by rfl
+  protected theorem max_def {a b : $typeName} : max a b = if a ≤ b then b else a := by rfl
+
+  open $typeName (min_def le_iff_toBitVec_sle)
+  @[simp] protected theorem toBitVec_min {a b : $typeName} : (min a b).toBitVec = if a.toBitVec.sle b.toBitVec then a.toBitVec else b.toBitVec := by
+    simp [BitVec.min_def, min_def, apply_ite toBitVec, le_iff_toBitVec_sle]
+
+  open $typeName (max_def le_iff_toBitVec_sle)
+  @[simp] protected theorem toBitVec_max {a b : $typeName} : (max a b).toBitVec = if a.toBitVec.sle b.toBitVec then b.toBitVec else a.toBitVec := by
+    simp [BitVec.max_def, max_def, apply_ite toBitVec, le_iff_toBitVec_sle]
+
   )
   unless isISize do
     let names := #[`le_iff_toBitVec_sle, `lt_iff_toBitVec_slt, `eq_iff_toBitVec_eq, `ne_iff_toBitVec_ne,
-      `toBitVec_add, `toBitVec_sub, `toBitVec_mul, `toBitVec_div, `toBitVec_mod]
+      `toBitVec_add, `toBitVec_sub, `toBitVec_mul, `toBitVec_div, `toBitVec_mod, `toBitVec_min,
+      `toBitVec_max]
     let idents := names.map fun n => mkIdent (typeName.getId ++ n)
     cmds := cmds.push <| ← `(attribute [int_toBitVec] $idents*)
   cmds := cmds.push <| ← `(end $typeName)

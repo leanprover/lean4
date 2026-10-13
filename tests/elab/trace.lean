@@ -50,7 +50,7 @@ withReader
     -- let opts := opts.set `trace.module.aux false;
     let opts := opts.set `trace.bughunt true;
     -- let opts := opts.set `trace.slow true;
-    { ctx with options := opts })
+    ctx.setOptions opts)
   (tryCatch (tryFinally x printTraces) (fun _ => IO.println "ERROR"))
 
 /--

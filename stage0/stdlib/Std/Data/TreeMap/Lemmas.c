@@ -15,6 +15,8 @@ extern "C" {
 #endif
 LEAN_EXPORT lean_object* l___private_Std_Data_TreeMap_Lemmas_0__GetElem_x3f_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Data_TreeMap_Lemmas_0__GetElem_x3f_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_TreeMap_Equiv_instTrans___redArg();
+LEAN_EXPORT lean_object* l_Std_TreeMap_Equiv_instTrans___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_TreeMap_Equiv_instTrans(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_TreeMap_Equiv_instTrans___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Data_TreeMap_Lemmas_0__GetElem_x3f_match__1_splitter___redArg(lean_object* v_x_1_, lean_object* v_h__1_2_, lean_object* v_h__2_3_){
@@ -63,21 +65,37 @@ return v___x_16_;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Std_TreeMap_Equiv_instTrans(lean_object* v_00_u03b1_17_, lean_object* v_00_u03b2_18_, lean_object* v_cmp_19_){
+LEAN_EXPORT lean_object* l_Std_TreeMap_Equiv_instTrans___redArg(){
 _start:
 {
-lean_object* v___x_20_; 
-v___x_20_ = lean_box(0);
-return v___x_20_;
+lean_object* v___x_18_; 
+v___x_18_ = lean_box(0);
+return v___x_18_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_TreeMap_Equiv_instTrans___boxed(lean_object* v_00_u03b1_21_, lean_object* v_00_u03b2_22_, lean_object* v_cmp_23_){
+LEAN_EXPORT lean_object* l_Std_TreeMap_Equiv_instTrans___redArg___boxed(lean_object* v___dummy_19_){
 _start:
 {
-lean_object* v_res_24_; 
-v_res_24_ = l_Std_TreeMap_Equiv_instTrans(v_00_u03b1_21_, v_00_u03b2_22_, v_cmp_23_);
-lean_dec_ref(v_cmp_23_);
-return v_res_24_;
+lean_object* v_res_20_; 
+v_res_20_ = l_Std_TreeMap_Equiv_instTrans___redArg();
+return v_res_20_;
+}
+}
+LEAN_EXPORT lean_object* l_Std_TreeMap_Equiv_instTrans(lean_object* v_00_u03b1_21_, lean_object* v_00_u03b2_22_, lean_object* v_cmp_23_){
+_start:
+{
+lean_object* v___x_24_; 
+v___x_24_ = lean_box(0);
+return v___x_24_;
+}
+}
+LEAN_EXPORT lean_object* l_Std_TreeMap_Equiv_instTrans___boxed(lean_object* v_00_u03b1_25_, lean_object* v_00_u03b2_26_, lean_object* v_cmp_27_){
+_start:
+{
+lean_object* v_res_28_; 
+v_res_28_ = l_Std_TreeMap_Equiv_instTrans(v_00_u03b1_25_, v_00_u03b2_26_, v_cmp_27_);
+lean_dec_ref(v_cmp_27_);
+return v_res_28_;
 }
 }
 lean_object* runtime_initialize_Std_Data_DTreeMap_Lemmas(uint8_t builtin);

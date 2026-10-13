@@ -310,9 +310,12 @@ theorem Nodup.eq_of_getElem?_eq {xs : List α} (h : Nodup xs) (hi : i < xs.lengt
   rcases hij with ⟨hj, hij⟩
   exact h.eq_of_getElem_eq hi hj hij
 
-@[simp, grind =] theorem Nodup.getElem_inj {xs : List α} (h : Nodup xs) {hi : i < xs.length}
+@[simp] theorem Nodup.getElem_inj {xs : List α} (h : Nodup xs) {hi : i < xs.length}
     {hj : j < xs.length} : xs[i] = xs[j] ↔ i = j :=
   ⟨h.eq_of_getElem_eq hi hj, (getElem_congr rfl · hi)⟩
+
+grind_pattern Nodup.getElem_inj => Nodup xs, xs[i]'hi, xs[j]'hj where
+  i =/= j
 
 theorem Nodup.getElem?_inj {xs : List α} (h₀ : i < xs.length) (h₁ : xs.Nodup) :
     xs[i]? = xs[j]? ↔ i = j := by

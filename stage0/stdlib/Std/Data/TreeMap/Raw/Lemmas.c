@@ -13,23 +13,41 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+LEAN_EXPORT lean_object* l_Std_TreeMap_Raw_Equiv_instTrans___redArg();
+LEAN_EXPORT lean_object* l_Std_TreeMap_Raw_Equiv_instTrans___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_TreeMap_Raw_Equiv_instTrans(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_TreeMap_Raw_Equiv_instTrans___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_TreeMap_Raw_Equiv_instTrans(lean_object* v_00_u03b1_1_, lean_object* v_00_u03b2_2_, lean_object* v_cmp_3_){
+LEAN_EXPORT lean_object* l_Std_TreeMap_Raw_Equiv_instTrans___redArg(){
 _start:
 {
-lean_object* v___x_4_; 
-v___x_4_ = lean_box(0);
-return v___x_4_;
+lean_object* v___x_2_; 
+v___x_2_ = lean_box(0);
+return v___x_2_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_TreeMap_Raw_Equiv_instTrans___boxed(lean_object* v_00_u03b1_5_, lean_object* v_00_u03b2_6_, lean_object* v_cmp_7_){
+LEAN_EXPORT lean_object* l_Std_TreeMap_Raw_Equiv_instTrans___redArg___boxed(lean_object* v___dummy_3_){
 _start:
 {
-lean_object* v_res_8_; 
-v_res_8_ = l_Std_TreeMap_Raw_Equiv_instTrans(v_00_u03b1_5_, v_00_u03b2_6_, v_cmp_7_);
-lean_dec_ref(v_cmp_7_);
-return v_res_8_;
+lean_object* v_res_4_; 
+v_res_4_ = l_Std_TreeMap_Raw_Equiv_instTrans___redArg();
+return v_res_4_;
+}
+}
+LEAN_EXPORT lean_object* l_Std_TreeMap_Raw_Equiv_instTrans(lean_object* v_00_u03b1_5_, lean_object* v_00_u03b2_6_, lean_object* v_cmp_7_){
+_start:
+{
+lean_object* v___x_8_; 
+v___x_8_ = lean_box(0);
+return v___x_8_;
+}
+}
+LEAN_EXPORT lean_object* l_Std_TreeMap_Raw_Equiv_instTrans___boxed(lean_object* v_00_u03b1_9_, lean_object* v_00_u03b2_10_, lean_object* v_cmp_11_){
+_start:
+{
+lean_object* v_res_12_; 
+v_res_12_ = l_Std_TreeMap_Raw_Equiv_instTrans(v_00_u03b1_9_, v_00_u03b2_10_, v_cmp_11_);
+lean_dec_ref(v_cmp_11_);
+return v_res_12_;
 }
 }
 lean_object* runtime_initialize_Std_Data_DTreeMap_Raw_Lemmas(uint8_t builtin);

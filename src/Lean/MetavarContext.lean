@@ -344,6 +344,14 @@ structure DelayedMetavarAssignment where
   fvars         : Array Expr
   mvarIdPending : MVarId
 
+/--
+Holds a `Lean.Meta.SynthNormClosureMemo`, whose type is defined later; see
+`MetavarContext.synthNormMemo?`.
+-/
+structure SynthNormMemoSlot where
+  private raw? : Option NonScalar := none
+  deriving Inhabited
+
 /-- The metavariable context is a set of metavariable declarations and their assignments.
 
 For more information on specifics see the comment in the file that `MetavarContext` is defined in.
@@ -381,6 +389,12 @@ structure MetavarContext where
   instance for a type that is different at instance-resolution time. See issue #9077.
   -/
   instanceTypedMVars : PersistentHashMap MVarId Unit := {}
+  /--
+  The memoized free-variable normalization of the local instances for the type class resolution
+  cache key. It depends on the assignments, so it is stored with them: whatever reverts the
+  assignments also reverts the memo.
+  -/
+  synthNormMemo : SynthNormMemoSlot := default
 
 instance : Inhabited MetavarContext := ⟨{}⟩
 

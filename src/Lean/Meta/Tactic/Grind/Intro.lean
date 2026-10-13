@@ -12,6 +12,7 @@ import Lean.Meta.Tactic.Grind.Util
 import Lean.Meta.Tactic.Grind.CasesMatch
 import Lean.Meta.Tactic.Grind.Injection
 import Lean.Meta.Tactic.Grind.Core
+import Lean.Meta.Tactic.Grind.Simp
 import Lean.Meta.Tactic.Grind.MarkAccessible
 import Init.Grind.Util
 public section
@@ -204,6 +205,19 @@ private def exfalsoIfNotProp (goal : Goal) : MetaM Goal := goal.mvarId.withConte
   else
     return { goal with mvarId := (← goal.mvarId.exfalso) }
 
+/--
+Normalizes the target. A `[grind norm]` rule or a reducible definition may expose an implication
+or a universal quantifier that `introNext` then introduces like a syntactic one.
+-/
+private def simpTarget (goal : Goal) : GrindM Goal := goal.mvarId.withContext do
+  let target ← goal.mvarId.getType
+  let r ← simpCore target
+  if r.expr == target then return goal
+  let mvarId ← match r.proof? with
+    | some h => goal.mvarId.replaceTargetEq r.expr h
+    | none => goal.mvarId.replaceTargetDefEq r.expr
+  return { goal with mvarId }
+
 def Goal.lastDecl? (goal : Goal) : MetaM (Option LocalDecl) := do
   return (← goal.mvarId.getDecl).lctx.lastDecl
 
@@ -241,7 +255,11 @@ def intro (generation : Nat) : Action := fun goal kna kp => do
   else match (← introNext goal generation) with
     | .done goal =>
       let goal ← exfalsoIfNotProp goal
-      if let some mvarId ← goal.mvarId.byContra? then
+      let goal ← simpTarget goal
+      let target ← goal.mvarId.getType
+      if target.isForall || target.isLet then
+        kp goal
+      else if let some mvarId ← goal.mvarId.byContra? then
         kp { goal with mvarId }
       else
         kp goal

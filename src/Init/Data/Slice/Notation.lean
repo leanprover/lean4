@@ -133,17 +133,17 @@ class Rii.Sliceable (α : Type u) (β : outParam (Type v)) (γ : outParam (Type 
   mkSlice (carrier : α) (range : Rii β) : γ
 
 macro_rules
-  | `($c[*...*]) => `(Rii.Sliceable.mkSlice $c *...*)
-  | `($c[$a...*]) => `(Rci.Sliceable.mkSlice $c $a...*)
-  | `($c[$a<...*]) => `(Roi.Sliceable.mkSlice $c $a<...*)
-  | `($c[*...<$b]) => `(Rio.Sliceable.mkSlice $c *...<$b)
-  | `($c[$a...<$b]) => `(Rco.Sliceable.mkSlice $c $a...<$b)
-  | `($c[$a<...<$b]) => `(Roo.Sliceable.mkSlice $c $a<...<$b)
-  | `($c[*...$b]) => `(Rio.Sliceable.mkSlice $c *...<$b)
-  | `($c[$a...$b]) => `(Rco.Sliceable.mkSlice $c $a...<$b)
-  | `($c[$a<...$b]) => `(Roo.Sliceable.mkSlice $c $a<...<$b)
-  | `($c[*...=$b]) => `(Ric.Sliceable.mkSlice $c *...=$b)
-  | `($c[$a...=$b]) => `(Rcc.Sliceable.mkSlice $c $a...=$b)
-  | `($c[$a<...=$b]) => `(Roc.Sliceable.mkSlice $c $a<...=$b)
+  | `($c[*...*]) => `(Rii.Sliceable.mkSlice $c (*...*))
+  | `($c[$a...*]) => `(Rci.Sliceable.mkSlice $c ($a...*))
+  | `($c[$a<...*]) => `(Roi.Sliceable.mkSlice $c ($a<...*))
+  | `($c[*...<$b]) => `(Rio.Sliceable.mkSlice $c (*...<$b))
+  | `($c[$a...<$b]) => `(Rco.Sliceable.mkSlice $c ($a...<$b))
+  | `($c[$a<...<$b]) => `(Roo.Sliceable.mkSlice $c ($a<...<$b))
+  | `($c[*...$b]) => `(Rio.Sliceable.mkSlice $c (*...<$b))
+  | `($c[$a...$b]) => `(Rco.Sliceable.mkSlice $c ($a...<$b))
+  | `($c[$a<...$b]) => `(Roo.Sliceable.mkSlice $c ($a<...<$b))
+  | `($c[*...=$b]) => `(Ric.Sliceable.mkSlice $c (*...=$b))
+  | `($c[$a...=$b]) => `(Rcc.Sliceable.mkSlice $c ($a...=$b))
+  | `($c[$a<...=$b]) => `(Roc.Sliceable.mkSlice $c ($a<...=$b))
 
 end Std

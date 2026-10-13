@@ -1,5 +1,4 @@
 import Std.WP
-import Std.Tactic.Do
 
 /-! `vcgen` ranks the specs available at a call site into priority bands: a spec named in the
 `vcgen [...]` list outranks a local hypothesis pulled in by `*`, which outranks a bracketed

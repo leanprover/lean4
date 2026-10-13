@@ -31,11 +31,6 @@ expr abstract(expr const & e, unsigned n, expr const * subst) {
         });
 }
 
-expr abstract(expr const & e, name const & n) {
-    expr fvar = mk_fvar(n);
-    return abstract(e, 1, &fvar);
-}
-
 static object * lean_expr_abstract_core(object * e0, size_t n, object * subst) {
     lean_assert(n <= lean_array_size(subst));
     expr const & e = reinterpret_cast<expr const &>(e0);

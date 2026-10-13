@@ -1,5 +1,7 @@
 from argparse import ArgumentParser
+from pathlib import Path
 
+import util
 from util import ReleaseRepo
 
 ALL: list[ReleaseRepo] = []
@@ -514,13 +516,14 @@ def print_all_urls() -> None:
         print(f"- {repo.gh_url}")
 
 
-def clone_all_repos() -> None:
+def clone_all_repos(repos_dir: Path) -> None:
     for repo in ALL:
         print(f"Cloning {repo.gh_full_name}...")
-        repo.local.prepare()
+        repo.local(repos_dir).prepare()
 
 
 class Args:
+    repos_dir: Path | None
     graph: bool
     prune: bool
     no_weak: bool
@@ -531,6 +534,7 @@ class Args:
 
 if __name__ == "__main__":
     parser = ArgumentParser()
+    parser.add_argument("-d", "--repos-dir", type=Path)
     parser.add_argument("-g", "--graph", action="store_true")
     parser.add_argument("-p", "--prune", action="store_true")
     parser.add_argument("-W", "--no-weak", action="store_true")
@@ -538,6 +542,7 @@ if __name__ == "__main__":
     parser.add_argument("-u", "--urls", action="store_true")
     parser.add_argument("-c", "--clone", action="store_true")
     args = parser.parse_args(namespace=Args())
+    repos_dir = util.get_repos_dir(args.repos_dir)
 
     if args.graph:
         print_graphviz_dot(
@@ -548,4 +553,4 @@ if __name__ == "__main__":
         print_all_urls()
 
     if args.clone:
-        clone_all_repos()
+        clone_all_repos(repos_dir)

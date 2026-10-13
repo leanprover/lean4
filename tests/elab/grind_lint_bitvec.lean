@@ -16,7 +16,7 @@ should commit to one canonical representation and reach the others on demand.
 /-! Check BitVec namespace: -/
 
 #guard_msgs in
-#grind_lint inspect (min := 22) BitVec.msb_extractLsb
+#grind_lint inspect (min := 17) BitVec.msb_extractLsb
 
 #guard_msgs in
 #grind_lint inspect (min := 21) BitVec.msb_signExtend

@@ -822,7 +822,7 @@ private def unfoldDefault (fInfo : ConstantInfo) (us : List Level) (e : Expr) : 
   if fInfo.hasValue then
     recordUnfold fInfo.name
     deltaBetaDefinition fInfo us e.getAppRevArgs (fun _ => pure none) fun e => do
-      if !backward.whnf.reducibleClassField.get (← getOptions) then
+      if !(← getOptionFlags).reducibleClassField then
         return some e
       else if !(← getTransparency) matches .reducible then
         return some e
@@ -850,7 +850,7 @@ mutual
         else
           let unfoldDefault (_ : Unit) : MetaM (Option Expr) :=
             unfoldDefault fInfo fLvls e
-          if smartUnfolding.get (← getOptions) then
+          if (← getOptionFlags).smartUnfolding then
             match ((← getEnv).find? (skipRealize := true) (mkSmartUnfoldingNameFor fInfo.name)) with
             | some fAuxInfo@(.defnInfo _) =>
               -- We use `preserveMData := true` to make sure the smart unfolding annotation are not erased in an over-application.
@@ -915,7 +915,7 @@ mutual
       let some cinfo ← getConstInfoNoEx? declName ignoreTransparency | pure none
       -- check smart unfolding only after `getUnfoldableConstNoEx?` because smart unfoldings have a
       -- significant chance of not existing and `Environment.contains` misses are more costly
-      if smartUnfolding.get (← getOptions) && (← getEnv).contains (mkSmartUnfoldingNameFor declName) then
+      if (← getOptionFlags).smartUnfolding && (← getEnv).contains (mkSmartUnfoldingNameFor declName) then
         return none
       else
         unless cinfo.hasValue do
@@ -972,23 +972,6 @@ def reduceRecMatcher? (e : Expr) : MetaM (Option Expr) := do
         else
           return none
       | _ => return none
-
-unsafe def reduceBoolNativeUnsafe (constName : Name) : MetaM Bool := evalConstCheck Bool `Bool constName
-unsafe def reduceNatNativeUnsafe (constName : Name) : MetaM Nat := evalConstCheck Nat `Nat constName
-@[implemented_by reduceBoolNativeUnsafe] opaque reduceBoolNative (constName : Name) : MetaM Bool
-@[implemented_by reduceNatNativeUnsafe] opaque reduceNatNative (constName : Name) : MetaM Nat
-
-def reduceNative? (e : Expr) : MetaM (Option Expr) :=
-  match e with
-  | Expr.app (Expr.const fName _) (Expr.const argName _) =>
-    if fName == ``Lean.reduceBool then do
-      return toExpr (← reduceBoolNative argName)
-    else if fName == ``Lean.reduceNat then do
-      return toExpr (← reduceNatNative argName)
-    else
-      return none
-  | _ =>
-    return none
 
 @[inline] def withNatValue (a : Expr) (k : Nat → MetaM (Option α)) : MetaM (Option α) := do
   if !a.hasExprMVar && a.hasFVar then
@@ -1086,12 +1069,9 @@ partial def whnfImp (e : Expr) : MetaM Expr :=
         match (← reduceNat? e') with
         | some v => cache useCache e v
         | none   =>
-          match (← reduceNative? e') with
-          | some v => cache useCache e v
-          | none   =>
-            match (← unfoldDefinition? e') with
-            | some e'' => cache useCache e (← whnfImp e'')
-            | none => cache useCache e e'
+          match (← unfoldDefinition? e') with
+          | some e'' => cache useCache e (← whnfImp e'')
+          | none => cache useCache e e'
 
 /-- If `e` is a projection function that satisfies `p`, then reduce it -/
 def reduceProjOf? (e : Expr) (p : Name → Bool) : MetaM (Option Expr) := do

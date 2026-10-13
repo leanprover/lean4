@@ -10,7 +10,7 @@ import Lean.Parser.Syntax
 public import Lean.Data.Options
 import Lean.Elab.Command
 import Lean.Linter.Init
-import Lean.Server.InfoUtils
+import Lean.Elab.InfoTree.Util
 
 public section
 

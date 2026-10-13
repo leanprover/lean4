@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.SInt
-// Imports: public import Init.Data.SInt.Basic public import Init.Data.SInt.Float public import Init.Data.SInt.Float32 public import Init.Data.SInt.Lemmas public import Init.Data.SInt.Bitwise public import Init.Data.SInt.IntToBitVec
+// Imports: public import Init.Data.SInt.Basic public import Init.Data.SInt.Float public import Init.Data.SInt.Float32 public import Init.Data.SInt.Lemmas public import Init.Data.SInt.Bitwise public import Init.Data.SInt.IntToBitVec public import Init.Data.SInt.Package
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -19,6 +19,7 @@ lean_object* runtime_initialize_Init_Data_SInt_Float32(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_SInt_Lemmas(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_SInt_Bitwise(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_SInt_IntToBitVec(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_SInt_Package(uint8_t builtin);
 void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Init_Data_SInt(uint8_t builtin) {
@@ -44,6 +45,9 @@ lean_dec_ref(res);
 res = runtime_initialize_Init_Data_SInt_IntToBitVec(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+res = runtime_initialize_Init_Data_SInt_Package(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
 }
 static bool _G_meta_initialized = false;
@@ -59,6 +63,7 @@ lean_object* initialize_Init_Data_SInt_Float32(uint8_t builtin);
 lean_object* initialize_Init_Data_SInt_Lemmas(uint8_t builtin);
 lean_object* initialize_Init_Data_SInt_Bitwise(uint8_t builtin);
 lean_object* initialize_Init_Data_SInt_IntToBitVec(uint8_t builtin);
+lean_object* initialize_Init_Data_SInt_Package(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_SInt(uint8_t builtin) {
 lean_object * res;
@@ -80,6 +85,9 @@ res = initialize_Init_Data_SInt_Bitwise(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_SInt_IntToBitVec(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_SInt_Package(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Init_Data_SInt(builtin);

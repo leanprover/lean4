@@ -1,0 +1,22 @@
+Input: "foo\\\n*bar* baz\n"
+Success! Final stack:
+  [(Lean.Doc.Parser.Block.para
+    [(Lean.Doc.Parser.Inline.text
+      (Lean.Doc.Parser.versoText "foo\\\n"))
+     (Lean.Doc.Parser.Inline.bold
+      (Lean.Doc.Parser.boldDelimiter "*")
+      [(Lean.Doc.Parser.Inline.text
+        (Lean.Doc.Parser.versoText "bar"))]
+      (Lean.Doc.Parser.boldDelimiter "*"))
+     (Lean.Doc.Parser.Inline.text
+      (Lean.Doc.Parser.versoText " baz"))
+     (Lean.Doc.Parser.Inline.linebreak "\n")])]
+All input consumed.
+Round-trip OK
+Decoded views:
+  para
+    text (content := "foo\n")
+    bold (opener := "*") (closer := "*")
+      text (content := "bar")
+    text (content := " baz")
+    linebreak (newline := "\n")

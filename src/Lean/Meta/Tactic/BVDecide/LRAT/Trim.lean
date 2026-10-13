@@ -30,10 +30,6 @@ The context used for trimming LRAT proofs.
 -/
 structure Context where
   /--
-  The proof as a map from proof step ids to their actions.
-  -/
-  proof : Std.HashMap Nat IntAction
-  /--
   The id of the first proof step.
   -/
   initialId : Nat
@@ -43,6 +39,10 @@ structure Context where
   addEmptyId : Nat
 
 structure State where
+  /--
+  The proof as a map from proof step ids to their actions.
+  -/
+  proof : Std.HashMap Nat IntAction
   /--
   For each proof step `i` contains  at index `i - initialId` `0` if `i` is unused, `1` if it is
   used.
@@ -88,7 +88,7 @@ def run (proof : Array IntAction) (x : M α) : Except String α := do
   let used := Nat.fold proof.size (init := ByteArray.emptyWithCapacity proof.size) (fun _ _ acc => acc.push 0)
   let lastUse := Array.replicate (initialId + proof.size) (-1)
   let mapped := Array.replicate proof.size 0
-  return ReaderT.run x { proof, initialId, addEmptyId } |>.run' { used, mapped, lastUse }
+  return ReaderT.run x { initialId, addEmptyId } |>.run' { proof, used, mapped, lastUse }
 
 @[inline]
 def getInitialId : M Nat := do
@@ -106,8 +106,13 @@ private def idIndex (id : Nat) : M Nat := do
 
 @[inline]
 def getProofStep (id : Nat) : M (Option IntAction) := do
-  let ctx ← read
-  return ctx.proof[id]?
+  return (← get).proof[id]?
+
+@[inline]
+def consumeProofStep (id : Nat) : M (Option IntAction) := do
+  modifyGet fun s =>
+    let step := s.proof[id]?
+    (step, { s with proof := s.proof.erase id })
 
 @[inline]
 def isUsed (id : Nat) : M Bool := do
@@ -234,7 +239,7 @@ def mapping : M (Array IntAction) := do
       M.registerIdMap id nextMapped
       -- This should never panic as the use def analysis has already marked this step as being used
       -- so it must exist.
-      let step := (← M.getProofStep id).get!
+      let step := (← M.consumeProofStep id).get!
       let mut deletions := #[]
 
       if id != emptyId then

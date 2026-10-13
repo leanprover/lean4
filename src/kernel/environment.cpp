@@ -10,7 +10,6 @@ Author: Leonardo de Moura
 #include "runtime/sstream.h"
 #include "runtime/thread.h"
 #include "runtime/sharecommon.h"
-#include "util/map_foreach.h"
 #include "util/io.h"
 #include "kernel/environment.h"
 #include "kernel/kernel_exception.h"
@@ -25,7 +24,7 @@ extern "C" uint8 lean_environment_quot_init(object*);
 extern "C" object* lean_kernel_record_unfold (object*, object*);
 extern "C" object* lean_kernel_get_diag(object*);
 extern "C" object* lean_kernel_set_diag(object*, object*);
-extern "C" uint8* lean_kernel_diag_is_enabled(object*);
+extern "C" uint8 lean_kernel_diag_is_enabled(object*);
 
 void diagnostics::record_unfold(name const & decl_name) {
     m_obj = lean_kernel_record_unfold(m_obj, decl_name.to_obj_arg());
@@ -297,13 +296,6 @@ extern "C" LEAN_EXPORT object * lean_add_decl(object * env, size_t max_heartbeat
 extern "C" LEAN_EXPORT object * lean_add_decl_without_checking(object * env, object * decl) {
     return catch_kernel_exceptions<environment>([&]() {
             return environment(env).add(declaration(decl, true), false);
-        });
-}
-
-void environment::for_each_constant(std::function<void(constant_info const & d)> const & f) const {
-    smap_foreach(cnstr_get(raw(), 1), [&](object *, object * v) {
-            constant_info cinfo(v, true);
-            f(cinfo);
         });
 }
 

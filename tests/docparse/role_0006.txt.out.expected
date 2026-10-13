@@ -1,0 +1,20 @@
+Input: "{lit}`bracketless`"
+Success! Final stack:
+  (Lean.Doc.Parser.Inline.role
+   "{"
+   `lit
+   []
+   "}"
+   []
+   [(Lean.Doc.Parser.Inline.code
+     (Lean.Doc.Parser.codeDelimiter "`")
+     (Lean.Doc.Parser.versoCode
+      [(Lean.Doc.Parser.versoCodeLine
+        "bracketless")])
+     (Lean.Doc.Parser.codeDelimiter "`"))]
+   [])
+All input consumed.
+Round-trip OK
+Decoded views:
+  role (braceOpen := "{") (name := lit) (args := []) (braceClose := "}") (brackets := none)
+    code (opener := "`") (content := "bracketless") (closer := "`")

@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Lean.Meta.Tactic.Grind.Types
+public import Lean.Meta.Sym.Arith.Types
 import Init.Grind.Util
 import Init.Grind.Injective
 import Init.Grind.PP
@@ -214,8 +215,8 @@ private def ppCutsat : M Unit := do
   let some msg ← Arith.Cutsat.pp? (← read) | return ()
   pushMsg msg
 
-private def ppCommRing : M Unit := do
-  let some msg ← Arith.CommRing.pp? (← read) | return ()
+private def ppCommRing (rings : Array Sym.Arith.CommRing) : M Unit := do
+  let some msg ← Arith.CommRing.pp? (← read) rings | return ()
   pushMsg msg
 
 private def ppLinarith : M Unit := do
@@ -259,8 +260,12 @@ private def ppCasesTrace : M Unit := do
       ]
     pushMsg <| .trace { cls := `cases } "Case analyses" msgs
 
-def goalDiagToMessageData (goal : Goal) (config : Grind.Config) (header := "Goal diagnostics") (collapsedMain := true)
-     : MetaM MessageData := do
+/--
+`rings` are the `Sym.Arith` ring records of the run (see `Result.rings`). The goal itself
+stores only the ring solver state.
+-/
+def goalDiagToMessageData (goal : Goal) (config : Grind.Config) (rings : Array Sym.Arith.CommRing)
+    (header := "Goal diagnostics") (collapsedMain := true) : MetaM MessageData := do
   let (_, m) ← go goal |>.run #[]
   let gm := MessageData.trace { cls := `grind, collapsed := false } header m
   return gm
@@ -272,13 +277,13 @@ where
     ppActiveTheoremPatterns
     ppCutsat
     ppLinarith
-    ppCommRing
+    ppCommRing rings
     ppAC
     ppThresholds config
 
-def goalToMessageData (goal : Goal) (config : Grind.Config) : MetaM MessageData := goal.withContext do
+def goalToMessageData (goal : Goal) (config : Grind.Config) (rings : Array Sym.Arith.CommRing) : MetaM MessageData := goal.withContext do
   if config.verbose then
-    let gm ← goalDiagToMessageData goal config
+    let gm ← goalDiagToMessageData goal config rings
     let r := m!"{.ofGoal goal.mvarId}\n{gm}"
     addMessageContextFull r
   else

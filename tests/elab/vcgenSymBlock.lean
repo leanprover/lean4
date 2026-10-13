@@ -1,5 +1,4 @@
 import Std.WP
-import Std.Tactic.Do
 
 /-! Tests that `vcgen` is usable as a step inside `sym => …` blocks. -/
 

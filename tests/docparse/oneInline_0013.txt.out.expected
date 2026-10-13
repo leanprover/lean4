@@ -1,7 +1,15 @@
-Failure @5 (⟨1, 5⟩): expected ']'
+Input: "![abc\n123"
+Failure: expected ']'
+ --> 1:5
+  |
+1 | ![abc
+  |      ^
+  = consumed input prefix: 5 bytes
 Final stack:
-  (Lean.Doc.Syntax.image
+  (Lean.Doc.Parser.Inline.image
    "!["
-   (str "\"abc\"")
+   (Lean.Doc.Parser.versoImageAlt "abc")
    <missing>)
-Remaining: "\n123"
+Remaining:
+"\n123"
+Round-trip not reproduced, as the parse reported errors: leaf without original source info: <missing>

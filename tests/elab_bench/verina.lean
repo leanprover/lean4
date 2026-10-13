@@ -498,6 +498,10 @@ attribute [grind] List.take_succ_eq_append_getElem
 theorem range_split_index {m : Nat} {pref suff : List Nat} {c : Nat}
     (h : [:m].toList = pref ++ c :: suff) : c = pref.length := sorry
 attribute [grind] List.take_length
+-- Splits `k ≤ ipref.length` into `k < ipref.length ∨ k = ipref.length`: the negated invariant is
+-- normalized to `∃ k, k ≤ ipref.length ∧ isMajorityElement …`, and the invariant's E-matching
+-- patterns only match the `k < ipref.length` literal.
+attribute [local grind →] Nat.lt_or_eq_of_le
 
 @[local grind →]
 theorem mem_getElem! (lst : List Int) (w : Int) (hw : w ∈ lst) :

@@ -1,0 +1,2 @@
+{role (x := "a
+b")}[text]

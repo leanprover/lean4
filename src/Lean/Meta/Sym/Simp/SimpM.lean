@@ -279,6 +279,14 @@ abbrev pre : Simproc := fun e => do
 abbrev post : Simproc := fun e => do
   (← getMethods).post e
 
+/-- Caches `r` as the final result for `e`, in the transient cache if it is context-dependent. -/
+abbrev cacheResult (e : Expr) (r : Result) : SimpM Result := do
+  if r.isContextDependent then
+    modify fun s => { s with transientCache := s.transientCache.insert { expr := e } r }
+  else
+    modify fun s => { s with persistentCache := s.persistentCache.insert { expr := e } r }
+  return r
+
 /-- Saves and restores both caches and funext. Used by dischargers. -/
 abbrev withoutModifyingCache (k : SimpM α) : SimpM α := do
   let persistentCache := (← get).persistentCache

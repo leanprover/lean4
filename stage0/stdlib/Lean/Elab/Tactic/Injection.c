@@ -679,43 +679,43 @@ return v___x_167_;
 }
 v___jp_121_:
 {
-lean_object* v___x_123_; 
-v___x_123_ = l_Lean_Elab_Tactic_replaceMainGoal___redArg(v_a_122_, v___y_113_, v___y_116_, v___y_117_, v___y_118_, v___y_119_);
-if (lean_obj_tag(v___x_123_) == 0)
+lean_object* v___x_123_; lean_object* v___x_124_; 
+v___x_123_ = lean_box(0);
+v___x_124_ = l_Lean_Elab_Tactic_replaceMainGoal___redArg(v_a_122_, v___y_113_, v___y_116_, v___y_117_, v___y_118_, v___y_119_);
+if (lean_obj_tag(v___x_124_) == 0)
 {
-lean_object* v___x_125_; uint8_t v_isShared_126_; uint8_t v_isSharedCheck_131_; 
-v_isSharedCheck_131_ = !lean_is_exclusive(v___x_123_);
+lean_object* v___x_126_; uint8_t v_isShared_127_; uint8_t v_isSharedCheck_131_; 
+v_isSharedCheck_131_ = !lean_is_exclusive(v___x_124_);
 if (v_isSharedCheck_131_ == 0)
 {
 lean_object* v_unused_132_; 
-v_unused_132_ = lean_ctor_get(v___x_123_, 0);
+v_unused_132_ = lean_ctor_get(v___x_124_, 0);
 lean_dec(v_unused_132_);
-v___x_125_ = v___x_123_;
-v_isShared_126_ = v_isSharedCheck_131_;
-goto v_resetjp_124_;
+v___x_126_ = v___x_124_;
+v_isShared_127_ = v_isSharedCheck_131_;
+goto v_resetjp_125_;
 }
 else
 {
-lean_dec(v___x_123_);
-v___x_125_ = lean_box(0);
-v_isShared_126_ = v_isSharedCheck_131_;
-goto v_resetjp_124_;
+lean_dec(v___x_124_);
+v___x_126_ = lean_box(0);
+v_isShared_127_ = v_isSharedCheck_131_;
+goto v_resetjp_125_;
 }
-v_resetjp_124_:
+v_resetjp_125_:
 {
-lean_object* v___x_127_; lean_object* v___x_129_; 
-v___x_127_ = lean_box(0);
-if (v_isShared_126_ == 0)
+lean_object* v___x_129_; 
+if (v_isShared_127_ == 0)
 {
-lean_ctor_set(v___x_125_, 0, v___x_127_);
-v___x_129_ = v___x_125_;
+lean_ctor_set(v___x_126_, 0, v___x_123_);
+v___x_129_ = v___x_126_;
 goto v_reusejp_128_;
 }
 else
 {
 lean_object* v_reuseFailAlloc_130_; 
 v_reuseFailAlloc_130_ = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(v_reuseFailAlloc_130_, 0, v___x_127_);
+lean_ctor_set(v_reuseFailAlloc_130_, 0, v___x_123_);
 v___x_129_ = v_reuseFailAlloc_130_;
 goto v_reusejp_128_;
 }
@@ -727,7 +727,7 @@ return v___x_129_;
 }
 else
 {
-return v___x_123_;
+return v___x_124_;
 }
 }
 }
@@ -1071,43 +1071,43 @@ return v___x_335_;
 }
 v___jp_288_:
 {
-lean_object* v___x_290_; 
-v___x_290_ = l_Lean_Elab_Tactic_replaceMainGoal___redArg(v_a_289_, v___y_280_, v___y_283_, v___y_284_, v___y_285_, v___y_286_);
-if (lean_obj_tag(v___x_290_) == 0)
+lean_object* v___x_290_; lean_object* v___x_291_; 
+v___x_290_ = lean_box(0);
+v___x_291_ = l_Lean_Elab_Tactic_replaceMainGoal___redArg(v_a_289_, v___y_280_, v___y_283_, v___y_284_, v___y_285_, v___y_286_);
+if (lean_obj_tag(v___x_291_) == 0)
 {
-lean_object* v___x_292_; uint8_t v_isShared_293_; uint8_t v_isSharedCheck_298_; 
-v_isSharedCheck_298_ = !lean_is_exclusive(v___x_290_);
+lean_object* v___x_293_; uint8_t v_isShared_294_; uint8_t v_isSharedCheck_298_; 
+v_isSharedCheck_298_ = !lean_is_exclusive(v___x_291_);
 if (v_isSharedCheck_298_ == 0)
 {
 lean_object* v_unused_299_; 
-v_unused_299_ = lean_ctor_get(v___x_290_, 0);
+v_unused_299_ = lean_ctor_get(v___x_291_, 0);
 lean_dec(v_unused_299_);
-v___x_292_ = v___x_290_;
-v_isShared_293_ = v_isSharedCheck_298_;
-goto v_resetjp_291_;
+v___x_293_ = v___x_291_;
+v_isShared_294_ = v_isSharedCheck_298_;
+goto v_resetjp_292_;
 }
 else
 {
-lean_dec(v___x_290_);
-v___x_292_ = lean_box(0);
-v_isShared_293_ = v_isSharedCheck_298_;
-goto v_resetjp_291_;
+lean_dec(v___x_291_);
+v___x_293_ = lean_box(0);
+v_isShared_294_ = v_isSharedCheck_298_;
+goto v_resetjp_292_;
 }
-v_resetjp_291_:
+v_resetjp_292_:
 {
-lean_object* v___x_294_; lean_object* v___x_296_; 
-v___x_294_ = lean_box(0);
-if (v_isShared_293_ == 0)
+lean_object* v___x_296_; 
+if (v_isShared_294_ == 0)
 {
-lean_ctor_set(v___x_292_, 0, v___x_294_);
-v___x_296_ = v___x_292_;
+lean_ctor_set(v___x_293_, 0, v___x_290_);
+v___x_296_ = v___x_293_;
 goto v_reusejp_295_;
 }
 else
 {
 lean_object* v_reuseFailAlloc_297_; 
 v_reuseFailAlloc_297_ = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(v_reuseFailAlloc_297_, 0, v___x_294_);
+lean_ctor_set(v_reuseFailAlloc_297_, 0, v___x_290_);
 v___x_296_ = v_reuseFailAlloc_297_;
 goto v_reusejp_295_;
 }
@@ -1119,7 +1119,7 @@ return v___x_296_;
 }
 else
 {
-return v___x_290_;
+return v___x_291_;
 }
 }
 }

@@ -177,7 +177,7 @@ structure Iter {α : Type w} (β : Type w) where
   internalState : α
 
 /-- Wraps the state of an iterator into an `Iter` object. -/
-add_decl_doc IterM.mk
+add_decl_doc Iter.mk
 
 /--
 Converts a pure iterator (`Iter β`) into a monadic iterator (`IterM Id β`) in the

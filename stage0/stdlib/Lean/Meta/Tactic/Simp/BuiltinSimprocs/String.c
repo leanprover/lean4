@@ -2137,7 +2137,6 @@ if (lean_obj_tag(v___x_708_) == 1)
 {
 lean_object* v_tail_709_; 
 v_tail_709_ = lean_ctor_get(v___x_708_, 1);
-lean_inc(v_tail_709_);
 if (lean_obj_tag(v_tail_709_) == 0)
 {
 lean_object* v_head_710_; lean_object* v___x_711_; lean_object* v___x_712_; uint32_t v___x_713_; lean_object* v___x_714_; lean_object* v___x_715_; lean_object* v___x_716_; lean_object* v___x_717_; lean_object* v___x_719_; 
@@ -2192,7 +2191,6 @@ return v___x_721_;
 }
 else
 {
-lean_dec(v_tail_709_);
 lean_dec_ref_known(v___x_708_, 2);
 lean_del_object(v___x_706_);
 lean_del_object(v___x_702_);

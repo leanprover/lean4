@@ -23,11 +23,12 @@ macro (name := _root_.Lean.Parser.Command.registerSimpAttr) doc:(docComment)?
   let procIdParser := mkIdentFrom procId (`Parser.Attr ++ procId.getId)
   let procDescr := quote s!"simproc set for {procId.getId.toString}"
   -- TODO: better docComment for simprocs
+  let procDoc := mkMarkdownDocCommentFrom id "Simplification procedure"
   `($[$doc:docComment]? public meta initialize ext : SimpExtension ← registerSimpAttr $(quote id.getId) $descr
     $[$doc:docComment]? syntax (name := $idParser:ident) $(quote str):str (Parser.Tactic.simpPre <|> Parser.Tactic.simpPost)? unicode(" ←", " <-")? (prio)? : attr
-    /-- Simplification procedure -/
+    $procDoc:docComment
     public meta initialize extProc : SimprocExtension ← registerSimprocAttr $(quote procId.getId) $procDescr none
-    /-- Simplification procedure -/
+    $procDoc:docComment
     syntax (name := $procIdParser:ident) $(quote procStr):str (Parser.Tactic.simpPre <|> Parser.Tactic.simpPost)? : attr)
 
 end Lean.Meta.Simp

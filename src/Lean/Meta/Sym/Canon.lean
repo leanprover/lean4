@@ -145,6 +145,8 @@ non-canonical spellings are handled:
   `1#2`, `Fin.ofNat 3 2`) are converted into the `OfNat.ofNat` representation.
 - `OfNat.ofNat` literals of `Fin` and the fixed-width types (see `getLitValueModulus?`) whose numeral
   is out of range (e.g., `(300 : UInt8)`) are reduced modulo the type's cardinality.
+- `Char.ofNat` applied to an `OfNat.ofNat` numeral is converted into the character literal, i.e.,
+  `Char.ofNat` applied to the raw literal.
 
 Different representations of the same literal may reach the canonicalizer (e.g., the proposition
 of a `dite` `Decidable` instance keeps the spelling used in the source), and `grind`
@@ -166,6 +168,10 @@ public def normNumLit? (e : Expr) : MetaM (Option Expr) := do
     let some v ← getNatValue? n | return none
     if m == 0 || v < m then return none
     return some (← mkNumeral α (v % m))
+  | Char.ofNat n =>
+    if e.isCharLit then return none
+    let some v ← getNatValue? n | return none
+    return some (toExpr (Char.ofNat v))
   | _ => return none
 where
   bitVecOfNatForm (e : Expr) : MetaM (Option Expr) := do
@@ -515,7 +521,7 @@ where
       let f := e.getAppFn
       let .const declName _ := f | return e
       if declName == ``BitVec.ofNat || declName == ``BitVec.ofNatLT || declName == ``Fin.ofNat
-          || declName == ``OfNat.ofNat then
+          || declName == ``OfNat.ofNat || declName == ``Char.ofNat then
         if let some e' ← normNumLit? e then
           return (← canon e')
         else

@@ -31,12 +31,17 @@ variable (n : Nat) [NeZero n]
 #check_simp (3 : Fin 7) % (0 : Fin 7) ~> 3
 #check_simp (3 : Fin 7) % (1 : Fin 7) ~> 0
 #check_simp (3 : Fin 7) % (5 : Fin 7) ~> 3
+#check_simp (3 : Fin 7) ^ 0 ~> 1
+#check_simp (3 : Fin 7) ^ 6 ~> 1
+#check_simp (2 : Fin 5) ^ 3 ~> 3
+#check_simp (2 : Fin 1000000007) ^ (2 ^ 200) ~> 988385428
 
 #check_simp (3 : Fin n) + (5 : Fin n) !~>
 #check_simp (3 : Fin n) * (5 : Fin n) !~>
 #check_simp (3 : Fin n) - (5 : Fin n) !~>
 #check_simp (3 : Fin n) / (5 : Fin n) !~>
 #check_simp (3 : Fin n) % (5 : Fin n) !~>
+#check_simp (3 : Fin n) ^ 5 !~>
 
 #check_simp Fin.addNat (3 : Fin 7) 3 ~> (6 : Fin 10)
 #check_simp Fin.natAdd 3 (3 : Fin 7) ~> (6 : Fin 10)

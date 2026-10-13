@@ -95,9 +95,9 @@ return v___x_31_;
 LEAN_EXPORT lean_object* l_Lake_recFetchAcyclic___redArg___lam__2___boxed(lean_object* v_inst_32_, lean_object* v___x_33_, lean_object* v___x_34_, lean_object* v_x_35_){
 _start:
 {
-uint8_t v___x_136__boxed_36_; uint8_t v_res_37_; lean_object* v_r_38_; 
-v___x_136__boxed_36_ = lean_unbox(v___x_34_);
-v_res_37_ = l_Lake_recFetchAcyclic___redArg___lam__2(v_inst_32_, v___x_33_, v___x_136__boxed_36_, v_x_35_);
+uint8_t v___x_140__boxed_36_; uint8_t v_res_37_; lean_object* v_r_38_; 
+v___x_140__boxed_36_ = lean_unbox(v___x_34_);
+v_res_37_ = l_Lake_recFetchAcyclic___redArg___lam__2(v_inst_32_, v___x_33_, v___x_140__boxed_36_, v_x_35_);
 v_r_38_ = lean_box(v_res_37_);
 return v_r_38_;
 }

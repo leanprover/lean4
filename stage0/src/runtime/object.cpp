@@ -338,26 +338,14 @@ static inline void dec(lean_object * o, lean_object* & todo) {
         lean_internal_sub_rc(o, 1);
     } else if (lean_internal_get_rc(o) == 1) {
         push_back(todo, o);
-    } else if (lean_internal_get_rc(o) == 0) {
+    } else if (lean_is_never_freed(o)) {
         return;
     } else if (std::atomic_fetch_add_explicit(lean_get_rc_mt_addr(o), 1, std::memory_order_acq_rel) == -1) {
         push_back(todo, o);
     }
 }
 
-#ifdef LEAN_LAZY_RC
-LEAN_THREAD_PTR(object, g_to_free);
-#endif
-
-static object * lean_del_core(object * o, object * todo);
-
 extern "C" LEAN_EXPORT lean_object * lean_alloc_object(size_t sz) {
-#ifdef LEAN_LAZY_RC
-     if (g_to_free) {
-         object * o = pop_back(g_to_free);
-         g_to_free = lean_del_core(o, g_to_free);
-     }
-#endif
 #ifdef LEAN_MIMALLOC
     void * r = mi_malloc(sz);
     if (r == nullptr) lean_internal_panic_out_of_memory();
@@ -441,20 +429,20 @@ static object * lean_del_core(object * o, object * todo) {
     }
 }
 
-// sync with tests/elab/rc_sticky_thresholds.lean (`incRefHugeN`)
+// sync with tests/elab/rc_model.lean (`incRefHugeN`)
 extern "C" LEAN_EXPORT void lean_inc_ref_huge_n(lean_object * o, size_t n) {
     // `n` is above what `lean_inc_ref_n` adjusts by inline. Only `lean_mk_array` gets here.
     if (lean_is_st(o)) {
         int rc = lean_internal_get_rc(o);
         if (n > (size_t)(INT_MAX - rc))
-            lean_internal_set_rc(o, LEAN_RC_STICKY);
+            lean_internal_set_rc(o, LEAN_RC_STUCK_ST);
         else
             lean_internal_set_rc(o, rc + (int)n);
     } else {
         // The loop condition is the sticky test `lean_inc_ref_n` makes before its own
         // `fetch_sub`, so each iteration is one ordinary increment of at most `LEAN_RC_INC_MAX`,
         // and re-reading the count stops the loop once the count freezes.
-        while (n > 0 && (unsigned)lean_internal_get_rc(o) > (unsigned)LEAN_RC_STICKY) {
+        while (n > 0 && lean_is_unstuck_mt(o)) {
             size_t chunk = std::min(n, LEAN_RC_INC_MAX);
             std::atomic_fetch_sub_explicit(lean_get_rc_mt_addr(o), (int)chunk,
                                            std::memory_order_relaxed);
@@ -463,19 +451,16 @@ extern "C" LEAN_EXPORT void lean_inc_ref_huge_n(lean_object * o, size_t n) {
     }
 }
 
-// sync with tests/elab/rc_sticky_thresholds.lean (`decRefCold`)
+// sync with tests/elab/rc_model.lean (`decRefCold`)
 extern "C" LEAN_EXPORT void lean_dec_ref_cold(lean_object * o) {
     // `rc == 1` is the hot single-threaded free path and can never be sticky, so the sticky check
     // is kept out of it.
     if (lean_internal_get_rc(o) != 1) {
-        if (LEAN_UNLIKELY(lean_internal_get_rc(o) <= LEAN_RC_STICKY_DROP))
-            return; // over- or underflowed (sticky) count: never adjust or free
+        if (LEAN_UNLIKELY(lean_is_never_freed(o)))
+            return;
         if (std::atomic_fetch_add_explicit(lean_get_rc_mt_addr(o), 1, std::memory_order_acq_rel) != -1)
             return;
     }
-#ifdef LEAN_LAZY_RC
-    push_back(g_to_free, o);
-#else
     object * todo = nullptr;
     while (true) {
         todo = lean_del_core(o, todo);
@@ -483,7 +468,6 @@ extern "C" LEAN_EXPORT void lean_dec_ref_cold(lean_object * o) {
             return;
         o = pop_back(todo);
     }
-#endif
 }
 
 
@@ -660,19 +644,30 @@ static obj_res mark_mt_fn(obj_arg o) {
     return lean_box(0);
 }
 
+// Whether `o` is owned by one thread: its count is single-threaded or overflowed from one.
+// sync with tests/elab/rc_model.lean (`isUnshared`)
+static inline bool is_unshared(object * o) {
+    int rc = lean_internal_get_rc(o);
+    return rc > 0 || rc <= LEAN_RC_STUCK_ST;
+}
+
 extern "C" LEAN_EXPORT void lean_mark_mt(object * o) {
 #ifndef LEAN_MULTI_THREAD
     return;
 #endif
-    if (lean_is_scalar(o) || !lean_is_st(o)) return;
+    if (lean_is_scalar(o) || !is_unshared(o)) return;
 
     buffer<object*> todo;
     todo.push_back(o);
     while (!todo.empty()) {
         object * o = todo.back();
         todo.pop_back();
-        if (!lean_is_scalar(o) && lean_is_st(o)) {
-            lean_internal_set_rc(o, -lean_internal_get_rc(o));
+        if (!lean_is_scalar(o) && is_unshared(o)) {
+            // A count that overflowed, or is too large for the live thread-shared range, freezes at
+            // `LEAN_RC_STICKY`, where no later `lean_mark_mt` takes it for an unshared one.
+            // sync with tests/elab/rc_model.lean (`markMtRc`)
+            int rc = lean_internal_get_rc(o);
+            lean_internal_set_rc(o, rc < 0 || -rc <= LEAN_RC_STICKY_DROP ? LEAN_RC_STICKY : -rc);
             uint8_t tag = lean_ptr_tag(o);
             if (tag <= LeanMaxCtorTag) {
                 object ** it  = lean_ctor_obj_cptr(o);
@@ -1615,12 +1610,34 @@ extern "C" LEAN_EXPORT lean_obj_res lean_nat_big_shiftr(b_lean_obj_arg a1, b_lea
 
 extern "C" LEAN_EXPORT lean_obj_res lean_nat_pow(b_lean_obj_arg a1, b_lean_obj_arg a2) {
     if (!lean_is_scalar(a2) || lean_unbox(a2) > UINT_MAX) {
+        // The exponent does not fit in a machine word, so the result would
+        // overflow memory for any base `≥ 2`. The exponent is positive here, so
+        // `0 ^ e = 0` and `1 ^ e = 1` are still cheap and total; otherwise panic.
+        if (lean_is_scalar(a1)) {
+            size_t b = lean_unbox(a1);
+            if (b == 0) return lean_box(0);
+            if (b == 1) return lean_box(1);
+        }
         lean_internal_panic("Nat.pow exponent is too big");
     }
     if (lean_is_scalar(a1))
         return mpz_to_nat(mpz::of_size_t(lean_unbox(a1)).pow(lean_unbox(a2)));
     else
         return mpz_to_nat(mpz_value(a1).pow(lean_unbox(a2)));
+}
+
+extern "C" LEAN_EXPORT lean_obj_res lean_nat_powmod(b_lean_obj_arg b, b_lean_obj_arg e, b_lean_obj_arg m) {
+    if (lean_is_scalar(m) && lean_unbox(m) == 0) {
+        // Lean convention: `_ % 0 = _`, so `Nat.powMod b e 0 = b ^ e`.
+        // Defer to `lean_nat_pow`, which (like `Nat.pow`) panics on an exponent
+        // that does not fit in a machine word rather than attempting a hopeless
+        // computation.
+        return lean_nat_pow(b, e);
+    }
+    mpz mb = lean_is_scalar(b) ? mpz::of_size_t(lean_unbox(b)) : mpz_value(b);
+    mpz me = lean_is_scalar(e) ? mpz::of_size_t(lean_unbox(e)) : mpz_value(e);
+    mpz mm = lean_is_scalar(m) ? mpz::of_size_t(lean_unbox(m)) : mpz_value(m);
+    return mpz_to_nat(mb.powm(me, mm));
 }
 
 extern "C" LEAN_EXPORT lean_obj_res lean_nat_gcd(b_lean_obj_arg a1, b_lean_obj_arg a2) {
@@ -2003,6 +2020,14 @@ extern "C" LEAN_EXPORT uint32_t lean_float32_to_bits(float d)
     return std::bit_cast<uint32_t>(d);
 }
 
+static bool should_abort_on_nonlinearity() {
+#ifdef LEAN_EMSCRIPTEN
+    return false;
+#else
+    return std::getenv("LEAN_ABORT_ON_NONLINEAR");
+#endif
+}
+
 // =======================================
 // Strings
 
@@ -2015,6 +2040,7 @@ static object * string_ensure_capacity(object * o, size_t extra) {
     if (sz + extra > cap) {
         object * new_o = alloc_string(sz, cap + sz + extra, string_len(o));
         lean_assert(string_capacity(new_o) >= sz + extra);
+        if (lean_string_is_marked_linear(o)) lean_string_mark_linear_core(new_o);
         memcpy(w_string_cstr(new_o), string_cstr(o), sz);
         lean_dealloc(o, lean_string_byte_size(o));
         return new_o;
@@ -2108,14 +2134,33 @@ static size_t mk_capacity(size_t sz) {
     return sz*2;
 }
 
+static void check_string_linearity(b_obj_arg s) {
+    if (lean_string_is_marked_linear(s) && should_abort_on_nonlinearity()) {
+        lean_internal_panic("string marked by `String.markLinear` was used non-linearly");
+    }
+}
+
+extern "C" LEAN_EXPORT obj_res lean_copy_string(obj_arg s, size_t cap) {
+    size_t sz  = lean_string_size(s);
+    lean_assert(cap >= sz);
+    object * r = lean_alloc_string(sz, cap, lean_string_len(s));
+    if (lean_string_is_marked_linear(s)) lean_string_mark_linear_core(r);
+    memcpy(w_string_cstr(r), lean_string_cstr(s), sz);
+    lean_dec_ref(s);
+    return r;
+}
+
+__attribute__((noinline))
+extern "C" LEAN_EXPORT obj_res lean_copy_string_nonlinear(obj_arg s, size_t cap) {
+    check_string_linearity(s);
+    return lean_copy_string(s, cap);
+}
+
 extern "C" LEAN_EXPORT object * lean_string_push(object * s, unsigned c) {
     size_t sz  = lean_string_size(s);
-    size_t len = lean_string_len(s);
     object * r;
     if (!lean_is_exclusive(s)) {
-        r = lean_alloc_string(sz, mk_capacity(sz+5), len);
-        memcpy(w_string_cstr(r), lean_string_cstr(s), sz - 1);
-        lean_dec_ref(s);
+        r = lean_copy_string_nonlinear(s, mk_capacity(sz+5));
     } else {
         r = string_ensure_capacity(s, 5);
     }
@@ -2135,9 +2180,7 @@ extern "C" LEAN_EXPORT object * lean_string_append(object * s1, object * s2) {
     size_t new_sz   = sz1 + sz2 - 1;
     object * r;
     if (!lean_is_exclusive(s1)) {
-        r = lean_alloc_string(new_sz, mk_capacity(new_sz), new_len);
-        memcpy(w_string_cstr(r), lean_string_cstr(s1), sz1 - 1);
-        dec_ref(s1);
+        r = lean_copy_string_nonlinear(s1, mk_capacity(new_sz));
     } else {
         lean_assert(s1 != s2);
         r = string_ensure_capacity(s1, sz2-1);
@@ -2158,16 +2201,17 @@ extern "C" LEAN_EXPORT bool lean_sarray_eq_cold(b_lean_obj_arg a1, b_lean_obj_ar
     return std::memcmp(lean_sarray_cptr(a1), lean_sarray_cptr(a2), len) == 0;
 }
 
-bool string_eq(object * s1, char const * s2) {
-    if (lean_string_size(s1) != strlen(s2) + 1)
-        return false;
-    return std::memcmp(lean_string_cstr(s1), s2, lean_string_size(s1)) == 0;
-}
-
 extern "C" LEAN_EXPORT bool lean_string_lt(object * s1, object * s2) {
     size_t sz1 = lean_string_size(s1) - 1; // ignore null char in the end
     size_t sz2 = lean_string_size(s2) - 1; // ignore null char in the end
     int r      = std::memcmp(lean_string_cstr(s1), lean_string_cstr(s2), std::min(sz1, sz2));
+    return r < 0 || (r == 0 && sz1 < sz2);
+}
+
+extern "C" LEAN_EXPORT bool lean_byte_array_lt(object * a1, object * a2) {
+    size_t sz1 = lean_sarray_size(a1);
+    size_t sz2 = lean_sarray_size(a2);
+    int r = std::memcmp(lean_sarray_cptr(a1), lean_sarray_cptr(a2), std::min(sz1, sz2));
     return r < 0 || (r == 0 && sz1 < sz2);
 }
 
@@ -2176,6 +2220,17 @@ extern "C" LEAN_EXPORT uint8_t lean_string_compare(b_obj_arg s1, b_obj_arg s2) {
     size_t sz1 = lean_string_size(s1) - 1; // ignore null char in the end
     size_t sz2 = lean_string_size(s2) - 1; // ignore null char in the end
     int r      = std::memcmp(lean_string_cstr(s1), lean_string_cstr(s2), std::min(sz1, sz2));
+    if (r < 0) return 0;
+    if (r > 0) return 2;
+    if (sz1 < sz2) return 0;
+    if (sz1 > sz2) return 2;
+    return 1;
+}
+
+extern "C" LEAN_EXPORT uint8_t lean_byte_array_compare(b_obj_arg a1, b_obj_arg a2) {
+    size_t sz1 = lean_sarray_size(a1);
+    size_t sz2 = lean_sarray_size(a2);
+    int r = std::memcmp(lean_sarray_cptr(a1), lean_sarray_cptr(a2), std::min(sz1, sz2));
     if (r < 0) return 0;
     if (r > 0) return 2;
     if (sz1 < sz2) return 0;
@@ -2483,22 +2538,25 @@ extern "C" LEAN_EXPORT obj_res lean_string_utf8_set(obj_arg s, b_obj_arg i0, uin
     usize sz = lean_string_size(s) - 1;
     if (i >= sz) return s;
     char * str = w_string_cstr(s);
-    if (lean_is_exclusive(s)) {
-        if (static_cast<unsigned char>(str[i]) < 128 && c < 128) {
-            str[i] = c;
-            return s;
-        }
+    if (static_cast<unsigned char>(str[i]) < 128 && c < 128) {
+        object * r = lean_string_ensure_exclusive(s);
+        w_string_cstr(r)[i] = c;
+        return r;
     }
     if (!is_utf8_first_byte(str[i])) return s;
     /* TODO(Leo): improve performance of other special cases.
        Example: is_exclusive(s) and new and old characters have the same size; etc. */
+    if (!lean_is_exclusive(s)) check_string_linearity(s);
     std::string tmp;
     push_unicode_scalar(tmp, c);
     std::string new_s = string_to_std(s);
     usize len = lean_string_len(s);
+    bool marked = lean_string_is_marked_linear(s);
     dec(s);
     new_s.replace(i, get_utf8_char_size_at(new_s, i), tmp);
-    return lean_mk_string_unchecked(new_s.data(), new_s.size(), len);
+    object * r = lean_mk_string_unchecked(new_s.data(), new_s.size(), len);
+    if (marked) lean_string_mark_linear_core(r);
+    return r;
 }
 
 extern "C" LEAN_EXPORT uint64 lean_string_hash(b_obj_arg s) {
@@ -2570,6 +2628,7 @@ extern "C" LEAN_EXPORT obj_res lean_copy_sarray(obj_arg a, size_t cap) {
     size_t sz      = lean_sarray_size(a);
     lean_assert(cap >= sz);
     object * r     = lean_alloc_sarray(esz, sz, cap);
+    if (lean_sarray_is_marked_linear(a)) lean_sarray_mark_linear_core(r);
     uint8 * it     = lean_sarray_cptr(a);
     uint8 * dest   = lean_sarray_cptr(r);
     memcpy(dest, it, esz*sz);
@@ -2577,12 +2636,12 @@ extern "C" LEAN_EXPORT obj_res lean_copy_sarray(obj_arg a, size_t cap) {
     return r;
 }
 
-obj_res lean_sarray_ensure_exclusive(obj_arg a) {
-    if (lean_is_exclusive(a)) {
-        return a;
-    } else {
-        return lean_copy_sarray(a, lean_sarray_capacity(a));
+__attribute__((noinline))
+extern "C" LEAN_EXPORT obj_res lean_copy_sarray_nonlinear(obj_arg a, size_t cap) {
+    if (lean_sarray_is_marked_linear(a) && should_abort_on_nonlinearity()) {
+        lean_internal_panic("scalar array marked by `markLinear` was used non-linearly");
     }
+    return lean_copy_sarray(a, cap);
 }
 
 /* Ensure that `a` has capacity at least `min_cap`, copying `a` otherwise.
@@ -2591,13 +2650,11 @@ extern "C" LEAN_EXPORT obj_res lean_sarray_ensure_capacity(obj_arg a, size_t min
     size_t cap = lean_sarray_capacity(a);
     if (min_cap <= cap) {
         return a;
-    } else {
+    } else if (lean_is_exclusive(a)) {
         return lean_copy_sarray(a, exact ? min_cap : min_cap * 2);
+    } else {
+        return lean_copy_sarray_nonlinear(a, exact ? min_cap : min_cap * 2);
     }
-}
-
-extern "C" LEAN_EXPORT obj_res lean_copy_byte_array(obj_arg a) {
-    return lean_copy_sarray(a, lean_sarray_capacity(a));
 }
 
 extern "C" LEAN_EXPORT obj_res lean_byte_array_mk(obj_arg a) {
@@ -2635,7 +2692,7 @@ extern "C" LEAN_EXPORT obj_res lean_byte_array_push(obj_arg a, uint8 b) {
     return r;
 }
 
-    extern "C" LEAN_EXPORT obj_res lean_byte_array_copy_slice(b_obj_arg src, obj_arg o_src_off, obj_arg dest, obj_arg o_dest_off, obj_arg o_len, bool exact) {
+extern "C" LEAN_EXPORT obj_res lean_byte_array_copy_slice(b_obj_arg src, obj_arg o_src_off, obj_arg dest, obj_arg o_dest_off, obj_arg o_len, bool exact) {
     size_t ssz = lean_sarray_size(src);
     size_t dsz = lean_sarray_size(dest);
     size_t src_off = lean_nat_to_size_t(o_src_off);
@@ -2657,10 +2714,6 @@ extern "C" LEAN_EXPORT obj_res lean_byte_array_push(obj_arg a, uint8 b) {
 
 extern "C" LEAN_EXPORT uint64_t lean_byte_array_hash(b_obj_arg a) {
     return hash_str(lean_sarray_size(a), lean_sarray_cptr(a), 11);
-}
-
-extern "C" LEAN_EXPORT obj_res lean_copy_float_array(obj_arg a) {
-    return lean_copy_sarray(a, lean_sarray_capacity(a));
 }
 
 extern "C" LEAN_EXPORT obj_res lean_float_array_mk(obj_arg a) {
@@ -2732,6 +2785,7 @@ extern "C" LEAN_EXPORT obj_res lean_copy_expand_array(obj_arg a, bool expand) {
     if (expand) cap = (cap + 1) * 2;
     lean_assert(!expand || cap > sz);
     object * r     = lean_alloc_array(sz, cap);
+    if (lean_array_is_marked_linear(a)) lean_array_mark_linear_core(r);
     object ** it   = lean_array_cptr(a);
     object ** end  = it + sz;
     object ** dest = lean_array_cptr(r);
@@ -2751,6 +2805,9 @@ extern "C" LEAN_EXPORT obj_res lean_copy_expand_array(obj_arg a, bool expand) {
 
 __attribute__((noinline))
 extern "C" LEAN_EXPORT obj_res lean_copy_expand_array_nonlinear(obj_arg a, bool expand) {
+    if (lean_array_is_marked_linear(a) && should_abort_on_nonlinearity()) {
+        lean_internal_panic("array marked by `Array.markLinear` was used non-linearly");
+    }
     return lean_copy_expand_array(a, expand);
 }
 

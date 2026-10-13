@@ -42,7 +42,9 @@ def Expr.toPolyS : Expr → CommRing.Poly
   | .add a b => a.toPolyS.combine b.toPolyS
   | .mul a b => a.toPolyS.mul b.toPolyS
   | .pow a k =>
-    match a with
+    bif k == 0 then
+      .num 1
+    else match a with
     | .num n => .num (n.natAbs ^ k)
     | .var x => CommRing.Poly.ofMon (.mult {x, k} .unit)
     | _ => a.toPolyS.pow k
@@ -55,7 +57,9 @@ def Expr.toPolyS_nc : Expr → CommRing.Poly
   | .add a b => a.toPolyS_nc.combine b.toPolyS_nc
   | .mul a b => a.toPolyS_nc.mul_nc b.toPolyS_nc
   | .pow a k =>
-    match a with
+    bif k == 0 then
+      .num 1
+    else match a with
     | .num n => .num (n.natAbs ^ k)
     | .var x => CommRing.Poly.ofMon (.mult {x, k} .unit)
     | _ => a.toPolyS_nc.pow_nc k
@@ -484,6 +488,7 @@ theorem Expr.toPolyS_NonnegCoeffs {e : Expr} : e.toPolyS.NonnegCoeffs := by
   next => simp [Poly.ofVar, Poly.ofMon]; constructor; decide; constructor; decide
   next => apply Poly.combine_NonnegCoeffs <;> assumption
   next => apply Poly.mul_NonnegCoeffs <;> assumption
+  next => constructor; decide
   next => constructor; apply Int.pow_nonneg; apply Int.natCast_nonneg
   next => constructor; decide; constructor; decide
   next => apply Poly.pow_NonnegCoeffs; assumption
@@ -498,6 +503,7 @@ theorem Expr.toPolyS_nc_NonnegCoeffs {e : Expr} : e.toPolyS_nc.NonnegCoeffs := b
   next => simp [Poly.ofVar, Poly.ofMon]; constructor; decide; constructor; decide
   next => apply Poly.combine_NonnegCoeffs <;> assumption
   next => apply Poly.mul_nc_NonnegCoeffs <;> assumption
+  next => constructor; decide
   next => constructor; apply Int.pow_nonneg; apply Int.natCast_nonneg
   next => constructor; decide; constructor; decide
   next => apply Poly.pow_nc_NonnegCoeffs; assumption
@@ -512,6 +518,7 @@ theorem Expr.denoteS_toPolyS {α} [CommSemiring α] (ctx : Context α) (e : Expr
   next => simp [Semiring.ofNat_eq_natCast]
   next => simp [Poly.denoteS_combine] <;> simp [*]
   next => simp [Poly.denoteS_mul] <;> simp [*]
+  next => rename_i h; simp at h; simp [h, Semiring.pow_zero]
   next => rw [Int.toNat_pow_of_nonneg, Semiring.natCast_pow, Int.toNat_natCast, ← Semiring.ofNat_eq_natCast]
           apply Int.natCast_nonneg
   next => simp [Poly.ofMon, Poly.denoteS, denoteSInt_eq, Power.denote_eq, Mon.denote,
@@ -526,6 +533,7 @@ theorem Expr.denoteS_toPolyS_nc {α} [Semiring α] (ctx : Context α) (e : Expr)
   next => simp [Semiring.ofNat_eq_natCast]
   next => simp [Poly.denoteS_combine] <;> simp [*]
   next => simp [Poly.denoteS_mul_nc] <;> simp [*]
+  next => rename_i h; simp at h; simp [h, Semiring.pow_zero]
   next => rw [Int.toNat_pow_of_nonneg, Semiring.natCast_pow, Int.toNat_natCast, ← Semiring.ofNat_eq_natCast]
           apply Int.natCast_nonneg
   next => simp [Poly.ofMon, Poly.denoteS, denoteSInt_eq, Power.denote_eq, Mon.denote,

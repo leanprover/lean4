@@ -71,6 +71,7 @@ partial def addSmartUnfoldingDef
   else
     withEnableInfoTree false do
       let preDefSUnfold ← addSmartUnfoldingDefAux preDef recArgPos
-      addNonRec docCtx preDefSUnfold (cleanupValue := true)
+      -- `structuralRecursion` has already abstracted the nested proofs in `preDef.value`
+      addNonRec docCtx preDefSUnfold (cleanupValue := true) (abstractProofs := false)
 
 end Lean.Elab.Structural

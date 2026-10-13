@@ -1,0 +1,12 @@
+Input: " *"
+Failure: unexpected end of input
+ --> 1:1-1:2
+  |
+1 |  *
+  |  ^
+  = consumed input prefix: 1 bytes
+Final stack:
+  <missing>
+Remaining:
+"*"
+Round-trip not tested: this parser classifies input rather than producing document syntax

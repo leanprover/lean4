@@ -81,7 +81,7 @@ inductive FixGraph {α : Sort u} {r : α → α → Prop} {C : α → Sort v}
        (ih : ∀ (y : α) (h : r y x), FixGraph F y (g y h))
        : FixGraph F x (F x g)
 
-theorem FixGraph_nonempty
+theorem FixGraph.nonempty
     {α : Sort u} {r : α → α → Prop} {C : α → Sort v}
     (F : (x : α) → ((y : α) → r y x → C y) → C x) {x : α} (acx : Acc r x) :
     Nonempty {c : C x // FixGraph F x c} := by
@@ -92,18 +92,7 @@ theorem FixGraph_nonempty
             FixGraph.mk x' _ (fun y h => ?_)⟩
     exact (Classical.choice (ih y h)).property
 
-noncomputable def fixFImpl
-    {α : Sort u} {r : α → α → Prop} {C : α → Sort v}
-    (F : (x : α) → ((y : α) → r y x → C y) → C x) (x : α) (acx : Acc r x) : C x :=
-  (Classical.choice (FixGraph_nonempty F acx)).val
-
-theorem fixFImpl_graph
-    {α : Sort u} {r : α → α → Prop} {C : α → Sort v}
-    (F : (x : α) → ((y : α) → r y x → C y) → C x) (x : α) (acx : Acc r x) :
-    FixGraph F x (fixFImpl F x acx) :=
-  (Classical.choice (FixGraph_nonempty F acx)).property
-
-theorem FixGraph_funct
+theorem FixGraph.unique
     {α : Sort u} {r : α → α → Prop} {C : α → Sort v}
     (F : (x : α) → ((y : α) → r y x → C y) → C x) {x : α} (acx : Acc r x) :
     ∀ (c₁ c₂ : C x), FixGraph F x c₁ → FixGraph F x c₂ → c₁ = c₂ := by
@@ -118,11 +107,22 @@ theorem FixGraph_funct
           funext fun y => funext fun h => ih y h _ _ (ih₁ y h) (ih₂ y h)
         exact hg ▸ rfl
 
+noncomputable def fixF
+    {α : Sort u} {r : α → α → Prop} {C : α → Sort v}
+    (F : (x : α) → ((y : α) → r y x → C y) → C x) (x : α) (a : Acc r x) : C x :=
+  (Classical.choice (FixGraph.nonempty F a)).val
+
+theorem fixGraph_fixF
+    {α : Sort u} {r : α → α → Prop} {C : α → Sort v}
+    (F : (x : α) → ((y : α) → r y x → C y) → C x) (x : α) (acx : Acc r x) :
+    FixGraph F x (fixF F x acx) :=
+  (Classical.choice (FixGraph.nonempty F acx)).property
+
 section
 variable {α : Sort u} {r : α → α → Prop} (hwf : WellFounded r)
 
 noncomputable def recursion {C : α → Sort v} (a : α) (h : ∀ x, (∀ y, r y x → C y) → C x) : C a :=
-  fixFImpl h a (apply hwf a)
+  fixF h a (apply hwf a)
 
 include hwf in
 theorem induction {C : α → Prop} (a : α) (h : ∀ x, (∀ y, r y x → C y) → C x) : C a :=
@@ -131,15 +131,12 @@ theorem induction {C : α → Prop} (a : α) (h : ∀ x, (∀ y, r y x → C y) 
 variable {C : α → Sort v}
 variable (F : ∀ x, (∀ y, r y x → C y) → C x)
 
-noncomputable def fixF (x : α) (a : Acc r x) : C x :=
-  fixFImpl F x a
-
 theorem fixF_eq (x : α) (acx : Acc r x) :
     fixF F x acx = F x (fun (y : α) (p : r y x) => fixF F y (Acc.inv acx p)) := by
-  have h1 : FixGraph F x (fixF F x acx) := fixFImpl_graph F x acx
+  have h1 : FixGraph F x (fixF F x acx) := fixGraph_fixF F x acx
   have h2 : FixGraph F x (F x (fun y p => fixF F y (Acc.inv acx p))) :=
-    FixGraph.mk x _ (fun y h => fixFImpl_graph F y (Acc.inv acx h))
-  exact FixGraph_funct F acx _ _ h1 h2
+    FixGraph.mk x _ (fun y h => fixGraph_fixF F y (Acc.inv acx h))
+  exact FixGraph.unique F acx _ _ h1 h2
 
 /-- Attaches to `x` the proof that `x` is accessible in the given well-founded relation.
 This can be used in recursive function definitions to explicitly use a different relation
@@ -210,9 +207,9 @@ motive:
     (intro : (x : α) → (h : (y : α) → r y x → Acc r y) →
       ((y : α) → (hy : r y x) → motive y (h y hy)) → motive x (Acc.intro x h))
     {a : α} (t : Acc r a) : motive a t :=
-  -- The motive is closed over the accessibility proof so that it fits `fixFImpl`'s
+  -- The motive is closed over the accessibility proof so that it fits `fixF`'s
   -- proof-independent `C`; this stays in `Sort v` because `Acc r x` is a proposition.
-  WellFounded.fixFImpl (C := fun x => (h : Acc r x) → motive x h)
+  WellFounded.fixF (C := fun x => (h : Acc r x) → motive x h)
     (fun x ih h => intro x (fun _ hy => h.inv hy) (fun y hy => ih y hy (h.inv hy)))
     a t t
 
@@ -230,11 +227,11 @@ theorem rec'_intro {motive : (a : α) → Acc r a → Sort v}
   let C : α → Sort v := fun x => (h : Acc r x) → motive x h
   let F : (x : α) → ((y : α) → r y x → C y) → C x :=
     fun x ih h => intro x (fun _ hy => h.inv hy) (fun y hy => ih y hy (h.inv hy))
-  have h1 : WellFounded.FixGraph F x (WellFounded.fixFImpl F x (Acc.intro x h)) :=
-    WellFounded.fixFImpl_graph F x _
-  have h2 : WellFounded.FixGraph F x (F x (fun y hy => WellFounded.fixFImpl F y (h y hy))) :=
-    WellFounded.FixGraph.mk x _ (fun y hy => WellFounded.fixFImpl_graph F y (h y hy))
-  exact congrFun (WellFounded.FixGraph_funct F (Acc.intro x h) _ _ h1 h2) (Acc.intro x h)
+  have h1 : WellFounded.FixGraph F x (WellFounded.fixF F x (Acc.intro x h)) :=
+    WellFounded.fixGraph_fixF F x _
+  have h2 : WellFounded.FixGraph F x (F x (fun y hy => WellFounded.fixF F y (h y hy))) :=
+    WellFounded.FixGraph.mk x _ (fun y hy => WellFounded.fixGraph_fixF F y (h y hy))
+  exact congrFun (WellFounded.FixGraph.unique F (Acc.intro x h) _ _ h1 h2) (Acc.intro x h)
 
 /--
 Unfolds `Acc.rec'` at an arbitrary accessibility proof, which is what proofs that used to close

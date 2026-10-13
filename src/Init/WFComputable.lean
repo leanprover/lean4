@@ -96,7 +96,7 @@ termination_by Subtype.mk x a
 
 unseal fixFC
 
-private theorem fixFC_graph {α : Sort u} {r : α → α → Prop} {C : α → Sort v}
+private theorem fixGraph_fixFC {α : Sort u} {r : α → α → Prop} {C : α → Sort v}
     (F : (x : α) → ((y : α) → r y x → C y) → C x) (x : α) (a : Acc r x) :
     FixGraph F x (fixFC F x a) := by
   induction a with
@@ -106,7 +106,7 @@ private theorem fixFC_graph {α : Sort u} {r : α → α → Prop} {C : α → S
 
 @[csimp] public theorem fixF_eq_fixFC : @fixF = @fixFC := by
   funext α r C F x a
-  exact FixGraph_funct F a _ _ (fixFImpl_graph F x a) (fixFC_graph F x a)
+  exact FixGraph.unique F a _ _ (fixGraph_fixF F x a) (fixGraph_fixFC F x a)
 
 /-- A compilable version of `WellFounded.fix`. -/
 @[specialize] public def fixC {α : Sort u} {C : α → Sort v} {r : α → α → Prop}
@@ -116,7 +116,7 @@ termination_by hwf.wrap x
 
 unseal fixC
 
-private theorem fixC_graph {α : Sort u} {C : α → Sort v} {r : α → α → Prop}
+private theorem fixGraph_fixC {α : Sort u} {C : α → Sort v} {r : α → α → Prop}
     (hwf : WellFounded r) (F : (x : α) → ((y : α) → r y x → C y) → C x)
     (x : α) (acx : Acc r x) : FixGraph F x (fixC hwf F x) := by
   induction acx with
@@ -126,8 +126,8 @@ private theorem fixC_graph {α : Sort u} {C : α → Sort v} {r : α → α → 
 
 @[csimp] public theorem fix_eq_fixC : @fix = @fixC := by
   funext α C r hwf F x
-  exact FixGraph_funct F (apply hwf x) _ _
-    (fixFImpl_graph F x (apply hwf x))
-    (fixC_graph hwf F x (apply hwf x))
+  exact FixGraph.unique F (apply hwf x) _ _
+    (fixGraph_fixF F x (apply hwf x))
+    (fixGraph_fixC hwf F x (apply hwf x))
 
 end WellFounded

@@ -50,11 +50,12 @@ grep -q '^bundle ready: true$' "$TMP_DIR/doctor"
 
 daemon=$(sed -n 's/^bundle daemon: //p' "$TMP_DIR/doctor")
 plugin=$(sed -n 's/^plugin: //p' "$TMP_DIR/doctor")
-owned_toolchain="$toolchain"
+# macOS temporary directories may use a symlink such as /var -> /private/var.
+owned_toolchain=$(cd "$toolchain" && pwd -P)
 if command -v cygpath > /dev/null; then
     daemon=$(cygpath -u "$daemon")
     plugin=$(cygpath -u "$plugin")
-    owned_toolchain=$(cygpath -u "$(cygpath -m "$toolchain")")
+    owned_toolchain=$(cygpath -u "$(cygpath -m "$owned_toolchain")")
 fi
 case "$daemon" in "$owned_toolchain"/*) ;; *) fail "daemon outside relocated toolchain" ;; esac
 case "$plugin" in "$owned_toolchain"/*) ;; *) fail "plugin outside relocated toolchain" ;; esac

@@ -383,6 +383,9 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_random(uint64_t size) {
 
     auto on_random = [](uv_random_t* uv, int status, void* buf, size_t buflen) {
         std::unique_ptr<random_req_t> req(static_cast<random_req_t*>(uv->data));
+        if (uv_dropped_at_exit(req->promise, req->byte_array)) {
+            return;
+        }
 
         if (status < 0) {
             lean_promise_resolve(mk_except_err(lean_decode_uv_error(status, nullptr)), req->promise.get());

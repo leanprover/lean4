@@ -291,6 +291,13 @@ def parseLintersSpec (spec : String) : CliM PUnit := do
     { opts with runBuiltinLint := true, builtinLint.linterOverrides :=
         opts.builtinLint.linterOverrides ++ entries }
 
+def setShakeAddDownstream (opt : String) (isExported : Bool) : CliM PUnit := do
+  let mod ← takeOptArg opt "module to add"
+  if (← getThe LakeOptions).shake.addDownstream?.isSome then
+    error "at most one of `--add-downstream` and `--add-public-downstream` can be used, and only once"
+  modifyThe LakeOptions fun opts =>
+    {opts with shake.addDownstream? := some { module := mod.toName, isExported }}
+
 def lakeLongOption : (opt : String) → CliM PUnit
 | "--quiet"       => modifyThe LakeOptions ({· with verbosity := .quiet})
 | "--verbose"     => modifyThe LakeOptions ({· with verbosity := .verbose})
@@ -419,6 +426,8 @@ def lakeLongOption : (opt : String) → CliM PUnit
   let mod ← takeOptArg "--only" "minimize only this module"
   modifyThe LakeOptions fun opts =>
     {opts with shake.onlyMods := opts.shake.onlyMods.push mod.toName}
+| "--add-downstream" => setShakeAddDownstream "--add-downstream" (isExported := false)
+| "--add-public-downstream" => setShakeAddDownstream "--add-public-downstream" (isExported := true)
 -- Check and comparator options
 | "--config" => do
   let file ← takeOptArg "--config" "path"

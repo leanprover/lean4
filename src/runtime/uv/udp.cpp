@@ -35,7 +35,15 @@ static void udp_socket_finalizer(void* ptr) {
         lean_always_assert(ref->get() == nullptr);
     }
 
+    // Freed after the unlock when the teardown at exit already closed the handle.
+    std::unique_ptr<lean_uv_udp_socket_object> closed_at_exit;
+
     event_loop_guard guard;
+
+    if (uv_is_closing((uv_handle_t*)&udp_socket->m_uv_udp)) {
+        closed_at_exit.reset(udp_socket);
+        return;
+    }
 
     // The Lean object is being freed, so the close callback gets the struct instead. No callback
     // reads `data` as the Lean object after `uv_close`.
@@ -64,6 +72,12 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_new() {
 
     {
         event_loop_guard guard;
+
+        if (guard.stopped()) {
+            delete udp_socket;
+            return io_result_mk_uv_error(UV_ECANCELED);
+        }
+
         result = uv_udp_init(global_ev.m_loop, &udp_socket->m_uv_udp);
     }
 
@@ -91,6 +105,11 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_bind(b_obj_arg socket, b_obj_arg
     int result;
     {
         event_loop_guard guard;
+
+        if (guard.stopped()) {
+            return io_result_mk_uv_error(UV_ECANCELED);
+        }
+
         result = uv_udp_bind(&udp_socket->m_uv_udp, (sockaddr*)&addr_ptr, UV_UDP_REUSEADDR);
     }
 
@@ -111,6 +130,11 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_connect(b_obj_arg socket, b_obj_
     int result;
     {
         event_loop_guard guard;
+
+        if (guard.stopped()) {
+            return io_result_mk_uv_error(UV_ECANCELED);
+        }
+
         result = uv_udp_connect(&udp_socket->m_uv_udp, (sockaddr*)&addr_ptr);
     }
 
@@ -164,12 +188,21 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_send(b_obj_arg socket, obj_arg d
 
     auto on_send = [](uv_udp_send_t * uv, int status) {
         std::unique_ptr<udp_send_req_t> req(static_cast<udp_send_req_t*>(uv->data));
+        if (uv_dropped_at_exit(req->promise, req->socket, req->data)) {
+            return;
+        }
         resolve_with_code(status, req->promise.get());
     };
 
     int result;
     {
         event_loop_guard guard;
+
+        if (guard.stopped()) {
+            delete req;
+            return io_result_mk_uv_error(UV_ECANCELED);
+        }
+
         result = uv_udp_send(&req->uv, &udp_socket->m_uv_udp, bufs.data(), bufs.count(), addr_ptr, on_send);
     }
 
@@ -193,7 +226,8 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_recv(b_obj_arg socket, uint64_t 
     };
 
     auto recv_cb = [](uv_udp_t *handle, ssize_t nread, const uv_buf_t *buf, const struct sockaddr *addr, unsigned flags) {
-        if (nread == 0 && addr == nullptr) return;
+        // libuv before 1.45 can still report a receive on Windows once the handle is no longer receiving.
+        if ((nread == 0 && addr == nullptr) || !global_ev.running() || uv_is_closing((uv_handle_t*)handle)) return;
 
         uv_udp_recv_stop(handle);
 
@@ -233,6 +267,10 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_recv(b_obj_arg socket, uint64_t 
     {
         // Locking earlier to avoid parallelism issues with `m_read`.
         event_loop_guard guard;
+
+        if (guard.stopped()) {
+            return io_result_mk_uv_error(UV_ECANCELED);
+        }
 
         if (udp_socket->m_read.pending()) {
             return io_result_mk_uv_error(UV_EALREADY);
@@ -275,8 +313,9 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_wait_readable(b_obj_arg socket) 
 
     auto recv_cb = [](uv_udp_t* handle, ssize_t nread, const uv_buf_t *buf, const struct sockaddr *addr, unsigned flags) {
         // `nread == 0` without an address is libuv's equivalent of `EAGAIN`: the socket is not
-        // actually readable, so keep waiting rather than resolving the promise.
-        if (nread == 0 && addr == nullptr) return;
+        // actually readable, so keep waiting rather than resolving the promise. libuv before 1.45 can still
+        // report a receive on Windows once the handle is no longer receiving.
+        if ((nread == 0 && addr == nullptr) || !global_ev.running() || uv_is_closing((uv_handle_t*)handle)) return;
 
         uv_udp_recv_stop(handle);
 
@@ -303,6 +342,10 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_wait_readable(b_obj_arg socket) 
     {
         // Locking earlier to avoid parallelism issues with `m_read`.
         event_loop_guard guard;
+
+        if (guard.stopped()) {
+            return io_result_mk_uv_error(UV_ECANCELED);
+        }
 
         if (udp_socket->m_read.pending()) {
             return io_result_mk_uv_error(UV_EALREADY);
@@ -338,6 +381,10 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_cancel_recv(b_obj_arg socket) {
     {
         event_loop_guard guard;
 
+        if (guard.stopped()) {
+            return io_result_mk_uv_error(UV_ECANCELED);
+        }
+
         if (udp_socket->m_read.pending()) {
             uv_udp_recv_stop(&udp_socket->m_uv_udp);
 
@@ -363,6 +410,11 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_getpeername(b_obj_arg socket) {
     int result;
     {
         event_loop_guard guard;
+
+        if (guard.stopped()) {
+            return io_result_mk_uv_error(UV_ECANCELED);
+        }
+
         result = uv_udp_getpeername(&udp_socket->m_uv_udp, (struct sockaddr*)&addr_storage, &addr_len);
     }
 
@@ -385,6 +437,11 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_getsockname(b_obj_arg socket) {
     int result;
     {
         event_loop_guard guard;
+
+        if (guard.stopped()) {
+            return io_result_mk_uv_error(UV_ECANCELED);
+        }
+
         result = uv_udp_getsockname(&udp_socket->m_uv_udp, (struct sockaddr*)&addr_storage, &addr_len);
     }
 
@@ -403,6 +460,11 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_set_broadcast(b_obj_arg socket, 
     int result;
     {
         event_loop_guard guard;
+
+        if (guard.stopped()) {
+            return io_result_mk_uv_error(UV_ECANCELED);
+        }
+
         result = uv_udp_set_broadcast(&udp_socket->m_uv_udp, enable);
     }
 
@@ -420,6 +482,11 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_set_multicast_loop(b_obj_arg soc
     int result;
     {
         event_loop_guard guard;
+
+        if (guard.stopped()) {
+            return io_result_mk_uv_error(UV_ECANCELED);
+        }
+
         result = uv_udp_set_multicast_loop(&udp_socket->m_uv_udp, enable);
     }
 
@@ -437,6 +504,11 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_set_multicast_ttl(b_obj_arg sock
     int result;
     {
         event_loop_guard guard;
+
+        if (guard.stopped()) {
+            return io_result_mk_uv_error(UV_ECANCELED);
+        }
+
         result = uv_udp_set_multicast_ttl(&udp_socket->m_uv_udp, ttl);
     }
 
@@ -465,6 +537,11 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_set_membership(b_obj_arg socket,
     int result;
     {
         event_loop_guard guard;
+
+        if (guard.stopped()) {
+            return io_result_mk_uv_error(UV_ECANCELED);
+        }
+
         result = uv_udp_set_membership(&udp_socket->m_uv_udp, multicast_addr_str, is_interface_null ? nullptr : interface_addr_str, (uv_membership)membership);
     }
 
@@ -485,6 +562,11 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_set_multicast_interface(b_obj_ar
     int result;
     {
         event_loop_guard guard;
+
+        if (guard.stopped()) {
+            return io_result_mk_uv_error(UV_ECANCELED);
+        }
+
         result = uv_udp_set_multicast_interface(&udp_socket->m_uv_udp, interface_addr_str);
     }
 
@@ -502,6 +584,11 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_set_ttl(b_obj_arg socket, uint32
     int result;
     {
         event_loop_guard guard;
+
+        if (guard.stopped()) {
+            return io_result_mk_uv_error(UV_ECANCELED);
+        }
+
         result = uv_udp_set_ttl(&udp_socket->m_uv_udp, ttl);
     }
 

@@ -21,6 +21,7 @@ Author: Leonardo de Moura
 #include "runtime/interrupt.h"
 #include "runtime/buffer.h"
 #include "runtime/io.h"
+#include "runtime/libuv.h"
 #include "runtime/hash.h"
 
 #if defined(__GLIBC__) || defined(__APPLE__)
@@ -763,6 +764,7 @@ class task_manager {
     condition_variable                            m_task_finished_cv;
     condition_variable                            m_dedicated_finished_cv;
     bool                                          m_shutting_down{false};
+    bool                                          m_workers_joined{false};
 
     lean_task_object * dequeue() {
         lean_assert(m_queues_size != 0);
@@ -789,6 +791,9 @@ class task_manager {
             run_task(lock, t);
             return;
         }
+        // Enqueued by the event loop before `finalize_libuv` stopped it; nothing will run it.
+        if (m_workers_joined)
+            return;
         if (prio > LEAN_MAX_PRIO) {
             spawn_dedicated_worker(t);
             return;
@@ -978,8 +983,13 @@ public:
 
         unique_lock<mutex> lock(m_mutex);
         m_dedicated_finished_cv.wait(lock, [&]() { return m_num_dedicated_workers == 0; });
+        m_workers_joined = true;
+        lock.unlock();
         // never seems to terminate under Emscripten
 #endif
+        // The workers finish with the event loop still running, so a task blocked on a libuv promise
+        // completes. The loop resolves promises through the task manager, so it stops before it is freed.
+        finalize_libuv();
     }
 
     void enqueue(lean_task_object * t) {

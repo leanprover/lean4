@@ -20,43 +20,40 @@ namespace Internal
 
 @[extern "lean_string_memcmp_compare"]
 def memcmpStrCompare (lhs rhs : @& String) (lstart : @& String.Pos.Raw) (rstart : @& String.Pos.Raw)
-    (len : @& String.Pos.Raw) (h1 : len.offsetBy lstart ≤ lhs.rawEndPos)
-    (h2 : len.offsetBy rstart ≤ rhs.rawEndPos) : Ordering :=
+    (len : @& Nat) (h1 : lstart.increaseBy len ≤ lhs.rawEndPos)
+    (h2 : rstart.increaseBy len ≤ rhs.rawEndPos) : Ordering :=
   go 0
 where
-  go (curr : String.Pos.Raw) : Ordering :=
+  go (curr : Nat) : Ordering :=
     if h : curr < len then
       have hl := by
-        simp [Pos.Raw.le_iff, Pos.Raw.lt_iff] at h h1 ⊢
+        simp [Pos.Raw.le_iff, Pos.Raw.lt_iff] at h1 ⊢
         omega
       have hr := by
-        simp [Pos.Raw.le_iff, Pos.Raw.lt_iff] at h h2 ⊢
+        simp [Pos.Raw.le_iff, Pos.Raw.lt_iff] at h2 ⊢
         omega
-      (compare (lhs.getUTF8Byte (curr.offsetBy lstart) hl)
-        (rhs.getUTF8Byte (curr.offsetBy rstart) hr)).then (go curr.inc)
+      (compare (lhs.getUTF8Byte (lstart.increaseBy curr) hl)
+        (rhs.getUTF8Byte (rstart.increaseBy curr) hr)).then (go (curr + 1))
     else
       .eq
-  termination_by len.byteIdx - curr.byteIdx
-  decreasing_by
-    simp [Pos.Raw.lt_iff] at h ⊢
-    omega
+  termination_by len - curr
 
 @[extern "lean_string_memcmp"]
 def memcmpStr (lhs rhs : @& String) (lstart : @& String.Pos.Raw) (rstart : @& String.Pos.Raw)
-    (len : @& String.Pos.Raw) (h1 : len.offsetBy lstart ≤ lhs.rawEndPos)
-    (h2 : len.offsetBy rstart ≤ rhs.rawEndPos) : Bool :=
+    (len : @& Nat) (h1 : lstart.increaseBy len ≤ lhs.rawEndPos)
+    (h2 : rstart.increaseBy len ≤ rhs.rawEndPos) : Bool :=
   memcmpStrCompare lhs rhs lstart rstart len h1 h2 == .eq
 
 @[extern "lean_string_memcmp_lt"]
 def memcmpStrLt (lhs rhs : @& String) (lstart : @& String.Pos.Raw) (rstart : @& String.Pos.Raw)
-    (len : @& String.Pos.Raw) (h1 : len.offsetBy lstart ≤ lhs.rawEndPos)
-    (h2 : len.offsetBy rstart ≤ rhs.rawEndPos) : Bool :=
+    (len : @& Nat) (h1 : lstart.increaseBy len ≤ lhs.rawEndPos)
+    (h2 : rstart.increaseBy len ≤ rhs.rawEndPos) : Bool :=
   memcmpStrCompare lhs rhs lstart rstart len h1 h2 == .lt
 
 @[inline]
 def memcmpSlice (lhs rhs : Slice) (lstart : String.Pos.Raw) (rstart : String.Pos.Raw)
-    (len : String.Pos.Raw) (h1 : len.offsetBy lstart ≤ lhs.rawEndPos)
-    (h2 : len.offsetBy rstart ≤ rhs.rawEndPos) : Bool :=
+    (len : Nat) (h1 : lstart.increaseBy len ≤ lhs.rawEndPos)
+    (h2 : rstart.increaseBy len ≤ rhs.rawEndPos) : Bool :=
   memcmpStr
     lhs.str
     rhs.str

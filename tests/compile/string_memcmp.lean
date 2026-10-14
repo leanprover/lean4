@@ -20,8 +20,8 @@ structure Results where
 deriving BEq, Repr
 
 abbrev MemcmpFn (α : Type) :=
-  (lhs rhs : String) → (lstart rstart len : String.Pos.Raw) →
-    len.offsetBy lstart ≤ lhs.rawEndPos → len.offsetBy rstart ≤ rhs.rawEndPos → α
+  (lhs rhs : String) → (lstart rstart : String.Pos.Raw) → (len : Nat) →
+    lstart.increaseBy len ≤ lhs.rawEndPos → rstart.increaseBy len ≤ rhs.rawEndPos → α
 
 /-- Calls the functions directly, which compiles to calls into the runtime. -/
 @[noinline] def viaRuntime : MemcmpFn Results := fun lhs rhs lstart rstart len h₁ h₂ =>
@@ -45,8 +45,8 @@ abbrev MemcmpFn (α : Type) :=
 
 /-- Evaluates the right-hand sides of the correctness theorems in terms of `Array UInt8`. -/
 @[noinline] def viaSpec : MemcmpFn Results := fun lhs rhs lstart rstart len _ _ =>
-  let a := (lhs.toByteArray.extract lstart.byteIdx (len.offsetBy lstart).byteIdx).data
-  let b := (rhs.toByteArray.extract rstart.byteIdx (len.offsetBy rstart).byteIdx).data
+  let a := (lhs.toByteArray.extract lstart.byteIdx (lstart.byteIdx + len)).data
+  let b := (rhs.toByteArray.extract rstart.byteIdx (rstart.byteIdx + len)).data
   { eq := a == b
     lt := decide (a < b)
     cmp := compare a b }
@@ -74,13 +74,13 @@ def fail (msg : String) : StateM Stats Unit :=
 
 def check (lhs rhs : String) (lstart rstart len : Nat) : StateM Stats Unit := do
   let args := s!"{lhs.toUTF8} at {lstart} vs {rhs.toUTF8} at {rstart} with length {len}"
-  if h₁ : (⟨len⟩ : String.Pos.Raw).offsetBy ⟨lstart⟩ ≤ lhs.rawEndPos then
-    if h₂ : (⟨len⟩ : String.Pos.Raw).offsetBy ⟨rstart⟩ ≤ rhs.rawEndPos then
+  if h₁ : (⟨lstart⟩ : String.Pos.Raw).increaseBy len ≤ lhs.rawEndPos then
+    if h₂ : (⟨rstart⟩ : String.Pos.Raw).increaseBy len ≤ rhs.rawEndPos then
       let expected := viaReference lhs rhs lstart rstart len
       let results := [("runtime", viaRuntime), ("closures", viaClosures memcmpStr memcmpStrLt memcmpStrCompare),
         ("model", viaModel), ("spec", viaSpec)]
       for (name, f) in results do
-        let r := f lhs rhs ⟨lstart⟩ ⟨rstart⟩ ⟨len⟩ h₁ h₂
+        let r := f lhs rhs ⟨lstart⟩ ⟨rstart⟩ len h₁ h₂
         unless r == expected do
           fail s!"{name} disagrees with reference on {args}:\n{repr r}\nexpected\n{repr expected}"
       match expected.cmp with

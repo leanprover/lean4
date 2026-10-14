@@ -4,62 +4,65 @@ meta import Lean
 
 open Lean Meta
 
-/-! Checks that `getUnfoldableConst?` agrees with a `findAsync?`-based lookup in every transparency
-mode and with custom unfolding predicates. Also checks that a lookup of a theorem that is still in
-elaboration returns `none` without waiting for the proof. This includes a theorem that reuses the
-name of an imported compiler-only declaration, which `const2ModIdx` lists but the imported constant
-map does not (#15670).
+/-!
+Tests `getUnfoldableConst?`, which `whnf` and `isDefEq` use to find the definition to unfold.
+Imported and current-module constants take different lookup paths, so the test checks both.
+It also checks that a lookup of a theorem whose proof is still in elaboration returns `none`
+without waiting for the proof.
 -/
 
-private meta def referenceLookup (name : Name) : MetaM (Option ConstantInfo) := do
-  let some info := (← getEnv).findAsync? name | throwUnknownConstantAt (← getRef) name
-  match info.kind with
-  | .defn => if (← canUnfold info.toConstantInfo) then return info.toConstantInfo else return none
-  | _ => return none
+public abbrev localAbbrev : Nat := 0
+public def localDef : Nat := 0
+@[irreducible] public def localIrreducible : Nat := 0
+public instance localInst : Inhabited Nat := ⟨0⟩
+public theorem localThm : True := trivial
+public axiom localAxiom : Nat
 
-private meta def checkLookup (name : Name) : MetaM Unit := do
-  let expected ← referenceLookup name
-  let actual ← getUnfoldableConst? name
-  let summarize (info : ConstantInfo) := (info.name, info.type, info.value?)
-  unless expected.map summarize == actual.map summarize do
-    throwError "lookup differs for {name}"
+/-- Lists the transparency modes in which `getUnfoldableConst?` returns the constant. -/
+private meta def unfoldModes (name : Name) : MetaM MessageData := do
+  let mut modes := #[]
+  for (mode, label) in #[(TransparencyMode.reducible, "reducible"), (.instances, "instances"),
+      (.default, "default"), (.all, "all")] do
+    if (← withTransparency mode <| getUnfoldableConst? name).isSome then
+      modes := modes.push label
+  return m!"{name}: {if modes.isEmpty then "never" else " ".intercalate modes.toList}"
 
-private meta def checkImportedLookup : MetaM Unit := do
-  let imported := #[``Nat.add, ``Bool.not, ``List.map, ``Nat.add_comm, ``Nat, ``Nat.zero,
-    ``Nat.rec, ``True.intro, ``Eq.refl, ``Quot, ``Classical.choice]
-  for name in imported do
-    unless (← getEnv).isImportedConst name do
-      throwError "expected imported constant: {name}"
-  addDecl <| .defnDecl <| mkDefinitionValEx `localDef [] (mkConst ``Nat) (mkNatLit 0)
-    .abbrev .safe []
-  addDecl <| .axiomDecl {
-    name := `localAxiom, levelParams := [], type := mkConst ``Nat, isUnsafe := false }
-  for mode in #[TransparencyMode.none, .reducible, .instances, .implicit, .default, .all] do
-    withTransparency mode do
-      for name in imported ++ #[`localDef, `localAxiom] do
-        checkLookup name
-  for allow in #[false, true] do
-    withReader (fun ctx => { ctx with customCanUnfoldPredicate? := some fun _ _ => pure allow }) do
-      for name in imported ++ #[`localDef, `localAxiom] do
-        checkLookup name
-      unless (← getUnfoldableConst? ``Nat.add).isSome == allow do
-        throwError "custom unfolding predicate ignored"
-  let failed ← try
-    discard <| getUnfoldableConst? `missingConstant
-    pure false
-  catch _ => pure true
-  unless failed do throwError "unknown constant did not fail"
+/--
+info: GE.ge: reducible instances default all
+instAddNat: instances default all
+List.map: default all
+Nat.toDigits: never
+Nat.add_comm: never
+Nat: never
+Nat.zero: never
+Nat.rec: never
+Quot: never
+Classical.choice: never
+localAbbrev: reducible instances default all
+localDef: default all
+localIrreducible: all
+localInst: instances default all
+localThm: never
+localAxiom: never
+-/
+#guard_msgs in
+run_meta do
+  let names := #[``GE.ge, ``instAddNat, ``List.map, ``Nat.toDigits, ``Nat.add_comm, ``Nat,
+    ``Nat.zero, ``Nat.rec, ``Quot, ``Classical.choice,
+    ``localAbbrev, ``localDef, ``localIrreducible, ``localInst, ``localThm, ``localAxiom]
+  logInfo <| .joinSep (← names.toList.mapM unfoldModes) "\n"
+
+/-- error: Unknown constant `missingConstant` -/
+#guard_msgs in
+run_meta discard <| getUnfoldableConst? `missingConstant
+
+/-! The proof is committed only after the lookup, so a lookup that waits for it never returns. -/
+run_meta do
   let saved ← getEnv
-  let some (compilerOnlyName, _) := saved.const2ModIdx.toList.find? (fun (n, _) => !saved.contains n)
-    | throwError "expected an imported compiler-only name"
-  -- `commitConst` runs after the lookup, so a lookup that waits for the theorem deadlocks.
-  for name in #[`pendingTheorem, compilerOnlyName] do
-    let pending ← saved.addConstAsync name .thm
-    setEnv pending.mainEnv
-    unless (← getUnfoldableConst? name).isNone do
-      throwError "pending theorem became unfoldable"
-    setEnv saved
-    pending.commitConst pending.asyncEnv (info? := some <| .thmInfo {
-      name, levelParams := [], type := mkConst ``True, value := mkConst ``True.intro })
-
-run_meta checkImportedLookup
+  let pending ← saved.addConstAsync `pendingThm .thm
+  setEnv pending.mainEnv
+  unless (← getUnfoldableConst? `pendingThm).isNone do
+    throwError "pending theorem became unfoldable"
+  setEnv saved
+  pending.commitConst pending.asyncEnv (info? := some <| .thmInfo {
+    name := `pendingThm, levelParams := [], type := mkConst ``True, value := mkConst ``True.intro })

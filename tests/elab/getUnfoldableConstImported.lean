@@ -5,9 +5,10 @@ meta import Lean
 open Lean Meta
 
 /-! Checks that `getUnfoldableConst?` agrees with a `findAsync?`-based lookup in every transparency
-mode and with custom unfolding predicates. A lookup of a current-module theorem returns before the
-theorem is complete, also when the theorem has the name of an imported compiler-only declaration
-(#15670).
+mode and with custom unfolding predicates. Also checks that a lookup of a theorem that is still in
+elaboration returns `none` without waiting for the proof. This includes a theorem that reuses the
+name of an imported compiler-only declaration, which `const2ModIdx` lists but the imported constant
+map does not (#15670).
 -/
 
 private meta def referenceLookup (name : Name) : MetaM (Option ConstantInfo) := do

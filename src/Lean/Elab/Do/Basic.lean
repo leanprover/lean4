@@ -563,8 +563,6 @@ def DoElemCont.mkBindUnlessPure (dec : DoElemCont) (e : Expr) : DoElabM Expr := 
       if isPure then
         if isDuplicable then
           return ← body.replaceFVarsM #[xFVar] #[eRes]
-        -- else -- would be too aggressive
-        --   return ← body.replaceFVarsM #[xFVar] #[eRes]
 
     let body ← Term.ensureHasType (← mkMonadApp kResultTy) body
     let k ← mkLambdaFVars #[xFVar] body

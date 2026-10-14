@@ -6,13 +6,15 @@ Authors: Markus Himmel
 module
 
 prelude
-public import Init.Data.String.Slice
-import all Init.Data.String.Slice
+public import Init.Data.String.Slice.Basic
+import all Init.Data.String.Slice.Basic
 import Init.Data.String.Lemmas.Pattern.Memcmp
 import Init.Data.String.Lemmas.Basic
 import Init.Data.ByteArray.Lemmas
 import Init.Data.String.Lemmas.IsEmpty
 import Init.Data.String.Lemmas.FindPos
+import Init.Data.String.Lemmas.Splits
+import Init.Data.Option.Lemmas
 
 public section
 

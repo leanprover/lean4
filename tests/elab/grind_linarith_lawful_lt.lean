@@ -6,7 +6,8 @@ has about `<` assumes it. Such `<` facts, negated facts, and disequality splits 
 
 Found with the `Sym.simp` normalizer: the legacy normalizer closes the first example by congruence
 (`c = b` makes `b + c + d` and `b + b + d` congruent), while `Sym.simp` rewrites `b + b + d` to
-`2 * b + d`, so only linarith can finish, and it combined two `<` facts.
+`2 * b + d`, so linarith combined two `<` facts. The ring module now relates `b + c + d` and
+`2 * b + d` itself, so the example is proved with either normalizer.
 -/
 
 open Std Lean Grind
@@ -14,25 +15,9 @@ open Std Lean Grind
 section
 set_option backward.grind.normalizer false
 
-/--
-error: `grind` failed
-case grind
-α : Type u_1
-inst : CommRing α
-inst_1 : LE α
-inst_2 : LT α
-inst_3 : IsLinearOrder α
-inst_4 : OrderedRing α
-a b c d : α
-h : a < b + c + d
-h_1 : c = b
-h_2 : ¬a < 2 * b + d
-⊢ False
--/
-#guard_msgs in
 example [CommRing α] [LE α] [LT α] [IsLinearOrder α] [OrderedRing α] (a b c d : α)
     : a < b + c + d → c = b → a < b + b + d := by
-  grind -verbose
+  grind
 
 example [CommRing α] [LE α] [LT α] [LawfulOrderLT α] [IsLinearOrder α] [OrderedRing α] (a b c d : α)
     : a < b + c + d → c = b → a < b + b + d := by

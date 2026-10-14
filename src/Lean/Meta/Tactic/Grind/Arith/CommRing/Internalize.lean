@@ -10,6 +10,7 @@ import Lean.Meta.Tactic.Grind.Simp
 import Lean.Meta.Tactic.Grind.Arith.Util
 import Lean.Meta.Tactic.Grind.Arith.CommRing.Reify
 import Lean.Meta.Tactic.Grind.Arith.CommRing.DenoteExpr
+import Lean.Meta.Tactic.Grind.Arith.Cutsat.Util
 public section
 namespace Lean.Meta.Grind.Arith.CommRing
 open Sym.Arith
@@ -40,14 +41,26 @@ private def isForbiddenParent (parent? : Option Expr) : Bool :=
       true
     else
       -- We also ignore the following parents.
-      -- Remark: `HDiv` should appear in `getType?` as soon as we add support for `Field`,
-      -- `LE.le` linear combinations
+      -- Remark: `HDiv` should appear in `getType?` as soon as we add support for `Field`
       match_expr parent with
-      | LT.lt _ _ _ _ => true
-      | LE.le _ _ _ _ => true
       | HDiv.hDiv _ _ _ _ _ _ => true
       | HMod.hMod _ _ _ _ _ _ => true
       | _ => false
+  else
+    false
+
+/--
+Returns `true` if `parent?` is `a ≤ b` or `a < b`. The ring module cannot use these facts, but it
+registers their operands so that `propagateEqs` relates terms with the same normal form, e.g.,
+`b + c + d` and `2 * b + d` after `c = b`. This is not needed for cutsat types, which cutsat
+normalizes itself.
+-/
+private def isIneqParent (parent? : Option Expr) : Bool :=
+  if let some parent := parent? then
+    match_expr parent with
+    | LE.le _ _ _ _ => true
+    | LT.lt _ _ _ _ => true
+    | _ => false
   else
     false
 
@@ -159,6 +172,7 @@ def internalize (e : Expr) (parent? : Option Expr) : GoalM Unit := do
   if (← internalizeInv e) then return ()
   let some type := getType? e | return ()
   if isForbiddenParent parent? then return ()
+  if (← pure (isIneqParent parent?) <&&> Cutsat.isCutsatType type) then return ()
   if let some ringId ← getCommRingId? type then RingM.run ringId do
     let some re ← reify? e | return ()
     trace_goal[grind.ring.internalize] "[{ringId}]: {e}"

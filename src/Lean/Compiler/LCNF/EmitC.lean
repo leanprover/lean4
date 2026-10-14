@@ -1004,7 +1004,7 @@ def emitDeclInit (decl : Decl .impure) (isBuiltin : Bool) : EmitM Unit := do
       emitCName decl.name; emit " = "; emitCInitName decl.name; emitLn "();"
       emitMarkPersistent decl
 
-def emitInitFn (phases : IRPhases) : EmitM Unit := do
+def getInitFns (phases : IRPhases) : EmitM (List String) := do
   let env ← getEnv
   let impInitFns ← env.imports.filterMapM fun imp => do
     if phases != .all && imp.isMeta != (phases == .comptime) then
@@ -1013,13 +1013,23 @@ def emitInitFn (phases : IRPhases) : EmitM Unit := do
       | throwError "(internal) import without module index" -- should be unreachable
     let pkg? := env.getModulePackageByIdx? idx
     let fn := mkModuleInitializationFunctionName (phases := if phases == .all then .all else if imp.isMeta then .runtime else phases) imp.module pkg?
-    emitLn s!"lean_object* {fn}(uint8_t builtin);"
     return some fn
+  -- The same module may appear multiple times in `env.imports` with different visibility/meta
+  -- flags. The C initialisation function however corresponds to the module itself, so each module
+  -- should be initialised at most once.
+  return impInitFns.toList.eraseDups
+
+def emitInitFnDecls (fns : List String) : EmitM Unit := do
+  fns.forM fun fn => do
+    emitLn s!"lean_object* {fn}(uint8_t builtin);"
+
+def emitInitFnBody (phases : IRPhases) (impInitFns : List String) : EmitM Unit := do
   -- Every module initializes the runtime for itself so that external users of a Lean library do
   -- not have to. Modules using the `Lean` package call the full `lean_initialize` instead as
   -- module visibility can hide such an import from downstream modules (including the final
   -- executable's root); the `Lean` modules themselves are initialized by `lean_initialize` and so
   -- must not call it themselves.
+  let env ← getEnv
   let modName ← getModName
   let leanInitFn? :=
     if phases == .comptime then
@@ -1051,15 +1061,7 @@ def emitInitFn (phases : IRPhases) : EmitM Unit := do
   emitLn "}"
 
 /-- Init function used before phase split under module system, keep for compatibility. -/
-def emitLegacyInitFn : EmitM Unit := do
-  let env ← getEnv
-  let impInitFns ← env.imports.filterMapM fun imp => do
-    let some idx := env.getModuleIdx? imp.module
-      | throwError "(internal) import without module index" -- should be unreachable
-    let pkg? := env.getModulePackageByIdx? idx
-    let fn := mkModuleInitializationFunctionName imp.module pkg?
-    emitLn s!"lean_object* {fn}(uint8_t builtin);"
-    return some fn
+def emitLegacyInitFnBody (impInitFns : List String) : EmitM Unit := do
   let initialized := s!"_G_initialized"
   emitLns [
     s!"static bool {initialized} = false;",
@@ -1163,11 +1165,18 @@ def main : EmitM Unit := do
   emitFnDecls
   emitFns
   if (← getEnv).header.isModule then
-    emitInitFn (phases := .runtime)
-    emitInitFn (phases := .comptime)
-    emitLegacyInitFn
+    let runtimeInitFns ← getInitFns (phases := .runtime)
+    let comptimeInitFns ← getInitFns (phases := .comptime)
+    let legacyInitFns ← getInitFns (phases := .all)
+    let allInitFns := (runtimeInitFns ++ comptimeInitFns ++ legacyInitFns).eraseDups
+    emitInitFnDecls allInitFns
+    emitInitFnBody (phases := .runtime) runtimeInitFns
+    emitInitFnBody (phases := .comptime) comptimeInitFns
+    emitLegacyInitFnBody legacyInitFns
   else
-    emitInitFn (phases := .all)
+    let initFns ← getInitFns (phases := .all)
+    emitInitFnDecls initFns
+    emitInitFnBody (phases := .all) initFns
   emitMainFnIfNeeded
   emitFileFooter
 

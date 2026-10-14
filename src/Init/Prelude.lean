@@ -3733,7 +3733,7 @@ Character positions (counting the Unicode code points rather than bytes) are rep
 be translated internally to byte positions, which takes linear time.
 
 A byte position `p` is *valid* for a string `s` if `0 ≤ p ≤ s.rawEndPos` and `p` lies on a UTF-8
-character boundary, see `String.Pos.IsValid`.
+character boundary, see `String.Pos.Raw.IsValid`.
 
 There is another type, `String.Pos`, which bundles the validity predicate. Using `String.Pos`
 instead of `String.Pos.Raw` is recommended because it will lead to less error handling and fewer edge cases.

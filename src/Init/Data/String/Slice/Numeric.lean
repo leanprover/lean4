@@ -114,7 +114,7 @@ Checks whether the slice can be interpreted as the decimal representation of an 
 A slice can be interpreted as a decimal integer if it only consists of at least one decimal digit
 and optionally {lit}`-` in front. Leading {lit}`+` characters are not allowed.
 
-Use {name (scope := "Init.Data.String.Slice.Numeric")}`String.Slice.toInt?` or {name (scope := "Init.Data.String.Slice")}`String.toInt!` to convert such a string to an integer.
+Use {name (scope := "Init.Data.String.Slice.Numeric")}`String.Slice.toInt?` or {name (scope := "Init.Data.String.Slice.Numeric")}`String.Slice.toInt!` to convert such a string to an integer.
 
 Examples:
  * {lean}`"".toSlice.isInt = false`

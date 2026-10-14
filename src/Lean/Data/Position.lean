@@ -176,8 +176,13 @@ def toPosition (fmap : FileMap) (pos : String.Pos.Raw) : Position :=
         omega
       let rec loop (b e : Nat) :=
         if e ≤ b + 1 then
-          let cp := fmap.findCheckpoint b (·.pos.byteIdx) pos.byteIdx
-          { line := fmap.getLine b, column := toColumn cp.pos cp.column }
+          let column :=
+            if fmap.columnCheckpoints[b]?.all (·.isEmpty) then
+              toColumn ps[b]! 0
+            else
+              let cp := fmap.findCheckpoint b (·.pos.byteIdx) pos.byteIdx
+              toColumn cp.pos cp.column
+          { line := fmap.getLine b, column }
         else
           let m := (b + e) / 2;
           let posM := ps[m]!

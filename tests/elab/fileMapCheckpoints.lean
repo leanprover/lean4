@@ -185,23 +185,25 @@ theorem toColumn_findCheckpoint (fm : FileMap) (hwf : fm.WF) (pos : String.Pos.R
       fun j hj => by have := walk_lt fm.source fm.positions[b]! hj; grind [Valid, String.Pos.Raw.atEnd]
     grind [Valid, FileMap.WF, lineStart_succ]
 
-theorem toPosition_loop_eq (fm : FileMap) (hwf : fm.WF) (pos : String.Pos.Raw)
-    (ps : Array String.Pos.Raw) (b e : Nat) :
-    FileMap.toPosition.loop fm pos fm.source ps b e =
-      FileMap.toPosition.loop { fm with columnCheckpoints := #[] } pos fm.source ps b e := by
+theorem toPosition_loop_eq (fm : FileMap) (hwf : fm.WF) (pos : String.Pos.Raw) (b e : Nat) :
+    FileMap.toPosition.loop fm pos fm.source fm.positions b e =
+      FileMap.toPosition.loop { fm with columnCheckpoints := #[] } pos fm.source fm.positions b e := by
   induction h : e - b using Nat.strongRecOn generalizing b e with
   | _ n ih =>
   rw [FileMap.toPosition.loop, FileMap.toPosition.loop]
   have := toColumn_findCheckpoint fm hwf pos b
   split
-  · grind [FileMap.getLine, FileMap.getLastLine]
+  · by_cases hc : fm.columnCheckpoints[b]?.all (·.isEmpty)
+    · grind [FileMap.getLine, FileMap.getLastLine]
+    · have := lineStart_succ fm b (by have := hwf.1; grind)
+      grind [FileMap.getLine, FileMap.getLastLine, findCheckpoint_empty]
   · have := ih (e - (b + e) / 2) (by omega) ((b + e) / 2) e rfl
     have := ih ((b + e) / 2 - b) (by omega) b ((b + e) / 2) rfl
     grind [FileMap.getLine, FileMap.getLastLine]
 
 theorem toPosition_eq (fm : FileMap) (hwf : fm.WF) (pos : String.Pos.Raw) :
     fm.toPosition pos = { fm with columnCheckpoints := #[] }.toPosition pos := by
-  have := toPosition_loop_eq fm hwf pos fm.positions
+  have := toPosition_loop_eq fm hwf pos
   simp only [FileMap.toPosition]
   grind [FileMap.getLastLine]
 

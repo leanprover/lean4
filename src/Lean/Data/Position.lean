@@ -95,7 +95,7 @@ def getLine (fmap : FileMap) (x : Nat) : Nat :=
 /-- The minimal distance in bytes between the checkpoints of a line, see `columnCheckpoints`. -/
 private def columnCheckpointInterval : Nat := 256
 
-partial def ofString (s : String) : FileMap :=
+def ofString (s : String) : FileMap :=
   let rec loop (i last : String.Pos.Raw) (column utf16Column : Nat)
       (lineCps : Array ColumnCheckpoint) (ps : Array String.Pos.Raw)
       (cps : Array (Array ColumnCheckpoint)) : FileMap :=
@@ -111,6 +111,12 @@ partial def ofString (s : String) : FileMap :=
         loop next next 0 0 #[] (ps.push next) (cps.push lineCps)
       else
         loop next last (column + 1) (utf16Column + (Char.utf16Size c).toNat) lineCps ps cps
+  termination_by s.utf8ByteSize - i.byteIdx
+  decreasing_by
+    all_goals
+      have := String.Pos.Raw.byteIdx_lt_byteIdx_next s i
+      simp [String.Pos.Raw.atEnd] at *
+      omega
   loop 0 0 0 0 #[] #[0] #[]
 
 /--
@@ -126,7 +132,7 @@ def lineStart (map : FileMap) (line : Nat) : String.Pos.Raw :=
 Returns the last checkpoint of (0-based) line `line` whose `key` is at most `x`, or the start of the
 line if there is none. `key` must be monotone on the checkpoints of the line.
 -/
-@[specialize] private partial def findCheckpoint (fmap : FileMap) (line : Nat)
+@[specialize] private def findCheckpoint (fmap : FileMap) (line : Nat)
     (key : ColumnCheckpoint → Nat) (x : Nat) : ColumnCheckpoint :=
   let cps := fmap.columnCheckpoints[line]?.getD #[]
   loop cps 0 cps.size
@@ -138,16 +144,22 @@ where
       if key cps[mid]! ≤ x then loop cps (mid + 1) hi else loop cps lo mid
     else if lo == 0 then { pos := fmap.lineStart (line + 1), column := 0, utf16Column := 0 }
     else cps[lo - 1]!
+  termination_by hi - lo
 
-partial def toPosition (fmap : FileMap) (pos : String.Pos.Raw) : Position :=
+def toPosition (fmap : FileMap) (pos : String.Pos.Raw) : Position :=
   match fmap with
   | { source := str, positions := ps, .. } =>
     if ps.size >= 2 && pos <= ps.back! then
       let rec toColumn (i : String.Pos.Raw) (c : Nat) : Nat :=
         if i == pos || i.atEnd str then c
         else toColumn (i.next str) (c+1)
+      termination_by str.utf8ByteSize - i.byteIdx
+      decreasing_by
+        have := String.Pos.Raw.byteIdx_lt_byteIdx_next str i
+        simp [String.Pos.Raw.atEnd] at *
+        omega
       let rec loop (b e : Nat) :=
-        if e == b + 1 then
+        if e ≤ b + 1 then
           let cp := fmap.findCheckpoint b (·.pos.byteIdx) pos.byteIdx
           { line := fmap.getLine b, column := toColumn cp.pos cp.column }
         else
@@ -156,6 +168,7 @@ partial def toPosition (fmap : FileMap) (pos : String.Pos.Raw) : Position :=
           if pos == posM then { line := fmap.getLine m, column := 0 }
           else if pos > posM then loop m e
           else loop b m
+      termination_by e - b
       loop 0 (ps.size - 1)
     else if ps.isEmpty then
       ⟨0, 0⟩

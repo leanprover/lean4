@@ -130,7 +130,7 @@ bench/unionfind.%.bench: BENCH_PARAMS = 3000000
 
 bench/%gc.lean.bench: %lean.out | bench
 	ulimit -s unlimited && $(TEMCI) short exec $(TEMCI_FLAGS)\
-    -d $< "perf record -o $@.tmp ./$< $(BENCH_PARAMS) >/dev/null && perf report -i $@.tmp -t ';' --stdio -S 'lean_inc_ref_cold,lean_inc_ref_n_cold,lean_dec_ref_cold,lean_del_core,lean_free_small' | ./lean-gc.py"\
+    -d $< "perf record -o $@.tmp ./$< $(BENCH_PARAMS) >/dev/null && perf report -i $@.tmp -t ';' --stdio | grep -E 'lean_inc_ref_cold|lean_inc_ref_n_cold|lean_dec_ref_cold|lean_del_|Lean_Runtime_Deletion_|lean_free_small' | ./lean-gc.py"\
 	  --runner output --out $@
 
 bench/%gc.hs.bench: %hs.out | bench

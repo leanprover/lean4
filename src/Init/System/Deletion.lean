@@ -19,8 +19,10 @@ object that thereby loses its last reference. It is written once over the object
 on a last-in, first-out worklist linked through their headers. Each object releases the references
 its slots hold before it is reclaimed.
 
-`tests/misc_dir/rc_deletion` proves that on the ownership graph of its specification the cascade
-computes `drain`, and touches no object outside the access protocol of its heap.
+`lean_dec_ref_cold` in `src/runtime/object.cpp` decides whether a reference was the last, and then
+runs the cascade on the runtime's heap through `Native.cascade`. `tests/misc_dir/rc_deletion` proves
+that on the ownership graph of its specification the cascade computes `drain`, and touches no object
+outside the access protocol of its heap.
 -/
 
 public section
@@ -129,8 +131,10 @@ structure Ops (m : Type → Type) (Obj Slot : Type) where
 variable {m : Type → Type} [Monad m] {Obj Slot : Type} (A : Ops m Obj Slot)
 
 /-
-`Int32` literals are written `Int32.ofUInt32 n`, which compiles to a constant; `(1 : Int32)`
-compiles to a closed term computed at run time.
+The runtime deletes objects before this module is initialized, so what `Native.cascade` runs must
+not read a closed term or a module constant: the kinds and `stickyDrop` are `abbrev`s, which
+compile to literals, and `Int32` literals are written `Int32.ofUInt32 n`, since `(1 : Int32)`
+compiles to a closed term. `tests/misc_dir/rc_deletion/heaps.c` deletes without initializing Init.
 -/
 
 /--
@@ -257,3 +261,91 @@ its last reference.
   cascadeLoop A o A.null
 
 end Lean.Runtime.Deletion
+
+end
+
+/-! ## The runtime's heap
+
+These declarations are private: they act on raw addresses, and only the runtime calls the cascade.
+-/
+
+namespace Lean.Runtime.Deletion.Native
+
+/-
+Objects and slots are addresses. Each primitive is the function named in its `extern` attribute.
+-/
+@[extern "lean_del_get_rc"] opaque getRc (o : USize) : BaseIO Int32
+@[extern "lean_del_dec_rc"] opaque decRc (o : USize) : BaseIO Unit
+@[extern "lean_del_release_mt"] opaque releaseMt (o : USize) : BaseIO Int32
+@[extern "lean_del_set_next"] opaque setNext (o next : USize) : BaseIO Unit
+@[extern "lean_del_get_next"] opaque getNext (o : USize) : BaseIO USize
+@[extern "lean_del_tag"] opaque tag (o : USize) : BaseIO UInt8
+@[extern "lean_del_ctor_objs"] opaque ctorObjs (o : USize) : BaseIO USize
+@[extern "lean_del_ctor_num_objs"] opaque ctorNumObjs (o : USize) : BaseIO USize
+@[extern "lean_del_closure_fixed"] opaque closureFixed (o : USize) : BaseIO USize
+@[extern "lean_del_closure_num_fixed"] opaque closureNumFixed (o : USize) : BaseIO USize
+@[extern "lean_del_array_elems"] opaque arrayElems (o : USize) : BaseIO USize
+@[extern "lean_del_array_size"] opaque arraySize (o : USize) : BaseIO USize
+@[extern "lean_del_next_slot"] opaque nextSlot (it : USize) : USize
+@[extern "lean_del_get_slot"] opaque getSlot (it : USize) : BaseIO USize
+@[extern "lean_del_thunk_closure"] opaque thunkClosure (o : USize) : BaseIO USize
+@[extern "lean_del_thunk_value"] opaque thunkValue (o : USize) : BaseIO USize
+@[extern "lean_del_ref_value"] opaque refValue (o : USize) : BaseIO USize
+@[extern "lean_del_free_small"] opaque freeSmall (o : USize) : BaseIO Unit
+@[extern "lean_del_free_closure"] opaque freeClosure (o : USize) : BaseIO Unit
+@[extern "lean_del_free_array"] opaque freeArray (o : USize) : BaseIO Unit
+@[extern "lean_del_free_sarray"] opaque freeSarray (o : USize) : BaseIO Unit
+@[extern "lean_del_free_string"] opaque freeString (o : USize) : BaseIO Unit
+@[extern "lean_del_free_mpz"] opaque freeMpz (o : USize) : BaseIO Unit
+@[extern "lean_del_free_external"] opaque freeExternal (o : USize) : BaseIO Unit
+@[extern "lean_del_deactivate_task"] opaque deactivateTask (o : USize) : BaseIO Unit
+@[extern "lean_del_deactivate_promise"] opaque deactivatePromise (o : USize) : BaseIO Unit
+@[extern "lean_del_unreachable"] opaque unreachable (o : USize) : BaseIO Unit
+
+/-- Whether a value is an immediate: its address is odd. -/
+@[inline] def isScalar (o : USize) : Bool := o &&& 1 == 1
+
+/-- Whether a value is `NULL`. -/
+@[inline] def isNull (o : USize) : Bool := o == 0
+
+/-- The object operations on the runtime's heap. -/
+@[inline] def ops : Ops BaseIO USize USize where
+  isScalar
+  isNull
+  null := 0
+  getRc
+  decRc
+  releaseMt
+  setNext
+  getNext
+  tag
+  ctorObjs
+  ctorNumObjs
+  closureFixed
+  closureNumFixed
+  arrayElems
+  arraySize
+  nextSlot
+  getSlot
+  thunkClosure
+  thunkValue
+  refValue
+  freeSmall
+  freeClosure
+  freeArray
+  freeSarray
+  freeString
+  freeMpz
+  freeExternal
+  deactivateTask
+  deactivatePromise
+  unreachable
+
+/--
+`lean_del_cascade`, which `lean_dec_ref_cold` calls on an object whose last reference it has
+released.
+-/
+@[export lean_del_cascade] def cascade (o : USize) : BaseIO Unit :=
+  Deletion.cascade ops o
+
+end Lean.Runtime.Deletion.Native

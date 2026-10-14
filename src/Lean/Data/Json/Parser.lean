@@ -190,7 +190,10 @@ def exponent (value : JsonNumber) : Parser JsonNumber := do
       else
         if c = '+' then skip
         let n ← natMaybeZero
-        if n > USize.size then fail "exp too large"
+        -- `shiftl` currently consumes time/memory linear in n,
+        -- and panics in `Nat.pow` for sufficiently large n.
+        -- This could be improved by supporting positive exponents in `JsonNumber`.
+        if n > 100_000 then fail "exponent too large"
         return value.shiftl n
     else
       return value

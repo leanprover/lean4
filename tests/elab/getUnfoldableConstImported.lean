@@ -4,9 +4,10 @@ meta import Lean
 
 open Lean Meta
 
-/-! Check imported lookups against the asynchronous path, including unfolding policies.
-Current-module declarations must retain asynchronous lookup: theorem bodies need not be ready,
-even when a declaration uses an imported compiler-only name (#15670).
+/-! Checks that `getUnfoldableConst?` agrees with a `findAsync?`-based lookup in every transparency
+mode and with custom unfolding predicates. A lookup of a current-module theorem returns before the
+theorem is complete, also when the theorem has the name of an imported compiler-only declaration
+(#15670).
 -/
 
 private meta def referenceLookup (name : Name) : MetaM (Option ConstantInfo) := do
@@ -50,7 +51,7 @@ private meta def checkImportedLookup : MetaM Unit := do
   let saved ← getEnv
   let some (compilerOnlyName, _) := saved.const2ModIdx.toList.find? (fun (n, _) => !saved.contains n)
     | throwError "expected an imported compiler-only name"
-  -- Keep both promises pending until after lookup. Waiting for either would deadlock.
+  -- `commitConst` runs after the lookup, so a lookup that waits for the theorem deadlocks.
   for name in #[`pendingTheorem, compilerOnlyName] do
     let pending ← saved.addConstAsync name .thm
     setEnv pending.mainEnv

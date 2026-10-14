@@ -965,7 +965,10 @@ private def findTaskCore (env : Environment) (n : Name) (skipRealize := false) :
     -- see `findAsyncCore?`
     .pure <| .ofConstantInfo <$> (env.base.get env |>.constants.map₂.find? n)
 
-/-- Returns the imported constant `n`, if any, without allocating `AsyncConstantInfo` tasks. -/
+/--
+Returns the imported constant `n`, if any. Unlike `findAsync?`, it allocates no `AsyncConstantInfo`
+and no tasks.
+-/
 def findImported? (env : Environment) (n : Name) : Option ConstantInfo :=
   env.base.get env |>.constants.map₁[n]?
 

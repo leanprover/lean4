@@ -50,17 +50,37 @@ theorem memcmpStrLt_eq_true_iff {lhs rhs : String} {lstart rstart : String.Pos.R
         rhs.toByteArray.extract rstart.byteIdx (rstart.byteIdx + len) := by
   rw [memcmpStrLt, beq_iff_eq, memcmpStrCompare_eq_compare, Std.compare_eq_lt]
 
+private theorem extract_offsetBy_eq_extract_copy {s : Slice} {p : String.Pos.Raw} {len : Nat}
+    (h : p.increaseBy len ≤ s.rawEndPos) :
+    s.str.toByteArray.extract (p.offsetBy s.startInclusive.offset).byteIdx
+        ((p.offsetBy s.startInclusive.offset).byteIdx + len) =
+      s.copy.toByteArray.extract p.byteIdx (p.byteIdx + len) := by
+  rw [toByteArray_copy, ByteArray.extract_extract]
+  have := s.startInclusive_le_endExclusive
+  simp only [Pos.Raw.le_iff, Pos.Raw.byteIdx_increaseBy, byteIdx_rawEndPos, utf8ByteSize_eq,
+    String.Pos.le_iff] at h this
+  simp only [Pos.Raw.byteIdx_offsetBy, Nat.add_assoc]
+  rw [Nat.min_eq_left (by omega)]
+
+theorem memcmpSliceCompare_eq_compare {lhs rhs : Slice} {lstart rstart : String.Pos.Raw}
+    {len : Nat} {h₁ h₂} : memcmpSliceCompare lhs rhs lstart rstart len h₁ h₂ =
+      compare (lhs.copy.toByteArray.extract lstart.byteIdx (lstart.byteIdx + len))
+        (rhs.copy.toByteArray.extract rstart.byteIdx (rstart.byteIdx + len)) := by
+  rw [memcmpSliceCompare, memcmpStrCompare_eq_compare, extract_offsetBy_eq_extract_copy h₁,
+    extract_offsetBy_eq_extract_copy h₂]
+
 theorem memcmpSlice_eq_true_iff {lhs rhs : Slice} {lstart rstart : String.Pos.Raw} {len : Nat}
     {h₁ h₂} : memcmpSlice lhs rhs lstart rstart len h₁ h₂ = true ↔
       lhs.copy.toByteArray.extract lstart.byteIdx (lstart.byteIdx + len) =
         rhs.copy.toByteArray.extract rstart.byteIdx (rstart.byteIdx + len) := by
-  rw [memcmpSlice, memcmpStr_eq_true_iff, toByteArray_copy, toByteArray_copy,
-    ByteArray.extract_extract, ByteArray.extract_extract]
-  simp only [Pos.Raw.byteIdx_offsetBy, Nat.add_assoc]
-  have h₃ := lhs.startInclusive_le_endExclusive
-  have h₄ := rhs.startInclusive_le_endExclusive
-  simp only [Pos.Raw.le_iff, Pos.Raw.byteIdx_increaseBy, byteIdx_rawEndPos, utf8ByteSize_eq,
-    String.Pos.le_iff] at h₁ h₂ h₃ h₄
-  rw [Nat.min_eq_left (by omega), Nat.min_eq_left (by omega)]
+  rw [memcmpSlice, memcmpStr_eq_true_iff, extract_offsetBy_eq_extract_copy h₁,
+    extract_offsetBy_eq_extract_copy h₂]
+
+theorem memcmpSliceLt_eq_true_iff {lhs rhs : Slice} {lstart rstart : String.Pos.Raw} {len : Nat}
+    {h₁ h₂} : memcmpSliceLt lhs rhs lstart rstart len h₁ h₂ = true ↔
+      lhs.copy.toByteArray.extract lstart.byteIdx (lstart.byteIdx + len) <
+        rhs.copy.toByteArray.extract rstart.byteIdx (rstart.byteIdx + len) := by
+  rw [memcmpSliceLt, memcmpStrLt_eq_true_iff, extract_offsetBy_eq_extract_copy h₁,
+    extract_offsetBy_eq_extract_copy h₂]
 
 end String.Slice.Pattern.Internal

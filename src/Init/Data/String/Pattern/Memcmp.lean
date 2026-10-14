@@ -50,28 +50,38 @@ def memcmpStrLt (lhs rhs : @& String) (lstart : @& String.Pos.Raw) (rstart : @& 
     (h2 : rstart.increaseBy len ≤ rhs.rawEndPos) : Bool :=
   memcmpStrCompare lhs rhs lstart rstart len h1 h2 == .lt
 
+theorem offsetBy_increaseBy_le_rawEndPos_str {s : Slice} {p : String.Pos.Raw} {len : Nat}
+    (h : p.increaseBy len ≤ s.rawEndPos) :
+    (p.offsetBy s.startInclusive.offset).increaseBy len ≤ s.str.rawEndPos := by
+  have := s.startInclusive_le_endExclusive
+  have := s.endExclusive.isValid.le_utf8ByteSize
+  simp [String.Pos.le_iff, Pos.Raw.le_iff, Slice.utf8ByteSize_eq,
+    -String.Pos.byteIdx_offset_le_utf8ByteSize] at *
+  omega
+
+@[inline]
+def memcmpSliceCompare (lhs rhs : Slice) (lstart : String.Pos.Raw) (rstart : String.Pos.Raw)
+    (len : Nat) (h1 : lstart.increaseBy len ≤ lhs.rawEndPos)
+    (h2 : rstart.increaseBy len ≤ rhs.rawEndPos) : Ordering :=
+  memcmpStrCompare lhs.str rhs.str (lstart.offsetBy lhs.startInclusive.offset)
+    (rstart.offsetBy rhs.startInclusive.offset) len (offsetBy_increaseBy_le_rawEndPos_str h1)
+    (offsetBy_increaseBy_le_rawEndPos_str h2)
+
 @[inline]
 def memcmpSlice (lhs rhs : Slice) (lstart : String.Pos.Raw) (rstart : String.Pos.Raw)
     (len : Nat) (h1 : lstart.increaseBy len ≤ lhs.rawEndPos)
     (h2 : rstart.increaseBy len ≤ rhs.rawEndPos) : Bool :=
-  memcmpStr
-    lhs.str
-    rhs.str
-    (lstart.offsetBy lhs.startInclusive.offset)
-    (rstart.offsetBy rhs.startInclusive.offset)
-    len
-    (by
-      have := lhs.startInclusive_le_endExclusive
-      have := lhs.endExclusive.isValid.le_utf8ByteSize
-      simp [String.Pos.le_iff, Pos.Raw.le_iff, Slice.utf8ByteSize_eq,
-        -String.Pos.byteIdx_offset_le_utf8ByteSize] at *
-      omega)
-    (by
-      have := rhs.startInclusive_le_endExclusive
-      have := rhs.endExclusive.isValid.le_utf8ByteSize
-      simp [String.Pos.le_iff, Pos.Raw.le_iff, Slice.utf8ByteSize_eq,
-        -String.Pos.byteIdx_offset_le_utf8ByteSize] at *
-      omega)
+  memcmpStr lhs.str rhs.str (lstart.offsetBy lhs.startInclusive.offset)
+    (rstart.offsetBy rhs.startInclusive.offset) len (offsetBy_increaseBy_le_rawEndPos_str h1)
+    (offsetBy_increaseBy_le_rawEndPos_str h2)
+
+@[inline]
+def memcmpSliceLt (lhs rhs : Slice) (lstart : String.Pos.Raw) (rstart : String.Pos.Raw)
+    (len : Nat) (h1 : lstart.increaseBy len ≤ lhs.rawEndPos)
+    (h2 : rstart.increaseBy len ≤ rhs.rawEndPos) : Bool :=
+  memcmpStrLt lhs.str rhs.str (lstart.offsetBy lhs.startInclusive.offset)
+    (rstart.offsetBy rhs.startInclusive.offset) len (offsetBy_increaseBy_le_rawEndPos_str h1)
+    (offsetBy_increaseBy_le_rawEndPos_str h2)
 
 end Internal
 

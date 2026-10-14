@@ -6,9 +6,11 @@ import all Init.Data.String.Pattern.Memcmp
 Checks that the `memcmp`-based runtime implementations of `memcmpStr`, `memcmpStrLt` and
 `memcmpStrCompare` agree with their Lean definitions, with the byte-level specifications in
 `memcmpStr_eq_true_iff`, `memcmpStrLt_eq_true_iff` and `memcmpStrCompare_eq_compare`, and with an
-independent reference implementation. The inputs include bytes on both sides of the boundary between
-`0x7f` and `0x80`, ranges that start or end in the middle of a UTF-8 character, and long ranges that
-differ at word and vector boundaries.
+independent reference implementation, and that `memcmpSlice`, `memcmpSliceLt` and
+`memcmpSliceCompare` agree with them on slices that do not start at the beginning of their
+underlying strings. The inputs include bytes on both sides of the boundary between `0x7f` and
+`0x80`, ranges that start or end in the middle of a UTF-8 character, and long ranges that differ at
+word and vector boundaries.
 -/
 
 open String.Slice.Pattern.Internal
@@ -51,6 +53,25 @@ abbrev MemcmpFn (α : Type) :=
     lt := decide (a < b)
     cmp := compare a b }
 
+/-- A slice with contents `s` that does not start at the beginning of its underlying string. -/
+def embed (s : String) : String.Slice :=
+  (("x" ++ s ++ "yz").toSlice.drop 1).dropEnd 2
+
+/-- Calls the `Slice` variants on slices of other strings with the same contents. -/
+@[noinline] def viaSlices (lhs rhs : String) (lstart rstart : String.Pos.Raw) (len : Nat) :
+    Option Results :=
+  let ls := embed lhs
+  let rs := embed rhs
+  if h₁ : lstart.increaseBy len ≤ ls.rawEndPos then
+    if h₂ : rstart.increaseBy len ≤ rs.rawEndPos then
+      some { eq := memcmpSlice ls rs lstart rstart len h₁ h₂
+             lt := memcmpSliceLt ls rs lstart rstart len h₁ h₂
+             cmp := memcmpSliceCompare ls rs lstart rstart len h₁ h₂ }
+    else
+      none
+  else
+    none
+
 def refCompare : List UInt8 → List UInt8 → Ordering
   | [], [] => .eq
   | [], _ :: _ => .lt
@@ -83,6 +104,11 @@ def check (lhs rhs : String) (lstart rstart len : Nat) : StateM Stats Unit := do
         let r := f lhs rhs ⟨lstart⟩ ⟨rstart⟩ len h₁ h₂
         unless r == expected do
           fail s!"{name} disagrees with reference on {args}:\n{repr r}\nexpected\n{repr expected}"
+      match viaSlices lhs rhs ⟨lstart⟩ ⟨rstart⟩ len with
+      | some r =>
+        unless r == expected do
+          fail s!"slices disagree with reference on {args}:\n{repr r}\nexpected\n{repr expected}"
+      | none => fail s!"slices out of bounds: {args}"
       match expected.cmp with
       | .lt => modify fun s => { s with lt := s.lt + 1 }
       | .eq => modify fun s => { s with eq := s.eq + 1 }

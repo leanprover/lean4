@@ -34,3 +34,4 @@ public import Init.Data.String.Hashable
 public import Init.Data.String.Length
 public import Init.Data.String.Csimp
 public import Init.Data.String.Lossy
+public import Init.Data.String.Compare

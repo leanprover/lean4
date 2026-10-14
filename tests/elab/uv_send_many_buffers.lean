@@ -38,17 +38,16 @@ def tcpSendAll (n : Nat) : IO Unit := do
   let addr ← server.getSockName
 
   let data := chunks n
-  let sender ← (show Async Unit from do
+  -- Sequential, so a failing step throws instead of leaving the other side waiting. The connection
+  -- completes in the listen backlog and the data fits in the socket buffers.
+  let received ← runAsync do
     let client ← TCP.Socket.Client.mk
     client.connect addr
-    client.sendAll data
-    client.shutdown).toIO
-
-  let received ← runAsync do
     let peer ← server.accept
+    client.sendAll data
+    client.shutdown
     recvAll peer .empty
 
-  sender.block
   assertBEq received.toList (concat data).toList
 
 #eval tcpSendAll 1

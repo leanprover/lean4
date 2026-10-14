@@ -2215,9 +2215,7 @@ def mkModuleData (env : Environment) (level : OLeanLevel := .private)
     kenv.constants.foldStage2 (fun cs _ c => cs.push c) #[]
   else
     constNames.filterMap (fun n =>
-        -- Realizations triggered only from other environment branches such as proofs are not
-        -- exported; importers realize them again on demand.
-        env.find? (skipRealize := true) n)
+        env.find? n)
       -- While `constants.foldStage2` itself results in a deterministic ordering, then filtering out
       -- some elements leaves the order of remaining dependent on those filtered elements, which
       -- would make `.olean` output dependent on `.olean.private`, so we re-sort them here.

@@ -1,17 +1,21 @@
-import Schedule
+import Refinement
 
 /-!
-Concrete heaps for the ownership specification of deletion.
+Concrete heaps for the ownership specification of deletion, and for the cascade that implements it.
 
 Fields are occurrences, so repeated pointers still release separate references. Cycles and
 never-freed counts keep their objects, and must not release those objects' fields. `Released`
 rejects a release that reclaims nothing or parks a surviving object at a sticky count, and leaves an
 unreferenced cycle open. The traces show `drain`'s last-in, first-out order, which is not a
-contract: a first-in, first-out schedule below ends in an equivalent state. The file ends with the
-axioms of the headline theorems.
+contract: a first-in, first-out schedule below ends in an equivalent state. The cascade runs on
+layouts that mix immediates, thunk and `Ref` members that are `NULL`, and kinds without members;
+invalid layouts are rejected by `Layout.Valid`, and the heap records a fault. The file ends with
+the axioms of the headline theorems.
 -/
 
 namespace RcGraph.Examples
+
+open Lean.Runtime.Deletion
 
 private def owners (roots fields : Nat) : Ownership roots fields :=
   (List.finRange roots).map Token.root ++ (List.finRange fields).map Token.field
@@ -235,6 +239,165 @@ example : Equiv fifo (deleteRoot siblings (initial siblings st) 0) :=
   (drain_released ⟨by unfold Valid; decide, by unfold QueueSafe; decide, rfl, by decide⟩ 0).2 _
     fifo_steps fifo_stuck
 
+/-! ## The cascade on the runtime's layouts -/
+
+/-- Every object a constructor whose slots are its fields. -/
+private def layout (g : Graph α objects roots fields) : Layout objects fields :=
+  { tag := fun _ => 0, members := fun o => (g.children o).map .field }
+
+private theorem lt_size {n : Nat} (h : n < 4294967296) : n < USize.size := by
+  cases USize.size_eq <;> omega
+
+private theorem layout_valid (g : Graph α objects roots fields) (h : fields < 4294967296) :
+    (layout g).Valid g := by
+  intro o
+  refine ⟨?_, ?_, ?_⟩
+  · simp [layout, List.filterMap_map, Function.comp_def, Member.field?]
+  · simp [layout, shapeOk, hasSlots]
+  · simp only [layout, List.length_map]
+    have := List.length_filter_le (fun f => g.source f == o) (List.finRange fields)
+    exact lt_size (by simp only [Graph.children, List.length_finRange] at this ⊢; omega)
+
+/-- Whether releasing root `r` broke the access protocol. -/
+private def faults (g : Graph α objects roots fields) (l : Layout objects fields)
+    (s : State objects roots fields) (r : Fin roots) : Bool :=
+  (decRoot g l s r).fault
+
+-- The cascade deletes in `drain`'s order, and keeps the protocol.
+#guard trace (collect repeated (layout repeated) (initial repeated st) 0) == [0, 1]
+#guard trace (collect siblings (layout siblings) (initial siblings mt) 0) == [0, 3, 2, 1]
+#guard trace (collect diamond (layout diamond)
+  (collect diamond (layout diamond) (initial diamond st) 0) 1) == [0, 2, 1, 3]
+#guard !faults siblings (layout siblings) (initial siblings mt) 0
+#guard (collect cycle (layout cycle) (initial cycle st) 0).freed.isEmpty
+#guard [0, LEAN_RC_STICKY, LEAN_RC_STICKY_DROP, Int32.minValue].all fun rc =>
+  let s := collect chain (layout chain) (retained rc) 0
+  s.freed.isEmpty && s.own.length == 2 && s.rc 0 == some rc
+
+private def withLayout (g : Graph α objects roots fields) (o : Fin objects) (tag : UInt8)
+    (ms : List (Member fields)) : Layout objects fields :=
+  { tag := fun p => if p = o then tag else (layout g).tag p
+    members := fun p => if p = o then ms else (layout g).members p }
+
+private theorem withLayout_valid (g : Graph α objects roots fields) (o : Fin objects)
+    (tag : UInt8) (ms : List (Member fields)) (h : fields < 4294967296)
+    (hf : ms.filterMap Member.field? = g.children o) (hs : shapeOk tag ms = true)
+    (hn : ms.length < 4294967296) : (withLayout g o tag ms).Valid g := by
+  intro p
+  by_cases hp : p = o
+  · subst hp; simp [withLayout, hf, hs, lt_size hn]
+  · simpa [withLayout, hp] using layout_valid g h p
+
+private def thunkPair : Graph Nat 3 1 2 :=
+  { payload := Fin.val, root := fun _ => 0, source := fun _ => 0
+    target := fun f => ⟨f.val + 1, by omega⟩ }
+
+private def pairLayout := withLayout thunkPair 0 LeanThunk [.field 0, .field 1]
+
+example : pairLayout.Valid thunkPair :=
+  withLayout_valid _ _ _ _ (by decide) (by decide) (by decide) (by decide)
+example : Valid thunkPair (initial thunkPair st) := by unfold Valid; decide
+
+-- Both members hold references; the value is released after the closure.
+#guard trace (collect thunkPair pairLayout (initial thunkPair st) 0) == [0, 2, 1]
+#guard trace (collect thunkPair pairLayout (initial thunkPair mt) 0) == [0, 2, 1]
+#guard (collect thunkPair pairLayout (initial thunkPair st) 0).own.isEmpty
+#guard !faults thunkPair pairLayout (initial thunkPair st) 0
+
+private def thunkSingle : Graph Nat 2 1 1 :=
+  { payload := Fin.val, root := fun _ => 0, source := fun _ => 0, target := fun _ => 1 }
+
+private def unevaluated := withLayout thunkSingle 0 LeanThunk [.field 0, .null]
+private def evaluated := withLayout thunkSingle 0 LeanThunk [.null, .field 0]
+private def refLayout := withLayout thunkSingle 0 LeanRef [.field 0]
+
+example : unevaluated.Valid thunkSingle :=
+  withLayout_valid _ _ _ _ (by decide) (by decide) (by decide) (by decide)
+example : evaluated.Valid thunkSingle :=
+  withLayout_valid _ _ _ _ (by decide) (by decide) (by decide) (by decide)
+example : refLayout.Valid thunkSingle :=
+  withLayout_valid _ _ _ _ (by decide) (by decide) (by decide) (by decide)
+
+#guard trace (collect thunkSingle unevaluated (initial thunkSingle st) 0) == [0, 1]
+#guard trace (collect thunkSingle evaluated (initial thunkSingle mt) 0) == [0, 1]
+#guard trace (collect thunkSingle refLayout (initial thunkSingle st) 0) == [0, 1]
+#guard [unevaluated, evaluated, refLayout].all fun l =>
+  !faults thunkSingle l (initial thunkSingle st) 0
+
+private def leaf : Graph Nat 1 1 0 :=
+  { payload := Fin.val, root := fun _ => 0, source := Fin.elim0, target := Fin.elim0 }
+
+-- `lean_st_ref_take` leaves a `Ref` without a value, and a thunk can have neither member.
+private def emptyRef := withLayout leaf 0 LeanRef [.null]
+private def emptyThunk := withLayout leaf 0 LeanThunk [.null, .null]
+
+example : emptyRef.Valid leaf :=
+  withLayout_valid _ _ _ _ (by decide) (by decide) (by decide) (by decide)
+example : emptyThunk.Valid leaf :=
+  withLayout_valid _ _ _ _ (by decide) (by decide) (by decide) (by decide)
+
+#guard [emptyRef, emptyThunk].all fun l =>
+  trace (collect leaf l (initial leaf st) 0) == [0] && !faults leaf l (initial leaf st) 0
+
+-- Every kind without members is reclaimed by its own terminal effect.
+#guard [LeanPromise, LeanScalarArray, LeanString, LeanMPZ, LeanTask, LeanExternal].all fun t =>
+  let l := withLayout leaf 0 t []
+  trace (collect leaf l (initial leaf st) 0) == [0] && !faults leaf l (initial leaf st) 0
+
+-- Immediates in constructor, closure and array slots hold no references.
+#guard [0, LeanMaxCtorTag, LeanClosure, LeanArray].all fun t =>
+  let l := withLayout leaf 0 t [.scalar, .scalar, .scalar]
+  trace (collect leaf l (initial leaf mt) 0) == [0] && !faults leaf l (initial leaf mt) 0
+
+private def mixedLayout := withLayout siblings 0 LeanArray
+  [.scalar, .field 0, .scalar, .field 1, .field 2, .scalar]
+
+example : mixedLayout.Valid siblings :=
+  withLayout_valid _ _ _ _ (by decide) (by decide) (by decide) (by decide)
+
+#guard trace (collect siblings mixedLayout (initial siblings st) 0) == [0, 3, 2, 1]
+#guard (collect siblings mixedLayout (initial siblings st) 0).own.isEmpty
+
+private def repeatedSlots := withLayout repeated 0 LeanClosure
+  [.scalar, .field 0, .scalar, .field 1, .field 2, .scalar]
+
+private theorem repeatedSlots_valid : repeatedSlots.Valid repeated :=
+  withLayout_valid _ _ _ _ (by decide) (by decide) (by decide) (by decide)
+
+#guard trace (collect repeated repeatedSlots (initial repeated st) 0) == [0, 1]
+#guard trace (collect repeated repeatedSlots (initial repeated mt) 0) == [0, 1]
+
+example : (collect repeated repeatedSlots (initial repeated st) 0).freed.Nodup :=
+  (collect_released _ repeatedSlots_valid
+    ⟨by unfold Valid; decide, by unfold QueueSafe; decide, rfl, by decide⟩ 0).1.nodup
+
+/-! ## Invalid layouts -/
+
+/-- `NULL` in a constructor slot, which the cascade would release as a pointer. -/
+private def nullSlot := withLayout repeated 0 0 [.field 0, .null, .field 1, .field 2]
+
+example : ¬ nullSlot.Valid repeated := fun h => absurd (h 0).2.1 (by decide)
+#guard faults repeated nullSlot (initial repeated st) 0
+
+/-- A thunk with a third member, which the cascade never reads. -/
+private def wideThunk := withLayout repeated 0 LeanThunk [.field 0, .field 1, .field 2]
+
+example : ¬ wideThunk.Valid repeated := fun h => absurd (h 0).2.1 (by decide)
+#guard (collect repeated wideThunk (initial repeated st) 0).own.length == 1
+
+/-- `LeanStructArray` and `LeanReserved`, which no runtime object has. -/
+example : ¬ (withLayout leaf 0 LeanStructArray []).Valid leaf := fun h =>
+  absurd (h 0).2.1 (by decide)
+#guard [LeanStructArray, LeanReserved].all fun t =>
+  let l := withLayout leaf 0 t []
+  faults leaf l (initial leaf st) 0 && (collect leaf l (initial leaf st) 0).freed.isEmpty
+
+/-- Slots in another order than the field occurrences, or one occurrence twice. -/
+example : ¬ (withLayout siblings 0 0 [.field 2, .field 1, .field 0]).Valid siblings := fun h => by
+  have := (h 0).1; revert this; decide
+example : ¬ (withLayout repeated 0 0 [.field 0, .field 0, .field 2]).Valid repeated := fun h => by
+  have := (h 0).1; revert this; decide
+
 /-! ## Axioms -/
 
 /-- info: 'decCascade_eq_decRef' depends on axioms: [propext, Classical.choice, Quot.sound] -/
@@ -255,5 +418,11 @@ info: 'RcGraph.schedule_independent' depends on axioms: [propext, Classical.choi
 info: 'RcGraph.Released.garbage_freed' depends on axioms: [propext, Classical.choice, Quot.sound]
 -/
 #guard_msgs in #print axioms Released.garbage_freed
+
+/-- info: 'RcGraph.collect_released' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs in #print axioms collect_released
+
+/-- info: 'RcGraph.collect_safe' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs in #print axioms collect_safe
 
 end RcGraph.Examples

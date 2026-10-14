@@ -60,7 +60,7 @@ builtin_initialize reducibilityCoreExt : PersistentEnvExtension (Name × Reducib
       r.qsort (fun a b => Name.quickLt a.1 b.1)
     statsFn         := fun s => "reducibility attribute core extension" ++ Format.line ++ "number of local entries: " ++ format s.size
     -- attribute is set by `addPreDefinitions`
-    asyncMode       := .async .asyncEnv
+    asyncMode       := .async .mainEnv
     replay? := some <| fun _oldState newState newItems otherState =>
       newItems.foldl (init := otherState) fun otherState k =>
         if let some v := newState.find? k then

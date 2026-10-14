@@ -3829,7 +3829,7 @@ v___x_1104_ = l_Std_DHashMap_Internal_Raw_u2080_insertIfNew___redArg(v___f_1100_
 v___x_1105_ = lean_array_fget_borrowed(v_decls_1095_, v_idx_1096_);
 if (lean_obj_tag(v___x_1105_) == 2)
 {
-lean_object* v_l_1106_; lean_object* v_r_1107_; lean_object* v___x_1108_; lean_object* v___x_1109_; lean_object* v___y_1111_; uint8_t v___y_1112_; uint8_t v___y_1113_; uint8_t v___y_1137_; lean_object* v___x_1143_; lean_object* v___x_1144_; uint8_t v___x_1145_; 
+lean_object* v_l_1106_; lean_object* v_r_1107_; lean_object* v___x_1108_; lean_object* v___x_1109_; uint8_t v___y_1111_; lean_object* v___y_1112_; uint8_t v___y_1113_; uint8_t v___y_1137_; lean_object* v___x_1143_; lean_object* v___x_1144_; uint8_t v___x_1145_; 
 v_l_1106_ = lean_ctor_get(v___x_1105_, 0);
 v_r_1107_ = lean_ctor_get(v___x_1105_, 1);
 v___x_1108_ = lean_unsigned_to_nat(1u);
@@ -3861,7 +3861,7 @@ lean_inc(v___x_1109_);
 v___x_1117_ = l_Nat_reprFast(v___x_1109_);
 v___x_1118_ = lean_string_append(v___x_1116_, v___x_1117_);
 lean_dec_ref(v___x_1117_);
-v___x_1119_ = l_Std_Sat_AIG_toGraphviz_invEdgeStyle(v___y_1112_);
+v___x_1119_ = l_Std_Sat_AIG_toGraphviz_invEdgeStyle(v___y_1111_);
 v___x_1120_ = lean_string_append(v___x_1118_, v___x_1119_);
 lean_dec_ref(v___x_1119_);
 v___x_1121_ = ((lean_object*)(l_Std_Sat_AIG_toGraphviz_go___redArg___closed__2));
@@ -3869,8 +3869,8 @@ v___x_1122_ = lean_string_append(v___x_1120_, v___x_1121_);
 v___x_1123_ = lean_string_append(v___x_1122_, v___x_1114_);
 lean_dec_ref(v___x_1114_);
 v___x_1124_ = lean_string_append(v___x_1123_, v___x_1115_);
-lean_inc(v___y_1111_);
-v___x_1125_ = l_Nat_reprFast(v___y_1111_);
+lean_inc(v___y_1112_);
+v___x_1125_ = l_Nat_reprFast(v___y_1112_);
 v___x_1126_ = lean_string_append(v___x_1124_, v___x_1125_);
 lean_dec_ref(v___x_1125_);
 v___x_1127_ = l_Std_Sat_AIG_toGraphviz_invEdgeStyle(v___y_1113_);
@@ -3887,7 +3887,7 @@ v_snd_1134_ = lean_ctor_get(v___x_1132_, 1);
 lean_inc(v_snd_1134_);
 lean_dec_ref(v___x_1132_);
 v_acc_1094_ = v_fst_1133_;
-v_idx_1096_ = v___y_1111_;
+v_idx_1096_ = v___y_1112_;
 v_a_1097_ = v_snd_1134_;
 goto _start;
 }
@@ -3903,15 +3903,15 @@ if (v___x_1141_ == 0)
 {
 uint8_t v___x_1142_; 
 v___x_1142_ = 1;
-v___y_1111_ = v___x_1138_;
-v___y_1112_ = v___y_1137_;
+v___y_1111_ = v___y_1137_;
+v___y_1112_ = v___x_1138_;
 v___y_1113_ = v___x_1142_;
 goto v___jp_1110_;
 }
 else
 {
-v___y_1111_ = v___x_1138_;
-v___y_1112_ = v___y_1137_;
+v___y_1111_ = v___y_1137_;
+v___y_1112_ = v___x_1138_;
 v___y_1113_ = v___x_1102_;
 goto v___jp_1110_;
 }

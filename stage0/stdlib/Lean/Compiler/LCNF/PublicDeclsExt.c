@@ -326,7 +326,7 @@ _start:
 {
 lean_object* v___x_93_; uint8_t v_isModule_94_; 
 v___x_93_ = l_Lean_Environment_header(v_env_91_);
-v_isModule_94_ = lean_ctor_get_uint8(v___x_93_, sizeof(void*)*7 + 4);
+v_isModule_94_ = lean_ctor_get_uint8(v___x_93_, sizeof(void*)*8 + 4);
 lean_dec_ref(v___x_93_);
 if (v_isModule_94_ == 0)
 {

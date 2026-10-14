@@ -2095,10 +2095,6 @@ extern "C" LEAN_EXPORT object * lean_mk_ascii_string_unchecked(char const * s) {
     return lean_mk_string_unchecked(s, len, len);
 }
 
-extern "C" LEAN_EXPORT obj_res lean_decode_lossy_utf8(b_obj_arg a) {
-    return lean_mk_string_from_bytes(reinterpret_cast<char *>(lean_sarray_cptr(a)), lean_sarray_size(a));
-}
-
 extern "C" LEAN_EXPORT obj_res lean_string_from_utf8_unchecked(obj_arg a) {
     obj_res ret = lean_mk_string_from_bytes_unchecked(reinterpret_cast<char *>(lean_sarray_cptr(a)), lean_sarray_size(a));
     lean_dec(a);
@@ -2110,10 +2106,11 @@ extern "C" LEAN_EXPORT uint8 lean_string_validate_utf8(b_obj_arg a) {
     return validate_utf8(lean_sarray_cptr(a), lean_sarray_size(a), pos, i);
 }
 
-extern "C" LEAN_EXPORT obj_res lean_string_to_utf8(b_obj_arg s) {
+extern "C" LEAN_EXPORT obj_res lean_string_to_utf8(obj_arg s) {
     size_t sz = lean_string_size(s) - 1;
     obj_res r = lean_alloc_sarray(1, sz, sz);
     memcpy(lean_sarray_cptr(r), lean_string_cstr(s), sz);
+    lean_dec(s);
     return r;
 }
 
@@ -2156,7 +2153,7 @@ extern "C" LEAN_EXPORT obj_res lean_copy_string_nonlinear(obj_arg s, size_t cap)
     return lean_copy_string(s, cap);
 }
 
-extern "C" LEAN_EXPORT object * lean_string_push(object * s, unsigned c) {
+extern "C" LEAN_EXPORT object * lean_string_push_cold(object * s, unsigned c) {
     size_t sz  = lean_string_size(s);
     object * r;
     if (!lean_is_exclusive(s)) {
@@ -2164,11 +2161,7 @@ extern "C" LEAN_EXPORT object * lean_string_push(object * s, unsigned c) {
     } else {
         r = string_ensure_capacity(s, 5);
     }
-    unsigned consumed = push_unicode_scalar(w_string_cstr(r) + sz - 1, c);
-    lean_to_string(r)->m_size   = sz + consumed;
-    lean_to_string(r)->m_length++;
-    w_string_cstr(r)[sz + consumed - 1] = 0;
-    return r;
+    return lean_string_push(r, c);
 }
 
 extern "C" LEAN_EXPORT object * lean_string_append(object * s1, object * s2) {
@@ -2238,23 +2231,6 @@ extern "C" LEAN_EXPORT uint8_t lean_byte_array_compare(b_obj_arg a1, b_obj_arg a
     return 1;
 }
 
-static obj_res string_to_list_core(std::string const & s, bool reverse = false) {
-    std::vector<unsigned> tmp;
-    utf8_decode(s, tmp);
-    if (reverse)
-        std::reverse(tmp.begin(), tmp.end());
-    obj_res  r = lean_box_uint32(0);
-    unsigned i = tmp.size();
-    while (i > 0) {
-        --i;
-        obj_res new_r = lean_alloc_ctor(1, 2, 0);
-        lean_ctor_set(new_r, 0, lean_box_uint32(tmp[i]));
-        lean_ctor_set(new_r, 1, r);
-        r = new_r;
-    }
-    return r;
-}
-
 extern "C" LEAN_EXPORT obj_res lean_string_mk(obj_arg cs) {
     std::string s;
     b_obj_arg o = cs;
@@ -2266,12 +2242,6 @@ extern "C" LEAN_EXPORT obj_res lean_string_mk(obj_arg cs) {
     }
     lean_dec(cs);
     return lean_mk_string_unchecked(s.data(), s.size(), len);
-}
-
-extern "C" LEAN_EXPORT obj_res lean_string_data(obj_arg s) {
-    std::string tmp = string_to_std(s);
-    lean_dec_ref(s);
-    return string_to_list_core(tmp);
 }
 
 static bool lean_string_utf8_get_core(char const * str, usize size, usize i, uint32 & result) {

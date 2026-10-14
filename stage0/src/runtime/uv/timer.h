@@ -14,13 +14,13 @@ Author: Sofia Rodrigues, Henrik Böving
 
 namespace lean {
 
-static lean_external_class * g_uv_timer_external_class = NULL;
+inline lean_external_class * g_uv_timer_external_class = nullptr;
 void initialize_libuv_timer();
 
 #ifndef LEAN_EMSCRIPTEN
 using namespace std;
 
-enum uv_timer_state {
+enum timer_state {
     TIMER_STATE_INITIAL,
     TIMER_STATE_RUNNING,
     TIMER_STATE_FINISHED,
@@ -29,14 +29,18 @@ enum uv_timer_state {
 // Structure for managing a single UV timer object, including promise handling, timeout, and
 // repeating behavior.
 typedef struct {
-    uv_timer_t *    m_uv_timer;    // LibUV timer handle.
+    uv_timer_t      m_uv_timer;    // LibUV timer handle.
     lean_object *   m_promise;     // The associated promise for asynchronous results.
     uint64_t        m_timeout;     // Timeout duration in milliseconds.
     bool            m_repeating;   // Flag indicating if the timer is repeating.
-    uv_timer_state  m_state;       // The state of the timer. Beyond the API description on the Lean
-                                   // side this state has the invariant:
-                                   // `m_state != TIMER_STATE_INITIAL` -> `m_promise != NULL`
+    timer_state     m_state;       // The state of the timer.
 } lean_uv_timer_object;
+
+// `m_promise` may be NULL in any state: `stop` leaves a FINISHED timer without one, and a tick or
+// `cancel` leaves a repeating timer RUNNING without one.
+//
+// The event loop holds a reference to the timer object exactly while it is RUNNING with a non-NULL
+// `m_promise`.
 
 // =======================================
 // Timer object manipulation functions.

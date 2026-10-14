@@ -11,6 +11,7 @@ import Init.Data.Int.OfNat
 import Init.Data.UInt.Lemmas
 public import Init.Data.String.Modify
 import Init.Data.String.Lemmas.Modify
+public import Init.Data.String.Csimp
 
 @[expose]
 public section

@@ -223,7 +223,7 @@ def Goal.lastDecl? (goal : Goal) : MetaM (Option LocalDecl) := do
 
 namespace Action
 
-private def applyCases? (goal : Goal) (fvarId : FVarId) (kp : ActionCont) : GrindM (Option ActionResult) := goal.withContext do
+private def applyCases? (goal : Goal) (fvarId : FVarId) (generation : Nat) (kp : ActionCont) : GrindM (Option ActionResult) := goal.withContext do
   /-
   Remark: we used to use `whnfD`. This was a mistake, we don't want to unfold user-defined abstractions.
   Example: `a ∣ b` is defined as `∃ x, b = a * x`
@@ -232,8 +232,21 @@ private def applyCases? (goal : Goal) (fvarId : FVarId) (kp : ActionCont) : Grin
   unless (← isEagerCasesCandidate type) do return none
   if (← cheapCasesOnly) then
     unless (← isCheapInductive type) do return none
-  if let .const declName _ := type.getAppFn then
-    saveCases declName
+  let .const declName _ := type.getAppFn | return none
+  saveCases declName
+  let goal ← if !isBuiltinEagerCases declName && (← isProp type) then
+    /-
+    `cases` only exposes the constructor fields. For a user-defined inductive predicate there is
+    no propagator that recovers the proposition from its fields, so it must be asserted as well,
+    e.g., `h : P` and `¬P` where `P` has field-less constructors. The split is performed right
+    below, so it must not be selected again during the search.
+    -/
+    GoalM.run' goal do
+      addHypothesis fvarId generation
+      markCaseSplitAsResolved (← fvarId.getType)
+  else
+    pure goal
+  if goal.inconsistent then return some (← kp goal)
   let mvarIds ← cases goal.mvarId (mkFVar fvarId)
   let subgoals := mvarIds.map fun mvarId => { goal with mvarId }
   let mut seqNew : Array (TSyntax `grind) := #[]
@@ -266,14 +279,14 @@ def intro (generation : Nat) : Action := fun goal kna kp => do
     | .newDepHyp goal =>
       kp goal
     | .newLocal fvarId goal =>
-      if let some result ← applyCases? goal fvarId kp then
+      if let some result ← applyCases? goal fvarId generation kp then
         return result
       else
         kp goal
     | .newHyp fvarId goal =>
       if let some goal ← applyInjection? goal fvarId then
         kp goal
-      else if let some result ← applyCases? goal fvarId kp then
+      else if let some result ← applyCases? goal fvarId generation kp then
         return result
       else
         let goal ← GoalM.run' goal <| addHypothesis fvarId generation
@@ -322,8 +335,8 @@ end Action
 /-
 Creates an action that tries all solver extensions using `Action.andAlso`,
 then drains the `newRawFacts` queue via `assertAll`.
-The `assertAll` step is necessary because `processNewFacts` (called by `solverAction` on the
-`.propagated` path) drains the `newFacts` queue (equations and propositions for the e-graph),
+The `assertAll` step is necessary because `processToDo` (called by `solverAction` on the
+`.propagated` path) drains the `toProcess` queue (equations, propositions, and propagations for the e-graph),
 but the resulting propagation cascade (e.g., congruence closure, or-propagation,
 `propagateForallPropDown`) can call `addNewRawFact`, which enqueues to the separate
 `newRawFacts` queue. Without this step, these raw facts are never asserted. See issue #12581.

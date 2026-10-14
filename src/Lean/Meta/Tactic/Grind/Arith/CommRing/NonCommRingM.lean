@@ -12,8 +12,6 @@ open Sym.Arith
 
 structure NonCommRingM.Context where
   ringId : Nat
-  /-- Generation assigned to terms internalized while reifying (see `ncreify?`). -/
-  gen : Nat := 0
 
 /-- We don't want to keep carrying the `RingId` around. -/
 abbrev NonCommRingM := ReaderT NonCommRingM.Context GoalM
@@ -74,7 +72,7 @@ instance : MonadSetTermId NonCommRingM where
 instance : MonadMkVar NonCommRingM where
   mkVar e := do
     unless (← alreadyInternalized e) do
-      internalize e (← read).gen
+      throwError "`grind` internal error, ring term has not been internalized{indentExpr e}"
     mkVarCore e
 
 end Lean.Meta.Grind.Arith.CommRing

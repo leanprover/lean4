@@ -3072,9 +3072,9 @@ if (v___x_931_ == 0)
 {
 lean_object* v___x_932_; 
 v___x_932_ = lean_array_push(v_fst_927_, v_val_929_);
-v___y_876_ = v___x_914_;
-v___y_877_ = v_fst_928_;
-v___y_878_ = v_flags_893_;
+v___y_876_ = v_flags_893_;
+v___y_877_ = v___x_914_;
+v___y_878_ = v_fst_928_;
 v___y_879_ = v_flags_904_;
 v_entries_880_ = v___x_932_;
 goto v___jp_875_;
@@ -3082,9 +3082,9 @@ goto v___jp_875_;
 else
 {
 lean_dec(v_val_929_);
-v___y_876_ = v___x_914_;
-v___y_877_ = v_fst_928_;
-v___y_878_ = v_flags_893_;
+v___y_876_ = v_flags_893_;
+v___y_877_ = v___x_914_;
+v___y_878_ = v_fst_928_;
 v___y_879_ = v_flags_904_;
 v_entries_880_ = v_fst_927_;
 goto v___jp_875_;
@@ -3099,9 +3099,9 @@ lean_dec_ref(v___x_923_);
 v_fst_934_ = lean_ctor_get(v_snd_925_, 0);
 lean_inc(v_fst_934_);
 lean_dec(v_snd_925_);
-v___y_876_ = v___x_914_;
-v___y_877_ = v_fst_934_;
-v___y_878_ = v_flags_893_;
+v___y_876_ = v_flags_893_;
+v___y_877_ = v___x_914_;
+v___y_878_ = v_fst_934_;
 v___y_879_ = v_flags_904_;
 v_entries_880_ = v_fst_933_;
 goto v___jp_875_;
@@ -3197,10 +3197,10 @@ v___jp_875_:
 size_t v_sz_881_; size_t v___x_882_; lean_object* v___x_883_; lean_object* v___x_884_; 
 v_sz_881_ = lean_array_size(v_entries_880_);
 v___x_882_ = ((size_t)0ULL);
-v___x_883_ = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00__private_Lean_Compiler_NameDemangling_0__Lean_Name_Demangle_postprocessNameParts_spec__5(v___x_851_, v_entries_880_, v_sz_881_, v___x_882_, v___y_878_);
+v___x_883_ = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00__private_Lean_Compiler_NameDemangling_0__Lean_Name_Demangle_postprocessNameParts_spec__5(v___x_851_, v_entries_880_, v_sz_881_, v___x_882_, v___y_876_);
 lean_dec_ref(v_entries_880_);
-v___x_884_ = l_Array_append___redArg(v___y_876_, v___y_877_);
-lean_dec(v___y_877_);
+v___x_884_ = l_Array_append___redArg(v___y_877_, v___y_878_);
+lean_dec(v___y_878_);
 v___y_868_ = v___y_879_;
 v_parts_869_ = v___x_884_;
 v_specEntries_870_ = v___x_883_;

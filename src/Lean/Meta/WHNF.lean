@@ -14,6 +14,7 @@ public import Lean.Meta.CtorRecognizer
 public import Lean.Meta.Match.MatcherInfo
 public import Lean.Meta.Match.MatchPatternAttr
 public import Lean.Meta.Transform
+import Init.Data.String.Csimp
 import Init.Data.Range.Polymorphic.Iterators
 
 public section

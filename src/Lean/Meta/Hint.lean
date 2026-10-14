@@ -10,6 +10,7 @@ prelude
 
 public import Lean.Meta.TryThis
 public import Lean.Util.Diff
+import Init.Data.String.Csimp
 
 public section
 

@@ -396,7 +396,7 @@ _start:
 {
 lean_object* v___y_127_; lean_object* v___x_130_; uint8_t v_debug_131_; 
 v___x_130_ = lean_st_ref_get(v___y_120_);
-v_debug_131_ = lean_ctor_get_uint8(v___x_130_, sizeof(void*)*11);
+v_debug_131_ = lean_ctor_get_uint8(v___x_130_, sizeof(void*)*12);
 lean_dec(v___x_130_);
 if (v_debug_131_ == 0)
 {

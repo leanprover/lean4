@@ -49,7 +49,7 @@ lean_object* lean_nat_to_int(lean_object*);
 lean_object* l_String_quote(lean_object*);
 lean_object* lean_string_length(lean_object*);
 lean_object* l_Std_Http_Headers_toArray(lean_object*);
-lean_object* lean_string_data(lean_object*);
+lean_object* l_String_toListImpl(lean_object*);
 lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_panic_fn_borrowed(lean_object*, lean_object*);
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
@@ -1099,7 +1099,7 @@ _start:
 {
 lean_object* v___x_321_; uint8_t v___x_322_; 
 lean_inc_ref(v_s_320_);
-v___x_321_ = lean_string_data(v_s_320_);
+v___x_321_ = l_String_toListImpl(v_s_320_);
 v___x_322_ = l_List_all___at___00Std_Http_Chunk_ExtensionValue_ofString_x3f_spec__0(v___x_321_);
 lean_dec(v___x_321_);
 if (v___x_322_ == 0)

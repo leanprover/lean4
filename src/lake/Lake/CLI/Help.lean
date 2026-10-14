@@ -387,6 +387,16 @@ OPTIONS:
   --keep-public         Preserve all `public` imports for API stability
   --add-public          Add new imports as `public` if they were in the
                         original public closure
+  --add-downstream <MODULE>
+                        Add the module as an `import` to every checked
+                        module that does not reach it yet, except where
+                        that would create an import cycle
+  --add-public-downstream <MODULE>
+                        Like `--add-downstream`, but add the module as a
+                        `public import` wherever it is not reached through
+                        public imports yet. As these are passed on to
+                        importing modules, this adds far fewer imports.
+                        Only one of these two options can be used, once
   --explain             Show which constants require each import
   --fix                 Apply suggested fixes directly to source files
   --gh-style            Output in GitHub problem matcher format

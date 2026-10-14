@@ -54,9 +54,12 @@ protected def EqCnstr.compare (c₁ c₂ : EqCnstr) : Ordering :=
 abbrev Queue : Type := Std.TreeSet EqCnstr EqCnstr.compare
 
 /--
-A polynomial equipped with a chain of rewrite steps that justifies its equality to the original input.
-From an input polynomial `p`, we use equations (i.e., `EqCnstr`) as rewriting rules.
-For example, consider the following sequence of rewrites for the input polynomial `x^2 + x*y`
+A polynomial `p` equipped with a chain of rewrite steps that justifies `p = C * input`, where
+`input` is the original polynomial and `C` is the product of the multipliers `k₁` of the
+`.step`s in the chain (`C = 1` when every step is monic). `C ≠ 1` is possible in any ring,
+including those with `NoNatZeroDivisors`; the instance only lets `C` be cancelled.
+From an input polynomial, we use equations (i.e., `EqCnstr`) as rewriting rules.
+For example, consider the following sequence of rewrites for the input polynomial `2*x^2 + x*y`
 using the equations `x - 1 = 0` (`c₁`) and `y - 2 = 0` (`c₂`).
 ```
 2*x^2 + x*y                  | s₁ := .input (2*x^2 + x*y)
@@ -67,7 +70,7 @@ using the equations `x - 1 = 0` (`c₁`) and `y - 2 = 0` (`c₂`).
 =           - 1*y*(x - 1)
 (y + 2)                      | s₄ := .step (y+2) 1 s₃ (-1) y c₁
 =           - 1*1*(y - 2)
-4                            | s₅ := .step 4 1 s₄ 1 1 c₂
+4                            | s₅ := .step 4 1 s₄ (-1) 1 c₂
 ```
 From the chain above, we build the certificate
 ```
@@ -83,12 +86,15 @@ inductive PolyDerivation where
   | input (p : Poly)
   | /--
     ```
-    p = k₁*d.getPoly + k₂*m₂*c.p
+    p = k₁*d.p + k₂*m₂*c.p
     ```
     The coefficient `k₁` is used because the leading monomial in `c` may not be monic.
     Thus, if we follow the chain back to the input polynomial, we have that
     `p = C * input_p` for a `C` that is equal to the product of all `k₁`s in the chain.
-    We have that `C ≠ 1` only if the ring does not implement `NoNatZeroDivisors`.
+    `C ≠ 1` can happen in any ring, but `C` can be cancelled only if the ring implements
+    `NoNatZeroDivisors`. That is, `p = 0` implies `input_p = 0` only if `C = 1` or the ring
+    implements `NoNatZeroDivisors`. Simplifying with `checkCoeffDvd := true` guarantees
+    `C = 1` in rings without `NoNatZeroDivisors`, see `Mon.findSimp?`.
     Here is a small example where we simplify `x+y` using the equations
     `2*x - 1 = 0` (`c₁`), `3*y - 1 = 0` (`c₂`), and `6*z + 5 = 0` (`c₃`)
     ```
@@ -120,7 +126,7 @@ inductive PolyDerivation where
   | /--
     Given `c.p == .num k`
     ```
-    p = d.getPoly.normEq0 k
+    p = d.p.normEq0 k
     ```
     -/
     normEq0 (p : Poly) (d : PolyDerivation) (c : EqCnstr)

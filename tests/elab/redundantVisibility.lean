@@ -38,6 +38,12 @@ set_option linter.missingDocs false in
 public def qux2 := 5
 end
 
+-- `public` on an `example` should not warn: examples are private unless marked `public`
+public section
+#guard_msgs in
+public example : qux = 4 := rfl
+end
+
 -- disabling the linter should suppress the warning
 #guard_msgs in
 set_option linter.redundantVisibility false in

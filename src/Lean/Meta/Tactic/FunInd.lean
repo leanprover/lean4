@@ -212,7 +212,7 @@ def lambdaTelescope1 {n} [MonadControlT MetaM n] [MonadError n] [MonadNameGenera
     k xs[0]!.fvarId! body
 
 /-- There are multiple variants of this function around in the code base, maybe unify at some point. -/
-private def elimTypeAnnotations (type : Expr) : CoreM Expr := do
+def elimTypeAnnotations (type : Expr) : CoreM Expr := do
   Core.transform type fun e =>
     if e.isOptParam || e.isAutoParam then
       return .visit e.appFn!.appArg!

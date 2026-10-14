@@ -517,7 +517,7 @@ In such cases, the offending variable declaration should be moved down or into a
 only theorems that do depend on it follow it until the end of the section.
 -/
 @[builtin_command_parser] def «variable»     := leading_parser
-  "variable" >> many1 (ppSpace >> checkColGt >> Term.bracketedBinder)
+  optional visibility >> "variable" >> many1 (ppSpace >> checkColGt >> Term.bracketedBinder)
 /-- Declares one or more universe variables.
 
 `universe u v`

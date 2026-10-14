@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Http.Internal.String
-// Imports: import Init.Grind public import Init.Data.String.TakeDrop public import Std.Http.Internal.Char
+// Imports: import Init.Grind public import Init.Data.String.TakeDrop public import Std.Http.Internal.Char import Init.Data.String.Csimp
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -19,7 +19,7 @@ lean_object* lean_string_utf8_next_fast(lean_object*, lean_object*);
 uint8_t lean_uint32_dec_eq(uint32_t, uint32_t);
 lean_object* lean_string_push(lean_object*, uint32_t);
 uint8_t lean_uint32_dec_le(uint32_t, uint32_t);
-lean_object* lean_string_data(lean_object*);
+lean_object* l_String_toListImpl(lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
 uint8_t l_List_isEmpty___redArg(lean_object*);
 lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -544,7 +544,7 @@ _start:
 {
 lean_object* v_sl_145_; uint8_t v___y_151_; uint8_t v___x_152_; 
 lean_inc_ref(v_s_144_);
-v_sl_145_ = lean_string_data(v_s_144_);
+v_sl_145_ = l_String_toListImpl(v_s_144_);
 v___x_152_ = l_List_all___at___00Std_Http_Internal_quoteHttpString_spec__1(v_sl_145_);
 if (v___x_152_ == 0)
 {
@@ -767,7 +767,7 @@ _start:
 {
 lean_object* v___x_208_; uint8_t v___x_209_; 
 lean_inc_ref(v_s_207_);
-v___x_208_ = lean_string_data(v_s_207_);
+v___x_208_ = l_String_toListImpl(v_s_207_);
 v___x_209_ = l_List_all___at___00Std_Http_Internal_quoteHttpString_x3f_spec__0(v___x_208_);
 lean_dec(v___x_208_);
 if (v___x_209_ == 0)
@@ -802,7 +802,7 @@ _start:
 lean_object* v___x_219_; lean_object* v___x_220_; lean_object* v___x_221_; lean_object* v___x_222_; lean_object* v___x_223_; lean_object* v___x_224_; 
 v___x_219_ = ((lean_object*)(l_Std_Http_Internal_quoteHttpString_x21___closed__2));
 v___x_220_ = lean_unsigned_to_nat(12u);
-v___x_221_ = lean_unsigned_to_nat(83u);
+v___x_221_ = lean_unsigned_to_nat(84u);
 v___x_222_ = ((lean_object*)(l_Std_Http_Internal_quoteHttpString_x21___closed__1));
 v___x_223_ = ((lean_object*)(l_Std_Http_Internal_quoteHttpString_x21___closed__0));
 v___x_224_ = l_mkPanicMessageWithDecl(v___x_223_, v___x_222_, v___x_221_, v___x_220_, v___x_219_);
@@ -1973,7 +1973,7 @@ LEAN_EXPORT uint8_t l_Std_Http_Internal_isToken(lean_object* v_s_579_){
 _start:
 {
 lean_object* v_s_580_; uint8_t v___x_581_; 
-v_s_580_ = lean_string_data(v_s_579_);
+v_s_580_ = l_String_toListImpl(v_s_579_);
 v___x_581_ = l_List_isEmpty___redArg(v_s_580_);
 if (v___x_581_ == 0)
 {
@@ -2003,6 +2003,7 @@ return v_r_586_;
 lean_object* runtime_initialize_Init_Grind(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_String_TakeDrop(uint8_t builtin);
 lean_object* runtime_initialize_Std_Http_Internal_Char(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_String_Csimp(uint8_t builtin);
 void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Std_Http_Internal_String(uint8_t builtin) {
@@ -2019,6 +2020,9 @@ lean_dec_ref(res);
 res = runtime_initialize_Std_Http_Internal_Char(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+res = runtime_initialize_Init_Data_String_Csimp(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
 }
 static bool _G_meta_initialized = false;
@@ -2031,6 +2035,7 @@ return lean_io_result_mk_ok(lean_box(0));
 lean_object* initialize_Init_Grind(uint8_t builtin);
 lean_object* initialize_Init_Data_String_TakeDrop(uint8_t builtin);
 lean_object* initialize_Std_Http_Internal_Char(uint8_t builtin);
+lean_object* initialize_Init_Data_String_Csimp(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Std_Http_Internal_String(uint8_t builtin) {
 lean_object * res;
@@ -2043,6 +2048,9 @@ res = initialize_Init_Data_String_TakeDrop(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Std_Http_Internal_Char(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_String_Csimp(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Std_Http_Internal_String(builtin);

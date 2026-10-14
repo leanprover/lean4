@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Data.Html
-// Imports: public import Lean.Data.Html.Basic public import Lean.Data.Html.Printer
+// Imports: public import Lean.Data.Html.Basic public import Lean.Data.Html.CharRef public import Lean.Data.Html.Elab public import Lean.Data.Html.Printer public import Lean.Data.Html.Syntax
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -14,7 +14,10 @@
 extern "C" {
 #endif
 lean_object* runtime_initialize_Lean_Data_Html_Basic(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Data_Html_CharRef(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Data_Html_Elab(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Data_Html_Printer(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Data_Html_Syntax(uint8_t builtin);
 void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Data_Html(uint8_t builtin) {
@@ -25,7 +28,16 @@ lean_initialize_runtime_module();
 res = runtime_initialize_Lean_Data_Html_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+res = runtime_initialize_Lean_Data_Html_CharRef(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Data_Html_Elab(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 res = runtime_initialize_Lean_Data_Html_Printer(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Data_Html_Syntax(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
@@ -38,7 +50,10 @@ _G_meta_initialized = true;
 return lean_io_result_mk_ok(lean_box(0));
 }
 lean_object* initialize_Lean_Data_Html_Basic(uint8_t builtin);
+lean_object* initialize_Lean_Data_Html_CharRef(uint8_t builtin);
+lean_object* initialize_Lean_Data_Html_Elab(uint8_t builtin);
 lean_object* initialize_Lean_Data_Html_Printer(uint8_t builtin);
+lean_object* initialize_Lean_Data_Html_Syntax(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Data_Html(uint8_t builtin) {
 lean_object * res;
@@ -47,7 +62,16 @@ _G_initialized = true;
 res = initialize_Lean_Data_Html_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+res = initialize_Lean_Data_Html_CharRef(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Data_Html_Elab(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 res = initialize_Lean_Data_Html_Printer(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Data_Html_Syntax(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Lean_Data_Html(builtin);

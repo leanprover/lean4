@@ -94,7 +94,7 @@ private def tryCommRingQ? (type base semiringInst commSemiringInst : Expr) : Sym
   return some id
 
 private def tryCommRingCore? (type : Expr) : SymM (Option Nat) := do
-  let u ← getDecLevel type
+  let some u ← getDecLevel? type | return none
   let commRing := mkApp (mkConst ``Grind.CommRing [u]) type
   let some commRingInst ← Sym.synthInstance? commRing | return none
   let ringInst := mkApp2 (mkConst ``Grind.CommRing.toRing [u]) type commRingInst
@@ -126,7 +126,7 @@ private def tryCommRing? (type : Expr) : SymM (Option Nat) := do
 
 /-- Try to classify `type` as a non-commutative `Ring`. -/
 private def tryNonCommRing? (type : Expr) : SymM (Option Nat) := do
-  let u ← getDecLevel type
+  let some u ← getDecLevel? type | return none
   let ring := mkApp (mkConst ``Grind.Ring [u]) type
   let some ringInst ← Sym.synthInstance? ring | return none
   let semiringInst := mkApp2 (mkConst ``Grind.Ring.toSemiring [u]) type ringInst
@@ -153,7 +153,7 @@ private def tryCacheAndCommRing? (type : Expr) : SymM (Option Nat) := do
 
 /-- Try to classify `type` as a `CommSemiring`. Creates the `OfSemiring.Q` envelope ring. -/
 private def tryCommSemiring? (type : Expr) : SymM (Option Nat) := do
-  let u ← getDecLevel type
+  let some u ← getDecLevel? type | return none
   let commSemiring := mkApp (mkConst ``Grind.CommSemiring [u]) type
   let some commSemiringInst ← Sym.synthInstance? commSemiring | return none
   let semiringInst := mkApp2 (mkConst ``Grind.CommSemiring.toSemiring [u]) type commSemiringInst
@@ -174,7 +174,7 @@ private def tryCommSemiring? (type : Expr) : SymM (Option Nat) := do
 
 /-- Try to classify `type` as a non-commutative `Semiring`. -/
 private def tryNonCommSemiring? (type : Expr) : SymM (Option Nat) := do
-  let u ← getDecLevel type
+  let some u ← getDecLevel? type | return none
   let semiring := mkApp (mkConst ``Grind.Semiring [u]) type
   let some semiringInst ← Sym.synthInstance? semiring | return none
   let id := (← getArithState).ncSemirings.size

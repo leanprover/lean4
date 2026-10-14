@@ -1,0 +1,30 @@
+Input: "Use {name\nmore text in the same paragraph.\n\nNext\n"
+Failure: unexpected newline; expected positional argument, named argument, flag, or '}' (use '\{' for a literal '{')
+ --> 1:9
+  |
+1 | Use {name
+  |          ^
+  = consumed input prefix: 9 bytes
+Final stack:
+  (Lean.Doc.Parser.document
+   [(Lean.Doc.Parser.Block.para
+     [(Lean.Doc.Parser.Inline.text
+       (Lean.Doc.Parser.versoText "Use "))
+      (Lean.Doc.Parser.Inline.role
+       "{"
+       `name
+       []
+       <missing>
+       []
+       []
+       [])
+      (Lean.Doc.Parser.Inline.linebreak "\n")
+      (Lean.Doc.Parser.Inline.text
+       (Lean.Doc.Parser.versoText
+        "more text in the same paragraph."))])
+    (Lean.Doc.Parser.Block.para
+     [(Lean.Doc.Parser.Inline.text
+       (Lean.Doc.Parser.versoText "Next"))
+      (Lean.Doc.Parser.Inline.linebreak "\n")])])
+All input consumed.
+Round-trip not reproduced, as the parse reported errors: leaf without original source info: <missing>

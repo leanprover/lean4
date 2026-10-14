@@ -4584,8 +4584,8 @@ return v___x_1433_;
 else
 {
 lean_object* v_a_1442_; lean_object* v___x_1444_; uint8_t v_isShared_1445_; uint8_t v_isSharedCheck_1449_; 
-lean_dec(v_val_1376_);
 lean_dec_ref_known(v_a_1372_, 1);
+lean_dec(v_val_1376_);
 lean_del_object(v___x_1367_);
 lean_dec(v_v_1364_);
 lean_dec(v_k_1363_);

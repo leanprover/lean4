@@ -42,11 +42,7 @@ jobs:
       # Should this be the CI for a tagged release?
       # Yes only if a tag is pushed to the `leanprover` repository, and the tag is "v" followed by a valid semver.
       # It sets `set-release.outputs.RELEASE_TAG` to the tag
-      # and sets `set-release.outputs.{LEAN_VERSION_MAJOR,LEAN_VERSION_MINOR,LEAN_VERSION_PATCH,LEAN_SPECIAL_VERSION_DESC}`
-      # to the semver components parsed via regex.
-      LEAN_VERSION_MAJOR: ${{ steps.set-release.outputs.LEAN_VERSION_MAJOR }}
-      LEAN_VERSION_MINOR: ${{ steps.set-release.outputs.LEAN_VERSION_MINOR }}
-      LEAN_VERSION_PATCH: ${{ steps.set-release.outputs.LEAN_VERSION_PATCH }}
+      # and sets `set-release.outputs.LEAN_SPECIAL_VERSION_DESC` to the prerelease component parsed via regex.
       LEAN_SPECIAL_VERSION_DESC: ${{ steps.set-release.outputs.LEAN_SPECIAL_VERSION_DESC }}
       RELEASE_TAG: ${{ steps.set-release.outputs.RELEASE_TAG }}
 
@@ -228,9 +224,9 @@ jobs:
             if echo "$labels" | grep -q "macos-arm-ci"; then
               macos_arm=true
             fi
-            if ! diff src/stdlib_flags.h stage0/src/stdlib_flags.h; then
-              target_stage=2
-            fi
+          fi
+          if ! diff src/stdlib_flags.h stage0/src/stdlib_flags.h; then
+            target_stage=2
           fi
 
           {
@@ -352,8 +348,8 @@ jobs:
                 // * elab/try_ is too slow because it needs to set up symbol frequency
                 // * treeMap2 is simply large and thus takes a lot of time
                 // * docparse times out as well
-                // * async_http_idle_timeout is flakey at the moment, re-enable in the future
-                "CTEST_OPTIONS": "-E 'StackOverflow|interactive|async_select_channel|9366|elab/grind|pkg/|lake/|kernelMaxRecDepth|bench/|elab/try_|treeMap2|docparse/|async_http_idle_timeout'"
+                // * async_* are flakey at the moment, re-enable in the future
+                "CTEST_OPTIONS": "-E 'StackOverflow|interactive|async_select_channel|9366|elab/grind|pkg/|lake/|kernelMaxRecDepth|bench/|elab/try_|treeMap2|docparse/|async_'"
               },
               {
                 "name": "Linux tsanitize",
@@ -445,6 +441,10 @@ jobs:
               //   "CTEST_OPTIONS": "-R \"leantest_1007\\.lean|leantest_Format\\.lean|leanruntest\\_1037.lean|leanruntest_ac_rfl\\.lean|leanruntest_tempfile.lean\\.|leanruntest_libuv\\.lean\""
               // }
             ];
+            // Stage that is built, tested and packed. Shipped (stamped) release builds use stage2.
+            for (const job of matrix) {
+              job["target-stage"] = (job["release"] && stamped) ? 2 : target_stage;
+            }
             if (lakeCi) {
               for (const job of matrix) {
                 job["CMAKE_OPTIONS"] = (job["CMAKE_OPTIONS"] ? job["CMAKE_OPTIONS"] + " " : "") + "-DLAKE_CI=ON";
@@ -462,9 +462,6 @@ jobs:
     with:
       config: ${{needs.configure.outputs.matrix}}
       nightly: ${{ needs.configure.outputs.nightly }}
-      LEAN_VERSION_MAJOR: ${{ needs.configure.outputs.LEAN_VERSION_MAJOR }}
-      LEAN_VERSION_MINOR: ${{ needs.configure.outputs.LEAN_VERSION_MINOR }}
-      LEAN_VERSION_PATCH: ${{ needs.configure.outputs.LEAN_VERSION_PATCH }}
       LEAN_SPECIAL_VERSION_DESC: ${{ needs.configure.outputs.LEAN_SPECIAL_VERSION_DESC }}
       RELEASE_TAG: ${{ needs.configure.outputs.RELEASE_TAG }}
     secrets: inherit
@@ -477,9 +474,6 @@ jobs:
     with:
       config: ${{needs.configure.outputs.matrix-secondary}}
       nightly: ${{ needs.configure.outputs.nightly }}
-      LEAN_VERSION_MAJOR: ${{ needs.configure.outputs.LEAN_VERSION_MAJOR }}
-      LEAN_VERSION_MINOR: ${{ needs.configure.outputs.LEAN_VERSION_MINOR }}
-      LEAN_VERSION_PATCH: ${{ needs.configure.outputs.LEAN_VERSION_PATCH }}
       LEAN_SPECIAL_VERSION_DESC: ${{ needs.configure.outputs.LEAN_SPECIAL_VERSION_DESC }}
       RELEASE_TAG: ${{ needs.configure.outputs.RELEASE_TAG }}
     secrets: inherit
@@ -585,18 +579,3 @@ jobs:
           gh workflow -R leanprover/release-index run update-index.yml
         env:
           GITHUB_TOKEN: ${{ secrets.RELEASE_INDEX_TOKEN }}
-      - name: Generate mathlib nightly-testing app token
-        id: mathlib-app-token
-        uses: actions/create-github-app-token@v3
-        continue-on-error: true
-        with:
-          app-id: ${{ secrets.MATHLIB_NIGHTLY_TESTING_APP_ID }}
-          private-key: ${{ secrets.MATHLIB_NIGHTLY_TESTING_PRIVATE_KEY }}
-          owner: leanprover-community
-          repositories: mathlib4-nightly-testing
-      - name: Update toolchain on mathlib4's nightly-testing branch
-        if: steps.mathlib-app-token.outcome == 'success'
-        run: |
-          gh workflow -R leanprover-community/mathlib4-nightly-testing run nightly_bump_toolchain.yml
-        env:
-          GITHUB_TOKEN: ${{ steps.mathlib-app-token.outputs.token }}

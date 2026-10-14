@@ -1139,19 +1139,27 @@ private def normalizeContext? (cacheKeyType : Expr) (localInsts : LocalInstances
 end SynthNorm
 
 /--
+The value cached for a search result `abstResult?`, given the result `result?` of applying it to the
+query.
+-/
+private def cacheValue? (kind : PreprocessKind) (abstResult? : Option AbstractMVarsResult)
+    (result? : Option Expr) : Option AbstractMVarsResult :=
+  -- A closed result is stored with an empty `AbstractMVarsResult`, so that
+  -- `applyCachedAbstractResult?` skips the `check`.
+  abstResult?.bind fun abstResult =>
+    if abstResult.numMVars == 0 && abstResult.paramNames.isEmpty && kind matches .noMVars | .mvarsNoOutputParams then
+      result?.map fun result => { expr := result, paramNames := #[], mvars := #[] }
+    else
+      some abstResult
+
+/--
 Helper function for caching synthesized type class instances. With a normalized `cacheKey`
 (`norm?`), the result is also stored under `rawKey`, the key before normalization.
 -/
 private def cacheResult (cacheKey rawKey : SynthInstanceCacheKey) (norm? : Option SynthNorm.Context)
     (log : RecordedDeps) (kind : PreprocessKind) (abstResult? : Option AbstractMVarsResult)
     (result? : Option Expr) : MetaM Unit := do
-  -- A closed result is stored with an empty `AbstractMVarsResult`, so that
-  -- `applyCachedAbstractResult?` skips the `check`.
-  let value? := abstResult?.bind fun abstResult =>
-    if abstResult.numMVars == 0 && abstResult.paramNames.isEmpty && kind matches .noMVars | .mvarsNoOutputParams then
-      result?.map fun result => { expr := result, paramNames := #[], mvars := #[] }
-    else
-      some abstResult
+  let value? := cacheValue? kind abstResult? result?
   -- Stored with sorted names and `base` restricted to them, so that equal logs record the same
   -- lookups with the same answers and an entry does not keep the full options alive.
   let options := log.options.qsort Name.quickLt
@@ -1181,6 +1189,13 @@ private def cacheResult (cacheKey rawKey : SynthInstanceCacheKey) (norm? : Optio
     let persist := kind matches .noMVars && cacheKey.localInsts.isEmpty &&
       !cacheKey.type.hasFVar && closed value?
     insertCacheEntry cacheKey { deps, result? := value? } persist
+
+/--
+Panics with `msg` without throwing, which a `panic!` of type `MetaM Unit` would do.
+-/
+-- Not inlined, as the compiler drops a panic whose value is unused.
+@[noinline] private def panicCacheHitDiffers (msg : String) : BaseIO Unit :=
+  return panic! msg
 
 /--
 The `Meta.Config` of every type class resolution query. It replaces the ambient configuration,
@@ -1266,10 +1281,23 @@ def synthInstanceCore? (type : Expr) (maxResultSize? : Option Nat := none) : Met
     let checkHit (served? : Option AbstractMVarsResult) : MetaM Unit := do
       -- unrestricted: diagnostics only
       unless debug.synthInstance.checkCacheHits.get (← getOptionsUnrestricted) do return
-      let fresh? : Except String (Option AbstractMVarsResult) ←
+      -- The recomputation must not affect the elaboration it checks: its state changes are
+      -- discarded and its heartbeats are not charged to the enclosing computation.
+      let heartbeats ← IO.getNumHeartbeats
+      let fresh? : Except String (Option AbstractMVarsResult) ← withoutModifyingState do
         -- A fresh heartbeat budget, and a throwing search counts as a divergence.
-        try .ok <$> withCurrHeartbeats runSearch
+        try .ok <$> withCurrHeartbeats do
+          -- Cache hits inside the recomputation are not rechecked in turn, which would be
+          -- exponential in the nesting depth.
+          let abstResult? ← withSetOption debug.synthInstance.checkCacheHits false runSearch
+          -- compared as cached, i.e. after the out-param check
+          tryCatch (return cacheValue? kind abstResult? (← applyAbstractResult? type abstResult?)) fun ex =>
+            -- The out-param check depends on the query's output parameters, which are not part of
+            -- the key, and can be stuck on them. Serving the entry is then stuck in the same way:
+            -- nothing to compare.
+            if ex matches .internal .. then return served? else throw ex
         catch ex => pure <| .error s!"exception: {← ex.toMessageData.toString}"
+      IO.setNumHeartbeats heartbeats
       -- `toString` rather than the pretty printer, which would read options under recording
       let fmt : Option AbstractMVarsResult → String
         | none => "none"
@@ -1282,8 +1310,9 @@ def synthInstanceCore? (type : Expr) (maxResultSize? : Option Nat := none) : Met
           else some (fmt (some a))
         | .ok r, _ => some (fmt r)
       if let some fresh := mismatch? then
-        panic! s!"type class resolution cache hit differs from recomputation for\n  {toString type}\n\
-          cached: {fmt served?}\nrecomputed: {fresh}\na dependency of the entry was not recorded"
+        panicCacheHitDiffers s!"type class resolution cache hit differs from recomputation for\n  \
+          {toString type}\ncached: {fmt served?}\nrecomputed: {fresh}\n\
+          a dependency of the entry was not recorded"
     -- A normalized entry is re-instantiated with the free variables of the current context, and
     -- then stored under the raw key as well; see `cacheResult`.
     let entry? ← match norm? with

@@ -4167,8 +4167,8 @@ goto v___jp_1052_;
 }
 else
 {
-lean_dec(v_pre_1108_);
 lean_dec_ref_known(v_declName_1107_, 2);
+lean_dec(v_pre_1108_);
 lean_dec_ref_known(v_value_1084_, 3);
 lean_dec(v_fvarId_1083_);
 lean_dec_ref(v_k_1041_);

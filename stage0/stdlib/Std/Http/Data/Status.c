@@ -34,7 +34,7 @@ uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 uint8_t lean_uint16_dec_eq(uint16_t, uint16_t);
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 lean_object* l_Lean_mkAtom(lean_object*);
-lean_object* lean_string_data(lean_object*);
+lean_object* l_String_toListImpl(lean_object*);
 uint8_t lean_uint32_dec_eq(uint32_t, uint32_t);
 uint8_t lean_uint32_dec_le(uint32_t, uint32_t);
 lean_object* lean_string_to_utf8(lean_object*);
@@ -1989,7 +1989,7 @@ _start:
 {
 uint8_t v___y_367_; lean_object* v___x_371_; uint8_t v___x_372_; 
 lean_inc_ref(v_phrase_365_);
-v___x_371_ = lean_string_data(v_phrase_365_);
+v___x_371_ = l_String_toListImpl(v_phrase_365_);
 v___x_372_ = l_List_all___at___00Std_Http_CustomStatus_ofCodeAndPhrase_x3f_spec__0(v___x_371_);
 lean_dec(v___x_371_);
 if (v___x_372_ == 0)

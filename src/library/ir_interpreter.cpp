@@ -373,9 +373,8 @@ struct native_symbol_cache_entry {
 };
 
 // Caches native symbol lookup successes _and_ failures; we assume no native code is loaded or
-// unloaded after the interpreter is first invoked, so this can be a global cache. It is sharded by
-// name hash because every fresh interpreter instance consults it for each function it touches, so a
-// single lock would be contended by all elaboration threads.
+// unloaded after the interpreter is first invoked, so this can be a global cache. Shards selected
+// by name hash allow concurrent lookups from independent interpreter instances.
 // 128 covers two 64-byte lines on x86 and one 128-byte line on Apple silicon, so shards do not
 // share a cache line.
 struct alignas(128) native_symbol_cache_shard {
@@ -850,14 +849,14 @@ private:
         // block on pending elaboration for current-module declarations.
         symbol_cache_entry e_new { get_decl(fn), {nullptr, false} };
         native_symbol_cache_shard & shard = g_native_symbol_cache_shards[fn.hash() % g_native_symbol_cache_num_shards];
-        auto find_in_shard = [&]() -> optional<native_symbol_cache_entry> {
+        optional<native_symbol_cache_entry> cached;
+        {
             std::lock_guard<std::mutex> lock(shard.m_mutex);
             auto ne = shard.m_map.find(fn);
             if (ne != shard.m_map.end())
-                return ne->second;
-            return {};
-        };
-        if (optional<native_symbol_cache_entry> cached = find_in_shard()) {
+                cached = ne->second;
+        }
+        if (cached) {
             e_new.m_native = *cached;
             return m_symbol_cache.emplace(fn, std::move(e_new)).first->second;
         }

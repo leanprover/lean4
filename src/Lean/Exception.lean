@@ -120,6 +120,8 @@ def mkUnknownIdentifierMessageCore [Monad m] [MonadEnv m] [MonadError m] (msg : 
         let mod := env.header.moduleNames[idx]!
         if isPrivateName declHint then
           msg ++ .note m!"A private declaration `{c}` (from `{mod}`) exists but would need to be public to access here."
+        else if env.header.modules[idx]?.any (·.isExported) then
+          msg ++ .note m!"A declaration `{c}` exists in the private scope of `{mod}`, which is accessible here through `import all`, but `{mod}` does not export it, so it cannot be accessed in a public scope."
         else
           msg ++ .note m!"A public declaration `{c}` exists but is imported privately; consider adding `public import {mod}`."
   return msg

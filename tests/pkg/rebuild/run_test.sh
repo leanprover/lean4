@@ -14,6 +14,11 @@ public def matchEqn : Nat -> String
   | 0 => "world"
   | n + 1 => matchEqn n
 
+-- Realizations of public declarations triggered only from proofs should not be exported.
+@[expose] public def realizedEqn : Nat -> Nat
+  | 0 => 1
+  | n + 1 => realizedEqn n
+
 public def testSpec (xs : List Nat) : List Nat := xs.map (fun x => x + 1)
 
 -- Public macro scopes such as from unnamed parameters and deriving handlers should not cause
@@ -67,4 +72,8 @@ test_unchanged
 
 # Lint warnings (persisted in `lintLogExt`) do not matter.
 perl -p -i -e 's/def privd : Nat := 0/def privd : Nat := let unusedLintVar := 0; 0/' Rebuild/Basic.lean
+test_unchanged
+
+# Realizations triggered only from proofs do not matter.
+echo 'theorem privEqn : realizedEqn 0 = 1 := by rw [realizedEqn.eq_1]' >> Rebuild/Basic.lean
 test_unchanged

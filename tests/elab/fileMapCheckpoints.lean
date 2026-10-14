@@ -8,7 +8,11 @@ the same on `FileMap.ofString s` as on the same map without checkpoints.
 
 `ofString` records each checkpoint after walking `column` characters with `String.Pos.Raw.next` from
 the start of its line (`Valid`), and both lookups only ever resume such a walk from a checkpoint they
-found on the same line. The proofs therefore never reason about UTF-8 itself.
+found on the same line. This part therefore never reasons about UTF-8 itself.
+
+Building on that, the second half specifies `ofString`, `lineStart`, `toPosition` and
+`codepointPosToUtf16Pos` against `s.toList`, with `off s k` the byte offset of the first `k`
+characters (`toPosition_ofString_spec`, `lineStart_ofString`, `codepointPosToUtf16Pos_ofString_spec`).
 -/
 
 open Lean
@@ -192,5 +196,441 @@ theorem codepointPosToUtf16Pos_ofString (s : String) (line col : Nat) :
     (FileMap.ofString s).codepointPosToUtf16Pos line col =
       { FileMap.ofString s with columnCheckpoints := #[] }.codepointPosToUtf16Pos line col :=
   codepointPosToUtf16Pos_eq _ (ofString_wf s) line col
+
+
+/-! ## UTF-8 bridge -/
+
+/-- Sum of the UTF-8 sizes of a list of characters. -/
+def bsum : List Char → Nat
+  | [] => 0
+  | c :: l => c.utf8Size + bsum l
+
+/-- Byte offset of the first `k` characters of `s`. -/
+def off (s : String) (k : Nat) : String.Pos.Raw := ⟨bsum (s.toList.take k)⟩
+
+theorem utf8ByteSize_ofList (l : List Char) : (String.ofList l).utf8ByteSize = bsum l := by
+  induction l with
+  | nil => rfl
+  | cons c l ih => simp [String.utf8ByteSize_append, ih, bsum]
+
+theorem utf8ByteSize_eq (s : String) : s.utf8ByteSize = bsum s.toList := by
+  rw [← utf8ByteSize_ofList, String.ofList_toList]
+
+theorem bsum_take_succ (l : List Char) (k : Nat) (h : k < l.length) :
+    bsum (l.take (k + 1)) = bsum (l.take k) + l[k].utf8Size := by
+  induction l generalizing k with
+  | nil => simp at h
+  | cons c l ih => cases k <;> grind [bsum]
+
+theorem bsum_take_lt (l : List Char) {a b : Nat} (hab : a < b) (hb : b ≤ l.length) :
+    bsum (l.take a) < bsum (l.take b) := by
+  induction b with
+  | zero => omega
+  | succ b ih =>
+    have := bsum_take_succ l b (by omega)
+    have := Char.utf8Size_pos l[b]
+    by_cases a = b <;> grind
+
+theorem bsum_take_le (l : List Char) {a b : Nat} (hab : a ≤ b) :
+    bsum (l.take a) ≤ bsum (l.take b) := by
+  induction l generalizing a b with
+  | nil => simp
+  | cons c l ih => cases a <;> cases b <;> grind [bsum]
+
+theorem utf8GetAux_take (l : List Char) (i : String.Pos.Raw) (k : Nat) (h : k < l.length) :
+    String.Pos.Raw.utf8GetAux l i ⟨i.byteIdx + bsum (l.take k)⟩ = l[k] := by
+  induction l generalizing i k with
+  | nil => simp at h
+  | cons c l ih =>
+    cases k with
+    | zero => simp [String.Pos.Raw.utf8GetAux, bsum]
+    | succ k =>
+      have ih' := ih (i + c) k (by simpa using h)
+      have := Char.utf8Size_pos c
+      simp only [String.Pos.Raw.utf8GetAux, List.take_succ_cons, bsum, List.getElem_cons_succ]
+      have hne : ¬ (i = ⟨i.byteIdx + (c.utf8Size + bsum (List.take k l))⟩) := by
+        intro h; have := congrArg String.Pos.Raw.byteIdx h; simp at this; omega
+      simp only [hne, ite_false]
+      simpa [String.Pos.Raw.add_char_eq, Nat.add_assoc] using ih'
+
+theorem get_off (s : String) (k : Nat) (h : k < s.toList.length) :
+    (off s k).get s = s.toList[k] := by
+  have := utf8GetAux_take s.toList 0 k h
+  simpa [String.Pos.Raw.get, off] using this
+
+theorem next_off (s : String) (k : Nat) (h : k < s.toList.length) :
+    (off s k).next s = off s (k + 1) := by
+  rw [String.Pos.Raw.next, get_off s k h]
+  simp [off, bsum_take_succ _ _ h, String.Pos.Raw.add_char_eq]
+
+theorem walk_off (s : String) (k j : Nat) (h : k + j ≤ s.toList.length) :
+    walk s (off s k) j = off s (k + j) := by
+  induction j generalizing k with
+  | zero => rfl
+  | succ j ih =>
+    simp only [walk]
+    rw [next_off s k (by omega), ih (k + 1) (by omega)]
+    congr 1; omega
+
+theorem atEnd_off (s : String) (k : Nat) (h : k ≤ s.toList.length) :
+    (off s k).atEnd s ↔ k = s.toList.length := by
+  simp only [String.Pos.Raw.atEnd, off, utf8ByteSize_eq, decide_eq_true_eq]
+  constructor
+  · intro h'
+    by_cases k = s.toList.length
+    · assumption
+    · have := bsum_take_lt s.toList (a := k) (b := s.toList.length) (by omega) (by omega)
+      simp at this; omega
+  · rintro rfl; simp
+
+theorem off_lt_off (s : String) {a b : Nat} (hb : b ≤ s.toList.length) :
+    off s a < off s b ↔ a < b := by
+  simp only [String.Pos.Raw.lt_iff, off]
+  constructor
+  · intro h
+    by_cases hab : a < b
+    · exact hab
+    · have := bsum_take_le s.toList (a := b) (b := a) (by omega); omega
+  · intro hab; exact bsum_take_lt s.toList hab hb
+
+/-! ## `positions` of `ofString` -/
+
+/-- Index `j` starts a line: it is `0` or follows a newline. -/
+def IsLineStart (cs : List Char) (j : Nat) : Prop := j = 0 ∨ cs[j - 1]? = some '\n'
+
+theorem count_take_succ (l : List Char) (c : Char) (k : Nat) (h : k < l.length) :
+    (l.take (k + 1)).count c = (l.take k).count c + (if l[k] = c then 1 else 0) := by
+  rw [List.take_add_one, List.count_append, List.getElem?_eq_getElem h]
+  simp [List.count_singleton]
+
+def PInv (s : String) (ps : Array String.Pos.Raw) (k : Nat) : Prop :=
+  ps.size = (s.toList.take k).count '\n' + 1 ∧
+  ∀ idx (h : idx < ps.size), ∃ j, ps[idx] = off s j ∧ j ≤ k ∧ IsLineStart s.toList j ∧
+    (s.toList.take j).count '\n' = idx
+
+/-- `positions` holds the start of each line, followed by the end of the file. -/
+def PosSpec (s : String) (ps : Array String.Pos.Raw) : Prop :=
+  ps.size = s.toList.count '\n' + 2 ∧
+  ps[ps.size - 1]! = off s s.toList.length ∧
+  ∀ idx (h : idx < ps.size - 1), ∃ j, ps[idx] = off s j ∧ j ≤ s.toList.length ∧
+    IsLineStart s.toList j ∧ (s.toList.take j).count '\n' = idx
+
+theorem ofString_loop_positions (s : String) (i last : String.Pos.Raw) (column u : Nat)
+    (lineCps : Array ColumnCheckpoint) (ps : Array String.Pos.Raw)
+    (cps : Array (Array ColumnCheckpoint)) :
+    ∀ k, k ≤ s.toList.length → i = off s k → PInv s ps k →
+      PosSpec s (FileMap.ofString.loop s i last column u lineCps ps cps).positions := by
+  fun_induction FileMap.ofString.loop s i last column u lineCps ps cps with
+  | case1 i last column u lineCps ps cps hend =>
+    intro k hk hi hinv
+    subst hi
+    have hkn := (atEnd_off s k hk).1 hend
+    subst hkn
+    simp only [PInv, List.take_length] at hinv
+    obtain ⟨hsz, hps⟩ := hinv
+    refine ⟨by simp [hsz], by simp, ?_⟩
+    intro idx hidx
+    simp only [Array.size_push, Nat.add_sub_cancel] at hidx
+    simpa [Array.getElem_push, hidx] using hps idx hidx
+  | case2 i last column u lineCps ps cps hend c next checkpoint lineCps' hnl ih =>
+    intro k hk hi hinv
+    subst hi
+    have hkn : k < s.toList.length := by
+      have := (atEnd_off s k hk).2; grind
+    have hc := get_off s k hkn
+    have hnext := next_off s k hkn
+    have hcnt := count_take_succ s.toList '\n' k hkn
+    apply ih (k + 1) hkn hnext
+    obtain ⟨hsz, hps⟩ := hinv
+    have hc' : s.toList[k] = '\n' := by grind
+    refine ⟨by simp [hsz, hcnt, hc'], ?_⟩
+    intro idx hidx
+    rw [Array.getElem_push]
+    split
+    · obtain ⟨j, h1, h2, h3, h4⟩ := hps idx (by assumption)
+      exact ⟨j, h1, by omega, h3, h4⟩
+    · refine ⟨k + 1, by grind, by omega, Or.inr (by simp [hc', List.getElem?_eq_getElem hkn]), ?_⟩
+      simp at hidx; grind
+  | case3 i last column u lineCps ps cps hend c next checkpoint last' lineCps' hnl ih =>
+    intro k hk hi hinv
+    subst hi
+    have hkn : k < s.toList.length := by
+      have := (atEnd_off s k hk).2; grind
+    have hc := get_off s k hkn
+    have hnext := next_off s k hkn
+    have hcnt := count_take_succ s.toList '\n' k hkn
+    apply ih (k + 1) hkn hnext
+    obtain ⟨hsz, hps⟩ := hinv
+    have hc' : s.toList[k] ≠ '\n' := by grind
+    refine ⟨by simp [hsz, hcnt, hc'], ?_⟩
+    intro idx hidx
+    obtain ⟨j, h1, h2, h3, h4⟩ := hps idx hidx
+    exact ⟨j, h1, by omega, h3, h4⟩
+
+theorem ofString_positions (s : String) : PosSpec s (FileMap.ofString s).positions := by
+  apply ofString_loop_positions s _ _ _ _ _ _ _ 0 (by omega) rfl
+  refine ⟨by simp, ?_⟩
+  intro idx hidx
+  simp at hidx
+  subst hidx
+  exact ⟨0, rfl, by omega, Or.inl rfl, by simp⟩
+
+/-! ## Lines as lists of characters -/
+
+theorem count_take_mono (l : List Char) {a b : Nat} (h : a ≤ b) :
+    (l.take a).count '\n' ≤ (l.take b).count '\n' :=
+  (List.take_prefix_take_left h).count_le _
+
+/-- A line start `j'` after a newline-free stretch `[j, k)` cannot lie inside it. -/
+theorem lineStart_le (l : List Char) {j j' k : Nat}
+    (hno : ∀ i, j ≤ i → i < k → l[i]? ≠ some '\n') (hls : IsLineStart l j') (hj'k : j' ≤ k) :
+    j' ≤ j := by
+  rcases hls with h | h
+  · omega
+  · by_cases j' ≤ j
+    · assumption
+    · exact absurd h (hno (j' - 1) (by omega) (by omega))
+
+theorem count_take_eq_of_no_newline (l : List Char) {j k : Nat} (hjk : j ≤ k) (hk : k ≤ l.length)
+    (hno : ∀ i, j ≤ i → i < k → l[i]? ≠ some '\n') :
+    (l.take k).count '\n' = (l.take j).count '\n' := by
+  induction k with
+  | zero => grind
+  | succ k ih =>
+    by_cases hjk' : j = k + 1
+    · subst hjk'; rfl
+    · have := count_take_succ l '\n' k (by omega)
+      have := hno k (by omega) (by omega)
+      have := ih (by omega) (by omega) (fun i h1 h2 => hno i h1 (by omega))
+      grind
+
+/-- The count of newlines before a line start increases at the preceding newline. -/
+theorem count_take_lineStart (l : List Char) {j : Nat} (hj : 0 < j) (hjn : j ≤ l.length)
+    (hls : IsLineStart l j) : (l.take j).count '\n' = (l.take (j - 1)).count '\n' + 1 := by
+  have := count_take_succ l '\n' (j - 1) (by omega)
+  rcases hls with h | h
+  · omega
+  · grind
+
+theorem lineStart_unique (l : List Char) {j₁ j₂ : Nat} (h₁ : j₁ ≤ l.length) (h₂ : j₂ ≤ l.length)
+    (hls₁ : IsLineStart l j₁) (hls₂ : IsLineStart l j₂)
+    (hc : (l.take j₁).count '\n' = (l.take j₂).count '\n') : j₁ = j₂ := by
+  rcases Nat.lt_trichotomy j₁ j₂ with h | h | h
+  · have := count_take_lineStart l (j := j₂) (by omega) h₂ hls₂
+    have := count_take_mono l (a := j₁) (b := j₂ - 1) (by omega)
+    omega
+  · exact h
+  · have := count_take_lineStart l (j := j₁) (by omega) h₁ hls₁
+    have := count_take_mono l (a := j₂) (b := j₁ - 1) (by omega)
+    omega
+
+/-- Every prefix has a last line start. -/
+theorem exists_lastLineStart (l : List Char) (k : Nat) (hk : k ≤ l.length) :
+    ∃ j, j ≤ k ∧ IsLineStart l j ∧ ∀ i, j ≤ i → i < k → l[i]? ≠ some '\n' := by
+  induction k with
+  | zero => exact ⟨0, by omega, Or.inl rfl, by intros; omega⟩
+  | succ k ih =>
+    obtain ⟨j, h1, h2, h3⟩ := ih (by omega)
+    by_cases hk' : l[k]? = some '\n'
+    · exact ⟨k + 1, by omega, Or.inr (by simpa using hk'), by intros; omega⟩
+    · refine ⟨j, by omega, h2, fun i hi1 hi2 => ?_⟩
+      by_cases i = k
+      · subst i; exact hk'
+      · exact h3 i hi1 (by omega)
+
+theorem exists_lineStart (s : String) (l : Nat) (h₁ : 1 ≤ l) (h₂ : l ≤ s.toList.count '\n' + 1) :
+    ∃ j, j ≤ s.toList.length ∧ IsLineStart s.toList j ∧ (s.toList.take j).count '\n' = l - 1 := by
+  obtain ⟨hsz, -, hps⟩ := ofString_positions s
+  obtain ⟨j, -, h⟩ := hps (l - 1) (by omega)
+  exact ⟨j, h⟩
+
+/-! ## Specification of `lineStart` -/
+
+theorem ofString_source (s : String) : (FileMap.ofString s).source = s := by
+  suffices ∀ i last column u lineCps ps cps,
+      (FileMap.ofString.loop s i last column u lineCps ps cps).source = s from this ..
+  intro i last column u lineCps ps cps
+  fun_induction FileMap.ofString.loop s i last column u lineCps ps cps <;> grind
+
+/--
+Line `l` (1-based) starts at the byte offset of the unique character index `j` that is `0` or follows
+a newline and has `l - 1` newlines before it.
+-/
+theorem lineStart_ofString (s : String) (l : Nat) (h₁ : 1 ≤ l) (h₂ : l ≤ s.toList.count '\n' + 1)
+    (j : Nat) (hj : j ≤ s.toList.length) (hls : IsLineStart s.toList j)
+    (hc : (s.toList.take j).count '\n' = l - 1) :
+    (FileMap.ofString s).lineStart l = off s j := by
+  obtain ⟨hsz, -, hps⟩ := ofString_positions s
+  obtain ⟨j', h1, h2, h3, h4⟩ := hps (l - 1) (by omega)
+  have := lineStart_unique s.toList hj h2 hls h3 (by omega)
+  subst this
+  have hlt : l - 1 < (FileMap.ofString s).positions.size := by omega
+  simp only [FileMap.lineStart, hlt, ↓reduceDIte]
+  exact h1
+
+/-! ## Specification of `codepointPosToUtf16Pos` -/
+
+/-- Sum of the UTF-16 sizes of a list of characters. -/
+def utf16Sum (l : List Char) : Nat := (l.map fun c => (Char.utf16Size c).toNat).sum
+
+theorem aux_off (s : String) (col j acc : Nat) (h : j + col ≤ s.toList.length) :
+    codepointPosToUtf16PosFromAux s col (off s j) acc =
+      acc + utf16Sum ((s.toList.drop j).take col) := by
+  induction col generalizing j acc with
+  | zero => simp [codepointPosToUtf16PosFromAux, utf16Sum]
+  | succ col ih =>
+    rw [codepointPosToUtf16PosFromAux, next_off s j (by omega), get_off s j (by omega),
+      ih (j + 1) _ (by omega)]
+    rw [List.drop_eq_getElem_cons (show j < s.toList.length by omega)]
+    simp only [utf16Sum, List.take_succ_cons, List.map_cons, List.sum_cons]
+    omega
+
+/--
+The UTF-16 column of codepoint `col` on line `l` (with `j` its start as in `lineStart_ofString`) is the
+UTF-16 size of the `col` characters from `j` on.
+-/
+theorem codepointPosToUtf16Pos_ofString_spec (s : String) (l col : Nat) (h₁ : 1 ≤ l)
+    (h₂ : l ≤ s.toList.count '\n' + 1)
+    (j : Nat) (hls : IsLineStart s.toList j) (hc : (s.toList.take j).count '\n' = l - 1)
+    (hcol : j + col ≤ s.toList.length) :
+    (FileMap.ofString s).codepointPosToUtf16Pos l col = utf16Sum ((s.toList.drop j).take col) := by
+  rw [codepointPosToUtf16Pos_ofString]
+  simp only [FileMap.codepointPosToUtf16Pos, findCheckpoint_empty, codepointPosToUtf16PosFrom]
+  have := lineStart_ofString s l h₁ h₂ j (by omega) hls hc
+  rw [show l - 1 + 1 = l by omega]
+  simp only [this, ofString_source, Nat.sub_zero, aux_off s col j 0 hcol]
+  omega
+
+/-! ## Specification of `toPosition` -/
+
+theorem off_inj (s : String) {a b : Nat} (ha : a ≤ s.toList.length) (hb : b ≤ s.toList.length)
+    (h : off s a = off s b) : a = b := by
+  have h1 := off_lt_off s (a := a) hb
+  have h2 := off_lt_off s (a := b) ha
+  rw [h] at h1 h2
+  have : ¬ off s b < off s b := by simp [String.Pos.Raw.lt_iff]
+  rcases Nat.lt_trichotomy a b with hab | hab | hab
+  · exact absurd (h1.2 hab) this
+  · exact hab
+  · exact absurd (h2.2 hab) this
+
+theorem off_le_off (s : String) {a b : Nat} (ha : a ≤ s.toList.length) :
+    off s a ≤ off s b ↔ a ≤ b := by
+  have := off_lt_off s (a := b) ha
+  constructor
+  · intro h
+    apply Classical.byContradiction
+    intro h'
+    have := this.2 (by omega)
+    simp only [String.Pos.Raw.le_iff, String.Pos.Raw.lt_iff] at *
+    omega
+  · intro h
+    have := bsum_take_le s.toList h
+    simpa [String.Pos.Raw.le_iff, off] using this
+
+theorem toColumn_off (s : String) {j k : Nat} (hjk : j ≤ k) (hk : k ≤ s.toList.length) :
+    FileMap.toPosition.toColumn (off s k) s (off s j) 0 = k - j := by
+  have := toColumn_walk (off s k) s (k - j) (off s j) 0 fun i hi => by
+    rw [walk_off s j i (by omega)]
+    refine ⟨fun h => ?_, fun h => ?_⟩
+    · have := off_inj s (by omega) hk h; omega
+    · have := (atEnd_off s (j + i) (by omega)).1 h; omega
+  rw [this, walk_off s j (k - j) (by omega), show j + (k - j) = k by omega,
+    FileMap.toPosition.toColumn]
+  simp
+
+theorem toPosition_loop_spec (fm : FileMap) (s : String) (hps : PosSpec s fm.positions)
+    (k j : Nat) (hk : k ≤ s.toList.length) (hjk : j ≤ k) (hls : IsLineStart s.toList j)
+    (hno : ∀ i, j ≤ i → i < k → s.toList[i]? ≠ some '\n') (b e : Nat) (hbe : b < e)
+    (he : e ≤ fm.positions.size - 1) (hb : fm.positions[b]! ≤ off s k)
+    (he' : off s k < fm.positions[e]! ∨ e = fm.positions.size - 1) :
+    FileMap.toPosition.loop { fm with columnCheckpoints := #[] } (off s k) s fm.positions b e =
+      ⟨(s.toList.take k).count '\n' + 1, k - j⟩ := by
+  obtain ⟨hsz, hlast, hspec⟩ := hps
+  have hcnt := count_take_eq_of_no_newline s.toList hjk hk hno
+  induction h : e - b using Nat.strongRecOn generalizing b e with
+  | _ d ih =>
+  rw [FileMap.toPosition.loop]
+  split
+  · -- `e = b + 1`: the line is `b`
+    simp only [findCheckpoint_empty]
+    rw [lineStart_succ _ _ (show b < fm.positions.size by omega)]
+    obtain ⟨jb, hjb1, hjb2, hjb3, hjb4⟩ := hspec b (by omega)
+    have hb' : fm.positions[b]! = off s jb := by grind
+    rw [hb'] at hb ⊢
+    have hjbk := (off_le_off s hjb2).1 hb
+    have hjbj := lineStart_le s.toList hno hjb3 hjbk
+    have hlo := count_take_mono s.toList hjbj
+    have hhi : (s.toList.take j).count '\n' ≤ b := by
+      by_cases hel : e = fm.positions.size - 1
+      · have := count_take_mono s.toList (a := j) (b := s.toList.length) (by omega)
+        simp only [List.take_length] at this
+        omega
+      · obtain ⟨je, hje1, hje2, hje3, hje4⟩ := hspec e (by omega)
+        have he'' : fm.positions[e]! = off s je := by
+          grind
+        have hkje : k < je := by
+          rcases he' with h' | h'
+          · rw [he''] at h'; exact (off_lt_off s hje2).1 h'
+          · omega
+        have := count_take_lineStart s.toList (j := je) (by omega) hje2 hje3
+        have := count_take_mono s.toList (a := j) (b := je - 1) (by omega)
+        omega
+    have := lineStart_unique s.toList hjb2 (by omega) hjb3 hls (by omega)
+    subst this
+    simp only [toColumn_off s hjk hk, FileMap.getLine, FileMap.getLastLine]
+    congr 1
+    omega
+  · obtain ⟨jm, hjm1, hjm2, hjm3, hjm4⟩ := hspec ((b + e) / 2) (by omega)
+    have hm : fm.positions[(b + e) / 2]! = off s jm := by
+      rw [getElem!_pos fm.positions _ (by omega)]; exact hjm1
+    simp only [hm]
+    split
+    · rename_i heq
+      have := off_inj s hk hjm2 (by simpa using heq)
+      subst this
+      have := lineStart_le s.toList hno hjm3 (Nat.le_refl _)
+      simp only [FileMap.getLine, FileMap.getLastLine]
+      congr 1 <;> omega
+    · rename_i hne
+      split
+      · rename_i hgt
+        exact ih (e - (b + e) / 2) (by omega) ((b + e) / 2) e (by omega) he (by rw [hm]; exact (off_le_off s hjm2).2 (Nat.le_of_lt ((off_lt_off s hk).1 hgt))) he' rfl
+      · rename_i hngt
+        refine ih ((b + e) / 2 - b) (by omega) b ((b + e) / 2) (by omega) (by omega) hb (Or.inl ?_) rfl
+        rw [hm]
+        have h1 : k ≠ jm := fun h => hne (by simp [h])
+        have h2 : ¬ jm < k := fun h => hngt ((off_lt_off s hk).2 h)
+        exact (off_lt_off s hjm2).2 (by omega)
+
+/--
+The position of character index `k` is its line (one more than the newlines before it) and its
+distance from `j`, the last line start at or before `k` (which exists by `exists_lastLineStart`).
+-/
+theorem toPosition_ofString_spec (s : String) (k j : Nat) (hk : k ≤ s.toList.length) (hjk : j ≤ k)
+    (hls : IsLineStart s.toList j) (hno : ∀ i, j ≤ i → i < k → s.toList[i]? ≠ some '\n') :
+    (FileMap.ofString s).toPosition (off s k) = ⟨(s.toList.take k).count '\n' + 1, k - j⟩ := by
+  rw [toPosition_ofString]
+  have hps := ofString_positions s
+  have hsz := hps.1
+  have hlast := hps.2.1
+  have hloop := toPosition_loop_spec (FileMap.ofString s) s hps k j hk hjk hls hno 0
+    ((FileMap.ofString s).positions.size - 1) (by omega) (by omega)
+    (by
+      obtain ⟨j0, h1, h2, h3, h4⟩ := hps.2.2 0 (by omega)
+      have := lineStart_unique s.toList h2 (Nat.zero_le _) h3 (Or.inl rfl) (by simpa using h4)
+      subst this
+      rw [getElem!_pos _ _ (by omega), h1]
+      exact (off_le_off s (by omega)).2 (Nat.zero_le _))
+    (Or.inr rfl)
+  have hback : (FileMap.ofString s).positions.back! = off s s.toList.length := by
+    rw [← hlast]; rfl
+  have hle : off s k ≤ off s s.toList.length := (off_le_off s hk).2 hk
+  simp only [FileMap.toPosition, ofString_source, hback]
+  have hcond : (decide ((FileMap.ofString s).positions.size ≥ 2) &&
+      decide (off s k ≤ off s s.toList.length)) = true := by simp [hle]; omega
+  simp only [hcond, ↓reduceIte]
+  rw [ofString_source] at hloop
+  exact hloop
 
 end FileMapCheckpoints

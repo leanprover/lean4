@@ -1,10 +1,10 @@
 /-!
-Concurrent first lookups in the interpreter's global native-symbol cache. Every task runs on its
-own thread and so gets a fresh interpreter instance; the target functions are first called only
-after all tasks have passed the gate, so their global cache entries are created concurrently.
-Interpreted functions cache a null native address, the core functions a real one; the results are
-compared with a sequential run afterwards. The `task_` prefix puts the test in the subset that the
-ThreadSanitizer CI job runs, which is where it is meaningful.
+Concurrent lookups in the interpreter's global native-symbol cache. Each dedicated task gets a
+fresh interpreter. All workers signal readiness before the gate opens. The first wave exercises
+cold lookups of the local functions; the second wave exercises entries cached by the first wave.
+The workload also calls core functions with native code. Both waves check an independent arithmetic
+formula, so an incorrect entry cannot pass merely because a later run reuses the same cache.
+The `task_` prefix includes this test in the ThreadSanitizer CI subset.
 -/
 
 -- Interpreted targets; `noinline` keeps every call a symbol lookup.
@@ -46,19 +46,33 @@ ThreadSanitizer CI job runs, which is where it is meaningful.
     + (toString i ++ "x").length + (Array.range i).size
   interpreted + native
 
-def main : IO Unit := do
-  let numTasks := 32
+-- For 0 ≤ i < 100, the interpreted part is 624 * i + 10400. The native part adds
+-- i + (i % 7) * i + twice the number of decimal digits + 1.
+def expected (i : Nat) : Nat :=
+  625 * i + 10401 + (i % 7) * i + 2 * (if i < 10 then 1 else 2)
+
+def runWave (start : Nat) : IO Unit := do
+  let inputs := (List.range 32).map (· + start)
   let prom ← IO.Promise.new
   let gate := prom.result!
-  let tasks ← (List.range numTasks).mapM fun i => IO.asTask (prio := .dedicated) do
-    IO.wait gate
-    return mix i
+  let workers ← inputs.mapM fun i => do
+    let ready ← IO.Promise.new
+    let task ← IO.asTask (prio := .dedicated) do
+      ready.resolve ()
+      IO.wait gate
+      return mix i
+    return (ready.result!, task)
+  for (ready, _) in workers do
+    IO.wait ready
   prom.resolve ()
-  let results ← tasks.mapM fun t => do IO.ofExcept (← IO.wait t)
-  let expected := (List.range numTasks).map mix
-  if results == expected then
-    IO.println "ok"
-  else
-    IO.println s!"mismatch: {results} vs {expected}"
+  let results ← workers.mapM fun (_, t) => do IO.ofExcept (← IO.wait t)
+  let expectedResults := inputs.map expected
+  unless results == expectedResults do
+    throw <| IO.userError s!"mismatch: {results} vs {expectedResults}"
+
+def main : IO Unit := do
+  runWave 0
+  runWave 32
+  IO.println "ok"
 
 #eval main

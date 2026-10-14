@@ -5,7 +5,8 @@ meta import Lean
 open Lean Meta
 
 /-! Check imported lookups against the asynchronous path, including unfolding policies.
-Current-module declarations must retain asynchronous lookup: theorem bodies need not be ready.
+Current-module declarations must retain asynchronous lookup: theorem bodies need not be ready,
+even when a declaration uses an imported compiler-only name (#15670).
 -/
 
 private meta def referenceLookup (name : Name) : MetaM (Option ConstantInfo) := do
@@ -46,15 +47,17 @@ private meta def checkImportedLookup : MetaM Unit := do
     pure false
   catch _ => pure true
   unless failed do throwError "unknown constant did not fail"
-  -- Keep both promises pending until after lookup. Waiting for either would deadlock.
-  let pending ← (← getEnv).addConstAsync `pendingTheorem .thm
   let saved ← getEnv
-  setEnv pending.mainEnv
-  unless (← getUnfoldableConst? `pendingTheorem).isNone do
-    throwError "pending theorem became unfoldable"
-  setEnv saved
-  pending.commitConst pending.asyncEnv (info? := some <| .thmInfo {
-    name := `pendingTheorem, levelParams := [], type := mkConst ``True,
-    value := mkConst ``True.intro })
+  let some (compilerOnlyName, _) := saved.const2ModIdx.toList.find? (fun (n, _) => !saved.contains n)
+    | throwError "expected an imported compiler-only name"
+  -- Keep both promises pending until after lookup. Waiting for either would deadlock.
+  for name in #[`pendingTheorem, compilerOnlyName] do
+    let pending ← saved.addConstAsync name .thm
+    setEnv pending.mainEnv
+    unless (← getUnfoldableConst? name).isNone do
+      throwError "pending theorem became unfoldable"
+    setEnv saved
+    pending.commitConst pending.asyncEnv (info? := some <| .thmInfo {
+      name, levelParams := [], type := mkConst ``True, value := mkConst ``True.intro })
 
 run_meta checkImportedLookup

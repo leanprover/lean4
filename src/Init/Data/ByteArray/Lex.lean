@@ -15,6 +15,7 @@ public import Init.Data.Ord.UInt
 public import Init.Data.UInt.Package
 public import Init.Data.Array.Package
 public import Init.Data.Order.LemmasExtra
+import Init.Omega
 
 open Std
 
@@ -76,6 +77,16 @@ instance : Trichotomous (α := ByteArray) (· < ·) where
   trichotomous a b := by simpa [← data_lt_data, -data_le_data, ByteArray.ext_iff] using flip le_antisymm
 
 public instance : LinearOrderPackage ByteArray := .ofLE _ { }
+
+public theorem compare_extract_extract_of_lt {a b : ByteArray} {i j i' j' : Nat}
+    (hi : i < j) (hj : j ≤ a.size) (hi' : i' < j') (hj' : j' ≤ b.size) :
+    compare (a.extract i j) (b.extract i' j') =
+      (compare a[i] b[i']).then (compare (a.extract (i + 1) j) (b.extract (i' + 1) j')) := by
+  rw [extract_eq_extract_append_extract (i + 1) (by omega) (by omega),
+    extract_eq_extract_append_extract (a := b) (i' + 1) (by omega) (by omega),
+    extract_add_one (by omega), extract_add_one (by omega)]
+  simp only [← compare_data_data, Array.compare_eq_compare_toList, toList_data_append,
+    List.toList_data_toByteArray, List.singleton_append, List.compare_cons_cons]
 
 end ByteArray
 

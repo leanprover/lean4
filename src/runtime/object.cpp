@@ -2539,7 +2539,7 @@ extern "C" LEAN_EXPORT obj_res lean_string_of_usize(size_t n) {
     return mk_ascii_string_unchecked(std::to_string(n));
 }
 
-extern "C" LEAN_EXPORT uint8_t lean_string_memcmp(b_obj_arg s1, b_obj_arg s2, b_obj_arg lstart, b_obj_arg rstart, b_obj_arg len) {
+static int string_memcmp_core(b_obj_arg s1, b_obj_arg s2, b_obj_arg lstart, b_obj_arg rstart, b_obj_arg len) {
     // Thanks to the proof arguments we know that lstart, rstart and len are all scalars.
     lean_assert(lean_is_scalar(lstart));
     lean_assert(lean_is_scalar(rstart));
@@ -2547,7 +2547,23 @@ extern "C" LEAN_EXPORT uint8_t lean_string_memcmp(b_obj_arg s1, b_obj_arg s2, b_
 
     char const * lbase = lean_string_cstr(s1) + lean_unbox(lstart);
     char const * rbase = lean_string_cstr(s2) + lean_unbox(rstart);
-    return std::memcmp(lbase, rbase, lean_unbox(len)) == 0;
+    return std::memcmp(lbase, rbase, lean_unbox(len));
+}
+
+extern "C" LEAN_EXPORT uint8_t lean_string_memcmp(b_obj_arg s1, b_obj_arg s2, b_obj_arg lstart, b_obj_arg rstart, b_obj_arg len) {
+    return string_memcmp_core(s1, s2, lstart, rstart, len) == 0;
+}
+
+extern "C" LEAN_EXPORT uint8_t lean_string_memcmp_lt(b_obj_arg s1, b_obj_arg s2, b_obj_arg lstart, b_obj_arg rstart, b_obj_arg len) {
+    return string_memcmp_core(s1, s2, lstart, rstart, len) < 0;
+}
+
+// Constructor indices of `Ordering`: lt = 0, eq = 1, gt = 2.
+extern "C" LEAN_EXPORT uint8_t lean_string_memcmp_compare(b_obj_arg s1, b_obj_arg s2, b_obj_arg lstart, b_obj_arg rstart, b_obj_arg len) {
+    int r = string_memcmp_core(s1, s2, lstart, rstart, len);
+    if (r < 0) return 0;
+    if (r > 0) return 2;
+    return 1;
 }
 
 size_t lean_slice_size(b_obj_arg slice) {

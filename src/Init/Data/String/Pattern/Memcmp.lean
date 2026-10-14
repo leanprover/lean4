@@ -7,6 +7,8 @@ module
 
 prelude
 public import Init.Data.String.Basic
+public import Init.Data.Ord.Basic
+import Init.Data.Ord.UInt
 import Init.Data.String.Lemmas.Order
 import Init.Omega
 
@@ -16,13 +18,13 @@ namespace String.Slice.Pattern
 
 namespace Internal
 
-@[extern "lean_string_memcmp"]
-def memcmpStr (lhs rhs : @& String) (lstart : @& String.Pos.Raw) (rstart : @& String.Pos.Raw)
+@[extern "lean_string_memcmp_compare"]
+def memcmpStrCompare (lhs rhs : @& String) (lstart : @& String.Pos.Raw) (rstart : @& String.Pos.Raw)
     (len : @& String.Pos.Raw) (h1 : len.offsetBy lstart ≤ lhs.rawEndPos)
-    (h2 : len.offsetBy rstart ≤ rhs.rawEndPos) : Bool :=
+    (h2 : len.offsetBy rstart ≤ rhs.rawEndPos) : Ordering :=
   go 0
 where
-  go (curr : String.Pos.Raw) : Bool :=
+  go (curr : String.Pos.Raw) : Ordering :=
     if h : curr < len then
       have hl := by
         simp [Pos.Raw.le_iff, Pos.Raw.lt_iff] at h h1 ⊢
@@ -30,16 +32,26 @@ where
       have hr := by
         simp [Pos.Raw.le_iff, Pos.Raw.lt_iff] at h h2 ⊢
         omega
-      if lhs.getUTF8Byte (curr.offsetBy lstart) hl == rhs.getUTF8Byte (curr.offsetBy rstart) hr then
-        go curr.inc
-      else
-        false
+      (compare (lhs.getUTF8Byte (curr.offsetBy lstart) hl)
+        (rhs.getUTF8Byte (curr.offsetBy rstart) hr)).then (go curr.inc)
     else
-      true
+      .eq
   termination_by len.byteIdx - curr.byteIdx
   decreasing_by
     simp [Pos.Raw.lt_iff] at h ⊢
     omega
+
+@[extern "lean_string_memcmp"]
+def memcmpStr (lhs rhs : @& String) (lstart : @& String.Pos.Raw) (rstart : @& String.Pos.Raw)
+    (len : @& String.Pos.Raw) (h1 : len.offsetBy lstart ≤ lhs.rawEndPos)
+    (h2 : len.offsetBy rstart ≤ rhs.rawEndPos) : Bool :=
+  memcmpStrCompare lhs rhs lstart rstart len h1 h2 == .eq
+
+@[extern "lean_string_memcmp_lt"]
+def memcmpStrLt (lhs rhs : @& String) (lstart : @& String.Pos.Raw) (rstart : @& String.Pos.Raw)
+    (len : @& String.Pos.Raw) (h1 : len.offsetBy lstart ≤ lhs.rawEndPos)
+    (h2 : len.offsetBy rstart ≤ rhs.rawEndPos) : Bool :=
+  memcmpStrCompare lhs rhs lstart rstart len h1 h2 == .lt
 
 @[inline]
 def memcmpSlice (lhs rhs : Slice) (lstart : String.Pos.Raw) (rstart : String.Pos.Raw)

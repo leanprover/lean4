@@ -7,9 +7,9 @@ module
 
 prelude
 public import Init.Data.String.Pattern.Memcmp
+public import Init.Data.ByteArray.Lex
 import all Init.Data.String.Pattern.Memcmp
 import Init.Data.ByteArray.Lemmas
-import Init.ByCases
 import Init.Data.Nat.MinMax
 import Init.Data.String.OrderInstances
 
@@ -17,38 +17,40 @@ public section
 
 namespace String.Slice.Pattern.Internal
 
+theorem memcmpStrCompare_eq_compare {lhs rhs : String} {lstart rstart len : String.Pos.Raw}
+    {h₁ h₂} : memcmpStrCompare lhs rhs lstart rstart len h₁ h₂ =
+      compare (lhs.toByteArray.extract lstart.byteIdx (len.offsetBy lstart).byteIdx)
+        (rhs.toByteArray.extract rstart.byteIdx (len.offsetBy rstart).byteIdx) := by
+  suffices ∀ (curr : String.Pos.Raw),
+      memcmpStrCompare.go lhs rhs lstart rstart len h₁ h₂ curr =
+      compare (lhs.toByteArray.extract (curr.offsetBy lstart).byteIdx (len.offsetBy lstart).byteIdx)
+        (rhs.toByteArray.extract (curr.offsetBy rstart).byteIdx (len.offsetBy rstart).byteIdx) by
+    simp [memcmpStrCompare, this]
+  intro curr
+  simp only [Pos.Raw.le_iff, String.byteIdx_rawEndPos, Pos.Raw.byteIdx_offsetBy] at h₁ h₂
+  fun_induction memcmpStrCompare.go with
+  | case1 p h₃ h₄ h₅ ih =>
+    rw [Pos.Raw.lt_iff] at h₃
+    simp only [ih, getUTF8Byte_eq_getElem, Pos.Raw.byteIdx_offsetBy, Pos.Raw.byteIdx_inc]
+    rw [ByteArray.compare_extract_extract_of_lt (i := lstart.byteIdx + p.byteIdx) (by omega)
+      (by simp; omega) (by omega) (by simp; omega)]
+    simp only [Nat.add_assoc]
+  | case2 p hp =>
+    rw [Pos.Raw.lt_iff] at hp
+    rw [ByteArray.extract_eq_empty_iff.2, ByteArray.extract_eq_empty_iff.2, Std.compare_self]
+    all_goals simp; omega
+
 theorem memcmpStr_eq_true_iff {lhs rhs : String} {lstart rstart len : String.Pos.Raw}
     {h₁ h₂} : memcmpStr lhs rhs lstart rstart len h₁ h₂ = true ↔
       lhs.toByteArray.extract lstart.byteIdx (len.offsetBy lstart).byteIdx =
         rhs.toByteArray.extract rstart.byteIdx (len.offsetBy rstart).byteIdx := by
-  suffices ∀ (curr : String.Pos.Raw),
-      memcmpStr.go lhs rhs lstart rstart len h₁ h₂ curr = true ↔
-      lhs.toByteArray.extract (curr.offsetBy lstart).byteIdx (len.offsetBy lstart).byteIdx =
-      rhs.toByteArray.extract (curr.offsetBy rstart).byteIdx (len.offsetBy rstart).byteIdx by
-    simp [memcmpStr, this]
-  intro curr
-  simp [Pos.Raw.le_iff] at h₁ h₂
-  by_cases hc : len.byteIdx < curr.byteIdx
-  · rw [ByteArray.extract_eq_empty_iff.2, ByteArray.extract_eq_empty_iff.2, memcmpStr.go,
-      dite_eq_right (Std.not_lt.2 (Std.le_of_lt (Pos.Raw.lt_iff.2 hc)))]
-    simp only
-    all_goals simp; omega
-  · simp only [Pos.Raw.byteIdx_offsetBy]
-    rw [(by omega : len.byteIdx = curr.byteIdx + (len.byteIdx - curr.byteIdx)),
-      ← Nat.add_assoc, ← Nat.add_assoc,
-      ByteArray.extract_eq_extract_iff_getElem (by simp; omega) (by simp; omega)]
-    fun_induction memcmpStr.go with
-    | case1 p h₃ h₄ h₅ h ih =>
-      rw [Pos.Raw.lt_iff] at h₃
-      rw [ih (by simp; omega)]
-      simp only [String.getUTF8Byte, Pos.Raw.byteIdx_offsetBy, beq_iff_eq] at h
-      simp only [Pos.Raw.byteIdx_inc, Nat.add_assoc, Nat.add_comm 1]
-      refine ⟨fun h k hk => ?_, fun h k hk => h (k + 1) (by omega)⟩
-      match k with
-      | 0 => simpa
-      | k + 1 => exact h k (by omega)
-    | case2 p h₃ h₄ h₅ h => simpa using ⟨0, by rw [Pos.Raw.lt_iff] at h₃; omega, by simpa using! h⟩
-    | case3 p hp => simp [(by rw [Pos.Raw.lt_iff] at hp; omega : len.byteIdx = p.byteIdx)]
+  rw [memcmpStr, beq_iff_eq, memcmpStrCompare_eq_compare, Std.compare_eq_eq_iff_eq]
+
+theorem memcmpStrLt_eq_true_iff {lhs rhs : String} {lstart rstart len : String.Pos.Raw}
+    {h₁ h₂} : memcmpStrLt lhs rhs lstart rstart len h₁ h₂ = true ↔
+      lhs.toByteArray.extract lstart.byteIdx (len.offsetBy lstart).byteIdx <
+        rhs.toByteArray.extract rstart.byteIdx (len.offsetBy rstart).byteIdx := by
+  rw [memcmpStrLt, beq_iff_eq, memcmpStrCompare_eq_compare, Std.compare_eq_lt]
 
 theorem memcmpSlice_eq_true_iff {lhs rhs : Slice} {lstart rstart len : String.Pos.Raw} {h₁ h₂} :
     memcmpSlice lhs rhs lstart rstart len h₁ h₂ = true ↔

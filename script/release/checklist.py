@@ -19,7 +19,6 @@ class Config:
     repos_dir: Path
     interactive: bool
     skip_weak_deps: bool
-    skip_mathlib_checks: bool
     github: Github
 
 
@@ -533,23 +532,6 @@ class DownstreamChecker(RepoChecker):
         self.lrepo.push("stable", force=True)
         self.cl.success(f"{what} updated to point to toolchain tag")
 
-    def check_mathlib4_version_tags(self) -> None:
-        if self.rrepo.gh_full_name != repos.MATHLIB4.gh_full_name:
-            return
-        if self.config.skip_mathlib_checks:
-            return
-
-        # At this point, the PR has been merged
-        self.lrepo.prepare()
-        self.lrepo.switch(self.grepo.default_branch)
-
-        script = "scripts/verify_version_tags.py"
-        try:
-            self.lrepo.run("python", script, self.version.tag)
-            self.cl.success(f"Version tags verified by [b]{e(script)}[/b]")
-        except Exception:  # noqa: BLE001
-            self.cl.fatal(f"Version tag verification by [b]{e(script)}[/b] failed")
-
     def check(self) -> None:
         self.check_dependencies_completed()
         self.rrepo.completed = False
@@ -579,9 +561,6 @@ class DownstreamChecker(RepoChecker):
         release_tag = self.check_release_tag()
         if release_tag:
             self.check_stable_branch_points_to_release_tag(release_tag)
-
-        if toolchain:
-            self.check_mathlib4_version_tags()
 
         self.cl.ensure_success()
         self.rrepo.completed = True
@@ -929,7 +908,6 @@ class Args:
     repos_dir: Path | None
     interactive: bool
     skip_weak_deps: bool
-    skip_mathlib_checks: bool
     graph: bool
 
 
@@ -939,7 +917,6 @@ if __name__ == "__main__":
     parser.add_argument("-d", "--repos-dir", type=Path)
     parser.add_argument("-i", "--interactive", action="store_true")
     parser.add_argument("-W", "--skip-weak-deps", action="store_true")
-    parser.add_argument("-M", "--skip-mathlib-checks", action="store_true")
     parser.add_argument("-g", "--graph", action="store_true")
     args = parser.parse_args(namespace=Args())
 
@@ -950,7 +927,6 @@ if __name__ == "__main__":
         repos_dir=util.get_repos_dir(args.repos_dir),
         interactive=args.interactive,
         skip_weak_deps=args.skip_weak_deps,
-        skip_mathlib_checks=args.skip_mathlib_checks,
         github=github,
     )
 

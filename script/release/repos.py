@@ -274,7 +274,7 @@ _register(ILLUMINATE)
 # Once the release PR is merged, tag the resulting commit with the lean version.
 VERSO = ReleaseRepo(
     github=("leanprover", "verso"),
-    rc1_pr_base="downstream",
+    rc1_pr_base="bump",
     release_tag="lean",
     strong_deps=[PLAUSIBLE, ILLUMINATE],
     ignored_deps=[MATHLIB4],  # For benchmarks

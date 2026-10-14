@@ -14,10 +14,9 @@ public section
 
 namespace Lean.Meta
 
-/-- Abstracts the given proof into an auxiliary theorem, suitably pre-processing its type. -/
-def abstractProof [Monad m] [MonadLiftT MetaM m] [MonadEnv m] [MonadOptions m] [MonadFinally m]
-    (proof : Expr) (cache := true) (postprocessType : Expr → m Expr := pure) : m Expr := do
-  let type ← withoutExporting do inferType proof
+private def abstractProofAt [Monad m] [MonadLiftT MetaM m] [MonadEnv m] [MonadOptions m]
+    [MonadFinally m] (proof type : Expr) (cache := true)
+    (postprocessType : Expr → m Expr := pure) : m Expr := do
   let type ← (Core.betaReduce type : MetaM _)
   let type ← zetaReduce type
   let type ← postprocessType type
@@ -29,6 +28,12 @@ def abstractProof [Monad m] [MonadLiftT MetaM m] [MonadEnv m] [MonadOptions m] [
     identify which let-decls can be abstracted. If we design a more efficient test, we can avoid the eager zetaDelta expansion step.
     In a benchmark created by @selsam, The extra `check` step was a bottleneck. -/
   mkAuxTheorem (cache := cache) type proof (zetaDelta := true)
+
+/-- Abstracts the given proof into an auxiliary theorem, suitably pre-processing its type. -/
+def abstractProof [Monad m] [MonadLiftT MetaM m] [MonadEnv m] [MonadOptions m] [MonadFinally m]
+    (proof : Expr) (cache := true) (postprocessType : Expr → m Expr := pure) : m Expr := do
+  let type ← withoutExporting do inferType proof
+  abstractProofAt proof type cache postprocessType
 
 namespace AbstractNestedProofs
 
@@ -67,9 +72,14 @@ def isNonTrivialProof (e : Expr) : MetaM Bool := do
 structure Context where
   cache    : Bool
 
-abbrev M := ReaderT Context $ MonadCacheT ExprStructEq Expr MetaM
+private inductive CacheKey where
+  | expr (e : ExprStructEq)
+  | proof (e type : ExprStructEq)
+  deriving BEq, Hashable
 
-partial def visit (e : Expr) : M Expr := do
+private abbrev M := ReaderT Context $ MonadCacheT CacheKey Expr MetaM
+
+private partial def visit (e : Expr) (expectedType? : Option Expr := none) : M Expr := do
   checkSystem "abstract nested proofs"
   if e.isAtomic then
     pure e
@@ -87,22 +97,58 @@ partial def visit (e : Expr) : M Expr := do
            | none       => pure localDecl
         lctx := lctx.modifyLocalDecl xFVarId fun _ => localDecl
       withLCtx lctx localInstances k
-    checkCache { val := e : ExprStructEq } fun _ => do
-      if (← isNonTrivialProof e) && !e.hasSorry then
-        /- Ensure proofs nested in type are also abstracted.
-           We skip abstraction for proofs containing `sorry` to avoid generating extra
-           "declaration uses sorry" warnings for auxiliary theorems: one per abstracted proof
-           instead of a single warning for the main declaration. Additionally, the `zetaDelta`
-           expansion in `mkAuxTheorem` can inline let-bound sorry values, causing warnings
-           even for proofs that only transitively reference sorry-containing definitions. -/
-        abstractProof e (← read).cache visit
-      else match e with
+    if (← isNonTrivialProof e) && !e.hasSorry then
+      /- Ensure proofs nested in type are also abstracted.
+         We skip abstraction for proofs containing `sorry` to avoid generating extra
+         "declaration uses sorry" warnings for auxiliary theorems: one per abstracted proof
+         instead of a single warning for the main declaration. Additionally, the `zetaDelta`
+         expansion in `mkAuxTheorem` can inline let-bound sorry values, causing warnings
+         even for proofs that only transitively reference sorry-containing definitions. -/
+    let type ← withoutExporting do
+      match expectedType? with
+      | some type =>
+        let type ← instantiateMVars type
+        let inferredType ← inferType e
+        /- Prefer the proof's inferred type when it is compatible at implicit transparency.
+           Structure-field default tactics may elaborate against a more refined goal than the
+           application-spine type. Keep the expected type only when it preserves an otherwise
+           opaque interface, as required by tactic type-correctness checks. -/
+        if type.hasMVar || (← isDefEqI type inferredType) then
+          pure inferredType
+        else
+          pure type
+      | none => inferType e
+    checkCache (CacheKey.proof { val := e } { val := type }) fun _ => do
+      abstractProofAt e type (← read).cache (fun type => visit type)
+    else
+      checkCache (CacheKey.expr { val := e }) fun _ => do
+        match e with
         | .lam ..
         | .letE ..     => lambdaLetTelescope e fun xs b => visitBinders xs do mkLambdaFVars xs (← visit b) (usedLetOnly := false) (generalizeNondepLet := false)
         | .forallE ..  => forallTelescope e fun xs b => visitBinders xs do mkForallFVars xs (← visit b)
         | .mdata _ b   => return e.updateMData! (← visit b)
         | .proj _ _ b  => return e.updateProj! (← visit b)
-        | .app ..      => e.withApp fun f args => return mkAppN (← visit f) (← args.mapM visit)
+        | .app ..      => e.withApp fun f args => do
+          let mut result ← visit f
+          -- Compute expected argument types along the original application spine. Using the
+          -- transformed arguments here can change dependent domains before later proofs are
+          -- abstracted.
+          let mut resultType ← inferType f
+          let mut useExpectedType := true
+          for arg in args do
+            let mut argExpectedType? := none
+            let mut body? := none
+            if useExpectedType then
+              match ← whnf resultType with
+              | .forallE _ type body _ =>
+                argExpectedType? := some type
+                body? := some body
+              | _ => useExpectedType := false
+            let arg' ← visit arg argExpectedType?
+            if let some body := body? then
+              resultType := body.instantiate1 arg
+            result := .app result arg'
+          return result
         | _            => pure e
 
 end AbstractNestedProofs

@@ -12,4 +12,6 @@
 3965_3.lean:262:9-262:17: warning: declaration uses `sorry`
 3965_3.lean:264:9-264:17: warning: declaration uses `sorry`
 3965_3.lean:280:4-280:23: warning: declaration uses `sorry`
+3965_3.lean:280:4-280:23: warning: declaration uses `sorry`
+3965_3.lean:280:4-280:23: warning: declaration uses `sorry`
 3965_3.lean:289:0-289:7: warning: declaration uses `sorry`

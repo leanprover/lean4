@@ -96,7 +96,7 @@ termination_by Subtype.mk x a
 
 unseal fixFC
 
-private theorem fixGraph_fixFC {α : Sort u} {r : α → α → Prop} {C : α → Sort v}
+theorem fixGraph_fixFC {α : Sort u} {r : α → α → Prop} {C : α → Sort v}
     (F : (x : α) → ((y : α) → r y x → C y) → C x) (x : α) (a : Acc r x) :
     FixGraph F x (fixFC F x a) := by
   induction a with
@@ -116,7 +116,7 @@ termination_by hwf.wrap x
 
 unseal fixC
 
-private theorem fixGraph_fixC {α : Sort u} {C : α → Sort v} {r : α → α → Prop}
+theorem fixGraph_fixC {α : Sort u} {C : α → Sort v} {r : α → α → Prop}
     (hwf : WellFounded r) (F : (x : α) → ((y : α) → r y x → C y) → C x)
     (x : α) (acx : Acc r x) : FixGraph F x (fixC hwf F x) := by
   induction acx with

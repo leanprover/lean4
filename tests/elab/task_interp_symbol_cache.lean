@@ -2,8 +2,9 @@
 Concurrent lookups in the interpreter's global native-symbol cache. Each dedicated task gets a
 fresh interpreter. All workers signal readiness before the gate opens. The first wave exercises
 cold lookups of the local functions; the second wave exercises entries cached by the first wave.
-The workload also calls core functions with native code. Both waves check an independent arithmetic
-formula, so an incorrect entry cannot pass merely because a later run reuses the same cache.
+The workload also calls core functions with native code, including boxed wrappers for Float
+operations with scalar arguments and results. Both waves check independent arithmetic expectations,
+so an incorrect entry cannot pass merely because a later run reuses the same cache.
 The `task_` prefix includes this test in the ThreadSanitizer CI subset.
 -/
 
@@ -51,6 +52,13 @@ The `task_` prefix includes this test in the ThreadSanitizer CI subset.
 def expected (i : Nat) : Nat :=
   625 * i + 10401 + (i % 7) * i + 2 * (if i < 10 then 1 else 2)
 
+-- Check each result separately so swapping two native symbol entries cannot preserve their sum.
+@[noinline] def nativeResults (i : Nat) : Nat × Nat × Nat :=
+  let x := i.toFloat
+  ((Float.sqrt ((x + 2) * (x + 2))).toUInt64.toNat,
+    (Float.floor (x + 0.75)).toUInt64.toNat,
+    (Float.ceil (x + 0.75)).toUInt64.toNat)
+
 def runWave (start : Nat) : IO Unit := do
   let inputs := (List.range 32).map (· + start)
   let prom ← IO.Promise.new
@@ -60,13 +68,13 @@ def runWave (start : Nat) : IO Unit := do
     let task ← IO.asTask (prio := .dedicated) do
       ready.resolve ()
       IO.wait gate
-      return mix i
+      return (mix i, nativeResults i)
     return (ready.result!, task)
   for (ready, _) in workers do
     IO.wait ready
   prom.resolve ()
   let results ← workers.mapM fun (_, t) => do IO.ofExcept (← IO.wait t)
-  let expectedResults := inputs.map expected
+  let expectedResults := inputs.map fun i => (expected i, (i + 2, i, i + 1))
   unless results == expectedResults do
     throw <| IO.userError s!"mismatch: {results} vs {expectedResults}"
 

@@ -71,3 +71,14 @@ error: Cannot add attribute `[lazy_delta_abbrev]`: This attribute can only be ad
 -/
 #guard_msgs in
 attribute [lazy_delta_abbrev] n'
+
+-- Abbreviations tagged with the attribute throw a warning saying the attribute is redundant
+
+/--
+warning: Tagging `k'` as `lazy_delta_abbrev` is redundant, `abbrev` declarations are always kernel abbreviations.
+-/
+#guard_msgs in
+@[lazy_delta_abbrev]
+abbrev k' : Nat := 2
+
+#check_is_lazy_delta_abbrev k'

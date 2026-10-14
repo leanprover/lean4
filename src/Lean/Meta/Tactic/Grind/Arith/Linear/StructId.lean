@@ -358,7 +358,7 @@ where
     modify' fun s => { s with structs := s.structs.push struct }
     if let some one := one? then
       if ringInst?.isSome then LinearM.run id do
-        if orderedRingInst?.isSome then
+        if orderedRingInst?.isSome && lawfulOrderLTInst?.isSome then
           -- Create `1` variable, and assert strict lower bound `0 < 1` and `0 ≠ 1`
           let x ← mkVar one (mark := false)
           addZeroLtOne x

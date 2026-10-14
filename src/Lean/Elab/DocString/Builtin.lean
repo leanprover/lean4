@@ -923,8 +923,9 @@ def lean (name : Option Ident := none) (error warning : flag false) («show» : 
       let endPos := code.raw.getTailPos? true |>.getD text.source.rawEndPos
       let endPos := if endPos ≤ text.source.rawEndPos then endPos else text.source.rawEndPos
       pure (text,
-        mkInputContext text.source (← getFileName)
-          (endPos := endPos) (endPos_valid := by simp only [endPos]; split <;> simp [*]),
+        InputContext.mk text.source (← getFileName)
+          (endPos := endPos) (endPos_valid := by simp only [endPos]; split <;> simp [*])
+          (fileMap := text),
         pos)
     else
       let ictx := mkInputContext code.getVersoCodeBlock (← getFileName)

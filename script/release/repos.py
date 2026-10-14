@@ -429,19 +429,6 @@ LEAN4EXPORT = ReleaseRepo(
 _register(LEAN4EXPORT)
 
 
-# To create a new release, open a PR into `master`. In it, bump the toolchain
-# and all dependencies.
-#
-# Once the release PR is merged, tag the resulting commit with the lean version.
-COMPARATOR = ReleaseRepo(
-    github=("leanprover", "comparator"),
-    rc1_pr_base="downstream",
-    release_tag="lean",
-    strong_deps=[LEAN4EXPORT],
-)
-_register(COMPARATOR)
-
-
 ###################
 ## Visualization ##
 ###################

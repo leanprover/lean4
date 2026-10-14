@@ -106,6 +106,10 @@ public:
     ~event_loop_guard() { global_ev.unlock(); }
     event_loop_guard(event_loop_guard const &) = delete;
     event_loop_guard & operator=(event_loop_guard const &) = delete;
+
+    // Whether `stop` has torn the loop down. Its handles and requests are gone then, so an FFI entry
+    // point fails with `UV_ECANCELED` instead of calling libuv.
+    bool stopped() const { return !global_ev.running(); }
 };
 
 // The first thing a request callback does: during the teardown at exit it hands the request's

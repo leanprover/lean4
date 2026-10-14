@@ -448,6 +448,38 @@ theorem frozen_shared_count_stays_shared (rc : Int32) (k : Nat) (hk : k ≤ 4094
     Int.not_le]
   omega
 
+/-! ## The deletion cascade
+
+Freeing an object releases the references its fields hold through {lit}`dec` rather than
+{lit}`lean_dec_ref`, and queues each object whose last reference goes.
+-/
+
+/--
+{lit}`dec` in {lit}`src/runtime/object.cpp`, which releases a reference that a field of an object
+being deleted holds, as the count it leaves behind or {lit}`none` if the object is queued for
+deletion:
+```
+    if (lean_is_scalar(o))
+        return;
+    if (LEAN_LIKELY(lean_internal_get_rc(o) > 1)) {
+        lean_internal_sub_rc(o, 1);
+    } else if (lean_internal_get_rc(o) == 1) {
+        push_back(todo, o);
+    } else if (lean_is_never_freed(o)) {
+        return;
+    } else if (std::atomic_fetch_add_explicit(lean_get_rc_mt_addr(o), 1, std::memory_order_acq_rel) == -1) {
+        push_back(todo, o);
+    }
+```
+{lit}`lean_is_never_freed` compares the count unsigned against {name}`LEAN_RC_STICKY_DROP`.
+-/
+abbrev decCascade (rc : Int32) : Option Int32 :=
+  if rc > 1 then some (rc - 1)
+  else if rc == 1 then none
+  else if rc.toUInt32 ≤ LEAN_RC_STICKY_DROP.toUInt32 then some rc
+  else if rc == -1 then none
+  else some (rc + 1)
+
 /-! ## Counts that cannot overflow -/
 
 /-- Addition that stays non-negative in {name}`Int64` is addition in {name}`Nat`. -/

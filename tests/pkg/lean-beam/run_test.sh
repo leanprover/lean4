@@ -105,16 +105,16 @@ test ! -e "$project/.beam/bundles"
 
 # A project's toolchain selector must not silently load another Lean's plugin.
 mkdir "$TMP_DIR/fake-bin"
-printf '#!/usr/bin/env bash\necho /different/toolchain/bin/lean\n' > "$TMP_DIR/fake-bin/elan"
+printf '#!/usr/bin/env bash\necho /different/toolchain\n' > "$TMP_DIR/fake-bin/elan"
 chmod +x "$TMP_DIR/fake-bin/elan"
 printf 'different-toolchain\n' > "$project/lean-toolchain"
 PATH="$TMP_DIR/fake-bin:$PATH" capture_fail "$beam" --root "$project" serve
 check_out_matches 'project .*bundled Lean (toolchain|installation)'
 
-matching_lean="$toolchain/bin/lean$exe_suffix"
+matching_prefix="$toolchain"
 if command -v cygpath > /dev/null; then
-    matching_lean=$(cygpath -m "$matching_lean")
+    matching_prefix=$(cygpath -m "$matching_prefix")
 fi
-printf '#!/usr/bin/env bash\nprintf "%%s\\n" "%s"\n' "$matching_lean" > "$TMP_DIR/fake-bin/elan"
+printf '#!/usr/bin/env bash\nprintf "%%s\\n" "%s"\n' "$matching_prefix" > "$TMP_DIR/fake-bin/elan"
 PATH="$TMP_DIR/fake-bin:$PATH" "$beam" --root "$project" doctor > "$TMP_DIR/matching-doctor"
 grep -q '^bundle ready: true$' "$TMP_DIR/matching-doctor"

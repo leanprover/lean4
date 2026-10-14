@@ -52,7 +52,7 @@ def propagateCommRingIneq (e : Expr) (lhs rhs : Expr) (strict : Bool) (eqTrue : 
     let p := lhs.norm
     let c : IneqCnstr := { p, strict, h := .ring c lhs }
     c.assert
-  else if (← isLinearOrder) && (← hasLawfulLT) then
+  else if (← isLinearOrder <&&> hasLawfulLT) then
     let p := (rhs.sub lhs).toPoly
     let strict := !strict
     let c : RingIneqCnstr := { p, strict, h := .notCore e lhs rhs }
@@ -74,7 +74,7 @@ def propagateIntModuleIneq (e : Expr) (lhs rhs : Expr) (strict : Bool) (eqTrue :
     let p := (lhs.sub rhs).norm
     let c : IneqCnstr := { p, strict, h := .core e lhs rhs }
     c.assert
-  else if (← isLinearOrder) && (← hasLawfulLT) then
+  else if (← isLinearOrder <&&> hasLawfulLT) then
     let p := (rhs.sub lhs).norm
     let strict := !strict
     let c : IneqCnstr := { p, strict, h := .notCore e lhs rhs }

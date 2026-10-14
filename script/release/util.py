@@ -344,12 +344,6 @@ def get_blocking_label(version: Version) -> str:
     return f"blocks-release-{version.base}"
 
 
-def get_latest_nightly_tag(grepo: Repository) -> Tag:
-    for tag in grepo.get_tags():
-        return tag
-    raise SystemExit("No lean4 nightly tags found")
-
-
 def get_file_contents(grepo: Repository, ref: str, path: str | Path) -> str:
     if isinstance(path, Path):
         assert not path.is_absolute()

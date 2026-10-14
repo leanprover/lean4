@@ -479,6 +479,9 @@ def print_graphviz_dot(
         if repo.completed:
             attrs["style"] = "filled"
             attrs["color"] = "palegreen"
+        elif repo.completed is False:
+            attrs["style"] = "filled"
+            attrs["color"] = "lightgoldenrod1"
         print(f'  "{repo.gh_full_name}"{graphviz_attrs(**attrs)};')
 
         for dep in repo.strong_deps:

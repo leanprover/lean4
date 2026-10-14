@@ -7,6 +7,7 @@ module
 
 prelude
 public import Init.Data.String.Pattern.Basic
+public import Init.Data.String.Pattern.Memcmp
 public import Init.Data.String.Pattern.Char
 public import Init.Data.String.Pattern.String
 public import Init.Data.String.Pattern.Pred

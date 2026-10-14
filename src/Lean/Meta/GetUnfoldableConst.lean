@@ -77,9 +77,7 @@ External users wanting to look up names should be using `Lean.getConstInfo`.
 -/
 def getUnfoldableConst? (constName : Name) : MetaM (Option ConstantInfo) := do
   let env ← getEnv
-  -- Imported constants are complete. Avoid allocating two pure tasks for each lookup.
-  if env.isImportedConst constName then
-    let some info := env.find? constName | throwUnknownConstantAt (← getRef) constName
+  if let some info := env.findImported? constName then
     match info with
     | .defnInfo _ => if (← canUnfold info) then return info else return none
     | _ => return none

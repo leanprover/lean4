@@ -246,7 +246,9 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_event_loop_configure(b_obj_arg optio
     {
         event_loop_guard guard;
 
-        if (accum) {
+        if (guard.stopped()) {
+            result = UV_ECANCELED;
+        } else if (accum) {
             result = uv_loop_configure(global_ev.m_loop, UV_METRICS_IDLE_TIME);
         }
 
@@ -267,7 +269,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_event_loop_configure(b_obj_arg optio
 /* Std.Internal.UV.Loop.alive : BaseIO Bool */
 extern "C" LEAN_EXPORT uint8_t lean_uv_event_loop_alive() {
     event_loop_guard guard;
-    return global_ev.alive(guard);
+    return !guard.stopped() && global_ev.alive(guard);
 }
 
 #else

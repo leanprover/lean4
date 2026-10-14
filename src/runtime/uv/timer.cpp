@@ -75,14 +75,15 @@ void handle_timer_event(uv_timer_t* handle) {
         }
     }
 
-    // The loop does not need to keep the timer alive anymore.
-    lean_dec(obj);
-
-    // The timer may be freed by now, so nothing below may touch it. Code holding the promise may have
-    // resolved it already.
+    // Code holding the promise may have resolved it already.
     if (promise.get() != nullptr && !promise_is_resolved(promise.get())) {
         lean_dec(lean_io_promise_resolve(lean_box(0), promise.get()));
     }
+
+    // Released only after resolving: when the loop holds the last reference, as for a dropped
+    // `Sleep`, this runs the finalizer, which must not drop a pending promise. A one-shot timer is
+    // already finished, so continuations run by the resolve cannot have released this reference.
+    lean_dec(obj);
 }
 
 /* Std.Internal.UV.Timer.mk (timeout : UInt64) (repeating : Bool) : IO Timer */

@@ -48,12 +48,12 @@ static bool signal_promise_is_finished(lean_uv_signal_object * signal) {
 void handle_signal_event(uv_signal_t* handle, int) {
     lean_object * obj = (lean_object*)handle->data;
     lean_uv_signal_object * signal = lean_to_uv_signal(obj);
-    // Read before `lean_dec(obj)` below may free the signal.
     int const signum = signal->m_lean_signum;
 
     lean_assert(signal->m_state == signal_state::Running);
 
     owned_ref promise;
+    bool release_loop_ref = false;
 
     if (signal->m_repeating) {
         if (signal_promise_is_finished(signal)) {
@@ -71,23 +71,26 @@ void handle_signal_event(uv_signal_t* handle, int) {
 
         // Without a pending promise the loop holds no reference. The signal is still alive, since
         // its finalizer closes the handle under the loop lock that this callback runs under.
-        bool const loop_ref = signal->m_promise.get() != nullptr;
-        if (!loop_ref) {
+        release_loop_ref = signal->m_promise.get() != nullptr;
+        if (!release_loop_ref) {
             // Kept for the next `next`, so that a signal after a `cancel` is not lost.
             signal->m_promise = owned_ref(mk_mt_promise());
         }
 
         promise = owned_ref::retain(signal->m_promise.get());
-
-        if (loop_ref) {
-            lean_dec(obj);
-        }
     }
 
-    // The signal may be freed by now, so nothing below may touch it. Code holding the promise may
-    // have resolved it already.
+    // Continuations run by the resolve may `stop` a repeating signal and free it, so nothing below may
+    // touch it. Code holding the promise may have resolved it already.
     if (!promise_is_resolved(promise.get())) {
         lean_dec(lean_io_promise_resolve(lean_box(signum), promise.get()));
+    }
+
+    // Released only after resolving: when the loop holds the last reference this runs the finalizer,
+    // which must not drop a pending promise. A one-shot signal is already finished, so continuations
+    // run by the resolve cannot have released this reference.
+    if (release_loop_ref) {
+        lean_dec(obj);
     }
 }
 

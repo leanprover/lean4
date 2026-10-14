@@ -345,7 +345,7 @@ class DownstreamChecker(RepoChecker):
             dsl.prepare()
             dsl.switch("master")
             dsl.run(
-                *("python", ".downstream/split.py", ".", self.rrepo.gh_name),
+                *("python", ".downstream/export.py", ".", self.rrepo.gh_name),
                 *("-m", "chore: adaptations from downstream-lean4"),
             )
             # See also LocalRepo.prepare and LocalRepo.switch

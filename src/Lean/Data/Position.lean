@@ -95,29 +95,45 @@ def getLine (fmap : FileMap) (x : Nat) : Nat :=
 /-- The minimal distance in bytes between the checkpoints of a line, see `columnCheckpoints`. -/
 private def columnCheckpointInterval : Nat := 256
 
+/-- Returns the checkpoints of the line from `lineStart` to `lineEnd`. -/
+private def lineCheckpoints (s : String) (lineStart lineEnd : String.Pos.Raw) :
+    Array ColumnCheckpoint :=
+  if lineEnd.byteIdx - lineStart.byteIdx ≤ columnCheckpointInterval then #[]
+  else loop lineStart lineStart 0 0 #[]
+where
+  loop (i last : String.Pos.Raw) (column utf16Column : Nat) (cps : Array ColumnCheckpoint) :
+      Array ColumnCheckpoint :=
+    if i < lineEnd then
+      let checkpoint := i.byteIdx - last.byteIdx ≥ columnCheckpointInterval
+      loop (i.next s) (if checkpoint then i else last) (column + 1)
+        (utf16Column + (Char.utf16Size (i.get s)).toNat)
+        (if checkpoint then cps.push { pos := i, column, utf16Column } else cps)
+    else
+      cps
+  termination_by lineEnd.byteIdx - i.byteIdx
+  decreasing_by
+    have := String.Pos.Raw.byteIdx_lt_byteIdx_next s i
+    simp [String.Pos.Raw.lt_iff] at *
+    omega
+
 def ofString (s : String) : FileMap :=
-  let rec loop (i last : String.Pos.Raw) (column utf16Column : Nat)
-      (lineCps : Array ColumnCheckpoint) (ps : Array String.Pos.Raw)
+  let rec loop (i lineStart : String.Pos.Raw) (ps : Array String.Pos.Raw)
       (cps : Array (Array ColumnCheckpoint)) : FileMap :=
     if i.atEnd s then
-      { source := s, positions := ps.push i, columnCheckpoints := cps.push lineCps }
+      { source := s, positions := ps.push i
+        columnCheckpoints := cps.push (lineCheckpoints s lineStart i) }
     else
       let c := i.get s
       let next := i.next s
-      let checkpoint := i.byteIdx - last.byteIdx ≥ columnCheckpointInterval
-      let last := if checkpoint then i else last
-      let lineCps := if checkpoint then lineCps.push { pos := i, column, utf16Column } else lineCps
-      if c == '\n' then
-        loop next next 0 0 #[] (ps.push next) (cps.push lineCps)
-      else
-        loop next last (column + 1) (utf16Column + (Char.utf16Size c).toNat) lineCps ps cps
+      if c == '\n' then loop next next (ps.push next) (cps.push (lineCheckpoints s lineStart next))
+      else loop next lineStart ps cps
   termination_by s.utf8ByteSize - i.byteIdx
   decreasing_by
     all_goals
       have := String.Pos.Raw.byteIdx_lt_byteIdx_next s i
       simp [String.Pos.Raw.atEnd] at *
       omega
-  loop 0 0 0 0 #[] #[0] #[]
+  loop 0 0 #[0] #[]
 
 /--
 Returns the position of the start of (1-based) line `line`.

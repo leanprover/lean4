@@ -97,39 +97,57 @@ def _root_.Lean.FileMap.WF (fm : FileMap) : Prop :=
   ∀ b (hb : b < fm.columnCheckpoints.size), ∀ cp ∈ fm.columnCheckpoints[b],
     Valid fm.source fm.positions[b]! cp
 
-def LoopInv (s : String) (i : String.Pos.Raw) (column u : Nat) (lineCps : Array ColumnCheckpoint)
-    (ps : Array String.Pos.Raw) (cps : Array (Array ColumnCheckpoint)) : Prop :=
+theorem lineCheckpoints_loop_valid (s : String) (ls le : String.Pos.Raw) (k : Nat)
+    (hle : le = walk s ls k) (hk : ∀ j < k, ¬ (walk s ls j).atEnd s)
+    (i last : String.Pos.Raw) (column u : Nat) (cps : Array ColumnCheckpoint)
+    (hi : i = walk s ls column) (hu : u = codepointPosToUtf16PosFromAux s column ls 0)
+    (hc : column ≤ k) (hcps : ∀ cp ∈ cps, Valid s ls cp) :
+    ∀ cp ∈ FileMap.lineCheckpoints.loop s le i last column u cps, Valid s ls cp := by
+  fun_induction FileMap.lineCheckpoints.loop s le i last column u cps with
+  | case1 i last column u cps hlt checkpoint ih =>
+    have : column < k := by
+      by_cases column = k <;> grind [String.Pos.Raw.lt_iff]
+    have := walk_succ s ls column
+    have := aux_add s column 1 ls 0
+    apply ih <;> grind [Valid, String.Pos.Raw.atEnd, codepointPosToUtf16PosFromAux]
+  | case2 => grind
+
+theorem lineCheckpoints_valid (s : String) (ls le : String.Pos.Raw) (k : Nat)
+    (hle : le = walk s ls k) (hk : ∀ j < k, ¬ (walk s ls j).atEnd s) :
+    ∀ cp ∈ FileMap.lineCheckpoints s ls le, Valid s ls cp := by
+  unfold FileMap.lineCheckpoints
+  split
+  · simp
+  · exact lineCheckpoints_loop_valid s ls le k hle hk _ _ 0 0 _ rfl rfl (by omega) (by simp)
+
+/-- `i` is reached by walking from the start of the current line without reaching the end. -/
+def LoopInv (s : String) (i lineStart : String.Pos.Raw) (ps : Array String.Pos.Raw)
+    (cps : Array (Array ColumnCheckpoint)) : Prop :=
   ps.size = cps.size + 1 ∧
-  i = walk s ps[cps.size]! column ∧
-  u = codepointPosToUtf16PosFromAux s column ps[cps.size]! 0 ∧
-  (∀ cp ∈ lineCps, Valid s ps[cps.size]! cp) ∧
+  lineStart = ps[cps.size]! ∧
+  (∃ k, i = walk s lineStart k ∧ ∀ j < k, ¬ (walk s lineStart j).atEnd s) ∧
   (∀ b (hb : b < cps.size), ∀ cp ∈ cps[b], Valid s ps[b]! cp)
 
-theorem valid_step (s : String) (i : String.Pos.Raw) (column u : Nat)
-    (lineCps : Array ColumnCheckpoint) (ps : Array String.Pos.Raw)
-    (cps : Array (Array ColumnCheckpoint)) (checkpoint : Prop) [Decidable checkpoint]
-    (hend : ¬ i.atEnd s = true) (hi : i = walk s ps[cps.size]! column)
-    (hu : u = codepointPosToUtf16PosFromAux s column ps[cps.size]! 0)
-    (hl : ∀ cp ∈ lineCps, Valid s ps[cps.size]! cp) :
-    ∀ cp ∈ (if checkpoint then lineCps.push { pos := i, column, utf16Column := u } else lineCps),
-      Valid s ps[cps.size]! cp := by
-  grind [Valid, String.Pos.Raw.atEnd]
-
-theorem ofString_loop_wf (s : String) (i last : String.Pos.Raw) (column u : Nat)
-    (lineCps : Array ColumnCheckpoint) (ps : Array String.Pos.Raw)
-    (cps : Array (Array ColumnCheckpoint)) (h : LoopInv s i column u lineCps ps cps) :
-    (FileMap.ofString.loop s i last column u lineCps ps cps).WF := by
-  fun_induction FileMap.ofString.loop s i last column u lineCps ps cps with
-  | case1 => grind [FileMap.WF, LoopInv]
-  | case2 i last column u lineCps ps cps hend c next checkpoint lineCps' hnl ih =>
-    have := valid_step s _ _ _ _ _ _ checkpoint hend h.2.1 h.2.2.1 h.2.2.2.1
-    grind [LoopInv, walk, codepointPosToUtf16PosFromAux]
-  | case3 i last column u lineCps ps cps hend c next checkpoint last' lineCps' hnl ih =>
-    have := valid_step s _ _ _ _ _ _ checkpoint hend h.2.1 h.2.2.1 h.2.2.2.1
-    grind [LoopInv, walk_succ, aux_add, codepointPosToUtf16PosFromAux]
+theorem ofString_loop_wf (s : String) (i lineStart : String.Pos.Raw) (ps : Array String.Pos.Raw)
+    (cps : Array (Array ColumnCheckpoint)) (h : LoopInv s i lineStart ps cps) :
+    (FileMap.ofString.loop s i lineStart ps cps).WF := by
+  fun_induction FileMap.ofString.loop s i lineStart ps cps with
+  | case1 i lineStart ps cps hend =>
+    obtain ⟨k, hk, hk'⟩ := h.2.2.1
+    have := lineCheckpoints_valid s lineStart i k hk hk'
+    grind [FileMap.WF, LoopInv]
+  | case2 i lineStart ps cps hend c next hnl ih =>
+    obtain ⟨k, hk, hk'⟩ := h.2.2.1
+    have := walk_succ s lineStart k
+    have := lineCheckpoints_valid s lineStart next (k + 1) (by grind) (by grind)
+    refine ih ⟨?_, ?_, ⟨0, rfl, by simp⟩, ?_⟩ <;> grind [LoopInv]
+  | case3 i lineStart ps cps hend c next hnl ih =>
+    obtain ⟨k, hk, hk'⟩ := h.2.2.1
+    have := walk_succ s lineStart k
+    grind [LoopInv]
 
 theorem ofString_wf (s : String) : (FileMap.ofString s).WF :=
-  ofString_loop_wf s _ _ _ _ _ _ _ ⟨rfl, rfl, rfl, by simp, by simp⟩
+  ofString_loop_wf s _ _ _ _ ⟨rfl, rfl, ⟨0, rfl, by simp⟩, by simp⟩
 
 /-! ## Main theorems -/
 
@@ -315,13 +333,12 @@ def PosSpec (s : String) (ps : Array String.Pos.Raw) : Prop :=
   ∀ idx (h : idx < ps.size - 1), ∃ j, ps[idx] = off s j ∧ j ≤ s.toList.length ∧
     IsLineStart s.toList j ∧ (s.toList.take j).count '\n' = idx
 
-theorem ofString_loop_positions (s : String) (i last : String.Pos.Raw) (column u : Nat)
-    (lineCps : Array ColumnCheckpoint) (ps : Array String.Pos.Raw)
-    (cps : Array (Array ColumnCheckpoint)) :
+theorem ofString_loop_positions (s : String) (i lineStart : String.Pos.Raw)
+    (ps : Array String.Pos.Raw) (cps : Array (Array ColumnCheckpoint)) :
     ∀ k, k ≤ s.toList.length → i = off s k → PInv s ps k →
-      PosSpec s (FileMap.ofString.loop s i last column u lineCps ps cps).positions := by
-  fun_induction FileMap.ofString.loop s i last column u lineCps ps cps with
-  | case1 i last column u lineCps ps cps hend =>
+      PosSpec s (FileMap.ofString.loop s i lineStart ps cps).positions := by
+  fun_induction FileMap.ofString.loop s i lineStart ps cps with
+  | case1 i lineStart ps cps hend =>
     intro k hk hi hinv
     subst hi
     have hkn := (atEnd_off s k hk).1 hend
@@ -332,7 +349,7 @@ theorem ofString_loop_positions (s : String) (i last : String.Pos.Raw) (column u
     intro idx hidx
     simp only [Array.size_push, Nat.add_sub_cancel] at hidx
     simpa [Array.getElem_push, hidx] using hps idx hidx
-  | case2 i last column u lineCps ps cps hend c next checkpoint lineCps' hnl ih =>
+  | case2 i lineStart ps cps hend c next hnl ih =>
     intro k hk hi hinv
     subst hi
     have hkn : k < s.toList.length := by
@@ -351,7 +368,7 @@ theorem ofString_loop_positions (s : String) (i last : String.Pos.Raw) (column u
       exact ⟨j, h1, by omega, h3, h4⟩
     · refine ⟨k + 1, by grind, by omega, Or.inr (by simp [hc', List.getElem?_eq_getElem hkn]), ?_⟩
       simp at hidx; grind
-  | case3 i last column u lineCps ps cps hend c next checkpoint last' lineCps' hnl ih =>
+  | case3 i lineStart ps cps hend c next hnl ih =>
     intro k hk hi hinv
     subst hi
     have hkn : k < s.toList.length := by
@@ -368,7 +385,7 @@ theorem ofString_loop_positions (s : String) (i last : String.Pos.Raw) (column u
     exact ⟨j, h1, by omega, h3, h4⟩
 
 theorem ofString_positions (s : String) : PosSpec s (FileMap.ofString s).positions := by
-  apply ofString_loop_positions s _ _ _ _ _ _ _ 0 (by omega) rfl
+  apply ofString_loop_positions s _ _ _ _ 0 (by omega) rfl
   refine ⟨by simp, ?_⟩
   intro idx hidx
   simp at hidx
@@ -447,10 +464,10 @@ theorem exists_lineStart (s : String) (l : Nat) (h₁ : 1 ≤ l) (h₂ : l ≤ s
 /-! ## Specification of `lineStart` -/
 
 theorem ofString_source (s : String) : (FileMap.ofString s).source = s := by
-  suffices ∀ i last column u lineCps ps cps,
-      (FileMap.ofString.loop s i last column u lineCps ps cps).source = s from this ..
-  intro i last column u lineCps ps cps
-  fun_induction FileMap.ofString.loop s i last column u lineCps ps cps <;> grind
+  suffices ∀ i lineStart ps cps, (FileMap.ofString.loop s i lineStart ps cps).source = s from
+    this ..
+  intro i lineStart ps cps
+  fun_induction FileMap.ofString.loop s i lineStart ps cps <;> grind
 
 /--
 Line `l` (1-based) starts at the byte offset of the unique character index `j` that is `0` or follows

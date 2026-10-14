@@ -400,6 +400,12 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_random(uint64_t size) {
     int result;
     {
         event_loop_guard guard;
+
+        if (guard.stopped()) {
+            delete req;
+            return io_result_mk_uv_error(UV_ECANCELED);
+        }
+
         result = uv_random(global_ev.m_loop, &req->uv, lean_sarray_cptr(req->byte_array.get()), size, 0, on_random);
         if (result == 0) {
             global_ev.track(&req->link, (uv_req_t*)&req->uv);

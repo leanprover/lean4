@@ -171,7 +171,8 @@ class ReleaseRepo:
     ignored_deps: list[Self] = field(default_factory=list)
 
     # Mutable
-    completed: bool = False
+    # None = untouched, False = started, True = completed
+    completed: bool | None = None
 
     @property
     def gh_owner(self) -> str:

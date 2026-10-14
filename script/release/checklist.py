@@ -552,6 +552,7 @@ class DownstreamChecker(RepoChecker):
 
     def check(self) -> None:
         self.check_dependencies_completed()
+        self.rrepo.completed = False
 
         # Patch releases are a bit special
         if self.version.patch > 0:

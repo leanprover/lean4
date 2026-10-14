@@ -29,7 +29,7 @@ functions, which have a (relatively) homogeneous ABI that we can use without run
 */
 #include <string>
 #include <vector>
-#include <shared_mutex>
+#include <mutex>
 #ifdef LEAN_WINDOWS
 #include <windows.h>
 #include <psapi.h>
@@ -373,9 +373,17 @@ struct native_symbol_cache_entry {
 };
 
 // Caches native symbol lookup successes _and_ failures; we assume no native code is loaded or
-// unloaded after the interpreter is first invoked, so this can be a global cache.
-name_hash_map<native_symbol_cache_entry> * g_native_symbol_cache;
-std::shared_mutex * g_native_symbol_cache_mutex;
+// unloaded after the interpreter is first invoked, so this can be a global cache. It is sharded by
+// name hash because every fresh interpreter instance consults it for each function it touches, so a
+// single lock would be contended by all elaboration threads.
+// 128 covers two 64-byte lines on x86 and one 128-byte line on Apple silicon, so shards do not
+// share a cache line.
+struct alignas(128) native_symbol_cache_shard {
+    std::mutex                                m_mutex;
+    name_hash_map<native_symbol_cache_entry>  m_map;
+};
+static constexpr unsigned g_native_symbol_cache_num_shards = 64;
+native_symbol_cache_shard * g_native_symbol_cache_shards;
 
 class interpreter {
     // stack of IR variable slots
@@ -838,20 +846,23 @@ private:
         if (e != m_symbol_cache.end()) {
             return e->second;
         }
-        std::shared_lock<std::shared_mutex> lock(*g_native_symbol_cache_mutex);
-        auto ne = g_native_symbol_cache->find(fn);
-        if (ne != g_native_symbol_cache->end()) {
-            symbol_cache_entry e_new { get_decl(fn), ne->second };
-            return m_symbol_cache.emplace(fn, std::move(e_new)).first->second;
-        }
-        lock.unlock();
-        std::unique_lock<std::shared_mutex> unique_lock(*g_native_symbol_cache_mutex);
-        ne = g_native_symbol_cache->find(fn);
-        if (ne != g_native_symbol_cache->end()) {
-            symbol_cache_entry e_new { get_decl(fn), ne->second };
-            return m_symbol_cache.emplace(fn, std::move(e_new)).first->second;
-        }
+        // Resolve the IR declaration before taking any lock: `find_ir_decl` calls into Lean and may
+        // block on pending elaboration for current-module declarations.
         symbol_cache_entry e_new { get_decl(fn), {nullptr, false} };
+        native_symbol_cache_shard & shard = g_native_symbol_cache_shards[fn.hash() % g_native_symbol_cache_num_shards];
+        auto find_in_shard = [&]() -> optional<native_symbol_cache_entry> {
+            std::lock_guard<std::mutex> lock(shard.m_mutex);
+            auto ne = shard.m_map.find(fn);
+            if (ne != shard.m_map.end())
+                return ne->second;
+            return {};
+        };
+        if (optional<native_symbol_cache_entry> cached = find_in_shard()) {
+            e_new.m_native = *cached;
+            return m_symbol_cache.emplace(fn, std::move(e_new)).first->second;
+        }
+        // Resolve without holding the lock. The result can depend on this instance's environment and
+        // `prefer_native` setting; the first entry stored for a name is the one every instance uses.
         if (m_prefer_native || decl_tag(e_new.m_decl) == decl_kind::Extern || has_init_attribute(m_env, fn)) {
             string_ref mangled = get_symbol_stem(m_env, fn);
             string_ref boxed_mangled = mk_mangled_boxed_name(mangled);
@@ -870,7 +881,10 @@ private:
                 }
             }
         }
-        g_native_symbol_cache->insert({ fn, e_new.m_native });
+        {
+            std::lock_guard<std::mutex> lock(shard.m_mutex);
+            e_new.m_native = shard.m_map.insert({ fn, e_new.m_native }).first->second;
+        }
         return m_symbol_cache.emplace(fn, std::move(e_new)).first->second;
     }
 
@@ -1228,13 +1242,11 @@ void initialize_ir_interpreter() {
         mark_persistent(ir::g_interpreter_step->raw());
         register_trace_class(*ir::g_interpreter_step);
     });
-    ir::g_native_symbol_cache = new name_hash_map<ir::native_symbol_cache_entry>();
-    ir::g_native_symbol_cache_mutex = new std::shared_mutex();
+    ir::g_native_symbol_cache_shards = new ir::native_symbol_cache_shard[ir::g_native_symbol_cache_num_shards];
 }
 
 void finalize_ir_interpreter() {
-    delete ir::g_native_symbol_cache_mutex;
-    delete ir::g_native_symbol_cache;
+    delete[] ir::g_native_symbol_cache_shards;
     DEBUG_CODE({
         delete ir::g_interpreter_call;
         delete ir::g_interpreter_step;

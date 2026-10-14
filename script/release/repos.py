@@ -56,9 +56,6 @@ def _register(repo: ReleaseRepo) -> None:
 LEAN4 = ReleaseRepo(github=("leanprover", "lean4"))
 # Don't register this repo!
 
-LEAN4_NIGHTLY = ReleaseRepo(github=("leanprover", "lean4-nightly"))
-# Don't register this repo!
-
 
 # After the doc-gen4 bump PR has been merged, a workflow in this repo needs to
 # be manually triggered.

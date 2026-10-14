@@ -387,15 +387,8 @@ class DownstreamChecker(RepoChecker):
             self.cl.fail(f"{what} not found")
             return
 
-        lean4_nightly = self.github.get_repo(repos.LEAN4_NIGHTLY.gh_full_name)
-        latest_nightly_tag = util.get_latest_nightly_tag(lean4_nightly)
-
         self.lrepo.prepare(nightly=self.rrepo.nightly)
         self.lrepo.create_branch(branch_name)
-        util.set_toolchain(self.lrepo.path, latest_nightly_tag.name)
-
-        message = f"chore: bump toolchain to {latest_nightly_tag.name}"
-        self.lrepo.commit(message)
 
         if not self.prompt(f"Push branch [b]{e(branch_name)}[/b]?"):
             self.cl.fail(f"{what} not found")

@@ -57,13 +57,6 @@ private def isNonTrivialIsCharInst (isCharInst? : Option (Expr × Nat)) : Bool :
   | some (_, c) => c != 1
   | none => false
 
-private def isCutsatType (type : Expr) : GoalM Bool := do
-  if (← getConfig).lia then
-    if (← Cutsat.isSupportedType type) then
-      -- If `type` is supported by cutsat, let it handle
-      return true
-  return false
-
 private def getCommRingInst? (ringId? : Option Nat) : GoalM (Option Expr) := do
   let some ringId := ringId? | return none
   return some (← CommRing.RingM.run ringId do return (← Sym.Arith.getCommRing).commRingInst)
@@ -160,7 +153,7 @@ private def getHSMulNatFn? (u : Level) (type : Expr) : GoalM (Option Expr) := do
 
 def getStructId? (type : Expr) : GoalM (Option Nat) := do
   unless (← getConfig).linarith do return none
-  if (← isCutsatType type) then return none
+  if (← Cutsat.isCutsatType type) then return none
   if let some id? := (← get').typeIdOf.find? { expr := type } then
     return id?
   else
@@ -375,7 +368,7 @@ private def mkNatModuleInst? (u : Level) (type : Expr) : GoalM (Option Expr) := 
 def getNatStructId? (type : Expr) : GoalM (Option Nat) := do
   unless (← getConfig).linarith do return none
   if (← get').forbiddenNatModules.contains { expr := type } then return none
-  if (← isCutsatType type) then return none
+  if (← Cutsat.isCutsatType type) then return none
   if let some id? := (← get').natTypeIdOf.find? { expr := type } then
     return id?
   else

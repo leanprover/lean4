@@ -267,7 +267,8 @@ private def Internal.Meta.toString (n : Name) (escape := true) : String :=
 
 end ToString
 
-private def hasNum : Name → Bool
+/-- Returns true if the name has any numeric components. -/
+def hasNum : Name → Bool
   | anonymous => false
   | num ..    => true
   | str p ..  => hasNum p

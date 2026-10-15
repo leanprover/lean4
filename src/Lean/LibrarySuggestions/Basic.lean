@@ -33,42 +33,106 @@ namespace Lean.Expr.FoldRelevantConstantsImpl
 
 open Lean Meta
 
+/-- How the traversal treats an argument of an application, decided by the head's parameter. -/
+inductive ArgKind where
+  /-- An instance-implicit argument. It is not visited. -/
+  | instImplicit
+  /-- The parameter type is a proposition, so the argument is a proof. It is not visited. -/
+  | proof
+  /-- The parameter type is never a proposition, so the argument is not a proof. It is visited. -/
+  | value
+  /-- `isProof` decides whether the argument is visited. -/
+  | unknown
+  deriving Inhabited
+
+/--
+The `ArgKind` of the first `n` parameters of `fn`, from the binders of its type, which is unfolded
+at default transparency. Unlike `getFunInfo`, this does not share results between threads, so
+parallel callers do not contend on a shared cache.
+-/
+def argKinds (fn : Expr) (n : Nat) : MetaM (Array ArgKind) := do
+  let fnType ← inferType fn
+  withAtLeastTransparency .default do
+    forallBoundedTelescope fnType n fun xs _ =>
+      xs.mapM fun x => do
+        let decl ← x.fvarId!.getDecl
+        if decl.binderInfo.isInstImplicit then
+          return .instImplicit
+        -- The sort of the parameter type is the sort of the argument's type. It decides whether the
+        -- argument is a proof unless it depends on universe variables.
+        try
+          match ← whnfD (← inferType decl.type) with
+          | .sort u =>
+            return if u.isAlwaysZero then .proof else if u.isNeverZero then .value else .unknown
+          | _ => return .unknown
+        catch _ =>
+          return .unknown
+
 unsafe structure State where
  visited       : PtrSet Expr := mkPtrSet
  visitedConsts : NameHashSet := {}
+ /-- `argKinds` of constant heads, by head and number of arguments. -/
+ kinds         : Std.HashMap (Expr × Nat) (Array ArgKind) := {}
 
 unsafe abbrev FoldM := StateT State MetaM
 
+unsafe def headKinds (fn : Expr) (n : Nat) : FoldM (Array ArgKind) := do
+  unless fn.isConst do
+    return ← argKinds fn n
+  if let some kinds := (← get).kinds[(fn, n)]? then
+    return kinds
+  let kinds ← argKinds fn n
+  modify fun s => { s with kinds := s.kinds.insert (fn, n) kinds }
+  return kinds
+
+/--
+`mayBeProof` is `false` when the context shows that `e` is not a proof, so `visit` skips `isProof`.
+This holds for a type (a binder domain or the body of a `forallE`), for the head or the body of an
+application, lambda, or `let` that is not a proof, and for an argument whose parameter type is
+never a proposition.
+-/
 unsafe def fold {α : Type} (f : Name → α → MetaM α) (e : Expr) (acc : α) : FoldM α :=
-  let rec visit (e : Expr) (acc : α) : FoldM α := do
+  let rec visit (e : Expr) (acc : α) (mayBeProof := true) : FoldM α := do
     if (← get).visited.contains e then
       return acc
     modify fun s => { s with visited := s.visited.insert e }
-    if ← isProof e then
-      -- Don't visit proofs.
-      return acc
+    if mayBeProof then
+      if ← isProof e then
+        -- Don't visit proofs.
+        return acc
     match e with
     | .forallE n d b bi  =>
-      let r ← visit d acc
+      let r ← visit d acc (mayBeProof := false)
       withLocalDecl n bi d fun x =>
-        visit (b.instantiate1 x) r
+        visit (b.instantiate1 x) r (mayBeProof := false)
     | .lam n d b bi      =>
-      let r ← visit d acc
+      let r ← visit d acc (mayBeProof := false)
       withLocalDecl n bi d fun x =>
-        visit (b.instantiate1 x) r
-    | .mdata _ b         => visit b acc
+        visit (b.instantiate1 x) r (mayBeProof := false)
+    | .mdata _ b         => visit b acc mayBeProof
     | .letE n t v b nondep    =>
-      let r₁ ← visit t acc
+      let r₁ ← visit t acc (mayBeProof := false)
       let r₂ ← visit v r₁
       withLetDecl n t v (nondep := nondep) fun x =>
-        visit (b.instantiate1 x) r₂
-    | .app f a           =>
-      let fi ← getFunInfo f (some 1)
-      if fi.paramInfo[0]!.isInstImplicit then
-        -- Don't visit instance implicit arguments.
-        visit f acc
-      else
-        visit a (← visit f acc)
+        visit (b.instantiate1 x) r₂ (mayBeProof := false)
+    | .app ..            =>
+      -- Visit the whole application spine at once, so that the parameter kinds of the head are
+      -- computed once per application.
+      let fn := e.getAppFn
+      let args := e.getAppArgs
+      let kinds ← headKinds fn args.size
+      let mut acc ← visit fn acc (mayBeProof := false)
+      for h : i in [0:args.size] do
+        let kind ← if h' : i < kinds.size then
+            pure kinds[i]
+          else
+            -- The head's type does not unfold to enough binders without the actual arguments.
+            pure ((← argKinds (mkAppRange fn 0 i args) 1)[0]?.getD .unknown)
+        match kind with
+        | .instImplicit | .proof => pure ()
+        | .value => acc ← visit args[i] acc (mayBeProof := false)
+        | .unknown => acc ← visit args[i] acc
+      return acc
     | .proj _ _ b        => visit b acc
     | .const c _         =>
       if (← get).visitedConsts.contains c then
@@ -85,6 +149,26 @@ unsafe def fold {α : Type} (f : Name → α → MetaM α) (e : Expr) (acc : α)
 @[inline] unsafe def foldUnsafe {α : Type} (e : Expr) (init : α) (f : Name → α → MetaM α) : MetaM α :=
   (fold f e init).run' {}
 
+unsafe def relevantConstantsOfEachUnsafe (es : Array Expr)
+    (cancelTk? : Option IO.CancelToken := none) : MetaM (Array (Array Name)) := do
+  let mut kinds := {}
+  let mut out := Array.mkEmpty es.size
+  for e in es do
+    -- Parallel callers share `cancelTk?`, and concurrent reads of one `IO.Ref` contend.
+    if out.size % 64 == 0 then
+      if let some tk := cancelTk? then
+        if ← tk.isSet then
+          throwInterruptException
+    let (consts, s) ← try
+        (fold (fun n ns => return ns.push n) e #[]).run { kinds }
+      catch _ =>
+        -- For example, a statement that mentions a private auxiliary proof of a module whose
+        -- private part is not imported.
+        pure (#[], { kinds })
+    kinds := s.kinds
+    out := out.push consts
+  return out
+
 end FoldRelevantConstantsImpl
 
 /-- Apply `f` to every constant occurring in `e` once, skipping instance arguments and proofs. -/
@@ -96,6 +180,17 @@ public def relevantConstants (e : Expr) : MetaM (Array Name) := foldRelevantCons
 
 /-- Collect the constants occurring in `e` (once each), skipping instance arguments and proofs. -/
 public def relevantConstantsAsSet (e : Expr) : MetaM NameSet := foldRelevantConstants e ∅ (fun n ns => return ns.insert n)
+
+/--
+`relevantConstants` of each expression in `es`. It computes the parameter kinds of each head
+constant once for all of `es`, so it is faster than `relevantConstants` on each expression. An
+expression whose traversal fails gets `#[]`; interrupts and resource limits still propagate. When
+`cancelTk?` is set, this throws an interrupt exception within the next 64 expressions.
+-/
+@[implemented_by FoldRelevantConstantsImpl.relevantConstantsOfEachUnsafe]
+public opaque relevantConstantsOfEach (es : Array Expr)
+    (cancelTk? : Option IO.CancelToken := none) : MetaM (Array (Array Name)) :=
+  pure #[]
 
 end Lean.Expr
 

@@ -62,9 +62,9 @@ public def headReduceFstRhs? (goal : MVarId) (target α inst pre rhs : Expr) :
 
 /-- Refold a meet upper adjoint `upperAdjoint (meet F) Q s⃗` on the RHS of `pre ⊑ rhs` to the Heyting
 implication `(F ⇨ Q) s⃗`, rewriting `goal` and returning it with its new RHS, so it decomposes through
-the clean pointwise `⇨` split instead of generic point-framing. Returns `none` if the RHS is not a
+the clean pointwise `⇨` split instead of a generic frame for the excess state arguments. Returns `none` if the RHS is not a
 meet upper adjoint. -/
-private def refoldHimpUpperAdjoint? (goal : MVarId) (rhs : Expr) :
+def refoldHimpUpperAdjoint? (goal : MVarId) (rhs : Expr) :
     VCGenM (Option (MVarId × Expr)) :=
   rhs.withApp fun head args => do
     unless head.isConstOf ``Lean.Order.PreservesSup.upperAdjoint do return none
@@ -77,15 +77,9 @@ private def refoldHimpUpperAdjoint? (goal : MVarId) (rhs : Expr) :
     return some (← goal.replaceTargetDefEqFast newTarget, rhs')
 
 /--
-Decompose a supported lattice connective (`⊓`, `⇨`, `⌜p⌝`, `⊤`, `iInf`, a `⊥`/`⊤` tuple projection)
-or a registered frame operator on the RHS of `pre ⊑ rhs` by saturating it with the built-in and
-`@[frameproc]` rewrites, closing it with a terminal, and point-framing any excess state arguments.
-Returns `none` if the head is neither a built-in connective nor a frame operator, or its rule does
-not apply.
-
-An embedded proposition `⌜p⌝` is decomposed only when the precondition is `⊤`: its `⊤`-fixed terminal
-`CompleteLattice.top_le_ofProp` fails to apply otherwise, since turning `pre ⊑ ⌜p⌝` into the subgoal
-`p` drops `pre`.
+Decompose the head of the RHS of `pre ⊑ rhs` with its split in `latticeOps` or a registered
+`@[frameproc]` operator: saturate it with the split's rewrites, close it with its terminal, and
+build a frame for any excess state arguments. Returns `none` if no split applies.
 -/
 public def splitLatticeOp? (goal : MVarId) (rhs : Expr) :
     VCGenM (Option (List MVarId)) := do

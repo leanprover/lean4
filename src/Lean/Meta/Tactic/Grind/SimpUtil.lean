@@ -202,10 +202,4 @@ protected def getSimpContext (config : Grind.Config) : MetaM Simp.Context := do
     (simpTheorems := #[thms])
     (congrTheorems := (← getSimpCongrTheorems))
 
-set_option compiler.ignoreBorrowAnnotation true in
-@[export lean_grind_normalize]
-def normalizeImp (e : Expr) (config : Grind.Config) : MetaM Expr := do
-  let (r, _) ← Meta.simp e (← Grind.getSimpContext config) (← Grind.getSimprocs)
-  return r.expr
-
 end Lean.Meta.Grind

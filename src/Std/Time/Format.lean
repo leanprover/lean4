@@ -152,6 +152,31 @@ This format is an older standard for representing date and time in headers.
 -/
 def rfc850 : GenericFormat .any := datespec("eee, dd-MM-uuuu HH:mm:ss ZZZ")
 
+/--
+The HTTP-date format of RFC 9110 §5.6.7 (IMF-fixdate), which follows the pattern
+`eee, dd MMM uuuu HH:mm:ss 'GMT'`, for example `Sun, 06 Nov 1994 08:49:37 GMT`. This is the
+format to use when generating HTTP header fields such as `Date`, `Last-Modified` and `Expires`.
+The zone is always the literal `GMT`; dates in other zones are converted when formatting.
+-/
+def httpDate : GenericFormat (.only .GMT) := datespec("eee, dd MMM uuuu HH:mm:ss 'GMT'")
+
+/--
+The obsolete RFC 850 form of an HTTP-date, for example `Sunday, 06-Nov-94 08:49:37 GMT`.
+-/
+private def httpDateRFC850 : GenericFormat (.only .GMT) := datespec("eeee, dd-MMM-uu HH:mm:ss 'GMT'")
+
+/--
+The obsolete asctime form of an HTTP-date with a two-digit day, for example
+`Wed Nov 16 08:49:37 1994`.
+-/
+private def httpDateAscTime : GenericFormat (.only .GMT) := datespec("eee MMM d HH:mm:ss uuuu")
+
+/--
+The obsolete asctime form of an HTTP-date with a space-padded day, for example
+`Sun Nov  6 08:49:37 1994`.
+-/
+private def httpDateAscTimePadded : GenericFormat (.only .GMT) := datespec("eee MMM  d HH:mm:ss uuuu")
+
 end Formats
 
 namespace TimeZone
@@ -385,6 +410,25 @@ Formats a `DateTime` value into an RFC850 format string.
 -/
 def toRFC850String (date : DateTime) : String :=
   Formats.rfc850.format date
+
+/--
+Formats a `DateTime` as an HTTP-date (RFC 9110 §5.6.7), for example
+`Sun, 06 Nov 1994 08:49:37 GMT`. The result is always in GMT, whatever the zone of `date`.
+-/
+def toHTTPDateString (date : DateTime) : String :=
+  Formats.httpDate.format date
+
+/--
+Parses an HTTP-date (RFC 9110 §5.6.7). Accepts the preferred form produced by `toHTTPDateString`
+and the two obsolete forms that recipients are required to accept: RFC 850
+(`Sunday, 06-Nov-94 08:49:37 GMT`) and asctime (`Sun Nov  6 08:49:37 1994`). A two-digit RFC 850
+year `yy` is read as `19yy` when `yy ≥ 70` and as `20yy` otherwise.
+-/
+def fromHTTPDateString (input : String) : Except String DateTime :=
+  Formats.httpDate.parse input
+  <|> (Formats.httpDateRFC850.parse input).map (fun date => if date.year ≥ 2070 then date.subYearsClip 100 else date)
+  <|> Formats.httpDateAscTime.parse input
+  <|> Formats.httpDateAscTimePadded.parse input
 
 /--
 Parses a `String` in the dateTimeWithZone format and returns a `DateTime` object in the GMT time zone.

@@ -1,0 +1,26 @@
+Input: "Some `code here\n\nAfter `tick\n"
+Success! Final stack:
+  (Lean.Doc.Parser.document
+   [(Lean.Doc.Parser.Block.para
+     [(Lean.Doc.Parser.Inline.text
+       (Lean.Doc.Parser.versoText "Some "))
+      (Lean.Doc.Parser.Inline.code
+       (Lean.Doc.Parser.codeDelimiter "`")
+       (Lean.Doc.Parser.versoCode
+        [(Lean.Doc.Parser.versoCodeLine
+          "code here\n")
+         (Lean.Doc.Parser.versoCodeLine "\n")
+         (Lean.Doc.Parser.versoCodeLine
+          "After ")])
+       (Lean.Doc.Parser.codeDelimiter "`"))
+      (Lean.Doc.Parser.Inline.text
+       (Lean.Doc.Parser.versoText "tick"))
+      (Lean.Doc.Parser.Inline.linebreak "\n")])])
+All input consumed.
+Round-trip OK
+Decoded views:
+  para
+    text (content := "Some ")
+    code (opener := "`") (content := "code here\n\nAfter ") (closer := "`")
+    text (content := "tick")
+    linebreak (newline := "\n")

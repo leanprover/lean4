@@ -36,12 +36,13 @@ lean_object* lean_uv_udp_connect(lean_object*, lean_object*);
 uint8_t l_IO_Promise_isResolved___redArg(lean_object*);
 lean_object* lean_uv_udp_set_multicast_loop(lean_object*, uint8_t);
 lean_object* lean_uv_udp_set_multicast_interface(lean_object*, lean_object*);
+lean_object* lean_obj_tag_nat(lean_object*);
 lean_object* lean_uv_udp_set_multicast_ttl(lean_object*, uint32_t);
 lean_object* lean_uv_udp_getpeername(lean_object*);
 lean_object* lean_uv_udp_set_membership(lean_object*, lean_object*, lean_object*, uint8_t);
 lean_object* lean_uv_udp_bind(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Async_UDP_Membership_ctorIdx(uint8_t);
-LEAN_EXPORT lean_object* l_Std_Async_UDP_Membership_ctorIdx___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_Std_Async_UDP_Membership_ctorIdx___impl(uint8_t);
+LEAN_EXPORT lean_object* l_Std_Async_UDP_Membership_ctorIdx___impl___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Async_UDP_Membership_ctorElim___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Async_UDP_Membership_ctorElim___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Async_UDP_Membership_ctorElim(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*);
@@ -152,29 +153,22 @@ LEAN_EXPORT lean_object* l_Std_Async_UDP_Socket_setMulticastInterface(lean_objec
 LEAN_EXPORT lean_object* l_Std_Async_UDP_Socket_setMulticastInterface___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Async_UDP_Socket_setTTL(lean_object*, uint32_t);
 LEAN_EXPORT lean_object* l_Std_Async_UDP_Socket_setTTL___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Async_UDP_Membership_ctorIdx(uint8_t v_x_1_){
+LEAN_EXPORT lean_object* l_Std_Async_UDP_Membership_ctorIdx___impl(uint8_t v_x_1_){
 _start:
 {
-if (v_x_1_ == 0)
-{
-lean_object* v___x_2_; 
-v___x_2_ = lean_unsigned_to_nat(0u);
-return v___x_2_;
-}
-else
-{
-lean_object* v___x_3_; 
-v___x_3_ = lean_unsigned_to_nat(1u);
+lean_object* v___x_2_; lean_object* v___x_3_; 
+v___x_2_ = lean_box(v_x_1_);
+v___x_3_ = lean_obj_tag_nat(v___x_2_);
+lean_dec(v___x_2_);
 return v___x_3_;
 }
 }
-}
-LEAN_EXPORT lean_object* l_Std_Async_UDP_Membership_ctorIdx___boxed(lean_object* v_x_4_){
+LEAN_EXPORT lean_object* l_Std_Async_UDP_Membership_ctorIdx___impl___boxed(lean_object* v_x_4_){
 _start:
 {
-uint8_t v_x_boxed_5_; lean_object* v_res_6_; 
-v_x_boxed_5_ = lean_unbox(v_x_4_);
-v_res_6_ = l_Std_Async_UDP_Membership_ctorIdx(v_x_boxed_5_);
+uint8_t v_x_4__boxed_5_; lean_object* v_res_6_; 
+v_x_4__boxed_5_ = lean_unbox(v_x_4_);
+v_res_6_ = l_Std_Async_UDP_Membership_ctorIdx___impl(v_x_4__boxed_5_);
 return v_res_6_;
 }
 }

@@ -1,0 +1,4 @@
+{foo}[abcdefg hijk
+more text
+
+After

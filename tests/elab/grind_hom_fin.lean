@@ -1,7 +1,6 @@
 /-!
 Tests for `[grind hom]` over `Fin`, ported from the intblasting prototype test suite (#15224).
-The goals relate `Fin` operations to their `val` interpretation. Goals that `grind`
-cannot prove yet are disabled and marked with `TODO`.
+The goals relate `Fin` operations to their `val` interpretation.
 -/
 
 -- Missing instance in standard Lean
@@ -39,14 +38,40 @@ example [NeZero n] (x : Fin n) (h : x ≠ 0) : x.val ≠ 0 := by grind
 
 example [NeZero n] (x y : Fin n) : x = y ↔ x.val = y.val := by grind
 
--- log2 and intCast Tests
--- TODO: `grind` fails (`Fin.log2`, `IntCast` into `Fin`)
-/-
+-- log2 Tests
 example (x : Fin n) : (x.log2).val = Nat.log2 x.val := by grind
+example (x y : Fin n) : x = y → x.log2.val = y.val.log2 := by grind
+example (x : Fin 16) : x.log2.val < 16 := by grind
+example (x y : Fin n) : (x + y).log2.val = ((x.val + y.val) % n).log2 := by grind
 
+-- intCast Tests
 open Fin.IntCast in
 example [NeZero n] (i : Int) : ((i : Fin n)).val = (i % n).toNat := by grind
--/
+
+open Fin.IntCast in
+example (i : Int) : (((i : Fin 8)).val : Int) = i % 8 := by grind
+
+open Fin.IntCast in
+example (i j : Int) : ((i : Fin 8) + (j : Fin 8)).val = ((i + j) % 8).toNat := by grind
+
+open Fin.IntCast in
+example (i j : Int) : (i : Fin 8) + (j : Fin 8) = ((i + j : Int) : Fin 8) := by grind
+
+open Fin.IntCast in
+example (i : Int) : i % 8 = 3 → (i : Fin 8) = 3 := by grind
+
+-- natCast Tests
+open Fin.NatCast in
+example [NeZero n] (k : Nat) : ((k : Fin n)).val = k % n := by grind
+
+open Fin.NatCast in
+example (a b : Nat) : (a : Fin 8) + (b : Fin 8) = ((a + b : Nat) : Fin 8) := by grind
+
+open Fin.NatCast in
+example (k : Nat) : k % 8 = 3 → (k : Fin 8) = 3 := by grind
+
+open Fin.NatCast Fin.IntCast in
+example (k : Nat) : ((k : Int) : Fin 8) = (k : Fin 8) := by grind
 
 -- Boolean / Bitwise operations
 example (x y : Fin n) : (x &&& y).val = x.val &&& y.val := by grind

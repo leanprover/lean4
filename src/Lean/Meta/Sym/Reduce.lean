@@ -62,7 +62,9 @@ public def reduceProjApp? (e : Expr) : SymM (Option Expr) := do
   let some info ← getProjectionFnInfo? declName | return none
   if info.fromClass then return none
   let some e ← unfoldDefinition? e | return none
-  let some f ← reduceProj? e.getAppFn | return none
+  -- The structure argument is put in weak head normal form to expose its constructor. As in
+  -- `Meta.simp`, only reducible definitions are unfolded for that, whatever the ambient transparency.
+  let some f ← withReducible <| reduceProj? e.getAppFn | return none
   return some (← shareCommon (mkAppN f e.getAppArgs))
 
 /-- Iota-reduces a `match` or recursor application whose discriminants are constructors. -/

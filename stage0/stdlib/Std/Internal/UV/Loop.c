@@ -22,6 +22,7 @@ _start:
 {
 lean_object* v_res_5_; 
 v_res_5_ = lean_uv_event_loop_configure(v_options_3_);
+lean_dec_ref(v_options_3_);
 return v_res_5_;
 }
 }

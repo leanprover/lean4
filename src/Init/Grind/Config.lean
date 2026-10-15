@@ -109,6 +109,14 @@ structure Config where
   -/
   zeta := true
   /--
+  When `true`, the normalizer distributes multiplication over addition and expands powers of
+  sums: `x * (y + 1)` becomes `x * y + x`. When `false` (default: `false`), such products and
+  powers are kept as atoms, and only products with a constant factor are expanded. Linear
+  arithmetic procedures treat nonlinear terms as atoms, so keeping them unexpanded preserves
+  equalities such as `x * (y + 1) = x * z` after `y + 1 = z` is derived.
+  -/
+  distrib := false
+  /--
   When `true` (default: `true`), uses procedure for handling equalities over commutative rings.
   This solver also support commutative semirings, fields, and normalizer non-commutative rings and
   semirings.

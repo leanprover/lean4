@@ -4904,8 +4904,8 @@ goto v___jp_1023_;
 }
 else
 {
-lean_dec(v_pre_1039_);
 lean_dec_ref_known(v_declName_1038_, 2);
+lean_dec(v_pre_1039_);
 goto v___jp_1023_;
 }
 }

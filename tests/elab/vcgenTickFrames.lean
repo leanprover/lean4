@@ -186,11 +186,12 @@ noncomputable instance TickT.instWPMonad [Assertion Pred] [Assertion EPosts] [WP
   WPMonad.withFrameClosure (m := StateT Nat m) costConj
     costConj_add (fun _ _ _ => rfl) costConj_zero (fun _ => rfl) StateT.instWPMonad
 
-/-- The internalized frame rule: every program frames every shift `F` with respect to `costConj`. -/
+/-- The internalized frame rule: every program frames every shift `F` with respect to `costConj`,
+under every guard `P`. -/
 @[grind .]
 theorem frames_costConj [Assertion Pred] [Assertion EPosts] [WPMonad m Pred EPosts]
-    {α : Type} (x : TickT m α) (F : Nat) :
-    WP.Frames costConj x F :=
+    {α : Type} (x : TickT m α) (F : Nat) (P : Nat → Pred) :
+    WP.Frames costConj x F P :=
   WP.frames_of_frameClosure costConj (· + ·) costConj_add (fun _ _ _ => rfl)
     ⟨fun y => WP.trans y.run, fun _ => rfl⟩
 
@@ -198,7 +199,8 @@ theorem frames_costConj [Assertion Pred] [Assertion EPosts] [WPMonad m Pred EPos
 theorem tickFrames [Assertion Pred] [Assertion EPosts] [WPMonad m Pred EPosts]
     {α : Type} (x : TickT m α) (F : Nat) (Q : α → Nat → Pred) (E : EPosts) :
     F ⋆ TickT.wp x Q E ⊑ TickT.wp x (fun a => F ⋆ Q a) E :=
-  (frames_costConj (Pred := Pred) (EPosts := EPosts) x F).op_wp_le_wp_op Q E
+  PartialOrder.rel_trans (le_meet _ _ _ (le_top _) PartialOrder.rel_refl)
+    ((frames_costConj (Pred := Pred) (EPosts := EPosts) x F ⊤).op_wp_le_wp_op Q E)
 
 /-- The sharp cost spec for `tick`: it costs exactly one unit. Threads the shift `r` through the
 base `tick` spec. -/

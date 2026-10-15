@@ -416,9 +416,9 @@ v___jp_93_:
 if (v_colon_92_ == 0)
 {
 lean_object* v___x_97_; lean_object* v___x_98_; 
-lean_inc_ref(v___y_94_);
-v___x_97_ = lean_string_append(v___y_94_, v___y_95_);
-lean_dec_ref(v___y_95_);
+lean_inc_ref(v___y_95_);
+v___x_97_ = lean_string_append(v___y_95_, v___y_94_);
+lean_dec_ref(v___y_94_);
 v___x_98_ = lean_string_append(v___x_97_, v___y_96_);
 lean_dec_ref(v___y_96_);
 return v___x_98_;
@@ -426,9 +426,9 @@ return v___x_98_;
 else
 {
 lean_object* v___x_99_; lean_object* v___x_100_; lean_object* v___x_101_; lean_object* v___x_102_; 
-lean_inc_ref(v___y_94_);
-v___x_99_ = lean_string_append(v___y_94_, v___y_95_);
-lean_dec_ref(v___y_95_);
+lean_inc_ref(v___y_95_);
+v___x_99_ = lean_string_append(v___y_95_, v___y_94_);
+lean_dec_ref(v___y_94_);
 v___x_100_ = ((lean_object*)(l_Std_Time_TimeZone_Offset_toIsoString___closed__0));
 v___x_101_ = lean_string_append(v___x_99_, v___x_100_);
 v___x_102_ = lean_string_append(v___x_101_, v___y_96_);
@@ -445,8 +445,8 @@ if (v___x_108_ == 0)
 lean_object* v___x_109_; 
 v___x_109_ = l_Int_repr(v___y_105_);
 lean_dec(v___y_105_);
-v___y_94_ = v___y_106_;
-v___y_95_ = v___y_107_;
+v___y_94_ = v___y_107_;
+v___y_95_ = v___y_106_;
 v___y_96_ = v___x_109_;
 goto v___jp_93_;
 }
@@ -458,8 +458,8 @@ v___x_111_ = l_Int_repr(v___y_105_);
 lean_dec(v___y_105_);
 v___x_112_ = lean_string_append(v___x_110_, v___x_111_);
 lean_dec_ref(v___x_111_);
-v___y_94_ = v___y_106_;
-v___y_95_ = v___y_107_;
+v___y_94_ = v___y_107_;
+v___y_95_ = v___y_106_;
 v___y_96_ = v___x_112_;
 goto v___jp_93_;
 }

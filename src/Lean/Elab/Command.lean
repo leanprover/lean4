@@ -185,6 +185,12 @@ for the next command.
 `selfCurrentPreState`.
 * **Others**: Access other linters' states only via the `readPrevPostState` and
 `readCurrentPreState` closures that take typed handles of other linters.
+
+### Commands with Parse Errors
+Unlike regular linters, stateful linters also run on commands with parse errors. Their messages are
+discarded there (unless `showPartialSyntaxErrors` is set), but their info trees are kept, so code
+actions from `MessageData.hint` would be offered without the corresponding message. Linters should
+not produce hints when `(← read).suppressElabErrors` is set.
 -/
 unsafe def registerStatefulLinterImpl (init : σ)
     (pre  : Syntax → (selfPrevPostState : σ) → (readPrevPostState : PrevStateFn) → CommandElabM (Option τ) :=
@@ -925,7 +931,10 @@ def elabCommandTopLevel (stx : Syntax) : CommandElabM Unit := withRef stx do pro
   -- rather than engineer a general solution.
   unless (stx.find? (·.isOfKind ``Lean.guardMsgsCmd)).isSome do
     withLogging do
-      runLintersAsync stx
+      -- On partial syntax, `logMessage` would discard the linters' warnings, but code actions
+      -- attached to them via hints would still reach the info tree.
+      unless (← read).suppressElabErrors do
+        runLintersAsync stx
       runStatefulLintersAsync stx
 
 /-- Adapt a syntax transformation to a regular, command-producing elaborator. -/
@@ -1156,8 +1165,6 @@ only have an effect for the remainder of the `CommandElabM` computation passed h
 and do not affect subsequent commands.
 
 *Warning:* when using this from `MetaM` monads, the caches are *not* reset.
-If the command defines new instances for example, you should use `Lean.Meta.resetSynthInstanceCache`
-to reset the instance cache.
 While the `modifyEnv` function for `MetaM` clears its caches entirely,
 `liftCommandElabM` has no way to reset these caches.
 -/

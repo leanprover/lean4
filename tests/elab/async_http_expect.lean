@@ -144,7 +144,8 @@ private def assertCallCount (ref : IO.Ref Nat) (expected : Nat) : IO Unit := do
     (config := { defaultConfig with generateDate := true })
     (expect := fun r =>
       assertStatus r "HTTP/1.1 200" *>
-      assertContains r "Date: ")
+      assertContains r "Date: " *>
+      assertContains r " GMT\x0d\n")
 
   check "generateDate: false omits Date header"
     (raw := mkGetClose "/no-date")

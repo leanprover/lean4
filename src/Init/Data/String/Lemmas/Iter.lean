@@ -7,7 +7,8 @@ module
 
 prelude
 public import Init.Data.String.Iter.Intercalate
-public import Init.Data.String.Slice
+public import Init.Data.String.Slice.Basic
+public import Init.Data.Iterators.Consumers.Collect
 import all Init.Data.String.Iter.Intercalate
 import all Init.Data.String.Defs
 import Init.Data.String.Lemmas.Intercalate

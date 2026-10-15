@@ -18,9 +18,9 @@ opaque closureMaxArgsFn : Unit → Nat
 @[extern "lean_max_small_nat"]
 opaque maxSmallNatFn : Unit → Nat
 
-@[extern "lean_get_max_ctor_fields"]
-opaque getMaxCtorFields : Unit → Nat
-def maxCtorFields := getMaxCtorFields ()
+@[extern "lean_get_max_ctor_num_objs"]
+opaque getMaxCtorNumObjs : Unit → Nat
+def maxCtorNumObjs := getMaxCtorNumObjs ()
 
 @[extern "lean_get_max_ctor_scalars_size"]
 opaque getMaxCtorScalarsSize : Unit → Nat

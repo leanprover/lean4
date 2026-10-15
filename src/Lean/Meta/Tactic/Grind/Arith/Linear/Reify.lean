@@ -34,8 +34,9 @@ def reportInstIssue (e : Expr) : GoalM Unit := do
 
 private def assertNatCastNonneg (a : Expr) : LinearM Unit := do
   let s ← getStruct
+  let some lawfulOrderLTInst := s.lawfulOrderLTInst? | return ()
   let h := mkApp8 (mkConst ``Grind.OrderedRing.natCast_nonneg [s.u]) s.type s.ringInst?.get!
-    s.leInst?.get! s.ltInst?.get! s.lawfulOrderLTInst?.get! s.isPreorderInst?.get! s.orderedRingInst?.get! a
+    s.leInst?.get! s.ltInst?.get! lawfulOrderLTInst s.isPreorderInst?.get! s.orderedRingInst?.get! a
   addNewRawFact h (← inferType h) (← getGeneration a) (.ematch (.decl ``Grind.OrderedRing.natCast_nonneg)) .other
 
 /--
@@ -44,7 +45,7 @@ Converts a Lean `IntModule` expression `e` into a `LinExpr`
 If `skipVar` is `true`, then the result is `none` if `e` is not an interpreted `IntModule` term.
 We use `skipVar := false` when processing inequalities, and `skipVar := true` for equalities and disequalities
 -/
-partial def reify? (e : Expr) (skipVar : Bool) (generation : Nat := 0) : LinearM (Option LinExpr) := do
+partial def reify? (e : Expr) (skipVar : Bool) : LinearM (Option LinExpr) := do
   match_expr e with
   | HAdd.hAdd _ _ _ i a b =>
     if isAddInst (← getStruct) i then return some (.add (← go a) (← go b)) else asTopVar e
@@ -66,11 +67,9 @@ partial def reify? (e : Expr) (skipVar : Bool) (generation : Nat := 0) : LinearM
   | _ => toTopVar e
 where
   toVar (e : Expr) : LinearM LinExpr := do
-    if (← alreadyInternalized e) then
-      return .var (← mkVar e)
-    else
-      internalize e generation
-      return .var (← mkVar e)
+    unless (← alreadyInternalized e) do
+      throwError "`grind` internal error, linarith term has not been internalized{indentExpr e}"
+    return .var (← mkVar e)
   asVar (e : Expr) : LinearM LinExpr := do
     reportInstIssue e
     toVar e

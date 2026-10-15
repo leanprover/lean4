@@ -9,7 +9,7 @@ public import Init.Grind.Ring.CommSolver
 public import Init.GrindInstances.Ring.Int
 import Init.Data.Int.DivMod.Lemmas
 import Init.Data.Int.LemmasAux
-import Init.Data.Int.Linear
+public import Init.Data.Int.Linear
 import Init.Omega
 public section
 
@@ -29,7 +29,7 @@ namespace Lean.Grind.CommRing
 open Int.Internal.Linear (cdiv)
 
 /-- `p = k * q + c` with `k > 0`. -/
-noncomputable def split_cert (p q : Poly) (k c : Int) : Bool :=
+@[expose] noncomputable def split_cert (p q : Poly) (k c : Int) : Bool :=
   Int.blt' 0 k |>.and (p.beq' ((q.mulConst_k k).addConst_k c))
 
 theorem denote_of_split_cert (ctx : Context Int) {p q : Poly} {k c : Int}
@@ -40,7 +40,7 @@ theorem denote_of_split_cert (ctx : Context Int) {p q : Poly} {k c : Int}
   rw [h₂, Poly.addConst_k_eq_addConst, Poly.denote_addConst, Poly.denote_mulConst]
   simp
 
-noncomputable def eq_div_cert (lhs rhs lhs' rhs' : Expr) (k : Int) : Bool :=
+@[expose] noncomputable def eq_div_cert (lhs rhs lhs' rhs' : Expr) (k : Int) : Bool :=
   !Int.beq' k 0 |>.and ((lhs.sub rhs).toPoly_k.beq' ((lhs'.sub rhs').toPoly_k.mulConst_k k))
 
 theorem eq_norm_div_expr (ctx : Context Int) (lhs rhs lhs' rhs' : Expr) (k : Int)
@@ -53,7 +53,7 @@ theorem eq_norm_div_expr (ctx : Context Int) (lhs rhs lhs' rhs' : Expr) (k : Int
   rw [← Int.sub_eq_zero, ← Int.sub_eq_zero (a := lhs'.denote ctx), h, Int.mul_eq_zero]
   simp [hk]
 
-noncomputable def eq_unsat_cert (lhs rhs : Expr) (q : Poly) (k c : Int) : Bool :=
+@[expose] noncomputable def eq_unsat_cert (lhs rhs : Expr) (q : Poly) (k c : Int) : Bool :=
   split_cert (lhs.sub rhs).toPoly_k q k c |>.and (!Int.beq' (c % k) 0)
 
 theorem eq_norm_unsat_expr (ctx : Context Int) (lhs rhs : Expr) (q : Poly) (k c : Int)
@@ -72,7 +72,7 @@ theorem eq_norm_unsat_expr (ctx : Context Int) (lhs rhs : Expr) (q : Poly) (k c 
     rw [this]; exact Int.emod_eq_zero_of_dvd (Int.dvd_neg.mpr (Int.dvd_mul_right k _))
   exact hc this
 
-noncomputable def le_tight_cert (lhs rhs lhs' rhs' : Expr) (q : Poly) (k c : Int) : Bool :=
+@[expose] noncomputable def le_tight_cert (lhs rhs lhs' rhs' : Expr) (q : Poly) (k c : Int) : Bool :=
   split_cert (lhs.sub rhs).toPoly_k q k c |>.and ((lhs'.sub rhs').toPoly_k.beq' (q.addConst_k (cdiv c k)))
 
 theorem le_norm_tight_expr (ctx : Context Int) (lhs rhs lhs' rhs' : Expr) (q : Poly) (k c : Int)
@@ -101,7 +101,7 @@ theorem le_norm_tight_expr (ctx : Context Int) (lhs rhs lhs' rhs' : Expr) (q : P
     rw [Int.mul_comm] at h₂
     omega
 
-noncomputable def dvd_cert (k : Int) (e e' : Expr) (k' : Int) (q : Poly) (g c : Int) : Bool :=
+@[expose] noncomputable def dvd_cert (k : Int) (e e' : Expr) (k' : Int) (q : Poly) (g c : Int) : Bool :=
   split_cert e.toPoly_k q g c |>.and (Int.beq' k (k' * g)) |>.and (Int.beq' (c % g) 0)
     |>.and (e'.toPoly_k.beq' (q.addConst_k (c / g)))
 
@@ -120,7 +120,7 @@ theorem dvd_norm_expr (ctx : Context Int) (k : Int) (e e' : Expr) (k' : Int) (q 
   rw [h, h', hk, this, Int.mul_comm k' g]
   exact Int.mul_dvd_mul_iff_left (Int.ne_of_gt hg)
 
-noncomputable def dvd_unsat_cert (k : Int) (e : Expr) (q : Poly) (g c : Int) : Bool :=
+@[expose] noncomputable def dvd_unsat_cert (k : Int) (e : Expr) (q : Poly) (g c : Int) : Bool :=
   split_cert e.toPoly_k q g c |>.and (Int.beq' (k % g) 0) |>.and (!Int.beq' (c % g) 0)
 
 theorem dvd_norm_unsat_expr (ctx : Context Int) (k : Int) (e : Expr) (q : Poly) (g c : Int)

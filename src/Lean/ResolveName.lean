@@ -43,7 +43,7 @@ def registerReservedNamePredicate (p : Environment → Name → Bool) : IO Unit 
   reservedNamePredicatesRef.modify fun ps => ps.push p
 
 builtin_initialize reservedNamePredicatesExt : EnvExtension (Array (Environment → Name → Bool)) ←
-  registerEnvExtension reservedNamePredicatesRef.get
+  registerEnvExtension reservedNamePredicatesRef.get (logWrites := true)
 
 /--
 Returns `true` if `name` is a reserved name.

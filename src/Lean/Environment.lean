@@ -158,6 +158,11 @@ structure EnvironmentHeader where
   `ModuleIdx` for the same module.
   -/
   modules      : Array EffectiveImport := #[]
+  /--
+  Name of all imported modules (directly and indirectly).
+  The index of a module name in the array equals the `ModuleIdx` for the same module.
+  -/
+  moduleNames  : Array Name := modules.map (·.module)
   /-- For `getModuleIdx?` -/
   private moduleName2Idx : Std.HashMap Name ModuleIdx := Id.run do
     let mut m := {}
@@ -174,13 +179,6 @@ structure EnvironmentHeader where
   /-- Module data for all imported modules. -/
   moduleData   : Array ModuleData := #[]
   deriving Nonempty
-
-/--
-Name of all imported modules (directly and indirectly).
-The index of a module name in the array equals the `ModuleIdx` for the same module.
--/
-def EnvironmentHeader.moduleNames (header : EnvironmentHeader) : Array Name :=
-  header.modules.map (·.module)
 
 namespace Kernel
 
@@ -262,7 +260,7 @@ structure Environment where
   (`PersistentEnvExtensionDescrCore.trackGen`): while it is unchanged, no such extension has
   changed. Like the generations, it rolls back with the environment, so after a rollback a different
   modification can reach a value seen before. Results stored in the environment roll back with it
-  and stay sound. As the counter only grows along one environment lineage, a result stored outside
+  and stay sound. As the counter only grows along one environment branch, a result stored outside
   the environment stays sound across a rollback only if it was stamped with at most the restored
   value; later ones must be dropped.
   -/
@@ -556,6 +554,31 @@ private structure RealizationContext where
   realizeMapRef : IO.Ref (NameMap NonScalar /- PHashMap α (Task Dynamic) -/)
 
 /--
+The declarations whose declaration-keyed state changed, as recorded in `Environment.declChangeLog`.
+A list with the newest entry first, as the log only grows at one end and validation only reads the
+entries logged since some position: appending then never copies the log, even while older
+environments share it.
+-/
+structure DeclChangeLog where
+  /-- Number of entries, which positions in the log refer to. -/
+  size : Nat := 0
+  /-- The logged declarations, newest first. -/
+  entries : List Name := []
+  deriving Inhabited
+
+/-- Appends `declName` to the log. -/
+def DeclChangeLog.push (log : DeclChangeLog) (declName : Name) : DeclChangeLog :=
+  { size := log.size + 1, entries := declName :: log.entries }
+
+/-- Returns whether `p` holds for all entries logged since position `fromPos`. -/
+def DeclChangeLog.allSince (log : DeclChangeLog) (fromPos : Nat) (p : Name → Bool) : Bool :=
+  go (log.size - fromPos) log.entries
+where
+  go : Nat → List Name → Bool
+    | 0, _ | _, [] => true
+    | n + 1, d :: ds => p d && go n ds
+
+/--
 Elaboration-specific extension of `Kernel.Environment` that adds tracking of asynchronously
 elaborated declarations.
 -/
@@ -624,6 +647,48 @@ structure Environment where
   `elabMutualDef` may switch from public to private when e.g. entering the proof of a theorem.
   -/
   isExporting : Bool := false
+  /--
+  Mirrors `Lean.Core.Context.isRecordingDeps` for pure extension reads, which cannot see the
+  context: while set, a generation-tracked extension must be read with `(genRecorded := true)`, by
+  which the caller asserts that it recorded the generation (`Lean.recordExtGenAccess`), and any other
+  extension must have `EnvExtension.logWrites`; other reads panic.
+  -/
+  isRecordingDeps : Bool := false
+  /--
+  Persistent tier of the type class resolution cache, `none` for empty. The value is a
+  `Lean.Meta.SynthInstanceCache`, which is not nameable in this module; see
+  `Lean.Environment.synthCache`. It lives in a plain field rather than an environment extension so
+  that adding an entry costs one structure copy, while keeping value semantics: new entries roll
+  back with the environment, and parallel elaboration branches never observe each other's entries.
+
+  If `CommandElabM` is changed to be based on top of `CoreM`, `Core.State` may become the better
+  home for this field.
+  -/
+  private synthCacheRaw? : Option NonScalar := none
+  /--
+  Log of declaration-keyed state changes some recording computation could have observed
+  (`logDeclChange`): a write about a declaration is appended when the declaration was added before
+  the latest recording started (`recordingConstGen`), as writes about younger declarations cannot
+  invalidate a recorded result. A recorded result is validated against the entries appended since it
+  was recorded (`checkDeclChangeLog`); reducibility changes are the most common source.
+  -/
+  declChangeLog : DeclChangeLog := {}
+  /--
+  `constGen` when a recording computation last started on this branch, or a later value carried over
+  a rollback (`raiseRecordingConstGen`); see `declChangeLog`.
+  -/
+  recordingConstGen : Nat := 0
+  /--
+  For each constant added on this environment branch, the `constGen` at which it became observable
+  here (synchronous `addDecl`, asynchronous registration, merged realizations); see
+  `constAddedGen`.
+  -/
+  constAddedGens : PHashMap Name Nat := {}
+  /--
+  Counter bumped by every constant added on this environment branch: a consumer capturing it at
+  some point knows that a constant with a larger `constAddedGen` did not exist then.
+  -/
+  constGen : Nat := 0
 deriving Nonempty
 
 @[inline] private def VisibilityMap.get (m : VisibilityMap α) (env : Environment) : α :=
@@ -672,6 +737,64 @@ def setExporting (env : Environment) (isExporting : Bool) : Environment :=
     env
   else
     { env with isExporting }
+
+/--
+Registers `n` as added now on this environment branch, unless it already was: a constant announced
+by `addConstAsync` keeps the generation of its announcement when its asynchronous branch adds it.
+-/
+def registerConstAdded (env : Environment) (n : Name) : Environment :=
+  if env.constAddedGens.contains n then
+    env
+  else
+    { env with constAddedGens := env.constAddedGens.insert n (env.constGen + 1)
+               constGen := env.constGen + 1 }
+
+/--
+The `constGen` at which `n` was added on this branch. Constants not registered, in particular
+imported ones, have generation 0, i.e. are treated as older than anything a consumer captured. For
+caching that is a conservative approximation as lower generation numbers lead to more cache misses.
+-/
+def constAddedGen (env : Environment) (n : Name) : Nat :=
+  env.constAddedGens.find? n |>.getD 0
+
+/--
+Records a change of the declaration-keyed state about `declName` in `Environment.declChangeLog`, if
+some recording computation could have observed the previous state. Callers invoke this only for
+writes that change observable state.
+-/
+def logDeclChange (env : Environment) (declName : Name) : Environment :=
+  if env.constAddedGen declName ≤ env.recordingConstGen then
+    -- No deduplication: a result recorded between two writes about `declName` is validated only
+    -- against the entries after its position (`checkDeclChangeLog`)
+    { env with declChangeLog := env.declChangeLog.push declName }
+  else
+    env
+
+/--
+Returns whether a result recorded at log position `fromPos` when `constGen` was `baseConstGen` is
+still valid: every change logged since must be about a declaration added after that point.
+-/
+def checkDeclChangeLog (env : Environment) (fromPos baseConstGen : Nat) : Bool :=
+  fromPos ≤ env.declChangeLog.size &&
+    env.declChangeLog.allSince fromPos fun d => env.constAddedGen d > baseConstGen
+
+/-- Notes that a recording computation starts on this branch; see `Environment.declChangeLog`. -/
+def markRecordingStart (env : Environment) : Environment :=
+  -- Called at the start of every type class resolution query; avoid copying the environment. Never
+  -- lowers the value, which `raiseRecordingConstGen` may have carried across a rollback.
+  if env.constGen ≤ env.recordingConstGen then env else { env with recordingConstGen := env.constGen }
+
+/--
+Raises `recordingConstGen` to at least `gen`. A rollback of the environment restores an earlier
+recording start, while results recorded since may survive it; carrying the later start over keeps
+changes to the declarations they could have observed logged.
+-/
+def raiseRecordingConstGen (env : Environment) (gen : Nat) : Environment :=
+  if gen ≤ env.recordingConstGen then env else { env with recordingConstGen := gen }
+
+/-- Updates `Environment.isRecordingDeps`. -/
+def setRecordingDeps (env : Environment) (recording : Bool) : Environment :=
+  if env.isRecordingDeps == recording then env else { env with isRecordingDeps := recording }
 
 /-- Consistently updates synchronous and (private) asynchronous parts of the environment without blocking. -/
 private def modifyCheckedAsync (env : Environment) (f : Kernel.Environment → Kernel.Environment) : Environment :=
@@ -731,6 +854,7 @@ def addDeclCore (env : Environment) (maxHeartbeats : USize) (maxRecDepth : USize
   -- visibility scopes but the caller can still customize the public one on the main elaboration
   -- branch by use of `addConstAsync` as is the case for `Lean.addDecl`.
   for n in decl.getNames do
+    env := env.registerConstAdded n
     let some info := env.checked.get.find? n | unreachable!
     env := { env with asyncConstsMap.private := env.asyncConstsMap.private.add {
       constInfo := .ofConstantInfo info
@@ -1072,14 +1196,24 @@ def addConstAsync (env : Environment) (constName : Name) (kind : ConstantKind)
   let exportedAsyncConst? := exportedKind?.map fun exportedKind => { privateAsyncConst with
     constInfo := { privateAsyncConst.constInfo with
       kind := exportedKind
-      constInfo := constPromise.result?.map (sync := true) fun
-        | some c => c.exportedConstInfo
-        | none   => mkFallbackConstInfo constName exportedKind
+      constInfo :=
+        if kind matches .thm && exportedKind matches .axiom then
+          -- A theorem exported as an axiom is fully determined by its signature, so do not wait for
+          -- the proof. This does not hold for other kinds, whose `isUnsafe` flag is not part of the
+          -- signature.
+          sigPromise.result?.map (sync := true) fun
+            | some sig => .axiomInfo { sig with isUnsafe := false }
+            | none     => mkFallbackConstInfo constName exportedKind
+        else
+          constPromise.result?.map (sync := true) fun
+            | some c => c.exportedConstInfo
+            | none   => mkFallbackConstInfo constName exportedKind
     }
     aconstsImpl := constPromise.result?.map (sync := true) fun
       | some v => .mk v.nestedConsts.public
       | none   => .mk (α := AsyncConsts) default
   }
+  let env := env.registerConstAdded constName
   return {
     constName, kind, exportedKind?
     mainEnv := { env with
@@ -1407,6 +1541,13 @@ structure EnvExtension (σ : Type) where private mk ::
   generation in `Kernel.Environment.extGens`.
   -/
   genIdx?   : Option Nat
+  /--
+  Whether writes are logged by declaration in `Environment.declChangeLog`, so that type class
+  resolution may read the extension without recording the read: every write some recording
+  computation could have observed is appended to the log. Hence each write must name its declaration
+  or be marked unlogged; see `EnvExtension.modifyState`.
+  -/
+  logWrites : Bool
   deriving Inhabited
 
 namespace EnvExtension
@@ -1469,6 +1610,13 @@ private unsafe def getStateImpl {σ} [Inhabited σ] (ext : EnvExtension σ) (ext
   else
     panic! invalidExtMsg
 
+/-- Panics about a read of `ext` that `Environment.isRecordingDeps` forbids. -/
+-- Out of line with a borrowed `ext`, so that `getStateImpl` stays small enough to be inlined.
+@[noinline] private def panicUnrecordedRead {σ} [Inhabited σ] (ext : @& EnvExtension σ) : σ :=
+  panic! s!"environment extension `{ext.name}` (index {ext.idx}) read while recording \
+    dependencies, but it neither logs its writes (`logWrites`) nor is generation-tracked and read \
+    with `(genRecorded := true)` (see `Environment.isRecordingDeps`)"
+
 def mkInitialExtStates : IO (Array EnvExtensionState) := do
   let exts ← envExtensionsRef.get
   exts.mapM fun ext => ext.mkInitial
@@ -1491,19 +1639,18 @@ def asyncMayModify (ext : EnvExtension σ) (env : Environment) (asyncDecl : Name
       (ctx.mayContain asyncDecl && (env.findAsyncConst? asyncDecl).any (·.exts?.isNone))
     | _ => true
 
-/--
-Applies the given function to the extension state. See `AsyncMode` for details on how modifications
-from different environment branches are reconciled.
+/-- How a write to an extension is logged; see `EnvExtension.modifyState`. -/
+inductive WriteLog where
+  /-- No declaration named; panics for an extension with `logWrites`. -/
+  | missing
+  /-- Logs the write as a change of the state about `declName` (`Environment.logDeclChange`). -/
+  | decl (declName : Name)
+  /-- Not logged, where no unlogged change can be observed; the call site should state why. -/
+  | unlogged
 
-For generation-tracked extensions the modification bumps the generation if `bumpGen` is set; see
-`PersistentEnvExtensionDescrCore.trackGen`.
-
-Note that in modes `sync` and `async`, `f` will be called twice, on the local and on the `checked`
-state.
--/
-def modifyState {σ : Type} (ext : EnvExtension σ) (env : Environment) (f : σ → σ)
-    (asyncMode := ext.asyncMode) (asyncDecl : Name := .anonymous)
-    (bumpGen := true) : Environment := Id.run do
+/-- The part of `modifyState` kept out of line. -/
+private def modifyStateCore {σ : Type} (ext : EnvExtension σ) (env : Environment) (f : σ → σ)
+    (asyncMode : AsyncMode) (asyncDecl : Name) (bumpGen : Bool) : Environment := Id.run do
   -- for panics
   let _ : Inhabited Environment := ⟨env⟩
   let env := match ext.genIdx? with
@@ -1540,16 +1687,46 @@ def modifyState {σ : Type} (ext : EnvExtension σ) (env : Environment) (f : σ 
     env.modifyCheckedAsync fun env =>
       { env with extensions := unsafe ext.modifyStateImpl env.extensions f }
 
+private def panicUnloggedWrite (ext : EnvExtension σ) (env : Environment) : Environment :=
+  have : Inhabited Environment := ⟨env⟩
+  panic! s!"environment extension `{ext.name}` logs writes, so a write must name its declaration \
+    (`log := .decl`) or be marked `.unlogged`"
+
+/--
+Applies the given function to the extension state. See `AsyncMode` for details on how modifications
+from different environment branches are reconciled.
+
+For generation-tracked extensions the modification bumps the generation if `bumpGen` is set; see
+`PersistentEnvExtensionDescrCore.trackGen`. For an extension with `logWrites`, `log` must name the
+declaration the write is about, which logs it, or state `.unlogged`; otherwise the write panics.
+
+Note that in modes `sync` and `async`, `f` will be called twice, on the local and on the `checked`
+state.
+-/
+-- inlined so that `log` is a known constructor at the call site and never allocated
+@[inline] def modifyState {σ : Type} (ext : EnvExtension σ) (env : Environment) (f : σ → σ)
+    (asyncMode := ext.asyncMode) (asyncDecl : Name := .anonymous)
+    (bumpGen := true) (log : WriteLog := .missing) : Environment :=
+  let env := match log with
+    | .decl declName => if ext.logWrites then env.logDeclChange declName else env
+    | .unlogged => env
+    | .missing => if ext.logWrites then panicUnloggedWrite ext env else env
+  modifyStateCore ext env f asyncMode asyncDecl bumpGen
+
 /--
 Sets the extension state to the given value. See `AsyncMode` for details on how modifications from
 different environment branches are reconciled.
 -/
-def setState {σ : Type} (ext : EnvExtension σ) (env : Environment) (s : σ) (asyncMode := ext.asyncMode) : Environment :=
-  inline <| modifyState (asyncMode := asyncMode) ext env fun _ => s
+@[inline] def setState {σ : Type} (ext : EnvExtension σ) (env : Environment) (s : σ)
+    (asyncMode := ext.asyncMode) (log : WriteLog := .missing) : Environment :=
+  modifyState (asyncMode := asyncMode) (log := log) ext env fun _ => s
 
 -- `unsafe` fails to infer `Nonempty` here
 private unsafe def getStateUnsafe {σ : Type} [Inhabited σ] (ext : EnvExtension σ)
-    (env : Environment) (asyncMode := ext.asyncMode) (asyncDecl : Name := .anonymous) : σ := Id.run do
+    (env : Environment) (asyncMode := ext.asyncMode) (asyncDecl : Name := .anonymous)
+    (genRecorded := false) : σ := Id.run do
+  if env.isRecordingDeps && (if ext.isGenTracked then !genRecorded else !ext.logWrites) then
+    return panicUnrecordedRead ext
   -- safety: `ext`'s constructor is private, so we can assume the entry at `ext.idx` is of type `σ`
   match asyncMode with
   | .sync => ext.getStateImpl env.checked.get.extensions
@@ -1608,10 +1785,14 @@ different environment branches are reconciled.
 
 Overriding the extension's default `AsyncMode` is usually not recommended and should be considered
 only for important optimizations.
+
+`genRecorded` asserts that the caller recorded the extension's generation in the current recording
+computation (`Lean.recordExtGenAccess`), which reading a generation-tracked extension while
+`Environment.isRecordingDeps` is set requires.
 -/
 @[implemented_by getStateUnsafe]
 opaque getState {σ : Type} [Inhabited σ] (ext : EnvExtension σ) (env : Environment)
-  (asyncMode := ext.asyncMode) (asyncDecl : Name := .anonymous) : σ
+  (asyncMode := ext.asyncMode) (asyncDecl : Name := .anonymous) (genRecorded := false) : σ
 
 /--
 Generation of the generation-tracked extension with index `genIdx` (`EnvExtension.genIdx?`) on the
@@ -1642,8 +1823,9 @@ end EnvExtension
 def registerEnvExtension {σ : Type} (mkInitial : IO σ)
     (replay? : Option (ReplayFn σ) := none)
     (asyncMode : EnvExtension.AsyncMode := .mainOnly)
-    (name : Name := .anonymous)
-    (trackGen : Bool := false) : IO (EnvExtension σ) := do
+    (name : Name := by exact decl_name%)
+    (trackGen : Bool := false)
+    (logWrites : Bool := false) : IO (EnvExtension σ) := do
   unless (← initializing) do
     throw (IO.userError "failed to register environment, extensions can only be registered during initialization")
   if trackGen then
@@ -1655,7 +1837,8 @@ def registerEnvExtension {σ : Type} (mkInitial : IO σ)
   let genIdx? ← if trackGen then
     some <$> EnvExtension.numTrackedExtsRef.modifyGet fun n => (n, n + 1)
   else pure none
-  let ext : EnvExtension σ := { idx, mkInitial, asyncMode, replay?, name, genIdx? }
+  let ext : EnvExtension σ :=
+    { idx, mkInitial, asyncMode, replay?, name, genIdx?, logWrites }
   -- safety: `EnvExtensionState` is opaque, so we can upcast to it
   EnvExtension.envExtensionsRef.modify fun exts => exts.push (unsafe unsafeCast ext)
   pure ext
@@ -1816,29 +1999,38 @@ def getModuleEntries {α β σ : Type} [Inhabited σ] (ext : PersistentEnvExtens
 def getModuleIREntries {α β σ : Type} [Inhabited σ] (ext : PersistentEnvExtension α β σ)
     (env : Environment) (m : ModuleIdx) : Array α :=
   -- safety: as in `getStateUnsafe`
-  unsafe (ext.toEnvExtension.getStateImpl env.base.private.irBaseExts).importedEntries[m]!
+  -- `importedEntries` is empty for extensions without any IR entries
+  unsafe (ext.toEnvExtension.getStateImpl env.base.private.irBaseExts).importedEntries[m]?.getD #[]
 
-def addEntry {α β σ : Type} (ext : PersistentEnvExtension α β σ) (env : Environment) (b : β)
-    (asyncMode := ext.toEnvExtension.asyncMode) (asyncDecl : Name := .anonymous) : Environment :=
-  ext.toEnvExtension.modifyState (asyncMode := asyncMode) (asyncDecl := asyncDecl) env fun s =>
+@[inline] def addEntry {α β σ : Type} (ext : PersistentEnvExtension α β σ) (env : Environment)
+    (b : β) (asyncMode := ext.toEnvExtension.asyncMode) (asyncDecl : Name := .anonymous)
+    (log : EnvExtension.WriteLog := .missing) : Environment :=
+  ext.toEnvExtension.modifyState (asyncMode := asyncMode) (asyncDecl := asyncDecl) (log := log) env
+    fun s =>
     let state   := ext.addEntryFn s.state b;
     { s with state := state }
 
-/-- Get the current state of the given extension in the given environment. -/
+/--
+Get the current state of the given extension in the given environment. For `genRecorded`, see
+`EnvExtension.getState`.
+-/
 def getState {α β σ : Type} [Inhabited σ] (ext : PersistentEnvExtension α β σ) (env : Environment)
-    (asyncMode := ext.toEnvExtension.asyncMode) (asyncDecl : Name := .anonymous) : σ :=
-  (ext.toEnvExtension.getState (asyncMode := asyncMode) (asyncDecl := asyncDecl) env).state
+    (asyncMode := ext.toEnvExtension.asyncMode) (asyncDecl : Name := .anonymous)
+    (genRecorded := false) : σ :=
+  (ext.toEnvExtension.getState (asyncMode := asyncMode) (asyncDecl := asyncDecl)
+    (genRecorded := genRecorded) env).state
 
 /-- Set the current state of the given extension in the given environment. -/
-def setState {α β σ : Type} (ext : PersistentEnvExtension α β σ) (env : Environment) (s : σ) : Environment :=
-  ext.toEnvExtension.modifyState env fun ps => { ps with  state := s }
+@[inline] def setState {α β σ : Type} (ext : PersistentEnvExtension α β σ) (env : Environment)
+    (s : σ) (log : EnvExtension.WriteLog := .missing) : Environment :=
+  ext.toEnvExtension.modifyState (log := log) env fun ps => { ps with state := s }
 
 /-- Modify the state of the given extension in the given environment by applying the given function. -/
-def modifyState {α β σ : Type} (ext : PersistentEnvExtension α β σ) (env : Environment) (f : σ → σ)
+@[inline] def modifyState {α β σ : Type} (ext : PersistentEnvExtension α β σ) (env : Environment) (f : σ → σ)
     (asyncMode := ext.toEnvExtension.asyncMode) (asyncDecl : Name := Name.anonymous)
-    (bumpGen := true) : Environment :=
+    (bumpGen := true) (log : EnvExtension.WriteLog := .missing) : Environment :=
   ext.toEnvExtension.modifyState (asyncMode := asyncMode) (asyncDecl := asyncDecl)
-    (bumpGen := bumpGen) env fun ps => { ps with state := f (ps.state) }
+    (bumpGen := bumpGen) (log := log) env fun ps => { ps with state := f (ps.state) }
 
 end PersistentEnvExtension
 
@@ -1860,13 +2052,15 @@ structure PersistentEnvExtensionDescrCore (α β σ : Type) where
   comparing generations. Generation-tracked extensions must use `AsyncMode.local` or `.mainOnly`, as
   generations are branch-local.
 
-  Generations only grow along an environment lineage, even when a modification restores an earlier
+  Generations only grow along an environment branch, even when a modification restores an earlier
   state: returning to an earlier generation would let a later, different modification reach a
   generation some result was recorded at, validating it against a state it never saw. The
   environment itself rolling back to an earlier generation is covered at
   `Kernel.Environment.trackedGen`.
   -/
   trackGen          : Bool := false
+  /-- See `EnvExtension.logWrites`. -/
+  logWrites         : Bool := false
 
 attribute [inherit_doc PersistentEnvExtension.exportEntriesFn]
   PersistentEnvExtensionDescrCore.exportEntriesFnEx
@@ -1894,7 +2088,8 @@ unsafe def registerPersistentEnvExtensionUnsafe {α β σ : Type} [Inhabited σ]
   let replay? := descr.replay?.map fun replay =>
     fun oldState newState newConsts s => { s with state := replay oldState.state newState.state newConsts s.state }
   let ext ← registerEnvExtension (asyncMode := descr.asyncMode) (replay? := replay?)
-      (name := descr.name) (trackGen := descr.trackGen) do
+      (name := descr.name) (trackGen := descr.trackGen)
+      (logWrites := descr.logWrites) do
     let initial ← descr.mkInitial
     let s : PersistentEnvExtensionState α σ := {
       importedEntries := #[],
@@ -1974,10 +2169,6 @@ def OLeanLevel.adjustFileName (base : System.FilePath) : OLeanLevel → System.F
   | .server   => base.addExtension "server"
   | .private  => base.addExtension "private"
 
-private def looksLikeOldCodegenName : Name → Bool
-  | .str _ s => s.startsWith "_cstage" || s.startsWith "_spec_" || s.startsWith "_elambda"
-  | _        => false
-
 set_option compiler.ignoreBorrowAnnotation true in
 @[extern "lean_get_ir_extra_const_names"]
 private opaque getIRExtraConstNames (env : Environment) (level : OLeanLevel) (includeDecls := false) : Array Name
@@ -2024,8 +2215,7 @@ def mkModuleData (env : Environment) (level : OLeanLevel := .private)
     kenv.constants.foldStage2 (fun cs _ c => cs.push c) #[]
   else
     constNames.filterMap (fun n =>
-        env.find? n <|>
-        guard (looksLikeOldCodegenName n) *> kenv.find? n)
+        env.find? n)
       -- While `constants.foldStage2` itself results in a deterministic ordering, then filtering out
       -- some elements leaves the order of remaining dependent on those filtered elements, which
       -- would make `.olean` output dependent on `.olean.private`, so we re-sort them here.
@@ -2100,6 +2290,26 @@ private def setImportedEntries (states : Array EnvExtensionState) (mods : Array 
           { s with importedEntries := s.importedEntries.set! modIdx entries }
   return states
 
+/--
+Variant of `setImportedEntries` for `irBaseExts` that leaves `importedEntries` empty for extensions
+without entries in `mods`, which `getModuleIREntries` accounts for.
+-/
+private def setImportedIREntries (states : Array EnvExtensionState) (mods : Array ModuleData) :
+    IO (Array EnvExtensionState) := do
+  let mut states := states
+  let extDescrs ← persistentEnvExtensionsRef.get
+  let extNameIdx ← mkExtNameMap 0
+  for h : modIdx in *...mods.size do
+    let mod := mods[modIdx]
+    for (extName, entries) in mod.entries do
+      if let some entryIdx := extNameIdx[extName]? then
+        -- safety: as in `modifyState`
+        states := unsafe extDescrs[entryIdx]!.toEnvExtension.modifyStateImpl states fun s =>
+          let importedEntries :=
+            if s.importedEntries.isEmpty then .replicate mods.size #[] else s.importedEntries
+          { s with importedEntries := importedEntries.set! modIdx entries }
+  return states
+
 set_option compiler.ignoreBorrowAnnotation true in
 /--
   "Forward declaration" needed for updating the attribute table with user-defined attributes.
@@ -2139,7 +2349,9 @@ where
       let prevSize := (← persistentEnvExtensionsRef.get).size
       let prevAttrSize ← getNumBuiltinAttributes
       let newState ← extDescr.addImportedFn s.importedEntries { env := env, opts := opts }
-      let mut env := extDescr.toEnvExtension.setState (asyncMode := .sync) env { s with state := newState }
+      -- unlogged: nothing has been recorded against this environment yet
+      let mut env := extDescr.toEnvExtension.setState (asyncMode := .sync) (log := .unlogged) env
+        { s with state := newState }
       if extDescr.name == `Lean.regularInitAttr then
         -- Run `[init]` attributes now. We do this after `setState` so `runInitAttrs` can access
         -- `getModule(IR)Entries` but we should also do it before attempting to run user-defined
@@ -2530,15 +2742,19 @@ def finalizeImport (s : ImportState) (imports : Array Import) (opts : Options) (
   let extensions ← setImportedEntries privateBase.extensions moduleData
   -- fall back to basic data when not in server
   let serverData := modules.mapIdx (fun idx mod => mod.serverData? level |>.getD moduleData[idx]!)
-  let privateBase := { privateBase with
-    extensions
-    irBaseExts := (← setImportedEntries privateBase.extensions irData)
-  }
+  -- `serverData?` selects a different part than `mainModule?` only at `.server`: at `.private`,
+  -- `importModulesCore` loads every module as `importAll`. Assumes `level` is the `globalLevel`
+  -- the modules were loaded with.
+  let serverIsMain := level != .server
+  let irBaseExts ← setImportedIREntries privateBase.extensions irData
+  let serverBaseExts ←
+    if serverIsMain then pure extensions else setImportedEntries privateBase.extensions serverData
+  let privateBase := { privateBase with extensions, irBaseExts }
   let mut env : Environment := {
     base.private := privateBase
     base.public  := publicBase
     importRealizationCtx? := none
-    serverBaseExts := (← setImportedEntries privateBase.extensions serverData)
+    serverBaseExts
   }
   if leakEnv then
     /- Mark persistent a first time before `finalizePersistentExtensions`, which
@@ -2632,21 +2848,8 @@ def Kernel.setDiagnostics (env : Lean.Environment) (diag : Diagnostics) : Lean.E
 namespace Environment
 
 @[export lean_elab_environment_update_base_after_kernel_add]
-private def updateBaseAfterKernelAdd (env : Environment) (kenv : Kernel.Environment) (decl : Declaration) : Environment := {
-    env with
-    checked := .pure kenv
-    -- HACK: the old codegen adds some helper constants directly to the kernel environment, we need
-    -- to add them to the async consts as well in order to be able to replay them
-    asyncConstsMap := env.asyncConstsMap.map fun asyncConsts =>
-      decl.getNames.foldl (init := asyncConsts) fun asyncConsts n =>
-        if looksLikeOldCodegenName n then
-          asyncConsts.add {
-            constInfo := .ofConstantInfo (kenv.find? n |>.get!)
-            exts? := none
-            aconstsImpl := .pure <| .mk (α := AsyncConsts) default
-          }
-        else asyncConsts
-  }
+private def updateBaseAfterKernelAdd (env : Environment) (kenv : Kernel.Environment) : Environment :=
+  { env with checked := .pure kenv }
 
 def displayStats (env : Environment) : IO Unit := do
   let pExtDescrs ← persistentEnvExtensionsRef.get
@@ -2914,6 +3117,13 @@ def realizeConst (env : Environment) (forConst : Name) (constName : Name)
     pure (.mk res)
   let some res := res.get? RealizeConstResult | unreachable!
   let exPromise ← IO.Promise.new
+  -- The realized constants become observable on this branch with this merge. Constants already
+  -- observable here keep their generation, including 0 for those added without registering one.
+  let env := res.newConsts.private.foldl (init := env) fun env c =>
+    if env.asyncConstsMap.private.find? c.constInfo.name |>.isSome then
+      env
+    else
+      env.registerConstAdded c.constInfo.name
   let env := { env with
     asyncConstsMap := {
       «private» := res.newConsts.private.foldl (init := env.asyncConstsMap.private) fun consts c =>
@@ -3039,11 +3249,20 @@ This is consulted for all definitions regardless of their reducibility hints. Cu
 structural recursion to ensure that parent definitions get the correct height even though the
 `_f` helper definitions are marked as `.abbrev` (which `getMaxHeight` would otherwise ignore). -/
 builtin_initialize defHeightOverrideExt : EnvExtension (NameMap UInt32) ←
-  registerEnvExtension (pure {}) (asyncMode := .local)
+  registerEnvExtension (pure {}) (asyncMode := .local) (logWrites := true)
 
 /-- Register a height override for a definition so that `getMaxHeight` uses it. -/
 def setDefHeightOverride (env : Environment) (declName : Name) (height : UInt32) : Environment :=
-  defHeightOverrideExt.modifyState env fun m => m.insert declName height
+  defHeightOverrideExt.modifyState (log := .decl declName) env fun m =>
+    have : Inhabited (NameMap UInt32) := ⟨m⟩
+    -- write-once, as for `MapDeclarationExtension.insert`
+    match m.find? declName with
+    | some prev =>
+      if prev != height then
+        panic! s!"definition height override for `{declName}` is already set"
+      else
+        m
+    | none => m.insert declName height
 
 def getMaxHeight (env : Environment) (e : Expr) : UInt32 :=
   let overrides := defHeightOverrideExt.getState env

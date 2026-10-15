@@ -877,7 +877,7 @@ public def mkTargetView (target : Syntax) : TacticM ElimTargetView := do
   | _ => return { hIdent? := none, term := .missing }
 
 /-- Elaborated `ElimTargetView`. -/
-private structure ElimTargetInfo where
+structure ElimTargetInfo where
   view : ElimTargetView
   expr : Expr
   arg? : Option GeneralizeArg

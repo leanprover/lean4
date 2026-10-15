@@ -811,13 +811,13 @@ instance (m n) [MonadLift m n] [AddMessageContext m] : AddMessageContext n where
   addMessageContext := fun msg => liftM (addMessageContext msg : m _)
 
 def addMessageContextPartial {m} [Monad m] [MonadEnv m] [MonadOptions m] (msgData : MessageData) : m MessageData := do
-  let env ← getEnv
-  -- unrestricted: message rendering only
+  -- unrestricted: message rendering only, which may read any extension
+  let env := (← getEnv).setRecordingDeps false
   let opts ← getOptionsUnrestricted
   return MessageData.withContext { env := env, mctx := {}, lctx := {}, opts := opts } msgData
 
 def addMessageContextFull {m} [Monad m] [MonadEnv m] [MonadMCtx m] [MonadLCtx m] [MonadOptions m] (msgData : MessageData) : m MessageData := do
-  let env ← getEnv
+  let env := (← getEnv).setRecordingDeps false
   let mctx ← getMCtx
   let lctx ← getLCtx
   -- unrestricted: message rendering only

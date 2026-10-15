@@ -131,6 +131,7 @@ private def createNodes (keys : Array Key) (v : α) (i : Nat) : Trie α :=
     .chain k c
   else
     .node #[v] #[]
+termination_by keys.size - i
 
 /--
 If `vs` contains an element `v'` such that `v == v'`, then replace `v'` with `v`.
@@ -207,6 +208,9 @@ private def getEntriesWithKeysAux (keys : Array Key) : Nat → Trie α → Array
       vs
 termination_by i => keys.size - i
 
+/--
+Returns all entries that have exactly the provided key sequence.
+-/
 def getEntriesWithKeys (d : DiscrTree α) (keys : Array Key) : Array α :=
   if keys.isEmpty then panic! "invalid key sequence"
   else

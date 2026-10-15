@@ -379,7 +379,9 @@ def edit(
 def join_and(items: list[str]) -> str:
     if len(items) < 2:
         return "".join(items)
-    return f"{', '.join(items[:-1])} and {items[-1]}"
+    if len(items) == 2:
+        return " and ".join(items)
+    return f"{', '.join(items[:-1])}, and {items[-1]}"
 
 
 #########
@@ -445,14 +447,14 @@ class CMakeVersion:
 
 
 def _parse_cmake_set(text: str, component: str) -> int:
-    match = re.search(rf"set\({component}\s+(\d+) ", text)
+    match = re.search(rf"set\({component}\s+(\d+)", text)
     if not match:
         raise ValueError(f"Failed to parse {component} from CMakeLists.txt")
     return int(match.group(1))
 
 
 def _update_cmake_set(text: str, component: str, value: int) -> str:
-    return re.sub(rf"set\({component}\s+\d+ ", f"set({component} {value} ", text)
+    return re.sub(rf"set\({component}\s+\d+", f"set({component} {value}", text)
 
 
 def get_cmake_version(grepo: Repository, ref: str) -> CMakeVersion:

@@ -507,10 +507,10 @@ noncomputable instance HeapM.instWPMonad : WPMonad HeapM HProp EStack⟨⟩ :=
   WPMonad.withFrameClosure (m := StateM Heap) sepConj
     sepConj_assoc (fun _ _ _ => rfl) emp_sepConj (fun _ => rfl) StateT.instWPMonad
 
-/-- Every `HeapM` program frames every heap assertion `F`. -/
+/-- Every `HeapM` program frames every heap assertion `F`, under every guard `P`. -/
 @[grind .]
-theorem frames_sepConj {α : Type} (x : HeapM α) (F : HProp) :
-    WP.Frames sepConj x F :=
+theorem frames_sepConj {α : Type} (x : HeapM α) (F P : HProp) :
+    WP.Frames sepConj x F P :=
   WP.frames_of_frameClosure sepConj sepConj sepConj_assoc (fun _ _ _ => rfl)
     ⟨fun y => WP.trans y.run, fun _ => rfl⟩
 

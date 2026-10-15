@@ -84,10 +84,13 @@ as e.g. done in `elabDeclaration`.
 def Visibility.isInferredPublic (env : Environment) (v : Visibility) : Bool :=
   if env.isExporting || !env.header.isModule then !v.isPrivate else v.isPublic
 
-/-- Converts optional visibility syntax to a `Visibility` value. -/
+/--
+Converts optional visibility syntax to a `Visibility` value. `isExample` marks the modifiers of an
+`example`, which is private in a `module` file unless explicitly marked `public`.
+-/
 def elabVisibility [Monad m] [MonadError m] [MonadEnv m] [MonadOptions m] [MonadLog m]
     [AddMessageContext m]
-    (vis? : Option (TSyntax ``Parser.Command.visibility)) :
+    (vis? : Option (TSyntax ``Parser.Command.visibility)) (isExample := false) :
     m Visibility := do
   let env ← getEnv
   match vis? with
@@ -103,7 +106,7 @@ def elabVisibility [Monad m] [MonadError m] [MonadEnv m] [MonadOptions m] [Monad
       pure .private
     | `(Parser.Command.visibility| public) =>
       if v.raw.getHeadInfo matches .original .. then  -- skip macro output
-        if env.isExporting || !env.header.isModule then
+        if (env.isExporting && !isExample) || !env.header.isModule then
           Linter.logLintIf linter.redundantVisibility v
             m!"`public` is the default visibility{
               if env.header.isModule then " inside a `public section`" else ""
@@ -205,7 +208,7 @@ section Methods
 variable [Monad m] [MonadEnv m] [MonadResolveName m] [MonadError m] [MonadFinally m] [MonadMacroAdapter m] [MonadRecDepth m] [MonadTrace m] [MonadOptions m] [AddMessageContext m] [MonadLog m] [MonadInfoTree m] [MonadLiftT IO m]
 
 /-- Elaborate declaration modifiers (i.e., attributes, `partial`, `private`, `protected`, `unsafe`, `meta`, `noncomputable`, doc string)-/
-def elabModifiers (stx : TSyntax ``Parser.Command.declModifiers) : m Modifiers := do
+def elabModifiers (stx : TSyntax ``Parser.Command.declModifiers) (isExample := false) : m Modifiers := do
   let docCommentStx := stx.raw[0]
   let attrsStx      := stx.raw[1]
   let visibilityStx := stx.raw[2]
@@ -226,7 +229,7 @@ def elabModifiers (stx : TSyntax ``Parser.Command.declModifiers) : m Modifiers :
     else
       RecKind.nonrec
   let docString? := docCommentStx.getOptional?.map (TSyntax.mk ·)
-  let visibility ← elabVisibility (visibilityStx.getOptional?.map (⟨·⟩))
+  let visibility ← elabVisibility (visibilityStx.getOptional?.map (⟨·⟩)) isExample
   let isProtected := !protectedStx.isNone
   let attrs ← match attrsStx.getOptional? with
     | none       => pure #[]

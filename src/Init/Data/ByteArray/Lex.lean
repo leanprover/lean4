@@ -90,7 +90,7 @@ public theorem compare_extract_extract_of_lt {a b : ByteArray} {i j i' j' : Nat}
   simp only [← compare_data_data, Array.compare_eq_compare_toList, toList_data_append,
     List.toList_data_toByteArray, List.singleton_append, List.compare_cons_cons]
 
-public theorem compare_eq_compare_extract_then_compare_size {a b : ByteArray} :
+public theorem compare_eq_compare_extract_min_then {a b : ByteArray} :
     compare a b =
       (compare (a.extract 0 (min a.size b.size)) (b.extract 0 (min a.size b.size))).then
         (compare a.size b.size) := by
@@ -99,13 +99,13 @@ public theorem compare_eq_compare_extract_then_compare_size {a b : ByteArray} :
 
 public theorem lt_iff_extract_lt_of_size_le {a b : ByteArray} (h : b.size ≤ a.size) :
     a < b ↔ a.extract 0 b.size < b := by
-  rw [← Std.compare_eq_lt, compare_eq_compare_extract_then_compare_size, Nat.min_eq_right h,
+  rw [← Std.compare_eq_lt, compare_eq_compare_extract_min_then, Nat.min_eq_right h,
     extract_zero_size, Ordering.then_eq_lt, Std.compare_eq_lt, Nat.compare_eq_lt]
   simp [Nat.not_lt.2 h]
 
 public theorem lt_iff_not_extract_lt_of_size_lt {a b : ByteArray} (h : a.size < b.size) :
     a < b ↔ ¬ b.extract 0 a.size < a := by
-  rw [← Std.compare_eq_lt, compare_eq_compare_extract_then_compare_size,
+  rw [← Std.compare_eq_lt, compare_eq_compare_extract_min_then,
     Nat.min_eq_left (Nat.le_of_lt h), extract_zero_size, ← Std.compare_eq_gt, Ordering.then_eq_lt,
     Nat.compare_eq_lt.2 h]
   cases compare a (b.extract 0 a.size) <;> simp

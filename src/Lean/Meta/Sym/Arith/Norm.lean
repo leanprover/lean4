@@ -420,11 +420,16 @@ private inductive CoreResult where
   /-- The term normalizes to `e'` with proof `h`. -/
   | step (e' h : Expr)
 
-private def mkContext (type : Expr) (zero : Expr) (vars : Array Expr) : MetaM Expr := do
+/--
+The `RArray` context of the variables `vars`. An empty context holds `(↑0 : α)`, built only in that
+case, so the `natCast` operator is initialized only when needed.
+-/
+private def mkContext (type : Expr) (vars : Array Expr) : NormM Expr := do
   if h : 0 < vars.size then
     RArray.toExpr type id (RArray.ofFn (vars[·]) h)
   else
-    RArray.toExpr type id (RArray.leaf zero)
+    let natCastFn ← if (← getKind).isRing then getNatCastFn else getNatCastFn'
+    RArray.toExpr type id (RArray.leaf (mkApp natCastFn (mkNatLit 0)))
 
 /-- The `PolyConfig` of the structure: characteristic, (non-)commutativity, and the budget options. -/
 private def polyConfig : NormM PolyConfig := do
@@ -640,21 +645,21 @@ private def mkCertificate (e₁ : Expr) (re : RingExpr) (p : Poly) (vars : Array
   let kind ← getKind
   -- `inst` is the structure instance the certificate theorem takes: `CommRing`, `Ring`,
   -- `CommSemiring`, or `Semiring`.
-  let (type, u, inst, char?, zero) ← match kind with
+  let (type, u, inst, char?) ← match kind with
     | .commRing _ =>
       let ring ← getCommRing
       let char? := ring.charInst?.bind fun (inst, c) => if c != 0 then some (inst, c) else none
-      pure (ring.type, ring.u, ring.commRingInst, char?, mkApp (← getNatCastFn) (mkNatLit 0))
+      pure (ring.type, ring.u, ring.commRingInst, char?)
     | .ring _ =>
       let ring ← getRing
       let char? := ring.charInst?.bind fun (inst, c) => if c != 0 then some (inst, c) else none
-      pure (ring.type, ring.u, ring.ringInst, char?, mkApp (← getNatCastFn) (mkNatLit 0))
+      pure (ring.type, ring.u, ring.ringInst, char?)
     | .commSemiring _ =>
       let sr ← getCommSemiring
-      pure (sr.type, sr.u, sr.commSemiringInst, none, mkApp (← getNatCastFn') (mkNatLit 0))
+      pure (sr.type, sr.u, sr.commSemiringInst, none)
     | .semiring _ =>
       let sr ← getSemiring
-      pure (sr.type, sr.u, sr.semiringInst, none, mkApp (← getNatCastFn') (mkNatLit 0))
+      pure (sr.type, sr.u, sr.semiringInst, none)
   -- Fields: inverse atoms with a discharged side condition are cancelled, and in
   -- characteristic zero the numeral inverses become rational coefficients.
   let fc? ← fieldChar0?
@@ -667,7 +672,7 @@ private def mkCertificate (e₁ : Expr) (re : RingExpr) (p : Poly) (vars : Array
   let e' ← if kind.isRing then share (← denoteRingExpr' vars re') else share (← denoteSemiringExpr' vars re')
   if isSameExpr e' e₁ then
     return .normal
-  let ctx ← mkContext type zero vars
+  let ctx ← mkContext type vars
   let hoka ← if ainvs.isEmpty then pure (mkConst ``True.intro) else pure (mkInvAtomsOk (← getCommRing) ctx vars ainvs)
   let ainvsE := toExpr ainvsL
   let h ← if !invs.isEmpty then
@@ -1077,7 +1082,7 @@ private def normalizeRelCore (rel : RelKind) (relFn : Expr) (order? : Option Ord
         let c := polyConst p
         let q := divMonCoeffs k p
         if rel == .eq && c % k != 0 then
-          let ctx ← mkContext ring.type (mkApp (← getNatCastFn) (mkNatLit 0)) vars
+          let ctx ← mkContext ring.type vars
           let h := mkApp7 (mkConst ``Grind.CommRing.eq_norm_unsat_expr) ctx (toExpr l) (toExpr r) (toExpr q) (toExpr (k : Int)) (toExpr c) eagerReflBoolTrue
           let e' ← getFalseExpr
           return .step e' (mkExpectedPropHint h (mkPropEq e e'))
@@ -1114,7 +1119,7 @@ private def normalizeRelCore (rel : RelKind) (relFn : Expr) (order? : Option Ord
     let r' := rp.toExpr
     let e' ← share (mkApp2 relFn (← denoteRingExpr' vars l') (← denoteRingExpr' vars r'))
     if isSameExpr e' e then return .normal
-    let ctx ← mkContext ring.type (mkApp (← getNatCastFn) (mkNatLit 0)) vars
+    let ctx ← mkContext ring.type vars
     let hoka ← if ainvs.isEmpty then pure (mkConst ``True.intro) else pure (mkInvAtomsOk (← getCommRing) ctx vars ainvs)
     let ainvsE := toExpr ainvsL
     let h ← if let some (q, k, c) := tight? then
@@ -1207,7 +1212,7 @@ private def normalizeRelCore (rel : RelKind) (relFn : Expr) (order? : Option Ord
     let er ← share (← denoteSemiringExpr' vars r')
     let e' ← share (mkApp2 relFn el er)
     if isSameExpr e' e then return .normal
-    let ctx ← mkContext sr.type (mkApp (← getNatCastFn') (mkNatLit 0)) vars
+    let ctx ← mkContext sr.type vars
     -- Term steps `lhs = lhs' + c` and `rhs = rhs' + c` (without `+ c` when nothing is cancelled).
     let mkTermStep (x xC : RingExpr) (ex exC : Expr) : Expr :=
       mkExpectedPropHint
@@ -1243,7 +1248,7 @@ private def normalizeDvdCore (e₁ dvdFn : Expr) (k : Int) (x : RingExpr) (p : P
   let g : Nat := Nat.gcd k.natAbs (gcdMonCoeffs p)
   let c := polyConst p
   let q := divMonCoeffs g p
-  let ctx ← mkContext ring.type (mkApp (← getNatCastFn) (mkNatLit 0)) vars
+  let ctx ← mkContext ring.type vars
   if c % g != 0 then
     let h := mkApp7 (mkConst ``Grind.CommRing.dvd_norm_unsat_expr) ctx (toExpr k) (toExpr x) (toExpr q) (toExpr (g : Int)) (toExpr c) eagerReflBoolTrue
     let e' ← getFalseExpr

@@ -25,6 +25,13 @@ register_builtin_option profiler.threshold : Nat := {
   descr    := "threshold in milliseconds, profiling times under threshold will not be reported individually"
 }
 
+register_builtin_option profiler.import : Bool := {
+  defValue := false
+  descr    := "record per-module import costs in `Environment.header.importProfile?`; as it is \
+    read while processing the header, it must be set on the command line or in the Lake \
+    configuration"
+}
+
 @[export lean_get_profiler]
 private def get_profiler (o : Options) : Bool :=
   profiler.get o

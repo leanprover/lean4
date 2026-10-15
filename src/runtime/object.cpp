@@ -597,70 +597,76 @@ static obj_res mark_persistent_fn(obj_arg o) {
 #endif
 #endif
 
+/* Scalars and objects that already have no reference count are skipped before they reach the
+   worklist; remaining objects are marked persistent on push. */
+static inline LEAN_ALWAYS_INLINE void mark_persistent_push(buffer<object*> & todo, object * c) {
+    if (lean_is_scalar(c) || !lean_has_rc(c)) return;
+    lean_internal_set_rc(c, 0);
+#if defined(__has_feature)
+#if __has_feature(address_sanitizer)
+    // do not report as leak
+    // NOTE: Most persistent objects are actually reachable from global
+    // variables up to the end of the process. However, this is *not*
+    // true for closures inside of persistent thunks, which are
+    // "orphaned" after being evaluated.
+    __lsan_ignore_object(c);
+#endif
+#endif
+    todo.push_back(c);
+}
+
 extern "C" LEAN_EXPORT void lean_mark_persistent(object * o) {
+    if (lean_is_scalar(o) || !lean_has_rc(o)) return;
     buffer<object*> todo;
-    todo.push_back(o);
+    mark_persistent_push(todo, o);
     while (!todo.empty()) {
         object * o = todo.back();
         todo.pop_back();
-        if (!lean_is_scalar(o) && lean_has_rc(o)) {
-            lean_internal_set_rc(o, 0);
-#if defined(__has_feature)
-#if __has_feature(address_sanitizer)
-            // do not report as leak
-            // NOTE: Most persistent objects are actually reachable from global
-            // variables up to the end of the process. However, this is *not*
-            // true for closures inside of persistent thunks, which are
-            // "orphaned" after being evaluated.
-            __lsan_ignore_object(o);
-#endif
-#endif
-            uint8_t tag = lean_ptr_tag(o);
-            if (tag <= LeanMaxCtorTag) {
-                object ** it  = lean_ctor_obj_cptr(o);
-                object ** end = it + lean_ctor_num_objs(o);
-                for (; it != end; ++it) todo.push_back(*it);
-            } else {
-                switch (tag) {
-                case LeanScalarArray:
-                case LeanString:
-                case LeanMPZ:
-                    break;
-                case LeanExternal: {
-                    object * fn = lean_alloc_closure((void*)mark_persistent_fn, 1, 0);
-                    lean_to_external(o)->m_class->m_foreach(lean_to_external(o)->m_data, fn);
-                    lean_dec(fn);
-                    break;
-                }
-                case LeanTask:
-                    todo.push_back(lean_task_get(o));
-                    break;
-                case LeanPromise:
-                    todo.push_back((lean_object *)lean_to_promise(o)->m_result);
-                    break;
-                case LeanClosure: {
-                    object ** it  = lean_closure_arg_cptr(o);
-                    object ** end = it + lean_closure_num_fixed(o);
-                    for (; it != end; ++it) todo.push_back(*it);
-                    break;
-                }
-                case LeanArray: {
-                    object ** it  = lean_array_cptr(o);
-                    object ** end = it + lean_array_size(o);
-                    for (; it != end; ++it) todo.push_back(*it);
-                    break;
-                }
-                case LeanThunk:
-                    if (object * c = lean_to_thunk(o)->m_closure) todo.push_back(c);
-                    if (object * v = lean_to_thunk(o)->m_value) todo.push_back(v);
-                    break;
-                case LeanRef:
-                    if (object * v = lean_to_ref(o)->m_value) todo.push_back(v);
-                    break;
-                default:
-                    lean_unreachable();
-                    break;
-                }
+        uint8_t tag = lean_ptr_tag(o);
+        if (tag <= LeanMaxCtorTag) {
+            object ** it  = lean_ctor_obj_cptr(o);
+            object ** end = it + lean_ctor_num_objs(o);
+            for (; it != end; ++it) mark_persistent_push(todo, *it);
+        } else {
+            switch (tag) {
+            case LeanScalarArray:
+            case LeanString:
+            case LeanMPZ:
+                break;
+            case LeanExternal: {
+                object * fn = lean_alloc_closure((void*)mark_persistent_fn, 1, 0);
+                lean_to_external(o)->m_class->m_foreach(lean_to_external(o)->m_data, fn);
+                lean_dec(fn);
+                break;
+            }
+            case LeanTask:
+                mark_persistent_push(todo, lean_task_get(o));
+                break;
+            case LeanPromise:
+                mark_persistent_push(todo, (lean_object *)lean_to_promise(o)->m_result);
+                break;
+            case LeanClosure: {
+                object ** it  = lean_closure_arg_cptr(o);
+                object ** end = it + lean_closure_num_fixed(o);
+                for (; it != end; ++it) mark_persistent_push(todo, *it);
+                break;
+            }
+            case LeanArray: {
+                object ** it  = lean_array_cptr(o);
+                object ** end = it + lean_array_size(o);
+                for (; it != end; ++it) mark_persistent_push(todo, *it);
+                break;
+            }
+            case LeanThunk:
+                if (object * c = lean_to_thunk(o)->m_closure) mark_persistent_push(todo, c);
+                if (object * v = lean_to_thunk(o)->m_value) mark_persistent_push(todo, v);
+                break;
+            case LeanRef:
+                if (object * v = lean_to_ref(o)->m_value) mark_persistent_push(todo, v);
+                break;
+            default:
+                lean_unreachable();
+                break;
             }
         }
     }
@@ -677,6 +683,16 @@ static obj_res mark_mt_fn(obj_arg o) {
     return lean_box(0);
 }
 
+static inline LEAN_ALWAYS_INLINE void mark_mt_push(buffer<object*> & todo, object * c) {
+    if (lean_is_scalar(c) || !is_unshared(c)) return;
+    // A count that overflowed, or is too large for the live thread-shared range, freezes at
+    // `LEAN_RC_STICKY`, where no later `lean_mark_mt` takes it for an unshared one.
+    // sync with tests/elab/rc_model.lean (`markMtRc`)
+    int rc = lean_internal_get_rc(c);
+    lean_internal_set_rc(c, rc < 0 || -rc <= LEAN_RC_STICKY_DROP ? LEAN_RC_STICKY : -rc);
+    todo.push_back(c);
+}
+
 extern "C" LEAN_EXPORT void lean_mark_mt(object * o) {
 #ifndef LEAN_MULTI_THREAD
     return;
@@ -684,62 +700,55 @@ extern "C" LEAN_EXPORT void lean_mark_mt(object * o) {
     if (lean_is_scalar(o) || !is_unshared(o)) return;
 
     buffer<object*> todo;
-    todo.push_back(o);
+    mark_mt_push(todo, o);
     while (!todo.empty()) {
         object * o = todo.back();
         todo.pop_back();
-        if (!lean_is_scalar(o) && is_unshared(o)) {
-            // A count that overflowed, or is too large for the live thread-shared range, freezes at
-            // `LEAN_RC_STICKY`, where no later `lean_mark_mt` takes it for an unshared one.
-            // sync with tests/elab/rc_model.lean (`markMtRc`)
-            int rc = lean_internal_get_rc(o);
-            lean_internal_set_rc(o, rc < 0 || -rc <= LEAN_RC_STICKY_DROP ? LEAN_RC_STICKY : -rc);
-            uint8_t tag = lean_ptr_tag(o);
-            if (tag <= LeanMaxCtorTag) {
-                object ** it  = lean_ctor_obj_cptr(o);
-                object ** end = it + lean_ctor_num_objs(o);
-                for (; it != end; ++it) todo.push_back(*it);
-            } else {
-                switch (tag) {
-                case LeanScalarArray:
-                case LeanString:
-                case LeanMPZ:
-                    break;
-                case LeanExternal: {
-                    object * fn = lean_alloc_closure((void*)mark_mt_fn, 1, 0);
-                    lean_to_external(o)->m_class->m_foreach(lean_to_external(o)->m_data, fn);
-                    lean_dec(fn);
-                    break;
-                }
-                case LeanTask:
-                    todo.push_back(lean_task_get(o));
-                    break;
-                case LeanPromise:
-                    todo.push_back((lean_object *)lean_to_promise(o)->m_result);
-                    break;
-                case LeanClosure: {
-                    object ** it  = lean_closure_arg_cptr(o);
-                    object ** end = it + lean_closure_num_fixed(o);
-                    for (; it != end; ++it) todo.push_back(*it);
-                    break;
-                }
-                case LeanArray: {
-                    object ** it  = lean_array_cptr(o);
-                    object ** end = it + lean_array_size(o);
-                    for (; it != end; ++it) todo.push_back(*it);
-                    break;
-                }
-                case LeanThunk:
-                    if (object * c = lean_to_thunk(o)->m_closure) todo.push_back(c);
-                    if (object * v = lean_to_thunk(o)->m_value) todo.push_back(v);
-                    break;
-                case LeanRef:
-                    if (object * v = lean_to_ref(o)->m_value) todo.push_back(v);
-                    break;
-                default:
-                    lean_unreachable();
-                    break;
-                }
+        uint8_t tag = lean_ptr_tag(o);
+        if (tag <= LeanMaxCtorTag) {
+            object ** it  = lean_ctor_obj_cptr(o);
+            object ** end = it + lean_ctor_num_objs(o);
+            for (; it != end; ++it) mark_mt_push(todo, *it);
+        } else {
+            switch (tag) {
+            case LeanScalarArray:
+            case LeanString:
+            case LeanMPZ:
+                break;
+            case LeanExternal: {
+                object * fn = lean_alloc_closure((void*)mark_mt_fn, 1, 0);
+                lean_to_external(o)->m_class->m_foreach(lean_to_external(o)->m_data, fn);
+                lean_dec(fn);
+                break;
+            }
+            case LeanTask:
+                mark_mt_push(todo, lean_task_get(o));
+                break;
+            case LeanPromise:
+                mark_mt_push(todo, (lean_object *)lean_to_promise(o)->m_result);
+                break;
+            case LeanClosure: {
+                object ** it  = lean_closure_arg_cptr(o);
+                object ** end = it + lean_closure_num_fixed(o);
+                for (; it != end; ++it) mark_mt_push(todo, *it);
+                break;
+            }
+            case LeanArray: {
+                object ** it  = lean_array_cptr(o);
+                object ** end = it + lean_array_size(o);
+                for (; it != end; ++it) mark_mt_push(todo, *it);
+                break;
+            }
+            case LeanThunk:
+                if (object * c = lean_to_thunk(o)->m_closure) mark_mt_push(todo, c);
+                if (object * v = lean_to_thunk(o)->m_value) mark_mt_push(todo, v);
+                break;
+            case LeanRef:
+                if (object * v = lean_to_ref(o)->m_value) mark_mt_push(todo, v);
+                break;
+            default:
+                lean_unreachable();
+                break;
             }
         }
     }

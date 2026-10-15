@@ -334,7 +334,7 @@ private def envAnchors : IO (Option (Array LoadedPEM)) := do
   for dir in System.SearchPath.parse (dirs.getD "") do
     if let .ok entries ← (System.FilePath.readDir dir).toBaseIO then
       -- Sorted so that what is loaded doesn't depend on the order the file system lists files in.
-      paths := paths ++ (entries.qsort (·.fileName < ·.fileName)).map (·.path)
+      paths := paths ++ (entries.qsort (hash ·.fileName < hash ·.fileName)).map (·.path)
 
   let mut loaded := #[]
   let mut total := 0

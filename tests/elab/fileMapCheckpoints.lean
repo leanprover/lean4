@@ -6,13 +6,14 @@ Proves that the per-line column checkpoints of `FileMap` (#15646) do not change 
 `FileMap.toPosition` and `FileMap.codepointPosToUtf16Pos`: for every string, both functions return
 the same on `FileMap.ofString s` as on the same map without checkpoints.
 
-`ofString` records each checkpoint after walking `column` characters with `String.Pos.Raw.next` from
-the start of its line (`Valid`), and both lookups only ever resume such a walk from a checkpoint they
-found on the same line. This part therefore never reasons about UTF-8 itself.
+`ofString` records each checkpoint after walking `column` characters with `String.Pos.Raw.next`
+from the start of its line (`Valid`), and both lookups only ever resume such a walk from a
+checkpoint they found on the same line. This part therefore never reasons about UTF-8 itself.
 
 Building on that, the second half specifies `ofString`, `lineStart`, `toPosition` and
 `codepointPosToUtf16Pos` against `s.toList`, with `off s k` the byte offset of the first `k`
-characters (`toPosition_ofString_spec`, `lineStart_ofString`, `codepointPosToUtf16Pos_ofString_spec`).
+characters (`toPosition_ofString_spec`, `lineStart_ofString`,
+`codepointPosToUtf16Pos_ofString_spec`).
 -/
 
 open Lean
@@ -182,12 +183,15 @@ theorem toColumn_findCheckpoint (fm : FileMap) (hwf : fm.WF) (pos : String.Pos.R
   · rw [h]
   · have := hwf.2 b hb _ (Array.getElem_mem hk)
     have := toColumn_walk pos fm.source fm.columnCheckpoints[b][k].column fm.positions[b]! 0
-      fun j hj => by have := walk_lt fm.source fm.positions[b]! hj; grind [Valid, String.Pos.Raw.atEnd]
+      fun j hj => by
+        have := walk_lt fm.source fm.positions[b]! hj
+        grind [Valid, String.Pos.Raw.atEnd]
     grind [Valid, FileMap.WF, lineStart_succ]
 
 theorem toPosition_loop_eq (fm : FileMap) (hwf : fm.WF) (pos : String.Pos.Raw) (b e : Nat) :
     FileMap.toPosition.loop fm pos fm.source fm.positions b e =
-      FileMap.toPosition.loop { fm with columnCheckpoints := #[] } pos fm.source fm.positions b e := by
+      FileMap.toPosition.loop { fm with columnCheckpoints := #[] } pos fm.source fm.positions b
+        e := by
   induction h : e - b using Nat.strongRecOn generalizing b e with
   | _ n ih =>
   rw [FileMap.toPosition.loop, FileMap.toPosition.loop]
@@ -280,38 +284,22 @@ theorem get_off (s : String) (k : Nat) (h : k < s.toList.length) :
 
 theorem next_off (s : String) (k : Nat) (h : k < s.toList.length) :
     (off s k).next s = off s (k + 1) := by
-  rw [String.Pos.Raw.next, get_off s k h]
-  simp [off, bsum_take_succ _ _ h, String.Pos.Raw.add_char_eq]
+  grind [String.Pos.Raw.next, get_off, off, bsum_take_succ, String.Pos.Raw.add_char_eq]
 
 theorem walk_off (s : String) (k j : Nat) (h : k + j ≤ s.toList.length) :
     walk s (off s k) j = off s (k + j) := by
-  induction j generalizing k with
-  | zero => rfl
-  | succ j ih =>
-    simp only [walk]
-    rw [next_off s k (by omega), ih (k + 1) (by omega)]
-    congr 1; omega
+  induction j generalizing k <;> grind [walk, next_off]
 
 theorem atEnd_off (s : String) (k : Nat) (h : k ≤ s.toList.length) :
     (off s k).atEnd s ↔ k = s.toList.length := by
-  simp only [String.Pos.Raw.atEnd, off, utf8ByteSize_eq, decide_eq_true_eq]
-  constructor
-  · intro h'
-    by_cases k = s.toList.length
-    · assumption
-    · have := bsum_take_lt s.toList (a := k) (b := s.toList.length) (by omega) (by omega)
-      simp at this; omega
-  · rintro rfl; simp
+  have := @bsum_take_lt s.toList k s.toList.length
+  grind [String.Pos.Raw.atEnd, off, utf8ByteSize_eq]
 
 theorem off_lt_off (s : String) {a b : Nat} (hb : b ≤ s.toList.length) :
     off s a < off s b ↔ a < b := by
-  simp only [String.Pos.Raw.lt_iff, off]
-  constructor
-  · intro h
-    by_cases hab : a < b
-    · exact hab
-    · have := bsum_take_le s.toList (a := b) (b := a) (by omega); omega
-  · intro hab; exact bsum_take_lt s.toList hab hb
+  have := @bsum_take_le s.toList b a
+  have := @bsum_take_lt s.toList a b
+  grind [String.Pos.Raw.lt_iff, off]
 
 /-! ## `positions` of `ofString` -/
 
@@ -342,49 +330,27 @@ theorem ofString_loop_positions (s : String) (i lineStart : String.Pos.Raw)
   fun_induction FileMap.ofString.loop s i lineStart ps cps with
   | case1 i lineStart ps cps hend =>
     intro k hk hi hinv
-    subst hi
-    have hkn := (atEnd_off s k hk).1 hend
-    subst hkn
-    simp only [PInv, List.take_length] at hinv
-    obtain ⟨hsz, hps⟩ := hinv
-    refine ⟨by simp [hsz], by simp, ?_⟩
-    intro idx hidx
-    simp only [Array.size_push, Nat.add_sub_cancel] at hidx
-    simpa [Array.getElem_push, hidx] using hps idx hidx
+    have := (atEnd_off s k hk).1 (by grind)
+    grind [PInv, PosSpec, List.take_length]
   | case2 i lineStart ps cps hend c next hnl ih =>
     intro k hk hi hinv
-    subst hi
-    have hkn : k < s.toList.length := by
-      have := (atEnd_off s k hk).2; grind
-    have hc := get_off s k hkn
-    have hnext := next_off s k hkn
-    have hcnt := count_take_succ s.toList '\n' k hkn
-    apply ih (k + 1) hkn hnext
-    obtain ⟨hsz, hps⟩ := hinv
-    have hc' : s.toList[k] = '\n' := by grind
-    refine ⟨by simp [hsz, hcnt, hc'], ?_⟩
-    intro idx hidx
+    have hkn : k < s.toList.length := by have := (atEnd_off s k hk).2; grind
+    have := get_off s k hkn
+    have := count_take_succ s.toList '\n' k hkn
+    apply ih (k + 1) hkn (by grind [next_off])
+    refine ⟨by grind [PInv], fun idx hidx => ?_⟩
     rw [Array.getElem_push]
     split
-    · obtain ⟨j, h1, h2, h3, h4⟩ := hps idx (by assumption)
-      exact ⟨j, h1, by omega, h3, h4⟩
-    · refine ⟨k + 1, by grind, by omega, Or.inr (by simp [hc', List.getElem?_eq_getElem hkn]), ?_⟩
-      simp at hidx; grind
+    · grind [PInv]
+    · exact ⟨k + 1, by grind [next_off], by omega, Or.inr (by grind [List.getElem?_eq_getElem]),
+        by grind [PInv]⟩
   | case3 i lineStart ps cps hend c next hnl ih =>
     intro k hk hi hinv
-    subst hi
-    have hkn : k < s.toList.length := by
-      have := (atEnd_off s k hk).2; grind
-    have hc := get_off s k hkn
-    have hnext := next_off s k hkn
-    have hcnt := count_take_succ s.toList '\n' k hkn
-    apply ih (k + 1) hkn hnext
-    obtain ⟨hsz, hps⟩ := hinv
-    have hc' : s.toList[k] ≠ '\n' := by grind
-    refine ⟨by simp [hsz, hcnt, hc'], ?_⟩
-    intro idx hidx
-    obtain ⟨j, h1, h2, h3, h4⟩ := hps idx hidx
-    exact ⟨j, h1, by omega, h3, h4⟩
+    have hkn : k < s.toList.length := by have := (atEnd_off s k hk).2; grind
+    have := get_off s k hkn
+    have := count_take_succ s.toList '\n' k hkn
+    apply ih (k + 1) hkn (by grind [next_off])
+    grind [PInv]
 
 theorem ofString_positions (s : String) : PosSpec s (FileMap.ofString s).positions := by
   apply ofString_loop_positions s _ _ _ _ 0 (by omega) rfl
@@ -404,11 +370,8 @@ theorem count_take_mono (l : List Char) {a b : Nat} (h : a ≤ b) :
 theorem lineStart_le (l : List Char) {j j' k : Nat}
     (hno : ∀ i, j ≤ i → i < k → l[i]? ≠ some '\n') (hls : IsLineStart l j') (hj'k : j' ≤ k) :
     j' ≤ j := by
-  rcases hls with h | h
-  · omega
-  · by_cases j' ≤ j
-    · assumption
-    · exact absurd h (hno (j' - 1) (by omega) (by omega))
+  have := hno (j' - 1)
+  grind [IsLineStart]
 
 theorem count_take_eq_of_no_newline (l : List Char) {j k : Nat} (hjk : j ≤ k) (hk : k ≤ l.length)
     (hno : ∀ i, j ≤ i → i < k → l[i]? ≠ some '\n') :
@@ -434,14 +397,11 @@ theorem count_take_lineStart (l : List Char) {j : Nat} (hj : 0 < j) (hjn : j ≤
 theorem lineStart_unique (l : List Char) {j₁ j₂ : Nat} (h₁ : j₁ ≤ l.length) (h₂ : j₂ ≤ l.length)
     (hls₁ : IsLineStart l j₁) (hls₂ : IsLineStart l j₂)
     (hc : (l.take j₁).count '\n' = (l.take j₂).count '\n') : j₁ = j₂ := by
-  rcases Nat.lt_trichotomy j₁ j₂ with h | h | h
-  · have := count_take_lineStart l (j := j₂) (by omega) h₂ hls₂
-    have := count_take_mono l (a := j₁) (b := j₂ - 1) (by omega)
-    omega
-  · exact h
-  · have := count_take_lineStart l (j := j₁) (by omega) h₁ hls₁
-    have := count_take_mono l (a := j₂) (b := j₁ - 1) (by omega)
-    omega
+  have := @count_take_lineStart l j₁
+  have := @count_take_lineStart l j₂
+  have := @count_take_mono l j₁ (j₂ - 1)
+  have := @count_take_mono l j₂ (j₁ - 1)
+  grind [IsLineStart]
 
 /-- Every prefix has a last line start. -/
 theorem exists_lastLineStart (l : List Char) (k : Nat) (hk : k ≤ l.length) :
@@ -472,8 +432,8 @@ theorem ofString_source (s : String) : (FileMap.ofString s).source = s := by
   fun_induction FileMap.ofString.loop s i lineStart ps cps <;> grind
 
 /--
-Line `l` (1-based) starts at the byte offset of the unique character index `j` that is `0` or follows
-a newline and has `l - 1` newlines before it.
+Line `l` (1-based) starts at the byte offset of the unique character index `j` that is `0` or
+follows a newline and has `l - 1` newlines before it.
 -/
 theorem lineStart_ofString (s : String) (l : Nat) (h₁ : 1 ≤ l) (h₂ : l ≤ s.toList.count '\n' + 1)
     (j : Nat) (hj : j ≤ s.toList.length) (hls : IsLineStart s.toList j)
@@ -482,10 +442,7 @@ theorem lineStart_ofString (s : String) (l : Nat) (h₁ : 1 ≤ l) (h₂ : l ≤
   obtain ⟨hsz, -, hps⟩ := ofString_positions s
   obtain ⟨j', h1, h2, h3, h4⟩ := hps (l - 1) (by omega)
   have := lineStart_unique s.toList hj h2 hls h3 (by omega)
-  subst this
-  have hlt : l - 1 < (FileMap.ofString s).positions.size := by omega
-  simp only [FileMap.lineStart, hlt, ↓reduceDIte]
-  exact h1
+  grind [FileMap.lineStart]
 
 /-! ## Specification of `codepointPosToUtf16Pos` -/
 
@@ -498,15 +455,12 @@ theorem aux_off (s : String) (col j acc : Nat) (h : j + col ≤ s.toList.length)
   induction col generalizing j acc with
   | zero => simp [codepointPosToUtf16PosFromAux, utf16Sum]
   | succ col ih =>
-    rw [codepointPosToUtf16PosFromAux, next_off s j (by omega), get_off s j (by omega),
-      ih (j + 1) _ (by omega)]
-    rw [List.drop_eq_getElem_cons (show j < s.toList.length by omega)]
-    simp only [utf16Sum, List.take_succ_cons, List.map_cons, List.sum_cons]
-    omega
+    have := List.drop_eq_getElem_cons (show j < s.toList.length by omega)
+    grind [codepointPosToUtf16PosFromAux, next_off, get_off, utf16Sum]
 
 /--
-The UTF-16 column of codepoint `col` on line `l` (with `j` its start as in `lineStart_ofString`) is the
-UTF-16 size of the `col` characters from `j` on.
+The UTF-16 column of codepoint `col` on line `l` (with `j` its start as in `lineStart_ofString`)
+is the UTF-16 size of the `col` characters from `j` on.
 -/
 theorem codepointPosToUtf16Pos_ofString_spec (s : String) (l col : Nat) (h₁ : 1 ≤ l)
     (h₂ : l ≤ s.toList.count '\n' + 1)
@@ -524,28 +478,15 @@ theorem codepointPosToUtf16Pos_ofString_spec (s : String) (l col : Nat) (h₁ : 
 
 theorem off_inj (s : String) {a b : Nat} (ha : a ≤ s.toList.length) (hb : b ≤ s.toList.length)
     (h : off s a = off s b) : a = b := by
-  have h1 := off_lt_off s (a := a) hb
-  have h2 := off_lt_off s (a := b) ha
-  rw [h] at h1 h2
-  have : ¬ off s b < off s b := by simp [String.Pos.Raw.lt_iff]
-  rcases Nat.lt_trichotomy a b with hab | hab | hab
-  · exact absurd (h1.2 hab) this
-  · exact hab
-  · exact absurd (h2.2 hab) this
+  have := off_lt_off s (a := a) hb
+  have := off_lt_off s (a := b) ha
+  grind [String.Pos.Raw.lt_iff]
 
 theorem off_le_off (s : String) {a b : Nat} (ha : a ≤ s.toList.length) :
     off s a ≤ off s b ↔ a ≤ b := by
   have := off_lt_off s (a := b) ha
-  constructor
-  · intro h
-    apply Classical.byContradiction
-    intro h'
-    have := this.2 (by omega)
-    simp only [String.Pos.Raw.le_iff, String.Pos.Raw.lt_iff] at *
-    omega
-  · intro h
-    have := bsum_take_le s.toList h
-    simpa [String.Pos.Raw.le_iff, off] using this
+  have := @bsum_take_le s.toList a b
+  grind [String.Pos.Raw.le_iff, String.Pos.Raw.lt_iff, off]
 
 theorem toColumn_off (s : String) {j k : Nat} (hjk : j ≤ k) (hk : k ≤ s.toList.length) :
     FileMap.toPosition.toColumn (off s k) s (off s j) 0 = k - j := by
@@ -614,9 +555,12 @@ theorem toPosition_loop_spec (fm : FileMap) (s : String) (hps : PosSpec s fm.pos
     · rename_i hne
       split
       · rename_i hgt
-        exact ih (e - (b + e) / 2) (by omega) ((b + e) / 2) e (by omega) he (by rw [hm]; exact (off_le_off s hjm2).2 (Nat.le_of_lt ((off_lt_off s hk).1 hgt))) he' rfl
+        refine ih (e - (b + e) / 2) (by omega) ((b + e) / 2) e (by omega) he ?_ he' rfl
+        rw [hm]
+        exact (off_le_off s hjm2).2 (Nat.le_of_lt ((off_lt_off s hk).1 hgt))
       · rename_i hngt
-        refine ih ((b + e) / 2 - b) (by omega) b ((b + e) / 2) (by omega) (by omega) hb (Or.inl ?_) rfl
+        refine ih ((b + e) / 2 - b) (by omega) b ((b + e) / 2) (by omega) (by omega) hb
+          (Or.inl ?_) rfl
         rw [hm]
         have h1 : k ≠ jm := fun h => hne (by simp [h])
         have h2 : ¬ jm < k := fun h => hngt ((off_lt_off s hk).2 h)

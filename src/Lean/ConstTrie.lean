@@ -25,20 +25,18 @@ sharing all single-module subtrees directly with the olean regions.
 -/
 
 /--
-A prefix tree over the constant names of a single module, keyed on name components. As all children
-of a node extend its `key` by one component, comparing that final component suffices to
-disambiguate equal hashes.
+A prefix tree over the constant names of a single module, keyed on name components. `key` is the
+full name prefix represented by a node. `children` is sorted by the (cached) hash of the child keys,
+and `childIndex` accelerates hash lookups into it (see the child-index layout note); as all children
+extend `key` by one component, comparing that final component suffices to disambiguate equal hashes.
+Nodes are split by shape so that leaves and value-less nodes store no unused fields.
 -/
-public structure ConstTrie (α : Type) where
-  /-- The full name prefix represented by the node. -/
-  key : Name
-  val? : Option α
-  /-- Sorted by the (cached) hash of the child keys. -/
-  children : Array (ConstTrie α)
-  /-- Accelerates hash lookups into `children`; see the child-index layout note. -/
-  childIndex : ByteArray
+public inductive ConstTrie (α : Type) where
+  | leaf (key : Name) (val : α)
+  | inner (key : Name) (children : Array (ConstTrie α)) (childIndex : ByteArray)
+  | node (key : Name) (val : α) (children : Array (ConstTrie α)) (childIndex : ByteArray)
 
-public instance : Inhabited (ConstTrie α) := ⟨⟨.anonymous, none, #[], .empty⟩⟩
+public instance : Inhabited (ConstTrie α) := ⟨.inner .anonymous #[] .empty⟩
 
 /--
 Checks whether the final components of two names agree, assuming their prefixes are already known
@@ -171,14 +169,34 @@ def prefixesOf (n : Name) (acc : Array Name := .mkEmpty 8) : Array Name :=
 
 namespace ConstTrie
 
+@[inline] public def key : ConstTrie α → Name
+  | .leaf k _ | .inner k .. | .node k .. => k
+
+@[inline] public def val? : ConstTrie α → Option α
+  | .leaf _ v | .node _ v .. => some v
+  | .inner .. => none
+
+@[inline] public def children : ConstTrie α → Array (ConstTrie α)
+  | .leaf .. => #[]
+  | .inner _ cs _ | .node _ _ cs _ => cs
+
+/-- Creates a node of the appropriate shape; `children` must be sorted by key hash. -/
+public def mk (key : Name) (val? : Option α) (children : Array (ConstTrie α)) : ConstTrie α :=
+  match val?, children.isEmpty with
+  | some v, true => .leaf key v
+  | some v, false => .node key v children (buildChildIndex children ConstTrie.key)
+  | none, _ => .inner key children (buildChildIndex children ConstTrie.key)
+
 /-- Walks from `t`, the node for `path[i]` (or the root for `i = path.size`), to `path[0]`. -/
 partial def findAux (t : ConstTrie α) (path : Array Name) (i : Nat) : Option α :=
-  if i == 0 then
-    t.val?
-  else
-    match findHashIdx? t.childIndex t.children key path[i - 1]! with
-    | some j => findAux t.children[j]! path (i - 1)
+  let child (cs : Array (ConstTrie α)) (hs : ByteArray) : Option α :=
+    match findHashIdx? hs cs key path[i - 1]! with
+    | some j => findAux cs[j]! path (i - 1)
     | none   => none
+  match t with
+  | .leaf _ v => if i == 0 then some v else none
+  | .inner _ cs hs => if i == 0 then none else child cs hs
+  | .node _ v cs hs => if i == 0 then some v else child cs hs
 
 public def find? (t : ConstTrie α) (n : Name) : Option α :=
   let path := prefixesOf n
@@ -186,10 +204,10 @@ public def find? (t : ConstTrie α) (n : Name) : Option α :=
 
 public partial def foldlM [Monad m] (t : ConstTrie α) (f : σ → Name → α → m σ) (init : σ) :
     m σ := do
-  let mut s := init
-  if let some v := t.val? then
-    s ← f s t.key v
-  t.children.foldlM (fun s c => c.foldlM f s) s
+  match t with
+  | .leaf k v => f init k v
+  | .inner _ cs _ => cs.foldlM (fun s c => c.foldlM f s) init
+  | .node k v cs _ => cs.foldlM (fun s c => c.foldlM f s) (← f init k v)
 
 /-- Intermediate state for constructing a `ConstTrie`, mapping each prefix to its data. -/
 structure Builder (α : Type) where
@@ -216,7 +234,7 @@ def Builder.addName (b : Builder α) (n : Name) : Builder α := Id.run do
 partial def Builder.toTrie (b : Builder α) (key : Name) : ConstTrie α :=
   let children := b.children[key]?.getD #[] |>.map (b.toTrie ·)
   let children := children.qsort fun c₁ c₂ => c₁.key.hash < c₂.key.hash
-  ⟨key, b.values[key]?, children, buildChildIndex children ConstTrie.key⟩
+  .mk key b.values[key]? children
 
 /-- Creates a trie mapping `names[i]` to `vals[i]`. -/
 public def ofArrays (names : Array Name) (vals : Array α) : ConstTrie α := Id.run do

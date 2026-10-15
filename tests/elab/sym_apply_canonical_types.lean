@@ -1,5 +1,5 @@
 import Lean.Meta.Sym
-import Std.Internal.Do
+import Std.WP
 
 /-!
 `Sym.Pattern.unify?` instantiates assigned metavariables in the types of the fresh
@@ -14,7 +14,7 @@ side syntactically; without canonical subgoal types this `simp` fails with
 "`Sym.simp` made no progress".
 -/
 
-open Lean.Order
+open Lean.Order Std.Internal.Order
 
 example (f g : Nat → Nat → Prop) (h : ∀ a b, f a b ⊑ g a b) : f ⊑ g := by
   sym =>

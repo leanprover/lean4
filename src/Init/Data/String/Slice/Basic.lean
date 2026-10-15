@@ -104,6 +104,9 @@ instance : LE Slice where
 instance : DecidableLE Slice :=
   fun x y => inferInstanceAs (Decidable (¬y < x))
 
+instance : Min Slice := .leftLeaningOfLE _
+instance : Max Slice := .leftLeaningOfLE _
+
 /--
 Removes the specified number of characters (Unicode code points) from the start of the slice.
 

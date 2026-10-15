@@ -17,6 +17,12 @@ example : Std.LawfulOrderLT Slice := inferInstance
 example : Std.LawfulOrderOrd Slice := inferInstance
 example : Std.LawfulOrderBEq Slice := inferInstance
 example : Std.TransOrd Slice := inferInstance
+example : Min Slice := inferInstance
+example : Max Slice := inferInstance
+example : Std.LawfulOrderLeftLeaningMin Slice := inferInstance
+example : Std.LawfulOrderLeftLeaningMax Slice := inferInstance
+example : Std.LawfulOrderMin Slice := inferInstance
+example : Std.LawfulOrderMax Slice := inferInstance
 
 example (s t : Slice) : s < t ↔ s.copy < t.copy := by simp
 example (s t : Slice) : s ≤ t ↔ s.copy ≤ t.copy := by simp

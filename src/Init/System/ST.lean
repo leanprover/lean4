@@ -163,18 +163,18 @@ instance {ε σ} : MonadLift (ST σ) (EST ε σ) := ⟨fun x s =>
 namespace ST
 
 /-- References -/
-opaque RefPointed : NonemptyType.{0}
+opaque RefPointed (σ : Type) (α : Type) : NonemptyType.{0}
 
 /--
 Mutable reference cells that contain values of type `α`. These cells can read from and mutated in
 the `ST σ` monad.
 -/
 structure Ref (σ : Type) (α : Type) : Type where
-  ref : RefPointed.type
+  ref : (RefPointed σ α).type
   h   : Nonempty α
 
 instance {σ α} [s : Nonempty α] : Nonempty (Ref σ α) :=
-  Nonempty.intro { ref := Classical.choice RefPointed.property, h := s }
+  Nonempty.intro { ref := Classical.choice (RefPointed σ α).property, h := s }
 
 namespace Prim
 
@@ -184,7 +184,7 @@ private noncomputable def inhabitedFromRef {σ α} (r : Ref σ α) : ST σ α :=
   pure default
 
 @[extern "lean_st_mk_ref"]
-opaque mkRef {σ α} (a : α) : ST σ (Ref σ α) := pure { ref := Classical.choice RefPointed.property, h := Nonempty.intro a }
+opaque mkRef {σ α} (a : α) : ST σ (Ref σ α) := pure { ref := Classical.choice (RefPointed σ α).property, h := Nonempty.intro a }
 @[extern "lean_st_ref_get"]
 opaque Ref.get {σ α} (r : @& Ref σ α) : ST σ α := inhabitedFromRef r
 @[extern "lean_st_ref_swap"]

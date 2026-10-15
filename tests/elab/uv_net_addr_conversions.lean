@@ -5,7 +5,8 @@ import Std.Net
 Addresses survive the conversions between Lean values and the C socket structures: numeric DNS
 results, the addresses and netmasks of the network interfaces, and socket addresses passed to and
 returned by the kernel, port included. The values use a different byte in every position, so a
-swapped byte or segment shows up.
+swapped byte or segment shows up. Parsing and printing are each checked against fixed values, which
+catches the big-endian IPv6 conversion bug fixed in PR #15653 on any host.
 -/
 
 open Std.Async
@@ -60,3 +61,39 @@ def roundTrip (loopback : IPAddr) (mkAddr : UInt16 → SocketAddress) : IO Unit 
 
 #eval roundTrip (.v4 (.ofParts 127 0 0 1)) fun port => .v4 ⟨.ofParts 127 0 0 1, port⟩
 #eval roundTrip (.v6 (.ofParts 0 0 0 0 0 0 0 1)) fun port => .v6 ⟨.ofParts 0 0 0 0 0 0 0 1, port⟩
+
+-- `ofString` converts C to Lean and `toString` converts Lean to C. Each direction is compared to fixed
+-- values on its own: a byte swap applied in both directions cancels out in a round trip, which is how the
+-- big-endian IPv6 bug went unnoticed.
+def checkV6 (text : String) (parts : IPv6Addr) : IO Unit := do
+  let some parsed := IPv6Addr.ofString text
+    | throw <| IO.userError s!"IPv6 {text}: not parsed"
+  check s!"IPv6 {text} parsed" (parsed == parts)
+    s!"{parsed.segments.toArray.toList.map UInt16.toNat}"
+  check s!"IPv6 {text} printed" (parts.toString == text) parts.toString
+
+def checkV4 (text : String) (parts : IPv4Addr) : IO Unit := do
+  let some parsed := IPv4Addr.ofString text
+    | throw <| IO.userError s!"IPv4 {text}: not parsed"
+  check s!"IPv4 {text} parsed" (parsed == parts) s!"{parsed.octets.toArray.toList}"
+  check s!"IPv4 {text} printed" (parts.toString == text) parts.toString
+
+#eval do
+  checkV6 "2001:db8:1234:5678:9abc:def0:fedc:ba98" (.ofParts 0x2001 0x0db8 0x1234 0x5678 0x9abc 0xdef0 0xfedc 0xba98)
+  checkV6 "::1" (.ofParts 0 0 0 0 0 0 0 1)
+  checkV6 "fe80::1" (.ofParts 0xfe80 0 0 0 0 0 0 1)
+  checkV6 "::ffff:1.2.3.4" (.ofParts 0 0 0 0 0 0xffff 0x0102 0x0304)
+  checkV4 "1.2.3.4" (.ofParts 1 2 3 4)
+  checkV4 "192.0.2.123" (.ofParts 192 0 2 123)
+
+-- A TCP socket bound to the loopback reports the same address from `getSockName`.
+def tcpBound (loopback : IPAddr) (addr : SocketAddress) : IO Unit := do
+  let server ← TCP.Socket.Server.mk
+  try server.bind addr catch _ =>
+    -- The host has no address of this family.
+    return
+  let bound ← server.getSockName
+  check "TCP bound address" (bound.ipAddr == loopback && bound.port != 0) s!"{bound}"
+
+#eval tcpBound (.v4 (.ofParts 127 0 0 1)) (.v4 ⟨.ofParts 127 0 0 1, 0⟩)
+#eval tcpBound (.v6 (.ofParts 0 0 0 0 0 0 0 1)) (.v6 ⟨.ofParts 0 0 0 0 0 0 0 1, 0⟩)

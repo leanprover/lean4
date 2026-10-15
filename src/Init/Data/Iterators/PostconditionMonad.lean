@@ -50,17 +50,17 @@ Caution: `lift` is not a lawful lift function.
 For example, `pure a : PostconditionT m α` is not the same as
 `PostconditionT.lift (pure a : m α)`.
 -/
-@[always_inline, inline, expose]
+@[always_inline, expose]
 def PostconditionT.lift {α : Type w} {m : Type w → Type w'} [Functor m] (x : m α) :
     PostconditionT m α :=
   ⟨fun _ => True, (⟨·, .intro⟩) <$> x⟩
 
-@[always_inline, inline, expose]
+@[always_inline, expose]
 def PostconditionT.attachLift {α : Type w} {m : Type w → Type w'} [MonadAttach m]
     (x : m α) : PostconditionT m α :=
   ⟨MonadAttach.CanReturn x, MonadAttach.attach x⟩
 
-@[always_inline, inline, expose]
+@[always_inline, expose]
 protected def PostconditionT.pure {m : Type w → Type w'} [Pure m] {α : Type w}
     (a : α) : PostconditionT m α :=
   ⟨fun y => a = y, pure <| ⟨a, rfl⟩⟩
@@ -68,7 +68,7 @@ protected def PostconditionT.pure {m : Type w → Type w'} [Pure m] {α : Type w
 /--
 Lifts a monadic value from `m { a : α // P a }` to a value `PostconditionT m α`.
 -/
-@[always_inline, inline]
+@[always_inline]
 def PostconditionT.liftWithProperty {α : Type w} {m : Type w → Type w'} {P : α → Prop}
     (x : m { α // P α }) : PostconditionT m α :=
   ⟨P, x⟩
@@ -80,7 +80,7 @@ turning `PostconditionT m` into a functor.
 The postcondition of the `x.map f` states that the return value is the image under `f` of some
 `a : α` satisfying the `x.Property`.
 -/
-@[always_inline, inline, expose]
+@[always_inline, expose]
 protected def PostconditionT.map {m : Type w → Type w'} [Functor m] {α : Type w} {β : Type w}
     (f : α → β) (x : PostconditionT m α) : PostconditionT m β :=
   ⟨fun b => ∃ a : Subtype x.Property, f a.1 = b,
@@ -90,7 +90,7 @@ protected def PostconditionT.map {m : Type w → Type w'} [Functor m] {α : Type
 Given a function `α → PostconditionT m β`, returns a function
 `PostconditionT m α → PostconditionT m β`, turning `PostconditionT m` into a monad.
 -/
-@[always_inline, inline, expose]
+@[always_inline, expose]
 protected def PostconditionT.bind {m : Type w → Type w'} [Monad m] {α : Type w} {β : Type w}
     (x : PostconditionT m α) (f : α → PostconditionT m β) : PostconditionT m β :=
   ⟨fun b => ∃ a, x.Property a ∧ (f a).Property b,
@@ -101,7 +101,7 @@ protected def PostconditionT.bind {m : Type w → Type w'} [Monad m] {α : Type 
 /--
 A version of `bind` that provides a proof of the previous postcondition to the mapping function.
 -/
-@[always_inline, inline]
+@[always_inline]
 protected def PostconditionT.pbind {m : Type w → Type w'} [Monad m] {α : Type w} {β : Type w}
     (x : PostconditionT m α) (f : Subtype x.Property → PostconditionT m β) : PostconditionT m β :=
   ⟨fun b => ∃ a, (f a).Property b,
@@ -110,7 +110,7 @@ protected def PostconditionT.pbind {m : Type w → Type w'} [Monad m] {α : Type
 /--
 Lifts an operation from `m` to `PostConditionT m` and then applies `PostconditionT.map`.
 -/
-@[always_inline, inline]
+@[always_inline]
 protected def PostconditionT.liftMap {m : Type w → Type w'} [Monad m] {α : Type w} {β : Type w}
     (f : α → β) (x : m α) : PostconditionT m β :=
   ⟨fun b => ∃ a, f a = b, (fun a => ⟨f a, a, rfl⟩) <$> x⟩
@@ -118,7 +118,7 @@ protected def PostconditionT.liftMap {m : Type w → Type w'} [Monad m] {α : Ty
 /--
 Converts an operation from `PostConditionT m` to `m`, discarding the postcondition.
 -/
-@[always_inline, inline]
+@[always_inline]
 def PostconditionT.run {m : Type w → Type w'} [Monad m] {α : Type w} (x : PostconditionT m α) :
     m α :=
   (fun a => a.val) <$> x.operation

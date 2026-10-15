@@ -32,7 +32,7 @@ Returns an iterator that terminates immediately.
 * `Productive` instance: always
 
 -/
-@[always_inline, inline]
+@[always_inline]
 def IterM.empty (m : Type w → Type w') (β : Type w) :=
   (⟨Iterators.Types.Empty.mk (m := m) (β := β)⟩ : IterM m β)
 

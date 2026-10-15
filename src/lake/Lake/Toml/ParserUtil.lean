@@ -35,7 +35,7 @@ public scoped instance : AndThen ParserFn where
   andThen p q := fun c s => let s := p c s; if s.hasError then s else q () c s
 
 /-- `ParserFn` combinator that runs `f` with the current position. -/
-@[always_inline, inline] public def usePosFn (f : String.Pos.Raw → ParserFn) : ParserFn :=
+@[always_inline] public def usePosFn (f : String.Pos.Raw → ParserFn) : ParserFn :=
   fun c s => f s.pos c s
 
 /-- Match an arbitrary parser or do nothing. -/

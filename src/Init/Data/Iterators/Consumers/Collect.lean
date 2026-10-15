@@ -32,7 +32,7 @@ Traverses the given iterator and stores the emitted values in an array.
 If the iterator is not finite, this function might run forever. The variant
 `it.ensureTermination.toArray` always terminates after finitely many steps.
 -/
-@[cbv_opaque, always_inline, inline]
+@[cbv_opaque, always_inline]
 def Iter.toArray {α : Type w} {β : Type w}
     [Iterator α Id β] (it : Iter (α := α) β) : Array β :=
   it.toIterM.toArray.run
@@ -43,7 +43,7 @@ Traverses the given iterator and stores the emitted values in an array.
 This variant terminates after finitely many steps and requires a proof that the iterator is
 finite. If such a proof is not available, consider using `Iter.toArray`.
 -/
-@[always_inline, inline]
+@[always_inline]
 def Iter.Total.toArray {α : Type w} {β : Type w}
     [Iterator α Id β] [Finite α Id] (it : Iter.Total (α := α) β) :
     Array β :=
@@ -56,7 +56,7 @@ lists are prepend-only, this `toListRev` is usually more efficient that `toList`
 If the iterator is not finite, this function might run forever. The variant
 `it.ensureTermination.toListRev` always terminates after finitely many steps.
 -/
-@[always_inline, inline, cbv_opaque]
+@[always_inline, cbv_opaque]
 def Iter.toListRev {α : Type w} {β : Type w}
     [Iterator α Id β] (it : Iter (α := α) β) : List β :=
   it.toIterM.toListRev.run
@@ -68,7 +68,7 @@ lists are prepend-only, this `toListRev` is usually more efficient that `toList`
 This variant terminates after finitely many steps and requires a proof that the iterator is
 finite. If such a proof is not available, consider using `Iter.toListRev`.
 -/
-@[always_inline, inline]
+@[always_inline]
 def Iter.Total.toListRev {α : Type w} {β : Type w}
     [Iterator α Id β] [Finite α Id] (it : Iter.Total (α := α) β) : List β :=
   it.it.toListRev
@@ -80,7 +80,7 @@ lists are prepend-only, `toListRev` is usually more efficient that `toList`.
 If the iterator is not finite, this function might run forever. The variant
 `it.ensureTermination.toList` always terminates after finitely many steps.
 -/
-@[cbv_opaque, always_inline, inline]
+@[cbv_opaque, always_inline]
 def Iter.toList {α : Type w} {β : Type w}
     [Iterator α Id β] (it : Iter (α := α) β) : List β :=
   it.toIterM.toList.run
@@ -92,7 +92,7 @@ lists are prepend-only, `toListRev` is usually more efficient that `toList`.
 This variant terminates after finitely many steps and requires a proof that the iterator is
 finite. If such a proof is not available, consider using `Iter.toList`.
 -/
-@[always_inline, inline]
+@[always_inline]
 def Iter.Total.toList {α : Type w} {β : Type w}
     [Iterator α Id β] [Finite α Id] (it : Iter.Total (α := α) β) :
     List β :=

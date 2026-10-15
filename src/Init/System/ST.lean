@@ -35,10 +35,10 @@ It is possible to run `ST` computations in a non-monadic context using `runST`.
 
 namespace ST
 
-@[always_inline, inline]
+@[always_inline]
 protected def pure (x : α) : ST σ α := fun s => .mk x s
 
-@[always_inline, inline]
+@[always_inline]
 protected def bind (x : ST σ α) (f : α → ST σ β) : ST σ β :=
   fun s =>
     match x s with
@@ -78,19 +78,19 @@ It is possible to run `EST` computations in a non-monadic context using `runEST`
 
 namespace EST
 
-@[always_inline, inline]
+@[always_inline]
 protected def pure (a : α) : EST ε σ α := fun s => .ok a s
 
-@[always_inline, inline]
+@[always_inline]
 protected def bind (x : EST ε σ α) (f : α → EST ε σ β) : EST ε σ β :=
   fun s => match x s with
   | .ok a s    => f a s
   | .error e s => .error e s
 
-@[always_inline, inline]
+@[always_inline]
 protected def throw (e : ε) : EST ε σ α := fun s => .error e s
 
-@[always_inline, inline]
+@[always_inline]
 protected def tryCatch (x : EST ε σ α) (handle : ε → EST ε σ α) : EST ε σ α :=
   fun s => match x s with
   | .ok a s => .ok a s

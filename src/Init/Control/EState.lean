@@ -43,7 +43,7 @@ Alternative orElse operator that allows callers to select which exception should
 operations fail. The default is to use the first exception since the standard `orElse` uses the
 second.
 -/
-@[always_inline, inline]
+@[always_inline]
 protected def orElse' {δ} [Backtrackable δ σ] (x₁ x₂ : EStateM ε σ α) (useFirstEx := true) : EStateM ε σ α := fun s =>
   let d := Backtrackable.save s;
   match x₁ s with
@@ -71,7 +71,7 @@ Converts a state monad action into a state monad action with exceptions.
 
 The resulting action does not throw an exception.
 -/
-@[always_inline, inline] def fromStateM {ε σ α : Type} (x : StateM σ α) : EStateM ε σ α := fun s =>
+@[always_inline] def fromStateM {ε σ α : Type} (x : StateM σ α) : EStateM ε σ α := fun s =>
   match x.run s with
   | (a, s') => EStateM.Result.ok a s'
 

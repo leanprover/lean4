@@ -56,7 +56,7 @@ created directly with `IterM.dropWhileWithPostcondition` but only with
 `Intermediate.dropWhileWithPostcondition` is meant to be used only for internally or for
 verification purposes.
 -/
-@[always_inline, inline, implicit_reducible]
+@[always_inline, implicit_reducible]
 def IterM.Intermediate.dropWhileWithPostcondition (P : β → PostconditionT m (ULift Bool))
     (dropping : Bool) (it : IterM (α := α) m β) :=
   (⟨Iterators.Types.DropWhile.mk (P := P) dropping it⟩ : IterM m β)
@@ -68,7 +68,7 @@ directly with `IterM.dropWhileM` but only with `Intermediate.dropWhileM`.
 
 `Intermediate.dropWhileM` is meant to be used only for internally or for verification purposes.
 -/
-@[always_inline, inline]
+@[always_inline]
 def IterM.Intermediate.dropWhileM [Monad m] [MonadAttach m] (P : β → m (ULift Bool)) (dropping : Bool)
     (it : IterM (α := α) m β) :=
   (IterM.Intermediate.dropWhileWithPostcondition (PostconditionT.attachLift ∘ P) dropping it : IterM m β)
@@ -80,7 +80,7 @@ directly with `IterM.dropWhile` but only with `Intermediate.dropWhile`.
 
 `Intermediate.dropWhile` is meant to be used only for internally or for verification purposes.
 -/
-@[always_inline, inline, implicit_reducible]
+@[always_inline, implicit_reducible]
 def IterM.Intermediate.dropWhile [Monad m] (P : β → Bool) (dropping : Bool)
     (it : IterM (α := α) m β) :=
   (IterM.Intermediate.dropWhileWithPostcondition (pure ∘ ULift.up ∘ P) dropping it : IterM m β)
@@ -123,7 +123,7 @@ Depending on `P`, it is possible that `it.dropWhileWithPostcondition P` is finit
 This combinator calls `P` on each output of `it` until the predicate evaluates to false. After
 that, the combinator incurs an additional O(1) cost for each value emitted by `it`.
 -/
-@[always_inline, inline]
+@[always_inline]
 def IterM.dropWhileWithPostcondition (P : β → PostconditionT m (ULift Bool)) (it : IterM (α := α) m β) :=
   (Intermediate.dropWhileWithPostcondition P true it : IterM m β)
 
@@ -159,7 +159,7 @@ Depending on `P`, it is possible that `it.dropWhileM P` is finite (or productive
 This combinator calls `P` on each output of `it` until the predicate evaluates to false. After
 that, the combinator incurs an addictional O(1) cost for each value emitted by `it`.
 -/
-@[always_inline, inline]
+@[always_inline]
 def IterM.dropWhileM [Monad m] [MonadAttach m] (P : β → m (ULift Bool)) (it : IterM (α := α) m β) :=
   (Intermediate.dropWhileM P true it : IterM m β)
 
@@ -192,7 +192,7 @@ it.dropWhile P   --------⊥
 This combinator calls `P` on each output of `it` until the predicate evaluates to false. After
 that, the combinator incurs an addictional O(1) cost for each value emitted by `it`.
 -/
-@[always_inline, inline]
+@[always_inline]
 def IterM.dropWhile [Monad m] (P : β → Bool) (it : IterM (α := α) m β) :=
   (Intermediate.dropWhile P true it: IterM m β)
 
@@ -218,7 +218,7 @@ inductive DropWhile.PlausibleStep [Iterator α m β] {P} (it : IterM (α := Drop
       it.internalState.dropping = true → (P out).Property (.up true) →
       PlausibleStep it (.skip (IterM.Intermediate.dropWhileWithPostcondition P true it'))
 
-@[always_inline, inline]
+@[always_inline]
 instance DropWhile.instIterator [Monad m] [Iterator α m β] {P} :
     Iterator (DropWhile α m β P) m β where
   IsPlausibleStep := DropWhile.PlausibleStep

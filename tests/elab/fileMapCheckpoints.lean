@@ -162,16 +162,32 @@ theorem findCheckpoint_empty (fm : FileMap) (line : Nat) (key : ColumnCheckpoint
       { pos := fm.lineStart (line + 1), column := 0, utf16Column := 0 } := by
   grind [FileMap.findCheckpoint, FileMap.findCheckpoint.loop, FileMap.lineStart]
 
+theorem lineStart_pred_succ (fm : FileMap) (line : Nat) :
+    fm.lineStart (line - 1 + 1) = fm.lineStart line := by
+  cases line <;> grind [FileMap.lineStart]
+
+/-- Without checkpoints, `codepointPosToUtf16Pos` walks from the start of the line. -/
+theorem codepointPosToUtf16Pos_empty (fm : FileMap) (line col : Nat) :
+    ({ fm with columnCheckpoints := #[] } : FileMap).codepointPosToUtf16Pos line col =
+      codepointPosToUtf16PosFrom fm.source col (fm.lineStart line) := by
+  simp only [FileMap.codepointPosToUtf16Pos, findCheckpoint_empty, lineStart_pred_succ]
+  split <;> simp [FileMap.lineStart]
+
 theorem codepointPosToUtf16Pos_eq (fm : FileMap) (hwf : fm.WF) (line col : Nat) :
     fm.codepointPosToUtf16Pos line col =
       { fm with columnCheckpoints := #[] }.codepointPosToUtf16Pos line col := by
-  simp only [FileMap.codepointPosToUtf16Pos, findCheckpoint_empty]
+  rw [codepointPosToUtf16Pos_empty]
+  simp only [FileMap.codepointPosToUtf16Pos]
+  split
+  · rfl
   rcases findCheckpoint_sound fm (line - 1) (·.column) col with h | ⟨hb, k, hk, h, hle⟩
-  · rw [h]
+  · rw [h, lineStart_pred_succ]; simp
   · have := aux_add fm.source fm.columnCheckpoints[line - 1].get[k].column
       (col - fm.columnCheckpoints[line - 1].get[k].column) fm.positions[line - 1]! 0
     have := hwf.2 (line - 1) hb _ (Array.getElem_mem hk)
-    grind [Valid, FileMap.WF, lineStart_succ, aux_shift, codepointPosToUtf16PosFrom]
+    have := lineStart_succ fm (line - 1) (by have := hwf.1; omega)
+    have := lineStart_pred_succ fm line
+    grind [Valid, FileMap.WF, aux_shift, codepointPosToUtf16PosFrom]
 
 theorem toColumn_findCheckpoint (fm : FileMap) (hwf : fm.WF) (pos : String.Pos.Raw) (b : Nat) :
     let cp := fm.findCheckpoint b (·.pos.byteIdx) pos.byteIdx
@@ -197,11 +213,13 @@ theorem toPosition_loop_eq (fm : FileMap) (hwf : fm.WF) (pos : String.Pos.Raw) (
   | _ n ih =>
   rw [FileMap.toPosition.loop, FileMap.toPosition.loop]
   have := toColumn_findCheckpoint fm hwf pos b
+  have hs : ({ fm with columnCheckpoints := #[] } : FileMap).lineIsShort b = fm.lineIsShort b := rfl
   split
-  · by_cases hc : fm.columnCheckpoints[b]?.all (·.get.isEmpty)
-    · grind [FileMap.getLine, FileMap.getLastLine]
-    · have := lineStart_succ fm b (by have := hwf.1; grind)
-      grind [FileMap.getLine, FileMap.getLastLine, findCheckpoint_empty]
+  · simp only [hs]
+    split
+    · rfl
+    · simp only [FileMap.getLine, FileMap.getLastLine] at this ⊢
+      rw [this]
   · have := ih (e - (b + e) / 2) (by omega) ((b + e) / 2) e rfl
     have := ih ((b + e) / 2 - b) (by omega) b ((b + e) / 2) rfl
     grind [FileMap.getLine, FileMap.getLastLine]
@@ -468,11 +486,9 @@ theorem codepointPosToUtf16Pos_ofString_spec (s : String) (l col : Nat) (h₁ : 
     (j : Nat) (hls : IsLineStart s.toList j) (hc : (s.toList.take j).count '\n' = l - 1)
     (hcol : j + col ≤ s.toList.length) :
     (FileMap.ofString s).codepointPosToUtf16Pos l col = utf16Sum ((s.toList.drop j).take col) := by
-  rw [codepointPosToUtf16Pos_ofString]
-  simp only [FileMap.codepointPosToUtf16Pos, findCheckpoint_empty, codepointPosToUtf16PosFrom]
-  have := lineStart_ofString s l h₁ h₂ j (by omega) hls hc
-  rw [show l - 1 + 1 = l by omega]
-  simp only [this, ofString_source, Nat.sub_zero, aux_off s col j 0 hcol]
+  rw [codepointPosToUtf16Pos_ofString, codepointPosToUtf16Pos_empty,
+    lineStart_ofString s l h₁ h₂ j (by omega) hls hc, ofString_source,
+    codepointPosToUtf16PosFrom, aux_off s col j 0 hcol]
   omega
 
 /-! ## Specification of `toPosition` -/
@@ -514,8 +530,16 @@ theorem toPosition_loop_spec (fm : FileMap) (s : String) (hps : PosSpec s fm.pos
   rw [FileMap.toPosition.loop]
   split
   · -- `e = b + 1`: the line is `b`
-    simp only [findCheckpoint_empty]
-    rw [lineStart_succ _ _ (show b < fm.positions.size by omega)]
+    have hleaf : ∀ c : Bool, (if c then FileMap.toPosition.toColumn (off s k) s fm.positions[b]! 0
+        else FileMap.toPosition.toColumn (off s k) s
+          (({ fm with columnCheckpoints := #[] } : FileMap).findCheckpoint b (·.pos.byteIdx)
+            (off s k).byteIdx).pos
+          (({ fm with columnCheckpoints := #[] } : FileMap).findCheckpoint b (·.pos.byteIdx)
+            (off s k).byteIdx).column) =
+        FileMap.toPosition.toColumn (off s k) s fm.positions[b]! 0 := by
+      have := lineStart_succ _ _ (show b < fm.positions.size by omega)
+      intro c; cases c <;> simp [findCheckpoint_empty, this]
+    simp only [hleaf]
     obtain ⟨jb, hjb1, hjb2, hjb3, hjb4⟩ := hspec b (by omega)
     have hb' : fm.positions[b]! = off s jb := by grind
     rw [hb'] at hb ⊢

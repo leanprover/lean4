@@ -145,6 +145,12 @@ def lineStart (map : FileMap) (line : Nat) : String.Pos.Raw :=
     map.positions[line - 1]
   else map.positions.back?.getD 0
 
+/-- Returns whether (0-based) line `line` is too short to have checkpoints. -/
+private def lineIsShort (fmap : FileMap) (line : Nat) : Bool :=
+  match fmap.positions[line]?, fmap.positions[line + 1]? with
+  | some lineStart, some lineEnd => lineEnd.byteIdx - lineStart.byteIdx ≤ columnCheckpointInterval
+  | _, _ => true
+
 /--
 Returns the last checkpoint of (0-based) line `line` whose `key` is at most `x`, or the start of the
 line if there is none. `key` must be monotone on the checkpoints of the line.
@@ -178,7 +184,7 @@ def toPosition (fmap : FileMap) (pos : String.Pos.Raw) : Position :=
       let rec loop (b e : Nat) :=
         if e ≤ b + 1 then
           let column :=
-            if fmap.columnCheckpoints[b]?.all (·.get.isEmpty) then
+            if fmap.lineIsShort b then
               toColumn ps[b]! 0
             else
               let cp := fmap.findCheckpoint b (·.pos.byteIdx) pos.byteIdx
@@ -213,8 +219,11 @@ def ofPosition (text : FileMap) (pos : Position) : String.Pos.Raw :=
 
 /-- Computes the UTF-16 offset of codepoint `col` of (1-based) line `line`. -/
 def codepointPosToUtf16Pos (fmap : FileMap) (line col : Nat) : Nat :=
-  let cp := fmap.findCheckpoint (line - 1) (·.column) col
-  cp.utf16Column + String.codepointPosToUtf16PosFrom fmap.source (col - cp.column) cp.pos
+  if fmap.lineIsShort (line - 1) then
+    String.codepointPosToUtf16PosFrom fmap.source col (fmap.lineStart line)
+  else
+    let cp := fmap.findCheckpoint (line - 1) (·.column) col
+    cp.utf16Column + String.codepointPosToUtf16PosFrom fmap.source (col - cp.column) cp.pos
 
 end FileMap
 end Lean

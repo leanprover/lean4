@@ -7,12 +7,12 @@ module
 prelude
 public import Lean.Elab.Deriving.Basic
 public import Lean.Elab.PreDefinition.Main
-import all Lean.Elab.ErrorUtils
+import Lean.Elab.ErrorUtils
 public section
 namespace Lean.Elab
 open Lean.Parser.Term
 
-open Language
+open Language Internal.ErrorUtils
 
 builtin_initialize
   registerTraceClass `Meta.instantiateMVars

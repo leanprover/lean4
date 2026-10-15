@@ -566,11 +566,8 @@ theorem toPosition_loop_spec (fm : FileMap) (s : String) (hps : PosSpec s fm.pos
         have h2 : ¬ jm < k := fun h => hngt ((off_lt_off s hk).2 h)
         exact (off_lt_off s hjm2).2 (by omega)
 
-/--
-The position of character index `k` is its line (one more than the newlines before it) and its
-distance from `j`, the last line start at or before `k` (which exists by `exists_lastLineStart`).
--/
-theorem toPosition_ofString_spec (s : String) (k j : Nat) (hk : k ≤ s.toList.length) (hjk : j ≤ k)
+theorem toPosition_ofString_of_lineStart (s : String) (k j : Nat) (hk : k ≤ s.toList.length)
+    (hjk : j ≤ k)
     (hls : IsLineStart s.toList j) (hno : ∀ i, j ≤ i → i < k → s.toList[i]? ≠ some '\n') :
     (FileMap.ofString s).toPosition (off s k) = ⟨(s.toList.take k).count '\n' + 1, k - j⟩ := by
   rw [toPosition_ofString]
@@ -595,5 +592,37 @@ theorem toPosition_ofString_spec (s : String) (k j : Nat) (hk : k ≤ s.toList.l
   simp only [hcond, ↓reduceIte]
   rw [ofString_source] at hloop
   exact hloop
+
+/-- The number of characters after the last newline in `l`. -/
+def column (l : List Char) : Nat := (l.reverse.takeWhile (· ≠ '\n')).length
+
+theorem column_append_singleton (l : List Char) (c : Char) :
+    column (l ++ [c]) = if c = '\n' then 0 else column l + 1 := by
+  by_cases h : c = '\n' <;> simp [column, h]
+
+theorem column_take (l : List Char) {j k : Nat} (hjk : j ≤ k) (hk : k ≤ l.length)
+    (hls : IsLineStart l j) (hno : ∀ i, j ≤ i → i < k → l[i]? ≠ some '\n') :
+    column (l.take k) = k - j := by
+  induction k with
+  | zero => simp [column]
+  | succ k ih =>
+    rw [List.take_add_one, List.getElem?_eq_getElem (by omega), Option.toList_some,
+      column_append_singleton]
+    by_cases hjk' : j = k + 1
+    · have : l[k] = '\n' := by grind [IsLineStart]
+      simp [this]; omega
+    · have := hno k (by omega) (by omega)
+      have := ih (by omega) (by omega) (fun i h1 h2 => hno i h1 (by omega))
+      grind
+
+/--
+The position of character index `k` is its line, one more than the number of newlines before it,
+and its column, the number of characters since the last newline before it.
+-/
+theorem toPosition_ofString_spec (s : String) (k : Nat) (hk : k ≤ s.toList.length) :
+    (FileMap.ofString s).toPosition (off s k) =
+      ⟨(s.toList.take k).count '\n' + 1, column (s.toList.take k)⟩ := by
+  obtain ⟨j, hjk, hls, hno⟩ := exists_lastLineStart s.toList k hk
+  rw [toPosition_ofString_of_lineStart s k j hk hjk hls hno, column_take s.toList hjk hk hls hno]
 
 end FileMapCheckpoints

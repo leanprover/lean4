@@ -170,6 +170,12 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_get_passwd() {
 /* Std.Internal.UV.System.osGetGroup : IO (Option GroupInfo) */
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_get_group(uint64_t gid) {
 #if UV_VERSION_HEX >= 0x012D00
+#ifdef LEAN_WINDOWS
+    // libuv has no group lookup on Windows, where `uv_uid_t` is a single byte, so the range check below
+    // would report most ids as invalid instead.
+    (void)gid;
+    return io_result_mk_uv_error(UV_ENOTSUP);
+#else
     if (gid > std::numeric_limits<uv_uid_t>::max()) {
         return io_result_mk_uv_error(UV_EINVAL);
     }
@@ -185,6 +191,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_get_group(uint64_t gid) {
     std::unique_ptr<uv_group_t, decltype(&uv_os_free_group)> group_strings(&group, uv_os_free_group);
 
     lean_object* members = lean_mk_empty_array();
+
     for (char ** member = group.members; member && *member != nullptr; member++) {
         members = lean_array_push(members, lean_mk_string(*member));
     }
@@ -194,6 +201,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_get_group(uint64_t gid) {
     lean_ctor_set(group_info, 1, members);
     lean_ctor_set_uint64(group_info, sizeof(void*)*2, group.gid);
     return lean_io_result_mk_ok(mk_option_some(group_info));
+#endif
 #else
     lean_always_assert(
         false && ("Please build a version of Lean4 with libuv version at least 1.45.0 to invoke this.")

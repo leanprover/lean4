@@ -317,7 +317,8 @@ That is, check if the info is newer than `self`.
 /-- Trace used for common Lake targets. Combines `Hash` and `MTime`. -/
 public structure BuildTrace where
   caption : String := ""
-  inputs : Array BuildTrace := #[]
+  /-- Stored in reverse order so that `mix` is O(1), then reversed on serialization. -/
+  inputs : List BuildTrace := []
   hash : Hash
   mtime : MTime
   deriving Repr
@@ -333,7 +334,7 @@ Clear the inputs of the build trace.
 This is used to remove unnecessary repetition of trace trees across multiple trace files.
 -/
 @[inline] public def withoutInputs (self : BuildTrace) : BuildTrace :=
-  {self with inputs := #[]}
+  {self with inputs := []}
 
 @[inline] public def ofHash (hash : Hash) (caption := "<hash>") : BuildTrace :=
   {caption, hash, mtime := 0}
@@ -365,7 +366,7 @@ public instance
 
 public def mix (t1 t2 : BuildTrace) : BuildTrace where
   caption := t1.caption
-  inputs := t1.inputs.push t2
+  inputs := t2 :: t1.inputs
   hash := Hash.mix t1.hash t2.hash
   mtime := max t1.mtime t2.mtime
 

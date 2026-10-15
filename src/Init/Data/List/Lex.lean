@@ -8,6 +8,7 @@ module
 prelude
 import Init.Data.Order.Lemmas
 public import Init.Data.BEq
+public import Init.Data.Ord.Basic
 public import Init.Data.Function
 public import Init.Data.Order.Classes
 public import Init.Ext
@@ -20,6 +21,7 @@ import Init.Data.List.TakeDrop
 import Init.Data.Nat.Lemmas
 import Init.TacticsExtra
 import Init.Data.Order.LemmasExtra
+import Init.Data.Nat.Compare
 
 public section
 
@@ -652,5 +654,20 @@ theorem flatMap_le_flatMap_iff [LT α] [Std.Trichotomous (· < · : α → α �
     {l₁ l₂ : List α} :
     l₁.flatMap f ≤ l₂.flatMap f ↔ l₁ ≤ l₂ :=
   not_congr (flatMap_lt_flatMap_iff f hf hp hx)
+
+protected theorem compare_eq_compare_take_min_then [Ord α] {l₁ l₂ : List α} :
+    compare l₁ l₂ =
+      (compare (l₁.take (min l₁.length l₂.length)) (l₂.take (min l₁.length l₂.length))).then
+        (compare l₁.length l₂.length) := by
+  induction l₁ generalizing l₂ with
+  | nil => cases l₂ <;> rfl
+  | cons x xs ih =>
+    cases l₂ with
+    | nil => rfl
+    | cons y ys =>
+      rw [List.length_cons, List.length_cons, Nat.add_min_add_right, List.take_succ_cons,
+        List.take_succ_cons, List.compare_cons_cons, List.compare_cons_cons, ih, Ordering.then_assoc,
+        Nat.compare_eq_ite_lt (_ + 1), Nat.compare_eq_ite_lt xs.length]
+      simp only [Nat.add_lt_add_iff_right]
 
 end List

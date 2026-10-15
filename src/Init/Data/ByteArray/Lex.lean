@@ -18,24 +18,8 @@ public import Init.Data.Order.LemmasExtra
 import Init.Omega
 import Init.Data.Nat.Compare
 import Init.Data.Nat.MinMax
-import Init.Data.Array.Lemmas
 
 open Std
-
-theorem List.compare_eq_compare_take_min_then {α} [Ord α] {l₁ l₂ : List α} :
-    compare l₁ l₂ =
-      (compare (l₁.take (min l₁.length l₂.length)) (l₂.take (min l₁.length l₂.length))).then
-        (compare l₁.length l₂.length) := by
-  induction l₁ generalizing l₂ with
-  | nil => cases l₂ <;> rfl
-  | cons x xs ih =>
-    cases l₂ with
-    | nil => rfl
-    | cons y ys =>
-      rw [List.length_cons, List.length_cons, Nat.add_min_add_right, List.take_succ_cons,
-        List.take_succ_cons, List.compare_cons_cons, List.compare_cons_cons, ih, Ordering.then_assoc,
-        Nat.compare_eq_ite_lt (_ + 1), Nat.compare_eq_ite_lt xs.length]
-      simp only [Nat.add_lt_add_iff_right]
 
 namespace ByteArray
 
@@ -110,9 +94,8 @@ public theorem compare_eq_compare_extract_then_compare_size {a b : ByteArray} :
     compare a b =
       (compare (a.extract 0 (min a.size b.size)) (b.extract 0 (min a.size b.size))).then
         (compare a.size b.size) := by
-  simp only [← compare_data_data, Array.compare_eq_compare_toList, data_extract,
-    Array.toList_extract, List.extract_eq_take_drop, List.drop_zero, Nat.sub_zero]
-  exact List.compare_eq_compare_take_min_then
+  simp only [← compare_data_data, data_extract]
+  exact Array.compare_eq_compare_extract_min_then
 
 public theorem lt_iff_extract_lt_of_size_le {a b : ByteArray} (h : b.size ≤ a.size) :
     a < b ↔ a.extract 0 b.size < b := by

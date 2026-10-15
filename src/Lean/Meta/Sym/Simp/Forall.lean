@@ -26,7 +26,7 @@ The theorem has three arguments `p`, `q`, and `h`.
 This auxiliary theorem is used by the simplifier when visiting forall expressions.
 The proof uses the approach used in `mkFunextFor` followed by an `Eq.ndrec`.
 -/
-def mkForallCongrFor (xs : Array Expr) : MetaM Expr := do
+public def mkForallCongrFor (xs : Array Expr) : MetaM Expr := do
   let prop := mkSort 0
   let type ← mkForallFVars xs prop
   let w ← Meta.getLevel type
@@ -258,7 +258,7 @@ where
 
   /-- Instantiates the loose bound variables of `e` with `xs`. -/
   close (xs : Array Expr) (e : Expr) : SimpM Expr :=
-    if e.hasLooseBVars then instantiateRevS e xs else pure e
+    instantiateRevS e xs
 
   /-- Converts the result `r` for the body `b` of the telescope `xs` into a result for `∀ xs, b`. -/
   mkCongr (xs : Array Expr) (b : Expr) (r : Result) (cd₀ : Bool) : SimpM Result := do

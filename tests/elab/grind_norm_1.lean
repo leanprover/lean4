@@ -304,6 +304,15 @@ example : ∀ x, f x = x → f (f x) = x := by grind_norm check; sorry
 example : ∀ x, (f x = x ∨ ∀ y, f y = x) := by grind_norm check; sorry
 
 #guard_msgs in
+example : ∀ x y, (f y = x ∨ ∀ z, f z = y) := by grind_norm check; sorry
+
+#guard_msgs in
+example : ∀ x y, (¬f x = y ∨ f y = x) := by grind_norm check; sorry
+
+#guard_msgs in
+example : ∀ x, ¬((f x = x ∨ f x = a) ∧ ∃ y, f y = x) := by grind_norm check; sorry
+
+#guard_msgs in
 example : (∀ x, f x = x ∧ f x = a) := by grind_norm check; sorry
 
 #guard_msgs in

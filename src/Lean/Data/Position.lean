@@ -70,9 +70,10 @@ structure FileMap where
   positions : Array String.Pos.Raw
   /--
   For each line, positions on it at least `FileMap.columnCheckpointInterval` bytes apart from each
-  other and from the start of the line. They bound the work needed for computing a column.
+  other and from the start of the line. They bound the work needed for computing a column, and are
+  only computed for a line once a column on it is needed.
   -/
-  private columnCheckpoints : Array (Array ColumnCheckpoint)
+  private columnCheckpoints : Array (Thunk (Array ColumnCheckpoint))
   deriving Inhabited
 
 class MonadFileMap (m : Type → Type) where
@@ -97,9 +98,9 @@ private def columnCheckpointInterval : Nat := 256
 
 /-- Returns the checkpoints of the line from `lineStart` to `lineEnd`. -/
 private def lineCheckpoints (s : String) (lineStart lineEnd : String.Pos.Raw) :
-    Array ColumnCheckpoint :=
-  if lineEnd.byteIdx - lineStart.byteIdx ≤ columnCheckpointInterval then #[]
-  else loop lineStart lineStart 0 0 #[]
+    Thunk (Array ColumnCheckpoint) :=
+  if lineEnd.byteIdx - lineStart.byteIdx ≤ columnCheckpointInterval then .pure #[]
+  else .mk fun _ => loop lineStart lineStart 0 0 #[]
 where
   loop (i last : String.Pos.Raw) (column utf16Column : Nat) (cps : Array ColumnCheckpoint) :
       Array ColumnCheckpoint :=
@@ -118,7 +119,7 @@ where
 
 def ofString (s : String) : FileMap :=
   let rec loop (i lineStart : String.Pos.Raw) (ps : Array String.Pos.Raw)
-      (cps : Array (Array ColumnCheckpoint)) : FileMap :=
+      (cps : Array (Thunk (Array ColumnCheckpoint))) : FileMap :=
     if i.atEnd s then
       { source := s, positions := ps.push i
         columnCheckpoints := cps.push (lineCheckpoints s lineStart i) }
@@ -150,7 +151,7 @@ line if there is none. `key` must be monotone on the checkpoints of the line.
 -/
 @[specialize] private def findCheckpoint (fmap : FileMap) (line : Nat)
     (key : ColumnCheckpoint → Nat) (x : Nat) : ColumnCheckpoint :=
-  let cps := fmap.columnCheckpoints[line]?.getD #[]
+  let cps := (fmap.columnCheckpoints[line]?.map (·.get)).getD #[]
   loop cps 0 cps.size
 where
   -- `key` is at most `x` before `lo` and greater from `hi` on
@@ -177,7 +178,7 @@ def toPosition (fmap : FileMap) (pos : String.Pos.Raw) : Position :=
       let rec loop (b e : Nat) :=
         if e ≤ b + 1 then
           let column :=
-            if fmap.columnCheckpoints[b]?.all (·.isEmpty) then
+            if fmap.columnCheckpoints[b]?.all (·.get.isEmpty) then
               toColumn ps[b]! 0
             else
               let cp := fmap.findCheckpoint b (·.pos.byteIdx) pos.byteIdx

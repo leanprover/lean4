@@ -78,11 +78,12 @@ theorem findCheckpoint_loop_sound (fm : FileMap) (line : Nat) (key : ColumnCheck
 theorem findCheckpoint_sound (fm : FileMap) (line : Nat) (key : ColumnCheckpoint → Nat) (x : Nat) :
     fm.findCheckpoint line key x =
         { pos := fm.lineStart (line + 1), column := 0, utf16Column := 0 } ∨
-      ∃ h : line < fm.columnCheckpoints.size, ∃ k, ∃ h' : k < fm.columnCheckpoints[line].size,
-        fm.findCheckpoint line key x = fm.columnCheckpoints[line][k] ∧
-        key fm.columnCheckpoints[line][k] ≤ x := by
-  have := findCheckpoint_loop_sound fm line key x (fm.columnCheckpoints[line]?.getD #[]) 0
-    (fm.columnCheckpoints[line]?.getD #[]).size (by simp) (by simp)
+      ∃ h : line < fm.columnCheckpoints.size, ∃ k, ∃ h' : k < fm.columnCheckpoints[line].get.size,
+        fm.findCheckpoint line key x = fm.columnCheckpoints[line].get[k] ∧
+        key fm.columnCheckpoints[line].get[k] ≤ x := by
+  have := findCheckpoint_loop_sound fm line key x
+    ((fm.columnCheckpoints[line]?.map (·.get)).getD #[]) 0
+    ((fm.columnCheckpoints[line]?.map (·.get)).getD #[]).size (by simp) (by simp)
   by_cases hl : line < fm.columnCheckpoints.size <;> grind [FileMap.findCheckpoint]
 
 /-! ## Validity of the checkpoints computed by `ofString` -/
@@ -95,7 +96,7 @@ def Valid (s : String) (ls : String.Pos.Raw) (cp : ColumnCheckpoint) : Prop :=
 
 def _root_.Lean.FileMap.WF (fm : FileMap) : Prop :=
   fm.columnCheckpoints.size < fm.positions.size ∧
-  ∀ b (hb : b < fm.columnCheckpoints.size), ∀ cp ∈ fm.columnCheckpoints[b],
+  ∀ b (hb : b < fm.columnCheckpoints.size), ∀ cp ∈ fm.columnCheckpoints[b].get,
     Valid fm.source fm.positions[b]! cp
 
 theorem lineCheckpoints_loop_valid (s : String) (ls le : String.Pos.Raw) (k : Nat)
@@ -115,22 +116,22 @@ theorem lineCheckpoints_loop_valid (s : String) (ls le : String.Pos.Raw) (k : Na
 
 theorem lineCheckpoints_valid (s : String) (ls le : String.Pos.Raw) (k : Nat)
     (hle : le = walk s ls k) (hk : ∀ j < k, ¬ (walk s ls j).atEnd s) :
-    ∀ cp ∈ FileMap.lineCheckpoints s ls le, Valid s ls cp := by
+    ∀ cp ∈ (FileMap.lineCheckpoints s ls le).get, Valid s ls cp := by
   unfold FileMap.lineCheckpoints
   split
-  · simp
+  · simp [Thunk.pure, Thunk.get]
   · exact lineCheckpoints_loop_valid s ls le k hle hk _ _ 0 0 _ rfl rfl (by omega) (by simp)
 
 /-- `i` is reached by walking from the start of the current line without reaching the end. -/
 def LoopInv (s : String) (i lineStart : String.Pos.Raw) (ps : Array String.Pos.Raw)
-    (cps : Array (Array ColumnCheckpoint)) : Prop :=
+    (cps : Array (Thunk (Array ColumnCheckpoint))) : Prop :=
   ps.size = cps.size + 1 ∧
   lineStart = ps[cps.size]! ∧
   (∃ k, i = walk s lineStart k ∧ ∀ j < k, ¬ (walk s lineStart j).atEnd s) ∧
-  (∀ b (hb : b < cps.size), ∀ cp ∈ cps[b], Valid s ps[b]! cp)
+  (∀ b (hb : b < cps.size), ∀ cp ∈ cps[b].get, Valid s ps[b]! cp)
 
 theorem ofString_loop_wf (s : String) (i lineStart : String.Pos.Raw) (ps : Array String.Pos.Raw)
-    (cps : Array (Array ColumnCheckpoint)) (h : LoopInv s i lineStart ps cps) :
+    (cps : Array (Thunk (Array ColumnCheckpoint))) (h : LoopInv s i lineStart ps cps) :
     (FileMap.ofString.loop s i lineStart ps cps).WF := by
   fun_induction FileMap.ofString.loop s i lineStart ps cps with
   | case1 i lineStart ps cps hend =>
@@ -167,8 +168,8 @@ theorem codepointPosToUtf16Pos_eq (fm : FileMap) (hwf : fm.WF) (line col : Nat) 
   simp only [FileMap.codepointPosToUtf16Pos, findCheckpoint_empty]
   rcases findCheckpoint_sound fm (line - 1) (·.column) col with h | ⟨hb, k, hk, h, hle⟩
   · rw [h]
-  · have := aux_add fm.source fm.columnCheckpoints[line - 1][k].column
-      (col - fm.columnCheckpoints[line - 1][k].column) fm.positions[line - 1]! 0
+  · have := aux_add fm.source fm.columnCheckpoints[line - 1].get[k].column
+      (col - fm.columnCheckpoints[line - 1].get[k].column) fm.positions[line - 1]! 0
     have := hwf.2 (line - 1) hb _ (Array.getElem_mem hk)
     grind [Valid, FileMap.WF, lineStart_succ, aux_shift, codepointPosToUtf16PosFrom]
 
@@ -182,7 +183,7 @@ theorem toColumn_findCheckpoint (fm : FileMap) (hwf : fm.WF) (pos : String.Pos.R
   rcases findCheckpoint_sound fm b (·.pos.byteIdx) pos.byteIdx with h | ⟨hb, k, hk, h, hle⟩
   · rw [h]
   · have := hwf.2 b hb _ (Array.getElem_mem hk)
-    have := toColumn_walk pos fm.source fm.columnCheckpoints[b][k].column fm.positions[b]! 0
+    have := toColumn_walk pos fm.source fm.columnCheckpoints[b].get[k].column fm.positions[b]! 0
       fun j hj => by
         have := walk_lt fm.source fm.positions[b]! hj
         grind [Valid, String.Pos.Raw.atEnd]
@@ -197,7 +198,7 @@ theorem toPosition_loop_eq (fm : FileMap) (hwf : fm.WF) (pos : String.Pos.Raw) (
   rw [FileMap.toPosition.loop, FileMap.toPosition.loop]
   have := toColumn_findCheckpoint fm hwf pos b
   split
-  · by_cases hc : fm.columnCheckpoints[b]?.all (·.isEmpty)
+  · by_cases hc : fm.columnCheckpoints[b]?.all (·.get.isEmpty)
     · grind [FileMap.getLine, FileMap.getLastLine]
     · have := lineStart_succ fm b (by have := hwf.1; grind)
       grind [FileMap.getLine, FileMap.getLastLine, findCheckpoint_empty]
@@ -324,7 +325,7 @@ def PosSpec (s : String) (ps : Array String.Pos.Raw) : Prop :=
     IsLineStart s.toList j ∧ (s.toList.take j).count '\n' = idx
 
 theorem ofString_loop_positions (s : String) (i lineStart : String.Pos.Raw)
-    (ps : Array String.Pos.Raw) (cps : Array (Array ColumnCheckpoint)) :
+    (ps : Array String.Pos.Raw) (cps : Array (Thunk (Array ColumnCheckpoint))) :
     ∀ k, k ≤ s.toList.length → i = off s k → PInv s ps k →
       PosSpec s (FileMap.ofString.loop s i lineStart ps cps).positions := by
   fun_induction FileMap.ofString.loop s i lineStart ps cps with

@@ -216,20 +216,22 @@ structure Ilean where
   decls         : Lsp.Decls
   deriving FromJson, ToJson
 
+namespace Ilean
+
 /--
 The extension for a memory-mappable ilean file
 -/
-def Ilean.compactedExt := "ilean.mmap"
+def compactedExt := "ilean.mmap"
 
 /--
 Given a path `<path>.ilean`, attempt to read `<path>.ilean.mmap` as a `CompactedRegion` file that contains an `Ilean`.
 
-Returns `.none` if `<path>.ilean.mmap` does not exist.
-Returns `.some ilean` if `<path>.ilean.mmap` exists, has a timestamp >= `<path>.ilean`, and can be loaded as a `CompactRegion` containing an `Ilean`.
-Raises an `IO.Error` otherwise.
+Returns `.none` if `<path>.ilean.mmap` does not exist or is strictly older than the `<path>.ilean`.
+Returns `.some ilean` if `<path>.ilean.mmap` exists, has a timestamp >= `<path>.ilean`, and can be loaded as a `CompactedRegion` containing an `Ilean`.
+Raises an `IO.Error` if the `.ilean.mmap` cannot be loaded.
 -/
-def Ilean.loadCompacted (ileanPath : System.FilePath) : IO (Option Ilean) := do
-  if ileanPath.extension ≠ .some "ilean" then throw (.userError s!"Ilean.loadCompacted: '{ileanPath}' not an .ilean")
+def loadCompacted? (ileanPath : System.FilePath) : IO (Option Ilean) := do
+  if ileanPath.extension ≠ .some "ilean" then throw (.userError s!"Ilean.loadCompacted?: '{ileanPath}' not an .ilean")
 
   let compactedIleanPath := ileanPath.withExtension Ilean.compactedExt
   let .ok compactedModified := (← compactedIleanPath.metadata.toBaseIO) |>.map FS.Metadata.modified
@@ -237,13 +239,11 @@ def Ilean.loadCompacted (ileanPath : System.FilePath) : IO (Option Ilean) := do
 
   -- The strict inequality is important on systems like Nix that reset all timestamps to the epoch: we don't want that to be an error
   if compactedModified < (← ileanPath.metadata).modified then
-    throw (.userError s!"Ilean.loadCompacted: {compactedIleanPath} is out of date compared to {ileanPath}")
+    return .none
 
   -- nb: ignoring the region means we can't unmap this ilean later
   let (compactedIlean, _region) ← unsafe CompactedRegion.read (α := Ilean) compactedIleanPath #[]
   return .some compactedIlean
-
-namespace Ilean
 
 open Lean.IO
 

@@ -1677,6 +1677,7 @@ In return, while the .ileans are being loaded, users will only get incomplete
 results in requests that need references.
 -/
 def startLoadingReferences (referenceData : Std.Mutex ReferenceData) : IO Unit := do
+  let checkForCompactedIlean := .some "true" == (←IO.getEnv "LEAN_EXPERIMENTAL_CHECK_FOR_MEMORY_BACKED_ILEANS")
   let task ← ServerTask.IO.asTask do
     let oleanSearchPath ← Lean.searchPathRef.get
     let mut compactedIleanCount := 0
@@ -1689,18 +1690,21 @@ def startLoadingReferences (referenceData : Std.Mutex ReferenceData) : IO Unit :
         if visitedPaths.contains realPath then continue
         visitedPaths := visitedPaths.insert realPath
 
-        let compactedIlean : Option Ilean ← try
-          let .some compactedIlean ← Ilean.loadCompacted path | pure .none
-          compactedIleanCount := compactedIleanCount + 1
-          pure compactedIlean
-        catch _ =>
-          -- compacted ilean load errors should not be fatal, but we *should* log them
-          -- individually to help debug the global error message we give on error
-          compactedIleanErrors := compactedIleanErrors + 1
-          compactedIleanCount := compactedIleanCount + 1 -- errors mean there *was* a `.ilean.mmap` file, but something went wrong
+        let compactedIlean? : Option Ilean ← if checkForCompactedIlean then
+          try
+            let .some compactedIlean ← Ilean.loadCompacted? path | pure .none
+            compactedIleanCount := compactedIleanCount + 1
+            pure compactedIlean
+          catch _ =>
+            -- compacted ilean load errors should not be fatal, but we *should* log them
+            -- individually to help debug the global error message we give on error
+            compactedIleanErrors := compactedIleanErrors + 1
+            compactedIleanCount := compactedIleanCount + 1 -- errors mean there *was* a `.ilean.mmap` file, but something went wrong
+            pure .none
+        else
           pure .none
 
-        let ilean ← match compactedIlean with
+        let ilean ← match compactedIlean? with
           | .none => Ilean.load path
           | .some il => pure il
         referenceData.atomically do

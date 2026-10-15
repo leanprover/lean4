@@ -5,6 +5,7 @@ Author: Sofia Rodrigues
 */
 
 #include "runtime/uv/tcp.h"
+#include "runtime/uv/buffer.h"
 #include "runtime/uv/util.h"
 #include <cstring>
 
@@ -23,7 +24,6 @@ typedef struct {
     lean_object* promise;
     lean_object* data;
     lean_object* socket;
-    uv_buf_t* bufs;
 } tcp_send_data;
 
 // =======================================
@@ -199,34 +199,21 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_send(b_obj_arg socket, obj_arg d
         return lean_io_result_mk_ok(promise);
     }
 
-    // Allocate buffer array for uv_write
-    if (lean_usize_mul_would_overflow(array_len, sizeof(uv_buf_t))) {
-        lean_dec(data_array);
-        return io_result_mk_enomem();
-    }
-    uv_buf_t* bufs = (uv_buf_t*)malloc(array_len * sizeof(uv_buf_t));
-    if (bufs == nullptr) {
-        lean_dec(data_array);
-        return io_result_mk_enomem();
-    }
+    uv_send_bufs bufs;
 
-    for (size_t i = 0; i < array_len; i++) {
-        lean_object* byte_array = lean_array_get_core(data_array, i);
-        size_t data_len = lean_sarray_size(byte_array);
-        char* data_str = (char*)lean_sarray_cptr(byte_array);
-        bufs[i] = uv_buf_init(data_str, data_len);
+    if (lean_object * error = bufs.init(data_array)) {
+        lean_dec(data_array);
+        return error;
     }
 
     uv_write_t* write_uv = (uv_write_t*)malloc(sizeof(uv_write_t));
     if (write_uv == nullptr) {
         lean_dec(data_array);
-        free(bufs);
         return io_result_mk_enomem();
     }
     write_uv->data = (tcp_send_data*)malloc(sizeof(tcp_send_data));
     if (write_uv->data == nullptr) {
         lean_dec(data_array);
-        free(bufs);
         free(write_uv);
         return io_result_mk_enomem();
     }
@@ -238,7 +225,6 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_send(b_obj_arg socket, obj_arg d
     send_data->promise = promise;
     send_data->data = data_array;
     send_data->socket = socket;
-    send_data->bufs = bufs;
 
     // These objects are going to enter the loop and be owned by it
     lean_inc(promise);
@@ -253,7 +239,6 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_send(b_obj_arg socket, obj_arg d
         lean_dec(tup->data);
         lean_dec(tup->socket);
 
-        free(tup->bufs);
         free(req->data);
         free(req);
     };
@@ -261,7 +246,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_send(b_obj_arg socket, obj_arg d
     int result;
     {
         event_loop_guard guard;
-        result = uv_write(write_uv, (uv_stream_t*)&tcp_socket->m_uv_tcp, bufs, array_len, on_write);
+        result = uv_write(write_uv, (uv_stream_t*)&tcp_socket->m_uv_tcp, bufs.data(), bufs.count(), on_write);
     }
 
     if (result < 0) {
@@ -269,7 +254,6 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_send(b_obj_arg socket, obj_arg d
         lean_dec(promise); // We are not going to return it.
         lean_dec(socket);
         lean_dec(data_array);
-        free(bufs);
 
         free(write_uv->data);
         free(write_uv);

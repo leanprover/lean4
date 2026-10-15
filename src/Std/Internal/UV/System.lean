@@ -164,7 +164,7 @@ for an id that does not fit the operating system's group id type, and an unsuppo
 Windows.
 -/
 @[extern "lean_uv_os_get_group"]
-opaque osGetGroup : UInt64 → IO (Option GroupInfo)
+opaque osGetGroup : @& Nat → IO (Option GroupInfo)
 
 /--
 Gets all environment variables.

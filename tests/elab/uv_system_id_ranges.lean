@@ -43,8 +43,9 @@ def expectUnsupported (what : String) (x : IO α) : IO Unit := do
 #eval do
   if System.Platform.isWindows || Lean.libUVVersion < 0x012D00 then
     return
-  expectInvalidArgument "getGroup (2^32)" <| System.osGetGroup (2 ^ 32)
-  expectInvalidArgument "getGroup (2^64 - 1)" <| System.osGetGroup (2 ^ 64 - 1)
+  -- The id is a `Nat`, so ids of 2^64 and above must not wrap around to a small group either.
+  for (gid : Nat) in [2 ^ 32, 2 ^ 64 - 1, 2 ^ 64, 2 ^ 64 + 20, 2 ^ 200] do
+    expectInvalidArgument s!"getGroup {gid}" <| System.osGetGroup gid
   -- The largest `gid_t` is looked up: no group on most systems, `nogroup` on macOS.
   match ← System.osGetGroup (2 ^ 32 - 1) with
   | none => pure ()
@@ -58,7 +59,7 @@ def expectUnsupported (what : String) (x : IO α) : IO Unit := do
   unless System.Platform.isWindows && Lean.libUVVersion >= 0x012D00 do
     return
   for (gid : Nat) in [0, 255, 256, 2 ^ 32, 2 ^ 64 - 1] do
-    expectUnsupported s!"getGroup {gid}" <| System.osGetGroup gid.toUInt64
+    expectUnsupported s!"getGroup {gid}" <| System.osGetGroup gid
 
 -- The uid and gid of the current user are both reported, and match `id`.
 #eval do

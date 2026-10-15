@@ -28,7 +28,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_chdir(b_obj_arg path);
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_homedir();
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_tmpdir();
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_get_passwd();
-extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_get_group(uint64_t gid);
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_get_group(b_obj_arg gid);
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_environ();
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_getenv(b_obj_arg name);
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_setenv(b_obj_arg name, b_obj_arg value);

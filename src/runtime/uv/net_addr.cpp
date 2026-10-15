@@ -178,7 +178,8 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_ntop_v4(b_obj_arg ipv4_addr) {
 /* Std.Net.IPV6Addr.ofString (s : @&String) : Option IPV6Addr */
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_pton_v6(b_obj_arg str_obj) {
     const char* str = string_cstr(str_obj);
-    if (strlen(str) != lean_string_size(str_obj) - 1) {
+    // libuv drops a `%` zone suffix without checking it, and `IPv6Addr` has no zone to keep it in.
+    if (strlen(str) != lean_string_size(str_obj) - 1 || strchr(str, '%') != nullptr) {
        return mk_option_none();
     }
     in6_addr internal;

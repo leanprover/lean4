@@ -27,12 +27,25 @@ struct random_req_t {
 
 /* Std.Internal.UV.System.getProcessTitle : IO String */
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_get_process_title() {
-    char title[512];
-    int result = uv_get_process_title(title, sizeof(title));
+    char stack_buffer[512];
+    std::unique_ptr<char[]> heap_buffer;
+    char * buffer = stack_buffer;
+    size_t size = sizeof(stack_buffer);
+
+    // libuv does not report the size the title needs, so the buffer doubles until it fits.
+    int result;
+    while ((result = uv_get_process_title(buffer, size)) == UV_ENOBUFS) {
+        size *= 2;
+        heap_buffer.reset(new (std::nothrow) char[size]);
+        if (!heap_buffer) {
+            return io_result_mk_enomem();
+        }
+        buffer = heap_buffer.get();
+    }
     if (result < 0) {
         return io_result_mk_uv_error(result);
     }
-    return lean_io_result_mk_ok(lean_mk_string(title));
+    return lean_io_result_mk_ok(lean_mk_string(buffer));
 }
 
 /* Std.Internal.UV.System.setProcessTitle : @& String → IO Unit */
@@ -167,18 +180,23 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_get_passwd() {
     return lean_io_result_mk_ok(passwd_info);
 }
 
-/* Std.Internal.UV.System.osGetGroup : IO (Option GroupInfo) */
-extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_get_group(uint64_t gid) {
+/* Std.Internal.UV.System.osGetGroup : @& Nat → IO (Option GroupInfo) */
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_get_group(b_obj_arg gid_obj) {
 #if UV_VERSION_HEX >= 0x012D00
 #ifdef LEAN_WINDOWS
     // libuv has no group lookup on Windows, where `uv_uid_t` is a single byte, so the range check below
     // would report most ids as invalid instead.
-    (void)gid;
+    (void)gid_obj;
     return io_result_mk_uv_error(UV_ENOTSUP);
 #else
-    if (gid > std::numeric_limits<uv_uid_t>::max()) {
+    // Checked as a `Nat`, since converting first would wrap a larger id around to another group.
+    lean_object * max_gid = lean_uint64_to_nat(std::numeric_limits<uv_uid_t>::max());
+    bool in_range = lean_nat_le(gid_obj, max_gid);
+    lean_dec(max_gid);
+    if (!in_range) {
         return io_result_mk_uv_error(UV_EINVAL);
     }
+    uv_uid_t gid = (uv_uid_t)lean_uint64_of_nat(gid_obj);
     uv_group_t group;
     int result = uv_os_get_group(&group, gid);
     if (result == UV_ENOENT) {
@@ -232,7 +250,8 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_environ() {
 /* Std.Internal.UV.System.osGetenv : @& String → IO (Option String) */
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_getenv(b_obj_arg name) {
     const char* name_str = lean_string_cstr(name);
-    if (strlen(name_str) != lean_string_size(name) - 1) {
+    // No variable has a name containing `=`, but the C library may match the name only up to the `=`.
+    if (strlen(name_str) != lean_string_size(name) - 1 || strchr(name_str, '=') != nullptr) {
         return lean_io_result_mk_ok(mk_option_none());
     }
     char stack_buffer[1024];
@@ -290,7 +309,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_unsetenv(b_obj_arg name) {
 
 /* Std.Internal.UV.System.osGetHostname : IO String */
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_gethostname() {
-    char hostname[256];
+    char hostname[UV_MAXHOSTNAMESIZE];
     size_t size = sizeof(hostname);
     int result = uv_os_gethostname(hostname, &size);
     if (result < 0) {
@@ -534,8 +553,8 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_get_passwd() {
     );
 }
 
-// Std.Internal.UV.System.osGetGroup : IO (Option GroupInfo)
-extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_get_group(uint64_t gid) {
+// Std.Internal.UV.System.osGetGroup : @& Nat → IO (Option GroupInfo)
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_get_group(b_obj_arg gid) {
     lean_always_assert(
         false && ("Please build a version of Lean4 with libuv to invoke this.")
     );

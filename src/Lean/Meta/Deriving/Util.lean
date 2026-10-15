@@ -154,13 +154,14 @@ register_builtin_option deriving.strict : Bool := {
 
 /--
 If true, in cases where a deriving handler would usually expect there to be exactly one matching
-instance, choose the last one with the highest priority (the one that would be tried first by
-instance synthesis).
+instance declaration, choose the last one with the highest priority (the one that would be tried
+first by instance synthesis).
 
 This currently happens in two scenarios: First, when `deriving.reduceInstances` is enabled,
 instances are usually only applied when they are the only suitable one. For example, when a
 deriving handler requires a `BEq (Option α)` hypothesis, it would usually be split into `BEq α`.
-But if there were two instances for `BEq (Option α)`, it would fail unless this option is enabled.
+But if there were two instance declarations for `BEq (Option α)`, it would fail unless this option
+is enabled.
 
 Second, when deriving a law type class (e.g. `ReflBEq` for `BEq`), the deriving handler checks that
 there is only one instance of the original type class unless this option is enabled.

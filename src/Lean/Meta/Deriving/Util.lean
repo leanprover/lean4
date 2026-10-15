@@ -178,7 +178,26 @@ register_builtin_option deriving.chooseArbitraryInstance : Bool := {
 private def isIgnoredConstant (nm : Name) (env : Environment) : Bool :=
   nm == ``Eq || (env.getProjectionFnInfo? nm).any (·.fromClass)
 
--- TODO: better heuristics
+/-
+TODO: better heuristics for `goodKeys` and `goodHypothesisKeys`
+
+The current heuristic is that we only apply instances with keys of the shape
+`ClassName ... TypeName ...` where `...` consists only of `.star` placeholders, instance
+projections, `Eq` or duplicate mentions of `TypeName`. This particular choice of heuristic is
+guided by the typical shape of instances for types, which would be
+`ClassName (TypeName variables...)`.
+
+We need to ignore `Eq` here because of `DecidableEq`, which has the shape
+`Decidable (@Eq (TypeName ...) ...)` instead and instance projections and duplicates because of
+e.g. `ReflOrd` which has the shape `@ReflCmp (TypeName ...) (@compare (TypeName ...) ...)`.
+
+However, it is not entirely clear whether this is a good heuristic. Ideally, we would want to apply
+exactly those instances that are always safe to apply (i.e. when such an instance matches against
+the instance type `X = ClassName ...`, and `X` is synthesizable, then `X` is also synthesizable
+through that instance). However, this property is in general undecidable and can change when new
+instances are added.
+-/
+
 private def goodKeys (keys : Array DiscrTree.Key) (env : Environment) : Bool := Id.run do
   let some (.const _ _) := keys[0]? | return false
   let mut specialFragment : Option DiscrTree.Key := none
@@ -525,9 +544,9 @@ private def checkInstanceHypotheses (instanceHyps : Array MVarId) : DerivingM Un
       msg := msg ++ .hint' m!"Multiple instance candidates usually indicates that one of the \
         mentioned instances is redundant. If this is intentional though, you can make the \
         deriving handler choose an instance using \
-        `set_option deriving.chooseArbitraryInstance true`."
-    msg := msg ++ .hint' "If you want to keep these hypotheses as-is, you can disable \
-      this error using `set_option deriving.strict false`"
+        `set_option {deriving.chooseArbitraryInstance.name} true`."
+    msg := msg ++ .hint' m!"If you want to keep these hypotheses as-is, you can disable \
+      this error using `set_option {deriving.strict.name} false`"
     throwError msg
 
 def produceInstanceHyps : DerivingM (Array Expr) := do

@@ -82,7 +82,7 @@ def privateToUserName (n : Name) : Name :=
   else n
 
 /--
-If `n` is private name, returns `some pfx` such that `pfx.appendCore (privateToUserName n) = n`.
+If `n` is a private name, returns `some pfx` such that `pfx.appendCore (privateToUserName n) = n`.
 Otherwise, returns `none`.
 -/
 def privatePrefix? (n : Name) : Option Name :=

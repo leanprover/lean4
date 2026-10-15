@@ -33,9 +33,9 @@ The implementation is an efficient equivalent of {lean}`s1.copy == s2.copy`
 -/
 def beq (s1 s2 : Slice) : Bool :=
   if h : s1.utf8ByteSize = s2.utf8ByteSize then
-    have h1 := by simp
+    have h1 := by simp [String.Pos.Raw.le_iff]
     have h2 := by simp [h, String.Pos.Raw.le_iff]
-    Pattern.Internal.memcmpSlice s1 s2 s1.startPos.offset s2.startPos.offset s1.rawEndPos h1 h2
+    Pattern.Internal.memcmpSlice s1 s2 s1.startPos.offset s2.startPos.offset s1.utf8ByteSize h1 h2
   else
     false
 
@@ -62,21 +62,50 @@ protected def hash (s : @& Slice) : UInt64 :=
 instance : Hashable Slice where
   hash := Slice.hash
 
-instance : LT Slice where
-  lt x y := x.copy < y.copy
+/--
+Checks whether {name}`s` is lexicographically smaller than {name}`t`.
 
-@[extern "lean_slice_dec_lt"]
-instance (x y : @& Slice) : Decidable (x < y) :=
-  inferInstanceAs (Decidable (x.copy < y.copy))
+The implementation is an efficient equivalent of {lean}`decide (s.copy < t.copy)`.
+-/
+def blt (s t : Slice) : Bool :=
+  if h : s.utf8ByteSize < t.utf8ByteSize then
+    -- `s` is shorter, so it is smaller unless the first `s.utf8ByteSize` bytes of `t` are smaller.
+    have h1 := by simp [Pos.Raw.le_iff]; omega
+    have h2 := by simp [Pos.Raw.le_iff]
+    !Pattern.Internal.memcmpSliceLt t s t.startPos.offset s.startPos.offset s.utf8ByteSize h1 h2
+  else
+    have h1 := by simp [Pos.Raw.le_iff]; omega
+    have h2 := by simp [Pos.Raw.le_iff]
+    Pattern.Internal.memcmpSliceLt s t s.startPos.offset t.startPos.offset t.utf8ByteSize h1 h2
+
+instance : LT Slice where
+  lt x y := x.blt y = true
+
+instance : DecidableLT Slice :=
+  fun x y => inferInstanceAs (Decidable (x.blt y = true))
+
+/--
+Compares {name}`s` and {name}`t` lexicographically.
+
+The implementation is an efficient equivalent of {lean}`compare s.copy t.copy`.
+-/
+protected def compare (s t : Slice) : Ordering :=
+  have h1 := by simp [Pos.Raw.le_iff]; omega
+  have h2 := by simp [Pos.Raw.le_iff]; omega
+  (Pattern.Internal.memcmpSliceCompare s t s.startPos.offset t.startPos.offset
+    (min s.utf8ByteSize t.utf8ByteSize) h1 h2).then (Ord.compare s.utf8ByteSize t.utf8ByteSize)
 
 instance : Ord Slice where
-  compare x y := compareOfLessAndBEq x y
+  compare := Slice.compare
 
 instance : LE Slice where
-  le x y := ¬x < y
+  le x y := ¬y < x
 
 instance : DecidableLE Slice :=
-  fun x y => inferInstanceAs (Decidable (¬x < y))
+  fun x y => inferInstanceAs (Decidable (¬y < x))
+
+instance : Min Slice := .leftLeaningOfLE _
+instance : Max Slice := .leftLeaningOfLE _
 
 /--
 Removes the specified number of characters (Unicode code points) from the start of the slice.

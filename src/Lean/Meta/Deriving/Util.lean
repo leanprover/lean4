@@ -93,7 +93,7 @@ deriving BEq
 #guard_msgs in #check instBEqTest
 ```
 
-Note: This option only works for deriving handlers that support it, i.e. deriving handlers that use
+Note: This option only affects deriving handlers that support it, i.e. deriving handlers that use
 the `Lean.Meta.Deriving` framework.
 -/
 register_builtin_option deriving.bindersVerbatim : Bool := {
@@ -122,7 +122,7 @@ deriving BEq
 #guard_msgs in #check instBEqTestWith
 ```
 
-Note: This option only works for deriving handlers that support it, i.e. deriving handlers that use
+Note: This option only affects deriving handlers that support it, i.e. deriving handlers that use
 the `Lean.Meta.Deriving` framework.
 -/
 register_builtin_option deriving.reduceInstances : Bool := {
@@ -144,7 +144,7 @@ check but `BEq MyType`, `DecidableEq Prop` or `Repr (Nat → Nat)` are not.
 The check is omitted even with `deriving.strict` enabled if `deriving.bindersVerbatim` is enabled
 or `deriving.reduceInstances` is disabled.
 
-Note: This option only works for deriving handlers that support it, i.e. deriving handlers that use
+Note: This option only affects deriving handlers that support it, i.e. deriving handlers that use
 the `Lean.Meta.Deriving` framework.
 -/
 register_builtin_option deriving.strict : Bool := {
@@ -165,7 +165,7 @@ But if there were two instances for `BEq (Option α)`, it would fail unless this
 Second, when deriving a law type class (e.g. `ReflBEq` for `BEq`), the deriving handler checks that
 there is only one instance of the original type class unless this option is enabled.
 
-Note: This option only works for deriving handlers that support it, i.e. deriving handlers that use
+Note: This option only affects deriving handlers that support it, i.e. deriving handlers that use
 the `Lean.Meta.Deriving` framework.
 -/
 register_builtin_option deriving.chooseArbitraryInstance : Bool := {

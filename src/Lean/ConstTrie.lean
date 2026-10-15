@@ -60,8 +60,13 @@ bits are at least `s`, so the query hash's top `k` bits select a window of on av
 child (`2^k ≥ #children`). Window candidates are filtered by a fingerprint byte (a further hash
 byte) and confirmed by comparing the final name component, which is sound on its own: siblings
 always differ in their final component. A lookup thus costs O(1) contiguous byte reads per level,
-works inside memory-mapped compacted regions, and adds no per-entry heap objects.
+works inside memory-mapped compacted regions, and adds no per-entry heap objects. Nodes with at most
+`maxScanChildren` children, which make up most interior nodes, have an empty index instead and are
+scanned linearly.
 -/
+
+/-- Nodes with at most this many children are scanned instead of indexed. -/
+def maxScanChildren : Nat := 4
 
 /-- Upper bound on the number of slot bits `k`, keeping the slot bits clear of `fingerprint`. -/
 def maxSlotBits : UInt64 := 24
@@ -92,7 +97,7 @@ def pushU32 (bs : ByteArray) (v : Nat) : ByteArray :=
 /-- Builds the child index for `cs` (sorted by key hash); see the layout note above. -/
 @[specialize] def buildChildIndex [Inhabited β] (cs : Array β) (keyOf : β → Name) : ByteArray := Id.run do
   let n := cs.size
-  if n == 0 then
+  if n ≤ maxScanChildren then
     return .empty
   -- offsets range over `0..n`
   let wide := n ≥ 0xFFFF
@@ -122,7 +127,7 @@ dereferenced to confirm the final component.
 @[specialize] partial def findHashIdx? [Inhabited β] (index : ByteArray) (cs : Array β)
     (keyOf : β → Name) (k : Name) : Option Nat :=
   if index.size == 0 then
-    none
+    scanAll k.hash 0
   else
     let h := k.hash
     let header := index.get! 0
@@ -139,6 +144,15 @@ dereferenced to confirm the final component.
       let fpOff := (5 + 4 * ((1 : UInt64) <<< bits)).toNat
       scanWindow (fingerprint h) fpOff lo hi
 where
+  @[specialize] scanAll (h : UInt64) (j : Nat) : Option Nat :=
+    if j < cs.size then
+      let c := keyOf cs[j]!
+      if c.hash == h && lastPartEq c k then
+        some j
+      else
+        scanAll h (j + 1)
+    else
+      none
   @[specialize] scanWindow (fp : UInt8) (fpOff j hi : Nat) : Option Nat :=
     if j < hi then
       if index.get! (fpOff + j) == fp && lastPartEq (keyOf cs[j]!) k then

@@ -23,7 +23,7 @@ def fails : Except String Nat := .error "x"
 trace: case vc1
 a✝¹ : String
 a✝ : a✝¹ = "x"
-⊢ a✝¹ = "x" ∨ a✝¹ = "y"
+⊢ "x" = "x" ∨ "x" = "y"
 -/
 #guard_msgs in
 example : ⦃True⦄ fails ⦃fun _ => False; fun e => e = "x" ∨ e = "y"⦄ := by
@@ -84,7 +84,7 @@ def boom' : Prog Unit := .throw "boom"
 trace: case vc1
 a✝¹ : String
 a✝ : a✝¹ = "boom"
-⊢ a✝¹ = "boom" ∨ a✝¹ = "crash"
+⊢ "boom" = "boom" ∨ "boom" = "crash"
 -/
 #guard_msgs in
 example : ⦃True⦄ boom ⦃fun _ => True; { onThrow e := e = "boom" ∨ e = "crash" }⦄ := by

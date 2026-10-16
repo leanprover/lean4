@@ -655,19 +655,19 @@ def deriveTransformationInstPerConstructor (className : Name)
     return false
   let classInfo ← getConstInfoInduct className
   unless classInfo.numCtors = 1 ∧ ¬ classInfo.isRec ∧ classInfo.numIndices = 0 do
-    throwError "Invalid use of `deriveSimpleInstPerConstructor`, \
+    throwError "Invalid use of `deriveTransformationInstPerConstructor`, \
       expected {.ofConstName className} to be a structure"
   unless classInfo.numParams = 1 ∧ classInfo.levelParams.length = 1 do
-    throwError "Invalid use of `deriveSimpleInstPerConstructor`, \
+    throwError "Invalid use of `deriveTransformationInstPerConstructor`, \
       expected {.ofConstName className} to have exactly one parameter and one level parameter"
   let [ctor] := classInfo.ctors | unreachable!
   let [u] := classInfo.levelParams | unreachable!
   let ctorVal ← getConstInfoCtor ctor
   unless ctorVal.numFields = 1 do
-    throwError "Invalid use of `deriveSimpleInstPerConstructor`, \
+    throwError "Invalid use of `deriveTransformationInstPerConstructor`, \
       expected {.ofConstName className} to have exactly one field"
   let .forallE _ (.sort univ) (.forallE fieldName (.forallE _ (.bvar 0) tgt _) _ _) _ := ctorVal.type |
-    throwError "Invalid use of `deriveSimpleInstPerConstructor`, \
+    throwError "Invalid use of `deriveTransformationInstPerConstructor`, \
       expected field of {.ofConstName className} to have the shape \
       `α → β` where `α` is the type parameter"
   let onlyType ←
@@ -676,15 +676,15 @@ def deriveTransformationInstPerConstructor (className : Name)
     else if univ == .succ (.param u) then
       pure true
     else
-      throwError "Invalid use of `deriveSimpleInstPerConstructor`, expected type parameter to be \
-        either fully universe polymorphic or `Type`-polymorphic"
+      throwError "Invalid use of `deriveTransformationInstPerConstructor`, expected type parameter \
+        to be either fully universe polymorphic or `Type u`-polymorphic"
   let mut paramLevel := (← read).indLevel
   if onlyType then
     paramLevel ← decLevel paramLevel
   let tgt := tgt.instantiateLevelParams [u] [paramLevel]
   if tgt.hasLooseBVars then
-    throwError "Invalid use of `deriveSimpleInstPerConstructor`, expected target type of field of
-      {.ofConstName className} to be nondependent"
+    throwError "Invalid use of `deriveTransformationInstPerConstructor`, expected target type of \
+      field of {.ofConstName className} to be nondependent"
   let tgtSort ← getLevel tgt
   -- Then create the instances using a mutual partial block
   let all := (← read).indInfo.all.toArray

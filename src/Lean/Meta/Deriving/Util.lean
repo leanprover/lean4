@@ -60,6 +60,7 @@ def Lean.mkInstance (name : Name) (levelParams : List Name) (type value : Expr)
     else
       modifyEnv (addNoncomputable · name)
   enableRealizationsForConst name
+  addDeclarationRangesFromSyntax name (← getRef)
 
 /--
 Creates a new metavariable in the local context `lctx`, reverting any free variables in `ty` that
@@ -638,6 +639,8 @@ def makeInstancesUsingMutualPartialBlock (infos : Array (InstanceInfo α))
         }
         helperPredefs := helperPredefs.push (← helperInfo.postprocess instHyps predef)
     addPreDefinitions ({}, {}) helperPredefs
+    for helper in helperPredefs do
+      addDeclarationRangesFromSyntax helper.declName (← getRef)
     -- Now with all helpers available, we can create the instances
     let nameSet : NameSet := .ofArray (← read).names
     for info in infos, instName in fullInstNames, type in fullInstTypes, value in instanceValues do

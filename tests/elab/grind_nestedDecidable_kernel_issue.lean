@@ -57,8 +57,9 @@ end Test
 section Control
 
 /-!
-Sanity check: The test above fails if `nestedDecidable` is just a reducible definition,
-lacking the `abbrev` kernel hint that it has on the current toolchain.
+Sanity check: The test above used to fail if `nestedDecidable` is just a reducible definition,
+lacking the `abbrev` kernel hint that it has on the current toolchain. Now that the kernel cancels
+`Nat` offsets in one step, it passes either way.
 -/
 
 /-- `Grind.nestedDecidable` with a `regular` reducibility hint. -/
@@ -87,7 +88,6 @@ elab "#recheck_with_regular_wrapper " thm:ident : command => liftCoreM do
 
 set_option maxHeartbeats 1000
 
-/-- error: (kernel) deterministic timeout -/
 #guard_msgs in
 #recheck_with_regular_wrapper MyChar.isLower_toUpper
 

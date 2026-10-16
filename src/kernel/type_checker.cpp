@@ -608,10 +608,13 @@ static inline nat get_nat_val(expr const & e) {
 }
 
 template<typename F> optional<expr> type_checker::reduce_bin_nat_op(F const & f, expr const & e, bool check_size) {
-    expr arg1 = whnf(app_arg(app_fn(e)));
-    if (!is_nat_lit_ext(arg1)) return none_expr();
+    // Evaluate the second argument first: `Nat.add`, `Nat.sub` and `Nat.mul` recurse on it, so unfolding them
+    // needs it anyway, while the first argument can be expensive to evaluate (unfolding `Nat.mul a k` yields
+    // `Nat.add (Nat.mul a (k-1)) a`).
     expr arg2 = whnf(app_arg(e));
     if (!is_nat_lit_ext(arg2)) return none_expr();
+    expr arg1 = whnf(app_arg(app_fn(e)));
+    if (!is_nat_lit_ext(arg1)) return none_expr();
     nat v1 = get_nat_val(arg1);
     nat v2 = get_nat_val(arg2);
     nat r(f(v1.raw(), v2.raw()));
@@ -698,6 +701,60 @@ optional<expr> type_checker::reduce_nat(expr const & e) {
     return none_expr();
 }
 
+/* Return `t` and set `k` such that `e` is definitionally equal to `t + k`, by peeling off `Nat.succ` and
+   `Nat.add _ n` with a literal `n`. A literal `n` is `Nat.zero + n`. */
+static expr get_nat_offset(expr e, nat & k) {
+    k = nat();
+    while (true) {
+        if (is_nat_lit_ext(e)) {
+            k = k + get_nat_val(e);
+            return *g_nat_zero;
+        } else if (is_app(e) && app_fn(e) == *g_nat_succ) {
+            k = k + nat(1);
+            e = app_arg(e);
+        } else if (is_app(e) && is_app(app_fn(e)) && app_fn(app_fn(e)) == *g_nat_add && is_nat_lit_ext(app_arg(e))) {
+            k = k + get_nat_val(app_arg(e));
+            e = app_arg(app_fn(e));
+        } else {
+            return e;
+        }
+    }
+}
+
+/* Inverse of `get_nat_offset`: return a term definitionally equal to `t + k`. */
+static expr mk_nat_offset(expr const & t, nat const & k) {
+    if (k.is_zero()) return t;
+    if (t == *g_nat_zero) return mk_lit(literal(k));
+    return mk_app(*g_nat_add, t, mk_lit(literal(k)));
+}
+
+/* Reduce `Nat.add`, `Nat.ble` and `Nat.beq` applications that `reduce_nat` cannot evaluate because an argument
+   is not a literal, without unfolding the literal one `Nat.succ` at a time. Used by `whnf` only. */
+optional<expr> type_checker::reduce_nat_offset(expr const & e) {
+    if (get_app_num_args(e) != 2) return none_expr();
+    expr const & f = app_fn(app_fn(e));
+    if (f == *g_nat_add) {
+        // `Nat.add` recurses on its second argument: `a + (k+1)` unfolds to `Nat.succ (a + k)`. Return that
+        // directly, keeping `a + k` folded so that `get_nat_offset` recognizes it.
+        expr arg2 = whnf(app_arg(e));
+        if (!is_nat_lit_ext(arg2) || get_nat_val(arg2).is_zero()) return none_expr();
+        return some_expr(mk_app(*g_nat_succ, mk_nat_offset(app_arg(app_fn(e)), get_nat_val(arg2) - nat(1))));
+    }
+    if (f == *g_nat_ble || f == *g_nat_beq) {
+        // These remove one `Nat.succ` from both arguments per step, so comparing a literal `n` with `t + k`, where
+        // `t` is stuck, takes `min(n, k)` steps. Cancel the common offset at once instead. They match on the first
+        // argument first, so do not evaluate the second one if the first one has no offset.
+        nat k1, k2;
+        expr t1 = get_nat_offset(whnf(app_arg(app_fn(e))), k1);
+        if (k1.is_zero()) return none_expr();
+        expr t2 = get_nat_offset(whnf(app_arg(e)), k2);
+        nat k = k1 < k2 ? k1 : k2;
+        if (k.is_zero()) return none_expr();
+        return some_expr(whnf(mk_app(f, mk_nat_offset(t1, k1 - k), mk_nat_offset(t2, k2 - k))));
+    }
+    return none_expr();
+}
+
 /** \brief Put expression \c t in weak head normal form */
 expr type_checker::whnf(expr const & e) {
     // Do not cache easy cases
@@ -725,7 +782,9 @@ expr type_checker::whnf(expr const & e) {
     expr t = e;
     while (true) {
         expr t1 = whnf_core(t);
-        if (auto v = reduce_nat(t1)) {
+        optional<expr> v = reduce_nat(t1);
+        if (!v) v = reduce_nat_offset(t1);
+        if (v) {
             m_st->m_whnf.insert(mk_pair(e, *v));
             return *v;
         } else if (auto next_t = unfold_definition(t1)) {

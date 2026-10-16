@@ -142,7 +142,7 @@ inductive Vec (α : Type) : Nat → Type where
   | nil : Vec α 0
   | cons : α → Vec α n → Vec α (n + 1)
 
-run_cmd handler #[`Vec]
+run_cmd handler #[``Vec]
 
 /-- info: Data.ctor 1 [Data.nat 0, Data.nat 1, Data.ctor 0 []] -/
 #guard_msgs in
@@ -155,7 +155,7 @@ run_cmd handler #[`Vec]
 structure SigmaField (γ : Bool → Type) where
   val : (b : Bool) × List (γ b)
 
-run_cmd handler #[`Sigma, `SigmaField]
+run_cmd handler #[``Sigma, ``SigmaField]
 
 /-- info: Data.ctor 0 [Data.ctor 0 [], Data.ctor 1 [Data.nat 3, Data.ctor 0 []]] -/
 #guard_msgs in
@@ -358,6 +358,37 @@ info: @[instance_reducible, expose] def instMyClassUsesMissingOfMissing : [MyCla
 -/
 #guard_msgs in
 #print sig instMyClassUsesMissingOfMissing
+
+/-!
+With `deriving.implicitBinders false`, the generated instances use explicit binders exactly if they
+were explicit in the inductive (otherwise they are always implicit)
+-/
+
+inductive WithImplicit (α : Type) : Nat → Type where
+  | thing (x : α) : WithImplicit α 0
+
+set_option deriving.implicitBinders true in -- default
+run_cmd handler #[``WithImplicit]
+
+/--
+info: @[instance_reducible, expose] def instMyClassWithImplicit : {α : Type} →
+  [MyClass α] → {a : Nat} → MyClass (WithImplicit α a)
+-/
+#guard_msgs in
+#print sig instMyClassWithImplicit
+
+inductive WithExplicit (α : Type) : Nat → Type where
+  | thing (x : α) : WithExplicit α 0
+
+set_option deriving.implicitBinders false in
+run_cmd handler #[``WithExplicit]
+
+/--
+info: @[instance_reducible, expose] def instMyClassWithExplicit : (α : Type) →
+  [MyClass α] → (a : Nat) → MyClass (WithExplicit α a)
+-/
+#guard_msgs in
+#print sig instMyClassWithExplicit
 
 /-!
 The deriving handler also handles types parameterized using structures

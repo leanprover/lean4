@@ -310,6 +310,7 @@ error: Unknown attribute `int`
 
 Hint: Use a known attribute:
   • ini̲t
+  • i̵n̵f̲m̲t
   • i̵n̵e̲x̲t
   • i̵n̵t̵l̲i̲a̲
 ---

@@ -725,5 +725,13 @@ structure ColorInformation where
 structure DocumentColorOptions extends WorkDoneProgressOptions where
   deriving FromJson, ToJson
 
+structure DocumentFormattingParams where
+  -- Missing: `options: FormattingOptions`
+  textDocument : TextDocumentIdentifier
+  deriving FromJson, ToJson
+
+structure DocumentFormattingOptions where
+  deriving FromJson, ToJson
+
 end Lsp
 end Lean

@@ -623,26 +623,15 @@ return v___x_183_;
 }
 else
 {
-lean_object* v_a_184_; uint8_t v___y_186_; uint8_t v___x_196_; 
+lean_object* v_a_184_; uint8_t v___x_185_; 
 v_a_184_ = lean_ctor_get(v___x_183_, 0);
 lean_inc(v_a_184_);
-v___x_196_ = l_Lean_Exception_isInterrupt(v_a_184_);
-if (v___x_196_ == 0)
+v___x_185_ = l_Lean_Exception_isInterrupt(v_a_184_);
+if (v___x_185_ == 0)
 {
-uint8_t v___x_197_; 
-v___x_197_ = l_Lean_Exception_isRuntime(v_a_184_);
-v___y_186_ = v___x_197_;
-goto v___jp_185_;
-}
-else
-{
-lean_dec(v_a_184_);
-v___y_186_ = v___x_196_;
-goto v___jp_185_;
-}
-v___jp_185_:
-{
-if (v___y_186_ == 0)
+uint8_t v___x_186_; 
+v___x_186_ = l_Lean_Exception_isRuntime(v_a_184_);
+if (v___x_186_ == 0)
 {
 lean_object* v___x_188_; uint8_t v_isShared_189_; uint8_t v_isSharedCheck_194_; 
 v_isSharedCheck_194_ = !lean_is_exclusive(v___x_183_);
@@ -666,7 +655,7 @@ v_resetjp_187_:
 {
 lean_object* v___x_190_; lean_object* v___x_192_; 
 v___x_190_ = lean_alloc_ctor(0, 0, 1);
-lean_ctor_set_uint8(v___x_190_, 0, v___y_186_);
+lean_ctor_set_uint8(v___x_190_, 0, v___x_186_);
 if (v_isShared_189_ == 0)
 {
 lean_ctor_set_tag(v___x_188_, 0);
@@ -693,16 +682,19 @@ else
 return v___x_183_;
 }
 }
+else
+{
+lean_dec(v_a_184_);
+return v___x_183_;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Meta_Sym_DSimp_DSimproc_tryCatch___boxed(lean_object* v_f_198_, lean_object* v_e_199_, lean_object* v_a_200_, lean_object* v_a_201_, lean_object* v_a_202_, lean_object* v_a_203_, lean_object* v_a_204_, lean_object* v_a_205_, lean_object* v_a_206_, lean_object* v_a_207_, lean_object* v_a_208_, lean_object* v_a_209_){
+}
+LEAN_EXPORT lean_object* l_Lean_Meta_Sym_DSimp_DSimproc_tryCatch___boxed(lean_object* v_f_196_, lean_object* v_e_197_, lean_object* v_a_198_, lean_object* v_a_199_, lean_object* v_a_200_, lean_object* v_a_201_, lean_object* v_a_202_, lean_object* v_a_203_, lean_object* v_a_204_, lean_object* v_a_205_, lean_object* v_a_206_, lean_object* v_a_207_){
 _start:
 {
-lean_object* v_res_210_; 
-v_res_210_ = l_Lean_Meta_Sym_DSimp_DSimproc_tryCatch(v_f_198_, v_e_199_, v_a_200_, v_a_201_, v_a_202_, v_a_203_, v_a_204_, v_a_205_, v_a_206_, v_a_207_, v_a_208_);
-lean_dec(v_a_208_);
-lean_dec_ref(v_a_207_);
+lean_object* v_res_208_; 
+v_res_208_ = l_Lean_Meta_Sym_DSimp_DSimproc_tryCatch(v_f_196_, v_e_197_, v_a_198_, v_a_199_, v_a_200_, v_a_201_, v_a_202_, v_a_203_, v_a_204_, v_a_205_, v_a_206_);
 lean_dec(v_a_206_);
 lean_dec_ref(v_a_205_);
 lean_dec(v_a_204_);
@@ -710,7 +702,9 @@ lean_dec_ref(v_a_203_);
 lean_dec(v_a_202_);
 lean_dec_ref(v_a_201_);
 lean_dec(v_a_200_);
-return v_res_210_;
+lean_dec_ref(v_a_199_);
+lean_dec(v_a_198_);
+return v_res_208_;
 }
 }
 lean_object* runtime_initialize_Lean_Meta_Sym_DSimp_Result(uint8_t builtin);

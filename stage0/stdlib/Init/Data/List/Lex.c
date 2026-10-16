@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.List.Lex
-// Imports: import Init.Data.Order.Lemmas public import Init.Data.BEq public import Init.Data.Order.Classes public import Init.Ext public import Init.NotationExtra import Init.ByCases import Init.Data.Bool import Init.Data.List.Nat.TakeDrop import Init.Data.List.TakeDrop import Init.Data.Nat.Lemmas import Init.TacticsExtra
+// Imports: import Init.Data.Order.Lemmas public import Init.Data.BEq public import Init.Data.Function public import Init.Data.Order.Classes public import Init.Ext public import Init.NotationExtra import Init.ByCases import Init.Data.Bool import Init.Data.List.Nat.TakeDrop import Init.Data.List.Sublist import Init.Data.List.TakeDrop import Init.Data.Nat.Lemmas import Init.TacticsExtra import Init.Data.Order.LemmasExtra
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -21,6 +21,8 @@ LEAN_EXPORT lean_object* l_List_instTransLeOfIsLinearOrderOfLawfulOrderLT___redA
 LEAN_EXPORT lean_object* l_List_instTransLeOfIsLinearOrderOfLawfulOrderLT(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_List_Lex_0__List_lex_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_List_Lex_0__List_lex_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_List_Lex_0__List_isEqv_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_List_Lex_0__List_isEqv_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_instTransLt___redArg(){
 _start:
 {
@@ -181,17 +183,122 @@ return v___x_50_;
 }
 }
 }
+LEAN_EXPORT lean_object* l___private_Init_Data_List_Lex_0__List_isEqv_match__1_splitter___redArg(lean_object* v_x_51_, lean_object* v_x_52_, lean_object* v_x_53_, lean_object* v_h__1_54_, lean_object* v_h__2_55_, lean_object* v_h__3_56_){
+_start:
+{
+if (lean_obj_tag(v_x_51_) == 0)
+{
+lean_dec(v_h__2_55_);
+if (lean_obj_tag(v_x_52_) == 0)
+{
+lean_object* v___x_57_; 
+lean_dec(v_h__3_56_);
+v___x_57_ = lean_apply_1(v_h__1_54_, v_x_53_);
+return v___x_57_;
+}
+else
+{
+lean_object* v___x_58_; 
+lean_dec(v_h__1_54_);
+v___x_58_ = lean_apply_5(v_h__3_56_, v_x_51_, v_x_52_, v_x_53_, lean_box(0), lean_box(0));
+return v___x_58_;
+}
+}
+else
+{
+lean_dec(v_h__1_54_);
+if (lean_obj_tag(v_x_52_) == 1)
+{
+lean_object* v_head_59_; lean_object* v_tail_60_; lean_object* v_head_61_; lean_object* v_tail_62_; lean_object* v___x_63_; 
+lean_dec(v_h__3_56_);
+v_head_59_ = lean_ctor_get(v_x_51_, 0);
+lean_inc(v_head_59_);
+v_tail_60_ = lean_ctor_get(v_x_51_, 1);
+lean_inc(v_tail_60_);
+lean_dec_ref_known(v_x_51_, 2);
+v_head_61_ = lean_ctor_get(v_x_52_, 0);
+lean_inc(v_head_61_);
+v_tail_62_ = lean_ctor_get(v_x_52_, 1);
+lean_inc(v_tail_62_);
+lean_dec_ref_known(v_x_52_, 2);
+v___x_63_ = lean_apply_5(v_h__2_55_, v_head_59_, v_tail_60_, v_head_61_, v_tail_62_, v_x_53_);
+return v___x_63_;
+}
+else
+{
+lean_object* v___x_64_; 
+lean_dec(v_h__2_55_);
+v___x_64_ = lean_apply_5(v_h__3_56_, v_x_51_, v_x_52_, v_x_53_, lean_box(0), lean_box(0));
+return v___x_64_;
+}
+}
+}
+}
+LEAN_EXPORT lean_object* l___private_Init_Data_List_Lex_0__List_isEqv_match__1_splitter(lean_object* v_00_u03b1_65_, lean_object* v_motive_66_, lean_object* v_x_67_, lean_object* v_x_68_, lean_object* v_x_69_, lean_object* v_h__1_70_, lean_object* v_h__2_71_, lean_object* v_h__3_72_){
+_start:
+{
+if (lean_obj_tag(v_x_67_) == 0)
+{
+lean_dec(v_h__2_71_);
+if (lean_obj_tag(v_x_68_) == 0)
+{
+lean_object* v___x_73_; 
+lean_dec(v_h__3_72_);
+v___x_73_ = lean_apply_1(v_h__1_70_, v_x_69_);
+return v___x_73_;
+}
+else
+{
+lean_object* v___x_74_; 
+lean_dec(v_h__1_70_);
+v___x_74_ = lean_apply_5(v_h__3_72_, v_x_67_, v_x_68_, v_x_69_, lean_box(0), lean_box(0));
+return v___x_74_;
+}
+}
+else
+{
+lean_dec(v_h__1_70_);
+if (lean_obj_tag(v_x_68_) == 1)
+{
+lean_object* v_head_75_; lean_object* v_tail_76_; lean_object* v_head_77_; lean_object* v_tail_78_; lean_object* v___x_79_; 
+lean_dec(v_h__3_72_);
+v_head_75_ = lean_ctor_get(v_x_67_, 0);
+lean_inc(v_head_75_);
+v_tail_76_ = lean_ctor_get(v_x_67_, 1);
+lean_inc(v_tail_76_);
+lean_dec_ref_known(v_x_67_, 2);
+v_head_77_ = lean_ctor_get(v_x_68_, 0);
+lean_inc(v_head_77_);
+v_tail_78_ = lean_ctor_get(v_x_68_, 1);
+lean_inc(v_tail_78_);
+lean_dec_ref_known(v_x_68_, 2);
+v___x_79_ = lean_apply_5(v_h__2_71_, v_head_75_, v_tail_76_, v_head_77_, v_tail_78_, v_x_69_);
+return v___x_79_;
+}
+else
+{
+lean_object* v___x_80_; 
+lean_dec(v_h__2_71_);
+v___x_80_ = lean_apply_5(v_h__3_72_, v_x_67_, v_x_68_, v_x_69_, lean_box(0), lean_box(0));
+return v___x_80_;
+}
+}
+}
+}
 lean_object* runtime_initialize_Init_Data_Order_Lemmas(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_BEq(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Function(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Order_Classes(uint8_t builtin);
 lean_object* runtime_initialize_Init_Ext(uint8_t builtin);
 lean_object* runtime_initialize_Init_NotationExtra(uint8_t builtin);
 lean_object* runtime_initialize_Init_ByCases(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Bool(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_List_Nat_TakeDrop(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_List_Sublist(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_List_TakeDrop(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Nat_Lemmas(uint8_t builtin);
 lean_object* runtime_initialize_Init_TacticsExtra(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Order_LemmasExtra(uint8_t builtin);
 void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Init_Data_List_Lex(uint8_t builtin) {
@@ -203,6 +310,9 @@ res = runtime_initialize_Init_Data_Order_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Init_Data_BEq(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_Function(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Init_Data_Order_Classes(builtin);
@@ -223,6 +333,9 @@ lean_dec_ref(res);
 res = runtime_initialize_Init_Data_List_Nat_TakeDrop(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+res = runtime_initialize_Init_Data_List_Sublist(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 res = runtime_initialize_Init_Data_List_TakeDrop(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
@@ -230,6 +343,9 @@ res = runtime_initialize_Init_Data_Nat_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Init_TacticsExtra(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_Order_LemmasExtra(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
@@ -243,15 +359,18 @@ return lean_io_result_mk_ok(lean_box(0));
 }
 lean_object* initialize_Init_Data_Order_Lemmas(uint8_t builtin);
 lean_object* initialize_Init_Data_BEq(uint8_t builtin);
+lean_object* initialize_Init_Data_Function(uint8_t builtin);
 lean_object* initialize_Init_Data_Order_Classes(uint8_t builtin);
 lean_object* initialize_Init_Ext(uint8_t builtin);
 lean_object* initialize_Init_NotationExtra(uint8_t builtin);
 lean_object* initialize_Init_ByCases(uint8_t builtin);
 lean_object* initialize_Init_Data_Bool(uint8_t builtin);
 lean_object* initialize_Init_Data_List_Nat_TakeDrop(uint8_t builtin);
+lean_object* initialize_Init_Data_List_Sublist(uint8_t builtin);
 lean_object* initialize_Init_Data_List_TakeDrop(uint8_t builtin);
 lean_object* initialize_Init_Data_Nat_Lemmas(uint8_t builtin);
 lean_object* initialize_Init_TacticsExtra(uint8_t builtin);
+lean_object* initialize_Init_Data_Order_LemmasExtra(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_List_Lex(uint8_t builtin) {
 lean_object * res;
@@ -261,6 +380,9 @@ res = initialize_Init_Data_Order_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_BEq(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Function(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Order_Classes(builtin);
@@ -281,6 +403,9 @@ lean_dec_ref(res);
 res = initialize_Init_Data_List_Nat_TakeDrop(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+res = initialize_Init_Data_List_Sublist(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 res = initialize_Init_Data_List_TakeDrop(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
@@ -288,6 +413,9 @@ res = initialize_Init_Data_Nat_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_TacticsExtra(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Order_LemmasExtra(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Init_Data_List_Lex(builtin);

@@ -6340,7 +6340,7 @@ _start:
 lean_object* v___x_2027_; lean_object* v___x_2028_; lean_object* v___x_2029_; lean_object* v___x_2030_; lean_object* v___x_2031_; lean_object* v___x_2032_; 
 v___x_2027_ = ((lean_object*)(l_Lean_Meta_Grind_Theorems_insert___at___00Lean_Meta_Grind_ExtensionState_addEntry_spec__0___closed__2));
 v___x_2028_ = lean_unsigned_to_nat(6u);
-v___x_2029_ = lean_unsigned_to_nat(82u);
+v___x_2029_ = lean_unsigned_to_nat(83u);
 v___x_2030_ = ((lean_object*)(l_Lean_Meta_Grind_Theorems_insert___at___00Lean_Meta_Grind_ExtensionState_addEntry_spec__0___closed__1));
 v___x_2031_ = ((lean_object*)(l_Lean_Meta_Grind_Theorems_insert___at___00Lean_Meta_Grind_ExtensionState_addEntry_spec__0___closed__0));
 v___x_2032_ = l_mkPanicMessageWithDecl(v___x_2031_, v___x_2030_, v___x_2029_, v___x_2028_, v___x_2027_);

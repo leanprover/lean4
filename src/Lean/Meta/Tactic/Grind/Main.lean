@@ -129,7 +129,7 @@ def GrindM.run (x : GrindM α) (params : Params) (evalTactic? : Option EvalTacti
   let (symSimpMethods, symDSimpMethods) ← if backward.grind.normalizer.get (← getOptions) then
       pure ({}, {})
     else
-      let thms ← mkNormSymTheorems
+      let thms ← getNormSymTheorems
       pure (mkNormSymMethods config thms, mkNormSymDSimpMethods config thms)
   let symPrios := params.symPrios
   let extensions := params.extensions

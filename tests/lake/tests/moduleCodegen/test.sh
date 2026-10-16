@@ -67,18 +67,25 @@ test_exp -f dep/.lake/build/ir/Dep.setup.json
 no_match_text "compiler.postponeCompile" dep/.lake/build/ir/Dep.setup.json
 match_text 'Dep.ir"' .lake/build/ir/Test/UsesDep.irsetup.json
 
-# The reverse direction needs `import all`: a module that generates code during its own
-# elaboration reads its imports' IR from their `.olean`s, and a postponed module writes none
-test_err "unexpected use of noncomputable declaration" build Plain.BadImport
+# The reverse direction works as well: a module that generates code during its own elaboration
+# loads the `.ir.sig` of its postponed imports, with or without `import all`
+test_run build Plain.PlainImport
+test_exp -f .lake/build/ir/Plain/PlainImport.c
+# It is given the `.ir.sig` of a postponed import only, and no IR of a non-postponed one, whose
+# signatures are in its `.olean`
+match_text 'A.ir.sig"' .lake/build/ir/Plain/PlainImport.setup.json
+no_match_text 'A.ir"' .lake/build/ir/Plain/PlainImport.setup.json
+test_run build Plain
+match_text 'P.olean"' .lake/build/ir/Plain.setup.json
+no_match_text 'P.ir' .lake/build/ir/Plain.setup.json
 test_run build Plain.UsesTest
 test_exp -f .lake/build/ir/Plain/UsesTest.c
 
-# That restriction is on generating code during elaboration, not on the language server, which
-# imports at the `.server` level, where every import's IR is loaded
+# The language server imports at the `.server` level, where every import's IR is loaded
 echo "# TEST: mixed postponement in server mode"
-echo '$' lake setup-file Plain/BadImport.lean
-"$LAKE" setup-file Plain/BadImport.lean > badimport.setup.json
-test_cmd lean --setup badimport.setup.json -DElab.inServer=true Plain/BadImport.lean
+echo '$' lake setup-file Plain/PlainImport.lean
+"$LAKE" setup-file Plain/PlainImport.lean > plainimport.setup.json
+test_cmd lean --setup plainimport.setup.json -DElab.inServer=true Plain/PlainImport.lean
 # and so `#eval` works across the boundary without `import all`
 echo '$' lake setup-file Plain/ServerEval.lean
 "$LAKE" setup-file Plain/ServerEval.lean > servereval.setup.json
@@ -106,3 +113,11 @@ test_run build Test.A:c Test.B:c Test.C:c
 sed_i 's/^private def offset/public def extra : Nat := 7\nprivate def offset/' Test/A.lean
 test_out "Built Test.A:irArts" build Test.A:c -v
 test_out "Built Test.B:irArts" build Test.B:c -v
+
+# The body of an inlinable definition is part of the `.ir.sig` but not of the `.olean`. A module
+# that generates code during its own elaboration reads it, so it must be rebuilt as well.
+echo "# TEST: non-postponed importer on an .ir.sig-only edit"
+test_run build Plain.PlainImport
+test_run build Plain.PlainImport --no-build
+sed_i 's/n + offset/n + offset + offset/' Test/A.lean
+test_out "Built Plain.PlainImport" build Plain.PlainImport -v

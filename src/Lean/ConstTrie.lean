@@ -95,7 +95,8 @@ def pushU32 (bs : ByteArray) (v : Nat) : ByteArray :=
 /-- Builds the child index for `cs` (sorted by key hash); see the layout note above. -/
 @[specialize] def buildChildIndex [Inhabited β] (cs : Array β) (keyOf : β → Name) : ByteArray := Id.run do
   let n := cs.size
-  if n ≤ maxScanChildren then
+  -- experiment: no child index at all, see `findHashIdx?`
+  if true || n ≤ maxScanChildren then
     return .empty
   -- offsets range over `0..n`
   let wide := n ≥ 0xFFFF
@@ -125,7 +126,11 @@ dereferenced to confirm the final component.
 @[specialize] partial def findHashIdx? [Inhabited β] (index : ByteArray) (cs : Array β)
     (keyOf : β → Name) (k : Name) : Option Nat :=
   if index.size == 0 then
-    scanAll k.hash 0
+    if cs.size ≤ maxScanChildren then
+      scanAll k.hash 0
+    else
+      let h := k.hash
+      scanRun h (lowerBound h 0 cs.size)
   else
     let h := k.hash
     let header := index.get! 0
@@ -142,6 +147,22 @@ dereferenced to confirm the final component.
       let fpOff := (5 + 4 * ((1 : UInt64) <<< bits)).toNat
       scanWindow (fingerprint h) fpOff lo hi
 where
+  /-- The first index in `[lo, hi)` whose key hash is at least `h`; children are sorted by key hash. -/
+  @[specialize] lowerBound (h : UInt64) (lo hi : Nat) : Nat :=
+    if lo < hi then
+      let mid := (lo + hi) / 2
+      if (keyOf cs[mid]!).hash < h then lowerBound h (mid + 1) hi else lowerBound h lo mid
+    else
+      lo
+  @[specialize] scanRun (h : UInt64) (j : Nat) : Option Nat :=
+    if j < cs.size then
+      let c := keyOf cs[j]!
+      if c.hash == h then
+        if lastPartEq c k then some j else scanRun h (j + 1)
+      else
+        none
+    else
+      none
   @[specialize] scanAll (h : UInt64) (j : Nat) : Option Nat :=
     if j < cs.size then
       let c := keyOf cs[j]!

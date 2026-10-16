@@ -83,7 +83,6 @@ builtin_facet imports : Module => Array Module
 /-- Dynamic information computed about a module before building. -/
 public structure ModulePreSetup where
   trace : BuildTrace
-  irSigTrace : BuildTrace
   srcMTime : MTime
   srcFile : FilePath
   isModule : Bool
@@ -181,6 +180,9 @@ namespace Module
 
 @[inherit_doc importInfoFacet] public abbrev importInfo (self : Module) :=
   self.facetCore importInfoFacet
+
+@[inherit_doc elabImportInfoFacet] public abbrev elabImportInfo (self : Module) :=
+  self.facetCore elabImportInfoFacet
 
 @[inherit_doc exportInfoFacet] public abbrev exportInfo (self : Module) :=
   self.facetCore exportInfoFacet

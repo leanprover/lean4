@@ -184,10 +184,9 @@ static inline __attribute__((always_inline)) lean_obj_res find_cached_in(cache &
     lean_object * r = core(root, n);
     if (empty == t->m_num_slots)
         return r;
-    // The value is handed to and `inc`ed by arbitrary reader threads; marking it persistent keeps
-    // hits free of atomic RC and of coherence traffic on hot values. The unshared variant only
-    // writes thread-owned counts, so it is race-free where plain `lean_mark_persistent` is not.
-    lean_mark_persistent_unshared(r);
+    // experiment: the value is handed to and `inc`ed by arbitrary reader threads, which need atomic
+    // reference counting on it
+    lean_mark_mt(r);
     // Pin the key, and the root unless it owns the cache; hits only compare them, so they need no
     // special marking.
     if (!owned)

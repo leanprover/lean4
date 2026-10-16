@@ -135,6 +135,51 @@ info: @[instance_reducible, expose] def instMyClassMutual2 : (α : Type) → [My
 #print sig instMyClassMutual2
 
 /-!
+... and on inductives with indices
+-/
+
+inductive Vec (α : Type) : Nat → Type where
+  | nil : Vec α 0
+  | cons : α → Vec α n → Vec α (n + 1)
+
+run_cmd handler #[`Vec]
+
+/-- info: Data.ctor 1 [Data.nat 0, Data.nat 1, Data.ctor 0 []] -/
+#guard_msgs in
+#eval MyClass.convert (Vec.cons 1 Vec.nil)
+
+/-!
+... and complex dependent types
+-/
+
+structure SigmaField (γ : Bool → Type) where
+  val : (b : Bool) × List (γ b)
+
+run_cmd handler #[`Sigma, `SigmaField]
+
+/-- info: Data.ctor 0 [Data.ctor 0 [], Data.ctor 1 [Data.nat 3, Data.ctor 0 []]] -/
+#guard_msgs in
+#eval MyClass.convert { val := ⟨false, [3]⟩ : SigmaField fun _ => Nat }
+
+/-!
+`deriveTransformationInstPerConstructor` also handles "weird" type classes containing the universe
+on the right-hand side.
+-/
+
+class ToULift (α : Type u) where
+  lift : α → ULift.{u} Nat
+
+meta def toULiftHandler : DerivingHandler :=
+  mkInductiveDerivingHandler (needSucc := true) do
+    deriveTransformationInstPerConstructor ``ToULift fun _ _ _ =>
+      return mkApp2 (.const ``ULift.up [0, 0]) (mkConst ``Nat) (mkNatLit 0)
+
+structure Flag where
+  on : Bool
+
+run_cmd toULiftHandler #[``Flag]
+
+/-!
 `deriving.binderVerbatim` disables instance synthesis but still deduplicates instance hypotheses
 -/
 

@@ -311,16 +311,8 @@ def tryApplyCanonicalInstance (instType : Expr) :
         let keys ← withoutModifyingMCtx do
           let (_, _, body) ← forallMetaTelescopeReducing argType
           DiscrTree.mkPath body
-        let mut newMVar := arg.mvarId!
-        -- If we don't have additional variables from `forallTelescopeReducing` here, we can just
-        -- keep the metavariable as-is (but make it synthetic opaque), otherwise revert
-        if vars.isEmpty then
-          newMVar.setKind .syntheticOpaque
-        else
-          let mvarApp ← mkFreshRevertedMVarAt argType lctx linsts
-          arg.mvarId!.assign mvarApp
-          newMVar := mvarApp.getAppFn.mvarId!
-        outVars := outVars.push (newMVar, goodHypothesisKeys keys env)
+        arg.mvarId!.setKind .syntheticOpaque
+        outVars := outVars.push (arg.mvarId!, goodHypothesisKeys keys env)
     unless ← isDefEqI instBody body do
       return .error (.unifyFailed instEntry)
     let c ← instantiateMVars c
@@ -336,6 +328,12 @@ def tryApplyCanonicalInstance (instType : Expr) :
       if arg.hasAnyMVar (fun m => !(mctx.getDecl m).kind.isSyntheticOpaque) then
         return .error (.hasMVars mctx instEntry arg (isArg := true))
       res := res.app arg
+    -- If we have additional variables from `forallTelescopeReducing` here, we have to revert them
+    unless vars.isEmpty do
+      outVars ← outVars.mapM fun (outVar, allowMore) => do
+        let mvarApp ← mkFreshRevertedMVarAt (← outVar.getType) lctx linsts
+        outVar.assign mvarApp
+        return (mvarApp.getAppFn.mvarId!, allowMore)
     trace[Elab.Deriving] "Result: {res}, {outVars}"
     return .ok (← mkLambdaFVars vars res, outVars)
 
@@ -672,10 +670,6 @@ def deriveTransformationInstPerConstructor (className : Name)
     throwError "Invalid use of `deriveSimpleInstPerConstructor`, \
       expected field of {.ofConstName className} to have the shape \
       `α → β` where `α` is the type parameter"
-  if tgt.hasLooseBVars then
-    throwError "Invalid use of `deriveSimpleInstPerConstructor`, expected target type of field of
-      {.ofConstName className} to be nondependent"
-  let tgtSort ← getLevel tgt
   let onlyType ←
     if univ == .param u then
       pure false
@@ -687,6 +681,11 @@ def deriveTransformationInstPerConstructor (className : Name)
   let mut paramLevel := (← read).indLevel
   if onlyType then
     paramLevel ← decLevel paramLevel
+  let tgt := tgt.instantiateLevelParams [u] [paramLevel]
+  if tgt.hasLooseBVars then
+    throwError "Invalid use of `deriveSimpleInstPerConstructor`, expected target type of field of
+      {.ofConstName className} to be nondependent"
+  let tgtSort ← getLevel tgt
   -- Then create the instances using a mutual partial block
   let all := (← read).indInfo.all.toArray
   makeInstancesUsingMutualPartialBlock <| ← all.mapM fun induct => do
@@ -723,7 +722,8 @@ def deriveTransformationInstPerConstructor (className : Name)
       mkValue helpers := do
         let #[helper] := helpers | unreachable!
         forallBoundedTelescope type indInfo.numIndices fun indices _ => do
-          return mkApp2 (.const ctor [paramLevel]) (mkAppN typeApp indices) (mkAppN helper indices)
+          mkLambdaFVars indices <|
+            mkApp2 (.const ctor [paramLevel]) (mkAppN typeApp indices) (mkAppN helper indices)
     }
   return true
 
@@ -735,7 +735,17 @@ private def decLevels : Level → NameSet → Option NameSet
   | .param u, set => some (set.insert u)
   | .mvar _, _ => unreachable!
 
-def mkInductiveDerivingHandler (perMutualBlock : DerivingM Bool) (needSucc : Bool) :
+/--
+Groups the inductive type names provided to the deriving handler by mutual block and runs
+`perMutualBlock` on each of them with appropriate `DerivingM` context.
+
+If `needSucc` is true, then the `indLevel` field of the deriving handler is guaranteed to be of the
+shape `.succ u`, in other words: the type of every inductive in the mutual block, instantiated with
+the level parameters `(← read).lparams` stored in the context, is guaranteed to be of the shape
+`_ → ... → Type u` instead of just `_ → ... → Sort u` for some `u`. Use this if the type class only
+works for `α : Type u` instead of for all `α : Sort u`.
+-/
+def mkInductiveDerivingHandler (perMutualBlock : DerivingM Bool) (needSucc : Bool := false) :
     DerivingHandler := fun names => do
   unless ← names.allM isInductive do
     return false
@@ -850,6 +860,10 @@ def deriveSimpleLawTypeClass (typeClass derivedFrom : Name)
       return false
   return true
 
+/--
+Derive instances for `@className (@name ...) ...` first using `preHandler` for all type names
+provided to the deriving handler that don't yet have such an instance before running `handler`.
+-/
 def derivePrerequisite (className : Name) (preHandler : DerivingHandler)
     (handler : DerivingHandler) : DerivingHandler := fun names => do
   let prereqNames ← liftTermElabM do

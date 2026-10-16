@@ -608,18 +608,11 @@ return v___x_158_;
 }
 else
 {
-if (v___x_158_ == 0)
-{
-return v___x_158_;
-}
-else
-{
 size_t v___x_159_; size_t v___x_160_; uint8_t v___x_161_; 
 v___x_159_ = ((size_t)0ULL);
 v___x_160_ = lean_usize_of_nat(v___x_157_);
 v___x_161_ = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00Array_contains___at___00__private_Lean_Meta_Tactic_Simp_SimpAll_0__Lean_Meta_SimpAll_initEntries_spec__1_spec__1(v_a_155_, v_as_154_, v___x_159_, v___x_160_);
 return v___x_161_;
-}
 }
 }
 }
@@ -3571,8 +3564,6 @@ goto v___jp_1086_;
 }
 else
 {
-if (v___x_1099_ == 0)
-{
 lean_object* v___x_1102_; lean_object* v___x_1103_; 
 lean_del_object(v___x_1078_);
 lean_del_object(v___x_1073_);
@@ -3584,12 +3575,6 @@ lean_ctor_set(v___x_1103_, 0, v_fst_1071_);
 lean_ctor_set(v___x_1103_, 1, v___x_1102_);
 v_a_1064_ = v___x_1103_;
 goto v___jp_1063_;
-}
-else
-{
-lean_dec(v_snd_1076_);
-goto v___jp_1086_;
-}
 }
 }
 else

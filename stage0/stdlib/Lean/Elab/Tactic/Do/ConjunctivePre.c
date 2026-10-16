@@ -678,18 +678,11 @@ return v___x_134_;
 }
 else
 {
-if (v___x_134_ == 0)
-{
-return v___x_134_;
-}
-else
-{
 size_t v___x_135_; size_t v___x_136_; uint8_t v___x_137_; 
 v___x_135_ = ((size_t)0ULL);
 v___x_136_ = lean_usize_of_nat(v___x_133_);
 v___x_137_ = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00Array_contains___at___00__private_Lean_Elab_Tactic_Do_ConjunctivePre_0__Lean_Elab_Tactic_VCGen_SpecAttr_occursMVar_spec__0_spec__0(v_a_131_, v_as_130_, v___x_135_, v___x_136_);
 return v___x_137_;
-}
 }
 }
 }
@@ -805,8 +798,8 @@ else
 {
 lean_object* v___x_276_; uint8_t v___x_277_; 
 lean_inc_ref(v_str_272_);
-lean_inc(v_pre_270_);
 lean_inc_ref(v_str_271_);
+lean_inc(v_pre_270_);
 lean_dec_ref_known(v_x_239_, 2);
 v___x_276_ = ((lean_object*)(l___private_Lean_Elab_Tactic_Do_ConjunctivePre_0__Lean_Elab_Tactic_VCGen_SpecAttr_specComponents_x3f___closed__1));
 v___x_277_ = lean_string_dec_eq(v_str_272_, v___x_276_);
@@ -890,8 +883,8 @@ else
 lean_object* v___x_297_; uint8_t v___x_298_; 
 lean_inc_ref(v_str_293_);
 lean_inc_ref(v_str_292_);
-lean_inc_ref(v_str_291_);
 lean_inc(v_pre_290_);
+lean_inc_ref(v_str_291_);
 lean_dec_ref_known(v_x_239_, 2);
 v___x_297_ = ((lean_object*)(l___private_Lean_Elab_Tactic_Do_ConjunctivePre_0__Lean_Elab_Tactic_VCGen_SpecAttr_specComponents_x3f___closed__6));
 v___x_298_ = lean_string_dec_eq(v_str_293_, v___x_297_);
@@ -976,8 +969,8 @@ goto v___jp_240_;
 else
 {
 lean_object* v___x_319_; uint8_t v___x_320_; 
-lean_inc_ref(v_str_315_);
 lean_inc(v_pre_269_);
+lean_inc_ref(v_str_315_);
 lean_dec_ref_known(v_x_239_, 2);
 v___x_319_ = ((lean_object*)(l___private_Lean_Elab_Tactic_Do_ConjunctivePre_0__Lean_Elab_Tactic_VCGen_SpecAttr_conjunctiveArgs_x3f___closed__21));
 v___x_320_ = lean_string_dec_eq(v_str_315_, v___x_319_);
@@ -1249,13 +1242,13 @@ goto _start;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00__private_Lean_Elab_Tactic_Do_ConjunctivePre_0__Lean_Elab_Tactic_VCGen_SpecAttr_isConjunctiveIn_spec__0___boxed(lean_object* v_qs_353_, lean_object* v___x_354_, lean_object* v_as_355_, lean_object* v_i_356_, lean_object* v_stop_357_){
 _start:
 {
-uint8_t v___x_792__boxed_358_; size_t v_i_boxed_359_; size_t v_stop_boxed_360_; uint8_t v_res_361_; lean_object* v_r_362_; 
-v___x_792__boxed_358_ = lean_unbox(v___x_354_);
+uint8_t v___x_796__boxed_358_; size_t v_i_boxed_359_; size_t v_stop_boxed_360_; uint8_t v_res_361_; lean_object* v_r_362_; 
+v___x_796__boxed_358_ = lean_unbox(v___x_354_);
 v_i_boxed_359_ = lean_unbox_usize(v_i_356_);
 lean_dec(v_i_356_);
 v_stop_boxed_360_ = lean_unbox_usize(v_stop_357_);
 lean_dec(v_stop_357_);
-v_res_361_ = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00__private_Lean_Elab_Tactic_Do_ConjunctivePre_0__Lean_Elab_Tactic_VCGen_SpecAttr_isConjunctiveIn_spec__0(v_qs_353_, v___x_792__boxed_358_, v_as_355_, v_i_boxed_359_, v_stop_boxed_360_);
+v_res_361_ = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00__private_Lean_Elab_Tactic_Do_ConjunctivePre_0__Lean_Elab_Tactic_VCGen_SpecAttr_isConjunctiveIn_spec__0(v_qs_353_, v___x_796__boxed_358_, v_as_355_, v_i_boxed_359_, v_stop_boxed_360_);
 lean_dec_ref(v_as_355_);
 v_r_362_ = lean_box(v_res_361_);
 return v_r_362_;
@@ -1548,8 +1541,9 @@ goto v___jp_427_;
 }
 else
 {
-v___y_428_ = v___x_431_;
-goto v___jp_427_;
+lean_dec_ref(v_env_422_);
+lean_dec_ref(v_qs_419_);
+return v___x_431_;
 }
 }
 else

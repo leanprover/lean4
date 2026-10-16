@@ -475,19 +475,45 @@ public def forceExpanded (t : ImportedConsts α) : ImportedConsts α :=
   { t with cache := none, root := t.root.force }
 
 /--
-Folds over all names in module order, passing each name's entry once, from the module it is
-attributed to (see `findEntry?`).
+Folds over all names, passing each name's entry once, from the module it is attributed to (see
+`findEntry?`). Names that only one module can declare are taken directly from the module arrays;
+names that other modules' roots also cover are checked by a lookup.
 -/
-public def foldlEntriesM [Monad m] (t : ImportedConsts α) (f : σ → Name → α × Nat → m σ)
-    (init : σ) : m σ := do
-  let mut s := init
-  for h : i in [0:t.mods.size] do
-    if let some md := t.mods[i] then
-      for n in md.names do
+public partial def foldlEntriesM [Monad m] (t : ImportedConsts α) (f : σ → Name → α × Nat → m σ)
+    (init : σ) : m σ :=
+  goNode t.root #[] init
+where
+  /-- Folds over the range `[lo, hi)` of module `i`, with lookups iff `check`. -/
+  goRange (i lo hi : Nat) (check : Bool) (s : σ) : m σ := do
+    let some (some md) := t.mods[i]? | return s
+    let mut s := s
+    for idx in [lo:hi] do
+      let n := md.names[idx]!
+      if check then
         if let some e := t.findEntry? n then
           if e.2 == i then
             s ← f s n e
-  return s
+      else
+        s ← f s n (md.val idx, i)
+    return s
+  goTree (i : Nat) (check : Bool) (tr : ConstTrie) (s : σ) : m σ :=
+    match tr with
+    | .leaf _ lo hi => goRange i lo.toNat hi.toNat check s
+    | .inner _ cs => cs.foldlM (fun s c => goTree i check c s) s
+  /-- `ownerMods` are the modules owning a prefix above `node`. -/
+  goNode (node : ImportedNode) (ownerMods : Array Nat) (s : σ) : m σ := do
+    match node with
+    | .mod i tr => goTree i (ownerMods.any (· != i) || !t.overrides.isEmpty) tr s
+    | .merged _ owners cs => goShared owners cs ownerMods s
+    | .lazy _ owners cs => goShared owners cs.get ownerMods s
+  /-- At a node shared by several modules, owner ranges may overlap other modules' names. -/
+  goShared (owners : Array (Nat × Nat × Nat)) (cs : Array ImportedNode) (ownerMods : Array Nat)
+      (s : σ) : m σ := do
+    let mut s := s
+    for (i, lo, hi) in owners do
+      s ← goRange i lo hi true s
+    let ownerMods := ownerMods ++ owners.map (·.1)
+    cs.foldlM (fun s c => goNode c ownerMods s) s
 
 public def foldlM [Monad m] (t : ImportedConsts α) (f : σ → Name → α → m σ) (init : σ) : m σ :=
   t.foldlEntriesM (fun s n (v, _) => f s n v) init

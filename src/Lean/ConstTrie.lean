@@ -30,8 +30,9 @@ A locator over the names of a single module (its constants or its extra constant
 components. Each name is covered by a *root*: its shortest proper prefix that is a name of the
 module (or, for extra constants, one of its constants), or else the name itself. Roots never extend
 each other, so they are exactly the leaves of the tree; a leaf stores the range `[lo, hi)` of the
-module's name array that holds the names it covers, sorted by `Name.quickCmp`. `key` is the full
-name prefix represented by a node, and `children` is sorted by the (cached) hash of the child keys.
+module's order (see `ModuleConsts`) that lists the names it covers, sorted by `Name.quickCmp`. `key`
+is the full name prefix represented by a node, and `children` is sorted by the (cached) hash of the
+child keys.
 -/
 public inductive ConstTrie where
   | inner (key : Name) (children : Array ConstTrie)
@@ -76,14 +77,33 @@ where
     else
       none
 
-/-- The index of `n` in `names[lo:hi]`, which is sorted by `Name.quickCmp`. -/
-partial def binSearchName (names : Array Name) (n : Name) (lo hi : Nat) : Option Nat :=
+/-- The `k`-th entry of an order, a sequence of little-endian `UInt32` indices. -/
+@[inline] def orderAt (order : ByteArray) (k : Nat) : Nat :=
+  let o := 4 * k
+  ((order.get! o).toUInt32 ||| ((order.get! (o + 1)).toUInt32 <<< 8) |||
+    ((order.get! (o + 2)).toUInt32 <<< 16) ||| ((order.get! (o + 3)).toUInt32 <<< 24)).toNat
+
+/-- Encodes `perm` as an order; see `orderAt`. -/
+def encodeOrder (perm : Array Nat) : ByteArray := Id.run do
+  let mut bs := ByteArray.emptyWithCapacity (4 * perm.size)
+  for i in perm do
+    let v := i.toUInt32
+    bs := (((bs.push v.toUInt8).push (v >>> 8).toUInt8).push (v >>> 16).toUInt8).push (v >>> 24).toUInt8
+  return bs
+
+/--
+The index in `names` of `n`, searching the positions `[lo, hi)` of `order`, along which `names` is
+sorted by `Name.quickCmp`.
+-/
+partial def binSearchName (names : Array Name) (order : ByteArray) (n : Name) (lo hi : Nat) :
+    Option Nat :=
   if lo < hi then
     let mid := (lo + hi) / 2
-    match n.quickCmp names[mid]! with
-    | .lt => binSearchName names n lo mid
-    | .gt => binSearchName names n (mid + 1) hi
-    | .eq => some mid
+    let idx := orderAt order mid
+    match n.quickCmp names[idx]! with
+    | .lt => binSearchName names order n lo mid
+    | .gt => binSearchName names order n (mid + 1) hi
+    | .eq => some idx
   else
     none
 
@@ -145,10 +165,10 @@ partial def toTrie (children : Std.HashMap Name (Array Name)) (ranges : Std.Hash
 
 /--
 Builds the locator for `names`, where `isOwner` holds for the names that may serve as roots (a
-superset of `names`). Returns the trie and the order of `names` it requires: `perm[j]` is the index
-in `names` of the name to be stored at position `j`.
+superset of `names`). Returns the trie and the order it indexes, listing the indices of `names`
+grouped by root and sorted by `Name.quickCmp` within each root.
 -/
-public def build (names : Array Name) (isOwner : Name → Bool) : ConstTrie × Array Nat := Id.run do
+public def build (names : Array Name) (isOwner : Name → Bool) : ConstTrie × ByteArray := Id.run do
   let roots := names.map fun n => Id.run do
     let mut root := n
     let mut cur := parentOf n
@@ -177,18 +197,20 @@ public def build (names : Array Name) (isOwner : Name → Bool) : ConstTrie × A
     while j < perm.size && rootIdxs[perm[j]!]! == r do
       j := j + 1
     ranges := ranges.insert sortedRoots[r]! (lo, j)
-  return (toTrie (childrenOf sortedRoots) ranges .anonymous, perm)
+  return (toTrie (childrenOf sortedRoots) ranges .anonymous, encodeOrder perm)
 
 end ConstTrie
 
 /--
 The names of a single module (its constants or its extra constants) together with their values and
-locator; see `ConstTrie`. `names` is in the order required by the locator.
+locator; see `ConstTrie`. `order` lists the indices of `names` in the order the locator's ranges
+refer to.
 -/
 public structure ModuleConsts (α : Type) where
   names : Array Name
   val : Nat → α
   trie : ConstTrie
+  order : ByteArray
 
 namespace ModuleConsts
 
@@ -196,7 +218,7 @@ namespace ModuleConsts
 public def findIdx? (m : ModuleConsts α) (n : Name) : Option Nat :=
   let path := prefixesOf n
   match m.trie.locate path path.size with
-  | some (lo, hi) => binSearchName m.names n lo hi
+  | some (lo, hi) => binSearchName m.names m.order n lo hi
   | none          => none
 
 public def find? (m : ModuleConsts α) (n : Name) : Option α :=
@@ -206,9 +228,8 @@ public def find? (m : ModuleConsts α) (n : Name) : Option α :=
 public def ofArrays (names : Array Name) (vals : Array α) [Inhabited α]
     (owners : Std.HashSet Name := {}) : ModuleConsts α :=
   let owners := names.foldl (·.insert ·) owners
-  let (trie, perm) := ConstTrie.build names owners.contains
-  let vals := perm.map (vals[·]!)
-  { names := perm.map (names[·]!), val := (vals[·]!), trie }
+  let (trie, order) := ConstTrie.build names owners.contains
+  { names, val := (vals[·]!), trie, order }
 
 end ModuleConsts
 
@@ -392,7 +413,7 @@ public def findEntry? (t : ImportedConsts α) (n : Name) : Option (α × Nat) :=
   let mut hits : Array (α × Nat) := #[]
   for (i, lo, hi) in cands do
     if let some (some m) := t.mods[i]? then
-      if let some idx := binSearchName m.names n lo hi then
+      if let some idx := binSearchName m.names m.order n lo hi then
         hits := hits.push (m.val idx, i)
   if hits.size ≤ 1 then
     return hits[0]?
@@ -487,7 +508,8 @@ where
   goRange (i lo hi : Nat) (check : Bool) (s : σ) : m σ := do
     let some (some md) := t.mods[i]? | return s
     let mut s := s
-    for idx in [lo:hi] do
+    for k in [lo:hi] do
+      let idx := orderAt md.order k
       let n := md.names[idx]!
       if check then
         if let some e := t.findEntry? n then
@@ -577,11 +599,12 @@ def checkRange (mods : Array (Option (ModuleConsts α))) (covered : Array UInt64
   if others.isEmpty then
     return acc
   let mut acc := acc
-  for idx in [lo:hi] do
+  for k in [lo:hi] do
+    let idx := orderAt mi.order k
     let n := mi.names[idx]!
     for (j, lo', hi') in others do
       let some (some mj) := mods[j]? | continue
-      if let some k := binSearchName mj.names n lo' hi' then
+      if let some k := binSearchName mj.names mj.order n lo' hi' then
         let add (es : Array (α × Nat)) (e : α × Nat) :=
           if es.any (·.2 == e.2) then es else es.push e
         acc := acc.alter n fun es? =>

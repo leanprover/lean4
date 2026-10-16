@@ -126,22 +126,28 @@ structure ModuleData where
   extraConstNames : Array Name
   entries         : Array (Name × Array EnvExtensionEntry)
   /--
-  Locator over `constNames`/`constants`, set by `saveModuleData(Parts)` when the module is written,
-  which also brings both arrays into the order the locator requires. It resides in the same
-  compacted region as the rest of the module data, so importing it is free; see `ConstTrie`.
+  Locator over `constNames`/`constants`, set by `saveModuleData(Parts)` when the module is written.
+  It resides in the same compacted region as the rest of the module data, so importing it is free;
+  see `ConstTrie`.
   -/
   constTrie       : ConstTrie := default
+  /-- The order of `constNames` that `constTrie` refers to; see `ModuleConsts`. -/
+  constOrder      : ByteArray := .empty
   /-- Locator over `extraConstNames`, set by `saveModuleData(Parts)`. -/
   extraConstTrie  : ConstTrie := default
+  /-- The order of `extraConstNames` that `extraConstTrie` refers to. -/
+  extraConstOrder : ByteArray := .empty
   deriving Inhabited
 
 /-- The constants of `data` with their locator. -/
 def ModuleData.consts (data : ModuleData) : ModuleConsts ConstantInfo :=
-  { names := data.constNames, val := (data.constants[·]!), trie := data.constTrie }
+  { names := data.constNames, val := (data.constants[·]!), trie := data.constTrie
+    order := data.constOrder }
 
 /-- The extra constants of `data` with their locator. -/
 def ModuleData.extraConsts (data : ModuleData) : ModuleConsts Unit :=
-  { names := data.extraConstNames, val := fun _ => (), trie := data.extraConstTrie }
+  { names := data.extraConstNames, val := fun _ => (), trie := data.extraConstTrie
+    order := data.extraConstOrder }
 
 /-- Import including information resulting from processing of the entire import DAG. -/
 structure EffectiveImport extends Import where
@@ -2255,16 +2261,11 @@ saving so that no `ModuleData` producer can leave them inconsistent.
 -/
 private def ModuleData.setupTries (data : ModuleData) : ModuleData :=
   let owners := Std.HashSet.ofArray data.constNames
-  let (constTrie, perm) := ConstTrie.build data.constNames owners.contains
+  let (constTrie, constOrder) := ConstTrie.build data.constNames owners.contains
   -- extra constants may also be covered by constants, such as auxiliary definitions of a function
   let extraOwners := data.extraConstNames.foldl (·.insert ·) owners
-  let (extraConstTrie, extraPerm) := ConstTrie.build data.extraConstNames extraOwners.contains
-  { data with
-    constNames := perm.map (data.constNames[·]!)
-    constants := perm.map (data.constants[·]!)
-    constTrie
-    extraConstNames := extraPerm.map (data.extraConstNames[·]!)
-    extraConstTrie }
+  let (extraConstTrie, extraConstOrder) := ConstTrie.build data.extraConstNames extraOwners.contains
+  { data with constTrie, constOrder, extraConstTrie, extraConstOrder }
 
 /--
 Stores each given module data in the respective file name. Objects shared with prior parts are not

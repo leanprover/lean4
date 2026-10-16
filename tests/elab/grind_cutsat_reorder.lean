@@ -14,13 +14,6 @@ set_option linter.unusedVariables false
 -- that bridges `x.toInt` and `x.toNat`.
 /--
 trace: [grind.lia.reorder] reordering variables, epoch: 1
-[grind.lia.reorder] reordering variables, epoch: 2
-[grind.lia.reorder] reordering variables, epoch: 2
-[grind.lia.reorder] reordering variables, epoch: 2
-[grind.lia.reorder] reordering variables, epoch: 2
-[grind.lia.reorder] reordering variables, epoch: 2
-[grind.lia.reorder] reordering variables, epoch: 2
-[grind.lia.reorder] reordering variables, epoch: 2
 -/
 #guard_msgs in
 set_option trace.grind.lia.reorder true in
@@ -48,15 +41,6 @@ example (g u : Int → Int) (hg : ∀ y, g y = Int.bmod y 65536) (hu : ∀ y, u 
 trace: [grind.lia.reorder] reordering variables, epoch: 1
 [grind.lia.reorder] reordering variables, epoch: 2
 [grind.lia.reorder] reordering variables, epoch: 3
-[grind.lia.reorder] reordering variables, epoch: 4
-[grind.lia.reorder] reordering variables, epoch: 3
-[grind.lia.reorder] reordering variables, epoch: 3
-[grind.lia.reorder] reordering variables, epoch: 3
-[grind.lia.reorder] reordering variables, epoch: 4
-[grind.lia.reorder] reordering variables, epoch: 4
-[grind.lia.reorder] reordering variables, epoch: 3
-[grind.lia.reorder] reordering variables, epoch: 3
-[grind.lia.reorder] reordering variables, epoch: 3
 [grind.lia.reorder] reordering variables, epoch: 3
 [grind.lia.reorder] reordering variables, epoch: 3
 [grind.lia.reorder] reordering variables, epoch: 3
@@ -73,17 +57,13 @@ trace: [grind.lia.reorder] reordering variables, epoch: 1
 [grind.lia.reorder] reordering variables, epoch: 4
 [grind.lia.reorder] reordering variables, epoch: 4
 [grind.lia.reorder] reordering variables, epoch: 3
-[grind.lia.reorder] reordering variables, epoch: 4
-[grind.lia.reorder] reordering variables, epoch: 4
+[grind.lia.reorder] reordering variables, epoch: 3
+[grind.lia.reorder] reordering variables, epoch: 3
 [grind.lia.reorder] reordering variables, epoch: 4
 [grind.lia.reorder] reordering variables, epoch: 4
 [grind.lia.reorder] reordering variables, epoch: 3
 [grind.lia.reorder] reordering variables, epoch: 3
 [grind.lia.reorder] reordering variables, epoch: 3
-[grind.lia.reorder] reordering variables, epoch: 3
-[grind.lia.reorder] reordering variables, epoch: 3
-[grind.lia.reorder] reordering variables, epoch: 4
-[grind.lia.reorder] reordering variables, epoch: 4
 [grind.lia.reorder] reordering variables, epoch: 4
 [grind.lia.reorder] reordering variables, epoch: 4
 [grind.lia.reorder] reordering variables, epoch: 4
@@ -93,8 +73,6 @@ trace: [grind.lia.reorder] reordering variables, epoch: 1
 [grind.lia.reorder] reordering variables, epoch: 3
 [grind.lia.reorder] reordering variables, epoch: 4
 [grind.lia.reorder] reordering variables, epoch: 4
-[grind.lia.reorder] reordering variables, epoch: 3
-[grind.lia.reorder] reordering variables, epoch: 3
 [grind.lia.reorder] reordering variables, epoch: 3
 [grind.lia.reorder] reordering variables, epoch: 3
 -/

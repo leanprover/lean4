@@ -551,8 +551,93 @@ private def internalizeInt (e : Expr) : GoalM Unit := do
     let c := { p := .add (-1) x p, h := .defn e e' : EqCnstr }
     c.assert
 
-private def expandDivMod (a : Expr) (b : Int) : GoalM Unit := do
+/-- Bounds found so far, keyed by variable and direction (`true` for upper bounds). -/
+private abbrev BoundM := StateT (Std.HashMap (Var × Bool) (Option LeCnstr)) GoalM
+
+/--
+Returns a bound `x + c ≤ 0` (if `upper`) or `-x + c ≤ 0` on `x`. The bound cancels every other
+monomial `b*z` of a stored constraint containing `x` with a bound on `z`, up to `depth` nested bounds.
+For example, the sum of `x - y + 1 ≤ 0` and the upper bound `y - 10 ≤ 0` is the bound `x - 9 ≤ 0`.
+If an equation `c` eliminates `x`, the bound substitutes a bound on another variable of `c` into `c`.
+-/
+private partial def varBound? (x : Var) (upper : Bool) (depth : Nat) : BoundM (Option LeCnstr) := do
+  if depth == 0 then return none
+  if let some r := (← get)[(x, upper)]? then return r
+  -- `none` marks `x` as in progress, which cuts cycles.
+  modify (·.insert (x, upper) none)
+  let r ← go
+  modify (·.insert (x, upper) r)
+  return r
+where
+  go : BoundM (Option LeCnstr) := do
+    if let some c ← emodBound? then return c
+    let s ← get'
+    if let some c := s.elimEqs[x]! then
+      let some (b, z) := other? c.p | return none
+      let some c' ← varBound? z ((upper == (c.p.coeff x > 0)) == (b < 0)) (depth - 1) | return none
+      let c ← c'.applyEq b z c (c'.p.coeff z)
+      return ← cancel c c.p
+    let mut best? := none
+    for y in (← getOccursOf x).insert x do
+      for cs in [s.lowers[y]!, s.uppers[y]!] do
+        for c in cs do
+          let a := c.p.coeff x
+          if a != 0 && (a > 0) == upper then
+            if let some c ← cancel c c.p then
+              if best?.all (·.p.getConst < c.p.getConst) then best? := some c
+    return best?
+
+  /--
+  If `x` is the variable for `a % k` with a numeral `k ≠ 0`, returns `-x ≤ 0` or `x + 1 - |k| ≤ 0`.
+  The expansion of `a % k` asserts the same bounds, possibly after this search.
+  -/
+  emodBound? : GoalM (Option LeCnstr) := do
+    let_expr HMod.hMod _ _ _ i a b := (← getVar x) | return none
+    unless (← Structural.isInstHModInt i) do return none
+    let some k ← getIntValue? b | return none
+    if k == 0 then return none
+    if upper then
+      let n := 1 - Int.ofNat k.natAbs
+      let h := mkApp4 (mkConst ``Int.Internal.Linear.emod_le) a b (toExpr n) eagerReflBoolTrue
+      return some { p := .add 1 x (.num n), h := .bound h }
+    else
+      let h := mkApp3 (mkConst ``Int.Internal.Linear.emod_nonneg) a b eagerReflBoolTrue
+      return some { p := .add (-1) x (.num 0), h := .bound h }
+
+  other? : Poly → Option (Int × Var)
+    | .num _ => none
+    | .add b z p => if z == x then other? p else some (b, z)
+
+  cancel (c : LeCnstr) : Poly → BoundM (Option LeCnstr)
+    | .num _ => do
+      let c := c.norm
+      let .add a y (.num _) := c.p | return none
+      return if y == x && (a > 0) == upper then some c else none
+    | .add b z p => do
+      if z == x then return ← cancel c p
+      let some c' ← varBound? z (b < 0) (depth - 1) | return none
+      let k := Int.ofNat b.natAbs
+      cancel { p := c.p.combine (c'.p.mul k), h := .combineK c k c' } p
+
+/--
+Given `e` of the form `a % b` (if `isMod`) or `a / b`, asserts `e = a` (resp. `e = 0`) if the stored
+constraints imply `0 ≤ a < b`. Returns `false` if no such bounds are found.
+-/
+private def assertBoundedDivMod (e a : Expr) (b : Int) (isMod : Bool) : GoalM Bool := do
+  if b ≤ 1 || (← get').caseSplits then return false
+  let some y := (← get').varMap.find? { expr := a } | return false
+  let bounds : BoundM _ := return (← varBound? y (upper := false) 4, ← varBound? y (upper := true) 4)
+  let (some lo, some hi) ← bounds.run' {} | return false
+  unless lo.p.getConst ≥ 0 && hi.p.getConst > -b do return false
+  let x ← mkVar e
+  let p := if isMod then .add 1 x (.add (-1) y (.num 0)) else .add 1 x (.num 0)
+  trace[grind.lia.assert.boundedDivMod] "{e}"
+  { p, h := .divModOfBounds isMod x y b lo hi : EqCnstr }.assert
+  return true
+
+private def expandDivMod (e a : Expr) (b : Int) (isMod : Bool) : GoalM Unit := do
   if (← get').divMod.contains (a, b) then return ()
+  if (← assertBoundedDivMod e a b isMod) then return ()
   modify' fun s => { s with divMod := s.divMod.insert (a, b) }
   let b' ← shareCommon (mkIntLit b)
   if b == 0 || b == 1 || b == -1 then
@@ -587,7 +672,7 @@ private def propagateDiv (e : Expr) : GoalM Unit := do
   let_expr HDiv.hDiv _ _ _ inst a b ← e | return ()
   if (← Structural.isInstHDivInt inst) then
     if let some b ← getIntValue? b then
-      expandDivMod a b
+      expandDivMod e a b (isMod := false)
     else
       discard <| mkVar e
 
@@ -596,7 +681,7 @@ private def propagateMod (e : Expr) : GoalM Unit := do
   let_expr HMod.hMod _ _ _ inst a b ← e | return ()
   if (← Structural.isInstHModInt inst) then
     if let some b ← getIntValue? b then
-      expandDivMod a b
+      expandDivMod e a b (isMod := true)
     else
       discard <| mkVar e
 

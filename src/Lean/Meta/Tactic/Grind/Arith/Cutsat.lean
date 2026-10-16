@@ -31,6 +31,7 @@ builtin_initialize registerTraceClass `grind.lia.assert
 builtin_initialize registerTraceClass `grind.lia.assert.trivial
 builtin_initialize registerTraceClass `grind.lia.assert.unsat
 builtin_initialize registerTraceClass `grind.lia.assert.store
+builtin_initialize registerTraceClass `grind.lia.assert.boundedDivMod
 builtin_initialize registerTraceClass `grind.lia.assert.nonlinear
 
 builtin_initialize registerTraceClass `grind.debug.lia.subst

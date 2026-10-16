@@ -8,3 +8,4 @@ prelude
 public import Init.Sym.Lemmas
 public import Init.Sym.Simp.SimprocDSL
 public import Init.Sym.DSimp.DSimprocDSL
+public import Init.Sym.TreeArray

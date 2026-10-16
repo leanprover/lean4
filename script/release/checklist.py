@@ -67,11 +67,10 @@ class RepoChecker:
         head: str,
         title: str,
         body: str | None = None,
-        nightly: ReleaseRepo | None = None,
     ) -> None:
         if not self.prompt(f"Push branch [b]{e(head)}[/b]?"):
             self.cl.fatal("Branch not pushed")
-        self.lrepo.push(head, remote="nightly" if nightly else "origin")
+        self.lrepo.push(head)
 
         if not self.prompt(f"Create PR for branch [b]{e(head)}[/b]?"):
             self.cl.fatal("PR not created")
@@ -81,7 +80,6 @@ class RepoChecker:
             body=body,
             base=base,
             head=head,
-            head_repo=nightly,
         )
         self.cl.blocked(f"PR created: {util.fmt_pr(pr)}")
 
@@ -290,7 +288,6 @@ class DownstreamChecker(RepoChecker):
             if not run.conclusion:
                 what = f"[b u link={run.html_url}]Bump workflow run {run.id}[/]"
                 self.cl.blocked(f"{what} is still running")
-                return
 
         if not self.prompt("No PR or running bump workflow run found. Trigger?"):
             self.cl.fatal("No PR or running bump workflow run found")
@@ -306,20 +303,20 @@ class DownstreamChecker(RepoChecker):
         # Normally; also RC1, rc1_pr_base == "default":
         # 1. Create bump branch from origin/main
         # 2. Create bump commit
-        # 3. Push branch to origin (or nightly, if specified)
+        # 3. Push branch to origin
         # 4. Create bump PR to origin/main
 
         # RC1, rc1_pr_base == "bump":
-        # 1. Create bump branch from origin/bump/v* (or nightly/bump/v*, if specified)
+        # 1. Create bump branch from origin/bump/v*
         # 2. Create bump commit
-        # 3. Push branch to origin (or nightly, if specified)
+        # 3. Push branch to origin
         # 4. Create bump PR to origin/main
 
         # RC1, rc1_pr_base == "downstream":
         # 1. Create bump branch in downstream-lean4, based off of downstream's origin/master
         #   1.1. Fetch that branch into the local repo, so the remaining steps stay normal
         # 2. Create bump commit
-        # 3. Push branch to origin (or nightly, if specified)
+        # 3. Push branch to origin
         # 4. Create bump PR to origin/main
 
         # Determine bump PR info
@@ -334,11 +331,10 @@ class DownstreamChecker(RepoChecker):
             return
 
         # Get the head branch into self.lrepo from whatever rc1 or non-rc1 source is appropriate
-        self.lrepo.prepare(nightly=self.rrepo.nightly)
+        self.lrepo.prepare()
         if self.version.rc == 1 and self.rrepo.rc1_pr_base == "bump":
             # `head` has already been set to the bump branch name earlier
-            remote = "nightly" if self.rrepo.nightly else "origin"
-            self.lrepo.switch(head, remote=remote)
+            self.lrepo.switch(head)
         elif self.version.rc == 1 and self.rrepo.rc1_pr_base == "downstream":
             dsl = repos.DOWNSTREAM_LEAN4.local(self.config.repos_dir)
             dsl.prepare()
@@ -361,22 +357,16 @@ class DownstreamChecker(RepoChecker):
         body = None
         if self.rrepo.gh_full_name == repos.VERSO.gh_full_name:
             body = f"No-Changelog: toolchain bump for release {self.version.tag}"
-        self.create_pr(
-            title=title, body=body, base=base, head=head, nightly=self.rrepo.nightly
-        )
+        self.create_pr(title=title, body=body, base=base, head=head)
 
     def check_next_bump_branch(self) -> None:
         if self.rrepo.rc1_pr_base != "bump":
             return
 
-        grepo = self.grepo
-        if self.rrepo.nightly:
-            grepo = self.github.get_repo(self.rrepo.nightly.gh_full_name)
-
         branch_name = util.get_bump_branch(self.version.next_minor)
         what = f"Bump branch [b]{e(branch_name)}[/b]"
         try:
-            grepo.get_branch(branch_name)
+            self.grepo.get_branch(branch_name)
             self.cl.success(f"{what} exists")
             return
         except UnknownObjectException:
@@ -386,14 +376,13 @@ class DownstreamChecker(RepoChecker):
             self.cl.fail(f"{what} not found")
             return
 
-        self.lrepo.prepare(nightly=self.rrepo.nightly)
+        self.lrepo.prepare()
         self.lrepo.create_branch(branch_name)
 
         if not self.prompt(f"Push branch [b]{e(branch_name)}[/b]?"):
             self.cl.fail(f"{what} not found")
             return
-        remote = "nightly" if self.rrepo.nightly else "origin"
-        self.lrepo.push(branch_name, remote=remote)
+        self.lrepo.push(branch_name)
         self.cl.success(f"{what} created")
 
     def _check_lean_release_tag(self) -> GitRef | None:
@@ -738,7 +727,6 @@ class LeanChecker(RepoChecker):
         runs = self.grepo.get_workflow_runs(event="push", head_sha=tag_sha).get_page(0)
         if len(runs) == 0:
             self.cl.fatal("Release workflow run not found")
-            return
 
         run = runs[0]
         what = f"[b u link={run.html_url}]Release workflow run {run.id}[/]"

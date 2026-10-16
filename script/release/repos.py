@@ -186,10 +186,8 @@ _register(LEAN_SEARCH_CLIENT)
 # To create a new release, open a PR into `master`. In it, bump the toolchain
 # and all dependencies.
 #
-# For `v4.X.0-rc1` releases, use the existing `bump/v4.X.0` branch from the
-# nightly repo. To get the latest nightly fixes, you may need to merge the
-# latest `bump/nightly-YYYY-MM-DD` PRs, or merge `nightly-testing` directly.
-# After merging the PR, create a new `bump/v4.X+1.0` branch off of `master`.
+# For `v4.X.0-rc1` releases, use the existing `bump/v4.X.0` branch. After
+# merging the PR, create a new `bump/v4.X+1.0` branch off of `master`.
 #
 # For other releases, create a new branch off of `master` and use it for the PR.
 #
@@ -197,7 +195,6 @@ _register(LEAN_SEARCH_CLIENT)
 # Then, update the `stable` branch to point to the same commit.
 MATHLIB4 = ReleaseRepo(
     github=("leanprover-community", "mathlib4"),
-    nightly=ReleaseRepo(github=("leanprover-community", "mathlib4-nightly-testing")),
     rc1_pr_base="bump",
     release_tag="lean",
     stable_branch="stable",

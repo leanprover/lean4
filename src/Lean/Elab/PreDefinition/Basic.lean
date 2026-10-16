@@ -212,7 +212,9 @@ private def addNonRecAux (docCtx : LocalContext × LocalInstances) (preDef : Pre
       | DefKind.def | DefKind.example => mkDefDecl
       | DefKind.«instance» => if ← Meta.isProp preDef.type then mkThmDecl else mkDefDecl
     addDecl decl
-    if isRecursive then markAsRecursive preDef.declName
+    -- The marker is not needed for theorems, and it would make their exported data depend on how
+    -- they are proved.
+    if isRecursive && !decl matches .thmDecl _ then markAsRecursive preDef.declName
     applyAttributesOf #[preDef] AttributeApplicationTime.afterTypeChecking
     match preDef.modifiers.computeKind with
     -- Tags may have been added by `elabMutualDef` already, but that is not the only caller
@@ -256,6 +258,21 @@ def eraseRecAppSyntaxExpr (e : Expr) : CoreM Expr := do
 
 def eraseRecAppSyntax (preDef : PreDefinition) : CoreM PreDefinition :=
   return { preDef with value := (← eraseRecAppSyntaxExpr preDef.value) }
+
+/--
+Returns the name of a helper declaration of the definition `declName`: `declName ++ suffix`, as a
+private name outside of exporting scopes.
+
+The helper is referenced only from the body of `declName`, so it should be exported only together
+with that body, like the declarations named by `mkAuxDeclName`.
+-/
+def mkBodyHelperDeclName [Monad m] [MonadEnv m] (declName : Name) (suffix : Name) : m Name := do
+  let env ← getEnv
+  let n := declName ++ suffix
+  if env.header.isModule && !env.isExporting && !isPrivateName n then
+    return mkPrivateName env n
+  else
+    return n
 
 def addAndCompileUnsafe
     (docCtx : LocalContext × LocalInstances) (preDefs : Array PreDefinition)

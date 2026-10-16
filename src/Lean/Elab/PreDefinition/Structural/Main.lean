@@ -92,7 +92,7 @@ private def elimMutualRecursion (preDefs : Array PreDefinition) (fixedParamPerms
     else
       let us := preDefs[0]!.levelParams.map mkLevelParam
       FArgs.mapIdxM fun idx fArg => do
-        let fName := preDefs[idx]!.declName ++ `_f
+        let fName ← mkBodyHelperDeclName preDefs[idx]!.declName `_f
         let fValue ← eraseRecAppSyntaxExpr (← mkLambdaFVars xs fArg)
         let fType ← Meta.letToHave (← inferType fValue)
         let fHeight := getMaxHeight (← getEnv) fValue

@@ -84,7 +84,10 @@ def wfRecursion (docCtx : LocalContext × LocalInstances) (preDefs : Array PreDe
   let unaryPreDef ← Mutual.cleanPreDef (cacheProofs := false) unaryPreDef
   let preDefs ← preDefs.mapM (Mutual.cleanPreDef (cacheProofs := false) ·)
   registerEqnsInfo preDefs preDefNonRec.declName fixedParamPerms argsPacker
-  markAsRecursive unaryPreDef.declName
+  -- The marker is not needed for theorems, and it would make their exported data depend on how
+  -- they are proved.
+  unless unaryPreDef.kind.isTheorem do
+    markAsRecursive unaryPreDef.declName
   unless (← isProp unaryPreDef.type) do
     WF.mkUnfoldEq unaryPreDef preDefNonRec.declName wfPreprocessProof
   for preDef in preDefs do

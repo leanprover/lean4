@@ -1,7 +1,7 @@
 module
 public meta import Lean.Meta.Deriving
 
-public section
+@[expose] public section
 
 /-!
 Test for using the `Lean.Meta.Deriving` framework
@@ -90,7 +90,7 @@ info: @[instance_reducible, expose] def instMyClassDeclaration : MyClass Declara
 #print instMyClassDeclaration
 
 /--
-info: def instMyClassDeclaration.convert : Declaration → Data :=
+info: @[expose] def instMyClassDeclaration.convert : Declaration → Data :=
 fun t =>
   Declaration.casesOn t (fun val => Data.ctor 0 [MyClass.convert val]) (fun val => Data.ctor 1 [MyClass.convert val])
     (fun val => Data.ctor 2 [MyClass.convert val]) (fun val => Data.ctor 3 [MyClass.convert val]) (Data.ctor 4 [])

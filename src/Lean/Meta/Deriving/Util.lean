@@ -645,7 +645,7 @@ structure InstanceInfo (α : Type) where
   mkValue : (helpers : Array Expr) → DerivingM Expr
 
 def makeInstancesUsingMutualPartialBlock (infos : Array (InstanceInfo α))
-    (preHelpers : DerivingM α := by exact pure ()) : DerivingM Unit := withoutExporting do
+    (preHelpers : DerivingM α := by exact pure ()) : DerivingM Unit := do
   let helperMVars ← infos.mapM fun info => info.helpers.mapM fun helper => do
     mkFreshExprSyntheticOpaqueMVar helper.type
   let mut instanceValues := #[]
@@ -914,9 +914,14 @@ def mkInductiveDerivingHandler (levelShape : LevelShape) (perMutualBlock : Deriv
       idxOfBlock := idxOfBlock.insert headInd i
       blocks := blocks.push #[name]
   let state ← get
+  let inExposeSection := (← getScope).attrs.any (· matches `(Parser.Term.attrInstance| expose))
   for names in blocks do
     let fstInfo ← getConstInfoInduct names[0]!
     let nparams := fstInfo.numParams
+    let hasPrivateCtor ← names.anyM fun name => do
+      if isPrivateName name then
+        return true
+      return (← getConstInfoInduct name).ctors.any isPrivateName
     let res ← liftTermElabM do
       let indLevel ← forallTelescopeReducing (whnfType := true) fstInfo.type fun _ body => do
         let .sort lvl := body | throwError "Unexpected inductive type type{indentExpr fstInfo.type}"
@@ -937,7 +942,8 @@ def mkInductiveDerivingHandler (levelShape : LevelShape) (perMutualBlock : Deriv
           names := names
           isMeta := names.all (isMarkedMeta (← getEnv))
         }
-        perMutualBlock.run ctx
+        withExporting (isExporting := inExposeSection && !hasPrivateCtor) do
+          perMutualBlock.run ctx
     unless res do
       -- backtrack
       set state
@@ -946,59 +952,63 @@ def mkInductiveDerivingHandler (levelShape : LevelShape) (perMutualBlock : Deriv
 
 def deriveSimpleLawTypeClass (typeClass derivedFrom : Name)
     (perInstance : (inst : Expr) → (instValue : Expr) → DerivingM Bool) :
-    DerivingHandler := fun names => liftTermElabM do
-  let instances ← getGlobalInstancesIndex
+    DerivingHandler := fun names => do
   let state ← get
-  for name in names do
-    let some info ← isInductive? name | return false
-    let arity := info.numParams + info.numIndices
-    let instanceEntries := instances.getEntriesWithKeys
-      (#[.const derivedFrom 1, .const name arity] ++ Array.replicate arity .star)
-    if instanceEntries.isEmpty then
-      let hint := .hint' m!"Adding the command \
-        `deriving instance {.ofConstName derivedFrom} for {.ofConstName name}` \
-        may allow Lean to derive the missing instance."
-      throwError "Failed to derive `{.ofConstName typeClass}` for `{.ofConstName name}`; \
-        it is a law type class for `{.ofConstName derivedFrom}` \
-        but there is no `{.ofConstName derivedFrom}` instance for `{.ofConstName name}`.\
-        {hint}"
-    let some instEntry ← chooseInstance instanceEntries |
-      throwError "There are multiple `{.ofConstName derivedFrom}` instances for \
-        `{.ofConstName name}`, namely: {.andList (instanceEntries.map (·.val)).toList}"
-    let some instName := instEntry.globalName? |
-      throwError "Expected instance to have a global name:{indentExpr instEntry.val}"
-    let .defnInfo instInfo ← getConstInfo instName |
-      throwError "Instance `{.ofConstName instName}` does not have an exposed body"
-    let levelParams := instInfo.levelParams
-    let res ← forallTelescopeReducing (whnfType := true) instInfo.type fun vars res => do
-      unless res.isAppOfArity derivedFrom 1 do
-        throwError "Expected result type of instance {.ofConstName instName} to be the class \
-          {.ofConstName derivedFrom} but found{indentExpr res}"
-      let indApp := (← whnfR res.appArg!)
-      indApp.withApp fun indFn indArgs => do
-        unless indFn.isConstOf name do
-          throwError "Expected argument of instance {MessageData.ofConstName instName} to be an \
-            application of the type {MessageData.ofConstName name} but found:{indentExpr indApp}"
-        let instApp := mkAppN (.const instInfo.name (instInfo.levelParams.map Level.param)) vars
-        let instValue := instInfo.value.beta vars
-        let ctx := {
-          levelParams
-          params := vars
-          paramLCtx := ← getLCtx
-          paramLInsts := ← getLocalInstances
-          indInfo := info
-          lparams := indFn.constLevels!
-          indParams := indArgs
-          indLevel := ← getLevel indApp
-          names := #[name]
-          isMeta := isMarkedMeta (← getEnv) name
-        }
-        (perInstance instApp instValue).run ctx
-    unless res do
-      -- backtrack
-      set state
-      return false
-  return true
+  let res : Bool ← liftTermElabM do
+    let instances ← getGlobalInstancesIndex
+    for name in names do
+      let some info ← isInductive? name | return false
+      let arity := info.numParams + info.numIndices
+      let instanceEntries := instances.getEntriesWithKeys
+        (#[.const derivedFrom 1, .const name arity] ++ Array.replicate arity .star)
+      if instanceEntries.isEmpty then
+        let hint := .hint' m!"Adding the command \
+          `deriving instance {.ofConstName derivedFrom} for {.ofConstName name}` \
+          may allow Lean to derive the missing instance."
+        throwError "Failed to derive `{.ofConstName typeClass}` for `{.ofConstName name}`; \
+          it is a law type class for `{.ofConstName derivedFrom}` \
+          but there is no `{.ofConstName derivedFrom}` instance for `{.ofConstName name}`.\
+          {hint}"
+      let some instEntry ← chooseInstance instanceEntries |
+        throwError "There are multiple `{.ofConstName derivedFrom}` instances for \
+          `{.ofConstName name}`, namely: {.andList (instanceEntries.map (·.val)).toList}"
+      let some instName := instEntry.globalName? |
+        throwError "Expected instance to have a global name:{indentExpr instEntry.val}"
+      let .defnInfo instInfo ← getConstInfo instName |
+        throwError "Instance `{.ofConstName instName}` does not have an exposed body"
+      let levelParams := instInfo.levelParams
+      let res ← forallTelescopeReducing (whnfType := true) instInfo.type fun vars res => do
+        unless res.isAppOfArity derivedFrom 1 do
+          throwError "Expected result type of instance {.ofConstName instName} to be the class \
+            {.ofConstName derivedFrom} but found{indentExpr res}"
+        let indApp := (← whnfR res.appArg!)
+        indApp.withApp fun indFn indArgs => do
+          unless indFn.isConstOf name do
+            throwError "Expected argument of instance {MessageData.ofConstName instName} to be an \
+              application of the type {MessageData.ofConstName name} but found:{indentExpr indApp}"
+          let instApp := mkAppN (.const instInfo.name (instInfo.levelParams.map Level.param)) vars
+          let instValue := instInfo.value.beta vars
+          let ctx := {
+            levelParams
+            params := vars
+            paramLCtx := ← getLCtx
+            paramLInsts := ← getLocalInstances
+            indInfo := info
+            lparams := indFn.constLevels!
+            indParams := indArgs
+            indLevel := ← getLevel indApp
+            names := #[name]
+            isMeta := isMarkedMeta (← getEnv) name
+          }
+          withoutExporting do
+            (perInstance instApp instValue).run ctx
+      unless res do
+        return false
+    return true
+  unless res do
+    -- backtrack
+    set state
+  return res
 
 /--
 Derive instances for `@className (@name ...) ...` first using `preHandler` for all type names

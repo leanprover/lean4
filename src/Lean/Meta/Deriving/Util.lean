@@ -314,6 +314,11 @@ def CanonicalInstanceFailure.toMessageData : CanonicalInstanceFailure → MetaM 
         the {if isArg then "argument" else "instance application"}{indentExpr e}\n\
         still contained unexpected {if e.hasLevelMVar then "level " else ""}metavariables"
 
+/--
+Without `deriving.chooseArbitraryInstance`, returns `some possible[0]` if `possible` has exactly
+one element and `none` if it has no elements or more than one. Otherwise, returns the last instance
+with the highest priority or `none` if `possible` is empty.
+-/
 def chooseInstance (possible : Array InstanceEntry) : CoreM (Option InstanceEntry) := do
   if possible.isEmpty then
     return none
@@ -338,10 +343,11 @@ instance obligation. We use a heuristic here to (try to) make sure we don't run 
 loop.
 
 Canonical instances are currently defined as instances with exactly two special fragments in the
-discrimination tree keys (forall and constants except `Eq` because of `DecidableEq`). Furthermore,
-we only try an instance if it is the only one with "good keys".
+discrimination tree keys (forall and constants except `Eq` and instance projections because of
+`DecidableEq` and e.g. `TransOrd`). Furthermore, we only try an instance if it is the only one with
+"good keys" (unless `deriving.chooseArbitraryInstance` is true).
 -/
-def tryApplyCanonicalInstance (instType : Expr) :
+private def tryApplyCanonicalInstance (instType : Expr) :
     MetaM (Except CanonicalInstanceFailure (Expr × Array (MVarId × Bool))) := do
   let lctx ← getLCtx
   let linsts ← getLocalInstances
@@ -400,6 +406,8 @@ structure Deriving.State where
   splitFailures : Array (MVarId × CanonicalInstanceFailure) := #[]
 
 structure Deriving.Context where
+  /-- The name of the type class being derived -/
+  className : Name
   /-- Level parameters for the instances -/
   levelParams : List Name
   /-- Parameters for the instances. These should be free variables -/
@@ -505,7 +513,8 @@ private partial def synthInstanceDerivingAux (type : Expr)
     instantiateMVars assignment
   | .error e =>
     if ← containsRecursiveDecl type then
-      throwError "Got stuck at instance requirement for nested type:{indentExpr type}\n\
+      throwError "Got stuck at instance requirement for nested type while deriving an \
+        instance for {.ofConstName (← read).className}:{indentExpr type}\n\
         Reason: {← e.toMessageData}"
     setMCtx mctx
     let res ← pushInstanceHypothesis type className
@@ -513,6 +522,10 @@ private partial def synthInstanceDerivingAux (type : Expr)
     modify fun state => { state with splitFailures := state.splitFailures.push (mvar, e) }
     return res
 
+/--
+Try synthesizing an instance of type `e`, adding instance binders if the instance can't be
+synthesized directly.
+-/
 def synthInstanceDeriving (e : Expr) : DerivingM Expr := do
   withLCtx (← getLCtx) ((← getLocalInstances) ++ (← get).newLInsts) do
     instantiateMVars <| ← synthInstanceDerivingAux e
@@ -583,8 +596,8 @@ private def checkInstanceHypotheses (instanceHyps : Array MVarId) : DerivingM Un
         let reason? := ((← get).splitFailures.find? (·.1 == mvar)).map (·.2)
         complexHyps := complexHyps.push (type, reason?)
   unless complexHyps.isEmpty do
-    let mut msg := m!"While deriving an instance, the following complex instance requirements \
-      were encountered that could not be synthesized:"
+    let mut msg := m!"While deriving an instance for {.ofConstName (← read).className}, the \
+      following complex instance requirements were encountered that could not be synthesized:"
     for (type, reason?) in complexHyps do
       if let some reason := reason? then
         msg := msg ++ indentD (type ++ ", reason:" ++ indentD (← reason.toMessageData))
@@ -594,7 +607,7 @@ private def checkInstanceHypotheses (instanceHyps : Array MVarId) : DerivingM Un
       msg := msg ++ .hint' m!"You may be able to derive the missing instance using the syntax \
         `deriving instance ClassName for TypeName`."
     if complexHyps.any (·.2.any (·.isMultiMatch)) then
-      msg := msg ++ .hint' m!"Having multiple instance candidates usually indicates that one of
+      msg := msg ++ .hint' m!"Having multiple instance candidates usually indicates that one of \
         the mentioned instances is redundant. If this is intentional though, you can make the \
         deriving handler choose an instance using \
         `set_option {deriving.chooseArbitraryInstance.name} true`."
@@ -602,6 +615,15 @@ private def checkInstanceHypotheses (instanceHyps : Array MVarId) : DerivingM Un
       this error using `set_option {deriving.strict.name} false`"
     throwError msg
 
+/--
+Returns a list of metavariables to be used as instance binders.
+
+After instantiating metavariables, every metavariable in expressions produced by
+`synthInstanceDeriving` will be contained in this output. This makes it possible to use them in
+`mkLambdaFVars` and `mkForallFVars` with `binderInfoForMVars := .instImplicit` in combination with
+`instantiateMVars` on expressions containing instances generated from `synthInstanceDeriving`.
+Alternatively, they can be used directly in the convenience function `mkInstanceForDeriving`.
+-/
 def produceInstanceHyps : DerivingM (Array Expr) := do
   let filtered ← withLCtx (← read).paramLCtx (← read).paramLInsts do
     filterInstanceObligations (← get)
@@ -610,12 +632,17 @@ def produceInstanceHyps : DerivingM (Array Expr) := do
     checkInstanceHypotheses filtered
   return filtered.map Expr.mvar
 
+/--
+Convenience function for creating an instance declaration with the given type and value and
+instance hypotheses produced by `produceInstanceHyps`. The type and value may depend on any
+parameters in the context as well as instances generated by `synthInstanceDeriving`.
+-/
 def mkInstanceForDeriving (instanceHyps : Array Expr) (type value : Expr)
     (name : Option Name := none) : DerivingM Unit := do
   let allVars := (← read).params ++ instanceHyps
+  let type ← mkForallFVars allVars (← instantiateMVars type) (binderInfoForMVars := .instImplicit)
+  let value ← mkLambdaFVars allVars (← instantiateMVars value) (binderInfoForMVars := .instImplicit)
   let instName ← name.getDM (mkInstanceNameOfType type)
-  let type ← instantiateMVars <| ← mkForallFVars allVars (← instantiateMVars type) (binderInfoForMVars := .instImplicit)
-  let value ← instantiateMVars <| ← mkLambdaFVars allVars (← instantiateMVars value) (binderInfoForMVars := .instImplicit)
   let type := if deriving.implicitBinders.get (← getOptions) then type.explicitToImplicit else type
   let shouldExpose := (value.find? (·.constName?.any isPrivateName)).isNone
   withExporting (isExporting := shouldExpose) do
@@ -717,12 +744,51 @@ def makeInstancesUsingMutualPartialBlock (infos : Array (InstanceInfo α))
       withExporting (isExporting := !isPrivateName instName) do
         mkInstance instName (← read).levelParams type value (← read).isMeta
 
-def deriveTransformationInstPerConstructor (className : Name)
+/--
+Derive an instance for a transformation type class by applying `perCtor` for each constructor
+with the inductive info, constructor info, and the fields. A transformation type class is a type
+class of the shape
+```
+class ClassName (α : Sort u) where -- or (α : Type u) or (α : Type)
+  fieldName : α → TargetType
+```
+Example:
+```
+inductive SExpr where
+  | atom (s : String)
+  | list (xs : List SExpr)
+deriving Inhabited
+
+class ToSExpr (α : Type u) where
+  toSExpr : α → SExpr
+
+open Lean Meta Elab Deriving
+
+def toSExprHandler : DerivingHandler :=
+  mkInductiveDerivingHandler ``ToSExpr .typeU do
+  deriveTransformationInstPerConstructor fun _indVal ctorVal fields => do
+    let tag := mkApp (mkConst ``SExpr.atom) (toExpr ctorVal.name.getString!)
+    let mut args := #[]
+    for field in fields do
+      let ty ← inferType field
+      -- Proofs live in `Prop`, not in `Type u`, so we skip them.
+      let some u ← getDecLevel? ty | continue
+      let inst ← synthInstanceDeriving (mkApp (.const ``ToSExpr [u]) ty)
+      args := args.push (mkApp3 (.const ``ToSExpr.toSExpr [u]) ty inst field)
+    if args.isEmpty then
+      return tag
+    return mkApp (mkConst ``SExpr.list) (← mkListLit (mkConst ``SExpr) (tag :: args.toList))
+
+initialize registerDerivingHandler ``ToSExpr toSExprHandler
+```
+-/
+def deriveTransformationInstPerConstructor
     (perCtor : InductiveVal → ConstructorVal → Array Expr → DerivingM Expr) :
     DerivingM Bool := do
   -- First figure out the details for the class
   if ← eliminatesToProp then
     return false
+  let className := (← read).className
   let classInfo ← getConstInfoInduct className
   unless classInfo.numCtors = 1 ∧ ¬ classInfo.isRec ∧ classInfo.numIndices = 0 do
     throwError "Invalid use of `deriveTransformationInstPerConstructor`, \
@@ -893,8 +959,8 @@ Groups the inductive type names provided to the deriving handler by mutual block
 type class being derived requires `Sort u`, `Type u`, `Prop` or `Type`, use `.sortU`, `.typeU`,
 `.prop` or `.type`, respectively.
 -/
-def mkInductiveDerivingHandler (levelShape : LevelShape) (perMutualBlock : DerivingM Bool) :
-    DerivingHandler := fun names => do
+def mkInductiveDerivingHandler (className : Name) (levelShape : LevelShape)
+    (perMutualBlock : DerivingM Bool) : DerivingHandler := fun names => do
   unless ← names.allM isInductive do
     return false
   -- We group by mutual block while keeping the order the user provided
@@ -931,6 +997,7 @@ def mkInductiveDerivingHandler (levelShape : LevelShape) (perMutualBlock : Deriv
       indLevel' ← levelShape.ensureShape indLevel' fstInfo.name
       forallBoundedTelescope (← instantiateTypeLevelParams fstInfo.toConstantVal lparams) nparams fun params _ => do
         let ctx := {
+          className
           levelParams := newLevelParams
           params := params
           paramLCtx := ← getLCtx
@@ -950,6 +1017,13 @@ def mkInductiveDerivingHandler (levelShape : LevelShape) (perMutualBlock : Deriv
       return false
   return true
 
+/--
+For every name provided to the deriving handler, look for an instance of `derivedFrom (name ...)`
+and pass both the instance application and its delta-reduced version to `perInstance`.
+
+This function is currently limited to `derivedFrom` type classes that have the type as their only
+parameter (and e.g. don't have additional instance assumptions).
+-/
 def deriveSimpleLawTypeClass (typeClass derivedFrom : Name)
     (perInstance : (inst : Expr) → (instValue : Expr) → DerivingM Bool) :
     DerivingHandler := fun names => do
@@ -989,6 +1063,7 @@ def deriveSimpleLawTypeClass (typeClass derivedFrom : Name)
           let instApp := mkAppN (.const instInfo.name (instInfo.levelParams.map Level.param)) vars
           let instValue := instInfo.value.beta vars
           let ctx := {
+            className := typeClass
             levelParams
             params := vars
             paramLCtx := ← getLCtx

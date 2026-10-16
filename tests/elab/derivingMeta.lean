@@ -51,8 +51,8 @@ instance [MyClass α] : MyClass (Array α) where
 Simple example of how you can write a deriving handler using the new framework
 -/
 
-meta def handler := mkInductiveDerivingHandler .typeU do
-  deriveTransformationInstPerConstructor ``MyClass fun ival cval fields => do
+meta def handler := mkInductiveDerivingHandler ``MyClass .typeU do
+  deriveTransformationInstPerConstructor fun ival cval fields => do
     let mut encodings : Array Expr := #[]
     for field in fields do
       let ty ← inferType field
@@ -170,8 +170,8 @@ class ToULift (α : Type u) where
   lift : α → ULift.{u} Nat
 
 meta def toULiftHandler : DerivingHandler :=
-  mkInductiveDerivingHandler .typeU do
-    deriveTransformationInstPerConstructor ``ToULift fun _ _ _ =>
+  mkInductiveDerivingHandler ``ToULift .typeU do
+    deriveTransformationInstPerConstructor fun _ _ _ =>
       return mkApp2 (.const ``ULift.up [0, 0]) (mkConst ``Nat) (mkNatLit 0)
 
 structure Flag where
@@ -229,7 +229,7 @@ structure UsesMissing where
   missing : Missing
 
 /--
-error: While deriving an instance, the following complex instance requirements were encountered that could not be synthesized:
+error: While deriving an instance for MyClass, the following complex instance requirements were encountered that could not be synthesized:
   MyClass Missing, reason:
     No matching instances
 
@@ -247,7 +247,7 @@ run_cmd handler #[``UsesMissing]
 class MyClassExtender (α : Type u) extends MyClass α
 
 /--
-error: While deriving an instance, the following complex instance requirements were encountered that could not be synthesized:
+error: While deriving an instance for MyClass, the following complex instance requirements were encountered that could not be synthesized:
   MyClass Missing, reason:
     The instance @MyClassExtender.toMyClass matched but did not have the right shape to be considered
 
@@ -272,7 +272,7 @@ structure UsesAny1 where
   α : Any.{1}
 
 /--
-error: While deriving an instance, the following complex instance requirements were encountered that could not be synthesized:
+error: While deriving an instance for MyClass, the following complex instance requirements were encountered that could not be synthesized:
   MyClass Any, reason:
     Failed to unify with the conclusion of instMyClassAny
 
@@ -296,7 +296,7 @@ structure UsesSomeType where
   type : SomeType
 
 /--
-error: While deriving an instance, the following complex instance requirements were encountered that could not be synthesized:
+error: While deriving an instance for MyClass, the following complex instance requirements were encountered that could not be synthesized:
   MyClass SomeType, reason:
     After unifying with the conclusion of @instMyClassThing, the argument
       ?α
@@ -321,12 +321,12 @@ structure UsesDuplicate (α : Type) where
   dup : Duplicate α
 
 /--
-error: While deriving an instance, the following complex instance requirements were encountered that could not be synthesized:
+error: While deriving an instance for MyClass, the following complex instance requirements were encountered that could not be synthesized:
   MyClass (Duplicate α), reason:
     There were multiple instance candidates: @instMyClassDuplicate, @instMyClassDuplicate_1, and @instMyClassDuplicate_2
 
-Hint: Having multiple instance candidates usually indicates that one of
-        the mentioned instances is redundant. If this is intentional though, you can make the deriving handler choose an instance using `set_option deriving.chooseArbitraryInstance true`.
+Hint: Having multiple instance candidates usually indicates that one of the mentioned instances is redundant.
+If this is intentional though, you can make the deriving handler choose an instance using `set_option deriving.chooseArbitraryInstance true`.
 
 Hint: If you want to keep these hypotheses as-is, you can disable this error using `set_option deriving.strict false`
 -/

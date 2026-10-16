@@ -185,18 +185,11 @@ return v___x_24_;
 }
 else
 {
-if (v___x_24_ == 0)
-{
-return v___x_24_;
-}
-else
-{
 size_t v___x_25_; size_t v___x_26_; uint8_t v___x_27_; 
 v___x_25_ = ((size_t)0ULL);
 v___x_26_ = lean_usize_of_nat(v___x_23_);
 v___x_27_ = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00Array_contains___at___00Lean_Elab_Tactic_deltaLocalDecl_spec__0_spec__0(v_a_21_, v_as_20_, v___x_25_, v___x_26_);
 return v___x_27_;
-}
 }
 }
 }

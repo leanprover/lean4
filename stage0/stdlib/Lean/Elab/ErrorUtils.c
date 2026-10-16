@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.ErrorUtils
-// Imports: import Lean.Message
+// Imports: public import Lean.Message
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -14,95 +14,95 @@
 extern "C" {
 #endif
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
-lean_object* lean_string_append(lean_object*, lean_object*);
-lean_object* l_Lean_stringToMessageData(lean_object*);
 lean_object* lean_nat_mod(lean_object*, lean_object*);
 lean_object* l_Nat_reprFast(lean_object*);
+lean_object* lean_string_append(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
+lean_object* l_Lean_stringToMessageData(lean_object*);
 lean_object* l_Lean_MessageData_ofFormat(lean_object*);
 extern lean_object* l_Lean_MessageData_nil;
-static const lean_string_object l___private_Lean_Elab_ErrorUtils_0__Nat_toOrdinal___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 3, .m_capacity = 3, .m_length = 2, .m_data = "th"};
-static const lean_object* l___private_Lean_Elab_ErrorUtils_0__Nat_toOrdinal___closed__0 = (const lean_object*)&l___private_Lean_Elab_ErrorUtils_0__Nat_toOrdinal___closed__0_value;
-static const lean_string_object l___private_Lean_Elab_ErrorUtils_0__Nat_toOrdinal___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 3, .m_capacity = 3, .m_length = 2, .m_data = "rd"};
-static const lean_object* l___private_Lean_Elab_ErrorUtils_0__Nat_toOrdinal___closed__1 = (const lean_object*)&l___private_Lean_Elab_ErrorUtils_0__Nat_toOrdinal___closed__1_value;
-static const lean_string_object l___private_Lean_Elab_ErrorUtils_0__Nat_toOrdinal___closed__2_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 3, .m_capacity = 3, .m_length = 2, .m_data = "nd"};
-static const lean_object* l___private_Lean_Elab_ErrorUtils_0__Nat_toOrdinal___closed__2 = (const lean_object*)&l___private_Lean_Elab_ErrorUtils_0__Nat_toOrdinal___closed__2_value;
-static const lean_string_object l___private_Lean_Elab_ErrorUtils_0__Nat_toOrdinal___closed__3_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 6, .m_capacity = 6, .m_length = 5, .m_data = "tenth"};
-static const lean_object* l___private_Lean_Elab_ErrorUtils_0__Nat_toOrdinal___closed__3 = (const lean_object*)&l___private_Lean_Elab_ErrorUtils_0__Nat_toOrdinal___closed__3_value;
-static const lean_string_object l___private_Lean_Elab_ErrorUtils_0__Nat_toOrdinal___closed__4_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 6, .m_capacity = 6, .m_length = 5, .m_data = "ninth"};
-static const lean_object* l___private_Lean_Elab_ErrorUtils_0__Nat_toOrdinal___closed__4 = (const lean_object*)&l___private_Lean_Elab_ErrorUtils_0__Nat_toOrdinal___closed__4_value;
-static const lean_string_object l___private_Lean_Elab_ErrorUtils_0__Nat_toOrdinal___closed__5_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 7, .m_capacity = 7, .m_length = 6, .m_data = "eighth"};
-static const lean_object* l___private_Lean_Elab_ErrorUtils_0__Nat_toOrdinal___closed__5 = (const lean_object*)&l___private_Lean_Elab_ErrorUtils_0__Nat_toOrdinal___closed__5_value;
-static const lean_string_object l___private_Lean_Elab_ErrorUtils_0__Nat_toOrdinal___closed__6_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 8, .m_capacity = 8, .m_length = 7, .m_data = "seventh"};
-static const lean_object* l___private_Lean_Elab_ErrorUtils_0__Nat_toOrdinal___closed__6 = (const lean_object*)&l___private_Lean_Elab_ErrorUtils_0__Nat_toOrdinal___closed__6_value;
-static const lean_string_object l___private_Lean_Elab_ErrorUtils_0__Nat_toOrdinal___closed__7_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 6, .m_capacity = 6, .m_length = 5, .m_data = "sixth"};
-static const lean_object* l___private_Lean_Elab_ErrorUtils_0__Nat_toOrdinal___closed__7 = (const lean_object*)&l___private_Lean_Elab_ErrorUtils_0__Nat_toOrdinal___closed__7_value;
-static const lean_string_object l___private_Lean_Elab_ErrorUtils_0__Nat_toOrdinal___closed__8_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 6, .m_capacity = 6, .m_length = 5, .m_data = "fifth"};
-static const lean_object* l___private_Lean_Elab_ErrorUtils_0__Nat_toOrdinal___closed__8 = (const lean_object*)&l___private_Lean_Elab_ErrorUtils_0__Nat_toOrdinal___closed__8_value;
-static const lean_string_object l___private_Lean_Elab_ErrorUtils_0__Nat_toOrdinal___closed__9_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 7, .m_capacity = 7, .m_length = 6, .m_data = "fourth"};
-static const lean_object* l___private_Lean_Elab_ErrorUtils_0__Nat_toOrdinal___closed__9 = (const lean_object*)&l___private_Lean_Elab_ErrorUtils_0__Nat_toOrdinal___closed__9_value;
-static const lean_string_object l___private_Lean_Elab_ErrorUtils_0__Nat_toOrdinal___closed__10_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 6, .m_capacity = 6, .m_length = 5, .m_data = "third"};
-static const lean_object* l___private_Lean_Elab_ErrorUtils_0__Nat_toOrdinal___closed__10 = (const lean_object*)&l___private_Lean_Elab_ErrorUtils_0__Nat_toOrdinal___closed__10_value;
-static const lean_string_object l___private_Lean_Elab_ErrorUtils_0__Nat_toOrdinal___closed__11_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 7, .m_capacity = 7, .m_length = 6, .m_data = "second"};
-static const lean_object* l___private_Lean_Elab_ErrorUtils_0__Nat_toOrdinal___closed__11 = (const lean_object*)&l___private_Lean_Elab_ErrorUtils_0__Nat_toOrdinal___closed__11_value;
-static const lean_string_object l___private_Lean_Elab_ErrorUtils_0__Nat_toOrdinal___closed__12_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 6, .m_capacity = 6, .m_length = 5, .m_data = "first"};
-static const lean_object* l___private_Lean_Elab_ErrorUtils_0__Nat_toOrdinal___closed__12 = (const lean_object*)&l___private_Lean_Elab_ErrorUtils_0__Nat_toOrdinal___closed__12_value;
-static const lean_string_object l___private_Lean_Elab_ErrorUtils_0__Nat_toOrdinal___closed__13_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 7, .m_capacity = 7, .m_length = 6, .m_data = "zeroth"};
-static const lean_object* l___private_Lean_Elab_ErrorUtils_0__Nat_toOrdinal___closed__13 = (const lean_object*)&l___private_Lean_Elab_ErrorUtils_0__Nat_toOrdinal___closed__13_value;
-LEAN_EXPORT lean_object* l___private_Lean_Elab_ErrorUtils_0__Nat_toOrdinal(lean_object*);
-static const lean_string_object l___private_Lean_Elab_ErrorUtils_0__Lean_instHasOxfordStringsString___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 1, .m_capacity = 1, .m_length = 0, .m_data = ""};
-static const lean_object* l___private_Lean_Elab_ErrorUtils_0__Lean_instHasOxfordStringsString___closed__0 = (const lean_object*)&l___private_Lean_Elab_ErrorUtils_0__Lean_instHasOxfordStringsString___closed__0_value;
-static const lean_string_object l___private_Lean_Elab_ErrorUtils_0__Lean_instHasOxfordStringsString___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 6, .m_capacity = 6, .m_length = 5, .m_data = " and "};
-static const lean_object* l___private_Lean_Elab_ErrorUtils_0__Lean_instHasOxfordStringsString___closed__1 = (const lean_object*)&l___private_Lean_Elab_ErrorUtils_0__Lean_instHasOxfordStringsString___closed__1_value;
-static const lean_string_object l___private_Lean_Elab_ErrorUtils_0__Lean_instHasOxfordStringsString___closed__2_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 3, .m_capacity = 3, .m_length = 2, .m_data = ", "};
-static const lean_object* l___private_Lean_Elab_ErrorUtils_0__Lean_instHasOxfordStringsString___closed__2 = (const lean_object*)&l___private_Lean_Elab_ErrorUtils_0__Lean_instHasOxfordStringsString___closed__2_value;
-static const lean_string_object l___private_Lean_Elab_ErrorUtils_0__Lean_instHasOxfordStringsString___closed__3_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 7, .m_capacity = 7, .m_length = 6, .m_data = ", and "};
-static const lean_object* l___private_Lean_Elab_ErrorUtils_0__Lean_instHasOxfordStringsString___closed__3 = (const lean_object*)&l___private_Lean_Elab_ErrorUtils_0__Lean_instHasOxfordStringsString___closed__3_value;
-static const lean_ctor_object l___private_Lean_Elab_ErrorUtils_0__Lean_instHasOxfordStringsString___closed__4_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*4 + 0, .m_other = 4, .m_tag = 0}, .m_objs = {((lean_object*)&l___private_Lean_Elab_ErrorUtils_0__Lean_instHasOxfordStringsString___closed__0_value),((lean_object*)&l___private_Lean_Elab_ErrorUtils_0__Lean_instHasOxfordStringsString___closed__1_value),((lean_object*)&l___private_Lean_Elab_ErrorUtils_0__Lean_instHasOxfordStringsString___closed__2_value),((lean_object*)&l___private_Lean_Elab_ErrorUtils_0__Lean_instHasOxfordStringsString___closed__3_value)}};
-static const lean_object* l___private_Lean_Elab_ErrorUtils_0__Lean_instHasOxfordStringsString___closed__4 = (const lean_object*)&l___private_Lean_Elab_ErrorUtils_0__Lean_instHasOxfordStringsString___closed__4_value;
-LEAN_EXPORT const lean_object* l___private_Lean_Elab_ErrorUtils_0__Lean_instHasOxfordStringsString = (const lean_object*)&l___private_Lean_Elab_ErrorUtils_0__Lean_instHasOxfordStringsString___closed__4_value;
-static const lean_ctor_object l___private_Lean_Elab_ErrorUtils_0__Lean_instHasOxfordStringsMessageData___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*1 + 0, .m_other = 1, .m_tag = 3}, .m_objs = {((lean_object*)&l___private_Lean_Elab_ErrorUtils_0__Lean_instHasOxfordStringsString___closed__0_value)}};
-static const lean_object* l___private_Lean_Elab_ErrorUtils_0__Lean_instHasOxfordStringsMessageData___closed__0 = (const lean_object*)&l___private_Lean_Elab_ErrorUtils_0__Lean_instHasOxfordStringsMessageData___closed__0_value;
-static lean_once_cell_t l___private_Lean_Elab_ErrorUtils_0__Lean_instHasOxfordStringsMessageData___closed__1_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l___private_Lean_Elab_ErrorUtils_0__Lean_instHasOxfordStringsMessageData___closed__1;
-static const lean_ctor_object l___private_Lean_Elab_ErrorUtils_0__Lean_instHasOxfordStringsMessageData___closed__2_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*1 + 0, .m_other = 1, .m_tag = 3}, .m_objs = {((lean_object*)&l___private_Lean_Elab_ErrorUtils_0__Lean_instHasOxfordStringsString___closed__1_value)}};
-static const lean_object* l___private_Lean_Elab_ErrorUtils_0__Lean_instHasOxfordStringsMessageData___closed__2 = (const lean_object*)&l___private_Lean_Elab_ErrorUtils_0__Lean_instHasOxfordStringsMessageData___closed__2_value;
-static lean_once_cell_t l___private_Lean_Elab_ErrorUtils_0__Lean_instHasOxfordStringsMessageData___closed__3_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l___private_Lean_Elab_ErrorUtils_0__Lean_instHasOxfordStringsMessageData___closed__3;
-static const lean_ctor_object l___private_Lean_Elab_ErrorUtils_0__Lean_instHasOxfordStringsMessageData___closed__4_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*1 + 0, .m_other = 1, .m_tag = 3}, .m_objs = {((lean_object*)&l___private_Lean_Elab_ErrorUtils_0__Lean_instHasOxfordStringsString___closed__2_value)}};
-static const lean_object* l___private_Lean_Elab_ErrorUtils_0__Lean_instHasOxfordStringsMessageData___closed__4 = (const lean_object*)&l___private_Lean_Elab_ErrorUtils_0__Lean_instHasOxfordStringsMessageData___closed__4_value;
-static lean_once_cell_t l___private_Lean_Elab_ErrorUtils_0__Lean_instHasOxfordStringsMessageData___closed__5_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l___private_Lean_Elab_ErrorUtils_0__Lean_instHasOxfordStringsMessageData___closed__5;
-static const lean_ctor_object l___private_Lean_Elab_ErrorUtils_0__Lean_instHasOxfordStringsMessageData___closed__6_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*1 + 0, .m_other = 1, .m_tag = 3}, .m_objs = {((lean_object*)&l___private_Lean_Elab_ErrorUtils_0__Lean_instHasOxfordStringsString___closed__3_value)}};
-static const lean_object* l___private_Lean_Elab_ErrorUtils_0__Lean_instHasOxfordStringsMessageData___closed__6 = (const lean_object*)&l___private_Lean_Elab_ErrorUtils_0__Lean_instHasOxfordStringsMessageData___closed__6_value;
-static lean_once_cell_t l___private_Lean_Elab_ErrorUtils_0__Lean_instHasOxfordStringsMessageData___closed__7_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l___private_Lean_Elab_ErrorUtils_0__Lean_instHasOxfordStringsMessageData___closed__7;
-static lean_once_cell_t l___private_Lean_Elab_ErrorUtils_0__Lean_instHasOxfordStringsMessageData___closed__8_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l___private_Lean_Elab_ErrorUtils_0__Lean_instHasOxfordStringsMessageData___closed__8;
-LEAN_EXPORT lean_object* l___private_Lean_Elab_ErrorUtils_0__Lean_instHasOxfordStringsMessageData;
-LEAN_EXPORT lean_object* l___private_Lean_Elab_ErrorUtils_0__List_toOxford___redArg(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Lean_Elab_ErrorUtils_0__List_toOxford(lean_object*, lean_object*, lean_object*, lean_object*);
-static const lean_string_object l___private_Lean_Elab_ErrorUtils_0__Lean_instHasPluralDefaultsString___lam__0___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 2, .m_capacity = 2, .m_length = 1, .m_data = "s"};
-static const lean_object* l___private_Lean_Elab_ErrorUtils_0__Lean_instHasPluralDefaultsString___lam__0___closed__0 = (const lean_object*)&l___private_Lean_Elab_ErrorUtils_0__Lean_instHasPluralDefaultsString___lam__0___closed__0_value;
-LEAN_EXPORT lean_object* l___private_Lean_Elab_ErrorUtils_0__Lean_instHasPluralDefaultsString___lam__0(lean_object*);
-static const lean_closure_object l___private_Lean_Elab_ErrorUtils_0__Lean_instHasPluralDefaultsString___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l___private_Lean_Elab_ErrorUtils_0__Lean_instHasPluralDefaultsString___lam__0, .m_arity = 1, .m_num_fixed = 0, .m_objs = {} };
-static const lean_object* l___private_Lean_Elab_ErrorUtils_0__Lean_instHasPluralDefaultsString___closed__0 = (const lean_object*)&l___private_Lean_Elab_ErrorUtils_0__Lean_instHasPluralDefaultsString___closed__0_value;
-static const lean_ctor_object l___private_Lean_Elab_ErrorUtils_0__Lean_instHasPluralDefaultsString___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 0, .m_other = 2, .m_tag = 0}, .m_objs = {((lean_object*)&l___private_Lean_Elab_ErrorUtils_0__Lean_instHasOxfordStringsString___closed__0_value),((lean_object*)&l___private_Lean_Elab_ErrorUtils_0__Lean_instHasPluralDefaultsString___closed__0_value)}};
-static const lean_object* l___private_Lean_Elab_ErrorUtils_0__Lean_instHasPluralDefaultsString___closed__1 = (const lean_object*)&l___private_Lean_Elab_ErrorUtils_0__Lean_instHasPluralDefaultsString___closed__1_value;
-LEAN_EXPORT const lean_object* l___private_Lean_Elab_ErrorUtils_0__Lean_instHasPluralDefaultsString = (const lean_object*)&l___private_Lean_Elab_ErrorUtils_0__Lean_instHasPluralDefaultsString___closed__1_value;
-static lean_once_cell_t l___private_Lean_Elab_ErrorUtils_0__Lean_instHasPluralDefaultsMessageData___lam__0___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l___private_Lean_Elab_ErrorUtils_0__Lean_instHasPluralDefaultsMessageData___lam__0___closed__0;
-LEAN_EXPORT lean_object* l___private_Lean_Elab_ErrorUtils_0__Lean_instHasPluralDefaultsMessageData___lam__0(lean_object*);
-static const lean_closure_object l___private_Lean_Elab_ErrorUtils_0__Lean_instHasPluralDefaultsMessageData___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l___private_Lean_Elab_ErrorUtils_0__Lean_instHasPluralDefaultsMessageData___lam__0, .m_arity = 1, .m_num_fixed = 0, .m_objs = {} };
-static const lean_object* l___private_Lean_Elab_ErrorUtils_0__Lean_instHasPluralDefaultsMessageData___closed__0 = (const lean_object*)&l___private_Lean_Elab_ErrorUtils_0__Lean_instHasPluralDefaultsMessageData___closed__0_value;
-static lean_once_cell_t l___private_Lean_Elab_ErrorUtils_0__Lean_instHasPluralDefaultsMessageData___closed__1_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l___private_Lean_Elab_ErrorUtils_0__Lean_instHasPluralDefaultsMessageData___closed__1;
-LEAN_EXPORT lean_object* l___private_Lean_Elab_ErrorUtils_0__Lean_instHasPluralDefaultsMessageData;
-LEAN_EXPORT lean_object* l___private_Lean_Elab_ErrorUtils_0__Nat_plural___redArg(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Lean_Elab_ErrorUtils_0__Nat_plural___redArg___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Lean_Elab_ErrorUtils_0__Nat_plural(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Lean_Elab_ErrorUtils_0__Nat_plural___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Lean_Elab_ErrorUtils_0__Nat_toOrdinal(lean_object* v_x_15_){
+static const lean_string_object l_Lean_Internal_ErrorUtils_Nat_toOrdinal___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 3, .m_capacity = 3, .m_length = 2, .m_data = "th"};
+static const lean_object* l_Lean_Internal_ErrorUtils_Nat_toOrdinal___closed__0 = (const lean_object*)&l_Lean_Internal_ErrorUtils_Nat_toOrdinal___closed__0_value;
+static const lean_string_object l_Lean_Internal_ErrorUtils_Nat_toOrdinal___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 3, .m_capacity = 3, .m_length = 2, .m_data = "rd"};
+static const lean_object* l_Lean_Internal_ErrorUtils_Nat_toOrdinal___closed__1 = (const lean_object*)&l_Lean_Internal_ErrorUtils_Nat_toOrdinal___closed__1_value;
+static const lean_string_object l_Lean_Internal_ErrorUtils_Nat_toOrdinal___closed__2_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 3, .m_capacity = 3, .m_length = 2, .m_data = "nd"};
+static const lean_object* l_Lean_Internal_ErrorUtils_Nat_toOrdinal___closed__2 = (const lean_object*)&l_Lean_Internal_ErrorUtils_Nat_toOrdinal___closed__2_value;
+static const lean_string_object l_Lean_Internal_ErrorUtils_Nat_toOrdinal___closed__3_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 6, .m_capacity = 6, .m_length = 5, .m_data = "tenth"};
+static const lean_object* l_Lean_Internal_ErrorUtils_Nat_toOrdinal___closed__3 = (const lean_object*)&l_Lean_Internal_ErrorUtils_Nat_toOrdinal___closed__3_value;
+static const lean_string_object l_Lean_Internal_ErrorUtils_Nat_toOrdinal___closed__4_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 6, .m_capacity = 6, .m_length = 5, .m_data = "ninth"};
+static const lean_object* l_Lean_Internal_ErrorUtils_Nat_toOrdinal___closed__4 = (const lean_object*)&l_Lean_Internal_ErrorUtils_Nat_toOrdinal___closed__4_value;
+static const lean_string_object l_Lean_Internal_ErrorUtils_Nat_toOrdinal___closed__5_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 7, .m_capacity = 7, .m_length = 6, .m_data = "eighth"};
+static const lean_object* l_Lean_Internal_ErrorUtils_Nat_toOrdinal___closed__5 = (const lean_object*)&l_Lean_Internal_ErrorUtils_Nat_toOrdinal___closed__5_value;
+static const lean_string_object l_Lean_Internal_ErrorUtils_Nat_toOrdinal___closed__6_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 8, .m_capacity = 8, .m_length = 7, .m_data = "seventh"};
+static const lean_object* l_Lean_Internal_ErrorUtils_Nat_toOrdinal___closed__6 = (const lean_object*)&l_Lean_Internal_ErrorUtils_Nat_toOrdinal___closed__6_value;
+static const lean_string_object l_Lean_Internal_ErrorUtils_Nat_toOrdinal___closed__7_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 6, .m_capacity = 6, .m_length = 5, .m_data = "sixth"};
+static const lean_object* l_Lean_Internal_ErrorUtils_Nat_toOrdinal___closed__7 = (const lean_object*)&l_Lean_Internal_ErrorUtils_Nat_toOrdinal___closed__7_value;
+static const lean_string_object l_Lean_Internal_ErrorUtils_Nat_toOrdinal___closed__8_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 6, .m_capacity = 6, .m_length = 5, .m_data = "fifth"};
+static const lean_object* l_Lean_Internal_ErrorUtils_Nat_toOrdinal___closed__8 = (const lean_object*)&l_Lean_Internal_ErrorUtils_Nat_toOrdinal___closed__8_value;
+static const lean_string_object l_Lean_Internal_ErrorUtils_Nat_toOrdinal___closed__9_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 7, .m_capacity = 7, .m_length = 6, .m_data = "fourth"};
+static const lean_object* l_Lean_Internal_ErrorUtils_Nat_toOrdinal___closed__9 = (const lean_object*)&l_Lean_Internal_ErrorUtils_Nat_toOrdinal___closed__9_value;
+static const lean_string_object l_Lean_Internal_ErrorUtils_Nat_toOrdinal___closed__10_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 6, .m_capacity = 6, .m_length = 5, .m_data = "third"};
+static const lean_object* l_Lean_Internal_ErrorUtils_Nat_toOrdinal___closed__10 = (const lean_object*)&l_Lean_Internal_ErrorUtils_Nat_toOrdinal___closed__10_value;
+static const lean_string_object l_Lean_Internal_ErrorUtils_Nat_toOrdinal___closed__11_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 7, .m_capacity = 7, .m_length = 6, .m_data = "second"};
+static const lean_object* l_Lean_Internal_ErrorUtils_Nat_toOrdinal___closed__11 = (const lean_object*)&l_Lean_Internal_ErrorUtils_Nat_toOrdinal___closed__11_value;
+static const lean_string_object l_Lean_Internal_ErrorUtils_Nat_toOrdinal___closed__12_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 6, .m_capacity = 6, .m_length = 5, .m_data = "first"};
+static const lean_object* l_Lean_Internal_ErrorUtils_Nat_toOrdinal___closed__12 = (const lean_object*)&l_Lean_Internal_ErrorUtils_Nat_toOrdinal___closed__12_value;
+static const lean_string_object l_Lean_Internal_ErrorUtils_Nat_toOrdinal___closed__13_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 7, .m_capacity = 7, .m_length = 6, .m_data = "zeroth"};
+static const lean_object* l_Lean_Internal_ErrorUtils_Nat_toOrdinal___closed__13 = (const lean_object*)&l_Lean_Internal_ErrorUtils_Nat_toOrdinal___closed__13_value;
+LEAN_EXPORT lean_object* l_Lean_Internal_ErrorUtils_Nat_toOrdinal(lean_object*);
+static const lean_string_object l_Lean_Internal_ErrorUtils_instHasOxfordStringsString___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 1, .m_capacity = 1, .m_length = 0, .m_data = ""};
+static const lean_object* l_Lean_Internal_ErrorUtils_instHasOxfordStringsString___closed__0 = (const lean_object*)&l_Lean_Internal_ErrorUtils_instHasOxfordStringsString___closed__0_value;
+static const lean_string_object l_Lean_Internal_ErrorUtils_instHasOxfordStringsString___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 6, .m_capacity = 6, .m_length = 5, .m_data = " and "};
+static const lean_object* l_Lean_Internal_ErrorUtils_instHasOxfordStringsString___closed__1 = (const lean_object*)&l_Lean_Internal_ErrorUtils_instHasOxfordStringsString___closed__1_value;
+static const lean_string_object l_Lean_Internal_ErrorUtils_instHasOxfordStringsString___closed__2_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 3, .m_capacity = 3, .m_length = 2, .m_data = ", "};
+static const lean_object* l_Lean_Internal_ErrorUtils_instHasOxfordStringsString___closed__2 = (const lean_object*)&l_Lean_Internal_ErrorUtils_instHasOxfordStringsString___closed__2_value;
+static const lean_string_object l_Lean_Internal_ErrorUtils_instHasOxfordStringsString___closed__3_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 7, .m_capacity = 7, .m_length = 6, .m_data = ", and "};
+static const lean_object* l_Lean_Internal_ErrorUtils_instHasOxfordStringsString___closed__3 = (const lean_object*)&l_Lean_Internal_ErrorUtils_instHasOxfordStringsString___closed__3_value;
+static const lean_ctor_object l_Lean_Internal_ErrorUtils_instHasOxfordStringsString___closed__4_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*4 + 0, .m_other = 4, .m_tag = 0}, .m_objs = {((lean_object*)&l_Lean_Internal_ErrorUtils_instHasOxfordStringsString___closed__0_value),((lean_object*)&l_Lean_Internal_ErrorUtils_instHasOxfordStringsString___closed__1_value),((lean_object*)&l_Lean_Internal_ErrorUtils_instHasOxfordStringsString___closed__2_value),((lean_object*)&l_Lean_Internal_ErrorUtils_instHasOxfordStringsString___closed__3_value)}};
+static const lean_object* l_Lean_Internal_ErrorUtils_instHasOxfordStringsString___closed__4 = (const lean_object*)&l_Lean_Internal_ErrorUtils_instHasOxfordStringsString___closed__4_value;
+LEAN_EXPORT const lean_object* l_Lean_Internal_ErrorUtils_instHasOxfordStringsString = (const lean_object*)&l_Lean_Internal_ErrorUtils_instHasOxfordStringsString___closed__4_value;
+static const lean_ctor_object l_Lean_Internal_ErrorUtils_instHasOxfordStringsMessageData___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*1 + 0, .m_other = 1, .m_tag = 3}, .m_objs = {((lean_object*)&l_Lean_Internal_ErrorUtils_instHasOxfordStringsString___closed__0_value)}};
+static const lean_object* l_Lean_Internal_ErrorUtils_instHasOxfordStringsMessageData___closed__0 = (const lean_object*)&l_Lean_Internal_ErrorUtils_instHasOxfordStringsMessageData___closed__0_value;
+static lean_once_cell_t l_Lean_Internal_ErrorUtils_instHasOxfordStringsMessageData___closed__1_once = LEAN_ONCE_CELL_INITIALIZER;
+static lean_object* l_Lean_Internal_ErrorUtils_instHasOxfordStringsMessageData___closed__1;
+static const lean_ctor_object l_Lean_Internal_ErrorUtils_instHasOxfordStringsMessageData___closed__2_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*1 + 0, .m_other = 1, .m_tag = 3}, .m_objs = {((lean_object*)&l_Lean_Internal_ErrorUtils_instHasOxfordStringsString___closed__1_value)}};
+static const lean_object* l_Lean_Internal_ErrorUtils_instHasOxfordStringsMessageData___closed__2 = (const lean_object*)&l_Lean_Internal_ErrorUtils_instHasOxfordStringsMessageData___closed__2_value;
+static lean_once_cell_t l_Lean_Internal_ErrorUtils_instHasOxfordStringsMessageData___closed__3_once = LEAN_ONCE_CELL_INITIALIZER;
+static lean_object* l_Lean_Internal_ErrorUtils_instHasOxfordStringsMessageData___closed__3;
+static const lean_ctor_object l_Lean_Internal_ErrorUtils_instHasOxfordStringsMessageData___closed__4_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*1 + 0, .m_other = 1, .m_tag = 3}, .m_objs = {((lean_object*)&l_Lean_Internal_ErrorUtils_instHasOxfordStringsString___closed__2_value)}};
+static const lean_object* l_Lean_Internal_ErrorUtils_instHasOxfordStringsMessageData___closed__4 = (const lean_object*)&l_Lean_Internal_ErrorUtils_instHasOxfordStringsMessageData___closed__4_value;
+static lean_once_cell_t l_Lean_Internal_ErrorUtils_instHasOxfordStringsMessageData___closed__5_once = LEAN_ONCE_CELL_INITIALIZER;
+static lean_object* l_Lean_Internal_ErrorUtils_instHasOxfordStringsMessageData___closed__5;
+static const lean_ctor_object l_Lean_Internal_ErrorUtils_instHasOxfordStringsMessageData___closed__6_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*1 + 0, .m_other = 1, .m_tag = 3}, .m_objs = {((lean_object*)&l_Lean_Internal_ErrorUtils_instHasOxfordStringsString___closed__3_value)}};
+static const lean_object* l_Lean_Internal_ErrorUtils_instHasOxfordStringsMessageData___closed__6 = (const lean_object*)&l_Lean_Internal_ErrorUtils_instHasOxfordStringsMessageData___closed__6_value;
+static lean_once_cell_t l_Lean_Internal_ErrorUtils_instHasOxfordStringsMessageData___closed__7_once = LEAN_ONCE_CELL_INITIALIZER;
+static lean_object* l_Lean_Internal_ErrorUtils_instHasOxfordStringsMessageData___closed__7;
+static lean_once_cell_t l_Lean_Internal_ErrorUtils_instHasOxfordStringsMessageData___closed__8_once = LEAN_ONCE_CELL_INITIALIZER;
+static lean_object* l_Lean_Internal_ErrorUtils_instHasOxfordStringsMessageData___closed__8;
+LEAN_EXPORT lean_object* l_Lean_Internal_ErrorUtils_instHasOxfordStringsMessageData;
+LEAN_EXPORT lean_object* l_Lean_Internal_ErrorUtils_List_toOxford___redArg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Internal_ErrorUtils_List_toOxford(lean_object*, lean_object*, lean_object*, lean_object*);
+static const lean_string_object l_Lean_Internal_ErrorUtils_instHasPluralDefaultsString___lam__0___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 2, .m_capacity = 2, .m_length = 1, .m_data = "s"};
+static const lean_object* l_Lean_Internal_ErrorUtils_instHasPluralDefaultsString___lam__0___closed__0 = (const lean_object*)&l_Lean_Internal_ErrorUtils_instHasPluralDefaultsString___lam__0___closed__0_value;
+LEAN_EXPORT lean_object* l_Lean_Internal_ErrorUtils_instHasPluralDefaultsString___lam__0(lean_object*);
+static const lean_closure_object l_Lean_Internal_ErrorUtils_instHasPluralDefaultsString___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Lean_Internal_ErrorUtils_instHasPluralDefaultsString___lam__0, .m_arity = 1, .m_num_fixed = 0, .m_objs = {} };
+static const lean_object* l_Lean_Internal_ErrorUtils_instHasPluralDefaultsString___closed__0 = (const lean_object*)&l_Lean_Internal_ErrorUtils_instHasPluralDefaultsString___closed__0_value;
+static const lean_ctor_object l_Lean_Internal_ErrorUtils_instHasPluralDefaultsString___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 0, .m_other = 2, .m_tag = 0}, .m_objs = {((lean_object*)&l_Lean_Internal_ErrorUtils_instHasOxfordStringsString___closed__0_value),((lean_object*)&l_Lean_Internal_ErrorUtils_instHasPluralDefaultsString___closed__0_value)}};
+static const lean_object* l_Lean_Internal_ErrorUtils_instHasPluralDefaultsString___closed__1 = (const lean_object*)&l_Lean_Internal_ErrorUtils_instHasPluralDefaultsString___closed__1_value;
+LEAN_EXPORT const lean_object* l_Lean_Internal_ErrorUtils_instHasPluralDefaultsString = (const lean_object*)&l_Lean_Internal_ErrorUtils_instHasPluralDefaultsString___closed__1_value;
+static lean_once_cell_t l_Lean_Internal_ErrorUtils_instHasPluralDefaultsMessageData___lam__0___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
+static lean_object* l_Lean_Internal_ErrorUtils_instHasPluralDefaultsMessageData___lam__0___closed__0;
+LEAN_EXPORT lean_object* l_Lean_Internal_ErrorUtils_instHasPluralDefaultsMessageData___lam__0(lean_object*);
+static const lean_closure_object l_Lean_Internal_ErrorUtils_instHasPluralDefaultsMessageData___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Lean_Internal_ErrorUtils_instHasPluralDefaultsMessageData___lam__0, .m_arity = 1, .m_num_fixed = 0, .m_objs = {} };
+static const lean_object* l_Lean_Internal_ErrorUtils_instHasPluralDefaultsMessageData___closed__0 = (const lean_object*)&l_Lean_Internal_ErrorUtils_instHasPluralDefaultsMessageData___closed__0_value;
+static lean_once_cell_t l_Lean_Internal_ErrorUtils_instHasPluralDefaultsMessageData___closed__1_once = LEAN_ONCE_CELL_INITIALIZER;
+static lean_object* l_Lean_Internal_ErrorUtils_instHasPluralDefaultsMessageData___closed__1;
+LEAN_EXPORT lean_object* l_Lean_Internal_ErrorUtils_instHasPluralDefaultsMessageData;
+LEAN_EXPORT lean_object* l_Lean_Internal_ErrorUtils_Nat_plural___redArg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Internal_ErrorUtils_Nat_plural___redArg___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Internal_ErrorUtils_Nat_plural(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Internal_ErrorUtils_Nat_plural___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Internal_ErrorUtils_Nat_toOrdinal(lean_object* v_x_15_){
 _start:
 {
 lean_object* v___x_16_; uint8_t v___x_17_; 
@@ -183,7 +183,7 @@ else
 {
 lean_object* v___x_56_; lean_object* v___x_57_; lean_object* v___x_58_; 
 v___x_56_ = l_Nat_reprFast(v_x_15_);
-v___x_57_ = ((lean_object*)(l___private_Lean_Elab_ErrorUtils_0__Nat_toOrdinal___closed__0));
+v___x_57_ = ((lean_object*)(l_Lean_Internal_ErrorUtils_Nat_toOrdinal___closed__0));
 v___x_58_ = lean_string_append(v___x_56_, v___x_57_);
 return v___x_58_;
 }
@@ -193,7 +193,7 @@ else
 {
 lean_object* v___x_59_; 
 lean_dec(v_x_15_);
-v___x_59_ = ((lean_object*)(l___private_Lean_Elab_ErrorUtils_0__Nat_toOrdinal___closed__3));
+v___x_59_ = ((lean_object*)(l_Lean_Internal_ErrorUtils_Nat_toOrdinal___closed__3));
 return v___x_59_;
 }
 v___jp_37_:
@@ -210,7 +210,7 @@ if (v___x_40_ == 0)
 {
 lean_object* v___x_41_; lean_object* v___x_42_; lean_object* v___x_43_; 
 v___x_41_ = l_Nat_reprFast(v_x_15_);
-v___x_42_ = ((lean_object*)(l___private_Lean_Elab_ErrorUtils_0__Nat_toOrdinal___closed__0));
+v___x_42_ = ((lean_object*)(l_Lean_Internal_ErrorUtils_Nat_toOrdinal___closed__0));
 v___x_43_ = lean_string_append(v___x_41_, v___x_42_);
 return v___x_43_;
 }
@@ -218,7 +218,7 @@ else
 {
 lean_object* v___x_44_; lean_object* v___x_45_; lean_object* v___x_46_; 
 v___x_44_ = l_Nat_reprFast(v_x_15_);
-v___x_45_ = ((lean_object*)(l___private_Lean_Elab_ErrorUtils_0__Nat_toOrdinal___closed__1));
+v___x_45_ = ((lean_object*)(l_Lean_Internal_ErrorUtils_Nat_toOrdinal___closed__1));
 v___x_46_ = lean_string_append(v___x_44_, v___x_45_);
 return v___x_46_;
 }
@@ -228,7 +228,7 @@ else
 lean_object* v___x_47_; lean_object* v___x_48_; lean_object* v___x_49_; 
 lean_dec(v___x_38_);
 v___x_47_ = l_Nat_reprFast(v_x_15_);
-v___x_48_ = ((lean_object*)(l___private_Lean_Elab_ErrorUtils_0__Nat_toOrdinal___closed__2));
+v___x_48_ = ((lean_object*)(l_Lean_Internal_ErrorUtils_Nat_toOrdinal___closed__2));
 v___x_49_ = lean_string_append(v___x_47_, v___x_48_);
 return v___x_49_;
 }
@@ -238,7 +238,7 @@ else
 {
 lean_object* v___x_60_; 
 lean_dec(v_x_15_);
-v___x_60_ = ((lean_object*)(l___private_Lean_Elab_ErrorUtils_0__Nat_toOrdinal___closed__4));
+v___x_60_ = ((lean_object*)(l_Lean_Internal_ErrorUtils_Nat_toOrdinal___closed__4));
 return v___x_60_;
 }
 }
@@ -246,7 +246,7 @@ else
 {
 lean_object* v___x_61_; 
 lean_dec(v_x_15_);
-v___x_61_ = ((lean_object*)(l___private_Lean_Elab_ErrorUtils_0__Nat_toOrdinal___closed__5));
+v___x_61_ = ((lean_object*)(l_Lean_Internal_ErrorUtils_Nat_toOrdinal___closed__5));
 return v___x_61_;
 }
 }
@@ -254,7 +254,7 @@ else
 {
 lean_object* v___x_62_; 
 lean_dec(v_x_15_);
-v___x_62_ = ((lean_object*)(l___private_Lean_Elab_ErrorUtils_0__Nat_toOrdinal___closed__6));
+v___x_62_ = ((lean_object*)(l_Lean_Internal_ErrorUtils_Nat_toOrdinal___closed__6));
 return v___x_62_;
 }
 }
@@ -262,7 +262,7 @@ else
 {
 lean_object* v___x_63_; 
 lean_dec(v_x_15_);
-v___x_63_ = ((lean_object*)(l___private_Lean_Elab_ErrorUtils_0__Nat_toOrdinal___closed__7));
+v___x_63_ = ((lean_object*)(l_Lean_Internal_ErrorUtils_Nat_toOrdinal___closed__7));
 return v___x_63_;
 }
 }
@@ -270,7 +270,7 @@ else
 {
 lean_object* v___x_64_; 
 lean_dec(v_x_15_);
-v___x_64_ = ((lean_object*)(l___private_Lean_Elab_ErrorUtils_0__Nat_toOrdinal___closed__8));
+v___x_64_ = ((lean_object*)(l_Lean_Internal_ErrorUtils_Nat_toOrdinal___closed__8));
 return v___x_64_;
 }
 }
@@ -278,7 +278,7 @@ else
 {
 lean_object* v___x_65_; 
 lean_dec(v_x_15_);
-v___x_65_ = ((lean_object*)(l___private_Lean_Elab_ErrorUtils_0__Nat_toOrdinal___closed__9));
+v___x_65_ = ((lean_object*)(l_Lean_Internal_ErrorUtils_Nat_toOrdinal___closed__9));
 return v___x_65_;
 }
 }
@@ -286,7 +286,7 @@ else
 {
 lean_object* v___x_66_; 
 lean_dec(v_x_15_);
-v___x_66_ = ((lean_object*)(l___private_Lean_Elab_ErrorUtils_0__Nat_toOrdinal___closed__10));
+v___x_66_ = ((lean_object*)(l_Lean_Internal_ErrorUtils_Nat_toOrdinal___closed__10));
 return v___x_66_;
 }
 }
@@ -294,7 +294,7 @@ else
 {
 lean_object* v___x_67_; 
 lean_dec(v_x_15_);
-v___x_67_ = ((lean_object*)(l___private_Lean_Elab_ErrorUtils_0__Nat_toOrdinal___closed__11));
+v___x_67_ = ((lean_object*)(l_Lean_Internal_ErrorUtils_Nat_toOrdinal___closed__11));
 return v___x_67_;
 }
 }
@@ -302,7 +302,7 @@ else
 {
 lean_object* v___x_68_; 
 lean_dec(v_x_15_);
-v___x_68_ = ((lean_object*)(l___private_Lean_Elab_ErrorUtils_0__Nat_toOrdinal___closed__12));
+v___x_68_ = ((lean_object*)(l_Lean_Internal_ErrorUtils_Nat_toOrdinal___closed__12));
 return v___x_68_;
 }
 }
@@ -310,55 +310,55 @@ else
 {
 lean_object* v___x_69_; 
 lean_dec(v_x_15_);
-v___x_69_ = ((lean_object*)(l___private_Lean_Elab_ErrorUtils_0__Nat_toOrdinal___closed__13));
+v___x_69_ = ((lean_object*)(l_Lean_Internal_ErrorUtils_Nat_toOrdinal___closed__13));
 return v___x_69_;
 }
 }
 }
-static lean_object* _init_l___private_Lean_Elab_ErrorUtils_0__Lean_instHasOxfordStringsMessageData___closed__1(void){
+static lean_object* _init_l_Lean_Internal_ErrorUtils_instHasOxfordStringsMessageData___closed__1(void){
 _start:
 {
 lean_object* v___x_82_; lean_object* v___x_83_; 
-v___x_82_ = ((lean_object*)(l___private_Lean_Elab_ErrorUtils_0__Lean_instHasOxfordStringsMessageData___closed__0));
+v___x_82_ = ((lean_object*)(l_Lean_Internal_ErrorUtils_instHasOxfordStringsMessageData___closed__0));
 v___x_83_ = l_Lean_MessageData_ofFormat(v___x_82_);
 return v___x_83_;
 }
 }
-static lean_object* _init_l___private_Lean_Elab_ErrorUtils_0__Lean_instHasOxfordStringsMessageData___closed__3(void){
+static lean_object* _init_l_Lean_Internal_ErrorUtils_instHasOxfordStringsMessageData___closed__3(void){
 _start:
 {
 lean_object* v___x_86_; lean_object* v___x_87_; 
-v___x_86_ = ((lean_object*)(l___private_Lean_Elab_ErrorUtils_0__Lean_instHasOxfordStringsMessageData___closed__2));
+v___x_86_ = ((lean_object*)(l_Lean_Internal_ErrorUtils_instHasOxfordStringsMessageData___closed__2));
 v___x_87_ = l_Lean_MessageData_ofFormat(v___x_86_);
 return v___x_87_;
 }
 }
-static lean_object* _init_l___private_Lean_Elab_ErrorUtils_0__Lean_instHasOxfordStringsMessageData___closed__5(void){
+static lean_object* _init_l_Lean_Internal_ErrorUtils_instHasOxfordStringsMessageData___closed__5(void){
 _start:
 {
 lean_object* v___x_90_; lean_object* v___x_91_; 
-v___x_90_ = ((lean_object*)(l___private_Lean_Elab_ErrorUtils_0__Lean_instHasOxfordStringsMessageData___closed__4));
+v___x_90_ = ((lean_object*)(l_Lean_Internal_ErrorUtils_instHasOxfordStringsMessageData___closed__4));
 v___x_91_ = l_Lean_MessageData_ofFormat(v___x_90_);
 return v___x_91_;
 }
 }
-static lean_object* _init_l___private_Lean_Elab_ErrorUtils_0__Lean_instHasOxfordStringsMessageData___closed__7(void){
+static lean_object* _init_l_Lean_Internal_ErrorUtils_instHasOxfordStringsMessageData___closed__7(void){
 _start:
 {
 lean_object* v___x_94_; lean_object* v___x_95_; 
-v___x_94_ = ((lean_object*)(l___private_Lean_Elab_ErrorUtils_0__Lean_instHasOxfordStringsMessageData___closed__6));
+v___x_94_ = ((lean_object*)(l_Lean_Internal_ErrorUtils_instHasOxfordStringsMessageData___closed__6));
 v___x_95_ = l_Lean_MessageData_ofFormat(v___x_94_);
 return v___x_95_;
 }
 }
-static lean_object* _init_l___private_Lean_Elab_ErrorUtils_0__Lean_instHasOxfordStringsMessageData___closed__8(void){
+static lean_object* _init_l_Lean_Internal_ErrorUtils_instHasOxfordStringsMessageData___closed__8(void){
 _start:
 {
 lean_object* v___x_96_; lean_object* v___x_97_; lean_object* v___x_98_; lean_object* v___x_99_; lean_object* v___x_100_; 
-v___x_96_ = lean_obj_once(&l___private_Lean_Elab_ErrorUtils_0__Lean_instHasOxfordStringsMessageData___closed__7, &l___private_Lean_Elab_ErrorUtils_0__Lean_instHasOxfordStringsMessageData___closed__7_once, _init_l___private_Lean_Elab_ErrorUtils_0__Lean_instHasOxfordStringsMessageData___closed__7);
-v___x_97_ = lean_obj_once(&l___private_Lean_Elab_ErrorUtils_0__Lean_instHasOxfordStringsMessageData___closed__5, &l___private_Lean_Elab_ErrorUtils_0__Lean_instHasOxfordStringsMessageData___closed__5_once, _init_l___private_Lean_Elab_ErrorUtils_0__Lean_instHasOxfordStringsMessageData___closed__5);
-v___x_98_ = lean_obj_once(&l___private_Lean_Elab_ErrorUtils_0__Lean_instHasOxfordStringsMessageData___closed__3, &l___private_Lean_Elab_ErrorUtils_0__Lean_instHasOxfordStringsMessageData___closed__3_once, _init_l___private_Lean_Elab_ErrorUtils_0__Lean_instHasOxfordStringsMessageData___closed__3);
-v___x_99_ = lean_obj_once(&l___private_Lean_Elab_ErrorUtils_0__Lean_instHasOxfordStringsMessageData___closed__1, &l___private_Lean_Elab_ErrorUtils_0__Lean_instHasOxfordStringsMessageData___closed__1_once, _init_l___private_Lean_Elab_ErrorUtils_0__Lean_instHasOxfordStringsMessageData___closed__1);
+v___x_96_ = lean_obj_once(&l_Lean_Internal_ErrorUtils_instHasOxfordStringsMessageData___closed__7, &l_Lean_Internal_ErrorUtils_instHasOxfordStringsMessageData___closed__7_once, _init_l_Lean_Internal_ErrorUtils_instHasOxfordStringsMessageData___closed__7);
+v___x_97_ = lean_obj_once(&l_Lean_Internal_ErrorUtils_instHasOxfordStringsMessageData___closed__5, &l_Lean_Internal_ErrorUtils_instHasOxfordStringsMessageData___closed__5_once, _init_l_Lean_Internal_ErrorUtils_instHasOxfordStringsMessageData___closed__5);
+v___x_98_ = lean_obj_once(&l_Lean_Internal_ErrorUtils_instHasOxfordStringsMessageData___closed__3, &l_Lean_Internal_ErrorUtils_instHasOxfordStringsMessageData___closed__3_once, _init_l_Lean_Internal_ErrorUtils_instHasOxfordStringsMessageData___closed__3);
+v___x_99_ = lean_obj_once(&l_Lean_Internal_ErrorUtils_instHasOxfordStringsMessageData___closed__1, &l_Lean_Internal_ErrorUtils_instHasOxfordStringsMessageData___closed__1_once, _init_l_Lean_Internal_ErrorUtils_instHasOxfordStringsMessageData___closed__1);
 v___x_100_ = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(v___x_100_, 0, v___x_99_);
 lean_ctor_set(v___x_100_, 1, v___x_98_);
@@ -367,15 +367,15 @@ lean_ctor_set(v___x_100_, 3, v___x_96_);
 return v___x_100_;
 }
 }
-static lean_object* _init_l___private_Lean_Elab_ErrorUtils_0__Lean_instHasOxfordStringsMessageData(void){
+static lean_object* _init_l_Lean_Internal_ErrorUtils_instHasOxfordStringsMessageData(void){
 _start:
 {
 lean_object* v___x_101_; 
-v___x_101_ = lean_obj_once(&l___private_Lean_Elab_ErrorUtils_0__Lean_instHasOxfordStringsMessageData___closed__8, &l___private_Lean_Elab_ErrorUtils_0__Lean_instHasOxfordStringsMessageData___closed__8_once, _init_l___private_Lean_Elab_ErrorUtils_0__Lean_instHasOxfordStringsMessageData___closed__8);
+v___x_101_ = lean_obj_once(&l_Lean_Internal_ErrorUtils_instHasOxfordStringsMessageData___closed__8, &l_Lean_Internal_ErrorUtils_instHasOxfordStringsMessageData___closed__8_once, _init_l_Lean_Internal_ErrorUtils_instHasOxfordStringsMessageData___closed__8);
 return v___x_101_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Elab_ErrorUtils_0__List_toOxford___redArg(lean_object* v_inst_102_, lean_object* v_inst_103_, lean_object* v_x_104_){
+LEAN_EXPORT lean_object* l_Lean_Internal_ErrorUtils_List_toOxford___redArg(lean_object* v_inst_102_, lean_object* v_inst_103_, lean_object* v_x_104_){
 _start:
 {
 if (lean_obj_tag(v_x_104_) == 0)
@@ -462,7 +462,7 @@ v_comma_125_ = lean_ctor_get(v_inst_103_, 2);
 lean_inc_n(v_inst_102_, 2);
 lean_inc(v_comma_125_);
 v___x_126_ = lean_apply_2(v_inst_102_, v_head_124_, v_comma_125_);
-v___x_127_ = l___private_Lean_Elab_ErrorUtils_0__List_toOxford___redArg(v_inst_102_, v_inst_103_, v_tail_106_);
+v___x_127_ = l_Lean_Internal_ErrorUtils_List_toOxford___redArg(v_inst_102_, v_inst_103_, v_tail_106_);
 v___x_128_ = lean_apply_2(v_inst_102_, v___x_126_, v___x_127_);
 return v___x_128_;
 }
@@ -471,48 +471,48 @@ return v___x_128_;
 }
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Elab_ErrorUtils_0__List_toOxford(lean_object* v_00_u03b1_129_, lean_object* v_inst_130_, lean_object* v_inst_131_, lean_object* v_x_132_){
+LEAN_EXPORT lean_object* l_Lean_Internal_ErrorUtils_List_toOxford(lean_object* v_00_u03b1_129_, lean_object* v_inst_130_, lean_object* v_inst_131_, lean_object* v_x_132_){
 _start:
 {
 lean_object* v___x_133_; 
-v___x_133_ = l___private_Lean_Elab_ErrorUtils_0__List_toOxford___redArg(v_inst_130_, v_inst_131_, v_x_132_);
+v___x_133_ = l_Lean_Internal_ErrorUtils_List_toOxford___redArg(v_inst_130_, v_inst_131_, v_x_132_);
 return v___x_133_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Elab_ErrorUtils_0__Lean_instHasPluralDefaultsString___lam__0(lean_object* v_x_135_){
+LEAN_EXPORT lean_object* l_Lean_Internal_ErrorUtils_instHasPluralDefaultsString___lam__0(lean_object* v_x_135_){
 _start:
 {
 lean_object* v___x_136_; lean_object* v___x_137_; 
-v___x_136_ = ((lean_object*)(l___private_Lean_Elab_ErrorUtils_0__Lean_instHasPluralDefaultsString___lam__0___closed__0));
+v___x_136_ = ((lean_object*)(l_Lean_Internal_ErrorUtils_instHasPluralDefaultsString___lam__0___closed__0));
 v___x_137_ = lean_string_append(v_x_135_, v___x_136_);
 return v___x_137_;
 }
 }
-static lean_object* _init_l___private_Lean_Elab_ErrorUtils_0__Lean_instHasPluralDefaultsMessageData___lam__0___closed__0(void){
+static lean_object* _init_l_Lean_Internal_ErrorUtils_instHasPluralDefaultsMessageData___lam__0___closed__0(void){
 _start:
 {
 lean_object* v___x_143_; lean_object* v___x_144_; 
-v___x_143_ = ((lean_object*)(l___private_Lean_Elab_ErrorUtils_0__Lean_instHasPluralDefaultsString___lam__0___closed__0));
+v___x_143_ = ((lean_object*)(l_Lean_Internal_ErrorUtils_instHasPluralDefaultsString___lam__0___closed__0));
 v___x_144_ = l_Lean_stringToMessageData(v___x_143_);
 return v___x_144_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Elab_ErrorUtils_0__Lean_instHasPluralDefaultsMessageData___lam__0(lean_object* v_x_145_){
+LEAN_EXPORT lean_object* l_Lean_Internal_ErrorUtils_instHasPluralDefaultsMessageData___lam__0(lean_object* v_x_145_){
 _start:
 {
 lean_object* v___x_146_; lean_object* v___x_147_; 
-v___x_146_ = lean_obj_once(&l___private_Lean_Elab_ErrorUtils_0__Lean_instHasPluralDefaultsMessageData___lam__0___closed__0, &l___private_Lean_Elab_ErrorUtils_0__Lean_instHasPluralDefaultsMessageData___lam__0___closed__0_once, _init_l___private_Lean_Elab_ErrorUtils_0__Lean_instHasPluralDefaultsMessageData___lam__0___closed__0);
+v___x_146_ = lean_obj_once(&l_Lean_Internal_ErrorUtils_instHasPluralDefaultsMessageData___lam__0___closed__0, &l_Lean_Internal_ErrorUtils_instHasPluralDefaultsMessageData___lam__0___closed__0_once, _init_l_Lean_Internal_ErrorUtils_instHasPluralDefaultsMessageData___lam__0___closed__0);
 v___x_147_ = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(v___x_147_, 0, v_x_145_);
 lean_ctor_set(v___x_147_, 1, v___x_146_);
 return v___x_147_;
 }
 }
-static lean_object* _init_l___private_Lean_Elab_ErrorUtils_0__Lean_instHasPluralDefaultsMessageData___closed__1(void){
+static lean_object* _init_l_Lean_Internal_ErrorUtils_instHasPluralDefaultsMessageData___closed__1(void){
 _start:
 {
 lean_object* v___f_149_; lean_object* v___x_150_; lean_object* v___x_151_; 
-v___f_149_ = ((lean_object*)(l___private_Lean_Elab_ErrorUtils_0__Lean_instHasPluralDefaultsMessageData___closed__0));
+v___f_149_ = ((lean_object*)(l_Lean_Internal_ErrorUtils_instHasPluralDefaultsMessageData___closed__0));
 v___x_150_ = l_Lean_MessageData_nil;
 v___x_151_ = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(v___x_151_, 0, v___x_150_);
@@ -520,15 +520,15 @@ lean_ctor_set(v___x_151_, 1, v___f_149_);
 return v___x_151_;
 }
 }
-static lean_object* _init_l___private_Lean_Elab_ErrorUtils_0__Lean_instHasPluralDefaultsMessageData(void){
+static lean_object* _init_l_Lean_Internal_ErrorUtils_instHasPluralDefaultsMessageData(void){
 _start:
 {
 lean_object* v___x_152_; 
-v___x_152_ = lean_obj_once(&l___private_Lean_Elab_ErrorUtils_0__Lean_instHasPluralDefaultsMessageData___closed__1, &l___private_Lean_Elab_ErrorUtils_0__Lean_instHasPluralDefaultsMessageData___closed__1_once, _init_l___private_Lean_Elab_ErrorUtils_0__Lean_instHasPluralDefaultsMessageData___closed__1);
+v___x_152_ = lean_obj_once(&l_Lean_Internal_ErrorUtils_instHasPluralDefaultsMessageData___closed__1, &l_Lean_Internal_ErrorUtils_instHasPluralDefaultsMessageData___closed__1_once, _init_l_Lean_Internal_ErrorUtils_instHasPluralDefaultsMessageData___closed__1);
 return v___x_152_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Elab_ErrorUtils_0__Nat_plural___redArg(lean_object* v_count_153_, lean_object* v_singular_154_, lean_object* v_plural_155_){
+LEAN_EXPORT lean_object* l_Lean_Internal_ErrorUtils_Nat_plural___redArg(lean_object* v_count_153_, lean_object* v_singular_154_, lean_object* v_plural_155_){
 _start:
 {
 lean_object* v___x_156_; uint8_t v___x_157_; 
@@ -546,30 +546,30 @@ return v_singular_154_;
 }
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Elab_ErrorUtils_0__Nat_plural___redArg___boxed(lean_object* v_count_158_, lean_object* v_singular_159_, lean_object* v_plural_160_){
+LEAN_EXPORT lean_object* l_Lean_Internal_ErrorUtils_Nat_plural___redArg___boxed(lean_object* v_count_158_, lean_object* v_singular_159_, lean_object* v_plural_160_){
 _start:
 {
 lean_object* v_res_161_; 
-v_res_161_ = l___private_Lean_Elab_ErrorUtils_0__Nat_plural___redArg(v_count_158_, v_singular_159_, v_plural_160_);
+v_res_161_ = l_Lean_Internal_ErrorUtils_Nat_plural___redArg(v_count_158_, v_singular_159_, v_plural_160_);
 lean_dec(v_plural_160_);
 lean_dec(v_singular_159_);
 lean_dec(v_count_158_);
 return v_res_161_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Elab_ErrorUtils_0__Nat_plural(lean_object* v_00_u03b1_162_, lean_object* v_inst_163_, lean_object* v_count_164_, lean_object* v_singular_165_, lean_object* v_plural_166_){
+LEAN_EXPORT lean_object* l_Lean_Internal_ErrorUtils_Nat_plural(lean_object* v_00_u03b1_162_, lean_object* v_inst_163_, lean_object* v_count_164_, lean_object* v_singular_165_, lean_object* v_plural_166_){
 _start:
 {
 lean_object* v___x_167_; 
-v___x_167_ = l___private_Lean_Elab_ErrorUtils_0__Nat_plural___redArg(v_count_164_, v_singular_165_, v_plural_166_);
+v___x_167_ = l_Lean_Internal_ErrorUtils_Nat_plural___redArg(v_count_164_, v_singular_165_, v_plural_166_);
 return v___x_167_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Elab_ErrorUtils_0__Nat_plural___boxed(lean_object* v_00_u03b1_168_, lean_object* v_inst_169_, lean_object* v_count_170_, lean_object* v_singular_171_, lean_object* v_plural_172_){
+LEAN_EXPORT lean_object* l_Lean_Internal_ErrorUtils_Nat_plural___boxed(lean_object* v_00_u03b1_168_, lean_object* v_inst_169_, lean_object* v_count_170_, lean_object* v_singular_171_, lean_object* v_plural_172_){
 _start:
 {
 lean_object* v_res_173_; 
-v_res_173_ = l___private_Lean_Elab_ErrorUtils_0__Nat_plural(v_00_u03b1_168_, v_inst_169_, v_count_170_, v_singular_171_, v_plural_172_);
+v_res_173_ = l_Lean_Internal_ErrorUtils_Nat_plural(v_00_u03b1_168_, v_inst_169_, v_count_170_, v_singular_171_, v_plural_172_);
 lean_dec(v_plural_172_);
 lean_dec(v_singular_171_);
 lean_dec(v_count_170_);
@@ -588,10 +588,10 @@ lean_initialize_runtime_module();
 res = runtime_initialize_Lean_Message(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l___private_Lean_Elab_ErrorUtils_0__Lean_instHasOxfordStringsMessageData = _init_l___private_Lean_Elab_ErrorUtils_0__Lean_instHasOxfordStringsMessageData();
-lean_mark_persistent(l___private_Lean_Elab_ErrorUtils_0__Lean_instHasOxfordStringsMessageData);
-l___private_Lean_Elab_ErrorUtils_0__Lean_instHasPluralDefaultsMessageData = _init_l___private_Lean_Elab_ErrorUtils_0__Lean_instHasPluralDefaultsMessageData();
-lean_mark_persistent(l___private_Lean_Elab_ErrorUtils_0__Lean_instHasPluralDefaultsMessageData);
+l_Lean_Internal_ErrorUtils_instHasOxfordStringsMessageData = _init_l_Lean_Internal_ErrorUtils_instHasOxfordStringsMessageData();
+lean_mark_persistent(l_Lean_Internal_ErrorUtils_instHasOxfordStringsMessageData);
+l_Lean_Internal_ErrorUtils_instHasPluralDefaultsMessageData = _init_l_Lean_Internal_ErrorUtils_instHasPluralDefaultsMessageData();
+lean_mark_persistent(l_Lean_Internal_ErrorUtils_instHasPluralDefaultsMessageData);
 return lean_io_result_mk_ok(lean_box(0));
 }
 static bool _G_meta_initialized = false;

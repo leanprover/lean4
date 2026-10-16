@@ -5,6 +5,7 @@ Author: Henrik Böving
 */
 
 #include "runtime/uv/net_addr.h"
+#include "runtime/uv/util.h"
 #include <cstring>
 
 namespace lean {
@@ -224,11 +225,11 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_interface_addresses() {
     if (uv_interface_addresses(&info, &count) != 0) {
         return lean_io_result_mk_error(lean_mk_io_error_invalid_argument(EINVAL, mk_string("failed to get interface addresses")));
     }
+    uv_owned_array<uv_interface_address_t, uv_free_interface_addresses> interfaces(info, count);
 
     lean_object *arr = lean_alloc_array(0, count);
 
-    for (int i = 0; i < count; i++) {
-        uv_interface_address_t interface = info[i];
+    for (uv_interface_address_t interface : interfaces) {
 
         int sin_family = interface.address.address4.sin_family;
         in_addr_storage* socket_address;
@@ -254,8 +255,6 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_interface_addresses() {
 
         arr = lean_array_push(arr, iface);
     }
-
-    uv_free_interface_addresses(info, count);
 
     return lean_io_result_mk_ok(arr);
 }

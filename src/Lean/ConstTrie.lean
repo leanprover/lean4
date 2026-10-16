@@ -36,7 +36,10 @@ child keys.
 -/
 public inductive ConstTrie where
   | inner (key : Name) (children : Array ConstTrie)
+  /-- A root that is an owner: its range covers all of the module's names in its subtree. -/
   | leaf (key : Name) (lo hi : UInt32)
+  /-- A root that is not an owner: its range holds just its own name. -/
+  | node (key : Name) (lo hi : UInt32) (children : Array ConstTrie)
 
 public instance : Inhabited ConstTrie := ⟨.inner .anonymous #[]⟩
 
@@ -117,10 +120,10 @@ def prefixesOf (n : Name) (acc : Array Name := .mkEmpty 8) : Array Name :=
 namespace ConstTrie
 
 @[inline] public def key : ConstTrie → Name
-  | .inner k _ | .leaf k .. => k
+  | .inner k _ | .leaf k .. | .node k .. => k
 
 @[inline] public def children : ConstTrie → Array ConstTrie
-  | .inner _ cs => cs
+  | .inner _ cs | .node _ _ _ cs => cs
   | .leaf .. => #[]
 
 /--
@@ -130,13 +133,13 @@ returns the name range of the root covering `path[0]`, if any.
 partial def locate (t : ConstTrie) (path : Array Name) (i : Nat) : Option (Nat × Nat) :=
   match t with
   | .leaf _ lo hi => some (lo.toNat, hi.toNat)
-  | .inner _ cs =>
-    if i == 0 then
-      none
-    else
-      match findChildIdx? cs key path[i - 1]! with
-      | some j => locate cs[j]! path (i - 1)
-      | none   => none
+  | .inner _ cs => if i == 0 then none else child cs
+  | .node _ lo hi cs => if i == 0 then some (lo.toNat, hi.toNat) else child cs
+where
+  @[inline] child (cs : Array ConstTrie) : Option (Nat × Nat) :=
+    match findChildIdx? cs key path[i - 1]! with
+    | some j => locate cs[j]! path (i - 1)
+    | none   => none
 
 def parentOf : Name → Name
   | .anonymous => .anonymous
@@ -156,16 +159,17 @@ def childrenOf (roots : Array Name) : Std.HashMap Name (Array Name) := Id.run do
   return children
 
 partial def toTrie (children : Std.HashMap Name (Array Name)) (ranges : Std.HashMap Name (Nat × Nat))
-    (key : Name) : ConstTrie :=
+    (isOwner : Name → Bool) (key : Name) : ConstTrie :=
+  let cs := children[key]?.getD #[] |>.map (toTrie children ranges isOwner ·)
+  let cs := cs.qsort fun c₁ c₂ => c₁.key.hash < c₂.key.hash
   match ranges[key]? with
-  | some (lo, hi) => .leaf key lo.toUInt32 hi.toUInt32
-  | none =>
-    let cs := children[key]?.getD #[] |>.map (toTrie children ranges ·)
-    .inner key (cs.qsort fun c₁ c₂ => c₁.key.hash < c₂.key.hash)
+  | some (lo, hi) =>
+    if isOwner key then .leaf key lo.toUInt32 hi.toUInt32 else .node key lo.toUInt32 hi.toUInt32 cs
+  | none => .inner key cs
 
 /--
-Builds the locator for `names`, where `isOwner` holds for the names that may serve as roots (a
-superset of `names`). Returns the trie and the order it indexes, listing the indices of `names`
+Builds the locator for `names`, where `isOwner` holds for the names that cover the names below
+them. Returns the trie and the order it indexes, listing the indices of `names`
 grouped by root and sorted by `Name.quickCmp` within each root.
 -/
 public def build (names : Array Name) (isOwner : Name → Bool) : ConstTrie × ByteArray := Id.run do
@@ -197,7 +201,7 @@ public def build (names : Array Name) (isOwner : Name → Bool) : ConstTrie × B
     while j < perm.size && rootIdxs[perm[j]!]! == r do
       j := j + 1
     ranges := ranges.insert sortedRoots[r]! (lo, j)
-  return (toTrie (childrenOf sortedRoots) ranges .anonymous, encodeOrder perm)
+  return (toTrie (childrenOf sortedRoots) ranges isOwner .anonymous, encodeOrder perm)
 
 end ConstTrie
 
@@ -255,20 +259,22 @@ set_option genSizeOfSpec false in
 /--
 A node of the merged locator of several modules. Subtrees whose prefix occurs in only a single
 module are borrowed directly from that module's (usually region-resident) locator; nodes whose
-prefix occurs in several modules record the modules whose roots end there (`owners`, as module
-index and name range) and merge their children.
+prefix occurs in several modules record the modules whose roots end there, as module index and name
+range, separated into roots covering their subtree (`owners`) and roots holding just their own name
+(`exact`), and merge their children.
 -/
 public inductive ImportedNode where
   | mod (modIdx : Nat) (tree : ConstTrie)
-  | merged (key : Name) (owners : Array (Nat × Nat × Nat)) (children : Array ImportedNode)
+  | merged (key : Name) (owners exact : Array (Nat × Nat × Nat)) (children : Array ImportedNode)
   /--
   Like `merged`, but with the children computed on first access from the candidate subtrees sharing
   the prefix, one level at a time. Thunk forcing is thread-safe and supported on persistent
   objects, so lazy nodes are safe to share across elaboration threads.
   -/
-  | lazy (key : Name) (owners : Array (Nat × Nat × Nat)) (children : Thunk (Array ImportedNode))
+  | lazy (key : Name) (owners exact : Array (Nat × Nat × Nat))
+      (children : Thunk (Array ImportedNode))
 
-public instance : Inhabited ImportedNode := ⟨.merged .anonymous #[] #[]⟩
+public instance : Inhabited ImportedNode := ⟨.merged .anonymous #[] #[] #[]⟩
 
 namespace ImportedNode
 
@@ -285,14 +291,14 @@ partial def collect (t : ImportedNode) (path : Array Name) (i : Nat) (acc : Arra
     match tr.locate path i with
     | some (lo, hi) => acc.push (modIdx, lo, hi)
     | none          => acc
-  | .merged _ owners cs => go owners cs
-  | .lazy _ owners cs => go owners cs.get
+  | .merged _ owners exact cs => go owners exact cs
+  | .lazy _ owners exact cs => go owners exact cs.get
 where
-  @[inline] go (owners : Array (Nat × Nat × Nat)) (cs : Array ImportedNode) :
+  @[inline] go (owners exact : Array (Nat × Nat × Nat)) (cs : Array ImportedNode) :
       Array (Nat × Nat × Nat) :=
     let acc := acc ++ owners
     if i == 0 then
-      acc
+      acc ++ exact
     else
       match findChildIdx? cs key path[i - 1]! with
       | some j => collect cs[j]! path (i - 1) acc
@@ -300,8 +306,8 @@ where
 
 /-- Recursively forces all lazily merged nodes. -/
 partial def force : ImportedNode → ImportedNode
-  | .lazy k owners cs => .merged k owners (cs.get.map force)
-  | .merged k owners cs => .merged k owners (cs.map force)
+  | .lazy k owners exact cs => .merged k owners exact (cs.get.map force)
+  | .merged k owners exact cs => .merged k owners exact (cs.map force)
   | t@(.mod ..) => t
 
 end ImportedNode
@@ -353,9 +359,12 @@ partial def mergeNodes (key : Name) (cands : Array (Nat × ConstTrie)) : Importe
     let owners := cands.filterMap fun
       | (i, .leaf _ lo hi) => some (i, lo.toNat, hi.toNat)
       | _ => none
-    .lazy key owners <| Thunk.mk fun _ =>
+    let exact := cands.filterMap fun
+      | (i, .node _ lo hi _) => some (i, lo.toNat, hi.toNat)
+      | _ => none
+    .lazy key owners exact <| Thunk.mk fun _ =>
       -- single-module children are borrowed as they are
-      foldChildGroups (cands.filter (·.2 matches .inner ..)) #[] (fun cs i c => cs.push (.mod i c))
+      foldChildGroups (cands.filter (!·.2 matches .leaf ..)) #[] (fun cs i c => cs.push (.mod i c))
         (fun cs g => cs.push (mergeNodes g[0]!.2.key g))
 
 /--
@@ -522,17 +531,18 @@ where
     match tr with
     | .leaf _ lo hi => goRange i lo.toNat hi.toNat check s
     | .inner _ cs => cs.foldlM (fun s c => goTree i check c s) s
+    | .node _ lo hi cs => do cs.foldlM (fun s c => goTree i check c s) (← goRange i lo.toNat hi.toNat check s)
   /-- `ownerMods` are the modules owning a prefix above `node`. -/
   goNode (node : ImportedNode) (ownerMods : Array Nat) (s : σ) : m σ := do
     match node with
     | .mod i tr => goTree i (ownerMods.any (· != i) || !t.overrides.isEmpty) tr s
-    | .merged _ owners cs => goShared owners cs ownerMods s
-    | .lazy _ owners cs => goShared owners cs.get ownerMods s
+    | .merged _ owners exact cs => goShared owners exact cs ownerMods s
+    | .lazy _ owners exact cs => goShared owners exact cs.get ownerMods s
   /-- At a node shared by several modules, owner ranges may overlap other modules' names. -/
-  goShared (owners : Array (Nat × Nat × Nat)) (cs : Array ImportedNode) (ownerMods : Array Nat)
-      (s : σ) : m σ := do
+  goShared (owners exact : Array (Nat × Nat × Nat)) (cs : Array ImportedNode)
+      (ownerMods : Array Nat) (s : σ) : m σ := do
     let mut s := s
-    for (i, lo, hi) in owners do
+    for (i, lo, hi) in owners ++ exact do
       s ← goRange i lo hi true s
     let ownerMods := ownerMods ++ owners.map (·.1)
     cs.foldlM (fun s c => goNode c ownerMods s) s
@@ -621,6 +631,8 @@ where
   go (owners : Array (Nat × Nat × Nat)) : ConstTrie → DupAcc α → DupAcc α
     | .leaf _ lo hi, acc => checkRange mods covered owners i lo.toNat hi.toNat acc
     | .inner _ cs, acc => cs.foldl (fun acc c => go owners c acc) acc
+    | .node _ lo hi cs, acc =>
+      cs.foldl (fun acc c => go owners c acc) (checkRange mods covered owners i lo.toNat hi.toNat acc)
 
 partial def sweep (mods : Array (Option (ModuleConsts α))) (covered : Array UInt64)
     (cands : Array (Nat × ConstTrie)) (above : Array (Nat × Nat × Nat)) (acc : DupAcc α) :
@@ -636,12 +648,20 @@ partial def sweep (mods : Array (Option (ModuleConsts α))) (covered : Array UIn
     if common != 0 then
       return acc
   let mut acc := acc
+  -- roots at this node are checked against covering roots above and against each other
+  let mut here := above
   let mut owners := above
   for (i, t) in cands do
-    if let .leaf _ lo hi := t then
-      acc := checkRange mods covered owners i lo.toNat hi.toNat acc
+    match t with
+    | .leaf _ lo hi =>
+      acc := checkRange mods covered here i lo.toNat hi.toNat acc
+      here := here.push (i, lo.toNat, hi.toNat)
       owners := owners.push (i, lo.toNat, hi.toNat)
-  let inners := cands.filter (·.2 matches .inner ..)
+    | .node _ lo hi _ =>
+      acc := checkRange mods covered here i lo.toNat hi.toNat acc
+      here := here.push (i, lo.toNat, hi.toNat)
+    | .inner .. => pure ()
+  let inners := cands.filter (!·.2 matches .leaf ..)
   -- a single-module subtree can only hide duplicates of names owned further up
   return foldChildGroups inners acc
     (fun acc i c => if owners.isEmpty then acc else checkSubtree mods covered owners i c acc)

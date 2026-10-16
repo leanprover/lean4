@@ -2260,7 +2260,10 @@ Fills the `ModuleData` prefix tree fields from the corresponding arrays. Done ce
 saving so that no `ModuleData` producer can leave them inconsistent.
 -/
 private def ModuleData.setupTries (data : ModuleData) : ModuleData :=
-  let owners := Std.HashSet.ofArray data.constNames
+  -- Inductive types do not cover their namespace, which other modules commonly extend: names there
+  -- would otherwise have to be checked against the type's module on every conflict check.
+  let owners := data.constants.foldl (init := {}) fun (owners : Std.HashSet Name) c =>
+    if c matches .inductInfo .. then owners else owners.insert c.name
   let (constTrie, constOrder) := ConstTrie.build data.constNames owners.contains
   -- extra constants may also be covered by constants, such as auxiliary definitions of a function
   let extraOwners := data.extraConstNames.foldl (·.insert ·) owners

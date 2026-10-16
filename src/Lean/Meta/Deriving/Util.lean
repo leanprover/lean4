@@ -79,6 +79,35 @@ def Lean.Meta.mkFreshRevertedMVarAt (ty : Expr) (lctx : LocalContext) (linsts : 
   let mvar ← mkFreshExprMVarAt lctx linsts ty' kind (numScopeArgs := toRevert.size)
   return mkAppN mvar toRevert
 
+
+/--
+Creates a function `indices... → induct.{lparams...} params... indices... → resultType` by matching
+on the inductive.
+-/
+def Lean.Meta.mkNondepCasesFun [Monad m] [MonadEnv m] [MonadError m]
+    [MonadControlT MetaM m] [MonadLiftT MetaM m]
+    (induct : Name) (lparams : List Level) (params : Array Expr)
+    (resultType : Expr) (alt : InductiveVal → ConstructorVal → Array Expr → m Expr) : m Expr := do
+  let indInfo ← getConstInfoInduct induct
+  let resultSort ← getLevel resultType
+  let casesOnApp := mkAppN (.const (mkCasesOnName induct) (resultSort :: lparams)) params
+  let casesOnType ← inferType casesOnApp
+  let .forallE _ motiveType body _ := casesOnType | unreachable!
+  forallTelescope motiveType fun vars _ => do
+    let motive ← mkLambdaFVars vars resultType
+    let body := body.instantiate1 motive
+    let mut body ← instantiateForall body vars
+    let mut casesOnApp := mkAppN (casesOnApp.app motive) vars
+    for ctor in indInfo.ctors do
+      let .forallE _ altType body' _ := body | unreachable!
+      let ctorInfo ← getConstInfoCtor ctor
+      let minor ← forallBoundedTelescope altType ctorInfo.numFields fun fields _ => do
+        mkLambdaFVars fields <| ← alt indInfo ctorInfo fields
+      casesOnApp := casesOnApp.app minor
+      body := body'
+    mkLambdaFVars vars casesOnApp
+
+
 namespace Lean.Meta.Deriving
 
 /--
@@ -688,7 +717,6 @@ def deriveTransformationInstPerConstructor (className : Name)
   if tgt.hasLooseBVars then
     throwError "Invalid use of `deriveTransformationInstPerConstructor`, expected target type of \
       field of {.ofConstName className} to be nondependent"
-  let tgtSort ← getLevel tgt
   -- Then create the instances using a mutual partial block
   let all := (← read).indInfo.all.toArray
   makeInstancesUsingMutualPartialBlock <| ← all.mapM fun induct => do
@@ -705,22 +733,7 @@ def deriveTransformationInstPerConstructor (className : Name)
         suffix := fieldName
         type := helperType
         mkValue _ _ := do
-          let casesOnApp := mkAppN (.const (mkCasesOnName induct) (tgtSort :: (← read).lparams)) (← read).indParams
-          let casesOnType ← inferType casesOnApp
-          let .forallE _ motiveType body _ := casesOnType | unreachable!
-          forallTelescope motiveType fun vars _ => do
-            let motive ← mkLambdaFVars vars tgt
-            let body := body.instantiate1 motive
-            let mut body ← instantiateForall body vars
-            let mut casesOnApp := mkAppN (casesOnApp.app motive) vars
-            for ctor in indInfo.ctors do
-              let .forallE _ altType body' _ := body | unreachable!
-              let ctorInfo ← getConstInfoCtor ctor
-              let minor ← forallBoundedTelescope altType ctorInfo.numFields fun fields _ => do
-                mkLambdaFVars fields <| ← perCtor indInfo ctorInfo fields
-              casesOnApp := casesOnApp.app minor
-              body := body'
-            mkLambdaFVars vars casesOnApp
+          mkNondepCasesFun induct (← read).lparams (← read).indParams tgt perCtor
       }]
       mkValue helpers := do
         let #[helper] := helpers | unreachable!

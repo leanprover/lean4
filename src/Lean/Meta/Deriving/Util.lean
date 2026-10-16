@@ -539,8 +539,8 @@ private def checkInstanceHypotheses (instanceHyps : Array MVarId) : DerivingM Un
       msg := msg ++ .hint' m!"You may be able to derive the missing instance using the syntax \
         `deriving instance ClassName for TypeName`."
     if complexHyps.any (·.2.any (·.isMultiMatch)) then
-      msg := msg ++ .hint' m!"Multiple instance candidates usually indicates that one of the \
-        mentioned instances is redundant. If this is intentional though, you can make the \
+      msg := msg ++ .hint' m!"Having multiple instance candidates usually indicates that one of
+        the mentioned instances is redundant. If this is intentional though, you can make the \
         deriving handler choose an instance using \
         `set_option {deriving.chooseArbitraryInstance.name} true`."
     msg := msg ++ .hint' m!"If you want to keep these hypotheses as-is, you can disable \

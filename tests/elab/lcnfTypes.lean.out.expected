@@ -28,6 +28,7 @@ Lean.Elab.Term.elabTerm : Syntax →
             Context →
               ST.Ref lcAny State → Core.Context → ST.Ref lcAny Core.State → lcVoid → EST.Out Exception lcAny Expr
 Nat.add : Nat → Nat → Nat
+mkQuot : Nat → Quot ◾
 Magma.mul : Magma → lcAny → lcAny → lcAny
 weird1 : Bool → lcAny
 lamAny₁ : Bool → Monad fun α => lcAny
@@ -50,3 +51,4 @@ Lean.Elab.Term.elabTerm : Syntax →
       Bool → Elab.Term.Context → lcAny → Context → lcAny → Core.Context → lcAny → lcVoid → EST.Out Exception lcAny Expr
 Nat.add : Nat → Nat → Nat
 Fin.add : {n : Nat} → Nat → Nat → Nat
+mkQuot : Nat → UInt8

@@ -814,6 +814,7 @@ def deriveSimpleLawTypeClass (typeClass derivedFrom : Name)
     (perInstance : (inst : Expr) → (instValue : Expr) → DerivingM Bool) :
     DerivingHandler := fun names => liftTermElabM do
   let instances ← getGlobalInstancesIndex
+  let state ← get
   for name in names do
     let some info ← isInductive? name | return false
     let arity := info.numParams + info.numIndices
@@ -860,6 +861,8 @@ def deriveSimpleLawTypeClass (typeClass derivedFrom : Name)
         }
         (perInstance instApp instValue).run ctx
     unless res do
+      -- backtrack
+      set state
       return false
   return true
 
@@ -885,6 +888,11 @@ def derivePrerequisite (className : Name) (preHandler : DerivingHandler)
       if instanceEntries.isEmpty then
         needToDerive := needToDerive.push name
     return needToDerive
-  preHandler prereqNames <&&> handler names
+  let state ← get
+  unless ← preHandler prereqNames <&&> handler names do
+    -- backtrack
+    set state
+    return false
+  return true
 
 end Lean.Meta.Deriving

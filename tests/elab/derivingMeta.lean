@@ -123,13 +123,13 @@ end
 run_cmd handler #[``Mutual1, ``Mutual2]
 
 /--
-info: @[instance_reducible, expose] def instMyClassMutual1 : (α : Type) → [MyClass α] → MyClass (Mutual1 α)
+info: @[instance_reducible, expose] def instMyClassMutual1 : {α : Type} → [MyClass α] → MyClass (Mutual1 α)
 -/
 #guard_msgs in
 #print sig instMyClassMutual1
 
 /--
-info: @[instance_reducible, expose] def instMyClassMutual2 : (α : Type) → [MyClass α] → MyClass (Mutual2 α)
+info: @[instance_reducible, expose] def instMyClassMutual2 : {α : Type} → [MyClass α] → MyClass (Mutual2 α)
 -/
 #guard_msgs in
 #print sig instMyClassMutual2
@@ -192,7 +192,7 @@ set_option deriving.bindersVerbatim true in
 run_cmd handler #[``TestVerbatim]
 
 /--
-info: @[instance_reducible, expose] def instMyClassTestVerbatimOfNatOfList : (α : Type) →
+info: @[instance_reducible, expose] def instMyClassTestVerbatimOfNatOfList : {α : Type} →
   [MyClass Nat] → [MyClass (List α)] → MyClass (TestVerbatim α)
 -/
 #guard_msgs in
@@ -212,7 +212,7 @@ set_option deriving.reduceInstances false in
 run_cmd handler #[``TestNoReduction]
 
 /--
-info: @[instance_reducible, expose] def instMyClassTestNoReductionOfList : (α : Type) →
+info: @[instance_reducible, expose] def instMyClassTestNoReductionOfList : {α : Type} →
   [MyClass (List α)] → MyClass (TestNoReduction α)
 -/
 #guard_msgs in
@@ -325,7 +325,8 @@ error: While deriving an instance, the following complex instance requirements w
   MyClass (Duplicate α), reason:
     There were multiple instance candidates: @instMyClassDuplicate, @instMyClassDuplicate_1, and @instMyClassDuplicate_2
 
-Hint: Multiple instance candidates usually indicates that one of the mentioned instances is redundant. If this is intentional though, you can make the deriving handler choose an instance using `set_option deriving.chooseArbitraryInstance true`.
+Hint: Having multiple instance candidates usually indicates that one of
+        the mentioned instances is redundant. If this is intentional though, you can make the deriving handler choose an instance using `set_option deriving.chooseArbitraryInstance true`.
 
 Hint: If you want to keep these hypotheses as-is, you can disable this error using `set_option deriving.strict false`
 -/
@@ -373,7 +374,7 @@ structure TestParams (p : Params) where
 run_cmd handler #[``TestParams]
 
 /--
-info: @[instance_reducible, expose] def instMyClassTestParamsOfType1OfType2 : (p : Params) →
+info: @[instance_reducible, expose] def instMyClassTestParamsOfType1OfType2 : {p : Params} →
   [MyClass p.Type1] → [MyClass p.Type2] → MyClass (TestParams p)
 -/
 #guard_msgs in
@@ -393,7 +394,7 @@ run_cmd handler #[``TestRedundantForward]
 -- without processing but with the redundancy check, we get:
 
 /--
-info: @[instance_reducible, expose] def instMyClassTestRedundantForward : (β : Bool → Type) →
+info: @[instance_reducible, expose] def instMyClassTestRedundantForward : {β : Bool → Type} →
   [(a : Bool) → MyClass (β a)] → MyClass (TestRedundantForward β)
 -/
 #guard_msgs in
@@ -413,7 +414,7 @@ run_cmd handler #[``TestRedundantBackward]
 -- without processing but with the redundancy check, we get:
 
 /--
-info: @[instance_reducible, expose] def instMyClassTestRedundantBackward : (β : Bool → Type) →
+info: @[instance_reducible, expose] def instMyClassTestRedundantBackward : {β : Bool → Type} →
   [(a : Bool) → MyClass (β a)] → MyClass (TestRedundantBackward β)
 -/
 #guard_msgs in

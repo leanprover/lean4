@@ -130,10 +130,6 @@ class ReleaseRepo:
     # Where to look for the toolchain, relative to the repo root.
     toolchain_file: str = "lean-toolchain"
 
-    # If present, nightly-related branches and tags are expected to be in this
-    # repo instead of the main repo.
-    nightly: Self | None = None
-
     # What to base the rc1 bump PR on.
     # - "default": Use the repo's default branch, usually master/main.
     # - "bump": Use the bump/v4.X.0 branch.
@@ -211,11 +207,8 @@ class LocalRepo:
     def git_stdout(self, *args: Arg) -> str:
         return self.run_stdout("git", *args)
 
-    def _prepare_remotes(self, nightly: ReleaseRepo | None) -> None:
+    def _prepare_remotes(self) -> None:
         target = {"origin": self.rrepo}
-        if nightly:
-            target["nightly"] = nightly
-
         actual = {r.strip() for r in self.git_stdout("remote").splitlines()}
 
         for remote in actual - target.keys():
@@ -228,12 +221,12 @@ class LocalRepo:
             else:
                 self.git("remote", "add", name, url)
 
-    def prepare(self, nightly: ReleaseRepo | None = None) -> None:
+    def prepare(self) -> None:
         # Clone
         if not self.path.exists():
             run("gh", "repo", "clone", self.rrepo.gh_full_name, self.path)
 
-        self._prepare_remotes(nightly)
+        self._prepare_remotes()
 
         # Check worktree is ready
         self.git("diff", "--quiet")
@@ -241,8 +234,6 @@ class LocalRepo:
 
         # Fetch recent changes
         self.git("fetch", "--all", "--prune", "--prune-tags", "--force", silent=True)
-        if nightly:  # Some tags may have been pruned away
-            self.git("fetch", "--all", "--prune", silent=True)
 
     def switch(self, branch: str, remote: str = "origin") -> None:
         self.git("switch", "-C", branch, f"{remote}/{branch}")

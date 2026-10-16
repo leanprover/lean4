@@ -180,7 +180,7 @@ structure Flag where
 run_cmd toULiftHandler #[``Flag]
 
 /-!
-`deriving.binderVerbatim` disables instance synthesis but still deduplicates instance hypotheses
+`deriving.bindersVerbatim` disables instance synthesis but still deduplicates instance hypotheses
 -/
 
 structure TestVerbatim (α : Type) where

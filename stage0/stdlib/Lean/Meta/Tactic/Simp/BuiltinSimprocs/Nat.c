@@ -16410,9 +16410,9 @@ lean_dec(v_n_5155_);
 v___x_5183_ = l_Lean_mkNatLit(v___x_5182_);
 lean_inc_ref(v_e_5153_);
 v___x_5184_ = l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_Nat_0__Nat_mkAddNat(v_e_5153_, v___x_5183_);
-v___y_5004_ = v_o_5151_;
+v___y_5004_ = v_o_5154_;
 v___y_5005_ = v_e_5150_;
-v___y_5006_ = v_o_5154_;
+v___y_5006_ = v_o_5151_;
 v___y_5007_ = v_e_5153_;
 v___y_5008_ = v___x_5184_;
 goto v___jp_5003_;
@@ -16422,9 +16422,9 @@ else
 lean_dec(v_n_5155_);
 lean_dec(v_n_5152_);
 lean_inc_ref(v_e_5153_);
-v___y_5004_ = v_o_5151_;
+v___y_5004_ = v_o_5154_;
 v___y_5005_ = v_e_5150_;
-v___y_5006_ = v_o_5154_;
+v___y_5006_ = v_o_5151_;
 v___y_5007_ = v_e_5153_;
 v___y_5008_ = v_e_5153_;
 goto v___jp_5003_;
@@ -16589,9 +16589,9 @@ v___jp_5003_:
 lean_object* v___x_5009_; lean_object* v___x_5010_; lean_object* v___x_5011_; 
 lean_inc_ref(v___y_5005_);
 v___x_5009_ = l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_Nat_0__Nat_mkLENat(v___y_5005_, v___y_5008_);
-lean_inc_ref(v___y_5006_);
 lean_inc_ref(v___y_5004_);
-v___x_5010_ = l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_Nat_0__Nat_mkLENat(v___y_5004_, v___y_5006_);
+lean_inc_ref(v___y_5006_);
+v___x_5010_ = l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_Nat_0__Nat_mkLENat(v___y_5006_, v___y_5004_);
 v___x_5011_ = l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_Nat_0__Nat_mkOfDecideEqTrue(v___x_5010_, v_a_4998_, v_a_4999_, v_a_5000_, v_a_5001_);
 if (lean_obj_tag(v___x_5011_) == 0)
 {
@@ -16604,8 +16604,8 @@ v___x_5014_ = lean_unsigned_to_nat(5u);
 v___x_5015_ = lean_mk_empty_array_with_capacity(v___x_5014_);
 v___x_5016_ = lean_array_push(v___x_5015_, v___y_5005_);
 v___x_5017_ = lean_array_push(v___x_5016_, v___y_5007_);
-v___x_5018_ = lean_array_push(v___x_5017_, v___y_5004_);
-v___x_5019_ = lean_array_push(v___x_5018_, v___y_5006_);
+v___x_5018_ = lean_array_push(v___x_5017_, v___y_5006_);
+v___x_5019_ = lean_array_push(v___x_5018_, v___y_5004_);
 v___x_5020_ = lean_array_push(v___x_5019_, v_a_5012_);
 v___x_5021_ = l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_Nat_0__Nat_applySimprocConst___redArg(v___x_5009_, v___x_5013_, v___x_5020_, v_a_5001_);
 lean_dec_ref(v___x_5020_);

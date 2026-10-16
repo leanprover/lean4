@@ -15,7 +15,7 @@ public import Lean.Server.Completion.CompletionUtils
 public import Init.Data.List.Sort
 public import Std.Sync.Channel
 public import Lean.Server.Logging
-import all Lean.Elab.ErrorUtils
+import Lean.Elab.ErrorUtils
 
 public section
 
@@ -72,7 +72,7 @@ open IO
 
 namespace Lean.Server.Watchdog
 
-open Lean Lean.IO
+open Lean Lean.IO Internal.ErrorUtils
 open Lsp
 open JsonRpc
 open System.Uri

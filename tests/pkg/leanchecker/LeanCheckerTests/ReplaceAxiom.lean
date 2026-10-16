@@ -6,15 +6,6 @@ open private Lean.Kernel.Environment.extensions from Lean.Environment
 open private Lean.Kernel.Environment.extGens from Lean.Environment
 open private Lean.Kernel.Environment.irBaseExts from Lean.Environment
 
-open Lean in
-/--
-Overwrites the entry for the childless name `n` in the imported constants view, for test purposes:
-`n`'s node is replaced by a merged leaf holding the forged value.
--/
-def overrideImported (t : ImportedConsts ConstantInfo) (n : Name) (c : ConstantInfo) :
-    ImportedConsts ConstantInfo :=
-  t.modifyAt n fun _ => .mkMerged n (some (c, 0)) #[]
-
 /- Redefine `propext : False`. -/
 open Lean Elab Meta in
 #eval modifyEnv (m := MetaM) fun env =>
@@ -26,7 +17,7 @@ open Lean Elab Meta in
   }
   let consts :=
     { env.constants with
-        map₁ := overrideImported env.constants.map₁ ``propext forged }
+        map₁ := env.constants.map₁.override ``propext forged }
   let kenv := Lean.Kernel.Environment.mk consts
     env.toKernelEnv.quotInit
     env.toKernelEnv.diagnostics

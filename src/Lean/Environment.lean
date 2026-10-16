@@ -27,6 +27,7 @@ import Init.Data.Slice
 import Init.Data.String.TakeDrop
 import Init.Data.Range.Polymorphic.Iterators
 import Init.While
+import Std.Data.HashSet.Basic
 
 public section
 
@@ -125,14 +126,22 @@ structure ModuleData where
   extraConstNames : Array Name
   entries         : Array (Name × Array EnvExtensionEntry)
   /--
-  Prefix tree over `constNames`/`constants`, set by `saveModuleData(Parts)` when the module is
-  written. It resides in the same compacted region as the rest of the module data, so importing it
-  is free; see `ConstTrie`.
+  Locator over `constNames`/`constants`, set by `saveModuleData(Parts)` when the module is written,
+  which also brings both arrays into the order the locator requires. It resides in the same
+  compacted region as the rest of the module data, so importing it is free; see `ConstTrie`.
   -/
-  constTrie       : ConstTrie ConstantInfo := default
-  /-- Prefix tree over `extraConstNames`, set by `saveModuleData(Parts)`. -/
-  extraConstTrie  : ConstTrie Unit := default
+  constTrie       : ConstTrie := default
+  /-- Locator over `extraConstNames`, set by `saveModuleData(Parts)`. -/
+  extraConstTrie  : ConstTrie := default
   deriving Inhabited
+
+/-- The constants of `data` with their locator. -/
+def ModuleData.consts (data : ModuleData) : ModuleConsts ConstantInfo :=
+  { names := data.constNames, val := (data.constants[·]!), trie := data.constTrie }
+
+/-- The extra constants of `data` with their locator. -/
+def ModuleData.extraConsts (data : ModuleData) : ModuleConsts Unit :=
+  { names := data.extraConstNames, val := fun _ => (), trie := data.extraConstTrie }
 
 /-- Import including information resulting from processing of the entire import DAG. -/
 structure EffectiveImport extends Import where
@@ -1430,7 +1439,7 @@ separately.
 -/
 def moduleDeclares (env : Environment) (mod : Name) (n : Name) : Bool :=
   match env.header.moduleName2Idx[mod]? with
-  | some idx => env.header.moduleData[idx.toNat]?.any fun d => d.constTrie.find? n |>.isSome
+  | some idx => env.header.moduleData[idx.toNat]?.any fun d => d.consts.findIdx? n |>.isSome
   | none     => false
 
 /--
@@ -2245,9 +2254,17 @@ Fills the `ModuleData` prefix tree fields from the corresponding arrays. Done ce
 saving so that no `ModuleData` producer can leave them inconsistent.
 -/
 private def ModuleData.setupTries (data : ModuleData) : ModuleData :=
+  let owners := Std.HashSet.ofArray data.constNames
+  let (constTrie, perm) := ConstTrie.build data.constNames owners.contains
+  -- extra constants may also be covered by constants, such as auxiliary definitions of a function
+  let extraOwners := data.extraConstNames.foldl (·.insert ·) owners
+  let (extraConstTrie, extraPerm) := ConstTrie.build data.extraConstNames extraOwners.contains
   { data with
-    constTrie      := .ofArrays data.constNames data.constants
-    extraConstTrie := .ofNames data.extraConstNames }
+    constNames := perm.map (data.constNames[·]!)
+    constants := perm.map (data.constants[·]!)
+    constTrie
+    extraConstNames := extraPerm.map (data.extraConstNames[·]!)
+    extraConstTrie }
 
 /--
 Stores each given module data in the respective file name. Objects shared with prior parts are not
@@ -2876,11 +2893,10 @@ private def checkImportConflicts (s : ImportState) (imports : Array Import)
   for x in *...n do
     covered := covered.set! x
       (if modules[x]?.any (·.importAll) then needsData[x]! &&& allOf[x]! else needsData[x]!)
-  let dups := ImportedConsts.collectDuplicates
-    (moduleData.mapIdx fun modIdx data => (modIdx, data.constTrie)) covered
+  let mods := moduleData.mapIdx fun modIdx data => (modIdx, data.consts)
+  let dups := ImportedConsts.collectDuplicates n mods covered
   unless dups.isEmpty do
-    let firstDecls := ImportedConsts.mergeModuleTreesLazy
-      (moduleData.mapIdx fun modIdx data => (modIdx, data.constTrie))
+    let firstDecls := ImportedConsts.mergeModules n mods
     let find? := firstDecls.find?
     for dup in dups do
       let some (c₀, i₀) := dup.entries[0]? | continue
@@ -2914,27 +2930,28 @@ def finalizeImport (s : ImportState) (imports : Array Import) (opts : Options) (
   -- modules get fresh nodes, on first access. Conflicts are checked separately up front, so entry
   -- resolution cannot fail.
   checkImportConflicts s imports modules moduleData
-  let privTrees := moduleData.mapIdx fun modIdx data => (modIdx, data.constTrie)
+  let numMods := moduleData.size
+  let privMods := moduleData.mapIdx fun modIdx data => (modIdx, data.consts)
   -- the first declaration of each name in module order, for resolving heads of declarations
-  let privFind? := (ImportedConsts.mergeModuleTreesLazy privTrees).find?
+  let privFind? := (ImportedConsts.mergeModules numMods privMods).find?
   -- Views of an environment that may be freed own their lookup caches, which are thus freed
   -- together with the import set; leaked environments use the cheaper global cache.
   let withCache {α : Type} (t : ImportedConsts α) : BaseIO (ImportedConsts α) :=
     if leakEnv then pure t else ImportedConsts.withCache t
   let privImported ← withCache <|
-    ImportedConsts.mergeModuleTreesLazy privTrees (resolveImportedEntry privFind?)
+    ImportedConsts.mergeModules numMods privMods (resolveImportedEntry privFind?)
   let importedExtraConsts ← withCache <|
-    ImportedConsts.mergeModuleTreesLazy <| irData.mapIdx fun modIdx data => (modIdx, data.extraConstTrie)
+    ImportedConsts.mergeModules numMods <| irData.mapIdx fun modIdx data => (modIdx, data.extraConsts)
   let mut publicTrees := #[]
   if isModule then
     for h : modIdx in *...modules.size do
       let mod := modules[modIdx]
       if mod.isExported then
         if let some data := mod.publicModule? then
-          publicTrees := publicTrees.push (modIdx, data.constTrie)
-  let publicFind? := (ImportedConsts.mergeModuleTreesLazy publicTrees).find?
+          publicTrees := publicTrees.push (modIdx, data.consts)
+  let publicFind? := (ImportedConsts.mergeModules numMods publicTrees).find?
   let publicImported ← withCache <|
-    ImportedConsts.mergeModuleTreesLazy publicTrees (resolveImportedEntry publicFind?)
+    ImportedConsts.mergeModules numMods publicTrees (resolveImportedEntry publicFind?)
 
   let exts ← mkInitialExtensionStates
   let privateBase : Kernel.Environment := {

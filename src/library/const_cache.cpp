@@ -12,7 +12,7 @@ Caches for imported-constant lookups.
 
 The imported-constants views of an environment are immutable per import set, so lookup results
 (including misses) can be cached. Each view created by `finalizeImport` owns a cache via its
-`ImportedConsts.cached` root, which is freed together with the view; lookups in other views, such as
+`ImportedConsts.cache` field, which is freed together with the view; lookups in other views, such as
 ones loaded from header snapshots or modified for testing, use a process-global cache.
 
 Slots hold immutable entries behind a single atomic pointer each, so lookups are lock-free; races
@@ -58,8 +58,6 @@ constexpr size_t global_initial_num_slots = 1 << 18;
 constexpr size_t view_initial_num_slots = 1 << 16;
 constexpr size_t max_num_slots = 1 << 26;
 constexpr size_t probe_window = 8;
-// constructor index of `ImportedConsts.cached`
-constexpr unsigned cached_tag = 3;
 
 struct table {
     // power of two
@@ -211,19 +209,17 @@ static inline __attribute__((always_inline)) lean_obj_res find_cached_in(cache &
     return r;
 }
 
-/* The `Option LookupCache` field of a `cached` root; `dropCache` may concurrently empty it. */
+/* The `Option LookupCache` field of an `ImportedConsts`; `dropCache` may concurrently empty it. */
 static lean_object * cache_field(b_lean_obj_arg root) {
     return __atomic_load_n(lean_ctor_obj_cptr(root), __ATOMIC_RELAXED);
 }
 
 static lean_obj_res find_cached(b_lean_obj_arg root, b_lean_obj_arg n,
         lean_object * (*core)(lean_obj_arg, lean_obj_arg)) {
-    if (lean_ptr_tag(root) == cached_tag) {
-        lean_object * opt = cache_field(root);
-        if (!lean_is_scalar(opt)) {
-            cache * c = static_cast<cache *>(lean_get_external_data(lean_ctor_get(opt, 0)));
-            return find_cached_in<true>(*c, root, n, core);
-        }
+    lean_object * opt = cache_field(root);
+    if (!lean_is_scalar(opt)) {
+        cache * c = static_cast<cache *>(lean_get_external_data(lean_ctor_get(opt, 0)));
+        return find_cached_in<true>(*c, root, n, core);
     }
     return find_cached_in<false>(g_global_cache, root, n, core);
 }
@@ -252,10 +248,8 @@ extern "C" LEAN_EXPORT lean_obj_res lean_imported_consts_cache_num_live() {
 
 /* ImportedConsts.dropCache (t : @& ImportedConsts α) : BaseIO Unit */
 extern "C" LEAN_EXPORT lean_obj_res lean_imported_consts_drop_cache(b_lean_obj_arg root) {
-    if (lean_ptr_tag(root) == cached_tag) {
-        // the old `some` cell and its cache are leaked: concurrent lookups may still use them
-        __atomic_store_n(lean_ctor_obj_cptr(root), lean_box(0), __ATOMIC_RELAXED);
-    }
+    // the old `some` cell and its cache are leaked: concurrent lookups may still use them
+    __atomic_store_n(lean_ctor_obj_cptr(root), lean_box(0), __ATOMIC_RELAXED);
     return lean_box(0);
 }
 

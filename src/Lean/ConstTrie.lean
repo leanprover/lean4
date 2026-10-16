@@ -16,27 +16,28 @@ import Init.While
 namespace Lean
 
 /-!
-Prefix trees over constant names, stored per module in its olean parts and merged at import time.
+Per-module locators for constant names, stored in the olean parts and merged at import time.
 
-Each olean part carries a prefix tree over its constant names whose nodes live in the memory-mapped
-compacted region. `finalizeImport` merges the per-module trees into an `ImportedConsts` view on
-demand, allocating fresh nodes only for name prefixes that occur in more than one module and
-sharing all single-module subtrees directly with the olean regions.
+Each olean part sorts its constant names by the prefix tree root that covers them (see `ConstTrie`)
+and stores a prefix tree over just these roots, in the memory-mapped compacted region. A lookup
+walks the tree to the root covering the name and binary-searches the root's range of the name
+array. `finalizeImport` merges the per-module trees into an `ImportedConsts` view on demand,
+allocating fresh nodes only for name prefixes that occur in more than one module.
 -/
 
 /--
-A prefix tree over the constant names of a single module, keyed on name components. `key` is the
-full name prefix represented by a node. `children` is sorted by the (cached) hash of the child keys
-and searched by binary search; as all children extend `key` by one component, comparing that final
-component suffices to disambiguate equal hashes. Nodes are split by shape so that leaves and
-value-less nodes store no unused fields.
+A locator over the names of a single module (its constants or its extra constants), keyed on name
+components. Each name is covered by a *root*: its shortest proper prefix that is a name of the
+module (or, for extra constants, one of its constants), or else the name itself. Roots never extend
+each other, so they are exactly the leaves of the tree; a leaf stores the range `[lo, hi)` of the
+module's name array that holds the names it covers, sorted by `Name.quickCmp`. `key` is the full
+name prefix represented by a node, and `children` is sorted by the (cached) hash of the child keys.
 -/
-public inductive ConstTrie (α : Type) where
-  | leaf (key : Name) (val : α)
-  | inner (key : Name) (children : Array (ConstTrie α))
-  | node (key : Name) (val : α) (children : Array (ConstTrie α))
+public inductive ConstTrie where
+  | inner (key : Name) (children : Array ConstTrie)
+  | leaf (key : Name) (lo hi : UInt32)
 
-public instance : Inhabited (ConstTrie α) := ⟨.inner .anonymous #[]⟩
+public instance : Inhabited ConstTrie := ⟨.inner .anonymous #[]⟩
 
 /--
 Checks whether the final components of two names agree, assuming their prefixes are already known
@@ -75,6 +76,17 @@ where
     else
       none
 
+/-- The index of `n` in `names[lo:hi]`, which is sorted by `Name.quickCmp`. -/
+partial def binSearchName (names : Array Name) (n : Name) (lo hi : Nat) : Option Nat :=
+  if lo < hi then
+    let mid := (lo + hi) / 2
+    match n.quickCmp names[mid]! with
+    | .lt => binSearchName names n lo mid
+    | .gt => binSearchName names n (mid + 1) hi
+    | .eq => some mid
+  else
+    none
+
 /-- The name and its prefixes, innermost first, excluding the anonymous root. -/
 def prefixesOf (n : Name) (acc : Array Name := .mkEmpty 8) : Array Name :=
   match n with
@@ -84,90 +96,121 @@ def prefixesOf (n : Name) (acc : Array Name := .mkEmpty 8) : Array Name :=
 
 namespace ConstTrie
 
-@[inline] public def key : ConstTrie α → Name
-  | .leaf k _ | .inner k .. | .node k .. => k
+@[inline] public def key : ConstTrie → Name
+  | .inner k _ | .leaf k .. => k
 
-@[inline] public def val? : ConstTrie α → Option α
-  | .leaf _ v | .node _ v .. => some v
-  | .inner .. => none
-
-@[inline] public def children : ConstTrie α → Array (ConstTrie α)
+@[inline] public def children : ConstTrie → Array ConstTrie
+  | .inner _ cs => cs
   | .leaf .. => #[]
-  | .inner _ cs | .node _ _ cs => cs
 
-/-- Creates a node of the appropriate shape; `children` must be sorted by key hash. -/
-public def mk (key : Name) (val? : Option α) (children : Array (ConstTrie α)) : ConstTrie α :=
-  match val?, children.isEmpty with
-  | some v, true => .leaf key v
-  | some v, false => .node key v children
-  | none, _ => .inner key children
-
-/-- Walks from `t`, the node for `path[i]` (or the root for `i = path.size`), to `path[0]`. -/
-partial def findAux (t : ConstTrie α) (path : Array Name) (i : Nat) : Option α :=
-  let child (cs : Array (ConstTrie α)) : Option α :=
-    match findChildIdx? cs key path[i - 1]! with
-    | some j => findAux cs[j]! path (i - 1)
-    | none   => none
+/--
+Walks from `t`, the node for `path[i]` (or the root for `i = path.size`), towards `path[0]` and
+returns the name range of the root covering `path[0]`, if any.
+-/
+partial def locate (t : ConstTrie) (path : Array Name) (i : Nat) : Option (Nat × Nat) :=
   match t with
-  | .leaf _ v => if i == 0 then some v else none
-  | .inner _ cs => if i == 0 then none else child cs
-  | .node _ v cs => if i == 0 then some v else child cs
-
-public def find? (t : ConstTrie α) (n : Name) : Option α :=
-  let path := prefixesOf n
-  t.findAux path path.size
-
-public partial def foldlM [Monad m] (t : ConstTrie α) (f : σ → Name → α → m σ) (init : σ) :
-    m σ := do
-  match t with
-  | .leaf k v => f init k v
-  | .inner _ cs => cs.foldlM (fun s c => c.foldlM f s) init
-  | .node k v cs => cs.foldlM (fun s c => c.foldlM f s) (← f init k v)
-
-/-- Intermediate state for constructing a `ConstTrie`, mapping each prefix to its data. -/
-structure Builder (α : Type) where
-  values   : Std.HashMap Name α := {}
-  /-- Prefixes for which the edge from their parent has been recorded already. -/
-  seen     : Std.HashSet Name := {}
-  children : Std.HashMap Name (Array Name) := {}
+  | .leaf _ lo hi => some (lo.toNat, hi.toNat)
+  | .inner _ cs =>
+    if i == 0 then
+      none
+    else
+      match findChildIdx? cs key path[i - 1]! with
+      | some j => locate cs[j]! path (i - 1)
+      | none   => none
 
 def parentOf : Name → Name
   | .anonymous => .anonymous
   | .str p _   => p
   | .num p _   => p
 
-def Builder.addName (b : Builder α) (n : Name) : Builder α := Id.run do
-  let mut b := b
-  let mut cur := n
-  while cur != .anonymous && !b.seen.contains cur do
-    b := { b with
-      seen     := b.seen.insert cur
-      children := b.children.alter (parentOf cur) fun cs? => some ((cs?.getD #[]).push cur) }
-    cur := parentOf cur
-  return b
+/-- The edges between the given roots and their prefixes. -/
+def childrenOf (roots : Array Name) : Std.HashMap Name (Array Name) := Id.run do
+  let mut seen : Std.HashSet Name := {}
+  let mut children : Std.HashMap Name (Array Name) := {}
+  for r in roots do
+    let mut cur := r
+    while cur != .anonymous && !seen.contains cur do
+      seen := seen.insert cur
+      children := children.alter (parentOf cur) fun cs? => some ((cs?.getD #[]).push cur)
+      cur := parentOf cur
+  return children
 
-partial def Builder.toTrie (b : Builder α) (key : Name) : ConstTrie α :=
-  let children := b.children[key]?.getD #[] |>.map (b.toTrie ·)
-  let children := children.qsort fun c₁ c₂ => c₁.key.hash < c₂.key.hash
-  .mk key b.values[key]? children
+partial def toTrie (children : Std.HashMap Name (Array Name)) (ranges : Std.HashMap Name (Nat × Nat))
+    (key : Name) : ConstTrie :=
+  match ranges[key]? with
+  | some (lo, hi) => .leaf key lo.toUInt32 hi.toUInt32
+  | none =>
+    let cs := children[key]?.getD #[] |>.map (toTrie children ranges ·)
+    .inner key (cs.qsort fun c₁ c₂ => c₁.key.hash < c₂.key.hash)
 
-/-- Creates a trie mapping `names[i]` to `vals[i]`. -/
-public def ofArrays (names : Array Name) (vals : Array α) : ConstTrie α := Id.run do
-  let mut b : Builder α := {}
-  for n in names, v in vals do
-    b := { b with values := b.values.insert n v }
-    b := b.addName n
-  return b.toTrie .anonymous
-
-/-- Creates a trie containing `names` as keys. -/
-public def ofNames (names : Array Name) : ConstTrie Unit := Id.run do
-  let mut b : Builder Unit := {}
-  for n in names do
-    b := { b with values := b.values.insert n () }
-    b := b.addName n
-  return b.toTrie .anonymous
+/--
+Builds the locator for `names`, where `isOwner` holds for the names that may serve as roots (a
+superset of `names`). Returns the trie and the order of `names` it requires: `perm[j]` is the index
+in `names` of the name to be stored at position `j`.
+-/
+public def build (names : Array Name) (isOwner : Name → Bool) : ConstTrie × Array Nat := Id.run do
+  let roots := names.map fun n => Id.run do
+    let mut root := n
+    let mut cur := parentOf n
+    while cur != .anonymous do
+      if isOwner cur then
+        root := cur
+      cur := parentOf cur
+    return root
+  let mut rootSet : Std.HashSet Name := {}
+  for r in roots do
+    rootSet := rootSet.insert r
+  let sortedRoots := rootSet.toArray.qsort fun a b => a.quickCmp b == .lt
+  let mut rootIdx : Std.HashMap Name Nat := {}
+  for h : k in [0:sortedRoots.size] do
+    rootIdx := rootIdx.insert sortedRoots[k] k
+  let rootIdxs := roots.map (rootIdx[·]!)
+  let perm := (Array.range names.size).qsort fun a b =>
+    let ra := rootIdxs[a]!
+    let rb := rootIdxs[b]!
+    ra < rb || (ra == rb && names[a]!.quickCmp names[b]! == .lt)
+  let mut ranges : Std.HashMap Name (Nat × Nat) := {}
+  let mut j := 0
+  while j < perm.size do
+    let r := rootIdxs[perm[j]!]!
+    let lo := j
+    while j < perm.size && rootIdxs[perm[j]!]! == r do
+      j := j + 1
+    ranges := ranges.insert sortedRoots[r]! (lo, j)
+  return (toTrie (childrenOf sortedRoots) ranges .anonymous, perm)
 
 end ConstTrie
+
+/--
+The names of a single module (its constants or its extra constants) together with their values and
+locator; see `ConstTrie`. `names` is in the order required by the locator.
+-/
+public structure ModuleConsts (α : Type) where
+  names : Array Name
+  val : Nat → α
+  trie : ConstTrie
+
+namespace ModuleConsts
+
+/-- The position of `n` in `m.names`. -/
+public def findIdx? (m : ModuleConsts α) (n : Name) : Option Nat :=
+  let path := prefixesOf n
+  match m.trie.locate path path.size with
+  | some (lo, hi) => binSearchName m.names n lo hi
+  | none          => none
+
+public def find? (m : ModuleConsts α) (n : Name) : Option α :=
+  m.findIdx? n |>.map m.val
+
+/-- Builds the module data for `names` and `vals`, taking `owners` as roots in addition to `names`. -/
+public def ofArrays (names : Array Name) (vals : Array α) [Inhabited α]
+    (owners : Std.HashSet Name := {}) : ModuleConsts α :=
+  let owners := names.foldl (·.insert ·) owners
+  let (trie, perm) := ConstTrie.build names owners.contains
+  let vals := perm.map (vals[·]!)
+  { names := perm.map (names[·]!), val := (vals[·]!), trie }
+
+end ModuleConsts
 
 opaque LookupCacheImpl : NonemptyType.{0}
 
@@ -189,134 +232,172 @@ public opaque LookupCache.numLive : BaseIO Nat
 -- `Thunk` fields have no `sizeOf` theorems
 set_option genSizeOfSpec false in
 /--
-Merged view of the per-module constant prefix trees of all imported modules. Node keys and lookup
-work like in `ConstTrie`; subtrees whose prefix occurs in only a single module are borrowed
-directly from that module's (usually region-resident) tree.
+A node of the merged locator of several modules. Subtrees whose prefix occurs in only a single
+module are borrowed directly from that module's (usually region-resident) locator; nodes whose
+prefix occurs in several modules record the modules whose roots end there (`owners`, as module
+index and name range) and merge their children.
 -/
-public inductive ImportedConsts (α : Type) where
-  /-- A subtree containing entries of only a single module: the module's own tree. -/
-  | mod (modIdx : Nat) (tree : ConstTrie α)
+public inductive ImportedNode where
+  | mod (modIdx : Nat) (tree : ConstTrie)
+  | merged (key : Name) (owners : Array (Nat × Nat × Nat)) (children : Array ImportedNode)
   /--
-  A node whose prefix occurs in several modules, allocated at import time. `entry?` holds the value
-  together with the index of the first module declaring it.
-  -/
-  | merged (key : Name) (entry? : Option (α × Nat)) (children : Array (ImportedConsts α))
-  /--
-  Like `merged`, but with the entry and children computed on first access from the candidate
-  subtrees sharing the prefix, one level at a time; the entry resolution rule is fixed at merge
-  time (see `mergeModuleTreesLazy`). Thunk forcing is thread-safe and supported on persistent
+  Like `merged`, but with the children computed on first access from the candidate subtrees sharing
+  the prefix, one level at a time. Thunk forcing is thread-safe and supported on persistent
   objects, so lazy nodes are safe to share across elaboration threads.
   -/
-  | lazy (key : Name) (entry : Thunk (Option (α × Nat))) (children : Thunk (Array (ImportedConsts α)))
-  /--
-  The root of a view, owning the cache used by `findConstEntryCached?` and `findExtraEntryCached?`;
-  see `withCache`. Views without a cache, including ones whose cache was emptied by `dropCache`,
-  are cached in a process-global table instead, which keeps them alive. The C++ cache identifies
-  this constructor by its index, so it must stay the fourth one.
-  -/
-  | cached (cache : Option LookupCache) (tree : ImportedConsts α)
+  | lazy (key : Name) (owners : Array (Nat × Nat × Nat)) (children : Thunk (Array ImportedNode))
 
-public instance : Inhabited (ImportedConsts α) := ⟨.merged .anonymous none #[]⟩
+public instance : Inhabited ImportedNode := ⟨.merged .anonymous #[] #[]⟩
 
-namespace ImportedConsts
+namespace ImportedNode
 
-public def empty : ImportedConsts α := .merged .anonymous none #[]
-
-def key : ImportedConsts α → Name
+def key : ImportedNode → Name
   | .mod _ t     => t.key
   | .merged k .. => k
   | .lazy k ..   => k
-  | .cached _ t  => t.key
 
-/-- Creates a `merged` node; `children` must be sorted by key hash. -/
-public def mkMerged (key : Name) (entry? : Option (α × Nat))
-    (children : Array (ImportedConsts α)) : ImportedConsts α :=
-  .merged key entry? children
+/-- Collects the name ranges of the roots covering `path[0]`, walking from `t`, the node for `path[i]`. -/
+partial def collect (t : ImportedNode) (path : Array Name) (i : Nat) (acc : Array (Nat × Nat × Nat)) :
+    Array (Nat × Nat × Nat) :=
+  match t with
+  | .mod modIdx tr =>
+    match tr.locate path i with
+    | some (lo, hi) => acc.push (modIdx, lo, hi)
+    | none          => acc
+  | .merged _ owners cs => go owners cs
+  | .lazy _ owners cs => go owners cs.get
+where
+  @[inline] go (owners : Array (Nat × Nat × Nat)) (cs : Array ImportedNode) :
+      Array (Nat × Nat × Nat) :=
+    let acc := acc ++ owners
+    if i == 0 then
+      acc
+    else
+      match findChildIdx? cs key path[i - 1]! with
+      | some j => collect cs[j]! path (i - 1) acc
+      | none   => acc
 
-/-- Wraps `t` in a `cached` root with a fresh lookup cache, freed together with the result. -/
-public def withCache (t : ImportedConsts α) : BaseIO (ImportedConsts α) := do
-  return .cached (some (← LookupCache.new)) t
+/-- Recursively forces all lazily merged nodes. -/
+partial def force : ImportedNode → ImportedNode
+  | .lazy k owners cs => .merged k owners (cs.get.map force)
+  | .merged k owners cs => .merged k owners (cs.map force)
+  | t@(.mod ..) => t
+
+end ImportedNode
 
 /--
-Empties the cache field of a `cached` root in place, so that the view can be compacted; lookups
-then use the process-global cache. The emptied cache is leaked, as concurrent lookups may still use
-it.
+Folds over the children of `cands`, the nodes of several modules for one name prefix, grouped by
+key in key hash order. `single` receives a child whose key occurs in only one of the modules,
+`multi` the children sharing a key, with their module indices in module order.
+-/
+@[inline] def foldChildGroups (cands : Array (Nat × ConstTrie)) (init : σ)
+    (single : σ → Nat → ConstTrie → σ) (multi : σ → Array (Nat × ConstTrie) → σ) : σ :=
+    Id.run do
+  -- Flatten the candidates' children with their key hashes so that sort comparisons stay within
+  -- the flattened elements, then sort by (hash, module order).
+  let mut total := 0
+  for (_, t) in cands do
+    total := total + t.children.size
+  let mut all : Array (UInt64 × Nat × ConstTrie) := .mkEmpty total
+  for (i, t) in cands do
+    for c in t.children do
+      all := all.push (c.key.hash, i, c)
+  let sorted := all.qsort fun (h₁, i₁, _) (h₂, i₂, _) => h₁ < h₂ || (h₁ == h₂ && i₁ < i₂)
+  let mut s := init
+  let mut idx := 0
+  while idx < sorted.size do
+    let (hash₀, i, c) := sorted[idx]!
+    idx := idx + 1
+    if idx == sorted.size || sorted[idx]!.1 != hash₀ then
+      s := single s i c
+    else
+      -- gather the run of children with the same key hash, partitioned by actual key in case of
+      -- hash collisions
+      let mut groups : Array (Array (Nat × ConstTrie)) := #[#[(i, c)]]
+      while idx < sorted.size && sorted[idx]!.1 == hash₀ do
+        let (_, i, c) := sorted[idx]!
+        match groups.findIdx? fun g => lastPartEq g[0]!.2.key c.key with
+        | some gi => groups := groups.modify gi (·.push (i, c))
+        | none    => groups := groups.push #[(i, c)]
+        idx := idx + 1
+      for g in groups do
+        s := if g.size == 1 then single s g[0]!.1 g[0]!.2 else multi s g
+  return s
+
+partial def mergeNodes (key : Name) (cands : Array (Nat × ConstTrie)) : ImportedNode :=
+  if cands.size == 1 then
+    let (i, t) := cands[0]!
+    .mod i t
+  else
+    let owners := cands.filterMap fun
+      | (i, .leaf _ lo hi) => some (i, lo.toNat, hi.toNat)
+      | _ => none
+    .lazy key owners <| Thunk.mk fun _ =>
+      -- single-module children are borrowed as they are
+      foldChildGroups (cands.filter (·.2 matches .inner ..)) #[] (fun cs i c => cs.push (.mod i c))
+        (fun cs g => cs.push (mergeNodes g[0]!.2.key g))
+
+/--
+Merged view of the constants (or extra constants) of all imported modules; see `ImportedNode`.
+`mods` holds the module data by module index, and `resolve` picks the entry for a name declared by
+several modules from the candidate entries, given in module order. The C++ lookup cache reads
+`cache`, so it must stay the first field.
+-/
+public structure ImportedConsts (α : Type) where
+  /--
+  The cache used by `findConstEntryCached?` and `findExtraEntryCached?`; see `withCache`. Views
+  without a cache, including ones whose cache was emptied by `dropCache`, are cached in a
+  process-global table instead, which keeps them alive.
+  -/
+  cache : Option LookupCache := none
+  mods : Array (Option (ModuleConsts α)) := #[]
+  root : ImportedNode := default
+  resolve : Array (α × Nat) → Option (α × Nat) := (·[0]?)
+  /-- Entries replacing the ones of the modules, for testing. -/
+  overrides : PersistentHashMap Name (α × Nat) := {}
+
+public instance : Inhabited (ImportedConsts α) := ⟨{}⟩
+
+namespace ImportedConsts
+
+public def empty : ImportedConsts α := {}
+
+/--
+Merges the data of the given modules, given in module order with indices below `numMods`, into a
+single view, merging nodes on first access. Conflicting declarations must have been ruled out
+beforehand, e.g. using `collectDuplicates`.
+-/
+public def mergeModules (numMods : Nat) (mods : Array (Nat × ModuleConsts α))
+    (resolve : Array (α × Nat) → Option (α × Nat) := (·[0]?)) : ImportedConsts α :=
+  let modArr := mods.foldl (init := .replicate numMods none) fun arr (i, m) => arr.set! i (some m)
+  { mods := modArr, root := mergeNodes .anonymous (mods.map fun (i, m) => (i, m.trie)), resolve }
+
+/-- Wraps `t` in a view with a fresh lookup cache, freed together with the result. -/
+public def withCache (t : ImportedConsts α) : BaseIO (ImportedConsts α) := do
+  return { t with cache := some (← LookupCache.new) }
+
+/--
+Empties the cache field of `t` in place, so that the view can be compacted; lookups then use the
+process-global cache. The emptied cache is leaked, as concurrent lookups may still use it.
 -/
 @[extern "lean_imported_consts_drop_cache"]
 public opaque dropCache (t : @& ImportedConsts α) : BaseIO Unit
 
-/-- Walks from `t`, the node for `path[i]` (or the root for `i = path.size`), to `path[0]`. -/
-partial def findValAux : ImportedConsts α → Array Name → Nat → Option α
-  | .mod _ tr, path, i => tr.findAux path i
-  | .lazy _ entry children, path, i =>
-    if i == 0 then
-      entry.get.map (·.1)
-    else
-      let cs := children.get
-      match findChildIdx? cs key path[i - 1]! with
-      | some j => findValAux cs[j]! path (i - 1)
-      | none   => none
-  | .cached _ t, path, i => findValAux t path i
-  | .merged _ e? cs, path, i =>
-    if i == 0 then
-      match e? with
-      | some (v, _) => some v
-      | none        => none
-    else
-      match findChildIdx? cs key path[i - 1]! with
-      | some j => findValAux cs[j]! path (i - 1)
-      | none   => none
-
-partial def findModIdxAux : ImportedConsts α → Array Name → Nat → Option Nat
-  | .mod modIdx tr, path, i =>
-    match tr.findAux path i with
-    | some _ => some modIdx
-    | none   => none
-  | .lazy _ entry children, path, i =>
-    if i == 0 then
-      entry.get.map (·.2)
-    else
-      let cs := children.get
-      match findChildIdx? cs key path[i - 1]! with
-      | some j => findModIdxAux cs[j]! path (i - 1)
-      | none   => none
-  | .cached _ t, path, i => findModIdxAux t path i
-  | .merged _ e? cs, path, i =>
-    if i == 0 then
-      match e? with
-      | some (_, modIdx) => some modIdx
-      | none             => none
-    else
-      match findChildIdx? cs key path[i - 1]! with
-      | some j => findModIdxAux cs[j]! path (i - 1)
-      | none   => none
-
-partial def findEntryAux : ImportedConsts α → Array Name → Nat → Option (α × Nat)
-  | .mod modIdx tr, path, i =>
-    match tr.findAux path i with
-    | some v => some (v, modIdx)
-    | none   => none
-  | .lazy _ entry children, path, i =>
-    if i == 0 then
-      entry.get
-    else
-      let cs := children.get
-      match findChildIdx? cs key path[i - 1]! with
-      | some j => findEntryAux cs[j]! path (i - 1)
-      | none   => none
-  | .cached _ t, path, i => findEntryAux t path i
-  | .merged _ e? cs, path, i =>
-    if i == 0 then
-      e?
-    else
-      match findChildIdx? cs key path[i - 1]! with
-      | some j => findEntryAux cs[j]! path (i - 1)
-      | none   => none
-
 /-- Finds the value for `n` together with the index of the first module declaring it. -/
-public def findEntry? (t : ImportedConsts α) (n : Name) : Option (α × Nat) :=
+public def findEntry? (t : ImportedConsts α) (n : Name) : Option (α × Nat) := Id.run do
+  if let some e := t.overrides.find? n then
+    return some e
   let path := prefixesOf n
-  t.findEntryAux path path.size
+  let cands := t.root.collect path path.size #[]
+  let mut hits : Array (α × Nat) := #[]
+  for (i, lo, hi) in cands do
+    if let some (some m) := t.mods[i]? then
+      if let some idx := binSearchName m.names n lo hi then
+        hits := hits.push (m.val idx, i)
+  if hits.size ≤ 1 then
+    return hits[0]?
+  else
+    return t.resolve (hits.qsort (·.2 < ·.2))
 
 @[export lean_imported_consts_find_entry_core]
 def findEntryCore (t : ImportedConsts ConstantInfo) (n : Name) :
@@ -324,8 +405,8 @@ def findEntryCore (t : ImportedConsts ConstantInfo) (n : Name) :
   t.findEntry? n
 
 /--
-`findEntry?` for the constants view, memoized in a lock-free cache: the one owned by a `cached`
-root, or else a process-global one; sound because the imported view is immutable per import set.
+`findEntry?` for the constants view, memoized in a lock-free cache: the one owned by the view, or
+else a process-global one; sound because the imported view is immutable per import set.
 Implemented in C++ (`src/library/const_cache.cpp`) where cache hits can avoid reference counting
 on the view and key.
 -/
@@ -360,196 +441,59 @@ public def findExtraModIdxCached? (t : ImportedConsts Unit) (n : Name) : Option 
   | none             => none
 
 /--
-Empties the process-global lookup cache used for views without a `cached` root, e.g. after
-persisting the environment when the cache contents are not expected to be useful anymore. Entries are leaked, as concurrent readers may still
-hold them; clearing merely reopens their slots.
+Empties the process-global lookup cache used for views without their own cache, e.g. after
+persisting the environment when the cache contents are not expected to be useful anymore. Entries
+are leaked, as concurrent readers may still hold them; clearing merely reopens their slots.
 -/
 @[extern "lean_imported_consts_cache_reset"]
 public opaque resetCache : IO Unit
 
 public def find? (t : ImportedConsts α) (n : Name) : Option α :=
-  let path := prefixesOf n
-  t.findValAux path path.size
+  t.findEntry? n |>.map (·.1)
 
 public def findModIdx? (t : ImportedConsts α) (n : Name) : Option Nat :=
-  let path := prefixesOf n
-  t.findModIdxAux path path.size
+  t.findEntry? n |>.map (·.2)
 
 public def contains (t : ImportedConsts α) (n : Name) : Bool :=
-  t.find? n |>.isSome
-
-/-- A constant name declared by more than one module; see `collectDuplicates`. -/
-public structure Duplicate (α : Type) where
-  name : Name
-  /-- The declared values with their module indices, in module order. -/
-  entries : Array (α × Nat)
+  t.findEntry? n |>.isSome
 
 /--
-Folds over the children of `cands`, the nodes of several modules for one name prefix, grouped by
-key in key hash order. `single` receives a child whose key occurs in only one of the modules,
-`multi` the children sharing a key, with their module indices in module order.
+Replaces the entry for `n`, keeping the index of the module declaring it, for testing. The result
+has no lookup cache of its own.
 -/
-@[inline] def foldChildGroups (cands : Array (Nat × ConstTrie α)) (init : σ)
-    (single : σ → Nat → ConstTrie α → σ) (multi : σ → Array (Nat × ConstTrie α) → σ) : σ :=
-    Id.run do
-  -- Flatten the candidates' children with their key hashes so that sort comparisons stay within
-  -- the flattened elements, then sort by (hash, module order).
-  let mut total := 0
-  for (_, t) in cands do
-    total := total + t.children.size
-  let mut all : Array (UInt64 × Nat × ConstTrie α) := .mkEmpty total
-  for (i, t) in cands do
-    for c in t.children do
-      all := all.push (c.key.hash, i, c)
-  let sorted := all.qsort fun (h₁, i₁, _) (h₂, i₂, _) => h₁ < h₂ || (h₁ == h₂ && i₁ < i₂)
+public def override (t : ImportedConsts α) (n : Name) (v : α) : ImportedConsts α :=
+  let modIdx := (t.findEntry? n).map (·.2) |>.getD 0
+  { t with cache := none, overrides := t.overrides.insert n (v, modIdx) }
+
+/--
+Forces all lazily merged nodes and drops the lookup cache. Compacting an environment, such as for
+`--incr-header-save`, forces the thunks anyway; doing so eagerly instead avoids running merges in
+the middle of compaction and compacting the thunk wrappers themselves, and caches cannot be
+compacted.
+-/
+public def forceExpanded (t : ImportedConsts α) : ImportedConsts α :=
+  { t with cache := none, root := t.root.force }
+
+/--
+Folds over all names in module order, passing each name's entry once, from the module it is
+attributed to (see `findEntry?`).
+-/
+public def foldlEntriesM [Monad m] (t : ImportedConsts α) (f : σ → Name → α × Nat → m σ)
+    (init : σ) : m σ := do
   let mut s := init
-  let mut idx := 0
-  while idx < sorted.size do
-    let (hash₀, i, c) := sorted[idx]!
-    idx := idx + 1
-    if idx == sorted.size || sorted[idx]!.1 != hash₀ then
-      s := single s i c
-    else
-      -- gather the run of children with the same key hash, partitioned by actual key in case of
-      -- hash collisions
-      let mut groups : Array (Array (Nat × ConstTrie α)) := #[#[(i, c)]]
-      while idx < sorted.size && sorted[idx]!.1 == hash₀ do
-        let (_, i, c) := sorted[idx]!
-        match groups.findIdx? fun g => lastPartEq g[0]!.2.key c.key with
-        | some gi => groups := groups.modify gi (·.push (i, c))
-        | none    => groups := groups.push #[(i, c)]
-        idx := idx + 1
-      for g in groups do
-        s := if g.size == 1 then single s g[0]!.1 g[0]!.2 else multi s g
+  for h : i in [0:t.mods.size] do
+    if let some md := t.mods[i] then
+      for n in md.names do
+        if let some e := t.findEntry? n then
+          if e.2 == i then
+            s ← f s n e
   return s
 
-partial def collectDupsAux (covered : Array UInt64) (key : Name)
-    (cands : Array (Nat × ConstTrie α)) (acc : Array (Duplicate α)) : Array (Duplicate α) :=
-    Id.run do
-  -- Modules jointly covered by one direct import (a common mask bit) are pairwise
-  -- conflict-checked already; nothing below this prefix needs visiting.
-  unless covered.isEmpty do
-    let mut common : UInt64 := 0xFFFFFFFFFFFFFFFF
-    for (i, _) in cands do
-      common := common &&& covered[i]!
-    if common != 0 then
-      return acc
-  let mut acc := acc
-  let entries := cands.filterMap fun (i, t) => t.val?.map ((·, i))
-  if entries.size > 1 then
-    acc := acc.push { name := key, entries }
-  -- no duplicate can hide below a single-module subtree, so those are skipped without a visit
-  return foldChildGroups cands acc (fun acc _ _ => acc)
-    (fun acc g => collectDupsAux covered g[0]!.2.key g acc)
-
-/--
-Collects the names declared by more than one of the given modules, with their declarations in
-module order, without building a merged view: only name prefixes occurring in several modules are
-walked. `covered` optionally gives each module a bitmask of covering direct imports; subtrees
-whose modules share a mask bit are skipped, as their pairs are conflict-checked already (see
-`checkImportConflicts`).
--/
-public def collectDuplicates (trees : Array (Nat × ConstTrie α))
-    (covered : Array UInt64 := #[]) : Array (Duplicate α) :=
-  if trees.size < 2 then #[]
-  else collectDupsAux covered .anonymous trees #[]
-
-partial def mergeLazy (resolve : Array (α × Nat) → Option (α × Nat)) (key : Name)
-    (cands : Array (Nat × ConstTrie α)) : ImportedConsts α :=
-  if cands.size == 1 then
-    let (i, t) := cands[0]!
-    .mod i t
-  else
-    .lazy key
-      (Thunk.mk fun _ => resolve <| cands.filterMap fun (i, t) => t.val?.map ((·, i)))
-      (Thunk.mk fun _ => expandLazy cands)
-where
-  expandLazy (cands : Array (Nat × ConstTrie α)) : Array (ImportedConsts α) :=
-    -- single-module children are borrowed as they are
-    foldChildGroups cands #[] (fun cs i c => cs.push (.mod i c))
-      (fun cs g => cs.push (mergeLazy resolve g[0]!.2.key g))
-
-/--
-Merges per-module trees, given in module order, into a single view, merging each node's entry and
-children on first access. Only name prefixes occurring in more than one module get fresh nodes;
-single-module subtrees are shared with the given trees. `resolve` picks the entry stored for a name
-declared by several modules from the candidate entries, given in module order. Conflicting
-declarations must have been ruled out beforehand, e.g. using `collectDuplicates`.
--/
-public def mergeModuleTreesLazy (trees : Array (Nat × ConstTrie α))
-    (resolve : Array (α × Nat) → Option (α × Nat) := (·[0]?)) : ImportedConsts α :=
-  mergeLazy resolve .anonymous trees
-
-/--
-Replaces the node for `n` using `f`. `n` must be a prefix shared by several modules, such as a
-`Duplicate` name; single-module subtrees are never modified.
--/
-public partial def modifyAt (t : ImportedConsts α) (n : Name)
-    (f : ImportedConsts α → ImportedConsts α) : ImportedConsts α :=
-  match n with
-  | .anonymous   => f t
-  | n@(.str p _) => t.modifyAt p (modifyChild n f)
-  | n@(.num p _) => t.modifyAt p (modifyChild n f)
-where
-  @[inline] modifyChild (n : Name) (f : ImportedConsts α → ImportedConsts α) :
-      ImportedConsts α → ImportedConsts α
-    | t@(.mod ..)       => t
-    | .cached _ t       => modifyChild n f t
-    | .lazy k e cs =>
-      -- force the node so the modification is not lost on re-expansion
-      modifyChild n f (.merged k e.get cs.get)
-    | .merged k e? cs =>
-      match findChildIdx? cs key n with
-      | some i => .merged k e? (cs.modify i f)
-      | none   => .merged k e? cs
-
-/--
-Recursively forces all lazily merged nodes into `merged` nodes. Compacting an environment, such
-as for `--incr-header-save`, forces the thunks anyway; doing so eagerly instead avoids running
-merges in the middle of compaction and compacting the thunk wrappers themselves.
--/
-public partial def forceExpanded : ImportedConsts α → ImportedConsts α
-  | .lazy k entry cs => .merged k entry.get (cs.get.map forceExpanded)
-  | .merged k e? cs => .merged k e? (cs.map forceExpanded)
-  -- caches cannot be compacted
-  | .cached _ t        => forceExpanded t
-  | t                  => t
-
-public partial def foldlM [Monad m] (t : ImportedConsts α) (f : σ → Name → α → m σ) (init : σ) :
-    m σ := do
-  match t with
-  | .mod _ tr => tr.foldlM f init
-  | .merged k e? cs =>
-    let mut s := init
-    if let some (v, _) := e? then
-      s ← f s k v
-    cs.foldlM (fun s c => c.foldlM f s) s
-  | .lazy k entry children =>
-    let mut s := init
-    if let some (v, _) := entry.get then
-      s ← f s k v
-    children.get.foldlM (fun s c => c.foldlM f s) s
-  | .cached _ t => t.foldlM f init
+public def foldlM [Monad m] (t : ImportedConsts α) (f : σ → Name → α → m σ) (init : σ) : m σ :=
+  t.foldlEntriesM (fun s n (v, _) => f s n v) init
 
 public def foldl (t : ImportedConsts α) (f : σ → Name → α → σ) (init : σ) : σ :=
   t.foldlM (m := Id) f init
-
-/-- Like `foldlM`, but also passing the index of the first module declaring each name. -/
-public partial def foldlEntriesM [Monad m] (t : ImportedConsts α)
-    (f : σ → Name → α × Nat → m σ) (init : σ) : m σ := do
-  match t with
-  | .mod modIdx tr => tr.foldlM (fun s n v => f s n (v, modIdx)) init
-  | .merged k e? cs =>
-    let mut s := init
-    if let some e := e? then
-      s ← f s k e
-    cs.foldlM (fun s c => c.foldlEntriesM f s) s
-  | .lazy k entry children =>
-    let mut s := init
-    if let some e := entry.get then
-      s ← f s k e
-    children.get.foldlM (fun s c => c.foldlEntriesM f s) s
-  | .cached _ t => t.foldlEntriesM f init
 
 public def forM [Monad m] (t : ImportedConsts α) (f : Name → α → m PUnit) : m PUnit :=
   t.foldlM (fun _ n v => f n v) ⟨⟩
@@ -586,11 +530,93 @@ public instance [Monad m] : ForM m (ImportedConsts α) (Name × α) where
 
 public instance [Monad m] : ForIn m (ImportedConsts α) (Name × α) := ⟨ForM.forIn⟩
 
+/-- A constant name declared by more than one module; see `collectDuplicates`. -/
+public structure Duplicate (α : Type) where
+  name : Name
+  /-- The declared values with their module indices, in module order. -/
+  entries : Array (α × Nat)
+
+/-- Accumulated duplicates: for each name, the entries found so far. -/
+abbrev DupAcc (α : Type) := Std.HashMap Name (Array (α × Nat))
+
+/--
+Records the names of module `i`'s range `[lo, hi)` that also occur in one of the `owners` ranges of
+other modules, skipping module pairs already covered by a common direct import.
+-/
+def checkRange (mods : Array (Option (ModuleConsts α))) (covered : Array UInt64)
+    (owners : Array (Nat × Nat × Nat)) (i lo hi : Nat) (acc : DupAcc α) : DupAcc α := Id.run do
+  let some (some mi) := mods[i]? | return acc
+  let others := owners.filter fun (j, _, _) =>
+    j != i && (covered.isEmpty || covered[i]! &&& covered[j]! == 0)
+  if others.isEmpty then
+    return acc
+  let mut acc := acc
+  for idx in [lo:hi] do
+    let n := mi.names[idx]!
+    for (j, lo', hi') in others do
+      let some (some mj) := mods[j]? | continue
+      if let some k := binSearchName mj.names n lo' hi' then
+        let add (es : Array (α × Nat)) (e : α × Nat) :=
+          if es.any (·.2 == e.2) then es else es.push e
+        acc := acc.alter n fun es? =>
+          some (add (add (es?.getD #[]) (mi.val idx, i)) (mj.val k, j))
+  return acc
+
+/-- Checks all roots of module `i`'s subtree `t` against `owners`. -/
+partial def checkSubtree (mods : Array (Option (ModuleConsts α))) (covered : Array UInt64)
+    (owners : Array (Nat × Nat × Nat)) (i : Nat) (t : ConstTrie) (acc : DupAcc α) : DupAcc α :=
+  let owners := owners.filter fun (j, _, _) =>
+    j != i && (covered.isEmpty || covered[i]! &&& covered[j]! == 0)
+  if owners.isEmpty then acc else go owners t acc
+where
+  go (owners : Array (Nat × Nat × Nat)) : ConstTrie → DupAcc α → DupAcc α
+    | .leaf _ lo hi, acc => checkRange mods covered owners i lo.toNat hi.toNat acc
+    | .inner _ cs, acc => cs.foldl (fun acc c => go owners c acc) acc
+
+partial def sweep (mods : Array (Option (ModuleConsts α))) (covered : Array UInt64)
+    (cands : Array (Nat × ConstTrie)) (above : Array (Nat × Nat × Nat)) (acc : DupAcc α) :
+    DupAcc α := Id.run do
+  -- Modules jointly covered by one direct import (a common mask bit) are pairwise
+  -- conflict-checked already; nothing below this prefix needs visiting.
+  unless covered.isEmpty do
+    let mut common : UInt64 := 0xFFFFFFFFFFFFFFFF
+    for (i, _) in cands do
+      common := common &&& covered[i]!
+    for (j, _, _) in above do
+      common := common &&& covered[j]!
+    if common != 0 then
+      return acc
+  let mut acc := acc
+  let mut owners := above
+  for (i, t) in cands do
+    if let .leaf _ lo hi := t then
+      acc := checkRange mods covered owners i lo.toNat hi.toNat acc
+      owners := owners.push (i, lo.toNat, hi.toNat)
+  let inners := cands.filter (·.2 matches .inner ..)
+  -- a single-module subtree can only hide duplicates of names owned further up
+  return foldChildGroups inners acc
+    (fun acc i c => if owners.isEmpty then acc else checkSubtree mods covered owners i c acc)
+    (fun acc g => sweep mods covered g owners acc)
+
+/--
+Collects the names declared by more than one of the given modules, with their declarations in
+module order, without building a merged view. `covered` optionally gives each module (by index) a
+bitmask of covering direct imports; module pairs sharing a mask bit are skipped, as they are
+conflict-checked already (see `checkImportConflicts`).
+-/
+public def collectDuplicates (numMods : Nat) (mods : Array (Nat × ModuleConsts α))
+    (covered : Array UInt64 := #[]) : Array (Duplicate α) := Id.run do
+  if mods.size < 2 then
+    return #[]
+  let modArr := mods.foldl (init := .replicate numMods none) fun arr (i, m) => arr.set! i (some m)
+  let acc := sweep modArr covered (mods.map fun (i, m) => (i, m.trie)) #[] {}
+  return acc.toArray.map fun (name, entries) => { name, entries := entries.qsort (·.2 < ·.2) }
+
 end ImportedConsts
 
 /--
-The constants of an environment: the imported constants merged from the per-olean prefix trees
-plus the constants declared in the current module.
+The constants of an environment: the imported constants merged from the per-olean locators plus the
+constants declared in the current module.
 -/
 public structure ConstMap where
   /-- Constants from imported modules. -/

@@ -1,0 +1,9 @@
+'_private.elab.constTrieDuplicatesSpec.0.ConstTrieDupSpec.collectDuplicates_complete' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'_private.elab.constTrieDuplicatesSpec.0.ConstTrieDupSpec.collectDuplicates_sound' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'_private.elab.constTrieDuplicatesSpec.0.ConstTrieDupSpec.Has.unique' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]

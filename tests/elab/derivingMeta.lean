@@ -51,7 +51,7 @@ instance [MyClass α] : MyClass (Array α) where
 Simple example of how you can write a deriving handler using the new framework
 -/
 
-meta def handler := mkInductiveDerivingHandler (needSucc := true) do
+meta def handler := mkInductiveDerivingHandler .typeU do
   deriveTransformationInstPerConstructor ``MyClass fun ival cval fields => do
     let mut encodings : Array Expr := #[]
     for field in fields do
@@ -170,7 +170,7 @@ class ToULift (α : Type u) where
   lift : α → ULift.{u} Nat
 
 meta def toULiftHandler : DerivingHandler :=
-  mkInductiveDerivingHandler (needSucc := true) do
+  mkInductiveDerivingHandler .typeU do
     deriveTransformationInstPerConstructor ``ToULift fun _ _ _ =>
       return mkApp2 (.const ``ULift.up [0, 0]) (mkConst ``Nat) (mkNatLit 0)
 

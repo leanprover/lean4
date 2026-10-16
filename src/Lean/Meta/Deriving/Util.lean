@@ -464,7 +464,9 @@ def containsRecursiveDecl (e : Expr) : DerivingM Bool := do
 
 private def trySynthesize (type : Expr) : DerivingM (Option Expr) := do
   unless deriving.bindersVerbatim.get (← getOptions) do
-    return (← trySynthInstance type).toOption
+    let .some inst ← trySynthInstance type | return none
+    if inst.hasLevelMVar then return none
+    return inst
   let some className ← isClass? type |
     throwError "type class instance expected{indentExpr type}"
   for inst in (← getLocalInstances) do
@@ -725,11 +727,11 @@ def deriveTransformationInstPerConstructor (className : Name)
   unless classInfo.numCtors = 1 ∧ ¬ classInfo.isRec ∧ classInfo.numIndices = 0 do
     throwError "Invalid use of `deriveTransformationInstPerConstructor`, \
       expected {.ofConstName className} to be a structure"
-  unless classInfo.numParams = 1 ∧ classInfo.levelParams.length = 1 do
-    throwError "Invalid use of `deriveTransformationInstPerConstructor`, \
-      expected {.ofConstName className} to have exactly one parameter and one level parameter"
+  unless classInfo.numParams = 1 ∧ classInfo.levelParams.length ≤ 1 do
+    throwError "Invalid use of `deriveTransformationInstPerConstructor`, expected \
+      {.ofConstName className} to have exactly one parameter and at most one level parameter"
   let [ctor] := classInfo.ctors | unreachable!
-  let [u] := classInfo.levelParams | unreachable!
+  let levelParams := classInfo.levelParams
   let ctorVal ← getConstInfoCtor ctor
   unless ctorVal.numFields = 1 do
     throwError "Invalid use of `deriveTransformationInstPerConstructor`, \
@@ -738,18 +740,21 @@ def deriveTransformationInstPerConstructor (className : Name)
     throwError "Invalid use of `deriveTransformationInstPerConstructor`, \
       expected field of {.ofConstName className} to have the shape \
       `α → β` where `α` is the type parameter"
-  let onlyType ←
+  let mut paramLevels := []
+  if let [u] := levelParams then
     if univ == .param u then
-      pure false
+      paramLevels := [(← read).indLevel]
     else if univ == .succ (.param u) then
-      pure true
+      paramLevels := [← decLevel (← read).indLevel]
     else
       throwError "Invalid use of `deriveTransformationInstPerConstructor`, expected type parameter \
         to be either fully universe polymorphic or `Type u`-polymorphic"
-  let mut paramLevel := (← read).indLevel
-  if onlyType then
-    paramLevel ← decLevel paramLevel
-  let tgt := tgt.instantiateLevelParams [u] [paramLevel]
+  else
+    paramLevels := []
+    unless univ.isEquiv (← read).indLevel do
+      throwError "Invalid use of `deriveTransformationInstPerConstructor`, incorrect level \
+        for inductive"
+  let tgt := tgt.instantiateLevelParams levelParams paramLevels
   if tgt.hasLooseBVars then
     throwError "Invalid use of `deriveTransformationInstPerConstructor`, expected target type of \
       field of {.ofConstName className} to be nondependent"
@@ -760,7 +765,7 @@ def deriveTransformationInstPerConstructor (className : Name)
     let typeApp := mkAppN (.const induct (← read).lparams) (← read).indParams
     let (type, helperType) ← forallBoundedTelescope (whnfType := true) (← inferType typeApp) indInfo.numIndices fun indices body => do
       let .sort _ := body | throwError "Unexpected inductive type type{indentExpr (← inferType typeApp)}"
-      let type ← mkForallFVars indices <| .app (.const className [paramLevel]) (mkAppN typeApp indices)
+      let type ← mkForallFVars indices <| .app (.const className paramLevels) (mkAppN typeApp indices)
       let helperType ← mkForallFVars indices <| .forallE `t (mkAppN typeApp indices) tgt .default
       return (type, helperType)
     return {
@@ -775,29 +780,120 @@ def deriveTransformationInstPerConstructor (className : Name)
         let #[helper] := helpers | unreachable!
         forallBoundedTelescope type indInfo.numIndices fun indices _ => do
           mkLambdaFVars indices <|
-            mkApp2 (.const ctor [paramLevel]) (mkAppN typeApp indices) (mkAppN helper indices)
+            mkApp2 (.const ctor paramLevels) (mkAppN typeApp indices) (mkAppN helper indices)
     }
   return true
 
-private def decLevels : Level → NameSet → Option NameSet
-  | .zero, _ => none -- can only happen at the top level because of normalization
-  | .succ _, set => some set
-  | .max l l', set => (decLevels l set).bind (decLevels l')
-  | .imax l l', set => (decLevels l set).bind (decLevels l')
-  | .param u, set => some (set.insert u)
+private def decLevels : Level → NameSet → NameSet
+  | .zero, set => set -- we will report an error later
+  | .succ _, set => set
+  | .max l l', set => decLevels l' (decLevels l set)
+  | .imax l l', set => decLevels l' (decLevels l set)
+  | .param u, set => set.insert u
   | .mvar _, _ => unreachable!
+
+structure LevelShape where
+  /--
+  Given a normalied universe level `lvl`, try to provide an assignment of the level parameters
+  `levelParams` such that `lvl.instantiateParams levelParams (← createLParams lvl levelParams)`
+  plausibly matches the level shape modulo level equivalence and return a modified list of level
+  parameters that were not fixed to a certain value.
+  -/
+  createLParams : (lvl : Level) → (levelParams : List Name) → List Level × List Name
+  /-- Returns true if the given level matches the shape (syntactically) -/
+  matchesShape : Level → Bool
+  /--
+  Given an arbitrary level, return an equivalent level that matches the level shape or error
+  (using `indName` for error reporting).
+  -/
+  ensureShape : Level → (indName : Name) → MetaM { l : Level // matchesShape l }
+
+/-- Match an arbitrary level -/
+def LevelShape.sortU : LevelShape where
+  createLParams _ levelParams := (levelParams.map Level.param, levelParams)
+  matchesShape _ := true
+  ensureShape l _ := return ⟨l, rfl⟩
+
+/-- Match the level shape `Type u` -/
+def LevelShape.typeU : LevelShape where
+  createLParams lvl levelParams :=
+    let succLevels : NameSet := decLevels lvl {}
+    let lparams := levelParams.map fun nm =>
+      if succLevels.contains nm then
+        .succ (.param nm)
+      else
+        .param nm
+    (lparams, levelParams)
+  matchesShape l := l matches .succ _
+  ensureShape l indName := do
+    let some l := l.dec |
+      throwError "Inductive `{.ofConstName indName}` is a predicate, \
+        expected a data-carrying inductive"
+    return ⟨.succ l, rfl⟩
+
+private def constLevelAssignment : Level → (one : Bool) → NameMap Level → NameMap Level
+  | .zero, false, set => set
+  | .succ l, true, set => constLevelAssignment l false set
+  -- these are invalid configurations but we'll catch them later
+  | .zero, true, set => set
+  | .succ _, false, set => set
+  -- for simplicity, we simply expect both sides of a `max` or `imax` to be equal
+  -- at least, we can expect that neither side is syntactically zero because of normalization
+  | .max l l', isOne, set => constLevelAssignment l' isOne (constLevelAssignment l isOne set)
+  | .imax l l', true, set => constLevelAssignment l' true (constLevelAssignment l true set)
+  -- for imax = 0 we only need to check the right-hand side
+  | .imax _l l', false, set => constLevelAssignment l' true set
+  | .param u, isOne, set => set.insert u (if isOne then .one else .zero)
+  | .mvar _, _, _ => unreachable!
+
+/-- Match the level `Type` -/
+def LevelShape.type : LevelShape where
+  createLParams lvl levelParams :=
+    let assignment : NameMap Level := constLevelAssignment lvl (one := true) {}
+    let lparams := levelParams.map fun nm =>
+      if let some val := assignment.find? nm then
+        val
+      else
+        .param nm
+    let levelParams := levelParams.filter (!assignment.contains ·)
+    (lparams, levelParams)
+  matchesShape l := l matches .succ .zero
+  ensureShape l indName := do
+    if l.isAlwaysZero then
+      throwError "Inductive `{.ofConstName indName}` is a predicate, \
+        expected a data-carrying inductive"
+    unless l.isEquiv (.succ .zero) do
+      throwError "Inductive `{.ofConstName indName}` lives in a universe that's too high, \
+        expected `Type`"
+    return ⟨.succ .zero, rfl⟩
+
+/-- Match the level `Prop` -/
+def LevelShape.prop : LevelShape where
+  createLParams lvl levelParams :=
+    let assignment : NameMap Level := constLevelAssignment lvl (one := false) {}
+    let lparams := levelParams.map fun nm =>
+      if let some val := assignment.find? nm then
+        val
+      else
+        .param nm
+    let levelParams := levelParams.filter (!assignment.contains ·)
+    (lparams, levelParams)
+  matchesShape l := l matches .zero
+  ensureShape l indName := do
+    unless l.isAlwaysZero do
+      throwError "Inductive `{.ofConstName indName}` is a data-carrying inductives, \
+        expected a predicate"
+    return ⟨.zero, rfl⟩
 
 /--
 Groups the inductive type names provided to the deriving handler by mutual block and runs
 `perMutualBlock` on each of them with appropriate `DerivingM` context.
 
-If `needSucc` is true, then the `indLevel` field of the deriving handler is guaranteed to be of the
-shape `.succ u`, in other words: the type of every inductive in the mutual block, instantiated with
-the level parameters `(← read).lparams` stored in the context, is guaranteed to be of the shape
-`_ → ... → Type u` instead of just `_ → ... → Sort u` for some `u`. Use this if the type class only
-works for `α : Type u` instead of for all `α : Sort u`.
+`levelShape` is used to determine the level parameters for the inductive. Depending on whether the
+type class being derived requires `Sort u`, `Type u`, `Prop` or `Type`, use `.sortU`, `.typeU`,
+`.prop` or `.type`, respectively.
 -/
-def mkInductiveDerivingHandler (perMutualBlock : DerivingM Bool) (needSucc : Bool := false) :
+def mkInductiveDerivingHandler (levelShape : LevelShape) (perMutualBlock : DerivingM Bool) :
     DerivingHandler := fun names => do
   unless ← names.allM isInductive do
     return false
@@ -825,23 +921,12 @@ def mkInductiveDerivingHandler (perMutualBlock : DerivingM Bool) (needSucc : Boo
       let indLevel ← forallTelescopeReducing (whnfType := true) fstInfo.type fun _ body => do
         let .sort lvl := body | throwError "Unexpected inductive type type{indentExpr fstInfo.type}"
         pure lvl.normalize
-      let mut succLevels : NameSet := {}
-      if needSucc then
-        let some lvls := decLevels indLevel succLevels |
-          throwError "Inductive `{.ofConstName fstInfo.name}` is a predicate, expected a data-carrying inductive"
-        succLevels := lvls
-      let lparams : List Level := fstInfo.levelParams.map fun nm =>
-        if succLevels.contains nm then
-          .succ (.param nm)
-        else
-          .param nm
+      let (lparams, newLevelParams) := levelShape.createLParams indLevel fstInfo.levelParams
       let mut indLevel' := indLevel.instantiateParams fstInfo.levelParams lparams
-      if needSucc then
-        let some indLevelSucc := indLevel'.dec | unreachable!
-        indLevel' := .succ indLevelSucc
+      indLevel' ← levelShape.ensureShape indLevel' fstInfo.name
       forallBoundedTelescope (← instantiateTypeLevelParams fstInfo.toConstantVal lparams) nparams fun params _ => do
         let ctx := {
-          levelParams := fstInfo.levelParams
+          levelParams := newLevelParams
           params := params
           paramLCtx := ← getLCtx
           paramLInsts := ← getLocalInstances

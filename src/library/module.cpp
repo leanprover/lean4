@@ -428,7 +428,7 @@ extern "C" LEAN_EXPORT object * lean_compacted_region_save(b_obj_arg ofname, b_o
     return io_result_mk_ok(cs_obj.steal());
 }
 
-static object * mk_compacted_region(b_obj_arg ofname, object * root,
+static LEAN_ALWAYS_INLINE object * mk_compacted_region(b_obj_arg ofname, object * root,
                                     char * buffer, size_t base_addr, size_t full_sz, bool is_mmap) {
     object * r = lean_alloc_ctor(0, 2, sizeof(size_t) * 3 + 1);
     lean_inc(ofname);
@@ -442,6 +442,63 @@ static object * mk_compacted_region(b_obj_arg ofname, object * root,
     lean_ctor_set_uint8(r, sizeof(void*) * 5, is_mmap ? 1 : 0);
     return r;
 }
+
+#ifndef LEAN_WINDOWS
+// Mappings that landed at their file's `base_addr` and were loaded without writing to them, keyed by
+// that address. While such a mapping is alive, loading the same file again cannot map it at
+// `base_addr` a second time and would fall back to copying the whole file to the heap and relocating
+// every pointer in it (#3826). The existing mapping holds exactly the bytes a fresh `mmap` would, so
+// we hand it out again instead, and unmap it only once every region using it has been freed.
+// A file is identified by `(st_dev, st_ino)`: the mapping keeps its inode alive, so no other file can
+// have that identity meanwhile (`lean_compacted_region_save` replaces files via `rename`); size and
+// mtime additionally guard against in-place modification. Restricted to `v2` files, whose mapping is
+// never written to after loading: compacted objects are persistent (no reference counting), thunks
+// and tasks are stored with their values, and closures, `IO.Ref`s and `IO.Promise`s can only be
+// saved with `allowClosures := true`, i.e. in `v3` files (e.g. `--incr-load` snapshots).
+struct shared_mapping {
+    dev_t dev;
+    ino_t ino;
+    off_t size;
+    struct timespec mtime;
+    object * root;
+    size_t num_users;
+};
+
+static struct timespec file_mtime(struct stat const & st) {
+#ifdef __APPLE__
+    return st.st_mtimespec;
+#else
+    return st.st_mtim;
+#endif
+}
+
+static bool is_same_file(shared_mapping const & m, struct stat const & st) {
+    struct timespec mtime = file_mtime(st);
+    return m.dev == st.st_dev && m.ino == st.st_ino && m.size == st.st_size &&
+        m.mtime.tv_sec == mtime.tv_sec && m.mtime.tv_nsec == mtime.tv_nsec;
+}
+
+static mutex & shared_mappings_mutex() {
+    static mutex * m = new mutex();
+    return *m;
+}
+
+// Every shareable load registers its mapping, but the map is only consulted when a file is loaded
+// again or a region is freed. So registering only appends to `new_shared_mappings()`, and
+// `shared_mappings()` moves those entries into the map. Both require `shared_mappings_mutex()`.
+static std::vector<std::pair<char *, shared_mapping>> & new_shared_mappings() {
+    static std::vector<std::pair<char *, shared_mapping>> * v = new std::vector<std::pair<char *, shared_mapping>>();
+    return *v;
+}
+
+static lean::unordered_map<char *, shared_mapping> & shared_mappings() {
+    static lean::unordered_map<char *, shared_mapping> * m = new lean::unordered_map<char *, shared_mapping>();
+    for (auto const & e : new_shared_mappings())
+        (*m)[e.first] = e.second;
+    new_shared_mappings().clear();
+    return *m;
+}
+#endif
 
 // Implements `Lean.CompactedRegion.read`. Loads a compacted region from disk. `odep_regions`
 // carries `CompactedRegion`s whose address ranges must be known to resolve cross-region pointers
@@ -541,6 +598,27 @@ extern "C" LEAN_EXPORT object * lean_compacted_region_read(b_obj_arg ofname, b_o
 #endif
 #endif
 
+#ifndef LEAN_WINDOWS
+        // With every dep region at its `base_addr`, a `v2` file mapped at its own `base_addr` is
+        // loaded without any write to the mapping (see `region_reader::read`), so it can be shared.
+        bool shareable = header.version == 2 && std::all_of(dep_regions.begin(), dep_regions.end(),
+            [](region_view const & dep) { return dep.begin == dep.base_addr; });
+        if (!buffer && shareable) {
+            lock_guard<mutex> _(shared_mappings_mutex());
+            auto & mappings = shared_mappings();
+            auto it = mappings.find(base_addr);
+            if (it != mappings.end() && is_same_file(it->second, st)) {
+                it->second.num_users++;
+                object * root = it->second.root;
+                object * pair = alloc_cnstr(0, 2, 0);
+                cnstr_set(pair, 0, root);
+                cnstr_set(pair, 1, mk_compacted_region(ofname, root,
+                    base_addr, reinterpret_cast<size_t>(base_addr), size, true));
+                return io_result_mk_ok(pair);
+            }
+        }
+#endif
+
         // A `--incr-load` snapshot bakes the whole environment into the region, including mutable
         // `IO.Ref`s (e.g. each `RealizationContext.realizeMapRef`). Realizing on top of a loaded
         // snapshot stores freshly heap-allocated objects through such a ref; their only root is the
@@ -606,6 +684,12 @@ extern "C" LEAN_EXPORT object * lean_compacted_region_read(b_obj_arg ofname, b_o
             std::move(dep_regions),
             std::move(lib_relocs), std::move(closure_offsets));
         object * mod = reader.read();
+#ifndef LEAN_WINDOWS
+        if (is_mmap && shareable) {
+            lock_guard<mutex> _(shared_mappings_mutex());
+            new_shared_mappings().push_back({ base_addr, { st.st_dev, st.st_ino, st.st_size, file_mtime(st), mod, 1 } });
+        }
+#endif
         object * pair = alloc_cnstr(0, 2, 0);
         cnstr_set(pair, 0, mod);
         // The Lean region is framed by its whole mapping (`buffer`, `base_addr` = the mapped-at
@@ -629,6 +713,18 @@ extern "C" LEAN_EXPORT obj_res lean_compacted_region_free(obj_arg region, object
     lean_ctor_set(region, 1, lean_box(0));
     lean_dec_ref(region);
     if (is_mmap) {
+#ifndef LEAN_WINDOWS
+        {
+            lock_guard<mutex> _(shared_mappings_mutex());
+            auto & mappings = shared_mappings();
+            auto it = mappings.find(buffer);
+            if (it != mappings.end()) {
+                if (--it->second.num_users > 0)
+                    return lean_io_result_mk_ok(lean_box(0));
+                mappings.erase(it);
+            }
+        }
+#endif
 #if defined(__has_feature)
 #if __has_feature(address_sanitizer)
         __lsan_unregister_root_region(buffer, full_sz);

@@ -30,58 +30,12 @@ theorems of `Op.effect`, as `simp [Op.effect]` would do, generates the `match` e
 anyway.)
 -/
 
-/--
-trace: [Meta.Tactic.simp.unify] Op.effect.match_1.eq_1:1000, failed to unify
-      match Op.inc, ?s with
-      | Op.inc, s => ?h_1 s
-      | Op.dbl, s => ?h_2 s
-    with
-      match op, t with
-      | Op.inc, s => s + 1
-      | Op.dbl, s => s * 2
-[Meta.Tactic.simp.unify] Op.effect.match_1.eq_2:1000, failed to unify
-      match Op.dbl, ?s with
-      | Op.inc, s => ?h_1 s
-      | Op.dbl, s => ?h_2 s
-    with
-      match op, t with
-      | Op.inc, s => s + 1
-      | Op.dbl, s => s * 2
-[Meta.Tactic.simp.unify] Op.effect.match_1.eq_1:1000, failed to unify
-      match Op.inc, ?s with
-      | Op.inc, s => ?h_1 s
-      | Op.dbl, s => ?h_2 s
-    with
-      Op.effect.match_1
-[Meta.Tactic.simp.unify] Op.effect.match_1.eq_2:1000, failed to unify
-      match Op.dbl, ?s with
-      | Op.inc, s => ?h_1 s
-      | Op.dbl, s => ?h_2 s
-    with
-      Op.effect.match_1
-[Meta.Tactic.simp.unify] Op.effect.match_1.eq_1:1000, failed to unify
-      match Op.inc, ?s with
-      | Op.inc, s => ?h_1 s
-      | Op.dbl, s => ?h_2 s
-    with
-      match op, t with
-      | Op.inc, s => s + 1
-      | Op.dbl, s => s * 2
-[Meta.Tactic.simp.unify] Op.effect.match_1.eq_2:1000, failed to unify
-      match Op.dbl, ?s with
-      | Op.inc, s => ?h_1 s
-      | Op.dbl, s => ?h_2 s
-    with
-      match op, t with
-      | Op.inc, s => s + 1
-      | Op.dbl, s => s * 2
--/
 #guard_msgs in
 set_option trace.Meta.Tactic.simp.unify true in
 theorem block_eq (s : Nat) : block [.inc, .dbl] s = (s + 1) * 2 := by
   simp only [block, List.foldl_cons, List.foldl_nil, Op.effect.eq_def]
 
-/-- info: true -/
+/-- info: false -/
 #guard_msgs in
 #eval matchEqnsGenerated ``Op.effect.match_1
 
@@ -138,19 +92,6 @@ def Tm.tag (t : Tm Γ a) : Nat :=
   | .ap (.lam _) _ => 2
   | .ap _ _ => 3
 
-/--
-error: failed to generate equality theorems for `match` expression `Tm.tag.match_1`
-Γ✝ : List Ty
-a✝¹ : Ty
-motive✝ : Tm Γ✝ a✝¹ → Sort u_1
-a✝ : Tm (Ty.star :: Γ✝) Ty.star
-h_1✝ : (a : Lookup Γ✝ a✝¹) → motive✝ (Tm.var a)
-h_2✝ : (a : Tm (Ty.star :: Γ✝) Ty.star) → motive✝ a.lam
-h_3✝ : (a : Tm (Ty.star :: Γ✝) Ty.star) → (a_1 : Tm Γ✝ Ty.star) → motive✝ (a.lam.ap a_1)
-h_4✝ : (a a_1 : Tm Γ✝ Ty.star) → motive✝ (a.ap a_1)
-⊢ (⋯ ▸ fun t motive h_1 h_2 h_3 h_4 h => ⋯ ▸ h_2 a✝) a✝.lam motive✝ h_1✝ h_2✝ h_3✝ h_4✝ ⋯ = h_2✝ a✝
--/
-#guard_msgs in
 example (t : Tm Γ a) (p : Nat → Prop) (h : p t.tag) : p t.tag := by
   simp [Tm.tag]
   exact h

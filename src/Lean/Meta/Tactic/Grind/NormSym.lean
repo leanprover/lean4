@@ -48,7 +48,7 @@ def getNormSymTheorems : CoreM NormSymTheorems :=
 def mkNormSymMethods (config : Grind.Config) (thms : NormSymTheorems) : Sym.Simp.Methods := Id.run do
   let d : Discharger := Sym.Simp.dischargeSimpSelf
   let mut pre : Simproc := NormSym.eraseMData >> NormSym.preMatchCond >> NormSym.simpMatchDiscrsOnly
-    >> Sym.Simp.beta >> Sym.Simp.reduceProj >> Sym.Simp.reduceControl >> Sym.Simp.simpExistsPropDomain
+    >> Sym.Simp.beta >> NormSym.etaReduce >> Sym.Simp.reduceProj >> Sym.Simp.reduceControl >> Sym.Simp.simpExistsPropDomain
   if config.zeta then pre := pre >> Sym.Simp.zeta
   if config.zetaDelta then pre := pre >> Sym.Simp.zetaDeltaAll
   pre := pre >> NormSym.pushNot >> Sym.Simp.simpArith d (lhsOnly := true) (distrib := config.distrib) >> thms.pre.rewrite d

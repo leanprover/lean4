@@ -275,7 +275,9 @@ def simpForall : Simproc := fun e => do
     | False => if (← isProp b) then return .step (← getTrueExpr) (mkApp (mkConst ``Grind.false_imp_eq) b) (done := true)
     | _ =>
     match_expr b with
-    | True => if (← isProp d) then return .step (← getTrueExpr) (mkApp (mkConst ``Grind.imp_true_eq) d) (done := true)
+    | True =>
+      -- `d` may be a type, e.g. after the body of `∀ t : α, p t` has been simplified to `True`.
+      return .step (← getTrueExpr) (mkApp (mkConst ``implies_true [← getLevel d]) d) (done := true)
     | False => if (← isProp d) then return .step (← mkNotS d) (mkApp (mkConst ``Grind.imp_false_eq) d)
     | _ =>
       -- Maximally shared terms: structural equality is pointer equality.

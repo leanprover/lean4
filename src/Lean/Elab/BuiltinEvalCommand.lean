@@ -9,7 +9,7 @@ prelude
 public import Lean.Elab.MutualDef
 import Lean.Compiler.Options
 import Lean.Meta.Reduce
-import all Lean.Elab.ErrorUtils
+import Lean.Elab.ErrorUtils
 
 public section
 
@@ -18,7 +18,7 @@ public section
 -/
 
 namespace Lean.Elab.Command
-open Meta
+open Meta Internal.ErrorUtils
 
 register_builtin_option eval.pp : Bool := {
   defValue := true

@@ -1165,18 +1165,11 @@ return v___x_406_;
 }
 else
 {
-if (v___x_406_ == 0)
-{
-return v___x_406_;
-}
-else
-{
 size_t v___x_407_; size_t v___x_408_; uint8_t v___x_409_; 
 v___x_407_ = ((size_t)0ULL);
 v___x_408_ = lean_usize_of_nat(v___x_405_);
 v___x_409_ = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00Array_contains___at___00Lean_Elab_TerminationMeasure_elab_spec__2_spec__2(v_a_403_, v_as_402_, v___x_407_, v___x_408_);
 return v___x_409_;
-}
 }
 }
 }
@@ -1500,7 +1493,7 @@ v_reusejp_496_:
 {
 uint8_t v___x_498_; lean_object* v___x_499_; 
 v___x_498_ = 0;
-v___x_499_ = l_Lean_Meta_forallBoundedTelescope___at___00Lean_Elab_TerminationMeasure_elab_spec__0___redArg(v___y_493_, v___x_497_, v___f_485_, v___x_498_, v___x_498_, v___y_488_, v___y_491_, v___y_492_, v___y_487_, v___y_490_, v___y_489_);
+v___x_499_ = l_Lean_Meta_forallBoundedTelescope___at___00Lean_Elab_TerminationMeasure_elab_spec__0___redArg(v___y_493_, v___x_497_, v___f_485_, v___x_498_, v___x_498_, v___y_492_, v___y_491_, v___y_488_, v___y_487_, v___y_490_, v___y_489_);
 return v___x_499_;
 }
 }
@@ -1512,11 +1505,11 @@ lean_object* v___x_508_; lean_object* v___x_509_;
 v___x_508_ = lean_obj_once(&l_Lean_Elab_TerminationMeasure_elab___lam__1___closed__3, &l_Lean_Elab_TerminationMeasure_elab___lam__1___closed__3_once, _init_l_Lean_Elab_TerminationMeasure_elab___lam__1___closed__3);
 v___x_509_ = l_panic___at___00Lean_Elab_TerminationMeasure_elab_spec__1(v___x_508_);
 v___y_487_ = v___y_505_;
-v___y_488_ = v___y_502_;
+v___y_488_ = v___y_504_;
 v___y_489_ = v___y_507_;
 v___y_490_ = v___y_506_;
 v___y_491_ = v___y_503_;
-v___y_492_ = v___y_504_;
+v___y_492_ = v___y_502_;
 v___y_493_ = v___x_509_;
 goto v___jp_486_;
 }
@@ -1527,11 +1520,11 @@ v_val_510_ = lean_ctor_get(v_type_x27_466_, 0);
 lean_inc(v_val_510_);
 lean_dec_ref_known(v_type_x27_466_, 1);
 v___y_487_ = v___y_505_;
-v___y_488_ = v___y_502_;
+v___y_488_ = v___y_504_;
 v___y_489_ = v___y_507_;
 v___y_490_ = v___y_506_;
 v___y_491_ = v___y_503_;
-v___y_492_ = v___y_504_;
+v___y_492_ = v___y_502_;
 v___y_493_ = v_val_510_;
 goto v___jp_486_;
 }

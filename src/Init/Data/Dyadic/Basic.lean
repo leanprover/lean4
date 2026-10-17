@@ -6,8 +6,7 @@ Authors: Kim Morrison, Robin Arnez
 module
 
 prelude
-import Init.Data.Int.Bitwise.Lemmas
-public import Init.Data.Int.Bitwise.Basic
+public import Init.Data.Int.Bitwise.Lemmas
 public import Init.Data.Order.Classes
 public import Init.Data.Rat.Basic
 import Init.ByCases
@@ -29,99 +28,6 @@ set_option linter.missingDocs true
 @[expose] public section
 
 open Nat
-
-namespace Int
-
-/-- The number of trailing zeros in the binary representation of `i`. -/
-def trailingZeros (i : Int) : Nat :=
-  if h : i = 0 then 0 else aux i.natAbs i h (Nat.le_refl _) 0
-where
-  aux (k : Nat) (i : Int) (hi : i ≠ 0) (hk : i.natAbs ≤ k) (acc : Nat) : Nat :=
-    match k, (by omega : k ≠ 0) with
-    | k + 1, _ =>
-      if h : i % 2 = 0 then aux k (i / 2) (by omega) (by omega) (acc + 1)
-      else acc
-
--- TODO: check performance of `trailingZeros` in the kernel and VM.
-
-private theorem trailingZeros_aux_irrel (hi : i ≠ 0) (hk : i.natAbs ≤ k) (hk' : i.natAbs ≤ k') :
-    trailingZeros.aux k i hi hk acc = trailingZeros.aux k' i hi hk' acc := by
-  fun_induction trailingZeros.aux k i hi hk acc generalizing k' <;>
-    fun_cases trailingZeros.aux k' _ _ hk' _
-  · rename_i ih _ _ _ _ _
-    exact ih _
-  · contradiction
-  · contradiction
-  · rfl
-
-private theorem trailingZeros_aux_succ :
-    trailingZeros.aux k i hi hk (acc + 1) = trailingZeros.aux k i hi hk acc + 1 := by
-  fun_induction trailingZeros.aux k i hi hk acc <;> simp_all [trailingZeros.aux]
-
-theorem trailingZeros_zero : trailingZeros 0 = 0 := rfl
-
-theorem trailingZeros_two_mul_add_one (i : Int) :
-    Int.trailingZeros (2 * i + 1) = 0 := by
-  unfold trailingZeros trailingZeros.aux
-  rw [dite_eq_right (by omega)]
-  split <;> simp_all
-
-theorem trailingZeros_eq_zero_of_mod_eq {i : Int} (h : i % 2 = 1) :
-    Int.trailingZeros i = 0 := by
-  unfold trailingZeros trailingZeros.aux
-  rw [dite_eq_right (by omega)]
-  split <;> simp_all
-
-theorem trailingZeros_two_mul {i : Int} (h : i ≠ 0) :
-    Int.trailingZeros (2 * i) = Int.trailingZeros i + 1 := by
-  rw [Int.trailingZeros, dite_eq_right (Int.mul_ne_zero (by decide) h), Int.trailingZeros.aux.eq_def]
-  simp only [ne_eq, mul_emod_right, ↓reduceDIte, Int.reduceEq, not_false_eq_true,
-    mul_ediv_cancel_left, Nat.zero_add]
-  split
-  rw [trailingZeros, trailingZeros_aux_succ, dite_eq_right h]
-  apply congrArg Nat.succ (trailingZeros_aux_irrel ..) <;> omega
-
-theorem shiftRight_trailingZeros_mod_two {i : Int} (h : i ≠ 0) :
-    (i >>> i.trailingZeros) % 2 = 1 := by
-  rw (occs := .pos [2]) [← Int.emod_add_mul_ediv i 2]
-  rcases i.emod_two_eq with h' | h' <;> rw [h']
-  · rcases Int.dvd_of_emod_eq_zero h' with ⟨a, rfl⟩
-    simp only [ne_eq, Int.mul_eq_zero, Int.reduceEq, false_or] at h
-    rw [Int.zero_add, mul_ediv_cancel_left _ (by decide), trailingZeros_two_mul h, Nat.add_comm,
-      shiftRight_add, shiftRight_eq_div_pow _ 1]
-    simpa using shiftRight_trailingZeros_mod_two h
-  · rwa [Int.add_comm, trailingZeros_two_mul_add_one, shiftRight_zero]
-termination_by i.natAbs
-
-theorem two_pow_trailingZeros_dvd {i : Int} (h : i ≠ 0) :
-    2 ^ i.trailingZeros ∣ i := by
-  rcases i.emod_two_eq with h' | h'
-  · rcases Int.dvd_of_emod_eq_zero h' with ⟨a, rfl⟩
-    simp only [ne_eq, Int.mul_eq_zero, Int.reduceEq, false_or] at h
-    rw [trailingZeros_two_mul h, Int.pow_succ']
-    exact Int.mul_dvd_mul_left _ (two_pow_trailingZeros_dvd h)
-  · rw (occs := .pos [1]) [← Int.emod_add_mul_ediv i 2, h', Int.add_comm, trailingZeros_two_mul_add_one]
-    exact Int.one_dvd _
-termination_by i.natAbs
-
-theorem trailingZeros_shiftLeft {x : Int} (hx : x ≠ 0) (n : Nat) :
-    trailingZeros (x <<< n) = x.trailingZeros + n := by
-  have : NeZero x := ⟨hx⟩
-  induction n <;> simp [Int.shiftLeft_succ', trailingZeros_two_mul (NeZero.ne _), *, Nat.add_assoc]
-
-@[simp]
-theorem trailingZeros_neg (x : Int) : trailingZeros (-x) = x.trailingZeros := by
-  by_cases hx : x = 0
-  · simp [hx]
-  rcases x.emod_two_eq with h | h
-  · rcases Int.dvd_of_emod_eq_zero h with ⟨a, rfl⟩
-    simp only [Int.mul_ne_zero_iff, ne_eq, Int.reduceEq, not_false_eq_true, true_and] at hx
-    rw [← Int.mul_neg, trailingZeros_two_mul hx, trailingZeros_two_mul (Int.neg_ne_zero.mpr hx)]
-    rw [trailingZeros_neg]
-  · simp [trailingZeros_eq_zero_of_mod_eq, h]
-termination_by x.natAbs
-
-end Int
 
 /--
 A dyadic rational is either zero or of the form `n * 2^(-k)` for some (unique) `n k : Int`

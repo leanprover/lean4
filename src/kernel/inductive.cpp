@@ -206,13 +206,20 @@ public:
         return m_lctx.get_local_decl(m_params[i]).get_type();
     }
 
+    expr consume_annotations(expr const & t) {
+        expr r = consume_type_annotations(t);
+        if (r != t && is_def_eq(t, r))
+            return r;
+        return t;
+    }
+
     expr mk_local_decl(name const & n, expr const & t, binder_info const & bi = binder_info()) {
-        return m_lctx.mk_local_decl(m_ngen, n, consume_type_annotations(t), bi);
+        return m_lctx.mk_local_decl(m_ngen, n, consume_annotations(t), bi);
     }
 
     expr mk_local_decl_for(expr const & t) {
         lean_assert(is_pi(t));
-        return m_lctx.mk_local_decl(m_ngen, binding_name(t), consume_type_annotations(binding_domain(t)), binding_info(t));
+        return m_lctx.mk_local_decl(m_ngen, binding_name(t), consume_annotations(binding_domain(t)), binding_info(t));
     }
 
     expr whnf(expr const & t) { return tc().whnf(t); }
@@ -542,16 +549,18 @@ public:
         unsigned i = 0;
         buffer<expr> to_check; /* Arguments that we must check if occur in the result type */
         while (is_pi(type)) {
-            expr fvar = mk_local_decl_for(type);
-            if (i >= m_nparams) {
+            if (i < m_nparams) {
+                type = instantiate(binding_body(type), m_params[i]);
+            } else {
+                expr fvar = mk_local_decl_for(type);
                 expr s = tc().ensure_type(binding_domain(type));
                 if (!normalizes_to_zero(sort_level(s))) {
                     /* Current argument is not in Prop (i.e., condition 1 failed).
                        We save it in to_check to be able to try condition 2 above. */
                     to_check.push_back(fvar);
                 }
+                type = instantiate(binding_body(type), fvar);
             }
-            type = instantiate(binding_body(type), fvar);
             i++;
         }
         buffer<expr> result_args;
@@ -664,7 +673,7 @@ public:
                     } else {
                         expr l = mk_local_decl_for(t);
                         b_u.push_back(l);
-                        if (is_rec_argument(binding_domain(t)))
+                        if (is_rec_argument(infer_type(l)))
                             u.push_back(l);
                         t = instantiate(binding_body(t), l);
                     }
@@ -748,7 +757,7 @@ public:
                 } else {
                     expr l = mk_local_decl_for(t);
                     b_u.push_back(l);
-                    if (is_rec_argument(binding_domain(t)))
+                    if (is_rec_argument(infer_type(l)))
                         u.push_back(l);
                     t = instantiate(binding_body(t), l);
                 }

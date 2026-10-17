@@ -15,6 +15,8 @@ namespace lean {
 
 #ifndef LEAN_EMSCRIPTEN
 
+namespace {
+
 // A connect request. The callback deletes it, and so does a failed submit.
 struct tcp_connect_req_t {
     uv_connect_t uv;
@@ -30,6 +32,8 @@ struct tcp_send_req_t {
     owned_ref  data;
     owned_ref  promise;
 };
+
+}
 
 // =======================================
 // TCP socket object manipulation functions.
@@ -244,7 +248,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_wait_readable(b_obj_arg socket) 
     auto alloc_cb = [](uv_handle_t* handle, size_t suggested_size, uv_buf_t* buf) {
         // According to libuv documentation if we do this we do not lose data and a UV_ENOBUFS will
         // be triggered in the read cb.
-        buf->base = NULL;
+        buf->base = nullptr;
         buf->len = 0;
     };
 

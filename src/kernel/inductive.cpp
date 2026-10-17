@@ -820,8 +820,12 @@ public:
         for (unsigned d_idx = 0; d_idx < m_ind_types.size(); d_idx++) {
             name rec_name        = mk_rec_name(m_ind_types[d_idx].get_name());
             constant_info rec_ci = m_env.get(rec_name);
-            /* (1) The recursor type must be well typed. */
-            tc().check(rec_ci.get_type(), get_rec_lparams());
+            names rec_lparams    = get_rec_lparams();
+            /* (1) The recursor type and computation rule RHSs must be well typed. */
+            tc().check(rec_ci.get_type(), rec_lparams);
+            for (recursor_rule const & rule : rec_ci.to_recursor_val().get_rules()) {
+                tc().check(rule.get_rhs(), rec_lparams);
+            }
             expr rec_pre = mk_app(mk_app(mk_app(mk_constant(rec_name, get_rec_levels()), m_params), Cs), minors);
             /* (2) Each computation rule must preserve types. */
             for (constructor const & cnstr : m_ind_types[d_idx].get_cnstrs()) {
@@ -843,9 +847,9 @@ public:
                 expr intro_app      = mk_app(mk_app(mk_constant(constructor_name(cnstr), m_levels), m_params), b_u);
                 expr lhs            = mk_app(mk_app(rec_pre, it_indices), intro_app);
                 type_checker tcheck = tc();
-                expr expected       = tcheck.infer(lhs);
+                expr expected       = tcheck.check(lhs, rec_lparams);
                 expr reduct         = tcheck.whnf(lhs);
-                expr actual         = tcheck.infer(reduct);
+                expr actual         = tcheck.check(reduct, rec_lparams);
                 if (!tcheck.is_def_eq(actual, expected))
                     throw kernel_exception(m_env, sstream() << "generated recursor computation rule for '"
                                            << constructor_name(cnstr) << "' is not type-preserving");

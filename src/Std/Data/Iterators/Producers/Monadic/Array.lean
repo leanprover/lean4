@@ -51,7 +51,7 @@ The pure version of this iterator is `Array.iterFromIdx`.
 * `Finite` instance: always
 * `Productive` instance: always
 -/
-@[always_inline, inline, match_pattern]
+@[always_inline, match_pattern]
 def _root_.Array.iterFromIdxM {α : Type w} (array : Array α) (m : Type w → Type w') (pos : Nat)
     [Pure m] :
     IterM (α := ArrayIterator α) m α :=
@@ -69,12 +69,12 @@ The pure version of this iterator is `Array.iter`.
 * `Finite` instance: always
 * `Productive` instance: always
 -/
-@[always_inline, inline]
+@[always_inline]
 def _root_.Array.iterM {α : Type w} (array : Array α) (m : Type w → Type w') [Pure m] :
     IterM (α := ArrayIterator α) m α :=
   array.iterFromIdxM m 0
 
-@[always_inline, inline]
+@[always_inline]
 instance ArrayIterator.instIterator {α : Type w} [Pure m] : Iterator (ArrayIterator α) m α where
   IsPlausibleStep it
     | .yield it' out => it.internalState.array = it'.internalState.array ∧
@@ -111,7 +111,7 @@ private def ArrayIterator.instFinitenessRelation [Pure m] :
 instance ArrayIterator.instFinite [Pure m] : Finite (ArrayIterator α) m := by
   exact Finite.of_finitenessRelation ArrayIterator.instFinitenessRelation
 
-@[always_inline, inline]
+@[always_inline]
 instance ArrayIterator.instIteratorLoop {α : Type w} [Monad m] {n : Type x → Type x'} [Monad n] :
     IteratorLoop (ArrayIterator α) m n :=
   .defaultImplementation

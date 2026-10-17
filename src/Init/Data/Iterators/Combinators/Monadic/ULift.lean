@@ -22,7 +22,7 @@ namespace Iterators
 def ULiftT (n : Type max u v → Type v') (α : Type u) := n (ULift.{v} α)
 
 /-- Returns the underlying `n`-monadic representation of a `ULiftT n α` value. -/
-@[always_inline, inline]
+@[always_inline]
 def ULiftT.run {n : Type max u v → Type v'} {α : Type u} (x : ULiftT n α) : n (ULift.{v} α) :=
   x
 
@@ -76,7 +76,7 @@ variable {α : Type u} {m : Type u → Type u'} {n : Type max u v → Type v'}
 /--
 Transforms a step of the base iterator into a step of the `uLift` iterator.
 -/
-@[always_inline, inline, expose]
+@[always_inline, expose]
 def ULiftIterator.Monadic.modifyStep (step : IterStep (IterM (α := α) m β) β) :
     IterStep (IterM (α := ULiftIterator.{v} α m n β lift) n (ULift.{v} β)) (ULift.{v} β) :=
   match step with
@@ -150,7 +150,7 @@ it.uLift n    ---.up a----.up b---.up c--.up d---⊥
 * `Finite`: only if the original iterator is finite
 * `Productive`: only if the original iterator is productive
 -/
-@[always_inline, inline, expose]
+@[always_inline, expose]
 def IterM.uLift {α β : Type u} {m : Type u → Type u'} (it : IterM (α := α) m β)
     (n : Type max u v → Type v') [lift : MonadLiftT m (ULiftT n)] :
     IterM (α := ULiftIterator α m n β (fun _ => lift.monadLift)) n (ULift β) :=

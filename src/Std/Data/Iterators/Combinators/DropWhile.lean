@@ -19,7 +19,7 @@ directly with `Iter.dropWhile` but only with `Intermediate.dropWhile`.
 
 `Intermediate.dropWhile` is meant to be used only for internally or for verification purposes.
 -/
-@[always_inline, inline]
+@[always_inline]
 def Iter.Intermediate.dropWhile (P : β → Bool) (dropping : Bool)
     (it : Iter (α := α) β) :=
   ((IterM.Intermediate.dropWhile P dropping it.toIterM).toIter : Iter β)
@@ -56,7 +56,7 @@ Depending on `P`, it is possible that `it.dropWhileM P` is productive although
 This combinator calls `P` on each output of `it` until the predicate evaluates to false. After
 that, the combinator incurs an additional O(1) cost for each value emitted by `it`.
 -/
-@[cbv_opaque, always_inline, inline]
+@[cbv_opaque, always_inline]
 def Iter.dropWhile {α : Type w} {β : Type w} (P : β → Bool) (it : Iter (α := α) β) :=
   (it.toIterM.dropWhile P |>.toIter : Iter β)
 

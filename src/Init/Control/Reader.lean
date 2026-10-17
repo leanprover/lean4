@@ -20,14 +20,14 @@ namespace ReaderT
 Recovers from errors. The same local value is provided to both branches. Typically used via the
 `<|>` operator.
 -/
-@[always_inline, inline]
+@[always_inline]
 protected def orElse [Alternative m] (x₁ : ReaderT ρ m α) (x₂ : Unit → ReaderT ρ m α) : ReaderT ρ m α :=
   fun s => x₁ s <|> x₂ () s
 
 /--
 Fails with a recoverable error.
 -/
-@[always_inline, inline]
+@[always_inline]
 protected def failure [Alternative m] : ReaderT ρ m α :=
   fun _ => failure
 

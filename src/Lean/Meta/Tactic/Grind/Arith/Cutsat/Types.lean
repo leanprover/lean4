@@ -110,6 +110,11 @@ inductive EqCnstrProof where
     -/
     mod (k : Int) (y? : Option Var) (c : EqCnstr)
   | pow (ka : Int) (ca? : Option EqCnstr) (kb : Nat) (cb? : Option EqCnstr)
+  | /--
+    `x = y` (if `isMod`) or `x = 0`, where `x` is the variable for `a % k` (resp. `a / k`),
+    `y` is the variable for `a`, and the bounds `lo : -y + c₁ ≤ 0` and `hi : y + c₂ ≤ 0` imply `0 ≤ y < k`.
+    -/
+    divModOfBounds (isMod : Bool) (x y : Var) (k : Int) (lo hi : LeCnstr)
 
 /-- A divisibility constraint and its justification/proof. -/
 structure DvdCnstr where
@@ -189,6 +194,8 @@ inductive LeCnstrProof where
   | divCoeffs (c : LeCnstr)
   | combine (c₁ c₂ : LeCnstr)
   | combineDivCoeffs (c₁ c₂ : LeCnstr) (k : Int)
+  | /-- `c₁.p + k*c₂.p ≤ 0` where `0 ≤ k`. -/
+    combineK (c₁ : LeCnstr) (k : Int) (c₂ : LeCnstr)
   | subst (x : Var) (c₁ : EqCnstr) (c₂ : LeCnstr)
   | ofLeDiseq (c₁ : LeCnstr) (c₂ : DiseqCnstr)
   | ofDiseqSplit (c₁ : DiseqCnstr) (decVar : FVarId) (h : UnsatProof) (decVars : Array FVarId)

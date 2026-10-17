@@ -389,6 +389,12 @@ private partial def EqCnstr.toExprProofImpl (c' : EqCnstr) : ProofM Expr := cach
   | .div k y? c => mkDivEqProof k y? c c'
   | .mod k y? c => mkModEqProof k y? c c'
   | .pow ka ca? kb cb? => mkPowEqProof ka ca? kb cb? c'
+  | .divModOfBounds isMod x y k lo hi =>
+    let thm := if isMod then ``Int.Internal.Linear.emod_of_bounds else ``Int.Internal.Linear.ediv_of_bounds
+    let h := mkAppN (mkConst thm) #[(← getContext), (← mkVarDecl x), (← mkVarDecl y), toExpr k,
+      toExpr lo.p.getConst, toExpr hi.p.getConst, (← mkPolyDecl lo.p), (← mkPolyDecl hi.p), (← mkPolyDecl c'.p), eagerReflBoolTrue,
+      (← lo.toExprProof), (← hi.toExprProof)]
+    return mkApp h (← mkEqRefl (← getCurrVars)[x]!)
 
 private partial def DvdCnstr.toExprProof (c' : DvdCnstr) : ProofM Expr := caching c' do
   trace[grind.debug.lia.proof] "{← c'.pp}"
@@ -483,6 +489,11 @@ private partial def LeCnstr.toExprProof (c' : LeCnstr) : ProofM Expr := caching 
       (← c₁.toExprProof) (← c₂.toExprProof)
   | .combineDivCoeffs c₁ c₂ k =>
     return mkApp8 (mkConst ``Int.Internal.Linear.le_combine_coeff)
+      (← getContext) (← mkPolyDecl c₁.p) (← mkPolyDecl c₂.p) (← mkPolyDecl c'.p) (toExpr k)
+      eagerReflBoolTrue
+      (← c₁.toExprProof) (← c₂.toExprProof)
+  | .combineK c₁ k c₂ =>
+    return mkApp8 (mkConst ``Int.Internal.Linear.le_combine_k)
       (← getContext) (← mkPolyDecl c₁.p) (← mkPolyDecl c₂.p) (← mkPolyDecl c'.p) (toExpr k)
       eagerReflBoolTrue
       (← c₁.toExprProof) (← c₂.toExprProof)
@@ -648,6 +659,7 @@ partial def EqCnstr.collectDecVars (c' : EqCnstr) : CollectDecVarsM Unit := do u
   | .subst _ c₁ c₂ | .ofLeGe c₁ c₂ => c₁.collectDecVars; c₂.collectDecVars
   | .mul _ cs => cs.forM fun (_, _, c) => c.collectDecVars
   | .pow _ ca? _ cb? => ca?.forM (·.collectDecVars); cb?.forM (·.collectDecVars)
+  | .divModOfBounds (lo := lo) (hi := hi) .. => lo.collectDecVars; hi.collectDecVars
 
 partial def CooperSplit.collectDecVars (s : CooperSplit) : CollectDecVarsM Unit := do unless (← alreadyVisited s) do
   s.pred.c₁.collectDecVars
@@ -672,7 +684,7 @@ partial def LeCnstr.collectDecVars (c' : LeCnstr) : CollectDecVarsM Unit := do u
   | .commRingNorm c .. | .reorder c | .cooper c
   | .norm c | .divCoeffs c => c.collectDecVars
   | .dvdTight c₁ c₂ | .negDvdTight c₁ c₂
-  | .combine c₁ c₂ | .combineDivCoeffs c₁ c₂ _
+  | .combine c₁ c₂ | .combineDivCoeffs c₁ c₂ _ | .combineK c₁ _ c₂
   | .subst _ c₁ c₂ | .ofLeDiseq c₁ c₂ => c₁.collectDecVars; c₂.collectDecVars
   | .ofDiseqSplit (decVars := decVars) .. => decVars.forM markAsFound
 

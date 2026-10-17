@@ -448,6 +448,41 @@ theorem frozen_shared_count_stays_shared (rc : Int32) (k : Nat) (hk : k ≤ 4094
     Int.not_le]
   omega
 
+/-! ## The deletion cascade
+
+Freeing an object releases the references its fields hold through
+{name}`Lean.Runtime.Deletion.release` rather than {lit}`lean_dec_ref`, and queues each object whose
+last reference goes.
+-/
+
+/--
+The decision of {name}`Lean.Runtime.Deletion.release`, which releases a reference that a field of an
+object being deleted holds, as the count it leaves behind or {lit}`none` if the object is queued for
+deletion. It compares the count unsigned against {name}`LEAN_RC_STICKY_DROP`, which
+{name}`Lean.Runtime.Deletion.release` writes as {name}`Lean.Runtime.Deletion.stickyDrop`.
+-/
+abbrev decCascade (rc : Int32) : Option Int32 :=
+  if rc > 1 then some (rc - 1)
+  else if rc == 1 then none
+  else if rc.toUInt32 ≤ LEAN_RC_STICKY_DROP.toUInt32 then some rc
+  else if rc == -1 then none
+  else some (rc + 1)
+
+/--
+Deletion releases each field as {lit}`lean_dec_ref` releases a reference, on every count: it frees
+exactly when {name}`decRef` frees and leaves the count {name}`decRef` leaves.
+-/
+theorem decCascade_eq_decRef (rc : Int32) : decCascade rc = decRef rc := by
+  grind
+
+/-- Deletion neither frees an object whose count is never freed nor moves its count (#15241). -/
+theorem decCascade_never_freed (rc : Int32) (h : isNeverFreed rc) : decCascade rc = some rc := by
+  rw [decCascade_eq_decRef]
+  have := decRef_spec rc
+  simp only [isNeverFreed, isPersistent, isDropStopped, Bool.or_eq_true, beq_iff_eq,
+    decide_eq_true_eq] at h
+  grind
+
 /-! ## Counts that cannot overflow -/
 
 /-- Addition that stays non-negative in {name}`Int64` is addition in {name}`Nat`. -/

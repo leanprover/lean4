@@ -237,7 +237,7 @@ def loadCompacted? (ileanPath : System.FilePath) : IO (Option Ilean) := do
   let .ok compactedModified := (← compactedIleanPath.metadata.toBaseIO) |>.map FS.Metadata.modified
     | return .none -- assume file does not exist
 
-  -- The strict inequality is important on systems like Nix that reset all timestamps to the epoch: we don't want that to be an error
+  -- The strict inequality is important on systems like Nix that reset all timestamps to the epoch: we don't want that to prevent loading the compacted version
   if compactedModified < (← ileanPath.metadata).modified then
     return .none
 

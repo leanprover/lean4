@@ -204,9 +204,41 @@ where
       else
         return false
 
-/--
-  Try to solve `a := (fun x => t) =?= b` by eta-expanding `b`,
+/-- Partial applications of recursors of k-like and structure types may progress from getting eta-expanded.
+  See https://github.com/leanprover/lean4/issues/12520
+-/
+private def shouldEtaRecursor (a : Expr) : MetaM Nat := do
+  let afn := a.getAppFn
+  let nargs := a.getAppNumArgs
+  let some a_name := afn.constName? | return 0
+  let .recInfo recVal ← getConstInfo a_name | return 0
+  if nargs > recVal.getMajorIdx then
+    return 0
+  if isNonRecStructure (← getEnv) recVal.getMajorInduct then
+    return recVal.getMajorIdx + 1 - nargs
+  else if recVal.k then
+    /- If the recursor is that of a k-like type, we must inspect the major's type to see whether it would reduce (i.e if its type is equal to the generated `mkNullaryCtor`, same condition as `toCtorWhenK`'s).
+    It is also possible that the condition is met even if the current recursor partial application is missing indices and some parameters. e.g consider `@Eq.rec Unit`, any eta-expansion up to the major will reduce thanks to eta-for-unit.
+    TODO this check is needlessly repeating the work the eta-expansion and `toCtorWhenK` would do themselves. Optimise and return the appropriately eta-expanded and reduced term directly instead.
+    -/
+    let nExps := recVal.getMajorIdx + 1 - nargs
+    let aType ← inferType a
+    withTransparency .default do←
+      forallBoundedTelescope (whnfType := true) aType (some nExps) fun xs _ => do←
+        if xs.size != nExps then return 0
+        let majorType ← inferType xs.back!
+        let (some newCtorApp) ← mkNullaryCtor majorType recVal.numParams | return 0
+        let newType ← inferType newCtorApp
+        if (← withAtLeastTransparency TransparencyMode.default <| withNewMCtxDepth <| isDefEq majorType newType) then
+          return nExps
+        else
+          return 0
+  else
+    return 0
+
+/-- Try to solve `a := (fun x => t) =?= b` by eta-expanding `b`,
   resulting in `t =?= b x` (with a fresh free variable `x`).
+  We also eta-expand `b` when it is a partial application of a recursor of k-like and structure type.
 
   Remark: eta-reduction is not a good alternative even in a system without universe cumulativity like Lean.
   Example:
@@ -220,18 +252,25 @@ where
   Backtracking after η-expansion results in lots of duplicate δ-reductions,
   because we can δ-reduce `a` before and after the η-expansion.
   The fresh free variable `x` also busts the cache.
-  See https://github.com/leanprover/lean4/pull/2002 -/
-private def isDefEqEta (a b : Expr) : MetaM LBool := do
+  See https://github.com/leanprover/lean4/pull/2002-/
+private def shouldEta (a b : Expr) : MetaM Nat :=
   if a.isLambda && !b.isLambda then
-    let bType ← inferType b
-    let bType ← whnfD bType
-    match bType with
-    | .forallE n d _ c =>
-      let b' := mkLambda n c d (mkApp b (mkBVar 0))
-      toLBoolM <| Meta.isExprDefEqAux a b'
-    | _ => return .undef
+    return 1
   else
+    shouldEtaRecursor b
+
+private def isDefEqEta (a b : Expr) : MetaM LBool := do
+  let nExps ← shouldEta a b
+  if nExps = 0 then
     return .undef
+  let bType ← inferType b
+  trace[Meta.isDefEq.eta] "eta-expanding {nExps} times {b}"
+  let b' ←
+    withTransparency .default do←
+      forallBoundedTelescope (whnfType := true) bType (some nExps) fun xs _ => do←
+        if xs.size != nExps then return .undef
+        mkLambdaFVars xs (mkAppN b xs)
+  toLBoolM <| Meta.isExprDefEqAux a b'
 
 /-- Support for reducing Nat basic operations. -/
 def isDefEqNat (s t : Expr) : MetaM LBool := do
@@ -2575,6 +2614,7 @@ builtin_initialize
   registerTraceClass `Meta.isDefEq.delta.unfoldRight (inherited := true)
   registerTraceClass `Meta.isDefEq.delta.unfoldLeftRight (inherited := true)
   registerTraceClass `Meta.isDefEq.assign
+  registerTraceClass `Meta.isDefEq.eta
   registerTraceClass `Meta.isDefEq.assign.checkTypes (inherited := true)
   registerTraceClass `Meta.isDefEq.assign.outOfScopeFVar (inherited := true)
   registerTraceClass `Meta.isDefEq.assign.beforeMkLambda (inherited := true)

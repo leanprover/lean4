@@ -118,6 +118,7 @@ theorem quotedStringChar_lt_0x80 : quotedStringChar c → c < '\x80' := by
   rw [Char.lt_def, UInt32.lt_iff_toNat_lt] at h80
   omega
 
+set_option maxRecDepth 1000 in
 private theorem not_quotedStringChar_ofNat_aux :
     ∀ c : Nat, c < 128 → ¬(qdtext (Char.ofNat c)) ∧ ¬((Char.ofNat c = '\"') ∨ (Char.ofNat c = '\\')) →
     ¬(quotedStringChar (Char.ofNat c)) := by

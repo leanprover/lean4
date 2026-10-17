@@ -34,7 +34,7 @@ public structure Iterators.Types.Flatten (α α₂ β : Type w) (m) where
 /--
 Internal iterator combinator that is used to implement all `flatMap` variants
 -/
-@[always_inline, inline]
+@[always_inline, inline, instance_reducible]
 def IterM.flattenAfter {α α₂ β : Type w} {m : Type w → Type w'} [Monad m]
     [Iterator α m (IterM (α := α₂) m β)] [Iterator α₂ m β]
     (it₁ : IterM (α := α) m (IterM (α := α₂) m β)) (it₂ : Option (IterM (α := α₂) m β)) :=

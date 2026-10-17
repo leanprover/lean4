@@ -235,6 +235,15 @@ theorem Expr.denote_norm {α} [IntModule α] (ctx : Context α) (e : Expr) : e.n
 attribute [local simp] Expr.denote_norm
 attribute [local simp] Poly.denote'_eq_denote
 
+def eq_norm_cert (lhs rhs : Expr) : Bool :=
+  lhs.norm == rhs.norm
+
+theorem eq_of_norm_eq {α} [IntModule α] (ctx : Context α) (lhs rhs : Expr)
+    : eq_norm_cert lhs rhs → lhs.denote ctx = rhs.denote ctx := by
+  simp [eq_norm_cert]; intro h
+  replace h := congrArg (Poly.denote ctx) h
+  simpa only [Expr.denote_norm] using h
+
 def Poly.leadCoeff (p : Poly) : Int :=
   match p with
   | .add a _ _ => a

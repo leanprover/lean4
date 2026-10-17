@@ -72,7 +72,7 @@ inline expr to_cnstr_when_structure(environment const & env, name const & induct
 }
 
 template<typename WHNF, typename INFER, typename IS_DEF_EQ, typename IS_PROP>
-inline optional<expr> inductive_reduce_rec(environment const & env, expr const & e,
+inline optional<expr> inductive_reduce_rec(environment const & env, local_ctx m_lctx, name_generator & m_ngen, expr const & e,
                                            WHNF const & whnf, INFER const & infer_type, IS_DEF_EQ const & is_def_eq,
                                            IS_PROP const & is_prop) {
     expr const & rec_fn   = get_app_fn(e);
@@ -88,7 +88,22 @@ inline optional<expr> inductive_reduce_rec(environment const & env, expr const &
     if (rec_val.is_k()) {
         major = to_cnstr_when_K(env, rec_val, major, whnf, infer_type, is_def_eq);
     }
-    major = whnf(major);
+    { flet<local_ctx> save_lctx(m_lctx, m_lctx);
+      // All inds in the mutual blocks live in the same sort, just pick the first one
+      constant_info ind_info = *(env.find(head(rec_val.get_all())));
+      expr ind_type = whnf(ind_info.get_type());
+      while (is_pi(ind_type)) {
+          expr fvar = m_lctx.mk_local_decl(m_ngen, binding_name(ind_type), binding_domain(ind_type), binding_info(ind_type));
+          ind_type = whnf(instantiate(binding_body(ind_type), fvar));
+      }
+      levels rec_lvls = const_levels(rec_fn);
+      /* A type could both not largely eliminate and be instantiated out of Prop (for now, won't be the case after the renovations).
+        If it largely eliminate, substitute the tail of the rec_lvls only. If not, we have the right size
+      */
+      if (ind_info.get_num_lparams() != length(rec_lvls)) rec_lvls = tail(rec_lvls);
+      level ind_sort = instantiate(sort_level(ind_type), ind_info.get_lparams(), rec_lvls);
+      if (!normalizes_to_zero(ind_sort)) major = whnf(major);
+    };
     if (is_nat_lit(major))
         major = nat_lit_to_constructor(major);
     else if (is_string_lit(major))

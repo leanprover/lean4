@@ -14,6 +14,7 @@ import Lean.Meta.Sym.AlphaShareBuilder
 import Lean.Meta.Sym.InstantiateS
 import Lean.Meta.Sym.AbstractS
 import Lean.Meta.Sym.Util
+import Lean.Meta.Sym.Eta
 import Lean.Meta.Sym.InferType
 import Lean.Meta.Sym.SynthInstance
 import Lean.Meta.AppBuilder
@@ -55,6 +56,27 @@ private def mkExistsS (u : Level) (α p : Expr) : SimpM Expr := do
 def eraseMData : Simproc := fun e => do
   let .mdata _ b := e | return .rfl
   return .step b (← Sym.mkEqRefl b)
+
+/--
+Eta-reduces the lambda arguments of an application before they are visited. Rewriting a body
+first would hide the redex: `fun x => Nat.succ x` would become `fun x => x + 1` and no longer be
+the `Nat.succ` found elsewhere in the goal. `grind` eta-reduces the terms it internalizes anyway
+(`Sym.Canon`). The body of a binder notation (`∃ y, q y`, `{x // p x}`) keeps its binder.
+-/
+def etaReduce : Simproc := fun e => do
+  unless e.isApp do return .rfl
+  if let .const n _ := e.getAppFn then
+    if n == ``Exists || n == ``Subtype then return .rfl
+  unless hasEtaReducibleArg e do return .rfl
+  let e' ← go e
+  return .step e' (← Sym.mkEqRefl e')
+where
+  hasEtaReducibleArg : Expr → Bool
+    | .app f a => Sym.isEtaReducible a || hasEtaReducibleArg f
+    | _ => false
+  go : Expr → SimpM Expr
+    | .app f a => do mkAppS (← go f) (Sym.etaReduce a)
+    | f => pure f
 
 /--
 `Grind.PreMatchCond p` is left as is: `p` is a condition of a `match` equation and must keep

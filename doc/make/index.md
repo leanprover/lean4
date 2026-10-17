@@ -39,6 +39,8 @@ You can replace `$(nproc || sysctl -n hw.logicalcpu)` with the desired paralleli
 The above commands will compile the Lean library and binaries into the
 `stage1` subfolder; see below for details.
 
+Release toolchains also include [Lean Beam](https://github.com/leanprover/lean-beam). To include it in a local build, run `make -C build/release lean-beam` after the ordinary build. This target fetches a pinned Beam revision and builds its CLI, daemon, MCP server, and plugin with the local toolchain. The executables reuse the toolchain's shared Lean and Lake libraries. The bundled `lean-beam` and `lean-beam-mcp` use only that toolchain and do not build additional runtimes when invoked in a project.
+
 You should not usually run `cmake --install` after a successful build.
 See [Dev setup using elan](../dev/index.md#dev-setup-using-elan) on how to properly set up your editor to use the correct stage depending on the source directory.
 

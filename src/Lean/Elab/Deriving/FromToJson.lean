@@ -40,9 +40,20 @@ def mkToJsonBodyForStruct (header : Header) (indName : Name) : TermElabM Term :=
     else ``([($nm, toJson ($target).$(mkIdent field))])
   `(mkObj <| List.flatten [$fields,*])
 
+/--
+The auxiliary function generated for `indVal` itself, which for a `mutual` group
+is not necessarily the first one: `auxFunNames` runs parallel to `typeInfos`.
+Used for a *self*-recursive constructor argument; taking `auxFunNames[0]` there
+generates a call to another member's function and so ill-typed code.
+-/
+private def selfAuxFunName (ctx : Context) (indVal : InductiveVal) : TermElabM Name := do
+  let some i := ctx.typeInfos.findIdx? (·.name == indVal.name)
+    | throwError "deriving: {indVal.name} is not among the types being derived for"
+  return ctx.auxFunNames[i]!
+
 def mkToJsonBodyForInduct (ctx : Context) (header : Header) (indName : Name) : TermElabM Term := do
   let indVal ← getConstInfoInduct indName
-  let toJsonFuncId := mkIdent ctx.auxFunNames[0]!
+  let toJsonFuncId := mkIdent (← selfAuxFunName ctx indVal)
   -- Return syntax to JSONify `id`, either via `ToJson` or recursively
   -- if `id`'s type is the type we're deriving for.
   let mkToJson (id : Ident) (type : Expr) : TermElabM Term := do
@@ -118,6 +129,7 @@ def mkFromJsonBodyForInduct (ctx : Context) (indName : Name) : TermElabM Term :=
     | none => Except.error "no inductive tag found")
 where
   mkAlts (indVal : InductiveVal) : TermElabM (Array (String × Term)) := do
+  let selfFunName ← selfAuxFunName ctx indVal
   let mut alts := #[]
   for ctorName in indVal.ctors do
     let ctorInfo ← getConstInfoCtor ctorName
@@ -132,7 +144,7 @@ where
             userNames := userNames.push localDecl.userName
           let a := mkIdent (← mkFreshUserName `a)
           binders := binders.push (a, localDecl.type)
-        let fromJsonFuncId := mkIdent ctx.auxFunNames[0]!
+        let fromJsonFuncId := mkIdent selfFunName
         -- Return syntax to parse `id`, either via `FromJson` or recursively
         -- if `id`'s type is the type we're deriving for.
         let mkFromJson (idx : Nat) (type : Expr) : TermElabM (TSyntax ``doExpr) :=

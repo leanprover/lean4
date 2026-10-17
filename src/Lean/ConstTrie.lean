@@ -11,6 +11,7 @@ public import Lean.Data.PersistentHashMap
 import Std.Data.HashMap.Basic
 import Std.Data.HashSet.Basic
 import Init.Data.Array.QSort
+import Init.Data.Array.BinSearch
 import Init.While
 import Init.Omega
 import Init.Data.Array.Lemmas
@@ -123,6 +124,18 @@ termination_by i
 public def find? (t : ConstTrie α) (n : Name) : Option α :=
   let path := prefixesOf n
   t.findAux path path.size
+
+/--
+Returns the value of `t`, the node for `path[i]` (or the root for `i = path.size`), or else of the
+first node below it on the way to `path[0]` that carries one.
+-/
+def valueAlong (t : ConstTrie α) (path : Array Name) (i : Nat) : Option α :=
+  t.val? <|>
+    if _ : i = 0 then none
+    else match findChildIdx? t.children key path[i - 1]! with
+      | some j => valueAlong t.children[j]! path (i - 1)
+      | none   => none
+termination_by i
 
 public def foldlM [Monad m] (t : ConstTrie α) (f : σ → Name → α → m σ) (init : σ) :
     m σ := do
@@ -340,18 +353,6 @@ public def findConstCached? (t : ImportedConsts ConstantInfo) (n : Name) : Optio
 public def findConstModIdxCached? (t : ImportedConsts ConstantInfo) (n : Name) : Option Nat :=
   (t.findConstEntryCached? n).map (·.2)
 
-@[export lean_imported_extra_consts_find_entry_core]
-def findExtraEntryCore (t : ImportedConsts Unit) (n : Name) : Option (Unit × Nat) :=
-  t.findEntry? n
-
-@[inherit_doc findConstEntryCached?, extern "lean_imported_extra_consts_find_entry_cached"]
-public opaque findExtraEntryCached? (t : @& ImportedConsts Unit) (n : @& Name) :
-    Option (Unit × Nat)
-
-@[inherit_doc findConstEntryCached?, inline]
-public def findExtraModIdxCached? (t : ImportedConsts Unit) (n : Name) : Option Nat :=
-  (t.findExtraEntryCached? n).map (·.2)
-
 /--
 Empties the process-global lookup cache used for views without a cache of their own, e.g. after
 persisting the environment, when its contents are not expected to be useful anymore. Only the slots
@@ -364,6 +365,70 @@ public opaque resetCache : IO Unit
 public def find? (t : ImportedConsts α) (n : Name) : Option α :=
   let path := prefixesOf n
   t.tree.findValAux path path.size
+
+/--
+Collects the entries for the node of `path[i]` (or the root for `i = path.size`) and for the nodes
+below it on the way to `path[0]`, appending them to `acc`; a single-module subtree contributes only
+its first entry.
+-/
+def ownersAux : ImportedTree α → Array Name → Nat → Array (α × Nat) → Array (α × Nat)
+  | .mod modIdx tr, path, i, acc =>
+    match tr.valueAlong path i with
+    | some v => acc.push (v, modIdx)
+    | none   => acc
+  | .lazy _ e? children, path, i, acc =>
+    let acc := match e? with
+      | some e => acc.push e
+      | none   => acc
+    if _ : i = 0 then
+      acc
+    else
+      let cs := children.get
+      match findChildIdx? cs ImportedTree.key path[i - 1]! with
+      | some j => ownersAux cs[j]! path (i - 1) acc
+      | none   => acc
+  | .merged _ e? cs, path, i, acc =>
+    let acc := match e? with
+      | some e => acc.push e
+      | none   => acc
+    if _ : i = 0 then
+      acc
+    else
+      match findChildIdx? cs ImportedTree.key path[i - 1]! with
+      | some j => ownersAux cs[j]! path (i - 1) acc
+      | none   => acc
+termination_by _ _ i _ => i
+decreasing_by all_goals omega
+
+/--
+Returns the entries for `n` and its prefixes, where several modules with an entry for the same name
+contribute only the first of them.
+-/
+public def ownersAlong (t : ImportedConsts α) (n : Name) : Array (α × Nat) :=
+  let path := prefixesOf n
+  ownersAux t.tree path path.size #[]
+
+/--
+Finds the first module listing the extra constant `n`, given a view whose per-module trees contain
+the roots of the modules' extra constant names, each mapped to the module's sorted list of all of
+them.
+-/
+@[export lean_imported_extra_consts_find_entry_core]
+def findExtraEntryCore (t : ImportedConsts (Array Name)) (n : Name) :
+    Option (Array Name × Nat) := Id.run do
+  let mut best : Option (Array Name × Nat) := none
+  for (ns, i) in t.ownersAlong n do
+    if best.all (i < ·.2) && (ns.binSearch n Name.quickLt).isSome then
+      best := some (ns, i)
+  return best
+
+@[inherit_doc findConstEntryCached?, extern "lean_imported_extra_consts_find_entry_cached"]
+public opaque findExtraEntryCached? (t : @& ImportedConsts (Array Name)) (n : @& Name) :
+    Option (Array Name × Nat)
+
+@[inherit_doc findConstEntryCached?, inline]
+public def findExtraModIdxCached? (t : ImportedConsts (Array Name)) (n : Name) : Option Nat :=
+  (t.findExtraEntryCached? n).map (·.2)
 
 /-- A constant name declared by more than one module; see `collectDuplicates`. -/
 public structure Duplicate (α : Type) where

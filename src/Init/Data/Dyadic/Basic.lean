@@ -220,6 +220,7 @@ instance : HShiftRight Dyadic Nat Dyadic := ⟨fun x y => x >>> (y : Int)⟩
 theorem _root_.Int.natAbs_emod_two (i : Int) : i.natAbs % 2 = (i % 2).natAbs := by omega
 
 /-- Convert a dyadic number to a rational number. -/
+@[coe]
 def toRat (x : Dyadic) : Rat :=
   match x with
   | .zero => 0
@@ -232,6 +233,8 @@ def toRat (x : Dyadic) : Rat :=
   | .ofOdd n (-((k : Nat) + 1)) hn =>
     (n * (2 ^ (k + 1) : Nat) : Int)
 
+instance : Coe Dyadic Rat := ⟨toRat⟩
+
 @[simp] protected theorem zero_eq : Dyadic.zero = 0 := rfl
 @[simp] protected theorem add_zero (x : Dyadic) : x + 0 = x := by cases x <;> rfl
 @[simp] protected theorem zero_add (x : Dyadic) : 0 + x = x := by cases x <;> rfl
@@ -239,7 +242,7 @@ def toRat (x : Dyadic) : Rat :=
 @[simp] protected theorem mul_zero (x : Dyadic) : x * 0 = 0 := by cases x <;> rfl
 @[simp] protected theorem zero_mul (x : Dyadic) : 0 * x = 0 := by cases x <;> rfl
 
-@[simp] theorem toRat_zero : toRat 0 = 0 := rfl
+@[simp, norm_cast] theorem toRat_zero : toRat 0 = 0 := rfl
 
 theorem _root_.Rat.mkRat_one (x : Int) : mkRat x 1 = x := by
   rw [← Rat.mk_den_one, Rat.mk_eq_mkRat]
@@ -278,7 +281,7 @@ example : (12 : Dyadic) + ((3 : Dyadic) >>> 1) = (27 : Dyadic) >>> 1 := rfl -- 1
 example : ((3 : Dyadic) >>> 1).add 12 =  (27 : Dyadic) >>> 1 := rfl -- 3/2 + 12 = 27/2 = (2 * 13 + 1)/2^1
 example : (12 : Dyadic).add 12 = 24 := rfl -- 12 + 12 = 24
 
-@[simp]
+@[simp, norm_cast]
 theorem toRat_add (x y : Dyadic) : toRat (x + y) = toRat x + toRat y := by
   match x, y with
   | .zero, _ => simp [toRat, Rat.zero_add]
@@ -305,19 +308,19 @@ theorem toRat_add (x y : Dyadic) : toRat (x + y) = toRat x + toRat y := by
         Int.cast_ofNat_Int, Int.shiftLeft_mul_shiftLeft, Int.mul_one, Int.add_mul]
       congr 2 <;> omega
 
-@[simp]
+@[simp, norm_cast]
 theorem toRat_neg (x : Dyadic) : toRat (-x) = - toRat x := by
   change x.neg.toRat = _
   cases x
   · rfl
   · simp [Dyadic.neg, Rat.neg_mkRat, Int.neg_shiftLeft, toRat_ofOdd_eq_mkRat]
 
-@[simp]
+@[simp, norm_cast]
 theorem toRat_sub (x y : Dyadic) : toRat (x - y) = toRat x - toRat y := by
   change toRat (x + -y) = _
   simp [Rat.sub_eq_add_neg]
 
-@[simp]
+@[simp, norm_cast]
 theorem toRat_mul (x y : Dyadic) : toRat (x * y) = toRat x * toRat y := by
   match x, y with
   | .zero, _ => simp
@@ -342,18 +345,18 @@ protected theorem pow_succ (x : Dyadic) (n : Nat) : x ^ (n + 1) = x ^ n * x := b
   · change _ = Dyadic.mul _ _
     simp [Dyadic.pow, Dyadic.mul, Int.pow_succ, Int.mul_add]
 
-@[simp]
+@[simp, norm_cast]
 theorem toRat_pow (x : Dyadic) (n : Nat) : toRat (x ^ n) = toRat x ^ n := by
   induction n with
   | zero => simp; rfl
   | succ k ih => simp [Dyadic.pow_succ, Rat.pow_succ, ih]
 
-@[simp]
+@[simp, norm_cast]
 theorem toRat_intCast (x : Int) : (x : Dyadic).toRat = x := by
   change (ofInt x).toRat = x
   simp [ofInt, toRat_ofIntWithPrec_eq_mul_two_pow]
 
-@[simp]
+@[simp, norm_cast]
 theorem toRat_natCast (x : Nat) : (x : Dyadic).toRat = x := by
   change (ofInt x).toRat = x
   simp [ofInt, toRat_ofIntWithPrec_eq_mul_two_pow, Rat.intCast_natCast]
@@ -361,7 +364,7 @@ theorem toRat_natCast (x : Nat) : (x : Dyadic).toRat = x := by
 @[simp] theorem of_ne_zero : ofOdd n k hn ≠ 0 := Dyadic.noConfusion
 @[simp] theorem zero_ne_of : 0 ≠ ofOdd n k hn := Dyadic.noConfusion
 
-@[simp]
+@[simp, norm_cast]
 theorem toRat_eq_zero_iff {x : Dyadic} : x.toRat = 0 ↔ x = 0 := by
   refine ⟨fun h => ?_, fun h => h ▸ rfl⟩
   cases x
@@ -580,6 +583,7 @@ theorem toDyadic_toRat (x : Dyadic) (prec : Int) :
       simp only [h, ← Int.natCast_add_one, Int.add_comm _ k, ofIntWithPrec_shiftLeft_add,
         ofOdd_eq_ofIntWithPrec]
 
+@[simp, norm_cast]
 theorem toRat_inj {x y : Dyadic} : x.toRat = y.toRat ↔ x = y := by
   refine ⟨fun h => ?_, fun h => h ▸ rfl⟩
   cases x <;> cases y
@@ -690,10 +694,10 @@ instance : LE Dyadic where
 instance : DecidableLT Dyadic := fun _ _ => inferInstanceAs (Decidable (_ = true))
 instance : DecidableLE Dyadic := fun _ _ => inferInstanceAs (Decidable (_ = true))
 
-@[simp]
+@[simp, norm_cast]
 theorem toRat_lt_toRat_iff {x y : Dyadic} : x.toRat < y.toRat ↔ x < y := blt_iff_toRat.symm
 
-@[simp]
+@[simp, norm_cast]
 theorem toRat_le_toRat_iff {x y : Dyadic} : x.toRat ≤ y.toRat ↔ x ≤ y := ble_iff_toRat.symm
 
 @[simp]

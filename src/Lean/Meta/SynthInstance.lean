@@ -13,6 +13,8 @@ public import Lean.Meta.AbstractMVars
 public import Lean.Meta.Check
 import Init.While
 import Lean.Util.CollectFVars
+import Lean.Util.CollectMVars
+import Lean.Util.CollectLevelMVars
 
 public section
 namespace Lean.Meta
@@ -1370,6 +1372,30 @@ def synthInstance (type : Expr) (maxResultSize? : Option Nat := none) : MetaM Ex
       | none        => throwFailedToSynthesize type)
     (fun _ => throwFailedToSynthesize type)
 
+/--
+Returns `true` if the last attempt to synthesize the instance metavariable `mvarId` got stuck and
+nothing it depends on has changed since. See `recordStuckInst`.
+-/
+def isStuckInst (mvarId : MVarId) : MetaM Bool :=
+  return (← getMCtx).isStuckInst mvarId
+
+/--
+Records that synthesizing the instance metavariable `mvarId` got stuck with the `isDefEqStuck`
+exception `ex`. `type` must be the type of `mvarId` as instantiated before the attempt.
+-/
+def recordStuckInst (mvarId : MVarId) (type : Expr) (ex : Exception) : MetaM Unit := do
+  let (mvarIds, lmvarIds) := getIsDefEqStuckBlockers ex
+  let mvarIds := (type.collectMVars { result := mvarIds }).result
+  let lmvarIds := (collectLevelMVars { result := lmvarIds } type).result
+  -- Without a blocker the dependencies are unknown. Instantiating a delayed-assigned
+  -- metavariable depends on the metavariables of its value.
+  if (getIsDefEqStuckBlockers ex matches (#[], #[])) || (← mvarIds.anyM (·.isDelayedAssigned)) then
+    modifyMCtx fun mctx => { mctx with stuckInsts := mctx.stuckInsts.erase mvarId }
+  else
+    modifyMCtx fun mctx => { mctx with
+      stuckInsts := mctx.stuckInsts.insert mvarId
+        { mvarIds, lmvarIds, depth := mctx.depth, levelAssignDepth := mctx.levelAssignDepth } }
+
 set_option compiler.ignoreBorrowAnnotation true in
 @[export lean_synth_pending]
 private def synthPendingImp (mvarId : MVarId) : MetaM Bool := withIncRecDepth <| mvarId.withContext do
@@ -1391,7 +1417,13 @@ private def synthPendingImp (mvarId : MVarId) : MetaM Bool := withIncRecDepth <|
       else
         withIncSynthPending do
           trace[Meta.synthPending] "synthPending {mkMVar mvarId}"
-          let val? ← catchInternalId isDefEqStuckExceptionId (synthInstance? mvarDecl.type (maxResultSize? := none)) (fun _ => pure none)
+          if (← isStuckInst mvarId) then
+            trace[Meta.synthPending] "skipped, still stuck"
+            return false
+          let type ← instantiateMVars mvarDecl.type
+          let val? ← catchInternalId isDefEqStuckExceptionId (synthInstance? type (maxResultSize? := none)) fun ex => do
+            recordStuckInst mvarId type ex
+            pure none
           match val? with
           | none     =>
             return false

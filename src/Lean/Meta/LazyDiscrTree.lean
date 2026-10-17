@@ -9,6 +9,7 @@ prelude
 public import Lean.Meta.CompletionName
 public import Lean.Meta.DiscrTree
 import Init.Omega
+import Lean.Util.CollectMVars
 
 public section
 
@@ -206,18 +207,18 @@ def getKeyArgs (e : Expr) (isMatch root : Bool) :
            If `isDefEqStuckEx` is enabled, then we must throw the `isDefEqStuck` exception to
            postpone TC resolution.
         -/
-        Meta.throwIsDefEqStuck
+        Meta.throwIsDefEqStuck ((← instantiateMVars e).collectMVars {}).result
       else if let some matcherInfo := isMatcherAppCore? (← getEnv) e then
         -- A matcher application is stuck if one of the discriminants has a metavariable
         let args := e.getAppArgs
         let start := matcherInfo.getFirstDiscrPos
         for arg in args[start...(start + matcherInfo.numDiscrs)] do
           if arg.hasExprMVar then
-            Meta.throwIsDefEqStuck
+            Meta.throwIsDefEqStuck ((← instantiateMVars arg).collectMVars {}).result
       else if (← isRec c) then
         /- Similar to the previous case, but for `match` and recursor applications. It may be stuck
            (i.e., did not reduce) because of metavariables. -/
-        Meta.throwIsDefEqStuck
+        Meta.throwIsDefEqStuck ((← instantiateMVars e).collectMVars {}).result
     let nargs := e.getAppNumArgs
     return (.const c nargs, e.getAppRevArgs)
   | .fvar fvarId   =>

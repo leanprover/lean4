@@ -1233,8 +1233,15 @@ def synthesizeInstMVarCore (instMVar : MVarId) (maxResultSize? : Option Nat := n
   let extraErrorMsg := extraMsgToMsg extraErrorMsg?
   let instMVarDecl ← getMVarDecl instMVar
   let type := instMVarDecl.type
+  if (← isStuckInst instMVar) then
+    trace[Meta.synthInstance] "skipped, still stuck: {type}"
+    return false
   let type ← instantiateMVars type
-  let result ← trySynthInstance type maxResultSize?
+  let result ← catchInternalId isDefEqStuckExceptionId
+    (toLOptionM <| synthInstance? type maxResultSize?)
+    fun ex => do
+      recordStuckInst instMVar type ex
+      pure .undef
   match result with
   | LOption.some val =>
     if (← instMVar.isAssigned) then

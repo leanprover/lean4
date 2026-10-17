@@ -168,7 +168,7 @@ mutual
               let cfg ← getConfig
               if cfg.isDefEqStuckEx && (lhs.isMVar || rhs.isMVar) then do
                 trace[Meta.isLevelDefEq.stuck] "{lhs} =?= {rhs}"
-                Meta.throwIsDefEqStuck
+                Meta.throwIsDefEqStuck (lmvarIds := (rhs.collectMVars (lhs.collectMVars {})).toArray)
               else
                 return false
             else

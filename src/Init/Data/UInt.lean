@@ -8,6 +8,7 @@ module
 prelude
 public import Init.Data.UInt.BasicAux
 public import Init.Data.UInt.Basic
+public import Init.Data.UInt.Modular
 public import Init.Data.UInt.Log2
 public import Init.Data.UInt.Lemmas
 public import Init.Data.UInt.Bitwise

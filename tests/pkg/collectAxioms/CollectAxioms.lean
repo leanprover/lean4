@@ -5,6 +5,7 @@ public import CollectAxioms.Right
 public import CollectAxioms.Chain.Top
 public import CollectAxioms.Chain.Middle
 public import CollectAxioms.Chain.Bottom
+public import CollectAxioms.Inductive
 
 /-! ## Diamond imports with same-named private axioms
 
@@ -72,3 +73,44 @@ public noncomputable def usesMultiple : Nat := chainDef.casesOn myAxiom
 /-- info: 'usesMultiple' depends on axioms: [chainAx, myAxiom] -/
 #guard_msgs in
 #print axioms usesMultiple
+
+/-! ## Imported inductive blocks (#15226)
+
+These queries must agree with the defining module, including for declarations whose
+only dependency on the axiom is through the inductive type. -/
+
+/-- info: 'S9' depends on axioms: [Classical.choice] -/
+#guard_msgs in
+#print axioms S9
+
+/-- info: 'S9.mk' depends on axioms: [Classical.choice] -/
+#guard_msgs in
+#print axioms S9.mk
+
+/-- info: 'usesS9' depends on axioms: [Classical.choice] -/
+#guard_msgs in
+#print axioms usesS9
+
+/-- info: 'M1' depends on axioms: [Classical.choice] -/
+#guard_msgs in
+#print axioms M1
+
+/-- info: 'M1.mk' depends on axioms: [Classical.choice] -/
+#guard_msgs in
+#print axioms M1.mk
+
+/-- info: 'M2' depends on axioms: [Classical.choice] -/
+#guard_msgs in
+#print axioms M2
+
+/-- info: 'M2.mk' depends on axioms: [Classical.choice] -/
+#guard_msgs in
+#print axioms M2.mk
+
+/-- info: 'Nested' depends on axioms: [Classical.choice] -/
+#guard_msgs in
+#print axioms Nested
+
+/-- info: 'Nested.mk' depends on axioms: [Classical.choice] -/
+#guard_msgs in
+#print axioms Nested.mk

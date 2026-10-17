@@ -1,0 +1,7 @@
+ok: normal
+ok: append
+ok: srcOff-past-end
+ok: srcOff-bignum
+ok: destOff-bignum
+ok: len-bignum
+ok: all-bignum

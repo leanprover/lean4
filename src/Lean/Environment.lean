@@ -16,6 +16,7 @@ public import Lean.LocalContext
 public import Lean.Util.Path
 public import Lean.Util.FindExpr
 public import Lean.Util.Profile
+public import Lean.Util.ImportProfile
 public import Lean.Util.InstantiateLevelParams
 public import Lean.Util.FoldConsts
 public import Lean.PrivateName
@@ -178,6 +179,8 @@ structure EnvironmentHeader where
   importAllModules : Array EffectiveImport := modules.filter (·.importAll)
   /-- Module data for all imported modules. -/
   moduleData   : Array ModuleData := #[]
+  /-- Costs of importing the above modules; recorded iff the option `profiler.import` is set. -/
+  importProfile? : Option ImportProfile := none
   deriving Nonempty
 
 namespace Kernel
@@ -708,7 +711,8 @@ def trackedGen (env : Environment) : Nat :=
   env.base.private.trackedGen
 
 def header (env : Environment) : EnvironmentHeader :=
-  -- can be assumed to be in sync with `env.checked`; see `setMainModule`, the only modifier of the header
+  -- can be assumed to be in sync with `env.checked`; see `setMainModule` and `finalizeImport`, the
+  -- only modifiers of the header
   env.base.private.header
 
 def imports (env : Environment) : Array Import :=
@@ -2122,19 +2126,34 @@ def saveModuleDataParts (mod : Name) (parts : Array (System.FilePath × ModuleDa
     let (fname, data) := parts[i]
     cs := some (← unsafe CompactedRegion.save fname mod data #[] cs)
 
+/-- Reads a single part, recording the range of the read if `profiling`. -/
+private def readPartProfiled (profiling : Bool) (fname : System.FilePath)
+    (depRegions : Array CompactedRegion) :
+    StateT (Array MonoNanosRange) IO (ModuleData × CompactedRegion) := do
+  let (part, range?) ← MonoNanosRange.measureIf profiling <|
+    (unsafe CompactedRegion.read (α := ModuleData) fname depRegions : IO _)
+  if let some range := range? then
+    modify (·.push range)
+  return part
+
+/-- `readModuleDataParts`, recording the range of each read if `profiling`. -/
+private def readModuleDataPartsProfiled (profiling : Bool) (fnames : Array System.FilePath) :
+    StateT (Array MonoNanosRange) IO (Array (ModuleData × CompactedRegion)) := do
+  let mut depRegions : Array CompactedRegion := #[]
+  let mut result : Array (ModuleData × CompactedRegion) := #[]
+  for fname in fnames do
+    let part ← readPartProfiled profiling fname depRegions
+    result := result.push part
+    depRegions := depRegions.push part.2
+  return result
+
 /--
 Loads the module data from the given file names. The files must be (a prefix of) the result of a
 `saveModuleDataParts` call.
 -/
 def readModuleDataParts (fnames : Array System.FilePath) :
-    IO (Array (ModuleData × CompactedRegion)) := do
-  let mut depRegions : Array CompactedRegion := #[]
-  let mut result : Array (ModuleData × CompactedRegion) := #[]
-  for fname in fnames do
-    let part ← unsafe CompactedRegion.read (α := ModuleData) fname depRegions
-    result := result.push part
-    depRegions := depRegions.push part.2
-  return result
+    IO (Array (ModuleData × CompactedRegion)) :=
+  (readModuleDataPartsProfiled false fnames).run' #[]
 
 def saveModuleData (fname : System.FilePath) (mod : Name) (data : ModuleData) : IO Unit := do
   let _ ← unsafe CompactedRegion.save fname mod data #[] none
@@ -2328,17 +2347,26 @@ set_option compiler.ignoreBorrowAnnotation true in
 
 set_option compiler.ignoreBorrowAnnotation true in
 @[extern "lean_run_init_attrs"]
-private opaque runInitAttrs (env : Environment) (opts : Options) : IO Unit
+private opaque runInitAttrs (env : Environment) (opts : Options) (profiling : Bool) :
+  IO (Array ModuleInitCost)
 
 private def ensureExtensionsArraySize (env : Environment) : IO Environment := do
   let exts ← EnvExtension.ensureExtensionsArraySize env.base.private.extensions
   let extGens ← EnvExtension.ensureGensArraySize env.base.private.extGens
   return env.modifyCheckedAsync ({ · with extensions := exts, extGens })
 
-private partial def finalizePersistentExtensions (env : Environment) (mods : Array ModuleData) (opts : Options) : IO Environment := do
-  loop 0 env
+/--
+Initializes persistent environment extensions from imported data. If `profiling`, also returns the
+cost of each extension and of each module's initialization.
+-/
+private partial def finalizePersistentExtensions (env : Environment) (mods : Array ModuleData)
+    (opts : Options) (profiling : Bool) :
+    IO (Environment × Array ExtImportCost × Array ModuleInitCost) := do
+  loop 0 env #[] #[]
 where
-  loop (i : Nat) (env : Environment) : IO Environment := do
+  loop (i : Nat) (env : Environment) (extCosts : Array ExtImportCost)
+      (initCosts : Array ModuleInitCost) :
+      IO (Environment × Array ExtImportCost × Array ModuleInitCost) := do
     -- Recall that the size of the array stored `persistentEnvExtensionRef` may increase when we import user-defined environment extensions.
     let pExtDescrs ← persistentEnvExtensionsRef.get
     if h : i < pExtDescrs.size then
@@ -2348,26 +2376,35 @@ where
       let s := extDescr.toEnvExtension.getState (asyncMode := .sync) env
       let prevSize := (← persistentEnvExtensionsRef.get).size
       let prevAttrSize ← getNumBuiltinAttributes
-      let newState ← extDescr.addImportedFn s.importedEntries { env := env, opts := opts }
+      let (newState, addRange?) ← MonoNanosRange.measureIf profiling do
+        extDescr.addImportedFn s.importedEntries { env := env, opts := opts }
       -- unlogged: nothing has been recorded against this environment yet
       let mut env := extDescr.toEnvExtension.setState (asyncMode := .sync) (log := .unlogged) env
         { s with state := newState }
+      let mut initCosts := initCosts
       if extDescr.name == `Lean.regularInitAttr then
         -- Run `[init]` attributes now. We do this after `setState` so `runInitAttrs` can access
         -- `getModule(IR)Entries` but we should also do it before attempting to run user-defined
         -- extensions further down in `pExtDescrs` so they can access initialized declarations.
-        runInitAttrs env opts
+        initCosts := initCosts ++ (← runInitAttrs env opts profiling)
       env ← ensureExtensionsArraySize env
+      let mut newExts? : Option MonoNanosRange := none
       if (← persistentEnvExtensionsRef.get).size > prevSize || (← getNumBuiltinAttributes) > prevAttrSize then
         -- This branch is executed when `pExtDescrs[i]` is the extension associated with the `init` attribute, and
         -- a user-defined persistent extension is imported.
         -- Thus, we invoke `setImportedEntries` to update the array `importedEntries` with the entries for the new extensions.
+        let start ← if profiling then IO.monoNanosNow else pure 0
         env := env.setCheckedSync { env.base.private with extensions := (← setImportedEntries env.base.private.extensions mods prevSize) }
         -- See comment at `updateEnvAttributesRef`
         env ← updateEnvAttributes env
-      loop (i + 1) env
+        if profiling then
+          newExts? := some { start, stop := ← IO.monoNanosNow }
+      let extCosts := match addRange? with
+        | some r => extCosts.push { r with newExts? }
+        | none   => extCosts
+      loop (i + 1) env extCosts initCosts
     else
-      return env
+      return (env, extCosts, initCosts)
 
 private structure ImportedModule extends EffectiveImport where
   /-- `.olean` + `.olean.server` (optional) + `.olean.private` (optional). -/
@@ -2376,6 +2413,10 @@ private structure ImportedModule extends EffectiveImport where
   irParts   : Array (ModuleData × CompactedRegion)
   /-- If true, IR is loaded transitively. -/
   needsIRTrans : Bool
+  /-- Cost of reading `parts`, if profiling. -/
+  readData? : Option DataReadCost := none
+  /-- Cost of reading `irParts`, if profiling. -/
+  readIR? : Option IRReadCost := none
 
 /-- The main module data that will eventually be used to construct the publicly accessible constants. -/
 private def ImportedModule.publicModule? (self : ImportedModule) : Option ModuleData := do
@@ -2420,6 +2461,10 @@ private def ImportedModule.irData? (self : ImportedModule) (loadIRSig : Bool := 
 structure ImportState where
   private moduleNameMap : Std.HashMap Name ImportedModule := {}
   private moduleNames   : Array Name := #[]
+  /-- Start of the import iff recording an `ImportProfile`. -/
+  private profileStart? : Option Nat := none
+  /-- Range of `importModulesCore` if recording an `ImportProfile`. -/
+  private readModules? : Option MonoNanosRange := none
 deriving Inhabited
 
 /-- Bumps all modules' `isExported` flag to true, intended for use in `shake` only. -/
@@ -2440,33 +2485,35 @@ abbrev ImportStateM := StateRefT ImportState IO
 @[inline] nonrec def ImportStateM.run (x : ImportStateM α) (s : ImportState := default) : IO (α × ImportState) :=
   x.run s
 
-private def readModuleDataPartsOfMod (mod : Name) : IO (Array (ModuleData × CompactedRegion)) := do
+private def readModuleDataPartsOfMod (profiling : Bool) (mod : Name) :
+    StateT (Array MonoNanosRange) IO (Array (ModuleData × CompactedRegion)) := do
   let mFile ← findOLean mod
   unless (← mFile.pathExists) do
     throw <| IO.userError s!"object file '{mFile}' of module {mod} does not exist"
-  let main ← unsafe CompactedRegion.read (α := ModuleData) mFile #[]
+  let main ← readPartProfiled profiling mFile #[]
   if !main.1.isModule then
     return #[main]
   -- Opportunistically load all available parts.
   -- Necessary because the import level may be upgraded a later import.
   let sFile := OLeanLevel.server.adjustFileName mFile
-  let server ← unsafe CompactedRegion.read (α := ModuleData) sFile #[main.2]
+  let server ← readPartProfiled profiling sFile #[main.2]
   let pFile := OLeanLevel.private.adjustFileName mFile
-  let priv ← unsafe CompactedRegion.read (α := ModuleData) pFile #[main.2, server.2]
+  let priv ← readPartProfiled profiling pFile #[main.2, server.2]
   return #[main, server, priv]
 
-private def readIRPartsOfMod (mod : Name) : IO (Array (ModuleData × CompactedRegion)) := do
+private def readIRPartsOfMod (profiling : Bool) (mod : Name) :
+    StateT (Array MonoNanosRange) IO (Array (ModuleData × CompactedRegion)) := do
   let mFile ← findOLean mod
   let irSigFile := mFile.withExtension "ir.sig"
   -- TODO: we don't (necessarily) know whether the module is a `module` or not, but file existence
   -- checks are not great in the face of module-ness changes
   unless (← irSigFile.pathExists) do
     return #[]
-  let irSig ← unsafe CompactedRegion.read (α := ModuleData) irSigFile #[]
+  let irSig ← readPartProfiled profiling irSigFile #[]
   -- Opportunistically load all available parts.
   -- Necessary because the import level may be upgraded a later import.
   let irFile := mFile.withExtension "ir"
-  let ir ← unsafe CompactedRegion.read (α := ModuleData) irFile #[irSig.2]
+  let ir ← readPartProfiled profiling irFile #[irSig.2]
   return #[irSig, ir]
 
 partial def importModulesCore
@@ -2476,12 +2523,16 @@ partial def importModulesCore
     -- on imports
     (loadIRSig : Bool := false) :
     ImportStateM Unit := do
+  let start ← IO.monoNanosNow
   go imports (importAll := true) (isExported := isExported) (needsData := true) (needsIRTrans := false)
   if globalLevel < .private then
     for i in imports do
       if let some mod := (← get).moduleNameMap[i.module]?.bind (·.mainModule?) then
         if !mod.isModule then
           throw <| IO.userError s!"cannot import non-`module` {i.module} from `module`"
+  if (← get).profileStart?.isSome then
+    let stop ← IO.monoNanosNow
+    modify ({ · with readModules? := some { start, stop } })
 /-
 When the module system is disabled for the root, we import all transitively referenced modules and
 ignore any module system annotations on the way.
@@ -2573,42 +2624,60 @@ where
         let needsIRTrans := needsIRTrans || mod.needsIRTrans
         let needsIR := needsIRTrans || importAll || (loadIRSig && needsData)
         let irPhases := if irPhases == mod.irPhases then irPhases else .all
-        let parts ← if needsData && mod.parts.isEmpty then loadData i else pure mod.parts
-        let irParts ← if needsIR && mod.irParts.isEmpty then loadIR i else pure mod.irParts
+        let (parts, readData?) ←
+          if needsData && mod.parts.isEmpty then loadData i else pure (mod.parts, mod.readData?)
+        let (irParts, readIR?) ←
+          if needsIR && mod.irParts.isEmpty then loadIR i else pure (mod.irParts, mod.readIR?)
         if importAll != mod.importAll || isExported != mod.isExported ||
             needsIRTrans != mod.needsIRTrans || needsData != mod.hasData || irPhases != mod.irPhases then
           modify fun s => { s with moduleNameMap := s.moduleNameMap.insert i.module { mod with
-            importAll, isExported, irPhases, parts, irParts, hasData := needsData, needsIRTrans }}
+            importAll, isExported, irPhases, parts, irParts, hasData := needsData, needsIRTrans,
+            readData?, readIR? }}
           -- bump entire closure
           goRec mod
         continue
 
       -- newly discovered module
-      let parts ← if needsData then loadData i else pure #[]
-      let irParts ← if needsIR then loadIR i else pure #[]
-      let mod := { i with importAll, isExported, irPhases, parts, irParts, needsIRTrans, hasData := needsData }
+      let (parts, readData?) ← if needsData then loadData i else pure (#[], none)
+      let (irParts, readIR?) ← if needsIR then loadIR i else pure (#[], none)
+      let mod := { i with
+        importAll, isExported, irPhases, parts, irParts, needsIRTrans, hasData := needsData,
+        readData?, readIR? }
       goRec mod
       modify fun s => { s with
         moduleNameMap := s.moduleNameMap.insert i.module mod
         moduleNames := s.moduleNames.push i.module
       }
   -- .olean + .olean.server (optional) + .olean.private (optional)
-  loadData i := do
-    if let some arts := arts.find? i.module then
-      -- Opportunistically load all available parts.
-      -- Producer (e.g., Lake) should limit parts to the proper import level.
-      let fnames := arts.oleanParts (inServer := globalLevel ≥ .server)
-      readModuleDataParts fnames
-    else
-      readModuleDataPartsOfMod i.module
+  loadData (i : Import) :
+      ImportStateM (Array (ModuleData × CompactedRegion) × Option DataReadCost) := do
+    let profiling := (← get).profileStart?.isSome
+    let ((parts, partRanges), range?) ← MonoNanosRange.measureIf (m := IO) profiling do
+      if let some arts := arts.find? i.module then
+        -- Opportunistically load all available parts.
+        -- Producer (e.g., Lake) should limit parts to the proper import level.
+        let fnames := arts.oleanParts (inServer := globalLevel ≥ .server)
+        (readModuleDataPartsProfiled profiling fnames).run #[]
+      else
+        (readModuleDataPartsOfMod profiling i.module).run #[]
+    -- The parts read are a prefix of `.olean`, `.olean.server`, `.olean.private`.
+    let cost? : Option DataReadCost := range?.bind fun range => partRanges[0]?.map fun olean =>
+      { range with olean, oleanServer? := partRanges[1]?, oleanPrivate? := partRanges[2]? }
+    return (parts, cost?)
   -- .ir.sig + .ir (optional)
-  loadIR i := do
-    if let some arts := arts.find? i.module then
-      -- Opportunistically load all available parts.
-      -- Producer (e.g., Lake) should limit parts to the proper import level.
-      readModuleDataParts arts.irParts
-    else
-      readIRPartsOfMod i.module
+  loadIR (i : Import) :
+      ImportStateM (Array (ModuleData × CompactedRegion) × Option IRReadCost) := do
+    let profiling := (← get).profileStart?.isSome
+    let ((irParts, partRanges), range?) ← MonoNanosRange.measureIf (m := IO) profiling do
+      if let some arts := arts.find? i.module then
+        -- Opportunistically load all available parts.
+        -- Producer (e.g., Lake) should limit parts to the proper import level.
+        (readModuleDataPartsProfiled profiling arts.irParts).run #[]
+      else
+        (readIRPartsOfMod profiling i.module).run #[]
+    let cost? : Option IRReadCost := range?.map fun range =>
+      { range with irSig? := partRanges[0]?, ir? := partRanges[1]? }
+    return (irParts, cost?)
 
 /--
 Returns `true` if `cinfo₁` and `cinfo₂` represent the same theorem/axiom, with `cinfo₁` potentially
@@ -2694,8 +2763,16 @@ def finalizeImport (s : ImportState) (imports : Array Import) (opts : Options) (
   let mut const2ModIdx : Std.HashMap Name ModuleIdx := Std.HashMap.emptyWithCapacity (capacity := numPrivateConsts + numExtraConsts)
   let mut privateConstantMap : Std.HashMap Name ConstantInfo := Std.HashMap.emptyWithCapacity (capacity := numPrivateConsts)
   let mut publicConstantMap : Std.HashMap Name ConstantInfo := Std.HashMap.emptyWithCapacity (capacity := numPublicConsts)
+  let profiling := s.profileStart?.isSome
+  let mut moduleCosts : Array ModuleImportCost := #[]
+  if profiling then
+    moduleCosts := modules.map fun mod => {
+      readData? := mod.readData?, readIR? := mod.readIR?
+      privateConsts := default, extraConsts := default, publicConsts? := none }
+  let constMapsStart ← IO.monoNanosNow
   for h : modIdx in *...moduleData.size do
     let data := moduleData[modIdx]
+    let privateStart ← if profiling then IO.monoNanosNow else pure 0
     for cname in data.constNames, cinfo in data.constants do
       match privateConstantMap.getThenInsertIfNew? cname cinfo with
       | (cinfoPrev?, constantMap') =>
@@ -2707,13 +2784,22 @@ def finalizeImport (s : ImportState) (imports : Array Import) (opts : Options) (
           else if !subsumesInfo privateConstantMap cinfoPrev cinfo then
             throwAlreadyImported s const2ModIdx modIdx cname
       const2ModIdx := const2ModIdx.insertIfNew cname modIdx
+    let extraStart ← if profiling then IO.monoNanosNow else pure 0
     if let some data := irData[modIdx]? then
       for cname in data.extraConstNames do
         const2ModIdx := const2ModIdx.insertIfNew cname modIdx
+    if profiling then
+      let extraStop ← IO.monoNanosNow
+      moduleCosts := moduleCosts.modify modIdx ({ · with
+        privateConsts := { start := privateStart, stop := extraStart }
+        extraConsts := { start := extraStart, stop := extraStop } })
 
   if isModule then
-    for mod in modules.filter (·.isExported) do
+    for h : modIdx in *...modules.size do
+      let mod := modules[modIdx]
+      if !mod.isExported then continue
       let some data := mod.publicModule? | continue
+      let publicStart ← if profiling then IO.monoNanosNow else pure 0
       for cname in data.constNames, cinfo in data.constants do
         match publicConstantMap.getThenInsertIfNew? cname cinfo with
         | (cinfoPrev?, constantMap') =>
@@ -2722,6 +2808,11 @@ def finalizeImport (s : ImportState) (imports : Array Import) (opts : Options) (
             if subsumesInfo publicConstantMap cinfo cinfoPrev then
               publicConstantMap := publicConstantMap.insert cname cinfo
             -- no need to check for duplicates again, `privateConstMap` should be a superset
+      if profiling then
+        let publicStop ← IO.monoNanosNow
+        moduleCosts := moduleCosts.modify modIdx ({ · with
+          publicConsts? := some { start := publicStart, stop := publicStop } })
+  let buildConstMaps : MonoNanosRange := { start := constMapsStart, stop := ← IO.monoNanosNow }
 
   let exts ← mkInitialExtensionStates
   let privateConstants : ConstMap := SMap.fromHashMap privateConstantMap false
@@ -2739,16 +2830,23 @@ def finalizeImport (s : ImportState) (imports : Array Import) (opts : Options) (
   }
   let publicConstants : ConstMap := SMap.fromHashMap publicConstantMap false
   let publicBase := { privateBase with constants := publicConstants, header.regions := #[] }
-  let extensions ← setImportedEntries privateBase.extensions moduleData
+  let (extensions, setEntries) ← MonoNanosRange.measure <|
+    setImportedEntries privateBase.extensions moduleData
   -- fall back to basic data when not in server
   let serverData := modules.mapIdx (fun idx mod => mod.serverData? level |>.getD moduleData[idx]!)
   -- `serverData?` selects a different part than `mainModule?` only at `.server`: at `.private`,
   -- `importModulesCore` loads every module as `importAll`. Assumes `level` is the `globalLevel`
   -- the modules were loaded with.
   let serverIsMain := level != .server
-  let irBaseExts ← setImportedIREntries privateBase.extensions irData
-  let serverBaseExts ←
-    if serverIsMain then pure extensions else setImportedEntries privateBase.extensions serverData
+  let (irBaseExts, setIREntries) ← MonoNanosRange.measure <|
+    setImportedIREntries privateBase.extensions irData
+  let (serverBaseExts, setServerEntries?) ←
+    if serverIsMain then
+      pure (extensions, none)
+    else
+      let (exts, range) ← MonoNanosRange.measure <|
+        setImportedEntries privateBase.extensions serverData
+      pure (exts, some range)
   let privateBase := { privateBase with extensions, irBaseExts }
   let mut env : Environment := {
     base.private := privateBase
@@ -2756,6 +2854,7 @@ def finalizeImport (s : ImportState) (imports : Array Import) (opts : Options) (
     importRealizationCtx? := none
     serverBaseExts
   }
+  let mut markPersistent? : Option MonoNanosRange := none
   if leakEnv then
     /- Mark persistent a first time before `finalizePersistentExtensions`, which
        avoids costly MT markings when e.g. an interpreter closure (which
@@ -2769,15 +2868,36 @@ def finalizeImport (s : ImportState) (imports : Array Import) (opts : Options) (
        `markPersistent` multiple times like this.
 
        Safety: There are no concurrent accesses to `env` at this point. -/
-    env ← unsafe Runtime.markPersistent env
+    let (env', range) ← MonoNanosRange.measure <| unsafe Runtime.markPersistent env
+    env := env'
+    markPersistent? := some range
+  let mut exts? : Option ExtsProfile := none
   if loadExts then
-    env ← finalizePersistentExtensions env moduleData opts
+    let extsStart ← IO.monoNanosNow
+    let (env', extensions, inits) ← finalizePersistentExtensions env moduleData opts profiling
+    env := env'
+    let extsStop ← IO.monoNanosNow
+    let mut finalMarkPersistent? : Option MonoNanosRange := none
     if leakEnv then
       /- Ensure the final environment including environment extension states is
         marked persistent as documented.
 
         Safety: There are no concurrent accesses to `env` at this point, assuming
         extensions' `addImportFn`s did not spawn any unbound tasks. -/
+      let (env', range) ← MonoNanosRange.measure <| unsafe Runtime.markPersistent env
+      env := env'
+      finalMarkPersistent? := some range
+    exts? := some {
+      start := extsStart, stop := extsStop, extensions, inits
+      markPersistent? := finalMarkPersistent? }
+  if let (some start, some readModules) := (s.profileStart?, s.readModules?) then
+    let profile : ImportProfile := {
+      start, stop := ← IO.monoNanosNow
+      readModules, buildConstMaps, setEntries, setIREntries, setServerEntries?, markPersistent?
+      modules := moduleCosts, exts? }
+    env := env.modifyCheckedAsync ({ · with header.importProfile? := some profile })
+    if leakEnv then
+      -- cover the new header; objects that are already persistent are not traversed again
       env ← unsafe Runtime.markPersistent env
   return { env with importRealizationCtx? := some {
     -- safety: `RealizationContext` is private
@@ -2813,8 +2933,10 @@ def importModules (imports : Array Import) (opts : Options) (trustLevel : UInt32
     if imp.module matches .anonymous then
       throw <| IO.userError "import failed, trying to import module with anonymous name"
   withImporting do
+    let start ← IO.monoNanosNow
     plugins.forM fun {path, initFn?} => Lean.loadPlugin path initFn?
-    let (_, s) ← importModulesCore (globalLevel := level) imports arts |>.run
+    let profileStart? := if profiler.import.get opts then some start else none
+    let (_, s) ← importModulesCore (globalLevel := level) imports arts |>.run { profileStart? }
     finalizeImport (leakEnv := leakEnv) (loadExts := loadExts) (level := level)
       s imports opts trustLevel
 

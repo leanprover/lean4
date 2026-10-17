@@ -36,6 +36,7 @@ private def posixParseSign : Parser Int :=
   <|> attempt (pchar '+' *> pure 1)
   <|> pure 1
 
+set_option backward.isDefEq.respectTransparency false in
 -- <time> ::= <hour> [":" <minute> [":" <second>]]
 -- `maxHour` caps the hour field; POSIX requires 0–24, extended mode allows 0–167.
 private def posixParseHMS (maxHour : Nat := 24) : Parser Second.Offset := do

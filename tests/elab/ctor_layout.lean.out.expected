@@ -1,7 +1,9 @@
 obj@0:tobj
-obj@1:obj
+obj@1:tobj
+obj@2:tobj
+obj@3:obj
 scalar#1@0:UInt8
-obj@2:obj
+obj@4:obj
 ---
 obj@0:tobj
 ◾

@@ -409,5 +409,5 @@ true
       let x_2 : usize := unbox x_1;
       dec x_1;
       let x_3 : usize := _private.elab.sint_basic.0.myIdSize x_2;
-      let x_4 : tobj := box x_3;
+      let x_4 : obj := box x_3;
       ret x_4

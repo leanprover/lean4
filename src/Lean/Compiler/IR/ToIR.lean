@@ -128,47 +128,55 @@ partial def lowerCode (c : LCNF.Code .impure) : M FnBody := do
     return .del var (← lowerCode k)
   | .fun .. => panic! "all local functions should be λ-lifted"
 
-partial def lowerLet (decl : LCNF.LetDecl .impure) (k : LCNF.Code .impure) : M FnBody := do
+partial def lowerLet (decl : LCNF.LetDecl .impure) (k : LCNF.Code .impure) : M FnBody :=
   let type := toIRType decl.type
-  let continueLet (e : Expr) : M FnBody := do
+  -- letI to avoid closure allocation
+  letI continueLet (e : VarId → FnBody → FnBody) : M FnBody := do
     let letVar ← bindVar decl.fvarId
-    return .vdecl letVar type e (← lowerCode k)
+    return e letVar (← lowerCode k)
+  do
   match decl.value with
   | .lit litValue =>
-    let ⟨litValue, _⟩ := lowerLitValue litValue
-    continueLet (.lit litValue)
+    match litValue with
+    | .uint8 v => continueLet (.uint8Lit · · v)
+    | .uint16 v => continueLet (.uint16Lit · · v)
+    | .uint32 v => continueLet (.uint32Lit · · v)
+    | .uint64 v => continueLet (.uint64Lit · · v)
+    | .usize v => continueLet (.usizeLit · · v)
+    | .nat v => continueLet (.natLit · · v)
+    | .str v => continueLet (.strLit · · v)
   | .oproj i var _ =>
     withGetFVarValue var fun var =>
-      continueLet (.proj i var)
+      continueLet (.proj · · i var)
   | .uproj i var _ =>
     withGetFVarValue var fun var =>
-      continueLet (.uproj i var)
+      continueLet (.uproj · · i var)
   | .sproj i offset var _ =>
     withGetFVarValue var fun var =>
-      continueLet (.sproj i offset var)
-  | .ctor info args _ => continueLet (.ctor (lowerCtorInfo info) (← args.mapM lowerArg))
-  | .fap fn args => continueLet (.fap fn (← args.mapM lowerArg))
-  | .pap fn args => continueLet (.pap fn (← args.mapM lowerArg))
+      continueLet (.sproj · · type i offset var)
+  | .ctor info args _ => continueLet (.ctor · · (lowerCtorInfo info) (← args.mapM lowerArg))
+  | .fap fn args => continueLet (.fap · · type fn (← args.mapM lowerArg))
+  | .pap fn args => continueLet (.pap · · fn (← args.mapM lowerArg))
   | .fvar fvarId args =>
     withGetFVarValue fvarId fun id => do
       let irArgs ← args.mapM lowerArg
-      continueLet (.ap id irArgs)
+      continueLet (.ap · · id irArgs)
   | .reset n var _ =>
     withGetFVarValue var fun var => do
-      continueLet (.reset n var)
+      continueLet (.reset · · n var)
   | .reuse var i updateHeader args _ =>
     withGetFVarValue var fun var => do
       let irArgs ← args.mapM lowerArg
-      continueLet (.reuse var (lowerCtorInfo i) updateHeader irArgs)
+      continueLet (.reuse · · var (lowerCtorInfo i) updateHeader irArgs)
   | .box ty var =>
     withGetFVarValue var fun var => do
-      continueLet (.box (toIRType ty) var)
+      continueLet (.box · · (toIRType ty) var)
   | .unbox var =>
     withGetFVarValue var fun var => do
-      continueLet (.unbox var)
+      continueLet (.unbox · · type var)
   | .isShared var =>
     withGetFVarValue var fun var => do
-      continueLet (.isShared var)
+      continueLet (.isShared · · var)
   | .erased => mkErased ()
 where
   mkErased (_ : Unit) : M FnBody := do

@@ -2995,7 +2995,7 @@ case 0:
 {
 lean_object* v_val_959_; lean_object* v___x_960_; uint8_t v___x_961_; 
 v_val_959_ = lean_ctor_get(v_v_958_, 0);
-v___x_960_ = lean_cstr_to_nat("4294967296");
+v___x_960_ = lean_unsigned_to_nat(2147483648u);
 v___x_961_ = lean_nat_dec_lt(v_val_959_, v___x_960_);
 if (v___x_961_ == 0)
 {

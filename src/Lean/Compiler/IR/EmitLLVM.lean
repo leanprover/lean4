@@ -976,21 +976,28 @@ def emitReuse (builder : LLVM.Builder llvmctx)
    )
   emitCtorSetArgs builder z ys
 
-def emitVDecl (builder : LLVM.Builder llvmctx) (z : VarId) (t : IRType) (v : Expr) : M llvmctx Unit := do
+def emitVDecl (builder : LLVM.Builder llvmctx) (v : FnBody) : M llvmctx Unit := do
   match v with
-  | Expr.ctor c ys      => emitCtor builder z c ys
-  | Expr.reset n x      => emitReset builder z n x
-  | Expr.reuse x c u ys => emitReuse builder z x c u ys
-  | Expr.proj i x       => emitProj builder z i x
-  | Expr.uproj i x      => emitUProj builder z i x
-  | Expr.sproj n o x    => emitSProj builder z t n o x
-  | Expr.fap c ys       => emitFullApp builder z c ys
-  | Expr.pap c ys       => emitPartialApp builder z c ys
-  | Expr.ap x ys        => emitApp builder z x ys
-  | Expr.box t x        => emitBox builder z x t
-  | Expr.unbox x        => emitUnbox builder z t x
-  | Expr.isShared x     => emitIsShared builder z x
-  | Expr.lit v          => let _ ← emitLit builder z t v
+  | FnBody.ctor z _ c ys      => emitCtor builder z c ys
+  | FnBody.reset z _ n x      => emitReset builder z n x
+  | FnBody.reuse z _ x c u ys => emitReuse builder z x c u ys
+  | FnBody.proj z _ i x       => emitProj builder z i x
+  | FnBody.uproj z _ i x      => emitUProj builder z i x
+  | FnBody.sproj z _ t n o x  => emitSProj builder z t n o x
+  | FnBody.fap z _ _ c ys     => emitFullApp builder z c ys
+  | FnBody.pap z _ c ys       => emitPartialApp builder z c ys
+  | FnBody.ap z _ x ys        => emitApp builder z x ys
+  | FnBody.box z _ t x        => emitBox builder z x t
+  | FnBody.unbox z _ t x      => emitUnbox builder z t x
+  | FnBody.isShared z _ x     => emitIsShared builder z x
+  | FnBody.uint8Lit z _ v     => let _ ← emitLit builder z .uint8 (.num v.toNat)
+  | FnBody.uint16Lit z _ v    => let _ ← emitLit builder z .uint16 (.num v.toNat)
+  | FnBody.uint32Lit z _ v    => let _ ← emitLit builder z .uint32 (.num v.toNat)
+  | FnBody.uint64Lit z _ v    => let _ ← emitLit builder z .uint64 (.num v.toNat)
+  | FnBody.usizeLit z _ v     => let _ ← emitLit builder z .usize (.num v.toNat)
+  | FnBody.natLit z _ v       => let _ ← emitLit builder z .tobject (.num v)
+  | FnBody.strLit z _ v       => let _ ← emitLit builder z .object (.str v)
+  | _ => unreachable!
 
 def declareVar (builder : LLVM.Builder llvmctx) (x : VarId) (t : IRType) : M llvmctx Unit := do
   let llvmty ← toLLVMType t
@@ -999,13 +1006,16 @@ def declareVar (builder : LLVM.Builder llvmctx) (x : VarId) (t : IRType) : M llv
 
 partial def declareVars (builder : LLVM.Builder llvmctx) (f : FnBody) : M llvmctx Unit := do
   match f with
-  | FnBody.vdecl x t _ b => do
-      declareVar builder x t
-      declareVars builder b
   | FnBody.jdecl _ xs _ b => do
       for param in xs do declareVar builder param.x param.ty
       declareVars builder b
   | e => do
+      if e.isVarDecl then
+        let x := e.targetVar
+        let t := e.targetType
+        let b := e.body
+        declareVar builder x t
+        declareVars builder b
       if e.isTerminal then pure () else declareVars builder e.body
 
 def emitTag (builder : LLVM.Builder llvmctx) (x : VarId) (xType : IRType) : M llvmctx (LLVM.Value llvmctx) := do
@@ -1033,9 +1043,9 @@ def emitUSet (builder : LLVM.Builder llvmctx) (x : VarId) (i : Nat) (y : VarId) 
   let fnty ← LLVM.functionType retty argtys
   let _ ← LLVM.buildCall2 builder fnty fn  #[← emitLhsVal builder x, ← constIntUnsigned i, (← emitLhsVal builder y)]
 
-def emitTailCall (builder : LLVM.Builder llvmctx) (f : FunId) (v : Expr) : M llvmctx Unit := do
+def emitTailCall (builder : LLVM.Builder llvmctx) (f : FunId) (v : FnBody) : M llvmctx Unit := do
    match v with
-  | Expr.fap _ ys => do
+  | FnBody.fap _ _ _ _ ys => do
     let llvmctx ← read
     let ps := llvmctx.mainParams
     unless ps.size == ys.size do throw s!"Invalid tail call. f:'{f}' v:'{v}'"
@@ -1155,13 +1165,6 @@ partial def emitBlock (builder : LLVM.Builder llvmctx) (b : FnBody) : M llvmctx 
   | FnBody.jdecl j xs  v b      =>
        emitJDecl builder j xs v
        emitBlock builder b
-  | d@(FnBody.vdecl x t v b)   => do
-    let llvmctx ← read
-    if isTailCallTo llvmctx.mainFn d then
-      emitTailCall builder llvmctx.mainFn v
-    else
-      emitVDecl builder x t v
-      emitBlock builder b
   | FnBody.inc x n c p b       =>
     unless p do emitInc builder x n c
     emitBlock builder b
@@ -1181,6 +1184,13 @@ partial def emitBlock (builder : LLVM.Builder llvmctx) (b : FnBody) : M llvmctx 
   | FnBody.jmp j xs            =>
      emitJmp builder j xs
   | FnBody.unreachable         => emitUnreachable builder
+  | d   => do
+    let llvmctx ← read
+    if isTailCallTo llvmctx.mainFn d then
+      emitTailCall builder llvmctx.mainFn d
+    else
+      emitVDecl builder d
+      emitBlock builder d.body
 
 partial def emitFnBody  (builder : LLVM.Builder llvmctx)  (b : FnBody) : M llvmctx Unit := do
   declareVars builder b

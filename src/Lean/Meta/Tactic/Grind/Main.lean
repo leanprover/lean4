@@ -351,6 +351,9 @@ private def initCore (mvarId : MVarId) : GrindM Goal := do
   let mvarId ← if config.revert then mvarId.revertAll else pure mvarId
   let mvarId ← mvarId.unfoldReducible
   let mvarId ← mvarId.betaReduce
+  -- `have` wraps the goal type in `mdata` (`noImplicitLambda`), which would hide an implication
+  -- or a universal quantifier from `introNext`.
+  let mvarId ← mvarId.eraseIrrelevantMData
   appendTagSuffix mvarId `grind
   let goal ← mkGoalCore mvarId
   if config.revert then

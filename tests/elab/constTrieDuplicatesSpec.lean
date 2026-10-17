@@ -19,9 +19,6 @@ open List Vector
 
 -- These attributes still need to be moved to the standard library.
 
--- set_option trace.grind.ematch.pattern true in
--- attribute [grind] Vector.getElem?_eq_getElem -- This one requires some consideration! -- Probably not need, see Vector.Perm.extract' below.
-
 -- Hmm, we don't seem to have the Array analogues of these!
 attribute [grind =] Vector.toArray_perm_iff
 attribute [grind =] Vector.perm_toArray_iff
@@ -31,9 +28,6 @@ attribute [grind .] Vector.swap_perm
 attribute [grind .] List.Perm.refl
 attribute [grind .] Array.Perm.refl
 attribute [grind .] Vector.Perm.refl
-
--- attribute [grind] Array.Perm.extract
--- attribute [grind] Vector.Perm.extract
 
 -- These are just the patterns resulting from `grind`, but the behaviour should be explained!
 grind_pattern List.Perm.trans => l₁ ~ l₂, l₁ ~ l₃
@@ -45,22 +39,16 @@ theorem _root_.List.Perm.take_of_getElem {l₁ l₂ : List α} (h : l₁ ~ l₂)
     (w : ∀ j, i ≤ j → (_ : j < l₁.length) → l₁[j] = l₂[j]'(by have := h.length_eq; omega)) :
     l₁.take i ~ l₂.take i := by
   apply h.take_of_getElem?
-  intro j hj
   have := h.length_eq
-  by_cases hl : j < l₁.length
-  · rw [List.getElem?_eq_getElem hl, List.getElem?_eq_getElem (by omega), w j hj hl]
-  · rw [List.getElem?_eq_none (by omega), List.getElem?_eq_none (by omega)]
+  grind
 
 /-- Variant of `List.Perm.drop` specifying the permutation is constant before `i` elementwise. -/
 theorem _root_.List.Perm.drop_of_getElem {l₁ l₂ : List α} (h : l₁ ~ l₂) {i : Nat}
     (w : ∀ j, j < i → (_ : j < l₁.length) → l₁[j] = l₂[j]'(by have := h.length_eq; omega)) :
     l₁.drop i ~ l₂.drop i := by
   apply h.drop_of_getElem?
-  intro j hj
   have := h.length_eq
-  by_cases hl : j < l₁.length
-  · rw [List.getElem?_eq_getElem hl, List.getElem?_eq_getElem (by omega), w j hj hl]
-  · rw [List.getElem?_eq_none (by omega), List.getElem?_eq_none (by omega)]
+  grind
 
 theorem _root_.Array.Perm.extract' {xs ys : Array α} (h : xs ~ ys) {lo hi : Nat}
     (wlo : ∀ i, i < lo → (_ : i < xs.size) → xs[i] = ys[i]'(by have := h.size_eq; omega))
@@ -69,13 +57,7 @@ theorem _root_.Array.Perm.extract' {xs ys : Array α} (h : xs ~ ys) {lo hi : Nat
   have hs := h.size_eq
   rw [Array.perm_iff_toList_perm] at h ⊢
   simp only [Array.toList_extract, List.extract_eq_take_drop]
-  refine List.Perm.take_of_getElem (List.Perm.drop_of_getElem h ?_) ?_
-  · intro j hj hl
-    simp only [Array.getElem_toList]
-    exact wlo j hj (by simpa using hl)
-  · intro j hj hl
-    simp only [List.getElem_drop, Array.getElem_toList]
-    exact whi (lo + j) (by omega) (by simp at hl; omega)
+  refine List.Perm.take_of_getElem (List.Perm.drop_of_getElem h ?_) ?_ <;> grind
 
 theorem _root_.Vector.Perm.extract' {xs ys : Vector α n} (h : xs ~ ys) {lo hi : Nat}
     (wlo : ∀ i, i < lo → (_ : i < n) → xs[i] = ys[i]) (whi : ∀ i, hi ≤ i → (_ : i < n) → xs[i] = ys[i]) :
@@ -380,11 +362,10 @@ namespace ConstTrieDupSpec
 /-! ## `foldChildGroups` groups the candidates' children by key -/
 
 theorem lastPartEq_refl (n : Name) : lastPartEq n n = true := by
-  cases n <;> simp [lastPartEq]
+  cases n <;> grind [lastPartEq]
 
 theorem lastPartEq_symm {a b : Name} (h : lastPartEq a b = true) : lastPartEq b a = true := by
-  cases a <;> cases b <;> simp only [lastPartEq, beq_iff_eq] at h ⊢ <;>
-    first | exact h.symm | trivial
+  cases a <;> cases b <;> grind [lastPartEq]
 
 theorem lastPartEq_trans {a b c : Name} (h₁ : lastPartEq a b = true) (h₂ : lastPartEq b c = true) :
     lastPartEq a c = true := by
@@ -412,14 +393,10 @@ theorem getElem!_push_zero {g : Array β} [Inhabited β] (hg : 0 < g.size) (x : 
     (g.push x)[0]! = g[0]! := by
   simp [getElem!_pos, Array.getElem_push, *]
 
-theorem take_succ_eq {l : List β} (h : i < l.length) : l.take (i + 1) = l.take i ++ [l[i]] := by
-  rw [List.take_add_one, List.getElem?_eq_getElem h]; rfl
-
-
 theorem take_succ_pr {sorted : Array (Elem cands)} (h : idx < sorted.size) :
     (sorted.toList.map pr).take (idx + 1) =
       (sorted.toList.map pr).take idx ++ [pr sorted[idx]] := by
-  rw [take_succ_eq (by simpa using h)]; simp
+  rw [List.take_succ_eq_append_getElem (by simpa using h)]; simp
 
 theorem modify_head {groups : Array (Array β)} [Inhabited β] {gi k : Nat} {z : β}
     (hne : ∀ g ∈ groups, 0 < g.size) (hk : k < (groups.modify gi (·.push z)).size) :
@@ -436,37 +413,29 @@ theorem GInv.modify {sorted : Array (Elem cands)} (hinv : GInv sorted h₀ a idx
   have hne : ∀ g ∈ groups, 0 < g.size := fun g hg => (hinv.good g hg).1
   constructor
   · intro g hg
-    rw [Array.mem_iff_getElem] at hg
-    obtain ⟨k, hk, rfl⟩ := hg
+    obtain ⟨k, hk, rfl⟩ := Array.mem_iff_getElem.mp hg
     simp only [Array.size_modify] at hk
     have hold := hinv.good groups[k] (Array.getElem_mem hk)
     rw [take_succ_pr h, Array.getElem_modify]
     split
     · subst gi
-      refine ⟨by simp, ?_, ?_⟩
-      · rw [Array.toList_push]; exact hold.2.1.append (List.Sublist.refl _)
-      · intro z hz
-        rw [getElem!_push_zero hold.1]
-        rcases Array.mem_push.mp hz with hz | rfl
-        · exact hold.2.2 z hz
-        · exact ⟨hzh, hlp⟩
+      refine ⟨by simp, by simpa using hold.2.1.append (.refl [pr sorted[idx]]), ?_⟩
+      intro z hz
+      rw [getElem!_push_zero hold.1]
+      rcases Array.mem_push.mp hz with hz | rfl
+      · exact hold.2.2 z hz
+      · exact ⟨hzh, hlp⟩
     · exact ⟨hold.1, hold.2.1.trans (List.sublist_append_left _ _), hold.2.2⟩
   · intro k₁ k₂ h₁ h₂ hl
     rw [modify_head hne, modify_head hne] at hl
-    exact hinv.heads k₁ k₂ (by simpa using h₁) (by simpa using h₂) hl
+    exact hinv.heads k₁ k₂ _ _ hl
   · intro m hm ha hm'
     by_cases hmi : m = idx
-    · subst m
-      refine ⟨_, Array.getElem_mem (i := gi) (by simpa using hgi), ?_⟩
-      rw [Array.getElem_modify]; simp
+    · exact ⟨_, Array.getElem_mem (i := gi) (by simpa using hgi), by simp [hmi, Array.getElem_modify]⟩
     · obtain ⟨g, hg, hmg⟩ := hinv.covers m hm ha (by omega)
-      rw [Array.mem_iff_getElem] at hg
-      obtain ⟨k, hk, rfl⟩ := hg
-      refine ⟨_, Array.getElem_mem (i := k) (by simpa using hk), ?_⟩
-      rw [Array.getElem_modify]
-      split
-      · subst gi; exact Array.mem_push.mpr (.inl hmg)
-      · exact hmg
+      obtain ⟨k, hk, rfl⟩ := Array.mem_iff_getElem.mp hg
+      exact ⟨_, Array.getElem_mem (i := k) (by simpa using hk), by
+        rw [Array.getElem_modify]; split <;> simp_all⟩
 
 theorem GInv.push {sorted : Array (Elem cands)} (hinv : GInv sorted h₀ a idx groups)
     (h : idx < sorted.size) (hzh : (pr sorted[idx]).2.key.hash = h₀)
@@ -478,12 +447,7 @@ theorem GInv.push {sorted : Array (Elem cands)} (hinv : GInv sorted h₀ a idx g
     rcases Array.mem_push.mp hg with hg | rfl
     · have hold := hinv.good g hg
       exact ⟨hold.1, hold.2.1.trans (List.sublist_append_left _ _), hold.2.2⟩
-    · refine ⟨by simp, ?_, ?_⟩
-      · simp
-      · intro z hz
-        simp only [List.mem_toArray, List.mem_singleton] at hz
-        subst hz
-        exact ⟨hzh, by simp [lastPartEq_refl]⟩
+    · exact ⟨by simp, by simp, by simp [hzh, lastPartEq_refl]⟩
   · intro k₁ k₂ h₁ h₂ hl
     simp only [Array.size_push] at h₁ h₂
     simp only [Array.getElem_push] at hl
@@ -495,8 +459,7 @@ theorem GInv.push {sorted : Array (Elem cands)} (hinv : GInv sorted h₀ a idx g
     · omega
   · intro m hm ha hm'
     by_cases hmi : m = idx
-    · subst m
-      exact ⟨_, Array.mem_push.mpr (.inr rfl), by simp⟩
+    · exact ⟨_, Array.mem_push.mpr (.inr rfl), by simp [hmi]⟩
     · obtain ⟨g, hg, hmg⟩ := hinv.covers m hm ha (by omega)
       exact ⟨g, Array.mem_push.mpr (.inl hg), hmg⟩
 
@@ -518,25 +481,16 @@ theorem gather_spec (sorted : Array (Elem cands))
       simp only [pr]; rw [← hS]; simpa using hh
     have hinv' : GInv sorted h₀ a (idx + 1) groups' := by
       have hpr : pr sorted[idx] = (i, c.1) := by simp [pr, heq]
-      split at hmatch
-      · rename_i gi hgi
-        simp only [Subtype.mk.injEq] at hmatch
-        subst hmatch
-        rw [Array.findIdx?_eq_some_iff_getElem] at hgi
-        obtain ⟨hgi, hlp, -⟩ := hgi
-        rw [← hpr]
-        exact hinv.modify h hzh hgi (by rw [hpr]; exact hlp)
-      · rename_i hnone
-        simp only [Subtype.mk.injEq] at hmatch
-        subst hmatch
-        rw [Array.findIdx?_eq_none_iff] at hnone
-        rw [← hpr]
-        exact hinv.push h hzh (by rw [hpr]; exact hnone)
+      split at hmatch <;> rename_i hgi <;> simp only [Subtype.mk.injEq] at hmatch <;>
+        subst hmatch <;> rw [← hpr]
+      · obtain ⟨hgi, hlp, -⟩ := Array.findIdx?_eq_some_iff_getElem.mp hgi
+        exact hinv.modify h hzh hgi (by rwa [hpr])
+      · exact hinv.push h hzh (by rw [hpr]; exact Array.findIdx?_eq_none_iff.mp hgi)
     obtain ⟨ih1, ih2, ih3, ih4⟩ := ih hinv' (by omega) (by omega)
     refine ⟨ih1, fun m hm h1 h2 => ?_, ih3, ih4⟩
-    by_cases hmi : m = idx
-    · subst m; simpa using hh
-    · exact ih2 m hm (by omega) h2
+    rcases Nat.eq_or_lt_of_le h1 with rfl | h1
+    · simpa using hh
+    · exact ih2 m hm h1 h2
   | case2 idx groups hgroups h hh =>
     simp only
     refine ⟨hidx, fun m hm h1 h2 => by omega, fun _ => by simpa using hh, hinv⟩
@@ -561,12 +515,7 @@ theorem flush_inv (Good : Array (Nat × ConstTrie α) → Prop) (Inv : σ → Pr
   | case2 => exact hinv
 
 theorem two_le_size_of_mem {g : Array β} (hx : x ∈ g) (hy : y ∈ g) (hxy : x ≠ y) : 2 ≤ g.size := by
-  rcases g with ⟨l⟩
-  simp only [List.mem_toArray, List.size_toArray] at *
-  match l, hx, hy with
-  | [], hx, _ => simp at hx
-  | [a], hx, hy => simp at hx hy; subst hx hy; exact absurd rfl hxy
-  | _ :: _ :: _, _, _ => simp
+  rcases g with ⟨_ | ⟨_, _ | ⟨_, _⟩⟩⟩ <;> simp_all
 
 theorem flush_complete (Q : σ → Prop)
     (hs : ∀ s i c, Q s → Q (single s i c)) (hm : ∀ s g h₁ h₂, Q s → Q (multi s g h₁ h₂))
@@ -597,9 +546,8 @@ theorem GInv.goodGroup {sorted : Array (Elem cands)} (hinv : GInv sorted h₀ a 
     ∀ g ∈ groups, GoodGroup sorted g := by
   intro g hg
   obtain ⟨hne, hsub, hz⟩ := hinv.good g hg
-  have h0 : g[0]! = g[0] := by simp [getElem!_pos, hne]
   refine ⟨hsub.trans (List.take_sublist _ _), fun z hzg => ⟨?_, (hz z hzg).2⟩⟩
-  rw [(hz z hzg).1, h0, (hz _ (Array.getElem_mem hne)).1]
+  grind
 
 theorem GInv.init {sorted : Array (Elem cands)} (h : idx < sorted.size)
     (hS : (pr sorted[idx]).2.key.hash = h₀) :
@@ -608,14 +556,27 @@ theorem GInv.init {sorted : Array (Elem cands)} (h : idx < sorted.size)
   · intro g hg
     simp only [List.mem_toArray, List.mem_singleton] at hg
     subst hg
-    refine ⟨by simp, ?_, ?_⟩
-    · rw [take_succ_pr h]; simp
-    · intro z hz; simp at hz; subst hz; exact ⟨hS, by simp [lastPartEq_refl]⟩
+    exact ⟨by simp, by rw [take_succ_pr h]; simp, by simp [hS, lastPartEq_refl]⟩
   · intro k₁ k₂ h₁ h₂ _; simp at h₁ h₂; omega
   · intro m hm h₁ h₂
-    have : m = idx := by omega
-    subst this
+    obtain rfl : m = idx := by omega
     exact ⟨#[pr sorted[m]], by simp, by simp⟩
+
+/-- `gather_spec` for the run that `go` starts at `idx`. -/
+theorem gather_spec_start (sorted : Array (Elem cands))
+    (hS1 : ∀ k (h : k < sorted.size), sorted[k].1 = sorted[k].2.2.1.key.hash)
+    (h : idx < sorted.size) (heq : sorted[idx] = (hash₀, i, c)) :
+    let r := foldChildGroups.gather cands sorted hash₀ (idx + 1) #[#[(i, c.1)]]
+      (GroupsOk.push (groups := #[]) (by simp [GroupsOk]) (i, c.1) c.2)
+    r.1.2 ≤ sorted.size ∧
+    (∀ m (hm : m < sorted.size), idx + 1 ≤ m → m < r.1.2 → sorted[m].1 = hash₀) ∧
+    (∀ hm : r.1.2 < sorted.size, sorted[r.1.2].1 ≠ hash₀) ∧
+    GInv sorted hash₀ idx r.1.2 r.1.1 := by
+  have hpr : pr sorted[idx] = (i, c.1) := by simp [pr, heq]
+  have hS := hS1 idx h
+  rw [heq] at hS
+  exact gather_spec sorted hS1 hash₀ idx (idx + 1) _ _
+    (by rw [← hpr]; exact GInv.init h (by rw [hpr]; exact hS.symm)) (by omega) (by omega)
 
 theorem go_inv (sorted : Array (Elem cands))
     (hS1 : ∀ k (h : k < sorted.size), sorted[k].1 = sorted[k].2.2.1.key.hash)
@@ -626,15 +587,9 @@ theorem go_inv (sorted : Array (Elem cands))
     Inv (foldChildGroups.go cands single multi sorted idx s) := by
   fun_induction foldChildGroups.go cands single multi sorted idx s with
   | case1 idx s h hash₀ i c heq idx₁ h' hh groups idx' hgroups hright hgather ih =>
-    rw [hgather]
+    have hsp := gather_spec_start sorted hS1 h heq
+    rw [hgather] at hsp ⊢
     apply ih
-    have hpr : pr sorted[idx] = (i, c.1) := by simp [pr, heq]
-    have hS := hS1 idx h
-    rw [heq] at hS
-    have hsp := gather_spec sorted hS1 hash₀ idx (idx + 1) #[#[(i, c.1)]]
-      (GroupsOk.push (groups := #[]) (by simp [GroupsOk]) (i, c.1) c.2)
-      (by rw [← hpr]; exact GInv.init h (by rw [hpr]; exact hS.symm)) (by omega) (by omega)
-    erw [hgather] at hsp
     exact flush_inv (GoodGroup sorted) Inv hs hm groups hgroups hsp.2.2.2.goodGroup 0 s hinv
   | case2 idx s h hash₀ i c heq idx₁ h' hh ih => exact ih (hs _ _ _ hinv)
   | case3 idx s h hash₀ i c heq idx₁ h' ih => exact ih (hs _ _ _ hinv)
@@ -669,15 +624,9 @@ theorem go_complete (sorted : Array (Elem cands))
   have hpq' : p ≠ q := by rintro rfl; exact hne rfl
   fun_induction foldChildGroups.go cands single multi sorted idx s with
   | case1 idx s h hash₀ i c heq idx₁ h' hh groups idx' hgroups hright hgather ih =>
-    rw [hgather]
+    have hsp := gather_spec_start sorted hS1 h heq
+    rw [hgather] at hsp ⊢
     apply ih
-    have hpr : pr sorted[idx] = (i, c.1) := by simp [pr, heq]
-    have hS := hS1 idx h
-    rw [heq] at hS
-    have hsp := gather_spec sorted hS1 hash₀ idx (idx + 1) #[#[(i, c.1)]]
-      (GroupsOk.push (groups := #[]) (by simp [GroupsOk]) (i, c.1) c.2)
-      (by rw [← hpr]; exact GInv.init h (by rw [hpr]; exact hS.symm)) (by omega) (by omega)
-    erw [hgather] at hsp
     obtain ⟨hle, hrun, hend, hginv⟩ := hsp
     simp only at hle hrun hend hginv
     have hidx0 : sorted[idx].1 = hash₀ := by rw [heq]
@@ -693,13 +642,11 @@ theorem go_complete (sorted : Array (Elem cands))
         obtain ⟨g₂, hg₂, hqg₂⟩ := hginv.covers q hq hiq hql
         obtain ⟨k₁, hk₁, rfl⟩ := Array.mem_iff_getElem.mp hg₁
         obtain ⟨k₂, hk₂, rfl⟩ := Array.mem_iff_getElem.mp hg₂
-        have hk : k₁ = k₂ := by
-          apply hginv.heads k₁ k₂ hk₁ hk₂
-          have e₁ := ((hginv.good _ hg₁).2.2 _ hpg₁).2
+        obtain rfl : k₁ = k₂ := by
           have e₂ := ((hginv.good _ hg₂).2.2 _ hqg₂).2
           rw [← hkey] at e₂
-          exact lastPartEq_trans e₁ (lastPartEq_symm e₂)
-        subst hk
+          exact hginv.heads k₁ k₂ hk₁ hk₂
+            (lastPartEq_trans ((hginv.good _ hg₁).2.2 _ hpg₁).2 (lastPartEq_symm e₂))
         right
         exact flush_complete Q hs hm groups hgroups k₁ hk₁ hpg₁ hqg₂ hne
           (fun s h₁ h₂ => hmulti s _ h₁ h₂ (hginv.goodGroup _ hg₁) hpg₁ hqg₂) 0 (Nat.zero_le _) s
@@ -707,10 +654,9 @@ theorem go_complete (sorted : Array (Elem cands))
         have hout : ∀ r (hr : r < sorted.size), idx ≤ r → sorted[r].1 = sorted[p].1 → idx' ≤ r := by
           intro r hr h1 h2
           refine Nat.le_of_not_lt fun hcon => hhx ?_
-          rw [← h2]
-          by_cases hri : r = idx
-          · subst hri; exact hidx0.symm
-          · exact (hrun r hr (by omega) hcon).symm
+          rcases Nat.eq_or_lt_of_le h1 with rfl | h1
+          · rw [← h2, hidx0]
+          · rw [← h2, hrun r hr h1 hcon]
         exact ⟨hout p hp hip rfl, hout q hq hiq hpq.symm⟩
     · right
       exact flush_inv (fun _ => True) Q hs (fun s g h₁ h₂ h _ => hm s g h₁ h₂ h) groups hgroups
@@ -720,17 +666,13 @@ theorem go_complete (sorted : Array (Elem cands))
     rcases hidx with ⟨hip, hiq⟩ | hQs
     · left
       have hidx0 : sorted[idx].1 = hash₀ := by rw [heq]
-      have key : ∀ a b (ha : a < sorted.size) (hb : b < sorted.size), a ≠ b →
-          sorted[a].1 = sorted[b].1 → idx ≤ a → idx ≤ b → a ≠ idx := by
-        intro a b ha hb hab heqab hia hib hai
-        subst hai
-        have := sandwich hmono (a := a) (m := a + 1) (b := b) (by omega) (by omega) hb heqab
-        apply hh
-        show (sorted[a + 1].1 == hash₀) = true
-        rw [this, hidx0]; simp
-      have := key p q hp hq hpq' hpq hip hiq
-      have := key q p hq hp (Ne.symm hpq') hpq.symm hiq hip
-      exact ⟨by omega, by omega⟩
+      have key : ∀ b (hb : b < sorted.size), idx < b → sorted[idx].1 ≠ sorted[b].1 := by
+        intro b hb hib e
+        have := sandwich hmono (m := idx + 1) (Nat.le_succ _) hib hb e
+        exact hh (by simpa [hidx0] using this)
+      refine ⟨Nat.lt_of_le_of_ne hip fun e => ?_, Nat.lt_of_le_of_ne hiq fun e => ?_⟩ <;> subst e
+      · exact key q hq (by omega) hpq
+      · exact key p hp (by omega) hpq.symm
     · right; exact hs _ _ _ hQs
   | case3 idx s h hash₀ i c heq idx₁ h' ih =>
     apply ih
@@ -739,32 +681,14 @@ theorem go_complete (sorted : Array (Elem cands))
       have : idx₁ = idx + 1 := rfl
       omega
     · right; exact hs _ _ _ hQs
-  | case4 idx s h =>
-    rcases hidx with ⟨hip, hiq⟩ | hQs
-    · omega
-    · exact hQs
+  | case4 idx s h => exact hidx.resolve_left (by omega)
 
 end
-
-
 
 def flatPairs (cands : Array (Nat × ConstTrie α)) : List (Nat × ConstTrie α) :=
   cands.toList.flatMap fun p => p.2.children.toList.map fun c => (p.1, c)
 
 def ltE (a b : Elem cands) : Bool := a.1 < b.1 || (a.1 == b.1 && a.2.1 < b.2.1)
-
-theorem foldl_append_toList (l : List β) (g : β → Array γ) (init : Array γ) :
-    (l.foldl (fun b x => b ++ g x) init).toList =
-      init.toList ++ l.flatMap (fun x => (g x).toList) := by
-  induction l generalizing init with
-  | nil => simp
-  | cons a l ih => simp [ih]
-
-theorem flatMap_attachWith_val (l : List β) (P : β → Prop) (H) (f : β → List γ) :
-    (l.attachWith P H).flatMap (fun a => f a.val) = l.flatMap f := by
-  induction l with
-  | nil => simp
-  | cons a l ih => simp only [List.attachWith_cons, List.flatMap_cons]; rw [ih]
 
 theorem foldChildGroups_eq (init : σ) (single : σ → Nat → ConstTrie α → σ)
     (multi : σ → (g : Array (Nat × ConstTrie α)) → 0 < g.size →
@@ -776,12 +700,12 @@ theorem foldChildGroups_eq (init : σ) (single : σ → Nat → ConstTrie α →
         (flatPairs cands).map (fun z => (z.2.key.hash, z)) := by
   refine ⟨_, rfl, ?_⟩
   simp
-  rw [show cands.size = cands.attach.size by simp, ← Array.foldl_toList]
-  change List.map _ (Array.toList (List.foldl _ _ _)) = _
-  rw [foldl_append_toList]
-  simp [flatPairs, List.map_flatMap, pr]
-  exact flatMap_attachWith_val cands.toList _ _
-    (fun a => List.map (fun x => (x.key.hash, a.fst, x)) a.snd.children.toList)
+  rw [show cands.size = cands.attach.size by simp, Array.foldl_append_eq_append]
+  change List.map _ (Array.toList (_ ++ Array.flatten _)) = _
+  simp [flatPairs, pr, Function.comp_def, List.flatMap]
+  exact congrArg _ (List.attach_map_val (f := fun (p : Nat × ConstTrie α) =>
+    p.2.children.toList.map fun c => (c.key.hash, p.1, c)))
+
 theorem ltE_iff {a b : Elem cands} :
     ltE a b = true ↔ a.1.toNat < b.1.toNat ∨ (a.1.toNat = b.1.toNat ∧ a.2.1 < b.2.1) := by
   simp only [ltE, Bool.or_eq_true, decide_eq_true_eq, Bool.and_eq_true, beq_iff_eq,
@@ -816,13 +740,13 @@ theorem sorted_facts (all : Array (Elem cands))
     have : (sorted[k].1, pr sorted[k]) ∈ (flatPairs cands).map (fun z => (z.2.key.hash, z)) := by
       rw [← hall]; exact List.mem_map_of_mem (Array.mem_toList_iff.mpr hm)
     obtain ⟨z, _, hz⟩ := List.mem_map.mp this
-    simp only [Prod.mk.injEq] at hz
-    rw [← hz.1, hz.2]; rfl
+    obtain ⟨h1, rfl⟩ := Prod.mk.inj hz
+    exact h1.symm
   refine ⟨hS1, ?_, ?_, ?_⟩
   · intro p q hpq hq
-    by_cases h : p = q
-    · subst h; exact Nat.le_refl _
-    · have := not_ltE_iff.mp (hsorted p q (by omega) hq); omega
+    rcases Nat.eq_or_lt_of_le hpq with rfl | h
+    · exact Nat.le_refl _
+    · have := not_ltE_iff.mp (hsorted p q h hq); omega
   · have h1 : (all.toList.map pr) = flatPairs cands := by
       have := congrArg (List.map Prod.snd) hall
       simpa [Function.comp_def] using this
@@ -830,14 +754,10 @@ theorem sorted_facts (all : Array (Elem cands))
     exact hperm.toList.map pr
   · rw [List.pairwise_iff_getElem]
     intro i j hi hj hij heq
-    have hi' : i < sorted.size := by simpa using hi
-    have hj' : j < sorted.size := by simpa using hj
-    simp only [List.getElem_map, Array.getElem_toList] at *
-    have h2 := not_ltE_iff.mp (hsorted i j hij hj')
-    simp only [pr] at heq
-    rw [← hS1 i hi', ← hS1 j hj'] at heq
+    simp only [List.length_map, Array.length_toList] at hi hj
+    simp only [List.getElem_map, Array.getElem_toList, pr, ← hS1 i hi, ← hS1 j hj] at heq ⊢
+    have := not_ltE_iff.mp (hsorted i j hij hj)
     have := congrArg UInt64.toNat heq
-    simp only [pr]
     omega
 
 /-- A group passed to `multi` by `foldChildGroups`. -/
@@ -880,8 +800,6 @@ theorem foldChildGroups_complete (init : σ) (Q : σ → Prop)
 
 end
 
-
-
 /-! ## Module trees and the duplicate sweep -/
 
 theorem collectDupsAux_eq (covered : Array UInt64) (key : Name) (cands : Array (Nat × ConstTrie α))
@@ -913,9 +831,7 @@ theorem foldl_and_le (l : List β) (f : β → UInt64) (init : UInt64) :
     obtain ⟨ih₁, ih₂⟩ := ih (init &&& f a)
     simp only [List.foldl_cons, List.mem_cons, forall_eq_or_imp]
     generalize List.foldl (fun c p => c &&& f p) (init &&& f a) l = r at *
-    refine ⟨?_, ?_, ih₂⟩
-    · rw [← ih₁]; ac_nf; ac_rfl
-    · rw [← ih₁]; ac_nf; ac_rfl
+    exact ⟨by grind, by grind, ih₂⟩
 
 /-- The pruning test never fires when two of the candidates have disjoint masks. -/
 theorem not_pruned (covered : Array UInt64) (cands : Array (Nat × ConstTrie α))
@@ -970,9 +886,7 @@ theorem depth_parent (n : Name) : depth (parent n) = depth n - 1 := by
   cases n <;> simp [depth, parent]
 
 theorem depth_dropN (n : Name) (m : Nat) : depth (dropN n m) = depth n - m := by
-  induction m with
-  | zero => rfl
-  | succ m ih => simp only [dropN, depth_parent, ih]; omega
+  induction m <;> grind [dropN, depth_parent]
 
 theorem ExtendsOne.depth (h : ExtendsOne k c) : depth c = depth k + 1 := by
   rcases h with ⟨s, rfl⟩ | ⟨n, rfl⟩ <;> rfl
@@ -1006,7 +920,7 @@ theorem Has.exists_dropN {t : ConstTrie α} (hwf : WF t) (h : Has t n v) :
 
 theorem Has.depth_le {t : ConstTrie α} (hwf : WF t) (h : Has t n v) : depth t.key ≤ depth n := by
   obtain ⟨m, hm⟩ := h.exists_dropN hwf
-  rw [← hm, depth_dropN]; omega
+  grind [depth_dropN]
 
 /-- In a well-formed tree, a value for the tree's own key is stored in its root. -/
 theorem Has.val_of_key {t : ConstTrie α} (hwf : WF t) (h : Has t t.key v) : t.val? = some v := by
@@ -1023,30 +937,16 @@ theorem child_key_eq {ti tj ci cj : ConstTrie α} (hwi : WF ti) (hwj : WF tj) (h
     ci.key = cj.key := by
   obtain ⟨mi, hmi⟩ := hi.exists_dropN (hwi.child hci)
   obtain ⟨mj, hmj⟩ := hj.exists_dropN (hwj.child hcj)
-  have di := (hwi.keys _ hci).depth
-  have dj := (hwj.keys _ hcj).depth
-  have ei := congrArg depth hmi
-  have ej := congrArg depth hmj
-  rw [depth_dropN] at ei ej
-  rw [hk] at di
-  have : mi = mj := by omega
-  subst this
+  have := (hwi.keys _ hci).depth
+  have := (hwj.keys _ hcj).depth
+  obtain rfl : mi = mj := by grind [depth_dropN]
   rw [← hmi, ← hmj]
 
-theorem eq_of_pairwise_key {l : List (ConstTrie α)}
-    (h : l.Pairwise (fun c₁ c₂ => c₁.key ≠ c₂.key)) (ha : a ∈ l) (hb : b ∈ l)
-    (hab : a.key = b.key) :
-    a = b := by
+theorem eq_of_pairwise_ne {f : β → γ} {l : List β} (h : l.Pairwise (fun a b => f a ≠ f b))
+    (ha : a ∈ l) (hb : b ∈ l) (hab : f a = f b) : a = b := by
   induction l with
   | nil => simp at ha
-  | cons x l ih =>
-    rw [List.pairwise_cons] at h
-    simp only [List.mem_cons] at ha hb
-    rcases ha with rfl | ha <;> rcases hb with rfl | hb
-    · rfl
-    · exact absurd hab (h.1 _ hb)
-    · exact absurd hab.symm (h.1 _ ha)
-    · exact ih h.2 ha hb
+  | cons x l ih => grind [List.pairwise_cons]
 
 /-- In a well-formed tree, a name has at most one value. -/
 theorem Has.unique {t : ConstTrie α} (hwf : WF t) (h : Has t n v) (h' : Has t n v') : v = v' := by
@@ -1060,19 +960,15 @@ theorem Has.unique {t : ConstTrie α} (hwf : WF t) (h : Has t n v) (h' : Has t n
       omega
     | child hc' hcv' =>
       have hk := child_key_eq hwf hwf rfl hc hc' hcv hcv'
-      have := eq_of_pairwise_key hwf.distinct (Array.mem_toList_iff.mpr hc)
+      have := eq_of_pairwise_ne hwf.distinct (Array.mem_toList_iff.mpr hc)
         (Array.mem_toList_iff.mpr hc') hk
       subst this
       exact ih (hwf.child hc) hcv'
 
 theorem mem_flatPairs {cands : Array (Nat × ConstTrie α)} :
     z ∈ flatPairs cands ↔ ∃ t, (z.1, t) ∈ cands ∧ z.2 ∈ t.children := by
-  simp only [flatPairs, List.mem_flatMap, List.mem_map, Array.mem_toList_iff]
-  constructor
-  · rintro ⟨⟨i, t⟩, hp, c, hc, rfl⟩; exact ⟨t, hp, hc⟩
-  · rintro ⟨t, hp, hc⟩; exact ⟨(z.1, t), hp, z.2, hc, rfl⟩
-
-
+  rcases z with ⟨i, c⟩
+  simp [flatPairs, @exists_comm Nat]
 
 theorem collectDupsAux_mono (covered : Array UInt64) (key : Name)
     (cands : Array (Nat × ConstTrie α))
@@ -1100,7 +996,7 @@ theorem GoodGroup'.wf {cands g : Array (Nat × ConstTrie α)} (hg : GoodGroup' c
     ∀ z ∈ g, WF z.2 ∧ z.2.key = g[0]!.2.key := by
   have hext : ∀ z ∈ g, WF z.2 ∧ ExtendsOne K z.2.key := by
     intro z hz
-    obtain ⟨t, ht, hc⟩ := ConstTrieDupSpec.mem_flatPairs.mp (hg.mem_flat hz)
+    obtain ⟨t, ht, hc⟩ := mem_flatPairs.mp (hg.mem_flat hz)
     have := hwf _ ht
     exact ⟨this.1.child hc, this.2 ▸ this.1.keys _ hc⟩
   have h0 : g[0]! ∈ g := by
@@ -1119,9 +1015,7 @@ theorem collectDupsAux_complete (covered : Array UInt64) (K : Name)
       d.name = n ∧ (vi, i) ∈ d.entries ∧ (vj, j) ∈ d.entries := by
   have hnp : ¬(!covered.isEmpty &&
       cands.foldl (fun c p => c &&& covered[p.1]!) 0xFFFFFFFFFFFFFFFF != 0) = true := by
-    rcases hcov with h | h
-    · simp [h]
-    · simp [not_pruned covered cands hi hj h]
+    rcases hcov with h | h <;> simp [h, not_pruned covered cands hi hj]
   rw [collectDupsAux_eq, ite_eq_right_of_eq_false _ _ (eq_false hnp)]
   have hQm : ∀ s g (h₁ : 0 < g.size) (h₂ : ∀ x ∈ g, IsCandChild cands x.2),
       (∃ d ∈ s, d.name = n ∧ (vi, i) ∈ d.entries ∧ (vj, j) ∈ d.entries) →
@@ -1131,14 +1025,10 @@ theorem collectDupsAux_complete (covered : Array UInt64) (K : Name)
     exact ⟨d, collectDupsAux_mono _ _ _ _ _ hd, hdn⟩
   by_cases hn : n = K
   · subst hn
-    have hki := (hwf _ hi).2
-    have hkj := (hwf _ hj).2
-    have hvi' := Has.val_of_key (hwf _ hi).1 (hki ▸ hvi)
-    have hvj' := Has.val_of_key (hwf _ hj).1 (hkj ▸ hvj)
     have hei : (vi, i) ∈ cands.filterMap fun p => p.2.val?.map ((·, p.1)) :=
-      Array.mem_filterMap.mpr ⟨_, hi, by simp [hvi']⟩
+      Array.mem_filterMap.mpr ⟨_, hi, by simp [Has.val_of_key (hwf _ hi).1 ((hwf _ hi).2 ▸ hvi)]⟩
     have hej : (vj, j) ∈ cands.filterMap fun p => p.2.val?.map ((·, p.1)) :=
-      Array.mem_filterMap.mpr ⟨_, hj, by simp [hvj']⟩
+      Array.mem_filterMap.mpr ⟨_, hj, by simp [Has.val_of_key (hwf _ hj).1 ((hwf _ hj).2 ▸ hvj)]⟩
     have h2 := two_le_size_of_mem hei hej (by simp [hij])
     rw [ite_eq_left_of_eq_true _ _ (eq_true (by omega))]
     exact foldChildGroups_inv _
@@ -1171,19 +1061,6 @@ def Sound (trees : Array (Nat × ConstTrie α)) (d : Duplicate α) : Prop :=
   2 ≤ d.entries.size ∧ (∀ e ∈ d.entries, ∃ t, (e.2, t) ∈ trees ∧ Has t d.name e.1) ∧
     d.entries.toList.Pairwise (fun a b => a.2 < b.2)
 
-theorem eq_of_pairwise_fst {l : List (Nat × β)} (h : l.Pairwise (fun a b => a.1 < b.1))
-    (ha : a ∈ l) (hb : b ∈ l) (hab : a.1 = b.1) : a = b := by
-  induction l with
-  | nil => simp at ha
-  | cons x l ih =>
-    rw [List.pairwise_cons] at h
-    simp only [List.mem_cons] at ha hb
-    rcases ha with rfl | ha <;> rcases hb with rfl | hb
-    · rfl
-    · have := h.1 _ hb; omega
-    · have := h.1 _ ha; omega
-    · exact ih h.2 ha hb
-
 theorem flatPairs_nodup {cands : Array (Nat × ConstTrie α)} (hwf : ∀ p ∈ cands, WF p.2)
     (hord : cands.toList.Pairwise (fun a b => a.1 < b.1)) : (flatPairs cands).Nodup := by
   unfold flatPairs List.Nodup
@@ -1200,26 +1077,21 @@ theorem GoodGroup'.ordered {cands g : Array (Nat × ConstTrie α)} (hg : GoodGro
     (hne : 0 < g.size) (hwf : ∀ p ∈ cands, WF p.2 ∧ p.2.key = K)
     (hord : cands.toList.Pairwise (fun a b => a.1 < b.1)) :
     g.toList.Pairwise (fun a b => a.1 < b.1) := by
-  obtain ⟨⟨l, hperm, hsub, hpw⟩, hhash⟩ := hg
+  have hkeys := hg.wf hne hwf
+  have ⟨⟨l, hperm, hsub, hpw⟩, hhash⟩ := hg
   have hnd : g.toList.Nodup :=
     hsub.nodup (hperm.nodup_iff.mpr (flatPairs_nodup (fun p hp => (hwf p hp).1) hord))
   have hle : g.toList.Pairwise (fun a b => a.1 ≤ b.1) := by
     refine (hpw.sublist hsub).imp_of_mem fun ha hb h => h ?_
     rw [(hhash _ (Array.mem_toList_iff.mp ha)).1, (hhash _ (Array.mem_toList_iff.mp hb)).1]
-  have hkeys := GoodGroup'.wf ⟨⟨l, hperm, hsub, hpw⟩, hhash⟩ hne hwf
-  refine (hle.and hnd).imp_of_mem fun {a b} ha hb ⟨h₁, h₂⟩ => ?_
-  refine Nat.lt_of_le_of_ne h₁ fun e => h₂ ?_
-  have ha' := Array.mem_toList_iff.mp ha
-  have hb' := Array.mem_toList_iff.mp hb
-  have hg : GoodGroup' cands g := ⟨⟨l, hperm, hsub, hpw⟩, hhash⟩
-  obtain ⟨ta, hta, hca⟩ := ConstTrieDupSpec.mem_flatPairs.mp (hg.mem_flat ha')
-  obtain ⟨tb, htb, hcb⟩ := ConstTrieDupSpec.mem_flatPairs.mp (hg.mem_flat hb')
-  have := eq_of_pairwise_fst hord (Array.mem_toList_iff.mpr hta) (Array.mem_toList_iff.mpr htb) e
-  simp only [Prod.mk.injEq] at this
-  obtain ⟨-, rfl⟩ := this
-  have hc := eq_of_pairwise_key (hwf _ hta).1.distinct (Array.mem_toList_iff.mpr hca)
-    (Array.mem_toList_iff.mpr hcb) ((hkeys a ha').2.trans (hkeys b hb').2.symm)
-  exact Prod.ext e hc
+  refine (hle.and hnd).imp_of_mem fun {a b} ha hb ⟨h₁, h₂⟩ => Nat.lt_of_le_of_ne h₁ fun e => h₂ ?_
+  simp only [Array.mem_toList_iff] at ha hb
+  obtain ⟨ta, hta, hca⟩ := mem_flatPairs.mp (hg.mem_flat ha)
+  obtain ⟨tb, htb, hcb⟩ := mem_flatPairs.mp (hg.mem_flat hb)
+  obtain ⟨-, rfl⟩ := Prod.mk.inj (eq_of_pairwise_ne (hord.imp Nat.ne_of_lt)
+    (Array.mem_toList_iff.mpr hta) (Array.mem_toList_iff.mpr htb) e)
+  exact Prod.ext e (eq_of_pairwise_ne (hwf _ hta).1.distinct (Array.mem_toList_iff.mpr hca)
+    (Array.mem_toList_iff.mpr hcb) ((hkeys a ha).2.trans (hkeys b hb).2.symm))
 
 theorem collectDupsAux_sound (trees : Array (Nat × ConstTrie α)) (covered : Array UInt64) (K : Name)
     (cands : Array (Nat × ConstTrie α)) (acc : Array (Duplicate α))
@@ -1239,23 +1111,19 @@ theorem collectDupsAux_sound (trees : Array (Nat × ConstTrie α)) (covered : Ar
         · exact hacc d hd
         · refine ⟨by simp only; omega, fun e he => ?_, ?_⟩
           · obtain ⟨p, hp, hpe⟩ := Array.mem_filterMap.mp he
-            cases hv : p.2.val? with
-            | none => simp [hv] at hpe
-            | some v =>
-              simp only [hv, Option.map_some, Option.some.injEq] at hpe
-              subst hpe
-              obtain ⟨t, ht, hst⟩ := hsub p hp
-              exact ⟨t, ht, hst _ _ ((hwf p hp).2 ▸ Has.here hv)⟩
+            obtain ⟨v, hv, rfl⟩ := Option.map_eq_some_iff.mp hpe
+            obtain ⟨t, ht, hst⟩ := hsub p hp
+            exact ⟨t, ht, hst _ _ ((hwf p hp).2 ▸ Has.here hv)⟩
           · rw [Array.toList_filterMap, List.pairwise_filterMap]
-            refine hord.imp fun {a b} h x hx y hy => ?_
-            cases ha : a.2.val? <;> cases hb : b.2.val? <;> simp only [ha, hb, Option.map_some,
-              Option.map_none, Option.some.injEq, reduceCtorEq] at hx hy
-            subst hx hy; exact h
+            refine hord.imp fun h x hx y hy => ?_
+            obtain ⟨_, _, rfl⟩ := Option.map_eq_some_iff.mp hx
+            obtain ⟨_, _, rfl⟩ := Option.map_eq_some_iff.mp hy
+            exact h
       · exact hacc
     · intro s g h₁ h₂ hs hg
       refine collectDupsAux_sound trees covered _ g s (hg.wf h₁ hwf) (fun z hz => ?_)
         (hg.ordered h₁ hwf hord) hs
-      obtain ⟨t, ht, hc⟩ := ConstTrieDupSpec.mem_flatPairs.mp (hg.mem_flat hz)
+      obtain ⟨t, ht, hc⟩ := mem_flatPairs.mp (hg.mem_flat hz)
       obtain ⟨T, hT, hsT⟩ := hsub _ ht
       exact ⟨T, hT, fun n v h => hsT n v (Has.child hc h)⟩
 termination_by maxSize cands
@@ -1283,7 +1151,6 @@ theorem collectDuplicates_sound (trees : Array (Nat × ConstTrie α)) (covered :
   · simp
   · exact collectDupsAux_sound trees covered _ trees #[] hwf
       (fun p hp => ⟨p.2, hp, fun _ _ h => h⟩) hord (by simp)
-
 
 end ConstTrieDupSpec
 

@@ -518,6 +518,8 @@ Like `mkLambdaFVars (usedOnly := true)`, but
 
  * silently skips expression in `xs` that are not `.isFVar`
  * also skips let-bound variables
+ * also skips variables whose abstraction yields a type-incorrect term, e.g. `w` when `e`
+   mentions a variable `x : Fin w`
  * returns a mask (same size as `xs`) indicating which variables have been abstracted
    (`true` means was abstracted).
 
@@ -537,9 +539,11 @@ def mkLambdaFVarsMasked (xs : Array Expr) (e : Expr) : MetaM (Array Bool × Expr
     xs := xs.pop
     if discr.isFVar && e.containsFVar discr.fvarId! then
       unless (← discr.fvarId!.isLetVar) do
-        e ← mkLambdaFVars #[discr] e
-        mask := mask.push true
-        continue
+        let e' ← mkLambdaFVars #[discr] e
+        if (← isTypeCorrect e') then
+          e := e'
+          mask := mask.push true
+          continue
     mask := mask.push false
   return (mask.reverse, e)
 

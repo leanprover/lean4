@@ -190,12 +190,15 @@ private def ppEMatchTheorem (thm : EMatchTheorem) : MetaM MessageData := do
   let m := m!"{thm.origin.pp}: {thm.patterns.map ppPattern}"
   return .trace { cls := `thm } m #[]
 
+/-- Formats E-matching theorems and their patterns as a trace tree. -/
+def ppEMatchTheorems (thms : Array EMatchTheorem) (collapsed := true) : MetaM MessageData := do
+  return .trace { cls := `ematch, collapsed } "E-matching patterns" (← thms.mapM ppEMatchTheorem)
+
 private def ppActiveTheoremPatterns : M Unit := do
   let goal ← read
-  let m ← goal.ematch.thms.toArray.mapM fun thm => ppEMatchTheorem thm
-  let m := m ++ (← goal.ematch.newThms.toArray.mapM fun thm => ppEMatchTheorem thm)
-  unless m.isEmpty do
-    pushMsg <| .trace { cls := `ematch } "E-matching patterns" m
+  let thms := goal.ematch.thms.toArray ++ goal.ematch.newThms.toArray
+  unless thms.isEmpty do
+    pushMsg (← ppEMatchTheorems thms)
 
 def Arith.Cutsat.pp? (goal : Goal) : MetaM (Option MessageData) := do
   let s ← Arith.Cutsat.cutsatExt.getStateCore goal

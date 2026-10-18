@@ -1099,22 +1099,23 @@ private def normalizeRelCore (rel : RelKind) (relFn : Expr) (order? : Option Ord
             if let some k' := modInv? k c then
               p := p.mulConstC k' c
               scale? := some (k, k')
-    -- Like `simp +arith`, an equation already of the form `p = 0` is left alone, and the
-    -- equations `x = y` and `x = k` are kept in that form instead of `x - y = 0`.
-    if lhsOnly && rel == .eq && char?.isNone && r == .num 0 && p.toExpr == l then return .normal
-    let (lp, rp) :=
+    -- Like `simp +arith`, the equations `x - y = 0` and `x + k = 0` are written `x = y` and
+    -- `x = -k`, and any other equation already of the form `p = 0` is left alone.
+    let (lp, rp) ←
       if lhsOnly then
         match rel, char?, p with
-        | .eq, none, .add 1 m₁ (.add (-1) m₂ (.num 0)) => (.add 1 m₁ (.num 0), .add 1 m₂ (.num 0))
-        | .eq, none, .add (-1) m₂ (.add 1 m₁ (.num 0)) => (.add 1 m₁ (.num 0), .add 1 m₂ (.num 0))
-        | .eq, none, .add 1 m (.num k) => (.add 1 m (.num 0), .num (-k))
+        | .eq, none, .add 1 m₁ (.add (-1) m₂ (.num 0)) => pure (.add 1 m₁ (.num 0), .add 1 m₂ (.num 0))
+        | .eq, none, .add (-1) m₂ (.add 1 m₁ (.num 0)) => pure (.add 1 m₁ (.num 0), .add 1 m₂ (.num 0))
+        | .eq, none, .add 1 m (.num k) => pure (.add 1 m (.num 0), .num (-k))
         | .eq, some (_, c), .add 1 m₁ (.add k m₂ (.num 0)) =>
-          if k + 1 == c then (.add 1 m₁ (.num 0), .add 1 m₂ (.num 0)) else (p, .num 0)
-        | .eq, some (_, c), .add 1 m (.num k) => (.add 1 m (.num 0), .num ((c - k) % c))
-        | _, _, _ => (p, .num 0)
+          pure <| if k + 1 == c then (.add 1 m₁ (.num 0), .add 1 m₂ (.num 0)) else (p, .num 0)
+        | .eq, some (_, c), .add 1 m (.num k) => pure (.add 1 m (.num 0), .num ((c - k) % c))
+        | _, _, _ =>
+          if rel == .eq && char?.isNone && r == .num 0 && p.toExpr == l then return .normal
+          pure (p, .num 0)
       else
         let (lp, rp, c) := splitPoly (char?.map (·.2)) p
-        (if c > 0 then lp.addConst c else lp, if c < 0 then rp.addConst (-c) else rp)
+        pure (if c > 0 then lp.addConst c else lp, if c < 0 then rp.addConst (-c) else rp)
     let l' := lp.toExpr
     let r' := rp.toExpr
     let e' ← share (mkApp2 relFn (← denoteRingExpr' vars l') (← denoteRingExpr' vars r'))

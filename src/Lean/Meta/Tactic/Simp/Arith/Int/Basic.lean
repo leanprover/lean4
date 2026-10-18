@@ -135,7 +135,17 @@ where
       else addAsVar e
     | Int.neg a => return .neg (← toLinearExpr a)
     | Neg.neg _ i a =>
-      if (← DefEq.isInstNegInt i) then return .neg (← toLinearExpr a)
+      if (← DefEq.isInstNegInt i) then
+        /-
+        A negative numeral `-n` is reified as `.num (-n)` rather than `.neg (.num n)`.
+        `simpExpr?` and the other simprocs decide whether a term is already in normal form by
+        comparing its reification with `Poly.toExpr` of the normalized polynomial, which writes
+        negative constants as `.num k`. Both reifications denote to the same expression,
+        `Neg.neg Int Int.instNegInt (OfNat.ofNat Int n _)`, so with `.neg (.num n)` the comparison
+        would report a change for an unchanged term and produce a proof of `e = e`.
+        -/
+        if let some n ← getIntValue? e then return .num n
+        return .neg (← toLinearExpr a)
       else addAsVar e
     | Int.add a b => return .add (← toLinearExpr a) (← toLinearExpr b)
     | Add.add _ i a b =>

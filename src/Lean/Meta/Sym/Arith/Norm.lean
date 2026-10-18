@@ -1126,11 +1126,13 @@ private def normalizeRelCore (rel : RelKind) (relFn : Expr) (order? : Option Ord
         pure (if c > 0 then lp.addConst c else lp, if c < 0 then rp.addConst (-c) else rp)
     let l' := lp.toExpr
     let r' := rp.toExpr
-    -- A numeral side of a kept `x = k` is canonicalized: `denoteNum` uses the `OfNat` instance
-    -- of the structure's type as written (`Fin (4 + 1)` for `Fin.last 4`).
-    let side (p : Poly) (e : Expr) : NormM Expr :=
-      if numOrAtom && p matches .num _ then canonExpr e else pure e
-    let e' ← share (mkApp2 relFn (← side lp (← denoteRingExpr' vars l')) (← side rp (← denoteRingExpr' vars r')))
+    -- A numeral side of a kept `x = k`: a numeral written as such keeps its canonical form, since a
+    -- rendered one would use the structure's type as written (`BitVec (id 32)`, `Fin (4 + 1)`)
+    -- and be a second literal node; an evaluated one (`2 * 3 - 7`) is rendered.
+    let side (p : Poly) (re : RingExpr) (ex : Expr) (ep : RingExpr) : NormM Expr :=
+      if numOrAtom && p matches .num _ && re matches .num _ then canonExpr ex
+      else denoteRingExpr' vars ep
+    let e' ← share (mkApp2 relFn (← side lp l lhs l') (← side rp r rhs r'))
     if isSameExpr e' e then return .normal
     let ctx ← mkContext ring.type vars
     let hoka ← if ainvs.isEmpty then pure (mkConst ``True.intro) else pure (mkInvAtomsOk (← getCommRing) ctx vars ainvs)

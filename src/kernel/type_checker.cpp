@@ -384,6 +384,14 @@ bool type_checker::is_prop(expr const & e) {
     return normalizes_to_zero(sort_level(s));
 }
 
+optional<expr> type_checker::inductive_reduce_recursor(expr const & e, bool cheap_rec, bool cheap_proj) {
+    return inductive_reduce_rec(env(), e,
+                                [&](expr const & e) { return cheap_rec ? whnf_core(e, cheap_rec, cheap_proj) : whnf(e); },
+                                [&](expr const & e) { return infer(e); },
+                                [&](expr const & e1, expr const & e2) { return is_def_eq(e1, e2); },
+                                [&](expr const & e) { return is_prop(e); });
+}
+
 /** \brief Apply normalizer extensions to \c e.
     If `cheap == true`, then we don't perform delta-reduction when reducing major premise. */
 optional<expr> type_checker::reduce_recursor(expr const & e, bool cheap_rec, bool cheap_proj) {
@@ -833,73 +841,47 @@ bool type_checker::is_def_eq_args(expr t, expr s) {
     return !is_app(t) && !is_app(s);
 }
 
-/** Here, \c t is a neutral that is *not* a lambda-application (otherwise, \c should_eta would have returned true before reaching this function)
+/** Here, \c t is a neutral that is *not* a lambda-application (otherwise, \c try_eta_expansion_core would have returned before reaching this function)
  This means t is either a variable, an n-ary application whose head is itself a neutral, or another stuck recursor call. If \c s is a partial recursor call who can reduce on a neutral major, it ought to be eta-expanded appropriately. */
-unsigned type_checker::should_eta_recursor(expr const & s) {
+optional<expr> type_checker::eta_reduce_recursor(expr const & s) {
     buffer<expr> s_args;
     expr const & s_fn = get_app_args(s, s_args);
-    if (!is_constant(s_fn)) return 0;
+    if (!is_constant(s_fn)) return none_expr();
     name s_fn_name = const_name(s_fn);
     constant_info s_info = env().get(s_fn_name);
-    if (!s_info.is_recursor()) return 0;
+    if (!s_info.is_recursor()) return none_expr();
     recursor_val rec_val = s_info.to_recursor_val();
-    if (s_args.size() > rec_val.get_major_idx()) return 0;
-    if (is_non_rec_structure(env(), rec_val.get_major_induct()))
-        return rec_val.get_major_idx() + 1 - s_args.size();
-    if (rec_val.is_k()) {
-        /* If the recursor is that of a k-like type, we must inspect the major's type to see whether it would reduce
-           (i.e if its type is equal to the generated `mkNullaryCtor`, same condition as `to_ctor_when_k`'s).
-           It is also possible that the condition is met even if the current recursor partial application is missing indices and some parameters. e.g consider `@Eq.rec Unit`, any eta-expansion up to the major will reduce thanks to eta-for-unit.
-           TODO this check is needlessly repeating the work the eta-expansion and `toCtorWhenK` would do themselves. Optimise and return the appropriately eta-expanded and reduced term directly instead.*/
-        unsigned n_exps = rec_val.get_major_idx() + 1 - s_args.size();
-        expr s_type = whnf(infer_type(s));
-        flet<local_ctx> save_lctx(m_lctx, m_lctx);
-        buffer<expr> fvars;
-        for(unsigned i = 0; i < n_exps; i++) {
-            if (!is_pi(s_type))
-                return false;
-            expr fvar = m_lctx.mk_local_decl(m_st->m_ngen, binding_name(s_type), binding_domain(s_type), binding_info(s_type));
-            fvars.push_back(fvar);
-            s_type = whnf(instantiate(binding_body(s_type), fvar));
-        };
-        expr const major_type = infer_type(fvars.back());
-        if (auto new_ctor_app = mk_nullary_cnstr(env(),major_type,rec_val.get_nparams())) {
-            expr const new_type = infer_type(*new_ctor_app);
-            if (is_def_eq(major_type, new_type)) {
-                return rec_val.get_major_idx() + 1 - s_args.size();
-            } else return 0;
-        } else return 0;
+    if (s_args.size() > rec_val.get_major_idx()) return none_expr();
+    if (!rec_val.is_k() && !is_non_rec_structure(env(), rec_val.get_major_induct()))
+        return none_expr();
+    unsigned n_exps = rec_val.get_major_idx() + 1 - s_args.size();
+    expr s_type = whnf(infer_type(s));
+    flet<local_ctx> save_lctx(m_lctx, m_lctx);
+    buffer<expr> fvars;
+    for(unsigned i = 0; i < n_exps; i++) {
+        if (!is_pi(s_type))
+            return none_expr();
+        expr fvar = m_lctx.mk_local_decl(m_st->m_ngen, binding_name(s_type), binding_domain(s_type), binding_info(s_type));
+        fvars.push_back(fvar);
+        s_type = whnf(instantiate(binding_body(s_type), fvar));
     };
-    return 0;
-}
-
-/** \brief Return the number of times \c s should be eta-expanded.
- * This happens either when \c t is a lambda and \c s isn't, or when \c s is a partially applied recursor call */
-unsigned type_checker::should_eta(expr const & t, expr const & s) {
-    if (is_lambda(t) && !is_lambda(s)) return 1;
-    return should_eta_recursor(s);
+    if (optional<expr> r = inductive_reduce_recursor(mk_app(s, fvars), false, false)) {
+        return some_expr(m_lctx.mk_lambda(fvars, *r));
+    }
+    return none_expr();
 }
 
 /** \brief Try to solve (fun (x : A), B) =?= s by trying eta-expansion on s */
 bool type_checker::try_eta_expansion_core(expr const & t, expr const & s) {
-    if (unsigned n = should_eta(t, s)) {
+    if (is_lambda(t) && !is_lambda(s)) {
         expr s_type = whnf(infer_type(s));
-        flet<local_ctx> save_lctx(m_lctx, m_lctx);
-        buffer<expr> fvars;
-        for(unsigned i = 0; i < n; i++) {
-            if (!is_pi(s_type))
-                return false;
-            expr fvar = m_lctx.mk_local_decl(m_st->m_ngen, binding_name(s_type), binding_domain(s_type), binding_info(s_type));
-            fvars.push_back(fvar);
-            s_type = whnf(instantiate(binding_body(s_type), fvar));
-        };
-        expr new_s = m_lctx.mk_lambda(fvars, mk_app(s, fvars));
-        if (!is_def_eq(t, new_s))
+        if (!is_pi(s_type))
             return false;
-        return true;
-    } else {
-        return false;
-    }
+        expr new_s  = mk_lambda(binding_name(s_type), binding_domain(s_type), mk_app(s, mk_bvar(0)), binding_info(s_type));
+        return is_def_eq(t, new_s);
+    } else if (auto new_s = eta_reduce_recursor(s) ) {
+        return is_def_eq(t, *new_s);
+    } else return false;
 }
 
 /** \brief check whether \c s is of the form <tt>mk t.1 ... t.n</tt> */

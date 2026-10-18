@@ -22,6 +22,7 @@ Author: Leonardo de Moura
 #include "kernel/for_each_fn.h"
 #include "kernel/quot.h"
 #include "kernel/inductive.h"
+#include "type_checker.h"
 
 namespace lean {
 static name * g_kernel_fresh = nullptr;
@@ -396,7 +397,8 @@ optional<expr> type_checker::reduce_recursor(expr const & e, bool cheap_rec, boo
                                                 [&](expr const & e) { return cheap_rec ? whnf_core(e, cheap_rec, cheap_proj) : whnf(e); },
                                                 [&](expr const & e) { return infer(e); },
                                                 [&](expr const & e1, expr const & e2) { return is_def_eq(e1, e2); },
-                                                [&](expr const & e) { return is_prop(e); })) {
+                                                [&](expr const & e) { return is_prop(e); },
+                                                [&](expr const & e) { return is_proof(e); })) {
         return r;
     }
     return none_expr();
@@ -819,6 +821,39 @@ lbool type_checker::quick_is_def_eq(expr const & t, expr const & s) {
         }
     }
     return l_undef; // This is not an "easy case"
+}
+
+bool type_checker::is_proof(expr const & e) {
+    switch (e.kind()) {
+        case expr_kind::Pi: case expr_kind::Sort:
+        case expr_kind::Lit:
+            return false;
+        case expr_kind::MVar: case expr_kind::BVar:
+            lean_unreachable(); // LCOV_EXCL_LINE
+        case expr_kind::App:
+            return is_proof(app_fn(e));
+        case expr_kind::MData:
+            return is_proof(mdata_expr(e));
+        case expr_kind::FVar: {
+            expr t = m_lctx.get_type(e);
+            return is_prop(t);
+        }
+        case expr_kind::Const: {
+            levels const & us = const_levels(e);
+            constant_info d = *(env().find(const_name(e)));
+            return is_prop(instantiate_type_lparams(d,us));
+        }
+        case expr_kind::Lambda: {
+            expr fvar = m_lctx.mk_local_decl(m_st->m_ngen, binding_name(e), binding_domain(e), binding_info(e));
+            return is_proof(instantiate(binding_body(e), fvar)); //TODO
+        }
+        case expr_kind::Let: {
+            expr fvar = m_lctx.mk_local_decl(m_st->m_ngen, let_name(e), let_type(e), let_value(e));
+            return is_proof(instantiate(let_body(e), fvar)); //TODO
+        }
+        case expr_kind::Proj:
+            return is_prop(infer_proj(e,true));
+        }
 }
 
 /** \brief Return true if arguments of \c t are definitionally equal to arguments of \c s.

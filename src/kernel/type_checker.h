@@ -166,6 +166,7 @@ public:
         return whnf_core(e, true, true);
     }
     optional<expr> unfold_definition(expr const & e);
+    bool is_proof(expr const &e);
 };
 
 void initialize_type_checker();

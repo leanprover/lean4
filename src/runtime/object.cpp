@@ -770,8 +770,18 @@ class task_manager {
     unsigned                                      m_max_prio{0};
     condition_variable                            m_queue_cv;
     condition_variable                            m_task_finished_cv;
-    condition_variable                            m_dedicated_finished_cv;
-    bool                                          m_shutting_down{false};
+    // Notified when a dedicated worker finishes and, during shutdown, once `quiescent()` holds.
+    condition_variable                            m_worker_done_cv;
+    // Read without the lock by `lean_io_check_canceled_core`.
+    std::atomic<bool>                             m_shutting_down{false};
+    // Set by `~task_manager` once no task is running or queued.
+    bool                                          m_workers_exit{false};
+
+    // No task is queued or running. Before `m_workers_exit`, no standard worker has exited, so the busy ones
+    // are those not idle.
+    bool quiescent() const {
+        return m_queues_size == 0 && m_idle_std_workers == m_std_workers.size() && m_num_dedicated_workers == 0;
+    }
 
     lean_task_object * dequeue() {
         lean_assert(m_queues_size != 0);
@@ -833,7 +843,7 @@ class task_manager {
     }
 
     void spawn_worker() {
-        if (m_shutting_down)
+        if (m_workers_exit)
             return;
 
         m_std_workers.emplace_back(new lthread([this]() {
@@ -842,10 +852,12 @@ class task_manager {
             m_idle_std_workers++;
             while (true) {
                 if (m_queues_size == 0) {
-                    if (m_shutting_down) {
+                    if (m_workers_exit) {
                         // We're done
                         break;
                     }
+                    if (m_shutting_down && quiescent())
+                        m_worker_done_cv.notify_all();
                     // Wait for new tasks
                     m_queue_cv.wait(lock);
                     continue;
@@ -880,8 +892,13 @@ class task_manager {
             save_stack_info(false);
             unique_lock<mutex> lock(m_mutex);
             run_task(lock, t);
+            // Thread-local objects can still hold tasks and promises, so free them while the task manager
+            // still waits for this thread.
+            lock.unlock();
+            lean_finalize_thread();
+            lock.lock();
             m_num_dedicated_workers--;
-            m_dedicated_finished_cv.notify_all();
+            m_worker_done_cv.notify_all();
         });
         // `lthread` will be implicitly freed, which frees up its control resources but does not terminate the thread
     }
@@ -974,19 +991,23 @@ public:
     }
 
     ~task_manager() {
-        {
-            unique_lock<mutex> lock(m_mutex);
-            m_shutting_down = true;
-            // we can assume that `m_std_workers` will not be changed after this line
-        }
+        unique_lock<mutex> lock(m_mutex);
+        m_shutting_down = true;
         m_queue_cv.notify_all();
 #ifndef LEAN_EMSCRIPTEN
-        // wait for all workers to finish
+        // A running task can still queue tasks, so the workers stay until no task is running or queued.
+        m_worker_done_cv.wait(lock, [&]() { return quiescent(); });
+#endif
+        m_workers_exit = true;
+        // we can assume that `m_std_workers` will not be changed after this line
+        lock.unlock();
+        m_queue_cv.notify_all();
+#ifndef LEAN_EMSCRIPTEN
         for (auto & t : m_std_workers)
             t->join();
 
-        unique_lock<mutex> lock(m_mutex);
-        m_dedicated_finished_cv.wait(lock, [&]() { return m_num_dedicated_workers == 0; });
+        lock.lock();
+        m_worker_done_cv.wait(lock, [&]() { return m_num_dedicated_workers == 0; });
         // never seems to terminate under Emscripten
 #endif
     }
@@ -1083,7 +1104,7 @@ public:
     }
 
     bool shutting_down() const {
-        return m_shutting_down;
+        return m_shutting_down.load(std::memory_order_relaxed);
     }
 
     uint8_t get_task_state(lean_task_object * t) {

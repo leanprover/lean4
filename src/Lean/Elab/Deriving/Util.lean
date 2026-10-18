@@ -9,6 +9,12 @@ prelude
 public import Lean.Elab.Command
 import Lean.Elab.DeclNameGen
 
+register_builtin_option deriving.inline_threshold : Nat := {
+  defValue := 2
+  descr := "The derived `Ord`, `BEq`, `DecidableEq` and `Hashable` implementations of non-recursive \
+    single-constructor types with at most this many fields are marked `@[inline]`, so that, e.g., \
+    comparisons are inlined when such a type serves as the key of a tree map." }
+
 public section
 
 namespace Lean.Elab.Deriving
@@ -121,6 +127,23 @@ def mkContext (className : Name) (fnPrefix : String) (typeName : Name) (supports
     usePartial  := usePartial
   }
 
+/--
+Returns the attributes for the auxiliary functions of `ctx`: `attrs`, plus `@[inline]` if the type
+is a small structure, i.e. a non-recursive single-constructor type with at most
+`deriving.inline_threshold` fields.
+-/
+def mkAuxFunctionAttributes? (ctx : Context) (attrs : Array (TSyntax ``Parser.Term.attrInstance) := #[]) :
+    TermElabM (Option (TSyntax ``Parser.Term.attributes)) := do
+  let mut attrs := attrs
+  if let #[indVal] := ctx.typeInfos then
+    if let [ctorName] := indVal.ctors then
+      if !ctx.usePartial && !indVal.isRec &&
+          (← getConstInfoCtor ctorName).numFields ≤ deriving.inline_threshold.get (← getOptions) then
+        attrs := attrs.push (← `(Parser.Term.attrInstance| inline))
+  if attrs.isEmpty then
+    return none
+  `(Parser.Term.attributes| @[$attrs,*])
+
 def mkLocalInstanceLetDecls (ctx : Context) (className : Name) (argNames : Array Name) : TermElabM (Array (TSyntax ``Parser.Term.letDecl)) := do
   let mut letDecls := #[]
   for h : i in *...ctx.typeInfos.size do
@@ -144,7 +167,8 @@ def mkLet (letDecls : Array (TSyntax ``Parser.Term.letDecl)) (body : Term) : Ter
     `(let $letDecl:letDecl; $body)
 
 open TSyntax.Compat in
-def mkInstanceCmds (ctx : Context) (className : Name) (typeNames : Array Name) (useAnonCtor := true) : TermElabM (Array Command) := do
+def mkInstanceCmds (ctx : Context) (className : Name) (typeNames : Array Name) (useAnonCtor := true)
+    (attrs? : Option (TSyntax ``Parser.Term.attributes) := none) : TermElabM (Array Command) := do
   let mut instances := #[]
   for i in *...ctx.typeInfos.size do
     let indVal       := ctx.typeInfos[i]!
@@ -158,7 +182,7 @@ def mkInstanceCmds (ctx : Context) (className : Name) (typeNames : Array Name) (
       let mut val      := mkIdent auxFunName
       if useAnonCtor then
         val ← `(⟨$val⟩)
-      let instCmd ← `(instance $(mkIdent ctx.instName):ident $binders:implicitBinder* : $type := $val)
+      let instCmd ← `($[$attrs?:attributes]? instance $(mkIdent ctx.instName):ident $binders:implicitBinder* : $type := $val)
       instances := instances.push instCmd
   return instances
 

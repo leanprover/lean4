@@ -187,7 +187,8 @@ def mkAuxFunction (ctx : Context) (auxFunName : Name) (indVal : InductiveVal): T
     then `(Parser.Termination.suffix|termination_by structural $target₁)
     else `(Parser.Termination.suffix|)
   let type    ← `(Decidable ($target₁ = $target₂))
-  `(def $(mkIdent auxFunName):ident $binders:bracketedBinder* : $type:term := $body:term
+  let attrs?  ← mkAuxFunctionAttributes? ctx
+  `($[$attrs?:attributes]? def $(mkIdent auxFunName):ident $binders:bracketedBinder* : $type:term := $body:term
     $termSuffix:suffix)
 
 def mkAuxFunctions (ctx : Context) : TermElabM (TSyntax `command) := do
@@ -200,7 +201,10 @@ def mkAuxFunctions (ctx : Context) : TermElabM (TSyntax `command) := do
 
 def mkDecEqCmds (indVal : InductiveVal) : TermElabM (Array Syntax) := do
   let ctx ← mkContext ``DecidableEq "decEq" indVal.name
-  let cmds := #[← mkAuxFunctions ctx] ++ (← mkInstanceCmds ctx `DecidableEq #[indVal.name] (useAnonCtor := false))
+  -- The instance is the auxiliary function itself, so it needs to be inlined as well
+  let attrs? ← mkAuxFunctionAttributes? ctx
+  let cmds := #[← mkAuxFunctions ctx] ++
+    (← mkInstanceCmds ctx `DecidableEq #[indVal.name] (useAnonCtor := false) (attrs? := attrs?))
   trace[Elab.Deriving.decEq] "\n{cmds}"
   return cmds
 

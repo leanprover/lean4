@@ -236,13 +236,6 @@ example : ↑(3 : Int) = z := by grind_norm check; sorry
 
 -- Accepted difference: legacy normalizes only `Nat` and `Int` arithmetic. Over `Int`, both
 -- normalizers produce `-1 * i + -3 = 0`.
-/--
-error: `grind_norm` discrepancy
-legacy:
-  -3 = z
-sym:
-  -1 * z + -3 = 0
--/
 #guard_msgs in
 example : -3 = z := by grind_norm check; sorry
 
@@ -679,13 +672,6 @@ example : List.replicate 2 a = l := by grind_norm check; sorry
 example : (3 : Fin 5) + 4 = 2 := by grind_norm check; sorry
 
 -- Accepted difference: `Sym` solves the equation for `x`; legacy only evaluates the lhs.
-/--
-error: `grind_norm` discrepancy
-legacy:
-  2 = x
-sym:
-  x = 2
--/
 #guard_msgs in
 example (x : Fin 5) : (3 : Fin 5) + 4 = x := by grind_norm check; sorry
 
@@ -756,13 +742,6 @@ example : "abc".push 'd' = s := by grind_norm check; sorry
 example : String.singleton 'a' = s := by grind_norm check; sorry
 
 -- Accepted difference: `Sym` solves the equation for `x`; legacy only evaluates the lhs.
-/--
-error: `grind_norm` discrepancy
-legacy:
-  8 = x
-sym:
-  x = 8
--/
 #guard_msgs in
 example (x : BitVec 8) : 3#8 + 5#8 = x := by grind_norm check; sorry
 
@@ -776,13 +755,6 @@ example (x : BitVec 16) : (3#8).zeroExtend 16 = x := by grind_norm check; sorry
 example : (3#8).toNat = a := by grind_norm check; sorry
 
 -- Accepted difference: as above.
-/--
-error: `grind_norm` discrepancy
-legacy:
-  0 = x
-sym:
-  x = 0
--/
 #guard_msgs in
 example (x : BitVec 8) : 255#8 + 1 = x := by grind_norm check; sorry
 
@@ -790,13 +762,6 @@ example (x : BitVec 8) : 255#8 + 1 = x := by grind_norm check; sorry
 example (x : BitVec 8) : 300#8 = x := by grind_norm check; sorry
 
 -- Accepted difference: `Sym` solves the equation for `x`; legacy only evaluates the lhs.
-/--
-error: `grind_norm` discrepancy
-legacy:
-  44 = x
-sym:
-  x = 44
--/
 #guard_msgs in
 example (x : UInt8) : (200 : UInt8) + 100 = x := by grind_norm check; sorry
 
@@ -822,7 +787,7 @@ error: `grind_norm` discrepancy
 legacy:
   -56 = x
 sym:
-  x = 200
+  200 = x
 -/
 #guard_msgs in
 example (x : Int8) : (100 : Int8) + 100 = x := by grind_norm check; sorry

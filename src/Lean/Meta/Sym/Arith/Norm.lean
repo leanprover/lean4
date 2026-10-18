@@ -833,7 +833,13 @@ private partial def visit (v : Visitor m) (e : Expr) : VisitM m Node := do
       let ok ← isInst (← liftNorm getNegFn) f
       unless ok do unexpected
       match (← if ok then runPoly (SafePoly.mulConst (-1) na.p) else pure none) with
-      | some p => return { r := (← Simp.mkCongrArg e f a na.r h), re := .neg na.re, p }
+      | some p =>
+        -- A negative numeral is reified as `.num (-k)`, the form the normalizer renders it
+        -- in, so that `-1 = x` is recognized as an equation between a numeral and an atom.
+        let re := match na.re with
+          | .num k => .num (-k)
+          | re => .neg re
+        return { r := (← Simp.mkCongrArg e f a na.r h), re, p }
       | none =>
         let r ← Simp.mkCongrArg e f a (← normalizeNode v a na) h
         mkAtom (r.getResultExpr e) r (kept := true)
@@ -1028,6 +1034,12 @@ private def solvableCoeff? (c : Nat) : Poly → Option Int
   | .add k₁ _ (.add k₂ _ (.num 0)) => if k₁ + k₂ == c then some k₁ else none
   | _ => none
 
+/-- `p` is a numeral or a single variable: the sides of the equations `simp +arith` leaves alone. -/
+private def isNumOrAtom : Poly → Bool
+  | .num _ => true
+  | .add 1 (.mult ⟨_, 1⟩ .unit) (.num 0) => true
+  | _ => false
+
 /--
 Given the reified sides `l`, `r` of `e := rel lhs rhs`, with their polynomials `pl`, `pr` and the
 variables `vars` they index (compact, in `Expr.lt` order), returns the normalized relation.
@@ -1046,18 +1058,10 @@ private def normalizeRelCore (rel : RelKind) (relFn : Expr) (order? : Option Ord
     let inst ← if kind.isComm then pure (← getCommRing).commRingInst else pure ring.ringInst
     let char? := ring.charInst?.bind fun (inst, c) => if c != 0 then some (inst, c) else none
     -- `simp +arith` leaves equations between atoms and numerals alone (`x = y`, `x = 3`,
-    -- `3 = x`): `grind` and other tactics handle these directly. Canonicalization may still
-    -- have changed a numeral (`(7 : Fin 5)` is `2`).
-    if lhsOnly && rel == .eq then
-      match l, r with
-      | .var _, .var _ | .var _, .num _ | .num _, .var _ =>
-        -- A numeral side is canonicalized (`(7 : Fin 5)` is `2`); both are definitionally equal.
-        let side (x : RingExpr) (ex : Expr) : NormM Expr :=
-          if x matches .num _ then canonExpr ex else pure ex
-        let e' ← share (mkApp2 relFn (← side l lhs) (← side r rhs))
-        if isSameExpr e' e then return .normal
-        return .step e' (mkExpectedPropHint (mkApp2 (mkConst ``Eq.refl [1]) (mkSort .zero) e') (mkPropEq e e'))
-      | _, _ => pure ()
+    -- `3 = x`): `grind` and other tactics handle these directly. The sides are classified by
+    -- their polynomials, so `2 * 3 - 7 = x` is `-1 = x` and `(7 : Fin 5) = x` is `2 = x`; they
+    -- are rendered below without solving for a side.
+    let numOrAtom := lhsOnly && rel == .eq && isNumOrAtom pl && isNumOrAtom pr
     let some p ← (do SafePoly.combine pl (← SafePoly.mulConst (-1) pr) : PolyM Poly).run budget | return .notApplicable
     -- Fields: cancel the discharged inverse atoms; in characteristic zero, split the numerator
     -- of `lhs - rhs`, whose denominator's sign needs `IsLinearOrder` for `≤`/`<`.
@@ -1076,7 +1080,7 @@ private def normalizeRelCore (rel : RelKind) (relFn : Expr) (order? : Option Ord
     -- `(q, k, c)` for the certificate (`IntSolver.lean`).
     let mut p := p
     let mut tight? : Option (Poly × Int × Int) := none
-    if ring.type.isConstOf ``Int && invs.isEmpty && ainvs.isEmpty && char?.isNone && rel != .lt then
+    if ring.type.isConstOf ``Int && invs.isEmpty && ainvs.isEmpty && char?.isNone && rel != .lt && !numOrAtom then
       let k := gcdMonCoeffs p
       if k > 1 then
         let c := polyConst p
@@ -1092,7 +1096,7 @@ private def normalizeRelCore (rel : RelKind) (relFn : Expr) (order? : Option Ord
     -- `k` has an inverse modulo `c`, multiply by it, so that the equation is solved for `m`
     -- below. `scale?` records `k` and its inverse for the certificate.
     let mut scale? : Option (Int × Int) := none
-    if lhsOnly && rel == .eq && kind.isComm && ainvs.isEmpty then
+    if lhsOnly && rel == .eq && kind.isComm && ainvs.isEmpty && !numOrAtom then
       if let some (_, c) := char? then
         if let some k := solvableCoeff? c p then
           if k != 1 then
@@ -1102,7 +1106,9 @@ private def normalizeRelCore (rel : RelKind) (relFn : Expr) (order? : Option Ord
     -- Like `simp +arith`, the equations `x - y = 0` and `x + k = 0` are written `x = y` and
     -- `x = -k`, and any other equation already of the form `p = 0` is left alone.
     let (lp, rp) ←
-      if lhsOnly then
+      if numOrAtom then
+        pure (pl, pr)
+      else if lhsOnly then
         match rel, char?, p with
         | .eq, none, .add 1 m₁ (.add (-1) m₂ (.num 0)) => pure (.add 1 m₁ (.num 0), .add 1 m₂ (.num 0))
         | .eq, none, .add (-1) m₂ (.add 1 m₁ (.num 0)) => pure (.add 1 m₁ (.num 0), .add 1 m₂ (.num 0))
@@ -1118,7 +1124,11 @@ private def normalizeRelCore (rel : RelKind) (relFn : Expr) (order? : Option Ord
         pure (if c > 0 then lp.addConst c else lp, if c < 0 then rp.addConst (-c) else rp)
     let l' := lp.toExpr
     let r' := rp.toExpr
-    let e' ← share (mkApp2 relFn (← denoteRingExpr' vars l') (← denoteRingExpr' vars r'))
+    -- A numeral side of a kept `x = k` is canonicalized: `denoteNum` uses the `OfNat` instance
+    -- of the structure's type as written (`Fin (4 + 1)` for `Fin.last 4`).
+    let side (p : Poly) (e : Expr) : NormM Expr :=
+      if numOrAtom && p matches .num _ then canonExpr e else pure e
+    let e' ← share (mkApp2 relFn (← side lp (← denoteRingExpr' vars l')) (← side rp (← denoteRingExpr' vars r')))
     if isSameExpr e' e then return .normal
     let ctx ← mkContext ring.type vars
     let hoka ← if ainvs.isEmpty then pure (mkConst ``True.intro) else pure (mkInvAtomsOk (← getCommRing) ctx vars ainvs)

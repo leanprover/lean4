@@ -8,7 +8,7 @@ set_option warn.sorry false
 section fin5
 variable (x y : Fin 5)
 
-example : (3 : Fin 5) + 4 = x := by grind_norm sym; guard_target = (x = 2); sorry
+example : (3 : Fin 5) + 4 = x := by grind_norm sym; guard_target = (2 = x); sorry
 example : 4 * x + 2 = 0 := by grind_norm sym; guard_target = (x = 2); sorry
 example : 3 * x + 1 = 0 := by grind_norm sym; guard_target = (x = 3); sorry
 example : x + 3 = 0 := by grind_norm sym; guard_target = (x = 2); sorry
@@ -42,7 +42,7 @@ section uint8
 variable (u : UInt8)
 
 example : 3 * u = 1 := by grind_norm sym; guard_target = (u = 171); sorry
-example : (200 : UInt8) + 100 = u := by grind_norm sym; guard_target = (u = 44); sorry
+example : (200 : UInt8) + 100 = u := by grind_norm sym; guard_target = (44 = u); sorry
 example : u = 300 := by grind_norm sym; guard_target = (u = 44); sorry
 -- `2` is not invertible modulo `256`.
 example : 2 * u = 4 := by grind_norm sym; guard_target = (2 * u + 252 = 0); sorry

@@ -1131,3 +1131,17 @@ example : ∃ h : i < a.size, f a i h = true := by grind_norm check; sorry
 #guard_msgs in
 example : ¬ ∃ h : i < a.size, f a i h = true := by grind_norm check; sorry
 end dep_binders
+
+#guard_msgs in
+example (a : Int) : -0 = a := by grind_norm check; sorry
+
+-- Accepted difference. The legacy normalizer does not normalize arbitrary ring expressions
+/--
+error: `grind_norm` discrepancy
+legacy:
+  -0 = a
+sym:
+  0 = a
+-/
+#guard_msgs in
+example [Lean.Grind.CommRing α] (a : α) : -0 = a := by grind_norm check; sorry

@@ -836,8 +836,9 @@ private partial def visit (v : Visitor m) (e : Expr) : VisitM m Node := do
       | some p =>
         -- A negative numeral is reified as `.num (-k)`, the form the normalizer renders it
         -- in, so that `-1 = x` is recognized as an equation between a numeral and an atom.
+        -- `-0` stays `.neg (.num 0)`: `.num 0` denotes to `0`, which is not `-0` in a general ring.
         let re := match na.re with
-          | .num k => .num (-k)
+          | .num k => if k == 0 then .neg na.re else .num (-k)
           | re => .neg re
         return { r := (← Simp.mkCongrArg e f a na.r h), re, p }
       | none =>

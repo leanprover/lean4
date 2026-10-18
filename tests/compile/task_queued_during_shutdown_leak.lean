@@ -1,10 +1,10 @@
 /-!
-A task queued after the pool's workers have exited during shutdown must not leak.
+A task queued after the pool's workers have exited during shutdown still runs, so it does not leak.
 
 `main` returns while a dedicated task is still running. The task waits until the task manager is
 shutting down and its idle workers have exited, then queues a pool task that nobody waits for. That task
-never runs, but it and everything its closure captures (here a 1 MB array) must still be freed. The leak
-is only reported by LeakSanitizer, i.e. in the sanitize build. The program is compiled, as the interpreter
+must still run, and it and everything its closure captures (here a 1 MB array) must be freed. A leak is
+only reported by LeakSanitizer, i.e. in the sanitize build. The program is compiled, as the interpreter
 exits differently, hence `.no_interpret`.
 -/
 

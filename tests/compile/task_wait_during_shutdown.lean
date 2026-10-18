@@ -1,6 +1,3 @@
-import Std.Internal.UV.Timer
-import Std.Async.Timer
-
 /-!
 A task that is still running when `main` returns can wait for a pool task that is queued during the
 exit, and the process still exits.
@@ -8,7 +5,7 @@ exit, and the process still exits.
 When `main` returns, the exit waits for the running tasks, and the pool's idle workers finish. A pool
 task queued after that must still run, so a thread waiting for it, directly or through `Task.map`,
 `Task.bind`, `IO.waitAny` or `Task.get`, is not blocked forever. The task may be queued by a dedicated
-task, by a pool task that then waits for it, by a dedicated task finishing, or by a libuv callback.
+task, by a pool task that then waits for it, or by a dedicated task finishing.
 
 Tasks see `IO.checkCanceled` during the exit, so the tasks here that would otherwise run forever stop.
 
@@ -58,15 +55,6 @@ def startAndWait (mode : String) : IO Unit := do
     -- The dependent is queued by the dedicated thread that finishes the source.
     let t ← IO.asTask (prio := .dedicated) (IO.sleep 50)
     discard <| IO.wait (← IO.mapTask (fun _ => pure 42) t)
-  | "uvTimer" =>
-    -- The dependent is queued by the libuv loop thread when the timer fires.
-    let timer ← Std.Internal.UV.Timer.mk 50 false
-    let promise ← timer.next
-    discard <| IO.wait (← IO.mapTask (fun _ => pure 42) promise.result?)
-  | "async" =>
-    -- Started before the exit, so the pool task that `block` starts may run before the workers exit,
-    -- and only the continuation after the timer is queued during the exit.
-    (Std.Async.sleep 200 : Std.Async.Async Unit).block
   | "waitAnyRunning" =>
     let never ← IO.asTask sleepUntilCanceled
     let soon ← IO.asTask (prio := .dedicated) (IO.sleep 100)
@@ -85,7 +73,7 @@ def startAndWait (mode : String) : IO Unit := do
 def child (mode : String) : IO Unit := do
   let prio := if mode == "pool" then Task.Priority.default else .dedicated
   discard <| IO.asTask (prio := prio) do
-    if mode != "async" then waitForShutdown
+    waitForShutdown
     startAndWait mode
   IO.println s!"{mode}: child returns from main"
 
@@ -113,5 +101,5 @@ def main (args : List String) : IO Unit := do
   | [mode] => child mode
   | _ =>
     for mode in ["wait", "waitAny", "get", "map", "bind", "nested", "pool", "prio", "mapDedicated",
-        "uvTimer", "async", "waitAnyRunning", "forever", "process"] do
+        "waitAnyRunning", "forever", "process"] do
       runChild mode

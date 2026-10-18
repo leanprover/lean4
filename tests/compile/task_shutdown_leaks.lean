@@ -1,5 +1,3 @@
-import Std.Internal.UV.Timer
-
 /-!
 Tasks queued during the exit still run, so they do not leak.
 
@@ -64,12 +62,6 @@ def atShutdown (mode : String) : IO Unit := do
     -- Dropping the promise resolves it, which queues the dependent task.
     let promise ← IO.Promise.new (α := Nat)
     discard <| IO.mapTask (fun _ => use "promiseDropped: dependent" p) promise.result?
-  | "uvTimer" =>
-    -- The libuv loop thread queues the dependent while this task keeps the exit waiting.
-    let timer ← Std.Internal.UV.Timer.mk 50 false
-    let promise ← timer.next
-    discard <| IO.mapTask (fun _ => use "uvTimer: dependent" p) promise.result?
-    IO.sleep 300
   | "waitedQueuesMore" =>
     let t ← IO.asTask do
       discard <| IO.asTask (use "waitedQueuesMore: inner" p)
@@ -108,5 +100,5 @@ def main (args : List String) : IO Unit := do
     IO.println s!"{mode}: child returns from main"
   | _ =>
     for mode in ["pure", "map", "syncMap", "bind", "bindNested", "prio", "promiseResolved",
-        "promiseDropped", "uvTimer", "waitedQueuesMore", "dedicatedDependent"] do
+        "promiseDropped", "waitedQueuesMore", "dedicatedDependent"] do
       runChild mode

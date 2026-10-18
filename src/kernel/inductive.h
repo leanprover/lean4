@@ -87,8 +87,8 @@ inline expr to_cnstr_when_structure(environment const & env, recursor_val const 
     return expand_eta_struct(env, e_type, e);
 }
 
-template<typename WHNF, typename INFER, typename IS_DEF_EQ>
-inline optional<expr> inductive_reduce_rec(environment const & env, expr const & e, WHNF const & whnf, INFER const & infer_type, IS_DEF_EQ const & is_def_eq) {
+template<typename WHNF, typename INFER, typename IS_DEF_EQ, typename IS_PROP>
+inline optional<expr> inductive_reduce_rec(environment const & env, expr const & e, WHNF const & whnf, INFER const & infer_type, IS_DEF_EQ const & is_def_eq, IS_PROP const & is_prop) {
     expr const & rec_fn   = get_app_fn(e);
     if (!is_constant(rec_fn)) return none_expr();
     optional<constant_info> rec_info = env.find(const_name(rec_fn));
@@ -99,16 +99,14 @@ inline optional<expr> inductive_reduce_rec(environment const & env, expr const &
     unsigned major_idx           = rec_val.get_major_idx();
     if (major_idx >= rec_args.size()) return none_expr(); // major premise is missing
     expr major     = rec_args[major_idx];
-    if (rec_val.is_k())
-        major = to_cnstr_when_K(env, rec_val, major, whnf, infer_type, is_def_eq);
-    }
-    major = whnf(major);
+    if (rec_val.is_k()) major = to_cnstr_when_K(env, rec_val, major, whnf, infer_type, is_def_eq);
+    if (!is_prop(infer_type(major))) major = whnf(major);
     if (is_nat_lit(major))
         major = nat_lit_to_constructor(major);
     else if (is_string_lit(major))
         major = whnf(string_lit_to_constructor(major));
     else
-        major = to_cnstr_when_structure(env, rec_val.get_major_induct(), major, whnf, infer_type, is_prop);
+        major = to_cnstr_when_structure(env, rec_val, major, whnf, infer_type);
     optional<recursor_rule> rule = get_rec_rule_for(rec_val, major);
     if (!rule) return none_expr();
     buffer<expr> major_args;

@@ -251,13 +251,15 @@ private def reduceRec (recVal : RecursorVal) (recLvls : List Level) (recArgs : A
       -- We use this trick because we abstract nested proofs occurring in definitions.
       -- Alternative design: do not abstract nested proofs used to justify well-founded recursion.
       withTransparency .all <| whnf major
-    else
+    else if !(← isProof major) then
       whnf major
+    else
+      pure major
     if recVal.k then
       major ← toCtorWhenK recVal major
     major ← major.toCtorIfLit
     major ← cleanupNatOffsetMajor major
-    major ← toCtorWhenStructure recVal.getMajorInduct major
+    major ← toCtorWhenStructure recVal major
     match getRecRuleFor recVal major with
     | some rule =>
       let majorArgs := major.getAppArgs

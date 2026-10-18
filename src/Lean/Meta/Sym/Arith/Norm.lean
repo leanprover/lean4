@@ -1058,11 +1058,6 @@ private def normalizeRelCore (rel : RelKind) (relFn : Expr) (order? : Option Ord
     -- Instance for the certificate theorem: `CommRing` or `Ring`.
     let inst ← if kind.isComm then pure (← getCommRing).commRingInst else pure ring.ringInst
     let char? := ring.charInst?.bind fun (inst, c) => if c != 0 then some (inst, c) else none
-    -- `simp +arith` leaves equations between atoms and numerals alone (`x = y`, `x = 3`,
-    -- `3 = x`): `grind` and other tactics handle these directly. The sides are classified by
-    -- their polynomials, so `2 * 3 - 7 = x` is `-1 = x` and `(7 : Fin 5) = x` is `2 = x`; they
-    -- are rendered below without solving for a side.
-    let numOrAtom := lhsOnly && rel == .eq && isNumOrAtom pl && isNumOrAtom pr
     let some p ← (do SafePoly.combine pl (← SafePoly.mulConst (-1) pr) : PolyM Poly).run budget | return .notApplicable
     -- Fields: cancel the discharged inverse atoms; in characteristic zero, split the numerator
     -- of `lhs - rhs`, whose denominator's sign needs `IsLinearOrder` for `≤`/`<`.
@@ -1072,6 +1067,12 @@ private def normalizeRelCore (rel : RelKind) (relFn : Expr) (order? : Option Ord
     let linInst? ← if invs.isEmpty || rel == .eq then pure none else
       MonadCanon.synthInstance? (mkApp2 (mkConst ``Std.IsLinearOrder [u]) ring.type order?.get!.leInst)
     if rel != .eq && linInst?.isNone then invs := #[]
+    -- `simp +arith` leaves equations between atoms and numerals alone (`x = y`, `x = 3`,
+    -- `3 = x`): `grind` and other tactics handle these directly. The sides are classified by
+    -- their polynomials, so `2 * 3 - 7 = x` is `-1 = x` and `(7 : Fin 5) = x` is `2 = x`; they
+    -- are rendered below without solving for a side. With inverse atoms, the sides must go
+    -- through the field normalization below.
+    let numOrAtom := lhsOnly && rel == .eq && invs.isEmpty && ainvs.isEmpty && isNumOrAtom pl && isNumOrAtom pr
     let p := if !invs.isEmpty then (p.toPolyQ invs.toList ainvsL).num
       else if !ainvs.isEmpty then p.cancelInvs ainvsL
       else p

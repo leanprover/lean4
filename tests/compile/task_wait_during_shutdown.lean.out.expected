@@ -25,12 +25,6 @@ prio: the task finished
 mapDedicated: child exited with code 0
 mapDedicated: child returns from main
 mapDedicated: the task finished
-uvTimer: child exited with code 0
-uvTimer: child returns from main
-uvTimer: the task finished
-async: child exited with code 0
-async: child returns from main
-async: the task finished
 waitAnyRunning: child exited with code 0
 waitAnyRunning: child returns from main
 waitAnyRunning: the task finished

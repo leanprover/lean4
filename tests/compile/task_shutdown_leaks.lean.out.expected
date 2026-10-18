@@ -25,9 +25,6 @@ promiseResolved: dependent ran
 promiseDropped: child exited with code 0
 promiseDropped: child returns from main
 promiseDropped: dependent ran
-uvTimer: child exited with code 0
-uvTimer: child returns from main
-uvTimer: dependent ran
 waitedQueuesMore: child exited with code 0
 waitedQueuesMore: child returns from main
 waitedQueuesMore: inner ran

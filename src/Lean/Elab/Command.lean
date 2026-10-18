@@ -1046,7 +1046,12 @@ variable (n : Nat)
 -/
 def runTermElabM (elabFn : Array Expr → TermElabM α) : CommandElabM α := do
   let scope ← getScope
+  let isExporting := (← getEnv).isExporting
   liftTermElabM <|
+    -- Section variables belong to the enclosing scope, so they are elaborated with its visibility
+    -- (as `elabDeclaration` does). The caller's visibility may be that of a single declaration,
+    -- e.g. `public instance` in a non-public scope, and applies only to `elabFn`.
+    withExporting (isExporting := scope.isPublic) <|
     Term.withAutoBoundImplicit <|
       Term.elabBinders scope.varDecls fun xs => do
         -- We need to synthesize postponed terms because this is a checkpoint for the auto-bound implicit feature
@@ -1060,6 +1065,7 @@ def runTermElabM (elabFn : Array Expr → TermElabM α) : CommandElabM α := do
           -- So, we use `Core.resetMessageLog`.
           Core.resetMessageLog
           let xs ← Term.addAutoBoundImplicits xs none
+          withExporting (isExporting := isExporting) do
           if xs.all (·.isFVar) then
             Term.withoutAutoBoundImplicit <| elabFn xs
           else

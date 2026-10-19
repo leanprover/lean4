@@ -112,7 +112,7 @@ public def compareAt (challenge solution : LeanExport.ExportedEnv) (theoremTarge
   Compare.loop.run { challenge, solution, definitionTargets, theoremTargets } |>.run' { worklist, checked := {} }
 
 /-- Match an exact approved proposition, or a conjunction of such propositions. -/
-private partial def matchAcceptedInput (accepted : Array (Prod Lean.Name Lean.Expr))
+partial def matchAcceptedInput (accepted : Array (Prod Lean.Name Lean.Expr))
     (input : Lean.Expr) : Option (Array Lean.Name) := do
   for (name, statement) in accepted do
     if input == .const name [] || input == statement then

@@ -14,6 +14,7 @@ import Lean.Meta.Tactic.Grind.Injection
 import Lean.Meta.Tactic.Grind.Core
 import Lean.Meta.Tactic.Grind.Simp
 import Lean.Meta.Tactic.Grind.MarkAccessible
+import Lean.Meta.Tactic.Grind.Anchor
 import Init.Grind.Util
 public section
 namespace Lean.Meta.Grind
@@ -105,6 +106,7 @@ private def intro1 : GoalM FVarId := do
   let name ← mkCleanName name type
   let (fvarId, mvarId) ← (← get).mvarId.intro name
   modify fun s => { s with mvarId }
+  registerFVarAnchor fvarId name target
   return fvarId
 
 private partial def introNext (goal : Goal) (generation : Nat) : GrindM IntroResult := do
@@ -122,7 +124,9 @@ private partial def introNext (goal : Goal) (generation : Nat) : GrindM IntroRes
         let fvarId ← mkFreshFVarId
         let fvar := mkFVar fvarId
         let r ← preprocessHypothesis p
-        let lctx := (← getLCtx).mkLocalDecl fvarId (← mkCleanName target.bindingName! r.expr) r.expr target.bindingInfo!
+        let name ← mkCleanName target.bindingName! r.expr
+        registerFVarAnchor fvarId name target
+        let lctx := (← getLCtx).mkLocalDecl fvarId name r.expr target.bindingInfo!
         let mut localInsts ← getLocalInstances
         if let some className ← isClass? r.expr then
           localInsts := localInsts.push { className, fvar }

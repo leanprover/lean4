@@ -42,7 +42,7 @@ attribute [grind ext] List.ext_getElem?
 info: Try these:
   [apply] grind only [= List.getElem?_replicate, = List.getElem?_map, = List.getElem?_eq_none,
     = List.getElem?_eq_getElem, = List.length_replicate, = List.getElem?_eq_some_iff, = Option.map_some,
-    = Option.map_none, #648a, #bb68, #a564]
+    = Option.map_none, #648a, #5039, #c508]
   [apply] grind only [= List.getElem?_replicate, = List.getElem?_map, = List.getElem?_eq_none,
     = List.getElem?_eq_getElem, = List.length_replicate, = List.getElem?_eq_some_iff, = Option.map_some,
     = Option.map_none]
@@ -53,9 +53,9 @@ info: Try these:
     instantiate only [= List.getElem?_replicate, = List.getElem?_eq_none, = List.getElem?_eq_getElem,
       = List.length_replicate]
     instantiate only [= List.length_replicate]
-    cases #bb68
+    cases #5039
     · instantiate only [= List.getElem?_eq_some_iff]
-      cases #a564
+      cases #c508
       · instantiate only [= Option.map_some]
       · instantiate only [= Option.map_none]
     · instantiate only [= Option.map_some]

@@ -35,7 +35,9 @@ theorems must be included because a theorem instantiation may contribute to the 
 providing terms and many not be present in the final proof term.
 
 **Note*: If an working `instantiate [...]` tactic cannot be produced, we produce the
-tactic `instantiate approx` to indicate that this step is approximate and tweaking is needed.
+tactic `instantiate approx [...]` to indicate that this step is approximate and tweaking is needed.
+It still lists the theorems used in the proof term (without `only`), so that `grind?` reports them
+and replaying the step instantiates them in addition to the active theorems.
 We currently used unlimited budget for find the optimal parameter setting. We will add
 a parameter to set the maximum number of iterations. After this implemented, we may generate
 `instantiate only approx [...]` to indicate the parameter search has been interrupted and
@@ -77,8 +79,9 @@ where
 
 /--
 Creates an `instantiate` tactic that takes the `usedThms` as parameters.
+`status` is the outcome of the parameter minimizer that produced `usedThms`.
 -/
-def mkInstantiateTactic (goal : Goal) (usedThms : Array EMatchTheorem) (approx : Bool) : GrindM TGrind := goal.withContext do
+def mkInstantiateTactic (goal : Goal) (usedThms : Array EMatchTheorem) (status : Util.ParamMinimizer.Status) : GrindM TGrind := goal.withContext do
   let entries ← getLocalTheoremAnchors goal
   let numDigits := getNumDigitsForAnchors entries
   let mut params : Array (TSyntax ``Parser.Tactic.Grind.thm) := #[]
@@ -109,17 +112,18 @@ def mkInstantiateTactic (goal : Goal) (usedThms : Array EMatchTheorem) (approx :
           reportIssue! "anchor `#{anchorToString numDigits anchor}` is ambiguous, distinct local theorems have the same anchor{indentExpr type}\nall of them are instantiated by the generated `instantiate` tactic"
         let param ← `(Parser.Tactic.Grind.thm| $(← mkAnchorSyntax numDigits anchor):anchor)
         params := params.push param
-  match params.isEmpty, approx with
-  | true,  false => `(grind| instantiate only)
-  | false, false => `(grind| instantiate only [$params,*])
-  | true,  true  => `(grind| instantiate approx)
-  | false, true  => `(grind| instantiate only approx [$params,*])
+  match params.isEmpty, status with
+  | true,  .precise => `(grind| instantiate only)
+  | false, .precise => `(grind| instantiate only [$params,*])
+  | true,  _        => `(grind| instantiate approx)
+  | false, .approx  => `(grind| instantiate only approx [$params,*])
+  | false, .missing => `(grind| instantiate approx [$params,*])
 
-def mkNewSeq (goal : Goal) (thms : Array EMatchTheorem) (seq : List TGrind) (approx : Bool) : GrindM (List TGrind) := do
-  if thms.isEmpty && !approx then
+def mkNewSeq (goal : Goal) (thms : Array EMatchTheorem) (seq : List TGrind) (status : Util.ParamMinimizer.Status) : GrindM (List TGrind) := do
+  if thms.isEmpty && status matches .precise then
     return seq
   else
-    return ((← mkInstantiateTactic goal thms approx) :: seq)
+    return ((← mkInstantiateTactic goal thms status) :: seq)
 
 abbrev EMatchTheoremIds := Std.HashMap EMatchTheoremPtr Nat
 
@@ -164,14 +168,13 @@ public def instantiate' : Action := fun goal kna kp => do
         let testMask (mask : Array Bool) : GrindM Bool := do
           checkSystem "`grind` `instantiate` tactic parameter optimizer"
           let thms := maskToThms allThms mask
-          let newSeq ← mkNewSeq goal thms seq (approx := false)
+          let newSeq ← mkNewSeq goal thms seq .precise
           checkSeqAt saved? goal newSeq
         let r ← Util.ParamMinimizer.search initMask testMask
-        let newSeq ← match r.status with
-          | .missing => mkNewSeq goal #[] seq (approx := true)
-          | .approx => mkNewSeq goal (maskToThms allThms r.paramMask) seq (approx := true)
-          | .precise => mkNewSeq goal (maskToThms allThms r.paramMask) seq (approx := false)
-        return .closed newSeq
+        let thms := match r.status with
+          | .missing => usedThms
+          | _ => maskToThms allThms r.paramMask
+        return .closed (← mkNewSeq goal thms seq r.status)
       else
         return .closed []
     | r => return r

@@ -299,6 +299,11 @@ structure State where
   Cached anchors (aka stable hash codes) for terms in the `grind` state.
   -/
   anchors : PHashMap ExprPtr UInt64 := {}
+  /--
+  Anchors for free variables introduced by `grind` whose user names do not contribute to
+  anchors (e.g., inaccessible names). See `registerFVarAnchor`.
+  -/
+  fvarAnchors : PHashMap FVarId UInt64 := {}
   /-- Accumulated E-matching instance map for precise unused lemma tracking.
   Only populated when `config.markInstances` is `true`. -/
   instanceMap : Std.HashMap Name EMatchTheorem := {}

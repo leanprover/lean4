@@ -50,9 +50,9 @@ Try these:
     cases #c982
     · instantiate only [eval, #4b9f]
       instantiate only [eval]
-      cases #9a7f <;> cases #0fda <;> instantiate only [eval]
+      cases #f1d2 <;> cases #7687 <;> instantiate only [eval]
     · instantiate only [#263e]
-  [apply] finish only [eval, #c982, #4b9f, #9a7f, #0fda, #263e]
+  [apply] finish only [eval, #c982, #4b9f, #f1d2, #7687, #263e]
 Try these:
   [apply] 
     instantiate only [= getElem?_pos]
@@ -60,44 +60,44 @@ Try these:
     cases #9047
     · instantiate only [#807c, #1ac2, eval]
       instantiate only [eval]
-      cases #c6fb
+      cases #a1a0
       · cases #c4c1
-        cases #ad14
+        cases #4469
         ·
-          cases #fe3d <;>
-            cases #a866 <;>
-              cases #3b79 <;>
+          cases #9695 <;>
+            cases #4e47 <;>
+              cases #0d9c <;>
                 instantiate only [= Std.HashMap.getElem?_insert] <;>
-                  cases #abae <;> instantiate only [= Option.getD_some]
+                  cases #48db <;> instantiate only [= Option.getD_some]
         ·
-          cases #2c5b <;>
+          cases #cf2b <;>
             instantiate only [= Std.HashMap.getElem?_insert] <;>
-              cases #f02f <;>
+              cases #7d71 <;>
                 instantiate only [= Option.getD_some] <;>
-                  cases #fe3d <;> cases #3b79 <;> instantiate only [= Std.HashMap.getElem?_insert] <;> cases #abae
+                  cases #9695 <;> cases #0d9c <;> instantiate only [= Std.HashMap.getElem?_insert] <;> cases #48db
       · cases #c4c1
-        cases #ad14
+        cases #4469
         ·
-          cases #fe3d <;>
-            cases #a866 <;>
+          cases #9695 <;>
+            cases #4e47 <;>
               instantiate only [= Std.HashMap.getElem?_insert] <;>
-                cases #3b79 <;>
+                cases #0d9c <;>
                   instantiate only [= Std.HashMap.getElem?_insert] <;>
-                    cases #abae <;> cases #f02f <;> instantiate only [= Option.getD_some]
-        · cases #2c5b
+                    cases #48db <;> cases #7b11 <;> instantiate only [= Option.getD_some]
+        · cases #cf2b
           instantiate only [= Std.HashMap.getElem?_insert]
-          cases #f02f
+          cases #7d71
           instantiate only [= Option.getD_some]
-          cases #fe3d
-          · cases #a866 <;> instantiate only [= Std.HashMap.getElem?_insert] <;> cases #f02f
+          cases #9695
+          · cases #4e47 <;> instantiate only [= Std.HashMap.getElem?_insert] <;> cases #7b11
           ·
-            cases #3b79 <;>
-              cases #7fad <;> cases #a866 <;> instantiate only [= Std.HashMap.getElem?_insert] <;> cases #f02f
+            cases #0d9c <;>
+              cases #8b34 <;> cases #4e47 <;> instantiate only [= Std.HashMap.getElem?_insert] <;> cases #7b11
     · instantiate only [#c06f]
       instantiate only [= Std.HashMap.mem_insert]
   [apply] finish only [= getElem?_pos, =_ Std.HashMap.contains_iff_mem, eval, = Std.HashMap.getElem?_insert,
-    = Option.getD_some, = Std.HashMap.mem_insert, #9047, #807c, #1ac2, #c6fb, #c4c1, #ad14, #fe3d, #a866, #3b79, #abae,
-    #2c5b, #f02f, #7fad, #c06f]
+    = Option.getD_some, = Std.HashMap.mem_insert, #9047, #807c, #1ac2, #a1a0, #c4c1, #4469, #9695, #4e47, #0d9c, #48db,
+    #cf2b, #7d71, #7b11, #8b34, #c06f]
 Try these:
   [apply] 
     instantiate only [= getElem?_pos, normalized]
@@ -111,19 +111,19 @@ Try these:
       · instantiate only [eval]
         instantiate only [eval]
         instantiate only [= Option.getD_none]
-        cases #051b
+        cases #9602
         · instantiate only [#807c]
           cases #c4c1 <;>
-            cases #fe3d <;>
-              cases #3b79 <;>
+            cases #b81d <;>
+              cases #7bf1 <;>
                 instantiate only [= Std.HashMap.getElem?_insert] <;>
-                  cases #abae <;> instantiate only [= Option.getD_some]
+                  cases #1e8d <;> instantiate only [= Option.getD_some]
         · instantiate only [#1ac2]
           cases #c4c1 <;>
-            cases #7fad <;>
-              cases #a866 <;>
+            cases #76e2 <;>
+              cases #4f6e <;>
                 instantiate only [= Std.HashMap.getElem?_insert] <;>
-                  cases #f02f <;> instantiate only [= Option.getD_some]
+                  cases #5cba <;> instantiate only [= Option.getD_some]
       · instantiate only [vars]
         instantiate only [= List.mem_append, = List.cons_append]
         ac
@@ -133,7 +133,7 @@ Try these:
   [apply] finish only [= getElem?_pos, normalized, =_ Std.HashMap.contains_iff_mem, hasNestedIf, hasConstantIf,
     hasRedundantIf, disjoint, vars, List.disjoint, = Std.HashMap.mem_insert, eval, = Option.getD_none,
     = Std.HashMap.getElem?_insert, = Option.getD_some, = List.mem_append, = List.cons_append, = List.mem_cons, #e77a,
-    #c06f, #55a3, #93a1, #051b, #807c, #c4c1, #fe3d, #3b79, #abae, #1ac2, #7fad, #a866, #f02f]
+    #c06f, #55a3, #93a1, #9602, #807c, #c4c1, #b81d, #7bf1, #1e8d, #1ac2, #76e2, #4f6e, #5cba]
 Try these:
   [apply] 
     instantiate only [= getElem?_neg, = getElem?_pos]
@@ -141,9 +141,9 @@ Try these:
     · instantiate only [eval, #4e0f]
       instantiate only [eval]
       instantiate only [eval, = Option.getD_some]
-      cases #c6fb
+      cases #2415
     · instantiate only [#7694]
-  [apply] finish only [= getElem?_neg, = getElem?_pos, eval, = Option.getD_some, #d7c7, #4e0f, #c6fb, #7694]
+  [apply] finish only [= getElem?_neg, = getElem?_pos, eval, = Option.getD_some, #d7c7, #4e0f, #2415, #7694]
 Try these:
   [apply] 
     instantiate only [normalized]
@@ -196,9 +196,9 @@ Try these:
     cases #43b6
     · instantiate only [eval, #4b9f]
       instantiate only [eval]
-      cases #9a7f <;> cases #0fda <;> instantiate only [eval]
+      cases #f1d2 <;> cases #7687 <;> instantiate only [eval]
     · instantiate only [#2927]
-  [apply] finish only [eval, #43b6, #4b9f, #9a7f, #0fda, #2927]
+  [apply] finish only [eval, #43b6, #4b9f, #f1d2, #7687, #2927]
 Try these:
   [apply] 
     instantiate only [= getElem?_pos]
@@ -206,44 +206,44 @@ Try these:
     cases #5082
     · instantiate only [#807c, #1ac2, eval]
       instantiate only [eval]
-      cases #c6fb
+      cases #a1a0
       · cases #c4c1
-        cases #ad14
+        cases #4469
         ·
-          cases #fe3d <;>
-            cases #a866 <;>
-              cases #3b79 <;>
+          cases #9695 <;>
+            cases #4e47 <;>
+              cases #0d9c <;>
                 instantiate only [= Std.HashMap.getElem?_insert] <;>
-                  cases #abae <;> instantiate only [= Option.getD_some]
+                  cases #48db <;> instantiate only [= Option.getD_some]
         ·
-          cases #2c5b <;>
+          cases #cf2b <;>
             instantiate only [= Std.HashMap.getElem?_insert] <;>
-              cases #f02f <;>
+              cases #7d71 <;>
                 instantiate only [= Option.getD_some] <;>
-                  cases #fe3d <;> cases #3b79 <;> instantiate only [= Std.HashMap.getElem?_insert] <;> cases #abae
+                  cases #9695 <;> cases #0d9c <;> instantiate only [= Std.HashMap.getElem?_insert] <;> cases #48db
       · cases #c4c1
-        cases #ad14
+        cases #4469
         ·
-          cases #fe3d <;>
-            cases #a866 <;>
+          cases #9695 <;>
+            cases #4e47 <;>
               instantiate only [= Std.HashMap.getElem?_insert] <;>
-                cases #3b79 <;>
+                cases #0d9c <;>
                   instantiate only [= Std.HashMap.getElem?_insert] <;>
-                    cases #abae <;> cases #f02f <;> instantiate only [= Option.getD_some]
-        · cases #2c5b
+                    cases #48db <;> cases #7b11 <;> instantiate only [= Option.getD_some]
+        · cases #cf2b
           instantiate only [= Std.HashMap.getElem?_insert]
-          cases #f02f
+          cases #7d71
           instantiate only [= Option.getD_some]
-          cases #fe3d
-          · cases #a866 <;> instantiate only [= Std.HashMap.getElem?_insert] <;> cases #f02f
+          cases #9695
+          · cases #4e47 <;> instantiate only [= Std.HashMap.getElem?_insert] <;> cases #7b11
           ·
-            cases #3b79 <;>
-              cases #7fad <;> cases #a866 <;> instantiate only [= Std.HashMap.getElem?_insert] <;> cases #f02f
+            cases #0d9c <;>
+              cases #8b34 <;> cases #4e47 <;> instantiate only [= Std.HashMap.getElem?_insert] <;> cases #7b11
     · instantiate only [#bad0]
       instantiate only [= Std.HashMap.contains_insert]
   [apply] finish only [= getElem?_pos, =_ Std.HashMap.contains_iff_mem, eval, = Std.HashMap.getElem?_insert,
-    = Option.getD_some, = Std.HashMap.contains_insert, #5082, #807c, #1ac2, #c6fb, #c4c1, #ad14, #fe3d, #a866, #3b79,
-    #abae, #2c5b, #f02f, #7fad, #bad0]
+    = Option.getD_some, = Std.HashMap.contains_insert, #5082, #807c, #1ac2, #a1a0, #c4c1, #4469, #9695, #4e47, #0d9c,
+    #48db, #cf2b, #7d71, #7b11, #8b34, #bad0]
 Try these:
   [apply] 
     instantiate only [= getElem?_pos, normalized]
@@ -257,19 +257,19 @@ Try these:
       · instantiate only [eval]
         instantiate only [eval]
         instantiate only [= Option.getD_none]
-        cases #051b
+        cases #9602
         · instantiate only [#807c]
           cases #c4c1 <;>
-            cases #fe3d <;>
-              cases #3b79 <;>
+            cases #b81d <;>
+              cases #7bf1 <;>
                 instantiate only [= Std.HashMap.getElem?_insert] <;>
-                  cases #abae <;> instantiate only [= Option.getD_some]
+                  cases #1e8d <;> instantiate only [= Option.getD_some]
         · instantiate only [#1ac2]
           cases #c4c1 <;>
-            cases #7fad <;>
-              cases #a866 <;>
+            cases #76e2 <;>
+              cases #4f6e <;>
                 instantiate only [= Std.HashMap.getElem?_insert] <;>
-                  cases #f02f <;> instantiate only [= Option.getD_some]
+                  cases #5cba <;> instantiate only [= Option.getD_some]
       · instantiate only [= Std.HashMap.contains_iff_mem, vars]
         instantiate only [= List.mem_append, = List.cons_append]
         ac
@@ -279,8 +279,8 @@ Try these:
   [apply] finish only [= getElem?_pos, normalized, =_ Std.HashMap.contains_iff_mem, hasNestedIf, hasConstantIf,
     hasRedundantIf, disjoint, vars, List.disjoint, = Std.HashMap.contains_insert, eval, = Option.getD_none,
     = Std.HashMap.getElem?_insert, = Option.getD_some, = Std.HashMap.contains_iff_mem, = List.mem_append,
-    = List.cons_append, = List.mem_cons, #a576, #bad0, #1817, #b30b, #051b, #807c, #c4c1, #fe3d, #3b79, #abae, #1ac2,
-    #7fad, #a866, #f02f]
+    = List.cons_append, = List.mem_cons, #a576, #bad0, #1817, #b30b, #9602, #807c, #c4c1, #b81d, #7bf1, #1e8d, #1ac2,
+    #76e2, #4f6e, #5cba]
 Try these:
   [apply] 
     instantiate only [= getElem?_neg, = getElem?_pos]
@@ -288,6 +288,6 @@ Try these:
     · instantiate only [eval, #4e0f]
       instantiate only [eval]
       instantiate only [eval, = Option.getD_some]
-      cases #c6fb
+      cases #2415
     · instantiate only [#a8e8]
-  [apply] finish only [= getElem?_neg, = getElem?_pos, eval, = Option.getD_some, #9759, #4e0f, #c6fb, #a8e8]
+  [apply] finish only [= getElem?_neg, = getElem?_pos, eval, = Option.getD_some, #9759, #4e0f, #2415, #a8e8]

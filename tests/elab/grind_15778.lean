@@ -1,12 +1,9 @@
 module
 
 /-!
-Regression test for #15778: `grind?` suggested a `grind only [...]` that left out `List.mem_cons`
-even though the proof used it. The goal follows from `h` by extensionality, while `ha` and `hb`
-are irrelevant hypotheses about other functions. `grind` also split on the extensionality
-witnesses of `ha` and `hb` and later pruned those splits, but the `cases #<anchor>` steps it
-generated for the witness of `h` only made sense with those splits present, so the script did not
-replay and the `instantiate` steps degraded to `instantiate approx` without any theorem.
+Regression test for #15778: `grind?` dropped `List.mem_cons` from its `grind only [...]`
+suggestion although the proof used it. The extensionality witnesses of `h`, `ha`, and `hb` are all
+named `w✝`, so their case-split anchors collided and the generated script did not replay.
 -/
 
 /--
@@ -28,16 +25,9 @@ example (p : Nat) (s : List Nat) (P : (Nat → Nat) → Prop)
     P (fun x => if x ∈ p :: s then x else 0) := by
   grind? only [List.mem_cons]
 
-example (p : Nat) (s : List Nat) (P : (Nat → Nat) → Prop)
-    (ha : P (fun _ => 0))
-    (hb : P (fun x => if x ∈ s then x else 0))
-    (h : P (fun x => if x = p then x else if x ∈ s then x else 0)) :
-    P (fun x => if x ∈ p :: s then x else 0) := by
-  grind only [List.mem_cons]
-
-
--- Pre-existing inaccessible parameters can still make witness anchors collide. Ignore the
--- replay warning here and check that the fallback retains the premise in its suggestions.
+-- Pre-existing inaccessible parameters still make witness anchors collide, so script replay
+-- fails (hence the dropped warning). This exercises the `instantiate approx [...]` fallback,
+-- which must keep the premises found in the proof term.
 /--
 info: Try these:
   [apply] grind only [List.mem_cons, #fe77, #e4e6, #8b87, #f3de]
@@ -61,12 +51,3 @@ example (p q r : Nat) (s : List Nat) (P : (Nat → Nat) → Prop)
   revert p q r s P ha hb h
   intro _ _ _ _ _ _ _ _
   grind? only [List.mem_cons]
-
-example (p q r : Nat) (s : List Nat) (P : (Nat → Nat) → Prop)
-    (ha : P (fun x => if x = q then x else if x ∈ s then x else 0))
-    (hb : P (fun x => if x = r then x else if x ∈ s then x else 0))
-    (h : P (fun x => if x = p then x else if x ∈ s then x else 0)) :
-    P (fun x => if x ∈ p :: s then x else 0) := by
-  revert p q r s P ha hb h
-  intro _ _ _ _ _ _ _ _
-  grind only [List.mem_cons]

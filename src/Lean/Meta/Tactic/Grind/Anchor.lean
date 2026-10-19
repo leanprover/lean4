@@ -51,8 +51,10 @@ public partial def getAnchor (e : Expr) : GrindM UInt64 := do
       if (← isMatcher declName) then pure 0
       else pure <| hashName declName
     | .fvar fvarId =>
-      let userName := (← fvarId.getDecl).userName
-      pure <| hashName userName
+      -- Not `mix`: once the variable is renamed to an accessible name, the name alone must win.
+      let h := hashName (← fvarId.getDecl).userName
+      if h != 0 then pure h
+      else pure <| ((← get).fvarAnchors.find? fvarId).getD 0
     | .mdata _ b => getAnchor b
     | .letE n v t b _ =>
       pure <| mix (hashName n) <| mix (← getAnchor t) <| mix (← getAnchor v) (← getAnchor b)
@@ -85,6 +87,16 @@ public partial def getAnchor (e : Expr) : GrindM UInt64 := do
     | .sort _ | .mvar _ => pure 0
   modify fun s => { s with anchors := s.anchors.insert { expr := e } a }
   return a
+
+/--
+Records the anchor of `target`, the binder that introduced `fvarId`, when `binderName` itself
+contributes nothing to anchors (e.g., it is inaccessible). Without it, terms that differ only in
+such variables get identical anchors. Replaying the introducing step reproduces the same anchor.
+-/
+public def registerFVarAnchor (fvarId : FVarId) (binderName : Name) (target : Expr) : GrindM Unit := do
+  if hashName binderName == 0 then
+    let anchor ← getAnchor target
+    modify fun s => { s with fvarAnchors := s.fvarAnchors.insert fvarId anchor }
 
 /--
 Example: `{ numDigits := 4, anchorPrefix := 0x0c88 }.matches 0x0c88ab10ef20206a` returns `true`

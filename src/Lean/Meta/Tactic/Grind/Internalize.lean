@@ -186,6 +186,23 @@ private def pushCastHEqs (e : Expr) : GoalM Unit := do
 private def mkENode' (e : Expr) (generation : Nat) (funCC := false) : GoalM Unit :=
   mkENodeCore e (ctor := false) (interpreted := false) (generation := generation) (funCC := funCC)
 
+/--
+If `e` is a term `⟨v, h⟩ : {x // p x}`, asserts `p v`.
+
+The proposition `grind` learns from the nested proof `h` is its inferred type, which may be only
+definitionally equal to `p v`. For example, the instance of `∀ x : {x // p x}, q x` for `⟨v, h⟩`
+is `p v → q ⟨v, h⟩` after `Subtype.forall`, and it is only usable if `p v` is known to be true.
+
+This function must run once per internalized `Subtype.mk` application, like `mkInjEq`. It is not
+an upward propagator because those rerun whenever the class of an argument is merged, and the fact
+would be preprocessed and asserted again each time. We may want a general mechanism for
+propagators that run only once. A solver extension would also work, but it is too heavy for this.
+-/
+private def propagateSubtypeMk (e : Expr) : GoalM Unit := do
+  let_expr Subtype.mk _ p v h := e | return ()
+  let prop := p.beta #[v]
+  pushNewFact' prop (mkExpectedPropHint h prop) (← getGeneration e)
+
 /-- Internalizes the nested ground terms in the given pattern. -/
 private partial def internalizePattern (pattern : Expr) (generation : Nat) (origin : Origin) : GoalM Expr := do
   -- Recall that it is important to ensure patterns are maximally shared since
@@ -704,6 +721,7 @@ where
         pushPropagateUp e
         propagateBetaForNewApp e
         mkInjEq e
+        propagateSubtypeMk e
 
   /-- Visits the arguments of `e` and registers `e` as their parent. -/
   internalizeArgs (f : Expr) (args : Array Expr) (funCC : Bool) : GoalM Unit := do

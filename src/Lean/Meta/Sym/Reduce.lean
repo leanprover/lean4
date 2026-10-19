@@ -28,10 +28,20 @@ public def reduceBeta? (e : Expr) : SymM (Option Expr) := do
   unless f.isHeadBetaTargetFn false do return none
   return some (← betaRevS f e.getAppRevArgs)
 
-/-- Zeta-reduces the `let`/`have` telescope `e`: `let x := v; b[x]` becomes `b[v]`. -/
+/--
+Zeta-reduces the `let`/`have` telescope `e`: `let x := v; b[x]` becomes `b[v]`. A telescope at the
+head of an application is reduced as well, `(let x := v; f[x]) a` becomes `f[v] a`, since the
+simplifiers do not visit application heads; the beta-reduction of the exposed lambda is left to
+`reduceBeta?`.
+-/
 public def reduceZeta? (e : Expr) : SymM (Option Expr) := do
-  let .letE .. := e | return none
-  return some (← go e #[])
+  let f := e.getAppFn
+  let .letE .. := f | return none
+  let f ← go f #[]
+  if e.isApp then
+    return some (← mkAppNS f e.getAppArgs)
+  else
+    return some f
 where
   go (e : Expr) (subst : Array Expr) : SymM Expr := do
     match e with

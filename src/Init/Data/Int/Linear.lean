@@ -1055,6 +1055,17 @@ theorem le_combine_coeff (ctx : Context) (p₁ p₂ p₃ : Poly) (k : Int)
   simp only [le_coeff_cert, Poly.beq'_eq, Bool.and_eq_true, and_imp] at this
   exact this h₁ h₂ h₃ aux₁
 
+@[expose]
+noncomputable def le_combine_k_cert (p₁ p₂ p₃ : Poly) (k : Int) : Bool :=
+  Int.ble' 0 k |>.and (p₃.beq' (p₁.combine_mul_k 1 k p₂))
+
+theorem le_combine_k (ctx : Context) (p₁ p₂ p₃ : Poly) (k : Int)
+    : le_combine_k_cert p₁ p₂ p₃ k → p₁.denote' ctx ≤ 0 → p₂.denote' ctx ≤ 0 → p₃.denote' ctx ≤ 0 := by
+  simp only [le_combine_k_cert, Bool.and_eq_true, Int.ble'_eq_true, Poly.beq'_eq, Poly.denote'_eq_denote, and_imp]
+  intro h₁ h; subst p₃; intro h₂ h₃
+  have := Int.mul_le_mul_of_nonneg_left h₃ h₁
+  simp [Poly.denote_combine_mul_k] at *; omega
+
 theorem le_unsat (ctx : Context) (p : Poly) : p.isUnsatLe → p.denote' ctx ≤ 0 → False := by
   simp [Poly.isUnsatLe]; split <;> simp
 
@@ -1202,8 +1213,8 @@ theorem eq_eq_subst' (ctx : Context) (a b : Int) (p₁ : Poly) (p₂ : Poly) (p�
 
 @[expose]
 noncomputable def eq_le_subst_nonneg_cert (x : Var) (p₁ : Poly) (p₂ : Poly) (p₃ : Poly) : Bool :=
-  let a := p₁.coeff x
-  let b := p₂.coeff x
+  let a := p₁.coeff_k x
+  let b := p₂.coeff_k x
   Int.ble' 0 a |>.and (p₃.beq' (p₂.combine_mul_k a (-b) p₁))
 
 theorem eq_le_subst_nonneg (ctx : Context) (x : Var) (p₁ : Poly) (p₂ : Poly) (p₃ : Poly)
@@ -1218,8 +1229,8 @@ theorem eq_le_subst_nonneg (ctx : Context) (x : Var) (p₁ : Poly) (p₂ : Poly)
 
 @[expose]
 noncomputable def eq_le_subst_nonpos_cert (x : Var) (p₁ : Poly) (p₂ : Poly) (p₃ : Poly) : Bool :=
-  let a := p₁.coeff x
-  let b := p₂.coeff x
+  let a := p₁.coeff_k x
+  let b := p₂.coeff_k x
   Int.ble' a 0 |>.and (p₃.beq' (p₁.combine_mul_k b (-a) p₂))
 
 theorem eq_le_subst_nonpos (ctx : Context) (x : Var) (p₁ : Poly) (p₂ : Poly) (p₃ : Poly)
@@ -2211,6 +2222,25 @@ theorem mod_eq (a b k : Int) (h : b = k) : a % b = a % k := by simp [*]
 
 theorem div_eq' (a b b' k : Int) (h₁ : b = b') (h₂ : k == a/b') : a / b = k := by simp_all
 theorem mod_eq' (a b b' k : Int) (h₁ : b = b') (h₂ : k == a%b') : a % b = k := by simp_all
+
+@[expose]
+noncomputable def div_mod_of_bounds_cert (y : Var) (k c₁ c₂ : Int) (p₁ p₂ p₃ p : Poly) : Bool :=
+  p₁.beq' (.add (-1) y (.num c₁)) |>.and (Int.ble' 0 c₁)
+    |>.and (p₂.beq' (.add 1 y (.num c₂))) |>.and (Int.blt' (-k) c₂) |>.and (p₃.beq' p)
+
+theorem emod_of_bounds (ctx : Context) (x y : Var) (k c₁ c₂ : Int) (p₁ p₂ p₃ : Poly)
+    : div_mod_of_bounds_cert y k c₁ c₂ p₁ p₂ p₃ (.add 1 x (.add (-1) y (.num 0))) → p₁.denote' ctx ≤ 0 →
+      p₂.denote' ctx ≤ 0 → x.denote ctx = y.denote ctx % k → p₃.denote' ctx = 0 := by
+  simp only [div_mod_of_bounds_cert, Bool.and_eq_true, Int.ble'_eq_true, Int.blt'_eq_true, Poly.beq'_eq, and_imp]
+  intro h₁ _ h₂ _ h; rw [h₁, h₂, h]; simp [Poly.denote'_eq_denote, Poly.denote]; intro _ _ h₃
+  rw [Int.emod_eq_of_lt (by omega) (by omega)] at h₃; omega
+
+theorem ediv_of_bounds (ctx : Context) (x y : Var) (k c₁ c₂ : Int) (p₁ p₂ p₃ : Poly)
+    : div_mod_of_bounds_cert y k c₁ c₂ p₁ p₂ p₃ (.add 1 x (.num 0)) → p₁.denote' ctx ≤ 0 →
+      p₂.denote' ctx ≤ 0 → x.denote ctx = y.denote ctx / k → p₃.denote' ctx = 0 := by
+  simp only [div_mod_of_bounds_cert, Bool.and_eq_true, Int.ble'_eq_true, Int.blt'_eq_true, Poly.beq'_eq, and_imp]
+  intro h₁ _ h₂ _ h; rw [h₁, h₂, h]; simp [Poly.denote'_eq_denote, Poly.denote]; intro _ _ h₃
+  rw [Int.ediv_eq_zero_of_lt (by omega) (by omega)] at h₃; omega
 
 theorem pow_eq (a : Int) (b : Nat) (a' b' k : Int) (h₁ : a = a') (h₂ : ↑b = b') (h₃ : k == a'^b'.toNat) : a^b = k := by
   simp [← h₁, ← h₂] at h₃; simp [h₃]

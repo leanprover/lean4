@@ -712,12 +712,8 @@ def makeInstancesUsingMutualPartialBlock (infos : Array (InstanceInfo α))
         let mut declName := instName ++ helperInfo.suffix
         let type ← instantiateMVars helperInfo.type
         let type ← mkForallFVars allParams type (binderInfoForMVars := .instImplicit)
-        if let some val := (← getEnv).findConstVal? declName then
-          if val.type == type then
-            -- we expect the existing declaration to simply be correct
-            -- as long as it has the right type
-            continue
-          -- otherwise, we try to find a free name
+        if (← getEnv).contains declName then
+          -- try to find a free name
           let mut i := 1
           while (← getEnv).contains (declName.appendIndexAfter i) do
             i := i + 1

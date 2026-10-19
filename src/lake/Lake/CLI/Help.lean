@@ -476,7 +476,12 @@ CONFIGURATION:
   of proposition-definition names, for example [\"Accepted.first\"]. Its path
   is relative to this configuration file. Each name must be a safe, closed,
   monomorphic `def ... : Prop` available in the challenge.
-  The file and the challenge's definitions must be trusted by the caller.
+  This option requires --challenge-from-export. Build that export in a separate,
+  evaluator-controlled workspace; the challenge is never built from the solution.
+  The configuration, approval file, and challenge export must resolve outside
+  the solution project. They are read before its configuration or code runs.
+  Sandboxed builds use fresh private .lake storage, hiding submitted caches.
+  --inadvisably-no-sandbox disables filesystem protection and is only for trusted code.
   These definitions specify propositions; they do not assert them as axioms.
 
   With this option, a solution theorem may prepend nondependent hypotheses

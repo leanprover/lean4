@@ -607,14 +607,23 @@ Each additional input must be exactly a listed proposition's name, its exported 
 
 Comparator compares the hypotheses and their transitive dependencies against the trusted challenge. Changing the meaning of a proposition in the solution, including disguising `False` as an approved proposition, fails this comparison. Unused approval definitions need not be present in the solution. The axiom policy still applies to the original proof and approved definitions' dependencies. Every configured kernel checks the original conditional theorem; no approved statement is inserted as an axiom, and no unconditional proof is manufactured.
 
-A successful conditional result exits with code 0 and reports the exact approval names for each conditional theorem, deduplicated in first-occurrence order:
+A successful conditional result exits with code 3 and reports the exact approval names for each conditional theorem, deduplicated in first-occurrence order:
 
 ```text
 Theorem 'task' matches conditional on: Accepted.first, Accepted.second
 Your solution matches conditional on the accepted statements listed above.
 ```
 
-This reports hypotheses required by the theorem's type, including any that its proof happens not to use. Approvals absent from the theorem's hypotheses are not reported. The unconditional success message appears only when no theorem requires an approved hypothesis. Consumers must preserve the conditional verdict rather than treating exit code 0 alone as an unconditional proof.
+This reports hypotheses required by the theorem's type, including any that its proof happens not to use. Approvals absent from the theorem's hypotheses are not reported. If at least one checked theorem requires an approved hypothesis, the entire run returns 3 after all comparisons, axiom checks, and configured kernel checks pass. Otherwise, it returns 0 and prints the unconditional success message. Merely configuring approvals does not make a result conditional. This distinction applies both to source builds and to supplied exports.
+
+| Exit code | Meaning |
+| --- | --- |
+| 0 | All checked targets match unconditionally. |
+| 1 | Rejected: a comparison, axiom check, kernel check, or build failed. |
+| 2 | Could not start because of a configuration or environment error. |
+| 3 | All checks passed, with at least one theorem conditional on the reported accepted statements. |
+
+Automation must handle code 3 explicitly as a conditional match and preserve the reported assumptions. Shells, `set -e`, and CI systems normally treat any nonzero status as failure; code 3 deliberately requires consumers to opt into accepting conditional results. A rejected solution still returns 1 even if its statement would otherwise match conditionally.
 
 Omitting `accepted_statements_file` retains the original behavior. Supplying an empty list retains exact statement comparison but still requires the independent evaluator inputs described below. Missing or malformed approval files, empty names, duplicate names, and invalid input locations are configuration errors (exit code 2). Invalid proposition definitions, unapproved hypotheses, changed dependencies, prohibited axioms, and failed kernel checks reject the solution (exit code 1).
 

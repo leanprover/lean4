@@ -60,7 +60,7 @@ test_status_out 2 'accepted statements require --challenge-from-export' \
 no_match_text 'Resolving dependencies' produced.out
 sha256sum --check ../expected.sha256
 
-compare 0 'conditional on: Evaluator.approved'
+compare 3 'conditional on: Evaluator.approved'
 for name in config.json accepted.json reference.export; do
   match_text "protected-write-denied: $name" produced.out
   match_text "protected-write-denied: symlink $name" produced.out

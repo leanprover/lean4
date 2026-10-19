@@ -546,7 +546,7 @@ where
     IO.ofExcept <| checkAxioms challenge #[] accepted (<- getLegalAxioms)
     return report
 
-def compareIt : M Unit := do
+def compareIt : M ExitCode := do
   let exportTargets := (← builtinTargets) ++ (← getTheoremNames) ++ (← getLegalAxioms)
     ++ (← primitiveTargets) ++ (← getDefinitionNames)
   let exportTargets := if (<- read).acceptedStatements.isEmpty then exportTargets
@@ -560,11 +560,13 @@ def compareIt : M Unit := do
       let report <- verifyMatch challengeExportPath solutionExportPath
       if report.isEmpty then
         IO.println "Your solution is okay!"
+        return 0
       else
         for (target, statements) in report do
           let names := ", ".intercalate (statements.toList.map Lean.Name.toString)
           IO.println s!"Theorem '{target}' matches conditional on: {names}"
         IO.println "Your solution matches conditional on the accepted statements listed above."
+        return 3
 
 public structure Config where
   challenge_module : String
@@ -845,7 +847,6 @@ public def runComparator (configFile? : Option System.FilePath)
         run ctx
     else
       ReaderT.run compareIt ctx
-    return 0
   catch e =>
     IO.eprintln s!"error: {e}"
     return 1

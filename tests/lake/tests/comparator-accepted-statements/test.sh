@@ -46,8 +46,9 @@ config() {
 EOF
 }
 
+# A mix of conditional and unconditional targets still returns the conditional status.
 config Conditional '"task", "plain", "quantified", "supplied"'
-test_status_out 0 "Theorem 'task' matches conditional on: Accepted.second, Accepted.first" \
+test_status_out 3 "Theorem 'task' matches conditional on: Accepted.second, Accepted.first" \
   comparator "${COMPARATOR_ARGS[@]}" --config "$EVALUATOR/config.json"
 match_text "Theorem 'quantified' matches conditional on: Accepted.first" produced.out
 match_text "Theorem 'supplied' matches conditional on: Accepted.first" produced.out
@@ -57,10 +58,10 @@ no_match_text 'conditional on: Accepted.unused' produced.out
 no_match_text 'Your solution is okay!' produced.out
 
 config Direct
-test_status_out 0 "conditional on: Accepted.first, Accepted.second" comparator "${COMPARATOR_ARGS[@]}" --config "$EVALUATOR/config.json"
+test_status_out 3 "conditional on: Accepted.first, Accepted.second" comparator "${COMPARATOR_ARGS[@]}" --config "$EVALUATOR/config.json"
 
 config Bare
-test_status_out 0 "conditional on: Accepted.first, Accepted.second" comparator "${COMPARATOR_ARGS[@]}" --config "$EVALUATOR/config.json"
+test_status_out 3 "conditional on: Accepted.first, Accepted.second" comparator "${COMPARATOR_ARGS[@]}" --config "$EVALUATOR/config.json"
 
 config Unconditional
 test_status_out 0 'Your solution is okay!' comparator "${COMPARATOR_ARGS[@]}" --config "$EVALUATOR/config.json"
@@ -138,10 +139,32 @@ test_status_out 1 'Accepted statement cannot be a comparison target' comparator 
 # Exports use the same comparison and must report the same conditional result.
 "$LAKE" env leanexport Conditional -- "${TARGETS[@]}" task plain quantified supplied > work/Conditional.export
 config Conditional '"task", "plain", "quantified", "supplied"'
-test_status_out 0 "Theorem 'task' matches conditional on: Accepted.second, Accepted.first" \
+test_status_out 3 "Theorem 'task' matches conditional on: Accepted.second, Accepted.first" \
   comparator "${COMPARATOR_ARGS[@]}" --config "$EVALUATOR/config.json" \
   --solution-from-export work/Conditional.export
 no_match_text 'Building' produced.out
+no_match_text 'Your solution is okay!' produced.out
+
+# Checking only an unconditional target in the same export returns ordinary success.
+config Conditional '"plain"'
+test_status_out 0 'Your solution is okay!' \
+  comparator "${COMPARATOR_ARGS[@]}" --config "$EVALUATOR/config.json" \
+  --solution-from-export work/Conditional.export
+no_match_text 'matches conditional on:' produced.out
+
+# A matching conditional statement is not accepted if a configured kernel rejects it.
+config Conditional
+REJECT_SHELL="$(command -v bash)"
+test -f "$REJECT_SHELL"
+if [ "$OS" = Windows_NT ]; then REJECT_SHELL="$(cygpath -m "$REJECT_SHELL")"; fi
+if "$REJECT_SHELL" -c 'exit 1'; then rc=0; else rc=$?; fi
+test "$rc" = 1
+sed "s@\"accepted_statements_file\":@\"external_kernels\": {\"Reject\": [\"$REJECT_SHELL\", \"-c\", \"exit 1\"]}, \"accepted_statements_file\":@" \
+  "$EVALUATOR/config.json" > "$EVALUATOR/reject-kernel.json"
+test_status_out 1 'Reject kernel rejected the solution' \
+  comparator "${COMPARATOR_ARGS[@]}" --config "$EVALUATOR/reject-kernel.json" \
+  --solution-from-export work/Conditional.export
+no_match_text 'matches conditional on:' produced.out
 no_match_text 'Your solution is okay!' produced.out
 
 # Removing the feature flag must reject this same conditional export.

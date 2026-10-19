@@ -95,28 +95,33 @@ def Lean.Meta.mkFreshRevertedMVarAt (ty : Expr) (lctx : LocalContext) (linsts : 
 Creates a function `indices... → induct.{lparams...} params... indices... → resultType` by matching
 on the inductive.
 -/
-def Lean.Meta.mkNondepCasesFun [Monad m] [MonadEnv m] [MonadError m]
-    [MonadControlT MetaM m] [MonadLiftT MetaM m]
-    (induct : Name) (lparams : List Level) (params : Array Expr)
-    (resultType : Expr) (alt : InductiveVal → ConstructorVal → Array Expr → m Expr) : m Expr := do
+def Lean.Meta.mkNondepCases [Monad m] [MonadEnv m] [MonadError m]
+    [MonadControlT MetaM m] [MonadLiftT MetaM m] (discr : Expr) (resultType : Expr)
+    (alt : InductiveVal → ConstructorVal → Array Expr → m Expr) : m Expr := do
+  let discrType ← whnf (← inferType discr)
+  discrType.withApp fun fn args => do
+  let .const induct us := fn
+    | throwError "Unexpected `discr` argument to `mkNondepCases`, expected inductive{indentExpr discrType}"
   let indInfo ← getConstInfoInduct induct
+  let params := args.take indInfo.numParams
+  let indices := args.drop indInfo.numParams
   let resultSort ← getLevel resultType
-  let casesOnApp := mkAppN (.const (mkCasesOnName induct) (resultSort :: lparams)) params
+  let casesOnApp := mkAppN (.const (mkCasesOnName induct) (resultSort :: us)) params
   let casesOnType ← inferType casesOnApp
   let .forallE _ motiveType body _ := casesOnType | unreachable!
-  forallTelescope motiveType fun vars _ => do
-    let motive ← mkLambdaFVars vars resultType
-    let body := body.instantiate1 motive
-    let mut body ← instantiateForall body vars
-    let mut casesOnApp := mkAppN (casesOnApp.app motive) vars
-    for ctor in indInfo.ctors do
-      let .forallE _ altType body' _ := body | unreachable!
-      let ctorInfo ← getConstInfoCtor ctor
-      let minor ← forallBoundedTelescope altType ctorInfo.numFields fun fields _ => do
-        mkLambdaFVars fields <| ← alt indInfo ctorInfo fields
-      casesOnApp := casesOnApp.app minor
-      body := body'
-    mkLambdaFVars vars casesOnApp
+  let motive ← forallTelescope motiveType fun vars _ => mkLambdaFVars vars resultType
+  let body := body.instantiate1 motive
+  let vars := indices.push discr
+  let mut body ← instantiateForall body vars
+  let mut casesOnApp := mkAppN (casesOnApp.app motive) vars
+  for ctor in indInfo.ctors do
+    let .forallE _ altType body' _ := body | unreachable!
+    let ctorInfo ← getConstInfoCtor ctor
+    let minor ← forallBoundedTelescope altType ctorInfo.numFields fun fields _ => do
+      mkLambdaFVars fields <| ← alt indInfo ctorInfo fields
+    casesOnApp := casesOnApp.app minor
+    body := body'
+  return casesOnApp
 
 
 namespace Lean.Meta.Deriving
@@ -419,7 +424,7 @@ structure Deriving.Context where
   /-- One inductive in the mutual group -/
   indInfo : InductiveVal
   /-- Level parameters for the inductive type -/
-  lparams : List Level
+  indLParams : List Level
   /--
   Parameters (and potentially indices) for the inductive type. By default, this coincides with
   `params` but this doesn't have to be the case in general. These have to type-check in `paramLCtx`.
@@ -442,6 +447,9 @@ structure Deriving.Context where
   isMeta : Bool
 
 abbrev DerivingM := ReaderT Deriving.Context <| StateRefT Deriving.State TermElabM
+
+instance : Inhabited (DerivingM α) where
+  default := liftM (default : TermElabM α)
 
 nonrec def DerivingM.run (x : DerivingM α) (ctx : Deriving.Context) : TermElabM α :=
   (x.run ctx).run' {}
@@ -674,20 +682,58 @@ def eliminatesToProp : DerivingM Bool := do
   let recInfo ← getConstInfoRec (mkRecName (← read).indInfo.name)
   return recInfo.levelParams.length == (← read).indInfo.levelParams.length
 
+/--
+Given `induct ∈ (← read).indInfo.all`, returns an application of `induct` with parameters (but
+without indices).
+-/
+def inductAppWithParams (induct : Name) : DerivingM Expr := do
+  return mkAppN (.const induct (← read).indLParams) (← read).indParams
+
 structure HelperInfo (α : Type) where
+  /-- Name suffix to add to the name of the instance -/
   suffix : Name
+  /-- The type of the helper (without parameters) -/
   type : Expr
+  /--
+  Given all recursive instances, construct the value for the helper (a value of type `type`).
+  The instances are also available in the local context, so most of the time you can just ignore
+  the parameter and `synthInstanceDeriving` will pick up on it automatically.
+
+  The additional `α` argument is the result of the `preHelpers` parameter of
+  `makeInstancesUsingMutualBlock`; if you don't use `preHelpers`, you can just ignore this
+  parameter.
+  -/
   mkValue : (instances : Array Expr) → α → DerivingM Expr
+  /--
+  Function that gets applied to the pre-definition for the helper with the output of
+  `produceInstanceHyps` as `instanceHyps`. This can be used to e.g. change the modifiers.
+  -/
   postprocess : (instanceHyps : Array Expr) → PreDefinition → MetaM PreDefinition :=
     fun _ p => pure p
+deriving Inhabited
 
 structure InstanceInfo (α : Type) where
+  /-- The inductive for which this instance is generated (used for filtering by `(← read).names`) -/
   induct : Name
+  /-- The type of the instance (without parameters) -/
   type : Expr
+  /-- The helper declarations to add for this instance -/
   helpers : Array (HelperInfo α)
+  /--
+  Given (metavariables for) all helpers in order, construct the value of the instance
+  (a value of type `type`).
+  -/
   mkValue : (helpers : Array Expr) → DerivingM Expr
+deriving Inhabited
 
-def makeInstancesUsingMutualPartialBlock (infos : Array (InstanceInfo α))
+/--
+Creates instances by first running `preHelpers` with all recursive instances in the local context
+and then creating a mutual block with all helpers provided in `infos` (marking declarations as
+partial by default) and finally creating all instances individually.
+
+`preHelpers` can be used for one-time computations that only need the instances is scope.
+-/
+def makeInstancesUsingMutualBlock (infos : Array (InstanceInfo α))
     (preHelpers : DerivingM α := by exact pure ()) : DerivingM Unit := do
   let helperMVars ← infos.mapM fun info => info.helpers.mapM fun helper => do
     mkFreshExprSyntheticOpaqueMVar helper.type
@@ -760,6 +806,116 @@ def makeInstancesUsingMutualPartialBlock (infos : Array (InstanceInfo α))
       withExporting (isExporting := !isPrivateName instName) do
         mkInstance instName (← read).levelParams type value (← read).isMeta
 
+inductive FieldHelperInfo (α : Type) where
+  | inline (e : Expr)
+  | usingHelper (mkValue : (instances : Array Expr) → α → DerivingM Expr)
+
+@[expose]
+def FieldHelperProvider (α : Type) :=
+  (classLParams : List Level) → (typeApp : Expr) → (fieldInfo : ConstantVal) →
+    (expectedType : Expr) → DerivingM (FieldHelperInfo α)
+
+def FieldHelperProvider.unhandled (fieldName : Name) : FieldHelperProvider α := fun _ _ _ _ => do
+  throwError "Internal error in deriving handler for `{.ofConstName <| (← read).className}`:\n\
+    Unhandled field `{.ofConstName fieldName}`"
+
+def FieldHelperProvider.cases
+    (perCtor : InductiveVal → ConstructorVal → Array Expr → α → DerivingM Expr) :
+    FieldHelperProvider α := fun _ typeApp fieldInfo expectedType =>
+  return .usingHelper fun _ val => do
+    let .forallE _ t tgt _ := expectedType
+      | throwError "Invalid use of `{.ofConstName decl_name%}`, \
+          expected field `{.ofConstName fieldInfo.name}` to have the shape \
+          `α → β` where `α` is the type parameter"
+    if t != typeApp then
+      throwError "Invalid use of `{.ofConstName decl_name%}`, the argument to \
+        `{.ofConstName fieldInfo.name}` is not the type parameter"
+    if tgt.hasLooseBVars then
+      throwError "Invalid use of `{.ofConstName decl_name%}`, expected \
+        `{.ofConstName fieldInfo.name}` to be nondependent"
+    withLocalDeclD `t typeApp fun discr => do
+      mkLambdaFVars #[discr] <| ← mkNondepCases discr tgt fun ival cval fields => do
+        prependError m!"Error while processing constructor {.ofConstName cval.name}:" do
+          perCtor ival cval fields val
+
+/--
+Constructs an instance of the class using its constructor, running `perField` on every field given
+the name of the projection function of the field.
+-/
+def InstanceInfo.usingCtor (perField : Name → FieldHelperProvider α) (induct : Name) :
+    DerivingM (InstanceInfo α) := do
+  let className := (← read).className
+  let classInfo ← getConstInfoInduct className
+  let levelParams := classInfo.levelParams
+  unless classInfo.numParams = 1 ∧ levelParams.length ≤ 1 do
+    throwError "Invalid use of `{.ofConstName decl_name%}`, expected \
+      `{.ofConstName className}` to have exactly one parameter and at most one level parameter"
+  let .forallE _ (.sort univ) _ _ ← whnf classInfo.type
+    | throwError "Invalid use of `{.ofConstName decl_name%}`, \
+        expected `{.ofConstName className}`'s to be a type parameter"
+  let some structInfo := getStructureInfo? (← getEnv) className
+    | throwError "Invalid use of `{.ofConstName decl_name%}`, \
+        expected {.ofConstName className} to be a structure"
+  let [ctor] := classInfo.ctors | unreachable!
+  let mut classLParams := []
+  if let [u] := levelParams then
+    if univ == .param u then
+      classLParams := [(← read).indLevel]
+    else if univ == .succ (.param u) then
+      classLParams := [← decLevel (← read).indLevel]
+    else
+      throwError "Invalid use of `{.ofConstName decl_name%}`, expected type parameter \
+        to be either fully universe polymorphic or `Type u`-polymorphic"
+  else
+    classLParams := []
+    unless univ.isEquiv (← read).indLevel do
+      throwError "Invalid use of `{.ofConstName decl_name%}`, incorrect level for inductive"
+  let typeApp ← inductAppWithParams induct
+  let indInfo ← getConstInfoInduct induct
+  forallBoundedTelescope (whnfType := true) (← inferType typeApp) indInfo.numIndices fun indices body => do
+    let .sort _ := body
+      | throwError "Unexpected inductive type type{indentExpr (← inferType typeApp)}"
+    let typeApp := mkAppN typeApp indices
+    let type ← mkForallFVars indices <| .app (.const className classLParams) typeApp
+    let mut fieldHelperInfos : Array (FieldHelperInfo α) := {}
+    let mut helpers : Array (HelperInfo α) := #[]
+    let indexDecls := (← indices.mapM (·.fvarId!.getDecl)).toList
+    for h : i in 0...structInfo.fieldNames.size do
+      let some projFn := structInfo.getProjFn? i | unreachable!
+      let fieldCVal ← getConstVal projFn
+      let expectedType ← Core.instantiateTypeLevelParams fieldCVal classLParams
+      let expectedType ← instantiateForall expectedType #[typeApp]
+      let .forallE _ _ expectedType _ := expectedType | unreachable!
+      if expectedType.hasLooseBVars then
+        throwError "Invalid use of `{.ofConstName decl_name%}`: This function can currently only \
+          be used for non-dependent fields but `{.ofConstName projFn}` \
+          depends on previous fields."
+      let fieldHelperInfo ← perField projFn classLParams typeApp fieldCVal expectedType
+      fieldHelperInfos := fieldHelperInfos.push fieldHelperInfo
+      if let .usingHelper mkValue := fieldHelperInfo then
+        helpers := helpers.push {
+          suffix := structInfo.fieldNames[i]
+          type := ← mkForallFVars indices expectedType
+          mkValue instances val := do
+            withExistingLocalDecls indexDecls do
+              let res ← mkLambdaFVars indices <| ← mkValue instances val
+              return res
+        }
+    return {
+      induct, type, helpers
+      mkValue helpers := do
+        withExistingLocalDecls indexDecls do
+          let mut ctorApp : Expr := .app (.const ctor classLParams) typeApp
+          let mut helperIdx := 0
+          for info in fieldHelperInfos do
+            match info with
+            | .inline e => ctorApp := ctorApp.app e
+            | .usingHelper _ =>
+              ctorApp := ctorApp.app (mkAppN helpers[helperIdx]! indices)
+              helperIdx := helperIdx + 1
+          mkLambdaFVars indices ctorApp
+    }
+
 /--
 Derive an instance for a transformation type class by applying `perCtor` for each constructor
 with the inductive info, constructor info, and the fields. A transformation type class is a type
@@ -801,71 +957,8 @@ initialize registerDerivingHandler ``ToSExpr toSExprHandler
 def deriveTransformationInstPerConstructor
     (perCtor : InductiveVal → ConstructorVal → Array Expr → DerivingM Expr) :
     DerivingM Bool := do
-  -- First figure out the details for the class
-  if ← eliminatesToProp then
-    return false
-  let className := (← read).className
-  let classInfo ← getConstInfoInduct className
-  unless classInfo.numCtors = 1 ∧ ¬ classInfo.isRec ∧ classInfo.numIndices = 0 do
-    throwError "Invalid use of `deriveTransformationInstPerConstructor`, \
-      expected {.ofConstName className} to be a structure"
-  unless classInfo.numParams = 1 ∧ classInfo.levelParams.length ≤ 1 do
-    throwError "Invalid use of `deriveTransformationInstPerConstructor`, expected \
-      {.ofConstName className} to have exactly one parameter and at most one level parameter"
-  let [ctor] := classInfo.ctors | unreachable!
-  let levelParams := classInfo.levelParams
-  let ctorVal ← getConstInfoCtor ctor
-  unless ctorVal.numFields = 1 do
-    throwError "Invalid use of `deriveTransformationInstPerConstructor`, \
-      expected {.ofConstName className} to have exactly one field"
-  let .forallE _ (.sort univ) (.forallE fieldName (.forallE _ (.bvar 0) tgt _) _ _) _ := ctorVal.type |
-    throwError "Invalid use of `deriveTransformationInstPerConstructor`, \
-      expected field of {.ofConstName className} to have the shape \
-      `α → β` where `α` is the type parameter"
-  let mut paramLevels := []
-  if let [u] := levelParams then
-    if univ == .param u then
-      paramLevels := [(← read).indLevel]
-    else if univ == .succ (.param u) then
-      paramLevels := [← decLevel (← read).indLevel]
-    else
-      throwError "Invalid use of `deriveTransformationInstPerConstructor`, expected type parameter \
-        to be either fully universe polymorphic or `Type u`-polymorphic"
-  else
-    paramLevels := []
-    unless univ.isEquiv (← read).indLevel do
-      throwError "Invalid use of `deriveTransformationInstPerConstructor`, incorrect level \
-        for inductive"
-  let tgt := tgt.instantiateLevelParams levelParams paramLevels
-  if tgt.hasLooseBVars then
-    throwError "Invalid use of `deriveTransformationInstPerConstructor`, expected target type of \
-      field of {.ofConstName className} to be nondependent"
-  -- Then create the instances using a mutual partial block
-  let all := (← read).indInfo.all.toArray
-  makeInstancesUsingMutualPartialBlock <| ← all.mapM fun induct => do
-    let indInfo ← getConstInfoInduct induct
-    let typeApp := mkAppN (.const induct (← read).lparams) (← read).indParams
-    let (type, helperType) ← forallBoundedTelescope (whnfType := true) (← inferType typeApp) indInfo.numIndices fun indices body => do
-      let .sort _ := body | throwError "Unexpected inductive type type{indentExpr (← inferType typeApp)}"
-      let type ← mkForallFVars indices <| .app (.const className paramLevels) (mkAppN typeApp indices)
-      let helperType ← mkForallFVars indices <| .forallE `t (mkAppN typeApp indices) tgt .default
-      return (type, helperType)
-    return {
-      induct, type
-      helpers := #[{
-        suffix := fieldName
-        type := helperType
-        mkValue _ _ := do
-          mkNondepCasesFun induct (← read).lparams (← read).indParams tgt fun ival cval fields =>
-            prependError m!"Error while processing constructor {.ofConstName cval.name}:" do
-              perCtor ival cval fields
-      }]
-      mkValue helpers := do
-        let #[helper] := helpers | unreachable!
-        forallBoundedTelescope type indInfo.numIndices fun indices _ => do
-          mkLambdaFVars indices <|
-            mkApp2 (.const ctor paramLevels) (mkAppN typeApp indices) (mkAppN helper indices)
-    }
+  makeInstancesUsingMutualBlock <| ← (← read).indInfo.all.toArray.mapM <|
+    InstanceInfo.usingCtor fun _ => .cases fun ival cval fields _ => perCtor ival cval fields
   return true
 
 private def decLevels : Level → NameSet → NameSet
@@ -1041,7 +1134,7 @@ def mkInductiveDerivingHandler (className : Name) (perMutualBlock : DerivingM Bo
           paramLCtx := ← getLCtx
           paramLInsts := ← getLocalInstances
           indInfo := fstInfo
-          lparams := lparams
+          indLParams := lparams
           indParams := params
           indLevel := indLevel'
           names := names
@@ -1107,7 +1200,7 @@ def deriveSimpleLawTypeClass (typeClass derivedFrom : Name)
             paramLCtx := ← getLCtx
             paramLInsts := ← getLocalInstances
             indInfo := info
-            lparams := indFn.constLevels!
+            indLParams := indFn.constLevels!
             indParams := indArgs
             indLevel := ← getLevel indApp
             names := #[name]

@@ -1858,3 +1858,19 @@ in the program. At runtime, this will be a no-op as the C compiler will optimize
 -/
 @[extern "lean_runtime_hold"]
 def Runtime.hold (a : @& α) : BaseIO Unit := return
+
+/-- Copy the entire object graph into new memory.
+Only scalar types, inductives, arrays, strings, and closures can be copied.
+External objects, `Task`s, `Promise`s, `Thunk`s, and `ST.Ref`s are not supported.
+
+The result:
+- has no allocation in common with the input
+- is reference-counted even when the input wasn't
+- does not contribute to the input's reference count
+- has the same sharing as the input
+- has array and string capacities shrunken to their size
+
+Warning: closures produced by the interpreter capture the whole `Environment`
+which cannot be copied. -/
+@[extern "lean_runtime_deep_copy"]
+def Runtime.deepCopy (a : @& α) : IO α := return a

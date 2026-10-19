@@ -24,25 +24,7 @@ def elabMacroRulesAux (doc? : Option (TSyntax ``docComment))
     (attrs? : Option (TSepArray ``attrInstance ",")) (attrKind : TSyntax ``attrKind)
     (tk : Syntax) (k : SyntaxNodeKind) (alts : Array (TSyntax ``matchAlt)) :
     CommandElabM Syntax := do
-  let alts ← alts.mapM fun (alt : TSyntax ``matchAlt) => match alt with
-    | `(matchAltExpr| | $pats,* => $rhs) => do
-      let pat := pats.elemsAndSeps[0]!
-      if !pat.isQuot then
-        throwUnsupportedSyntax
-      let quoted := getQuotContent pat
-      let k' := quoted.getKind
-      if checkRuleKind k' k then
-        pure alt
-      else if k' == choiceKind then
-         match quoted.getArgs.find? fun quotAlt => checkRuleKind quotAlt.getKind k with
-         | none        => throwErrorAt alt "invalid macro_rules alternative, expected syntax node kind `{k}`"
-         | some quoted =>
-           let pat := pat.setArg 1 quoted
-           let pats := pats.elemsAndSeps.set! 0 pat
-           `(matchAltExpr| | $(⟨pats⟩),* => $rhs)
-      else
-        throwErrorAt alt "invalid macro_rules alternative, unexpected syntax node kind `{k'}`"
-    | _ => throwUnsupportedSyntax
+  let alts ← alts.mapM (checkRuleAltKind "macro_rules" k)
   let attr ← `(attrInstance| $attrKind macro $(Lean.mkIdent k))
   let attrs := match attrs? with
     | some attrs => attrs.getElems.push attr

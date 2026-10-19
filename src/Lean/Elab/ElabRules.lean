@@ -21,25 +21,7 @@ def elabElabRulesAux (doc? : Option (TSyntax ``docComment))
     (attrs? : Option (TSepArray ``attrInstance ",")) (attrKind : TSyntax ``attrKind)
     (k : SyntaxNodeKind) (cat? expty? : Option (Ident)) (alts : Array (TSyntax ``matchAlt)) :
     CommandElabM Syntax := do
-  let alts ← alts.mapM fun (alt : TSyntax ``matchAlt) => match alt with
-    | `(matchAltExpr| | $pats,* => $rhs) => do
-      let pat := pats.elemsAndSeps[0]!
-      if !pat.isQuot then
-        throwUnsupportedSyntax
-      let quoted := getQuotContent pat
-      let k' := quoted.getKind
-      if checkRuleKind k' k then
-        pure alt
-      else if k' == choiceKind then
-         match quoted.getArgs.find? fun quotAlt => checkRuleKind quotAlt.getKind k with
-         | none        => throwErrorAt alt "invalid elab_rules alternative, expected syntax node kind `{k}`"
-         | some quoted =>
-           let pat := pat.setArg 1 quoted
-           let pats := ⟨pats.elemsAndSeps.set! 0 pat⟩
-           `(matchAltExpr| | $pats,* => $rhs)
-      else
-        throwErrorAt alt "invalid elab_rules alternative, unexpected syntax node kind `{k'}`"
-    | _ => throwUnsupportedSyntax
+  let alts ← alts.mapM (checkRuleAltKind "elab_rules" k)
   let catName ← match cat?, expty? with
     | some cat, _ => pure cat.getId
     | _, some _   => pure `term

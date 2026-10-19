@@ -19,6 +19,8 @@ import Lean.Meta.Sym.DSimp.Result
 public import Lean.Meta.Tactic.Grind.Types
 public import Lean.Meta.Tactic.Grind.BVDecide.Types
 public import Lean.Meta.Tactic.BVDecide.TacticContext
+public import Lean.Meta.Tactic.BVDecide.Normalize.Hyp
+public import Lean.Meta.Tactic.BVDecide.EPR.Basic
 
 public section
 
@@ -102,49 +104,6 @@ structure TypeAnalysis where
   -/
   uninteresting : Std.HashSet Name := {}
 
-inductive HypSource where
-  | lctx (fvar : FVarId)
-  | enumDomain (n : Name)
-  | structureProjection (e : Expr)
-  | andFlattened (s : HypSource)
-  | grind
-  | cegar
-  deriving Inhabited, Hashable, BEq
-
-partial instance : ToMessageData HypSource where
-  toMessageData s :=
-    go s
-where
-  go (s : HypSource) : MessageData :=
-    match s with
-    | .lctx fvar => m!"assumption {mkFVar fvar}"
-    | .enumDomain n => m!"enum domain size lemma for {n}"
-    | .structureProjection e => m!"structure lemma projection: {e}"
-    | .andFlattened s => m!"and flattening from {go (stripFlatten s)}"
-    | .grind => m!"grind state"
-    | .cegar => m!"cegar refinement loop"
-
-  stripFlatten (s : HypSource) : HypSource :=
-    match s with
-    | .andFlattened s => stripFlatten s
-    | _ => s
-
-structure Hyp where
-  name : Name
-  type : Expr
-  value : Expr
-  source : HypSource
-  deriving Inhabited
-
-instance : BEq Hyp where
-  beq lhs rhs := lhs.type == rhs.type
-
-instance : Hashable Hyp where
-  hash hyp := hash hyp.type
-
-instance : ToMessageData Hyp where
-  toMessageData hyp := toMessageData hyp.type
-
 /--
 The mode that the `bv_normalize` preprocessing pipeline runs in.
 -/
@@ -175,7 +134,7 @@ def restrictedTypes : Mode → Option (Array Name)
 /--
 Disables the configuration options that `mode` cannot support. In `push` mode these are the options
 that either depend on the context (e.g. enums, structures) or require a more clever incrementality
-scheme (e.g. `embeddedConstraintSubst`, `andFlattening`).
+scheme (e.g. `embeddedConstraintSubst`, `andFlattening`, `epr`).
 -/
 def adjustConfig (mode : Mode) (config : BVDecideConfig) : BVDecideConfig :=
   match mode with
@@ -186,7 +145,8 @@ def adjustConfig (mode : Mode) (config : BVDecideConfig) : BVDecideConfig :=
       fixedInt := false
       structures := false
       embeddedConstraintSubst := false
-      andFlattening := false }
+      andFlattening := false
+      epr := false }
 
 end Mode
 
@@ -285,6 +245,10 @@ structure PreProcessState where
   A didChange flag for our fixpoint simplification loop.
   -/
   didChange : Bool := false
+  /--
+  The BitVec encoded EPR problem extracted from the hypotheses, empty if none was detected.
+  -/
+  eprBvProblem : EPR.EprBvProblem := {}
 
 abbrev PreProcessM : Type → Type := ReaderT PreProcessContext StateRefT PreProcessState Grind.GrindM
 

@@ -142,7 +142,7 @@ test ! -e "$TMP_DIR/missing-bundles"
 test ! -e "$project/.beam/bundles"
 
 # Exercise unavailable selectors separately from existing foreign installations.
-real_elan=$(command -v elan) || fail "elan is required for the installed-selector fixtures"
+real_elan=$(command -v "${LEAN_BEAM_TEST_ELAN:-elan}") || fail "elan is required for the installed-selector fixtures"
 matching_prefix="$toolchain"
 foreign_prefix="$beam_prefix"
 elan_home="$TMP_DIR/elan-home"

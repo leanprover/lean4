@@ -701,27 +701,31 @@ def makeInstancesUsingMutualPartialBlock (infos : Array (InstanceInfo α))
       fullInstTypes := fullInstTypes.map (·.explicitToImplicit)
     let fullInstNames ← fullInstTypes.mapM fun ty => mkInstanceNameOfType ty
     -- now we can figure out the values for the `helperMVars`
+    let mut allHelperNames := #[]
     for info in infos, helperMVarsForInst in helperMVars, instName in fullInstNames do
+      let mut helperNames := #[]
       for helperInfo in info.helpers, helperMVar in helperMVarsForInst do
-        let declName := instName ++ helperInfo.suffix
-        helperMVar.mvarId!.assign (mkAppN (.const declName (levelParams.map Level.param)) allParams)
-    -- and finally create all the helper pre-definitions
-    let mut helperPredefs : Array PreDefinition := #[]
-    for info in infos, valuesPerInst in helperValues, instName in fullInstNames do
-      for helperInfo in info.helpers, value in valuesPerInst do
         let mut declName := instName ++ helperInfo.suffix
-        let type ← instantiateMVars helperInfo.type
-        let type ← mkForallFVars allParams type (binderInfoForMVars := .instImplicit)
         if (← getEnv).contains declName then
           -- try to find a free name
           let mut i := 1
           while (← getEnv).contains (declName.appendIndexAfter i) do
             i := i + 1
           declName := declName.appendIndexAfter i
+        helperMVar.mvarId!.assign (mkAppN (.const declName (levelParams.map Level.param)) allParams)
+        helperNames := helperNames.push declName
+      allHelperNames := allHelperNames.push helperNames
+    -- and finally create all the helper pre-definitions
+    let mut helperPredefs : Array PreDefinition := #[]
+    for info in infos, valuesPerInst in helperValues, helperNames in allHelperNames do
+      for helperInfo in info.helpers, value in valuesPerInst, helperName in helperNames do
+        let type ← instantiateMVars helperInfo.type
+        let type ← mkForallFVars allParams type (binderInfoForMVars := .instImplicit)
         let value ← instantiateMVars value
         let value ← mkLambdaFVars allParams value (binderInfoForMVars := .instImplicit)
         let predef : PreDefinition := {
-          ref, levelParams, declName, type, value
+          ref, levelParams, type, value
+          declName := helperName
           kind := .def
           modifiers := { computeKind, isUnsafe, recKind := .partial }
           binders := .missing

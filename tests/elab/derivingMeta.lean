@@ -135,6 +135,37 @@ info: @[instance_reducible, expose] def instMyClassMutual2 : {α : Type} → [My
 #print sig instMyClassMutual2
 
 /-!
+... even if you derive the instances separately
+-/
+
+mutual
+
+inductive OtherMutual1 (α : Type) where
+  | base (a : α)
+  | other (x : OtherMutual2 α)
+
+inductive OtherMutual2 (α : Type) where
+  | base (a : Nat)
+  | other (x : OtherMutual1 α)
+
+end
+
+run_cmd handler #[``OtherMutual1]
+run_cmd handler #[``OtherMutual2]
+
+/--
+info: @[instance_reducible, expose] def instMyClassOtherMutual1 : {α : Type} → [MyClass α] → MyClass (OtherMutual1 α)
+-/
+#guard_msgs in
+#print sig instMyClassOtherMutual1
+
+/--
+info: @[instance_reducible, expose] def instMyClassOtherMutual2 : {α : Type} → [MyClass α] → MyClass (OtherMutual2 α)
+-/
+#guard_msgs in
+#print sig instMyClassOtherMutual2
+
+/-!
 ... and on inductives with indices
 -/
 
@@ -358,6 +389,27 @@ info: @[instance_reducible, expose] def instMyClassUsesMissingOfMissing : [MyCla
 -/
 #guard_msgs in
 #print sig instMyClassUsesMissingOfMissing
+
+/-!
+Even with `deriving.strict false`, missing instances for nested occurrences are still reported.
+-/
+
+structure Nestable (α : Type) where
+  val : α
+
+inductive Nested where
+  | none
+  | nest (x : Nestable Nested)
+
+/--
+error: Error while processing constructor Nested.nest:
+  Got stuck at instance requirement for nested type while deriving an instance for MyClass:
+    MyClass (Nestable Nested)
+  Reason: The instance @MyClassExtender.toMyClass matched but did not have the right shape to be considered
+-/
+#guard_msgs in
+set_option deriving.strict false in
+run_cmd handler #[``Nested]
 
 /-!
 With `deriving.implicitBinders false`, the generated instances use explicit binders exactly if they

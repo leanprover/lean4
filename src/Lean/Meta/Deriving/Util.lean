@@ -836,7 +836,9 @@ def deriveTransformationInstPerConstructor
         suffix := fieldName
         type := helperType
         mkValue _ _ := do
-          mkNondepCasesFun induct (← read).lparams (← read).indParams tgt perCtor
+          mkNondepCasesFun induct (← read).lparams (← read).indParams tgt fun ival cval fields =>
+            prependError m!"Error while processing constructor {.ofConstName cval.name}:" do
+              perCtor ival cval fields
       }]
       mkValue helpers := do
         let #[helper] := helpers | unreachable!

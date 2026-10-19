@@ -428,8 +428,8 @@ structure Deriving.Context where
   /--
   The resulting level for the mutual inductive type, i.e.
   `mkAppN (mkAppN (.const indInfo.name lparams) indParams) indIndices : Sort indLevel`
-  for any indices. In the case of `mkInductiveDerivingHandler (isSucc := true)`, this is guaranteed
-  to syntactically be `.succ lvl` for some `lvl`.
+  for any valid `indIndices`. In the case of `mkInductiveDerivingHandler`, this is guaranteed to
+  match the level shape provided to the function (or inferred by `inferLevelShape`).
   -/
   indLevel : Level
   /--
@@ -761,7 +761,7 @@ class ToSExpr (α : Type u) where
 open Lean Meta Elab Deriving
 
 def toSExprHandler : DerivingHandler :=
-  mkInductiveDerivingHandler ``ToSExpr .typeU do
+  mkInductiveDerivingHandler ``ToSExpr do
   deriveTransformationInstPerConstructor fun _indVal ctorVal fields => do
     let tag := mkApp (mkConst ``SExpr.atom) (toExpr ctorVal.name.getString!)
     let mut args := #[]
@@ -950,15 +950,34 @@ def LevelShape.prop : LevelShape where
     return ⟨.zero, rfl⟩
 
 /--
-Groups the inductive type names provided to the deriving handler by mutual block and runs
-`perMutualBlock` on each of them with appropriate `DerivingM` context.
-
-`levelShape` is used to determine the level parameters for the inductive. Depending on whether the
-type class being derived requires `Sort u`, `Type u`, `Prop` or `Type`, use `.sortU`, `.typeU`,
-`.prop` or `.type`, respectively.
+Infers the level shape, using one of `.prop`, `.type`, `.sortU` or `.typeU` depending on the type
+of the first argument of `className`.
 -/
-def mkInductiveDerivingHandler (className : Name) (levelShape : LevelShape)
-    (perMutualBlock : DerivingM Bool) : DerivingHandler := fun names => do
+def inferLevelShape (className : Name) : MetaM LevelShape := do
+  let val ← getConstVal className
+  let .forallE _ t _ _ := val.type |
+    throwError "Internal error in deriving handler for `{.ofConstName className}`:\n\
+      Could not figure out level shape, unexpected type class type{indentExpr val.type}"
+  match t with
+  | .sort .zero => return .prop
+  | .sort .one => return .type
+  | .sort (.param _) => return .sortU
+  | .sort (.succ (.param _)) => return .typeU
+  | _ => throwError "Internal error in deriving handler for `{.ofConstName className}`:\n\
+      Could not figure out level shape, unexpected type class type{indentExpr val.type}"
+
+/--
+A deriving handler for `className` that groups the inductive type names provided to the deriving
+handler by mutual block and runs `perMutualBlock` on each of them with appropriate `DerivingM`
+context.
+
+`levelShape` is used to determine the level parameters for the inductive. If this argument is
+unspecified, it is inferred automatically, using `.sortU`, `.typeU`, `.prop`, `.type` depending on
+whether the first argument of `className` requires `Sort u`, `Type u`, `Prop` or `Type`,
+respectively.
+-/
+def mkInductiveDerivingHandler (className : Name) (perMutualBlock : DerivingM Bool)
+    (levelShape : Option LevelShape := none) : DerivingHandler := fun names => do
   unless ← names.allM isInductive do
     return false
   -- We group by mutual block while keeping the order the user provided
@@ -990,6 +1009,7 @@ def mkInductiveDerivingHandler (className : Name) (levelShape : LevelShape)
       let indLevel ← forallTelescopeReducing (whnfType := true) fstInfo.type fun _ body => do
         let .sort lvl := body | throwError "Unexpected inductive type type{indentExpr fstInfo.type}"
         pure lvl.normalize
+      let levelShape ← levelShape.getDM (inferLevelShape className)
       let (lparams, newLevelParams) := levelShape.createLParams indLevel fstInfo.levelParams
       let mut indLevel' := indLevel.instantiateParams fstInfo.levelParams lparams
       indLevel' ← levelShape.ensureShape indLevel' fstInfo.name

@@ -51,7 +51,7 @@ instance [MyClass α] : MyClass (Array α) where
 Simple example of how you can write a deriving handler using the new framework
 -/
 
-meta def handler := mkInductiveDerivingHandler ``MyClass .typeU do
+meta def handler := mkInductiveDerivingHandler ``MyClass do
   deriveTransformationInstPerConstructor fun ival cval fields => do
     let mut encodings : Array Expr := #[]
     for field in fields do
@@ -191,24 +191,6 @@ run_cmd handler #[``Sigma, ``SigmaField]
 /-- info: Data.ctor 0 [Data.ctor 0 [], Data.ctor 1 [Data.nat 3, Data.ctor 0 []]] -/
 #guard_msgs in
 #eval MyClass.convert { val := ⟨false, [3]⟩ : SigmaField fun _ => Nat }
-
-/-!
-`deriveTransformationInstPerConstructor` also handles "weird" type classes containing the universe
-on the right-hand side.
--/
-
-class ToULift (α : Type u) where
-  lift : α → ULift.{u} Nat
-
-meta def toULiftHandler : DerivingHandler :=
-  mkInductiveDerivingHandler ``ToULift .typeU do
-    deriveTransformationInstPerConstructor fun _ _ _ =>
-      return mkApp2 (.const ``ULift.up [0, 0]) (mkConst ``Nat) (mkNatLit 0)
-
-structure Flag where
-  on : Bool
-
-run_cmd toULiftHandler #[``Flag]
 
 /-!
 `deriving.bindersVerbatim` disables instance synthesis but still deduplicates instance hypotheses
@@ -535,3 +517,21 @@ run_cmd handler #[``TestPrivate]
 /-- info: @[instance_reducible] private def instMyClassTestPrivate : MyClass TestPrivate -/
 #guard_msgs in
 #print sig instMyClassTestPrivate
+
+/-!
+`deriveTransformationInstPerConstructor` also handles "weird" type classes containing the universe
+on the right-hand side.
+-/
+
+class ToULift (α : Type u) where
+  lift : α → ULift.{u} Nat
+
+meta def toULiftHandler : DerivingHandler :=
+  mkInductiveDerivingHandler ``ToULift do
+    deriveTransformationInstPerConstructor fun _ _ _ =>
+      return mkApp2 (.const ``ULift.up [(← read).indLevel.dec.get!, 0]) (mkConst ``Nat) (mkNatLit 0)
+
+structure Flag : Type where
+  on : Bool
+
+run_cmd toULiftHandler #[``Flag]

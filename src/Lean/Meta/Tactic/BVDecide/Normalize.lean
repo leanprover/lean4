@@ -20,6 +20,7 @@ public import Lean.Meta.Tactic.BVDecide.Normalize.TypeAnalysis
 public import Lean.Meta.Tactic.BVDecide.Normalize.ShortCircuit
 public import Lean.Meta.Tactic.BVDecide.Normalize.Reduction
 public import Lean.Meta.Tactic.BVDecide.Normalize.CollectHyps
+public import Lean.Meta.Tactic.BVDecide.EPR.Pass
 import Lean.Meta.Sym.Util
 import Lean.Meta.Sym.Intro
 import Lean.Meta.Sym.Grind
@@ -82,6 +83,9 @@ where
       if ← typeAnalysisPass.run then return true
 
     if ← reductionPass.run then return true
+
+    if cfg.epr then
+      if ← EPR.eprDetectPass.run then return true
 
     /-
     There is a tension between the structures and enums pass at play:

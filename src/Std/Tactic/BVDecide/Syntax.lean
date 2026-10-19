@@ -104,6 +104,10 @@ structure BVDecideConfig where
   The number of iterations that the CEGAR refinement loop may run up to.
   -/
   cegarRounds : Nat := 64
+  /--
+  Encode many-sorted EPR (effectively propositional) problems in the hypotheses into `BitVec`.
+  -/
+  epr : Bool := false
 
 /--
 Whether this configuration requires the solver to use incremental solving.

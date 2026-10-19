@@ -1,0 +1,14 @@
+α : Type
+a b : α
+P : α → Prop
+h1 : ∀ (x : α), P x
+h2✝ : ¬P a
+h3✝ : ¬a = b
+h4✝ : True → P b
+h2 : (toBvPred₁ [a, b] a P (toBvAux [a, b] ⋯ a) == 0#1) = true
+h3 : (!toBvAux [a, b] ⋯ a == toBvAux [a, b] ⋯ b) = true
+h4 : (toBvPred₁ [a, b] a P (toBvAux [a, b] ⋯ b) == 1#1) = true
+a✝¹ : (toBvAux [a, b] ⋯ a).ult 2#2 = true
+a✝ : (toBvAux [a, b] ⋯ b).ult 2#2 = true
+⊢ False
+bv_epr_pass.lean:10:0-10:7: warning: declaration uses `sorry`

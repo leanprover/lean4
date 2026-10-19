@@ -31,6 +31,7 @@ A Lake configuration file defines the package's basic configuration. It also typ
   + [TOML `require`](#toml-require)
 * [GitHub Release Builds](#github-release-builds)
 * [Writing and Running Scripts](#writing-and-running-scripts)
+* [Conditional Proofs with Comparator](#conditional-proofs-with-comparator)
 * [Building and Running Lake from the Source](#building-and-running-lake-from-the-source)
   + [Building with Nix Flakes](#building-with-nix-flakes)
   + [Augmenting Lake's Search Path](#augmenting-lakes-search-path)
@@ -574,6 +575,50 @@ USAGE:
 
 Greet the entity with the given name. Otherwise, greet the whole world.
 ```
+
+## Conditional Proofs with Comparator
+
+`lake comparator` normally requires every solution theorem to have exactly the challenge's statement. A challenge author can opt into conditional proofs by adding `"accepted_statements_file": "accepted.json"` to the trusted comparator configuration. The named file is a JSON array of declaration names, resolved relative to that configuration file:
+
+```json
+["Accepted.first", "Accepted.second"]
+```
+
+Define the propositions in a trusted Lean module imported by the challenge. The solution can import it too, or spell out just the propositions it needs:
+
+```lean
+module
+
+public section
+
+def Accepted.first : Prop := forall n : Nat, n + n = 2 * n
+def Accepted.second : Prop := forall n : Nat, n + 0 = n
+```
+
+These are proposition definitions, not proofs or custom axioms. They illustrate the format; an application can instead list substantial mathematical statements whose Lean proofs are unavailable. The caller is responsible for reviewing their truth and consistency.
+
+For an unconditional challenge such as `theorem task : True := by sorry`, the corresponding solution can have additional leading hypotheses:
+
+```lean
+theorem task (_ : Accepted.first) (_ : Accepted.second) : True := True.intro
+```
+
+Each additional input must be exactly a listed proposition's name, its exported body, or a nested conjunction of such inputs. For example, `And Accepted.first Accepted.second` is accepted. General logical equivalence, disjunction, instantiation of a universally quantified approval, and dependent hypotheses are not inferred. Ordinary parameters remain in the challenge's statement, after the additional hypotheses. Accepted definitions must be safe, closed, monomorphic definitions of type `Prop`, and cannot themselves be theorem targets or definition holes.
+
+Comparator compares the hypotheses and their transitive dependencies against the trusted challenge. Changing the meaning of a proposition in the solution, including disguising `False` as an approved proposition, fails this comparison. Unused approval definitions need not be present in the solution. The axiom policy still applies to the original proof and approved definitions' dependencies. Every configured kernel checks the original conditional theorem; no approved statement is inserted as an axiom, and no unconditional proof is manufactured.
+
+A successful conditional result exits with code 0 and reports the exact approval names for each conditional theorem, deduplicated in first-occurrence order:
+
+```text
+Theorem 'task' matches conditional on: Accepted.first, Accepted.second
+Your solution matches conditional on the accepted statements listed above.
+```
+
+This reports hypotheses required by the theorem's type, including any that its proof happens not to use. Approvals absent from the theorem's hypotheses are not reported. The unconditional success message appears only when no theorem requires an approved hypothesis. Consumers must preserve the conditional verdict rather than treating exit code 0 alone as an unconditional proof.
+
+Omitting `accepted_statements_file`, or supplying an empty list, retains the original exact comparison. Missing or malformed approval files, empty names, and duplicate names are configuration errors (exit code 2). Invalid proposition definitions, unapproved hypotheses, changed dependencies, prohibited axioms, and failed kernel checks reject the solution (exit code 1). The approval list and challenge sources or exports are trusted inputs, just like the comparator configuration; the solution must not control them.
+
+When using `--challenge-from-export` or `--solution-from-export`, the challenge export must also include every approved definition, and both exports must include `And`, alongside the usual comparison targets. `lake check` is unaffected: it still checks the project without discharging hypotheses or approving custom axioms.
 
 ## Building and Running Lake from the Source
 

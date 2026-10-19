@@ -50,6 +50,7 @@ structure Context where
   solutionModule : Lean.Name
   theoremNames : Array Lean.Name
   definitionNames : Array Lean.Name
+  acceptedStatements : Array Lean.Name := #[]
   legalAxioms : Array Lean.Name
   /-- Bound into the sandbox: an `elan` toolchain lives under the home directory it covers. -/
   leanPrefix : System.FilePath
@@ -513,35 +514,51 @@ def builtinTargets : M (Array Lean.Name) := do
   return additional
 
 def verifyMatch (challengeExportPath : System.FilePath) (solutionExportPath : System.FilePath) :
-    M Unit := do
-  verifyCompare
+    M (Array (Prod Lean.Name (Array Lean.Name))) := do
+  let report <- verifyCompare
   runKernels solutionExportPath
+  return report
 where
-  verifyCompare : M Unit := do
+  verifyCompare : M (Array (Prod Lean.Name (Array Lean.Name))) := do
     let challenge ← LeanExport.parseStream <| .ofHandle (← IO.FS.Handle.mk challengeExportPath .read)
     let solution ← LeanExport.parseStream <| .ofHandle (← IO.FS.Handle.mk solutionExportPath .read)
     let theoremNames ← getTheoremNames
     let definitionNames ← getDefinitionNames
     let targets := (← getTheoremNames) ++ (← getLegalAxioms)
-    IO.ofExcept <| compareAt challenge solution targets definitionNames (← primitiveTargets)
+    let accepted := (<- read).acceptedStatements
+    let report <- IO.ofExcept <| compareWithAcceptedStatements challenge solution targets
+      definitionNames (<- primitiveTargets) accepted
     IO.ofExcept <| checkAxioms solution theoremNames definitionNames (← getLegalAxioms)
+    IO.ofExcept <| checkAxioms challenge #[] accepted (<- getLegalAxioms)
+    return report
 
 def compareIt : M Unit := do
   let exportTargets := (← builtinTargets) ++ (← getTheoremNames) ++ (← getLegalAxioms)
     ++ (← primitiveTargets) ++ (← getDefinitionNames)
+  let exportTargets := if (<- read).acceptedStatements.isEmpty then exportTargets
+    else exportTargets.push ``And
 
   let challengeModule ← getChallengeModule
-  withSafeBuildAndExport .challenge challengeModule exportTargets fun challengeExportPath => do
+  let challengeTargets := exportTargets ++ (<- read).acceptedStatements
+  withSafeBuildAndExport .challenge challengeModule challengeTargets fun challengeExportPath => do
     let solutionModule ← getSolutionModule
     withSafeBuildAndExport .solution solutionModule exportTargets fun solutionExportPath => do
-      verifyMatch challengeExportPath solutionExportPath
-      IO.println "Your solution is okay!"
+      let report <- verifyMatch challengeExportPath solutionExportPath
+      if report.isEmpty then
+        IO.println "Your solution is okay!"
+      else
+        for (target, statements) in report do
+          let names := ", ".intercalate (statements.toList.map Lean.Name.toString)
+          IO.println s!"Theorem '{target}' matches conditional on: {names}"
+        IO.println "Your solution matches conditional on the accepted statements listed above."
 
 public structure Config where
   challenge_module : String
   solution_module : String
   theorem_names : Array String
   definition_names : Option (Array String) := none
+  /-- A JSON array of proposition-definition names, relative to the configuration file. -/
+  accepted_statements_file : Option System.FilePath := none
   permitted_axioms : Array String
   enable_nanoda? : Option Bool
   external_kernels? : Option (Std.TreeMap String (Array String))
@@ -551,6 +568,27 @@ public structure Config where
 def cannotRun (msg : String) : IO ExitCode := do
   IO.eprintln s!"error: {msg}"
   return 2
+
+/-- Read the trusted approval list before running any code from the solution project. -/
+def readAcceptedStatements (configFile : System.FilePath) (file : System.FilePath) :
+    IO (Except ExitCode (Array Lean.Name)) := do
+  let file := if file.isAbsolute then file else configFile.parent.getD "." / file
+  let contents <-
+    try IO.FS.readFile file
+    catch e => return .error (<- cannotRun s!"could not read accepted statements '{file}': {e}")
+  let entries <-
+    match Lean.Json.parse contents >>= (Lean.fromJson? : Lean.Json -> Except String (Array String)) with
+    | .error e => return .error (<- cannotRun s!"malformed accepted statements in '{file}': {e}")
+    | .ok entries => pure entries
+  let mut names := #[]
+  for entry in entries do
+    let name := entry.toName
+    if name.isAnonymous then
+      return .error (<- cannotRun s!"empty accepted statement name in '{file}'")
+    if names.contains name then
+      return .error (<- cannotRun s!"duplicate accepted statement '{name}' in '{file}'")
+    names := names.push name
+  return .ok names
 
 /--
 Reports whether the project carries the manifest that sandboxed dependency resolution needs.
@@ -715,6 +753,12 @@ public def runComparator (configFile? : Option System.FilePath)
 
   let theoremNames := cfg.theorem_names.map String.toName
   let definitionNames := cfg.definition_names.getD #[] |>.map String.toName
+  let acceptedStatements <-
+    if let some file := cfg.accepted_statements_file then
+      match <- readAcceptedStatements configFile file with
+      | .error rc => return rc
+      | .ok names => pure names
+    else pure #[]
   if theoremNames.isEmpty && definitionNames.isEmpty then
     return ← cannotRun "nothing to check: the configuration names no theorems or definitions"
   let externalKernels ←
@@ -733,6 +777,7 @@ public def runComparator (configFile? : Option System.FilePath)
       solutionModule := cfg.solution_module.toName,
       theoremNames,
       definitionNames,
+      acceptedStatements,
       legalAxioms := cfg.permitted_axioms.map String.toName,
       externalKernels
     }

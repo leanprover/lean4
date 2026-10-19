@@ -472,6 +472,29 @@ CONFIGURATION:
   means, so the challenge author states it. The three above are the ones
   `#print axioms` treats as a clean proof.
 
+  `accepted_statements_file` optionally names a JSON file containing an array
+  of proposition-definition names, for example [\"Accepted.first\"]. Its path
+  is relative to this configuration file. Each name must be a safe, closed,
+  monomorphic `def ... : Prop` available in the challenge.
+  The file and the challenge's definitions must be trusted by the caller.
+  These definitions specify propositions; they do not assert them as axioms.
+
+  With this option, a solution theorem may prepend nondependent hypotheses
+  whose types are exactly listed definitions, their exact bodies, or nested
+  conjunctions of these. The remaining statement must still match exactly.
+  The used hypotheses and all their dependencies must have identical definitions
+  in the challenge and solution, with no definition-hole exemptions. Their
+  dependencies and the solution proof still obey `permitted_axioms`, and the
+  original conditional proof is checked by every configured kernel.
+
+  Conditional success names the accepted statements for each theorem and
+  says \"Your solution matches conditional on the accepted statements listed
+  above.\" It does not claim an unconditional proof or certify the truth or
+  consistency of the approved statements. Unused approvals are not reported;
+  a premise in the theorem type is reported even if its proof is unused.
+  Omit the option, or use an empty list, to retain exact unconditional checking.
+  This option does not change `lake check`.
+
   `external_kernels` names additional checkers to run over the export, each as
   the command to execute; the solution must satisfy every one of them as well
   as Lean's own kernel. `enable_nanoda: true` is still accepted and is
@@ -479,7 +502,7 @@ CONFIGURATION:
   `external_kernels` instead to run it from elsewhere.
 
 EXIT CODES:
-  0                     accepted
+  0                     accepted (conditionally if the verdict says so)
   1                     rejected: statement mismatch, forbidden axiom, kernel
                         rejection, or a build that did not succeed
   2                     could not start: `bwrap` or the manifest is missing,

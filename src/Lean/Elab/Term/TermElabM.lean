@@ -1695,6 +1695,9 @@ private def elabUsingElabFns (stx : Syntax) (expectedType? : Option Expr) (catch
   | []      => throwError "elaboration function for `{k}` has not been implemented{indentD stx}"
   | elabFns => elabUsingElabFnsAux s stx expectedType? catchExPostpone elabFns
 
+-- Shortcut instance; otherwise every use searches for a lift down to `CoreM`.
+instance : MonadMacroAdapter TermElabM := inferInstance
+
 private def isExplicit (stx : Syntax) : Bool :=
   match stx with
   | `(@$_) => true

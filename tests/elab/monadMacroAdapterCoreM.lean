@@ -45,3 +45,9 @@ run_meta do
   let a ← liftMacroM <| withFreshMacroScope <| Macro.addMacroScope `x
   let b ← liftMacroM <| withFreshMacroScope <| Macro.addMacroScope `x
   logInfo m!"{a != b}"
+
+/-! `TermElabM` has a shortcut instance instead of going through the lifting instance. -/
+
+/-- info: Term.instMonadMacroAdapterTermElabM -/
+#guard_msgs in
+#synth MonadMacroAdapter Term.TermElabM

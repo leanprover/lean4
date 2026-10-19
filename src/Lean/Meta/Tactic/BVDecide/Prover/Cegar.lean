@@ -8,6 +8,7 @@ prelude
 public import Lean.Meta.Tactic.BVDecide.Prover.Cegar.Basic
 public import Lean.Meta.Tactic.BVDecide.Prover.Cegar.BitVec
 public import Lean.Meta.Tactic.BVDecide.Prover.Cegar.Function
+public import Lean.Meta.Tactic.BVDecide.Prover.Cegar.Epr
 public import Lean.Meta.Tactic.BVDecide.Prover.Cegar.Lemmas
 public import Lean.Meta.Tactic.BVDecide.Prover.Cegar.Subsolver
 import Lean.Meta.Tactic.BVDecide.Prover.Bitblast
@@ -32,27 +33,38 @@ where
       throwError m!"bv_decide reached its round limit, consider increasing it via the `cegarRounds` config option"
     CegarM.consumeRound
 
-  cegarLoop : UnsatProver CegarCert := CegarM.run ctx do
-    let mut lastCex := #[]
-    CegarM.setDidChange true
-    configureSolver
-    while ← CegarM.getDidChange do
+  cegarStep (lastCex : Array (Expr × Bool × Std.Tactic.BVDecide.BVExpr.PackedBitVec)) :
+      CegarM (Except (Array (Expr × Bool × Std.Tactic.BVDecide.BVExpr.PackedBitVec)) CegarCert) :=
+    withTraceNode `Meta.Tactic.bv (fun _ => return "CEGAR step") do
       checkTermination
       match ← checkBitVec with
       | .ok cert =>
         return .ok (← CegarM.createCert cert)
       | .error cex =>
+        if lastCex == cex then
+          throwError m!"Model did not change, TODO"
+        let nextCex := cex
+        traceModel nextCex
+        let processedCex ← CegarM.CounterExample.ofArray nextCex
+        checkTheories processedCex
+        return .error nextCex
+
+  cegarLoop : UnsatProver CegarCert := CegarM.run ctx do
+    let mut lastCex := #[]
+    CegarM.setDidChange true
+    configureSolver
+    while ← CegarM.getDidChange do
+      match ← cegarStep lastCex with
+      | .ok cert => return .ok cert
+      | .error cex =>
         lastCex := cex
-        let cex ← CegarM.CounterExample.ofArray cex
-        discard <| checkUf cex
 
       match ← processNewHyps with
       | .solved => return .ok (← CegarM.createCert none)
       | .newHyps => CegarM.setDidChange true
       | .none => CegarM.setDidChange false
 
-    let equations := lastCex.filterMap fun (lhs, synth, rhs) =>
-      if synth then none else some (lhs, rhs)
+    let equations ← mkEquations lastCex
 
     let funState := (← getThe BVDecide.State).theoryState.funState
     return .error {
@@ -61,6 +73,20 @@ where
       equations := equations
       functionAtoms := funState.atoms.map (·.funExpr)
     }
+
+  traceModel (cex : Array (Expr × Bool × Std.Tactic.BVDecide.BVExpr.PackedBitVec)) : CegarM Unit := do
+    withTraceNode `Meta.Tactic.bv (fun _ => return m!"Model found") do
+      for (lhs, rhs) in ← mkEquations cex do
+        trace[Meta.Tactic.bv] m!"{lhs} = {rhs.bv}"
+
+  mkEquations (cex : Array (Expr × Bool × Std.Tactic.BVDecide.BVExpr.PackedBitVec)) :
+      CegarM (Array (Expr × Std.Tactic.BVDecide.BVExpr.PackedBitVec)) := do
+    return cex.filterMap fun (lhs, synth, rhs) =>
+      if synth then none else some (lhs, rhs)
+
+  checkTheories (cex : CegarM.CounterExample) : CegarM Unit := do
+    if ← checkUf cex then return ()
+    if ← checkEpr cex then return ()
 
   configureSolver : CegarM Unit := do
     let solver ← CegarM.getSatSolver

@@ -582,6 +582,9 @@ theorem eval_bin : eval assign (.bin lhs op rhs) = op.eval (lhs.eval assign) (rh
 theorem eval_getLsbD : eval assign (.getLsbD expr idx) = (expr.eval assign).getLsbD idx := by
   rfl
 
+abbrev eq (lhs rhs : BVExpr w) : BVPred := .bin lhs .eq rhs
+abbrev ult (lhs rhs : BVExpr w) : BVPred := .bin lhs .ult rhs
+
 end BVPred
 
 inductive Gate
@@ -624,6 +627,7 @@ with
     | .not x => mixHash 11 (hashCode x)
     | .gate g x y => mixHash 13 <| mixHash (hash g) <| mixHash (hashCode x) (hashCode y)
     | .ite d l r => mixHash 17 <| mixHash (hashCode d) <| mixHash (hashCode l) (hashCode r)
+deriving Inhabited
 
 namespace BVLogicalExpr
 
@@ -720,6 +724,13 @@ theorem sat_and {x y : BVLogicalExpr} {assign} (hx : Sat x assign) (hy : Sat y a
   simp [hx, hy, Gate.eval]
 
 theorem sat_true : Sat (.const true) assign := rfl
+
+protected abbrev false : BVLogicalExpr := .const Bool.false
+protected abbrev true : BVLogicalExpr := .const Bool.false
+protected abbrev and (lhs rhs : BVLogicalExpr) : BVLogicalExpr := .gate .and lhs rhs
+protected abbrev xor (lhs rhs : BVLogicalExpr) : BVLogicalExpr := .gate .xor lhs rhs
+protected abbrev beq (lhs rhs : BVLogicalExpr) : BVLogicalExpr := .gate .beq lhs rhs
+protected abbrev or (lhs rhs : BVLogicalExpr) : BVLogicalExpr := .gate .or lhs rhs
 
 end BVLogicalExpr
 

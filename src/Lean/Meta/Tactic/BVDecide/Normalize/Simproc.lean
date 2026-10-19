@@ -1169,13 +1169,13 @@ def boolEqToBeq (lhs rhs : Expr) : SimprocM (Sym.Simp.Result) := do
     return .step (← Sym.share expr) proof
 
 /--
-Encode a propositional atom `p` as `BitVec.ofProp p = 1#1`, turning it into a `BitVec` atom.
+Encode a propositional atom `p` as `Bool.ofProp p = true`, turning it into a `Bool` atom.
 -/
 def propAtom (e : Expr) : SimprocM (Sym.Simp.Result) := do
   unless (← e.fvarId!.getType).isProp do return .rfl
-  let ofProp := mkApp (mkConst ``Std.Tactic.BVDecide.BitVec.ofProp) e
-  let expr := mkApp3 (mkConst ``Eq [1]) (toTypeExpr (BitVec 1)) ofProp (← mkLit 1#1)
-  let proof := mkApp (mkConst ``Std.Tactic.BVDecide.BitVec.eq_ofProp_eq_one) e
+  let ofProp := mkApp (mkConst ``Std.Tactic.BVDecide.Bool.ofProp) e
+  let expr := mkApp3 (mkConst ``Eq [1]) (mkConst ``Bool) ofProp (← mkLit true)
+  let proof := mkApp (mkConst ``Std.Tactic.BVDecide.Bool.eq_ofProp_eq_true) e
   countRule `propAtom
   return .step (← Sym.share expr) proof
 

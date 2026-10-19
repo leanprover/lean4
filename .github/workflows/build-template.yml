@@ -248,6 +248,12 @@ jobs:
               curl https://elan.lean-lang.org/elan-init.sh -sSf |
                 sh -s -- -y --default-toolchain none --no-modify-path)
             export PATH="$PWD/build/elan/bin:$PATH"
+            # Project selector tests also need elan in later steps.
+            elan_bin="$PWD/build/elan/bin"
+            if command -v cygpath > /dev/null; then
+              elan_bin=$(cygpath -w "$elan_bin")
+            fi
+            printf '%s\n' "$elan_bin" >> "$GITHUB_PATH"
           fi
           elan --version  # fails step if not found
           make -C build/$TARGET_STAGE lean4lean con-leche lean-beam

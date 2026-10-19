@@ -10,6 +10,32 @@ if [ ! -x "$beam_prefix/bin/lean-beam$exe_suffix" ]; then
 fi
 test -x "$beam_prefix/bin/lean-beam-mcp$exe_suffix" || fail "lean-beam-mcp not built"
 
+python3 - "$beam_prefix" <<'PY_MANIFEST'
+import hashlib
+import json
+from pathlib import Path, PurePosixPath
+import sys
+
+prefix = Path(sys.argv[1])
+record = json.loads((prefix / "lib/lean-beam/provenance.json").read_text())
+assert record["schemaVersion"] == 3, "expected Beam provenance schema 3"
+assert record["buildId"] and record["sourceCommit"] and record["payloadHash"]
+frontends = record["components"]["frontends"]
+target, = record["components"]["targets"]
+assert target["compilerRevision"] == frontends["compilerRevision"]
+expected = {frontends["cli"], frontends["mcp"], target["daemon"],
+            target["plugin"], record["components"]["license"]}
+destinations = set()
+for artifact in record["artifacts"]:
+    relative = PurePosixPath(artifact["destination"])
+    assert not relative.is_absolute() and ".." not in relative.parts
+    assert str(relative) not in destinations, relative
+    destinations.add(str(relative))
+    actual = hashlib.sha256((prefix / relative).read_bytes()).hexdigest()
+    assert actual == artifact["hash"], f"Beam artifact hash mismatch: {relative}"
+assert destinations == expected, "unexpected native Beam inventory"
+PY_MANIFEST
+
 # Exercise relocation without copying the standard library's large module tree.
 toolchain="$TMP_DIR/toolchain with spaces"
 mkdir -p "$toolchain/lib"
@@ -44,9 +70,21 @@ export BEAM_HOME="$TMP_DIR/missing-beam-home"
 export BEAM_INSTALL_BUNDLE_DIR="$TMP_DIR/missing-bundles"
 export BEAM_BUNDLE_DIR="$TMP_DIR/missing-bundles"
 "$beam" --version | grep -q '^lean-beam '
+"$beam" toolchain-build-info > "$TMP_DIR/build-info.json"
+python3 - "$toolchain" "$TMP_DIR/build-info.json" <<'PY_BUILD_INFO'
+import json
+from pathlib import Path
+import sys
+
+record = json.loads((Path(sys.argv[1]) / "lib/lean-beam/provenance.json").read_text())
+info = json.loads(Path(sys.argv[2]).read_text())
+assert info["sourceRevision"] == record["sourceCommit"]
+assert info["buildId"] == record["buildId"]
+assert info["compiledLeanRevision"] == info["loadedLeanRevision"]
+assert info["loadedLeanRevision"] == record["components"]["frontends"]["compilerRevision"]
+PY_BUILD_INFO
 "$beam" --root "$project" doctor > "$TMP_DIR/doctor"
-grep -q '^bundle source: toolchain$' "$TMP_DIR/doctor"
-grep -q '^bundle ready: true$' "$TMP_DIR/doctor"
+grep -q '^target membership: present$' "$TMP_DIR/doctor"
 
 daemon=$(sed -n 's/^bundle daemon: //p' "$TMP_DIR/doctor")
 plugin=$(sed -n 's/^plugin: //p' "$TMP_DIR/doctor")
@@ -62,11 +100,11 @@ case "$plugin" in "$owned_toolchain"/*) ;; *) fail "plugin outside relocated too
 
 mv "$daemon" "$daemon.saved"
 capture_fail "$beam" --root "$project" doctor
-check_out_contains 'missing Beam daemon'
+check_out_contains "$(basename "$daemon")"
 mv "$daemon.saved" "$daemon"
 mv "$plugin" "$plugin.saved"
 capture_fail "$beam" --root "$project" doctor
-check_out_contains 'missing Beam LSP plugin'
+check_out_contains "$(basename "$plugin")"
 mv "$plugin.saved" "$plugin"
 
 "$beam" --root "$project" serve > "$TMP_DIR/owner.out" 2> "$TMP_DIR/owner.err" &
@@ -99,22 +137,34 @@ test ! -e "$project/.beam/bundles"
 (cd "$project" && "$mcp" --self-check Main.lean) > "$TMP_DIR/mcp-check"
 grep -q 'Lean Beam MCP self-check passed' "$TMP_DIR/mcp-check"
 capture_fail "$mcp" --beam-cli /different/toolchain/bin/lean-beam --version
-check_out_contains 'bundled lean-beam-mcp uses only its containing toolchain'
+check_out_contains 'unexpected lean-beam-mcp argument'
 test ! -e "$TMP_DIR/missing-bundles"
 test ! -e "$project/.beam/bundles"
 
-# A project's toolchain selector must not silently load another Lean's plugin.
-mkdir "$TMP_DIR/fake-bin"
-printf '#!/usr/bin/env bash\necho /different/toolchain\n' > "$TMP_DIR/fake-bin/elan"
-chmod +x "$TMP_DIR/fake-bin/elan"
-printf 'different-toolchain\n' > "$project/lean-toolchain"
-PATH="$TMP_DIR/fake-bin:$PATH" capture_fail "$beam" --root "$project" serve
-check_out_matches 'project .*bundled Lean (toolchain|installation)'
-
+# Exercise unavailable selectors separately from existing foreign installations.
+real_elan=$(command -v elan) || fail "elan is required for the installed-selector fixtures"
 matching_prefix="$toolchain"
+foreign_prefix="$beam_prefix"
+elan_home="$TMP_DIR/elan-home"
 if command -v cygpath > /dev/null; then
     matching_prefix=$(cygpath -m "$matching_prefix")
+    foreign_prefix=$(cygpath -m "$foreign_prefix")
+    elan_home=$(cygpath -m "$elan_home")
 fi
-printf '#!/usr/bin/env bash\nprintf "%%s\\n" "%s"\n' "$matching_prefix" > "$TMP_DIR/fake-bin/elan"
-PATH="$TMP_DIR/fake-bin:$PATH" "$beam" --root "$project" doctor > "$TMP_DIR/matching-doctor"
-grep -q '^bundle ready: true$' "$TMP_DIR/matching-doctor"
+export ELAN_HOME="$elan_home"
+unset ELAN_TOOLCHAIN
+"$real_elan" toolchain link beam-bundle-matching "$matching_prefix"
+"$real_elan" toolchain link beam-bundle-foreign "$foreign_prefix"
+
+printf 'beam-bundle-unavailable\n' > "$project/lean-toolchain"
+capture_fail "$beam" --root "$project" serve
+check_out_contains 'unavailable locally'
+
+printf 'beam-bundle-foreign\n' > "$project/lean-toolchain"
+capture_fail "$beam" --root "$project" serve
+check_out_contains 'is not a member of this Beam installation'
+
+printf 'beam-bundle-matching\n' > "$project/lean-toolchain"
+"$beam" --root "$project" doctor > "$TMP_DIR/matching-doctor"
+grep -q '^target membership: present$' "$TMP_DIR/matching-doctor"
+test ! -e "$ELAN_HOME/toolchains/beam-bundle-unavailable"

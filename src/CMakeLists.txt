@@ -1102,6 +1102,15 @@ if(NOT CMAKE_SYSTEM_NAME MATCHES "Emscripten")
 
   if(STAGE GREATER 0)
     # Beam's plugin must be built with the toolchain that will load it.
+    set(LEAN_BEAM_NATIVE_CMAKE_ARGS "")
+    if(LEAN_BEAM_NATIVE_CLANG_RESOURCE_DIR)
+      list(APPEND LEAN_BEAM_NATIVE_CMAKE_ARGS
+        "-DNATIVE_CLANG_RESOURCE_DIR=${LEAN_BEAM_NATIVE_CLANG_RESOURCE_DIR}")
+    endif()
+    if(LEAN_BEAM_NATIVE_SYSTEM_INCLUDE_DIR)
+      list(APPEND LEAN_BEAM_NATIVE_CMAKE_ARGS
+        "-DNATIVE_SYSTEM_INCLUDE_DIRS=${LEAN_BEAM_NATIVE_SYSTEM_INCLUDE_DIR}")
+    endif()
     ExternalProject_Add(
       lean-beam
       PREFIX lean-beam-native
@@ -1111,6 +1120,7 @@ if(NOT CMAKE_SYSTEM_NAME MATCHES "Emscripten")
       CONFIGURE_COMMAND ""
       BUILD_COMMAND ${CMAKE_COMMAND}
         -DLEAN_PREFIX=${CMAKE_BINARY_DIR}
+        ${LEAN_BEAM_NATIVE_CMAKE_ARGS}
         -P <SOURCE_DIR>/scripts/build-toolchain.cmake
       BUILD_IN_SOURCE ON
       BUILD_ALWAYS ON

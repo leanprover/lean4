@@ -92,8 +92,8 @@ def Lean.Meta.mkFreshRevertedMVarAt (ty : Expr) (lctx : LocalContext) (linsts : 
 
 
 /--
-Creates a function `indices... → induct.{lparams...} params... indices... → resultType` by matching
-on the inductive.
+Creates a non-dependent `casesOn` application of type `resultType` that matches on `discr` with
+each alternative computed by applying `alt` to the inductive info, constructor info and the fields.
 -/
 def Lean.Meta.mkNondepCases [Monad m] [MonadEnv m] [MonadError m]
     [MonadControlT MetaM m] [MonadLiftT MetaM m] (discr : Expr) (resultType : Expr)
@@ -852,7 +852,7 @@ def InstanceInfo.usingCtor (perField : Name → FieldHelperProvider α) (induct 
       `{.ofConstName className}` to have exactly one parameter and at most one level parameter"
   let .forallE _ (.sort univ) _ _ ← whnf classInfo.type
     | throwError "Invalid use of `{.ofConstName decl_name%}`, \
-        expected `{.ofConstName className}`'s to be a type parameter"
+        expected `{.ofConstName className}`'s parameter to be a type parameter"
   let some structInfo := getStructureInfo? (← getEnv) className
     | throwError "Invalid use of `{.ofConstName decl_name%}`, \
         expected {.ofConstName className} to be a structure"
@@ -1114,10 +1114,16 @@ def mkInductiveDerivingHandler (className : Name) (perMutualBlock : DerivingM Bo
   for names in blocks do
     let fstInfo ← getConstInfoInduct names[0]!
     let nparams := fstInfo.numParams
-    let hasPrivateCtor ← names.anyM fun name => do
+    let mut hasPrivate := false
+    for name in names do
       if isPrivateName name then
-        return true
-      return (← getConstInfoInduct name).ctors.any isPrivateName
+        hasPrivate := true
+        continue
+      let hasPrivateCtor := (← getConstInfoInduct name).ctors.any isPrivateName
+      if inExposeSection && hasPrivateCtor then
+        throwError "Cannot use `deriving ... @[expose]` with `{.ofConstName name}` \
+          as it has one or more private constructors"
+      hasPrivate := hasPrivate || hasPrivateCtor
     let res ← liftTermElabM do
       let indLevel ← forallTelescopeReducing (whnfType := true) fstInfo.type fun _ body => do
         let .sort lvl := body | throwError "Unexpected inductive type type{indentExpr fstInfo.type}"
@@ -1140,7 +1146,7 @@ def mkInductiveDerivingHandler (className : Name) (perMutualBlock : DerivingM Bo
           names := names
           isMeta := names.all (isMarkedMeta (← getEnv))
         }
-        withExporting (isExporting := inExposeSection && !hasPrivateCtor) do
+        withExporting (isExporting := inExposeSection && !hasPrivate) do
           perMutualBlock.run ctx
     unless res do
       -- backtrack

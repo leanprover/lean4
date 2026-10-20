@@ -147,9 +147,8 @@ where
     else if kind == ``Lean.Parser.Syntax.unicodeAtom then
       processUnicode stx
     else
-      let stxNew? ← liftM (liftMacroM (expandMacro? stx) : TermElabM _)
-      match stxNew? with
-      | some stxNew => process stxNew
+      match (← liftM (Term.expandMacroReportingDeprecated? stx : TermElabM _)) with
+      | some (_, stxNew) => Term.withPushMacroExpansionStack stx stxNew <| process stxNew
       | none => throwErrorAt stx "unexpected syntax kind of category `syntax`: {kind}"
 
   /-- Sequence (aka NullNode) -/

@@ -205,9 +205,8 @@ where
         go e
     | _ =>
       withRef s do
-        match (← liftMacroM <| expandMacroImpl? (← getEnv) s) with
-        | some (macroName, s?) =>
-          let s' ← liftMacroM <| liftExcept s?
+        match (← expandMacroReportingDeprecated? s) with
+        | some (macroName, s') =>
           withPushMacroExpansionStack s s' do
             return .macroExpansion macroName s s' (← go s')
         | none => processLeaf s

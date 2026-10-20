@@ -825,8 +825,10 @@ def elabLevel (stx : Syntax) : TermElabM Level :=
   liftLevelM <| Level.elabLevel stx
 
 /-- Elaborate `x` with `stx` on the macro stack -/
-def withPushMacroExpansionStack (beforeStx afterStx : Syntax) (x : TermElabM α) : TermElabM α :=
-  withReader (fun ctx => { ctx with macroStack := { before := beforeStx, after := afterStx } :: ctx.macroStack }) x
+def withPushMacroExpansionStack [MonadWithReaderOf Context m] (beforeStx afterStx : Syntax)
+    (x : m α) : m α :=
+  withTheReader Context (fun ctx =>
+    { ctx with macroStack := { before := beforeStx, after := afterStx } :: ctx.macroStack }) x
 
 /-- Elaborate `x` with `stx` on the macro stack and produce macro expansion info -/
 @[specialize]
@@ -1698,6 +1700,44 @@ private def elabUsingElabFns (stx : Syntax) (expectedType? : Option Expr) (catch
 -- Shortcut instance; otherwise every use searches for a lift down to `CoreM`.
 instance : MonadMacroAdapter TermElabM := inferInstance
 
+/--
+Reports `stx` if its syntax kind is deprecated by `deprecated_syntax`, unless deprecation checks are
+disabled by `withoutCheckDeprecated`.
+
+The elaborator of a syntax category calls this before running the elaborators of `stx`, as
+`elabTerm` does for terms. Macros are instead reported when expanding them with
+`expandMacroReportingDeprecated?`.
+-/
+def reportDeprecatedSyntax (stx : Syntax) : TermElabM Unit := do
+  if (← read).checkDeprecated then
+    checkDeprecatedSyntax stx (← read).macroStack
+
+/--
+Expands the macro `stx`, if any, returning the name of the macro declaration and the expansion.
+Unlike `expandMacroImpl?`, this reports `stx` if its syntax kind is deprecated. Elaborators that
+expand macros themselves instead of elaborating them with `elabTerm` should use this function,
+while analyses that do not elaborate the expansion should use `expandMacroImpl?`, so that
+deprecated syntax is reported once.
+-/
+def expandMacroReportingDeprecated? (stx : Syntax) : TermElabM (Option (Name × Syntax)) := do
+  let some (declName, stxNew?) ← liftMacroM <| expandMacroImpl? (← getEnv) stx | return none
+  reportDeprecatedSyntax stx
+  return some (declName, ← liftMacroM <| liftExcept stxNew?)
+
+/--
+Expands all macros in `stx` like `expandMacros`, except in nodes whose kind does not satisfy `p`,
+and reports deprecated syntax like `expandMacroReportingDeprecated?`.
+-/
+partial def expandMacrosReportingDeprecated (stx : Syntax)
+    (p : SyntaxNodeKind → Bool := (· != ``Parser.Term.byTactic)) : TermElabM Syntax :=
+  withRef stx <| withIncRecDepth do
+    let .node info k args := stx | return stx
+    unless p k do return stx
+    if let some (_, stxNew) ← expandMacroReportingDeprecated? stx then
+      withPushMacroExpansionStack stx stxNew <| expandMacrosReportingDeprecated stxNew p
+    else
+      return .node info k (← args.mapM (expandMacrosReportingDeprecated · p))
+
 private def isExplicit (stx : Syntax) : Bool :=
   match stx with
   | `(@$_) => true
@@ -1853,17 +1893,14 @@ private partial def elabTermAux (expectedType? : Option Expr) (catchExPostpone :
     withTraceNode `Elab.step (fun _ => return m!"expected type: {expectedType?}, term\n{stx}")
       (tag := stx.getKind.toString) do
     checkSystem "elaborator"
-    if (← read).checkDeprecated then
-      checkDeprecatedSyntax stx (← read).macroStack
-    let env ← getEnv
-    let result ← match (← liftMacroM (expandMacroImpl? env stx)) with
-    | some (decl, stxNew?) =>
-      let stxNew ← liftMacroM <| liftExcept stxNew?
+    let result ← match (← expandMacroReportingDeprecated? stx) with
+    | some (decl, stxNew) =>
       withTermInfoContext' decl stx (expectedType? := expectedType?) <|
         withMacroExpansion stx stxNew <|
           withRef stxNew <|
             elabTermAux expectedType? catchExPostpone implicitLambda stxNew
     | _ =>
+      reportDeprecatedSyntax stx
       let useImplicitResult ← if implicitLambda && (← read).implicitLambda then useImplicitLambda stx expectedType? else pure .no
       match useImplicitResult with
       | .yes expectedType => elabImplicitLambda stx catchExPostpone expectedType

@@ -971,7 +971,7 @@ private def decLevels : Level → NameSet → NameSet
 
 structure LevelShape where
   /--
-  Given a normalied universe level `lvl`, try to provide an assignment of the level parameters
+  Given a normalized universe level `lvl`, try to provide an assignment of the level parameters
   `levelParams` such that `lvl.instantiateParams levelParams (← createLParams lvl levelParams)`
   plausibly matches the level shape modulo level equivalence and return a modified list of level
   parameters that were not fixed to a certain value.

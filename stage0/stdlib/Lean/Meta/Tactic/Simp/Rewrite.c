@@ -24395,7 +24395,7 @@ v___jp_7593_:
 {
 lean_object* v___x_7597_; double v___x_7598_; double v___x_7599_; double v___x_7600_; double v___x_7601_; double v___x_7602_; lean_object* v___x_7603_; lean_object* v___x_7604_; lean_object* v___x_7605_; lean_object* v___x_7606_; lean_object* v___x_7607_; 
 v___x_7597_ = lean_io_mono_nanos_now();
-v___x_7598_ = lean_float_of_nat(v___y_7594_);
+v___x_7598_ = lean_float_of_nat(v___y_7595_);
 v___x_7599_ = lean_float_once(&l_Lean_Meta_Simp_discharge_x3f_x27___closed__9, &l_Lean_Meta_Simp_discharge_x3f_x27___closed__9_once, _init_l_Lean_Meta_Simp_discharge_x3f_x27___closed__9);
 v___x_7600_ = lean_float_div(v___x_7598_, v___x_7599_);
 v___x_7601_ = lean_float_of_nat(v___x_7597_);
@@ -24408,7 +24408,7 @@ lean_ctor_set(v___x_7605_, 1, v___x_7604_);
 v___x_7606_ = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(v___x_7606_, 0, v_a_7596_);
 lean_ctor_set(v___x_7606_, 1, v___x_7605_);
-v___x_7607_ = l___private_Lean_Util_Trace_0__Lean_withTraceNode_postCallback___at___00Lean_Meta_Simp_simpGround_spec__0(v___x_7589_, v_ground_7567_, v___x_7590_, v_options_7585_, v___x_7592_, v___y_7595_, v___f_7577_, v___x_7606_, v_a_7536_, v_a_7537_, v_a_7538_, v_a_7539_, v_a_7540_, v_a_7541_, v_a_7542_);
+v___x_7607_ = l___private_Lean_Util_Trace_0__Lean_withTraceNode_postCallback___at___00Lean_Meta_Simp_simpGround_spec__0(v___x_7589_, v_ground_7567_, v___x_7590_, v_options_7585_, v___x_7592_, v___y_7594_, v___f_7577_, v___x_7606_, v_a_7536_, v_a_7537_, v_a_7538_, v_a_7539_, v_a_7540_, v_a_7541_, v_a_7542_);
 v___y_7548_ = v___x_7607_;
 goto v___jp_7547_;
 }
@@ -24482,8 +24482,8 @@ goto v_reusejp_7631_;
 }
 v_reusejp_7631_:
 {
-v___y_7594_ = v___x_7625_;
-v___y_7595_ = v_a_7622_;
+v___y_7594_ = v_a_7622_;
+v___y_7595_ = v___x_7625_;
 v_a_7596_ = v___x_7632_;
 goto v___jp_7593_;
 }
@@ -24527,8 +24527,8 @@ goto v_reusejp_7639_;
 }
 v_reusejp_7639_:
 {
-v___y_7594_ = v___x_7625_;
-v___y_7595_ = v_a_7622_;
+v___y_7594_ = v_a_7622_;
+v___y_7595_ = v___x_7625_;
 v_a_7596_ = v___x_7640_;
 goto v___jp_7593_;
 }

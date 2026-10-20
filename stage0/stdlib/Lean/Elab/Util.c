@@ -7723,8 +7723,8 @@ goto v___jp_2864_;
 else
 {
 lean_inc(v_toPure_2863_);
-lean_dec_ref_known(v_ex_2860_, 2);
 lean_dec(v_id_2870_);
+lean_dec_ref_known(v_ex_2860_, 2);
 lean_dec(v_toBind_2862_);
 lean_dec(v_inst_2859_);
 lean_dec_ref(v_inst_2858_);

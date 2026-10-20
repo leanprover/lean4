@@ -18073,7 +18073,7 @@ v___jp_5549_:
 {
 lean_object* v___x_5553_; double v___x_5554_; double v___x_5555_; double v___x_5556_; double v___x_5557_; double v___x_5558_; lean_object* v___x_5559_; lean_object* v___x_5560_; lean_object* v___x_5561_; lean_object* v___x_5562_; lean_object* v___x_5563_; 
 v___x_5553_ = lean_io_mono_nanos_now();
-v___x_5554_ = lean_float_of_nat(v___y_5551_);
+v___x_5554_ = lean_float_of_nat(v___y_5550_);
 v___x_5555_ = lean_float_once(&l___private_Lean_Meta_Tactic_Cbv_Main_0__Lean_Meta_Tactic_Cbv_handleProj___closed__2, &l___private_Lean_Meta_Tactic_Cbv_Main_0__Lean_Meta_Tactic_Cbv_handleProj___closed__2_once, _init_l___private_Lean_Meta_Tactic_Cbv_Main_0__Lean_Meta_Tactic_Cbv_handleProj___closed__2);
 v___x_5556_ = lean_float_div(v___x_5554_, v___x_5555_);
 v___x_5557_ = lean_float_of_nat(v___x_5553_);
@@ -18086,7 +18086,7 @@ lean_ctor_set(v___x_5561_, 1, v___x_5560_);
 v___x_5562_ = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(v___x_5562_, 0, v_a_5552_);
 lean_ctor_set(v___x_5562_, 1, v___x_5561_);
-v___x_5563_ = l___private_Lean_Util_Trace_0__Lean_withTraceNode_postCallback___at___00Lean_Meta_Tactic_Cbv_cbvGoalCore_spec__2(v___x_5545_, v___x_5441_, v___x_5546_, v_options_5437_, v___x_5548_, v___y_5550_, v___f_5544_, v___x_5562_, v___y_5428_, v___y_5429_, v___y_5430_, v___y_5431_, v___y_5432_, v___y_5433_);
+v___x_5563_ = l___private_Lean_Util_Trace_0__Lean_withTraceNode_postCallback___at___00Lean_Meta_Tactic_Cbv_cbvGoalCore_spec__2(v___x_5545_, v___x_5441_, v___x_5546_, v_options_5437_, v___x_5548_, v___y_5551_, v___f_5544_, v___x_5562_, v___y_5428_, v___y_5429_, v___y_5430_, v___y_5431_, v___y_5432_, v___y_5433_);
 v___y_5500_ = v___x_5563_;
 goto v___jp_5499_;
 }
@@ -18160,8 +18160,8 @@ goto v_reusejp_5587_;
 }
 v_reusejp_5587_:
 {
-v___y_5550_ = v_a_5578_;
-v___y_5551_ = v___x_5581_;
+v___y_5550_ = v___x_5581_;
+v___y_5551_ = v_a_5578_;
 v_a_5552_ = v___x_5588_;
 goto v___jp_5549_;
 }
@@ -18205,8 +18205,8 @@ goto v_reusejp_5595_;
 }
 v_reusejp_5595_:
 {
-v___y_5550_ = v_a_5578_;
-v___y_5551_ = v___x_5581_;
+v___y_5550_ = v___x_5581_;
+v___y_5551_ = v_a_5578_;
 v_a_5552_ = v___x_5596_;
 goto v___jp_5549_;
 }

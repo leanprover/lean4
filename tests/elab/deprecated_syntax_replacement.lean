@@ -46,11 +46,12 @@ macro_rules | `(old_add $a $b) => `($a + $b)
 deprecated_syntax oldAdd "use `+` instead" (since := "2026-10-19")
   | `(old_add $a $b) => `($a + $b)
 
+-- `+` binds less tightly than `old_add`, so the replacement is parenthesized.
 /--
 warning: syntax 'oldAdd' has been deprecated: use `+` instead
 
 Hint: Replace the deprecated syntax:
-  o̵l̵d̵_̵a̵d̵d̵ ̵1 +̲ ̲(2 * 3)
+  o̵l̵d̵_̵a̵d̵d̵ ̵1̵(̲1̲ ̲+̲ (2 * 3̵)̵3̲)̲)̲
 
 Note: This linter can be disabled with `set_option linter.deprecated.syntax false`
 ---
@@ -59,7 +60,179 @@ info: 1 + 2 * 3 : Nat
 info: #check (1 + (2 * 3))
 -/
 #guard_msgs in
-#apply_suggestions #check (old_add 1 (2 * 3))
+#apply_suggestions #check old_add 1 (2 * 3)
+
+/-! ## Parenthesization of terms -/
+
+syntax:max (name := oldSucc) "old_succ " term:max : term
+macro_rules | `(old_succ $e) => `(Nat.succ $e)
+
+deprecated_syntax oldSucc "use `Nat.succ` instead" (since := "2026-10-19")
+  | `(old_succ $e) => `(Nat.succ $e)
+
+-- Without parentheses, the suggestion would be `Nat.pred Nat.succ 1`.
+/--
+warning: syntax 'oldSucc' has been deprecated: use `Nat.succ` instead
+
+Hint: Replace the deprecated syntax:
+  o̵l̵d̵_̵s̵u̵c̵c̵ ̵1̵(̲N̲a̲t̲.̲s̲u̲c̲c̲ ̲1̲)̲
+
+Note: This linter can be disabled with `set_option linter.deprecated.syntax false`
+---
+info: (Nat.succ 1).pred : Nat
+---
+info: #check Nat.pred (Nat.succ 1)
+-/
+#guard_msgs in
+#apply_suggestions #check Nat.pred old_succ 1
+
+syntax:max (name := oldNeg) "old_neg " term:max : term
+macro_rules | `(old_neg $e) => `(-$e)
+
+deprecated_syntax oldNeg "use `-` instead" (since := "2026-10-19")
+  | `(old_neg $e) => `(-$e)
+
+-- `-` binds less tightly than `old_neg`.
+/--
+warning: syntax 'oldNeg' has been deprecated: use `-` instead
+
+Hint: Replace the deprecated syntax:
+  o̵l̵d̵_̵n̵e̵g̵ ̵1̵(̲-̲1̲)̲
+
+Note: This linter can be disabled with `set_option linter.deprecated.syntax false`
+---
+info: (-1).natAbs : Nat
+---
+info: #check Int.natAbs (-1)
+-/
+#guard_msgs in
+#apply_suggestions #check Int.natAbs old_neg 1
+
+syntax:65 (name := oldPlus) term:65 " +' " term:66 : term
+macro_rules | `($a +' $b) => `($a + $b)
+
+deprecated_syntax oldPlus "use `+` instead" (since := "2026-10-19")
+  | `($a +' $b) => `($a + $b)
+
+-- `+` binds exactly as tightly as `+'`, so wherever `+'` parses, `+` parses the same way.
+/--
+warning: syntax 'oldPlus' has been deprecated: use `+` instead
+
+Hint: Replace the deprecated syntax:
+  1 +'̵ 2
+
+Note: This linter can be disabled with `set_option linter.deprecated.syntax false`
+---
+info: 1 + 2 : Nat
+---
+info: #check 1 + 2
+-/
+#guard_msgs in
+#apply_suggestions #check 1 +' 2
+
+-- Parentheses written by the user are kept and not doubled.
+/--
+warning: syntax 'oldPlus' has been deprecated: use `+` instead
+
+Hint: Replace the deprecated syntax:
+  1 +'̵ 2
+
+Note: This linter can be disabled with `set_option linter.deprecated.syntax false`
+---
+info: (1 + 2).succ : Nat
+---
+info: #check Nat.succ (1 + 2)
+-/
+#guard_msgs in
+#apply_suggestions #check Nat.succ (1 +' 2)
+
+deprecated_syntax Lean.Parser.Term.let_fun "use `have` instead" (since := "2026-10-19")
+  | `(let_fun $x:ident := $v; $b) => `(have $x:ident := $v; $b)
+
+-- Like `let_fun`, `have` extends as far to the right as possible and cannot be an argument.
+/--
+warning: syntax 'Lean.Parser.Term.let_fun' has been deprecated: use `have` instead
+
+Hint: Replace the deprecated syntax:
+  l̵e̵t̵_̵f̵u̵n̵h̲a̲v̲e̲ x := 1; ̵
+  ̲x + 1
+
+Note: This linter can be disabled with `set_option linter.deprecated.syntax false`
+---
+info: have x := 1;
+x + 1 : Nat
+---
+info: #check have x := 1;
+x + 1
+-/
+#guard_msgs in
+#apply_suggestions #check let_fun x := 1; x + 1
+
+syntax:max (name := oldPair) "old_pair " term:max term:max : term
+macro_rules | `(old_pair $a $b) => `(($a, $b))
+
+deprecated_syntax oldPair "use a tuple instead" (since := "2026-10-19")
+  | `(old_pair $a $b) => `(($a, $b))
+
+-- Bracketed terms bind as tightly as any syntax.
+/--
+warning: syntax 'oldPair' has been deprecated: use a tuple instead
+
+Hint: Replace the deprecated syntax:
+  o̵l̵d̵_̵p̵a̵i̵r̵ ̵1̵ ̵2̵(̲1̲,̲ ̲2̲)̲
+
+Note: This linter can be disabled with `set_option linter.deprecated.syntax false`
+---
+info: (1, 2).fst : Nat
+---
+info: #check Prod.fst (1, 2)
+-/
+#guard_msgs in
+#apply_suggestions #check Prod.fst old_pair 1 2
+
+syntax:max (name := oldFst) "old_fst " term:max : term
+macro_rules | `(old_fst $e) => `($e.1)
+
+deprecated_syntax oldFst "use `.1` instead" (since := "2026-10-19")
+  | `(old_fst $e) => `($e.1)
+
+-- So are projections.
+/--
+warning: syntax 'oldFst' has been deprecated: use `.1` instead
+
+Hint: Replace the deprecated syntax:
+  o̵l̵d̵_̵f̵s̵t̵ ̵(1, 2).̲1̲
+
+Note: This linter can be disabled with `set_option linter.deprecated.syntax false`
+---
+info: (1, 2).fst.succ : Nat
+---
+info: #check Nat.succ (1, 2).1
+-/
+#guard_msgs in
+#apply_suggestions #check Nat.succ old_fst (1, 2)
+
+syntax (name := oldZero) "old_zero" : term
+macro_rules | `(old_zero) => `(Nat.zero)
+
+deprecated_syntax oldZero "use `Nat.zero` instead" (since := "2026-10-19")
+  | `(old_zero) => `(Nat.zero)
+
+-- And identifiers.
+/--
+warning: syntax 'oldZero' has been deprecated: use `Nat.zero` instead
+
+Hint: Replace the deprecated syntax:
+  o̵l̵d̵_̵N̲a̲t̲.̲zero
+
+Note: This linter can be disabled with `set_option linter.deprecated.syntax false`
+---
+info: Nat.zero.succ : Nat
+---
+info: #check Nat.succ Nat.zero
+-/
+#guard_msgs in
+#apply_suggestions #check Nat.succ old_zero
 
 /-! ## Tactics -/
 
@@ -165,6 +338,28 @@ Note: This linter can be disabled with `set_option linter.deprecated.syntax fals
 #guard_msgs in
 #apply_suggestions example : True := by old_tac with (trivial)
 
+/-! ## Comments -/
+
+-- A comment after the deprecated syntax stays in place and is not copied into the replacement.
+/--
+warning: syntax 'oldTac' has been deprecated: use `exact` instead
+
+Hint: Replace the deprecated syntax:
+  o̵l̵d̵_̵t̵a̵c̵ ̵w̵i̵t̵h̵ ̵h̵e̲x̲a̲c̲t̲ ̲h̲
+
+Note: This linter can be disabled with `set_option linter.deprecated.syntax false`
+---
+info: example (h : True) : True ∧ True := by
+  constructor
+  exact h -- the first goal
+  trivial
+-/
+#guard_msgs in
+#apply_suggestions example (h : True) : True ∧ True := by
+  constructor
+  old_tac with h -- the first goal
+  trivial
+
 /-! ## Tactics tried by several macros -/
 
 syntax (name := oldMulti) "old_multi" (ppSpace num)? : tactic
@@ -260,11 +455,11 @@ deprecated_syntax oldConst "use `fun` instead" (since := "2026-10-19")
 warning: syntax 'oldConst' has been deprecated: use `fun` instead
 
 Hint: Replace the deprecated syntax:
-  o̵l̵d̵_̵c̵o̵n̵s̵t̵ ̵1̵f̲u̲n̲ ̲x̲ ̲=̲>̲ ̲N̲a̲t̲.̲s̲u̲c̲c̲ ̲1̲
+  o̵l̵d̵_̵c̵o̵n̵s̵t̵ ̵1̵(̲f̲u̲n̲ ̲x̲ ̲=̲>̲ ̲N̲a̲t̲.̲s̲u̲c̲c̲ ̲1̲)̲
 
 Note: This linter can be disabled with `set_option linter.deprecated.syntax false`
 ---
-info: example : Nat → Nat := fun x => Nat.succ 1
+info: example : Nat → Nat := (fun x => Nat.succ 1)
 -/
 #guard_msgs in
 #apply_suggestions example : Nat → Nat := old_const 1
@@ -282,11 +477,11 @@ deprecated_syntax oldHyg "use `fun` instead" (since := "2026-10-19")
 warning: syntax 'oldHyg' has been deprecated: use `fun` instead
 
 Hint: Replace the deprecated syntax:
-  o̵l̵d̵_̵h̵y̵g̵f̲u̲n̲ ̲y̲✝̲ ̲=̲>̲ ̲0̲
+  o̵l̵d̵_̵h̵y̵g̵(̲f̲u̲n̲ ̲y̲✝̲ ̲=̲>̲ ̲0̲)̲
 
 Note: This linter can be disabled with `set_option linter.deprecated.syntax false`
 ---
-info: example : Nat → Nat := fun y✝ => 0
+info: example : Nat → Nat := (fun y✝ => 0)
 -/
 #guard_msgs in
 #apply_suggestions example : Nat → Nat := old_hyg

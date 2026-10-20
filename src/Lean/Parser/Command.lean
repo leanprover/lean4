@@ -698,10 +698,12 @@ As with `macro_rules`, the patterns are syntax quotations of the deprecated synt
 right-hand sides run in `MacroM`. Instead, a single alternative with an identifier pattern, such as
 `| stx => f stx` for some `f : Macro`, receives every use of the deprecated syntax.
 
-The result is printed as source text, so it should be syntax that can be kept in the source. Macro
-scopes that the quotations add to identifiers are erased, so these identifiers are printed as
-written and are not hygienic. Identifiers created with `mkIdent` from a name that has macro scopes
-keep them and are printed as inaccessible names such as `x✝`.
+The result is printed as source text, so it should be syntax that can be kept in the source. A
+replacement term that binds less tightly than the deprecated syntax, such as `a + b` replacing a
+notation of maximal precedence, is wrapped in parentheses so that it parses as a whole wherever the
+deprecated syntax was used. Macro scopes that the quotations add to identifiers are erased, so
+these identifiers are printed as written and are not hygienic. Identifiers created with `mkIdent`
+from a name that has macro scopes keep them and are printed as inaccessible names such as `x✝`.
 
 Suggestions are only offered for deprecated syntax written by the user, not for deprecated syntax
 produced by a macro, and only if the syntax kind belongs to a single syntax category. A later

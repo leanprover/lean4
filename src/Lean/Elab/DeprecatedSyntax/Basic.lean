@@ -10,6 +10,7 @@ public import Lean.MonadEnv
 public import Lean.Linter.Init
 public import Lean.Elab.Util
 import Lean.Meta.Hint
+import Lean.PrettyPrinter.Parenthesizer
 
 public section
 
@@ -65,6 +66,44 @@ private unsafe def evalReplacementUnsafe (declName : Name) : CoreM Macro :=
 @[implemented_by evalReplacementUnsafe]
 private opaque evalReplacement (declName : Name) : CoreM Macro
 
+/-!
+A replacement term is parenthesized unless it parses the same wherever the deprecated syntax does,
+as the position of the deprecated syntax is unknown.
+-/
+section ParenthesizeReplacement
+
+open PrettyPrinter Parenthesizer in
+/--
+Returns the precedences of the term `stx` that `term.parenthesizer` compares against the
+surrounding syntax: the minimum precedence of the parsers producing `stx`, and the minimum
+precedence and the category of the nested parser calls that end where `stx` ends, if any.
+-/
+private def termPrecedences (stx : Syntax) : CoreM (Option Nat × Option Nat × Name) := do
+  let (_, st) ← (parenthesizeCategoryCore `term 0 {}).run { stxTrav := .fromSyntax stx }
+  return (st.minPrec, st.trailPrec, st.trailCat)
+
+/--
+Whether the term `newStx` binds at least as tightly as the term `stx` on both sides, so that it
+parses the same in any position where `stx` parses.
+-/
+private def bindsAsTightly (stx newStx : Syntax) : CoreM Bool := do
+  let (minPrec, trailPrec, trailCat) ← termPrecedences stx
+  let (newMinPrec, newTrailPrec, newTrailCat) ← termPrecedences newStx
+  -- Syntax after `stx` was not absorbed by its right end, so it has precedence below `trailPrec`
+  let bindsRight := match newTrailPrec, trailPrec with
+    | none, _ => true
+    | some newTrailPrec, some trailPrec => newTrailCat == trailCat && newTrailPrec ≥ trailPrec
+    | some _, none => false
+  return newMinPrec.getD 0 ≥ minPrec.getD Parser.maxPrec && bindsRight
+
+/-- Wraps the term `newStx` in parentheses unless it binds at least as tightly as the term `stx`. -/
+private def parenthesizeReplacement (stx newStx : Syntax) : CoreM Syntax := do
+  if (← try bindsAsTightly stx newStx catch _ => pure false) then
+    return newStx
+  `(($(⟨newStx⟩)))
+
+end ParenthesizeReplacement
+
 /--
 Creates a hint offering to replace `stx` by the output of the replacement registered for its kind.
 Returns the empty message if there is no replacement or it fails.
@@ -78,7 +117,13 @@ private def mkReplacementHint (stx : Syntax) : CoreM MessageData := do
   unless (stx.getRange? (canonicalOnly := true)).isSome do return .nil
   try
     let replacement ← evalReplacement declName
-    let newStx := (← withRef stx <| liftMacroM <| replacement stx).eraseQuoteMacroScopes
+    -- The trailing trivia of `stx` is not replaced, so it must not be printed in the replacement
+    let mut newStx :=
+      (← withRef stx <| liftMacroM <| replacement stx.unsetTrailing).eraseQuoteMacroScopes
+    if cat == `term then
+      -- This is a heuristic to minimize cases where the replacement syntax parses in unexpected
+      -- ways. It does not try to catch all such cases.
+      newStx ← parenthesizeReplacement stx newStx
     MessageData.hint "Replace the deprecated syntax:"
       #[{ suggestion := .tsyntax (kind := cat) ⟨newStx⟩ }] (ref? := stx)
   catch _ =>

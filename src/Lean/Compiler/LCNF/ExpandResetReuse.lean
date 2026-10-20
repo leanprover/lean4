@@ -344,7 +344,7 @@ where
   mkSlowPath (origAllocId : FVarId) (mask : Mask) (resetJpId : FVarId) (isSharedId : FVarId) :
       CompilerM (Code .impure) := do
     let mut code := .jmp resetJpId #[.erased, .fvar isSharedId]
-    code := .dec origAllocId 1 true false none code
+    code := .dec origAllocId 1 false false none code
     for fvarId? in mask do
       let some fvarId := fvarId? | continue
       code := .inc fvarId 1 true false code

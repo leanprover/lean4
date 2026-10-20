@@ -145,12 +145,14 @@ def propagateIntLe (e : Expr) (eqTrue : Bool) : GoalM Unit := do
   unless (← Structural.isInstLEInt inst) do return ()
   if let some 0 ← getIntValue? b then
     if let some p ← toPoly? a then
+      trace[grind.debug.lia.norm] "normalized: {e}"
       let c ← if eqTrue then
         pure { p, h := .core e : LeCnstr }
       else
         pure { p := p.mul (-1) |>.addConst 1, h := .coreNeg e p : LeCnstr }
       c.assertCore
       return
+  trace[grind.debug.lia.norm] "not normalized: {e}"
   let gen ← getGeneration e
   let lhs ← toLinearExpr a gen
   let rhs ← toLinearExpr b gen

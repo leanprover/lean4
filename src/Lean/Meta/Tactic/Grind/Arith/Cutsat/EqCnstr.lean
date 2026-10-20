@@ -538,6 +538,8 @@ private def internalizeInt (e : Expr) : GoalM Unit := do
       -- It is pointless to assert `x = x`
       -- This can happen if `e` is a nonlinear term (e.g., `e` is `a*b`)
       return
+    unless p matches .num _ do
+      trace[grind.debug.lia.norm] "normalized: {e}"
     if let some (re, rp, p') ← p.normCommRing? then
       let c := { p := .add (-1) x p', h := .defnCommRing e p re rp p' : EqCnstr }
       c.assert
@@ -547,7 +549,8 @@ private def internalizeInt (e : Expr) : GoalM Unit := do
   else
     let e' ← toLinearExpr e (← getGeneration e)
     let p := e'.norm
-    trace[grind.debug.lia.internalize] "{aquote e}:= {← p.pp} (normalized)"
+    trace[grind.debug.lia.internalize] "{aquote e}:= {← p.pp}"
+    trace[grind.debug.lia.norm] "not normalized: {e}"
     let x ← mkVar e
     let h ← mkEqRefl e
     if let some (re, rp, p') ← p.normCommRing? then

@@ -234,6 +234,255 @@ info: #check Nat.succ Nat.zero
 #guard_msgs in
 #apply_suggestions #check Nat.succ old_zero
 
+/-! ## Operands of `binop%`, `unop%` and `binrel%` -/
+
+-- These elaborators expand the macros in their operands themselves.
+/--
+warning: syntax 'oldAdd' has been deprecated: use `+` instead
+
+Hint: Replace the deprecated syntax:
+  o̵l̵d̵_̵a̵d̵d̵ ̵1̵ ̵2̵(̲1̲ ̲+̲ ̲2̲)̲
+
+Note: This linter can be disabled with `set_option linter.deprecated.syntax false`
+---
+info: (1 + 2) * 3 : Nat
+---
+info: #check (1 + 2) * 3
+-/
+#guard_msgs in
+#apply_suggestions #check old_add 1 2 * 3
+
+/--
+warning: syntax 'oldNeg' has been deprecated: use `-` instead
+
+Hint: Replace the deprecated syntax:
+  o̵l̵d̵_̵n̵e̵g̵ ̵(̵1̵(̲-̲(̲1̲ : I̵n̵t̵)̵I̲n̲t̲)̲)̲
+
+Note: This linter can be disabled with `set_option linter.deprecated.syntax false`
+---
+info: - -1 : Int
+---
+info: #check -(-(1 : Int))
+-/
+#guard_msgs in
+#apply_suggestions #check -old_neg (1 : Int)
+
+/--
+warning: syntax 'oldSucc' has been deprecated: use `Nat.succ` instead
+
+Hint: Replace the deprecated syntax:
+  o̵l̵d̵_̵s̵u̵c̵c̵ ̵1̵(̲N̲a̲t̲.̲s̲u̲c̲c̲ ̲1̲)̲
+
+Note: This linter can be disabled with `set_option linter.deprecated.syntax false`
+---
+info: Nat.succ 1 = 2 : Prop
+---
+info: #check (Nat.succ 1) = 2
+-/
+#guard_msgs in
+#apply_suggestions #check old_succ 1 = 2
+
+syntax:50 (name := oldLe) term:51 " ≤' " term:51 : term
+macro_rules | `($a ≤' $b) => `($a ≤ $b)
+
+deprecated_syntax oldLe "use `≤` instead" (since := "2026-10-19")
+  | `($a ≤' $b) => `($a ≤ $b)
+
+-- Deprecated syntax nested in deprecated syntax is reported as well.
+/--
+warning: syntax 'oldLe' has been deprecated: use `≤` instead
+
+Hint: Replace the deprecated syntax:
+  1 +' 2 ≤'̵ 3
+
+Note: This linter can be disabled with `set_option linter.deprecated.syntax false`
+---
+warning: syntax 'oldPlus' has been deprecated: use `+` instead
+
+Hint: Replace the deprecated syntax:
+  1 +'̵ 2
+
+Note: This linter can be disabled with `set_option linter.deprecated.syntax false`
+---
+info: (1 + 2 ≤ 3) = True : Prop
+-/
+#guard_msgs in
+#check (1 +' 2 ≤' 3) = True
+
+macro "wrapped_add" : term => `(old_add 1 2)
+
+/--
+warning: macro 'termWrapped_add' (expanded from '«term_+_»') produces deprecated syntax 'oldAdd': use `+` instead
+
+Note: This linter can be disabled with `set_option linter.deprecated.syntax false`
+---
+info: 1 + 2 + 3 : Nat
+-/
+#guard_msgs in
+#check wrapped_add + 3
+
+-- Deprecated syntax is not reported in deprecated declarations.
+#guard_msgs in
+@[deprecated "use `+` instead" (since := "2026-10-19")]
+def deprecatedAdd : Nat := old_add 1 2 * 3
+
+/-! ## `do` elements -/
+
+syntax (name := oldReturn) "old_return " term : doElem
+macro_rules | `(doElem| old_return $e) => `(doElem| return $e)
+
+deprecated_syntax oldReturn "use `return` instead" (since := "2026-10-19")
+  | `(doElem| old_return $e) => `(doElem| return $e)
+
+/--
+warning: syntax 'oldReturn' has been deprecated: use `return` instead
+
+Hint: Replace the deprecated syntax:
+  o̵l̵d̵_̵return 1
+
+Note: This linter can be disabled with `set_option linter.deprecated.syntax false`
+---
+info: def doReturnTest : Id Nat := do
+  return 1
+-/
+#guard_msgs in
+#apply_suggestions def doReturnTest : Id Nat := do
+  old_return 1
+
+-- `unless` is implemented by an elaborator rather than a macro.
+deprecated_syntax Lean.Parser.Term.doUnless "use `if` instead" (since := "2026-10-19")
+  | `(doElem| unless $c do $s) => `(doElem| if !$c then $s)
+
+/--
+warning: syntax 'Lean.Parser.Term.doUnless' has been deprecated: use `if` instead
+
+Hint: Replace the deprecated syntax:
+  u̵n̵l̵e̵s̵s̵ ̵b̵ ̵d̵o̵i̲f̲ ̲!̲b̲ ̲t̲h̲e̲n̲ 
+      return 1
+
+Note: This linter can be disabled with `set_option linter.deprecated.syntax false`
+---
+info: def doUnlessTest (b : Bool) : Id Nat := do
+  if !b then 
+    return 1
+  return 2
+-/
+#guard_msgs in
+#apply_suggestions def doUnlessTest (b : Bool) : Id Nat := do
+  unless b do
+    return 1
+  return 2
+
+-- Nested actions are lifted out of the syntax before it is elaborated, so there is no suggestion.
+/--
+warning: syntax 'Lean.Parser.Term.doUnless' has been deprecated: use `if` instead
+
+Note: This linter can be disabled with `set_option linter.deprecated.syntax false`
+-/
+#guard_msgs in
+def doUnlessNestedTest (b : Id Bool) : Id Nat := do
+  unless (← b) do
+    return 1
+  return 2
+
+deprecated_syntax Lean.Parser.Term.doUnless "use `if` instead" (since := "2026-10-19")
+
+/-! ## Patterns -/
+
+/--
+warning: syntax 'oldSucc' has been deprecated: use `Nat.succ` instead
+
+Hint: Replace the deprecated syntax:
+  o̵l̵d̵_̵s̵u̵c̵c̵ ̵n̵(̲N̲a̲t̲.̲s̲u̲c̲c̲ ̲n̲)̲
+
+Note: This linter can be disabled with `set_option linter.deprecated.syntax false`
+---
+info: def patternTest : Nat → Nat
+  | (Nat.succ n) => n
+  | _ => 0
+-/
+#guard_msgs in
+#apply_suggestions def patternTest : Nat → Nat
+  | old_succ n => n
+  | _ => 0
+
+/--
+warning: syntax 'oldZero' has been deprecated: use `Nat.zero` instead
+
+Hint: Replace the deprecated syntax:
+  o̵l̵d̵_̵N̲a̲t̲.̲zero
+
+Note: This linter can be disabled with `set_option linter.deprecated.syntax false`
+---
+info: def doMatchTest (n : Nat) : Id Nat := do
+  match n with
+  | Nat.zero => return 1
+  | _ => return 0
+-/
+#guard_msgs in
+#apply_suggestions def doMatchTest (n : Nat) : Id Nat := do
+  match n with
+  | old_zero => return 1
+  | _ => return 0
+
+macro "zero_pat" : term => `(old_zero)
+
+/--
+warning: macro 'termZero_pat' produces deprecated syntax 'oldZero': use `Nat.zero` instead
+
+Note: This linter can be disabled with `set_option linter.deprecated.syntax false`
+-/
+#guard_msgs in
+def macroPatternTest : Nat → Nat
+  | zero_pat => 1
+  | _ => 0
+
+-- Elaboration of the `match` is postponed until the type of `n` is known.
+/--
+warning: syntax 'oldSucc' has been deprecated: use `Nat.succ` instead
+
+Hint: Replace the deprecated syntax:
+  o̵l̵d̵_̵s̵u̵c̵c̵ ̵k̵(̲N̲a̲t̲.̲s̲u̲c̲c̲ ̲k̲)̲
+
+Note: This linter can be disabled with `set_option linter.deprecated.syntax false`
+-/
+#guard_msgs in
+example : Nat → Nat := (fun n => match n with | old_succ k => k | _ => 0 : _ → Nat)
+
+/-! ## Syntax definitions -/
+
+syntax:arg (name := oldMany) stx:max "*'" : stx
+macro_rules | `(stx| $p*') => `(stx| $p*)
+
+deprecated_syntax oldMany "use `*` instead" (since := "2026-10-19")
+  | `(stx| $p*') => `(stx| $p*)
+
+/--
+warning: syntax 'oldMany' has been deprecated: use `*` instead
+
+Hint: Replace the deprecated syntax:
+  num*'̵
+
+Note: This linter can be disabled with `set_option linter.deprecated.syntax false`
+---
+info: syntax "nums " num* : term
+-/
+#guard_msgs in
+#apply_suggestions syntax "nums " num*' : term
+
+/--
+warning: syntax 'oldMany' has been deprecated: use `*` instead
+
+Hint: Replace the deprecated syntax:
+  num*'̵
+
+Note: This linter can be disabled with `set_option linter.deprecated.syntax false`
+---
+info: macro "nums' " num* : term => `(0)
+-/
+#guard_msgs in
+#apply_suggestions macro "nums' " num*' : term => `(0)
+
 /-! ## Tactics -/
 
 syntax (name := oldExact) "old_exact " term : tactic

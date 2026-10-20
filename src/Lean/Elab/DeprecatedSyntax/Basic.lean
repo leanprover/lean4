@@ -115,6 +115,10 @@ private def mkReplacementHint (stx : Syntax) : CoreM MessageData := do
   -- Printing the replacement requires its category, so it must be unambiguous
   let #[cat] := Parser.getSyntaxNodeKindCategories env stx.getKind | return .nil
   unless (stx.getRange? (canonicalOnly := true)).isSome do return .nil
+  -- Elaborators may rewrite syntax before elaborating it, e.g. by lifting nested actions out of a
+  -- `do` element, and the replacement of such syntax does not reflect the source
+  let isRewritten (s : Syntax) := (s.isAtom || s.isIdent) && !(s.getHeadInfo matches .original ..)
+  if (stx.find? isRewritten).isSome then return .nil
   try
     let replacement ← evalReplacement declName
     -- The trailing trivia of `stx` is not replaced, so it must not be printed in the replacement

@@ -33,3 +33,44 @@ deprecated_syntax oldNum "use `42` instead" (since := "2026-10-19")
 
 example : Nat := old_num
                  --^ codeAction
+
+example : Nat := old_num * 2
+                 --^ codeAction
+
+example : old_num = 42 := rfl
+          --^ codeAction
+
+syntax (name := oldReturn) "old_return " term : doElem
+macro_rules | `(doElem| old_return $e) => `(doElem| return $e)
+
+deprecated_syntax oldReturn "use `return` instead" (since := "2026-10-19")
+  | `(doElem| old_return $e) => `(doElem| return $e)
+
+def doReturnTest : Id Nat := do
+  old_return 1
+  --^ codeAction
+
+deprecated_syntax Lean.Parser.Term.doUnless "use `if` instead" (since := "2026-10-19")
+  | `(doElem| unless $c do $s) => `(doElem| if !$c then $s)
+
+def doUnlessTest (b : Bool) : Id Nat := do
+  unless b do return 1
+  --^ codeAction
+  return 2
+
+def patternTest : Nat → Nat
+  | old_num => 1
+    --^ codeAction
+  | _ => 0
+
+syntax:arg (name := oldMany) stx:max "*'" : stx
+macro_rules | `(stx| $p*') => `(stx| $p*)
+
+deprecated_syntax oldMany "use `*` instead" (since := "2026-10-19")
+  | `(stx| $p*') => `(stx| $p*)
+
+syntax "nums " num*' : term
+                --^ codeAction
+
+macro "nums' " num*' : term => `(0)
+                --^ codeAction

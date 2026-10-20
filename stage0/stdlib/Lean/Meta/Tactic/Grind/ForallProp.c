@@ -1955,10 +1955,10 @@ v_a_442_ = lean_ctor_get(v___x_441_, 0);
 lean_inc(v_a_442_);
 lean_dec_ref_known(v___x_441_, 1);
 v___x_443_ = lean_obj_once(&l_Lean_Meta_Grind_propagateForallPropUp___closed__2, &l_Lean_Meta_Grind_propagateForallPropUp___closed__2_once, _init_l_Lean_Meta_Grind_propagateForallPropUp___closed__2);
-lean_inc_ref(v___y_431_);
+lean_inc_ref(v___y_430_);
 lean_inc_ref(v_binderType_426_);
-v___x_444_ = l_Lean_mkApp5(v___x_443_, v_binderType_426_, v___y_432_, v___y_431_, v___y_430_, v_a_442_);
-v___x_445_ = l_Lean_Meta_Grind_pushEqCore___redArg(v_e_413_, v___y_431_, v___x_444_, v___y_434_, v___y_435_, v___y_436_, v___y_437_, v___y_438_, v___y_439_, v___y_440_);
+v___x_444_ = l_Lean_mkApp5(v___x_443_, v_binderType_426_, v___y_432_, v___y_430_, v___y_431_, v_a_442_);
+v___x_445_ = l_Lean_Meta_Grind_pushEqCore___redArg(v_e_413_, v___y_430_, v___x_444_, v___y_434_, v___y_435_, v___y_436_, v___y_437_, v___y_438_, v___y_439_, v___y_440_);
 return v___x_445_;
 }
 else
@@ -2074,8 +2074,8 @@ v_options_482_ = lean_ctor_get(v_toCold_481_, 2);
 v_hasTrace_483_ = lean_ctor_get_uint8(v_options_482_, sizeof(void*)*1);
 if (v_hasTrace_483_ == 0)
 {
-v___y_430_ = v_a_470_;
-v___y_431_ = v_expr_475_;
+v___y_430_ = v_expr_475_;
+v___y_431_ = v_a_470_;
 v___y_432_ = v___x_476_;
 v___y_433_ = v_a_474_;
 v___y_434_ = v___y_458_;
@@ -2095,8 +2095,8 @@ v___x_485_ = lean_obj_once(&l_Lean_Meta_Grind_propagateForallPropUp___closed__7,
 v___x_486_ = l___private_Lean_Util_Trace_0__Lean_checkTraceOption_go(v_inheritedTraceOptions_484_, v_options_482_, v___x_485_);
 if (v___x_486_ == 0)
 {
-v___y_430_ = v_a_470_;
-v___y_431_ = v_expr_475_;
+v___y_430_ = v_expr_475_;
+v___y_431_ = v_a_470_;
 v___y_432_ = v___x_476_;
 v___y_433_ = v_a_474_;
 v___y_434_ = v___y_458_;
@@ -2135,8 +2135,8 @@ v___x_495_ = l_Lean_addTrace___at___00Lean_Meta_Grind_propagateForallPropUp_spec
 if (lean_obj_tag(v___x_495_) == 0)
 {
 lean_dec_ref_known(v___x_495_, 1);
-v___y_430_ = v_a_470_;
-v___y_431_ = v_expr_475_;
+v___y_430_ = v_expr_475_;
+v___y_431_ = v_a_470_;
 v___y_432_ = v___x_476_;
 v___y_433_ = v_a_474_;
 v___y_434_ = v___y_458_;

@@ -2750,13 +2750,14 @@ _start:
 {
 lean_object* v___x_756_; lean_object* v___x_757_; 
 v___x_756_ = lean_obj_once(&l_Lean_ScopedEnvExtension_add___at___00__private_Lean_Meta_Tactic_Symm_0__Lean_Meta_Symm_initFn_00___x40_Lean_Meta_Tactic_Symm_3447505512____hygCtx___hyg_2__spec__0___redArg___closed__0, &l_Lean_ScopedEnvExtension_add___at___00__private_Lean_Meta_Tactic_Symm_0__Lean_Meta_Symm_initFn_00___x40_Lean_Meta_Tactic_Symm_3447505512____hygCtx___hyg_2__spec__0___redArg___closed__0_once, _init_l_Lean_ScopedEnvExtension_add___at___00__private_Lean_Meta_Tactic_Symm_0__Lean_Meta_Symm_initFn_00___x40_Lean_Meta_Tactic_Symm_3447505512____hygCtx___hyg_2__spec__0___redArg___closed__0);
-v___x_757_ = lean_alloc_ctor(0, 6, 0);
+v___x_757_ = lean_alloc_ctor(0, 7, 0);
 lean_ctor_set(v___x_757_, 0, v___x_756_);
 lean_ctor_set(v___x_757_, 1, v___x_756_);
 lean_ctor_set(v___x_757_, 2, v___x_756_);
 lean_ctor_set(v___x_757_, 3, v___x_756_);
 lean_ctor_set(v___x_757_, 4, v___x_756_);
 lean_ctor_set(v___x_757_, 5, v___x_756_);
+lean_ctor_set(v___x_757_, 6, v___x_756_);
 return v___x_757_;
 }
 }
@@ -3704,13 +3705,14 @@ _start:
 {
 lean_object* v___x_1148_; lean_object* v___x_1149_; 
 v___x_1148_ = lean_obj_once(&l___private_Lean_Meta_Tactic_Symm_0__Lean_Meta_Symm_initFn___lam__0___closed__3_00___x40_Lean_Meta_Tactic_Symm_3447505512____hygCtx___hyg_2_, &l___private_Lean_Meta_Tactic_Symm_0__Lean_Meta_Symm_initFn___lam__0___closed__3_00___x40_Lean_Meta_Tactic_Symm_3447505512____hygCtx___hyg_2__once, _init_l___private_Lean_Meta_Tactic_Symm_0__Lean_Meta_Symm_initFn___lam__0___closed__3_00___x40_Lean_Meta_Tactic_Symm_3447505512____hygCtx___hyg_2_);
-v___x_1149_ = lean_alloc_ctor(0, 6, 0);
+v___x_1149_ = lean_alloc_ctor(0, 7, 0);
 lean_ctor_set(v___x_1149_, 0, v___x_1148_);
 lean_ctor_set(v___x_1149_, 1, v___x_1148_);
 lean_ctor_set(v___x_1149_, 2, v___x_1148_);
 lean_ctor_set(v___x_1149_, 3, v___x_1148_);
 lean_ctor_set(v___x_1149_, 4, v___x_1148_);
 lean_ctor_set(v___x_1149_, 5, v___x_1148_);
+lean_ctor_set(v___x_1149_, 6, v___x_1148_);
 return v___x_1149_;
 }
 }

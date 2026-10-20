@@ -1085,13 +1085,14 @@ _start:
 {
 lean_object* v___x_202_; lean_object* v___x_203_; 
 v___x_202_ = lean_obj_once(&l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Linter_EnvLinter_lintCore_spec__2___lam__0___closed__1, &l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Linter_EnvLinter_lintCore_spec__2___lam__0___closed__1_once, _init_l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Linter_EnvLinter_lintCore_spec__2___lam__0___closed__1);
-v___x_203_ = lean_alloc_ctor(0, 6, 0);
+v___x_203_ = lean_alloc_ctor(0, 7, 0);
 lean_ctor_set(v___x_203_, 0, v___x_202_);
 lean_ctor_set(v___x_203_, 1, v___x_202_);
 lean_ctor_set(v___x_203_, 2, v___x_202_);
 lean_ctor_set(v___x_203_, 3, v___x_202_);
 lean_ctor_set(v___x_203_, 4, v___x_202_);
 lean_ctor_set(v___x_203_, 5, v___x_202_);
+lean_ctor_set(v___x_203_, 6, v___x_202_);
 return v___x_203_;
 }
 }

@@ -3349,13 +3349,14 @@ _start:
 {
 lean_object* v___x_1141_; lean_object* v___x_1142_; 
 v___x_1141_ = lean_obj_once(&l_Lean_ScopedEnvExtension_add___at___00Lean_Meta_Grind_addHomoAttr_spec__0___redArg___closed__0, &l_Lean_ScopedEnvExtension_add___at___00Lean_Meta_Grind_addHomoAttr_spec__0___redArg___closed__0_once, _init_l_Lean_ScopedEnvExtension_add___at___00Lean_Meta_Grind_addHomoAttr_spec__0___redArg___closed__0);
-v___x_1142_ = lean_alloc_ctor(0, 6, 0);
+v___x_1142_ = lean_alloc_ctor(0, 7, 0);
 lean_ctor_set(v___x_1142_, 0, v___x_1141_);
 lean_ctor_set(v___x_1142_, 1, v___x_1141_);
 lean_ctor_set(v___x_1142_, 2, v___x_1141_);
 lean_ctor_set(v___x_1142_, 3, v___x_1141_);
 lean_ctor_set(v___x_1142_, 4, v___x_1141_);
 lean_ctor_set(v___x_1142_, 5, v___x_1141_);
+lean_ctor_set(v___x_1142_, 6, v___x_1141_);
 return v___x_1142_;
 }
 }

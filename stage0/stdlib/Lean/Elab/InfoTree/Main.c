@@ -2083,13 +2083,14 @@ _start:
 {
 lean_object* v___x_477_; lean_object* v___x_478_; 
 v___x_477_ = lean_obj_once(&l_Lean_Elab_ContextInfo_runMetaM___redArg___closed__4, &l_Lean_Elab_ContextInfo_runMetaM___redArg___closed__4_once, _init_l_Lean_Elab_ContextInfo_runMetaM___redArg___closed__4);
-v___x_478_ = lean_alloc_ctor(0, 6, 0);
+v___x_478_ = lean_alloc_ctor(0, 7, 0);
 lean_ctor_set(v___x_478_, 0, v___x_477_);
 lean_ctor_set(v___x_478_, 1, v___x_477_);
 lean_ctor_set(v___x_478_, 2, v___x_477_);
 lean_ctor_set(v___x_478_, 3, v___x_477_);
 lean_ctor_set(v___x_478_, 4, v___x_477_);
 lean_ctor_set(v___x_478_, 5, v___x_477_);
+lean_ctor_set(v___x_478_, 6, v___x_477_);
 return v___x_478_;
 }
 }

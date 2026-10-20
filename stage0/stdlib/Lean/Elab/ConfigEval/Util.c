@@ -7594,13 +7594,14 @@ _start:
 {
 lean_object* v___x_2553_; lean_object* v___x_2554_; 
 v___x_2553_ = lean_obj_once(&l_Lean_setEnv___at___00Lean_Elab_ConfigEval_withClassInstDeps_spec__0___redArg___closed__1, &l_Lean_setEnv___at___00Lean_Elab_ConfigEval_withClassInstDeps_spec__0___redArg___closed__1_once, _init_l_Lean_setEnv___at___00Lean_Elab_ConfigEval_withClassInstDeps_spec__0___redArg___closed__1);
-v___x_2554_ = lean_alloc_ctor(0, 6, 0);
+v___x_2554_ = lean_alloc_ctor(0, 7, 0);
 lean_ctor_set(v___x_2554_, 0, v___x_2553_);
 lean_ctor_set(v___x_2554_, 1, v___x_2553_);
 lean_ctor_set(v___x_2554_, 2, v___x_2553_);
 lean_ctor_set(v___x_2554_, 3, v___x_2553_);
 lean_ctor_set(v___x_2554_, 4, v___x_2553_);
 lean_ctor_set(v___x_2554_, 5, v___x_2553_);
+lean_ctor_set(v___x_2554_, 6, v___x_2553_);
 return v___x_2554_;
 }
 }

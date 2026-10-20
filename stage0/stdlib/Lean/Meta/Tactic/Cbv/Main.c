@@ -3203,9 +3203,9 @@ return v___x_787_;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Cbv_Main_0__Lean_Meta_Tactic_Cbv_handleApp___lam__0___boxed(lean_object* v_a_788_, lean_object* v_a_789_, lean_object* v_x_790_){
 _start:
 {
-uint8_t v_a_17824__boxed_791_; uint8_t v_res_792_; lean_object* v_r_793_; 
-v_a_17824__boxed_791_ = lean_unbox(v_a_789_);
-v_res_792_ = l___private_Lean_Meta_Tactic_Cbv_Main_0__Lean_Meta_Tactic_Cbv_handleApp___lam__0(v_a_788_, v_a_17824__boxed_791_, v_x_790_);
+uint8_t v_a_17830__boxed_791_; uint8_t v_res_792_; lean_object* v_r_793_; 
+v_a_17830__boxed_791_ = lean_unbox(v_a_789_);
+v_res_792_ = l___private_Lean_Meta_Tactic_Cbv_Main_0__Lean_Meta_Tactic_Cbv_handleApp___lam__0(v_a_788_, v_a_17830__boxed_791_, v_x_790_);
 lean_dec_ref(v_x_790_);
 lean_dec_ref(v_a_788_);
 v_r_793_ = lean_box(v_res_792_);

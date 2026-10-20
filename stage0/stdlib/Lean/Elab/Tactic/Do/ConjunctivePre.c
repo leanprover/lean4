@@ -1737,13 +1737,13 @@ return v___x_491_;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Elab_Tactic_VCGen_SpecAttr_isConjunctiveInPosts_spec__1___boxed(lean_object* v_qs_494_, lean_object* v___x_495_, lean_object* v_as_496_, lean_object* v_sz_497_, lean_object* v_i_498_, lean_object* v_b_499_, lean_object* v___y_500_, lean_object* v___y_501_, lean_object* v___y_502_, lean_object* v___y_503_, lean_object* v___y_504_){
 _start:
 {
-uint8_t v___x_2134__boxed_505_; size_t v_sz_boxed_506_; size_t v_i_boxed_507_; lean_object* v_res_508_; 
-v___x_2134__boxed_505_ = lean_unbox(v___x_495_);
+uint8_t v___x_2137__boxed_505_; size_t v_sz_boxed_506_; size_t v_i_boxed_507_; lean_object* v_res_508_; 
+v___x_2137__boxed_505_ = lean_unbox(v___x_495_);
 v_sz_boxed_506_ = lean_unbox_usize(v_sz_497_);
 lean_dec(v_sz_497_);
 v_i_boxed_507_ = lean_unbox_usize(v_i_498_);
 lean_dec(v_i_498_);
-v_res_508_ = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Elab_Tactic_VCGen_SpecAttr_isConjunctiveInPosts_spec__1(v_qs_494_, v___x_2134__boxed_505_, v_as_496_, v_sz_boxed_506_, v_i_boxed_507_, v_b_499_, v___y_500_, v___y_501_, v___y_502_, v___y_503_);
+v_res_508_ = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Elab_Tactic_VCGen_SpecAttr_isConjunctiveInPosts_spec__1(v_qs_494_, v___x_2137__boxed_505_, v_as_496_, v_sz_boxed_506_, v_i_boxed_507_, v_b_499_, v___y_500_, v___y_501_, v___y_502_, v___y_503_);
 lean_dec(v___y_503_);
 lean_dec_ref(v___y_502_);
 lean_dec(v___y_501_);

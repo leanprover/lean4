@@ -5890,10 +5890,10 @@ goto v___jp_1690_;
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Tactic_Decide_0__Lean_Elab_Tactic_evalDecideCore_diagnose___lam__1___boxed(lean_object* v___f_1728_, lean_object* v_s_1729_, lean_object* v___x_1730_, lean_object* v___x_1731_, lean_object* v___y_1732_, lean_object* v___y_1733_, lean_object* v___y_1734_, lean_object* v___y_1735_, lean_object* v___y_1736_){
 _start:
 {
-uint8_t v___x_11314__boxed_1737_; uint8_t v___x_11315__boxed_1738_; lean_object* v_res_1739_; 
-v___x_11314__boxed_1737_ = lean_unbox(v___x_1730_);
-v___x_11315__boxed_1738_ = lean_unbox(v___x_1731_);
-v_res_1739_ = l___private_Lean_Elab_Tactic_Decide_0__Lean_Elab_Tactic_evalDecideCore_diagnose___lam__1(v___f_1728_, v_s_1729_, v___x_11314__boxed_1737_, v___x_11315__boxed_1738_, v___y_1732_, v___y_1733_, v___y_1734_, v___y_1735_);
+uint8_t v___x_11320__boxed_1737_; uint8_t v___x_11321__boxed_1738_; lean_object* v_res_1739_; 
+v___x_11320__boxed_1737_ = lean_unbox(v___x_1730_);
+v___x_11321__boxed_1738_ = lean_unbox(v___x_1731_);
+v_res_1739_ = l___private_Lean_Elab_Tactic_Decide_0__Lean_Elab_Tactic_evalDecideCore_diagnose___lam__1(v___f_1728_, v_s_1729_, v___x_11320__boxed_1737_, v___x_11321__boxed_1738_, v___y_1732_, v___y_1733_, v___y_1734_, v___y_1735_);
 lean_dec(v___y_1735_);
 lean_dec_ref(v___y_1734_);
 lean_dec(v___y_1733_);

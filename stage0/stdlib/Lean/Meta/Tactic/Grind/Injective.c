@@ -3146,13 +3146,14 @@ _start:
 {
 lean_object* v___x_1155_; lean_object* v___x_1156_; 
 v___x_1155_ = lean_obj_once(&l_Lean_ScopedEnvExtension_add___at___00Lean_Meta_Grind_Extension_addInjectiveAttr_spec__0___redArg___closed__0, &l_Lean_ScopedEnvExtension_add___at___00Lean_Meta_Grind_Extension_addInjectiveAttr_spec__0___redArg___closed__0_once, _init_l_Lean_ScopedEnvExtension_add___at___00Lean_Meta_Grind_Extension_addInjectiveAttr_spec__0___redArg___closed__0);
-v___x_1156_ = lean_alloc_ctor(0, 6, 0);
+v___x_1156_ = lean_alloc_ctor(0, 7, 0);
 lean_ctor_set(v___x_1156_, 0, v___x_1155_);
 lean_ctor_set(v___x_1156_, 1, v___x_1155_);
 lean_ctor_set(v___x_1156_, 2, v___x_1155_);
 lean_ctor_set(v___x_1156_, 3, v___x_1155_);
 lean_ctor_set(v___x_1156_, 4, v___x_1155_);
 lean_ctor_set(v___x_1156_, 5, v___x_1155_);
+lean_ctor_set(v___x_1156_, 6, v___x_1155_);
 return v___x_1156_;
 }
 }

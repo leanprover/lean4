@@ -645,13 +645,14 @@ _start:
 {
 lean_object* v___x_6_; lean_object* v___x_7_; 
 v___x_6_ = lean_obj_once(&l_Lean_ScopedEnvExtension_add___at___00Lean_Meta_Grind_registerNormTheorems_spec__2___redArg___closed__1, &l_Lean_ScopedEnvExtension_add___at___00Lean_Meta_Grind_registerNormTheorems_spec__2___redArg___closed__1_once, _init_l_Lean_ScopedEnvExtension_add___at___00Lean_Meta_Grind_registerNormTheorems_spec__2___redArg___closed__1);
-v___x_7_ = lean_alloc_ctor(0, 6, 0);
+v___x_7_ = lean_alloc_ctor(0, 7, 0);
 lean_ctor_set(v___x_7_, 0, v___x_6_);
 lean_ctor_set(v___x_7_, 1, v___x_6_);
 lean_ctor_set(v___x_7_, 2, v___x_6_);
 lean_ctor_set(v___x_7_, 3, v___x_6_);
 lean_ctor_set(v___x_7_, 4, v___x_6_);
 lean_ctor_set(v___x_7_, 5, v___x_6_);
+lean_ctor_set(v___x_7_, 6, v___x_6_);
 return v___x_7_;
 }
 }

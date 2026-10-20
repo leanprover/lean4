@@ -12004,9 +12004,9 @@ return v___x_3359_;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_SolveByElim_evalSolveByElim___lam__3___boxed(lean_object* v___x_3360_, lean_object* v_x_3361_, lean_object* v___y_3362_, lean_object* v___y_3363_, lean_object* v___y_3364_, lean_object* v___y_3365_, lean_object* v___y_3366_){
 _start:
 {
-uint8_t v___x_6610__boxed_3367_; lean_object* v_res_3368_; 
-v___x_6610__boxed_3367_ = lean_unbox(v___x_3360_);
-v_res_3368_ = l_Lean_Elab_Tactic_SolveByElim_evalSolveByElim___lam__3(v___x_6610__boxed_3367_, v_x_3361_, v___y_3362_, v___y_3363_, v___y_3364_, v___y_3365_);
+uint8_t v___x_6613__boxed_3367_; lean_object* v_res_3368_; 
+v___x_6613__boxed_3367_ = lean_unbox(v___x_3360_);
+v_res_3368_ = l_Lean_Elab_Tactic_SolveByElim_evalSolveByElim___lam__3(v___x_6613__boxed_3367_, v_x_3361_, v___y_3362_, v___y_3363_, v___y_3364_, v___y_3365_);
 lean_dec(v___y_3365_);
 lean_dec_ref(v___y_3364_);
 lean_dec(v___y_3363_);
@@ -12100,9 +12100,9 @@ goto _start;
 LEAN_EXPORT lean_object* l_List_filterMapM_loop___at___00Lean_Elab_Tactic_SolveByElim_evalSolveByElim_spec__1___redArg___boxed(lean_object* v___x_3394_, lean_object* v_x_3395_, lean_object* v_x_3396_, lean_object* v___y_3397_, lean_object* v___y_3398_, lean_object* v___y_3399_){
 _start:
 {
-uint8_t v___x_6635__boxed_3400_; lean_object* v_res_3401_; 
-v___x_6635__boxed_3400_ = lean_unbox(v___x_3394_);
-v_res_3401_ = l_List_filterMapM_loop___at___00Lean_Elab_Tactic_SolveByElim_evalSolveByElim_spec__1___redArg(v___x_6635__boxed_3400_, v_x_3395_, v_x_3396_, v___y_3397_, v___y_3398_);
+uint8_t v___x_6638__boxed_3400_; lean_object* v_res_3401_; 
+v___x_6638__boxed_3400_ = lean_unbox(v___x_3394_);
+v_res_3401_ = l_List_filterMapM_loop___at___00Lean_Elab_Tactic_SolveByElim_evalSolveByElim_spec__1___redArg(v___x_6638__boxed_3400_, v_x_3395_, v_x_3396_, v___y_3397_, v___y_3398_);
 lean_dec(v___y_3398_);
 lean_dec_ref(v___y_3397_);
 return v_res_3401_;
@@ -13165,9 +13165,9 @@ return v___x_3745_;
 LEAN_EXPORT lean_object* l_List_filterMapM_loop___at___00Lean_Elab_Tactic_SolveByElim_evalSolveByElim_spec__1___boxed(lean_object* v___x_3746_, lean_object* v_x_3747_, lean_object* v_x_3748_, lean_object* v___y_3749_, lean_object* v___y_3750_, lean_object* v___y_3751_, lean_object* v___y_3752_, lean_object* v___y_3753_, lean_object* v___y_3754_, lean_object* v___y_3755_, lean_object* v___y_3756_, lean_object* v___y_3757_){
 _start:
 {
-uint8_t v___x_7305__boxed_3758_; lean_object* v_res_3759_; 
-v___x_7305__boxed_3758_ = lean_unbox(v___x_3746_);
-v_res_3759_ = l_List_filterMapM_loop___at___00Lean_Elab_Tactic_SolveByElim_evalSolveByElim_spec__1(v___x_7305__boxed_3758_, v_x_3747_, v_x_3748_, v___y_3749_, v___y_3750_, v___y_3751_, v___y_3752_, v___y_3753_, v___y_3754_, v___y_3755_, v___y_3756_);
+uint8_t v___x_7308__boxed_3758_; lean_object* v_res_3759_; 
+v___x_7308__boxed_3758_ = lean_unbox(v___x_3746_);
+v_res_3759_ = l_List_filterMapM_loop___at___00Lean_Elab_Tactic_SolveByElim_evalSolveByElim_spec__1(v___x_7308__boxed_3758_, v_x_3747_, v_x_3748_, v___y_3749_, v___y_3750_, v___y_3751_, v___y_3752_, v___y_3753_, v___y_3754_, v___y_3755_, v___y_3756_);
 lean_dec(v___y_3756_);
 lean_dec_ref(v___y_3755_);
 lean_dec(v___y_3754_);

@@ -4364,13 +4364,14 @@ _start:
 {
 lean_object* v___x_1528_; lean_object* v___x_1529_; 
 v___x_1528_ = lean_obj_once(&l_Lean_Server_registerRpcProcedure___closed__10, &l_Lean_Server_registerRpcProcedure___closed__10_once, _init_l_Lean_Server_registerRpcProcedure___closed__10);
-v___x_1529_ = lean_alloc_ctor(0, 6, 0);
+v___x_1529_ = lean_alloc_ctor(0, 7, 0);
 lean_ctor_set(v___x_1529_, 0, v___x_1528_);
 lean_ctor_set(v___x_1529_, 1, v___x_1528_);
 lean_ctor_set(v___x_1529_, 2, v___x_1528_);
 lean_ctor_set(v___x_1529_, 3, v___x_1528_);
 lean_ctor_set(v___x_1529_, 4, v___x_1528_);
 lean_ctor_set(v___x_1529_, 5, v___x_1528_);
+lean_ctor_set(v___x_1529_, 6, v___x_1528_);
 return v___x_1529_;
 }
 }

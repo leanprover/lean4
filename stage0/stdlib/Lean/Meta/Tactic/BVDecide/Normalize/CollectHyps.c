@@ -6910,9 +6910,9 @@ return v___x_2225_;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_BVDecide_Normalize_CollectHyps_0__Lean_Meta_Tactic_BVDecide_Normalize_symByContradiction___lam__0___boxed(lean_object* v_snd_2228_, lean_object* v_fst_2229_, lean_object* v___x_2230_, lean_object* v_____x_2231_, lean_object* v___y_2232_, lean_object* v___y_2233_, lean_object* v___y_2234_, lean_object* v___y_2235_, lean_object* v___y_2236_, lean_object* v___y_2237_, lean_object* v___y_2238_){
 _start:
 {
-uint8_t v___x_7896__boxed_2239_; lean_object* v_res_2240_; 
-v___x_7896__boxed_2239_ = lean_unbox(v___x_2230_);
-v_res_2240_ = l___private_Lean_Meta_Tactic_BVDecide_Normalize_CollectHyps_0__Lean_Meta_Tactic_BVDecide_Normalize_symByContradiction___lam__0(v_snd_2228_, v_fst_2229_, v___x_7896__boxed_2239_, v_____x_2231_, v___y_2232_, v___y_2233_, v___y_2234_, v___y_2235_, v___y_2236_, v___y_2237_);
+uint8_t v___x_7899__boxed_2239_; lean_object* v_res_2240_; 
+v___x_7899__boxed_2239_ = lean_unbox(v___x_2230_);
+v_res_2240_ = l___private_Lean_Meta_Tactic_BVDecide_Normalize_CollectHyps_0__Lean_Meta_Tactic_BVDecide_Normalize_symByContradiction___lam__0(v_snd_2228_, v_fst_2229_, v___x_7899__boxed_2239_, v_____x_2231_, v___y_2232_, v___y_2233_, v___y_2234_, v___y_2235_, v___y_2236_, v___y_2237_);
 lean_dec(v___y_2237_);
 lean_dec_ref(v___y_2236_);
 lean_dec(v___y_2235_);

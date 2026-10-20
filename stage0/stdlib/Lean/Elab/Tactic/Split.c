@@ -954,9 +954,9 @@ return v___x_288_;
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Tactic_Split_0__Lean_Elab_Tactic_evalSplit_throwTermUnsupported___lam__0___boxed(lean_object* v___x_289_, lean_object* v_t_290_, lean_object* v_error_291_, lean_object* v_loc_292_, lean_object* v___y_293_, lean_object* v___y_294_, lean_object* v___y_295_, lean_object* v___y_296_, lean_object* v___y_297_, lean_object* v___y_298_, lean_object* v___y_299_, lean_object* v___y_300_, lean_object* v___y_301_){
 _start:
 {
-uint8_t v___x_6324__boxed_302_; lean_object* v_res_303_; 
-v___x_6324__boxed_302_ = lean_unbox(v___x_289_);
-v_res_303_ = l___private_Lean_Elab_Tactic_Split_0__Lean_Elab_Tactic_evalSplit_throwTermUnsupported___lam__0(v___x_6324__boxed_302_, v_t_290_, v_error_291_, v_loc_292_, v___y_293_, v___y_294_, v___y_295_, v___y_296_, v___y_297_, v___y_298_, v___y_299_, v___y_300_);
+uint8_t v___x_6327__boxed_302_; lean_object* v_res_303_; 
+v___x_6327__boxed_302_ = lean_unbox(v___x_289_);
+v_res_303_ = l___private_Lean_Elab_Tactic_Split_0__Lean_Elab_Tactic_evalSplit_throwTermUnsupported___lam__0(v___x_6327__boxed_302_, v_t_290_, v_error_291_, v_loc_292_, v___y_293_, v___y_294_, v___y_295_, v___y_296_, v___y_297_, v___y_298_, v___y_299_, v___y_300_);
 lean_dec(v___y_300_);
 lean_dec_ref(v___y_299_);
 lean_dec(v___y_298_);

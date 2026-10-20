@@ -1408,13 +1408,14 @@ _start:
 {
 lean_object* v___x_509_; lean_object* v___x_510_; 
 v___x_509_ = lean_obj_once(&l_Lean_Elab_Mutual_addPreDefsFromUnary___closed__2, &l_Lean_Elab_Mutual_addPreDefsFromUnary___closed__2_once, _init_l_Lean_Elab_Mutual_addPreDefsFromUnary___closed__2);
-v___x_510_ = lean_alloc_ctor(0, 6, 0);
+v___x_510_ = lean_alloc_ctor(0, 7, 0);
 lean_ctor_set(v___x_510_, 0, v___x_509_);
 lean_ctor_set(v___x_510_, 1, v___x_509_);
 lean_ctor_set(v___x_510_, 2, v___x_509_);
 lean_ctor_set(v___x_510_, 3, v___x_509_);
 lean_ctor_set(v___x_510_, 4, v___x_509_);
 lean_ctor_set(v___x_510_, 5, v___x_509_);
+lean_ctor_set(v___x_510_, 6, v___x_509_);
 return v___x_510_;
 }
 }

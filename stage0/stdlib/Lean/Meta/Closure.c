@@ -8696,13 +8696,14 @@ _start:
 {
 lean_object* v___x_2585_; lean_object* v___x_2586_; 
 v___x_2585_ = lean_obj_once(&l_Lean_Meta_Closure_mkValueTypeClosureAux___closed__1, &l_Lean_Meta_Closure_mkValueTypeClosureAux___closed__1_once, _init_l_Lean_Meta_Closure_mkValueTypeClosureAux___closed__1);
-v___x_2586_ = lean_alloc_ctor(0, 6, 0);
+v___x_2586_ = lean_alloc_ctor(0, 7, 0);
 lean_ctor_set(v___x_2586_, 0, v___x_2585_);
 lean_ctor_set(v___x_2586_, 1, v___x_2585_);
 lean_ctor_set(v___x_2586_, 2, v___x_2585_);
 lean_ctor_set(v___x_2586_, 3, v___x_2585_);
 lean_ctor_set(v___x_2586_, 4, v___x_2585_);
 lean_ctor_set(v___x_2586_, 5, v___x_2585_);
+lean_ctor_set(v___x_2586_, 6, v___x_2585_);
 return v___x_2586_;
 }
 }

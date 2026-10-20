@@ -2317,9 +2317,9 @@ lean_object* v___y_792_ = _args[17];
 lean_object* v___y_793_ = _args[18];
 _start:
 {
-uint8_t v___x_22002__boxed_794_; lean_object* v_res_795_; 
-v___x_22002__boxed_794_ = lean_unbox(v___x_778_);
-v_res_795_ = l_Lean_Elab_Rewrites_evalExact___lam__3(v_a_775_, v_a_776_, v___y_777_, v___x_22002__boxed_794_, v___x_779_, v___x_780_, v___x_781_, v___x_782_, v_tk_783_, v___x_784_, v___y_785_, v___y_786_, v___y_787_, v___y_788_, v___y_789_, v___y_790_, v___y_791_, v___y_792_);
+uint8_t v___x_22005__boxed_794_; lean_object* v_res_795_; 
+v___x_22005__boxed_794_ = lean_unbox(v___x_778_);
+v_res_795_ = l_Lean_Elab_Rewrites_evalExact___lam__3(v_a_775_, v_a_776_, v___y_777_, v___x_22005__boxed_794_, v___x_779_, v___x_780_, v___x_781_, v___x_782_, v_tk_783_, v___x_784_, v___y_785_, v___y_786_, v___y_787_, v___y_788_, v___y_789_, v___y_790_, v___y_791_, v___y_792_);
 lean_dec(v___y_792_);
 lean_dec_ref(v___y_791_);
 lean_dec(v___y_790_);
@@ -2500,14 +2500,14 @@ goto _start;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_Elab_Rewrites_evalExact_spec__10___boxed(lean_object* v___x_850_, lean_object* v___x_851_, lean_object* v_as_852_, lean_object* v_i_853_, lean_object* v_stop_854_, lean_object* v_b_855_){
 _start:
 {
-uint8_t v___x_22321__boxed_856_; uint8_t v___x_22322__boxed_857_; size_t v_i_boxed_858_; size_t v_stop_boxed_859_; lean_object* v_res_860_; 
-v___x_22321__boxed_856_ = lean_unbox(v___x_850_);
-v___x_22322__boxed_857_ = lean_unbox(v___x_851_);
+uint8_t v___x_22324__boxed_856_; uint8_t v___x_22325__boxed_857_; size_t v_i_boxed_858_; size_t v_stop_boxed_859_; lean_object* v_res_860_; 
+v___x_22324__boxed_856_ = lean_unbox(v___x_850_);
+v___x_22325__boxed_857_ = lean_unbox(v___x_851_);
 v_i_boxed_858_ = lean_unbox_usize(v_i_853_);
 lean_dec(v_i_853_);
 v_stop_boxed_859_ = lean_unbox_usize(v_stop_854_);
 lean_dec(v_stop_854_);
-v_res_860_ = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_Elab_Rewrites_evalExact_spec__10(v___x_22321__boxed_856_, v___x_22322__boxed_857_, v_as_852_, v_i_boxed_858_, v_stop_boxed_859_, v_b_855_);
+v_res_860_ = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_Elab_Rewrites_evalExact_spec__10(v___x_22324__boxed_856_, v___x_22325__boxed_857_, v_as_852_, v_i_boxed_858_, v_stop_boxed_859_, v_b_855_);
 lean_dec_ref(v_as_852_);
 return v_res_860_;
 }

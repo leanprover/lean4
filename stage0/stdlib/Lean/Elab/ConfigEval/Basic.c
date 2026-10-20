@@ -10764,13 +10764,14 @@ _start:
 {
 lean_object* v___x_3881_; lean_object* v___x_3882_; 
 v___x_3881_ = lean_obj_once(&l_Lean_Elab_ConfigEval_ConfigItem_addCompletionInfo___closed__0, &l_Lean_Elab_ConfigEval_ConfigItem_addCompletionInfo___closed__0_once, _init_l_Lean_Elab_ConfigEval_ConfigItem_addCompletionInfo___closed__0);
-v___x_3882_ = lean_alloc_ctor(0, 6, 0);
+v___x_3882_ = lean_alloc_ctor(0, 7, 0);
 lean_ctor_set(v___x_3882_, 0, v___x_3881_);
 lean_ctor_set(v___x_3882_, 1, v___x_3881_);
 lean_ctor_set(v___x_3882_, 2, v___x_3881_);
 lean_ctor_set(v___x_3882_, 3, v___x_3881_);
 lean_ctor_set(v___x_3882_, 4, v___x_3881_);
 lean_ctor_set(v___x_3882_, 5, v___x_3881_);
+lean_ctor_set(v___x_3882_, 6, v___x_3881_);
 return v___x_3882_;
 }
 }

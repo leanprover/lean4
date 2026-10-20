@@ -7378,9 +7378,9 @@ return v___x_2274_;
 LEAN_EXPORT lean_object* l_List_mapM_loop___at___00Lean_Elab_Tactic_Omega_lookup_spec__2___boxed(lean_object* v_x_2275_, lean_object* v_x_2276_, lean_object* v___y_2277_, lean_object* v___y_2278_, lean_object* v___y_2279_, lean_object* v___y_2280_, lean_object* v___y_2281_, lean_object* v___y_2282_, lean_object* v___y_2283_, lean_object* v___y_2284_, lean_object* v___y_2285_, lean_object* v___y_2286_){
 _start:
 {
-uint8_t v___y_34058__boxed_2287_; lean_object* v_res_2288_; 
-v___y_34058__boxed_2287_ = lean_unbox(v___y_2280_);
-v_res_2288_ = l_List_mapM_loop___at___00Lean_Elab_Tactic_Omega_lookup_spec__2(v_x_2275_, v_x_2276_, v___y_2277_, v___y_2278_, v___y_2279_, v___y_34058__boxed_2287_, v___y_2281_, v___y_2282_, v___y_2283_, v___y_2284_, v___y_2285_);
+uint8_t v___y_34061__boxed_2287_; lean_object* v_res_2288_; 
+v___y_34061__boxed_2287_ = lean_unbox(v___y_2280_);
+v_res_2288_ = l_List_mapM_loop___at___00Lean_Elab_Tactic_Omega_lookup_spec__2(v_x_2275_, v_x_2276_, v___y_2277_, v___y_2278_, v___y_2279_, v___y_34061__boxed_2287_, v___y_2281_, v___y_2282_, v___y_2283_, v___y_2284_, v___y_2285_);
 lean_dec(v___y_2285_);
 lean_dec_ref(v___y_2284_);
 lean_dec(v___y_2283_);
@@ -7403,9 +7403,9 @@ return v___x_2301_;
 LEAN_EXPORT lean_object* l_Lean_addTrace___at___00Lean_Elab_Tactic_Omega_lookup_spec__4___boxed(lean_object* v_cls_2302_, lean_object* v_msg_2303_, lean_object* v___y_2304_, lean_object* v___y_2305_, lean_object* v___y_2306_, lean_object* v___y_2307_, lean_object* v___y_2308_, lean_object* v___y_2309_, lean_object* v___y_2310_, lean_object* v___y_2311_, lean_object* v___y_2312_, lean_object* v___y_2313_){
 _start:
 {
-uint8_t v___y_34094__boxed_2314_; lean_object* v_res_2315_; 
-v___y_34094__boxed_2314_ = lean_unbox(v___y_2307_);
-v_res_2315_ = l_Lean_addTrace___at___00Lean_Elab_Tactic_Omega_lookup_spec__4(v_cls_2302_, v_msg_2303_, v___y_2304_, v___y_2305_, v___y_2306_, v___y_34094__boxed_2314_, v___y_2308_, v___y_2309_, v___y_2310_, v___y_2311_, v___y_2312_);
+uint8_t v___y_34097__boxed_2314_; lean_object* v_res_2315_; 
+v___y_34097__boxed_2314_ = lean_unbox(v___y_2307_);
+v_res_2315_ = l_Lean_addTrace___at___00Lean_Elab_Tactic_Omega_lookup_spec__4(v_cls_2302_, v_msg_2303_, v___y_2304_, v___y_2305_, v___y_2306_, v___y_34097__boxed_2314_, v___y_2308_, v___y_2309_, v___y_2310_, v___y_2311_, v___y_2312_);
 lean_dec(v___y_2312_);
 lean_dec_ref(v___y_2311_);
 lean_dec(v___y_2310_);

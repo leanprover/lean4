@@ -9605,10 +9605,10 @@ return v___x_3183_;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_goalToMessageData___lam__0___boxed(lean_object* v_verbose_3196_, lean_object* v_mvarId_3197_, lean_object* v_goal_3198_, lean_object* v_config_3199_, lean_object* v_rings_3200_, lean_object* v___x_3201_, lean_object* v___y_3202_, lean_object* v___y_3203_, lean_object* v___y_3204_, lean_object* v___y_3205_, lean_object* v___y_3206_){
 _start:
 {
-uint8_t v_verbose_boxed_3207_; uint8_t v___x_1162__boxed_3208_; lean_object* v_res_3209_; 
+uint8_t v_verbose_boxed_3207_; uint8_t v___x_1165__boxed_3208_; lean_object* v_res_3209_; 
 v_verbose_boxed_3207_ = lean_unbox(v_verbose_3196_);
-v___x_1162__boxed_3208_ = lean_unbox(v___x_3201_);
-v_res_3209_ = l_Lean_Meta_Grind_goalToMessageData___lam__0(v_verbose_boxed_3207_, v_mvarId_3197_, v_goal_3198_, v_config_3199_, v_rings_3200_, v___x_1162__boxed_3208_, v___y_3202_, v___y_3203_, v___y_3204_, v___y_3205_);
+v___x_1165__boxed_3208_ = lean_unbox(v___x_3201_);
+v_res_3209_ = l_Lean_Meta_Grind_goalToMessageData___lam__0(v_verbose_boxed_3207_, v_mvarId_3197_, v_goal_3198_, v_config_3199_, v_rings_3200_, v___x_1165__boxed_3208_, v___y_3202_, v___y_3203_, v___y_3204_, v___y_3205_);
 lean_dec(v___y_3205_);
 lean_dec_ref(v___y_3204_);
 lean_dec(v___y_3203_);

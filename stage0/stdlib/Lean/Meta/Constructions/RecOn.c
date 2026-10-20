@@ -1859,13 +1859,14 @@ _start:
 {
 lean_object* v___x_713_; lean_object* v___x_714_; 
 v___x_713_ = lean_obj_once(&l_Lean_setReducibilityStatus___at___00Lean_setReducibleAttribute___at___00Lean_mkRecOn_spec__0_spec__0___redArg___closed__0, &l_Lean_setReducibilityStatus___at___00Lean_setReducibleAttribute___at___00Lean_mkRecOn_spec__0_spec__0___redArg___closed__0_once, _init_l_Lean_setReducibilityStatus___at___00Lean_setReducibleAttribute___at___00Lean_mkRecOn_spec__0_spec__0___redArg___closed__0);
-v___x_714_ = lean_alloc_ctor(0, 6, 0);
+v___x_714_ = lean_alloc_ctor(0, 7, 0);
 lean_ctor_set(v___x_714_, 0, v___x_713_);
 lean_ctor_set(v___x_714_, 1, v___x_713_);
 lean_ctor_set(v___x_714_, 2, v___x_713_);
 lean_ctor_set(v___x_714_, 3, v___x_713_);
 lean_ctor_set(v___x_714_, 4, v___x_713_);
 lean_ctor_set(v___x_714_, 5, v___x_713_);
+lean_ctor_set(v___x_714_, 6, v___x_713_);
 return v___x_714_;
 }
 }

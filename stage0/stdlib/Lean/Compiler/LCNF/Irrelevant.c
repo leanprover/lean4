@@ -824,13 +824,14 @@ _start:
 {
 lean_object* v___x_213_; lean_object* v___x_214_; 
 v___x_213_ = lean_obj_once(&l___private_Lean_Compiler_LCNF_Irrelevant_0__Lean_Compiler_LCNF_getRelevantCtorFields_x3f_go___closed__4, &l___private_Lean_Compiler_LCNF_Irrelevant_0__Lean_Compiler_LCNF_getRelevantCtorFields_x3f_go___closed__4_once, _init_l___private_Lean_Compiler_LCNF_Irrelevant_0__Lean_Compiler_LCNF_getRelevantCtorFields_x3f_go___closed__4);
-v___x_214_ = lean_alloc_ctor(0, 6, 0);
+v___x_214_ = lean_alloc_ctor(0, 7, 0);
 lean_ctor_set(v___x_214_, 0, v___x_213_);
 lean_ctor_set(v___x_214_, 1, v___x_213_);
 lean_ctor_set(v___x_214_, 2, v___x_213_);
 lean_ctor_set(v___x_214_, 3, v___x_213_);
 lean_ctor_set(v___x_214_, 4, v___x_213_);
 lean_ctor_set(v___x_214_, 5, v___x_213_);
+lean_ctor_set(v___x_214_, 6, v___x_213_);
 return v___x_214_;
 }
 }

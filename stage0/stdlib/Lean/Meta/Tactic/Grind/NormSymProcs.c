@@ -2001,8 +2001,8 @@ else
 uint8_t v___x_700_; lean_object* v___x_701_; lean_object* v___x_703_; 
 lean_dec(v_a_664_);
 lean_dec_ref(v_arg_653_);
-lean_dec_ref(v_fn_652_);
 lean_dec_ref_known(v_e_638_, 2);
+lean_dec_ref(v_fn_652_);
 v___x_700_ = 0;
 v___x_701_ = l_Lean_Meta_Sym_Simp_mkRflResult(v___x_660_, v___x_700_);
 if (v_isShared_667_ == 0)

@@ -15567,14 +15567,14 @@ return v_res_4753_;
 LEAN_EXPORT lean_object* l_panic___at___00Lean_Meta_mkNoConfusion_spec__0(lean_object* v_msg_4754_, lean_object* v___y_4755_, lean_object* v___y_4756_, lean_object* v___y_4757_, lean_object* v___y_4758_){
 _start:
 {
-lean_object* v___f_4760_; lean_object* v___x_12329__overap_4761_; lean_object* v___x_4762_; 
+lean_object* v___f_4760_; lean_object* v___x_12332__overap_4761_; lean_object* v___x_4762_; 
 v___f_4760_ = ((lean_object*)(l_panic___at___00Lean_Meta_congrArg_x3f_spec__0___closed__0));
-v___x_12329__overap_4761_ = lean_panic_fn_borrowed(v___f_4760_, v_msg_4754_);
+v___x_12332__overap_4761_ = lean_panic_fn_borrowed(v___f_4760_, v_msg_4754_);
 lean_inc(v___y_4758_);
 lean_inc_ref(v___y_4757_);
 lean_inc(v___y_4756_);
 lean_inc_ref(v___y_4755_);
-v___x_4762_ = lean_apply_5(v___x_12329__overap_4761_, v___y_4755_, v___y_4756_, v___y_4757_, v___y_4758_, lean_box(0));
+v___x_4762_ = lean_apply_5(v___x_12332__overap_4761_, v___y_4755_, v___y_4756_, v___y_4757_, v___y_4758_, lean_box(0));
 return v___x_4762_;
 }
 }
@@ -15653,10 +15653,10 @@ return v___x_4814_;
 LEAN_EXPORT lean_object* l_Lean_Meta_mkNoConfusion___lam__0___boxed(lean_object* v___x_4815_, lean_object* v___x_4816_, lean_object* v_P_4817_, lean_object* v___y_4818_, lean_object* v___y_4819_, lean_object* v___y_4820_, lean_object* v___y_4821_, lean_object* v___y_4822_){
 _start:
 {
-uint8_t v___x_13769__boxed_4823_; uint8_t v___x_13770__boxed_4824_; lean_object* v_res_4825_; 
-v___x_13769__boxed_4823_ = lean_unbox(v___x_4815_);
-v___x_13770__boxed_4824_ = lean_unbox(v___x_4816_);
-v_res_4825_ = l_Lean_Meta_mkNoConfusion___lam__0(v___x_13769__boxed_4823_, v___x_13770__boxed_4824_, v_P_4817_, v___y_4818_, v___y_4819_, v___y_4820_, v___y_4821_);
+uint8_t v___x_13775__boxed_4823_; uint8_t v___x_13776__boxed_4824_; lean_object* v_res_4825_; 
+v___x_13775__boxed_4823_ = lean_unbox(v___x_4815_);
+v___x_13776__boxed_4824_ = lean_unbox(v___x_4816_);
+v_res_4825_ = l_Lean_Meta_mkNoConfusion___lam__0(v___x_13775__boxed_4823_, v___x_13776__boxed_4824_, v_P_4817_, v___y_4818_, v___y_4819_, v___y_4820_, v___y_4821_);
 lean_dec(v___y_4821_);
 lean_dec_ref(v___y_4820_);
 lean_dec(v___y_4819_);
@@ -17701,10 +17701,10 @@ lean_dec(v_a_5494_);
 if (lean_obj_tag(v_fst_5498_) == 0)
 {
 lean_del_object(v___x_5496_);
-v___y_5460_ = v___y_5484_;
-v___y_5461_ = v___y_5486_;
-v___y_5462_ = v___y_5487_;
-v___y_5463_ = v___y_5485_;
+v___y_5460_ = v___y_5486_;
+v___y_5461_ = v___y_5487_;
+v___y_5462_ = v___y_5485_;
+v___y_5463_ = v___y_5484_;
 goto v___jp_5459_;
 }
 else
@@ -17716,10 +17716,10 @@ lean_dec_ref_known(v_fst_5498_, 1);
 if (lean_obj_tag(v_val_5499_) == 0)
 {
 lean_del_object(v___x_5496_);
-v___y_5460_ = v___y_5484_;
-v___y_5461_ = v___y_5486_;
-v___y_5462_ = v___y_5487_;
-v___y_5463_ = v___y_5485_;
+v___y_5460_ = v___y_5486_;
+v___y_5461_ = v___y_5487_;
+v___y_5462_ = v___y_5485_;
+v___y_5463_ = v___y_5484_;
 goto v___jp_5459_;
 }
 else
@@ -17896,7 +17896,7 @@ v___x_5474_ = l___private_Lean_Meta_AppBuilder_0__Lean_Meta_hasTypeMsg(v_s_5442_
 v___x_5475_ = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(v___x_5475_, 0, v___x_5473_);
 lean_ctor_set(v___x_5475_, 1, v___x_5474_);
-v___x_5476_ = l___private_Lean_Meta_AppBuilder_0__Lean_Meta_throwAppBuilderException___redArg(v___x_5464_, v___x_5475_, v___y_5460_, v___y_5463_, v___y_5461_, v___y_5462_);
+v___x_5476_ = l___private_Lean_Meta_AppBuilder_0__Lean_Meta_throwAppBuilderException___redArg(v___x_5464_, v___x_5475_, v___y_5463_, v___y_5462_, v___y_5460_, v___y_5461_);
 return v___x_5476_;
 }
 }

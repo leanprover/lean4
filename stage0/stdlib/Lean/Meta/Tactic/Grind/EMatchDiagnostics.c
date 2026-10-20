@@ -2257,9 +2257,9 @@ return v___x_695_;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00__private_Lean_Meta_Tactic_Grind_EMatchDiagnostics_0__Lean_Meta_Grind_mkBranchingMessages_spec__6___lam__0___boxed(lean_object* v_proof_698_, lean_object* v___x_699_, lean_object* v___x_700_, lean_object* v_origin_701_, lean_object* v___x_702_, lean_object* v___y_703_, lean_object* v___y_704_, lean_object* v___y_705_, lean_object* v___y_706_, lean_object* v___y_707_, lean_object* v___y_708_){
 _start:
 {
-uint8_t v___x_8390__boxed_709_; lean_object* v_res_710_; 
-v___x_8390__boxed_709_ = lean_unbox(v___x_700_);
-v_res_710_ = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00__private_Lean_Meta_Tactic_Grind_EMatchDiagnostics_0__Lean_Meta_Grind_mkBranchingMessages_spec__6___lam__0(v_proof_698_, v___x_699_, v___x_8390__boxed_709_, v_origin_701_, v___x_702_, v___y_703_, v___y_704_, v___y_705_, v___y_706_, v___y_707_);
+uint8_t v___x_8393__boxed_709_; lean_object* v_res_710_; 
+v___x_8393__boxed_709_ = lean_unbox(v___x_700_);
+v_res_710_ = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00__private_Lean_Meta_Tactic_Grind_EMatchDiagnostics_0__Lean_Meta_Grind_mkBranchingMessages_spec__6___lam__0(v_proof_698_, v___x_699_, v___x_8393__boxed_709_, v_origin_701_, v___x_702_, v___y_703_, v___y_704_, v___y_705_, v___y_706_, v___y_707_);
 lean_dec(v___y_707_);
 lean_dec_ref(v___y_706_);
 lean_dec(v___y_705_);
@@ -2603,13 +2603,13 @@ return v___x_825_;
 LEAN_EXPORT lean_object* l_List_forIn_x27_loop___at___00__private_Lean_Meta_Tactic_Grind_EMatchDiagnostics_0__Lean_Meta_Grind_mkBranchingMessages_spec__9___redArg___lam__0___boxed(lean_object* v_sz_828_, lean_object* v___x_829_, lean_object* v___y_830_, lean_object* v_fst_831_, lean_object* v___x_832_, lean_object* v_size_833_, lean_object* v___y_834_, lean_object* v___y_835_, lean_object* v___y_836_, lean_object* v___y_837_, lean_object* v___y_838_, lean_object* v___y_839_){
 _start:
 {
-size_t v_sz_boxed_840_; size_t v___x_8556__boxed_841_; uint8_t v___x_8559__boxed_842_; lean_object* v_res_843_; 
+size_t v_sz_boxed_840_; size_t v___x_8559__boxed_841_; uint8_t v___x_8562__boxed_842_; lean_object* v_res_843_; 
 v_sz_boxed_840_ = lean_unbox_usize(v_sz_828_);
 lean_dec(v_sz_828_);
-v___x_8556__boxed_841_ = lean_unbox_usize(v___x_829_);
+v___x_8559__boxed_841_ = lean_unbox_usize(v___x_829_);
 lean_dec(v___x_829_);
-v___x_8559__boxed_842_ = lean_unbox(v___x_832_);
-v_res_843_ = l_List_forIn_x27_loop___at___00__private_Lean_Meta_Tactic_Grind_EMatchDiagnostics_0__Lean_Meta_Grind_mkBranchingMessages_spec__9___redArg___lam__0(v_sz_boxed_840_, v___x_8556__boxed_841_, v___y_830_, v_fst_831_, v___x_8559__boxed_842_, v_size_833_, v___y_834_, v___y_835_, v___y_836_, v___y_837_, v___y_838_);
+v___x_8562__boxed_842_ = lean_unbox(v___x_832_);
+v_res_843_ = l_List_forIn_x27_loop___at___00__private_Lean_Meta_Tactic_Grind_EMatchDiagnostics_0__Lean_Meta_Grind_mkBranchingMessages_spec__9___redArg___lam__0(v_sz_boxed_840_, v___x_8559__boxed_841_, v___y_830_, v_fst_831_, v___x_8562__boxed_842_, v_size_833_, v___y_834_, v___y_835_, v___y_836_, v___y_837_, v___y_838_);
 lean_dec(v___y_838_);
 lean_dec_ref(v___y_837_);
 lean_dec(v___y_836_);

@@ -4444,13 +4444,14 @@ _start:
 {
 lean_object* v___x_1186_; lean_object* v___x_1187_; 
 v___x_1186_ = lean_obj_once(&l_Lean_withExporting___at___00Lean_withoutExporting___at___00Lean_Meta_isRflTheorem_spec__0_spec__0___redArg___closed__0, &l_Lean_withExporting___at___00Lean_withoutExporting___at___00Lean_Meta_isRflTheorem_spec__0_spec__0___redArg___closed__0_once, _init_l_Lean_withExporting___at___00Lean_withoutExporting___at___00Lean_Meta_isRflTheorem_spec__0_spec__0___redArg___closed__0);
-v___x_1187_ = lean_alloc_ctor(0, 6, 0);
+v___x_1187_ = lean_alloc_ctor(0, 7, 0);
 lean_ctor_set(v___x_1187_, 0, v___x_1186_);
 lean_ctor_set(v___x_1187_, 1, v___x_1186_);
 lean_ctor_set(v___x_1187_, 2, v___x_1186_);
 lean_ctor_set(v___x_1187_, 3, v___x_1186_);
 lean_ctor_set(v___x_1187_, 4, v___x_1186_);
 lean_ctor_set(v___x_1187_, 5, v___x_1186_);
+lean_ctor_set(v___x_1187_, 6, v___x_1186_);
 return v___x_1187_;
 }
 }
@@ -16161,9 +16162,9 @@ return v___x_5171_;
 LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00Lean_Meta_mkSimpEntryOfDeclToUnfold_spec__1___redArg___boxed(lean_object* v_upperBound_5181_, lean_object* v_val_5182_, lean_object* v_a_5183_, lean_object* v___x_5184_, lean_object* v_a_5185_, lean_object* v_b_5186_, lean_object* v___y_5187_, lean_object* v___y_5188_, lean_object* v___y_5189_, lean_object* v___y_5190_, lean_object* v___y_5191_){
 _start:
 {
-uint8_t v_a_3602__boxed_5192_; lean_object* v_res_5193_; 
-v_a_3602__boxed_5192_ = lean_unbox(v_a_5183_);
-v_res_5193_ = l_WellFounded_opaqueFix_u2083___at___00Lean_Meta_mkSimpEntryOfDeclToUnfold_spec__1___redArg(v_upperBound_5181_, v_val_5182_, v_a_3602__boxed_5192_, v___x_5184_, v_a_5185_, v_b_5186_, v___y_5187_, v___y_5188_, v___y_5189_, v___y_5190_);
+uint8_t v_a_3608__boxed_5192_; lean_object* v_res_5193_; 
+v_a_3608__boxed_5192_ = lean_unbox(v_a_5183_);
+v_res_5193_ = l_WellFounded_opaqueFix_u2083___at___00Lean_Meta_mkSimpEntryOfDeclToUnfold_spec__1___redArg(v_upperBound_5181_, v_val_5182_, v_a_3608__boxed_5192_, v___x_5184_, v_a_5185_, v_b_5186_, v___y_5187_, v___y_5188_, v___y_5189_, v___y_5190_);
 lean_dec(v___y_5190_);
 lean_dec_ref(v___y_5189_);
 lean_dec(v___y_5188_);
@@ -16810,9 +16811,9 @@ return v___x_5368_;
 LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00Lean_Meta_mkSimpEntryOfDeclToUnfold_spec__1___boxed(lean_object* v_upperBound_5369_, lean_object* v_val_5370_, lean_object* v_a_5371_, lean_object* v___x_5372_, lean_object* v_inst_5373_, lean_object* v_R_5374_, lean_object* v_a_5375_, lean_object* v_b_5376_, lean_object* v_c_5377_, lean_object* v___y_5378_, lean_object* v___y_5379_, lean_object* v___y_5380_, lean_object* v___y_5381_, lean_object* v___y_5382_){
 _start:
 {
-uint8_t v_a_3974__boxed_5383_; lean_object* v_res_5384_; 
-v_a_3974__boxed_5383_ = lean_unbox(v_a_5371_);
-v_res_5384_ = l_WellFounded_opaqueFix_u2083___at___00Lean_Meta_mkSimpEntryOfDeclToUnfold_spec__1(v_upperBound_5369_, v_val_5370_, v_a_3974__boxed_5383_, v___x_5372_, v_inst_5373_, v_R_5374_, v_a_5375_, v_b_5376_, v_c_5377_, v___y_5378_, v___y_5379_, v___y_5380_, v___y_5381_);
+uint8_t v_a_3980__boxed_5383_; lean_object* v_res_5384_; 
+v_a_3980__boxed_5383_ = lean_unbox(v_a_5371_);
+v_res_5384_ = l_WellFounded_opaqueFix_u2083___at___00Lean_Meta_mkSimpEntryOfDeclToUnfold_spec__1(v_upperBound_5369_, v_val_5370_, v_a_3980__boxed_5383_, v___x_5372_, v_inst_5373_, v_R_5374_, v_a_5375_, v_b_5376_, v_c_5377_, v___y_5378_, v___y_5379_, v___y_5380_, v___y_5381_);
 lean_dec(v___y_5381_);
 lean_dec_ref(v___y_5380_);
 lean_dec(v___y_5379_);

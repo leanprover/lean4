@@ -2483,13 +2483,14 @@ _start:
 {
 lean_object* v___x_791_; lean_object* v___x_792_; 
 v___x_791_ = lean_obj_once(&l_Lean_Compiler_LCNF_getOtherDeclBaseType___closed__3, &l_Lean_Compiler_LCNF_getOtherDeclBaseType___closed__3_once, _init_l_Lean_Compiler_LCNF_getOtherDeclBaseType___closed__3);
-v___x_792_ = lean_alloc_ctor(0, 6, 0);
+v___x_792_ = lean_alloc_ctor(0, 7, 0);
 lean_ctor_set(v___x_792_, 0, v___x_791_);
 lean_ctor_set(v___x_792_, 1, v___x_791_);
 lean_ctor_set(v___x_792_, 2, v___x_791_);
 lean_ctor_set(v___x_792_, 3, v___x_791_);
 lean_ctor_set(v___x_792_, 4, v___x_791_);
 lean_ctor_set(v___x_792_, 5, v___x_791_);
+lean_ctor_set(v___x_792_, 6, v___x_791_);
 return v___x_792_;
 }
 }

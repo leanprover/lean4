@@ -69004,13 +69004,14 @@ _start:
 {
 lean_object* v___x_21089_; lean_object* v___x_21090_; 
 v___x_21089_ = lean_obj_once(&l_Lean_addMessageContextPartial___at___00__private_Lean_Util_Trace_0__Lean_addTraceNode___at___00__private_Lean_Util_Trace_0__Lean_withTraceNode_postCallback___at___00Lean_Elab_Command_runLinters_spec__2_spec__2_spec__5___redArg___closed__0, &l_Lean_addMessageContextPartial___at___00__private_Lean_Util_Trace_0__Lean_addTraceNode___at___00__private_Lean_Util_Trace_0__Lean_withTraceNode_postCallback___at___00Lean_Elab_Command_runLinters_spec__2_spec__2_spec__5___redArg___closed__0_once, _init_l_Lean_addMessageContextPartial___at___00__private_Lean_Util_Trace_0__Lean_addTraceNode___at___00__private_Lean_Util_Trace_0__Lean_withTraceNode_postCallback___at___00Lean_Elab_Command_runLinters_spec__2_spec__2_spec__5___redArg___closed__0);
-v___x_21090_ = lean_alloc_ctor(0, 6, 0);
+v___x_21090_ = lean_alloc_ctor(0, 7, 0);
 lean_ctor_set(v___x_21090_, 0, v___x_21089_);
 lean_ctor_set(v___x_21090_, 1, v___x_21089_);
 lean_ctor_set(v___x_21090_, 2, v___x_21089_);
 lean_ctor_set(v___x_21090_, 3, v___x_21089_);
 lean_ctor_set(v___x_21090_, 4, v___x_21089_);
 lean_ctor_set(v___x_21090_, 5, v___x_21089_);
+lean_ctor_set(v___x_21090_, 6, v___x_21089_);
 return v___x_21090_;
 }
 }

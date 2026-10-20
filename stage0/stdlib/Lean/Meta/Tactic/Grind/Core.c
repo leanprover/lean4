@@ -1540,10 +1540,10 @@ return v___x_350_;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_eraseAux___at___00Lean_PersistentHashMap_erase___at___00__private_Lean_Meta_Tactic_Grind_Core_0__Lean_Meta_Grind_removeParents_spec__0_spec__0___redArg___boxed(lean_object* v___x_353_, lean_object* v_x_354_, lean_object* v_x_355_, lean_object* v_x_356_){
 _start:
 {
-size_t v_x_22817__boxed_357_; lean_object* v_res_358_; 
-v_x_22817__boxed_357_ = lean_unbox_usize(v_x_355_);
+size_t v_x_22820__boxed_357_; lean_object* v_res_358_; 
+v_x_22820__boxed_357_ = lean_unbox_usize(v_x_355_);
 lean_dec(v_x_355_);
-v_res_358_ = l_Lean_PersistentHashMap_eraseAux___at___00Lean_PersistentHashMap_erase___at___00__private_Lean_Meta_Tactic_Grind_Core_0__Lean_Meta_Grind_removeParents_spec__0_spec__0___redArg(v___x_353_, v_x_354_, v_x_22817__boxed_357_, v_x_356_);
+v_res_358_ = l_Lean_PersistentHashMap_eraseAux___at___00Lean_PersistentHashMap_erase___at___00__private_Lean_Meta_Tactic_Grind_Core_0__Lean_Meta_Grind_removeParents_spec__0_spec__0___redArg(v___x_353_, v_x_354_, v_x_22820__boxed_357_, v_x_356_);
 lean_dec_ref(v___x_353_);
 return v_res_358_;
 }
@@ -2101,10 +2101,10 @@ return v___x_604_;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_eraseAux___at___00Lean_PersistentHashMap_erase___at___00__private_Lean_Meta_Tactic_Grind_Core_0__Lean_Meta_Grind_removeParents_spec__0_spec__0___boxed(lean_object* v___x_605_, lean_object* v_00_u03b2_606_, lean_object* v_x_607_, lean_object* v_x_608_, lean_object* v_x_609_){
 _start:
 {
-size_t v_x_23277__boxed_610_; lean_object* v_res_611_; 
-v_x_23277__boxed_610_ = lean_unbox_usize(v_x_608_);
+size_t v_x_23280__boxed_610_; lean_object* v_res_611_; 
+v_x_23280__boxed_610_ = lean_unbox_usize(v_x_608_);
 lean_dec(v_x_608_);
-v_res_611_ = l_Lean_PersistentHashMap_eraseAux___at___00Lean_PersistentHashMap_erase___at___00__private_Lean_Meta_Tactic_Grind_Core_0__Lean_Meta_Grind_removeParents_spec__0_spec__0(v___x_605_, v_00_u03b2_606_, v_x_607_, v_x_23277__boxed_610_, v_x_609_);
+v_res_611_ = l_Lean_PersistentHashMap_eraseAux___at___00Lean_PersistentHashMap_erase___at___00__private_Lean_Meta_Tactic_Grind_Core_0__Lean_Meta_Grind_removeParents_spec__0_spec__0(v___x_605_, v_00_u03b2_606_, v_x_607_, v_x_23280__boxed_610_, v_x_609_);
 lean_dec_ref(v___x_605_);
 return v_res_611_;
 }

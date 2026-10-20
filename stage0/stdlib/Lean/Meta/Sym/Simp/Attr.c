@@ -275,13 +275,14 @@ _start:
 {
 lean_object* v___x_6_; lean_object* v___x_7_; 
 v___x_6_ = lean_obj_once(&l_Lean_ScopedEnvExtension_add___at___00Lean_Meta_Sym_Simp_addSymSimpTheorem_spec__0___redArg___closed__1, &l_Lean_ScopedEnvExtension_add___at___00Lean_Meta_Sym_Simp_addSymSimpTheorem_spec__0___redArg___closed__1_once, _init_l_Lean_ScopedEnvExtension_add___at___00Lean_Meta_Sym_Simp_addSymSimpTheorem_spec__0___redArg___closed__1);
-v___x_7_ = lean_alloc_ctor(0, 6, 0);
+v___x_7_ = lean_alloc_ctor(0, 7, 0);
 lean_ctor_set(v___x_7_, 0, v___x_6_);
 lean_ctor_set(v___x_7_, 1, v___x_6_);
 lean_ctor_set(v___x_7_, 2, v___x_6_);
 lean_ctor_set(v___x_7_, 3, v___x_6_);
 lean_ctor_set(v___x_7_, 4, v___x_6_);
 lean_ctor_set(v___x_7_, 5, v___x_6_);
+lean_ctor_set(v___x_7_, 6, v___x_6_);
 return v___x_7_;
 }
 }
@@ -1324,13 +1325,14 @@ _start:
 {
 lean_object* v___x_413_; lean_object* v___x_414_; 
 v___x_413_ = lean_obj_once(&l_Lean_Meta_Sym_Simp_mkSymSimpAttr___lam__2___closed__3, &l_Lean_Meta_Sym_Simp_mkSymSimpAttr___lam__2___closed__3_once, _init_l_Lean_Meta_Sym_Simp_mkSymSimpAttr___lam__2___closed__3);
-v___x_414_ = lean_alloc_ctor(0, 6, 0);
+v___x_414_ = lean_alloc_ctor(0, 7, 0);
 lean_ctor_set(v___x_414_, 0, v___x_413_);
 lean_ctor_set(v___x_414_, 1, v___x_413_);
 lean_ctor_set(v___x_414_, 2, v___x_413_);
 lean_ctor_set(v___x_414_, 3, v___x_413_);
 lean_ctor_set(v___x_414_, 4, v___x_413_);
 lean_ctor_set(v___x_414_, 5, v___x_413_);
+lean_ctor_set(v___x_414_, 6, v___x_413_);
 return v___x_414_;
 }
 }

@@ -210,7 +210,7 @@ def structuralRecursion
         See issue #2327
         -/
         registerEqnsInfo preDef (preDefs.map (·.declName)) recArgPos fixedParamPerms
-    addSmartUnfoldingDef docCtx preDef recArgPos
+    addSmartUnfoldingDef docCtx preDef ((preDefs.map (·.declName)).zip recArgPoss)
   for preDef in preDefs do
     saveEqnAffectingOptions preDef.declName
   for preDef in preDefs do

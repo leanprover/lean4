@@ -17,7 +17,7 @@ Homomorphism rules for `Int32` used by the `grind` tactic.
 The injection function is `Int32.toBitVec`.
 -/
 
-attribute [grind homo]
+attribute [grind hom]
   Int32.toBitVec_add Int32.toBitVec_sub Int32.toBitVec_mul Int32.toBitVec_div Int32.toBitVec_mod
   Int32.toBitVec_and Int32.toBitVec_or Int32.toBitVec_xor Int32.toBitVec_shiftLeft Int32.toBitVec_shiftRight
   Int32.toBitVec_zero Int32.toBitVec_one Int32.toBitVec_not Int32.toBitVec_neg
@@ -25,8 +25,8 @@ attribute [grind homo]
   Int32.toBitVec_ofNat
   Int32.toBitVec_toInt8 Int32.toBitVec_toInt16 Int32.toBitVec_toInt64 Int32.toBitVec_toISize Int32.toBitVec_toUInt32
 
-@[grind homo] theorem Lean.Grind.Int32.toInt_eq_toBitVec_toInt (x : Int32) : x.toInt = x.toBitVec.toInt := rfl
+@[grind hom] theorem Lean.Grind.Int32.toInt_eq_toBitVec_toInt (x : Int32) : x.toInt = x.toBitVec.toInt := rfl
 
 /-! Translations of `≤` and `<` into the target domain. -/
 
-attribute [grind homo] Int32.le_iff_toInt_le Int32.lt_iff_toInt_lt
+attribute [grind hom] Int32.le_iff_toInt_le Int32.lt_iff_toInt_lt

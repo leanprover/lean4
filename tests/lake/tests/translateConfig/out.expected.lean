@@ -15,6 +15,8 @@ require foo from "-" with Lake.NameMap.empty |>.insert `foo "bar"
 
 require bar from git "https://example.com"@"abc"/"sub/dir"
 
+require qux from copy "qux"
+
 @[default_target] lean_lib A
 
 lean_exe b

@@ -3,6 +3,7 @@ import LeanCheckerTests.OpenPrivate
 open private Lean.Environment.setCheckedSync from Lean.Environment
 open private Lean.Kernel.Environment.mk from Lean.Environment
 open private Lean.Kernel.Environment.extensions from Lean.Environment
+open private Lean.Kernel.Environment.extGens from Lean.Environment
 
 /- Redefine `propext : False`. -/
 open Lean Elab Meta in
@@ -22,6 +23,8 @@ open Lean Elab Meta in
     env.toKernelEnv.const2ModIdx
     (Lean.Kernel.Environment.extensions env.toKernelEnv)
     {}
+    (Lean.Kernel.Environment.extGens env.toKernelEnv)
+    env.toKernelEnv.trackedGen
     env.header
   Lean.Environment.setCheckedSync env kenv
 

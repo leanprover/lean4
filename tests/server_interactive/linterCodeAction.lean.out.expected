@@ -1,0 +1,44 @@
+{"textDocument": {"uri": "file:///linterCodeAction.lean"},
+ "range":
+ {"start": {"line": 22, "character": 2}, "end": {"line": 22, "character": 2}},
+ "context": {"diagnostics": []}}
+[{"title": "Try this: #eval 0",
+  "kind": "quickfix",
+  "edit":
+  {"documentChanges":
+   [{"textDocument": {"version": 1, "uri": "file:///linterCodeAction.lean"},
+     "edits":
+     [{"range":
+       {"start": {"line": 22, "character": 0},
+        "end": {"line": 22, "character": 11}},
+       "newText": "#eval 0"}]}]},
+  "data":
+  {"providerResultIndex": 0,
+   "providerName":
+   "_private.Lean.Meta.Tactic.TryThis.0.Lean.Meta.Tactic.TryThis.tryThisProvider",
+   "params":
+   {"textDocument": {"uri": "file:///linterCodeAction.lean"},
+    "range":
+    {"start": {"line": 22, "character": 2},
+     "end": {"line": 22, "character": 2}},
+    "context": {"diagnostics": []}}}}]
+Resolution of Try this: #eval 0:
+{"title": "Try this: #eval 0",
+ "kind": "quickfix",
+ "edit":
+ {"documentChanges":
+  [{"textDocument": {"version": 1, "uri": "file:///linterCodeAction.lean"},
+    "edits":
+    [{"range":
+      {"start": {"line": 22, "character": 0},
+       "end": {"line": 22, "character": 11}},
+      "newText": "#eval 0"}]}]},
+ "data":
+ {"providerResultIndex": 0,
+  "providerName":
+  "_private.Lean.Meta.Tactic.TryThis.0.Lean.Meta.Tactic.TryThis.tryThisProvider",
+  "params":
+  {"textDocument": {"uri": "file:///linterCodeAction.lean"},
+   "range":
+   {"start": {"line": 22, "character": 2}, "end": {"line": 22, "character": 2}},
+   "context": {"diagnostics": []}}}}

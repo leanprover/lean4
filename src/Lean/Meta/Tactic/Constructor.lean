@@ -14,21 +14,37 @@ namespace Lean.Meta
 
 /--
 When the goal `mvarId` type is an inductive datatype,
-`constructor` calls `apply` with the first matching constructor.
+`constructorCore` calls `apply` with the first matching constructor.
+
+Along with the resulting goals, it returns the constructors that `apply` succeeds with, in
+declaration order. When `findAll` is `false`, the search stops at the first match, so at most one
+constructor is reported.
 -/
-def _root_.Lean.MVarId.constructor (mvarId : MVarId) (cfg : ApplyConfig := {}) : MetaM (List MVarId) := do
+def _root_.Lean.MVarId.constructorCore (mvarId : MVarId) (cfg : ApplyConfig := {})
+    (findAll : Bool := true) : MetaM (List MVarId × Array Name) := do
   mvarId.withContext do
     mvarId.checkNotAssigned `constructor
     let target ← mvarId.getType'
     matchConstInduct target.getAppFn
       (fun _ => throwTacticEx `constructor mvarId "target is not an inductive datatype")
       fun ival us => do
+        let mut matching := #[]
         for ctor in ival.ctors do
-          try
-            return ← mvarId.apply (Lean.mkConst ctor us) cfg
-          catch _ =>
-            pure ()
-        throwTacticEx `constructor mvarId "no applicable constructor found"
+          let applies ← withoutModifyingState do
+            return (← observing? (mvarId.apply (Lean.mkConst ctor us) cfg)).isSome
+          if applies then
+            matching := matching.push ctor
+            if !findAll then break
+        let some ctor := matching[0]?
+          | throwTacticEx `constructor mvarId "no applicable constructor found"
+        return (← mvarId.apply (Lean.mkConst ctor us) cfg, matching)
+
+/--
+When the goal `mvarId` type is an inductive datatype,
+`constructor` calls `apply` with the first matching constructor.
+-/
+def _root_.Lean.MVarId.constructor (mvarId : MVarId) (cfg : ApplyConfig := {}) : MetaM (List MVarId) :=
+  return (← mvarId.constructorCore cfg (findAll := false)).1
 
 def _root_.Lean.MVarId.existsIntro (mvarId : MVarId) (w : Expr) : MetaM MVarId := do
   mvarId.withContext do

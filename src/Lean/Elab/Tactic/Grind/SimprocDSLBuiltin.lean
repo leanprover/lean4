@@ -12,6 +12,7 @@ import Lean.Meta.Sym.Simp.Telescope
 import Lean.Meta.Sym.Simp.ControlFlow
 import Lean.Meta.Sym.Simp.Forall
 import Lean.Meta.Sym.Simp.Rewrite
+import Lean.Meta.Sym.Simp.Arith
 import Lean.Meta.Sym.Grind
 namespace Lean.Elab.Tactic.Grind
 open Meta Sym.Simp
@@ -46,6 +47,11 @@ def elabOptDischarger (discharger? : Option (TSyntax `sym_discharger)) : GrindTa
   let some discharger := discharger? | return dischargeNone
   elabSymDischarger discharger
 
+@[builtin_sym_simproc Lean.Parser.Sym.Simp.arith]
+def elabSimprocArith : SymSimprocElab := fun stx => do
+  let `(sym_simproc| arith $[with $d?]?) := stx | throwUnsupportedSyntax
+  return simpArith (← elabOptDischarger d?)
+
 @[builtin_sym_simproc rewriteSet]
 def elabSimprocRewriteSet : SymSimprocElab := fun stx => do
   let `(sym_simproc| rewrite $setName:ident $[with $d?]?) := stx | throwUnsupportedSyntax
@@ -60,7 +66,8 @@ def elabSimprocRewriteInline : SymSimprocElab := fun stx => do
   let mut thms : Theorems := {}
   for name in names do
     let declName ← realizeGlobalConstNoOverload name
-    thms := thms.insert (← mkTheoremFromDecl declName)
+    for thm in (← mkTheoremsFromDecl declName) do
+      thms := thms.insert thm
   return thms.rewrite (← elabOptDischarger d?)
 
 @[builtin_sym_simproc andThen]

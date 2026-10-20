@@ -31,9 +31,6 @@ theorem Internal.size_toArray {b : String} : (String.Internal.toArray b).size = 
 
 theorem length_toList {s : String} : s.toList.length = s.length := (rfl)
 
-@[deprecated String.length_toList (since := "2025-10-30")]
-theorem length_data {b : String} : b.toList.length = b.length := (rfl)
-
 @[simp]
 theorem length_ofList {l : List Char} : (String.ofList l).length = l.length := by
   rw [← String.length_toList, String.toList_ofList]
@@ -61,7 +58,7 @@ end String
 
 namespace Char
 
-@[deprecated String.length_singleton (since := "2026-02-12")]
+@[deprecated String.length_singleton +typeChanged (since := "2026-02-12")]
 theorem length_toString (c : Char) : c.toString.length = 1 := by
   simp
 

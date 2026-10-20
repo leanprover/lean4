@@ -1,8 +1,8 @@
 import DeprecatedOption.Def
 
--- Cross-file: deprecated option without custom text
+-- Cross-file: deprecated option pointing at a replacement option
 /--
-warning: `test.deprecated.plain` has been deprecated
+warning: `test.deprecated.plain` has been deprecated: Use `test.notDeprecated` instead
 -/
 #guard_msgs in
 set_option test.deprecated.plain true
@@ -20,7 +20,7 @@ set_option test.notDeprecated false
 
 -- set_option ... in block
 /--
-warning: `test.deprecated.plain` has been deprecated
+warning: `test.deprecated.plain` has been deprecated: Use `test.notDeprecated` instead
 -/
 #guard_msgs in
 set_option test.deprecated.plain true in
@@ -36,7 +36,7 @@ example := 0
 
 -- Nested deprecated options in set_option ... in blocks
 /--
-warning: `test.deprecated.plain` has been deprecated
+warning: `test.deprecated.plain` has been deprecated: Use `test.notDeprecated` instead
 ---
 warning: `test.deprecated.withText` has been deprecated: use `test.newOption` instead
 -/
@@ -47,7 +47,7 @@ example := 0
 
 -- Tactic context
 /--
-warning: `test.deprecated.plain` has been deprecated
+warning: `test.deprecated.plain` has been deprecated: Use `test.notDeprecated` instead
 -/
 #guard_msgs in
 example : True := by

@@ -16,6 +16,11 @@ This is an implementation of the "Sine Qua Non" premise selection algorithm, fro
 "Sine Qua Non for Large Theory Reasoning" by Hodor and Voronkov.
 
 It needs to be tuned and evaluated for Lean.
+
+The trigger index is computed on first use from the imported library, using that library's symbol
+frequencies. No index is prepared during module export or stored in olean files. The first query may
+be expensive for large imported libraries. Index construction does not consume the caller's
+heartbeat budget, but can be interrupted.
 -/
 
 namespace Lean.LibrarySuggestions.SineQuaNon
@@ -38,17 +43,15 @@ builtin_initialize triggerDenyListExt : SimplePersistentEnvExtension Name NameSe
   }
 
 /--
-Return the relevant constants (i.e. ignoring instances and proofs)
-which appear in the type of `ci` and which are approximately least frequent in the library
-(relative to other constants appearing in the type of `ci`).
+Return the constants in `consts` that are not in `denyList` and are approximately least frequent
+(relative to the others), with their frequency relative to the least frequent one.
 -/
-def triggerSymbols (ci : ConstantInfo) (maxTolerance : Float := 3.0) : MetaM (Array (Name × Float)) := do
-  let denyList := triggerDenyListExt.getState (← getEnv)
-  let consts ← ci.type.relevantConstants
-  let frequencies ← consts.filterMapM fun n => do
+def triggersOf (frequency : Name → Nat) (denyList : NameSet) (consts : Array Name)
+    (maxTolerance : Float) : Array (Name × Float) := Id.run do
+  let frequencies := consts.filterMap fun n => Id.run do
     if denyList.contains n then
       return none
-    let f := (← symbolFrequency n) + (← localSymbolFrequency n)
+    let f := frequency n
     return if f = 0 then
       none
     else
@@ -59,70 +62,48 @@ def triggerSymbols (ci : ConstantInfo) (maxTolerance : Float := 3.0) : MetaM (Ar
   return frequencies.filterMap
     (fun (n, f) => if f ≤ minFrequency * maxTolerance then some (n, f / minFrequency) else none)
 
-def _root_.List.orderedInsert (r : α → α → Bool := by exact (· ≤ ·)) (a : α) : List α → List α
-  | [] => [a]
-  | b :: l => if r a b then a :: b :: l else b :: orderedInsert r a l
-
-def insertTrigger (map : NameMap (List (Name × Float))) (trigger decl : Name) (tolerance : Float) :
-    NameMap (List (Name × Float)) :=
-  map.insert trigger (map.getD trigger [] |>.orderedInsert (fun x y => x.2 ≤ y.2) (decl, tolerance))
-
-def prepareTriggers (names : Array Name) (maxTolerance : Float := 3.0) : MetaM (NameMap (List (Name × Float))) := do
-  let mut map := {}
-  let env ← getEnv
-  let names := names.filter fun n =>
-    !isDeniedPremise env n && wasOriginallyTheorem env n
-  for name in names do
-    let triggers ← triggerSymbols (← getConstInfo name) maxTolerance
-    for (trigger, tolerance) in triggers do
-      map := insertTrigger map trigger name tolerance
-  return map
+def triggerSymbolsUsing (frequency : Name → Nat) (denyList : NameSet)
+    (ci : ConstantInfo) (maxTolerance : Float) : MetaM (Array (Name × Float)) :=
+  return triggersOf frequency denyList (← ci.type.relevantConstants) maxTolerance
 
 /--
-Combine two trigger maps, taking the sorted union of the triggered theorems for each symbol.
-If one map is much larger than the other, it should be the first argument.
+Return the relevant constants (i.e. ignoring instances and proofs)
+which appear in the type of `ci` and which are approximately least frequent in the library
+(relative to other constants appearing in the type of `ci`).
 -/
-def combineTriggers (map₁ map₂ : NameMap (List (Name × Float))) : NameMap (List (Name × Float)) := Id.run do
-  let mut map := map₁
-  for (trigger, decls₂) in map₂ do
-    map := match map₁.find? trigger with
-    | none => map.insert trigger decls₂
-    | some decls₁ => map.insert trigger (decls₂.foldl (init := decls₁) (fun acc (decl, tolerance) => acc.orderedInsert (fun x y => x.2 ≤ y.2) (decl, tolerance)))
-  return map
+def triggerSymbols (ci : ConstantInfo) (maxTolerance : Float := 3.0) : MetaM (Array (Name × Float)) := do
+  let frequency ← symbolFrequencyMap
+  let denyList := triggerDenyListExt.getState (← getEnv)
+  triggerSymbolsUsing (frequency.getD · 0) denyList ci maxTolerance
 
 /--
-The state is just an array of array of maps.
-We don't assemble these on import for efficiency reasons: most modules will not query this extension.
-
-Instead, we use an `IO.Ref` below so that within each module we can assemble the global `NameMap (List (Name × Float))` once.
-
-Since we never modify the extension state except on export, the `IO.Ref` does not need updating after first access.
+The theorems triggered by each symbol, sorted by tolerance. Among equal tolerances, theorems later
+in the iteration order of `env.constants.map₁` come first.
 -/
-builtin_initialize sineQuaNonExt : PersistentEnvExtension (NameMap (List (Name × Float))) Empty (Array (Array (NameMap (List (Name × Float))))) ←
-  registerPersistentEnvExtension {
-    name            := `sineQueNon
-    mkInitial       := pure ∅
-    addImportedFn   := fun mapss _ => pure mapss
-    addEntryFn      := nofun
-    -- TODO: it would be nice to avoid the `toArray` here, e.g. via iterators.
-    exportEntriesFnEx := fun env _ => unsafe
-      let ents := env.unsafeRunMetaM do return #[← prepareTriggers (env.constants.map₂.toArray.map (·.1))]
-      .uniform ents
-    statsFn         := fun _ => "sine qua non premise selection extension"
-  }
+def prepareTriggers (maxTolerance : Float := 3.0) : CoreM (NameMap (List (Name × Float))) := do
+  let consts ← importedRelevantConstants
+  let frequency ← symbolFrequencyMap
+  let denyList := triggerDenyListExt.getState (← getEnv)
+  let mut buckets : NameMap (Array (Nat × Name × Float)) := {}
+  for h : i in [0:consts.size] do
+    let (name, relevant) := consts[i]
+    for (trigger, tolerance) in triggersOf (frequency.getD · 0) denyList relevant maxTolerance do
+      buckets := buckets.alter trigger fun entries? =>
+        some ((entries?.getD #[]).push (i, name, tolerance))
+  return buckets.foldl (init := {}) fun map trigger entries =>
+    let sorted := entries.qsort fun (i, _, x) (j, _, y) => x < y || (x == y && i > j)
+    map.insert trigger (sorted.toList.map fun (_, name, tolerance) => (name, tolerance))
 
 /-- A global `IO.Ref` containing the "sine qua non" triggers. This is initialized on first use. -/
-builtin_initialize sineQuaNonTriggersRef : IO.Ref (Option (NameMap (List (Name × Float)))) ← IO.mkRef none
+builtin_initialize sineQuaNonTriggersRef : SharedCache (NameMap (List (Name × Float))) ←
+  IO.mkRef none
 
-/-- The "sine qua non" triggers for imported constants. This is initialized on first use. -/
-def sineQuaNonTriggerMap : CoreM (NameMap (List (Name × Float))) := do
-  match ← sineQuaNonTriggersRef.get with
-  | some map => return map
-  | none =>
-    let mapss := sineQuaNonExt.getState (← getEnv)
-    let map := mapss.foldl (init := {}) fun acc maps => maps.foldl (init := acc) fun acc map => combineTriggers acc map
-    sineQuaNonTriggersRef.set (some map)
-    return map
+/--
+The "sine qua non" triggers for imported constants. This is computed and cached on first use,
+assuming the imported environment remains fixed for the lifetime of the process.
+-/
+def sineQuaNonTriggerMap : CoreM (NameMap (List (Name × Float))) :=
+  sineQuaNonTriggersRef.getOrCompute <| withUncountedHeartbeats prepareTriggers
 
 public def sineQuaNonTheorems (trigger : Name) : CoreM (List (Name × Float)) := do
   let map ← sineQuaNonTriggerMap

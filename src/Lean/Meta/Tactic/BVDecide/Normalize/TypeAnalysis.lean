@@ -8,7 +8,12 @@ module
 prelude
 public import Std.Tactic.BVDecide.Normalize.BitVec
 public import Lean.Meta.Tactic.BVDecide.Normalize.Basic
+public import Lean.Meta.Sym.Simp.SimpM
+public import Lean.Meta.Tactic.BVDecide.Attr
 import Init.ByCases
+import Lean.Meta.Sym.Simp.Theorems
+import Lean.Meta.Sym.Simp.Rewrite
+import Lean.Meta.Sym.InstantiateMVarsS
 
 /-!
 This file implements the type analysis pass for the structures and enum inductives pass. It figures
@@ -119,36 +124,61 @@ def builtinTypes : Array Name :=
 @[inline]
 def isBuiltIn (n : Name) : Bool := builtinTypes.contains n
 
-public def addDefaultTypeAnalysisLemmas (lemmas : SimpTheoremsArray) : PreProcessM SimpTheoremsArray := do
-  let mut lemmas := lemmas
-
+public def addDefaultTypeAnalysisLemmas (methods : Sym.Simp.Methods) :
+    PreProcessM Sym.Simp.Methods := do
+  let mut lemmas : Sym.Simp.Theorems := {}
   let relevantNames := #[
-    ``ne_eq,
-    ``dif_eq_if,
+    ``dite_eq_ite,
     ``Std.Tactic.BVDecide.Normalize.BitVec.getElem_eq_getLsbD,
   ]
   for name in relevantNames do
-    lemmas ← lemmas.addTheorem (.decl name) (mkConst name)
+    lemmas := lemmas.insert (← Sym.Simp.mkTheoremFromDecl name)
 
-  return lemmas
+  return { methods with pre := methods.pre >> lemmas.rewrite }
+
+structure Context where
+  /--
+  Whether the user restricted the analysis to a fixed set of types through a `types` clause. In that
+  case the interesting structures and enums are seeded upfront and the analysis only discovers
+  matchers on top of them.
+  -/
+  restricted : Bool
+
+abbrev AnalysisM := ReaderT Context PreProcessM
 
 public partial def typeAnalysisPass : Pass where
   name := `typeAnalysis
-  run' goal := do
-    checkContext goal
+  run' := do
+    let restrictedTypes ← PreProcessM.getRestrictedTypes
+    if let some types := restrictedTypes then
+      seedRestrictedTypes types
+    checkContext (← PreProcessM.getTargetMVarId) |>.run { restricted := restrictedTypes.isSome }
     let analysis ← PreProcessM.getTypeAnalysis
     trace[Meta.Tactic.bv] m!"Type analysis found structures: {analysis.interestingStructures.toList}"
     trace[Meta.Tactic.bv] m!"Type analysis found enums: {analysis.interestingEnums.toList}"
     trace[Meta.Tactic.bv] m!"Type analysis found matchers: {analysis.interestingMatchers.keys}"
-    return goal
+    return false
 where
-  checkContext (goal : MVarId) : PreProcessM Unit := do
+  seedRestrictedTypes (types : Array Name) : PreProcessM Unit := do
+    for type in types do
+      if ← isEnumType type then
+        PreProcessM.markInterestingEnum type
+      else if isStructure (← getEnv) type then
+        PreProcessM.markInterestingStructure type
+      else
+        throwError "`{type}` is neither a structure nor an enum inductive"
+
+  checkContext (goal : MVarId) : AnalysisM Unit := do
     goal.withContext do
       for decl in ← getLCtx do
         if !decl.isLet && !decl.isImplementationDetail then
-          analyzeType (← instantiateMVars decl.type)
+          if ← Meta.isProp decl.type then continue
+          analyzeType (← Sym.instantiateMVarsS decl.type)
 
-  analyzeType (expr : Expr) : PreProcessM Unit := do
+      for hyp in ← PreProcessM.getHyps do
+        analyzeType hyp.type
+
+  analyzeType (expr : Expr) : AnalysisM Unit := do
     expr.forEachWhere Expr.isConst fun e => do
       let .const declName .. := e | unreachable!
       discard <| analyzeConst declName
@@ -157,7 +187,7 @@ where
   Returns true if the const is something that we would like to see revealed by case splitting on
   structures that contain it.
   -/
-  analyzeConst (n : Name) : PreProcessM Bool := do
+  analyzeConst (n : Name) : AnalysisM Bool := do
     if isBuiltIn n then return true
 
     let analysis ← PreProcessM.getTypeAnalysis
@@ -166,7 +196,19 @@ where
     else if analysis.uninteresting.contains n || analysis.interestingMatchers.contains n then
       return false
 
-    if isStructure (← getEnv) n then
+    -- Matchers are discovered even in a restricted run as they may discriminate on one of the enums
+    -- that we were told to use.
+    if let some kind ← isSupportedMatch n then
+      let restricted := (← read).restricted
+      if !restricted || analysis.interestingEnums.contains kind.getEnumInfo.name then
+        PreProcessM.markInterestingMatcher n kind
+      else
+        PreProcessM.markUninterestingConst n
+      return false
+    else if (← read).restricted then
+      PreProcessM.markUninterestingConst n
+      return false
+    else if isStructure (← getEnv) n then
       if ← analyzeStructure n then
         PreProcessM.markInterestingStructure n
         return true
@@ -176,9 +218,6 @@ where
     else if ← isEnumType n then
       PreProcessM.markInterestingEnum n
       return true
-    else if let some kind ← isSupportedMatch n then
-      PreProcessM.markInterestingMatcher n kind
-      return false
     else
       PreProcessM.markUninterestingConst n
       return false
@@ -186,7 +225,7 @@ where
   /--
   Returns true if the structure is appropriate for case splitting and contains fields of interest.
   -/
-  analyzeStructure (n : Name) : PreProcessM Bool := do
+  analyzeStructure (n : Name) : AnalysisM Bool := do
     let constInfo ← getConstInfoInduct n
     if constInfo.isRec then
       return false
@@ -199,7 +238,7 @@ where
         return state || (← typeCasesRelevant (← arg.fvarId!.getType))
     return interesting
 
-  typeCasesRelevant (expr : Expr) : PreProcessM Bool := do
+  typeCasesRelevant (expr : Expr) : AnalysisM Bool := do
     let some const := expr.getAppFn.constName? | return false
     analyzeConst const
 

@@ -151,9 +151,10 @@ where
     else
       return { discrs, alts := matchAltViews, isDep := false, matchType := expectedType }
 
-def expandMacrosInPatterns (matchAlts : Array (MatchAltView k)) : MacroM (Array (MatchAltView k)) := do
+def expandMacrosInPatterns (matchAlts : Array (MatchAltView k)) :
+    TermElabM (Array (MatchAltView k)) := do
   matchAlts.mapM fun matchAlt => do
-    let patterns ← matchAlt.patterns.mapM expandMacros
+    let patterns ← matchAlt.patterns.mapM (expandMacrosReportingDeprecated ·)
     pure { matchAlt with patterns := patterns }
 
 private def getMatchGeneralizing? : Syntax → Option Bool
@@ -640,7 +641,7 @@ abbrev TopSortM := StateRefT TopSort.State TermElabM
   "right" order. "Right" here means pattern `x` must occur before pattern `y` if `y`s type depends on `x`.
 -/
 private partial def topSort (patternVars : Array Expr) : TermElabM (Array Expr) := do
-  let (_, s) ← patternVars.mapM visit |>.run {}
+  let (_, s) ← patternVars.forM visit |>.run {}
   return s.result
 where
   visit (e : Expr) : TopSortM Unit := do
@@ -1123,7 +1124,7 @@ private def elabMatchAux (generalizing? : Option Bool) (discrStxs : Array Syntax
     generalizing? := some false
   let (discrs, matchType, altLHSS, isDep, rhss) ← commitIfDidNotPostpone do
     let ⟨discrs, matchType, isDep, altViews⟩ ← elabMatchTypeAndDiscrs discrStxs matchOptMotive altViews expectedType
-    let matchAlts ← liftMacroM <| expandMacrosInPatterns altViews
+    let matchAlts ← expandMacrosInPatterns altViews
     trace[Elab.match] "matchType: {matchType}"
     let (discrs, matchType, alts, refined) ← elabMatchAltViews generalizing? discrs matchType matchAlts
     let isDep := isDep || refined

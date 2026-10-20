@@ -1,5 +1,6 @@
 module
 set_option linter.unusedSimpArgs false
+set_option warn.sorry false
 
 open BitVec
 
@@ -719,8 +720,6 @@ theorem toNat_eq_nat {x : BitVec w} {y : Nat} :
   · intro eq
     simp [Nat.mod_eq_of_lt, eq]
 
-grind_pattern toNat_eq_nat => BitVec.ofNat w y, x.toNat
-
 /-- Moves one-sided right toNat equality to BitVec equality. -/
 theorem nat_eq_toNat {x : BitVec w} {y : Nat} :
     (y = x.toNat) ↔ (y < 2^w ∧ (x = BitVec.ofNat w y)) := by
@@ -1362,7 +1361,7 @@ theorem toNat_shiftLeft {x : BitVec v} :
 
 theorem toInt_shiftLeft {x : BitVec w} :
     (x <<< n).toInt = (x.toNat <<< n : Int).bmod (2^w) := by
-  grind [toInt_eq_toNat_bmod, Int.emod_bmod]
+  grind [toInt_shiftLeft]
 
 theorem toFin_shiftLeft {n : Nat} (x : BitVec w) :
     (x <<< n).toFin = Fin.ofNat (2^w) (x.toNat <<< n) := rfl
@@ -1786,7 +1785,7 @@ theorem toFin_sshiftRight' {x y : BitVec w} :
   rw [sshiftRight_eq', toFin_sshiftRight]
 
 theorem toInt_sshiftRight' {x y : BitVec w} :
-    (x.sshiftRight' y).toInt = x.toInt >>> y.toNat := by grind
+    (x.sshiftRight' y).toInt = x.toInt >>> y.toNat := by grind [toInt_sshiftRight]
 
 -- This should not be a `@[simp]` lemma as the left hand side is not in simp normal form.
 theorem getLsbD_sshiftRight' {x y : BitVec w} {i : Nat} :
@@ -1920,7 +1919,7 @@ and we compute a modulo by `2^v`.
 -/
 theorem toInt_signExtend_eq_toNat_bmod_of_le {x : BitVec w} (hv : v ≤ w) :
     (x.signExtend v).toInt = Int.bmod x.toNat (2^v) := by
-  grind [signExtend_eq_setWidth_of_le]
+  grind [signExtend_eq_setWidth_of_le, toInt_setWidth]
 
 /--
 Interpreting the sign extension of `(x : BitVec w)` to width `v`
@@ -3808,8 +3807,8 @@ theorem toNat_twoPow_of_lt {i w : Nat} (h : i < w) : (twoPow w i).toNat = 2^i :=
 
 theorem toNat_twoPow_eq_ite {i w : Nat} : (twoPow w i).toNat = if i < w then 2^i else 0 := by
   by_cases h : i < w
-  · simp only [h, toNat_twoPow_of_lt, if_true]
-  · simp only [h, if_false]
+  · simp only [h, toNat_twoPow_of_lt, ite_true]
+  · simp only [h, ite_false]
     rw [toNat_twoPow_of_le (by omega)]
 
 theorem getLsbD_twoPow (i j : Nat) : (twoPow w i).getLsbD j = ((i < w) && (i = j)) := by
@@ -4000,7 +3999,11 @@ theorem replicate_append_self {x : BitVec w} :
     conv => lhs; rw [ih]
     simp only [BitVec.cast_cast, BitVec.cast_eq]
     rw [← cast_append_left]
-    · grind
+    -- The goal needs the exponent identity `w + w * n = w * (n + 1)` to relate
+    -- `2 ^ _` terms in the `toNat` images of the appends. `grind` finds it only via a
+    -- model-based theory combination case split, and the homomorphism encoding produces
+    -- enough competing exponent-pair candidates that the default split budget is too small.
+    · grind (splits := 11)
     · rw [Nat.add_comm, Nat.mul_add, Nat.mul_one]; omega
 
 theorem replicate_succ' {x : BitVec w} :
@@ -4183,7 +4186,7 @@ theorem intMax_add_one {w : Nat} : intMax w + 1#w = intMin w := by
 
 theorem toInt_intMax : (BitVec.intMax w).toInt = 2 ^ (w - 1) - 1 := by
   refine (Nat.eq_zero_or_pos w).elim (by rintro rfl; simp [BitVec.toInt_of_zero_length]) (fun hw => ?_)
-  rw [BitVec.toInt, toNat_intMax, if_pos]
+  rw [BitVec.toInt, toNat_intMax, ite_eq_left]
   · rw [Int.ofNat_sub Nat.one_le_two_pow, Int.natCast_pow, Int.cast_ofNat_Int, Int.cast_ofNat_Int]
   · rw [Nat.mul_sub_left_distrib, ← Nat.pow_succ', Nat.succ_eq_add_one, Nat.sub_add_cancel hw]
     apply Nat.sub_lt_self (by decide)

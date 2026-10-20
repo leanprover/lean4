@@ -3,16 +3,16 @@ set_option trace.compiler.ir.result true
 /--
 trace: [Compiler.IR] [result]
     def _example (x_1 : u8) (x_2 : u8) : u8 :=
-      case x_1 : u8 of
+      case x_2 : u8 of
       Bool.false →
-        case x_2 : u8 of
+        case x_1 : u8 of
         Bool.false →
           let x_3 : u8 := 1;
           ret x_3
         Bool.true →
-          ret x_1
+          ret x_2
       Bool.true →
-        ret x_2
+        ret x_1
     def _example._boxed (x_1 : tagged) (x_2 : tagged) : tagged :=
       let x_3 : u8 := unbox x_1;
       let x_4 : u8 := unbox x_2;

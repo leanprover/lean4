@@ -54,7 +54,7 @@ match_pat '^  set_option linter.dummyMarker false in ' Violations.lean
 
 # --- Re-linting now passes: every warning is silenced. ---
 lake_out lint --builtin-lint Violations || true
-match_pat 'Linting passed for Violations' produced.out
+match_pat 'Environment linting passed for Violations' produced.out
 no_match_pat 'is not explicitly referenced' produced.out
 no_match_pat "declaration name ends with 'DummyMarker'" produced.out
 

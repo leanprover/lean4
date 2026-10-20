@@ -328,24 +328,26 @@ def stressResponseHandler (n : Nat) : TestHandler := fun _ => do
 
     client.send "GET /stream HTTP/1.1\x0d\nHost: example.com\x0d\n\x0d\n".toUTF8
 
-    let mut early : Option ByteArray := none
-    for _ in [0:5] do
-      if early.isNone then
-        let sleep ← Sleep.mk 40
-        sleep.wait
-        early ← client.tryRecv?
+    let mut bytes : ByteArray := ByteArray.empty
 
-    let earlyBytes := early.getD ByteArray.empty
-    if earlyBytes.isEmpty then
+    for _ in [0:5] do
+      unless (String.fromUTF8! bytes).contains "aaa" do
+        let sleep ← Sleep.mk 100
+        sleep.wait
+        if let some chunk ← client.tryRecv? then
+          bytes := bytes ++ chunk
+
+    if bytes.isEmpty then
       throw <| IO.userError "Test '22_keepalive_unknown_size_flushes_early' failed:\nExpected early streamed bytes before producer EOF"
 
-    assertContains earlyBytes "Transfer-Encoding: chunked"
-    assertContains earlyBytes "aaa"
-    assertNotContains "22_keepalive_unknown_size_flushes_early no second chunk yet" earlyBytes "bbb"
+    assertContains bytes "Transfer-Encoding: chunked"
+    assertContains bytes "aaa"
+    assertNotContains "22_keepalive_unknown_size_flushes_early no second chunk yet" bytes "bbb"
 
     let sleep ← Sleep.mk 420
     sleep.wait
-    let later := (← client.tryRecv?).getD ByteArray.empty
-    assertContains later "bbb"
+    bytes := bytes ++ (← client.tryRecv?).getD ByteArray.empty
+
+    assertContains bytes "bbb"
 
     client.close

@@ -299,6 +299,28 @@ extern "C" LEAN_EXPORT obj_res lean_state_sharecommon(b_obj_arg tc, obj_arg s, o
   - `m_set` is like the range of `m_cache`.
 */
 
+/*
+  Takes a reference to an object in the range of `m_cache` or in `m_set`. These are single-threaded
+  objects created here, so the sign test of `lean_inc_ref` is skipped. Overflowing the count panics
+  instead of wrapping into the sticky range, since further increments here would walk the count back
+  out of it.
+*/
+static inline void inc_st(lean_object * o) {
+#if defined(__GNUC__) || defined(__clang__)
+    int rc;
+    bool overflow = __builtin_add_overflow(lean_internal_get_rc(o), 1, &rc);
+    // Storing before the test lets the increment stay a single instruction on the count.
+    lean_internal_set_rc(o, rc);
+    if (LEAN_UNLIKELY(overflow))
+        lean_internal_panic_rc_overflow();
+#else
+    int rc = lean_internal_get_rc(o);
+    if (LEAN_UNLIKELY(rc == INT_MAX))
+        lean_internal_panic_rc_overflow();
+    lean_internal_set_rc(o, rc + 1);
+#endif
+}
+
 lean_object * sharecommon_quick_fn::check_cache(lean_object * a) {
     if (!lean_is_exclusive(a)) {
         // We only check the cache if `a` is a shared object
@@ -308,7 +330,7 @@ lean_object * sharecommon_quick_fn::check_cache(lean_object * a) {
             lean_assert(lean_is_st(it->second));
             // We increment the reference counter because this object
             // will be returned by `lean_sharecommon_quick` or stored into a new object.
-            it->second->m_rc++;
+            inc_st(it->second);
             return it->second;
         }
         if (m_check_set) {
@@ -316,7 +338,7 @@ lean_object * sharecommon_quick_fn::check_cache(lean_object * a) {
             if (it != m_set.end()) {
                 lean_object * result = *it;
                 lean_assert(lean_is_st(result));
-                result->m_rc++;
+                inc_st(result);
                 return result;
             }
         }
@@ -329,7 +351,7 @@ lean_object * sharecommon_quick_fn::check_cache(lean_object * a) {
 */
 lean_object * sharecommon_quick_fn::save(lean_object * a, lean_object * new_a) {
     lean_assert(lean_is_st(new_a));
-    lean_assert(new_a->m_rc == 1);
+    lean_assert(lean_internal_get_rc(new_a) == 1);
     auto it = m_set.find(new_a);
     lean_object * result;
     if (it == m_set.end()) {
@@ -352,15 +374,15 @@ lean_object * sharecommon_quick_fn::save(lean_object * a, lean_object * new_a) {
         lean_dec_ref(new_a); // delete `new_a`
         // All objects in `m_set` are single threaded.
         lean_assert(lean_is_st(result));
-        result->m_rc++;
-        lean_assert(result->m_rc > 1);
+        inc_st(result);
+        lean_assert(lean_internal_get_rc(result) > 1);
     }
     if (!lean_is_exclusive(a)) {
         // We only cache the result if `a` is a shared object.
         m_cache.insert(std::make_pair(a, result));
     }
-    lean_assert(result == new_a || result->m_rc > 1);
-    lean_assert(result != new_a || result->m_rc == 1);
+    lean_assert(result == new_a || lean_internal_get_rc(result) > 1);
+    lean_assert(result != new_a || lean_internal_get_rc(result) == 1);
     return result;
 }
 
@@ -378,7 +400,7 @@ lean_object * sharecommon_quick_fn::visit_terminal(lean_object * a) {
 
 lean_object * sharecommon_quick_fn::visit_array(lean_object * a) {
     lean_object * r = check_cache(a);
-    if (r != nullptr) { lean_assert(r->m_rc > 1); return r; }
+    if (r != nullptr) { lean_assert(lean_internal_get_rc(r) > 1); return r; }
 
     size_t sz = array_size(a);
     lean_array_object * new_a = (lean_array_object*)lean_alloc_array(sz, sz);
@@ -390,7 +412,7 @@ lean_object * sharecommon_quick_fn::visit_array(lean_object * a) {
 
 lean_object * sharecommon_quick_fn::visit_ctor(lean_object * a) {
     lean_object * r = check_cache(a);
-    if (r != nullptr) { lean_assert(r->m_rc > 1); return r; }
+    if (r != nullptr) { lean_assert(lean_internal_get_rc(r) > 1); return r; }
     unsigned num_objs      = lean_ctor_num_objs(a);
     unsigned tag           = lean_ptr_tag(a);
     unsigned sz            = lean_object_byte_size(a);

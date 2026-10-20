@@ -18,6 +18,8 @@ structure VarInfo where
   maxLowerCoeff : Nat := 0
   maxUpperCoeff : Nat := 0
   maxDvdCoeff   : Nat := 0
+  /-- Minimal absolute coefficient over all inequalities containing the variable. -/
+  minCoeff      : Nat := 0
   deriving Inhabited
 
 private abbrev CollectM := StateT (Array VarInfo) GoalM
@@ -28,7 +30,12 @@ private def updateLower (a : Nat) (x : Var) : CollectM Unit := do
 private def updateUpper (a : Nat) (x : Var) : CollectM Unit := do
   modify fun infos => infos.modify x fun info => { info with maxUpperCoeff := max a info.maxUpperCoeff }
 
+private def updateMin (a : Nat) (x : Var) : CollectM Unit := do
+  modify fun infos => infos.modify x fun info =>
+    { info with minCoeff := if info.minCoeff == 0 then a else min a info.minCoeff }
+
 private def updateVarCoeff (a : Int) (x : Var) : CollectM Unit := do
+  updateMin a.natAbs x
   if a < 0 then updateLower a.natAbs x else updateUpper a.natAbs x
 
 private def updateDvd (a : Nat) (x : Var) : CollectM Unit := do
@@ -60,7 +67,14 @@ The first one is the `max (min lowerCoeff upperCoeff) dvdCoeff`.
 Recall that we use cooper-left if the coefficient of the lower bound is smaller, and cooper-right otherwise.
 This is way we use the `min lowerCoeff upperCoeff`. The coefficient of the divisibility constraint also
 impacts the size of the search space.
-Then, we break ties using the max of all of them, and then the variable original order.
+Then, we break ties using the max of all of them.
+Remaining ties are broken using the minimal coefficient: a variable that occurs only with large
+coefficients (e.g., `t / 64`, which occurs only as `64 * (t / 64)`) produces a Cooper split with
+that many cases whenever it is the conflicting variable, while a variable with a unit occurrence
+is resolved exactly through that bound. Example: in `t % 64 ≤ (64 * t + y) % 4096 / 64`,
+`t`, `(64 * t + y) % 4096 / 64`, and `t / 64` all have `cost₁ = cost₂ = 64`; ordering `t / 64`
+first avoids two nested 64-way Cooper splits.
+Finally, we use the variable original order.
 -/
 def cost₁ (info : VarInfo) : Nat :=
   max info.maxDvdCoeff (min info.maxLowerCoeff info.maxUpperCoeff)
@@ -74,11 +88,13 @@ def cost₂ (info : VarInfo) : Nat :=
 private def cmp₂ (infos : Array VarInfo) (x y : Var) : Ordering :=
   compare (cost₂ infos[x]!) (cost₂ infos[y]!) |>.swap
 
-private def cmp (infos : Array VarInfo) (x y : Var) : Ordering :=
-  cmp₁ infos x y |>.then (cmp₂ infos x y) |>.then (compare x y)
+private def cmp₃ (infos : Array VarInfo) (x y : Var) : Ordering :=
+  compare infos[x]!.minCoeff infos[y]!.minCoeff |>.swap
 
-private def sortVars : GoalM (Array Var) := do
-  let infos ← collectVarInfo
+private def cmp (infos : Array VarInfo) (x y : Var) : Ordering :=
+  cmp₁ infos x y |>.then (cmp₂ infos x y) |>.then (cmp₃ infos x y) |>.then (compare x y)
+
+private def sortVars (infos : Array VarInfo) : GoalM (Array Var) := do
   let result := Array.range (← get').vars.size
   let result := result.qsort (fun x y => cmp infos x y == .lt)
   return result
@@ -119,21 +135,26 @@ def reorderDiseqSplits (m : PHashMap Poly FVarId) (old2new : Array Var) : PHashM
     m' := m'.insert (p.reorder old2new) h
   return m'
 
+/--
+Reorders the variables according to `cmp` when it pays off. Variables created after a
+reordering (e.g., by later E-matching rounds) are appended to the order, so an expensive
+one may end up after the cheap ones it appears with, and the Cooper case splits that
+eliminate it enumerate its coefficient. The first reordering applies the full order; a later
+one is performed only when a variable with `cost₁ > 1` is out of place, so that cheap
+problems do not accumulate epochs (see `State.varsHistory`).
+-/
 def reorderVars : GoalM Unit := do
   let s ← get'
   if s.vars.isEmpty then return () -- nothing to reorder
-  /-
-  We currently reorder variables at most once.
-  It is feasible to implement dynamic variable reordering, but we would have to
-  store a trail of vars and varMaps.
-
-  The other option is change our representation and relax the assumption our polynomials are
-  sorted. It is unclear how it will impact performance.
-  -/
-  unless s.vars'.isEmpty do return ()
-  checkInvariants
-  let new2old ← sortVars
+  let infos ← collectVarInfo
+  let new2old ← sortVars infos
   let old2new := mkPermInv new2old
+  let firstTime := s.varsHistory.isEmpty
+  let needed := (List.range s.vars.size).any fun x =>
+    old2new[x]! != x && (firstTime || cost₁ infos[x]! > 1)
+  unless needed do return ()
+  trace[grind.lia.reorder] "reordering variables, epoch: {s.varsHistory.size + 1}"
+  checkInvariants
   -- We save the constraints to reinsert them later.
   let dvds := s.dvds.foldl (init := #[]) fun
     | dvds, none => dvds
@@ -147,8 +168,7 @@ def reorderVars : GoalM Unit := do
   modify' fun s => { s with
     vars        := reorderVarMap s.vars new2old
     varMap      := s.varMap.map fun x => old2new[x]!
-    vars'       := s.vars
-    varMap'     := s.varMap
+    varsHistory := s.varsHistory.push (s.vars, s.varMap)
     natDef      := s.natDef.map fun x => old2new[x]!
     dvds        := s.dvds.map fun _ => none
     lowers      := s.lowers.map fun _ => {}

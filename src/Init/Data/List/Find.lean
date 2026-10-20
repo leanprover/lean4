@@ -544,7 +544,7 @@ private theorem findIdx?_go_eq {p : α → Bool} {xs : List α} {i : Nat} :
 
 @[grind =]
 theorem findIdx_cons {p : α → Bool} {b : α} {l : List α} :
-    (b :: l).findIdx p = bif p b then 0 else (l.findIdx p) + 1 := by
+    (b :: l).findIdx p = if p b then 0 else (l.findIdx p) + 1 := by
   cases H : p b with
   | true => simp [H, findIdx, findIdx.go]
   | false => simp [H, findIdx, findIdx.go, findIdx_go_succ]
@@ -555,7 +555,7 @@ where
     | nil => unfold findIdx.go; exact Nat.succ_eq_add_one n
     | cons hd tl =>
       unfold findIdx.go
-      cases p hd <;> simp only [cond_false, cond_true]
+      cases p hd <;> simp only [Bool.false_eq_true, ↓reduceIte]
       exact findIdx_go_succ p tl (n + 1)
 
 @[simp] theorem findIdx_singleton {a : α} {p : α → Bool} : [a].findIdx p = if p a then 0 else 1 := by
@@ -579,7 +579,7 @@ theorem findIdx_lt_length_of_exists {xs : List α} (h : ∃ x ∈ xs, p x) :
   | cons x xs ih =>
     by_cases p x
     · simp_all only [forall_exists_index, and_imp, mem_cons, exists_eq_or_imp, true_or,
-        findIdx_cons, cond_true, length_cons]
+        findIdx_cons, length_cons]
       apply Nat.succ_pos
     · simp_all [findIdx_cons, Nat.succ_lt_succ_iff]
       obtain ⟨x', m', h'⟩ := h
@@ -596,7 +596,6 @@ theorem findIdx_eq_length {p : α → Bool} {xs : List α} :
   | nil => simp_all
   | cons x xs ih =>
     rw [findIdx_cons, length_cons]
-    simp only [cond_eq_ite]
     split <;> simp_all
 
 theorem findIdx_eq_length_of_false {p : α → Bool} {xs : List α} (h : ∀ x ∈ xs, p x = false) :
@@ -634,11 +633,11 @@ theorem not_of_lt_findIdx {p : α → Bool} {xs : List α} {i : Nat} (h : i < xs
     have ho := h
     rw [findIdx_cons] at h
     have npx : p x = false := by
-      apply eq_false_of_ne_true
+      apply Bool.eq_false_of_ne_true
       intro y
-      rw [y, cond_true] at h
+      rw [y] at h
       simp at h
-    simp [npx, cond_false] at h
+    simp [npx] at h
     cases i.eq_zero_or_pos with
     | inl e => simpa [e, Fin.zero_eta, get_cons_zero]
     | inr e =>
@@ -699,7 +698,7 @@ theorem findIdx_append {p : α → Bool} {l₁ l₂ : List α} :
     simp only [findIdx_cons, length_cons, cons_append]
     by_cases h : p x
     · simp [h]
-    · simp only [h, ih, cond_eq_ite, Bool.false_eq_true, ↓reduceIte, add_one_lt_add_one_iff]
+    · simp only [h, ih, Bool.false_eq_true, ↓reduceIte, add_one_lt_add_one_iff]
       split <;> simp [Nat.add_assoc]
 
 theorem IsPrefix.findIdx_le {l₁ l₂ : List α} {p : α → Bool} (h : l₁ <+: l₂) :
@@ -729,7 +728,7 @@ theorem findIdx_le_findIdx {l : List α} {p q : α → Bool} (h : ∀ x ∈ l, p
   induction l with
   | nil => simp
   | cons x xs ih =>
-    simp only [findIdx_cons, cond_eq_ite]
+    simp only [findIdx_cons]
     split
     · simp
     · split
@@ -782,10 +781,10 @@ theorem findIdx?_eq_some_iff_findIdx_eq {xs : List α} {p : α → Bool} {i : Na
   | cons x xs ih =>
     simp only [findIdx?_cons, findIdx_cons]
     split
-    · simp_all [cond_eq_ite]
+    · simp_all
       rintro rfl
       exact zero_lt_succ xs.length
-    · simp_all [cond_eq_ite, and_assoc]
+    · simp_all [and_assoc]
       constructor
       · rintro ⟨a, lt, rfl, rfl⟩
         simp_all [Nat.succ_lt_succ_iff]
@@ -1137,7 +1136,7 @@ The lemmas below should be made consistent with those for `findIdx` (and proved 
 
 @[grind =]
 theorem idxOf_cons [BEq α] :
-    (x :: xs : List α).idxOf y = bif x == y then 0 else xs.idxOf y + 1 := by
+    (x :: xs : List α).idxOf y = if x == y then 0 else xs.idxOf y + 1 := by
   dsimp [idxOf]
   simp [findIdx_cons]
 
@@ -1153,10 +1152,10 @@ theorem getElem_idxOf [BEq α] [LawfulBEq α] {x : α} {xs : List α}
   | nil => simp at h
   | cons a l ih =>
     cases hax : a == x with
-    | true => simp only [idxOf_cons, hax, cond_true, getElem_cons_zero]; exact eq_of_beq hax
+    | true => simp only [idxOf_cons, hax]; exact eq_of_beq hax
     | false =>
-      simp only [idxOf_cons, hax, cond_false, getElem_cons_succ]
-      rw [idxOf_cons, hax, cond_false, length_cons] at h
+      simp only [idxOf_cons, hax]
+      rw [idxOf_cons, hax, ite_eq_right (by simp), length_cons] at h
       exact ih (by omega)
 
 @[grind =]
@@ -1164,9 +1163,9 @@ theorem idxOf_append [BEq α] [LawfulBEq α] {l₁ l₂ : List α} {a : α} :
     (l₁ ++ l₂).idxOf a = if a ∈ l₁ then l₁.idxOf a else l₂.idxOf a + l₁.length := by
   rw [idxOf, findIdx_append]
   split <;> rename_i h
-  · rw [if_pos]
+  · rw [ite_eq_left]
     simpa using h
-  · rw [if_neg]
+  · rw [ite_eq_right]
     simpa using h
 
 theorem idxOf_eq_length [BEq α] [LawfulBEq α] {l : List α} (h : a ∉ l) : l.idxOf a = l.length := by
@@ -1174,7 +1173,7 @@ theorem idxOf_eq_length [BEq α] [LawfulBEq α] {l : List α} (h : a ∉ l) : l.
   | nil => rfl
   | cons x xs ih =>
     simp only [mem_cons, not_or] at h
-    simp only [idxOf_cons, cond_eq_ite, beq_iff_eq]
+    simp only [idxOf_cons, beq_iff_eq]
     split <;> simp_all
 
 theorem idxOf_lt_length_of_mem [BEq α] [EquivBEq α] {l : List α} (h : a ∈ l) : l.idxOf a < l.length := by
@@ -1184,7 +1183,7 @@ theorem idxOf_lt_length_of_mem [BEq α] [EquivBEq α] {l : List α} (h : a ∈ l
     simp only [mem_cons] at h
     obtain rfl | h := h
     · simp
-    · simp only [idxOf_cons, cond_eq_ite, length_cons]
+    · simp only [idxOf_cons, length_cons]
       specialize ih h
       split
       · exact zero_lt_succ xs.length

@@ -236,7 +236,7 @@ def testFormatResults : CoreM Format := do
   let results ← lintCore #[`badDef, `goodDef] linters
   let msg ← formatLinterResults results #[`badDef, `goodDef]
     (groupByFilename := false) (whereDesc := "in test")
-    (verbose := .medium) (numLinters := linters.size)
+    (numLinters := linters.size)
   return (← msg.format)
 
 /--
@@ -255,7 +255,7 @@ def testFormatResultsClean : CoreM Format := do
   let results ← lintCore #[`goodDef] linters
   let msg ← formatLinterResults results #[`goodDef]
     (groupByFilename := false) (whereDesc := "in test")
-    (verbose := .medium) (numLinters := linters.size)
+    (numLinters := linters.size)
   return (← msg.format)
 
 /--

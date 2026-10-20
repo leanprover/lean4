@@ -129,7 +129,7 @@ meta def mkFieldView (stx : TSyntax ``configField) : MacroM FieldView := withRef
   let bvs ← expandBinders bs
   let type := mkDepArrow bvs rty
   let some id := id? <|> ids.getElems[0]?
-    | Macro.throwError "expected a least one field name"
+    | Macro.throwError "expected at least one field name"
   withRef id.raw do
   let some val := val?
     | Macro.throwError "expected a default value"

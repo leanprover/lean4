@@ -5,8 +5,17 @@ Authors: Henrik Böving
 -/
 module
 prelude
-public import Lean.Meta.Tactic.BVDecide.Reflect.ReifiedLemmas
-import Lean.Meta.LitValues
+public import Lean.Meta.Tactic.BVDecide.Reflect.Basic
+import Lean.Meta.Tactic.BVDecide.Reflect.ReifiedLemmas
+import Lean.Meta.Tactic.BVDecide.Reflect.ReifiedBVExpr
+import Lean.Meta.Tactic.BVDecide.Reflect.ReifiedBVPred
+import Lean.Meta.Tactic.BVDecide.Reflect.ReifiedBVLogical
+import Lean.Meta.Sym.LitValues
+import Lean.Meta.AppBuilder
+import Std.Tactic.BVDecide.Reflect
+import Lean.Meta.Sym.InferType
+import Lean.Meta.Sym.InstantiateMVarsS
+import Lean.Meta.Sym.Simp.CongrInfo
 
 
 /-!
@@ -17,7 +26,156 @@ namespace Lean.Meta.Tactic.BVDecide
 
 open Std.Tactic.BVDecide
 
+public def isValidBitVecAtom (e : Expr) : ReifyM (Option Nat) := do
+  let t ← Sym.instantiateMVarsS (← Sym.inferType e)
+  let_expr BitVec widthExpr := t | return none
+  return Sym.getNatValue? widthExpr
+
+public def isValidBoolAtom (e : Expr) : ReifyM Bool := do
+  let ty ← Sym.inferType e
+  return ty.isConstOf ``Bool
+
+def checkFunAtom (e : Expr) : LemmaM (Option (Array Expr)) := do
+  unless (← read).config.uf do return none
+  let (e, isBoolAtom) ← unwrapBoolAtom e
+  trace[Meta.Tactic.bv] m!"Checking for fun atom {e}"
+  e.withApp fun fn args => do
+    if args.isEmpty then return none
+
+    let interpretedMask ← args.mapM fun arg =>
+      (Option.isSome <$> isValidBitVecAtom arg) <||> isValidBoolAtom arg
+    if interpretedMask.all (· == false) then return none
+
+    let some congrMask ← getCongrMask fn args | return none
+    let interpretedMask := interpretedMask.zip congrMask |>.map fun (l, r) => l && r
+    if interpretedMask.all (· == false) then return none
+
+    let funPattern ← getFunctionPattern e interpretedMask
+    ReifyM.modifyTheoryState fun ts =>
+      { ts with
+          funState.atoms := ts.funState.atoms.push { funExpr := e, isBoolAtom := isBoolAtom  }
+          funState.masks := ts.funState.masks.push interpretedMask
+          funState.patterns := ts.funState.patterns.push funPattern
+      }
+    trace[Meta.Tactic.bv] m!"Registered fun atom: {e}, mask: {interpretedMask}"
+
+    let mut subAtoms := #[]
+    for arg in args, m in interpretedMask do
+      if m then
+        subAtoms := subAtoms.push arg
+    return subAtoms
+where
+  getCongrMask (fn : Expr) (args : Array Expr) : Sym.SymM (Option (Array Bool)) := do
+    let congrInfo ← Sym.getCongrInfo fn
+    match congrInfo with
+    | .none | .congrTheorem .. => return none
+    | .fixedPrefix prefixSize suffixSize =>
+      let mask :=
+        Array.replicate prefixSize false
+          ++ Array.replicate suffixSize true
+          ++ Array.replicate (args.size - suffixSize - prefixSize) false
+      return some mask
+    | .interlaced mask =>
+      let mask := mask ++ Array.replicate (args.size - mask.size) false
+      return some mask
+
+  unwrapBoolAtom (e : Expr) : Sym.SymM (Expr × Bool) := do
+    match_expr e with
+    | BitVec.ofBool arg => return (arg, true)
+    | _ => return (e, false)
+
+  getFunctionPattern (funAtom : Expr) (mask : Array Bool) : Sym.SymM Expr :=
+    funAtom.withApp fun fn args => do
+      assert! args.size == mask.size
+      let mut decls := #[]
+      for arg in args, m in mask do
+        if m then
+          let argType ← Sym.inferType arg
+          decls := decls.push (.anonymous, argType)
+      withLocalDeclsDND decls fun patternVars => do
+        let mut newArgs := #[]
+        let mut seen := 0
+        for arg in args, m in mask do
+          if m then
+            let patternVar := patternVars[seen]!
+            seen := seen + 1
+            newArgs := newArgs.push patternVar
+          else
+            newArgs := newArgs.push arg
+        let expr := mkAppN fn newArgs
+        Sym.share <| ← mkLambdaFVars patternVars expr
+
 mutual
+
+/--
+Register `e` as an atom of `width` that might potentially be `synthetic`.
+-/
+partial def registerAtom (e : Expr) (width : Nat) (synthetic : Bool) :
+    LemmaM ReifiedBVExpr := do
+  let subAtoms ← checkTheoryAtom e
+  let ident ← ReifyM.lookup e width synthetic
+  let expr ← Sym.share <| mkApp2 (mkConst ``BVExpr.var) (toExpr width) (toExpr ident)
+  -- This is safe because this proof always holds definitionally.
+  let proof := pure none
+  let reified := ⟨width, .var ident, expr, proof, expr⟩
+  subAtoms.forM fun subAtom => do
+    if ← ReifyM.isAtom subAtom <||> ReifyM.isAtom (← mkBoolAtomWrapper subAtom) then
+      return ()
+    else if let some _ ← isValidBitVecAtom subAtom then
+      discard <| ReifiedBVExpr.of subAtom
+    else if ← isValidBoolAtom subAtom then
+      discard <| ReifiedBVLogical.of subAtom
+  return reified
+where
+  checkTheoryAtom (e : Expr) : LemmaM (Array Expr) := do
+    if synthetic then return #[]
+    if ← ReifyM.isAtom e then return #[]
+    if let some subAtoms ← checkFunAtom e then return subAtoms
+    return #[]
+
+/--
+Construct an uninterpreted `BitVec` atom from `x`, potentially `synthetic`.
+-/
+public partial def ReifiedBVExpr.bitVecAtom (e : Expr) (synthetic : Bool) :
+    LemmaM (Option ReifiedBVExpr) := do
+  let some width ← isValidBitVecAtom e | return none
+  let atom ← registerAtom e width synthetic
+  return some atom
+
+/--
+Construct an uninterpreted `Bool` atom from `origExpr`.
+-/
+public partial def ReifiedBVPred.boolAtom (e : Expr) : LemmaM (Option ReifiedBVPred) := do
+  /-
+  Idea: we have t : Bool here, let's construct:
+    BitVec.ofBool t : BitVec 1
+  as an atom. Then construct the BVPred corresponding to
+    BitVec.getLsb (BitVec.ofBool t) 0 : Bool
+  We can prove that this is equivalent to `t`. This allows us to have boolean variables in BVPred.
+  -/
+  unless ← isValidBoolAtom e do return none
+  let atomExpr ← mkBoolAtomWrapper e
+  let atom ← registerAtom atomExpr 1 false
+  let bvExpr := .getLsbD atom.bvExpr 0
+  let expr ← Sym.share <| mkApp3 (mkConst ``BVPred.getLsbD) (toExpr 1) atom.expr (toExpr 0)
+  let proof := do
+    -- ofBool_congr does not hold definitionally, if this ever becomes an issue we need to find
+    -- a more clever encoding for boolean atoms
+    let atomEval ← ReifiedBVExpr.mkEvalExpr atom.width atom.expr
+    let atomProof := (← atom.evalsAtAtoms).getD (ReifiedBVExpr.mkBVRefl atom.width atomEval)
+    return mkApp3
+      (mkConst ``Std.Tactic.BVDecide.Reflect.BitVec.ofBool_congr)
+      e
+      atomEval
+      atomProof
+  return some ⟨bvExpr, e, proof, expr⟩
+
+/--
+Construct an uninterpreted `Bool` atom from `t`.
+-/
+public partial def ReifiedBVLogical.boolAtom (t : Expr) : LemmaM (Option ReifiedBVLogical) := do
+  let some pred ← ReifiedBVPred.boolAtom t | return none
+  ReifiedBVLogical.ofPred pred
 
 /--
 Reify an `Expr` that's a constant-width `BitVec`.
@@ -51,7 +209,7 @@ where
     | HShiftLeft.hShiftLeft α β _ _ innerExpr distanceExpr =>
       let distance? ← ReifiedBVExpr.getNatOrBvValue? β distanceExpr
       let_expr BitVec wExpr := α | return none
-      if (← getNatValue? wExpr).isSome && distance?.isSome then
+      if (Sym.getNatValue? wExpr).isSome && distance?.isSome then
         throwError "internal error: constant shift should have been eliminated."
       let_expr BitVec _ := β | return none
       shiftReflection
@@ -64,7 +222,7 @@ where
     | HShiftRight.hShiftRight α β _ _ innerExpr distanceExpr =>
       let distance? ← ReifiedBVExpr.getNatOrBvValue? β distanceExpr
       let_expr BitVec wExpr := α | return none
-      if (← getNatValue? wExpr).isSome && distance?.isSome then
+      if (Sym.getNatValue? wExpr).isSome && distance?.isSome then
         throwError "internal error: constant shift should have been eliminated."
       let_expr BitVec _ := β | return none
       shiftReflection
@@ -75,7 +233,7 @@ where
         ``Std.Tactic.BVDecide.Reflect.BitVec.shiftRight_congr
         origExpr
     | BitVec.sshiftRight _ innerExpr distanceExpr =>
-      let some distance ← getNatValue? distanceExpr | return none
+      let some distance := Sym.getNatValue? distanceExpr | return none
       shiftConstLikeReflection
         distance
         innerExpr
@@ -96,7 +254,7 @@ where
       let some rhs ← goOrAtom rhsExpr | return none
       let bvExpr := .append lhs.bvExpr rhs.bvExpr rfl
       let wExpr := toExpr (lhs.width + rhs.width)
-      let expr :=
+      let expr ← Sym.share <|
         mkApp6 (mkConst ``BVExpr.append)
           (toExpr lhs.width)
           (toExpr rhs.width)
@@ -110,7 +268,7 @@ where
         let lhsProof? ← lhs.evalsAtAtoms
         let rhsProof? ← rhs.evalsAtAtoms
         let some (lhsProof, rhsProof) :=
-          M.simplifyBinaryProof'
+          ReifyM.simplifyBinaryProof'
             (ReifiedBVExpr.mkBVRefl lhs.width) lhsEval lhsProof?
             (ReifiedBVExpr.mkBVRefl rhs.width) rhsEval rhsProof? | return none
         return mkApp8 (mkConst ``Std.Tactic.BVDecide.Reflect.BitVec.append_congr)
@@ -121,10 +279,10 @@ where
       return some ⟨lhs.width + rhs.width, bvExpr, origExpr, proof, expr⟩
     | BitVec.replicate _ nExpr innerExpr =>
       let some inner ← goOrAtom innerExpr | return none
-      let some n ← getNatValue? nExpr | return none
+      let some n := Sym.getNatValue? nExpr | return none
       let bvExpr := .replicate n inner.bvExpr rfl
       let newWExpr := toExpr (inner.width * n)
-      let expr :=
+      let expr ← Sym.share <|
         mkApp5 (mkConst ``BVExpr.replicate)
           (toExpr inner.width)
           newWExpr
@@ -143,15 +301,11 @@ where
           innerProof
       return some ⟨inner.width * n, bvExpr, origExpr, proof, expr⟩
     | BitVec.extractLsb' _ startExpr lenExpr innerExpr =>
-      let some start ← getNatValue? startExpr | return none
-      let some len ← getNatValue? lenExpr | return none
+      let some start := Sym.getNatValue? startExpr | return none
+      let some len := Sym.getNatValue? lenExpr | return none
       let some inner ← goOrAtom innerExpr | return none
       let bvExpr := .extract start len inner.bvExpr
-      let expr := mkApp4 (mkConst ``BVExpr.extract)
-        (toExpr inner.width)
-        startExpr
-        lenExpr
-        inner.expr
+      let expr ← Sym.share <| mkApp4 (mkConst ``BVExpr.extract) (toExpr inner.width) startExpr lenExpr inner.expr
       let proof := do
         let innerEval ← ReifiedBVExpr.mkEvalExpr inner.width inner.expr
         -- This is safe as `extract_congr` holds definitionally if the arguments are defeq.
@@ -212,23 +366,15 @@ where
       LemmaM (Option ReifiedBVExpr) := do
     let some inner ← goOrAtom innerExpr | return none
     let bvExpr : BVExpr inner.width := .un (shiftOp distance) inner.bvExpr
-    let expr :=
-      mkApp3
-        (mkConst ``BVExpr.un)
-        (toExpr inner.width)
-        (mkApp (mkConst shiftOpName) (toExpr distance))
-        inner.expr
-    let congrProof :=
-      mkApp
-        (mkConst congrThm)
-        (toExpr distance)
+    let expr ← Sym.share <| mkApp3 (mkConst ``BVExpr.un) (toExpr inner.width) (mkApp (mkConst shiftOpName) (toExpr distance)) inner.expr
+    let congrProof := mkApp (mkConst congrThm) (toExpr distance)
     let proof := unaryCongrProof inner innerExpr congrProof
     return some ⟨inner.width, bvExpr, origExpr, proof, expr⟩
 
   rotateReflection (distanceExpr : Expr) (innerExpr : Expr) (rotateOp : Nat → BVUnOp)
       (rotateOpName : Name) (congrThm : Name) (origExpr : Expr) :
       LemmaM (Option ReifiedBVExpr) := do
-    let some distance ← getNatValue? distanceExpr | return none
+    let some distance := Sym.getNatValue? distanceExpr | return none
     shiftConstLikeReflection distance innerExpr rotateOp rotateOpName congrThm origExpr
 
   shiftReflection (distanceExpr : Expr) (innerExpr : Expr)
@@ -238,13 +384,7 @@ where
     let some inner ← goOrAtom innerExpr | return none
     let some distance ← goOrAtom distanceExpr | return none
     let bvExpr : BVExpr inner.width := shiftOp inner.bvExpr distance.bvExpr
-    let expr :=
-      mkApp4
-        (mkConst shiftOpName)
-        (toExpr inner.width)
-        (toExpr distance.width)
-        inner.expr
-        distance.expr
+    let expr ← Sym.share <| mkApp4 (mkConst shiftOpName) (toExpr inner.width) (toExpr distance.width) inner.expr distance.expr
     let congrProof :=
       mkApp2
         (mkConst congrThm)
@@ -258,8 +398,8 @@ where
     let some lhs ← goOrAtom lhsExpr | return none
     let some rhs ← goOrAtom rhsExpr | return none
     if h : rhs.width = lhs.width then
-      let bvExpr : BVExpr lhs.width := .bin lhs.bvExpr op (h ▸ rhs.bvExpr)
-      let expr := mkApp4 (mkConst ``BVExpr.bin) (toExpr lhs.width) lhs.expr (toExpr op) rhs.expr
+      let bvExpr := .bin lhs.bvExpr op (h ▸ rhs.bvExpr)
+      let expr ← Sym.share <| mkApp4 (mkConst ``BVExpr.bin) (toExpr lhs.width) lhs.expr (toExpr op) rhs.expr
       let congrThm := mkApp (mkConst congrThm) (toExpr lhs.width)
       let proof := binaryCongrProof lhs rhs lhsExpr rhsExpr congrThm
       return some ⟨lhs.width, bvExpr, origExpr, proof, expr⟩
@@ -267,13 +407,13 @@ where
       return none
 
   binaryCongrProof (lhs rhs : ReifiedBVExpr) (lhsExpr rhsExpr : Expr) (congrThm : Expr) :
-      M (Option Expr) := do
+      ReifyM (Option Expr) := do
     let lhsEval ← ReifiedBVExpr.mkEvalExpr lhs.width lhs.expr
     let rhsEval ← ReifiedBVExpr.mkEvalExpr rhs.width rhs.expr
     let lhsProof? ← lhs.evalsAtAtoms
     let rhsProof? ← rhs.evalsAtAtoms
     let some (lhsProof, rhsProof) :=
-      M.simplifyBinaryProof
+      ReifyM.simplifyBinaryProof
         (ReifiedBVExpr.mkBVRefl lhs.width)
         lhsEval lhsProof?
         rhsEval rhsProof? | return none
@@ -283,17 +423,17 @@ where
       LemmaM (Option ReifiedBVExpr) := do
     let some inner ← goOrAtom innerExpr | return none
     let bvExpr := .un op inner.bvExpr
-    let expr := mkApp3 (mkConst ``BVExpr.un) (toExpr inner.width) (toExpr op) inner.expr
+    let expr ← Sym.share <| mkApp3 (mkConst ``BVExpr.un) (toExpr inner.width) (toExpr op) inner.expr
     let proof := unaryCongrProof inner innerExpr (mkConst congrThm)
     return some ⟨inner.width, bvExpr, origExpr, proof, expr⟩
 
-  unaryCongrProof (inner : ReifiedBVExpr) (innerExpr : Expr) (congrProof : Expr) : M (Option Expr) := do
+  unaryCongrProof (inner : ReifiedBVExpr) (innerExpr : Expr) (congrProof : Expr) : ReifyM (Option Expr) := do
     let innerEval ← ReifiedBVExpr.mkEvalExpr inner.width inner.expr
     let some innerProof ← inner.evalsAtAtoms | return none
     return mkApp4 congrProof (toExpr inner.width) innerExpr innerEval innerProof
 
-  goBvLit (x : Expr) : M (Option ReifiedBVExpr) := do
-    let some ⟨_, bvVal⟩ ← getBitVecValue? x | return ← ReifiedBVExpr.bitVecAtom x false
+  goBvLit (x : Expr) : LemmaM (Option ReifiedBVExpr) := do
+    let some ⟨_, bvVal⟩ := Sym.getBitVecValue? x | return ← ReifiedBVExpr.bitVecAtom x false
     ReifiedBVExpr.mkBVConst bvVal
 
 /--
@@ -318,7 +458,7 @@ where
       binaryReflection lhsExpr rhsExpr .ult origExpr
     | BitVec.getLsbD _ subExpr idxExpr =>
       let some sub ← ReifiedBVExpr.of subExpr | return none
-      let some idx ← getNatValue? idxExpr | return none
+      let some idx := Sym.getNatValue? idxExpr | return none
       return some (← ReifiedBVPred.mkGetLsbD sub subExpr idx origExpr)
     | _ => return none
 

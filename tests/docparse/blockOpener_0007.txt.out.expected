@@ -1,4 +1,6 @@
+Input: "  > x"
 Success! Final stack:
  empty
 Remaining:
 " x"
+Round-trip not tested: this parser classifies input rather than producing document syntax

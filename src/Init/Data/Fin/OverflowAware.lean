@@ -22,7 +22,7 @@ Examples:
 * {lean}`(2 : Fin 3).addNat? 1 = (none : Option (Fin 3))`
 * {lean}`(2 : Fin 4).addNat? 1 = (some 3 : Option (Fin 4))`
 -/
-@[inline]
+@[inline, expose]
 protected def addNat? (i : Fin n) (m : Nat) : Option (Fin n) :=
   if h : i + m < n then some ⟨i + m, h⟩ else none
 
@@ -44,8 +44,11 @@ theorem addNat?_zero {i : Fin n} : i.addNat? 0 = some i := by
   simp [addNat?_eq_some_iff]
 
 @[grind =]
-theorem addNat?_eq_dif {i : Fin n} :
+theorem addNat?_eq_dite {i : Fin n} :
     i.addNat? m = if h : i + m < n then some ⟨i + m, h⟩ else none := by
   rfl
+
+@[deprecated Fin.addNat?_eq_dite (since := "2026-07-21")]
+theorem addNat?_eq_dif {n : Nat} {m : Nat} {i : Fin n} : i.addNat? m = if h : ↑i + m < n then Option.some ⟨↑i + m, h⟩ else Option.none := Fin.addNat?_eq_dite
 
 end Fin

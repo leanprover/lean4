@@ -179,7 +179,7 @@ private def getProduceMotiveAndRecursive (xs : Array Expr) (numParams numIndices
 
 private def checkMotiveResultType (declName : Name) (motiveArgs : Array Expr) (motiveResultType : Expr) (motiveTypeParams : Array Expr) : MetaM Unit := do
   if !motiveResultType.isSort || motiveArgs.size != motiveTypeParams.size then
-    throwError "invalid user defined recursor `{.ofConstName declName}`, motive must have a type of the form (C : Pi (i : B A), I A i -> Type), where A is (possibly empty) sequence of variables (aka parameters), (i : B A) is a (possibly empty) telescope (aka indices), and I is a constant"
+    throwError "invalid user defined recursor `{.ofConstName declName}`, motive must have a type of the form (C : Pi (i : B A), I A i -> Type), where A is a (possibly empty) sequence of variables (aka parameters), (i : B A) is a (possibly empty) telescope (aka indices), and I is a constant"
 
 private def mkRecursorInfoCore (declName : Name) (majorPos? : Option Nat) : MetaM RecursorInfo := do
   let cinfo ← getConstInfo declName

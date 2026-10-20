@@ -1,5 +1,5 @@
 import Lean
-import Std.Tactic.Do
+import Std.WP
 
 /-!
 A `ReaderT Nat <| StateM Nat` combination. Each `step` reads the reader `r`, adds it to the
@@ -7,11 +7,9 @@ state and then subtracts it again, so the loop preserves both the reader and the
 Exercises partially-evaluated `read`/`get`/`set` specs for the reader+state stack.
 -/
 
-open Lean Meta Order Std.Internal.Do
+open Lean Meta Order Std.WP
 
 namespace ReaderState
-
-set_option mvcgen.warning false
 
 abbrev M := ReaderT Nat <| StateM Nat
 

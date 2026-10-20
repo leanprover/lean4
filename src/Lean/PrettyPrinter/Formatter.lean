@@ -31,6 +31,8 @@ namespace Formatter
 structure Context where
   options : Options
   table   : Parser.TokenTable
+  /-- We need to store this `categoryParser` argument to deal with the implicit Pratt parser call in `trailingNode.formatter`. -/
+  cat     : Name := Name.anonymous
 
 structure State where
   stxTrav  : Syntax.Traverser
@@ -265,7 +267,7 @@ unsafe def formatterForKindUnsafe (k : SyntaxNodeKind) : Formatter := do
 @[implemented_by formatterForKindUnsafe]
 opaque formatterForKind (k : SyntaxNodeKind) : Formatter
 
-@[combinator_formatter withAntiquot, expose]
+@[combinator_formatter withAntiquot, combinator_formatter withAntiquotAcceptLhs, expose]
 def withAntiquot.formatter (antiP p : Formatter) : Formatter :=
   -- TODO: could be optimized using `isAntiquot` (which would have to be moved), but I'd rather
   -- fix the backtracking hack outright.
@@ -285,7 +287,7 @@ def tokenWithAntiquot.formatter (p : Formatter) : Formatter := do
   else
     p
 
-def categoryFormatterCore (cat : Name) : Formatter := do
+def categoryFormatterCore (cat : Name) : Formatter := withReader ({ · with cat }) do
   modify fun st => { st with mustBeGrouped := true, isUngrouped := false }
   let stx ← getCur
   trace[PrettyPrinter.format] "formatting {indentD (format stx)}"
@@ -346,13 +348,17 @@ def node.formatter (k : SyntaxNodeKind) (p : Formatter) : Formatter := do
 @[combinator_formatter withFn, expose]
 def withFn.formatter (_ : ParserFn → ParserFn) (p : Formatter) : Formatter := p
 
+@[combinator_formatter withForbiddens, expose]
+def withForbiddens.formatter (tks : Array Token) (p : Formatter) (_h : tks.toList.Nodup) :
+    Formatter := p
+
 @[combinator_formatter trailingNode, expose]
 def trailingNode.formatter (k : SyntaxNodeKind) (_ _ : Nat) (p : Formatter) : Formatter := do
   checkKind k
   visitArgs do
     p;
     -- leading term, not actually produced by `p`
-    categoryParser.formatter `foo
+    categoryParser.formatter (← read).cat
 
 def parseToken (s : String) : FormatterM ParserState :=
   -- include comment tokens, e.g. when formatting `- -0`

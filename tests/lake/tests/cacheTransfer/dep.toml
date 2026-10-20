@@ -1,0 +1,18 @@
+name = "test"
+enableArtifactCache = true
+defaultTargets = ["Test"]
+
+[[lean_lib]]
+name = "Test"
+
+# A dependency Lake treats as a Reservoir package (i.e., it has a scope),
+# but sourced locally so that the test does not need the network
+[[require]]
+name = "dep"
+scope = "leanprover"
+path = "dep"
+
+# Example non-Reservoir dependency
+[[require]]
+name = "hello"
+path = "../../../examples/hello"

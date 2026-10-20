@@ -42,7 +42,7 @@ structure USquash (α : Type v) [small : Small.{u} α] where
 def USquashOrUnit (α : Type v) := open Classical in if _ : Small.{u} α then USquash.{u} α else PUnit
 
 theorem uSquash_eq_uSquashOrUnit {α : Type v} [Small.{u} α] : USquash.{u} α = USquashOrUnit.{u} α := by
-  rw [USquashOrUnit, dif_pos]
+  rw [USquashOrUnit, dite_eq_left]
 
 noncomputable def USquash.deflate [small : Small.{u} α] (x : α) : USquash.{u} α := USquash.mk' (ComputableSmall.choose α |>.deflate x)
 

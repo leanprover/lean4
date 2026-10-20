@@ -825,8 +825,10 @@ def elabLevel (stx : Syntax) : TermElabM Level :=
   liftLevelM <| Level.elabLevel stx
 
 /-- Elaborate `x` with `stx` on the macro stack -/
-def withPushMacroExpansionStack (beforeStx afterStx : Syntax) (x : TermElabM α) : TermElabM α :=
-  withReader (fun ctx => { ctx with macroStack := { before := beforeStx, after := afterStx } :: ctx.macroStack }) x
+def withPushMacroExpansionStack [MonadWithReaderOf Context m] (beforeStx afterStx : Syntax)
+    (x : m α) : m α :=
+  withTheReader Context (fun ctx =>
+    { ctx with macroStack := { before := beforeStx, after := afterStx } :: ctx.macroStack }) x
 
 /-- Elaborate `x` with `stx` on the macro stack and produce macro expansion info -/
 @[specialize]
@@ -1153,7 +1155,7 @@ def throwTypeMismatchError (header? : Option MessageData) (expectedType : Expr) 
   | some f => Meta.throwAppTypeMismatch f e
 
 def withoutMacroStackAtErr (x : TermElabM α) : TermElabM α :=
-  withTheReader Core.Context (fun (ctx : Core.Context) => { ctx with options := pp.macroStack.set ctx.options false }) x
+  withTheReader Core.Context (fun (ctx : Core.Context) => ctx.setOptions (pp.macroStack.set ctx.options false)) x
 
 namespace ContainsPendingMVar
 
@@ -1438,7 +1440,7 @@ def withSavedContext (savedCtx : SavedContext) (x : TermElabM α) : TermElabM α
         errToSorry := savedCtx.errToSorry,
         fixedTermElabs := savedCtx.fixedTermElabs,
       }) <|
-    withTheReader Core.Context (fun ctx => { ctx with options := savedCtx.options, openDecls := savedCtx.openDecls }) <|
+    withTheReader Core.Context (fun ctx => { ctx.setOptions savedCtx.options with openDecls := savedCtx.openDecls }) <|
       withLevelNames savedCtx.levelNames x
 
 /--
@@ -1509,7 +1511,8 @@ partial def removeSaveInfoAnnotation (e : Expr) : Expr :=
 /--
   Return `some mvarId` if `e` corresponds to a hole that is going to be filled "later" by executing a tactic or resuming elaboration.
 
-  We do not save `ofTermInfo` for this kind of node in the `InfoTree`.
+  We do not save `ofTermInfo` for this kind of node in the `InfoTree`, unless the would-be children
+  of the node already contain the `InfoTree.hole` for it.
 -/
 def isTacticOrPostponedHole? (e : Expr) : TermElabM (Option MVarId) := do
   match e with
@@ -1520,14 +1523,41 @@ def isTacticOrPostponedHole? (e : Expr) : TermElabM (Option MVarId) := do
     | _                                  => return none
   | _ => pure none
 
+/--
+Returns `true` if the `InfoTree`s produced by the elaboration that is currently being wrapped in an
+`Info` node already contain an `InfoTree.hole` for `mvarId`, i.e. if the hole was emitted by a
+nested elaboration rather than by the current one.
+-/
+private partial def hasInfoHoleFor (mvarId : MVarId) : TermElabM Bool := do
+  return (← getInfoState).trees.any go
+where
+  go : InfoTree → Bool
+    | .hole mvarId' => mvarId' == mvarId
+    | .context _ t  => go t
+    | .node _ c     => c.any go
+
 def mkTermInfo (elaborator : Name) (stx : Syntax) (e : Expr) (expectedType? : Option Expr := none)
     (lctx? : Option LocalContext := none) (isBinder := false) (isDisplayableTerm := false) :
     TermElabM (Sum Info MVarId) := do
-  match (← isTacticOrPostponedHole? e) with
-  | some mvarId => return Sum.inr mvarId
-  | none =>
-    let e := removeSaveInfoAnnotation e
-    return Sum.inl <| Info.ofTermInfo { elaborator, lctx := lctx?.getD (← getLCtx), expr := e, stx, expectedType?, isBinder, isDisplayableTerm }
+  if let some mvarId ← isTacticOrPostponedHole? e then
+    /-
+    Recall that `withInfoContext'` discards the `InfoTree`s of the elaboration when we return a
+    hole, and that the `Info` for the hole is supplied later via `assignInfoHoleId`.
+
+    If a nested elaboration already emitted the hole for `mvarId`, then the current elaboration
+    merely passes the hole through as returning another hole would discard all `Info` it produced,
+    e.g. the `Info` for `type` in `(e : type)` when `e` is a tactic block. In this case, we emit an
+    ordinary term node that contains the nested hole.
+
+    Otherwise, the current elaboration created the hole (e.g. by postponing) and we must return it
+    so that the `Info` supplied later has somewhere to go. Note that the elaboration may already
+    have produced `InfoTree`s before creating the hole, but those are reproduced when its
+    elaboration is resumed.
+    -/
+    unless (← hasInfoHoleFor mvarId) do
+      return Sum.inr mvarId
+  let e := removeSaveInfoAnnotation e
+  return Sum.inl <| Info.ofTermInfo { elaborator, lctx := lctx?.getD (← getLCtx), expr := e, stx, expectedType?, isBinder, isDisplayableTerm }
 
 def mkPartialTermInfo (elaborator : Name) (stx : Syntax) (expectedType? : Option Expr := none)
     (lctx? : Option LocalContext := none) :
@@ -1667,9 +1697,46 @@ private def elabUsingElabFns (stx : Syntax) (expectedType? : Option Expr) (catch
   | []      => throwError "elaboration function for `{k}` has not been implemented{indentD stx}"
   | elabFns => elabUsingElabFnsAux s stx expectedType? catchExPostpone elabFns
 
-instance : MonadMacroAdapter TermElabM where
-  getNextMacroScope := return (← getThe Core.State).nextMacroScope
-  setNextMacroScope next := modifyThe Core.State fun s => { s with nextMacroScope := next }
+-- Shortcut instance; otherwise every use searches for a lift down to `CoreM`.
+instance : MonadMacroAdapter TermElabM := inferInstance
+
+/--
+Reports `stx` if its syntax kind is deprecated by `deprecated_syntax`, unless deprecation checks are
+disabled by `withoutCheckDeprecated`.
+
+The elaborator of a syntax category calls this before running the elaborators of `stx`, as
+`elabTerm` does for terms. Macros are instead reported when expanding them with
+`expandMacroReportingDeprecated?`.
+-/
+def reportDeprecatedSyntax (stx : Syntax) : TermElabM Unit := do
+  if (← read).checkDeprecated then
+    checkDeprecatedSyntax stx (← read).macroStack
+
+/--
+Expands the macro `stx`, if any, returning the name of the macro declaration and the expansion.
+Unlike `expandMacroImpl?`, this reports `stx` if its syntax kind is deprecated. Elaborators that
+expand macros themselves instead of elaborating them with `elabTerm` should use this function,
+while analyses that do not elaborate the expansion should use `expandMacroImpl?`, so that
+deprecated syntax is reported once.
+-/
+def expandMacroReportingDeprecated? (stx : Syntax) : TermElabM (Option (Name × Syntax)) := do
+  let some (declName, stxNew?) ← liftMacroM <| expandMacroImpl? (← getEnv) stx | return none
+  reportDeprecatedSyntax stx
+  return some (declName, ← liftMacroM <| liftExcept stxNew?)
+
+/--
+Expands all macros in `stx` like `expandMacros`, except in nodes whose kind does not satisfy `p`,
+and reports deprecated syntax like `expandMacroReportingDeprecated?`.
+-/
+partial def expandMacrosReportingDeprecated (stx : Syntax)
+    (p : SyntaxNodeKind → Bool := (· != ``Parser.Term.byTactic)) : TermElabM Syntax :=
+  withRef stx <| withIncRecDepth do
+    let .node info k args := stx | return stx
+    unless p k do return stx
+    if let some (_, stxNew) ← expandMacroReportingDeprecated? stx then
+      withPushMacroExpansionStack stx stxNew <| expandMacrosReportingDeprecated stxNew p
+    else
+      return .node info k (← args.mapM (expandMacrosReportingDeprecated · p))
 
 private def isExplicit (stx : Syntax) : Bool :=
   match stx with
@@ -1826,16 +1893,14 @@ private partial def elabTermAux (expectedType? : Option Expr) (catchExPostpone :
     withTraceNode `Elab.step (fun _ => return m!"expected type: {expectedType?}, term\n{stx}")
       (tag := stx.getKind.toString) do
     checkSystem "elaborator"
-    checkDeprecatedSyntax stx (← read).macroStack
-    let env ← getEnv
-    let result ← match (← liftMacroM (expandMacroImpl? env stx)) with
-    | some (decl, stxNew?) =>
-      let stxNew ← liftMacroM <| liftExcept stxNew?
+    let result ← match (← expandMacroReportingDeprecated? stx) with
+    | some (decl, stxNew) =>
       withTermInfoContext' decl stx (expectedType? := expectedType?) <|
         withMacroExpansion stx stxNew <|
           withRef stxNew <|
             elabTermAux expectedType? catchExPostpone implicitLambda stxNew
     | _ =>
+      reportDeprecatedSyntax stx
       let useImplicitResult ← if implicitLambda && (← read).implicitLambda then useImplicitLambda stx expectedType? else pure .no
       match useImplicitResult with
       | .yes expectedType => elabImplicitLambda stx catchExPostpone expectedType
@@ -2114,9 +2179,9 @@ def isLetRecAuxMVar (mvarId : MVarId) : TermElabM Bool := do
   trace[Elab.letrec] "mvarId root: {mkMVar mvarId}"
   return (← get).letRecsToLift.any (·.mvarId == mvarId)
 
-public def checkDeprecatedCore (constName : Name) : TermElabM Unit := do
+def checkDeprecatedCore (constName : Name) (allowSuggestion := true) : TermElabM Unit := do
   if (← read).checkDeprecated then
-    Linter.checkDeprecated constName
+    Linter.checkDeprecated constName allowSuggestion
 
 /--
   Create an `Expr.const` using the given name and explicit levels.
@@ -2126,7 +2191,7 @@ public def checkDeprecatedCore (constName : Name) : TermElabM Unit := do
   If `checkDeprecated := true`, then `Linter.checkDeprecated` is invoked.
 -/
 def mkConst (constName : Name) (explicitLevels : List Level := []) : TermElabM Expr := do
-  checkDeprecatedCore constName
+  checkDeprecatedCore constName (allowSuggestion := false)
   let cinfo ← getConstVal constName
   if explicitLevels.length > cinfo.levelParams.length then
     throwError "too many explicit universe levels for `{constName}`"

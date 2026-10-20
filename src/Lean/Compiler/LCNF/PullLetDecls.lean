@@ -71,14 +71,9 @@ mutual
   partial def pullDecls (code : Code .pure) : PullM (Code .pure) := do
     match code with
     | .cases c =>
-      -- At the present time, we can't correctly enforce the dependencies required for lifting
-      -- out of a cases expression on Decidable, so we disable this optimization.
-      if c.typeName == ``Decidable then
-        return code
-      else
-        withCheckpoint do
-          let alts ← c.alts.mapMonoM pullAlt
-          return code.updateAlts! alts
+      withCheckpoint do
+        let alts ← c.alts.mapMonoM pullAlt
+        return code.updateAlts! alts
     | .let decl k =>
       if (← shouldPull decl) then
         pullDecls k
@@ -114,6 +109,10 @@ def Decl.pullInstances (decl : Decl .pure) : CompilerM (Decl .pure) :=
       if args.any (· == .erased) then return false
     if let .fvar _ args := letDecl.value then
       if args.any (· == .erased) then return false
+    -- A saturated `Decidable` is the outcome of running a decision procedure rather than a
+    -- dictionary, so pulling it out of a branch or lambda would run the procedure unconditionally.
+    if letDecl.type.isAppOf ``Decidable then
+      return false
     if (← isClass? letDecl.type).isSome then
       return true
     else if let .proj _ _ fvarId := letDecl.value then

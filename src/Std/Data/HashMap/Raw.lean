@@ -73,6 +73,11 @@ instance : EmptyCollection (Raw α β) where
 instance : Inhabited (Raw α β) where
   default := ∅
 
+@[never_extract, inline, inherit_doc DHashMap.Raw.markLinear] def markLinear (m : Raw α β) : Raw α β :=
+  ⟨m.inner.markLinear⟩
+
+@[simp, grind =] theorem markLinear_eq {m : Raw α β} : m.markLinear = m := rfl
+
 @[inherit_doc DHashMap.Raw.Equiv]
 structure Equiv (m₁ m₂ : Raw α β) where
   /-- Internal implementation detail of the hash map -/
@@ -317,6 +322,9 @@ theorem WF.emptyWithCapacity [BEq α] [Hashable α] {c} : (emptyWithCapacity c :
 
 theorem WF.empty [BEq α] [Hashable α] : (∅ : Raw α β).WF :=
   WF.emptyWithCapacity
+
+theorem WF.markLinear [BEq α] [Hashable α] {m : Raw α β} (h : m.WF) : m.markLinear.WF :=
+  ⟨DHashMap.Raw.WF.markLinear h.out⟩
 
 theorem WF.insert [BEq α] [Hashable α] {m : Raw α β} {a : α} {b : β} (h : m.WF) :
     (m.insert a b).WF :=

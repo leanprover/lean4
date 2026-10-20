@@ -335,9 +335,9 @@ theorem count_erase (a b : α) (xs : Array α) : count a (xs.erase b) = count a 
   simp [List.count_erase]
 
 @[simp] theorem count_erase_self (a : α) (xs : Array α) :
-    count a (xs.erase a) = count a xs - 1 := by rw [count_erase, if_pos (by simp)]
+    count a (xs.erase a) = count a xs - 1 := by rw [count_erase, ite_eq_left (by simp)]
 
 @[simp] theorem count_erase_of_ne (ab : a ≠ b) (xs : Array α) : count a (xs.erase b) = count a xs := by
-  rw [count_erase, if_neg (by simpa using ab.symm), Nat.sub_zero]
+  rw [count_erase, ite_eq_right (by simpa using ab.symm), Nat.sub_zero]
 
 end count

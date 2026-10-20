@@ -21,6 +21,8 @@ def tst1 : IO Unit := do
   IO.println (0 / 0 : Float).toUInt32
   IO.println (0 / 0 : Float).toUInt64
   IO.println (0 / 0 : Float).toUSize
+  IO.println Float.nan.isNaN
+  IO.println Float.inf.isInf
 
   IO.println (-1 : Float).toUInt8
   IO.println (256 : Float).toUInt8

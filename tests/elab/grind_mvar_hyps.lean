@@ -17,7 +17,7 @@ theorem grind_mvar_fail_2 (a res : Int) :
   rotate_left
   intro h h2
   grind
-  repeat constructor
+  repeat constructor!
 
 -- Simpler version: mvar in hypothesis directly proves goal
 theorem grind_mvar_simple (a : Nat) :

@@ -21,4 +21,7 @@ public import Init.Data.String.Lemmas.Iter
 public import Init.Data.String.Lemmas.Hashable
 public import Init.Data.String.Lemmas.TakeDrop
 public import Init.Data.String.Lemmas.StringOrder
+public import Init.Data.String.Lemmas.SliceOrder
 public import Init.Data.String.Lemmas.Length
+public import Init.Data.String.Lemmas.Lossy
+public import Init.Data.String.Lemmas.Decode

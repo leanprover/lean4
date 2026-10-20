@@ -202,13 +202,17 @@ partial def evalTactic (stx : Syntax) : TacticM Unit := do
         Term.withoutTacticIncrementality true <| withTacticInfoContext stx do
           stx.getArgs.forM evalTactic
       else withTraceNode `Elab.step (fun _ => return stx) (tag := stx.getKind.toString) do
-        checkDeprecatedSyntax stx (← readThe Term.Context).macroStack
+        if (← readThe Term.Context).checkDeprecated then
+          checkDeprecatedSyntax stx (← readThe Term.Context).macroStack
         let evalFns := tacticElabAttribute.getEntries (← getEnv) stx.getKind
         let macros  := macroAttribute.getEntries (← getEnv) stx.getKind
         if evalFns.isEmpty && macros.isEmpty then
           throwErrorAt stx "Tactic `{stx.getKind}` has not been implemented"
         let s ← Tactic.saveState
-        expandEval s macros evalFns #[]
+        if isDeprecatedSyntax (← getEnv) stx.getKind then
+          Term.withoutCheckDeprecated <| expandEval s macros evalFns #[]
+        else
+          expandEval s macros evalFns #[]
     | .missing => pure ()
     | _ => throwError m!"Unexpected tactic{indentD stx}"
 where
@@ -564,7 +568,7 @@ def closeMainGoal (tacName : Name) (val : Expr) (checkUnassigned := true): Tacti
   if (← mvarId.checkedAssign val) then
     replaceMainGoal []
   else
-    throwTacticEx tacName mvarId m!"attempting to close the goal using{indentExpr val}\nthis is often due occurs-check failure"
+    throwTacticEx tacName mvarId m!"attempting to close the goal using{indentExpr val}\nthis is often due to an occurs-check failure"
 
 @[inline] def liftMetaMAtMain (x : MVarId → MetaM α) : TacticM α := do
   withMainContext do x (← getMainGoal)

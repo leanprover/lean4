@@ -90,9 +90,10 @@ variable {m : Type → Type} [Monad m] [MonadOptions m] [MonadLog m] [AddMessage
 def checkDeprecatedOption (optionName : Name) (decl : OptionDecl) : m Unit := do
   unless linter.deprecated.options.get (← getOptions) do return
   let some dep := decl.deprecation? | return
-  let extraMsg := match dep.text? with
-    | some text => m!": {text}"
-    | none => m!""
+  let extraMsg := match dep.text?, dep.newName? with
+    | some text, _ => m!": {text}"
+    | none, some newName => m!": Use `{newName}` instead"
+    | none, none => m!""
   logWarning m!"`{optionName}` has been deprecated{extraMsg}"
 
 end Lean.Elab

@@ -103,6 +103,31 @@ public def nativeCompare32 (op : Float32 → Float32 → Bool) (a b : UInt64) : 
   if op (Float32.ofBits a.toUInt32) (Float32.ofBits b.toUInt32) then 1 else 0
 
 /-!
+The fused multiply-add is TestFloat's only three-operand operation (`f64_mulAdd`,
+`f32_mulAdd`): each line carries three operand bit patterns followed by the expected
+`a * b + c`.
+-/
+
+/-- Adapts a ternary operation on `Float.Model`s to operate on `binary64` bit patterns. -/
+public def modelTernop (op : Float.Model → Float.Model → Float.Model → Float.Model)
+    (a b c : UInt64) : UInt64 :=
+  (op (Float.Model.ofBits a) (Float.Model.ofBits b) (Float.Model.ofBits c)).toBits
+
+/-- `binary32` counterpart of `modelTernop`; bit patterns are held in the low 32 bits. -/
+public def modelTernop32 (op : Float32.Model → Float32.Model → Float32.Model → Float32.Model)
+    (a b c : UInt64) : UInt64 :=
+  (op (Float32.Model.ofBits a.toUInt32) (Float32.Model.ofBits b.toUInt32)
+    (Float32.Model.ofBits c.toUInt32)).toBits.toUInt64
+
+/-- `Float` counterpart of `modelTernop`. -/
+public def nativeTernop (op : Float → Float → Float → Float) (a b c : UInt64) : UInt64 :=
+  (op (Float.ofBits a) (Float.ofBits b) (Float.ofBits c)).toBits
+
+/-- `Float32` counterpart of `nativeTernop`; bit patterns are held in the low 32 bits. -/
+public def nativeTernop32 (op : Float32 → Float32 → Float32 → Float32) (a b c : UInt64) : UInt64 :=
+  (op (Float32.ofBits a.toUInt32) (Float32.ofBits b.toUInt32) (Float32.ofBits c.toUInt32)).toBits.toUInt64
+
+/-!
 Integer-to-float conversions. TestFloat emits these as unary vectors whose single
 operand is an integer bit pattern (32- or 64-bit, held in the low bits of the
 parsed `UInt64`) and whose expected result is a `binary32`/`binary64` bit pattern.
@@ -196,6 +221,8 @@ public inductive Operation where
   | binary (symbol : Char) (op : UInt64 → UInt64 → UInt64)
   /-- A unary operation on bit patterns. -/
   | unary (name : String) (op : UInt64 → UInt64)
+  /-- A ternary operation on bit patterns (the fused multiply-add). -/
+  | ternary (name : String) (op : UInt64 → UInt64 → UInt64 → UInt64)
 
 /--
 A checkable operation together with the precision-specific helpers needed to

@@ -23,7 +23,6 @@ Author: Leonardo de Moura
 #include "runtime/object_ref.h"
 #include "runtime/option_ref.h"
 #include "runtime/utf8.h"
-#include "util/timer.h"
 #include "util/macros.h"
 #include "util/io.h"
 #include "util/options.h"

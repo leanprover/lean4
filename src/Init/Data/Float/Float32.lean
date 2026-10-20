@@ -49,6 +49,26 @@ instance : Nonempty Float32 :=
   ⟨⟨default⟩⟩
 
 /--
+The special floating-point value `NaN`, short for “not a number”. This value comes up as the result
+of erroneous computation like `0 / 0`.
+
+Comparing any value with `NaN` using `==`, `<`, `≤` results in `false`, including `nan == nan`
+and `nan ≤ nan`. However, comparing with `NaN` using propositional equality will result in `true`
+if and only if the other value is also `NaN`, which means that `nan = nan` is true.
+
+Note: While there are many bit patterns that represent a “not a number” value, they are all equal
+in the logical model of `Float32`, that is, all floating-point values `f : Float32` with `f.isNaN`
+are propositionally equal to `nan`.
+-/
+def Float32.nan : Float32 := .ofModel .nan
+
+/--
+The special floating-point value `+Inf`, short for positive infinity, used as a result for
+overflowing computations like `1 / 0`.
+-/
+def Float32.inf : Float32 := .ofModel .inf
+
+/--
 Adds two 32-bit floating-point numbers according to IEEE 754. Typically used via the `+` operator.
 
 This function has a logical model in terms of `Float32.Model`. It is compiled to the C addition operator.
@@ -226,9 +246,11 @@ This function has a logical model in terms of `Float32.Model`.
   fun a => a.toModel.toUSize
 
 /--
-Checks whether a floating point number is `NaN` ("not a number") value.
+Checks whether a floating point number is a `NaN` ("not a number") value.
 
 `NaN` values result from operations that might otherwise be errors, such as dividing zero by zero.
+
+This function returns `true` if and only if the input is propositionally equal to `Float32.nan`.
 
 This function has a logical model in terms of `Float32.Model`. It is compiled to the C operator `isnan`.
 -/
@@ -458,6 +480,14 @@ the C function `sqrtf`.
 @[extern "sqrtf"] def Float32.sqrt : Float32 → Float32 :=
   fun a => .ofModel a.toModel.sqrt
 /--
+Computes the fused multiply-add `x * y + z` of three floating-point numbers. This operation is performed with a single rounding, which can be more accurate than performing the multiplication and addition separately.
+
+This function has a logical model in terms of `Float32.Model`. It is implemented in compiled code
+by the C function `fmaf`.
+-/
+@[extern "fmaf"] def Float32.fma : Float32 → Float32 → Float32 → Float32 :=
+  fun x y z => .ofModel (x.toModel.fma y.toModel z.toModel)
+/--
 Computes the cube root of a floating-point number.
 
 This function does not reduce in the kernel. It is implemented in compiled code by the C function
@@ -506,9 +536,69 @@ the C function `fabsf`.
 
 instance : HomogeneousPow Float32 := ⟨Float32.pow⟩
 
-instance : Min Float32 := minOfLe
+/--
+Computes the IEEE-754-2019 `minimum` operation of two floats.
 
-instance : Max Float32 := maxOfLe
+This operation returns `NaN` if one of the operands is `NaN`, and
+considers `-0` to be smaller than `+0`.
+
+See also `Float32.minimumNumber` for the variant that returns finite numbers
+over `NaN`.
+
+This function has a logical model in terms of `Float32.Model`. It is implemented in compiled code
+by a compiler intrinsic if available.
+-/
+@[extern "lean_float32_minimum"] def Float32.minimum : Float32 → Float32 → Float32 :=
+  fun a b => .ofModel (a.toModel.minimum b.toModel)
+
+/--
+Computes the IEEE-754-2019 `minimumNumber` operation of two floats.
+
+If one of the operands is `NaN` and the other is a number, then this
+operation will return that number.
+
+See also `Float32.minimum` for the variant that always propagates `NaN`.
+
+This function has a logical model in terms of `Float32.Model`. It is implemented in compiled code
+by a compiler intrinsic if available.
+-/
+@[extern "lean_float32_minimum_number"] def Float32.minimumNumber : Float32 → Float32 → Float32 :=
+  fun a b => .ofModel (a.toModel.minimumNumber b.toModel)
+
+/--
+Computes the IEEE-754-2019 `maximum` operation of two floats.
+
+This operation returns `NaN` if one of the operands is `NaN`, and
+considers `-0` to be smaller than `+0`.
+
+See also `Float32.maximumNumber` for the variant that returns finite numbers
+over `NaN`.
+
+This function has a logical model in terms of `Float32.Model`. It is implemented in compiled code
+by a compiler intrinsic if available.
+-/
+@[extern "lean_float32_maximum"] def Float32.maximum : Float32 → Float32 → Float32 :=
+  fun a b => .ofModel (a.toModel.maximum b.toModel)
+
+/--
+Computes the IEEE-754-2019 `maximumNumber` operation of two floats.
+
+If one of the operands is `NaN` and the other is a number, then this
+operation will return that number.
+
+See also `Float32.maximum` for the variant that always propagates `NaN`.
+
+This function has a logical model in terms of `Float32.Model`. It is implemented in compiled code
+by a compiler intrinsic if available.
+-/
+@[extern "lean_float32_maximum_number"] def Float32.maximumNumber : Float32 → Float32 → Float32 :=
+  fun a b => .ofModel (a.toModel.maximumNumber b.toModel)
+
+instance : Min Float32 where
+  min := Float32.minimum
+
+instance : Max Float32 where
+  max := Float32.maximum
 
 /--
 Efficiently computes `x * 2^i`.

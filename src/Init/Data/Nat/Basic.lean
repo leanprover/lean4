@@ -123,10 +123,6 @@ theorem or_exists_add_one : p 0 ∨ (Exists fun n => p (n + 1)) ↔ Exists p :=
 @[simp] theorem ble_eq : (Nat.ble x y = true) = (x ≤ y) := propext <| Iff.intro Nat.le_of_ble_eq_true Nat.ble_eq_true_of_le
 @[simp] theorem blt_eq : (Nat.blt x y = true) = (x < y) := propext <| Iff.intro Nat.le_of_ble_eq_true Nat.ble_eq_true_of_le
 
-instance : LawfulBEq Nat where
-  eq_of_beq h := by simpa using h
-  rfl := by simp [BEq.beq]
-
 theorem beq_eq_true_eq (a b : Nat) : ((a == b) = true) = (a = b) := by simp
 theorem not_beq_eq_true_eq (a b : Nat) : ((!(a == b)) = true) = ¬(a = b) := by simp
 
@@ -477,7 +473,7 @@ instance : Std.Trichotomous (. < . : Nat → Nat → Prop) where
   trichotomous _ _ h₁ h₂ := Nat.le_antisymm (Nat.ge_of_not_lt h₂) (Nat.ge_of_not_lt h₁)
 
 set_option linter.missingDocs false in
-@[deprecated Nat.instTrichotomousLt (since := "2025-10-27")]
+@[deprecated Nat.instTrichotomousLt +typeChanged (since := "2025-10-27")]
 theorem Nat.instAntisymmNotLt : Std.Antisymm (¬ . < . : Nat → Nat → Prop) where
   antisymm := Nat.instTrichotomousLt.trichotomous
 

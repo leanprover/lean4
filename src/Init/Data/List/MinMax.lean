@@ -362,7 +362,7 @@ theorem max?_eq_some_iff_subtype [Max α] [LE α] {xs : List α}
   · rintro ⟨ha, h⟩
     exact ⟨ha, h⟩
 
-@[deprecated max?_eq_some_iff (since := "2025-08-01")]
+@[deprecated max?_eq_some_iff +typeChanged (since := "2025-08-01")]
 theorem max?_eq_some_iff_legacy [Max α] [LE α] [anti : Std.Antisymm (· ≤ · : α → α → Prop)]
     (le_refl : ∀ a : α, a ≤ a)
     (max_eq_or : ∀ a b : α, max a b = a ∨ max a b = b)

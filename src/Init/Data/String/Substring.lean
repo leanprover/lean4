@@ -6,7 +6,8 @@ Author: Leonardo de Moura, Mario Carneiro
 module
 
 prelude
-public import Init.Data.String.Slice
+public import Init.Data.String.Slice.Pattern
+public import Init.Data.String.Iterate
 import Init.Data.Option.BasicAux
 
 /-!
@@ -91,7 +92,7 @@ position, not the underlying string.
 
 theorem lt_next (s : Substring.Raw) (i : String.Pos.Raw) (h : i.1 < s.bsize) :
     i.1 < (s.next i).1 := by
-  simp [next]; rw [if_neg ?a]
+  simp [next]; rw [ite_eq_right ?a]
   case a =>
     refine mt (congrArg String.Pos.Raw.byteIdx) (Nat.ne_of_lt ?_)
     exact (Nat.add_comm .. ▸ Nat.add_lt_of_lt_sub h :)

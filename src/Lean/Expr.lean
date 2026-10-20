@@ -755,7 +755,6 @@ Recall that all theorems and definitions containing numeric literals are encoded
 
 @[export lean_expr_mk_bvar] def mkBVarEx : Nat → Expr := mkBVar
 @[export lean_expr_mk_fvar] def mkFVarEx : FVarId → Expr := mkFVar
-@[export lean_expr_mk_mvar] def mkMVarEx : MVarId → Expr := mkMVar
 @[export lean_expr_mk_sort] def mkSortEx : Level → Expr := mkSort
 @[export lean_expr_mk_const] def mkConstEx (c : Name) (lvls : List Level) : Expr := mkConst c lvls
 @[export lean_expr_mk_app] def mkAppEx : Expr → Expr → Expr := mkApp
@@ -1834,6 +1833,24 @@ def int? (e : Expr) : Option Int :=
 /-- Return `true` if `e` contains the given free variable. -/
 def containsFVar (e : Expr) (fvarId : FVarId) : Bool :=
   e.hasAnyFVar (· == fvarId)
+
+/-- Return true iff `e` contains a metavariable which satisfies `p` -/
+@[inline] def hasAnyMVar (e : Expr) (p : MVarId → Bool) : Bool :=
+  let rec @[specialize] visit (e : Expr) := if !e.hasExprMVar then false else
+    match e with
+    | Expr.forallE _ d b _   => visit d || visit b
+    | Expr.lam _ d b _       => visit d || visit b
+    | Expr.mdata _ e         => visit e
+    | Expr.letE _ t v b _    => visit t || visit v || visit b
+    | Expr.app f a           => visit f || visit a
+    | Expr.proj _ _ e        => visit e
+    | Expr.mvar mvarId       => p mvarId
+    | _                      => false
+  visit e
+
+/-- Return `true` if `e` contains the given metavariable. -/
+def containsMVar (e : Expr) (mvarId : MVarId) : Bool :=
+  e.hasAnyMVar (· == mvarId)
 
 /-!
 The update functions try to avoid allocating new values using pointer equality.

@@ -6,8 +6,8 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Init.Data.Int.Linear
+public import Lean.Meta.Tactic.Grind.Arith.Util
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.Types
-public import Lean.Meta.Tactic.Grind.Arith.Cutsat.ToIntInfo
 public section
 namespace Lean.Meta.Grind.Arith.Cutsat
 
@@ -253,14 +253,12 @@ structure State where
   /-- Mapping from `Expr` to a variable representing it. -/
   varMap  : PHashMap ExprPtr Var := {}
   /--
-  `vars` before they were reordered.
-  This array is empty if the variables were not reordered.
-  We need them to generate the proof term because some
-  justification objects contain terms using variables before the reordering.
+  Variable orders superseded by `reorderVars`, oldest first: entry `i` is the pair
+  `(vars, varMap)` of epoch `i`, and the current order is epoch `varsHistory.size`.
+  Justification objects created before a reordering contain polynomials in the order
+  of their epoch, so proof generation needs every superseded order.
   -/
-  vars' : PArray Expr := {}
-  /-- `varMap` before variables were reordered. -/
-  varMap' : PHashMap ExprPtr Var := {}
+  varsHistory : PArray (PArray Expr × PHashMap ExprPtr Var) := {}
   /--
   The field `natToIntMap` contains a mapping
   from a `Nat`-term `e` to the pair `(e', he)`, where
@@ -342,24 +340,6 @@ structure State where
   - `Int.Internal.Linear.emod_le`
   -/
   divMod : PHashSet (Expr × Int) := {}
-  /--
-  Mapping from a type `α` to its corresponding `ToIntInfo` object idx in `toInfos`, which contains
-  the information needed to embed `α` terms into `Int` terms.
-  -/
-  toIntIds : PHashMap ExprPtr (Option Nat) := {}
-  toIntInfos : PArray ToIntInfo := {}
-  /--
-  For each type `α` in `toIntInfos`, the mapping `toIntVarMap` contains a mapping
-  from a α-term `e` to the pair `(toInt e, α)`.
-  -/
-  toIntTermMap : PHashMap ExprPtr ToIntTermInfo := {}
-  -- Note: the terms in the range `toIntTermMap` may not have been internalized.
-  -- Note: we may reconsider this design decision to simplify model construction.
-  /--
-  Mapping from `a : α` (where `ToInt α`) to `toInt a` that has been internalized.
-  We use this information during model construction.
-  -/
-  toIntVarMap : PHashMap ExprPtr Expr := {}
   /--
   `usedCommRing` is `true` if the `CommRing` has been used to normalize expressions.
   -/

@@ -106,6 +106,11 @@ structure ToProcessElement where
 
 structure Context where
   zetaDelta : Bool
+  /--
+  `true` if the local context contains let-declarations that are not `nondep`.
+  When `false`, the `check` at `preprocess` cannot find any dependent let-declaration, and we skip it.
+  -/
+  hasLetDecls : Bool
 
 structure State where
   visitedLevel          : LevelMap Level := {}
@@ -170,7 +175,8 @@ def preprocess (e : Expr) : ClosureM Expr := do
   let ctx ← read
   -- If we are not zetaDelta-expanding let-decls, then we use `check` to find
   -- which let-decls are dependent. We say a let-decl is dependent if its lambda abstraction is type incorrect.
-  if !ctx.zetaDelta then
+  -- There is nothing to find when the local context has no let-decls.
+  if !ctx.zetaDelta && ctx.hasLetDecls then
     check e
   pure e
 
@@ -408,7 +414,8 @@ private partial def sortDecls (sortedDecls : Array LocalDecl) (sortedArgs : Arra
     return (newDecls, newArgs)
 
 def mkValueTypeClosure (type : Expr) (value : Expr) (zetaDelta : Bool) : MetaM MkValueTypeClosureResult := do
-  let ((type, value), s) ← ((mkValueTypeClosureAux type value).run { zetaDelta }).run {}
+  let hasLetDecls := (← getLCtx).any (·.isLet)
+  let ((type, value), s) ← ((mkValueTypeClosureAux type value).run { zetaDelta, hasLetDecls }).run {}
   let (newLocalDecls, newArgs) ← sortDecls s.newLocalDecls.reverse s.exprFVarArgs.reverse
                                            s.newLocalDeclsForMVars s.exprMVarArgs
   let newLetDecls   := s.newLetDecls.reverse

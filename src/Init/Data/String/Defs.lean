@@ -66,14 +66,17 @@ Decodes an array of bytes that encode a string as [UTF-8](https://en.wikipedia.o
 the corresponding string.
 -/
 @[inline, expose]
-def String.fromUTF8 (a : @& ByteArray) (h : a.IsValidUTF8) : String :=
+def String.fromUTF8 (a : ByteArray) (h : a.IsValidUTF8) : String :=
   .ofByteArray a h
+
+@[simp] theorem String.fromUTF8_eq_ofByteArray {a : ByteArray} {h : a.IsValidUTF8} :
+    String.fromUTF8 a h = String.ofByteArray a h := rfl
 
 /--
 Encodes a string in UTF-8 as an array of bytes.
 -/
-@[extern "lean_string_to_utf8"]
-def String.toUTF8 (a : @& String) : ByteArray :=
+@[inline, expose]
+def String.toUTF8 (a : String) : ByteArray :=
   a.toByteArray
 
 @[simp] theorem String.toUTF8_eq_toByteArray {s : String} : s.toUTF8 = s.toByteArray := (rfl)
@@ -107,6 +110,30 @@ theorem String.toByteArray_inj {s t : String} : s.toByteArray = t.toByteArray �
   rcases t with ⟨t⟩
   subst h
   rfl
+
+/--
+Marks a string as linear, which is a no-op logically.
+
+At runtime the string is first made unique, copying it if the reference is not already unique, and
+then marked. If the environment variable `LEAN_ABORT_ON_NONLINEAR` is set, every non-linear use
+from that point on causes a panic instead of a silent copy.
+
+To debug where the non-linearity is coming from you can set a breakpoint on `lean_internal_panic`.
+-/
+@[never_extract, extern "lean_string_mark_linear", expose]
+def String.markLinear (s : String) : String := s
+
+@[simp, grind =] theorem String.markLinear_eq {s : String} : s.markLinear = s := rfl
+
+/--
+Returns `t`, propagating the linearity marker of `s` onto it. This is a no-op logically.
+
+See also `String.markLinear`.
+-/
+@[never_extract, extern "lean_string_propagate_mark", expose]
+def String.propagateMark (s : @& String) (t : String) : String := t
+
+@[simp, grind =] theorem String.propagateMark_eq {s t : String} : s.propagateMark t = t := rfl
 
 @[simp] theorem String.toByteArray_ofList {l : List Char} : (String.ofList l).toByteArray = l.utf8Encode := by
   simp [String.ofList]

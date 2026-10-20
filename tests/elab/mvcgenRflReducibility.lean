@@ -8,7 +8,7 @@ into timeouts.
 
 open Std.Do
 
-set_option mvcgen.warning false
+set_option linter.deprecated.syntax false
 
 abbrev RustM := Except String
 

@@ -24,7 +24,7 @@ lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
 lean_object* l_Lean_TSyntax_getId(lean_object*);
 uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_node2(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Array_mkArray0(lean_object*);
+lean_object* l_Array_mkArray0___redArg();
 lean_object* l_Lean_Syntax_node1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_node4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_node3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -490,7 +490,7 @@ static lean_object* _init_l___aux__Init__Data__SInt__Bitwise______macroRules__co
 _start:
 {
 lean_object* v___x_56_; 
-v___x_56_ = l_Array_mkArray0(lean_box(0));
+v___x_56_ = l_Array_mkArray0___redArg();
 return v___x_56_;
 }
 }
@@ -1452,11 +1452,13 @@ lean_object* runtime_initialize_Init_Ext(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_BitVec_Bitblast(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_SInt_Lemmas(uint8_t builtin);
 lean_object* runtime_initialize_Init_System_Platform(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Init_Data_SInt_Bitwise(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Init_Data_UInt_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

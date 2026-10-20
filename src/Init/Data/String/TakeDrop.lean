@@ -64,10 +64,6 @@ Examples:
 @[inline] def dropEnd (s : String) (n : Nat) : Slice :=
   s.toSlice.dropEnd n
 
-@[deprecated String.dropEnd (since := "2025-11-14")]
-def dropRight (s : String) (n : Nat) : String :=
-  (s.dropEnd n).copy
-
 @[deprecated Slice.dropEnd (since := "2025-11-20")]
 def Slice.dropRight (s : Slice) (n : Nat) : Slice :=
   s.dropEnd n
@@ -113,10 +109,6 @@ Examples:
 -/
 @[inline] def takeEnd (s : String) (n : Nat) : String.Slice :=
   s.toSlice.takeEnd n
-
-@[deprecated String.takeEnd (since := "2025-11-14")]
-def takeRight (s : String) (n : Nat) : String :=
-  (s.takeEnd n).toString
 
 @[deprecated Slice.takeEnd (since := "2025-11-20")]
 def Slice.takeRight (s : Slice) (n : Nat) : Slice :=
@@ -175,14 +167,6 @@ Examples:
 @[inline] def takeEndWhile (s : String) (pat : ρ) [BackwardPattern pat] : String.Slice :=
   s.toSlice.takeEndWhile pat
 
-@[deprecated String.takeEndWhile (since := "2025-11-17")]
-def takeRightWhile (s : String) (p : Char → Bool) : String :=
-  (s.takeEndWhile p).toString
-
-@[deprecated Slice.takeEndWhile (since := "2025-11-20")]
-def Slice.takeRightWhile (s : Slice) (p : Char → Bool) : Slice :=
-  s.takeEndWhile p
-
 /--
 Creates a new string by removing the longest suffix from {name}`s` in which {name}`pat` matches
 (potentially repeatedly).
@@ -199,14 +183,6 @@ Examples:
 -/
 @[inline] def dropEndWhile (s : String) (pat : ρ) [BackwardPattern pat] : String.Slice :=
   s.toSlice.dropEndWhile pat
-
-@[deprecated String.dropEndWhile (since := "2025-11-17")]
-def dropRightWhile (s : String) (p : Char → Bool) : String :=
-  (s.dropEndWhile p).toString
-
-@[deprecated Slice.dropEndWhile (since := "2025-11-20")]
-def Slice.dropRightWhile (s : Slice) (p : Char → Bool) : Slice :=
-  s.dropEndWhile p
 
 /--
 If {name}`pat` matches a prefix of {name}`s`, returns the position at the start of the remainder.
@@ -387,10 +363,6 @@ Examples:
 @[inline] def trimAsciiEnd (s : String) : String.Slice :=
   s.toSlice.trimAsciiEnd
 
-@[deprecated String.trimAsciiEnd (since := "2025-11-17")]
-def trimRight (s : String) : String :=
-  s.trimAsciiEnd.copy
-
 @[deprecated Slice.trimAsciiEnd (since := "2025-11-20")]
 def Slice.trimRight (s : Slice) : Slice :=
   s.trimAsciiEnd
@@ -411,10 +383,6 @@ Examples:
 @[inline] def trimAsciiStart (s : String) : String.Slice :=
   s.toSlice.trimAsciiStart
 
-@[deprecated String.trimAsciiStart (since := "2025-11-17")]
-def trimLeft (s : String) : String :=
-  s.trimAsciiStart.copy
-
 @[deprecated Slice.trimAsciiStart (since := "2025-11-20")]
 def Slice.trimLeft (s : Slice) : Slice :=
   s.trimAsciiStart
@@ -433,10 +401,6 @@ Examples:
 -/
 @[inline] def trimAscii (s : String) : String.Slice :=
   s.toSlice.trimAscii
-
-@[deprecated String.trimAscii (since := "2025-11-17")]
-def trim (s : String) : String :=
-  s.trimAscii.copy
 
 @[deprecated Slice.trimAscii (since := "2025-11-20")]
 def Slice.trim (s : Slice) : Slice :=
@@ -544,13 +508,9 @@ Examples:
 def dropPrefix (s : String) (pat : ρ) [ForwardPattern pat] : String.Slice :=
   s.toSlice.dropPrefix pat
 
-@[deprecated String.dropPrefix (since := "2025-11-17")]
+@[deprecated String.dropPrefix +typeChanged (since := "2025-11-17")]
 def stripPrefix (s pre : String) : String :=
   (s.dropPrefix pre).toString
-
-@[deprecated Slice.dropPrefix (since := "2025-11-20")]
-def Slice.stripPrefix (s pre : Slice) : Slice :=
-  s.dropPrefix pre
 
 /--
 If {name}`pat` matches a suffix of {name}`s`, returns the remainder. Returns {name}`s` unmodified
@@ -571,13 +531,5 @@ Examples:
 -/
 def dropSuffix (s : String) (pat : ρ) [BackwardPattern pat] : String.Slice :=
   s.toSlice.dropSuffix pat
-
-@[deprecated String.dropSuffix (since := "2025-11-17")]
-def stripSuffix (s : String) (suff : String) : String :=
-  (s.dropSuffix suff).toString
-
-@[deprecated Slice.dropSuffix (since := "2025-11-20")]
-def Slice.stripSuffix (s : Slice) (suff : Slice) : Slice :=
-  s.dropSuffix suff
 
 end String

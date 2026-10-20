@@ -12,24 +12,15 @@ import Lean.Server.Watchdog
 import Lean.Server.FileWorker
 import Lean.Compiler.LCNF.EmitC
 import Init.System.Platform
+import Init.Data.String.Lossy
 import Lean.Compiler.Options
+import Std.Async.Process
 
 /-  Lean companion to  `shell.cpp` -/
 
 open System
 
 namespace Lean
-
-/--
-Decodes an array of bytes that encode a string as [UTF-8](https://en.wikipedia.org/wiki/UTF-8) into
-the corresponding string. Invalid UTF-8 characters in the byte array are replaced with `U+FFFD`
-(the unicode replacement character) in the resulting string.
-
-This is used instead of the standard `String` functions because Lean is expected to not immediately
-abort on files with invalid UTF-8.
--/
-@[extern "lean_decode_lossy_utf8"]
-opaque decodeLossyUTF8 (a : @& ByteArray) : String
 
 /- Runs the `main` function of the module with `args` using the Lean interpreter. -/
 @[extern "lean_eval_main"]
@@ -190,13 +181,13 @@ inductive ShellComponent
 | watchdog
 | worker
 
-private builtin_initialize maxMemory : Lean.Option Nat ←
+builtin_initialize maxMemory : Lean.Option Nat ←
   Lean.Option.register `max_memory {defValue := Internal.getDefaultMaxMemory ()}
 
-private builtin_initialize timeout : Lean.Option Nat ←
+builtin_initialize timeout : Lean.Option Nat ←
   Lean.Option.register `timeout {defValue := Internal.getDefaultMaxHeartbeat ()}
 
-private builtin_initialize verbose : Lean.Option Bool ←
+builtin_initialize verbose : Lean.Option Bool ←
   Lean.Option.register `verbose {defValue := Internal.getDefaultVerbose ()}
 
 /-- Returns any option overrides Lean was built with (i.e., those set in `stdlib_flags.h`). -/
@@ -511,7 +502,7 @@ def shellMain (args : List String) (opts : ShellOptions) : IO UInt32 := do
       IO.eprintln "Expected exactly one file name"
       displayHelp (useStderr := true)
       return 1
-  let contents ← decodeLossyUTF8 <$> do
+  let contents ← String.fromUTF8Lossy <$> do
     if opts.useStdin then
       (← IO.getStdin).readBinToEnd
     else
@@ -559,13 +550,11 @@ def shellMain (args : List String) (opts : ShellOptions) : IO UInt32 := do
     if opts.run then
       return ← runMain env opts.leanOpts args
     if let some c := opts.cFileName? then
-      let .ok out ← IO.FS.Handle.mk c .write |>.toBaseIO
-        | IO.eprintln s!"failed to create '{c}'"
-          return 1
-      profileitIO "C code generation" opts.leanOpts do
-        let data ← Compiler.LCNF.emitC mainModuleName
-          |>.toIO' { fileName, fileMap := default } { env }
-        out.write data.toUTF8
+      writeFileAtomically c fun out => do
+        profileitIO "C code generation" opts.leanOpts do
+          let data ← Compiler.LCNF.emitC mainModuleName
+            |>.toIO' { fileName, fileMap := default } { env }
+          out.write data.toUTF8
     if let some bc := opts.bcFileName? then
       initLLVM
       profileitIO "LLVM code generation" opts.leanOpts do
@@ -577,3 +566,16 @@ def shellMain (args : List String) (opts : ShellOptions) : IO UInt32 := do
     -- When not using the address/leak sanitizer, we interrupt execution without garbage collecting.
     -- This is useful when profiling improvements to Lean startup time.
     IO.Process.exit <| if env?.isSome then 0 else 1
+where
+  writeFileAtomically (name : FilePath) (f : IO.FS.Handle → IO Unit) : IO Unit := do
+    let pid ← Std.IO.Process.getId
+    let tempName := name.addExtension s!"tmp{pid.toUInt64}"
+    try
+      IO.FS.withFile tempName .write fun h => do
+        f h
+        h.flush
+      IO.FS.rename tempName name
+    catch e =>
+      if ← tempName.pathExists then
+        IO.FS.removeFile tempName
+      throw e

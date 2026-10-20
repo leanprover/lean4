@@ -14,7 +14,7 @@ public section
 
 namespace Std
 namespace Time
-open Internal
+open Time.Internal
 open Month.Ordinal
 
 set_option linter.all true

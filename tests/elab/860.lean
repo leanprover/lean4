@@ -4,7 +4,7 @@ private theorem pack_loop_terminates : (n : Nat) → n / 2 < n.succ
   | 0   => by decide
   | 1   => by decide
   | n+2 => by
-    rw [Nat.div_eq]
+    rw [Nat.div_eq_ite]
     split
     · rw [Nat.add_sub_self_right]
       have := pack_loop_terminates n

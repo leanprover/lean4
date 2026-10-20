@@ -1,1 +1,1 @@
-rm -rf .lake lake-manifest.json produced.* Ignored.lean .git
+rm -rf .lake dep/.lake lake-manifest.json produced.* Ignored.lean .git

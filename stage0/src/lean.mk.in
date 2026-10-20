@@ -25,6 +25,8 @@ STATIC_LIB_NAME = lib$(PKG).a
 LEAN_OPTS += @LEAN_EXTRA_MAKE_OPTS@
 LEANC_OPTS = -O3 -DNDEBUG
 LINK_OPTS =
+# more prerequisites of compiling each .c file, e.g. the headers it includes
+LEANC_DEPS =
 
 # more FS entries to build SRCS from, for parallel build of .oleans (but not .os)
 EXTRA_SRC_ROOTS =
@@ -99,7 +101,7 @@ endif
 ifdef LLVM
 $(TEMP_OUT)/%.o.export: $(BC_OUT)/%.bc
 else
-$(TEMP_OUT)/%.o.export: $(C_OUT)/%.c
+$(TEMP_OUT)/%.o.export: $(C_OUT)/%.c $(LEANC_DEPS)
 endif
 ifdef CMAKE_LIKE_OUTPUT
 	@echo "[    ] Building $<"
@@ -114,7 +116,7 @@ ifeq (@CMAKE_SYSTEM_NAME@, Windows)
 ifdef LLVM
 $(TEMP_OUT)/%.o: $(BC_OUT)/%.bc
 else
-$(TEMP_OUT)/%.o: $(C_OUT)/%.c
+$(TEMP_OUT)/%.o: $(C_OUT)/%.c $(LEANC_DEPS)
 endif
 ifdef CMAKE_LIKE_OUTPUT
 	@echo "[    ] Building $<"

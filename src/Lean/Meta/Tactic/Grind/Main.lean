@@ -22,10 +22,13 @@ import Lean.Meta.Tactic.Grind.EMatch
 import Lean.Meta.Tactic.Grind.MarkNestedSubsingletons
 import Lean.Meta.Tactic.Grind.Internalize
 import Lean.Meta.Tactic.Grind.SimpUtil
+import Lean.Meta.Tactic.Grind.Normalizer
 import Lean.Meta.Tactic.Grind.LawfulEqCmp
 import Lean.Meta.Tactic.Grind.ReflCmp
 import Lean.Meta.Tactic.Grind.PP
 import Lean.Meta.Tactic.Grind.Core
+import Lean.Meta.Tactic.Grind.EMatchDiagnostics
+public import Lean.Meta.Sym.Arith.Types
 public section
 namespace Lean.Meta.Grind
 
@@ -117,18 +120,25 @@ open Sym
 def GrindM.run (x : GrindM α) (params : Params) (evalTactic? : Option EvalTactic := none) : MetaM α := Sym.SymM.run do
   withNewIssueContext do
   withReader (fun ctx => { ctx with config.verbose := params.config.verbose }) do
-  /- **Note**: Consider using `Sym.simp` in the future. -/
   let simprocs  := params.normProcs
   let simpMethods := Simp.mkMethods simprocs discharge? (wellBehavedDischarge := true)
   let simp   := params.norm
   let config := params.config
+  -- The `Sym.simp`-based normalizer is selected by `backward.grind.normalizer := false`; its
+  -- theorem set is derived from the legacy one, so both see the same `[grind norm]` declarations.
+  let (symSimpMethods, symDSimpMethods) ← if backward.grind.normalizer.get (← getOptions) then
+      pure ({}, {})
+    else
+      let thms ← getNormSymTheorems
+      pure (mkNormSymMethods config thms, mkNormSymDSimpMethods config thms)
   let symPrios := params.symPrios
   let extensions := params.extensions
   let anchorRefs? := params.anchorRefs?
   let debug := grind.debug.get (← getOptions)
   let ematchDiag := grind.ematch.diagnostics.get (← getOptions)
+  Sym.Arith.setExpThreshold config.exp
   x (← mkMethods evalTactic?).toMethodsRef
-    { config, anchorRefs?, simpMethods, simp, extensions, symPrios, debug, ematchDiag }
+    { config, anchorRefs?, simpMethods, symSimpMethods, symDSimpMethods, simp, extensions, symPrios, debug, ematchDiag }
     |>.run' {}
 
 private def mkCleanState (mvarId : MVarId) : GrindM Clean.State := mvarId.withContext do
@@ -157,7 +167,7 @@ private def initENodeCore (e : Expr) (interpreted ctor : Bool) : GoalM Unit := d
   mkENodeCore e interpreted ctor (generation := 0) (funCC := false)
 
 /-- Returns a new goal for the given metavariable. -/
-public def mkGoalCore (mvarId : MVarId) : GrindM Goal := do
+def mkGoalCore (mvarId : MVarId) : GrindM Goal := do
   let config ← getConfig
   let mvarId ← if config.clean then mvarId.exposeNames else pure mvarId
   let trueExpr ← getTrueExpr
@@ -187,19 +197,16 @@ structure Result where
   simp        : Simp.Stats
   splitDiags  : PArray SplitDiagInfo
   ematchDiags : PArray EMatchDiagInfo
+  /--
+  `Sym.Arith` ring records at the end of the run. Goals store only ring solver state, and the
+  records are needed to print it after the `SymM` run is over.
+  -/
+  rings       : Array Sym.Arith.CommRing
 
 private def countersToMessageData (header : String) (cls : Name) (data : Array (Name × Nat)) : MetaM MessageData := do
   let data := data.qsort fun (d₁, c₁) (d₂, c₂) => if c₁ == c₂ then Name.lt d₁ d₂ else c₁ > c₂
   let data ← data.mapM fun (declName, counter) =>
     return .trace { cls } m!"{.ofConstName declName} ↦ {counter}" #[]
-  return .trace { cls } header data
-
-private def countersWithOriginToMessageData (header : String) (cls : Name) (data : Array (Origin × Name × Nat)) : MetaM MessageData := do
-  let data := data.qsort fun (_, n₁, c₁) (_, n₂, c₂) => if c₁ == c₂ then Name.lt n₁ n₂ else c₁ > c₂
-  let data ← data.mapM fun (origin, name, counter) =>
-    match origin with
-    | .decl _ => return .trace { cls } m!"{.ofConstName name} ↦ {counter}" #[]
-    | _ => return .trace { cls } m!"{name} ↦ {counter}" #[]
   return .trace { cls } header data
 
 private def splitDiagInfoToMessageData (ss : Array SplitDiagInfo) : MetaM MessageData := do
@@ -217,20 +224,13 @@ private def splitDiagInfoToMessageData (ss : Array SplitDiagInfo) : MetaM Messag
   return .trace { cls } "Case splits" data
 
 -- Diagnostics information for the whole search
-private def mkGlobalDiag (cs : Counters) (simp : Simp.Stats) (ss : PArray SplitDiagInfo) : MetaM (Option MessageData) := do
+private def mkGlobalDiag (cs : Counters) (simp : Simp.Stats) (ss : PArray SplitDiagInfo)
+    (ematchDiags : PArray EMatchDiagInfo) : MetaM (Option MessageData) := do
   -- We do not report `cases` applications on builtin types
   let cases := cs.case.toList.toArray.filter fun (declName, _) => !isBuiltinEagerCases declName
   let mut msgs := #[]
-  unless cs.thm.isEmpty do
-    let thms := cs.thm.toList.toArray.map fun (origin, c) => Id.run do
-      match origin with
-      | .fvar fvarId =>
-        let some userName := cs.fvarUserNames.find? fvarId | unreachable!
-        return (origin, userName, c)
-      | .decl n => return (origin, n, c)
-      | .local n => return (origin, n, c)
-      | .stx n _ => return (origin, n, c)
-    msgs := msgs.push <| (← countersWithOriginToMessageData "E-Matching instances" `thm thms)
+  if let some msg ← mkEMatchDiagMessages ematchDiags cs then
+    msgs := msgs.push <| msg
   let ss := ss.toArray.filter fun { numCases, .. } => numCases > 1
   unless ss.isEmpty do
     msgs := msgs.push <| (← splitDiagInfoToMessageData ss)
@@ -250,7 +250,7 @@ def Result.hasFailed (r : Result) : Bool :=
   r.failure?.isSome
 
 def Result.toMessageData (result : Result) : MetaM MessageData := do
-  let mut msgs ← result.failure?.toList.mapM (goalToMessageData · result.config)
+  let mut msgs ← result.failure?.toList.mapM (goalToMessageData · result.config result.rings)
   if result.config.verbose then
     let mut issues := result.issues
     -- We did not find the following very useful in practice.
@@ -261,7 +261,7 @@ def Result.toMessageData (result : Result) : MetaM MessageData := do
     -/
     unless issues.isEmpty do
       msgs := msgs ++ [.trace { cls := `grind } "Issues" issues.reverse.toArray]
-    if let some msg ← mkGlobalDiag result.counters result.simp result.splitDiags then
+    if let some msg ← mkGlobalDiag result.counters result.simp result.splitDiags result.ematchDiags then
       msgs := msgs ++ [msg]
   return MessageData.joinSep msgs m!"\n"
 
@@ -351,6 +351,9 @@ private def initCore (mvarId : MVarId) : GrindM Goal := do
   let mvarId ← if config.revert then mvarId.revertAll else pure mvarId
   let mvarId ← mvarId.unfoldReducible
   let mvarId ← mvarId.betaReduce
+  -- `have` wraps the goal type in `mdata` (`noImplicitLambda`), which would hide an implication
+  -- or a universal quantifier from `introNext`.
+  let mvarId ← mvarId.eraseIrrelevantMData
   appendTagSuffix mvarId `grind
   let goal ← mkGoalCore mvarId
   if config.revert then
@@ -382,9 +385,10 @@ def mkResult (params : Params) (failure? : Option Goal) : GrindM Result := do
   if failure?.isNone then
     -- If there are no failures and diagnostics are enabled, we still report the performance counters.
     if (← isDiagnosticsEnabled) then
-      if let some msg ← mkGlobalDiag counters simp splitDiags then
+      if let some msg ← mkGlobalDiag counters simp splitDiags ematchDiags then
         logInfo msg
-  return { failure?, issues, config := params.config, counters, simp, splitDiags, ematchDiags }
+  let rings := (← Sym.Arith.getArithState).rings
+  return { failure?, issues, config := params.config, counters, simp, splitDiags, ematchDiags, rings }
 
 def GrindM.runAtGoal (mvarId : MVarId) (params : Params) (k : Goal → GrindM α) (evalTactic? : Option EvalTactic := none) : MetaM α := do
   let go : GrindM α := withGTransparency do

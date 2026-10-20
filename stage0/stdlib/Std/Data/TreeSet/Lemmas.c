@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Data.TreeSet.Lemmas
-// Imports: import Std.Data.TreeMap.Lemmas import Std.Data.DTreeMap.Lemmas public import Init.Data.Array.Perm public import Std.Data.TreeSet.AdditionalOperations
+// Imports: import Std.Data.TreeMap.Lemmas import Std.Data.DTreeMap.Lemmas public import Init.Data.Array.Perm public import Std.Data.TreeSet.AdditionalOperations public import Std.Internal.ForIn.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -13,34 +13,55 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+LEAN_EXPORT lean_object* l_Std_TreeSet_Equiv_instTrans___redArg();
+LEAN_EXPORT lean_object* l_Std_TreeSet_Equiv_instTrans___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_TreeSet_Equiv_instTrans(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_TreeSet_Equiv_instTrans___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_TreeSet_Equiv_instTrans(lean_object* v_00_u03b1_1_, lean_object* v_cmp_2_){
+LEAN_EXPORT lean_object* l_Std_TreeSet_Equiv_instTrans___redArg(){
 _start:
 {
-lean_object* v___x_3_; 
-v___x_3_ = lean_box(0);
-return v___x_3_;
+lean_object* v___x_2_; 
+v___x_2_ = lean_box(0);
+return v___x_2_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_TreeSet_Equiv_instTrans___boxed(lean_object* v_00_u03b1_4_, lean_object* v_cmp_5_){
+LEAN_EXPORT lean_object* l_Std_TreeSet_Equiv_instTrans___redArg___boxed(lean_object* v___dummy_3_){
 _start:
 {
-lean_object* v_res_6_; 
-v_res_6_ = l_Std_TreeSet_Equiv_instTrans(v_00_u03b1_4_, v_cmp_5_);
-lean_dec_ref(v_cmp_5_);
-return v_res_6_;
+lean_object* v_res_4_; 
+v_res_4_ = l_Std_TreeSet_Equiv_instTrans___redArg();
+return v_res_4_;
+}
+}
+LEAN_EXPORT lean_object* l_Std_TreeSet_Equiv_instTrans(lean_object* v_00_u03b1_5_, lean_object* v_cmp_6_){
+_start:
+{
+lean_object* v___x_7_; 
+v___x_7_ = lean_box(0);
+return v___x_7_;
+}
+}
+LEAN_EXPORT lean_object* l_Std_TreeSet_Equiv_instTrans___boxed(lean_object* v_00_u03b1_8_, lean_object* v_cmp_9_){
+_start:
+{
+lean_object* v_res_10_; 
+v_res_10_ = l_Std_TreeSet_Equiv_instTrans(v_00_u03b1_8_, v_cmp_9_);
+lean_dec_ref(v_cmp_9_);
+return v_res_10_;
 }
 }
 lean_object* runtime_initialize_Std_Data_TreeMap_Lemmas(uint8_t builtin);
 lean_object* runtime_initialize_Std_Data_DTreeMap_Lemmas(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Array_Perm(uint8_t builtin);
 lean_object* runtime_initialize_Std_Data_TreeSet_AdditionalOperations(uint8_t builtin);
+lean_object* runtime_initialize_Std_Internal_ForIn_Basic(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Std_Data_TreeSet_Lemmas(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Std_Data_TreeMap_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
@@ -51,6 +72,9 @@ res = runtime_initialize_Init_Data_Array_Perm(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Std_Data_TreeSet_AdditionalOperations(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Std_Internal_ForIn_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
@@ -66,6 +90,7 @@ lean_object* initialize_Std_Data_TreeMap_Lemmas(uint8_t builtin);
 lean_object* initialize_Std_Data_DTreeMap_Lemmas(uint8_t builtin);
 lean_object* initialize_Init_Data_Array_Perm(uint8_t builtin);
 lean_object* initialize_Std_Data_TreeSet_AdditionalOperations(uint8_t builtin);
+lean_object* initialize_Std_Internal_ForIn_Basic(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Std_Data_TreeSet_Lemmas(uint8_t builtin) {
 lean_object * res;
@@ -81,6 +106,9 @@ res = initialize_Init_Data_Array_Perm(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Std_Data_TreeSet_AdditionalOperations(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Std_Internal_ForIn_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Std_Data_TreeSet_Lemmas(builtin);

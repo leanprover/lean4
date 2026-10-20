@@ -16,6 +16,7 @@ from util import Checklist, CMakeVersion, ReleaseRepo, Version
 @dataclass
 class Config:
     version: Version
+    repos_dir: Path
     interactive: bool
     skip_weak_deps: bool
     skip_mathlib_checks: bool
@@ -29,7 +30,7 @@ class RepoChecker:
 
         self.rrepo = rrepo
         self.grepo = self.github.get_repo(self.rrepo.gh_full_name)
-        self.lrepo = self.rrepo.local
+        self.lrepo = self.rrepo.local(self.config.repos_dir)
 
     @property
     def github(self) -> Github:
@@ -61,30 +62,28 @@ class RepoChecker:
         return False
 
     def create_pr(
-        self, base: str, head: str, title: str, nightly: ReleaseRepo | None = None
+        self,
+        *,
+        base: str,
+        head: str,
+        title: str,
+        body: str | None = None,
+        nightly: ReleaseRepo | None = None,
     ) -> None:
         if not self.prompt(f"Push branch [b]{e(head)}[/b]?"):
             self.cl.fatal("Branch not pushed")
         self.lrepo.push(head, remote="nightly" if nightly else "origin")
 
-        # Mathlib bump PRs are opened from the nightly-testing repo, which
-        # pygithub doesn't support because both belong to the same organization:
-        # https://github.com/PyGithub/PyGithub/issues/2942
-        # So we just give the user a link instead.
-        # TODO https://github.com/PyGithub/PyGithub/pull/3479 was merged, await release and update
-        if nightly:
-            url = util.create_pr_url(
-                base=self.rrepo,
-                base_branch=base,
-                head=nightly,
-                head_branch=head,
-                title=title,
-            )
-            self.cl.blocked(f"[u link={url}]Create PR manually[/]")
-
         if not self.prompt(f"Create PR for branch [b]{e(head)}[/b]?"):
             self.cl.fatal("PR not created")
-        pr = util.create_pr(self.grepo, head=head, base=base, title=title)
+        pr = util.create_pr(
+            self.grepo,
+            title=title,
+            body=body,
+            base=base,
+            head=head,
+            head_repo=nightly,
+        )
         self.cl.blocked(f"PR created: {util.fmt_pr(pr)}")
 
 
@@ -159,24 +158,22 @@ class DownstreamChecker(RepoChecker):
 
         self._bump_toolchain_deps(self.lrepo.path)
 
+    def _bump_cslib_mathlib_rev(self, path: Path) -> None:
+        util.edit(
+            path / "lakefile.toml",
+            r'(name = "mathlib"\nscope = "leanprover-community"\nrev =) ".+?"',
+            rf'\1 "{self.version}"',
+        )
+
     def _bump_toolchain_cslib(self) -> None:
         self._bump_toolchain(self.lrepo.path)
-
-        mathlib_sha = util.find_merged_toolchain_bump_sha(
-            repos.MATHLIB4.local, self.version
-        )
-
-        util.edit(
-            self.lrepo.path / "lakefile.toml",
-            r'(name = "mathlib"\nscope = "leanprover-community"\nrev =) ".+?"',
-            rf'\1 "{mathlib_sha}"',
-        )
+        self._bump_cslib_mathlib_rev(self.lrepo.path)
 
         # For rc1 PRs
         util.edit(
             self.lrepo.path / "lakefile.toml",
             r'name = "mathlib"\ngit = ".*"\nrev = ".+?"',
-            f'name = "mathlib"\nscope = "leanprover-community"\nrev = "{mathlib_sha}"',
+            f'name = "mathlib"\nscope = "leanprover-community"\nrev = "{self.version}"',
         )
 
         self._bump_toolchain_deps(self.lrepo.path)
@@ -344,15 +341,15 @@ class DownstreamChecker(RepoChecker):
             remote = "nightly" if self.rrepo.nightly else "origin"
             self.lrepo.switch(head, remote=remote)
         elif self.version.rc == 1 and self.rrepo.rc1_pr_base == "downstream":
-            dsl = repos.DOWNSTREAM_LEAN4.local
+            dsl = repos.DOWNSTREAM_LEAN4.local(self.config.repos_dir)
             dsl.prepare()
             dsl.switch("master")
             dsl.run(
-                *("python", ".downstream/split.py", ".", self.rrepo.gh_name, head),
+                *("python", ".downstream/split.py", ".", self.rrepo.gh_name),
                 *("-m", "chore: adaptations from downstream-lean4"),
             )
             # See also LocalRepo.prepare and LocalRepo.switch
-            self.lrepo.git("fetch", "--force", dsl.path, head)
+            self.lrepo.git("fetch", "--force", dsl.path, "HEAD")
             self.lrepo.git("switch", "-C", head, "FETCH_HEAD")
         else:
             self.lrepo.create_branch(head)
@@ -362,7 +359,12 @@ class DownstreamChecker(RepoChecker):
         self.lrepo.commit(title)
 
         # Create bump PR
-        self.create_pr(base=base, head=head, title=title, nightly=self.rrepo.nightly)
+        body = None
+        if self.rrepo.gh_full_name == repos.VERSO.gh_full_name:
+            body = f"No-Changelog: toolchain bump for release {self.version.tag}"
+        self.create_pr(
+            title=title, body=body, base=base, head=head, nightly=self.rrepo.nightly
+        )
 
     def check_next_bump_branch(self) -> None:
         if self.rrepo.rc1_pr_base != "bump":
@@ -430,6 +432,42 @@ class DownstreamChecker(RepoChecker):
         self.cl.success(f"{what} created")
         return tag
 
+    def _check_patch_release_tag(self) -> GitRef | None:
+        # Patch releases (v4.X.Y with Y>0) skip the usual bump-PR flow: the
+        # new tag's commit is created directly from the previous patch's tag,
+        # bumping only the toolchain file, and pushed straight to the repo.
+        tag_name = self.version.tag
+        what = f"Toolchain tag [b]{tag_name}[/b]"
+
+        try:
+            tag = self.grepo.get_git_ref(f"tags/{tag_name}")
+            self.cl.success(f"{what} exists")
+            return tag
+        except UnknownObjectException:
+            pass
+
+        if not self.prompt(f"{what} not found. Create?"):
+            self.cl.fail(f"{what} not found")
+            return
+
+        self.lrepo.prepare()
+        self.lrepo.git("checkout", "--detach", self.version.prev.tag)
+        util.set_toolchain(self.lrepo.path, self.version.tag)
+        if self.rrepo.gh_full_name == repos.CSLIB.gh_full_name:
+            self._bump_cslib_mathlib_rev(self.lrepo.path)
+            util.run("lake", "update", "mathlib", cwd=self.lrepo.path)
+        self.lrepo.commit(util.get_toolchain_bump_message(self.version))
+        sha = self.lrepo.git_stdout("rev-parse", "HEAD").strip()
+        self.lrepo.create_tag(tag_name, sha)
+
+        if not self.prompt(f"Push tag [b]{tag_name}[/b]?"):
+            self.cl.fatal(f"{what} does not exist")
+        self.lrepo.push(tag_name, upstream=False)
+
+        tag = self.grepo.get_git_ref(f"tags/{tag_name}")
+        self.cl.success(f"{what} created")
+        return tag
+
     def _check_proofwidgets_release_tag(self) -> GitRef | None:
         what = f"Proofwidgets release with toolchain {self.version}"
 
@@ -477,19 +515,29 @@ class DownstreamChecker(RepoChecker):
             self.cl.success(f"{what} points to toolchain tag")
             return
 
+        # Patch releases may be on older stable releases, so we have to be a bit
+        # careful here
+        if self.version.patch > 0 and not self.prompt(
+            f"Is [b]{e(self.version.tag)}[/b] the latest stable release?"
+        ):
+            self.cl.success(
+                f"{what} not updated, {e(self.version.tag)} is not the latest"
+            )
+            return
+
         if not self.prompt(f"{what} does not point to toolchain tag. Update?"):
             self.cl.fail(f"{what} does not point to toolchain tag")
             return
 
         self.lrepo.prepare()
         self.lrepo.switch("stable")
-        self.lrepo.git("merge", "--ff-only", self.version.tag)
+        self.lrepo.git("reset", "--hard", self.version.tag)
 
         if not self.prompt("Push branch [b]stable[/b] to origin?"):
             self.cl.fail(f"{what} does not point to toolchain tag")
             return
 
-        self.lrepo.push("stable")
+        self.lrepo.push("stable", force=True)
         self.cl.success(f"{what} updated to point to toolchain tag")
 
     def check_mathlib4_version_tags(self) -> None:
@@ -506,11 +554,27 @@ class DownstreamChecker(RepoChecker):
         try:
             self.lrepo.run("python", script, self.version.tag)
             self.cl.success(f"Version tags verified by [b]{e(script)}[/b]")
-        except Exception:
+        except Exception:  # noqa: BLE001
             self.cl.fatal(f"Version tag verification by [b]{e(script)}[/b] failed")
 
     def check(self) -> None:
         self.check_dependencies_completed()
+
+        # Patch releases are a bit special
+        if self.version.patch > 0:
+            # They only apply to some repos
+            if not self.rrepo.patch_release:
+                self.cl.success("Nothing to do, this is a patch release")
+                self.rrepo.completed = True
+                return
+
+            # They work differently from normal toolchain bumps
+            release_tag = self._check_patch_release_tag()
+            if release_tag:
+                self.check_stable_branch_points_to_release_tag(release_tag)
+            self.cl.ensure_success()
+            self.rrepo.completed = True
+            return
 
         toolchain = self.check_toolchain()
         if not toolchain:
@@ -626,7 +690,7 @@ class LeanChecker(RepoChecker):
         if cur == target:
             self.cl.success(f"{what} are correct")
             return
-        self.cl.fail(f"{what} are incorrect")
+        self.cl.warn(f"{what} are incorrect")
 
         head = f"dev-cycle-{self.version.next_minor}"
         title = f"chore: prepare development cycle for {self.version.next_minor}"
@@ -767,12 +831,6 @@ class LeanChecker(RepoChecker):
             self.cl.fail(f"{what} not posted")
             return
 
-        proofwidgets = self.github.get_repo(repos.PROOFWIDGETS4.gh_full_name)
-        proofwidgets_tag = util.get_proofwidgets_release_for(proofwidgets, self.version)
-        if proofwidgets_tag is None:
-            self.cl.fail("ProofWidgets release tag not found")
-            return
-
         release_notes_url = f"https://lean-lang.org/doc/reference/latest/releases/{self.version.stable}/"
 
         msg = ""
@@ -782,9 +840,26 @@ class LeanChecker(RepoChecker):
             msg += f"We have a new release candidate of Lean, `{self.version.tag}`. "
         msg += f"See the [release notes]({release_notes_url}) for more information."
         msg += "\n\n"
-        msg += "The usual repos are all available with the new toolchain "
-        msg += f"at their respective `{self.version.tag}` tags "
-        msg += f"(and ProofWidgets at `{proofwidgets_tag.name}`). "
+
+        if self.version.patch > 0:
+            # Patch releases only update the repos marked `patch_release`, and
+            # ProofWidgets is not one of them.
+            names = [f"`{r.gh_name}`" for r in repos.ALL if r.patch_release]
+            msg += f"{util.join_and(names)} are available with the new toolchain "
+            msg += f"at their respective `{self.version.tag}` tags. "
+        else:
+            proofwidgets = self.github.get_repo(repos.PROOFWIDGETS4.gh_full_name)
+            proofwidgets_tag = util.get_proofwidgets_release_for(
+                proofwidgets, self.version
+            )
+            if proofwidgets_tag is None:
+                self.cl.fail("ProofWidgets release tag not found")
+                return
+
+            msg += "The usual repos are all available with the new toolchain "
+            msg += f"at their respective `{self.version.tag}` tags "
+            msg += f"(and ProofWidgets at `{proofwidgets_tag.name}`). "
+
         msg += "We encourage all projects downstream "
         msg += f"to update to `{self.version.tag}` when possible, and "
         msg += "to release their own corresponding toolchain tags after updating."
@@ -799,8 +874,20 @@ class LeanChecker(RepoChecker):
 
         self.cl.success(f"{what} posted")
 
+    def check_release_notes_updated(self) -> None:
+        # This is only applicable to patch releases, otherwise the release notes
+        # are already updated in the reference manual bump PR.
+        if self.version.patch == 0:
+            return
+
+        if self.prompt("Update release notes manually."):
+            self.cl.success("Release notes updated")
+        else:
+            self.cl.fail("Release notes not updated")
+
     def check_notify_ashley(self) -> None:
-        if not self.version.is_stable:
+        # Only v4.X.0 releases
+        if not (self.version.patch == 0 and self.version.rc is None):
             return
 
         if self.prompt("Tell Ashley that the release is finished."):
@@ -836,6 +923,7 @@ class LeanChecker(RepoChecker):
 
         self.cl.section("Post release")
         self.check_api_docs_workflow()
+        self.check_release_notes_updated()
         self.check_zulip_post()
         self.check_notify_ashley()
 
@@ -844,6 +932,7 @@ class LeanChecker(RepoChecker):
 
 class Args:
     version: Version
+    repos_dir: Path | None
     interactive: bool
     skip_weak_deps: bool
     skip_mathlib_checks: bool
@@ -853,6 +942,7 @@ class Args:
 if __name__ == "__main__":
     parser = ArgumentParser()
     parser.add_argument("version", type=Version.parse)
+    parser.add_argument("-d", "--repos-dir", type=Path)
     parser.add_argument("-i", "--interactive", action="store_true")
     parser.add_argument("-W", "--skip-weak-deps", action="store_true")
     parser.add_argument("-M", "--skip-mathlib-checks", action="store_true")
@@ -863,6 +953,7 @@ if __name__ == "__main__":
     github = util.get_github_instance()
     config = Config(
         version=args.version,
+        repos_dir=util.get_repos_dir(args.repos_dir),
         interactive=args.interactive,
         skip_weak_deps=args.skip_weak_deps,
         skip_mathlib_checks=args.skip_mathlib_checks,

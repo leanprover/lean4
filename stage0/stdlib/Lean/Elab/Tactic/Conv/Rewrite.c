@@ -407,10 +407,10 @@ return v___x_96_;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Conv_evalRewrite___lam__1___boxed(lean_object* v_term_99_, lean_object* v_symm_100_, lean_object* v_a_101_, lean_object* v___x_102_, lean_object* v___y_103_, lean_object* v___y_104_, lean_object* v___y_105_, lean_object* v___y_106_, lean_object* v___y_107_, lean_object* v___y_108_, lean_object* v___y_109_, lean_object* v___y_110_, lean_object* v___y_111_){
 _start:
 {
-uint8_t v_symm_boxed_112_; uint8_t v___x_1094__boxed_113_; lean_object* v_res_114_; 
+uint8_t v_symm_boxed_112_; uint8_t v___x_1100__boxed_113_; lean_object* v_res_114_; 
 v_symm_boxed_112_ = lean_unbox(v_symm_100_);
-v___x_1094__boxed_113_ = lean_unbox(v___x_102_);
-v_res_114_ = l_Lean_Elab_Tactic_Conv_evalRewrite___lam__1(v_term_99_, v_symm_boxed_112_, v_a_101_, v___x_1094__boxed_113_, v___y_103_, v___y_104_, v___y_105_, v___y_106_, v___y_107_, v___y_108_, v___y_109_, v___y_110_);
+v___x_1100__boxed_113_ = lean_unbox(v___x_102_);
+v_res_114_ = l_Lean_Elab_Tactic_Conv_evalRewrite___lam__1(v_term_99_, v_symm_boxed_112_, v_a_101_, v___x_1100__boxed_113_, v___y_103_, v___y_104_, v___y_105_, v___y_106_, v___y_107_, v___y_108_, v___y_109_, v___y_110_);
 lean_dec(v___y_110_);
 lean_dec_ref(v___y_109_);
 lean_dec(v___y_108_);
@@ -578,11 +578,13 @@ return v_res_249_;
 }
 lean_object* runtime_initialize_Lean_Elab_Tactic_Rewrite(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Elab_Tactic_Conv_Basic(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Elab_Tactic_Conv_Rewrite(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Lean_Elab_Tactic_Rewrite(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

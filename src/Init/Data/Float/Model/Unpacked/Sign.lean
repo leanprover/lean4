@@ -27,7 +27,7 @@ inductive Sign where
   | negative : Sign
   /-- Positive (`+`) sign. -/
   | positive : Sign
-deriving Repr, BEq
+deriving Repr, DecidableEq
 
 namespace Sign
 

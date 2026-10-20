@@ -1,0 +1,2 @@
+kernelQuotNameCollision.lean:25:0-25:9: error: (kernel) constant has already been declared 'Quot.lift'
+'bad' depends on axioms: [Quot.lift]

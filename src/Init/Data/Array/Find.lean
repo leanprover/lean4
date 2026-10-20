@@ -562,8 +562,8 @@ theorem findIdx?_push {xs : Array α} {a : α} {p : α → Bool} :
     (xs.push a).findIdx? p = (xs.findIdx? p).or (if p a then some xs.size else none) := by
   simp only [push_eq_append, findIdx?_append]
   split <;> rename_i h
-  · simp only [findIdx?_singleton, if_pos h, Option.map_some, Nat.zero_add]
-  · simp only [findIdx?_singleton, if_neg h, Option.map_none]
+  · simp only [findIdx?_singleton, ite_eq_left h, Option.map_some, Nat.zero_add]
+  · simp only [findIdx?_singleton, ite_eq_right h, Option.map_none]
 
 theorem findIdx?_flatten {xss : Array (Array α)} {p : α → Bool} :
     xss.flatten.findIdx? p =
@@ -739,9 +739,9 @@ theorem idxOf_append [BEq α] [LawfulBEq α] {xs ys : Array α} {a : α} :
     (xs ++ ys).idxOf a = if a ∈ xs then xs.idxOf a else ys.idxOf a + xs.size := by
   rw [idxOf, findIdx_append]
   split <;> rename_i h
-  · rw [if_pos]
+  · rw [ite_eq_left]
     simpa using h
-  · rw [if_neg]
+  · rw [ite_eq_right]
     simpa using h
 
 theorem idxOf_eq_size [BEq α] [LawfulBEq α] {xs : Array α} (h : a ∉ xs) : xs.idxOf a = xs.size := by

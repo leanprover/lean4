@@ -1,22 +1,27 @@
-Failure @45 (⟨2, 29⟩): expected link target '(url)' or '[ref]' (use '\[' for a literal '[')
+Input: "[My link][lean]\n[lean]: https://lean-lang.org"
+Failure: expected link target '(url)' or '[ref]' (use '\[' for a literal '[')
+ --> 2:29
+  |
+2 | [lean]: https://lean-lang.org
+  |                              ^
+  = consumed input prefix: 45 bytes
 Final stack:
-  [(Lean.Doc.Syntax.para
-    "para{"
-    [(Lean.Doc.Syntax.link
+  [(Lean.Doc.Parser.Block.para
+    [(Lean.Doc.Parser.Inline.link
       "["
-      [(Lean.Doc.Syntax.text (str "\"My link\""))]
+      [(Lean.Doc.Parser.Inline.text
+        (Lean.Doc.Parser.versoText "My link"))]
       "]"
-      (Lean.Doc.Syntax.ref
+      (Lean.Doc.Parser.LinkTarget.ref
        "["
-       (str "\"lean\"")
+       (Lean.Doc.Parser.versoRef "lean")
        "]"))
-     (Lean.Doc.Syntax.linebreak
-      "line!"
-      (str "\"\\n\""))
-     (Lean.Doc.Syntax.link
+     (Lean.Doc.Parser.Inline.linebreak "\n")
+     (Lean.Doc.Parser.Inline.link
       "["
-      [(Lean.Doc.Syntax.text (str "\"lean\""))]
+      [(Lean.Doc.Parser.Inline.text
+        (Lean.Doc.Parser.versoText "lean"))]
       "]"
-      (Lean.Doc.Syntax.url <missing>))]
-    "}")]
-Remaining: ""
+      <missing>)])]
+All input consumed.
+Round-trip not reproduced, as the parse reported errors: leaf without original source info: <missing>

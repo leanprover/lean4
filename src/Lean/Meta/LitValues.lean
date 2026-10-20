@@ -111,6 +111,27 @@ def getBitVecValue? (e : Expr) : MetaM (Option ((n : Nat) × BitVec n)) := Optio
     let n ← getNatValue? (← whnfD type.appArg!)
     return ⟨n, BitVec.ofNat n v⟩
 
+/--
+Returns the modulus of the wrapping numeric type `α` (`n` for `Fin n`, `2^w` for the
+fixed-width types) if it is known. `USize`/`ISize` are not included: their widths are
+platform-dependent.
+-/
+def getLitValueModulus? (α : Expr) : MetaM (Option Nat) := do
+  match_expr α with
+  | Fin n => getNatValue? n
+  | BitVec w =>
+    let some w ← getNatValue? w | return none
+    return some (2 ^ w)
+  | UInt8 => return some (2 ^ 8)
+  | UInt16 => return some (2 ^ 16)
+  | UInt32 => return some (2 ^ 32)
+  | UInt64 => return some (2 ^ 64)
+  | Int8 => return some (2 ^ 8)
+  | Int16 => return some (2 ^ 16)
+  | Int32 => return some (2 ^ 32)
+  | Int64 => return some (2 ^ 64)
+  | _ => return none
+
 /-- Return `some n` if `e` is an `OfNat.ofNat`-application encoding the `UInt8` with value `n`. -/
 def getUInt8Value? (e : Expr) : MetaM (Option UInt8) := OptionT.run do
   let (n, _) ← getOfNatValue? e ``UInt8

@@ -1,0 +1,7 @@
+name = "test"
+bootstrap = true
+# `--no-build` succeeds on a cache restore, which would hide a missing rebuild
+enableArtifactCache = false
+
+[[lean_lib]]
+name = "Test"

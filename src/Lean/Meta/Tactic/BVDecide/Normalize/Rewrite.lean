@@ -7,6 +7,12 @@ module
 
 prelude
 public import Lean.Meta.Tactic.BVDecide.Normalize.Basic
+import Lean.Meta.Tactic.BVDecide.Normalize.Simproc
+import Lean.Meta.Sym.Simp.Rewrite
+import Lean.Meta.Sym.Simp.EvalGround
+import Lean.Meta.Sym.DSimp
+import Lean.Meta.Sym.Simp.Forall
+import Lean.Meta.Sym.Simp.ControlFlow
 
 /-!
 This module contains the implementation of the rewriting pass in the fixpoint pipeline, applying
@@ -21,45 +27,44 @@ Responsible for applying the Bitwuzla style rewrite rules.
 -/
 public def rewriteRulesPass : Pass where
   name := `rewriteRules
-  run' goal := do
+  run' := do
     let bvThms ← bvNormalizeExt.getTheorems
-    let bvSimprocs ← bvNormalizeSimprocExt.getSimprocs
-    let sevalThms ← getSEvalTheorems
-    let sevalSimprocs ← Simp.getSEvalSimprocs
     let cfg ← PreProcessM.getConfig
+    let simpConfig := {
+      maxSteps := cfg.maxSteps
+    }
+    let discharger := Sym.Simp.mkDischargerFromSimproc Sym.Simp.evalGround
+    let cache ← ST.mkRef {}
+    let simpMethods := {
+      pre e := do
+        let res ← Sym.Simp.simpControl e
+        -- We invalidate `done` as we still want to rewrite in the arms, even if the discr cannot
+        -- be resolved.
+        match res with
+        | .rfl _ cd => return .rfl false cd
+        | .step e' proof _ cd => return .step e' proof false cd
+      post := Sym.Simp.evalGround >> Normalize.rewriteSimproc cache >> bvThms.rewrite (d := discharger)
+    }
+    let dsimpConfig := { simpConfig with instances := true }
+    let dsimpMethods := {
+      pre := Sym.DSimp.evalGround
+        >> Sym.DSimp.zeta
+        >> Sym.DSimp.zetaDeltaAll
+        >> Sym.DSimp.beta
+        >> rewriteDsimproc
+    }
 
-    let simpCtx ← Simp.mkContext
-      (config := {
-        failIfUnchanged := false,
-        zetaDelta := true,
-        implicitDefEqProofs := false, -- leanprover/lean4/pull/7509
-        maxSteps := cfg.maxSteps,
-        instances := true
-      })
-      (simpTheorems := #[bvThms, sevalThms])
-      (congrTheorems := (← getSimpCongrTheorems))
-
-    let hyps ← getHyps goal
-    if hyps.isEmpty then
-      return goal
-    else
-      let ⟨result?, _⟩ ← simpGoal goal
-        (ctx := simpCtx)
-        (simprocs := #[bvSimprocs, sevalSimprocs])
-        (fvarIdsToSimp := hyps)
-
-      let some (_, newGoal) := result? | return none
-      newGoal.withContext do
-        (← getPropHyps).forM PreProcessM.rewriteFinished
-      return newGoal
-where
-  getHyps (goal : MVarId) : PreProcessM (Array FVarId) := do
-    goal.withContext do
-      let hyps ← getPropHyps
-      let filter hyp := do
-        return !(← PreProcessM.checkRewritten hyp)
-      hyps.filterM filter
-
+    let goal ← PreProcessM.getTargetMVarId
+    let changed ← goal.withContext do
+      PreProcessM.mapHyps fun hyp => do
+        let hyp ← PreProcessM.dsimpHyp .rewrite dsimpMethods dsimpConfig hyp
+        PreProcessM.simpHyp .rewrite simpMethods simpConfig hyp
+    if (← isTracingEnabledFor `Meta.Tactic.bv) then
+      let statistics := (← cache.get).statistics.toArray.qsort (fun a b => a.2 > b.2)
+      withTraceNode `Meta.Tactic.bv (fun _ => return "rewriteRules simproc statistics:") do
+        for (rule, hits) in statistics do
+          trace[Meta.Tactic.bv] m!"{rule}: {hits}"
+    return changed
 
 end Normalize
 end Lean.Meta.Tactic.BVDecide

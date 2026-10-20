@@ -26,7 +26,7 @@ uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* lean_array_pop(lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
-lean_object* lean_array_fget(lean_object*, lean_object*);
+lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
 uint8_t l_Lean_Syntax_matchesNull(lean_object*, lean_object*);
 static const lean_string_object l_Lean_Elab_Do_Forward_matchApp_x3f___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 5, .m_capacity = 5, .m_length = 4, .m_data = "Lean"};
 static const lean_object* l_Lean_Elab_Do_Forward_matchApp_x3f___closed__0 = (const lean_object*)&l_Lean_Elab_Do_Forward_matchApp_x3f___closed__0_value;
@@ -109,8 +109,9 @@ lean_object* v___x_50_; lean_object* v_head_51_; lean_object* v_arg_53_; lean_ob
 v___x_50_ = lean_unsigned_to_nat(0u);
 v_head_51_ = l_Lean_Syntax_getArg(v___x_39_, v___x_50_);
 lean_dec(v___x_39_);
-v___x_65_ = lean_array_fget(v_args_45_, v___x_47_);
+v___x_65_ = lean_array_fget_borrowed(v_args_45_, v___x_47_);
 lean_dec(v___x_47_);
+lean_inc(v___x_65_);
 v___x_66_ = l_Lean_Parser_Term_dropParens(v___x_65_);
 v___x_67_ = ((lean_object*)(l_Lean_Elab_Do_Forward_matchApp_x3f___closed__8));
 lean_inc(v___x_66_);
@@ -263,11 +264,13 @@ return v___x_38_;
 }
 lean_object* runtime_initialize_Lean_Parser_Term(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Elab_Term_TermElabM(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Elab_Do_ForwardSyntax(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Lean_Parser_Term(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

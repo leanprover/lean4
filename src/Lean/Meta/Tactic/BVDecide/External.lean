@@ -9,6 +9,7 @@ prelude
 import Std.Tactic.BVDecide.LRAT.Parser
 public import Lean.CoreM
 public import Std.Tactic.BVDecide.Syntax
+public import Lean.Cadical.Basic
 
 /-!
 This module implements the logic to call CaDiCal (or CLI interface compatible SAT solvers) and
@@ -100,22 +101,23 @@ public partial def runInterruptible (timeout : Nat) (args : IO.Process.SpawnArgs
   let child ← IO.Process.spawn { args with stdout := .piped, stderr := .piped, stdin := .null }
   let stdout ← IO.asTask child.stdout.readToEnd Task.Priority.dedicated
   let stderr ← IO.asTask child.stderr.readToEnd Task.Priority.dedicated
-  go (timeout * 1000) child stdout stderr
+  go (timeout * 1000) 1 64 child stdout stderr
 where
-  go {cfg} (budgetMs : Nat) (child : IO.Process.Child cfg) (stdout stderr : Task (Except IO.Error String)) :
-      CoreM (TimedOut IO.Process.Output) := do
+  go {cfg} (budgetMs sleepMs maxSleepMs : Nat) (child : IO.Process.Child cfg)
+      (stdout stderr : Task (Except IO.Error String)) : CoreM (TimedOut IO.Process.Output) := do
     let cleanup := killAndWait child
     withTimeoutCheck budgetMs cleanup do
     withInterruptCheck cleanup do
+      -- TODO: replace me with a select once we get libuv process support
       match ← child.tryWait with
       | some exitCode =>
         let stdout ← IO.ofExcept stdout.get
         let stderr ← IO.ofExcept stderr.get
         return .success { exitCode := exitCode, stdout := stdout, stderr := stderr }
       | none =>
-        let sleepMs : Nat := 50
         IO.sleep sleepMs.toUInt32
-        go (budgetMs - sleepMs) child stdout stderr
+        let nextSleepMs := if sleepMs ≥ maxSleepMs then sleepMs else sleepMs * 2
+        go (budgetMs - sleepMs) nextSleepMs maxSleepMs child stdout stderr
 
   killAndWait {cfg} (child : IO.Process.Child cfg) : IO Unit := do
     child.kill
@@ -137,6 +139,67 @@ where
         throwInterruptException
     x
 
+public def throwSatTimeout : CoreM α := do
+  let mut err := "The SAT solver timed out while solving the problem.\n"
+  err := err ++ "Consider increasing the timeout with the `timeout` config option.\n"
+  err := err ++ "If solving your problem relies inherently on using associativity or commutativity, consider enabling the `acNf` config option."
+  throwError err
+
+public structure SatOptions where
+  configuration : String
+  longOptions : Array String
+  options : Array (String × Int32)
+
+namespace SatOptions
+
+public def ofMode (mode : Elab.Tactic.BVDecide.SolverMode) : SatOptions :=
+  {
+    configuration :=
+      match mode with
+      | .proof => "unsat"
+      | .counterexample => "sat"
+      | .default => "default"
+    longOptions := #[]
+    options :=
+      /-
+      Bitwuzla sets this option and it does improve performance practically:
+      https://github.com/bitwuzla/bitwuzla/blob/0e81e616af4d4421729884f01928b194c3536c76/src/sat/cadical.cpp#L34
+      -/
+      #[("shrink", 0)]
+  }
+
+public def addLrat (opts : SatOptions) (binary : Bool) : SatOptions :=
+  { opts with
+      longOptions := opts.longOptions ++ #["lrat", "quiet"]
+      options := opts.options.push ("binary", binary.toUInt32.toInt32)
+  }
+
+public def addIncremental (opts : SatOptions) : SatOptions :=
+  { opts with
+      options := opts.options.push ("ilb", 2)
+  }
+
+public def toArgs (opts : SatOptions) : Array String := Id.run do
+  let mut args := #[]
+  args := args.push <| flag opts.configuration
+  for longOpt in opts.longOptions do
+    args := args.push <| flag longOpt
+  for (opt, val) in opts.options do
+    args := args.push  <| flagValue opt val
+  return args
+where
+  flag (opt : String) : String := s!"--{opt}"
+  flagValue (opt : String) (val : Int32) : String := s!"--{opt}={val}"
+
+public def configureSolver (opts : SatOptions) (solver : Cadical.Solver) : BaseIO Unit := do
+  discard <| solver.configure opts.configuration
+  for longOpt in opts.longOptions do
+    discard <| solver.setLongOption longOpt
+  for (opt, val) in opts.options do
+    discard <| solver.setOption opt val
+
+end SatOptions
+
 /--
 Call the SAT solver in `solverPath` with `problemPath` as CNF input and ask it to output an LRAT
 UNSAT proof (binary or non-binary depending on `binaryProofs`) into `proofOutput`. To avoid runaway
@@ -147,29 +210,14 @@ Note: This function currently assume that the solver has the same CLI as CaDiCal
 public def satQuery (solverPath : System.FilePath) (problemPath : System.FilePath) (proofOutput : System.FilePath)
     (timeout : Nat) (binaryProofs : Bool) (mode : Elab.Tactic.BVDecide.SolverMode) :
     CoreM SolverResult := do
+  let options := SatOptions.ofMode mode |>.addLrat binaryProofs
   let cmd := solverPath.toString
-  let mut args := #[
-    problemPath.toString,
-    proofOutput.toString,
-    "--lrat",
-    s!"--binary={binaryProofs}",
-    "--quiet",
-    /-
-    Bitwuzla sets this option and it does improve performance practically:
-    https://github.com/bitwuzla/bitwuzla/blob/0e81e616af4d4421729884f01928b194c3536c76/src/sat/cadical.cpp#L34
-    -/
-    "--shrink=0"
-  ]
-  args := args ++ solverModeFlags mode
+  let args := #[ problemPath.toString, proofOutput.toString] ++ options.toArgs
 
   -- We implement timeouting ourselves because cadicals -t option is not available on Windows.
   let out? ← runInterruptible timeout { cmd, args, stdin := .piped, stdout := .piped, stderr := .null }
   match out? with
-  | .timeout =>
-    let mut err := "The SAT solver timed out while solving the problem.\n"
-    err := err ++ "Consider increasing the timeout with the `timeout` config option.\n"
-    err := err ++ "If solving your problem relies inherently on using associativity or commutativity, consider enabling the `acNf` config option."
-    throwError err
+  | .timeout => throwSatTimeout
   | .success { exitCode := exitCode, stdout := stdout, stderr := stderr} =>
     if exitCode == 255 then
       throwError s!"Failed to execute external prover:\n{stderr}"
@@ -183,13 +231,7 @@ public def satQuery (solverPath : System.FilePath) (problemPath : System.FilePat
         | .error err =>
           throwError s!"Error {err} while parsing:\n{stdout}"
       else
-        throwError s!"The external prover produced unexpected output, stdout:\n{stdout}stderr:\n{stderr}"
-where
-  solverModeFlags (mode : Elab.Tactic.BVDecide.SolverMode) : Array String :=
-    match mode with
-    | .proof => #["--unsat"]
-    | .counterexample => #["--sat"]
-    | .default => #["--default"]
+        throwError s!"The external prover produced unexpected output, stdout:\n{stdout}\nstderr:\n{stderr}"
 
 end External
 

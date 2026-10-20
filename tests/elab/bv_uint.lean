@@ -93,7 +93,12 @@ example (a b : USize) (h : System.Platform.numBits = 64) : a + b = b + a := by b
 example (a : USize) (h : System.Platform.numBits = 64) : a - a = 0 := by bv_decide
 example (a : USize) (h : System.Platform.numBits = 64) : -a + a = 0 := by bv_decide
 example (a : USize) (h : System.Platform.numBits = 64) : a / 1 = a := by bv_decide
-example (a : USize) (h : System.Platform.numBits = 64) : a % 1 = 0 := by bv_decide
+
+example (a : USize) (h : System.Platform.numBits = 64) : a % 1 = 0 := by
+  bv_normalize
+
+example (a : UInt8) : a % 1 = 0 := by
+  bv_decide
 
 /-! USize bitwise operations -/
 example (a b : USize) (h : System.Platform.numBits = 64) : a &&& b = b &&& a := by bv_decide

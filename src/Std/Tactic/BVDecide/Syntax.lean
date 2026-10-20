@@ -95,50 +95,20 @@ structure BVDecideConfig where
   for `bv_decide`.
   -/
   solverMode : SolverMode := .proof
+  /--
+  Enable support for uninterpreted functions over `BitVec` and `Bool` by counterexample-guided
+  abstraction refinement.
+  -/
+  uf : Bool := false
+  /--
+  The number of iterations that the CEGAR refinement loop may run up to.
+  -/
+  cegarRounds : Nat := 64
+
+/--
+Whether this configuration requires the solver to use incremental solving.
+-/
+def BVDecideConfig.needsIncremental (cfg : BVDecideConfig) : Bool :=
+  cfg.uf
 
 end Lean.Elab.Tactic.BVDecide
-
-
-namespace Lean.Parser
-
-namespace Tactic
-
-/--
-This tactic works just like `bv_decide` but skips calling a SAT solver by using a proof that is
-already stored on disk. It is called with the name of an LRAT file in the same directory as the
-current Lean file:
-```
-bv_check "proof.lrat"
-```
--/
-syntax (name := bvCheck) "bv_check " optConfig str : tactic
-
-@[tactic_alt bvDecideMacro]
-syntax (name := bvDecide) "bv_decide" optConfig : tactic
-
-
-@[tactic_alt bvTraceMacro]
-syntax (name := bvTrace) "bv_decide?" optConfig : tactic
-
-@[tactic_alt bvNormalizeMacro]
-syntax (name := bvNormalize) "bv_normalize" optConfig : tactic
-
-end Tactic
-
-/--
-Theorems tagged with the `bv_normalize` attribute are used during the rewriting step of the
-`bv_decide` tactic.
--/
-syntax (name := bv_normalize) "bv_normalize" (Tactic.simpPre <|> Tactic.simpPost)? unicode(" ←", " <-")? (ppSpace prio)? : attr
-
-/--
-Auxiliary attribute for builtin `bv_normalize` simprocs.
--/
-syntax (name := bvNormalizeProcBuiltinAttr) "builtin_bv_normalize_proc" (Tactic.simpPre <|> Tactic.simpPost)? : attr
-
-macro_rules
-  | `($[$doc?:docComment]? $kind:attrKind builtin_simproc $[$pre?]? [bv_normalize] $n:ident ($pattern:term) := $body) => do
-    `($[$doc?:docComment]? builtin_simproc_decl $n ($pattern) := $body
-      attribute [$kind builtin_bv_normalize_proc $[$pre?]?] $n)
-
-end Lean.Parser

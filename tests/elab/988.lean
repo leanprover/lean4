@@ -4,7 +4,7 @@ instance {α : Type u} : HAppend (Fin m → α) (Fin n → α) (Fin (m + n) → 
 def empty : Fin 0 → Nat := (nomatch ·)
 
 theorem append_empty (x : Fin i → Nat) : x ++ empty = x :=
-  funext fun i => dif_pos _
+  funext fun i => dite_eq_left _
 
 opaque f : (Fin 0 → Nat) → Prop
 example : f (empty ++ empty) = f empty := by simp only [append_empty] -- should work

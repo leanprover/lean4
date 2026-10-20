@@ -18,7 +18,7 @@ Rewrites the target of the main goal using `term`, and re-establishes the `sym` 
 Theorem premises that cannot be resolved by unification or type class resolution become
 new goals.
 -/
-private def rwTarget (symm : Bool) (term : Syntax) : GrindTacticM Unit := do
+def rwTarget (symm : Bool) (term : Syntax) : GrindTacticM Unit := do
   let goal ← getMainGoal
   goal.withContext do
     let mvarCounterSaved := (← getMCtx).mvarCounter
@@ -62,7 +62,7 @@ private def rwTarget (symm : Bool) (term : Syntax) : GrindTacticM Unit := do
 Closes the main goal if its target is `True` or a reflexive `Eq`/`Iff`/`HEq`.
 Since the target is maximally shared, reflexivity is detected using pointer equality.
 -/
-private def tryTrivialClose : GrindTacticM Unit := do
+def tryTrivialClose : GrindTacticM Unit := do
   let goal ← getMainGoal
   goal.withContext do
     let target ← goal.mvarId.getType

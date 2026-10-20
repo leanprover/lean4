@@ -620,7 +620,7 @@ theorem Iter.any_eq_match_step {α β : Type w} [Iterator α Id β]
       | .done => false) := by
   rw [any_eq_anyM, anyM_eq_match_step]
   split
-  · simp only [pure_bind, Bool.if_true_left, Bool.decide_eq_true, any_eq_anyM]
+  · simp only [pure_bind, Bool.ite_true_left, Bool.decide_eq_true, any_eq_anyM]
     split <;> simp [*]
   · simp [any_eq_anyM]
   · simp
@@ -711,7 +711,7 @@ theorem Iter.all_eq_match_step {α β : Type w} [Iterator α Id β]
       | .done => true) := by
   rw [all_eq_allM, allM_eq_match_step]
   split
-  · simp only [pure_bind, all_eq_allM, Bool.if_false_right, Bool.decide_eq_true]
+  · simp only [pure_bind, all_eq_allM, Bool.ite_false_right, Bool.decide_eq_true]
     split <;> simp [*]
   · simp [all_eq_allM]
   · simp

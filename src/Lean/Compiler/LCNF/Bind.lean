@@ -54,7 +54,7 @@ where
     | .return fvarId => f fvarId
     | .jmp fvarId .. =>
       unless (← read).contains fvarId do
-        throwError "`Code.bind` failed, it contains a out of scope join point"
+        throwError "`Code.bind` failed, it contains an out-of-scope join point"
       return c
     | .unreach type =>
       /-

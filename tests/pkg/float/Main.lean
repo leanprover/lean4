@@ -24,8 +24,9 @@ of substring filters restricts the run to matching files, e.g.
   lake exe testfloat-check f64_mul       -- only files whose label contains "f64_mul"
 
 The vector files are in Berkeley TestFloat format: each line is
-`<operand1> [<operand2>] <expected> <flags>` (the second operand is absent for
-unary operations) with all fields in hexadecimal and floats given as their bit
+`<operand1> [<operand2> [<operand3>]] <expected> <flags>` (one operand for unary
+operations, two for binary ones, three for the fused multiply-add `mulAdd`) with
+all fields in hexadecimal and floats given as their bit
 patterns — 16 digits for `binary64`, 8 for `binary32`. The exception-flags field
 is ignored since the model does not compute flags. NaN results are compared as a
 class, not bit-for-bit, since the model produces a canonical NaN rather than
@@ -51,7 +52,8 @@ def vectorsDir : System.FilePath := "test-vectors"
 A named set of implementations, keyed by the `<precision>_<operation>` basename
 of a vector file (e.g. `f64_add`, `f32_sqrt`). A binary operation is checked
 against lines of the form `<a> <b> <expected> <flags>`, a unary operation
-against lines of the form `<a> <expected> <flags>`.
+against lines of the form `<a> <expected> <flags>`, and a ternary operation
+against lines of the form `<a> <b> <c> <expected> <flags>`.
 -/
 structure Backend where
   /-- Short name shown in the output, e.g. `model` or `native`. -/
@@ -68,6 +70,7 @@ def modelBackend : Backend where
      ("f64_mul", f64Check (.binary '*' (modelBinop Float.Model.mul))),
      ("f64_div", f64Check (.binary '/' (modelBinop Float.Model.div))),
      ("f64_sqrt", f64Check (.unary "sqrt" (modelUnop Float.Model.sqrt))),
+     ("f64_mulAdd", f64Check (.ternary "fma" (modelTernop Float.Model.fma))),
      ("f64_eq", f64Check (.binary '=' (modelCompare Float.Model.beq))),
      ("f64_le", f64Check (.binary '≤' (modelCompare Float.Model.le))),
      ("f64_lt", f64Check (.binary '<' (modelCompare Float.Model.lt))),
@@ -76,6 +79,7 @@ def modelBackend : Backend where
      ("f32_mul", f32Check (.binary '*' (modelBinop32 Float32.Model.mul))),
      ("f32_div", f32Check (.binary '/' (modelBinop32 Float32.Model.div))),
      ("f32_sqrt", f32Check (.unary "sqrt" (modelUnop32 Float32.Model.sqrt))),
+     ("f32_mulAdd", f32Check (.ternary "fma" (modelTernop32 Float32.Model.fma))),
      ("f32_eq", f32Check (.binary '=' (modelCompare32 Float32.Model.beq))),
      ("f32_le", f32Check (.binary '≤' (modelCompare32 Float32.Model.le))),
      ("f32_lt", f32Check (.binary '<' (modelCompare32 Float32.Model.lt))),
@@ -105,6 +109,7 @@ def nativeBackend : Backend where
      ("f64_mul", f64Check (.binary '*' (nativeBinop Float.mul))),
      ("f64_div", f64Check (.binary '/' (nativeBinop Float.div))),
      ("f64_sqrt", f64Check (.unary "sqrt" (nativeUnop Float.sqrt))),
+     ("f64_mulAdd", f64Check (.ternary "fma" (nativeTernop Float.fma))),
      ("f64_eq", f64Check (.binary '=' (nativeCompare Float.beq))),
      ("f64_le", f64Check (.binary '≤' (nativeCompare (fun a b => decide (a ≤ b))))),
      ("f64_lt", f64Check (.binary '<' (nativeCompare (fun a b => decide (a < b))))),
@@ -113,6 +118,7 @@ def nativeBackend : Backend where
      ("f32_mul", f32Check (.binary '*' (nativeBinop32 Float32.mul))),
      ("f32_div", f32Check (.binary '/' (nativeBinop32 Float32.div))),
      ("f32_sqrt", f32Check (.unary "sqrt" (nativeUnop32 Float32.sqrt))),
+     ("f32_mulAdd", f32Check (.ternary "fma" (nativeTernop32 Float32.fma))),
      ("f32_eq", f32Check (.binary '=' (nativeCompare32 Float32.beq))),
      ("f32_le", f32Check (.binary '≤' (nativeCompare32 (fun a b => decide (a ≤ b))))),
      ("f32_lt", f32Check (.binary '<' (nativeCompare32 (fun a b => decide (a < b))))),
@@ -160,18 +166,20 @@ def defaultMaxShown : Nat := 20
 
 /--
 A single parsed vector line: the operand bit pattern(s) and the expected result.
-The second operand `b` is unused for unary operations.
+Operands beyond the operation's arity (`b` and `c` for unary operations, `c` for
+binary ones) are unused.
 -/
 structure Sample where
   a : UInt64
   b : UInt64
+  c : UInt64
   expected : UInt64
 
 /--
 Parse the decompressed `lines` of a vector file into `Sample`s, doing the hex
 decoding once per file rather than once per backend. `arityCheck` is consulted
-only to decide whether each line carries one operand or two — every backend that
-checks a given file agrees on its arity. Malformed lines are reported to stderr
+only to decide whether each line carries one, two, or three operands — every
+backend that checks a given file agrees on its arity. Malformed lines are reported to stderr
 under `label` and skipped. Factoring this out keeps the per-backend timing in
 `main` measuring only the operations, not the parsing.
 -/
@@ -183,8 +191,9 @@ def parseSamples (arityCheck : Check) (label : String) (lines : Array String) :
     unless tokens.isEmpty do
       let parsed : Option Sample :=
         match arityCheck.op, tokens.mapM hexToUInt64? with
-        | .binary _ _, some (a :: b :: expected :: _) => some { a, b, expected }
-        | .unary _ _, some (a :: expected :: _) => some { a, b := 0, expected }
+        | .ternary _ _, some (a :: b :: c :: expected :: _) => some { a, b, c, expected }
+        | .binary _ _, some (a :: b :: expected :: _) => some { a, b, c := 0, expected }
+        | .unary _ _, some (a :: expected :: _) => some { a, b := 0, c := 0, expected }
         | _, _ => none
       match parsed with
       | none => IO.eprintln s!"malformed line in {label}: {line.trimAscii.toString}"
@@ -255,6 +264,7 @@ public def main (args : List String) : IO UInt32 := do
       let mut fails := #[]
       for s in samples do
         let actual := match check.op with
+          | .ternary _ op => op s.a s.b s.c
           | .binary _ op => op s.a s.b
           | .unary _ op => op s.a
         let ok := actual == s.expected || (check.isNaN actual && check.isNaN s.expected)
@@ -266,6 +276,8 @@ public def main (args : List String) : IO UInt32 := do
         if shown < maxShown then
           shown := shown + 1
           let description := match check.op with
+            | .ternary name _ =>
+              s!"{name}({check.toHex s.a}, {check.toHex s.b}, {check.toHex s.c})"
             | .binary symbol _ => s!"{check.toHex s.a} {symbol} {check.toHex s.b}"
             | .unary name _ => s!"{name}({check.toHex s.a})"
           IO.eprintln

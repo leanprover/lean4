@@ -82,6 +82,47 @@ register_builtin_option backward.isDefEq.implicitBump : Bool := {
   not just instance-implicit ones"
 }
 
+/--
+Controls what happens if a definitional equality check is stuck on a metavariable after a failing
+comparison of two applications if the `isDefEqStuckEx` setting is enabled (e.g. during instance
+search).
+
+With the old behavior (`true`), the stuck exception simply bubbles up, aborting the definitional
+equality check. With the new behavior (`false`), Lean first tries to apply the remaining heuristics
+and only throws if those don't help either.
+
+Besides being expected to succeed more often, the new behavior is usually faster because it calls
+`isDefEqOnFailure` only once.
+-/
+register_builtin_option backward.isDefEq.throwOnStuckAfterApp : Bool := {
+  defValue := false
+  descr    := "if true, immediately throw a stuck exception"
+}
+
+/--
+When an instance is applied during instance search, its arguments are filled with metavariables
+before unifying it with the expected type. This option controls whether assignments to the
+metavariables created for instance-implicit arguments are restricted, so that their final value
+has the type tye metavariable was created with, at instance transparency (instead of implicit
+transparency, which is the default).
+
+This prevents type class search from assigning an instance whose type not as expected.
+See issue #9077.
+
+With `true` (the default), assignments to such instance-typed metavariables are guarded by a type
+check at instance transparency. If that check fails, Lean tries to synthesize the metavariable,
+starting a nested instance search. If the synthesis fails too, the whole assignment, and with it the
+current unification attempt, fails.
+
+With `false`, the old, more lenient behavior is restored (the behavior before the fix for issue
+#9077).
+-/
+register_builtin_option backward.isDefEq.respectTransparency.instanceSearchTypes : Bool := {
+  defValue := true
+  descr    := "if true, require assignments to instance metavariables to preserve the metavariable's
+  type up to `.instances` transparency during instance search"
+}
+
 register_builtin_option trace.Meta.isDefEq.printTransparency : Bool := {
   defValue := false
   descr    := "if true, prefix `Meta.isDefEq` `=?=` trace messages with the current transparency level"
@@ -133,35 +174,43 @@ private def isDefEqEtaStruct (a b : Expr) : MetaM Bool := do
     else
       return false
 where
-  go ctorVal us := do
-    if ctorVal.numParams + ctorVal.numFields != b.getAppNumArgs then
-      trace[Meta.isDefEq.eta.struct] "failed, insufficient number of arguments at{indentExpr b}"
-      return false
+  /-- if `b` is a *partially* applied constructor, we compare eta-expanded versions of `a` and `b`.-/
+  expandIfNeeded ctorVal k := do
+    if ctorVal.numParams + ctorVal.numFields == b.getAppNumArgs then
+      k a b
     else
-      if !isNonRecStructure (← getEnv) ctorVal.induct then
-        trace[Meta.isDefEq.eta.struct] "failed, type is not a non-recursive structure{indentExpr b}"
-        return false
-      else if (← isDefEq (← inferType a) (← inferType b)) then
-        checkpointDefEq do
-          let args := b.getAppArgs
-          let params := args[*...ctorVal.numParams].toArray
-          for h : i in ctorVal.numParams...args.size do
-            let j := i - ctorVal.numParams
-            let proj ← mkProjFn ctorVal us params j a
-            if ← isProof proj then
-              unless ← isAbstractedUnassignedMVar args[i] do
-                -- Skip expensive unification problem that is likely solved
-                -- using proof irrelevance.  We already know that `proj` and
-                -- `args[i]` have the same type, so they're defeq in any case.
-                -- See comment at `isAbstractedUnassignedMVar`.
-                continue
-            trace[Meta.isDefEq.eta.struct] "{a} =?= {b} @ [{j}], {proj} =?= {args[i]}"
-            unless (← isDefEq proj args[i]) do
-              trace[Meta.isDefEq.eta.struct] "failed, unexpected arg #{i}, projection{indentExpr proj}\nis not defeq to{indentExpr args[i]}"
-              return false
-          return true
-      else
-        return false
+      let bType ← inferType b
+      /- note: `b` is a ctor application, its head's type must be of the form `As -> fields -> I As` where `As` are the structure's params, ad `fields` the constructor's fields. As such, no need to whnf its type here. If we were running the loop on `a`'s type instead, whnfs would be necessary.-/
+      forallTelescope bType fun xs _ => do
+        let a' := mkAppN a xs
+        let b' := mkAppN b xs
+        assert! ctorVal.numParams + ctorVal.numFields == b'.getAppNumArgs
+        k a' b'
+
+  go ctorVal us := do
+    if !isNonRecStructure (← getEnv) ctorVal.induct then
+      trace[Meta.isDefEq.eta.struct] "failed, type is not a structure{indentExpr b}"
+      return false
+    if !(← isDefEq (← inferType a) (← inferType b)) then
+      return false
+    checkpointDefEq do expandIfNeeded ctorVal fun a b => do
+      let args := b.getAppArgs
+      let params := args[*...ctorVal.numParams].toArray
+      for h : i in ctorVal.numParams...args.size do
+        let j := i - ctorVal.numParams
+        let proj ← mkProjFn ctorVal us params j a
+        if ← isProof proj then
+          unless ← isAbstractedUnassignedMVar args[i] do
+            -- Skip expensive unification problem that is likely solved
+            -- using proof irrelevance.  We already know that `proj` and
+            -- `args[i]` have the same type, so they're defeq in any case.
+            -- See comment at `isAbstractedUnassignedMVar`.
+            continue
+        trace[Meta.isDefEq.eta.struct] "{a} =?= {b} @ [{j}], {proj} =?= {args[i]}"
+        unless (← isDefEq proj args[i]) do
+          trace[Meta.isDefEq.eta.struct] "failed, unexpected arg #{i}, projection{indentExpr proj}\nis not defeq to{indentExpr args[i]}"
+          return false
+      return true
 
 /--
   Try to solve `a := (fun x => t) =?= b` by eta-expanding `b`,
@@ -191,17 +240,6 @@ private def isDefEqEta (a b : Expr) : MetaM LBool := do
     | _ => return .undef
   else
     return .undef
-
-/-- Support for `Lean.reduceBool` and `Lean.reduceNat` -/
-def isDefEqNative (s t : Expr) : MetaM LBool := do
-  let isDefEq (s t) : MetaM LBool := toLBoolM <| Meta.isExprDefEqAux s t
-  let s? ← reduceNative? s
-  let t? ← reduceNative? t
-  match s?, t? with
-  | some s, some t => isDefEq s t
-  | some s, none   => isDefEq s t
-  | none,   some t => isDefEq s t
-  | none,   none   => pure LBool.undef
 
 /-- Support for reducing Nat basic operations. -/
 def isDefEqNat (s t : Expr) : MetaM LBool := do
@@ -286,6 +324,23 @@ inductive DefEqArgsFirstPassResult where
   | ok (postponedImplicit : Array Nat) (postponedHO : Array Nat)
 
 /--
+Ensure `MetaM` configuration is strong enough for checking definitional equality of
+implicit and instance-implict arguments as well as assigned mvar types. Bumps transparency to at
+least `.implicit`, so both `[instance_reducible]` and `[implicit_reducible]` unfold.
+-/
+@[inline] def withImplicitConfig (x : MetaM α) : MetaM α := do
+  let old ← getTransparency
+  if old.lt .implicit then
+    trace[Meta.isDefEq.transparency]
+      "raising transparency {toString old} → implicit"
+  withAtLeastTransparency .implicit do
+    let cfg ← getConfig
+    if cfg.beta && cfg.iota && cfg.zeta && cfg.zetaHave && cfg.zetaDelta && cfg.proj == .yesWithDelta then
+      x
+    else
+      withConfig (fun cfg => { cfg with beta := true, iota := true, zeta := true, zetaHave := true, zetaDelta := true, proj := .yesWithDelta }) x
+
+/--
   First pass for `isDefEqArgs`. We unify explicit arguments, *and* easy cases
   Here, we say a case is easy if it is of the form
 
@@ -318,6 +373,9 @@ inductive DefEqArgsFirstPassResult where
 -/
 private def isDefEqArgsFirstPass
     (paramInfo : Array ParamInfo) (args₁ args₂ : Array Expr) : MetaM DefEqArgsFirstPassResult := do
+  let flags ← getOptionFlags
+  let respectTransparency := flags.respectTransparency
+  let implicitBump := flags.implicitBump
   let mut postponedImplicit := #[]
   let mut postponedHO := #[]
   for h : i in *...paramInfo.size do
@@ -338,8 +396,15 @@ private def isDefEqArgsFirstPass
       unless (← Meta.isExprDefEqAux a₁ a₂) do
         return .failed
     else if (← isEtaUnassignedMVar a₁ <||> isEtaUnassignedMVar a₂) then
-      unless (← Meta.isExprDefEqAux a₁ a₂) do
-        return .failed
+      -- Easy cases are still argument unifications at an implicit position, so they get the same
+      -- transparency bump as the second pass.
+      -- See `tests/elab/isDefEqArgsFirstPassBump.lean` for an example of when this is relevant.
+      if respectTransparency && (info.binderInfo.isInstImplicit || implicitBump) then
+        unless (← withImplicitConfig <| Meta.isExprDefEqAux a₁ a₂) do
+          return .failed
+      else
+        unless (← Meta.isExprDefEqAux a₁ a₂) do
+          return .failed
     else
       if info.isProp then
         unless ← isAbstractedUnassignedMVar a₁ <||> isAbstractedUnassignedMVar a₂ do
@@ -352,16 +417,12 @@ private def isDefEqArgsFirstPass
   return .ok postponedImplicit postponedHO
 
 /--
-Ensure `MetaM` configuration is strong enough for checking definitional equality of
-implicit and instance-implict arguments as well as assigned mvar types. Bumps transparency to at
-least `.implicit`, so both `[instance_reducible]` and `[implicit_reducible]` unfold.
+Like `withImplicitConfig`, but sets transparency to exactly `.instances`: instance-typed
+metavariable assignments must preserve the type at `.instances` even when the ambient
+transparency is higher.
 -/
-@[inline] def withImplicitConfig (x : MetaM α) : MetaM α := do
-  let old ← getTransparency
-  if old.lt .implicit then
-    trace[Meta.isDefEq.transparency]
-      "raising transparency {toString old} → implicit"
-  withAtLeastTransparency .implicit do
+@[inline] def withExactInstancesConfig (x : MetaM α) : MetaM α := do
+  withTransparency .instances do
     let cfg ← getConfig
     if cfg.beta && cfg.iota && cfg.zeta && cfg.zetaHave && cfg.zetaDelta && cfg.proj == .yesWithDelta then
       x
@@ -376,8 +437,9 @@ private partial def isDefEqArgs (f : Expr) (args₁ args₂ : Array Expr) : Meta
   for i in finfo.paramInfo.size...args₁.size do
     unless (← Meta.isExprDefEqAux args₁[i]! args₂[i]!) do
       return false
-  let respectTransparency := backward.isDefEq.respectTransparency.get (← getOptions)
-  let implicitBump := backward.isDefEq.implicitBump.get (← getOptions)
+  let flags ← getOptionFlags
+  let respectTransparency := flags.respectTransparency
+  let implicitBump := flags.implicitBump
   for i in postponedImplicit do
     /- Second pass: unify implicit arguments.
        When `respectTransparency` is `false` (old behavior), we bump to `.default` so that
@@ -486,14 +548,125 @@ If `backward.isDefEq.respectTransparency` is `false`, then we automatically disa
 `backward.isDefEq.respectTransparency.types` too.
 -/
 abbrev respectTransparencyAtTypes : CoreM Bool := do
-  let opts ← getOptions
-  return backward.isDefEq.respectTransparency.types.get opts && backward.isDefEq.respectTransparency.get opts
+  let flags ← getOptionFlags
+  return flags.respectTransparencyTypes && flags.respectTransparency
+
+/--
+Returns `true` if all metavariables whose types influence the type of `e`, a value assigned to an
+instance-typed metavariable unter `backward.isDefEq.respectTransparency.instanceSearchTypes`, are admissible. Admissible are:
+
+* instance-typed metavariables: their own assignments are subject to the same restriction;
+* metavariables `isDefEq` cannot assign (from an outer `MetavarContext` depth, or synthetic
+  opaque): the current instance search cannot commit them to a wrong-typed value, and their
+  eventual assignment is governed by whoever created them.
+
+Only 'spine' positions matter: `inferType` consults the type of a subterm only there (the head
+of an application, the body of a lambda or `let`, the structure of a projection). A
+metavariable in argument position enters the inferred type only by substitution, so
+instantiating it changes the value's type and its occurrences in the already-checked
+expected type in the same way.
+
+A delayed-assigned spine metavariable need not be admissible itself. It will never be
+assigned directly. The spine of its pending metavariable is checked instead.
+
+Note that metavariables that are unassignable right now are considered safe.
+Therefore, it can happen that instance search finds an instance that still contains metavariables
+and matches the expected type at instance transparency, but assigning those metavariables (which
+were unassignable during instance search) changes the type to something that is not
+instance-reducibly defeq to the metavariable's original type. We argue that instance search still
+did its job correctly. Changing this would in many cases prevent instance search from returning
+instances with metavariables at all.
+-/
+partial def spineMVarsAdmissible (e : Expr) : MetaM Bool := go e
+where
+  go (e : Expr) : MetaM Bool := do
+    unless e.hasExprMVar do return true
+    match e with
+    | .mvar mvarId =>
+      if let some d ← getDelayedMVarAssignment? mvarId then
+        go (mkMVar d.mvarIdPending)
+      else
+        mvarId.isInstanceTyped <||> mvarId.isReadOnlyOrSyntheticOpaque
+    | .app f _ => go f
+    | .lam _ _ b _ => go b
+    | .letE _ _ v b _ => go v <&&> go b
+    | .proj _ _ s => go s
+    | .mdata _ b => go b
+    | _ => return true
+
+/--
+Type check for assignments to instance-typed metavariables: the value's type must agree with
+the metavariable's type at `.instances` transparency.
+
+When the types are function types We accept the value as long as the codomain agrees at
+`.instances` for the metavariable type's own binders. Without this, eta reduction would change
+whether an instance is accepted. The full types must still agree at the ordinary transparency,
+ensuring the assignment remains type-correct.
+
+The reason for being lenient with regard to the binder types is that `tryResolve` eta-reduces
+answers, so `fun i : α => inst i` becomes `inst`, whose inferred type might have a different
+binder type.
+-/
+private def checkTypesForInstanceTypedMVarAssignment (mvarType vType v : Expr) : MetaM Bool := do
+  if (← withExactInstancesConfig <| Meta.isExprDefEqAux mvarType vType) then
+    return true
+
+  unless mvarType.isForall do return false
+  let okAtHigherTransparency ←
+    if (← respectTransparencyAtTypes) then
+      withImplicitConfig <| Meta.isExprDefEqAux mvarType vType
+    else
+      withInferTypeConfig <| Meta.isExprDefEqAux mvarType vType
+  unless okAtHigherTransparency do return false
+  forallTelescope mvarType fun xs body => do
+    withExactInstancesConfig <| Meta.isExprDefEqAux body (← inferType (mkAppN v xs))
+
+/--
+Fallback for assignments to instance-typed metavariables under
+`backward.isDefEq.respectTransparency.instanceSearchTypes` when the candidate value `v` is not directly acceptable:
+synthesize the instance for the metavariable's type, assign it, and require `v` to be
+definitionally equal to the synthesized instance. Fails without modifying the state if synthesis
+fails or if `v` does not match the synthesized instance.
+
+This fallback helps when we try to assign an instance to a metavariable that technically has the
+wrong type, but which is definitionally equal to an instance of the right type. Without the
+fallback, assigning the metavariable would fail, surprising to the user.
+-/
+private def synthInstanceTypedMVarAndUnify (mvar v : Expr) : MetaM Bool := do
+  checkpointDefEq do
+    unless (← Meta.synthPending mvar.mvarId!) do
+      if (← isDiagnosticsEnabled) then
+        trace[diagnostics] "failure when assigning instance metavariable with type{indentExpr (← inferType mvar)}\nthe candidate value{indentExpr v}\nwas rejected and the instance could not be synthesized directly.\nWorkaround: `set_option backward.isDefEq.respectTransparency.instanceSearchTypes false`"
+      return false
+    let inst ← instantiateMVars mvar
+    if (← Meta.isExprDefEqAux v inst) then
+      return true
+    else
+      if (← isDiagnosticsEnabled) then
+        trace[diagnostics] "failure when assigning instance metavariable with type{indentExpr (← inferType mvar)}\nthe rejected candidate value{indentExpr v}\nis not definitionally equal to the synthesized instance{indentExpr inst}\nWorkaround: `set_option backward.isDefEq.respectTransparency.instanceSearchTypes false`"
+      return false
 
 private def checkTypesAndAssign (mvar : Expr) (v : Expr) : MetaM Bool :=
   withTraceNodeBefore `Meta.isDefEq.assign.checkTypes (fun _ => return m!"({mvar} : {← inferType mvar}) := ({v} : {← inferType v})") do
     if !mvar.isMVar then
       trace[Meta.isDefEq.assign.checkTypes] "metavariable expected"
       return false
+    if (← mvar.mvarId!.isInstanceTyped) && (← getOptionFlags).respectTransparencyInstanceSearchTypes then
+      -- The value assigned to an instance-typed metavariable must have the expected type up to
+      -- instance transparency: either the candidate value `v` already is such a value, or we
+      -- synthesize the instance now and require the candidate to be definitionally equal to the
+      -- result.
+      -- We also fall back to synthesis if `v`'s type could change after the assignment
+      -- of metavariables contained in it.
+      -- See `tests/elab/9077.lean` for examples that show the necessity of this behavior.
+      let v ← instantiateMVars v
+      if (← spineMVarsAdmissible v) then
+        let mvarType ← inferType mvar
+        let vType ← inferType v
+        if (← checkTypesForInstanceTypedMVarAssignment mvarType vType v) then
+          mvar.mvarId!.assign v
+          return true
+      synthInstanceTypedMVarAndUnify mvar v
     else
       -- must check whether types are definitionally equal or not, before assigning and returning true
       let mvarType ← inferType mvar
@@ -1445,7 +1618,7 @@ private def isNonTrivialRegular (info : DefinitionVal) : MetaM Bool := do
          only applies there. At higher transparency levels, the normal unfolding behavior is
          sufficient, and running the heuristic adds overhead without benefit.
          See https://github.com/leanprover/lean4/pull/12650 -/
-      return projInfo.fromClass && backward.whnf.reducibleClassField.get (← getOptions) && (← getTransparency) == .reducible
+      return projInfo.fromClass && (← getOptionFlags).reducibleClassField && (← getTransparency) == .reducible
     return false
   | .opaque => return false
 where
@@ -1758,7 +1931,7 @@ private def etaEq (t s : Expr) : Bool :=
   performance foot-gun. Users can use the backward compatibility flag to restore the old behavior.
 -/
 private def withProofIrrelTransparency (k : MetaM α) : MetaM α := do
-  if backward.isDefEq.respectTransparency.get (← getOptions) then
+  if (← getOptionFlags).respectTransparency then
     k
   else
     withInferTypeConfig k
@@ -2112,7 +2285,7 @@ private def isDefEqProj : Expr → Expr → MetaM Bool
     if (← read).inTypeClassResolution then
       -- See comment at `inTypeClassResolution`
       pure (i == j && m == n) <&&> isDefEqStructArgs (Meta.isExprDefEqAux t s)
-    else if !backward.isDefEq.lazyProjDelta.get (← getOptions) then
+    else if !(← getOptionFlags).lazyProjDelta then
       pure (i == j && m == n) <&&> isDefEqStructArgs (Meta.isExprDefEqAux t s)
     else if i == j && m == n then
       isDefEqStructArgs (isDefEqProjDelta t s i)
@@ -2161,32 +2334,60 @@ where
 
 /--
   Given applications `t` and `s` that are in WHNF (modulo the current transparency setting),
-  check whether they are definitionally equal or not.
+  check whether they are definitionally equal or not by comparing functions and arguments.
+  On failure, the caller is responsible for invoking `isDefEqAppFallback`.
 -/
 private def isDefEqApp (t s : Expr) : MetaM Bool := do
   let tFn := t.getAppFn
   let sFn := s.getAppFn
   if tFn.isConst && sFn.isConst && tFn.constName! == sFn.constName! then
     /- See comment at `tryHeuristic` explaining why we process arguments before universe levels. -/
-    if (← checkpointDefEq (isDefEqArgs tFn t.getAppArgs s.getAppArgs <&&> isListLevelDefEqAux tFn.constLevels! sFn.constLevels!)) then
-      return true
-    else
-      isDefEqOnFailure t s
-  else if (← checkpointDefEq (Meta.isExprDefEqAux tFn s.getAppFn <&&> isDefEqArgs tFn t.getAppArgs s.getAppArgs)) then
-    return true
+    checkpointDefEq (isDefEqArgs tFn t.getAppArgs s.getAppArgs <&&> isListLevelDefEqAux tFn.constLevels! sFn.constLevels!)
   else
-    isDefEqOnFailure t s
+    checkpointDefEq (Meta.isExprDefEqAux tFn s.getAppFn <&&> isDefEqArgs tFn t.getAppArgs s.getAppArgs)
 
-/-- Return `true` if the type of the given expression is an inductive datatype with a single constructor with no fields. -/
+@[inline] private def cachedUnitLike? (key : ExprConfigCacheKey) : MetaM (Option Bool) := do
+  return (← get).cache.isUnitLike.find? key
+
+private def cacheUnitLike (key : ExprConfigCacheKey) (b : Bool) : MetaM Bool := do
+  modify fun s => { s with cache.isUnitLike := s.cache.isUnitLike.insert key b }
+  return b
+
+/-- Takes a type of the form `A1 -> ... -> An-> I As`, checks that `I` is a (non-recursive) structure, and that each (instantiated) fields is itself either a proposition or a unit-like type-/
+private partial def isUnitLikeType (e : Expr) : MetaM Bool :=
+  forallTelescopeReducing (whnfType := true) e fun _ tType => do
+    let hd := tType.getAppFn
+    matchConstNonRecStructure hd (fun _ => pure false) fun _ _ ctorVal => do
+      unless ← useEtaStruct ctorVal.induct do
+        return false
+      let ctorType := ctorVal.type
+          |>.instantiateLevelParams ctorVal.levelParams hd.constLevels!
+          -- `tType` is a structure, and in particular has no indices. Furthermore, it is a type, so `tType.getAppNumArgs = (← getConstInfoInduct ctorVal.induct).numParams`
+          |>.getForallBodyMaxDepth tType.getAppNumArgs
+          |>.instantiateRev tType.getAppArgs
+      forallTelescope ctorType fun xs _ =>
+        xs.allM fun e => do
+          let ty ← e.fvarId!.getType
+          isProp ty <||> isUnitLikeType ty
+
+/--
+  Return `true` if the types of the given expressions is a non-recursive, non-indexed inductive datatype
+  with a single constructor for which all fields are unit-like or Prop types,
+  or a dependent arrow for which the codomain is unit-like.
+-/
 private def isDefEqUnitLike (t : Expr) (s : Expr) : MetaM Bool := do
-  let tType ← whnf (← inferType t)
-  matchConstNonRecStructure tType.getAppFn (fun _ => return false) fun _ _ ctorVal => do
-    if ctorVal.numFields != 0 then
-      return false
-    else if (← useEtaStruct ctorVal.induct) then
-      Meta.isExprDefEqAux tType (← inferType s)
+  let tType ← inferType t
+  let useCache := !tType.hasFVar && !tType.hasExprMVar && (← read).customCanUnfoldPredicate?.isNone
+  let isUnit ←
+    if useCache then do
+      let key ← mkExprConfigCacheKey tType
+      match (← cachedUnitLike? key) with
+      | some b => pure b
+      | none => cacheUnitLike key (← isUnitLikeType tType)
     else
-      return false
+      isUnitLikeType tType
+  if !isUnit then return false
+  Meta.isExprDefEqAux tType (← inferType s)
 
 /--
   The `whnf` procedure has support for unfolding class projections when the
@@ -2202,6 +2403,51 @@ private def isDefEqProjInst (t : Expr) (s : Expr) : MetaM LBool := do
   else
     return .undef
 
+/--
+The special cases tried *after* the main `isExprDefEqExpensive` machinery has failed, as opposed
+to the early ones (`isDefEqNat`, `isDefEqOffset`).
+
+`.false` means one of them decided the terms are *not* definitionally equal, and must not be read
+as "declined". `.undef` means they all declined — note that `isDefEqUnitLike` returning `false`
+is a decline (the rule does not apply), not a negative verdict, hence `.undef`.
+-/
+private def isDefEqLateSpecialCases (t s : Expr) : MetaM LBool := do
+  match (← isDefEqProjInst t s) with
+  | .undef =>
+    match (← isDefEqStringLit t s) with
+    | .undef => return if (← isDefEqUnitLike t s) then .true else .undef
+    | r      => return r
+  | r => return r
+
+/--
+Fallback for a failing comparison of two applications; see `backward.isDefEq.throwOnStuckAfterApp`
+for the two behaviors.
+
+In the new behavior, `isDefEqOnFailure` runs before `isDefEqLateSpecialCases` because those
+unfold the class projections that `getStuckMVar?` needs to see.
+When `isDefEqOnFailure` throws a stuck exception, one of the late special cases may
+still close the goal, so the exception is suppressed and re-thrown only if the special cases don't
+succeed.
+
+See `tests/elab/isDefEqProjInstWithMVar.lean` for an example that fails with the old behavior.
+-/
+private def isDefEqAppFallback (t : Expr) (s : Expr) : MetaM Bool := do
+  if (← getOptionFlags).throwOnStuckAfterApp then
+    if (← isDefEqOnFailure t s) then return true
+    whenUndefDo (isDefEqLateSpecialCases t s) do
+    isDefEqOnFailure t s
+  else
+    let saved ← saveState
+    -- `none` records a deferred `isDefEqStuck`
+    let r? ← catchInternalId isDefEqStuckExceptionId (some <$> isDefEqOnFailure t s) fun _ => do
+      saved.restore
+      return none
+    if r? == some true then return true
+    if (← isDefEqLateSpecialCases t s) matches .true then return true
+    if r?.isNone then
+      Meta.throwIsDefEqStuck
+    return false
+
 private def isExprDefEqExpensive (t : Expr) (s : Expr) : MetaM Bool := do
   whenUndefDo (isDefEqEta t s) do
   whenUndefDo (isDefEqEta s t) do
@@ -2211,7 +2457,6 @@ private def isExprDefEqExpensive (t : Expr) (s : Expr) : MetaM Bool := do
   if t != t' || s != s' then
     Meta.isExprDefEqAux t' s'
   else
-    whenUndefDo (isDefEqNative t s) do
     whenUndefDo (isDefEqNat t s) do
     whenUndefDo (isDefEqOffset t s) do
     whenUndefDo (isDefEqDelta t s) do
@@ -2223,12 +2468,11 @@ private def isExprDefEqExpensive (t : Expr) (s : Expr) : MetaM Bool := do
       return true
     if t.isConst && s.isConst then
       if t.constName! == s.constName! then isListLevelDefEqAux t.constLevels! s.constLevels! else return false
-    else if (← pure t.isApp <&&> pure s.isApp <&&> isDefEqApp t s) then
-      return true
+    else if (← pure t.isApp <&&> pure s.isApp) then
+      if (← isDefEqApp t s) then return true
+      isDefEqAppFallback t s
     else
-      whenUndefDo (isDefEqProjInst t s) do
-      whenUndefDo (isDefEqStringLit t s) do
-      if (← isDefEqUnitLike t s) then return true else
+      whenUndefDo (isDefEqLateSpecialCases t s) do
       isDefEqOnFailure t s
 
 inductive DefEqCacheKind where
@@ -2275,7 +2519,7 @@ private def cacheResult (keyInfo : DefEqCacheKeyInfo) (result : Bool) : MetaM Un
     modifyDefEqTransientCache fun c => c.insert key result
 
 private def whnfCoreAtDefEq (e : Expr) : MetaM Expr := do
-  if backward.isDefEq.lazyWhnfCore.get (← getOptions) then
+  if (← getOptionFlags).lazyWhnfCore then
     withConfig (fun ctx => { ctx with proj := .yesWithDeltaI }) <| whnfCore e
   else
     whnfCore e
@@ -2284,7 +2528,8 @@ set_option compiler.ignoreBorrowAnnotation true in
 @[export lean_is_expr_def_eq]
 partial def isExprDefEqAuxImpl (t : Expr) (s : Expr) : MetaM Bool := withIncRecDepth do
   withTraceNodeBefore `Meta.isDefEq (fun _ => do
-    if trace.Meta.isDefEq.printTransparency.get (← getOptions) then
+    -- unrestricted: trace collection only
+    if trace.Meta.isDefEq.printTransparency.get (← getOptionsUnrestricted) then
       return m!"[{toString (← getTransparency)}] {t} =?= {s}"
     else
       return m!"{t} =?= {s}") do

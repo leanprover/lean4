@@ -49,6 +49,11 @@ structure State where
   found     : NameSet := {}
   /-- Pattern variables found so far as an array. It contains the order they were found. -/
   vars      : Array PatternVar := #[]
+  /--
+  `choice` nodes that the collector resolved on its own. Only `collectPatternVars` pushes these
+  into the `InfoTree`; the entry points that merely extract pattern variables discard them.
+  -/
+  choiceResolutions : Array ChoiceResolutionInfo := #[]
   deriving Inhabited
 
 abbrev M := StateRefT State TermElabM
@@ -282,16 +287,15 @@ partial def collect (stx : Syntax) : M Syntax := withRef stx <| withFreshMacroSc
   else if k == ``Lean.Parser.Term.quotedName || k == ``Lean.Parser.Term.doubleQuotedName then
     return stx
   else if k == choiceKind then
-    /- Remark: If there are `Term.structInst` alternatives, we keep only them. This is a hack to get rid of
+    let args := stx.getArgs
+    /- Remark: If there is a `Term.structInst` alternative, we resolve the `choice` node to it. This is a hack to get rid of
        Set-like notation in patterns. Recall that in Mathlib `{a, b}` can be a set with two elements or the
        structure instance `{ a := a, b := b }`. Possible alternative solution: add a `pattern` category, or at least register
-       the `Syntax` node kinds that are allowed in patterns. -/
-    let args :=
-      let args := stx.getArgs
-      if args.any (·.isOfKind ``Parser.Term.structInst) then
-        args.filter (·.isOfKind ``Parser.Term.structInst)
-      else
-        args
+       the `Syntax` node kinds that are allowed in patterns.
+       Only one parser produces `Term.structInst`, so a `choice` node has at most one such alternative. -/
+    if let some idx := args.findIdx? (·.isOfKind ``Parser.Term.structInst) then
+      modify fun s => { s with choiceResolutions := s.choiceResolutions.push { stx, chosenAltIdx := idx } }
+      return ← collect args[idx]!
     let stateSaved ← get
     let arg0 ← collect args[0]!
     let stateNew ← get
@@ -302,6 +306,8 @@ partial def collect (stx : Syntax) : M Syntax := withRef stx <| withFreshMacroSc
       unless samePatternsVariables stateSaved.vars.size stateNew (← get) do
         throwError "Invalid pattern: Overloaded notation is only allowed when all alternatives have the same set of pattern variables"
     set stateNew
+    -- The alternatives are rewritten one-to-one, so `chosenAltIdx` of a `ChoiceResolutionInfo`
+    -- for this node is also a valid index into the alternatives of the original node.
     return mkNode choiceKind argsNew
   else match stx with
   | `({ $[$srcs?,* with]? $fields,* $[..%$ell?]? $[: $ty?]? }) =>
@@ -431,6 +437,8 @@ It also returns the updated views.
 -/
 def collectPatternVars (alt : MatchAltView k) : TermElabM (Array PatternVar × MatchAltView k) := do
   let (alt, s) ← (CollectPatternVars.main alt).run {}
+  for info in s.choiceResolutions do
+    pushInfoLeaf <| .ofChoiceResolutionInfo info
   return (s.vars, alt)
 
 /--

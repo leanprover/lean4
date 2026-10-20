@@ -12,11 +12,7 @@ axiom otherPair : Σ n : Nat, Fin (n + 1)
 
 example : otherPair.1 = 5 := by cbv
 
-/--
-error: unsolved goals
-⊢ otherPair.2.1 = 3
--/
-#guard_msgs in
+
 example : otherPair.2.val = 3 := by cbv
 
 -- Custom structure with a dependent field
@@ -30,11 +26,7 @@ axiom opaquePkg : DepPkg
 
 example : opaquePkg.n = 5 := by cbv
 
-/--
-error: unsolved goals
-⊢ opaquePkg.2.1 = 3
--/
-#guard_msgs in
+
 example : opaquePkg.val.val = 3 := by cbv
 
 -- Subtype: .val is non-dependent, so the rewrite goes through

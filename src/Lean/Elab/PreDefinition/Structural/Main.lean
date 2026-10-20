@@ -94,6 +94,9 @@ private def elimMutualRecursion (preDefs : Array PreDefinition) (fixedParamPerms
       FArgs.mapIdxM fun idx fArg => do
         let fName := preDefs[idx]!.declName ++ `_f
         let fValue ← eraseRecAppSyntaxExpr (← mkLambdaFVars xs fArg)
+        -- With `Elab.async`, the kernel error would be reported too late to fall back to
+        -- well-founded recursion.
+        ensureNoRecFn (preDefs.map (·.declName)) fValue
         let fType ← Meta.letToHave (← inferType fValue)
         let fHeight := getMaxHeight (← getEnv) fValue
         addDecl (.defnDecl {

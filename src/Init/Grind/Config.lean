@@ -109,6 +109,23 @@ structure Config where
   -/
   zeta := true
   /--
+  When `true`, the normalizer distributes multiplication over addition and expands powers of
+  sums: `x * (y + 1)` becomes `x * y + x`. When `false` (default: `false`), such products and
+  powers are kept as atoms, and only products with a constant factor are expanded. Linear
+  arithmetic procedures treat nonlinear terms as atoms, so keeping them unexpanded preserves
+  equalities such as `x * (y + 1) = x * z` after `y + 1 = z` is derived.
+  -/
+  distrib := false
+  /--
+  The normalizer puts arithmetic terms in normal form only over types whose characteristic is
+  unknown or at most `maxChar` (default: `0`, i.e., characteristic zero such as `Nat`, `Int`, and
+  `Rat`). Over a type with a larger characteristic, such as `UInt64` or `BitVec 64`, coefficients
+  are reduced modulo the characteristic, so `x - y` would become `x + 18446744073709551615 * y`,
+  which hides the subtraction from rewrite rules and from the translation of `BitVec`/`UIntN`
+  terms into `Nat`. Such terms are left as written.
+  -/
+  maxChar : Nat := 0
+  /--
   When `true` (default: `true`), uses procedure for handling equalities over commutative rings.
   This solver also support commutative semirings, fields, and normalizer non-commutative rings and
   semirings.
@@ -142,6 +159,13 @@ structure Config where
   When the threshold is reached, the search is interrupted, and the solver becomes incomplete.
   -/
   liaSteps : Nat := 10000
+  /--
+  When `true` (default: `true`), applies the `[grind hom]` homomorphism rules and
+  `[grind hom_pred]` predicates during internalization. Homomorphism rules translate
+  terms from a source domain into a target domain that has a dedicated solver (e.g.,
+  `UInt8` operations into `Nat` arithmetic via `BitVec`).
+  -/
+  hom := true
   /--
   When `true` (default: `true`), uses procedure for handling associative (and commutative) operators.
   -/

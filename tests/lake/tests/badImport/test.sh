@@ -12,7 +12,7 @@ source ../common.sh
 
 # Test that library builds report bad imports
 test_err "module imports itself" build Lib:static
-test_err "Lib: some modules have bad imports" build Lib
+test_err "Lib: some modules have bad imports or could not be read" build Lib
 
 # Test a module with a bad import does not kill the whole build
 test_err "Building Etc" build Lib.U Etc

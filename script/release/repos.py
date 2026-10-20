@@ -1,5 +1,7 @@
 from argparse import ArgumentParser
+from pathlib import Path
 
+import util
 from util import ReleaseRepo
 
 ALL: list[ReleaseRepo] = []
@@ -202,6 +204,9 @@ MATHLIB4 = ReleaseRepo(
     rc1_pr_base="bump",
     release_tag="lean",
     stable_branch="stable",
+    # There needs to be a tagged release for patch releases so that the mathlib
+    # cache is available for the new toolchain.
+    patch_release=True,
     strong_deps=[BATTERIES, QUOTE4, AESOP, PROOFWIDGETS4, IMPORT_GRAPH, PLAUSIBLE],
 )
 _register(MATHLIB4)
@@ -224,6 +229,10 @@ CSLIB = ReleaseRepo(
     rc1_pr_base="bump",
     release_tag="lean",
     stable_branch="stable",
+    # If there's a tagged mathlib patch release, there should be an equivalent
+    # tagged cslib release with bumped mathlib. All the other deps should stay
+    # the same.
+    patch_release=True,
     strong_deps=[MATHLIB4],
 )
 _register(CSLIB)
@@ -393,6 +402,10 @@ DOC_GEN4 = ReleaseRepo(
     github=("leanprover", "doc-gen4"),
     rc1_pr_base="downstream",
     release_tag="lean",
+    # https://github.com/leanprover-community/docgen-action/ uses the toolchain
+    # version to determine the doc-gen4 version to use, so there needs to be a
+    # tagged release for patch releases as well.
+    patch_release=True,
     strong_deps=[BIBTEX_QUERY, LEAN4_UNICODE_BASIC, LEAN4_CLI, LEANSQLITE],
     # Doc-gen4 shouldn't lag behind mathlib if possible because of downstream
     # users, and doc-gen4 benchmarks failing for a short while is an acceptable
@@ -503,13 +516,14 @@ def print_all_urls() -> None:
         print(f"- {repo.gh_url}")
 
 
-def clone_all_repos() -> None:
+def clone_all_repos(repos_dir: Path) -> None:
     for repo in ALL:
         print(f"Cloning {repo.gh_full_name}...")
-        repo.local.prepare()
+        repo.local(repos_dir).prepare()
 
 
 class Args:
+    repos_dir: Path | None
     graph: bool
     prune: bool
     no_weak: bool
@@ -520,6 +534,7 @@ class Args:
 
 if __name__ == "__main__":
     parser = ArgumentParser()
+    parser.add_argument("-d", "--repos-dir", type=Path)
     parser.add_argument("-g", "--graph", action="store_true")
     parser.add_argument("-p", "--prune", action="store_true")
     parser.add_argument("-W", "--no-weak", action="store_true")
@@ -527,6 +542,7 @@ if __name__ == "__main__":
     parser.add_argument("-u", "--urls", action="store_true")
     parser.add_argument("-c", "--clone", action="store_true")
     args = parser.parse_args(namespace=Args())
+    repos_dir = util.get_repos_dir(args.repos_dir)
 
     if args.graph:
         print_graphviz_dot(
@@ -537,4 +553,4 @@ if __name__ == "__main__":
         print_all_urls()
 
     if args.clone:
-        clone_all_repos()
+        clone_all_repos(repos_dir)

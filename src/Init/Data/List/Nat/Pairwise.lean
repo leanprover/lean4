@@ -63,20 +63,6 @@ theorem sublist_eq_map_getElem {l l' : List α} (h : l' <+ l) : ∃ is : List (F
     set_option backward.isDefEq.respectTransparency false in
     simp [Function.comp_def, pairwise_map, IH, ← get_eq_getElem, get_cons_zero, get_cons_succ']
 
-set_option linter.listVariables false in
-theorem pairwise_iff_getElem {l : List α} : Pairwise R l ↔
-    ∀ (i j : Nat) (_hi : i < l.length) (_hj : j < l.length) (_hij : i < j), R l[i] l[j] := by
-  rw [pairwise_iff_forall_sublist]
-  constructor <;> intro h
-  · intro i j hi hj h'
-    apply h
-    simpa [h'] using map_getElem_sublist (is := [⟨i, hi⟩, ⟨j, hj⟩])
-  · intro a b h'
-    have ⟨is, h', hij⟩ := sublist_eq_map_getElem h'
-    rcases is with ⟨⟩ | ⟨a', ⟨⟩ | ⟨b', ⟨⟩⟩⟩ <;> simp at h'
-    rcases h' with ⟨rfl, rfl⟩
-    apply h; simpa using! hij
-
 /-- The list `List.finRange n` is strictly increasing. -/
 theorem pairwise_lt_finRange (n : Nat) : Pairwise (· < ·) (finRange n) := by
   rw [pairwise_iff_getElem]
@@ -111,7 +97,7 @@ theorem Nodup.idxOf_getElem [BEq α] [LawfulBEq α] {xs : List α} (H : Nodup xs
       have hne : (a == l[j]) = false := by
         rw [beq_eq_false_iff_ne]
         exact fun hc => H.1 (hc ▸ getElem_mem hj)
-      rw [getElem_cons_succ, idxOf_cons, hne, cond_false, ih H.2 j hj]
+      simp [getElem_cons_succ, idxOf_cons, hne, ih H.2 j hj]
 
 grind_pattern Nodup.idxOf_getElem => Nodup xs, idxOf (xs[i]'h) xs
 

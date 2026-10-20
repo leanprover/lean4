@@ -86,10 +86,10 @@ v___jp_8_:
 {
 lean_object* v___x_12_; lean_object* v___x_13_; 
 v___x_12_ = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(v___x_12_, 0, v___y_10_);
+lean_ctor_set(v___x_12_, 0, v___y_9_);
 lean_ctor_set(v___x_12_, 1, v___y_11_);
 v___x_13_ = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(v___x_13_, 0, v___y_9_);
+lean_ctor_set(v___x_13_, 0, v___y_10_);
 lean_ctor_set(v___x_13_, 1, v___x_12_);
 return v___x_13_;
 }
@@ -129,8 +129,8 @@ if (v___x_31_ == 0)
 {
 uint8_t v___x_32_; 
 v___x_32_ = 2;
-v___y_15_ = v_root_26_;
-v___y_16_ = v___y_21_;
+v___y_15_ = v___y_21_;
+v___y_16_ = v_root_26_;
 v___y_17_ = v___x_32_;
 goto v___jp_14_;
 }
@@ -138,8 +138,8 @@ else
 {
 uint8_t v___x_33_; 
 v___x_33_ = 0;
-v___y_15_ = v_root_26_;
-v___y_16_ = v___y_21_;
+v___y_15_ = v___y_21_;
+v___y_16_ = v_root_26_;
 v___y_17_ = v___x_33_;
 goto v___jp_14_;
 }
@@ -149,8 +149,8 @@ else
 lean_object* v___x_34_; 
 lean_dec(v_rem_28_);
 v___x_34_ = lean_box(0);
-v___y_9_ = v_root_26_;
-v___y_10_ = v___y_21_;
+v___y_9_ = v___y_21_;
+v___y_10_ = v_root_26_;
 v___y_11_ = v___x_34_;
 goto v___jp_8_;
 }
@@ -241,11 +241,13 @@ return v_res_62_;
 }
 lean_object* runtime_initialize_Init_Data_Float_Model_Unpacked_Round(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Nat_Sqrt_Basic(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Init_Data_Float_Model_Unpacked_Operations_Sqrt(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Init_Data_Float_Model_Unpacked_Round(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

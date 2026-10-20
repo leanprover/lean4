@@ -1,0 +1,260 @@
+/-
+Copyright (c) 2026 Lean FRO LLC. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Sebastian Graf, Vladimir Gladshtein
+-/
+module
+
+prelude
+public import Lean.Elab.Tactic.VCGen.Context
+public import Lean.Elab.Tactic.VCGen.RuleCache
+public import Lean.Elab.Tactic.VCGen.Util
+public import Lean.Meta.Sym.Util
+public import Lean.Meta.Tactic.Replace
+public import Std.WP
+import Lean.Meta.Sym.InferType
+import Lean.Meta.Sym.InstantiateMVarsS
+import Lean.Meta.Sym.AbstractS
+import Lean.Meta.Sym.MaxFVar
+import Lean.Meta.Sym.InstantiateS
+import Init.Sym.Lemmas
+
+open Lean Meta Elab Tactic Sym Sym.Internal
+open Lean.Elab.Tactic.VCGen.SpecAttr
+open Lean.Elab.Tactic.VCGen
+open Std.WP Lean.Order
+
+/-!
+Entailment-shaped goal decomposition for `pre ⊑ rhs` targets: unfolding `Triple`,
+introducing excess state arguments and pure preconditions, reducing
+exception-postcondition projections, and decomposing lattice connectives.
+-/
+
+namespace Lean.Elab.Tactic.VCGen
+
+
+/-- Unfold `⦃P⦄ x ⦃Q; E⦄` into the underlying entailment `P ⊑ wp x Q E`. -/
+public def unfoldTriple (goal : MVarId) : VCGenM MVarId := do
+  let .goals [goal] ← (← read).backwardRules.tripleIntro.applyChecked goal
+    | throwError "Failed to unfold the Triple target of {goal}"
+  return goal
+
+/-- Decide whether `substEqHyp?` can substitute the equation `eqn` in the goal `eqn → G`.
+
+Consider this goal:
+```
+s  : Nat
+hs : 0 < s
+i  : Fin s
+⊢ s = 41 → P s
+```
+Here `eqn` is `s = 41` and `G` is `P s`. The result is `some (s, 41, P #0)`: the variable, its
+value, and `G` with `s` abstracted to `#0`. `substEqHyp?` then uses `fun y => P y` as the motive and
+continues with `s = 41 → P 41`.
+
+The result is `none` in these variations of the goal:
+* `G` is `P 0`. `s` does not occur in `G`, so there is nothing to substitute.
+* `eqn` is `s = s + 1`. `s` occurs in its own value.
+* `G` is `Q s i`. The motive `fun y => Q y i` is ill-typed, because `i : Fin s` mentions `s`. `G`
+  can mention `s`, but not a local whose type mentions `s`. Thus `G := P s` is fine although the type
+  of `hs` mentions `s`.
+* `s` is a `let` variable. -/
+def eqSubstCandidate? (eqn G : Expr) : VCGenM (Option (Expr × Expr × Expr)) := do
+  let eqn ← instantiateMVarsS eqn
+  let_expr Eq _ x t := eqn | return none
+  let .fvar fvarId := x | return none
+  let lctx ← getLCtx
+  let some decl := lctx.find? fvarId | return none
+  if decl.isLet || t.containsFVar fvarId then return none
+  -- The `maxFVar` entries of `G` let `abstractFVarsRange` skip the subterms without `x`.
+  let some maxFVarId ← getMaxFVar? G | return none
+  if (← maxFVarId.getDecl).index < decl.index then return none
+  let deps := lctx.foldl (start := decl.index + 1) (init := #[]) fun acc d =>
+    if d.type.containsFVar fvarId then acc.push d.toExpr else acc
+  -- The first `x` makes `xs[0]` the minimal variable, as `abstractFVarsRange` requires. The last
+  -- `x` maps `x` to `#0`. Each local in `deps` maps to an index of at least `1`, so
+  -- `looseBVarRange == 1` holds iff `G` mentions no local whose type mentions `x`.
+  let xs := (#[x] ++ deps).push x
+  let body ← abstractFVarsRange G 0 xs
+  unless body.looseBVarRange == 1 do return none
+  return some (x, t, body)
+
+/-- Whether the conjunction `φ` has a conjunct that `eqSubstCandidate?` accepts for `G`. -/
+partial def hasSubstConjunct (φ G : Expr) : VCGenM Bool := do
+  match_expr φ with
+  | And a b => hasSubstConjunct a G <||> hasSubstConjunct b G
+  | _ => return (← eqSubstCandidate? φ G).isSome
+
+/-- Curry the hypothesis `a ∧ b` of the goal `a ∧ b → G` into `a → b → G` when a conjunct is an
+equation that `substEqHyp?` substitutes. -/
+def splitConjHyp? (goal : MVarId) (target : Expr) (nm : Name) (φ G : Expr) :
+    VCGenM (Option MVarId) := do
+  let_expr And a b := φ | return none
+  unless ← hasSubstConjunct φ G do return none
+  let newTarget ← mkForallS nm .default a (← mkForallS nm .default b G)
+  let k ← liftMetaM <| mkFreshExprSyntheticOpaqueMVar newTarget
+  let andImp ← mkAppNS (← mkConstS ``and_imp) #[a, b, G]
+  goal.assign (← mkAppNS (← mkConstS ``Iff.mpr) #[target, newTarget, andImp, k])
+  return some k.mvarId!
+
+/-- Substitute `t` for `x` in `G` in the goal `x = t → G`, leaving `x = t → G[t/x]`. `x` stays in
+the local context. -/
+def substEqHyp? (goal : MVarId) (nm : Name) (eqn G : Expr) : VCGenM (Option MVarId) := do
+  let some (x, t, body) ← eqSubstCandidate? eqn G | return none
+  let α ← Sym.inferType x
+  let u ← Sym.getLevel α
+  let motive ← mkLambdaS (← x.fvarId!.getUserName) .default α body
+  let newTarget ← mkForallS nm .default eqn (← instantiateRevBetaS body #[t])
+  let k ← liftMetaM <| mkFreshExprSyntheticOpaqueMVar newTarget
+  goal.assign (← mkAppNS (← mkConstS ``Lean.Sym.imp_subst [u]) #[α, x, t, motive, k])
+  trace[Elab.Tactic.Do.vcgen] "subst: {x} := {t}"
+  return some k.mvarId!
+
+/-- Apply precondition-intro rule `rule` to `goal`, then introduce the freed hypothesis,
+leaving `⊤` as the residual precondition. Returns the new goal and the introduced hypothesis. -/
+public def introPre (rule : BackwardRule) (goal : MVarId) : VCGenM (MVarId × FVarId) := do
+  let .goals [goal] ← rule.applyChecked goal
+    | throwError "Failed to apply precondition intro rule to {goal}"
+  let mut goal := goal
+  let mut pending := 1
+  let mut last? : Option FVarId := none
+  while pending > 0 do
+    let target ← goal.getType
+    let .forallE nm φ G _ := target
+      | throwError "Failed to intro the lifted precondition of {goal}"
+    unless G.hasLooseBVars do
+      if let some g ← goal.withContext (splitConjHyp? goal target nm φ G) then
+        goal := g
+        pending := pending + 1
+        continue
+      if let some g ← goal.withContext (substEqHyp? goal nm φ G) then
+        goal := g
+    goal ← introsHygienicN goal 1
+    last? := (← goal.withContext getLCtx).lastDecl.map (·.fvarId)
+    pending := pending - 1
+  let some h := last? | throwError "Failed to intro the lifted precondition of {goal}"
+  return (goal, h)
+
+/--
+Reduce a `Prod.fst` projection of a concrete tuple on the RHS of `pre ⊑ rhs` to the component it
+selects. An exception postcondition is a tuple with one component per exception layer, so the head
+layer of `pre ⊑ eposts.fst` is a `Prod.fst` projection. `reduceHead?` performs the reduction, so a
+`.snd` chain below the projection and excess state arguments reduce in the same pass. Returns
+`none` if the RHS head is not `Prod.fst` or does not reduce; a `⊥`/`⊤` tuple falls through to the
+`Prod.fst` lattice split in `splitLatticeOp?`.
+-/
+public def headReduceFstRhs? (goal : MVarId) (target α inst pre rhs : Expr) :
+    VCGenM (Option MVarId) := do
+  unless rhs.isAppOf ``Prod.fst do return none
+  let some rhs' ← reduceHead? rhs | return none
+  let newTarget ← mkAppNS target.getAppFn #[α, inst, pre, rhs']
+  return some (← goal.replaceTargetDefEqFast newTarget)
+
+/-- Refold a meet upper adjoint `upperAdjoint (meet F) Q s⃗` on the RHS of `pre ⊑ rhs` to the Heyting
+implication `(F ⇨ Q) s⃗`, rewriting `goal` and returning it with its new RHS, so it decomposes through
+the clean pointwise `⇨` split instead of a generic frame for the excess state arguments. Returns `none` if the RHS is not a
+meet upper adjoint. -/
+def refoldHimpUpperAdjoint? (goal : MVarId) (rhs : Expr) :
+    VCGenM (Option (MVarId × Expr)) :=
+  rhs.withApp fun head args => do
+    unless head.isConstOf ``Lean.Order.PreservesSup.upperAdjoint do return none
+    let some slice := args[2]? | return none
+    unless slice.isAppOf ``Lean.Order.meet do return none
+    let some Q := args[3]? | return none
+    let rhs' := mkAppN (← mkAppM ``Lean.Order.himp #[slice.appArg!, Q]) (args.extract 4 args.size)
+    let target ← goal.getType
+    let newTarget := mkAppN target.getAppFn (target.getAppArgs.set! 3 rhs')
+    return some (← goal.replaceTargetDefEqFast newTarget, rhs')
+
+/--
+Decompose the head of the RHS of `pre ⊑ rhs` with its split in `latticeOps` or a registered
+`@[frameproc]` operator: saturate it with the split's rewrites, close it with its terminal, and
+build a frame for any excess state arguments. Returns `none` if no split applies.
+-/
+public def splitLatticeOp? (goal : MVarId) (rhs : Expr) :
+    VCGenM (Option (List MVarId)) := do
+  -- Refold a meet upper adjoint to `F ⇨ Q` up front, so the dispatch below takes the clean `⇨` path.
+  let (goal, rhs) := (← refoldHimpUpperAdjoint? goal rhs).getD (goal, rhs)
+  let some headName := rhs.getAppFn.constName? | return none
+  let some op := latticeOps[headName]? | return none
+  unless op.applies? rhs do return none
+  let rule ← mkLatticeOpRuleCached rhs op
+  match ← rule.applyChecked goal with
+  | .goals goals => return some goals
+  | .failed => return none
+
+/-- Decompose a `∀`/`→` on the RHS of `pre ⊑ (∀ x, q x)` via `le_forall`. -/
+public def splitForallLe? (goal : MVarId) (rhs : Expr) :
+    VCGenM (Option (List MVarId)) := do
+  unless rhs.isForall do return none
+  match ← (← read).backwardRules.forallIntro.applyChecked goal with
+  | .goals goals => return some goals
+  | .failed => return none
+
+/--
+Reduce a precondition that is the bare top applied to the state arguments introduced by
+`le_of_forall_le`, `(⊤ : σ₁ → … → σₙ → Prop) s₁ … sₙ`, to the bare `(⊤ : Prop)`, rewriting `goal`'s
+target `pre ⊑ rhs` to `⊤ ⊑ rhs`. The equation `pre = ⊤` is built on demand by folding
+`Lean.Order.top_apply` over the excess arguments and applied with `replaceTargetEq`.
+
+The proof term is built directly with `mkApp`/`mkConst` and instances extracted from `pre`, avoiding
+`mkAppM`/instance synthesis (both expensive and unable to unify `max`-of-universe-variable instance
+levels in the abstract-monad setting). Returns `none` if `pre` is not the bare top applied to ≥ 1
+argument, or its lattice instances are not in the expected `instCompleteLatticePi` shape (the caller
+then falls through).
+-/
+public def reduceTopAppliedPre? (goal : MVarId) (target pre : Expr) : SymM (Option MVarId) := do
+  unless pre.isAppOf ``Lean.Order.top && pre.getAppNumArgs > 2 do return none
+  let args := pre.getAppArgs
+  let some carrier := args[0]? | return none
+  let some instTop := args[1]? | return none
+  -- `base = @top carrier instTop`, the unapplied lifted top; `pre = base s₁ … sₙ`.
+  let base := mkApp2 pre.getAppFn carrier instTop
+  -- Fold `top_apply` over the excess arguments: `acc : base s₁ … sᵢ = (⊤ : …)`.
+  let mut acc := mkApp2 (mkConst ``Eq.refl [← Sym.getLevel carrier]) carrier base
+  let mut curTop := base   -- `base s₁ … sᵢ`, the LHS of `acc`
+  let mut curBare := base  -- `(⊤ : …)`, the RHS of `acc`
+  let mut curTy := carrier
+  let mut curCL := instTop
+  for x in args.extract 2 args.size do
+    let .forallE _ σ τ _ ← instantiateMVarsIfMVarAppS curTy | return none
+    if τ.hasLooseBVars then return none
+    unless curCL.isAppOf ``Lean.Order.instCompleteLatticePi do return none
+    let .lam _ _ τCL _ := curCL.appArg! | return none
+    let uσ ← Sym.getLevel σ
+    let uτ ← Sym.getLevel τ
+    -- `tfa : (⊤ : σ → τ) x = (⊤ : τ)`
+    let tfa := mkApp4 (mkConst ``Lean.Order.top_apply [← decLevel uσ, ← decLevel uτ]) σ τ τCL x
+    let some (_, _, newBare) := (← Sym.inferType tfa).eq? | return none
+    -- `cf : curTop x = curBare x` (congrFun acc x), then `acc : curTop x = newBare`.
+    let cf := mkApp6 (mkConst ``congrFun [uσ, uτ]) σ (.lam `x σ τ .default) curTop curBare acc x
+    acc := mkApp6 (mkConst ``Eq.trans [uτ]) τ (mkApp curTop x) (mkApp curBare x) newBare cf tfa
+    curTop := mkApp curTop x
+    curBare := newBare
+    curTy := τ
+    curCL := τCL
+  -- `acc : pre = (⊤ : Prop)`; lift through `· ⊑ rhs` and replace the target.
+  let relArgs := target.getAppArgs
+  let some α := relArgs[0]? | return none
+  let some inst := relArgs[1]? | return none
+  let some rhs := relArgs[3]? | return none
+  let uα ← Sym.getLevel α
+  -- `f := (· ⊑ rhs) : α → Prop`
+  let f := Expr.lam `p α (mkApp4 target.getAppFn α inst (.bvar 0) rhs) .default
+  let eqProof := mkApp6 (mkConst ``congrArg [uα, .succ .zero]) α (mkSort .zero) pre curBare f acc
+  let newTarget := mkApp4 target.getAppFn α inst curBare rhs
+  return some (← goal.replaceTargetEq newTarget eqProof)
+
+/-- Reduce a `Prop`-lattice goal `(⊤ : Prop) ⊑ φ` to the bare proposition `φ` via `top_le_prop`,
+returning any other goal unchanged. The match on `Sort 0` keeps it to the `Prop` base lattice,
+where the reduction is sound; entailments at an abstract lattice carrier pass through. -/
+public def elimTopPre (goal : MVarId) : VCGenM MVarId := do
+  let some (.sort .zero, _, pre, _) := (← goal.getType).app4? ``Lean.Order.PartialOrder.rel
+    | return goal
+  unless (← instantiateMVarsIfMVarAppS pre).isAppOf ``Lean.Order.top do return goal
+  let .goals [goal] ← (← read).backwardRules.elimPre.apply goal
+    | throwError "Failed to strip the `⊤ ⊑` wrapper of {goal}"
+  return goal
+
+
+end Lean.Elab.Tactic.VCGen

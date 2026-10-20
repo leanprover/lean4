@@ -79,6 +79,12 @@ set_option linter.coreInternal.internalModule false in -- User-facing builtin si
 builtin_dsimproc [simp, seval] reduceDiv ((_ / _ : Fin _)) := reduceBin ``HDiv.hDiv 6 (· / ·)
 set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
 builtin_dsimproc [simp, seval] reduceMod ((_ % _ : Fin _)) := reduceBin ``HMod.hMod 6 (· % ·)
+set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
+builtin_dsimproc [simp, seval] reducePow ((_ ^ _ : Fin _)) := fun e => do
+  let_expr HPow.hPow _ _ _ _ a k := e | return .continue
+  let some v ← fromExpr? a | return .continue
+  let some k ← getNatValue? k | return .continue
+  return .done <| toExpr (v.value ^ k)
 
 set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
 builtin_dsimproc [simp, seval] reduceAnd ((_ &&& _ : Fin _)) := reduceBin ``HAnd.hAnd 6 (· &&& ·)

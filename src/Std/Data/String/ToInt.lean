@@ -6,11 +6,14 @@ Authors: Julia Markus Himmel
 module
 
 prelude
-public import Init.Data.String.Slice
+public import Init.Data.String.Slice.Pattern
+public import Init.Data.String.Slice.Numeric
 public import Init.Data.String.Search
 public import Init.Data.ToString.Extra
 public import Init.Data.String.TakeDrop
-import all Init.Data.String.Slice
+import all Init.Data.String.Slice.Numeric
+import Init.Data.Option.Lemmas
+import Init.Omega
 import all Init.Data.String.Search
 import Std.Data.String.ToNat
 import Init.Data.String.Lemmas.Pattern.TakeDrop.Basic
@@ -180,7 +183,7 @@ namespace Int
 
 @[simp]
 public theorem toInt?_repr (a : Int) : a.repr.toInt? = some a := by
-  rw [repr_eq_if]
+  rw [repr_eq_ite]
   split <;> (simp; omega)
 
 @[simp]

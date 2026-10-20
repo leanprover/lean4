@@ -149,19 +149,10 @@ where
         let neutral ← instantiateExprMVars neutral
         /-
         **Note**: `Std.LawfulIdentity` instances may spell the identity element in a form
-        that is not in `grind` normal form. Example: the `BitVec` instances use `0#n`
-        (i.e., `BitVec.ofNat n 0`), but the `grind` normalizer represents bit-vector literals
-        using `OfNat.ofNat`. Internalizing a non-canonical literal violates the invariant that
-        interpreted nodes are canonical: `grind` assumes distinct interpreted nodes denote
-        distinct values (see `valueInconsistency` at `addEqStep`). We cannot `simp`-normalize
-        `neutral` here: the result would be only propositionally equal to the identity element
-        fixed by `identityInst`, and we need a definitionally equal term.
-        We hardcode the bit-vector case for now. **TODO**: fix this properly in a separate commit.
+        that is not in `grind` normal form (e.g., the `BitVec` instances use `0#n`), and we
+        need a term that is definitionally equal to the identity element fixed by
+        `identityInst`. `preprocessLight` canonicalizes literals (see `Sym.Canon.normNumLit?`).
         -/
-        let neutral ← if let some ⟨w, v⟩ ← getBitVecValue? neutral then
-          mkNumeral (mkApp (mkConst ``BitVec) (mkNatLit w)) v.toNat
-        else
-          pure neutral
         let neutral ← preprocessLight neutral
         internalize neutral (← getGeneration op)
         pure (some identityInst, some neutral)

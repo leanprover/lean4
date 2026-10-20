@@ -3,8 +3,6 @@ module
 import Std
 open Std Std.Do
 
-set_option mvcgen.warning false
-
 def isSorted (xs : Array Nat) : Bool := Id.run do
   if h : xs.size > 0 then
     let mut last := xs[0]

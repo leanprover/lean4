@@ -22,17 +22,17 @@ inductive State where
   | so
   | sp
 
-/-- info: Ex1.State.enumToBitVec✝ : State → BitVec 4 -/
+/-- info: Ex1.State.enumToBitVec : State → BitVec 4 -/
 #guard_msgs in
 #check State.enumToBitVec
 
 /--
-info: Ex1.State.eq_iff_enumToBitVec_eq✝ (x y : State) : x = y ↔ x.enumToBitVec = y.enumToBitVec
+info: Ex1.State.eq_iff_enumToBitVec_eq (x y : State) : x = y ↔ x.enumToBitVec = y.enumToBitVec
 -/
 #guard_msgs in
 #check State.eq_iff_enumToBitVec_eq
 
-/-- info: Ex1.State.enumToBitVec_le✝ (x : State) : x.enumToBitVec ≤ 15#4 -/
+/-- info: Ex1.State.enumToBitVec_le (x : State) : x.enumToBitVec ≤ 15#4 -/
 #guard_msgs in
 #check State.enumToBitVec_le
 
@@ -64,8 +64,8 @@ example (a : Pair) (h : a.x > 0) : a.s = .s2 := by
 
 /--
 error: The prover found a counterexample, consider the following assignment:
-x = 0#16
 s = State.s1
+x = 0#16
 -/
 #guard_msgs in
 example (x : BitVec 16) (s : State) (h1 : s = .s1 ↔ x = 0) (h : s = .s1) : x > 0 := by

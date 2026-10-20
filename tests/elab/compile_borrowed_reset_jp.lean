@@ -83,9 +83,9 @@ def testWithoutAnnotation (n : Nat) (p q : Prod Nat Nat) : Prod Nat Nat :=
   { helper with fst := value }
 
 /--
-trace: [Compiler.inferBorrow] own _x.28: result of ctor call _x.28
-[Compiler.inferBorrow] own _x.30: result of ctor call _x.30
-[Compiler.inferBorrow] own n: argument to constructor call _x.30
+trace: [Compiler.inferBorrow] own _x.29: result of ctor call _x.29
+[Compiler.inferBorrow] own _x.31: result of ctor call _x.31
+[Compiler.inferBorrow] own n: argument to constructor call _x.31
 [Compiler.inferBorrow] size: 2
     def testArrayWithAnnotation._closed_0 : obj :=
       let _x.1 := 0;
@@ -106,10 +106,10 @@ def testArrayWithAnnotation (n : Nat) (ps : @&Array (Nat × Nat)) : Nat × Nat :
   { pair with fst := n }
 
 /--
-trace: [Compiler.inferBorrow] own _x.28: used in reset reuse _x.28
-[Compiler.inferBorrow] own _x.29: used in reset reuse _x.28
-[Compiler.inferBorrow] own n: argument to constructor call _x.28
-[Compiler.inferBorrow] own pair: used in reset reuse _x.29
+trace: [Compiler.inferBorrow] own _x.29: used in reset reuse _x.29
+[Compiler.inferBorrow] own _x.30: used in reset reuse _x.29
+[Compiler.inferBorrow] own n: argument to constructor call _x.29
+[Compiler.inferBorrow] own pair: used in reset reuse _x.30
 [Compiler.inferBorrow] own snd: fwd projection propagation snd
 [Compiler.inferBorrow] size: 5
     def testArrayWithoutAnnotation n @&ps : obj :=
@@ -206,4 +206,3 @@ def arrayConstReader (x y : Nat) (ys : @Array Nat) : Nat :=
   let y := y + 1
   let y := y + 1
   arr[y]!
-

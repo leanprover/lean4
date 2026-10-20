@@ -1,0 +1,9 @@
+Input: "say \"hello\" now"
+Success! Final stack:
+  (Lean.Doc.Parser.Inline.text
+   (Lean.Doc.Parser.versoText
+    "say \"hello\" now"))
+All input consumed.
+Round-trip OK
+Decoded views:
+  text (content := "say \"hello\" now")

@@ -47,8 +47,8 @@ participate in `getLinterValue` like any user-declared set.
 -/
 builtin_initialize builtinLinterSetsRef : IO.Ref (Array (Name × NameSet)) ← IO.mkRef #[]
 
-/-- 
-  Register a builtin linter set entry. 
+/--
+  Register a builtin linter set entry.
   Only valid during initialization.
 -/
 def addBuiltinLinterSet (setName : Name) (linterNames : NameSet) : IO Unit := do

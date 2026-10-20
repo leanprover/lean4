@@ -6,15 +6,16 @@ Authors: Markus Himmel
 module
 
 prelude
-public import Init.Data.String.Slice
+public import Init.Data.String.Slice.Pattern
 public import Init.Data.String.Search
 public import Init.Data.String.Lemmas.Pattern.Basic
-import all Init.Data.String.Slice
+import all Init.Data.String.Slice.Pattern
 import all Init.Data.String.Search
 import Init.Data.Iterators.Lemmas.Consumers.Loop
 import Init.Data.String.Lemmas.Order
 import Init.Data.String.Lemmas.Basic
 import Init.Data.String.OrderInstances
+import Init.Data.Int.OfNat
 import Init.Grind
 
 public section

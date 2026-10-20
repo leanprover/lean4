@@ -190,7 +190,10 @@ def exponent (value : JsonNumber) : Parser JsonNumber := do
       else
         if c = '+' then skip
         let n ← natMaybeZero
-        if n > USize.size then fail "exp too large"
+        -- `shiftl` currently consumes time/memory linear in n,
+        -- and panics in `Nat.pow` for sufficiently large n.
+        -- This could be improved by supporting positive exponents in `JsonNumber`.
+        if n > 100_000 then fail "exponent too large"
         return value.shiftl n
     else
       return value
@@ -218,6 +221,7 @@ mutual
       Parser (Std.TreeMap.Raw String Json) := do
     lookahead (fun c => c == '"') "\""; skip;
     let k ← str; ws
+    if kvs.contains k then fail s!"duplicate object key {k.quote}"
     lookahead (fun c => c == ':') ":"; skip; ws
     let v ← anyCore
     let c ← any
@@ -283,6 +287,7 @@ end Json.Parser
 
 namespace Json
 
+/-- Parses a JSON value, surrounded by optional whitespace. Objects with duplicate keys are rejected. -/
 def parse (s : String) : Except String Lean.Json :=
   Parser.run Json.Parser.any s
 

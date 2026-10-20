@@ -69,6 +69,9 @@ private opaque evalReplacement (declName : Name) : CoreM Macro
 /-!
 A replacement term is parenthesized unless it parses the same wherever the deprecated syntax does,
 as the position of the deprecated syntax is unknown.
+
+We would like to use the parenthesizer here, but this would need the surrounding syntax, which
+we don't have access to, so we approximate it as best as we can.
 -/
 section ParenthesizeReplacement
 

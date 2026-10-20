@@ -855,24 +855,14 @@ info: macro "quoted_add" : term => ``((1 + 2))
 warning: quotation uses deprecated syntax 'oldAdd': use `+` instead
 
 Hint: Replace the deprecated syntax:
-  o̵l̵d̵_̵a̵d̵d̵ ̵2̵ ̵$̵x̵(̲2̲ ̲+̲ ̲$̲x̲)̲
+  o̵l̵d̵_̵a̵d̵d̵ ̵$̵x̵ ̵2̵(̲$̲x̲ ̲+̲ ̲2̲)̲
 
 Note: This linter can be disabled with `set_option linter.deprecated.syntax false`
 ---
-info: macro "quoted_add_antiquot " x:term:max : term => ``((2 + $x))
+info: macro "quoted_add_antiquot " x:term:max : term => ``(($x + 2))
 -/
 #guard_msgs in
-#apply_suggestions macro "quoted_add_antiquot " x:term:max : term => ``(old_add 2 $x)
-
--- The formatter cannot print antiquotations on the left of trailing syntax, so there is no
--- suggestion.
-/--
-warning: quotation uses deprecated syntax 'oldAdd': use `+` instead
-
-Note: This linter can be disabled with `set_option linter.deprecated.syntax false`
--/
-#guard_msgs in
-#apply_suggestions macro "quoted_add_antiquot_lhs " x:term:max : term => ``(old_add $x 2)
+#apply_suggestions macro "quoted_add_antiquot " x:term:max : term => ``(old_add $x 2)
 
 /--
 warning: quotation uses deprecated syntax 'oldAdd': use `+` instead

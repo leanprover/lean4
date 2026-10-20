@@ -2095,10 +2095,6 @@ extern "C" LEAN_EXPORT object * lean_mk_ascii_string_unchecked(char const * s) {
     return lean_mk_string_unchecked(s, len, len);
 }
 
-extern "C" LEAN_EXPORT obj_res lean_decode_lossy_utf8(b_obj_arg a) {
-    return lean_mk_string_from_bytes(reinterpret_cast<char *>(lean_sarray_cptr(a)), lean_sarray_size(a));
-}
-
 extern "C" LEAN_EXPORT obj_res lean_string_from_utf8_unchecked(obj_arg a) {
     obj_res ret = lean_mk_string_from_bytes_unchecked(reinterpret_cast<char *>(lean_sarray_cptr(a)), lean_sarray_size(a));
     lean_dec(a);
@@ -2110,10 +2106,11 @@ extern "C" LEAN_EXPORT uint8 lean_string_validate_utf8(b_obj_arg a) {
     return validate_utf8(lean_sarray_cptr(a), lean_sarray_size(a), pos, i);
 }
 
-extern "C" LEAN_EXPORT obj_res lean_string_to_utf8(b_obj_arg s) {
+extern "C" LEAN_EXPORT obj_res lean_string_to_utf8(obj_arg s) {
     size_t sz = lean_string_size(s) - 1;
     obj_res r = lean_alloc_sarray(1, sz, sz);
     memcpy(lean_sarray_cptr(r), lean_string_cstr(s), sz);
+    lean_dec(s);
     return r;
 }
 
@@ -2156,7 +2153,7 @@ extern "C" LEAN_EXPORT obj_res lean_copy_string_nonlinear(obj_arg s, size_t cap)
     return lean_copy_string(s, cap);
 }
 
-extern "C" LEAN_EXPORT object * lean_string_push(object * s, unsigned c) {
+extern "C" LEAN_EXPORT object * lean_string_push_cold(object * s, unsigned c) {
     size_t sz  = lean_string_size(s);
     object * r;
     if (!lean_is_exclusive(s)) {
@@ -2164,11 +2161,7 @@ extern "C" LEAN_EXPORT object * lean_string_push(object * s, unsigned c) {
     } else {
         r = string_ensure_capacity(s, 5);
     }
-    unsigned consumed = push_unicode_scalar(w_string_cstr(r) + sz - 1, c);
-    lean_to_string(r)->m_size   = sz + consumed;
-    lean_to_string(r)->m_length++;
-    w_string_cstr(r)[sz + consumed - 1] = 0;
-    return r;
+    return lean_string_push(r, c);
 }
 
 extern "C" LEAN_EXPORT object * lean_string_append(object * s1, object * s2) {
@@ -2208,6 +2201,13 @@ extern "C" LEAN_EXPORT bool lean_string_lt(object * s1, object * s2) {
     return r < 0 || (r == 0 && sz1 < sz2);
 }
 
+extern "C" LEAN_EXPORT bool lean_byte_array_lt(object * a1, object * a2) {
+    size_t sz1 = lean_sarray_size(a1);
+    size_t sz2 = lean_sarray_size(a2);
+    int r = std::memcmp(lean_sarray_cptr(a1), lean_sarray_cptr(a2), std::min(sz1, sz2));
+    return r < 0 || (r == 0 && sz1 < sz2);
+}
+
 // Constructor indices of `Ordering`: lt = 0, eq = 1, gt = 2.
 extern "C" LEAN_EXPORT uint8_t lean_string_compare(b_obj_arg s1, b_obj_arg s2) {
     size_t sz1 = lean_string_size(s1) - 1; // ignore null char in the end
@@ -2220,21 +2220,15 @@ extern "C" LEAN_EXPORT uint8_t lean_string_compare(b_obj_arg s1, b_obj_arg s2) {
     return 1;
 }
 
-static obj_res string_to_list_core(std::string const & s, bool reverse = false) {
-    std::vector<unsigned> tmp;
-    utf8_decode(s, tmp);
-    if (reverse)
-        std::reverse(tmp.begin(), tmp.end());
-    obj_res  r = lean_box_uint32(0);
-    unsigned i = tmp.size();
-    while (i > 0) {
-        --i;
-        obj_res new_r = lean_alloc_ctor(1, 2, 0);
-        lean_ctor_set(new_r, 0, lean_box_uint32(tmp[i]));
-        lean_ctor_set(new_r, 1, r);
-        r = new_r;
-    }
-    return r;
+extern "C" LEAN_EXPORT uint8_t lean_byte_array_compare(b_obj_arg a1, b_obj_arg a2) {
+    size_t sz1 = lean_sarray_size(a1);
+    size_t sz2 = lean_sarray_size(a2);
+    int r = std::memcmp(lean_sarray_cptr(a1), lean_sarray_cptr(a2), std::min(sz1, sz2));
+    if (r < 0) return 0;
+    if (r > 0) return 2;
+    if (sz1 < sz2) return 0;
+    if (sz1 > sz2) return 2;
+    return 1;
 }
 
 extern "C" LEAN_EXPORT obj_res lean_string_mk(obj_arg cs) {
@@ -2248,12 +2242,6 @@ extern "C" LEAN_EXPORT obj_res lean_string_mk(obj_arg cs) {
     }
     lean_dec(cs);
     return lean_mk_string_unchecked(s.data(), s.size(), len);
-}
-
-extern "C" LEAN_EXPORT obj_res lean_string_data(obj_arg s) {
-    std::string tmp = string_to_std(s);
-    lean_dec_ref(s);
-    return string_to_list_core(tmp);
 }
 
 static bool lean_string_utf8_get_core(char const * str, usize size, usize i, uint32 & result) {
@@ -2551,7 +2539,7 @@ extern "C" LEAN_EXPORT obj_res lean_string_of_usize(size_t n) {
     return mk_ascii_string_unchecked(std::to_string(n));
 }
 
-extern "C" LEAN_EXPORT uint8_t lean_string_memcmp(b_obj_arg s1, b_obj_arg s2, b_obj_arg lstart, b_obj_arg rstart, b_obj_arg len) {
+static int string_memcmp_core(b_obj_arg s1, b_obj_arg s2, b_obj_arg lstart, b_obj_arg rstart, b_obj_arg len) {
     // Thanks to the proof arguments we know that lstart, rstart and len are all scalars.
     lean_assert(lean_is_scalar(lstart));
     lean_assert(lean_is_scalar(rstart));
@@ -2559,7 +2547,23 @@ extern "C" LEAN_EXPORT uint8_t lean_string_memcmp(b_obj_arg s1, b_obj_arg s2, b_
 
     char const * lbase = lean_string_cstr(s1) + lean_unbox(lstart);
     char const * rbase = lean_string_cstr(s2) + lean_unbox(rstart);
-    return std::memcmp(lbase, rbase, lean_unbox(len)) == 0;
+    return std::memcmp(lbase, rbase, lean_unbox(len));
+}
+
+extern "C" LEAN_EXPORT uint8_t lean_string_memcmp(b_obj_arg s1, b_obj_arg s2, b_obj_arg lstart, b_obj_arg rstart, b_obj_arg len) {
+    return string_memcmp_core(s1, s2, lstart, rstart, len) == 0;
+}
+
+extern "C" LEAN_EXPORT uint8_t lean_string_memcmp_lt(b_obj_arg s1, b_obj_arg s2, b_obj_arg lstart, b_obj_arg rstart, b_obj_arg len) {
+    return string_memcmp_core(s1, s2, lstart, rstart, len) < 0;
+}
+
+// Constructor indices of `Ordering`: lt = 0, eq = 1, gt = 2.
+extern "C" LEAN_EXPORT uint8_t lean_string_memcmp_compare(b_obj_arg s1, b_obj_arg s2, b_obj_arg lstart, b_obj_arg rstart, b_obj_arg len) {
+    int r = string_memcmp_core(s1, s2, lstart, rstart, len);
+    if (r < 0) return 0;
+    if (r > 0) return 2;
+    return 1;
 }
 
 size_t lean_slice_size(b_obj_arg slice) {
@@ -2581,13 +2585,6 @@ extern "C" LEAN_EXPORT uint64_t lean_slice_hash(b_obj_arg s) {
     size_t sz = lean_slice_size(s);
     char const * str = lean_slice_base(s);
     return hash_str(sz, (unsigned char const *) str, 11);
-}
-
-extern "C" LEAN_EXPORT uint8_t lean_slice_dec_lt(object * s1, object * s2) {
-    size_t sz1 = lean_slice_size(s1);
-    size_t sz2 = lean_slice_size(s2);
-    int r = std::memcmp(lean_slice_base(s1), lean_slice_base(s2), std::min(sz1, sz2));
-    return r < 0 || (r == 0 && sz1 < sz2);
 }
 
 // =======================================

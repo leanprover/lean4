@@ -16,6 +16,14 @@ This inconsistency is problematic, as it may introduce mismatches and result in
 two different representations for the same term.
 
 The following table is used to bypass synthInstance for the builtin cases.
+
+Every builtin instance must be a fixpoint of `canon`. A builtin instance may be visited as a
+plain term, for example as a ground pattern argument of an E-matching theorem, and its
+instance-implicit arguments are then re-synthesized one by one. The table therefore also
+covers the component classes (e.g., `Pow Int Nat` and `NatPow Int` for `HPow Int Nat Int`).
+Otherwise a user instance with higher priority replaces the component, and the result is
+cached as the canonical form of the builtin instance, while the same instance in an
+instance-implicit position is still mapped to the builtin one.
 -/
 private def builtinInsts : Std.HashMap Expr Expr :=
   let nat := Nat.mkType
@@ -28,6 +36,13 @@ private def builtinInsts : Std.HashMap Expr Expr :=
     (mkApp3 (mkConst ``HDiv us) nat nat nat, Nat.mkInstHDiv),
     (mkApp3 (mkConst ``HMod us) nat nat nat, Nat.mkInstHMod),
     (mkApp3 (mkConst ``HPow us) nat nat nat, Nat.mkInstHPow),
+    (mkApp  (mkConst ``Add [0]) nat, Nat.mkInstAdd),
+    (mkApp  (mkConst ``Sub [0]) nat, Nat.mkInstSub),
+    (mkApp  (mkConst ``Mul [0]) nat, Nat.mkInstMul),
+    (mkApp  (mkConst ``Div [0]) nat, Nat.mkInstDiv),
+    (mkApp  (mkConst ``Mod [0]) nat, Nat.mkInstMod),
+    (mkApp2 (mkConst ``Pow [0, 0]) nat nat, Nat.mkInstPow),
+    (mkApp  (mkConst ``NatPow [0]) nat, Nat.mkInstNatPow),
     (mkApp  (mkConst ``LT [0]) nat, Nat.mkInstLT),
     (mkApp  (mkConst ``LE [0]) nat, Nat.mkInstLE),
 
@@ -37,6 +52,14 @@ private def builtinInsts : Std.HashMap Expr Expr :=
     (mkApp3 (mkConst ``HDiv us) int int int, Int.mkInstHDiv),
     (mkApp3 (mkConst ``HMod us) int int int, Int.mkInstHMod),
     (mkApp3 (mkConst ``HPow us) int nat int, Int.mkInstHPow),
+    (mkApp  (mkConst ``Add [0]) int, Int.mkInstAdd),
+    (mkApp  (mkConst ``Sub [0]) int, Int.mkInstSub),
+    (mkApp  (mkConst ``Mul [0]) int, Int.mkInstMul),
+    (mkApp  (mkConst ``Div [0]) int, Int.mkInstDiv),
+    (mkApp  (mkConst ``Mod [0]) int, Int.mkInstMod),
+    (mkApp2 (mkConst ``Pow [0, 0]) int nat, Int.mkInstPowNat),
+    (mkApp  (mkConst ``NatPow [0]) int, Int.mkInstPow),
+    (mkApp  (mkConst ``Neg [0]) int, Int.mkInstNeg),
     (mkApp  (mkConst ``LT [0]) int, Int.mkInstLT),
     (mkApp  (mkConst ``LE [0]) int, Int.mkInstLE),
   ]

@@ -476,7 +476,7 @@ def findEvenNumbers (arr : Array Int) : Id (Array Int)
   return result
 where finally
   | spec =>
-    case vc3 => sorry
+    case vc6 => sorry
     all_goals grind [Array.count_push, getElem!_push, count_extract_succ,
       Array.extract_size_self, -Array.extract_eq_pop, -Nat.min_def]
 
@@ -579,7 +579,7 @@ def ifPowerOfFour (n : Nat) : Id Bool
     return current = 1
 where finally
   | spec =>
-    case vc4 => sorry
+    case vc6 => sorry
     all_goals grind [isPowerOfFour_iff_div_four, Nat.lt_pow_self, Nat.pow_succ,
       -Array.extract_eq_pop, -Nat.min_def]
 
@@ -745,10 +745,10 @@ def mergeSorted (a1 : Array Nat) (a2 : Array Nat) : Id (Array Nat)
   return result
 where finally
   | spec =>
-    case vc3 => sorry
-    case vc4 => sorry
     case vc5 => sorry
     case vc6 => sorry
+    case vc7 => sorry
+    case vc8 => sorry
     all_goals grind [isSorted_le, isSorted_push', push_all_le, count_extract_succ,
       Array.extract_size_self, Array.count_push, getElem!_push_lt, getElem!_push_eq,
       -Array.extract_eq_pop, -Nat.min_def]

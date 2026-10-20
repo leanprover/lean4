@@ -29,13 +29,12 @@ deprecated_syntax.lean:77:0-77:12: warning: macro 'commandMyWrapperCmd' produces
 Note: This linter can be disabled with `set_option linter.deprecated.syntax false`
 42 : Nat
 42 : Nat
-deprecated_syntax.lean:84:0-84:39: warning: `deprecated_syntax` should specify the date or library version at which the deprecation was introduced, using `(since := "...")`
-deprecated_syntax.lean:95:30-95:38: warning: syntax 'termOldThing' has been deprecated: use `42` instead
+deprecated_syntax.lean:92:30-92:38: warning: syntax 'termOldThing' has been deprecated: use `42` instead
 
 Note: This linter can be disabled with `set_option linter.deprecated.syntax false`
-deprecated_syntax.lean:105:21-105:29: warning: syntax 'depRec' has been deprecated: use `trivial` instead
+deprecated_syntax.lean:102:21-102:29: warning: syntax 'depRec' has been deprecated: use `trivial` instead
 
 Note: This linter can be disabled with `set_option linter.deprecated.syntax false`
-deprecated_syntax.lean:110:21-110:32: warning: syntax 'depRec' has been deprecated: use `trivial` instead
+deprecated_syntax.lean:107:21-107:32: warning: syntax 'depRec' has been deprecated: use `trivial` instead
 
 Note: This linter can be disabled with `set_option linter.deprecated.syntax false`

@@ -25,7 +25,7 @@ open System Lean
 namespace Lake
 
 /- Cache for the imported header environment of Lake configuration files. -/
-private builtin_initialize importEnvCache :
+builtin_initialize importEnvCache :
   IO.Ref (Std.HashMap (Array Import) Environment) ← IO.mkRef {}
 
 /-- Like `importModules`, but fetch the resulting import state from the cache if possible. -/
@@ -42,7 +42,7 @@ public def importModulesUsingCache
 
 /-- Like `Lean.Elab.processHeader`, but using `importEnvCache`. -/
 -- TODO: Update to incorporate the module system
-private def processHeader
+def processHeader
   (header : TSyntax ``Parser.Module.header) (opts : Options)
   (inputCtx : Parser.InputContext) : StateT MessageLog IO Environment
 := do
@@ -94,7 +94,7 @@ set_option compiler.ignoreBorrowAnnotation true in
 `Lean.Environment`.
 -/
 @[extern "lake_environment_add"]
-private opaque addToEnv (env : Environment) (_ : ConstantInfo) : Environment
+opaque addToEnv (env : Environment) (_ : ConstantInfo) : Environment
 
 /--
 Import a configuration `.olean` (e.g., `lakefile.olean`).

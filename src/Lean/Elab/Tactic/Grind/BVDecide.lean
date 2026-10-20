@@ -45,14 +45,29 @@ open Meta.Tactic.BVDecide
     let cfg ← elabBVDecideConfig cfgStx g.mvarId `bv_decide?
     let types ← elabBVDecideTypes typesStx cfg
     let ctx ← BVDecide.BVTrace.mkContext cfg types
-    match ← liftGrindM <| BVDecide.BVTrace.evalBvTrace (.grindTarget g) ctx with
+    let trace ← liftGrindM <| BVDecide.BVTrace.evalBvTrace (.grindTarget g) ctx
+    let haves ← g.mvarId.withContext <| trace.lemmas.mapM fun lemma => do
+      let lemmaStx ← PrettyPrinter.delab lemma.hyp.type
+      let proofStx? ← lemma.grindProof
+      match proofStx? with
+      | none =>
+        `(grind| have : $lemmaStx)
+      | some proofStx =>
+        `(grind| have : $lemmaStx := by $(proofStx))
+    let withHaves (final : TSyntax `grind) : MetaM (TSyntax ``Parser.Tactic.Grind.grindSeq) := do
+      let steps ← (haves.push final).mapM fun t => `(Parser.Tactic.Grind.grindStep| $t:grind)
+      `(Parser.Tactic.Grind.grindSeq| $steps*)
+    match trace.action with
     | .normalize =>
       let normalizeStx ← `(grind| bv_normalize $cfgStx:optConfig $[$typesStx:bvTypes]?)
-      Meta.Tactic.TryThis.addSuggestion tk normalizeStx (origSpan? := ← getRef)
+      Meta.Tactic.TryThis.addSuggestion tk (← withHaves normalizeStx) (origSpan? := ← getRef)
     | .check lratFile =>
       let bvCheckStx ←
         `(grind| bv_check $cfgStx:optConfig $[$typesStx:bvTypes]? $(quote lratFile.toString))
-      Meta.Tactic.TryThis.addSuggestion tk bvCheckStx (origSpan? := ← getRef)
+      Meta.Tactic.TryThis.addSuggestion tk (← withHaves bvCheckStx) (origSpan? := ← getRef)
+    | .decide =>
+      let bvDecideStx ← `(grind| bv_decide $cfgStx:optConfig $[$typesStx:bvTypes]?)
+      Meta.Tactic.TryThis.addSuggestion tk (← withHaves bvDecideStx) (origSpan? := ← getRef)
     replaceMainGoal []
   | _ => throwUnsupportedSyntax
 

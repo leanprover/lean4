@@ -180,9 +180,11 @@ structure TagAttribute where
 def registerTagAttribute (name : Name) (descr : String)
     (validate : Name → AttrM Unit := fun _ => pure ()) (ref : Name := by exact decl_name%)
     (applicationTime := AttributeApplicationTime.afterTypeChecking)
-    (asyncMode : EnvExtension.AsyncMode := .mainOnly) : IO TagAttribute := do
+    (asyncMode : EnvExtension.AsyncMode := .mainOnly)
+    (logWrites : Bool := false) : IO TagAttribute := do
   let ext : PersistentEnvExtension Name Name NameSet ← registerPersistentEnvExtension {
     name            := ref
+    logWrites       := logWrites
     mkInitial       := pure {}
     addImportedFn   := fun _ _ => pure {}
     addEntryFn      := fun (s : NameSet) n => s.insert n
@@ -210,7 +212,7 @@ def registerTagAttribute (name : Name) (descr : String)
       unless ext.toEnvExtension.asyncMayModify env decl do
         throwAttrNotInAsyncCtx name decl env.asyncPrefix?
       validate decl
-      modifyEnv fun env => ext.addEntry (asyncDecl := decl) env decl
+      modifyEnv (ext.addEntry (asyncDecl := decl) (log := .decl decl) · decl)
   }
   registerBuiltinAttribute attrImpl
   return { attr := attrImpl, ext := ext }
@@ -262,10 +264,12 @@ structure ParametricAttributeImpl (α : Type) extends AttributeImplCore where
 
 def registerParametricAttributeExt (ref : Name) (preserveOrder : Bool := false)
     (filterExport : Environment → Name → α → Bool := fun env n _ =>
-      env.contains (skipRealize := false) n) :
+      env.contains (skipRealize := false) n)
+    (logWrites : Bool := false) :
     IO (PersistentEnvExtension (Name × α) (Name × α) (List Name × NameMap α)) :=
   registerPersistentEnvExtension {
     name            := ref
+    logWrites       := logWrites
     mkInitial       := pure ([], {})
     addImportedFn   := fun _ => pure ([], {})
     addEntryFn      := fun (decls, m) (p : Name × α) => (p.1 :: decls, m.insert p.1 p.2)
@@ -291,7 +295,7 @@ def registerParametricAttributeForExt (impl : ParametricAttributeImpl α)
       unless (env.getModuleIdxFor? decl).isNone do
         throwAttrDeclInImportedModule impl.name decl
       let val ← impl.getParam decl stx
-      modifyEnv fun env => ext.addEntry (asyncDecl := decl) env (decl, val)
+      modifyEnv (ext.addEntry (asyncDecl := decl) (log := .decl decl) · (decl, val))
       try impl.afterSet decl val catch _ => setEnv env
   }
   registerBuiltinAttribute attrImpl

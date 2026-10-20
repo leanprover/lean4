@@ -43,8 +43,6 @@ def simpEq? (e : Expr) : MetaM (Option (Expr × Expr)) := do
     let r := mkConst ``True
     let h := mkApp4 (mkConst ``Int.Internal.Linear.eq_eq_true) (← toContextExpr atoms) (toExpr a) (toExpr b) eagerReflBoolTrue
     return some (r, mkExpectedPropHint h (mkPropEq e r))
-  else if p.toExpr == a && b == .num 0 then
-    return none
   else match p with
     | .add 1 x (.add (-1) y (.num 0)) =>
       let r := mkIntEq atoms[x]! atoms[y]!
@@ -57,6 +55,9 @@ def simpEq? (e : Expr) : MetaM (Option (Expr × Expr)) := do
       let h := mkApp6 (mkConst ``Int.Internal.Linear.norm_eq_var_const) (← toContextExpr atoms) (toExpr a) (toExpr b) (toExpr x) (toExpr (-k)) eagerReflBoolTrue
       return some (r, mkExpectedPropHint h (mkPropEq e r))
     | _ =>
+      -- The equation is already of the form `p = 0`. This check must come after the `x = y` and
+      -- `x = k` cases, which also apply to equations of that form.
+      if p.toExpr == a && b == .num 0 then return none
       let k := p.gcdCoeffs'
       if k == 1 then
         let r := mkIntEq (← p.denoteExpr (atoms[·]!)) (mkIntLit 0)

@@ -176,6 +176,10 @@ instance (m n) [MonadLift m n] [MonadQuotation n] [MonadMacroAdapter m] : MonadM
   setNextMacroScope := fun s => liftM (MonadMacroAdapter.setNextMacroScope s : m _)
 }
 
+instance : MonadMacroAdapter CoreM where
+  getNextMacroScope := return (← get).nextMacroScope
+  setNextMacroScope next := modify fun s => { s with nextMacroScope := next }
+
 def liftMacroM [Monad m] [MonadMacroAdapter m] [MonadEnv m] [MonadRecDepth m] [MonadError m] [MonadResolveName m] [MonadTrace m] [MonadOptions m] [AddMessageContext m] [MonadLiftT IO m] (x : MacroM α) : m α := do
   let env  ← getEnv
   let opts ← getOptions

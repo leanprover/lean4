@@ -48,39 +48,39 @@ def propagateCommRingIneq (e : Expr) (lhs rhs : Expr) (strict : Bool) (eqTrue : 
     let c ← c.cleanupDenominators
     let p := c.p
     let lhs ← p.toIntModuleExpr generation
-    let some lhs ← reify? lhs (skipVar := false) generation | return ()
+    let some lhs ← reify? lhs (skipVar := false) | return ()
     let p := lhs.norm
     let c : IneqCnstr := { p, strict, h := .ring c lhs }
     c.assert
-  else if (← isLinearOrder) then
+  else if (← isLinearOrder <&&> hasLawfulLT) then
     let p := (rhs.sub lhs).toPoly
     let strict := !strict
     let c : RingIneqCnstr := { p, strict, h := .notCore e lhs rhs }
     let c ← c.cleanupDenominators
     let p := c.p
     let lhs ← p.toIntModuleExpr generation
-    let some lhs ← reify? lhs (skipVar := false) generation | return ()
+    let some lhs ← reify? lhs (skipVar := false) | return ()
     let p := lhs.norm
     let c : IneqCnstr := { p, strict, h := .ring c lhs }
     c.assert
   else
-    -- Negation for preorders is not supported
+    -- A negated fact is a `<` fact (`not_le_norm`, `not_lt_norm`), which needs a linear order and a lawful `<`
     modifyStruct fun s => { s with ignored := s.ignored.push e }
 
 def propagateIntModuleIneq (e : Expr) (lhs rhs : Expr) (strict : Bool) (eqTrue : Bool) : LinearM Unit := do
-  let some lhs ← reify? lhs (skipVar := false) (← getGeneration lhs) | return ()
-  let some rhs ← reify? rhs (skipVar := false) (← getGeneration rhs) | return ()
+  let some lhs ← reify? lhs (skipVar := false) | return ()
+  let some rhs ← reify? rhs (skipVar := false) | return ()
   if eqTrue then
     let p := (lhs.sub rhs).norm
     let c : IneqCnstr := { p, strict, h := .core e lhs rhs }
     c.assert
-  else if (← isLinearOrder) then
+  else if (← isLinearOrder <&&> hasLawfulLT) then
     let p := (rhs.sub lhs).norm
     let strict := !strict
     let c : IneqCnstr := { p, strict, h := .notCore e lhs rhs }
     c.assert
   else
-    -- Negation for preorders is not supported
+    -- A negated fact is a `<` fact (`not_le_norm`, `not_lt_norm`), which needs a linear order and a lawful `<`
     modifyStruct fun s => { s with ignored := s.ignored.push e }
 
 def propagateNatModuleIneq (e : Expr) (lhs rhs : Expr) (strict : Bool) (eqTrue : Bool) : OfNatModuleM Unit := do
@@ -88,8 +88,8 @@ def propagateNatModuleIneq (e : Expr) (lhs rhs : Expr) (strict : Bool) (eqTrue :
   let (lhs₁, _) ← ofNatModule lhs
   let (rhs₁, _) ← ofNatModule rhs
   LinearM.run ns.structId do
-  let some lhs₂ ← reify? lhs₁ (skipVar := false) (← getGeneration lhs) | return ()
-  let some rhs₂ ← reify? rhs₁ (skipVar := false) (← getGeneration rhs) | return ()
+  let some lhs₂ ← reify? lhs₁ (skipVar := false) | return ()
+  let some rhs₂ ← reify? rhs₁ (skipVar := false) | return ()
   if eqTrue then
     let p := (lhs₂.sub rhs₂).norm
     let c : IneqCnstr := { p, strict, h := .coreOfNat e ns.id lhs₂ rhs₂ }
@@ -115,6 +115,9 @@ public def propagateIneq (e : Expr) (eqTrue : Bool) : GoalM Unit := do
     else if isInstOf s.ltFn? inst then
       pure true
     else
+      return ()
+    if strict && s.lawfulOrderLTInst?.isNone then
+      modifyStruct fun s => { s with ignored := s.ignored.push e }
       return ()
     if (← isOrderedCommRing) then
       propagateCommRingIneq e lhs rhs strict eqTrue

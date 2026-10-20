@@ -1,0 +1,30 @@
+Input: "# Head {c\nmore text\n\nAfter\n"
+Failure: unexpected newline; expected positional argument, named argument, flag, or '}' (use '\{' for a literal '{')
+ --> 1:9
+  |
+1 | # Head {c
+  |          ^
+  = consumed input prefix: 9 bytes
+Final stack:
+  (Lean.Doc.Parser.document
+   [(Lean.Doc.Parser.Block.header
+     (Lean.Doc.Parser.headerMarker "#")
+     [(Lean.Doc.Parser.Inline.text
+       (Lean.Doc.Parser.versoText "Head "))
+      (Lean.Doc.Parser.Inline.role
+       "{"
+       `c
+       []
+       <missing>
+       []
+       []
+       [])])
+    (Lean.Doc.Parser.Block.para
+     [(Lean.Doc.Parser.Inline.text
+       (Lean.Doc.Parser.versoText "more text"))])
+    (Lean.Doc.Parser.Block.para
+     [(Lean.Doc.Parser.Inline.text
+       (Lean.Doc.Parser.versoText "After"))
+      (Lean.Doc.Parser.Inline.linebreak "\n")])])
+All input consumed.
+Round-trip not reproduced, as the parse reported errors: leaf without original source info: <missing>

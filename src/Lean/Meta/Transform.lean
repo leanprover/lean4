@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Lean.Meta.FunInfo
+public import Init.Data.Range.Polymorphic.RangeIterator
 import Init.Data.Range.Polymorphic.Iterators
 public section
 namespace Lean

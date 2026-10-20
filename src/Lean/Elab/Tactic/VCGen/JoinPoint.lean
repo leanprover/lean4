@@ -78,7 +78,7 @@ public def isJoinPointLet (x : Name) (val : Expr) : VCGenM Bool :=
 
 /-- The lattice instance of `B`, for `Pred = ∀ s₁ … sₙ, B` and the states `ss = #[s₁, …, sₙ]`,
 read off the instance `instCL` of `Pred`, which nests one `instCompleteLatticePi` per state. -/
-private def baseInstance? (instCL : Expr) (ss : Array Expr) : SymM (Option Expr) := do
+def baseInstance? (instCL : Expr) (ss : Array Expr) : SymM (Option Expr) := do
   let mut inst := instCL
   for s in ss do
     let_expr instCompleteLatticePi _ _ f := inst | return none
@@ -154,7 +154,7 @@ public def wpJump? (scope : Scope) (goal : MVarId) (info : WPApp) :
   return some []
 
 /-- The locals of `jump` after `__do_jp_spec`. -/
-private def jumpLocals (jp : JoinPoint) (jump : Jump) : MetaM (Array LocalDecl) := do
+def jumpLocals (jp : JoinPoint) (jump : Jump) : MetaM (Array LocalDecl) := do
   let lctx := (← jump.pf.getDecl).lctx
   let start := (lctx.get! jp.spec.fvarId!).index + 1
   -- An implementation-detail hypothesis would become an `∃` binder, so it stays out of `?H`.
@@ -163,7 +163,7 @@ private def jumpLocals (jp : JoinPoint) (jump : Jump) : MetaM (Array LocalDecl) 
 
 /-- `φ` under the local `d`: a `let` for a `let` local, a conjunct `d.type ∧ φ` for a hypothesis
 that `φ` does not depend on, and `∃ d, φ` otherwise. -/
-private def bindLocal (d : LocalDecl) (φ : Expr) : VCGenM Expr := do
+def bindLocal (d : LocalDecl) (φ : Expr) : VCGenM Expr := do
   -- `mkLambdaFVars`/`mkLetFVars` re-scope a metavariable whose local context contains `d`, such as
   -- the invariant of a loop in the branch.
   if d.value?.isSome then
@@ -175,7 +175,7 @@ private def bindLocal (d : LocalDecl) (φ : Expr) : VCGenM Expr := do
   return mkApp2 (mkConst ``Exists [← Sym.getLevel d.type]) d.type lam
 
 /-- The disjunction of `ps[lo:hi]`, balanced so that each disjunct has depth `O(log (hi - lo))`. -/
-private partial def mkOrTree (ps : Array Expr) (lo hi : Nat) : Expr :=
+partial def mkOrTree (ps : Array Expr) (lo hi : Nat) : Expr :=
   if hi == lo then mkConst ``False
   else if hi == lo + 1 then ps[lo]!
   else
@@ -183,7 +183,7 @@ private partial def mkOrTree (ps : Array Expr) (lo hi : Nat) : Expr :=
     mkOr (mkOrTree ps lo mid) (mkOrTree ps mid hi)
 
 /-- A proof of `φ = mkOrTree ps lo hi` from the proof `k ps[i]` of its disjunct `ps[i]`. -/
-private partial def mkOrIntro (φ : Expr) (i lo hi : Nat) (k : Expr → MetaM Expr) : MetaM Expr := do
+partial def mkOrIntro (φ : Expr) (i lo hi : Nat) (k : Expr → MetaM Expr) : MetaM Expr := do
   if hi == lo + 1 then
     return ← k φ
   let_expr Or a b := φ | throwError "vcgen +jp: expected a disjunction{indentExpr φ}"
@@ -197,7 +197,7 @@ private partial def mkOrIntro (φ : Expr) (i lo hi : Nat) (k : Expr → MetaM Ex
 each distinct local `i` of the jumps above the trie of the jumps that share it, and give the
 equations `xs = args` of each jump without local `i`. Returns the path of each jump, the index and
 number of the disjuncts it passes. -/
-private partial def mkTrie (xs : Array Expr) (jumps : Array (Jump × Array LocalDecl)) (i : Nat) :
+partial def mkTrie (xs : Array Expr) (jumps : Array (Jump × Array LocalDecl)) (i : Nat) :
     VCGenM (Expr × Array (List (Nat × Nat))) := do
   let mut groups : Array (Array Nat) := #[]
   let mut byLocal : Std.HashMap FVarId Nat := {}
@@ -229,7 +229,7 @@ private partial def mkTrie (xs : Array Expr) (jumps : Array (Jump × Array Local
   return (mkOrTree disjuncts 0 disjuncts.size, paths)
 
 /-- A proof of the equations `args = args`, by `rfl` on each. -/
-private partial def mkEqsProof (φ : Expr) : MetaM Expr := do
+partial def mkEqsProof (φ : Expr) : MetaM Expr := do
   match_expr φ with
   | And a b => return mkApp4 (mkConst ``And.intro) a b (← mkEqsProof a) (← mkEqsProof b)
   | True => return mkConst ``True.intro
@@ -238,7 +238,7 @@ private partial def mkEqsProof (φ : Expr) : MetaM Expr := do
 
 /-- A proof of `φ`, a trie of `mkTrie` at the arguments of a jump, along the `path` of the jump,
 from the witnesses `ws` of its `∃`s and its conjuncts. -/
-private partial def mkTrieProof (φ : Expr) (path : List (Nat × Nat)) (ws : List Expr) :
+partial def mkTrieProof (φ : Expr) (path : List (Nat × Nat)) (ws : List Expr) :
     MetaM Expr := do
   let (g, n) :: path := path | throwError "vcgen +jp: empty path into{indentExpr φ}"
   mkOrIntro φ g 0 n fun φ => do

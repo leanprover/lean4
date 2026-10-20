@@ -6,7 +6,8 @@ Author: Leonardo de Moura, Mario Carneiro
 module
 
 prelude
-public import Init.Data.String.Slice
+public import Init.Data.String.Slice.Pattern
+public import Init.Data.String.Iterate
 import Init.Data.Option.BasicAux
 
 /-!

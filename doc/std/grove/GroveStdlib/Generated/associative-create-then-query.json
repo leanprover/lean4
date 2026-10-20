@@ -305,8 +305,8 @@
     {
       "widgetId": "associative-create-then-query",
       "factId": "5ceaa26a-d2cb-4df3-9ac8-b5c11db2ae9d:::01f88623-fa5f-4380-9772-b30f2fec5c94:::Std.DHashMap::Std.DHashMap.Raw::Std.ExtDHashMap::Std.DTreeMap::Std.DTreeMap.Raw::Std.ExtDTreeMap",
-      "rowAssociationId": "5ceaa26a-d2cb-4df3-9ac8-b5c11db2ae9d",
       "columnAssociationId": "01f88623-fa5f-4380-9772-b30f2fec5c94",
+      "rowAssociationId": "5ceaa26a-d2cb-4df3-9ac8-b5c11db2ae9d",
       "selectedLayers": [
         "Std.DHashMap",
         "Std.DHashMap.Raw",
@@ -539,8 +539,8 @@
         }
       ],
       "metadata": {
-        "status": "bad",
-        "comment": "Missing for `ExtDHashMap`"
+        "comment": "Missing for `ExtDHashMap`",
+        "status": "bad"
       }
     }
   ]

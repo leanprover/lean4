@@ -57,6 +57,10 @@ def isSupportedType (type : Expr) : GoalM Bool := do
     | ISize => return true
     | _ => return false
 
+/-- Returns `true` if cutsat is enabled and natively supports `type`, i.e., cutsat handles it. -/
+def isCutsatType (type : Expr) : GoalM Bool := do
+  (return (← getConfig).lia) <&&> isSupportedType type
+
 /--
 Returns `true` if numerals of the embedded type `α` can be evaluated, i.e., their
 embedded (`Fin.val`/`toNat`/`toInt`) value can be computed directly. Such numerals are

@@ -127,6 +127,7 @@ builtin_initialize extension : SimplePersistentEnvExtension Entry State ←
     addEntryFn    := State.addEntry
     addImportedFn := fun es => (mkStateFromImportedEntries State.addEntry {} es).switch
     asyncMode     := .async .mainEnv
+    logWrites     := true
     exportEntriesFnEx? := some fun env _ entries =>
       let all := entries.toArray
       -- Do not export info for private defs at exported/server levels
@@ -136,7 +137,7 @@ builtin_initialize extension : SimplePersistentEnvExtension Entry State ←
 
 def addMatcherInfo (env : Environment) (matcherName : Name) (info : MatcherInfo) : Environment :=
   let _ : Inhabited Environment := ⟨env⟩
-  extension.addEntry (asyncDecl := matcherName) env { name := matcherName, info := info }
+  extension.addEntry (asyncDecl := matcherName) (log := .decl matcherName) env { name := matcherName, info := info }
 
 def getMatcherInfo? (env : Environment) (declName : Name) : Option MatcherInfo := do
   -- avoid blocking on async decls whose names look nothing like matchers

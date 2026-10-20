@@ -2,8 +2,9 @@ import Std.Async
 
 /-!
 Socket arguments that the operating system does not accept are rejected rather than silently wrapped
-or left pending: out-of-range keep-alive delays are rejected, a receive with a buffer size of 0 fails
-as an invalid argument, and accepting on a socket that is bound but not listening fails.
+or left pending: out-of-range keep-alive delays are rejected, a receive with a buffer size of 0 or of
+4 GiB or more fails as an invalid argument, and accepting on a socket that is bound but not listening
+fails.
 -/
 
 open Std Async Net
@@ -58,3 +59,21 @@ def expectInvalidArgument (what : String) (x : Async Unit) : IO Unit := do
   let sender ← UDP.Socket.mk
   sender.send "hello".toUTF8 (some (← socket.getSockName))
   discard <| socket.recv 0
+
+-- libuv's buffer length is 32 bits on Windows, so 2^32 would wrap to an empty buffer there.
+#eval expectInvalidArgument "TCP recv? 2^32" do
+  let server ← TCP.Socket.Server.mk
+  server.bind lo
+  server.listen 16
+  let client ← TCP.Socket.Client.mk
+  client.connect (← server.getSockName)
+  let peer ← server.accept
+  peer.send "hello".toUTF8
+  discard <| client.recv? (2 ^ 32)
+
+#eval expectInvalidArgument "UDP recv 2^32" do
+  let socket ← UDP.Socket.mk
+  socket.bind lo
+  let sender ← UDP.Socket.mk
+  sender.send "hello".toUTF8 (some (← socket.getSockName))
+  discard <| socket.recv (2 ^ 32)

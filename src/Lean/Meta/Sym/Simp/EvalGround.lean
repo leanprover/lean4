@@ -10,6 +10,7 @@ import Init.Sym.Lemmas
 import Lean.Meta.Sym.LitValues
 import Lean.Meta.StringLitProof
 import Lean.Meta.Offset
+import Init.Data.UInt.Lemmas
 namespace Lean.Meta.Sym.Simp
 
 /-!
@@ -61,7 +62,7 @@ simplifier.
 Operations dispatch on the type expression directly. It assumes non-standard instances are
 **not** used.
 
-**TODO**: additional bit-vector operations, `Char`, `String` support
+**TODO**: additional bit-vector operations, `String` support
 -/
 
 def skipIfUnchanged (e : Expr) (result : Result) : Result :=
@@ -69,10 +70,10 @@ def skipIfUnchanged (e : Expr) (result : Result) : Result :=
   | .step e' _ _ cd => if isSameExpr e e' then mkRflResultCD cd else result
   | _ => result
 
-abbrev evalUnary [ToExpr α] (toValue? : Expr → Option α) (op : α → α) (a : Expr) : SimpM Result := do
+abbrev evalUnary [ToExpr β] (toValue? : Expr → Option α) (op : α → β) (a : Expr) : SimpM Result := do
   let some a := toValue? a | return .rfl
   let e ← share <| toExpr (op a)
-  return .step e (mkApp2 (mkConst ``Eq.refl [1]) (ToExpr.toTypeExpr (α := α)) e) (done := true)
+  return .step e (mkApp2 (mkConst ``Eq.refl [1]) (ToExpr.toTypeExpr (α := β)) e) (done := true)
 
 abbrev evalUnaryBool : (op : Bool → Bool) → (a : Expr) → SimpM Result := evalUnary getBoolValue?
 abbrev evalUnaryNat : (op : Nat → Nat) → (a : Expr) → SimpM Result := evalUnary getNatValue?
@@ -519,6 +520,7 @@ abbrev evalBinBoolPredInt8 : (op : Int8 → Int8 → Bool) → (a b : Expr) → 
 abbrev evalBinBoolPredInt16 : (op : Int16 → Int16 → Bool) → (a b : Expr) → SimpM Result := evalBinBoolPred getInt16Value?
 abbrev evalBinBoolPredInt32 : (op : Int32 → Int32 → Bool) → (a b : Expr) → SimpM Result := evalBinBoolPred getInt32Value?
 abbrev evalBinBoolPredInt64 : (op : Int64 → Int64 → Bool) → (a b : Expr) → SimpM Result := evalBinBoolPred getInt64Value?
+abbrev evalBinBoolPredChar : (op : Char → Char → Bool) → (a b : Expr) → SimpM Result := evalBinBoolPred getCharValue?
 
 abbrev evalBinBoolPredFin (op : {n : Nat} → Fin n → Fin n → Bool) (a b : Expr) : SimpM Result := do
   let some a := getFinValue? a | return .rfl
@@ -557,6 +559,7 @@ macro "declare_eval_bin_bool_pred" id:ident op:term : command =>
   | Int16 => evalBinBoolPredInt16 $op a b
   | Int32 => evalBinBoolPredInt32 $op a b
   | Int64 => evalBinBoolPredInt64 $op a b
+  | Char => evalBinBoolPredChar $op a b
   | _ => return .rfl
   )
 
@@ -578,6 +581,21 @@ abbrev mkRflBitVec (a : Expr) (n : Nat) : Expr :=
 /-- Builds the type expression `BitVec w` from a width expression `w`. -/
 abbrev mkBitVecType (w : Expr) : Expr :=
   mkApp (mkConst ``BitVec) w
+
+/--
+`USize.toNat n` for a numeral `n < 2^32`. The kernel cannot evaluate `USize` operations, whose
+result depends on the opaque `System.Platform.numBits`, so the step is justified by
+`USize.toNat_ofNat_of_lt_32` instead of `Eq.refl`.
+-/
+def evalUSizeToNat (a : Expr) : EvalM Result := do
+  let some n ← getNatValue? a |>.run | return .rfl
+  unless n < UInt32.size do return .rfl
+  let e ← share <| toExpr n
+  let bound := mkNatLit UInt32.size
+  let lt := mkApp4 (mkConst ``LT.lt [0]) (mkConst ``Nat) (mkConst ``instLTNat) e bound
+  let h := mkApp3 (mkConst ``of_decide_eq_true) lt (mkApp2 (mkConst ``Nat.decLt) e bound)
+    (mkApp2 (mkConst ``Eq.refl [1]) (mkConst ``Bool) (mkConst ``Bool.true))
+  return .step e (mkApp2 (mkConst ``USize.toNat_ofNat_of_lt_32) e h) (done := true)
 
 def evalInt8ToBitVec (a : Expr) : EvalM Result := do
   let some v ← getInt8Value? a |>.run | return .rfl
@@ -628,9 +646,20 @@ def evalBitVecOfNat (n a : Expr) : EvalM Result := do
   let some a ← getNatValue? a |>.run | return .rfl
   -- `BitVec.ofNat` with a literal width is the normal form only when `bitVecOfNat := true`
   if (← getNatValue? n |>.run).isSome && (← read).bitVecOfNat then return .rfl
-  let some n ← evalNat n |>.run | return .rfl -- TODO: consider using dsimp
-  let r ← mkBitVecLit (BitVec.ofNat n a)
-  return .step r (mkRflBitVec r n) (done := true)
+  if let some nv ← evalNat n |>.run then -- TODO: consider using dsimp
+    let r ← mkBitVecLit (BitVec.ofNat nv a)
+    return .step r (mkRflBitVec r nv) (done := true)
+  else
+    /-
+    Symbolic width. With `bitVecOfNat := false`, `OfNat.ofNat` is the normal form for every
+    width, so `0#w` (e.g., in `BitVec.sdiv_zero`) must become `(0 : BitVec w)` to match
+    `(0 : BitVec 32)` after instantiation. The numeral is not reduced modulo `2^w`.
+    -/
+    if (← read).bitVecOfNat then return .rfl
+    let v := mkRawNatLit a
+    let type := mkBitVecType n
+    let r ← share <| mkApp3 (mkConst ``OfNat.ofNat [0]) type v (mkApp2 (mkConst ``BitVec.instOfNat) n v)
+    return .step r (mkApp2 (mkConst ``Eq.refl [1]) type r) (done := true)
 
 def evalBitVecOfNatClamp (n a : Expr) : EvalM Result := do
   let some nv := getNatValue? n | return .rfl
@@ -718,6 +747,123 @@ def evalBitVecOfFin (n a : Expr) : EvalM Result := do
   let e ← mkBitVecLit (BitVec.ofNat n a.val.val)
   return .step e (mkRflBitVec e n) (done := true)
 
+/-- Result `e = v` for a `Fin` value `v`, proved by `Eq.refl`. -/
+def mkFinResult (v : Fin m) : SimpM Result := do
+  let e ← share <| toExpr v
+  return .step e (mkApp2 (mkConst ``Eq.refl [1]) (ToExpr.toTypeExpr (α := Fin m)) e) (done := true)
+
+abbrev evalFinUnary {f : Nat → Nat} (op : {n : Nat} → Fin n → Fin (f n)) (a : Expr) : SimpM Result := do
+  let some a := getFinValue? a | return .rfl
+  mkFinResult (op a.val)
+
+def evalFinVal (a : Expr) : SimpM Result := do
+  let some a := getFinValue? a | return .rfl
+  let e ← share <| toExpr a.val.val
+  return .step e (mkApp2 (mkConst ``Eq.refl [1]) (mkConst ``Nat) e) (done := true)
+
+def evalFinLast (n : Expr) : SimpM Result := do
+  let some n := getNatValue? n | return .rfl
+  mkFinResult (Fin.last n)
+
+def evalFinPredecessor (a : Expr) : SimpM Result := do
+  let some ⟨_ + 1, i⟩ := getFinValue? a | return .rfl
+  if h : i ≠ 0 then mkFinResult (i.pred h) else return .rfl
+
+def evalFinCastAdd (m a : Expr) : SimpM Result := do
+  let some m := getNatValue? m | return .rfl
+  let some a := getFinValue? a | return .rfl
+  mkFinResult (a.val.castAdd m)
+
+def evalFinAddNat (a m : Expr) : SimpM Result := do
+  let some a := getFinValue? a | return .rfl
+  let some m := getNatValue? m | return .rfl
+  mkFinResult (a.val.addNat m)
+
+def evalFinNatAdd (n a : Expr) : SimpM Result := do
+  let some n := getNatValue? n | return .rfl
+  let some a := getFinValue? a | return .rfl
+  mkFinResult (Fin.natAdd n a.val)
+
+def evalFinCastLT (n a : Expr) : SimpM Result := do
+  let some n := getNatValue? n | return .rfl
+  let some a := getFinValue? a | return .rfl
+  if h : a.val.val < n then mkFinResult (a.val.castLT h) else return .rfl
+
+def evalFinCastLE (m a : Expr) : SimpM Result := do
+  let some m := getNatValue? m | return .rfl
+  let some a := getFinValue? a | return .rfl
+  if h : a.n ≤ m then mkFinResult (Fin.castLE h a.val) else return .rfl
+
+def evalFinSubNat (m a : Expr) : SimpM Result := do
+  let some m := getNatValue? m | return .rfl
+  let some a := getFinValue? a | return .rfl
+  if h : m ≤ a.val.val then
+    mkFinResult (⟨a.val.val - m, by have := a.val.isLt; omega⟩ : Fin (a.n - m))
+  else
+    return .rfl
+
+/-- Converts `Fin.mk v _` and `Fin.ofNat n v` into a `Fin n` literal when `n` and `v` are numerals. -/
+def evalFinOfNat (n v : Expr) : SimpM Result := do
+  let some n := getNatValue? n | return .rfl
+  let some v := getNatValue? v | return .rfl
+  if h : n ≠ 0 then
+    have : NeZero n := ⟨h⟩
+    mkFinResult (Fin.ofNat n v)
+  else
+    return .rfl
+
+/--
+Normalizes the `Fin` literal `e := OfNat.ofNat (Fin n) v _` to the form produced by
+`ToExpr (Fin n)`: `v` a raw literal with `v < n` and `n` a numeral, so `(7 : Fin 5)` becomes `2`.
+The value `v` may also be a nested numeral and `n` a ground term, as in
+`@OfNat.ofNat (Fin (1 + 1)) 0 _`; `grind` assumes distinct literal nodes denote distinct values,
+so every spelling must become the same term. The instance is left to `Sym.canon`.
+-/
+def evalFinLit (e α v : Expr) : SimpM Result := do
+  let_expr Fin nExpr := α | return .rfl
+  let isCanonical := v.isRawNatLit && (getNatValue? nExpr).isSome
+  let some v := (match v with | .lit (.natVal v) => some v | _ => getNatValue? v) | return .rfl
+  let some n ← evalNat nExpr |>.run | return .rfl
+  if isCanonical && v < n then return .rfl
+  if h : n ≠ 0 then
+    have : NeZero n := ⟨h⟩
+    let e' ← share <| toExpr (Fin.ofNat n v)
+    if isSameExpr e e' then return .rfl
+    return .step e' (mkApp2 (mkConst ``Eq.refl [1]) (ToExpr.toTypeExpr (α := Fin n)) e') (done := true)
+  else
+    return .rfl
+
+abbrev evalCharUnary [ToExpr α] (op : Char → α) (a : Expr) : SimpM Result := do
+  let some a := getCharValue? a | return .rfl
+  let e ← share <| toExpr (op a)
+  return .step e (mkApp2 (mkConst ``Eq.refl [1]) (ToExpr.toTypeExpr (α := α)) e) (done := true)
+
+abbrev evalCharPred (op : Char → Bool) (a : Expr) : SimpM Result := do
+  let some a := getCharValue? a | return .rfl
+  let r := op a
+  let e ← share (toExpr r)
+  return .step e (if r then eagerReflBoolTrue else eagerReflBoolFalse) (done := true)
+
+/-- Evaluates `String.push s c` on a string literal and a character literal. -/
+def evalStringPush (s c : Expr) : SimpM Result := do
+  let some s := getStringValue? s | return .rfl
+  let some c := getCharValue? c | return .rfl
+  let e ← share <| toExpr (s.push c)
+  return .step e (mkApp2 (mkConst ``Eq.refl [1]) (mkConst ``String) e) (done := true)
+
+/-- Converts `Char.ofNat n` into a character literal when `n` is a numeral. -/
+def evalCharOfNat (n : Expr) : SimpM Result := do
+  -- `getNatValue?` fails on raw literals: `Char.ofNat` applied to one is the character literal.
+  let some n := getNatValue? n | return .rfl
+  let e ← share <| toExpr (Char.ofNat n)
+  return .step e (mkApp2 (mkConst ``Eq.refl [1]) (mkConst ``Char) e) (done := true)
+
+def evalToString (α : Expr) (a : Expr) : SimpM Result :=
+  match_expr α with
+  | Char => evalCharUnary (toString ·) a
+  | _ => return .rfl
+
+set_option maxRecDepth 1024 in
 /-- Evaluation step of `evalGround`. -/
 def evalGroundCore (e : Expr) : EvalM Result :=
   match_expr e with
@@ -811,6 +957,42 @@ def evalGroundCore (e : Expr) : EvalM Result :=
   | UInt16.toBitVec a => evalUInt16ToBitVec a
   | UInt32.toBitVec a => evalUInt32ToBitVec a
   | UInt64.toBitVec a => evalUInt64ToBitVec a
+  | Fin.succ _ a => evalFinUnary Fin.succ a
+  | Fin.castSucc _ a => evalFinUnary Fin.castSucc a
+  | Fin.rev _ a => evalFinUnary Fin.rev a
+  | Fin.last n => evalFinLast n
+  | Fin.val _ a => evalFinVal a
+  | Fin.pred _ a _ => evalFinPredecessor a
+  | Fin.castAdd _ m a => evalFinCastAdd m a
+  | Fin.addNat _ a m => evalFinAddNat a m
+  | Fin.natAdd _ n a => evalFinNatAdd n a
+  | Fin.castLT n _ a _ => evalFinCastLT n a
+  | Fin.castLE _ m _ a => evalFinCastLE m a
+  | Fin.subNat _ m a _ => evalFinSubNat m a
+  | Fin.mk n v _ => evalFinOfNat n v
+  | Fin.ofNat n _ v => evalFinOfNat n v
+  | OfNat.ofNat α v _ => evalFinLit e α v
+  | Char.ofNat n => evalCharOfNat n
+  | Char.toNat a => evalCharUnary Char.toNat a
+  | Char.val a => evalCharUnary Char.val a
+  | Char.toLower a => evalCharUnary Char.toLower a
+  | Char.toUpper a => evalCharUnary Char.toUpper a
+  | Char.isWhitespace a => evalCharPred Char.isWhitespace a
+  | Char.isUpper a => evalCharPred Char.isUpper a
+  | Char.isLower a => evalCharPred Char.isLower a
+  | Char.isAlpha a => evalCharPred Char.isAlpha a
+  | Char.isDigit a => evalCharPred Char.isDigit a
+  | Char.isAlphanum a => evalCharPred Char.isAlphanum a
+  | ToString.toString α _ a => evalToString α a
+  | String.push s c => evalStringPush s c
+  | String.singleton c => evalCharUnary String.singleton c
+  | Int.toNat a => evalUnary getIntValue? Int.toNat a
+  | Int.natAbs a => evalUnary getIntValue? Int.natAbs a
+  | UInt8.toNat a => evalUnary getUInt8Value? UInt8.toNat a
+  | UInt16.toNat a => evalUnary getUInt16Value? UInt16.toNat a
+  | UInt32.toNat a => evalUnary getUInt32Value? UInt32.toNat a
+  | UInt64.toNat a => evalUnary getUInt64Value? UInt64.toNat a
+  | USize.toNat a => evalUSizeToNat a
   | _  => return .rfl
 
 /--

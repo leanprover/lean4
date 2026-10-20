@@ -478,6 +478,32 @@ def inferMacroRulesAltKind : TSyntax ``matchAlt → CommandElabM SyntaxNodeKind
   | _ => throwUnsupportedSyntax
 
 /--
+Checks that the quotation pattern of `alt` matches syntax of kind `k`, selecting the interpretation
+of kind `k` if the pattern is ambiguous. `cmdName` is used in error messages.
+-/
+def checkRuleAltKind (cmdName : String) (k : SyntaxNodeKind) (alt : TSyntax ``matchAlt) :
+    CommandElabM (TSyntax ``matchAlt) :=
+  match alt with
+  | `(matchAltExpr| | $pats,* => $rhs) => do
+    let pat := pats.elemsAndSeps[0]!
+    if !pat.isQuot then
+      throwUnsupportedSyntax
+    let quoted := getQuotContent pat
+    let k' := quoted.getKind
+    if checkRuleKind k' k then
+      pure alt
+    else if k' == choiceKind then
+       match quoted.getArgs.find? fun quotAlt => checkRuleKind quotAlt.getKind k with
+       | none        => throwErrorAt alt "invalid {cmdName} alternative, expected syntax node kind `{k}`"
+       | some quoted =>
+         let pat := pat.setArg 1 quoted
+         let pats := pats.elemsAndSeps.set! 0 pat
+         `(matchAltExpr| | $(⟨pats⟩),* => $rhs)
+    else
+      throwErrorAt alt "invalid {cmdName} alternative, unexpected syntax node kind `{k'}`"
+  | _ => throwUnsupportedSyntax
+
+/--
 Infer syntax kind `k` from first pattern, put alternatives of same kind into new `macro/elab_rules (kind := k)` via `mkCmd (some k)`,
 leave remaining alternatives (via `mkCmd none`) to be recursively expanded. -/
 def expandNoKindMacroRulesAux (alts : Array (TSyntax ``matchAlt)) (cmdName : String) (mkCmd : Option Name → Array (TSyntax ``matchAlt) → CommandElabM Command) : CommandElabM Command := do

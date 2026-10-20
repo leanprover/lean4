@@ -55,12 +55,12 @@ public def rewriteWith (thm : Theorem) (e : Expr) : DSimpM Result :=
   return .step e'
 
 /-- Rewrites the prefix of `e` obtained by removing its last `numExtra` arguments. -/
-private def rewriteOverApplied (thm : Theorem) (e : Expr) (numExtra : Nat) : DSimpM Result := do
+def rewriteOverApplied (thm : Theorem) (e : Expr) (numExtra : Nat) : DSimpM Result := do
   let f := e.getBoundedAppFn numExtra
   let .step f' _ ← rewriteWith thm f | return .rfl
   return .step (← share (mkAppN f' (e.getBoundedAppArgs numExtra)))
 
-private def rewriteUsing (candidates : Array (Theorem × Nat)) (e : Expr) : DSimpM Result := do
+def rewriteUsing (candidates : Array (Theorem × Nat)) (e : Expr) : DSimpM Result := do
   for (thm, numExtra) in candidates do
     let result ← if numExtra == 0 then rewriteWith thm e else rewriteOverApplied thm e numExtra
     if let .step .. := result then
@@ -84,28 +84,41 @@ public structure Decls where
   thms     : Theorems := {}
   toUnfold : NameSet := {}
 
+/-- An entry of a `Decls` set: a `rfl`-theorem, or a declaration to unfold. See `Decls.add`. -/
+public inductive Decls.Entry where
+  | thm (thm : Sym.Simp.Theorem)
+  | unfold (declName : Name)
+  deriving Inhabited
+
+public def Decls.addEntry (decls : Decls) : Decls.Entry → Decls
+  | .thm thm => { decls with thms := decls.thms.insert thm }
+  | .unfold declName => { decls with toUnfold := decls.toUnfold.insert declName }
+
 /--
-Adds the declaration `declName` to `decls`. A theorem must be proved by `rfl`. A definition is
+The entries contributed by `declName`. A theorem must be proved by `rfl`. A definition is
 unfolded (see `unfold`) under the same conditions as in `Meta.simp` (`Simp.unfoldEvenWithEqns`),
 and contributes its equational theorems proved by `rfl`. See also `Sym.Simp.getSimpTheoremNames`.
 -/
-public def Decls.add (decls : Decls) (declName : Name) : MetaM Decls := do
+public def Decls.mkEntries (declName : Name) : MetaM (Array Decls.Entry) := do
   let info ← getAsyncConstInfo declName
   if (← isProp info.sig.get.type) then
     unless (← isRflTheorem declName) do
       throwError "cannot use `{.ofConstName declName}` as a dsimp theorem, it is not proved by `rfl`"
-    return { decls with thms := decls.thms.insert (← Sym.Simp.mkTheoremFromDecl declName) }
+    return #[.thm (← Sym.Simp.mkTheoremFromDecl declName)]
   let names ← Sym.Simp.getSimpTheoremNames declName
   -- A reducible definition contributes nothing: the `Sym` preprocessing unfolds it.
-  if names.thms.isEmpty then return decls
-  let mut thms := decls.thms
+  if names.thms.isEmpty then return #[]
+  let mut entries := #[]
   for name in names.thms do
     if (← isRflTheorem name) then
-      thms := thms.insert (← Sym.Simp.mkTheoremFromDecl name)
-  let mut toUnfold := decls.toUnfold
+      entries := entries.push (.thm (← Sym.Simp.mkTheoremFromDecl name))
   if (← Lean.Meta.Simp.unfoldEvenWithEqns declName) then
-    toUnfold := toUnfold.insert declName
-  return { thms, toUnfold }
+    entries := entries.push (.unfold declName)
+  return entries
+
+/-- Adds the declaration `declName` to `decls`. See `Decls.mkEntries`. -/
+public def Decls.add (decls : Decls) (declName : Name) : MetaM Decls := do
+  return (← Decls.mkEntries declName).foldl Decls.addEntry decls
 
 public def Decls.ofNames (declNames : Array Name) : MetaM Decls :=
   declNames.foldlM Decls.add {}

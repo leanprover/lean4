@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Grind.Ring.IntSolver
-// Imports: public import Init.Grind.Ring.CommSolver public import Init.GrindInstances.Ring.Int import Init.Data.Int.DivMod.Lemmas import Init.Data.Int.LemmasAux import Init.Data.Int.Linear import Init.Omega
+// Imports: public import Init.Grind.Ring.CommSolver public import Init.GrindInstances.Ring.Int import Init.Data.Int.DivMod.Lemmas import Init.Data.Int.LemmasAux public import Init.Data.Int.Linear import Init.Omega
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

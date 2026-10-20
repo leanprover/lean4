@@ -22,7 +22,7 @@ foreach(var ${vars})
   # NOTE: does not catch `-DFOO:BAR=` typed uses
   elseif(currentType STREQUAL "UNINITIALIZED")
     list(APPEND CL_ARGS "-D${var}=${${var}}")
-    if(var MATCHES "USE_GMP|CHECK_OLEAN_VERSION|LEAN_VERSION_.*|LEAN_SPECIAL_VERSION_DESC")
+    if(var MATCHES "USE_GMP|CHECK_OLEAN_VERSION")
       # must forward options that generate incompatible .olean format
       list(APPEND STAGE0_ARGS "-D${var}=${${var}}")
     elseif(var MATCHES "LLVM*|PKG_CONFIG|USE_LAKE|USE_MIMALLOC|FORCE_GMP")

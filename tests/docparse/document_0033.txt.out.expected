@@ -1,0 +1,38 @@
+Input: "para {c\n1. one\n2. two\n\nAfter\n"
+Failure: unexpected newline; expected positional argument, named argument, flag, or '}' (use '\{' for a literal '{')
+ --> 1:7
+  |
+1 | para {c
+  |        ^
+  = consumed input prefix: 7 bytes
+Final stack:
+  (Lean.Doc.Parser.document
+   [(Lean.Doc.Parser.Block.para
+     [(Lean.Doc.Parser.Inline.text
+       (Lean.Doc.Parser.versoText "para "))
+      (Lean.Doc.Parser.Inline.role
+       "{"
+       `c
+       []
+       <missing>
+       []
+       []
+       [])])
+    (Lean.Doc.Parser.Block.ol
+     [(Lean.Doc.Parser.ListItem.item
+       (Lean.Doc.Parser.listMarker "1.")
+       [(Lean.Doc.Parser.Block.para
+         [(Lean.Doc.Parser.Inline.text
+           (Lean.Doc.Parser.versoText "one"))])])
+      (Lean.Doc.Parser.ListItem.item
+       (Lean.Doc.Parser.listMarker "2.")
+       [(Lean.Doc.Parser.Block.para
+         [(Lean.Doc.Parser.Inline.text
+           (Lean.Doc.Parser.versoText
+            "two"))])])])
+    (Lean.Doc.Parser.Block.para
+     [(Lean.Doc.Parser.Inline.text
+       (Lean.Doc.Parser.versoText "After"))
+      (Lean.Doc.Parser.Inline.linebreak "\n")])])
+All input consumed.
+Round-trip not reproduced, as the parse reported errors: leaf without original source info: <missing>

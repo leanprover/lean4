@@ -7,7 +7,7 @@ module
 
 prelude
 public import Init.System.Promise
-public import Init.Data.SInt
+public import Init.Data.SInt.Basic
 public import Std.Net
 
 public section
@@ -43,7 +43,8 @@ Connects a TCP socket to the specified address.
 opaque connect (socket : @& Socket) (addr : @& SocketAddress) : IO (IO.Promise (Except IO.Error Unit))
 
 /--
-Sends data through a TCP socket.
+Sends data through a TCP socket. Throws an `IO.Error.invalidArgument` if a buffer is 4 GiB or
+larger.
 -/
 @[extern "lean_uv_tcp_send"]
 opaque send (socket : @& Socket) (data : Array ByteArray) : IO (IO.Promise (Except IO.Error Unit))
@@ -54,6 +55,8 @@ available or an error occurs. If data is received, it’s wrapped in .some. If E
 result is .none, indicating no more data is available. Receiving data in parallel on the same
 socket is not supported. Instead, we recommend binding multiple sockets to the same address.
 Furthermore calling this function in parallel with `waitReadable` is not supported.
+
+Throws an `IO.Error.invalidArgument` if `size` is 0 or at least 4 GiB.
 -/
 @[extern "lean_uv_tcp_recv"]
 opaque recv? (socket : @& Socket) (size : UInt64) : IO (IO.Promise (Except IO.Error (Option ByteArray)))

@@ -104,16 +104,16 @@ namespace FrameOp
 
 variable {A : Type u} {B : Type v} {R : Type x} {ε : Type w}
 
-@[simp, grind =] theorem pointwise_apply (opE : R → A → A) (r : R) (E : ε → A) (e : ε) :
+theorem pointwise_apply (opE : R → A → A) (r : R) (E : ε → A) (e : ε) :
     pointwise opE r E e = opE r (E e) := rfl
 
-@[simp, grind =] theorem prod_fst (opA : R → A → A) (opB : R → B → B) (r : R) (p : A × B) :
+theorem prod_fst (opA : R → A → A) (opB : R → B → B) (r : R) (p : A × B) :
     (prod opA opB r p).fst = opA r p.fst := rfl
 
-@[simp, grind =] theorem prod_snd (opA : R → A → A) (opB : R → B → B) (r : R) (p : A × B) :
+theorem prod_snd (opA : R → A → A) (opB : R → B → B) (r : R) (p : A × B) :
     (prod opA opB r p).snd = opB r p.snd := rfl
 
-@[simp, grind =] theorem ignore_apply (r : R) (a : A) : ignore r a = a := rfl
+theorem ignore_apply (r : R) (a : A) : ignore r a = a := rfl
 
 section
 
@@ -158,7 +158,7 @@ noncomputable def PredTrans.frameClosure (op : R → Pred → Pred) [FrameOp op 
   ⟨fun Q E => ⨅ r, PreservesSup.upperAdjoint (op r) (t.apply (fun a => op r (Q a)) (opE r E))⟩
 
 /-- Unfolding `frameClosure` through `apply`. -/
-@[simp] theorem PredTrans.apply_frameClosure (op : R → Pred → Pred) [FrameOp op EPosts opE]
+theorem PredTrans.apply_frameClosure (op : R → Pred → Pred) [FrameOp op EPosts opE]
     (t : PredTrans Pred EPosts β) (Q : β → Pred) (E : EPosts) :
     (t.frameClosure op).apply Q E =
       ⨅ r, PreservesSup.upperAdjoint (op r) (t.apply (fun a => op r (Q a)) (opE r E)) := rfl

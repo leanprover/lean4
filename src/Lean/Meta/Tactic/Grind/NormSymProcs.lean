@@ -7,18 +7,26 @@ module
 prelude
 public import Lean.Meta.Sym.Simp.SimpM
 import Lean.Meta.Sym.Simp.Result
+import Lean.Meta.Sym.Simp.App
+import Lean.Meta.Sym.Simp.Forall
+import Lean.Meta.Match.MatcherInfo
 import Lean.Meta.Sym.AlphaShareBuilder
 import Lean.Meta.Sym.InstantiateS
+import Lean.Meta.Sym.AbstractS
+import Lean.Meta.Sym.Util
+import Lean.Meta.Sym.Eta
 import Lean.Meta.Sym.InferType
 import Lean.Meta.Sym.SynthInstance
 import Lean.Meta.AppBuilder
+import Lean.Meta.Tactic.Grind.ForallAnd
 import Lean.Meta.CtorRecognizer
 import Init.Grind.Norm
+import Init.Grind.Util
 import Init.Grind.Lemmas
 import Init.ByCases
 public section
 namespace Lean.Meta.Grind.NormSym
-open Sym.Simp (Simproc Result SimpM)
+open Sym.Simp (Simproc Result SimpM mkRflResult)
 open Sym (getTrueExpr getFalseExpr getBoolTrueExpr getBoolFalseExpr share isSameExpr)
 open Sym.Internal
 
@@ -48,6 +56,54 @@ private def mkExistsS (u : Level) (α p : Expr) : SimpM Expr := do
 def eraseMData : Simproc := fun e => do
   let .mdata _ b := e | return .rfl
   return .step b (← Sym.mkEqRefl b)
+
+/--
+Eta-reduces the lambda arguments of an application before they are visited. Rewriting a body
+first would hide the redex: `fun x => Nat.succ x` would become `fun x => x + 1` and no longer be
+the `Nat.succ` found elsewhere in the goal. `grind` eta-reduces the terms it internalizes anyway
+(`Sym.Canon`). The body of a binder notation (`∃ y, q y`, `{x // p x}`) keeps its binder.
+-/
+def etaReduce : Simproc := fun e => do
+  unless e.isApp do return .rfl
+  if let .const n _ := e.getAppFn then
+    if n == ``Exists || n == ``Subtype then return .rfl
+  unless hasEtaReducibleArg e do return .rfl
+  let e' ← go e
+  return .step e' (← Sym.mkEqRefl e')
+where
+  hasEtaReducibleArg : Expr → Bool
+    | .app f a => Sym.isEtaReducible a || hasEtaReducibleArg f
+    | _ => false
+  go : Expr → SimpM Expr
+    | .app f a => do mkAppS (← go f) (Sym.etaReduce a)
+    | f => pure f
+
+/--
+`Grind.PreMatchCond p` is left as is: `p` is a condition of a `match` equation and must keep
+the shape produced by `annotateMatchEqnType`; `replacePreMatchCond` turns it into
+`Grind.MatchCond` after normalization.
+-/
+def preMatchCond : Simproc := fun e => do
+  let_expr Grind.PreMatchCond _ := e | return .rfl
+  return mkRflResult (done := true)
+
+/--
+`Grind.simpMatchDiscrsOnly m`, where `m` is a `match` application: only the discriminants of `m`
+are simplified, the alternatives are not visited. The annotation stays and is erased by
+`eraseSimpMatchDiscrsOnly` after normalization.
+-/
+def simpMatchDiscrsOnly : Simproc := fun e => do
+  match h : e with
+  | .app f m =>
+    let_expr Grind.simpMatchDiscrsOnly _ _ := e | return .rfl
+    let .const declName _ := m.getAppFn | return mkRflResult (done := true)
+    let some info ← getMatcherInfo? declName | return mkRflResult (done := true)
+    let start := info.numParams + 1
+    let r ← Sym.Simp.simpAppArgRange m start (start + info.numDiscrs)
+    match (← Sym.Simp.mkCongrArg e f m r h) with
+    | .rfl _ cd => return mkRflResult (done := true) (contextDependent := cd)
+    | .step e' h' _ cd => return .step e' h' (done := true) (contextDependent := cd)
+  | _ => return .rfl
 
 private def isBoolEqTarget (declName : Name) : Bool :=
   declName == ``Bool.and ||
@@ -172,10 +228,66 @@ private def isForallOrNot? (e : Expr) : Option (Name × Expr × Expr) :=
     none
 
 /--
+`Grind.forall_or_forall` and `Grind.forall_forall_or` at `e := ∀ x, p ∨ ∀ b, q` or
+`e := ∀ x, (∀ b, q) ∨ p`, where `¬q` counts as `q → False`: returns `(∀ x b, p ∨ q, h)` with
+`h : e = ∀ x b, p ∨ q`.
+-/
+private def forallOrCore? (e : Expr) : SimpM (Option (Expr × Expr)) := do
+  let .forallE varName d b info := e | return none
+  let_expr Or left right := b | return none
+  let α := d
+  if let some (bName, βRaw, qRaw) := isForallOrNot? left then
+    let pRaw := right
+    let p := mkLambda varName info α pRaw
+    let q := mkLambda varName info α (mkLambda bName .default βRaw qRaw)
+    let β := mkLambda varName info α βRaw
+    let u ← Sym.getLevel α
+    let v ← withLocalDeclD varName α fun a => Meta.getLevel (βRaw.instantiate1 a)
+    let body ← mkOrS qRaw (← share (pRaw.liftLooseBVars 0 1))
+    let e' ← mkForallS varName info α (← mkForallS bName .default βRaw body)
+    return some (e', mkApp4 (mkConst ``Grind.forall_forall_or [u, v]) α β p q)
+  else if let some (bName, βRaw, qRaw) := isForallOrNot? right then
+    let pRaw := left
+    let p := mkLambda varName info α pRaw
+    let q := mkLambda varName info α (mkLambda bName .default βRaw qRaw)
+    let β := mkLambda varName info α βRaw
+    let u ← Sym.getLevel α
+    let v ← withLocalDeclD varName α fun a => Meta.getLevel (βRaw.instantiate1 a)
+    let body ← mkOrS (← share (pRaw.liftLooseBVars 0 1)) qRaw
+    let e' ← mkForallS varName info α (← mkForallS bName .default βRaw body)
+    return some (e', mkApp4 (mkConst ``Grind.forall_or_forall [u, v]) α β p q)
+  return none
+
+/--
+`forallOrCore?` at the innermost binder of the telescope `e := ∀ x₁ … xₙ, p ∨ ∀ b, q`. `Sym.simp`
+simplifies a telescope of dependent binders as one term, so the inner `∀ xₙ, …` is not visited on
+its own. The applicability test is syntactic; the binders are instantiated only when the rule
+applies, and the outer ones with a single congruence step.
+-/
+private partial def forallOr? (e : Expr) : SimpM (Option (Expr × Expr)) := do
+  let_expr Or left right := e.getForallBody | return none
+  unless (isForallOrNot? left).isSome || (isForallOrNot? right).isSome do return none
+  go #[] e
+where
+  go (xs : Array Expr) (e : Expr) : SimpM (Option (Expr × Expr)) := do
+    let .forallE n d b bi := e | return none
+    if b.isForall then
+      let d ← Sym.instantiateRevS d xs
+      Sym.withLocalDeclS n bi d fun x => go (xs.push x) b
+    else if xs.isEmpty then
+      forallOrCore? e
+    else
+      let e ← Sym.instantiateRevS e xs
+      let some (e', h) ← forallOrCore? e | return none
+      let hcongr ← Sym.Simp.mkForallCongrFor xs
+      let h := mkApp3 hcongr (← mkLambdaFVars xs e) (← mkLambdaFVars xs e') (← mkLambdaFVars xs h)
+      return some (← Sym.mkForallFVarsS xs e', h)
+
+/--
 Normalizes universally quantified propositions and implications:
-`Grind.imp_true_eq`, `Grind.imp_false_eq`, `Grind.forall_imp_eq_or`, `Grind.true_imp_eq`,
+`Grind.imp_true_eq`, `Grind.imp_false_eq`, `Grind.true_imp_eq`,
 `Grind.false_imp_eq`, `Grind.imp_self_eq`, `Grind.forall_true`, `forall_false`,
-`Grind.forall_or_forall`, `Grind.forall_forall_or`, `Grind.forall_and`.
+`Grind.forall_or_forall`, `Grind.forall_forall_or`, `Grind.forall_and` (see `forallImpAnd?`).
 -/
 def simpForall : Simproc := fun e => do
   let .forallE varName d b info := e | return .rfl
@@ -184,15 +296,10 @@ def simpForall : Simproc := fun e => do
     | True => if (← isProp b) then return .step b (mkApp (mkConst ``Grind.true_imp_eq) b) (done := true)
     | False => if (← isProp b) then return .step (← getTrueExpr) (mkApp (mkConst ``Grind.false_imp_eq) b) (done := true)
     | _ =>
-    if let .forallE aName α pRaw info' := d then
-      if (← pure pRaw.hasLooseBVars <&&> isProp d) then
-        let p := mkLambda aName info' α pRaw
-        let q := b
-        let u ← Sym.getLevel α
-        let e' ← mkOrS (← mkExistsS u α (← mkLambdaS aName info' α (← mkNotS pRaw))) q
-        return .step e' (mkApp3 (mkConst ``Grind.forall_imp_eq_or [u]) α p q)
-    else match_expr b with
-    | True => if (← isProp d) then return .step (← getTrueExpr) (mkApp (mkConst ``Grind.imp_true_eq) d) (done := true)
+    match_expr b with
+    | True =>
+      -- `d` may be a type, e.g. after the body of `∀ t : α, p t` has been simplified to `True`.
+      return .step (← getTrueExpr) (mkApp (mkConst ``implies_true [← getLevel d]) d) (done := true)
     | False => if (← isProp d) then return .step (← mkNotS d) (mkApp (mkConst ``Grind.imp_false_eq) d)
     | _ =>
       -- Maximally shared terms: structural equality is pointer equality.
@@ -210,40 +317,9 @@ def simpForall : Simproc := fun e => do
       if (← isDefEq (← inferType p) (mkForall varName info d (mkSort 0))) then
         return .step (← getTrueExpr) (mkApp (mkConst ``forall_false) p) (done := true)
     | _ => pure ()
-  if b.isApp && b.getAppNumArgs == 2 then
-    let .const bDeclName _ := b.appFn!.appFn! | return .rfl
-    if bDeclName == ``Or then
-      let left  := b.appFn!.appArg!
-      let right := b.appArg!
-      let α := d
-      if let some (bName, βRaw, qRaw) := isForallOrNot? left then
-        let pRaw := right
-        let p := mkLambda varName info α pRaw
-        let q := mkLambda varName info α (mkLambda bName .default βRaw qRaw)
-        let β := mkLambda varName info α βRaw
-        let u ← Sym.getLevel α
-        let v ← withLocalDeclD varName α fun a => Meta.getLevel (βRaw.instantiate1 a)
-        let body ← mkOrS qRaw (← share (pRaw.liftLooseBVars 0 1))
-        let e' ← mkForallS varName info α (← mkForallS bName .default βRaw body)
-        return .step e' (mkApp4 (mkConst ``Grind.forall_forall_or [u, v]) α β p q)
-      else if let some (bName, βRaw, qRaw) := isForallOrNot? right then
-        let pRaw := left
-        let p := mkLambda varName info α pRaw
-        let q := mkLambda varName info α (mkLambda bName .default βRaw qRaw)
-        let β := mkLambda varName info α βRaw
-        let u ← Sym.getLevel α
-        let v ← withLocalDeclD varName α fun a => Meta.getLevel (βRaw.instantiate1 a)
-        let body ← mkOrS (← share (pRaw.liftLooseBVars 0 1)) qRaw
-        let e' ← mkForallS varName info α (← mkForallS bName .default βRaw body)
-        return .step e' (mkApp4 (mkConst ``Grind.forall_or_forall [u, v]) α β p q)
-    else if bDeclName == ``And then
-      let pRaw := b.appFn!.appArg!
-      let qRaw := b.appArg!
-      let p := mkLambda varName info d pRaw
-      let q := mkLambda varName info d qRaw
-      let e' ← mkAndS (← mkForallS varName info d pRaw) (← mkForallS varName info d qRaw)
-      let u ← Sym.getLevel d
-      return .step e' (mkApp3 (mkConst ``Grind.forall_and [u]) d p q)
+  if let some (e', h) ← forallOr? e then return .step e' h
+  if let some (lhs, rhs, h) ← forallImpAnd? e then
+    return .step (← mkAndS (← share lhs) (← share rhs)) h
   return .rfl
 
 /--

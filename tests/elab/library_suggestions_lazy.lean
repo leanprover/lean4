@@ -14,10 +14,12 @@ cancellation.
 open Lean LibrarySuggestions SineQuaNon
 
 run_meta do
+  assert! (← importedRelevantConstantsRef.get).isNone
   assert! (← symbolFrequencyMapRef.get).isNone
   assert! (← sineQuaNonTriggersRef.get).isNone
   let data ← mkModuleData (← getEnv)
   assert! !data.entries.any fun (name, _) => name == `symbolFrequency || name == `sineQueNon
+  assert! (← importedRelevantConstantsRef.get).isNone
   assert! (← symbolFrequencyMapRef.get).isNone
   assert! (← sineQuaNonTriggersRef.get).isNone
 
@@ -31,6 +33,7 @@ run_meta do
   let frequency ← symbolFrequencyMap
   assert! frequency.getD `Nat 0 > 0
   assert! frequency.getD `localPredicate 0 == 0
+  assert! (← importedRelevantConstantsRef.get).isSome
   assert! (← symbolFrequencyMapRef.get).isSome
   assert! (← sineQuaNonTriggersRef.get).isNone
   let theorems ← sineQuaNonTheorems `HAppend.hAppend

@@ -39,11 +39,8 @@ example (x y : Int64) : (x ≤ y) ↔ (x.toBitVec.sle y.toBitVec = true) := by g
 example : (2^63 - 1 : Int64) + 1 = -(2^63) := by grind
 example : (-(2^63) : Int64) - 1 = 2^63 - 1 := by grind
 
--- TODO: `grind` fails (strict bounds at the word boundary)
-/-
 example (x y : Int64) : x < y → x ≠ 2^63 - 1 := by grind
 example (x y : Int64) : x < y → y ≠ -(2^63) := by grind
--/
 
 -- Casts and conversions
 example (x : UInt64) : (Int64.ofUInt64 x).toUInt64 = x := by grind

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.ByteArray
-// Imports: public import Init.Data.ByteArray.Basic public import Init.Data.ByteArray.Bootstrap public import Init.Data.ByteArray.Extra public import Init.Data.ByteArray.Lemmas
+// Imports: public import Init.Data.ByteArray.Basic public import Init.Data.ByteArray.Bootstrap public import Init.Data.ByteArray.Extra public import Init.Data.ByteArray.Lemmas public import Init.Data.ByteArray.Lex
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -17,6 +17,7 @@ lean_object* runtime_initialize_Init_Data_ByteArray_Basic(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_ByteArray_Bootstrap(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_ByteArray_Extra(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_ByteArray_Lemmas(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_ByteArray_Lex(uint8_t builtin);
 void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Init_Data_ByteArray(uint8_t builtin) {
@@ -36,6 +37,9 @@ lean_dec_ref(res);
 res = runtime_initialize_Init_Data_ByteArray_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+res = runtime_initialize_Init_Data_ByteArray_Lex(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
 }
 static bool _G_meta_initialized = false;
@@ -49,6 +53,7 @@ lean_object* initialize_Init_Data_ByteArray_Basic(uint8_t builtin);
 lean_object* initialize_Init_Data_ByteArray_Bootstrap(uint8_t builtin);
 lean_object* initialize_Init_Data_ByteArray_Extra(uint8_t builtin);
 lean_object* initialize_Init_Data_ByteArray_Lemmas(uint8_t builtin);
+lean_object* initialize_Init_Data_ByteArray_Lex(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_ByteArray(uint8_t builtin) {
 lean_object * res;
@@ -64,6 +69,9 @@ res = initialize_Init_Data_ByteArray_Extra(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_ByteArray_Lemmas(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_ByteArray_Lex(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Init_Data_ByteArray(builtin);

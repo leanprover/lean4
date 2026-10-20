@@ -70,7 +70,7 @@ set_option maxHeartbeats 10000000
 -- Verify `simplifying_assumptions [Nat.add_assoc]` works end-to-end with `simp only` unfolding.
 /--
 trace: s : Nat
-a✝ : s = 0
+a✝ : s ≤ 0
 h✝⁹ : ¬0 < s
 h✝⁸ : ¬1 < s + 1
 h✝⁷ : ¬2 < s + 2

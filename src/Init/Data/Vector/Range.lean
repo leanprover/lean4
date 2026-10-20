@@ -145,9 +145,10 @@ theorem count_range_1' {a s n} :
 @[simp, grind =] theorem getElem_range {i : Nat} (hi : i < n) : (Vector.range n)[i] = i := by
   simp [Vector.range]
 
-@[grind _=_]
 theorem range_eq_range' {n : Nat} : range n = range' 0 n := by
   simp [range, range', Array.range_eq_range']
+
+grind_pattern range_eq_range' => range n, range' 0 n
 
 theorem range_succ_eq_map {n : Nat} :
     range (n + 1) =

@@ -7,6 +7,7 @@ module
 
 prelude
 public import Init.Data.String.Pattern.Basic
+public import Init.Data.String.Pattern.Memcmp
 public import Init.Data.Vector.Basic
 public import Init.Data.String.FindPos
 import Init.Data.String.Termination
@@ -273,8 +274,8 @@ def startsWith (pat : Slice) (s : Slice) : Bool :=
     have hs := by
       simp [Pos.Raw.le_iff] at h ⊢
       omega
-    have hp := by simp
-    Internal.memcmpSlice s pat s.startPos.offset pat.startPos.offset pat.rawEndPos hs hp
+    have hp := by simp [Pos.Raw.le_iff]
+    Internal.memcmpSlice s pat s.startPos.offset pat.startPos.offset pat.utf8ByteSize hs hp
   else
     false
 
@@ -308,9 +309,8 @@ def endsWith (pat : Slice) (s : Slice) : Bool :=
     have hs := by
       simp [sStart, Pos.Raw.le_iff] at h ⊢
       omega
-    have hp := by
-      simp [patStart] at h ⊢
-    Internal.memcmpSlice s pat sStart patStart pat.rawEndPos hs hp
+    have hp := by simp [patStart, Pos.Raw.le_iff]
+    Internal.memcmpSlice s pat sStart patStart pat.utf8ByteSize hs hp
   else
     false
 

@@ -14,6 +14,7 @@ public import Init.Data.String.TakeDrop
 public import Init.Data.String.Search
 public import Init.Data.String.Length
 import Init.Omega
+import Lean.PrivateName
 
 public section
 
@@ -165,10 +166,23 @@ Retrieves all builtin Verso docstrings.
 def getBuiltinVersoDocStrings : IO (NameMap VersoDocString) :=
   builtinVersoDocStrings.get
 
+/-- Throws if `declName` already has a Markdown or Verso docstring. -/
+def throwIfHasDocString [Monad m] [MonadError m] [MonadEnv m] (declName : Name) : m Unit := do
+  let env ← getEnv
+  -- only the state visible on this branch, as in `MapDeclarationExtension.insert`
+  if docStringExt.contains (asyncMode := .local) env declName ||
+      versoDocStringExt.contains (asyncMode := .local) env declName then
+    throwError m!"invalid doc string, declaration `{.ofConstName declName}` already has one"
+
+/--
+Sets the docstring of `declName`, replacing an existing one: metaprograms extend docstrings this way
+(e.g. by appending cross-reference links). Only `add_decl_doc` rejects a second docstring.
+-/
 def addDocStringCore [Monad m] [MonadError m] [MonadEnv m] [MonadLiftT BaseIO m] (declName : Name) (docString : String) : m Unit := do
   unless (← getEnv).getModuleIdxFor? declName |>.isNone do
     throwError m!"invalid doc string, declaration `{.ofConstName declName}` is in an imported module"
-  modifyEnv fun env => docStringExt.insert env declName docString.removeLeadingSpaces
+  modifyEnv fun env =>
+    docStringExt.insert env declName docString.removeLeadingSpaces (allowOverwrite := true)
 
 def removeDocStringCore [Monad m] [MonadError m] [MonadEnv m] [MonadLiftT BaseIO m] (declName : Name) : m Unit := do
   unless (← getEnv).getModuleIdxFor? declName |>.isNone do
@@ -179,15 +193,6 @@ def addDocStringCore' [Monad m] [MonadError m] [MonadEnv m] [MonadLiftT BaseIO m
   match docString? with
   | some docString => addDocStringCore declName docString
   | none => return ()
-
-def addInheritedDocString [Monad m] [MonadError m] [MonadEnv m] (declName target : Name) : m Unit := do
-  unless (← getEnv).getModuleIdxFor? declName |>.isNone do
-    throwError "invalid `[inherit_doc]` attribute, declaration `{.ofConstName declName}` is in an imported module"
-  if inheritDocStringExt.find? (level := .server) (← getEnv) declName |>.isSome then
-    throwError "invalid `[inherit_doc]` attribute, declaration `{.ofConstName declName}` already has an `[inherit_doc]` attribute"
-  if inheritDocStringExt.find? (level := .server) (← getEnv) target == some declName then
-    throwError "invalid `[inherit_doc]` attribute, cycle detected"
-  modifyEnv fun env => inheritDocStringExt.insert env declName target
 
 /--
 Finds a docstring without performing any alias resolution or enrichment with extra metadata.
@@ -210,6 +215,26 @@ partial def findInternalDocString? (env : Environment) (declName : Name) (includ
     else if let some doc := (← builtinVersoDocStrings.get).find? declName then
       return some (.inr doc)
   return none
+
+def addInheritedDocString [Monad m] [MonadError m] [MonadEnv m] [MonadLiftT IO m]
+    (declName target : Name) : m Unit := do
+  unless (← getEnv).getModuleIdxFor? declName |>.isNone do
+    throwError "invalid `[inherit_doc]` attribute, declaration `{.ofConstName declName}` is in an imported module"
+  if inheritDocStringExt.find? (level := .server) (← getEnv) declName |>.isSome then
+    throwError "invalid `[inherit_doc]` attribute, declaration `{.ofConstName declName}` already has an `[inherit_doc]` attribute"
+  if inheritDocStringExt.find? (level := .server) (← getEnv) target == some declName then
+    throwError "invalid `[inherit_doc]` attribute, cycle detected"
+  -- A public declaration cannot alias the docstring of a private one: the private target is not
+  -- exported, so importers have no module index for it and cannot resolve the alias. Copy the
+  -- resolved docstring eagerly instead (the target must be local/import, so the docstring is
+  -- available).
+  if !isPrivateName declName && isPrivateName target then
+    match ← findInternalDocString? (← getEnv) target with
+    | some (.inl md)    => modifyEnv (docStringExt.insert · declName md)
+    | some (.inr verso) => modifyEnv (versoDocStringExt.insert · declName verso)
+    | none              => modifyEnv (inheritDocStringExt.insert · declName target)
+  else
+    modifyEnv (inheritDocStringExt.insert · declName target)
 
 structure ModuleDoc where
   doc : String

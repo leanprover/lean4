@@ -25,10 +25,11 @@ lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___redArg(lean_object*);
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 lean_object* l_Lean_Name_num___override(lean_object*, lean_object*);
-lean_object* l_Lean_PersistentEnvExtension_setState___redArg(lean_object*, lean_object*, lean_object*);
+lean_object* l___private_Lean_Environment_0__Lean_EnvExtension_modifyStateCore(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
+lean_object* l___private_Lean_Environment_0__Lean_EnvExtension_panicUnloggedWrite(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr1(lean_object*);
-lean_object* l_Lean_PersistentEnvExtension_getState___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_PersistentEnvExtension_getState___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
 lean_object* l_Lean_mkPackageSymbolPrefix(lean_object*);
 lean_object* l_Lean_Name_mangle(lean_object*, lean_object*);
 lean_object* l_Lean_Environment_getModuleIdxFor_x3f(lean_object*, lean_object*);
@@ -189,6 +190,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Compiler_ModPkgExt_0__Lean_modPkgExt;
 LEAN_EXPORT lean_object* l_Lean_Environment_getModulePackageByIdx_x3f(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Environment_getModulePackageByIdx_x3f___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Environment_getModulePackage_x3f(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Environment_setModulePackage___lam__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Environment_setModulePackage(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* lean_get_symbol_stem(lean_object*, lean_object*);
 static lean_object* _init_l_Lean_registerModuleEnvExtension___auto__1___closed__12(void){
@@ -447,7 +449,7 @@ v___f_121_ = ((lean_object*)(l_Lean_registerModuleEnvExtension___redArg___closed
 v___x_122_ = lean_box(2);
 v___x_123_ = lean_box(0);
 v___x_124_ = 0;
-v___x_125_ = lean_alloc_ctor(0, 8, 1);
+v___x_125_ = lean_alloc_ctor(0, 8, 2);
 lean_ctor_set(v___x_125_, 0, v_name_115_);
 lean_ctor_set(v___x_125_, 1, v_mkInitial_114_);
 lean_ctor_set(v___x_125_, 2, v___f_117_);
@@ -457,6 +459,7 @@ lean_ctor_set(v___x_125_, 5, v___f_120_);
 lean_ctor_set(v___x_125_, 6, v___x_122_);
 lean_ctor_set(v___x_125_, 7, v___x_123_);
 lean_ctor_set_uint8(v___x_125_, sizeof(void*)*8, v___x_124_);
+lean_ctor_set_uint8(v___x_125_, sizeof(void*)*8 + 1, v___x_124_);
 v___x_126_ = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(v___x_126_, 0, v___x_125_);
 lean_ctor_set(v___x_126_, 1, v___f_121_);
@@ -746,61 +749,132 @@ return v_res_269_;
 LEAN_EXPORT lean_object* l_Lean_Environment_getModulePackage_x3f(lean_object* v_env_270_){
 _start:
 {
-lean_object* v___x_271_; lean_object* v_toEnvExtension_272_; lean_object* v_asyncMode_273_; lean_object* v___x_274_; lean_object* v___x_275_; lean_object* v___x_276_; 
+lean_object* v___x_271_; lean_object* v_toEnvExtension_272_; lean_object* v_asyncMode_273_; lean_object* v___x_274_; lean_object* v___x_275_; uint8_t v___x_276_; lean_object* v___x_277_; 
 v___x_271_ = l___private_Lean_Compiler_ModPkgExt_0__Lean_modPkgExt;
 v_toEnvExtension_272_ = lean_ctor_get(v___x_271_, 0);
 v_asyncMode_273_ = lean_ctor_get(v_toEnvExtension_272_, 2);
 v___x_274_ = lean_box(0);
 v___x_275_ = lean_box(0);
-v___x_276_ = l_Lean_PersistentEnvExtension_getState___redArg(v___x_274_, v___x_271_, v_env_270_, v_asyncMode_273_, v___x_275_);
-return v___x_276_;
+v___x_276_ = 0;
+v___x_277_ = l_Lean_PersistentEnvExtension_getState___redArg(v___x_274_, v___x_271_, v_env_270_, v_asyncMode_273_, v___x_275_, v___x_276_);
+return v___x_277_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Environment_setModulePackage(lean_object* v_pkg_x3f_277_, lean_object* v_env_278_){
+LEAN_EXPORT lean_object* l_Lean_Environment_setModulePackage___lam__0(lean_object* v_pkg_x3f_278_, lean_object* v_ps_279_){
 _start:
 {
-lean_object* v___x_279_; lean_object* v___x_280_; 
-v___x_279_ = l___private_Lean_Compiler_ModPkgExt_0__Lean_modPkgExt;
-v___x_280_ = l_Lean_PersistentEnvExtension_setState___redArg(v___x_279_, v_env_278_, v_pkg_x3f_277_);
-return v___x_280_;
-}
-}
-LEAN_EXPORT lean_object* lean_get_symbol_stem(lean_object* v_env_281_, lean_object* v_declName_282_){
-_start:
+lean_object* v_importedEntries_280_; lean_object* v___x_282_; uint8_t v_isShared_283_; uint8_t v_isSharedCheck_287_; 
+v_importedEntries_280_ = lean_ctor_get(v_ps_279_, 0);
+v_isSharedCheck_287_ = !lean_is_exclusive(v_ps_279_);
+if (v_isSharedCheck_287_ == 0)
 {
-lean_object* v___y_284_; lean_object* v___x_287_; 
-v___x_287_ = l_Lean_Environment_getModuleIdxFor_x3f(v_env_281_, v_declName_282_);
-if (lean_obj_tag(v___x_287_) == 0)
-{
-lean_object* v___x_288_; lean_object* v_toEnvExtension_289_; lean_object* v_asyncMode_290_; lean_object* v___x_291_; lean_object* v___x_292_; lean_object* v___x_293_; 
-v___x_288_ = l___private_Lean_Compiler_ModPkgExt_0__Lean_modPkgExt;
-v_toEnvExtension_289_ = lean_ctor_get(v___x_288_, 0);
-v_asyncMode_290_ = lean_ctor_get(v_toEnvExtension_289_, 2);
-v___x_291_ = lean_box(0);
-v___x_292_ = lean_box(0);
-v___x_293_ = l_Lean_PersistentEnvExtension_getState___redArg(v___x_291_, v___x_288_, v_env_281_, v_asyncMode_290_, v___x_292_);
-v___y_284_ = v___x_293_;
-goto v___jp_283_;
+lean_object* v_unused_288_; 
+v_unused_288_ = lean_ctor_get(v_ps_279_, 1);
+lean_dec(v_unused_288_);
+v___x_282_ = v_ps_279_;
+v_isShared_283_ = v_isSharedCheck_287_;
+goto v_resetjp_281_;
 }
 else
 {
-lean_object* v_val_294_; lean_object* v___x_295_; 
-v_val_294_ = lean_ctor_get(v___x_287_, 0);
-lean_inc(v_val_294_);
-lean_dec_ref_known(v___x_287_, 1);
-v___x_295_ = l_Lean_Environment_getModulePackageByIdx_x3f(v_env_281_, v_val_294_);
-lean_dec(v_val_294_);
-lean_dec_ref(v_env_281_);
-v___y_284_ = v___x_295_;
-goto v___jp_283_;
+lean_inc(v_importedEntries_280_);
+lean_dec(v_ps_279_);
+v___x_282_ = lean_box(0);
+v_isShared_283_ = v_isSharedCheck_287_;
+goto v_resetjp_281_;
 }
-v___jp_283_:
+v_resetjp_281_:
 {
-lean_object* v___x_285_; lean_object* v___x_286_; 
-v___x_285_ = l_Lean_mkPackageSymbolPrefix(v___y_284_);
-lean_dec(v___y_284_);
-v___x_286_ = l_Lean_Name_mangle(v_declName_282_, v___x_285_);
-return v___x_286_;
+lean_object* v___x_285_; 
+if (v_isShared_283_ == 0)
+{
+lean_ctor_set(v___x_282_, 1, v_pkg_x3f_278_);
+v___x_285_ = v___x_282_;
+goto v_reusejp_284_;
+}
+else
+{
+lean_object* v_reuseFailAlloc_286_; 
+v_reuseFailAlloc_286_ = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(v_reuseFailAlloc_286_, 0, v_importedEntries_280_);
+lean_ctor_set(v_reuseFailAlloc_286_, 1, v_pkg_x3f_278_);
+v___x_285_ = v_reuseFailAlloc_286_;
+goto v_reusejp_284_;
+}
+v_reusejp_284_:
+{
+return v___x_285_;
+}
+}
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Environment_setModulePackage(lean_object* v_pkg_x3f_289_, lean_object* v_env_290_){
+_start:
+{
+lean_object* v___x_291_; lean_object* v_toEnvExtension_292_; lean_object* v_asyncMode_293_; uint8_t v_logWrites_294_; lean_object* v___f_295_; lean_object* v___x_296_; uint8_t v___x_297_; 
+v___x_291_ = l___private_Lean_Compiler_ModPkgExt_0__Lean_modPkgExt;
+v_toEnvExtension_292_ = lean_ctor_get(v___x_291_, 0);
+v_asyncMode_293_ = lean_ctor_get(v_toEnvExtension_292_, 2);
+v_logWrites_294_ = lean_ctor_get_uint8(v_toEnvExtension_292_, sizeof(void*)*6);
+v___f_295_ = lean_alloc_closure((void*)(l_Lean_Environment_setModulePackage___lam__0), 2, 1);
+lean_closure_set(v___f_295_, 0, v_pkg_x3f_289_);
+v___x_296_ = lean_box(0);
+v___x_297_ = 1;
+if (v_logWrites_294_ == 0)
+{
+lean_object* v___x_298_; 
+lean_inc_ref(v_toEnvExtension_292_);
+v___x_298_ = l___private_Lean_Environment_0__Lean_EnvExtension_modifyStateCore(lean_box(0), v_toEnvExtension_292_, v_env_290_, v___f_295_, v_asyncMode_293_, v___x_296_, v___x_297_);
+return v___x_298_;
+}
+else
+{
+lean_object* v___x_299_; lean_object* v___x_300_; 
+lean_inc_ref_n(v_toEnvExtension_292_, 2);
+v___x_299_ = l___private_Lean_Environment_0__Lean_EnvExtension_panicUnloggedWrite(lean_box(0), v_toEnvExtension_292_, v_env_290_);
+lean_dec_ref(v_env_290_);
+v___x_300_ = l___private_Lean_Environment_0__Lean_EnvExtension_modifyStateCore(lean_box(0), v_toEnvExtension_292_, v___x_299_, v___f_295_, v_asyncMode_293_, v___x_296_, v___x_297_);
+return v___x_300_;
+}
+}
+}
+LEAN_EXPORT lean_object* lean_get_symbol_stem(lean_object* v_env_301_, lean_object* v_declName_302_){
+_start:
+{
+lean_object* v___y_304_; lean_object* v___x_307_; 
+v___x_307_ = l_Lean_Environment_getModuleIdxFor_x3f(v_env_301_, v_declName_302_);
+if (lean_obj_tag(v___x_307_) == 0)
+{
+lean_object* v___x_308_; lean_object* v_toEnvExtension_309_; lean_object* v_asyncMode_310_; lean_object* v___x_311_; lean_object* v___x_312_; uint8_t v___x_313_; lean_object* v___x_314_; 
+v___x_308_ = l___private_Lean_Compiler_ModPkgExt_0__Lean_modPkgExt;
+v_toEnvExtension_309_ = lean_ctor_get(v___x_308_, 0);
+v_asyncMode_310_ = lean_ctor_get(v_toEnvExtension_309_, 2);
+v___x_311_ = lean_box(0);
+v___x_312_ = lean_box(0);
+v___x_313_ = 0;
+v___x_314_ = l_Lean_PersistentEnvExtension_getState___redArg(v___x_311_, v___x_308_, v_env_301_, v_asyncMode_310_, v___x_312_, v___x_313_);
+v___y_304_ = v___x_314_;
+goto v___jp_303_;
+}
+else
+{
+lean_object* v_val_315_; lean_object* v___x_316_; 
+v_val_315_ = lean_ctor_get(v___x_307_, 0);
+lean_inc(v_val_315_);
+lean_dec_ref_known(v___x_307_, 1);
+v___x_316_ = l_Lean_Environment_getModulePackageByIdx_x3f(v_env_301_, v_val_315_);
+lean_dec(v_val_315_);
+lean_dec_ref(v_env_301_);
+v___y_304_ = v___x_316_;
+goto v___jp_303_;
+}
+v___jp_303_:
+{
+lean_object* v___x_305_; lean_object* v___x_306_; 
+v___x_305_ = l_Lean_mkPackageSymbolPrefix(v___y_304_);
+lean_dec(v___y_304_);
+v___x_306_ = l_Lean_Name_mangle(v_declName_302_, v___x_305_);
+return v___x_306_;
 }
 }
 }

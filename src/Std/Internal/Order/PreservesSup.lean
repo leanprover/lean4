@@ -6,16 +6,17 @@ Authors: Sebastian Graf
 module
 
 prelude
-public import Std.Internal.Order.Lemmas
+public import Std.Internal.Order.Product
+import all Std.Internal.Order.Product
 
 @[expose] public section
 
 /-!
 # Supremum-preserving maps and their upper adjoints
 
-A supremum-preserving map on a complete lattice is a lower adjoint. Its upper adjoint is the
-implication belonging to it: Heyting `⇨` for the lattice meet, a magic wand for a separating
-conjunction.
+The supremum-preserving maps of the lattice theory (the identity, pointwise lifts, the lattice meet
+on `Prop`, functions, pairs, `PProd` and `Unit`, and `Prod.map`), and the laws of their upper
+adjoints.
 -/
 
 namespace Lean.Order
@@ -25,22 +26,6 @@ open Std.Internal.Order
 universe u v w
 
 variable {α : Type u} [CompleteLattice α]
-
-/--
-`f : α → α` *preserves suprema* if it distributes over arbitrary suprema:
-`f (sup s) = sup { f x | x ∈ s }`. Equivalently `f` is a lower adjoint, so it has an upper adjoint
-`PreservesSup.upperAdjoint f`.
-
-A frame operator acts by a supremum-preserving map for each resource `r`: the lattice meet
-`(a ⊓ ·)`,
-or a cost combinator `(costConj r)` for a counter resource. The upper adjoint is the corresponding
-implication: Heyting `⇨` for the meet, a magic wand for separating conjunction.
--/
-class PreservesSup {α : Type u} [CompleteLattice α] (f : α → α) : Prop where
-  /-- `f` preserves joins. -/
-  map_sup (s : α → Prop) :
-    f (CompleteLattice.sup s) = CompleteLattice.sup (fun y => ∃ x, s x ∧ y = f x)
-
 instance : PreservesSup (id : α → α) where
   map_sup s := by
     show CompleteLattice.sup s = _
@@ -100,27 +85,6 @@ instance {σ : Type v} {β : σ → Type u} [∀ s, CompleteLattice (β s)]
 section PProd
 
 variable {β : Type v} [CompleteLattice β]
-
-private theorem pprod_le {p q : α ×' β} (h₁ : p.1 ⊑ q.1) (h₂ : p.2 ⊑ q.2) : p ⊑ q := by
-  exact ⟨h₁, h₂⟩
-
-/-- `mk` of the componentwise meets is the meet on a product. -/
-theorem PProd.mk_meet (p q : α ×' β) : (⟨p.1 ⊓ q.1, p.2 ⊓ q.2⟩ : α ×' β) = p ⊓ q :=
-  PartialOrder.rel_antisymm
-    (le_meet _ _ _ (pprod_le (meet_le_left _ _) (meet_le_left _ _))
-      (pprod_le (meet_le_right _ _) (meet_le_right _ _)))
-    (pprod_le (le_meet _ _ _ (meet_le_left p q).1 (meet_le_right p q).1)
-      (le_meet _ _ _ (meet_le_left p q).2 (meet_le_right p q).2))
-
-/-- `mk` of the componentwise least upper bounds is the least upper bound on a product. -/
-theorem PProd.mk_sup (c : α ×' β → Prop) :
-    (⟨CompleteLattice.sup fun a => ∃ b, c ⟨a, b⟩,
-      CompleteLattice.sup fun b => ∃ a, c ⟨a, b⟩⟩ : α ×' β) = CompleteLattice.sup c :=
-  PartialOrder.rel_antisymm
-    (pprod_le (sup_le _ fun _ ⟨_, hc⟩ => (le_sup c hc).1)
-      (sup_le _ fun _ ⟨_, hc⟩ => (le_sup c hc).2))
-    (sup_le c fun y hy => pprod_le (le_sup _ ⟨y.2, hy⟩) (le_sup _ ⟨y.1, hy⟩))
-
 private theorem fst_meet (p q : α ×' β) : (p ⊓ q).1 = p.1 ⊓ q.1 := by rw [← PProd.mk_meet]
 private theorem snd_meet (p q : α ×' β) : (p ⊓ q).2 = p.2 ⊓ q.2 := by rw [← PProd.mk_meet]
 
@@ -155,100 +119,9 @@ end PProd
 section Prod
 
 variable {β : Type v} [CompleteLattice β]
-
 /-- The order on `α × β` is the order on `α ×' β` at the two components. -/
 private theorem prod_le_iff (p q : α × β) :
     p ⊑ q ↔ (⟨p.fst, p.snd⟩ : α ×' β) ⊑ ⟨q.fst, q.snd⟩ := Iff.rfl
-
-omit [CompleteLattice α] [CompleteLattice β] in
-/-- Two pairs with equal components are equal. -/
-private theorem prod_eq_of_pprod_eq {p q : α × β}
-    (h : (⟨p.fst, p.snd⟩ : α ×' β) = ⟨q.fst, q.snd⟩) : p = q := by
-  cases p; cases q; cases h; rfl
-
-/-- The components of a meet are the meet of the components on `α ×' β`. -/
-private theorem prod_meet_toPProd (p q : α × β) :
-    (⟨(p ⊓ q).fst, (p ⊓ q).snd⟩ : α ×' β) = ⟨p.fst, p.snd⟩ ⊓ ⟨q.fst, q.snd⟩ := by
-  refine PartialOrder.rel_antisymm (le_meet _ _ _ (meet_le_left p q) (meet_le_right p q)) ?_
-  let r : α × β := ((⟨p.fst, p.snd⟩ ⊓ ⟨q.fst, q.snd⟩ : α ×' β).fst,
-                    (⟨p.fst, p.snd⟩ ⊓ ⟨q.fst, q.snd⟩ : α ×' β).snd)
-  exact le_meet r p q (meet_le_left (⟨p.fst, p.snd⟩ : α ×' β) ⟨q.fst, q.snd⟩)
-    (meet_le_right (⟨p.fst, p.snd⟩ : α ×' β) ⟨q.fst, q.snd⟩)
-
-/-- The components of a least upper bound are the least upper bound of the components on
-`α ×' β`. -/
-private theorem prod_sup_toPProd (c : α × β → Prop) :
-    (⟨(CompleteLattice.sup c).fst, (CompleteLattice.sup c).snd⟩ : α ×' β)
-      = CompleteLattice.sup fun x => c (x.fst, x.snd) :=
-  is_sup_unique
-    (fun x => Iff.trans (CompleteLattice.sup_spec c (x.fst, x.snd))
-      ⟨fun h y hy => h (y.fst, y.snd) hy, fun h y hy => h ⟨y.fst, y.snd⟩ hy⟩)
-    (CompleteLattice.sup_spec _)
-
-/-- `mk` of the componentwise meets is the meet on a product. -/
-theorem Prod.mk_meet (p q : α × β) : ((p.fst ⊓ q.fst, p.snd ⊓ q.snd) : α × β) = p ⊓ q :=
-  prod_eq_of_pprod_eq <| by rw [prod_meet_toPProd, ← PProd.mk_meet]
-
-/-- The first component of a meet is the meet of the first components. -/
-@[simp] theorem Prod.fst_meet (p q : α × β) : (p ⊓ q).fst = p.fst ⊓ q.fst := by
-  rw [← Prod.mk_meet]
-
-/-- The second component of a meet is the meet of the second components. -/
-@[simp] theorem Prod.snd_meet (p q : α × β) : (p ⊓ q).snd = p.snd ⊓ q.snd := by
-  rw [← Prod.mk_meet]
-
-theorem Prod.fst_join (p q : α × β) : (p ⊔ q).fst = p.fst ⊔ q.fst :=
-  PartialOrder.rel_antisymm
-    (join_le p q (p.fst ⊔ q.fst, p.snd ⊔ q.snd)
-      (And.intro (left_le_join _ _) (left_le_join _ _))
-      (And.intro (right_le_join _ _) (right_le_join _ _))).1
-    (join_le _ _ _ (left_le_join p q).1 (right_le_join p q).1)
-
-theorem Prod.snd_join (p q : α × β) : (p ⊔ q).snd = p.snd ⊔ q.snd :=
-  PartialOrder.rel_antisymm
-    (join_le p q (p.fst ⊔ q.fst, p.snd ⊔ q.snd)
-      (And.intro (left_le_join _ _) (left_le_join _ _))
-      (And.intro (right_le_join _ _) (right_le_join _ _))).2
-    (join_le _ _ _ (left_le_join p q).2 (right_le_join p q).2)
-
-theorem Prod.fst_iSup {ι : Type w} (f : ι → α × β) : (iSup f).fst = ⨆ i, (f i).fst :=
-  PartialOrder.rel_antisymm
-    (iSup_le f (⨆ i, (f i).fst, ⨆ i, (f i).snd)
-      fun i => And.intro (le_iSup (fun i => (f i).fst) i) (le_iSup (fun i => (f i).snd) i)).1
-    (iSup_le _ _ fun i => (le_iSup f i).1)
-
-theorem Prod.snd_iSup {ι : Type w} (f : ι → α × β) : (iSup f).snd = ⨆ i, (f i).snd :=
-  PartialOrder.rel_antisymm
-    (iSup_le f (⨆ i, (f i).fst, ⨆ i, (f i).snd)
-      fun i => And.intro (le_iSup (fun i => (f i).fst) i) (le_iSup (fun i => (f i).snd) i)).2
-    (iSup_le _ _ fun i => (le_iSup f i).2)
-
-theorem Prod.fst_iInf {ι : Type w} (f : ι → α × β) : (iInf f).fst = ⨅ i, (f i).fst :=
-  PartialOrder.rel_antisymm
-    (le_iInf _ _ fun i => (iInf_le f i).1)
-    (le_iInf f (⨅ i, (f i).fst, ⨅ i, (f i).snd)
-      fun i => Prod.mk_le _ _ _ (iInf_le (fun i => (f i).fst) i)
-        (iInf_le (fun i => (f i).snd) i)).1
-
-theorem Prod.snd_iInf {ι : Type w} (f : ι → α × β) : (iInf f).snd = ⨅ i, (f i).snd :=
-  PartialOrder.rel_antisymm
-    (le_iInf _ _ fun i => (iInf_le f i).2)
-    (le_iInf f (⨅ i, (f i).fst, ⨅ i, (f i).snd)
-      fun i => Prod.mk_le _ _ _ (iInf_le (fun i => (f i).fst) i)
-        (iInf_le (fun i => (f i).snd) i)).2
-
-theorem Prod.mk_sup (c : α × β → Prop) :
-    ((CompleteLattice.sup fun a => ∃ b, c (a, b),
-      CompleteLattice.sup fun b => ∃ a, c (a, b)) : α × β) = CompleteLattice.sup c :=
-  prod_eq_of_pprod_eq <| by rw [prod_sup_toPProd, ← PProd.mk_sup]
-
-theorem Prod.fst_sup (c : α × β → Prop) :
-    (CompleteLattice.sup c).fst = CompleteLattice.sup fun a => ∃ b, c (a, b) := by
-  rw [← Prod.mk_sup]
-
-theorem Prod.snd_sup (c : α × β → Prop) :
-    (CompleteLattice.sup c).snd = CompleteLattice.sup fun b => ∃ a, c (a, b) := by
-  rw [← Prod.mk_sup]
 
 instance (f : α → α) (g : β → β) [PreservesSup f] [PreservesSup g] :
     PreservesSup (Prod.map f g) where
@@ -277,28 +150,6 @@ instance (f : α → α) (g : β → β) [PreservesSup f] [PreservesSup g] :
         obtain ⟨h1, h2⟩ := Prod.mk.inj heq
         exact ⟨x.2, ⟨x.1, hx⟩, h2⟩
 
-/-- The first component of the bottom element is the bottom element. Propositional (not
-definitional), because `⊥` is `csup ∅`, not a constructor application. -/
-theorem Prod.fst_bot {α : Type u} {β : Type v} [CCPO α] [CCPO β] :
-    (⊥ : α × β).fst = (⊥ : α) :=
-  PartialOrder.rel_antisymm (bot_le ((⊥ : α), (⊥ : β))).left (bot_le _)
-
-/-- The second component of the bottom element is the bottom element. Propositional (not
-definitional), because `⊥` is `csup ∅`, not a constructor application. -/
-theorem Prod.snd_bot {α : Type u} {β : Type v} [CCPO α] [CCPO β] :
-    (⊥ : α × β).snd = (⊥ : β) :=
-  PartialOrder.rel_antisymm (bot_le ((⊥ : α), (⊥ : β))).right (bot_le _)
-
-/-- The first component of the top element is the top element. Propositional (not
-definitional), because `⊤` is a supremum, not a constructor application. -/
-theorem Prod.fst_top : (⊤ : α × β).fst = (⊤ : α) :=
-  PartialOrder.rel_antisymm (le_top _) (le_top ((⊤ : α), (⊤ : β))).left
-
-/-- The second component of the top element is the top element. Propositional (not
-definitional), because `⊤` is a supremum, not a constructor application. -/
-theorem Prod.snd_top : (⊤ : α × β).snd = (⊤ : β) :=
-  PartialOrder.rel_antisymm (le_top _) (le_top ((⊤ : α), (⊤ : β))).right
-
 /-- A product lattice preserves suprema at the two components. -/
 instance [∀ a : α, PreservesSup (meet a)] [∀ b : β, PreservesSup (meet b)] (p : α × β) :
     PreservesSup (meet p) where
@@ -320,18 +171,9 @@ instance (a : Unit) : PreservesSup (meet a) where
 
 namespace PreservesSup
 
-/-- The upper adjoint of `f`: the join of all `x` with `f x ⊑ b`. For `f = (a ⊓ ·)` this is Heyting
-implication `a ⇨ ·`. -/
-noncomputable def upperAdjoint (f : α → α) (b : α) : α := CompleteLattice.sup (fun x => f x ⊑ b)
-
 /-- `upperAdjoint f b` is the least upper bound of `{x | f x ⊑ b}` by definition. -/
 theorem upperAdjoint_spec (f : α → α) (b : α) : is_sup (fun x : α => f x ⊑ b) (upperAdjoint f b) :=
   CompleteLattice.sup_spec (fun x : α => f x ⊑ b)
-
-/-- Unit, free from the definition of `upperAdjoint`: `f x ⊑ b → x ⊑ upperAdjoint f b`. Needs only
-`CompleteLattice`. -/
-theorem le_upperAdjoint (f : α → α) {b x : α} (h : f x ⊑ b) : x ⊑ upperAdjoint f b :=
-  le_sup (c := fun x : α => f x ⊑ b) h
 
 /-- Counit (modus ponens), from supremum preservation: `f (upperAdjoint f b) ⊑ b`. -/
 theorem upperAdjoint_le (f : α → α) [PreservesSup f] (b : α) : f (upperAdjoint f b) ⊑ b := by

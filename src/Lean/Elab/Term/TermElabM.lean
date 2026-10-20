@@ -1695,9 +1695,8 @@ private def elabUsingElabFns (stx : Syntax) (expectedType? : Option Expr) (catch
   | []      => throwError "elaboration function for `{k}` has not been implemented{indentD stx}"
   | elabFns => elabUsingElabFnsAux s stx expectedType? catchExPostpone elabFns
 
-instance : MonadMacroAdapter TermElabM where
-  getNextMacroScope := return (← getThe Core.State).nextMacroScope
-  setNextMacroScope next := modifyThe Core.State fun s => { s with nextMacroScope := next }
+-- Shortcut instance; otherwise every use searches for a lift down to `CoreM`.
+instance : MonadMacroAdapter TermElabM := inferInstance
 
 private def isExplicit (stx : Syntax) : Bool :=
   match stx with
@@ -2143,7 +2142,7 @@ def isLetRecAuxMVar (mvarId : MVarId) : TermElabM Bool := do
   trace[Elab.letrec] "mvarId root: {mkMVar mvarId}"
   return (← get).letRecsToLift.any (·.mvarId == mvarId)
 
-public def checkDeprecatedCore (constName : Name) (allowSuggestion := true) : TermElabM Unit := do
+def checkDeprecatedCore (constName : Name) (allowSuggestion := true) : TermElabM Unit := do
   if (← read).checkDeprecated then
     Linter.checkDeprecated constName allowSuggestion
 

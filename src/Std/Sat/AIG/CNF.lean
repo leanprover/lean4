@@ -134,7 +134,7 @@ This means that if the CNF is satisfiable at some assignment, we can evaluate th
 the atom part of that assignment and will get the value that was assigned to the variable of the
 node as a result.
 -/
-def Cache.Inv (aig : AIG α) (cnf : CNF Nat) (marks : Array Bool)
+public def Cache.Inv (aig : AIG α) (cnf : CNF Nat) (marks : Array Bool)
     (hmarks : marks.size = aig.decls.size) : Prop :=
   ∀ (assign : Nat → Bool) (_heval : cnf.eval assign = true) (idx : Nat)
     (hbound : idx < aig.decls.size) (_hmark : marks[idx]'(by omega) = true),
@@ -153,7 +153,7 @@ theorem Cache.Inv_init : Inv aig .empty (.replicate aig.decls.size false)
 The CNF cache. It keeps track of AIG nodes that we already turned into CNF to avoid adding the same
 CNF twice.
 -/
-structure Cache (aig : AIG α) (cnf : CNF Nat) where
+public structure Cache (aig : AIG α) (cnf : CNF Nat) where
   /--
   Keeps track of AIG nodes that we already turned into CNF.
   -/
@@ -412,7 +412,7 @@ of each node, in particular by `cnfSatAssignment`.
 Note that this definition leaves variables that do not occur in the AIG unconstrained so that the
 CNF can be reused for an AIG that extends the current one.
 -/
-def State.Inv (aig : AIG α) (cnf : CNF Nat) : Prop :=
+public def State.Inv (aig : AIG α) (cnf : CNF Nat) : Prop :=
   ∀ (assign1 : α → Bool) (assign : Nat → Bool),
     (∀ (idx : Nat) (h : idx < aig.decls.size), assign idx = ⟦aig, ⟨idx, false, h⟩, assign1⟧) →
     cnf.Sat assign
@@ -482,7 +482,7 @@ theorem State.Inv_iteToCNF {aig : AIG α} {cond ifTrue ifFalse : Fanin} {idx : N
 /--
 The state to accumulate CNF clauses as we run our Tseitin transformation on the AIG.
 -/
-structure State (aig : AIG α) where
+public structure State (aig : AIG α) where
   /--
   The CNF clauses so far.
   -/
@@ -499,8 +499,8 @@ structure State (aig : AIG α) where
 /--
 An initial state with no CNF clauses and an empty cache.
 -/
-def State.empty (aig : AIG α) : State aig where
-  cnf := .emptyWithCapacity (aig.decls.size * 2)
+public def State.empty (aig : AIG α) : State aig where
+  cnf := .empty
   cache := Cache.init aig
   inv := State.Inv_nil
 
@@ -509,7 +509,7 @@ Reuse a `State` for an `AIG` that extends the original one, see `Cache.cast`.
 -/
 -- Nospecialize as the type classes are not used at runtime so any specialization here is pointless
 @[nospecialize]
-def State.cast {aig1 aig2 : AIG α} (state : State aig1) (hprefix : IsPrefix aig1.decls aig2.decls) :
+public def State.cast {aig1 aig2 : AIG α} (state : State aig1) (hprefix : IsPrefix aig1.decls aig2.decls) :
     State aig2 where
   cnf := state.cnf
   cache := state.cache.cast hprefix
@@ -776,14 +776,11 @@ theorem denote_detectIte {root h c t f} (heq : detectIte root h = some ⟨c, t, 
 
 end toCNF
 
-/--
-Convert an AIG into CNF, starting at some entry node.
--/
 -- Nospecialize as the type classes are not used at runtime so any specialization here is pointless
 @[nospecialize]
-public def toCNF (entry : Entrypoint α) : CNF Nat :=
-  let ⟨state, _⟩ := go entry.aig entry.ref.gate entry.ref.hgate (toCNF.State.empty entry.aig)
-  state.cnf.add (CNF.Clause.empty.add entry.ref.gate !entry.ref.invert)
+public def toCNF' (entry : Entrypoint α) (state : toCNF.State entry.aig) : toCNF.State entry.aig :=
+  let ⟨state, _⟩ := go entry.aig entry.ref.gate entry.ref.hgate state
+  state
 where
   go (aig : AIG α) (upper : Nat) (h : upper < aig.decls.size) (state : toCNF.State aig) :
       { out : toCNF.State aig // toCNF.State.IsExtensionBy state out upper h } :=
@@ -841,16 +838,25 @@ where
   decreasing_by all_goals omega
 
 /--
+Convert an AIG into CNF, starting at some entry node.
+-/
+@[inline]
+public def toCNF (entry : Entrypoint α) : CNF Nat :=
+  let state := toCNF' entry (toCNF.State.empty entry.aig)
+  state.cnf.add (CNF.Clause.empty.add entry.ref.gate !entry.ref.invert)
+
+/--
 The node that we started CNF conversion at will always be marked as visited in the CNF cache.
 -/
-theorem toCNF.go_marks :
+theorem toCNF'.go_marks :
     (go aig start h state).val.cache.marks[start]'(by have := (go aig start h state).val.cache.hmarks; omega) = true :=
   (go aig start h state).property.trueAt
 
+open toCNF in
 /--
 The CNF returned by `go` will always be SAT at `cnfSatAssignment`.
 -/
-theorem toCNF.go_sat (aig : AIG α) (start : Nat) (h1 : start < aig.decls.size) (assign1 : α → Bool)
+theorem toCNF'.go_sat (aig : AIG α) (start : Nat) (h1 : start < aig.decls.size) (assign1 : α → Bool)
     (state : toCNF.State aig) :
     (go aig start h1 state).val.Sat (cnfSatAssignment aig assign1)  := by
   have := (go aig start h1 state).val.inv assign1 (cnfSatAssignment aig assign1)
@@ -858,26 +864,29 @@ theorem toCNF.go_sat (aig : AIG α) (start : Nat) (h1 : start < aig.decls.size) 
   rw [State.sat_iff]
   simp [this]
 
-theorem toCNF.go_as_denote' (aig : AIG α) (start) (inv) (h1) (assign1) :
+open toCNF in
+theorem toCNF'.go_as_denote' (aig : AIG α) (start) (inv) (h1) (assign1) :
     ⟦aig, ⟨start, inv, h1⟩, assign1⟧ → (go aig start h1 (.empty aig)).val.eval (cnfSatAssignment aig assign1) := by
   have := go_sat aig start h1 assign1 (.empty aig)
   simp only [State.Sat, CNF.sat_def] at this
   simp [this]
 
+open toCNF in
 /--
 Connect SAT results about the CNF to SAT results about the AIG.
 -/
-theorem toCNF.go_as_denote (aig : AIG α) (start) (h1) (assign1) :
+theorem toCNF'.go_as_denote (aig : AIG α) (start) (h1) (assign1) :
     ((⟦aig, ⟨start, inv, h1⟩, assign1⟧ && (go aig start h1 (.empty aig)).val.eval (cnfSatAssignment aig assign1)) = sat?)
       →
     (⟦aig, ⟨start, inv, h1⟩, assign1⟧ = sat?) := by
   have := go_as_denote' aig start inv h1 assign1
   by_cases CNF.eval (cnfSatAssignment aig assign1) (go aig start h1 (State.empty aig)).val.cnf <;> simp_all
 
+open toCNF in
 /--
 Connect SAT results about the AIG to SAT results about the CNF.
 -/
-theorem toCNF.denote_as_go {assign : Nat → Bool} :
+theorem toCNF'.denote_as_go {assign : Nat → Bool} :
     (⟦aig, ⟨start, inv, h1⟩, projectLeftAssign aig assign⟧ = false)
       →
     CNF.eval assign ((go aig start h1 (.empty aig)).val.cnf.add (CNF.Clause.empty.add start !inv)) = false := by
@@ -894,14 +903,14 @@ theorem toCNF.denote_as_go {assign : Nat → Bool} :
 An AIG is unsat iff its CNF is unsat.
 -/
 public theorem toCNF_equisat (entry : Entrypoint α) : (toCNF entry).Unsat ↔ entry.Unsat := by
-  simp only [toCNF]
+  simp only [toCNF, toCNF']
   constructor
   · intro h assign1
-    apply toCNF.go_as_denote
+    apply toCNF'.go_as_denote
     specialize h (toCNF.cnfSatAssignment entry.aig assign1)
     rcases entry with ⟨_, ⟨_, _ | _, hgate⟩⟩ <;> simpa [hgate] using h
   · intro h assign
-    apply toCNF.denote_as_go
+    apply toCNF'.denote_as_go
     specialize h (toCNF.projectLeftAssign entry.aig assign)
     assumption
 

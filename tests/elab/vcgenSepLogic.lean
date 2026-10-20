@@ -424,9 +424,12 @@ theorem sepPure_sepConj_iff (P : Prop) (Q : HProp) (h : Heap) :
     refine ⟨fun _ => none, h, fun _ => Or.inl rfl, (Heap.none_union h).symm, ?_, hQ⟩
     exact (sepPure_apply P _).mpr ⟨hP, fun _ => rfl⟩
 
-@[grind =] theorem sepPure_true_eq_emp : sepPure True = emp := by
+theorem sepPure_true_eq_emp : sepPure True = emp := by
   funext h; apply propext
   simp [sepPure_apply]
+
+@[grind =] theorem sepPure_eq_emp {φ : Prop} (h : φ) : sepPure φ = emp := by
+  simpa [h] using sepPure_true_eq_emp
 
 @[grind .] theorem sepPure_sepConj_le (P : Prop) (Q : HProp) : (sepPure P ∗ Q) ⊑ Q := by
   intro h hh
@@ -504,10 +507,10 @@ noncomputable instance HeapM.instWPMonad : WPMonad HeapM HProp EStack⟨⟩ :=
   WPMonad.withFrameClosure (m := StateM Heap) sepConj
     sepConj_assoc (fun _ _ _ => rfl) emp_sepConj (fun _ => rfl) StateT.instWPMonad
 
-/-- Every `HeapM` program frames every heap assertion `F`. -/
+/-- Every `HeapM` program frames every heap assertion `F`, under every guard `P`. -/
 @[grind .]
-theorem frames_sepConj {α : Type} (x : HeapM α) (F : HProp) :
-    WP.Frames sepConj x F :=
+theorem frames_sepConj {α : Type} (x : HeapM α) (F P : HProp) :
+    WP.Frames sepConj x F P :=
   WP.frames_of_frameClosure sepConj sepConj sepConj_assoc (fun _ _ _ => rfl)
     ⟨fun y => WP.trans y.run, fun _ => rfl⟩
 

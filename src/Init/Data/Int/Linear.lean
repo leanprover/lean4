@@ -981,6 +981,77 @@ theorem dvd_norm (ctx : Context) (d : Int) (p₁ p₂ : Poly) : p₁.norm.beq' p
   intro h₁
   simp [Poly.denote_norm ctx p₁, h₁]
 
+/--
+Reduces every coefficient of `p`, including the constant, modulo `m` using balanced residues,
+and drops the monomials whose coefficient becomes zero.
+-/
+@[expose]
+def Poly.bmodCoeffs (m : Nat) : Poly → Poly
+  | .num k => .num (Int.bmod k m)
+  | .add k v p =>
+    let k := Int.bmod k m
+    if k == 0 then bmodCoeffs m p else .add k v (bmodCoeffs m p)
+
+@[expose] noncomputable def Poly.bmodCoeffs_k (m : Nat) (p : Poly) : Poly :=
+  Poly.rec (fun k => .num (Int.bmod k m))
+    (fun k v _ ih => Bool.rec (.add (Int.bmod k m) v ih) ih (Int.beq' (Int.bmod k m) 0))
+    p
+
+@[simp] theorem Poly.bmodCoeffs_k_eq_bmodCoeffs (m : Nat) (p : Poly) : p.bmodCoeffs_k m = p.bmodCoeffs m := by
+  induction p with
+  | num k => rfl
+  | add k v p ih =>
+    simp only [bmodCoeffs]
+    split
+    next h =>
+      simp only [beq_iff_eq] at h
+      have h' : Int.beq' (Int.bmod k m) 0 = true := by simp [h]
+      simp [bmodCoeffs_k, h', ← ih]
+    next h =>
+      simp only [beq_iff_eq] at h
+      have h' : Int.beq' (Int.bmod k m) 0 = false := by rw [← Bool.not_eq_true, Int.beq'_eq]; assumption
+      simp [bmodCoeffs_k, h', ← ih]
+
+theorem Poly.dvd_denote_sub_bmodCoeffs (ctx : Context) (m : Nat) (p : Poly)
+    : (m : Int) ∣ p.denote ctx - (p.bmodCoeffs m).denote ctx := by
+  induction p with
+  | num k => simp only [bmodCoeffs, denote]; exact Int.dvd_self_sub_bmod
+  | add k v p ih =>
+    simp only [bmodCoeffs]
+    split
+    next h =>
+      simp only [beq_iff_eq] at h
+      have : k * v.denote ctx + p.denote ctx - (p.bmodCoeffs m).denote ctx
+           = k * v.denote ctx + (p.denote ctx - (p.bmodCoeffs m).denote ctx) := by omega
+      simp only [denote, this]
+      exact Int.dvd_add (Int.dvd_mul_of_dvd_left (Int.dvd_of_bmod_eq_zero h)) ih
+    next h =>
+      have : k * v.denote ctx + p.denote ctx - (Int.bmod k m * v.denote ctx + (p.bmodCoeffs m).denote ctx)
+           = (k - Int.bmod k m) * v.denote ctx + (p.denote ctx - (p.bmodCoeffs m).denote ctx) := by
+        rw [Int.sub_mul]; omega
+      simp only [denote, this]
+      exact Int.dvd_add (Int.dvd_mul_of_dvd_left Int.dvd_self_sub_bmod) ih
+
+@[expose]
+noncomputable def dvd_bmod_coeffs_cert (d : Int) (p₁ p₂ : Poly) (a : Int) : Bool :=
+  ((p₁.mul_k a).bmodCoeffs_k d.natAbs).beq' p₂
+
+/--
+`d ∣ p₁` implies `d ∣ a * p₁`, and the coefficients of the latter can be reduced modulo `d`.
+The solver uses `a = 1`, or the inverse of the leading coefficient of `p₁` modulo `d` when it is
+coprime to `d`, so that `p₂` is equivalent to `p₁` and its leading coefficient is `±1`.
+-/
+theorem dvd_bmod_coeffs (ctx : Context) (d : Int) (p₁ p₂ : Poly) (a : Int)
+    : dvd_bmod_coeffs_cert d p₁ p₂ a → d ∣ p₁.denote' ctx → d ∣ p₂.denote' ctx := by
+  simp only [dvd_bmod_coeffs_cert, Poly.beq'_eq, Poly.mul_k_eq_mul, Poly.bmodCoeffs_k_eq_bmodCoeffs,
+    Poly.denote'_eq_denote]
+  intro h₁ h₂; subst p₂
+  have h₃ : d ∣ (p₁.mul a).denote ctx := by
+    rw [Poly.denote_mul]; exact Int.dvd_mul_of_dvd_right h₂
+  have h₄ := Int.natAbs_dvd.mp (Poly.dvd_denote_sub_bmodCoeffs ctx d.natAbs (p₁.mul a))
+  have := Int.dvd_sub h₃ h₄
+  rwa [Int.sub_sub_self] at this
+
 theorem eq_of_zero_dvd (ctx : Context) (p : Poly) : 0 ∣ p.denote' ctx → p.denote' ctx = 0 := by
   intro ⟨k, h⟩
   rw [h, Int.zero_mul]
@@ -1897,88 +1968,56 @@ theorem emod_le (x y : Int) (n : Int) : emod_le_cert y n → x % y + n ≤ 0 := 
     simp only [Int.add_comm, Int.sub_neg, Int.add_zero]
     exact Int.emod_lt_of_pos x h
 
-private theorem dvd_le_tight' {d p b₁ b₂ : Int} (hd : d > 0) (h₁ : d ∣ p + b₁) (h₂ : p + b₂ ≤ 0)
-    : p + (b₁ - d*((b₁-b₂) / d)) ≤ 0 := by
-  have ⟨k, h⟩ := h₁
-  replace h₁ : p = d*k - b₁ := by
-    replace h := congrArg (· - b₁) h
-    simp only [Int.add_sub_cancel] at h
-    assumption
-  replace h₂ : d*k - b₁ + b₂ ≤ 0 := by
-    rw [h₁] at h₂; assumption
-  have : d*k ≤ b₁ - b₂ := by
-    rw [Int.sub_eq_add_neg, Int.add_assoc, Lean.Omega.Int.add_le_zero_iff_le_neg,
-        Int.neg_add, Int.neg_neg, Int.add_neg_eq_sub] at h₂
-    assumption
-  replace this : k ≤ (b₁ - b₂)/d := by
-    rw [Int.mul_comm] at this; exact Int.le_ediv_of_mul_le hd this
-  replace this := Int.mul_le_mul_of_nonneg_left this (Int.le_of_lt hd)
-  rw [←h] at this
-  replace this := Int.sub_nonpos_of_le this
-  rw [Int.add_sub_assoc] at this
-  exact this
+@[expose] noncomputable def Poly.divCoeffs_k (k : Int) (p : Poly) : Bool :=
+  Poly.rec (fun _ => true) (fun k' _ _ ih => Bool.and (Int.beq' (k' % k) 0) ih) p
 
-private theorem eq_neg_addConst_add (ctx : Context) (p : Poly)
-    : p.denote' ctx = (p.addConst (-p.getConst)).denote' ctx + p.getConst := by
-  simp only [Poly.denote'_eq_denote, Poly.denote_addConst, Int.add_comm, Int.add_left_comm]
-  rw [Int.add_right_neg]
-  simp
+@[simp] theorem Poly.divCoeffs_k_eq_divCoeffs (k : Int) (p : Poly) : p.divCoeffs_k k = p.divCoeffs k := by
+  induction p with
+  | num _ => rfl
+  | add k' v p ih => simp [divCoeffs_k, divCoeffs, ← ih, Int.beq'_eq_beq]
 
+private theorem le_tight_mod' {g K cm P : Int} (hg : 0 < g) (hcm₁ : -g < cm)
+    (hP : P = g * K + cm) (h : P ≤ 0) : P + -cm ≤ 0 := by
+  subst hP
+  have h₁ : g * K < g * 1 := by omega
+  have h₂ : K < 1 := Int.lt_of_mul_lt_mul_left h₁ (Int.le_of_lt hg)
+  have h₃ : g * K ≤ 0 := Int.mul_nonpos_of_nonneg_of_nonpos (Int.le_of_lt hg) (by omega)
+  omega
+
+/--
+Certificate for `dvd_le_tight_mod`: `g` is a positive divisor of `d`, `p₂ - t*p₁` has all its
+variable coefficients divisible by `g`, and `p₃` is `p₂` with its constant increased by the
+distance from `p₂ - t*p₁` to the next multiple of `g` below it.
+-/
 @[expose]
-noncomputable def dvd_le_tight_cert (d : Int) (p₁ p₂ p₃ : Poly) : Bool :=
-  let b₁ := p₁.getConst
-  let b₂ := p₂.getConst
-  let p  := p₁.addConst_k (-b₁)
-  Int.blt' 0 d |>.and (p₂.beq' (p.addConst_k b₂) |>.and (p₃.beq' (p.addConst_k (b₁ - d*((b₁ - b₂)/d)))))
+noncomputable def dvd_le_tight_mod_cert (d : Int) (p₁ p₂ p₃ : Poly) (t g : Int) : Bool :=
+  let r := Poly.combine_mul_k 1 (-t) p₂ p₁
+  Int.blt' 0 g |>.and (Int.beq' (d % g) 0 |>.and (r.divCoeffs_k g |>.and (p₃.beq' (p₂.addConst_k (-(cmod r.getConst g))))))
 
-theorem dvd_le_tight (ctx : Context) (d : Int) (p₁ p₂ p₃ : Poly)
-    : dvd_le_tight_cert d p₁ p₂ p₃ → d ∣ p₁.denote' ctx → p₂.denote' ctx ≤ 0 → p₃.denote' ctx ≤ 0 := by
-  simp only [dvd_le_tight_cert, Poly.beq'_eq, Bool.and_eq_true,
-             Poly.addConst_k_eq_addConst, Int.blt'_eq_true, and_imp]
-  generalize p₂.getConst = b₂
-  intro hd _ _; subst p₂ p₃
-  have := eq_neg_addConst_add ctx p₁
-  revert this
-  generalize p₁.getConst = b₁
-  generalize p₁.addConst (-b₁) = p
-  intro h₁; rw [h₁]; clear h₁
-  simp only [denote'_addConst_eq]
-  simp only [Poly.denote'_eq_denote]
-  exact dvd_le_tight' hd
-
-@[expose]
-noncomputable def dvd_neg_le_tight_cert (d : Int) (p₁ p₂ p₃ : Poly) : Bool :=
-  let b₁ := p₁.getConst
-  let b₂ := p₂.getConst
-  let p  := p₁.addConst_k (-b₁)
-  let b₁ := -b₁
-  let p  := p.mul_k (-1)
-  Int.blt' 0 d |>.and (p₂.beq' (p.addConst_k b₂) |>.and (p₃.beq' (p.addConst_k (b₁ - d*((b₁ - b₂)/d)))))
-
-theorem Poly.mul_minus_one_getConst_eq (p : Poly) : (p.mul (-1)).getConst = -p.getConst := by
-  simp [Poly.mul]
-  induction p <;> simp [Poly.mul', Poly.getConst, *]
-
-theorem dvd_neg_le_tight (ctx : Context) (d : Int) (p₁ p₂ p₃ : Poly)
-    : dvd_neg_le_tight_cert d p₁ p₂ p₃ → d ∣ p₁.denote' ctx → p₂.denote' ctx ≤ 0 → p₃.denote' ctx ≤ 0 := by
-  simp only [dvd_neg_le_tight_cert, Poly.beq'_eq, Bool.and_eq_true,
-             Int.blt'_eq_true, and_imp]
-  generalize p₂.getConst = b₂
-  intro hd _ _; subst p₂ p₃
-  simp only [Poly.denote'_eq_denote, Int.reduceNeg, Poly.addConst_k_eq_addConst, Poly.denote_addConst, Poly.denote_mul, Poly.mul_k_eq_mul,
-    Int.mul_add, Int.neg_mul, Int.one_mul, Int.mul_neg, Int.neg_neg, Int.add_comm, Int.add_assoc]
-  intro h₁ h₂
-  replace h₁ := Int.dvd_neg.mpr h₁
-  have := eq_neg_addConst_add ctx (p₁.mul (-1))
-  simp [Poly.mul_minus_one_getConst_eq] at this
-  rw [← Int.add_assoc] at this
-  rw [this] at h₁; clear this
-  rw [← Int.add_assoc]
-  revert h₁ h₂
-  generalize -Poly.denote ctx p₁ + p₁.getConst = p
-  generalize -p₁.getConst = b₁
-  intro h₁ h₂; rw [Int.add_comm] at h₁
-  exact dvd_le_tight' hd h₂ h₁
+/--
+Given `d ∣ p₁` and `p₂ ≤ 0`, if `p₂ ≡ c (mod g)` for a divisor `g` of `d` (witnessed by
+`p₂ - t*p₁` having variable coefficients divisible by `g`), then `p₂` is at most the largest
+value `≤ 0` congruent to `c` modulo `g`. Generalizes `dvd_le_tight`, which is the case `t = ±1`,
+`g = d`, `p₂ - t*p₁` constant.
+-/
+theorem dvd_le_tight_mod (ctx : Context) (d : Int) (p₁ p₂ p₃ : Poly) (t g : Int)
+    : dvd_le_tight_mod_cert d p₁ p₂ p₃ t g → d ∣ p₁.denote' ctx → p₂.denote' ctx ≤ 0 → p₃.denote' ctx ≤ 0 := by
+  simp only [dvd_le_tight_mod_cert, Bool.and_eq_true, Int.blt'_eq_true, Int.beq'_eq, Poly.beq'_eq,
+    Poly.divCoeffs_k_eq_divCoeffs, Poly.addConst_k_eq_addConst, Poly.denote'_eq_denote, and_imp]
+  intro hg hdg hdiv hp₃ h₁ h₂
+  subst hp₃
+  generalize hr : Poly.combine_mul_k 1 (-t) p₂ p₁ = r at hdiv
+  have hrd : r.denote ctx = p₂.denote ctx - t * p₁.denote ctx := by
+    rw [← hr, Poly.denote_combine_mul_k, Int.neg_mul, Int.one_mul]; omega
+  have hq := Poly.denote_div_eq_of_divCoeffs ctx r g hdiv
+  have ⟨k, hk⟩ : g ∣ p₁.denote ctx := Int.dvd_trans (Int.dvd_of_emod_eq_zero hdg) h₁
+  rw [hk] at hrd
+  have e₁ : g * (t * k) = t * (g * k) := by
+    rw [← Int.mul_assoc, Int.mul_comm g t, Int.mul_assoc]
+  have hP : p₂.denote ctx = g * (t * k + (r.div g).denote ctx) + cmod r.getConst g := by
+    rw [Int.mul_add, e₁, Int.mul_comm g ((r.div g).denote ctx)]; omega
+  rw [Poly.denote_addConst]
+  exact le_tight_mod' hg (cmod_gt_of_pos _ hg) hP h₂
 
 theorem le_norm_expr (ctx : Context) (lhs rhs : Expr) (p : Poly)
     : norm_eq_cert lhs rhs p → lhs.denote ctx ≤ rhs.denote ctx → p.denote' ctx ≤ 0 := by

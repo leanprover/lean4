@@ -162,6 +162,11 @@ inductive DvdCnstrProof where
   | coreOfNat (e : Expr) (thm : Expr) (d : Nat) (a : Int.Internal.Linear.Expr)
   | norm (c : DvdCnstr)
   | divCoeffs (c : DvdCnstr)
+  | /--
+    The coefficients of `c.p` multiplied by `a` were reduced modulo `c.d` using balanced residues.
+    `a` is `1` or the inverse of the leading coefficient of `c.p` modulo `c.d`.
+    -/
+    bmodCoeffs (c : DvdCnstr) (a : Int)
   | solveCombine (c₁ c₂ : DvdCnstr)
   | solveElim (c₁ c₂ : DvdCnstr)
   | elim (c : DvdCnstr)
@@ -193,8 +198,11 @@ inductive LeCnstrProof where
   | ofLeDiseq (c₁ : LeCnstr) (c₂ : DiseqCnstr)
   | ofDiseqSplit (c₁ : DiseqCnstr) (decVar : FVarId) (h : UnsatProof) (decVars : Array FVarId)
   | cooper (c : CooperSplit)
-  | dvdTight (c₁ : DvdCnstr) (c₂ : LeCnstr)
-  | negDvdTight (c₁ : DvdCnstr) (c₂ : LeCnstr)
+  | /--
+    `c₂.p ≤ 0` tightened using `c₁ : d ∣ p`: `c₂.p - t*p` has all variable coefficients divisible
+    by `g`, a divisor of `d`, so the value of `c₂.p` is known modulo `g`. See `dvd_le_tight_mod`.
+    -/
+    dvdTightMod (c₁ : DvdCnstr) (c₂ : LeCnstr) (t g : Int)
   | reorder (c : LeCnstr)
   | commRingNorm (c : LeCnstr) (e : CommRing.RingExpr) (p : CommRing.Poly)
 

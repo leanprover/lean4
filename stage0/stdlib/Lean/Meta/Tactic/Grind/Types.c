@@ -4831,7 +4831,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Grind_withGTransparency___redArg___lam__1(l
 _start:
 {
 uint8_t v___y_1167_; uint8_t v_reducible_1175_; 
-v_reducible_1175_ = lean_ctor_get_uint8(v_____do__lift_1165_, sizeof(void*)*14 + 33);
+v_reducible_1175_ = lean_ctor_get_uint8(v_____do__lift_1165_, sizeof(void*)*15 + 33);
 if (v_reducible_1175_ == 0)
 {
 uint8_t v___x_1176_; 
@@ -19787,7 +19787,7 @@ v___x_7010_ = l_Lean_Meta_Grind_getConfig___redArg(v_a_6919_);
 v_a_7011_ = lean_ctor_get(v___x_7010_, 0);
 lean_inc(v_a_7011_);
 lean_dec_ref(v___x_7010_);
-v_reducible_7032_ = lean_ctor_get_uint8(v_a_7011_, sizeof(void*)*14 + 33);
+v_reducible_7032_ = lean_ctor_get_uint8(v_a_7011_, sizeof(void*)*15 + 33);
 lean_dec(v_a_7011_);
 if (v_reducible_7032_ == 0)
 {
@@ -23710,7 +23710,7 @@ v___x_8669_ = l_Lean_Meta_Grind_getConfig___redArg(v___y_8662_);
 v_a_8670_ = lean_ctor_get(v___x_8669_, 0);
 lean_inc(v_a_8670_);
 lean_dec_ref(v___x_8669_);
-v_reducible_8671_ = lean_ctor_get_uint8(v_a_8670_, sizeof(void*)*14 + 33);
+v_reducible_8671_ = lean_ctor_get_uint8(v_a_8670_, sizeof(void*)*15 + 33);
 lean_dec(v_a_8670_);
 if (v_reducible_8671_ == 0)
 {
@@ -43355,7 +43355,7 @@ v___x_16156_ = l_Lean_Meta_Grind_getConfig___redArg(v_a_16099_);
 v_a_16157_ = lean_ctor_get(v___x_16156_, 0);
 lean_inc(v_a_16157_);
 lean_dec_ref(v___x_16156_);
-v_extAll_16158_ = lean_ctor_get_uint8(v_a_16157_, sizeof(void*)*14 + 11);
+v_extAll_16158_ = lean_ctor_get_uint8(v_a_16157_, sizeof(void*)*15 + 11);
 lean_dec(v_a_16157_);
 if (v_extAll_16158_ == 0)
 {
@@ -43424,12 +43424,12 @@ goto v_resetjp_16173_;
 v_resetjp_16173_:
 {
 uint8_t v_ext_16204_; 
-v_ext_16204_ = lean_ctor_get_uint8(v_a_16167_, sizeof(void*)*14 + 10);
+v_ext_16204_ = lean_ctor_get_uint8(v_a_16167_, sizeof(void*)*15 + 10);
 lean_dec(v_a_16167_);
 if (v_ext_16204_ == 0)
 {
 uint8_t v_extAll_16205_; 
-v_extAll_16205_ = lean_ctor_get_uint8(v_a_16172_, sizeof(void*)*14 + 11);
+v_extAll_16205_ = lean_ctor_get_uint8(v_a_16172_, sizeof(void*)*15 + 11);
 lean_dec(v_a_16172_);
 if (v_extAll_16205_ == 0)
 {

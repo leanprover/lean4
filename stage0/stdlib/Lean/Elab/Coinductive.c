@@ -4967,10 +4967,10 @@ lean_object* v___y_1760_ = _args[19];
 lean_object* v___y_1761_ = _args[20];
 _start:
 {
-size_t v___x_8909__boxed_1762_; lean_object* v_res_1763_; 
-v___x_8909__boxed_1762_ = lean_unbox_usize(v___x_1745_);
+size_t v___x_8883__boxed_1762_; lean_object* v_res_1763_; 
+v___x_8883__boxed_1762_ = lean_unbox_usize(v___x_1745_);
 lean_dec(v___x_1745_);
-v_res_1763_ = l___private_Lean_Elab_Coinductive_0__Lean_Elab_Command_generateCoinductiveConstructor___lam__2(v___x_1741_, v_numParams_1742_, v___x_1743_, v___x_1744_, v___x_8909__boxed_1762_, v___x_1746_, v_name_1747_, v_name_1748_, v_cls_1749_, v_levelParams_1750_, v_ctorSyntax_1751_, v___f_1752_, v_args_1753_, v_body_1754_, v___y_1755_, v___y_1756_, v___y_1757_, v___y_1758_, v___y_1759_, v___y_1760_);
+v_res_1763_ = l___private_Lean_Elab_Coinductive_0__Lean_Elab_Command_generateCoinductiveConstructor___lam__2(v___x_1741_, v_numParams_1742_, v___x_1743_, v___x_1744_, v___x_8883__boxed_1762_, v___x_1746_, v_name_1747_, v_name_1748_, v_cls_1749_, v_levelParams_1750_, v_ctorSyntax_1751_, v___f_1752_, v_args_1753_, v_body_1754_, v___y_1755_, v___y_1756_, v___y_1757_, v___y_1758_, v___y_1759_, v___y_1760_);
 lean_dec(v___y_1760_);
 lean_dec_ref(v___y_1759_);
 lean_dec(v___y_1758_);
@@ -5539,10 +5539,10 @@ goto v_reusejp_1982_;
 }
 v_reusejp_1982_:
 {
-lean_object* v___x_1984_; lean_object* v___x_1985_; lean_object* v___x_3785__overap_1986_; lean_object* v___x_1987_; 
+lean_object* v___x_1984_; lean_object* v___x_1985_; lean_object* v___x_3759__overap_1986_; lean_object* v___x_1987_; 
 v___x_1984_ = lean_box(0);
 v___x_1985_ = l_instInhabitedOfMonad___redArg(v___x_1983_, v___x_1984_);
-v___x_3785__overap_1986_ = lean_panic_fn_borrowed(v___x_1985_, v_msg_1903_);
+v___x_3759__overap_1986_ = lean_panic_fn_borrowed(v___x_1985_, v_msg_1903_);
 lean_dec(v___x_1985_);
 lean_inc(v___y_1909_);
 lean_inc_ref(v___y_1908_);
@@ -5550,7 +5550,7 @@ lean_inc(v___y_1907_);
 lean_inc_ref(v___y_1906_);
 lean_inc(v___y_1905_);
 lean_inc_ref(v___y_1904_);
-v___x_1987_ = lean_apply_7(v___x_3785__overap_1986_, v___y_1904_, v___y_1905_, v___y_1906_, v___y_1907_, v___y_1908_, v___y_1909_, lean_box(0));
+v___x_1987_ = lean_apply_7(v___x_3759__overap_1986_, v___y_1904_, v___y_1905_, v___y_1906_, v___y_1907_, v___y_1908_, v___y_1909_, lean_box(0));
 return v___x_1987_;
 }
 }

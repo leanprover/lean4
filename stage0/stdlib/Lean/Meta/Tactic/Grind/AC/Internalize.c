@@ -1887,7 +1887,7 @@ goto v_resetjp_612_;
 v_resetjp_612_:
 {
 uint8_t v_ac_620_; 
-v_ac_620_ = lean_ctor_get_uint8(v_a_611_, sizeof(void*)*14 + 26);
+v_ac_620_ = lean_ctor_get_uint8(v_a_611_, sizeof(void*)*15 + 26);
 lean_dec(v_a_611_);
 if (v_ac_620_ == 0)
 {

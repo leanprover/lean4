@@ -1839,9 +1839,9 @@ return v___x_249_;
 LEAN_EXPORT lean_object* l_Lean_Elab_CheckTactic_elabCheckTactic___lam__1___boxed(lean_object* v_stx_443_, lean_object* v___x_444_, lean_object* v___x_445_, lean_object* v___x_446_, lean_object* v___f_447_, lean_object* v___x_448_, lean_object* v___x_449_, lean_object* v___vars_450_, lean_object* v___y_451_, lean_object* v___y_452_, lean_object* v___y_453_, lean_object* v___y_454_, lean_object* v___y_455_, lean_object* v___y_456_, lean_object* v___y_457_){
 _start:
 {
-uint8_t v___x_11485__boxed_458_; lean_object* v_res_459_; 
-v___x_11485__boxed_458_ = lean_unbox(v___x_445_);
-v_res_459_ = l_Lean_Elab_CheckTactic_elabCheckTactic___lam__1(v_stx_443_, v___x_444_, v___x_11485__boxed_458_, v___x_446_, v___f_447_, v___x_448_, v___x_449_, v___vars_450_, v___y_451_, v___y_452_, v___y_453_, v___y_454_, v___y_455_, v___y_456_);
+uint8_t v___x_11407__boxed_458_; lean_object* v_res_459_; 
+v___x_11407__boxed_458_ = lean_unbox(v___x_445_);
+v_res_459_ = l_Lean_Elab_CheckTactic_elabCheckTactic___lam__1(v_stx_443_, v___x_444_, v___x_11407__boxed_458_, v___x_446_, v___f_447_, v___x_448_, v___x_449_, v___vars_450_, v___y_451_, v___y_452_, v___y_453_, v___y_454_, v___y_455_, v___y_456_);
 lean_dec(v___y_456_);
 lean_dec_ref(v___y_455_);
 lean_dec(v___y_454_);

@@ -3221,9 +3221,9 @@ return v___x_929_;
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Tactic_Impossible_0__Lean_Elab_Tactic_elabImpossibleConfig_evalConfigItem___lam__0___boxed(lean_object* v_config_978_, lean_object* v_item_979_, lean_object* v___y_980_, lean_object* v___y_981_, lean_object* v___y_982_, lean_object* v___y_983_, lean_object* v___y_984_, lean_object* v___y_985_, lean_object* v___y_986_){
 _start:
 {
-uint8_t v_config_3630__boxed_987_; lean_object* v_res_988_; 
-v_config_3630__boxed_987_ = lean_unbox(v_config_978_);
-v_res_988_ = l___private_Lean_Elab_Tactic_Impossible_0__Lean_Elab_Tactic_elabImpossibleConfig_evalConfigItem___lam__0(v_config_3630__boxed_987_, v_item_979_, v___y_980_, v___y_981_, v___y_982_, v___y_983_, v___y_984_, v___y_985_);
+uint8_t v_config_3604__boxed_987_; lean_object* v_res_988_; 
+v_config_3604__boxed_987_ = lean_unbox(v_config_978_);
+v_res_988_ = l___private_Lean_Elab_Tactic_Impossible_0__Lean_Elab_Tactic_elabImpossibleConfig_evalConfigItem___lam__0(v_config_3604__boxed_987_, v_item_979_, v___y_980_, v___y_981_, v___y_982_, v___y_983_, v___y_984_, v___y_985_);
 lean_dec(v___y_985_);
 lean_dec_ref(v___y_984_);
 lean_dec(v___y_983_);

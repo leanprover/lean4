@@ -16570,9 +16570,9 @@ lean_object* v___y_5318_ = _args[16];
 lean_object* v___y_5319_ = _args[17];
 _start:
 {
-uint8_t v___x_15769__boxed_5320_; lean_object* v_res_5321_; 
-v___x_15769__boxed_5320_ = lean_unbox(v___x_5302_);
-v_res_5321_ = l_WellFounded_opaqueFix_u2083___at___00Lean_Elab_Tactic_Conv_evalEnter_spec__1___redArg___lam__0(v___x_15769__boxed_5320_, v___x_5303_, v___x_5304_, v___x_5305_, v___x_5306_, v___x_5307_, v___x_5308_, v___x_5309_, v___x_5310_, v___y_5311_, v___y_5312_, v___y_5313_, v___y_5314_, v___y_5315_, v___y_5316_, v___y_5317_, v___y_5318_);
+uint8_t v___x_15561__boxed_5320_; lean_object* v_res_5321_; 
+v___x_15561__boxed_5320_ = lean_unbox(v___x_5302_);
+v_res_5321_ = l_WellFounded_opaqueFix_u2083___at___00Lean_Elab_Tactic_Conv_evalEnter_spec__1___redArg___lam__0(v___x_15561__boxed_5320_, v___x_5303_, v___x_5304_, v___x_5305_, v___x_5306_, v___x_5307_, v___x_5308_, v___x_5309_, v___x_5310_, v___y_5311_, v___y_5312_, v___y_5313_, v___y_5314_, v___y_5315_, v___y_5316_, v___y_5317_, v___y_5318_);
 lean_dec(v___y_5318_);
 lean_dec(v___y_5316_);
 lean_dec_ref(v___y_5315_);

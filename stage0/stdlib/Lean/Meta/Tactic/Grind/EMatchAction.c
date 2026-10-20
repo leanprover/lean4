@@ -11020,7 +11020,7 @@ goto v_resetjp_3572_;
 v_resetjp_3572_:
 {
 uint8_t v_trace_3575_; 
-v_trace_3575_ = lean_ctor_get_uint8(v_a_3571_, sizeof(void*)*14);
+v_trace_3575_ = lean_ctor_get_uint8(v_a_3571_, sizeof(void*)*15);
 lean_dec(v_a_3571_);
 if (v_trace_3575_ == 0)
 {

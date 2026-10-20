@@ -3439,10 +3439,10 @@ return v___x_1342_;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_evalRwaAt___lam__0___boxed(lean_object* v___x_1343_, lean_object* v_fvarId_1344_, lean_object* v_symm_1345_, lean_object* v_term_1346_, lean_object* v___y_1347_, lean_object* v___y_1348_, lean_object* v___y_1349_, lean_object* v___y_1350_, lean_object* v___y_1351_, lean_object* v___y_1352_, lean_object* v___y_1353_, lean_object* v___y_1354_, lean_object* v___y_1355_){
 _start:
 {
-uint8_t v___x_2496__boxed_1356_; uint8_t v_symm_boxed_1357_; lean_object* v_res_1358_; 
-v___x_2496__boxed_1356_ = lean_unbox(v___x_1343_);
+uint8_t v___x_2418__boxed_1356_; uint8_t v_symm_boxed_1357_; lean_object* v_res_1358_; 
+v___x_2418__boxed_1356_ = lean_unbox(v___x_1343_);
 v_symm_boxed_1357_ = lean_unbox(v_symm_1345_);
-v_res_1358_ = l_Lean_Elab_Tactic_evalRwaAt___lam__0(v___x_2496__boxed_1356_, v_fvarId_1344_, v_symm_boxed_1357_, v_term_1346_, v___y_1347_, v___y_1348_, v___y_1349_, v___y_1350_, v___y_1351_, v___y_1352_, v___y_1353_, v___y_1354_);
+v_res_1358_ = l_Lean_Elab_Tactic_evalRwaAt___lam__0(v___x_2418__boxed_1356_, v_fvarId_1344_, v_symm_boxed_1357_, v_term_1346_, v___y_1347_, v___y_1348_, v___y_1349_, v___y_1350_, v___y_1351_, v___y_1352_, v___y_1353_, v___y_1354_);
 lean_dec(v___y_1354_);
 lean_dec_ref(v___y_1353_);
 lean_dec(v___y_1352_);

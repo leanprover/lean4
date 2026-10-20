@@ -520,7 +520,7 @@ There are four syntaxes that can be used:
  * `` {given (type := "A")}`x` `` uses `A` as the type for metavariable `x`, but does not show that
    to readers.
  * `` {given}`x : A` `` uses `A` as the type for metavariable `x`.
- * `` {given}`x = e` `` establishes `x` as an alias for the term `e`
+ * `` {given}`x := e` `` establishes `x` as an alias for the term `e`
 
 Additionally, the contents of the code literal can be repeated, with comma separators.
 

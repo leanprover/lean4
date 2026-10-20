@@ -346,10 +346,10 @@ private partial def EqCnstr.toExprProofImpl (c' : EqCnstr) : ProofM Expr := cach
   | .coreToInt a b toIntThm lhs rhs =>
     let h := mkApp toIntThm (← mkEqProof a b)
     return mkApp6 (mkConst ``Int.Internal.Linear.eq_norm_expr) (← getContext) (← mkExprDecl lhs) (← mkExprDecl rhs) (← mkPolyDecl c'.p) eagerReflBoolTrue h
-  | .defn e e' =>
+  | .defn e p =>
     let x ← getVarOf e
-    return mkApp6 (mkConst ``Int.Internal.Linear.eq_def_struct) (← getContext) (← mkVarDecl x) (← mkExprDecl e') (← mkPolyDecl c'.p) eagerReflBoolTrue (← mkEqRefl e)
-  | .defnNat h x e =>
+    return mkApp6 (mkConst ``Int.Internal.Linear.eq_def) (← getContext) (← mkVarDecl x) (← mkPolyDecl p) (← mkPolyDecl c'.p) eagerReflBoolTrue (← mkEqRefl e)
+  | .defnExpr h x e =>
     return mkApp6 (mkConst ``Int.Internal.Linear.eq_def') (← getContext) (← mkVarDecl x) (← mkExprDecl e) (← mkPolyDecl c'.p) eagerReflBoolTrue h
   | .norm c =>
     return mkApp5 (mkConst ``Int.Internal.Linear.eq_norm) (← getContext) (← mkPolyDecl c.p) (← mkPolyDecl c'.p) eagerReflBoolTrue (← c.toExprProof)
@@ -373,13 +373,13 @@ private partial def EqCnstr.toExprProofImpl (c' : EqCnstr) : ProofM Expr := cach
   | .commRingNorm c e p =>
     let h := mkApp4 (mkConst ``Grind.CommRing.norm_int) (← getRingContext) (← mkRingExprDecl e) (← mkRingPolyDecl p) eagerReflBoolTrue
     return mkApp5 (mkConst ``Int.Internal.Linear.eq_norm_poly) (← getContext) (← mkPolyDecl c.p) (← mkPolyDecl c'.p) h (← c.toExprProof)
-  | .defnCommRing e e' p re rp p' =>
+  | .defnCommRing e p re rp p' =>
     let h := mkApp4 (mkConst ``Grind.CommRing.norm_int) (← getRingContext) (← mkRingExprDecl re) (← mkRingPolyDecl rp) eagerReflBoolTrue
     let x ← getVarOf e
-    return mkApp9 (mkConst ``Int.Internal.Linear.eq_def_struct_norm) (← getContext)
-      (← mkVarDecl x) (← mkExprDecl e') (← mkPolyDecl p) (← mkPolyDecl p') (← mkPolyDecl c'.p)
+    return mkApp8 (mkConst ``Int.Internal.Linear.eq_def_norm) (← getContext)
+      (← mkVarDecl x) (← mkPolyDecl p) (← mkPolyDecl p') (← mkPolyDecl c'.p)
       eagerReflBoolTrue (← mkEqRefl e) h
-  | .defnNatCommRing h₁ x e' p re rp p' =>
+  | .defnExprCommRing h₁ x e' p re rp p' =>
     let h₂ := mkApp4 (mkConst ``Grind.CommRing.norm_int) (← getRingContext) (← mkRingExprDecl re) (← mkRingPolyDecl rp) eagerReflBoolTrue
     return mkApp9 (mkConst ``Int.Internal.Linear.eq_def'_norm) (← getContext) (← mkVarDecl x) (← mkExprDecl e')
       (← mkPolyDecl p) (← mkPolyDecl p') (← mkPolyDecl c'.p) eagerReflBoolTrue h₁ h₂
@@ -468,6 +468,13 @@ private partial def LeCnstr.toExprProof (c' : LeCnstr) : ProofM Expr := caching 
     let h ← if pos then pure <| mkOfEqTrueCore e (← mkEqTrueProof e) else pure <| mkOfEqFalseCore e (← mkEqFalseProof e)
     let h := mkApp toIntThm h
     return mkApp6 (mkConst ``Int.Internal.Linear.le_norm_expr) (← getContext) (← mkExprDecl lhs) (← mkExprDecl rhs) (← mkPolyDecl c'.p) eagerReflBoolTrue h
+  | .coreExpr e pos lhs rhs =>
+    if pos then
+      let h ← mkOfEqTrue (← mkEqTrueProof e)
+      return mkApp6 (mkConst ``Int.Internal.Linear.le_norm_expr) (← getContext) (← mkExprDecl lhs) (← mkExprDecl rhs) (← mkPolyDecl c'.p) eagerReflBoolTrue h
+    else
+      let h ← mkOfEqFalse (← mkEqFalseProof e)
+      return mkApp6 (mkConst ``Int.Internal.Linear.not_le_norm_expr) (← getContext) (← mkExprDecl lhs) (← mkExprDecl rhs) (← mkPolyDecl c'.p) eagerReflBoolTrue h
   | .ofNatNonneg a =>
     return mkApp (mkConst ``Nat.ToInt.toNat_nonneg) a
   | .bound h => return h
@@ -639,8 +646,8 @@ open CollectDecVars
 mutual
 partial def EqCnstr.collectDecVars (c' : EqCnstr) : CollectDecVarsM Unit := do unless (← alreadyVisited c') do
   match c'.h with
-  | .core0 .. | .core .. | .defn .. | .defnNat ..
-  | .defnCommRing .. | .defnNatCommRing .. | .coreToInt .. => return () -- Equalities coming from the core never contain cutsat decision variables
+  | .core0 .. | .core .. | .defn .. | .defnExpr ..
+  | .defnCommRing .. | .defnExprCommRing .. | .coreToInt .. => return () -- Equalities coming from the core never contain cutsat decision variables
   | .commRingNorm c .. | .reorder c | .norm c | .divCoeffs c | .div _ _ c | .mod _ _ c => c.collectDecVars
   | .ofZeroDvd c => c.collectDecVars
   | .subst _ c₁ c₂ | .ofLeGe c₁ c₂ => c₁.collectDecVars; c₂.collectDecVars
@@ -665,7 +672,7 @@ partial def DvdCnstr.collectDecVars (c' : DvdCnstr) : CollectDecVarsM Unit := do
 
 partial def LeCnstr.collectDecVars (c' : LeCnstr) : CollectDecVarsM Unit := do unless (← alreadyVisited c') do
   match c'.h with
-  | .core .. | .coreNeg .. | .coreToInt .. | .ofNatNonneg .. | .bound .. => return ()
+  | .core .. | .coreNeg .. | .coreToInt .. | .coreExpr .. | .ofNatNonneg .. | .bound .. => return ()
   | .dec h => markAsFound h
   | .commRingNorm c .. | .reorder c | .cooper c
   | .norm c | .divCoeffs c => c.collectDecVars

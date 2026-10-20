@@ -683,8 +683,9 @@ deprecated_syntax Lean.Parser.Term.let_fun "use `have` instead" (since := "2026-
 
 The deprecation can be followed by `macro_rules`-style alternatives that rewrite the deprecated
 syntax into its replacement. When the user writes syntax matched by one of the alternatives, the
-warning offers the result as a "Try this" suggestion. Alternatives that do not match, or that
-throw an exception, do not produce a suggestion.
+warning offers the result as a "Try this" suggestion. Only the first alternative whose pattern
+matches is run; if it throws an exception (such as `Macro.throwUnsupported`), there is no
+suggestion.
 
 ```
 deprecated_syntax Lean.Parser.Tactic.rwaAtLegacyLocation
@@ -693,9 +694,19 @@ deprecated_syntax Lean.Parser.Tactic.rwaAtLegacyLocation
     `(tactic| rw $rws:rwRuleSeq $loc:location <;> assumption)
 ```
 
-A single alternative with an identifier pattern, such as `| stx => f stx`, receives every use of the
-deprecated syntax. The result is printed as source text: macro scopes of identifiers introduced by
-the quotations are erased.
+As with `macro_rules`, the patterns are syntax quotations of the deprecated syntax kind and the
+right-hand sides run in `MacroM`. Instead, a single alternative with an identifier pattern, such as
+`| stx => f stx` for some `f : Macro`, receives every use of the deprecated syntax.
+
+The result is printed as source text, so it should be syntax that can be kept in the source. Macro
+scopes that the quotations add to identifiers are erased, so these identifiers are printed as
+written and are not hygienic. Identifiers created with `mkIdent` from a name that has macro scopes
+keep them and are printed as inaccessible names such as `x✝`.
+
+Suggestions are only offered for deprecated syntax written by the user, not for deprecated syntax
+produced by a macro, and only if the syntax kind belongs to a single syntax category. A later
+`deprecated_syntax` command for the same syntax kind replaces the earlier one, including its
+alternatives.
 -/
 @[builtin_command_parser] def deprecatedSyntax := leading_parser
   "deprecated_syntax " >> ident >> optional (ppSpace >> strLit) >>

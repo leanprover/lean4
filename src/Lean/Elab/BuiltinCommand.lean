@@ -779,8 +779,8 @@ def elabShowDeprecatedModules : CommandElab := fun _ => do
 
 open Parser.Term in
 /--
-Defines the `DeprecatedSyntaxReplacement` given by the alternatives `alts` of a `deprecated_syntax`
-command for `kind`. Returns the name of the definition, or `none` if it failed to elaborate.
+Defines the `Macro` given by the alternatives `alts` of a `deprecated_syntax` command for `kind`.
+Returns the name of the definition, or `none` if it failed to elaborate.
 -/
 private def elabDeprecatedSyntaxReplacement (kind : SyntaxNodeKind) (alts : Array Syntax) :
     CommandElabM (Option Name) := withRef (mkNullNode alts) do
@@ -799,9 +799,7 @@ private def elabDeprecatedSyntaxReplacement (kind : SyntaxNodeKind) (alts : Arra
     `(fun $alts:matchAlt* | _ => no_error_if_unused% throw Lean.Macro.Exception.unsupportedSyntax)
   let id ← mkAuxDefName (`deprecatedSyntax ++ kind)
   withExporting do
-    -- Unfolded `DeprecatedSyntaxReplacement`, which is not available in files importing only `Init`
-    elabCommand <| ← `(public meta def $(mkIdentFrom (← getRef) id):ident :
-        Lean.Syntax → Lean.MacroM Lean.Syntax := $body)
+    elabCommand <| ← `(public meta def $(mkIdentFrom (← getRef) id):ident : Lean.Macro := $body)
   let declName := (← getCurrNamespace) ++ id
   let env ← getEnv
   unless env.contains declName && (IR.getSorryDep env declName).isNone do

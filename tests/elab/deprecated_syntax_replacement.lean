@@ -296,7 +296,7 @@ info: example : Nat → Nat := fun y✝ => 0
 syntax (name := oldNum) "old_num" : term
 macro_rules | `(old_num) => `(42)
 
-def oldNumReplacement : Lean.Elab.DeprecatedSyntaxReplacement := fun _ => `(42)
+def oldNumReplacement : Lean.Macro := fun _ => `(42)
 
 deprecated_syntax oldNum "use `42` instead" (since := "2026-10-19")
   | stx => oldNumReplacement stx

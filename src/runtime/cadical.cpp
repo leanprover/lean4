@@ -169,7 +169,11 @@ extern "C" LEAN_EXPORT uint32_t lean_cadical_solver_vars(b_lean_obj_arg s) {
 /* Solver.resize (s : @& Solver) (minMaxVar : Int32) : BaseIO Unit */
 extern "C" LEAN_EXPORT lean_obj_res lean_cadical_solver_resize(b_lean_obj_arg s, uint32_t min_max_var) {
     // `reserve` was renamed to `resize` (with unchanged semantics) in CaDiCaL 2.2.
+#if defined(CADICAL_MAJOR) && (CADICAL_MAJOR > 2 || (CADICAL_MAJOR == 2 && CADICAL_MINOR >= 2))
+    to_solver(s)->resize(to_lit(min_max_var));
+#else
     to_solver(s)->reserve(to_lit(min_max_var));
+#endif
     return unit();
 }
 

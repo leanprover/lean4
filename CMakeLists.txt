@@ -44,13 +44,27 @@ endif()
 
 # Don't do anything with cadical/leantar on wasm
 if(NOT CMAKE_SYSTEM_NAME MATCHES "Emscripten")
+  option(USE_SYSTEM_CADICAL "Link against an installed CaDiCaL library" OFF)
   find_program(CADICAL cadical)
+  if(USE_SYSTEM_CADICAL)
+    if(NOT CADICAL)
+      message(FATAL_ERROR "USE_SYSTEM_CADICAL requires an installed cadical executable")
+    endif()
+    find_library(CADICAL_LIB NAMES cadical REQUIRED)
+    find_path(CADICAL_INCLUDE_DIR NAMES cadical.hpp PATH_SUFFIXES cadical REQUIRED)
+    if(IS_DIRECTORY "${CADICAL_LIB}" OR NOT EXISTS "${CADICAL_LIB}")
+      message(FATAL_ERROR "CADICAL_LIB must name a library file; unset CADICAL_LIB to discover the system library")
+    endif()
+    if(NOT EXISTS "${CADICAL_INCLUDE_DIR}/cadical.hpp")
+      message(FATAL_ERROR "CADICAL_INCLUDE_DIR must contain cadical.hpp from the installed CaDiCaL version")
+    endif()
+  endif()
   # `libcadical.a` is linked into the Lean libraries, so it has to be built with matching flags
   # (position-independent, hidden visibility). Packagers can point these at their own build to
   # avoid the source fetch below, but then have to provide all three.
-  set(CADICAL_LIB "" CACHE FILEPATH "Path to a static libcadical to link into the Lean libraries")
+  set(CADICAL_LIB "" CACHE FILEPATH "Path to libcadical to link into the Lean libraries")
   set(CADICAL_INCLUDE_DIR "" CACHE PATH "Directory containing cadical.hpp")
-  if(NOT (CADICAL AND CADICAL_LIB AND CADICAL_INCLUDE_DIR))
+  if(NOT USE_SYSTEM_CADICAL AND NOT (CADICAL AND CADICAL_LIB AND CADICAL_INCLUDE_DIR))
     set(CADICAL_CXX ${CMAKE_CXX_COMPILER})
     set(CADICAL_EXTRA_CXX_FLAGS "" CACHE STRING "Additional flags used to compile cadical")
     set(CADICAL_CXXFLAGS "${CMAKE_CXX_FLAGS} ${CADICAL_EXTRA_CXX_FLAGS}")
@@ -150,6 +164,7 @@ if(NOT CMAKE_SYSTEM_NAME MATCHES "Emscripten")
   set(
     CADICAL_ARGS
     -DCADICAL=${CADICAL} -DCADICAL_LIB=${CADICAL_LIB} -DCADICAL_INCLUDE_DIR=${CADICAL_INCLUDE_DIR}
+    -DUSE_SYSTEM_CADICAL=${USE_SYSTEM_CADICAL}
   )
   # stage0 never runs cadical so no need to link against it there.
   list(APPEND STAGE0_ARGS -DLEANTAR=${LEANTAR})

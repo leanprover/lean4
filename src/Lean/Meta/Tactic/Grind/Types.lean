@@ -61,9 +61,13 @@ def eqCongrSymmPlaceholderProof := mkConst (Name.mkSimple "[eq_congr_symm]")
 /--
 Returns `true` if `e` is `True`, `False`, or a literal value.
 See `Lean.Meta.LitValues` for supported literals.
+`grind` assumes distinct interpreted terms denote distinct values, so a literal type is
+interpreted only if its literals have a normal form. `Float` and `Float32` literals do not
+(e.g., `2`, `2.0`, and `2.00` are the same `Float`), so they are not interpreted.
 -/
 def isInterpreted (e : Expr) : MetaM Bool := do
   if e.isTrue || e.isFalse then return true
+  if (← getFloatValue? e).isSome || (← getFloat32Value? e).isSome then return false
   isLitValue e
 
 register_builtin_option grind.debug : Bool := {

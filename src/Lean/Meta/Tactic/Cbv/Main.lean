@@ -366,7 +366,11 @@ def mkCbvMethods (simprocs : CbvSimprocs) : Methods :=
   { pre := cbvPre simprocs, post := cbvPost simprocs }
 
 /--
-Core `cbv` evaluator. It disables the `shareCommon` invariant checks for the duration
+Core `cbv` evaluator, usable within an enclosing `SymM` session. `e` must already be
+preprocessed (reducible constants unfolded via `Sym.unfoldReducible` and subterms shared via
+`Sym.shareCommon`), as is the case for subterms of a goal preprocessed by `Sym.preprocessMVar`.
+
+It disables the `shareCommon` invariant checks for the duration
 of the evaluation: `cbv` processes kernel projections natively, so they must not be
 folded into projection function applications, and it continuously constructs fresh
 terms from environment signatures (congruence proofs, `inferType` results) containing
@@ -375,7 +379,7 @@ full-term repair pass. The checks are disabled here (and in `cbvGoalCore`) rathe
 via the `SymM.run` configuration because `cbv` may run inside an enclosing `SymM`
 session (e.g., inside a `sym` block).
 -/
-def cbvCore (e : Expr) (config : Sym.Simp.Config := {}) : Sym.SymM Result := do
+public def cbvCore (e : Expr) (config : Sym.Simp.Config := {}) : Sym.SymM Result := do
   Sym.withoutShareCommonChecks do
     let simprocs ← getCbvSimprocs
     let methods := mkCbvMethods simprocs

@@ -704,8 +704,18 @@ def withoutCommandIncrementality (cond : Bool) (act : CommandElabM α) : Command
     return !cond
   }) act
 
+/--
+Warns if the kind of `stx` is deprecated. Must run inside the info tree context of the command, as
+the warning may come with a code action.
+-/
+private def checkDeprecatedCommand (stx : Syntax) : CommandElabM Unit := do
+  if isDeprecatedSyntax (← getEnv) stx.getKind then
+    liftCoreM <| checkDeprecatedSyntax stx (← read).macroStack
+
 private def elabCommandUsing (s : State) (stx : Syntax) : List (KeyedDeclsAttribute.AttributeEntry CommandElab) → CommandElabM Unit
-  | []                => withInfoTreeContext (mkInfoTree := mkInfoTree `no_elab stx) <| throwError "unexpected syntax{indentD stx}"
+  | []                => withInfoTreeContext (mkInfoTree := mkInfoTree `no_elab stx) do
+    checkDeprecatedCommand stx
+    throwError "unexpected syntax{indentD stx}"
   | (elabFn::elabFns) =>
     catchInternalId unsupportedSyntaxExceptionId
       (do
@@ -713,7 +723,8 @@ private def elabCommandUsing (s : State) (stx : Syntax) : List (KeyedDeclsAttrib
         -- supported commands)
         withoutCommandIncrementality (!(← isIncrementalElab elabFn.declName)) do
         withInfoTreeContext (mkInfoTree := mkInfoTree elabFn.declName stx) do
-         elabFn.value stx)
+          checkDeprecatedCommand stx
+          elabFn.value stx)
       (fun _ => do set s; elabCommandUsing s stx elabFns)
 
 /-- Elaborate `x` with `stx` on the macro stack -/
@@ -771,11 +782,11 @@ where go := do
       else withTraceNode `Elab.command (fun _ => return stx) (tag :=
         -- special case: show actual declaration kind for `declaration` commands
         (if stx.isOfKind ``Parser.Command.declaration then stx[1] else stx).getKind.toString) do
-        checkDeprecatedSyntax stx (← read).macroStack
         let s ← get
         match (← liftMacroM <| expandMacroImpl? s.env stx) with
         | some (decl, stxNew?) =>
           withInfoTreeContext (mkInfoTree := mkInfoTree decl stx) do
+            checkDeprecatedCommand stx
             let stxNew ← liftMacroM <| liftExcept stxNew?
             withMacroExpansion stx stxNew do
               -- Support incrementality; see also Note [Incremental Macros]
@@ -835,7 +846,8 @@ where go := do
         | _ =>
           match commandElabAttribute.getEntries s.env k with
           | []      =>
-            withInfoTreeContext (mkInfoTree := mkInfoTree `no_elab stx) <|
+            withInfoTreeContext (mkInfoTree := mkInfoTree `no_elab stx) do
+              checkDeprecatedCommand stx
               throwError "elaboration function for `{k}` has not been implemented"
           | elabFns => elabCommandUsing s stx elabFns
     | _ =>

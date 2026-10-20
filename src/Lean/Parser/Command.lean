@@ -680,9 +680,27 @@ Mark a syntax kind as deprecated. When this syntax is elaborated, a warning will
 ```
 deprecated_syntax Lean.Parser.Term.let_fun "use `have` instead" (since := "2026-03-18")
 ```
+
+The deprecation can be followed by `macro_rules`-style alternatives that rewrite the deprecated
+syntax into its replacement. When the user writes syntax matched by one of the alternatives, the
+warning offers the result as a "Try this" suggestion. Alternatives that do not match, or that
+throw an exception, do not produce a suggestion.
+
+```
+deprecated_syntax Lean.Parser.Tactic.rwaAtLegacyLocation
+  "use `rw [...] at ... <;> assumption` instead" (since := "2026-08-27")
+  | `(tactic| rwa $rws:rwRuleSeq $loc:location) =>
+    `(tactic| rw $rws:rwRuleSeq $loc:location <;> assumption)
+```
+
+A single alternative with an identifier pattern, such as `| stx => f stx`, receives every use of the
+deprecated syntax. The result is printed as source text: macro scopes of identifiers introduced by
+the quotations are erased.
 -/
 @[builtin_command_parser] def deprecatedSyntax := leading_parser
-  "deprecated_syntax " >> ident >> optional (ppSpace >> strLit) >> optional (" (" >> nonReservedSymbol "since" >> " := " >> strLit >> ")")
+  "deprecated_syntax " >> ident >> optional (ppSpace >> strLit) >>
+    optional (" (" >> nonReservedSymbol "since" >> " := " >> strLit >> ")") >>
+    optional Term.matchAlts
 @[builtin_command_parser] def «init_quot»    := leading_parser
   "init_quot"
 /--

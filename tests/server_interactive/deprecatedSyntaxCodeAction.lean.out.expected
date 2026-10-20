@@ -1,0 +1,148 @@
+{"textDocument": {"uri": "file:///deprecatedSyntaxCodeAction.lean"},
+ "range":
+ {"start": {"line": 14, "character": 3}, "end": {"line": 14, "character": 3}},
+ "context": {"diagnostics": []}}
+[{"title": "Try this: #check Nat",
+  "kind": "quickfix",
+  "edit":
+  {"documentChanges":
+   [{"textDocument":
+     {"version": 1, "uri": "file:///deprecatedSyntaxCodeAction.lean"},
+     "edits":
+     [{"range":
+       {"start": {"line": 14, "character": 0},
+        "end": {"line": 14, "character": 14}},
+       "newText": "#check Nat"}]}]},
+  "data":
+  {"providerResultIndex": 0,
+   "providerName":
+   "_private.Lean.Meta.Tactic.TryThis.0.Lean.Meta.Tactic.TryThis.tryThisProvider",
+   "params":
+   {"textDocument": {"uri": "file:///deprecatedSyntaxCodeAction.lean"},
+    "range":
+    {"start": {"line": 14, "character": 3},
+     "end": {"line": 14, "character": 3}},
+    "context": {"diagnostics": []}}}}]
+Resolution of Try this: #check Nat:
+{"title": "Try this: #check Nat",
+ "kind": "quickfix",
+ "edit":
+ {"documentChanges":
+  [{"textDocument":
+    {"version": 1, "uri": "file:///deprecatedSyntaxCodeAction.lean"},
+    "edits":
+    [{"range":
+      {"start": {"line": 14, "character": 0},
+       "end": {"line": 14, "character": 14}},
+      "newText": "#check Nat"}]}]},
+ "data":
+ {"providerResultIndex": 0,
+  "providerName":
+  "_private.Lean.Meta.Tactic.TryThis.0.Lean.Meta.Tactic.TryThis.tryThisProvider",
+  "params":
+  {"textDocument": {"uri": "file:///deprecatedSyntaxCodeAction.lean"},
+   "range":
+   {"start": {"line": 14, "character": 3}, "end": {"line": 14, "character": 3}},
+   "context": {"diagnostics": []}}}}
+{"textDocument": {"uri": "file:///deprecatedSyntaxCodeAction.lean"},
+ "position": {"line": 14, "character": 13}}
+{"range":
+ {"start": {"line": 14, "character": 11}, "end": {"line": 14, "character": 14}},
+ "contents":
+ {"value":
+  "```lean\nNat : Type\n```\n***\nThe natural numbers, starting at zero.\n\nThis type is special-cased by both the kernel and the compiler, and overridden with an efficient\nimplementation. Both use a fast arbitrary-precision arithmetic library (usually\n[GMP](https://gmplib.org/)); at runtime, `Nat` values that are sufficiently small are unboxed.\n***\n*import Init.Prelude*",
+  "kind": "markdown"}}
+{"textDocument": {"uri": "file:///deprecatedSyntaxCodeAction.lean"},
+ "range":
+ {"start": {"line": 24, "character": 34}, "end": {"line": 24, "character": 34}},
+ "context": {"diagnostics": []}}
+[{"title": "Try this: exact h",
+  "kind": "quickfix",
+  "edit":
+  {"documentChanges":
+   [{"textDocument":
+     {"version": 1, "uri": "file:///deprecatedSyntaxCodeAction.lean"},
+     "edits":
+     [{"range":
+       {"start": {"line": 24, "character": 32},
+        "end": {"line": 24, "character": 43}},
+       "newText": "exact h"}]}]},
+  "data":
+  {"providerResultIndex": 0,
+   "providerName":
+   "_private.Lean.Meta.Tactic.TryThis.0.Lean.Meta.Tactic.TryThis.tryThisProvider",
+   "params":
+   {"textDocument": {"uri": "file:///deprecatedSyntaxCodeAction.lean"},
+    "range":
+    {"start": {"line": 24, "character": 34},
+     "end": {"line": 24, "character": 34}},
+    "context": {"diagnostics": []}}}}]
+Resolution of Try this: exact h:
+{"title": "Try this: exact h",
+ "kind": "quickfix",
+ "edit":
+ {"documentChanges":
+  [{"textDocument":
+    {"version": 1, "uri": "file:///deprecatedSyntaxCodeAction.lean"},
+    "edits":
+    [{"range":
+      {"start": {"line": 24, "character": 32},
+       "end": {"line": 24, "character": 43}},
+      "newText": "exact h"}]}]},
+ "data":
+ {"providerResultIndex": 0,
+  "providerName":
+  "_private.Lean.Meta.Tactic.TryThis.0.Lean.Meta.Tactic.TryThis.tryThisProvider",
+  "params":
+  {"textDocument": {"uri": "file:///deprecatedSyntaxCodeAction.lean"},
+   "range":
+   {"start": {"line": 24, "character": 34},
+    "end": {"line": 24, "character": 34}},
+   "context": {"diagnostics": []}}}}
+{"textDocument": {"uri": "file:///deprecatedSyntaxCodeAction.lean"},
+ "range":
+ {"start": {"line": 33, "character": 19}, "end": {"line": 33, "character": 19}},
+ "context": {"diagnostics": []}}
+[{"title": "Try this: 42",
+  "kind": "quickfix",
+  "edit":
+  {"documentChanges":
+   [{"textDocument":
+     {"version": 1, "uri": "file:///deprecatedSyntaxCodeAction.lean"},
+     "edits":
+     [{"range":
+       {"start": {"line": 33, "character": 17},
+        "end": {"line": 33, "character": 24}},
+       "newText": "42"}]}]},
+  "data":
+  {"providerResultIndex": 0,
+   "providerName":
+   "_private.Lean.Meta.Tactic.TryThis.0.Lean.Meta.Tactic.TryThis.tryThisProvider",
+   "params":
+   {"textDocument": {"uri": "file:///deprecatedSyntaxCodeAction.lean"},
+    "range":
+    {"start": {"line": 33, "character": 19},
+     "end": {"line": 33, "character": 19}},
+    "context": {"diagnostics": []}}}}]
+Resolution of Try this: 42:
+{"title": "Try this: 42",
+ "kind": "quickfix",
+ "edit":
+ {"documentChanges":
+  [{"textDocument":
+    {"version": 1, "uri": "file:///deprecatedSyntaxCodeAction.lean"},
+    "edits":
+    [{"range":
+      {"start": {"line": 33, "character": 17},
+       "end": {"line": 33, "character": 24}},
+      "newText": "42"}]}]},
+ "data":
+ {"providerResultIndex": 0,
+  "providerName":
+  "_private.Lean.Meta.Tactic.TryThis.0.Lean.Meta.Tactic.TryThis.tryThisProvider",
+  "params":
+  {"textDocument": {"uri": "file:///deprecatedSyntaxCodeAction.lean"},
+   "range":
+   {"start": {"line": 33, "character": 19},
+    "end": {"line": 33, "character": 19}},
+   "context": {"diagnostics": []}}}}

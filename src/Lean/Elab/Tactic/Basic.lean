@@ -216,7 +216,7 @@ partial def evalTactic (stx : Syntax) : TacticM Unit := do
         let evalFns := tacticElabAttribute.getEntries (← getEnv) stx.getKind
         let macros  := macroAttribute.getEntries (← getEnv) stx.getKind
         if evalFns.isEmpty && macros.isEmpty then
-          throwErrorAt stx "Tactic `{stx.getKind}` has not been implemented"
+          throwNotAccepted m!"Tactic `{stx.getKind}` has not been implemented"
         let s ← Tactic.saveState
         expandEval s macros evalFns #[]
     | .missing => pure ()
@@ -229,7 +229,18 @@ where
        fail.state.restore (restoreInfo := true)
        throw fail.exception -- (*)
      else
-       throwErrorAt stx "Unexpected syntax{indentD stx}"
+       throwNotAccepted m!"Unexpected syntax{indentD stx}"
+
+    /--
+    Throws `msg` at `stx`, which no macro or elaborator accepted, after warning if `stx` is
+    deprecated, as `withDeprecatedSyntaxCheck` did not run or its warning was backtracked.
+    -/
+    throwNotAccepted (msg : MessageData) : TacticM Unit := do
+      unless isDeprecatedSyntax (← getEnv) stx.getKind do
+        throwErrorAt stx msg
+      withTacticInfoContext stx do
+        Term.reportDeprecatedSyntax stx
+        throwErrorAt stx msg
 
     @[inline] handleEx (declName : Name) (s : SavedState) (failures : Array EvalTacticFailure) (ex : Exception) (k : Array EvalTacticFailure → TacticM Unit) := do
       let noFallback := noFallbackAttr.hasTag (← getEnv) declName

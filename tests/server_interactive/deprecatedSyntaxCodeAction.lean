@@ -25,6 +25,15 @@ deprecated_syntax oldExact "use `exact` instead" (since := "2026-10-19")
 example (h : True) : True := by old_exact h
                                 --^ codeAction
 
+syntax (name := noImplTac) "no_impl_tac" : tactic
+
+deprecated_syntax noImplTac "use `trivial` instead" (since := "2026-10-20")
+  | `(tactic| no_impl_tac) => `(tactic| trivial)
+
+example : True := by no_impl_tac
+                     --^ codeAction
+                     --^ textDocument/hover
+
 syntax (name := oldNum) "old_num" : term
 macro_rules | `(old_num) => `(42)
 

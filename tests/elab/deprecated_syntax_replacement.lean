@@ -633,6 +633,133 @@ info: example : True := by trivial
 #guard_msgs in
 #apply_suggestions example : True := by old_multi
 
+/-! ## Syntax without implementation -/
+
+syntax (name := noImplTac) "no_impl_tac" : tactic
+
+deprecated_syntax noImplTac "use `trivial` instead" (since := "2026-10-20")
+  | `(tactic| no_impl_tac) => `(tactic| trivial)
+
+/--
+warning: syntax 'noImplTac' has been deprecated: use `trivial` instead
+
+Hint: Replace the deprecated syntax:
+  n̵o̵_̵i̵m̵p̵l̵_̵t̵a̵c̵t̲r̲i̲v̲i̲a̲l̲
+
+Note: This linter can be disabled with `set_option linter.deprecated.syntax false`
+---
+error: Tactic `noImplTac` has not been implemented
+---
+info: example : True := by trivial
+-/
+#guard_msgs in
+#apply_suggestions example : True := by no_impl_tac
+
+syntax (name := declinedTac) "declined_tac" : tactic
+macro_rules | `(tactic| declined_tac) => Lean.Macro.throwUnsupported
+
+deprecated_syntax declinedTac "use `trivial` instead" (since := "2026-10-20")
+  | `(tactic| declined_tac) => `(tactic| trivial)
+
+-- Every macro for the tactic declines it.
+/--
+warning: syntax 'declinedTac' has been deprecated: use `trivial` instead
+
+Hint: Replace the deprecated syntax:
+  d̵e̵c̵l̵i̵n̵e̵d̵_̵t̵a̵c̵t̲r̲i̲v̲i̲a̲l̲
+
+Note: This linter can be disabled with `set_option linter.deprecated.syntax false`
+---
+error: Unexpected syntax
+  declined_tac
+---
+info: example : True := by trivial
+-/
+#guard_msgs in
+#apply_suggestions example : True := by declined_tac
+
+syntax (name := noImplConv) "no_impl_conv" : conv
+
+deprecated_syntax noImplConv "use `rfl` instead" (since := "2026-10-20")
+  | `(conv| no_impl_conv) => `(conv| rfl)
+
+/--
+warning: syntax 'noImplConv' has been deprecated: use `rfl` instead
+
+Hint: Replace the deprecated syntax:
+  n̵o̵_̵i̵m̵p̵l̵_̵c̵o̵n̵v̵r̲f̲l̲
+
+Note: This linter can be disabled with `set_option linter.deprecated.syntax false`
+---
+error: Tactic `noImplConv` has not been implemented
+---
+info: example (a : Nat) : a = a := by conv => rfl
+-/
+#guard_msgs in
+#apply_suggestions example (a : Nat) : a = a := by conv => no_impl_conv
+
+syntax (name := noImplTerm) "no_impl_term" : term
+
+deprecated_syntax noImplTerm "use `0` instead" (since := "2026-10-20")
+  | `(no_impl_term) => `(0)
+
+/--
+warning: syntax 'noImplTerm' has been deprecated: use `0` instead
+
+Hint: Replace the deprecated syntax:
+  n̵o̵_̵i̵m̵p̵l̵_̵t̵e̵r̵m̵0̲
+
+Note: This linter can be disabled with `set_option linter.deprecated.syntax false`
+---
+error: elaboration function for `noImplTerm` has not been implemented
+  no_impl_term
+---
+info: example : Nat := 0
+-/
+#guard_msgs in
+#apply_suggestions example : Nat := no_impl_term
+
+syntax (name := noImplDo) "no_impl_do" : doElem
+
+deprecated_syntax noImplDo "use `pure ()` instead" (since := "2026-10-20")
+  | `(doElem| no_impl_do) => `(doElem| pure ())
+
+/--
+warning: syntax 'noImplDo' has been deprecated: use `pure ()` instead
+
+Hint: Replace the deprecated syntax:
+  n̵o̵_̵i̵m̵p̵l̵_̵d̵o̵p̲u̲r̲e̲ ̲(̲)̲
+
+Note: This linter can be disabled with `set_option linter.deprecated.syntax false`
+---
+error: elaboration function for `noImplDo` has not been implemented
+  no_impl_do
+---
+info: example : IO Unit := do pure ()
+-/
+#guard_msgs in
+#apply_suggestions example : IO Unit := do no_impl_do
+
+syntax (name := noImplCmd) "#no_impl_cmd" : command
+
+deprecated_syntax noImplCmd "use `#check` instead" (since := "2026-10-20")
+  | `(#no_impl_cmd) => `(#check 0)
+
+/--
+warning: syntax 'noImplCmd' has been deprecated: use `#check` instead
+
+Hint: Replace the deprecated syntax:
+  #̵n̵o̵_̵i̵m̵p̵l̵_̵c̵m̵d̵#̲c̲h̲e̲c̲k̲ ̲0̲
+
+Note: This linter can be disabled with `set_option linter.deprecated.syntax false`
+---
+error: elaboration function for `noImplCmd` has not been implemented
+---
+info: #check 0
+-/
+#guard_msgs in
+#apply_suggestions #no_impl_cmd
+
 /-! ## Other categories -/
 
 syntax (name := oldConvRfl) "old_rfl" : conv

@@ -22,7 +22,8 @@ def ifs_pure (n : Nat) : Id Nat := do
   return x
 
 theorem ifs_pure_triple : ⦃ True ⦄ ifs_pure n ⦃ fun r => r > 0 ⦄ := by
-  vcgen +jp [ifs_pure] with finish
+  unfold ifs_pure
+  vcgen +jp with finish
 
 def difs_pure (n : Nat) : Id Nat := do
   let mut x := 0
@@ -35,7 +36,8 @@ def difs_pure (n : Nat) : Id Nat := do
   return x
 
 theorem difs_pure_triple : ⦃ True ⦄ difs_pure n ⦃ fun r => r > 0 ⦄ := by
-  vcgen +jp [difs_pure] with finish
+  unfold difs_pure
+  vcgen +jp with finish
 
 def matches_pure (f : Nat → Option Nat) : Id Nat := do
   let mut x := 0
@@ -48,7 +50,8 @@ def matches_pure (f : Nat → Option Nat) : Id Nat := do
   return x
 
 theorem matches_pure_triple : ⦃ True ⦄ matches_pure f ⦃ fun r => r > 0 ⦄ := by
-  vcgen +jp [matches_pure] with finish
+  unfold matches_pure
+  vcgen +jp with finish
 
 def dmatches_pure (f : Nat → Option Nat) : Id Nat := do
   let mut x := 0
@@ -61,7 +64,8 @@ def dmatches_pure (f : Nat → Option Nat) : Id Nat := do
   return x
 
 theorem dmatches_pure_triple : ⦃ True ⦄ dmatches_pure f ⦃ fun r => r > 0 ⦄ := by
-  vcgen +jp [dmatches_pure] with finish
+  unfold dmatches_pure
+  vcgen +jp with finish
 
 def mixed_matches_pure (f : Nat → Option Nat) : Id Nat := do
   let mut x := 0
@@ -74,7 +78,8 @@ def mixed_matches_pure (f : Nat → Option Nat) : Id Nat := do
   return x
 
 theorem mixed_matches_pure_triple : ⦃ True ⦄ mixed_matches_pure f ⦃ fun r => r > 0 ⦄ := by
-  vcgen +jp [mixed_matches_pure] with finish
+  unfold mixed_matches_pure
+  vcgen +jp with finish
 
 def if_state (f : Nat → Bool) : StateM Nat Nat := do
   let mut x := 0
@@ -87,7 +92,8 @@ def if_state (f : Nat → Bool) : StateM Nat Nat := do
   return x
 
 theorem if_state_triple : ⦃ fun _ => True ⦄ if_state f ⦃ fun r => ⌜r > 0⌝ ⦄ := by
-  vcgen +jp [if_state] with finish
+  unfold if_state
+  vcgen +jp with finish
 
 def matches_state (f : Nat → Option Nat) : StateM Nat Nat := do
   let mut x := 0
@@ -100,7 +106,8 @@ def matches_state (f : Nat → Option Nat) : StateM Nat Nat := do
   return x
 
 theorem matches_state_triple : ⦃ fun _ => True ⦄ matches_state f ⦃ fun r => ⌜r > 0⌝ ⦄ := by
-  vcgen +jp [matches_state] with finish
+  unfold matches_state
+  vcgen +jp with finish
 
 def set42 : StateM Nat Unit := set 42
 
@@ -133,7 +140,8 @@ def mixed_matches_state (f : Nat → Option Nat) : StateM Nat Nat := do
   return x
 
 theorem mixed_matches_state_triple : ⦃ fun _ => True ⦄ mixed_matches_state f ⦃ fun r => ⌜r > 0⌝ ⦄ := by
-  vcgen +jp [mixed_matches_state] with finish
+  unfold mixed_matches_state
+  vcgen +jp with finish
 
 def early_return (f : Nat → Option Nat) : Id Nat := do
   let mut x := 1
@@ -143,7 +151,8 @@ def early_return (f : Nat → Option Nat) : Id Nat := do
   return x
 
 theorem early_return_triple : ⦃ True ⦄ early_return f ⦃ fun r => r > 0 ⦄ := by
-  vcgen +jp [early_return] with finish
+  unfold early_return
+  vcgen +jp with finish
 
 -- Two mutable variables: the join carries several join-argument equalities.
 def multi_mut (f : Nat → Option Nat) : Id Nat := do
@@ -154,7 +163,8 @@ def multi_mut (f : Nat → Option Nat) : Id Nat := do
   return x + y
 
 theorem multi_mut_triple : ⦃ True ⦄ multi_mut f ⦃ fun r => r > 0 ⦄ := by
-  vcgen +jp [multi_mut] with finish
+  unfold multi_mut
+  vcgen +jp with finish
 
 -- The shared tail performs an effect, so the join RHS applies specs under the
 -- precondition hypothesis that the jumps provide.
@@ -167,7 +177,8 @@ def monadic_tail (f : Nat → Option Nat) : StateM Nat Nat := do
   return x
 
 theorem monadic_tail_triple : ⦃ fun _ => True ⦄ monadic_tail f ⦃ fun r => ⌜r > 0⌝ ⦄ := by
-  vcgen +jp [monadic_tail] with finish
+  unfold monadic_tail
+  vcgen +jp with finish
 
 -- Literal and successor patterns produce a `Nat.casesOn`-shaped matcher.
 def literal_patterns (n m : Nat) : Id Nat := do
@@ -177,7 +188,8 @@ def literal_patterns (n m : Nat) : Id Nat := do
   return x
 
 theorem literal_patterns_triple : ⦃ True ⦄ literal_patterns n m ⦃ fun r => r > 0 ⦄ := by
-  vcgen +jp [literal_patterns] with finish
+  unfold literal_patterns
+  vcgen +jp with finish
 
 -- A split nested inside an alt: both branches of the inner `if` jump to the outer join point,
 -- so its precondition has one disjunct per branch of the inner `if`.
@@ -192,7 +204,8 @@ def nested_split (f : Nat → Option Nat) : Id Nat := do
   return x
 
 theorem nested_split_triple : ⦃ True ⦄ nested_split f ⦃ fun r => r > 0 ⦄ := by
-  vcgen +jp [nested_split] with finish
+  unfold nested_split
+  vcgen +jp with finish
 
 -- The `none` alt throws: its jump is dead code behind `throw`, so the precondition of the join
 -- point has no disjunct for it.
@@ -204,7 +217,8 @@ def throwing (f : Nat → Option Nat) : ExceptT String (StateM Nat) Nat := do
 
 theorem throwing_triple :
     ⦃ fun _ => True ⦄ throwing f ⦃ fun r => ⌜r > 0⌝; estack⟨fun _ _ => True⟩ ⦄ := by
-  vcgen +jp [throwing] with finish
+  unfold throwing
+  vcgen +jp with finish
 
 -- A `for` loop inside an alt has a loop invariant whose local context contains the alt's `y`.
 -- The jump's payload closes over `y`, so it re-scopes the invariant over `y` as well.
@@ -217,7 +231,8 @@ def loop_in_alt (f : Nat → Option Nat) : Id Nat := do
   return x
 
 theorem loop_in_alt_triple : ⦃ True ⦄ loop_in_alt f ⦃ fun r => r > 0 ⦄ := by
-  vcgen +jp [loop_in_alt] invariants
+  unfold loop_in_alt
+  vcgen +jp invariants
   | inv1 y _ => fun _ _ x => ⌜x > 0 ∧ y ≤ y⌝
   with finish
 
@@ -231,7 +246,8 @@ def set_before (b : Bool) : StateM Nat Nat := do
   return s + x
 
 theorem set_before_triple : ⦃ fun _ => True ⦄ set_before b ⦃ fun r => ⌜r ≥ 6⌝ ⦄ := by
-  vcgen +jp [set_before] with finish
+  unfold set_before
+  vcgen +jp with finish
 
 -- The branches write different states, so each disjunct records its own state.
 def set_in_branch (b : Bool) : StateM Nat Nat := do
@@ -241,7 +257,8 @@ def set_in_branch (b : Bool) : StateM Nat Nat := do
   return s + x
 
 theorem set_in_branch_triple : ⦃ fun _ => True ⦄ set_in_branch b ⦃ fun r => ⌜r ≥ 2⌝ ⦄ := by
-  vcgen +jp [set_in_branch] with finish
+  unfold set_in_branch
+  vcgen +jp with finish
 
 -- The precondition constrains the initial state, which is still the state at each jump.
 def read_after (b : Bool) : StateM Nat Nat := do
@@ -251,4 +268,20 @@ def read_after (b : Bool) : StateM Nat Nat := do
   return s + x
 
 theorem read_after_triple : ⦃ fun s => ⌜s > 3⌝ ⦄ read_after b ⦃ fun r => ⌜r ≥ 5⌝ ⦄ := by
-  vcgen +jp [read_after] with finish
+  unfold read_after
+  vcgen +jp with finish
+
+-- One join point with five jumps: the `else if` chain disjoins five payloads in one `?H`.
+def wide (x : Nat) : StateM Nat Nat := do
+  let mut y := 0
+  if x = 0 then y := 2
+  else if x = 1 then y := 3
+  else if x = 2 then y := 4
+  else if x = 3 then y := 5
+  else y := 6
+  let s ← get
+  return y + s
+
+theorem wide_triple : ⦃ fun _ => True ⦄ wide x ⦃ fun r => ⌜r > 1⌝ ⦄ := by
+  unfold wide
+  vcgen +jp with finish

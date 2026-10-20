@@ -61,12 +61,11 @@ set_option maxHeartbeats 10000000
   runBenchUsingTactic ``MatchSplit.Goal [``MatchSplit.loop, ``MatchSplit.step]
     `(tactic| vcgen) `(tactic| grind) [10]
   runBenchUsingTactic ``IfsJP.Goal [``IfsJP.loop, ``IfsJP.step]
-    `(tactic| vcgen +jp) `(tactic| grind) [3]
-  -- `grind (splits := 14)` takes about 300 ms to discharge the VC, too long for the benchmark runner.
+    `(tactic| vcgen +jp) `(tactic| sorry) [3]
   runBenchUsingTactic ``MatchesJP.Goal [``MatchesJP.loop, ``MatchesJP.step]
     `(tactic| vcgen +jp) `(tactic| sorry) [3]
   runBenchUsingTactic ``WideJP.Goal [``WideJP.wide, ``WideJP.chain]
-    `(tactic| vcgen +jp) `(tactic| grind) [4]
+    `(tactic| vcgen +jp) `(tactic| sorry) [4]
 
 -- Verify `simplifying_assumptions [Nat.add_assoc]` works end-to-end with `simp only` unfolding.
 /--

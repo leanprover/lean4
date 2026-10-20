@@ -834,6 +834,76 @@ Note: This linter can be disabled with `set_option linter.deprecated.syntax fals
 #guard_msgs in
 #apply_suggestions example : True := by wrapper
 
+/-! ## Quotations -/
+
+-- Deprecated syntax in quotations that are checked for unbound identifiers is reported in the macro.
+/--
+warning: quotation uses deprecated syntax 'oldAdd': use `+` instead
+
+Hint: Replace the deprecated syntax:
+  o̵l̵d̵_̵a̵d̵d̵ ̵1̵ ̵2̵(̲1̲ ̲+̲ ̲2̲)̲
+
+Note: This linter can be disabled with `set_option linter.deprecated.syntax false`
+---
+info: macro "quoted_add" : term => ``((1 + 2))
+-/
+#guard_msgs in
+#apply_suggestions macro "quoted_add" : term => ``(old_add 1 2)
+
+-- Antiquotations are passed to the replacement.
+/--
+warning: quotation uses deprecated syntax 'oldAdd': use `+` instead
+
+Hint: Replace the deprecated syntax:
+  o̵l̵d̵_̵a̵d̵d̵ ̵2̵ ̵$̵x̵(̲2̲ ̲+̲ ̲$̲x̲)̲
+
+Note: This linter can be disabled with `set_option linter.deprecated.syntax false`
+---
+info: macro "quoted_add_antiquot " x:term:max : term => ``((2 + $x))
+-/
+#guard_msgs in
+#apply_suggestions macro "quoted_add_antiquot " x:term:max : term => ``(old_add 2 $x)
+
+-- The formatter cannot print antiquotations on the left of trailing syntax, so there is no
+-- suggestion.
+/--
+warning: quotation uses deprecated syntax 'oldAdd': use `+` instead
+
+Note: This linter can be disabled with `set_option linter.deprecated.syntax false`
+-/
+#guard_msgs in
+#apply_suggestions macro "quoted_add_antiquot_lhs " x:term:max : term => ``(old_add $x 2)
+
+/--
+warning: quotation uses deprecated syntax 'oldAdd': use `+` instead
+
+Hint: Replace the deprecated syntax:
+  o̵l̵d̵_̵a̵d̵d̵ ̵1̵ ̵2̵(̲1̲ ̲+̲ ̲2̲)̲
+
+Note: This linter can be disabled with `set_option linter.deprecated.syntax false`
+---
+info: notation "notation_add" => (1 + 2)
+-/
+#guard_msgs in
+#apply_suggestions notation "notation_add" => old_add 1 2
+
+-- Notation variables are rewritten into antiquotations, so there is no suggestion.
+/--
+warning: quotation uses deprecated syntax 'oldAdd': use `+` instead
+
+Note: This linter can be disabled with `set_option linter.deprecated.syntax false`
+-/
+#guard_msgs in
+#apply_suggestions notation "notation_add_var " x:max => old_add x 2
+
+/--
+warning: quotation uses deprecated syntax 'oldPlus': use `+` instead
+
+Note: This linter can be disabled with `set_option linter.deprecated.syntax false`
+-/
+#guard_msgs in
+#apply_suggestions notation "notation_plus_var " x:max => x +' 2
+
 /-! ## Disabled linter -/
 
 -- Neither a warning nor a code action.

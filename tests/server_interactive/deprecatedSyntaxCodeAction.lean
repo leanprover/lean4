@@ -49,6 +49,13 @@ example : Nat := old_num * 2
 example : old_num = 42 := rfl
           --^ codeAction
 
+macro "quoted_num" : term => ``(old_num)
+                                --^ codeAction
+                                --^ textDocument/hover
+
+notation "notation_num" => old_num
+                           --^ codeAction
+
 syntax (name := oldReturn) "old_return " term : doElem
 macro_rules | `(doElem| old_return $e) => `(doElem| return $e)
 

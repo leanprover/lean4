@@ -297,7 +297,109 @@ Resolution of Try this: 42:
    "context": {"diagnostics": []}}}}
 {"textDocument": {"uri": "file:///deprecatedSyntaxCodeAction.lean"},
  "range":
- {"start": {"line": 58, "character": 4}, "end": {"line": 58, "character": 4}},
+ {"start": {"line": 51, "character": 34}, "end": {"line": 51, "character": 34}},
+ "context": {"diagnostics": []}}
+[{"title": "Try this: 42",
+  "kind": "quickfix",
+  "edit":
+  {"documentChanges":
+   [{"textDocument":
+     {"version": 1, "uri": "file:///deprecatedSyntaxCodeAction.lean"},
+     "edits":
+     [{"range":
+       {"start": {"line": 51, "character": 32},
+        "end": {"line": 51, "character": 39}},
+       "newText": "42"}]}]},
+  "data":
+  {"providerResultIndex": 0,
+   "providerName":
+   "_private.Lean.Meta.Tactic.TryThis.0.Lean.Meta.Tactic.TryThis.tryThisProvider",
+   "params":
+   {"textDocument": {"uri": "file:///deprecatedSyntaxCodeAction.lean"},
+    "range":
+    {"start": {"line": 51, "character": 34},
+     "end": {"line": 51, "character": 34}},
+    "context": {"diagnostics": []}}}}]
+Resolution of Try this: 42:
+{"title": "Try this: 42",
+ "kind": "quickfix",
+ "edit":
+ {"documentChanges":
+  [{"textDocument":
+    {"version": 1, "uri": "file:///deprecatedSyntaxCodeAction.lean"},
+    "edits":
+    [{"range":
+      {"start": {"line": 51, "character": 32},
+       "end": {"line": 51, "character": 39}},
+      "newText": "42"}]}]},
+ "data":
+ {"providerResultIndex": 0,
+  "providerName":
+  "_private.Lean.Meta.Tactic.TryThis.0.Lean.Meta.Tactic.TryThis.tryThisProvider",
+  "params":
+  {"textDocument": {"uri": "file:///deprecatedSyntaxCodeAction.lean"},
+   "range":
+   {"start": {"line": 51, "character": 34},
+    "end": {"line": 51, "character": 34}},
+   "context": {"diagnostics": []}}}}
+{"textDocument": {"uri": "file:///deprecatedSyntaxCodeAction.lean"},
+ "position": {"line": 51, "character": 34}}
+{"range":
+ {"start": {"line": 51, "character": 30}, "end": {"line": 51, "character": 40}},
+ "contents":
+ {"value":
+  "```lean\nLean.MacroM (Lean.TSyntax `term)\n```\n***\nSyntax quotation for terms.",
+  "kind": "markdown"}}
+{"textDocument": {"uri": "file:///deprecatedSyntaxCodeAction.lean"},
+ "range":
+ {"start": {"line": 55, "character": 29}, "end": {"line": 55, "character": 29}},
+ "context": {"diagnostics": []}}
+[{"title": "Try this: 42",
+  "kind": "quickfix",
+  "edit":
+  {"documentChanges":
+   [{"textDocument":
+     {"version": 1, "uri": "file:///deprecatedSyntaxCodeAction.lean"},
+     "edits":
+     [{"range":
+       {"start": {"line": 55, "character": 27},
+        "end": {"line": 55, "character": 34}},
+       "newText": "42"}]}]},
+  "data":
+  {"providerResultIndex": 0,
+   "providerName":
+   "_private.Lean.Meta.Tactic.TryThis.0.Lean.Meta.Tactic.TryThis.tryThisProvider",
+   "params":
+   {"textDocument": {"uri": "file:///deprecatedSyntaxCodeAction.lean"},
+    "range":
+    {"start": {"line": 55, "character": 29},
+     "end": {"line": 55, "character": 29}},
+    "context": {"diagnostics": []}}}}]
+Resolution of Try this: 42:
+{"title": "Try this: 42",
+ "kind": "quickfix",
+ "edit":
+ {"documentChanges":
+  [{"textDocument":
+    {"version": 1, "uri": "file:///deprecatedSyntaxCodeAction.lean"},
+    "edits":
+    [{"range":
+      {"start": {"line": 55, "character": 27},
+       "end": {"line": 55, "character": 34}},
+      "newText": "42"}]}]},
+ "data":
+ {"providerResultIndex": 0,
+  "providerName":
+  "_private.Lean.Meta.Tactic.TryThis.0.Lean.Meta.Tactic.TryThis.tryThisProvider",
+  "params":
+  {"textDocument": {"uri": "file:///deprecatedSyntaxCodeAction.lean"},
+   "range":
+   {"start": {"line": 55, "character": 29},
+    "end": {"line": 55, "character": 29}},
+   "context": {"diagnostics": []}}}}
+{"textDocument": {"uri": "file:///deprecatedSyntaxCodeAction.lean"},
+ "range":
+ {"start": {"line": 65, "character": 4}, "end": {"line": 65, "character": 4}},
  "context": {"diagnostics": []}}
 [{"title": "Try this: return 1",
   "kind": "quickfix",
@@ -307,8 +409,8 @@ Resolution of Try this: 42:
      {"version": 1, "uri": "file:///deprecatedSyntaxCodeAction.lean"},
      "edits":
      [{"range":
-       {"start": {"line": 58, "character": 2},
-        "end": {"line": 58, "character": 14}},
+       {"start": {"line": 65, "character": 2},
+        "end": {"line": 65, "character": 14}},
        "newText": "return 1"}]}]},
   "data":
   {"providerResultIndex": 0,
@@ -317,8 +419,8 @@ Resolution of Try this: 42:
    "params":
    {"textDocument": {"uri": "file:///deprecatedSyntaxCodeAction.lean"},
     "range":
-    {"start": {"line": 58, "character": 4},
-     "end": {"line": 58, "character": 4}},
+    {"start": {"line": 65, "character": 4},
+     "end": {"line": 65, "character": 4}},
     "context": {"diagnostics": []}}}}]
 Resolution of Try this: return 1:
 {"title": "Try this: return 1",
@@ -329,8 +431,8 @@ Resolution of Try this: return 1:
     {"version": 1, "uri": "file:///deprecatedSyntaxCodeAction.lean"},
     "edits":
     [{"range":
-      {"start": {"line": 58, "character": 2},
-       "end": {"line": 58, "character": 14}},
+      {"start": {"line": 65, "character": 2},
+       "end": {"line": 65, "character": 14}},
       "newText": "return 1"}]}]},
  "data":
  {"providerResultIndex": 0,
@@ -339,11 +441,11 @@ Resolution of Try this: return 1:
   "params":
   {"textDocument": {"uri": "file:///deprecatedSyntaxCodeAction.lean"},
    "range":
-   {"start": {"line": 58, "character": 4}, "end": {"line": 58, "character": 4}},
+   {"start": {"line": 65, "character": 4}, "end": {"line": 65, "character": 4}},
    "context": {"diagnostics": []}}}}
 {"textDocument": {"uri": "file:///deprecatedSyntaxCodeAction.lean"},
  "range":
- {"start": {"line": 65, "character": 4}, "end": {"line": 65, "character": 4}},
+ {"start": {"line": 72, "character": 4}, "end": {"line": 72, "character": 4}},
  "context": {"diagnostics": []}}
 [{"title":
   "Try this: match b with\n  | true =>\n    pure ()\n  | false =>\n    return 1",
@@ -354,8 +456,8 @@ Resolution of Try this: return 1:
      {"version": 1, "uri": "file:///deprecatedSyntaxCodeAction.lean"},
      "edits":
      [{"range":
-       {"start": {"line": 65, "character": 2},
-        "end": {"line": 65, "character": 22}},
+       {"start": {"line": 72, "character": 2},
+        "end": {"line": 72, "character": 22}},
        "newText":
        "match b with\n  | true =>\n    pure ()\n  | false =>\n    return 1"}]}]},
   "data":
@@ -365,8 +467,8 @@ Resolution of Try this: return 1:
    "params":
    {"textDocument": {"uri": "file:///deprecatedSyntaxCodeAction.lean"},
     "range":
-    {"start": {"line": 65, "character": 4},
-     "end": {"line": 65, "character": 4}},
+    {"start": {"line": 72, "character": 4},
+     "end": {"line": 72, "character": 4}},
     "context": {"diagnostics": []}}}}]
 Resolution of Try this: match b with
   | true =>
@@ -382,8 +484,8 @@ Resolution of Try this: match b with
     {"version": 1, "uri": "file:///deprecatedSyntaxCodeAction.lean"},
     "edits":
     [{"range":
-      {"start": {"line": 65, "character": 2},
-       "end": {"line": 65, "character": 22}},
+      {"start": {"line": 72, "character": 2},
+       "end": {"line": 72, "character": 22}},
       "newText":
       "match b with\n  | true =>\n    pure ()\n  | false =>\n    return 1"}]}]},
  "data":
@@ -393,11 +495,11 @@ Resolution of Try this: match b with
   "params":
   {"textDocument": {"uri": "file:///deprecatedSyntaxCodeAction.lean"},
    "range":
-   {"start": {"line": 65, "character": 4}, "end": {"line": 65, "character": 4}},
+   {"start": {"line": 72, "character": 4}, "end": {"line": 72, "character": 4}},
    "context": {"diagnostics": []}}}}
 {"textDocument": {"uri": "file:///deprecatedSyntaxCodeAction.lean"},
  "range":
- {"start": {"line": 70, "character": 6}, "end": {"line": 70, "character": 6}},
+ {"start": {"line": 77, "character": 6}, "end": {"line": 77, "character": 6}},
  "context": {"diagnostics": []}}
 [{"title": "Try this: 42",
   "kind": "quickfix",
@@ -407,8 +509,8 @@ Resolution of Try this: match b with
      {"version": 1, "uri": "file:///deprecatedSyntaxCodeAction.lean"},
      "edits":
      [{"range":
-       {"start": {"line": 70, "character": 4},
-        "end": {"line": 70, "character": 11}},
+       {"start": {"line": 77, "character": 4},
+        "end": {"line": 77, "character": 11}},
        "newText": "42"}]}]},
   "data":
   {"providerResultIndex": 0,
@@ -417,8 +519,8 @@ Resolution of Try this: match b with
    "params":
    {"textDocument": {"uri": "file:///deprecatedSyntaxCodeAction.lean"},
     "range":
-    {"start": {"line": 70, "character": 6},
-     "end": {"line": 70, "character": 6}},
+    {"start": {"line": 77, "character": 6},
+     "end": {"line": 77, "character": 6}},
     "context": {"diagnostics": []}}}}]
 Resolution of Try this: 42:
 {"title": "Try this: 42",
@@ -429,8 +531,8 @@ Resolution of Try this: 42:
     {"version": 1, "uri": "file:///deprecatedSyntaxCodeAction.lean"},
     "edits":
     [{"range":
-      {"start": {"line": 70, "character": 4},
-       "end": {"line": 70, "character": 11}},
+      {"start": {"line": 77, "character": 4},
+       "end": {"line": 77, "character": 11}},
       "newText": "42"}]}]},
  "data":
  {"providerResultIndex": 0,
@@ -439,11 +541,11 @@ Resolution of Try this: 42:
   "params":
   {"textDocument": {"uri": "file:///deprecatedSyntaxCodeAction.lean"},
    "range":
-   {"start": {"line": 70, "character": 6}, "end": {"line": 70, "character": 6}},
+   {"start": {"line": 77, "character": 6}, "end": {"line": 77, "character": 6}},
    "context": {"diagnostics": []}}}}
 {"textDocument": {"uri": "file:///deprecatedSyntaxCodeAction.lean"},
  "range":
- {"start": {"line": 80, "character": 18}, "end": {"line": 80, "character": 18}},
+ {"start": {"line": 87, "character": 18}, "end": {"line": 87, "character": 18}},
  "context": {"diagnostics": []}}
 [{"title": "Try this: num*",
   "kind": "quickfix",
@@ -453,8 +555,8 @@ Resolution of Try this: 42:
      {"version": 1, "uri": "file:///deprecatedSyntaxCodeAction.lean"},
      "edits":
      [{"range":
-       {"start": {"line": 80, "character": 15},
-        "end": {"line": 80, "character": 20}},
+       {"start": {"line": 87, "character": 15},
+        "end": {"line": 87, "character": 20}},
        "newText": "num*"}]}]},
   "data":
   {"providerResultIndex": 0,
@@ -463,8 +565,8 @@ Resolution of Try this: 42:
    "params":
    {"textDocument": {"uri": "file:///deprecatedSyntaxCodeAction.lean"},
     "range":
-    {"start": {"line": 80, "character": 18},
-     "end": {"line": 80, "character": 18}},
+    {"start": {"line": 87, "character": 18},
+     "end": {"line": 87, "character": 18}},
     "context": {"diagnostics": []}}}}]
 Resolution of Try this: num*:
 {"title": "Try this: num*",
@@ -475,8 +577,8 @@ Resolution of Try this: num*:
     {"version": 1, "uri": "file:///deprecatedSyntaxCodeAction.lean"},
     "edits":
     [{"range":
-      {"start": {"line": 80, "character": 15},
-       "end": {"line": 80, "character": 20}},
+      {"start": {"line": 87, "character": 15},
+       "end": {"line": 87, "character": 20}},
       "newText": "num*"}]}]},
  "data":
  {"providerResultIndex": 0,
@@ -485,12 +587,12 @@ Resolution of Try this: num*:
   "params":
   {"textDocument": {"uri": "file:///deprecatedSyntaxCodeAction.lean"},
    "range":
-   {"start": {"line": 80, "character": 18},
-    "end": {"line": 80, "character": 18}},
+   {"start": {"line": 87, "character": 18},
+    "end": {"line": 87, "character": 18}},
    "context": {"diagnostics": []}}}}
 {"textDocument": {"uri": "file:///deprecatedSyntaxCodeAction.lean"},
  "range":
- {"start": {"line": 83, "character": 18}, "end": {"line": 83, "character": 18}},
+ {"start": {"line": 90, "character": 18}, "end": {"line": 90, "character": 18}},
  "context": {"diagnostics": []}}
 [{"title": "Try this: num*",
   "kind": "quickfix",
@@ -500,8 +602,8 @@ Resolution of Try this: num*:
      {"version": 1, "uri": "file:///deprecatedSyntaxCodeAction.lean"},
      "edits":
      [{"range":
-       {"start": {"line": 83, "character": 15},
-        "end": {"line": 83, "character": 20}},
+       {"start": {"line": 90, "character": 15},
+        "end": {"line": 90, "character": 20}},
        "newText": "num*"}]}]},
   "data":
   {"providerResultIndex": 0,
@@ -510,8 +612,8 @@ Resolution of Try this: num*:
    "params":
    {"textDocument": {"uri": "file:///deprecatedSyntaxCodeAction.lean"},
     "range":
-    {"start": {"line": 83, "character": 18},
-     "end": {"line": 83, "character": 18}},
+    {"start": {"line": 90, "character": 18},
+     "end": {"line": 90, "character": 18}},
     "context": {"diagnostics": []}}}}]
 Resolution of Try this: num*:
 {"title": "Try this: num*",
@@ -522,8 +624,8 @@ Resolution of Try this: num*:
     {"version": 1, "uri": "file:///deprecatedSyntaxCodeAction.lean"},
     "edits":
     [{"range":
-      {"start": {"line": 83, "character": 15},
-       "end": {"line": 83, "character": 20}},
+      {"start": {"line": 90, "character": 15},
+       "end": {"line": 90, "character": 20}},
       "newText": "num*"}]}]},
  "data":
  {"providerResultIndex": 0,
@@ -532,6 +634,6 @@ Resolution of Try this: num*:
   "params":
   {"textDocument": {"uri": "file:///deprecatedSyntaxCodeAction.lean"},
    "range":
-   {"start": {"line": 83, "character": 18},
-    "end": {"line": 83, "character": 18}},
+   {"start": {"line": 90, "character": 18},
+    "end": {"line": 90, "character": 18}},
    "context": {"diagnostics": []}}}}

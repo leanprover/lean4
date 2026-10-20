@@ -134,6 +134,11 @@ private def mkReplacementHint (stx : Syntax) : CoreM MessageData := do
         #[{ suggestion := .tsyntax (kind := cat) ⟨newStx⟩ }] (ref? := stx))
     fun _ => return .nil
 
+private def SyntaxDeprecationEntry.textSuffix (entry : SyntaxDeprecationEntry) : MessageData :=
+  match entry.text? with
+  | some text => m!": {text}"
+  | none => m!""
+
 /--
 Check whether `stx` is a deprecated syntax kind, and if so, emit a warning.
 
@@ -150,9 +155,7 @@ def checkDeprecatedSyntax (stx : Syntax) (macroStack : MacroStack) : CoreM Unit 
   if let some entry := (deprecatedSyntaxExt.getState env).find? kind then
     unless Linter.getLinterValue Linter.linter.deprecated.syntax (← Linter.getLinterOptions) do
       return
-    let extraMsg := match entry.text? with
-      | some text => m!": {text}"
-      | none => m!""
+    let extraMsg := entry.textSuffix
     if stx.getHeadInfo matches .original .. then
       Linter.logLint Linter.linter.deprecated.syntax stx
         (m!"syntax '{kind}' has been deprecated{extraMsg}" ++ (← mkReplacementHint stx))
@@ -171,5 +174,22 @@ def checkDeprecatedSyntax (stx : Syntax) (macroStack : MacroStack) : CoreM Unit 
     | [] =>
       Linter.logLint Linter.linter.deprecated.syntax stx
         m!"syntax '{kind}' has been deprecated{extraMsg}"
+
+/--
+Check whether `stx`, which is part of a syntax quotation, is a deprecated syntax kind, and if so,
+emit a warning.
+
+Syntax produced by expanding macros in the quotation (synthetic source info) is not reported: it is
+not part of the quotation, and elaborating the result of the quotation reports it as produced by
+these macros.
+-/
+def checkDeprecatedQuotedSyntax (stx : Syntax) : CoreM Unit := do
+  let some entry := (deprecatedSyntaxExt.getState (← getEnv)).find? stx.getKind | return
+  if stx.getHeadInfo matches .synthetic .. then return
+  unless Linter.getLinterValue Linter.linter.deprecated.syntax (← Linter.getLinterOptions) do
+    return
+  Linter.logLint Linter.linter.deprecated.syntax stx
+    (m!"quotation uses deprecated syntax '{stx.getKind}'{entry.textSuffix}" ++
+      (← mkReplacementHint stx))
 
 end Lean.Elab

@@ -175,8 +175,6 @@ def mkProjFn (ctorVal : ConstructorVal) (us : List Level) (params : Array Expr) 
 
   If `Meta.Config.etaStruct` is `false` or the condition above does not hold, this method just returns `major`. -/
 private def toCtorWhenStructure (recVal : RecursorVal) (major : Expr) : MetaM Expr := do
-  if major.isStringLit then
-    return major
   let inductName := recVal.getMajorInduct
   unless (← useEtaStruct inductName) do
     return major
@@ -200,7 +198,7 @@ private def toCtorWhenStructure (recVal : RecursorVal) (major : Expr) : MetaM Ex
         | other
       ```
       Here, the aux recursive Nested.rec_1 has one universe, but its major being of inductive type StructLike also has one. They have the same number of universes, but the type indeed has large-elimination.
-      Instead, we look at the first inductive type in the defined mutual inductive block, and compare that type's universes to the recursor's.
+      Instead, we look at the first inductive type in the defined mutual inductive block, and compare that type's number of universes to the recursor's.
       TODO once the "large elimination" flag is added to recursors, use that instead.-/
       return major
     let majorType ← inferType major

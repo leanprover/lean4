@@ -61,11 +61,10 @@ template<typename WHNF, typename INFER>
 inline expr to_cnstr_when_structure(environment const & env, recursor_val const & rec_val, expr const & e,
                                     WHNF const & whnf, INFER const & infer_type) {
     name const & induct_name = rec_val.get_major_induct();
-    if (!is_non_rec_structure(env, induct_name) || is_constructor_app(env, e) || is_string_lit(e))
+    if (!is_non_rec_structure(env, induct_name) || is_constructor_app(env, e))
         return e;
     expr e_type = whnf(infer_type(e));
-    expr const fn = get_app_fn(e_type);
-    if (!is_constant(fn, induct_name))
+    if (!is_constant(get_app_fn(e_type), induct_name))
         return e;
     names non_nested_ind_params = env.get(head(rec_val.get_all())).get_lparams();
     /*We do not perform eta for non-singleton propositions.
@@ -79,7 +78,7 @@ inline expr to_cnstr_when_structure(environment const & env, recursor_val const 
         | other
       ```
       Here, the aux recursive Nested.rec_1 has one universe, but its major being of inductive type StructLike also has one. They have the same number of universes, but the type indeed has large-elimination.
-      Instead, we look at the first inductive type in the defined mutual inductive block, and compare that type's universes to the recursor's.
+      Instead, we look at the first inductive type in the defined mutual inductive block, and compare that type's number of universes to the recursor's.
       TODO once the "large elimination" flag is added to recursors, use that instead.
     */
     if (length(rec_val.to_constant_val().get_lparams()) == length(non_nested_ind_params))
@@ -88,7 +87,9 @@ inline expr to_cnstr_when_structure(environment const & env, recursor_val const 
 }
 
 template<typename WHNF, typename INFER, typename IS_DEF_EQ, typename IS_PROP>
-inline optional<expr> inductive_reduce_rec(environment const & env, expr const & e, WHNF const & whnf, INFER const & infer_type, IS_DEF_EQ const & is_def_eq, IS_PROP const & is_prop) {
+inline optional<expr> inductive_reduce_rec(environment const & env, expr const & e,
+                                           WHNF const & whnf, INFER const & infer_type, IS_DEF_EQ const & is_def_eq,
+                                           IS_PROP const & is_prop) {
     expr const & rec_fn   = get_app_fn(e);
     if (!is_constant(rec_fn)) return none_expr();
     optional<constant_info> rec_info = env.find(const_name(rec_fn));
@@ -99,8 +100,11 @@ inline optional<expr> inductive_reduce_rec(environment const & env, expr const &
     unsigned major_idx           = rec_val.get_major_idx();
     if (major_idx >= rec_args.size()) return none_expr(); // major premise is missing
     expr major     = rec_args[major_idx];
-    if (rec_val.is_k()) major = to_cnstr_when_K(env, rec_val, major, whnf, infer_type, is_def_eq);
-    if (!is_prop(infer_type(major))) major = whnf(major);
+    if (rec_val.is_k()) {
+        major = to_cnstr_when_K(env, rec_val, major, whnf, infer_type, is_def_eq);
+    }
+    if (!is_prop(infer_type(major)))
+        major = whnf(major);
     if (is_nat_lit(major))
         major = nat_lit_to_constructor(major);
     else if (is_string_lit(major))

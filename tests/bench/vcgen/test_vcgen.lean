@@ -62,6 +62,7 @@ set_option maxHeartbeats 10000000
     `(tactic| vcgen) `(tactic| grind) [10]
   runBenchUsingTactic ``IfsJP.Goal [``IfsJP.loop, ``IfsJP.step]
     `(tactic| vcgen +jp) `(tactic| grind) [3]
+  -- `grind (splits := 14)` takes about 300 ms to discharge the VC, too long for the benchmark runner.
   runBenchUsingTactic ``MatchesJP.Goal [``MatchesJP.loop, ``MatchesJP.step]
     `(tactic| vcgen +jp) `(tactic| sorry) [3]
   runBenchUsingTactic ``WideJP.Goal [``WideJP.wide, ``WideJP.chain]

@@ -1058,7 +1058,7 @@ def LevelShape.prop : LevelShape where
   matchesShape l := l matches .zero
   ensureShape l indName := do
     unless l.isAlwaysZero do
-      throwError "Inductive `{.ofConstName indName}` is a data-carrying inductives, \
+      throwError "Inductive `{.ofConstName indName}` is a data-carrying inductive, \
         expected a predicate"
     return ⟨.zero, rfl⟩
 

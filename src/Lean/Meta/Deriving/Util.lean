@@ -731,7 +731,7 @@ Creates instances by first running `preHelpers` with all recursive instances in 
 and then creating a mutual block with all helpers provided in `infos` (marking declarations as
 partial by default) and finally creating all instances individually.
 
-`preHelpers` can be used for one-time computations that only need the instances is scope.
+`preHelpers` can be used for one-time computations that only need the instances in scope.
 -/
 def makeInstancesUsingMutualBlock (infos : Array (InstanceInfo α))
     (preHelpers : DerivingM α := by exact pure ()) : DerivingM Unit := do

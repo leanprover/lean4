@@ -1130,6 +1130,7 @@ bool type_checker::is_unit_like(expr const & t) {
     if (!is_constant(I))
         return false;
     name I_name = const_name(I);
+    // same check as in try_eta_struct_core
     if (!is_non_rec_structure(env(), I_name))
         return false;
     name ctor_name = head(env().get(I_name).to_inductive_val().get_cnstrs());

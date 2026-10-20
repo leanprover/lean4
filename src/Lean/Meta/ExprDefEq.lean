@@ -2354,7 +2354,7 @@ private partial def isUnitLikeType (e : Expr) : MetaM Bool :=
         return false
       let ctorType := ctorVal.type
           |>.instantiateLevelParams ctorVal.levelParams hd.constLevels!
-          -- `tType` is a structure, and in particular has no indices. Furthermore, it is a type, so `args.size() = I_val.nparams()`
+          -- `tType` is a structure, and in particular has no indices. Furthermore, it is a type, so `tType.getAppNumArgs = (← getConstInfoInduct ctorVal.induct).numParams`
           |>.getForallBodyMaxDepth tType.getAppNumArgs
           |>.instantiateRev tType.getAppArgs
       forallTelescope ctorType fun xs _ =>
@@ -2368,15 +2368,18 @@ private partial def isUnitLikeType (e : Expr) : MetaM Bool :=
   or a dependent arrow for which the codomain is unit-like.
 -/
 private def isDefEqUnitLike (t : Expr) (s : Expr) : MetaM Bool := do
-  let tType  ← inferType t
-  let key ← mkExprConfigCacheKey tType
-  match (← cachedUnitLike? key) with
-    | some false => return false
-    | some true => Meta.isExprDefEqAux tType (← inferType s)
-    | none => do
-      let isUnit ← cacheUnitLike key (← isUnitLikeType tType)
-      if !isUnit then return false
-      Meta.isExprDefEqAux tType (← inferType s)
+  let tType ← inferType t
+  let useCache := !tType.hasFVar && !tType.hasExprMVar && (← read).customCanUnfoldPredicate?.isNone
+  let isUnit ←
+    if useCache then do
+      let key ← mkExprConfigCacheKey tType
+      match (← cachedUnitLike? key) with
+      | some b => pure b
+      | none => cacheUnitLike key (← isUnitLikeType tType)
+    else
+      isUnitLikeType tType
+  if !isUnit then return false
+  Meta.isExprDefEqAux tType (← inferType s)
 
 /--
   The `whnf` procedure has support for unfolding class projections when the

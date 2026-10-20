@@ -83,9 +83,10 @@ inductive EqCnstrProof where
     -/
     core (a b : Expr) (p₁ p₂ : Poly)
   | coreToInt (a b : Expr) (toIntThm : Expr) (lhs rhs : Int.Internal.Linear.Expr)
-  | /-- `e` is `e'` -/
-    defn (e : Expr) (e' : Int.Internal.Linear.Expr)
-  | defnNat (h : Expr) (x : Var) (e' : Int.Internal.Linear.Expr)
+  | /-- `x = e` where `x` is the variable for `e`, `e` is in normal form, and `p` is its polynomial. -/
+    defn (e : Expr) (p : Poly)
+  | /-- `x = e'` with proof `h : x.denote = e'.denote`. `e'` is normalized by `Expr.norm`. -/
+    defnExpr (h : Expr) (x : Var) (e' : Int.Internal.Linear.Expr)
   | norm (c : EqCnstr)
   | divCoeffs (c : EqCnstr)
   | subst (x : Var) (c₁ : EqCnstr) (c₂ : EqCnstr)
@@ -94,8 +95,8 @@ inductive EqCnstrProof where
     ofZeroDvd (c : DvdCnstr)
   | reorder (c : EqCnstr)
   | commRingNorm (c : EqCnstr) (e : CommRing.RingExpr) (p : CommRing.Poly)
-  | defnCommRing (e : Expr) (e' : Int.Internal.Linear.Expr) (p : Poly) (re : CommRing.RingExpr) (rp : CommRing.Poly) (p' : Poly)
-  | defnNatCommRing (h : Expr) (x : Var) (e' : Int.Internal.Linear.Expr) (p : Poly) (re : CommRing.RingExpr) (rp : CommRing.Poly) (p' : Poly)
+  | defnCommRing (e : Expr) (p : Poly) (re : CommRing.RingExpr) (rp : CommRing.Poly) (p' : Poly)
+  | defnExprCommRing (h : Expr) (x : Var) (e' : Int.Internal.Linear.Expr) (p : Poly) (re : CommRing.RingExpr) (rp : CommRing.Poly) (p' : Poly)
   | mul (a? : Option Expr) (cs : Array (Expr × Int × EqCnstr))
   | /--
     Linearization proof for `/`
@@ -187,6 +188,11 @@ inductive LeCnstrProof where
   | core (e : Expr)
   | coreNeg (e : Expr) (p : Poly)
   | coreToInt (e : Expr) (pos : Bool) (toIntThm : Expr) (lhs rhs : Int.Internal.Linear.Expr)
+  | /--
+    An inequality `e := a ≤ b` (if `pos`) or `¬ e` coming from the core, where `a ≤ b` is not
+    in normal form, and `lhs` and `rhs` represent `a` and `b`.
+    -/
+    coreExpr (e : Expr) (pos : Bool) (lhs rhs : Int.Internal.Linear.Expr)
   | ofNatNonneg (a : Expr)
   | bound (h : Expr)
   | dec (h : FVarId)

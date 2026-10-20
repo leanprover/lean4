@@ -307,7 +307,7 @@ def wpLet? (scope : Scope) (goal : MVarId) (info : WPApp) :
     let name ← if isProgramName name then pure name else Meta.mkFreshBinderNameForTactic name
     let .goal decls goal' ← Sym.intros goal #[name]
       | throwError "Failed to intro the `let` of{indentExpr info.prog}"
-    if appArgs.isEmpty && (← isJoinPointLet name val) then
+    if appArgs.isEmpty then
       if let some r ← registerJoinPoint scope goal' decls[0]! val info then
         return some r
     return some (scope, [goal'])

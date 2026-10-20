@@ -68,13 +68,7 @@ parameters `r` and `x`.
 For a stateful program, `?H` also takes the states, and each disjunct equates them with the states
 at its jump. In `StateM Nat`, the disjunct of `__do_jp () 1` in state `t` is
 `n > 0 ∧ r = () ∧ x = 1 ∧ s = t`.
-
-The proof term binds `__do_jp_spec` with a `let`, so all jumps share one proof of the join RHS.
 -/
-
-/-- Whether `vcgen +jp` handles the program-head `let x := val` as a join point. -/
-public def isJoinPointLet (x : Name) (val : Expr) : VCGenM Bool :=
-  return (← read).useJP && Lean.Elab.Tactic.Do.isJP x && val.isLambda
 
 /-- The lattice instance of `B`, for `Pred = ∀ s₁ … sₙ, B` and the states `ss = #[s₁, …, sₙ]`,
 read off the instance `instCL` of `Pred`, which nests one `instCompleteLatticePi` per state. -/
@@ -91,10 +85,13 @@ def baseInstance? (instCL : Expr) (ss : Array Expr) : SymM (Option Expr) := do
 /-- Register the join point `jp := val` that `wpLet?` introduced into the goal
 `goal : pre ⊑ wp⟦…⟧ post eposts ss` over the states `ss`. Returns `scope` with `jp`, `goal` with
 `__do_jp_spec : ∀ xs ss, ?H xs ss → ⊤ ⊑ wp⟦jp xs⟧ post eposts ss`, and the goal
-`∀ xs ss, ?H xs ss → ⊤ ⊑ wp⟦val xs⟧ post eposts ss` for the join RHS `val`. Returns `none` if the
-states have no base lattice instance. -/
+`∀ xs ss, ?H xs ss → ⊤ ⊑ wp⟦val xs⟧ post eposts ss` for the join RHS `val`. Returns `none` if
+`jp` is no `__do_jp` with a lambda RHS under `+jp`, or if the states have no base lattice
+instance. -/
 public def registerJoinPoint (scope : Scope) (goal : MVarId) (jp : FVarId) (val : Expr)
     (info : WPApp) : VCGenM (Option (Scope × List MVarId)) := goal.withContext do
+  unless (← read).useJP && Lean.Elab.Tactic.Do.isJP (← jp.getUserName) && val.isLambda do
+    return none
   let goalTy ← goal.getType
   let_expr PartialOrder.rel α inst _ _ := goalTy | return none
   let jpTy ← Sym.inferType (.fvar jp)
@@ -150,12 +147,12 @@ public def wpJump? (scope : Scope) (goal : MVarId) (info : WPApp) :
   goal.assign (← mkAppNS jp.spec (args.push pf))
   modify fun s => { s with
     pendingJoinPoints := s.pendingJoinPoints.modify jp.rhsGoal fun (jp, jumps) =>
-      (jp, jumps.push { pf := pf.mvarId!, args }) }
+      (jp, jumps.push { proof := pf.mvarId!, args }) }
   return some []
 
 /-- The locals of `jump` after `__do_jp_spec`. -/
 def jumpLocals (jp : JoinPoint) (jump : Jump) : MetaM (Array LocalDecl) := do
-  let lctx := (← jump.pf.getDecl).lctx
+  let lctx := (← jump.proof.getDecl).lctx
   let start := (lctx.get! jp.spec.fvarId!).index + 1
   -- An implementation-detail hypothesis would become an `∃` binder, so it stays out of `?H`.
   return lctx.foldl (start := start) (init := #[]) fun ds d =>
@@ -216,7 +213,7 @@ partial def mkTrie (xs : Array Expr) (jumps : Array (Jump × Array LocalDecl)) (
     let (disjunct, subPaths) ← match locals[i]? with
       | some d =>
         let (φ, subPaths) ← mkTrie xs (ks.map (jumps[·]!)) (i + 1)
-        let decl ← jump.pf.getDecl
+        let decl ← jump.proof.getDecl
         pure (← withLCtx decl.lctx decl.localInstances (bindLocal d φ), subPaths)
       | none =>
         let eqs ← xs.mapIdxM fun j x => do
@@ -264,8 +261,9 @@ public def finalizeJoinPoint (jp : JoinPoint) (jumps : Array Jump) : VCGenM Unit
     jp.hyp.assign (← mkLambdaFVars xs φ)
     return paths
   for ((jump, locals), path) in jumps.zip paths do
-    jump.pf.withContext do
+    jump.proof.withContext do
       let witnesses := (locals.filter (·.value?.isNone)).map (·.toExpr)
-      jump.pf.assign (← mkTrieProof (← instantiateMVars (← jump.pf.getType)) path witnesses.toList)
+      let φ ← instantiateMVars (← jump.proof.getType)
+      jump.proof.assign (← mkTrieProof φ path witnesses.toList)
 
 end Lean.Elab.Tactic.VCGen

@@ -152,7 +152,7 @@ public structure JoinPoint where
 /-- A jump to a join point with the arguments `args`, which include the states, and the proof
 `?pf : ?H args` that `finalizeJoinPoint` assigns in the local context of the jump. -/
 public structure Jump where
-  pf : MVarId
+  proof : MVarId
   args : Array Expr
   deriving Inhabited
 

@@ -89,30 +89,31 @@ where
       modify' fun s => { s with assignment := s.assignment.set x v }
       go xs
 
-private def eqCoeffs (p₁ p₂ : Poly) (neg : Bool) :=
-  match p₁, p₂ with
-  | .num _, .num _ => true
-  | .add k₁ x₁ p₁, .add k₂ x₂ p₂ =>
-    (if neg then k₁ == -k₂ else k₁ == k₂) && x₁ == x₂ && eqCoeffs p₁ p₂ neg
-  | _, _ => false
-
-def tightUsingDvd (c : LeCnstr) (dvd? : Option DvdCnstr) : GoalM LeCnstr := do
-  let some dvd := dvd? | return c
-  let d  := dvd.d
-  let b₁ := dvd.p.getConst
-  if eqCoeffs dvd.p c.p false then
-    let b₂ := c.p.getConst
-    if (b₂ - b₁) % d != 0 then
-      let b₂' := b₁ - d * ((b₁ - b₂) / d)
-      let p := c.p.addConst (b₂'-b₂)
-      return { p, h := .dvdTight dvd c }
-  if eqCoeffs dvd.p c.p true then
-    let b₁ := -b₁
-    let b₂ := c.p.getConst
-    if (b₂ - b₁) % d != 0 then
-      let b₂' := b₁ - d * ((b₁ - b₂) / d)
-      let p := c.p.addConst (b₂'-b₂)
-      return { p, h := .negDvdTight dvd c }
+/--
+Tightens `c` using the divisibility constraints of the variables occurring in `c.p`.
+For a variable `z` with coefficient `a` in `c.p` and constraint `d ∣ p'` where `p'` has leading
+coefficient `±1` on `z`, let `r := c.p - t*p'` with `t := a / (±1)`, and `g` be the gcd of `d`
+and the variable coefficients of `r`. If `g > 1`, the value of `c.p` is congruent to the constant
+of `r` modulo `g`, and `c.p ≤ 0` can be strengthened to the largest such value `≤ 0`.
+Example: `32768 ∣ x` and `-x + 32768*q + 1 ≤ 0` give `-x + 32768*q + 32768 ≤ 0`.
+-/
+def tightUsingDvds (c : LeCnstr) : GoalM LeCnstr := do
+  let s ← get'
+  let mut c := c
+  let mut p := c.p
+  repeat
+    let .add a z p' := p | break
+    p := p'
+    let some dvd := s.dvds[z]! | continue
+    let .add lead _ _ := dvd.p | continue
+    unless lead.natAbs == 1 do continue
+    let t := a * lead
+    let r := c.p.combine (dvd.p.mul (-t))
+    let g := r.gcdCoeffs dvd.d.natAbs
+    if g > 1 then
+      let shift := -(Int.Internal.Linear.cmod r.getConst g)
+      if shift != 0 then
+        c := { p := c.p.addConst shift, h := .dvdTightMod dvd c t g }
   return c
 
 /--
@@ -120,11 +121,11 @@ Assuming all variables smaller than `x` have already been assigned,
 returns the best lower bound for `x` using the given partial assignment and
 inequality constraints where `x` is the maximal variable.
 -/
-def getBestLower? (x : Var) (dvd? : Option DvdCnstr) : GoalM (Option (Rat × LeCnstr)) := do
+def getBestLower? (x : Var) : GoalM (Option (Rat × LeCnstr)) := do
   let s ← get'
   let mut best? := none
   for c in s.lowers[x]! do
-    let c ← tightUsingDvd c dvd?
+    let c ← tightUsingDvds c
     let .add k _ p := c.p | c.throwUnexpected
     let some v ← p.eval? | c.throwUnexpected
     let lower' := v / (-k)
@@ -140,11 +141,11 @@ Assuming all variables smaller than `x` have already been assigned,
 returns the best upper bound for `x` using the given partial assignment and
 inequality constraints where `x` is the maximal variable.
 -/
-def getBestUpper? (x : Var) (dvd? : Option DvdCnstr) : GoalM (Option (Rat × LeCnstr)) := do
+def getBestUpper? (x : Var) : GoalM (Option (Rat × LeCnstr)) := do
   let s ← get'
   let mut best? := none
   for c in s.uppers[x]! do
-    let c ← tightUsingDvd c dvd?
+    let c ← tightUsingDvds c
     let .add k _ p := c.p | c.throwUnexpected
     let some v ← p.eval? | c.throwUnexpected
     let upper' := (-v) / k
@@ -420,8 +421,8 @@ def processVar (x : Var) : SearchM Unit := do
         return ()
   else
     pure {}
-  let lower? ← getBestLower? x dvd?
-  let upper? ← getBestUpper? x dvd?
+  let lower? ← getBestLower? x
+  let upper? ← getBestUpper? x
   let diseqVals ← getDiseqValues x
   match lower?, upper? with
   | none, none =>

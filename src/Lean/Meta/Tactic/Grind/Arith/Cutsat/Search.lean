@@ -174,25 +174,34 @@ def getDiseqValues (x : Var) : SearchM (Array (Rat × DiseqCnstr)) := do
 
 /--
 Solution space for a divisibility constraint of the form `d ∣ a*x + b`
-See `DvdCnstr.getSolutions?` to understand how it is computed.
+See `DvdCnstr.getSolutions` to understand how it is computed.
 -/
 structure DvdSolution where
   d : Int := 1
   b : Int := 0
 
-def DvdCnstr.getSolutions? (c : DvdCnstr) : SearchM (Option DvdSolution) := do
+inductive DvdSolutionResult where
+  | found (s : DvdSolution)
+  | /-- The constraint has no solution. -/
+    unsat
+  | /--
+    The constraint cannot be used because the current (rational) assignment makes its
+    tail non-integer. The model has been marked as imprecise.
+    -/
+    skip
+
+def DvdCnstr.getSolutions (c : DvdCnstr) : SearchM DvdSolutionResult := do
   let d := c.d
   let .add a _ p := c.p | c.throwUnexpected
   let some b ← p.eval? | c.throwUnexpected
   if b.den != 1 then
-    -- `b` is a rational number, mark model as imprecise, and ignore the constraint
     setImprecise
-    return none
+    return .skip
   let b := b.num
   -- We must solve `d ∣ a*x + b`
   let g := d.gcd a
   if b % g != 0 then
-    return none -- no solutions
+    return .unsat
   let d := d / g
   let a := a / g
   let b := b / g
@@ -204,7 +213,7 @@ def DvdCnstr.getSolutions? (c : DvdCnstr) : SearchM (Option DvdSolution) := do
   -- `a*x = -b (mod d)`
   -- `x = -b*a' (mod d)`
   -- `x = k*d + -b*a'` for any k
-  return some { d, b := -b*a' }
+  return .found { d, b := -b*a' }
 
 def resolveDvdConflict (c : DvdCnstr) : GoalM Unit := do
   trace[grind.debug.lia.search.conflict] "{← c.pp}"
@@ -394,12 +403,21 @@ def processVar (x : Var) : SearchM Unit := do
   -- Solution space for divisibility constraint is `x = k*d + b`
   let dvd? := (← get').dvds[x]!
   let dvdSol ← if let some c := dvd? then
-    if let some solutions ← c.getSolutions? then
-      pure solutions
-    else
-      trace[grind.debug.lia.search] "dvd conflict: {← c.pp}"
-      resolveDvdConflict c
-      return ()
+    match (← c.getSolutions) with
+    | .found solutions => pure solutions
+    | .skip => pure {}
+    | .unsat =>
+      if (← isApprox) && !(← get).precise then
+        /-
+        Some variable was assigned a value that ignores one of its constraints, so the
+        resolvent may already be present and resolving would not make progress.
+        The `.int` search handles the conflict.
+        -/
+        pure {}
+      else
+        trace[grind.debug.lia.search] "dvd conflict: {← c.pp}"
+        resolveDvdConflict c
+        return ()
   else
     pure {}
   let lower? ← getBestLower? x dvd?

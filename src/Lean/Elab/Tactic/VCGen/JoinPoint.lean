@@ -40,32 +40,36 @@ have __do_jp := fun (r : Unit) (x : Nat) => pure (x + 1)
 if n > 0 then __do_jp () 1 else __do_jp () 2
 ```
 
-Without `+jp`, `vcgen` unfolds `__do_jp` at each jump, so `k` consecutive splits give `2ᵏ` copies
-of the shared code. With `+jp`, `vcgen` takes three steps:
+The join RHS `fun r x => pure (x + 1)` is the shared code, and the join body `if n > 0 then …`
+jumps to it. Without `+jp`, `vcgen` unfolds `__do_jp` at each jump, so `k` consecutive splits give
+`2ᵏ` copies of the join RHS. With `+jp`, `vcgen` takes three steps:
 
 1. `registerJoinPoint` creates `?H : Unit → Nat → Prop` and binds
    `__do_jp_spec : ∀ r x, ?H r x → ⊤ ⊑ wp⟦__do_jp r x⟧ Q` in the goal of the `if`. It adds the goal
-   `∀ r x, ?H r x → ⊤ ⊑ wp⟦pure (x + 1)⟧ Q` for the body of `__do_jp`.
-2. In the `then` branch, under the hypothesis `h₁ : n > 0`, `jump?` closes the goal
+   `∀ r x, ?H r x → ⊤ ⊑ wp⟦pure (x + 1)⟧ Q` for the join RHS.
+2. In the `then` branch, under the hypothesis `h₁ : n > 0`, `wpJump?` closes the goal
    `⊤ ⊑ wp⟦__do_jp () 1⟧ Q` with `__do_jp_spec () 1 ?pf₁` and records the jump. The `else` branch
    records the jump `__do_jp () 2` under `h₂ : ¬n > 0` with `?pf₂`.
-3. `vcgen` reaches the body goal after all goals of the `if`, so both jumps are known by then.
+3. `vcgen` reaches the RHS goal after all goals of the join body, so both jumps are known by then.
    `finalizeJoinPoint` sets `?H` to the disjunction of the jumps, each over the locals of its
    branch and its arguments, `fun r x => (n > 0 ∧ r = () ∧ x = 1) ∨ (¬n > 0 ∧ r = () ∧ x = 2)`.
    It proves `?pf₁ := Or.inl ⟨h₁, rfl, rfl⟩` and `?pf₂ := Or.inr ⟨h₂, rfl, rfl⟩`. Jumps under a
    common local share its binder: the jumps of an `else if` chain share the conditions above them.
 
-The body goal of step 1 thus receives the hypothesis
+The RHS goal of step 1 thus receives the hypothesis
 
 ```
 (n > 0 ∧ r = () ∧ x = 1) ∨ (¬n > 0 ∧ r = () ∧ x = 2)
 ```
 
+This `?H` is the strongest postcondition of the join body at its jumps to `__do_jp`, over the join
+parameters `r` and `x`.
+
 For a stateful program, `?H` also takes the states, and each disjunct equates them with the states
 at its jump. In `StateM Nat`, the disjunct of `__do_jp () 1` in state `t` is
 `n > 0 ∧ r = () ∧ x = 1 ∧ s = t`.
 
-The proof term binds `__do_jp_spec` with a `let`, so all jumps share one proof of the body.
+The proof term binds `__do_jp_spec` with a `let`, so all jumps share one proof of the join RHS.
 -/
 
 /-- Whether `vcgen +jp` handles the program-head `let x := val` as a join point. -/
@@ -86,9 +90,9 @@ private def baseInstance? (instCL : Expr) (ss : Array Expr) : SymM (Option Expr)
 
 /-- Register the join point `jp := val` that `wpLet?` introduced into the goal
 `goal : pre ⊑ wp⟦…⟧ post eposts ss` over the states `ss`. Returns `scope` with `jp`, `goal` with
-`__do_jp_spec : ∀ xs ss, ?H xs ss → ⊤ ⊑ wp⟦jp xs⟧ post eposts ss`, and the body goal
-`∀ xs ss, ?H xs ss → ⊤ ⊑ wp⟦val xs⟧ post eposts ss`. Returns `none` if the states have no base
-lattice instance. -/
+`__do_jp_spec : ∀ xs ss, ?H xs ss → ⊤ ⊑ wp⟦jp xs⟧ post eposts ss`, and the goal
+`∀ xs ss, ?H xs ss → ⊤ ⊑ wp⟦val xs⟧ post eposts ss` for the join RHS `val`. Returns `none` if the
+states have no base lattice instance. -/
 public def registerJoinPoint (scope : Scope) (goal : MVarId) (jp : FVarId) (val : Expr)
     (info : WPApp) : VCGenM (Option (Scope × List MVarId)) := goal.withContext do
   let goalTy ← goal.getType
@@ -104,7 +108,7 @@ public def registerJoinPoint (scope : Scope) (goal : MVarId) (jp : FVarId) (val 
       mkAppNS (mkConst ``Std.WP.Assertion.toCompleteLattice lvls) #[info.Pred, info.instAL]
   let lctx ← getLCtx
   let localInsts ← getLocalInstances
-  let some (hyp, top, specTy, bodyTy) ← forallBoundedTelescope jpTy numParams fun xs _ => do
+  let some (hyp, top, specTy, rhsTy) ← forallBoundedTelescope jpTy numParams fun xs _ => do
       forallBoundedTelescope info.Pred info.excessArgs.size fun ss B => do
     let some instB ← baseInstance? instCL ss | return none
     let some u := (← Sym.getLevel B).dec | throwError "vcgen +jp: `{B}` is not a type"
@@ -118,21 +122,21 @@ public def registerJoinPoint (scope : Scope) (goal : MVarId) (jp : FVarId) (val 
       mkForallFVarsS (xs ++ ss) (← mkForallS `h .default (← mkAppNS hyp (xs ++ ss)) rel)
     return some (hyp.mvarId!, top, ← entails (← mkAppNS (.fvar jp) xs), ← entails (← betaS val xs))
     | return none
-  let body ← mkFreshExprSyntheticOpaqueMVar bodyTy (← goal.getTag)
-  let goal ← goal.replaceTargetDefEqFast (← mkLetS `__do_jp_spec specTy body goalTy)
+  let rhs ← mkFreshExprSyntheticOpaqueMVar rhsTy (← goal.getTag)
+  let goal ← goal.replaceTargetDefEqFast (← mkLetS `__do_jp_spec specTy rhs goalTy)
   let .goal decls goal ← Sym.introN goal 1
     | throwError "vcgen +jp: failed to introduce the proof of{indentExpr specTy}"
   let joinPoint : JoinPoint :=
-    { spec := .fvar decls[0]!, top, hyp, body := body.mvarId!, numStates := info.excessArgs.size }
+    { spec := .fvar decls[0]!, top, hyp, rhsGoal := rhs.mvarId!, numStates := info.excessArgs.size }
   modify fun s => { s with
-    pendingJoinPoints := s.pendingJoinPoints.insert joinPoint.body (joinPoint, #[]) }
+    pendingJoinPoints := s.pendingJoinPoints.insert joinPoint.rhsGoal (joinPoint, #[]) }
   let scope := { scope with joinPoints := scope.joinPoints.insert jp joinPoint }
-  return some (scope, [goal, joinPoint.body])
+  return some (scope, [goal, joinPoint.rhsGoal])
 
 /-- Close the goal `⊤ ⊑ wp⟦jp args⟧ post eposts ss` of a jump to a join point of `scope` with
 `__do_jp_spec args ss ?pf`, where `finalizeJoinPoint` assigns `?pf : ?H args ss`. A jump with a
 precondition other than `⊤` unfolds `jp` instead. -/
-public def jump? (scope : Scope) (goal : MVarId) (info : WPApp) :
+public def wpJump? (scope : Scope) (goal : MVarId) (info : WPApp) :
     VCGenM (Option (List MVarId)) := do
   let some fv := info.prog.getAppFn.fvarId? | return none
   let some jp := scope.joinPoints.get? fv | return none
@@ -145,7 +149,7 @@ public def jump? (scope : Scope) (goal : MVarId) (info : WPApp) :
   let pf ← mkFreshExprSyntheticOpaqueMVar (← mkAppNS (.mvar jp.hyp) args)
   goal.assign (← mkAppNS jp.spec (args.push pf))
   modify fun s => { s with
-    pendingJoinPoints := s.pendingJoinPoints.modify jp.body fun (jp, jumps) =>
+    pendingJoinPoints := s.pendingJoinPoints.modify jp.rhsGoal fun (jp, jumps) =>
       (jp, jumps.push { pf := pf.mvarId!, args }) }
   return some []
 
@@ -251,7 +255,7 @@ private partial def mkTrieProof (φ : Expr) (path : List (Nat × Nat)) (ws : Lis
     | _ => throwError "vcgen +jp: unexpected binder{indentExpr φ}"
 
 /-- Assign `?H` of `jp` the trie of its `jumps`, `False` if no jump reaches `jp`, and each jump's
-`?pf` the proof along its path. `vcgen` processes the body goal of `jp` after all goals below the
+`?pf` the proof along its path. `vcgen` processes the RHS goal of `jp` after all goals below the
 registration, so every jump is known by then. -/
 public def finalizeJoinPoint (jp : JoinPoint) (jumps : Array Jump) : VCGenM Unit := do
   let jumps ← jumps.mapM fun jump => return (jump, ← jumpLocals jp jump)

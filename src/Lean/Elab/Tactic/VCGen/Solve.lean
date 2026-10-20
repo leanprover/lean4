@@ -283,7 +283,7 @@ private def wpConsumeMData? (goal : MVarId) (info : WPApp) : VCGenM (Option MVar
   return some (← replaceProgDefEq goal info info.prog.consumeMData)
 
 /-- Strategy 11a: hoist or zeta-substitute a `let` from the program head. Under `+jp`, a hoisted
-join point is registered, which adds the goal for its body. -/
+join point is registered, which adds the goal for its RHS. -/
 private def wpLet? (scope : Scope) (goal : MVarId) (info : WPApp) :
     VCGenM (Option (Scope × List MVarId)) := do
   let .letE name type val body nondep := info.prog.getAppFn | return none
@@ -640,7 +640,7 @@ public def solve (scope : Scope) (goal : MVarId) : VCGenM SolveResult := goal.wi
     if let some gs ← wpMatch? goal info then
       burnOne
       return .goals scope gs
-    if let some gs ← jump? scope goal info then
+    if let some gs ← wpJump? scope goal info then
       burnOne
       return .goals scope gs
     if let some g ← wpFVarZeta? goal info then

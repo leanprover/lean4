@@ -176,7 +176,7 @@ theorem multi_mut_triple : ⦃ True ⦄ multi_mut f ⦃ fun r => r > 0 ⦄ := by
   vcgen +jp
   all_goals grind
 
--- The shared tail performs an effect, so the join-point body applies specs under the
+-- The shared tail performs an effect, so the join RHS applies specs under the
 -- precondition hypothesis that the jumps provide.
 def monadic_tail (f : Nat → Option Nat) : StateM Nat Nat := do
   let mut x := 1
@@ -250,7 +250,7 @@ theorem loop_in_alt_triple : ⦃ True ⦄ loop_in_alt f ⦃ fun r => r > 0 ⦄ :
   case inv1 => rename_i y _; exact (fun _ _ x => ⌜x > 0 ∧ y ≤ y⌝)
   all_goals grind
 
--- The join point body starts in the state of each jump: the payloads record `s = 5`, so the body
+-- The join RHS starts in the state of each jump: the payloads record `s = 5`, so the join RHS
 -- can use the `set 5` before the split.
 def set_before (b : Bool) : StateM Nat Nat := do
   set 5
@@ -288,8 +288,8 @@ theorem read_after_triple : ⦃ fun s => ⌜s > 3⌝ ⦄ read_after b ⦃ fun r 
   vcgen +jp
   all_goals grind
 
--- `?H` is assigned before `vcgen` processes the body of the join point, so `grind` inside
--- `with finish` sees the disjunction in the body's hypotheses.
+-- `?H` is assigned before `vcgen` processes the join RHS, so `grind` inside `with finish` sees
+-- the disjunction in the hypotheses of the RHS goal.
 theorem ifs_pure_finish : ⦃ True ⦄ ifs_pure n ⦃ fun r => r > 0 ⦄ := by
   unfold ifs_pure
   vcgen +jp with finish

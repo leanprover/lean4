@@ -10,7 +10,7 @@ import Driver
 
 /-! Benchmark driver for `vcgen +jp`: loops whose bodies chain `if`s (`IfsJP`) or `match`es
 (`MatchesJP`) with shared continuations. `+jp` proves each trailing continuation once; without it
-every alternative zeta-unfolds the `__do_jp` body and the VC count grows exponentially. `WideJP`
+every alternative zeta-unfolds the join RHS and the VC count grows exponentially. `WideJP`
 scales the number of jumps to a single join point. -/
 
 set_option experimental.vcgen true

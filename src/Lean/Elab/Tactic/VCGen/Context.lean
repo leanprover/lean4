@@ -143,8 +143,8 @@ public structure JoinPoint where
   top : Expr
   /-- The metavariable `?H`, which `finalizeJoinPoint` assigns. -/
   hyp : MVarId
-  /-- The goal for the body of `__do_jp`. -/
-  body : MVarId
+  /-- The goal for the join RHS, the value of `__do_jp`. -/
+  rhsGoal : MVarId
   /-- The number of states that `?H` takes after the join parameters. -/
   numStates : Nat
   deriving Inhabited
@@ -229,7 +229,7 @@ public structure State where
   this to know which user-provided alts have already been consumed (so it doesn't
   warn about them). -/
   inlineHandledInvariants : Std.HashSet Nat := {}
-  /-- The join points whose body goal `vcgen` has yet to process, keyed by that goal, with their
+  /-- The join points whose RHS goal `vcgen` has yet to process, keyed by that goal, with their
   jumps so far. -/
   pendingJoinPoints : Std.HashMap MVarId (JoinPoint × Array Jump) := {}
 

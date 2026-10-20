@@ -594,6 +594,23 @@ Note: This linter can be disabled with `set_option linter.deprecated.syntax fals
 #guard_msgs in
 #apply_suggestions example : True := by old_tac with (trivial)
 
+-- The alternative reaches the maximum recursion depth.
+syntax (name := oldLoop) "old_loop" : term
+macro_rules | `(old_loop) => `(42)
+
+partial def loopMacro : Lean.Macro := fun stx => Lean.Macro.withIncRecDepth stx (loopMacro stx)
+
+deprecated_syntax oldLoop "use `42` instead" (since := "2026-10-20")
+  | stx => loopMacro stx
+
+/--
+warning: syntax 'oldLoop' has been deprecated: use `42` instead
+
+Note: This linter can be disabled with `set_option linter.deprecated.syntax false`
+-/
+#guard_msgs in
+#apply_suggestions example : Nat := old_loop
+
 /-! ## Comments -/
 
 -- A comment after the deprecated syntax stays in place and is not copied into the replacement.

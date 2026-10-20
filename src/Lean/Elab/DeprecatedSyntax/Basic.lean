@@ -119,19 +119,20 @@ private def mkReplacementHint (stx : Syntax) : CoreM MessageData := do
   -- `do` element, and the replacement of such syntax does not reflect the source
   let isRewritten (s : Syntax) := (s.isAtom || s.isIdent) && !(s.getHeadInfo matches .original ..)
   if (stx.find? isRewritten).isSome then return .nil
-  try
-    let replacement ← evalReplacement declName
-    -- The trailing trivia of `stx` is not replaced, so it must not be printed in the replacement
-    let mut newStx :=
-      (← withRef stx <| liftMacroM <| replacement stx.unsetTrailing).eraseQuoteMacroScopes
-    if cat == `term then
-      -- This is a heuristic to minimize cases where the replacement syntax parses in unexpected
-      -- ways. It does not try to catch all such cases.
-      newStx ← parenthesizeReplacement stx newStx
-    MessageData.hint "Replace the deprecated syntax:"
-      #[{ suggestion := .tsyntax (kind := cat) ⟨newStx⟩ }] (ref? := stx)
-  catch _ =>
-    return .nil
+  -- A failing replacement, even one exceeding a resource limit, must not prevent the warning
+  tryCatchRuntimeEx
+    (do
+      let replacement ← evalReplacement declName
+      -- The trailing trivia of `stx` is not replaced, so it must not be printed in the replacement
+      let mut newStx :=
+        (← withRef stx <| liftMacroM <| replacement stx.unsetTrailing).eraseQuoteMacroScopes
+      if cat == `term then
+        -- This is a heuristic to minimize cases where the replacement syntax parses in unexpected
+        -- ways. It does not try to catch all such cases.
+        newStx ← parenthesizeReplacement stx newStx
+      MessageData.hint "Replace the deprecated syntax:"
+        #[{ suggestion := .tsyntax (kind := cat) ⟨newStx⟩ }] (ref? := stx))
+    fun _ => return .nil
 
 /--
 Check whether `stx` is a deprecated syntax kind, and if so, emit a warning.

@@ -519,6 +519,21 @@ run_cmd handler #[``TestPrivate]
 #print sig instMyClassTestPrivate
 
 /-!
+However, it will complain when used with `@[expose]` on a type with private constructors
+
+Note: we are in an `@[expose] public section`
+-/
+
+inductive TestPrivateCtor where
+  | private a
+
+/--
+error: Cannot use `deriving ... @[expose]` with `TestPrivateCtor` as it has one or more private constructors
+-/
+#guard_msgs in
+run_cmd handler #[``TestPrivateCtor]
+
+/-!
 `deriveTransformationInstPerConstructor` also handles "weird" type classes containing the universe
 on the right-hand side.
 -/

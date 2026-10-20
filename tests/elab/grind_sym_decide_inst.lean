@@ -24,7 +24,7 @@ example (x : Nat) : decide (x ≤ 2 + 3) = false := by grind_norm sym; trace_sta
 
 -- The example from `rc_model.lean`, reduced: the proposition is reordered under `decide`.
 example (x : Int32) : decide (x ≤ Int32.minValue + c) = false := by
-  grind_norm sym; guard_target =ₛ decide (x ≤ c + 2147483648) = false; sorry
+  grind_norm sym; guard_target =ₛ decide (x ≤ -2147483648 + c) = false; sorry
 
 section sym
 set_option backward.grind.normalizer false

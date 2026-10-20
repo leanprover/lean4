@@ -153,6 +153,9 @@ builtin_initialize macroAttribute : KeyedDeclsAttribute Macro ← mkMacroAttribu
 /--
 Try to expand macro at syntax tree root and return macro declaration name and new syntax if successful.
 Return none if all macros threw `Macro.Exception.unsupportedSyntax`.
+
+To elaborate the expansion in `TermElabM`, use `Lean.Elab.Term.expandMacroReportingDeprecated?`
+instead, which also reports deprecated syntax.
 -/
 def expandMacroImpl? (env : Environment) : Syntax → MacroM (Option (Name × Except Macro.Exception Syntax)) := fun stx => do
   for e in macroAttribute.getEntries env stx.getKind do

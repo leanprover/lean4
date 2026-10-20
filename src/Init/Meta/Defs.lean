@@ -675,6 +675,9 @@ end Syntax
   Expand macros in the given syntax.
   A node with kind `k` is visited only if `p k` is true.
 
+  To elaborate the expansion in `TermElabM`, use `Lean.Elab.Term.expandMacrosReportingDeprecated`
+  instead, which also reports deprecated syntax.
+
   Note that the default value for `p` returns false for `by ...` nodes.
   This is a "hack". The tactic framework abuses the macro system to implement extensible tactics.
   For example, one can define

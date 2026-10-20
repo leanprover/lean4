@@ -263,17 +263,33 @@ structure TransImportEntry where
   /-- Whether this module has been transitively imported by a `meta import`. -/
   needsMeta : Bool
 
+/-- Returns a snapshot of the Lake build store. -/
+@[inline] def getBuildStore : FetchM BuildStore :=
+  .ofFn fun _ _ _ store _ log => return .ok (← store.get) log
+
+/--
+Returns the the target job from the build store snapshot `self` if present.
+Otherwise, fetches it through the main build store.
+-/
+@[inline] def BuildStore.getOrFetch
+  (self : BuildStore) (info : BuildInfo) [FamilyOut BuildData info.key α]
+: FetchM (Job α) := do
+  if let some job := self.get? info.key then
+    return cast (by simp) job
+  else info.fetch
+
 partial def fetchTransImportArts
   (directImports : Array ModuleImport) (directArts : NameMap ImportArtifacts) (nonModule : Bool)
 : FetchM (NameMap ImportArtifacts) := do
+  let snap ← getBuildStore
   let q ← directImports.foldrM (init := #[]) fun imp q => do
     let some mod := imp.module? | return q
-    let input ← (← mod.input.fetch).await
+    let input ← (← snap.getOrFetch mod.input).await
     let importAll := strictOr nonModule imp.importAll
     return enqueue importAll imp.isMeta input q
-  walk directArts {} {} q
+  walk snap directArts {} {} q
 where
-  walk s (allVisited metaVisited : NameSet) (q : Array TransImportEntry) := do
+  walk (snap : BuildStore)  s (allVisited metaVisited : NameSet) (q : Array TransImportEntry) := do
     if h : 0 < q.size then
       let {mod, importAll, needsMeta} := q.back
       let q := q.pop
@@ -293,17 +309,17 @@ where
       -- newly-required dimension. Otherwise, leave it untouched (nothing new, or a non-module entry).
       if let some arts := existing? then
         unless arts.oleanServer?.isSome && (doAll || doMeta) do
-          return ← walk s allVisited metaVisited q
+          return ← walk snap s allVisited metaVisited q
       let allVisited := if importAll then allVisited.insert mod.name else allVisited
       let metaVisited := if needsMeta then metaVisited.insert mod.name else metaVisited
       -- Widest level seen so far, never below an existing entry's (no demotion).
       let wantAll := allVisited.contains mod.name || existing?.any (·.oleanPrivate?.isSome)
-      let info ← (← mod.fetchExportInfo).await
+      let info ← (← snap.getOrFetch mod.metaExportInfo).await
       let s := s.insert mod.name (if wantAll then info.allArts else info.arts)
-      let input ← (← mod.input.fetch).await
+      let input ← (← snap.getOrFetch mod.input).await
       -- `import all`/`meta import` are transitive. Propagate both flags to children.
       let q := enqueue importAll needsMeta input q
-      walk s allVisited metaVisited q
+      walk snap s allVisited metaVisited q
     else
       return s
   enqueue importAll needsMeta input q :=

@@ -4,9 +4,8 @@ abbrev T.{u} : Unit := (fun (α : Sort u) => ()) PUnit.{u}
 
 set_option pp.universes true
 
-def unitUnique (x y : Unit) : x = y := by rfl
 
-def testUnique.{u, v} : T.{u} = T.{v} := unitUnique _ _
+def testUnique.{u, v} : T.{u} = T.{v} := Unit.ext _ _
 
 def test.{u, v} : T.{u} = T.{v} := rfl
 

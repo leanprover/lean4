@@ -2401,7 +2401,8 @@ theorem getKey?_ext [BEq α] [EquivBEq α]
   by_cases h' : containsKey a l'
   · rw [getKey?_eq_some_getKey h'] at h
     have h'' := containsKey_eq_isSome_getKey?.trans (h ▸ Option.isSome_some)
-    simp only [getValue?_eq_some_getValue, h', h'']
+    simp only [h'', getValue?_eq_some_getValue, h']
+    try exact congrArg some (Unit.ext _ _)
   · rw [getKey?_eq_none ((Bool.not_eq_true _).mp h')] at h
     have h'' := containsKey_eq_isSome_getKey?.trans (h ▸ Option.isSome_none)
     simp only [getValue?_eq_none.mpr, h', h'']

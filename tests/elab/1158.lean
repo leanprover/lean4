@@ -45,14 +45,12 @@ structure C (α) where
 structure D (α) extends A α, B α
 structure E (α) extends C α, B α
 
--- Let's reuse these
-theorem s (a b : Unit) : a = b := rfl
 def op (_ _ : Unit) : Unit := ()
-def i (a : Unit) : op a a = a := s _ a
-def c (a b : Unit) : op a b = op b a := s _ _
+def i (a : Unit) : op a a = a := Unit.ext _ a
+def c (a b : Unit) : op a b = op b a := Unit.ext _ _
 
 -- Successfully defined
-def d : D Unit := have := s; have := i; have := ()
+def d : D Unit := have := Unit.ext; have := i; have := ()
                   { op }
 
 def e : E Unit := have := c; have := i; have := ()
@@ -61,10 +59,10 @@ def e : E Unit := have := c; have := i; have := ()
 structure F (α) extends D α, E α
 structure G (α) extends E α, D α
 
-def f : F Unit := have := s; have := i; have := c; have := ()
+def f : F Unit := have := Unit.ext; have := i; have := c; have := ()
                   { op }
 -- `idempotent`, `fav` missing
-def g : G Unit := have := s; have := i; have := c; have := ()
+def g : G Unit := have := Unit.ext; have := i; have := c; have := ()
                   { op }
 
 end Ex2

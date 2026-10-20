@@ -64,9 +64,9 @@ def Set (α : Type u) := α → Prop
 
 structure MyUnit
 
-@[ext (iff := false) high] theorem MyUnit.ext1 (x y : MyUnit) (_h : 0 = 1) : x = y := rfl
-@[ext high] theorem MyUnit.ext2 (x y : MyUnit) (_h : 1 = 1) : x = y := rfl
-@[ext (iff := false)] theorem MyUnit.ext3 (x y : MyUnit) (_h : 2 = 1) : x = y := rfl
+@[ext (iff := false) high] theorem MyUnit.ext1 (x y : MyUnit) (_h : 0 = 1) : x = y := by cases x; rfl
+@[ext high] theorem MyUnit.ext2 (x y : MyUnit) (_h : 1 = 1) : x = y := by cases x; rfl
+@[ext (iff := false)] theorem MyUnit.ext3 (x y : MyUnit) (_h : 2 = 1) : x = y := by cases x; rfl
 
 /-- info: MyUnit.ext2_iff {x y : MyUnit} : x = y ↔ 1 = 1 -/
 #guard_msgs in #check MyUnit.ext2_iff

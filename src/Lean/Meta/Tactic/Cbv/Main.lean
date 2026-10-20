@@ -16,7 +16,7 @@ import Lean.Meta.Tactic.Cbv.BuiltinCbvSimprocs.String
 import Lean.Meta.Tactic.Cbv.Util
 import Lean.Meta.Tactic.Cbv.TheoremsLookup
 import Lean.Meta.Tactic.Cbv.CbvEvalExt
-import Lean.Meta.Tactic.Cbv.CbvSimproc
+public import Lean.Meta.Tactic.Cbv.CbvSimproc
 import Lean.Meta.Sym
 import Lean.Meta.Tactic.Refl
 import Lean.Meta.Tactic.Replace
@@ -355,14 +355,19 @@ def cbvPreStep : Simproc := fun e => do
   | _ => return .rfl
 
 /-- Pre-pass: skip builtin values and proofs, run pre simprocs, then dispatch structurally. -/
-def cbvPre (simprocs : CbvSimprocs) : Simproc :=
+public def cbvPre (simprocs : CbvSimprocs) : Simproc :=
   isBuiltinValue <|> isProofTerm <|> cbvSimprocDispatch simprocs.pre simprocs.erased <|> cbvPreStep
 
 /-- Post-pass: evaluate ground arithmetic, then try eval simprocs, then try unfolding/beta-reducing applications and finally run post simprocs -/
-def cbvPost (simprocs : CbvSimprocs) : Simproc :=
+public def cbvPost (simprocs : CbvSimprocs) : Simproc :=
   evalGround <|> cbvSimprocDispatch simprocs.eval simprocs.erased <|> handleApp <|> cbvSimprocDispatch simprocs.post simprocs.erased
 
-def mkCbvMethods (simprocs : CbvSimprocs) : Methods :=
+/--
+`cbv` simplifier methods, for running `cbv` via `SimpM.run'` directly. As in `cbvCore`, the
+simplified terms must be preprocessed and the `SimpM` session must run under
+`Sym.withoutShareCommonChecks`.
+-/
+public def mkCbvMethods (simprocs : CbvSimprocs) : Methods :=
   { pre := cbvPre simprocs, post := cbvPost simprocs }
 
 /--

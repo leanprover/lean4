@@ -101,11 +101,16 @@ def Lean.Meta.mkNondepCases [Monad m] [MonadEnv m] [MonadError m]
   let discrType ← whnf (← inferType discr)
   discrType.withApp fun fn args => do
   let .const induct us := fn
-    | throwError "Unexpected `discr` argument to `mkNondepCases`, expected inductive{indentExpr discrType}"
+    | throwError "Unexpected `discr` argument to `{.ofConstName decl_name%}`, \
+        expected the type to be an inductive application{indentExpr discrType}"
   let indInfo ← getConstInfoInduct induct
   let params := args.take indInfo.numParams
   let indices := args.drop indInfo.numParams
   let resultSort ← getLevel resultType
+  let casesOnVal ← getConstVal (mkCasesOnName induct)
+  unless casesOnVal.levelParams.length = indInfo.levelParams.length + 1 do
+    throwError "Error in `{.ofConstName decl_name%}`: \
+      The inductive `{.ofConstName induct}` does not have large elimination"
   let casesOnApp := mkAppN (.const (mkCasesOnName induct) (resultSort :: us)) params
   let casesOnType ← inferType casesOnApp
   let .forallE _ motiveType body _ := casesOnType | unreachable!
@@ -957,6 +962,12 @@ initialize registerDerivingHandler ``ToSExpr toSExprHandler
 def deriveTransformationInstPerConstructor
     (perCtor : InductiveVal → ConstructorVal → Array Expr → DerivingM Expr) :
     DerivingM Bool := do
+  -- this is supposed to be present, but if not, we let `makeInstancesUsingMutualBlock` complain
+  if let some info := getStructureInfo? (← getEnv) (← read).className then
+    if info.fieldNames.size != 1 then
+      throwError "Invalid use of `{.ofConstName decl_name%}`, expected \
+        `{.ofConstName (← read).className}` to have exactly one field but it has \
+        {info.fieldNames.size} fields"
   makeInstancesUsingMutualBlock <| ← (← read).indInfo.all.toArray.mapM <|
     InstanceInfo.usingCtor fun _ => .cases fun ival cval fields _ => perCtor ival cval fields
   return true

@@ -1017,3 +1017,37 @@ Note: This linter can be disabled with `set_option linter.deprecated.syntax fals
 -/
 #guard_msgs in
 #apply_suggestions example (h : True) : True := by old_exact h
+
+-- Section variables used by alternatives would become parameters of the replacement.
+section
+variable (n : Nat)
+
+/--
+error: invalid deprecated_syntax alternatives, they must not refer to section variables
+-/
+#guard_msgs in
+deprecated_syntax oldNum (since := "2026-10-20")
+  | `(old_num) => `($(Lean.quote n))
+
+end
+
+/--
+warning: syntax 'oldNum' has been deprecated
+
+Note: This linter can be disabled with `set_option linter.deprecated.syntax false`
+-/
+#guard_msgs in
+#apply_suggestions example : Nat := old_num
+
+-- A replacement registered by other means is ignored if it is not a `Macro`.
+def notAMacro (n : Nat) : Lean.Macro := fun _ => `($(Lean.quote n))
+
+run_cmd Lean.modifyEnv (Lean.Elab.deprecatedSyntaxReplacementExt.addEntry · (`oldNum, some ``notAMacro))
+
+/--
+warning: syntax 'oldNum' has been deprecated
+
+Note: This linter can be disabled with `set_option linter.deprecated.syntax false`
+-/
+#guard_msgs in
+#apply_suggestions example : Nat := old_num

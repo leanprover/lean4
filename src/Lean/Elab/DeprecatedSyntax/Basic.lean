@@ -61,7 +61,7 @@ def isDeprecatedSyntax (env : Environment) (kind : SyntaxNodeKind) : Bool :=
   (deprecatedSyntaxExt.getState env).contains kind
 
 private unsafe def evalReplacementUnsafe (declName : Name) : CoreM Macro :=
-  evalConst Macro declName
+  evalConstCheck Macro ``Macro declName
 
 @[implemented_by evalReplacementUnsafe]
 private opaque evalReplacement (declName : Name) : CoreM Macro

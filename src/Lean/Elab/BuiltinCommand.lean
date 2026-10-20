@@ -803,7 +803,12 @@ private def elabDeprecatedSyntaxReplacement (kind : SyntaxNodeKind) (alts : Arra
     elabCommand <| ← `(public meta def $(mkIdentFrom (← getRef) id):ident : Lean.Macro := $body)
   let declName := (← getCurrNamespace) ++ id
   let env ← getEnv
-  unless env.contains declName && (IR.getSorryDep env declName).isNone do
+  let some val := env.findConstVal? declName | return none
+  if (IR.getSorryDep env declName).isSome then
+    return none
+  -- Section variables used by the alternatives become parameters of the definition
+  unless val.type.isConstOf ``Lean.Macro do
+    logError "invalid deprecated_syntax alternatives, they must not refer to section variables"
     return none
   return declName
 

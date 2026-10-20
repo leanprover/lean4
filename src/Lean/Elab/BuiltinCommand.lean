@@ -785,16 +785,17 @@ Returns the name of the definition, or `none` if it failed to elaborate.
 private def elabDeprecatedSyntaxReplacement (kind : SyntaxNodeKind) (alts : Array Syntax) :
     CommandElabM (Option Name) := withRef (mkNullNode alts) do
   let alts : Array (TSyntax ``matchAlt) := alts.map (⟨·⟩)
-  let identAlt? : Option (Ident × Term) := do
+  let catchAllAlt? : Option (Term × Term) := do
     let #[alt] := alts | none
-    let `(matchAltExpr| | $x:ident => $rhs) := alt | none
-    return (x, rhs)
-  let body ← if let some (x, rhs) := identAlt? then `(fun $x:ident => $rhs) else
+    let `(matchAltExpr| | $pat:term => $rhs) := alt | none
+    guard <| pat.raw.isIdent || pat.raw.isOfKind ``hole
+    return (pat, rhs)
+  let body ← if let some (pat, rhs) := catchAllAlt? then `(fun $pat:term => $rhs) else
     let alts ← alts.mapM fun (alt : TSyntax ``matchAlt) => do
       if let `(matchAltExpr| | $pat:term => $_) := alt then
         unless pat.raw.isQuot do
           throwErrorAt pat "invalid deprecated_syntax alternative, expected a syntax quotation \
-            pattern or a single identifier pattern"
+            pattern or a single identifier or `_` pattern"
       checkRuleAltKind "deprecated_syntax" kind alt
     `(fun $alts:matchAlt* | _ => no_error_if_unused% throw Lean.Macro.Exception.unsupportedSyntax)
   let id ← mkAuxDefName (`deprecatedSyntax ++ kind)

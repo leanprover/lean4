@@ -345,7 +345,8 @@ Resolution of Try this: return 1:
  "range":
  {"start": {"line": 65, "character": 4}, "end": {"line": 65, "character": 4}},
  "context": {"diagnostics": []}}
-[{"title": "Try this: if !b then \n    return 1",
+[{"title":
+  "Try this: match b with\n  | true =>\n    pure ()\n  | false =>\n    return 1",
   "kind": "quickfix",
   "edit":
   {"documentChanges":
@@ -355,7 +356,8 @@ Resolution of Try this: return 1:
      [{"range":
        {"start": {"line": 65, "character": 2},
         "end": {"line": 65, "character": 22}},
-       "newText": "if !b then \n    return 1"}]}]},
+       "newText":
+       "match b with\n  | true =>\n    pure ()\n  | false =>\n    return 1"}]}]},
   "data":
   {"providerResultIndex": 0,
    "providerName":
@@ -366,9 +368,13 @@ Resolution of Try this: return 1:
     {"start": {"line": 65, "character": 4},
      "end": {"line": 65, "character": 4}},
     "context": {"diagnostics": []}}}}]
-Resolution of Try this: if !b then 
+Resolution of Try this: match b with
+  | true =>
+    pure ()
+  | false =>
     return 1:
-{"title": "Try this: if !b then \n    return 1",
+{"title":
+ "Try this: match b with\n  | true =>\n    pure ()\n  | false =>\n    return 1",
  "kind": "quickfix",
  "edit":
  {"documentChanges":
@@ -378,7 +384,8 @@ Resolution of Try this: if !b then
     [{"range":
       {"start": {"line": 65, "character": 2},
        "end": {"line": 65, "character": 22}},
-      "newText": "if !b then \n    return 1"}]}]},
+      "newText":
+      "match b with\n  | true =>\n    pure ()\n  | false =>\n    return 1"}]}]},
  "data":
  {"providerResultIndex": 0,
   "providerName":

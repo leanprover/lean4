@@ -59,8 +59,8 @@ def doReturnTest : Id Nat := do
   old_return 1
   --^ codeAction
 
-deprecated_syntax Lean.Parser.Term.doUnless "use `if` instead" (since := "2026-10-19")
-  | `(doElem| unless $c do $s) => `(doElem| if !$c then $s)
+deprecated_syntax Lean.Parser.Term.doUnless "use `match` instead" (since := "2026-10-19")
+  | `(doElem| unless $c do $s) => `(doElem| match $c:term with | true => pure () | false => $s)
 
 def doUnlessTest (b : Bool) : Id Nat := do
   unless b do return 1

@@ -695,8 +695,11 @@ deprecated_syntax Lean.Parser.Tactic.rwaAtLegacyLocation
 ```
 
 As with `macro_rules`, the patterns are syntax quotations of the deprecated syntax kind and the
-right-hand sides run in `MacroM`. Instead, a single alternative with an identifier pattern, such as
-`| stx => f stx` for some `f : Macro`, receives every use of the deprecated syntax.
+right-hand sides run in `MacroM`. Alternatively, a single alternative with an identifier pattern,
+such as `| stx => f stx` for some `f : Macro`, receives every use of the deprecated syntax. In a
+module, the function `f` should be marked as `meta`. A single alternative with the pattern `_`, such
+as ``| _ => `(tactic| trivial)``, also receives every use, which is convenient for syntax without
+arguments.
 
 The result is printed as source text, so it should be syntax that can be kept in the source. A
 replacement term that binds less tightly than the deprecated syntax, such as `a + b` replacing a

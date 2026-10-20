@@ -350,20 +350,27 @@ info: def doReturnTest : Id Nat := do
   old_return 1
 
 -- `unless` is implemented by an elaborator rather than a macro.
-deprecated_syntax Lean.Parser.Term.doUnless "use `if` instead" (since := "2026-10-19")
-  | `(doElem| unless $c do $s) => `(doElem| if !$c then $s)
+deprecated_syntax Lean.Parser.Term.doUnless "use `match` instead" (since := "2026-10-19")
+  | `(doElem| unless $c do $s) => `(doElem| match $c:term with | true => pure () | false => $s)
 
 /--
-warning: syntax 'Lean.Parser.Term.doUnless' has been deprecated: use `if` instead
+warning: syntax 'Lean.Parser.Term.doUnless' has been deprecated: use `match` instead
 
 Hint: Replace the deprecated syntax:
-  u̵n̵l̵e̵s̵s̵ ̵b̵ ̵d̵o̵i̲f̲ ̲!̲b̲ ̲t̲h̲e̲n̲ 
-      return 1
+  u̵n̵l̵e̵s̵s̵ ̵b̵ ̵d̵o̵
+  ̵ ̵ ̵ ̵ ̵r̵e̵t̵u̵r̵n̵ ̵1̵m̲a̲t̲c̲h̲ ̲b̲ ̲w̲i̲t̲h̲
+  ̲ ̲ ̲|̲ ̲t̲r̲u̲e̲ ̲=̲>̲
+  ̲ ̲ ̲ ̲ ̲p̲u̲r̲e̲ ̲(̲)̲
+  ̲ ̲ ̲|̲ ̲f̲a̲l̲s̲e̲ ̲=̲>̲
+  ̲ ̲ ̲ ̲ ̲r̲e̲t̲u̲r̲n̲ ̲1̲
 
 Note: This linter can be disabled with `set_option linter.deprecated.syntax false`
 ---
 info: def doUnlessTest (b : Bool) : Id Nat := do
-  if !b then 
+  match b with
+  | true =>
+    pure ()
+  | false =>
     return 1
   return 2
 -/
@@ -375,7 +382,7 @@ info: def doUnlessTest (b : Bool) : Id Nat := do
 
 -- Nested actions are lifted out of the syntax before it is elaborated, so there is no suggestion.
 /--
-warning: syntax 'Lean.Parser.Term.doUnless' has been deprecated: use `if` instead
+warning: syntax 'Lean.Parser.Term.doUnless' has been deprecated: use `match` instead
 
 Note: This linter can be disabled with `set_option linter.deprecated.syntax false`
 -/
@@ -385,7 +392,7 @@ def doUnlessNestedTest (b : Id Bool) : Id Nat := do
     return 1
   return 2
 
-deprecated_syntax Lean.Parser.Term.doUnless "use `if` instead" (since := "2026-10-19")
+deprecated_syntax Lean.Parser.Term.doUnless "use `match` instead" (since := "2026-10-19")
 
 /-! ## Patterns -/
 
@@ -885,6 +892,62 @@ info: example : Nat := 42
 #guard_msgs in
 #apply_suggestions example : Nat := old_num
 
+/-! ## `_` patterns -/
+
+syntax (name := oldTrivial) "old_trivial" : tactic
+macro_rules | `(tactic| old_trivial) => `(tactic| trivial)
+
+deprecated_syntax oldTrivial "use `trivial` instead" (since := "2026-10-20")
+  | _ => `(tactic| trivial)
+
+/--
+warning: syntax 'oldTrivial' has been deprecated: use `trivial` instead
+
+Hint: Replace the deprecated syntax:
+  o̵l̵d̵_̵trivial
+
+Note: This linter can be disabled with `set_option linter.deprecated.syntax false`
+---
+info: example : True := by trivial
+-/
+#guard_msgs in
+#apply_suggestions example : True := by old_trivial
+
+syntax (name := oldIgnore) "old_ignore " term:max : term
+macro_rules | `(old_ignore $_) => `(0)
+
+deprecated_syntax oldIgnore "use `0` instead" (since := "2026-10-20")
+  | _ => `(0)
+
+-- The alternative receives every use of the syntax, whatever its arguments.
+/--
+warning: syntax 'oldIgnore' has been deprecated: use `0` instead
+
+Hint: Replace the deprecated syntax:
+  o̵l̵d̵_̵i̵g̵n̵o̵r̵e̵ ̵5̵0̲
+
+Note: This linter can be disabled with `set_option linter.deprecated.syntax false`
+---
+info: example : Nat := 0
+-/
+#guard_msgs in
+#apply_suggestions example : Nat := old_ignore 5
+
+syntax (name := oldDeclined) "old_declined" : term
+macro_rules | `(old_declined) => `(0)
+
+deprecated_syntax oldDeclined "use `0` instead" (since := "2026-10-20")
+  | _ => Lean.Macro.throwUnsupported
+
+-- The alternative declines the syntax.
+/--
+warning: syntax 'oldDeclined' has been deprecated: use `0` instead
+
+Note: This linter can be disabled with `set_option linter.deprecated.syntax false`
+-/
+#guard_msgs in
+#apply_suggestions example : Nat := old_declined
+
 /-! ## Core syntax -/
 
 deprecated_syntax Lean.Parser.Tactic.rwaAtLegacyLocation
@@ -929,7 +992,7 @@ deprecated_syntax oldExact (since := "2026-10-19")
   | `(tactic| exact $e) => `(tactic| exact $e)
 
 /--
-error: invalid deprecated_syntax alternative, expected a syntax quotation pattern or a single identifier pattern
+error: invalid deprecated_syntax alternative, expected a syntax quotation pattern or a single identifier or `_` pattern
 -/
 #guard_msgs in
 deprecated_syntax oldExact (since := "2026-10-19")

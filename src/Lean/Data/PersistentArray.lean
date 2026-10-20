@@ -397,10 +397,6 @@ def mkPersistentArray {α : Type u} (n : Nat) (v : α) : PArray α :=
 @[inline] def mkPArray {α : Type u} (n : Nat) (v : α) : PArray α :=
   mkPersistentArray n v
 
-end Lean
-
-open Lean (PersistentArray)
-
 /--
 Converts a list to a persistent array.
 -/
@@ -412,3 +408,5 @@ def List.toPArray' {α : Type u} (xs : List α) : PersistentArray α :=
 
 def Array.toPArray' {α : Type u} (xs : Array α) : PersistentArray α :=
   xs.foldl (init := .empty) fun p x => p.push x
+
+end Lean

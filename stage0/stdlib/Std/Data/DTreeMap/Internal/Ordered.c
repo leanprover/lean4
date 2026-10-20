@@ -17,11 +17,13 @@ lean_object* runtime_initialize_Std_Data_DTreeMap_Internal_Def(uint8_t builtin);
 lean_object* runtime_initialize_Std_Data_Internal_Cut(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_List_Pairwise(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_List_Sublist(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Std_Data_DTreeMap_Internal_Ordered(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Std_Data_DTreeMap_Internal_Def(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

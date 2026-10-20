@@ -1,5 +1,6 @@
 source_init "$1"
 run_before "$1"
+maybe_use_lean_header_snapshot "$1"
 
 # `--root` to infer same private names as in the server
 # Elab.inServer to allow for arbitrary `#eval`

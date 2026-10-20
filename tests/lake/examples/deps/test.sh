@@ -16,6 +16,19 @@ $LAKE -d foo build --update
 ./foo/.lake/build/bin/foo
 ./bar/.lake/build/bin/bar
 
+# Test compiled configurations are hoisted
+test -d foo/.lake/config/0
+test -d foo/.lake/config/1
+test -d foo/.lake/config/2
+test -d foo/.lake/config/3
+test ! -d foo/.lake/config/4
+test -d bar/.lake/config/0
+test -d bar/.lake/config/1
+test -d bar/.lake/config/2
+test -d bar/.lake/config/3
+test -d bar/.lake/config/4
+test ! -d bar/.lake/config/5
+
 # Test setup-file works (i.e., does not error)
 $LAKE -d foo setup-file ./foo/Foo.lean
 
@@ -39,3 +52,17 @@ $LAKE -d foo -f lakefile.toml build --update
 
 ./foo/.lake/build/bin/foo
 ./bar/.lake/build/bin/bar
+
+# Test compiled configurations are hoisted
+# and that the TOML configuration produces none
+test ! -d foo/.lake/config/0
+test -d foo/.lake/config/1
+test -d foo/.lake/config/2
+test -d foo/.lake/config/3
+test ! -d foo/.lake/config/4
+test ! -d bar/.lake/config/0
+test -d bar/.lake/config/1
+test -d bar/.lake/config/2
+test -d bar/.lake/config/3
+test -d bar/.lake/config/4
+test ! -d bar/.lake/config/5

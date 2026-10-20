@@ -80,7 +80,12 @@ register_builtin_option tactic.hygienic : Bool := {
   descr    := "make sure tactics are hygienic"
 }
 
-private def mkFreshBinderNameForTacticCore (lctx : LocalContext) (binderName : Name) (hygienic := true) : MetaM Name := do
+/--
+Like `mkFreshBinderNameForTactic`, but takes the local context and `tactic.hygienic` value explicitly.
+Use this variant when the relevant local context is being built incrementally and differs from the
+ambient `← getLCtx` (e.g. when introducing several binders in a single pass).
+-/
+def mkFreshBinderNameForTacticCore (lctx : LocalContext) (binderName : Name) (hygienic := true) : MetaM Name := do
   if hygienic then
     mkFreshUserName binderName
   else

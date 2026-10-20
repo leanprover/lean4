@@ -40,7 +40,7 @@ trace: [grind.debug.linarith.search.assign] One.one := 1
 -/
 #guard_msgs (drop error, trace) in
 set_option trace.grind.debug.linarith.search.assign true in
-example [CommRing α] [LE α] [LT α] [IsLinearOrder α] [OrderedRing α] (a b c d : α)
+example [CommRing α] [LE α] [LT α] [LawfulOrderLT α] [IsLinearOrder α] [OrderedRing α] (a b c d : α)
     : b ≥ 0 → c > b → d > b → a ≠ b + c → a > b + c → a < b + d →  False := by
   grind
 
@@ -78,7 +78,7 @@ trace: [grind.linarith.model] a := 7/2
 -/
 #guard_msgs (drop error, trace) in
 set_option trace.grind.linarith.model true in
-example [CommRing α] [LE α] [LT α] [IsLinearOrder α] [OrderedRing α] (a b c d : α)
+example [CommRing α] [LE α] [LT α] [LawfulOrderLT α] [IsLinearOrder α] [OrderedRing α] (a b c d : α)
     : b ≥ 0 → c > b → d > b → a ≠ b + c → a > b + c → a < b + d →  False := by
   grind
 

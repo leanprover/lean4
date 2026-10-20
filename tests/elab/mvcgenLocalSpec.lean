@@ -2,7 +2,7 @@ import Std.Tactic.Do
 
 open Std.Do
 
-set_option mvcgen.warning false
+set_option linter.deprecated.syntax false
 
 def foo (x : Id Nat → Id Nat) : Id Nat := do
   let r₁ ← x (pure 42)

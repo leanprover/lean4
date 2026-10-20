@@ -21,6 +21,8 @@ def tst1 : IO Unit := do
   IO.println (0 / 0 : Float).toUInt32
   IO.println (0 / 0 : Float).toUInt64
   IO.println (0 / 0 : Float).toUSize
+  IO.println Float.nan.isNaN
+  IO.println Float.inf.isInf
 
   IO.println (-1 : Float).toUInt8
   IO.println (256 : Float).toUInt8
@@ -75,9 +77,27 @@ def tst3 (xs : List Float) (y : Float) : IO Unit :=
 def tst4 (xs : List Float) : IO Unit :=
   IO.println (fMap (fun x => x.abs) xs)
 
+/--
+`Float.ofModel`/`Float.toModel` behave correctly: the triangle relating the two
+`toBits` functions commutes (`Float.toBits = Float.Model.toBits ∘ Float.toModel`),
+and round-tripping a `Float` through its `Float.Model` reproduces it bit-for-bit.
+-/
+def checkModel (f : Float) : Bool :=
+  -- the two ways of obtaining the bits agree
+  (f.toBits == f.toModel.toBits) &&
+  -- `Float.ofModel ∘ Float.toModel = id`, bit-for-bit
+  ((Float.ofModel f.toModel).toBits == f.toBits)
+
+def tst5 : IO Unit := do
+  let samples : List Float :=
+    [0.0, -0.0, 1.0, -1.0, 3.14, -2.5, 1e308, 1e-308, 1 / 0, -1 / 0, 0 / 0]
+  IO.println (samples.all checkModel)
+
 def main : IO Unit := do
   tst1
   IO.println "-----"
   tst2 7
   tst3 [3, 4, 7, 8, 9, 11] 2
   tst4 [3, -3, 0, -0, -1 / 0, -0 / 0]
+  IO.println "-----"
+  tst5

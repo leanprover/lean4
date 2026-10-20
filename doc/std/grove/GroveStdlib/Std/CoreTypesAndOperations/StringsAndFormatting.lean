@@ -4,8 +4,10 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Markus Himmel
 -/
 import Grove.Framework
+import GroveStdlib.Common.Order
 
 open Grove.Framework Widget
+open GroveStdlib.Common
 
 namespace GroveStdlib.Std.CoreTypesAndOperations
 
@@ -83,6 +85,13 @@ def sliceProducingComplete : Assertion where
         }
     return ans
 
+def orderInstances : Table .declaration .declaration .synthesis [()] where
+  id := "string-order-instances"
+  title := "Order instances on string-related types"
+  rowsFrom := .constUnit (pure #[``String, ``String.Slice, ``String.Pos, ``String.Pos.Raw, ``String.Slice.Pos])
+  columnsFrom := .constUnit (pure OrderClasses.orderClasses)
+  cellData := .synthesis #[]
+
 end StringsAndFormatting
 
 open StringsAndFormatting
@@ -92,6 +101,7 @@ def stringsAndFormatting : Node :=
     #[.text introduction,
       .text creatingStringsAndSlices,
       .associationTable sliceProducing,
-      .assertion sliceProducingComplete]
+      .assertion sliceProducingComplete,
+      .table orderInstances]
 
 end GroveStdlib.Std.CoreTypesAndOperations

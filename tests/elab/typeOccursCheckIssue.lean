@@ -72,5 +72,12 @@ partial def minimizeAux [SampleableExt α] {β : α → Prop} [∀ x, Testable (
         pure () -- slimTrace s!"{var} shrunk to {repr candidate} from {repr x}"
       let currentStep := OptionT.lift <| pure <| Sigma.mk candidate (addShrinks (n + 1) res)
       let nextStep := minimizeAux cfg var candidate (n + 1)
+      -- The following no-op forces defaulting in the line below (which is a wart itself),
+      -- which in turn pushes an expected type into the `addShrinks` expression, which in turn
+      -- allows the existential motive to be inferred.
+      -- Ideally, we would not globally trigger defaulting and instead require more type annotations
+      -- from the user. But this is not the point of this test case, so we'll live with this
+      -- workaround for now.
+      let () := ()
       return ← (nextStep <|> currentStep)
   failure

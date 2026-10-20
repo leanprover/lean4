@@ -18,7 +18,7 @@ reference used is https://httpwg.org/specs/rfc9112.html.
 
 namespace Std.Http.Protocol.H1
 
-open Std Internal Parsec ByteArray Internal Internal.Char
+open Std Std.Internal Parsec ByteArray Internal.Char
 
 set_option linter.all true
 

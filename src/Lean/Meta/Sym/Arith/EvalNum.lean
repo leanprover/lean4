@@ -87,4 +87,30 @@ def evalNat? (e : Expr) : SymM (Option Nat) :=
 def evalInt? (e : Expr) : SymM (Option Int) :=
   evalIntCore e |>.run
 
+open Structural in
+mutual
+/--
+Quick function for converting `e` into `s + k` s.t. `e` is definitionally equal to `Nat.add s k`.
+This function always succeeds in finding such `s` and `k`
+(as a last resort it returns `e` and `0`).
+-/
+private partial def getOffset (e : Expr) : SymM (Expr × Nat) :=
+  return (← isOffset? e).getD (e, 0)
+
+/--
+Similar to `getOffset` but returns `none` if the expression is not an offset.
+-/
+partial def isOffset? (e : Expr) : OptionT SymM (Expr × Nat) := do
+  let add (a b : Expr) := do
+    let v ← evalNat? b
+    let (s, k) ← getOffset a
+    return (s, k+v)
+  match_expr e with
+  | Nat.succ a =>
+    let (s, k) ← getOffset a
+    return (s, k+1)
+  | HAdd.hAdd _ _ _ i a b => guard (← isInstHAddNat i); add a b
+  | _ => failure
+end
+
 end Lean.Meta.Sym.Arith

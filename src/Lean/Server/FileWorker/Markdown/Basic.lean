@@ -302,7 +302,7 @@ Normalizes a CommonMark link label (§4.7):
 While CommonMark specifies Unicode case folding, this implementation case-folds only ASCII English
 letters.
 -/
-public def normalizeLabel (s : String) : LinkLabel := Id.run do
+def normalizeLabel (s : String) : LinkLabel := Id.run do
   let mut out := ""
   let mut sawWs := false  -- whether we've seen whitespace since the last non-ws
   let mut sawNonWs := false  -- whether we've emitted any non-ws char yet

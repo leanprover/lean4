@@ -8,6 +8,7 @@ inductive KrivineClosure
 
 namespace Ex1
 
+@[instance_reducible]
 def KrivineEnv := List KrivineClosure
 
 -- We need to define a `SizeOf` instance for `KrivineEnv`. Otherwise, we cannot use the auto-generated well-founded relation in

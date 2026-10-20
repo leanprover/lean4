@@ -1,6 +1,6 @@
 import Std
 
-set_option mvcgen.warning false
+set_option linter.deprecated.syntax false
 set_option warn.sorry false
 
 open Std.Do Std Std.Iterators Std.Iterators.Types

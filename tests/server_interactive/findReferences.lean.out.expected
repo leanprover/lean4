@@ -18,13 +18,13 @@
   {"start": {"line": 9, "character": 13}, "end": {"line": 9, "character": 40}}},
  {"uri": "file:///src/Lean/Server/Test/Refs.lean",
   "range":
-  {"start": {"line": 17, "character": 11},
-   "end": {"line": 17, "character": 16}}},
+  {"start": {"line": 20, "character": 11},
+   "end": {"line": 20, "character": 16}}},
  {"uri": "file:///src/Lean/Server/Test/Refs.lean",
   "range":
-  {"start": {"line": 18, "character": 20},
-   "end": {"line": 18, "character": 25}}},
+  {"start": {"line": 21, "character": 20},
+   "end": {"line": 21, "character": 25}}},
  {"uri": "file:///src/Lean/Server/Test/Refs.lean",
   "range":
-  {"start": {"line": 19, "character": 20},
-   "end": {"line": 19, "character": 25}}}]
+  {"start": {"line": 22, "character": 20},
+   "end": {"line": 22, "character": 25}}}]

@@ -21,7 +21,7 @@ test_out '"plugins":[]' setup-file ImportFoo.lean
 test_out '"dynlibs":[]' setup-file ImportFoo.lean
 
 # Test that local imports are pre-resolved.
-test_out '"importArts":{"Test":["' setup-file ImportTest.lean
+test_out '"importArts":{"Test":[[' setup-file ImportTest.lean
 
 # Test that external imports are left unhandled.
 test_out '"importArts":{}' setup-file ImportFoo.lean
@@ -32,6 +32,12 @@ test_out '"options":{}' setup-file ImportFoo.lean
 # Test that a more specific configuration will be used if
 # Lake can identify the module corresponding to the path.
 test_out '"options":{"weak.foo":"bar"}' setup-file Test.lean
+
+# Test that `moreServerOptions` applies to external modules.
+test_out '"options":{"weak.foo":"baz"}' -f moreServerOptions.toml setup-file ImportTest.lean
+
+# Test that `moreServerOptions` applies to internal modules.
+test_out '"options":{"weak.foo":"baz"}' -f moreServerOptions.toml setup-file Test.lean
 
 # Test that `setup-file` on an invalid Lean configuration file succeeds.
 test_run -f invalid.lean setup-file invalid.lean

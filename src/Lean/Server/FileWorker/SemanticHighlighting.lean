@@ -8,6 +8,7 @@ module
 prelude
 public import Lean.Server.Requests
 public import Lean.Server.FileWorker.Markdown
+import Lean.DocString.View
 
 public section
 
@@ -70,11 +71,13 @@ def computeAbsoluteLspSemanticTokens
     (text     : FileMap)
     (beginPos : String.Pos.Raw)
     (endPos?  : Option String.Pos.Raw)
-    (tokens   : Array LeanSemanticToken)
-    : Array AbsoluteLspSemanticToken :=
+    (tokens   : Array LeanSemanticToken) :
+    Array AbsoluteLspSemanticToken :=
   tokens.filterMap fun tok => do
     let (pos, tailPos) := (← tok.stx.getPos?, ← tok.stx.getTailPos?)
     guard <| beginPos <= pos && endPos?.all (pos < ·)
+    -- Every token should be non-empty
+    guard <| pos < tailPos
     let (lspPos, lspTailPos) := (text.utf8PosToLspPos pos, text.utf8PosToLspPos tailPos)
     return { tok with pos := lspPos, tailPos := lspTailPos }
 
@@ -226,6 +229,7 @@ private def HandleOverlapState.token (st : HandleOverlapState) (t : AbsoluteLspS
     return st
 
 
+
 /--
 Eliminates overlapping tokens by selecting a single “best” token for each interval between token
 boundaries.
@@ -295,10 +299,6 @@ def computeDeltaLspSemanticTokens (tokens : Array AbsoluteLspSemanticToken) : Se
     lastPos := pos
   return { data }
 
-open Lean.Doc.Syntax in
-def isVersoKind (k : SyntaxNodeKind) : Bool :=
-  (`Lean.Doc.Syntax).isPrefixOf k
-
 /--
 Split the token at newline boundaries to support LSP clients such as VS Code that can't deal with
 newline-spanning tokens.
@@ -326,7 +326,6 @@ private def splitStr (text : FileMap) (stx : Syntax) : Array Syntax := Id.run do
     stxs := stxs.push <| .ofRange ⟨pos, l'⟩
     pos := l
   return stxs
-
 
 /-! ## Markdown highlighting
 
@@ -589,9 +588,8 @@ def collectMarkdownTokens (text : FileMap) (startPos endPos : String.Pos.Raw) :
     Array LeanSemanticToken :=
   Markdown.emitBlocks text {} (Markdown.parseDocument text.source startPos endPos) #[]
 
-open Lean.Doc.Syntax Markdown in
+open Lean.Doc Markdown in
 private partial def collectVersoTokens
-    (text : FileMap)
     (stx : Syntax) (getTokens : (stx : Syntax) → Array LeanSemanticToken) :
     Array LeanSemanticToken :=
   go {} stx |>.run #[] |>.2
@@ -606,126 +604,146 @@ where
       | _ => 5
     modify (·.push { stx := tk, type := k, priority })
 
+  /--
+  The region of a code block line to highlight. The line's final newline is omitted because some LSP
+  clients (including VS Code) ignore a token that spans a line break.
+  -/
+  codeLine (line : Syntax) (value : String) : Option Syntax := do
+    let ⟨pos, tailPos⟩ ← line.getRange?
+    let tailPos := if value.endsWith "\n" then tailPos - '\n' else tailPos
+    return .ofRange ⟨pos, tailPos⟩
+
+  goArg (arg : TSyntax ``Parser.arg) :
+      StateM (Array LeanSemanticToken) Unit := do
+    match ArgView.of arg with
+    | some (.named _ parens x tk v) =>
+      if let some (o, _) := parens then tok o .keyword
+      tok x.raw .property
+      tok tk .keyword
+      tok v.raw .parameter
+      if let some (_, c) := parens then tok c .keyword
+    | some (.flag _ tk x _) =>
+      tok tk .keyword
+      tok x.raw .property
+    | some (.anon _ v) => tok v.raw .parameter
+    | none => pure ()
+
+  goTarget (tgt : LinkTargetView) : StateM (Array LeanSemanticToken) Unit := do
+    match tgt with
+    | .ref _ tk1 name tk2 =>
+      tok tk1 .keyword
+      tok name.raw .property
+      tok tk2 .keyword
+    | .url _ tk1 url tk2 =>
+      tok tk1 .keyword
+      tok url.raw .string
+      tok tk2 .keyword
+
+  goCode (code : CodeView) : StateM (Array LeanSemanticToken) Unit := do
+    tok code.opener .keyword
+    for line in code.content.getVersoCodeLines do
+      if let some region := codeLine line.raw line.getVersoCodeLine then tok region .string
+    tok code.closer .keyword
+
+  goItem (a : MarkupAttrs) (marker : Syntax) (contents : TSyntaxArray ``Parser.block) :
+      StateM (Array LeanSemanticToken) Unit := do
+    tok marker .keyword
+    for b in contents do go a b.raw
+
+  goDelimited (a : MarkupAttrs) (opener closer : Syntax) (content : TSyntaxArray ``Parser.inline) :
+      StateM (Array LeanSemanticToken) Unit := do
+    tok opener .keyword
+    for i in content do go a i.raw
+    tok closer .keyword
+
+  goDesc (a : MarkupAttrs) (item : DescItemView) : StateM (Array LeanSemanticToken) Unit := do
+    tok item.marker .keyword
+    for i in item.term do go a i.raw
+    for b in item.desc do go a b.raw
+
   go (a : MarkupAttrs) (stx : Syntax) : StateM (Array LeanSemanticToken) Unit := do
-  match stx with
-  | `(arg_val| $x:ident )
-  | `(arg_val| $x:str )
-  | `(arg_val| $x:num ) =>
-    tok x .parameter
-  | `(named| (%$tk1 $x:ident :=%$tk2 $v:arg_val )%$tk3) =>
-    tok tk1 .keyword
-    tok x .property
-    tok tk2 .keyword
-    go a v
-    tok tk3 .keyword
-  | `(named_no_paren| $x:ident :=%$tk $v:arg_val ) =>
-    tok x .property
-    tok tk .keyword
-    go a v
-  | `(flag_on| +%$tk$x)  | `(flag_off| -%$tk$x) =>
-    tok tk .keyword
-    tok x .property
-  | `(link_target| [%$tk1 $s ]%$tk2) =>
-    tok tk1 .keyword
-    tok s .property
-    tok tk2 .keyword
-  | `(link_target| (%$tk1 $s )%$tk2) =>
-    tok tk1 .keyword
-    tok s .string
-    tok tk2 .keyword
-  | `(inline|$s:str) => tok s (markupTypeOf a)
-  | `(inline|line! $_) => pure () -- No token for line breaks
-  | `(inline| *[%$tk1 $inls* ]%$tk2) =>
-    tok tk1 .keyword
-    inls.forM (go a.withBold)
-    tok tk2 .keyword
-  | `(inline|_[%$tk1 $inls* ]%$tk2) =>
-    tok tk1 .keyword
-    inls.forM (go a.withItalic)
-    tok tk2 .keyword
-  | `(inline| link[%$tk1 $inls* ]%$tk2 $ref) =>
-    tok tk1 .keyword
-    inls.forM (go a)
-    tok tk2 .keyword
-    go a ref
-  | `(inline| image(%$tk1 $s )%$tk2 $ref) =>
-    tok tk1 .keyword
-    tok s .string
-    tok tk2 .keyword
-    go a ref
-  | `(inline| footnote(%$tk1 $s )%$tk2) =>
-    tok tk1 .keyword
-    tok s .property
-    tok tk2 .keyword
-  | `(inline| code(%$tk1 $s )%$tk2) =>
-    tok tk1 .keyword
-    tok s .string
-    tok tk2 .keyword
-  | `(inline| role{%$tk1 $x $args* }%$tk2 [%$tk3 $inls* ]%$tk4) =>
-    tok tk1 .keyword
-    tok x .function
-    args.forM (go a)
-    tok tk2 .keyword
-    tok tk3 .keyword
-    inls.forM (go a)
-    tok tk4 .keyword
-  | `(inline| \math%$tk1 code(%$tk2 $s )%$tk3)
-  | `(inline| \displaymath%$tk1 code(%$tk2 $s )%$tk3) =>
-    tok tk1 .keyword
-    tok s .string
-    tok tk2 .keyword
-    tok tk3 .keyword
-  | `(list_item| *%$tk $inls*) =>
-    tok tk .keyword
-    inls.forM (go (a.withBlock .list))
-  | `(desc| :%$tk $inls* => $blks*) =>
-    tok tk .keyword
-    inls.forM (go (a.withBlock .list))
-    blks.forM (go (a.withBlock .list))
-  | `(block|para[$inl*]) => inl.forM (go a)
-  | `(block| ```%$tk1 $x $args* | $s ```%$tk2)=>
-    tok tk1 .keyword
-    tok x .function
-    args.forM (go a)
-    for line in splitStr text s do tok line .string
-    tok tk2 .keyword
-  | `(block| :::%$tk1 $x $args* { $blks* }%$tk2)=>
-    tok tk1 .keyword
-    tok x .function
-    args.forM (go a)
-    blks.forM (go a)
-    tok tk2 .keyword
-  | `(block| command{%$tk1 $x $args*}%$tk2)=>
-    tok tk1 .keyword
-    tok x .function
-    args.forM (go a)
-    tok tk2 .keyword
-  | `(block| %%%%$tk1 $vals* %%%%$tk2)=>
-    tok tk1 .keyword
-    modify (· ++ getTokens (mkNullNode vals))
-    tok tk2 .keyword
-  | `(block| [%$tk1 $s ]:%$tk2 $url) =>
-    tok tk1 .keyword
-    tok s .property
-    tok tk2 .keyword
-    tok url .string
-  | `(block| [^%$tk1 $s ]:%$tk2 $inls*) =>
-    tok tk1 .keyword
-    tok s .property
-    tok tk2 .keyword
-    inls.forM (go a)
-  | `(block| header(%$tk $_ ){ $inls* })=>
-    tok tk .keyword
-    inls.forM (go (a.withBlock .heading))
-  | `(block| >%$tk $blks*) =>
-    tok tk .keyword
-    blks.forM (go (a.withBlock .quote))
-  | `(block|ul{$items*}) | `(block|ol($_){$items*}) | `(block|dl{$items*}) =>
-    items.forM (go a)
-  | other =>
-    let k := other.getKind
-    if k == nullKind || k == ``Lean.Parser.Command.versoCommentBody then
-      other.getArgs.forM (go a)
+  if let some v := InlineView.of ⟨stx⟩ then
+    match v with
+    | .text v => tok v.stx.raw (markupTypeOf a)
+    | .linebreak .. => pure ()
+    | .bold v => goDelimited a.withBold v.opener v.closer v.content
+    | .emph v => goDelimited a.withItalic v.opener v.closer v.content
+    | .link v =>
+      goDelimited a v.opener v.closer v.content
+      goTarget v.target
+    | .image v =>
+      tok v.opener .keyword
+      tok v.alt.raw .string
+      tok v.closer .keyword
+      goTarget v.target
+    | .footnote v =>
+      tok v.opener .keyword
+      tok v.name.raw .property
+      tok v.closer .keyword
+    | .code v =>
+      goCode v
+    | .role v =>
+      tok v.braceOpen .keyword
+      tok v.name.raw .function
+      for arg in v.args do goArg arg
+      tok v.braceClose .keyword
+      if let some (o, _) := v.brackets then tok o .keyword
+      for i in v.content do go a i.raw
+      if let some (_, c) := v.brackets then tok c .keyword
+    | .math v =>
+      tok v.marker .keyword
+      goCode v.code
+  else if let some v := BlockView.of ⟨stx⟩ then
+    match v with
+    | .para v =>
+      for i in v.content do go a i.raw
+    | .codeblock v =>
+      tok v.openFence .keyword
+      if let some x := v.name? then
+        tok x.raw .function
+        for arg in v.args do goArg arg
+      for line in v.content.getVersoCodeBlockLines do
+        if let some region := codeLine line.raw line.getVersoCodeLine then tok region .string
+      tok v.closeFence .keyword
+    | .directive v =>
+      tok v.opener .keyword
+      tok v.name.raw .function
+      for arg in v.args do goArg arg
+      for b in v.content do go a b.raw
+      tok v.closer .keyword
+    | .command v =>
+      tok v.braceOpen .keyword
+      tok v.name.raw .function
+      for arg in v.args do goArg arg
+      tok v.braceClose .keyword
+    | .metadata v =>
+      tok v.opener .keyword
+      modify (· ++ getTokens v.contents.raw)
+      tok v.closer .keyword
+    | .linkRef v =>
+      tok v.opener .keyword
+      tok v.name.raw .property
+      tok v.closer .keyword
+      tok v.url.raw .string
+    | .footnoteRef v =>
+      tok v.opener .keyword
+      tok v.name.raw .property
+      tok v.closer .keyword
+      for i in v.content do go a i.raw
+    | .header v =>
+      tok v.marker .keyword
+      for i in v.content do go (a.withBlock .heading) i.raw
+    | .ul v =>
+      for item in v.items do goItem (a.withBlock .list) item.marker item.contents
+    | .ol v =>
+      for item in v.items do goItem (a.withBlock .list) item.marker item.contents
+    | .dl v =>
+      for item in v.items do goDesc (a.withBlock .list) item
+    | .blockquote v =>
+      tok v.marker .keyword
+      for b in v.content do go (a.withBlock .quote) b.raw
+  else
+    stx.getArgs.forM (go a)
 
 /--
 Collects all semantic tokens that can be deduced purely from `Syntax`
@@ -742,15 +760,15 @@ partial def collectSyntaxBasedSemanticTokens (text : FileMap) : (stx : Syntax) �
     if noHighlightKinds.contains stx.getKind then
       return #[]
     if docKinds.contains stx.getKind then
-      -- Verso docstrings have `stx[1]` as a syntax node; plain (CommonMark)
-      -- docstrings have `stx[1]` as a single atom whose source span covers
-      -- the docstring body.
-      if stx[1].isAtom then
-        let some ⟨startPos, endPos⟩ := stx[1].getRange?
+      if stx[1].isOfKind ``Lean.Parser.Command.versoCommentBody then
+        return collectVersoTokens stx[1] (collectSyntaxBasedSemanticTokens text)
+      else if stx[1].isOfKind ``Lean.Parser.Command.commentBody then
+        -- The text atom's range excludes the closing delimiter and the whitespace before it.
+        let some ⟨startPos, endPos⟩ := stx[1][0].getRange?
           | return #[]
         return collectMarkdownTokens text startPos endPos
       else
-        return collectVersoTokens text stx[1] (collectSyntaxBasedSemanticTokens text)
+        return #[]
     let mut tokens :=
       if stx.isOfKind choiceKind then
         collectSyntaxBasedSemanticTokens text stx[0]
@@ -758,8 +776,8 @@ partial def collectSyntaxBasedSemanticTokens (text : FileMap) : (stx : Syntax) �
         stx.getArgs.map (collectSyntaxBasedSemanticTokens text) |>.flatten
     let Syntax.atom _ val := stx
       | return tokens
-    let isRegularKeyword := val.length > 0 && isIdFirst val.front
-    let isHashKeyword := val.length > 1 && val.front == '#' && isIdFirst (String.Pos.Raw.get val ⟨1⟩)
+    let isRegularKeyword := val.front?.any isIdFirst
+    let isHashKeyword := ((val.dropPrefix? '#').bind (·.front?)).any isIdFirst
     if ! isRegularKeyword && ! isHashKeyword then
       return tokens
     return tokens.push { stx, type := keywordSemanticTokenMap.getD val .keyword }
@@ -820,8 +838,8 @@ structure SemanticTokensState where
   deriving TypeName, Inhabited
 
 /-- Computes all semantic tokens for the document. -/
-def handleSemanticTokensFull (_ : SemanticTokensParams) (_ : SemanticTokensState)
-    : RequestM (LspResponse SemanticTokens × SemanticTokensState) := do
+def handleSemanticTokensFull (_ : SemanticTokensParams) (_ : SemanticTokensState) :
+    RequestM (LspResponse SemanticTokens × SemanticTokensState) := do
   let ctx ← read
   let doc ← readDoc
   -- Only grabs the finished prefix so that we do not need to wait for elaboration to complete
@@ -832,13 +850,13 @@ def handleSemanticTokensFull (_ : SemanticTokensParams) (_ : SemanticTokensState
   let response ← computeSemanticTokens doc 0 none snaps
   return ({ response, isComplete }, ⟨⟩)
 
-def handleSemanticTokensDidChange (_ : DidChangeTextDocumentParams)
-    : StateT SemanticTokensState RequestM Unit := do
+def handleSemanticTokensDidChange (_ : DidChangeTextDocumentParams) :
+    StateT SemanticTokensState RequestM Unit := do
   return
 
 /-- Computes the semantic tokens in the range provided by `p`. -/
-def handleSemanticTokensRange (p : SemanticTokensRangeParams)
-    : RequestM (RequestTask SemanticTokens) := do
+def handleSemanticTokensRange (p : SemanticTokensRangeParams) :
+    RequestM (RequestTask SemanticTokens) := do
   let doc ← readDoc
   let text := doc.meta.text
   let beginPos := text.lspPosToUtf8Pos p.range.start

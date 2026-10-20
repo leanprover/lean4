@@ -1,22 +1,30 @@
+Input: "> * foo\n\n\n * foo"
 Success! Final stack:
-  [(Lean.Doc.Syntax.blockquote
+  [(Lean.Doc.Parser.Block.blockquote
     ">"
-    [(Lean.Doc.Syntax.ul
-      "ul{"
-      [(Lean.Doc.Syntax.li
-        "*"
-        [(Lean.Doc.Syntax.para
-          "para{"
-          [(Lean.Doc.Syntax.text (str "\"foo\""))]
-          "}")])]
-      "}")
-     (Lean.Doc.Syntax.ul
-      "ul{"
-      [(Lean.Doc.Syntax.li
-        "*"
-        [(Lean.Doc.Syntax.para
-          "para{"
-          [(Lean.Doc.Syntax.text (str "\"foo\""))]
-          "}")])]
-      "}")])]
+    [(Lean.Doc.Parser.Block.ul
+      [(Lean.Doc.Parser.ListItem.item
+        (Lean.Doc.Parser.listMarker "*")
+        [(Lean.Doc.Parser.Block.para
+          [(Lean.Doc.Parser.Inline.text
+            (Lean.Doc.Parser.versoText
+             "foo"))])])])
+     (Lean.Doc.Parser.Block.ul
+      [(Lean.Doc.Parser.ListItem.item
+        (Lean.Doc.Parser.listMarker "*")
+        [(Lean.Doc.Parser.Block.para
+          [(Lean.Doc.Parser.Inline.text
+            (Lean.Doc.Parser.versoText
+             "foo"))])])])])]
 All input consumed.
+Round-trip OK
+Decoded views:
+  blockquote (marker := ">")
+    ul
+      item (marker := "*")
+        para
+          text (content := "foo")
+    ul
+      item (marker := "*")
+        para
+          text (content := "foo")

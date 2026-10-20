@@ -141,10 +141,10 @@ This function is only used when the old `split` tactic behavior is enabled.
 -/
 def getSimpContext : MetaM Simp.Context := do
   let mut s : SimpTheorems := {}
-  s ← s.addConst ``if_pos
-  s ← s.addConst ``if_neg
-  s ← s.addConst ``dif_pos
-  s ← s.addConst ``dif_neg
+  s ← s.addConst ``ite_eq_left
+  s ← s.addConst ``ite_eq_right
+  s ← s.addConst ``dite_eq_left
+  s ← s.addConst ``dite_eq_right
   Simp.mkContext
    (simpTheorems  := #[s])
     (congrTheorems := (← getSimpCongrTheorems))
@@ -198,10 +198,10 @@ private def reduceIte' (numIndices : Nat) (useDecideBool : Bool) : Simp.Simproc 
   let_expr f@ite α c i tb eb ← e | return .continue
   let us := f.constLevels!
   if let some h ← discharge? numIndices useDecideBool c then
-    let h := mkApp6 (mkConst ``if_pos us) c i h α tb eb
+    let h := mkApp6 (mkConst ``ite_eq_left us) c i h α tb eb
     return .done { expr := tb, proof? := some h }
   else if let some h ← discharge? numIndices useDecideBool (mkNot c) then
-    let h := mkApp6 (mkConst ``if_neg us) c i h α tb eb
+    let h := mkApp6 (mkConst ``ite_eq_right us) c i h α tb eb
     return .done { expr := eb, proof? := some h }
   else
     -- `split` may have selected an `if-then-else` nested in `c`.
@@ -225,11 +225,11 @@ private def reduceDIte' (numIndices : Nat) (useDecideBool : Bool) : Simp.Simproc
   let us := f.constLevels!
   if let some h ← discharge? numIndices useDecideBool c then
     let e' := mkApp tb h |>.headBeta
-    let h := mkApp6 (mkConst ``dif_pos us) c i h α tb eb
+    let h := mkApp6 (mkConst ``dite_eq_left us) c i h α tb eb
     return .done { expr := e', proof? := some h }
   else if let some h ← discharge? numIndices useDecideBool (mkNot c) then
     let e' := mkApp eb h |>.headBeta
-    let h := mkApp6 (mkConst ``dif_neg us) c i h α tb eb
+    let h := mkApp6 (mkConst ``dite_eq_right us) c i h α tb eb
     return .done { expr := e', proof? := some h }
   else
     -- `split` may have selected an `if-then-else` nested in `c`.

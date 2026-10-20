@@ -9,6 +9,7 @@ module
 prelude
 public import Lean.Server.Rpc.Basic
 import Init.Data.Array.GetLit
+import Init.Data.String.Length
 
 public section
 

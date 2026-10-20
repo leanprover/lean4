@@ -31,3 +31,7 @@ public import Init.Data.String.Subslice
 public import Init.Data.String.Iter
 public import Init.Data.String.Iterate
 public import Init.Data.String.Hashable
+public import Init.Data.String.Length
+public import Init.Data.String.Csimp
+public import Init.Data.String.Lossy
+public import Init.Data.String.Compare

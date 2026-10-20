@@ -139,11 +139,18 @@ theorem attachWith_congr {xs ys : Vector α n} (w : xs = ys) {P : α → Prop} {
   subst w
   simp
 
+@[congr]
+theorem mk_congr {xs ys : Array α} (h : xs = ys) {h' : xs.size = n} :
+    mk xs h' = mk ys (h ▸ h') := by
+  subst h
+  simp
+
 @[simp] theorem attach_push {a : α} {xs : Vector α n} :
     (xs.push a).attach =
       (xs.attach.map (fun ⟨x, h⟩ => ⟨x, mem_push_of_mem a h⟩)).push ⟨a, by simp⟩ := by
   rcases xs with ⟨xs, rfl⟩
-  simp [Array.map_attach_eq_pmap]
+  apply Vector.ext
+  simp [Array.attachWith_eq_map_attach, Array.getElem_push]
 
 @[simp] theorem attachWith_push {a : α} {xs : Vector α n} {P : α → Prop} {H : ∀ x ∈ xs.push a, P x} :
     (xs.push a).attachWith P H =
@@ -224,7 +231,7 @@ theorem getElem?_pmap {p : α → Prop} {f : ∀ a, p a → β} {xs : Vector α 
 @[simp, grind =]
 theorem getElem_pmap {p : α → Prop} (f : ∀ a, p a → β) {xs : Vector α n} (h : ∀ a ∈ xs, p a) {i : Nat}
     (hn : i < n) :
-    (pmap f xs h)[i] = f (xs[i]) (h _ (by simp)) := by
+    (pmap f xs h)[i] = f (xs[i]) (h _ (getElem_mem hn)) := by
   rcases xs with ⟨xs, rfl⟩
   simp
 
@@ -359,7 +366,10 @@ theorem pmap_append' {p : α → Prop} {f : ∀ a : α, p a → β} {xs : Vector
       ys.attach.map (fun ⟨y, h⟩ => (⟨y, mem_append_right xs h⟩ : { y // y ∈ xs ++ ys })) := by
   rcases xs with ⟨xs, rfl⟩
   rcases ys with ⟨ys, rfl⟩
-  simp [Array.map_attach_eq_pmap]; rfl
+  apply Vector.ext
+  intro i hi
+  rw [Vector.getElem_append]
+  simp [Array.attachWith_eq_map_attach, Array.getElem_append]
 
 @[simp] theorem attachWith_append {P : α → Prop} {xs : Vector α n} {ys : Vector α m}
     {H : ∀ (a : α), a ∈ xs ++ ys → P a} :
@@ -580,7 +590,8 @@ and simplifies these to the function directly taking the value.
   simp [Array.unattach_reverse]
 
 
-@[simp] theorem unattach_append {p : α → Prop} {xs ys : Vector { x // p x } n} :
+@[simp] theorem unattach_append {p : α → Prop}
+    {xs : Vector { x // p x } n} {ys : Vector { x // p x } m} :
     (xs ++ ys).unattach = xs.unattach ++ ys.unattach := by
   rcases xs
   rcases ys

@@ -28,7 +28,7 @@ Crucially this pass must be placed after `expandResetReuse` as that one relies o
 present in their original location for optimization purposes.
 -/
 
-private structure State where
+structure State where
   /-- Total inc count per variable in the current basic block (accumulated going forward). -/
   incTotal : Std.HashMap FVarId Nat := {}
   /-- Total dec count per variable in the current basic block (accumulated going forward). -/
@@ -44,7 +44,7 @@ private structure State where
   -/
   decPlaced : Std.HashSet FVarId := {}
 
-private abbrev M := StateRefT State CompilerM
+abbrev M := StateRefT State CompilerM
 
 /--
 Coalesce inc/dec operations within individual basic blocks.
@@ -63,13 +63,13 @@ where
         return .inc fvarId s.incTotal[fvarId]! check persistent k
       else
         return k
-    | .dec fvarId n check persistent k _ =>
+    | .dec fvarId n check persistent objs? k _ =>
       modify fun s => { s with decTotal := s.decTotal.alter fvarId (fun v? => some ((v?.getD 0) + n)) }
       let k ← go k
       let s ← get
       if !s.decPlaced.contains fvarId then
         modify fun s => { s with decPlaced := s.decPlaced.insert fvarId }
-        return .dec fvarId s.decTotal[fvarId]! check persistent k
+        return .dec fvarId s.decTotal[fvarId]! check persistent objs? k
       else
         return k
     | .let _ k =>

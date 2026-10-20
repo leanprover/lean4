@@ -1,4 +1,4 @@
-import Lean.Data.RBMap
+import Lean.Data.RBMap -- deprecated_module: ignore
 open Lean
 
 def check (b : Bool) : IO Unit := do

@@ -3,6 +3,9 @@ open System Lake DSL
 
 package test
 
+-- used to test overriden transitive deps have
+-- their `depPkgs` fields properly instantiated
+require dupDep from "dupDep"
 require dep from "dep"
 
 lean_lib lib where

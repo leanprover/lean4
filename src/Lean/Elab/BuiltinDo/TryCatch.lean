@@ -17,7 +17,7 @@ namespace Lean.Elab.Do
 open Lean.Parser.Term
 open Lean.Meta
 
-private def elabDoCatch (lifter : ControlLifter) (body : Expr) (catch_ : TSyntax ``doCatch) : DoElabM Expr := do
+private def elabDoCatch (lifter : EffectForwarder) (body : Expr) (catch_ : TSyntax ``doCatch) : DoElabM Expr := do
   let mi := (← read).monadInfo
   let `(doCatch| catch $x $[: $eType?]? => $catchSeq) := catch_ | throwUnsupportedSyntax
   let x := Term.mkExplicitBinder x <| match eType? with
@@ -56,7 +56,8 @@ private def elabDoCatch (lifter : ControlLifter) (body : Expr) (catch_ : TSyntax
   -- So we need to pack up our effects and unpack them after the `try`.
   -- We could optimize for the terminal action case by omitting the state tuple ... in the future.
   let mi := (← read).monadInfo
-  let lifter ← ControlLifter.ofCont (← inferControlInfoElem stx) dec
+  let info ← inferControlInfoElem stx
+  let lifter ← EffectForwarder.ofCont info dec
   let body ← do
     let body ← lifter.lift (elabDoSeq trySeq)
     let body ← catches.foldlM (init := body) fun body catch_ => do
@@ -75,4 +76,6 @@ private def elabDoCatch (lifter : ControlLifter) (body : Expr) (catch_ : TSyntax
         let instFunctor ← Term.mkInstMVar <| mkApp (mkConst ``Functor [mi.u, mi.v]) mi.m
         pure <| mkApp7 (mkConst ``tryFinally [mi.u, mi.v])
           mi.m lifter.liftedDoBlockResultType β instMonadFinally instFunctor body fin
-  (← lifter.restoreCont).mkBindUnlessPure body
+  -- `info` already combines try and catch arms via `ControlInfo.alternative`,
+  -- so its `noFallthrough` is the right liveness signal for the continuation.
+  ((← lifter.restoreCont).withDeadCodeFromInfo info).mkBindUnlessPure body

@@ -19,7 +19,8 @@ case grind
 n : Nat
 f : Foo n
 this : Bar fun x => x
-h : ¬(Foo.EqId n f → Bar (Foo.e n f))
+h : Foo.EqId n f
+h_1 : ¬Bar (Foo.e n f)
 ⊢ False
 -/
 #guard_msgs in

@@ -7,8 +7,8 @@ module
 
 prelude
 public import Lean.Meta.Tactic.SolveByElim
-public import Lean.Elab.Tactic.Config
 public import Lean.LibrarySuggestions.Basic
+import Lean.Elab.ConfigEval
 
 public section
 
@@ -22,13 +22,21 @@ open Lean.Meta.SolveByElim (SolveByElimConfig mkAssumptionSet)
 
 /--
 Allow elaboration of `Config` arguments to tactics.
+
+Note: does not generate a `(config := ...)` option due to the fields in the `omit`
+clause, which are all function-valued and have no `EvalExpr` instances.
 -/
-declare_config_elab elabConfig Lean.Meta.SolveByElim.SolveByElimConfig
+declare_config_elab elabConfig Lean.Meta.SolveByElim.SolveByElimConfig where
+  omit proc, suspend, discharge
 
 /--
 Allow elaboration of `ApplyRulesConfig` arguments to tactics.
+
+Note: does not generate a `(config := ...)` option due to the fields in the `omit`
+clause, which are all function-valued and have no `EvalExpr` instances.
 -/
-declare_config_elab elabApplyRulesConfig Lean.Meta.SolveByElim.ApplyRulesConfig
+declare_config_elab elabApplyRulesConfig Lean.Meta.SolveByElim.ApplyRulesConfig where
+  omit proc, suspend, discharge
 
 /--
 Parse the lemma argument of a call to `solve_by_elim`.
@@ -76,7 +84,7 @@ def evalApplyAssumption : Tactic := fun stx =>
   | `(tactic| apply_assumption $cfg:optConfig $[only%$o]? $[$t:args]? $[$use:using_]?) => do
     let (star, add, remove) := parseArgs t
     let use := parseUsing use
-    let cfg ← elabConfig (mkOptionalNode cfg)
+    let cfg ← elabConfig cfg
     let cfg := { cfg with
       backtracking := false
       maxDepth := 1 }
@@ -94,7 +102,7 @@ def evalApplyRules : Tactic := fun stx =>
   | `(tactic| apply_rules $cfg:optConfig $[only%$o]? $[$t:args]? $[$use:using_]?) => do
     let (star, add, remove) := parseArgs t
     let use := parseUsing use
-    let cfg ← elabApplyRulesConfig (mkOptionalNode cfg)
+    let cfg ← elabApplyRulesConfig cfg
     let cfg := { cfg with backtracking := false }
     liftMetaTactic fun g => processSyntax cfg o.isSome star add remove use [g]
   | _ => throwUnsupportedSyntax

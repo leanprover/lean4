@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Sym.Lemmas
-// Imports: public import Init.Data.Rat.Basic public import Init.Data.SInt.Basic public import Init.Data.Int.DivMod.Lemmas public import Init.Data.Nat.Dvd public import Init.Data.String.Basic import Init.Data.BitVec.Lemmas import Init.Data.Int.Order import Init.Data.UInt.Lemmas
+// Imports: public import Init.Data.Rat.Basic public import Init.Data.SInt.Basic public import Init.Data.Int.DivMod.Lemmas public import Init.Data.Nat.Dvd public import Init.Data.String.Lemmas.StringOrder import Init.Data.BitVec.Lemmas import Init.Data.Int.Order import Init.Data.UInt.Lemmas
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -17,15 +17,17 @@ lean_object* runtime_initialize_Init_Data_Rat_Basic(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_SInt_Basic(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Int_DivMod_Lemmas(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Nat_Dvd(uint8_t builtin);
-lean_object* runtime_initialize_Init_Data_String_Basic(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_String_Lemmas_StringOrder(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_BitVec_Lemmas(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Int_Order(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_UInt_Lemmas(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Init_Sym_Lemmas(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Init_Data_Rat_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
@@ -38,7 +40,7 @@ lean_dec_ref(res);
 res = runtime_initialize_Init_Data_Nat_Dvd(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_String_Basic(builtin);
+res = runtime_initialize_Init_Data_String_Lemmas_StringOrder(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Init_Data_BitVec_Lemmas(builtin);
@@ -63,7 +65,7 @@ lean_object* initialize_Init_Data_Rat_Basic(uint8_t builtin);
 lean_object* initialize_Init_Data_SInt_Basic(uint8_t builtin);
 lean_object* initialize_Init_Data_Int_DivMod_Lemmas(uint8_t builtin);
 lean_object* initialize_Init_Data_Nat_Dvd(uint8_t builtin);
-lean_object* initialize_Init_Data_String_Basic(uint8_t builtin);
+lean_object* initialize_Init_Data_String_Lemmas_StringOrder(uint8_t builtin);
 lean_object* initialize_Init_Data_BitVec_Lemmas(uint8_t builtin);
 lean_object* initialize_Init_Data_Int_Order(uint8_t builtin);
 lean_object* initialize_Init_Data_UInt_Lemmas(uint8_t builtin);
@@ -84,7 +86,7 @@ lean_dec_ref(res);
 res = initialize_Init_Data_Nat_Dvd(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_String_Basic(builtin);
+res = initialize_Init_Data_String_Lemmas_StringOrder(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_BitVec_Lemmas(builtin);

@@ -2,7 +2,7 @@
 -- and performs a few basic tests.
 
 -- Without kernel support the tests containing the 2^20 constant will
--- fail with "error: (kernel) deep recursion detected"
+-- fail with "error: (kernel) deep recursion detected, use `set_option maxRecDepth <num>` to increase the limit"
 
 example : 0      &&& 0      = 0 := rfl
 example : 0      &&& 0b1111 = 0 := rfl

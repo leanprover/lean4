@@ -25,7 +25,7 @@ structure LetRecDeclView where
   mvar          : Expr -- auxiliary metavariable used to lift the 'let rec'
   valStx        : Syntax
   termination   : TerminationHints
-  docString?    : Option (TSyntax ``Parser.Command.docComment × Bool) := none
+  docString?    : Option (TSyntax ``Parser.Command.docComment) := none
 
 structure LetRecView where
   decls     : Array LetRecDeclView
@@ -34,9 +34,8 @@ structure LetRecView where
 /-  group ("let " >> nonReservedSymbol "rec ") >> sepBy1 (group (optional «attributes» >> letDecl)) ", " >> "; " >> termParser -/
 private def mkLetRecDeclView (letRec : Syntax) : TermElabM LetRecView := do
   let mut decls : Array LetRecDeclView := #[]
-  let isVerso := doc.verso.get (← getOptions)
   for attrDeclStx in letRec[1][0].getSepArgs do
-    let docStr? := attrDeclStx[0].getOptional?.map (TSyntax.mk ·, isVerso)
+    let docStr? := attrDeclStx[0].getOptional?.map (TSyntax.mk ·)
     let attrOptStx := attrDeclStx[1]
     let attrs ← if attrOptStx.isNone then pure #[] else elabDeclAttrs attrOptStx[0]
     let decl := attrDeclStx[2][0]

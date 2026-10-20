@@ -14,10 +14,17 @@ namespace Lean.Meta.Sym
 /--
 Preprocesses types that used for pattern matching and unification.
 -/
-public def preprocessType (type : Expr) : MetaM Expr := do
+public def preprocessType (type : Expr) (zetaReduceLHSOnly := false) (zetaDelta := false) : MetaM Expr := do
   let type ← Sym.unfoldReducible type
   let type ← Core.betaReduce type
-  let type ← zetaReduce type
+  let type ← if zetaReduceLHSOnly then
+    forallTelescope type fun xs body => do
+      match_expr body with
+      | f@Eq α lhs rhs => mkForallFVars xs <| mkApp3 f α (← zetaReduce lhs (zetaDelta := zetaDelta)) rhs
+      | f@Iff lhs rhs => mkForallFVars xs <| mkApp2 f (← zetaReduce lhs (zetaDelta := zetaDelta)) rhs
+      | _ => zetaReduce type (zetaDelta := zetaDelta)
+  else
+    zetaReduce type (zetaDelta := zetaDelta)
   etaReduceAll type
 
 /--
@@ -60,5 +67,28 @@ public def getProofInstInfo? (declName : Name) : SymM (Option ProofInstInfo) := 
     let r ← mkProofInstInfo? declName
     modify fun s => { s with proofInstInfo := s.proofInstInfo.insert declName r }
     return r
+
+/--
+Returns information about the type of the local declaration `fvarId`. It contains information about
+which arguments are proofs or instances. Returns `none` if no arguments are proofs or instances.
+-/
+public def getProofInstInfoOfFVar? (fvarId : FVarId) : SymM (Option ProofInstInfo) := do
+  if let some r := (← get).proofInstInfoFVar.find? fvarId then
+    return r
+  else
+    let r ← forallTelescopeReducing (← fvarId.getType) fun xs _ => mkProofInstArgInfo? xs
+    modify fun s => { s with proofInstInfoFVar := s.proofInstInfoFVar.insert fvarId r }
+    return r
+
+/--
+Returns information about which arguments of the function `e` are proofs or instances, see
+`getProofInstInfo?` and `getProofInstInfoOfFVar?`. Returns `none` if `e` is neither a constant
+nor a local declaration.
+-/
+public def getProofInstInfoOfExpr? (e : Expr) : SymM (Option ProofInstInfo) := do
+  match e with
+  | .const declName _ => getProofInstInfo? declName
+  | .fvar fvarId => getProofInstInfoOfFVar? fvarId
+  | _ => return none -- TODO: if needed
 
 end Lean.Meta.Sym

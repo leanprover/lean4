@@ -12,6 +12,7 @@ public import Init.Control.Except
 public import Init.Data.Array.Basic
 import Init.Data.String.Defs
 import Init.Data.ToString.Macro
+import Init.Data.Array.Lemmas
 
 public section
 
@@ -288,6 +289,60 @@ def erase {_ : BEq α} {_ : Hashable α} : PersistentHashMap α β → α → Pe
     let h := hash k |>.toUSize
     { root := eraseAux root h k }
 
+@[specialize]
+partial def alterAux [BEq α] [Hashable α] (f : Option β → Option β) : Node α β → USize →
+    USize → α → Node α β
+  | n@(Node.collision keys vals heq), h, d, k =>
+    match keys.finIdxOf? k with
+    | some idx =>
+      have : idx < vals.size := heq ▸ idx.isLt
+      let v' := vals[idx]
+      /-
+      This could also be done with more `unsafe` to avoid erase then push but is hopefully not the
+      bottleneck.
+      -/
+      let keys := keys.eraseIdx idx
+      let vals := vals.eraseIdx idx
+      match f (some v') with
+      | some v =>
+        let keys := keys.push k
+        let vals := vals.push v
+        Node.collision keys vals (by simp +zetaDelta [heq])
+      | none   =>
+        Node.collision keys vals (by simp +zetaDelta [heq])
+    | none     =>
+      match f none with
+      | some v => insertAux n h d k v
+      | none   => n
+  | Node.entries entries, h, d, k =>
+    let j     := (mod2Shift h shift).toNat
+    Node.entries <| entries.modify j fun
+      | Entry.null        =>
+        match f none with
+        | some v => Entry.entry k v
+        | none   => Entry.null
+      | Entry.entry k' v' =>
+        if k == k' then
+          match f (some v') with
+          | some v => Entry.entry k v
+          | none   => Entry.null
+        else
+          match f none with
+          | some v => Entry.ref <| mkCollisionNode k' v' k v
+          | none => Entry.entry k' v'
+      | Entry.ref node    =>
+        let newNode := alterAux f node (div2Shift h shift) (d + 1) k
+        match isUnaryNode newNode with
+        | none        => Entry.ref newNode
+        | some (k, v) => Entry.entry k v
+
+@[inline]
+def alter {_ : BEq α} {_ : Hashable α} : PersistentHashMap α β → α → (Option β → Option β) →
+    PersistentHashMap α β
+  | { root }, k, f =>
+    let h := hash k |>.toUSize
+    { root := alterAux f root h 1 k }
+
 section
 variable {m : Type w → Type w'} [Monad m]
 variable {σ : Type w}
@@ -318,6 +373,65 @@ def forM {_ : BEq α} {_ : Hashable α} (map : PersistentHashMap α β) (f : α 
 
 def foldl {_ : BEq α} {_ : Hashable α} (map : PersistentHashMap α β) (f : σ → α → β → σ) (init : σ) : σ :=
   Id.run <| map.foldlM (pure <| f · · ·) init
+
+/--
+Implementation of `foldlNewEntries`. `insert` copies only the nodes on the path from the root to the
+modified slot and shares all other nodes and entries with the original map, so the entries of `new`
+whose keys are not in `old` all lie in the parts of `new` not physically shared with `old`. The walk
+skips shared nodes and entries by pointer equality and filters the rest with `old.contains`, since a
+rebuilt node may also contain keys of `old`. It visits the remaining entries in the same order as
+`foldl`, so it agrees with the reference implementation, and costs the number of insertions rather
+than the size of the map when `new` was derived from `old` by insertions. Without such sharing it
+degrades to a full traversal of `new`. In-place updates of unshared nodes cannot break this: a node
+updated in place was not reachable from any other map, so it is not reachable from `old`.
+-/
+private unsafe def foldlNewEntriesUnsafe {_ : BEq α} {_ : Hashable α} (f : σ → α → β → σ)
+    (new old : PersistentHashMap α β) (init : σ) : σ :=
+  go new.root old.root init
+where
+  visit (acc : σ) (k : α) (v : β) : σ :=
+    if old.contains k then acc else f acc k v
+  goCollision (ks : Array α) (vs : Array β) (h : ks.size = vs.size) (i : Nat) (acc : σ) : σ :=
+    if hi : i < ks.size then
+      goCollision ks vs h (i + 1) (visit acc ks[i] (vs[i]'(h ▸ hi)))
+    else
+      acc
+  goAll : Node α β → σ → σ
+    | .collision ks vs h, acc => goCollision ks vs h 0 acc
+    | .entries es, acc => es.foldl (init := acc) fun acc e => match e with
+      | .null => acc
+      | .entry k v => visit acc k v
+      | .ref n => goAll n acc
+  goEntries (nes oes : Array (Entry α β (Node α β))) (i : Nat) (acc : σ) : σ :=
+    if hi : i < nes.size then
+      let ne := nes[i]
+      let oe := if h : i < oes.size then oes[i] else .null
+      let acc :=
+        if ptrEq ne oe then acc
+        else match ne with
+          | .null => acc
+          | .entry k v => visit acc k v
+          | .ref n => match oe with
+            | .ref o => go n o acc
+            | _ => goAll n acc
+      goEntries nes oes (i + 1) acc
+    else
+      acc
+  go (new old : Node α β) (acc : σ) : σ :=
+    if ptrEq new old then acc
+    else match new, old with
+      | .entries nes, .entries oes => goEntries nes oes 0 acc
+      | _, _ => goAll new acc
+
+/--
+Folds `f` over the entries of `new` whose keys are not in `old`, in the order of `foldl`. If `new`
+was derived from `old` by insertions, the cost is proportional to the number of insertions rather
+than to the size of `new`.
+-/
+@[implemented_by foldlNewEntriesUnsafe]
+def foldlNewEntries {_ : BEq α} {_ : Hashable α} (f : σ → α → β → σ)
+    (new old : PersistentHashMap α β) (init : σ) : σ :=
+  new.foldl (init := init) fun acc k v => if old.contains k then acc else f acc k v
 
 protected def forIn {_ : BEq α} {_ : Hashable α} [Monad m]
     (map : @&PersistentHashMap α β) (init : σ) (f : α × β → σ → m (ForInStep σ)) : m σ := do

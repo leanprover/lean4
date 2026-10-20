@@ -5,6 +5,7 @@ def m : PersistentHashMap Nat Nat :=
 let m : PersistentHashMap Nat Nat := {};
 m.insert 1 1
 
+@[instance_reducible]
 def natDiffHash : Hashable Nat :=
 ⟨fun n => UInt64.ofNat $ n+10⟩
 

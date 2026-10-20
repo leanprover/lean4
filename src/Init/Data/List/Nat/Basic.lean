@@ -10,7 +10,7 @@ public import Init.Data.List.MinMax
 import Init.Data.Bool
 import Init.Data.List.Count
 import Init.Data.Nat.Lemmas
-import Init.Data.Nat.Linear
+import Init.Data.Nat.Internal.Linear
 import Init.Data.Nat.MinMax
 import Init.Data.Option.Lemmas
 import Init.Omega
@@ -211,7 +211,7 @@ theorem mem_eraseIdx_iff_getElem? {x : α} {l} {k} : x ∈ eraseIdx l k ↔ ∃ 
 /-! ### min? -/
 
 -- A specialization of `min?_eq_some_iff` to Nat.
-@[deprecated min?_eq_some_iff (since := "2025-08-08")]
+@[deprecated min?_eq_some_iff +typeChanged (since := "2025-08-08")]
 theorem min?_eq_some_iff' {xs : List Nat} :
     xs.min? = some a ↔ (a ∈ xs ∧ ∀ b ∈ xs, a ≤ b) := by
   exact min?_eq_some_iff
@@ -236,7 +236,7 @@ theorem min?_getD_le_of_mem {l : List Nat} {a k : Nat} (h : a ∈ l) : l.min?.ge
 /-! ### max? -/
 
 -- A specialization of `max?_eq_some_iff` to Nat.
-@[deprecated max?_eq_some_iff (since := "2025-08-08")]
+@[deprecated max?_eq_some_iff +typeChanged (since := "2025-08-08")]
 theorem max?_eq_some_iff' {xs : List Nat} :
     xs.max? = some a ↔ (a ∈ xs ∧ ∀ b ∈ xs, b ≤ a) :=
   max?_eq_some_iff
@@ -272,5 +272,23 @@ theorem append_eq_append_iff_of_size_eq_right {ws xs ys zs : List α}
     (h : ys.length = zs.length) : ws ++ ys = xs ++ zs ↔ ws = xs ∧ ys = zs := by
   rw [← reverse_inj, reverse_append, reverse_append,
     append_eq_append_iff_of_size_eq_left (by simpa), reverse_inj, reverse_inj, and_comm]
+
+/-! #### isEqv -/
+
+theorem isEqv_eq_true_iff_getElem (eqv : α → α → Bool) {l₁ l₂ : List α} :
+    l₁.isEqv l₂ eqv ↔ ∃ (h : l₁.length = l₂.length), ∀ (i : Nat) (hi : i < l₁.length), eqv l₁[i] l₂[i] := by
+  induction l₁ generalizing l₂ with
+  | nil => cases l₂ <;> simp
+  | cons a as ih =>
+    cases l₂ with
+    | nil => simp
+    | cons b bs =>
+      simp only [List.isEqv_cons_cons, Bool.and_eq_true, ih, List.length_cons,
+        Nat.add_right_cancel_iff]
+      refine ⟨fun ⟨h₁, ⟨h₂, h₃⟩⟩ => ⟨h₂, fun i hi => by cases i <;> simp [*]⟩, fun ⟨h₁, h₂⟩ => ?_⟩
+      refine ⟨by simpa using h₂ 0 (by simp), ⟨h₁, fun i hi => ?_⟩⟩
+      have := h₂ (i + 1) (by simpa)
+      simp only [List.getElem_cons_succ] at this
+      exact this
 
 end List

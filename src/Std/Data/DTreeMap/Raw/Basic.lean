@@ -34,7 +34,7 @@ variable {α : Type u} {β : α → Type v} {cmp : α → α → Ordering}
 namespace Std
 
 namespace DTreeMap
-open Internal (Impl)
+open Std.DTreeMap.Internal (Impl)
 
 local instance : Coe (Type v) (α → Type v) where coe γ := fun _ => γ
 
@@ -72,7 +72,7 @@ structure Raw (α : Type u) (β : α → Type v) (_cmp : α → α → Ordering 
   inner : Internal.Impl α β
 
 namespace Raw
-open Internal (Impl)
+open Std.DTreeMap.Internal (Impl)
 
 /--
 Well-formedness predicate for tree maps. Users of `DTreeMap` will not need to interact with
@@ -662,7 +662,7 @@ def mergeWith [LawfulEqCmp cmp] (mergeFn : (a : α) → β a → β a → β a) 
   letI : Ord α := ⟨cmp⟩; ⟨t₁.inner.mergeWith! mergeFn t₂.inner⟩
 
 namespace Const
-open Internal (Impl)
+open Std.DTreeMap.Internal (Impl)
 
 variable {β : Type v}
 

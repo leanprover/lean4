@@ -210,13 +210,14 @@ theorem Iterator.isSome_next_of_isPlausibleIndirectOutput
     obtain ⟨a, ha, _⟩ := h
     simp [ha]
 
-private def List.Sublist.filter_mono {l : List α} {P Q : α → Bool} (h : ∀ a, P a → Q a) :
+
+private theorem List.Sublist.filter_mono {l : List α} {P Q : α → Bool} (h : ∀ a, P a → Q a) :
     List.Sublist (l.filter P) (l.filter Q) := by
   apply List.Sublist.trans (l₂ := (l.filter Q).filter P)
   · simp [Bool.and_eq_left_iff_imp.mpr (h _)]
   · apply List.filter_sublist
 
-private def List.length_filter_strict_mono {l : List α} {P Q : α → Bool} {a : α}
+private theorem List.length_filter_strict_mono {l : List α} {P Q : α → Bool} {a : α}
     (h : ∀ a, P a → Q a) (ha : a ∈ l) (hPa : ¬ P a) (hQa : Q a) :
     (l.filter P).length < (l.filter Q).length := by
   have hsl : List.Sublist (l.filter P) (l.filter Q) := by
@@ -790,13 +791,13 @@ theorem Iterator.isSome_next_of_isPlausibleIndirectOutput
     obtain ⟨a, ha, _⟩ := h
     simp [ha]
 
-private def List.Sublist.filter_mono {l : List α} {P Q : α → Bool} (h : ∀ a, P a → Q a) :
+private theorem List.Sublist.filter_mono {l : List α} {P Q : α → Bool} (h : ∀ a, P a → Q a) :
     List.Sublist (l.filter P) (l.filter Q) := by
   apply List.Sublist.trans (l₂ := (l.filter Q).filter P)
   · simp [Bool.and_eq_left_iff_imp.mpr (h _)]
   · apply List.filter_sublist
 
-private def List.length_filter_strict_mono {l : List α} {P Q : α → Bool} {a : α}
+private theorem List.length_filter_strict_mono {l : List α} {P Q : α → Bool} {a : α}
     (h : ∀ a, P a → Q a) (ha : a ∈ l) (hPa : ¬ P a) (hQa : Q a) :
     (l.filter P).length < (l.filter Q).length := by
   have hsl : List.Sublist (l.filter P) (l.filter Q) := by

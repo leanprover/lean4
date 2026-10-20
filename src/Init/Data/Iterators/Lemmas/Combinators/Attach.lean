@@ -88,6 +88,7 @@ theorem Iter.length_attachWith [Iterator α Id β]
   rw [← Iter.length_toList_eq_length, toList_attachWith]
   simp
 
+set_option linter.defProp false in
 @[deprecated Iter.length_attachWith (since := "2026-01-28")]
 def Iter.count_attachWith := @Iter.length_attachWith
 

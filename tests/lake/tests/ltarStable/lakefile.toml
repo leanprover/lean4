@@ -1,0 +1,8 @@
+name = "test"
+platformIndependent = true
+enableArtifactCache = true
+restoreAllArtifacts = true
+defaultTargets = ["Test"]
+
+[[lean_lib]]
+name = "Test"

@@ -18,7 +18,7 @@ public section
 set_option linter.missingDocs true
 
 namespace Lean.Server
-open Lsp Lean.Elab Std
+open Lsp Lean.Elab
 
 /-- Converts an `Import` to its LSP-internal representation. -/
 def ImportInfo.ofImport (i : Import) : ImportInfo where
@@ -198,7 +198,7 @@ def findRange? (self : ModuleRefs) (pos : Lsp.Position) (includeStop := false) :
 end Lean.Lsp.ModuleRefs
 
 namespace Lean.Server
-open IO
+open _root_.IO
 open Lsp
 open Elab
 
@@ -217,6 +217,35 @@ structure Ilean where
   deriving FromJson, ToJson
 
 namespace Ilean
+
+/--
+The extension for a memory-mappable ilean file
+-/
+def compactedExt := "ilean.mmap"
+
+/--
+Given a path `<path>.ilean`, attempt to read `<path>.ilean.mmap` as a `CompactedRegion` file that contains an `Ilean`.
+
+Returns `.none` if `<path>.ilean.mmap` does not exist or is strictly older than the `<path>.ilean`.
+Returns `.some ilean` if `<path>.ilean.mmap` exists, has a timestamp >= `<path>.ilean`, and can be loaded as a `CompactedRegion` containing an `Ilean`.
+Raises an `IO.Error` if the `.ilean.mmap` cannot be loaded.
+-/
+def loadCompacted? (ileanPath : System.FilePath) : IO (Option Ilean) := do
+  if ileanPath.extension ≠ .some "ilean" then throw (.userError s!"Ilean.loadCompacted?: '{ileanPath}' not an .ilean")
+
+  let compactedIleanPath := ileanPath.withExtension Ilean.compactedExt
+  let .ok compactedModified := (← compactedIleanPath.metadata.toBaseIO) |>.map FS.Metadata.modified
+    | return .none -- assume file does not exist
+
+  -- The strict inequality is important on systems like Nix that reset all timestamps to the epoch: we don't want that to prevent loading the compacted version
+  if compactedModified < (← ileanPath.metadata).modified then
+    return .none
+
+  -- nb: ignoring the region means we can't unmap this ilean later
+  let (compactedIlean, _region) ← unsafe CompactedRegion.read (α := Ilean) compactedIleanPath #[]
+  return .some compactedIlean
+
+open Lean.IO
 
 /-- Reads and parses the .ilean file at `path`. -/
 def load (path : System.FilePath) : IO Ilean := do

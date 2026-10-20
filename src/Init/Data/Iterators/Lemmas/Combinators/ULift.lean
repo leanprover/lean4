@@ -67,6 +67,7 @@ theorem Iter.length_uLift [Iterator α Id β] {it : Iter (α := α) β}
   rw [IterM.length_uLift]
   simp [monadLift]
 
+set_option linter.defProp false in
 @[deprecated Iter.length_uLift (since := "2026-01-28")]
 def Iter.count_uLift := @Iter.length_uLift
 

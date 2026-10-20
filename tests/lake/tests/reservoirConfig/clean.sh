@@ -1,2 +1,2 @@
 rm -f produced*
-rm -rf .lake lake-manifest.json .git
+rm -rf work .lake lake-manifest.json .git

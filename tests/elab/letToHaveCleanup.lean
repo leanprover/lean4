@@ -1,5 +1,4 @@
 import Lean
-set_option backward.do.legacy false
 /-!
 ## Checking that let-to-have is applied to definitions and equation lemmas
 -/

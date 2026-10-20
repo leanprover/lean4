@@ -19,7 +19,7 @@ open Lean.Meta
 @[builtin_doElem_elab Lean.Parser.Term.doReturn] def elabDoReturn : DoElab := fun stx dec => do
   let `(doReturn| return $[$e?]?) := stx | throwUnsupportedSyntax
   let returnCont ← getReturnCont
-  -- When using the ControlLifter framework, `returnCont.resultType` can be different than the
+  -- When using the EffectForwarder framework, `returnCont.resultType` can be different than the
   -- result type of the `do` block. That's why we track it separately.
   -- trace[Elab.do] "return e: {e} with type {returnCont.resultType}"
   let e ← match e? with

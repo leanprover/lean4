@@ -1,0 +1,5 @@
+name = "lint-record-deferred"
+defaultTargets = ["Violations"]
+
+[[lean_lib]]
+name = "Violations"

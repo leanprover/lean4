@@ -110,6 +110,7 @@ private unsafe def evalSyntaxConstantUnsafe (env : Environment) (opts : Options)
 @[implemented_by evalSyntaxConstantUnsafe]
 opaque evalSyntaxConstant (env : Environment) (opts : Options) (constName : Name) : ExceptT String Id Syntax := throw ""
 
+/-- safety: requires that `mkConst typeName _` and `γ` are definitionally equal -/
 unsafe def mkElabAttribute (γ) (attrBuiltinName attrName : Name) (parserNamespace : Name) (typeName : Name) (kind : String)
     (attrDeclName : Name := by exact decl_name%) : IO (KeyedDeclsAttribute γ) :=
   KeyedDeclsAttribute.init {

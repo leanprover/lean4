@@ -1,10 +1,9 @@
 import Std.Tactic.Do
 import Std.Tactic.BVDecide
 import Std.Data.HashSet
-set_option backward.do.legacy false
 
 set_option grind.warning false
-set_option mvcgen.warning false
+set_option linter.deprecated.syntax false
 
 open Std Do
 

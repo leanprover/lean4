@@ -386,4 +386,4 @@ variable [Decidable u]
 #check_simp if u then u else q ~> ¬u → q
 #check_simp if u then q else u ~> u ∧ q
 #check_simp if u then q else q  ~> q
-#check_simp cond b c d !~>
+#check_simp cond b c d ~> if b then c else d

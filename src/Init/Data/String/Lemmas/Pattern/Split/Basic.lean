@@ -7,9 +7,9 @@ module
 
 prelude
 public import Init.Data.String.Lemmas.Pattern.Basic
-public import Init.Data.String.Slice
+public import Init.Data.String.Slice.Pattern
 public import Init.Data.String.Search
-import all Init.Data.String.Slice
+import all Init.Data.String.Slice.Pattern
 import all Init.Data.String.Search
 import Init.Data.Option.Lemmas
 import Init.Data.String.Termination
@@ -58,7 +58,7 @@ public theorem split_eq_of_isLongestMatchAt {ρ : Type} {pat : ρ} [PatternModel
     {s : Slice} {firstRejected start stop : s.Pos} {hle} (h : IsLongestMatchAt pat start stop) :
     Model.split pat firstRejected start hle =
       s.subslice _ _ hle :: Model.split pat stop stop (by exact Std.le_refl _) := by
-  rw [Model.split, dif_neg (Slice.Pos.ne_endPos_of_lt h.lt)]
+  rw [Model.split, dite_eq_right (Slice.Pos.ne_endPos_of_lt h.lt)]
   split
   · congr <;> exact (matchAt?_eq_some_iff.1 ‹_›).eq h
   · simp [matchAt?_eq_some_iff.2 ‹_›] at *
@@ -70,7 +70,7 @@ public theorem split_eq_of_not_matchesAt {ρ : Type} {pat : ρ} [PatternModel pa
       Model.split pat firstRejected stop (by exact Std.le_trans hle h₀) := by
   induction start using WellFounded.induction Slice.Pos.wellFounded_gt with | h start ih
   by_cases h' : start < stop
-  · rw [Model.split, dif_neg (Slice.Pos.ne_endPos_of_lt h')]
+  · rw [Model.split, dite_eq_right (Slice.Pos.ne_endPos_of_lt h')]
     have : ¬ MatchesAt pat start := h start (Slice.Pos.le_refl _) h'
     split
     · rename_i heq

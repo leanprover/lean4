@@ -69,12 +69,12 @@ Type class environment extension
 -- TODO: add support for scoped instances
 builtin_initialize classExtension : SimplePersistentEnvExtension ClassEntry ClassState ←
   registerSimplePersistentEnvExtension {
+    logWrites     := true
     addEntryFn    := ClassState.addEntry
     addImportedFn := fun es => (mkStateFromImportedEntries ClassState.addEntry {} es).switch
   }
 
 /-- Return `true` if `n` is the name of type class in the given environment. -/
-@[export lean_is_class]
 def isClass (env : Environment) (n : Name) : Bool :=
   (classExtension.getState env).outParamMap.contains n
 
@@ -83,7 +83,6 @@ def getOutParamPositions? (env : Environment) (declName : Name) : Option (Array 
   (classExtension.getState env).outParamMap.find? declName
 
 /-- Return `true` if the given `declName` is a type class with output parameters. -/
-@[export lean_has_out_params]
 def hasOutParams (env : Environment) (declName : Name) : Bool :=
   match getOutParamPositions? env declName with
   | some outParams => !outParams.isEmpty
@@ -124,41 +123,6 @@ private partial def checkOutParam (i : Nat) (outParamFVarIds : Array FVarId) (ou
     else
       checkOutParam (i+1) outParamFVarIds outParams b
   | _ => return outParams
-
-/--
-Mark `outParam`s in `type` as implicit. Note that it also marks instance implicit arguments that depend on `outParam`s as implicit.
-
-Remark: this function consumes the `outParam` annotations.
-
-This function uses the same logic used as `checkOutParam`.
-See issue #1901
--/
-@[export lean_mk_outparam_args_implicit]
-partial def mkOutParamArgsImplicit (type : Expr) : Expr :=
-  go type type #[]
-where
-  go (type : Expr) (typeAux : Expr) (outParamFVarIds : Array FVarId) : Expr :=
-    match typeAux with
-    | .forallE _ d b bi =>
-      let mkOutParamImplicit (dNew : Expr) :=
-        let fvarId := { name := Name.mkNum `_fvar outParamFVarIds.size }
-        let fvar      := mkFVar fvarId
-        let b         := b.instantiate1 fvar
-        let bNew      := go type.bindingBody! b (outParamFVarIds.push fvarId)
-        type.updateForall! .implicit dNew bNew
-      let keepBinderInfo (_ : Unit) :=
-        let bNew := go type.bindingBody! b outParamFVarIds
-        type.updateForallE! type.bindingDomain! bNew
-      if d.isOutParam then
-        mkOutParamImplicit type.bindingDomain!.appArg! -- consume `outParam` annotation
-      else if d.hasAnyFVar fun fvarId => outParamFVarIds.contains fvarId then
-        if bi.isInstImplicit then
-          mkOutParamImplicit type.bindingDomain!
-        else
-          keepBinderInfo ()
-      else
-        keepBinderInfo ()
-    | _ => type
 
 /--
 Compute positions of universe level parameters that only appear in output parameter types.
@@ -209,7 +173,9 @@ def addClass (env : Environment) (clsName : Name) : Except MessageData Environme
     throw m!"invalid 'class', declaration '{.ofConstName clsName}' must be inductive datatype, structure, or constant"
   let outParams ← checkOutParam 0 #[] #[] decl.type
   let outLevelParams := computeOutLevelParams decl.type outParams decl.levelParams
-  return classExtension.addEntry env { name := clsName, outParams, outLevelParams }
+  -- `log` necessary: `attribute [class]` may be applied to an existing declaration
+  return classExtension.addEntry (log := .decl clsName) env
+    { name := clsName, outParams, outLevelParams }
 
 /--
 Registers an inductive type or structure as a type class. Using `class` or `class inductive` is
@@ -251,7 +217,8 @@ builtin_initialize
           outLevelParams := outLevelParams.push i
         i := i + 1
       let outParams := getOutParamPositions? env decl |>.getD #[]
-      modifyEnv fun env => classExtension.addEntry env { name := decl, outParams, outLevelParams }
+      modifyEnv fun env =>
+        classExtension.addEntry (log := .decl decl) env { name := decl, outParams, outLevelParams }
   }
 
 end Lean

@@ -30,31 +30,20 @@ theorem and_true_curry {a b : Bool} {P : Prop}
 
 
 theorem deriving_lawful_beq_helper_dep {x y : α} [BEq α] [ReflBEq α]
-  {t : (x == y) = true → Bool} {P : Prop}
+    {t : (x == y) = true → Bool} {P : Prop}
     (inst : (x == y) = true → x = y)
     (k : (h : x = y) → t (h ▸ ReflBEq.rfl) = true → P) :
     (if h : (x == y) then t h else false) = true → P := by
-  intro h
-  by_cases hxy : x = y
-  · subst hxy
-    apply k rfl
-    rw [dif_pos (BEq.refl x)] at h
-    exact h
-  · by_cases hxy' : x == y
-    · exact False.elim <| hxy (inst hxy')
-    · rw [dif_neg hxy'] at h
-      contradiction
+  split
+  · exact k (inst ‹_›)
+  · nofun
 
 theorem deriving_lawful_beq_helper_nd {x y : α} [BEq α] [ReflBEq α]
     {P : Prop}
     (inst : (x == y) = true → x = y)
     (k : x = y → P) :
-    (x == y) = true → P := by
-  intro h
-  by_cases hxy : x = y
-  · subst hxy
-    apply k rfl
-  · exact False.elim <| hxy (inst h)
+    (x == y) = true → P :=
+  k ∘ inst
 
 end DerivingHelpers
 

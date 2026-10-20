@@ -56,11 +56,11 @@ theorem lt_iff_remainingBytes_lt {s : Slice} (p q : s.Pos) :
   omega
 
 theorem wellFounded_lt {s : Slice} : WellFounded (fun (p : s.Pos) q => p < q) := by
-  simpa [lt_iff, Pos.Raw.lt_iff] using
+  simpa [lt_iff, Pos.Raw.lt_iff] using!
     InvImage.wf (Pos.Raw.byteIdx ∘ Slice.Pos.offset) Nat.lt_wfRel.wf
 
 theorem wellFounded_gt {s : Slice} : WellFounded (fun (p : s.Pos) q => q < p) := by
-  simpa [lt_iff_remainingBytes_lt] using
+  simpa [lt_iff_remainingBytes_lt] using!
     InvImage.wf Slice.Pos.remainingBytes Nat.lt_wfRel.wf
 
 instance {s : Slice} : WellFoundedRelation s.Pos where
@@ -155,11 +155,11 @@ theorem lt_iff_remainingBytes_lt {s : String} (p q : s.Pos) :
   simp [← remainingBytes_toSlice, ← Slice.Pos.lt_iff_remainingBytes_lt]
 
 theorem wellFounded_lt {s : String} : WellFounded (fun (p : s.Pos) q => p < q) := by
-  simpa [lt_iff, Pos.Raw.lt_iff] using
+  simpa [lt_iff, Pos.Raw.lt_iff] using!
     InvImage.wf (Pos.Raw.byteIdx ∘ Pos.offset) Nat.lt_wfRel.wf
 
 theorem wellFounded_gt {s : String} : WellFounded (fun (p : s.Pos) q => q < p) := by
-  simpa [lt_iff_remainingBytes_lt] using
+  simpa [lt_iff_remainingBytes_lt] using!
     InvImage.wf Pos.remainingBytes Nat.lt_wfRel.wf
 
 instance {s : String} : WellFoundedRelation s.Pos where

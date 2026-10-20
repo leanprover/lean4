@@ -1,4 +1,6 @@
-inductive Expr : id Type
+abbrev id' (α : Sort u) := α
+
+inductive Expr : id' Type
   | var : Nat → Expr
   | app : String → List Expr → Expr
 

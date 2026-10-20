@@ -9,7 +9,7 @@ This rendering is used when showing Verso docstrings over LSP.
 
 open Lean Elab Command Term Doc
 
-private def render (b : Block Empty Empty) : String :=
+private def render (b : Block Empty Empty) : CoreM String :=
   MarkdownM.run' (ToMarkdown.toMarkdown b)
 
 /--
@@ -17,9 +17,9 @@ Renders `b` to Markdown and prints it preceded by a blank line, so the rendered 
 inside `#guard_msgs` expected output. The leading blank line keeps the first rendered line visually
 separated from the `info:` marker.
 -/
-private def showMd (b : Block Empty Empty) : IO Unit := do
+private def showMd (b : Block Empty Empty) : CommandElabM Unit := do
   IO.println ""
-  IO.println (render b)
+  IO.println (← liftCoreM (render b))
 
 /-! Blockquote with one paragraph -/
 

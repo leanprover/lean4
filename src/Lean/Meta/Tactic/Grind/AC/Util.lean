@@ -147,6 +147,12 @@ where
       let identityType := mkApp3 (mkConst ``Std.LawfulIdentity [u]) α op neutral
       if let some identityInst ← synthInstance? identityType then
         let neutral ← instantiateExprMVars neutral
+        /-
+        **Note**: `Std.LawfulIdentity` instances may spell the identity element in a form
+        that is not in `grind` normal form (e.g., the `BitVec` instances use `0#n`), and we
+        need a term that is definitionally equal to the identity element fixed by
+        `identityInst`. `preprocessLight` canonicalizes literals (see `Sym.Canon.normNumLit?`).
+        -/
         let neutral ← preprocessLight neutral
         internalize neutral (← getGeneration op)
         pure (some identityInst, some neutral)

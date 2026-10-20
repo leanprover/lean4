@@ -199,11 +199,11 @@ open Lean Lean.Idbg Std.Net Std.Async in
     let _ ← child.wait
 
   -- Exchange 1: `idbg x + s.length`
-  -- idbg at byte 108 in this string
-  let code1 := "import Lean\nset_option backward.do.legacy false\ndef main : IO Unit := do\n  let x := 42\n  let s := \"hello\"\n  idbg x + s.length\n"
-  doExchange env code1 108
+  -- idbg at byte 72 in this string
+  let code1 := "import Lean\ndef main : IO Unit := do\n  let x := 42\n  let s := \"hello\"\n  idbg x + s.length\n"
+  doExchange env code1 72
 
   -- Exchange 2: `idbg x + s.length + 1` (the expression that triggered the mvar bug)
-  -- idbg at byte 108 in this string too
-  let code2 := "import Lean\nset_option backward.do.legacy false\ndef main : IO Unit := do\n  let x := 42\n  let s := \"hello\"\n  idbg x + s.length + 1\n"
-  doExchange env code2 108
+  -- idbg at byte 72 in this string too
+  let code2 := "import Lean\ndef main : IO Unit := do\n  let x := 42\n  let s := \"hello\"\n  idbg x + s.length + 1\n"
+  doExchange env code2 72

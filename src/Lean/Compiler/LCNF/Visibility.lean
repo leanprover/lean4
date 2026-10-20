@@ -47,9 +47,10 @@ body and referenced declarations based on that.
 -/
 partial def markDeclPublicRec (phase : Phase) (decl : Decl pu) : CompilerM Unit := do
   modifyEnv (setDeclPublic · decl.name)
-  if (← shouldExportBody decl) && !isDeclTransparent (← getEnv) phase decl.name then
-    trace[Compiler.inferVisibility] m!"Marking {decl.name} as transparent because it is opaque and its body looks relevant"
-    modifyEnv (setDeclTransparent · phase decl.name)
+  if (← shouldExportBody decl) then
+    unless isDeclTransparent (← getEnv) phase decl.name do
+      trace[Compiler.inferVisibility] m!"Marking {decl.name} as transparent because it is opaque and its body looks relevant"
+      modifyEnv (setDeclTransparent · phase decl.name)
     decl.value.forCodeM fun code =>
       for ref in collectUsedDecls code do
         if let some refDecl ← getLocalDeclAt? ref phase then

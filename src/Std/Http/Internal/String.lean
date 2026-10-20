@@ -9,6 +9,7 @@ prelude
 import Init.Grind
 public import Init.Data.String.TakeDrop
 public import Std.Http.Internal.Char
+import Init.Data.String.Csimp
 
 public section
 
@@ -22,7 +23,7 @@ parameter values and chunk extensions.
 
 namespace Std.Http.Internal
 
-open Char
+open Std.Http.Internal.Char
 
 set_option linter.all true
 

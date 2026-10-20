@@ -78,7 +78,7 @@ foobar n -- not linted
 -/
 
 namespace Lean.Linter
-open Lean.Elab.Command Lean.Server Std
+open Lean.Elab.Command Lean.Server
 
 /-- Enables or disables all unused variable linter warnings -/
 register_builtin_option linter.unusedVariables : Bool := {
@@ -494,7 +494,7 @@ def unusedVariables : Linter where
 
     let infoTrees := (← get).infoState.trees.toArray
 
-    let linterSets := linterSetsExt.getState (← getEnv)
+    let linterSets := (linterSetsExt.getState (← getEnv)).merged
 
     -- Run the main collection pass, resulting in `s : References`.
     let (_, s) ← (collectReferences infoTrees cmdStxRange linterSets).run {}
@@ -570,7 +570,13 @@ def unusedVariables : Linter where
 
     -- Sort the outputs by position
     for (declStx, userName) in unused.qsort (·.1.getPos?.get! < ·.1.getPos?.get!) do
-      logLint linter.unusedVariables declStx m!"unused variable `{userName}`"
+      let suggestion : Meta.Hint.Suggestion := s!"_{userName}"
+      let suggestion := { suggestion with span? := declStx, diffGranularity := .none }
+      let hint ← liftCoreM <| MessageData.hint
+        m!"The binding can be removed (if unused) or named `_` (if used implicitly). \
+          Alternatively, prefix the name with `_` to silence this warning:" #[suggestion]
+      logLint linter.unusedVariables declStx
+        (m!"Variable name `{userName}` is not explicitly referenced." ++ hint)
 
 builtin_initialize addLinter unusedVariables
 

@@ -153,7 +153,7 @@ theorem erase_empty [EquivBEq α] [LawfulHashable α] {a : α} : (∅ : ExtHashS
 @[simp]
 theorem erase_eq_empty_iff [EquivBEq α] [LawfulHashable α] {k : α} :
     m.erase k = ∅ ↔ m = ∅ ∨ m.size = 1 ∧ k ∈ m := by
-  simpa only [ext_iff] using ExtHashMap.erase_eq_empty_iff
+  simpa only [ext_iff] using! ExtHashMap.erase_eq_empty_iff
 
 @[simp, grind =]
 theorem contains_erase [EquivBEq α] [LawfulHashable α] {k a : α} :
@@ -560,11 +560,11 @@ grind_pattern size_insertMany_list_le => (insertMany m l).size
 @[simp]
 theorem insertMany_list_eq_empty_iff [EquivBEq α] [LawfulHashable α] {l : List α} :
     m.insertMany l = ∅ ↔ m = ∅ ∧ l = [] := by
-  simpa only [ext_iff] using ExtHashMap.insertManyIfNewUnit_list_eq_empty_iff
+  simpa only [ext_iff] using! ExtHashMap.insertManyIfNewUnit_list_eq_empty_iff
 
 theorem eq_empty_of_insertMany_eq_empty [EquivBEq α] [LawfulHashable α] {l : ρ} :
     m.insertMany l = ∅ → m = ∅ := by
-  simpa only [ext_iff] using ExtHashMap.eq_empty_of_insertManyIfNewUnit_eq_empty
+  simpa only [ext_iff] using! ExtHashMap.eq_empty_of_insertManyIfNewUnit_eq_empty
 
 theorem insertMany_list_eq_foldl [EquivBEq α] [LawfulHashable α] {l : List α} :
     m.insertMany l = l.foldl (init := m) fun acc a => acc.insert a := by
@@ -1024,6 +1024,15 @@ theorem isEmpty_inter_right [EquivBEq α] [LawfulHashable α] (h : m₂.isEmpty)
 theorem isEmpty_inter_iff [EquivBEq α] [LawfulHashable α] :
     (m₁ ∩ m₂).isEmpty ↔ ∀ k, k ∈ m₁ → k ∉ m₂ :=
   ExtHashMap.isEmpty_inter_iff
+
+theorem isEmpty_inter_comm [EquivBEq α] [LawfulHashable α] :
+    (m₁ ∩ m₂).isEmpty = (m₂ ∩ m₁).isEmpty :=
+  ExtHashMap.isEmpty_inter_comm
+
+theorem inter_eq_empty_comm [EquivBEq α] [LawfulHashable α] :
+    m₁ ∩ m₂ = ∅ ↔ m₂ ∩ m₁ = ∅ := by
+  rw [← isEmpty_iff, ← isEmpty_iff, ← Bool.eq_iff_iff]
+  exact isEmpty_inter_comm
 
 end Inter
 

@@ -97,9 +97,11 @@ public instance (ε) [MonadExceptOf ε m] : MonadExceptOf ε (EquipT ρ m) where
   throw    := EquipT.throw
   tryCatch := EquipT.tryCatch
 
+set_option linter.checkUnivs false in
 @[always_inline, inline]
 public protected def tryFinally' [MonadFinally m] [Monad m]
   (x : EquipT ρ m α) (f : Option α → EquipT ρ m β)
 : EquipT ρ m (α × β) := fun ctx => tryFinally' (x.run ctx) (fun a? => f a? |>.run ctx)
 
+set_option linter.checkUnivs false in
 public instance [MonadFinally m] [Monad m] : MonadFinally (EquipT ρ m) := ⟨EquipT.tryFinally'⟩

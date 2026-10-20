@@ -37,6 +37,9 @@ which only unfolds `@[reducible]` definitions). -/
 macro "erw" c:optConfig s:rwRuleSeq loc:(location)? : tactic => do
   `(tactic| rw $[$(getConfigItems c)]* (transparency := .default) $s:rwRuleSeq $(loc)?)
 
+macro_rules
+  | `(tactic| constructor! $c:optConfig) => `(tactic| constructor $[$(getConfigItems c)]* +first)
+
 syntax simpAllKind := atomic(" (" &"all") " := " &"true" ")"
 syntax dsimpKind   := atomic(" (" &"dsimp") " := " &"true" ")"
 

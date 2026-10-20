@@ -12,7 +12,6 @@ the variables were used.
 -/
 
 set_option linter.unusedVariables true
-set_option backward.do.legacy false
 
 -- Mut in try/catch with branching reassignment
 def test_mut_try_catch : IO Nat := do

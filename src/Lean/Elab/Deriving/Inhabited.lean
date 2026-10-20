@@ -131,8 +131,8 @@ where
         (hints       := ReducibilityHints.regular (getMaxHeight (← getEnv) auxVal + 1))
       if isMarkedMeta (← getEnv) inductiveTypeName then
         modifyEnv (markMeta · auxFunName)
-      unless (← read).isNoncomputableSection do
-        compileDecls #[auxFunName]
+      compileDecls #[auxFunName]
+        (logErrors := !(← read).isNoncomputableSection || isMarkedMeta (← getEnv) auxFunName)
       enableRealizationsForConst auxFunName
       trace[Elab.Deriving.inhabited] "defined {.ofConstName auxFunName}"
       let cmd ← mkInstanceCmdWith (mkIdent ctx.instName) usedInstIdxs (mkCIdent auxFunName)

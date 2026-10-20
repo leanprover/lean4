@@ -3,3 +3,10 @@ self-hosted-runner:
     - nscloud-ubuntu-22.04-amd64-4x16
     - nscloud-ubuntu-22.04-amd64-8x16
     - nscloud-macos-sonoma-arm64-6x14
+
+paths:
+  ".github/workflows/**/*.yml":
+    ignore:
+      # https://github.com/rhysd/actionlint/pull/652
+      - missing input "app-id" which is required by action "actions/create-github-app-token@v3"
+      - input "client-id" is not defined in action "actions/create-github-app-token@v3"

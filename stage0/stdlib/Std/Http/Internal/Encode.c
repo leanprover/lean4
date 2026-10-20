@@ -89,6 +89,7 @@ goto v_resetjp_11_;
 v_resetjp_11_:
 {
 lean_object* v___x_14_; lean_object* v___x_15_; lean_object* v___x_16_; lean_object* v___x_17_; lean_object* v___x_19_; 
+lean_inc_ref(v___y_8_);
 v___x_14_ = lean_string_to_utf8(v___y_8_);
 lean_inc_ref(v___x_14_);
 v___x_15_ = lean_array_push(v_data_9_, v___x_14_);
@@ -131,11 +132,13 @@ return v_res_29_;
 }
 lean_object* runtime_initialize_Std_Http_Internal_ChunkedBuffer(uint8_t builtin);
 lean_object* runtime_initialize_Std_Http_Data_Version(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Std_Http_Internal_Encode(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Std_Http_Internal_ChunkedBuffer(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

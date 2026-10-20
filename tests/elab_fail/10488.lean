@@ -58,3 +58,7 @@ inductive Nope where
 
 example := (match · with
   | succ x y => 4)
+
+-- Escaped identifiers after a bare decimal point should also be flagged
+#check 31.«succ»
+#check 11.«foo bar»

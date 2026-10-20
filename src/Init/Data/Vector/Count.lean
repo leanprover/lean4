@@ -56,6 +56,8 @@ theorem countP_le_size {xs : Vector α n} : countP p xs ≤ n := by
   rcases xs with ⟨xs, rfl⟩
   simp [Array.countP_le_size (p := p)]
 
+grind_pattern countP_le_size => countP p xs
+
 @[simp, grind =] theorem countP_append {xs : Vector α n} {ys : Vector α m} : countP p (xs ++ ys) = countP p xs + countP p ys := by
   cases xs
   cases ys
@@ -233,6 +235,8 @@ theorem not_mem_of_count_eq_zero {a : α} {xs : Vector α n} (h : count a xs = 0
 
 theorem count_eq_zero {xs : Vector α n} : count a xs = 0 ↔ a ∉ xs :=
   ⟨not_mem_of_count_eq_zero, count_eq_zero_of_not_mem⟩
+
+grind_pattern count_eq_zero => a ∈ xs, count a xs
 
 theorem count_eq_size {xs : Vector α n} : count a xs = n ↔ ∀ b ∈ xs, a = b := by
   rcases xs with ⟨xs, rfl⟩

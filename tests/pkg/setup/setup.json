@@ -10,7 +10,7 @@
     }
   ],
   "importArts": {
-    "Dep": ["Dep.olean"]
+    "Dep": [["Dep.olean"]]
   },
   "dynlibs": [],
   "plugins": [],

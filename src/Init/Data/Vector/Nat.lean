@@ -28,7 +28,8 @@ protected theorem sum_eq_zero_iff_forall_eq_nat {xs : Vector Nat n} :
 @[simp] theorem sum_replicate_nat {n : Nat} {a : Nat} : (replicate n a).sum = n * a := by
   simp [← sum_toArray, Array.sum_replicate_nat]
 
-theorem sum_append_nat {as₁ as₂ : Vector Nat n} : (as₁ ++ as₂).sum = as₁.sum + as₂.sum := by
+theorem sum_append_nat {as₁ : Vector Nat n} {as₂ : Vector Nat m} :
+    (as₁ ++ as₂).sum = as₁.sum + as₂.sum := by
   simp [← sum_toArray]
 
 theorem sum_reverse_nat (xs : Vector Nat n) : xs.reverse.sum = xs.sum := by
@@ -47,7 +48,8 @@ protected theorem prod_eq_zero_iff_exists_zero_nat {xs : Vector Nat n} :
 @[simp] theorem prod_replicate_nat {n : Nat} {a : Nat} : (replicate n a).prod = a ^ n := by
   simp [← prod_toArray, Array.prod_replicate_nat]
 
-theorem prod_append_nat {as₁ as₂ : Vector Nat n} : (as₁ ++ as₂).prod = as₁.prod * as₂.prod := by
+theorem prod_append_nat {as₁ : Vector Nat n} {as₂ : Vector Nat m} :
+    (as₁ ++ as₂).prod = as₁.prod * as₂.prod := by
   simp [← prod_toArray]
 
 theorem prod_reverse_nat (xs : Vector Nat n) : xs.reverse.prod = xs.prod := by

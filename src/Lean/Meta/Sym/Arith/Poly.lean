@@ -8,7 +8,7 @@ prelude
 public import Init.Grind.Ring.CommSolver
 import Init.Data.Nat.Gcd
 import Init.Data.Nat.Lemmas
-import Init.Data.Nat.Linear
+import Init.Data.Nat.Internal.Linear
 import Init.WFTactics
 public section
 namespace Lean.Grind.CommRing
@@ -174,22 +174,6 @@ def Poly.checkNoUnitMon : Poly → Bool
   | .add _ .unit _ => false
   | .add _ _ p => p.checkNoUnitMon
 
-def Poly.gcdCoeffs : Poly → Nat
-  | .num k => k.natAbs
-  | .add k _ p => go p k.natAbs
-where
-  go (p : Poly) (acc : Nat) : Nat :=
-    if acc == 1 then
-      acc
-    else match p with
-      | .num k => Nat.gcd acc k.natAbs
-      | .add k _ p => go p (Nat.gcd acc k.natAbs)
-
-def Poly.divConst (p : Poly) (a : Int) : Poly :=
-  match p with
-  | .num k => .num (k / a)
-  | .add k m p => .add (k / a) m (divConst p a)
-
 def Mon.size : Mon → Nat
   | .unit => 0
   | .mult _ m => m.size + 1
@@ -234,13 +218,5 @@ where
     | .num 0 => acc
     | .num k => .add acc (.num k)
     | .add k m p => go p (.add acc (goTerm k m))
-
-def Poly.maxDegreeOf (p : Poly) (x : Var) : Nat :=
-  go p 0
-where
-  go (p : Poly) (max : Nat) : Nat :=
-    match p with
-    | .num _ => max
-    | .add _ m p => go p (Nat.max max (m.degreeOf x))
 
 end Lean.Grind.CommRing

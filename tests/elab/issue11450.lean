@@ -22,8 +22,7 @@ info: @[reducible] def Term.var.noConfusion.{u} : {L : Nat → Type} →
 #guard_msgs in
 #print sig Term.var.noConfusion
 
-
-def Vector' (α : Type u) (n : Nat) :=
+abbrev Vector' (α : Type u) (n : Nat) :=
   { l : List α // l.length = n }
 
 inductive HVect : (n : Nat) -> (Vector' (Type v) n) -> Type (v+1)  where

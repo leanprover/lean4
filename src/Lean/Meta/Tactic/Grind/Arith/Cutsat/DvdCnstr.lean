@@ -62,6 +62,12 @@ partial def DvdCnstr.assert (c : DvdCnstr) : GoalM Unit := withIncRecDepth do
   if c.isTrivial then
     trace[grind.lia.assert.trivial] "{← c.pp}"
     return ()
+  if c.d == 0 then
+    -- `0 ∣ p` is equivalent to `p = 0`. The model search assumes `d ≠ 0` for
+    -- stored divisibility constraints (it computes `_ % d` and `_ / d`).
+    let c' : EqCnstr := { p := c.p, h := .ofZeroDvd c }
+    c'.assert
+    return ()
   let d₁ := c.d
   let .add a₁ x p₁ := c.p | c.throwUnexpected
   if (← c.satisfied) == .false then
@@ -110,7 +116,7 @@ def propagateIntDvd (e : Expr) : GoalM Unit := do
     let c := { d, p, h := .core e : DvdCnstr }
     c.assertCore
   else if (← isEqFalse e) then
-    pushNewFact <| mkApp4 (mkConst ``Int.Linear.of_not_dvd) a b eagerReflBoolTrue (mkOfEqFalseCore e (← mkEqFalseProof e))
+    pushNewFact <| mkApp4 (mkConst ``Int.Internal.Linear.of_not_dvd) a b eagerReflBoolTrue (mkOfEqFalseCore e (← mkEqFalseProof e))
 
 def propagateNatDvd (e : Expr) : GoalM Unit := do
   let_expr Dvd.dvd _ inst d₀ a := e | return ()

@@ -77,7 +77,7 @@ private theorem hIterateFrom_elim {P : Nat → Sort _}(Q : ∀(i : Nat), P i →
     simp only [g]
     exact inv _ _ (step ⟨i,g⟩ s init) d
 
-/-
+/--
 `hIterate_elim` provides a mechanism for showing that the result of
 `hIterate` satisfies a property `Q stop` by showing that the states
 at the intermediate indices `i : start ≤ i < stop` satisfy `Q i`.
@@ -88,7 +88,7 @@ theorem hIterate_elim {P : Nat → Sort _} (Q : ∀(i : Nat), P i → Prop)
     Q n (hIterate P s f) := by
   exact hIterateFrom_elim _ _ _ _ init step
 
-/-
+/--
 `hIterate_eq`provides a mechanism for replacing `hIterate P s f` with a
 function `state` showing that matches the steps performed by `hIterate`.
 

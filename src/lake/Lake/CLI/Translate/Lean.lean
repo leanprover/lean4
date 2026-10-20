@@ -27,7 +27,7 @@ open DSL
 
 /-! ## General Helpers -/
 
-private local instance : BEq FilePath where
+local instance : BEq FilePath where
   beq a b := a.normalize == b.normalize
 
 /-- Like `Quote`, but with some custom Lake-specific instances. -/
@@ -156,7 +156,7 @@ protected def LeanVer.toLean (v : LeanVer) : Term := Unhygienic.run do
 
 instance : ToLean LeanVer := ⟨LeanVer.toLean⟩
 
-private def getEscapedNameParts? (acc : List String) : Name → Option (List String)
+def getEscapedNameParts? (acc : List String) : Name → Option (List String)
   | Name.anonymous => if acc.isEmpty then none else some acc
   | Name.str n s => do
     let s ← Name.escapePart s
@@ -180,7 +180,7 @@ protected def Glob.toLean (glob : Glob) : Term := Unhygienic.run do
 
 instance : ToLean Glob := ⟨Glob.toLean⟩
 
-@[inline] private def quoteSingleton? [ToLean? α] (name : Name) (a : α) : Option Term :=
+@[inline] def quoteSingleton? [ToLean? α] (name : Name) (a : α) : Option Term :=
   toLean? a |>.map fun a => Unhygienic.run `(.$(mkIdent name) $a)
 
 protected def Pattern.toLean? [ToLean? (PatternDescr α β)] (p : Pattern α β) : Option Term :=
@@ -256,18 +256,24 @@ instance : ToLean (Target α) := ⟨(·.key.toLean)⟩
 def Dependency.mkRequire (cfg : Dependency) : RequireDecl := Unhygienic.run do
   let src? ← cfg.src?.mapM fun src =>
     match src with
-    | .path dir =>
-      `(fromSource|$(toLean dir):term)
+    | .path dir copy =>
+      if copy then
+        `(fromSource|copy $(toLean dir):term)
+      else
+        `(fromSource|$(toLean dir):term)
     | .git url rev? subDir? =>
       `(fromSource|git $(toLean url) $[@ $(rev?.map toLean)]? $[/ $(subDir?.map toLean)]?)
-  let ver? ←
-    if let some ver := cfg.version? then
-      if ver.startsWith "git#" then
-        some <$> `(verSpec|git $(toLean <| ver.drop 4 |>.copy))
-      else
-        some <$> `(verSpec|$(toLean ver):term)
-    else
-      pure none
+  let ver? ← id do
+    match cfg.version with
+    | .none => return none
+    | .git rev =>
+      match cfg.src? with
+      | some (.git (rev := some gitRev) ..) =>
+        if gitRev == rev then
+          return none -- will be derived from the source above
+        else some <$> `(verSpec|git $(toLean rev))
+      | _ => some <$> `(verSpec|git $(toLean rev))
+    | .ver ver => some <$> `(verSpec|$(toLean ver.toString):term)
   let scope? := if cfg.scope.isEmpty then none else some (toLean cfg.scope)
   let opts? := if cfg.opts.isEmpty then none else some <| Unhygienic.run do
     cfg.opts.foldlM (init := mkCIdent ``NameMap.empty) fun stx opt val =>
@@ -277,7 +283,7 @@ def Dependency.mkRequire (cfg : Dependency) : RequireDecl := Unhygienic.run do
 
 /-! ## Package & Target Configuration Encoders -/
 
-private meta def genMkDeclFields
+meta def genMkDeclFields
   (cmds : Array Command)
   (tyName : Name) [info : ConfigInfo tyName]
   (exclude : Array Name := #[])

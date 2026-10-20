@@ -95,9 +95,9 @@ return v___x_31_;
 LEAN_EXPORT lean_object* l_Lake_recFetchAcyclic___redArg___lam__2___boxed(lean_object* v_inst_32_, lean_object* v___x_33_, lean_object* v___x_34_, lean_object* v_x_35_){
 _start:
 {
-uint8_t v___x_136__boxed_36_; uint8_t v_res_37_; lean_object* v_r_38_; 
-v___x_136__boxed_36_ = lean_unbox(v___x_34_);
-v_res_37_ = l_Lake_recFetchAcyclic___redArg___lam__2(v_inst_32_, v___x_33_, v___x_136__boxed_36_, v_x_35_);
+uint8_t v___x_140__boxed_36_; uint8_t v_res_37_; lean_object* v_r_38_; 
+v___x_140__boxed_36_ = lean_unbox(v___x_34_);
+v_res_37_ = l_Lake_recFetchAcyclic___redArg___lam__2(v_inst_32_, v___x_33_, v___x_140__boxed_36_, v_x_35_);
 v_r_38_ = lean_box(v_res_37_);
 return v_r_38_;
 }
@@ -293,7 +293,7 @@ lean_dec(v_a_118_);
 lean_dec(v_compute_117_);
 v_val_126_ = lean_ctor_get(v_a_123_, 0);
 lean_inc(v_val_126_);
-lean_dec_ref(v_a_123_);
+lean_dec_ref_known(v_a_123_, 1);
 v_toPure_127_ = lean_ctor_get(v_toApplicative_122_, 1);
 lean_inc(v_toPure_127_);
 lean_dec_ref(v_toApplicative_122_);
@@ -362,11 +362,13 @@ return v___x_164_;
 lean_object* runtime_initialize_Lake_Util_Cycle(uint8_t builtin);
 lean_object* runtime_initialize_Lake_Util_Store(uint8_t builtin);
 lean_object* runtime_initialize_Lake_Util_EquipT(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lake_Build_Topological(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Lake_Util_Cycle(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

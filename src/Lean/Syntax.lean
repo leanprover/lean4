@@ -27,9 +27,6 @@ protected structure Lean.Syntax.Range where
   stop  : String.Pos.Raw
   deriving Inhabited, Repr, BEq, Hashable
 
-@[expose, deprecated Lean.Syntax.Range (since := "2025-10-20")]
-def String.Range := Lean.Syntax.Range
-
 def Lean.Syntax.Range.contains (r : Lean.Syntax.Range) (pos : String.Pos.Raw) (includeStop := false) : Bool :=
   r.start <= pos && (if includeStop then pos <= r.stop else pos < r.stop)
 
@@ -49,27 +46,13 @@ def Lean.Syntax.Range.includes (super sub : Lean.Syntax.Range)
       sub.stop <= super.stop
   )
 
-@[deprecated Lean.Syntax.Range.includes (since := "2025-10-20")]
-def String.Range.includes (super sub : Lean.Syntax.Range)
-    (includeSuperStop := false) (includeSubStop := false) : Bool :=
-  Lean.Syntax.Range.includes super sub includeSuperStop includeSubStop
-
 def Lean.Syntax.Range.overlaps (first second : Lean.Syntax.Range)
     (includeFirstStop := false) (includeSecondStop := false) : Bool :=
   (if includeFirstStop then second.start <= first.stop else second.start < first.stop) &&
     (if includeSecondStop then first.start <= second.stop else first.start < second.stop)
 
-@[deprecated Lean.Syntax.Range.overlaps (since := "2025-10-20")]
-def String.Range.overlaps (first second : Lean.Syntax.Range)
-    (includeFirstStop := false) (includeSecondStop := false) : Bool :=
-  Lean.Syntax.Range.overlaps first second includeFirstStop includeSecondStop
-
 def Lean.Syntax.Range.bsize (r : Lean.Syntax.Range) : Nat :=
   r.stop.byteIdx - r.start.byteIdx
-
-@[deprecated Lean.Syntax.Range.bsize (since := "2025-10-20")]
-def String.Range.bsize (r : Lean.Syntax.Range) : Nat :=
-  Lean.Syntax.Range.bsize r
 
 namespace Lean
 
@@ -317,13 +300,16 @@ partial def updateTrailing (trailing : Substring.Raw) : Syntax → Syntax
   | s => s
 
 open SourceInfo in
-/-- Split an `ident` into its dot-separated components while preserving source info.
-Macro scopes are first erased.  For example, `` `foo.bla.boo._@._hyg.4 `` ↦ `` [`foo, `bla, `boo] ``.
+/--
+Split an `ident` into its dot-separated components and `.` tokens while preserving source info.
+Yields `none` if `stx` or its `SourceInfo` cannot be preserved
+(e.g. in `` `foo.bla.boo._@._hyg.4 ``).
 If `nFields` is set, we take that many fields from the end and keep the remaining components
-as one name. For example, `` `foo.bla.boo `` with `(nFields := 1)` ↦ `` [`foo.bla, `boo] ``. -/
-def identComponents (stx : Syntax) (nFields? : Option Nat := none) : List Syntax :=
+as one name. For example, `` `foo.bla.boo `` with `(nFields := 1)` ↦ `` [`foo.bla, `boo] ``.
+-/
+def identComponents? (stx : Syntax) (nFields? : Option Nat := none) : Option (List Syntax × List Syntax) :=
   match stx with
-  | ident si@(SourceInfo.original lead pos trail _) rawStr val _ => Id.run do
+  | ident (SourceInfo.original lead pos trail _) rawStr val _ => do
     let val := val.eraseMacroScopes
     -- With original info, we assume that `rawStr` represents `val`.
     let nameComps := nameComps val nFields?
@@ -338,20 +324,56 @@ def identComponents (stx : Syntax) (nFields? : Option Nat := none) : List Syntax
         else
           rawComps
       if nameComps.length == rawComps.length then
-        return nameComps.zip rawComps |>.map fun (id, ss) =>
+        let comps := nameComps.zip rawComps |>.map fun (id, ss) =>
           let off := ss.startPos.unoffsetBy rawStr.startPos
           let lead := if off == 0 then lead else "".toRawSubstring
           let trail := if ss.stopPos == rawStr.stopPos then trail else "".toRawSubstring
           let info := original lead (pos.offsetBy off) trail (pos.offsetBy off |>.offsetBy ⟨ss.bsize⟩)
           ident info ss id []
-    -- if re-parsing failed, just give them all the same span
-    nameComps.map fun n => ident si n.toString.toRawSubstring n []
-  | ident si _ val _ =>
+        let seps := rawComps.dropLast.map fun ss =>
+          -- One `.` after every raw component, except for the last one.
+          let off := ss.stopPos.unoffsetBy rawStr.startPos
+          let info := original "".toRawSubstring (pos.offsetBy off) "".toRawSubstring (pos.offsetBy off |>.offsetBy ⟨1⟩)
+          atom info "."
+        return (comps, seps)
+    none
+  | ident .. =>
+    none
+  | _ => unreachable!
+  where
+    nameComps (n : Name) (nFields? : Option Nat) : List Name :=
+      if let some nFields := nFields? then
+        let nameComps := n.components
+        let nPrefix := nameComps.length - nFields
+        let namePrefix := nameComps.take nPrefix |>.foldl (init := Name.anonymous) fun acc n => acc ++ n
+        namePrefix :: nameComps.drop nPrefix
+      else
+        n.components
+
+open SourceInfo in
+/-- Split an `ident` into its dot-separated components while preserving source info.
+Macro scopes are first erased.  For example, `` `foo.bla.boo._@._hyg.4 `` ↦ `` [`foo, `bla, `boo] ``.
+If `nFields` is set, we take that many fields from the end and keep the remaining components
+as one name. For example, `` `foo.bla.boo `` with `(nFields := 1)` ↦ `` [`foo.bla, `boo] ``. -/
+def identComponents (stx : Syntax) (nFields? : Option Nat := none) : List Syntax :=
+  match stx with
+  | ident si rawStr val _ => Id.run do
     let val := val.eraseMacroScopes
-    /- With non-original info:
-     - `rawStr` can take all kinds of forms so we only use `val`.
-     - there is no source extent to offset, so we pass it as-is. -/
-    nameComps val nFields? |>.map fun n => ident si n.toString.toRawSubstring n []
+    -- Early return if the name has at most one component
+    if val.getNumParts ≤ 1 then
+      return [ident si rawStr val []]
+    match si with
+    | SourceInfo.original .. =>
+      if let some (components, _) := identComponents? stx nFields? then
+        return components
+      -- if re-parsing failed, just give them all the same span
+      let nameComps := nameComps val nFields?
+      nameComps.map fun n => ident si n.toString.toRawSubstring n []
+    | _ =>
+      /- With non-original info:
+      - `rawStr` can take all kinds of forms so we only use `val`.
+      - there is no source extent to offset, so we pass it as-is. -/
+      nameComps val nFields? |>.map fun n => ident si n.toString.toRawSubstring n []
   | _ => unreachable!
   where
     nameComps (n : Name) (nFields? : Option Nat) : List Name :=
@@ -660,6 +682,23 @@ def Stack.matches (stack : Syntax.Stack) (pattern : List $ Option SyntaxNodeKind
   (stack
     |>.zipWith (fun (s, _) p => p |>.map (s.isOfKind ·) |>.getD true) pattern
     |>.all id)
+
+/--
+Adds the given trailing substring to a `Syntax`' existing trailing substring if they are adjacent,
+otherwise returns `none`.
+-/
+def addTrailing? (stx : Syntax) (trailing : Substring.Raw) : Option Syntax := do
+  if let some (.original leading pos innerTrailing endPos) := stx.getTailInfo? then
+    if innerTrailing.stopPos == trailing.startPos then
+      let trailing := { innerTrailing with stopPos := trailing.stopPos }
+      return stx.setTailInfo (.original leading pos trailing endPos)
+  none
+
+/--
+Adds the given trailing substring to a `Syntax`' existing trailing substring if they are adjacent.
+-/
+def addTrailing (stx : Syntax) (trailing : Substring.Raw) : Syntax :=
+  stx.addTrailing? trailing |>.getD stx
 
 end Syntax
 

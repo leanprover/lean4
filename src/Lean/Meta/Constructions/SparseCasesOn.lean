@@ -24,7 +24,8 @@ structure SparseCasesOnKey where
 deriving BEq, Hashable
 
 builtin_initialize sparseCasesOnCacheExt : EnvExtension (PHashMap SparseCasesOnKey Name) ←
-  registerEnvExtension (pure {}) (asyncMode := .local)  -- mere cache, keep it local
+  -- mere cache, keep it local
+  registerEnvExtension (pure {}) (asyncMode := .local) (logWrites := true)
 
 /-- Information necessary to recognize and split on sparse casesOn (in particular in MatchEqs) -/
 public structure SparseCasesOnInfo where
@@ -38,7 +39,7 @@ builtin_initialize sparseCasesOnInfoExt : MapDeclarationExtension SparseCasesOnI
   mkMapDeclarationExtension (exportEntriesFn := fun env s =>
     let all := s.toArray
     -- Do not export for non-exposed defs at exported/server levels
-    let exported := s.filter (fun n _ => (env.setExporting true).find? n |>.any (·.hasValue)) |>.toArray
+    let exported := s.filter (fun n _ => env.hasExposedBody n) |>.toArray
     { exported, server := exported, «private» := all })
 
 /--
@@ -133,7 +134,17 @@ public def mkSparseCasesOn (indName : Name) (ctors : Array Name) : MetaM Name :=
     (value       := value)
     (hints       := ReducibilityHints.abbrev)
   addDecl (.defnDecl decl)
-  modifyEnv fun env => sparseCasesOnCacheExt.modifyState env fun s => s.insert key declName
+  -- unlogged: populated on demand and write-once, thus no observable change
+  modifyEnv fun env => sparseCasesOnCacheExt.modifyState (log := .unlogged) env fun s =>
+    have : Inhabited _ := ⟨s⟩
+    -- write-once, as for `MapDeclarationExtension.insert`
+    match s.find? key with
+    | some prev =>
+      if prev != declName then
+        panic! s!"sparse `casesOn` for `{declName}` is already registered as `{prev}`"
+      else
+        s
+    | none => s.insert key declName
   setReducibleAttribute declName
   modifyEnv fun env => markSparseCasesOn env declName
   modifyEnv fun env => sparseCasesOnInfoExt.insert env declName {

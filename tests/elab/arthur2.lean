@@ -85,7 +85,7 @@ def removeRightmostZeros (s : String) : String :=
       if a != '0'
         then aux [] (a :: (buff ++ res)) as
         else aux (a :: buff) res as
-  (aux [] [] s.data).asString
+  (aux [] [] s.toList).asString
 
 protected def Literal.toString : Literal → String
   | bool  b => toString b
@@ -214,7 +214,7 @@ def Value.binOp : Value → Value → BinOp → Except String Value
   | l, r, .ne  => l.ne r
 
 def NEList.unfoldStrings (l : NEList String) : String :=
-  l.foldl (init := "") $ fun acc a => acc ++ s!" {a}" |>.trimLeft
+  l.foldl (init := "") $ fun acc a => acc ++ s!" {a}" |>.trimAsciiStart |>.copy
 
 mutual
 

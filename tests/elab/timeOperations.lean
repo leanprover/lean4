@@ -301,7 +301,7 @@ info: 3
 #eval date("2024-11-17").alignedWeekOfMonth
 
 /--
-info: 4
+info: 3
 -/
 #guard_msgs in
 #eval date("2024-11-18").alignedWeekOfMonth

@@ -48,7 +48,7 @@ def mangleAux (s : String) (pos : s.Pos) (r : String) : String :=
     mangleAux s pos (pushHex 8 c.val (r ++ "_U"))
 termination_by pos
 
-public def mangle (s : String) : String :=
+public def Internal.mangle (s : String) : String :=
   mangleAux s s.startPos ""
 
 end String
@@ -120,7 +120,7 @@ def needDisambiguation (prev : Name) (next : String) : Bool :=
 def Name.mangleAux : Name → String
   | Name.anonymous => ""
   | Name.str p s =>
-    let m := String.mangle s
+    let m := String.Internal.mangle s
     match p with
     | Name.anonymous =>
       if checkDisambiguation m m.startPos then "00" ++ m else m
@@ -154,7 +154,7 @@ The mangled name of the name used to create the module initialization function.
 This also used for the library name of a module plugin.
 -/
 public def mkModuleInitializationStem (moduleName : Name) (pkg? : Option PkgId := none) : String :=
-  let pre := pkg?.elim "" (s!"{·.mangle}_")
+  let pre := pkg?.elim "" (s!"{String.Internal.mangle ·}_")
   moduleName.mangle pre
 
 public def mkModuleInitializationPrefix (phases : IRPhases) : String :=
@@ -167,7 +167,7 @@ public def mkModuleInitializationFunctionName (moduleName : Name) (pkg? : Option
   mkModuleInitializationPrefix phases ++ "initialize_" ++ mkModuleInitializationStem moduleName pkg?
 
 public def mkPackageSymbolPrefix (pkg? : Option PkgId) : String :=
-  pkg?.elim "l_" (s!"lp_{·.mangle}_")
+  pkg?.elim "l_" (s!"lp_{String.Internal.mangle ·}_")
 
 -- assumes `s` has been generated `Name.mangle n ""`
 def Name.demangleAux (s : String) (p₀ : s.Pos) (res : Name)

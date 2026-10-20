@@ -66,10 +66,12 @@ def Subarray.start (xs : Subarray α) : Nat :=
 def Subarray.stop (xs : Subarray α) : Nat :=
   xs.internalRepresentation.stop
 
+set_option linter.defProp false in
 @[always_inline, inline, expose, inherit_doc Internal.SubarrayData.start_le_stop]
 def Subarray.start_le_stop (xs : Subarray α) : xs.start ≤ xs.stop :=
   xs.internalRepresentation.start_le_stop
 
+set_option linter.defProp false in
 @[always_inline, inline, expose, inherit_doc Internal.SubarrayData.stop_le_array_size]
 def Subarray.stop_le_array_size (xs : Subarray α) : xs.stop ≤ xs.array.size :=
   xs.internalRepresentation.stop_le_array_size

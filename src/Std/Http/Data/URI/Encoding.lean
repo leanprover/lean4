@@ -31,7 +31,7 @@ namespace Std.Http.URI
 
 set_option linter.all true
 
-open Internal Char
+open Http.Internal Char
 
 /--
 Checks if a byte is a valid character in a percent-encoded URI component. Valid characters are
@@ -159,9 +159,9 @@ private theorem hexDigit_isHexDigit (h₀ : x < 16) : isHexDigitByte (hexDigit x
     have h₄ : x.toNat - 10 + 65 < 256 := by omega
 
     refine Or.inr ⟨?_, ?_⟩
-    · simpa [UInt8.ofNat_sub (by omega : 10 ≤ x.toNat)] using
+    · simpa [UInt8.ofNat_sub (by omega : 10 ≤ x.toNat)] using!
         UInt8.ofNat_le_iff_le (by decide : 65 < 256) h₄ |>.mpr h₃
-    · simpa [UInt8.ofNat_add, UInt8.ofNat_sub (by omega : 10 ≤ x.toNat)] using
+    · simpa [UInt8.ofNat_add, UInt8.ofNat_sub (by omega : 10 ≤ x.toNat)] using!
         UInt8.ofNat_le_iff_le h₄ (by decide : 70 < 256) |>.mpr h₅
 
 private theorem isHexDigit_isAscii {c : UInt8} (h : isHexDigitByte c) : isAsciiByte c := by
@@ -215,8 +215,7 @@ private theorem ByteArray.toList_toByteArray (ba : ByteArray) :
   | mk data =>
     simp [List.toByteArray]
     apply ByteArray.ext
-    simp [List.toByteArray_loop_eq, ByteArray.empty]
-    decide
+    simp [List.toByteArray_loop_eq]
 
 theorem isValidUTF8_of_isAsciiByte (ba : ByteArray) (s : ba.data.all isAsciiByte) : ByteArray.IsValidUTF8 ba := by
   refine ⟨ba.data.toList.map Char.ofUInt8, ?_⟩
@@ -256,7 +255,7 @@ namespace EncodedString
 Creates an empty encoded string.
 -/
 def empty : EncodedString r :=
-  ⟨.empty, by simp []; exact fun i h => by contradiction⟩
+  ⟨.empty, by simp⟩
 
 instance : Inhabited (EncodedString r) where
   default := EncodedString.empty
@@ -409,7 +408,7 @@ namespace EncodedQueryString
 Creates an empty encoded query string.
 -/
 def empty : EncodedQueryString r :=
-  ⟨.empty, by simp; intro a h; contradiction⟩
+  ⟨.empty, by simp⟩
 
 instance : Inhabited (EncodedQueryString r) where
   default := EncodedQueryString.empty

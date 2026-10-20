@@ -114,10 +114,13 @@ theorem toArray_toList_rco {m n : Int} :
     (m...n).toList.toArray = (m...n).toArray := by
   simp
 
-theorem toList_rco_eq_if {m n : Int} :
+theorem toList_rco_eq_ite {m n : Int} :
     (m...n).toList = if m < n then m :: ((m + 1)...n).toList else [] := by
-  rw [Rco.toList_eq_if_roo]
+  rw [Rco.toList_eq_ite_roo]
   simp [Roo.toList_eq_match_rco]
+
+@[deprecated Int.toList_rco_eq_ite (since := "2026-07-21")]
+theorem toList_rco_eq_if {m : Int} {n : Int} : (m...n).toList = if m < n then m :: ((m + 1)...n).toList else [] := Int.toList_rco_eq_ite
 
 theorem toList_rco_succ_succ {m n : Int} :
     ((m+1)...(n+1)).toList = (m...n).toList.map (· + 1) := by
@@ -125,13 +128,13 @@ theorem toList_rco_succ_succ {m n : Int} :
 
 theorem toList_rco_succ_right_eq_cons_map {m n : Int} (h : m ≤ n) :
     (m...(n + 1)).toList = m :: (m...n).toList.map (· + 1) := by
-  rw [Rco.toList_eq_if_roo, if_pos (Int.le_iff_lt_add_one.mp h), Roo.toList_eq_match_rco]
+  rw [Rco.toList_eq_ite_roo, ite_eq_left (Int.le_iff_lt_add_one.mp h), Roo.toList_eq_match_rco]
   simp [toList_rco_succ_succ]
 
 @[simp]
 theorem toList_rco_eq_nil_iff {m n : Int} :
     (m...n).toList = [] ↔ n ≤ m := by
-  simp [Rco.toList_eq_if_roo]
+  simp [Rco.toList_eq_ite_roo]
 
 theorem toList_rco_ne_nil_iff {m n : Int} :
     (m...n).toList ≠ [] ↔ m < n := by
@@ -145,7 +148,7 @@ theorem toList_rco_eq_nil {m n : Int} (h : n ≤ m) :
 @[simp]
 theorem toList_rco_eq_singleton_iff {m n : Int} :
     (m...n).toList = [k] ↔ n = m + 1 ∧ m = k := by
-  rw [toList_rco_eq_if]
+  rw [toList_rco_eq_ite]
   split <;> (simp; omega)
 
 @[simp 1001]
@@ -156,7 +159,7 @@ theorem toList_rco_eq_singleton {m n : Int} (h : n = m + 1) :
 @[simp]
 theorem toList_rco_eq_cons_iff {m n a : Int} :
     (m...n).toList = a :: xs ↔ m = a ∧ m < n ∧ ((m + 1)...n).toList = xs := by
-  rw [Rco.toList_eq_if_roo]
+  rw [Rco.toList_eq_ite_roo]
   split <;> simp +contextual [*, Roo.toList_eq_match_rco, eq_comm]
 
 theorem toList_rco_eq_cons {m n : Int} (h : m < n) :
@@ -191,11 +194,14 @@ theorem toList_rco_eq_append {m n : Int} (h : m < n) :
   rw [show n = n - 1 + 1 by omega, toList_rco_succ_right_eq_append (by omega)]
   simp
 
-theorem toList_rco_eq_if_append {m n : Int} :
+theorem toList_rco_eq_ite_append {m n : Int} :
     (m...n).toList = if m < n then (m...(n - 1)).toList ++ [n - 1] else [] := by
   split
   · simp only [toList_rco_eq_append, *]
   · simp; omega
+
+@[deprecated Int.toList_rco_eq_ite_append (since := "2026-07-21")]
+theorem toList_rco_eq_if_append {m : Int} {n : Int} : (m...n).toList = if m < n then (m...n - 1).toList ++ [n - 1] else [] := Int.toList_rco_eq_ite_append
 
 theorem toList_rco_add_add_eq_append {m : Int} {n k : Nat} :
     (m...(m + n + k)).toList = (m...(m + n)).toList ++ ((m + n)...(m + n + k)).toList := by
@@ -288,10 +294,13 @@ theorem getD_toList_rco_eq_fallback {m n fallback : Int} {i : Nat} (h : (n - m).
     (m...n).toList.getD i fallback = fallback := by
   simp [h]
 
-theorem toArray_rco_eq_if {m n : Int} :
+theorem toArray_rco_eq_ite {m n : Int} :
     (m...n).toArray = if m < n then #[m] ++ ((m + 1)...n).toArray else #[] := by
-  rw [Rco.toArray_eq_if_roo]
+  rw [Rco.toArray_eq_ite_roo]
   simp [Roo.toArray_eq_match_rco]
+
+@[deprecated Int.toArray_rco_eq_ite (since := "2026-07-21")]
+theorem toArray_rco_eq_if {m : Int} {n : Int} : (m...n).toArray = if m < n then #[m] ++ ((m + 1)...n).toArray else #[] := Int.toArray_rco_eq_ite
 
 theorem toArray_rco_succ_succ {m n : Int} :
     ((m+1)...(n+1)).toArray = (m...n).toArray.map (· + 1) := by
@@ -299,13 +308,13 @@ theorem toArray_rco_succ_succ {m n : Int} :
 
 theorem toArray_rco_succ_right_eq_append_map {m n : Int} (h : m ≤ n) :
     (m...(n + 1)).toArray = #[m] ++ (m...n).toArray.map (· + 1) := by
-  rw [Rco.toArray_eq_if_roo, if_pos (Int.le_iff_lt_add_one.mp h), Roo.toArray_eq_match_rco]
+  rw [Rco.toArray_eq_ite_roo, ite_eq_left (Int.le_iff_lt_add_one.mp h), Roo.toArray_eq_match_rco]
   simp [toArray_rco_succ_succ]
 
 @[simp]
 theorem toArray_rco_eq_empty_iff {m n : Int} :
     (m...n).toArray = #[] ↔ n ≤ m := by
-  simp [Rco.toArray_eq_if_roo]
+  simp [Rco.toArray_eq_ite_roo]
 
 theorem toArray_rco_ne_empty_iff {m n : Int} :
     (m...n).toArray ≠ #[] ↔ m < n := by
@@ -319,7 +328,7 @@ theorem toArray_rco_eq_empty {m n : Int} (h : n ≤ m) :
 @[simp]
 theorem toArray_rco_eq_singleton_iff {m n : Int} :
     (m...n).toArray = #[k] ↔ n = m + 1 ∧ m = k := by
-  rw [toArray_rco_eq_if]
+  rw [toArray_rco_eq_ite]
   split <;> (simp; omega)
 
 @[simp 1001]
@@ -360,11 +369,14 @@ theorem toArray_rco_eq_push {m n : Int} (h : m < n) :
   simp only [← toArray_toList_rco, List.toArray_eq_iff, toList_rco_eq_append h]
   simp
 
-theorem toArray_rco_eq_if_push {m n : Int} :
+theorem toArray_rco_eq_ite_push {m n : Int} :
     (m...n).toArray = if m < n then (m...(n - 1)).toArray.push (n - 1) else #[] := by
   simp only [← toArray_toList_rco, List.toArray_eq_iff]
-  rw [toList_rco_eq_if_append, List.push_toArray]
+  rw [toList_rco_eq_ite_append, List.push_toArray]
   split <;> simp
+
+@[deprecated Int.toArray_rco_eq_ite_push (since := "2026-07-21")]
+theorem toArray_rco_eq_if_push {m : Int} {n : Int} : (m...n).toArray = if m < n then (m...n - 1).toArray.push (n - 1) else #[] := Int.toArray_rco_eq_ite_push
 
 theorem toArray_rco_add_add_eq_append {m : Int} {n k : Nat} :
     (m...(m + n + k)).toArray = (m...(m + n)).toArray ++ ((m + n)...(m + n + k)).toArray := by
@@ -537,10 +549,13 @@ theorem toArray_toList_rcc {m n : Int} :
     (m...=n).toList.toArray = (m...=n).toArray :=
   Rcc.toArray_toList
 
-theorem toList_rcc_eq_if {m n : Int} :
+theorem toList_rcc_eq_ite {m n : Int} :
     (m...=n).toList = if m ≤ n then m :: ((m + 1)...=n).toList else [] := by
-  rw [toList_rcc_eq_toList_rco, toList_rcc_eq_toList_rco, toList_rco_eq_if]
+  rw [toList_rcc_eq_toList_rco, toList_rcc_eq_toList_rco, toList_rco_eq_ite]
   split <;> (simp; omega)
+
+@[deprecated Int.toList_rcc_eq_ite (since := "2026-07-21")]
+theorem toList_rcc_eq_if {m : Int} {n : Int} : (m...=n).toList = if m ≤ n then m :: ((m + 1)...=n).toList else [] := Int.toList_rcc_eq_ite
 
 theorem toList_rcc_succ_succ {m n : Int} :
     ((m+1)...=(n+1)).toList = (m...=n).toList.map (· + 1) := by
@@ -684,11 +699,14 @@ theorem toArray_rcc_eq_toArray_rco {m n : Int} :
     (m...=n).toArray = (m...(n + 1)).toArray := by
   simp [← toArray_toList_rcc, toList_rcc_eq_toList_rco]
 
-theorem toArray_rcc_eq_if {m n : Int} :
+theorem toArray_rcc_eq_ite {m n : Int} :
     (m...=n).toArray = if m ≤ n then #[m] ++ ((m + 1)...=n).toArray else #[] := by
   simp only [← toArray_toList_rcc, List.toArray_eq_iff]
-  rw [toList_rcc_eq_if]
+  rw [toList_rcc_eq_ite]
   split <;> simp
+
+@[deprecated Int.toArray_rcc_eq_ite (since := "2026-07-21")]
+theorem toArray_rcc_eq_if {m : Int} {n : Int} : (m...=n).toArray = if m ≤ n then #[m] ++ ((m + 1)...=n).toArray else #[] := Int.toArray_rcc_eq_ite
 
 theorem toArray_rcc_succ_succ {m n : Int} :
     ((m+1)...=(n+1)).toArray = (m...=n).toArray.map (· + 1) := by
@@ -917,10 +935,13 @@ theorem toArray_toList_roo {m n : Int} :
     (m<...n).toList.toArray = (m<...n).toArray :=
   Roo.toArray_toList
 
-theorem toList_roo_eq_if {m n : Int} :
+theorem toList_roo_eq_ite {m n : Int} :
     (m<...n).toList = if m + 1 < n then (m + 1) :: ((m + 1)<...n).toList else [] := by
   simp only [toList_roo_eq_toList_rco]
-  rw [toList_rco_eq_if]
+  rw [toList_rco_eq_ite]
+
+@[deprecated Int.toList_roo_eq_ite (since := "2026-07-21")]
+theorem toList_roo_eq_if {m : Int} {n : Int} : (m<...n).toList = if m + 1 < n then (m + 1) :: ((m + 1)<...n).toList else [] := Int.toList_roo_eq_ite
 
 theorem toList_roo_succ_succ {m n : Int} :
     ((m+1)<...(n+1)).toList = (m<...n).toList.map (· + 1) := by
@@ -1066,10 +1087,13 @@ theorem toArray_roo_eq_toArray_rco {m n : Int} :
     (m<...n).toArray = ((m + 1)...n).toArray := by
   simp [Roo.toArray_eq_match_rco]
 
-theorem toArray_roo_eq_if {m n : Int} :
+theorem toArray_roo_eq_ite {m n : Int} :
     (m<...n).toArray = if m + 1 < n then #[m + 1] ++ ((m + 1)<...n).toArray else #[] := by
   simp only [toArray_roo_eq_toArray_rco]
-  rw [toArray_rco_eq_if]
+  rw [toArray_rco_eq_ite]
+
+@[deprecated Int.toArray_roo_eq_ite (since := "2026-07-21")]
+theorem toArray_roo_eq_if {m : Int} {n : Int} : (m<...n).toArray = if m + 1 < n then #[m + 1] ++ ((m + 1)<...n).toArray else #[] := Int.toArray_roo_eq_ite
 
 theorem toArray_roo_succ_succ {m n : Int} :
     ((m+1)<...(n+1)).toArray = (m<...n).toArray.map (· + 1) := by
@@ -1304,10 +1328,13 @@ theorem toArray_toList_roc {m n : Int} :
     (m<...=n).toList.toArray = (m<...=n).toArray :=
   Roc.toArray_toList
 
-theorem toList_roc_eq_if {m n : Int} :
+theorem toList_roc_eq_ite {m n : Int} :
     (m<...=n).toList = if m + 1 ≤ n then (m + 1) :: ((m + 1)<...=n).toList else [] := by
-  rw [toList_roc_eq_toList_rco, toList_roc_eq_toList_rco, toList_rco_eq_if]
+  rw [toList_roc_eq_toList_rco, toList_roc_eq_toList_rco, toList_rco_eq_ite]
   split <;> (simp; omega)
+
+@[deprecated Int.toList_roc_eq_ite (since := "2026-07-21")]
+theorem toList_roc_eq_if {m : Int} {n : Int} : (m<...=n).toList = if m + 1 ≤ n then (m + 1) :: ((m + 1)<...=n).toList else [] := Int.toList_roc_eq_ite
 
 theorem toList_roc_succ_succ {m n : Int} :
     ((m+1)<...=(n+1)).toList = (m<...=n).toList.map (· + 1) := by
@@ -1468,10 +1495,13 @@ theorem toArray_roc_eq_toArray_rco {m n : Int} :
     (m<...=n).toArray = ((m + 1)...(n + 1)).toArray := by
   rw [← toArray_toList_roc, toList_roc_eq_toList_rco, toArray_toList_rco]
 
-theorem toArray_roc_eq_if {m n : Int} :
+theorem toArray_roc_eq_ite {m n : Int} :
     (m<...=n).toArray = if m + 1 ≤ n then #[m + 1] ++ ((m + 1)<...=n).toArray else #[] := by
-  rw [toArray_roc_eq_toArray_rco, toArray_roc_eq_toArray_rco, toArray_rco_eq_if]
+  rw [toArray_roc_eq_toArray_rco, toArray_roc_eq_toArray_rco, toArray_rco_eq_ite]
   split <;> (simp; omega)
+
+@[deprecated Int.toArray_roc_eq_ite (since := "2026-07-21")]
+theorem toArray_roc_eq_if {m : Int} {n : Int} : (m<...=n).toArray = if m + 1 ≤ n then #[m + 1] ++ ((m + 1)<...=n).toArray else #[] := Int.toArray_roc_eq_ite
 
 theorem toArray_roc_succ_succ {m n : Int} :
     ((m+1)<...=(n+1)).toArray = (m<...=n).toArray.map (· + 1) := by

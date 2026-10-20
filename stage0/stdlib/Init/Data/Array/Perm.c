@@ -102,6 +102,8 @@ static const lean_ctor_object l_Array___aux__Init__Data__Array__Perm______unexpa
 static const lean_object* l_Array___aux__Init__Data__Array__Perm______unexpand__Array__Perm__1___closed__1 = (const lean_object*)&l_Array___aux__Init__Data__Array__Perm______unexpand__Array__Perm__1___closed__1_value;
 LEAN_EXPORT lean_object* l_Array___aux__Init__Data__Array__Perm______unexpand__Array__Perm__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array___aux__Init__Data__Array__Perm______unexpand__Array__Perm__1___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Array_instTransPerm___redArg();
+LEAN_EXPORT lean_object* l_Array_instTransPerm___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Array_instTransPerm(lean_object*);
 static lean_object* _init_l_Array___aux__Init__Data__Array__Perm______macroRules__Array__term___x7e____1___closed__6(void){
 _start:
@@ -266,12 +268,28 @@ lean_dec(v_a_130_);
 return v_res_132_;
 }
 }
-LEAN_EXPORT lean_object* l_Array_instTransPerm(lean_object* v_00_u03b1_133_){
+LEAN_EXPORT lean_object* l_Array_instTransPerm___redArg(){
 _start:
 {
 lean_object* v___x_134_; 
 v___x_134_ = lean_box(0);
 return v___x_134_;
+}
+}
+LEAN_EXPORT lean_object* l_Array_instTransPerm___redArg___boxed(lean_object* v___dummy_135_){
+_start:
+{
+lean_object* v_res_136_; 
+v_res_136_ = l_Array_instTransPerm___redArg();
+return v_res_136_;
+}
+}
+LEAN_EXPORT lean_object* l_Array_instTransPerm(lean_object* v_00_u03b1_137_){
+_start:
+{
+lean_object* v___x_138_; 
+v___x_138_ = lean_box(0);
+return v___x_138_;
 }
 }
 lean_object* runtime_initialize_Init_Data_Array_Basic(uint8_t builtin);
@@ -281,11 +299,13 @@ lean_object* runtime_initialize_Init_Data_List_Nat_Perm(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_List_Nat_TakeDrop(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_List_Perm(uint8_t builtin);
 lean_object* runtime_initialize_Init_Omega(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Init_Data_Array_Perm(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Init_Data_Array_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

@@ -16,6 +16,8 @@ You will be given the release notes file for a Lean version (e.g. `v4.30.0`). Th
 
 **Version:** Ask the user which version to write highlights for. Do not assume a version — the user must specify it explicitly (e.g. `v4.30.0`).
 
+**Release candidates are normal.** The release notes file is typically a release candidate (its title may read e.g. `Lean 4.31.0-rc2` and it may contain a `:::warn ... release candidate ...:::` admonition). This is expected — write the highlights as usual against the rc content. Do not treat the rc warning as a blocker, and leave that admonition in place.
+
 The release notes file already contains:
 - A statistics paragraph ("For this release, N changes landed...")
 - Detailed per-category sections (Language, Library, Tactics, Lake, etc.) with one bullet per PR
@@ -27,7 +29,9 @@ Your job is to write a `# Highlights` section to insert between the statistics p
 ### Step 1: Gather context
 
 1. Read the full release notes file carefully.
-2. **Fetch and read ALL PR descriptions** for every PR mentioned in the release notes for the *current* release — no exceptions, no sampling. Use `gh pr view NNNNN --repo leanprover/lean4 --json body` for each one. This includes cross-referenced PRs. Only read the current release's notes file — do NOT also read or fetch PRs from previous releases' notes files. Do not skip PRs that look minor from their one-line entry; the PR description is often the only way to discover that a change is significant. Batch these calls in parallel where possible. This is essential because:
+2. **Fetch and read ALL PR descriptions** for every PR mentioned in the release notes for the *current* release — **no exceptions, no sampling, no "I already have enough to write the highlights."** This is a MANDATORY, NON-NEGOTIABLE step: even if you believe you have identified the flagship features after reading a subset, you MUST still fetch every remaining PR before writing, because a terse one-line entry is often the *only* surface signal for a change whose PR description reveals it to be highlight-worthy. Skipping any PR is a process failure even if the final highlights happen to come out fine.
+
+   **Mechanize the sweep so you cannot miss any.** First extract the complete, deduplicated list of PR numbers from the *current* release notes file (e.g. `grep -oE 'pull/[0-9]+' Manual/Releases/vX_Y_Z.lean | grep -oE '[0-9]+' | sort -un`), count them, then fetch every one of them in batches with `gh pr view NNNNN --repo leanprover/lean4 --json title,body`. After fetching, confirm the number of PRs you actually read equals the count from the file. Only read the current release's notes file — do NOT also read or fetch PRs from previous releases' notes files. Batch these calls in parallel where possible (a shell `for` loop over the extracted numbers is the simplest way to guarantee coverage). This is essential because:
    - PR descriptions often contain examples, motivation, and context not present in the one-line release note entry.
    - Long, human-written PR descriptions are a strong signal that the change is important and highlight-worthy.
    - **Caveat**: If a PR description appears to be AI-generated (signed by Claude, or recognizable AI style with generic phrasing), do NOT treat length as a signal of importance. AI writes detailed descriptions even for minor fixes.

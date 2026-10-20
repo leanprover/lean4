@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.String.Lemmas.Pattern.Split.Pred
-// Imports: public import Init.Data.String.Slice public import Init.Data.String.Search public import Init.Data.List.SplitOn.Basic public import Init.Data.String.Lemmas.Pattern.Split.Basic public import Init.Data.String.Lemmas.Pattern.Pred import Init.Data.String.Termination import all Init.Data.String.Lemmas.Pattern.Split.Basic import Init.Data.Order.Lemmas import Init.Data.Iterators.Lemmas.Combinators.FilterMap import Init.Data.String.Lemmas.Pattern.Split.Basic import Init.Data.String.Lemmas.Pattern.Pred import Init.ByCases import Init.Data.String.OrderInstances import Init.Data.List.SplitOn.Lemmas import Init.Data.String.Lemmas.Order
+// Imports: public import Init.Data.String.Slice.Pattern public import Init.Data.String.Search public import Init.Data.List.SplitOn.Basic public import Init.Data.String.Lemmas.Pattern.Split.Basic public import Init.Data.String.Lemmas.Pattern.Pred import Init.Data.String.Termination import all Init.Data.String.Lemmas.Pattern.Split.Basic import Init.Data.Order.Lemmas import Init.Data.Iterators.Lemmas.Combinators.FilterMap import Init.Data.String.Lemmas.Pattern.Split.Basic import Init.Data.String.Lemmas.Pattern.Pred import Init.ByCases import Init.Data.String.OrderInstances import Init.Data.List.SplitOn.Lemmas import Init.Data.String.Lemmas.Order
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -32,7 +32,7 @@ lean_object* v_val_5_; lean_object* v___x_6_;
 lean_dec(v_h__2_3_);
 v_val_5_ = lean_ctor_get(v_x_1_, 0);
 lean_inc(v_val_5_);
-lean_dec_ref(v_x_1_);
+lean_dec_ref_known(v_x_1_, 1);
 v___x_6_ = lean_apply_2(v_h__1_2_, v_val_5_, lean_box(0));
 return v___x_6_;
 }
@@ -54,7 +54,7 @@ lean_object* v_val_13_; lean_object* v___x_14_;
 lean_dec(v_h__2_11_);
 v_val_13_ = lean_ctor_get(v_x_9_, 0);
 lean_inc(v_val_13_);
-lean_dec_ref(v_x_9_);
+lean_dec_ref_known(v_x_9_, 1);
 v___x_14_ = lean_apply_2(v_h__1_10_, v_val_13_, lean_box(0));
 return v___x_14_;
 }
@@ -69,7 +69,7 @@ lean_dec_ref(v_s_15_);
 return v_res_20_;
 }
 }
-lean_object* runtime_initialize_Init_Data_String_Slice(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_String_Slice_Pattern(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_String_Search(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_List_SplitOn_Basic(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_String_Lemmas_Pattern_Split_Basic(uint8_t builtin);
@@ -84,12 +84,14 @@ lean_object* runtime_initialize_Init_ByCases(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_String_OrderInstances(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_List_SplitOn_Lemmas(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_String_Lemmas_Order(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Init_Data_String_Lemmas_Pattern_Split_Pred(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
-res = runtime_initialize_Init_Data_String_Slice(builtin);
+lean_initialize_runtime_module();
+res = runtime_initialize_Init_Data_String_Slice_Pattern(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Init_Data_String_Search(builtin);
@@ -143,7 +145,7 @@ if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_meta_initialized = true;
 return lean_io_result_mk_ok(lean_box(0));
 }
-lean_object* initialize_Init_Data_String_Slice(uint8_t builtin);
+lean_object* initialize_Init_Data_String_Slice_Pattern(uint8_t builtin);
 lean_object* initialize_Init_Data_String_Search(uint8_t builtin);
 lean_object* initialize_Init_Data_List_SplitOn_Basic(uint8_t builtin);
 lean_object* initialize_Init_Data_String_Lemmas_Pattern_Split_Basic(uint8_t builtin);
@@ -163,7 +165,7 @@ LEAN_EXPORT lean_object* initialize_Init_Data_String_Lemmas_Pattern_Split_Pred(u
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_String_Slice(builtin);
+res = initialize_Init_Data_String_Slice_Pattern(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_String_Search(builtin);

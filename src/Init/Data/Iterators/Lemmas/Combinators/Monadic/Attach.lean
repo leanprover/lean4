@@ -72,6 +72,7 @@ theorem IterM.length_attachWith [Iterator α m β] [Monad m] [Monad n]
     ← map_unattach_toList_attachWith (it := it) (P := P) (hP := hP)]
   simp only [Functor.map_map, List.length_unattach]
 
+set_option linter.defProp false in
 @[deprecated IterM.length_attachWith (since := "2026-01-28")]
 def IterM.count_attachWith := @IterM.length_attachWith
 

@@ -51,15 +51,13 @@ def blastExtractAndExtendBit (aig : AIG α) (target : ExtractAndExtendBitTarget 
 instance : AIG.LawfulVecOperator α ExtractAndExtendBitTarget blastExtractAndExtendBit where
   le_size := by
     intros
-    unfold blastExtractAndExtendBit
-    dsimp only
+    simp only [blastExtractAndExtendBit]
     apply AIG.LawfulVecOperator.le_size_of_le_aig_size (f := blastZeroExtend)
     apply AIG.LawfulVecOperator.le_size_of_le_aig_size (f := blastExtract)
     omega
   decl_eq := by
     intros
-    unfold blastExtractAndExtendBit
-    dsimp only
+    simp only [blastExtractAndExtendBit]
     rw [AIG.LawfulVecOperator.decl_eq (f := blastZeroExtend),
       AIG.LawfulVecOperator.decl_eq (f := blastExtract)]
     apply AIG.LawfulVecOperator.lt_size_of_lt_aig_size

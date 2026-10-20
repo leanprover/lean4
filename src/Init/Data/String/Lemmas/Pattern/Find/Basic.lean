@@ -6,15 +6,16 @@ Authors: Markus Himmel
 module
 
 prelude
-public import Init.Data.String.Slice
+public import Init.Data.String.Slice.Pattern
 public import Init.Data.String.Search
 public import Init.Data.String.Lemmas.Pattern.Basic
-import all Init.Data.String.Slice
+import all Init.Data.String.Slice.Pattern
 import all Init.Data.String.Search
 import Init.Data.Iterators.Lemmas.Consumers.Loop
 import Init.Data.String.Lemmas.Order
 import Init.Data.String.Lemmas.Basic
 import Init.Data.String.OrderInstances
+import Init.Data.Int.OfNat
 import Init.Grind
 
 public section
@@ -32,7 +33,7 @@ theorem Pattern.Model.find?_eq_some_iff {ρ : Type} (pat : ρ) [PatternModel pat
   suffices ∀ (l : List (SearchStep s)) (pos : s.Pos) (hl : IsValidSearchFrom pat pos l) (pos' : s.Pos),
       l.findSome? (fun | .matched s _ => some s | .rejected .. => none) = some pos' ↔
         pos ≤ pos' ∧ MatchesAt pat pos' ∧ ∀ pos'', pos ≤ pos'' → pos'' < pos' → ¬ MatchesAt pat pos'' by
-    simpa using this (ToForwardSearcher.toSearcher pat s).toList s.startPos
+    simpa using! this (ToForwardSearcher.toSearcher pat s).toList s.startPos
       (LawfulToForwardSearcherModel.isValidSearchFrom_toList s) pos
   intro l pos hl pos'
   induction hl with

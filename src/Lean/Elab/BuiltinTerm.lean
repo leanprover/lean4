@@ -157,6 +157,24 @@ private def getMVarFromUserName (ident : Syntax) : MetaM Expr := do
     elabTerm b expectedType?
   | _ => throwUnsupportedSyntax
 
+@[builtin_term_elab «waitForExpectedType»] def elabWaitForExpectedType : TermElab := fun stx expectedType? => do
+  match stx with
+  | `(wait_for_expected_type% $e) =>
+    tryPostponeIfNoneOrMVar expectedType?
+    elabTerm e expectedType?
+  | _ => throwUnsupportedSyntax
+
+/-- Returns `true` if `stx` is a `by` expression with an empty tactic body
+(not a parse error producing `.missing`).
+The structure is: `node byTactic [atom "by", node tacticSeq [node tacticSeq1Indented [node null []]]]` -/
+def isEmptyByBlock (stx : Syntax) : Bool :=
+  stx.getNumArgs == 2 &&
+  stx[1].getNumArgs >= 1 &&
+  stx[1][0].isOfKind ``Lean.Parser.Tactic.tacticSeq1Indented &&
+  stx[1][0].getNumArgs >= 1 &&
+  stx[1][0][0].getNumArgs == 0 &&
+  !stx[1][0][0].isMissing
+
 @[builtin_term_elab byTactic] def elabByTactic : TermElab := fun stx expectedType? => do
   match expectedType? with
   | some expectedType =>
@@ -356,7 +374,12 @@ private def resynthInstImplicitArgs (type : Expr) : TermElabM Expr := do
     -- Wrap instance so its type matches the expected type exactly.
     let logCompileErrors := !(← read).isNoncomputableSection && !(← read).declName?.any (Lean.isNoncomputable (← getEnv))
     let isMeta := (← read).declName?.any (isMarkedMeta (← getEnv))
+    -- The auxiliary definitions `wrapInstance` introduces bridge `type` and `expectedType`, so their
+    -- bodies are only well-typed when the definitions whose unfolding the bridge requires are
+    -- exposed (#14147).
+    let exposedDefEq ← withExporting <| isDefEqGuarded type expectedType
     wrapInstance inst expectedType (logCompileErrors := logCompileErrors) (isMeta := isMeta)
+      (exposeAux := exposedDefEq)
   else
     pure inst
   ensureHasType expectedType? inst
@@ -385,7 +408,7 @@ private def resynthInstImplicitArgs (type : Expr) : TermElabM Expr := do
     pushScope
     let openDecls ← elabOpenDecl decl
     withTheReader Core.Context (fun ctx => { ctx with openDecls := openDecls }) do
-      elabTerm e expectedType?
+      withSaveInfoContext <| elabTerm e expectedType?
   finally
     popScope
 
@@ -394,7 +417,7 @@ private def resynthInstImplicitArgs (type : Expr) : TermElabM Expr := do
   withRef stx[1] <| Elab.checkDeprecatedOption (stx[1].getId.eraseMacroScopes) decl
   withOptions (fun _ => options) do
     try
-      elabTerm stx[5] expectedType?
+      withSaveInfoContext <| elabTerm stx[5] expectedType?
     finally
       if stx[1].getId == `diagnostics then
         reportDiag

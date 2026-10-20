@@ -6,6 +6,7 @@
 
 /.github/ @kim-em
 /RELEASES.md @kim-em
+/script/release @Garmelon
 /src/kernel/ @leodemoura
 /src/library/compiler/ @hargoniX
 /src/lake/ @tydeu
@@ -52,3 +53,5 @@
 /src/Init/Data/Slice @datokrat
 /src/Init/Data/Iterators @datokrat
 /src/Std/Data/Iterators @datokrat
+/src/lake/Lake/Check/ @hargoniX
+/src/lake/Lake/CLI/Check.lean @hargoniX

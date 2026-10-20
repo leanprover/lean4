@@ -158,7 +158,7 @@ theorem idRun_forIn'_yield_eq_foldl
     {xs : Vector α n} (g : α → β) (f : (b : β) → b ∈ xs.map g → γ → m (ForInStep γ)) :
     forIn' (xs.map g) init f = forIn' xs init fun a h y => f (g a) (mem_map_of_mem h) y := by
   rcases xs with ⟨xs, rfl⟩
-  simp
+  simp [map_mk, forIn'_mk, Array.forIn'_map]
 
 /--
 We can express a for loop over a vector as a fold,

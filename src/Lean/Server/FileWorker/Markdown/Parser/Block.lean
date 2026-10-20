@@ -496,7 +496,7 @@ that only mutate the in-flight state fall through to the next.
 /--
 The state that flows through the late (post-close) steps of `processLine`.
 -/
-private structure LineState where
+structure LineState where
   /-- The in-progress document. -/
   z : BlockZipper
   /-- The cursor that advances through the block-inducing prefixes of the line. -/
@@ -508,7 +508,7 @@ private structure LineState where
 The state during the early container-continuation phase that tracks the length of the suffix of the
 zipper's spine (that is, parent blocks) that are continued on this line.
 -/
-private structure ContState extends LineState where
+structure ContState extends LineState where
   /-- The number of inner spine frames that continued on this line. -/
   matched : Nat
   /-- The matched counter is always a valid prefix length of the spine. -/
@@ -519,17 +519,17 @@ The monad for line processing after containers that need closing have been close
 
 The “exception” channel carries the line's final `BlockZipper`, and is used for early return.
 -/
-private abbrev ProcessM := EStateM BlockZipper LineState
+abbrev ProcessM := EStateM BlockZipper LineState
 
 /--
 The monad for determining which containers should continue for a given line.
 -/
-private abbrev ContainerM := EStateM BlockZipper ContState
+abbrev ContainerM := EStateM BlockZipper ContState
 
 /--
 Lifts a `ContainerM` action to `ProcessM`.
 -/
-private def runContainerM (act : ContainerM Unit) : ProcessM Nat := do
+def runContainerM (act : ContainerM Unit) : ProcessM Nat := do
   let s ← get
   let init : ContState :=
     { s with matched := 0, matched_le := Nat.zero_le _ }
@@ -543,7 +543,7 @@ zipper in place (e.g. pushing markers into blockquote frames) and writes `matche
 inner spine frames that continued, so subsequent steps can close the rest. The document root
 continues implicitly and is not counted.
 -/
-private def continueContainers : ContainerM Unit := do
+def continueContainers : ContainerM Unit := do
   let mut s ← get
   let mut keepWalking := true
   while h : keepWalking ∧ s.matched < s.z.spine.size do
@@ -582,7 +582,7 @@ matched range is being extended on this line, mark the *innermost* enclosing lis
 list items see the blank as part of their nested child's body, not as a separator between their own
 direct children.
 -/
-private def markEnclosingListLoose : ContainerM Unit := do
+def markEnclosingListLoose : ContainerM Unit := do
   let s ← get
   unless s.prevBlank do return
   -- Indices within the matched range live in `Fin s.matched`, and combined
@@ -613,7 +613,7 @@ private def markEnclosingListLoose : ContainerM Unit := do
 /--
 Checks whether to upgrade the preceding block to a Setext header.
 -/
-private def trySetextHeading : ContainerM Unit := do
+def trySetextHeading : ContainerM Unit := do
   let s ← get
   unless s.z.spine.size == s.matched do return
   let some (.paragraph lines) := s.z.openLeaf? | return
@@ -627,7 +627,7 @@ Lazy paragraph continuation: if some containers failed to continue but we have a
 the line is not an interrupt (i.e. doesn't open some other kind of block), the line lazily continues
 the paragraph in its deepest open context.
 -/
-private def tryLazyContinuation : ContainerM Unit := do
+def tryLazyContinuation : ContainerM Unit := do
   let s ← get
   unless s.z.spine.size > s.matched do return
   let some (.paragraph _) := s.z.openLeaf? | return
@@ -639,7 +639,7 @@ Closes any spine containers that did not continue on this line. Takes the `match
 by the container continuation phase as an argument and closes the suffix of the parents that are
 indicated.
 -/
-private def closeNonContinuingContainers (matched : Nat) : ProcessM Unit := do
+def closeNonContinuingContainers (matched : Nat) : ProcessM Unit := do
   let s ← get
   let mut z := s.z
   while z.spine.size > matched do
@@ -650,7 +650,7 @@ private def closeNonContinuingContainers (matched : Nat) : ProcessM Unit := do
 Fenced code consumes lines verbatim until a matching closing fence appears. Either way, this step
 finalizes the line.
 -/
-private def consumeFencedCode : ProcessM Unit := do
+def consumeFencedCode : ProcessM Unit := do
   let s ← get
   let some (.fencedCode info _ _) := s.z.openLeaf? | return
   match matchFenceClose s.c.rest info with
@@ -661,7 +661,7 @@ private def consumeFencedCode : ProcessM Unit := do
 Indented code consumes 4+-indented lines verbatim and holds blank lines provisionally. Any other
 line closes the block and falls through to the remaining steps.
 -/
-private def consumeIndentedCode : ProcessM Unit := do
+def consumeIndentedCode : ProcessM Unit := do
   let s ← get
   let some (.indentedCode _ _) := s.z.openLeaf? | return
   if isBlankSlice s.c.rest then
@@ -679,7 +679,7 @@ private def consumeIndentedCode : ProcessM Unit := do
 If the deepest container is a list whose previous item just closed and this line is non-blank
 without a sibling marker, close the list so subsequent content doesn't become a stray child.
 -/
-private def closeFinishedSiblingList : ProcessM Unit := do
+def closeFinishedSiblingList : ProcessM Unit := do
   let s ← get
   let some (.list _) := s.z.top? | return
   if !isBlankSlice s.c.rest && (matchListMarker s.c).isNone then
@@ -694,7 +694,7 @@ Thematic break has higher precedence than list markers (CommonMark §5.2: `* * *
 break, not a one-item list), so each iteration short-circuits when a thematic break starts at the
 current cursor.
 -/
-private def openContainerPrefixes : ProcessM Bool := do
+def openContainerPrefixes : ProcessM Bool := do
   let mut openedListItemThisLine := false
   let mut keepOpening := true
   while keepOpening do
@@ -743,7 +743,7 @@ private def openContainerPrefixes : ProcessM Bool := do
 /--
 Parses a thematic break after any container prefixes have been consumed.
 -/
-private def tryThematicBreak : ProcessM Unit := do
+def tryThematicBreak : ProcessM Unit := do
   let s ← get
   unless matchThematicBreak s.c do return
   let mut z := s.z
@@ -755,7 +755,7 @@ private def tryThematicBreak : ProcessM Unit := do
 A blank line closes any open paragraph; list/blockquote frames stay open and may close at the next
 non-continuing line.
 -/
-private def tryBlankLine (openedListItemThisLine : Bool) : ProcessM Unit := do
+def tryBlankLine (openedListItemThisLine : Bool) : ProcessM Unit := do
   let s ← get
   unless isBlankSlice s.c.rest do return
   let mut z := s.z.closeLeaf
@@ -775,13 +775,13 @@ private def tryBlankLine (openedListItemThisLine : Bool) : ProcessM Unit := do
   throw { z with lastWasBlank := topIsListLike && !openedListItemThisLine }
 
 /-- Parses an ATX heading -/
-private def tryAtxHeading : ProcessM Unit := do
+def tryAtxHeading : ProcessM Unit := do
   let s ← get
   let some m := matchAtxHeading s.c | return
   throw (s.z.addBlock (.atxHeading m.hashes m.content m.closeHashes))
 
 /-- Parses an opening code fence. -/
-private def tryFencedCodeOpener : ProcessM Unit := do
+def tryFencedCodeOpener : ProcessM Unit := do
   let s ← get
   let some (info, openFence) := matchFenceOpen s.c | return
   throw (s.z.openLeaf (.fencedCode info openFence #[]))
@@ -789,7 +789,7 @@ private def tryFencedCodeOpener : ProcessM Unit := do
 /--
 Parses the start of an indented code block.
 -/
-private def tryIndentedCodeOpener : ProcessM Unit := do
+def tryIndentedCodeOpener : ProcessM Unit := do
   let s ← get
   unless s.z.openLeaf?.isNone do return
   let (_, indent) := countIndentCols s.c
@@ -801,7 +801,7 @@ Starts a new paragraph, or extends the one that's open.
 
 This is the default parser if no others apply.
 -/
-private def emitParagraph : ProcessM Unit := do
+def emitParagraph : ProcessM Unit := do
   let s ← get
   let lineFromCursor : Syntax.Range := s.c.toEol
   match s.z.openLeaf? with

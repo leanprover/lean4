@@ -11,7 +11,7 @@ public import Init.WFTactics
 import Init.ByCases
 import Init.Classical
 import Init.Data.Array.Basic
-import Init.Data.Nat.Linear
+import Init.Data.Nat.Internal.Linear
 
 public section
 

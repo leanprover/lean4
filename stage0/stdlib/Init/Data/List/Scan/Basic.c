@@ -127,7 +127,7 @@ v_head_19_ = lean_ctor_get(v_a_3_, 0);
 lean_inc(v_head_19_);
 v_tail_20_ = lean_ctor_get(v_a_3_, 1);
 lean_inc(v_tail_20_);
-lean_dec_ref(v_a_3_);
+lean_dec_ref_known(v_a_3_, 2);
 lean_inc(v_f_2_);
 lean_inc(v_a_4_);
 v___f_21_ = lean_alloc_closure((void*)(l___private_Init_Data_List_Scan_Basic_0__List_scanAuxM_go___redArg___lam__0), 6, 5);
@@ -311,11 +311,13 @@ return v___x_161_;
 }
 lean_object* runtime_initialize_Init_Data_List_Basic(uint8_t builtin);
 lean_object* runtime_initialize_Init_Control_Id(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Init_Data_List_Scan_Basic(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Init_Data_List_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

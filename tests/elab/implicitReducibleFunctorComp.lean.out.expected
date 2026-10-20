@@ -1,0 +1,5 @@
+implicitReducibleFunctorComp.lean:54:4-54:8: warning: declaration uses `sorry`
+implicitReducibleFunctorComp.lean:60:8-60:16: warning: declaration uses `sorry`
+implicitReducibleFunctorComp.lean:81:4-81:6: warning: declaration uses `sorry`
+implicitReducibleFunctorComp.lean:85:8-85:15: warning: declaration uses `sorry`
+implicitReducibleFunctorComp.lean:91:4-91:9: warning: declaration uses `sorry`

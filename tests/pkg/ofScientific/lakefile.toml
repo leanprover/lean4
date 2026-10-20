@@ -1,0 +1,10 @@
+name = "ParseNumberCheck"
+version = "0.1.0"
+defaultTargets = ["parse-number-check"]
+
+[[lean_lib]]
+name = "ParseNumberCheck"
+
+[[lean_exe]]
+name = "parse-number-check"
+root = "Main"

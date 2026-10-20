@@ -1,1 +1,5 @@
 name = "dep"
+
+[[require]]
+name = "dupDep"
+path = "../dupDep"

@@ -157,7 +157,7 @@ trace: [Compiler.pushProj] size: 14
         | Option.some =>
           let val.11 : tobj := oproj[0] a;
           inc val.11;
-          dec[ref] a;
+          dec[ref][1 objs] a;
           let val.12 : tobj := oproj[0] b;
           jp resetjp.13 _x.14 isShared.15 : tobj :=
             let _x.16 : tobj := Nat.add val.11 val.12;
@@ -251,14 +251,14 @@ trace: [Compiler.pushProj] size: 18
         | Option.some =>
           cases c : tobj
           | Bool.false =>
-            dec[ref] b;
-            dec[ref] a;
+            dec[ref][1 objs] b;
+            dec[ref][1 objs] a;
             let _x.11 : tagged := ctor_0[Option.none];
             return _x.11
           | Bool.true =>
             let val.12 : tobj := oproj[0] a;
             inc val.12;
-            dec[ref] a;
+            dec[ref][1 objs] a;
             let val.13 : tobj := oproj[0] b;
             jp resetjp.14 _x.15 isShared.16 : tobj :=
               let _x.17 : tobj := Nat.add val.12 val.13;

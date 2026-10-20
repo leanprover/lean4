@@ -8,9 +8,9 @@ module
 prelude
 public import Init.Data.String.Lemmas.Pattern.String.Basic
 public import Init.Data.String.Pattern.String
-public import Init.Data.String.Slice
+public import Init.Data.String.Slice.Pattern
 import all Init.Data.String.Pattern.String
-import all Init.Data.String.Slice
+import all Init.Data.String.Slice.Pattern
 import Init.Data.String.Lemmas.Pattern.Pred
 import Init.Data.String.Lemmas.Pattern.Memcmp
 import Init.Data.String.Lemmas.Basic
@@ -33,7 +33,7 @@ theorem startsWith_iff {pat s : Slice} : startsWith pat s ↔ ∃ t, s.copy = pa
       rw [h₁] at this
       refine ⟨_, this.eq_append⟩
     rw [Pos.Raw.isValid_iff_isValidUTF8_extract_zero]
-    refine ⟨by simpa using h₁, ?_⟩
+    refine ⟨by simpa using! h₁, ?_⟩
     simp only [size_toByteArray] at h₂
     simpa [h₂] using pat.isValidUTF8
   · rintro ⟨t, rfl⟩

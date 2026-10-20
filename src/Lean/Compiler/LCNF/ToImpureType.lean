@@ -8,6 +8,7 @@ module
 prelude
 public import Lean.Compiler.LCNF.Irrelevant
 import Lean.Compiler.LCNF.MonoTypes
+import Lean.Runtime
 import Init.Data.Format.Macro
 
 namespace Lean.Compiler.LCNF
@@ -24,71 +25,105 @@ def impureTypeForEnum (numCtors : Nat) : Expr :=
   else
     ImpureType.tagged
 
-builtin_initialize impureTypeExt : CacheExtension Name Expr ←
-  CacheExtension.register
+/--
+Maps each inductive type to its IR (impure) type representation. Populated eagerly in the type's
+defining module by `setImpureType` (driven from `compileDecls`); consumers read it via
+`nameToImpureType`. Persisted across modules because computing an inductive's impure type walks each
+constructor's field types, which can reference constants from non-transitively (privately) imported
+modules.
+-/
+builtin_initialize impureTypeExt : MapDeclarationExtension Expr ←
+  mkMapDeclarationExtension (asyncMode := .sync)
 
 builtin_initialize impureTrivialStructureInfoExt :
-    CacheExtension Name (Option TrivialStructureInfo) ←
-  CacheExtension.register
+    MapDeclarationExtension (Option TrivialStructureInfo) ←
+  mkMapDeclarationExtension (asyncMode := .sync)
 
 /--
 The idea of this function is the same as in `ToMono`, however the notion of "irrelevancy" has
 changed because we now have the `void` type which can only be erased in impure context and thus at
 earliest at the conversion from mono to impure.
 -/
-public def hasTrivialImpureStructure? (declName : Name) : CoreM (Option TrivialStructureInfo) := do
+def impureIrrelevantType (type : Expr) : MetaM Bool := do
   let isVoidType type := do
     let type ← Meta.whnfD type
     return type matches .proj ``Subtype 0 (.app (.const ``Void.nonemptyType []) _)
-  let irrelevantType type :=
-    Meta.isProp type <||> Meta.isTypeFormerType type <||> isVoidType type
-  Irrelevant.hasTrivialStructure? impureTrivialStructureInfoExt irrelevantType declName
+  Meta.isProp type <||> Meta.isTypeFormerType type <||> isVoidType type
 
+/-- Eagerly computes and persists the impure trivial-structure info of `declName`; see `compileDecls`. -/
+public def setHasTrivialImpureStructure? (declName : Name) : CoreM Unit :=
+  Irrelevant.setHasTrivialStructure? impureTrivialStructureInfoExt impureIrrelevantType declName
+
+public def hasTrivialImpureStructure? (declName : Name) : CoreM (Option TrivialStructureInfo) :=
+  Irrelevant.hasTrivialStructure? impureTrivialStructureInfoExt declName
+
+/--
+IR representations that are fixed independently of the environment: builtin scalar types and the
+compiler's pseudo-constants (`lcErased`/`lcVoid`, which are not inductives). These never need to be
+persisted in `impureTypeExt`.
+-/
+def builtinImpureType? : Name → Option Expr
+  | ``UInt8 => some ImpureType.uint8
+  | ``UInt16 => some ImpureType.uint16
+  | ``UInt32 => some ImpureType.uint32
+  | ``UInt64 => some ImpureType.uint64
+  | ``USize => some ImpureType.usize
+  | ``Float => some ImpureType.float
+  | ``Float32 => some ImpureType.float32
+  | ``lcErased => some ImpureType.erased
+  -- `Int` is specified as an inductive type with two constructors that have relevant arguments,
+  -- but it has the same runtime representation as `Nat` and thus needs to be special-cased here.
+  | ``Int => some ImpureType.tobject
+  | ``lcVoid => some ImpureType.void
+  | _ => none
+
+/--
+Computes the IR (impure) type of `name` from scratch by inspecting its constructors. For inductives
+this walks the constructor field types, so it must run in the defining module, where those types
+(including private ones) are accessible.
+-/
+def computeImpureType (name : Name) : CoreM Expr := do
+  if let some type := builtinImpureType? name then return type
+  let env ← Lean.getEnv
+  let some (.inductInfo inductiveVal) := env.find? name | return ImpureType.tobject
+  let ctorNames := inductiveVal.ctors
+  let numCtors := ctorNames.length
+  let mut numScalarCtors := 0
+  for ctorName in ctorNames do
+    let some (.ctorInfo ctorInfo) := env.find? ctorName | unreachable!
+    let hasRelevantField ← Meta.MetaM.run' <|
+                           Meta.forallTelescope ctorInfo.type fun params _ => do
+      for field in params[ctorInfo.numParams...*] do
+        let fieldType ← field.fvarId!.getType
+        let lcnfFieldType ← toLCNFType fieldType
+        let monoFieldType ← toMonoType lcnfFieldType
+        if !monoFieldType.isErased then return true
+      return false
+    if !hasRelevantField then
+      numScalarCtors := numScalarCtors + 1
+  if numScalarCtors == numCtors then
+    return impureTypeForEnum numCtors
+  else if numScalarCtors == 0 then
+    return ImpureType.object
+  else
+    return ImpureType.tobject
+
+/-- Eagerly computes and persists the IR type of inductive `name`; see `compileDecls`. -/
+public def setImpureType (name : Name) : CoreM Unit := do
+  if (builtinImpureType? name).isSome then return
+  unless (impureTypeExt.find? (← getEnv) name).isSome do
+    modifyEnv (impureTypeExt.insert · name (← computeImpureType name))
+
+/--
+Returns the IR (impure) type representation of `name`. Requires `compileDecls` to have been run for
+inductive type `name`.
+-/
 public def nameToImpureType (name : Name) : CoreM Expr := do
-  match (← impureTypeExt.find? name) with
-  | some type => return type
-  | none =>
-    let type ← fillCache
-    impureTypeExt.insert name type
-    return type
-where fillCache : CoreM Expr := do
-    match name with
-    | ``UInt8 => return ImpureType.uint8
-    | ``UInt16 => return ImpureType.uint16
-    | ``UInt32 => return ImpureType.uint32
-    | ``UInt64 => return ImpureType.uint64
-    | ``USize => return ImpureType.usize
-    | ``Float => return ImpureType.float
-    | ``Float32 => return ImpureType.float32
-    | ``lcErased => return ImpureType.erased
-    -- `Int` is specified as an inductive type with two constructors that have relevant arguments,
-    -- but it has the same runtime representation as `Nat` and thus needs to be special-cased here.
-    | ``Int => return ImpureType.tobject
-    | ``lcVoid => return ImpureType.void
-    | _ =>
-      let env ← Lean.getEnv
-      let some (.inductInfo inductiveVal) := env.find? name | return ImpureType.tobject
-      let ctorNames := inductiveVal.ctors
-      let numCtors := ctorNames.length
-      let mut numScalarCtors := 0
-      for ctorName in ctorNames do
-        let some (.ctorInfo ctorInfo) := env.find? ctorName | unreachable!
-        let hasRelevantField ← Meta.MetaM.run' <|
-                               Meta.forallTelescope ctorInfo.type fun params _ => do
-          for field in params[ctorInfo.numParams...*] do
-            let fieldType ← field.fvarId!.getType
-            let lcnfFieldType ← toLCNFType fieldType
-            let monoFieldType ← toMonoType lcnfFieldType
-            if !monoFieldType.isErased then return true
-          return false
-        if !hasRelevantField then
-          numScalarCtors := numScalarCtors + 1
-      if numScalarCtors == numCtors then
-        return impureTypeForEnum numCtors
-      else if numScalarCtors == 0 then
-        return ImpureType.object
-      else
-        return ImpureType.tobject
+  if let some type := builtinImpureType? name then return type
+  let some (.inductInfo _) := (← getEnv).find? name | return ImpureType.tobject
+  let some type := impureTypeExt.find? (← getEnv) name
+    | throwError "`{name}` was not compiled; `compileDecls` must run on inductive types first"
+  return type
 
 def isAnyProducingType (type : Expr) : Bool :=
   match type with
@@ -129,6 +164,11 @@ public inductive CtorFieldInfo where
   | usize  (i : Nat)
   | scalar (sz : Nat) (offset : Nat) (type : Expr)
   | void
+  /--
+  An object field that does not fit into the constructor object. It is stored at index `i` of the
+  spill object reached by following the field at `spillLinkIdx` `depth` times.
+  -/
+  | spilled (depth : Nat) (i : Nat) (type : Expr)
   deriving Inhabited
 
 namespace CtorFieldInfo
@@ -139,105 +179,165 @@ def format : CtorFieldInfo → Format
   | object i type => f!"obj@{i}:{type}"
   | usize i    => f!"usize@{i}"
   | scalar sz offset type => f!"scalar#{sz}@{offset}:{type}"
+  | spilled depth i type => f!"obj@{depth}.{i}:{type}"
+
+/-- The number of spill objects to follow to reach the field. -/
+public def spillDepth : CtorFieldInfo → Nat
+  | spilled depth .. => depth
+  | _ => 0
 
 instance : ToFormat CtorFieldInfo := ⟨format⟩
 
 end CtorFieldInfo
+
+/--
+The index of the object field holding the next spill object. A constructor with too many object
+fields for one constructor object keeps the first `spillLinkIdx` of them and stores the others in a
+chain of spill objects, each of which holds the next `spillLinkIdx` of them.
+-/
+public def spillLinkIdx : Nat :=
+  maxCtorNumObjs - 1
+
+/-- The number of spill objects of a constructor with `numObjs` object fields. -/
+public def numSpillObjs (numObjs : Nat) : Nat :=
+  if numObjs ≤ maxCtorNumObjs then 0 else (numObjs - 1) / spillLinkIdx
+
+/-- The constructor information of a spill object of constructor `ctorName` with `size` fields. -/
+public def spillCtorInfo (ctorName : Name) (size : Nat) : CtorInfo :=
+  { name := ctorName ++ `spill, cidx := 0, size, usize := 0, ssize := 0 }
 
 public structure CtorLayout where
   ctorInfo : CtorInfo
   fieldInfo : Array CtorFieldInfo
   deriving Inhabited
 
-builtin_initialize ctorLayoutExt : CacheExtension Name CtorLayout ←
-  CacheExtension.register
+builtin_initialize ctorLayoutExt : MapDeclarationExtension CtorLayout ←
+  mkMapDeclarationExtension (asyncMode := .sync)
 
-public def getCtorLayout (ctorName : Name) : CoreM CtorLayout := do
-  match (← ctorLayoutExt.find? ctorName) with
-  | some info => return info
-  | none =>
-    let info ← fillCache
-    ctorLayoutExt.insert ctorName info
-    return info
-where fillCache := do
-  let .some (.ctorInfo ctorInfo) := (← getEnv).find? ctorName | unreachable!
-  Meta.MetaM.run' <| Meta.forallTelescopeReducing ctorInfo.type fun params _ => do
-    let mut fields : Array CtorFieldInfo := .emptyWithCapacity ctorInfo.numFields
-    let mut nextIdx := 0
-    let mut has1BScalar := false
-    let mut has2BScalar := false
-    let mut has4BScalar := false
-    let mut has8BScalar := false
-    for field in params[ctorInfo.numParams...(ctorInfo.numParams + ctorInfo.numFields)] do
-      let fieldType ← field.fvarId!.getType
-      let lcnfFieldType ← LCNF.toLCNFType fieldType
-      let monoFieldType ← LCNF.toMonoType lcnfFieldType
-      let irFieldType ← toImpureType monoFieldType
-      let ctorField ← match irFieldType with
-      | ImpureType.object | ImpureType.tagged | ImpureType.tobject => do
-        let i := nextIdx
-        nextIdx := nextIdx + 1
-        pure <| .object i irFieldType
-      | ImpureType.usize => pure <| .usize 0
-      | ImpureType.erased => .pure <| .erased
-      | ImpureType.void => .pure <| .void
-      | ImpureType.uint8 =>
-        has1BScalar := true
-        .pure <| .scalar 1 0 ImpureType.uint8
-      | ImpureType.uint16 =>
-        has2BScalar := true
-        .pure <| .scalar 2 0 ImpureType.uint16
-      | ImpureType.uint32 =>
-        has4BScalar := true
-        .pure <| .scalar 4 0 ImpureType.uint32
-      | ImpureType.uint64 =>
-        has8BScalar := true
-        .pure <| .scalar 8 0 ImpureType.uint64
-      | ImpureType.float32 =>
-        has4BScalar := true
-        .pure <| .scalar 4 0 ImpureType.float32
-      | ImpureType.float =>
-        has8BScalar := true
-        .pure <| .scalar 8 0 ImpureType.float
-      | _ => unreachable!
-      fields := fields.push ctorField
-    let numObjs := nextIdx
-    ⟨fields, nextIdx⟩ := Id.run <| StateT.run (s := nextIdx) <| fields.mapM fun field => do
-      match field with
-      | .usize _ => do
-        let i ← modifyGet fun nextIdx => (nextIdx, nextIdx + 1)
-        return .usize i
-      | .object .. | .scalar .. | .erased | .void => return field
-    let numUSize := nextIdx - numObjs
-    let adjustScalarsForSize (fields : Array CtorFieldInfo) (size : Nat) (nextOffset : Nat)
-        : Array CtorFieldInfo × Nat :=
-      Id.run <| StateT.run (s := nextOffset) <| fields.mapM fun field => do
+/-- Eagerly computes and persists the layout of constructor `ctorName`; see `compileDecls`. -/
+public def setCtorLayout (ctorName : Name) : CoreM Unit := do
+  unless (ctorLayoutExt.find? (← getEnv) ctorName).isSome do
+    let layout ← fillCache
+    checkCtorLayout layout
+    modifyEnv (ctorLayoutExt.insert · ctorName layout)
+where
+  checkCtorLayout (layout : CtorLayout) : CoreM Unit := do
+    layout.ctorInfo.checkValid
+  fillCache : CoreM CtorLayout := do
+    let .some (.ctorInfo ctorInfo) := (← getEnv).find? ctorName | unreachable!
+    Meta.MetaM.run' <| Meta.forallTelescopeReducing ctorInfo.type fun params _ => do
+      let mut fields : Array CtorFieldInfo := .emptyWithCapacity ctorInfo.numFields
+      let mut nextIdx := 0
+      let mut has1BScalar := false
+      let mut has2BScalar := false
+      let mut has4BScalar := false
+      let mut has8BScalar := false
+      for field in params[ctorInfo.numParams...(ctorInfo.numParams + ctorInfo.numFields)] do
+        let fieldType ← field.fvarId!.getType
+        let lcnfFieldType ← LCNF.toLCNFType fieldType
+        let monoFieldType ← LCNF.toMonoType lcnfFieldType
+        let irFieldType ← toImpureType monoFieldType
+        let ctorField ← match irFieldType with
+        | ImpureType.object | ImpureType.tagged | ImpureType.tobject => do
+          let i := nextIdx
+          nextIdx := nextIdx + 1
+          pure <| .object i irFieldType
+        | ImpureType.usize => pure <| .usize 0
+        | ImpureType.erased => .pure <| .erased
+        | ImpureType.void => .pure <| .void
+        | ImpureType.uint8 =>
+          has1BScalar := true
+          .pure <| .scalar 1 0 ImpureType.uint8
+        | ImpureType.uint16 =>
+          has2BScalar := true
+          .pure <| .scalar 2 0 ImpureType.uint16
+        | ImpureType.uint32 =>
+          has4BScalar := true
+          .pure <| .scalar 4 0 ImpureType.uint32
+        | ImpureType.uint64 =>
+          has8BScalar := true
+          .pure <| .scalar 8 0 ImpureType.uint64
+        | ImpureType.float32 =>
+          has4BScalar := true
+          .pure <| .scalar 4 0 ImpureType.float32
+        | ImpureType.float =>
+          has8BScalar := true
+          .pure <| .scalar 8 0 ImpureType.float
+        | _ => unreachable!
+        fields := fields.push ctorField
+      if numSpillObjs nextIdx > 0 then
+        fields := fields.map fun
+          | .object i type =>
+            let depth := i / spillLinkIdx
+            if depth == 0 then .object i type else .spilled depth (i % spillLinkIdx) type
+          | field => field
+        nextIdx := spillLinkIdx + 1
+      let numObjs := nextIdx
+      ⟨fields, nextIdx⟩ := Id.run <| StateT.run (s := nextIdx) <| fields.mapM fun field => do
         match field with
-        | .scalar sz _ type => do
-          if sz == size then
-            let offset ← modifyGet fun nextOffset => (nextOffset, nextOffset + sz)
-            return .scalar sz offset type
-          else
-            return field
-        | .object .. | .usize _ | .erased | .void => return field
-    let mut nextOffset := 0
-    if has8BScalar then
-      ⟨fields, nextOffset⟩ := adjustScalarsForSize fields 8 nextOffset
-    if has4BScalar then
-      ⟨fields, nextOffset⟩ := adjustScalarsForSize fields 4 nextOffset
-    if has2BScalar then
-      ⟨fields, nextOffset⟩ := adjustScalarsForSize fields 2 nextOffset
-    if has1BScalar then
-      ⟨fields, nextOffset⟩ := adjustScalarsForSize fields 1 nextOffset
-    return {
-      ctorInfo := {
-        name := ctorName
-        cidx := ctorInfo.cidx
-        size := numObjs
-        usize := numUSize
-        ssize := nextOffset
+        | .usize _ => do
+          let i ← modifyGet fun nextIdx => (nextIdx, nextIdx + 1)
+          return .usize i
+        | .object .. | .spilled .. | .scalar .. | .erased | .void => return field
+      let numUSize := nextIdx - numObjs
+      let adjustScalarsForSize (fields : Array CtorFieldInfo) (size : Nat) (nextOffset : Nat)
+          : Array CtorFieldInfo × Nat :=
+        Id.run <| StateT.run (s := nextOffset) <| fields.mapM fun field => do
+          match field with
+          | .scalar sz _ type => do
+            if sz == size then
+              let offset ← modifyGet fun nextOffset => (nextOffset, nextOffset + sz)
+              return .scalar sz offset type
+            else
+              return field
+          | .object .. | .spilled .. | .usize _ | .erased | .void => return field
+      let mut nextOffset := 0
+      if has8BScalar then
+        ⟨fields, nextOffset⟩ := adjustScalarsForSize fields 8 nextOffset
+      if has4BScalar then
+        ⟨fields, nextOffset⟩ := adjustScalarsForSize fields 4 nextOffset
+      if has2BScalar then
+        ⟨fields, nextOffset⟩ := adjustScalarsForSize fields 2 nextOffset
+      if has1BScalar then
+        ⟨fields, nextOffset⟩ := adjustScalarsForSize fields 1 nextOffset
+      return {
+        ctorInfo := {
+          name := ctorName
+          cidx := ctorInfo.cidx
+          size := numObjs
+          usize := numUSize
+          ssize := nextOffset
+        }
+        fieldInfo := fields
       }
-      fieldInfo := fields
-    }
+
+/--
+Returns the runtime layout of constructor `ctorName`. Requires `compileDecls` to have been run for
+its inductive type.
+-/
+public def getCtorLayout (ctorName : Name) : CoreM CtorLayout := do
+  let some info := ctorLayoutExt.find? (← getEnv) ctorName
+    | throwError "`{ctorName}` was not compiled; `compileDecls` must run on inductive types first"
+  return info
+
+/--
+Eagerly computes and persists all cross-module compiler caches for the inductive types `typeNames`
+(and their constructors) in their defining module; run from `compileDecls`.
+-/
+public def compileInductives (typeNames : Array Name) : CoreM Unit := do
+  let inductiveNames ← typeNames.filterM fun n => return (← getEnv).find? n matches some (.inductInfo _)
+  -- The readers are strict, so we fill in dependency phases across the whole (possibly mutual)
+  -- block: each phase only reads caches filled by an earlier phase or an imported module.
+  for typeName in inductiveNames do
+    setHasTrivialStructure? typeName
+    setHasTrivialImpureStructure? typeName
+  for typeName in inductiveNames do  -- reads the trivial-structure info above
+    setOtherDeclMonoType typeName
+    setImpureType typeName
+  for typeName in inductiveNames do  -- reads the type-level info above
+    let .inductInfo iv ← getConstInfo typeName | unreachable!
+    for ctorName in iv.ctors do
+      setOtherDeclMonoType ctorName
+      setCtorLayout ctorName
 
 end Lean.Compiler.LCNF

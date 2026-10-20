@@ -25,7 +25,7 @@ import Init.Omega
 
 This file builds on the UTF-8 verification in `Init.Data.String.Decode` and the preliminary
 material in `Init.Data.String.Defs` to get the theory of strings off the ground. In particular,
-in this file we construct the decoding function `String.data : String → List Char` and show that
+in this file we construct the decoding function `String.toList : String → List Char` and show that
 it is a two-sided inverse to `List.asString : List Char → String`. This in turn enables us to
 understand the validity predicate on positions in terms of lists of characters, which forms the
 basis for all further verification for strings.
@@ -70,11 +70,11 @@ theorem ByteArray.isValidUTF8_utf8Encode_singleton_append_iff {b : ByteArray} {c
 Decodes a sequence of characters from their UTF-8 representation. Returns `none` if the bytes are
 not a sequence of Unicode scalar values.
 -/
-@[inline, expose]
+@[inline, expose, implicit_reducible]
 def ByteArray.utf8Decode? (b : ByteArray) : Option (Array Char) :=
   go 0 #[] (by simp)
 where
-  @[semireducible]
+  @[semireducible, implicit_reducible]
   go (i : Nat) (acc : Array Char) (hi : i ≤ b.size) : Option (Array Char) :=
     if i < b.size then
       match h : utf8DecodeChar? b i with
@@ -218,7 +218,7 @@ theorem List.asString_append {l₁ l₂ : List Char} :
     String.ofList (l₁ ++ l₂) = String.ofList l₁ ++ String.ofList l₂ :=
   String.ofList_append
 
-@[expose]
+@[expose, implicit_reducible]
 def String.Internal.toArray (b : String) : Array Char :=
   b.toByteArray.utf8Decode?.get (b.toByteArray.isSome_utf8Decode?_iff.2 b.isValidUTF8)
 
@@ -226,6 +226,8 @@ def String.Internal.toArray (b : String) : Array Char :=
 theorem String.Internal.toArray_empty : String.Internal.toArray "" = #[] := by
   simp [toArray]
 
+-- The function below is marked noncomputable as it is `csimp`-ed with a theorem in
+-- `Init.Data.String.Csimp`. If you want to use it in core this module needs to be imported.
 /--
 Converts a string to a list of characters.
 
@@ -237,54 +239,13 @@ Examples:
  * `"".toList = []`
  * `"\n".toList = ['\n']`
 -/
-@[extern "lean_string_data", expose]
-def String.toList (s : String) : List Char :=
+@[expose]
+noncomputable def String.toList (s : String) : List Char :=
   (String.Internal.toArray s).toList
-
-/--
-Converts a string to a list of characters.
-
-Since strings are represented as dynamic arrays of bytes containing the string encoded using
-UTF-8, this operation takes time and space linear in the length of the string.
-
-Examples:
- * `"abc".toList = ['a', 'b', 'c']`
- * `"".toList = []`
- * `"\n".toList = ['\n']`
--/
-@[extern "lean_string_data", expose, deprecated String.toList (since := "2025-10-30")]
-def String.data (b : String) : List Char :=
-  (String.Internal.toArray b).toList
 
 @[simp]
 theorem String.toList_empty : "".toList = [] := by
   simp [toList]
-
-@[deprecated String.toList_empty (since := "2025-10-30")]
-theorem String.data_empty : "".toList = [] :=
-  toList_empty
-
-/--
-Returns the length of a string in Unicode code points.
-
-Examples:
-* `"".length = 0`
-* `"abc".length = 3`
-* `"L∃∀N".length = 4`
--/
-@[extern "lean_string_length", expose, tagged_return]
-def String.length (b : @& String) : Nat :=
-  b.toList.length
-
-@[simp]
-theorem String.Internal.size_toArray {b : String} : (String.Internal.toArray b).size = b.length :=
-  (rfl)
-
-@[simp]
-theorem String.length_toList {s : String} : s.toList.length = s.length := (rfl)
-
-@[deprecated String.length_toList (since := "2025-10-30")]
-theorem String.length_data {b : String} : b.toList.length = b.length := (rfl)
 
 private theorem ByteArray.utf8Decode?go_eq_utf8Decode?go_extract {b : ByteArray} {hi : i ≤ b.size} {acc : Array Char} :
     utf8Decode?.go b i acc hi = (utf8Decode?.go (b.extract i b.size) 0 #[] (by simp)).map (acc ++ ·) := by
@@ -293,14 +254,14 @@ private theorem ByteArray.utf8Decode?go_eq_utf8Decode?go_extract {b : ByteArray}
     rw [utf8Decode?.go]
     simp only [size_extract, Nat.le_refl, Nat.min_eq_left, Nat.zero_add, List.push_toArray,
       List.nil_append]
-    rw [if_pos (by omega)]
+    rw [ite_eq_left (by omega)]
     rw [utf8DecodeChar?_eq_utf8DecodeChar?_extract] at h₂
     split <;> simp_all
   | case2 h₁ c h₂ =>
     conv => rhs; rw [utf8Decode?.go]
     simp only [size_extract, Nat.le_refl, Nat.min_eq_left, Nat.zero_add, List.push_toArray,
       List.nil_append]
-    rw [if_pos (by omega)]
+    rw [ite_eq_left (by omega)]
     rw [utf8DecodeChar?_eq_utf8DecodeChar?_extract] at h₂
     split
     · simp_all
@@ -314,17 +275,17 @@ private theorem ByteArray.utf8Decode?go_eq_utf8Decode?go_extract {b : ByteArray}
       have : (fun x => acc ++ x) ∘ (fun x => #[c] ++ x) = fun x => acc.push c ++ x := by funext; simp
       simp [(by omega : i + (b.size - i) = b.size), this]
   | case3 =>
-      rw [utf8Decode?.go]
-      simp only [size_extract, Nat.le_refl, Nat.min_eq_left, Nat.zero_add, List.push_toArray,
-        List.nil_append]
-      rw [if_neg (by omega)]
-      simp
+    rw [utf8Decode?.go]
+    simp only [size_extract, Nat.le_refl, Nat.min_eq_left, Nat.zero_add, List.push_toArray,
+      List.nil_append]
+    rw [ite_eq_right (by omega)]
+    simp
 termination_by b.size - i
 
 theorem ByteArray.utf8Decode?_utf8Encode_singleton_append {l : ByteArray} {c : Char} :
     ([c].utf8Encode ++ l).utf8Decode? = l.utf8Decode?.map (#[c] ++ ·) := by
   rw [utf8Decode?, utf8Decode?.go,
-    if_pos (by simp [List.utf8Encode_singleton]; have := c.utf8Size_pos; omega)]
+    ite_eq_left (by simp [List.utf8Encode_singleton]; have := c.utf8Size_pos; omega)]
   split
   · simp_all [List.utf8DecodeChar?_utf8Encode_singleton_append]
   · rename_i d h
@@ -356,18 +317,10 @@ theorem ByteArray.utf8Encode_get_utf8Decode? {b : ByteArray} {h} :
 theorem String.toList_ofList {l : List Char} : (String.ofList l).toList = l := by
   simp [String.toList, String.Internal.toArray]
 
-@[deprecated String.toList_ofList (since := "2025-10-30")]
-theorem List.data_asString {l : List Char} : (String.ofList l).toList = l :=
-  String.toList_ofList
-
 @[simp]
 theorem String.ofList_toList {s : String} : String.ofList s.toList = s := by
   obtain ⟨l, rfl⟩ := s.exists_eq_ofList
   simp
-
-@[deprecated String.ofList_toList (since := "2025-10-30")]
-theorem String.asString_data {b : String} : String.ofList b.toList = b :=
-  String.ofList_toList
 
 @[simp]
 theorem String.ofList_comp_toList : String.ofList ∘ String.toList = id := by ext; simp
@@ -392,41 +345,21 @@ theorem List.asString_inj {l₁ l₂ : List Char} : String.ofList l₁ = String.
 theorem String.toList_injective {s₁ s₂ : String} (h : s₁.toList = s₂.toList) : s₁ = s₂ := by
   simpa using congrArg String.ofList h
 
-@[deprecated String.toList_injective (since := "2025-10-30")]
-theorem String.data_injective {s₁ s₂ : String} (h : s₁.toList = s₂.toList) : s₁ = s₂ :=
-  String.toList_injective h
-
 theorem String.toList_inj {s₁ s₂ : String} : s₁.toList = s₂.toList ↔ s₁ = s₂ :=
   ⟨toList_injective, (· ▸ rfl)⟩
-
-@[deprecated String.toList_inj (since := "2025-10-30")]
-theorem String.data_inj {s₁ s₂ : String} : s₁.toList = s₂.toList ↔ s₁ = s₂ :=
-  String.toList_inj
 
 @[simp]
 theorem String.toList_append {s t : String} : (s ++ t).toList = s.toList ++ t.toList := by
   simp [← String.ofList_inj]
-
-@[deprecated String.toList_append (since := "2025-10-30")]
-theorem String.data_append {l₁ l₂ : String} : (l₁ ++ l₂).toList = l₁.toList ++ l₂.toList :=
-  String.toList_append
 
 @[simp]
 theorem String.utf8Encode_toList {b : String} : b.toList.utf8Encode = b.toByteArray := by
   have := congrArg String.toByteArray (String.ofList_toList (s := b))
   rwa [← String.toByteArray_ofList]
 
-@[deprecated String.utf8Encode_toList (since := "2025-10-30")]
-theorem String.utf8encode_data {b : String} : b.toList.utf8Encode = b.toByteArray :=
-  String.utf8Encode_toList
-
 @[simp]
 theorem String.toList_eq_nil_iff {b : String} : b.toList = [] ↔ b = "" := by
   rw [← String.ofList_inj, ofList_toList, String.ofList_nil]
-
-@[deprecated String.toList_eq_nil_iff (since := "2025-10-30")]
-theorem String.data_eq_nil_iff {b : String} : b.toList = [] ↔ b = "" :=
-  String.toList_eq_nil_iff
 
 @[simp]
 theorem String.ofList_eq_empty_iff {l : List Char} : String.ofList l = "" ↔ l = [] := by
@@ -436,37 +369,9 @@ theorem String.ofList_eq_empty_iff {l : List Char} : String.ofList l = "" ↔ l 
 theorem List.asString_eq_empty_iff {l : List Char} : String.ofList l = "" ↔ l = [] :=
   String.ofList_eq_empty_iff
 
-@[simp]
-theorem String.length_ofList {l : List Char} : (String.ofList l).length = l.length := by
-  rw [← String.length_toList, String.toList_ofList]
-
-@[deprecated String.length_ofList (since := "2025-10-30")]
-theorem List.length_asString {l : List Char} : (String.ofList l).length = l.length :=
-  String.length_ofList
-
 end
 
 namespace String
-
-instance : LT String :=
-  ⟨fun s₁ s₂ => s₁.toList < s₂.toList⟩
-
-@[extern "lean_string_dec_lt"]
-instance decidableLT (s₁ s₂ : @& String) : Decidable (s₁ < s₂) :=
-  List.decidableLT s₁.toList s₂.toList
-
-/--
-Non-strict inequality on strings, typically used via the `≤` operator.
-
-`a ≤ b` is defined to mean `¬ b < a`.
--/
-@[expose, reducible] protected def le (a b : String) : Prop := ¬ b < a
-
-instance : LE String :=
-  ⟨String.le⟩
-
-instance decLE (s₁ s₂ : String) : Decidable (s₁ ≤ s₂) :=
-  inferInstanceAs (Decidable (Not _))
 
 theorem _root_.List.isPrefix_of_utf8Encode_append_eq_utf8Encode {l m : List Char} (b : ByteArray)
     (h : l.utf8Encode ++ b = m.utf8Encode) : l <+: m := by
@@ -498,7 +403,7 @@ theorem Pos.Raw.IsValid.exists {s : String} {p : Pos.Raw} (h : p.IsValid s) :
   apply List.isPrefix_of_utf8Encode_append_eq_utf8Encode (s.toByteArray.extract p.byteIdx s.toByteArray.size)
   rw [← hl, ← hm₁, ← ByteArray.extract_eq_extract_append_extract _ (by simp),
     ByteArray.extract_zero_size]
-  simpa using h.le_rawEndPos
+  simpa using! h.le_rawEndPos
 
 theorem Pos.Raw.IsValid.isValidUTF8_extract_utf8ByteSize {s : String} {p : Pos.Raw} (h : p.IsValid s) :
     ByteArray.IsValidUTF8 (s.toByteArray.extract p.byteIdx s.utf8ByteSize) := by
@@ -531,7 +436,7 @@ theorem Pos.Raw.isValid_ofList {l : List Char} {p : Pos.Raw} :
   rw [isValid_iff_exists_append]
   refine ⟨?_, ?_⟩
   · rintro ⟨t₁, t₂, ht, rfl⟩
-    refine ⟨t₁.length, ?_⟩
+    refine ⟨t₁.toList.length, ?_⟩
     have := congrArg String.toList ht
     simp only [String.toList_ofList, String.toList_append] at this
     simp [this]
@@ -549,11 +454,6 @@ theorem Pos.Raw.isValid_iff_exists_take_toList {s : String} {p : Pos.Raw} :
     p.IsValid s ↔ ∃ i, p.byteIdx = (ofList (s.toList.take i)).utf8ByteSize := by
   obtain ⟨l, rfl⟩ := s.exists_eq_ofList
   simp [isValid_ofList]
-
-@[deprecated Pos.Raw.isValid_iff_exists_take_toList (since := "2025-10-30")]
-theorem Pos.Raw.isValid_iff_exists_take_data {s : String} {p : Pos.Raw} :
-    p.IsValid s ↔ ∃ i, p.byteIdx = (ofList (s.toList.take i)).utf8ByteSize :=
-  Pos.Raw.isValid_iff_exists_take_toList
 
 @[simp]
 theorem Pos.Raw.isValid_singleton {c : Char} {p : Pos.Raw} :
@@ -813,7 +713,7 @@ If `b`'s offset is greater than or equal to that of `e`, then the resulting stri
 
 If possible, prefer `String.slice`, which avoids the allocation.
 -/
-@[extern "lean_string_utf8_extract"]
+@[extern "lean_string_utf8_extract_fast"]
 def extract {s : @& String} (b e : @& s.Pos) : String where
   toByteArray := s.toByteArray.extract b.offset.byteIdx e.offset.byteIdx
   isValidUTF8 := b.isValidUTF8_extract e
@@ -945,7 +845,7 @@ theorem Slice.toByteArray_str_eq {s : Slice} :
   · simp
   · simpa [Pos.Raw.le_iff] using s.endExclusive.isValid.le_rawEndPos
   · simp
-  · simpa [Pos.Raw.le_iff] using s.startInclusive_le_endExclusive
+  · simpa [Pos.Raw.le_iff] using! s.startInclusive_le_endExclusive
 
 theorem Pos.Raw.isValidForSlice_iff_isSome_utf8DecodeChar? {s : Slice} {p : Pos.Raw} :
     p.IsValidForSlice s ↔ p = s.rawEndPos ∨ (p < s.rawEndPos ∧ (s.str.toByteArray.utf8DecodeChar? (s.startInclusive.offset.byteIdx + p.byteIdx)).isSome) := by
@@ -1035,7 +935,7 @@ theorem Slice.Pos.offset_ofStr {s : Slice} {pos : s.str.Pos} {h₁ h₂} :
 
 /-- Given a slice and a valid position within the slice, obtain a new slice on the same underlying
 string by replacing the start of the slice with the given position. -/
-@[inline, expose] -- for the defeq `(s.sliceFrom pos).str = s.str`
+@[inline, expose, implicit_reducible] -- for the defeq `(s.sliceFrom pos).str = s.str`
 def Slice.sliceFrom (s : Slice) (pos : s.Pos) : Slice where
   str := s.str
   startInclusive := pos.str
@@ -1060,7 +960,7 @@ theorem Slice.endExclusive_sliceFrom {s : Slice} {pos : s.Pos} :
 
 /-- Given a slice and a valid position within the slice, obtain a new slice on the same underlying
 string by replacing the end of the slice with the given position. -/
-@[inline, expose] -- for the defeq `(s.sliceTo pos).str = s.str`
+@[inline, expose, implicit_reducible] -- for the defeq `(s.sliceTo pos).str = s.str`
 def Slice.sliceTo (s : Slice) (pos : s.Pos) : Slice where
   str := s.str
   startInclusive := s.startInclusive
@@ -1085,13 +985,13 @@ theorem Slice.endExclusive_sliceTo {s : Slice} {pos : s.Pos} :
 
 /-- Given a slice and two valid positions within the slice, obtain a new slice on the same underlying
 string formed by the new bounds. -/
-@[inline, expose] -- for the defeq `(s.slice newStart newEnd).str = s.str`
+@[inline, expose, implicit_reducible] -- for the defeq `(s.slice newStart newEnd).str = s.str`
 def Slice.slice (s : Slice) (newStart newEnd : s.Pos)
     (h : newStart ≤ newEnd) : Slice where
   str := s.str
   startInclusive := newStart.str
   endExclusive := newEnd.str
-  startInclusive_le_endExclusive := by simpa [String.Pos.le_iff, Pos.Raw.le_iff] using h
+  startInclusive_le_endExclusive := by simpa [String.Pos.le_iff, Pos.Raw.le_iff] using! h
 
 @[deprecated Slice.slice (since := "2025-11-20")]
 def Slice.replaceStartEnd (s : Slice) (newStart newEnd : s.Pos) (h : newStart ≤ newEnd) : Slice :=
@@ -1224,7 +1124,7 @@ theorem Pos.Raw.IsValidForSlice.ofSlice {s : String} {p : Pos.Raw} (h : p.IsVali
   isValidForSlice_toSlice_iff.1 h
 
 /-- Turns a valid position on the string `s` into a valid position on the slice `s.toSlice`. -/
-@[inline, expose]
+@[inline, expose, implicit_reducible]
 def Pos.toSlice {s : String} (pos : s.Pos) : s.toSlice.Pos where
   offset := pos.offset
   isValidForSlice := pos.isValid.toSlice
@@ -1356,11 +1256,6 @@ theorem head_toList {b : String} {h} :
   match l with
   | [] => simp at h
   | c::cs => simp
-
-@[deprecated head_toList (since := "2025-10-30")]
-theorem head_data {b : String} {h} :
-    b.toList.head h = b.toByteArray.utf8DecodeChar 0 (isSome_utf8DecodeChar?_zero (by simpa using h)) :=
-  head_toList
 
 theorem get_startPos {b : String} (h) :
     b.startPos.get h = b.toList.head (by rwa [ne_eq, toList_eq_nil_iff, ← startPos_eq_endPos_iff]) :=
@@ -1733,7 +1628,7 @@ def pos! (s : String) (off : Pos.Raw) : s.Pos :=
   Pos.ofToSlice (s.toSlice.pos! off)
 
 @[simp]
-theorem offset_pos {s : String} {off : Pos.Raw} {h} : (s.pos off h).offset = off := rfl
+theorem offset_pos {s : String} {off : Pos.Raw} {h} : (s.pos off h).offset = off := (rfl)
 
 /-- Constructs a valid position on `t` from a valid position on `s` and a proof that
 `s.copy = t.copy`. -/
@@ -1882,7 +1777,7 @@ theorem Slice.Pos.prevAuxGo_le_self {s : Slice} {p : Nat} {h : p < s.utf8ByteSiz
     rw [prevAux.go]
     split
     · simp
-    · simpa using Nat.le_trans ih (by simp)
+    · simpa using! Nat.le_trans ih (by simp)
 where
   elim (P : String.Pos.Raw → Prop) {h : False} : P h.elim := h.elim
 
@@ -1932,7 +1827,7 @@ def Pos.Raw.utf8GetAux? : List Char → Pos.Raw → Pos.Raw → Option Char
   | [],    _, _ => none
   | c::cs, i, p => if i = p then some c else utf8GetAux? cs (i + c) p
 
-@[deprecated Pos.Raw.utf8GetAux (since := "2025-10-09")]
+@[deprecated Pos.Raw.utf8GetAux +typeChanged (since := "2025-10-09")]
 abbrev utf8GetAux? : List Char → Pos.Raw → Pos.Raw → Option Char :=
   Pos.Raw.utf8GetAux?
 
@@ -1999,7 +1894,7 @@ theorem Pos.get_toSlice {s : String} {p : s.Pos} {h} :
   rfl
 
 theorem Pos.get_eq_get_toSlice {s : String} {p : s.Pos} {h}  :
-    p.get h = p.toSlice.get (ne_of_apply_ne Pos.ofToSlice (by simp [h])) := rfl
+    p.get h = p.toSlice.get (ne_of_apply_ne Pos.ofToSlice (by simp [h])) := (rfl)
 
 @[simp]
 theorem Pos.offset_next {s : String} (p : s.Pos) (h : p ≠ s.endPos) :
@@ -2166,7 +2061,7 @@ theorem Slice.Pos.next_eq_nextFast : @Slice.Pos.next = @Slice.Pos.nextFast := by
   omega
 
 /-- The slice from the beginning of `s` up to `p` (exclusive). -/
-@[inline, expose]
+@[inline, expose, implicit_reducible]
 def sliceTo (s : String) (p : s.Pos) : Slice :=
   s.toSlice.sliceTo p.toSlice
 
@@ -2197,7 +2092,7 @@ theorem Pos.Raw.isValidForSlice_stringSliceTo {s : String} {p : s.Pos} {q : Pos.
   rw [sliceTo, isValidForSlice_sliceTo, Pos.offset_toSlice, isValidForSlice_toSlice_iff]
 
 /-- The slice from `p` (inclusive) up to the end of `s`. -/
-@[inline, expose]
+@[inline, expose, implicit_reducible]
 def sliceFrom (s : String) (p : s.Pos) : Slice :=
   s.toSlice.sliceFrom p.toSlice
 
@@ -2251,7 +2146,7 @@ the two positions.
 
 This happens to be equivalent to the constructor of `String.Slice`.
 -/
-@[inline, expose] -- For the defeq `(s.slice p₁ p₂).str = s`
+@[inline, expose, implicit_reducible] -- For the defeq `(s.slice p₁ p₂).str = s`
 def slice (s : String) (startInclusive endExclusive : s.Pos)
     (h : startInclusive ≤ endExclusive) : String.Slice :=
   s.toSlice.slice startInclusive.toSlice endExclusive.toSlice (by simpa)
@@ -2819,7 +2714,7 @@ theorem Slice.Pos.le_nextn {s : Slice} {p : s.Pos} {n : Nat} : p ≤ p.nextn n :
 
 theorem Pos.le_nextn {s : String} {p : s.Pos} {n : Nat} :
     p ≤ p.nextn n := by
-  simpa [nextn, Pos.le_iff, ← offset_toSlice] using Slice.Pos.le_nextn
+  simpa [nextn, Pos.le_iff, ← offset_toSlice] using! Slice.Pos.le_nextn
 
 /--
 Returns the next position in a string after position `p`. If `p` is not a valid position or
@@ -3027,17 +2922,17 @@ The result is `""` if the start position is greater than or equal to the end pos
 start position is at the end of the string. If either position is invalid (that is, if either points
 at the middle of a multi-byte UTF-8 character) then the result is unspecified.
 
-This is a legacy function. The recommended alternative is `String.Pos.extract`, but usually
+This is a legacy function. The recommended alternative is `String.extract`, but usually
 it is even better to operate on `String.Slice` instead and call `String.Slice.copy` (only) if
 required.
 
 Examples:
-* `"red green blue".extract ⟨0⟩ ⟨3⟩ = "red"`
-* `"red green blue".extract ⟨3⟩ ⟨0⟩ = ""`
-* `"red green blue".extract ⟨0⟩ ⟨100⟩ = "red green blue"`
-* `"red green blue".extract ⟨4⟩ ⟨100⟩ = "green blue"`
-* `"L∃∀N".extract ⟨1⟩ ⟨2⟩ = "∃∀N"`
-* `"L∃∀N".extract ⟨2⟩ ⟨100⟩ = ""`
+* `String.Pos.Raw.extract "red green blue" ⟨0⟩ ⟨3⟩ = "red"`
+* `String.Pos.Raw.extract "red green blue" ⟨3⟩ ⟨0⟩ = ""`
+* `String.Pos.Raw.extract "red green blue" ⟨0⟩ ⟨100⟩ = "red green blue"`
+* `String.Pos.Raw.extract "red green blue" ⟨4⟩ ⟨100⟩ = "green blue"`
+* `String.Pos.Raw.extract "L∃∀N" ⟨1⟩ ⟨2⟩ = "∃∀N"`
+* `String.Pos.Raw.extract "L∃∀N" ⟨2⟩ ⟨100⟩ = ""`
 -/
 @[extern "lean_string_utf8_extract", expose]
 def Pos.Raw.extract : (@& String) → (@& Pos.Raw) → (@& Pos.Raw) → String
@@ -3090,7 +2985,7 @@ def Internal.offsetOfPosImpl (s : String) (pos : Pos.Raw) : Nat :=
 theorem Pos.Raw.utf8SetAux_of_gt (c' : Char) : ∀ (cs : List Char) {i p : Pos.Raw}, i > p → utf8SetAux c' cs i p = cs
   | [],    _, _, _ => rfl
   | c::cs, i, p, h => by
-    rw [utf8SetAux, if_neg (mt (congrArg (·.1)) (Ne.symm <| Nat.ne_of_lt h)), utf8SetAux_of_gt c' cs]
+    rw [utf8SetAux, ite_eq_right (mt (congrArg (·.1)) (Ne.symm <| Nat.ne_of_lt h)), utf8SetAux_of_gt c' cs]
     exact Nat.lt_of_lt_of_le h (Nat.le_add_right ..)
 
 /--
@@ -3127,8 +3022,6 @@ namespace String
 theorem ext {s₁ s₂ : String} (h : s₁.toList = s₂.toList) : s₁ = s₂ :=
   toList_injective h
 
-@[simp] theorem length_empty : "".length = 0 := by simp [← length_toList, toList_empty]
-
 @[deprecated singleton_eq_ofList (since := "2025-10-30")]
 theorem singleton_eq {c : Char} : String.singleton c = ofList [c] :=
   singleton_eq_ofList
@@ -3136,32 +3029,9 @@ theorem singleton_eq {c : Char} : String.singleton c = ofList [c] :=
 @[simp] theorem toList_singleton (c : Char) : (String.singleton c).toList = [c] := by
   simp [singleton_eq_ofList]
 
-@[deprecated toList_singleton (since := "2025-10-30")]
-theorem data_singleton (c : Char) : (String.singleton c).toList = [c] :=
-  toList_singleton c
-
-@[simp]
-theorem length_singleton {c : Char} : (String.singleton c).length = 1 := by
-  simp [← length_toList]
-
 @[simp]
 theorem toList_push (c : Char) : (String.push s c).toList = s.toList ++ [c] := by
   simp [← append_singleton]
-
-@[deprecated toList_push (since := "2025-10-30")]
-theorem data_push (c : Char) : (String.push s c).toList = s.toList ++ [c] :=
-  toList_push c
-
-@[simp] theorem length_push (c : Char) : (String.push s c).length = s.length + 1 := by
-  simp [← length_toList]
-
-@[simp] theorem length_pushn (c : Char) (n : Nat) : (pushn s c n).length = s.length + n := by
-  rw [pushn_eq_repeat_push]; induction n <;> simp [Nat.repeat, Nat.add_assoc, *]
-
-@[simp] theorem length_append (s t : String) : (s ++ t).length = s.length + t.length := by
-  simp [← length_toList]
-
-theorem lt_iff {s t : String} : s < t ↔ s.toList < t.toList := .rfl
 
 namespace Pos.Raw
 
@@ -3211,11 +3081,3 @@ theorem bytes_inj {s t : String} : s.toByteArray = t.toByteArray ↔ s = t :=
   toByteArray_inj
 
 end String
-
-namespace Char
-
-@[deprecated String.length_singleton (since := "2026-02-12")]
-theorem length_toString (c : Char) : c.toString.length = 1 := by
-  simp
-
-end Char

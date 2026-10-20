@@ -1,17 +1,25 @@
-Failure @16 (⟨1, 16⟩): '_'
+Input: "*This is _strong* not regular_ emphasis"
+Failure: unexpected '*'; expected '_' to close emphasis
+ --> 1:16-1:17
+  |
+1 | *This is _strong* not regular_ emphasis
+  |                 ^
+  = consumed input prefix: 16 bytes
 Final stack:
-  [(Lean.Doc.Syntax.para
-    "para{"
-    [(Lean.Doc.Syntax.bold
-      "*"
-      [(Lean.Doc.Syntax.text (str "\"This is \""))
-       (Lean.Doc.Syntax.emph
-        "_"
-        [(Lean.Doc.Syntax.text
-          (str "\"strong\""))]
+  [(Lean.Doc.Parser.Block.para
+    [(Lean.Doc.Parser.Inline.bold
+      (Lean.Doc.Parser.boldDelimiter "*")
+      [(Lean.Doc.Parser.Inline.text
+        (Lean.Doc.Parser.versoText "This is "))
+       (Lean.Doc.Parser.Inline.emph
+        (Lean.Doc.Parser.emphDelimiter "_")
+        [(Lean.Doc.Parser.Inline.text
+          (Lean.Doc.Parser.versoText "strong"))]
         <missing>)]
-      "*")
-     (Lean.Doc.Syntax.text
-      (str "\" not regular\""))]
-    "}")]
-Remaining: "* not regular_ emphasis"
+      (Lean.Doc.Parser.boldDelimiter "*"))
+     (Lean.Doc.Parser.Inline.text
+      (Lean.Doc.Parser.versoText
+       " not regular"))])]
+Remaining:
+"_ emphasis"
+Round-trip not reproduced, as the parse reported errors: leaf without original source info: <missing>

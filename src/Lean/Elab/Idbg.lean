@@ -273,7 +273,7 @@ def controlInfoIdbg : ControlInfoHandler := fun _ => return default
 /-- Core elaboration logic shared by term and do-element forms.
 Elaborates `e`, wraps the result in `toString ∘ repr`, abstracts over all local declarations,
 and generates both the server-side TCP exchange and the runtime client loop code. -/
-private def elabIdbgCore (e : Syntax) (body : TSyntax `term) (ref : Syntax) (expectedType? : Option Expr) :
+def elabIdbgCore (e : Syntax) (body : TSyntax `term) (ref : Syntax) (expectedType? : Option Expr) :
     TermElabM Expr := do
   let fileName ← IO.FS.realPath (← getFileName)
   let siteId := toString (hash s!"{fileName}:{ref.getPos?.getD 0}")
@@ -365,7 +365,7 @@ def elabIdbgTerm : TermElab := fun stx expectedType? => do
 @[builtin_doElem_elab Lean.Parser.Term.doIdbg]
 def elabDoIdbg : DoElab := fun stx dec => do
   let `(Lean.Parser.Term.doIdbg| idbg%$tk $e) := stx | throwUnsupportedSyntax
-  let mγ ← mkMonadicType (← read).doBlockResultType
+  let mγ ← mkMonadApp (← read).doBlockResultType
   let dec ← dec.ensureUnitAt tk
   doElabToSyntax "idbg body" dec.continueWithUnit fun body => do
     elabIdbgCore (e := e) (body := body) (ref := stx) mγ

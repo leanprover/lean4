@@ -1,4 +1,4 @@
-rm -rf .lake/build
+rm -rf .lake
 
 # Build Main library — includes all test modules
 capture lake build Main
@@ -11,6 +11,10 @@ check_out_contains "import DeprecatedModule.New"
 # Without-message format: deprecation with replacement imports but no custom message
 check_out_contains "'DeprecatedModule.OldNoMessage' has been deprecated: please replace this import by"
 
+# Warnings are anchored at the offending import statement, not the start of the header:
+check_out_contains "DeprecatedModule/Consumer.lean:4:0: use DeprecatedModule.New instead"
+check_out_contains "DeprecatedModule/Consumer.lean:5:0: 'DeprecatedModule.OldNoMessage' has been deprecated"
+
 # OldDouble has two deprecated_module commands — second triggers duplicate warning
 check_out_contains "module is already marked as deprecated"
 
@@ -18,7 +22,7 @@ check_out_contains "module is already marked as deprecated"
 # (covered implicitly: if transitive warnings leaked, we'd see extra output)
 
 # ConsumerIgnoreOne: "deprecated_module: ignore" on Old import only — OldNoMessage should still warn
-check_out_contains "ConsumerIgnoreOne.lean:1:0: 'DeprecatedModule.OldNoMessage' has been deprecated"
+check_out_contains "ConsumerIgnoreOne.lean:4:0: 'DeprecatedModule.OldNoMessage' has been deprecated"
 
 # ConsumerIgnoreOnlyImport: single import with "deprecated_module: ignore" — no warning
 if grep -Fq "ConsumerIgnoreOnlyImport.lean" "$CAPTURED.out.produced"; then
@@ -27,8 +31,8 @@ fi
 
 # ConsumerIgnoreLastImport: "deprecated_module: ignore" on last import (Old) — OldNoMessage should
 # still warn, but Old should be suppressed
-check_out_contains "ConsumerIgnoreLastImport.lean:1:0: 'DeprecatedModule.OldNoMessage' has been deprecated"
-if grep -Fq "ConsumerIgnoreLastImport.lean:1:0: 'DeprecatedModule.Old' has been deprecated" "$CAPTURED.out.produced"; then
+check_out_contains "ConsumerIgnoreLastImport.lean:3:0: 'DeprecatedModule.OldNoMessage' has been deprecated"
+if grep -Eq "ConsumerIgnoreLastImport\.lean:[0-9]+:[0-9]+: use DeprecatedModule\.New instead" "$CAPTURED.out.produced"; then
   fail "ConsumerIgnoreLastImport should not warn about Old (annotated with deprecated_module: ignore)"
 fi
 

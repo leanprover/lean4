@@ -7,8 +7,7 @@ module
 
 prelude
 public import Lean.DocString.Add
-public import Lean.Linter.Basic
-import Lean.Linter.EnvLinter.Nolint
+public import Lean.Linter.Init
 meta import Lean.Parser.Command
 
 public section
@@ -85,10 +84,13 @@ as e.g. done in `elabDeclaration`.
 def Visibility.isInferredPublic (env : Environment) (v : Visibility) : Bool :=
   if env.isExporting || !env.header.isModule then !v.isPrivate else v.isPublic
 
-/-- Converts optional visibility syntax to a `Visibility` value. -/
+/--
+Converts optional visibility syntax to a `Visibility` value. `isExample` marks the modifiers of an
+`example`, which is private in a `module` file unless explicitly marked `public`.
+-/
 def elabVisibility [Monad m] [MonadError m] [MonadEnv m] [MonadOptions m] [MonadLog m]
     [AddMessageContext m]
-    (vis? : Option (TSyntax ``Parser.Command.visibility)) :
+    (vis? : Option (TSyntax ``Parser.Command.visibility)) (isExample := false) :
     m Visibility := do
   let env ← getEnv
   match vis? with
@@ -104,7 +106,7 @@ def elabVisibility [Monad m] [MonadError m] [MonadEnv m] [MonadOptions m] [Monad
       pure .private
     | `(Parser.Command.visibility| public) =>
       if v.raw.getHeadInfo matches .original .. then  -- skip macro output
-        if env.isExporting || !env.header.isModule then
+        if (env.isExporting && !isExample) || !env.header.isModule then
           Linter.logLintIf linter.redundantVisibility v
             m!"`public` is the default visibility{
               if env.header.isModule then " inside a `public section`" else ""
@@ -127,9 +129,9 @@ structure Modifiers where
   /-- Input syntax, used for adjusting declaration range (unless missing) -/
   stx             : TSyntax ``Parser.Command.declModifiers := ⟨.missing⟩
   /--
-  The docstring, if present, and whether it's Verso.
+  The docstring, if present.
   -/
-  docString?      : Option (TSyntax ``Parser.Command.docComment × Bool) := none
+  docString?      : Option (TSyntax ``Parser.Command.docComment) := none
   visibility      : Visibility := Visibility.regular
   isProtected     : Bool := false
   computeKind     : ComputeKind := .regular
@@ -198,15 +200,15 @@ def expandOptDocComment? [Monad m] [MonadError m] (optDocComment : Syntax) : m (
   match optDocComment.getOptional? with
   | none   => return none
   | some s => match s[1] with
-    | .atom _ val => return some (String.Pos.Raw.extract val 0 (val.rawEndPos.unoffsetBy ⟨2⟩))
-    | _           => throwErrorAt s "unexpected doc string{indentD s[1]}"
+    | .node _ `Lean.Parser.Command.commentBody #[.atom _ text, _] => return some text
+    | _ => throwErrorAt s "unexpected doc string{indentD s[1]}"
 
 section Methods
 
 variable [Monad m] [MonadEnv m] [MonadResolveName m] [MonadError m] [MonadFinally m] [MonadMacroAdapter m] [MonadRecDepth m] [MonadTrace m] [MonadOptions m] [AddMessageContext m] [MonadLog m] [MonadInfoTree m] [MonadLiftT IO m]
 
 /-- Elaborate declaration modifiers (i.e., attributes, `partial`, `private`, `protected`, `unsafe`, `meta`, `noncomputable`, doc string)-/
-def elabModifiers (stx : TSyntax ``Parser.Command.declModifiers) : m Modifiers := do
+def elabModifiers (stx : TSyntax ``Parser.Command.declModifiers) (isExample := false) : m Modifiers := do
   let docCommentStx := stx.raw[0]
   let attrsStx      := stx.raw[1]
   let visibilityStx := stx.raw[2]
@@ -226,8 +228,8 @@ def elabModifiers (stx : TSyntax ``Parser.Command.declModifiers) : m Modifiers :
       RecKind.partial
     else
       RecKind.nonrec
-  let docString? := docCommentStx.getOptional?.map (TSyntax.mk ·, doc.verso.get (← getOptions))
-  let visibility ← elabVisibility (visibilityStx.getOptional?.map (⟨·⟩))
+  let docString? := docCommentStx.getOptional?.map (TSyntax.mk ·)
+  let visibility ← elabVisibility (visibilityStx.getOptional?.map (⟨·⟩)) isExample
   let isProtected := !protectedStx.isNone
   let attrs ← match attrsStx.getOptional? with
     | none       => pure #[]
@@ -309,8 +311,8 @@ structure ExpandDeclIdResult where
   declName   : Name
   /-- Universe parameter names provided using the `universe` command and `.{...}` notation. -/
   levelNames : List Name
-  /-- The docstring, and whether it's Verso -/
-  docString? : Option (TSyntax ``Parser.Command.docComment × Bool)
+  /-- The docstring. -/
+  docString? : Option (TSyntax ``Parser.Command.docComment)
 
 open Lean.Elab.Term (TermElabM)
 
@@ -344,5 +346,22 @@ def expandDeclId (currNamespace : Name) (currLevelNames : List Name) (declId : S
   return { shortName, declName, levelNames, docString? }
 
 end Methods
+
+namespace Term
+
+/--
+If `attrs` contains an `@[deprecated]` attribute, runs the action with `Term.Context.checkDeprecated`
+disabled, suppressing the `linter.deprecated` warning that would otherwise fire when a deprecated
+constant is referenced. Otherwise, runs the action unchanged.
+
+This implements the suppression rule from RFC #8942: deprecation warnings should not fire inside
+the body of a declaration that is itself marked `@[deprecated]`, since the references will go away
+along with the declaration.
+-/
+@[inline] def withDeprecationContextFromAttrs [MonadWithReaderOf Term.Context m]
+    (attrs : Array Attribute) : m α → m α :=
+  if attrs.any (·.name == `deprecated) then withoutCheckDeprecated else id
+
+end Term
 
 end Lean.Elab

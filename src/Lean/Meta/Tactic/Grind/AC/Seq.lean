@@ -7,7 +7,7 @@ module
 prelude
 public import Init.Grind.AC
 public import Init.Data.Ord
-import Init.Data.Nat.Linear
+import Init.Data.Nat.Internal.Linear
 public section
 namespace Lean.Grind.AC
 

@@ -1,7 +1,16 @@
-Failure @4 (⟨1, 4⟩): expected '_' without preceding space
+Input: "_aa _"
+Failure: unexpected space before the closing '_'
+ --> 1:4-1:5
+  |
+1 | _aa _
+  |     ^
+  = consumed input prefix: 4 bytes
 Final stack:
-  (Lean.Doc.Syntax.emph
-   "_"
-   [(Lean.Doc.Syntax.text (str "\"aa \""))]
+  (Lean.Doc.Parser.Inline.emph
+   (Lean.Doc.Parser.emphDelimiter "_")
+   [(Lean.Doc.Parser.Inline.text
+     (Lean.Doc.Parser.versoText "aa "))]
    <missing>)
-Remaining: "_"
+Remaining:
+"_"
+Round-trip not reproduced, as the parse reported errors: leaf without original source info: <missing>

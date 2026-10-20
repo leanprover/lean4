@@ -12,7 +12,6 @@ namespace lean {
 class ro_metavar_env;
 /** \brief Replace the loose bound variables with indices 0, ..., n-1 with s[0], ..., s[n-1] in e. */
 expr instantiate(expr const & e, unsigned n, expr const * s);
-expr instantiate(expr const & e, std::initializer_list<expr> const & l);
 /** \brief Replace loose bound variable \c i with \c s in \c e. */
 expr instantiate(expr const & e, unsigned i, expr const & s);
 /** \brief Replace loose bound variable \c 0 with \c s in \c e. */
@@ -25,8 +24,6 @@ inline expr instantiate_rev(expr const & e, buffer<expr> const & s) {
 }
 
 expr apply_beta(expr f, unsigned num_rev_args, expr const * rev_args, bool preserve_data = true, bool zeta = false);
-bool is_head_beta(expr const & t);
-expr head_beta_reduce(expr const & t);
 /* If `e` is of the form `(fun x, t) a` return `head_beta_const_fn(t)` if `t` does not depend on `x`,
    and `e` otherwise. We also reduce `(fun x_1 ... x_n, x_i) a_1 ... a_n` into `a_[n-i-1]` */
 expr cheap_beta_reduce(expr const & e);

@@ -616,7 +616,7 @@ theorem any_eq_true_iff_exists_mem_get [LawfulHashable α] [EquivBEq α]
 
 theorem any_eq_true_iff_exists_mem [LawfulBEq α] {p : α → Bool} (h : m.WF) :
     m.any p = true ↔ ∃ (a : α), a ∈ m ∧ p a := by
-  simpa using @HashMap.Raw.any_eq_true_iff_exists_mem_getElem _ _ _ _ _ _ (fun a b => p a) h.out
+  simpa using! @HashMap.Raw.any_eq_true_iff_exists_mem_getElem _ _ _ _ _ _ (fun a b => p a) h.out
 
 theorem any_eq_false_iff_forall_mem_get [LawfulHashable α] [EquivBEq α]
     {p : α → Bool} (h : m.WF) :
@@ -627,7 +627,7 @@ theorem any_eq_false_iff_forall_mem_get [LawfulHashable α] [EquivBEq α]
 theorem any_eq_false_iff_forall_mem [LawfulBEq α] {p : α → Bool} (h : m.WF) :
     m.any p = false ↔
       ∀ (a : α), a ∈ m → p a = false := by
-  simpa using @HashMap.Raw.any_eq_false_iff_forall_mem_getElem _ _ _ _ _ _ (fun a b => p a) h.out
+  simpa using! @HashMap.Raw.any_eq_false_iff_forall_mem_getElem _ _ _ _ _ _ (fun a b => p a) h.out
 
 @[simp]
 theorem all_toList [LawfulHashable α] [EquivBEq α] {p : α → Bool} (h : m.WF) :
@@ -641,7 +641,7 @@ theorem all_eq_true_iff_forall_mem_get [EquivBEq α] [LawfulHashable α]
 
 theorem all_eq_true_iff_forall_mem [LawfulBEq α] {p : α → Bool} (h : m.WF) :
     m.all p = true ↔ ∀ (a : α), a ∈ m → p a := by
-  simpa using HashMap.Raw.all_eq_true_iff_forall_mem_getElem h.out
+  simpa using! HashMap.Raw.all_eq_true_iff_forall_mem_getElem h.out
 
 theorem all_eq_false_iff_exists_mem_get [EquivBEq α] [LawfulHashable α]
     {p : α → Bool} (h : m.WF) :
@@ -650,7 +650,7 @@ theorem all_eq_false_iff_exists_mem_get [EquivBEq α] [LawfulHashable α]
 
 theorem all_eq_false_iff_exists_mem_getElem [LawfulBEq α] {p : α → Bool} (h : m.WF) :
     m.all p = false ↔ ∃ (a : α), a ∈ m ∧ p a = false := by
-  simpa using @HashMap.Raw.all_eq_false_iff_exists_mem_getElem _ _ _ _ _ _ (fun a b => p a) h.out
+  simpa using! @HashMap.Raw.all_eq_false_iff_exists_mem_getElem _ _ _ _ _ _ (fun a b => p a) h.out
 
 variable {ρ : Type v} [ForIn Id ρ α]
 
@@ -1171,6 +1171,10 @@ theorem isEmpty_inter_iff [EquivBEq α] [LawfulHashable α] (h₁ : m₁.WF) (h�
     (m₁ ∩ m₂).isEmpty ↔ ∀ k, k ∈ m₁ → k ∉ m₂ :=
   @HashMap.Raw.isEmpty_inter_iff _ _ _ _ m₁.inner m₂.inner _ _ h₁.out h₂.out
 
+theorem isEmpty_inter_comm [EquivBEq α] [LawfulHashable α] (h₁ : m₁.WF) (h₂ : m₂.WF) :
+    (m₁ ∩ m₂).isEmpty = (m₂ ∩ m₁).isEmpty :=
+  @HashMap.Raw.isEmpty_inter_comm _ _ _ _ m₁.inner m₂.inner _ _ h₁.out h₂.out
+
 end Inter
 
 section Diff
@@ -1535,6 +1539,13 @@ theorem equiv_emptyWithCapacity_iff_isEmpty [EquivBEq α] [LawfulHashable α] {c
 theorem equiv_empty_iff_isEmpty [EquivBEq α] [LawfulHashable α] (h : m.WF) :
     m ~m ∅ ↔ m.isEmpty :=
   equiv_emptyWithCapacity_iff_isEmpty h
+
+theorem inter_equiv_empty_comm [EquivBEq α] [LawfulHashable α]
+    {m₁ m₂ : HashSet.Raw α} (h₁ : m₁.WF) (h₂ : m₂.WF) :
+    (m₁ ∩ m₂) ~m ∅ ↔ (m₂ ∩ m₁) ~m ∅ := by
+  rw [equiv_empty_iff_isEmpty (h₁.inter h₂), equiv_empty_iff_isEmpty (h₂.inter h₁),
+    ← Bool.eq_iff_iff]
+  exact isEmpty_inter_comm h₁ h₂
 
 theorem equiv_iff_toList_perm {m₁ m₂ : Raw α} [EquivBEq α] [LawfulHashable α] :
     m₁ ~m m₂ ↔ m₁.toList.Perm m₂.toList :=

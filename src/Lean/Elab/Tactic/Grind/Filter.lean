@@ -8,7 +8,7 @@ prelude
 public import Lean.Elab.Tactic.Grind.Basic
 public import Lean.Meta.Tactic.Grind.Filter
 namespace Lean.Elab.Tactic.Grind
-open Meta Grind
+open Meta Lean.Meta.Grind
 
 public partial def elabFilter (filter? : Option (TSyntax `grind_filter)) : GrindTacticM Filter := do
   let some filter := filter? | return .true

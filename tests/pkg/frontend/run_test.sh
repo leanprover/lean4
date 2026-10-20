@@ -1,4 +1,4 @@
-rm -rf .lake/build
+rm -rf .lake
 lake build
 
 # Check that we can compile a file which shares with the executable

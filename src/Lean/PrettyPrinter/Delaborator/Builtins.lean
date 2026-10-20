@@ -20,7 +20,7 @@ public section
 namespace Lean.PrettyPrinter.Delaborator
 open Lean.Meta
 open Lean.Parser.Term
-open SubExpr
+open Lean.PrettyPrinter.Delaborator.SubExpr
 open TSyntax.Compat
 
 /--
@@ -300,9 +300,9 @@ def delabAppExplicitCore (fieldNotation : Bool) (numArgs : Nat) (delabHead : (in
   let fieldNotation ← pure (fieldNotation && !insertExplicit) <&&> getPPOption getPPFieldNotation
     <&&> not <$> getPPOption getPPAnalysisNoDot
     <&&> withBoundedAppFn numArgs do
-            pure (← getExpr).consumeMData.isConst
-            <&&> not <$> (pure (← getExpr).isMData <&&> getPPOption getPPMData)
-            <&&> not <$> withMDatasOptions (getPPOption getPPAnalysisBlockImplicit <|> getPPOption getPPUniverses)
+            let some (_, us) := (← getExpr).consumeMData.const? | pure false
+            not <$> (pure (← getExpr).isMData <&&> getPPOption getPPMData)
+            <&&> not <$> withMDatasOptions (getPPOption getPPAnalysisBlockImplicit <|> (pure !us.isEmpty <&&> getPPOption getPPUniverses))
   let field? ← if fieldNotation then appFieldNotationCandidate? else pure none
   let (fnStx, _, argStxs) ← withBoundedAppFnArgs numArgs
     (do return (← delabHead insertExplicit, paramKinds.toList, Array.mkEmpty numArgs))
@@ -364,9 +364,9 @@ Assumes `numArgs ≤ paramKinds.size`.
 def delabAppImplicitCore (unexpand : Bool) (numArgs : Nat) (delabHead : Delab) (paramKinds : Array ParamKind) : Delab := do
   let unexpand ← pure unexpand
     <&&> withBoundedAppFn numArgs do
-            pure (← getExpr).consumeMData.isConst
-            <&&> not <$> (pure (← getExpr).isMData <&&> getPPOption getPPMData)
-            <&&> not <$> withMDatasOptions (getPPOption getPPUniverses)
+            let some (_, us) := (← getExpr).consumeMData.const? | pure false
+            not <$> (pure (← getExpr).isMData <&&> getPPOption getPPMData)
+            <&&> (pure us.isEmpty <||> not <$> withMDatasOptions (getPPOption getPPUniverses))
   let field? ←
     if ← pure unexpand <&&> getPPOption getPPFieldNotation <&&> not <$> getPPOption getPPAnalysisNoDot then
       appFieldNotationCandidate?
@@ -1197,9 +1197,9 @@ def delabOfScientific : Delab := whenNotPPOption getPPExplicit <| whenPPOption g
     | Expr.const ``Bool.false _ => pure false
     | _ => failure
   let str  := toString m
-  if s && e == str.length then
+  if s && e == str.utf8ByteSize then
     return Syntax.mkScientificLit ("0." ++ str)
-  else if s && e < str.length then
+  else if s && e < str.utf8ByteSize then
     let mStr := String.Pos.Raw.extract str 0 ⟨str.length - e⟩
     let eStr := String.Pos.Raw.extract str ⟨str.length - e⟩ ⟨str.length⟩
     return Syntax.mkScientificLit (mStr ++ "." ++ eStr)

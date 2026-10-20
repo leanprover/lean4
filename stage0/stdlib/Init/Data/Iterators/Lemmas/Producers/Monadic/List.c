@@ -36,7 +36,7 @@ v_head_6_ = lean_ctor_get(v_it_1_, 0);
 lean_inc(v_head_6_);
 v_tail_7_ = lean_ctor_get(v_it_1_, 1);
 lean_inc(v_tail_7_);
-lean_dec_ref(v_it_1_);
+lean_dec_ref_known(v_it_1_, 2);
 v___x_8_ = lean_apply_2(v_h__2_3_, v_head_6_, v_tail_7_);
 return v___x_8_;
 }
@@ -61,7 +61,7 @@ v_head_17_ = lean_ctor_get(v_it_12_, 0);
 lean_inc(v_head_17_);
 v_tail_18_ = lean_ctor_get(v_it_12_, 1);
 lean_inc(v_tail_18_);
-lean_dec_ref(v_it_12_);
+lean_dec_ref_known(v_it_12_, 2);
 v___x_19_ = lean_apply_2(v_h__2_14_, v_head_17_, v_tail_18_);
 return v___x_19_;
 }
@@ -81,7 +81,7 @@ v_it_24_ = lean_ctor_get(v_x_20_, 0);
 lean_inc(v_it_24_);
 v_out_25_ = lean_ctor_get(v_x_20_, 1);
 lean_inc(v_out_25_);
-lean_dec_ref(v_x_20_);
+lean_dec_ref_known(v_x_20_, 2);
 v___x_26_ = lean_apply_2(v_h__1_21_, v_it_24_, v_out_25_);
 return v___x_26_;
 }
@@ -92,7 +92,7 @@ lean_dec(v_h__3_23_);
 lean_dec(v_h__1_21_);
 v_it_27_ = lean_ctor_get(v_x_20_, 0);
 lean_inc(v_it_27_);
-lean_dec_ref(v_x_20_);
+lean_dec_ref_known(v_x_20_, 1);
 v___x_28_ = lean_apply_1(v_h__2_22_, v_it_27_);
 return v___x_28_;
 }
@@ -122,7 +122,7 @@ v_it_39_ = lean_ctor_get(v_x_35_, 0);
 lean_inc(v_it_39_);
 v_out_40_ = lean_ctor_get(v_x_35_, 1);
 lean_inc(v_out_40_);
-lean_dec_ref(v_x_35_);
+lean_dec_ref_known(v_x_35_, 2);
 v___x_41_ = lean_apply_2(v_h__1_36_, v_it_39_, v_out_40_);
 return v___x_41_;
 }
@@ -133,7 +133,7 @@ lean_dec(v_h__3_38_);
 lean_dec(v_h__1_36_);
 v_it_42_ = lean_ctor_get(v_x_35_, 0);
 lean_inc(v_it_42_);
-lean_dec_ref(v_x_35_);
+lean_dec_ref_known(v_x_35_, 1);
 v___x_43_ = lean_apply_1(v_h__2_37_, v_it_42_);
 return v___x_43_;
 }
@@ -152,11 +152,13 @@ return v___x_45_;
 lean_object* runtime_initialize_Init_Data_Iterators_Producers_Monadic_List(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Iterators_Lemmas_Consumers_Monadic_Collect(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_List_ToArray(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Init_Data_Iterators_Lemmas_Producers_Monadic_List(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Init_Data_Iterators_Producers_Monadic_List(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

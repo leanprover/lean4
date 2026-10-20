@@ -24,7 +24,7 @@ namespace Std.Http.Header
 
 set_option linter.all true
 
-open Internal
+open Std.Http.Internal
 
 /--
 Proposition that asserts all characters in a string are valid for HTTP header values,

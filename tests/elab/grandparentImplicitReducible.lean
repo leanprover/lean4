@@ -1,11 +1,11 @@
 import Lean
 
 /-!
-# Grandparent subobject projections should be `@[implicit_reducible]`
+# Grandparent subobject projections should be `@[instance_reducible]`
 
 When `class C extends P₁, P₂` has diamond inheritance, some ancestor structures
 end up as constructor subobject fields even though they aren't direct parents.
-These grandparent projections need `@[implicit_reducible]` so they unfold at
+These grandparent projections need `@[instance_reducible]` so they unfold at
 `.instances` transparency.
 
 For example, with `MyMonoid extends MySemigroup, MyMulOneClass` where both share
@@ -14,9 +14,9 @@ For example, with `MyMonoid extends MySemigroup, MyMulOneClass` where both share
 `mkProjections` as a subobject projection, but it is NOT a direct parent —
 it's a grandparent reached through `MyMulOneClass`.
 
-Previously, `addParentInstances` only set `@[implicit_reducible]` on direct
+Previously, `addParentInstances` only set `@[instance_reducible]` on direct
 parent projections. This test verifies that grandparent subobject projections
-also receive `@[implicit_reducible]`.
+also receive `@[instance_reducible]`.
 -/
 
 -- Minimal hierarchy with a diamond via MyMul
@@ -31,9 +31,9 @@ def showReducibility (n : Name) : CoreM Unit := do
   IO.println s!"{n}: {repr (← getReducibilityStatus n)}"
 
 /--
-info: MyMonoid.toMySemigroup: Lean.ReducibilityStatus.implicitReducible
-MyMonoid.toMyMulOneClass: Lean.ReducibilityStatus.implicitReducible
-MyMonoid.toMyOne: Lean.ReducibilityStatus.implicitReducible
+info: MyMonoid.toMySemigroup: Lean.ReducibilityStatus.instanceReducible
+MyMonoid.toMyMulOneClass: Lean.ReducibilityStatus.instanceReducible
+MyMonoid.toMyOne: Lean.ReducibilityStatus.instanceReducible
 -/
 #guard_msgs in
 #eval do

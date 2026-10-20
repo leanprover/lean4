@@ -1,0 +1,12 @@
+name = "test"
+enableArtifactCache = true
+defaultTargets = ["Test"]
+
+[[lean_lib]]
+name = "Test"
+
+# A `curl` that reports no transfer at all.
+# Built on demand so that it is not part of a cached build.
+[[lean_exe]]
+name = "curl"
+root = "BadCurl"

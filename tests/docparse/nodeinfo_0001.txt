@@ -1,0 +1,1 @@
+This file triggers the check that no parsed node has source info of its own.

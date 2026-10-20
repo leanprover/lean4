@@ -52,8 +52,12 @@ theorem toNat_ofNat (x w : Nat) : (BitVec.ofNat w x).toNat = x % 2^w := by
         (∀ i (hi : i < n), x[i] = y[i]) → x = y :=
   fun h => BitVec.eq_of_getLsbD_eq (h ↑·)
 
-@[simp, grind =] theorem toNat_append (x : BitVec m) (y : BitVec n) :
-    (x ++ y).toNat = x.toNat <<< n ||| y.toNat :=
+-- We need the `no_index` here because otherwise the `simp` discrimination key will contain
+-- `BitVec (HAdd.hAdd ..)`, but if `m` and `n` are concrete numbers, then the result of the `++`
+-- will have a type like `BitVec 16` rather than `BitVec (8 + 8)`, which would cause `simp` to fail
+-- to apply this lemma.
+@[simp] theorem toNat_append (x : BitVec m) (y : BitVec n) :
+    (@HAppend.hAppend _ _ (no_index _) _ x y).toNat = x.toNat <<< n ||| y.toNat :=
   rfl
 
 @[simp, grind =] theorem toNat_ofBool (b : Bool) : (ofBool b).toNat = b.toNat := by
@@ -65,7 +69,12 @@ theorem toNat_cast (h : w = v) (x : BitVec w) : (x.cast h).toNat = x.toNat := rf
 @[simp, bitvec_to_nat, grind =]
 theorem toNat_ofFin (x : Fin (2^n)) : (BitVec.ofFin x).toNat = x.val := rfl
 
-@[simp, grind =] theorem toNat_ofNatLT (x : Nat) (p : x < 2^w) : (x#'p).toNat = x := rfl
+-- The `[grind =]` attribute is attached in `Init.Data.BitVec.Lemmas` because the pattern must
+-- be normalized with respect to the `grind` normalization theorem `ofNatLT_eq_ofNat`, which is
+-- only activated in `Init.Grind.Norm`.
+@[simp] theorem toNat_ofNatLT (x : Nat) (p : x < 2^w) : (x#'p).toNat = x := rfl
+
+@[simp] protected theorem pow_eq (x : BitVec w) (n : Nat) : x.pow n = x ^ n := rfl
 
 @[simp, grind =] theorem toNat_cons (b : Bool) (x : BitVec w) :
     (cons b x).toNat = (b.toNat <<< w) ||| x.toNat := by
@@ -96,7 +105,7 @@ theorem toNat_setWidth' {m n : Nat} (p : m ≤ n) (x : BitVec m) :
     (setWidth' p x).toNat = x.toNat := by
   simp only [setWidth', toNat_ofNatLT]
 
-@[simp, bitvec_to_nat, grind =]
+@[simp, bitvec_to_nat]
 theorem toNat_setWidth (i : Nat) (x : BitVec n) :
     (setWidth i x).toNat = x.toNat % 2^i := by
   let ⟨x, lt_n⟩ := x
@@ -112,12 +121,11 @@ theorem ofNat_toNat (m : Nat) (x : BitVec n) : BitVec.ofNat m x.toNat = setWidth
   apply eq_of_toNat_eq
   simp only [toNat_ofNat, toNat_setWidth]
 
-@[grind =]
 theorem getElem_setWidth' (x : BitVec w) (i : Nat) (h : w ≤ v) (hi : i < v) :
     (setWidth' h x)[i] = x.getLsbD i := by
   rw [getElem_eq_testBit_toNat, toNat_setWidth', getLsbD]
 
-@[simp, grind =]
+@[simp]
 theorem getElem_setWidth (m : Nat) (x : BitVec n) (i : Nat) (h : i < m) :
     (setWidth m x)[i] = x.getLsbD i := by
   rw [setWidth]
@@ -137,7 +145,7 @@ theorem getElem_setWidth (m : Nat) (x : BitVec n) (i : Nat) (h : i < m) :
     · simp_all only [getElem_setWidth, getLsbD_eq_getElem]
     · omega
 
-@[simp, bitvec_to_nat, grind =]
+@[simp, bitvec_to_nat]
 theorem toNat_neg (x : BitVec n) : (- x).toNat = (2^n - x.toNat) % 2^n := by
   simp [Neg.neg, BitVec.neg]
 
@@ -173,5 +181,8 @@ theorem cons_induction {motive : (w : Nat) → BitVec w → Prop} (nil : motive 
     rw [← cons_msb_setWidth x]
     apply cons
     apply ih
+
+theorem ofNatLT_eq_ofNat {w : Nat} {n : Nat} (hn) : BitVec.ofNatLT n hn = BitVec.ofNat w n :=
+  eq_of_toNat_eq (by simp [Nat.mod_eq_of_lt hn])
 
 end BitVec

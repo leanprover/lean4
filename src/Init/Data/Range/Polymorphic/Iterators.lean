@@ -92,7 +92,11 @@ theorem _root_.Std.Rxc.Iterator.upwardEnumerableLe_of_isPlausibleIndirectOutput
   simp only [isPlausibleIndirectOutput_iff, ha, Option.bind_some, exists_and_right] at hout
   exact hout.1
 
-@[no_expose]
+-- The `ForIn'` instances of all range types are default instances so that a loop whose element type
+-- is known can determine the range's type from it, as in `for (i : Int) in 1...3` or
+-- `for (i : Fin 3) in *...*`. Otherwise the literal bounds default to `Nat` first, and `*...*` has
+-- no type at all.
+@[no_expose, default_instance]
 instance {m} [UpwardEnumerable α]
     [LE α] [DecidableLE α] [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α]
     [Monad m] [Finite (Rxc.Iterator α) Id] :
@@ -178,7 +182,7 @@ theorem _root_.Std.Rxo.Iterator.upwardEnumerableLe_of_isPlausibleIndirectOutput
   simp only [isPlausibleIndirectOutput_iff, ha, Option.bind_some, exists_and_right] at hout
   exact hout.1
 
-@[no_expose]
+@[no_expose, default_instance]
 instance {m} [UpwardEnumerable α] [LE α] [LT α] [DecidableLT α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α] [LawfulUpwardEnumerableLT α]
     [Monad m] [Finite (Rxo.Iterator α) Id] :
@@ -260,9 +264,9 @@ theorem _root_.Std.Rxi.Iterator.upwardEnumerableLe_of_isPlausibleIndirectOutput
     ∃ a, it.internalState.next = some a ∧ UpwardEnumerable.LE a out := by
   have ⟨a, ha⟩ := Option.isSome_iff_exists.mp (isSome_next_of_isPlausibleIndirectOutput hout)
   refine ⟨a, ha, ?_⟩
-  simpa only [isPlausibleIndirectOutput_iff, ha, Option.bind_some] using hout
+  simpa only [isPlausibleIndirectOutput_iff, ha, Option.bind_some] using! hout
 
-@[no_expose]
+@[no_expose, default_instance]
 instance {m} [UpwardEnumerable α]
     [LE α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α]
@@ -343,7 +347,7 @@ theorem Internal.isPlausibleIndirectOutput_iter_iff
     exact ⟨n,
       by simp [Internal.iter, hn, ← UpwardEnumerable.succMany?_add_one_eq_succ?_bind_succMany?], hu⟩
 
-@[no_expose]
+@[no_expose, default_instance]
 instance {m} [UpwardEnumerable α]
     [LE α] [DecidableLE α] [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α]
     [LT α] [LawfulUpwardEnumerableLT α]
@@ -423,7 +427,7 @@ theorem Internal.isPlausibleIndirectOutput_iter_iff
     exact ⟨n,
       by simp [Internal.iter, hn, ← UpwardEnumerable.succMany?_add_one_eq_succ?_bind_succMany?], hu⟩
 
-@[no_expose]
+@[no_expose, default_instance]
 instance {m} [UpwardEnumerable α]
     [LT α] [DecidableLT α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α]
@@ -500,7 +504,7 @@ theorem Internal.isPlausibleIndirectOutput_iter_iff
     exact ⟨n,
       by simp [Internal.iter, hn, ← UpwardEnumerable.succMany?_add_one_eq_succ?_bind_succMany?]⟩
 
-@[no_expose]
+@[no_expose, default_instance]
 instance {m} [UpwardEnumerable α]
     [LT α] [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α]
     [Monad m] [Finite (Rxi.Iterator α) Id] :
@@ -568,12 +572,12 @@ theorem Internal.isPlausibleIndirectOutput_iter_iff
     simp only [Membership.mem, LawfulUpwardEnumerableLE.le_iff]
     cases hr : (Internal.iter r).internalState.next
     · simp [hr] at hn
-    · simpa [LawfulUpwardEnumerableLE.le_iff] using hu
+    · simpa [LawfulUpwardEnumerableLE.le_iff] using! hu
   · intro hu
     obtain ⟨init, hi, hia⟩ := LawfulUpwardEnumerableLeast?.least?_le a
     simpa [iter, hi] using ⟨hia, hu⟩
 
-@[no_expose]
+@[no_expose, default_instance]
 instance {m} [UpwardEnumerable α]
     [LE α] [DecidableLE α] [Least? α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α]
@@ -642,12 +646,12 @@ theorem Internal.isPlausibleIndirectOutput_iter_iff
     simp only [Membership.mem, LawfulUpwardEnumerableLT.lt_iff]
     cases hr : (Internal.iter r).internalState.next
     · simp [hr] at hn
-    · simpa [LawfulUpwardEnumerableLT.lt_iff] using hu
+    · simpa [LawfulUpwardEnumerableLT.lt_iff] using! hu
   · intro hu
     obtain ⟨init, hi, hia⟩ := LawfulUpwardEnumerableLeast?.least?_le a
     simpa [iter, hi] using ⟨hia, hu⟩
 
-@[no_expose]
+@[no_expose, default_instance]
 instance {m} [UpwardEnumerable α]
     [LT α] [DecidableLT α] [Least? α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α]
@@ -712,9 +716,9 @@ theorem Internal.isPlausibleIndirectOutput_iter_iff
   constructor
   · simp [Membership.mem]
   · obtain ⟨init, hi, hia⟩ := LawfulUpwardEnumerableLeast?.least?_le a
-    simpa [Membership.mem, iter, hi] using hia
+    simpa [Membership.mem, iter, hi] using! hia
 
-@[no_expose]
+@[no_expose, default_instance]
 instance {m} [UpwardEnumerable α] [Least? α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLeast? α]
     [Monad m] [Finite (Rxi.Iterator α) Id] :

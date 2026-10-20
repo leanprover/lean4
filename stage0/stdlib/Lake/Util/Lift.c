@@ -187,7 +187,7 @@ lean_object* v_val_53_; lean_object* v___x_54_;
 lean_dec(v_failure_48_);
 v_val_53_ = lean_ctor_get(v_x_51_, 0);
 lean_inc(v_val_53_);
-lean_dec_ref(v_x_51_);
+lean_dec_ref_known(v_x_51_, 1);
 v___x_54_ = lean_apply_2(v_toPure_49_, lean_box(0), v_val_53_);
 return v___x_54_;
 }
@@ -228,7 +228,7 @@ lean_object* v_a_67_; lean_object* v_throw_68_; lean_object* v___x_69_;
 lean_dec(v_inst_64_);
 v_a_67_ = lean_ctor_get(v_x_66_, 0);
 lean_inc(v_a_67_);
-lean_dec_ref(v_x_66_);
+lean_dec_ref_known(v_x_66_, 1);
 v_throw_68_ = lean_ctor_get(v_inst_63_, 0);
 lean_inc(v_throw_68_);
 lean_dec_ref(v_inst_63_);
@@ -241,7 +241,7 @@ lean_object* v_a_70_; lean_object* v___x_71_;
 lean_dec_ref(v_inst_63_);
 v_a_70_ = lean_ctor_get(v_x_66_, 0);
 lean_inc(v_a_70_);
-lean_dec_ref(v_x_66_);
+lean_dec_ref_known(v_x_66_, 1);
 v___x_71_ = lean_apply_2(v_inst_64_, lean_box(0), v_a_70_);
 return v___x_71_;
 }
@@ -527,11 +527,13 @@ return v___x_215_;
 }
 }
 lean_object* runtime_initialize_Init_System_IO(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lake_Util_Lift(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Init_System_IO(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

@@ -56,7 +56,8 @@ public def mkPackage
     postUpdateHooks
   }
 
-public theorem wsIdx_mkPackage : (mkPackage l f i).wsIdx = i := by rfl
+@[simp] public theorem wsIdx_mkPackage : (mkPackage l f i).wsIdx = i := by rfl
+@[simp] public theorem depIdxs_mkPackage : (mkPackage l f i).depIdxs = #[] := by rfl
 
 /--
 Return whether a configuration file with the given name

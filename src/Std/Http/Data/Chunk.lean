@@ -21,7 +21,7 @@ Reference: https://www.rfc-editor.org/rfc/rfc9112.html#section-7.1
 -/
 
 namespace Std.Http
-open Internal Char
+open Std.Http.Internal
 
 set_option linter.all true
 

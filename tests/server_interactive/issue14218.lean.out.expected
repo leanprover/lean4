@@ -1,0 +1,52 @@
+{"textDocument": {"uri": "file:///issue14218.lean"},
+ "position": {"line": 13, "character": 15}}
+{"items":
+ [{"label": "Foo14218.aParticularName",
+   "kind": 21,
+   "data":
+   ["file:///issue14218.lean", 13, 15, 0, "cFoo14218.aParticularName"]}],
+ "isIncomplete": false}
+Resolution of Foo14218.aParticularName:
+{"label": "Foo14218.aParticularName",
+ "kind": 21,
+ "detail": "Foo14218.MyType",
+ "data": ["file:///issue14218.lean", 13, 15, 0, "cFoo14218.aParticularName"]}
+{"textDocument": {"uri": "file:///issue14218.lean"},
+ "position": {"line": 21, "character": 15}}
+{"items":
+ [{"label": "aParticularName",
+   "kind": 21,
+   "data":
+   ["file:///issue14218.lean", 21, 15, 0, "cFoo14218.aParticularName"]}],
+ "isIncomplete": false}
+Resolution of aParticularName:
+{"label": "aParticularName",
+ "kind": 21,
+ "detail": "MyType",
+ "data": ["file:///issue14218.lean", 21, 15, 0, "cFoo14218.aParticularName"]}
+{"textDocument": {"uri": "file:///issue14218.lean"},
+ "position": {"line": 31, "character": 15}}
+{"items":
+ [{"label": "aParticularName",
+   "kind": 21,
+   "data":
+   ["file:///issue14218.lean", 31, 15, 0, "cFoo14218.aParticularName"]}],
+ "isIncomplete": false}
+Resolution of aParticularName:
+{"label": "aParticularName",
+ "kind": 21,
+ "detail": "MyType",
+ "data": ["file:///issue14218.lean", 31, 15, 0, "cFoo14218.aParticularName"]}
+{"textDocument": {"uri": "file:///issue14218.lean"},
+ "position": {"line": 43, "character": 15}}
+{"items":
+ [{"label": "aParticularName",
+   "kind": 21,
+   "data":
+   ["file:///issue14218.lean", 43, 15, 0, "cFoo14218.aParticularName"]}],
+ "isIncomplete": false}
+Resolution of aParticularName:
+{"label": "aParticularName",
+ "kind": 21,
+ "detail": "Foo14218.MyType",
+ "data": ["file:///issue14218.lean", 43, 15, 0, "cFoo14218.aParticularName"]}

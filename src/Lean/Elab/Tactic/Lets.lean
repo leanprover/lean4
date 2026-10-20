@@ -9,7 +9,8 @@ prelude
 public import Lean.Meta.Tactic.Lets
 public import Lean.Elab.Tactic.Location
 import Lean.Elab.Binders
-import Lean.Linter.Basic
+import Lean.Linter.Init
+import Lean.Elab.ConfigEval
 
 public section
 
@@ -55,7 +56,7 @@ declare_config_elab elabExtractLetsConfig ExtractLetsConfig
           let ((fvars, _), mvarId) ← mvarId.extractLets givenNames config
           return (fvars, [mvarId])
         extractLetsAddVarInfo ids fvars)
-      (failed := fun _ => throwError "'extract_lets' tactic failed")
+      (failed := fun _ => throwError "`extract_lets` tactic failed")
   | _ => throwUnsupportedSyntax
 
 /-!
@@ -70,7 +71,7 @@ declare_config_elab elabLiftLetsConfig LiftLetsConfig
     withLocation (expandOptLocation (Lean.mkOptionalNode loc?))
       (atLocal := fun h => liftMetaTactic1 fun mvarId => mvarId.liftLetsLocalDecl h config)
       (atTarget := liftMetaTactic1 fun mvarId => mvarId.liftLets config)
-      (failed := fun _ => throwError "'lift_lets' tactic failed")
+      (failed := fun _ => throwError "`lift_lets` tactic failed")
   | _ => throwUnsupportedSyntax
 
 /-!
@@ -82,7 +83,7 @@ declare_config_elab elabLiftLetsConfig LiftLetsConfig
     withLocation (expandOptLocation (Lean.mkOptionalNode loc?))
       (atLocal := fun h => liftMetaTactic1 fun mvarId => mvarId.letToHaveLocalDecl h)
       (atTarget := liftMetaTactic1 fun mvarId => mvarId.letToHave)
-      (failed := fun _ => throwError "'let_to_have' tactic failed")
+      (failed := fun _ => throwError "`let_to_have` tactic failed")
   | _ => throwUnsupportedSyntax
 
 end Lean.Elab.Tactic

@@ -640,7 +640,7 @@ abbrev TopSortM := StateRefT TopSort.State TermElabM
   "right" order. "Right" here means pattern `x` must occur before pattern `y` if `y`s type depends on `x`.
 -/
 private partial def topSort (patternVars : Array Expr) : TermElabM (Array Expr) := do
-  let (_, s) ← patternVars.mapM visit |>.run {}
+  let (_, s) ← patternVars.forM visit |>.run {}
   return s.result
 where
   visit (e : Expr) : TopSortM Unit := do

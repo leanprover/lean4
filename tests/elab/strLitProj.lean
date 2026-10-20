@@ -1,5 +1,5 @@
-#reduce "".data
+#reduce "".toList
 
-example : "".data = [] := rfl
+example : "".toList = [] := rfl
 
-theorem ex : "".data = [] := rfl
+theorem ex : "".toList = [] := rfl

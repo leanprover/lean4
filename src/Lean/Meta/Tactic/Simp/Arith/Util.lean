@@ -20,11 +20,20 @@ private def isSupportedCommRingType (type : Expr) : Bool :=
   | Int => true
   | _ => false
 
+private def isNumeral (e : Expr) : Bool :=
+  if e.isRawNatLit then true else
+  match_expr e with
+  | OfNat.ofNat _ n _ => n.isRawNatLit
+  | Neg.neg _ _ a =>
+    let_expr OfNat.ofNat _ n _ := a | false
+    n.isRawNatLit
+  | _ => false
+
 /-- Quick filter for linear terms. -/
 def isLinearTerm? (e : Expr) : Option Expr :=
   match_expr e with
   | HAdd.hAdd α _ _ _ _ _ => .guard isSupportedType α
-  | HMul.hMul α _ _ _ _ _ => .guard isSupportedType α
+  | HMul.hMul α _ _ _ a b => if isNumeral a || isNumeral b then .guard isSupportedType α else none
   | HSub.hSub α _ _ _ _ _ => .guard isSupportedCommRingType α
   | Neg.neg α _ _ => .guard isSupportedCommRingType α
   | Nat.succ _ => some Nat.mkType

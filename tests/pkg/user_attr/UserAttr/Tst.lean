@@ -225,3 +225,68 @@ example : boo (f (f (f x))) (f (f x)) = x := by
 
 
 end GrindAttr
+
+
+namespace Issue13433
+/-!
+Attributes with `beforeElaboration` were not being applied to `inductive` or `structure` commands
+-/
+
+/--
+info: declaration `Issue13433.A` tagged `myattr_beforeElaboration`, not in environment
+---
+info: declaration `Issue13433.A` tagged `myattr_afterTypeChecking`, already in environment
+---
+info: declaration `Issue13433.A` tagged `myattr_afterCompilation`, already in environment
+-/
+#guard_msgs in
+@[myattr_beforeElaboration, myattr_afterTypeChecking, myattr_afterCompilation]
+structure A where
+/--
+info: declaration `Issue13433.A` tagged `myattr_beforeElaboration`, already in environment
+---
+info: declaration `Issue13433.A` tagged `myattr_afterTypeChecking`, already in environment
+---
+info: declaration `Issue13433.A` tagged `myattr_afterCompilation`, already in environment
+-/
+#guard_msgs in attribute [myattr_beforeElaboration, myattr_afterTypeChecking, myattr_afterCompilation] A
+
+/--
+info: declaration `Issue13433.B` tagged `myattr_beforeElaboration`, not in environment
+---
+info: declaration `Issue13433.B` tagged `myattr_afterTypeChecking`, already in environment
+---
+info: declaration `Issue13433.B` tagged `myattr_afterCompilation`, already in environment
+-/
+#guard_msgs in
+@[myattr_beforeElaboration, myattr_afterTypeChecking, myattr_afterCompilation]
+inductive B where
+/--
+info: declaration `Issue13433.B` tagged `myattr_beforeElaboration`, already in environment
+---
+info: declaration `Issue13433.B` tagged `myattr_afterTypeChecking`, already in environment
+---
+info: declaration `Issue13433.B` tagged `myattr_afterCompilation`, already in environment
+-/
+#guard_msgs in attribute [myattr_beforeElaboration, myattr_afterTypeChecking, myattr_afterCompilation] B
+
+/--
+info: declaration `Issue13433.C` tagged `myattr_beforeElaboration`, not in environment
+---
+info: declaration `Issue13433.C` tagged `myattr_afterTypeChecking`, already in environment
+---
+info: declaration `Issue13433.C` tagged `myattr_afterCompilation`, already in environment
+-/
+#guard_msgs in
+@[myattr_beforeElaboration, myattr_afterTypeChecking, myattr_afterCompilation]
+coinductive C : Prop where
+/--
+info: declaration `Issue13433.C` tagged `myattr_beforeElaboration`, already in environment
+---
+info: declaration `Issue13433.C` tagged `myattr_afterTypeChecking`, already in environment
+---
+info: declaration `Issue13433.C` tagged `myattr_afterCompilation`, already in environment
+-/
+#guard_msgs in attribute [myattr_beforeElaboration, myattr_afterTypeChecking, myattr_afterCompilation] C
+
+end Issue13433

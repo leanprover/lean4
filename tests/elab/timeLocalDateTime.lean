@@ -32,37 +32,37 @@ info: "09/05/1993 12:59:59"
 info: 753700087
 -/
 #guard_msgs in
-#eval date₁.toTimestampAssumingUTC.toSecondsSinceUnixEpoch
+#eval date₁.toWallTime.toSeconds
 
 /--
 info: 736952399
 -/
 #guard_msgs in
-#eval date₂.toTimestampAssumingUTC.toSecondsSinceUnixEpoch
+#eval date₂.toWallTime.toSeconds
 
 /--
 info: "09/05/1993 12:59:59"
 -/
 #guard_msgs in
-#eval PlainDateTime.ofTimestampAssumingUTC 736952399 |> format
+#eval PlainDateTime.ofWallTime 736952399 |> format
 
 /--
 info: 736952399
 -/
 #guard_msgs in
-#eval PlainDateTime.toTimestampAssumingUTC date₂ |>.toSecondsSinceUnixEpoch
+#eval PlainDateTime.toWallTime date₂ |>.toSeconds
 
 /--
 info: "16/08/2024"
 -/
 #guard_msgs in
-#eval PlainDate.ofDaysSinceUNIXEpoch 19951 |> format₂
+#eval PlainDate.ofEpochDay 19951 |> format₂
 
 /--
 info: 19951
 -/
 #guard_msgs in
-#eval PlainDate.toDaysSinceUNIXEpoch date₃
+#eval PlainDate.toEpochDay date₃
 
 /--
 info: Std.Time.Weekday.friday
@@ -79,8 +79,8 @@ info: #[]
 
   for i in *...(10000 : Nat) do
     let i := Int.ofNat i - 999975
-    let date := PlainDate.ofDaysSinceUNIXEpoch (Day.Offset.ofInt i)
-    let num := date.toDaysSinceUNIXEpoch
+    let date := PlainDate.ofEpochDay (Day.Offset.ofInt i)
+    let num := date.toEpochDay
     if i ≠ num.val then
       res := res.push i
 

@@ -1,4 +1,3 @@
-set_option backward.do.legacy false
 /-!
 This is an example for monadic reasoning.
 

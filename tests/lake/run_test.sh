@@ -9,5 +9,6 @@ LAKE=${LAKE:-$(lake query lake)}
 
 # Run the test
 TEST_DIR="$1"; shift
-cd "$TEST_DIR"
-$LAKE env bash test.sh
+CMD1="cd \"$TEST_DIR\" && ./test.sh"
+CMD2='rc=$?; echo "EXIT: $rc"; exit $rc'
+$LAKE env bash -c "$CMD1; $CMD2"

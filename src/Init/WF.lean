@@ -81,12 +81,59 @@ namespace WellFounded
 theorem apply {α : Sort u} {r : α → α → Prop} (wf : WellFounded r) (a : α) : Acc r a :=
   wf.rec (fun p => p) a
 
+/--
+Graph of a well-founded fixpoint: `FixGraph F x c` holds when `c : C x` is the value
+obtained by unfolding `F` along the accessibility tree. This recursive `Prop` inductive
+is used to define `WellFounded.fix` without large elimination of `Acc`.
+-/
+inductive FixGraph {α : Sort u} {r : α → α → Prop} {C : α → Sort v}
+    (F : (x : α) → ((y : α) → r y x → C y) → C x) : (x : α) → C x → Prop where
+  | mk (x : α) (g : (y : α) → r y x → C y)
+       (ih : ∀ (y : α) (h : r y x), FixGraph F y (g y h))
+       : FixGraph F x (F x g)
+
+theorem FixGraph.nonempty
+    {α : Sort u} {r : α → α → Prop} {C : α → Sort v}
+    (F : (x : α) → ((y : α) → r y x → C y) → C x) {x : α} (acx : Acc r x) :
+    Nonempty {c : C x // FixGraph F x c} := by
+  induction acx with
+  | intro x' _ ih =>
+    refine ⟨?_⟩
+    refine ⟨F x' (fun y h => (Classical.choice (ih y h)).val),
+            FixGraph.mk x' _ (fun y h => ?_)⟩
+    exact (Classical.choice (ih y h)).property
+
+theorem FixGraph.unique
+    {α : Sort u} {r : α → α → Prop} {C : α → Sort v}
+    (F : (x : α) → ((y : α) → r y x → C y) → C x) {x : α} (acx : Acc r x) :
+    ∀ (c₁ c₂ : C x), FixGraph F x c₁ → FixGraph F x c₂ → c₁ = c₂ := by
+  induction acx with
+  | intro x _ ih =>
+    intro c₁ c₂ h₁ h₂
+    cases h₁ with
+    | mk _ g₁ ih₁ =>
+      cases h₂ with
+      | mk _ g₂ ih₂ =>
+        have hg : g₁ = g₂ :=
+          funext fun y => funext fun h => ih y h _ _ (ih₁ y h) (ih₂ y h)
+        exact hg ▸ rfl
+
+noncomputable def fixF
+    {α : Sort u} {r : α → α → Prop} {C : α → Sort v}
+    (F : (x : α) → ((y : α) → r y x → C y) → C x) (x : α) (a : Acc r x) : C x :=
+  (Classical.choice (FixGraph.nonempty F a)).val
+
+theorem fixGraph_fixF
+    {α : Sort u} {r : α → α → Prop} {C : α → Sort v}
+    (F : (x : α) → ((y : α) → r y x → C y) → C x) (x : α) (acx : Acc r x) :
+    FixGraph F x (fixF F x acx) :=
+  (Classical.choice (FixGraph.nonempty F acx)).property
+
 section
 variable {α : Sort u} {r : α → α → Prop} (hwf : WellFounded r)
 
-noncomputable def recursion {C : α → Sort v} (a : α) (h : ∀ x, (∀ y, r y x → C y) → C x) : C a := by
-  induction (apply hwf a) with
-  | intro x₁ _ ih => exact h x₁ ih
+noncomputable def recursion {C : α → Sort v} (a : α) (h : ∀ x, (∀ y, r y x → C y) → C x) : C a :=
+  fixF h a (apply hwf a)
 
 include hwf in
 theorem induction {C : α → Prop} (a : α) (h : ∀ x, (∀ y, r y x → C y) → C x) : C a :=
@@ -95,13 +142,12 @@ theorem induction {C : α → Prop} (a : α) (h : ∀ x, (∀ y, r y x → C y) 
 variable {C : α → Sort v}
 variable (F : ∀ x, (∀ y, r y x → C y) → C x)
 
-noncomputable def fixF (x : α) (a : Acc r x) : C x := by
-  induction a with
-  | intro x₁ _ ih => exact F x₁ ih
-
-theorem fixF_eq (x : α) (acx : Acc r x) : fixF F x acx = F x (fun (y : α) (p : r y x) => fixF F y (Acc.inv acx p)) := by
-  induction acx with
-  | intro x r _ => exact rfl
+theorem fixF_eq (x : α) (acx : Acc r x) :
+    fixF F x acx = F x (fun (y : α) (p : r y x) => fixF F y (Acc.inv acx p)) := by
+  have h1 : FixGraph F x (fixF F x acx) := fixGraph_fixF F x acx
+  have h2 : FixGraph F x (F x (fun y p => fixF F y (Acc.inv acx p))) :=
+    FixGraph.mk x _ (fun y h => fixGraph_fixF F y (Acc.inv acx h))
+  exact FixGraph.unique F acx _ _ h1 h2
 
 /-- Attaches to `x` the proof that `x` is accessible in the given well-founded relation.
 This can be used in recursive function definitions to explicitly use a different relation
@@ -141,10 +187,101 @@ theorem fix_eq (hwf : WellFounded r) (F : ∀ x, (∀ y, r y x → C y) → C x)
   fixF_eq F x (apply hwf x)
 end WellFounded
 
+namespace Acc
+variable {α : Sort u} {r : α → α → Prop}
+
+/--
+A replacement for `Acc.rec` at motives that are not propositions.
+
+`Acc.rec'` has the same signature as `Acc.rec` — any motive in `Sort v`, including one that
+mentions the accessibility proof — but obtains its result from `Classical.choice` rather than by
+recursion, and is `@[irreducible]`. Compiled code is unaffected: the `@[csimp]` lemma
+`Acc.rec'_eq_recC` rewrites it to a directly recursive implementation.
+
+It is intended for use ahead of a planned change that restricts `Acc.rec` to `Prop` motives, so
+that the kernel never has to reduce a proof. Code that eliminates an accessibility proof into data
+can move to `Acc.rec'` today and keep working across that change.
+
+What such a move costs is the iota rule: `Acc.rec' intro (Acc.intro x h)` is only propositionally
+equal to `intro x h …`, via `Acc.rec'_intro`. To port code that uses `Acc.rec` at a non-`Prop`
+motive:
+
+* rewrite `Acc.rec`, `Acc.recOn`, `Acc.ndrec` and `Acc.ndrecOn` to `Acc.rec'`, `Acc.recOn'`,
+  `Acc.ndrec'` and `Acc.ndrecOn'`, and `induction h with | intro ..` to
+  `induction h using Acc.rec' with | intro ..`;
+* prove unfolding equations with `Acc.rec'_eq` where `rfl` used to work. Since `rw` matches on
+  the head symbol, `Acc.recOn'` and friends have to be unfolded first, as in
+  `rw [myDef, Acc.recOn', Acc.rec'_eq]`.
+-/
+@[irreducible, elab_as_elim] noncomputable def rec'.{v', u'} {α : Sort u'} {r : α → α → Prop}
+    {motive : (a : α) → Acc r a → Sort v'}
+    (intro : (x : α) → (h : (y : α) → r y x → Acc r y) →
+      ((y : α) → (hy : r y x) → motive y (h y hy)) → motive x (Acc.intro x h))
+    {a : α} (t : Acc r a) : motive a t :=
+  -- The motive is closed over the accessibility proof so that it fits `fixF`'s
+  -- proof-independent `C`; this stays in `Sort v` because `Acc r x` is a proposition.
+  WellFounded.fixF (C := fun x => (h : Acc r x) → motive x h)
+    (fun x ih h => intro x (fun _ hy => h.inv hy) (fun y hy => ih y hy (h.inv hy)))
+    a t t
+
+unseal rec' in
+/-- The propositional replacement for the iota rule of `Acc.rec`. -/
+theorem rec'_intro {motive : (a : α) → Acc r a → Sort v}
+    (intro : (x : α) → (h : (y : α) → r y x → Acc r y) →
+      ((y : α) → (hy : r y x) → motive y (h y hy)) → motive x (Acc.intro x h))
+    (x : α) (h : (y : α) → r y x → Acc r y) :
+    -- `motive` is passed explicitly: `rec'` is `@[elab_as_elim]`, and letting the eliminator
+    -- elaborator infer it here yields a motive that ignores its `Acc` argument, which no
+    -- longer matches actual `Acc.rec'` applications.
+    rec' (motive := motive) intro (Acc.intro x h)
+      = intro x h (fun y hy => rec' (motive := motive) intro (h y hy)) := by
+  let C : α → Sort v := fun x => (h : Acc r x) → motive x h
+  let F : (x : α) → ((y : α) → r y x → C y) → C x :=
+    fun x ih h => intro x (fun _ hy => h.inv hy) (fun y hy => ih y hy (h.inv hy))
+  have h1 : WellFounded.FixGraph F x (WellFounded.fixF F x (Acc.intro x h)) :=
+    WellFounded.fixGraph_fixF F x _
+  have h2 : WellFounded.FixGraph F x (F x (fun y hy => WellFounded.fixF F y (h y hy))) :=
+    WellFounded.FixGraph.mk x _ (fun y hy => WellFounded.fixGraph_fixF F y (h y hy))
+  exact congrFun (WellFounded.FixGraph.unique F (Acc.intro x h) _ _ h1 h2) (Acc.intro x h)
+
+/--
+Unfolds `Acc.rec'` at an arbitrary accessibility proof, which is what proofs that used to close
+an unfolding equation by `rfl` need. Unlike `Acc.rec'_intro` this matches any `Acc.rec' intro t`,
+since `t` need not be in `Acc.intro _ _` form.
+-/
+theorem rec'_eq {motive : (a : α) → Acc r a → Sort v}
+    (intro : (x : α) → (h : (y : α) → r y x → Acc r y) →
+      ((y : α) → (hy : r y x) → motive y (h y hy)) → motive x (Acc.intro x h))
+    {a : α} (t : Acc r a) :
+    rec' (motive := motive) intro t
+      = intro a (fun _ hy => t.inv hy) (fun _ hy => rec' (motive := motive) intro (t.inv hy)) :=
+  rec'_intro intro a fun _ hy => t.inv hy
+
+/-- `Acc.recOn` at motives that are not propositions. See `Acc.rec'`. -/
+@[elab_as_elim, reducible] noncomputable def recOn'.{v', u'} {α : Sort u'}
+    {r : α → α → Prop} {motive : (a : α) → Acc r a → Sort v'} {a : α} (t : Acc r a)
+    (intro : (x : α) → (h : (y : α) → r y x → Acc r y) →
+      ((y : α) → (hy : r y x) → motive y (h y hy)) → motive x (Acc.intro x h)) : motive a t :=
+  rec' intro t
+
+/-- `Acc.ndrec` at motives that are not propositions. See `Acc.rec'`. -/
+@[reducible] noncomputable def ndrec'.{v', u'} {α : Sort u'} {r : α → α → Prop} {C : α → Sort v'}
+    (m : (x : α) → ((y : α) → r y x → Acc r y) → ((y : α) → r y x → C y) → C x)
+    {a : α} (n : Acc r a) : C a :=
+  rec' m n
+
+/-- `Acc.ndrecOn` at motives that are not propositions. See `Acc.rec'`. -/
+@[reducible] noncomputable def ndrecOn'.{v', u'} {α : Sort u'} {r : α → α → Prop}
+    {C : α → Sort v'} {a : α} (n : Acc r a)
+    (m : (x : α) → ((y : α) → r y x → Acc r y) → ((y : α) → r y x → C y) → C x) : C a :=
+  rec' m n
+
+end Acc
+
 open WellFounded
 
 -- Empty relation is well-founded
-@[implicit_reducible]
+@[instance_reducible]
 def emptyWf {α : Sort u} : WellFoundedRelation α where
   rel := emptyRelation
   wf  := by
@@ -218,7 +355,7 @@ theorem WellFounded.transGen (h : WellFounded r) : WellFounded (TransGen r) :=
 namespace Nat
 
 -- less-than is well-founded
-@[implicit_reducible]
+@[instance_reducible]
 def lt_wfRel : WellFoundedRelation Nat where
   rel := (· < ·)
   wf  := by
@@ -363,7 +500,7 @@ theorem RProdSubLex (a : α × β) (b : α × β) (h : RProd ra rb a b) : Prod.L
   | intro h₁ h₂ => exact Prod.Lex.left _ _ h₁
 
 -- The relational product of well founded relations is well-founded
-@[implicit_reducible]
+@[instance_reducible]
 def rprod (ha : WellFoundedRelation α) (hb : WellFoundedRelation β) : WellFoundedRelation (α × β) where
   rel := RProd ha.rel hb.rel
   wf  := by
@@ -456,7 +593,7 @@ section
 def SkipLeft (α : Type u) {β : Type v} (s : β → β → Prop) : @PSigma α (fun _ => β) → @PSigma α (fun _ => β) → Prop :=
   RevLex emptyRelation s
 
-@[implicit_reducible]
+@[instance_reducible]
 def skipLeft (α : Type u) {β : Type v} (hb : WellFoundedRelation β) : WellFoundedRelation (PSigma fun _ : α => β) where
   rel := SkipLeft α hb.rel
   wf  := revLex emptyWf.wf hb.wf
@@ -475,6 +612,7 @@ variable (h : α → Nat)
 variable (F : (x : α) → ((y : α) → InvImage (· < ·) h y x → motive y) → motive x)
 
 /-- Helper gadget that prevents reduction of `Nat.eager n` unless `n` evaluates to a ground term. -/
+@[implicit_reducible]
 def Nat.eager (n : Nat) : Nat :=
   if Nat.beq n n = true then n else n
 
@@ -489,12 +627,15 @@ In contrast to `WellFounded.fix`, this fixpoint operator reduces on closed terms
 when `h x` evaluates to a ground value)
 
 -/
+@[implicit_reducible]
 def Nat.fix : (x : α) → motive x :=
   let rec go : ∀ (fuel : Nat) (x : α), (h x < fuel) → motive x :=
     Nat.rec
       (fun _ hfuel => (Nat.not_succ_le_zero _ hfuel).elim)
       (fun _ ih x hfuel => F x (fun y hy => ih y (by exact Nat.lt_of_lt_of_le hy (Nat.le_of_lt_add_one hfuel))))
   fun x => go (Nat.eager (h x + 1)) x (Nat.eager_eq _ ▸ Nat.lt_add_one _)
+
+attribute [implicit_reducible] Nat.fix.go
 
 protected theorem Nat.fix.go_congr (x : α) (fuel₁ fuel₂ : Nat) (h₁ : h x < fuel₁) (h₂ : h x < fuel₂) :
     Nat.fix.go h F fuel₁ x h₁ = Nat.fix.go h F fuel₂ x h₂ := by
@@ -519,7 +660,7 @@ The `wfParam` gadget is used internally during the construction of recursive fun
 wellfounded recursion, to keep track of the parameter for which the automatic introduction
 of `List.attach` (or similar) is plausible.
 -/
-def wfParam {α : Sort u} (a : α) : α := a
+@[implicit_reducible] def wfParam {α : Sort u} (a : α) : α := a
 
 /--
 Reverse direction of `dite_eq_ite`. Used by the well-founded definition preprocessor to extend the

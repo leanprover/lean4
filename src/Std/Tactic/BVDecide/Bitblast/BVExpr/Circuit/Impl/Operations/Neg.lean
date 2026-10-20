@@ -37,14 +37,12 @@ def blastNeg (aig : AIG α) (input : AIG.RefVec aig w) : AIG.RefVecEntry α w :=
 instance : AIG.LawfulVecOperator α AIG.RefVec blastNeg where
   le_size := by
     intros
-    unfold blastNeg
-    dsimp only
+    simp only [blastNeg]
     apply AIG.LawfulVecOperator.le_size_of_le_aig_size (f := blastAdd)
     apply AIG.LawfulVecOperator.le_size (f := blastNot)
   decl_eq := by
     intros
-    unfold blastNeg
-    dsimp only
+    simp only [blastNeg]
     rw [AIG.LawfulVecOperator.decl_eq (f := blastAdd)]
     rw [AIG.LawfulVecOperator.decl_eq (f := blastNot)]
     · apply AIG.LawfulVecOperator.lt_size_of_lt_aig_size (f := blastNot)

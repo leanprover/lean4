@@ -66,12 +66,20 @@ structure Server where
   -/
   config : Std.Http.Config
 
+  /--
+  The local socket address the server is bound to. When `serve` is called with a port of `0`, this
+  reflects the ephemeral port assigned by the OS rather than the requested address.
+  `none` for servers constructed without an associated listening socket (e.g. `serveConnection`).
+  -/
+  localAddr : Option Net.SocketAddress := none
+
 namespace Server
 
 /--
 Create a new `Server` structure with an optional configuration.
 -/
-def new (config : Std.Http.Config := {}) : IO Server := do
+def new (config : Std.Http.Config := {}) (localAddr : Option Net.SocketAddress := none) :
+    IO Server := do
   let context ← Std.CancellationContext.new
   let activeConnections ← Std.Mutex.new 0
   let connectionLimit ←
@@ -81,7 +89,7 @@ def new (config : Std.Http.Config := {}) : IO Server := do
       some <$> Std.Semaphore.new config.maxConnections
   let shutdownPromise ← Std.Channel.new
 
-  return { context, activeConnections, connectionLimit, shutdownPromise, config }
+  return { context, activeConnections, connectionLimit, shutdownPromise, config, localAddr }
 
 /--
 Triggers cancellation of all requests and the accept loop in the server. This function should be used
@@ -140,12 +148,13 @@ def serve {σ : Type} [Handler σ]
     (handler : σ)
     (config : Config := {}) (backlog : UInt32 := 1024) : Async Server := do
 
-  let httpServer ← Server.new config
-
   let server ← Socket.Server.mk
   server.bind addr
   server.listen backlog
   server.noDelay
+  let localAddr ← server.getSockName
+
+  let httpServer ← Server.new config (some localAddr)
 
   let runServer := do
     frameCancellation httpServer (action := do

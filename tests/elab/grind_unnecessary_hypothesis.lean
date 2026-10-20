@@ -53,7 +53,10 @@ info: idxToCount''.go.{u_1} {α : Type u_1} [BEq α] (xs : List α) (i : Nat) (h
 set_option linter.unusedVariables true
 -- Another example from the Zulip thread
 /--
-warning: unused variable `hi`
+warning: Variable name `hi` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _hi
 
 Note: This linter can be disabled with `set_option linter.unusedVariables false`
 -/

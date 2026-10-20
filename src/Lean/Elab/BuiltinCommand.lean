@@ -9,12 +9,14 @@ prelude
 public import Lean.Meta.Reduce
 public import Lean.Elab.Eval
 public import Lean.Elab.Command
+import Lean.Elab.ConfigEval
 import Lean.Elab.DeprecatedSyntax
 public import Lean.Elab.Open
 import Init.Data.Nat.Order
 import Init.Data.Order.Lemmas
 import Init.System.Platform
 import Lean.DeprecatedModule
+import Lean.Linter.Deprecated
 
 public section
 
@@ -25,20 +27,19 @@ namespace Lean.Elab.Command
     | return  -- must be from partial syntax, ignore
 
   match stx[1] with
-  | Syntax.atom _ val =>
+  | Syntax.node _ ``Lean.Parser.Command.commentBody #[.atom _ doc, _] =>
     if getMainVersoModuleDocs (← getEnv) |>.isEmpty then
-      let doc := String.Pos.Raw.extract val 0 (val.rawEndPos.unoffsetBy ⟨2⟩)
       modifyEnv fun env => addMainModuleDoc env ⟨doc, range⟩
     else
       throwError m!"Can't add Markdown-format module docs because there is already Verso-format content present."
-  | Syntax.node _ ``Lean.Parser.Command.versoCommentBody args =>
-    let docSyntax := args.getD 0 .missing
-    if docSyntax.getKind == `Lean.Doc.Syntax.parseFailure then
+  | Syntax.node _ ``Lean.Parser.Command.versoCommentBody _ =>
+    let view := VersoDocstringView.of ⟨stx⟩
+    match view.markup with
+    | .parseFailure _ =>
       -- Report parser errors without attempting elaboration
-      runTermElabM fun _ => reportVersoParseFailure docSyntax
-    else
-      runTermElabM fun _ => do
-        addVersoModDocString range ⟨docSyntax⟩
+      runTermElabM fun _ => reportVersoParseFailure view
+    | .document doc =>
+      runTermElabM fun _ => addVersoModDocString range doc
   | _ => throwErrorAt stx "unexpected module doc string{indentD <| stx}"
 
 private def addScope (isNewNamespace : Bool) (header : String) (newNamespace : Name)
@@ -268,16 +269,18 @@ private def throwUnnecessaryScopeName (header : Name) : CommandElabM Unit := do
   modify fun s => {s with scopes := s.scopes.drop endSize }
   popScopes endSize
 
-private partial def elabChoiceAux (cmds : Array Syntax) (i : Nat) : CommandElabM Unit :=
-  if h : i < cmds.size then
+private partial def elabChoiceAux (choiceStx : Syntax) (i : Nat) : CommandElabM Unit :=
+  if i < choiceStx.getNumArgs then
     catchInternalId unsupportedSyntaxExceptionId
-      (elabCommand cmds[i])
-      (fun _ => elabChoiceAux cmds (i+1))
+      (do
+        elabCommand (choiceStx.getArg i)
+        pushInfoLeaf <| .ofChoiceResolutionInfo { stx := choiceStx, chosenAltIdx := i })
+      (fun _ => elabChoiceAux choiceStx (i+1))
   else
     throwUnsupportedSyntax
 
 @[builtin_command_elab choice] def elabChoice : CommandElab := fun stx =>
-  elabChoiceAux stx.getArgs 0
+  elabChoiceAux stx 0
 
 @[builtin_command_elab «universe»] def elabUniverse : CommandElab := fun n => do
   n[1].forArgsM addUnivLevel
@@ -412,7 +415,7 @@ private def replaceBinderAnnotation (binder : TSyntax ``Parser.Term.bracketedBin
     return #[binder]
 
 @[builtin_command_elab «variable»] def elabVariable : CommandElab
-  | `(variable%$tk $binders*) => do
+  | `($[$_:visibility]? variable%$tk $binders*) => do
     let binders ← binders.flatMapM replaceBinderAnnotation
     -- Try to elaborate `binders` for sanity checking
     runTermElabM fun _ => Term.withSynthesize <| Term.withAutoBoundImplicit <|
@@ -453,23 +456,25 @@ def elabCheckCore (ignoreStuckTC : Bool) : CommandElab
 
 @[builtin_command_elab Lean.Parser.Command.check] def elabCheck : CommandElab := elabCheckCore (ignoreStuckTC := true)
 
+declare_command_config_elab elabReduceConfig Command.ReduceConfig
+
 @[builtin_command_elab Lean.reduceCmd] def elabReduce : CommandElab
-  | `(#reduce%$tk $term) => go tk term
-  | `(#reduce%$tk (proofs := true) $term) => go tk term (skipProofs := false)
-  | `(#reduce%$tk (types := true) $term) => go tk term (skipTypes := false)
-  | `(#reduce%$tk (proofs := true) (types := true) $term) => go tk term (skipProofs := false) (skipTypes := false)
+  | `(#reduce%$tk $cfg $term) => do
+    let cfg ← elabReduceConfig cfg
+    go tk term cfg
   | _ => throwUnsupportedSyntax
 where
-  go (tk : Syntax) (term : Syntax) (skipProofs := true) (skipTypes := true) : CommandElabM Unit :=
+  go (tk : Syntax) (term : Syntax) (cfg : Command.ReduceConfig) : CommandElabM Unit :=
     withoutModifyingEnv <| runTermElabM fun _ => Term.withDeclName `_reduce do
       let e ← Term.elabTerm term none
-      Term.synthesizeSyntheticMVarsNoPostponing
-      -- Users might be testing out buggy elaborators. Let's typecheck before proceeding:
-      withRef tk <| Meta.check e
+      Term.synthesizeSyntheticMVarsNoPostponing (ignoreStuckTC := cfg.ignoreStuckTC)
+      let e ← instantiateMVars e
+      if cfg.check then
+        -- Users might be testing out buggy elaborators. Let's typecheck before proceeding:
+        withRef tk <| Meta.check e
       let e ← Term.levelMVarToParam (← instantiateMVars e)
-      -- TODO: add options or notation for setting the following parameters
-      withTheReader Core.Context (fun ctx => { ctx with options := ctx.options.set `smartUnfolding false }) do
-        let e ← withTransparency (mode := TransparencyMode.all) <| reduce e (skipProofs := skipProofs) (skipTypes := skipTypes)
+      withTheReader Core.Context (fun ctx => ctx.setOptions (ctx.options.set `smartUnfolding cfg.smartUnfolding)) do
+        let e ← withTransparency (mode := cfg.transparency) <| reduce e (explicitOnly := !cfg.implicits) (skipProofs := !cfg.proofs) (skipTypes := !cfg.types)
         logInfoAt tk e
 
 def hasNoErrorMessages : CommandElabM Bool := do
@@ -538,6 +543,7 @@ open Lean.Parser.Command.InternalSyntax in
     let declName ← liftCoreM <| realizeGlobalConstNoOverloadWithInfo id
     unless ((← getEnv).getModuleIdxFor? declName).isNone do
       throwError "invalid 'add_decl_doc', declaration is in an imported module"
+    throwIfHasDocString declName
     if let .none ← findDeclarationRangesCore? declName then
       -- this is only relevant for declarations added without a declaration range
       -- in particular `Quot.mk` et al which are added by `init_quot`
@@ -610,6 +616,7 @@ open Lean.Parser.Command.InternalSyntax in
   let platforms :=
     (if System.Platform.isWindows then [" Windows"] else [])
     ++ (if System.Platform.isOSX then [" macOS"] else [])
+    ++ (if System.Platform.isLinux then [" Linux"] else [])
     ++ (if System.Platform.isEmscripten then [" Emscripten"] else [])
   logInfo m!"Lean {Lean.versionString}\nTarget: {target}{String.join platforms}"
 
@@ -625,9 +632,14 @@ open Lean.Parser.Command.InternalSyntax in
 @[builtin_command_elab Parser.Command.where] def elabWhere : CommandElab := fun _ => do
   let scope ← getScope
   let mut msg : Array MessageData := #[]
-  -- Noncomputable
-  if scope.isNoncomputable then
-    msg := msg.push <| ← `(Parser.Command.section| noncomputable section)
+  let isExpose := scope.attrs.any (· matches `(attrInstance| expose))
+  -- Section header
+  if isExpose || scope.isPublic || scope.isNoncomputable || scope.isMeta then
+    let expTk? := if isExpose then some Syntax.missing else none
+    let publicTk? := if scope.isPublic then some Syntax.missing else none
+    let ncTk? := if scope.isNoncomputable then some Syntax.missing else none
+    let metaTk? := if scope.isMeta then some Syntax.missing else none
+    msg := msg.push <| ← `(Parser.Command.section| $[@[expose%$expTk?]]? $[public%$publicTk?]? $[noncomputable%$ncTk?]? $[meta%$metaTk?]? section)
   -- Namespace
   if !scope.currNamespace.isAnonymous then
     msg := msg.push <| ← `(command| namespace $(mkIdent scope.currNamespace))
@@ -645,6 +657,9 @@ open Lean.Parser.Command.InternalSyntax in
   -- Included variables
   if !scope.includedVars.isEmpty then
     msg := msg.push <| ← `(command| include $(scope.includedVars.toArray.map (mkIdent ·.eraseMacroScopes))*)
+  -- Omitted variables
+  if !scope.omittedVars.isEmpty then
+    msg := msg.push <| ← `(command| omit $(scope.omittedVars.toArray.map (mkIdent ·.eraseMacroScopes))*)
   -- Options
   if let some optionsMsg ← describeOptions scope.opts then
     msg := msg.push optionsMsg
@@ -722,14 +737,15 @@ where
 /-- Elaborate `deprecated_module`, marking the current module as deprecated. -/
 @[builtin_command_elab Parser.Command.deprecated_module]
 def elabDeprecatedModule : CommandElab
-  | `(Parser.Command.deprecated_module| deprecated_module $[$msg?]? $[(since := $since?)]?) => do
+  | stx@`(Parser.Command.deprecated_module| deprecated_module $[$msg?]? $[(since := $since?)]?) => do
     let message? := msg?.map TSyntax.getString
     let since? := since?.map TSyntax.getString
     if (deprecatedModuleExt.getState (← getEnv)).isSome then
       logWarning "module is already marked as deprecated"
     if since?.isNone then
-      logWarning "`deprecated_module` should specify the date or library version \
-        at which the deprecation was introduced, using `(since := \"...\")`"
+      logWarning <| m!"`deprecated_module` should specify the date or library version \
+        at which the deprecation was introduced, using `(since := \"...\")`" ++
+        (← liftCoreM <| Linter.mkSinceHint stx)
     modifyEnv fun env => env.setDeprecatedModule (some { message?, since? })
   | _ => throwUnsupportedSyntax
 
@@ -764,8 +780,9 @@ def elabShowDeprecatedModules : CommandElab := fun _ => do
   let text? := if stx[2].isNone then none else stx[2][0].isStrLit?
   let since? := if stx[3].isNone then none else stx[3][3].isStrLit?
   if since?.isNone then
-    logWarning "`deprecated_syntax` should specify the date or library version at which the \
-      deprecation was introduced, using `(since := \"...\")`"
+    logWarning <| m!"`deprecated_syntax` should specify the date or library version at which the \
+      deprecation was introduced, using `(since := \"...\")`" ++
+      (← liftCoreM <| Linter.mkSinceHint stx)
   modifyEnv fun env =>
     deprecatedSyntaxExt.addEntry env { kind, text?, since? }
 

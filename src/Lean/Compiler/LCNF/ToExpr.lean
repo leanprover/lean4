@@ -78,7 +78,7 @@ where
 
 end ToExpr
 
-open ToExpr
+open Lean.Compiler.LCNF.ToExpr
 
 private def Arg.toExprM (arg : Arg pu) : ToExprM Expr :=
   return arg.toExpr.abstract' (← read) (← get)
@@ -132,9 +132,10 @@ partial def Code.toExprM (code : Code pu) : ToExprM Expr := do
     let value := mkApp4 (mkConst `inc) (.fvar fvarId) (toExpr n) (toExpr check) (toExpr persistent)
     let body ← withFVar fvarId k.toExprM
     return .letE `dummy (mkConst ``Unit) value body true
-  | .dec fvarId n check persistent k _ =>
+  | .dec fvarId n check persistent o k _ =>
     let body ← withFVar fvarId k.toExprM
-    let value := mkApp4 (mkConst `dec) (.fvar fvarId) (toExpr n) (toExpr check) (toExpr persistent)
+    let value :=
+      mkApp5 (mkConst `dec) (.fvar fvarId) (toExpr n) (toExpr check) (toExpr persistent) (toExpr o)
     return .letE `dummy (mkConst ``Unit) value body true
   | .del fvarId k _ =>
     let body ← withFVar fvarId k.toExprM

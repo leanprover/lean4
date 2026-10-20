@@ -11,13 +11,13 @@ public import Lean.Util.OccursCheck
 public import Lean.Elab.Tactic.Basic
 public import Lean.Meta.AbstractNestedProofs
 public import Init.Data.List.Sort.Basic
-import all Lean.Elab.ErrorUtils
+import Lean.Elab.ErrorUtils
 
 public section
 
 namespace Lean.Elab.Term
 open Tactic (TacticM evalTactic getUnsolvedGoals withTacticInfoContext)
-open Meta
+open Meta Internal.ErrorUtils
 
 /-- Auxiliary function used to implement `synthesizeSyntheticMVars`. -/
 private def resumeElabTerm (stx : Syntax) (expectedType? : Option Expr) (errToSorry := true) : TermElabM Expr :=

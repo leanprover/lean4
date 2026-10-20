@@ -12,7 +12,9 @@ public import Init.Data.Format.Instances
 public section
 universe u v
 
-namespace Std
+open Std.Format
+
+namespace Lean.Std
 namespace Format
 open Lean
 
@@ -35,20 +37,19 @@ register_builtin_option format.indent : Nat := {
   descr    := "indentation"
 }
 
-def pretty' (f : Format) (o : Options := {}) : String :=
+def pretty' (f : _root_.Std.Format) (o : Options := {}) : String :=
   pretty f (format.width.get o)
 
 end Format
-end Std
+end Lean.Std
 
 namespace Lean
-open Std
 
-export Std
-  (Format ToFormat Format.nest Format.nil Format.joinSep Format.line
+export _root_.Std
+  (Format ToFormat Format.nest Format.nil Format.joinSep Format.line Format.text
    Format.sbracket Format.bracket Format.group Format.tag Format.pretty
    Format.fill Format.paren Format.join Format.align)
-export ToFormat (format)
+export _root_.Std.ToFormat (format)
 
 instance : ToFormat Name where
   format n := n.toString

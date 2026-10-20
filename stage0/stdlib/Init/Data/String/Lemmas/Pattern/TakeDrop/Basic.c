@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.String.Lemmas.Pattern.TakeDrop.Basic
-// Imports: public import Init.Data.String.Slice public import Init.Data.String.TakeDrop public import Init.Data.String.Lemmas.Pattern.Basic import all Init.Data.String.Slice import all Init.Data.String.TakeDrop import Init.Data.String.Lemmas.Intercalate import Init.Data.String.Lemmas.Order import Init.Data.String.Lemmas.Basic import Init.Data.String.OrderInstances import Init.ByCases
+// Imports: public import Init.Data.String.Slice.Pattern public import Init.Data.String.TakeDrop public import Init.Data.String.Lemmas.Pattern.Basic import all Init.Data.String.Slice.Pattern import all Init.Data.String.TakeDrop import Init.Data.String.Lemmas.Intercalate import Init.Data.String.Lemmas.Order import Init.Data.String.Lemmas.Basic import Init.Data.String.OrderInstances import Init.ByCases
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -33,7 +33,7 @@ lean_object* v_val_6_; lean_object* v___x_7_;
 lean_dec(v_h__2_3_);
 v_val_6_ = lean_ctor_get(v_x_1_, 0);
 lean_inc(v_val_6_);
-lean_dec_ref(v_x_1_);
+lean_dec_ref_known(v_x_1_, 1);
 v___x_7_ = lean_apply_1(v_h__1_2_, v_val_6_);
 return v___x_7_;
 }
@@ -56,7 +56,7 @@ lean_object* v_val_15_; lean_object* v___x_16_;
 lean_dec(v_h__2_12_);
 v_val_15_ = lean_ctor_get(v_x_10_, 0);
 lean_inc(v_val_15_);
-lean_dec_ref(v_x_10_);
+lean_dec_ref_known(v_x_10_, 1);
 v___x_16_ = lean_apply_1(v_h__1_11_, v_val_15_);
 return v___x_16_;
 }
@@ -71,22 +71,24 @@ lean_dec_ref(v_s_17_);
 return v_res_22_;
 }
 }
-lean_object* runtime_initialize_Init_Data_String_Slice(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_String_Slice_Pattern(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_String_TakeDrop(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_String_Lemmas_Pattern_Basic(uint8_t builtin);
-lean_object* runtime_initialize_Init_Data_String_Slice(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_String_Slice_Pattern(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_String_TakeDrop(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_String_Lemmas_Intercalate(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_String_Lemmas_Order(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_String_Lemmas_Basic(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_String_OrderInstances(uint8_t builtin);
 lean_object* runtime_initialize_Init_ByCases(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Init_Data_String_Lemmas_Pattern_TakeDrop_Basic(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
-res = runtime_initialize_Init_Data_String_Slice(builtin);
+lean_initialize_runtime_module();
+res = runtime_initialize_Init_Data_String_Slice_Pattern(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Init_Data_String_TakeDrop(builtin);
@@ -95,7 +97,7 @@ lean_dec_ref(res);
 res = runtime_initialize_Init_Data_String_Lemmas_Pattern_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_String_Slice(builtin);
+res = runtime_initialize_Init_Data_String_Slice_Pattern(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Init_Data_String_TakeDrop(builtin);
@@ -125,10 +127,10 @@ if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_meta_initialized = true;
 return lean_io_result_mk_ok(lean_box(0));
 }
-lean_object* initialize_Init_Data_String_Slice(uint8_t builtin);
+lean_object* initialize_Init_Data_String_Slice_Pattern(uint8_t builtin);
 lean_object* initialize_Init_Data_String_TakeDrop(uint8_t builtin);
 lean_object* initialize_Init_Data_String_Lemmas_Pattern_Basic(uint8_t builtin);
-lean_object* initialize_Init_Data_String_Slice(uint8_t builtin);
+lean_object* initialize_Init_Data_String_Slice_Pattern(uint8_t builtin);
 lean_object* initialize_Init_Data_String_TakeDrop(uint8_t builtin);
 lean_object* initialize_Init_Data_String_Lemmas_Intercalate(uint8_t builtin);
 lean_object* initialize_Init_Data_String_Lemmas_Order(uint8_t builtin);
@@ -140,7 +142,7 @@ LEAN_EXPORT lean_object* initialize_Init_Data_String_Lemmas_Pattern_TakeDrop_Bas
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_String_Slice(builtin);
+res = initialize_Init_Data_String_Slice_Pattern(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_String_TakeDrop(builtin);
@@ -149,7 +151,7 @@ lean_dec_ref(res);
 res = initialize_Init_Data_String_Lemmas_Pattern_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_String_Slice(builtin);
+res = initialize_Init_Data_String_Slice_Pattern(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_String_TakeDrop(builtin);

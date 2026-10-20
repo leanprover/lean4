@@ -53,7 +53,7 @@ structure BodyProcessedSnapshot extends Language.Snapshot where
   moreSnaps : Array (SnapshotTask SnapshotTree)
 deriving Nonempty
 instance : Language.ToSnapshotTree BodyProcessedSnapshot where
-  toSnapshotTree s := ⟨s.toSnapshot, s.moreSnaps⟩
+  toSnapshotTreeM s := return ⟨← s.toSnapshot.transform, ← s.moreSnaps.mapM (·.transform)⟩
 
 /-- Snapshot after elaboration of a definition header. -/
 structure HeaderProcessedSnapshot extends Language.Snapshot where
@@ -73,11 +73,9 @@ structure HeaderProcessedSnapshot extends Language.Snapshot where
   moreSnaps : Array (SnapshotTask SnapshotTree)
 deriving Nonempty
 instance : Language.ToSnapshotTree HeaderProcessedSnapshot where
-  toSnapshotTree s := ⟨s.toSnapshot,
-    (match s.tacSnap? with
-      | some tac => #[tac.map (sync := true) toSnapshotTree]
-      | none     => #[]) ++
-    #[s.bodySnap.map (sync := true) toSnapshotTree] ++ s.moreSnaps⟩
+  toSnapshotTreeM s := return ⟨← s.toSnapshot.transform,
+    (← s.tacSnap?.toArray.mapM (·.transform)) ++
+    #[← s.bodySnap.transform] ++ (← s.moreSnaps.mapM (·.transform))⟩
 
 /-- State before elaboration of a mutual definition. -/
 structure DefParsed where
@@ -96,8 +94,8 @@ structure DefsParsedSnapshot extends Language.Snapshot where
   defs : Array DefParsed
 deriving Nonempty, TypeName
 instance : Language.ToSnapshotTree DefsParsedSnapshot where
-  toSnapshotTree s := ⟨s.toSnapshot,
-    s.defs.map (·.headerProcessedSnap.map (sync := true) toSnapshotTree)⟩
+  toSnapshotTreeM s := return ⟨← s.toSnapshot.transform,
+    ← s.defs.mapM (·.headerProcessedSnap.transform)⟩
 
 end Snapshots
 
@@ -114,8 +112,8 @@ structure DefView where
   binders       : Syntax
   type?         : Option Syntax
   value         : Syntax
-  /-- The docstring, if present, and whether it's Verso -/
-  docString?    : Option (TSyntax ``Parser.Command.docComment × Bool)
+  /-- The docstring, if present. -/
+  docString?    : Option (TSyntax ``Parser.Command.docComment)
   /--
   Snapshot for incremental processing of this definition.
 
@@ -166,7 +164,7 @@ def mkDefViewOfInstance (modifiers : Modifiers) (stx : Syntax) : CommandElabM De
   -- leading_parser Term.attrKind >> "instance " >> optNamedPrio >> optional declId >> declSig >> declVal
   let attrKind        ← liftMacroM <| toAttributeKind stx[0]
   let prio            ← liftMacroM <| expandOptNamedPrio stx[2]
-  -- NOTE: `[implicit_reducible]` is added conditionally in `elabMutualDef`
+  -- NOTE: `[instance_reducible]` is added conditionally in `elabMutualDef`
   let attrStx         ← `(attr| instance $(quote prio):num)
   let modifiers       := modifiers.addAttr { kind := attrKind, name := `instance, stx := attrStx }
   let (binders, type) := expandDeclSig stx[4]

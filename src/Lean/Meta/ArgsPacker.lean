@@ -57,7 +57,7 @@ namespace Unary
 Helpers for iterated `PSigma`.
 -/
 
-/-
+/--
 Given a telescope of FVars of type `tᵢ`, iterates `PSigma` to produce the type
 `t₁ ⊗' t₂ …`.
 -/
@@ -331,7 +331,7 @@ def mkCodomain (types : Array Expr) (x : Expr) : MetaM Expr := do
     termination_by types.size - 1 - i
   go x 0
 
-/-
+/--
 Given types `(x : A) → R₁[x]` and `(z : B) → R₂[z]`, returns the type
 ```
 (x : A ⊕' B) → (match x with | .inl x => R₁[x] | .inr R₂[z]
@@ -355,7 +355,7 @@ def uncurryType (types : Array Expr) : MetaM Expr := do
     let codomain ← Mutual.mkCodomain types x
     mkForallFVars #[x] codomain
 
-/-
+/--
 Given types `(x : A) → R` and `(z : B) → R`, returns the type
 ```
 (x : A ⊕' B) → R
@@ -375,7 +375,7 @@ def uncurryTypeND (types : Array Expr) : MetaM Expr := do
   let domain ← packType (types.map (·.bindingDomain!))
   mkArrow domain codomain
 
-/-
+/--
 Iterated `PSum.casesOn`:
 Given a value `(x : A ⊕ C)` (which must be a FVar) and functions
 `alt₁ : (a : A) → codomain[inl a]` and `alt₂ : (b : B) → codomain[inr b]`,
@@ -435,7 +435,7 @@ def uncurryND (es : Array Expr) : MetaM Expr := do
     let value ← casesOn x codomain es.toList
     mkLambdaFVars #[x] value
 
-/-
+/--
 Given type `(A ⊕' C) → R` (possibly dependent), return types
 ```
 #[A → R, B → R]

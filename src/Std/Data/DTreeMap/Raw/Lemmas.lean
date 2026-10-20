@@ -1896,7 +1896,7 @@ theorem contains_of_contains_insertMany_list' [TransCmp cmp] [BEq α] [LawfulBEq
     (w : l.findSomeRev? (fun ⟨a, b⟩ => if cmp a k = .eq then some b else none) = none) :
     contains t k = true :=
   Impl.Const.contains_of_contains_insertMany_list' h
-    (by simpa [Impl.Const.insertMany_eq_insertMany!] using h')
+    (by simpa [Impl.Const.insertMany_eq_insertMany!] using! h')
     (by simpa [compare_eq_iff_beq, BEq.comm] using w)
 
 @[grind =] theorem get_insertMany_list [TransCmp cmp] [BEq α] [PartialEquivBEq α] [LawfulBEqCmp cmp] (h : t.WF)
@@ -3164,6 +3164,10 @@ theorem isEmpty_inter_iff [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF) :
     rhs
     rw [← contains_eq_false_iff_not_mem]
   exact Impl.isEmpty_inter!_iff h₁ h₂
+
+theorem isEmpty_inter_comm [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF) :
+    (t₁ ∩ t₂).isEmpty = (t₂ ∩ t₁).isEmpty :=
+  Impl.isEmpty_inter!_comm h₁ h₂
 
 end Inter
 
@@ -5991,6 +5995,12 @@ private theorem equiv_iff : t₁ ~m t₂ ↔ t₁.1.Equiv t₂.1 :=
 theorem equiv_empty_iff_isEmpty : t ~m empty ↔ t.isEmpty :=
   equiv_iff.trans Impl.equiv_empty_iff_isEmpty
 
+theorem inter_equiv_empty_comm [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF) :
+    (t₁ ∩ t₂) ~m ∅ ↔ (t₂ ∩ t₁) ~m ∅ := by
+  change (t₁ ∩ t₂) ~m empty ↔ (t₂ ∩ t₁) ~m empty
+  rw [equiv_empty_iff_isEmpty, equiv_empty_iff_isEmpty, ← Bool.eq_iff_iff]
+  exact isEmpty_inter_comm h₁ h₂
+
 theorem empty_equiv_iff_isEmpty : empty ~m t ↔ t.isEmpty :=
   equiv_iff.trans Impl.empty_equiv_iff_isEmpty
 
@@ -6755,7 +6765,7 @@ theorem contains_of_contains_map [TransCmp cmp]
 theorem mem_map [TransCmp cmp]
     {f : (a : α) → β a → γ a} {k : α} (h : t.WF) :
     k ∈ (t.map f) ↔ k ∈ t := by
-  simpa only [mem_iff_contains, Bool.coe_iff_coe] using Impl.contains_map h
+  simpa only [mem_iff_contains, Bool.coe_iff_coe] using! Impl.contains_map h
 
 theorem mem_of_mem_map [TransCmp cmp]
     {f : (a : α) → β a → γ a} {k : α} (h : t.WF) :

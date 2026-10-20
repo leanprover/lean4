@@ -11,7 +11,6 @@ import all Init.Data.String.Defs
 import Init.Data.String.Lemmas.Order
 import Init.Data.String.Lemmas.Basic
 import Init.Data.String.OrderInstances
-import Init.Grind
 
 public section
 
@@ -161,10 +160,6 @@ theorem Slice.isEmpty_slice {s : Slice} {p₁ p₂ h} : (s.slice p₁ p₂ h).is
 theorem Slice.isEmpty_slice_eq_false_iff {s : Slice} {p₁ p₂ h} :
     (s.slice p₁ p₂ h).isEmpty = false ↔ p₁ ≠ p₂ := by
   rw [ne_eq, ← isEmpty_slice (h := h), Bool.not_eq_true]
-
-@[simp]
-theorem length_eq_zero_iff {s : String} : s.length = 0 ↔ s = "" := by
-  simp [← length_toList]
 
 @[simp]
 theorem toByteArray_eq_empty_iff {s : String} :

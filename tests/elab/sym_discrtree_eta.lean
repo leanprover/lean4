@@ -16,5 +16,5 @@ info: disc tree lookup match count: 1
   assert! e.appArg!.isLambda
   let pat ← mkPatternFromDecl ``stateT_P
   let dt := Sym.insertPattern (Lean.Meta.DiscrTree.empty (α := Unit)) pat ()
-  let nMatches := (Sym.getMatch dt e).size
+  let nMatches := (Sym.getMatch (← getMCtx) dt e).size
   logInfo m!"disc tree lookup match count: {nMatches}"

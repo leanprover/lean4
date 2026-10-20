@@ -1,4 +1,4 @@
-rm -rf .lake/build
+rm -rf .lake
 lake build release
 
 # Create a named pipe for communication

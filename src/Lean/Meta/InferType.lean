@@ -14,10 +14,15 @@ public section
 
 namespace Lean
 
+open Lean
+
 /--
 Auxiliary function for instantiating the loose bound variables in `e` with `args[start...stop]`.
 This function is similar to `instantiateRevRange`, but it applies beta-reduction when
 we instantiate a bound variable with a lambda expression.
+
+If `args` contains no lambda expressions, it is equivalent to `instantiateRevRange`, and in fact
+it will call `instantiateRevRange` for efficiency.
 
 Example: Given the term `#0 a`, and `start := 0, stop := 1, args := #[fun x => x]` the result is
 `a` instead of `(fun x => x) a`.
@@ -32,10 +37,38 @@ We use this to implement `inferAppType`.
 partial def Expr.instantiateBetaRevRange (e : Expr) (start : Nat) (stop : Nat) (args : Array Expr) : Expr :=
   if e.hasLooseBVars && stop > start then
     assert! stop ≤ args.size
-    visit e 0 |>.run
+    if args.any (·.consumeMData.isLambda) start stop then
+      visit e 0 |>.run
+    else
+      -- If there are no lambdas, then `instantiateRevRange` suffices.
+      instantiateRevRange e start stop args
   else
     e
 where
+  /--
+  Visit a bvar `e := .bvar vidx`, assuming `offset < e.looseBVarRange`.
+  -/
+  visitBVar (vidx : Nat) (offset : Nat) : Expr :=
+    -- Recall that `looseBVarRange` for `Expr.bvar` is `vidx+1`.
+    -- So, we must have `offset ≤ vidx`, since `offset < e.looseBVarRange`
+    let n := stop - start
+    if vidx < offset + n then
+      args[stop - (vidx - offset) - 1]!.liftLooseBVars 0 offset
+    else
+      Expr.bvar (vidx - n)
+  visitWithoutBeta (e : Expr) (offset : Nat) : MonadStateCacheT (ExprStructEq × Nat) Expr Id Expr := do
+    if offset >= e.looseBVarRange then
+      -- `e` doesn't have free variables
+      return e
+    else
+      match e with
+      | .app f a =>
+        -- Check the cache only here, since in the other alternative `visit` will check the cache.
+        checkCache ({ val := e : ExprStructEq }, offset) fun _ => visitApp e f a offset
+      | e => visit e offset
+  /-- Visit an application without beta reducing the head -/
+  visitApp (e f a : Expr) (offset : Nat) : MonadStateCacheT (ExprStructEq × Nat) Expr Id Expr :=
+    return e.updateApp! (← visitWithoutBeta f offset) (← visit a offset)
   visit (e : Expr) (offset : Nat) : MonadStateCacheT (ExprStructEq × Nat) Expr Id Expr :=
     if offset >= e.looseBVarRange then
       -- `e` doesn't have free variables
@@ -47,23 +80,17 @@ where
       | .letE _ t v b _  => return e.updateLetE! (← visit t offset) (← visit v offset) (← visit b (offset+1))
       | .mdata _ b       => return e.updateMData! (← visit b offset)
       | .proj _ _ b      => return e.updateProj! (← visit b offset)
-      | .app .. =>
-        e.withAppRev fun f revArgs => do
-        let fNew    ← visit f offset
-        let revArgs ← revArgs.mapM (visit · offset)
-        if f.isBVar then
-          -- try to beta reduce if `f` was a bound variable
-          return fNew.betaRev revArgs
+      | .bvar vidx       => return visitBVar vidx offset
+      | .app f a =>
+        let head := e.getAppFn
+        -- try to beta reduce if the head is a bound variable
+        if head.isBVar then
+          -- using `visit` instead of `visitBVar` for the `offset >= vidx` check and for caching `liftLooseBVars`
+          let head ← visit head offset
+          let revArgs ← e.getAppRevArgs.mapM (visit · offset)
+          return head.betaRev revArgs
         else
-          return mkAppRev fNew revArgs
-      | Expr.bvar vidx         =>
-        -- Recall that looseBVarRange for `Expr.bvar` is `vidx+1`.
-        -- So, we must have offset ≤ vidx, since we are in the "else" branch of  `if offset >= e.looseBVarRange`
-        let n := stop - start
-        if vidx < offset + n then
-          return args[stop - (vidx - offset) - 1]!.liftLooseBVars 0 offset
-        else
-          return mkBVar (vidx - n)
+          visitApp e f a offset
       -- The following cases are unreachable because they never contain loose bound variables
       | .const .. => unreachable!
       | .fvar ..  => unreachable!
@@ -79,8 +106,6 @@ def throwFunctionExpected {α} (f : Expr) : MetaM α :=
 private def inferAppType (f : Expr) (args : Array Expr) : MetaM Expr := do
   let mut fType ← inferType f
   let mut j := 0
-  /- TODO: check whether `instantiateBetaRevRange` is too expensive, and
-     use it only when `args` contains a lambda expression. -/
   for i in *...args.size do
     match fType with
     | Expr.forallE _ _ b _ => fType := b
@@ -323,10 +348,10 @@ private inductive ArrowPropResult where
     and `inferType` must be used.
     -/ undef
   | /--
-    The resulting type is a de-Bruijn variable with index `idx`.
-    The index is used to check the type of the corresponding binder.
+    The resulting type is of the form `x a_1 ... a_numArgs` where `x` is the de-Bruijn variable with
+    index `idx`. The index is used to check the type of the corresponding binder.
     -/
-    bvar (idx : Nat)
+    bvar (idx : Nat) (numArgs : Nat)
 
 /-- Converts a `LBool` into an `ArrowPropResult`. -/
 private def toArrowPropResult : LBool → ArrowPropResult
@@ -352,28 +377,42 @@ term `1 + 1` is a proof. The function `isArrowProposition type 6` is invoked whe
 ```
 It is the type of `HAdd.hAdd`.
 Note that the resulting type is a de Bruijn variable.
+The de Bruijn variable may also be applied to arguments. For example, the type of a `match`
+auxiliary function, `casesOn`, or `brecOn` is of the form
+```
+{motive : Nat → Sort u} → (t : Nat) → ... → motive t
+```
+In this case, the sort of the resulting type is the codomain of the binder type of `motive`.
 -/
 private def isArrowProposition' : Expr → Nat → MetaM ArrowPropResult
   | .forallE _ t b _, n+1 => return processResult (← isArrowProposition' b n) t
   | .letE _ t _ b _,  n   => return processResult (← isArrowProposition' b n) t
   | .mdata _ e,       n   => isArrowProposition' e n
-  | .bvar idx,        0   => return .bvar idx
-  | type,             0   => return toArrowPropResult (← isPropQuick type)
+  | .bvar idx,        0   => return .bvar idx 0
+  | type,             0   =>
+    match type.getAppFn with
+    | .bvar idx => return .bvar idx type.getAppNumArgs
+    | _         => return toArrowPropResult (← isPropQuick type)
   | _,                _   => return .undef
 where
   /-- Auxiliary function for processing the result for the binders `forallE` and `letE`. -/
   processResult (r : ArrowPropResult) (binderType : Expr) : ArrowPropResult :=
     match r with
-    | .bvar 0       => checkProp binderType
-    | .bvar (idx+1) => .bvar idx
-    | r             => r
+    | .bvar 0       numArgs => checkProp binderType numArgs
+    | .bvar (idx+1) numArgs => .bvar idx numArgs
+    | r                     => r
 
-  /-- Returns `.true` if `e` is `Prop`, `.false` if it is `Type _`, and `.undef` otherwise. -/
-  checkProp : (e : Expr) → ArrowPropResult
-    | .sort u => if u.isNeverZero then .false else if u.isZero then .true else .undef
+  /--
+  Returns `.true` if `e` is of the form `A_1 → ... → A_numArgs → Prop`, `.false` if it is of the form
+  `A_1 → ... → A_numArgs → Type _`, and `.undef` otherwise.
+  -/
+  checkProp : (e : Expr) → (numArgs : Nat) → ArrowPropResult
+    | .sort u,          0   => if u.isNeverZero then .false else if u.isZero then .true else .undef
+    | .forallE _ _ b _, n+1 => checkProp b n
+    | .mdata _ e,       n   => checkProp e n
     /- `outParam` is used in many polymorphic functions in Lean. -/
-    | .app (.const ``outParam _) a => checkProp a
-    | _ => .undef
+    | .app (.const ``outParam _) a, n => checkProp a n
+    | _,                _   => .undef
 
 /--
 `isArrowProposition type n` is an "approximate" predicate which returns `LBool.true`

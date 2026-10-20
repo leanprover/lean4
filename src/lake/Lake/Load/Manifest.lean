@@ -52,8 +52,9 @@ That is, Lake ignores the `-` suffix.
 - `"1.0.0"`: Switches to a semantic versioning scheme
 - `"1.1.0"`: Add optional `scope` package entry field
 - `"1.2.0"`: Add optional `fixedToolchain` manifest field
+- `"1.3.0"`: Add optional `copy` path dependency field
 -/
-@[inline] public def Manifest.version : StdVer := {major := 1, minor := 2}
+@[inline] public def Manifest.version : StdVer := {major := 1, minor := 3}
 
 /-- Manifest version `0.6.0` package entry. For backwards compatibility. -/
 inductive PackageEntryV6
@@ -73,6 +74,7 @@ public inductive PackageEntrySrc
   -/
   | path
     (dir : FilePath)
+    (copy : Bool := false)
   /-- A remote Git package. -/
   | git
     (url : String)
@@ -95,9 +97,6 @@ public structure PackageEntry where
 
 namespace PackageEntry
 
-@[inline] public def prettyName (entry : PackageEntry) : String :=
-  entry.name.toString (escape := false)
-
 public protected def toJson (entry : PackageEntry) : Json :=
   let fields := [
     ("name", toJson entry.name),
@@ -108,9 +107,10 @@ public protected def toJson (entry : PackageEntry) : Json :=
   ]
   let fields :=
     match entry.src with
-    | .path  dir =>
+    | .path dir copy =>
       ("type", "path") :: fields.append [
         ("dir", toJson dir),
+        ("copy", toJson copy),
       ]
     | .git url rev inputRev? subDir? =>
       ("type", "git") :: fields.append [
@@ -136,7 +136,8 @@ public protected def fromJson? (json : Json) : Except String PackageEntry := do
       match type with
       | "path" =>
         let dir ← obj.get "dir"
-        return .path dir
+        let copy ← obj.getD "copy" false
+        return .path dir copy
       | "git" =>
         let url ← obj.get "url"
         let rev ← obj.get "rev"
@@ -155,15 +156,31 @@ public protected def fromJson? (json : Json) : Except String PackageEntry := do
 
 public instance : FromJson PackageEntry := ⟨PackageEntry.fromJson?⟩
 
+@[inline] public def prettyName (entry : PackageEntry) : String :=
+  entry.name.toString (escape := false)
+
+/-- The directory name used to store the materialized dependency. -/
+@[inline] public def dirName (entry : PackageEntry) : String :=
+   entry.name.toString (escape := false)
+
+@[inline] public def inputRev? (entry : PackageEntry) : Option GitRev :=
+  match entry.src with
+  | .git (inputRev? := rev?) .. => rev?
+  | .path .. => none
+
+/-- **For internal use only.** -/
 @[inline] public def setInherited (entry : PackageEntry) : PackageEntry :=
   {entry with inherited := true}
 
+/-- **For internal use only.** -/
 @[inline] public def setConfigFile (path : FilePath) (entry : PackageEntry) : PackageEntry :=
   {entry with configFile := path}
 
+/-- **For internal use only.** -/
 @[inline] public def setManifestFile (path? : Option FilePath) (entry : PackageEntry) : PackageEntry :=
   {entry with manifestFile? := path?}
 
+/-- **For internal use only.** -/
 @[inline] public def inDirectory (pkgDir : FilePath) (entry : PackageEntry) : PackageEntry :=
   {entry with src := match entry.src with | .path dir => .path (pkgDir / dir) | s => s}
 

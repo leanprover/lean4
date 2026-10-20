@@ -1,11 +1,10 @@
 import Std.Tactic.Do
 import Std
-set_option backward.do.legacy false
 
 open Std Do
 
 set_option grind.warning false
-set_option mvcgen.warning false
+set_option linter.deprecated.syntax false
 
 def nodup (l : List Int) : Bool := Id.run do
   let mut seen : HashSet Int := ∅

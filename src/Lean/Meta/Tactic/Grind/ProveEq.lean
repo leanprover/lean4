@@ -123,7 +123,7 @@ where
       if !lhs.hasLooseBVars && !rhs.hasLooseBVars then
         let lhs ← ensureInternalized lhs
         let rhs ← ensureInternalized rhs
-        processNewFacts
+        processToDo
         if (← isEqv lhs rhs) then
         if (← hasSameType lhs rhs) then
         let varType ← inferType lhs
@@ -199,7 +199,7 @@ def proveEq? (lhs rhs : Expr) (abstract : Bool := false) : GoalM (Option Expr) :
     -/
     let lhs ← ensureInternalized lhs
     let rhs ← ensureInternalized rhs
-    processNewFacts
+    processToDo
     if (← isEqv lhs rhs) then
       return some (← mkEqProof lhs rhs)
     else if abstract then
@@ -212,7 +212,7 @@ where
     trace[grind.debug.proveEq] "abstract: ({lhs}) = ({rhs})"
     let lhs ← ensureInternalized lhs
     let rhs ← ensureInternalized rhs
-    processNewFacts
+    processToDo
     if (← isEqv lhs rhs) then
       return some (← mkEqProof lhs rhs)
     else
@@ -229,7 +229,7 @@ def proveHEq? (lhs rhs : Expr) : GoalM (Option Expr) := do
     -- See comment at `proveEq?`
     let lhs ← ensureInternalized lhs
     let rhs ← ensureInternalized rhs
-    processNewFacts
+    processToDo
     unless (← isEqv lhs rhs) do return none
     mkHEqProof lhs rhs
 

@@ -50,7 +50,7 @@ instance ltTrans : Trans (· < · : Char → Char → Prop) (· < ·) (· < ·) 
   trans := Char.lt_trans
 
 -- This instance is useful while setting up instances for `String`.
-@[implicit_reducible]
+@[instance_reducible]
 def notLTTrans : Trans (¬ · < · : Char → Char → Prop) (¬ · < ·) (¬ · < ·) where
   trans h₁ h₂ := by simpa using Char.le_trans (by simpa using h₂) (by simpa using h₁)
 
@@ -61,7 +61,7 @@ instance leAntisymm : Std.Antisymm (· ≤ · : Char → Char → Prop) where
 instance ltTrichotomous : Std.Trichotomous (· < · : Char → Char → Prop) where
   trichotomous _ _ h₁ h₂ := Char.le_antisymm (by simpa using h₂) (by simpa using h₁)
 
-@[deprecated ltTrichotomous (since := "2025-10-27")]
+@[deprecated ltTrichotomous +typeChanged (since := "2025-10-27")]
 theorem notLTAntisymm : Std.Antisymm (¬ · < · : Char → Char → Prop) where
   antisymm := Char.ltTrichotomous.trichotomous
 
@@ -72,12 +72,12 @@ instance leTotal : Std.Total (· ≤ · : Char → Char → Prop) where
   total := Char.le_total
 
 -- This instance is useful while setting up instances for `String`.
-@[deprecated ltAsymm (since := "2025-08-01")]
+@[deprecated ltAsymm +typeChanged (since := "2025-08-01")]
 theorem notLTTotal : Std.Total (¬ · < · : Char → Char → Prop) where
   total := fun x y => by simpa using Char.le_total y x
 
 @[simp] theorem ofNat_toNat (c : Char) : Char.ofNat c.toNat = c := by
-  rw [Char.ofNat, dif_pos]
+  rw [Char.ofNat, dite_eq_left]
   rfl
 
 @[simp]

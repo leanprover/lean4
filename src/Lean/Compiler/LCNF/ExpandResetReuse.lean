@@ -203,7 +203,7 @@ Expand the matching `reuse`/`dec` for the allocation in `origAllocId` whose `res
 partial def processResetCont (resetTokenId : FVarId) (code : Code .impure) (origAllocId : FVarId)
     (isSharedId : FVarId) (currentRetType : Expr) : CompilerM (Code .impure) := do
   match code with
-  | .dec y n _ _ k =>
+  | .dec y n _ _ _ k =>
     if resetTokenId == y then
       assert! n == 1 -- n must be one since `resetToken := reset ...`
       return .del resetTokenId k
@@ -344,7 +344,7 @@ where
   mkSlowPath (origAllocId : FVarId) (mask : Mask) (resetJpId : FVarId) (isSharedId : FVarId) :
       CompilerM (Code .impure) := do
     let mut code := .jmp resetJpId #[.erased, .fvar isSharedId]
-    code := .dec origAllocId 1 true false code
+    code := .dec origAllocId 1 true false none code
     for fvarId? in mask do
       let some fvarId := fvarId? | continue
       code := .inc fvarId 1 true false code
@@ -363,7 +363,7 @@ where
       if mask[idx].isSome then
         continue
       let fieldDecl ← mkLetDecl (← mkFreshBinderName `unused) tobject (.oproj idx origAllocId)
-      code := .let fieldDecl (.dec fieldDecl.fvarId 1 true false code)
+      code := .let fieldDecl (.dec fieldDecl.fvarId 1 true false none code)
     return code
 
 end

@@ -13,6 +13,8 @@ public section
 
 open Lean Meta Simp
 
+namespace Lean
+
 macro "declare_sint_simprocs" typeName:ident : command =>
 let ofNat := typeName.getId ++ `ofNat
 let ofInt := typeName.getId ++ `ofInt
@@ -23,26 +25,26 @@ let fromExpr := mkIdent `fromExpr
 `(
 namespace $typeName
 
-def $fromExpr (e : Expr) : SimpM (Option $typeName) := do
+private def $fromExpr (e : Expr) : SimpM (Option $typeName) := do
   if let some (n, _) ← getOfNatValue? e $(quote typeName.getId) then
     return some ($(mkIdent ofNat) n)
   let_expr Neg.neg _ _ a ← e | return none
   let some (n, _) ← getOfNatValue? a $(quote typeName.getId) | return none
   return some ($(mkIdent ofInt) (- n))
 
-@[inline] def reduceBin (declName : Name) (arity : Nat) (op : $typeName → $typeName → $typeName) (e : Expr) : SimpM DStep := do
+@[inline] private def reduceBin (declName : Name) (arity : Nat) (op : $typeName → $typeName → $typeName) (e : Expr) : SimpM DStep := do
   unless e.isAppOfArity declName arity do return .continue
   let some n ← ($fromExpr e.appFn!.appArg!) | return .continue
   let some m ← ($fromExpr e.appArg!) | return .continue
   return .done <| toExpr (op n m)
 
-@[inline] def reduceBinPred (declName : Name) (arity : Nat) (op : $typeName → $typeName → Bool) (e : Expr) : SimpM Step := do
+@[inline] private def reduceBinPred (declName : Name) (arity : Nat) (op : $typeName → $typeName → Bool) (e : Expr) : SimpM Step := do
   unless e.isAppOfArity declName arity do return .continue
   let some n ← ($fromExpr e.appFn!.appArg!) | return .continue
   let some m ← ($fromExpr e.appArg!) | return .continue
   evalPropStep e (op n m)
 
-@[inline] def reduceBoolPred (declName : Name) (arity : Nat) (op : $typeName → $typeName → Bool) (e : Expr) : SimpM DStep := do
+@[inline] private def reduceBoolPred (declName : Name) (arity : Nat) (op : $typeName → $typeName → Bool) (e : Expr) : SimpM DStep := do
   unless e.isAppOfArity declName arity do return .continue
   let some n ← ($fromExpr e.appFn!.appArg!) | return .continue
   let some m ← ($fromExpr e.appArg!) | return .continue
@@ -62,6 +64,16 @@ builtin_dsimproc [simp, seval] $(mkIdent `reduceMul):ident ((_ * _ : $typeName))
 builtin_dsimproc [simp, seval] $(mkIdent `reduceSub):ident ((_ - _ : $typeName)) := reduceBin ``HSub.hSub 6 (· - ·)
 builtin_dsimproc [simp, seval] $(mkIdent `reduceDiv):ident ((_ / _ : $typeName)) := reduceBin ``HDiv.hDiv 6 (· / ·)
 builtin_dsimproc [simp, seval] $(mkIdent `reduceMod):ident ((_ % _ : $typeName)) := reduceBin ``HMod.hMod 6 (· % ·)
+
+builtin_dsimproc [simp, seval] $(mkIdent `reduceAnd):ident ((_ &&& _ : $typeName)) := reduceBin ``HAnd.hAnd 6 (· &&& ·)
+builtin_dsimproc [simp, seval] $(mkIdent `reduceOr):ident ((_ ||| _ : $typeName)) := reduceBin ``HOr.hOr 6 (· ||| ·)
+builtin_dsimproc [simp, seval] $(mkIdent `reduceXor):ident ((_ ^^^ _ : $typeName)) := reduceBin ``HXor.hXor 6 (· ^^^ ·)
+builtin_dsimproc [simp, seval] $(mkIdent `reduceShiftLeft):ident ((_ <<< _ : $typeName)) := reduceBin ``HShiftLeft.hShiftLeft 6 (· <<< ·)
+builtin_dsimproc [simp, seval] $(mkIdent `reduceShiftRight):ident ((_ >>> _ : $typeName)) := reduceBin ``HShiftRight.hShiftRight 6 (· >>> ·)
+builtin_dsimproc [simp, seval] $(mkIdent `reduceNot):ident ((~~~ _ : $typeName)) := fun e => do
+  let_expr Complement.complement _ _ a ← e | return .continue
+  let some n ← ($fromExpr a) | return .continue
+  return .done <| toExpr (~~~ n)
 
 builtin_simproc [simp, seval] $(mkIdent `reduceLT):ident  (( _ : $typeName) < _)  := reduceBinPred ``LT.lt 4 (. < .)
 builtin_simproc [simp, seval] $(mkIdent `reduceLE):ident  (( _ : $typeName) ≤ _)  := reduceBinPred ``LE.le 4 (. ≤ .)
@@ -110,9 +122,17 @@ builtin_dsimproc [seval] isValue ((OfNat.ofNat _ : $typeName)) := fun e => do
 end $typeName
 )
 
+end Lean
+
+-- The linter exemptions sit on the macro invocations because linters run once per top-level
+-- command and would not see a `set_option … in` inside the macro expansion.
+set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
 declare_sint_simprocs Int8
+set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
 declare_sint_simprocs Int16
+set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
 declare_sint_simprocs Int32
+set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
 declare_sint_simprocs Int64
 
 /-
@@ -121,6 +141,7 @@ However, we do reduce natural literals using the fact this opaque value is at le
 -/
 namespace ISize
 
+set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
 builtin_simproc [simp, seval] reduceToNatClampNeg (ISize.toNatClampNeg _) := fun e => do
   let_expr ISize.toNatClampNeg e ← e | return .continue
   if let some (n, _) ← getOfNatValue? e ``ISize then
@@ -138,6 +159,7 @@ builtin_simproc [simp, seval] reduceToNatClampNeg (ISize.toNatClampNeg _) := fun
   let p := mkApp2 (mkConst ``ISize.toNatClampNeg_neg_ofNat_of_le) e p
   return .done { expr := toExpr 0, proof? := p }
 
+set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
 builtin_simproc [simp, seval] reduceToInt (ISize.toInt _) := fun e => do
   let_expr ISize.toInt e ← e | return .continue
   if let some (n, _) ← getOfNatValue? e ``ISize then

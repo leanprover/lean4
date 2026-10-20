@@ -112,6 +112,8 @@ public structure CoinductiveElabData where
   keywords, and hence we need to record this information.
   -/
   isGreatest : Bool
+  /-- Explicit monotonicity proof from the `monotonicity_by` clause, if provided. -/
+  monotonicity? : Option Term
   deriving Inhabited
 
 
@@ -123,7 +125,7 @@ public def removeFunctorPostfixInCtor : Name → Name :=
   fun | Name.str p s => Name.str (removeFunctorPostfix p) s
       | _ => panic! "UnexpectedName"
 
-private def rewriteGoalUsingEq (goal : MVarId) (eq : Expr) (symm : Bool := false) : MetaM MVarId := do
+def rewriteGoalUsingEq (goal : MVarId) (eq : Expr) (symm : Bool := false) : MetaM MVarId := do
   let rewriteResult ← goal.rewrite (←goal.getType) eq symm
   goal.replaceTargetEq rewriteResult.eNew rewriteResult.eqProof
 
@@ -145,7 +147,7 @@ private def rewriteGoalUsingEq (goal : MVarId) (eq : Expr) (symm : Bool := false
     infSeq.functor_unfold (α : Type) (r : α → α → Prop) (a✝ : α) : infSeq α r a✝ = infSeq._functor α r (infSeq α r) a✝
   ```
 -/
-private def generateEqLemmas (infos : Array InductiveVal) : MetaM Unit := do
+def generateEqLemmas (infos : Array InductiveVal) : MetaM Unit := do
   let levels := infos[0]!.levelParams.map mkLevelParam
   for info in infos do
     let res ← forallTelescopeReducing info.type fun args _ => do
@@ -198,7 +200,7 @@ private def generateEqLemmas (infos : Array InductiveVal) : MetaM Unit := do
   3. Converts to existential form using the equivalence lemma
   4. Applies the unfolding rule to get the final constructor form
 -/
-private def generateCoinductiveConstructor (infos : Array InductiveVal) (ctorSyntax : Syntax)
+def generateCoinductiveConstructor (infos : Array InductiveVal) (ctorSyntax : Syntax)
     (numParams : Nat) (name : Name) (ctor : ConstructorVal) : TermElabM Unit := do
   trace[Elab.coinductive] "Generating constructor: {removeFunctorPostfixInCtor ctor.name}"
   let numPreds := infos.size
@@ -281,7 +283,7 @@ private def generateCoinductiveConstructor (infos : Array InductiveVal) (ctorSyn
   predicates, generates their constructors that correspond to the
   constructors given in the original syntax.
 -/
-private def generateCoinductiveConstructors (numParams : Nat) (infos : Array InductiveVal)
+def generateCoinductiveConstructors (numParams : Nat) (infos : Array InductiveVal)
     (coinductiveElabData : Array CoinductiveElabData) : TermElabM Unit := do
   for indType in infos, e in coinductiveElabData do
     for ctor in indType.ctors, ctorSyntax in e.ctorSyntax do
@@ -293,7 +295,7 @@ private def generateCoinductiveConstructors (numParams : Nat) (infos : Array Ind
   These eliminators allow pattern matching on coinductive predicates,
   enabling case analysis in proofs.
 -/
-private def mkCasesOnCoinductive (infos : Array InductiveVal) : MetaM Unit := do
+def mkCasesOnCoinductive (infos : Array InductiveVal) : MetaM Unit := do
   let levels := infos[0]!.levelParams.map mkLevelParam
   let allCtors := infos.flatMap (·.ctors.toArray)
 
@@ -411,10 +413,8 @@ private def mkCasesOnCoinductive (infos : Array InductiveVal) : MetaM Unit := do
                     (value := originalCasesOn)
                     (hints := .opaque)
             -- We apply the attribute so that the `cases` tactic can pick it up
-            liftCommandElabM
-              <| liftTermElabM
-                <| Term.applyAttributes
-                    casesOnName #[{name := `cases_eliminator}, {name := `elab_as_elim}]
+            Term.TermElabM.run' <| Term.applyAttributes
+              casesOnName #[{name := `cases_eliminator}, {name := `elab_as_elim}]
 
 /--
   Main entry point for elaborating mutual coinductive predicates. This function is called after
@@ -459,12 +459,21 @@ public def elabCoinductive (coinductiveElabData : Array CoinductiveElabData) : T
   /-
     Finally, we populate the PreDefinitions
   -/
+  let env ← getEnv
   let preDefs : Array PreDefinition := preDefVals.mapIdx fun idx defn =>
+    -- The docstring and `afterCompilation` attributes are handled during inductive
+    -- postprocessing, where the predicate's constructors exist and the binder syntax
+    -- is available.
+    let modifiers := { coinductiveElabData[idx]!.modifiers with docString? := none }
+    let modifiers := modifiers.filterAttrs fun attr =>
+      match getAttributeImpl env attr.name with
+      | .ok impl => impl.applicationTime != .afterCompilation
+      | .error _ => true
     { ref := coinductiveElabData[idx]!.ref
       binders := coinductiveElabData[idx]!.ref
       kind := .def
       levelParams := infos[0]!.levelParams
-      modifiers := coinductiveElabData[idx]!.modifiers
+      modifiers
       declName := namesAndTypes[idx]!.1
       type := namesAndTypes[idx]!.2
       value := defn
@@ -474,7 +483,7 @@ public def elabCoinductive (coinductiveElabData : Array CoinductiveElabData) : T
         terminationBy? := .none
         partialFixpoint? := .some {
             ref := coinductiveElabData[idx]!.ref
-            term? := .none
+            term? := coinductiveElabData[idx]!.monotonicity?
             fixpointType := if coinductiveElabData[idx]!.isGreatest then
                               .coinductiveFixpoint else .inductiveFixpoint
         }

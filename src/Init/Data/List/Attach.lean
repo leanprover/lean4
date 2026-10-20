@@ -134,6 +134,10 @@ theorem pmap_eq_map_attach {p : α → Prop} {f : ∀ a, p a → β} {l : List �
     pmap f l H = l.attach.map fun x => f x.1 (H _ x.2) := by
   rw [attach, attachWith, map_pmap]; exact pmap_congr_left l fun _ _ _ _ => rfl
 
+theorem attachWith_eq_map_attach {xs : List α} {P : α → Prop} {H : ∀ (a : α), a ∈ xs → P a} :
+    xs.attachWith P H = xs.attach.map fun ⟨x, h⟩ => ⟨x, H _ h⟩ := by
+  induction xs <;> simp_all
+
 @[simp]
 theorem pmap_eq_attachWith {p q : α → Prop} {f : ∀ a, p a → q a} {l : List α} (H) :
     pmap (fun a h => ⟨a, f a h⟩) l H = l.attachWith q (fun x h => f x (H x h)) := by
@@ -404,7 +408,7 @@ theorem foldr_attach {l : List α} {f : α → β → β} {b : β} :
 
 theorem attach_map {l : List α} {f : α → β} :
     (l.map f).attach = l.attach.map (fun ⟨x, h⟩ => ⟨f x, mem_map_of_mem h⟩) := by
-  induction l <;> simp [*]
+  induction l <;> simp [*, map]
 
 theorem attachWith_map {l : List α} {f : α → β} {P : β → Prop} (H : ∀ (b : β), b ∈ l.map f → P b) :
     (l.map f).attachWith P H = (l.attachWith (P ∘ f) (fun _ h => H _ (mem_map_of_mem h))).map
@@ -865,6 +869,24 @@ and simplifies these to the function directly taking the value.
 
 @[wf_preprocess] theorem flatMap_unattach {P : α → Prop} {xs : List (Subtype P)} {f : α → List β} :
     xs.unattach.flatMap f = xs.flatMap fun ⟨x, h⟩ =>
+      binderNameHint x f <| binderNameHint h () <| f (wfParam x) := by
+  simp [wfParam]
+
+@[wf_preprocess] theorem any_wfParam {xs : List α} {f : α → Bool} :
+    (wfParam xs).any f = xs.attach.unattach.any f := by
+  simp [wfParam]
+
+@[wf_preprocess] theorem any_unattach {P : α → Prop} {xs : List (Subtype P)} {f : α → Bool} :
+    xs.unattach.any f = xs.any fun ⟨x, h⟩ =>
+      binderNameHint x f <| binderNameHint h () <| f (wfParam x) := by
+  simp [wfParam]
+
+@[wf_preprocess] theorem all_wfParam {xs : List α} {f : α → Bool} :
+    (wfParam xs).all f = xs.attach.unattach.all f := by
+  simp [wfParam]
+
+@[wf_preprocess] theorem all_unattach {P : α → Prop} {xs : List (Subtype P)} {f : α → Bool} :
+    xs.unattach.all f = xs.all fun ⟨x, h⟩ =>
       binderNameHint x f <| binderNameHint h () <| f (wfParam x) := by
   simp [wfParam]
 

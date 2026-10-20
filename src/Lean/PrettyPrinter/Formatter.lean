@@ -265,7 +265,7 @@ unsafe def formatterForKindUnsafe (k : SyntaxNodeKind) : Formatter := do
 @[implemented_by formatterForKindUnsafe]
 opaque formatterForKind (k : SyntaxNodeKind) : Formatter
 
-@[combinator_formatter withAntiquot, expose]
+@[combinator_formatter withAntiquot, combinator_formatter withAntiquotAcceptLhs, expose]
 def withAntiquot.formatter (antiP p : Formatter) : Formatter :=
   -- TODO: could be optimized using `isAntiquot` (which would have to be moved), but I'd rather
   -- fix the backtracking hack outright.
@@ -345,6 +345,10 @@ def node.formatter (k : SyntaxNodeKind) (p : Formatter) : Formatter := do
 
 @[combinator_formatter withFn, expose]
 def withFn.formatter (_ : ParserFn → ParserFn) (p : Formatter) : Formatter := p
+
+@[combinator_formatter withForbiddens, expose]
+def withForbiddens.formatter (tks : Array Token) (p : Formatter) (_h : tks.toList.Nodup) :
+    Formatter := p
 
 @[combinator_formatter trailingNode, expose]
 def trailingNode.formatter (k : SyntaxNodeKind) (_ _ : Nat) (p : Formatter) : Formatter := do

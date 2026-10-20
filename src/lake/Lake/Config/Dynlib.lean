@@ -16,7 +16,7 @@ namespace Lake
 public structure Dynlib where
   /-- Library file path. -/
   path : FilePath
-  /-- Library name without platform-specific prefix/suffix (for `-l`). -/
+  /-- Library name without any platform-specific prefix/suffix (for `-l`). -/
   name : String
   /-- Whether this library can be loaded as a plugin. -/
   plugin := false
@@ -25,6 +25,12 @@ public structure Dynlib where
   (e.g., linking on Windows, loading via `lean`).
   -/
   deps : Array Dynlib := #[]
+  /--
+  Non-link transitive dependencies of this library that are only required
+  at runtime (e.g., libraries loaded dynamically via `dlopen`). Used by Lake
+  to preload such dependencies for `lean` elaboration when precompiling.
+  -/
+  runtimeOnlyDeps : Array Dynlib := #[]
   deriving Inhabited, Repr
 
 namespace Dynlib

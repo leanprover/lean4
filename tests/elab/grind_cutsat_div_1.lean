@@ -1,7 +1,7 @@
 module
 set_option grind.debug true
 set_option pp.structureInstances false
-open Int.Linear
+open Int.Internal.Linear
 
 theorem ex₁ (a : Int) (h₁ : 2 ∣ a) (h₂ : 2 ∣ 2*a + 1 - a) : False := by
   grind

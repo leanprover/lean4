@@ -28,7 +28,7 @@ lean_object* l_Lean_Syntax_node1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_node2(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_node5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getArgs(lean_object*);
-lean_object* l_Array_mkArray0(lean_object*);
+lean_object* l_Array_mkArray0___redArg();
 lean_object* l_Array_append___redArg(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_node4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_node6(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -251,7 +251,7 @@ static lean_object* _init_l_Std_Do_SPred_Notation_unpack___at___00Std_Do_unexpan
 _start:
 {
 lean_object* v___x_166_; 
-v___x_166_ = l_Array_mkArray0(lean_box(0));
+v___x_166_ = l_Array_mkArray0___redArg();
 return v___x_166_;
 }
 }
@@ -1023,11 +1023,13 @@ return v_res_397_;
 }
 }
 lean_object* runtime_initialize_Std_Do_WP(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Std_Do_Triple_Basic(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Std_Do_WP(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

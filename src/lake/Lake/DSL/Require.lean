@@ -18,7 +18,7 @@ namespace Lake.DSL
 This module contains the expansion of the `require` DSL syntax used to specify package dependencies.
 -/
 
-@[inline] private def quoteOptTerm [Monad m] [MonadQuotation m] (term? : Option Term) : m Term :=
+@[inline] def quoteOptTerm [Monad m] [MonadQuotation m] (term? : Option Term) : m Term :=
   if let some term := term? then withRef term ``(some $term) else ``(none)
 
 def expandDepSpec (stx : TSyntax ``depSpec) (doc? : Option DocComment) : MacroM Command := do
@@ -30,8 +30,8 @@ def expandDepSpec (stx : TSyntax ``depSpec) (doc? : Option DocComment) : MacroM 
       let rev ← quoteOptTerm rev?
       let subDir ← quoteOptTerm subDir?
       ``(DependencySrc.git $url $rev $subDir)
-    | `(fromSource|$path:term) => withRef src do
-      ``(DependencySrc.path $path)
+    | `(fromSource|$[copy%$copyTk?]? $path:term) => withRef src do
+      ``(DependencySrc.path $path $(quote copyTk?.isSome))
     | _ => Macro.throwErrorAt src "ill-formed from syntax"
   let `(depName|$[$scope? /]? $nameStx) := fullNameStx
     | Macro.throwErrorAt fullNameStx "ill-formed name syntax"
@@ -42,16 +42,20 @@ def expandDepSpec (stx : TSyntax ``depSpec) (doc? : Option DocComment) : MacroM 
   let ver ←
     if let some ver := ver? then withRef ver do
       match ver with
-      | `(verSpec|git $ver) => ``(some ("git#" ++ $ver))
-      | `(verSpec|$ver:term) => ``(some $ver)
+      | `(verSpec|git $rev) => ``(InputVer.git $rev)
+      | `(verSpec|$ver:term) => ``((eval_ver% $ver : InputVer))
       | _ => Macro.throwErrorAt ver "ill-formed version syntax"
+    else if let some src := src? then
+      match src with
+      | `(fromSource|git $_ @ $rev $[/ $_]?) => withRef rev ``(InputVer.git $rev)
+      | _ => ``(InputVer.none)
     else
-      ``(none)
+       ``(InputVer.none)
   let name := expandIdentOrStrAsIdent nameStx
   `($[$doc?:docComment]? @[package_dep] def $name : $(mkCIdent ``Dependency) := {
     name :=  $(quote name.getId),
     scope := $scope,
-    version? := $ver,
+    version := $ver,
     src? := $(← quoteOptTerm src?),
     opts := $(opts?.getD <| ← `({})),
   })

@@ -11,16 +11,117 @@ public import Lean.Meta.Tactic.Simp.LoopProtection
 public import Lean.Elab.BuiltinNotation
 public import Lean.Elab.Tactic.Location
 import Lean.Meta.Check
+import Lean.Elab.ConfigEval
 
 public section
 
-namespace Lean.Elab.Tactic
+namespace Lean
+
+/--
+Configuration for `simp`, for supporting tactic configuration option syntax.
+-/
+structure Meta.Simp.ConfigWithOptions extends config : Meta.Simp.Config where
+  /-- User options. Registering a global option `tactic.simp.user.myOption` enables the tactic
+  configurations `(user.myOption := ...)` and `+user.myOption`. -/
+  userConfig : Options := {}
+
+/--
+Configuration for `dsimp`, for supporting tactic configuration option syntax.
+-/
+structure Meta.DSimp.ConfigWithOptions extends config : Meta.DSimp.Config where
+  /-- User options. Registering a global option `tactic.simp.user.myOption` enables the tactic
+  configurations `(user.myOption := ...)` and `+user.myOption`. -/
+  userConfig : Options := {}
+
+namespace Elab.Tactic
 open Meta
 open TSyntax.Compat
 
-declare_config_elab elabSimpConfigCore    Meta.Simp.Config
-declare_config_elab elabSimpConfigCtxCore Meta.Simp.ConfigCtx
-declare_config_elab elabDSimpConfigCore   Meta.DSimp.Config
+section
+open ConfigEval
+
+/--
+Generic `simp` configuration elaborator, with an `evalConfig` argument for overriding how
+the `(config := ...)` syntax is elaborated.
+-/
+private declare_config_elab elabSimpConfigAux Simp.ConfigWithOptions (evalConfig : Term → TermElabM Meta.Simp.Config) where
+  omit userConfig
+  option config := fun cfg item => do
+    let config ← evalConfig item.value
+    return { cfg with config }
+  option user := fun _ item => do
+    item.addConstInfo ``Simp.ConfigWithOptions.userConfig
+    throwErrorAt item.root "User options are of the form `user.optionName`"
+  option user.* := fun cfg item => do
+    item.addConstInfo ``Simp.ConfigWithOptions.userConfig
+    let userConfig ← EvalConfigItem.evalSetOptions `tactic.simp.user cfg.userConfig item.shift
+    return { cfg with userConfig }
+  option userConfig := fun _ item => do
+    item.addConstInfo ``Simp.ConfigWithOptions.userConfig
+    throwErrorAt item.root "Cannot set `userConfig` directly. User options are of the form `user.optionName`"
+
+/--
+Specializes the `elabSimpConfigAux` configuration elaborator to a specific `Simp` default configuration.
+This is necessary for `(config := {...})` to elaborate the `{...}` expression with the correct expected type.
+-/
+local macro "make_elab_simp_config" fn:ident struct:ident : command => do
+  let optConfig := mkIdent `optConfig
+  let initConfig := mkIdent `initConfig
+  let initUserConfig := mkIdent `initUserConfig
+  `(private local ensure_eval_expr_instance $struct
+    def $fn ($optConfig : Syntax)
+        ($initConfig : $struct := {}) ($initUserConfig : Options := {}) :
+        TacticM Simp.ConfigWithOptions := do
+      elabSimpConfigAux $optConfig { $initConfig with userConfig := $initUserConfig }
+        (evalConfig := fun c => do
+          let config : $struct ← evalExprWithElab c
+          return { config with }))
+
+make_elab_simp_config elabSimpConfigCore Simp.Config
+make_elab_simp_config elabSimpConfigCtxCore Simp.ConfigCtx
+
+private local ensure_eval_expr_instance DSimp.Config
+
+/-- Elaborates a `dsimp` configuration, which uses only a subset of the options
+of a `simp` configuration. The `elabSimpConfig` function calls this and immediately
+converts the result to a `Simp.Config`. -/
+private declare_config_elab elabDSimpConfigCore DSimp.ConfigWithOptions where
+  omit userConfig
+  option config := fun cfg item => do
+    let config : DSimp.Config ← evalExprWithElab item.value
+    return { cfg with config }
+  option user := fun _ item => do
+    item.addConstInfo ``DSimp.ConfigWithOptions.userConfig
+    throwErrorAt item.root "User options are of the form `user.optionName`"
+  option user.* := fun cfg item => do
+    item.addConstInfo ``DSimp.ConfigWithOptions.userConfig
+    let userConfig ← EvalConfigItem.evalSetOptions `tactic.simp.user cfg.userConfig item.shift
+    return { cfg with userConfig }
+  option userConfig := fun _ item => do
+    item.addConstInfo ``DSimp.ConfigWithOptions.userConfig
+    throwErrorAt item.root "Cannot set `userConfig` directly. User options are of the form `user.optionName`"
+
+end
+
+register_builtin_option tactic.simp.user.exampleBool : Bool := {
+  defValue := false
+  descr    := "(simp user option) example Bool-valued option, for testing"
+}
+
+register_builtin_option tactic.simp.user.exampleNat : Nat := {
+  defValue := 0
+  descr    := "(simp user option) example Nat-valued option, for testing"
+}
+
+register_builtin_option tactic.simp.user.exampleInt : Int := {
+  defValue := 0
+  descr    := "(simp user option) example Int-valued option, for testing"
+}
+
+register_builtin_option tactic.simp.user.exampleString : String := {
+  defValue := ""
+  descr    := "(simp user option) example String-valued option, for testing"
+}
 
 inductive SimpKind where
   | simp
@@ -85,12 +186,12 @@ private def mkDischargeWrapper (optDischargeSyntax : Syntax) : TacticM Simp.Disc
     return Simp.DischargeWrapper.custom ref d
 
 /-
-  `optConfig` is of the form `("(" "config" ":=" term ")")?`
+  `optConfig` is `Lean.Parser.Tactic.optConfig`
 -/
-def elabSimpConfig (optConfig : Syntax) (kind : SimpKind) : TacticM Meta.Simp.Config := do
+def elabSimpConfig (optConfig : Syntax) (kind : SimpKind) : TacticM Simp.ConfigWithOptions := do
   match kind with
     | .simp    => elabSimpConfigCore optConfig
-    | .simpAll => pure (← elabSimpConfigCtxCore optConfig).toConfig
+    | .simpAll => elabSimpConfigCtxCore optConfig
     | .dsimp   => pure { (← elabDSimpConfigCore optConfig) with }
 
 inductive ResolveSimpIdResult where
@@ -261,8 +362,12 @@ private def elabSimpArg (indexConfig : Meta.ConfigWithKey) (eraseLocal : Bool) (
         let name ← mkFreshId
         elabDeclToUnfoldOrTheorem indexConfig (.stx name arg) e post inv kind
       | .simproc declName =>
+        if inv then
+          throwErrorAt arg[1] m!"Invalid `←` modifier: `{.ofConstName declName}` is a simproc"
         return .addSimproc declName post
       | .ext ext₁? ext₂? h =>
+        if inv then
+          throwErrorAt arg[1] "Invalid `←` modifier: Cannot be used on a simp extension"
         return .ext ext₁? ext₂? h
       | .none    =>
         let name ← mkFreshId
@@ -424,7 +529,7 @@ def elabSimpLocals (thms : SimpTheorems) (kind : SimpKind) : MetaM SimpTheorems 
   for (name, ci) in env.constants.map₂.toList do
     -- Skip internal details, but allow private names (which are accessible from current module)
     if name.isInternalDetail && !isPrivateName name then continue
-    if (← isImplicitReducible name) then continue
+    if (← isInstanceReducible name) then continue
     match ci with
     | .defnInfo _ =>
       -- Definitions are added to unfold
@@ -457,7 +562,7 @@ def mkSimpContext (stx : Syntax) (eraseLocal : Bool) (kind := SimpKind.simp)
     if kind == SimpKind.simpAll then
       throwError "Tactic `simp_all` does not support the `discharger` option"
     if kind == SimpKind.dsimp then
-      throwError "Tactic `dsimp` does not support the `discharger' option"
+      throwError "Tactic `dsimp` does not support the `discharger` option"
   let dischargeWrapper ← mkDischargeWrapper stx[2]
   let simpOnly := !stx[simpOnlyPos].isNone
   let mut simpTheorems ← if simpOnly then
@@ -466,12 +571,13 @@ def mkSimpContext (stx : Syntax) (eraseLocal : Bool) (kind := SimpKind.simp)
     simpTheorems
   let simprocs ← if simpOnly then pure {} else Simp.getSimprocs
   let congrTheorems ← getSimpCongrTheorems
-  let config ← elabSimpConfig stx[1] (kind := kind)
+  let { config, userConfig } ← elabSimpConfig stx[1] (kind := kind)
   -- Add local definitions if +locals is enabled
   if config.locals then
     simpTheorems ← elabSimpLocals simpTheorems kind
   let ctx ← Simp.mkContext
      (config := config)
+     (userConfig := userConfig)
      (simpTheorems := #[simpTheorems])
      congrTheorems
   let r ← elabSimpArgs stx[4] (eraseLocal := eraseLocal) (kind := kind) (simprocs := #[simprocs]) (ignoreStarArg := ignoreStarArg) ctx

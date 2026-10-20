@@ -4,7 +4,6 @@ import Init.Control.Do
 import Lean.Data.Json
 
 set_option linter.unusedVariables true
-set_option backward.do.legacy false
 
 -- Regression tests: variables used in non-atomic match discriminants in `do`
 -- should not trigger unused variable warnings.

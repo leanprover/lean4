@@ -33,6 +33,14 @@ extern "C" LEAN_EXPORT uint8 lean_system_platform_osx(obj_arg) {
 #endif
 }
 
+extern "C" LEAN_EXPORT uint8 lean_system_platform_linux(obj_arg) {
+#if defined(__linux__) && !defined(LEAN_EMSCRIPTEN)
+    return 1;
+#else
+    return 0;
+#endif
+}
+
 extern "C" LEAN_EXPORT uint8 lean_system_platform_emscripten(obj_arg) {
 #if defined(LEAN_EMSCRIPTEN)
     return 1;

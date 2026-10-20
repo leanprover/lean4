@@ -66,14 +66,17 @@ Decodes an array of bytes that encode a string as [UTF-8](https://en.wikipedia.o
 the corresponding string.
 -/
 @[inline, expose]
-def String.fromUTF8 (a : @& ByteArray) (h : a.IsValidUTF8) : String :=
+def String.fromUTF8 (a : ByteArray) (h : a.IsValidUTF8) : String :=
   .ofByteArray a h
+
+@[simp] theorem String.fromUTF8_eq_ofByteArray {a : ByteArray} {h : a.IsValidUTF8} :
+    String.fromUTF8 a h = String.ofByteArray a h := rfl
 
 /--
 Encodes a string in UTF-8 as an array of bytes.
 -/
-@[extern "lean_string_to_utf8"]
-def String.toUTF8 (a : @& String) : ByteArray :=
+@[inline, expose]
+def String.toUTF8 (a : String) : ByteArray :=
   a.toByteArray
 
 @[simp] theorem String.toUTF8_eq_toByteArray {s : String} : s.toUTF8 = s.toByteArray := (rfl)
@@ -90,7 +93,7 @@ Examples:
  * `"abc" ++ "def" = "abcdef"`
  * `"" ++ "" = ""`
 -/
-@[extern "lean_string_append", expose]
+@[extern "lean_string_append", expose, implicit_reducible]
 def String.append (s : String) (t : @& String) : String where
   toByteArray := s.toByteArray ++ t.toByteArray
   isValidUTF8 := s.isValidUTF8.append t.isValidUTF8
@@ -107,6 +110,30 @@ theorem String.toByteArray_inj {s t : String} : s.toByteArray = t.toByteArray �
   rcases t with ⟨t⟩
   subst h
   rfl
+
+/--
+Marks a string as linear, which is a no-op logically.
+
+At runtime the string is first made unique, copying it if the reference is not already unique, and
+then marked. If the environment variable `LEAN_ABORT_ON_NONLINEAR` is set, every non-linear use
+from that point on causes a panic instead of a silent copy.
+
+To debug where the non-linearity is coming from you can set a breakpoint on `lean_internal_panic`.
+-/
+@[never_extract, extern "lean_string_mark_linear", expose]
+def String.markLinear (s : String) : String := s
+
+@[simp, grind =] theorem String.markLinear_eq {s : String} : s.markLinear = s := rfl
+
+/--
+Returns `t`, propagating the linearity marker of `s` onto it. This is a no-op logically.
+
+See also `String.markLinear`.
+-/
+@[never_extract, extern "lean_string_propagate_mark", expose]
+def String.propagateMark (s : @& String) (t : String) : String := t
+
+@[simp, grind =] theorem String.propagateMark_eq {s t : String} : s.propagateMark t = t := rfl
 
 @[simp] theorem String.toByteArray_ofList {l : List Char} : (String.ofList l).toByteArray = l.utf8Encode := by
   simp [String.ofList]
@@ -422,7 +449,7 @@ instance : Inhabited Slice where
 /--
 Returns a slice that contains the entire string.
 -/
-@[inline, expose] -- expose for the defeq `s.toSlice.str = s`.
+@[inline, expose, implicit_reducible] -- expose for the defeq `s.toSlice.str = s`.
 def toSlice (s : String) : Slice where
   str := s
   startInclusive := s.startPos
@@ -471,7 +498,7 @@ theorem Pos.Raw.byteIdx_sub_slice {p : Pos.Raw} {s : Slice} :
     (p - s).byteIdx = p.byteIdx - s.utf8ByteSize := rfl
 
 /-- The end position of a slice, as a `Pos.Raw`. -/
-@[expose, inline]
+@[expose, inline, implicit_reducible]
 def Slice.rawEndPos (s : Slice) : Pos.Raw where
   byteIdx := s.utf8ByteSize
 
@@ -685,7 +712,20 @@ abbrev endValidPos (s : String) : s.Pos :=
   s.endPos
 
 @[deprecated String.toByteArray (since := "2025-11-24")]
-abbrev String.bytes (s : String) : ByteArray :=
+abbrev bytes (s : String) : ByteArray :=
   s.toByteArray
+
+/--
+Returns the length of the string `s`, assuming the string is comprised only of ASCII characters.
+
+This is implemented as a synonym for `s.utf8ByteSize`, which takes constant time.
+-/
+@[inline]
+def lengthAssumingAscii (s : String) : Nat :=
+  s.utf8ByteSize
+
+@[simp]
+theorem lengthAssumingAscii_eq {s : String} : s.lengthAssumingAscii = s.utf8ByteSize :=
+  (rfl)
 
 end String

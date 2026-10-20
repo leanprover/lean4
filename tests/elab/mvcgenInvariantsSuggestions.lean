@@ -1,11 +1,10 @@
 import Std.Tactic.Do
 import Std
-set_option backward.do.legacy false
 
 open Std Do
 
 set_option grind.warning false
-set_option mvcgen.warning false
+set_option linter.deprecated.syntax false
 set_option pp.rawOnError true
 set_option warn.sorry false
 

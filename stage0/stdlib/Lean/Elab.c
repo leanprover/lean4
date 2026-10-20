@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab
-// Imports: public import Lean.Elab.Import public import Lean.Elab.Exception public import Lean.Elab.Config public import Lean.Elab.Command public import Lean.Elab.Term public import Lean.Elab.App public import Lean.Elab.Binders public import Lean.Elab.BinderPredicates public import Lean.Elab.LetRec public import Lean.Elab.Frontend public import Lean.Elab.BuiltinNotation public import Lean.Elab.Declaration public import Lean.Elab.Tactic public import Lean.Elab.Match public import Lean.Elab.Quotation public import Lean.Elab.Syntax public import Lean.Elab.Do public import Lean.Elab.StructInst public import Lean.Elab.StructInstHint public import Lean.Elab.MutualInductive public import Lean.Elab.Inductive public import Lean.Elab.Structure public import Lean.Elab.Print public import Lean.Elab.MutualDef public import Lean.Elab.AuxDef public import Lean.Elab.PreDefinition public import Lean.Elab.Deriving public import Lean.Elab.DeclarationRange public import Lean.Elab.Extra public import Lean.Elab.GenInjective public import Lean.Elab.BuiltinTerm public import Lean.Elab.Arg public import Lean.Elab.DeprecatedArg public import Lean.Elab.PatternVar public import Lean.Elab.ElabRules public import Lean.Elab.Macro public import Lean.Elab.Notation public import Lean.Elab.Mixfix public import Lean.Elab.MacroRules public import Lean.Elab.BuiltinCommand public import Lean.Elab.AssertExists public import Lean.Elab.Command.WithWeakNamespace public import Lean.Elab.BuiltinEvalCommand public import Lean.Elab.RecAppSyntax public import Lean.Elab.Eval public import Lean.Elab.Calc public import Lean.Elab.InheritDoc public import Lean.Elab.ParseImportsFast public import Lean.Elab.GuardMsgs public import Lean.Elab.CheckTactic public import Lean.Elab.MatchExpr public import Lean.Elab.Tactic.Doc public import Lean.Elab.Time public import Lean.Elab.RecommendedSpelling public import Lean.Elab.InfoTrees public import Lean.Elab.ErrorExplanation public import Lean.Elab.DocString public import Lean.Elab.DocString.Builtin public import Lean.Elab.Parallel public import Lean.Elab.BuiltinDo public import Lean.Elab.Idbg
+// Imports: public import Lean.Elab.Import public import Lean.Elab.Exception public import Lean.Elab.Config public import Lean.Elab.Command public import Lean.Elab.Term public import Lean.Elab.App public import Lean.Elab.Binders public import Lean.Elab.BinderPredicates public import Lean.Elab.LetRec public import Lean.Elab.Frontend public import Lean.Elab.BuiltinNotation public import Lean.Elab.Declaration public import Lean.Elab.Tactic public import Lean.Elab.Match public import Lean.Elab.Quotation public import Lean.Elab.Syntax public import Lean.Elab.Do public import Lean.Elab.StructInst public import Lean.Elab.StructInstHint public import Lean.Elab.MutualInductive public import Lean.Elab.Inductive public import Lean.Elab.Structure public import Lean.Elab.Print public import Lean.Elab.MutualDef public import Lean.Elab.AuxDef public import Lean.Elab.PreDefinition public import Lean.Elab.Deriving public import Lean.Elab.DeclarationRange public import Lean.Elab.Extra public import Lean.Elab.GenInjective public import Lean.Elab.BuiltinTerm public import Lean.Elab.Arg public import Lean.Elab.DeprecatedArg public import Lean.Elab.PatternVar public import Lean.Elab.ElabRules public import Lean.Elab.Macro public import Lean.Elab.Notation public import Lean.Elab.Mixfix public import Lean.Elab.MacroRules public import Lean.Elab.BuiltinCommand public import Lean.Elab.AssertExists public import Lean.Elab.Command.WithWeakNamespace public import Lean.Elab.BuiltinEvalCommand public import Lean.Elab.RecAppSyntax public import Lean.Elab.Eval public import Lean.Elab.Calc public import Lean.Elab.InheritDoc public import Lean.Elab.ParseImportsFast public import Lean.Elab.GuardMsgs public import Lean.Elab.CheckTactic public import Lean.Elab.MatchExpr public import Lean.Elab.Tactic.Doc public import Lean.Elab.Time public import Lean.Elab.RecommendedSpelling public import Lean.Elab.Recall public import Lean.Elab.InfoTrees public import Lean.Elab.ErrorExplanation public import Lean.Elab.DocString public import Lean.Elab.DocString.Builtin public import Lean.Elab.Parallel public import Lean.Elab.BuiltinDo public import Lean.Elab.Idbg public import Lean.Elab.ConfigEval public import Lean.Elab.ConfigEval.Builtins public import Lean.Elab.Tactic.Config
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -67,6 +67,7 @@ lean_object* runtime_initialize_Lean_Elab_MatchExpr(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Elab_Tactic_Doc(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Elab_Time(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Elab_RecommendedSpelling(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Elab_Recall(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Elab_InfoTrees(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Elab_ErrorExplanation(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Elab_DocString(uint8_t builtin);
@@ -74,11 +75,16 @@ lean_object* runtime_initialize_Lean_Elab_DocString_Builtin(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Elab_Parallel(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Elab_BuiltinDo(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Elab_Idbg(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Elab_ConfigEval(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Elab_ConfigEval_Builtins(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Elab_Tactic_Config(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Elab(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Lean_Elab_Import(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
@@ -241,6 +247,9 @@ lean_dec_ref(res);
 res = runtime_initialize_Lean_Elab_RecommendedSpelling(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+res = runtime_initialize_Lean_Elab_Recall(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 res = runtime_initialize_Lean_Elab_InfoTrees(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
@@ -260,6 +269,15 @@ res = runtime_initialize_Lean_Elab_BuiltinDo(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Lean_Elab_Idbg(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Elab_ConfigEval(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Elab_ConfigEval_Builtins(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Elab_Tactic_Config(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
@@ -325,6 +343,7 @@ lean_object* initialize_Lean_Elab_MatchExpr(uint8_t builtin);
 lean_object* initialize_Lean_Elab_Tactic_Doc(uint8_t builtin);
 lean_object* initialize_Lean_Elab_Time(uint8_t builtin);
 lean_object* initialize_Lean_Elab_RecommendedSpelling(uint8_t builtin);
+lean_object* initialize_Lean_Elab_Recall(uint8_t builtin);
 lean_object* initialize_Lean_Elab_InfoTrees(uint8_t builtin);
 lean_object* initialize_Lean_Elab_ErrorExplanation(uint8_t builtin);
 lean_object* initialize_Lean_Elab_DocString(uint8_t builtin);
@@ -332,6 +351,9 @@ lean_object* initialize_Lean_Elab_DocString_Builtin(uint8_t builtin);
 lean_object* initialize_Lean_Elab_Parallel(uint8_t builtin);
 lean_object* initialize_Lean_Elab_BuiltinDo(uint8_t builtin);
 lean_object* initialize_Lean_Elab_Idbg(uint8_t builtin);
+lean_object* initialize_Lean_Elab_ConfigEval(uint8_t builtin);
+lean_object* initialize_Lean_Elab_ConfigEval_Builtins(uint8_t builtin);
+lean_object* initialize_Lean_Elab_Tactic_Config(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Elab(uint8_t builtin) {
 lean_object * res;
@@ -499,6 +521,9 @@ lean_dec_ref(res);
 res = initialize_Lean_Elab_RecommendedSpelling(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+res = initialize_Lean_Elab_Recall(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 res = initialize_Lean_Elab_InfoTrees(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
@@ -518,6 +543,15 @@ res = initialize_Lean_Elab_BuiltinDo(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Elab_Idbg(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Elab_ConfigEval(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Elab_ConfigEval_Builtins(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Elab_Tactic_Config(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Lean_Elab(builtin);

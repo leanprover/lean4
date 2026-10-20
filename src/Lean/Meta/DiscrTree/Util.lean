@@ -12,8 +12,11 @@ namespace Trie
 /--
 Monadically fold the keys and values stored in a `Trie`.
 -/
+@[specialize]
 partial def foldM [Monad m] (initialKeys : Array Key)
     (f : σ → Array Key → α → m σ) : (init : σ) → Trie α → m σ
+  | init, Trie.chain k c =>
+    c.foldM (initialKeys.push k) f init
   | init, Trie.node vs children => do
     let s ← vs.foldlM (init := init) fun s v => f s initialKeys v
     children.foldlM (init := s) fun s (k, t) =>
@@ -29,7 +32,10 @@ def fold (initialKeys : Array Key) (f : σ → Array Key → α → σ) (init : 
 /--
 Monadically fold the values stored in a `Trie`.
 -/
+@[specialize]
 partial def foldValuesM [Monad m] (f : σ → α → m σ) : (init : σ) → Trie α → m σ
+  | init, chain _ c =>
+    c.foldValuesM (init := init) f
   | init, node vs children => do
     let s ← vs.foldlM (init := init) f
     children.foldlM (init := s) fun s (_, c) => c.foldValuesM (init := s) f
@@ -45,8 +51,56 @@ def foldValues (f : σ → α → σ) (init : σ) (t : Trie α) : σ :=
 The number of values stored in a `Trie`.
 -/
 partial def size : Trie α → Nat
+  | Trie.chain _ c => size c
   | Trie.node vs children =>
     children.foldl (init := vs.size) fun n (_, c) => n + size c
+
+/--
+Generate a trie node from values and an array of children.
+-/
+@[inline]
+def mkNode (vs : Array α) (cs : Array (Key × Trie α)) : Trie α :=
+  if h : vs.isEmpty ∧ cs.size = 1 then
+    .chain cs[0].1 cs[0].2
+  else
+    .node vs cs
+
+/--
+Inspect a trie node as an array of values and an array of children.
+-/
+@[inline]
+def asNode : Trie α → Array α × Array (Key × Trie α)
+  | .chain k v => ⟨#[], #[(k, v)]⟩
+  | .node vs cs => ⟨vs, cs⟩
+
+/--
+Returns the values stored at the current trie node.
+Equivalent to `t.asNode.1`.
+-/
+@[inline]
+def nodeValues : Trie α → Array α
+  | .chain _ _ => #[]
+  | .node vs _ => vs
+
+/--
+Returns the child nodes of the current trie node.
+Equivalent to `t.asNode.2`.
+-/
+@[inline]
+def nodeChildren : Trie α → Array (Key × Trie α)
+  | .chain k v => #[(k, v)]
+  | .node _ cs => cs
+
+/--
+Checks whether a trie node is empty (no values and no children).
+
+This is only a check for actual trie emptiness (`t.size = 0`) if all operations maintain the
+invariant that no trie node has an empty child node.
+-/
+@[inline]
+def isEmptyNode : Trie α → Bool
+  | .chain _ _ => false
+  | .node vs children => vs.isEmpty && children.isEmpty
 
 end Trie
 
@@ -111,18 +165,37 @@ def size (t : DiscrTree α) : Nat :=
 
 variable {m : Type → Type} [Monad m]
 
-/-- Apply a monadic function to the array of values at each node in a `DiscrTree`. -/
+/--
+Apply a monadic function to the array of values at each node in a `DiscrTree`.
+Any resulting subtrees containing no values will be pruned.
+-/
+@[specialize]
 partial def Trie.mapArraysM (t : DiscrTree.Trie α) (f : Array α → m (Array β)) :
     m (DiscrTree.Trie β) :=
   match t with
-  | .node vs children =>
-    return .node (← f vs) (← children.mapM fun (k, t') => do pure (k, ← t'.mapArraysM f))
+  | .chain k c => do
+    let vs ← f #[] -- Corner case. Possible future optimization: modify `mapArraysM` semantics to only call `f` for non-empty arrays and then eliminate this line
+    let c ← c.mapArraysM f
+    let cs := if c.isEmptyNode then #[] else #[(k, c)]
+    return Trie.mkNode vs cs
+  | .node vs children => do
+    let vs ← f vs
+    let children ← children.filterMapM fun (k, child) => do
+      let child ← child.mapArraysM f
+      if child.isEmptyNode then
+        return none
+      else
+        return some (k, child)
+    return Trie.mkNode vs children
 
 /-- Apply a monadic function to the array of values at each node in a `DiscrTree`. -/
+@[inline]
 def mapArraysM (d : DiscrTree α) (f : Array α → m (Array β)) : m (DiscrTree β) := do
-  pure { root := ← d.root.mapM (fun t => t.mapArraysM f) }
+  let root ← d.root.mapM (fun t => t.mapArraysM f)
+  pure { root := root.foldl (init := root) fun acc k t => if t.isEmptyNode then acc.erase k else acc }
 
 /-- Apply a function to the array of values at each node in a `DiscrTree`. -/
+@[inline]
 def mapArrays (d : DiscrTree α) (f : Array α → Array β) : DiscrTree β :=
   Id.run <| d.mapArraysM fun A => pure (f A)
 

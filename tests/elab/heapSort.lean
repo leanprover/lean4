@@ -81,7 +81,7 @@ instance (lt) : EmptyCollection (BinaryHeap α lt) := ⟨empty _⟩
 def singleton (lt) (x : α) : BinaryHeap α lt := ⟨#[x]⟩
 
 /-- `O(1)`. Get the number of elements in a `BinaryHeap`. -/
-def size {lt} (self : BinaryHeap α lt) : Nat := self.1.size
+@[instance_reducible] def size {lt} (self : BinaryHeap α lt) : Nat := self.1.size
 
 /-- `O(1)`. Get an element in the heap by index. -/
 def get {lt} (self : BinaryHeap α lt) (i : Fin self.size) : α := self.1[i]'i.2

@@ -10,17 +10,18 @@ public import Init.Data.ToString.Basic
 import Init.Data.UInt.Lemmas
 import Init.Data.String.Basic
 import Init.Data.Nat.Fold
+import Init.Data.String.Length
 
 namespace Lake
 
-public def lpad (s : String) (c : Char) (len : Nat) : String :=
-  "".pushn c (len - s.length) ++ s
+public def lpadAscii (s : String) (c : Char) (len : Nat) : String :=
+  "".pushn c (len - s.lengthAssumingAscii) ++ s
 
-public def rpad (s : String) (c : Char) (len : Nat) : String :=
-  s.pushn c (len - s.length)
+public def rpadAscii (s : String) (c : Char) (len : Nat) : String :=
+  s.pushn c (len - s.lengthAssumingAscii)
 
 public def zpad (n : Nat) (len : Nat) : String :=
-  lpad (toString n) '0' len
+  lpadAscii (toString n) '0' len
 
 /-- Returns whether a string is composed of only hexadecimal digits. -/
 public def isHex (s : String) : Bool :=

@@ -11,17 +11,66 @@ public import Lean.Data.Json.Printer
 public import Init.Data.ToString.Macro
 import Init.Data.Array.GetLit
 
+set_option doc.verso true
+
 public section
 
 namespace Lean
 
 universe u
 
+/--
+Types that can be decoded from JSON.
+
+Use `deriving FromJson`
+to {manual section "deriving-instances"}[automatically generate] an instance.
+See {name (scope := "Lean.Data.Json.FromToJson.Basic")}`ToJson`
+for details of auto-generated instances.
+-/
 class FromJson (α : Type u) where
   fromJson? : Json → Except String α
 
 export FromJson (fromJson?)
 
+/--
+Types that can be encoded as JSON.
+
+Use `deriving ToJson`
+to {manual section "deriving-instances"}[automatically generate] an instance.
+The following encoding strategy is employed by auto-generated instances:
+- Basic types corresponding to JSON values are encoded as these values.
+  - {name}`Bool` is encoded as {lit}`true`/{lit}`false`.
+  - {name}`String`s are encoded as JSON strings.
+  - Numeric types are encoded as JSON numbers, with the exception of:
+    - {name}`UInt64` and {name}`USize`
+      which are encoded as JSON strings.
+      This is because, although JSON numbers proper have unbounded range,
+      in JavaScript they are parsed as [Number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)s
+      and these can only represent integers up to $`2^{53} - 1` safely;
+      so a roundtrip through JavaScript would result in truncation on these types.
+      (We use these types in the JavaScript-based Lean infoview.)
+    - Special {name}`Float`s which are encoded as JSON strings:
+      {lit}`"NaN"`/{lit}`"Infinity"`/{lit}`"-Infinity"`.
+- {name}`Unit` is encoded as {lit}`{}` (empty JSON object).
+- {name}`Array`s and {name}`List`s are encoded as JSON arrays.
+- {name}`Option.none` is encoded as {lit}`null`,
+  whereas {given -show}`a : α` {lean}`some a` has the same encoding as {name}`a`.
+  Note that this implies {lean}`Option (Option α)` does not roundtrip,
+  since {lean}`none` and {lean}`some none` both become {lit}`null`.
+- General `structure`s are encoded as JSON objects in the obvious way.
+  - {name}`Option` fields whose names end with `?` have special support:
+    the question mark is omitted from the JSON field name,
+    and such a field is omitted from the JSON object when its value is {name}`none`
+    (as opposed to being encoded as {lit}`{ "someField": null }`).
+- General `inductive` types are encoded on a per-constructor basis.
+  - An argument-free constructor is encoded as its name (a JSON string).
+  - A constructor with named arguments only is encoded as the JSON object
+    {lit}`{ "ctorName": { "arg1": argVal1, ..., "argN": argValN } }`.
+  - A constructor with one unnamed argument is encoded as the JSON object
+    {lit}`{ "ctorName": argVal }`.
+  - A constructor with more than one unnamed argument is encoded as the JSON object
+    {lit}`{ "ctorName": [argVal1, ..., argValN] }`.
+- Certain other types have special handling: see the instances below. -/
 class ToJson (α : Type u) where
   toJson : α → Json
 
@@ -33,6 +82,11 @@ instance : ToJson Json := ⟨id⟩
 instance : FromJson JsonNumber := ⟨Json.getNum?⟩
 instance : ToJson JsonNumber := ⟨Json.num⟩
 
+instance : FromJson Unit :=
+  ⟨fun
+    | .obj .empty => .ok ()
+    | json => .error s!"expected \{} to decode Unit, got {json}"⟩
+instance : ToJson Unit := ⟨fun _ => Json.obj {}⟩
 instance : FromJson Empty where
   fromJson? j := throw (s!"type Empty has no constructor to match JSON value '{j}'. \
                            This occurs when deserializing a value for type Empty, \
@@ -54,46 +108,53 @@ instance : ToJson String.Slice := ⟨fun s => s.copy⟩
 instance : FromJson System.FilePath := ⟨fun j => System.FilePath.mk <$> Json.getStr? j⟩
 instance : ToJson System.FilePath := ⟨fun p => p.toString⟩
 
-protected def _root_.Array.fromJson? [FromJson α] : Json → Except String (Array α)
+-- This is intentionally in the `Lean` namespace to avoid polluting the global namespace.
+protected def Array.fromJson? [FromJson α] : Json → Except String (Array α)
   | Json.arr a => a.mapM fromJson?
   | j          => throw s!"expected JSON array, got '{j}'"
 
 instance [FromJson α] : FromJson (Array α) where
   fromJson? := Array.fromJson?
 
-protected def _root_.Array.toJson [ToJson α] (a : Array α) : Json :=
+-- This is intentionally in the `Lean` namespace to avoid polluting the global namespace.
+protected def Array.toJson [ToJson α] (a : Array α) : Json :=
   Json.arr (a.map toJson)
 
 instance [ToJson α] : ToJson (Array α) where
   toJson := Array.toJson
 
-protected def _root_.List.fromJson? [FromJson α] (j : Json) : Except String (List α) :=
+-- This is intentionally in the `Lean` namespace to avoid polluting the global namespace.
+protected def List.fromJson? [FromJson α] (j : Json) : Except String (List α) :=
   (fromJson? j (α := Array α)).map Array.toList
 
 instance [FromJson α] : FromJson (List α) where
   fromJson? := List.fromJson?
 
-protected def _root_.List.toJson [ToJson α] (a : List α) : Json :=
+-- This is intentionally in the `Lean` namespace to avoid polluting the global namespace.
+protected def List.toJson [ToJson α] (a : List α) : Json :=
   toJson a.toArray
 
 instance [ToJson α] : ToJson (List α) where
   toJson := List.toJson
 
-protected def _root_.Option.fromJson? [FromJson α] : Json → Except String (Option α)
+-- This is intentionally in the `Lean` namespace to avoid polluting the global namespace.
+protected def Option.fromJson? [FromJson α] : Json → Except String (Option α)
   | Json.null => Except.ok none
   | j         => some <$> fromJson? j
 
 instance [FromJson α] : FromJson (Option α) where
   fromJson? := Option.fromJson?
 
-protected def _root_.Option.toJson [ToJson α] : Option α → Json
+-- This is intentionally in the `Lean` namespace to avoid polluting the global namespace.
+protected def Option.toJson [ToJson α] : Option α → Json
   | none   => Json.null
   | some a => toJson a
 
 instance [ToJson α] : ToJson (Option α) where
   toJson := Option.toJson
 
-protected def _root_.Prod.fromJson? {α : Type u} {β : Type v} [FromJson α] [FromJson β] : Json → Except String (α × β)
+-- This is intentionally in the `Lean` namespace to avoid polluting the global namespace.
+protected def Prod.fromJson? {α : Type u} {β : Type v} [FromJson α] [FromJson β] : Json → Except String (α × β)
   | Json.arr #[ja, jb] => do
     let ⟨a⟩ : ULift.{v} α := ← (fromJson? ja).map ULift.up
     let ⟨b⟩ : ULift.{u} β := ← (fromJson? jb).map ULift.up
@@ -103,7 +164,8 @@ protected def _root_.Prod.fromJson? {α : Type u} {β : Type v} [FromJson α] [F
 instance {α : Type u} {β : Type v} [FromJson α] [FromJson β] : FromJson (α × β) where
   fromJson? := Prod.fromJson?
 
-protected def _root_.Prod.toJson [ToJson α] [ToJson β] : α × β → Json
+-- This is intentionally in the `Lean` namespace to avoid polluting the global namespace.
+protected def Prod.toJson [ToJson α] [ToJson β] : α × β → Json
   | (a, b) => Json.arr #[toJson a, toJson b]
 
 instance [ToJson α] [ToJson β] : ToJson (α × β) where
@@ -145,7 +207,7 @@ protected def NameMap.toJson [ToJson α] (m : NameMap α) : Json :=
 instance [ToJson α] : ToJson (NameMap α) where
   toJson := NameMap.toJson
 
-/-- Note that `USize`s and `UInt64`s are stored as strings because JavaScript
+/-- Note that {name}`USize`s and {name}`UInt64`s are stored as strings because JavaScript
 cannot represent 64-bit numbers. -/
 def bignumFromJson? (j : Json) : Except String Nat := do
   let s ← j.getStr?
@@ -156,7 +218,8 @@ def bignumFromJson? (j : Json) : Except String Nat := do
 def bignumToJson (n : Nat) : Json :=
   toString n
 
-protected def _root_.USize.fromJson? (j : Json) : Except String USize := do
+-- This is intentionally in the `Lean` namespace to avoid polluting the global namespace.
+protected def USize.fromJson? (j : Json) : Except String USize := do
   let n ← bignumFromJson? j
   if n ≥ USize.size then
     throw s!"value '{j}' is too large for `USize`"
@@ -168,7 +231,8 @@ instance : FromJson USize where
 instance : ToJson USize where
   toJson v := bignumToJson (USize.toNat v)
 
-protected def _root_.UInt64.fromJson? (j : Json) : Except String UInt64 := do
+-- This is intentionally in the `Lean` namespace to avoid polluting the global namespace.
+protected def UInt64.fromJson? (j : Json) : Except String UInt64 := do
   let n ← bignumFromJson? j
   if n ≥ UInt64.size then
     throw s!"value '{j}' is too large for `UInt64`"
@@ -180,7 +244,8 @@ instance : FromJson UInt64 where
 instance : ToJson UInt64 where
   toJson v := bignumToJson (UInt64.toNat v)
 
-protected def _root_.Float.toJson (x : Float) : Json :=
+-- This is intentionally in the `Lean` namespace to avoid polluting the global namespace.
+protected def Float.toJson (x : Float) : Json :=
   match JsonNumber.fromFloat? x with
   | Sum.inl e => Json.str e
   | Sum.inr n => Json.num n
@@ -188,7 +253,8 @@ protected def _root_.Float.toJson (x : Float) : Json :=
 instance : ToJson Float where
   toJson := Float.toJson
 
-protected def _root_.Float.fromJson? : Json → Except String Float
+-- This is intentionally in the `Lean` namespace to avoid polluting the global namespace.
+protected def Float.fromJson? : Json → Except String Float
   | (Json.str "Infinity") => Except.ok (1.0 / 0.0)
   | (Json.str "-Infinity") => Except.ok (-1.0 / 0.0)
   | (Json.str "NaN") => Except.ok (0.0 / 0.0)
@@ -269,7 +335,7 @@ def parseTagged
 
 /--
 Parses a JSON-encoded `structure` or `inductive` constructor, assuming the tag has already been
-checked and `nFields` is nonzero. Used mostly by `deriving FromJson`.
+checked and {name}`nFields` is nonzero. Used mostly by `deriving FromJson`.
 -/
 def parseCtorFields
     (json : Json)

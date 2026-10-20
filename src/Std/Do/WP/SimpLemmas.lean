@@ -422,7 +422,11 @@ theorem throwThe [MonadExceptOf ε m] [WP m ps] :
 @[simp]
 theorem throw_Except :
     wp⟦MonadExceptOf.throw e : Except ε α⟧ Q = Q.2.1 e := by
-  simp [wp, MonadExceptOf.throw, Id.run, ExceptT.run, Except.instWP._aux_1]
+  -- TODO: Because `ExceptT Id` is not instance-reducible,
+  -- `inferInstanceAs` in `Except.instWP` wraps the `WP.wp` field into an auxiliary lemma that isn't
+  -- a simp lemma (for good reasons since its definitional lemma only holds up to default
+  -- transparency).
+  simp [wp, MonadExceptOf.throw, Except.instWP._aux_1, Id.run, ExceptT.run]
 
 @[simp]
 theorem throw_ExceptT [Monad m] [WPMonad m ps] :
@@ -432,7 +436,10 @@ theorem throw_ExceptT [Monad m] [WPMonad m ps] :
 @[simp]
 theorem throw_Option :
     wp⟦MonadExceptOf.throw e : Option α⟧ Q = Q.2.1 e := by
-  simp [wp, MonadExceptOf.throw, Id.run, OptionT.run, Option.instWP._aux_1]
+  -- TODO: Because `OptionT Id` is not defeq to `Option` at implicit transparency,
+  -- `inferInstanceAs` wraps the `WP.wp` field into an auxiliary lemma that isn't a simp lemma
+  -- (for good reasons since its definitional lemma only holds up to default transparency).
+  simp [wp, MonadExceptOf.throw, Option.instWP._aux_1, Id.run, OptionT.run]
 
 @[simp]
 theorem throw_OptionT [Monad m] [WPMonad m ps] :
@@ -484,6 +491,10 @@ theorem tryCatchThe [MonadExceptOf ε m] [WP m ps] :
 @[simp]
 theorem tryCatch_Except :
     wp⟦MonadExceptOf.tryCatch x h : Except ε α⟧ Q = wp⟦x⟧ (Q.1, fun e => wp⟦h e⟧ Q, Q.2.2) := by
+  -- TODO: Because `ExceptT Id` is not instance-reducible,
+  -- `inferInstanceAs` in `Except.instWP` wraps the `WP.wp` field into an auxiliary lemma that isn't
+  -- a simp lemma (for good reasons since its definitional lemma only holds up to default
+  -- transparency).
   simp only [wp, Except.instWP._aux_1, ExceptT.run, Id.run, MonadExceptOf.tryCatch, Except.tryCatch,
     PredTrans.apply_pushExcept]
   cases x <;> simp
@@ -501,6 +512,9 @@ theorem tryCatch_ExceptT [Monad m] [WPMonad m ps] :
 @[simp]
 theorem tryCatch_Option :
     wp⟦MonadExceptOf.tryCatch x h : Option α⟧ Q = wp⟦x⟧ (Q.1, fun e => wp⟦h e⟧ Q, Q.2.2) := by
+  -- TODO: Because `OptionT Id` is not defeq to `Option` at implicit transparency,
+  -- `inferInstanceAs` wraps the `WP.wp` field into an auxiliary lemma that isn't a simp lemma
+  -- (for good reasons since its definitional lemma only holds up to default transparency).
   simp only [wp, Option.instWP._aux_1, Id.run, OptionT.run, MonadExceptOf.tryCatch, Option.tryCatch,
     PredTrans.apply_pushOption]
   cases x <;> simp
@@ -590,7 +604,10 @@ theorem orElse_ExceptT [Monad m] [WPMonad m ps] :
 @[simp]
 theorem orElse_Option  :
     wp⟦OrElse.orElse x h : Option α⟧ Q = wp⟦x⟧ (Q.1, fun _ => wp⟦h ()⟧ Q, Q.2.2) := by
-  cases x <;> simp [OrElse.orElse, Option.orElse, wp, Id.run, OptionT.run, Option.instWP._aux_1]
+  -- TODO: Because `OptionT Id` is not defeq to `Option` at implicit transparency,
+  -- `inferInstanceAs` wraps the `WP.wp` field into an auxiliary lemma that isn't a simp lemma
+  -- (for good reasons since its definitional lemma only holds up to default transparency).
+  cases x <;> simp [OrElse.orElse, Option.orElse, wp, Option.instWP._aux_1, Id.run, OptionT.run]
 
 @[simp]
 theorem orElse_OptionT [Monad m] [WPMonad m ps] :

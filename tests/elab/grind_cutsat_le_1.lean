@@ -23,5 +23,5 @@ example (a b c : Int) (h₁ : a ≤ 3) (h₂ : a + b > 5) (h₃ : a - c > 1) : b
 theorem ex₁ (a b c : Int) (h₁ : a ≤ 3) (h₂ : a + b > 5) (h₃ : a - c > 1) : b ≤ c → c ≤ b → False := by
   grind
 
-open Int.Linear in
+open Int.Internal.Linear in
 #print ex₁

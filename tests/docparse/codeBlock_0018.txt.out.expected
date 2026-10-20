@@ -1,0 +1,22 @@
+Input: "```lean (x := \"a\nb\")\ncode\n```\n"
+Failure: unexpected token; expected a string argument on one line
+ --> 1:14-2:2
+  |
+1 | ```lean (x := "a
+  |               ^^
+  = consumed input prefix: 19 bytes
+Final stack:
+  (Lean.Doc.Parser.Block.codeblock
+   (Lean.Doc.Parser.codeBlockFence "```")
+   [`lean
+    [(Lean.Doc.Parser.Arg.named
+      "("
+      `x
+      ":="
+      (Lean.Doc.Parser.ArgVal.str <missing>)
+      ")")]]
+   (Lean.Doc.Parser.versoCodeBlock
+    [(Lean.Doc.Parser.versoCodeLine "code\n")])
+   (Lean.Doc.Parser.codeBlockFence "```"))
+All input consumed.
+Round-trip not reproduced, as the parse reported errors: leaf without original source info: <missing>

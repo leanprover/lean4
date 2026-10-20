@@ -19,9 +19,10 @@ public section
 /-! Provides an IpcM monad for interacting with an external LSP process.
 Used for testing the Lean server. -/
 
+open IO Lean
+
 namespace Lean.Lsp.Ipc
 
-open IO
 open JsonRpc
 
 def ipcStdioConfig : Process.StdioConfig where
@@ -180,24 +181,6 @@ partial def waitForWatchdogILeans (waitForILeansId : RequestID := 0) : IpcM Unit
         throw $ userError s!"Waiting for ILeans failed: {msg}"
     | _ =>
       pure ()
-
-/--
-Waits for a diagnostic notification with a specific message to be emitted. Discards all received
-messages, so should not be combined with `collectDiagnostics`.
--/
-partial def waitForMessage (msg : String) : IpcM Unit := do
-  loop
-where
-  loop := do
-    match (←readMessage) with
-    | Message.notification "textDocument/publishDiagnostics" (some param) =>
-      match fromJson? (α := PublishDiagnosticsParams) (toJson param) with
-      | Except.ok diagnosticParam =>
-        if diagnosticParam.diagnostics.any (·.message == msg) then
-          return
-        loop
-      | Except.error inner => throw $ userError s!"Cannot decode publishDiagnostics parameters\n{inner}"
-    | _ => loop
 
 structure CallHierarchy where
   item       : CallHierarchyItem

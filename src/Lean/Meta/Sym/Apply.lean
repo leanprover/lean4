@@ -126,11 +126,16 @@ Applies a backward rule to a goal, returning new subgoals.
 2. Assigns the goal metavariable to the theorem application
 3. Returns new goals for unassigned arguments (per `resultPos`)
 
-Returns `.notApplicable` if unification fails.
+Returns `.failed` if unification fails, or if an instance argument could not be synthesized.
 -/
 public def BackwardRule.apply (mvarId : MVarId) (rule : BackwardRule) : SymM ApplyResult := mvarId.withContext do
   let decl ← mvarId.getDecl
   if let some result ← rule.pattern.unify? decl.type then
+    -- `mkResultPos` omits instance arguments from `resultPos`, assuming type class resolution
+    -- discharges them. An instance that could not be resolved is not a subgoal, so assigning the
+    -- goal anyway would leave a loose instance metavariable in the proof term (surfacing later as a
+    -- kernel unresolved-metavariable error). Report the rule as inapplicable instead.
+    unless result.unresolvedInsts.isEmpty do return .failed
     mvarId.assign (mkValue rule.expr rule.pattern result)
     return .goals <| rule.resultPos.map fun i =>
       result.args[i]!.mvarId!

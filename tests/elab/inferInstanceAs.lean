@@ -1,5 +1,7 @@
 module
 
+public import Lean
+
 class C (α : Type) where
   c : α → α
 
@@ -20,7 +22,7 @@ set_option backward.inferInstanceAs.wrap false in
 #check inferInstanceAs (C D)
 
 /--
-info: @[implicit_reducible] private def instCD : C D :=
+info: @[instance_reducible] private def instCD : C D :=
 { c := instCD._aux_1 }
 -/
 #guard_msgs in
@@ -40,7 +42,7 @@ def D2 := I2
 
 instance : C D2 := inferInstanceAs (C I2)
 /--
-info: @[implicit_reducible] private def instCD2 : C D2 :=
+info: @[instance_reducible] private def instCD2 : C D2 :=
 instCD2._aux_1
 -/
 #guard_msgs in
@@ -78,9 +80,9 @@ theorem zou : instFooBarMyNat.toBar = instBarMyNat := by
 
 /-! Non-constructor instances should be used as is. -/
 
-@[macro_inline, implicit_reducible]
+@[macro_inline, instance_reducible]
 def dite' {α : Sort u} (c : Prop) [h : Decidable c] (t : c → α) (e : Not c → α) : α :=
-  h.casesOn e t
+  h.falseTrueCases e t
 
 instance Nat.decLe' (n m : @& Nat) : Decidable (LE.le n m) :=
   dite' (Eq (Nat.ble n m) true) (fun h => isTrue (Nat.le_of_ble_eq_true h)) (fun h => isFalse (Nat.not_le_of_not_ble_eq_true h))
@@ -134,8 +136,88 @@ example (α : Type) [Super α] :
   with_reducible_and_instances rfl
 
 /--
-info: @[implicit_reducible] private def iSuper : (α : Type) → [Super α] → Super (MyCopy α) :=
+info: @[instance_reducible] private def iSuper : (α : Type) → [Super α] → Super (MyCopy α) :=
 fun α [Super α] => { toMain0 := iMain0 α, c := Main1.c }
 -/
 #guard_msgs in
 #print iSuper
+
+/-! Wrapper aux defs in a `public section` must be exposed only when their bodies are well-typed in
+the exported environment, i.e. when the bridged type's body is itself exposed (#14147). -/
+
+public section
+
+def NotExposed := Nat
+
+noncomputable instance : Inhabited NotExposed := inferInstanceAs (Inhabited Nat)
+
+-- The instance stays exposed and references the wrapper aux def.
+/--
+info: @[instance_reducible, expose] def instInhabitedNotExposed : Inhabited NotExposed :=
+{ default := instInhabitedNotExposed._aux_1 }
+-/
+#guard_msgs in
+#print instInhabitedNotExposed
+
+-- The aux def's body bridges `NotExposed` and `Nat`, so it is kept out of the public scope (exported
+-- as a signature-only stub): a public `def`, neither `private` nor `@[expose]`, so the exposed
+-- instance above stays well-typed for importers without leaking `NotExposed`'s body.
+/--
+info: def instInhabitedNotExposed._aux_1 : NotExposed :=
+Nat.zero
+-/
+#guard_msgs in
+#print instInhabitedNotExposed._aux_1
+
+@[expose] def IsExposed := Nat
+
+noncomputable instance : Inhabited IsExposed := inferInstanceAs (Inhabited Nat)
+
+-- `IsExposed`'s body is exposed, so the aux def is well-typed in the exported environment and stays
+-- exposed.
+/--
+info: @[expose] def instInhabitedIsExposed._aux_1 : IsExposed :=
+Nat.zero
+-/
+#guard_msgs in
+#print instInhabitedIsExposed._aux_1
+
+/-! Test the reuse of instances of `NotExposed` (#14470). -/
+
+class Base' (α : Type) where
+  b : α
+
+class Foo' (α : Type) extends Base' α where
+  a : α
+
+class Bar' (α : Type) extends Base' α where
+  c : α
+
+class FooBar' (α : Type) extends Foo' α, Bar' α
+
+instance : FooBar' Nat where
+  a := 0
+  b := 1
+  c := 2
+
+namespace NotExposed
+
+noncomputable instance : Foo' NotExposed := inferInstanceAs (Foo' Nat)
+noncomputable instance : Bar' NotExposed := inferInstanceAs (Bar' Nat)
+noncomputable instance : FooBar' NotExposed := inferInstanceAs (FooBar' Nat)
+
+open Lean Elab Tactic in
+elab "with_exporting" tac:tacticSeq : tactic =>
+  Lean.withExporting (isExporting := true) (Lean.Elab.Tactic.evalTactic tac)
+
+-- The instances must be reused for these defeqs to hold publicly.
+
+example : instFooBar'.toFoo' = instFoo' := by
+  with_exporting with_reducible_and_instances rfl
+
+example : instFooBar'.toBar' = instBar' := by
+  with_exporting with_reducible_and_instances rfl
+
+end NotExposed
+
+end

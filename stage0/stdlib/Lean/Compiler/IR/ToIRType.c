@@ -542,11 +542,13 @@ return v_res_118_;
 }
 lean_object* runtime_initialize_Lean_Compiler_IR_Format(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Compiler_LCNF_MonoTypes(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Compiler_IR_ToIRType(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Lean_Compiler_IR_Format(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

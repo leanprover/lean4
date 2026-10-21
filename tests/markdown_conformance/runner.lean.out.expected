@@ -1,5 +1,5 @@
-Skipped: 109/655 (16%)
-Overall: 546/546 (100%)
+Skipped: 100/655 (15%)
+Overall: 555/555 (100%)
 
 Per section:
   ATX headings:
@@ -26,10 +26,9 @@ Per section:
       HTML: 3
       Unicode flanking: 6
   Entity and numeric character references:
-    Pass: 8/8 (100%)
+    Pass: 16/16 (100%)
     Skip:
       HTML: 1
-      Named entity: 8
   Fenced code blocks:
     Pass: 29/29 (100%)
   HTML blocks:
@@ -54,11 +53,10 @@ Per section:
       HTML: 2
       Unicode case-folding: 1
   Links:
-    Pass: 80/80 (100%)
+    Pass: 81/81 (100%)
     Skip:
       HTML: 8
       Unicode case-folding: 1
-      Named entity: 1
   List items:
     Pass: 48/48 (100%)
   Lists:

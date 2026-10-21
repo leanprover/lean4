@@ -59,25 +59,9 @@ private def escapeChar : Char → String
 def escape (s : String) : String :=
   s.foldl (init := "") fun acc c => acc ++ escapeChar c
 
-/-- Substring of `source` covered by `r`. -/
+/-- The substring of `source` at `r`. -/
 def extract (source : String) (r : Syntax.Range) : String :=
   String.Pos.Raw.extract source r.start r.stop
-
-/--
-Strips backslash escapes from a string so that `\X` becomes `X` whenever `X`
-is an ASCII punctuation character; backslashes before any other character
-are preserved verbatim. This matches CommonMark's normalisation of
-non-inline-parsed slots like link URLs and titles, where the inline
-delimiter machinery cannot run but escapes still apply.
--/
-private def unescape (s : String) : String :=
-  let (out, pendingBackslash) := s.foldl (init := ("", false)) fun (out, escaped) c =>
-    if escaped then
-      if isAsciiPunctuation c then (out.push c, false)
-      else (out.push '\\' |>.push c, false)
-    else if c == '\\' then (out, true)
-    else (out.push c, false)
-  if pendingBackslash then out.push '\\' else out
 
 private def hexDigit (n : Nat) : Char :=
   if n < 10 then Char.ofNat (n + '0'.toNat)
@@ -135,100 +119,6 @@ private def appendUtf8Encoded (out : String) (c : Char) : String := Id.run do
     out := appendHex2 out (0x80 + (n / 0x1000) % 0x40)
     out := appendHex2 out (0x80 + (n / 0x40) % 0x40)
     out := appendHex2 out (0x80 + n % 0x40)
-  return out
-
-private def hexDigitVal? (c : Char) : Option Nat :=
-  let n := c.toNat
-  if '0'.toNat ≤ n && n ≤ '9'.toNat then some (n - '0'.toNat)
-  else if 'a'.toNat ≤ n && n ≤ 'f'.toNat then some (n - 'a'.toNat + 10)
-  else if 'A'.toNat ≤ n && n ≤ 'F'.toNat then some (n - 'A'.toNat + 10)
-  else none
-
-private def decDigitVal? (c : Char) : Option Nat :=
-  let n := c.toNat
-  if '0'.toNat ≤ n && n ≤ '9'.toNat then some (n - '0'.toNat) else none
-
-/--
-Decodes an HTML5 entity body — the text between `&` and `;` — to the
-corresponding character. Handles numeric character references
-(`#NN` decimal and `#xHH`/`#XHH` hex) and a small list of named ASCII
-entities (`amp`, `lt`, `gt`, `quot`, `apos`, `nbsp`). The CommonMark
-conformance suite's named-entity expectations are skipped at the
-runner level, so this minimal table is enough for our purposes.
-Returns `none` if the body doesn't decode to a recognised entity, in
-which case the caller leaves the original `&...;` text in place.
--/
-private def decodeEntityBody (body : String) : Option String := Id.run do
-  let sl := body.toSlice
-  if sl.isEmpty then return none
-  if sl.startsWith '#' then
-    let rest := sl.drop 1
-    if rest.isEmpty then return none
-    let isHex := rest.startsWith 'x' || rest.startsWith 'X'
-    let digits := if isHex then rest.drop 1 else rest
-    if digits.isEmpty then return none
-    let mut n : Nat := 0
-    let mut count : Nat := 0
-    for c in digits do
-      count := count + 1
-      if count > 7 then return none
-      match (if isHex then hexDigitVal? c else decDigitVal? c) with
-      | none => return none
-      | some d => n := n * (if isHex then 16 else 10) + d
-    -- HTML5: the replacement char (U+FFFD) is used for the null
-    -- character, code points outside Unicode, and surrogates.
-    if n == 0 || n > 0x10ffff then return some (Char.ofNat 0xfffd).toString
-    if n ≥ 0xd800 && n ≤ 0xdfff then return some (Char.ofNat 0xfffd).toString
-    return some (Char.ofNat n).toString
-  match body with
-  | "amp"  => return some "&"
-  | "lt"   => return some "<"
-  | "gt"   => return some ">"
-  | "quot" => return some "\""
-  | "apos" => return some "'"
-  | "nbsp" => return some (Char.ofNat 0xa0).toString
-  | _      => return none
-
-/--
-Decodes HTML entity references in `s` — both numeric (`&#10;`/`&#x0A;`)
-and the small named-entity table above. Unrecognised `&…;` sequences
-pass through unchanged so the surrounding `escape` step renders them
-verbatim.
--/
-def decodeEntities (s : String) : String := Id.run do
-  let mut sl := s.toSlice
-  let mut out := ""
-  while !sl.isEmpty do
-    if sl.startsWith '&' then
-      -- Search for `;` within reasonable distance, bailing on whitespace
-      -- or another `&`/`<` so we don't scan unbounded stretches of text.
-      let mut scan := sl.drop 1
-      let mut body := ""
-      let mut count : Nat := 0
-      let mut foundSemi := false
-      while !scan.isEmpty && count < 32 do
-        if scan.startsWith ';' then
-          foundSemi := true; break
-        if scan.startsWith fun c =>
-            c == ' ' || c == '\t' || c == '\n' || c == '\r' || c == '<' || c == '&' then
-          break
-        body := body.push scan.front
-        scan := scan.drop 1
-        count := count + 1
-      if foundSemi then
-        match decodeEntityBody body with
-        | some replacement =>
-          out := out ++ replacement
-          sl := scan.drop 1
-        | none =>
-          out := out.push '&'
-          sl := sl.drop 1
-      else
-        out := out.push '&'
-        sl := sl.drop 1
-    else
-      out := out.push sl.front
-      sl := sl.drop 1
   return out
 
 /--
@@ -312,7 +202,7 @@ recurse through emphasis/link/image children.
 -/
 partial def inlineToPlainText (source : String) (i : Inline) : String :=
   match i with
-  | .text r => decodeEntities (extract source r)
+  | .text r => extract source r
   | .code _ content _ => extract source content
   | .italic _ content _ =>
     content.foldl (init := "") fun acc i => acc ++ inlineToPlainText source i
@@ -324,12 +214,15 @@ partial def inlineToPlainText (source : String) (i : Inline) : String :=
     alt.foldl (init := "") fun acc i => acc ++ inlineToPlainText source i
   | .hardBreak _ => "\n"
   | .autolink _ url _ _ => extract source url
+  | .softBreak _ => "\n"
+  | .escape _ char => extract source char
+  | .entity _ value => value
 
 /-- Renders a single inline element. -/
 partial def renderInline (source : String) (i : Inline) : String :=
   match i with
   | .text r =>
-    escape (decodeEntities (normalizeParaText (extract source r)))
+    escape (normalizeParaText (extract source r))
   | .code _ content _ =>
     s!"<code>{escape (renderCodeSpan (extract source content))}</code>"
   | .italic _ content _ =>
@@ -341,11 +234,11 @@ partial def renderInline (source : String) (i : Inline) : String :=
   | .link _ text _ target =>
     let (url, title?) := match target with
       | .inline _ url _ title? =>
-        (percentEncode (decodeEntities (unescape (extract source url))),
-         title?.map (fun t => decodeEntities (unescape (extract source t))))
+        (percentEncode (decodeText (extract source url)),
+         title?.map (fun t => decodeText (extract source t)))
       | .reference url title? _ =>
-        (percentEncode (decodeEntities (unescape url)),
-         title?.map (fun t => decodeEntities (unescape t)))
+        (percentEncode (decodeText url),
+         title?.map (fun t => decodeText t))
     let titleAttr := match title? with
       | some t => s!" title=\"{escape t}\""
       | none => ""
@@ -354,11 +247,11 @@ partial def renderInline (source : String) (i : Inline) : String :=
   | .image _ _ alt _ target =>
     let (url, title?) := match target with
       | .inline _ url _ title? =>
-        (percentEncode (decodeEntities (unescape (extract source url))),
-         title?.map (fun t => decodeEntities (unescape (extract source t))))
+        (percentEncode (decodeText (extract source url)),
+         title?.map (fun t => decodeText (extract source t)))
       | .reference url title? _ =>
-        (percentEncode (decodeEntities (unescape url)),
-         title?.map (fun t => decodeEntities (unescape t)))
+        (percentEncode (decodeText url),
+         title?.map (fun t => decodeText t))
     let titleAttr := match title? with
       | some t => s!" title=\"{escape t}\""
       | none => ""
@@ -373,6 +266,9 @@ partial def renderInline (source : String) (i : Inline) : String :=
     let urlText := extract source url
     let href := if isEmail then "mailto:" ++ urlText else urlText
     s!"<a href=\"{escape (percentEncode href)}\">{escape urlText}</a>"
+  | .softBreak _ => "\n"
+  | .escape _ char => escape (extract source char)
+  | .entity _ value => escape value
 
 private def renderInlineArray (source : String) (inlines : Array Inline) : String :=
   inlines.foldl (init := "") fun acc i => acc ++ renderInline source i
@@ -410,8 +306,7 @@ partial def renderBlock (source : String) (b : Block (Array Inline)) : String :=
   match b with
   | .paragraph lines =>
     s!"<p>{renderInlineLines source lines}</p>\n"
-  | .atxHeading hashes content _closeHashes? =>
-    let level := hashes.stop.byteIdx - hashes.start.byteIdx
+  | .atxHeading level _hashes content _closeHashes? =>
     let inner := renderInlineArray source content
     s!"<h{level}>{inner}</h{level}>\n"
   | .setextHeading level lines _ =>
@@ -425,7 +320,7 @@ partial def renderBlock (source : String) (b : Block (Array Inline)) : String :=
         -- escapes and entity references in the info string are decoded
         -- (so e.g. ```` ``` foo\+bar ```` produces `class="language-foo+bar"`).
         let lang := ((extract source r).takeWhile fun c => c != ' ' && c != '\t').toString
-        s!" class=\"language-{escape (decodeEntities (unescape lang))}\""
+        s!" class=\"language-{escape (decodeText lang)}\""
       | none => ""
     let codeContent := lines.foldl (init := "") fun acc r =>
       acc ++ escape (stripFenceIndent info.openIndent (extract source r)) ++ "\n"
@@ -531,7 +426,6 @@ def skip? (md : String) : Option String :=
   if hasHtml md then some "HTML"
   else if (md.find? "ΑΓΩ").isSome && (md.find? "αγω").isSome then some "Unicode case-folding"
   else if (md.find? "ẞ").isSome && (md.find? "SS").isSome then some "Unicode case-folding"
-  else if hasNamedEntity md then some "Named entity"
   else if hasUnicodeFlanking md then some "Unicode flanking"
   else none
 
@@ -577,46 +471,6 @@ where
           l := l.drop 1
       else
         l := l.drop 1
-    return false
-  /--
-  Whether `l` contains a named HTML entity reference (`&name;`) whose
-  name the renderer doesn't decode. The renderer supports
-  `amp`/`lt`/`gt`/`quot`/`apos`/`nbsp` plus all numeric references —
-  tests using only those run normally. Anything else (e.g. `&auml;`,
-  `&copy;`) needs a full HTML5 entity table we don't carry, so we skip
-  those examples.
-  -/
-  hasNamedEntity (l : String.Slice) : Bool := Id.run do
-    let mut i := l.startPos
-    while h : i ≠ l.endPos do
-      if h' : i.get h == '\\' ∧ i.next h ≠ l.endPos then
-        i := i.next (by grind) |>.next (by grind)
-      else if i.get h == '&' ∧ (∃ (h' : i.next h ≠ l.endPos), i.next h |>.get h' |>.isAlpha) then
-        let i' := i.next h
-        let mut j := i'
-        let mut sawSemi := false
-        while h' : j ≠ l.endPos do
-          let c := j.get h'
-          let j' := j.next h'
-          if c == ';' then sawSemi := true; break
-          if !c.isAlpha && !c.isDigit then break
-          j := j'
-        if h' : sawSemi ∧ j > i.next h then
-          let mut name := ""
-          let mut k : { x : l.Pos // x ≤ j } := ⟨i.next h, by grind⟩
-          while h'' : k.val < j do
-            have : j ≤ l.endPos := j.le_endPos
-            have : k.val ≠ l.endPos := by grind
-            let k' : { x : l.Pos // x ≤ j } :=
-              ⟨k.val.next (by grind), String.Slice.Pos.next_le_of_lt h''⟩
-            name := name.push <| k.val.get (by grind)
-            k := k'
-          let supported := name == "amp" || name == "lt" || name == "gt"
-            || name == "quot" || name == "apos" || name == "nbsp"
-          if !supported then return true
-        i := i'
-      else
-        i := i.next h
     return false
   /--
   Whether `l` has a `*` or `_` immediately adjacent (no intervening

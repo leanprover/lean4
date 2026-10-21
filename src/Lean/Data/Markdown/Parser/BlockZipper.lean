@@ -80,7 +80,7 @@ public inductive OpenLeaf where
   An open indented code block.
 
   - `lines` are the content lines committed so far. Each element is a pair of the line's source
-    range (covering the whole source line, including the indent the block consumed) and the
+    range (the whole source line, including the indent the block consumed) and the
     rendered string. In the rendered string, the 4 cols of indent that defined the code block
     (relative to the parent container's content column) have already been stripped, with any
     partial tabs materialized per CommonMark §2.2.

@@ -7,17 +7,18 @@ module
 
 prelude
 public import Lean.Data.Markdown.Basic
+public import Lean.Data.Markdown.Text
 public import Lean.Data.Markdown.Parser
 
 /-!
-# Markdown parser for the language server
+# Markdown parser
 
-A CommonMark parser used by the Lean language server to provide semantic token highlighting inside
-Markdown docstrings. The entry point is `Lean.Markdown.parseDocument`.
+A CommonMark parser that records the source range of every construct. The Lean language server uses
+it to provide semantic tokens inside Markdown docstrings. The entry point is
+`Lean.Markdown.parseDocument`.
 
 The implementation follows CommonMark 0.31.2 closely with a small set of deviations:
 * HTML blocks and inline HTML are not parsed.
 * Link labels are compared case-insensitively only for the English letters A-Z, and case-sensitively
   for all other characters.
-* Named character entities are not validated against the set of HTML entities.
 -/

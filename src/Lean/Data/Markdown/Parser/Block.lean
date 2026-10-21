@@ -164,7 +164,7 @@ def matchAtxHeading (c : Cursor) : Option AtxHeadingMatch :=  do
   let s := c.str
   let hashStart := c.byteIdx
   -- CommonMark §4.2 caps ATX heading levels at 6. We scan up to 7 hashes so
-  -- runs of length ≥ 7 fall through the `count ≤ 6` guard below as non-headings.
+  -- sequences of 7 or more fall through the `count ≤ 6` guard below as non-headings.
   let mut rest := c.rest
   let mut count := 0
   while !rest.isEmpty && count < 7 do
@@ -181,7 +181,7 @@ def matchAtxHeading (c : Cursor) : Option AtxHeadingMatch :=  do
   let (cAfterGap, _) := countIndentCols (c.moveTo q 0)
   let contentStart := cAfterGap.byteIdx
   let mut contentEnd := trimTrailingWs { c.rest with startPos := contentStart }
-  -- Optional closing `#` sequence: a trailing run of `#` characters that
+  -- Optional closing `#` sequence: a trailing sequence of `#` characters that
   -- is either preceded by a space/tab or extends to the start of content
   -- (CommonMark §4.2). Strip it from the content range.
   let mut closeStart := contentEnd
@@ -232,7 +232,7 @@ def matchThematicBreak (c : Cursor) : Bool := Id.run do
   return markerCount >= 3
 
 /--
-Recognizes a setext heading underline (CommonMark §4.3): up to three leading spaces, then a run of
+Recognizes a setext heading underline (CommonMark §4.3): up to three leading spaces, then a sequence of
 `=` (level 1) or `-` (level 2), then optional trailing whitespace. Returns the heading level on
 success.
 
@@ -245,9 +245,9 @@ def matchSetextUnderline (c : Cursor) : Option Nat := do
   guard (indent ≤ 3)
   let (markerChar, _) ← c.peek?
   guard (markerChar == '=' || markerChar == '-')
-  let (cAfterRun, _) := c.advanceWhile (· == markerChar)
-  -- After the run, only whitespace is permitted to end of line.
-  let (cAfterWs, _) := cAfterRun.advanceWhile fun ch =>
+  let (cAfterSequence, _) := c.advanceWhile (· == markerChar)
+  -- After the sequence, only whitespace is permitted to end of line.
+  let (cAfterWs, _) := cAfterSequence.advanceWhile fun ch =>
     ch == ' ' || ch == '\t'
   guard (cAfterWs.byteIdx ≥ cAfterWs.stopPos)
   return if markerChar == '=' then 1 else 2
@@ -396,7 +396,7 @@ def matchListMarker (c : Cursor) : Option ListMarkerMatch := do
     let mut digits := 0
     let mut value : Nat := 0
     -- CommonMark §5.2: an ordered-list marker has 1–9 digits. We scan up to
-    -- 10 so runs of length ≥ 10 fall through the `digits ≤ 9` guard below.
+    -- 10 so sequences of 10 or more digits fall through the `digits ≤ 9` guard below.
     while !rest.isEmpty && digits < 10 do
       let digit := rest.front
       if !digit.isDigit then break
@@ -778,7 +778,7 @@ def tryBlankLine (openedListItemThisLine : Bool) : ProcessM Unit := do
 def tryAtxHeading : ProcessM Unit := do
   let s ← get
   let some m := matchAtxHeading s.c | return
-  throw (s.z.addBlock (.atxHeading m.hashes m.content m.closeHashes))
+  throw (s.z.addBlock (.atxHeading m.level m.hashes m.content m.closeHashes))
 
 /-- Parses an opening code fence. -/
 def tryFencedCodeOpener : ProcessM Unit := do
@@ -1059,7 +1059,7 @@ public def linkRefDef (source : InlineSource) (start : String.Pos.Raw) :
   -- point — the source's per-line ranges have already been left-trimmed,
   -- so any tab at the start of a line is part of the content.
   let r0 : InlineRange := { source, startPos := start, stopPos := source.stopPos }
-  let (r, indent) := InlineRange.matchRun ' ' r0
+  let (r, indent) := InlineRange.matchSequence ' ' r0
   guard (indent ≤ 3)
   -- `[label]`.
   let (openBracket, r) ← InlineRange.matchCharRange '[' r

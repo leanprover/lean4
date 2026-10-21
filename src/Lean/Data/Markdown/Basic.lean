@@ -70,7 +70,7 @@ public structure FenceInfo where
   /-- The fence character: `` ` `` or `~`. -/
   fenceChar : FenceChar
   /--
-  The length of the opening fence run (always 3 or more). The closing fence must be at least this
+  The length of the opening fence (always 3 or more). The closing fence must be at least this
   long and use the same character.
   -/
   fenceLen : Nat
@@ -133,18 +133,19 @@ public inductive Block (α : Type) where
   -/
   | paragraph (lines : Array α)
   /--
-  An ATX heading (the usual kind). `hashes` covers the opening run of `#` characters,
-  `closeHashes?` covers an optional closing run.
+  An ATX heading (the usual kind). `level` is the number of opening `#` characters, `hashes` is the range of
+  that opening sequence, and `closeHashes?` of an optional closing sequence.
   -/
-  | atxHeading (hashes : Syntax.Range) (content : α) (closeHashes? : Option Syntax.Range)
+  | atxHeading (level : Nat) (hashes : Syntax.Range) (content : α)
+    (closeHashes? : Option Syntax.Range)
   /--
   A setext heading (CommonMark §4.3): one or more lines of paragraph text followed by an underline
   (`===` for level 1, `---` for level 2). `lines` is the content of the preceding paragraph, and
-  `underline` covers the underline itself.
+  `underline` is the range of the underline.
   -/
   | setextHeading (level : Nat) (lines : Array α) (underline : Syntax.Range)
   /--
-  A fenced code block. `openFence`/`closeFence?` cover the fences runs themselves. The closing fence
+  A fenced code block. `openFence`/`closeFence?` are the ranges of the fences. The closing fence
   is optional because an unterminated fenced code block spans the rest of the input.
   -/
   | fencedCode (info : FenceInfo)
@@ -152,7 +153,7 @@ public inductive Block (α : Type) where
     (lines : Array Syntax.Range)
   /--
   An indented code block: a sequence of lines indented four or more columns. Each element is a
-  pair of the line's source range (covering the whole source line, including the indent that the
+  pair of the line's source range (the whole source line, including the indent that the
   block consumed) and its processed content. In the processed content, the leading 4 cols of indent
   (relative to the parent container) have been stripped, with any partial tabs materialized as the
   appropriate number of spaces per CommonMark §2.2.
@@ -180,7 +181,7 @@ public inductive Block (α : Type) where
   | linkRefDef (m : RefDef)
   /--
   A thematic break (`***`, `---`, or `___`, optionally with interior spaces or
-  tabs). The line range covers the entire source line that produced the break.
+  tabs). The line range is the entire source line that produced the break.
   -/
   | thematicBreak (line : Syntax.Range)
 deriving Inhabited
@@ -207,12 +208,12 @@ public inductive ReferenceLinkForm where
   /--
   Full form `[text][label]` — the second brackets carry an explicit
   label, distinct from the link's text. `openBracket`/`closeBracket`
-  cover the second bracket pair; `label` is the bracket interior.
+  are the ranges of the second bracket pair; `label` is the bracket interior.
   -/
   | full (openBracket : Syntax.Range) (label : Syntax.Range) (closeBracket : Syntax.Range)
   /--
   Collapsed form `[text][]`. The second brackets are empty, and the link's text serves as the label.
-  `openBracket`/`closeBracket` cover the empty second bracket pair.
+  `openBracket`/`closeBracket` are the ranges of the empty second bracket pair.
   -/
   | collapsed (openBracket : Syntax.Range) (closeBracket : Syntax.Range)
   /--
@@ -261,7 +262,7 @@ public inductive Inline where
     (closeBracket : Syntax.Range) (target : LinkTarget)
   /--
   A hard line break. These are produced by a backslash immediately before a line ending or by two or
-  more trailing spaces before a line ending (CommonMark §6.7). The range covers the trigger
+  more trailing spaces before a line ending (CommonMark §6.7). The range is that of the trigger
   characters (e.g. the `\` for backslash form).
   -/
   | hardBreak (range : Syntax.Range)
@@ -273,7 +274,93 @@ public inductive Inline where
   -/
   | autolink (openAngle : Syntax.Range) (url : Syntax.Range) (closeAngle : Syntax.Range)
     (isEmail : Bool)
+  /--
+  A soft line break (CommonMark §6.8): the line ending between two lines of a paragraph. The range
+  is the newline character.
+  -/
+  | softBreak (range : Syntax.Range)
+  /--
+  A backslash escape `\X` of an ASCII punctuation character (CommonMark §2.4). `backslash` is the range of
+  the `\` and `char` of `X`, which is the text the escape denotes.
+  -/
+  | escape (backslash : Syntax.Range) (char : Syntax.Range)
+  /--
+  A character reference such as `&amp;`, `&#35;`, or `&#x1F600;` (CommonMark §2.5). The range
+  extends from `&` through `;`, and `value` is the text it denotes.
+  -/
+  | entity (range : Syntax.Range) (value : String)
 deriving Inhabited
+
+/-- The position just past the closing delimiter of a link target, if it has one. -/
+public def LinkTarget.stop? : LinkTarget → Option String.Pos.Raw
+  | .inline _ _ closeParen _ => some closeParen.stop
+  | .reference _ _ (.full _ _ closeBracket) => some closeBracket.stop
+  | .reference _ _ (.collapsed _ closeBracket) => some closeBracket.stop
+  | .reference _ _ .shortcut => none
+
+/-- The source range of an inline element, from its first to its last character. -/
+public def Inline.range : Inline → Syntax.Range
+  | .text range => range
+  | .code openTicks _ closeTicks => { start := openTicks.start, stop := closeTicks.stop }
+  | .italic openDelim _ closeDelim => { start := openDelim.start, stop := closeDelim.stop }
+  | .bold openDelim _ closeDelim => { start := openDelim.start, stop := closeDelim.stop }
+  | .link openBracket _ closeBracket target =>
+    { start := openBracket.start, stop := target.stop?.getD closeBracket.stop }
+  | .image bang _ _ closeBracket target =>
+    { start := bang.start, stop := target.stop?.getD closeBracket.stop }
+  | .hardBreak range => range
+  | .autolink openAngle _ closeAngle _ => { start := openAngle.start, stop := closeAngle.stop }
+  | .softBreak range => range
+  | .escape backslash char => { start := backslash.start, stop := char.stop }
+  | .entity range _ => range
+
+/-- The source range from the start of the first element to the end of the last, if there are any. -/
+public def Inline.rangeOf? (inlines : Array Inline) : Option Syntax.Range := do
+  let first ← inlines[0]?
+  let last ← inlines.back?
+  return { start := first.range.start, stop := last.range.stop }
+
+/-- The range from the start of the first range in `rs` to the end of the last, if there are any. -/
+def span? (rs : Array Syntax.Range) : Option Syntax.Range := do
+  let first ← rs[0]?
+  let last ← rs.back?
+  return { start := first.start, stop := last.stop }
+
+/--
+The source range of a block, from its first delimiter to the end of its last line. `rangeOf` gives
+the range of the block's inline-bearing content: `some` for `Syntax.Range` after the first pass, and
+`Inline.rangeOf?` after the second. A link reference definition's range ends after its title's
+closing delimiter, if there is a title.
+-/
+public partial def Block.range? (rangeOf : α → Option Syntax.Range) : Block α → Option Syntax.Range
+  | .paragraph lines => span? (lines.filterMap rangeOf)
+  | .atxHeading _ hashes content closeHashes? =>
+    let stop := closeHashes?.map (·.stop) <|> (rangeOf content).map (·.stop) |>.getD hashes.stop
+    some { start := hashes.start, stop }
+  | .setextHeading _ lines underline =>
+    let start := (span? (lines.filterMap rangeOf)).map (·.start) |>.getD underline.start
+    some { start, stop := underline.stop }
+  | .fencedCode _ openFence closeFence? lines =>
+    let stop := closeFence?.map (·.stop) <|> lines.back?.map (·.stop) |>.getD openFence.stop
+    some { start := openFence.start, stop }
+  | .indentedCode lines => span? (lines.map (·.1))
+  | .blockquote markers children => do
+    let first ← markers[0]?
+    let last ← markers.back?
+    let stop := match span? (children.filterMap (Block.range? rangeOf)) with
+      | some r => if last.stop.byteIdx < r.stop.byteIdx then r.stop else last.stop
+      | none => last.stop
+    return { start := first.start, stop }
+  | .list _ _ items => span? (items.filterMap (Block.range? rangeOf))
+  | .listItem marker children =>
+    let stop := (span? (children.filterMap (Block.range? rangeOf))).map (·.stop) |>.getD marker.stop
+    some { start := marker.start, stop }
+  | .linkRefDef m =>
+    let stop := match m.title? with
+      | some t => ⟨t.stop.byteIdx + 1⟩
+      | none => m.url.stop
+    some { start := m.openBracket.start, stop }
+  | .thematicBreak line => some line
 
 /--
 A normalized link label.
@@ -294,7 +381,7 @@ deriving BEq, Hashable, Repr
 /--
 Normalizes a CommonMark link label (§4.7):
  * Each character is ASCII-lowercased (with `Char.toLower`).
- * Internal whitespace runs become single spaces.
+ * Internal sequences of whitespace become single spaces.
  * Leading and trailing whitespace is removed.
 
 While CommonMark specifies Unicode case folding, this implementation case-folds only ASCII English

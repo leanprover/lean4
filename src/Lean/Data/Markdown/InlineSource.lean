@@ -51,13 +51,13 @@ namespace InlineSource
 /-- The empty source. -/
 public def empty : InlineSource := { str := "", ranges := #[] }
 
-/-- The first source position covered by `s` (or `0` if empty). -/
+/-- The first source position in `s` (or `0` if empty). -/
 public def startPos (s : InlineSource) : String.Pos.Raw :=
   match s.ranges[0]? with
   | some r => r.start
   | none => 0
 
-/-- One past the last source position covered by `s` (or `0` if empty). -/
+/-- One past the last source position in `s` (or `0` if empty). -/
 public def stopPos (s : InlineSource) : String.Pos.Raw :=
   match s.ranges.back? with
   | some r => r.stop
@@ -102,7 +102,7 @@ public def next (s : InlineSource) (p : String.Pos.Raw) : String.Pos.Raw :=
     else r.stop
 
 /--
-Concatenates the slices of `s.str` covered by each range intersected with `[p1, p2)`, in source
+Concatenates the slices of `s.str` at each range intersected with `[p1, p2)`, in source
 order. This is equivalent to walking via `get`/`next` from `p1` to `p2` (skipping inter-range gaps),
 but it can be more efficient.
 -/
@@ -182,7 +182,7 @@ public structure InlineRange where
   source : InlineSource
   /-- The current logical position within `source`. -/
   startPos : String.Pos.Raw
-  /-- One past the last logical position covered by this view. -/
+  /-- One past the last logical position in this view. -/
   stopPos : String.Pos.Raw
 deriving Inhabited
 
@@ -220,7 +220,7 @@ If `r` begins with `c`, returns the range advanced past it. Otherwise returns `n
   if !r.isEmpty && r.front == c then some r.drop1 else none
 
 /--
-If `r` begins with `c`, returns the source range that covers the character together with `r`
+If `r` begins with `c`, returns the source range of the character together with `r`
 advanced past `c`. Otherwise returns `none`.
 -/
 @[inline] public def matchCharRange (c : Char) (r : InlineRange) : Option (Syntax.Range × InlineRange) :=
@@ -230,9 +230,9 @@ advanced past `c`. Otherwise returns `none`.
   else none
 
 /--
-Advances past a run of `c`s at the start of `r`. Returns the post-run range and the run length.
+Advances past the sequence of `c`s at the start of `r`. Returns the range after the sequence and its length.
 -/
-public partial def matchRun (c : Char) (r : InlineRange) : InlineRange × Nat :=
+public partial def matchSequence (c : Char) (r : InlineRange) : InlineRange × Nat :=
   go r 0
 where
   go (r : InlineRange) (n : Nat) : InlineRange × Nat :=

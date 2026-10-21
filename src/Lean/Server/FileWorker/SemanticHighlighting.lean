@@ -391,7 +391,7 @@ already handles raw byte offsets via `text.utf8PosToLspPos`.
   Syntax.ofRange ⟨r.start, r.stop⟩
 
 /--
-Pushes one `LeanSemanticToken` per source line covered by `r`. Single-line ranges go through
+Pushes one `LeanSemanticToken` per source line that `r` intersects. Single-line ranges go through
 unchanged; multi-line ranges (e.g. fenced code blocks) are split at newline boundaries.
 -/
 private def pushSplit (text : FileMap) (out : Array LeanSemanticToken)
@@ -426,15 +426,13 @@ where
     let mut out := out
     match i with
     | .text r =>
-      -- A soft break emits a one-byte `.text` covering just the `\n`. The
-      -- inline tree retains it so downstream consumers (e.g. an HTML
-      -- renderer) can reproduce the line ending, but for LSP semantic
-      -- tokens it would translate to a multi-line token, which VS Code
-      -- doesn't support.
-      let isNewlineOnly := r.start.byteIdx + 1 == r.stop.byteIdx
-        && r.start.get text.source == '\n'
-      unless isNewlineOnly do
-        out := pushTok out r (markupTypeOf a) (priority := 4)
+      out := pushTok out r (markupTypeOf a) (priority := 4)
+    | .softBreak _ => pure ()
+    | .escape backslash char =>
+      out := pushTok out backslash .keyword
+      out := pushTok out char (markupTypeOf a) (priority := 4)
+    | .entity r _ =>
+      out := pushTok out r (markupTypeOf a) (priority := 4)
     | .code openTicks content closeTicks =>
       out := pushTok out openTicks .keyword
       out := pushTok out closeTicks .keyword
@@ -463,7 +461,7 @@ where
 
   For full form, the link's text content is walked as ordinary inlines and the second `[label]`
   brackets get keyword/cross-ref tokens. For collapsed and shortcut form, the link text *is* the
-  label, so `markupCrossReference` covers the bracket interior in place of the inline walk. In
+  label, so the bracket interior gets a single `markupCrossReference` token in place of the inline walk. In
   collapsed form, the empty `[]` is annotated as a keyword.
   -/
   emitReferenceForm (text : FileMap) (a : MarkupAttrs)
@@ -543,7 +541,7 @@ where
     | .paragraph lines =>
       for inls in lines do
         out := emitInlines text a inls out
-    | .atxHeading hashes content closeHashes? =>
+    | .atxHeading _ hashes content closeHashes? =>
       out := pushTok out hashes .keyword
       if let some c := closeHashes? then out := pushTok out c .keyword
       out := emitInlines text (a.withBlock .heading) content out
@@ -579,8 +577,8 @@ where
 end MarkupTokens
 
 /--
-Collects semantic tokens for a Markdown docstring. Block delimiters (`#`, `>`, list markers, fence
-runs, brackets) are emitted as `.keyword`; URL targets as `.markupUrl`; code block contents as
+Collects semantic tokens for a Markdown docstring. Block delimiters (`#`, `>`, list markers,
+fences, brackets) are emitted as `.keyword`; URL targets as `.markupUrl`; code block contents as
 `.markupCodeBlock`; and inline emphasis as the appropriate `markup*` type combined with the
 enclosing block context. Undecorated text is emitted as `.markupDocText`.
 -/

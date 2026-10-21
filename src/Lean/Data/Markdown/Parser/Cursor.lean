@@ -76,7 +76,7 @@ For tab-aware advancement use `countIndentCols` or `consumeIndentCapped`.
   if c.rest.isEmpty then none else some (c.rest.front, (c.rest.drop 1).startPos)
 
 /--
-Advances the cursor over a maximal run of characters satisfying `pred`, returning the post-run
+Advances the cursor over the longest prefix of characters satisfying `pred`, returning the resulting
 cursor and the number of characters consumed.
 
 The column is incremented by the consumed count, which is correct only when `pred` rejects the tab

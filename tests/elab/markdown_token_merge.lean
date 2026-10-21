@@ -11,7 +11,7 @@ fenced code block, image alt).
 
 open Lean Lsp Server.FileWorker
 
-/-- Gets the token type at byte offset `byteIdx` of `input`, or `"<none>"` if no token covers it. -/
+/-- Gets the token type at byte offset `byteIdx` of `input`, or `"<none>"` if no token includes it. -/
 def markupAt (input : String) (byteIdx : Nat) : String := Id.run do
   let text := FileMap.ofString input
   let toks := collectMarkdownTokens text 0 input.rawEndPos
@@ -106,7 +106,7 @@ emphasis: their `markup*` type does not stack with the active attributes.
 #guard_msgs in #eval markupAt "```\nx\n```" 4
 
 -- Indented code blocks (4 leading spaces) get one `markupCodeBlock` token per
--- line, covering the whole source line including the indent.
+-- line, which is the whole source line including the indent.
 /-- info: "markupCodeBlock" -/
 #guard_msgs in #eval markupAt "    indented\n    code block\n" 4
 
@@ -179,7 +179,7 @@ arrangements; otherwise attribute accumulation depends on walk direction.
 
 /-! ## Soft breaks do not produce multi-line tokens
 
-The inline parser emits a one-byte `.text` element covering each `\n`
+The inline parser emits a one-byte `.softBreak` element for each `\n`
 between paragraph lines so downstream renderers can reproduce the line
 ending. The semantic-token emitter must not turn that element into an LSP
 token, since VS Code does not support multi-line semantic tokens.
@@ -189,7 +189,7 @@ token, since VS Code does not support multi-line semantic tokens.
 /-- info: "<none>" -/
 #guard_msgs in #eval markupAt "hello\nworld" 5
 
--- Soft break inside a heading inline run.
+-- Soft break inside a heading.
 /-- info: "<none>" -/
 #guard_msgs in #eval markupAt "# a *cross\nline* b" 10
 

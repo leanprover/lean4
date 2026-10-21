@@ -23,8 +23,8 @@ partial def parseInlinesInBlock (refs : RefTable) (s : String) :
   | .paragraph lines =>
     let src := InlineSource.ofLines s lines
     .paragraph #[parseInlines refs src { start := src.startPos, stop := src.stopPos }]
-  | .atxHeading hashes content closeHashes? =>
-    .atxHeading hashes (parseInlines refs (.ofRange s content) content) closeHashes?
+  | .atxHeading level hashes content closeHashes? =>
+    .atxHeading level hashes (parseInlines refs (.ofRange s content) content) closeHashes?
   | .setextHeading level lines underline =>
     let src := InlineSource.ofLines s lines
     .setextHeading level

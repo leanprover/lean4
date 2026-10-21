@@ -13,6 +13,7 @@ public import Init.While
 public import Std.Data.HashMap
 public import Lean.Syntax
 public import Lean.Data.Markdown.Basic
+public import Lean.Data.Markdown.Text
 public import Lean.Data.Markdown.Parser.Block
 import Lean.Data.Markdown.Parser.Emphasis
 
@@ -28,7 +29,7 @@ interpretation of `X`.
 -/
 
 /-- Counts consecutive characters equal to `c` at the start of `sub`. -/
-def countRun (sub : InlineRange) (c : Char) : Nat × String.Pos.Raw := Id.run do
+def countSequence (sub : InlineRange) (c : Char) : Nat × String.Pos.Raw := Id.run do
   let mut sub := sub
   let mut n := 0
   while !sub.isEmpty && sub.front == c do
@@ -36,44 +37,51 @@ def countRun (sub : InlineRange) (c : Char) : Nat × String.Pos.Raw := Id.run do
     sub := sub.drop1
   return (n, sub.startPos)
 
-/-- Appends a `text` inline covering `[textStart:pos)` to `out`, if non-empty. -/
+/-- Appends a `text` inline for `[textStart:pos)` to `out`, if non-empty. -/
 def pushText (out : Array Inline) (textStart pos : String.Pos.Raw) : Array Inline :=
   if textStart < pos then
     out.push (.text { start := textStart, stop := pos })
   else out
-
-/--
-Whether `c` is in CommonMark's ASCII-punctuation set: ``!"#$%&'()*+,-./:;<=>?@[\]^_\`{|}~``. These
-are the only characters that a backslash escape consumes; a backslash before any other character is
-a literal backslash followed by the character.
--/
-def isAsciiPunctuation (c : Char) : Bool :=
-  let n := c.toNat
-  (33 ≤ n && n ≤ 47) ||  -- ! " # $ % & ' ( ) * + , - . /
-  (58 ≤ n && n ≤ 64) ||  -- : ; < = > ? @
-  (91 ≤ n && n ≤ 96) ||  -- [ \ ] ^ _ `
-  (123 ≤ n && n ≤ 126)   -- { | } ~
 
 /-- Tries to parse a code span. Caller ensures ``sub.front == '`'``. -/
 def code (sub : InlineRange) : Option (Inline × String.Pos.Raw) := do
   let s := sub.source
   let stopPos := sub.stopPos
   let cursor := sub.startPos
-  let (openLen, p) := countRun sub '`'
+  let (openLen, p) := countSequence sub '`'
   guard (openLen > 0)
   let openTicks : Syntax.Range := { start := cursor, stop := p }
   let mut rest : InlineRange := s.range p stopPos
   while !rest.isEmpty do
     if rest.front == '`' then
       let q := rest.startPos
-      let (runLen, qAfterRun) := countRun rest '`'
-      if runLen == openLen then
+      let (seqLen, qAfterSequence) := countSequence rest '`'
+      if seqLen == openLen then
         let content : Syntax.Range := { start := p, stop := q }
-        let closeTicks : Syntax.Range := { start := q, stop := qAfterRun }
-        return (.code openTicks content closeTicks, qAfterRun)
-      rest := s.range qAfterRun stopPos
+        let closeTicks : Syntax.Range := { start := q, stop := qAfterSequence }
+        return (.code openTicks content closeTicks, qAfterSequence)
+      rest := s.range qAfterSequence stopPos
     else
       rest := rest.drop1
+  failure
+
+/--
+Tries to parse a character reference at the beginning of `sub`, which must point at `&`. Returns the
+resulting `Inline.entity` and the position past the closing `;` on success.
+-/
+def characterReference (sub : InlineRange) : Option (Inline × String.Pos.Raw) := do
+  let start := sub.startPos
+  let mut rest := sub.drop1
+  let mut body := ""
+  while !rest.isEmpty do
+    let c := rest.front
+    if c == ';' then
+      let value ← characterReference? body
+      let after := rest.drop1.startPos
+      return (.entity { start, stop := after } value, after)
+    guard (isCharacterReferenceChar c)
+    body := body.push c
+    rest := rest.drop1
   failure
 
 /--
@@ -198,13 +206,13 @@ def findCloseBracket (sub : InlineRange) : Option String.Pos.Raw := do
       rest := restNext.drop1
     else if c == '`' then
       -- Code spans bind tighter than link brackets. If a span forms,
-      -- advance past it; otherwise the entire opening run is literal
+      -- advance past it; otherwise the entire opening sequence is literal
       -- (CommonMark §6.1 — see the matching scanner branch).
       match code rest with
       | some (_, after) => rest := s.range after stop
       | none =>
-        let (_, runEnd) := countRun rest '`'
-        rest := s.range runEnd stop
+        let (_, seqEnd) := countSequence rest '`'
+        rest := s.range seqEnd stop
     else if c == '<' then
       -- Autolinks (and raw HTML, which we don't support) bind tighter
       -- than link brackets per CommonMark §6.3: a `]` inside an
@@ -252,7 +260,7 @@ def skipInlineWs (sub : InlineRange) : String.Pos.Raw := Id.run do
 Parses the body of an inline link/image target, which is the contents between the opening `(` and
 its matching `)`. `sub` should begin just after the opening `(`.
 
- The returned `url` range covers only the URL content (interior of the angle brackets, when
+ The returned `url` range is the URL content alone (interior of the angle brackets, when
 bracketed). Returns `(url, title?, closeParenPos)` on success.
 -/
 def inlineLinkTarget (sub : InlineRange) :
@@ -338,7 +346,7 @@ where
     return ({ start := urlContentStart, stop := urlContentEnd }, afterUrlByte)
   /--
   Unbracketed form. Stops at whitespace, an ASCII control char, or an unbalanced `)`; balances
-  `(`/`)` runs and rejects targets with unmatched opens (CommonMark §6.3: a link destination's
+  `(`/`)` pairs and rejects targets with unmatched opens (CommonMark §6.3: a link destination's
   parens must balance). Returns the URL range and the (same) position right after it.
   -/
   unbracketedUrl (rest : InlineRange) : Option (Syntax.Range × String.Pos.Raw) := do
@@ -368,11 +376,11 @@ where
     return ({ start := urlContentStart, stop := urlContentEnd }, urlContentEnd)
 
 /--
-Classifies a `*`/`_` delimiter run by the characters that surrounding it, determining whether it can
-open or close emphasis. `prevChar`/`nextChar` are the chars immediately before/after the run, with
+Classifies a `*`/`_` delimiter sequence by the characters that surrounding it, determining whether it can
+open or close emphasis. `prevChar`/`nextChar` are the chars immediately before/after the sequence, with
 ASCII space substituted at range boundaries.
 
-Returns a tuple in which the first projection is true when the delimiter run can open emphasis and
+Returns a tuple in which the first projection is true when the delimiter sequence can open emphasis and
 the second is true when it can close emphasis.
 -/
 def classifyDelim (ch prevChar nextChar : Char) : Bool × Bool :=
@@ -392,7 +400,7 @@ def classifyDelim (ch prevChar nextChar : Char) : Bool × Bool :=
 
 /--
 Parses the common suffix logic for `[…]…` links and `![…]…` images: the caller has already located
-the outer `[…]` (with `openBracket`/`closeBracket` covering the brackets, and `afterClose` one past
+the outer `[…]` (with `openBracket`/`closeBracket` the ranges of the brackets, and `afterClose` one past
 the `]`) and parsed its interior as `interior`. This function picks among the inline `(url)`, full
 reference `[label]`, collapsed `[]`, and shortcut forms, building the result with `mk` (which closes
 over the leading `!` for images).
@@ -457,9 +465,9 @@ where
 
 The §6.2 emphasis algorithm consumes a flat sequence of tokens, each either a fully-finalized
 non-emphasis `Inline` (code span, link, image, autolink, soft/hard break, escaped char) or a
-still-raw `*`/`_` delimiter run.  `tokenizeInlines` produces this sequence. It walks the inline
+still-raw `*`/`_` delimiter sequence.  `tokenizeInlines` produces this sequence. It walks the inline
 source, recognizes each non-emphasis inline kind in turn (backslash escape §2.4, code span §6.1,
-link §6.3, image §6.4, autolink §6.5, hard line break §6.7), and saves delimiter runs for §6.2 to
+link §6.3, image §6.4, autolink §6.5, hard line break §6.7), and saves delimiter sequences for §6.2 to
 handle later.
 
 The walker's mutable state (`InlineTokenizerState` below) is touched through three operations:
@@ -470,11 +478,11 @@ The walker's mutable state (`InlineTokenizerState` below) is touched through thr
 /--
 The state maintained while walking an inline source and emitting tokens
 for §6.2: the tokens emitted so far, the unconsumed input, the start of
-any pending plain-text run not yet flushed, and the previous source
+any pending plain text not yet flushed, and the previous source
 character (needed for §6.2's flanking-rule classification of `*`/`_`
-runs as openers/closers).
+sequences as openers/closers).
 
-A pending plain-text run is the consecutive characters seen since the
+The pending plain text is the consecutive characters seen since the
 last token boundary that did *not* start any recognized inline; these
 are buffered and flushed as a single `.text` inline immediately before
 the next emitted token (or at end of input).
@@ -484,15 +492,15 @@ structure InlineTokenizerState where
   out : Array InlineTok
   /-- The unconsumed input. -/
   rest : InlineRange
-  /-- Start of the pending plain-text run not yet flushed. -/
+  /-- Start of the pending plain text not yet flushed. -/
   textStart : String.Pos.Raw
   /--
-  The source character immediately before `rest.startPos`. Used to classify emphasis delimiter runs
+  The source character immediately before `rest.startPos`. Used to classify emphasis delimiter sequences
   as left or right flanking.
   -/
   prevChar : Char
 
-/-- The empty initial state covering `s[start:stop)`. -/
+/-- The initial state for `s[start:stop)`. -/
 def InlineTokenizerState.init (s : InlineSource) (start stop : String.Pos.Raw) :
     InlineTokenizerState where
   out := #[]
@@ -505,7 +513,7 @@ abbrev TokenizeM := StateM InlineTokenizerState
 
 /--
 Handles a recognized inline:
- 1. Flushes any pending plain-text run from `textStart` up to `matchStart`.
+ 1. Flushes any pending plain text from `textStart` up to `matchStart`.
   2. Appends `tok`.
   3. Advances the walker to `resumeAt`, recording `newPrev` as the post-match flanking character.
 
@@ -524,7 +532,7 @@ def recognize (tok : InlineTok) (matchStart resumeAt : String.Pos.Raw)
 
 /--
 The current character did not start a recognized inline. Advances one character, accumulating it
-into the pending plain-text run.
+into the pending plain text.
 -/
 def skipChar : TokenizeM Unit := modify fun st =>
   { st with rest := st.rest.drop1, prevChar := st.rest.front }
@@ -553,7 +561,7 @@ partial def parseInlinesInRange (refs : RefTable) (s : InlineSource) (start stop
 
 /--
 Tokenizes the inline content of a block into a flat sequence of already-finalized non-emphasis
-inlines and unprocessed emphasis delimiter runs. Emphasis matching is deferred to `processEmphasis`.
+inlines and unprocessed emphasis delimiter sequences. Emphasis matching is deferred to `processEmphasis`.
 -/
 partial def tokenizeInlines (refs : RefTable) (s : InlineSource) (start stop : String.Pos.Raw) :
     Array InlineTok :=
@@ -573,7 +581,9 @@ partial def tokenizeInlines (refs : RefTable) (s : InlineSource) (start stop : S
           recognize (.inline (.hardBreak { start := cursor, stop := cursorNext }))
             cursor escapedNext restAfterEsc ' '
         else if isAsciiPunctuation nextC then
-          recognize (.inline (.text { start := cursorNext, stop := escapedNext }))
+          recognize
+            (.inline (.escape { start := cursor, stop := cursorNext }
+              { start := cursorNext, stop := escapedNext }))
             cursor escapedNext restAfterEsc nextC
         else
           skipChar
@@ -582,8 +592,8 @@ partial def tokenizeInlines (refs : RefTable) (s : InlineSource) (start stop : S
         | some (codeSpan, after) =>
           recognize (.inline codeSpan) cursor after (s.range after stop) '`'
         | none =>
-          let (_, runEnd) := countRun st.rest '`'
-          skipPast (s.range runEnd stop) '`'
+          let (_, seqEnd) := countSequence st.rest '`'
+          skipPast (s.range seqEnd stop) '`'
       else if c == '!' && !restNext.isEmpty && restNext.front == '[' then
         match image refs s cursor stop with
         | some (img, after) =>
@@ -609,25 +619,27 @@ partial def tokenizeInlines (refs : RefTable) (s : InlineSource) (start stop : S
         let spaces := cursor.byteIdx - q.byteIdx
         -- The emitted token's stop must be one byte past the `\n` itself; `cursorNext` skips across
         -- the inter-line gap to the next line's first non-whitespace position (correct for the
-        -- walker but would make the token range cover the gap).
+        -- walker but would make the token range include the gap).
         let stopPastNewline : String.Pos.Raw := ⟨cursor.byteIdx + 1⟩
         if spaces >= 2 then
           recognize (.inline (.hardBreak { start := q, stop := stopPastNewline }))
             q cursorNext restNext ' '
         else
-          -- Soft break: emit the bare `\n` as a standalone text inline so the trimmed text and any
-          -- following text stay separate (and the renderer's soft break rendering remains a single
-          -- `\n`).
-          recognize (.inline (.text { start := cursor, stop := stopPastNewline }))
+          recognize (.inline (.softBreak { start := cursor, stop := stopPastNewline }))
             q cursorNext restNext '\n'
+      else if c == '&' then
+        match characterReference st.rest with
+        | some (entity, after) =>
+          recognize (.inline entity) cursor after (s.range after stop) ';'
+        | none => skipChar
       else if c == '*' || c == '_' then
-        let (n, runEnd) := countRun st.rest c
-        let runEndRest : InlineRange := s.range runEnd stop
-        let nextC := if !runEndRest.isEmpty then runEndRest.front else ' '
+        let (n, seqEnd) := countSequence st.rest c
+        let seqEndRest : InlineRange := s.range seqEnd stop
+        let nextC := if !seqEndRest.isEmpty then seqEndRest.front else ' '
         let (canOpen, canClose) := classifyDelim c st.prevChar nextC
         recognize
-          (.delim { startPos := cursor, endPos := runEnd, ch := c, origLen := n, canOpen, canClose })
-          cursor runEnd runEndRest c
+          (.delim { startPos := cursor, endPos := seqEnd, ch := c, origLen := n, canOpen, canClose })
+          cursor seqEnd seqEndRest c
       else
         skipChar
     finalizeTokens
@@ -698,7 +710,7 @@ Tries to parse `![alt](url)`, `![alt][ref]`, `![alt][]`, or `![alt]`.
 -/
 partial def image (refs : RefTable) (s : InlineSource) (cursor stop : String.Pos.Raw) :
     Option (Inline × String.Pos.Raw) := do
-  -- Bang range covers just the `!`; `tryParseBracketed` skips it via
+  -- The bang range is the `!` alone; `tryParseBracketed` skips it via
   -- `prefixLen := 1` and finds the `[` that follows.
   let cursorRest : InlineRange := s.range cursor stop
   guard !cursorRest.isEmpty

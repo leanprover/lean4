@@ -108,7 +108,8 @@ def tightUsingDvds (c : LeCnstr) (decFreeOnly : Bool) : SearchM LeCnstr := do
   repeat
     let .add a z p' := p | break
     p := p'
-    let dvd₀? := s₀.dvds[z]!
+    -- `z` may have been created after the snapshot was taken.
+    let dvd₀? := s₀.dvds[z]?.bind id
     if let some dvd₀ := dvd₀? then
       if let some c' := tighten c a dvd₀ then
         c := c'

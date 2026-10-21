@@ -187,6 +187,15 @@ private def tryNonCommSemiring? (type : Expr) : SymM (Option Nat) := do
   return some id
 
 /--
+Returns `some α` if the operand types `α`, `β` and the result type `γ` of a binary operator
+are the same type. Heterogeneous applications, such as `c * xs` with `c : Nat` and
+`xs : Vector Nat n`, are not terms of `α`, and arithmetic modules must treat them as atoms.
+The types are compared with `isSameExpr`, which relies on the terms being maximally shared.
+-/
+def homoType? (α β γ : Expr) : Option Expr :=
+  if isSameExpr α β && isSameExpr α γ then some α else none
+
+/--
 Classify the algebraic structure of `type`, trying the strongest first:
 CommRing > Ring > CommSemiring > Semiring.
 Results are cached in `Arith.State.typeClassify`.

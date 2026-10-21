@@ -18,10 +18,11 @@ import Lean.Meta.Tactic.Grind.Order.StructId
 import Lean.Meta.Tactic.Grind.Order.Util
 import Lean.Meta.Tactic.Grind.Order.Assert
 import Lean.Meta.Tactic.Grind.Order.Proof
+import Lean.Meta.Sym.Arith.Classify
 namespace Lean.Meta.Grind.Order
 
 open Arith CommRing
-open Sym.Arith (getRing)
+open Sym.Arith (getRing homoType?)
 
 def getType? (e : Expr) : Option Expr :=
   match_expr e with
@@ -38,8 +39,8 @@ def getType? (e : Expr) : Option Expr :=
       none
   | LE.le α _ _ _ => some α
   | LT.lt α _ _ _ => some α
-  | HAdd.hAdd α _ _ _ _ _ => some α
-  | HSub.hSub α _ _ _ _ _ => some α
+  | HAdd.hAdd α β γ _ _ _ => homoType? α β γ
+  | HSub.hSub α β γ _ _ _ => homoType? α β γ
   | OfNat.ofNat α _ _ => some α
   | _ => none
 

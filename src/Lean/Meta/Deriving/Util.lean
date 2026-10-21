@@ -1126,13 +1126,16 @@ def mkInductiveDerivingHandler (className : Name) (perMutualBlock : DerivingM Bo
     let fstInfo ← getConstInfoInduct names[0]!
     let nparams := fstInfo.numParams
     let mut hasPrivate := false
-    for name in names do
+    for name in fstInfo.all do
       if isPrivateName name then
         hasPrivate := true
         continue
       let hasPrivateCtor := (← getConstInfoInduct name).ctors.any isPrivateName
       if inExposeSection && hasPrivateCtor then
-        throwError "Cannot use `deriving ... @[expose]` with `{.ofConstName name}` \
+        let mut note := m!""
+        unless names.contains name do
+          note := m!"(which is part of the same mutual block as `{.ofConstName fstInfo.name}`) "
+        throwError "Cannot use `deriving ... @[expose]` with `{.ofConstName name}` {note}\
           as it has one or more private constructors"
       hasPrivate := hasPrivate || hasPrivateCtor
     let res ← liftTermElabM do

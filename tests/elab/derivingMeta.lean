@@ -520,18 +520,28 @@ run_cmd handler #[``TestPrivate]
 
 /-!
 However, it will complain when used with `@[expose]` on a type with private constructors
+(or a type that is mutual to one with private constructors)
 
 Note: we are in an `@[expose] public section`
 -/
 
-inductive TestPrivateCtor where
-  | private a
+mutual
+
+inductive TestPrivateCtorMutual1 where
+  | private foo (x : TestPrivateCtorMutual2)
+
+inductive TestPrivateCtorMutual2 where
+  | bar (x : TestPrivateCtorMutual1)
+
+end
 
 /--
-error: Cannot use `deriving ... @[expose]` with `TestPrivateCtor` as it has one or more private constructors
+error: Cannot use `deriving ... @[expose]` with `TestPrivateCtorMutual1`
+(which is part of the same mutual block as `TestPrivateCtorMutual2`)
+as it has one or more private constructors
 -/
 #guard_msgs in
-run_cmd handler #[``TestPrivateCtor]
+run_cmd handler #[``TestPrivateCtorMutual2]
 
 /-!
 `deriveTransformationInstPerConstructor` also handles "weird" type classes containing the universe

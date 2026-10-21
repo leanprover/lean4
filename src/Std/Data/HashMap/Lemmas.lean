@@ -3041,6 +3041,14 @@ theorem inter_equiv_empty_comm [EquivBEq α] [LawfulHashable α] :
   rw [equiv_empty_iff_isEmpty, equiv_empty_iff_isEmpty, ← Bool.eq_iff_iff]
   exact isEmpty_inter_comm
 
+theorem union_inter_equiv_empty_iff [EquivBEq α] [LawfulHashable α] {m₃ : HashMap α β} :
+    ((m₁ ∪ m₂) ∩ m₃) ~m ∅ ↔ (m₁ ∩ m₃) ~m ∅ ∧ (m₂ ∩ m₃) ~m ∅ := by
+  simp only [equiv_empty_iff_isEmpty, isEmpty_union_inter, Bool.and_eq_true]
+
+theorem inter_union_equiv_empty_iff [EquivBEq α] [LawfulHashable α] {m₃ : HashMap α β} :
+    (m₁ ∩ (m₂ ∪ m₃)) ~m ∅ ↔ (m₁ ∩ m₂) ~m ∅ ∧ (m₁ ∩ m₃) ~m ∅ := by
+  simp only [equiv_empty_iff_isEmpty, isEmpty_inter_union, Bool.and_eq_true]
+
 @[simp]
 theorem emptyWithCapacity_equiv_iff_isEmpty [EquivBEq α] [LawfulHashable α] {c : Nat} :
     emptyWithCapacity c ~m m ↔ m.isEmpty :=

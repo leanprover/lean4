@@ -6153,6 +6153,18 @@ theorem inter_equiv_empty_comm [TransCmp cmp] :
   rw [equiv_empty_iff_isEmpty, equiv_empty_iff_isEmpty, ← Bool.eq_iff_iff]
   exact isEmpty_inter_comm
 
+@[simp]
+theorem union_inter_equiv_empty_iff [TransCmp cmp] {t₃ : DTreeMap α β cmp} :
+    ((t₁ ∪ t₂) ∩ t₃) ~m ∅ ↔ (t₁ ∩ t₃) ~m ∅ ∧ (t₂ ∩ t₃) ~m ∅ := by
+  change ((t₁ ∪ t₂) ∩ t₃) ~m empty ↔ (t₁ ∩ t₃) ~m empty ∧ (t₂ ∩ t₃) ~m empty
+  simp only [equiv_empty_iff_isEmpty, isEmpty_union_inter, Bool.and_eq_true]
+
+@[simp]
+theorem inter_union_equiv_empty_iff [TransCmp cmp] {t₃ : DTreeMap α β cmp} :
+    (t₁ ∩ (t₂ ∪ t₃)) ~m ∅ ↔ (t₁ ∩ t₂) ~m ∅ ∧ (t₁ ∩ t₃) ~m ∅ := by
+  change (t₁ ∩ (t₂ ∪ t₃)) ~m empty ↔ (t₁ ∩ t₂) ~m empty ∧ (t₁ ∩ t₃) ~m empty
+  simp only [equiv_empty_iff_isEmpty, isEmpty_inter_union, Bool.and_eq_true]
+
 theorem empty_equiv_iff_isEmpty : empty ~m t ↔ t.isEmpty :=
   Equiv.comm.trans equiv_empty_iff_isEmpty
 

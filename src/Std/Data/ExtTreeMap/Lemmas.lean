@@ -1950,6 +1950,16 @@ theorem inter_eq_empty_comm [TransCmp cmp] :
   rw [← isEmpty_iff, ← isEmpty_iff, ← Bool.eq_iff_iff]
   exact isEmpty_inter_comm
 
+@[simp]
+theorem union_inter_eq_empty_iff [TransCmp cmp] {t₃ : ExtTreeMap α β cmp} :
+    (t₁ ∪ t₂) ∩ t₃ = ∅ ↔ t₁ ∩ t₃ = ∅ ∧ t₂ ∩ t₃ = ∅ := by
+  simp only [← isEmpty_iff, isEmpty_union_inter, Bool.and_eq_true]
+
+@[simp]
+theorem inter_union_eq_empty_iff [TransCmp cmp] {t₃ : ExtTreeMap α β cmp} :
+    t₁ ∩ (t₂ ∪ t₃) = ∅ ↔ t₁ ∩ t₂ = ∅ ∧ t₁ ∩ t₃ = ∅ := by
+  simp only [← isEmpty_iff, isEmpty_inter_union, Bool.and_eq_true]
+
 end Inter
 
 section Diff

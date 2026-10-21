@@ -480,9 +480,9 @@ public def Cache.saveArtifact
       IO.setAccessRights file ⟨r, r, r⟩
       unless (← cacheFile.pathExists) do
         createParentDirs cacheFile
-        -- other functions can race to create the file
-        -- use `writeFileIfNew` to prevent errors on races
-        writeFileIfNew cacheFile normalized
+        atomicWrite cacheFile
+          (fun h => return (← h.readToEnd.toBaseIO).toOption.any (· == normalized))
+          (fun h => h.putStr normalized)
       IO.setAccessRights cacheFile ⟨r, r, r⟩
       writeFileHash file hash
       let mtime ← getMTime cacheFile
@@ -502,8 +502,9 @@ public def Cache.saveArtifact
         if let .error e ← (IO.FS.hardLink file cacheFile).toBaseIO then
           -- other functions can race to create the file
           unless e matches .alreadyExists .. do
-            -- use `writeBinFileIfNew` to prevent errors on races
-            writeBinFileIfNew cacheFile contents
+            atomicWrite cacheFile
+              (fun h => return (← h.readBinToEnd.toBaseIO).toOption.any (· == contents))
+              (fun h => h.write contents)
       IO.setAccessRights cacheFile ⟨r, r, r⟩
       writeFileHash file hash
       let mtime ← getMTime cacheFile
@@ -511,6 +512,24 @@ public def Cache.saveArtifact
       return {descr, name := file.toString, path, mtime}
   catch e =>
     error s!"failed to cache artifact: {e}"
+where @[inline] atomicWrite cacheFile check write := do
+  let tmpFile := cacheFile.addExtension "copy.tmp"
+  try discard <| IO.FS.Handle.mk tmpFile .writeNew catch _ => pure ()
+  let h ← IO.FS.Handle.mk tmpFile .readWrite
+  h.lock
+  if (← cacheFile.pathExists) then
+    try IO.FS.removeFile tmpFile catch _ => pure ()
+  else
+    h.rewind
+    unless (← check h) do
+      h.rewind
+      h.truncate
+      write h
+      h.flush
+    try IO.FS.hardLink tmpFile cacheFile catch
+      | .noFileOrDirectory .. | .alreadyExists .. => pure ()
+      | e => throw e
+    try IO.FS.removeFile tmpFile catch _ => pure ()
 
 @[inline, inherit_doc Cache.saveArtifact]
 public def cacheArtifact

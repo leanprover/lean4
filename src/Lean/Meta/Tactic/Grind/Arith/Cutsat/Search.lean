@@ -96,44 +96,76 @@ coefficient `±1` on `z`, let `r := c.p - t*p'` with `t := a / (±1)`, and `g` b
 and the variable coefficients of `r`. If `g > 1`, the value of `c.p` is congruent to the constant
 of `r` modulo `g`, and `c.p ≤ 0` can be strengthened to the largest such value `≤ 0`.
 Example: `32768 ∣ x` and `-x + 32768*q + 1 ≤ 0` give `-x + 32768*q + 32768 ≤ 0`.
+
+If `decFreeOnly := true`, only the divisibility constraints of the state saved at the first case
+split are used. They do not depend on decisions, so neither does the result.
 -/
-def tightUsingDvds (c : LeCnstr) : GoalM LeCnstr := do
+def tightUsingDvds (c : LeCnstr) (decFreeOnly : Bool) : SearchM LeCnstr := do
   let s ← get'
+  let s₀ := (← get).cases[0]? |>.map (·.saved) |>.getD s
   let mut c := c
   let mut p := c.p
   repeat
     let .add a z p' := p | break
     p := p'
-    let some dvd := s.dvds[z]! | continue
-    let .add lead _ _ := dvd.p | continue
-    unless lead.natAbs == 1 do continue
+    let dvd₀? := s₀.dvds[z]!
+    if let some dvd₀ := dvd₀? then
+      if let some c' := tighten c a dvd₀ then
+        c := c'
+    unless decFreeOnly do
+      if let some dvd := s.dvds[z]! then
+        if dvd₀?.all fun dvd₀ => dvd₀.d != dvd.d || dvd₀.p != dvd.p then
+          if let some c' := tighten c a dvd then
+            c := c'
+  return c
+where
+  tighten (c : LeCnstr) (a : Int) (dvd : DvdCnstr) : Option LeCnstr := do
+    let .add lead _ _ := dvd.p | none
+    guard (lead.natAbs == 1)
     let t := a * lead
     let r := c.p.combine (dvd.p.mul (-t))
     let g := r.gcdCoeffs dvd.d.natAbs
-    if g > 1 then
-      let shift := -(Int.Internal.Linear.cmod r.getConst g)
-      if shift != 0 then
-        c := { p := c.p.addConst shift, h := .dvdTightMod dvd c t g }
-  return c
+    guard (g > 1)
+    let shift := -(Int.Internal.Linear.cmod r.getConst g)
+    guard (shift != 0)
+    return { p := c.p.addConst shift, h := .dvdTightMod dvd c t g }
+
+/--
+Best bound for a variable. `val` and `c` use all divisibility constraints for tightening,
+`val₀` and `c₀` only those that do not depend on decisions. Conflicts are explained with
+`c₀` whenever possible, so that they do not depend on the current case: the untightened bound
+often refutes all cases of a Cooper split at once.
+-/
+structure Bound where
+  val  : Rat
+  c    : LeCnstr
+  val₀ : Rat
+  c₀   : LeCnstr
+
+private def Bound.update (b? : Option Bound) (val : Rat) (c : LeCnstr) (val₀ : Rat) (c₀ : LeCnstr) (better : Rat → Rat → Bool) : Option Bound :=
+  match b? with
+  | none => some { val, c, val₀, c₀ }
+  | some b =>
+    let b := if better val b.val then { b with val, c } else b
+    let b := if better val₀ b.val₀ then { b with val₀, c₀ } else b
+    some b
+
+private def evalBound (c : LeCnstr) (lower : Bool) : GoalM Rat := do
+  let .add k _ p := c.p | c.throwUnexpected
+  let some v ← p.eval? | c.throwUnexpected
+  return if lower then v / (-k) else (-v) / k
 
 /--
 Assuming all variables smaller than `x` have already been assigned,
 returns the best lower bound for `x` using the given partial assignment and
 inequality constraints where `x` is the maximal variable.
 -/
-def getBestLower? (x : Var) : GoalM (Option (Rat × LeCnstr)) := do
-  let s ← get'
+def getBestLower? (x : Var) : SearchM (Option Bound) := do
   let mut best? := none
-  for c in s.lowers[x]! do
-    let c ← tightUsingDvds c
-    let .add k _ p := c.p | c.throwUnexpected
-    let some v ← p.eval? | c.throwUnexpected
-    let lower' := v / (-k)
-    if let some (lower, _) := best? then
-      if lower' > lower then
-        best? := some (lower', c)
-    else
-      best? := some (lower', c)
+  for c in (← get').lowers[x]! do
+    let c' ← tightUsingDvds c (decFreeOnly := false)
+    let c₀ ← tightUsingDvds c (decFreeOnly := true)
+    best? := Bound.update best? (← evalBound c' true) c' (← evalBound c₀ true) c₀ (· > ·)
   return best?
 
 /--
@@ -141,19 +173,12 @@ Assuming all variables smaller than `x` have already been assigned,
 returns the best upper bound for `x` using the given partial assignment and
 inequality constraints where `x` is the maximal variable.
 -/
-def getBestUpper? (x : Var) : GoalM (Option (Rat × LeCnstr)) := do
-  let s ← get'
+def getBestUpper? (x : Var) : SearchM (Option Bound) := do
   let mut best? := none
-  for c in s.uppers[x]! do
-    let c ← tightUsingDvds c
-    let .add k _ p := c.p | c.throwUnexpected
-    let some v ← p.eval? | c.throwUnexpected
-    let upper' := (-v) / k
-    if let some (upper, _) := best? then
-      if upper' < upper then
-        best? := some (upper', c)
-    else
-      best? := some (upper', c)
+  for c in (← get').uppers[x]! do
+    let c' ← tightUsingDvds c (decFreeOnly := false)
+    let c₀ ← tightUsingDvds c (decFreeOnly := true)
+    best? := Bound.update best? (← evalBound c' false) c' (← evalBound c₀ false) c₀ (· < ·)
   return best?
 
 /-- Returns values we cannot assign `x` because of disequality constraints. -/
@@ -428,24 +453,32 @@ def processVar (x : Var) : SearchM Unit := do
   | none, none =>
     let v := dvdSol.geAvoiding 0 diseqVals
     setAssignment x v
-  | some (lower, _), none =>
-    let lower := lower.ceil
+  | some lo, none =>
+    let lower := lo.val.ceil
     let v := dvdSol.geAvoiding lower diseqVals
     trace[grind.debug.lia.search] "{lower} ≤ {quoteIfArithTerm (← getVar x)} := {v}"
     setAssignment x v
-  | none, some (upper, _) =>
-    let upper := upper.floor
+  | none, some up =>
+    let upper := up.val.floor
     let v := dvdSol.leAvoiding upper diseqVals
     trace[grind.debug.lia.search] "{quoteIfArithTerm (← getVar x)} := {v} ≤ {upper}"
     setAssignment x v
-  | some (lower, c₁), some (upper, c₂) =>
+  | some lo, some up =>
+    let lower := lo.val
+    let upper := up.val
+    let c₁ := lo.c
+    let c₂ := up.c
     trace[grind.debug.lia.search] "{lower} ≤ {lower.ceil} ≤ {quoteIfArithTerm (← getVar x)} ≤ {upper.floor} ≤ {upper}"
     if lower > upper then
+      -- Prefer the explanation that does not depend on decisions.
+      let (c₁, c₂) := if lo.val₀ > up.val₀ then (lo.c₀, up.c₀) else (c₁, c₂)
       let .true ← resolveRealLowerUpperConflict c₁ c₂
         | throwError "`grind` internal error, conflict resolution failed"
       return ()
     -- `lower ≤ upper` here
     if lower.ceil > upper.floor then
+      if (← resolveRealLowerUpperConflict lo.c₀ up.c₀) then
+        return ()
       if (← resolveRealLowerUpperConflict c₁ c₂) then
         -- Resolved conflict using "real" shadow
         return ()

@@ -73,6 +73,14 @@ where
   -/
   z := ()
 
+/--
+A fence that is never closed continues to the end of the docstring:
+
+```lean
+example : True := trivial
+-/
+def unterminated := ()
+
 /-!
 # Heading 1
 

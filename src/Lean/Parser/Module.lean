@@ -29,15 +29,11 @@ structure ModuleParserState where
   pos        : String.Pos.Raw := 0
   recovering : Bool := false
   /--
-  Whether the initial whitespace still needs to be associated with the first token of the parsed
-  region.
+  Start of the initial whitespace to associate with the first token, or `none` if it has already
+  been associated or should be discarded. When constructing a state directly for an embedded region,
+  use `some` of the region's start position to retain its initial whitespace.
   -/
-  hasLeading : Bool := true
-  /--
-  Start of the initial whitespace, consulted only while `hasLeading` is true. When constructing a
-  state directly for an embedded region, set this to the region's start position.
-  -/
-  leadingStartPos : String.Pos.Raw := 0
+  leadingStartPos? : Option String.Pos.Raw := some 0
   deriving Inhabited
 
 private partial def mkErrorMessage (c : InputContext) (pos : String.Pos.Raw) (stk : SyntaxStack) (e : Parser.Error) : Message := Id.run do
@@ -124,7 +120,9 @@ def parseHeader (inputCtx : InputContext) (startPos : String.Pos.Raw := 0) :
                 private scope."
   let (stx, isLeadingSet) := setLeadingStart stx startPos
   pure (⟨stx⟩, {
-    pos := s.pos, recovering := s.hasError, hasLeading := !isLeadingSet, leadingStartPos := startPos
+    pos := s.pos
+    recovering := s.hasError
+    leadingStartPos? := if isLeadingSet then none else some startPos
   }, messages)
 
 private def mkEOI (inputCtx : InputContext) (pos : String.Pos.Raw) : Syntax :=
@@ -188,10 +186,10 @@ partial def parseCommand (inputCtx : InputContext) (pmctx : ParserModuleContext)
       else
         stx := s.stxStack.back
         break
-  if mps.hasLeading then
+  if let some startPos := mps.leadingStartPos? then
     -- Header was empty - anchor the first token's leading whitespace at the start of the region.
-    (stx, _) := setLeadingStart stx mps.leadingStartPos
-  return (stx, { mps with pos, recovering, hasLeading := false }, messages)
+    (stx, _) := setLeadingStart stx startPos
+  return (stx, { pos, recovering, leadingStartPos? := none }, messages)
 
 -- only useful for testing since most Lean files cannot be parsed without elaboration
 

@@ -94,12 +94,6 @@ private def maskOnesZeros? (c : Nat) : Option (Nat × Nat) := do
   guard (c + 1 == 1 <<< n)
   return (n, k)
 
-private def mkNatDiv (a b : Expr) : Expr :=
-  mkApp6 (mkConst ``HDiv.hDiv [0, 0, 0]) Nat.mkType Nat.mkType Nat.mkType Nat.mkInstHDiv a b
-
-private def mkNatMod (a b : Expr) : Expr :=
-  mkApp6 (mkConst ``HMod.hMod [0, 0, 0]) Nat.mkType Nat.mkType Nat.mkType Nat.mkInstHMod a b
-
 private def mkNatEqRefl (a : Expr) : Expr :=
   mkApp2 (mkConst ``Eq.refl [1]) Nat.mkType a
 

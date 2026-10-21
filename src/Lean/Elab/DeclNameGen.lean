@@ -268,3 +268,16 @@ def mkInstanceName (binders : Array Syntax) (type : Syntax) : CommandElabM Name 
     runTermElabM fun _ => NameGen.mkBaseNameWithSuffix' "inst" binders type
   finally
     set savedState
+
+/--
+Convenience function for determining the fully qualified name of an instance using its type as an
+expression, returning a private name if the type refers to private constants.
+-/
+def mkInstanceNameOfType (type : Expr) : MetaM Name := do
+  let name ← NameGen.mkBaseNameWithSuffix "inst" type
+  let name ← liftMacroM <| mkUnusedBaseName name
+  let name := (← getCurrNamespace) ++ name
+  if (type.find? (·.constName?.any isPrivateName)).isSome then
+    return mkPrivateName (← getEnv) name
+  else
+    return name

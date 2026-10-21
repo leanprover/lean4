@@ -8,9 +8,9 @@ module
 prelude
 import Init.While
 import Lean.Syntax
-public import Lean.Server.FileWorker.Markdown.Basic
+public import Lean.Data.Markdown.Basic
 
-namespace Lean.Server.FileWorker.Markdown
+namespace Lean.Markdown
 
 /-!
 ## Emphasis matching (CommonMark §6.2)

@@ -10,9 +10,7 @@ public import Init.Prelude
 public import Init.While
 public import Lean.Syntax
 
-public section
-
-namespace Lean.Server.FileWorker.Markdown
+namespace Lean.Markdown
 
 /-!
 ## Line cursors
@@ -32,7 +30,7 @@ The pair `(rest.startPos, col)` is the parser's working position. They are kept 
 column-aware advancement primitives below. Direct field updates should preserve the invariant that
 `col` is the visual column of `rest.startPos`.
 -/
-structure Cursor where
+public structure Cursor where
   /-- The unconsumed suffix of the current line. -/
   rest : Substring.Raw
   /--
@@ -44,27 +42,27 @@ structure Cursor where
 namespace Cursor
 
 /-- Constructs a cursor at the start of `line` (column 0). -/
-@[inline] def ofLine (line : Substring.Raw) : Cursor :=
+@[inline] public def ofLine (line : Substring.Raw) : Cursor :=
   { rest := line, col := 0 }
 
 /-- The byte position of the cursor. -/
-@[inline] def byteIdx (c : Cursor) : String.Pos.Raw := c.rest.startPos
+@[inline] public def byteIdx (c : Cursor) : String.Pos.Raw := c.rest.startPos
 
 /-- The end-of-line byte position. -/
-@[inline] def stopPos (c : Cursor) : String.Pos.Raw := c.rest.stopPos
+@[inline] public def stopPos (c : Cursor) : String.Pos.Raw := c.rest.stopPos
 
 /-- The source string. -/
-@[inline] def str (c : Cursor) : String := c.rest.str
+@[inline] public def str (c : Cursor) : String := c.rest.str
 
 /-- The `Syntax.Range` from the cursor to end-of-line. -/
-@[inline] def toEol (c : Cursor) : Syntax.Range :=
+@[inline] public def toEol (c : Cursor) : Syntax.Range :=
   { start := c.rest.startPos, stop := c.rest.stopPos }
 
 /--
 Advances the cursor to byte position `p` and column `newCol`. The caller is responsible for ensuring
 `c.byteIdx ≤ p ≤ c.stopPos` and that `newCol` matches the actual column at `p`.
 -/
-@[inline] def moveTo (c : Cursor) (p : String.Pos.Raw) (newCol : Nat) : Cursor :=
+@[inline] public def moveTo (c : Cursor) (p : String.Pos.Raw) (newCol : Nat) : Cursor :=
   { rest := { c.rest with startPos := p }, col := newCol }
 
 /--
@@ -74,7 +72,7 @@ cursor).
 
 For tab-aware advancement use `countIndentCols` or `consumeIndentCapped`.
 -/
-@[inline] def peek? (c : Cursor) : Option (Char × String.Pos.Raw) :=
+@[inline] public def peek? (c : Cursor) : Option (Char × String.Pos.Raw) :=
   if c.rest.isEmpty then none else some (c.rest.front, (c.rest.drop 1).startPos)
 
 /--
@@ -85,7 +83,7 @@ The column is incremented by the consumed count, which is correct only when `pre
 character (each matched char then advances the column by exactly one). For tab-aware whitespace
 skipping use `countIndentCols` or `consumeIndentCapped`.
 -/
-@[inline] def advanceWhile (c : Cursor) (pred : Char → Bool) : Cursor × Nat := Id.run do
+@[inline] public def advanceWhile (c : Cursor) (pred : Char → Bool) : Cursor × Nat := Id.run do
   let mut rest := c.rest
   let mut count := 0
   while !rest.isEmpty do

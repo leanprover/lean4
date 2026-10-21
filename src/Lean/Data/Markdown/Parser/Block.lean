@@ -8,12 +8,12 @@ module
 prelude
 public import Init.Data.Nat.Fold
 public import Init.Data.String.TakeDrop
-public import Lean.Server.FileWorker.Markdown.Basic
-public import Lean.Server.FileWorker.Markdown.InlineSource
-import Lean.Server.FileWorker.Markdown.Parser.Cursor
-import Lean.Server.FileWorker.Markdown.Parser.BlockZipper
+public import Lean.Data.Markdown.Basic
+public import Lean.Data.Markdown.InlineSource
+import Lean.Data.Markdown.Parser.Cursor
+import Lean.Data.Markdown.Parser.BlockZipper
 
-namespace Lean.Server.FileWorker.Markdown
+namespace Lean.Markdown
 
 /-!
 # Pass 1: Block Parser

@@ -23,19 +23,19 @@ Obtain the spec source with:
     https://raw.githubusercontent.com/commonmark/commonmark-spec/master/spec.txt
 -/
 module
-import Lean.Server.FileWorker.Markdown
-import all Lean.Server.FileWorker.Markdown.Parser.Inline
+import Lean.Data.Markdown
+import all Lean.Data.Markdown.Parser.Inline
 import Std.Data.HashMap
 import Std.Data.TreeMap.Lemmas
 
 open Std
-open Lean.Server.FileWorker.Markdown
+open Lean.Markdown
 
 /-!
 ## CommonMark HTML rendering (test-only)
 
 A simple HTML renderer for the `Block (Array Inline)` tree produced by
-`Lean.Server.FileWorker.Markdown.parseDocument`. This lives inside the
+`Lean.Markdown.parseDocument`. This lives inside the
 conformance runner because nothing else in the toolchain needs it: the
 language server emits semantic tokens, not HTML.
 
@@ -46,7 +46,7 @@ oracle: feed Markdown to `parseDocument` plus this renderer, compare to
 the expected HTML, and tally divergences.
 -/
 
-namespace Lean.Server.FileWorker.Markdown.Html
+namespace Lean.Markdown.Html
 
 private def escapeChar : Char → String
   | '&' => "&amp;"
@@ -495,7 +495,7 @@ suitable for direct comparison with CommonMark's reference output.
 def renderToHtml (source : String) : String :=
   renderBlocks source (parseDocument source ⟨0⟩ source.rawEndPos)
 
-end Lean.Server.FileWorker.Markdown.Html
+end Lean.Markdown.Html
 
 structure SpecEntry where
   markdown : String

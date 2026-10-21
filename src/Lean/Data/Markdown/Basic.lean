@@ -10,12 +10,10 @@ public import Init.Data.Hashable
 public import Std.Data.HashMap
 public import Lean.Syntax
 
-public section
-
-namespace Lean.Server.FileWorker.Markdown
+namespace Lean.Markdown
 
 /-- The marker character of a bullet list. -/
-inductive BulletKind where
+public inductive BulletKind where
   /-- A `*`-marked bullet list. -/
   | star
   /-- A `-`-marked bullet list. -/
@@ -25,7 +23,7 @@ inductive BulletKind where
 deriving Repr, BEq, Hashable
 
 /-- The terminating delimiter of an ordered-list marker. -/
-inductive OrderedDelim where
+public inductive OrderedDelim where
   /-- A `.` delimiter, as in `1.` -/
   | dot
   /-- A `)` delimiter, as in `1)` -/
@@ -36,7 +34,7 @@ deriving Repr, BEq, Hashable
 The kind of a list. All items in a list must share the same kind: an unordered list cannot mix `*`
 with `-`, and an ordered list cannot mix `1.` with `1)`.
 -/
-inductive ListKind where
+public inductive ListKind where
   /-- A bullet list with the given marker character. -/
   | bullet (kind : BulletKind)
   /--
@@ -47,7 +45,7 @@ inductive ListKind where
 deriving Repr, BEq, Hashable
 
 /-- The fence character used by a fenced code block. -/
-inductive FenceChar where
+public inductive FenceChar where
   /-- A backtick (`` ` ``) fence. The info string may not contain backticks. -/
   | backtick
   /-- A tilde (`~`) fence. -/
@@ -56,19 +54,19 @@ deriving Repr, BEq, Hashable, Inhabited
 
 namespace FenceChar
 
-def ofChar? : Char → Option FenceChar
+public def ofChar? : Char → Option FenceChar
   | '`' => some .backtick
   | '~' => some .tilde
   | _ => none
 
-def toChar : FenceChar → Char
+public def toChar : FenceChar → Char
   | .backtick => '`'
   | .tilde => '~'
 
 end FenceChar
 
 /-- Information attached to a fenced code block at its opening fence. -/
-structure FenceInfo where
+public structure FenceInfo where
   /-- The fence character: `` ` `` or `~`. -/
   fenceChar : FenceChar
   /--
@@ -94,7 +92,7 @@ delimiters).
 
 For multi-line reference definitions, ranges may span newlines.
 -/
-structure RefDef where
+public structure RefDef where
   /-- The opening `[` of the label. -/
   openBracket : Syntax.Range
   /-- The label's interior, between the brackets (un-normalized). -/
@@ -128,7 +126,7 @@ The type parameter `α` is the kind of inline-bearing content each block holds:
 Verbatim blocks (`fencedCode`, `indentedCode`) and structural blocks (`linkRefDef`) do not carry
 `α`-typed content; they only ever hold raw source ranges, regardless of which pass has run.
 -/
-inductive Block (α : Type) where
+public inductive Block (α : Type) where
   /--
   A paragraph: a sequence of consecutive non-blank lines that did not open
   any other leaf.
@@ -195,7 +193,7 @@ Whether two list kinds belong to the same list (that is, they have matching mark
 The starting number of an ordered list is irrelevant: `1.` and `5.` are the same list kind. Bullets
 must use the exact same character, and ordered lists must use the same delimiter.
 -/
-def sameKind : ListKind → ListKind → Bool
+public def sameKind : ListKind → ListKind → Bool
   | .bullet a, .bullet b => a == b
   | .ordered _ d1, .ordered _ d2 => d1 == d2
   | _, _ => false
@@ -205,7 +203,7 @@ end ListKind
 /--
 The surface form of a reference-style link or image.
 -/
-inductive ReferenceLinkForm where
+public inductive ReferenceLinkForm where
   /--
   Full form `[text][label]` — the second brackets carry an explicit
   label, distinct from the link's text. `openBracket`/`closeBracket`
@@ -224,7 +222,7 @@ inductive ReferenceLinkForm where
 deriving Repr, Inhabited
 
 /-- The destination of a link or image. -/
-inductive LinkTarget where
+public inductive LinkTarget where
   /--
   An inline target `(url)` or `(url "title")`. The title (if present) excludes its surrounding
   delimiter characters.
@@ -243,7 +241,7 @@ inductive LinkTarget where
 deriving Repr, Inhabited
 
 /-- A parsed inline element. -/
-inductive Inline where
+public inductive Inline where
   /-- Plain text. -/
   | text (range : Syntax.Range)
   /-- Inline code span. The content is verbatim source. -/
@@ -287,7 +285,7 @@ According to the CommonMark spec §4.7, link labels are normalized as follows:
 
 The constructor is private. Build values via `normalizeLabel`.
 -/
-structure LinkLabel where
+public structure LinkLabel where
   private mk ::
   /-- The normalized label string (see `normalizeLabel`). -/
   name : String
@@ -302,7 +300,7 @@ Normalizes a CommonMark link label (§4.7):
 While CommonMark specifies Unicode case folding, this implementation case-folds only ASCII English
 letters.
 -/
-def normalizeLabel (s : String) : LinkLabel := Id.run do
+public def normalizeLabel (s : String) : LinkLabel := Id.run do
   let mut out := ""
   let mut sawWs := false  -- whether we've seen whitespace since the last non-ws
   let mut sawNonWs := false  -- whether we've emitted any non-ws char yet
@@ -319,7 +317,7 @@ def normalizeLabel (s : String) : LinkLabel := Id.run do
 /--
 The destination of a link reference definition: the URL plus optional title.
 -/
-structure RefTarget where
+public structure RefTarget where
   /-- The destination URL with any `<>` wrappers stripped. -/
   url : String
   /-- The optional title, with its surrounding delimiters stripped. -/
@@ -331,4 +329,4 @@ A reference table built from a document's link reference definitions.
 
 During inline parsing, these are used to recognize valid references.
 -/
-abbrev RefTable := Std.HashMap LinkLabel RefTarget
+public abbrev RefTable := Std.HashMap LinkLabel RefTarget

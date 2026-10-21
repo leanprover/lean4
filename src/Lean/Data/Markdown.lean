@@ -6,14 +6,14 @@ Authors: David Thrane Christiansen
 module
 
 prelude
-public import Lean.Server.FileWorker.Markdown.Basic
-public import Lean.Server.FileWorker.Markdown.Parser
+public import Lean.Data.Markdown.Basic
+public import Lean.Data.Markdown.Parser
 
 /-!
 # Markdown parser for the language server
 
 A CommonMark parser used by the Lean language server to provide semantic token highlighting inside
-Markdown docstrings. The entry point is `Lean.Server.FileWorker.Markdown.parseDocument`.
+Markdown docstrings. The entry point is `Lean.Markdown.parseDocument`.
 
 The implementation follows CommonMark 0.31.2 closely with a small set of deviations:
 * HTML blocks and inline HTML are not parsed.

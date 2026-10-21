@@ -7,7 +7,7 @@ module
 
 prelude
 public import Lean.Server.Requests
-public import Lean.Server.FileWorker.Markdown
+public import Lean.Data.Markdown
 import Lean.DocString.View
 
 public section
@@ -329,13 +329,13 @@ private def splitStr (text : FileMap) (stx : Syntax) : Array Syntax := Id.run do
 
 /-! ## Markdown highlighting
 
-Walks the result of the full Markdown parse (`Lean.Server.FileWorker.Markdown.parseDocument`,
+Walks the result of the full Markdown parse (`Lean.Markdown.parseDocument`,
 which runs both passes) and emits `LeanSemanticToken`s. The walk is purely structural — no
 inline parsing happens here; each `Block (Array Inline)` already carries its parsed inlines
 with file-anchored positions.
 -/
 
-namespace Markdown
+namespace MarkupTokens
 
 /-- Block context for combining markup highlighting types. -/
 private inductive MarkupBlockCtxt where
@@ -515,7 +515,7 @@ Emits the structural tokens of a matched link reference definition: keyword on t
 colon, cross-reference on the label, URL on the destination, and string on the optional title. The
 label and title may span multiple source lines, so they are split at line boundaries.
 -/
-private def emitRefDef (text : FileMap) (out : Array LeanSemanticToken) (r : RefDef) :
+private def emitRefDef (text : FileMap) (out : Array LeanSemanticToken) (r : Markdown.RefDef) :
     Array LeanSemanticToken := Id.run do
   let mut out := out
   out := pushTok out r.openBracket .keyword
@@ -576,7 +576,7 @@ where
       out := pushTok out line .keyword
     return out
 
-end Markdown
+end MarkupTokens
 
 /--
 Collects semantic tokens for a Markdown docstring. Block delimiters (`#`, `>`, list markers, fence
@@ -586,9 +586,9 @@ enclosing block context. Undecorated text is emitted as `.markupDocText`.
 -/
 def collectMarkdownTokens (text : FileMap) (startPos endPos : String.Pos.Raw) :
     Array LeanSemanticToken :=
-  Markdown.emitBlocks text {} (Markdown.parseDocument text.source startPos endPos) #[]
+  MarkupTokens.emitBlocks text {} (Markdown.parseDocument text.source startPos endPos) #[]
 
-open Lean.Doc Markdown in
+open Lean.Doc MarkupTokens in
 private partial def collectVersoTokens
     (stx : Syntax) (getTokens : (stx : Syntax) → Array LeanSemanticToken) :
     Array LeanSemanticToken :=

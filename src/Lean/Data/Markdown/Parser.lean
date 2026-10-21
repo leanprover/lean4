@@ -6,10 +6,10 @@ Authors: David Thrane Christiansen
 module
 
 prelude
-public import Lean.Server.FileWorker.Markdown.Parser.Block
-public import Lean.Server.FileWorker.Markdown.Parser.Inline
+public import Lean.Data.Markdown.Parser.Block
+public import Lean.Data.Markdown.Parser.Inline
 
-namespace Lean.Server.FileWorker.Markdown
+namespace Lean.Markdown
 
 
 /--

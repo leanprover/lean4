@@ -12,11 +12,11 @@ public import Init.Data.Array.Basic
 public import Init.While
 public import Std.Data.HashMap
 public import Lean.Syntax
-public import Lean.Server.FileWorker.Markdown.Basic
-public import Lean.Server.FileWorker.Markdown.Parser.Block
-import Lean.Server.FileWorker.Markdown.Parser.Emphasis
+public import Lean.Data.Markdown.Basic
+public import Lean.Data.Markdown.Parser.Block
+import Lean.Data.Markdown.Parser.Emphasis
 
-namespace Lean.Server.FileWorker.Markdown
+namespace Lean.Markdown
 
 /-!
 # Pass 2: Inline Parser

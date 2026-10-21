@@ -11,9 +11,7 @@ public import Init.Data.Array.Basic
 public import Init.While
 public import Lean.Syntax
 
-public section
-
-namespace Lean.Server.FileWorker.Markdown
+namespace Lean.Markdown
 
 /-!
 # Inline Source View
@@ -37,7 +35,7 @@ Ranges should be non-overlapping.
 Positions returned by walking are file offsets in `str`, so inlines produced over an `InlineSource`
 are file-anchored without a separate mapping pass.
 -/
-structure InlineSource where
+public structure InlineSource where
   /-- The underlying source string. -/
   str : String
   /--
@@ -51,28 +49,28 @@ deriving Inhabited
 namespace InlineSource
 
 /-- The empty source. -/
-def empty : InlineSource := { str := "", ranges := #[] }
+public def empty : InlineSource := { str := "", ranges := #[] }
 
 /-- The first source position covered by `s` (or `0` if empty). -/
-def startPos (s : InlineSource) : String.Pos.Raw :=
+public def startPos (s : InlineSource) : String.Pos.Raw :=
   match s.ranges[0]? with
   | some r => r.start
   | none => 0
 
 /-- One past the last source position covered by `s` (or `0` if empty). -/
-def stopPos (s : InlineSource) : String.Pos.Raw :=
+public def stopPos (s : InlineSource) : String.Pos.Raw :=
   match s.ranges.back? with
   | some r => r.stop
   | none => 0
 
 /-- Whether `p` is at or past the end of the last range. -/
-def atEnd (s : InlineSource) (p : String.Pos.Raw) : Bool :=
+public def atEnd (s : InlineSource) (p : String.Pos.Raw) : Bool :=
   p ≥ s.stopPos
 
 /--
 Returns the index of the range that contains `p`, or `none` if `p` falls outside every range.
 -/
-private def findRangeIdx? (s : InlineSource) (p : String.Pos.Raw) : Option Nat :=
+def findRangeIdx? (s : InlineSource) (p : String.Pos.Raw) : Option Nat :=
   s.ranges.findIdx? fun r =>
     r.start ≤ p && p < r.stop
 
@@ -82,7 +80,7 @@ Returns the character at `p`.
 Inside a valid range of `s`, this is simply the character; outside the ranges, it returns
 `(default : Char)`.
 -/
-def get (s : InlineSource) (p : String.Pos.Raw) : Char :=
+public def get (s : InlineSource) (p : String.Pos.Raw) : Char :=
   match s.findRangeIdx? p with
   | some _ => p.get s.str
   | none => default
@@ -93,7 +91,7 @@ character at `p`. When that advance would land at the end of `p`'s range, it jum
 next range if one exists, or to the end of the current range if not. If `p` is not in any range, it
 returns `s.stopPos`.
 -/
-def next (s : InlineSource) (p : String.Pos.Raw) : String.Pos.Raw :=
+public def next (s : InlineSource) (p : String.Pos.Raw) : String.Pos.Raw :=
   match s.findRangeIdx? p with
   | none => s.stopPos
   | some i =>
@@ -108,7 +106,7 @@ Concatenates the slices of `s.str` covered by each range intersected with `[p1, 
 order. This is equivalent to walking via `get`/`next` from `p1` to `p2` (skipping inter-range gaps),
 but it can be more efficient.
 -/
-def extract (s : InlineSource) (p1 p2 : String.Pos.Raw) : String :=
+public def extract (s : InlineSource) (p1 p2 : String.Pos.Raw) : String :=
   s.ranges.foldl (init := "") fun acc r =>
     let lo : String.Pos.Raw := ⟨max p1.byteIdx r.start.byteIdx⟩
     let hi : String.Pos.Raw := ⟨min r.stop.byteIdx p2.byteIdx⟩
@@ -126,7 +124,7 @@ It implements the CommonMark §4.8 paragraph-content normalisation directly on f
 - Trailing spaces/tabs/`\n`/`\r` are stripped from the *final* line's end, so trailing whitespace
   cannot leak into the rendered output.
 -/
-def ofLines (str : String) (lines : Array Syntax.Range) : InlineSource := Id.run do
+public def ofLines (str : String) (lines : Array Syntax.Range) : InlineSource := Id.run do
   let mut ranges : Array Syntax.Range := Array.emptyWithCapacity lines.size
   for h : idx in [0 : lines.size] do
     let line := lines[idx]
@@ -154,7 +152,7 @@ def ofLines (str : String) (lines : Array Syntax.Range) : InlineSource := Id.run
 A single-range `InlineSource` over `range` of `str`. Used for content that is naturally a single
 contiguous source span (e.g. an ATX heading's content slice).
 -/
-def ofRange (str : String) (range : Syntax.Range) : InlineSource :=
+public def ofRange (str : String) (range : Syntax.Range) : InlineSource :=
   { str, ranges := #[range] }
 
 /--
@@ -162,7 +160,7 @@ Returns an `InlineSource` whose ranges represent the suffix of `s` that starts a
 Ranges fully before `p` are dropped and the range containing `p` (if any) is trimmed to start at
 `p`.
 -/
-def dropUpTo (s : InlineSource) (p : String.Pos.Raw) : InlineSource := Id.run do
+public def dropUpTo (s : InlineSource) (p : String.Pos.Raw) : InlineSource := Id.run do
   let mut out : Array Syntax.Range := #[]
   for r in s.ranges do
     if r.stop ≤ p then continue
@@ -179,7 +177,7 @@ A bounded sub-view of an `InlineSource`, analogous to `Substring.Raw`
 over a `String`: it carries the parent source plus an explicit
 `startPos` / `stopPos` range.
 -/
-structure InlineRange where
+public structure InlineRange where
   /-- The parent source. -/
   source : InlineSource
   /-- The current logical position within `source`. -/
@@ -191,41 +189,41 @@ deriving Inhabited
 /--
 Builds an `InlineRange` viewing `[startPos, stopPos)` of `s`.
 -/
-@[inline] def InlineSource.range (s : InlineSource) (startPos stopPos : String.Pos.Raw) :
+@[inline] public def InlineSource.range (s : InlineSource) (startPos stopPos : String.Pos.Raw) :
     InlineRange :=
   { source := s, startPos, stopPos }
 
 namespace InlineRange
 
 /-- Returns `r` with its `startPos` replaced by `p` (and the same source/stop). -/
-@[inline] def withStart (r : InlineRange) (p : String.Pos.Raw) : InlineRange :=
+@[inline] public def withStart (r : InlineRange) (p : String.Pos.Raw) : InlineRange :=
   { r with startPos := p }
 
 /-- Whether this range has been fully consumed. -/
-@[inline] def isEmpty (r : InlineRange) : Bool :=
+@[inline] public def isEmpty (r : InlineRange) : Bool :=
   r.startPos ≥ r.stopPos
 
 /-- The character at the range's `startPos`. -/
-@[inline] def front (r : InlineRange) : Char :=
+@[inline] public def front (r : InlineRange) : Char :=
   r.source.get r.startPos
 
 /--
 Advances `startPos` by one logical character.
 -/
-@[inline] def drop1 (r : InlineRange) : InlineRange :=
+@[inline] public def drop1 (r : InlineRange) : InlineRange :=
   { r with startPos := r.source.next r.startPos }
 
 /--
 If `r` begins with `c`, returns the range advanced past it. Otherwise returns `none`.
 -/
-@[inline] def expectChar (c : Char) (r : InlineRange) : Option InlineRange :=
+@[inline] public def expectChar (c : Char) (r : InlineRange) : Option InlineRange :=
   if !r.isEmpty && r.front == c then some r.drop1 else none
 
 /--
 If `r` begins with `c`, returns the source range that covers the character together with `r`
 advanced past `c`. Otherwise returns `none`.
 -/
-@[inline] def matchCharRange (c : Char) (r : InlineRange) : Option (Syntax.Range × InlineRange) :=
+@[inline] public def matchCharRange (c : Char) (r : InlineRange) : Option (Syntax.Range × InlineRange) :=
   if !r.isEmpty && r.front == c then
     let r' := r.drop1
     some ({ start := r.startPos, stop := r'.startPos }, r')
@@ -234,7 +232,7 @@ advanced past `c`. Otherwise returns `none`.
 /--
 Advances past a run of `c`s at the start of `r`. Returns the post-run range and the run length.
 -/
-partial def matchRun (c : Char) (r : InlineRange) : InlineRange × Nat :=
+public partial def matchRun (c : Char) (r : InlineRange) : InlineRange × Nat :=
   go r 0
 where
   go (r : InlineRange) (n : Nat) : InlineRange × Nat :=

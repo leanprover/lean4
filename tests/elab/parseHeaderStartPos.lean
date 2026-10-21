@@ -34,7 +34,7 @@ private def checkLeading (stx : Syntax) (start : String.Pos.Raw) (content : Stri
   check (!messages.hasErrors && !explicitMessages.hasErrors &&
     header.raw.eqWithInfo explicitHeader.raw &&
     state.pos == explicitState.pos && state.recovering == explicitState.recovering &&
-    state.hasLeading == explicitState.hasLeading) "default start differs from explicit zero"
+    state.leadingStartPos? == explicitState.leadingStartPos?) "default start differs from explicit zero"
   checkLeading header 0 "-- file comment\n"
 
 -- Each first header token must retain the region's comments, including the `module` token.
@@ -43,7 +43,7 @@ private def checkLeading (stx : Syntax) (start : String.Pos.Raw) (content : Stri
     let trivia := "  /- embedded λ -/\n"
     let (ctx, start, stop) := fixture (trivia ++ content)
     let (header, state, messages) ← parseHeader ctx start
-    check (!messages.hasErrors && state.pos == stop && !state.hasLeading)
+    check (!messages.hasErrors && state.pos == stop && state.leadingStartPos?.isNone)
       "header did not stop at the region boundary"
     checkLeading header start trivia
     check (header.raw.getPos? == some (start + trivia))
@@ -64,11 +64,11 @@ private def checkLeading (stx : Syntax) (start : String.Pos.Raw) (content : Stri
   let trivia := "  -- embedded λ\n  "
   let (ctx, start, stop) := fixture (trivia ++ "def α := 1\ndef β := 2\n")
   let (_, state, messages) ← parseHeader ctx start
-  check (!messages.hasErrors && state.hasLeading && state.leadingStartPos == start)
+  check (!messages.hasErrors && state.leadingStartPos? == some start)
     "empty header lost the region start"
   let env ← mkEmptyEnvironment
   let (first, state, messages) := parseCommand ctx { env, options := {} } state messages
-  check (!messages.hasErrors && !state.hasLeading && state.leadingStartPos == start)
+  check (!messages.hasErrors && state.leadingStartPos?.isNone)
     "first command did not consume initial trivia"
   checkLeading first start trivia
   check (first.getPos? == some (start + trivia)) "command position is not absolute"
@@ -85,11 +85,11 @@ private def checkLeading (stx : Syntax) (start : String.Pos.Raw) (content : Stri
   for content in ["", " \n", "-- comment λ\n", "/- comment λ -/"] do
     let (ctx, start, stop) := fixture content
     let (_, state, messages) ← parseHeader ctx start
-    check (!messages.hasErrors && state.pos == stop && state.hasLeading)
+    check (!messages.hasErrors && state.pos == stop && state.leadingStartPos? == some start)
       "empty region did not produce an empty header"
     let (eoi, state, messages) := parseCommand ctx { env, options := {} } state messages
     check (!messages.hasErrors && eoi.isOfKind ``Command.eoi && eoi.getPos? == some stop &&
-      state.pos == stop && !state.hasLeading) "incorrect end-of-input token"
+      state.pos == stop && state.leadingStartPos?.isNone) "incorrect end-of-input token"
     checkLeading eoi start content
 
 -- Both header validation and parser errors use the enclosing source's file map.
@@ -131,3 +131,24 @@ private def checkLeading (stx : Syntax) (start : String.Pos.Raw) (content : Stri
     header.raw.getPos? == some start && state.pos == ctx.endPos)
     "header position did not use the normalized source"
   check (header.raw.reprint == some "import Init\n") "normalized header did not round-trip"
+
+-- Direct command parsing can retain or explicitly discard initial trivia.
+#eval do
+  let trivia := "  -- direct command λ\n"
+  let (ctx, start, stop) := fixture (trivia ++ "def α := 1\n")
+  let env ← mkEmptyEnvironment
+  let wholeFile := mkInputContext (trivia ++ "def α := 1\n") "direct"
+  let (command, state, messages) := parseCommand wholeFile { env, options := {} } {} {}
+  check (!messages.hasErrors && state.pos == wholeFile.endPos && state.leadingStartPos?.isNone)
+    "default command state did not consume its pending leading trivia"
+  checkLeading command 0 trivia
+  let (command, state, messages) := parseCommand ctx { env, options := {} }
+    { pos := start, leadingStartPos? := some start } {}
+  check (!messages.hasErrors && state.pos == stop && state.leadingStartPos?.isNone)
+    "direct command did not consume its pending leading trivia"
+  checkLeading command start trivia
+  let (command, state, messages) := parseCommand ctx { env, options := {} }
+    { pos := start, leadingStartPos? := none } {}
+  check (!messages.hasErrors && state.pos == stop && state.leadingStartPos?.isNone)
+    "direct command unexpectedly enabled leading trivia"
+  checkLeading command (start + trivia) ""

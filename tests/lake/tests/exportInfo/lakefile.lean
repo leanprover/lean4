@@ -6,8 +6,9 @@ open Lake DSL
 /-!
 Regression tests for #14612. Export computations must capture their metadata jobs
 before their artifact continuation runs and wait for pending metadata through the
-job graph. Promises reproduce pending and replaced build-store entries without
-depending on a particular thread interleaving.
+job graph, preserving dependency failures and cancellation. Promises reproduce
+pending and replaced build-store entries without depending on a particular
+thread interleaving.
 -/
 
 package test
@@ -22,6 +23,7 @@ script probe args do
   let testInput := args.contains "input"
   let replace := args.contains "replace"
   let fail := args.contains "fail"
+  let cancel := args.contains "cancel"
   let input : ModuleInput := {
     path := "Test.lean", header := {isModule := false, imports := #[]}, imports := #[]
     trace := .ofHash (pureHash "source") "source"
@@ -41,7 +43,7 @@ script probe args do
   let inputJob : Job ModuleInput := .ofTask inputPromise.result!
   let importJob : Job ModuleImportInfo := .ofTask importPromise.result!
   let artsJob : Job ModuleOutputArtifacts := .ofTask artsPromise.result!
-  let info ← runBuild do
+  let info? ← runBuild do
     let some mod ← findModule? `Test | error "missing Test"
     storeJob mod.input <|
       if testInput && !replace then inputJob else Job.pure input
@@ -67,16 +69,25 @@ script probe args do
     unless replace do
       if ← IO.hasFinished job.task then
         error "export completed before its metadata"
-    let failure : JobState := {log := Log.empty.push (.error "metadata failed")}
+    let failure : JobState :=
+      if cancel then {canceled := true} else {log := Log.empty.push (.error "metadata failed")}
+    let failed := fail || cancel
     let replacementTrace := BuildTrace.ofHash (pureHash "replacement") "replacement"
     let laterInput := if replace then {input with trace := replacementTrace} else input
     let laterImports := if replace then {importInfo with transTrace := replacementTrace} else importInfo
-    inputPromise.resolve <| if fail && testInput then .error 0 failure else .ok laterInput {}
-    importPromise.resolve <| if fail && !testInput then .error 0 failure else .ok laterImports {}
-    registerJob "export metadata" job
-  unless info.srcTrace.hash == input.trace.hash do
-    error "incorrect source trace"
-  unless info.transTrace.hash == importInfo.transTrace.hash do
-    error "incorrect transitive import trace"
+    inputPromise.resolve <| if failed && testInput then .error 0 failure else .ok laterInput {}
+    importPromise.resolve <| if failed && !testInput then .error 0 failure else .ok laterImports {}
+    if cancel then
+      let result ← job.wait
+      unless result.isCanceled && result.state.log.isEmpty do
+        error "metadata cancellation was not propagated"
+      pure (Job.pure none)
+    else
+      return (← registerJob "export metadata" job).map (sync := true) some
+  if let some info := info? then
+    unless info.srcTrace.hash == input.trace.hash do
+      error "incorrect source trace"
+    unless info.transTrace.hash == importInfo.transTrace.hash do
+      error "incorrect transitive import trace"
   IO.println "export metadata checked"
   return 0

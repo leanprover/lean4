@@ -289,7 +289,7 @@ where
         if sectionFVars.any (· == decl.fvarId) then break
         else
           lctx := lctx.pop
-          localInstances := localInstances.filter (·.fvar != .fvar decl.fvarId)
+          localInstances := localInstances.erase decl.fvarId
       else break
 
     let names ← binders.getArgs.flatMapM binderNames

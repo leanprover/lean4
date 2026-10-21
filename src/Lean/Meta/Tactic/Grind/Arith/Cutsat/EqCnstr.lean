@@ -17,6 +17,7 @@ import Lean.Meta.Tactic.Grind.Arith.Cutsat.CommRing
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Norm
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Util
 import Lean.Meta.Sym.Arith.EvalNum
+import Lean.Meta.Sym.Arith.Classify
 import Lean.Meta.NatInstTesters
 import Init.Omega
 public section
@@ -480,12 +481,12 @@ private inductive SupportedTermKind where
 
 private def getKindAndType? (e : Expr) : GrindM (Option (SupportedTermKind × Expr)) :=
   match_expr e with
-  | HAdd.hAdd α _ _ _ _ _ => return some (.add, α)
-  | HSub.hSub α _ _ _ _ _ => return some (.sub, α)
-  | HMul.hMul α _ _ _ _ _ => return some (.mul, α)
-  | HDiv.hDiv α _ _ _ _ _ => return some (.div, α)
-  | HMod.hMod α _ _ _ _ _ => return some (.mod, α)
-  | HPow.hPow α _ _ _ _ _ => return some (.pow, α)
+  | HAdd.hAdd α β γ _ _ _ => return Sym.Arith.homoType? α β γ |>.map (.add, ·)
+  | HSub.hSub α β γ _ _ _ => return Sym.Arith.homoType? α β γ |>.map (.sub, ·)
+  | HMul.hMul α β γ _ _ _ => return Sym.Arith.homoType? α β γ |>.map (.mul, ·)
+  | HDiv.hDiv α β γ _ _ _ => return Sym.Arith.homoType? α β γ |>.map (.div, ·)
+  | HMod.hMod α β γ _ _ _ => return Sym.Arith.homoType? α β γ |>.map (.mod, ·)
+  | HPow.hPow α _ γ _ _ _ => return Sym.Arith.homoType? α α γ |>.map (.pow, ·)
   | OfNat.ofNat α _ _     => return some (.num, α)
   | Neg.neg α _ a =>
     let_expr OfNat.ofNat _ _ _ := a | return some (.neg, α)

@@ -11,6 +11,7 @@ import Lean.Meta.Tactic.Grind.Arith.Util
 import Lean.Meta.Tactic.Grind.Arith.CommRing.Reify
 import Lean.Meta.Tactic.Grind.Arith.CommRing.DenoteExpr
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Util
+import Lean.Meta.Sym.Arith.Classify
 public section
 namespace Lean.Meta.Grind.Arith.CommRing
 open Sym.Arith
@@ -18,17 +19,17 @@ open Sym.Arith
 /-- If `e` is a function application supported by the `CommRing` module, return its type. -/
 private def getType? (e : Expr) : Option Expr :=
   match_expr e with
-  | HAdd.hAdd α _ _ _ _ _ => some α
-  | HSub.hSub α _ _ _ _ _ => some α
-  | HMul.hMul α _ _ _ _ _ => some α
-  | HSMul.hSMul α β _ _ _ _ =>
+  | HAdd.hAdd α β γ _ _ _ => homoType? α β γ
+  | HSub.hSub α β γ _ _ _ => homoType? α β γ
+  | HMul.hMul α β γ _ _ _ => homoType? α β γ
+  | HSMul.hSMul α β γ _ _ _ =>
     match_expr α with
-    | Nat => some β
-    | Int => some β
+    | Nat => homoType? β β γ
+    | Int => homoType? β β γ
     | _ => none
-  | HPow.hPow α β _ _ _ _ =>
+  | HPow.hPow α β γ _ _ _ =>
     let_expr Nat := β | none
-    some α
+    homoType? α α γ
   | Neg.neg α _ _ => some α
   | OfNat.ofNat α _ _ => some α
   | NatCast.natCast α _ _ => some α

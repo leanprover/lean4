@@ -184,13 +184,13 @@ numeral, returns its carrier type.
 -/
 def getArithType? (e : Expr) : Option Expr :=
   match_expr e with
-  | HAdd.hAdd α _ _ _ _ _ => some α
-  | HSub.hSub α _ _ _ _ _ => some α
-  | HMul.hMul α _ _ _ _ _ => some α
-  | HPow.hPow α β _ _ _ _ => if β.isConstOf ``Nat then some α else none
-  | HSMul.hSMul σ α _ _ _ _ => if σ.isConstOf ``Nat || σ.isConstOf ``Int then some α else none
+  | HAdd.hAdd α β γ _ _ _ => homoType? α β γ
+  | HSub.hSub α β γ _ _ _ => homoType? α β γ
+  | HMul.hMul α β γ _ _ _ => homoType? α β γ
+  | HPow.hPow α β γ _ _ _ => if β.isConstOf ``Nat then homoType? α α γ else none
+  | HSMul.hSMul σ α γ _ _ _ => if σ.isConstOf ``Nat || σ.isConstOf ``Int then homoType? α α γ else none
   | Neg.neg α _ _ => some α
-  | HDiv.hDiv α _ _ _ _ _ => some α
+  | HDiv.hDiv α β γ _ _ _ => homoType? α β γ
   | Inv.inv α _ _ => some α
   | NatCast.natCast α _ a => if (Sym.getNatValue? a).run.isSome then some α else none
   | IntCast.intCast α _ a => if (Sym.getIntValue? a).run.isSome then some α else none

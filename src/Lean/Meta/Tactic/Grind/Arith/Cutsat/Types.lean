@@ -337,6 +337,17 @@ structure State where
   -/
   steps : Nat := 0
   /--
+  Maps the term of a variable to the number of times the model search was about to open a Cooper
+  split on it and requested a reordering instead (see `requestReorder`). `reorderVars` uses the
+  count as the primary sort key, so that these variables are assigned first and become parameters
+  of the bounds they conflicted in. The map is keyed by the term rather than by the variable index
+  because `reorderVars` renumbers the variables; the term is the identity that survives.
+  It stays empty unless a reordering is requested.
+  -/
+  penalties : PHashMap ExprPtr Nat := {}
+  /-- Number of reorderings requested by the model search, bounded by `liaReorders`. -/
+  numReorderRequests : Nat := 0
+  /--
   `conflict?` is `some ..` if a contradictory constraint was derived.
   This field is only set when `caseSplits` is `true`. Otherwise, we
   can convert `UnsatProof` into a Lean term and close the current `grind` goal.

@@ -20,6 +20,8 @@ structure VarInfo where
   maxDvdCoeff   : Nat := 0
   /-- Minimal absolute coefficient over all inequalities containing the variable. -/
   minCoeff      : Nat := 0
+  /-- See `State.penalties`. -/
+  penalty       : Nat := 0
   deriving Inhabited
 
 private abbrev CollectM := StateT (Array VarInfo) GoalM
@@ -48,6 +50,8 @@ where
   go : CollectM Unit := do
     let s ← get'
     for x in [: s.vars.size] do
+      if let some penalty := s.penalties.find? { expr := s.vars[x]! } then
+        modify fun infos => infos.modify x fun info => { info with penalty }
       unless (← eliminated x) do
         for c in s.lowers[x]! do
           visitPoly c.p
@@ -91,8 +95,11 @@ private def cmp₂ (infos : Array VarInfo) (x y : Var) : Ordering :=
 private def cmp₃ (infos : Array VarInfo) (x y : Var) : Ordering :=
   compare infos[x]!.minCoeff infos[y]!.minCoeff |>.swap
 
+private def cmpPenalty (infos : Array VarInfo) (x y : Var) : Ordering :=
+  compare infos[x]!.penalty infos[y]!.penalty |>.swap
+
 private def cmp (infos : Array VarInfo) (x y : Var) : Ordering :=
-  cmp₁ infos x y |>.then (cmp₂ infos x y) |>.then (cmp₃ infos x y) |>.then (compare x y)
+  cmpPenalty infos x y |>.then (cmp₁ infos x y) |>.then (cmp₂ infos x y) |>.then (cmp₃ infos x y) |>.then (compare x y)
 
 private def sortVars (infos : Array VarInfo) : GoalM (Array Var) := do
   let result := Array.range (← get').vars.size
@@ -141,9 +148,10 @@ reordering (e.g., by later E-matching rounds) are appended to the order, so an e
 one may end up after the cheap ones it appears with, and the Cooper case splits that
 eliminate it enumerate its coefficient. The first reordering applies the full order; a later
 one is performed only when a variable with `cost₁ > 1` is out of place, so that cheap
-problems do not accumulate epochs (see `State.varsHistory`).
+problems do not accumulate epochs (see `State.varsHistory`). `force := true` reorders whenever
+the order changes; it is used after a `requestReorder`.
 -/
-def reorderVars : GoalM Unit := do
+def reorderVars (force := false) : GoalM Unit := do
   let s ← get'
   if s.vars.isEmpty then return () -- nothing to reorder
   let infos ← collectVarInfo
@@ -151,7 +159,7 @@ def reorderVars : GoalM Unit := do
   let old2new := mkPermInv new2old
   let firstTime := s.varsHistory.isEmpty
   let needed := (List.range s.vars.size).any fun x =>
-    old2new[x]! != x && (firstTime || cost₁ infos[x]! > 1)
+    old2new[x]! != x && (force || firstTime || cost₁ infos[x]! > 1)
   unless needed do return ()
   trace[grind.lia.reorder] "reordering variables, epoch: {s.varsHistory.size + 1}"
   checkInvariants

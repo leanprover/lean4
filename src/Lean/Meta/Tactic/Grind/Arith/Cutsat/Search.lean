@@ -546,9 +546,10 @@ private def resetDecisionStack : SearchM Unit := do
   if (← get).cases.isEmpty then
     -- Nothing to reset
     return ()
-  -- Backtrack changes but keep the assignment
+  -- Backtrack changes but keep the assignment. Variables created during the search
+  -- (e.g., by nonlinear term propagation) are rolled back, so their values are dropped.
   let first := (← get).cases[0]!
-  modify' fun s => { first.saved with assignment := s.assignment }
+  modify' fun s => { first.saved with assignment := shrink s.assignment first.saved.vars.size }
 
 private def searchQLiaAssignment : GoalM Bool := do
   let go : SearchM Bool := do

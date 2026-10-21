@@ -134,8 +134,88 @@ test ! -e "$TMP_DIR/missing-bundles"
 test ! -e "$project/.beam/bundles"
 
 "$mcp" --version | grep -q '^lean-beam-mcp '
-(cd "$project" && "$mcp" --self-check Main.lean) > "$TMP_DIR/mcp-check"
-grep -q 'Lean Beam MCP self-check passed' "$TMP_DIR/mcp-check"
+python3 - "$mcp" "$project" <<'PY_MCP'
+import json
+from pathlib import Path
+import queue
+import shutil
+import subprocess
+import sys
+import tempfile
+import threading
+import time
+
+server = str(Path(sys.argv[1]).resolve())
+root = Path(sys.argv[2]).resolve()
+# MSYS2 does not translate paths embedded in JSON.
+workspace_root = (subprocess.check_output(["cygpath", "-m", str(root)], text=True).strip()
+                  if shutil.which("cygpath") else str(root))
+protocol = "2026-07-28"
+meta = {
+    "io.modelcontextprotocol/protocolVersion": protocol,
+    "io.modelcontextprotocol/clientCapabilities": {},
+    "io.modelcontextprotocol/clientInfo": {"name": "lean-toolchain-test", "version": "0"},
+}
+with tempfile.TemporaryFile(mode="w+", encoding="utf-8") as stderr:
+    child = subprocess.Popen([server], cwd=root, stdin=subprocess.PIPE,
+                             stdout=subprocess.PIPE, stderr=stderr, text=True, encoding="utf-8")
+    lines = queue.Queue()
+
+    def read_stdout():
+        for line in child.stdout:
+            lines.put(line)
+        lines.put(None)
+
+    reader = threading.Thread(target=read_stdout, daemon=True)
+    reader.start()
+
+    def request(request_id, method, params):
+        params = dict(params, _meta=meta)
+        child.stdin.write(json.dumps({"jsonrpc": "2.0", "id": request_id,
+                                     "method": method, "params": params}) + "\n")
+        child.stdin.flush()
+        deadline = time.monotonic() + 120
+        while True:
+            line = lines.get(timeout=max(0, deadline - time.monotonic()))
+            assert line is not None, f"MCP closed stdout during {method}"
+            response = json.loads(line)
+            assert response.get("jsonrpc") == "2.0", response
+            if "method" in response:
+                assert "id" not in response, response
+                continue
+            assert response.get("id") == request_id and "error" not in response, response
+            result = response["result"]
+            assert result["resultType"] == "complete", result
+            return result
+
+    try:
+        try:
+            discovery = request(1, "server/discover", {})
+            assert protocol in discovery["supportedVersions"], discovery
+            result = request(2, "tools/call", {
+                "name": "lean_sync",
+                "arguments": {"path": "Main.lean", "workspace": {"root": workspace_root}},
+            })
+            assert result.get("isError") is False, result
+            progress = result["structuredContent"]["document_progress"]
+            assert type(progress["updates"]) is int and progress["updates"] >= 0, progress
+            assert type(progress["done"]) is bool, progress
+        finally:
+            child.stdin.close()
+            try:
+                child.wait(timeout=30)
+            except subprocess.TimeoutExpired:
+                child.kill()
+                child.wait(timeout=10)
+                raise
+        assert child.returncode == 0, f"MCP exited with code {child.returncode}"
+        reader.join(timeout=5)
+        assert not reader.is_alive(), "MCP stdout stayed open after shutdown"
+    except BaseException:
+        stderr.seek(0)
+        print(stderr.read()[-65536:], file=sys.stderr)
+        raise
+PY_MCP
 capture_fail "$mcp" --beam-cli /different/toolchain/bin/lean-beam --version
 check_out_contains 'unexpected lean-beam-mcp argument'
 test ! -e "$TMP_DIR/missing-bundles"

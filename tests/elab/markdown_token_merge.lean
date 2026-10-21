@@ -1,24 +1,28 @@
 import Lean.Server.FileWorker.SemanticHighlighting
 
 /-!
-Markup token cross-product unit tests.
+Markup token unit tests.
 
-These checks parse small Markdown snippets that exercise every combination of
-inline emphasis (none, bold, italic, both) with every block context (plain,
-heading, blockquote, list), plus the non-composing overrides (inline code,
-fenced code block, image alt).
+These checks parse small Markdown snippets that exercise every combination of inline emphasis (none,
+bold, italic, both) with every block context (plain, heading, blockquote, list), plus the markup
+constructs whose tokens do not depend on the surrounding context (inline code, code blocks, URLs,
+titles, and delimiters).
 -/
 
 open Lean Lsp Server.FileWorker
 
-/-- Gets the token type at byte offset `byteIdx` of `input`, or `"<none>"` if no token includes it. -/
+/--
+Gets the token at byte offset `byteIdx` of `input` as its type name followed by its modifier names,
+or `"<none>"` if no token includes the offset.
+-/
 def markupAt (input : String) (byteIdx : Nat) : String := Id.run do
   let text := FileMap.ofString input
   let toks := collectMarkdownTokens text 0 input.rawEndPos
   let tok? := toks.findSome? fun t => do
-    let r ← t.stx.getRange?
-    guard <| r.start.byteIdx ≤ byteIdx && byteIdx < r.stop.byteIdx
-    SemanticTokenType.names[t.type.toNat]?
+    guard <| t.range.start.byteIdx ≤ byteIdx && byteIdx < t.range.stop.byteIdx
+    let type ← SemanticTokenType.names[t.type.toNat]?
+    let modifiers := t.modifiers.filterMap fun m => SemanticTokenModifier.names[m.toNat]?
+    return " ".intercalate (type :: modifiers)
   tok?.getD "<none>"
 
 /-- Counts emitted tokens whose type name equals `typeName`. -/
@@ -33,67 +37,75 @@ def tokenCount (input : String) (typeName : String) : Nat := Id.run do
 
 /-! ## Cross-product over (emphasis, block context)
 
-Each line places an `x` content character inside the smallest snippet that
-produces the targeted attribute combination. The expected token name follows
-the `markup{Bold?}{Italic?}{Block}` convention.
+Each line places an `x` content character inside the smallest snippet that produces the targeted
+attribute combination. The block context selects the type, and the emphasis adds the `markupBold`
+and `markupItalic` modifiers.
 -/
 
 -- plain × {none, bold, italic, both}
 /-- info: "markupDocText" -/
 #guard_msgs in #eval markupAt "x" 0
 
-/-- info: "markupBold" -/
+/-- info: "markupDocText markupBold" -/
 #guard_msgs in #eval markupAt "**x**" 2
 
-/-- info: "markupItalic" -/
+/-- info: "markupDocText markupItalic" -/
 #guard_msgs in #eval markupAt "*x*" 1
 
-/-- info: "markupBoldItalic" -/
+/-- info: "markupDocText markupBold markupItalic" -/
 #guard_msgs in #eval markupAt "***x***" 3
 
 -- heading × {none, bold, italic, both}
 /-- info: "markupHeading" -/
 #guard_msgs in #eval markupAt "# x" 2
 
-/-- info: "markupBoldHeading" -/
+/-- info: "markupHeading markupBold" -/
 #guard_msgs in #eval markupAt "# **x**" 4
 
-/-- info: "markupItalicHeading" -/
+/-- info: "markupHeading markupItalic" -/
 #guard_msgs in #eval markupAt "# *x*" 3
 
-/-- info: "markupBoldItalicHeading" -/
+/-- info: "markupHeading markupBold markupItalic" -/
 #guard_msgs in #eval markupAt "# ***x***" 5
 
 -- blockquote × {none, bold, italic, both}
 /-- info: "markupQuote" -/
 #guard_msgs in #eval markupAt "> x" 2
 
-/-- info: "markupBoldQuote" -/
+/-- info: "markupQuote markupBold" -/
 #guard_msgs in #eval markupAt "> **x**" 4
 
-/-- info: "markupItalicQuote" -/
+/-- info: "markupQuote markupItalic" -/
 #guard_msgs in #eval markupAt "> *x*" 3
 
-/-- info: "markupBoldItalicQuote" -/
+/-- info: "markupQuote markupBold markupItalic" -/
 #guard_msgs in #eval markupAt "> ***x***" 5
 
 -- list × {none, bold, italic, both}
 /-- info: "markupList" -/
 #guard_msgs in #eval markupAt "* x" 2
 
-/-- info: "markupBoldList" -/
+/-- info: "markupList markupBold" -/
 #guard_msgs in #eval markupAt "* **x**" 4
 
-/-- info: "markupItalicList" -/
+/-- info: "markupList markupItalic" -/
 #guard_msgs in #eval markupAt "* *x*" 3
 
-/-- info: "markupBoldItalicList" -/
+/-- info: "markupList markupBold markupItalic" -/
 #guard_msgs in #eval markupAt "* ***x***" 5
 
-/-! ## Non-composing overrides
+/-! ## Delimiters
 
-Inline code and fenced code blocks are fixed regardless of surrounding
-emphasis: their `markup*` type does not stack with the active attributes.
+Every delimiter is a `keyword` token with the `markupSyntax` modifier.
+-/
+
+/-- info: ["keyword markupSyntax", "keyword markupSyntax", "keyword markupSyntax", "keyword markupSyntax"] -/
+#guard_msgs in #eval ["**x**", "# x", "> x", "* x"].zipWith markupAt [0, 0, 0, 0]
+
+/-! ## Code
+
+Inline code and code blocks have fixed types without modifiers, regardless of surrounding
+emphasis.
 -/
 
 /-- info: "markupInlineCode" -/
@@ -118,7 +130,7 @@ emphasis: their `markup*` type does not stack with the active attributes.
 
 -- A code span that crosses a line break: each line of the content gets its
 -- own `markupInlineCode` token (LSP semantic tokens are per-line), and the
--- delimiters remain `keyword`.
+-- delimiters remain delimiters.
 /-- info: "markupInlineCode" -/
 #guard_msgs in #eval markupAt "`a\nb`" 1
 
@@ -127,9 +139,9 @@ emphasis: their `markup*` type does not stack with the active attributes.
 
 /-! ## Image alt content
 
-Per CommonMark §6.5, an image description has inline elements as its
+Per CommonMark §6.4, an image description has inline elements as its
 contents (with the same rules as link text, plus that links are explicitly
-permitted). The highlighter walks alt content recursively, so emphasis,
+permitted). The highlighter visits alt content recursively, so emphasis,
 inline code, and links inside alt text receive their normal token types.
 -/
 
@@ -137,8 +149,8 @@ inline code, and links inside alt text receive their normal token types.
 /-- info: "markupDocText" -/
 #guard_msgs in #eval markupAt "![x](http://e.com)" 2
 
--- Bold inside alt: the inner content character is `markupBold`.
-/-- info: "markupBold" -/
+-- Bold inside alt: the inner content character has the modifier.
+/-- info: "markupDocText markupBold" -/
 #guard_msgs in #eval markupAt "![**x**](http://e.com)" 4
 
 -- Inline code inside alt is still `markupInlineCode`.
@@ -152,32 +164,32 @@ inline code, and links inside alt text receive their normal token types.
 /-! ## Order independence
 
 The two snippets nest bold and italic in opposite orders. The inner content
-character must receive the same `markupBoldItalic*` type in both
-arrangements; otherwise attribute accumulation depends on walk direction.
+character must receive the same modifiers in both arrangements; otherwise
+attribute accumulation depends on traversal order.
 -/
 
-/-- info: "markupBoldItalic" -/
+/-- info: "markupDocText markupBold markupItalic" -/
 #guard_msgs in #eval markupAt "**a *x* a**" 5
 
-/-- info: "markupBoldItalic" -/
+/-- info: "markupDocText markupBold markupItalic" -/
 #guard_msgs in #eval markupAt "*a **x** a*" 5
 
-/-- info: "markupBoldItalicHeading" -/
+/-- info: "markupHeading markupBold markupItalic" -/
 #guard_msgs in #eval markupAt "# **a *x* a**" 7
 
-/-- info: "markupBoldItalicHeading" -/
+/-- info: "markupHeading markupBold markupItalic" -/
 #guard_msgs in #eval markupAt "# *a **x** a*" 7
 
-/-- info: "markupBoldItalicQuote" -/
+/-- info: "markupQuote markupBold markupItalic" -/
 #guard_msgs in #eval markupAt "> **a *x* a**" 7
 
-/-- info: "markupBoldItalicQuote" -/
+/-- info: "markupQuote markupBold markupItalic" -/
 #guard_msgs in #eval markupAt "> *a **x** a*" 7
 
-/-- info: "markupBoldItalicList" -/
+/-- info: "markupList markupBold markupItalic" -/
 #guard_msgs in #eval markupAt "* **a *x* a**" 7
 
-/-- info: "markupBoldItalicList" -/
+/-- info: "markupList markupBold markupItalic" -/
 #guard_msgs in #eval markupAt "* *a **x** a*" 7
 
 /-! ## Soft breaks do not produce multi-line tokens
@@ -220,7 +232,7 @@ emitted token stays on a single line.
 
 /-! ## Ref defs inside blockquotes
 
-`postProcessRefDefs` walks into blockquote and list children, so a ref
+`postProcessRefDefs` descends into blockquote and list children, so a ref
 def inside a blockquote still produces a `markupCrossReference` token on
 its label.
 -/
@@ -261,19 +273,23 @@ A title's delimiters are markup syntax like the brackets around the link text, a
 string, both for inline targets and for link reference definitions.
 -/
 
-/-- info: ["keyword", "string", "keyword"] -/
+/-- info: ["keyword markupSyntax", "string", "keyword markupSyntax"] -/
 #guard_msgs in #eval ["[a](/u \"t\")", "[a](/u \"t\")", "[a](/u \"t\")"].zipWith markupAt [7, 8, 9]
 
-/-- info: ["keyword", "string", "keyword"] -/
+/-- info: ["keyword markupSyntax", "string", "keyword markupSyntax"] -/
 #guard_msgs in #eval ["[r]: /u (t)", "[r]: /u (t)", "[r]: /u (t)"].zipWith markupAt [8, 9, 10]
 
-/-! ## Hard breaks
+/-! ## Hard breaks and escapes
 
-The backslash or the trailing spaces that make a line ending a hard break are markup syntax.
+The backslash or the trailing spaces that make a line ending a hard break are markup syntax, as is
+the backslash of an escape. The escaped character is text.
 -/
 
-/-- info: ["keyword", "keyword"] -/
+/-- info: ["keyword markupSyntax", "keyword markupSyntax"] -/
 #guard_msgs in #eval ["a\\\nb", "a  \nb"].zipWith markupAt [1, 1]
+
+/-- info: ["keyword markupSyntax", "markupDocText"] -/
+#guard_msgs in #eval ["\\*x", "\\*x"].zipWith markupAt [0, 1]
 
 /-! ## Bracketed destinations
 
@@ -281,8 +297,8 @@ The angle brackets around a destination are markup syntax, and only the URL betw
 both for inline targets and for link reference definitions.
 -/
 
-/-- info: ["keyword", "markupUrl", "keyword"] -/
+/-- info: ["keyword markupSyntax", "markupUrl", "keyword markupSyntax"] -/
 #guard_msgs in #eval ["[a](<u>)", "[a](<u>)", "[a](<u>)"].zipWith markupAt [4, 5, 6]
 
-/-- info: ["keyword", "markupUrl", "keyword"] -/
+/-- info: ["keyword markupSyntax", "markupUrl", "keyword markupSyntax"] -/
 #guard_msgs in #eval ["[r]: <u>", "[r]: <u>", "[r]: <u>"].zipWith markupAt [5, 6, 7]

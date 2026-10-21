@@ -17,11 +17,11 @@ namespace Lean.Markdown
 
 Implements CommonMark's emit-as-you-go delimiter stack algorithm.
 
-The single public entry point is `processEmphasis`, which consumes a flat sequence of `InlineTok`s.
-Each is either a fully-finalized non-emphasis `Inline` or a raw `*`/`_` delimiter sequence. It
-returns the final `Array Inline` with all matched emphasis spans wrapped as `.bold` or `.italic`.
-Tokens of the input are produced by the tokenizer in `Markdown.Parser.Inline`; this module is the
-second half of the inline element parsing pass.
+The entry point is `processEmphasis`, which consumes a flat sequence of `InlineTok`s. Each is either
+a fully-finalized non-emphasis `Inline` or a raw `*`/`_` delimiter sequence. It returns the final
+`Array Inline` with all matched emphasis spans wrapped as `.bold` or `.italic`. Tokens of the input
+are produced by the tokenizer in `Lean.Data.Markdown.Parser.Inline`; this module is the second half
+of the inline element parsing pass.
 -/
 
 variable {s : String.Slice}
@@ -98,9 +98,8 @@ inline output, and a closing sequence looks down the stack for a compatible open
 The spec describes the algorithm imperatively over two pieces of state, the delimiter stack and the
 inline output, and those are maintained in a single `DelimiterMatchState` structure.
 
-This implementation differs slightly from the spec's pseudocode in that it doesn't keep the inlines
-emitted *inside* an open emphasis on the output list and re-walk them on close; instead, they are
-kept in the opener itself, so when the opener matches we already have its children ready to wrap.
+Inlines emitted inside an open emphasis are kept in its opener frame, so when the opener matches,
+its children are ready to wrap.
 -/
 
 /--

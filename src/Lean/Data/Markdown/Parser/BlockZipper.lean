@@ -25,7 +25,7 @@ A container that is currently open and may still receive child blocks.
 -/
 public inductive OpenContainer (s : String.Slice) where
   /--
-  A blockquote. `markers` accumulates the positions of `>` markers from
+  A blockquote. `markers` accumulates the ranges of `>` markers from
   every continuation line that has been seen so far.
   -/
   | blockquote (markers : Array s.Subslice)
@@ -34,8 +34,7 @@ public inductive OpenContainer (s : String.Slice) where
   /--
   A list item.
 
-  - `marker` is this item's bullet or ordered-marker range, emitted as a
-    delimiter token at item-open time.
+  - `marker` is the range of this item's bullet or ordered marker.
   - `contentColumn` is the column at which the item's content begins;
     subsequent lines must be indented to at least this column to count as
     continuations of this item (CommonMark §5.2).
@@ -84,7 +83,7 @@ public inductive OpenLeaf (s : String.Slice) where
     range after the 4 cols of indent that defined the code block (relative to the parent container's
     content column) and the rendered string, in which any partial tab at that point is materialized
     per CommonMark §2.2.
-  - `pendingBlanks` holds blank lines that may belong to this block: they are promoted to `lines`
+  - `pendingBlanks` records blank lines that may belong to this block: they are promoted to `lines`
     when a subsequent indented line continues the block, and discarded when an unindented non-blank
     line closes the block. This matches CommonMark's rule that blank lines between indented chunks
     are part of the code block, but blank lines following the final chunk are not.
@@ -99,7 +98,7 @@ plus an optional open leaf at the bottom.
 
 An empty spine means that only the document is open.
 
-Invariants (preserved by the zipper operations defined elsewhere):
+Invariants (preserved by the zipper operations below):
 - If `openLeaf?` is `some _`, that leaf logically lives inside the deepest
   spine frame, or directly under the document if the spine is empty;
   extending the leaf adds to its content, and closing the leaf pushes a
@@ -212,8 +211,8 @@ public def closeFencedCode (z : BlockZipper s) (closeFence : s.Subslice) : Block
   | _ => z
 
 /--
-Appends an indented content line to the open indented code block. Any pending blanks held since the
-last content line are promoted to real content lines first.
+Appends an indented content line to the open indented code block. Any pending blanks recorded since
+the last content line are promoted to real content lines first.
 -/
 public def indentedCodeAddLine (z : BlockZipper s) (range : s.Subslice) (rendered : String) :
     BlockZipper s :=
@@ -222,7 +221,7 @@ public def indentedCodeAddLine (z : BlockZipper s) (range : s.Subslice) (rendere
     | leaf => leaf
 
 /--
-Holds a blank line provisionally inside the open indented code block. It is incorporated into the
+Records a blank line provisionally inside the open indented code block. It is incorporated into the
 block if a later indented line continues the block; otherwise, it is discarded when the block
 closes.
 -/

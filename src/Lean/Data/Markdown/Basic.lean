@@ -79,8 +79,8 @@ public structure FenceInfo (s : String.Slice) where
   -/
   fenceLen : Nat
   /--
-  Indentation in spaces of the opening fence's first character. Up to this many leading spaces are
-  stripped from each content line before it is treated as code.
+  Indentation in spaces of the opening fence's first character. Consumers remove up to this many
+  leading spaces from each content line.
   -/
   openIndent : Nat
   /-- The info string, if there is one. This is usually a language tag. -/
@@ -164,8 +164,8 @@ public inductive Block.Raw (s : String.Slice) where
   -/
   | indentedCode (lines : Array (s.Subslice × String))
   /--
-  A blockquote container. `markers` records the position of every `>` marker located during parsing,
-  in source order and `children` holds the contained blocks.
+  A blockquote container. `markers` contains the range of every `>` marker, in source order, and
+  `children` contains the contained blocks.
   -/
   | blockquote (markers : Array s.Subslice) (children : Array (Block.Raw s))
   /--
@@ -210,7 +210,7 @@ The surface form of a reference-style link or image.
 -/
 public inductive ReferenceLinkForm (s : String.Slice) where
   /--
-  Full form `[text][label]`: the second brackets carry an explicit label, distinct from the link's
+  Full form `[text][label]`: the second brackets contain an explicit label, distinct from the link's
   text. `openBracket`/`closeBracket` are the ranges of the second bracket pair; `label` is the
   bracket interior.
   -/

@@ -21,10 +21,9 @@ namespace Lean.Markdown
 /-!
 # Pass 2: Inline Parser
 
-Walks an inline-bearing source range and recovers all Markdown inline elements except embedded HTML.
+Parses the inline elements of a source range, except embedded HTML.
 
-A backslash escape (`\X`) is treated as two characters of plain text and disables any markup
-interpretation of `X`.
+A backslash escape `\X` of an ASCII punctuation character becomes an `Inline.escape`.
 -/
 
 variable {s : String.Slice}
@@ -193,7 +192,7 @@ def findCloseBracket (sub : InlineRange s) : Option s.Pos := do
     else if c == '`' then
       -- Code spans bind tighter than link brackets. If a span forms,
       -- advance past it; otherwise the entire opening sequence is literal
-      -- (CommonMark §6.1 — see the matching scanner branch).
+      -- (CommonMark §6.1; see the matching scanner branch).
       match code rest with
       | some (_, after) => rest := src.range after stop
       | none =>
@@ -367,8 +366,8 @@ def linkSuffix
   let afterCloseRest : InlineRange s := src.range afterClose stop
   -- Inline form `(url)` takes precedence; on failure, fall back to shortcut
   -- (the second `[` of a reference form would not match here, so the only
-  -- other option is shortcut). A second `[` commits to the reference form
-  -- — a missing close bracket or unresolved label is a hard failure.
+  -- other option is shortcut). A second `[` commits to the reference form,
+  -- so a missing close bracket or unresolved label is a hard failure.
   if afterCloseRest.front? == some '(' then
     inlineForm afterCloseRest <|> shortcutForm
   else if afterCloseRest.front? == some '[' then
@@ -410,18 +409,18 @@ where
 
 The §6.2 emphasis algorithm consumes a flat sequence of tokens, each either a fully-finalized
 non-emphasis `Inline` (code span, link, image, autolink, soft/hard break, escaped char) or a
-still-raw `*`/`_` delimiter sequence.  `tokenizeInlines` produces this sequence. It walks the inline
-source, recognizes each non-emphasis inline kind in turn (backslash escape §2.4, code span §6.1,
-link §6.3, image §6.4, autolink §6.5, hard line break §6.7), and saves delimiter sequences for §6.2 to
-handle later.
+still-raw `*`/`_` delimiter sequence.  `tokenizeInlines` produces this sequence. It reads the inline
+source, recognizes each non-emphasis inline kind in turn (backslash escape §2.4, character reference
+§2.5, code span §6.1, link §6.3, image §6.4, autolink §6.5, hard line break §6.7, soft line break
+§6.8), and saves delimiter sequences for §6.2 to handle later.
 
-The walker's mutable state (`InlineTokenizerState` below) is touched through three operations:
+The tokenizer's mutable state (`InlineTokenizerState` below) is touched through three operations:
 `recognize` for “matched an inline,” `skipChar` for “no match, this character is literal text,” and
 `skipPast` for the one place where we leap forward past several literal chars at once.
 -/
 
 /--
-The state maintained while walking an inline source and emitting tokens
+The state maintained while tokenizing an inline source and emitting tokens
 for §6.2: the tokens emitted so far, the unconsumed input, the start of
 any pending plain text not yet flushed, and the previous source
 character (needed for §6.2's flanking-rule classification of `*`/`_`
@@ -458,9 +457,9 @@ abbrev TokenizeM (s : String.Slice) := StateM (InlineTokenizerState s)
 
 /--
 Handles a recognized inline:
- 1. Flushes any pending plain text from `textStart` up to `matchStart`.
-  2. Appends `tok`.
-  3. Advances the walker to `resumeAt`, recording `newPrev` as the post-match flanking character.
+1. Flushes any pending plain text from `textStart` up to `matchStart`.
+2. Appends `tok`.
+3. Advances the tokenizer to `resumeAt`, recording `newPrev` as the post-match flanking character.
 
 Most callers pass `matchStart := cursor` (the position the match began), so all consumed characters
 are emitted exactly once. The line-ending branch passes a *trimmed* position to drop trailing spaces.
@@ -564,8 +563,8 @@ partial def tokenizeInlines (refs : RefTable s) (src : InlineSource s) (start st
         | none => skipChar
       else if c == '\n' then
         -- A line ending normalizes to a soft break (or, with two or more trailing spaces, a hard
-        -- break — §6.7). Per §4.8 paragraph-content normalization, trailing whitespace before the
-        -- line ending is dropped in either case so it doesn't leak into the rendered output.
+        -- break, §6.7). Per §4.8 paragraph-content normalization, trailing spaces before the line
+        -- ending are dropped in either case so they don't leak into the rendered output.
         let mut q := cursor
         let mut spaces := 0
         while st.textStart < q do
@@ -615,8 +614,8 @@ Locates the outer `[…]` of a link or image at `cursor`, parses its interior, a
 `linkSuffix` to decide which `[…]…` form applies. `prefixLen` is the number of characters preceding
 the opening `[` consumed at `cursor` (0 for links, 1 for `!` of images).
 
-Returns `none` when no `[…]` is present, when the closing bracket is missing, or when `reject?`
-rejects the parsed interior. `reject?` implements CommonMark §6.3's “links may not contain other
+Returns `none` when no `[…]` is present, when the closing bracket is missing, when no link form
+follows the brackets, or when `reject?` rejects the parsed interior. `reject?` implements CommonMark §6.3's “links may not contain other
 links” rule for links. Images pass `none`.
 -/
 partial def bracketed

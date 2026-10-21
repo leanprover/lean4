@@ -18,8 +18,8 @@ namespace Lean.Markdown
 # Inline Source View
 
 The block parser carves a paragraph (or heading) into a sequence of source lines, with leading
-container prefixes already removed. The inline parser then needs to walk that content as if it were
-a single contiguous string, while still producing subslices anchored in the original file.
+container prefixes already removed. The inline parser then needs to read that content as if it were
+a single contiguous string, while still producing subslices of `s`.
 `InlineSource` bundles the per-line ranges, and `InlineRange` is a cursor over it whose `drop1`
 steps through the lines while skipping the inter-line gaps that contain block markers and removed
 indentation.
@@ -28,7 +28,7 @@ indentation.
 /--
 The lines of a paragraph-like block, each as a range of the source string. A line's range starts
 after its leading spaces and tabs, and the `\n` that ends each non-final line is the range's last
-character, so a walk sees real `\n` characters at line boundaries.
+character, so the inline parser sees a real `\n` at each line boundary.
 
 The lines are in source order and do not overlap.
 -/
@@ -74,8 +74,8 @@ where
   decreasing_by all_goals omega
 
 /--
-Concatenates the text of each line intersected with `[p1, p2)`, in source order. This is the text a
-walk from `p1` to `p2` sees, without the inter-line gaps.
+Concatenates the text of each line intersected with `[p1, p2)`, in source order. This is the text
+that the inline parser reads between `p1` and `p2`, without the inter-line gaps.
 -/
 public def extract (src : InlineSource s) (p1 p2 : s.Pos) : String :=
   src.lines.foldl (init := "") fun acc r =>
@@ -95,11 +95,11 @@ def skipSpaces (p stop : s.Pos) : s.Pos := Id.run do
   return p
 
 /--
-Constructs an `InlineSource` from the line ranges of a paragraph block, which exclude their line
-endings. This implements the CommonMark §4.8 paragraph-content normalization:
+Constructs an `InlineSource` from the line ranges of a paragraph block. This implements the
+CommonMark §4.8 paragraph-content normalization:
 
 - Leading spaces and tabs are removed from each line.
-- Each non-final line is extended by the `\n` that follows it in the source.
+- Each non-final line ends with the `\n` that follows it in the source.
 - Trailing whitespace is removed from the final line.
 -/
 public def ofLines (lines : Array s.Subslice) : InlineSource s := Id.run do
@@ -156,7 +156,7 @@ A cursor over an `InlineSource`, analogous to a `String.Slice` over a `String`: 
 the position at which the view ends, and the index of the line that contains the current position.
 -/
 public structure InlineRange (s : String.Slice) where
-  /-- The source being walked. -/
+  /-- The source being tokenized. -/
   source : InlineSource s
   /--
   The index in `source.lines` of the line that contains `startPos`, or `source.lines.size` if no

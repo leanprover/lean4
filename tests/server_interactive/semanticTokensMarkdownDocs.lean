@@ -2,8 +2,8 @@
 This test exercises plain (non-Verso) Markdown docstring highlighting. It
 includes at least one instance of every CommonMark construct the Markdown
 tokenizer recognizes and at least one instance of every `markup*` token
-type the server emits — including emphasis composed with each block
-context (heading, blockquote, list).
+type the server emits, with the `markupBold` and `markupItalic` modifiers in
+each block context (heading, blockquote, list).
 -/
 
 /--

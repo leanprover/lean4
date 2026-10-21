@@ -80,7 +80,7 @@ def spaces (n : Nat) : String :=
 Consumes up to `maxCols` columns of leading whitespace at `c`, with tab-aware column counting.
 Returns the advanced cursor and the number of columns actually consumed.
 
-Tabs may be split: if a tab would carry the cursor past `maxCols`, the position stays at the tab and
+Tabs may be split: if a tab would move the cursor past `maxCols`, the position stays at the tab and
 the column count advances by exactly the requested amount, leaving “leftover” tab columns for
 subsequent consumers (CommonMark §2.2's partial-tab rule).
 -/
@@ -306,7 +306,7 @@ def matchBlockquoteMarker (c : Cursor s) : Option (s.Subslice × Cursor s) := do
   let afterMarker := c.next
   let marker := subsliceClamped c.pos afterMarker.pos
   -- The blockquote marker `>` is followed by an optional single space (or
-  -- one column of a tab — partial-tab consumption per CommonMark §2.2).
+  -- one column of a tab, per CommonMark §2.2's partial-tab rule).
   let baseCol := afterMarker.col
   match afterMarker.front? with
   | some ' ' => return (marker, afterMarker.next)
@@ -499,7 +499,7 @@ structure ContState (s : String.Slice) extends LineState s where
 /--
 The monad for line processing after containers that need closing have been closed.
 
-The “exception” channel carries the line's final `BlockZipper`, and is used for early return.
+The “exception” channel returns the line's final `BlockZipper` early.
 -/
 abbrev ProcessM (s : String.Slice) := EStateM (BlockZipper s) (LineState s)
 
@@ -520,8 +520,8 @@ def runContainerM (act : ContainerM s Unit) : ProcessM s Nat := do
   | .error z _ => throw z
 
 /--
-Walks the spine, advancing the cursor past the markers of containers that continue. Updates the
-zipper in place (e.g. pushing markers into blockquote frames) and writes `matched` — the number of
+Traverses the spine, advancing the cursor past the markers of containers that continue. Updates the
+zipper in place (e.g. pushing markers into blockquote frames) and writes `matched`, the number of
 inner spine frames that continued, so subsequent steps can close the rest. The document root
 continues implicitly and is not counted.
 -/
@@ -543,7 +543,7 @@ def continueContainers : ContainerM s Unit := do
           matched_le := by cases h; simpa
         }
     | .list _ =>
-      -- Lists themselves carry no continuation marker; their listItem children do.
+      -- Lists themselves have no continuation marker; their listItem children do.
       st := { st with matched := st.matched + 1, matched_le := h.2 }
     | .listItem _ contentColumn =>
       -- Try to consume `contentColumn` cols of indent (in cols, tab-aware
@@ -568,7 +568,7 @@ def markEnclosingListLoose : ContainerM s Unit := do
   let st ← get
   unless st.prevBlank do return
   -- Indices within the matched range live in `Fin st.matched`, and combined
-  -- with `st.matched_le` are valid spine indices. The walk goes from
+  -- with `st.matched_le` are valid spine indices. The traversal goes from
   -- `st.matched - 1` down to `0`, breaking on the first listItem found.
   if h0 : 0 < st.matched then
     let mut i : Fin st.matched := ⟨st.matched - 1, Nat.sub_one_lt_of_lt h0⟩
@@ -640,7 +640,7 @@ def consumeFencedCode : ProcessM s Unit := do
   | none => throw (st.z.extendFencedCode st.c.toEol)
 
 /--
-Indented code consumes 4+-indented lines verbatim and holds blank lines provisionally. Any other
+Indented code consumes 4+-indented lines verbatim and records blank lines provisionally. Any other
 line closes the block and falls through to the remaining steps.
 -/
 def consumeIndentedCode : ProcessM s Unit := do
@@ -1039,9 +1039,8 @@ line is permitted inside it.
 Returns the definition plus the position one past the last consumed character.
 -/
 public def linkRefDef (source : InlineSource s) (start : s.Pos) : Option (RefDef s × s.Pos) := do
-  -- 0–3 leading spaces of indentation. Tabs are *not* allowed at this
-  -- point — the source's lines have already been left-trimmed,
-  -- so any tab at the start of a line is part of the content.
+  -- 0–3 spaces of indentation. `InlineSource.ofLines` has already removed each line's leading
+  -- spaces and tabs.
   let r0 := source.range start source.stopPos
   let (r, indent) := r0.matchSequence ' '
   guard (indent ≤ 3)
@@ -1082,7 +1081,7 @@ public def extractRefDefs (source : InlineSource s) :
   return (defs, source.dropUpTo p)
 
 /--
-Walks blocks, extracting link reference definitions off the front of each paragraph and setext-style
+Traverses blocks, extracting link reference definitions off the front of each paragraph and setext-style
 heading. Emits a `linkRefDef` block in source order for each successful extraction.
 
 If a setext heading's *entire* content is consumed by extraction, the heading is canceled. The
@@ -1099,9 +1098,7 @@ partial def postProcessRefDefs (blocks : Array (Block.Raw s)) : Array (Block.Raw
     | .paragraph lines =>
       let (defs, residual) := extractRefDefs (InlineSource.ofLines lines)
       if defs.isEmpty then
-        -- No ref-defs at the front: leave the paragraph untouched so its
-        -- original `lines` survive for downstream consumers (e.g. the
-        -- semantic-token highlighter).
+        -- No ref-defs at the front: keep the paragraph's original lines.
         out := out.push (.paragraph lines)
       else
         for d in defs do out := out.push d

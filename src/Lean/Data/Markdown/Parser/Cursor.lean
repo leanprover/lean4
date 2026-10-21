@@ -15,7 +15,7 @@ namespace Lean.Markdown
 /-!
 ## Line cursors
 
-The block parser walks one line at a time, and within each line it is constantly asking “what's at
+The block parser processes one line at a time, and within each line it is constantly asking “what's at
 column N relative to the parent container's indent?”. Because CommonMark counts indentation in
 *columns* but the underlying source is characters, and a single tab can advance the column by 1–4
 (CommonMark §2.2's partial-tab rule), position and column are not in lockstep. The cursor is a

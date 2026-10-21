@@ -15,7 +15,8 @@ tab and is converted at extraction time. Section names are tracked from
 Each extracted example is fed through `parseDocument` and the
 `Markdown.Html` renderer; the output is compared byte-for-byte against the
 expected HTML. The runner prints a per-section pass/fail tally and exits 0
-on full agreement, 1 otherwise.
+when every example passes or is skipped, 1 when any fails, and 2 when no
+examples are found.
 
 Obtain the spec source with:
 
@@ -154,7 +155,7 @@ def percentEncode (s : String) : String := Id.run do
   return out
 
 /--
-Walks `s` and for every newline drops the leading spaces or tabs that
+Scans `s` and for every newline drops the leading spaces or tabs that
 immediately follow it. Optionally also map newlines to spaces (used for
 code-span content per CommonMark §6.1; line endings inside code spans are
 treated as spaces after the §4.8 paragraph normalisation).
@@ -396,12 +397,12 @@ private def detab (s : String) : String :=
 
 /--
 Whether `line` is a long-backtick fence containing the word `example`. The
-spec uses 32 backticks but we accept any length ≥ 3 for robustness.
+spec uses 32 backticks; a fence of at least 12 is accepted.
 -/
 private def isExampleOpenFence (line : String.Slice) : Bool :=
   line.startsWith "````````````" && line.endsWith " example"
 
-/-- Whether `line` is the closing fence (a run of `\`` only). -/
+/-- Whether `line` is the closing fence (a sequence of backticks only). -/
 private def isExampleCloseFence (line : String.Slice) : Bool :=
   line.startsWith "````````````" && line.all (· == '`')
 
@@ -417,7 +418,7 @@ where
   /--
   Whether `l` contains an HTML-tag-shaped `<…>` that's *not* a
   backslash-escaped `\<`. CommonMark backslash-escapes a `<` only when
-  the preceding char is a `\` that itself isn't escaped, so we walk
+  the preceding char is a `\` that itself isn't escaped, so we scan
   the text and skip pairs `\X` before deciding.
   -/
   hasHtml (l : String.Slice) : Bool := Id.run do
@@ -431,7 +432,7 @@ where
           -- noting whether we saw a `:` or `@` along the way and
           -- whether anything autolink-disqualifying (whitespace, `<`,
           -- newline) appeared. An autolink-shaped `<…>` is *not* HTML
-          -- — the parser handles those — so we skip past it.
+          -- (the parser handles those), so we skip past it.
           let mut j := l.drop 1
           let mut hasColonOrAt := false
           let mut autolinkBroken := false
@@ -477,7 +478,7 @@ where
 
 
 /--
-Walks the spec source line by line, extracting examples and tracking the
+Reads the spec source line by line, extracting examples and tracking the
 current section. Returns the entries in source order.
 -/
 private partial def extractEntries (source : String) : Array SpecEntry := Id.run do

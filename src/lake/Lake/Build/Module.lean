@@ -527,9 +527,12 @@ def noCError :=
 
 /-- Computes the import artifacts and transitive import trace of a module's imports. -/
 def Module.computeExportInfo (mod : Module) : FetchM (Job ModuleExportInfo) := do
-  (← mod.elabArts.fetch).mapM (sync := true) fun arts => do
-    let input ← (← mod.input.fetch).await
-    let importInfo ← (← mod.importInfo.fetch).await
+  let artsJob ← mod.elabArts.fetch
+  let inputJob ← mod.input.fetch
+  let importInfoJob ← ensureJob mod.importInfo.fetch
+  artsJob.bindM (sync := true) fun arts =>
+  inputJob.bindM (sync := true) fun input =>
+  importInfoJob.mapM (sync := true) fun importInfo => do
     let artsTrace := BuildTrace.nil s!"{mod.name}:importArts"
     return {
       srcTrace := input.trace
@@ -546,9 +549,10 @@ public def Module.exportInfoFacetConfig : ModuleFacetConfig exportInfoFacet :=
 def Module.computeMetaExportInfo (mod : Module) : FetchM (Job ModuleMetaExportInfo) := do
   let irJob ← mod.irArts.fetch
   let expInfoJob ← mod.exportInfo.fetch
+  let importInfoJob ← ensureJob mod.importInfo.fetch
   irJob.bindM (sync := true) fun arts =>
-  expInfoJob.mapM (sync := true) fun info => do
-    let importInfo ← (← mod.importInfo.fetch).await
+  expInfoJob.bindM (sync := true) fun info =>
+  importInfoJob.mapM (sync := true) fun importInfo => do
     let metaArtsTrace := BuildTrace.nil s!"{mod.name}:importArts (meta)"
     let irSigArtsTrace := BuildTrace.nil s!"{mod.name}:importArts (leanir)"
     let allArtsTrace := BuildTrace.nil s!"{mod.name}:importAllArts"

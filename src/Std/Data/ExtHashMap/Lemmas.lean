@@ -1799,6 +1799,16 @@ theorem inter_eq_empty_comm [EquivBEq α] [LawfulHashable α] :
   rw [ext_iff, ext_iff]
   exact ExtDHashMap.inter_eq_empty_comm
 
+@[simp]
+theorem union_inter_eq_empty_iff [EquivBEq α] [LawfulHashable α] {m₃ : ExtHashMap α β} :
+    (m₁ ∪ m₂) ∩ m₃ = ∅ ↔ m₁ ∩ m₃ = ∅ ∧ m₂ ∩ m₃ = ∅ := by
+  simp only [← isEmpty_iff, isEmpty_union_inter, Bool.and_eq_true]
+
+@[simp]
+theorem inter_union_eq_empty_iff [EquivBEq α] [LawfulHashable α] {m₃ : ExtHashMap α β} :
+    m₁ ∩ (m₂ ∪ m₃) = ∅ ↔ m₁ ∩ m₂ = ∅ ∧ m₁ ∩ m₃ = ∅ := by
+  simp only [← isEmpty_iff, isEmpty_inter_union, Bool.and_eq_true]
+
 end Inter
 
 section Diff

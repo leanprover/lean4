@@ -153,12 +153,25 @@ structure Config where
   /--
   Maximum number of steps performed by the `lia` solver while searching for an assignment
   satisfying the linear integer arithmetic constraints.
-  A step is counted for each variable processed during the search. This threshold prevents
-  case-split explosion in examples that require enumerating a huge number of cases
-  (e.g., Cooper conflict resolution with large coefficients).
+  A step is counted for each variable processed and each conflict resolved during the search.
+  This threshold prevents case-split explosion in examples that require enumerating a huge
+  number of cases (e.g., Cooper conflict resolution with large coefficients).
   When the threshold is reached, the search is interrupted, and the solver becomes incomplete.
   -/
   liaSteps : Nat := 10000
+  /--
+  Maximum number of times the `lia` solver reorders its variables during the search for an
+  assignment. Before opening a Cooper case split with more than `liaReorderCases` cases, the
+  solver orders the split variable first and restarts the search, so that the conflict surfaces
+  at a variable with a smaller coefficient. Set to `0` to disable.
+  -/
+  liaReorders : Nat := 8
+  /--
+  A Cooper case split in the `lia` solver triggers a variable reordering (see `liaReorders`)
+  only when it has more cases than this threshold. Enumerating a few cases is cheaper than
+  reordering and restarting the search.
+  -/
+  liaReorderCases : Nat := 16
   /--
   When `true` (default: `true`), applies the `[grind hom]` homomorphism rules and
   `[grind hom_pred]` predicates during internalization. Homomorphism rules translate

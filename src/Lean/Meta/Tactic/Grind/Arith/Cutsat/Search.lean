@@ -362,6 +362,10 @@ def resolveCooperPred (pred : CooperSplitPred) : SearchM Unit := do
   if (← resolveCooperUnary pred) then
     return
   let n := pred.numCases
+  if n > (← getConfig).liaReorderCases then
+    let .add _ x _ := pred.c₁.p | pred.c₁.throwUnexpected
+    if (← requestReorder x) then
+      return
   let fvarId ← mkCase (.cooper pred #[] {})
   { pred, k := n - 1, h := .dec fvarId : CooperSplit }.assert
 
@@ -557,6 +561,8 @@ private def searchAssignmentMain : SearchM Unit := do
   repeat
     trace[grind.debug.lia.search] "main loop"
     checkSystem "cutsat"
+    if (← get).reorderRequest?.isSome then
+      return ()
     if (← hasAssignment) then
       return ()
     if (← isInconsistent) then
@@ -616,14 +622,21 @@ private def traceActiveCnstrs : GoalM Unit := do
         trace[grind.debug.lia.search.cnstrs] "{← c.pp}"
 
 private def searchLiaAssignment : GoalM Unit := do
-  let go : SearchM Unit := do
+  let go : SearchM Bool := do
     searchAssignmentMain
     resetDecisionStack
     saveSteps
+    saveReorderRequest
   traceActiveCnstrs
   reorderVars
   traceActiveCnstrs
-  go .int |>.run' {}
+  repeat
+    let requested ← go .int |>.run' {}
+    unless requested do return
+    trace[grind.debug.lia.search] "restart after reordering request #{(← get').numReorderRequests}"
+    modify' fun s => { s with assignment := {} }
+    reorderVars (force := true)
+    traceActiveCnstrs
 
 def searchAssignment : GoalM Unit := do
   let precise ← searchQLiaAssignment

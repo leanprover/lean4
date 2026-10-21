@@ -315,3 +315,34 @@ private def getEndHeadersHead (events : Array (Event .receiving)) : Option Reque
   events.findSome? fun
     | .endHeaders head => some head
     | _ => none
+
+-- Regression: a read boundary inside a chunk extension must not fail a valid request.
+-- `parseChunkSize` used to wrap `parseChunkExt` in `optional (attempt …)`, which turned the
+-- extension parser's `.eof` into "no extension", so the following CRLF check failed on `;`.
+#eval show IO Unit from do
+  let body := "hello".toUTF8
+  let payloads := #[
+    "5;a=b\r\nhello\r\n0\r\n\r\n",
+    "5 ; a = b\r\nhello\r\n0\r\n\r\n",
+    "5;a=\"b c\"\r\nhello\r\n0\r\n\r\n",
+    "5\r\nhello\r\n0;a\r\n\r\n"
+  ]
+  for payload in payloads do
+    let request := mkChunkedRequest "/inc-chunk-ext" payload.toUTF8
+    let trace := runIncrementalReceiving (splitEveryByte request)
+    assertIncrementalSuccess s!"Chunk extension one-byte incremental parse {payload.quote}" trace body
+
+-- Regression: a read boundary inside a trailer field must not fail a valid request
+-- (`manyItems` had the same `optional (attempt …)` pattern).
+#eval show IO Unit from do
+  let body := "hello".toUTF8
+  let request := mkChunkedRequest "/inc-trailer" "5\r\nhello\r\n0\r\nX-T: a\r\nY: b\r\n\r\n".toUTF8
+  let trace := runIncrementalReceiving (splitEveryByte request)
+  assertIncrementalSuccess "Trailer one-byte incremental parse" trace body
+
+-- A chunk-size line cut inside an extension must report `.eof` so the machine waits for more data.
+#eval show IO Unit from do
+  for input in ["5;", "5 ", "5;a", "5;a=", "5;a=\"b"] do
+    match parseChunkSize {} input.toUTF8.iter with
+    | .error _ .eof => pure ()
+    | _ => throw <| IO.userError s!"expected .eof for truncated chunk-size line {input.quote}"

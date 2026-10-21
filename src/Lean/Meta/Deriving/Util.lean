@@ -25,28 +25,13 @@ def Lean.mkInstanceNameOfType (type : Expr) : TermElabM Name := do
 def Lean.mkInstance (name : Name) (levelParams : List Name) (type value : Expr)
     (isMeta : Bool) (compile : Bool := true) (attrKind : AttributeKind := .global)
     (prio : Nat := eval_prio default) : TermElabM Unit := do
-  let env ← getEnv
-  let isUnsafe := env.hasUnsafe type || env.hasUnsafe value
   let isProp ← isProp type
-  let decl :=
+  let decl ←
     if isProp then
-      if isUnsafe then
-        -- recall that theorems can not be unsafe
-        .defnDecl {
-          name, levelParams, type, value
-          hints := .opaque
-          safety := .unsafe
-        }
-      else
-        .thmDecl {
-          name, levelParams, type, value
-        }
+      mkThmOrUnsafeDef { name, levelParams, type, value }
     else
-      .defnDecl {
-        name, levelParams, type, value
-        hints := .regular (getMaxHeight env value + 1)
-        safety := if isUnsafe then .unsafe else .safe
-      }
+      let hints := .regular (getMaxHeight (← getEnv) value + 1)
+      pure <| .defnDecl <| ← mkDefinitionValInferringUnsafe name levelParams type value hints
   withoutExporting (when := isProp || isPrivateName name) do
     addDecl decl
   unless isProp do

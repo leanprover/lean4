@@ -74,11 +74,13 @@ private def setLeadingStart (stx : Syntax) (startPos : String.Pos.Raw) : Syntax 
   return (stx.setHeadInfo info, true)
 
 /--
-Parses a module header starting at `startPos`, bounded by `inputCtx.endPos`.
-`startPos` must be a valid UTF-8 byte position in `inputCtx.inputString` at or before `inputCtx.endPos`.
-Syntax positions refer to this string, and message positions use `inputCtx.fileMap`. If
-`mkInputContext` normalizes line endings, compute `startPos` in the normalized source.
-Pass the returned `ModuleParserState` to `parseCommand` to continue parsing the same region.
+Parses a module header starting at `startPos` (default: `0`), bounded by `inputCtx.endPos`.
+
+`startPos` must be a valid UTF-8 byte position in `inputCtx.inputString` at or before
+`inputCtx.endPos`. Compute it after any line-ending normalization by `mkInputContext`.
+Syntax offsets refer to this string; diagnostic positions use `inputCtx.fileMap`.
+
+Pass the returned parser state to `parseCommand` to continue parsing the same region.
 -/
 def parseHeader (inputCtx : InputContext) (startPos : String.Pos.Raw := 0) :
     IO (TSyntax ``Module.header × ModuleParserState × MessageLog) := do

@@ -1052,6 +1052,27 @@ theorem dvd_bmod_coeffs (ctx : Context) (d : Int) (p₁ p₂ : Poly) (a : Int)
   have := Int.dvd_sub h₃ h₄
   rwa [Int.sub_sub_self] at this
 
+theorem dvd_of_eq_zero (ctx : Context) (d : Int) (p : Poly) : p.denote' ctx = 0 → d ∣ p.denote' ctx := by
+  intro h; rw [h]; exact Int.dvd_zero d
+
+@[expose]
+noncomputable def eq_of_dvd_ediv_cert (d : Int) (e : Expr) (p p' : Poly) (x : Var) : Bool :=
+  e.norm.beq' p |>.and (p'.beq' (Poly.add (-d) x p))
+
+/--
+Omega-style elimination step: given `d ∣ p` and a variable `x` denoting `e / d` where `e` normalizes
+to `p`, we have `p - d*x = 0`.
+-/
+theorem eq_of_dvd_ediv (ctx : Context) (d : Int) (e : Expr) (p p' : Poly) (x : Var)
+    (hx : x.denote ctx = e.denote ctx / d)
+    : eq_of_dvd_ediv_cert d e p p' x → d ∣ p.denote' ctx → p'.denote' ctx = 0 := by
+  simp only [eq_of_dvd_ediv_cert, Bool.and_eq_true, Poly.beq'_eq, and_imp]
+  intro h₁ h₂ hd; subst p' p
+  have he : Expr.denote ctx e = Poly.denote ctx e.norm := by
+    rw [← Poly.denote'_eq_denote]; exact Expr.eq_of_norm_eq ctx e e.norm (by simp)
+  rw [Poly.denote'_add, hx, he, Poly.denote'_eq_denote] at *
+  rw [Int.neg_mul, Int.mul_ediv_cancel' hd]; omega
+
 theorem eq_of_zero_dvd (ctx : Context) (p : Poly) : 0 ∣ p.denote' ctx → p.denote' ctx = 0 := by
   intro ⟨k, h⟩
   rw [h, Int.zero_mul]
@@ -1175,12 +1196,6 @@ theorem eq_unsat_coeff (ctx : Context) (p : Poly) (k : Int) : eq_unsat_coeff_cer
 private theorem eq_add_coeff_insert (ctx : Context) (p : Poly) (x : Var) : p.denote ctx = (p.coeff x) * (x.denote ctx) + (p.insert (-p.coeff x) x).denote ctx := by
   simp; rw [← Int.add_assoc, Int.neg_mul, Int.add_neg_cancel_right]
 
-private theorem dvd_of_eq' {a x p : Int} : a*x + p = 0 → a ∣ p := by
-  intro h
-  replace h := Int.neg_eq_of_add_eq_zero h
-  rw [Int.mul_comm, ← Int.neg_mul, Eq.comm, Int.mul_comm] at h
-  exact ⟨-x, h⟩
-
 @[expose]
 def abs (x : Int) : Int :=
   Int.ofNat x.natAbs
@@ -1189,22 +1204,6 @@ private theorem abs_dvd {a p : Int} (h : a ∣ p) : abs a ∣ p := by
   cases a <;> simp [abs]
   · simp at h; assumption
   · simp [Int.negSucc_eq] at h; assumption
-
-@[expose]
-noncomputable def dvd_of_eq_cert (x : Var) (p₁ : Poly) (d₂ : Int) (p₂ : Poly) : Bool :=
-  let a := p₁.coeff_k x
-  d₂.beq' (abs a) |>.and (p₂.beq' (p₁.insert (-a) x))
-
-theorem dvd_of_eq (ctx : Context) (x : Var) (p₁ : Poly) (d₂ : Int) (p₂ : Poly)
-    : dvd_of_eq_cert x p₁ d₂ p₂ → p₁.denote' ctx = 0 → d₂ ∣ p₂.denote' ctx := by
-  simp [dvd_of_eq_cert]
-  intro h₁ h₂
-  have h := eq_add_coeff_insert ctx p₁ x
-  rw [← h₂] at h
-  rw [h, h₁]
-  intro h₃
-  apply abs_dvd
-  apply dvd_of_eq' h₃
 
 private theorem eq_dvd_subst' {a x p d b q : Int} : a*x + p = 0 → d ∣ b*x + q → a*d ∣ a*q - b*p := by
   intro h₁ ⟨z, h₂⟩

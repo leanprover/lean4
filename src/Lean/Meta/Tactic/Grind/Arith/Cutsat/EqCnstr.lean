@@ -340,9 +340,63 @@ partial def _root_.Int.Internal.Linear.Poly.updateOccsForElimEq (p : Poly) (x : 
     go p
   go p
 
+/-- Eliminates `x` using `c`, where `k` is the coefficient of `x` in `c.p` and `|k| = 1`. -/
+private def EqCnstr.elimVar (c : EqCnstr) (k : Int) (x : Var) : GoalM Unit := do
+  trace[grind.debug.lia.subst] ">> {← getVar x}, {← c.pp}"
+  trace[grind.lia.assert.store] "{← c.pp}"
+  trace[grind.debug.lia.elimEq] "{← getVar x}, {← c.pp}"
+  if (← c.satisfied) == .false then
+    resetAssignmentFrom x
+  modify' fun s => { s with
+    elimEqs := s.elimEqs.set x (some c)
+    elimStack := x :: s.elimStack
+  }
+  updateOccs k x c
+  c.p.updateOccsForElimEq x
+  if (← inconsistent) then return ()
+  propagateNonlinearTerms x
+
+private def _root_.Int.Internal.Linear.Poly.toLinearExpr : Poly → Int.Internal.Linear.Expr
+  | .num k => .num k
+  | .add k x p => .add (.mulL k (.var x)) (toLinearExpr p)
+
+/-- Builds the term denoted by `e`, mirroring `Int.Internal.Linear.Expr.denote`. -/
+private def denoteLinearExpr : Int.Internal.Linear.Expr → GoalM Expr
+  | .num k => return toExpr k
+  | .var x => getVar x
+  | .add a b => return mkIntAdd (← denoteLinearExpr a) (← denoteLinearExpr b)
+  | .mulL k a => return mkIntMul (toExpr k) (← denoteLinearExpr a)
+  | e => throwError "`grind` internal error, unexpected linear expression {repr e}"
+
+/--
+Eliminates `x`, whose coefficient `k` in `c.p` is the smallest in absolute value and not a unit,
+as in the Omega test. Let `m := |k| + 1` and `p̄` be `c.p` with its coefficients reduced modulo `m`
+using balanced residues. Since `c.p = 0`, `m ∣ p̄`, and the coefficient of `x` in `p̄` is `∓1`.
+The term `t := p̄ / m` is a new variable `σ` with `p̄ - m*σ = 0`, which eliminates `x` exactly.
+`c` is then reasserted with `x` substituted; its coefficients shrink by a factor of about `2/3` per
+round, so a unit coefficient appears after logarithmically many rounds. This keeps the coefficients
+of all other constraints small, whereas eliminating `x` by the scaled solved form `k*x = ...`
+multiplies them by `k`.
+-/
+private def EqCnstr.elimNonUnit (c : EqCnstr) (k : Int) (x : Var) : GoalM Unit := do
+  let m : Int := k.natAbs + 1
+  let dvd : DvdCnstr := { d := m, p := c.p.bmodCoeffs m.natAbs, h := .bmodCoeffs { d := m, p := c.p, h := .ofEqZero c } 1 }
+  let e := dvd.p.toLinearExpr
+  let a ← shareCommon (← denoteLinearExpr e)
+  let t ← shareCommon (mkIntDiv a (toExpr m))
+  -- `t` must be internalized in the core, but `expandDivMod` facts would be redundant with `c'`.
+  modify' fun s => { s with divMod := s.divMod.insert (a, m) }
+  internalize t (← getGeneration (← getVar x))
+  let σ ← mkVar t
+  let c' : EqCnstr := { p := .add (-m) σ dvd.p, h := .ofDvdDiv dvd e σ t }
+  trace[grind.debug.lia.elimEq] "omega step for {← getVar x}: {← c'.pp}"
+  c'.elimVar (c'.p.coeff x) x
+  if (← inconsistent) then return ()
+  c.assert
+
 set_option compiler.ignoreBorrowAnnotation true in
 @[export lean_grind_cutsat_assert_eq]
-def EqCnstr.assertImpl (c : EqCnstr) : GoalM Unit := do
+def EqCnstr.assertImpl (c : EqCnstr) : GoalM Unit := withIncRecDepth do
   if (← inconsistent) then return ()
   trace[grind.lia.assert] "{← c.pp}"
   let c ← c.norm.applySubsts
@@ -362,25 +416,10 @@ def EqCnstr.assertImpl (c : EqCnstr) : GoalM Unit := do
   else
     { p := c.p.div k, h := .divCoeffs c }
   let some (k, x) := c.p.pickVarToElim? | c.throwUnexpected
-  trace[grind.debug.lia.subst] ">> {← getVar x}, {← c.pp}"
-  trace[grind.lia.assert.store] "{← c.pp}"
-  trace[grind.debug.lia.elimEq] "{← getVar x}, {← c.pp}"
-  if (← c.satisfied) == .false then
-    resetAssignmentFrom x
-  modify' fun s => { s with
-    elimEqs := s.elimEqs.set x (some c)
-    elimStack := x :: s.elimStack
-  }
-  updateOccs k x c
-  c.p.updateOccsForElimEq x
-  if (← inconsistent) then return ()
-  -- assert a divisibility constraint IF `|k| != 1`
-  if k.natAbs != 1 then
-    let p := c.p.insert (-k) x
-    let d := Int.ofNat k.natAbs
-    { d, p, h := .ofEq x c : DvdCnstr }.assert
-  if (← inconsistent) then return ()
-  propagateNonlinearTerms x
+  if k.natAbs == 1 then
+    c.elimVar k x
+  else
+    c.elimNonUnit k x
 
 private def exprAsPoly (a : Expr) : GoalM Poly := do
   if let some k ← getIntValue? a then

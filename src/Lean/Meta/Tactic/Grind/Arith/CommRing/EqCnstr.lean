@@ -404,6 +404,8 @@ def addNewDiseq (c : DiseqCnstr) : RingM Unit := do
 def processNewEq (a b : Expr) : GoalM Unit := do
   if isSameExpr a b then return () -- TODO: check why this is needed
   if let some ringId ← inSameRing? a b then RingM.run ringId do
+    -- Equations carry no information in a ring of characteristic `1`.
+    if (← charOneInst?).isSome then return ()
     trace_goal[grind.ring.assert] "{← mkEq a b}"
     let some ra ← toRingExpr? a | return ()
     let some rb ← toRingExpr? b | return ()
@@ -416,6 +418,7 @@ def processNewEq (a b : Expr) : GoalM Unit := do
     let lhs ← sa.denoteAsRingExpr (← getGeneration a)
     let rhs ← sb.denoteAsRingExpr (← getGeneration b)
     RingM.run (← getCommSemiring).ringId do
+      if (← charOneInst?).isSome then return ()
       let some ra ← reify? lhs (skipVar := false) | return ()
       let some rb ← reify? rhs (skipVar := false) | return ()
       let some p ← (ra.sub rb).toPolyM? | return ()
@@ -453,6 +456,10 @@ private def diseqZeroToEq (a b : Expr) : RingM Unit := do
 
 private def processNewDiseqCommRing (a b : Expr) : RingM Unit := do
   trace_goal[grind.ring.assert] "{mkNot (← mkEq a b)}"
+  if let some charInst ← charOneInst? then
+    let ring ← getRing
+    setCharOneDiseqUnsat ring.u ring.type ring.semiringInst charInst a b
+    return ()
   let some ra ← toRingExpr? a | return ()
   let some rb ← toRingExpr? b | return ()
   let some p ← (ra.sub rb).toPolyM? | return ()
@@ -471,6 +478,12 @@ private def processNewDiseqCommRing (a b : Expr) : RingM Unit := do
   }
 
 private def processNewDiseqCommSemiring (a b : Expr) : SemiringM Unit := do
+  let semiring ← getCommSemiring
+  if let some qCharInst ← RingM.run semiring.ringId charOneInst? then
+    let_expr Grind.Ring.OfSemiring.instIsCharPQOfAddRightCancel _ _ semiringInst _ charInst := qCharInst
+      | throwError "`grind` internal error, unexpected `IsCharP` instance{indentExpr qCharInst}"
+    setCharOneDiseqUnsat semiring.u semiring.type semiringInst charInst a b
+    return ()
   if (← getAddRightCancelInst?).isSome then
     trace_goal[grind.ring.assert] "{mkNot (← mkEq a b)}"
     let some sa ← toSemiringExpr? a | return ()
@@ -496,6 +509,10 @@ private def processNewDiseqCommSemiring (a b : Expr) : SemiringM Unit := do
       setSemiringDiseqUnsat a b sa sb
 
 private def processNewDiseqNonCommRing (a b : Expr) : NonCommRingM Unit := do
+  if let some charInst ← charOneInst? then
+    let ring ← getRing
+    setCharOneDiseqUnsat ring.u ring.type ring.semiringInst charInst a b
+    return ()
   let some ra ← toRingExpr? a | return ()
   let some rb ← toRingExpr? b | return ()
   if let some (_, c) := (← getRing).charInst? then
@@ -506,6 +523,10 @@ private def processNewDiseqNonCommRing (a b : Expr) : NonCommRingM Unit := do
       setNonCommRingDiseqUnsat a b ra rb
 
 private def processNewDiseqNonCommSemiring (a b : Expr) : NonCommSemiringM Unit := do
+  let semiring ← getSemiring
+  if let some (charInst, 1) := semiring.charInst? then
+    setCharOneDiseqUnsat semiring.u semiring.type semiring.semiringInst charInst a b
+    return ()
   let some sa ← toSemiringExpr? a | return ()
   let some sb ← toSemiringExpr? b | return ()
   if sa.toPolyS_nc == sb.toPolyS_nc then

@@ -331,11 +331,13 @@ private def splitStr (text : FileMap) (stx : Syntax) : Array Syntax := Id.run do
 
 Walks the result of the full Markdown parse (`Lean.Markdown.parseDocument`,
 which runs both passes) and emits `LeanSemanticToken`s. The walk is purely structural — no
-inline parsing happens here; each `Block (Array Inline)` already carries its parsed inlines
-with file-anchored positions.
+inline parsing happens here; each `Block s` already carries its parsed inlines with file-anchored
+positions.
 -/
 
 namespace MarkupTokens
+
+variable {s : String.Slice}
 
 /-- Block context for combining markup highlighting types. -/
 private inductive MarkupBlockCtxt where
@@ -383,21 +385,20 @@ private def markupTypeOf : MarkupAttrs → SemanticTokenType
   | { bold := true,  italic := true,  block := .list } => .markupBoldItalicList
 
 /--
-Converts a `Syntax.Range` to a `Syntax` carrying the same source span.
-The resulting syntax is suitable as a `LeanSemanticToken.stx`; the LSP layer
-already handles raw byte offsets via `text.utf8PosToLspPos`.
+Converts a source range to a `Syntax` with the same source span. The resulting syntax is suitable as
+a `LeanSemanticToken.stx`; the LSP layer converts its raw positions via `text.utf8PosToLspPos`.
 -/
-@[inline] private def srcRangeToSyntax (r : Syntax.Range) : Syntax :=
-  Syntax.ofRange ⟨r.start, r.stop⟩
+@[inline] private def srcRangeToSyntax (r : s.Subslice) : Syntax :=
+  Syntax.ofRange ⟨r.startInclusive.str.offset, r.endExclusive.str.offset⟩
 
 /--
 Pushes one `LeanSemanticToken` per source line that `r` intersects. Single-line ranges go through
 unchanged; multi-line ranges (e.g. fenced code blocks) are split at newline boundaries.
 -/
 private def pushSplit (text : FileMap) (out : Array LeanSemanticToken)
-    (r : Syntax.Range) (tokenType : SemanticTokenType) (priority : Nat := 5) :
+    (r : s.Subslice) (tokenType : SemanticTokenType) (priority : Nat := 5) :
     Array LeanSemanticToken := Id.run do
-  if r.start == r.stop then return out
+  if r.toSlice.isEmpty then return out
   let stx := srcRangeToSyntax r
   let mut out := out
   for line in splitStr text stx do
@@ -408,20 +409,30 @@ private def pushSplit (text : FileMap) (out : Array LeanSemanticToken)
 Pushes a single-line `LeanSemanticToken` directly without going through `splitStr`. The caller
 guarantees `r` does not span a newline.
 -/
-@[inline] private def pushTok (out : Array LeanSemanticToken) (r : Syntax.Range)
+@[inline] private def pushTok (out : Array LeanSemanticToken) (r : s.Subslice)
     (tokenType : SemanticTokenType) (priority : Nat := 5) : Array LeanSemanticToken :=
-  if r.start == r.stop then out
+  if r.toSlice.isEmpty then out
   else out.push { stx := srcRangeToSyntax r, type := tokenType, priority }
 
+/-- Emits a destination: keyword on its angle brackets, if any, and URL on the URL. -/
+private def emitDestination (out : Array LeanSemanticToken) (d : Markdown.LinkDestination s) :
+    Array LeanSemanticToken := Id.run do
+  let mut out := out
+  if let some (o, c) := d.angles? then
+    out := pushTok out o .keyword
+    out := pushTok out c .keyword
+  out := pushTok out d.url .markupUrl
+  return out
+
 private partial def emitInlines (text : FileMap) (a : MarkupAttrs)
-    (inlines : Array Markdown.Inline) (out : Array LeanSemanticToken) :
+    (inlines : Array (Markdown.Inline s)) (out : Array LeanSemanticToken) :
     Array LeanSemanticToken := Id.run do
   let mut out := out
   for i in inlines do
     out := emitInline text a i out
   return out
 where
-  emitInline (text : FileMap) (a : MarkupAttrs) (i : Markdown.Inline)
+  emitInline (text : FileMap) (a : MarkupAttrs) (i : Markdown.Inline s)
       (out : Array LeanSemanticToken) : Array LeanSemanticToken := Id.run do
     let mut out := out
     match i with
@@ -449,7 +460,8 @@ where
       out := emitBracketed none openBracket inner closeBracket target out
     | .image bang openBracket alt closeBracket target =>
       out := emitBracketed (some bang) openBracket alt closeBracket target out
-    | .hardBreak _ => pure ()
+    | .hardBreak marker _ =>
+      out := pushTok out marker .keyword
     | .autolink openAngle url closeAngle _ =>
       out := pushTok out openAngle .keyword
       out := pushTok out closeAngle .keyword
@@ -465,8 +477,8 @@ where
   collapsed form, the empty `[]` is annotated as a keyword.
   -/
   emitReferenceForm (text : FileMap) (a : MarkupAttrs)
-      (out : Array LeanSemanticToken) (interior : Syntax.Range)
-      (inner : Array Markdown.Inline) (form : Markdown.ReferenceLinkForm) :
+      (out : Array LeanSemanticToken) (interior : s.Subslice)
+      (inner : Array (Markdown.Inline s)) (form : Markdown.ReferenceLinkForm s) :
       Array LeanSemanticToken := Id.run do
     let mut out := out
     match form with
@@ -486,68 +498,70 @@ where
   /--
   Emits the tokens shared by `[…]…` links and `![…]…` images.
   -/
-  emitBracketed (bang? : Option Syntax.Range)
-      (openBracket : Syntax.Range) (inner : Array Markdown.Inline)
-      (closeBracket : Syntax.Range) (target : Markdown.LinkTarget)
+  emitBracketed (bang? : Option (s.Subslice))
+      (openBracket : s.Subslice) (inner : Array (Markdown.Inline s))
+      (closeBracket : s.Subslice) (target : Markdown.LinkTarget s)
       (out : Array LeanSemanticToken) : Array LeanSemanticToken := Id.run do
     let mut out := out
     if let some bang := bang? then
       out := pushTok out bang .keyword
     out := pushTok out openBracket .keyword
     out := pushTok out closeBracket .keyword
-    let interior : Syntax.Range :=
-      { start := openBracket.stop, stop := closeBracket.start }
+    let interior := Markdown.subsliceClamped openBracket.endExclusive closeBracket.startInclusive
     match target with
-    | .inline openParen url closeParen title? =>
+    | .inline openParen destination closeParen title? =>
       out := emitInlines text a inner out
       out := pushTok out openParen .keyword
-      out := pushTok out url .markupUrl
-      if let some t := title? then out := pushTok out t .string
+      out := emitDestination out destination
+      if let some t := title? then
+        out := pushTok out t.opener .keyword
+        out := pushTok out t.content .string
+        out := pushTok out t.closer .keyword
       out := pushTok out closeParen .keyword
-    | .reference _ _ form =>
+    | .reference _ form =>
       out := emitReferenceForm text a out interior inner form
     return out
 
 /--
 Emits the structural tokens of a matched link reference definition: keyword on the brackets and
-colon, cross-reference on the label, URL on the destination, and string on the optional title. The
-label and title may span multiple source lines, so they are split at line boundaries.
+colon and the optional title's delimiters, cross-reference on the label, URL on the destination, and
+string on the title's text. The label and title may span multiple source lines, so they are split at
+line boundaries.
 -/
-private def emitRefDef (text : FileMap) (out : Array LeanSemanticToken) (r : Markdown.RefDef) :
+private def emitRefDef (text : FileMap) (out : Array LeanSemanticToken) (r : Markdown.RefDef s) :
     Array LeanSemanticToken := Id.run do
   let mut out := out
   out := pushTok out r.openBracket .keyword
   out := pushSplit text out r.label .markupCrossReference
   out := pushTok out r.closeBracket .keyword
   out := pushTok out r.colon .keyword
-  out := pushTok out r.url .markupUrl
+  out := emitDestination out r.destination
   if let some t := r.title? then
-    out := pushSplit text out t .string
+    out := pushTok out t.opener .keyword
+    out := pushSplit text out t.content .string
+    out := pushTok out t.closer .keyword
   return out
 
 private partial def emitBlocks (text : FileMap) (a : MarkupAttrs)
-    (blocks : Array (Markdown.Block (Array Markdown.Inline)))
+    (blocks : Array (Markdown.Block s))
     (out : Array LeanSemanticToken) : Array LeanSemanticToken := Id.run do
   let mut out := out
   for b in blocks do
     out := emitBlock text a b out
   return out
 where
-  emitBlock (text : FileMap) (a : MarkupAttrs)
-      (b : Markdown.Block (Array Markdown.Inline))
+  emitBlock (text : FileMap) (a : MarkupAttrs) (b : Markdown.Block s)
       (out : Array LeanSemanticToken) : Array LeanSemanticToken := Id.run do
     let mut out := out
     match b with
-    | .paragraph lines =>
-      for inls in lines do
-        out := emitInlines text a inls out
+    | .paragraph content =>
+      out := emitInlines text a content out
     | .atxHeading _ hashes content closeHashes? =>
       out := pushTok out hashes .keyword
       if let some c := closeHashes? then out := pushTok out c .keyword
       out := emitInlines text (a.withBlock .heading) content out
-    | .setextHeading _ lines underline =>
-      for inls in lines do
-        out := emitInlines text (a.withBlock .heading) inls out
+    | .setextHeading _ content underline =>
+      out := emitInlines text (a.withBlock .heading) content out
       out := pushTok out underline .keyword
     | .fencedCode info openFence closeFence? lines =>
       out := pushTok out openFence .keyword
@@ -584,7 +598,13 @@ enclosing block context. Undecorated text is emitted as `.markupDocText`.
 -/
 def collectMarkdownTokens (text : FileMap) (startPos endPos : String.Pos.Raw) :
     Array LeanSemanticToken :=
-  MarkupTokens.emitBlocks text {} (Markdown.parseDocument text.source startPos endPos) #[]
+  let whole := text.source.toSlice
+  match whole.pos? startPos, whole.pos? endPos with
+  | some start, some stop =>
+    if h : start ≤ stop then
+      MarkupTokens.emitBlocks text {} (Markdown.parseDocument (whole.slice start stop h)) #[]
+    else #[]
+  | _, _ => #[]
 
 open Lean.Doc MarkupTokens in
 private partial def collectVersoTokens

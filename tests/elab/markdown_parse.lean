@@ -7,35 +7,32 @@ heading levels, text decoding, and the source ranges of inline and block constru
 
 open Lean Markdown
 
-def slice (src : String) (r : Syntax.Range) : String :=
-  String.Pos.Raw.extract src r.start r.stop
-
 /-- Shows each inline's constructor together with its source text or decoded value. -/
-partial def showInline (src : String) : Inline → String
-  | .text r => s!"text⟪{slice src r}⟫"
-  | .code _ c _ => s!"code⟪{slice src c}⟫"
-  | .italic _ cs _ => s!"italic[{showInlines src cs}]"
-  | .bold _ cs _ => s!"bold[{showInlines src cs}]"
-  | .link _ cs _ _ => s!"link[{showInlines src cs}]"
-  | .image _ _ cs _ _ => s!"image[{showInlines src cs}]"
-  | .hardBreak _ => "hardBreak"
-  | .autolink _ u _ _ => s!"autolink⟪{slice src u}⟫"
+partial def showInline {s : String.Slice} : Inline s → String
+  | .text r => s!"text⟪{r.copy}⟫"
+  | .code _ c _ => s!"code⟪{c.copy}⟫"
+  | .italic _ cs _ => s!"italic[{showInlines cs}]"
+  | .bold _ cs _ => s!"bold[{showInlines cs}]"
+  | .link _ cs _ _ => s!"link[{showInlines cs}]"
+  | .image _ _ cs _ _ => s!"image[{showInlines cs}]"
+  | .hardBreak m _ => s!"hardBreak⟪{m.copy}⟫"
+  | .autolink _ u _ _ => s!"autolink⟪{u.copy}⟫"
   | .softBreak _ => "softBreak"
-  | .escape _ c => s!"escape⟪{slice src c}⟫"
+  | .escape _ c => s!"escape⟪{c.copy}⟫"
   | .entity _ v => s!"entity⟪{v}⟫"
 where
-  showInlines (src : String) (cs : Array Inline) : String :=
-    " ".intercalate (cs.toList.map (showInline src))
+  showInlines {s : String.Slice} (cs : Array (Inline s)) : String :=
+    " ".intercalate (cs.toList.map showInline)
 
-def parse (src : String) : Array (Block (Array Inline)) :=
-  parseDocument src 0 src.rawEndPos
+def parse (src : String) : Array (Block src.toSlice) :=
+  parseDocument src.toSlice
 
 /-- The inlines of the first paragraph of `src`. -/
-def firstParagraph (src : String) : Array Inline :=
-  (parse src).findSome? (fun | .paragraph lines => lines[0]? | _ => none) |>.getD #[]
+def firstParagraph (src : String) : Array (Inline src.toSlice) :=
+  (parse src).findSome? (fun | .paragraph content => some content | _ => none) |>.getD #[]
 
 def showParagraph (src : String) : String :=
-  showInline.showInlines src (firstParagraph src)
+  showInline.showInlines (firstParagraph src)
 
 /-! ## Escapes, character references, and soft breaks -/
 
@@ -48,8 +45,11 @@ def showParagraph (src : String) : String :=
 /-- info: "text⟪a⟫ softBreak text⟪b⟫" -/
 #guard_msgs in #eval showParagraph "a\nb"
 
-/-- info: "text⟪a⟫ hardBreak text⟪b⟫" -/
+/-- info: "text⟪a⟫ hardBreak⟪\\⟫ text⟪b⟫" -/
 #guard_msgs in #eval showParagraph "a\\\nb"
+
+/-- info: "text⟪a⟫ hardBreak⟪  ⟫ text⟪b⟫" -/
+#guard_msgs in #eval showParagraph "a  \nb"
 
 /-- info: "text⟪\\a ⟫ escape⟪\\⟫ text⟪ ⟫ escape⟪&⟫ text⟪amp;⟫" -/
 #guard_msgs in #eval showParagraph "\\a \\\\ \\&amp;"
@@ -82,13 +82,49 @@ def headingLevels (src : String) : List Nat :=
 /-! ## Source ranges -/
 
 def inlineRanges (src : String) : List String :=
-  (firstParagraph src).toList.map fun i => slice src i.range
+  (firstParagraph src).toList.map fun i => i.range.copy
 
 /-- info: ["[x](/u)", " ", "![a][r]", " ", "<ab:c>", " ", "`c`", " ", "**b**", " ", "[r]", " ", "\\*", " ", "&lt;"] -/
 #guard_msgs in #eval inlineRanges "[x](/u) ![a][r] <ab:c> `c` **b** [r] \\* &lt;\n\n[r]: /u"
 
-def blockRanges (src : String) : List String :=
-  (parse src).toList.filterMap fun b => (b.range? Inline.rangeOf?).map (slice src)
+/-- The opener, text, and closer of every link title in `src`, including those of reference definitions. -/
+def titleParts (src : String) : List (List String) :=
+  (parse src).toList.flatMap fun
+    | .paragraph content => content.toList.filterMap fun
+      | .link _ _ _ (.inline _ _ _ (some t)) | .image _ _ _ _ (.inline _ _ _ (some t)) =>
+        some [t.opener.copy, t.content.copy, t.closer.copy]
+      | _ => none
+    | .linkRefDef m => (m.title?.map fun t => [t.opener.copy, t.content.copy, t.closer.copy]).toList
+    | _ => []
 
-/-- info: ["> # h\n> para", "- a\n  b\n- c", "[r]: /u \"t\"", "```lean\ncode\n```", "***", "    code"] -/
+/-- info: [["\"", "a b", "\""], ["'", "c", "'"], ["(", "d", ")"], ["(", "e\nf", ")"]] -/
+#guard_msgs in #eval titleParts "[x](/u \"a b\") ![y](/v 'c')\n\n[r]: /w (d)\n\n[q]: /z\n  (e\nf)"
+
+/-- The angle brackets, if any, and the URL of every destination in `src`. -/
+def destinationParts (src : String) : List (List String) :=
+  let parts (d : LinkDestination src.toSlice) : List String :=
+    if let some (o, c) := d.angles? then [o.copy, d.url.copy, c.copy] else [d.url.copy]
+  (parse src).toList.flatMap fun
+    | .paragraph content => content.toList.filterMap fun
+      | .link _ _ _ (.inline _ d _ _) | .image _ _ _ _ (.inline _ d _ _) => some (parts d)
+      | _ => none
+    | .linkRefDef m => [parts m.destination]
+    | _ => []
+
+/-- info: [["<", "u v", ">"], ["w"], ["<", "x", ">"], ["y"], ["<", "", ">"]] -/
+#guard_msgs in #eval destinationParts "[a](<u v>) ![b](w)\n\n[r]: <x>\n\n[q]: y\n\n[e]: <>"
+
+/-- The URL and title of the definition that each reference link in the first paragraph resolved to. -/
+def referenceTargets (src : String) : List (String × Option String) :=
+  (firstParagraph src).toList.filterMap fun
+    | .link _ _ _ (.reference d _) => some (d.destination.url.copy, d.title?.map (·.content.copy))
+    | _ => none
+
+/-- info: [("/u", none), ("v", some "t")] -/
+#guard_msgs in #eval referenceTargets "[a][r] [b]\n\n[r]: /u\n[b]: <v> 't'"
+
+def blockRanges (src : String) : List String :=
+  (parse src).toList.filterMap fun b => b.range?.map (·.copy)
+
+/-- info: ["> # h\n> para", "- a\n  b\n- c", "[r]: /u \"t\"", "```lean\ncode\n```", "***", "code"] -/
 #guard_msgs in #eval blockRanges "> # h\n> para\n\n- a\n  b\n- c\n\n[r]: /u \"t\"\n\n```lean\ncode\n```\n\n***\n\n    code\n"

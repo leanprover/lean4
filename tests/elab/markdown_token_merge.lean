@@ -106,9 +106,12 @@ emphasis: their `markup*` type does not stack with the active attributes.
 #guard_msgs in #eval markupAt "```\nx\n```" 4
 
 -- Indented code blocks (4 leading spaces) get one `markupCodeBlock` token per
--- line, which is the whole source line including the indent.
+-- line, after the four columns of indentation.
 /-- info: "markupCodeBlock" -/
 #guard_msgs in #eval markupAt "    indented\n    code block\n" 4
+
+/-- info: "<none>" -/
+#guard_msgs in #eval markupAt "    indented\n    code block\n" 3
 
 /-- info: 2 -/
 #guard_msgs in #eval tokenCount "    indented\n    code block\n" "markupCodeBlock"
@@ -251,3 +254,35 @@ sibling-incompatible lists. The inner list's content still receives the
 
 /-- info: "markupList" -/
 #guard_msgs in #eval markupAt "* outer\n  + inner" 12
+
+/-! ## Link titles
+
+A title's delimiters are markup syntax like the brackets around the link text, and its text is a
+string, both for inline targets and for link reference definitions.
+-/
+
+/-- info: ["keyword", "string", "keyword"] -/
+#guard_msgs in #eval ["[a](/u \"t\")", "[a](/u \"t\")", "[a](/u \"t\")"].zipWith markupAt [7, 8, 9]
+
+/-- info: ["keyword", "string", "keyword"] -/
+#guard_msgs in #eval ["[r]: /u (t)", "[r]: /u (t)", "[r]: /u (t)"].zipWith markupAt [8, 9, 10]
+
+/-! ## Hard breaks
+
+The backslash or the trailing spaces that make a line ending a hard break are markup syntax.
+-/
+
+/-- info: ["keyword", "keyword"] -/
+#guard_msgs in #eval ["a\\\nb", "a  \nb"].zipWith markupAt [1, 1]
+
+/-! ## Bracketed destinations
+
+The angle brackets around a destination are markup syntax, and only the URL between them is a URL,
+both for inline targets and for link reference definitions.
+-/
+
+/-- info: ["keyword", "markupUrl", "keyword"] -/
+#guard_msgs in #eval ["[a](<u>)", "[a](<u>)", "[a](<u>)"].zipWith markupAt [4, 5, 6]
+
+/-- info: ["keyword", "markupUrl", "keyword"] -/
+#guard_msgs in #eval ["[r]: <u>", "[r]: <u>", "[r]: <u>"].zipWith markupAt [5, 6, 7]

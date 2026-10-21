@@ -7,10 +7,10 @@ module
 
 prelude
 import Init.While
-import Lean.Syntax
 public import Lean.Data.Markdown.Basic
 
 namespace Lean.Markdown
+
 
 /-!
 ## Emphasis matching (CommonMark §6.2)
@@ -18,21 +18,27 @@ namespace Lean.Markdown
 Implements CommonMark's emit-as-you-go delimiter stack algorithm.
 
 The single public entry point is `processEmphasis`, which consumes a flat sequence of `InlineTok`s.
-Each is either a fully-finalized non-emphasis `Inline` or a raw `*`/`_` delimiter sequence. It returns
-the final `Array Inline` with all matched emphasis spans wrapped as `.bold` or `.italic`. Tokens of
-the input are produced by the tokenizer in `Markdown.Parser.Inline`; this module is the second half
-of the inline element parsing pass.
+Each is either a fully-finalized non-emphasis `Inline` or a raw `*`/`_` delimiter sequence. It
+returns the final `Array Inline` with all matched emphasis spans wrapped as `.bold` or `.italic`.
+Tokens of the input are produced by the tokenizer in `Markdown.Parser.Inline`; this module is the
+second half of the inline element parsing pass.
 -/
+
+variable {s : String.Slice}
+
+/-- The subslice of the `n` delimiter characters at `p`. -/
+def delimiterSubslice (p : s.Pos) (n : Nat) : s.Subslice :=
+  s.subslice p (p.nextn n) String.Slice.Pos.le_nextn
 
 /--
 A sequence of `*` or `_` delimiter characters (a delimiter run, in the CommonMark specification's
 terms), classified by the CommonMark left/right-flanking rules.
 -/
-public structure DelimSequence where
+public structure DelimSequence (s : String.Slice) where
   /-- Position of the first delimiter character. -/
-  startPos : String.Pos.Raw
+  startPos : s.Pos
   /-- Position one past the last delimiter character. -/
-  endPos : String.Pos.Raw
+  endPos : s.Pos
   /-- The delimiter character (`*` or `_`). -/
   ch : Char
   /-- Number of consecutive delimiter characters. -/
@@ -47,29 +53,29 @@ deriving Inhabited
 An intermediate token: either a finalized non-emphasis inline, or a raw emphasis delimiter sequence
 awaiting matching.
 -/
-public inductive InlineTok where
-  | inline (i : Inline)
-  | delim (seq : DelimSequence)
+public inductive InlineTok (s : String.Slice) where
+  | inline (i : Inline s)
+  | delim (seq : DelimSequence s)
 deriving Inhabited
 
 /--
 Appends a `text` inline as an `InlineTok` for `[textStart:pos)` to `out`,
 if non-empty.
 -/
-public def pushTokText (out : Array InlineTok) (textStart pos : String.Pos.Raw) :
-    Array InlineTok :=
+public def pushTokText (out : Array (InlineTok s)) (textStart pos : s.Pos) :
+    Array (InlineTok s) :=
   if textStart < pos then
-    out.push (.inline (.text { start := textStart, stop := pos }))
+    out.push (.inline (.text (subsliceClamped textStart pos)))
   else out
 
 /--
-An open emphasis context on the processing stack that contains a still-active opening delimiter sequence
-with the inline content accumulated since it was pushed.
+An open emphasis context on the processing stack that contains a still-active opening delimiter
+sequence with the inline content accumulated since it was pushed.
 -/
-structure OpenerFrame where
+structure OpenerFrame (s : String.Slice) where
   ch : Char
   /-- Position of the leftmost still-available delimiter character. -/
-  startPos : String.Pos.Raw
+  startPos : s.Pos
   /-- Original total length of the opening sequence. -/
   origLen : Nat
   /--
@@ -80,7 +86,7 @@ structure OpenerFrame where
   /-- Whether the original sequence could close. -/
   canClose : Bool
   /-- Inlines accumulated since this opener was pushed. -/
-  acc : Array Inline
+  acc : Array (Inline s)
 deriving Inhabited
 
 /-!
@@ -88,8 +94,8 @@ deriving Inhabited
 
 CommonMark §6.2 specifies emphasis matching as an algorithm over a *delimiter stack*: each `*`/`_`
 sequence that could open emphasis is pushed on the stack while non-delimiter inlines are added to the
-inline output, and a closing sequence looks down the stack for a compatible opener to match against. The
-spec describes the algorithm imperatively over two pieces of state, the delimiter stack and the
+inline output, and a closing sequence looks down the stack for a compatible opener to match against.
+The spec describes the algorithm imperatively over two pieces of state, the delimiter stack and the
 inline output, and those are maintained in a single `DelimiterMatchState` structure.
 
 This implementation differs slightly from the spec's pseudocode in that it doesn't keep the inlines
@@ -107,24 +113,24 @@ children in its `acc` field; only when the opener's sequence is fully matched (o
 children make it into a wrapping node and flow into the parent scope (the next opener's `acc`, or
 `output` if the stack is empty).
 -/
-structure DelimiterMatchState where
+structure DelimiterMatchState (s : String.Slice) where
   /-- The delimiter stack: openers whose sequences have not yet been matched. -/
-  delimiters : Array OpenerFrame
+  delimiters : Array (OpenerFrame s)
   /-- Inlines emitted at document scope, outside any open emphasis. -/
-  output : Array Inline
+  output : Array (Inline s)
 
 /-- The empty initial state. -/
-def DelimiterMatchState.empty : DelimiterMatchState :=
+def DelimiterMatchState.empty : DelimiterMatchState s :=
   { delimiters := #[], output := #[] }
 
 /-- The state monad for §6.2's delimiter-matching algorithm. -/
-abbrev DelimM := StateM DelimiterMatchState
+abbrev DelimM (s : String.Slice) := StateM (DelimiterMatchState s)
 
 /--
 Adds a finalized inline to the inline output. It goes into the topmost delimiter's `acc` if the stack
 is non-empty, otherwise into the bottom output.
 -/
-def emit (inl : Inline) : DelimM Unit := modify fun st =>
+def emit (inl : Inline s) : DelimM s Unit := modify fun st =>
   if h : st.delimiters.size > 0 then
     let top := st.delimiters.back h
     { st with delimiters := st.delimiters.pop.push { top with acc := top.acc.push inl } }
@@ -132,7 +138,7 @@ def emit (inl : Inline) : DelimM Unit := modify fun st =>
     { st with output := st.output.push inl }
 
 /-- Adds a batch of finalized inlines to the inline output (see `emit`). -/
-def emitMany (xs : Array Inline) : DelimM Unit := modify fun st =>
+def emitMany (xs : Array (Inline s)) : DelimM s Unit := modify fun st =>
   if h : st.delimiters.size > 0 then
     let top := st.delimiters.back h
     { st with delimiters := st.delimiters.pop.push { top with acc := top.acc ++ xs } }
@@ -142,7 +148,7 @@ def emitMany (xs : Array Inline) : DelimM Unit := modify fun st =>
 /--
 Pushes a new opener onto the delimiter stack.
 -/
-def openDelimiter (f : OpenerFrame) : DelimM Unit :=
+def openDelimiter (f : OpenerFrame s) : DelimM s Unit :=
   modify fun st => { st with delimiters := st.delimiters.push f }
 
 /--
@@ -156,18 +162,13 @@ list and abandoning would be a stack pop alone.
 This is used both when a closer's match leaves unmatched openers above it on the stack and at the
 end, when every opener still on the stack is abandoned.
 -/
-def abandonOpener : DelimM Unit := do
+def abandonOpener : DelimM s Unit := do
   let st ← get
   if h : st.delimiters.size > 0 then
     let top := st.delimiters.back h
-    let asInlines : Array Inline :=
+    let asInlines : Array (Inline s) :=
       if top.remaining > 0 then
-        let textRange : Syntax.Range := {
-          start := top.startPos
-          -- All delimiter characters are single-byte
-          stop  := { byteIdx := top.startPos.byteIdx + top.remaining }
-        }
-        #[Inline.text textRange] ++ top.acc
+        #[Inline.text (delimiterSubslice top.startPos top.remaining)] ++ top.acc
       else top.acc
     set { st with delimiters := st.delimiters.pop }
     emitMany asInlines
@@ -180,10 +181,10 @@ the opener or removes the part that was consumed.
 Precondition: the delimiter stack is non-empty and its top is the opener chosen to match this closer
 (any unmatched openers above it have already been abandoned).
 -/
-def closeMatched (matchLen : Nat) (openDelim closeDelim : Syntax.Range) :
-    DelimM Unit := do
+def closeMatched (matchLen : Nat) (openDelim closeDelim : s.Subslice) :
+    DelimM s Unit := do
   let opener := (← get).delimiters.back!
-  let wrapped : Inline :=
+  let wrapped : Inline s :=
     if matchLen == 2 then .bold openDelim opener.acc closeDelim
     else .italic openDelim opener.acc closeDelim
   let newRem := opener.remaining - matchLen
@@ -200,7 +201,7 @@ def closeMatched (matchLen : Nat) (openDelim closeDelim : Syntax.Range) :
 Abandons every opener still on the stack and returns the final inline output. This is the final step
 of the spec's procedure, which removes every delimiter still on the stack.
 -/
-def finalizeEmphasis : DelimM (Array Inline) := do
+def finalizeEmphasis : DelimM s (Array (Inline s)) := do
   repeat
     if (← get).delimiters.isEmpty then break
     abandonOpener
@@ -211,7 +212,7 @@ Scans the delimiter stack top-down for an opener compatible with the closer `seq
 CommonMark §6.2's rule about lengths that are a multiple of 3. Returns the index (from the bottom)
 of the first compatible opener, or `none`.
 -/
-def findMatchingOpener (stack : Array OpenerFrame) (seq : DelimSequence) : Option Nat := do
+def findMatchingOpener (stack : Array (OpenerFrame s)) (seq : DelimSequence s) : Option Nat := do
   for h : i in [0:stack.size] do
       have : stack.size > 0 := Nat.zero_lt_of_lt h.2.1
       let opener := stack[stack.size - (i + 1)]'(Nat.sub_lt this (Nat.zero_lt_succ i))
@@ -231,7 +232,7 @@ repeatedly matching it against compatible openers on the stack and abandoning an
 above each match. If any chars remain in the sequence, they are pushed if the sequence can open
 emphasis, or emitted as text otherwise.
 -/
-def processDelimSequence (seq : DelimSequence) : DelimM Unit := do
+def processDelimSequence (seq : DelimSequence s) : DelimM s Unit := do
   let mut seqRem := seq.origLen
   let mut seqStart := seq.startPos
   if seq.canClose then
@@ -244,19 +245,11 @@ def processDelimSequence (seq : DelimSequence) : DelimM Unit := do
           abandonOpener
         let opener := (← get).delimiters.back!
         let matchLen := if opener.remaining >= 2 && seqRem >= 2 then 2 else 1
-        let openDelim : Syntax.Range := {
-          -- All delimiter characters are single-byte, so this arithmetic makes sense
-          start := { byteIdx := opener.startPos.byteIdx + opener.remaining - matchLen }
-          stop  := { byteIdx := opener.startPos.byteIdx + opener.remaining }
-        }
-        let closeDelim : Syntax.Range := {
-          start := seqStart
-          -- Delimiter characters are all single-byte, so adding matchLen is sensible here
-          stop  := { byteIdx := seqStart.byteIdx + matchLen }
-        }
+        let openDelim := delimiterSubslice (opener.startPos.nextn (opener.remaining - matchLen)) matchLen
+        let closeDelim := delimiterSubslice seqStart matchLen
         closeMatched matchLen openDelim closeDelim
         seqRem := seqRem - matchLen
-        seqStart := { byteIdx := seqStart.byteIdx + matchLen }
+        seqStart := seqStart.nextn matchLen
   if seqRem > 0 then
     if seq.canOpen then
       openDelimiter {
@@ -268,17 +261,15 @@ def processDelimSequence (seq : DelimSequence) : DelimM Unit := do
         acc := #[]
       }
     else
-      -- The remainder length seqRem is in characters, but all delimiters in the sequence are single-byte
-      emit <|
-        .text { start := seqStart, stop := { byteIdx := seqStart.byteIdx + seqRem } }
+      emit <| .text (delimiterSubslice seqStart seqRem)
 
 /--
 Processes the emphasis delimiter sequences in `toks`, producing a final flat inline array. Implements
 CommonMark §6.2's delimiter-matching algorithm (including the rule about lengths that are a multiple
 of 3). Unmatched delimiters are turned into literal text.
 -/
-public def processEmphasis (toks : Array InlineTok) : Array Inline :=
-  let go : DelimM (Array Inline) := do
+public def processEmphasis (toks : Array (InlineTok s)) : Array (Inline s) :=
+  let go : DelimM s (Array (Inline s)) := do
     for tok in toks do
       match tok with
       | .inline inl => emit inl

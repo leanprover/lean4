@@ -6,74 +6,76 @@ Authors: David Thrane Christiansen
 module
 
 prelude
-public import Init.Prelude
 public import Init.While
-public import Lean.Syntax
+public import Lean.Data.Markdown.Basic
 
 namespace Lean.Markdown
+
 
 /-!
 ## Line cursors
 
 The block parser walks one line at a time, and within each line it is constantly asking “what's at
 column N relative to the parent container's indent?”. Because CommonMark counts indentation in
-*columns* but the underlying source is bytes, and a single tab can advance the column by 1–4
-(CommonMark §2.2's partial-tab rule), byte position and column are not in lockstep. The cursor is a
+*columns* but the underlying source is characters, and a single tab can advance the column by 1–4
+(CommonMark §2.2's partial-tab rule), position and column are not in lockstep. The cursor is a
 structure that tracks both.
 -/
 
 /--
-A position within a single source line: an unconsumed slice plus the visual column its first byte
-sits at.
+A position within a single source line, together with the line's end and the visual column of the
+position.
 
-The pair `(rest.startPos, col)` is the parser's working position. They are kept in sync by the
-column-aware advancement primitives below. Direct field updates should preserve the invariant that
-`col` is the visual column of `rest.startPos`.
+The pair `(pos, col)` is the parser's working position. They are kept in sync by the column-aware
+advancement primitives below. Direct field updates should preserve the invariant that `col` is the
+visual column of `pos`.
 -/
-public structure Cursor where
-  /-- The unconsumed suffix of the current line. -/
-  rest : Substring.Raw
+public structure Cursor (s : String.Slice) where
+  /-- The current position. -/
+  pos : s.Pos
+  /-- The end of the line. -/
+  stop : s.Pos
   /--
-  The visual column of `rest.startPos`. Computed under CommonMark §2.2 tab semantics: a tab advances
-  `col` to the next multiple of 4.
+  The visual column of `pos`. Computed under CommonMark §2.2 tab semantics: a tab advances `col` to
+  the next multiple of 4.
   -/
   col : Nat
 
 namespace Cursor
 
+variable {s : String.Slice}
+
 /-- Constructs a cursor at the start of `line` (column 0). -/
-@[inline] public def ofLine (line : Substring.Raw) : Cursor :=
-  { rest := line, col := 0 }
+@[inline] public def ofLine (line : s.Subslice) : Cursor s :=
+  { pos := line.startInclusive, stop := line.endExclusive, col := 0 }
 
-/-- The byte position of the cursor. -/
-@[inline] public def byteIdx (c : Cursor) : String.Pos.Raw := c.rest.startPos
+/-- Whether the cursor is at the end of the line. -/
+@[inline] public def isEmpty (c : Cursor s) : Bool := c.stop ≤ c.pos
 
-/-- The end-of-line byte position. -/
-@[inline] public def stopPos (c : Cursor) : String.Pos.Raw := c.rest.stopPos
-
-/-- The source string. -/
-@[inline] public def str (c : Cursor) : String := c.rest.str
-
-/-- The `Syntax.Range` from the cursor to end-of-line. -/
-@[inline] public def toEol (c : Cursor) : Syntax.Range :=
-  { start := c.rest.startPos, stop := c.rest.stopPos }
+/-- The remaining text of the line, from the cursor to its end. -/
+@[inline] public def toEol (c : Cursor s) : s.Subslice :=
+  subsliceClamped c.pos c.stop
 
 /--
-Advances the cursor to byte position `p` and column `newCol`. The caller is responsible for ensuring
-`c.byteIdx ≤ p ≤ c.stopPos` and that `newCol` matches the actual column at `p`.
+Moves the cursor to position `p` and column `newCol`. The caller is responsible for ensuring that
+`p` is between `c.pos` and `c.stop` and that `newCol` is the column of `p`.
 -/
-@[inline] public def moveTo (c : Cursor) (p : String.Pos.Raw) (newCol : Nat) : Cursor :=
-  { rest := { c.rest with startPos := p }, col := newCol }
+@[inline] public def moveTo (c : Cursor s) (p : s.Pos) (newCol : Nat) : Cursor s :=
+  { c with pos := p, col := newCol }
+
+/-- The character at the cursor, if the cursor is not at the end of the line. -/
+@[inline] public def front? (c : Cursor s) : Option Char :=
+  if c.pos < c.stop then c.pos.get? else none
 
 /--
-Peeks the character at the cursor, returning it together with the byte position of the *next*
-character. Returns `none` when the cursor is at or past `stopPos` (i.e., at end-of-line for a line
-cursor).
-
-For tab-aware advancement use `countIndentCols` or `consumeIndentCapped`.
+The cursor advanced by one character, or unchanged at the end of the line. The column advances by
+one, which is correct for every character but a tab; for tabs use `countIndentCols` or
+`consumeIndentCapped`.
 -/
-@[inline] public def peek? (c : Cursor) : Option (Char × String.Pos.Raw) :=
-  if c.rest.isEmpty then none else some (c.rest.front, (c.rest.drop 1).startPos)
+@[inline] public def next (c : Cursor s) : Cursor s :=
+  if h : c.pos < c.stop then
+    { c with pos := c.pos.next (String.Slice.Pos.ne_endPos_of_lt h), col := c.col + 1 }
+  else c
 
 /--
 Advances the cursor over the longest prefix of characters satisfying `pred`, returning the resulting
@@ -83,12 +85,18 @@ The column is incremented by the consumed count, which is correct only when `pre
 character (each matched char then advances the column by exactly one). For tab-aware whitespace
 skipping use `countIndentCols` or `consumeIndentCapped`.
 -/
-@[inline] public def advanceWhile (c : Cursor) (pred : Char → Bool) : Cursor × Nat := Id.run do
-  let mut rest := c.rest
+@[inline] public def advanceWhile (c : Cursor s) (pred : Char → Bool) : Cursor s × Nat := Id.run do
+  let mut c := c
   let mut count := 0
-  while !rest.isEmpty do
-    let ch := rest.front
-    if !pred ch then break
+  while h : c.pos < c.stop do
+    let h' := String.Slice.Pos.ne_endPos_of_lt h
+    if !pred (c.pos.get h') then break
     count := count + 1
-    rest := rest.drop 1
-  return ({ rest, col := c.col + count }, count)
+    c := { c with pos := c.pos.next h', col := c.col + 1 }
+  return (c, count)
+
+/-- Whether the rest of the line is blank (only spaces or tabs). -/
+public def isBlank (c : Cursor s) : Bool :=
+  (c.advanceWhile fun ch => ch == ' ' || ch == '\t').1.isEmpty
+
+end Cursor

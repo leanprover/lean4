@@ -106,5 +106,3 @@ public def decodeText (s : String) : String := Id.run do
       out := out.push c
       i := j
   return out
-
-end Lean.Markdown

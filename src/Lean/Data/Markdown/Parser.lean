@@ -12,46 +12,45 @@ public import Lean.Data.Markdown.Parser.Inline
 namespace Lean.Markdown
 
 
+variable {s : String.Slice}
+
 /--
 Parses the inline content of the blocks identified in a Markdown document using `parseInlines`. This
 is the second pass of the algorithm suggested in the CommonMark specification. Two passes are
 necessary because the presence of a link definition later in the document affects the syntactic
 interpretation of reference-style links earlier in the document.
 -/
-partial def parseInlinesInBlock (refs : RefTable) (s : String) :
-    Block Syntax.Range → Block (Array Inline)
+partial def parseInlinesInBlock (refs : RefTable s) : Block.Raw s → Block s
   | .paragraph lines =>
-    let src := InlineSource.ofLines s lines
-    .paragraph #[parseInlines refs src { start := src.startPos, stop := src.stopPos }]
+    let src := InlineSource.ofLines lines
+    .paragraph (parseInlines refs src src.startPos src.stopPos)
   | .atxHeading level hashes content closeHashes? =>
-    .atxHeading level hashes (parseInlines refs (.ofRange s content) content) closeHashes?
+    .atxHeading level hashes
+      (parseInlines refs (.ofRange content) content.startInclusive content.endExclusive) closeHashes?
   | .setextHeading level lines underline =>
-    let src := InlineSource.ofLines s lines
-    .setextHeading level
-      #[parseInlines refs src { start := src.startPos, stop := src.stopPos }]
-      underline
+    let src := InlineSource.ofLines lines
+    .setextHeading level (parseInlines refs src src.startPos src.stopPos) underline
   | .fencedCode info openFence closeFence? lines =>
     .fencedCode info openFence closeFence? lines
   | .indentedCode lines =>
     .indentedCode lines
   | .blockquote markers children =>
-    .blockquote markers (children.map (parseInlinesInBlock refs s))
+    .blockquote markers (children.map (parseInlinesInBlock refs))
   | .list kind tight items =>
-    .list kind tight (items.map (parseInlinesInBlock refs s))
+    .list kind tight (items.map (parseInlinesInBlock refs))
   | .listItem marker children =>
-    .listItem marker (children.map (parseInlinesInBlock refs s))
+    .listItem marker (children.map (parseInlinesInBlock refs))
   | .linkRefDef m =>
     .linkRefDef m
   | .thematicBreak line =>
     .thematicBreak line
 
 /--
-Parses a Markdown string, delimited by `startPos` and `endPos`.
+Parses `s` as a Markdown document.
 
 This parser is based on the two-pass algorithm specified in the CommonMark specification.
 -/
-public def parseDocument (s : String) (startPos endPos : String.Pos.Raw) :
-    Array (Block (Array Inline)) :=
-  let blocks := parseBlocks s startPos endPos
-  let refs := buildRefTable s blocks
-  blocks.map (parseInlinesInBlock refs s)
+public def parseDocument (s : String.Slice) : Array (Block s) :=
+  let blocks := parseBlocks s
+  let refs := buildRefTable blocks
+  blocks.map (parseInlinesInBlock refs)

@@ -50,6 +50,11 @@ forward ref: [text][ref2]
 
 A paragraph with *cross-line italic* and **cross-line bold** to verify multi-line emphasis is
 recognised.
+
+An angle-bracketed destination [with spaces](<https://example.com/a b>) and one in a
+[reference][ang].
+
+[ang]: <https://example.com/angle>
 -/
 def x := ()
 

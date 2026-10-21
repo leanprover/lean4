@@ -6,234 +6,223 @@ Authors: David Thrane Christiansen
 module
 
 prelude
-public import Init.Data.String.PosRaw
 public import Init.Data.Array.Basic
 public import Init.While
-public import Lean.Syntax
+import Init.Omega
+public import Lean.Data.Markdown.Basic
 
 namespace Lean.Markdown
+
 
 /-!
 # Inline Source View
 
-The block parser carves a paragraph (or heading) into a sequence of source ranges. There is one per
-line, with leading container prefixes already stripped. The inline parser then needs to walk that
-content as if it were a single contiguous string, while still emitting `Syntax.Range`s anchored in
-the *original* file. `InlineSource` it bundles the underlying file string with the per-line ranges,
-and exposes `get`/`next` operations that step through the lines while skipping the inter-line gaps
-that contain block markers and stripped indentation.
+The block parser carves a paragraph (or heading) into a sequence of source lines, with leading
+container prefixes already removed. The inline parser then needs to walk that content as if it were
+a single contiguous string, while still producing subslices anchored in the original file.
+`InlineSource` bundles the per-line ranges, and `InlineRange` is a cursor over it whose `drop1`
+steps through the lines while skipping the inter-line gaps that contain block markers and removed
+indentation.
 -/
 
 /--
-A view onto a `String` source that exposes a logical concatenation of sub-ranges. Each range is one
-paragraph line (or analogous content unit) with block markers such as `>` and leading whitespace
-stripped from its `start`. The `\n` after each non-final line is the range's last byte (`stop
-- 1`), so walking via `get`/`next` sees real `\n` characters at line boundaries.
+The lines of a paragraph-like block, each as a range of the source string. A line's range starts
+after its leading spaces and tabs, and the `\n` that ends each non-final line is the range's last
+character, so a walk sees real `\n` characters at line boundaries.
 
-Ranges should be non-overlapping.
-
-Positions returned by walking are file offsets in `str`, so inlines produced over an `InlineSource`
-are file-anchored without a separate mapping pass.
+The lines are in source order and do not overlap.
 -/
-public structure InlineSource where
-  /-- The underlying source string. -/
-  str : String
-  /--
-  Per-line ranges in source order. Each `range.start` points past the leading spaces/tabs of its
-  line, and each `range.stop` points one past the line's terminating `'\n'`, so the `'\n'` is the
-  range's last byte. The trailing range, if its line had no `'\n'`, ends at the document's EOF.
-  -/
-  ranges : Array Syntax.Range
+public structure InlineSource (s : String.Slice) where
+  /-- The lines, in source order. -/
+  lines : Array s.Subslice
 deriving Inhabited
 
 namespace InlineSource
 
+variable {s : String.Slice}
+
 /-- The empty source. -/
-public def empty : InlineSource := { str := "", ranges := #[] }
+public def empty : InlineSource s := ⟨#[]⟩
 
-/-- The first source position in `s` (or `0` if empty). -/
-public def startPos (s : InlineSource) : String.Pos.Raw :=
-  match s.ranges[0]? with
-  | some r => r.start
-  | none => 0
+/-- The first source position of `src`, or the start of the string if there are no lines. -/
+public def startPos (src : InlineSource s) : s.Pos :=
+  match src.lines[0]? with
+  | some r => r.startInclusive
+  | none => s.startPos
 
-/-- One past the last source position in `s` (or `0` if empty). -/
-public def stopPos (s : InlineSource) : String.Pos.Raw :=
-  match s.ranges.back? with
-  | some r => r.stop
-  | none => 0
-
-/-- Whether `p` is at or past the end of the last range. -/
-public def atEnd (s : InlineSource) (p : String.Pos.Raw) : Bool :=
-  p ≥ s.stopPos
+/-- One past the last source position of `src`, or the start of the string if there are no lines. -/
+public def stopPos (src : InlineSource s) : s.Pos :=
+  match src.lines.back? with
+  | some r => r.endExclusive
+  | none => s.startPos
 
 /--
-Returns the index of the range that contains `p`, or `none` if `p` falls outside every range.
+The index of the first line that ends after `p`, which is the line that contains `p` when some line
+does. This is `src.lines.size` when every line ends at or before `p`.
 -/
-def findRangeIdx? (s : InlineSource) (p : String.Pos.Raw) : Option Nat :=
-  s.ranges.findIdx? fun r =>
-    r.start ≤ p && p < r.stop
+public def lineIndex (src : InlineSource s) (p : s.Pos) : Nat :=
+  go 0 src.lines.size (Nat.le_refl _)
+where
+  /-- Binary search for the first index in `[lo, hi)` whose line ends after `p`. -/
+  go (lo hi : Nat) (h : hi ≤ src.lines.size) : Nat :=
+    if hlt : lo < hi then
+      have : (lo + hi) / 2 < src.lines.size := by omega
+      if p < src.lines[(lo + hi) / 2].endExclusive then go lo ((lo + hi) / 2) (by omega)
+      else go ((lo + hi) / 2 + 1) hi h
+    else lo
+  termination_by hi - lo
+  decreasing_by all_goals omega
 
 /--
-Returns the character at `p`.
-
-Inside a valid range of `s`, this is simply the character; outside the ranges, it returns
-`(default : Char)`.
+Concatenates the text of each line intersected with `[p1, p2)`, in source order. This is the text a
+walk from `p1` to `p2` sees, without the inter-line gaps.
 -/
-public def get (s : InlineSource) (p : String.Pos.Raw) : Char :=
-  match s.findRangeIdx? p with
-  | some _ => p.get s.str
-  | none => default
+public def extract (src : InlineSource s) (p1 p2 : s.Pos) : String :=
+  src.lines.foldl (init := "") fun acc r =>
+    let lo := if p1 ≤ r.startInclusive then r.startInclusive else p1
+    let hi := if r.endExclusive ≤ p2 then r.endExclusive else p2
+    if lo < hi then acc ++ (subsliceClamped lo hi).copy else acc
+
+/-- The first position at or after `p` and before `stop` that is not a space or tab. -/
+def skipSpaces (p stop : s.Pos) : s.Pos := Id.run do
+  let mut p := p
+  while h : p < stop do
+    let c := p.get (String.Slice.Pos.ne_endPos_of_lt h)
+    if c == ' ' || c == '\t' then
+      p := p.next (String.Slice.Pos.ne_endPos_of_lt h)
+    else
+      break
+  return p
 
 /--
-Returns the next logical position after `p`. Within a range, advances by the UTF-8 width of the
-character at `p`. When that advance would land at the end of `p`'s range, it jumps to the start of a
-next range if one exists, or to the end of the current range if not. If `p` is not in any range, it
-returns `s.stopPos`.
+Constructs an `InlineSource` from the line ranges of a paragraph block, which exclude their line
+endings. This implements the CommonMark §4.8 paragraph-content normalization:
+
+- Leading spaces and tabs are removed from each line.
+- Each non-final line is extended by the `\n` that follows it in the source.
+- Trailing whitespace is removed from the final line.
 -/
-public def next (s : InlineSource) (p : String.Pos.Raw) : String.Pos.Raw :=
-  match s.findRangeIdx? p with
-  | none => s.stopPos
-  | some i =>
-    let r := s.ranges[i]!
-    let next := p + (p.get s.str)
-    if next < r.stop then next
-    else if h : i + 1 < s.ranges.size then s.ranges[i + 1].start
-    else r.stop
-
-/--
-Concatenates the slices of `s.str` at each range intersected with `[p1, p2)`, in source
-order. This is equivalent to walking via `get`/`next` from `p1` to `p2` (skipping inter-range gaps),
-but it can be more efficient.
--/
-public def extract (s : InlineSource) (p1 p2 : String.Pos.Raw) : String :=
-  s.ranges.foldl (init := "") fun acc r =>
-    let lo : String.Pos.Raw := ⟨max p1.byteIdx r.start.byteIdx⟩
-    let hi : String.Pos.Raw := ⟨min r.stop.byteIdx p2.byteIdx⟩
-    if lo < hi then acc ++ String.Pos.Raw.extract s.str lo hi
-    else acc
-
-/--
-Constructs an `InlineSource` from a source string and the line ranges of a paragraph block. This is
-typically the output of `splitLines` plus container- prefix consumption.
-
-It implements the CommonMark §4.8 paragraph-content normalisation directly on file positions:
-
-- Leading spaces and tabs are stripped from each line's start.
-- Each non-final line's stop position is extended by one byte when the source has a `'\n'` there.
-- Trailing spaces/tabs/`\n`/`\r` are stripped from the *final* line's end, so trailing whitespace
-  cannot leak into the rendered output.
--/
-public def ofLines (str : String) (lines : Array Syntax.Range) : InlineSource := Id.run do
-  let mut ranges : Array Syntax.Range := Array.emptyWithCapacity lines.size
+public def ofLines (lines : Array s.Subslice) : InlineSource s := Id.run do
+  let mut out : Array s.Subslice := Array.emptyWithCapacity lines.size
   for h : idx in [0 : lines.size] do
     let line := lines[idx]
-    let lineSub : Substring.Raw := { str, startPos := line.start, stopPos := line.stop }
-    let start := lineSub.trimLeft.startPos
-    let stop : String.Pos.Raw :=
-      let isNonLastNewline :=
-        idx + 1 < lines.size &&
-        line.stop < str.rawEndPos &&
-        line.stop.get str == '\n'
-      if isNonLastNewline then
-        line.stop + '\n'
-      else line.stop
-    ranges := ranges.push { start, stop }
-  -- Trim trailing whitespace from the last range (CommonMark §4.8 final-WS removal).
-  if h : ranges.size > 0 then
-    let lastIdx := ranges.size - 1
-    have : ranges.size - 1 < ranges.size := Nat.sub_one_lt_of_lt h
-    let r := ranges[lastIdx]
-    let lastSub : Substring.Raw := { str, startPos := r.start, stopPos := r.stop }
-    ranges := ranges.set lastIdx { r with stop := lastSub.trimRight.stopPos }
-  return { str, ranges }
+    let start := skipSpaces line.startInclusive line.endExclusive
+    let stop :=
+      if idx + 1 < lines.size then
+        if h : line.endExclusive ≠ s.endPos then
+          if line.endExclusive.get h == '\n' then line.endExclusive.next h else line.endExclusive
+        else line.endExclusive
+      else line.endExclusive
+    out := out.push (subsliceClamped start stop)
+  if h : out.size > 0 then
+    let lastIdx := out.size - 1
+    have hlt : lastIdx < out.size := Nat.sub_one_lt_of_lt h
+    let r := out[lastIdx]
+    let mut stop := r.endExclusive
+    while r.startInclusive < stop do
+      match stop.prev? with
+      | some q =>
+        if r.startInclusive ≤ q && (q.get? matches some ' ' | some '\t' | some '\n' | some '\r') then
+          stop := q
+        else break
+      | none => break
+    out := out.set lastIdx (subsliceClamped r.startInclusive stop) hlt
+  return ⟨out⟩
 
 /--
-A single-range `InlineSource` over `range` of `str`. Used for content that is naturally a single
-contiguous source span (e.g. an ATX heading's content slice).
+A single-line `InlineSource` over `range`. Used for content that is naturally a single contiguous
+source span (e.g. an ATX heading's content).
 -/
-public def ofRange (str : String) (range : Syntax.Range) : InlineSource :=
-  { str, ranges := #[range] }
+public def ofRange (range : s.Subslice) : InlineSource s := ⟨#[range]⟩
 
 /--
-Returns an `InlineSource` whose ranges represent the suffix of `s` that starts at position `p`.
-Ranges fully before `p` are dropped and the range containing `p` (if any) is trimmed to start at
-`p`.
+Returns an `InlineSource` whose lines represent the suffix of `src` that starts at position `p`.
+Lines fully before `p` are dropped and the line containing `p` (if any) is trimmed to start at `p`.
 -/
-public def dropUpTo (s : InlineSource) (p : String.Pos.Raw) : InlineSource := Id.run do
-  let mut out : Array Syntax.Range := #[]
-  for r in s.ranges do
-    if r.stop ≤ p then continue
-    if r.start < p then
-      out := out.push { start := p, stop := r.stop }
+public def dropUpTo (src : InlineSource s) (p : s.Pos) : InlineSource s := Id.run do
+  let mut out : Array s.Subslice := #[]
+  for r in src.lines do
+    if r.endExclusive ≤ p then continue
+    if r.startInclusive < p then
+      out := out.push (subsliceClamped p r.endExclusive)
     else
       out := out.push r
-  return { str := s.str, ranges := out }
+  return ⟨out⟩
 
 end InlineSource
 
 /--
-A bounded sub-view of an `InlineSource`, analogous to `Substring.Raw`
-over a `String`: it carries the parent source plus an explicit
-`startPos` / `stopPos` range.
+A cursor over an `InlineSource`, analogous to a `String.Slice` over a `String`: the current position,
+the position at which the view ends, and the index of the line that contains the current position.
 -/
-public structure InlineRange where
-  /-- The parent source. -/
-  source : InlineSource
-  /-- The current logical position within `source`. -/
-  startPos : String.Pos.Raw
-  /-- One past the last logical position in this view. -/
-  stopPos : String.Pos.Raw
+public structure InlineRange (s : String.Slice) where
+  /-- The source being walked. -/
+  source : InlineSource s
+  /--
+  The index in `source.lines` of the line that contains `startPos`, or `source.lines.size` if no
+  line does.
+  -/
+  line : Nat
+  /-- The current position. -/
+  startPos : s.Pos
+  /-- One past the last position of this view. -/
+  stopPos : s.Pos
 deriving Inhabited
 
-/--
-Builds an `InlineRange` viewing `[startPos, stopPos)` of `s`.
--/
-@[inline] public def InlineSource.range (s : InlineSource) (startPos stopPos : String.Pos.Raw) :
-    InlineRange :=
-  { source := s, startPos, stopPos }
+/-- A cursor at `startPos` whose view ends at `stopPos`. -/
+public def InlineSource.range (src : InlineSource s) (startPos stopPos : s.Pos) : InlineRange s :=
+  { source := src, line := src.lineIndex startPos, startPos, stopPos }
 
 namespace InlineRange
 
-/-- Returns `r` with its `startPos` replaced by `p` (and the same source/stop). -/
-@[inline] public def withStart (r : InlineRange) (p : String.Pos.Raw) : InlineRange :=
-  { r with startPos := p }
+variable {s : String.Slice}
 
-/-- Whether this range has been fully consumed. -/
-@[inline] public def isEmpty (r : InlineRange) : Bool :=
-  r.startPos ≥ r.stopPos
+/-- Whether the view has been fully consumed. -/
+public def isEmpty (r : InlineRange s) : Bool :=
+  r.stopPos ≤ r.startPos
 
-/-- The character at the range's `startPos`. -/
-@[inline] public def front (r : InlineRange) : Char :=
-  r.source.get r.startPos
+/-- The character at the cursor, if the view is not empty. -/
+public def front? (r : InlineRange s) : Option Char :=
+  if r.startPos < r.stopPos then r.startPos.get? else none
 
-/--
-Advances `startPos` by one logical character.
--/
-@[inline] public def drop1 (r : InlineRange) : InlineRange :=
-  { r with startPos := r.source.next r.startPos }
+/-- The character at the cursor, or the default character if the view is empty. -/
+public def front (r : InlineRange s) : Char :=
+  r.front?.getD default
 
-/--
-If `r` begins with `c`, returns the range advanced past it. Otherwise returns `none`.
--/
-@[inline] public def expectChar (c : Char) (r : InlineRange) : Option InlineRange :=
-  if !r.isEmpty && r.front == c then some r.drop1 else none
-
-/--
-If `r` begins with `c`, returns the source range of the character together with `r`
-advanced past `c`. Otherwise returns `none`.
--/
-@[inline] public def matchCharRange (c : Char) (r : InlineRange) : Option (Syntax.Range × InlineRange) :=
-  if !r.isEmpty && r.front == c then
-    let r' := r.drop1
-    some ({ start := r.startPos, stop := r'.startPos }, r')
+/-- The range of the character at the cursor, if the view is not empty. -/
+public def charRange? (r : InlineRange s) : Option s.Subslice :=
+  if h : r.startPos < r.stopPos then
+    some (s.subslice r.startPos (r.startPos.next (String.Slice.Pos.ne_endPos_of_lt h)) String.Slice.Pos.le_next)
   else none
 
 /--
-Advances past the sequence of `c`s at the start of `r`. Returns the range after the sequence and its length.
+Advances the cursor by one character. At the end of a line, the cursor moves to the start of the
+next line, skipping the gap between them.
 -/
-public partial def matchSequence (c : Char) (r : InlineRange) : InlineRange × Nat :=
+public def drop1 (r : InlineRange s) : InlineRange s :=
+  if h : r.startPos < r.stopPos then
+    let q := r.startPos.next (String.Slice.Pos.ne_endPos_of_lt h)
+    match r.source.lines[r.line]? with
+    | some lineRange =>
+      if q < lineRange.endExclusive then { r with startPos := q }
+      else
+        match r.source.lines[r.line + 1]? with
+        | some nextLine => { r with line := r.line + 1, startPos := nextLine.startInclusive }
+        | none => { r with line := r.line + 1, startPos := q }
+    | none => { r with startPos := q }
+  else r
+
+/-- If `r` begins with `c`, returns the range of that character together with `r` advanced past it. -/
+public def matchCharRange (c : Char) (r : InlineRange s) : Option (s.Subslice × InlineRange s) := do
+  guard (r.front? == some c)
+  let range ← r.charRange?
+  return (range, r.drop1)
+
+/-- Advances past a sequence of `c`s at the start of `r`. Returns the cursor after the sequence and its length. -/
+public partial def matchSequence (c : Char) (r : InlineRange s) : InlineRange s × Nat :=
   go r 0
 where
-  go (r : InlineRange) (n : Nat) : InlineRange × Nat :=
-    if !r.isEmpty && r.front == c then go r.drop1 (n + 1) else (r, n)
+  go (r : InlineRange s) (n : Nat) : InlineRange s × Nat :=
+    if r.front? == some c then go r.drop1 (n + 1) else (r, n)
+
+end InlineRange

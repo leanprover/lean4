@@ -34,7 +34,7 @@ open Lean.Markdown
 /-!
 ## CommonMark HTML rendering (test-only)
 
-A simple HTML renderer for the `Block (Array Inline)` tree produced by
+A simple HTML renderer for the `Block` tree produced by
 `Lean.Markdown.parseDocument`. This lives inside the
 conformance runner because nothing else in the toolchain needs it: the
 language server emits semantic tokens, not HTML.
@@ -48,6 +48,8 @@ the expected HTML, and tally divergences.
 
 namespace Lean.Markdown.Html
 
+variable {s : String.Slice}
+
 private def escapeChar : Char → String
   | '&' => "&amp;"
   | '<' => "&lt;"
@@ -58,10 +60,6 @@ private def escapeChar : Char → String
 /-- HTML-escape `&`, `<`, `>`, and `"`. -/
 def escape (s : String) : String :=
   s.foldl (init := "") fun acc c => acc ++ escapeChar c
-
-/-- The substring of `source` at `r`. -/
-def extract (source : String) (r : Syntax.Range) : String :=
-  String.Pos.Raw.extract source r.start r.stop
 
 private def hexDigit (n : Nat) : Char :=
   if n < 10 then Char.ofNat (n + '0'.toNat)
@@ -200,92 +198,78 @@ Flatten an inline tree to its plain-text content (CommonMark's `alt`
 attribute rule for images): drop markup, keep text and code-span text,
 recurse through emphasis/link/image children.
 -/
-partial def inlineToPlainText (source : String) (i : Inline) : String :=
+partial def inlineToPlainText (i : Inline s) : String :=
   match i with
-  | .text r => extract source r
-  | .code _ content _ => extract source content
+  | .text r => r.copy
+  | .code _ content _ => content.copy
   | .italic _ content _ =>
-    content.foldl (init := "") fun acc i => acc ++ inlineToPlainText source i
+    content.foldl (init := "") fun acc i => acc ++ inlineToPlainText i
   | .bold _ content _ =>
-    content.foldl (init := "") fun acc i => acc ++ inlineToPlainText source i
+    content.foldl (init := "") fun acc i => acc ++ inlineToPlainText i
   | .link _ text _ _ =>
-    text.foldl (init := "") fun acc i => acc ++ inlineToPlainText source i
+    text.foldl (init := "") fun acc i => acc ++ inlineToPlainText i
   | .image _ _ alt _ _ =>
-    alt.foldl (init := "") fun acc i => acc ++ inlineToPlainText source i
-  | .hardBreak _ => "\n"
-  | .autolink _ url _ _ => extract source url
+    alt.foldl (init := "") fun acc i => acc ++ inlineToPlainText i
+  | .hardBreak _ _ => "\n"
+  | .autolink _ url _ _ => url.copy
   | .softBreak _ => "\n"
-  | .escape _ char => extract source char
+  | .escape _ char => char.copy
   | .entity _ value => value
 
 /-- Renders a single inline element. -/
-partial def renderInline (source : String) (i : Inline) : String :=
+partial def renderInline (i : Inline s) : String :=
   match i with
   | .text r =>
-    escape (normalizeParaText (extract source r))
+    escape (normalizeParaText r.copy)
   | .code _ content _ =>
-    s!"<code>{escape (renderCodeSpan (extract source content))}</code>"
+    s!"<code>{escape (renderCodeSpan content.copy)}</code>"
   | .italic _ content _ =>
-    let inner := content.foldl (init := "") fun acc i => acc ++ renderInline source i
+    let inner := content.foldl (init := "") fun acc i => acc ++ renderInline i
     s!"<em>{inner}</em>"
   | .bold _ content _ =>
-    let inner := content.foldl (init := "") fun acc i => acc ++ renderInline source i
+    let inner := content.foldl (init := "") fun acc i => acc ++ renderInline i
     s!"<strong>{inner}</strong>"
   | .link _ text _ target =>
     let (url, title?) := match target with
-      | .inline _ url _ title? =>
-        (percentEncode (decodeText (extract source url)),
-         title?.map (fun t => decodeText (extract source t)))
-      | .reference url title? _ =>
-        (percentEncode (decodeText url),
-         title?.map (fun t => decodeText t))
+      | .inline _ destination _ title? =>
+        (percentEncode (decodeText destination.url.copy),
+         title?.map (fun t => decodeText t.content.copy))
+      | .reference d _ =>
+        (percentEncode (decodeText d.destination.url.copy),
+         d.title?.map (fun t => decodeText t.content.copy))
     let titleAttr := match title? with
       | some t => s!" title=\"{escape t}\""
       | none => ""
-    let inner := text.foldl (init := "") fun acc i => acc ++ renderInline source i
+    let inner := text.foldl (init := "") fun acc i => acc ++ renderInline i
     s!"<a href=\"{escape url}\"{titleAttr}>{inner}</a>"
   | .image _ _ alt _ target =>
     let (url, title?) := match target with
-      | .inline _ url _ title? =>
-        (percentEncode (decodeText (extract source url)),
-         title?.map (fun t => decodeText (extract source t)))
-      | .reference url title? _ =>
-        (percentEncode (decodeText url),
-         title?.map (fun t => decodeText t))
+      | .inline _ destination _ title? =>
+        (percentEncode (decodeText destination.url.copy),
+         title?.map (fun t => decodeText t.content.copy))
+      | .reference d _ =>
+        (percentEncode (decodeText d.destination.url.copy),
+         d.title?.map (fun t => decodeText t.content.copy))
     let titleAttr := match title? with
       | some t => s!" title=\"{escape t}\""
       | none => ""
-    let altText := alt.foldl (init := "") fun acc i => acc ++ inlineToPlainText source i
+    let altText := alt.foldl (init := "") fun acc i => acc ++ inlineToPlainText i
     s!"<img src=\"{escape url}\" alt=\"{escape altText}\"{titleAttr} />"
-  | .hardBreak _ => "<br />\n"
+  | .hardBreak _ _ => "<br />\n"
   | .autolink _ url _ isEmail =>
     -- Autolink contents are verbatim (no backslash escapes, no entity
     -- references). The href is the raw URL percent-encoded; for email
     -- form, prefix with `mailto:`. The visible text is the URL itself,
     -- HTML-escaped only.
-    let urlText := extract source url
+    let urlText := url.copy
     let href := if isEmail then "mailto:" ++ urlText else urlText
     s!"<a href=\"{escape (percentEncode href)}\">{escape urlText}</a>"
   | .softBreak _ => "\n"
-  | .escape _ char => escape (extract source char)
+  | .escape _ char => escape char.copy
   | .entity _ value => escape value
 
-private def renderInlineArray (source : String) (inlines : Array Inline) : String :=
-  inlines.foldl (init := "") fun acc i => acc ++ renderInline source i
-
-/-- Renders an array of per-source-line inline arrays, joined by `\n`. -/
-private def renderInlineLines (source : String) (lines : Array (Array Inline)) : String :=
-  Id.run do
-    let mut out := ""
-    let mut first := true
-    for line in lines do
-      if first then
-        first := false
-      else
-        out := out ++ "\n"
-      out := out ++ renderInlineArray source line
-    return out
-
+private def renderInlineArray (inlines : Array (Inline s)) : String :=
+  inlines.foldl (init := "") fun acc i => acc ++ renderInline i
 
 /--
 Strips up to `n` leading ASCII spaces from a fenced-code-block content
@@ -302,15 +286,15 @@ private def stripFenceIndent (n : Nat) (line : String) : String := Id.run do
   return sl.toString
 
 /-- Renders a single block element. -/
-partial def renderBlock (source : String) (b : Block (Array Inline)) : String :=
+partial def renderBlock (b : Block s) : String :=
   match b with
-  | .paragraph lines =>
-    s!"<p>{renderInlineLines source lines}</p>\n"
+  | .paragraph content =>
+    s!"<p>{renderInlineArray content}</p>\n"
   | .atxHeading level _hashes content _closeHashes? =>
-    let inner := renderInlineArray source content
+    let inner := renderInlineArray content
     s!"<h{level}>{inner}</h{level}>\n"
-  | .setextHeading level lines _ =>
-    s!"<h{level}>{renderInlineLines source lines}</h{level}>\n"
+  | .setextHeading level content _ =>
+    s!"<h{level}>{renderInlineArray content}</h{level}>\n"
   | .fencedCode info _ _ lines =>
     let langClass := match info.infoString? with
       | some r =>
@@ -319,18 +303,18 @@ partial def renderBlock (source : String) (b : Block (Array Inline)) : String :=
         -- metadata and are ignored for the `language-…` class. Backslash
         -- escapes and entity references in the info string are decoded
         -- (so e.g. ```` ``` foo\+bar ```` produces `class="language-foo+bar"`).
-        let lang := ((extract source r).takeWhile fun c => c != ' ' && c != '\t').toString
+        let lang := (r.copy.takeWhile fun c => c != ' ' && c != '\t').toString
         s!" class=\"language-{escape (decodeText lang)}\""
       | none => ""
     let codeContent := lines.foldl (init := "") fun acc r =>
-      acc ++ escape (stripFenceIndent info.openIndent (extract source r)) ++ "\n"
+      acc ++ escape (stripFenceIndent info.openIndent r.copy) ++ "\n"
     s!"<pre><code{langClass}>{codeContent}</code></pre>\n"
   | .indentedCode lines =>
     let codeContent := lines.foldl (init := "") fun acc (_, l) =>
       acc ++ escape l ++ "\n"
     s!"<pre><code>{codeContent}</code></pre>\n"
   | .blockquote _ children =>
-    let inner := children.foldl (init := "") fun acc c => acc ++ renderBlock source c
+    let inner := children.foldl (init := "") fun acc c => acc ++ renderBlock c
     s!"<blockquote>\n{inner}</blockquote>\n"
   | .list kind tight items =>
     let (tag, attr) : String × String := match kind with
@@ -340,13 +324,13 @@ partial def renderBlock (source : String) (b : Block (Array Inline)) : String :=
     -- A tight list-item unwraps `<p>` from its direct paragraph children
     -- (CommonMark §5.3); a loose list-item renders each child via
     -- `renderBlock`, which keeps `<p>` wrappers.
-    let renderItem (item : Block (Array Inline)) : String :=
+    let renderItem (item : Block s) : String :=
       match item with
       | .listItem _ children =>
         if !tight then
           if children.isEmpty then s!"<li></li>\n"
           else
-            let inner := children.foldl (init := "") fun acc c => acc ++ renderBlock source c
+            let inner := children.foldl (init := "") fun acc c => acc ++ renderBlock c
             s!"<li>\n{inner}</li>\n"
         else
           let body : String := Id.run do
@@ -355,11 +339,11 @@ partial def renderBlock (source : String) (b : Block (Array Inline)) : String :=
             while i < children.size do
               let c := children[i]!
               match c with
-              | .paragraph lines =>
-                out := out ++ renderInlineLines source lines
+              | .paragraph content =>
+                out := out ++ renderInlineArray content
                 if i + 1 < children.size then out := out ++ "\n"
               | _ =>
-                out := out ++ renderBlock source c
+                out := out ++ renderBlock c
               i := i + 1
             return out
           let firstIsPara := children.size > 0
@@ -367,28 +351,28 @@ partial def renderBlock (source : String) (b : Block (Array Inline)) : String :=
           if children.isEmpty then s!"<li></li>\n"
           else if firstIsPara then s!"<li>{body}</li>\n"
           else s!"<li>\n{body}</li>\n"
-      | _ => renderBlock source item
+      | _ => renderBlock item
     let inner := items.foldl (init := "") fun acc item => acc ++ renderItem item
     s!"<{tag}{attr}>\n{inner}</{tag}>\n"
   | .listItem _ children =>
     -- A `listItem` is normally rendered by its parent list (which knows the
     -- tight/loose flag). The branch here handles the unusual case of a list
     -- item appearing outside a list.
-    let inner := children.foldl (init := "") fun acc c => acc ++ renderBlock source c
+    let inner := children.foldl (init := "") fun acc c => acc ++ renderBlock c
     s!"<li>\n{inner}</li>\n"
   | .linkRefDef .. => ""
   | .thematicBreak _ => "<hr />\n"
 
 /-- Renders an array of top-level blocks. -/
-def renderBlocks (source : String) (blocks : Array (Block (Array Inline))) : String :=
-  blocks.foldl (init := "") fun acc b => acc ++ renderBlock source b
+def renderBlocks (blocks : Array (Block s)) : String :=
+  blocks.foldl (init := "") fun acc b => acc ++ renderBlock b
 
 /--
 Convenience: parse `source` as a Markdown document and render it as HTML,
 suitable for direct comparison with CommonMark's reference output.
 -/
 def renderToHtml (source : String) : String :=
-  renderBlocks source (parseDocument source ⟨0⟩ source.rawEndPos)
+  renderBlocks (parseDocument source.toSlice)
 
 end Lean.Markdown.Html
 

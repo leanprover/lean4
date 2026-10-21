@@ -229,15 +229,16 @@ where
     setENode lhsNode.root { (← getENode lhsRoot.self) with -- We must retrieve `lhsRoot` since it was updated.
       next := rhsRoot.next
     }
+    let heqProofs := isHEq || rhsRoot.heqProofs || lhsRoot.heqProofs
     setENode rhsNode.root { rhsRoot with
       next       := lhsRoot.next
       size       := rhsRoot.size + lhsRoot.size
       hasLambdas := rhsRoot.hasLambdas || lhsRoot.hasLambdas
-      heqProofs  := isHEq || rhsRoot.heqProofs || lhsRoot.heqProofs
+      heqProofs
     }
     propagateBeta lams₁ fns₁
     propagateBeta lams₂ fns₂
-    let toPropagateSolvers ← Solvers.mergeTerms rhsRoot lhsRoot
+    let toPropagateSolvers ← Solvers.mergeTerms rhsRoot lhsRoot heqProofs
     resetParentsOf lhsRoot.self
     copyParentsTo parents rhsNode.root
     unless (← isInconsistent) do

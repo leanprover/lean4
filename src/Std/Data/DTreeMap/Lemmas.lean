@@ -3009,6 +3009,16 @@ theorem isEmpty_inter_comm [TransCmp cmp] :
     (t₁ ∩ t₂).isEmpty = (t₂ ∩ t₁).isEmpty :=
   Impl.isEmpty_inter_comm t₁.wf t₂.wf
 
+@[simp]
+theorem isEmpty_union_inter [TransCmp cmp] {t₃ : DTreeMap α β cmp} :
+    ((t₁ ∪ t₂) ∩ t₃).isEmpty = ((t₁ ∩ t₃).isEmpty && (t₂ ∩ t₃).isEmpty) :=
+  Impl.isEmpty_union_inter t₁.wf t₂.wf t₃.wf
+
+@[simp]
+theorem isEmpty_inter_union [TransCmp cmp] {t₃ : DTreeMap α β cmp} :
+    (t₁ ∩ (t₂ ∪ t₃)).isEmpty = ((t₁ ∩ t₂).isEmpty && (t₁ ∩ t₃).isEmpty) :=
+  Impl.isEmpty_inter_union t₁.wf t₂.wf t₃.wf
+
 end Inter
 
 namespace Const

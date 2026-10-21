@@ -2705,6 +2705,16 @@ theorem isEmpty_inter_comm [EquivBEq α] [LawfulHashable α] :
     (m₁ ∩ m₂).isEmpty = (m₂ ∩ m₁).isEmpty :=
   m₁.inductionOn₂ m₂ fun _ _ => DHashMap.isEmpty_inter_comm
 
+@[simp]
+theorem isEmpty_union_inter [EquivBEq α] [LawfulHashable α] {m₃ : ExtDHashMap α β} :
+    ((m₁ ∪ m₂) ∩ m₃).isEmpty = ((m₁ ∩ m₃).isEmpty && (m₂ ∩ m₃).isEmpty) :=
+  m₁.inductionOn₂ m₂ fun _ _ => m₃.inductionOn fun _ => DHashMap.isEmpty_union_inter
+
+@[simp]
+theorem isEmpty_inter_union [EquivBEq α] [LawfulHashable α] {m₃ : ExtDHashMap α β} :
+    (m₁ ∩ (m₂ ∪ m₃)).isEmpty = ((m₁ ∩ m₂).isEmpty && (m₁ ∩ m₃).isEmpty) :=
+  m₁.inductionOn₂ m₂ fun _ _ => m₃.inductionOn fun _ => DHashMap.isEmpty_inter_union
+
 theorem inter_eq_empty_comm [EquivBEq α] [LawfulHashable α] :
     m₁ ∩ m₂ = ∅ ↔ m₂ ∩ m₁ = ∅ := by
   rw [← isEmpty_iff, ← isEmpty_iff, ← Bool.eq_iff_iff]

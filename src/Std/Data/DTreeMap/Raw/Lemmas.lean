@@ -3169,6 +3169,18 @@ theorem isEmpty_inter_comm [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF) :
     (t₁ ∩ t₂).isEmpty = (t₂ ∩ t₁).isEmpty :=
   Impl.isEmpty_inter!_comm h₁ h₂
 
+@[simp]
+theorem isEmpty_union_inter [TransCmp cmp] {t₃ : Raw α β cmp}
+    (h₁ : t₁.WF) (h₂ : t₂.WF) (h₃ : t₃.WF) :
+    ((t₁ ∪ t₂) ∩ t₃).isEmpty = ((t₁ ∩ t₃).isEmpty && (t₂ ∩ t₃).isEmpty) :=
+  Impl.isEmpty_union!_inter! h₁ h₂ h₃
+
+@[simp]
+theorem isEmpty_inter_union [TransCmp cmp] {t₃ : Raw α β cmp}
+    (h₁ : t₁.WF) (h₂ : t₂.WF) (h₃ : t₃.WF) :
+    (t₁ ∩ (t₂ ∪ t₃)).isEmpty = ((t₁ ∩ t₂).isEmpty && (t₁ ∩ t₃).isEmpty) :=
+  Impl.isEmpty_inter!_union! h₁ h₂ h₃
+
 end Inter
 
 namespace Const

@@ -816,6 +816,16 @@ theorem isEmpty_inter_comm [TransCmp cmp] :
     (t₁ ∩ t₂).isEmpty = (t₂ ∩ t₁).isEmpty :=
   TreeMap.isEmpty_inter_comm
 
+@[simp]
+theorem isEmpty_union_inter [TransCmp cmp] {t₃ : TreeSet α cmp} :
+    ((t₁ ∪ t₂) ∩ t₃).isEmpty = ((t₁ ∩ t₃).isEmpty && (t₂ ∩ t₃).isEmpty) :=
+  TreeMap.isEmpty_union_inter
+
+@[simp]
+theorem isEmpty_inter_union [TransCmp cmp] {t₃ : TreeSet α cmp} :
+    (t₁ ∩ (t₂ ∪ t₃)).isEmpty = ((t₁ ∩ t₂).isEmpty && (t₁ ∩ t₃).isEmpty) :=
+  TreeMap.isEmpty_inter_union
+
 end Inter
 
 section

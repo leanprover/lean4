@@ -1854,6 +1854,16 @@ theorem isEmpty_inter_comm [EquivBEq α] [LawfulHashable α] :
     (m₁ ∩ m₂).isEmpty = (m₂ ∩ m₁).isEmpty :=
   @DHashMap.isEmpty_inter_comm α _ _ _ m₁.inner m₂.inner _ _
 
+@[simp]
+theorem isEmpty_union_inter [EquivBEq α] [LawfulHashable α] {m₃ : HashMap α β} :
+    ((m₁ ∪ m₂) ∩ m₃).isEmpty = ((m₁ ∩ m₃).isEmpty && (m₂ ∩ m₃).isEmpty) :=
+  @DHashMap.isEmpty_union_inter α _ _ _ m₁.inner m₂.inner _ _ m₃.inner
+
+@[simp]
+theorem isEmpty_inter_union [EquivBEq α] [LawfulHashable α] {m₃ : HashMap α β} :
+    (m₁ ∩ (m₂ ∪ m₃)).isEmpty = ((m₁ ∩ m₂).isEmpty && (m₁ ∩ m₃).isEmpty) :=
+  @DHashMap.isEmpty_inter_union α _ _ _ m₁.inner m₂.inner _ _ m₃.inner
+
 end Inter
 
 section Diff

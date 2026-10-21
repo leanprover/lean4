@@ -2467,6 +2467,18 @@ theorem isEmpty_inter_comm [EquivBEq α] [LawfulHashable α] :
   @Raw₀.isEmpty_inter_comm _ _ _ _
     ⟨m₁.1, m₁.2.size_buckets_pos⟩ ⟨m₂.1, m₂.2.size_buckets_pos⟩ _ _ m₁.wf m₂.wf
 
+@[simp]
+theorem isEmpty_union_inter [EquivBEq α] [LawfulHashable α] {m₃ : DHashMap α β} :
+    ((m₁ ∪ m₂) ∩ m₃).isEmpty = ((m₁ ∩ m₃).isEmpty && (m₂ ∩ m₃).isEmpty) :=
+  @Raw₀.isEmpty_union_inter _ _ _ _ ⟨m₁.1, m₁.2.size_buckets_pos⟩ ⟨m₂.1, m₂.2.size_buckets_pos⟩
+    _ _ ⟨m₃.1, m₃.2.size_buckets_pos⟩ m₁.wf m₂.wf m₃.wf
+
+@[simp]
+theorem isEmpty_inter_union [EquivBEq α] [LawfulHashable α] {m₃ : DHashMap α β} :
+    (m₁ ∩ (m₂ ∪ m₃)).isEmpty = ((m₁ ∩ m₂).isEmpty && (m₁ ∩ m₃).isEmpty) :=
+  @Raw₀.isEmpty_inter_union _ _ _ _ ⟨m₁.1, m₁.2.size_buckets_pos⟩ ⟨m₂.1, m₂.2.size_buckets_pos⟩
+    _ _ ⟨m₃.1, m₃.2.size_buckets_pos⟩ m₁.wf m₂.wf m₃.wf
+
 end Inter
 
 namespace Const

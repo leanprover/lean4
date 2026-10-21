@@ -2823,6 +2823,20 @@ theorem isEmpty_inter_comm [EquivBEq α] [LawfulHashable α] (h₁ : m₁.WF) (h
   simp only [Inter.inter]
   simp_to_raw using @Raw₀.isEmpty_inter_comm _ _ _ _ ⟨m₁, _⟩ ⟨m₂, _⟩ _ _
 
+@[simp]
+theorem isEmpty_union_inter [EquivBEq α] [LawfulHashable α] {m₃ : Raw α β}
+    (h₁ : m₁.WF) (h₂ : m₂.WF) (h₃ : m₃.WF) :
+    ((m₁ ∪ m₂) ∩ m₃).isEmpty = ((m₁ ∩ m₃).isEmpty && (m₂ ∩ m₃).isEmpty) := by
+  simp only [Union.union, Inter.inter]
+  simp_to_raw using @Raw₀.isEmpty_union_inter _ _ _ _ ⟨m₁, _⟩ ⟨m₂, _⟩ _ _ ⟨m₃, _⟩
+
+@[simp]
+theorem isEmpty_inter_union [EquivBEq α] [LawfulHashable α] {m₃ : Raw α β}
+    (h₁ : m₁.WF) (h₂ : m₂.WF) (h₃ : m₃.WF) :
+    (m₁ ∩ (m₂ ∪ m₃)).isEmpty = ((m₁ ∩ m₂).isEmpty && (m₁ ∩ m₃).isEmpty) := by
+  simp only [Union.union, Inter.inter]
+  simp_to_raw using @Raw₀.isEmpty_inter_union _ _ _ _ ⟨m₁, _⟩ ⟨m₂, _⟩ _ _ ⟨m₃, _⟩
+
 end Inter
 
 namespace Const

@@ -1935,6 +1935,16 @@ theorem isEmpty_inter_comm [TransCmp cmp] :
     (t₁ ∩ t₂).isEmpty = (t₂ ∩ t₁).isEmpty :=
   ExtDTreeMap.isEmpty_inter_comm
 
+@[simp]
+theorem isEmpty_union_inter [TransCmp cmp] {t₃ : ExtTreeMap α β cmp} :
+    ((t₁ ∪ t₂) ∩ t₃).isEmpty = ((t₁ ∩ t₃).isEmpty && (t₂ ∩ t₃).isEmpty) :=
+  ExtDTreeMap.isEmpty_union_inter
+
+@[simp]
+theorem isEmpty_inter_union [TransCmp cmp] {t₃ : ExtTreeMap α β cmp} :
+    (t₁ ∩ (t₂ ∪ t₃)).isEmpty = ((t₁ ∩ t₂).isEmpty && (t₁ ∩ t₃).isEmpty) :=
+  ExtDTreeMap.isEmpty_inter_union
+
 theorem inter_eq_empty_comm [TransCmp cmp] :
     t₁ ∩ t₂ = ∅ ↔ t₂ ∩ t₁ = ∅ := by
   rw [← isEmpty_iff, ← isEmpty_iff, ← Bool.eq_iff_iff]

@@ -29,11 +29,14 @@ structure ModuleParserState where
   pos        : String.Pos.Raw := 0
   recovering : Bool := false
   /--
-  Whether there is leading whitespace before `pos`.
-  Used to associate whitespace at the start of the parsed region with its first token.
+  Whether the initial whitespace still needs to be associated with the first token of the parsed
+  region.
   -/
   hasLeading : Bool := true
-  /-- Start of the parsed region, used to anchor leading whitespace when the header is empty. -/
+  /--
+  Start of the initial whitespace, consulted only while `hasLeading` is true. When constructing a
+  state directly for an embedded region, set this to the region's start position.
+  -/
   leadingStartPos : String.Pos.Raw := 0
   deriving Inhabited
 
@@ -76,8 +79,9 @@ private def setLeadingStart (stx : Syntax) (startPos : String.Pos.Raw) : Syntax 
 
 /--
 Parses a module header starting at `startPos`, bounded by `inputCtx.endPos`.
-Positions in the resulting syntax and messages refer to the original input string.
-`startPos` must be a valid UTF-8 position at or before `inputCtx.endPos`.
+`startPos` must be a valid UTF-8 byte position in `inputCtx.inputString` at or before `inputCtx.endPos`.
+Syntax positions refer to this string, and message positions use `inputCtx.fileMap`. If
+`mkInputContext` normalizes line endings, compute `startPos` in the normalized source.
 Pass the returned `ModuleParserState` to `parseCommand` to continue parsing the same region.
 -/
 def parseHeader (inputCtx : InputContext) (startPos : String.Pos.Raw := 0) :

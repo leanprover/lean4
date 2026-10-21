@@ -468,24 +468,24 @@ def containsRecursiveDecl (e : Expr) : DerivingM Bool := do
   let all := ctx.indInfo.all
   return (e.find? fun | .const nm _ => nm ∈ all | _ => false).isSome
 
-private def trySynthesize (type : Expr) : DerivingM (Option Expr) := do
+private def trySynthesize (type : Expr) (allLInsts : LocalInstances) : DerivingM (Option Expr) := do
   unless deriving.bindersVerbatim.get (← getOptions) do
-    let .some inst ← trySynthInstance type | return none
+    let .some inst ← withLCtx (← getLCtx) allLInsts <| trySynthInstance type | return none
     if inst.hasLevelMVar then return none
     return inst
   let some className ← isClass? type |
     throwError "type class instance expected{indentExpr type}"
-  for inst in (← getLocalInstances) do
+  for inst in allLInsts do
     if inst.className == className then
       if ← isDefEqI (← inferType inst.fvar) type then
         return inst.fvar
   return none
 
-private partial def synthInstanceDerivingAux (type : Expr)
+private partial def synthInstanceDerivingAux (type : Expr) (allLInsts : LocalInstances)
     (allowCanonicalInstanceReduction : Bool := true) : DerivingM Expr := withIncRecDepth do
   let some className ← isClass? type |
     throwError "type class instance expected{indentExpr type}"
-  if let some res ← trySynthesize type then
+  if let some res ← trySynthesize type allLInsts then
     return res
   let mut shouldTry := allowCanonicalInstanceReduction -- avoid loops
   if !deriving.reduceInstances.get (← getOptions) ||
@@ -498,7 +498,7 @@ private partial def synthInstanceDerivingAux (type : Expr)
     unless ← containsRecursiveDecl type do
       return ← pushInstanceHypothesis type className
     -- also, try instance synthesis even if it was disabled through `deriving.bindersVerbatim`
-    if let .some res ← trySynthInstance type then
+    if let .some res ← withLCtx (← getLCtx) allLInsts <| trySynthInstance type then
       return res
   let mctx ← getMCtx
   -- try reducing e.g. `BEq (List α)` to `BEq α`
@@ -506,7 +506,7 @@ private partial def synthInstanceDerivingAux (type : Expr)
   match res with
   | .ok (assignment, outVars) =>
     for (var, allow) in outVars do
-      let res ← synthInstanceDerivingAux (← var.getType) allow
+      let res ← synthInstanceDerivingAux (← var.getType) allLInsts allow
       var.assign res
     instantiateMVars assignment
   | .error e =>
@@ -525,8 +525,8 @@ Try synthesizing an instance of type `e`, adding instance binders if the instanc
 synthesized directly.
 -/
 def synthInstanceDeriving (e : Expr) : DerivingM Expr := do
-  withLCtx (← getLCtx) ((← getLocalInstances) ++ (← get).newLInsts) do
-    instantiateMVars <| ← synthInstanceDerivingAux e
+  let allLInsts := (← getLocalInstances) ++ (← get).newLInsts
+  instantiateMVars <| ← synthInstanceDerivingAux e allLInsts
 
 private def blankLInst : LocalInstance where
   className := .anonymous
@@ -553,10 +553,13 @@ private def filterInstanceObligations (state : Deriving.State) : MetaM (Array MV
     for dep in deps do
       let some j := idxOfMVar.get? dep | continue
       fwdDeps := fwdDeps.modify j (·.push ⟨i, h.2⟩)
-  let m := state.newLInsts.size
+  let linsts ← getLocalInstances
   let lctx ← getLCtx
-  let mut oldLInsts : Vector LocalInstance m := ⟨state.newLInsts, rfl⟩
-  let mut newLInsts : Vector LocalInstance m := ⟨state.newLInsts, rfl⟩
+  let allLInsts := linsts ++ state.newLInsts
+  let m := allLInsts.size
+  have : state.newLInsts.size ≤ m := by unfold m allLInsts; simp
+  let mut oldLInsts : Vector LocalInstance m := ⟨allLInsts, rfl⟩
+  let mut newLInsts : Vector LocalInstance m := ⟨allLInsts, rfl⟩
   have := state.invariant1
   for h : i in 0...n do
     have h : i < n := h.2

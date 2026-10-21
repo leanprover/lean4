@@ -563,6 +563,13 @@ theorem intCast_emod (x : Int) : ((x % p : Int) : α) = (x : α) := by
 
 end Ring
 
+/-- A semiring of characteristic `1` is trivial. -/
+theorem eq_of_charOne {α : Type u} [Semiring α] [IsCharP α 1] (a b : α) : a = b := by
+  have h : (1 : α) = 0 := by
+    have := (natCast_eq_zero_iff (α := α) 1 1).mpr (Nat.mod_self 1)
+    rwa [Semiring.natCast_one] at this
+  rw [← Semiring.mul_one a, ← Semiring.mul_one b, h, Semiring.mul_zero, Semiring.mul_zero]
+
 end IsCharP
 
 /--

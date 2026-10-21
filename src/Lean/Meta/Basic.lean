@@ -827,8 +827,32 @@ instance : MonadBacktrack SavedState MetaM where
   let ((a, s), sCore) ← (x.run ctx s).toIO ctxCore sCore
   pure (a, sCore, s)
 
-protected def throwIsDefEqStuck : MetaM α :=
-  throw <| Exception.internal isDefEqStuckExceptionId
+/--
+Throws the `isDefEqStuck` exception. `mvarIds` and `lmvarIds` are the metavariables the unifier is
+stuck on: repeating the same problem cannot get past this point before one of them is assigned.
+If both are empty, the blocker is unknown.
+-/
+protected def throwIsDefEqStuck (mvarIds : Array MVarId := #[]) (lmvarIds : Array LMVarId := #[]) : MetaM α :=
+  let entries := mvarIds.foldr (init := lmvarIds.foldr (init := []) fun lmvarId entries =>
+    (`lmvar, .ofName lmvarId.name) :: entries) fun mvarId entries =>
+    (`mvar, .ofName mvarId.name) :: entries
+  throw <| Exception.internal isDefEqStuckExceptionId { entries }
+
+/--
+Returns the metavariables and universe metavariables an `isDefEqStuck` exception reports as its
+blockers, see `Meta.throwIsDefEqStuck`.
+-/
+def getIsDefEqStuckBlockers (ex : Exception) : Array MVarId × Array LMVarId := Id.run do
+  let .internal _ extra := ex | return (#[], #[])
+  let mut mvarIds := #[]
+  let mut lmvarIds := #[]
+  for (key, val) in extra.entries do
+    let .ofName name := val | continue
+    if key == `mvar then
+      mvarIds := mvarIds.push { name }
+    else if key == `lmvar then
+      lmvarIds := lmvarIds.push { name }
+  return (mvarIds, lmvarIds)
 
 builtin_initialize
   registerTraceClass `Meta

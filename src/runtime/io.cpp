@@ -1404,12 +1404,9 @@ extern "C" LEAN_EXPORT obj_res lean_io_app_path() {
     return io_result_mk_ok(appPathLean);
 #else
     // Linux version
-    char path[PATH_MAX];
     char dest[PATH_MAX];
     memset(dest, 0, PATH_MAX);
-    pid_t pid = getpid();
-    snprintf(path, PATH_MAX, "/proc/%d/exe", pid);
-    if (readlink(path, dest, PATH_MAX - 1) == -1) {
+    if (readlink("/proc/self/exe", dest, PATH_MAX - 1) == -1) {
         return io_result_mk_error("failed to locate application");
     } else {
         return io_result_mk_ok(mk_string(dest));

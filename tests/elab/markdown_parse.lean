@@ -128,3 +128,48 @@ def blockRanges (src : String) : List String :=
 
 /-- info: ["> # h\n> para", "- a\n  b\n- c", "[r]: /u \"t\"", "```lean\ncode\n```", "***", "code"] -/
 #guard_msgs in #eval blockRanges "> # h\n> para\n\n- a\n  b\n- c\n\n[r]: /u \"t\"\n\n```lean\ncode\n```\n\n***\n\n    code\n"
+
+/-! ## Indented documents
+
+Up to `indent` leading spaces of each line are indentation of the document as a whole, as in an
+indented docstring, and are skipped before the line is parsed.
+-/
+
+/-- Shows the block structure of a document, with paragraph text and code block lines. -/
+partial def showBlock {s : String.Slice} : Block s → String
+  | .paragraph content => s!"paragraph⟪{showInline.showInlines content}⟫"
+  | .indentedCode lines => s!"indentedCode{repr (lines.map (·.2))}"
+  | .fencedCode _ _ lines _ => s!"fencedCode{repr (lines.map (·.copy))}"
+  | .list _ _ items => s!"list[{", ".intercalate (items.toList.map showBlock)}]"
+  | .listItem _ children => s!"item[{", ".intercalate (children.toList.map showBlock)}]"
+  | .atxHeading _ _ content _ => s!"heading⟪{showInline.showInlines content}⟫"
+  | _ => "other"
+
+def showDocument (src : String) (indent : Nat) : List String :=
+  (parseDocument src.toSlice indent).toList.map showBlock
+
+/-- info: ["paragraph⟪text⟪x⟫⟫", "paragraph⟪text⟪y⟫⟫"] -/
+#guard_msgs in #eval showDocument "x\n\n    y" 4
+
+/-- info: ["paragraph⟪text⟪x⟫⟫", "indentedCode#[\"y\"]"] -/
+#guard_msgs in #eval showDocument "x\n\n    y" 0
+
+-- An unindented first line, as when the content starts on the line of the opening delimiter.
+/-- info: ["heading⟪text⟪h⟫⟫", "heading⟪text⟪h2⟫⟫"] -/
+#guard_msgs in #eval showDocument "# h\n    ## h2" 4
+
+/-- info: ["heading⟪text⟪h⟫⟫", "indentedCode#[\"## h2\"]"] -/
+#guard_msgs in #eval showDocument "# h\n    ## h2" 0
+
+-- An indented document with a continuation line indented less than four more columns, an indented
+-- code block, and a list item whose continuation and second paragraph are indented to its content.
+/--
+info: ["paragraph⟪text⟪Intro⟫ softBreak text⟪continued⟫⟫", "indentedCode#[\"code line\", \"  more code\"]",
+ "list[item[paragraph⟪text⟪item⟫ softBreak text⟪item continued⟫⟫, paragraph⟪text⟪item paragraph⟫⟫]]"]
+-/
+#guard_msgs in #eval showDocument
+  "    Intro\n      continued\n\n        code line\n          more code\n\n    - item\n      item continued\n\n      item paragraph\n" 4
+
+-- Indentation is counted in spaces; a line indented less than `indent` loses only its own spaces.
+/-- info: ["heading⟪text⟪h⟫⟫", "paragraph⟪text⟪p⟫⟫"] -/
+#guard_msgs in #eval showDocument "  # h\n\n    p" 4

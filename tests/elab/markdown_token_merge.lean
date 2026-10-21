@@ -291,6 +291,24 @@ the backslash of an escape. The escaped character is text.
 /-- info: ["keyword markupSyntax", "markupDocText"] -/
 #guard_msgs in #eval ["\\*x", "\\*x"].zipWith markupAt [0, 1]
 
+/-! ## Indented documents
+
+With a nonzero indent, the indentation of the document as a whole is skipped, so a continuation line
+indented by it is text and only lines indented four columns past it are code.
+-/
+
+def markupAtIndented (input : String) (indent byteIdx : Nat) : String := Id.run do
+  let text := FileMap.ofString input
+  let toks := collectMarkdownTokens text 0 input.rawEndPos indent
+  let tok? := toks.findSome? fun t => do
+    guard <| t.range.start.byteIdx ≤ byteIdx && byteIdx < t.range.stop.byteIdx
+    SemanticTokenType.names[t.type.toNat]?
+  tok?.getD "<none>"
+
+/-- info: ["markupDocText", "markupCodeBlock", "markupCodeBlock"] -/
+#guard_msgs in #eval
+  ["  a\n\n    b", "  a\n\n      c", "a\n\n    b"].zipWith (fun s (i, p) => markupAtIndented s i p) [(2, 9), (2, 11), (0, 7)]
+
 /-! ## Bracketed destinations
 
 The angle brackets around a destination are markup syntax, and only the URL between them is a URL,

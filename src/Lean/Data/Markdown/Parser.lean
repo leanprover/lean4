@@ -46,11 +46,11 @@ partial def parseInlinesInBlock (refs : RefTable s) : Block.Raw s → Block s
     .thematicBreak line
 
 /--
-Parses `s` as a Markdown document.
+Parses `s` as a Markdown document. Up to `indent` leading spaces of each line are skipped.
 
 This parser is based on the two-pass algorithm specified in the CommonMark specification.
 -/
-public def parseDocument (s : String.Slice) : Array (Block s) :=
-  let blocks := parseBlocks s
+public def parseDocument (s : String.Slice) (indent : Nat := 0) : Array (Block s) :=
+  let blocks := parseBlocks s indent
   let refs := buildRefTable blocks
   blocks.map (parseInlinesInBlock refs)

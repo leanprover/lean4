@@ -9,6 +9,7 @@ prelude
 public import Lean.Server.Requests
 public import Lean.Data.Markdown
 import Lean.DocString.View
+import Lean.DocString.Parser
 
 public section
 
@@ -617,13 +618,13 @@ brackets) are `keyword` tokens with the `markupSyntax` modifier; URLs are `marku
 contents are `markupCodeBlock`; and text is `markupDocText`, `markupHeading`, `markupQuote`, or
 `markupList` by its block context, with the `markupBold` and `markupItalic` modifiers for emphasis.
 -/
-def collectMarkdownTokens (text : FileMap) (startPos endPos : String.Pos.Raw) :
+def collectMarkdownTokens (text : FileMap) (startPos endPos : String.Pos.Raw) (indent : Nat := 0) :
     Array LeanSemanticToken :=
   let whole := text.source.toSlice
   match whole.pos? startPos, whole.pos? endPos with
   | some start, some stop =>
     if h : start ≤ stop then
-      MarkupTokens.emitBlocks text {} (Markdown.parseDocument (whole.slice start stop h)) #[]
+      MarkupTokens.emitBlocks text {} (Markdown.parseDocument (whole.slice start stop h) indent) #[]
     else #[]
   | _, _ => #[]
 
@@ -810,7 +811,11 @@ partial def collectSyntaxBasedSemanticTokens (text : FileMap) : (stx : Syntax) �
         -- The text atom's range excludes the closing delimiter and the whitespace before it.
         let some ⟨startPos, endPos⟩ := stx[1][0].getRange?
           | return #[]
-        return collectMarkdownTokens text startPos endPos
+        let some openPos := stx[0].getPos? | return #[]
+        let some closerPos := stx[1][1].getPos? | return #[]
+        -- The docstring's indentation is its base column, determined as for Verso docstrings.
+        let indent := Doc.Parser.docStringBaseColumn text openPos startPos closerPos
+        return collectMarkdownTokens text startPos endPos indent
       else
         return #[]
     let mut tokens :=

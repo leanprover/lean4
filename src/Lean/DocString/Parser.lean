@@ -1474,25 +1474,30 @@ def minContentIndent (text : FileMap) (startPos endPos : String.Pos.Raw)
   return result
 
 /--
+Computes the base column of a docstring whose opening delimiter is at `openPos` and whose content
+begins at `startPos`. `endPos` is the position of the `-` before the `/` in the closing delimiter.
+
+The base column is the minimum column among the opening delimiter, the closing delimiter, and the
+least-indented non-empty content line.
+-/
+public def docStringBaseColumn (text : FileMap) (openPos : String.Pos.Raw)
+    (startPos : String.Pos.Raw) (endPos : String.Pos.Raw) : Nat :=
+  let openCol := (text.toPosition openPos).column
+  let closeCol := (text.toPosition endPos).column
+  minContentIndent text startPos endPos (min openCol closeCol)
+
+/--
 Computes the `BlockCtxt` for parsing a docstring whose opening delimiter is at `openPos` and whose
 content begins at `startPos`, on the line where that content starts and separated from it by spaces
 alone. `endPos` is the position of the `-` before the `/` in the closing delimiter.
 
 When the docstring content starts mid-line (e.g. `/-! # Header -/`), the `docStartPosition` is set
 to the position after any leading spaces so that headers on the first line are recognized. For
-indented docstrings, `baseColumn` is computed as the minimum column among the opening delimiter, the
-closing delimiter, and the least-indented non-empty content line.
+indented docstrings, `baseColumn` is `docStringBaseColumn`.
 -/
 public def BlockCtxt.forDocString (text : FileMap) (openPos : String.Pos.Raw)
     (startPos : String.Pos.Raw) (endPos : String.Pos.Raw) : BlockCtxt :=
-  -- Compute baseColumn from the opening `/--` or `/-!` delimiter, the closing `-/` delimiter,
-  -- and the least-indented non-empty content line.
-  let openCol := (text.toPosition openPos).column
-  let closeCol := (text.toPosition endPos).column
-  let baseColumn := min openCol closeCol
-  -- Scan content lines to find the minimum indentation of any non-empty line.
-  -- We look for non-whitespace characters that appear after a newline and check their column.
-  let baseColumn := minContentIndent text startPos endPos baseColumn
+  let baseColumn := docStringBaseColumn text openPos startPos endPos
   let position := text.toPosition startPos
   if position.column ≤ baseColumn then { baseColumn }
   else

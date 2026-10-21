@@ -58,6 +58,21 @@ An angle-bracketed destination [with spaces](<https://example.com/a b>) and one 
 -/
 def x := ()
 
+def y := z
+where
+  /--
+  An indented docstring with a paragraph
+    whose continuation is indented two more columns,
+
+      an indented code block,
+
+  - a list item
+    whose continuation is indented to its content
+
+    and a second paragraph in the item.
+  -/
+  z := ()
+
 /-!
 # Heading 1
 

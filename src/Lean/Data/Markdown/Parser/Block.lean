@@ -822,13 +822,23 @@ def processLine (z : BlockZipper s) (line : s.Subslice) : BlockZipper s :=
   | .ok _ st    => st.z
   | .error z _ => z
 
+/-- Moves the start of `line` past up to `indent` leading spaces. -/
+def dropIndent (line : s.Subslice) (indent : Nat) : s.Subslice := Id.run do
+  let mut p := line.startInclusive
+  for _ in [0:indent] do
+    if h : p < line.endExclusive then
+      let h' := String.Slice.Pos.ne_endPos_of_lt h
+      if p.get h' == ' ' then p := p.next h' else break
+    else break
+  return subsliceClamped p line.endExclusive
+
 /--
-Parses the block structure of `s`.
+Parses the block structure of `s`. Up to `indent` leading spaces of each line are skipped.
 -/
-def parseBlocksRaw (s : String.Slice) : Array (Block.Raw s) := Id.run do
+def parseBlocksRaw (s : String.Slice) (indent : Nat := 0) : Array (Block.Raw s) := Id.run do
   let mut z := BlockZipper.empty
   for line in splitLines s.toSubslice do
-    z := processLine z line
+    z := processLine z (dropIndent line indent)
   return z.finalize
 
 /--
@@ -1157,7 +1167,8 @@ where
       | _ => pure ()
 
 /--
-Identifies the complete block structure of `s`.
+Identifies the complete block structure of `s`. Up to `indent` leading spaces of each line are
+skipped.
 -/
-public def parseBlocks (s : String.Slice) : Array (Block.Raw s) :=
-  postProcessRefDefs (parseBlocksRaw s)
+public def parseBlocks (s : String.Slice) (indent : Nat := 0) : Array (Block.Raw s) :=
+  postProcessRefDefs (parseBlocksRaw s indent)

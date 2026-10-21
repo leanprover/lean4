@@ -93,6 +93,11 @@ inductive EqCnstrProof where
   | ofLeGe (c₁ : LeCnstr) (c₂ : LeCnstr)
   | /-- `p = 0` derived from the divisibility constraint `c` of the form `0 ∣ p`. -/
     ofZeroDvd (c : DvdCnstr)
+  | /--
+    `p - d*x = 0` where `c : d ∣ p`, `e` is `p` as an expression, and `x` is the variable for the
+    term `t := e / d`. See `EqCnstr.elimNonUnit`.
+    -/
+    ofDvdDiv (c : DvdCnstr) (e : Int.Internal.Linear.Expr) (x : Var) (t : Expr)
   | reorder (c : EqCnstr)
   | commRingNorm (c : EqCnstr) (e : CommRing.RingExpr) (p : CommRing.Poly)
   | defnCommRing (e : Expr) (p : Poly) (re : CommRing.RingExpr) (rp : CommRing.Poly) (p' : Poly)
@@ -171,7 +176,8 @@ inductive DvdCnstrProof where
   | solveCombine (c₁ c₂ : DvdCnstr)
   | solveElim (c₁ c₂ : DvdCnstr)
   | elim (c : DvdCnstr)
-  | ofEq (x : Var) (c : EqCnstr)
+  | /-- `d ∣ p` for any `d`, given `c : p = 0`. -/
+    ofEqZero (c : EqCnstr)
   | subst (x : Var) (c₁ : EqCnstr) (c₂ : DvdCnstr)
   | cooper₁ (c : CooperSplit)
   /-- `c.c₃?` must be `some` -/

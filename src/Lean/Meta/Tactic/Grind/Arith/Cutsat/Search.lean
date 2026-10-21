@@ -531,9 +531,17 @@ private def searchAssignmentMain : SearchM Unit := do
       return ()
     if let some c := (← get').conflict? then
       resolveConflict c
+      /-
+      Resolving a conflict is a step too. The next case of a Cooper or disequality split may be
+      refuted as soon as it is asserted, so a long enumeration never reaches `processVar`.
+      We only interrupt below a decision because `resetDecisionStack` then discards the possibly
+      pending `conflict?` together with the cases. At level zero, the next iteration resolves it.
+      -/
+      if (← (return !(← get).cases.isEmpty) <&&> checkMaxSteps) then
+        trace[grind.debug.lia.search] "search interrupted, maximum number of steps reached"
+        setImprecise
+        return ()
     else if (← checkMaxSteps) then
-      -- Interrupt the search. Remark: we do not interrupt while a conflict is unresolved
-      -- because the cutsat state would be left with a pending `conflict?`.
       trace[grind.debug.lia.search] "search interrupted, maximum number of steps reached"
       setImprecise
       return ()

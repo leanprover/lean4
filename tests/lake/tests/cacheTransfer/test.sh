@@ -261,8 +261,9 @@ test_cmd rm -rf .lake/build "$CACHE_DIR"
 : > "$SERVER_LOG"
 test_err 'hash mismatch' cache get --scope=test --service=corrupt
 test_artifacts 0
-# A download that is corrupted on every attempt is abandoned at the attempt limit
 CORRUPT_ART="$(ls -1 "$STORE_DIR/a0/test" | head -1)"
+# A download that is corrupted on every attempt is abandoned at the attempt limit
+# (`Lake.CacheService.transferAttempts`, which this count must match)
 test_cmd_eq 3 grep -c "GET /corrupt/a0/test/$CORRUPT_ART" "$SERVER_LOG"
 test_run cache get --scope=test --service=ok
 test_artifacts "$NUM_ARTS"
@@ -285,8 +286,7 @@ test_run cache get --scope=test --service=ok
 test_run build Test --no-build
 
 # Verify a batch retries transfers interrupted by a transient failure:
-# the first request for each artifact is dropped without a response,
-# which `curl --retry` does not retry on its own
+# the first request for each artifact is dropped without a response
 test_cmd rm -rf .lake/build "$CACHE_DIR"
 : > "$SERVER_LOG"
 test_out 'retrying' cache get --scope=test --service=flaky
@@ -298,10 +298,10 @@ test_cmd_eq 2 grep -c "GET /flaky/a0/test/$FLAKY_ART" "$SERVER_LOG"
 
 # Verify a download that arrives corrupted once is retried
 # (a hash mismatch that `curl` itself cannot detect).
-# The detail of the recovered failure goes to the verbose log only.
+# The detail of the recovered failure is logged as a warning.
 test_cmd rm -rf .lake/build "$CACHE_DIR"
 test_out 'retrying' cache get --scope=test --service=flakyCorrupt
-no_match_text 'hash mismatch' produced.out
+match_pat '^warning: .*hash mismatch' produced.out
 test_artifacts "$NUM_ARTS"
 test_run build Test --no-build
 
@@ -342,16 +342,6 @@ test_cmd_eq 2 grep -c "GET /flakycorrupt/a0/test4/$GOOD" "$SERVER_LOG"
 # Restore the artifact and verify a full recovery
 test_cmd mv "$WORK_DIR/$MISSING" "$STORE_DIR/a0/test4/$MISSING"
 test_run cache get --scope=test4 --service=ok
-test_artifacts "$NUM_ARTS"
-test_run build Test --no-build
-
-# Verify `LAKE_CACHE_TRANSFER_ATTEMPTS` bounds a batch's attempts
-test_run cache put outputs.jsonl --scope=test2
-test_cmd rm -rf .lake/build "$CACHE_DIR"
-LAKE_CACHE_TRANSFER_ATTEMPTS=1 test_err 'failed to download some artifacts' \
-  cache get --scope=test2 --service=flaky
-# The failed attempt consumed each path's one fault, so a rerun succeeds
-test_run cache get --scope=test2 --service=flaky
 test_artifacts "$NUM_ARTS"
 test_run build Test --no-build
 

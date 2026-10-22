@@ -759,18 +759,11 @@ structure TransferState where
   path.addExtension "tmp"
 
 /--
-The default number of times a batch transfer is attempted: one initial attempt
-plus retries of the transfers that failed in ways a retry may fix (e.g., a
-dropped connection or a corrupted download). The `LAKE_CACHE_TRANSFER_ATTEMPTS`
-environment variable overrides this (minimum 1).
+The number of times a batch transfer is attempted: one initial attempt plus
+retries of the transfers that failed in ways a retry may fix (e.g., a dropped
+connection or a corrupted download).
 -/
-def defaultTransferAttempts : Nat := 3
-
-def getTransferAttempts : BaseIO Nat := do
-  if let some v ← IO.getEnv "LAKE_CACHE_TRANSFER_ATTEMPTS" then
-    if let some n := v.toNat? then
-      return max 1 n
-  return defaultTransferAttempts
+def transferAttempts : Nat := 3
 
 /--
 Whether a transfer that failed with this HTTP status may succeed if retried.
@@ -811,10 +804,12 @@ partial def monitorTransfer
           | code? =>
             handleFailure i info (retryableStatus code?) code? out line
         | _ =>
-          -- A nonzero exit code alongside a 2xx status means an incomplete
-          -- transfer (e.g., a connection dropped mid-body), which is retryable
+          -- curl failed the transfer itself (e.g., a dropped connection),
+          -- whatever the HTTP status; such failures are usually transient
           handleFailure i info true (out.get "http_code") out line
       | .error e =>
+        -- Tied to no transfer; an unreported transfer is unsettled,
+        -- so the batch's next attempt retries it
         logWarning s!"curl produced invalid JSON: {e}; received: {line.trimAscii}"
     monitorTransfer cfg h hOut s
 where
@@ -827,14 +822,13 @@ where
     modify fun s => {s with
       settled := s.settled.insert i, numSuccesses := s.numSuccesses + 1}
   /--
-  Records a failed transfer. A retryable failure on a non-final attempt is
-  left unsettled, so the batch's next attempt retries it; its detail goes to
-  the verbose log, and the batch logs one warning per retry attempt. Any
-  other failure is an error and settles its transfer.
+  Records a failed transfer. A retryable failure on a non-final attempt is a
+  warning and leaves the transfer unsettled, so the next attempt retries it.
+  Any other failure is an error and settles the transfer.
   -/
   recordFailure (i : Nat) (retryable : Bool) (msg : String) : StateT TransferState LoggerIO Unit := do
     if retryable && !cfg.finalAttempt then
-      logVerbose msg
+      logWarning msg
     else
       logError msg
       modify fun s => {s with settled := s.settled.insert i, didError := true}
@@ -854,7 +848,7 @@ where
         if actualHash != hash then
           recordFailure i true s!"{tmpPath}: downloaded artifact hash mismatch, got {actualHash}"
         else if let .error e ← IO.FS.rename tmpPath path |>.toBaseIO then
-          recordFailure i true s!"{path}: failed to persist temporary artifact: {e}"
+          recordFailure i false s!"{path}: failed to persist temporary artifact: {e}"
         else
           unless extraPaths.isEmpty do
             -- Note: No intra-cache hard links (breaks permissions/pruning), so we copy
@@ -867,7 +861,7 @@ where
         handleFailure i info true (.ok code) out line
       | .error e =>
         logDownload
-        recordFailure i true s!"{tmpPath}: failed to read downloaded artifact: {e}"
+        recordFailure i false s!"{tmpPath}: failed to read downloaded artifact: {e}"
     | .put =>
       logInfo s!"{cfg.scope}: uploaded artifact {hash}\
         \n  local path: {path}\
@@ -916,7 +910,6 @@ def runTransferAttempt
       h.flush
       return #[
         "-Z", "-X", "GET", "-L",
-        "--retry", "3", -- intermittent network errors can occur
         "-s", "-w", "%{stderr}%{json}\n", "--config", path.toString
       ]
     | .put =>
@@ -927,7 +920,6 @@ def runTransferAttempt
       return #[
         "-Z", "-X", "PUT", "-L",
         "-H", s!"Content-Type: {artifactContentType}",
-        "--retry", "3", -- intermittent network errors can occur
         "--aws-sigv4", "aws:amz:auto:s3", "--user", cfg.key,
         "-s", "-w", "%{stderr}%{json}\n", "--config", path.toString
       ]
@@ -947,13 +939,12 @@ def runTransferAttempt
   return s
 
 def transferArtifacts (cfg : TransferConfig) : LoggerIO Unit := do
-  let attempts ← getTransferAttempts
   let action := match cfg.kind with | .get => "download" | .put => "upload"
   let mut didError := false
   let mut numSuccesses := 0
   let mut infos := cfg.infos
-  for attempt in [1:attempts+1] do
-    let finalAttempt := attempt == attempts
+  for attempt in [1:transferAttempts+1] do
+    let finalAttempt := attempt == transferAttempts
     let s ← runTransferAttempt {cfg with infos, finalAttempt}
     didError := didError || s.didError
     numSuccesses := numSuccesses + s.numSuccesses
@@ -963,7 +954,7 @@ def transferArtifacts (cfg : TransferConfig) : LoggerIO Unit := do
       break
     infos := retry
     unless finalAttempt do
-      logWarning s!"{cfg.scope}: retrying {retry.size} failed {action}(s) (attempt {attempt+1} of {attempts})"
+      logWarning s!"{cfg.scope}: retrying {retry.size} failed {action}(s) (attempt {attempt+1} of {transferAttempts})"
   if numSuccesses < cfg.infos.size then
     logError s!"{cfg.scope}: failed to {action} some artifacts"
     didError := true

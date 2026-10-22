@@ -526,6 +526,43 @@ def mkNoConfusion (target : Expr) (h : Expr) : MetaM Expr := do
           return e
       throwError "mkNoConfusion: No manifest constructors in {a} = {b}"
 
+/--
+Constructs a non-dependent `casesOn` application of type `resultType`, computing the alternatives
+by calling `alt` with the inductive info, constructor info and the fields.
+-/
+def mkNondepCases [Monad m] [MonadEnv m] [MonadError m]
+    [MonadControlT MetaM m] [MonadLiftT MetaM m] (discr : Expr) (resultType : Expr)
+    (alt : InductiveVal → ConstructorVal → Array Expr → m Expr) : m Expr := do
+  let discrType ← whnf (← inferType discr)
+  discrType.withApp fun fn args => do
+  let .const induct us := fn
+    | throwError "Unexpected `discr` argument to `{.ofConstName decl_name%}`, \
+        expected the type to be an inductive application{indentExpr discrType}"
+  let indInfo ← getConstInfoInduct induct
+  let params := args.take indInfo.numParams
+  let indices := args.drop indInfo.numParams
+  let resultSort ← getLevel resultType
+  let casesOnVal ← getConstVal (mkCasesOnName induct)
+  unless casesOnVal.levelParams.length = indInfo.levelParams.length + 1 do
+    throwError "Error in `{.ofConstName decl_name%}`: \
+      The inductive `{.ofConstName induct}` does not have large elimination"
+  let casesOnApp := mkAppN (.const (mkCasesOnName induct) (resultSort :: us)) params
+  let casesOnType ← inferType casesOnApp
+  let .forallE _ motiveType body _ := casesOnType | unreachable!
+  let motive ← forallTelescope motiveType fun vars _ => mkLambdaFVars vars resultType
+  let body := body.instantiate1 motive
+  let vars := indices.push discr
+  let mut body ← instantiateForall body vars
+  let mut casesOnApp := mkAppN (casesOnApp.app motive) vars
+  for ctor in indInfo.ctors do
+    let .forallE _ altType body' _ := body | unreachable!
+    let ctorInfo ← getConstInfoCtor ctor
+    let minor ← forallBoundedTelescope altType ctorInfo.numFields fun fields _ => do
+      mkLambdaFVars fields <| ← alt indInfo ctorInfo fields
+    casesOnApp := casesOnApp.app minor
+    body := body'
+  return casesOnApp
+
 /-- Given a `monad` and `e : α`, makes `pure e`.-/
 def mkPure (monad : Expr) (e : Expr) : MetaM Expr :=
   mkAppOptM ``Pure.pure #[monad, none, none, e]

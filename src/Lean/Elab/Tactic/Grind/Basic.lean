@@ -8,7 +8,7 @@ prelude
 public import Lean.Elab.Tactic.Basic
 public import Lean.Meta.Tactic.Grind.Main
 import Lean.Meta.Tactic.Grind.Intro
-import Lean.Elab.DeprecatedSyntax
+import Lean.Elab.DeprecatedSyntax.Basic
 public import Lean.Meta.Sym.Apply
 public import Lean.Meta.Sym.Util
 public import Lean.Meta.Sym.Simp.SimpM

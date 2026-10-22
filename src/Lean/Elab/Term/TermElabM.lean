@@ -9,7 +9,7 @@ prelude
 public import Lean.Meta.Coe
 public import Lean.Util.CollectLevelMVars
 public import Lean.Linter.Deprecated
-import Lean.Elab.DeprecatedSyntax
+import Lean.Elab.DeprecatedSyntax.Basic
 public import Lean.Elab.Attributes
 public import Lean.Elab.Level
 public import Lean.Elab.PreDefinition.TerminationHint

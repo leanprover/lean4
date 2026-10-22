@@ -7,7 +7,7 @@ module
 
 prelude
 public import Lean.Elab.Quotation.Util
-import Lean.Elab.DeprecatedSyntax
+import Lean.Elab.DeprecatedSyntax.Basic
 
 public section
 

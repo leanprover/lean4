@@ -13,10 +13,26 @@ public section
 
 open Lean Meta Elab Command Term
 
-def Lean.mkInstanceNameOfType (type : Expr) : TermElabM Name := do
-  let name ← NameGen.mkBaseNameWithSuffix "inst" type
-  let name ← liftMacroM <| mkUnusedBaseName name
-  let name := (← getCurrNamespace) ++ name
+@[specialize]
+def Lean.findFreeName [Monad m] [MonadEnv m] (name : Name)
+    (avoid : Environment → Name → Bool := fun env name => env.contains name) :
+    m Name := do
+  let env ← getEnv
+  if avoid env name then
+    let mut i := 1
+    repeat
+      let newName := name.appendIndexAfter i
+      if avoid env newName then
+        i := i + 1
+        continue
+      return newName
+  return name
+
+@[specialize]
+def Lean.mkInstanceNameOfType (type : Expr)
+    (avoid : Environment → Name → Bool := fun env name => env.contains name) : TermElabM Name := do
+  let mut name ← NameGen.mkBaseNameWithSuffix "inst" type
+  name ← findFreeName ((← getCurrNamespace) ++ name) avoid
   if (type.find? (·.constName?.any isPrivateName)).isSome then
     return mkPrivateName (← getEnv) name
   else
@@ -719,6 +735,30 @@ structure InstanceInfo (α : Type) where
   mkValue : (helpers : Array Expr) → DerivingM Expr
 deriving Inhabited
 
+-- extension of `HelperInfo` and `InstanceInfo` that contain additional information
+-- that we compute during `makeInstancesUsingMutualBlock`
+private structure ExtendedHelperInfo (α : Type) extends HelperInfo α where
+  mvar : Expr
+  value : Option Expr := none
+  declName : Option Name := none
+deriving Inhabited
+
+private structure ExtendedInstanceInfo (α : Type) extends InstanceInfo α where
+  extendedHelpers : Array (ExtendedHelperInfo α)
+  value : Expr
+  fullType : Option Expr := none
+  declName : Option Name := none
+deriving Inhabited
+
+private structure MakeInstancesState where
+  newNames : NameSet := {}
+
+private def MakeInstancesState.avoid : MakeInstancesState → Environment → Name → Bool
+  | { newNames }, env, nm => env.contains nm || newNames.contains nm
+
+private def MakeInstancesState.add : MakeInstancesState → Name → MakeInstancesState
+  | { newNames }, nm => { newNames := newNames.insert nm }
+
 /--
 Creates instances by first running `preHelpers` with all recursive instances in the local context
 and then creating a mutual block with all helpers provided in `infos` (marking declarations as
@@ -727,77 +767,100 @@ partial by default) and finally creating all instances individually.
 `preHelpers` can be used for one-time computations that only need the instances in scope.
 -/
 def makeInstancesUsingMutualBlock (infos : Array (InstanceInfo α))
-    (preHelpers : DerivingM α := by exact pure ()) : DerivingM Unit := do
-  let helperMVars ← infos.mapM fun info => info.helpers.mapM fun helper => do
-    mkFreshExprSyntheticOpaqueMVar helper.type
-  let mut instanceValues := #[]
-  for info in infos, helperMVarsPerInst in helperMVars do
-    instanceValues := instanceValues.push <| ← info.mkValue helperMVarsPerInst
+    (preHelpers : DerivingM α := by exact pure ()) : DerivingM Unit :=
+  -- We want to keep track of the new declarations we're adding
+  -- to make sure we don't have collisions
+  StateRefT'.run' (s := {}) <| show StateRefT MakeInstancesState DerivingM Unit from do
+  -- 1. create helper mvars and compute instance values
+  let infos : Array (ExtendedInstanceInfo α) ← infos.mapM fun info => do
+    let extendedHelpers ← info.helpers.mapM fun helper => do
+      return { helper with mvar := ← mkFreshExprSyntheticOpaqueMVar helper.type }
+    let helperMVars := extendedHelpers.map (·.mvar)
+    return { info with extendedHelpers, value := ← info.mkValue helperMVars }
+  let instanceValues := infos.map (·.value)
   let instVarInfos := infos.mapIdx fun idx info =>
     ((`recinst).appendIndexAfter (idx + 1), info.type)
   withLocalDeclsDND instVarInfos fun recInsts => do
+    let mut infos := infos
+    -- 2. run `preHelpers`
     let globalCompute ← preHelpers
-    let helperValues ← infos.mapM fun info => info.helpers.mapM fun helper => do
-      let value ← helper.mkValue recInsts globalCompute
-      return value.replaceFVars recInsts instanceValues
+    -- 3. compute the helper values
+    infos ← infos.mapM fun info => do
+      let extendedHelpers ← info.extendedHelpers.mapM fun helper => do
+        let value ← helper.mkValue recInsts globalCompute
+        return { helper with value := some <| value.replaceFVars recInsts instanceValues }
+      return { info with extendedHelpers }
     let instHyps ← produceInstanceHyps
-    -- setup common parameters
-    let ref ← getRef
-    let levelParams := (← read).levelParams
-    let computeKind := if (← read).isMeta then .meta else .regular
-    let env ← getEnv
-    let isUnsafe := instanceValues.any env.hasUnsafe || helperValues.any (·.any env.hasUnsafe) ||
-      infos.any (fun info => env.hasUnsafe info.type || info.helpers.any (env.hasUnsafe ·.type))
-    -- make sufficient instance infos to get the instance names
+    -- 4. compute instance types and names
     let allParams := (← read).params ++ instHyps
-    let mut fullInstTypes ← infos.mapM fun info =>
-      mkForallFVars allParams info.type (binderInfoForMVars := .instImplicit)
-    if deriving.implicitBinders.get (← getOptions) then
-      fullInstTypes := fullInstTypes.map (·.explicitToImplicit)
-    let fullInstNames ← fullInstTypes.mapM fun ty => mkInstanceNameOfType ty
-    -- now we can figure out the values for the `helperMVars`
-    let mut allHelperNames := #[]
-    for info in infos, helperMVarsForInst in helperMVars, instName in fullInstNames do
-      let mut helperNames := #[]
-      for helperInfo in info.helpers, helperMVar in helperMVarsForInst do
-        let mut declName := instName ++ helperInfo.suffix
-        if (← getEnv).contains declName then
-          -- try to find a free name
-          let mut i := 1
-          while (← getEnv).contains (declName.appendIndexAfter i) do
-            i := i + 1
-          declName := declName.appendIndexAfter i
-        helperMVar.mvarId!.assign (mkAppN (.const declName (levelParams.map Level.param)) allParams)
-        helperNames := helperNames.push declName
-      allHelperNames := allHelperNames.push helperNames
-    -- and finally create all the helper pre-definitions
-    let mut helperPredefs : Array PreDefinition := #[]
-    for info in infos, valuesPerInst in helperValues, helperNames in allHelperNames do
-      for helperInfo in info.helpers, value in valuesPerInst, helperName in helperNames do
-        let type ← instantiateMVars helperInfo.type
+    infos ← infos.mapM fun info => do
+      let mut instType ← instantiateMVars info.type
+      instType ← mkForallFVars allParams instType (binderInfoForMVars := .instImplicit)
+      if deriving.implicitBinders.get (← getOptions) then
+        instType := instType.explicitToImplicit
+      let instName ← mkInstanceNameOfType instType (← get).avoid
+      modifyThe MakeInstancesState (·.add instName)
+      return {
+        info with
+        fullType := instType
+        declName := instName
+      }
+    -- 5. figure out helper names and assign the helper mvars
+    let levelParams := (← read).levelParams
+    let lparams := levelParams.map Level.param
+    infos ← infos.mapM fun info => do
+      let extendedHelpers ← info.extendedHelpers.mapM fun helper => do
+        let instName := info.declName.get!
+        let declName ← findFreeName (instName ++ helper.suffix) (← get).avoid
+        modifyThe MakeInstancesState (·.add declName)
+        let helperRef := mkAppN (.const declName lparams) allParams
+        helper.mvar.mvarId!.assign helperRef
+        return { helper with declName }
+      return { info with extendedHelpers }
+    -- 6. abstract helper types and values and instance values
+    infos ← infos.mapM fun info => do
+      let extendedHelpers ← info.extendedHelpers.mapM fun helper => do
+        let type ← instantiateMVars helper.type
         let type ← mkForallFVars allParams type (binderInfoForMVars := .instImplicit)
-        let value ← instantiateMVars value
+        let value ← instantiateMVars helper.value.get!
         let value ← mkLambdaFVars allParams value (binderInfoForMVars := .instImplicit)
+        return { helper with type, value }
+      let value ← instantiateMVars info.value
+      let value ← mkLambdaFVars allParams value (binderInfoForMVars := .instImplicit)
+      return { info with extendedHelpers, value }
+    -- 7. create all the helper pre-definitions
+    let mut helperPredefs : Array PreDefinition := #[]
+    let ref ← getRef
+    let env ← getEnv
+    let isUnsafe := infos.any fun info =>
+      env.hasUnsafe info.fullType.get! || env.hasUnsafe info.value ||
+        info.extendedHelpers.any fun helper =>
+          env.hasUnsafe helper.type || env.hasUnsafe helper.value.get!
+    let isUnsafe ← pure isUnsafe <|> allParams.anyM (do pure <| env.hasUnsafe <| ← inferType ·)
+    let computeKind := if (← read).isMeta then .meta else .regular
+    for info in infos do
+      for helper in info.extendedHelpers do
         let predef : PreDefinition := {
-          ref, levelParams, type, value
-          declName := helperName
+          ref, levelParams
+          type := helper.type
+          value := helper.value.get!
+          declName := helper.declName.get!
           kind := .def
           modifiers := { computeKind, isUnsafe, recKind := .partial }
           binders := .missing
           termination := .none
         }
-        helperPredefs := helperPredefs.push (← helperInfo.postprocess instHyps predef)
+        helperPredefs := helperPredefs.push (← helper.postprocess instHyps predef)
+    -- 8. add the helpers to the environment
     addPreDefinitions ({}, {}) helperPredefs
     for helper in helperPredefs do
       addDeclarationRangesFromSyntax helper.declName (← getRef)
-    -- Now with all helpers available, we can create the instances
+    -- 9. add all instances to the environment
     let nameSet : NameSet := .ofArray (← read).names
-    for info in infos, instName in fullInstNames, type in fullInstTypes, value in instanceValues do
+    for info in infos do
       unless nameSet.contains info.induct do continue
-      let value ← instantiateMVars value
-      let value ← mkLambdaFVars allParams value (binderInfoForMVars := .instImplicit)
-      withExporting (isExporting := !isPrivateName instName) do
-        mkInstance instName (← read).levelParams type value (← read).isMeta
+      withExporting (isExporting := !isPrivateName info.declName.get!) do
+        mkInstance info.declName.get! (← read).levelParams info.fullType.get! info.value (← read).isMeta
 
 inductive FieldHelperInfo (α : Type) where
   | inline (e : Expr)
@@ -831,11 +894,38 @@ def FieldHelperProvider.cases
         prependError m!"Error while processing constructor {.ofConstName cval.name}:" do
           perCtor ival cval fields val
 
+private def reduceInstanceProjsOnCtor (e : Expr) : MetaM Expr := do
+  Core.transform e fun e => do
+    let .const projFn _ := e.getAppFn | return .continue
+    let some info ← getProjectionFnInfo? projFn | return .continue
+    unless info.fromClass do return .continue
+    if e.getAppNumArgs ≤ info.numParams then return .continue
+    let numOverargs := e.getAppNumArgs - info.numParams - 1
+    let major := e.getArg! info.numParams
+    let .const c _ := major.getAppFn | return .continue
+    unless c == info.ctorName do return .continue
+    let argIdx := info.numParams + info.i
+    if major.getAppNumArgs ≤ argIdx then return .continue
+    return .visit <| mkAppN (major.getArg! argIdx) (e.getAppArgsN numOverargs)
+
+/--
+Post-process function for `InstanceInfo.usingCtor`: reduces instance projections on constructors
+in the value and removes the `partial` modifier if `usePartial` is false.
+-/
+def postprocessUsingCtor (usePartial : Bool) (predef : PreDefinition) : MetaM PreDefinition := do
+  let value ← reduceInstanceProjsOnCtor predef.value
+  return {
+    predef with
+    value
+    modifiers.recKind := if usePartial then .partial else .default
+  }
+
 /--
 Constructs an instance of the class using its constructor, running `perField` on every field given
 the name of the projection function of the field.
 -/
-def InstanceInfo.usingCtor (perField : Name → FieldHelperProvider α) (induct : Name) :
+def InstanceInfo.usingCtor (perField : Name → FieldHelperProvider α)
+    (supportsRec : Bool := true) (induct : Name) :
     DerivingM (InstanceInfo α) := do
   let className := (← read).className
   let classInfo ← getConstInfoInduct className
@@ -865,6 +955,7 @@ def InstanceInfo.usingCtor (perField : Name → FieldHelperProvider α) (induct 
       throwError "Invalid use of `{.ofConstName decl_name%}`, incorrect level for inductive"
   let typeApp ← inductAppWithParams induct
   let indInfo ← getConstInfoInduct induct
+  let usePartial := (← isNested) || !supportsRec
   forallBoundedTelescope (whnfType := true) (← inferType typeApp) indInfo.numIndices fun indices body => do
     let .sort _ := body
       | throwError "Unexpected inductive type type{indentExpr (← inferType typeApp)}"
@@ -893,6 +984,7 @@ def InstanceInfo.usingCtor (perField : Name → FieldHelperProvider α) (induct 
             withExistingLocalDecls indexDecls do
               let res ← mkLambdaFVars indices <| ← mkValue instances val
               return res
+          postprocess _ := postprocessUsingCtor usePartial
         }
     return {
       induct, type, helpers
@@ -948,16 +1040,18 @@ initialize registerDerivingHandler ``ToSExpr toSExprHandler
 ```
 -/
 def deriveTransformationInstPerConstructor
-    (perCtor : InductiveVal → ConstructorVal → Array Expr → DerivingM Expr) :
+    (perCtor : InductiveVal → ConstructorVal → Array Expr → DerivingM Expr)
+    (supportsRec : Bool := true) :
     DerivingM Bool := do
-  -- this is supposed to be present, but if not, we let `makeInstancesUsingMutualBlock` complain
+  -- this is supposed to be present, but if not, we let `InstanceInfo.usingCtor` complain
   if let some info := getStructureInfo? (← getEnv) (← read).className then
     if info.fieldNames.size != 1 then
       throwError "Invalid use of `{.ofConstName decl_name%}`, expected \
         `{.ofConstName (← read).className}` to have exactly one field but it has \
         {info.fieldNames.size} fields"
   makeInstancesUsingMutualBlock <| ← (← read).indInfo.all.toArray.mapM <|
-    InstanceInfo.usingCtor fun _ => .cases fun ival cval fields _ => perCtor ival cval fields
+    InstanceInfo.usingCtor (supportsRec := supportsRec)
+      fun _ => .cases fun ival cval fields _ => perCtor ival cval fields
   return true
 
 private def decLevels : Level → NameSet → NameSet
@@ -1146,7 +1240,7 @@ def mkInductiveDerivingHandler (className : Name) (perMutualBlock : DerivingM Bo
           indParams := params
           indLevel := indLevel'
           names := names
-          isMeta := names.all (isMarkedMeta (← getEnv))
+          isMeta := (← read).isMetaSection || names.all (isMarkedMeta (← getEnv))
         }
         withExporting (isExporting := inExposeSection && !hasPrivate) do
           perMutualBlock.run ctx
@@ -1212,9 +1306,9 @@ def deriveSimpleLawTypeClass (typeClass derivedFrom : Name)
             indParams := indArgs
             indLevel := ← getLevel indApp
             names := #[name]
-            isMeta := isMarkedMeta (← getEnv) name
+            isMeta := false -- no compilation
           }
-          withoutExporting do
+          withoutExporting do -- exposing doesn't make sense for proofs
             (perInstance instApp instValue).run ctx
       unless res do
         return false

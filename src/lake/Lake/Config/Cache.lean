@@ -768,11 +768,12 @@ def transferAttempts : Nat := 3
 /--
 Whether a transfer that failed with this HTTP status may succeed if retried.
 Covers the response codes `curl --retry` deems transient (408, 429, 500, 502,
-503, 504) plus a missing status, which indicates a dropped connection rather
-than a server rejection.
+503, 504) plus status 0, which `curl` reports when no response arrived (e.g.,
+a dropped connection) rather than a server rejection. An unreadable status is
+also retried.
 -/
 def retryableStatus : Except String Nat → Bool
-  | .ok 408 | .ok 429 | .ok 500 | .ok 502 | .ok 503 | .ok 504 => true
+  | .ok 0 | .ok 408 | .ok 429 | .ok 500 | .ok 502 | .ok 503 | .ok 504 => true
   | .ok _ => false
   | .error _ => true
 
@@ -787,9 +788,7 @@ partial def monitorTransfer
       match Json.parse line >>= fromJson? with
       | .ok (out : JsonObject) =>
         let some (i, info) := getInfo? out
-          | -- Tied to no transfer; an unreported transfer is unsettled,
-            -- so the batch's next attempt retries it
-            logWarning s!"{cfg.scope}: unidentifiable transfer completed: {line.trimAscii}"
+          | logStray s!"{cfg.scope}: unidentifiable transfer completed: {line.trimAscii}"
             return
         if (← get).settled.contains i then
           logWarning s!"{cfg.scope}: duplicate report for a transfer: {line.trimAscii}"
@@ -808,15 +807,24 @@ partial def monitorTransfer
           -- whatever the HTTP status; such failures are usually transient
           handleFailure i info true (out.get "http_code") out line
       | .error e =>
-        -- Tied to no transfer; an unreported transfer is unsettled,
-        -- so the batch's next attempt retries it
-        logWarning s!"curl produced invalid JSON: {e}; received: {line.trimAscii}"
+        logStray s!"curl produced invalid JSON: {e}; received: {line.trimAscii}"
     monitorTransfer cfg h hOut s
 where
   getInfo? out :=
     match out.getAs Nat "urlnum" with
     | .ok i => cfg.infos[i]?.map ((i, ·))
     | _ => none
+  /--
+  Logs a report tied to no transfer. The transfer it stands for stays
+  unsettled, so the batch's next attempt retries it; on the final attempt,
+  the report is an error.
+  -/
+  logStray (msg : String) : StateT TransferState LoggerIO Unit := do
+    if cfg.finalAttempt then
+      logError msg
+      modify ({· with didError := true})
+    else
+      logWarning msg
   /-- Marks a transfer's outcome as settled and successful. -/
   recordSuccess (i : Nat) : StateT TransferState LoggerIO Unit :=
     modify fun s => {s with
@@ -933,9 +941,13 @@ def runTransferAttempt
   unless stdout.isEmpty do
     logWarning s!"{cfg.scope}: curl produced unexpected output:\n{stdout.trimAsciiEnd}"
   if rc != 0 then
-    -- Failures are settled per transfer; curl's own exit code is redundant
+    -- Per-transfer failures are reported above; curl's own exit code matters
+    -- only when no attempt remains (e.g., curl failed before reporting any)
     let msg := s!"{cfg.scope}: curl exited with code {rc}"
-    if cfg.finalAttempt then logWarning msg else logVerbose msg
+    if cfg.finalAttempt then
+      logError msg
+      return {s with didError := true}
+    logVerbose msg
   return s
 
 def transferArtifacts (cfg : TransferConfig) : LoggerIO Unit := do
@@ -955,6 +967,8 @@ def transferArtifacts (cfg : TransferConfig) : LoggerIO Unit := do
     infos := retry
     unless finalAttempt do
       logWarning s!"{cfg.scope}: retrying {retry.size} failed {action}(s) (attempt {attempt+1} of {transferAttempts})"
+      -- Back off before retrying, as `curl --retry` did
+      IO.sleep (1000 * attempt).toUInt32
   if numSuccesses < cfg.infos.size then
     logError s!"{cfg.scope}: failed to {action} some artifacts"
     didError := true

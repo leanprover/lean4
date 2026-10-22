@@ -5,8 +5,8 @@ higher transparency.
 
 Tests both settings of `backward.isDefEq.respectTransparency.instanceSearchTypes`:
 - `false`: old behavior,
-- `true`: reject assignments to instance-implicit argument metavariables of the wrong type, falling
-  back to synthesizing the instance and unifying the candidate value with the result.
+- `true`: reject assignments to class-typed metavariables of the wrong type (see
+  `backward.isDefEq.respectTransparency.instanceTypes`).
 -/
 
 class P (α : Type) where p : Nat
@@ -75,9 +75,8 @@ variable (E : Type) [iQ : Q E] in
 
 /-!
 Scenario 3: like scenario 2, but the correct instance `qCopy : Q (Copy E)` exists and is
-definitionally equal to the rejected candidate `iQ`. It would be brittle to simply reject the
-assignment in this case. Instead, we synthesize the "correct" instance and then check that it
-unifies with the wrongly typed one, at ambient transparency, usually implicit.
+definitionally equal to the rejected candidate `iQ`. The assignment is still rejected: Lean does
+not synthesize the "correct" instance to compare it with the wrongly typed one.
 -/
 
 instance qCopy [Q E] : Q (Copy E) := ‹Q E›
@@ -88,7 +87,12 @@ set_option backward.isDefEq.respectTransparency.instanceSearchTypes false in
 variable (E : Type) [iQ : Q E] in
 #synth M (G (Copy E) iQ)
 
-/-- info: instG (Copy E) -/
+/--
+error: failed to synthesize
+  M (G (Copy E) iQ)
+
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+-/
 #guard_msgs in
 set_option backward.isDefEq.respectTransparency.instanceSearchTypes true in
 variable (E : Type) [iQ : Q E] in

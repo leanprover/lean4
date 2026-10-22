@@ -198,6 +198,12 @@ structure State where
   -/
   mvarArgNames      : MVarIdMap Name := {}
   letRecsToLift     : List LetRecToLift := []
+  /--
+  Maps a pending type class problem that got stuck to the metavariables of its goal at that point.
+  `synthesizeSyntheticMVars` does not retry it until one of them, or the instance metavariable itself,
+  is assigned, since type class resolution would get stuck on the same goal again.
+  -/
+  stuckTCMVars      : MVarIdMap (Array MVarId × Array LMVarId) := {}
   deriving Inhabited
 
 /--

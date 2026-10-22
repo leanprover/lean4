@@ -127,7 +127,8 @@ because a lemma about `@HAdd.hAdd Nat Nat Nat (@instHAdd Nat ?inst)` would later
 See `checkTypesForInstanceTypedMVarAssignment` and `spineMVarsAdmissible`.
 
 With `false`, these assignments are checked like any other, see
-`backward.isDefEq.respectTransparency.types`.
+`backward.isDefEq.respectTransparency.types`. `backward.instanceTypes.subsingletons` exempts only
+`Decidable` instances and instances of `Prop`-valued classes.
 
 This option only has an effect when `backward.isDefEq.respectTransparency.instanceSearchTypes` is
 `true`.
@@ -136,6 +137,43 @@ register_builtin_option backward.isDefEq.respectTransparency.instanceTypes : Boo
   defValue := true
   descr    := "if true, require assignments to class-typed metavariables to preserve the \
   metavariable's type up to `.instances` transparency"
+}
+
+/--
+Controls whether the instance-type checks of the unifier
+(`backward.isDefEq.respectTransparency.instanceTypes`) and of `simp`/`dsimp`
+(`backward.dsimp.instanceTypes`) apply to the instances that `simp` treats as subsingletons:
+`Decidable` instances (`backward.instanceTypes.subsingletons.decidable`) and instances of
+`Prop`-valued classes (`backward.instanceTypes.subsingletons.prop`).
+
+With `false`, both kinds are exempt, whatever the values of the two children.
+-/
+register_builtin_option backward.instanceTypes.subsingletons : Bool := {
+  defValue := true
+  descr    := "if false, exempt `Decidable` instances and instances of `Prop`-valued classes from \
+  the instance-type checks of the unifier and of `simp`"
+}
+
+/--
+Controls whether the instance-type checks apply to `Decidable` instances: those whose type is
+`Decidable p` or a function type `∀ xs, Decidable p`, such as `DecidableEq α`. `simp` uses
+`subsingletonInst` congruence for these (`ParamInfo.isDecInst`). See
+`backward.instanceTypes.subsingletons`.
+-/
+register_builtin_option backward.instanceTypes.subsingletons.decidable : Bool := {
+  defValue := true
+  descr    := "if false, exempt `Decidable` instances from the instance-type checks of the unifier \
+  and of `simp`"
+}
+
+/--
+Controls whether the instance-type checks apply to instances of `Prop`-valued classes. `simp` uses
+`cast` congruence for these. See `backward.instanceTypes.subsingletons`.
+-/
+register_builtin_option backward.instanceTypes.subsingletons.prop : Bool := {
+  defValue := true
+  descr    := "if false, exempt instances of `Prop`-valued classes from the instance-type checks \
+  of the unifier and of `simp`"
 }
 
 register_builtin_option trace.Meta.isDefEq.printTransparency : Bool := {
@@ -564,6 +602,18 @@ private def isClassTypedMVar (mvarId : MVarId) : MetaM Bool :=
   return (← isClass? (← mvarId.getDecl).type).isSome
 
 /--
+Returns `true` if `backward.instanceTypes.subsingletons` exempts the class-typed `mvarId` from
+`backward.isDefEq.respectTransparency.instanceTypes`.
+-/
+private def isExemptSubsingletonMVar (mvarId : MVarId) : MetaM Bool := do
+  let flags ← getOptionFlags
+  let type := (← mvarId.getDecl).type
+  -- The same test as `ParamInfo.isDecInst`.
+  (pure !flags.instanceTypesDecidable <&&>
+      forallTelescopeReducing type fun _ type => return type.isAppOf ``Decidable) <||>
+    (pure !flags.instanceTypesProp <&&> isProp type)
+
+/--
 Returns `true` if all metavariables whose types influence the type of `e`, a value assigned to a
 class-typed metavariable under `backward.isDefEq.respectTransparency.instanceTypes`, are
 admissible. Admissible are:
@@ -644,7 +694,7 @@ private def checkTypesAndAssign (mvar : Expr) (v : Expr) : MetaM Bool :=
       return false
     let flags ← getOptionFlags
     if flags.respectTransparencyInstanceTypes && flags.respectTransparencyInstanceSearchTypes &&
-        (← isClassTypedMVar mvar.mvarId!) then
+        (← isClassTypedMVar mvar.mvarId! <&&> notM (isExemptSubsingletonMVar mvar.mvarId!)) then
       let v ← instantiateMVars v
       let mvarType ← inferType mvar
       let vType ← inferType v

@@ -531,6 +531,7 @@ private partial def revertInstanceTypeChanges (orig new : Expr) : MetaM Expr := 
   let infos := (← getFunInfoNArgs f newArgs.size).paramInfo
   let fType ← inferType f
   let origFType ← inferType orig.getAppFn
+  let flags ← getOptionFlags
   let mut args := newArgs
   repeat
     let changed (i : Nat) := args[i]! != origArgs[i]!
@@ -538,6 +539,8 @@ private partial def revertInstanceTypeChanges (orig new : Expr) : MetaM Expr := 
     for h : j in *...infos.size do
       let info := infos[j]
       unless info.isInstance && (changed j || info.backDeps.any changed) do continue
+      if info.isDecInst && !flags.instanceTypesDecidable || info.isProp && !flags.instanceTypesProp then
+        continue
       if (← hasExpectedType fType args j) then continue
       -- Keep rewrites that do not cause the mismatch.
       unless (← hasExpectedType origFType origArgs j) do continue

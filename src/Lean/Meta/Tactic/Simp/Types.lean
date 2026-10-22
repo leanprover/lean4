@@ -30,7 +30,8 @@ transparency. For example, if `def Foo := Nat`, unfolding `Foo` in the type argu
 type `HAdd Nat Nat Nat` is expected, so that lemmas about `HAdd Nat Nat Nat` would not apply.
 
 A rewrite is kept if the instance argument did not match its expected type at `.instances`
-transparency in the first place.
+transparency in the first place. `backward.instanceTypes.subsingletons` exempts `Decidable`
+instance arguments and instance arguments of `Prop`-valued classes.
 -/
 register_builtin_option backward.dsimp.instanceTypes : Bool := {
     defValue := true

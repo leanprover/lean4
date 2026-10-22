@@ -175,7 +175,8 @@ the option up in a `KVMap`. The word is recomputed wherever the options change (
 guarantees that it always agrees with the options in scope.
 
 Bits 0 to 9 are the definitional-equality and unfolding compatibility flags read on every step of
-`isDefEq` and `whnf`. Bit 10 is `diagnostics`.
+`isDefEq` and `whnf`. Bit 10 is `diagnostics`. Bits 11 and 12 resolve
+`backward.instanceTypes.subsingletons` and its children; they are read by the unifier and by `simp`.
 -/
 structure OptionFlags where
   private bits : UInt16
@@ -197,6 +198,8 @@ namespace OptionFlags
 @[inline] def throwOnStuckAfterApp (f : OptionFlags) : Bool := f.bits &&& 0x100 != 0
 @[inline] def respectTransparencyInstanceTypes (f : OptionFlags) : Bool := f.bits &&& 0x200 != 0
 @[inline] def diag (f : OptionFlags) : Bool := f.bits &&& 0x400 != 0
+@[inline] def instanceTypesDecidable (f : OptionFlags) : Bool := f.bits &&& 0x800 != 0
+@[inline] def instanceTypesProp (f : OptionFlags) : Bool := f.bits &&& 0x1000 != 0
 
 /--
 Resolves the flags from `opts`.
@@ -218,7 +221,11 @@ def ofOptions (opts : Options) : OptionFlags :=
       flag (getB `smartUnfolding true) 0x080 |||
       flag (getB `backward.isDefEq.throwOnStuckAfterApp false) 0x100 |||
       flag (getB `backward.isDefEq.respectTransparency.instanceTypes true) 0x200 |||
-      flag (diagnostics.get opts) 0x400 }
+      flag (diagnostics.get opts) 0x400 |||
+      flag (getB `backward.instanceTypes.subsingletons true &&
+        getB `backward.instanceTypes.subsingletons.decidable true) 0x800 |||
+      flag (getB `backward.instanceTypes.subsingletons true &&
+        getB `backward.instanceTypes.subsingletons.prop true) 0x1000 }
 
 end OptionFlags
 

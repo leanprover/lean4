@@ -10,6 +10,7 @@ public import Lean.EnvExtension
 public import Lean.Message
 import Lean.Elab.Term
 import Lean.Linter.Deprecated
+import Lean.Deprecation
 
 public section
 
@@ -30,24 +31,35 @@ structure DeprecatedArgEntry where
   since? : Option String := none
   deriving Inhabited
 
-/-- State: `declName → (oldArg → entry)` -/
-abbrev DeprecatedArgState := NameMap (NameMap DeprecatedArgEntry)
+/-- Entries paired with their importing module; `none` denotes the current module. -/
+abbrev DeprecatedArgState := NameMap (NameMap (DeprecatedArgEntry × Option ModuleIdx))
 
-private def addDeprecatedArgEntry (s : DeprecatedArgState) (e : DeprecatedArgEntry) : DeprecatedArgState :=
-  let inner := (s.find? e.declName).getD {} |>.insert e.oldArg e
+private def addDeprecatedArgEntry (s : DeprecatedArgState) (e : DeprecatedArgEntry)
+    (moduleIdx? : Option ModuleIdx) : DeprecatedArgState :=
+  let inner := (s.find? e.declName).getD {} |>.insert e.oldArg (e, moduleIdx?)
   s.insert e.declName inner
 
 builtin_initialize deprecatedArgExt :
     SimplePersistentEnvExtension DeprecatedArgEntry DeprecatedArgState ←
   registerSimplePersistentEnvExtension {
-    addEntryFn := addDeprecatedArgEntry
-    addImportedFn := mkStateFromImportedEntries addDeprecatedArgEntry {}
+    addEntryFn := fun s e => addDeprecatedArgEntry s e none
+    addImportedFn := fun ess => Id.run do
+      let mut s := {}
+      for idx in [:ess.size] do
+        for e in ess[idx]! do
+          s := addDeprecatedArgEntry s e (some idx)
+      return s
   }
+
+/-- Look up an argument deprecation and its importing module, or `none` for the current module. -/
+def findDeprecatedArgWithOrigin? (env : Environment) (declName : Name) (argName : Name) :
+    Option (DeprecatedArgEntry × Option ModuleIdx) :=
+  (deprecatedArgExt.getState env |>.find? declName) >>= (·.find? argName)
 
 /-- Look up a deprecated argument mapping for `(declName, argName)`. -/
 def findDeprecatedArg? (env : Environment) (declName : Name) (argName : Name) :
     Option DeprecatedArgEntry :=
-  (deprecatedArgExt.getState env |>.find? declName) >>= (·.find? argName)
+  (findDeprecatedArgWithOrigin? env declName argName).map (·.1)
 
 /-- Format the deprecation warning message for a deprecated argument. -/
 def formatDeprecatedArgMsg (entry : DeprecatedArgEntry) : MessageData :=

@@ -33,6 +33,19 @@ be found in the comments in `script/release/repos.py`.
 You should be able to ctrl+click any underlined parts of the script (assuming
 your terminal emulator supports it) to open them in the browser.
 
+## Deprecation warning cutoff
+
+After cutting the `v4.X.0-rc1` release branch, advance
+`Lean.Deprecation.defaultWarningDate` in `src/Lean/Deprecation.lean` to that branch's cut date
+(`YYYY-MM-DD`) on master, alongside the development-cycle version bump. Keep the cutoff unchanged
+on the release branch through later release candidates, the final release, and patch releases.
+This delays dependency deprecation warnings by roughly one release without consulting the clock.
+
+The cutoff is the inclusive default for `deprecation.warnings`. Projects can override it through
+Lake's `leanOptions`; `deprecation.warnings.local` independently controls warnings within the
+current package and defaults to `"all"`. For migration builds, set `deprecation.warnings` to
+`"all"` to reveal delayed warnings. Neither option changes when deprecated APIs should be removed.
+
 ## Release notes
 
 The release notes live in the `leanprover/reference_manual` repository. In the

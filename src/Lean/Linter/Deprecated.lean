@@ -7,6 +7,7 @@ module
 
 prelude
 public import Lean.Meta.Basic
+import Lean.Deprecation
 import Lean.Linter.Init
 import Lean.Elab.InfoTree.Main
 import Lean.ExtraModUses
@@ -172,6 +173,8 @@ private def mkDeprecationHint? (declName newName : Name) : MetaM (Option Message
 def checkDeprecated (declName : Name) (allowSuggestion : Bool) : MetaM Unit := do
   if getLinterValue linter.deprecated (← getLinterOptions) then
     let some attr := deprecatedAttr.getParam? (← getEnv) declName | pure ()
+    unless Deprecation.shouldWarnForDecl (← getEnv) (← getOptions) declName attr.since? do
+      return
     let extraMsg ← match attr.text?, attr.newName? with
       | some text, _ => pure m!": {text}"
       | none, none => pure m!""

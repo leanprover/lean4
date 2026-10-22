@@ -8,6 +8,7 @@ module
 prelude
 public import Lean.Elab.InfoTree
 public import Init.Syntax
+public import Lean.Deprecation
 
 public section
 namespace Lean.Elab
@@ -65,6 +66,8 @@ def elabSetOption (id : Syntax) (val : Syntax) : m (Options × OptionDecl) := do
   pushInfoLeaf <| .ofOptionInfo { stx := id, optionName, declName := decl.declName }
   let rec setOption (val : DataValue) : m (Options × OptionDecl) := do
     validateOptionValue optionName decl val
+    if let .error msg := Deprecation.validateOption optionName val then
+      throwError "{msg}"
     return ((← getOptions).set optionName val, decl)
   match val.isStrLit? with
   | some str => setOption (DataValue.ofString str)
@@ -86,10 +89,13 @@ end Lean.Elab
 namespace Lean.Elab
 
 variable {m : Type → Type} [Monad m] [MonadOptions m] [MonadLog m] [AddMessageContext m]
+  [MonadEnv m]
 
 def checkDeprecatedOption (optionName : Name) (decl : OptionDecl) : m Unit := do
   unless linter.deprecated.options.get (← getOptions) do return
   let some dep := decl.deprecation? | return
+  unless Deprecation.shouldWarnForDecl (← getEnv) (← getOptions) decl.declName (some dep.since) do
+    return
   let extraMsg := match dep.text?, dep.newName? with
     | some text, _ => m!": {text}"
     | none, some newName => m!": Use `{newName}` instead"

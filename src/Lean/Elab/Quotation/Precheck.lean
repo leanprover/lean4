@@ -8,6 +8,7 @@ module
 prelude
 public import Lean.Elab.Quotation.Util
 import Lean.Elab.DeprecatedSyntax
+import Lean.Deprecation
 
 public section
 
@@ -59,8 +60,9 @@ unsafe builtin_initialize precheckAttribute : KeyedDeclsAttribute Precheck ←
 partial def precheck : Precheck := fun stx => do
   -- Check for deprecated syntax kinds in quotations. Syntax produced by expanding macros in the
   -- quotation is not part of it; elaborating the result of the quotation reports it.
-  if let some entry := (deprecatedSyntaxExt.getState (← getEnv)).find? stx.getKind then
-    unless stx.getHeadInfo matches .synthetic .. do
+  if let some (entry, moduleIdx?) := (deprecatedSyntaxExt.getState (← getEnv)).find? stx.getKind then
+    if !(stx.getHeadInfo matches .synthetic ..) &&
+        Deprecation.shouldWarnForModule (← getEnv) (← getOptions) moduleIdx? entry.since? then
       let extraMsg := match entry.text? with
         | some text => m!": {text}"
         | none => m!""

@@ -10,6 +10,7 @@ public import Lean.Parser.Module
 meta import Lean.Parser.Module
 import Lean.Compiler.ModPkgExt
 public import Lean.DeprecatedModule
+import Lean.Deprecation
 import Init.Data.String.Modify
 
 public section
@@ -91,6 +92,9 @@ def checkDeprecatedImports
     | some idx =>
       match env.getDeprecatedModuleByIdx? idx with
       | some entry =>
+        if !Deprecation.shouldWarn env opts (some imp.module) entry.since? then
+          messages
+        else
         let pos := importPositions.find? imp.module |>.getD startPos
         messages.add {
           fileName := inputCtx.fileName
@@ -147,6 +151,14 @@ def processHeaderCore
     (headerStx? : Option HeaderSyntax := none)
     (origHeaderStx? : Option HeaderSyntax := none)
     : IO (Environment × MessageLog) := do
+  let messages := match Deprecation.validateOptions opts with
+    | .ok () => messages
+    | .error msg => messages.add {
+        fileName := inputCtx.fileName
+        pos := inputCtx.fileMap.toPosition startPos
+        severity := .error
+        data := msg
+      }
   let level := if isModule then
     if Elab.inServer.get opts then
       .server

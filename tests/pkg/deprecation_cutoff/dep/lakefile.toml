@@ -1,0 +1,9 @@
+name = "cutoff_dependency"
+
+leanOptions = [
+  { name = "deprecation.warnings", value = "2000-01-01" },
+  { name = "deprecation.warnings.local", value = "all" }
+]
+
+[[lean_lib]]
+name = "Dependency"

@@ -9,6 +9,7 @@ prelude
 public import Lean.MonadEnv
 public import Lean.Linter.Init
 public import Lean.Elab.Util
+public import Lean.Deprecation
 
 public section
 
@@ -32,11 +33,19 @@ structure SyntaxDeprecationEntry where
   /-- Optional version or date at which the syntax was deprecated. -/
   since? : Option String := none
 
+/-- Entries paired with their importing module; `none` denotes the current module. -/
+abbrev DeprecatedSyntaxState := NameMap (SyntaxDeprecationEntry × Option ModuleIdx)
+
 builtin_initialize deprecatedSyntaxExt :
-    SimplePersistentEnvExtension SyntaxDeprecationEntry (NameMap SyntaxDeprecationEntry) ←
+    SimplePersistentEnvExtension SyntaxDeprecationEntry DeprecatedSyntaxState ←
   registerSimplePersistentEnvExtension {
-    addImportedFn := mkStateFromImportedEntries (fun m e => m.insert e.kind e) {}
-    addEntryFn := fun m e => m.insert e.kind e
+    addImportedFn := fun ess => Id.run do
+      let mut s := {}
+      for idx in [:ess.size] do
+        for e in ess[idx]! do
+          s := s.insert e.kind (e, some idx)
+      return s
+    addEntryFn := fun m e => m.insert e.kind (e, none)
   }
 
 /-- Whether `kind` is marked by `deprecated_syntax`. -/
@@ -56,7 +65,9 @@ def checkDeprecatedSyntax [Monad m] [MonadEnv m] [MonadLog m] [MonadOptions m]
     [AddMessageContext m] [MonadRef m] (stx : Syntax) (macroStack : MacroStack) : m Unit := do
   let env ← getEnv
   let kind := stx.getKind
-  if let some entry := (deprecatedSyntaxExt.getState env).find? kind then
+  if let some (entry, moduleIdx?) := (deprecatedSyntaxExt.getState env).find? kind then
+    unless Deprecation.shouldWarnForModule env (← getOptions) moduleIdx? entry.since? do
+      return
     let extraMsg := match entry.text? with
       | some text => m!": {text}"
       | none => m!""

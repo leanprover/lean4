@@ -12,7 +12,7 @@ public import Lean.Elab.Command
 import Lean.Elab.ConfigEval
 import Lean.Elab.DeprecatedSyntax.Basic
 import Lean.Elab.AuxDef
-import Lean.Elab.Syntax
+import Lean.Elab.MacroRules
 import Lean.Compiler.IR.CompilerM
 public import Lean.Elab.Open
 import Init.Data.Nat.Order
@@ -791,13 +791,12 @@ private def elabDeprecatedSyntaxReplacement (kind : SyntaxNodeKind) (alts : Arra
     guard <| pat.raw.isIdent || pat.raw.isOfKind ``hole
     return (pat, rhs)
   let body ← if let some (pat, rhs) := catchAllAlt? then `(fun $pat:term => $rhs) else
-    let alts ← alts.mapM fun (alt : TSyntax ``matchAlt) => do
+    for alt in alts do
       if let `(matchAltExpr| | $pat:term => $_) := alt then
         unless pat.raw.isQuot do
           throwErrorAt pat "invalid deprecated_syntax alternative, expected a syntax quotation \
             pattern or a single identifier or `_` pattern"
-      checkRuleAltKind "deprecated_syntax" kind alt
-    `(fun $alts:matchAlt* | _ => no_error_if_unused% throw Lean.Macro.Exception.unsupportedSyntax)
+    mkMacroRulesFun "deprecated_syntax" kind alts
   let id ← mkAuxDefName (`deprecatedSyntax ++ kind)
   withExporting do
     elabCommand <| ← `(public meta def $(mkIdentFrom (← getRef) id):ident : Lean.Macro := $body)

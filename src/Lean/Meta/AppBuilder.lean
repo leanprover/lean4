@@ -527,13 +527,19 @@ def mkNoConfusion (target : Expr) (h : Expr) : MetaM Expr := do
       throwError "mkNoConfusion: No manifest constructors in {a} = {b}"
 
 /--
-Constructs a non-dependent `casesOn` application of type `resultType`, computing the alternatives
+Constructs a `casesOn` application of type `resultType`, computing the motive using `computeMotive`
+applied to the expected type of the motive and the indices of `discr` and computing the alternatives
 by calling `alt` with the inductive info, constructor info, the fields, and the constructor
 application.
+
+`computeMotive _ indices` is expected to return `motive` such that `motive` applied to `indices`
+and `discr` is definitionally equal to `resultType`.
 -/
-def mkNondepCases [Monad m] [MonadEnv m] [MonadError m]
+def mkCasesOnAppAux [Monad m] [MonadEnv m] [MonadError m]
     [MonadControlT MetaM m] [MonadLiftT MetaM m] (discr : Expr) (resultType : Expr)
-    (alt : InductiveVal → ConstructorVal → Array Expr → Expr → m Expr) : m Expr := do
+    (alt : InductiveVal → ConstructorVal → (fields : Array Expr) → (ctorApp : Expr) → m Expr)
+    (computeMotive : (motiveType : Expr) → (indices : Array Expr) → m Expr) :
+    m Expr := do
   let discrType ← whnf (← inferType discr)
   discrType.withApp fun fn args => do
   let .const induct us := fn
@@ -550,7 +556,7 @@ def mkNondepCases [Monad m] [MonadEnv m] [MonadError m]
   let casesOnApp := mkAppN (.const (mkCasesOnName induct) (resultSort :: us)) params
   let casesOnType ← inferType casesOnApp
   let .forallE _ motiveType body _ := casesOnType | unreachable!
-  let motive ← forallTelescope motiveType fun vars _ => mkLambdaFVars vars resultType
+  let motive ← computeMotive motiveType indices
   let body := body.instantiate1 motive
   let vars := indices.push discr
   let mut body ← instantiateForall body vars
@@ -564,6 +570,29 @@ def mkNondepCases [Monad m] [MonadEnv m] [MonadError m]
     casesOnApp := casesOnApp.app minor
     body := body'
   return casesOnApp
+
+/--
+Constructs a non-dependent `casesOn` application of type `resultType` that matches on `discr`,
+computing the alternatives by calling `alt` with the inductive info, constructor info, the fields,
+and the constructor application.
+-/
+def mkNondepCases [Monad m] [MonadEnv m] [MonadError m]
+    [MonadControlT MetaM m] [MonadLiftT MetaM m] (discr : Expr) (resultType : Expr)
+    (alt : InductiveVal → ConstructorVal → Array Expr → Expr → m Expr) : m Expr := do
+  mkCasesOnAppAux discr resultType alt
+    (fun motiveType _ => forallTelescope motiveType (fun xs _ => mkLambdaFVars xs resultType))
+
+/--
+Given a free variable `discr` whose type is an inductive application with free variable indices,
+creates a dependent `casesOn` application of type `resultType`, computing the alternatives
+by calling `alt` with the inductive info, constructor info, the fields, and the constructor
+application.
+-/
+def mkDepCases [Monad m] [MonadEnv m] [MonadError m]
+    [MonadControlT MetaM m] [MonadLiftT MetaM m] (discr : Expr) (resultType : Expr)
+    (alt : InductiveVal → ConstructorVal → Array Expr → Expr → m Expr) : m Expr := do
+  mkCasesOnAppAux discr resultType alt
+    (fun _ indices => mkLambdaFVars (indices.push discr) resultType)
 
 /-- Given a `monad` and `e : α`, makes `pure e`.-/
 def mkPure (monad : Expr) (e : Expr) : MetaM Expr :=

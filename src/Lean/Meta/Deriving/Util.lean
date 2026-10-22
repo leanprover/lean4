@@ -857,11 +857,9 @@ def FieldHelperProvider.cases
     if t != typeApp then
       throwError "Invalid use of `{.ofConstName decl_name%}`, the argument to \
         `{.ofConstName fieldInfo.name}` is not the type parameter"
-    if tgt.hasLooseBVars then
-      throwError "Invalid use of `{.ofConstName decl_name%}`, expected \
-        `{.ofConstName fieldInfo.name}` to be nondependent"
     withLocalDeclD `t typeApp fun discr => do
-      mkLambdaFVars #[discr] <| ← mkNondepCases discr tgt fun ival cval fields ctorApp => do
+      let tgt := tgt.instantiate1 discr
+      mkLambdaFVars #[discr] <| ← mkDepCases discr tgt fun ival cval fields ctorApp => do
         prependError m!"Error while processing constructor {.ofConstName cval.name}:" do
           perCtor ival cval fields ctorApp val
 

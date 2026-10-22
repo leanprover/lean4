@@ -2,7 +2,7 @@ import Lean.Data.Markdown
 
 /-!
 Unit tests for the Markdown parse tree: character references, backslash escapes, soft breaks,
-heading levels, text decoding, and the source ranges of inline and block constructs.
+heading levels, text decoding, and the extent of inline and block constructs.
 -/
 
 open Lean Markdown
@@ -10,7 +10,7 @@ open Lean Markdown
 /-- Shows each inline's constructor together with its source text or decoded value. -/
 partial def showInline {s : String.Slice} : Inline s → String
   | .text r => s!"text⟪{r.copy}⟫"
-  | .code _ c _ => s!"code⟪{c.copy}⟫"
+  | .code _ lines _ => s!"code⟪{"\n".intercalate (lines.toList.map (·.copy))}⟫"
   | .italic _ cs _ => s!"italic[{showInlines cs}]"
   | .bold _ cs _ => s!"bold[{showInlines cs}]"
   | .link _ cs _ _ => s!"link[{showInlines cs}]"
@@ -79,23 +79,32 @@ def headingLevels (src : String) : List Nat :=
 /-- info: [1, 3, 1, 2] -/
 #guard_msgs in #eval headingLevels "# a\n\n### b\n\nc\n===\n\nd\n---"
 
-/-! ## Source ranges -/
+/-! ## Extents -/
 
 def inlineRanges (src : String) : List String :=
-  (firstParagraph src).toList.map fun i => i.range.copy
+  (firstParagraph src).toList.map fun i => i.extent.copy
 
 /-- info: ["[x](/u)", " ", "![a][r]", " ", "<ab:c>", " ", "`c`", " ", "**b**", " ", "[r]", " ", "\\*", " ", "&lt;"] -/
 #guard_msgs in #eval inlineRanges "[x](/u) ![a][r] <ab:c> `c` **b** [r] \\* &lt;\n\n[r]: /u"
 
-/-- The opener, text, and closer of every link title in `src`, including those of reference definitions. -/
-def titleParts (src : String) : List (List String) :=
-  (parse src).toList.flatMap fun
-    | .paragraph content => content.toList.filterMap fun
-      | .link _ _ _ (.inline _ _ _ (some t)) | .image _ _ _ _ (.inline _ _ _ (some t)) =>
-        some [t.opener.copy, t.content.copy, t.closer.copy]
-      | _ => none
-    | .linkRefDef m => (m.title?.map fun t => [t.opener.copy, t.content.copy, t.closer.copy]).toList
-    | _ => []
+/--
+The opener, text, and closer of every link title in `src`, including those of reference definitions,
+descending into blockquotes. The text's lines are joined with newlines.
+-/
+partial def titleParts (src : String) : List (List String) :=
+  go (parse src).toList
+where
+  parts {s : String.Slice} (t : LinkTitle s) : List String :=
+    [t.opener.copy, "\n".intercalate (t.content.toList.map (·.copy)), t.closer.copy]
+  go {s : String.Slice} (blocks : List (Block s)) : List (List String) :=
+    blocks.flatMap fun
+      | .paragraph content => content.toList.filterMap fun
+        | .link _ _ _ (.inline _ _ _ (some t)) | .image _ _ _ _ (.inline _ _ _ (some t)) =>
+          some (parts t)
+        | _ => none
+      | .linkRefDef m => (m.title?.map parts).toList
+      | .blockquote _ children => go children.toList
+      | _ => []
 
 /-- info: [["\"", "a b", "\""], ["'", "c", "'"], ["(", "d", ")"], ["(", "e\nf", ")"]] -/
 #guard_msgs in #eval titleParts "[x](/u \"a b\") ![y](/v 'c')\n\n[r]: /w (d)\n\n[q]: /z\n  (e\nf)"
@@ -117,14 +126,59 @@ def destinationParts (src : String) : List (List String) :=
 /-- The URL and title of the definition that each reference link in the first paragraph resolved to. -/
 def referenceTargets (src : String) : List (String × Option String) :=
   (firstParagraph src).toList.filterMap fun
-    | .link _ _ _ (.reference d _) => some (d.destination.url.copy, d.title?.map (·.content.copy))
+    | .link _ _ _ (.reference d _ _) =>
+      some (d.destination.url.copy, d.title?.map fun t => "\n".intercalate (t.content.toList.map (·.copy)))
     | _ => none
 
 /-- info: [("/u", none), ("v", some "t")] -/
 #guard_msgs in #eval referenceTargets "[a][r] [b]\n\n[r]: /u\n[b]: <v> 't'"
 
+/-! ## Content that continues onto the next line
+
+The content of a code span, a link title, or a reference label that continues onto the next line of
+a container has one subslice per line, without the container's prefix.
+-/
+
+/-- The lines of every code span in the paragraphs of `src`, descending into blockquotes. -/
+partial def codeLines (src : String) : List (List String) :=
+  go (parse src).toList
+where
+  go {s : String.Slice} (blocks : List (Block s)) : List (List String) :=
+    blocks.flatMap fun
+      | .paragraph content => content.toList.filterMap fun
+        | .code _ lines _ => some (lines.toList.map (·.copy))
+        | _ => none
+      | .blockquote _ children => go children.toList
+      | _ => []
+
+/-- info: [["a", "b"], ["c", ""]] -/
+#guard_msgs in #eval codeLines "> `a\n> b` `c\n> `"
+
+/-- info: [["\"", "t\nu", "\""], ["(", "d\ne", ")"]] -/
+#guard_msgs in #eval titleParts "> [x](/u \"t\n> u\")\n>\n> [r]: /v\n> (d\n> e)"
+
+/--
+The label lines of every reference link and reference definition in `src`, in source order, descending
+into blockquotes.
+-/
+partial def labelLines (src : String) : List (List String) :=
+  go (parse src).toList
+where
+  go {s : String.Slice} (blocks : List (Block s)) : List (List String) :=
+    blocks.flatMap fun
+      | .paragraph content => content.toList.filterMap fun
+        | .link _ _ _ (.reference _ label _) | .image _ _ _ _ (.reference _ label _) =>
+          some (label.toList.map (·.copy))
+        | _ => none
+      | .linkRefDef m => [m.label.toList.map (·.copy)]
+      | .blockquote _ children => go children.toList
+      | _ => []
+
+/-- info: [["foo", "bar"], ["x", "y"], ["z"], ["foo", "bar"], ["x y"], ["z"]] -/
+#guard_msgs in #eval labelLines "> [a][foo\n> bar] [x\n> y] [z]\n>\n> [foo\n> bar]: /u\n> [x y]: /v\n> [z]: /w"
+
 def blockRanges (src : String) : List String :=
-  (parse src).toList.filterMap fun b => b.range?.map (·.copy)
+  (parse src).toList.filterMap fun b => b.extent?.map (·.copy)
 
 /-- info: ["> # h\n> para", "- a\n  b\n- c", "[r]: /u \"t\"", "```lean\ncode\n```", "***", "code"] -/
 #guard_msgs in #eval blockRanges "> # h\n> para\n\n- a\n  b\n- c\n\n[r]: /u \"t\"\n\n```lean\ncode\n```\n\n***\n\n    code\n"

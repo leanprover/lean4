@@ -174,7 +174,7 @@ def abandonOpener : DelimM s Unit := do
 
 /--
 Wraps the topmost delimiter's accumulated tokens as `.bold` (when `matchLen == 2`) or `.italic`
-(when `matchLen == 1`) using `openDelim`/`closeDelim` as its source ranges, and then either drops
+(when `matchLen == 1`) using `openDelim`/`closeDelim` as its delimiters, and then either drops
 the opener or removes the part that was consumed.
 
 Precondition: the delimiter stack is non-empty and its top is the opener chosen to match this closer

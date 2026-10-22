@@ -295,8 +295,8 @@ def matchFenceClose (c : Cursor s) (info : FenceInfo s) : Option s.Subslice := d
   return subsliceClamped p cAfterFence.pos
 
 /--
-Tries to recognize a single blockquote marker (`>` plus optional space). Returns the marker's range
-and a cursor positioned just past the consumed prefix (with column adjusted, possibly mid-tab per
+Tries to recognize a single blockquote marker (`>` plus optional space). Returns the marker and a
+cursor positioned just past the consumed prefix (with column adjusted, possibly mid-tab per
 CommonMark §2.2's partial-tab rule).
 -/
 def matchBlockquoteMarker (c : Cursor s) : Option (s.Subslice × Cursor s) := do
@@ -846,9 +846,9 @@ Scans a link-reference-definition label `[label]` content (between `[` and `]`).
 permitted inside the label so long as no blank line appears. The label must contain at least one
 non-whitespace character. CommonMark §4.7 caps labels at 999 *characters* before the closing `]`; we
 approximate this by capping at 1000 characters (counting backslash escapes as 2). Returns the
-label range and the cursor positioned at the closing `]`.
+label's lines and the cursor positioned at the closing `]`.
 -/
-def scanRefDefLabel (r : InlineRange s) : Option (s.Subslice × InlineRange s) := do
+def scanRefDefLabel (r : InlineCursor s) : Option (Array s.Subslice × InlineCursor s) := do
   let labelStart := r.startPos
   let mut r := r
   let mut len := 0
@@ -865,7 +865,7 @@ def scanRefDefLabel (r : InlineRange s) : Option (s.Subslice × InlineRange s) :
       len := len + 2
     else if c == ']' then
       guard sawNonWs
-      return (subsliceClamped labelStart r.startPos, r)
+      return (r.source.linesBetween labelStart r.startPos, r)
     else if c == '[' then
       failure
     else if c == '\n' then
@@ -886,11 +886,11 @@ Scans the destination of a link reference definition at the head of `r`. Recogni
 `<url>` and unbracketed forms. Returns the destination and the cursor positioned just past it. Fails
 on an unclosed `<`, an empty destination, unbalanced parens, or an embedded `\n`.
 -/
-def scanRefDefUrl (r : InlineRange s) : Option (LinkDestination s × InlineRange s) := do
+def scanRefDefUrl (r : InlineCursor s) : Option (LinkDestination s × InlineCursor s) := do
   let urlStart := r.startPos
   if r.front? == some '<' then
     -- Bracketed: scan until the next `>`; reject `<` and `\n`.
-    let openAngle ← r.charRange?
+    let openAngle ← r.charSubslice?
     let mut r := r.drop1
     let urlContentStart := r.startPos
     let mut closeAngle? : Option s.Subslice := none
@@ -900,7 +900,7 @@ def scanRefDefUrl (r : InlineRange s) : Option (LinkDestination s × InlineRange
       if c == '\\' && !rNext.isEmpty then
         r := rNext.drop1
       else if c == '>' then
-        closeAngle? := r.charRange?
+        closeAngle? := r.charSubslice?
         r := rNext
       else if c == '<' || c == '\n' then
         failure
@@ -944,7 +944,7 @@ def scanRefDefUrl (r : InlineRange s) : Option (LinkDestination s × InlineRange
 Skips the whitespace gap between a link reference definition's `:` and its destination: spaces,
 tabs, and at most one newline. Returns `none` if a blank line (two newlines) is encountered.
 -/
-def skipRefDefDestGap (r : InlineRange s) : Option (InlineRange s) := do
+def skipRefDefDestGap (r : InlineCursor s) : Option (InlineCursor s) := do
   let mut r := r
   let mut newlinesSeen := 0
   repeat
@@ -962,7 +962,7 @@ Consumes any same-line trailing whitespace from `r`, then an optional single `\n
 cursor past the `\n` (or at end-of-buffer if the line was the last). Returns `none` if
 non-whitespace content remains on the line.
 -/
-def consumeRefDefLineEnd (r : InlineRange s) : Option (InlineRange s) := do
+def consumeRefDefLineEnd (r : InlineCursor s) : Option (InlineCursor s) := do
   let mut r := r
   while r.front? == some ' ' || r.front? == some '\t' do
     r := r.drop1
@@ -984,7 +984,7 @@ closing delimiter, only same-line whitespace and an optional trailing newline ar
 otherwise the title attempt is abandoned (`none`) so the caller can fall back to a no-title
 interpretation.
 -/
-def refDefTitle (r : InlineRange s) : Option (LinkTitle s × InlineRange s) := do
+def refDefTitle (r : InlineCursor s) : Option (LinkTitle s × InlineCursor s) := do
   -- Locate the title opener: either same-line after whitespace, or on the
   -- next line after a single newline plus optional leading whitespace.
   let mut sawWs := false
@@ -992,7 +992,7 @@ def refDefTitle (r : InlineRange s) : Option (LinkTitle s × InlineRange s) := d
   while p.front? == some ' ' || p.front? == some '\t' do
     sawWs := true
     p := p.drop1
-  let mut openerR : InlineRange s := p
+  let mut openerR : InlineCursor s := p
   if p.front? == some '\n' then
     openerR := p.drop1
     while openerR.front? == some ' ' || openerR.front? == some '\t' do
@@ -1001,7 +1001,7 @@ def refDefTitle (r : InlineRange s) : Option (LinkTitle s × InlineRange s) := d
     guard sawWs
   let opener ← openerR.front?
   guard <| opener == '"' || opener == '\'' || opener == '('
-  let openerRange ← openerR.charRange?
+  let openerRange ← openerR.charSubslice?
   -- Parse content up to a matching closer; reject blank lines and unescaped
   -- `(` in `(...)` titles.
   let closer : Char := if opener == '(' then ')' else opener
@@ -1021,7 +1021,7 @@ def refDefTitle (r : InlineRange s) : Option (LinkTitle s × InlineRange s) := d
       lastWasNewline := false
     else if c == closer then
       titleContentEnd := curPos
-      closerRange? := tt.charRange?
+      closerRange? := tt.charSubslice?
       tt := ttNext
     else if c == opener && opener == '(' then
       bail := true  -- unescaped `(` inside a `(...)` title is forbidden
@@ -1037,7 +1037,8 @@ def refDefTitle (r : InlineRange s) : Option (LinkTitle s × InlineRange s) := d
   let closerRange ← closerRange?
   let afterEol ← consumeRefDefLineEnd tt
   let title : LinkTitle s :=
-    { opener := openerRange, content := subsliceClamped titleContentStart titleContentEnd, closer := closerRange }
+    { opener := openerRange, content := r.source.linesBetween titleContentStart titleContentEnd,
+      closer := closerRange }
   return (title, afterEol)
 
 /--
@@ -1051,15 +1052,15 @@ Returns the definition plus the position one past the last consumed character.
 public def linkRefDef (source : InlineSource s) (start : s.Pos) : Option (RefDef s × s.Pos) := do
   -- 0–3 spaces of indentation. `InlineSource.ofLines` has already removed each line's leading
   -- spaces and tabs.
-  let r0 := source.range start source.stopPos
+  let r0 := source.cursor start source.stopPos
   let (r, indent) := r0.matchSequence ' '
   guard (indent ≤ 3)
   -- `[label]`.
-  let (openBracket, r) ← r.matchCharRange '['
+  let (openBracket, r) ← r.matchChar '['
   let (label, r) ← scanRefDefLabel r
-  let (closeBracket, r) ← r.matchCharRange ']'
+  let (closeBracket, r) ← r.matchChar ']'
   -- `:`.
-  let (colon, r) ← r.matchCharRange ':'
+  let (colon, r) ← r.matchChar ':'
   -- Whitespace (including up to one newline) before the destination.
   let r ← skipRefDefDestGap r
   -- Destination.
@@ -1158,7 +1159,7 @@ where
   go (bs : Array (Block.Raw s)) : StateM (RefTable s) Unit :=
     bs.forM fun
       | .linkRefDef m => do
-        let normLabel := normalizeLabel m.label.copy
+        let normLabel := normalizeLabel (" ".intercalate (m.label.toList.map (·.copy)))
         if (← get).contains normLabel then pure ()
         else modify (·.insert normLabel m)
       | .blockquote _ children => go children

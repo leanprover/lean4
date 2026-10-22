@@ -324,32 +324,6 @@ def computeDeltaLspSemanticTokens (tokens : Array AbsoluteLspSemanticToken) : Se
     lastPos := pos
   return { data }
 
-/--
-Splits a source range at newline boundaries to support LSP clients such as VS Code that can't deal
-with newline-spanning tokens.
--/
-private def splitLines (text : FileMap) (range : Syntax.Range) : Array Syntax.Range := Id.run do
-  let ⟨pos, tailPos⟩ := range
-  let mut pos := pos
-  let mut ranges := #[]
-  -- Gets the line number of the syntax's position, to avoid iterating over lines that don't include
-  -- the region of interest. As an index into `text.positions`, this line number is the index of
-  -- the position of the _next_ line's start.
-  let startLine := text.toPosition pos |>.line
-  for h : i in [startLine:text.positions.size] do
-    let l := text.positions[i]
-    if l > tailPos then
-      ranges := ranges.push ⟨pos, tailPos⟩
-      break
-    -- Here, `l` is the position of the first character of the next line. This means that
-    -- terminating the token at `l` includes the newline. If the semantic token includes the
-    -- newline, then VS Code ignores it (it doesn't support multi-line tokens), so the token
-    -- should be terminated one character earlier.
-    let l' := l.prev text.source
-    ranges := ranges.push ⟨pos, l'⟩
-    pos := l
-  return ranges
-
 /-! ## Markdown highlighting
 
 Traverses the result of the full Markdown parse (`Lean.Markdown.parseDocument`,
@@ -403,28 +377,19 @@ private def MarkupAttrs.modifiers (a : MarkupAttrs) : List SemanticTokenModifier
   ⟨r.startInclusive.str.offset, r.endExclusive.str.offset⟩
 
 /--
-Pushes one `LeanSemanticToken` per source line that `r` intersects. Single-line ranges go through
-unchanged; multi-line ranges (e.g. code spans and reference definition titles) are split at newline
-boundaries.
--/
-private def pushSplit (text : FileMap) (out : Array LeanSemanticToken)
-    (r : s.Subslice) (tokenType : SemanticTokenType) (priority : Nat := 5)
-    (modifiers : List SemanticTokenModifier := []) : Array LeanSemanticToken := Id.run do
-  if r.toSlice.isEmpty then return out
-  let mut out := out
-  for range in splitLines text (toSyntaxRange r) do
-    out := out.push { range, type := tokenType, priority, modifiers }
-  return out
-
-/--
-Pushes a single-line `LeanSemanticToken` directly without going through `splitLines`. The caller
-guarantees `r` does not span a newline.
+Pushes a `LeanSemanticToken` for `r`, which is on a single source line. An empty `r` produces no
+token.
 -/
 @[inline] private def pushTok (out : Array LeanSemanticToken) (r : s.Subslice)
     (tokenType : SemanticTokenType) (priority : Nat := 5)
     (modifiers : List SemanticTokenModifier := []) : Array LeanSemanticToken :=
   if r.toSlice.isEmpty then out
   else out.push { range := toSyntaxRange r, type := tokenType, priority, modifiers }
+
+/-- Pushes one `LeanSemanticToken` per subslice in `lines`, each of which is on a single source line. -/
+private def pushLines (out : Array LeanSemanticToken) (lines : Array s.Subslice)
+    (tokenType : SemanticTokenType) (priority : Nat := 5) : Array LeanSemanticToken :=
+  lines.foldl (init := out) fun out line => pushTok out line tokenType priority
 
 /-- Pushes a delimiter: a `keyword` token with the `markupSyntax` modifier. -/
 @[inline] private def pushDelimiter (out : Array LeanSemanticToken) (r : s.Subslice) :
@@ -446,15 +411,15 @@ private def emitDestination (out : Array LeanSemanticToken) (d : Markdown.LinkDe
   out := pushTok out d.url .markupUrl
   return out
 
-private partial def emitInlines (text : FileMap) (a : MarkupAttrs)
+private partial def emitInlines (a : MarkupAttrs)
     (inlines : Array (Markdown.Inline s)) (out : Array LeanSemanticToken) :
     Array LeanSemanticToken := Id.run do
   let mut out := out
   for i in inlines do
-    out := emitInline text a i out
+    out := emitInline a i out
   return out
 where
-  emitInline (text : FileMap) (a : MarkupAttrs) (i : Markdown.Inline s)
+  emitInline (a : MarkupAttrs) (i : Markdown.Inline s)
       (out : Array LeanSemanticToken) : Array LeanSemanticToken := Id.run do
     let mut out := out
     match i with
@@ -469,15 +434,15 @@ where
     | .code openTicks content closeTicks =>
       out := pushDelimiter out openTicks
       out := pushDelimiter out closeTicks
-      out := pushSplit text out content .markupInlineCode (priority := 6)
+      out := pushLines out content .markupInlineCode (priority := 6)
     | .italic openDelim content closeDelim =>
       out := pushDelimiter out openDelim
       out := pushDelimiter out closeDelim
-      out := emitInlines text a.withItalic content out
+      out := emitInlines a.withItalic content out
     | .bold openDelim content closeDelim =>
       out := pushDelimiter out openDelim
       out := pushDelimiter out closeDelim
-      out := emitInlines text a.withBold content out
+      out := emitInlines a.withBold content out
     | .link openBracket inner closeBracket target =>
       out := emitBracketed none openBracket inner closeBracket target out
     | .image bang openBracket alt closeBracket target =>
@@ -491,30 +456,26 @@ where
     return out
 
   /--
-  Emits the structural tokens for a reference-style link's bracket pair(s).
+  Emits the tokens of a reference-style link's label and second bracket pair, if any.
 
-  For full form, the link's text content is emitted as ordinary inlines and the second `[label]`
-  brackets get keyword/cross-ref tokens. For collapsed and shortcut form, the link text *is* the
-  label, so the bracket interior gets a single `markupCrossReference` token in place of tokens for
-  its inlines. In collapsed form, the empty `[]` is annotated as a keyword.
+  The label gets one `markupCrossReference` token per line. In full form, the link's text is emitted
+  as ordinary inlines and the label is the interior of the second brackets. In collapsed and
+  shortcut form, the link's text *is* the label. The second brackets are delimiters.
   -/
-  emitReferenceForm (text : FileMap) (a : MarkupAttrs)
-      (out : Array LeanSemanticToken) (interior : s.Subslice)
-      (inner : Array (Markdown.Inline s)) (form : Markdown.ReferenceLinkForm s) :
-      Array LeanSemanticToken := Id.run do
+  emitReferenceForm (a : MarkupAttrs) (out : Array LeanSemanticToken)
+      (inner : Array (Markdown.Inline s)) (label : Array s.Subslice)
+      (form : Markdown.ReferenceLinkForm s) : Array LeanSemanticToken := Id.run do
     let mut out := out
     match form with
-    | .full openB label closeB =>
-      out := emitInlines text a inner out
+    | .full openB closeB =>
+      out := emitInlines a inner out
       out := pushDelimiter out openB
       out := pushDelimiter out closeB
-      out := pushTok out label .markupCrossReference (priority := 6)
     | .collapsed openB closeB =>
-      out := pushTok out interior .markupCrossReference (priority := 6)
       out := pushDelimiter out openB
       out := pushDelimiter out closeB
-    | .shortcut =>
-      out := pushTok out interior .markupCrossReference (priority := 6)
+    | .shortcut => pure ()
+    out := pushLines out label .markupCrossReference (priority := 6)
     return out
 
   /--
@@ -529,83 +490,79 @@ where
       out := pushDelimiter out bang
     out := pushDelimiter out openBracket
     out := pushDelimiter out closeBracket
-    let interior := Markdown.subsliceClamped openBracket.endExclusive closeBracket.startInclusive
     match target with
     | .inline openParen destination closeParen title? =>
-      out := emitInlines text a inner out
+      out := emitInlines a inner out
       out := pushDelimiter out openParen
       out := emitDestination out destination
       if let some t := title? then
         out := pushDelimiter out t.opener
-        out := pushTok out t.content .string
+        out := pushLines out t.content .string
         out := pushDelimiter out t.closer
       out := pushDelimiter out closeParen
-    | .reference _ form =>
-      out := emitReferenceForm text a out interior inner form
+    | .reference _ label form =>
+      out := emitReferenceForm a out inner label form
     return out
 
 /--
 Emits the structural tokens of a matched link reference definition: keyword on the brackets and
 colon and the optional title's delimiters, cross-reference on the label, URL on the destination, and
-string on the title's text. The label and title may span multiple source lines, so they are split at
-line boundaries.
+string on the title's text. The label and the title get one token per source line.
 -/
-private def emitRefDef (text : FileMap) (out : Array LeanSemanticToken) (r : Markdown.RefDef s) :
+private def emitRefDef (out : Array LeanSemanticToken) (r : Markdown.RefDef s) :
     Array LeanSemanticToken := Id.run do
   let mut out := out
   out := pushDelimiter out r.openBracket
-  out := pushSplit text out r.label .markupCrossReference
+  out := pushLines out r.label .markupCrossReference
   out := pushDelimiter out r.closeBracket
   out := pushDelimiter out r.colon
   out := emitDestination out r.destination
   if let some t := r.title? then
     out := pushDelimiter out t.opener
-    out := pushSplit text out t.content .string
+    out := pushLines out t.content .string
     out := pushDelimiter out t.closer
   return out
 
-private partial def emitBlocks (text : FileMap) (a : MarkupAttrs)
-    (blocks : Array (Markdown.Block s))
+private partial def emitBlocks (a : MarkupAttrs) (blocks : Array (Markdown.Block s))
     (out : Array LeanSemanticToken) : Array LeanSemanticToken := Id.run do
   let mut out := out
   for b in blocks do
-    out := emitBlock text a b out
+    out := emitBlock a b out
   return out
 where
-  emitBlock (text : FileMap) (a : MarkupAttrs) (b : Markdown.Block s)
+  emitBlock (a : MarkupAttrs) (b : Markdown.Block s)
       (out : Array LeanSemanticToken) : Array LeanSemanticToken := Id.run do
     let mut out := out
     match b with
     | .paragraph content =>
-      out := emitInlines text a content out
+      out := emitInlines a content out
     | .atxHeading _ hashes content closeHashes? =>
       out := pushDelimiter out hashes
       if let some c := closeHashes? then out := pushDelimiter out c
-      out := emitInlines text (a.withBlock .heading) content out
+      out := emitInlines (a.withBlock .heading) content out
     | .setextHeading _ content underline =>
-      out := emitInlines text (a.withBlock .heading) content out
+      out := emitInlines (a.withBlock .heading) content out
       out := pushDelimiter out underline
     | .fencedCode info openFence closeFence? lines =>
       out := pushDelimiter out openFence
       if let some c := closeFence? then out := pushDelimiter out c
       if let some tag := info.infoString? then
         out := pushTok out tag .function
-      for line in lines do
-        out := pushSplit text out line .markupCodeBlock
+      out := pushLines out lines .markupCodeBlock
     | .indentedCode lines =>
       for (range, _) in lines do
         out := pushTok out range .markupCodeBlock
     | .blockquote markers children =>
       for m in markers do
         out := pushDelimiter out m
-      out := emitBlocks text (a.withBlock .quote) children out
+      out := emitBlocks (a.withBlock .quote) children out
     | .list _ _ items =>
-      out := emitBlocks text (a.withBlock .list) items out
+      out := emitBlocks (a.withBlock .list) items out
     | .listItem marker children =>
       out := pushDelimiter out marker
-      out := emitBlocks text (a.withBlock .list) children out
+      out := emitBlocks (a.withBlock .list) children out
     | .linkRefDef m =>
-      out := emitRefDef text out m
+      out := emitRefDef out m
     | .thematicBreak line =>
       out := pushDelimiter out line
     return out
@@ -624,7 +581,7 @@ def collectMarkdownTokens (text : FileMap) (startPos endPos : String.Pos.Raw) (i
   match whole.pos? startPos, whole.pos? endPos with
   | some start, some stop =>
     if h : start ≤ stop then
-      MarkupTokens.emitBlocks text {} (Markdown.parseDocument (whole.slice start stop h) indent) #[]
+      MarkupTokens.emitBlocks {} (Markdown.parseDocument (whole.slice start stop h) indent) #[]
     else #[]
   | _, _ => #[]
 

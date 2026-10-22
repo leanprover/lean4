@@ -22,14 +22,11 @@ interpretation of reference-style links earlier in the document.
 -/
 partial def parseInlinesInBlock (refs : RefTable s) : Block.Raw s → Block s
   | .paragraph lines =>
-    let src := InlineSource.ofLines lines
-    .paragraph (parseInlines refs src src.startPos src.stopPos)
+    .paragraph (parseInlines refs (.ofLines lines))
   | .atxHeading level hashes content closeHashes? =>
-    .atxHeading level hashes
-      (parseInlines refs (.ofRange content) content.startInclusive content.endExclusive) closeHashes?
+    .atxHeading level hashes (parseInlines refs (.ofSubslice content)) closeHashes?
   | .setextHeading level lines underline =>
-    let src := InlineSource.ofLines lines
-    .setextHeading level (parseInlines refs src src.startPos src.stopPos) underline
+    .setextHeading level (parseInlines refs (.ofLines lines)) underline
   | .fencedCode info openFence closeFence? lines =>
     .fencedCode info openFence closeFence? lines
   | .indentedCode lines =>

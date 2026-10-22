@@ -155,23 +155,18 @@ def percentEncode (s : String) : String := Id.run do
   return out
 
 /--
-Scans `s` and for every newline drops the leading spaces or tabs that
-immediately follow it. Optionally also map newlines to spaces (used for
-code-span content per CommonMark §6.1; line endings inside code spans are
-treated as spaces after the §4.8 paragraph normalisation).
+Scans `s` and for every newline drops the leading spaces or tabs that immediately follow it, per
+the CommonMark §4.8 paragraph normalization.
 -/
-private def normalizeContinuation (newlinesAsSpaces : Bool) (s : String) : String :=
+private def normalizeParaText (s : String) : String :=
   let (out, _) := s.foldl (init := ("", false)) fun (out, atLineStart) c =>
     if atLineStart && (c == ' ' || c == '\t') then
       (out, true)
     else if c == '\n' then
-      (out.push (if newlinesAsSpaces then ' ' else '\n'), true)
+      (out.push '\n', true)
     else
       (out.push c, false)
   out
-
-private def normalizeParaText (s : String) : String :=
-  normalizeContinuation false s
 
 /--
 If a code span's normalised content begins *and* ends with a space and is
@@ -187,12 +182,15 @@ private def stripCodeSpanSpaces (s : String) : String :=
     s
 
 /--
-Renders the verbatim contents of a code span: strips continuation-line
-leading whitespace (§4.8), convert line endings to spaces (§6.1), and
-remove the optional outer space pair on either side.
+Renders the verbatim contents of a code span from its lines: line endings become spaces (§6.1), and
+the optional outer space pair is removed.
 -/
-private def renderCodeSpan (rawSrc : String) : String :=
-  stripCodeSpanSpaces (normalizeContinuation true rawSrc)
+private def renderCodeSpan {s : String.Slice} (lines : Array s.Subslice) : String :=
+  stripCodeSpanSpaces (" ".intercalate (lines.toList.map (·.copy)))
+
+/-- The text of a link title, whose lines are joined by newlines. -/
+private def titleText {s : String.Slice} (t : LinkTitle s) : String :=
+  decodeText ("\n".intercalate (t.content.toList.map (·.copy)))
 
 /--
 Flatten an inline tree to its plain-text content (CommonMark's `alt`
@@ -202,7 +200,7 @@ recurse through emphasis/link/image children.
 partial def inlineToPlainText (i : Inline s) : String :=
   match i with
   | .text r => r.copy
-  | .code _ content _ => content.copy
+  | .code _ content _ => renderCodeSpan content
   | .italic _ content _ =>
     content.foldl (init := "") fun acc i => acc ++ inlineToPlainText i
   | .bold _ content _ =>
@@ -223,7 +221,7 @@ partial def renderInline (i : Inline s) : String :=
   | .text r =>
     escape (normalizeParaText r.copy)
   | .code _ content _ =>
-    s!"<code>{escape (renderCodeSpan content.copy)}</code>"
+    s!"<code>{escape (renderCodeSpan content)}</code>"
   | .italic _ content _ =>
     let inner := content.foldl (init := "") fun acc i => acc ++ renderInline i
     s!"<em>{inner}</em>"
@@ -234,10 +232,10 @@ partial def renderInline (i : Inline s) : String :=
     let (url, title?) := match target with
       | .inline _ destination _ title? =>
         (percentEncode (decodeText destination.url.copy),
-         title?.map (fun t => decodeText t.content.copy))
-      | .reference d _ =>
+         title?.map titleText)
+      | .reference d _ _ =>
         (percentEncode (decodeText d.destination.url.copy),
-         d.title?.map (fun t => decodeText t.content.copy))
+         d.title?.map titleText)
     let titleAttr := match title? with
       | some t => s!" title=\"{escape t}\""
       | none => ""
@@ -247,10 +245,10 @@ partial def renderInline (i : Inline s) : String :=
     let (url, title?) := match target with
       | .inline _ destination _ title? =>
         (percentEncode (decodeText destination.url.copy),
-         title?.map (fun t => decodeText t.content.copy))
-      | .reference d _ =>
+         title?.map titleText)
+      | .reference d _ _ =>
         (percentEncode (decodeText d.destination.url.copy),
-         d.title?.map (fun t => decodeText t.content.copy))
+         d.title?.map titleText)
     let titleAttr := match title? with
       | some t => s!" title=\"{escape t}\""
       | none => ""

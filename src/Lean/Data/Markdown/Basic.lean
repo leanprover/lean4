@@ -93,8 +93,8 @@ The title of a link, image, or link reference definition: `"…"`, `'…'`, or `
 public structure LinkTitle (s : String.Slice) where
   /-- The opening `"`, `'`, or `(`. -/
   opener : s.Subslice
-  /-- The text between the delimiters. -/
-  content : s.Subslice
+  /-- The text between the delimiters, one subslice per source line. -/
+  content : Array s.Subslice
   /-- The closing `"`, `'`, or `)`. -/
   closer : s.Subslice
 deriving Inhabited
@@ -110,16 +110,16 @@ public structure LinkDestination (s : String.Slice) where
 deriving Inhabited
 
 /--
-The source ranges of a link reference definition's structural parts. The label is the bracket
-interior (excluding the brackets themselves).
+The structural parts of a link reference definition. The label is the bracket interior (excluding
+the brackets themselves).
 
-For multi-line reference definitions, ranges may span newlines.
+A label or title that contains line breaks is represented by one subslice per line.
 -/
 public structure RefDef (s : String.Slice) where
   /-- The opening `[` of the label. -/
   openBracket : s.Subslice
-  /-- The label's interior, between the brackets (un-normalized). -/
-  label : s.Subslice
+  /-- The label's interior, between the brackets (un-normalized), one subslice per source line. -/
+  label : Array s.Subslice
   /-- The closing `]` of the label. -/
   closeBracket : s.Subslice
   /-- The `:` separating the label from the destination. -/
@@ -141,30 +141,30 @@ public inductive Block.Raw (s : String.Slice) where
   -/
   | paragraph (lines : Array s.Subslice)
   /--
-  An ATX heading (the usual kind). `level` is the number of opening `#` characters, `hashes` is the
-  range of that opening sequence, and `closeHashes?` of an optional closing sequence.
+  An ATX heading (the usual kind). `level` is the number of opening `#` characters, `hashes` is that
+  opening sequence, and `closeHashes?` an optional closing sequence.
   -/
   | atxHeading (level : Nat) (hashes : s.Subslice) (content : s.Subslice) (closeHashes? : Option s.Subslice)
   /--
-  A setext heading (CommonMark §4.3): one or more lines of paragraph text followed by an underline
-  (`===` for level 1, `---` for level 2). `underline` is the range of the underline.
+  A setext heading (CommonMark §4.3): one or more lines of paragraph text followed by an `underline`
+  (`===` for level 1, `---` for level 2).
   -/
   | setextHeading (level : Nat) (lines : Array s.Subslice) (underline : s.Subslice)
   /--
-  A fenced code block. `openFence`/`closeFence?` are the ranges of the fences. The closing fence is
+  A fenced code block. `openFence`/`closeFence?` are the fences. The closing fence is
   optional because an unterminated fenced code block spans the rest of the input.
   -/
   | fencedCode (info : FenceInfo s) (openFence : s.Subslice) (closeFence? : Option s.Subslice)
     (lines : Array s.Subslice)
   /--
   An indented code block: a sequence of lines indented four or more columns. Each element is a pair
-  of the line's source range after the four columns of indentation that the block consumed (relative
+  of the line's source after the four columns of indentation that the block consumed (relative
   to the parent container) and its processed content, in which any partial tab at that point is
   materialized as the appropriate number of spaces per CommonMark §2.2.
   -/
   | indentedCode (lines : Array (s.Subslice × String))
   /--
-  A blockquote container. `markers` contains the range of every `>` marker, in source order, and
+  A blockquote container. `markers` contains every `>` marker, in source order, and
   `children` contains the contained blocks.
   -/
   | blockquote (markers : Array s.Subslice) (children : Array (Block.Raw s))
@@ -175,7 +175,7 @@ public inductive Block.Raw (s : String.Slice) where
   -/
   | list (kind : ListKind) (tight : Bool) (items : Array (Block.Raw s))
   /--
-  A list item. `marker` is the range of the bullet or ordered marker, and `children` are the blocks
+  A list item. `marker` is the bullet or ordered marker, and `children` are the blocks
   contained inside the item.
   -/
   | listItem (marker : s.Subslice) (children : Array (Block.Raw s))
@@ -184,8 +184,8 @@ public inductive Block.Raw (s : String.Slice) where
   -/
   | linkRefDef (m : RefDef s)
   /--
-  A thematic break (`***`, `---`, or `___`, optionally with interior spaces or tabs). The range is
-  the entire source line that produced the break.
+  A thematic break (`***`, `---`, or `___`, optionally with interior spaces or tabs). `line` is the
+  entire source line that produced the break.
   -/
   | thematicBreak (line : s.Subslice)
 deriving Inhabited
@@ -211,13 +211,12 @@ The surface form of a reference-style link or image.
 public inductive ReferenceLinkForm (s : String.Slice) where
   /--
   Full form `[text][label]`: the second brackets contain an explicit label, distinct from the link's
-  text. `openBracket`/`closeBracket` are the ranges of the second bracket pair; `label` is the
-  bracket interior.
+  text. `openBracket`/`closeBracket` are the second bracket pair.
   -/
-  | full (openBracket : s.Subslice) (label : s.Subslice) (closeBracket : s.Subslice)
+  | full (openBracket : s.Subslice) (closeBracket : s.Subslice)
   /--
   Collapsed form `[text][]`. The second brackets are empty, and the link's text serves as the label.
-  `openBracket`/`closeBracket` are the ranges of the empty second bracket pair.
+  `openBracket`/`closeBracket` are the empty second bracket pair.
   -/
   | collapsed (openBracket : s.Subslice) (closeBracket : s.Subslice)
   /--
@@ -232,19 +231,24 @@ public inductive LinkTarget (s : String.Slice) where
   | inline (openParen : s.Subslice) (destination : LinkDestination s) (closeParen : s.Subslice)
     (title? : Option (LinkTitle s) := none)
   /--
-  A reference target: `definition` is the link reference definition that the label resolved to. In
-  Markdown, unresolvable references never produce a `link`/`image`; instead, the surrounding bracket
-  characters fall through to plain text.
+  A reference target: `definition` is the link reference definition that the label resolved to, and
+  `label` is the label's text, one subslice per source line: the interior of the second bracket pair in
+  full form, and the link's text in collapsed and shortcut form. In Markdown, unresolvable references
+  never produce a `link`/`image`; instead, the surrounding bracket characters fall through to plain
+  text.
   -/
-  | reference (definition : RefDef s) (form : ReferenceLinkForm s)
+  | reference (definition : RefDef s) (label : Array s.Subslice) (form : ReferenceLinkForm s)
 deriving Inhabited
 
 /-- A parsed inline element of the source string `s`. -/
 public inductive Inline (s : String.Slice) where
   /-- Plain text. -/
   | text (range : s.Subslice)
-  /-- Inline code span. The content is verbatim source. -/
-  | code (openTicks : s.Subslice) (content : s.Subslice) (closeTicks : s.Subslice)
+  /--
+  Inline code span. The content is verbatim source, one subslice per source line, without the line
+  endings and the prefixes of enclosing containers.
+  -/
+  | code (openTicks : s.Subslice) (content : Array s.Subslice) (closeTicks : s.Subslice)
   /-- Italic emphasis. -/
   | italic (openDelim : s.Subslice) (content : Array (Inline s)) (closeDelim : s.Subslice)
   /-- Bold/strong emphasis. -/
@@ -271,17 +275,17 @@ public inductive Inline (s : String.Slice) where
   -/
   | autolink (openAngle : s.Subslice) (url : s.Subslice) (closeAngle : s.Subslice) (isEmail : Bool)
   /--
-  A soft line break (CommonMark §6.8): the line ending between two lines of a paragraph. The range
-  is the newline character.
+  A soft line break (CommonMark §6.8): the line ending between two lines of a paragraph, which is
+  the newline character.
   -/
   | softBreak (range : s.Subslice)
   /--
   A backslash escape `\X` of an ASCII punctuation character (CommonMark §2.4). `backslash` is the
-  range of the `\` and `char` of `X`, which is the text the escape denotes.
+  `\` and `char` is `X`, which is the text the escape denotes.
   -/
   | escape (backslash : s.Subslice) (char : s.Subslice)
   /--
-  A character reference such as `&amp;`, `&#35;`, or `&#x1F600;` (CommonMark §2.5). The range
+  A character reference such as `&amp;`, `&#35;`, or `&#x1F600;` (CommonMark §2.5). The subslice
   extends from `&` through `;`, and `value` is the text it denotes.
   -/
   | entity (range : s.Subslice) (value : String)
@@ -326,8 +330,8 @@ public def subsliceClamped (a b : s.Pos) : s.Subslice :=
 def span (r r' : s.Subslice) : s.Subslice :=
   subsliceClamped r.startInclusive r'.endExclusive
 
-/-- The source range of a destination, including its angle brackets if it has them. -/
-public def LinkDestination.range (d : LinkDestination s) : s.Subslice :=
+/-- The whole destination, including its angle brackets if it has them. -/
+public def LinkDestination.extent (d : LinkDestination s) : s.Subslice :=
   match d.angles? with
   | some (o, c) => span o c
   | none => d.url
@@ -335,12 +339,12 @@ public def LinkDestination.range (d : LinkDestination s) : s.Subslice :=
 /-- The position just past the closing delimiter of a link target, if it has one. -/
 public def LinkTarget.stop? : LinkTarget s → Option s.Pos
   | .inline _ _ closeParen _ => some closeParen.endExclusive
-  | .reference _ (.full _ _ closeBracket) => some closeBracket.endExclusive
-  | .reference _ (.collapsed _ closeBracket) => some closeBracket.endExclusive
-  | .reference _ .shortcut => none
+  | .reference _ _ (.full _ closeBracket) => some closeBracket.endExclusive
+  | .reference _ _ (.collapsed _ closeBracket) => some closeBracket.endExclusive
+  | .reference _ _ .shortcut => none
 
-/-- The source range of an inline element, from its first to its last character. -/
-public def Inline.range : Inline s → s.Subslice
+/-- The whole inline element, from its first to its last character. -/
+public def Inline.extent : Inline s → s.Subslice
   | .text range => range
   | .code openTicks _ closeTicks => span openTicks closeTicks
   | .italic openDelim _ closeDelim => span openDelim closeDelim
@@ -355,28 +359,28 @@ public def Inline.range : Inline s → s.Subslice
   | .escape backslash char => span backslash char
   | .entity range _ => range
 
-/-- The source range from the start of the first element to the end of the last, if there are any. -/
-public def Inline.rangeOf? (inlines : Array (Inline s)) : Option s.Subslice := do
+/-- The subslice from the start of the first element to the end of the last, if there are any. -/
+public def Inline.extentOf? (inlines : Array (Inline s)) : Option s.Subslice := do
   let first ← inlines[0]?
   let last ← inlines.back?
-  return span first.range last.range
+  return span first.extent last.extent
 
-/-- The range from the start of the first range in `rs` to the end of the last, if there are any. -/
+/-- The subslice from the start of the first subslice in `rs` to the end of the last, if there are any. -/
 def span? (rs : Array s.Subslice) : Option s.Subslice := do
   let first ← rs[0]?
   let last ← rs.back?
   return span first last
 
 /--
-The source range of a block, from its first delimiter to the end of its last line.
+The whole block, from its first delimiter to the end of its last line.
 -/
-public partial def Block.range? : Block s → Option s.Subslice
-  | .paragraph content => Inline.rangeOf? content
+public partial def Block.extent? : Block s → Option s.Subslice
+  | .paragraph content => Inline.extentOf? content
   | .atxHeading _ hashes content closeHashes? =>
-    let stop := closeHashes?.map (·.endExclusive) <|> (Inline.rangeOf? content).map (·.endExclusive)
+    let stop := closeHashes?.map (·.endExclusive) <|> (Inline.extentOf? content).map (·.endExclusive)
     some (subsliceClamped hashes.startInclusive (stop.getD hashes.endExclusive))
   | .setextHeading _ content underline =>
-    let start := (Inline.rangeOf? content).map (·.startInclusive) |>.getD underline.startInclusive
+    let start := (Inline.extentOf? content).map (·.startInclusive) |>.getD underline.startInclusive
     some (subsliceClamped start underline.endExclusive)
   | .fencedCode _ openFence closeFence? lines =>
     let stop := closeFence?.map (·.endExclusive) <|> lines.back?.map (·.endExclusive)
@@ -385,18 +389,18 @@ public partial def Block.range? : Block s → Option s.Subslice
   | .blockquote markers children => do
     let first ← markers[0]?
     let last ← markers.back?
-    let stop := match span? (children.filterMap Block.range?) with
+    let stop := match span? (children.filterMap Block.extent?) with
       | some r => if last.endExclusive < r.endExclusive then r.endExclusive else last.endExclusive
       | none => last.endExclusive
     return subsliceClamped first.startInclusive stop
-  | .list _ _ items => span? (items.filterMap Block.range?)
+  | .list _ _ items => span? (items.filterMap Block.extent?)
   | .listItem marker children =>
-    let stop := (span? (children.filterMap Block.range?)).map (·.endExclusive) |>.getD marker.endExclusive
+    let stop := (span? (children.filterMap Block.extent?)).map (·.endExclusive) |>.getD marker.endExclusive
     some (subsliceClamped marker.startInclusive stop)
   | .linkRefDef m =>
     let stop := match m.title? with
       | some t => t.closer.endExclusive
-      | none => m.destination.range.endExclusive
+      | none => m.destination.extent.endExclusive
     some (subsliceClamped m.openBracket.startInclusive stop)
   | .thematicBreak line => some line
 

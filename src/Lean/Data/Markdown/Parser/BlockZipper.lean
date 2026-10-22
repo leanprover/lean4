@@ -25,7 +25,7 @@ A container that is currently open and may still receive child blocks.
 -/
 public inductive OpenContainer (s : String.Slice) where
   /--
-  A blockquote. `markers` accumulates the ranges of `>` markers from
+  A blockquote. `markers` accumulates the `>` markers from
   every continuation line that has been seen so far.
   -/
   | blockquote (markers : Array s.Subslice)
@@ -34,7 +34,7 @@ public inductive OpenContainer (s : String.Slice) where
   /--
   A list item.
 
-  - `marker` is the range of this item's bullet or ordered marker.
+  - `marker` is this item's bullet or ordered marker.
   - `contentColumn` is the column at which the item's content begins;
     subsequent lines must be indented to at least this column to count as
     continuations of this item (CommonMark §5.2).
@@ -80,7 +80,7 @@ public inductive OpenLeaf (s : String.Slice) where
   An open indented code block.
 
   - `lines` are the content lines committed so far. Each element is a pair of the line's source
-    range after the 4 cols of indent that defined the code block (relative to the parent container's
+    after the 4 cols of indent that defined the code block (relative to the parent container's
     content column) and the rendered string, in which any partial tab at that point is materialized
     per CommonMark §2.2.
   - `pendingBlanks` records blank lines that may belong to this block: they are promoted to `lines`

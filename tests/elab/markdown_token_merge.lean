@@ -291,6 +291,24 @@ the backslash of an escape. The escaped character is text.
 /-- info: ["keyword markupSyntax", "markupDocText"] -/
 #guard_msgs in #eval ["\\*x", "\\*x"].zipWith markupAt [0, 1]
 
+/-! ## Content that continues onto the next line of a container
+
+A code span, link title, or reference label that continues onto the next line of a blockquote gets
+one token per line, and the blockquote marker on the second line stays a delimiter.
+-/
+
+/-- info: ["keyword markupSyntax", "<none>", "markupInlineCode"] -/
+#guard_msgs in #eval ["> `a\n> b`", "> `a\n> b`", "> `a\n> b`"].zipWith markupAt [5, 6, 7]
+
+/-- info: ["keyword markupSyntax", "string"] -/
+#guard_msgs in #eval ["> [x](/u \"t\n> u\")", "> [x](/u \"t\n> u\")"].zipWith markupAt [12, 14]
+
+/-- info: ["keyword markupSyntax", "markupCrossReference"] -/
+#guard_msgs in #eval ["> [foo\n> bar]: /u", "> [foo\n> bar]: /u"].zipWith markupAt [7, 9]
+
+/-- info: ["markupCrossReference", "markupCrossReference"] -/
+#guard_msgs in #eval ["[t][a\nb]\n\n[a b]: /u", "[t][a\nb]\n\n[a b]: /u"].zipWith markupAt [4, 6]
+
 /-! ## Indented documents
 
 With a nonzero indent, the indentation of the document as a whole is skipped, so a continuation line

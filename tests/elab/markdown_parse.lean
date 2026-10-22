@@ -67,6 +67,37 @@ due to rule 9 of CommonMark §6.2.
 /-- info: "italic[text⟪a⟫] text⟪*⟫ italic[text⟪b⟫]" -/
 #guard_msgs in #eval showParagraph "*a***b*"
 
+/-!
+## Brackets
+
+Links and images follow the bracket-stack procedure of the CommonMark appendix: a link may not
+contain another link, an image may contain links, emphasis does not cross a link boundary, and
+unmatched brackets are text. The nesting depth of brackets does not affect parsing time.
+-/
+
+/-- info: "text⟪[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]⟫" -/
+#guard_msgs in #eval showParagraph ("".pushn '[' 30 ++ "".pushn ']' 30)
+
+/-- info: "text⟪[foo ⟫ link[text⟪bar⟫] text⟪](/v)⟫" -/
+#guard_msgs in #eval showParagraph "[foo [bar](/u)](/v)"
+
+/-- info: "image[text⟪a ⟫ link[text⟪b⟫]]" -/
+#guard_msgs in #eval showParagraph "![a [b](/u)](/v)"
+
+/-- info: "text⟪[a ⟫ italic[link[text⟪b⟫]] text⟪](/v)⟫" -/
+#guard_msgs in #eval showParagraph "[a *[b](/u)*](/v)"
+
+/-- info: "text⟪*⟫ link[text⟪a*⟫]" -/
+#guard_msgs in #eval showParagraph "*[a*](/u)"
+
+-- `[bar` is not a link label, so `[foo]` is a shortcut reference.
+/-- info: "link[text⟪foo⟫] text⟪[bar⟫" -/
+#guard_msgs in #eval showParagraph "[foo][bar\n\n[foo]: /u"
+
+-- `[bar]` is a link label, so `[foo]` is not a shortcut reference, and `[bar]` is not defined.
+/-- info: "text⟪[foo][bar]⟫" -/
+#guard_msgs in #eval showParagraph "[foo][bar]\n\n[foo]: /u"
+
 /-! ## Text decoding -/
 
 /-- info: "a*b&#&amp;&bogus;\\q" -/

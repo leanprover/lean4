@@ -166,9 +166,9 @@ structure AtxHeadingMatch (s : String.Slice) where
   closeHashes : Option s.Subslice
 
 /--
-Tries to recognize an ATX heading at `c`. Trailing whitespace is trimmed from `content`.
+Parses an ATX heading at `c`. Trailing whitespace is trimmed from `content`.
 -/
-def matchAtxHeading (c : Cursor s) : Option (AtxHeadingMatch s) :=  do
+def parseAtxHeading? (c : Cursor s) : Option (AtxHeadingMatch s) :=  do
   let (c, indent) := countIndentCols c
   guard (indent ≤ 3)
   let hashStart := c.pos
@@ -216,7 +216,7 @@ def matchAtxHeading (c : Cursor s) : Option (AtxHeadingMatch s) :=  do
 Whether the line at `c` is a thematic break: up to 3 leading spaces, followed by 3+ matching
 `*`/`-`/`_` characters, with only spaces or tabs allowed between or after them (CommonMark §4.1).
 -/
-def matchThematicBreak (c : Cursor s) : Bool := Id.run do
+def isThematicBreak (c : Cursor s) : Bool := Id.run do
   let (c, indent) := countIndentCols c
   if indent > 3 then return false
   let some markerChar := c.front? | return false
@@ -244,7 +244,7 @@ Note: a `---` underline overlaps with the thematic-break syntax. The caller must
 precedence rule: setext header parsing applies only when an open paragraph immediately precedes the
 underline; otherwise, the same line is interpreted as a thematic break.
 -/
-def matchSetextUnderline (c : Cursor s) : Option Nat := do
+def parseSetextUnderline? (c : Cursor s) : Option Nat := do
   let (c, indent) := countIndentCols c
   guard (indent ≤ 3)
   let markerChar ← c.front?
@@ -256,8 +256,8 @@ def matchSetextUnderline (c : Cursor s) : Option Nat := do
   guard cAfterWs.isEmpty
   return if markerChar == '=' then 1 else 2
 
-/-- Tries to recognize an opening code fence at `c`. -/
-def matchFenceOpen (c : Cursor s) : Option (FenceInfo s × s.Subslice) := do
+/-- Parses an opening code fence at `c`. -/
+def parseFenceOpen? (c : Cursor s) : Option (FenceInfo s × s.Subslice) := do
   let (c, indent) := countIndentCols c
   guard (indent ≤ 3)
   let fenceChar ← c.front? >>= FenceChar.ofChar?
@@ -280,11 +280,11 @@ def matchFenceOpen (c : Cursor s) : Option (FenceInfo s × s.Subslice) := do
   return ({ fenceChar, fenceLen := count, openIndent := indent, infoString? }, openFence)
 
 /--
-Tries to recognize a closing fence on a line whose container prefixes have already been consumed.
+Parses a closing fence on a line whose container prefixes have already been consumed.
 The closing fence must match `info`'s character, be at least as long as the opener, and be followed
 only by spaces or tabs.
 -/
-def matchFenceClose (c : Cursor s) (info : FenceInfo s) : Option s.Subslice := do
+def parseFenceClose? (c : Cursor s) (info : FenceInfo s) : Option s.Subslice := do
   let (indent, p) := skipSpaces c.pos c.stop
   guard (indent ≤ 3)
   let cAtFence := c.moveTo p indent
@@ -295,11 +295,11 @@ def matchFenceClose (c : Cursor s) (info : FenceInfo s) : Option s.Subslice := d
   return subsliceClamped p cAfterFence.pos
 
 /--
-Tries to recognize a single blockquote marker (`>` plus optional space). Returns the marker and a
+Parses a single blockquote marker (`>` plus optional space). Returns the marker and a
 cursor positioned just past the consumed prefix (with column adjusted, possibly mid-tab per
 CommonMark §2.2's partial-tab rule).
 -/
-def matchBlockquoteMarker (c : Cursor s) : Option (s.Subslice × Cursor s) := do
+def parseBlockquoteMarker? (c : Cursor s) : Option (s.Subslice × Cursor s) := do
   let (c, indent) := countIndentCols c
   guard (indent ≤ 3)
   guard (c.front? == some '>')
@@ -336,8 +336,8 @@ structure ListMarkerMatch (s : String.Slice) where
   -/
   contentColumn : Nat
 
-/-- Tries to recognize a bullet or ordered list marker at `c`. -/
-def matchListMarker (c : Cursor s) : Option (ListMarkerMatch s) := do
+/-- Parses a bullet or ordered list marker at `c`. -/
+def parseListMarker? (c : Cursor s) : Option (ListMarkerMatch s) := do
   let initialCol := c.col
   let (c, indent) := countIndentCols c
   guard (indent ≤ 3)
@@ -453,16 +453,16 @@ marker kind.
 -/
 def isInterrupt (z : BlockZipper s) (c : Cursor s) : Bool :=
   c.isBlank ||
-  (matchBlockquoteMarker c).isSome ||
-  (match matchListMarker c with
+  (parseBlockquoteMarker? c).isSome ||
+  (match parseListMarker? c with
     | some m =>
       hasSameKindListAncestor z m.kind ||
       closesEnclosingList z m.kind ||
       listMarkerInterruptsParagraph m.after m.kind
     | none => false) ||
-  (matchAtxHeading c).isSome ||
-  (matchFenceOpen c).isSome ||
-  matchThematicBreak c
+  (parseAtxHeading? c).isSome ||
+  (parseFenceOpen? c).isSome ||
+  isThematicBreak c
 
 /-!
 # Processing Lines
@@ -532,7 +532,7 @@ def continueContainers : ContainerM s Unit := do
     let frame := st.z.spine[st.matched]'h.2
     match frame.container with
     | .blockquote markers =>
-      match matchBlockquoteMarker st.c with
+      match parseBlockquoteMarker? st.c with
       | none => keepWalking := false
       | some (markerRange, cAfter) =>
         let frame' := { frame with container := .blockquote (markers.push markerRange) }
@@ -599,7 +599,7 @@ def trySetextHeading : ContainerM s Unit := do
   let st ← get
   unless st.z.spine.size == st.matched do return
   let some (.paragraph lines) := st.z.openLeaf? | return
-  let some level := matchSetextUnderline st.c | return
+  let some level := parseSetextUnderline? st.c | return
   let underline := st.c.toEol
   let z := { st.z with openLeaf? := none }
   throw (z.addBlock (.setextHeading level lines underline))
@@ -635,7 +635,7 @@ finalizes the line.
 def consumeFencedCode : ProcessM s Unit := do
   let st ← get
   let some (.fencedCode info _ _) := st.z.openLeaf? | return
-  match matchFenceClose st.c info with
+  match parseFenceClose? st.c info with
   | some closeFence => throw (st.z.closeFencedCode closeFence)
   | none => throw (st.z.extendFencedCode st.c.toEol)
 
@@ -664,7 +664,7 @@ without a sibling marker, close the list so subsequent content doesn't become a 
 def closeFinishedSiblingList : ProcessM s Unit := do
   let st ← get
   let some (.list _) := st.z.top? | return
-  if !st.c.isBlank && (matchListMarker st.c).isNone then
+  if !st.c.isBlank && (parseListMarker? st.c).isNone then
     modify fun st => { st with z := st.z.closeContainer }
 
 /--
@@ -682,12 +682,12 @@ def openContainerPrefixes : ProcessM s Bool := do
   while keepOpening do
     keepOpening := false
     let st ← get
-    if matchThematicBreak st.c then break
-    if let some (markerRange, cAfter) := matchBlockquoteMarker st.c then
+    if isThematicBreak st.c then break
+    if let some (markerRange, cAfter) := parseBlockquoteMarker? st.c then
       modify fun st =>
         { st with z := st.z.openContainer (.blockquote #[markerRange]), c := cAfter }
       keepOpening := true
-    else if let some m := matchListMarker st.c then
+    else if let some m := parseListMarker? st.c then
       -- The strict §5.2 rules (non-empty content, start-1 for ordered) apply
       -- only when *opening* a new list. A same-kind marker that extends an
       -- already-open list as a new sibling item is always allowed.
@@ -727,7 +727,7 @@ Parses a thematic break after any container prefixes have been consumed.
 -/
 def tryThematicBreak : ProcessM s Unit := do
   let st ← get
-  unless matchThematicBreak st.c do return
+  unless isThematicBreak st.c do return
   let mut z := st.z
   while (match z.top? with | some (.list _) => true | _ => false) do
     z := z.closeContainer
@@ -759,13 +759,13 @@ def tryBlankLine (openedListItemThisLine : Bool) : ProcessM s Unit := do
 /-- Parses an ATX heading -/
 def tryAtxHeading : ProcessM s Unit := do
   let st ← get
-  let some m := matchAtxHeading st.c | return
+  let some m := parseAtxHeading? st.c | return
   throw (st.z.addBlock (.atxHeading m.level m.hashes m.content m.closeHashes))
 
 /-- Parses an opening code fence. -/
 def tryFencedCodeOpener : ProcessM s Unit := do
   let st ← get
-  let some (info, openFence) := matchFenceOpen st.c | return
+  let some (info, openFence) := parseFenceOpen? st.c | return
   throw (st.z.openLeaf (.fencedCode info openFence #[]))
 
 /--
@@ -842,13 +842,13 @@ def parseBlocksRaw (s : String.Slice) (indent : Nat := 0) : Array (Block.Raw s) 
   return z.finalize
 
 /--
-Scans a link-reference-definition label `[label]` content (between `[` and `]`). Newlines are
-permitted inside the label so long as no blank line appears. The label must contain at least one
-non-whitespace character. CommonMark §4.7 caps labels at 999 *characters* before the closing `]`; we
-approximate this by capping at 1000 characters (counting backslash escapes as 2). Returns the
-label's lines and the cursor positioned at the closing `]`.
+Parses the content of a link label (CommonMark §6.3) at `r`, which is positioned just
+after the `[`.
+Newlines are permitted inside the label so long as no blank line appears, and unescaped brackets are
+not. The label must contain at least one non-whitespace character and at most 999 characters.
+Returns the label's lines and the cursor positioned at the closing `]`.
 -/
-def scanRefDefLabel (r : InlineCursor s) : Option (Array s.Subslice × InlineCursor s) := do
+public def parseLinkLabel? (r : InlineCursor s) : Option (Array s.Subslice × InlineCursor s) := do
   let labelStart := r.startPos
   let mut r := r
   let mut len := 0
@@ -882,11 +882,12 @@ def scanRefDefLabel (r : InlineCursor s) : Option (Array s.Subslice × InlineCur
   none
 
 /--
-Scans the destination of a link reference definition at the head of `r`. Recognizes the bracketed
-`<url>` and unbracketed forms. Returns the destination and the cursor positioned just past it. Fails
+Parses the destination of a link reference definition at the head of `r`, in the
+bracketed `<url>` or unbracketed form. Returns the destination and the cursor positioned just past
+it. Fails
 on an unclosed `<`, an empty destination, unbalanced parens, or an embedded `\n`.
 -/
-def scanRefDefUrl (r : InlineCursor s) : Option (LinkDestination s × InlineCursor s) := do
+def parseRefDefUrl? (r : InlineCursor s) : Option (LinkDestination s × InlineCursor s) := do
   let urlStart := r.startPos
   if r.front? == some '<' then
     -- Bracketed: scan until the next `>`; reject `<` and `\n`.
@@ -1053,18 +1054,18 @@ public def linkRefDef (source : InlineSource s) (start : s.Pos) : Option (RefDef
   -- 0–3 spaces of indentation. `InlineSource.ofLines` has already removed each line's leading
   -- spaces and tabs.
   let r0 := source.cursor start source.stopPos
-  let (r, indent) := r0.matchSequence ' '
+  let (r, indent) := r0.takeSequence ' '
   guard (indent ≤ 3)
   -- `[label]`.
-  let (openBracket, r) ← r.matchChar '['
-  let (label, r) ← scanRefDefLabel r
-  let (closeBracket, r) ← r.matchChar ']'
+  let (openBracket, r) ← r.parseChar? '['
+  let (label, r) ← parseLinkLabel? r
+  let (closeBracket, r) ← r.parseChar? ']'
   -- `:`.
-  let (colon, r) ← r.matchChar ':'
+  let (colon, r) ← r.parseChar? ':'
   -- Whitespace (including up to one newline) before the destination.
   let r ← skipRefDefDestGap r
   -- Destination.
-  let (destination, afterUrl) ← scanRefDefUrl r
+  let (destination, afterUrl) ← parseRefDefUrl? r
   -- Optional title; on a syntactic failure or on trailing junk, fall back to
   -- a no-title interpretation, in which case the URL itself must end the
   -- line.

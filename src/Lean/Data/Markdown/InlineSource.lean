@@ -232,13 +232,13 @@ public def drop1 (r : InlineCursor s) : InlineCursor s :=
   else r
 
 /-- If `r` begins with `c`, returns that character as a subslice together with `r` advanced past it. -/
-public def matchChar (c : Char) (r : InlineCursor s) : Option (s.Subslice × InlineCursor s) := do
+public def parseChar? (c : Char) (r : InlineCursor s) : Option (s.Subslice × InlineCursor s) := do
   guard (r.front? == some c)
   let sub ← r.charSubslice?
   return (sub, r.drop1)
 
 /-- Advances past a sequence of `c`s at the start of `r`. Returns the cursor after the sequence and its length. -/
-public partial def matchSequence (c : Char) (r : InlineCursor s) : InlineCursor s × Nat :=
+public partial def takeSequence (c : Char) (r : InlineCursor s) : InlineCursor s × Nat :=
   go r 0
 where
   go (r : InlineCursor s) (n : Nat) : InlineCursor s × Nat :=

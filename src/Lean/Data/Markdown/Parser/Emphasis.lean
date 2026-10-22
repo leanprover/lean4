@@ -126,23 +126,35 @@ def DelimiterMatchState.empty : DelimiterMatchState s :=
 abbrev DelimM (s : String.Slice) := StateM (DelimiterMatchState s)
 
 /--
+Appends `inl` to `inlines`. Text that begins where a preceding text inline ends is merged into it,
+so literal brackets and unmatched delimiters join the text around them.
+-/
+def pushInline (inlines : Array (Inline s)) (inl : Inline s) : Array (Inline s) :=
+  match inl, inlines.back? with
+  | .text r, some (.text r') =>
+    if r'.endExclusive == r.startInclusive then
+      inlines.pop.push (.text (subsliceClamped r'.startInclusive r.endExclusive))
+    else inlines.push inl
+  | _, _ => inlines.push inl
+
+/--
 Adds a finalized inline to the inline output. It goes into the topmost delimiter's `acc` if the stack
 is non-empty, otherwise into the bottom output.
 -/
 def emit (inl : Inline s) : DelimM s Unit := modify fun st =>
   if h : st.delimiters.size > 0 then
     let top := st.delimiters.back h
-    { st with delimiters := st.delimiters.pop.push { top with acc := top.acc.push inl } }
+    { st with delimiters := st.delimiters.pop.push { top with acc := pushInline top.acc inl } }
   else
-    { st with output := st.output.push inl }
+    { st with output := pushInline st.output inl }
 
 /-- Adds a batch of finalized inlines to the inline output (see `emit`). -/
 def emitMany (xs : Array (Inline s)) : DelimM s Unit := modify fun st =>
   if h : st.delimiters.size > 0 then
     let top := st.delimiters.back h
-    { st with delimiters := st.delimiters.pop.push { top with acc := top.acc ++ xs } }
+    { st with delimiters := st.delimiters.pop.push { top with acc := xs.foldl pushInline top.acc } }
   else
-    { st with output := st.output ++ xs }
+    { st with output := xs.foldl pushInline st.output }
 
 /--
 Pushes a new opener onto the delimiter stack.
@@ -207,7 +219,7 @@ def finalizeEmphasis : DelimM s (Array (Inline s)) := do
   return (← get).output
 
 /--
-Scans the delimiter stack top-down for an opener compatible with the closer `seq`, honoring
+Searches the delimiter stack top-down for an opener compatible with the closer `seq`, honoring
 CommonMark §6.2's rule about lengths that are a multiple of 3. Returns the index (from the bottom)
 of the first compatible opener, or `none`.
 -/

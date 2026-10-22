@@ -265,7 +265,8 @@ def matchFenceOpen (c : Cursor s) : Option (FenceInfo s × s.Subslice) := do
   let (cAfterFence, count) := c.advanceWhile (· == fenceChar.toChar)
   guard (count ≥ 3)
   let openFence := subsliceClamped fenceStart cAfterFence.pos
-  let (_, infoStart) := skipSpaces cAfterFence.pos c.stop
+  let (cAfterWs, _) := cAfterFence.advanceWhile fun ch => ch == ' ' || ch == '\t'
+  let infoStart := cAfterWs.pos
   let infoEnd := trimTrailingWs infoStart c.stop
   -- A backtick fence's info string may not contain backticks.
   if fenceChar == .backtick then
@@ -280,8 +281,8 @@ def matchFenceOpen (c : Cursor s) : Option (FenceInfo s × s.Subslice) := do
 
 /--
 Tries to recognize a closing fence on a line whose container prefixes have already been consumed.
-The closing fence must match `info`'s character, be at least as long as the opener, and contain only
-trailing whitespace afterwards.
+The closing fence must match `info`'s character, be at least as long as the opener, and be followed
+only by spaces or tabs.
 -/
 def matchFenceClose (c : Cursor s) (info : FenceInfo s) : Option s.Subslice := do
   let (indent, p) := skipSpaces c.pos c.stop
@@ -290,8 +291,7 @@ def matchFenceClose (c : Cursor s) (info : FenceInfo s) : Option s.Subslice := d
   guard <| cAtFence.front? == some info.fenceChar.toChar
   let (cAfterFence, count) := cAtFence.advanceWhile (· == info.fenceChar.toChar)
   guard <| count ≥ info.fenceLen
-  let (_, after) := skipSpaces cAfterFence.pos c.stop
-  guard <| c.stop ≤ after
+  guard cAfterFence.isBlank
   return subsliceClamped p cAfterFence.pos
 
 /--

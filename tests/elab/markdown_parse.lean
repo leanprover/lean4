@@ -205,7 +205,7 @@ indented docstring, and are skipped before the line is parsed.
 partial def showBlock {s : String.Slice} : Block s → String
   | .paragraph content => s!"paragraph⟪{showInline.showInlines content}⟫"
   | .indentedCode lines => s!"indentedCode{repr (lines.map (·.2))}"
-  | .fencedCode _ _ lines _ => s!"fencedCode{repr (lines.map (·.copy))}"
+  | .fencedCode _ _ _ lines => s!"fencedCode{repr (lines.map (·.copy))}"
   | .list _ _ items => s!"list[{", ".intercalate (items.toList.map showBlock)}]"
   | .listItem _ children => s!"item[{", ".intercalate (children.toList.map showBlock)}]"
   | .atxHeading _ _ content _ => s!"heading⟪{showInline.showInlines content}⟫"
@@ -239,3 +239,25 @@ info: ["paragraph⟪text⟪Intro⟫ softBreak text⟪continued⟫⟫", "indented
 -- Indentation is counted in spaces; a line indented less than `indent` loses only its own spaces.
 /-- info: ["heading⟪text⟪h⟫⟫", "paragraph⟪text⟪p⟫⟫"] -/
 #guard_msgs in #eval showDocument "  # h\n\n    p" 4
+
+/-!
+## Code fences
+
+A closing fence may be followed by spaces or tabs and nothing else. The info string is trimmed of
+leading and trailing spaces or tabs.
+-/
+
+/-- The info string of every fenced code block in `src`. -/
+def infoStrings (src : String) : List (Option String) :=
+  (parse src).toList.filterMap fun
+    | .fencedCode info _ _ _ => some (info.infoString?.map (·.copy))
+    | _ => none
+
+/-- info: ["fencedCode#[\"code\"]", "paragraph⟪text⟪after⟫⟫"] -/
+#guard_msgs in #eval showDocument "```\ncode\n```\t \n\nafter" 0
+
+/-- info: ["fencedCode#[\"code\", \"``` x\", \"after\"]"] -/
+#guard_msgs in #eval showDocument "```\ncode\n``` x\nafter" 0
+
+/-- info: [some "lean", some "lean"] -/
+#guard_msgs in #eval infoStrings "```\tlean\t\n```\n\n``` lean \n```"

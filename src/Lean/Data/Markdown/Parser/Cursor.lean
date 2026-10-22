@@ -97,6 +97,7 @@ skipping use `countIndentCols` or `consumeIndentCapped`.
 
 /-- Whether the rest of the line is blank (only spaces or tabs). -/
 public def isBlank (c : Cursor s) : Bool :=
-  (c.advanceWhile fun ch => ch == ' ' || ch == '\t').1.isEmpty
+  let (cAfterWs, _) := c.advanceWhile fun ch => ch == ' ' || ch == '\t'
+  cAfterWs.isEmpty
 
 end Cursor

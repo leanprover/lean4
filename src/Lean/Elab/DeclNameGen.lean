@@ -264,6 +264,10 @@ declaration name, the current namespace has to be prepended.
 
 Note that this elaborates the binders and the type.
 This means that when elaborating an instance declaration, we elaborate these twice.
+
+This function is used during elaboration of `instance` declarations to bring it into the same shape
+as other usual `def`s. For instances that are instead generated from meta code, use
+`mkInstanceNameOfType` instead.
 -/
 def mkInstanceName (binders : Array Syntax) (type : Syntax) : CommandElabM Name := do
   let savedState ← get
@@ -282,6 +286,9 @@ expression, returning a private name if the type refers to private constants.
 `avoid` can be used to specify precisely which names to avoid; by default this includes just the
 ones present in the ambient environment but in some cases, you may need to avoid more; for example
 when computing names of many instances at once without already knowing the values of them.
+
+This function is meant to be used for computing the instance name for generated instances in meta
+code.
 -/
 @[specialize]
 def mkInstanceNameOfType (type : Expr)

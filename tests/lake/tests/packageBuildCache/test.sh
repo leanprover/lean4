@@ -122,7 +122,7 @@ reset_consumer
 test_out 'Built Dep.Used' --no-cache -v build
 test_exp ! -s "$SERVER_LOG"
 
-# An explicit artifact-cache opt-out suppresses discovery as well.
+# The environment can disable discovery when the package leaves its cache setting unset.
 reset_consumer
 LAKE_ARTIFACT_CACHE=false test_out 'Built Dep.Used' -v build
 test_exp ! -s "$SERVER_LOG"
@@ -133,6 +133,18 @@ mv "$STORE_DIR/revisions" "$WORK_DIR/saved-revisions"
 test_out 'Built Dep.Used' -v build
 test_cmd_eq 1 grep -c 'GET /ok/revisions/' "$SERVER_LOG"
 no_match_text 'GET /ok/artifacts/' "$SERVER_LOG"
+: > "$SERVER_LOG"
+test_run build --no-build
+test_exp ! -s "$SERVER_LOG"
+# After the retry interval, newly published mappings can be discovered.
+"$PYTHON" - "$CACHE_DIR" << 'PY'
+import os, pathlib, sys
+for path in pathlib.Path(sys.argv[1]).rglob('*.attempt'):
+    os.utime(path, (1, 1))
+PY
+: > "$SERVER_LOG"
+test_run build
+test_cmd_eq 1 grep -c 'GET /ok/revisions/' "$SERVER_LOG"
 mv "$WORK_DIR/saved-revisions" "$STORE_DIR/revisions"
 
 # Missing artifacts and corrupted artifacts both fall back to compilation.
@@ -197,3 +209,48 @@ cp -r "$STORE_DIR/revisions" "$STORE_DIR/artifacts" "$STORE_DIR/mirror/"
 sed_i "s|buildCache = \"$URL/\"|buildCache = \"$URL/mirror\"|" dep/lakefile.toml
 test_out 'downloaded artifact' -v build
 match_text 'GET /ok/mirror/artifacts/' "$SERVER_LOG"
+
+# Once installed, revision mappings are not scanned again on a no-op build.
+find "$CACHE_DIR/revisions" -name '*.jsonl' -exec sh -c 'echo invalid > "$1"' _ {} \;
+: > "$SERVER_LOG"
+test_not_out 'invalid' -v build --no-build
+test_exp ! -s "$SERVER_LOG"
+
+# Malformed successful responses are not retained as revision mappings.
+reset_consumer
+cp "$STORE_DIR/mirror/revisions/leanprover/package-build-cache/$REV.jsonl" saved.jsonl
+echo '<html>unavailable</html>' > "$STORE_DIR/mirror/revisions/leanprover/package-build-cache/$REV.jsonl"
+test_out 'Built Dep.Used' -v build
+test_exp -z "$(find "$CACHE_DIR/revisions" -name '*.jsonl' -print)"
+cp saved.jsonl "$STORE_DIR/mirror/revisions/leanprover/package-build-cache/$REV.jsonl"
+"$PYTHON" - "$CACHE_DIR" << 'PY'
+import os, pathlib, sys
+for path in pathlib.Path(sys.argv[1]).rglob('*.attempt'):
+    os.utime(path, (1, 1))
+PY
+test_run -d dep clean
+test_run clean
+test_out 'downloaded artifact' -v build
+
+# Concurrent workspaces share mapping installation and never see partial artifacts.
+reset_consumer
+mkdir -p "$WORK_DIR/other"
+cp lakefile.toml Test.lean "$WORK_DIR/other/"
+cp -r dep "$WORK_DIR/other/dep"
+"$LAKE" build > concurrent-a.log 2>&1 &
+BUILD_A=$!
+"$LAKE" -d "$WORK_DIR/other" build > concurrent-b.log 2>&1 &
+BUILD_B=$!
+test_cmd wait "$BUILD_A"
+test_cmd wait "$BUILD_B"
+test_cmd_eq 1 grep -c 'GET /ok/mirror/revisions/' "$SERVER_LOG"
+test_exp -z "$(find "$CACHE_DIR/artifacts" -name '*.tmp' -print)"
+
+# Returning to a previously installed endpoint restores its service references.
+test_run -d dep clean
+test_run clean
+rm -f "$CACHE_DIR"/artifacts/*
+: > "$SERVER_LOG"
+sed_i "s|buildCache = \"$URL/mirror\"|buildCache = \"$URL/\"|" dep/lakefile.toml
+test_out 'downloaded artifact' -v build
+match_text 'GET /ok/artifacts/' "$SERVER_LOG"

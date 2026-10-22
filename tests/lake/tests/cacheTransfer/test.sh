@@ -348,6 +348,17 @@ test_cmd rm -rf .lake/build "$CACHE_DIR/artifacts"
 test_out 'downloaded artifact' -v build Test --no-build
 test_artifacts "$NUM_REPLAY_ARTS"
 
+# `--no-cache` suppresses on-demand downloads from already installed mappings.
+test_cmd rm -rf .lake/build "$CACHE_DIR/artifacts"
+test_status 3 --no-cache build Test --no-build
+test_artifacts 0
+
+# An interrupted on-demand transfer never leaves a partial cached artifact.
+test_run cache add outputs.jsonl --scope=test --service=truncate
+test_fails build Test --no-build
+test_artifacts 0
+test_exp -z "$(find "$CACHE_DIR/artifacts" -type f -print)"
+
 # Verify a corrupted on-demand fetch is reported
 test_cmd rm -rf .lake/build "$CACHE_DIR/artifacts"
 test_run cache add outputs.jsonl --scope=test --service=corrupt

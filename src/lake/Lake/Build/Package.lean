@@ -15,6 +15,7 @@ import Lake.Build.Common
 import Lake.Build.Targets
 import Lake.Build.Job.Register
 import Lake.Reservoir
+import Std.Time.DateTime.Timestamp
 
 /-! # Package Facet Builds
 Build function definitions for a package's builtin facets.
@@ -95,19 +96,49 @@ def Package.fetchArtifactCacheMappings (self : Package) : JobM Bool := do
   let cache ← getLakeCache
   let revisionScope := s!"{self.cacheScope}/buildCache/" ++
     (Hash.ofString <| service.revisionUrl "" scope platform toolchain).hex
-  let (map?, log) ← (service.downloadRevisionOutputs?
-    rev cache revisionScope scope platform toolchain).captureLog
-  log.replay
-  let some (some map) := map? | return false
-  -- Preserve local output mappings to avoid repeatedly unpacking published archives.
-  map.forM fun input entry => do
-    let prev? ← cache.readOutputs? self.cacheScope input
-    let replace := prev?.any fun prev => prev.service?.any fun oldService =>
-      some oldService.toString != service.name?.map (·.toString) ||
-      prev.scope?.map (·.toString) != some scope.toString
-    cache.writeOutputs self.cacheScope input entry.out service.name? (some scope)
-      (overwrite := replace)
-  return true
+  let path := cache.revisionPath revisionScope rev
+  createParentDirs path
+  let lockFile := cache.outputsDir / self.cacheScope / ".buildCache.lock"
+  createParentDirs lockFile
+  writeFileIfNew lockFile ""
+  let lock ← IO.FS.Handle.mk lockFile .readWrite
+  lock.lock
+  try
+    let readyFile := cache.outputsDir / self.cacheScope / ".buildCache.ready"
+    if let .ok installed ← IO.FS.readFile readyFile |>.toBaseIO then
+      if installed == path.toString then return true
+    let attemptFile := path.addExtension "attempt"
+    let now := (← Std.Time.Timestamp.now).toSecondsSinceUnixEpoch.val
+    if let .ok previous ← attemptFile.metadata |>.toBaseIO then
+      if previous.modified.sec ≤ now && now - previous.modified.sec < 300 then return false
+    IO.FS.writeFile attemptFile ""
+    let contents? ← if (← path.pathExists) then
+      pure <| some (← IO.FS.readFile path)
+    else
+      getUrl? (service.revisionUrl rev scope platform toolchain) #[]
+        #["--retry", "0", "--connect-timeout", "3", "--max-time", "15"]
+    let some contents := contents? | return false
+    let (map?, log) ← (CacheMap.parse path.toString contents self.isPlatformIndependent).captureLog
+    if log.maxLv ≥ .warning || map?.isNone then
+      removeFileIfExists path
+      log.replay
+      return false
+    let some map := map? | return false
+    IO.FS.writeFile path contents
+    -- Preserve local output mappings to avoid repeatedly unpacking published archives.
+    map.forM fun input entry => do
+      let prev? ← try cache.readOutputs? self.cacheScope input catch e =>
+        discard <| takeLogFrom e
+        pure none
+      let replace := prev?.isNone || prev?.any fun prev => prev.service?.any fun oldService =>
+        some oldService.toString != service.name?.map (·.toString) ||
+        prev.scope?.map (·.toString) != some scope.toString
+      cache.writeOutputs self.cacheScope input entry.out service.name? (some scope)
+        (overwrite := replace)
+    IO.FS.writeFile readyFile path.toString
+    return true
+  finally
+    lock.unlock
 
 /-- Fetch the package's published mappings or cached build archive. -/
 def Package.fetchOptBuildCacheCore (self : Package) : FetchM (Job Bool) := do

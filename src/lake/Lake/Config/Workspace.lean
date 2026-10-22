@@ -175,14 +175,17 @@ This is configured through {lit}`cache.defaultUploadService` in the system Lake 
 /--
 Returns the configured cache service with the given name.
 
-Services are configured through {lit}`cache.service` entries in the system Lake configuration
-or a workspace package's {lit}`buildCache` URL.
+This is configured through {lit}`cache.service` entries in the system Lake configuration.
 -/
 @[inline] public def findCacheService? (ws : Workspace) (service : String) : Option CacheService :=
+  ws.lakeConfig.cacheServices.find? (.mkSimple service)
+
+/-- Resolve a saved artifact's service, including package-declared caches. -/
+public def findArtifactCacheService? (ws : Workspace) (service : String) : Option CacheService :=
   ws.packages.findSome? (fun pkg => do
     let cache ← pkg.buildCacheService?
     if cache.name?.any (·.toString == service) then some cache else none)
-  <|> ws.lakeConfig.cacheServices.find? (.mkSimple service)
+  <|> ws.findCacheService? service
 
 /-- The path to the workspace's remote packages directory relative to {lean}`dir`. -/
 @[inline] public def relPkgsDir (self : Workspace) : FilePath :=

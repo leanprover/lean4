@@ -61,12 +61,8 @@ withFile fn1 Mode.write $ fun h => do
   h.putStrLn xs₂
   h.putStrLn xs₁
 withFile fn2 Mode.write $ fun h => h.putStr "overwritten"
-try
-  renameIfNew fn1 fn2
+if (← (renameIfNew fn1 fn2).toBaseIO).isOk then
   throw $ IO.userError "expected error on renameIfNew"
-catch
-  | .alreadyExists .. => pure ()
-  | e => throw e
 rename fn1 fn2
 let ys ← withFile fn2 Mode.read $ fun h => h.getLine;
 IO.println ys;

@@ -85,6 +85,21 @@ public structure QuantifiedFact where
   boundSorts : Array SortId
   deriving Inhabited
 
+namespace QuantifiedFact
+
+public def instantiateType (fact : QuantifiedFact) (args : Array Expr) : Expr :=
+  fact.hyp.type.getForallBodyMaxDepth fact.boundSorts.size |>.instantiateRev args
+
+public def instantiate (fact : QuantifiedFact) (args : Array Expr) : Sym.SymM Normalize.Hyp := do
+  return {
+    name := fact.hyp.name ++ `inst
+    type := ← Sym.shareCommon <| fact.instantiateType args
+    value := mkAppN fact.hyp.value args
+    source := fact.hyp.source
+  }
+
+end QuantifiedFact
+
 /--
 A many-sorted EPR problem.
 -/

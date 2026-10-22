@@ -8,6 +8,7 @@ prelude
 public import Lean.Meta.Tactic.BVDecide.Prover.Cegar.Basic
 public import Lean.Meta.Tactic.BVDecide.Prover.Cegar.BitVec
 public import Lean.Meta.Tactic.BVDecide.Prover.Cegar.Function
+public import Lean.Meta.Tactic.BVDecide.Prover.Cegar.Epr
 public import Lean.Meta.Tactic.BVDecide.Prover.Cegar.Lemmas
 public import Lean.Meta.Tactic.BVDecide.Prover.Cegar.Subsolver
 import Lean.Meta.Tactic.BVDecide.Prover.Bitblast
@@ -44,7 +45,7 @@ where
       | .error cex =>
         lastCex := cex
         let cex ← CegarM.CounterExample.ofArray cex
-        discard <| checkUf cex
+        checkTheories cex
 
       match ← processNewHyps with
       | .solved => return .ok (← CegarM.createCert none)
@@ -61,6 +62,10 @@ where
       equations := equations
       functionAtoms := funState.atoms.map (·.funExpr)
     }
+
+  checkTheories (cex : CegarM.CounterExample) : CegarM Unit := do
+    if ← checkUf cex then return ()
+    if ← checkEpr cex then return ()
 
   configureSolver : CegarM Unit := do
     let solver ← CegarM.getSatSolver

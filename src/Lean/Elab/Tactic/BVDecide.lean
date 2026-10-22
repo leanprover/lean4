@@ -116,9 +116,9 @@ def mkContext (lratPath : System.FilePath) (cfg : BVDecideConfig)
   TacticContext.new lratPath cfg types
 
 @[inherit_doc Lean.Parser.Tactic.bvCheck]
-def bvCheck (g : MVarId) (hypotheses : Array Normalize.Hyp) (ctx : TacticContext) :
+def bvCheck (g : MVarId) (hypotheses : Array Normalize.Hyp) (ctx : TacticContext) (epr : EPR.EprBvProblem) :
     Grind.GrindM Unit := do
-  ReifyM.run (hypotheses := hypotheses) (cfg := ctx.config) do
+  ReifyM.run (hypotheses := hypotheses) (cfg := ctx.config) (epr := epr) do
     discard <| closeWithBVReflection g (lratChecker ctx)
 
 def evalBvCheck (target : Normalize.Target) (ctx : TacticContext) (warn : MetaM Unit) :
@@ -127,7 +127,8 @@ def evalBvCheck (target : Normalize.Target) (ctx : TacticContext) (warn : MetaM 
     if ← Normalize.bvNormalize then
       warn
     else
-      bvCheck (← Normalize.PreProcessM.getTargetMVarId) (← Normalize.PreProcessM.getHyps) ctx
+      let epr := (← get).eprBvProblem
+      bvCheck (← Normalize.PreProcessM.getTargetMVarId) (← Normalize.PreProcessM.getHyps) ctx epr
 
 end BVCheck
 

@@ -17,9 +17,9 @@ This module provides the implementation of the `bv_decide` frontend itself.
 -/
 namespace Lean.Meta.Tactic.BVDecide
 
-def bvUnsat (g : MVarId) (hypotheses : Array Normalize.Hyp) (ctx : TacticContext) :
-    Grind.GrindM (Except CounterExample CegarCert) :=
-  ReifyM.run (hypotheses := hypotheses) (cfg := ctx.config) do
+def bvUnsat (g : MVarId) (hypotheses : Array Normalize.Hyp) (ctx : TacticContext)
+    (epr : EPR.EprBvProblem) : Grind.GrindM (Except CounterExample CegarCert) :=
+  ReifyM.run (hypotheses := hypotheses) (cfg := ctx.config) (epr := epr) do
     closeWithBVReflection g (cegarBlaster ctx)
 
 /--
@@ -38,7 +38,8 @@ public def bvDecide' (target : Normalize.Target) (ctx : TacticContext) :
     let solved ← Normalize.bvNormalize
     if solved then return .ok ⟨.solvedWithPreProcessing⟩
 
-    match ← bvUnsat (← Normalize.PreProcessM.getTargetMVarId) (← Normalize.PreProcessM.getHyps) ctx with
+    let epr := (← get).eprBvProblem
+    match ← bvUnsat (← Normalize.PreProcessM.getTargetMVarId) (← Normalize.PreProcessM.getHyps) ctx epr with
     | .ok cegarCert => return .ok ⟨cegarCert⟩
     | .error counterExample => return .error counterExample
 

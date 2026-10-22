@@ -62,6 +62,7 @@ public def Subsolver.new (ctx : TacticContext) (mvar : MVarId) : Sym.SymM Subsol
       fixedInt := false
       shortCircuit := false
       uf := false
+      epr := false
     }
   }
   let satSolver ← Cadical.Solver.new

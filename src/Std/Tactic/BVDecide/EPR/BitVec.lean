@@ -187,4 +187,10 @@ declare_bv_pred 14
 declare_bv_pred 15
 declare_bv_pred 16
 
+
+/--
+An opaque constant used to instantiate quantifiers during MBQI checks.
+-/
+public def instConst {α : Type u} (_hypIdx : Nat) (_quantIdx : Nat) (default : α) : α := default
+
 end Std.Tactic.BVDecide.EPR.BitVec

@@ -113,6 +113,6 @@ structure BVDecideConfig where
 Whether this configuration requires the solver to use incremental solving.
 -/
 def BVDecideConfig.needsIncremental (cfg : BVDecideConfig) : Bool :=
-  cfg.uf
+  cfg.uf || cfg.epr
 
 end Lean.Elab.Tactic.BVDecide

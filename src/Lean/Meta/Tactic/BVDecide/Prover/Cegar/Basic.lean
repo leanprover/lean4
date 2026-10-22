@@ -215,7 +215,7 @@ public def getTacticContext : CegarM TacticContext := return (← read).tacticCo
 @[inline]
 public def hasRefinementProcedures : CegarM Bool := do
   let cfg := (← getTacticContext).config
-  return cfg.uf
+  return cfg.uf || cfg.epr
 
 @[inline]
 public def consumeSolverTime (ms : Nat) : CegarM Unit := do

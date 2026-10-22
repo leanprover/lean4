@@ -213,15 +213,23 @@ private def applyHomo? (e : Expr) : GoalM (Option (Expr × Expr)) := do
   let .step e' h _ _ := r | return none
   return some (e', h)
 
-def internalize (e : Expr) (_parent? : Option Expr) : GoalM Unit := do
-  unless (← getConfig).hom do return ()
-  if e.isAppOf ``Eq then return () -- We do not internalize equalities
-  /-
-  Raw `Nat` literals reach the E-graph only as arguments of numerals and their instances
+/--
+Returns `true` if `e` must not be internalized by the homomorphism extension.
+- Equalities are translated by `processNewEq` when classes are merged. Recall that an asserted
+  `a = b` or `a ≍ b` has no E-node (see `addFactStep`). See #15859.
+- Raw `Nat` literals reach the E-graph only as arguments of numerals and their instances
   (e.g., `BitVec.instOfNat w n`). The rewriter folds them into `OfNat.ofNat Nat n`, and the
   core would then see two distinct values in the same equivalence class. See #15857.
-  -/
-  if e.isRawNatLit then return ()
+-/
+private def isForbidden (e : Expr) : Bool :=
+  match e.getAppFn with
+  | .const declName _ => declName == ``Eq || declName == ``HEq
+  | .lit (.natVal _) => true
+  | _ => false
+
+def internalize (e : Expr) (_parent? : Option Expr) : GoalM Unit := do
+  unless (← getConfig).hom do return ()
+  if isForbidden e then return ()
   -- Check whether term has already been internalized by this solver extension.
   if (← homExt.getState).internalized.contains { expr := e } then return ()
   homExt.modifyState fun s => { s with internalized := s.internalized.insert { expr := e } }

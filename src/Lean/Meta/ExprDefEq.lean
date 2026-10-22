@@ -213,7 +213,8 @@ where
       return true
 
 /-- Partial applications of recursors of k-like and structure types may progress from getting eta-expanded.
-  See https://github.com/leanprover/lean4/issues/12520
+  See https://github.com/leanprover/lean4/issues/12520.
+  If `a` is a partial recursor call who can reduce on a neutral major, returns the eta-expanded, iota-reduced form of `a`.
 -/
 private def etaReduceRecursor? (a : Expr) : MetaM (Option Expr) := do
   let afn := a.getAppFn

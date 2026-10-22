@@ -91,7 +91,7 @@ private:
     lbool quick_is_def_eq(expr const & t, expr const & s);
     lbool is_def_eq_offset(expr const & t, expr const & s);
     bool is_def_eq_args(expr t, expr s);
-    optional<expr> eta_reduce_recursor(expr const & s);
+    optional<expr> eta_expand_iota_reduce_recursor(expr const & s);
     bool try_eta_expansion_core(expr const & t, expr const & s);
     bool try_eta_expansion(expr const & t, expr const & s) {
         return try_eta_expansion_core(t, s) || try_eta_expansion_core(s, t);

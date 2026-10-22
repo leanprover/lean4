@@ -400,11 +400,7 @@ optional<expr> type_checker::reduce_recursor(expr const & e, bool cheap_rec, boo
             return r;
         }
     }
-    if (optional<expr> r = inductive_reduce_rec(env(), e,
-                                                [&](expr const & e) { return cheap_rec ? whnf_core(e, cheap_rec, cheap_proj) : whnf(e); },
-                                                [&](expr const & e) { return infer(e); },
-                                                [&](expr const & e1, expr const & e2) { return is_def_eq(e1, e2); },
-                                                [&](expr const & e) { return is_prop(e); })) {
+    if (optional<expr> r = inductive_reduce_recursor(e, cheap_rec, cheap_proj)) {
         return r;
     }
     return none_expr();
@@ -841,9 +837,10 @@ bool type_checker::is_def_eq_args(expr t, expr s) {
     return !is_app(t) && !is_app(s);
 }
 
-/** Here, \c t is a neutral that is *not* a lambda-application (otherwise, \c try_eta_expansion_core would have returned before reaching this function)
- This means t is either a variable, an n-ary application whose head is itself a neutral, or another stuck recursor call. If \c s is a partial recursor call who can reduce on a neutral major, it ought to be eta-expanded appropriately. */
-optional<expr> type_checker::eta_reduce_recursor(expr const & s) {
+/** \brief Partial applications of recursors of k-like and structure types may progress
+    from getting eta-expanded. See https://github.com/leanprover/lean4/issues/12520.
+    If \c s is a partial recursor call who can reduce on a neutral major, returns the eta-expanded, iota-reduced form of \c s */
+optional<expr> type_checker::eta_expand_iota_reduce_recursor(expr const & s) {
     buffer<expr> s_args;
     expr const & s_fn = get_app_args(s, s_args);
     if (!is_constant(s_fn)) return none_expr();
@@ -879,7 +876,7 @@ bool type_checker::try_eta_expansion_core(expr const & t, expr const & s) {
             return false;
         expr new_s  = mk_lambda(binding_name(s_type), binding_domain(s_type), mk_app(s, mk_bvar(0)), binding_info(s_type));
         return is_def_eq(t, new_s);
-    } else if (auto new_s = eta_reduce_recursor(s) ) {
+    } else if (auto new_s = eta_expand_iota_reduce_recursor(s) ) {
         return is_def_eq(t, *new_s);
     } else return false;
 }

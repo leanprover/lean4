@@ -609,6 +609,7 @@ OPTIONS:
   --platform=<target-triple>      with Reservoir or --repo, set the platform
   --toolchain=<name>              with Reservoir or --repo, set the toolchain
   --scope=<remote-scope>          verbatim scope for a custom endpoint
+  --unpack                        bulk unpack module archives into a fresh build
   --mappings-only                 only download mappings, delay artifacts
   --force-download                redownload existing files
 
@@ -645,6 +646,13 @@ will search the repository's entire history (or as far as Git will allow).
 By default, Lake will download both the input-to-output mappings and the
 output artifacts for a package. By using `--mappings-only`, Lake will only
 download the mappings and delay downloading artifacts until they are needed.
+
+With `--unpack`, Lake also extracts module archives in one batch when the
+package has no build directory. Unsupported or overlapping bundles retain
+ordinary on-demand restoration. This prepares outputs only: a subsequent
+`lake build` still checks source files, configuration and dependencies. Use
+a normal build, without `--old`, to validate the prepared outputs by hash.
+Run unpacking without another build or editor writing the build directory.
 
 If a download for an artifact fails or the download process for a whole
 package fails, Lake will report this and continue on to the next. Once done,

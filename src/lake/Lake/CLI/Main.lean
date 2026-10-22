@@ -28,6 +28,7 @@ import Lake.CLI.Help
 import Lake.CLI.Build
 import LeanExport.Basic
 import Lake.CLI.Actions
+import Lake.CLI.Cache
 import Lake.CLI.Translate
 import Lake.CLI.Serve
 public import Lake.CLI.BuiltinLint
@@ -72,6 +73,7 @@ public structure LakeOptions where
   outputsFile? : Option FilePath := none
   overwrite? : Option Bool := none
   forceDownload : Bool := false
+  unpack : Bool := false
   mappingsOnly : Bool := false
   service? : Option String := none
   package? : Option String := none
@@ -320,6 +322,7 @@ def lakeLongOption : (opt : String) → CliM PUnit
 | "--force-overwrite" => modifyThe LakeOptions ({· with overwrite? := some true})
 | "--force-download" => modifyThe LakeOptions ({· with forceDownload := true})
 | "--download-arts" => modifyThe LakeOptions ({· with mappingsOnly := false})
+| "--unpack" => modifyThe LakeOptions ({· with unpack := true})
 | "--mappings-only" => modifyThe LakeOptions ({· with mappingsOnly := true})
 | "--package" => do
   let pkgName ← takeOptArg "--package" "package name"
@@ -540,6 +543,8 @@ protected def get : CliM PUnit := do
   unless overwrite do
     -- artifacts of skipped mappings with `--no-overwrite` cannot be cleanly handled
     error "`--no-overwrite` is not supported for `cache get`"
+  if opts.unpack && opts.mappingsOnly then
+    error "`--unpack` cannot be combined with `--mappings-only`"
   let pkg? ← opts.package?.bindM (liftM <| parsePackageSpec ws ·)
   if let some file := mappings? then liftM (m := LoggerIO) do
     if opts.mappingsOnly then
@@ -569,6 +574,8 @@ protected def get : CliM PUnit := do
     cache.writeMap localScope map service.name? (some remoteScope) overwrite
     let descrs ← map.collectOutputDescrs
     service.downloadArtifacts descrs cache remoteScope opts.forceDownload
+    if opts.unpack then
+      (pkg?.getD ws.root).unpackCache cache map ws.lakeEnv.lean.leantar
   else
     let platform := opts.platform?.getD .system
     let toolchain := opts.toolchain?.getD ws.cacheToolchain
@@ -600,12 +607,12 @@ protected def get : CliM PUnit := do
         error "to use `cache get` with `--scope`, a custom endpoint must be set (not Reservoir); \
           if you instead want to download artifacts for a fork of the package, use `--repo`"
       let pkg := pkg?.getD ws.root
-      fetchOutputs cache service pkg remoteScope opts platform toolchain overwrite
+      fetchOutputs cache service pkg remoteScope opts platform toolchain overwrite ws.lakeEnv.lean.leantar
     else if service.isReservoir then
       if let some pkg := pkg? then
         let some remoteScope := pkg.reservoirScope?
           | error s!"{pkg.prettyName}: not a Reservoir dependency and no `--scope` or `--repo` set"
-        fetchOutputs cache service pkg remoteScope opts platform toolchain overwrite
+        fetchOutputs cache service pkg remoteScope opts platform toolchain overwrite ws.lakeEnv.lean.leantar
       else if opts.rev?.isSome then
         error "the `--rev` option is not supported for a multi-package Reservoir `cache get`"
       else
@@ -615,7 +622,7 @@ protected def get : CliM PUnit := do
             | logInfo s!"{pkg.prettyName}: skipping non-Reservoir dependency"
               return ok
           try
-            fetchOutputs cache service pkg remoteScope opts platform toolchain overwrite
+            fetchOutputs cache service pkg remoteScope opts platform toolchain overwrite ws.lakeEnv.lean.leantar
             return ok
           catch _ =>
             return false
@@ -630,7 +637,7 @@ where
     \n  LAKE_CACHE_REVISION_ENDPOINT={revisionEndpoint}\n\
     To use `cache get` with a custom endpoint, both environment variables \
     must be set to non-empty strings. To use Reservoir, neither should be set."
-  fetchOutputs cache service pkg remoteScope opts platform toolchain overwrite : LoggerIO Unit := do
+  fetchOutputs cache service pkg remoteScope opts platform toolchain overwrite leantar : LoggerIO Unit := do
     let platform := cachePlatform pkg platform
     let toolchain := cacheToolchain pkg toolchain
     let map : CacheMap ← id do
@@ -659,6 +666,8 @@ where
     unless opts.mappingsOnly do
       let descrs ← map.collectOutputDescrs
       service.downloadArtifacts descrs cache remoteScope opts.forceDownload
+      if opts.unpack then
+        pkg.unpackCache cache map leantar
 
 def computeUploadService
   (service? : Option String) (lakeEnv : Env) (lakeCfg : LoadedLakeConfig)

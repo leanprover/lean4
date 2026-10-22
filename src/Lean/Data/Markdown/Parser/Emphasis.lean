@@ -254,7 +254,7 @@ def processDelimSequence (seq : DelimSequence s) : DelimM s Unit := do
       openDelimiter {
         ch := seq.ch
         startPos := seqStart
-        origLen := seqRem
+        origLen := seq.origLen
         remaining := seqRem
         canClose := seq.canClose
         acc := #[]

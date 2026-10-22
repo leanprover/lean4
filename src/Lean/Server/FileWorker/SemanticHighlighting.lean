@@ -324,7 +324,8 @@ def computeDeltaLspSemanticTokens (tokens : Array AbsoluteLspSemanticToken) : Se
     lastPos := pos
   return { data }
 
-/-! ## Markdown highlighting
+/-!
+## Markdown highlighting
 
 Traverses the result of the full Markdown parse (`Lean.Markdown.parseDocument`,
 which runs both passes) and emits `LeanSemanticToken`s.

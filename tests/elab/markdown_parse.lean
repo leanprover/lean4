@@ -57,6 +57,16 @@ def showParagraph (src : String) : String :=
 /-- info: "code⟪&amp; \\*⟫ text⟪ ⟫ autolink⟪https://x.y/?a&amp;b⟫" -/
 #guard_msgs in #eval showParagraph "`&amp; \\*` <https://x.y/?a&amp;b>"
 
+/-!
+## Emphasis with leftover delimiters
+
+An opener left over after part of its sequence matched a closer keeps the sequence's original length
+due to rule 9 of CommonMark §6.2.
+-/
+
+/-- info: "italic[text⟪a⟫] text⟪*⟫ italic[text⟪b⟫]" -/
+#guard_msgs in #eval showParagraph "*a***b*"
+
 /-! ## Text decoding -/
 
 /-- info: "a*b&#&amp;&bogus;\\q" -/
@@ -133,7 +143,8 @@ def referenceTargets (src : String) : List (String × Option String) :=
 /-- info: [("/u", none), ("v", some "t")] -/
 #guard_msgs in #eval referenceTargets "[a][r] [b]\n\n[r]: /u\n[b]: <v> 't'"
 
-/-! ## Content that continues onto the next line
+/-!
+## Content that continues onto the next line
 
 The content of a code span, a link title, or a reference label that continues onto the next line of
 a container has one subslice per line, without the container's prefix.
@@ -183,7 +194,8 @@ def blockRanges (src : String) : List String :=
 /-- info: ["> # h\n> para", "- a\n  b\n- c", "[r]: /u \"t\"", "```lean\ncode\n```", "***", "code"] -/
 #guard_msgs in #eval blockRanges "> # h\n> para\n\n- a\n  b\n- c\n\n[r]: /u \"t\"\n\n```lean\ncode\n```\n\n***\n\n    code\n"
 
-/-! ## Indented documents
+/-!
+## Indented documents
 
 Up to `indent` leading spaces of each line are indentation of the document as a whole, as in an
 indented docstring, and are skipped before the line is parsed.

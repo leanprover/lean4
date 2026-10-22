@@ -35,7 +35,8 @@ def tokenCount (input : String) (typeName : String) : Nat := Id.run do
       n := n + 1
   return n
 
-/-! ## Cross-product over (emphasis, block context)
+/-!
+## Cross-product over (emphasis, block context)
 
 Each line places an `x` content character inside the smallest snippet that produces the targeted
 attribute combination. The block context selects the type, and the emphasis adds the `markupBold`
@@ -94,7 +95,8 @@ and `markupItalic` modifiers.
 /-- info: "markupList markupBold markupItalic" -/
 #guard_msgs in #eval markupAt "* ***x***" 5
 
-/-! ## Delimiters
+/-!
+## Delimiters
 
 Every delimiter is a `keyword` token with the `markupSyntax` modifier.
 -/
@@ -102,7 +104,8 @@ Every delimiter is a `keyword` token with the `markupSyntax` modifier.
 /-- info: ["keyword markupSyntax", "keyword markupSyntax", "keyword markupSyntax", "keyword markupSyntax"] -/
 #guard_msgs in #eval ["**x**", "# x", "> x", "* x"].zipWith markupAt [0, 0, 0, 0]
 
-/-! ## Code
+/-!
+## Code
 
 Inline code and code blocks have fixed types without modifiers, regardless of surrounding
 emphasis.
@@ -137,7 +140,8 @@ emphasis.
 /-- info: "markupInlineCode" -/
 #guard_msgs in #eval markupAt "`a\nb`" 3
 
-/-! ## Image alt content
+/-!
+## Image alt content
 
 Per CommonMark §6.4, an image description has inline elements as its
 contents (with the same rules as link text, plus that links are explicitly
@@ -161,7 +165,8 @@ inline code, and links inside alt text receive their normal token types.
 /-- info: "markupUrl" -/
 #guard_msgs in #eval markupAt "![<https://e.com>](http://e.com)" 3
 
-/-! ## Order independence
+/-!
+## Order independence
 
 The two snippets nest bold and italic in opposite orders. The inner content
 character must receive the same modifiers in both arrangements; otherwise
@@ -192,7 +197,8 @@ attribute accumulation depends on traversal order.
 /-- info: "markupList markupBold markupItalic" -/
 #guard_msgs in #eval markupAt "* *a **x** a*" 7
 
-/-! ## Soft breaks do not produce multi-line tokens
+/-!
+## Soft breaks do not produce multi-line tokens
 
 The inline parser emits a one-byte `.softBreak` element for each `\n`
 between paragraph lines so downstream renderers can reproduce the line
@@ -215,7 +221,8 @@ token, since VS Code does not support multi-line semantic tokens.
 /-- info: "markupDocText" -/
 #guard_msgs in #eval markupAt "hello\nworld" 6
 
-/-! ## Multi-line link reference definitions
+/-!
+## Multi-line link reference definitions
 
 A ref-def label may span newlines (CommonMark §4.7) and a title may sit
 on the line following the URL. Both are split at line boundaries so each
@@ -230,7 +237,8 @@ emitted token stays on a single line.
 /-- info: 2 -/
 #guard_msgs in #eval tokenCount "[a]: https://e.com \"title\nspans lines\"\n" "string"
 
-/-! ## Ref defs inside blockquotes
+/-!
+## Ref defs inside blockquotes
 
 `postProcessRefDefs` descends into blockquote and list children, so a ref
 def inside a blockquote still produces a `markupCrossReference` token on
@@ -240,7 +248,8 @@ its label.
 /-- info: "markupCrossReference" -/
 #guard_msgs in #eval markupAt "> [foo]: https://e.com\n" 3
 
-/-! ## ATX heading guards
+/-!
+## ATX heading guards
 
 Seven or more `#` characters are not a valid ATX heading (CommonMark
 §4.2 caps the level at six). The line falls through to a paragraph and
@@ -254,7 +263,8 @@ its content receives the plain `markupDocText` type.
 /-- info: "markupHeading" -/
 #guard_msgs in #eval markupAt "###### x" 7
 
-/-! ## Nested lists with mixed bullet kinds
+/-!
+## Nested lists with mixed bullet kinds
 
 Different bullet characters at different nesting levels form distinct
 sibling-incompatible lists. The inner list's content still receives the
@@ -267,7 +277,8 @@ sibling-incompatible lists. The inner list's content still receives the
 /-- info: "markupList" -/
 #guard_msgs in #eval markupAt "* outer\n  + inner" 12
 
-/-! ## Link titles
+/-!
+## Link titles
 
 A title's delimiters are markup syntax like the brackets around the link text, and its text is a
 string, both for inline targets and for link reference definitions.
@@ -279,7 +290,8 @@ string, both for inline targets and for link reference definitions.
 /-- info: ["keyword markupSyntax", "string", "keyword markupSyntax"] -/
 #guard_msgs in #eval ["[r]: /u (t)", "[r]: /u (t)", "[r]: /u (t)"].zipWith markupAt [8, 9, 10]
 
-/-! ## Hard breaks and escapes
+/-!
+## Hard breaks and escapes
 
 The backslash or the trailing spaces that make a line ending a hard break are markup syntax, as is
 the backslash of an escape. The escaped character is text.
@@ -291,7 +303,8 @@ the backslash of an escape. The escaped character is text.
 /-- info: ["keyword markupSyntax", "markupDocText"] -/
 #guard_msgs in #eval ["\\*x", "\\*x"].zipWith markupAt [0, 1]
 
-/-! ## Content that continues onto the next line of a container
+/-!
+## Content that continues onto the next line of a container
 
 A code span, link title, or reference label that continues onto the next line of a blockquote gets
 one token per line, and the blockquote marker on the second line stays a delimiter.
@@ -309,7 +322,8 @@ one token per line, and the blockquote marker on the second line stays a delimit
 /-- info: ["markupCrossReference", "markupCrossReference"] -/
 #guard_msgs in #eval ["[t][a\nb]\n\n[a b]: /u", "[t][a\nb]\n\n[a b]: /u"].zipWith markupAt [4, 6]
 
-/-! ## Indented documents
+/-!
+## Indented documents
 
 With a nonzero indent, the indentation of the document as a whole is skipped, so a continuation line
 indented by it is text and only lines indented four columns past it are code.
@@ -327,7 +341,8 @@ def markupAtIndented (input : String) (indent byteIdx : Nat) : String := Id.run 
 #guard_msgs in #eval
   ["  a\n\n    b", "  a\n\n      c", "a\n\n    b"].zipWith (fun s (i, p) => markupAtIndented s i p) [(2, 9), (2, 11), (0, 7)]
 
-/-! ## Bracketed destinations
+/-!
+## Bracketed destinations
 
 The angle brackets around a destination are markup syntax, and only the URL between them is a URL,
 both for inline targets and for link reference definitions.

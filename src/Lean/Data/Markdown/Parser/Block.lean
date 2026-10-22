@@ -15,6 +15,7 @@ public import Lean.Data.Markdown.Basic
 public import Lean.Data.Markdown.InlineSource
 import Lean.Data.Markdown.Parser.Cursor
 import Lean.Data.Markdown.Parser.BlockZipper
+import Lean.Data.Markdown.Parser.Html
 
 namespace Lean.Markdown
 
@@ -28,9 +29,8 @@ CommonMark is parsed in two passes:
 2. Within each block, the second pass finds the structure of inlines and applies fallback rules for
    poorly nested or mismatched delimiters.
 
-This file contains the first pass. It is almost compliant with CommonMark; unlike CommonMark, it
-does not support HTML blocks, and case folding of ref-style link definitions is only for ASCII
-`a`-`z`.
+This file contains the first pass. Link labels are compared after `normalizeLabel`, whose case
+folding covers ASCII, Latin-1, and Greek.
 -/
 
 variable {s : String.Slice}
@@ -405,6 +405,40 @@ def parseListMarker? (c : Cursor s) : Option (ListMarkerMatch s) := do
   failure
 
 /--
+Parses the start of an HTML block at `c` (CommonMark §4.6): after up to three spaces of indentation,
+a `<` that begins one of the seven start conditions. Returns the block's kind.
+-/
+def parseHtmlBlockStart? (c : Cursor s) : Option HtmlBlockKind := do
+  let (c, indent) := countIndentCols c
+  guard (indent ≤ 3)
+  guard (c.front? == some '<')
+  let afterLt := c.next
+  match afterLt.front? with
+  | some '!' =>
+    let afterBang := afterLt.next
+    if startsWithAscii afterBang.pos c.stop "--" then return .comment
+    if startsWithAscii afterBang.pos c.stop "[CDATA[" then return .cdata
+    guard (afterBang.front?.any Char.isAlpha)
+    return .declaration
+  | some '?' => return .processingInstruction
+  | _ =>
+    let isClosing := afterLt.front? == some '/'
+    let nameStart := if isClosing then afterLt.next else afterLt
+    guard (nameStart.front?.any Char.isAlpha)
+    let (afterName, _) := nameStart.advanceWhile Char.isAlphanum
+    let name := subsliceClamped nameStart.pos afterName.pos
+    let delimited :=
+      match afterName.front? with
+      | none | some ' ' | some '\t' | some '>' => true
+      | _ => false
+    if !isClosing && delimited && isRawTextTagName name then return .rawText
+    if isBlockTagName name && (delimited || startsWithAscii afterName.pos c.stop "/>") then
+      return .blockTag
+    let src := InlineSource.ofSubslice (subsliceClamped afterLt.pos c.stop)
+    guard (parseCompleteTagLine? (src.cursor src.startPos src.stopPos)).isSome
+    return .completeTag
+
+/--
 Whether a list marker matched at the current cursor is allowed to interrupt an open paragraph
 (CommonMark §5.2):
  * An empty list item cannot interrupt a paragraph
@@ -464,6 +498,7 @@ def isInterrupt (z : BlockZipper s) (c : Cursor s) : Bool :=
     | none => false) ||
   (parseAtxHeading? c).isSome ||
   (parseFenceOpen? c).isSome ||
+  (parseHtmlBlockStart? c).any (·.interruptsParagraph) ||
   isThematicBreak c
 
 /-!
@@ -675,6 +710,26 @@ def consumeFencedCode : ProcessM s Unit := do
   | none => finishLineWith (·.extendFencedCode cursor.toEol)
 
 /--
+An HTML block consumes lines verbatim until its end condition is met (CommonMark §4.6). A line that
+contains the kind's end marker is the block's last line. For the kinds that end before a blank
+line, the blank line closes the block and falls through to the remaining steps.
+-/
+def consumeHtmlBlock : ProcessM s Unit := do
+  let some (.html kind _) := (← get).zipper.openLeaf? | return
+  let cursor := (← get).cursor
+  if kind.endsAtBlankLine then
+    if cursor.isBlank then
+      modify fun st => { st with zipper := st.zipper.closeLeaf }
+    else
+      finishLineWith (·.extendHtml cursor.toEol)
+  else
+    let line := cursor.toEol
+    if kind.endConditionMet line then
+      finishLineWith fun z => (z.extendHtml line).closeLeaf
+    else
+      finishLineWith (·.extendHtml line)
+
+/--
 Indented code consumes 4+-indented lines verbatim and records blank lines provisionally. Any other
 line closes the block and falls through to the remaining steps.
 -/
@@ -805,6 +860,21 @@ def tryFencedCodeOpener : ProcessM s Unit := do
   finishLineWith (·.openLeaf (.fencedCode info openFence #[]))
 
 /--
+Opens an HTML block (CommonMark §4.6). A block whose first line also meets its end condition is
+complete at once. A complete HTML block cannot interrupt a paragraph.
+-/
+def tryHtmlBlockOpener : ProcessM s Unit := do
+  let cursor := (← get).cursor
+  let some kind := parseHtmlBlockStart? cursor | return
+  if let some (.paragraph _) := (← get).zipper.openLeaf? then
+    unless kind.interruptsParagraph do return
+  let line := cursor.toEol
+  if kind.endConditionMet line then
+    finishLineWith (·.addBlock (.html (.singleton line)))
+  else
+    finishLineWith (·.openLeaf (.html kind (.singleton line)))
+
+/--
 Parses the start of an indented code block.
 -/
 def tryIndentedCodeOpener : ProcessM s Unit := do
@@ -845,6 +915,7 @@ def processLine (z : BlockZipper s) (line : s.Subslice) : BlockZipper s :=
       tryLazyContinuation
     closeNonContinuingContainers matched
     consumeFencedCode
+    consumeHtmlBlock
     consumeIndentedCode
     closeFinishedSiblingList
     let openedListItemThisLine ← openContainerPrefixes
@@ -852,6 +923,7 @@ def processLine (z : BlockZipper s) (line : s.Subslice) : BlockZipper s :=
     tryBlankLine openedListItemThisLine
     tryAtxHeading
     tryFencedCodeOpener
+    tryHtmlBlockOpener
     tryIndentedCodeOpener
     emitParagraph
   match pipeline.run init with

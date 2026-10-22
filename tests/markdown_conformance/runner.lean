@@ -15,8 +15,8 @@ tab and is converted at extraction time. Section names are tracked from
 Each extracted example is fed through `parseDocument` and the
 `Markdown.Html` renderer; the output is compared byte-for-byte against the
 expected HTML. The runner prints a per-section pass/fail tally and exits 0
-when every example passes or is skipped, 1 when any fails, and 2 when no
-examples are found.
+when every example passes, 1 when any fails, and 2 when no examples are
+found.
 
 Obtain the spec source with:
 
@@ -27,7 +27,6 @@ module
 import Lean.Data.Markdown
 import all Lean.Data.Markdown.Parser.Inline
 import Std.Data.HashMap
-import Std.Data.TreeMap.Lemmas
 
 open Std
 open Lean.Markdown
@@ -363,6 +362,7 @@ partial def renderBlock (b : Block s) : String :=
     s!"<li>\n{inner}</li>\n"
   | .linkRefDef .. => ""
   | .thematicBreak _ => "<hr />\n"
+  | .html lines => "\n".intercalate (lines.toArray.toList.map (·.copy)) ++ "\n"
 
 /-- Renders an array of top-level blocks. -/
 def renderBlocks (blocks : Array (Block s)) : String :=
@@ -388,7 +388,6 @@ deriving Inhabited
 structure SectionStat where
   pass : Nat := 0
   total : Nat := 0
-  skip : HashMap String Nat := {}
 deriving Inhabited
 
 /-- Replaces `→` (the spec's visual tab placeholder) with literal `\t`. -/
@@ -405,23 +404,6 @@ private def isExampleOpenFence (line : String.Slice) : Bool :=
 /-- Whether `line` is the closing fence (a sequence of backticks only). -/
 private def isExampleCloseFence (line : String.Slice) : Bool :=
   line.startsWith "````````````" && line.all (· == '`')
-
-/-- Returns `some` with an explanation if the test should be skipped -/
-def skip? (md : String) : Option String :=
-  if hasHtmlBlockStart md then some "HTML block" else none
-where
-  /--
-  Whether a line of `md` could start an HTML block (CommonMark §4.6): after its indentation and any
-  blockquote or list markers, a `<` followed by a letter, `/`, `!`, or `?`. This also matches an
-  autolink or inline tag at the start of a line, so it skips more examples than the HTML blocks
-  themselves.
-  -/
-  hasHtmlBlockStart (md : String) : Bool :=
-    (md.split "\n").toArray.any fun line =>
-      let line := (line.trimAsciiStart.dropWhile fun c => c == '>' || c == '-' || c == '*' || c == '+' || c == ' ')
-      line.startsWith '<' &&
-        (line.drop 1).startsWith fun c => c.isAlpha || c == '/' || c == '!' || c == '?'
-
 
 /--
 Reads the spec source line by line, extracting examples and tracking the
@@ -473,7 +455,6 @@ structure Opts where
   spec? : Option String := none
   section? : Option String := none
   verbose : Bool := false
-  showSkipped : Bool := false
 
 def Opts.spec (o : Opts) : String := o.spec?.getD "tests/markdown_conformance/spec.txt"
 
@@ -482,7 +463,6 @@ def readOpts (opts : Opts) : List String → IO Opts
   | "--section" :: sec :: more =>
     readOpts { opts with «section?» := some sec } more
   | "--verbose" :: more | "-v" :: more => readOpts { opts with verbose := true } more
-  | "--show-skipped" :: more => readOpts { opts with showSkipped := true } more
   | spec :: more =>
     if spec.startsWith "-" then
       throw <| .userError s!"Unknown option {spec}"
@@ -501,61 +481,32 @@ public def main (args : List String) : IO UInt32 := do
     return 2
 
   let mut stats : Std.HashMap String SectionStat := {}
-  let mut allSkipped : Std.TreeMap String (Array SpecEntry) := {}
   let mut totalPass := 0
   let mut totalCount := 0
-  let mut totalSkip := 0
   for entry in entries do
     if let some s := opts.section? then
       if entry.sectionName ≠ s then continue
-    if let some reason := skip? entry.markdown then
-      stats := stats.alter entry.sectionName fun s? =>
-        let s := s?.getD {}
-        some { s with skip := s.skip.alter reason (some <| ·.getD 0 + 1) }
-      allSkipped := allSkipped.alter reason fun xs? =>
-        xs?.getD #[] |>.push entry
-      totalSkip := totalSkip + 1
-    else
-      let actual := Html.renderToHtml entry.markdown
-      let passed := actual == entry.expectedHtml
-      stats := stats.alter entry.sectionName fun s? =>
-        let s := s?.getD {}
-        some { s with pass := s.pass + (if passed then 1 else 0), total := s.total + 1 }
-      if passed then totalPass := totalPass + 1
-      if opts.verbose && !passed then
-        IO.println "FAILED:"
-        IO.println entry.markdown
-        IO.println "EXPECTED:"
-        IO.println entry.expectedHtml
-        IO.println "ACTUAL:"
-        IO.println actual
+    let actual := Html.renderToHtml entry.markdown
+    let passed := actual == entry.expectedHtml
+    stats := stats.alter entry.sectionName fun s? =>
+      let s := s?.getD {}
+      some { s with pass := s.pass + (if passed then 1 else 0), total := s.total + 1 }
+    if passed then totalPass := totalPass + 1
+    if opts.verbose && !passed then
+      IO.println "FAILED:"
+      IO.println entry.markdown
+      IO.println "EXPECTED:"
+      IO.println entry.expectedHtml
+      IO.println "ACTUAL:"
+      IO.println actual
     totalCount := totalCount + 1
 
-  IO.println s!"Skipped: {totalSkip}/{totalCount} ({percent totalSkip totalCount}%)"
-  IO.println s!"Overall: {totalPass}/{totalCount - totalSkip} ({percent totalPass (totalCount - totalSkip)}%)"
+  IO.println s!"Overall: {totalPass}/{totalCount} ({percent totalPass totalCount}%)"
   IO.println ""
   IO.println "Per section:"
   let sortedSections := stats.toList.mergeSort (fun a b => a.1 < b.1)
   for (name, stat) in sortedSections do
     IO.println s!"  {name}:"
     IO.println s!"    Pass: {stat.pass}/{stat.total} ({percent stat.pass stat.total}%)"
-    unless stat.skip.isEmpty do
-      IO.println s!"    Skip:"
-      for (reason, count) in stat.skip do
-        IO.println s!"      {reason}: {count}"
 
-  if opts.showSkipped then
-    IO.println s!"Skipped:"
-    for h : reason in allSkipped.keys do
-      have : reason ∈ allSkipped := by grind
-      IO.println s!"-- {reason} --"
-      for entry in allSkipped[reason] do
-        let actual := Html.renderToHtml entry.markdown
-        IO.println s!"SKIPPED ({reason}):"
-        IO.println entry.markdown
-        IO.println "EXPECTED:"
-        IO.println entry.expectedHtml
-        IO.println "ACTUAL:"
-        IO.println actual
-
-  return if totalPass + totalSkip == totalCount then 0 else 1
+  return if totalPass == totalCount then 0 else 1

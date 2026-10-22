@@ -131,6 +131,13 @@ emphasis.
 /-- info: 2 -/
 #guard_msgs in #eval tokenCount "    indented\n    code block\n" "markupCodeBlock"
 
+-- HTML blocks get one `markupCodeBlock` token per line; their content is not parsed as Markdown.
+/-- info: "markupCodeBlock" -/
+#guard_msgs in #eval markupAt "<div>\n*x*\n</div>\n" 7
+
+/-- info: 3 -/
+#guard_msgs in #eval tokenCount "<div>\n*x*\n</div>\n" "markupCodeBlock"
+
 -- A code span that crosses a line break: each line of the content gets its
 -- own `markupInlineCode` token (LSP semantic tokens are per-line), and the
 -- delimiters remain delimiters.

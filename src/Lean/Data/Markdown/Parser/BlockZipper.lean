@@ -8,6 +8,7 @@ module
 prelude
 import Init
 public import Lean.Data.Markdown.Basic
+public import Lean.Data.Markdown.Parser.Html
 
 namespace Lean.Markdown
 
@@ -90,6 +91,11 @@ public inductive OpenLeaf (s : String.Slice) where
   -/
   | indentedCode (lines : Array (s.Subslice × String))
       (pendingBlanks : Array (s.Subslice × String))
+  /--
+  An open HTML block. `kind` selects the end condition, and `lines` accumulates the block's lines,
+  starting with the one that met the start condition.
+  -/
+  | html (kind : HtmlBlockKind) (lines : Lines s)
 deriving Inhabited
 
 /--
@@ -140,6 +146,7 @@ public def leafToBlock : OpenLeaf s → Block.Raw s
   | .paragraph lines => .paragraph lines
   | .fencedCode info openFence lines => .fencedCode info openFence none lines
   | .indentedCode lines _pendingBlanks => .indentedCode lines
+  | .html _ lines => .html lines
 
 /--
 Pushes a finalized block onto the deepest spine frame's `closedChildren`, or directly onto
@@ -190,16 +197,22 @@ the zipper before `f` runs, so that `f` can extend the leaf's arrays without cop
     let z := { z with openLeaf? := none }
     { z with openLeaf? := some (f leaf) }
 
-/-- Appends a source line to the open paragraph, if any. No-op otherwise. -/
+/-- Appends a source line to the open paragraph, if any. Otherwise, does nothing. -/
 public def extendParagraph (z : BlockZipper s) (line : s.Subslice) : BlockZipper s :=
   z.modifyLeaf fun
     | .paragraph lines => .paragraph (lines.push line)
     | leaf => leaf
 
-/-- Appends a verbatim line to the open fenced code block, if any. No-op otherwise. -/
+/-- Appends a verbatim line to the open fenced code block, if any. Otherwise, does nothing. -/
 public def extendFencedCode (z : BlockZipper s) (line : s.Subslice) : BlockZipper s :=
   z.modifyLeaf fun
     | .fencedCode info openFence lines => .fencedCode info openFence (lines.push line)
+    | leaf => leaf
+
+/-- Appends a verbatim line to the open HTML block, if any. Otherwise, does nothing. -/
+public def extendHtml (z : BlockZipper s) (line : s.Subslice) : BlockZipper s :=
+  z.modifyLeaf fun
+    | .html kind lines => .html kind (lines.push line)
     | leaf => leaf
 
 /-- Closes the open fenced code block with a matching closing fence. -/

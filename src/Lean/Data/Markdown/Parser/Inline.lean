@@ -15,6 +15,7 @@ public import Lean.Data.Markdown.InlineSource
 public import Lean.Data.Markdown.Parser.Block
 import Lean.Data.Markdown.Unicode.CharacterClasses
 import Lean.Data.Markdown.Parser.Emphasis
+import Lean.Data.Markdown.Parser.Html
 
 namespace Lean.Markdown
 
@@ -174,118 +175,22 @@ def parseAutolink? (cur : InlineCursor s) : Option (Inline s × s.Pos) := do
   let urlRange := subsliceClamped inner closePos
   return (.autolink openAngle urlRange closeAngle !isLink, closeAngle.endExclusive)
 
-/-! ### Raw HTML (CommonMark §6.6) -/
-
-/-- Whether `c` may continue a tag name: an ASCII letter, digit, or hyphen. -/
-def isTagNameChar (c : Char) : Bool := c.isAlphanum || c == '-'
-
-/-- Whether `c` may begin an attribute name: an ASCII letter, `_`, or `:`. -/
-def isAttributeNameStart (c : Char) : Bool := c.isAlpha || c == '_' || c == ':'
-
-/-- Whether `c` may continue an attribute name: an ASCII letter, digit, `_`, `.`, `:`, or `-`. -/
-def isAttributeNameChar (c : Char) : Bool :=
-  c.isAlphanum || c == '_' || c == '.' || c == ':' || c == '-'
-
-/-- Whether `c` may be part of an unquoted attribute value. -/
-def isUnquotedValueChar (c : Char) : Bool :=
-  !(c == ' ' || c == '\t' || c == '\n' || c == '\r' || c == '"' || c == '\'' || c == '=' ||
-    c == '<' || c == '>' || c == '`')
-
-/-- Advances past the characters satisfying `p`. -/
-def skipChars (cur : InlineCursor s) (p : Char → Bool) : InlineCursor s := Id.run do
-  let mut cur := cur
-  while cur.front?.any p do
-    cur := cur.drop1
-  return cur
-
-/-- Advances past spaces, tabs, and up to one line ending, which is the whitespace allowed inside a tag. -/
-def skipTagWhitespace (cur : InlineCursor s) : InlineCursor s := Id.run do
-  let mut cur := cur
-  let mut sawLineEnding := false
-  repeat
-    match cur.front? with
-    | some ' ' | some '\t' => cur := cur.drop1
-    | some '\n' =>
-      if sawLineEnding then break
-      sawLineEnding := true
-      cur := cur.drop1
-    | _ => break
-  return cur
-
-/-- If `cur` begins with the characters `pat`, advances past them. -/
-def startsWithChars (cur : InlineCursor s) (pat : List Char) : Option (InlineCursor s) :=
-  pat.foldlM (init := cur) fun cur c => if cur.front? == some c then some cur.drop1 else none
-
-/-- Advances past the first occurrence of `pat`, or fails when there is none. -/
-def advancePast (cur : InlineCursor s) (pat : List Char) : Option (InlineCursor s) := Id.run do
-  let mut cur := cur
-  while !cur.isEmpty do
-    if let some after := startsWithChars cur pat then return some after
-    cur := cur.drop1
-  return none
-
 /--
-Parses raw HTML at `cur`, which must point at `<`: an open tag, a closing tag, a comment, a processing
-instruction, a declaration, or a CDATA section. Returns the `Inline.html` and the position after its
-closing `>`.
+Parses raw HTML (CommonMark §6.6) at `cur`, which must point at `<`: an open tag, a closing tag, a
+comment, a processing instruction, a declaration, or a CDATA section. Returns the `Inline.html` and
+the position after its closing `>`.
 -/
 def parseRawHtml? (cur : InlineCursor s) : Option (Inline s × s.Pos) := do
   guard <| cur.front? == some '<'
   let afterOpen := cur.drop1
   let after ←
     match afterOpen.front? with
-    | some '/' => closingTag afterOpen.drop1
-    | some '?' => advancePast afterOpen.drop1 ['?', '>']
-    | some '!' => markupDeclaration afterOpen.drop1
-    | some c => if c.isAlpha then openTag afterOpen else none
+    | some '/' => parseClosingTag? afterOpen.drop1
+    | some '?' => parseProcessingInstruction? afterOpen.drop1
+    | some '!' => parseMarkupDeclaration? afterOpen.drop1
+    | some c => if c.isAlpha then parseOpenTag? afterOpen else none
     | none => none
   return (.html (cur.source.linesBetween cur.startPos after.startPos), after.startPos)
-where
-  /--
-  An open tag after its `<`: the tag name, attributes, optional whitespace, an optional `/`, and
-  `>`. Each attribute is preceded by whitespace.
-  -/
-  openTag (cur : InlineCursor s) : Option (InlineCursor s) := do
-    let mut cur := skipChars cur.drop1 isTagNameChar
-    repeat
-      let afterWs := skipTagWhitespace cur
-      if afterWs.startPos != cur.startPos && afterWs.front?.any isAttributeNameStart then
-        let afterName := skipChars afterWs.drop1 isAttributeNameChar
-        let beforeEq := skipTagWhitespace afterName
-        if beforeEq.front? == some '=' then
-          cur ← attributeValue (skipTagWhitespace beforeEq.drop1)
-        else
-          cur := afterName
-      else
-        let afterSlash := if afterWs.front? == some '/' then afterWs.drop1 else afterWs
-        guard <| afterSlash.front? == some '>'
-        return afterSlash.drop1
-    none
-  /-- An attribute value: unquoted, single-quoted, or double-quoted. -/
-  attributeValue (cur : InlineCursor s) : Option (InlineCursor s) :=
-    match cur.front? with
-    | some '"' => advancePast cur.drop1 ['"']
-    | some '\'' => advancePast cur.drop1 ['\'']
-    | some c => if isUnquotedValueChar c then some (skipChars cur isUnquotedValueChar) else none
-    | none => none
-  /-- A closing tag after its `</`: the tag name, optional whitespace, and `>`. -/
-  closingTag (cur : InlineCursor s) : Option (InlineCursor s) := do
-    guard <| cur.front?.any Char.isAlpha
-    let afterName := skipTagWhitespace (skipChars cur.drop1 isTagNameChar)
-    guard <| afterName.front? == some '>'
-    return afterName.drop1
-  /-- After `<!`: a comment, a CDATA section, or a declaration. -/
-  markupDeclaration (cur : InlineCursor s) : Option (InlineCursor s) := do
-    if let some afterDashes := startsWithChars cur ['-', '-'] then
-      -- `<!-->` and `<!--->` are complete comments; any other comment runs to the first `-->`.
-      if afterDashes.front? == some '>' then return afterDashes.drop1
-      if let some afterArrow := startsWithChars afterDashes ['-', '>'] then return afterArrow
-      advancePast afterDashes ['-', '-', '>']
-    else if let some afterCdata := startsWithChars cur ['[', 'C', 'D', 'A', 'T', 'A', '['] then
-      advancePast afterCdata [']', ']', '>']
-    else
-      guard <| cur.front?.any Char.isAlpha
-      advancePast cur.drop1 ['>']
 
 /-- Skips ASCII whitespace (' ', '\t', '\r', and '\n') at the start of `cur`. -/
 def skipInlineWs (cur : InlineCursor s) : s.Pos := Id.run do

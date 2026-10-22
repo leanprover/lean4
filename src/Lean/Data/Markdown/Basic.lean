@@ -193,6 +193,8 @@ public inductive Block.Raw (s : String.Slice) where
   materialized as the appropriate number of spaces per CommonMark §2.2.
   -/
   | indentedCode (lines : Array (s.Subslice × String))
+  /-- An HTML block (CommonMark §4.6). The lines are verbatim source. -/
+  | html (lines : Lines s)
   /--
   A blockquote container. `markers` contains every `>` marker, in source order, and
   `children` contains the contained blocks.
@@ -333,6 +335,7 @@ public inductive Block (s : String.Slice) where
   | fencedCode (info : FenceInfo s) (openFence : s.Subslice) (closeFence? : Option s.Subslice)
     (lines : Array s.Subslice)
   | indentedCode (lines : Array (s.Subslice × String))
+  | html (lines : Lines s)
   | blockquote (markers : Array s.Subslice) (children : Array (Block s))
   | list (kind : ListKind) (tight : Bool) (items : Array (Block s))
   | listItem (marker : s.Subslice) (children : Array (Block s))
@@ -345,6 +348,7 @@ attribute [inherit_doc Block.Raw.atxHeading] Block.atxHeading
 attribute [inherit_doc Block.Raw.setextHeading] Block.setextHeading
 attribute [inherit_doc Block.Raw.fencedCode] Block.fencedCode
 attribute [inherit_doc Block.Raw.indentedCode] Block.indentedCode
+attribute [inherit_doc Block.Raw.html] Block.html
 attribute [inherit_doc Block.Raw.blockquote] Block.blockquote
 attribute [inherit_doc Block.Raw.list] Block.list
 attribute [inherit_doc Block.Raw.listItem] Block.listItem
@@ -422,6 +426,7 @@ public partial def Block.extent? : Block s → Option s.Subslice
     let stop := closeFence?.map (·.endExclusive) <|> lines.back?.map (·.endExclusive)
     some (subsliceClamped openFence.startInclusive (stop.getD openFence.endExclusive))
   | .indentedCode lines => span? (lines.map (·.1))
+  | .html lines => some lines.extent
   | .blockquote markers children => do
     let first ← markers[0]?
     let last ← markers.back?

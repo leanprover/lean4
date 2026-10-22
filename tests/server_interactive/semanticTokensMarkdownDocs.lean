@@ -84,6 +84,18 @@ def unterminated := ()
 /-- Inline HTML such as <kbd>Ctrl</kbd> and a comment <!-- note --> are inline code. -/
 def inlineHtml := ()
 
+/--
+An HTML block is code up to the blank line that ends it:
+
+<details>
+<summary>More</summary>
+
+Hidden *text*.
+
+</details>
+-/
+def htmlBlock := ()
+
 /-!
 # Heading 1
 

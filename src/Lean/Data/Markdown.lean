@@ -19,8 +19,6 @@ A CommonMark parser that records the source range of every construct. The Lean l
 it to provide semantic tokens inside Markdown docstrings. The entry point is
 `Lean.Markdown.parseDocument`.
 
-The implementation follows CommonMark 0.31.2 closely with a small set of deviations:
-* HTML blocks are not parsed.
-* Link labels are case folded for ASCII, Latin-1, and Greek letters, and compared case-sensitively
-  for all other characters.
+The implementation follows CommonMark 0.31.2, with one deviation: link labels are case folded for
+ASCII, Latin-1, and Greek letters, and compared case-sensitively for all other characters.
 -/

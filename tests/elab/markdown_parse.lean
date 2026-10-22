@@ -109,8 +109,9 @@ Tags, comments, processing instructions, declarations, and CDATA sections are ra
 /-- info: "html⟪<b class=\"x\">⟫ text⟪a⟫ html⟪</b>⟫" -/
 #guard_msgs in #eval showParagraph "<b class=\"x\">a</b>"
 
-/-- info: "html⟪<!-- c -->⟫ text⟪ ⟫ html⟪<?php x ?>⟫ text⟪ ⟫ html⟪<!DOCTYPE html>⟫ text⟪ ⟫ html⟪<![CDATA[ x ]]>⟫" -/
-#guard_msgs in #eval showParagraph "<!-- c --> <?php x ?> <!DOCTYPE html> <![CDATA[ x ]]>"
+-- At the start of a line, the comment would begin an HTML block instead.
+/-- info: "text⟪x ⟫ html⟪<!-- c -->⟫ text⟪ ⟫ html⟪<?php x ?>⟫ text⟪ ⟫ html⟪<!DOCTYPE html>⟫ text⟪ ⟫ html⟪<![CDATA[ x ]]>⟫" -/
+#guard_msgs in #eval showParagraph "x <!-- c --> <?php x ?> <!DOCTYPE html> <![CDATA[ x ]]>"
 
 /-- info: "text⟪a < b, <|> and <$> and <33> and <a / >⟫" -/
 #guard_msgs in #eval showParagraph "a < b, <|> and <$> and <33> and <a / >"
@@ -303,6 +304,8 @@ partial def showBlock {s : String.Slice} : Block s → String
   | .list _ _ items => s!"list[{", ".intercalate (items.toList.map showBlock)}]"
   | .listItem _ children => s!"item[{", ".intercalate (children.toList.map showBlock)}]"
   | .atxHeading _ _ content _ => s!"heading⟪{showInline.showInlines content}⟫"
+  | .blockquote _ children => s!"blockquote[{", ".intercalate (children.toList.map showBlock)}]"
+  | .html lines => s!"html{repr (lines.toArray.map (·.copy))}"
   | _ => "other"
 
 def showDocument (src : String) (indent : Nat) : List String :=
@@ -333,6 +336,63 @@ info: ["paragraph⟪text⟪Intro⟫ softBreak text⟪continued⟫⟫", "indented
 -- Indentation is counted in spaces; a line indented less than `indent` loses only its own spaces.
 /-- info: ["heading⟪text⟪h⟫⟫", "paragraph⟪text⟪p⟫⟫"] -/
 #guard_msgs in #eval showDocument "  # h\n\n    p" 4
+
+/-!
+## HTML blocks
+
+An HTML block (CommonMark §4.6) starts with a line that meets one of seven start conditions, after up
+to three spaces of indentation, and ends with the line that meets the matching end condition. For raw
+text elements, comments, processing instructions, declarations, and CDATA sections, the ending line
+is part of the block. For block-level tags and complete tags, the block ends before a blank line.
+The lines are verbatim.
+-/
+
+-- A raw text element ends at an end tag, which may be on the start line and need not match the
+-- start tag. Blank lines are part of the block.
+/-- info: ["html#[\"<pre>\", \"  x\", \"\", \"</STYLE>\"]", "paragraph⟪text⟪ok⟫⟫"] -/
+#guard_msgs in #eval showDocument "<pre>\n  x\n\n</STYLE>\nok\n" 0
+
+/-- info: ["html#[\"<script>a()</script>\"]", "paragraph⟪text⟪ok⟫⟫"] -/
+#guard_msgs in #eval showDocument "<script>a()</script>\nok\n" 0
+
+/--
+info: ["html#[\"<!-- a\", \"b -->\"]", "html#[\"<?php\", \"?>\"]", "html#[\"<!DOCTYPE html>\"]",
+ "html#[\"<![CDATA[\", \"x\", \"]]>\"]", "paragraph⟪text⟪ok⟫⟫"]
+-/
+#guard_msgs in #eval showDocument "<!-- a\nb -->\n<?php\n?>\n<!DOCTYPE html>\n<![CDATA[\nx\n]]>\nok\n" 0
+
+-- A block-level tag interrupts a paragraph, and the block ends before a blank line.
+/--
+info: ["paragraph⟪text⟪para⟫⟫", "html#[\"<div>\", \"*not emphasis*\"]", "paragraph⟪italic[text⟪emphasis⟫]⟫",
+ "html#[\"</div>\"]"]
+-/
+#guard_msgs in #eval showDocument "para\n<div>\n*not emphasis*\n\n*emphasis*\n</div>\n" 0
+
+-- A complete tag on a line of its own starts a block, except after a paragraph line; a tag followed
+-- by other text is inline HTML.
+/--
+info: ["paragraph⟪text⟪para⟫ softBreak html⟪<span>⟫⟫", "html#[\"<span class='x'>  \", \"text\"]",
+ "paragraph⟪html⟪<span>⟫ text⟪ text⟫⟫"]
+-/
+#guard_msgs in #eval showDocument "para\n<span>\n\n<span class='x'>  \ntext\n\n<span> text\n" 0
+
+-- Tag names are case-insensitive, and a closing or self-closing tag also starts a block.
+/-- info: ["html#[\"<DIV/>\"]", "html#[\"</Table>\"]"] -/
+#guard_msgs in #eval showDocument "<DIV/>\n\n</Table>\n" 0
+
+/-- info: ["paragraph⟪text⟪< div> and <33>⟫⟫"] -/
+#guard_msgs in #eval showDocument "< div> and <33>\n" 0
+
+-- Up to three spaces of indentation are allowed and kept; four make indented code.
+/-- info: ["html#[\"   <div>\"]", "indentedCode#[\"<div>\"]"] -/
+#guard_msgs in #eval showDocument "   <div>\n\n    <div>\n" 0
+
+-- The block ends with its container.
+/-- info: ["blockquote[html#[\"<div>\", \"a\"]]", "paragraph⟪text⟪b⟫⟫"] -/
+#guard_msgs in #eval showDocument "> <div>\n> a\nb\n" 0
+
+/-- info: ["<div>\na", "<!-- c -->"] -/
+#guard_msgs in #eval blockRanges "<div>\na\n\n<!-- c -->\n"
 
 /-!
 ## Code fences

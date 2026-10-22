@@ -31,6 +31,8 @@ partial def parseInlinesInBlock (refs : RefTable s) : Block.Raw s → Block s
     .fencedCode info openFence closeFence? lines
   | .indentedCode lines =>
     .indentedCode lines
+  | .html lines =>
+    .html lines
   | .blockquote markers children =>
     .blockquote markers (children.map (parseInlinesInBlock refs))
   | .list kind tight items =>

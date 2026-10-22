@@ -556,6 +556,8 @@ where
     | .indentedCode lines =>
       for (range, _) in lines do
         out := pushTok out range .markupCodeBlock
+    | .html lines =>
+      out := pushLines out lines .markupCodeBlock
     | .blockquote markers children =>
       for m in markers do
         out := pushDelimiter out m

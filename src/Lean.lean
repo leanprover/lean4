@@ -8,6 +8,7 @@ module
 public import Lean.Data
 public import Lean.Compiler
 public import Lean.Environment
+public import Lean.Deprecation
 public import Lean.Modifiers
 public import Lean.ProjFns
 public import Lean.Runtime

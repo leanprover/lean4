@@ -1,0 +1,22 @@
+{"version": 1,
+ "uri": "file:///deprecationCutoff.lean",
+ "isIncremental": false,
+ "diagnostics": []}
+{"version": 2,
+ "uri": "file:///deprecationCutoff.lean",
+ "isIncremental": false,
+ "diagnostics":
+ [{"tags": [2],
+   "source": "Lean 4",
+   "severity": 2,
+   "range":
+   {"start": {"line": 15, "character": 17},
+    "end": {"line": 15, "character": 24}},
+   "message": "`oldName` has been deprecated: old local name",
+   "fullRange":
+   {"start": {"line": 15, "character": 17},
+    "end": {"line": 15, "character": 24}}}]}
+{"version": 3,
+ "uri": "file:///deprecationCutoff.lean",
+ "isIncremental": false,
+ "diagnostics": []}

@@ -12,6 +12,7 @@ public import Lean.Elab.RecAppSyntax
 public import Lean.IdentifierSuggestion
 import Lean.Elab.ErrorUtils
 import Lean.Elab.DeprecatedArg
+import Lean.Deprecation
 import Init.Omega
 import Init.Data.List.MapIdx
 
@@ -85,9 +86,9 @@ private def findNamedArg? (namedArgs : List NamedArg) (binderName : Name) : Opti
 /--
 If the function being applied is a constant, search `namedArgs` for an argument whose name is
 a deprecated alias of `binderName`. When `linter.deprecated.arg` is enabled (the default),
-returns `some namedArg` after emitting a deprecation warning with a code action hint. When the
-option is disabled, returns `none` (the old name falls through to the normal "invalid argument"
-error). The returned `namedArg` retains its original (old) name.
+returns `some namedArg`, emitting a warning with a code action hint if the deprecation cutoff
+allows it. When the option is disabled, returns `none` (the old name falls through to the normal
+"invalid argument" error). The returned `namedArg` retains its original (old) name.
 -/
 private def findDeprecatedBinderName? (namedArgs : List NamedArg) (f : Expr) (binderName : Name) :
     TermElabM (Option NamedArg) := do
@@ -96,8 +97,10 @@ private def findDeprecatedBinderName? (namedArgs : List NamedArg) (f : Expr) (bi
   let declName := f.getAppFn.constName!
   let env ← getEnv
   for namedArg in namedArgs do
-    if let some entry := findDeprecatedArg? env declName namedArg.name then
+    if let some (entry, moduleIdx?) := findDeprecatedArgWithOrigin? env declName namedArg.name then
       if entry.newArg? == some binderName then
+        unless Deprecation.shouldWarnForModule env (← getOptions) moduleIdx? entry.since? do
+          return some namedArg
         let msg := formatDeprecatedArgMsg entry
         let span? := namedArg.ref[1]
         let hint ←

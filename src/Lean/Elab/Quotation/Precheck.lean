@@ -98,6 +98,15 @@ def runPrecheck (stx : Syntax) : TermElabM Unit := do
 private def isSectionVariable (e : Expr) : TermElabM Bool := do
   return (← read).sectionFVars.any fun _ v => e == v
 
+/-- Whether `n` is a variable bound in the quotation, possibly followed by field projections. -/
+private def isQuotLocal (quotLCtx : NameSet) (n : Name) : Bool :=
+  -- Macro scopes belong to the variable, not the projections, as in `resolveGlobalName`
+  let view := extractMacroScopes n
+  let rec loop : Name → Bool
+    | n@(.str p _) => quotLCtx.contains { view with name := n }.review || loop p
+    | _ => false
+  loop view.name
+
 @[builtin_quot_precheck ident] def precheckIdent : Precheck := fun stx =>
   match stx with
   | Syntax.ident _    _      val preresolved => do
@@ -112,7 +121,7 @@ private def isSectionVariable (e : Expr) : TermElabM Bool := do
     -/
     if let _::_ ← realizeGlobalNameWithInfos stx val then
       return
-    if (← read).quotLCtx.contains val then
+    if isQuotLocal (← read).quotLCtx val then
       return
     let rs ← try resolveName stx val [] [] catch _ => pure []
     for (e, _, _) in rs do

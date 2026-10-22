@@ -759,6 +759,9 @@ static void free_task(lean_task_object * t) {
 // without running it. Unlike a deactivated task, it is freed by whoever drops its last reference.
 static constexpr uint8_t LEAN_TASK_DISCARDED = 2;
 
+// The references that the outermost `task_manager::discard` on this thread is dropping.
+LEAN_THREAD_PTR(std::vector<object *>, g_discard_drops);
+
 struct scoped_current_task_object : flet<lean_task_object *> {
     scoped_current_task_object(lean_task_object * t):flet(g_current_task_object, t) {}
 };
@@ -774,15 +777,18 @@ class task_manager {
     unsigned                                      m_max_prio{0};
     condition_variable                            m_queue_cv;
     condition_variable                            m_task_finished_cv;
-    // Notified when a dedicated worker finishes and, during shutdown, once `quiescent()` holds.
+    // Notified when a dedicated worker finishes, when the last `discard` finishes dropping, and, during shutdown,
+    // once `quiescent()` holds.
     condition_variable                            m_worker_done_cv;
     // Read without the lock by `lean_io_check_canceled_core`.
     std::atomic<bool>                             m_shutting_down{false};
-    // Set by `~task_manager` once no task is running or queued. A task that becomes runnable after it is discarded.
+    // Set by `~task_manager` once no task is running or queued. A task that becomes runnable afterwards is discarded.
     bool                                          m_workers_exit{false};
     // During shutdown, the standard workers whose thread-local objects, which can hold tasks and promises,
     // have not been freed since they last ran a task.
     unsigned                                      m_unfinalized_std_workers{0};
+    // Threads dropping what `discard` released; `~task_manager` waits for them.
+    unsigned                                      m_discarding{0};
 
     // No task is queued or running. Before `m_workers_exit`, no standard worker has exited, so the busy ones
     // are those not idle.
@@ -808,13 +814,15 @@ class task_manager {
         return result;
     }
 
-    // Frees a task that will never run, and every task waiting for it: their closures, which own what they captured,
-    // and the self-reference of a keep-alive task. Such a task is in no container any more, so it is freed here if it
-    // is already unreferenced, and otherwise by `deactivate_task` once its last reference is dropped.
+    // Takes a task that will never run, and every task waiting for it, out of the task graph, and releases their
+    // closures and the self-reference of a keep-alive task. Such a task is freed by `deactivate_task` once its last
+    // reference is dropped. Releases `lock` while it drops these references, unless one of those drops called it.
     void discard(unique_lock<mutex> & lock, lean_task_object * t) {
         std::vector<lean_task_object *> todo{t};
-        std::vector<lean_task_object *> dead;
-        std::vector<object *> drops;
+        std::vector<object *> own_drops;
+        // A drop can discard more tasks (a closure can hold the last reference to a promise); such a nested call
+        // leaves its references to the outermost one, so that a chain of pending promises does not grow the stack.
+        std::vector<object *> & drops = g_discard_drops ? *g_discard_drops : own_drops;
 
         while (!todo.empty()) {
             lean_task_object * u = todo.back();
@@ -833,7 +841,9 @@ class task_manager {
             imp->m_head_dep = nullptr;
 
             if (imp->m_deleted) {
-                dead.push_back(u);
+                lean_assert(imp->m_deleted != LEAN_TASK_DISCARDED);
+                // Deactivated: we hold the last pointer to it.
+                free_task(u);
                 continue;
             }
 
@@ -847,16 +857,23 @@ class task_manager {
                 drops.push_back((object *)u);
         }
 
+        if (&drops != &own_drops)
+            return;
+
+        m_discarding++;
         lock.unlock();
 
-        for (lean_task_object * u : dead)
-            free_task(u);
-
-        // Dropping a closure can drop the last reference to a promise, whose dependents are then discarded as well.
-        for (object * o : drops)
+        g_discard_drops = &drops;
+        while (!drops.empty()) {
+            object * o = drops.back();
+            drops.pop_back();
             lean_dec(o);
+        }
+        g_discard_drops = nullptr;
 
         lock.lock();
+        if (--m_discarding == 0)
+            m_worker_done_cv.notify_all();
     }
 
     void enqueue_core(unique_lock<mutex> & lock, lean_task_object * t) {
@@ -1077,8 +1094,10 @@ public:
         m_queue_cv.notify_all();
 #ifndef LEAN_EMSCRIPTEN
         // A running task can still queue tasks, so the workers stay until no task is running or queued.
-        // A thread the task manager does not own must stop queueing tasks before this wait ends: a task it
-        // queues later is discarded without running.
+        // A thread the task manager does not own must stop queueing tasks and resolving promises before this wait
+        // ends: a task it queues later, or a continuation of a promise it resolves later (`sync := true` ones
+        // included), is discarded without running, and a thread waiting for it is never woken. It must not call into
+        // the task manager after `~task_manager` returns.
         m_worker_done_cv.wait(lock, [&]() { return quiescent(); });
         // No dedicated worker is left, and `enqueue_core` starts none from here on.
 #endif
@@ -1089,6 +1108,9 @@ public:
 #ifndef LEAN_EMSCRIPTEN
         for (auto & t : m_std_workers)
             t->join();
+
+        lock.lock();
+        m_worker_done_cv.wait(lock, [&]() { return m_discarding == 0; });
         // never seems to terminate under Emscripten
 #endif
     }
@@ -1270,10 +1292,15 @@ void deactivate_task(lean_task_object * t) {
     if (g_task_manager) {
         g_task_manager->deactivate_task(t);
     } else {
-        // Without a task manager, an unfinished task can only be one that `discard` took out of the task graph.
-        if (object * v = t->m_value)
+        // Without a task manager, a pending task can be freed only if `discard` took it out of the task graph: any
+        // other one may still be linked in a dependency list, so it is left allocated.
+        lean_assert(t->m_value || t->m_imp.load(std::memory_order_relaxed)->m_deleted == LEAN_TASK_DISCARDED);
+        if (object * v = t->m_value) {
             lean_dec(v);
-        free_task(t);
+            free_task(t);
+        } else if (t->m_imp.load(std::memory_order_relaxed)->m_deleted == LEAN_TASK_DISCARDED) {
+            free_task(t);
+        }
     }
 }
 

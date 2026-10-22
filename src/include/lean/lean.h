@@ -275,6 +275,7 @@ typedef struct {
     _Atomic(uint8_t)     m_canceled;
     // If true, task will not be freed until finished
     uint8_t              m_keep_alive;
+    // 0, or 1 once Deactivated, or 2 once Discarded (see below)
     uint8_t              m_deleted;
 } lean_task_imp;
 
@@ -314,7 +315,7 @@ typedef struct {
      * transition: RC becomes 0 ==> Deactivated (`deactivate_task` lock)
      * transition: finished execution                   ==> Finished    (`spawn_worker` lock)
    * Deactivated
-     * condition: m_imp != nullptr && m_imp->m_deleted
+     * condition: m_imp != nullptr && m_imp->m_deleted == 1
      * invariant: RC == 0
      * invariant: m_imp->m_closure == nullptr && m_imp->m_head_dep == nullptr (both freed by `deactivate_task_core`)
        * Note that all dependent tasks must have already been Deactivated by the converse of the second Waiting invariant
@@ -325,6 +326,13 @@ typedef struct {
      * We must keep the task object alive until one of these transitions because in either case, we have live
        (internal, unowned) references to the task up to that point
      * transition: task dependency Deactivated ==> freed
+   * Discarded
+     * condition: m_imp != nullptr && m_imp->m_deleted == 2
+     * Entered instead of Queued or Running once `~task_manager` has stopped running tasks, and from Waiting when the
+       task dependency is Discarded (`task_manager::discard`)
+     * invariant: in no queue and no dependency list, so it never runs or finishes
+     * invariant: m_imp->m_closure == nullptr && m_imp->m_head_dep == nullptr && m_value == nullptr
+     * transition: RC becomes 0 ==> freed (`deactivate_task` lock)
    * Finished
      * condition: m_value != nullptr
      * invariant: m_imp == nullptr

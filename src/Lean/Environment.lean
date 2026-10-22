@@ -21,7 +21,7 @@ public import Lean.Util.FoldConsts
 public import Lean.PrivateName
 public import Lean.LoadDynlib
 public import Lean.CompactedRegion
-public import Lean.ConstTrie
+public import Lean.ConstMap
 public import Init.Dynamic
 import Init.Data.Slice
 import Init.Data.String.TakeDrop

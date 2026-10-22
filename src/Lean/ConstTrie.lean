@@ -6,8 +6,9 @@ Authors: Sebastian Ullrich
 module
 
 prelude
-public import Lean.Declaration
-public import Lean.Data.PersistentHashMap
+public import Init.System.IO
+public import Init.Data.Option.BasicAux
+import Lean.Data.Name
 import Std.Data.HashMap.Basic
 import Std.Data.HashSet.Basic
 import Init.Data.Array.QSort
@@ -306,49 +307,27 @@ public def findEntry? (t : ImportedConsts α) (n : Name) : Option (α × Nat) :=
   let path := prefixesOf n
   t.tree.findEntryAux path path.size
 
-@[export lean_imported_consts_find_entry_core]
-def findEntryCore (t : ImportedConsts ConstantInfo) (n : Name) :
-    Option (ConstantInfo × Nat) :=
-  t.findEntry? n
-
-/--
-Implementation of `findConstEntryCached?` in C++ (`src/library/const_cache.cpp`), where cache hits
-can avoid reference counting on `t` and the key.
--/
-@[extern "lean_imported_consts_find_entry_cached"]
-opaque findConstEntryCachedImpl (cache? : @& Option LookupCache)
-    (t : @& ImportedConsts ConstantInfo) (n : @& Name) : Option (ConstantInfo × Nat)
-
-/--
-`findEntry?` for `constants.map₁`, memoized in a lock-free cache: the one owned by `t`, or else a
-process-global one; sound because `t` is immutable per import set.
--/
-@[inline] public def findConstEntryCached? (t : ImportedConsts ConstantInfo) (n : Name) :
-    Option (ConstantInfo × Nat) :=
-  findConstEntryCachedImpl t.cache? t n
-
-@[inherit_doc findConstEntryCached?, inline]
-public def findConstCached? (t : ImportedConsts ConstantInfo) (n : Name) : Option ConstantInfo :=
-  (t.findConstEntryCached? n).map (·.1)
-
-@[inherit_doc findConstEntryCached?, inline]
-public def findConstModIdxCached? (t : ImportedConsts ConstantInfo) (n : Name) : Option Nat :=
-  (t.findConstEntryCached? n).map (·.2)
-
 @[export lean_imported_extra_consts_find_entry_core]
 def findExtraEntryCore (t : ImportedConsts Unit) (n : Name) : Option (Unit × Nat) :=
   t.findEntry? n
 
-/-- Implementation of `findExtraEntryCached?` in C++, like `findConstEntryCachedImpl`. -/
+/--
+Implementation of `findExtraEntryCached?` in C++ (`src/library/const_cache.cpp`), where cache hits
+can avoid reference counting on `t` and the key.
+-/
 @[extern "lean_imported_extra_consts_find_entry_cached"]
 opaque findExtraEntryCachedImpl (cache? : @& Option LookupCache)
     (t : @& ImportedConsts Unit) (n : @& Name) : Option (Unit × Nat)
 
-@[inherit_doc findConstEntryCached?, inline]
-public def findExtraEntryCached? (t : ImportedConsts Unit) (n : Name) : Option (Unit × Nat) :=
+/--
+`findEntry?` for `importedExtraConsts`, memoized in a lock-free cache: the one owned by `t`, or
+else a process-global one; sound because `t` is immutable per import set.
+-/
+@[inline] public def findExtraEntryCached? (t : ImportedConsts Unit) (n : Name) :
+    Option (Unit × Nat) :=
   findExtraEntryCachedImpl t.cache? t n
 
-@[inherit_doc findConstEntryCached?, inline]
+@[inherit_doc findExtraEntryCached?, inline]
 public def findExtraModIdxCached? (t : ImportedConsts Unit) (n : Name) : Option Nat :=
   (t.findExtraEntryCached? n).map (·.2)
 
@@ -682,62 +661,5 @@ public instance [Monad m] : ForM m (ImportedConsts α) (Name × α) where
 public instance [Monad m] : ForIn m (ImportedConsts α) (Name × α) := ⟨ForM.forIn⟩
 
 end ImportedConsts
-
-/--
-The constants of an environment: the imported constants merged from the per-olean prefix trees
-plus the constants declared in the current module.
--/
-public structure ConstMap where
-  /-- Constants from imported modules. -/
-  map₁ : ImportedConsts ConstantInfo := .empty
-  /-- Constants declared in the current module. -/
-  map₂ : PHashMap Name ConstantInfo := {}
-
-public instance : Inhabited ConstMap := ⟨{}⟩
-
-namespace ConstMap
-
-public def find? (m : ConstMap) (n : Name) : Option ConstantInfo :=
-  m.map₂.find? n <|> m.map₁.findConstCached? n
-
-/--
-Similar to `find?`, but searches the imported constants first. So, the result is correct only if
-imported constants are never overwritten.
--/
-public def find?' (m : ConstMap) (n : Name) : Option ConstantInfo :=
-  m.map₁.findConstCached? n <|> m.map₂.find? n
-
-public def contains (m : ConstMap) (n : Name) : Bool :=
-  m.map₂.contains n || (m.map₁.findConstCached? n).isSome
-
-public def insert (m : ConstMap) (n : Name) (v : ConstantInfo) : ConstMap :=
-  { m with map₂ := m.map₂.insert n v }
-
-/-- Folds over the constants declared in the current module. -/
-@[inline] public def foldStage2 (f : σ → Name → ConstantInfo → σ) (s : σ) (m : ConstMap) : σ :=
-  m.map₂.foldl f s
-
-public def foldM {m : Type → Type} [Monad m] (f : σ → Name → ConstantInfo → m σ) (init : σ)
-    (map : ConstMap) : m σ := do
-  map.map₂.foldlM f (← map.map₁.foldlM f init)
-
-public def fold (f : σ → Name → ConstantInfo → σ) (init : σ) (m : ConstMap) : σ :=
-  m.map₂.foldl f (m.map₁.foldl f init)
-
-public def forM {m : Type → Type} [Monad m] (map : ConstMap) (f : Name → ConstantInfo → m PUnit) :
-    m PUnit := do
-  map.map₁.forM f
-  map.map₂.forM f
-
-public instance {m : Type → Type} [Monad m] : ForM m ConstMap (Name × ConstantInfo) where
-  forM map f := map.forM fun n v => f (n, v)
-
-public instance {m : Type → Type} [Monad m] : ForIn m ConstMap (Name × ConstantInfo) :=
-  ⟨ForM.forIn⟩
-
-public def toList (m : ConstMap) : List (Name × ConstantInfo) :=
-  m.fold (init := []) fun es n v => (n, v) :: es
-
-end ConstMap
 
 end Lean

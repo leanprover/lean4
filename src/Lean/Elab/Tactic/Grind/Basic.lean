@@ -157,7 +157,7 @@ partial def evalGrindTactic (stx : Syntax) : GrindTacticM Unit := do
           throwErrorAt stx "Grind tactic `{stx.getKind}` has not been implemented"
         let s ← Grind.saveState
         if isDeprecatedSyntax (← getEnv) stx.getKind then
-          Term.withoutCheckDeprecated <| expandEval s macros evalFns #[]
+          Term.withoutCheckDeprecatedSynthetic <| expandEval s macros evalFns #[]
         else
           expandEval s macros evalFns #[]
     | .missing => pure ()

@@ -298,6 +298,19 @@ end Tactic
 
 namespace Term
 
+/-- Which uses of deprecated constants and syntax are reported. See `Context.checkDeprecated`. -/
+inductive DeprecationCheck where
+  /-- Report all uses. -/
+  | all
+  /--
+  Report only uses at syntax written by the user, i.e. with original source info. This is used for
+  the expansion of deprecated syntax, which is reported as a whole, while the user-written syntax
+  it contains is still checked.
+  -/
+  | userWritten
+  /-- Report nothing. -/
+  | none
+
 structure Context where
   declName? : Option Name := none
   macroStack        : MacroStack      := []
@@ -376,9 +389,10 @@ structure Context where
   -/
   holesAsSyntheticOpaque : Bool := false
   /--
-  If `checkDeprecated := true`, then `Linter.checkDeprecated` when creating constants.
+  Which uses of deprecated constants (`Linter.checkDeprecated`) and syntax
+  (`checkDeprecatedSyntax`) are reported.
   -/
-  checkDeprecated : Bool := true
+  checkDeprecated : DeprecationCheck := .all
   /--
   Fixed term elaborators for supporting `elabToSyntax`.
   -/
@@ -1706,16 +1720,24 @@ private def elabUsingElabFns (stx : Syntax) (expectedType? : Option Expr) (catch
 -- Shortcut instance; otherwise every use searches for a lift down to `CoreM`.
 instance : MonadMacroAdapter TermElabM := inferInstance
 
+/-- Whether deprecated constants and syntax are reported at `ref`. -/
+private def shouldCheckDeprecated (ref : Syntax) : TermElabM Bool := do
+  return match (← read).checkDeprecated with
+    | .all => true
+    | .userWritten => (ref.getHeadInfo matches .original ..)
+    | .none => false
+
 /--
 Reports `stx` if its syntax kind is deprecated by `deprecated_syntax`, unless deprecation checks are
-disabled by `withoutCheckDeprecated`.
+disabled by `withoutCheckDeprecated`, or by `withoutCheckDeprecatedSynthetic` for syntax not written
+by the user.
 
 The elaborator of a syntax category calls this before running the elaborators of `stx`, as
 `elabTerm` does for terms. Macros are instead reported when expanding them with
 `expandMacroReportingDeprecated?`.
 -/
 def reportDeprecatedSyntax (stx : Syntax) : TermElabM Unit := do
-  if (← read).checkDeprecated then
+  if (← shouldCheckDeprecated stx) then
     checkDeprecatedSyntax stx (← read).macroStack
 
 /--
@@ -2186,7 +2208,7 @@ def isLetRecAuxMVar (mvarId : MVarId) : TermElabM Bool := do
   return (← get).letRecsToLift.any (·.mvarId == mvarId)
 
 def checkDeprecatedCore (constName : Name) (allowSuggestion := true) : TermElabM Unit := do
-  if (← read).checkDeprecated then
+  if (← shouldCheckDeprecated (← getRef)) then
     Linter.checkDeprecated constName allowSuggestion
 
 /--
@@ -2194,7 +2216,7 @@ def checkDeprecatedCore (constName : Name) (allowSuggestion := true) : TermElabM
   Remark: fresh universe metavariables are created if the constant has more universe
   parameters than `explicitLevels`.
 
-  If `checkDeprecated := true`, then `Linter.checkDeprecated` is invoked.
+  Reports `constName` if it is deprecated, subject to `Context.checkDeprecated`.
 -/
 def mkConst (constName : Name) (explicitLevels : List Level := []) : TermElabM Expr := do
   checkDeprecatedCore constName (allowSuggestion := false)
@@ -2211,7 +2233,15 @@ def checkDeprecated (ref : Syntax) (e : Expr) : TermElabM Unit := do
     withRef ref do checkDeprecatedCore declName
 
 @[inline] def withoutCheckDeprecated [MonadWithReaderOf Context m] : m α → m α :=
-  withTheReader Context (fun ctx => { ctx with checkDeprecated := false })
+  withTheReader Context (fun ctx => { ctx with checkDeprecated := .none })
+
+/--
+Runs `x` without reporting deprecated constants and syntax, except at syntax written by the user.
+See `DeprecationCheck.userWritten`.
+-/
+@[inline] def withoutCheckDeprecatedSynthetic [MonadWithReaderOf Context m] : m α → m α :=
+  withTheReader Context fun ctx =>
+    if ctx.checkDeprecated matches .all then { ctx with checkDeprecated := .userWritten } else ctx
 
 private def mkConsts (candidates : List (Name × List String)) (explicitLevels : List Level) : TermElabM (List (Expr × List String × List Level)) := do
   candidates.foldlM (init := []) fun result (declName, projs) => do

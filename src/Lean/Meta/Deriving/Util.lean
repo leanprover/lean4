@@ -80,45 +80,6 @@ def Lean.Meta.mkFreshRevertedMVarAt (ty : Expr) (lctx : LocalContext) (linsts : 
   let mvar ← mkFreshExprMVarAt lctx linsts ty' kind (numScopeArgs := toRevert.size)
   return mkAppN mvar toRevert
 
-
-/--
-Creates a non-dependent `casesOn` application of type `resultType` that matches on `discr` with
-each alternative computed by applying `alt` to the inductive info, constructor info and the fields.
--/
-def Lean.Meta.mkNondepCases [Monad m] [MonadEnv m] [MonadError m]
-    [MonadControlT MetaM m] [MonadLiftT MetaM m] (discr : Expr) (resultType : Expr)
-    (alt : InductiveVal → ConstructorVal → Array Expr → m Expr) : m Expr := do
-  let discrType ← whnf (← inferType discr)
-  discrType.withApp fun fn args => do
-  let .const induct us := fn
-    | throwError "Unexpected `discr` argument to `{.ofConstName decl_name%}`, \
-        expected the type to be an inductive application{indentExpr discrType}"
-  let indInfo ← getConstInfoInduct induct
-  let params := args.take indInfo.numParams
-  let indices := args.drop indInfo.numParams
-  let resultSort ← getLevel resultType
-  let casesOnVal ← getConstVal (mkCasesOnName induct)
-  unless casesOnVal.levelParams.length = indInfo.levelParams.length + 1 do
-    throwError "Error in `{.ofConstName decl_name%}`: \
-      The inductive `{.ofConstName induct}` does not have large elimination"
-  let casesOnApp := mkAppN (.const (mkCasesOnName induct) (resultSort :: us)) params
-  let casesOnType ← inferType casesOnApp
-  let .forallE _ motiveType body _ := casesOnType | unreachable!
-  let motive ← forallTelescope motiveType fun vars _ => mkLambdaFVars vars resultType
-  let body := body.instantiate1 motive
-  let vars := indices.push discr
-  let mut body ← instantiateForall body vars
-  let mut casesOnApp := mkAppN (casesOnApp.app motive) vars
-  for ctor in indInfo.ctors do
-    let .forallE _ altType body' _ := body | unreachable!
-    let ctorInfo ← getConstInfoCtor ctor
-    let minor ← forallBoundedTelescope altType ctorInfo.numFields fun fields _ => do
-      mkLambdaFVars fields <| ← alt indInfo ctorInfo fields
-    casesOnApp := casesOnApp.app minor
-    body := body'
-  return casesOnApp
-
-
 namespace Lean.Meta.Deriving
 
 /--
@@ -516,7 +477,7 @@ private partial def synthInstanceDerivingAux (type : Expr) (allLInsts : LocalIns
     -- also, try instance synthesis even if it was disabled through `deriving.bindersVerbatim`
     if let .some res ← withLCtx (← getLCtx) allLInsts <| trySynthInstance type then
       return res
-  let mctx ← getMCtx
+  let state ← (saveState : MetaM _)
   -- try reducing e.g. `BEq (List α)` to `BEq α`
   let res ← tryApplyCanonicalInstance type
   match res with
@@ -530,7 +491,7 @@ private partial def synthInstanceDerivingAux (type : Expr) (allLInsts : LocalIns
       throwError "Got stuck at instance requirement for nested type while deriving an \
         instance for {.ofConstName (← read).className}:{indentExpr type}\n\
         Reason: {← e.toMessageData}"
-    setMCtx mctx
+    state.restore
     let res ← pushInstanceHypothesis type className
     let mvar := res.getAppFn.mvarId!
     modify fun state => { state with splitFailures := state.splitFailures.push (mvar, e) }
@@ -886,7 +847,7 @@ def FieldHelperProvider.unhandled (fieldName : Name) : FieldHelperProvider α :=
     Unhandled field `{.ofConstName fieldName}`"
 
 def FieldHelperProvider.cases
-    (perCtor : InductiveVal → ConstructorVal → Array Expr → α → DerivingM Expr) :
+    (perCtor : InductiveVal → ConstructorVal → Array Expr → Expr → α → DerivingM Expr) :
     FieldHelperProvider α := fun _ typeApp fieldInfo expectedType =>
   return .usingHelper fun _ val => do
     let .forallE _ t tgt _ := expectedType
@@ -900,9 +861,9 @@ def FieldHelperProvider.cases
       throwError "Invalid use of `{.ofConstName decl_name%}`, expected \
         `{.ofConstName fieldInfo.name}` to be nondependent"
     withLocalDeclD `t typeApp fun discr => do
-      mkLambdaFVars #[discr] <| ← mkNondepCases discr tgt fun ival cval fields => do
+      mkLambdaFVars #[discr] <| ← mkNondepCases discr tgt fun ival cval fields ctorApp => do
         prependError m!"Error while processing constructor {.ofConstName cval.name}:" do
-          perCtor ival cval fields val
+          perCtor ival cval fields ctorApp val
 
 private def reduceInstanceProjsOnCtor (e : Expr) : MetaM Expr := do
   Core.transform e fun e => do
@@ -1033,7 +994,7 @@ open Lean Meta Elab Deriving
 
 def toSExprHandler : DerivingHandler :=
   mkInductiveDerivingHandler ``ToSExpr do
-  deriveTransformationInstPerConstructor fun _indVal ctorVal fields => do
+  deriveTransformationInstPerConstructor fun _indVal ctorVal fields _ctorApp => do
     let tag := mkApp (mkConst ``SExpr.atom) (toExpr ctorVal.name.getString!)
     let mut args := #[]
     for field in fields do
@@ -1050,7 +1011,7 @@ initialize registerDerivingHandler ``ToSExpr toSExprHandler
 ```
 -/
 def deriveTransformationInstPerConstructor
-    (perCtor : InductiveVal → ConstructorVal → Array Expr → DerivingM Expr)
+    (perCtor : InductiveVal → ConstructorVal → Array Expr → Expr → DerivingM Expr)
     (supportsRec : Bool := true) :
     DerivingM Bool := do
   -- this is supposed to be present, but if not, we let `InstanceInfo.usingCtor` complain
@@ -1061,7 +1022,7 @@ def deriveTransformationInstPerConstructor
         {info.fieldNames.size} fields"
   makeInstancesUsingMutualBlock <| ← (← read).indInfo.all.toArray.mapM <|
     InstanceInfo.usingCtor (supportsRec := supportsRec)
-      fun _ => .cases fun ival cval fields _ => perCtor ival cval fields
+      fun _ => .cases fun ival cval fields ctorApp _ => perCtor ival cval fields ctorApp
   return true
 
 private def decLevels : Level → NameSet → NameSet

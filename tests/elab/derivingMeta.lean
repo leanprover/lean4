@@ -52,7 +52,7 @@ Simple example of how you can write a deriving handler using the new framework
 -/
 
 meta def handler := mkInductiveDerivingHandler ``MyClass do
-  deriveTransformationInstPerConstructor fun ival cval fields => do
+  deriveTransformationInstPerConstructor fun ival cval fields _ => do
     let mut encodings : Array Expr := #[]
     for field in fields do
       let ty ← inferType field
@@ -553,7 +553,7 @@ class ToULift (α : Type u) where
 
 meta def toULiftHandler : DerivingHandler :=
   mkInductiveDerivingHandler ``ToULift do
-    deriveTransformationInstPerConstructor fun _ _ _ =>
+    deriveTransformationInstPerConstructor fun _ _ _ _ =>
       return mkApp2 (.const ``ULift.up [(← read).indLevel.dec.get!, 0]) (mkConst ``Nat) (mkNatLit 0)
 
 structure Flag : Type where

@@ -528,11 +528,12 @@ def mkNoConfusion (target : Expr) (h : Expr) : MetaM Expr := do
 
 /--
 Constructs a non-dependent `casesOn` application of type `resultType`, computing the alternatives
-by calling `alt` with the inductive info, constructor info and the fields.
+by calling `alt` with the inductive info, constructor info, the fields, and the constructor
+application.
 -/
 def mkNondepCases [Monad m] [MonadEnv m] [MonadError m]
     [MonadControlT MetaM m] [MonadLiftT MetaM m] (discr : Expr) (resultType : Expr)
-    (alt : InductiveVal → ConstructorVal → Array Expr → m Expr) : m Expr := do
+    (alt : InductiveVal → ConstructorVal → Array Expr → Expr → m Expr) : m Expr := do
   let discrType ← whnf (← inferType discr)
   discrType.withApp fun fn args => do
   let .const induct us := fn
@@ -558,7 +559,8 @@ def mkNondepCases [Monad m] [MonadEnv m] [MonadError m]
     let .forallE _ altType body' _ := body | unreachable!
     let ctorInfo ← getConstInfoCtor ctor
     let minor ← forallBoundedTelescope altType ctorInfo.numFields fun fields _ => do
-      mkLambdaFVars fields <| ← alt indInfo ctorInfo fields
+      let ctorApp := mkAppN (mkAppN (.const ctor us) params) fields
+      mkLambdaFVars fields <| ← alt indInfo ctorInfo fields ctorApp
     casesOnApp := casesOnApp.app minor
     body := body'
   return casesOnApp

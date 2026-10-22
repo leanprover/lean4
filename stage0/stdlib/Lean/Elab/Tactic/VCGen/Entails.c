@@ -6157,8 +6157,8 @@ else
 lean_object* v___x_2031_; lean_object* v___x_2032_; 
 lean_dec_ref(v_body_1993_);
 lean_dec_ref(v_binderType_1992_);
-lean_dec_ref_known(v_a_1990_, 3);
 lean_dec(v_binderName_1991_);
+lean_dec_ref_known(v_a_1990_, 3);
 lean_del_object(v___x_1976_);
 lean_dec(v_snd_1974_);
 lean_del_object(v___x_1971_);

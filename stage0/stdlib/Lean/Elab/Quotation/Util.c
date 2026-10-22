@@ -39,6 +39,8 @@ lean_object* lean_array_push(lean_object*, lean_object*);
 uint8_t l_Lean_Syntax_isAntiquot(lean_object*);
 uint8_t l_Lean_Syntax_isTokenAntiquot(lean_object*);
 size_t lean_usize_add(size_t, size_t);
+lean_object* l_Lean_extractMacroScopes(lean_object*);
+lean_object* l_Lean_MacroScopesView_review(lean_object*);
 lean_object* l_Lean_Name_mkStr5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_register_option(lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
@@ -158,6 +160,10 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Term_Quotation_getPatternsVars(lean_object*
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_Quotation_getPatternsVars___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_Quotation_getAntiquotKindSpec_x3f(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_Quotation_getAntiquotKindSpec_x3f___boxed(lean_object*);
+LEAN_EXPORT lean_object* l___private_Lean_Elab_Quotation_Util_0__Lean_Elab_Term_Quotation_resolveSectionVariable_loop(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Lean_Elab_Quotation_Util_0__Lean_Elab_Term_Quotation_resolveSectionVariable_loop___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Elab_Term_Quotation_resolveSectionVariable(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Elab_Term_Quotation_resolveSectionVariable___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Option_register___at___00__private_Lean_Elab_Quotation_Util_0__Lean_Elab_Term_Quotation_initFn_00___x40_Lean_Elab_Quotation_Util_137815056____hygCtx___hyg_4__spec__0(lean_object* v_name_1_, lean_object* v_decl_2_, lean_object* v_ref_3_){
 _start:
 {
@@ -1846,6 +1852,100 @@ lean_object* v_res_655_;
 v_res_655_ = l_Lean_Elab_Term_Quotation_getAntiquotKindSpec_x3f(v_antiquot_654_);
 lean_dec(v_antiquot_654_);
 return v_res_655_;
+}
+}
+LEAN_EXPORT lean_object* l___private_Lean_Elab_Quotation_Util_0__Lean_Elab_Term_Quotation_resolveSectionVariable_loop(lean_object* v_sectionVars_656_, lean_object* v_extractionResult_657_, lean_object* v_a_658_, lean_object* v_a_659_){
+_start:
+{
+if (lean_obj_tag(v_a_658_) == 1)
+{
+lean_object* v_pre_660_; lean_object* v_str_661_; lean_object* v_imported_662_; lean_object* v_ctx_663_; lean_object* v_scopes_664_; lean_object* v___x_665_; lean_object* v_id_666_; lean_object* v___x_667_; 
+v_pre_660_ = lean_ctor_get(v_a_658_, 0);
+lean_inc(v_pre_660_);
+v_str_661_ = lean_ctor_get(v_a_658_, 1);
+lean_inc_ref(v_str_661_);
+v_imported_662_ = lean_ctor_get(v_extractionResult_657_, 1);
+v_ctx_663_ = lean_ctor_get(v_extractionResult_657_, 2);
+v_scopes_664_ = lean_ctor_get(v_extractionResult_657_, 3);
+lean_inc(v_scopes_664_);
+lean_inc(v_ctx_663_);
+lean_inc(v_imported_662_);
+v___x_665_ = lean_alloc_ctor(0, 4, 0);
+lean_ctor_set(v___x_665_, 0, v_a_658_);
+lean_ctor_set(v___x_665_, 1, v_imported_662_);
+lean_ctor_set(v___x_665_, 2, v_ctx_663_);
+lean_ctor_set(v___x_665_, 3, v_scopes_664_);
+v_id_666_ = l_Lean_MacroScopesView_review(v___x_665_);
+v___x_667_ = l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at___00Lean_NameMap_find_x3f_spec__0___redArg(v_sectionVars_656_, v_id_666_);
+lean_dec(v_id_666_);
+if (lean_obj_tag(v___x_667_) == 0)
+{
+lean_object* v___x_668_; 
+v___x_668_ = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(v___x_668_, 0, v_str_661_);
+lean_ctor_set(v___x_668_, 1, v_a_659_);
+v_a_658_ = v_pre_660_;
+v_a_659_ = v___x_668_;
+goto _start;
+}
+else
+{
+lean_object* v_val_670_; lean_object* v___x_671_; lean_object* v___x_672_; lean_object* v___x_673_; 
+lean_dec_ref(v_str_661_);
+lean_dec(v_pre_660_);
+v_val_670_ = lean_ctor_get(v___x_667_, 0);
+lean_inc(v_val_670_);
+lean_dec_ref_known(v___x_667_, 1);
+v___x_671_ = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(v___x_671_, 0, v_val_670_);
+lean_ctor_set(v___x_671_, 1, v_a_659_);
+v___x_672_ = lean_box(0);
+v___x_673_ = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(v___x_673_, 0, v___x_671_);
+lean_ctor_set(v___x_673_, 1, v___x_672_);
+return v___x_673_;
+}
+}
+else
+{
+lean_object* v___x_674_; 
+lean_dec(v_a_659_);
+lean_dec(v_a_658_);
+v___x_674_ = lean_box(0);
+return v___x_674_;
+}
+}
+}
+LEAN_EXPORT lean_object* l___private_Lean_Elab_Quotation_Util_0__Lean_Elab_Term_Quotation_resolveSectionVariable_loop___boxed(lean_object* v_sectionVars_675_, lean_object* v_extractionResult_676_, lean_object* v_a_677_, lean_object* v_a_678_){
+_start:
+{
+lean_object* v_res_679_; 
+v_res_679_ = l___private_Lean_Elab_Quotation_Util_0__Lean_Elab_Term_Quotation_resolveSectionVariable_loop(v_sectionVars_675_, v_extractionResult_676_, v_a_677_, v_a_678_);
+lean_dec_ref(v_extractionResult_676_);
+lean_dec(v_sectionVars_675_);
+return v_res_679_;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Elab_Term_Quotation_resolveSectionVariable(lean_object* v_sectionVars_680_, lean_object* v_id_681_){
+_start:
+{
+lean_object* v_extractionResult_682_; lean_object* v_name_683_; lean_object* v___x_684_; lean_object* v___x_685_; 
+v_extractionResult_682_ = l_Lean_extractMacroScopes(v_id_681_);
+v_name_683_ = lean_ctor_get(v_extractionResult_682_, 0);
+lean_inc(v_name_683_);
+v___x_684_ = lean_box(0);
+v___x_685_ = l___private_Lean_Elab_Quotation_Util_0__Lean_Elab_Term_Quotation_resolveSectionVariable_loop(v_sectionVars_680_, v_extractionResult_682_, v_name_683_, v___x_684_);
+lean_dec_ref(v_extractionResult_682_);
+return v___x_685_;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Elab_Term_Quotation_resolveSectionVariable___boxed(lean_object* v_sectionVars_686_, lean_object* v_id_687_){
+_start:
+{
+lean_object* v_res_688_; 
+v_res_688_ = l_Lean_Elab_Term_Quotation_resolveSectionVariable(v_sectionVars_686_, v_id_687_);
+lean_dec(v_sectionVars_686_);
+return v_res_688_;
 }
 }
 lean_object* runtime_initialize_Lean_Elab_Term(uint8_t builtin);

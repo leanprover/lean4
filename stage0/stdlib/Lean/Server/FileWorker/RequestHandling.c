@@ -9661,11 +9661,11 @@ lean_object* v___x_2648_; lean_object* v___x_2649_; lean_object* v___x_2650_; le
 v___x_2648_ = l_Lean_Syntax_Range_toLspRange(v_text_2634_, v___y_2647_);
 v___x_2649_ = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(v___x_2649_, 0, v_syms_2635_);
-lean_inc(v___y_2646_);
+lean_inc(v___y_2645_);
 v___x_2650_ = lean_alloc_ctor(0, 5, 1);
 lean_ctor_set(v___x_2650_, 0, v___y_2643_);
-lean_ctor_set(v___x_2650_, 1, v___y_2646_);
-lean_ctor_set(v___x_2650_, 2, v___y_2645_);
+lean_ctor_set(v___x_2650_, 1, v___y_2645_);
+lean_ctor_set(v___x_2650_, 2, v___y_2646_);
 lean_ctor_set(v___x_2650_, 3, v___x_2648_);
 lean_ctor_set(v___x_2650_, 4, v___x_2649_);
 lean_ctor_set_uint8(v___x_2650_, sizeof(void*)*5, v___y_2644_);
@@ -9689,8 +9689,8 @@ if (lean_obj_tag(v___x_2660_) == 0)
 {
 v___y_2643_ = v___y_2655_;
 v___y_2644_ = v___x_2657_;
-v___y_2645_ = v___x_2658_;
-v___y_2646_ = v___x_2656_;
+v___y_2645_ = v___x_2656_;
+v___y_2646_ = v___x_2658_;
 v___y_2647_ = v___y_2654_;
 goto v___jp_2642_;
 }
@@ -9703,8 +9703,8 @@ lean_inc(v_val_2661_);
 lean_dec_ref_known(v___x_2660_, 1);
 v___y_2643_ = v___y_2655_;
 v___y_2644_ = v___x_2657_;
-v___y_2645_ = v___x_2658_;
-v___y_2646_ = v___x_2656_;
+v___y_2645_ = v___x_2656_;
+v___y_2646_ = v___x_2658_;
 v___y_2647_ = v_val_2661_;
 goto v___jp_2642_;
 }

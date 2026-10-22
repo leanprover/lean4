@@ -2863,8 +2863,8 @@ lean_ctor_set(v___x_731_, 1, v___x_730_);
 v___x_732_ = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(v___x_732_, 0, v___x_731_);
 lean_ctor_set(v___x_732_, 1, v___y_728_);
-v___x_733_ = l_Lean_throwError___at___00Lean_Elab_ConfigEval_evalExprWithElab___at___00__private_Lean_Elab_Tactic_Do_VCGen_Basic_0__Lean_Elab_Tactic_Do_elabConfig_evalConfigItem_spec__1_spec__3___redArg(v___x_732_, v___y_726_, v___y_725_, v___y_722_, v___y_727_, v___y_724_, v___y_723_);
-lean_dec_ref(v___y_724_);
+v___x_733_ = l_Lean_throwError___at___00Lean_Elab_ConfigEval_evalExprWithElab___at___00__private_Lean_Elab_Tactic_Do_VCGen_Basic_0__Lean_Elab_Tactic_Do_elabConfig_evalConfigItem_spec__1_spec__3___redArg(v___x_732_, v___y_727_, v___y_723_, v___y_724_, v___y_725_, v___y_722_, v___y_726_);
+lean_dec_ref(v___y_722_);
 return v___x_733_;
 }
 v___jp_734_:
@@ -2972,12 +2972,12 @@ v___x_756_ = lean_obj_once(&l_Lean_Elab_ConfigEval_evalExprWithElab___at___00Lea
 v___x_757_ = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(v___x_757_, 0, v___x_755_);
 lean_ctor_set(v___x_757_, 1, v___x_756_);
-v___y_722_ = v___y_737_;
-v___y_723_ = v___y_740_;
-v___y_724_ = v___y_739_;
-v___y_725_ = v___y_736_;
-v___y_726_ = v___y_735_;
-v___y_727_ = v___y_738_;
+v___y_722_ = v___y_739_;
+v___y_723_ = v___y_736_;
+v___y_724_ = v___y_737_;
+v___y_725_ = v___y_738_;
+v___y_726_ = v___y_740_;
+v___y_727_ = v___y_735_;
 v___y_728_ = v___x_757_;
 goto v___jp_721_;
 }
@@ -2987,12 +2987,12 @@ else
 lean_object* v___x_759_; 
 lean_del_object(v___x_748_);
 v___x_759_ = lean_obj_once(&l_Lean_Elab_ConfigEval_evalExprWithElab___at___00Lean_Elab_ConfigEval_evalTermOrExprWithElab___at___00__private_Lean_Elab_Tactic_Do_VCGen_Basic_0__Lean_Elab_Tactic_Do_elabConfig_evalConfigItem_spec__0_spec__0___closed__7, &l_Lean_Elab_ConfigEval_evalExprWithElab___at___00Lean_Elab_ConfigEval_evalTermOrExprWithElab___at___00__private_Lean_Elab_Tactic_Do_VCGen_Basic_0__Lean_Elab_Tactic_Do_elabConfig_evalConfigItem_spec__0_spec__0___closed__7_once, _init_l_Lean_Elab_ConfigEval_evalExprWithElab___at___00Lean_Elab_ConfigEval_evalTermOrExprWithElab___at___00__private_Lean_Elab_Tactic_Do_VCGen_Basic_0__Lean_Elab_Tactic_Do_elabConfig_evalConfigItem_spec__0_spec__0___closed__7);
-v___y_722_ = v___y_737_;
-v___y_723_ = v___y_740_;
-v___y_724_ = v___y_739_;
-v___y_725_ = v___y_736_;
-v___y_726_ = v___y_735_;
-v___y_727_ = v___y_738_;
+v___y_722_ = v___y_739_;
+v___y_723_ = v___y_736_;
+v___y_724_ = v___y_737_;
+v___y_725_ = v___y_738_;
+v___y_726_ = v___y_740_;
+v___y_727_ = v___y_735_;
 v___y_728_ = v___x_759_;
 goto v___jp_721_;
 }

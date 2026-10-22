@@ -15972,8 +15972,8 @@ return v___x_5342_;
 else
 {
 lean_object* v___x_5343_; 
-lean_dec(v_pre_5305_);
 lean_dec_ref_known(v_declName_5304_, 2);
+lean_dec(v_pre_5305_);
 lean_del_object(v___x_5301_);
 v___x_5343_ = lean_box(0);
 return v___x_5343_;

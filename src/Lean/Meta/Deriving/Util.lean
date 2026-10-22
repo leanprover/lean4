@@ -48,7 +48,7 @@ def Lean.mkInstance (name : Name) (levelParams : List Name) (type value : Expr)
     else
       let hints := .regular (getMaxHeight (← getEnv) value + 1)
       pure <| .defnDecl <| ← mkDefinitionValInferringUnsafe name levelParams type value hints
-  withoutExporting (when := isProp || isPrivateName name) do
+  withExporting (isExporting := !isProp && !isPrivateName name) do
     addDecl decl
   unless isProp do
     setReducibilityStatus name .instanceReducible
@@ -648,9 +648,7 @@ def mkInstanceForDeriving (instanceHyps : Array Expr) (type value : Expr)
   let value ← mkLambdaFVars allVars (← instantiateMVars value) (binderInfoForMVars := .instImplicit)
   let instName ← name.getDM (mkInstanceNameOfType type)
   let type := if deriving.implicitBinders.get (← getOptions) then type.explicitToImplicit else type
-  let shouldExpose := (value.find? (·.constName?.any isPrivateName)).isNone
-  withExporting (isExporting := shouldExpose) do
-    mkInstance instName (← read).levelParams type value (← read).isMeta
+  mkInstance instName (← read).levelParams type value (← read).isMeta
 
 def isRecursive : DerivingM Bool := do
   return (← read).indInfo.isRec
@@ -830,8 +828,7 @@ def makeInstancesUsingMutualBlock (infos : Array (InstanceInfo α))
     let nameSet : NameSet := .ofArray (← read).names
     for info in infos do
       unless nameSet.contains info.induct do continue
-      withExporting (isExporting := !isPrivateName info.declName.get!) do
-        mkInstance info.declName.get! (← read).levelParams info.fullType.get! info.value (← read).isMeta
+      mkInstance info.declName.get! (← read).levelParams info.fullType.get! info.value (← read).isMeta
 
 inductive FieldHelperInfo (α : Type) where
   | inline (e : Expr)

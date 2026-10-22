@@ -7067,8 +7067,8 @@ return v___x_2156_;
 else
 {
 lean_object* v___x_2160_; lean_object* v___x_2161_; 
-lean_dec_ref_known(v_target_x3f_2127_, 1);
 lean_dec(v_proof_x3f_2128_);
+lean_dec_ref_known(v_target_x3f_2127_, 1);
 lean_dec(v_a_2126_);
 lean_dec(v_acc_2108_);
 lean_dec_ref(v_lhs_2106_);
@@ -7414,8 +7414,8 @@ return v___x_2246_;
 else
 {
 lean_object* v___x_2251_; lean_object* v___x_2252_; 
-lean_dec(v_proof_x3f_2208_);
 lean_dec_ref_known(v_target_x3f_2207_, 1);
+lean_dec(v_proof_x3f_2208_);
 lean_dec(v_a_2206_);
 lean_dec(v_lhsEqCommon_x3f_2188_);
 lean_dec_ref(v_rhs_2186_);

@@ -10725,7 +10725,7 @@ v___jp_3765_:
 {
 lean_object* v___x_3769_; double v___x_3770_; double v___x_3771_; lean_object* v___x_3772_; lean_object* v___x_3773_; lean_object* v___x_3774_; lean_object* v___x_3775_; lean_object* v___x_3776_; 
 v___x_3769_ = lean_io_get_num_heartbeats();
-v___x_3770_ = lean_float_of_nat(v___y_3767_);
+v___x_3770_ = lean_float_of_nat(v___y_3766_);
 v___x_3771_ = lean_float_of_nat(v___x_3769_);
 v___x_3772_ = lean_box_float(v___x_3770_);
 v___x_3773_ = lean_box_float(v___x_3771_);
@@ -10735,7 +10735,7 @@ lean_ctor_set(v___x_3774_, 1, v___x_3773_);
 v___x_3775_ = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(v___x_3775_, 0, v_a_3768_);
 lean_ctor_set(v___x_3775_, 1, v___x_3774_);
-v___x_3776_ = l___private_Lean_Util_Trace_0__Lean_withTraceNode_postCallback___at___00Lean_Meta_Tactic_BVDecide_Normalize_PreProcessM_collectTargetHyps_spec__4(v___x_3739_, v_hasTrace_3731_, v___x_3740_, v_options_3729_, v___x_3742_, v___y_3766_, v___f_3688_, v___x_3775_, v_a_3676_, v_a_3677_, v_a_3678_, v_a_3679_, v_a_3680_, v_a_3681_, v_a_3682_, v_a_3683_, v_a_3684_, v_a_3685_, v_a_3686_);
+v___x_3776_ = l___private_Lean_Util_Trace_0__Lean_withTraceNode_postCallback___at___00Lean_Meta_Tactic_BVDecide_Normalize_PreProcessM_collectTargetHyps_spec__4(v___x_3739_, v_hasTrace_3731_, v___x_3740_, v_options_3729_, v___x_3742_, v___y_3767_, v___f_3688_, v___x_3775_, v_a_3676_, v_a_3677_, v_a_3678_, v_a_3679_, v_a_3680_, v_a_3681_, v_a_3682_, v_a_3683_, v_a_3684_, v_a_3685_, v_a_3686_);
 v___y_3719_ = v___x_3776_;
 goto v___jp_3718_;
 }
@@ -10744,8 +10744,8 @@ v___jp_3777_:
 lean_object* v___x_3781_; 
 v___x_3781_ = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(v___x_3781_, 0, v_a_3780_);
-v___y_3766_ = v___y_3779_;
-v___y_3767_ = v___y_3778_;
+v___y_3766_ = v___y_3778_;
+v___y_3767_ = v___y_3779_;
 v_a_3768_ = v___x_3781_;
 goto v___jp_3765_;
 }
@@ -10905,8 +10905,8 @@ goto v_reusejp_3813_;
 }
 v_reusejp_3813_:
 {
-v___y_3766_ = v_a_3784_;
-v___y_3767_ = v___x_3802_;
+v___y_3766_ = v___x_3802_;
+v___y_3767_ = v_a_3784_;
 v_a_3768_ = v___x_3814_;
 goto v___jp_3765_;
 }

@@ -4170,8 +4170,8 @@ return v___x_1143_;
 }
 else
 {
-lean_dec_ref_known(v_x_1126_, 2);
 lean_dec(v_info_1132_);
+lean_dec_ref_known(v_x_1126_, 2);
 v___y_1129_ = v_a_1127_;
 goto v___jp_1128_;
 }
@@ -4245,8 +4245,8 @@ return v___x_1160_;
 }
 else
 {
-lean_dec_ref_known(v_x_1126_, 4);
 lean_dec(v_info_1147_);
+lean_dec_ref_known(v_x_1126_, 4);
 v___y_1129_ = v_a_1127_;
 goto v___jp_1128_;
 }

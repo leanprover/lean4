@@ -8518,10 +8518,10 @@ lean_inc(v_ctors_2872_);
 lean_dec_ref(v_inductiveVal_2871_);
 v___x_2873_ = lean_array_mk(v_ctors_2872_);
 lean_inc(v_majorFVarId_2850_);
-v___x_2874_ = l_Lean_MVarId_induction(v_mvarId_2849_, v_majorFVarId_2850_, v___y_2870_, v_givenNames_2851_, v___y_2869_, v___y_2866_, v___y_2868_, v___y_2867_);
+v___x_2874_ = l_Lean_MVarId_induction(v_mvarId_2849_, v_majorFVarId_2850_, v___y_2870_, v_givenNames_2851_, v___y_2869_, v___y_2868_, v___y_2866_, v___y_2867_);
 lean_dec(v___y_2867_);
-lean_dec_ref(v___y_2868_);
-lean_dec(v___y_2866_);
+lean_dec_ref(v___y_2866_);
+lean_dec(v___y_2868_);
 lean_dec_ref(v___y_2869_);
 if (lean_obj_tag(v___x_2874_) == 0)
 {
@@ -8623,9 +8623,9 @@ v_name_2899_ = lean_ctor_get(v_toConstantVal_2898_, 0);
 lean_inc(v_name_2899_);
 v___x_2900_ = l_Lean_mkCasesOnName(v_name_2899_);
 v___y_2866_ = v___y_2893_;
-v___y_2867_ = v___y_2894_;
-v___y_2868_ = v___y_2896_;
-v___y_2869_ = v___y_2895_;
+v___y_2867_ = v___y_2896_;
+v___y_2868_ = v___y_2895_;
+v___y_2869_ = v___y_2894_;
 v___y_2870_ = v___x_2900_;
 goto v___jp_2865_;
 }
@@ -8636,10 +8636,10 @@ v___x_2906_ = lean_st_ref_get(v___y_2905_);
 if (v_useNatCasesAuxOn_2852_ == 0)
 {
 lean_dec(v___x_2906_);
-v___y_2893_ = v___y_2903_;
-v___y_2894_ = v___y_2905_;
-v___y_2895_ = v___y_2902_;
-v___y_2896_ = v___y_2904_;
+v___y_2893_ = v___y_2904_;
+v___y_2894_ = v___y_2902_;
+v___y_2895_ = v___y_2903_;
+v___y_2896_ = v___y_2905_;
 goto v___jp_2892_;
 }
 else
@@ -8656,10 +8656,10 @@ v___x_2912_ = lean_name_eq(v_name_2910_, v___x_2911_);
 if (v___x_2912_ == 0)
 {
 lean_dec_ref(v_env_2909_);
-v___y_2893_ = v___y_2903_;
-v___y_2894_ = v___y_2905_;
-v___y_2895_ = v___y_2902_;
-v___y_2896_ = v___y_2904_;
+v___y_2893_ = v___y_2904_;
+v___y_2894_ = v___y_2902_;
+v___y_2895_ = v___y_2903_;
+v___y_2896_ = v___y_2905_;
 goto v___jp_2892_;
 }
 else
@@ -8669,17 +8669,17 @@ v___x_2913_ = ((lean_object*)(l___private_Lean_Meta_Tactic_Cases_0__Lean_Meta_Ca
 v___x_2914_ = l_Lean_Environment_contains(v_env_2909_, v___x_2913_, v___x_2912_);
 if (v___x_2914_ == 0)
 {
-v___y_2893_ = v___y_2903_;
-v___y_2894_ = v___y_2905_;
-v___y_2895_ = v___y_2902_;
-v___y_2896_ = v___y_2904_;
+v___y_2893_ = v___y_2904_;
+v___y_2894_ = v___y_2902_;
+v___y_2895_ = v___y_2903_;
+v___y_2896_ = v___y_2905_;
 goto v___jp_2892_;
 }
 else
 {
-v___y_2866_ = v___y_2903_;
+v___y_2866_ = v___y_2904_;
 v___y_2867_ = v___y_2905_;
-v___y_2868_ = v___y_2904_;
+v___y_2868_ = v___y_2903_;
 v___y_2869_ = v___y_2902_;
 v___y_2870_ = v___x_2913_;
 goto v___jp_2865_;

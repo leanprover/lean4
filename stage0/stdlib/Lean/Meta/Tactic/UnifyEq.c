@@ -4331,8 +4331,8 @@ return v___x_1124_;
 else
 {
 lean_object* v___x_1127_; 
-lean_dec(v_a_1100_);
 lean_dec_ref_known(v_a_1098_, 1);
+lean_dec(v_a_1100_);
 v___x_1127_ = l___private_Lean_Meta_Tactic_UnifyEq_0__Lean_Meta_unifyEq_x3f_substEq(v_mvarId_1072_, v_eqFVarId_1071_, v_subst_1073_, v_acyclic_1074_, v_a_1082_, v___x_1095_, v___x_1096_, v___x_1084_, v___y_1076_, v___y_1077_, v___y_1078_, v___y_1079_);
 lean_dec(v_a_1082_);
 return v___x_1127_;

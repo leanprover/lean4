@@ -17443,7 +17443,7 @@ v___jp_6518_:
 {
 lean_object* v___x_6522_; double v___x_6523_; double v___x_6524_; double v___x_6525_; double v___x_6526_; double v___x_6527_; lean_object* v___x_6528_; lean_object* v___x_6529_; lean_object* v___x_6530_; lean_object* v___x_6531_; lean_object* v___x_6532_; 
 v___x_6522_ = lean_io_mono_nanos_now();
-v___x_6523_ = lean_float_of_nat(v___y_6519_);
+v___x_6523_ = lean_float_of_nat(v___y_6520_);
 v___x_6524_ = lean_float_once(&l_Lean_Meta_Tactic_BVDecide_Normalize_Pass_run___closed__13, &l_Lean_Meta_Tactic_BVDecide_Normalize_Pass_run___closed__13_once, _init_l_Lean_Meta_Tactic_BVDecide_Normalize_Pass_run___closed__13);
 v___x_6525_ = lean_float_div(v___x_6523_, v___x_6524_);
 v___x_6526_ = lean_float_of_nat(v___x_6522_);
@@ -17456,7 +17456,7 @@ lean_ctor_set(v___x_6530_, 1, v___x_6529_);
 v___x_6531_ = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(v___x_6531_, 0, v_a_6521_);
 lean_ctor_set(v___x_6531_, 1, v___x_6530_);
-v___x_6532_ = l___private_Lean_Util_Trace_0__Lean_withTraceNode_postCallback___at___00__private_Lean_Meta_Tactic_BVDecide_Normalize_Basic_0__Lean_Meta_Tactic_BVDecide_Normalize_Pass_fixpointPipeline_go_spec__3(v___x_6514_, v_hasTrace_6474_, v___x_6515_, v_options_6469_, v___x_6517_, v___y_6520_, v___f_6513_, v___x_6531_, v___y_6454_, v___y_6455_, v___y_6456_, v___y_6457_, v___y_6458_, v___y_6459_, v___y_6460_, v___y_6461_, v___y_6462_, v___y_6463_, v___y_6464_);
+v___x_6532_ = l___private_Lean_Util_Trace_0__Lean_withTraceNode_postCallback___at___00__private_Lean_Meta_Tactic_BVDecide_Normalize_Basic_0__Lean_Meta_Tactic_BVDecide_Normalize_Pass_fixpointPipeline_go_spec__3(v___x_6514_, v_hasTrace_6474_, v___x_6515_, v_options_6469_, v___x_6517_, v___y_6519_, v___f_6513_, v___x_6531_, v___y_6454_, v___y_6455_, v___y_6456_, v___y_6457_, v___y_6458_, v___y_6459_, v___y_6460_, v___y_6461_, v___y_6462_, v___y_6463_, v___y_6464_);
 v___y_6484_ = v___x_6532_;
 goto v___jp_6483_;
 }
@@ -17542,8 +17542,8 @@ goto v_reusejp_6556_;
 }
 v_reusejp_6556_:
 {
-v___y_6519_ = v___x_6550_;
-v___y_6520_ = v_a_6547_;
+v___y_6519_ = v_a_6547_;
+v___y_6520_ = v___x_6550_;
 v_a_6521_ = v___x_6557_;
 goto v___jp_6518_;
 }
@@ -17587,8 +17587,8 @@ goto v_reusejp_6564_;
 }
 v_reusejp_6564_:
 {
-v___y_6519_ = v___x_6550_;
-v___y_6520_ = v_a_6547_;
+v___y_6519_ = v_a_6547_;
+v___y_6520_ = v___x_6550_;
 v_a_6521_ = v___x_6565_;
 goto v___jp_6518_;
 }

@@ -1919,8 +1919,8 @@ return v___x_504_;
 else
 {
 lean_object* v___x_508_; 
-lean_dec_ref(v_a_490_);
 lean_dec_ref_known(v_a_481_, 2);
+lean_dec_ref(v_a_490_);
 lean_dec_ref(v_wrap_480_);
 v___x_508_ = lean_box(0);
 return v___x_508_;

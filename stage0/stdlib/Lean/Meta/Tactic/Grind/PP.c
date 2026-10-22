@@ -9622,7 +9622,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Grind_goalToMessageData(lean_object* v_goal
 _start:
 {
 uint8_t v_verbose_3218_; lean_object* v_mvarId_3219_; uint8_t v___x_3220_; lean_object* v___x_3221_; lean_object* v___x_3222_; lean_object* v___y_3223_; lean_object* v___x_3224_; 
-v_verbose_3218_ = lean_ctor_get_uint8(v_config_3211_, sizeof(void*)*15 + 15);
+v_verbose_3218_ = lean_ctor_get_uint8(v_config_3211_, sizeof(void*)*17 + 15);
 v_mvarId_3219_ = lean_ctor_get(v_goal_3210_, 1);
 lean_inc_n(v_mvarId_3219_, 2);
 v___x_3220_ = 1;

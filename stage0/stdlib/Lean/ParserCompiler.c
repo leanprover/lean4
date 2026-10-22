@@ -3063,7 +3063,7 @@ lean_object* v___x_1092_; lean_object* v___x_1093_; lean_object* v___x_1094_; le
 v___x_1092_ = ((lean_object*)(l_Lean_ParserCompiler_compileParserExpr___redArg___closed__2));
 lean_inc(v___y_1091_);
 v___x_1093_ = l_Lean_mkIdent(v___y_1091_);
-v___x_1094_ = l_Lean_mkIdent(v___y_1090_);
+v___x_1094_ = l_Lean_mkIdent(v___y_1089_);
 v___x_1095_ = lean_unsigned_to_nat(1u);
 v___x_1096_ = lean_mk_empty_array_with_capacity(v___x_1095_);
 v___x_1097_ = lean_array_push(v___x_1096_, v___x_1094_);
@@ -3083,14 +3083,14 @@ lean_ctor_set(v___x_1105_, 1, v___x_1092_);
 lean_ctor_set(v___x_1105_, 2, v___x_1104_);
 v___x_1106_ = 0;
 lean_inc(v___x_1078_);
-v___x_1107_ = l_Lean_Attribute_add(v___x_1078_, v___y_1091_, v___x_1105_, v___x_1106_, v___y_1089_, v___y_1087_);
+v___x_1107_ = l_Lean_Attribute_add(v___x_1078_, v___y_1091_, v___x_1105_, v___x_1106_, v___y_1086_, v___y_1087_);
 if (lean_obj_tag(v___x_1107_) == 0)
 {
 lean_dec_ref_known(v___x_1107_, 1);
 v_p_1050_ = v___x_1078_;
 v___y_1051_ = v___y_1088_;
-v___y_1052_ = v___y_1086_;
-v___y_1053_ = v___y_1089_;
+v___y_1052_ = v___y_1090_;
+v___y_1053_ = v___y_1086_;
 v___y_1054_ = v___y_1087_;
 goto v___jp_1049_;
 }
@@ -3380,11 +3380,11 @@ lean_inc(v_val_1178_);
 lean_dec_ref_known(v_a_1176_, 1);
 v_name_1179_ = lean_ctor_get(v_defn_1177_, 1);
 lean_inc(v_name_1179_);
-v___y_1086_ = v___y_1120_;
+v___y_1086_ = v___y_1121_;
 v___y_1087_ = v___y_1122_;
 v___y_1088_ = v___y_1119_;
-v___y_1089_ = v___y_1121_;
-v___y_1090_ = v_val_1178_;
+v___y_1089_ = v_val_1178_;
+v___y_1090_ = v___y_1120_;
 v___y_1091_ = v_name_1179_;
 goto v___jp_1085_;
 }
@@ -3397,11 +3397,11 @@ lean_inc(v_val_1181_);
 lean_dec_ref_known(v_a_1176_, 1);
 v_builtinName_1182_ = lean_ctor_get(v_defn_1180_, 0);
 lean_inc(v_builtinName_1182_);
-v___y_1086_ = v___y_1120_;
+v___y_1086_ = v___y_1121_;
 v___y_1087_ = v___y_1122_;
 v___y_1088_ = v___y_1119_;
-v___y_1089_ = v___y_1121_;
-v___y_1090_ = v_val_1181_;
+v___y_1089_ = v_val_1181_;
+v___y_1090_ = v___y_1120_;
 v___y_1091_ = v_builtinName_1182_;
 goto v___jp_1085_;
 }

@@ -8765,7 +8765,7 @@ return v_res_1977_;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_mkNormSymMethods___lam__20(lean_object* v___f_1978_, lean_object* v___y_1979_, lean_object* v___y_1980_, lean_object* v___y_1981_, lean_object* v___y_1982_, lean_object* v___y_1983_, lean_object* v___y_1984_, lean_object* v___y_1985_, lean_object* v___y_1986_, lean_object* v___y_1987_, lean_object* v___y_1988_){
 _start:
 {
-lean_object* v___y_1991_; lean_object* v___y_1992_; uint8_t v___y_1993_; lean_object* v___y_1997_; lean_object* v___y_1998_; uint8_t v___y_1999_; uint8_t v___y_2000_; uint8_t v___y_2004_; lean_object* v___y_2005_; lean_object* v___y_2006_; uint8_t v___y_2007_; lean_object* v___y_2011_; lean_object* v_e_x27_2012_; lean_object* v_proof_2013_; uint8_t v_done_2014_; uint8_t v_contextDependent_2015_; lean_object* v___y_2037_; lean_object* v_a_2038_; lean_object* v___x_2049_; lean_object* v___x_2050_; 
+lean_object* v___y_1991_; lean_object* v___y_1992_; uint8_t v___y_1993_; uint8_t v___y_1997_; lean_object* v___y_1998_; lean_object* v___y_1999_; uint8_t v___y_2000_; lean_object* v___y_2004_; uint8_t v___y_2005_; lean_object* v___y_2006_; uint8_t v___y_2007_; lean_object* v___y_2011_; lean_object* v_e_x27_2012_; lean_object* v_proof_2013_; uint8_t v_done_2014_; uint8_t v_contextDependent_2015_; lean_object* v___y_2037_; lean_object* v_a_2038_; lean_object* v___x_2049_; lean_object* v___x_2050_; 
 v___x_2049_ = lean_box(0);
 lean_inc_ref(v___y_1979_);
 v___x_2050_ = l_Lean_Meta_Grind_NormSym_eraseMData___redArg(v___y_1979_, v___y_1983_, v___y_1984_, v___y_1985_, v___y_1986_, v___y_1987_, v___y_1988_);
@@ -9254,25 +9254,25 @@ v___jp_1990_:
 if (v___y_1993_ == 0)
 {
 lean_object* v___x_1994_; lean_object* v___x_1995_; 
-lean_dec_ref(v___y_1992_);
-v___x_1994_ = l_Lean_Meta_Sym_Simp_Result_withContextDependent(v___y_1991_);
+lean_dec_ref(v___y_1991_);
+v___x_1994_ = l_Lean_Meta_Sym_Simp_Result_withContextDependent(v___y_1992_);
 v___x_1995_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_1995_, 0, v___x_1994_);
 return v___x_1995_;
 }
 else
 {
-lean_dec_ref(v___y_1991_);
-return v___y_1992_;
+lean_dec_ref(v___y_1992_);
+return v___y_1991_;
 }
 }
 v___jp_1996_:
 {
 lean_object* v___x_2001_; lean_object* v___x_2002_; 
 v___x_2001_ = lean_alloc_ctor(1, 2, 2);
-lean_ctor_set(v___x_2001_, 0, v___y_1997_);
+lean_ctor_set(v___x_2001_, 0, v___y_1999_);
 lean_ctor_set(v___x_2001_, 1, v___y_1998_);
-lean_ctor_set_uint8(v___x_2001_, sizeof(void*)*2, v___y_1999_);
+lean_ctor_set_uint8(v___x_2001_, sizeof(void*)*2, v___y_1997_);
 lean_ctor_set_uint8(v___x_2001_, sizeof(void*)*2 + 1, v___y_2000_);
 v___x_2002_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_2002_, 0, v___x_2001_);
@@ -9282,9 +9282,9 @@ v___jp_2003_:
 {
 lean_object* v___x_2008_; lean_object* v___x_2009_; 
 v___x_2008_ = lean_alloc_ctor(1, 2, 2);
-lean_ctor_set(v___x_2008_, 0, v___y_2006_);
-lean_ctor_set(v___x_2008_, 1, v___y_2005_);
-lean_ctor_set_uint8(v___x_2008_, sizeof(void*)*2, v___y_2004_);
+lean_ctor_set(v___x_2008_, 0, v___y_2004_);
+lean_ctor_set(v___x_2008_, 1, v___y_2006_);
+lean_ctor_set_uint8(v___x_2008_, sizeof(void*)*2, v___y_2005_);
 lean_ctor_set_uint8(v___x_2008_, sizeof(void*)*2 + 1, v___y_2007_);
 v___x_2009_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_2009_, 0, v___x_2008_);
@@ -9319,9 +9319,9 @@ uint8_t v_done_2018_; uint8_t v_contextDependent_2019_;
 v_done_2018_ = lean_ctor_get_uint8(v_a_2017_, 0);
 v_contextDependent_2019_ = lean_ctor_get_uint8(v_a_2017_, 1);
 lean_dec_ref_known(v_a_2017_, 0);
-v___y_2004_ = v_done_2018_;
-v___y_2005_ = v_proof_2013_;
-v___y_2006_ = v_e_x27_2012_;
+v___y_2004_ = v_e_x27_2012_;
+v___y_2005_ = v_done_2018_;
+v___y_2006_ = v_proof_2013_;
 v___y_2007_ = v_contextDependent_2019_;
 goto v___jp_2003_;
 }
@@ -9330,9 +9330,9 @@ else
 uint8_t v_done_2020_; 
 v_done_2020_ = lean_ctor_get_uint8(v_a_2017_, 0);
 lean_dec_ref_known(v_a_2017_, 0);
-v___y_2004_ = v_done_2020_;
-v___y_2005_ = v_proof_2013_;
-v___y_2006_ = v_e_x27_2012_;
+v___y_2004_ = v_e_x27_2012_;
+v___y_2005_ = v_done_2020_;
+v___y_2006_ = v_proof_2013_;
 v___y_2007_ = v_contextDependent_2015_;
 goto v___jp_2003_;
 }
@@ -9362,9 +9362,9 @@ lean_object* v_a_2026_;
 v_a_2026_ = lean_ctor_get(v___x_2025_, 0);
 lean_inc(v_a_2026_);
 lean_dec_ref_known(v___x_2025_, 1);
-v___y_1997_ = v_e_x27_2021_;
+v___y_1997_ = v_done_2023_;
 v___y_1998_ = v_a_2026_;
-v___y_1999_ = v_done_2023_;
+v___y_1999_ = v_e_x27_2021_;
 v___y_2000_ = v_contextDependent_2024_;
 goto v___jp_1996_;
 }
@@ -9374,9 +9374,9 @@ lean_object* v_a_2027_;
 v_a_2027_ = lean_ctor_get(v___x_2025_, 0);
 lean_inc(v_a_2027_);
 lean_dec_ref_known(v___x_2025_, 1);
-v___y_1997_ = v_e_x27_2021_;
+v___y_1997_ = v_done_2023_;
 v___y_1998_ = v_a_2027_;
-v___y_1999_ = v_done_2023_;
+v___y_1999_ = v_e_x27_2021_;
 v___y_2000_ = v_contextDependent_2015_;
 goto v___jp_1996_;
 }
@@ -9487,8 +9487,8 @@ if (lean_obj_tag(v_a_2042_) == 0)
 {
 uint8_t v_contextDependent_2043_; 
 v_contextDependent_2043_ = lean_ctor_get_uint8(v_a_2042_, 1);
-v___y_1991_ = v_a_2042_;
-v___y_1992_ = v___x_2041_;
+v___y_1991_ = v___x_2041_;
+v___y_1992_ = v_a_2042_;
 v___y_1993_ = v_contextDependent_2043_;
 goto v___jp_1990_;
 }
@@ -9496,8 +9496,8 @@ else
 {
 uint8_t v_contextDependent_2044_; 
 v_contextDependent_2044_ = lean_ctor_get_uint8(v_a_2042_, sizeof(void*)*2 + 1);
-v___y_1991_ = v_a_2042_;
-v___y_1992_ = v___x_2041_;
+v___y_1991_ = v___x_2041_;
+v___y_1992_ = v_a_2042_;
 v___y_1993_ = v_contextDependent_2044_;
 goto v___jp_1990_;
 }
@@ -9553,9 +9553,9 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Grind_mkNormSymMethods(lean_object* v_confi
 _start:
 {
 uint8_t v_zetaDelta_2167_; uint8_t v_zeta_2168_; uint8_t v_distrib_2169_; lean_object* v_maxChar_2170_; lean_object* v___f_2171_; lean_object* v_d_2172_; lean_object* v___f_2173_; lean_object* v___x_2174_; lean_object* v___f_2175_; lean_object* v___f_2176_; lean_object* v_pre_2178_; lean_object* v_pre_2184_; 
-v_zetaDelta_2167_ = lean_ctor_get_uint8(v_config_2165_, sizeof(void*)*15 + 19);
-v_zeta_2168_ = lean_ctor_get_uint8(v_config_2165_, sizeof(void*)*15 + 20);
-v_distrib_2169_ = lean_ctor_get_uint8(v_config_2165_, sizeof(void*)*15 + 21);
+v_zetaDelta_2167_ = lean_ctor_get_uint8(v_config_2165_, sizeof(void*)*17 + 19);
+v_zeta_2168_ = lean_ctor_get_uint8(v_config_2165_, sizeof(void*)*17 + 20);
+v_distrib_2169_ = lean_ctor_get_uint8(v_config_2165_, sizeof(void*)*17 + 21);
 v_maxChar_2170_ = lean_ctor_get(v_config_2165_, 6);
 lean_inc(v_maxChar_2170_);
 lean_dec_ref(v_config_2165_);
@@ -10797,8 +10797,8 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Grind_mkNormSymDSimpMethods(lean_object* v_
 _start:
 {
 uint8_t v_zetaDelta_2496_; uint8_t v_zeta_2497_; lean_object* v___f_2498_; lean_object* v_pre_2500_; lean_object* v_pre_2505_; 
-v_zetaDelta_2496_ = lean_ctor_get_uint8(v_config_2494_, sizeof(void*)*15 + 19);
-v_zeta_2497_ = lean_ctor_get_uint8(v_config_2494_, sizeof(void*)*15 + 20);
+v_zetaDelta_2496_ = lean_ctor_get_uint8(v_config_2494_, sizeof(void*)*17 + 19);
+v_zeta_2497_ = lean_ctor_get_uint8(v_config_2494_, sizeof(void*)*17 + 20);
 v___f_2498_ = ((lean_object*)(l_Lean_Meta_Grind_mkNormSymDSimpMethods___closed__1));
 if (v_zeta_2497_ == 0)
 {

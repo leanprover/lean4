@@ -681,7 +681,7 @@ v___jp_230_:
 {
 lean_object* v___x_236_; lean_object* v___x_237_; 
 lean_inc_ref(v_a_199_);
-v___x_236_ = l_Lean_mkApp8(v___x_229_, v_type_218_, v___y_233_, v___y_232_, v___y_231_, v_val_225_, v___y_234_, v___y_235_, v_a_199_);
+v___x_236_ = l_Lean_mkApp8(v___x_229_, v_type_218_, v___y_232_, v___y_233_, v___y_234_, v_val_225_, v___y_231_, v___y_235_, v_a_199_);
 lean_inc(v_a_210_);
 lean_inc_ref(v_a_209_);
 lean_inc(v_a_208_);
@@ -802,10 +802,10 @@ if (lean_obj_tag(v_orderedRingInst_x3f_224_) == 0)
 lean_object* v___x_265_; lean_object* v___x_266_; 
 v___x_265_ = lean_obj_once(&l___private_Lean_Meta_Tactic_Grind_Arith_Linear_Reify_0__Lean_Meta_Grind_Arith_Linear_assertNatCastNonneg___closed__10, &l___private_Lean_Meta_Tactic_Grind_Arith_Linear_Reify_0__Lean_Meta_Grind_Arith_Linear_assertNatCastNonneg___closed__10_once, _init_l___private_Lean_Meta_Tactic_Grind_Arith_Linear_Reify_0__Lean_Meta_Grind_Arith_Linear_assertNatCastNonneg___closed__10);
 v___x_266_ = l_panic___at___00__private_Lean_Meta_Tactic_Grind_Arith_Linear_Reify_0__Lean_Meta_Grind_Arith_Linear_assertNatCastNonneg_spec__0(v___x_265_);
-v___y_231_ = v___y_261_;
-v___y_232_ = v___y_262_;
-v___y_233_ = v___y_263_;
-v___y_234_ = v___y_264_;
+v___y_231_ = v___y_264_;
+v___y_232_ = v___y_261_;
+v___y_233_ = v___y_262_;
+v___y_234_ = v___y_263_;
 v___y_235_ = v___x_266_;
 goto v___jp_230_;
 }
@@ -815,10 +815,10 @@ lean_object* v_val_267_;
 v_val_267_ = lean_ctor_get(v_orderedRingInst_x3f_224_, 0);
 lean_inc(v_val_267_);
 lean_dec_ref_known(v_orderedRingInst_x3f_224_, 1);
-v___y_231_ = v___y_261_;
-v___y_232_ = v___y_262_;
-v___y_233_ = v___y_263_;
-v___y_234_ = v___y_264_;
+v___y_231_ = v___y_264_;
+v___y_232_ = v___y_261_;
+v___y_233_ = v___y_262_;
+v___y_234_ = v___y_263_;
 v___y_235_ = v_val_267_;
 goto v___jp_230_;
 }
@@ -830,9 +830,9 @@ if (lean_obj_tag(v_isPreorderInst_x3f_222_) == 0)
 lean_object* v___x_272_; lean_object* v___x_273_; 
 v___x_272_ = lean_obj_once(&l___private_Lean_Meta_Tactic_Grind_Arith_Linear_Reify_0__Lean_Meta_Grind_Arith_Linear_assertNatCastNonneg___closed__10, &l___private_Lean_Meta_Tactic_Grind_Arith_Linear_Reify_0__Lean_Meta_Grind_Arith_Linear_assertNatCastNonneg___closed__10_once, _init_l___private_Lean_Meta_Tactic_Grind_Arith_Linear_Reify_0__Lean_Meta_Grind_Arith_Linear_assertNatCastNonneg___closed__10);
 v___x_273_ = l_panic___at___00__private_Lean_Meta_Tactic_Grind_Arith_Linear_Reify_0__Lean_Meta_Grind_Arith_Linear_assertNatCastNonneg_spec__0(v___x_272_);
-v___y_261_ = v___y_271_;
-v___y_262_ = v___y_269_;
-v___y_263_ = v___y_270_;
+v___y_261_ = v___y_269_;
+v___y_262_ = v___y_270_;
+v___y_263_ = v___y_271_;
 v___y_264_ = v___x_273_;
 goto v___jp_260_;
 }
@@ -842,9 +842,9 @@ lean_object* v_val_274_;
 v_val_274_ = lean_ctor_get(v_isPreorderInst_x3f_222_, 0);
 lean_inc(v_val_274_);
 lean_dec_ref_known(v_isPreorderInst_x3f_222_, 1);
-v___y_261_ = v___y_271_;
-v___y_262_ = v___y_269_;
-v___y_263_ = v___y_270_;
+v___y_261_ = v___y_269_;
+v___y_262_ = v___y_270_;
+v___y_263_ = v___y_271_;
 v___y_264_ = v_val_274_;
 goto v___jp_260_;
 }
@@ -856,8 +856,8 @@ if (lean_obj_tag(v_ltInst_x3f_221_) == 0)
 lean_object* v___x_278_; lean_object* v___x_279_; 
 v___x_278_ = lean_obj_once(&l___private_Lean_Meta_Tactic_Grind_Arith_Linear_Reify_0__Lean_Meta_Grind_Arith_Linear_assertNatCastNonneg___closed__10, &l___private_Lean_Meta_Tactic_Grind_Arith_Linear_Reify_0__Lean_Meta_Grind_Arith_Linear_assertNatCastNonneg___closed__10_once, _init_l___private_Lean_Meta_Tactic_Grind_Arith_Linear_Reify_0__Lean_Meta_Grind_Arith_Linear_assertNatCastNonneg___closed__10);
 v___x_279_ = l_panic___at___00__private_Lean_Meta_Tactic_Grind_Arith_Linear_Reify_0__Lean_Meta_Grind_Arith_Linear_assertNatCastNonneg_spec__0(v___x_278_);
-v___y_269_ = v___y_277_;
-v___y_270_ = v___y_276_;
+v___y_269_ = v___y_276_;
+v___y_270_ = v___y_277_;
 v___y_271_ = v___x_279_;
 goto v___jp_268_;
 }
@@ -867,8 +867,8 @@ lean_object* v_val_280_;
 v_val_280_ = lean_ctor_get(v_ltInst_x3f_221_, 0);
 lean_inc(v_val_280_);
 lean_dec_ref_known(v_ltInst_x3f_221_, 1);
-v___y_269_ = v___y_277_;
-v___y_270_ = v___y_276_;
+v___y_269_ = v___y_276_;
+v___y_270_ = v___y_277_;
 v___y_271_ = v_val_280_;
 goto v___jp_268_;
 }

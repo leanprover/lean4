@@ -5947,32 +5947,32 @@ return v___x_1958_;
 v___jp_1961_:
 {
 lean_object* v___x_1966_; 
-v___x_1966_ = l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___00__private_Lean_Meta_Tactic_Grind_EMatchAction_0__Lean_Meta_Grind_Action_getAllTheorems_spec__3___redArg(v___y_1962_, v___y_1964_, v___y_1963_, v___y_1965_);
+v___x_1966_ = l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___00__private_Lean_Meta_Tactic_Grind_EMatchAction_0__Lean_Meta_Grind_Action_getAllTheorems_spec__3___redArg(v___y_1963_, v___y_1964_, v___y_1962_, v___y_1965_);
 lean_dec(v___y_1965_);
-lean_dec(v___y_1962_);
+lean_dec(v___y_1963_);
 v___y_1947_ = v___x_1966_;
 goto v___jp_1946_;
 }
 v___jp_1967_:
 {
 uint8_t v___x_1972_; 
-v___x_1972_ = lean_nat_dec_le(v___y_1971_, v___y_1970_);
+v___x_1972_ = lean_nat_dec_le(v___y_1971_, v___y_1969_);
 if (v___x_1972_ == 0)
 {
-lean_dec(v___y_1970_);
+lean_dec(v___y_1969_);
 lean_inc(v___y_1971_);
-v___y_1962_ = v___y_1968_;
-v___y_1963_ = v___y_1971_;
-v___y_1964_ = v___y_1969_;
+v___y_1962_ = v___y_1971_;
+v___y_1963_ = v___y_1968_;
+v___y_1964_ = v___y_1970_;
 v___y_1965_ = v___y_1971_;
 goto v___jp_1961_;
 }
 else
 {
-v___y_1962_ = v___y_1968_;
-v___y_1963_ = v___y_1971_;
-v___y_1964_ = v___y_1969_;
-v___y_1965_ = v___y_1970_;
+v___y_1962_ = v___y_1971_;
+v___y_1963_ = v___y_1968_;
+v___y_1964_ = v___y_1970_;
+v___y_1965_ = v___y_1969_;
 goto v___jp_1961_;
 }
 }
@@ -5992,16 +5992,16 @@ if (v___x_1980_ == 0)
 {
 lean_inc(v___x_1979_);
 v___y_1968_ = v___x_1975_;
-v___y_1969_ = v___y_1974_;
-v___y_1970_ = v___x_1979_;
+v___y_1969_ = v___x_1979_;
+v___y_1970_ = v___y_1974_;
 v___y_1971_ = v___x_1979_;
 goto v___jp_1967_;
 }
 else
 {
 v___y_1968_ = v___x_1975_;
-v___y_1969_ = v___y_1974_;
-v___y_1970_ = v___x_1979_;
+v___y_1969_ = v___x_1979_;
+v___y_1970_ = v___y_1974_;
 v___y_1971_ = v___x_1976_;
 goto v___jp_1967_;
 }
@@ -11020,7 +11020,7 @@ goto v_resetjp_3572_;
 v_resetjp_3572_:
 {
 uint8_t v_trace_3575_; 
-v_trace_3575_ = lean_ctor_get_uint8(v_a_3571_, sizeof(void*)*15);
+v_trace_3575_ = lean_ctor_get_uint8(v_a_3571_, sizeof(void*)*17);
 lean_dec(v_a_3571_);
 if (v_trace_3575_ == 0)
 {

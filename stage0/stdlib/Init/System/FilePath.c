@@ -624,8 +624,8 @@ return v_p_100_;
 }
 else
 {
-lean_dec(v_tail_108_);
 lean_dec_ref_known(v___x_107_, 2);
+lean_dec(v_tail_108_);
 return v_p_100_;
 }
 }

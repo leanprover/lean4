@@ -77,6 +77,8 @@ private def mkReplacementHint (stx : Syntax) : CoreM MessageData := do
   -- Printing the replacement requires its category, so it must be unambiguous
   let #[cat] := Parser.getSyntaxNodeKindCategories env stx.getKind | return .nil
   let some range := stx.getRange? (canonicalOnly := true) | return .nil
+  -- Syntax that a metaprogram parsed from a string has positions in that string, not in the file
+  unless stx.getSubstring?.map (·.str) |>.isEqSome (← getFileMap).source do return .nil
   -- Elaborators may rewrite syntax before elaborating it, e.g. by lifting nested actions out of a
   -- `do` element, and the replacement of such syntax does not reflect the source
   let isRewritten (s : Syntax) := (s.isAtom || s.isIdent) && !(s.getHeadInfo matches .original ..)

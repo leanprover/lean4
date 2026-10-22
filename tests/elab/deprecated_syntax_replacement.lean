@@ -1352,6 +1352,32 @@ info: example (a b : Nat) (h : a = b) (h' : a = 0) : b = 0 := by
 #apply_suggestions! example (a b : Nat) (h : a = b) (h' : a = 0) : b = 0 := by
   rwa [h] at *
 
+/-! ## Syntax from other sources -/
+
+-- Syntax that a metaprogram parses from a string has positions in that string rather than in the
+-- file, so there is no suggestion.
+/--
+warning: syntax 'oldNum' has been deprecated: use `42` instead
+
+Note: This linter can be disabled with `set_option linter.deprecated.syntax false`
+-/
+#guard_msgs in
+#apply_suggestions run_cmd do
+  let stx ← Lean.ofExcept <| Lean.Parser.runParserCategory (← Lean.getEnv) `term "old_num"
+  discard <| Lean.Elab.Command.liftTermElabM <| Lean.Elab.Term.elabTerm stx none
+
+-- The positions may be outside the file.
+/--
+warning: syntax 'oldNum' has been deprecated: use `42` instead
+
+Note: This linter can be disabled with `set_option linter.deprecated.syntax false`
+-/
+#guard_msgs in
+run_cmd do
+  let stx ← Lean.ofExcept <| Lean.Parser.runParserCategory (← Lean.getEnv) `term
+    ("".pushn ' ' 1000000 ++ "old_num")
+  discard <| Lean.Elab.Command.liftTermElabM <| Lean.Elab.Term.elabTerm stx none
+
 /-! ## Redeprecation without alternatives removes the replacement -/
 
 deprecated_syntax oldExact "use `exact` instead" (since := "2026-10-19")

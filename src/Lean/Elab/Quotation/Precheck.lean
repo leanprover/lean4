@@ -119,7 +119,14 @@ private def isQuotLocal (quotLCtx : NameSet) (n : Name) : Bool :=
        notation "x++" => x.foo
        ```
     -/
-    if let _::_ ← realizeGlobalNameWithInfos stx val then
+    if let consts@(_::_) ← realizeGlobalNameWithInfos stx val then
+      -- As in `precheck`, identifiers produced by macro expansion are reported when elaborating the
+      -- quotation's result, which also resolves overloads. Section variables shadow constants
+      -- there, see `quoteSyntax`.
+      if let [(declName, _)] := consts then
+        unless stx.getHeadInfo matches .synthetic .. || isQuotLocal (← read).quotLCtx val ||
+            !(resolveSectionVariable (← readThe Term.Context).sectionVars val).isEmpty do
+          checkDeprecatedCore declName
       return
     if isQuotLocal (← read).quotLCtx val then
       return

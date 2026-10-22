@@ -240,7 +240,9 @@ def internalize (e : Expr) (_parent? : Option Expr) : GoalM Unit := do
     let h ← mkEqTrans h₁ (← r.getProof)
     Grind.internalize r.expr generation
     trace_goal[grind.hom] "{e}\n===>\n{r.expr}"
-    pushEq e r.expr h
+    -- Ground evaluation steps are proved by `Eq.refl` (e.g., `Eq.refl 6 : 3 * 2 = 6` for `Rat`),
+    -- which may only type check at default transparency. See #15867.
+    pushEq e r.expr (mkExpectedPropHint h (← mkEq e r.expr))
   else
     firePreds e generation
 

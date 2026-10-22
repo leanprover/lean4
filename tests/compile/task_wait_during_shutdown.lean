@@ -2,8 +2,8 @@
 A task that is still running when `main` returns can wait for a pool task that is queued during the
 exit, and the process still exits.
 
-When `main` returns, the exit waits for the running tasks, and the pool's idle workers finish. A pool
-task queued after that must still run, so a thread waiting for it, directly or through `Task.map`,
+When `main` returns, the exit keeps running tasks until none is running or queued. A pool task queued
+during the exit must therefore still run, so a thread waiting for it, directly or through `Task.map`,
 `Task.bind`, `IO.waitAny` or `Task.get`, is not blocked forever. The task may be queued by a dedicated
 task, by a pool task that then waits for it, or by a dedicated task finishing.
 
@@ -13,12 +13,11 @@ Each mode starts and waits differently. The parent runs each child, which is the
 `.no_interpret`, and kills it if it has not exited after a few seconds.
 -/
 
-/-- Returns once the task manager is shutting down and its idle workers have exited. -/
+/-- Returns once the task manager is shutting down. -/
 def waitForShutdown : IO Unit := do
   -- `IO.checkCanceled` holds for every task once the task manager shuts down.
   while !(← IO.checkCanceled) do
     IO.sleep 10
-  IO.sleep 100
 
 def sleepUntilCanceled : IO Unit := do
   while !(← IO.checkCanceled) do
@@ -35,7 +34,9 @@ def startAndWait (mode : String) : IO Unit := do
     let t ← IO.asTask (pure 42 : IO Nat)
     discard <| IO.waitAny [t]
   | "get" =>
-    let t := Task.spawn fun _ => 42
+    -- Depends on a runtime value, so that it is not a closed term spawned during initialization.
+    let n ← IO.monoMsNow
+    let t := Task.spawn fun _ => n
     discard <| IO.lazyPure fun _ => t.get
   | "map" =>
     let t ← IO.asTask (pure 42 : IO Nat)

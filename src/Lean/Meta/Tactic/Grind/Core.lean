@@ -230,6 +230,9 @@ where
       next := rhsRoot.next
     }
     let heqProofs := isHEq || rhsRoot.heqProofs || lhsRoot.heqProofs
+    -- We must also retrieve `rhsRoot`: it may be a parent of `lhsRoot.self`, and
+    -- `reinsertParents` may have updated its `congr` field. See #15871.
+    let rhsRoot ← getENode rhsRoot.self
     setENode rhsNode.root { rhsRoot with
       next       := lhsRoot.next
       size       := rhsRoot.size + lhsRoot.size

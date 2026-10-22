@@ -6,7 +6,8 @@ Authors: David Thrane Christiansen
 module
 
 prelude
-public import Lean.Data.Markdown.CaseFolding
+public import Lean.Data.Markdown.Unicode.CaseFolding
+public import Lean.Data.Markdown.Unicode.CharacterClasses
 public import Lean.Data.Markdown.Basic
 public import Lean.Data.Markdown.Text
 public import Lean.Data.Markdown.Parser

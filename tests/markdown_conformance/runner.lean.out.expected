@@ -1,5 +1,5 @@
-Skipped: 98/655 (14%)
-Overall: 557/557 (100%)
+Skipped: 92/655 (14%)
+Overall: 563/563 (100%)
 
 Per section:
   ATX headings:
@@ -21,10 +21,9 @@ Per section:
     Skip:
       HTML: 2
   Emphasis and strong emphasis:
-    Pass: 123/123 (100%)
+    Pass: 129/129 (100%)
     Skip:
       HTML: 3
-      Unicode flanking: 6
   Entity and numeric character references:
     Pass: 16/16 (100%)
     Skip:

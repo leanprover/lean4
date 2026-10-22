@@ -98,6 +98,30 @@ unmatched brackets are text. The nesting depth of brackets does not affect parsi
 /-- info: "text⟪[foo][bar]⟫" -/
 #guard_msgs in #eval showParagraph "[foo][bar]\n\n[foo]: /u"
 
+/-!
+## Emphasis next to Unicode punctuation and whitespace
+
+The flanking rules classify characters by Unicode category for Latin-1, Greek, and the symbol
+blocks, so `_` emphasis opens after and closes before a mathematical symbol, a `*` after a currency
+sign cannot close, and a no-break space is whitespace.
+-/
+
+/-- Whether the first paragraph of `src` contains emphasis. -/
+def hasEmphasis (src : String) : Bool :=
+  (firstParagraph src).any fun | .italic .. | .bold .. => true | _ => false
+
+/-- info: "text⟪→⟫ italic[text⟪x⟫] text⟪→⟫" -/
+#guard_msgs in #eval showParagraph "→_x_→"
+
+/-- info: "text⟪*£*bravo⟫" -/
+#guard_msgs in #eval showParagraph "*£*bravo"
+
+/-- info: "italic[text⟪α⟫] text⟪β⟫" -/
+#guard_msgs in #eval showParagraph "*α*β"
+
+/-- info: [false, true] -/
+#guard_msgs in #eval [hasEmphasis "*\u00A0a\u00A0*", hasEmphasis "*a*"]
+
 /-! ## Text decoding -/
 
 /-- info: "a*b&#&amp;&bogus;\\q" -/

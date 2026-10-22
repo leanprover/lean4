@@ -13,6 +13,7 @@ public import Lean.Data.Markdown.Basic
 public import Lean.Data.Markdown.Text
 public import Lean.Data.Markdown.InlineSource
 public import Lean.Data.Markdown.Parser.Block
+import Lean.Data.Markdown.Unicode.CharacterClasses
 import Lean.Data.Markdown.Parser.Emphasis
 
 namespace Lean.Markdown
@@ -294,10 +295,10 @@ Returns a tuple in which the first projection is true when the delimiter sequenc
 and the second is true when it can close emphasis.
 -/
 def classifyDelim (ch prevChar nextChar : Char) : Bool × Bool :=
-  let beforeWs := prevChar.isWhitespace
-  let afterWs := nextChar.isWhitespace
-  let beforePunct := isAsciiPunctuation prevChar
-  let afterPunct := isAsciiPunctuation nextChar
+  let beforeWs := isUnicodeWhitespace prevChar
+  let afterWs := isUnicodeWhitespace nextChar
+  let beforePunct := isUnicodePunctuation prevChar
+  let afterPunct := isUnicodePunctuation nextChar
   let leftFlanking := !afterWs && (!afterPunct || beforeWs || beforePunct)
   let rightFlanking := !beforeWs && (!beforePunct || afterWs || afterPunct)
   let canOpen :=

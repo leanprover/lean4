@@ -407,7 +407,6 @@ private def isExampleCloseFence (line : String.Slice) : Bool :=
 /-- Returns `some` with an explanation if the test should be skipped -/
 def skip? (md : String) : Option String :=
   if hasHtml md then some "HTML"
-  else if hasUnicodeFlanking md then some "Unicode flanking"
   else none
 
 where
@@ -452,24 +451,6 @@ where
           l := l.drop 1
       else
         l := l.drop 1
-    return false
-  /--
-  Whether `l` has a `*` or `_` immediately adjacent (no intervening
-  whitespace) to a non-ASCII character. CommonMark's emphasis flanking
-  rule classifies the surrounding char by Unicode general category, so
-  a correct verdict here would need full Pc/Pd/Pe/Pf/Pi/Po/Ps/Sc/Sk/Sm/So
-  data. We don't have it, so any test that relies on classifying a
-  non-ASCII char around an emphasis delimiter is skipped.
-  -/
-  hasUnicodeFlanking (l : String.Slice) : Bool := Id.run do
-    let mut i := l.startPos
-    while h : i ≠ l.endPos do
-      let c := i.get h
-      let i' := i.next h
-      if c == '*' || c == '_' then
-        if (∃ (h : i ≠ l.startPos), (i.prev h |>.get String.Slice.Pos.prev_ne_endPos).toNat ≥ 0x80) then return true
-        if (∃ (h' : i.next h ≠ l.endPos), (i.next h |>.get h').toNat ≥ 0x80) then return true
-      i := i'
     return false
 
 

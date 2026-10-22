@@ -1,4 +1,4 @@
-import Lean.Data.Markdown.CaseFolding
+import Lean.Data.Markdown.Unicode.CaseFolding
 import Std.Data.HashMap
 
 /-!

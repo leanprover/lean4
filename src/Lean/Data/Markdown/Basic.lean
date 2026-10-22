@@ -12,7 +12,7 @@ public import Init.Data.String.Subslice
 public import Init.Data.String.Lemmas.Order
 import Init.Data.String.OrderInstances
 import Init.Data.String.Iterate
-import Lean.Data.Markdown.CaseFolding
+import Lean.Data.Markdown.Unicode.CaseFolding
 public import Init.Data.String.FindPos
 
 namespace Lean.Markdown

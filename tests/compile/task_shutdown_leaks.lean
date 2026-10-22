@@ -2,22 +2,21 @@
 Tasks queued during the exit still run, so they do not leak.
 
 Each child returns from `main` while a dedicated task is still running. Once the task manager is
-shutting down and its idle workers have exited, that task queues pool tasks that nobody waits for, in a
-different way per mode. They must still run and print, and they and what their closures capture (here a
-1 MB array) must be freed. A leak is only reported by LeakSanitizer, i.e. in the sanitize build, where a
-leaking child prints the report and exits with a nonzero code.
+shutting down, that task queues pool tasks that nobody waits for, in a different way per mode. They must
+still run and print, and they and what their closures capture (here a 1 MB array) must be freed. A leak
+is only reported by LeakSanitizer, i.e. in the sanitize build, where a leaking child prints the report and
+exits with a nonzero code.
 
-`dedicatedDependent` needs no `IO.checkCanceled`: `main` returns while a dedicated task that has a pool
-dependent is still running. `task_queued_during_shutdown_leak` covers a plain `IO.asTask`. The children
-are the compiled binary, hence `.no_interpret`.
+In `dedicatedDependent`, the dedicated task has a pool dependent from the start, and finishing during the
+exit queues it. `task_queued_during_shutdown_leak` covers a plain `IO.asTask`. The children are the
+compiled binary, hence `.no_interpret`.
 -/
 
-/-- Returns once the task manager is shutting down and its idle workers have exited. -/
+/-- Returns once the task manager is shutting down. -/
 def waitForShutdown : IO Unit := do
   -- `IO.checkCanceled` holds for every task once the task manager shuts down.
   while !(← IO.checkCanceled) do
     IO.sleep 10
-  IO.sleep 100
 
 /-- Sized at runtime, so that the array is allocated rather than compiled to a constant. -/
 def mkPayload : IO ByteArray :=
@@ -91,7 +90,7 @@ def main (args : List String) : IO Unit := do
   | ["dedicatedDependent"] =>
     let p ← mkPayload
     let t ← IO.asTask (prio := .dedicated) do
-      IO.sleep 200
+      waitForShutdown
       use "dedicatedDependent: source" p
     discard <| IO.mapTask (fun _ => use "dedicatedDependent: dependent" p) t
     IO.println "dedicatedDependent: child returns from main"

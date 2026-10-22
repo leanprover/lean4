@@ -7,3 +7,4 @@ module
 
 prelude
 public import Lean.Elab.DeprecatedSyntax.Basic
+public import Lean.Elab.DeprecatedSyntax.FormatReplacement

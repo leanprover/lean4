@@ -552,12 +552,10 @@ where
       if let some tag := info.infoString? then
         out := pushTok out tag .function
       for line in lines do
-        out := pushTok out line .markupCodeBlock
-    | .indentedCode lines =>
-      for (range, _) in lines do
-        out := pushTok out range .markupCodeBlock
-    | .html lines =>
-      out := pushLines out lines .markupCodeBlock
+        out := pushTok out line.source .markupCodeBlock
+    | .indentedCode lines | .html lines =>
+      for line in lines do
+        out := pushTok out line.source .markupCodeBlock
     | .blockquote markers children =>
       for m in markers do
         out := pushDelimiter out m

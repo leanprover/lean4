@@ -299,13 +299,16 @@ indented docstring, and are skipped before the line is parsed.
 /-- Shows the block structure of a document, with paragraph text and code block lines. -/
 partial def showBlock {s : String.Slice} : Block s → String
   | .paragraph content => s!"paragraph⟪{showInline.showInlines content}⟫"
-  | .indentedCode lines => s!"indentedCode{repr (lines.map (·.2))}"
-  | .fencedCode _ _ _ lines => s!"fencedCode{repr (lines.map (·.copy))}"
-  | .list _ _ items => s!"list[{", ".intercalate (items.toList.map showBlock)}]"
+  | .indentedCode lines => s!"indentedCode{repr (lines.map (·.text))}"
+  | .fencedCode _ _ _ lines => s!"fencedCode{repr (lines.map (·.text))}"
+  | .list _ tight items =>
+    s!"{if tight then "list" else "looseList"}[{", ".intercalate (items.toList.map showBlock)}]"
+  | .setextHeading _ content _ => s!"setext⟪{showInline.showInlines content}⟫"
+  | .linkRefDef _ => "refDef"
   | .listItem _ children => s!"item[{", ".intercalate (children.toList.map showBlock)}]"
   | .atxHeading _ _ content _ => s!"heading⟪{showInline.showInlines content}⟫"
   | .blockquote _ children => s!"blockquote[{", ".intercalate (children.toList.map showBlock)}]"
-  | .html lines => s!"html{repr lines.copy}"
+  | .html lines => s!"html{repr (lines.map (·.text))}"
   | _ => "other"
 
 def showDocument (src : String) (indent : Nat) : List String :=
@@ -328,7 +331,7 @@ def showDocument (src : String) (indent : Nat) : List String :=
 -- code block, and a list item whose continuation and second paragraph are indented to its content.
 /--
 info: ["paragraph⟪text⟪Intro⟫ softBreak text⟪continued⟫⟫", "indentedCode#[\"code line\", \"  more code\"]",
- "list[item[paragraph⟪text⟪item⟫ softBreak text⟪item continued⟫⟫, paragraph⟪text⟪item paragraph⟫⟫]]"]
+ "looseList[item[paragraph⟪text⟪item⟫ softBreak text⟪item continued⟫⟫, paragraph⟪text⟪item paragraph⟫⟫]]"]
 -/
 #guard_msgs in #eval showDocument
   "    Intro\n      continued\n\n        code line\n          more code\n\n    - item\n      item continued\n\n      item paragraph\n" 4
@@ -378,6 +381,126 @@ line, any marker starts a list.
 -- After a blockquote that did not continue, likewise.
 /-- info: ["blockquote[paragraph⟪text⟪a⟫⟫]", "list[item[paragraph⟪text⟪b⟫⟫]]"] -/
 #guard_msgs in #eval showDocument "> a\n5. b\n" 0
+
+/-!
+## List tightness
+
+A list is loose when two blocks of one of its items are separated by a blank line (CommonMark
+§5.3). Blank lines after the list, and blank lines inside an indented code block, are not separators.
+-/
+
+/-- info: ["list[item[paragraph⟪text⟪a⟫⟫]]", "paragraph⟪text⟪b⟫⟫"] -/
+#guard_msgs in #eval showDocument "- a\n\n\nb\n" 0
+
+/-- info: ["looseList[item[paragraph⟪text⟪a⟫⟫, paragraph⟪text⟪b⟫⟫]]"] -/
+#guard_msgs in #eval showDocument "- a\n\n\n  b\n" 0
+
+-- The blank line after an indented code block is consumed by the block, and still separates it from
+-- the paragraph that follows.
+/-- info: ["looseList[item[indentedCode#[\"e\"], paragraph⟪text⟪h⟫⟫]]"] -/
+#guard_msgs in #eval showDocument "1.     e\n\n   h\n" 0
+
+/-- info: ["list[item[indentedCode#[\"e\", \"\", \"f\"]]]"] -/
+#guard_msgs in #eval showDocument "1.     e\n\n       f\n" 0
+
+-- A blank line inside a nested list separates the outer item from its sibling too, but a blank line
+-- inside a blockquote belongs to the blockquote.
+/-- info: ["looseList[item[paragraph⟪text⟪a⟫⟫, list[item[paragraph⟪text⟪b⟫⟫]]], item[paragraph⟪text⟪c⟫⟫]]"] -/
+#guard_msgs in #eval showDocument "- a\n  - b\n\n- c\n" 0
+
+/-- info: ["looseList[item[blockquote[paragraph⟪text⟪a⟫⟫]], item[paragraph⟪text⟪b⟫⟫]]"] -/
+#guard_msgs in #eval showDocument "- > a\n\n- b\n" 0
+
+/-- info: ["list[item[blockquote[list[item[]]]], item[paragraph⟪text⟪f⟫⟫]]"] -/
+#guard_msgs in #eval showDocument "-\n  >-\n  >\n- f\n" 0
+
+/-- info: ["list[item[paragraph⟪text⟪a⟫⟫, blockquote[list[item[paragraph⟪text⟪b⟫⟫]]], paragraph⟪text⟪c⟫⟫]]"] -/
+#guard_msgs in #eval showDocument "- a\n  > - b\n  >\n  c\n" 0
+
+-- A blank line before a new item of the nested list makes only the nested list loose; before a new
+-- block of the outer item, the outer list.
+/-- info: ["list[item[paragraph⟪text⟪a⟫⟫, looseList[item[paragraph⟪text⟪c⟫⟫], item[]]]]"] -/
+#guard_msgs in #eval showDocument "- a\n  - c\n\n  -\n" 0
+
+/-- info: ["looseList[item[paragraph⟪text⟪a⟫⟫, list[item[paragraph⟪text⟪b⟫⟫]], list[item[paragraph⟪text⟪c⟫⟫]]]]"] -/
+#guard_msgs in #eval showDocument "- a\n  - b\n\n  1. c\n" 0
+
+/-- info: ["looseList[item[paragraph⟪text⟪a⟫⟫, blockquote[paragraph⟪text⟪b⟫⟫]]]"] -/
+#guard_msgs in #eval showDocument "- a\n\n  > b\n" 0
+
+/-!
+## Link titles
+
+A parenthesized title may contain `(` and `)` only backslash-escaped (CommonMark §6.3).
+-/
+
+/-- info: "text⟪[a](/u (x(y))⟫" -/
+#guard_msgs in #eval showParagraph "[a](/u (x(y))"
+
+/-- info: [["(", "x\\(y", ")"]] -/
+#guard_msgs in #eval titleParts "[a](/u (x\\(y))"
+
+/-!
+## Canceled setext headings
+
+A setext heading whose text is nothing but link reference definitions is no heading. Its underline
+is paragraph text, which the following paragraph or setext heading continues.
+-/
+
+/-- info: ["refDef", "setext⟪text⟪===⟫ softBreak text⟪bar⟫⟫"] -/
+#guard_msgs in #eval showDocument "[foo]: /url\n===\nbar\n---\n" 0
+
+/-- info: ["refDef", "paragraph⟪text⟪===⟫ softBreak link[text⟪foo⟫]⟫"] -/
+#guard_msgs in #eval showDocument "[foo]: /url\n===\n[foo]\n" 0
+
+/-- info: ["refDef", "paragraph⟪text⟪===⟫⟫"] -/
+#guard_msgs in #eval showDocument "[foo]: /url\n===\n" 0
+
+-- The paragraph that the underline starts is still open, so the next line may continue it lazily,
+-- and a blank line ends it.
+/-- info: ["blockquote[refDef, paragraph⟪text⟪-⟫ softBreak text⟪h⟫⟫]"] -/
+#guard_msgs in #eval showDocument ">[r]:\n]\n>-\nh\n" 0
+
+/-- info: ["refDef", "paragraph⟪text⟪=⟫⟫", "paragraph⟪text⟪]⟫⟫"] -/
+#guard_msgs in #eval showDocument "[o]:l\n=\n\n]\n" 0
+
+/-!
+## Tabs in verbatim blocks
+
+A tab ends inside a container prefix or a block's indentation when the columns it spans straddle
+that boundary (CommonMark §2.2). The remaining columns of the tab are leading spaces of the line in
+code blocks and HTML blocks. On a blank line, a list item's prefix takes all of the line's whitespace.
+-/
+
+-- After `1.`, the content column is 3, so a tab leaves one column; after `*`, two.
+/-- info: ["list[item[html#[\" <v>\"]]]"] -/
+#guard_msgs in #eval showDocument "1.\n\t<v>\n" 0
+
+/-- info: ["list[item[html#[\"  <e>\"]]]"] -/
+#guard_msgs in #eval showDocument "*\n\t<e>\n" 0
+
+/-- info: ["list[item[indentedCode#[\"  foo\"]]]"] -/
+#guard_msgs in #eval showDocument "-\t\tfoo\n" 0
+
+-- A fence indented one column takes one column of a tab on each content line.
+/-- info: ["fencedCode#[\"   \"]"] -/
+#guard_msgs in #eval showDocument " ```\n\t\n```\n" 0
+
+-- A blank line in a list item has no content left for the code block.
+/-- info: ["list[item[fencedCode#[\"\"]]]"] -/
+#guard_msgs in #eval showDocument "1) ~~~\n\t\n   ~~~\n" 0
+
+-- A tab that begins after the indentation is content, even at a column that is no tab stop.
+/-- info: ["looseList[item[paragraph⟪text⟪x⟫⟫, indentedCode#[\"\\tfoo\"]]]"] -/
+#guard_msgs in #eval showDocument "1. x\n\n       \tfoo\n" 0
+
+-- Indentation that continues past a partly consumed tab leaves no tab columns for the line.
+/-- info: ["list[item[indentedCode#[\".\"]]]"] -/
+#guard_msgs in #eval showDocument "+\n\t  .\n" 0
+
+-- The remaining column of a tab is indentation of a closing fence.
+/-- info: ["list[item[fencedCode#[]]]"] -/
+#guard_msgs in #eval showDocument "2) ```\n\t```\n" 0
 
 /-!
 ## HTML blocks

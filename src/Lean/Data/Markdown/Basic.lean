@@ -92,6 +92,25 @@ public structure FenceInfo (s : String.Slice) where
 deriving Inhabited
 
 /--
+A line of a code block or HTML block, after the prefixes of the enclosing containers and the block's
+own indentation.
+
+A tab spans the columns up to the next tab stop (CommonMark §2.2), so the indentation may end partway
+through a tab. Such a tab is not part of `source`, and its columns after the indentation are
+`leadingSpaces`.
+-/
+public structure VerbatimLine (s : String.Slice) where
+  /-- The line's source, without its line ending. -/
+  source : s.Subslice
+  /-- The number of columns of a tab that the indentation ends partway through. -/
+  leadingSpaces : Nat := 0
+deriving Inhabited
+
+/-- The line's text: `leadingSpaces` spaces followed by the source. -/
+public def VerbatimLine.text {s : String.Slice} (line : VerbatimLine s) : String :=
+  "".pushn ' ' line.leadingSpaces ++ line.source.copy
+
+/--
 The text of a construct that may span source lines: one subslice per line, in source order, with at
 least one line. The subslices exclude the line endings and the prefixes of enclosing containers.
 -/
@@ -200,19 +219,17 @@ public inductive Block.Raw (s : String.Slice) where
   /--
   A fenced code block. `openFence`/`closeFence?` are the fences. The closing fence is
   optional because an unterminated fenced code block spans the rest of the input. The content
-  `lines` exclude up to `info.openIndent` leading spaces.
+  `lines` exclude up to `info.openIndent` columns of indentation.
   -/
   | fencedCode (info : FenceInfo s) (openFence : s.Subslice) (closeFence? : Option s.Subslice)
-    (lines : Array s.Subslice)
+    (lines : Array (VerbatimLine s))
   /--
-  An indented code block: a sequence of lines indented four or more columns. Each element is a pair
-  of the line's source after the four columns of indentation that the block consumed (relative
-  to the parent container) and its processed content, in which any partial tab at that point is
-  materialized as the appropriate number of spaces per CommonMark §2.2.
+  An indented code block: a sequence of lines indented four or more columns, which exclude those
+  four columns.
   -/
-  | indentedCode (lines : Array (s.Subslice × String))
-  /-- An HTML block (CommonMark §4.6). The lines are verbatim source. -/
-  | html (lines : Lines s)
+  | indentedCode (lines : Array (VerbatimLine s))
+  /-- An HTML block (CommonMark §4.6), which has at least one line. -/
+  | html (lines : Array (VerbatimLine s))
   /--
   A blockquote container. `markers` contains every `>` marker, in source order, and
   `children` contains the contained blocks.
@@ -372,9 +389,9 @@ public inductive Block (s : String.Slice) where
     (closeHashes? : Option s.Subslice)
   | setextHeading (level : Nat) (content : Array (Inline s)) (underline : s.Subslice)
   | fencedCode (info : FenceInfo s) (openFence : s.Subslice) (closeFence? : Option s.Subslice)
-    (lines : Array s.Subslice)
-  | indentedCode (lines : Array (s.Subslice × String))
-  | html (lines : Lines s)
+    (lines : Array (VerbatimLine s))
+  | indentedCode (lines : Array (VerbatimLine s))
+  | html (lines : Array (VerbatimLine s))
   | blockquote (markers : Array s.Subslice) (children : Array (Block s))
   | list (kind : ListKind) (tight : Bool) (items : Array (Block s))
   | listItem (marker : s.Subslice) (children : Array (Block s))
@@ -496,10 +513,10 @@ public partial def Block.extent? : Block s → Option s.Subslice
     let start := (Inline.extentOf? content).map (·.startInclusive) |>.getD underline.startInclusive
     some (subsliceClamped start underline.endExclusive)
   | .fencedCode _ openFence closeFence? lines =>
-    let stop := closeFence?.map (·.endExclusive) <|> lines.back?.map (·.endExclusive)
+    let stop := closeFence?.map (·.endExclusive) <|> lines.back?.map (·.source.endExclusive)
     some (subsliceClamped openFence.startInclusive (stop.getD openFence.endExclusive))
-  | .indentedCode lines => span? (lines.map (·.1))
-  | .html lines => some lines.extent
+  | .indentedCode lines => span? (lines.map (·.source))
+  | .html lines => span? (lines.map (·.source))
   | .blockquote markers children => do
     let first ← markers[0]?
     let last ← markers.back?

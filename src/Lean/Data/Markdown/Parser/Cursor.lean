@@ -40,6 +40,11 @@ public structure Cursor (s : String.Slice) where
   the next multiple of 4.
   -/
   col : Nat
+  /--
+  Whether `pos` is at a tab of which some columns, up to `col`, belong to a container prefix or to
+  a block's indentation. The remaining columns belong to the line's content.
+  -/
+  partialTab : Bool := false
 
 namespace Cursor
 
@@ -61,7 +66,14 @@ Moves the cursor to position `p` and column `newCol`. The caller is responsible 
 `p` is between `c.pos` and `c.stop` and that `newCol` is the column of `p`.
 -/
 @[inline] public def moveTo (c : Cursor s) (p : s.Pos) (newCol : Nat) : Cursor s :=
-  { c with pos := p, col := newCol }
+  { c with pos := p, col := newCol, partialTab := false }
+
+/--
+Consumes `cols` columns of the tab at the cursor, leaving the position at the tab (CommonMark §2.2's
+partial-tab rule). The caller is responsible for ensuring that the tab has that many columns left.
+-/
+@[inline] public def intoTab (c : Cursor s) (cols : Nat) : Cursor s :=
+  { c with col := c.col + cols, partialTab := true }
 
 /-- The character at the cursor, if the cursor is not at the end of the line. -/
 @[inline] public def front? (c : Cursor s) : Option Char :=
@@ -74,7 +86,7 @@ one, which is correct for every character but a tab; for tabs use `countIndentCo
 -/
 @[inline] public def next (c : Cursor s) : Cursor s :=
   if h : c.pos < c.stop then
-    { c with pos := c.pos.next (String.Slice.Pos.ne_endPos_of_lt h), col := c.col + 1 }
+    { c with pos := c.pos.next (String.Slice.Pos.ne_endPos_of_lt h), col := c.col + 1, partialTab := false }
   else c
 
 /--
@@ -92,12 +104,22 @@ skipping use `countIndentCols` or `consumeIndentCapped`.
     let h' := String.Slice.Pos.ne_endPos_of_lt h
     if !pred (c.pos.get h') then break
     count := count + 1
-    c := { c with pos := c.pos.next h', col := c.col + 1 }
+    c := { c with pos := c.pos.next h', col := c.col + 1, partialTab := false }
   return (c, count)
 
 /-- Whether the rest of the line is blank (only spaces or tabs). -/
 public def isBlank (c : Cursor s) : Bool :=
   let (cAfterWs, _) := c.advanceWhile fun ch => ch == ' ' || ch == '\t'
   cAfterWs.isEmpty
+
+/--
+The rest of the line as a line of verbatim block content. A partly consumed tab at the cursor is
+excluded from the source, and its remaining columns become the line's leading spaces.
+-/
+public def verbatimLine (c : Cursor s) : VerbatimLine s :=
+  if c.partialTab then
+    { source := subsliceClamped c.next.pos c.stop, leadingSpaces := 4 - c.col % 4 }
+  else
+    { source := c.toEol }
 
 end Cursor

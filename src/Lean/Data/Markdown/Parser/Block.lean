@@ -13,6 +13,7 @@ import Init.Data.Range.Polymorphic.Iterators
 import Init.Data.Range.Polymorphic.Nat
 public import Lean.Data.Markdown.Basic
 public import Lean.Data.Markdown.InlineSource
+public import Lean.Data.Markdown.Parser.RefDef
 import Lean.Data.Markdown.Parser.Cursor
 import Lean.Data.Markdown.Parser.BlockZipper
 import Lean.Data.Markdown.Parser.Html
@@ -36,21 +37,6 @@ folding covers ASCII, Latin-1, and Greek.
 variable {s : String.Slice}
 
 /--
-Skips ASCII spaces at `p`, stopping at `stop`. Returns the count and the position after them.
--/
-def skipSpaces (p stop : s.Pos) : Nat × s.Pos := Id.run do
-  let mut p := p
-  let mut n := 0
-  while h : p < stop do
-    let h' := String.Slice.Pos.ne_endPos_of_lt h
-    if p.get h' == ' ' then
-      n := n + 1
-      p := p.next h'
-    else
-      break
-  return (n, p)
-
-/--
 Counts tab-aware leading whitespace (CommonMark §2.2): each tab advances to the next 4-column tab
 stop, computed relative to the cursor's current column. Returns the advanced cursor and the total
 number of columns consumed. Tabs are always crossed in full.
@@ -63,20 +49,14 @@ def countIndentCols (c : Cursor s) : Cursor s × Nat := Id.run do
     let ch := c.pos.get h'
     if ch == ' ' then
       cols := cols + 1
-      c := { c with pos := c.pos.next h', col := c.col + 1 }
+      c := { c with pos := c.pos.next h', col := c.col + 1, partialTab := false }
     else if ch == '\t' then
       let advance := 4 - c.col % 4
       cols := cols + advance
-      c := { c with pos := c.pos.next h', col := c.col + advance }
+      c := { c with pos := c.pos.next h', col := c.col + advance, partialTab := false }
     else
       break
   return (c, cols)
-
-/--
-Builds a `String` of `n` ASCII spaces.
--/
-def spaces (n : Nat) : String :=
-  n.fold (init := "") fun _ _ acc => acc.push ' '
 
 /--
 Consumes up to `maxCols` columns of leading whitespace at `c`, with tab-aware column counting.
@@ -95,38 +75,23 @@ def consumeIndentCapped (c : Cursor s) (maxCols : Nat) : Cursor s × Nat := Id.r
     let ch := c.pos.get h'
     if ch == ' ' then
       cols := cols + 1
-      c := { c with pos := c.pos.next h', col := c.col + 1 }
+      c := { c with pos := c.pos.next h', col := c.col + 1, partialTab := false }
     else if ch == '\t' then
       let advance := 4 - c.col % 4
       if cols + advance > maxCols then
-        -- Partial tab: the position stays at the tab; the column advances by the requested amount
-        -- only. The remaining tab columns are observable to the next consumer through the cursor's
-        -- position and column.
-        c := { c with col := c.col + (maxCols - cols) }
+        c := c.intoTab (maxCols - cols)
         cols := maxCols
       else
         cols := cols + advance
-        c := { c with pos := c.pos.next h', col := c.col + advance }
+        c := { c with pos := c.pos.next h', col := c.col + advance, partialTab := false }
     else
       break
   return (c, cols)
 
-/--
-Converts a line of an indented code block into the string that it denotes.
-
-Renders a line of indented-code content: strips up to 4 columns of leading indentation (relative to
-the cursor's current column) and materializes any partial-tab leftover as ASCII spaces (CommonMark
-§2.2). The cursor may land mid-tab when the indentation doesn't fall on a tab-stop boundary; in that
-case, the leftover columns of that tab become spaces in the rendered output.
--/
-def indentedCodeLineToString (c : Cursor s) : String := Id.run do
-  let (c', _) := consumeIndentCapped c 4
-  let mut leftoverPrefix := ""
-  let mut contentStart := c'.pos
-  if c'.front? == some '\t' && c'.col % 4 != 0 then
-    leftoverPrefix := spaces (4 - c'.col % 4)
-    contentStart := c'.next.pos
-  return leftoverPrefix ++ (subsliceClamped contentStart c.stop).copy
+/-- The line at `c` as a line of an indented code block: its content after four columns of indentation. -/
+def indentedCodeLine (c : Cursor s) : VerbatimLine s :=
+  let (afterIndent, _) := consumeIndentCapped c 4
+  afterIndent.verbatimLine
 
 /-- The position after the last character in `[start, stop)` that is not a space or tab. -/
 def trimTrailingWs (start stop : s.Pos) : s.Pos := Id.run do
@@ -297,14 +262,13 @@ The closing fence must match `info`'s character, be at least as long as the open
 only by spaces or tabs.
 -/
 def parseFenceClose? (c : Cursor s) (info : FenceInfo s) : Option s.Subslice := do
-  let (indent, p) := skipSpaces c.pos c.stop
+  let (cAtFence, indent) := countIndentCols c
   guard (indent ≤ 3)
-  let cAtFence := c.moveTo p indent
   guard <| cAtFence.front? == some info.fenceChar.toChar
   let (cAfterFence, count) := cAtFence.advanceWhile (· == info.fenceChar.toChar)
   guard <| count ≥ info.fenceLen
   guard cAfterFence.isBlank
-  return subsliceClamped p cAfterFence.pos
+  return subsliceClamped cAtFence.pos cAfterFence.pos
 
 /--
 Parses a single blockquote marker (`>` plus optional space). Returns the marker and a
@@ -328,8 +292,7 @@ def parseBlockquoteMarker? (c : Cursor s) : Option (s.Subslice × Cursor s) := d
       -- Tab equivalent to one column; cross it fully.
       return (marker, afterMarker.next)
     else
-      -- Partial tab: leave the position in place but advance the column.
-      return (marker, afterMarker.moveTo afterMarker.pos (baseCol + 1))
+      return (marker, afterMarker.intoTab 1)
   | _ => return (marker, afterMarker)
 
 /--
@@ -499,8 +462,6 @@ structure LineState (s : String.Slice) where
   zipper : BlockZipper s
   /-- The cursor that advances through the block-inducing prefixes of the line. -/
   cursor : Cursor s
-  /-- Whether the preceding line was blank.-/
-  prevBlank : Bool
 
 /--
 The state during the early container-continuation phase that tracks the length of the suffix of the
@@ -591,55 +552,28 @@ def continueContainers : ContainerM s Unit := do
         -- Lists themselves have no continuation marker; their listItem children do.
         st := { st with matched := st.matched + 1, matched_le := h }
       | .listItem _ contentColumn =>
-        -- Try to consume `contentColumn` cols of indent (in cols, tab-aware
-        -- with partial-tab support).
-        let (cAfter, consumed) := consumeIndentCapped st.cursor contentColumn
-        if consumed ≥ contentColumn then
-          st := { st with cursor := cAfter, matched := st.matched + 1, matched_le := h }
-        else if st.cursor.isBlank then
-          -- A blank line continues the listItem (cursor not advanced).
-          st := { st with matched := st.matched + 1, matched_le := h }
+        if st.cursor.isBlank then
+          -- A blank line continues the list item, and all of its whitespace belongs to the prefix.
+          let (afterWhitespace, _) := countIndentCols st.cursor
+          st := { st with cursor := afterWhitespace, matched := st.matched + 1, matched_le := h }
         else
-          break
+          -- The item continues when `contentColumn` columns of indentation can be consumed, with
+          -- a tab consumed in part when it straddles that column.
+          let (cAfter, consumed) := consumeIndentCapped st.cursor contentColumn
+          if consumed ≥ contentColumn then
+            st := { st with cursor := cAfter, matched := st.matched + 1, matched_le := h }
+          else
+            break
     else
       break
   set st
 
 /--
-Tightness (CommonMark §5.3): if the previous line was blank and the deepest open `listItem` in the
-matched range is being extended on this line, mark the *innermost* enclosing list as loose. Outer
-list items see the blank as part of their nested child's body, not as a separator between their own
-direct children.
--/
-def markEnclosingListLoose : ContainerM s Unit := do
-  let st ← get
-  unless st.prevBlank do return
-  -- Indices within the matched range are kept valid using `Fin st.matched` combined with
-  -- `st.matched_le`. The traversal goes from `st.matched - 1` down to `0`, breaking on the first
-  -- listItem found.
-  if h0 : 0 < st.matched then
-    let mut i : Fin st.matched := ⟨st.matched - 1, Nat.sub_one_lt_of_lt h0⟩
-    repeat
-      have h_i : i.val < st.zipper.spine.size := Nat.lt_of_lt_of_le i.isLt st.matched_le
-      if let .listItem _ _ := (st.zipper.spine[i]).container then
-        if h_pos : 0 < i.val then
-          have h_im1 : ↑i - 1 < st.zipper.spine.size := Nat.sub_lt_of_lt h_i
-          if let .list _ := (st.zipper.spine[↑i - 1]).container then
-            modify fun st' =>
-              { st' with
-                zipper :=
-                  { st'.zipper with
-                    spine := st'.zipper.spine.modify (i.val - 1) ({ · with loose := true }) }
-                matched_le := by cases st'; simpa
-              }
-        break
-      if h_pos : 0 < i.val then
-        i := ⟨i.val - 1,  Nat.sub_lt_of_lt i.isLt⟩
-      else
-        break
+Closes the open paragraph as a heading when the line is a setext underline (CommonMark §4.3).
 
-/--
-Checks whether to upgrade the preceding block to a Setext header.
+Link reference definitions at the front of the paragraph become blocks before the heading, and the
+remaining lines are the heading's text. When the paragraph contains only definitions, conversion to
+a heading fails and the underline begins a new paragraph.
 -/
 def trySetextHeading : ContainerM s Unit := do
   unless (← get).zipper.spine.size == (← get).matched do return
@@ -647,8 +581,13 @@ def trySetextHeading : ContainerM s Unit := do
   let cursor := (← get).cursor
   let some level := parseSetextUnderline? cursor | return
   let underline := cursor.toEol
+  let (defs, residual) := extractRefDefs (InlineSource.ofLines lines)
   ContainerM.finishLineWith fun z =>
-    BlockZipper.addBlock { z with openLeaf? := none } (.setextHeading level lines underline)
+    let z := defs.foldl BlockZipper.addBlock { z with openLeaf? := none }
+    if residual.lines.isEmpty then
+      z.openLeaf (.paragraph #[underline])
+    else
+      z.addBlock (.setextHeading level residual.lines underline)
 
 /--
 Lazy paragraph continuation: if some containers failed to continue but we have an open paragraph and
@@ -686,7 +625,9 @@ def consumeFencedCode : ProcessM s Unit := do
   let cursor := (← get).cursor
   match parseFenceClose? cursor info with
   | some closeFence => finishLineWith (·.closeFencedCode closeFence)
-  | none => finishLineWith (·.extendFencedCode (dropIndent cursor.toEol info.openIndent))
+  | none =>
+    let (afterIndent, _) := consumeIndentCapped cursor info.openIndent
+    finishLineWith (·.extendFencedCode afterIndent.verbatimLine)
 
 /--
 An HTML block consumes lines verbatim until its end condition is met (CommonMark §4.6). A line that
@@ -700,10 +641,10 @@ def consumeHtmlBlock : ProcessM s Unit := do
     if cursor.isBlank then
       modify fun st => { st with zipper := st.zipper.closeLeaf }
     else
-      finishLineWith (·.extendHtml cursor.toEol)
+      finishLineWith (·.extendHtml cursor.verbatimLine)
   else
-    let line := cursor.toEol
-    if kind.endConditionMet line then
+    let line := cursor.verbatimLine
+    if kind.endConditionMet line.source then
       finishLineWith fun z => (z.extendHtml line).closeLeaf
     else
       finishLineWith (·.extendHtml line)
@@ -713,19 +654,18 @@ Indented code consumes 4+-indented lines verbatim and records blank lines provis
 line closes the block and falls through to the remaining steps.
 -/
 def consumeIndentedCode : ProcessM s Unit := do
-  let some (.indentedCode _ _) := (← get).zipper.openLeaf? | return
+  let some (.indentedCode _ pendingBlanks) := (← get).zipper.openLeaf? | return
   let cursor := (← get).cursor
-  let rendered := indentedCodeLineToString cursor
   if cursor.isBlank then
-    let (cAfter, _) := consumeIndentCapped cursor 4
-    let range := subsliceClamped cAfter.pos cursor.stop
-    finishLineWith (·.indentedCodeAddBlank range rendered)
+    finishLineWith (·.indentedCodeAddBlank (indentedCodeLine cursor))
   let (_, indent) := countIndentCols cursor
   if indent ≥ 4 then
-    let (cAfter, _) := consumeIndentCapped cursor 4
-    let range := subsliceClamped cAfter.pos cursor.stop
-    finishLineWith (·.indentedCodeAddLine range rendered)
-  modify fun st => { st with zipper := st.zipper.closeLeaf }
+    finishLineWith (·.indentedCodeAddLine (indentedCodeLine cursor))
+  -- The block ends here. Blank lines after its last content line separate it from the block that
+  -- this line begins in the same list item, which makes the list loose (CommonMark §5.3).
+  modify fun st =>
+    let z := st.zipper.closeLeaf
+    { st with zipper := if pendingBlanks.isEmpty then z else z.markLooseAbove 0 }
 
 /--
 If the deepest container is a list whose previous item just closed and this line is non-blank
@@ -769,12 +709,6 @@ def openContainerPrefixes : ProcessM s Bool := do
             match z.top? with
             | some (.list k) =>
               if k.sameKind m.kind then
-                -- Blank-line-then-new-sibling-item makes the list loose.
-                let z :=
-                  if st.prevBlank then
-                    let lastIdx := z.spine.size - 1
-                    { z with spine := z.spine.modify lastIdx fun f => { f with loose := true } }
-                  else z
                 z.openContainer (.listItem m.marker m.contentColumn)
               else
                 z.closeContainer
@@ -815,16 +749,16 @@ def tryBlankLine (openedListItemThisLine : Bool) : ProcessM s Unit := do
         if let .listItem _ _ := lastFrame.container then
           if lastFrame.closedChildren.isEmpty then
             z := z.closeContainer
-    -- Only propagate “previous line was blank” when the deepest open container is itself a list
-    -- item (case A: blank inside an item's body) or a list (case B: my empty-item close just popped
-    -- the list item). Blanks deeper than a list item (e.g. inside a blockquote nested inside a
-    -- listItem) are *not* separators between siblings of the enclosing list and so don't make it
-    -- loose.
+    -- The blank line may make a list loose when the deepest open container is a list item (the
+    -- blank line is inside the item's body) or a list (the empty item just closed). A blank line
+    -- inside a blockquote keeps to the blockquote.
     let topIsListLike :=
       match z.spine.back?.map (·.container) with
       | some (.listItem _ _) | some (.list _) => true
       | _ => false
-    return { z with lastWasBlank := topIsListLike && !openedListItemThisLine }
+    let blankLineFloor? :=
+      if topIsListLike && !openedListItemThisLine then some z.listLikeFloor else none
+    return { z with blankLineFloor? }
 
 /-- Parses an ATX heading -/
 def tryAtxHeading : ProcessM s Unit := do
@@ -845,11 +779,11 @@ def tryHtmlBlockOpener : ProcessM s Unit := do
   let some kind := parseHtmlBlockStart? cursor | return
   if let some (.paragraph _) := (← get).zipper.openLeaf? then
     unless kind.interruptsParagraph do return
-  let line := cursor.toEol
-  if kind.endConditionMet line then
-    finishLineWith (·.addBlock (.html (.singleton line)))
+  let line := cursor.verbatimLine
+  if kind.endConditionMet line.source then
+    finishLineWith (·.addBlock (.html #[line]))
   else
-    finishLineWith (·.openLeaf (.html kind (.singleton line)))
+    finishLineWith (·.openLeaf (.html kind #[line]))
 
 /--
 Parses the start of an indented code block.
@@ -859,10 +793,7 @@ def tryIndentedCodeOpener : ProcessM s Unit := do
   let cursor := (← get).cursor
   let (_, indent) := countIndentCols cursor
   unless indent ≥ 4 do return
-  let (cAfter, _) := consumeIndentCapped cursor 4
-  let range := subsliceClamped cAfter.pos cursor.stop
-  let rendered := indentedCodeLineToString cursor
-  finishLineWith (·.openLeaf (.indentedCode #[(range, rendered)] #[]))
+  finishLineWith (·.openLeaf (.indentedCode #[indentedCodeLine cursor] #[]))
 
 /--
 Starts a new paragraph, or extends the one that's open.
@@ -879,15 +810,10 @@ def emitParagraph : ProcessM s Unit := do
 Processes a single source line, updating the zipper.
 -/
 def processLine (z : BlockZipper s) (line : s.Subslice) : BlockZipper s :=
-  -- Capture and clear `lastWasBlank` at line entry so it represents "the
-  -- previous line was blank" for the duration of this call.
-  let prevBlank := z.lastWasBlank
-  let z : BlockZipper s := { z with lastWasBlank := false }
-  let init : LineState s := { zipper := z, cursor := Cursor.ofLine line, prevBlank }
+  let init : LineState s := { zipper := z, cursor := Cursor.ofLine line }
   let pipeline : ProcessM s Unit := do
     let matched ← runContainerM do
       continueContainers
-      markEnclosingListLoose
       trySetextHeading
       tryLazyContinuation
     closeNonContinuingContainers matched
@@ -917,262 +843,9 @@ def parseBlocksRaw (s : String.Slice) (indent : Nat := 0) : Array (Block.Raw s) 
   return z.finalize
 
 /--
-Parses the content of a link label (CommonMark §6.3) at `cur`, which is positioned just
-after the `[`.
-Newlines are permitted inside the label so long as no blank line appears, and unescaped brackets are
-not. The label must contain at least one non-whitespace character and at most 999 characters.
-Returns the label's lines and the cursor positioned at the closing `]`.
--/
-public def parseLinkLabel? (cur : InlineCursor s) : Option (Lines s × InlineCursor s) := do
-  let labelStart := cur.startPos
-  let mut cur := cur
-  let mut len := 0
-  let mut sawNonWs := false
-  let mut sawNewline := false
-  while len < 1000 do
-    let some c := cur.front? | break
-    let curNext := cur.drop1
-    if c == '\\' && !curNext.isEmpty then
-      let esc := curNext.front
-      if esc != ' ' && esc != '\t' && esc != '\n' then sawNonWs := true
-      sawNewline := false
-      cur := curNext.drop1
-      len := len + 2
-    else if c == ']' then
-      guard sawNonWs
-      return (cur.source.linesBetween labelStart cur.startPos, cur)
-    else if c == '[' then
-      failure
-    else if c == '\n' then
-      guard !sawNewline  -- blank line in label
-      sawNewline := true
-      cur := curNext
-      len := len + 1
-    else
-      if c != ' ' && c != '\t' then
-        sawNonWs := true
-        sawNewline := false
-      cur := curNext
-      len := len + 1
-  none
-
-/--
-Parses the destination of a link reference definition at the head of `cur`, in the
-bracketed `<url>` or unbracketed form. Returns the destination and the cursor positioned just past
-it. Fails
-on an unclosed `<`, an empty destination, unbalanced parens, or an embedded `\n`.
--/
-def parseRefDefUrl? (cur : InlineCursor s) : Option (LinkDestination s × InlineCursor s) := do
-  let urlStart := cur.startPos
-  if cur.front? == some '<' then
-    -- Bracketed: scan until the next `>`; reject `<` and `\n`.
-    let openAngle ← cur.charSubslice?
-    let mut cur := cur.drop1
-    let urlContentStart := cur.startPos
-    let mut closeAngle? : Option s.Subslice := none
-    while !cur.isEmpty && closeAngle?.isNone do
-      let c := cur.front
-      let curNext := cur.drop1
-      if c == '\\' && !curNext.isEmpty then
-        cur := curNext.drop1
-      else if c == '>' then
-        closeAngle? := cur.charSubslice?
-        cur := curNext
-      else if c == '<' || c == '\n' then
-        failure
-      else
-        cur := curNext
-    let closeAngle ← closeAngle?
-    let destination : LinkDestination s :=
-      { angles? := some (openAngle, closeAngle)
-        url := subsliceClamped urlContentStart closeAngle.startInclusive }
-    return (destination, cur)
-  else
-    -- Unbracketed: stop at whitespace/control; balance parens.
-    guard !cur.isEmpty
-    let mut cur := cur
-    let mut parenDepth : Nat := 0
-    while !cur.isEmpty do
-      let c := cur.front
-      let curNext := cur.drop1
-      if c == '\\' && !curNext.isEmpty then
-        cur := curNext.drop1
-      else if c == ' ' || c == '\t' || c == '\n' then
-        break
-      else if c == '(' then
-        parenDepth := parenDepth + 1
-        cur := curNext
-      else if c == ')' then
-        if parenDepth == 0 then break
-        parenDepth := parenDepth - 1
-        cur := curNext
-      else if c.toNat < 0x20 then
-        break
-      else
-        cur := curNext
-    guard <| cur.startPos != urlStart  -- non-empty destination
-    guard <| parenDepth == 0
-    return ({ angles? := none, url := subsliceClamped urlStart cur.startPos }, cur)
-
-/--
-Skips the whitespace gap between a link reference definition's `:` and its destination: spaces,
-tabs, and at most one newline. Returns `none` if a blank line (two newlines) is encountered.
--/
-def skipRefDefDestGap (cur : InlineCursor s) : Option (InlineCursor s) := do
-  let mut cur := cur
-  let mut newlinesSeen := 0
-  repeat
-    let some c := cur.front? | break
-    if c == ' ' || c == '\t' then cur := cur.drop1
-    else if c == '\n' then
-      newlinesSeen := newlinesSeen + 1
-      if newlinesSeen ≥ 2 then failure
-      cur := cur.drop1
-    else break
-  return cur
-
-/--
-Consumes any same-line trailing whitespace from `cur`, then an optional single `\n`. Returns the
-cursor past the `\n` (or at end-of-buffer if the line was the last). Returns `none` if
-non-whitespace content remains on the line.
--/
-def consumeRefDefLineEnd (cur : InlineCursor s) : Option (InlineCursor s) := do
-  let mut cur := cur
-  while cur.front? == some ' ' || cur.front? == some '\t' do
-    cur := cur.drop1
-  if cur.isEmpty then return cur
-  if cur.front? == some '\n' then return cur.drop1
-  none
-
-/--
-Tries to consume an optional title following the destination of a link reference definition, plus
-any trailing whitespace and the line's `\n`. Returns the title and the cursor past the trailing `\n`
-(or end-of-buffer).
-
-The title may sit on the *same line* as the URL (separated by at least one space or tab and
-delimited by `"…"`/`'…'`/`(…)`) or on the *next line*, after exactly one newline plus optional
-indentation.
-
-A blank line inside the title is forbidden, as is an unescaped `(` inside a `(…)` title. After the
-closing delimiter, only same-line whitespace and an optional trailing newline are permitted;
-otherwise the title attempt is abandoned (`none`) so the caller can fall back to a no-title
-interpretation.
--/
-def parseRefDefTitle? (cur : InlineCursor s) : Option (LinkTitle s × InlineCursor s) := do
-  -- Locate the title opener: either same-line after whitespace, or on the
-  -- next line after a single newline plus optional leading whitespace.
-  let mut sawWs := false
-  let mut p := cur
-  while p.front? == some ' ' || p.front? == some '\t' do
-    sawWs := true
-    p := p.drop1
-  let mut openerR : InlineCursor s := p
-  if p.front? == some '\n' then
-    openerR := p.drop1
-    while openerR.front? == some ' ' || openerR.front? == some '\t' do
-      openerR := openerR.drop1
-  else
-    guard sawWs
-  let opener ← openerR.front?
-  guard <| opener == '"' || opener == '\'' || opener == '('
-  let openerRange ← openerR.charSubslice?
-  -- Parse content up to a matching closer; reject blank lines and unescaped
-  -- `(` in `(...)` titles.
-  let closer : Char := if opener == '(' then ')' else opener
-  let afterOpener := openerR.drop1
-  let titleContentStart := afterOpener.startPos
-  let mut tt := afterOpener
-  let mut titleContentEnd := titleContentStart
-  let mut closerRange? : Option s.Subslice := none
-  let mut bail := false
-  let mut lastWasNewline := false
-  while !tt.isEmpty && closerRange?.isNone && !bail do
-    let c := tt.front
-    let curPos := tt.startPos
-    let ttNext := tt.drop1
-    if c == '\\' && !ttNext.isEmpty then
-      tt := ttNext.drop1
-      lastWasNewline := false
-    else if c == closer then
-      titleContentEnd := curPos
-      closerRange? := tt.charSubslice?
-      tt := ttNext
-    else if c == opener && opener == '(' then
-      bail := true  -- unescaped `(` inside a `(...)` title is forbidden
-    else if c == '\n' then
-      if lastWasNewline then bail := true
-      else
-        lastWasNewline := true
-        tt := ttNext
-    else
-      if c != ' ' && c != '\t' then lastWasNewline := false
-      tt := ttNext
-  guard !bail
-  let closerRange ← closerRange?
-  let afterEol ← consumeRefDefLineEnd tt
-  let title : LinkTitle s :=
-    { opener := openerRange, content := cur.source.linesBetween titleContentStart titleContentEnd,
-      closer := closerRange }
-  return (title, afterEol)
-
-/--
-Tries to parse a CommonMark link reference definition starting at `start` in `source`. Recognizes
-both bracketed `<url>` and unbracketed link destinations, and optional `"…"`/`'…'`/`(…)` titles
-(which may appear on the line following the URL). The label may span multiple lines, but no blank
-line is permitted inside it.
-
-Returns the definition plus the position one past the last consumed character.
--/
-public def parseLinkRefDef? (source : InlineSource s) (start : s.Pos) : Option (RefDef s × s.Pos) := do
-  -- 0–3 spaces of indentation. `InlineSource.ofLines` has already removed each line's leading
-  -- spaces and tabs.
-  let cur0 := source.cursor start source.stopPos
-  let (cur, indent) := cur0.takeSequence ' '
-  guard (indent ≤ 3)
-  -- `[label]`.
-  let (openBracket, cur) ← cur.parseChar? '['
-  let (label, cur) ← parseLinkLabel? cur
-  let (closeBracket, cur) ← cur.parseChar? ']'
-  -- `:`.
-  let (colon, cur) ← cur.parseChar? ':'
-  -- Whitespace (including up to one newline) before the destination.
-  let cur ← skipRefDefDestGap cur
-  -- Destination.
-  let (destination, afterUrl) ← parseRefDefUrl? cur
-  -- Optional title; on a syntactic failure or on trailing junk, fall back to
-  -- a no-title interpretation, in which case the URL itself must end the
-  -- line.
-  let (title?, finalRest) ←
-    (parseRefDefTitle? afterUrl |>.map fun (t, cur) => (some t, cur)) <|>
-    (consumeRefDefLineEnd afterUrl |>.map fun cur => (none, cur))
-  return ({ openBracket, label, closeBracket, colon, destination, title? }, finalRest.startPos)
-
-/--
-Greedily consumes link ref definitions from the front of `source`.
-
-Returns the extracted `linkRefDef` blocks and a residual `InlineSource`.
--/
-public def extractRefDefs (source : InlineSource s) :
-    Array (Block.Raw s) × InlineSource s := Id.run do
-  let mut defs : Array (Block.Raw s) := #[]
-  let mut p := source.startPos
-  let mut keep := true
-  while keep && p < source.stopPos do
-    match parseLinkRefDef? source p with
-    | none => keep := false
-    | some (m, posAfter) =>
-      defs := defs.push (.linkRefDef m)
-      p := posAfter
-  return (defs, source.dropUpTo p)
-
-/--
-Traverses blocks, extracting link reference definitions off the front of each paragraph and setext-style
-heading. Emits a `linkRefDef` block in source order for each successful extraction.
-
-If a setext heading's *entire* content is consumed by extraction, the heading is canceled. The
-underline line is reinterpreted as paragraph text and merged with the following paragraph (if any)
-without a blank separator, since they were originally one paragraph in source. A setext heading
-whose preceding “paragraph” is just link reference definitions is not a heading at all.
+Traverses blocks, extracting link reference definitions off the front of each paragraph, and emits a
+`linkRefDef` block in source order for each. Setext headings had their definitions extracted at their
+underline (`trySetextHeading`).
 -/
 partial def postProcessRefDefs (blocks : Array (Block.Raw s)) : Array (Block.Raw s) := Id.run do
   let mut out : Array (Block.Raw s) := #[]
@@ -1189,28 +862,6 @@ partial def postProcessRefDefs (blocks : Array (Block.Raw s)) : Array (Block.Raw
         for d in defs do out := out.push d
         unless residual.lines.isEmpty do
           out := out.push (.paragraph residual.lines)
-    | .setextHeading level lines underline =>
-      let (defs, residual) := extractRefDefs (InlineSource.ofLines lines)
-      if defs.isEmpty then
-        out := out.push (.setextHeading level lines underline)
-      else if !residual.lines.isEmpty then
-        for d in defs do out := out.push d
-        out := out.push (.setextHeading level residual.lines underline)
-      else
-        for d in defs do out := out.push d
-        -- Heading canceled: treat the underline as a paragraph line and,
-        -- if the next block is a paragraph (no blank separator existed in
-        -- source), merge them so e.g. `[foo]: /url\n===\n[foo]` becomes
-        -- a single paragraph `===\n[foo]` after the link ref def is taken.
-        let mut combinedLines : Array s.Subslice := #[underline]
-        if h : i + 1 < blocks.size then
-          if let .paragraph lines2 := blocks[i + 1] then
-            combinedLines := combinedLines ++ lines2
-            i := i + 1
-        let (defs2, residual2) := extractRefDefs (InlineSource.ofLines combinedLines)
-        for d in defs2 do out := out.push d
-        unless residual2.lines.isEmpty do
-          out := out.push (.paragraph residual2.lines)
     | .blockquote markers children =>
       let newChildren := postProcessRefDefs children
       out := out.push (.blockquote markers newChildren)

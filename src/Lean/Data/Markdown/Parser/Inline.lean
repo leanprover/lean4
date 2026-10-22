@@ -238,6 +238,9 @@ def parseInlineLinkTarget? (cur : InlineCursor s) :
       else if c == closer then
         titleEnd? := some q
         break
+      else if c == '(' && closer == ')' then
+        -- An unescaped `(` inside a parenthesized title fails the title (CommonMark §6.3).
+        break
       else
         titleRest := titleRestNext
     let te ← titleEnd?

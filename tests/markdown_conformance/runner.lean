@@ -3,8 +3,11 @@ Conformance runner for the CommonMark reference test suite.
 
 Usage:
   lean --run tests/markdown_conformance/runner.lean [path/to/spec.txt]
+  lean --run tests/markdown_conformance/runner.lean --batch documents.json
 
-Defaults to `tests/markdown_conformance/spec.txt`.
+Defaults to `tests/markdown_conformance/spec.txt`. With `--batch`, the file is a JSON array of
+Markdown documents, and the output is a JSON array of their HTML renderings, for comparison with a
+reference implementation.
 
 Reads the spec source directly: examples are embedded in long-backtick
 fences (`````… example`), with `.` separating the markdown input from the
@@ -26,6 +29,7 @@ Obtain the spec source with:
 module
 import Lean.Data.Markdown
 import all Lean.Data.Markdown.Parser.Inline
+import Lean.Data.Json
 import Std.Data.HashMap
 
 open Std
@@ -229,12 +233,12 @@ partial def renderBlock (b : Block s) : String :=
         let lang := (r.copy.takeWhile fun c => c != ' ' && c != '\t').toString
         s!" class=\"language-{escape (decodeText lang)}\""
       | none => ""
-    let codeContent := lines.foldl (init := "") fun acc r =>
-      acc ++ escape r.copy ++ "\n"
+    let codeContent := lines.foldl (init := "") fun acc line =>
+      acc ++ escape line.text ++ "\n"
     s!"<pre><code{langClass}>{codeContent}</code></pre>\n"
   | .indentedCode lines =>
-    let codeContent := lines.foldl (init := "") fun acc (_, l) =>
-      acc ++ escape l ++ "\n"
+    let codeContent := lines.foldl (init := "") fun acc line =>
+      acc ++ escape line.text ++ "\n"
     s!"<pre><code>{codeContent}</code></pre>\n"
   | .blockquote _ children =>
     let inner := children.foldl (init := "") fun acc c => acc ++ renderBlock c
@@ -251,10 +255,8 @@ partial def renderBlock (b : Block s) : String :=
       match item with
       | .listItem _ children =>
         if !tight then
-          if children.isEmpty then s!"<li></li>\n"
-          else
-            let inner := children.foldl (init := "") fun acc c => acc ++ renderBlock c
-            s!"<li>\n{inner}</li>\n"
+          let inner := children.foldl (init := "") fun acc c => acc ++ renderBlock c
+          if inner.isEmpty then s!"<li></li>\n" else s!"<li>\n{inner}</li>\n"
         else
           let body : String := Id.run do
             let mut out := ""
@@ -269,9 +271,12 @@ partial def renderBlock (b : Block s) : String :=
                 out := out ++ renderBlock c
               i := i + 1
             return out
-          let firstIsPara := children.size > 0
-            && (match children[0]! with | .paragraph .. => true | _ => false)
-          if children.isEmpty then s!"<li></li>\n"
+          -- Reference definitions render as nothing, so the first rendered child decides.
+          let firstIsPara :=
+            match children.find? (fun | .linkRefDef .. => false | _ => true) with
+            | some (.paragraph ..) => true
+            | _ => false
+          if body.isEmpty then s!"<li></li>\n"
           else if firstIsPara then s!"<li>{body}</li>\n"
           else s!"<li>\n{body}</li>\n"
       | _ => renderBlock item
@@ -285,7 +290,7 @@ partial def renderBlock (b : Block s) : String :=
     s!"<li>\n{inner}</li>\n"
   | .linkRefDef .. => ""
   | .thematicBreak _ => "<hr />\n"
-  | .html lines => lines.text ++ "\n"
+  | .html lines => "\n".intercalate (lines.toList.map (·.text)) ++ "\n"
 
 /-- Renders an array of top-level blocks. -/
 def renderBlocks (blocks : Array (Block s)) : String :=
@@ -378,6 +383,8 @@ structure Opts where
   spec? : Option String := none
   section? : Option String := none
   verbose : Bool := false
+  /-- A JSON array of documents to render instead of running the suite. -/
+  batch? : Option String := none
 
 def Opts.spec (o : Opts) : String := o.spec?.getD "tests/markdown_conformance/spec.txt"
 
@@ -386,6 +393,7 @@ def readOpts (opts : Opts) : List String → IO Opts
   | "--section" :: sec :: more =>
     readOpts { opts with «section?» := some sec } more
   | "--verbose" :: more | "-v" :: more => readOpts { opts with verbose := true } more
+  | "--batch" :: path :: more => readOpts { opts with batch? := some path } more
   | spec :: more =>
     if spec.startsWith "-" then
       throw <| .userError s!"Unknown option {spec}"
@@ -394,8 +402,30 @@ def readOpts (opts : Opts) : List String → IO Opts
     else
       readOpts { opts with spec? := some spec } more
 
+/--
+Renders each document of the JSON array in the file at `path` and prints the renderings as a JSON
+array.
+-/
+def runBatch (path : String) : IO UInt32 := do
+  let source ← IO.FS.readFile path
+  match Lean.Json.parse source >>= (·.getArr?) with
+  | .error e =>
+    IO.eprintln s!"{path}: {e}"
+    return 2
+  | .ok docs =>
+    let mut renderings : Array Lean.Json := #[]
+    for doc in docs do
+      match doc.getStr? with
+      | .error e =>
+        IO.eprintln s!"{path}: {e}"
+        return 2
+      | .ok md => renderings := renderings.push (Lean.Json.str (Html.renderToHtml md))
+    IO.println (Lean.Json.arr renderings).compress
+    return 0
+
 public def main (args : List String) : IO UInt32 := do
   let opts ← readOpts {} args
+  if let some path := opts.batch? then return ← runBatch path
   let path := opts.spec
   let source ← IO.FS.readFile path
   let entries := extractEntries source

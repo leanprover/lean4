@@ -76,26 +76,22 @@ public inductive OpenLeaf (s : String.Slice) where
   appears (yielding `Block.Raw.fencedCode` with `closeFence? := some _`) or the parent container
   closes at EOF (yielding `closeFence? := none`).
   -/
-  | fencedCode (info : FenceInfo s) (openFence : s.Subslice) (lines : Array s.Subslice)
+  | fencedCode (info : FenceInfo s) (openFence : s.Subslice) (lines : Array (VerbatimLine s))
   /--
   An open indented code block.
 
-  - `lines` are the content lines committed so far. Each element is a pair of the line's source
-    after the 4 cols of indent that defined the code block (relative to the parent container's
-    content column) and the rendered string, in which any partial tab at that point is materialized
-    per CommonMark §2.2.
+  - `lines` are the content lines committed so far, after the four columns of indentation.
   - `pendingBlanks` records blank lines that may belong to this block: they are promoted to `lines`
     when a subsequent indented line continues the block, and discarded when an unindented non-blank
     line closes the block. This matches CommonMark's rule that blank lines between indented chunks
     are part of the code block, but blank lines following the final chunk are not.
   -/
-  | indentedCode (lines : Array (s.Subslice × String))
-      (pendingBlanks : Array (s.Subslice × String))
+  | indentedCode (lines : Array (VerbatimLine s)) (pendingBlanks : Array (VerbatimLine s))
   /--
   An open HTML block. `kind` selects the end condition, and `lines` accumulates the block's lines,
   starting with the one that met the start condition.
   -/
-  | html (kind : HtmlBlockKind) (lines : Lines s)
+  | html (kind : HtmlBlockKind) (lines : Array (VerbatimLine s))
 deriving Inhabited
 
 /--
@@ -120,11 +116,12 @@ public structure BlockZipper (s : String.Slice) where
   /-- An open leaf node, if one is present. -/
   openLeaf? : Option (OpenLeaf s) := none
   /--
-  Whether the previous source line was blank (after consuming the current open containers'
-  prefixes). Used to mark enclosing lists as loose when a blank line is followed by content that
-  continues the list (CommonMark §5.3).
+  After a blank line that may make a list loose (CommonMark §5.3), the least spine index of a list or
+  list item whose blocks the blank line separates: from that index to the deepest open container,
+  every frame is a list or a list item. `none` after a blank line whose deepest open container is a
+  blockquote, since a blockquote keeps its blank lines to itself, and after the next block begins.
   -/
-  lastWasBlank : Bool := false
+  blankLineFloor? : Option Nat := none
 deriving Inhabited
 
 namespace BlockZipper
@@ -169,14 +166,49 @@ public def closeLeaf (z : BlockZipper s) : BlockZipper s :=
     let z := z.pushChild (leafToBlock leaf)
     { z with openLeaf? := none }
 
+/--
+The least spine index from which every deeper frame is a list or a list item: one past the deepest
+blockquote, or `0` when there is none.
+-/
+public def listLikeFloor (z : BlockZipper s) : Nat := Id.run do
+  let mut i := z.spine.size
+  while i > 0 do
+    i := i - 1
+    if let some { container := .blockquote .., .. } := z.spine[i]? then return i + 1
+  return 0
+
+/--
+Marks a list as loose (CommonMark §5.3) when the deepest open container is a list item or a list at
+index `floor` or deeper: a blank line separates the blocks of that item, or the items of that list.
+-/
+public def markLooseAbove (z : BlockZipper s) (floor : Nat) : BlockZipper s :=
+  let top := z.spine.size - 1
+  if z.spine.isEmpty || top < floor then z
+  else
+    match z.spine[top]? with
+    | some { container := .listItem .., .. } =>
+      { z with spine := z.spine.modify (top - 1) ({ · with loose := true }) }
+    | some { container := .list _, .. } =>
+      { z with spine := z.spine.modify top ({ · with loose := true }) }
+    | _ => z
+
+/--
+Records that a block begins as a child of the deepest open container. A blank line since the
+container's previous block makes its list loose.
+-/
+def startBlock (z : BlockZipper s) : BlockZipper s :=
+  match z.blankLineFloor? with
+  | some floor => { z.markLooseAbove floor with blankLineFloor? := none }
+  | none => z
+
 /-- Pushes a new container onto the spine, closing any open leaf first. -/
 public def openContainer (z : BlockZipper s) (c : OpenContainer s) : BlockZipper s :=
-  let z := z.closeLeaf
+  let z := z.closeLeaf.startBlock
   { z with spine := z.spine.push { container := c } }
 
 /-- Replaces the open leaf at the bottom of the spine, closing any prior one. -/
 public def openLeaf (z : BlockZipper s) (l : OpenLeaf s) : BlockZipper s :=
-  let z := z.closeLeaf
+  let z := z.closeLeaf.startBlock
   { z with openLeaf? := some l }
 
 /--
@@ -184,7 +216,7 @@ Adds a finalized block as a child of the deepest open container, closing any ope
 for blocks like ATX headings that don't go through `OpenLeaf`.
 -/
 public def addBlock (z : BlockZipper s) (b : Block.Raw s) : BlockZipper s :=
-  z.closeLeaf.pushChild b
+  z.closeLeaf.startBlock.pushChild b
 
 /--
 Replaces the open leaf with the result of `f`, applied to the current leaf. The leaf is taken out of
@@ -204,13 +236,13 @@ public def extendParagraph (z : BlockZipper s) (line : s.Subslice) : BlockZipper
     | leaf => leaf
 
 /-- Appends a verbatim line to the open fenced code block, if any. Otherwise, does nothing. -/
-public def extendFencedCode (z : BlockZipper s) (line : s.Subslice) : BlockZipper s :=
+public def extendFencedCode (z : BlockZipper s) (line : VerbatimLine s) : BlockZipper s :=
   z.modifyLeaf fun
     | .fencedCode info openFence lines => .fencedCode info openFence (lines.push line)
     | leaf => leaf
 
 /-- Appends a verbatim line to the open HTML block, if any. Otherwise, does nothing. -/
-public def extendHtml (z : BlockZipper s) (line : s.Subslice) : BlockZipper s :=
+public def extendHtml (z : BlockZipper s) (line : VerbatimLine s) : BlockZipper s :=
   z.modifyLeaf fun
     | .html kind lines => .html kind (lines.push line)
     | leaf => leaf
@@ -227,10 +259,9 @@ public def closeFencedCode (z : BlockZipper s) (closeFence : s.Subslice) : Block
 Appends an indented content line to the open indented code block. Any pending blanks recorded since
 the last content line are promoted to real content lines first.
 -/
-public def indentedCodeAddLine (z : BlockZipper s) (range : s.Subslice) (rendered : String) :
-    BlockZipper s :=
+public def indentedCodeAddLine (z : BlockZipper s) (line : VerbatimLine s) : BlockZipper s :=
   z.modifyLeaf fun
-    | .indentedCode lines pendingBlanks => .indentedCode (lines ++ pendingBlanks |>.push (range, rendered)) #[]
+    | .indentedCode lines pendingBlanks => .indentedCode (lines ++ pendingBlanks |>.push line) #[]
     | leaf => leaf
 
 /--
@@ -238,10 +269,9 @@ Records a blank line provisionally inside the open indented code block. It is in
 block if a later indented line continues the block; otherwise, it is discarded when the block
 closes.
 -/
-public def indentedCodeAddBlank (z : BlockZipper s) (range : s.Subslice) (rendered : String) :
-    BlockZipper s :=
+public def indentedCodeAddBlank (z : BlockZipper s) (line : VerbatimLine s) : BlockZipper s :=
   z.modifyLeaf fun
-    | .indentedCode lines pendingBlanks => .indentedCode lines (pendingBlanks.push (range, rendered))
+    | .indentedCode lines pendingBlanks => .indentedCode lines (pendingBlanks.push line)
     | leaf => leaf
 
 /--

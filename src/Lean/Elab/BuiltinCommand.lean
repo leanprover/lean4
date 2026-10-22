@@ -779,11 +779,11 @@ def elabShowDeprecatedModules : CommandElab := fun _ => do
 
 open Parser.Term in
 /--
-Defines the `Macro` given by the alternatives `alts` of a `deprecated_syntax` command for `kind`.
-Returns the name of the definition, or `none` if it failed to elaborate.
+Defines the `Macro` given by the alternatives `alts` of a `deprecated_syntax` command for `kind` and
+returns its name. Throws if the alternatives are invalid, so that the command has no effect.
 -/
 private def elabDeprecatedSyntaxReplacement (kind : SyntaxNodeKind) (alts : Array Syntax) :
-    CommandElabM (Option Name) := withRef (mkNullNode alts) do
+    CommandElabM Name := withRef (mkNullNode alts) do
   let alts : Array (TSyntax ``matchAlt) := alts.map (⟨·⟩)
   let catchAllAlt? : Option (Term × Term) := do
     let #[alt] := alts | none
@@ -803,13 +803,15 @@ private def elabDeprecatedSyntaxReplacement (kind : SyntaxNodeKind) (alts : Arra
     elabCommand <| ← `(public meta def $(mkIdentFrom (← getRef) id):ident : Lean.Macro := $body)
   let declName := (← getCurrNamespace) ++ id
   let env ← getEnv
-  let some val := env.findConstVal? declName | return none
+  -- Elaboration errors of the alternatives have already been reported
+  let some info := env.find? declName | throwAbortCommand
+  if info.value?.any (·.hasSyntheticSorry) then
+    throwAbortCommand
   if (IR.getSorryDep env declName).isSome then
-    return none
+    throwError "invalid deprecated_syntax alternatives, they must not use `sorry`"
   -- Section variables used by the alternatives become parameters of the definition
-  unless val.type.isConstOf ``Lean.Macro do
-    logError "invalid deprecated_syntax alternatives, they must not refer to section variables"
-    return none
+  unless info.type.isConstOf ``Lean.Macro do
+    throwError "invalid deprecated_syntax alternatives, they must not refer to section variables"
   return declName
 
 @[builtin_command_elab Parser.Command.deprecatedSyntax] def elabDeprecatedSyntax : CommandElab := fun stx => do
@@ -822,7 +824,7 @@ private def elabDeprecatedSyntaxReplacement (kind : SyntaxNodeKind) (alts : Arra
       deprecation was introduced, using `(since := \"...\")`" ++
       (← liftCoreM <| Linter.mkSinceHint (mkNullNode (stx.getArgs.extract 0 4)))
   let replacement? ← if stx[4].isNone then pure none else
-    elabDeprecatedSyntaxReplacement kind stx[4][0][0].getArgs
+    some <$> elabDeprecatedSyntaxReplacement kind stx[4][0][0].getArgs
   modifyEnv fun env =>
     deprecatedSyntaxExt.addEntry env { kind, text?, since? }
   modifyEnv fun env =>

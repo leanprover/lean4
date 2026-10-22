@@ -1366,6 +1366,11 @@ Note: This linter can be disabled with `set_option linter.deprecated.syntax fals
 
 /-! ## Invalid alternatives -/
 
+-- A `deprecated_syntax` command with invalid alternatives has no effect, so this deprecation and
+-- its replacement stay in place.
+deprecated_syntax oldExact "use `exact` instead" (since := "2026-10-19")
+  | `(tactic| old_exact $e) => `(tactic| exact $e)
+
 /--
 error: invalid deprecated_syntax alternative, unexpected syntax node kind `Lean.Parser.Tactic.exact`
 -/
@@ -1381,7 +1386,7 @@ deprecated_syntax oldExact (since := "2026-10-19")
   | `(tactic| old_exact $e) => `(tactic| exact $e)
   | _ => `(tactic| trivial)
 
--- An alternative that fails to elaborate does not register a replacement.
+-- An alternative that fails to elaborate.
 /--
 error: failed to synthesize instance of type class
   HAdd (Lean.TSyntax `term) Nat (Lean.TSyntax `term)
@@ -1392,10 +1397,25 @@ Hint: Type class instance resolution failures can be inspected with the `set_opt
 deprecated_syntax oldExact (since := "2026-10-19")
   | `(tactic| old_exact $e) => `(tactic| exact $(e + 1))
 
+-- An alternative that uses `sorry`.
 /--
-warning: syntax 'oldExact' has been deprecated
+error: invalid deprecated_syntax alternatives, they must not use `sorry`
+---
+warning: declaration uses `sorry`
+-/
+#guard_msgs in
+deprecated_syntax oldExact (since := "2026-10-19")
+  | `(tactic| old_exact $_) => sorry
+
+/--
+warning: syntax 'oldExact' has been deprecated: use `exact` instead
+
+Hint: Replace the deprecated syntax:
+  o̵l̵d̵_̵exact h
 
 Note: This linter can be disabled with `set_option linter.deprecated.syntax false`
+---
+info: example (h : True) : True := by exact h
 -/
 #guard_msgs in
 #apply_suggestions example (h : True) : True := by old_exact h
@@ -1414,9 +1434,14 @@ deprecated_syntax oldNum (since := "2026-10-20")
 end
 
 /--
-warning: syntax 'oldNum' has been deprecated
+warning: syntax 'oldNum' has been deprecated: use `42` instead
+
+Hint: Replace the deprecated syntax:
+  o̵l̵d̵_̵n̵u̵m̵4̲2̲
 
 Note: This linter can be disabled with `set_option linter.deprecated.syntax false`
+---
+info: example : Nat := 42
 -/
 #guard_msgs in
 #apply_suggestions example : Nat := old_num
@@ -1427,7 +1452,7 @@ def notAMacro (n : Nat) : Lean.Macro := fun _ => `($(Lean.quote n))
 run_cmd Lean.modifyEnv (Lean.Elab.deprecatedSyntaxReplacementExt.addEntry · (`oldNum, some ``notAMacro))
 
 /--
-warning: syntax 'oldNum' has been deprecated
+warning: syntax 'oldNum' has been deprecated: use `42` instead
 
 Note: This linter can be disabled with `set_option linter.deprecated.syntax false`
 -/

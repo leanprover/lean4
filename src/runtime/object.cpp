@@ -778,7 +778,7 @@ class task_manager {
     condition_variable                            m_queue_cv;
     condition_variable                            m_task_finished_cv;
     // Notified when a dedicated worker finishes, when the last `discard` finishes dropping, and, during shutdown,
-    // once `quiescent()` holds.
+    // when the last running `(sync := true)` task finishes and once `quiescent()` holds.
     condition_variable                            m_worker_done_cv;
     // Read without the lock by `lean_io_check_canceled_core`.
     std::atomic<bool>                             m_shutting_down{false};
@@ -789,12 +789,15 @@ class task_manager {
     unsigned                                      m_unfinalized_std_workers{0};
     // Threads dropping what `discard` released; `~task_manager` waits for them.
     unsigned                                      m_discarding{0};
+    // `(sync := true)` tasks running on any thread, including ones the task manager does not own, such as the
+    // libuv loop thread.
+    unsigned                                      m_running_sync{0};
 
     // No task is queued or running. Before `m_workers_exit`, no standard worker has exited, so the busy ones
     // are those not idle.
     bool quiescent() const {
         return m_queues_size == 0 && m_idle_std_workers == m_std_workers.size() && m_num_dedicated_workers == 0 &&
-            m_unfinalized_std_workers == 0;
+            m_unfinalized_std_workers == 0 && m_running_sync == 0;
     }
 
     lean_task_object * dequeue() {
@@ -1007,6 +1010,13 @@ class task_manager {
             free_task(t);
             return;
         }
+
+        // Counted until the task has handed on its result, which below can release `lock`.
+        bool sync = imp->m_prio == LEAN_SYNC_PRIO;
+
+        if (sync)
+            m_running_sync++;
+
         reset_heartbeat();
         object * v = nullptr;
         {
@@ -1040,6 +1050,9 @@ class task_manager {
             add_dep(lean_to_task(closure_arg_cptr(c)[0]), t);
             lock.lock();
         }
+
+        if (sync && --m_running_sync == 0 && m_shutting_down)
+            m_worker_done_cv.notify_all();
     }
 
     void resolve_core(unique_lock<mutex> & lock, lean_task_object * t, object * v) {
@@ -1088,12 +1101,18 @@ public:
     }
 
     ~task_manager() {
+        if (g_current_task_object) {
+            // The drain below would wait for the calling task itself.
+            lean_internal_panic("the task manager cannot be finalized from a task");
+        }
         unique_lock<mutex> lock(m_mutex);
         m_shutting_down = true;
         m_unfinalized_std_workers = m_std_workers.size();
         m_queue_cv.notify_all();
 #ifndef LEAN_EMSCRIPTEN
-        // A running task can still queue tasks, so the workers stay until no task is running or queued.
+        // A running task can still queue tasks, so the workers stay until no task is running or queued. A
+        // `(sync := true)` task counts as running on any thread, so a continuation that the libuv loop thread or a
+        // foreign thread is running when this wait starts finishes, with what it queues, before the wait ends.
         // A thread the task manager does not own must stop queueing tasks and resolving promises before this wait
         // ends: a task it queues later, or a continuation of a promise it resolves later (`sync := true` ones
         // included), is discarded without running, and a thread waiting for it is never woken. It must not call into

@@ -1,3 +1,9 @@
-child exited with code 0
-child returns from main
-the dependent ran
+dedicated: child exited with code 0
+dedicated: child returns from main
+dedicated: the dependent ran
+pool: child exited with code 0
+pool: child returns from main
+pool: the dependent ran
+poolIdle: child exited with code 0
+poolIdle: child returns from main
+poolIdle: the dependent ran

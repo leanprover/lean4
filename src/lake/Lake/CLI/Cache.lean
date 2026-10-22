@@ -14,9 +14,9 @@ import Lake.Build.Common
 namespace Lake
 open Lean System
 
-private abbrev CacheMove := FilePath × FilePath
+abbrev CacheMove := FilePath × FilePath
 
-private def isModulePath : Name → Bool
+def isModulePath : Name → Bool
   | .str p s =>
     !s.isEmpty && s != "." && s != ".." &&
     !s.contains '/' && !s.contains '\\' && !s.contains ':' &&
@@ -24,7 +24,7 @@ private def isModulePath : Name → Bool
   | _ => false
 
 /-- Validate the entire batch before installing any of its outputs. -/
-private def planCacheUnpack
+def planCacheUnpack
   (pkg : Package) (stage : FilePath) (entries : Array (Hash × ArtifactDescr))
 : ExceptT String IO (Array CacheMove × Array (Module × ArtifactDescr)) := do
   let mut seen : Std.HashSet Name := {}

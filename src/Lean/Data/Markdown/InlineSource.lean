@@ -76,18 +76,25 @@ where
   decreasing_by all_goals omega
 
 /--
-The part of each line that is within `[p1, p2)`, in source order and without the line endings. A
-line whose part is empty is included when `[p1, p2)` reaches it, so there is one part per source
-line that the content spans.
+The part of each line that is within `[p1, p2)`. A line whose part is empty is included when
+`[p1, p2)` reaches it, so there is one part per source line that the content spans. If `p1` is past
+every line, the result is the single subslice from `p1` to `p2`.
 -/
-public def linesBetween (src : InlineSource s) (p1 p2 : s.Pos) : Array s.Subslice := Id.run do
-  let mut out := #[]
-  for h : i in src.lineIndex p1...src.lines.size do
-    let r := src.lines[i]
-    if p2 < r.startInclusive then break
-    out := out.push (subsliceClamped (max p1 r.startInclusive) (min (textEnd r) p2))
-  return out
+public def linesBetween (src : InlineSource s) (p1 p2 : s.Pos) : Lines s := Id.run do
+  let i0 := src.lineIndex p1
+  if h : i0 < src.lines.size then
+    let mut out := Lines.singleton (clip src.lines[i0])
+    for h : i in (i0 + 1)...src.lines.size do
+      let r := src.lines[i]
+      if p2 < r.startInclusive then break
+      out := out.push (clip r)
+    return out
+  else
+    return .singleton (subsliceClamped p1 p2)
 where
+  /-- The part of the line `r` that is within `[p1, p2)`, without its line ending. -/
+  clip (r : s.Subslice) : s.Subslice :=
+    subsliceClamped (max p1 r.startInclusive) (min (textEnd r) p2)
   /-- The end of the line's text, before its `\n` if it has one. -/
   textEnd (r : s.Subslice) : s.Pos :=
     match r.endExclusive.prev? with
@@ -189,51 +196,51 @@ namespace InlineCursor
 variable {s : String.Slice}
 
 /-- Whether the view has been fully consumed. -/
-public def isEmpty (r : InlineCursor s) : Bool :=
-  r.stopPos ≤ r.startPos
+public def isEmpty (cur : InlineCursor s) : Bool :=
+  cur.stopPos ≤ cur.startPos
 
 /-- The character at the cursor, if the view is not empty. -/
-public def front? (r : InlineCursor s) : Option Char :=
-  if r.startPos < r.stopPos then r.startPos.get? else none
+public def front? (cur : InlineCursor s) : Option Char :=
+  if cur.startPos < cur.stopPos then cur.startPos.get? else none
 
 /-- The character at the cursor, or the default character if the view is empty. -/
-public def front (r : InlineCursor s) : Char :=
-  r.front?.getD default
+public def front (cur : InlineCursor s) : Char :=
+  cur.front?.getD default
 
 /-- The character at the cursor as a subslice, if the view is not empty. -/
-public def charSubslice? (r : InlineCursor s) : Option s.Subslice :=
-  if h : r.startPos < r.stopPos then
-    some (s.subslice r.startPos (r.startPos.next (String.Slice.Pos.ne_endPos_of_lt h)) String.Slice.Pos.le_next)
+public def charSubslice? (cur : InlineCursor s) : Option s.Subslice :=
+  if h : cur.startPos < cur.stopPos then
+    some (s.subslice cur.startPos (cur.startPos.next (String.Slice.Pos.ne_endPos_of_lt h)) String.Slice.Pos.le_next)
   else none
 
 /--
 Advances the cursor by one character. At the end of a line, the cursor moves to the start of the
 next line, skipping the gap between them.
 -/
-public def drop1 (r : InlineCursor s) : InlineCursor s :=
-  if h : r.startPos < r.stopPos then
-    let q := r.startPos.next (String.Slice.Pos.ne_endPos_of_lt h)
-    match r.source.lines[r.line]? with
+public def drop1 (cur : InlineCursor s) : InlineCursor s :=
+  if h : cur.startPos < cur.stopPos then
+    let q := cur.startPos.next (String.Slice.Pos.ne_endPos_of_lt h)
+    match cur.source.lines[cur.line]? with
     | some lineRange =>
-      if q < lineRange.endExclusive then { r with startPos := q }
+      if q < lineRange.endExclusive then { cur with startPos := q }
       else
-        match r.source.lines[r.line + 1]? with
-        | some nextLine => { r with line := r.line + 1, startPos := nextLine.startInclusive }
-        | none => { r with line := r.line + 1, startPos := q }
-    | none => { r with startPos := q }
-  else r
+        match cur.source.lines[cur.line + 1]? with
+        | some nextLine => { cur with line := cur.line + 1, startPos := nextLine.startInclusive }
+        | none => { cur with line := cur.line + 1, startPos := q }
+    | none => { cur with startPos := q }
+  else cur
 
-/-- If `r` begins with `c`, returns that character as a subslice together with `r` advanced past it. -/
-public def parseChar? (c : Char) (r : InlineCursor s) : Option (s.Subslice × InlineCursor s) := do
-  guard (r.front? == some c)
-  let sub ← r.charSubslice?
-  return (sub, r.drop1)
+/-- If `cur` begins with `c`, returns that character as a subslice together with `cur` advanced past it. -/
+public def parseChar? (c : Char) (cur : InlineCursor s) : Option (s.Subslice × InlineCursor s) := do
+  guard (cur.front? == some c)
+  let sub ← cur.charSubslice?
+  return (sub, cur.drop1)
 
-/-- Advances past a sequence of `c`s at the start of `r`. Returns the cursor after the sequence and its length. -/
-public partial def takeSequence (c : Char) (r : InlineCursor s) : InlineCursor s × Nat :=
-  go r 0
+/-- Advances past a sequence of `c`s at the start of `cur`. Returns the cursor after the sequence and its length. -/
+public partial def takeSequence (c : Char) (cur : InlineCursor s) : InlineCursor s × Nat :=
+  go cur 0
 where
-  go (r : InlineCursor s) (n : Nat) : InlineCursor s × Nat :=
-    if r.front? == some c then go r.drop1 (n + 1) else (r, n)
+  go (cur : InlineCursor s) (n : Nat) : InlineCursor s × Nat :=
+    if cur.front? == some c then go cur.drop1 (n + 1) else (cur, n)
 
 end InlineCursor

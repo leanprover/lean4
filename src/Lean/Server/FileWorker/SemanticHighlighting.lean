@@ -387,10 +387,10 @@ token.
   if r.toSlice.isEmpty then out
   else out.push { range := toSyntaxRange r, type := tokenType, priority, modifiers }
 
-/-- Pushes one `LeanSemanticToken` per subslice in `lines`, each of which is on a single source line. -/
-private def pushLines (out : Array LeanSemanticToken) (lines : Array s.Subslice)
+/-- Pushes one `LeanSemanticToken` per line in `lines`. -/
+private def pushLines (out : Array LeanSemanticToken) (lines : Markdown.Lines s)
     (tokenType : SemanticTokenType) (priority : Nat := 5) : Array LeanSemanticToken :=
-  lines.foldl (init := out) fun out line => pushTok out line tokenType priority
+  lines.toArray.foldl (init := out) fun out line => pushTok out line tokenType priority
 
 /-- Pushes a delimiter: a `keyword` token with the `markupSyntax` modifier. -/
 @[inline] private def pushDelimiter (out : Array LeanSemanticToken) (r : s.Subslice) :
@@ -454,6 +454,8 @@ where
       out := pushDelimiter out openAngle
       out := pushDelimiter out closeAngle
       out := pushTok out url .markupUrl
+    | .html lines =>
+      out := pushLines out lines .markupInlineCode (priority := 6)
     return out
 
   /--
@@ -464,7 +466,7 @@ where
   shortcut form, the link's text *is* the label. The second brackets are delimiters.
   -/
   emitReferenceForm (a : MarkupAttrs) (out : Array LeanSemanticToken)
-      (inner : Array (Markdown.Inline s)) (label : Array s.Subslice)
+      (inner : Array (Markdown.Inline s)) (label : Markdown.Lines s)
       (form : Markdown.ReferenceLinkForm s) : Array LeanSemanticToken := Id.run do
     let mut out := out
     match form with
@@ -549,7 +551,8 @@ where
       if let some c := closeFence? then out := pushDelimiter out c
       if let some tag := info.infoString? then
         out := pushTok out tag .function
-      out := pushLines out lines .markupCodeBlock
+      for line in lines do
+        out := pushTok out line .markupCodeBlock
     | .indentedCode lines =>
       for (range, _) in lines do
         out := pushTok out range .markupCodeBlock

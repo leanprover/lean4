@@ -81,6 +81,9 @@ example : True := trivial
 -/
 def unterminated := ()
 
+/-- Inline HTML such as <kbd>Ctrl</kbd> and a comment <!-- note --> are inline code. -/
+def inlineHtml := ()
+
 /-!
 # Heading 1
 

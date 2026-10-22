@@ -1,17 +1,17 @@
-Skipped: 92/655 (14%)
-Overall: 563/563 (100%)
+Skipped: 87/655 (13%)
+Overall: 568/568 (100%)
 
 Per section:
   ATX headings:
     Pass: 18/18 (100%)
   Autolinks:
-    Pass: 17/17 (100%)
+    Pass: 4/4 (100%)
     Skip:
-      HTML: 2
+      HTML block: 15
   Backslash escapes:
-    Pass: 12/12 (100%)
+    Pass: 11/11 (100%)
     Skip:
-      HTML: 1
+      HTML block: 2
   Blank lines:
     Pass: 1/1 (100%)
   Block quotes:
@@ -19,59 +19,55 @@ Per section:
   Code spans:
     Pass: 20/20 (100%)
     Skip:
-      HTML: 2
+      HTML block: 2
   Emphasis and strong emphasis:
-    Pass: 129/129 (100%)
+    Pass: 130/130 (100%)
     Skip:
-      HTML: 3
+      HTML block: 2
   Entity and numeric character references:
     Pass: 16/16 (100%)
     Skip:
-      HTML: 1
+      HTML block: 1
   Fenced code blocks:
     Pass: 29/29 (100%)
   HTML blocks:
     Pass: 0/0 (0%)
     Skip:
-      HTML: 46
+      HTML block: 46
   Hard line breaks:
     Pass: 13/13 (100%)
     Skip:
-      HTML: 2
+      HTML block: 2
   Images:
-    Pass: 21/21 (100%)
-    Skip:
-      HTML: 1
+    Pass: 22/22 (100%)
   Indented code blocks:
     Pass: 11/11 (100%)
     Skip:
-      HTML: 1
+      HTML block: 1
   Link reference definitions:
-    Pass: 25/25 (100%)
+    Pass: 26/26 (100%)
     Skip:
-      HTML: 2
+      HTML block: 1
   Links:
-    Pass: 82/82 (100%)
-    Skip:
-      HTML: 8
+    Pass: 90/90 (100%)
   List items:
     Pass: 48/48 (100%)
   Lists:
     Pass: 25/25 (100%)
     Skip:
-      HTML: 2
+      HTML block: 2
   Paragraphs:
     Pass: 8/8 (100%)
   Precedence:
     Pass: 1/1 (100%)
   Raw HTML:
-    Pass: 1/1 (100%)
+    Pass: 9/9 (100%)
     Skip:
-      HTML: 20
+      HTML block: 12
   Setext headings:
     Pass: 26/26 (100%)
     Skip:
-      HTML: 1
+      HTML block: 1
   Soft line breaks:
     Pass: 2/2 (100%)
   Tabs:

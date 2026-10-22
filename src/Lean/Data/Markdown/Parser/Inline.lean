@@ -22,31 +22,31 @@ namespace Lean.Markdown
 /-!
 # Pass 2: Inline Parser
 
-Parses the inline elements of a block's text, except embedded HTML.
+Parses the inline elements of a block's text.
 
 A backslash escape `\X` of an ASCII punctuation character becomes an `Inline.escape`.
 -/
 
 variable {s : String.Slice}
 
-/-- Counts consecutive characters equal to `c` at the start of `sub`, returning the count and the
+/-- Counts consecutive characters equal to `c` at the start of `cur`, returning the count and the
 position after them. -/
-def countSequence (sub : InlineCursor s) (c : Char) : Nat × s.Pos := Id.run do
-  let mut sub := sub
+def countSequence (cur : InlineCursor s) (c : Char) : Nat × s.Pos := Id.run do
+  let mut cur := cur
   let mut n := 0
-  while sub.front? == some c do
+  while cur.front? == some c do
     n := n + 1
-    sub := sub.drop1
-  return (n, sub.startPos)
+    cur := cur.drop1
+  return (n, cur.startPos)
 
-/-- Tries to parse a code span. Caller ensures ``sub.front == '`'``. -/
-def code (sub : InlineCursor s) : Option (Inline s × s.Pos) := do
-  let src := sub.source
-  let stopPos := sub.stopPos
-  let cursor := sub.startPos
-  let (openLen, p) := countSequence sub '`'
+/-- Parses a code span at `cur`, which must point at a backtick. -/
+def parseCode? (cur : InlineCursor s) : Option (Inline s × s.Pos) := do
+  let src := cur.source
+  let stopPos := cur.stopPos
+  let start := cur.startPos
+  let (openLen, p) := countSequence cur '`'
   guard (openLen > 0)
-  let openTicks := subsliceClamped cursor p
+  let openTicks := subsliceClamped start p
   let mut rest : InlineCursor s := src.cursor p stopPos
   while !rest.isEmpty do
     if rest.front? == some '`' then
@@ -62,12 +62,12 @@ def code (sub : InlineCursor s) : Option (Inline s × s.Pos) := do
   failure
 
 /--
-Tries to parse a character reference at the beginning of `sub`, which must point at `&`. Returns the
-resulting `Inline.entity` and the position past the closing `;` on success.
+Parses a character reference at `cur`, which must point at `&`. Returns the resulting
+`Inline.entity` and the position past the closing `;`.
 -/
-def characterReference (sub : InlineCursor s) : Option (Inline s × s.Pos) := do
-  let start := sub.startPos
-  let mut rest := sub.drop1
+def parseCharacterReference? (cur : InlineCursor s) : Option (Inline s × s.Pos) := do
+  let start := cur.startPos
+  let mut rest := cur.drop1
   let mut body := ""
   while !rest.isEmpty do
     let c := rest.front
@@ -92,11 +92,11 @@ def isEmailLocalChar (c : Char) : Bool :=
   || c == '~' || c == '-'
 
 /--
-Tries to parse a URI autolink at `sub`, which should begin immediately after the opening `<`.
-Returns the position of the closing `>` on success.
+Parses a URI autolink at `cur`, which should begin immediately after the opening `<`. Returns the
+position of the closing `>`.
 -/
-def autolinkUri (sub : InlineCursor s) : Option s.Pos := do
-  let mut rest := sub
+def parseAutolinkUri? (cur : InlineCursor s) : Option s.Pos := do
+  let mut rest := cur
   guard <| rest.front?.any Char.isAlpha
   rest := rest.drop1
   let mut schemeLen := 1
@@ -119,12 +119,11 @@ def autolinkUri (sub : InlineCursor s) : Option s.Pos := do
   failure
 
 /--
-Tries to parse an email autolink at `sub`, which should begin immediately after the opening `<`.
-Matches CommonMark §6.5's HTML5-style email regex. Returns the position of the closing `>` on
-success.
+Parses an email autolink at `cur`, which should begin immediately after the opening `<`, following
+CommonMark §6.5's HTML5-style email regex. Returns the position of the closing `>`.
 -/
-def autolinkEmail (sub : InlineCursor s) : Option s.Pos := do
-  let mut rest := sub
+def parseAutolinkEmail? (cur : InlineCursor s) : Option s.Pos := do
+  let mut rest := cur
   let mut localLen := 0
   while rest.front?.any isEmailLocalChar do
     localLen := localLen + 1
@@ -158,41 +157,154 @@ def autolinkEmail (sub : InlineCursor s) : Option s.Pos := do
   failure
 
 /--
-Tries to parse an autolink at the beginning of `sub` (which must point at `<`). Returns the resulting
-`Inline.autolink` and the position past the closing `>` on success.
+Parses an autolink at `cur`, which must point at `<`. Returns the resulting `Inline.autolink` and
+the position past the closing `>`.
 -/
-def autolink (sub : InlineCursor s) : Option (Inline s × s.Pos) := do
-  let src := sub.source
-  let stop := sub.stopPos
-  let openAngle ← sub.charSubslice?
-  guard <| sub.front? == some '<'
-  let afterOpen := sub.drop1
+def parseAutolink? (cur : InlineCursor s) : Option (Inline s × s.Pos) := do
+  let src := cur.source
+  let stop := cur.stopPos
+  let openAngle ← cur.charSubslice?
+  guard <| cur.front? == some '<'
+  let afterOpen := cur.drop1
   let inner := afterOpen.startPos
   let (isLink, closePos) ←
-    ((true, ·) <$> autolinkUri afterOpen) <|> ((false, ·) <$> autolinkEmail afterOpen)
+    ((true, ·) <$> parseAutolinkUri? afterOpen) <|> ((false, ·) <$> parseAutolinkEmail? afterOpen)
   let closeRest : InlineCursor s := src.cursor closePos stop
   let closeAngle ← closeRest.charSubslice?
   let urlRange := subsliceClamped inner closePos
   return (.autolink openAngle urlRange closeAngle !isLink, closeAngle.endExclusive)
 
-/-- Skips ASCII whitespace (' ', '\t', '\r', and '\n') at the start of `sub`. -/
-def skipInlineWs (sub : InlineCursor s) : s.Pos := Id.run do
-  let mut sub := sub
-  while sub.front?.any fun c => c == ' ' || c == '\t' || c == '\n' || c == '\r' do
-    sub := sub.drop1
-  return sub.startPos
+/-! ### Raw HTML (CommonMark §6.6) -/
+
+/-- Whether `c` may continue a tag name: an ASCII letter, digit, or hyphen. -/
+def isTagNameChar (c : Char) : Bool := c.isAlphanum || c == '-'
+
+/-- Whether `c` may begin an attribute name: an ASCII letter, `_`, or `:`. -/
+def isAttributeNameStart (c : Char) : Bool := c.isAlpha || c == '_' || c == ':'
+
+/-- Whether `c` may continue an attribute name: an ASCII letter, digit, `_`, `.`, `:`, or `-`. -/
+def isAttributeNameChar (c : Char) : Bool :=
+  c.isAlphanum || c == '_' || c == '.' || c == ':' || c == '-'
+
+/-- Whether `c` may be part of an unquoted attribute value. -/
+def isUnquotedValueChar (c : Char) : Bool :=
+  !(c == ' ' || c == '\t' || c == '\n' || c == '\r' || c == '"' || c == '\'' || c == '=' ||
+    c == '<' || c == '>' || c == '`')
+
+/-- Advances past the characters satisfying `p`. -/
+def skipChars (cur : InlineCursor s) (p : Char → Bool) : InlineCursor s := Id.run do
+  let mut cur := cur
+  while cur.front?.any p do
+    cur := cur.drop1
+  return cur
+
+/-- Advances past spaces, tabs, and up to one line ending, which is the whitespace allowed inside a tag. -/
+def skipTagWhitespace (cur : InlineCursor s) : InlineCursor s := Id.run do
+  let mut cur := cur
+  let mut sawLineEnding := false
+  repeat
+    match cur.front? with
+    | some ' ' | some '\t' => cur := cur.drop1
+    | some '\n' =>
+      if sawLineEnding then break
+      sawLineEnding := true
+      cur := cur.drop1
+    | _ => break
+  return cur
+
+/-- If `cur` begins with the characters `pat`, advances past them. -/
+def startsWithChars (cur : InlineCursor s) (pat : List Char) : Option (InlineCursor s) :=
+  pat.foldlM (init := cur) fun cur c => if cur.front? == some c then some cur.drop1 else none
+
+/-- Advances past the first occurrence of `pat`, or fails when there is none. -/
+def advancePast (cur : InlineCursor s) (pat : List Char) : Option (InlineCursor s) := Id.run do
+  let mut cur := cur
+  while !cur.isEmpty do
+    if let some after := startsWithChars cur pat then return some after
+    cur := cur.drop1
+  return none
+
+/--
+Parses raw HTML at `cur`, which must point at `<`: an open tag, a closing tag, a comment, a processing
+instruction, a declaration, or a CDATA section. Returns the `Inline.html` and the position after its
+closing `>`.
+-/
+def parseRawHtml? (cur : InlineCursor s) : Option (Inline s × s.Pos) := do
+  guard <| cur.front? == some '<'
+  let afterOpen := cur.drop1
+  let after ←
+    match afterOpen.front? with
+    | some '/' => closingTag afterOpen.drop1
+    | some '?' => advancePast afterOpen.drop1 ['?', '>']
+    | some '!' => markupDeclaration afterOpen.drop1
+    | some c => if c.isAlpha then openTag afterOpen else none
+    | none => none
+  return (.html (cur.source.linesBetween cur.startPos after.startPos), after.startPos)
+where
+  /--
+  An open tag after its `<`: the tag name, attributes, optional whitespace, an optional `/`, and
+  `>`. Each attribute is preceded by whitespace.
+  -/
+  openTag (cur : InlineCursor s) : Option (InlineCursor s) := do
+    let mut cur := skipChars cur.drop1 isTagNameChar
+    repeat
+      let afterWs := skipTagWhitespace cur
+      if afterWs.startPos != cur.startPos && afterWs.front?.any isAttributeNameStart then
+        let afterName := skipChars afterWs.drop1 isAttributeNameChar
+        let beforeEq := skipTagWhitespace afterName
+        if beforeEq.front? == some '=' then
+          cur ← attributeValue (skipTagWhitespace beforeEq.drop1)
+        else
+          cur := afterName
+      else
+        let afterSlash := if afterWs.front? == some '/' then afterWs.drop1 else afterWs
+        guard <| afterSlash.front? == some '>'
+        return afterSlash.drop1
+    none
+  /-- An attribute value: unquoted, single-quoted, or double-quoted. -/
+  attributeValue (cur : InlineCursor s) : Option (InlineCursor s) :=
+    match cur.front? with
+    | some '"' => advancePast cur.drop1 ['"']
+    | some '\'' => advancePast cur.drop1 ['\'']
+    | some c => if isUnquotedValueChar c then some (skipChars cur isUnquotedValueChar) else none
+    | none => none
+  /-- A closing tag after its `</`: the tag name, optional whitespace, and `>`. -/
+  closingTag (cur : InlineCursor s) : Option (InlineCursor s) := do
+    guard <| cur.front?.any Char.isAlpha
+    let afterName := skipTagWhitespace (skipChars cur.drop1 isTagNameChar)
+    guard <| afterName.front? == some '>'
+    return afterName.drop1
+  /-- After `<!`: a comment, a CDATA section, or a declaration. -/
+  markupDeclaration (cur : InlineCursor s) : Option (InlineCursor s) := do
+    if let some afterDashes := startsWithChars cur ['-', '-'] then
+      -- `<!-->` and `<!--->` are complete comments; any other comment runs to the first `-->`.
+      if afterDashes.front? == some '>' then return afterDashes.drop1
+      if let some afterArrow := startsWithChars afterDashes ['-', '>'] then return afterArrow
+      advancePast afterDashes ['-', '-', '>']
+    else if let some afterCdata := startsWithChars cur ['[', 'C', 'D', 'A', 'T', 'A', '['] then
+      advancePast afterCdata [']', ']', '>']
+    else
+      guard <| cur.front?.any Char.isAlpha
+      advancePast cur.drop1 ['>']
+
+/-- Skips ASCII whitespace (' ', '\t', '\r', and '\n') at the start of `cur`. -/
+def skipInlineWs (cur : InlineCursor s) : s.Pos := Id.run do
+  let mut cur := cur
+  while cur.front?.any fun c => c == ' ' || c == '\t' || c == '\n' || c == '\r' do
+    cur := cur.drop1
+  return cur.startPos
 
 /--
 Parses the body of an inline link/image target, which is the contents between the opening `(` and
-its matching `)`. `sub` should begin just after the opening `(`.
+its matching `)`. `cur` should begin just after the opening `(`.
 
 Returns `(destination, title?, closeParenPos)` on success.
 -/
-def inlineLinkTarget (sub : InlineCursor s) :
+def parseInlineLinkTarget? (cur : InlineCursor s) :
     Option (LinkDestination s × Option (LinkTitle s) × s.Pos) := do
-  let src := sub.source
-  let stop := sub.stopPos
-  let p0 := skipInlineWs sub
+  let src := cur.source
+  let stop := cur.stopPos
+  let p0 := skipInlineWs cur
   let rest : InlineCursor s := src.cursor p0 stop
   let (destination, afterUrl) ←
     if rest.isEmpty then
@@ -314,15 +426,15 @@ Whether the text between `start` and `stop` is a link label (CommonMark §6.3): 
 characters and no unescaped brackets.
 -/
 def isLinkLabel (src : InlineSource s) (start stop : s.Pos) : Bool := Id.run do
-  let mut r := src.cursor start stop
+  let mut cur := src.cursor start stop
   let mut len := 0
-  while !r.isEmpty do
+  while !cur.isEmpty do
     if len ≥ 999 then return false
-    let c := r.front
-    r := r.drop1
+    let c := cur.front
+    cur := cur.drop1
     len := len + 1
-    if c == '\\' && !r.isEmpty then
-      r := r.drop1
+    if c == '\\' && !cur.isEmpty then
+      cur := cur.drop1
       len := len + 1
     else if c == '[' || c == ']' then
       return false
@@ -334,7 +446,7 @@ Parses the target of a `[…]…` link or `![…]…` image, after the caller ha
 picks among the inline `(url)`, full reference `[label]`, collapsed `[]`, and shortcut forms, and
 returns the target together with the position after it.
 -/
-def linkSuffix
+def parseLinkSuffix?
     (refs : RefTable s) (src : InlineSource s) (stop : s.Pos)
     (openBracket closeBracket : s.Subslice) (afterClose : s.Pos) :
     Option (LinkTarget s × s.Pos) :=
@@ -349,13 +461,14 @@ def linkSuffix
   else
     shortcutForm
 where
-  /-- Whether `r`, positioned after a `[`, continues as `]` or as a link label. -/
-  labelFollows (r : InlineCursor s) : Bool :=
-    r.front? == some ']' || (parseLinkLabel? r).isSome
+  /-- Whether `cur`, positioned after a `[`, continues as `]` or as a link label. -/
+  labelFollows (cur : InlineCursor s) : Bool :=
+    cur.front? == some ']' || (parseLinkLabel? cur).isSome
   /-- The `[…](url)` / `![…](url "title")` form. -/
   inlineForm (afterCloseRest : InlineCursor s) : Option (LinkTarget s × s.Pos) := do
     let openParen ← afterCloseRest.charSubslice?
-    let (destination, title?, parenEnd) ← inlineLinkTarget (src.cursor openParen.endExclusive stop)
+    let (destination, title?, parenEnd) ←
+      parseInlineLinkTarget? (src.cursor openParen.endExclusive stop)
     let closeParen ← (src.cursor parenEnd stop).charSubslice?
     return (.inline openParen destination closeParen title?, closeParen.endExclusive)
   /-- The full `[…][label]` / `![…][label]` and collapsed `[…][]` / `![…][]` forms. -/
@@ -380,7 +493,7 @@ where
     let definition ← refs[normalizeLabel label]?
     return (.reference definition label .shortcut, afterClose)
   /-- The lines of the bracket interior, if it is a link label. -/
-  interiorLabel? : Option (Array s.Subslice) := do
+  interiorLabel? : Option (Lines s) := do
     guard (isLinkLabel src openBracket.endExclusive closeBracket.startInclusive)
     return src.linesBetween openBracket.endExclusive closeBracket.startInclusive
 
@@ -391,8 +504,8 @@ The §6.2 emphasis algorithm consumes a flat sequence of tokens, each either a f
 non-emphasis `Inline` (code span, link, image, autolink, soft/hard break, escaped char) or a
 still-raw `*`/`_` delimiter sequence.  `tokenizeInlines` produces this sequence. It reads the inline
 source, recognizes each non-emphasis inline kind in turn (backslash escape §2.4, character reference
-§2.5, code span §6.1, link §6.3, image §6.4, autolink §6.5, hard line break §6.7, soft line break
-§6.8), and saves delimiter sequences for §6.2 to handle later.
+§2.5, code span §6.1, link §6.3, image §6.4, autolink §6.5, raw HTML §6.6, hard line break §6.7,
+soft line break §6.8), and saves delimiter sequences for §6.2 to handle later.
 
 Links and images follow the bracket-stack procedure of the specification's appendix. A `[` or `![`
 is emitted as a text token and pushed on a stack of bracket openers. A `]` pops the nearest opener
@@ -527,7 +640,7 @@ def closeBracket (refs : RefTable s) (src : InlineSource s) (closeBracket : s.Su
     skipChar
   else
     let stop := src.stopPos
-    match linkSuffix refs src stop opener.openBracket closeBracket closeBracket.endExclusive with
+    match parseLinkSuffix? refs src stop opener.openBracket closeBracket closeBracket.endExclusive with
     | some (target, after) =>
       -- The output is taken out of the state so that it is shrunk and extended in place.
       let out ← modifyGet fun ⟨out, rest, textStart, prevChar, brackets⟩ =>
@@ -598,7 +711,7 @@ def tokenizeInlines (refs : RefTable s) (src : InlineSource s) : Array (InlineTo
         else
           skipChar
       else if c == '`' then
-        match code st.rest with
+        match parseCode? st.rest with
         | some (codeSpan, after) =>
           recognize (.inline codeSpan) cursor after (src.cursor after stop) '`'
         | none =>
@@ -613,12 +726,12 @@ def tokenizeInlines (refs : RefTable s) (src : InlineSource s) : Array (InlineTo
       else if c == ']' then
         closeBracket refs src charSubslice
       else if c == '<' then
-        match autolink st.rest with
-        | some (autolink, after) =>
-          recognize (.inline autolink) cursor after (src.cursor after stop) '>'
+        match parseAutolink? st.rest <|> parseRawHtml? st.rest with
+        | some (inl, after) =>
+          recognize (.inline inl) cursor after (src.cursor after stop) '>'
         | none => skipChar
       else if c == '&' then
-        match characterReference st.rest with
+        match parseCharacterReference? st.rest with
         | some (entity, after) =>
           recognize (.inline entity) cursor after (src.cursor after stop) ';'
         | none => skipChar

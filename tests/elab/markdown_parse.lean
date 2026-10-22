@@ -10,13 +10,14 @@ open Lean Markdown
 /-- Shows each inline's constructor together with its source text or decoded value. -/
 partial def showInline {s : String.Slice} : Inline s → String
   | .text r => s!"text⟪{r.copy}⟫"
-  | .code _ lines _ => s!"code⟪{"\n".intercalate (lines.toList.map (·.copy))}⟫"
+  | .code _ lines _ => s!"code⟪{"\n".intercalate (lines.toArray.toList.map (·.copy))}⟫"
   | .italic _ cs _ => s!"italic[{showInlines cs}]"
   | .bold _ cs _ => s!"bold[{showInlines cs}]"
   | .link _ cs _ _ => s!"link[{showInlines cs}]"
   | .image _ _ cs _ _ => s!"image[{showInlines cs}]"
   | .hardBreak m _ => s!"hardBreak⟪{m.copy}⟫"
   | .autolink _ u _ _ => s!"autolink⟪{u.copy}⟫"
+  | .html lines => s!"html⟪{"\n".intercalate (lines.toArray.toList.map (·.copy))}⟫"
   | .softBreak _ => "softBreak"
   | .escape _ c => s!"escape⟪{c.copy}⟫"
   | .entity _ v => s!"entity⟪{v}⟫"
@@ -99,6 +100,34 @@ unmatched brackets are text. The nesting depth of brackets does not affect parsi
 #guard_msgs in #eval showParagraph "[foo][bar]\n\n[foo]: /u"
 
 /-!
+## Raw HTML
+
+Tags, comments, processing instructions, declarations, and CDATA sections are raw HTML (CommonMark
+§6.6), kept verbatim with one subslice per line. Text that merely contains `<` is not.
+-/
+
+/-- info: "html⟪<b class=\"x\">⟫ text⟪a⟫ html⟪</b>⟫" -/
+#guard_msgs in #eval showParagraph "<b class=\"x\">a</b>"
+
+/-- info: "html⟪<!-- c -->⟫ text⟪ ⟫ html⟪<?php x ?>⟫ text⟪ ⟫ html⟪<!DOCTYPE html>⟫ text⟪ ⟫ html⟪<![CDATA[ x ]]>⟫" -/
+#guard_msgs in #eval showParagraph "<!-- c --> <?php x ?> <!DOCTYPE html> <![CDATA[ x ]]>"
+
+/-- info: "text⟪a < b, <|> and <$> and <33> and <a / >⟫" -/
+#guard_msgs in #eval showParagraph "a < b, <|> and <$> and <33> and <a / >"
+
+-- An attribute value may be unquoted, and a tag may be self-closing.
+/-- info: "html⟪<a href=u>⟫ html⟪<br/>⟫" -/
+#guard_msgs in #eval showParagraph "<a href=u><br/>"
+
+-- A tag continuing onto the next line has one subslice per source line.
+/-- info: "html⟪<a\nhref=\"u\">⟫" -/
+#guard_msgs in #eval showParagraph "<a\nhref=\"u\">"
+
+-- An autolink is preferred over a tag.
+/-- info: "autolink⟪https://e.com⟫" -/
+#guard_msgs in #eval showParagraph "<https://e.com>"
+
+/-!
 ## Emphasis next to Unicode punctuation and whitespace
 
 The flanking rules classify characters by Unicode category for Latin-1, Greek, and the symbol
@@ -160,7 +189,7 @@ partial def titleParts (src : String) : List (List String) :=
   go (parse src).toList
 where
   parts {s : String.Slice} (t : LinkTitle s) : List String :=
-    [t.opener.copy, "\n".intercalate (t.content.toList.map (·.copy)), t.closer.copy]
+    [t.opener.copy, "\n".intercalate (t.content.toArray.toList.map (·.copy)), t.closer.copy]
   go {s : String.Slice} (blocks : List (Block s)) : List (List String) :=
     blocks.flatMap fun
       | .paragraph content => content.toList.filterMap fun
@@ -192,7 +221,7 @@ def destinationParts (src : String) : List (List String) :=
 def referenceTargets (src : String) : List (String × Option String) :=
   (firstParagraph src).toList.filterMap fun
     | .link _ _ _ (.reference d _ _) =>
-      some (d.destination.url.copy, d.title?.map fun t => "\n".intercalate (t.content.toList.map (·.copy)))
+      some (d.destination.url.copy, d.title?.map fun t => "\n".intercalate (t.content.toArray.toList.map (·.copy)))
     | _ => none
 
 /-- info: [("/u", none), ("v", some "t")] -/
@@ -222,7 +251,7 @@ where
   go {s : String.Slice} (blocks : List (Block s)) : List (List String) :=
     blocks.flatMap fun
       | .paragraph content => content.toList.filterMap fun
-        | .code _ lines _ => some (lines.toList.map (·.copy))
+        | .code _ lines _ => some (lines.toArray.toList.map (·.copy))
         | _ => none
       | .blockquote _ children => go children.toList
       | _ => []
@@ -244,9 +273,9 @@ where
     blocks.flatMap fun
       | .paragraph content => content.toList.filterMap fun
         | .link _ _ _ (.reference _ label _) | .image _ _ _ _ (.reference _ label _) =>
-          some (label.toList.map (·.copy))
+          some (label.toArray.toList.map (·.copy))
         | _ => none
-      | .linkRefDef m => [m.label.toList.map (·.copy)]
+      | .linkRefDef m => [m.label.toArray.toList.map (·.copy)]
       | .blockquote _ children => go children.toList
       | _ => []
 

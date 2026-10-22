@@ -90,13 +90,43 @@ public structure FenceInfo (s : String.Slice) where
 deriving Inhabited
 
 /--
+The text of a construct that may span source lines: one subslice per line, in source order, with at
+least one line. The subslices exclude the line endings and the prefixes of enclosing containers.
+-/
+public structure Lines (s : String.Slice) where
+  /-- The subslices, one per source line, in source order. -/
+  toArray : Array s.Subslice
+  /-- There is at least one line. -/
+  nonempty : 0 < toArray.size
+
+namespace Lines
+
+variable {s : String.Slice}
+
+/-- A single line. -/
+public def singleton (line : s.Subslice) : Lines s := ⟨#[line], by simp⟩
+
+/-- Appends a line. -/
+public def push (lines : Lines s) (line : s.Subslice) : Lines s := ⟨lines.toArray.push line, by simp⟩
+
+/-- The first line. -/
+public def first (lines : Lines s) : s.Subslice := lines.toArray[0]'lines.nonempty
+
+/-- The last line. -/
+public def last (lines : Lines s) : s.Subslice := lines.toArray.back lines.nonempty
+
+public instance : Inhabited (Lines s) := ⟨singleton default⟩
+
+end Lines
+
+/--
 The title of a link, image, or link reference definition: `"…"`, `'…'`, or `(…)`.
 -/
 public structure LinkTitle (s : String.Slice) where
   /-- The opening `"`, `'`, or `(`. -/
   opener : s.Subslice
-  /-- The text between the delimiters, one subslice per source line. -/
-  content : Array s.Subslice
+  /-- The text between the delimiters. -/
+  content : Lines s
   /-- The closing `"`, `'`, or `)`. -/
   closer : s.Subslice
 deriving Inhabited
@@ -114,14 +144,12 @@ deriving Inhabited
 /--
 The structural parts of a link reference definition. The label is the bracket interior (excluding
 the brackets themselves).
-
-A label or title that contains line breaks is represented by one subslice per line.
 -/
 public structure RefDef (s : String.Slice) where
   /-- The opening `[` of the label. -/
   openBracket : s.Subslice
-  /-- The label's interior, between the brackets (un-normalized), one subslice per source line. -/
-  label : Array s.Subslice
+  /-- The label's interior, between the brackets (un-normalized). -/
+  label : Lines s
   /-- The closing `]` of the label. -/
   closeBracket : s.Subslice
   /-- The `:` separating the label from the destination. -/
@@ -234,23 +262,19 @@ public inductive LinkTarget (s : String.Slice) where
     (title? : Option (LinkTitle s) := none)
   /--
   A reference target: `definition` is the link reference definition that the label resolved to, and
-  `label` is the label's text, one subslice per source line: the interior of the second bracket pair in
-  full form, and the link's text in collapsed and shortcut form. In Markdown, unresolvable references
-  never produce a `link`/`image`; instead, the surrounding bracket characters fall through to plain
-  text.
+  `label` is the label's text: the interior of the second bracket pair in full form, and the link's
+  text in collapsed and shortcut form. In Markdown, unresolvable references never produce a
+  `link`/`image`; instead, the surrounding bracket characters fall through to plain text.
   -/
-  | reference (definition : RefDef s) (label : Array s.Subslice) (form : ReferenceLinkForm s)
+  | reference (definition : RefDef s) (label : Lines s) (form : ReferenceLinkForm s)
 deriving Inhabited
 
 /-- A parsed inline element of the source string `s`. -/
 public inductive Inline (s : String.Slice) where
   /-- Plain text. -/
   | text (range : s.Subslice)
-  /--
-  Inline code span. The content is verbatim source, one subslice per source line, without the line
-  endings and the prefixes of enclosing containers.
-  -/
-  | code (openTicks : s.Subslice) (content : Array s.Subslice) (closeTicks : s.Subslice)
+  /-- Inline code span. The content is verbatim source. -/
+  | code (openTicks : s.Subslice) (content : Lines s) (closeTicks : s.Subslice)
   /-- Italic emphasis. -/
   | italic (openDelim : s.Subslice) (content : Array (Inline s)) (closeDelim : s.Subslice)
   /-- Bold/strong emphasis. -/
@@ -277,6 +301,11 @@ public inductive Inline (s : String.Slice) where
   -/
   | autolink (openAngle : s.Subslice) (url : s.Subslice) (closeAngle : s.Subslice) (isEmail : Bool)
   /--
+  Raw HTML (CommonMark §6.6): an open or closing tag, a comment, a processing instruction, a
+  declaration, or a `CDATA` section. The HTML is stored verbatim.
+  -/
+  | html (lines : Lines s)
+  /--
   A soft line break (CommonMark §6.8): the line ending between two lines of a paragraph, which is
   the newline character.
   -/
@@ -288,7 +317,7 @@ public inductive Inline (s : String.Slice) where
   | escape (backslash : s.Subslice) (char : s.Subslice)
   /--
   A character reference such as `&amp;`, `&#35;`, or `&#x1F600;` (CommonMark §2.5). The subslice
-  extends from `&` through `;`, and `value` is the text it denotes.
+  extends from `&` through `;`. `value` is the text that the entity denotes.
   -/
   | entity (range : s.Subslice) (value : String)
 deriving Inhabited
@@ -332,6 +361,10 @@ public def subsliceClamped (a b : s.Pos) : s.Subslice :=
 def span (r r' : s.Subslice) : s.Subslice :=
   subsliceClamped r.startInclusive r'.endExclusive
 
+/-- The subslice from the start of the first line to the end of the last. -/
+public def Lines.extent (lines : Lines s) : s.Subslice :=
+  span lines.first lines.last
+
 /-- The whole destination, including its angle brackets if it has them. -/
 public def LinkDestination.extent (d : LinkDestination s) : s.Subslice :=
   match d.angles? with
@@ -357,6 +390,7 @@ public def Inline.extent : Inline s → s.Subslice
     subsliceClamped bang.startInclusive (target.stop?.getD closeBracket.endExclusive)
   | .hardBreak marker newline => span marker newline
   | .autolink openAngle _ closeAngle _ => span openAngle closeAngle
+  | .html lines => lines.extent
   | .softBreak range => range
   | .escape backslash char => span backslash char
   | .entity range _ => range
@@ -423,18 +457,17 @@ public structure LinkLabel where
 deriving BEq, Hashable, Repr
 
 /--
-Normalizes a CommonMark link label (§6.3). `lines` are the label's source lines without their line
-endings, as `InlineSource.linesBetween` produces them, and each boundary between two lines counts as
-whitespace. Then:
+Normalizes a CommonMark link label (§6.3). `lines` are the label's source lines, and each boundary
+between two lines counts as whitespace. Then:
  * Each character is case folded with `caseFold`, which covers ASCII, Latin-1, and Greek.
  * Internal sequences of whitespace become single spaces.
  * Leading and trailing whitespace is removed.
 -/
-public def normalizeLabel (lines : Array s.Subslice) : LinkLabel := Id.run do
+public def normalizeLabel (lines : Lines s) : LinkLabel := Id.run do
   let mut out := ""
   let mut sawWs := false  -- whether we've seen whitespace since the last non-ws
   let mut sawNonWs := false  -- whether we've emitted any non-ws char yet
-  for line in lines do
+  for line in lines.toArray do
     for c in line.toSlice do
       -- CommonMark §6.3 normalizes "spaces, tabs, and line endings", which are exactly the
       -- characters of `Char.isWhitespace`. Unicode whitespace is not used in this part of

@@ -323,6 +323,15 @@ one token per line, and the blockquote marker on the second line stays a delimit
 #guard_msgs in #eval ["[t][a\nb]\n\n[a b]: /u", "[t][a\nb]\n\n[a b]: /u"].zipWith markupAt [4, 6]
 
 /-!
+## Raw HTML
+
+Inline HTML is inline code, one token per line.
+-/
+
+/-- info: ["markupInlineCode", "markupDocText", "markupInlineCode"] -/
+#guard_msgs in #eval ["a <b>c</b>", "a <b>c</b>", "a <b>c</b>"].zipWith markupAt [2, 5, 7]
+
+/-!
 ## Indented documents
 
 With a nonzero indent, the indentation of the document as a whole is skipped, so a continuation line

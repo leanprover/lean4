@@ -185,12 +185,12 @@ private def stripCodeSpanSpaces (s : String) : String :=
 Renders the verbatim contents of a code span from its lines: line endings become spaces (§6.1), and
 the optional outer space pair is removed.
 -/
-private def renderCodeSpan {s : String.Slice} (lines : Array s.Subslice) : String :=
-  stripCodeSpanSpaces (" ".intercalate (lines.toList.map (·.copy)))
+private def renderCodeSpan {s : String.Slice} (lines : Markdown.Lines s) : String :=
+  stripCodeSpanSpaces (" ".intercalate (lines.toArray.toList.map (·.copy)))
 
 /-- The text of a link title, whose lines are joined by newlines. -/
 private def titleText {s : String.Slice} (t : LinkTitle s) : String :=
-  decodeText ("\n".intercalate (t.content.toList.map (·.copy)))
+  decodeText ("\n".intercalate (t.content.toArray.toList.map (·.copy)))
 
 /--
 Flatten an inline tree to its plain-text content (CommonMark's `alt`
@@ -211,6 +211,7 @@ partial def inlineToPlainText (i : Inline s) : String :=
     alt.foldl (init := "") fun acc i => acc ++ inlineToPlainText i
   | .hardBreak _ _ => "\n"
   | .autolink _ url _ _ => url.copy
+  | .html _ => ""
   | .softBreak _ => "\n"
   | .escape _ char => char.copy
   | .entity _ value => value
@@ -264,6 +265,7 @@ partial def renderInline (i : Inline s) : String :=
     let href := if isEmail then "mailto:" ++ urlText else urlText
     s!"<a href=\"{escape (percentEncode href)}\">{escape urlText}</a>"
   | .softBreak _ => "\n"
+  | .html lines => "\n".intercalate (lines.toArray.toList.map (·.copy))
   | .escape _ char => escape char.copy
   | .entity _ value => escape value
 
@@ -406,52 +408,19 @@ private def isExampleCloseFence (line : String.Slice) : Bool :=
 
 /-- Returns `some` with an explanation if the test should be skipped -/
 def skip? (md : String) : Option String :=
-  if hasHtml md then some "HTML"
-  else none
-
+  if hasHtmlBlockStart md then some "HTML block" else none
 where
   /--
-  Whether `l` contains an HTML-tag-shaped `<…>` that's *not* a
-  backslash-escaped `\<`. CommonMark backslash-escapes a `<` only when
-  the preceding char is a `\` that itself isn't escaped, so we scan
-  the text and skip pairs `\X` before deciding.
+  Whether a line of `md` could start an HTML block (CommonMark §4.6): after its indentation and any
+  blockquote or list markers, a `<` followed by a letter, `/`, `!`, or `?`. This also matches an
+  autolink or inline tag at the start of a line, so it skips more examples than the HTML blocks
+  themselves.
   -/
-  hasHtml (l : String.Slice) : Bool := Id.run do
-    let mut l := l
-    while !l.isEmpty do
-      if l.startsWith '\\' && !(l.drop 1 |>.isEmpty) then
-        l := l.drop 2
-      else if l.startsWith '<' ∧ !(l.drop 1).isEmpty then
-        if l.drop 1 |>.startsWith Char.isAlpha then
-          -- Could be an HTML tag or an autolink. Scan to the next `>`,
-          -- noting whether we saw a `:` or `@` along the way and
-          -- whether anything autolink-disqualifying (whitespace, `<`,
-          -- newline) appeared. An autolink-shaped `<…>` is *not* HTML
-          -- (the parser handles those), so we skip past it.
-          let mut j := l.drop 1
-          let mut hasColonOrAt := false
-          let mut autolinkBroken := false
-          while !j.isEmpty do
-            if j.startsWith '>' then break
-            if j.startsWith fun c => c == ' ' || c == '\t' || c == '\n' || c == '\r' || c == '<' then
-              autolinkBroken := true; break
-            if j.startsWith fun c => c == ':' || c == '@' then hasColonOrAt := true
-            j := j.drop 1
-          if !autolinkBroken ∧ j.startsWith '>' ∧ hasColonOrAt then
-            l := j.drop 1
-          else
-            return true
-        else if l.drop 1 |>.startsWith '?' then return true
-        else if (l.drop 1).startsWith '/' && (l.drop 2).startsWith Char.isAlpha then return true
-        else
-          if l.drop 1 |>.startsWith '!' then
-            let prefixes := #["!ELEMENT", "!DOCTYPE", "![CDATA", "!--"]
-            for pre in prefixes do
-              if l.drop 1 |>.startsWith pre then return true
-          l := l.drop 1
-      else
-        l := l.drop 1
-    return false
+  hasHtmlBlockStart (md : String) : Bool :=
+    (md.split "\n").toArray.any fun line =>
+      let line := (line.trimAsciiStart.dropWhile fun c => c == '>' || c == '-' || c == '*' || c == '+' || c == ' ')
+      line.startsWith '<' &&
+        (line.drop 1).startsWith fun c => c.isAlpha || c == '/' || c == '!' || c == '?'
 
 
 /--

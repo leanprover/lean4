@@ -878,131 +878,131 @@ def parseBlocksRaw (s : String.Slice) (indent : Nat := 0) : Array (Block.Raw s) 
   return z.finalize
 
 /--
-Parses the content of a link label (CommonMark §6.3) at `r`, which is positioned just
+Parses the content of a link label (CommonMark §6.3) at `cur`, which is positioned just
 after the `[`.
 Newlines are permitted inside the label so long as no blank line appears, and unescaped brackets are
 not. The label must contain at least one non-whitespace character and at most 999 characters.
 Returns the label's lines and the cursor positioned at the closing `]`.
 -/
-public def parseLinkLabel? (r : InlineCursor s) : Option (Array s.Subslice × InlineCursor s) := do
-  let labelStart := r.startPos
-  let mut r := r
+public def parseLinkLabel? (cur : InlineCursor s) : Option (Lines s × InlineCursor s) := do
+  let labelStart := cur.startPos
+  let mut cur := cur
   let mut len := 0
   let mut sawNonWs := false
   let mut sawNewline := false
   while len < 1000 do
-    let some c := r.front? | break
-    let rNext := r.drop1
-    if c == '\\' && !rNext.isEmpty then
-      let esc := rNext.front
+    let some c := cur.front? | break
+    let curNext := cur.drop1
+    if c == '\\' && !curNext.isEmpty then
+      let esc := curNext.front
       if esc != ' ' && esc != '\t' && esc != '\n' then sawNonWs := true
       sawNewline := false
-      r := rNext.drop1
+      cur := curNext.drop1
       len := len + 2
     else if c == ']' then
       guard sawNonWs
-      return (r.source.linesBetween labelStart r.startPos, r)
+      return (cur.source.linesBetween labelStart cur.startPos, cur)
     else if c == '[' then
       failure
     else if c == '\n' then
       guard !sawNewline  -- blank line in label
       sawNewline := true
-      r := rNext
+      cur := curNext
       len := len + 1
     else
       if c != ' ' && c != '\t' then
         sawNonWs := true
         sawNewline := false
-      r := rNext
+      cur := curNext
       len := len + 1
   none
 
 /--
-Parses the destination of a link reference definition at the head of `r`, in the
+Parses the destination of a link reference definition at the head of `cur`, in the
 bracketed `<url>` or unbracketed form. Returns the destination and the cursor positioned just past
 it. Fails
 on an unclosed `<`, an empty destination, unbalanced parens, or an embedded `\n`.
 -/
-def parseRefDefUrl? (r : InlineCursor s) : Option (LinkDestination s × InlineCursor s) := do
-  let urlStart := r.startPos
-  if r.front? == some '<' then
+def parseRefDefUrl? (cur : InlineCursor s) : Option (LinkDestination s × InlineCursor s) := do
+  let urlStart := cur.startPos
+  if cur.front? == some '<' then
     -- Bracketed: scan until the next `>`; reject `<` and `\n`.
-    let openAngle ← r.charSubslice?
-    let mut r := r.drop1
-    let urlContentStart := r.startPos
+    let openAngle ← cur.charSubslice?
+    let mut cur := cur.drop1
+    let urlContentStart := cur.startPos
     let mut closeAngle? : Option s.Subslice := none
-    while !r.isEmpty && closeAngle?.isNone do
-      let c := r.front
-      let rNext := r.drop1
-      if c == '\\' && !rNext.isEmpty then
-        r := rNext.drop1
+    while !cur.isEmpty && closeAngle?.isNone do
+      let c := cur.front
+      let curNext := cur.drop1
+      if c == '\\' && !curNext.isEmpty then
+        cur := curNext.drop1
       else if c == '>' then
-        closeAngle? := r.charSubslice?
-        r := rNext
+        closeAngle? := cur.charSubslice?
+        cur := curNext
       else if c == '<' || c == '\n' then
         failure
       else
-        r := rNext
+        cur := curNext
     let closeAngle ← closeAngle?
     let destination : LinkDestination s :=
       { angles? := some (openAngle, closeAngle)
         url := subsliceClamped urlContentStart closeAngle.startInclusive }
-    return (destination, r)
+    return (destination, cur)
   else
     -- Unbracketed: stop at whitespace/control; balance parens.
-    guard !r.isEmpty
-    let mut r := r
+    guard !cur.isEmpty
+    let mut cur := cur
     let mut parenDepth : Nat := 0
-    while !r.isEmpty do
-      let c := r.front
-      let rNext := r.drop1
-      if c == '\\' && !rNext.isEmpty then
-        r := rNext.drop1
+    while !cur.isEmpty do
+      let c := cur.front
+      let curNext := cur.drop1
+      if c == '\\' && !curNext.isEmpty then
+        cur := curNext.drop1
       else if c == ' ' || c == '\t' || c == '\n' then
         break
       else if c == '(' then
         parenDepth := parenDepth + 1
-        r := rNext
+        cur := curNext
       else if c == ')' then
         if parenDepth == 0 then break
         parenDepth := parenDepth - 1
-        r := rNext
+        cur := curNext
       else if c.toNat < 0x20 then
         break
       else
-        r := rNext
-    guard <| r.startPos != urlStart  -- non-empty destination
+        cur := curNext
+    guard <| cur.startPos != urlStart  -- non-empty destination
     guard <| parenDepth == 0
-    return ({ angles? := none, url := subsliceClamped urlStart r.startPos }, r)
+    return ({ angles? := none, url := subsliceClamped urlStart cur.startPos }, cur)
 
 /--
 Skips the whitespace gap between a link reference definition's `:` and its destination: spaces,
 tabs, and at most one newline. Returns `none` if a blank line (two newlines) is encountered.
 -/
-def skipRefDefDestGap (r : InlineCursor s) : Option (InlineCursor s) := do
-  let mut r := r
+def skipRefDefDestGap (cur : InlineCursor s) : Option (InlineCursor s) := do
+  let mut cur := cur
   let mut newlinesSeen := 0
   repeat
-    let some c := r.front? | break
-    if c == ' ' || c == '\t' then r := r.drop1
+    let some c := cur.front? | break
+    if c == ' ' || c == '\t' then cur := cur.drop1
     else if c == '\n' then
       newlinesSeen := newlinesSeen + 1
       if newlinesSeen ≥ 2 then failure
-      r := r.drop1
+      cur := cur.drop1
     else break
-  return r
+  return cur
 
 /--
-Consumes any same-line trailing whitespace from `r`, then an optional single `\n`. Returns the
+Consumes any same-line trailing whitespace from `cur`, then an optional single `\n`. Returns the
 cursor past the `\n` (or at end-of-buffer if the line was the last). Returns `none` if
 non-whitespace content remains on the line.
 -/
-def consumeRefDefLineEnd (r : InlineCursor s) : Option (InlineCursor s) := do
-  let mut r := r
-  while r.front? == some ' ' || r.front? == some '\t' do
-    r := r.drop1
-  if r.isEmpty then return r
-  if r.front? == some '\n' then return r.drop1
+def consumeRefDefLineEnd (cur : InlineCursor s) : Option (InlineCursor s) := do
+  let mut cur := cur
+  while cur.front? == some ' ' || cur.front? == some '\t' do
+    cur := cur.drop1
+  if cur.isEmpty then return cur
+  if cur.front? == some '\n' then return cur.drop1
   none
 
 /--
@@ -1019,11 +1019,11 @@ closing delimiter, only same-line whitespace and an optional trailing newline ar
 otherwise the title attempt is abandoned (`none`) so the caller can fall back to a no-title
 interpretation.
 -/
-def refDefTitle (r : InlineCursor s) : Option (LinkTitle s × InlineCursor s) := do
+def parseRefDefTitle? (cur : InlineCursor s) : Option (LinkTitle s × InlineCursor s) := do
   -- Locate the title opener: either same-line after whitespace, or on the
   -- next line after a single newline plus optional leading whitespace.
   let mut sawWs := false
-  let mut p := r
+  let mut p := cur
   while p.front? == some ' ' || p.front? == some '\t' do
     sawWs := true
     p := p.drop1
@@ -1072,7 +1072,7 @@ def refDefTitle (r : InlineCursor s) : Option (LinkTitle s × InlineCursor s) :=
   let closerRange ← closerRange?
   let afterEol ← consumeRefDefLineEnd tt
   let title : LinkTitle s :=
-    { opener := openerRange, content := r.source.linesBetween titleContentStart titleContentEnd,
+    { opener := openerRange, content := cur.source.linesBetween titleContentStart titleContentEnd,
       closer := closerRange }
   return (title, afterEol)
 
@@ -1084,28 +1084,28 @@ line is permitted inside it.
 
 Returns the definition plus the position one past the last consumed character.
 -/
-public def linkRefDef (source : InlineSource s) (start : s.Pos) : Option (RefDef s × s.Pos) := do
+public def parseLinkRefDef? (source : InlineSource s) (start : s.Pos) : Option (RefDef s × s.Pos) := do
   -- 0–3 spaces of indentation. `InlineSource.ofLines` has already removed each line's leading
   -- spaces and tabs.
-  let r0 := source.cursor start source.stopPos
-  let (r, indent) := r0.takeSequence ' '
+  let cur0 := source.cursor start source.stopPos
+  let (cur, indent) := cur0.takeSequence ' '
   guard (indent ≤ 3)
   -- `[label]`.
-  let (openBracket, r) ← r.parseChar? '['
-  let (label, r) ← parseLinkLabel? r
-  let (closeBracket, r) ← r.parseChar? ']'
+  let (openBracket, cur) ← cur.parseChar? '['
+  let (label, cur) ← parseLinkLabel? cur
+  let (closeBracket, cur) ← cur.parseChar? ']'
   -- `:`.
-  let (colon, r) ← r.parseChar? ':'
+  let (colon, cur) ← cur.parseChar? ':'
   -- Whitespace (including up to one newline) before the destination.
-  let r ← skipRefDefDestGap r
+  let cur ← skipRefDefDestGap cur
   -- Destination.
-  let (destination, afterUrl) ← parseRefDefUrl? r
+  let (destination, afterUrl) ← parseRefDefUrl? cur
   -- Optional title; on a syntactic failure or on trailing junk, fall back to
   -- a no-title interpretation, in which case the URL itself must end the
   -- line.
   let (title?, finalRest) ←
-    (refDefTitle afterUrl |>.map fun (t, r) => (some t, r)) <|>
-    (consumeRefDefLineEnd afterUrl |>.map fun r => (none, r))
+    (parseRefDefTitle? afterUrl |>.map fun (t, cur) => (some t, cur)) <|>
+    (consumeRefDefLineEnd afterUrl |>.map fun cur => (none, cur))
   return ({ openBracket, label, closeBracket, colon, destination, title? }, finalRest.startPos)
 
 /--
@@ -1119,7 +1119,7 @@ public def extractRefDefs (source : InlineSource s) :
   let mut p := source.startPos
   let mut keep := true
   while keep && p < source.stopPos do
-    match linkRefDef source p with
+    match parseLinkRefDef? source p with
     | none => keep := false
     | some (m, posAfter) =>
       defs := defs.push (.linkRefDef m)

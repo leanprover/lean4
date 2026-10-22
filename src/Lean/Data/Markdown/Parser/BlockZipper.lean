@@ -231,6 +231,21 @@ public def indentedCodeAddBlank (z : BlockZipper s) (range : s.Subslice) (render
     | .indentedCode lines pendingBlanks => .indentedCode lines (pendingBlanks.push (range, rendered))
     | leaf => leaf
 
+/--
+Appends `m` to the markers of the blockquote frame at spine index `i`. A frame of another kind is
+left as it is.
+-/
+public def pushBlockquoteMarker (z : BlockZipper s) (i : Nat) (m : s.Subslice) : BlockZipper s :=
+  { z with
+    spine := z.spine.modify i fun
+      | ⟨.blockquote markers, closedChildren, loose⟩ =>
+        ⟨.blockquote (markers.push m), closedChildren, loose⟩
+      | frame => frame }
+
+@[simp] public theorem spine_size_pushBlockquoteMarker (z : BlockZipper s) (i : Nat)
+    (m : s.Subslice) : (z.pushBlockquoteMarker i m).spine.size = z.spine.size := by
+  simp [pushBlockquoteMarker]
+
 /-- Converts a frame into a finalized block. -/
 public def frameToBlock (frame : ZipperFrame s) : Block.Raw s :=
   match frame.container with

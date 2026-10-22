@@ -309,18 +309,34 @@ def classifyDelim (ch prevChar nextChar : Char) : Bool × Bool :=
   (canOpen, canClose)
 
 /--
-Parses the common suffix logic for `[…]…` links and `![…]…` images: the caller has already located
-the outer `[…]` (with `openBracket`/`closeBracket` the brackets, and `afterClose` one
-past the `]`) and parsed its interior as `interior`. This function picks among the inline `(url)`,
-full reference `[label]`, collapsed `[]`, and shortcut forms, building the result with `mk` (which
-closes over the leading `!` for images).
+Whether the text between `start` and `stop` is a link label (CommonMark §6.3): at most 999
+characters and no unescaped brackets.
+-/
+def isLinkLabel (src : InlineSource s) (start stop : s.Pos) : Bool := Id.run do
+  let mut r := src.cursor start stop
+  let mut len := 0
+  while !r.isEmpty do
+    if len ≥ 999 then return false
+    let c := r.front
+    r := r.drop1
+    len := len + 1
+    if c == '\\' && !r.isEmpty then
+      r := r.drop1
+      len := len + 1
+    else if c == '[' || c == ']' then
+      return false
+  return true
+
+/--
+Parses the target of a `[…]…` link or `![…]…` image, after the caller has located the outer `[…]`
+(with `openBracket`/`closeBracket` the brackets, and `afterClose` one past the `]`). This function
+picks among the inline `(url)`, full reference `[label]`, collapsed `[]`, and shortcut forms, and
+returns the target together with the position after it.
 -/
 def linkSuffix
     (refs : RefTable s) (src : InlineSource s) (stop : s.Pos)
-    (openBracket closeBracket : s.Subslice) (afterClose : s.Pos)
-    (interior : Array (Inline s))
-    (mk : s.Subslice → Array (Inline s) → s.Subslice → LinkTarget s → Inline s) :
-    Option (Inline s × s.Pos) :=
+    (openBracket closeBracket : s.Subslice) (afterClose : s.Pos) :
+    Option (LinkTarget s × s.Pos) :=
   let afterCloseRest : InlineCursor s := src.cursor afterClose stop
   -- Inline form `(url)` takes precedence; on failure, fall back to shortcut. A link label or `[]`
   -- commits to the reference form, so an unresolved label is a hard failure; any other `[` leaves
@@ -336,37 +352,36 @@ where
   labelFollows (r : InlineCursor s) : Bool :=
     r.front? == some ']' || (parseLinkLabel? r).isSome
   /-- The `[…](url)` / `![…](url "title")` form. -/
-  inlineForm (afterCloseRest : InlineCursor s) : Option (Inline s × s.Pos) := do
+  inlineForm (afterCloseRest : InlineCursor s) : Option (LinkTarget s × s.Pos) := do
     let openParen ← afterCloseRest.charSubslice?
     let (destination, title?, parenEnd) ← inlineLinkTarget (src.cursor openParen.endExclusive stop)
     let closeParen ← (src.cursor parenEnd stop).charSubslice?
-    let target := LinkTarget.inline openParen destination closeParen title?
-    return (mk openBracket interior closeBracket target, closeParen.endExclusive)
+    return (.inline openParen destination closeParen title?, closeParen.endExclusive)
   /-- The full `[…][label]` / `![…][label]` and collapsed `[…][]` / `![…][]` forms. -/
-  referenceForm (afterCloseRest : InlineCursor s) : Option (Inline s × s.Pos) := do
+  referenceForm (afterCloseRest : InlineCursor s) : Option (LinkTarget s × s.Pos) := do
     let labelOpen ← afterCloseRest.charSubslice?
     let afterOpen := afterCloseRest.drop1
-    let (labelStr, label, labelClose, form) ←
+    let (label, labelClose, form) ←
       if afterOpen.front? == some ']' then do
         -- Collapsed reference: the link text/image alt serves as the label.
         let labelClose ← afterOpen.charSubslice?
-        pure (src.extract openBracket.endExclusive closeBracket.startInclusive,
-          src.linesBetween openBracket.endExclusive closeBracket.startInclusive,
-          labelClose, ReferenceLinkForm.collapsed labelOpen labelClose)
+        let label ← interiorLabel?
+        pure (label, labelClose, ReferenceLinkForm.collapsed labelOpen labelClose)
       else do
         let (label, atClose) ← parseLinkLabel? afterOpen
         let labelClose ← atClose.charSubslice?
-        pure (src.extract afterOpen.startPos atClose.startPos, label, labelClose,
-          ReferenceLinkForm.full labelOpen labelClose)
-    let definition ← refs[normalizeLabel labelStr]?
-    return (mk openBracket interior closeBracket (.reference definition label form),
-      labelClose.endExclusive)
+        pure (label, labelClose, ReferenceLinkForm.full labelOpen labelClose)
+    let definition ← refs[normalizeLabel label]?
+    return (.reference definition label form, labelClose.endExclusive)
   /-- The shortcut `[…]` / `![…]` form: the bracket interior itself is the label. -/
-  shortcutForm : Option (Inline s × s.Pos) := do
-    let labelStr := src.extract openBracket.endExclusive closeBracket.startInclusive
-    let definition ← refs[normalizeLabel labelStr]?
-    let label := src.linesBetween openBracket.endExclusive closeBracket.startInclusive
-    return (mk openBracket interior closeBracket (.reference definition label .shortcut), afterClose)
+  shortcutForm : Option (LinkTarget s × s.Pos) := do
+    let label ← interiorLabel?
+    let definition ← refs[normalizeLabel label]?
+    return (.reference definition label .shortcut, afterClose)
+  /-- The lines of the bracket interior, if it is a link label. -/
+  interiorLabel? : Option (Array s.Subslice) := do
+    guard (isLinkLabel src openBracket.endExclusive closeBracket.startInclusive)
+    return src.linesBetween openBracket.endExclusive closeBracket.startInclusive
 
 /-!
 ### Inline Tokenization
@@ -401,6 +416,7 @@ structure BracketOpener (s : String.Slice) where
   openBracket : s.Subslice
   /-- Whether the opener may still form a link. A `[` before a completed link may not. -/
   active : Bool := true
+deriving Inhabited
 
 /--
 The state maintained while tokenizing an inline source and emitting tokens
@@ -484,12 +500,13 @@ input resumes at `resumeRest`, just after the `[`.
 -/
 def openBracket (bang? : Option s.Subslice) (bracket : s.Subslice) (resumeRest : InlineCursor s) :
     TokenizeM s Unit :=
-  modify fun st =>
+  -- The state is destructured so that its arrays are unique and extended in place.
+  modify fun ⟨out, _, textStart, _, brackets⟩ =>
     let start := (bang?.getD bracket).startInclusive
-    let out := pushTokText st.out st.textStart start
-    { st with
-      out := out.push (.inline (.text (subsliceClamped start bracket.endExclusive)))
-      brackets := st.brackets.push { tokIdx := out.size, bang?, openBracket := bracket }
+    let out := pushTokText out textStart start
+    let tokIdx := out.size
+    { out := out.push (.inline (.text (subsliceClamped start bracket.endExclusive)))
+      brackets := brackets.push { tokIdx, bang?, openBracket := bracket }
       rest := resumeRest
       textStart := bracket.endExclusive
       prevChar := '[' }
@@ -502,35 +519,51 @@ opener is popped in either case, and a completed link deactivates every earlier 
 -/
 def closeBracket (refs : RefTable s) (src : InlineSource s) (closeBracket : s.Subslice) :
     TokenizeM s Unit := do
-  let st ← get
-  let some opener := st.brackets.back? | skipChar
+  let some opener := (← get).brackets.back? | skipChar
+  let popOpener : TokenizeM s Unit := modify fun st => { st with brackets := st.brackets.pop }
   if !opener.active then
-    set { st with brackets := st.brackets.pop }
+    popOpener
     skipChar
   else
-    let out := pushTokText st.out st.textStart closeBracket.startInclusive
-    let interior := processEmphasis (out.extract (opener.tokIdx + 1) out.size)
-    let mk : s.Subslice → Array (Inline s) → s.Subslice → LinkTarget s → Inline s :=
-      match opener.bang? with
-      | some bang => .image bang
-      | none => .link
     let stop := src.stopPos
-    match linkSuffix refs src stop opener.openBracket closeBracket closeBracket.endExclusive
-        interior mk with
-    | some (inl, after) =>
-      let brackets := st.brackets.pop
-      let brackets :=
-        if opener.bang?.isSome then brackets
-        else brackets.map fun b => if b.bang?.isSome then b else { b with active := false }
-      set { st with
-        out := (out.shrink opener.tokIdx).push (.inline inl)
-        brackets
-        rest := src.cursor after stop
-        textStart := after
-        prevChar := (after.prev? >>= (·.get?)).getD ')' }
+    match linkSuffix refs src stop opener.openBracket closeBracket closeBracket.endExclusive with
+    | some (target, after) =>
+      -- The output is taken out of the state so that it is shrunk and extended in place.
+      let out ← modifyGet fun ⟨out, rest, textStart, prevChar, brackets⟩ =>
+        (pushTokText out textStart closeBracket.startInclusive,
+         ⟨#[], rest, textStart, prevChar, brackets⟩)
+      let interior := processEmphasis (out.extract (opener.tokIdx + 1) out.size)
+      let inl : Inline s :=
+        match opener.bang? with
+        | some bang => .image bang opener.openBracket interior closeBracket target
+        | none => .link opener.openBracket interior closeBracket target
+      modify fun st =>
+        { st with
+          out := (out.shrink opener.tokIdx).push (.inline inl)
+          brackets := deactivateBelow st.brackets.pop opener.bang?.isNone
+          rest := src.cursor after stop
+          textStart := after
+          prevChar := (after.prev? >>= (·.get?)).getD ')' }
     | none =>
-      set { st with brackets := st.brackets.pop }
+      popOpener
       skipChar
+where
+  /--
+  After a link forms, every `[` opener still on the stack is deactivated, since a link may not
+  contain a link. Openers below an inactive one are already inactive, so the walk stops there.
+  -/
+  deactivateBelow (brackets : Array (BracketOpener s)) (isLink : Bool) :
+      Array (BracketOpener s) := Id.run do
+    unless isLink do return brackets
+    let mut brackets := brackets
+    let mut i := brackets.size
+    while i > 0 do
+      i := i - 1
+      let b := brackets[i]!
+      if b.bang?.isSome then continue
+      if !b.active then break
+      brackets := brackets.set! i { b with active := false }
+    return brackets
 
 /--
 Tokenizes the inline content of a block into a flat sequence of already-finalized non-emphasis

@@ -9,6 +9,9 @@ prelude
 public import Init.Data.Array.Basic
 public import Init.While
 import Init.Omega
+import Init.Data.Range.Polymorphic.Iterators
+import Init.Data.Range.Polymorphic.Nat
+import Init.Data.String.OrderInstances
 public import Lean.Data.Markdown.Basic
 
 namespace Lean.Markdown
@@ -73,28 +76,17 @@ where
   decreasing_by all_goals omega
 
 /--
-Concatenates the text of each line intersected with `[p1, p2)`, in source order. This is the text
-that the inline parser reads between `p1` and `p2`, without the inter-line gaps.
--/
-public def extract (src : InlineSource s) (p1 p2 : s.Pos) : String :=
-  src.lines.foldl (init := "") fun acc r =>
-    let lo := if p1 ≤ r.startInclusive then r.startInclusive else p1
-    let hi := if r.endExclusive ≤ p2 then r.endExclusive else p2
-    if lo < hi then acc ++ (subsliceClamped lo hi).copy else acc
-
-/--
 The part of each line that is within `[p1, p2)`, in source order and without the line endings. A
 line whose part is empty is included when `[p1, p2)` reaches it, so there is one part per source
 line that the content spans.
 -/
-public def linesBetween (src : InlineSource s) (p1 p2 : s.Pos) : Array s.Subslice :=
-  src.lines.foldl (init := #[]) fun acc r =>
-    if p1 < r.endExclusive && r.startInclusive ≤ p2 then
-      let stop := textEnd r
-      let lo := if p1 ≤ r.startInclusive then r.startInclusive else p1
-      let hi := if stop ≤ p2 then stop else p2
-      acc.push (subsliceClamped lo hi)
-    else acc
+public def linesBetween (src : InlineSource s) (p1 p2 : s.Pos) : Array s.Subslice := Id.run do
+  let mut out := #[]
+  for h : i in src.lineIndex p1...src.lines.size do
+    let r := src.lines[i]
+    if p2 < r.startInclusive then break
+    out := out.push (subsliceClamped (max p1 r.startInclusive) (min (textEnd r) p2))
+  return out
 where
   /-- The end of the line's text, before its `\n` if it has one. -/
   textEnd (r : s.Subslice) : s.Pos :=
@@ -123,7 +115,7 @@ CommonMark §4.8 paragraph-content normalization:
 -/
 public def ofLines (lines : Array s.Subslice) : InlineSource s := Id.run do
   let mut out : Array s.Subslice := Array.emptyWithCapacity lines.size
-  for h : idx in [0 : lines.size] do
+  for h : idx in 0...lines.size do
     let line := lines[idx]
     let start := skipSpaces line.startInclusive line.endExclusive
     let stop :=

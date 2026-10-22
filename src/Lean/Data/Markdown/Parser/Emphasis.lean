@@ -69,8 +69,9 @@ public def pushTokText (out : Array (InlineTok s)) (textStart pos : s.Pos) :
   else out
 
 /--
-An open emphasis context on the processing stack that contains a still-active opening delimiter
-sequence with the inline content accumulated since it was pushed.
+An opening delimiter sequence on the delimiter stack whose characters have not all been matched. Its
+still-unmatched characters are a text inline in the output at `outIdx`, and the inlines after that
+index are the content that a match wraps.
 -/
 structure OpenerFrame (s : String.Slice) where
   ch : Char
@@ -85,8 +86,8 @@ structure OpenerFrame (s : String.Slice) where
   remaining : Nat
   /-- Whether the original sequence could close. -/
   canClose : Bool
-  /-- Inlines accumulated since this opener was pushed. -/
-  acc : Array (Inline s)
+  /-- The index in the output of the text inline for the still-unmatched delimiter characters. -/
+  outIdx : Nat
 deriving Inhabited
 
 /-!
@@ -98,96 +99,87 @@ inline output, and a closing sequence looks down the stack for a compatible open
 The spec describes the algorithm imperatively over two pieces of state, the delimiter stack and the
 inline output, and those are maintained in a single `DelimiterMatchState` structure.
 
-Inlines emitted inside an open emphasis are kept in its opener frame, so when the opener matches,
-its children are ready to wrap.
+As in the specification, an opener's delimiter characters are a text inline in the output, and its
+frame records that inline's index. The content of a matched emphasis is the output after the index,
+abandoning an opener leaves its text in place, and `openersBottom` bounds each search for an opener
+below the point where the last search for the same kind of closer failed.
 -/
 
 /--
-The state maintained while running CommonMark §6.2's delimiter-matching algorithm: the delimiter
-stack, plus the inline output emitted at the document scope (i.e., outside any currently-open
-emphasis).
+The index into `openersBottom` for a closer: by its character, its original length modulo 3, and
+whether it can also open emphasis, which are the properties that decide whether an opener can match
+it.
+-/
+def bottomKey (seq : DelimSequence s) : Nat :=
+  (if seq.ch == '*' then 0 else 6) + (seq.origLen % 3) * 2 + (if seq.canOpen then 1 else 0)
 
-Each currently-open emphasis candidate is stored in `delimiters` and collects its in-progress
-children in its `acc` field; only when the opener's sequence is fully matched (or abandoned) do those
-children make it into a wrapping node and flow into the parent scope (the next opener's `acc`, or
-`output` if the stack is empty).
+/--
+The state maintained while running CommonMark §6.2's delimiter-matching algorithm: the delimiter
+stack and the inline output.
 -/
 structure DelimiterMatchState (s : String.Slice) where
-  /-- The delimiter stack: openers whose sequences have not yet been matched. -/
+  /-- The delimiter stack: openers whose sequences have not yet been matched, innermost last. -/
   delimiters : Array (OpenerFrame s)
-  /-- Inlines emitted at document scope, outside any open emphasis. -/
+  /-- The inlines emitted so far, including the text of the openers on the stack. -/
   output : Array (Inline s)
+  /--
+  For each kind of closer (see `bottomKey`), the stack index below which no opener can match it,
+  because a search for that kind of closer already failed there.
+  -/
+  openersBottom : Array Nat
 
 /-- The empty initial state. -/
 def DelimiterMatchState.empty : DelimiterMatchState s :=
-  { delimiters := #[], output := #[] }
+  { delimiters := #[], output := #[], openersBottom := Array.replicate 12 0 }
 
 /-- The state monad for §6.2's delimiter-matching algorithm. -/
 abbrev DelimM (s : String.Slice) := StateM (DelimiterMatchState s)
 
 /--
-Appends `inl` to `inlines`. Text that begins where a preceding text inline ends is merged into it,
-so literal brackets and unmatched delimiters join the text around them.
+Merges each text inline of `inlines` that begins where the preceding text inline ends into it, so
+that literal brackets and unmatched delimiters join the text around them.
 -/
-def pushInline (inlines : Array (Inline s)) (inl : Inline s) : Array (Inline s) :=
-  match inl, inlines.back? with
-  | .text r, some (.text r') =>
-    if r'.endExclusive == r.startInclusive then
-      inlines.pop.push (.text (subsliceClamped r'.startInclusive r.endExclusive))
-    else inlines.push inl
-  | _, _ => inlines.push inl
+def coalesceText (inlines : Array (Inline s)) : Array (Inline s) :=
+  inlines.foldl (init := Array.emptyWithCapacity inlines.size) fun acc inl =>
+    match inl, acc.back? with
+    | .text r, some (.text r') =>
+      if r'.endExclusive == r.startInclusive then
+        acc.pop.push (.text (subsliceClamped r'.startInclusive r.endExclusive))
+      else acc.push inl
+    | _, _ => acc.push inl
 
-/--
-Adds a finalized inline to the inline output. It goes into the topmost delimiter's `acc` if the stack
-is non-empty, otherwise into the bottom output.
--/
+/-- Adds a finalized inline to the output. -/
 def emit (inl : Inline s) : DelimM s Unit := modify fun st =>
-  if h : st.delimiters.size > 0 then
-    let top := st.delimiters.back h
-    { st with delimiters := st.delimiters.pop.push { top with acc := pushInline top.acc inl } }
-  else
-    { st with output := pushInline st.output inl }
-
-/-- Adds a batch of finalized inlines to the inline output (see `emit`). -/
-def emitMany (xs : Array (Inline s)) : DelimM s Unit := modify fun st =>
-  if h : st.delimiters.size > 0 then
-    let top := st.delimiters.back h
-    { st with delimiters := st.delimiters.pop.push { top with acc := xs.foldl pushInline top.acc } }
-  else
-    { st with output := xs.foldl pushInline st.output }
+  { st with output := st.output.push inl }
 
 /--
-Pushes a new opener onto the delimiter stack.
+Pushes an opener onto the delimiter stack, with its delimiter characters as a text inline in the
+output. Openers popped since the last search leave `openersBottom` bounds above the stack, which are
+lowered to the stack's size.
 -/
-def openDelimiter (f : OpenerFrame s) : DelimM s Unit :=
-  modify fun st => { st with delimiters := st.delimiters.push f }
+def openDelimiter (ch : Char) (startPos : s.Pos) (origLen remaining : Nat) (canClose : Bool) :
+    DelimM s Unit := modify fun st =>
+  let size := st.delimiters.size
+  { st with
+    output := st.output.push (.text (delimiterSubslice startPos remaining))
+    delimiters := st.delimiters.push
+      { ch, startPos, origLen, remaining, canClose, outIdx := st.output.size }
+    openersBottom := st.openersBottom.map (min · size) }
 
 /--
-Abandons the topmost delimiter: its still-unmatched delimiter characters are re-emitted as literal
-text, and the inlines that accumulated inside the would-be emphasis are flushed to the parent scope
-without any emphasis node around them. The spec's procedure removes such a delimiter from the stack
-and leaves its characters in place as text. The flush is necessary because we stage in-progress
-children on the opener's `acc` field; in the spec's pseudocode they would already sit on the output
-list and abandoning would be a stack pop alone.
+Abandons the topmost delimiter. Its still-unmatched characters stay in the output as text, so this is
+a pop of the delimiter stack.
 
 This is used both when a closer's match leaves unmatched openers above it on the stack and at the
 end, when every opener still on the stack is abandoned.
 -/
-def abandonOpener : DelimM s Unit := do
-  let st ← get
-  if h : st.delimiters.size > 0 then
-    let top := st.delimiters.back h
-    let asInlines : Array (Inline s) :=
-      if top.remaining > 0 then
-        #[Inline.text (delimiterSubslice top.startPos top.remaining)] ++ top.acc
-      else top.acc
-    set { st with delimiters := st.delimiters.pop }
-    emitMany asInlines
+def abandonOpener : DelimM s Unit := modify fun st =>
+  { st with delimiters := st.delimiters.pop }
 
 /--
-Wraps the topmost delimiter's accumulated tokens as `.bold` (when `matchLen == 2`) or `.italic`
-(when `matchLen == 1`) using `openDelim`/`closeDelim` as its delimiters, and then either drops
-the opener or removes the part that was consumed.
+Wraps the output after the topmost opener as `.bold` (when `matchLen == 2`) or `.italic` (when
+`matchLen == 1`) using `openDelim`/`closeDelim` as its delimiters, and then either drops the opener
+or shrinks its text to the characters that remain.
 
 Precondition: the delimiter stack is non-empty and its top is the opener chosen to match this closer
 (any unmatched openers above it have already been abandoned).
@@ -195,47 +187,51 @@ Precondition: the delimiter stack is non-empty and its top is the opener chosen 
 def closeMatched (matchLen : Nat) (openDelim closeDelim : s.Subslice) :
     DelimM s Unit := do
   let opener := (← get).delimiters.back!
-  let wrapped : Inline s :=
-    if matchLen == 2 then .bold openDelim opener.acc closeDelim
-    else .italic openDelim opener.acc closeDelim
   let newRem := opener.remaining - matchLen
-  if newRem == 0 then
-    modify fun st => { st with delimiters := st.delimiters.pop }
-    emit wrapped
-  else
-    modify fun st =>
+  modify fun st =>
+    let content := coalesceText (st.output.extract (opener.outIdx + 1) st.output.size)
+    let wrapped : Inline s :=
+      if matchLen == 2 then .bold openDelim content closeDelim
+      else .italic openDelim content closeDelim
+    if newRem == 0 then
       { st with
-        delimiters :=
-          st.delimiters.pop.push { opener with remaining := newRem, acc := #[wrapped] } }
+        output := (st.output.shrink opener.outIdx).push wrapped
+        delimiters := st.delimiters.pop }
+    else
+      { st with
+        output := (st.output.shrink (opener.outIdx + 1))
+          |>.set! opener.outIdx (.text (delimiterSubslice opener.startPos newRem))
+          |>.push wrapped
+        delimiters := st.delimiters.pop.push { opener with remaining := newRem } }
 
 /--
 Abandons every opener still on the stack and returns the final inline output. This is the final step
 of the spec's procedure, which removes every delimiter still on the stack.
 -/
 def finalizeEmphasis : DelimM s (Array (Inline s)) := do
-  repeat
-    if (← get).delimiters.isEmpty then break
-    abandonOpener
-  return (← get).output
+  modify fun st => { st with delimiters := #[] }
+  return coalesceText (← get).output
 
 /--
-Searches the delimiter stack top-down for an opener compatible with the closer `seq`, honoring
-CommonMark §6.2's rule about lengths that are a multiple of 3. Returns the index (from the bottom)
-of the first compatible opener, or `none`.
+Searches the delimiter stack top-down, stopping above index `bottom`, for an opener compatible with
+the closer `seq`, honoring CommonMark §6.2's rule about lengths that are a multiple of 3. Returns the
+index (from the bottom) of the first compatible opener, or `none`.
 -/
-def findMatchingOpener (stack : Array (OpenerFrame s)) (seq : DelimSequence s) : Option Nat := do
-  for h : i in [0:stack.size] do
-      have : stack.size > 0 := Nat.zero_lt_of_lt h.2.1
-      let opener := stack[stack.size - (i + 1)]'(Nat.sub_lt this (Nat.zero_lt_succ i))
-      if opener.ch == seq.ch then
-        let lenSum := opener.origLen + seq.origLen
-        let bothCanBoth := opener.canClose || seq.canOpen
-        let blocked :=
-          bothCanBoth && lenSum % 3 == 0 &&
-          (opener.origLen % 3 != 0 || seq.origLen % 3 != 0)
-        unless blocked do
-          return stack.size - (i + 1)
-    failure
+def findMatchingOpener (stack : Array (OpenerFrame s)) (seq : DelimSequence s) (bottom : Nat) :
+    Option Nat := Id.run do
+  let mut i := stack.size
+  while i > bottom do
+    i := i - 1
+    let some opener := stack[i]? | return none
+    if opener.ch == seq.ch then
+      let lenSum := opener.origLen + seq.origLen
+      let bothCanBoth := opener.canClose || seq.canOpen
+      let blocked :=
+        bothCanBoth && lenSum % 3 == 0 &&
+        (opener.origLen % 3 != 0 || seq.origLen % 3 != 0)
+      unless blocked do
+        return some i
+  return none
 
 /--
 Processes one delimiter sequence from the token stream. If possible, it uses it as a closer,
@@ -247,10 +243,15 @@ def processDelimSequence (seq : DelimSequence s) : DelimM s Unit := do
   let mut seqRem := seq.origLen
   let mut seqStart := seq.startPos
   if seq.canClose then
-    let mut keepTrying := true
-    while seqRem > 0 && keepTrying do
-      match findMatchingOpener (← get).delimiters seq with
-      | none => keepTrying := false
+    let key := bottomKey seq
+    while seqRem > 0 do
+      let st ← get
+      match findMatchingOpener st.delimiters seq (st.openersBottom[key]?.getD 0) with
+      | none =>
+        -- No opener on the stack can match this kind of closer, so later searches for the same
+        -- kind start above the current stack.
+        modify fun st => { st with openersBottom := st.openersBottom.set! key st.delimiters.size }
+        break
       | some idx =>
         while (← get).delimiters.size > idx + 1 do
           abandonOpener
@@ -263,14 +264,7 @@ def processDelimSequence (seq : DelimSequence s) : DelimM s Unit := do
         seqStart := seqStart.nextn matchLen
   if seqRem > 0 then
     if seq.canOpen then
-      openDelimiter {
-        ch := seq.ch
-        startPos := seqStart
-        origLen := seq.origLen
-        remaining := seqRem
-        canClose := seq.canClose
-        acc := #[]
-      }
+      openDelimiter seq.ch seqStart seq.origLen seqRem seq.canClose
     else
       emit <| .text (delimiterSubslice seqStart seqRem)
 

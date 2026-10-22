@@ -9,6 +9,8 @@ prelude
 public import Init.Data.Nat.Fold
 public import Init.Data.String.TakeDrop
 public import Init.While
+import Init.Data.Range.Polymorphic.Iterators
+import Init.Data.Range.Polymorphic.Nat
 public import Lean.Data.Markdown.Basic
 public import Lean.Data.Markdown.InlineSource
 import Lean.Data.Markdown.Parser.Cursor
@@ -471,8 +473,8 @@ Lines are processed one at a time. A kind of rightward-only zipper is maintained
 be added at the lower right of the syntax tree.
 
 Each step of the pipeline is a `ProcessM Unit` named after its description in the CommonMark spec.
-Steps that produce the line's final zipper short-circuit the pipeline by `throw`-ing it, while steps
-that only mutate the in-flight state fall through to the next.
+Steps that produce the line's final zipper end the pipeline with `finishLine`, while steps that only
+mutate the in-flight state fall through to the next.
 -/
 
 /--
@@ -480,9 +482,9 @@ The state that flows through the late (post-close) steps of `processLine`.
 -/
 structure LineState (s : String.Slice) where
   /-- The in-progress document. -/
-  z : BlockZipper s
+  zipper : BlockZipper s
   /-- The cursor that advances through the block-inducing prefixes of the line. -/
-  c : Cursor s
+  cursor : Cursor s
   /-- Whether the preceding line was blank.-/
   prevBlank : Bool
 
@@ -494,7 +496,7 @@ structure ContState (s : String.Slice) extends LineState s where
   /-- The number of inner spine frames that continued on this line. -/
   matched : Nat
   /-- The matched counter is always a valid prefix length of the spine. -/
-  matched_le : matched ≤ z.spine.size
+  matched_le : matched ≤ zipper.spine.size
 
 /--
 The monad for line processing after containers that need closing have been closed.
@@ -508,16 +510,49 @@ The monad for determining which containers should continue for a given line.
 -/
 abbrev ContainerM (s : String.Slice) := EStateM (BlockZipper s) (ContState s)
 
+/-!
+A state read with `get` is shared with the monad, so extending one of the zipper's arrays would copy
+the array. The zipper is changed either inside `modify`, or after `takeState` has taken the state out
+of the monad.
+-/
+
+/--
+Takes the state out of the monad, leaving behind one with an empty zipper, so that the zipper's
+arrays can be extended in place. The caller puts a state back with `set`, or ends the line with
+`finishLine`.
+-/
+def takeState : ProcessM s (LineState s) :=
+  modifyGet fun st => (st, { st with zipper := .empty })
+
+@[inherit_doc takeState]
+def ContainerM.takeState : ContainerM s (ContState s) :=
+  modifyGet fun st => (st, { st with zipper := .empty, matched := 0, matched_le := Nat.zero_le _ })
+
+/-- Ends the processing of the current line, with `z` as the document so far. -/
+@[inline] def finishLine [MonadExcept (BlockZipper s) m] (z : BlockZipper s) : m α := throw z
+
+/--
+Ends the processing of the current line with the zipper that `f` produces from the current one.
+-/
+def finishLineWith (f : BlockZipper s → BlockZipper s) : ProcessM s Unit := do
+  let st ← takeState
+  finishLine (f st.zipper)
+
+@[inherit_doc finishLineWith]
+def ContainerM.finishLineWith (f : BlockZipper s → BlockZipper s) : ContainerM s Unit := do
+  let st ← ContainerM.takeState
+  finishLine (f st.zipper)
+
 /--
 Lifts a `ContainerM` action to `ProcessM`.
 -/
 def runContainerM (act : ContainerM s Unit) : ProcessM s Nat := do
-  let st ← get
+  let st ← takeState
   let init : ContState s :=
     { st with matched := 0, matched_le := Nat.zero_le _ }
   match act.run init with
   | .ok _ st'   => set st'.toLineState; return st'.matched
-  | .error z _ => throw z
+  | .error z _ => finishLine z
 
 /--
 Traverses the spine, advancing the cursor past the markers of containers that continue. Updates the
@@ -526,36 +561,34 @@ inner spine frames that continued, so subsequent steps can close the rest. The d
 continues implicitly and is not counted.
 -/
 def continueContainers : ContainerM s Unit := do
-  let mut st ← get
-  let mut keepWalking := true
-  while h : keepWalking ∧ st.matched < st.z.spine.size do
-    let frame := st.z.spine[st.matched]'h.2
-    match frame.container with
-    | .blockquote markers =>
-      match parseBlockquoteMarker? st.c with
-      | none => keepWalking := false
-      | some (markerRange, cAfter) =>
-        let frame' := { frame with container := .blockquote (markers.push markerRange) }
+  let mut st ← ContainerM.takeState
+  repeat
+    if h : st.matched < st.zipper.spine.size then
+      match (st.zipper.spine[st.matched]).container with
+      | .blockquote _ =>
+        let some (markerRange, cAfter) := parseBlockquoteMarker? st.cursor | break
         st := { st with
-          c := cAfter
-          z := { st.z with spine := st.z.spine.set st.matched frame' h.2 }
+          zipper := st.zipper.pushBlockquoteMarker st.matched markerRange
+          cursor := cAfter
           matched := st.matched + 1
-          matched_le := by cases h; simpa
+          matched_le := by rw [BlockZipper.spine_size_pushBlockquoteMarker]; exact h
         }
-    | .list _ =>
-      -- Lists themselves have no continuation marker; their listItem children do.
-      st := { st with matched := st.matched + 1, matched_le := h.2 }
-    | .listItem _ contentColumn =>
-      -- Try to consume `contentColumn` cols of indent (in cols, tab-aware
-      -- with partial-tab support).
-      let (cAfter, consumed) := consumeIndentCapped st.c contentColumn
-      if consumed ≥ contentColumn then
-        st := { st with c := cAfter, matched := st.matched + 1, matched_le := h.2 }
-      else if st.c.isBlank then
-        -- A blank line continues the listItem (cursor not advanced).
-        st := { st with matched := st.matched + 1, matched_le := h.2 }
-      else
-        keepWalking := false
+      | .list _ =>
+        -- Lists themselves have no continuation marker; their listItem children do.
+        st := { st with matched := st.matched + 1, matched_le := h }
+      | .listItem _ contentColumn =>
+        -- Try to consume `contentColumn` cols of indent (in cols, tab-aware
+        -- with partial-tab support).
+        let (cAfter, consumed) := consumeIndentCapped st.cursor contentColumn
+        if consumed ≥ contentColumn then
+          st := { st with cursor := cAfter, matched := st.matched + 1, matched_le := h }
+        else if st.cursor.isBlank then
+          -- A blank line continues the listItem (cursor not advanced).
+          st := { st with matched := st.matched + 1, matched_le := h }
+        else
+          break
+    else
+      break
   set st
 
 /--
@@ -567,42 +600,41 @@ direct children.
 def markEnclosingListLoose : ContainerM s Unit := do
   let st ← get
   unless st.prevBlank do return
-  -- Indices within the matched range live in `Fin st.matched`, and combined
-  -- with `st.matched_le` are valid spine indices. The traversal goes from
-  -- `st.matched - 1` down to `0`, breaking on the first listItem found.
+  -- Indices within the matched range are kept valid using `Fin st.matched` combined with
+  -- `st.matched_le`. The traversal goes from `st.matched - 1` down to `0`, breaking on the first
+  -- listItem found.
   if h0 : 0 < st.matched then
     let mut i : Fin st.matched := ⟨st.matched - 1, Nat.sub_one_lt_of_lt h0⟩
-    let mut keepGoing := true
-    while keepGoing do
-      have h_i : i.val < st.z.spine.size := Nat.lt_of_lt_of_le i.isLt st.matched_le
-      if let .listItem _ _ := (st.z.spine[i]).container then
+    repeat
+      have h_i : i.val < st.zipper.spine.size := Nat.lt_of_lt_of_le i.isLt st.matched_le
+      if let .listItem _ _ := (st.zipper.spine[i]).container then
         if h_pos : 0 < i.val then
-          have h_im1 : ↑i - 1 < st.z.spine.size := Nat.sub_lt_of_lt h_i
-          if let .list _ := (st.z.spine[↑i - 1]).container then
+          have h_im1 : ↑i - 1 < st.zipper.spine.size := Nat.sub_lt_of_lt h_i
+          if let .list _ := (st.zipper.spine[↑i - 1]).container then
             modify fun st' =>
               { st' with
-                z :=
-                  { st'.z with
-                    spine := st'.z.spine.modify (i.val - 1) ({ · with loose := true }) }
+                zipper :=
+                  { st'.zipper with
+                    spine := st'.zipper.spine.modify (i.val - 1) ({ · with loose := true }) }
                 matched_le := by cases st'; simpa
               }
-        keepGoing := false
-      else if h_pos : 0 < i.val then
+        break
+      if h_pos : 0 < i.val then
         i := ⟨i.val - 1,  Nat.sub_lt_of_lt i.isLt⟩
       else
-        keepGoing := false
+        break
 
 /--
 Checks whether to upgrade the preceding block to a Setext header.
 -/
 def trySetextHeading : ContainerM s Unit := do
-  let st ← get
-  unless st.z.spine.size == st.matched do return
-  let some (.paragraph lines) := st.z.openLeaf? | return
-  let some level := parseSetextUnderline? st.c | return
-  let underline := st.c.toEol
-  let z := { st.z with openLeaf? := none }
-  throw (z.addBlock (.setextHeading level lines underline))
+  unless (← get).zipper.spine.size == (← get).matched do return
+  let some (.paragraph lines) := (← get).zipper.openLeaf? | return
+  let cursor := (← get).cursor
+  let some level := parseSetextUnderline? cursor | return
+  let underline := cursor.toEol
+  ContainerM.finishLineWith fun z =>
+    BlockZipper.addBlock { z with openLeaf? := none } (.setextHeading level lines underline)
 
 /--
 Lazy paragraph continuation: if some containers failed to continue but we have an open paragraph and
@@ -610,62 +642,66 @@ the line is not an interrupt (i.e. doesn't open some other kind of block), the l
 the paragraph in its deepest open context.
 -/
 def tryLazyContinuation : ContainerM s Unit := do
-  let st ← get
-  unless st.z.spine.size > st.matched do return
-  let some (.paragraph _) := st.z.openLeaf? | return
-  if isInterrupt st.z st.c then return
-  throw (st.z.extendParagraph st.c.toEol)
+  unless (← get).zipper.spine.size > (← get).matched do return
+  let some (.paragraph _) := (← get).zipper.openLeaf? | return
+  let cursor := (← get).cursor
+  if isInterrupt (← get).zipper cursor then return
+  ContainerM.finishLineWith (·.extendParagraph cursor.toEol)
 
 /--
 Closes any spine containers that did not continue on this line. Takes the `matched` count produced
 by the container continuation phase as an argument and closes the suffix of the parents that are
 indicated.
 -/
-def closeNonContinuingContainers (matched : Nat) : ProcessM s Unit := do
-  let st ← get
-  let mut z := st.z
-  while z.spine.size > matched do
-    z := z.closeContainer
-  set { st with z }
+def closeNonContinuingContainers (matched : Nat) : ProcessM s Unit :=
+  modify fun st => { st with zipper := closeAbove st.zipper }
+where
+  /-- Closes containers until at most `matched` spine frames remain. -/
+  closeAbove (z : BlockZipper s) : BlockZipper s := Id.run do
+    let mut z := z
+    while z.spine.size > matched do
+      z := z.closeContainer
+    return z
 
 /--
 Fenced code consumes lines verbatim until a matching closing fence appears. Either way, this step
 finalizes the line.
 -/
 def consumeFencedCode : ProcessM s Unit := do
-  let st ← get
-  let some (.fencedCode info _ _) := st.z.openLeaf? | return
-  match parseFenceClose? st.c info with
-  | some closeFence => throw (st.z.closeFencedCode closeFence)
-  | none => throw (st.z.extendFencedCode st.c.toEol)
+  let some (.fencedCode info _ _) := (← get).zipper.openLeaf? | return
+  let cursor := (← get).cursor
+  match parseFenceClose? cursor info with
+  | some closeFence => finishLineWith (·.closeFencedCode closeFence)
+  | none => finishLineWith (·.extendFencedCode cursor.toEol)
 
 /--
 Indented code consumes 4+-indented lines verbatim and records blank lines provisionally. Any other
 line closes the block and falls through to the remaining steps.
 -/
 def consumeIndentedCode : ProcessM s Unit := do
-  let st ← get
-  let some (.indentedCode _ _) := st.z.openLeaf? | return
-  if st.c.isBlank then
-    let (cAfter, _) := consumeIndentCapped st.c 4
-    let range := subsliceClamped cAfter.pos st.c.stop
-    throw (st.z.indentedCodeAddBlank range (indentedCodeLineToString st.c))
-  let (_, indent) := countIndentCols st.c
+  let some (.indentedCode _ _) := (← get).zipper.openLeaf? | return
+  let cursor := (← get).cursor
+  let rendered := indentedCodeLineToString cursor
+  if cursor.isBlank then
+    let (cAfter, _) := consumeIndentCapped cursor 4
+    let range := subsliceClamped cAfter.pos cursor.stop
+    finishLineWith (·.indentedCodeAddBlank range rendered)
+  let (_, indent) := countIndentCols cursor
   if indent ≥ 4 then
-    let (cAfter, _) := consumeIndentCapped st.c 4
-    let range := subsliceClamped cAfter.pos st.c.stop
-    throw (st.z.indentedCodeAddLine range (indentedCodeLineToString st.c))
-  modify fun st => { st with z := st.z.closeLeaf }
+    let (cAfter, _) := consumeIndentCapped cursor 4
+    let range := subsliceClamped cAfter.pos cursor.stop
+    finishLineWith (·.indentedCodeAddLine range rendered)
+  modify fun st => { st with zipper := st.zipper.closeLeaf }
 
 /--
 If the deepest container is a list whose previous item just closed and this line is non-blank
 without a sibling marker, close the list so subsequent content doesn't become a stray child.
 -/
 def closeFinishedSiblingList : ProcessM s Unit := do
-  let st ← get
-  let some (.list _) := st.z.top? | return
-  if !st.c.isBlank && (parseListMarker? st.c).isNone then
-    modify fun st => { st with z := st.z.closeContainer }
+  let some (.list _) := (← get).zipper.top? | return
+  let cursor := (← get).cursor
+  if !cursor.isBlank && (parseListMarker? cursor).isNone then
+    modify fun st => { st with zipper := st.zipper.closeContainer }
 
 /--
 Opens as many container prefixes (blockquote, list-item) as the line provides, in order. Returns
@@ -678,107 +714,108 @@ current cursor.
 -/
 def openContainerPrefixes : ProcessM s Bool := do
   let mut openedListItemThisLine := false
-  let mut keepOpening := true
-  while keepOpening do
-    keepOpening := false
-    let st ← get
-    if isThematicBreak st.c then break
-    if let some (markerRange, cAfter) := parseBlockquoteMarker? st.c then
+  repeat
+    let cursor := (← get).cursor
+    if isThematicBreak cursor then break
+    if let some (markerRange, cAfter) := parseBlockquoteMarker? cursor then
       modify fun st =>
-        { st with z := st.z.openContainer (.blockquote #[markerRange]), c := cAfter }
-      keepOpening := true
-    else if let some m := parseListMarker? st.c then
+        { st with zipper := st.zipper.openContainer (.blockquote #[markerRange]), cursor := cAfter }
+    else if let some m := parseListMarker? cursor then
       -- The strict §5.2 rules (non-empty content, start-1 for ordered) apply
       -- only when *opening* a new list. A same-kind marker that extends an
       -- already-open list as a new sibling item is always allowed.
-      let interruptingPara := match st.z.openLeaf? with
+      let interruptingPara := match (← get).zipper.openLeaf? with
         | some (.paragraph _) => true
         | _ => false
-      if interruptingPara && !hasSameKindListAncestor st.z m.kind
+      if interruptingPara && !hasSameKindListAncestor (← get).zipper m.kind
           && !listMarkerInterruptsParagraph m.after m.kind then
-        keepOpening := false
+        break
       else
-        let z' :=
-          match st.z.top? with
-          | some (.list k) =>
-            if k.sameKind m.kind then
-              -- Blank-line-then-new-sibling-item makes the list loose.
-              let z :=
-                if st.prevBlank then
-                  let lastIdx := st.z.spine.size - 1
-                  { st.z with
-                    spine := st.z.spine.modify lastIdx fun f => { f with loose := true } }
-                else st.z
-              z.openContainer (.listItem m.marker m.contentColumn)
-            else
-              st.z.closeContainer
-                |>.openContainer (.list m.kind)
+        modify fun st =>
+          let z := st.zipper
+          let z :=
+            match z.top? with
+            | some (.list k) =>
+              if k.sameKind m.kind then
+                -- Blank-line-then-new-sibling-item makes the list loose.
+                let z :=
+                  if st.prevBlank then
+                    let lastIdx := z.spine.size - 1
+                    { z with spine := z.spine.modify lastIdx fun f => { f with loose := true } }
+                  else z
+                z.openContainer (.listItem m.marker m.contentColumn)
+              else
+                z.closeContainer
+                  |>.openContainer (.list m.kind)
+                  |>.openContainer (.listItem m.marker m.contentColumn)
+            | _ =>
+              z.openContainer (.list m.kind)
                 |>.openContainer (.listItem m.marker m.contentColumn)
-          | _ =>
-            st.z.openContainer (.list m.kind)
-              |>.openContainer (.listItem m.marker m.contentColumn)
-        modify fun st => { st with z := z', c := m.after }
+          { st with zipper := z, cursor := m.after }
         openedListItemThisLine := true
-        keepOpening := true
+    else
+      break
   return openedListItemThisLine
 
 /--
 Parses a thematic break after any container prefixes have been consumed.
 -/
 def tryThematicBreak : ProcessM s Unit := do
-  let st ← get
-  unless isThematicBreak st.c do return
-  let mut z := st.z
-  while (match z.top? with | some (.list _) => true | _ => false) do
-    z := z.closeContainer
-  throw (z.addBlock (.thematicBreak st.c.toEol))
+  let cursor := (← get).cursor
+  unless isThematicBreak cursor do return
+  let line := cursor.toEol
+  finishLineWith fun z => Id.run do
+    let mut z := z
+    while (match z.top? with | some (.list _) => true | _ => false) do
+      z := z.closeContainer
+    return z.addBlock (.thematicBreak line)
 
 /--
 A blank line closes any open paragraph; list/blockquote frames stay open and may close at the next
 non-continuing line.
 -/
 def tryBlankLine (openedListItemThisLine : Bool) : ProcessM s Unit := do
-  let st ← get
-  unless st.c.isBlank do return
-  let mut z := st.z.closeLeaf
-  if !openedListItemThisLine then
-    if let some lastFrame := z.spine.back? then
-      if let .listItem _ _ := lastFrame.container then
-        if lastFrame.closedChildren.isEmpty then
-          z := z.closeContainer
-  -- Only propagate “previous line was blank” when the deepest open container is itself a list item
-  -- (case A: blank inside an item's body) or a list (case B: my empty-item close just popped the
-  -- list item). Blanks deeper than a list item (e.g. inside a blockquote nested inside a listItem)
-  -- are *not* separators between siblings of the enclosing list and so don't make it loose.
-  let topIsListLike :=
-    match z.spine.back?.map (·.container) with
-    | some (.listItem _ _) | some (.list _) => true
-    | _ => false
-  throw { z with lastWasBlank := topIsListLike && !openedListItemThisLine }
+  unless (← get).cursor.isBlank do return
+  finishLineWith fun z => Id.run do
+    let mut z := z.closeLeaf
+    if !openedListItemThisLine then
+      if let some lastFrame := z.spine.back? then
+        if let .listItem _ _ := lastFrame.container then
+          if lastFrame.closedChildren.isEmpty then
+            z := z.closeContainer
+    -- Only propagate “previous line was blank” when the deepest open container is itself a list
+    -- item (case A: blank inside an item's body) or a list (case B: my empty-item close just popped
+    -- the list item). Blanks deeper than a list item (e.g. inside a blockquote nested inside a
+    -- listItem) are *not* separators between siblings of the enclosing list and so don't make it
+    -- loose.
+    let topIsListLike :=
+      match z.spine.back?.map (·.container) with
+      | some (.listItem _ _) | some (.list _) => true
+      | _ => false
+    return { z with lastWasBlank := topIsListLike && !openedListItemThisLine }
 
 /-- Parses an ATX heading -/
 def tryAtxHeading : ProcessM s Unit := do
-  let st ← get
-  let some m := parseAtxHeading? st.c | return
-  throw (st.z.addBlock (.atxHeading m.level m.hashes m.content m.closeHashes))
+  let some m := parseAtxHeading? (← get).cursor | return
+  finishLineWith (·.addBlock (.atxHeading m.level m.hashes m.content m.closeHashes))
 
 /-- Parses an opening code fence. -/
 def tryFencedCodeOpener : ProcessM s Unit := do
-  let st ← get
-  let some (info, openFence) := parseFenceOpen? st.c | return
-  throw (st.z.openLeaf (.fencedCode info openFence #[]))
+  let some (info, openFence) := parseFenceOpen? (← get).cursor | return
+  finishLineWith (·.openLeaf (.fencedCode info openFence #[]))
 
 /--
 Parses the start of an indented code block.
 -/
 def tryIndentedCodeOpener : ProcessM s Unit := do
-  let st ← get
-  unless st.z.openLeaf?.isNone do return
-  let (_, indent) := countIndentCols st.c
+  unless (← get).zipper.openLeaf?.isNone do return
+  let cursor := (← get).cursor
+  let (_, indent) := countIndentCols cursor
   unless indent ≥ 4 do return
-  let (cAfter, _) := consumeIndentCapped st.c 4
-  let range := subsliceClamped cAfter.pos st.c.stop
-  throw (st.z.openLeaf (.indentedCode #[(range, indentedCodeLineToString st.c)] #[]))
+  let (cAfter, _) := consumeIndentCapped cursor 4
+  let range := subsliceClamped cAfter.pos cursor.stop
+  let rendered := indentedCodeLineToString cursor
+  finishLineWith (·.openLeaf (.indentedCode #[(range, rendered)] #[]))
 
 /--
 Starts a new paragraph, or extends the one that's open.
@@ -786,11 +823,10 @@ Starts a new paragraph, or extends the one that's open.
 This is the default parser if no others apply.
 -/
 def emitParagraph : ProcessM s Unit := do
-  let st ← get
-  let lineFromCursor := st.c.toEol
-  match st.z.openLeaf? with
-  | some (.paragraph _) => throw (st.z.extendParagraph lineFromCursor)
-  | _ => throw (st.z.openLeaf (.paragraph #[lineFromCursor]))
+  let line := (← get).cursor.toEol
+  match (← get).zipper.openLeaf? with
+  | some (.paragraph _) => finishLineWith (·.extendParagraph line)
+  | _ => finishLineWith (·.openLeaf (.paragraph #[line]))
 
 /--
 Processes a single source line, updating the zipper.
@@ -800,7 +836,7 @@ def processLine (z : BlockZipper s) (line : s.Subslice) : BlockZipper s :=
   -- previous line was blank" for the duration of this call.
   let prevBlank := z.lastWasBlank
   let z : BlockZipper s := { z with lastWasBlank := false }
-  let init : LineState s := { z, c := Cursor.ofLine line, prevBlank }
+  let init : LineState s := { zipper := z, cursor := Cursor.ofLine line, prevBlank }
   let pipeline : ProcessM s Unit := do
     let matched ← runContainerM do
       continueContainers
@@ -819,13 +855,13 @@ def processLine (z : BlockZipper s) (line : s.Subslice) : BlockZipper s :=
     tryIndentedCodeOpener
     emitParagraph
   match pipeline.run init with
-  | .ok _ st    => st.z
+  | .ok _ st    => st.zipper
   | .error z _ => z
 
 /-- Moves the start of `line` past up to `indent` leading spaces. -/
 def dropIndent (line : s.Subslice) (indent : Nat) : s.Subslice := Id.run do
   let mut p := line.startInclusive
-  for _ in [0:indent] do
+  for _ in 0...indent do
     if h : p < line.endExclusive then
       let h' := String.Slice.Pos.ne_endPos_of_lt h
       if p.get h' == ' ' then p := p.next h' else break
@@ -917,24 +953,22 @@ def parseRefDefUrl? (r : InlineCursor s) : Option (LinkDestination s × InlineCu
     guard !r.isEmpty
     let mut r := r
     let mut parenDepth : Nat := 0
-    let mut keepGoing := true
-    while keepGoing && !r.isEmpty do
+    while !r.isEmpty do
       let c := r.front
       let rNext := r.drop1
       if c == '\\' && !rNext.isEmpty then
         r := rNext.drop1
       else if c == ' ' || c == '\t' || c == '\n' then
-        keepGoing := false
+        break
       else if c == '(' then
         parenDepth := parenDepth + 1
         r := rNext
       else if c == ')' then
-        if parenDepth == 0 then keepGoing := false
-        else
-          parenDepth := parenDepth - 1
-          r := rNext
+        if parenDepth == 0 then break
+        parenDepth := parenDepth - 1
+        r := rNext
       else if c.toNat < 0x20 then
-        keepGoing := false
+        break
       else
         r := rNext
     guard <| r.startPos != urlStart  -- non-empty destination
@@ -1160,7 +1194,7 @@ where
   go (bs : Array (Block.Raw s)) : StateM (RefTable s) Unit :=
     bs.forM fun
       | .linkRefDef m => do
-        let normLabel := normalizeLabel (" ".intercalate (m.label.toList.map (·.copy)))
+        let normLabel := normalizeLabel m.label
         if (← get).contains normLabel then pure ()
         else modify (·.insert normLabel m)
       | .blockquote _ children => go children

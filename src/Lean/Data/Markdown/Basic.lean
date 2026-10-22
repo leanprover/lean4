@@ -10,6 +10,7 @@ public import Init.Data.Hashable
 public import Std.Data.HashMap
 public import Init.Data.String.Subslice
 public import Init.Data.String.Lemmas.Order
+import Init.Data.String.OrderInstances
 import Init.Data.String.Iterate
 public import Init.Data.String.FindPos
 
@@ -390,7 +391,7 @@ public partial def Block.extent? : Block s → Option s.Subslice
     let first ← markers[0]?
     let last ← markers.back?
     let stop := match span? (children.filterMap Block.extent?) with
-      | some r => if last.endExclusive < r.endExclusive then r.endExclusive else last.endExclusive
+      | some r => max last.endExclusive r.endExclusive
       | none => last.endExclusive
     return subsliceClamped first.startInclusive stop
   | .list _ _ items => span? (items.filterMap Block.extent?)
@@ -421,7 +422,9 @@ public structure LinkLabel where
 deriving BEq, Hashable, Repr
 
 /--
-Normalizes a CommonMark link label (§4.7):
+Normalizes a CommonMark link label (§6.3). `lines` are the label's source lines without their line
+endings, as `InlineSource.linesBetween` produces them, and each boundary between two lines counts as
+whitespace. Then:
  * Each character is ASCII-lowercased (with `Char.toLower`).
  * Internal sequences of whitespace become single spaces.
  * Leading and trailing whitespace is removed.
@@ -429,18 +432,23 @@ Normalizes a CommonMark link label (§4.7):
 While CommonMark specifies Unicode case folding, this implementation case-folds only ASCII English
 letters.
 -/
-public def normalizeLabel (label : String) : LinkLabel := Id.run do
+public def normalizeLabel (lines : Array s.Subslice) : LinkLabel := Id.run do
   let mut out := ""
   let mut sawWs := false  -- whether we've seen whitespace since the last non-ws
   let mut sawNonWs := false  -- whether we've emitted any non-ws char yet
-  for c in label do
-    if c == ' ' || c == '\t' || c == '\n' || c == '\r' then
-      sawWs := true
-    else
-      if sawNonWs && sawWs then out := out.push ' '
-      out := out.push c.toLower
-      sawWs := false
-      sawNonWs := true
+  for line in lines do
+    for c in line.toSlice do
+      -- CommonMark §6.3 normalizes "spaces, tabs, and line endings", which are exactly the
+      -- characters of `Char.isWhitespace`. Unicode whitespace is not used in this part of
+      -- the spec.
+      if c.isWhitespace then
+        sawWs := true
+      else
+        if sawNonWs && sawWs then out := out.push ' '
+        out := out.push c.toLower
+        sawWs := false
+        sawNonWs := true
+    sawWs := true
   return ⟨out⟩
 
 /--

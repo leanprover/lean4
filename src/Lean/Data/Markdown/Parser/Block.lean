@@ -463,49 +463,18 @@ def listMarkerInterruptsParagraph (after : Cursor s) (kind : ListKind) : Bool :=
      | .bullet _ => true
 
 /--
-Whether `kind` is the same kind of list as one already open in a parent. A marker of the same kind
-is always allowed to start a new sibling item, even when it would otherwise violate
-`listMarkerInterruptsParagraph` (CommonMark §5.2's strict rules apply only when *opening* a list,
-not when extending one).
--/
-def hasSameKindListAncestor (z : BlockZipper s) (kind : ListKind) : Bool :=
-  z.spine.any fun frame =>
-    match frame.container with
-    | .list k => k.sameKind kind
-    | _ => false
-
-/--
-Whether the deepest open list has a *different* kind than `kind`. A marker of a different kind
-closes that list (and the listItem and any leaf inside it), so it effectively “interrupts” any
-paragraph that was open. The strict §5.2 start-≠-1 rule does not block this, since after the list
-closes the new list opens at the parent level, where there is no longer a paragraph to interrupt.
--/
-def closesEnclosingList (z : BlockZipper s) (kind : ListKind) : Bool :=
-  z.spine.findSomeRev? differingListKind |>.getD false
-where
-  differingListKind (frame : ZipperFrame s) : Option Bool :=
-    match frame.container with
-    | .list k => some (!k.sameKind kind)
-    | _ => none
-
-/--
-Whether the line at `cursor` would *interrupt* a paragraph. In other words, it would open some other
-kind of block such that lazy continuation rules cannot apply.
+Whether the line at `c` starts a block, so that it cannot lazily continue a paragraph that is open in
+a container that did not continue on this line.
 
 Indented code blocks are intentionally not interrupts (CommonMark §4.4: an indented code block
-cannot interrupt a paragraph). List markers must additionally satisfy
-`listMarkerInterruptsParagraph` unless they are a sibling of an already-open list with the same
-marker kind.
+cannot interrupt a paragraph). Any list marker is one: the §5.2 rules of
+`listMarkerInterruptsParagraph` apply to a marker on the line after a paragraph that is the
+innermost open block, which `openContainerPrefixes` checks.
 -/
-def isInterrupt (z : BlockZipper s) (c : Cursor s) : Bool :=
+def isInterrupt (c : Cursor s) : Bool :=
   c.isBlank ||
   (parseBlockquoteMarker? c).isSome ||
-  (match parseListMarker? c with
-    | some m =>
-      hasSameKindListAncestor z m.kind ||
-      closesEnclosingList z m.kind ||
-      listMarkerInterruptsParagraph m.after m.kind
-    | none => false) ||
+  (parseListMarker? c).isSome ||
   (parseAtxHeading? c).isSome ||
   (parseFenceOpen? c).isSome ||
   (parseHtmlBlockStart? c).any (·.interruptsParagraph) ||
@@ -690,7 +659,7 @@ def tryLazyContinuation : ContainerM s Unit := do
   unless (← get).zipper.spine.size > (← get).matched do return
   let some (.paragraph _) := (← get).zipper.openLeaf? | return
   let cursor := (← get).cursor
-  if isInterrupt (← get).zipper cursor then return
+  if isInterrupt cursor then return
   ContainerM.finishLineWith (·.extendParagraph cursor.toEol)
 
 /--
@@ -786,14 +755,12 @@ def openContainerPrefixes : ProcessM s Bool := do
       modify fun st =>
         { st with zipper := st.zipper.openContainer (.blockquote #[markerRange]), cursor := cAfter }
     else if let some m := parseListMarker? cursor then
-      -- The strict §5.2 rules (non-empty content, start-1 for ordered) apply
-      -- only when *opening* a new list. A same-kind marker that extends an
-      -- already-open list as a new sibling item is always allowed.
+      -- An open paragraph here is the innermost block, since every container that did not continue
+      -- has been closed, so the marker is on the line after the paragraph's text.
       let interruptingPara := match (← get).zipper.openLeaf? with
         | some (.paragraph _) => true
         | _ => false
-      if interruptingPara && !hasSameKindListAncestor (← get).zipper m.kind
-          && !listMarkerInterruptsParagraph m.after m.kind then
+      if interruptingPara && !listMarkerInterruptsParagraph m.after m.kind then
         break
       else
         modify fun st =>

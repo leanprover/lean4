@@ -347,6 +347,39 @@ info: ["paragraph⟪text⟪Intro⟫ softBreak text⟪continued⟫⟫", "indented
 #guard_msgs in #eval showDocument "    Intro\n\n      ```\n      code\n        indented\n     x\n      ```\n" 4
 
 /-!
+## List markers after paragraph text
+
+A list marker on the line after a paragraph's text starts a list only if its item may interrupt a
+paragraph (CommonMark §5.2): the item has content, and an ordered list starts at 1. This applies
+when the paragraph is the innermost open block. When a container did not continue on the marker's
+line, any marker starts a list.
+-/
+
+-- At the content column of an item whose paragraph is open, a start other than 1 or an empty item
+-- is paragraph text.
+/-- info: ["list[item[paragraph⟪text⟪a⟫ softBreak text⟪b⟫ softBreak text⟪5. c⟫⟫]]"] -/
+#guard_msgs in #eval showDocument "1. a\n   b\n   5. c\n" 0
+
+/-- info: ["list[item[paragraph⟪text⟪a⟫ softBreak text⟪b⟫ softBreak text⟪*⟫⟫]]"] -/
+#guard_msgs in #eval showDocument "* a\n  b\n  *\n" 0
+
+-- A start of 1 begins a nested list.
+/-- info: ["list[item[paragraph⟪text⟪a⟫ softBreak text⟪b⟫⟫, list[item[paragraph⟪text⟪c⟫⟫]]]]"] -/
+#guard_msgs in #eval showDocument "1. a\n   b\n   1. c\n" 0
+
+-- After an item that did not continue, a sibling marker with any start, or an empty marker of
+-- another kind, starts a list.
+/-- info: ["list[item[paragraph⟪text⟪a⟫⟫], item[paragraph⟪text⟪b⟫⟫]]"] -/
+#guard_msgs in #eval showDocument "1. a\n5. b\n" 0
+
+/-- info: ["list[item[paragraph⟪text⟪a⟫⟫]]", "list[item[]]"] -/
+#guard_msgs in #eval showDocument "1. a\n-\n" 0
+
+-- After a blockquote that did not continue, likewise.
+/-- info: ["blockquote[paragraph⟪text⟪a⟫⟫]", "list[item[paragraph⟪text⟪b⟫⟫]]"] -/
+#guard_msgs in #eval showDocument "> a\n5. b\n" 0
+
+/-!
 ## HTML blocks
 
 An HTML block (CommonMark §4.6) starts with a line that meets one of seven start conditions, after up

@@ -566,6 +566,17 @@ def wrapAsyncAsSnapshot {α : Type} (act : α → TermElabM Unit) (cancelTk? : O
   Core.wrapAsyncAsSnapshot (cancelTk? := cancelTk?) (desc := desc) fun a =>
     act a |>.run ctx |>.run' st |>.run' metaCtx metaSt
 
+@[inherit_doc Core.forkAsSnapshot]
+def forkAsSnapshot (act : TermElabM Unit) (after : Task α)
+    (reportingRange : Language.SnapshotTask.ReportingRange := .skip)
+    (desc : String := by exact decl_name%.toString) : TermElabM Unit := do
+  let ctx ← read
+  let st ← get
+  let metaCtx ← readThe Meta.Context
+  let metaSt ← getThe Meta.State
+  Core.forkAsSnapshot (after := after) (reportingRange := reportingRange) (desc := desc) do
+    act |>.run ctx |>.run' st |>.run' metaCtx metaSt
+
 abbrev TermElabResult (α : Type) := EStateM.Result Exception SavedState α
 
 /--

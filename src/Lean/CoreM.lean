@@ -896,17 +896,18 @@ Runs `act` on a fork of the current state as by `wrapAsyncAsSnapshot`, discardin
 except for its messages, traces, and snapshot tasks, which are reported as a new snapshot task. If
 `Elab.async` is set, `act` runs in a separate task once `after` has finished. Otherwise, it runs
 immediately and any exception it throws is rethrown after reporting.
+
+The reporting range is skipped by default as most uses are for registering auxiliary declarations
+users should not worry about.
 -/
 def forkAsSnapshot (act : CoreM Unit) (after : Task α)
+    (reportingRange : SnapshotTask.ReportingRange := .skip)
     (desc : String := by exact decl_name%.toString) : CoreM Unit := do
   if Elab.async.get (← getOptions) then
     let cancelTk ← IO.CancelToken.new
     let act ← wrapAsyncAsSnapshot (cancelTk? := cancelTk) (desc := desc) fun _ => act
     let t ← BaseIO.mapTask act after
-    -- Do not display reporting range; most uses are for registering auxiliary decls users should
-    -- not worry about and other callers can add a separate task with ranges themselves, see
-    -- `MutualDef`.
-    logSnapshotTask { stx? := none, reportingRange := .skip, task := t, cancelTk? := cancelTk }
+    logSnapshotTask { stx? := none, reportingRange, task := t, cancelTk? := cancelTk }
   else
     let ctx ← read
     let ((output, ex?), st) ← liftM (m := EIO Exception) <|
@@ -914,7 +915,7 @@ def forkAsSnapshot (act : CoreM Unit) (after : Task α)
     -- unlike in a separate task, recording may be active here and must observe `act`'s accesses
     modify fun s => { s with recordedDeps := st.recordedDeps }
     let tree := (← mkSnapshot? output ctx st desc).getD (toSnapshotTree (default : SnapshotLeaf))
-    logSnapshotTask { stx? := none, reportingRange := .skip, task := .pure tree, cancelTk? := none }
+    logSnapshotTask { stx? := none, reportingRange, task := .pure tree, cancelTk? := none }
     if let some ex := ex? then
       throw ex
 

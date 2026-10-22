@@ -310,8 +310,12 @@ trace: [Meta.letToHave] ✅️ no `let` expressions
 -/
 #guard_msgs in
 theorem thmNoLet : True := let x := trivial; x
-/-! With async disabled, only applied once. -/
-/-- trace: [Meta.letToHave] ✅️ no `let` expressions -/
+/-! The same with async disabled. -/
+/--
+trace: [Meta.letToHave] ✅️ no `let` expressions
+---
+trace: [Meta.letToHave] ✅️ no `let` expressions
+-/
 #guard_msgs in
 set_option Elab.async false in
 theorem thmNoLet' : True := let x := trivial; x

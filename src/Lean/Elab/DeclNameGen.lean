@@ -209,7 +209,7 @@ private def moduleToSuffix : Name → String
 
 /--
 Uses heuristics to generate an informative but terse base name for a term of the given type, using `mkBaseName`.
-Makes use of the current namespace.
+Makes use of the current namespace but does not prepend it to the output.
 It tries to make these names relatively unique ecosystem-wide,
 and it adds suffixes using the current module if the resulting name doesn't refer to anything defined in this module.
 
@@ -239,6 +239,9 @@ def mkBaseNameWithSuffix (pre : String) (type : Expr) : MetaM Name := do
 /--
 Elaborates the binders and type and then uses `mkBaseNameWithSuffix` to generate a name.
 Furthermore, uses `mkUnusedBaseName` on the result.
+
+The result is just a single component name (potentially with macro scopes). To get the actual
+declaration name, the current namespace has to be prepended.
 -/
 def mkBaseNameWithSuffix' (pre : String) (binders : Array Syntax) (type : Syntax) : TermElabM Name := do
   let name ←
@@ -256,6 +259,9 @@ end NameGen
 Generates an instance name for a declaration that has the given binders and type.
 It tries to make these names relatively unique ecosystem-wide.
 
+The result is just a single component name (potentially with macro scopes). To get the actual
+declaration name, the current namespace has to be prepended.
+
 Note that this elaborates the binders and the type.
 This means that when elaborating an instance declaration, we elaborate these twice.
 -/
@@ -272,11 +278,17 @@ def mkInstanceName (binders : Array Syntax) (type : Syntax) : CommandElabM Name 
 /--
 Convenience function for determining the fully qualified name of an instance using its type as an
 expression, returning a private name if the type refers to private constants.
+
+`avoid` can be used to specify precisely which names to avoid; by default this includes just the
+ones present in the ambient environment but in some cases, you may need to avoid more; for example
+when computing names of many instances at once without already knowing the values of them.
 -/
-def mkInstanceNameOfType (type : Expr) : MetaM Name := do
-  let name ← NameGen.mkBaseNameWithSuffix "inst" type
-  let name ← liftMacroM <| mkUnusedBaseName name
-  let name := (← getCurrNamespace) ++ name
+@[specialize]
+def mkInstanceNameOfType (type : Expr)
+    (avoid : Environment → Name → Bool := fun env name => env.contains name) :
+    TermElabM Name := do
+  let mut name ← NameGen.mkBaseNameWithSuffix "inst" type
+  name ← findUnusedName ((← getCurrNamespace) ++ name) avoid
   if (type.find? (·.constName?.any isPrivateName)).isSome then
     return mkPrivateName (← getEnv) name
   else

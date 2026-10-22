@@ -40,7 +40,7 @@ def countSequence (cur : InlineCursor s) (c : Char) : Nat × s.Pos := Id.run do
     cur := cur.drop1
   return (n, cur.startPos)
 
-/-- Parses a code span at `cur`, which must point at a backtick. -/
+/-- Parses inline code at `cur`, which must point at a backtick. -/
 def parseCode? (cur : InlineCursor s) : Option (Inline s × s.Pos) := do
   let src := cur.source
   let stopPos := cur.stopPos
@@ -56,7 +56,7 @@ def parseCode? (cur : InlineCursor s) : Option (Inline s × s.Pos) := do
       if seqLen == openLen then
         let content := src.linesBetween p q
         let closeTicks := subsliceClamped q qAfterSequence
-        return (.code openTicks content closeTicks, qAfterSequence)
+        return (.code openTicks ⟨content⟩ closeTicks, qAfterSequence)
       rest := src.cursor qAfterSequence stopPos
     else
       rest := rest.drop1
@@ -406,10 +406,10 @@ where
 ### Inline Tokenization
 
 The §6.2 emphasis algorithm consumes a flat sequence of tokens, each either a fully-finalized
-non-emphasis `Inline` (code span, link, image, autolink, soft/hard break, escaped char) or a
+non-emphasis `Inline` (inline code, link, image, autolink, soft/hard break, escaped char) or a
 still-raw `*`/`_` delimiter sequence.  `tokenizeInlines` produces this sequence. It reads the inline
 source, recognizes each non-emphasis inline kind in turn (backslash escape §2.4, character reference
-§2.5, code span §6.1, link §6.3, image §6.4, autolink §6.5, raw HTML §6.6, hard line break §6.7,
+§2.5, inline code §6.1, link §6.3, image §6.4, autolink §6.5, raw HTML §6.6, hard line break §6.7,
 soft line break §6.8), and saves delimiter sequences for §6.2 to handle later.
 
 Links and images follow the bracket-stack procedure of the specification's appendix. A `[` or `![`
@@ -503,7 +503,7 @@ def skipChar : TokenizeM s Unit := modify fun st =>
 /--
 Advances multiple characters as plain text.
 
-This is used when a code span is not properly closed, forcing its opener to become text instead.
+This is used when inline code is not properly closed, forcing its opener to become text instead.
 -/
 def skipPast (newRest : InlineCursor s) (newPrev : Char) : TokenizeM s Unit :=
   modify fun st => { st with rest := newRest, prevChar := newPrev }
@@ -617,8 +617,8 @@ def tokenizeInlines (refs : RefTable s) (src : InlineSource s) : Array (InlineTo
           skipChar
       else if c == '`' then
         match parseCode? st.rest with
-        | some (codeSpan, after) =>
-          recognize (.inline codeSpan) cursor after (src.cursor after stop) '`'
+        | some (inlineCode, after) =>
+          recognize (.inline inlineCode) cursor after (src.cursor after stop) '`'
         | none =>
           let (_, seqEnd) := countSequence st.rest '`'
           skipPast (src.cursor seqEnd stop) '`'

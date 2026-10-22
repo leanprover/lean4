@@ -138,6 +138,16 @@ def trimTrailingWs (start stop : s.Pos) : s.Pos := Id.run do
     | none => break
   return stop
 
+/-- Moves the start of `line` past up to `indent` leading spaces. -/
+def dropIndent (line : s.Subslice) (indent : Nat) : s.Subslice := Id.run do
+  let mut p := line.startInclusive
+  for _ in 0...indent do
+    if h : p < line.endExclusive then
+      let h' := String.Slice.Pos.ne_endPos_of_lt h
+      if p.get h' == ' ' then p := p.next h' else break
+    else break
+  return subsliceClamped p line.endExclusive
+
 /-- Splits `r` into lines, each excluding its trailing `'\n'`. -/
 def splitLines (r : s.Subslice) : Array s.Subslice := Id.run do
   let mut lines : Array s.Subslice := #[]
@@ -699,15 +709,15 @@ where
     return z
 
 /--
-Fenced code consumes lines verbatim until a matching closing fence appears. Either way, this step
-finalizes the line.
+Fenced code consumes lines until a matching closing fence appears. Each content line loses up to
+the opening fence's indentation (CommonMark §4.5). Either way, this step finalizes the line.
 -/
 def consumeFencedCode : ProcessM s Unit := do
   let some (.fencedCode info _ _) := (← get).zipper.openLeaf? | return
   let cursor := (← get).cursor
   match parseFenceClose? cursor info with
   | some closeFence => finishLineWith (·.closeFencedCode closeFence)
-  | none => finishLineWith (·.extendFencedCode cursor.toEol)
+  | none => finishLineWith (·.extendFencedCode (dropIndent cursor.toEol info.openIndent))
 
 /--
 An HTML block consumes lines verbatim until its end condition is met (CommonMark §4.6). A line that
@@ -929,16 +939,6 @@ def processLine (z : BlockZipper s) (line : s.Subslice) : BlockZipper s :=
   match pipeline.run init with
   | .ok _ st    => st.zipper
   | .error z _ => z
-
-/-- Moves the start of `line` past up to `indent` leading spaces. -/
-def dropIndent (line : s.Subslice) (indent : Nat) : s.Subslice := Id.run do
-  let mut p := line.startInclusive
-  for _ in 0...indent do
-    if h : p < line.endExclusive then
-      let h' := String.Slice.Pos.ne_endPos_of_lt h
-      if p.get h' == ' ' then p := p.next h' else break
-    else break
-  return subsliceClamped p line.endExclusive
 
 /--
 Parses the block structure of `s`. Up to `indent` leading spaces of each line are skipped.

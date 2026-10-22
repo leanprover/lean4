@@ -12,7 +12,9 @@ public import Init.Data.String.Subslice
 public import Init.Data.String.Lemmas.Order
 import Init.Data.String.OrderInstances
 import Init.Data.String.Iterate
+import Init.Data.String.TakeDrop
 import Lean.Data.Markdown.Unicode.CaseFolding
+import Lean.Data.Markdown.Text
 public import Init.Data.String.FindPos
 
 namespace Lean.Markdown
@@ -81,8 +83,8 @@ public structure FenceInfo (s : String.Slice) where
   -/
   fenceLen : Nat
   /--
-  Indentation in spaces of the opening fence's first character. Consumers remove up to this many
-  leading spaces from each content line.
+  Indentation in spaces of the opening fence's first character. The content lines exclude up to
+  this many leading spaces.
   -/
   openIndent : Nat
   /-- The info string, if there is one. This is usually a language tag. -/
@@ -115,6 +117,13 @@ public def first (lines : Lines s) : s.Subslice := lines.toArray[0]'lines.nonemp
 /-- The last line. -/
 public def last (lines : Lines s) : s.Subslice := lines.toArray.back lines.nonempty
 
+/-- The text of each line, as a string. -/
+public def copy (lines : Lines s) : Array String := lines.toArray.map (·.copy)
+
+/-- The text of the lines, joined by `sep`. -/
+public def text (lines : Lines s) (sep : String := "\n") : String :=
+  sep.intercalate lines.copy.toList
+
 public instance : Inhabited (Lines s) := ⟨singleton default⟩
 
 end Lines
@@ -131,15 +140,23 @@ public structure LinkTitle (s : String.Slice) where
   closer : s.Subslice
 deriving Inhabited
 
+/-- The title that `t` denotes, with backslash escapes and character references decoded. -/
+public def LinkTitle.text {s : String.Slice} (t : LinkTitle s) : String :=
+  decodeText t.content.text
+
 /--
 The destination of a link, image, or link reference definition: a URL, optionally in angle brackets.
 -/
 public structure LinkDestination (s : String.Slice) where
   /-- The `<` and `>` around the URL, if the destination is bracketed. -/
   angles? : Option (s.Subslice × s.Subslice)
-  /-- The URL, excluding any angle brackets. -/
+  /-- The URL as written, excluding any angle brackets. -/
   url : s.Subslice
 deriving Inhabited
+
+/-- The URL that `d` denotes, with backslash escapes and character references decoded. -/
+public def LinkDestination.text {s : String.Slice} (d : LinkDestination s) : String :=
+  decodeText d.url.copy
 
 /--
 The structural parts of a link reference definition. The label is the bracket interior (excluding
@@ -182,7 +199,8 @@ public inductive Block.Raw (s : String.Slice) where
   | setextHeading (level : Nat) (lines : Array s.Subslice) (underline : s.Subslice)
   /--
   A fenced code block. `openFence`/`closeFence?` are the fences. The closing fence is
-  optional because an unterminated fenced code block spans the rest of the input.
+  optional because an unterminated fenced code block spans the rest of the input. The content
+  `lines` exclude up to `info.openIndent` leading spaces.
   -/
   | fencedCode (info : FenceInfo s) (openFence : s.Subslice) (closeFence? : Option s.Subslice)
     (lines : Array s.Subslice)
@@ -271,12 +289,33 @@ public inductive LinkTarget (s : String.Slice) where
   | reference (definition : RefDef s) (label : Lines s) (form : ReferenceLinkForm s)
 deriving Inhabited
 
+/--
+The content of inline code (CommonMark §6.1), between its backtick strings. The lines are verbatim
+source, and `text` is the string that the inline code denotes.
+-/
+public structure InlineCodeContent (s : String.Slice) where
+  /-- The source lines. -/
+  lines : Lines s
+deriving Inhabited
+
+/--
+The string that inline code denotes (CommonMark §6.1): its lines joined by spaces, with one space
+removed from each end when the result begins and ends with a space and is not all spaces.
+-/
+public def InlineCodeContent.text {s : String.Slice} (content : InlineCodeContent s) : String :=
+  let joined := content.lines.text " "
+  let sl := joined.toSlice
+  if sl.startsWith ' ' && sl.endsWith ' ' && !sl.all (· == ' ') then
+    (sl.drop 1 |>.dropEnd 1).toString
+  else
+    joined
+
 /-- A parsed inline element of the source string `s`. -/
 public inductive Inline (s : String.Slice) where
   /-- Plain text. -/
   | text (range : s.Subslice)
-  /-- Inline code span. The content is verbatim source. -/
-  | code (openTicks : s.Subslice) (content : Lines s) (closeTicks : s.Subslice)
+  /-- Inline code (CommonMark §6.1). -/
+  | code (openTicks : s.Subslice) (content : InlineCodeContent s) (closeTicks : s.Subslice)
   /-- Italic emphasis. -/
   | italic (openDelim : s.Subslice) (content : Array (Inline s)) (closeDelim : s.Subslice)
   /-- Bold/strong emphasis. -/
@@ -382,6 +421,22 @@ public def LinkTarget.stop? : LinkTarget s → Option s.Pos
   | .reference _ _ (.collapsed _ closeBracket) => some closeBracket.endExclusive
   | .reference _ _ .shortcut => none
 
+/--
+The destination of the link or image: the inline target's, or that of the definition that the
+reference resolved to.
+-/
+public def LinkTarget.destination : LinkTarget s → LinkDestination s
+  | .inline _ destination _ _ => destination
+  | .reference definition _ _ => definition.destination
+
+/--
+The title of the link or image, if it has one: the inline target's, or that of the definition that
+the reference resolved to.
+-/
+public def LinkTarget.title? : LinkTarget s → Option (LinkTitle s)
+  | .inline _ _ _ title? => title?
+  | .reference definition _ _ => definition.title?
+
 /-- The whole inline element, from its first to its last character. -/
 public def Inline.extent : Inline s → s.Subslice
   | .text range => range
@@ -404,6 +459,24 @@ public def Inline.extentOf? (inlines : Array (Inline s)) : Option s.Subslice := 
   let first ← inlines[0]?
   let last ← inlines.back?
   return span first.extent last.extent
+
+/--
+The plain text of inline content, as for an image's `alt` attribute: markup is dropped; text,
+escapes, and entities contribute the text they denote; inline code contributes its content; line
+breaks contribute a newline; autolinks contribute their URL; and raw HTML contributes nothing.
+-/
+public partial def Inline.plainText (inlines : Array (Inline s)) : String :=
+  inlines.foldl (init := "") fun acc i => acc ++ go i
+where
+  go : Inline s → String
+    | .text r => r.copy
+    | .code _ content _ => content.text
+    | .italic _ cs _ | .bold _ cs _ | .link _ cs _ _ | .image _ _ cs _ _ => plainText cs
+    | .hardBreak .. | .softBreak _ => "\n"
+    | .autolink _ url _ _ => url.copy
+    | .html _ => ""
+    | .escape _ char => char.copy
+    | .entity _ value => value
 
 /-- The subslice from the start of the first subslice in `rs` to the end of the last, if there are any. -/
 def span? (rs : Array s.Subslice) : Option s.Subslice := do

@@ -138,7 +138,7 @@ emphasis.
 /-- info: 3 -/
 #guard_msgs in #eval tokenCount "<div>\n*x*\n</div>\n" "markupCodeBlock"
 
--- A code span that crosses a line break: each line of the content gets its
+-- Inline code that crosses a line break: each line of the content gets its
 -- own `markupInlineCode` token (LSP semantic tokens are per-line), and the
 -- delimiters remain delimiters.
 /-- info: "markupInlineCode" -/
@@ -313,7 +313,7 @@ the backslash of an escape. The escaped character is text.
 /-!
 ## Content that continues onto the next line of a container
 
-A code span, link title, or reference label that continues onto the next line of a blockquote gets
+Inline code, a link title, or a reference label that continues onto the next line of a blockquote gets
 one token per line, and the blockquote marker on the second line stays a delimiter.
 -/
 
@@ -356,6 +356,13 @@ def markupAtIndented (input : String) (indent byteIdx : Nat) : String := Id.run 
 /-- info: ["markupDocText", "markupCodeBlock", "markupCodeBlock"] -/
 #guard_msgs in #eval
   ["  a\n\n    b", "  a\n\n      c", "a\n\n    b"].zipWith (fun s (i, p) => markupAtIndented s i p) [(2, 9), (2, 11), (0, 7)]
+
+-- A fenced code block indented inside an indented document: the code token starts after the
+-- document's two columns of indentation and the fence's two, so byte 11 (the last of those four
+-- spaces) is untokenized and byte 12 (the first of the line's own two spaces) is code.
+/-- info: ["<none>", "markupCodeBlock"] -/
+#guard_msgs in #eval
+  ["    ```\n      x\n    ```\n", "    ```\n      x\n    ```\n"].zipWith (fun s (i, p) => markupAtIndented s i p) [(2, 11), (2, 12)]
 
 /-!
 ## Bracketed destinations

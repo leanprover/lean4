@@ -167,53 +167,11 @@ private def normalizeParaText (s : String) : String :=
       (out.push c, false)
   out
 
-/--
-If a code span's normalised content begins *and* ends with a space and is
-not made up entirely of spaces, drop one space from each end. CommonMark
-§6.1 introduces this rule so that authors can write `` ` `…` ` `` to
-include content beginning or ending with a literal backtick.
--/
-private def stripCodeSpanSpaces (s : String) : String :=
-  let sl := s.toSlice
-  if sl.startsWith ' ' && sl.endsWith ' ' && !sl.all (· == ' ') then
-    (sl.drop 1 |>.dropEnd 1).toString
-  else
-    s
-
-/--
-Renders the verbatim contents of a code span from its lines: line endings become spaces (§6.1), and
-the optional outer space pair is removed.
--/
-private def renderCodeSpan {s : String.Slice} (lines : Markdown.Lines s) : String :=
-  stripCodeSpanSpaces (" ".intercalate (lines.toArray.toList.map (·.copy)))
-
-/-- The text of a link title, whose lines are joined by newlines. -/
-private def titleText {s : String.Slice} (t : LinkTitle s) : String :=
-  decodeText ("\n".intercalate (t.content.toArray.toList.map (·.copy)))
-
-/--
-Flatten an inline tree to its plain-text content (CommonMark's `alt`
-attribute rule for images): drop markup, keep text and code-span text,
-recurse through emphasis/link/image children.
--/
-partial def inlineToPlainText (i : Inline s) : String :=
-  match i with
-  | .text r => r.copy
-  | .code _ content _ => renderCodeSpan content
-  | .italic _ content _ =>
-    content.foldl (init := "") fun acc i => acc ++ inlineToPlainText i
-  | .bold _ content _ =>
-    content.foldl (init := "") fun acc i => acc ++ inlineToPlainText i
-  | .link _ text _ _ =>
-    text.foldl (init := "") fun acc i => acc ++ inlineToPlainText i
-  | .image _ _ alt _ _ =>
-    alt.foldl (init := "") fun acc i => acc ++ inlineToPlainText i
-  | .hardBreak _ _ => "\n"
-  | .autolink _ url _ _ => url.copy
-  | .html _ => ""
-  | .softBreak _ => "\n"
-  | .escape _ char => char.copy
-  | .entity _ value => value
+/-- The `title` attribute of a link or image, if its target has a title. -/
+private def titleAttr (target : LinkTarget s) : String :=
+  match target.title? with
+  | some t => s!" title=\"{escape t.text}\""
+  | none => ""
 
 /-- Renders a single inline element. -/
 partial def renderInline (i : Inline s) : String :=
@@ -221,7 +179,7 @@ partial def renderInline (i : Inline s) : String :=
   | .text r =>
     escape (normalizeParaText r.copy)
   | .code _ content _ =>
-    s!"<code>{escape (renderCodeSpan content)}</code>"
+    s!"<code>{escape content.text}</code>"
   | .italic _ content _ =>
     let inner := content.foldl (init := "") fun acc i => acc ++ renderInline i
     s!"<em>{inner}</em>"
@@ -229,31 +187,10 @@ partial def renderInline (i : Inline s) : String :=
     let inner := content.foldl (init := "") fun acc i => acc ++ renderInline i
     s!"<strong>{inner}</strong>"
   | .link _ text _ target =>
-    let (url, title?) := match target with
-      | .inline _ destination _ title? =>
-        (percentEncode (decodeText destination.url.copy),
-         title?.map titleText)
-      | .reference d _ _ =>
-        (percentEncode (decodeText d.destination.url.copy),
-         d.title?.map titleText)
-    let titleAttr := match title? with
-      | some t => s!" title=\"{escape t}\""
-      | none => ""
     let inner := text.foldl (init := "") fun acc i => acc ++ renderInline i
-    s!"<a href=\"{escape url}\"{titleAttr}>{inner}</a>"
+    s!"<a href=\"{escape (percentEncode target.destination.text)}\"{titleAttr target}>{inner}</a>"
   | .image _ _ alt _ target =>
-    let (url, title?) := match target with
-      | .inline _ destination _ title? =>
-        (percentEncode (decodeText destination.url.copy),
-         title?.map titleText)
-      | .reference d _ _ =>
-        (percentEncode (decodeText d.destination.url.copy),
-         d.title?.map titleText)
-    let titleAttr := match title? with
-      | some t => s!" title=\"{escape t}\""
-      | none => ""
-    let altText := alt.foldl (init := "") fun acc i => acc ++ inlineToPlainText i
-    s!"<img src=\"{escape url}\" alt=\"{escape altText}\"{titleAttr} />"
+    s!"<img src=\"{escape (percentEncode target.destination.text)}\" alt=\"{escape (Inline.plainText alt)}\"{titleAttr target} />"
   | .hardBreak _ _ => "<br />\n"
   | .autolink _ url _ isEmail =>
     -- Autolink contents are verbatim (no backslash escapes, no entity
@@ -264,26 +201,12 @@ partial def renderInline (i : Inline s) : String :=
     let href := if isEmail then "mailto:" ++ urlText else urlText
     s!"<a href=\"{escape (percentEncode href)}\">{escape urlText}</a>"
   | .softBreak _ => "\n"
-  | .html lines => "\n".intercalate (lines.toArray.toList.map (·.copy))
+  | .html lines => lines.text
   | .escape _ char => escape char.copy
   | .entity _ value => escape value
 
 private def renderInlineArray (inlines : Array (Inline s)) : String :=
   inlines.foldl (init := "") fun acc i => acc ++ renderInline i
-
-/--
-Strips up to `n` leading ASCII spaces from a fenced-code-block content
-line. Per CommonMark §4.5, when an opening fence is indented by `n` (with
-`n ≤ 3`), each content line has up to `n` leading spaces removed; lines
-with fewer leading spaces are stripped down to no indent.
--/
-private def stripFenceIndent (n : Nat) (line : String) : String := Id.run do
-  let mut sl := line.toSlice
-  let mut k := 0
-  while k < n && sl.startsWith ' ' do
-    sl := sl.drop 1
-    k := k + 1
-  return sl.toString
 
 /-- Renders a single block element. -/
 partial def renderBlock (b : Block s) : String :=
@@ -307,7 +230,7 @@ partial def renderBlock (b : Block s) : String :=
         s!" class=\"language-{escape (decodeText lang)}\""
       | none => ""
     let codeContent := lines.foldl (init := "") fun acc r =>
-      acc ++ escape (stripFenceIndent info.openIndent r.copy) ++ "\n"
+      acc ++ escape r.copy ++ "\n"
     s!"<pre><code{langClass}>{codeContent}</code></pre>\n"
   | .indentedCode lines =>
     let codeContent := lines.foldl (init := "") fun acc (_, l) =>
@@ -362,7 +285,7 @@ partial def renderBlock (b : Block s) : String :=
     s!"<li>\n{inner}</li>\n"
   | .linkRefDef .. => ""
   | .thematicBreak _ => "<hr />\n"
-  | .html lines => "\n".intercalate (lines.toArray.toList.map (·.copy)) ++ "\n"
+  | .html lines => lines.text ++ "\n"
 
 /-- Renders an array of top-level blocks. -/
 def renderBlocks (blocks : Array (Block s)) : String :=

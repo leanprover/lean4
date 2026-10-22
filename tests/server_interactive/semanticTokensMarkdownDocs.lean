@@ -70,6 +70,10 @@ where
     whose continuation is indented to its content
 
     and a second paragraph in the item.
+
+    ```lean
+    example : True := trivial
+    ```
   -/
   z := ()
 

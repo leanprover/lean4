@@ -10,14 +10,14 @@ open Lean Markdown
 /-- Shows each inline's constructor together with its source text or decoded value. -/
 partial def showInline {s : String.Slice} : Inline s → String
   | .text r => s!"text⟪{r.copy}⟫"
-  | .code _ lines _ => s!"code⟪{"\n".intercalate (lines.toArray.toList.map (·.copy))}⟫"
+  | .code _ content _ => s!"code⟪{content.lines.text}⟫"
   | .italic _ cs _ => s!"italic[{showInlines cs}]"
   | .bold _ cs _ => s!"bold[{showInlines cs}]"
   | .link _ cs _ _ => s!"link[{showInlines cs}]"
   | .image _ _ cs _ _ => s!"image[{showInlines cs}]"
   | .hardBreak m _ => s!"hardBreak⟪{m.copy}⟫"
   | .autolink _ u _ _ => s!"autolink⟪{u.copy}⟫"
-  | .html lines => s!"html⟪{"\n".intercalate (lines.toArray.toList.map (·.copy))}⟫"
+  | .html lines => s!"html⟪{lines.text}⟫"
   | .softBreak _ => "softBreak"
   | .escape _ c => s!"escape⟪{c.copy}⟫"
   | .entity _ v => s!"entity⟪{v}⟫"
@@ -190,7 +190,7 @@ partial def titleParts (src : String) : List (List String) :=
   go (parse src).toList
 where
   parts {s : String.Slice} (t : LinkTitle s) : List String :=
-    [t.opener.copy, "\n".intercalate (t.content.toArray.toList.map (·.copy)), t.closer.copy]
+    [t.opener.copy, t.content.text, t.closer.copy]
   go {s : String.Slice} (blocks : List (Block s)) : List (List String) :=
     blocks.flatMap fun
       | .paragraph content => content.toList.filterMap fun
@@ -222,7 +222,7 @@ def destinationParts (src : String) : List (List String) :=
 def referenceTargets (src : String) : List (String × Option String) :=
   (firstParagraph src).toList.filterMap fun
     | .link _ _ _ (.reference d _ _) =>
-      some (d.destination.url.copy, d.title?.map fun t => "\n".intercalate (t.content.toArray.toList.map (·.copy)))
+      some (d.destination.url.copy, d.title?.map (·.content.text))
     | _ => none
 
 /-- info: [("/u", none), ("v", some "t")] -/
@@ -241,18 +241,18 @@ def referenceTargets (src : String) : List (String × Option String) :=
 /-!
 ## Content that continues onto the next line
 
-The content of a code span, a link title, or a reference label that continues onto the next line of
+The content of inline code, a link title, or a reference label that continues onto the next line of
 a container has one subslice per line, without the container's prefix.
 -/
 
-/-- The lines of every code span in the paragraphs of `src`, descending into blockquotes. -/
+/-- The lines of all inline code in the paragraphs of `src`, descending into blockquotes. -/
 partial def codeLines (src : String) : List (List String) :=
   go (parse src).toList
 where
   go {s : String.Slice} (blocks : List (Block s)) : List (List String) :=
     blocks.flatMap fun
       | .paragraph content => content.toList.filterMap fun
-        | .code _ lines _ => some (lines.toArray.toList.map (·.copy))
+        | .code _ content _ => some content.lines.copy.toList
         | _ => none
       | .blockquote _ children => go children.toList
       | _ => []
@@ -274,9 +274,9 @@ where
     blocks.flatMap fun
       | .paragraph content => content.toList.filterMap fun
         | .link _ _ _ (.reference _ label _) | .image _ _ _ _ (.reference _ label _) =>
-          some (label.toArray.toList.map (·.copy))
+          some label.copy.toList
         | _ => none
-      | .linkRefDef m => [m.label.toArray.toList.map (·.copy)]
+      | .linkRefDef m => [m.label.copy.toList]
       | .blockquote _ children => go children.toList
       | _ => []
 
@@ -305,7 +305,7 @@ partial def showBlock {s : String.Slice} : Block s → String
   | .listItem _ children => s!"item[{", ".intercalate (children.toList.map showBlock)}]"
   | .atxHeading _ _ content _ => s!"heading⟪{showInline.showInlines content}⟫"
   | .blockquote _ children => s!"blockquote[{", ".intercalate (children.toList.map showBlock)}]"
-  | .html lines => s!"html{repr (lines.toArray.map (·.copy))}"
+  | .html lines => s!"html{repr lines.copy}"
   | _ => "other"
 
 def showDocument (src : String) (indent : Nat) : List String :=
@@ -336,6 +336,15 @@ info: ["paragraph⟪text⟪Intro⟫ softBreak text⟪continued⟫⟫", "indented
 -- Indentation is counted in spaces; a line indented less than `indent` loses only its own spaces.
 /-- info: ["heading⟪text⟪h⟫⟫", "paragraph⟪text⟪p⟫⟫"] -/
 #guard_msgs in #eval showDocument "  # h\n\n    p" 4
+
+-- The content lines of a fenced code block exclude the opening fence's indentation, and no more.
+/-- info: ["fencedCode#[\"code\", \" more\", \"x\"]"] -/
+#guard_msgs in #eval showDocument "  ```\n  code\n   more\n x\n  ```\n" 0
+
+-- In an indented document, the document's indentation is removed first and the fence's indentation
+-- is relative to what remains, so each content line loses both.
+/-- info: ["paragraph⟪text⟪Intro⟫⟫", "fencedCode#[\"code\", \"  indented\", \"x\"]"] -/
+#guard_msgs in #eval showDocument "    Intro\n\n      ```\n      code\n        indented\n     x\n      ```\n" 4
 
 /-!
 ## HTML blocks

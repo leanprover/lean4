@@ -435,7 +435,7 @@ where
     | .code openTicks content closeTicks =>
       out := pushDelimiter out openTicks
       out := pushDelimiter out closeTicks
-      out := pushLines out content .markupInlineCode (priority := 6)
+      out := pushLines out content.lines .markupInlineCode (priority := 6)
     | .italic openDelim content closeDelim =>
       out := pushDelimiter out openDelim
       out := pushDelimiter out closeDelim

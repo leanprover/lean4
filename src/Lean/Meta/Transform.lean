@@ -88,6 +88,8 @@ Parameters:
   over variables that are actually used in the body.
 - `skipConstInApp`: when true, constant heads in applications are not visited separately.
 - `skipInstances`: when true, instance arguments (determined via `getFunInfo`) are not visited.
+- `postApp`: called with each application and its rebuilt version before passing the result
+  to `post`.
 
 The `skipInstances` flag is used by `dsimp` to avoid rewriting instances.
 
@@ -104,6 +106,7 @@ partial def transformWithCache {m} [Monad m] [MonadLiftT MetaM m] [MonadControlT
     (usedLetOnly := false)
     (skipConstInApp := false)
     (skipInstances := false)
+    (postApp : Expr → Expr → m Expr := fun _ e => pure e)
     : m (Expr × Std.HashMap ExprStructEq Expr) :=
   let _ : STWorld IO.RealWorld m := ⟨⟩
   let _ : MonadLiftT (ST IO.RealWorld) m := { monadLift := fun x => liftM (m := MetaM) (liftM (m := ST IO.RealWorld) x) }
@@ -148,9 +151,9 @@ partial def transformWithCache {m} [Monad m] [MonadLiftT MetaM m] [MonadControlT
               args := args.set i (← visit arg)
             else
               args := args.set i (← visit arg)
-          visitPost (mkAppN f args.toArray)
+          visitPost (← postApp e (mkAppN f args.toArray))
         else
-          visitPost (mkAppN f (← args.mapM visit))
+          visitPost (← postApp e (mkAppN f (← args.mapM visit)))
       match (← pre e) with
       | .done e  => pure e
       | .visit e => visit e

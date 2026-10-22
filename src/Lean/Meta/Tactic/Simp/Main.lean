@@ -11,6 +11,7 @@ public import Lean.Meta.Tactic.Simp.Diagnostics
 public import Lean.Meta.Match.Value
 public import Lean.Meta.MonadSimp
 public import Lean.Util.CollectLooseBVars
+import Lean.Meta.ExprDefEq
 import Lean.Meta.HaveTelescope
 import Lean.PrettyPrinter
 import Lean.ExtraModUses
@@ -516,6 +517,43 @@ Auxiliary `dsimproc` for not visiting `Char` literal subterms.
 -/
 private def doNotVisitCharLit : DSimproc := doNotVisit isCharLit ``Char.ofNat
 
+/--
+Given the application `new`, obtained from the application `orig` by definitionally rewriting
+some of its arguments, reverts the rewrites that make the type of an instance argument differ
+from its expected type at `.instances` transparency. See `backward.dsimp.instanceTypes`.
+-/
+private partial def revertInstanceTypeChanges (orig new : Expr) : MetaM Expr := do
+  let origArgs := orig.getAppArgs
+  let newArgs := new.getAppArgs
+  if origArgs.size != newArgs.size || origArgs == newArgs then
+    return new
+  let f := new.getAppFn
+  let infos := (← getFunInfoNArgs f newArgs.size).paramInfo
+  let fType ← inferType f
+  let origFType ← inferType orig.getAppFn
+  let mut args := newArgs
+  repeat
+    let changed (i : Nat) := args[i]! != origArgs[i]!
+    let mut reverts := #[]
+    for h : j in *...infos.size do
+      let info := infos[j]
+      unless info.isInstance && (changed j || info.backDeps.any changed) do continue
+      if (← hasExpectedType fType args j) then continue
+      -- Keep rewrites that do not cause the mismatch.
+      unless (← hasExpectedType origFType origArgs j) do continue
+      reverts := (info.backDeps.push j).filter changed
+      trace[Meta.Tactic.simp.instanceTypes] "reverting the rewrites of the arguments at positions {reverts} of{indentExpr new}\nbecause the instance{indentExpr args[j]!}\ndoes not have the expected type at `.instances` transparency"
+      break
+    if reverts.isEmpty then break
+    for i in reverts do
+      args := args.set! i origArgs[i]!
+  return if args == newArgs then new else mkAppN f args
+where
+  hasExpectedType (fType : Expr) (args : Array Expr) (j : Nat) : MetaM Bool := do
+    let .forallE _ d _ _ ← whnf (← instantiateForall fType (args.extract 0 j)) | return true
+    let type ← inferType args[j]!
+    withNewMCtxDepth <| withExactInstancesConfig <| isDefEqGuarded type d
+
 set_option compiler.ignoreBorrowAnnotation true in
 @[export lean_dsimp]
 private partial def dsimpImpl (e : Expr) : SimpM Expr := do
@@ -525,12 +563,15 @@ private partial def dsimpImpl (e : Expr) : SimpM Expr := do
   let m ← getMethods
   let pre := m.dpre >> doNotVisitOfNat >> doNotVisitOfScientific >> doNotVisitCharLit >> doNotVisitProofs
   let post := m.dpost >> dsimpReduce
+  let checkInstanceTypes := backward.dsimp.instanceTypes.get (← getOptions)
   withInDSimpWithCache fun cache => do
     transformWithCache e cache
       (usedLetOnly := cfg.zeta || cfg.zetaUnused)
       (skipInstances := !cfg.instances)
       (pre := pre)
       (post := post)
+      (postApp := fun orig new =>
+        if checkInstanceTypes then revertInstanceTypeChanges orig new else return new)
 
 def visitFn (e : Expr) : SimpM Result := do
   let f := e.getAppFn
@@ -656,7 +697,15 @@ def simpApp (e : Expr) : SimpM Result := do
     -- Recall that we fold "orphan" kernel Nat literals `n` into `OfNat.ofNat n`
     return { expr := e }
   else
-    congr e
+    let r ← congr e
+    unless backward.dsimp.instanceTypes.get (← getOptions) do return r
+    let eNew ← revertInstanceTypeChanges e r.expr
+    if eNew == r.expr then return r
+    -- Arguments that instance arguments depend on are only rewritten definitionally, except
+    -- possibly by user congruence theorems.
+    if r.proof?.isNone || (← withNewMCtxDepth <| withDefault <| isDefEqGuarded eNew r.expr) then
+      return { r with expr := eNew }
+    return { expr := e }
 
 def simpStep (e : Expr) : SimpM Result := do
   match e with

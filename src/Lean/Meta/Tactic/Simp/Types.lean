@@ -21,6 +21,23 @@ register_builtin_option backward.dsimp.instances : Bool := {
     descr    := "Let `dsimp` and `simp` simplify instance terms"
   }
 
+/--
+If true, `dsimp` and `simp` refuse to rewrite arguments of an application definitionally when this
+changes the type of an instance argument (an argument whose type is a class, see
+`ParamInfo.isInstance`) so that it no longer matches its expected type at `.instances`
+transparency. For example, if `def Foo := Nat`, unfolding `Foo` in the type arguments of
+`@HAdd.hAdd Foo Foo Foo inst a b` would leave the instance `inst : HAdd Foo Foo Foo` where one of
+type `HAdd Nat Nat Nat` is expected, so that lemmas about `HAdd Nat Nat Nat` would not apply.
+
+A rewrite is kept if the instance argument did not match its expected type at `.instances`
+transparency in the first place.
+-/
+register_builtin_option backward.dsimp.instanceTypes : Bool := {
+    defValue := true
+    descr    := "if true, `dsimp` and `simp` refuse definitional rewrites of arguments that make the \
+      type of an instance argument differ from its expected type at `.instances` transparency"
+  }
+
 /-- The result of simplifying some expression `e`. -/
 structure Result where
   /-- The simplified version of `e` -/

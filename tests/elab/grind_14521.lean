@@ -46,6 +46,7 @@ theorem isPoison_select {w : Nat} (x y : MyInt w) (c : MyInt 1) :
   | poison => simp [select, isPoison]
   | val c' => by_cases hc : c' = 1#1 <;> simp [select, isPoison, hc, getValue]
 
+set_option backward.dsimp.instanceTypes false in
 theorem getValue_select {w : Nat} (x y : MyInt w) (c : MyInt 1) (h : (select c x y).isPoison = false) :
     (select c x y).getValue h = if _ : c.getValue = 1#1 then x.getValue else y.getValue := by
   simp [select, getValue]

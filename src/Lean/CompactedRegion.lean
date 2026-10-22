@@ -83,8 +83,9 @@ in the same session.
 If `allowClosures` is `true`, closures in the compacted data are tolerated and the file is written
 in the extended `v3` olean format (which may become the default in the future). This is an
 EXPERIMENTAL option. The saving and loading process must be using identical executables, including
-dependent libraries. When `false`, encountering a closure is an error and the file is written in the
-old `v2` format.
+dependent libraries. When `false`, encountering a closure, `IO.Ref` or `IO.Promise` is an error and
+the file is written in the old `v2` format, whose mapping `CompactedRegion.read` may share between
+loads of the same file since nothing in it is written to after loading.
 
 Returns a `Compactor` that may be passed as `prev` to subsequent saves. Unsafe because the
 returned `Compactor` carries thread-safety and `depRegions` lifetime contracts the type system

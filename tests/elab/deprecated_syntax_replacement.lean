@@ -1002,6 +1002,130 @@ Note: This linter can be disabled with `set_option linter.deprecated.syntax fals
 #guard_msgs in
 #apply_suggestions example : Nat := old_both
 
+/-! ## `grind` tactics -/
+
+open Lean Elab in
+/-- Adds the kind of the innermost tactic whose info tree contains each suggestion in `tree`. -/
+partial def addSuggestionTactics (tactic? : Option SyntaxNodeKind)
+    (kinds : Array (Option SyntaxNodeKind)) :
+    InfoTree → Array (Option SyntaxNodeKind)
+  | .context _ tree => addSuggestionTactics tactic? kinds tree
+  | .node info children =>
+    let tactic? := if let .ofTacticInfo i := info then some i.stx.getKind else tactic?
+    let kinds := match info with
+      | .ofCustomInfo { value, .. } =>
+        if (value.get? Meta.Tactic.TryThis.TryThisInfo).isSome then kinds.push tactic? else kinds
+      | _ => kinds
+    children.foldl (addSuggestionTactics tactic?) kinds
+  | .hole _ => kinds
+
+open Lean Elab Command in
+/--
+Elaborates `cmd` and logs, for each code action suggestion, the kind of the innermost tactic whose
+info tree contains it.
+-/
+elab "#suggestion_tactics " cmd:command : command => do
+  let initTrees ← modifyGet fun s => (s.infoState.trees, { s with infoState.trees := {} })
+  elabCommand cmd
+  let trees := (← get).infoState.trees
+  modify fun s => { s with infoState.trees := initTrees ++ trees }
+  logInfo m!"{trees.foldl (addSuggestionTactics none) #[]}"
+
+-- The suggestion for a deprecated tactic is part of the info tree of the tactic.
+/--
+warning: syntax 'oldExact' has been deprecated: use `exact` instead
+
+Hint: Replace the deprecated syntax:
+  o̵l̵d̵_̵exact h
+
+Note: This linter can be disabled with `set_option linter.deprecated.syntax false`
+---
+info: [some (oldExact)]
+-/
+#guard_msgs in
+#suggestion_tactics example (h : True) : True := by old_exact h
+
+syntax (name := oldGrindFinish) "old_grind_finish" : grind
+macro_rules | `(grind| old_grind_finish) => `(grind| finish)
+macro_rules | `(grind| old_grind_finish) => `(grind| fail "not this one")
+
+deprecated_syntax oldGrindFinish "use `finish` instead" (since := "2026-10-22")
+  | `(grind| old_grind_finish) => `(grind| finish)
+
+-- Only the macro that succeeds reports the deprecation.
+/--
+warning: syntax 'oldGrindFinish' has been deprecated: use `finish` instead
+
+Hint: Replace the deprecated syntax:
+  o̵l̵d̵_̵g̵r̵i̵n̵d̵_̵finish
+
+Note: This linter can be disabled with `set_option linter.deprecated.syntax false`
+---
+info: example (op : Nat → Nat → Nat) [Std.Associative op] (a b c d : Nat) :
+    d = op b c → op a d = op (op a b) c := by
+  grind => finish
+-/
+#guard_msgs in
+#apply_suggestions! example (op : Nat → Nat → Nat) [Std.Associative op] (a b c d : Nat) :
+    d = op b c → op a d = op (op a b) c := by
+  grind => old_grind_finish
+
+/--
+warning: syntax 'oldGrindFinish' has been deprecated: use `finish` instead
+
+Hint: Replace the deprecated syntax:
+  o̵l̵d̵_̵g̵r̵i̵n̵d̵_̵finish
+
+Note: This linter can be disabled with `set_option linter.deprecated.syntax false`
+---
+info: [some (oldGrindFinish)]
+-/
+#guard_msgs in
+#suggestion_tactics example (op : Nat → Nat → Nat) [Std.Associative op] (a b c d : Nat) :
+    d = op b c → op a d = op (op a b) c := by
+  grind => old_grind_finish
+
+syntax (name := noImplGrind) "no_impl_grind" : grind
+
+deprecated_syntax noImplGrind "use `finish` instead" (since := "2026-10-22")
+  | `(grind| no_impl_grind) => `(grind| finish)
+
+/--
+warning: syntax 'noImplGrind' has been deprecated: use `finish` instead
+
+Hint: Replace the deprecated syntax:
+  n̵o̵_̵i̵m̵p̵l̵_̵g̵r̵i̵n̵d̵f̲i̲n̲i̲s̲h̲
+
+Note: This linter can be disabled with `set_option linter.deprecated.syntax false`
+---
+error: Grind tactic `noImplGrind` has not been implemented
+---
+info: example (op : Nat → Nat → Nat) [Std.Associative op] (a b c d : Nat) :
+    d = op b c → op a d = op (op a b) c := by
+  grind => finish
+-/
+#guard_msgs in
+#apply_suggestions example (op : Nat → Nat → Nat) [Std.Associative op] (a b c d : Nat) :
+    d = op b c → op a d = op (op a b) c := by
+  grind => no_impl_grind
+
+/--
+warning: syntax 'noImplGrind' has been deprecated: use `finish` instead
+
+Hint: Replace the deprecated syntax:
+  n̵o̵_̵i̵m̵p̵l̵_̵g̵r̵i̵n̵d̵f̲i̲n̲i̲s̲h̲
+
+Note: This linter can be disabled with `set_option linter.deprecated.syntax false`
+---
+error: Grind tactic `noImplGrind` has not been implemented
+---
+info: [some (noImplGrind)]
+-/
+#guard_msgs in
+#suggestion_tactics example (op : Nat → Nat → Nat) [Std.Associative op] (a b c d : Nat) :
+    d = op b c → op a d = op (op a b) c := by
+  grind => no_impl_grind
+
 /-! ## Macro-generated deprecated syntax -/
 
 macro "wrapper" : tactic => `(tactic| old_exact trivial)

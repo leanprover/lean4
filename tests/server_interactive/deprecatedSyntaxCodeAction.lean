@@ -90,3 +90,24 @@ syntax "nums " num*' : term
 
 macro "nums' " num*' : term => `(0)
                 --^ codeAction
+
+syntax (name := oldGrindFinish) "old_grind_finish" : grind
+macro_rules | `(grind| old_grind_finish) => `(grind| finish)
+
+deprecated_syntax oldGrindFinish "use `finish` instead" (since := "2026-10-22")
+  | `(grind| old_grind_finish) => `(grind| finish)
+
+example (op : Nat → Nat → Nat) [Std.Associative op] (a b c d : Nat) :
+    d = op b c → op a d = op (op a b) c := by
+  grind => old_grind_finish
+           --^ codeAction
+
+syntax (name := noImplGrind) "no_impl_grind" : grind
+
+deprecated_syntax noImplGrind "use `finish` instead" (since := "2026-10-22")
+  | `(grind| no_impl_grind) => `(grind| finish)
+
+example (op : Nat → Nat → Nat) [Std.Associative op] (a b c d : Nat) :
+    d = op b c → op a d = op (op a b) c := by
+  grind => no_impl_grind
+           --^ codeAction

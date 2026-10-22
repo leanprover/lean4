@@ -637,3 +637,99 @@ Resolution of Try this: num*:
    {"start": {"line": 90, "character": 18},
     "end": {"line": 90, "character": 18}},
    "context": {"diagnostics": []}}}}
+{"textDocument": {"uri": "file:///deprecatedSyntaxCodeAction.lean"},
+ "range":
+ {"start": {"line": 101, "character": 13},
+  "end": {"line": 101, "character": 13}},
+ "context": {"diagnostics": []}}
+[{"title": "Try this: finish",
+  "kind": "quickfix",
+  "edit":
+  {"documentChanges":
+   [{"textDocument":
+     {"version": 1, "uri": "file:///deprecatedSyntaxCodeAction.lean"},
+     "edits":
+     [{"range":
+       {"start": {"line": 101, "character": 11},
+        "end": {"line": 101, "character": 27}},
+       "newText": "finish"}]}]},
+  "data":
+  {"providerResultIndex": 0,
+   "providerName":
+   "_private.Lean.Meta.Tactic.TryThis.0.Lean.Meta.Tactic.TryThis.tryThisProvider",
+   "params":
+   {"textDocument": {"uri": "file:///deprecatedSyntaxCodeAction.lean"},
+    "range":
+    {"start": {"line": 101, "character": 13},
+     "end": {"line": 101, "character": 13}},
+    "context": {"diagnostics": []}}}}]
+Resolution of Try this: finish:
+{"title": "Try this: finish",
+ "kind": "quickfix",
+ "edit":
+ {"documentChanges":
+  [{"textDocument":
+    {"version": 1, "uri": "file:///deprecatedSyntaxCodeAction.lean"},
+    "edits":
+    [{"range":
+      {"start": {"line": 101, "character": 11},
+       "end": {"line": 101, "character": 27}},
+      "newText": "finish"}]}]},
+ "data":
+ {"providerResultIndex": 0,
+  "providerName":
+  "_private.Lean.Meta.Tactic.TryThis.0.Lean.Meta.Tactic.TryThis.tryThisProvider",
+  "params":
+  {"textDocument": {"uri": "file:///deprecatedSyntaxCodeAction.lean"},
+   "range":
+   {"start": {"line": 101, "character": 13},
+    "end": {"line": 101, "character": 13}},
+   "context": {"diagnostics": []}}}}
+{"textDocument": {"uri": "file:///deprecatedSyntaxCodeAction.lean"},
+ "range":
+ {"start": {"line": 111, "character": 13},
+  "end": {"line": 111, "character": 13}},
+ "context": {"diagnostics": []}}
+[{"title": "Try this: finish",
+  "kind": "quickfix",
+  "edit":
+  {"documentChanges":
+   [{"textDocument":
+     {"version": 1, "uri": "file:///deprecatedSyntaxCodeAction.lean"},
+     "edits":
+     [{"range":
+       {"start": {"line": 111, "character": 11},
+        "end": {"line": 111, "character": 24}},
+       "newText": "finish"}]}]},
+  "data":
+  {"providerResultIndex": 0,
+   "providerName":
+   "_private.Lean.Meta.Tactic.TryThis.0.Lean.Meta.Tactic.TryThis.tryThisProvider",
+   "params":
+   {"textDocument": {"uri": "file:///deprecatedSyntaxCodeAction.lean"},
+    "range":
+    {"start": {"line": 111, "character": 13},
+     "end": {"line": 111, "character": 13}},
+    "context": {"diagnostics": []}}}}]
+Resolution of Try this: finish:
+{"title": "Try this: finish",
+ "kind": "quickfix",
+ "edit":
+ {"documentChanges":
+  [{"textDocument":
+    {"version": 1, "uri": "file:///deprecatedSyntaxCodeAction.lean"},
+    "edits":
+    [{"range":
+      {"start": {"line": 111, "character": 11},
+       "end": {"line": 111, "character": 24}},
+      "newText": "finish"}]}]},
+ "data":
+ {"providerResultIndex": 0,
+  "providerName":
+  "_private.Lean.Meta.Tactic.TryThis.0.Lean.Meta.Tactic.TryThis.tryThisProvider",
+  "params":
+  {"textDocument": {"uri": "file:///deprecatedSyntaxCodeAction.lean"},
+   "range":
+   {"start": {"line": 111, "character": 13},
+    "end": {"line": 111, "character": 13}},
+   "context": {"diagnostics": []}}}}

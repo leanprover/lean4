@@ -10,7 +10,7 @@ public import Lean.Meta.Reduce
 public import Lean.Elab.Eval
 public import Lean.Elab.Command
 import Lean.Elab.ConfigEval
-import Lean.Elab.DeprecatedSyntax
+import Lean.Elab.DeprecatedSyntax.Basic
 public import Lean.Elab.Open
 import Init.Data.Nat.Order
 import Init.Data.Order.Lemmas

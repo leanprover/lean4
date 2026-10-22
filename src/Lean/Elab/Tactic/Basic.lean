@@ -8,7 +8,7 @@ module
 prelude
 public import Lean.Meta.Tactic.Util
 public import Lean.Elab.Term
-import Lean.Elab.DeprecatedSyntax
+import Lean.Elab.DeprecatedSyntax.Basic
 import Init.Omega
 
 public section

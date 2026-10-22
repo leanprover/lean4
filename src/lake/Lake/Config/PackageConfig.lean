@@ -270,6 +270,22 @@ public configuration PackageConfig (p : Name) (n : Name) extends WorkspaceConfig
   reservoir : Bool := true
 
   /--
+  The base URL of a published artifact cache for this package.
+
+  When this package is a dependency, Lake automatically fetches its current Git revision's
+  input-to-output mappings from `<buildCache>/revisions`. Artifacts are fetched on demand
+  from `<buildCache>/artifacts`, using the repository, toolchain, and platform layout of
+  `lake cache put --repo`. The repository is identified by its GitHub remote URL.
+
+  No system cache service configuration is needed. Missing mappings or artifacts fall back
+  to building from source. `--no-cache` disables automatic downloads. Building the package
+  as the workspace root does not automatically fetch its mappings.
+
+  Defaults to the empty string (no published cache).
+  -/
+  buildCache : String := ""
+
+  /--
   Whether to enables Lake's local, offline artifact cache for the package.
 
   Artifacts (i.e., build products) of packages will be shared across

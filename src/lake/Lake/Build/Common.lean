@@ -601,6 +601,8 @@ public def resolveArtifact
   | .error (.noFileOrDirectory ..) => withLogErrorPos do
     -- we redownload artifacts on any error
     if let some service := service? then
+      unless (← getTryCache) do
+        error "remote cache downloads disabled"
       updateAction .fetch
       if let some service := ws.findCacheService? service.toString then
         let some scope := scope?

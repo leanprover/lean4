@@ -70,11 +70,51 @@ public def Package.transDepsFacetConfig : PackageFacetConfig transDepsFacet :=
   mkFacetJobConfig recComputeTransDeps (buildable := false)
 
 /--
-Tries to download and unpack the package's cached build archive
-(e.g., from Reservoir or GitHub).
+Fetch the current revision's published mappings without downloading artifacts.
 -/
+def Package.fetchArtifactCacheMappings (self : Package) : JobM Bool := do
+  let some service := self.buildCacheService? | return false
+  let repo := GitRepo.mk self.dir
+  let url ← match self.remoteUrl? with
+    | some url => pure url
+    | none => pure <| (← repo.getRemoteUrl?).getD ""
+  let repoName? := url.dropPrefix? "https://github.com/"
+    <|> url.dropPrefix? "git@github.com:"
+    <|> url.dropPrefix? "ssh://git@github.com/"
+    <|> url.dropPrefix? "git://github.com/"
+  let some repoName := repoName?
+    | logVerbose s!"{self.prettyName}: cannot identify GitHub repository for buildCache"
+      return false
+  let repoName := repoName.copy
+  let repoName := if repoName.endsWith ".git" then repoName.dropEnd 4 |>.copy else repoName
+  let scope := CacheServiceScope.ofRepo repoName
+  let rev ← repo.getHeadRevision
+  let ws ← getWorkspace
+  let platform := if self.isPlatformIndependent then CachePlatform.none else .system
+  let toolchain := if self.fixedToolchain || self.bootstrap then .none else ws.cacheToolchain
+  let cache ← getLakeCache
+  let revisionScope := s!"{self.cacheScope}/buildCache/" ++
+    (Hash.ofString <| service.revisionUrl "" scope platform toolchain).hex
+  let (map?, log) ← (service.downloadRevisionOutputs?
+    rev cache revisionScope scope platform toolchain).captureLog
+  log.replay
+  let some (some map) := map? | return false
+  -- Preserve local output mappings to avoid repeatedly unpacking published archives.
+  map.forM fun input entry => do
+    let prev? ← cache.readOutputs? self.cacheScope input
+    let replace := prev?.any fun prev => prev.service?.any fun oldService =>
+      some oldService.toString != service.name?.map (·.toString) ||
+      prev.scope?.map (·.toString) != some scope.toString
+    cache.writeOutputs self.cacheScope input entry.out service.name? (some scope)
+      (overwrite := replace)
+  return true
+
+/-- Fetch the package's published mappings or cached build archive. -/
 def Package.fetchOptBuildCacheCore (self : Package) : FetchM (Job Bool) := do
-  if self.preferReleaseBuild then
+  if self.buildCacheService?.isSome then
+    withRegisterJob s!"{self.baseName}:optCache" (optional := true) <| Job.async do
+      try self.fetchArtifactCacheMappings catch _ => return false
+  else if self.preferReleaseBuild then
     self.optGitHubRelease.fetch
   else
     self.optReservoirBarrel.fetch
@@ -85,10 +125,12 @@ public def Package.optBuildCacheFacetConfig : PackageFacetConfig optBuildCacheFa
 
 /-- Tries to download the package's build cache (if configured). -/
 def Package.maybeFetchBuildCache (self : Package) : FetchM (Job Bool) := do
-  let shouldFetch :=
-    (← getTryCache) &&
-    !(← self.buildDir.pathExists) && -- do not automatically clobber prebuilt artifacts
-    (self.preferReleaseBuild || -- GitHub release
+  unless (← getTryCache) do return pure true
+  let shouldFetch ← if self.buildCacheService?.isSome then
+      self.isArtifactCacheReadable
+    else pure <|
+      !(← self.buildDir.pathExists) && -- do not automatically clobber prebuilt artifacts
+      (self.preferReleaseBuild || -- GitHub release
       ((self.scope == "leanprover" || self.scope == "leanprover-community")
         && !(← getElanToolchain).isEmpty)) -- Reservoir
   if shouldFetch then
@@ -111,7 +153,9 @@ def Package.maybeFetchBuildCacheWithWarning (self : Package) := do
   let job ← self.maybeFetchBuildCache
   job.mapM fun success => do
     unless success do
-      if self.preferReleaseBuild then
+      if self.buildCacheService?.isSome then
+        logVerbose s!"{self.prettyName}: building from source; published cache mappings unavailable"
+      else if self.preferReleaseBuild then
         let details ← self.optFacetDetails optGitHubReleaseFacet
         logWarning s!"building from source; failed to fetch GitHub release{details}"
       else

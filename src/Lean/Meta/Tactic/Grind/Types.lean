@@ -59,16 +59,35 @@ because of the symmetric case. By using `eqCongrSymmPlaceholderProof`, we retain
 def eqCongrSymmPlaceholderProof := mkConst (Name.mkSimple "[eq_congr_symm]")
 
 /--
+Returns `true` if `type` is, structurally, the type of a literal with a normal form: `Nat`, `Int`,
+`String`, `Char`, `UInt8`, `UInt16`, `UInt32`, `UInt64`, or `Fin n`/`BitVec n` where `n` is a
+numeral. `Float` and `Float32` are excluded since their literals have no normal form
+(e.g., `2`, `2.0`, and `2.00` are the same `Float`).
+-/
+private def isNormalLitType (type : Expr) : MetaM Bool := do
+  match type.consumeMData with
+  | .const declName [] =>
+    return declName == ``Nat || declName == ``Int || declName == ``String || declName == ``Char
+      || declName == ``UInt8 || declName == ``UInt16 || declName == ``UInt32 || declName == ``UInt64
+  | .app (.const declName []) n =>
+    if declName == ``Fin || declName == ``BitVec then
+      return (← getNatValue? n).isSome
+    return false
+  | _ => return false
+
+/--
 Returns `true` if `e` is `True`, `False`, or a literal value.
 See `Lean.Meta.LitValues` for supported literals.
-`grind` assumes distinct interpreted terms denote distinct values, so a literal type is
-interpreted only if its literals have a normal form. `Float` and `Float32` literals do not
-(e.g., `2`, `2.0`, and `2.00` are the same `Float`), so they are not interpreted.
+`grind` assumes distinct interpreted terms denote distinct values, so a literal is interpreted
+only if it is in normal form, and in particular its type must be in normal form
+(see `isNormalLitType`). `LitValues` recognizes literals up to `whnfD` on their types, e.g.
+`(1 : BitVec w)` for `def w := 32`, but the canonicalizer does not unfold `w`, and
+`(1 : BitVec w)` and `(1 : BitVec 32)` would be distinct interpreted terms denoting the same value.
 -/
 def isInterpreted (e : Expr) : MetaM Bool := do
   if e.isTrue || e.isFalse then return true
-  if (← getFloatValue? e).isSome || (← getFloat32Value? e).isSome then return false
-  isLitValue e
+  unless (← isLitValue e) do return false
+  isNormalLitType (← instantiateMVars (← inferType e))
 
 register_builtin_option grind.debug : Bool := {
   defValue := false

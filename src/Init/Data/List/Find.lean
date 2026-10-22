@@ -686,7 +686,7 @@ theorem lt_findIdx_iff (xs : List α) (p : α → Bool) (i : Nat) :
 @[simp, grind =]
 theorem findIdx_map (xs : List α) (f : α → β) (p : β → Bool) :
     (xs.map f).findIdx p = xs.findIdx (p ∘ f) := by
-  induction xs with simp_all [findIdx_cons]
+  induction xs with (set_option backward.instanceTypes.subsingletons.decidable false in simp_all [findIdx_cons])
 
 @[grind =]
 theorem findIdx_append {p : α → Bool} {l₁ l₂ : List α} :

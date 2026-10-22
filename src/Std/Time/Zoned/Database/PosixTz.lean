@@ -38,6 +38,8 @@ private def posixParseSign : Parser Int :=
 
 -- <time> ::= <hour> [":" <minute> [":" <second>]]
 -- `maxHour` caps the hour field; POSIX requires 0–24, extended mode allows 0–167.
+-- Problem related to `HOrElse` and `Ordinal := Bounded.LE 0 59`
+set_option backward.isDefEq.respectTransparency.instanceTypes false in
 private def posixParseHMS (maxHour : Nat := 24) : Parser Second.Offset := do
   let rawH ← digits
   if rawH > maxHour then fail s!"hour {rawH} out of range 0-{maxHour}"

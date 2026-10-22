@@ -307,7 +307,8 @@ theorem HetT.property_liftInner {m : Type w → Type w'} {n : Type w → Type w'
 theorem HetT.prun_liftInner {m : Type w → Type w'} {n : Type w → Type w''} [Monad m] [Monad n]
     [MonadLiftT m n] [LawfulMonadLiftT m n] {x : HetT m α} {f : (a : α) → _ → m γ} :
     (x.liftInner n).prun (fun a ha => f a ha) = x.prun f := by
-  simp [liftInner, prun]
+  (set_option backward.instanceTypes.subsingletons.prop false in
+  simp [liftInner, prun])
 
 theorem HetT.ext {m : Type w → Type w'} [Monad m] [LawfulMonad m]
     {α : Type v} {x y : HetT m α}
@@ -496,6 +497,7 @@ theorem HetT.liftInner_bind {m : Type w → Type w'} {n : Type w → Type w''} {
     (x.bind f).liftInner n = (x.liftInner n).bind (fun a => (f a).liftInner n) := by
   simp only [ext_iff, property_liftInner, prun_bind, property_bind, exists_true_left]
   intro β g
-  simp [liftInner, prun, HetT.bind]
+  (set_option backward.instanceTypes.subsingletons.prop false in
+  simp [liftInner, prun, HetT.bind])
 
 end Std.Iterators

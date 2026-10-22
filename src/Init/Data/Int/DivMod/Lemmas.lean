@@ -852,7 +852,8 @@ theorem natAbs_ediv (a : Int) (b : Int) : natAbs (a / b) = natAbs a / natAbs b +
     | 0 => simp
     | (a + 1 : Nat) => norm_cast
     | negSucc a =>
-      simp only [negSucc_eq]
+      (set_option backward.instanceTypes.subsingletons.decidable false in
+      simp only [negSucc_eq])
       norm_cast
       rw [neg_ediv]
       norm_cast
@@ -1372,10 +1373,15 @@ theorem sign_tdiv (a b : Int) : sign (a.tdiv b) = if natAbs a < natAbs b then 0 
   case inv => simp; split <;> simp [Int.mul_neg]
   case w b =>
     induction a using wlog_sign
-    case inv => simp; split <;> simp [Int.neg_mul]
+    case inv =>
+      (set_option backward.instanceTypes.subsingletons.decidable false in
+      simp)
+      (set_option backward.instanceTypes.subsingletons.decidable false in
+      split) <;> simp [Int.neg_mul]
     case w a =>
       rw [tdiv_eq_ediv_of_nonneg (by simp), sign_ediv]
-      simp
+      (set_option backward.instanceTypes.subsingletons.decidable false in
+      simp)
 
 @[simp] theorem natAbs_tdiv (a b : Int) : natAbs (a.tdiv b) = (natAbs a).div (natAbs b) :=
   match a, b, Int.eq_nat_or_neg a, Int.eq_nat_or_neg b with
@@ -1486,8 +1492,10 @@ theorem sign_tmod (a b : Int) : sign (tmod a b) = if b ∣ a then 0 else sign a 
     match a with
     | 0 => simp
     | (a + 1) =>
-      simp
-      split
+      (set_option backward.instanceTypes.subsingletons.decidable false in
+      simp)
+      (set_option backward.instanceTypes.subsingletons.decidable false in
+      split)
       · simp [tmod_eq_zero_of_dvd, *]
       · norm_cast
         rw [tmod_eq_emod_of_nonneg (by omega)]
@@ -1897,7 +1905,8 @@ theorem add_one_tdiv_of_pos {a b : Int} (h : 0 < b) :
   | .ofNat (b + 2), h =>
     simp only [ofNat_eq_natCast]
     rw [tdiv_eq_ediv, add_ediv (by omega), tdiv_eq_ediv]
-    simp only [Int.natCast_add, cast_ofNat_Int]
+    (set_option backward.instanceTypes.subsingletons.decidable false in
+    simp only [Int.natCast_add, cast_ofNat_Int])
     have : 1 / (b + 2 : Int) = 0 := by rw [one_ediv]; omega
     rw [this]
     have one_mod : 1 % (b + 2 : Int) = 1 := emod_eq_of_lt (by omega) (by omega)

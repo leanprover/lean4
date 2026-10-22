@@ -460,15 +460,18 @@ theorem bind_guard (x : Option α) (p : α → Bool) :
     cases h : f a with
     | none => simp
     | some b =>
-      simp only [any_some, filter_some]
-      split <;> simp [h]
+      (set_option backward.instanceTypes.subsingletons.decidable false in
+      simp only [any_some, filter_some])
+      (set_option backward.instanceTypes.subsingletons.decidable false in
+      split) <;> simp [h]
 
 theorem eq_some_of_filter_eq_some {o : Option α} {a : α} (h : o.filter p = some a) : o = some a :=
   filter_eq_some_iff.1 h |>.1
 
 @[grind =] theorem filter_map {f : α → β} {p : β → Bool} :
     (Option.map f x).filter p = (x.filter (p ∘ f)).map f := by
-  cases x <;> simp [filter_some]
+  cases x <;> (set_option backward.instanceTypes.subsingletons.decidable false in
+    simp [filter_some])
 
 @[simp] theorem all_guard (a : α) :
     Option.all q (guard p a) = (!p a || q a) := by
@@ -665,8 +668,10 @@ theorem map_guard {p : α → Bool} {f : α → β} {x : α} :
     simp only [join_some, filter_some]
     split <;> simp
   | some (some a) => by
-    simp only [join_some, filter_some, any_some]
-    split <;> simp
+    (set_option backward.instanceTypes.subsingletons.decidable false in
+    simp only [join_some, filter_some, any_some])
+    (set_option backward.instanceTypes.subsingletons.decidable false in
+    split) <;> simp
 
 theorem merge_eq_or_eq {f : α → α → α} (h : ∀ a b, f a b = a ∨ f a b = b) :
     ∀ o₁ o₂, merge f o₁ o₂ = o₁ ∨ merge f o₁ o₂ = o₂
@@ -1436,8 +1441,10 @@ theorem pfilter_eq_pbind_ite {α : Type _} {o : Option α}
     cases o' with
     | none => simp
     | some a =>
-      simp only [join_some, pfilter_some, pelim_some]
-      split <;> simp
+      (set_option backward.instanceTypes.subsingletons.decidable false in
+      simp only [join_some, pfilter_some, pelim_some])
+      (set_option backward.instanceTypes.subsingletons.decidable false in
+      split) <;> simp
 
 @[grind =] theorem join_pfilter {o : Option (Option α)} {p : (o' : Option α) → o = some o' → Bool} :
     (o.pfilter p).join = o.pbind (fun o' ho' => if p o' ho' then o' else none) := by

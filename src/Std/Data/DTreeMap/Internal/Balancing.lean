@@ -547,7 +547,8 @@ theorem balance!_eq_balanceₘ {k v} {l r : Impl α β} (hlb : l.Balanced) (hrb 
       simp only [rotateL, Std.Internal.tree_tac, ite_self]
       omega
   next l r =>
-    simp only  [Std.Internal.tree_tac, rotateL] at *
+    (set_option backward.instanceTypes.subsingletons.decidable false in
+    simp only  [Std.Internal.tree_tac, rotateL] at *)
     suffices h : l.size = 0 ∧ r.size = 0 by
       simp only [h.1, h.2, reduceDIte, Nat.not_lt_zero]
       cases l <;> cases r <;> simp_all [Std.Internal.tree_tac]
@@ -574,8 +575,10 @@ theorem balance!_eq_balanceₘ {k v} {l r : Impl α β} (hlb : l.Balanced) (hrb 
     omega
   · simp_all only [Std.Internal.tree_tac]
     rw [ite_eq_right (by omega)]
-    simp only [Std.Internal.tree_tac, rotateR]
-    rw [ite_eq_left (by omega), dite_eq_right (by omega), dite_eq_left (by omega)]
+    (set_option backward.instanceTypes.subsingletons.decidable false in
+    simp only [Std.Internal.tree_tac, rotateR])
+    (set_option backward.instanceTypes.subsingletons.decidable false in
+    rw [ite_eq_left (by omega), dite_eq_right (by omega), dite_eq_left (by omega)])
     simp only [inner.injEq, heq_eq_eq, and_self, and_true, true_and]
     omega
   · simp_all only [Std.Internal.tree_tac]

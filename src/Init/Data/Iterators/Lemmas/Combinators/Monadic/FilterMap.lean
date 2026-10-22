@@ -700,7 +700,8 @@ theorem IterM.toList_map {α β β' : Type w} {m : Type w → Type w'} [Monad m]
   simp only [map, mapWithPostcondition, InternalCombinators.map, filterMap,
     filterMapWithPostcondition, InternalCombinators.filterMap]
   unfold Map
-  congr
+  (set_option backward.isDefEq.respectTransparency.instanceTypes false in
+  congr)
   · simp
   · rw [Map.instIterator_eq_filterMapInstIterator]
     congr

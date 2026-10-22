@@ -35,7 +35,8 @@ public def maxOn [i : LE β] [DecidableLE β] (f : α → β) (x y : α) :=
 
 public theorem minOn_id [Min α] [LE α] [DecidableLE α] [LawfulOrderLeftLeaningMin α] {x y : α} :
     minOn id x y = min x y := by
-  simp [minOn, min_eq_ite]
+  (set_option backward.instanceTypes.subsingletons.decidable false in
+  simp [minOn, min_eq_ite])
 
 public theorem maxOn_id [Max α] [LE α] [DecidableLE α] [LawfulOrderLeftLeaningMax α] {x y : α} :
     maxOn id x y = max x y := by
@@ -96,7 +97,8 @@ public theorem le_apply_minOn_iff [LE β] [DecidableLE β] [IsLinearPreorder β]
 public theorem minOn_assoc [LE β] [DecidableLE β] [IsLinearPreorder β] {f : α → β}
     {x y z : α} : minOn f (minOn f x y) z = minOn f x (minOn f y z) := by
   open scoped Classical.Order in
-  simp only [minOn]
+  (set_option backward.instanceTypes.subsingletons.decidable false in
+  simp only [minOn])
   split
   · split
     · split

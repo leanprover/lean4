@@ -102,14 +102,16 @@ set_option backward.isDefEq.respectTransparency false in
 theorem boole_getElem_le_countP {p : α → Bool} {xs : Vector α n} (h : i < n) :
     (if p xs[i] then 1 else 0) ≤ xs.countP p := by
   rcases xs with ⟨xs, rfl⟩
-  simp [Array.boole_getElem_le_countP]
+  (set_option backward.instanceTypes.subsingletons.decidable false in
+  simp [Array.boole_getElem_le_countP])
 
 set_option backward.isDefEq.respectTransparency false in
 @[grind =]
 theorem countP_set {p : α → Bool} {xs : Vector α n} {a : α} (h : i < n) :
     (xs.set i a).countP p = xs.countP p - (if p xs[i] then 1 else 0) + (if p a then 1 else 0) := by
   rcases xs with ⟨xs, rfl⟩
-  simp [Array.countP_set]
+  (set_option backward.instanceTypes.subsingletons.decidable false in
+  simp [Array.countP_set])
 
 @[simp] theorem countP_true : (countP fun (_ : α) => true) = (fun (_ : Vector α n) => n) := by
   funext xs
@@ -196,7 +198,8 @@ set_option backward.isDefEq.respectTransparency false in
 theorem boole_getElem_le_count {a : α} {xs : Vector α n} (h : i < n) :
     (if xs[i] == a then 1 else 0) ≤ xs.count a := by
   rcases xs with ⟨xs, rfl⟩
-  simp [Array.boole_getElem_le_count]
+  (set_option backward.instanceTypes.subsingletons.decidable false in
+  simp [Array.boole_getElem_le_count])
 
 theorem count_set {a b : α} {xs : Vector α n} (h : i < n) :
     (xs.set i a).count b = xs.count b - (if xs[i] == b then 1 else 0) + (if a == b then 1 else 0) := by

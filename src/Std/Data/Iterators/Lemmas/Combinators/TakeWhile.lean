@@ -66,9 +66,11 @@ theorem Iter.atIdxSlow?_takeWhile {α β}
     rw [atIdxSlow?_eq_match]
     simp only [val_step_takeWhile, h', Nat.le_zero_eq, forall_eq]
     rw [atIdxSlow?_eq_match, h']
-    simp only [Option.any_some]
+    (set_option backward.instanceTypes.subsingletons.decidable false in
+    simp only [Option.any_some])
     apply Eq.symm
-    split
+    (set_option backward.instanceTypes.subsingletons.decidable false in
+    split)
     · cases h' : P out
       · exfalso; simp_all
       · simp

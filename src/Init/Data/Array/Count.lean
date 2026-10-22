@@ -123,7 +123,8 @@ set_option backward.isDefEq.respectTransparency false in
 theorem boole_getElem_le_countP {xs : Array α} {i : Nat} (h : i < xs.size) :
     (if p xs[i] then 1 else 0) ≤ xs.countP p := by
   rcases xs with ⟨xs⟩
-  simp [List.boole_getElem_le_countP]
+  (set_option backward.instanceTypes.subsingletons.decidable false in
+  simp [List.boole_getElem_le_countP])
 
 set_option backward.isDefEq.respectTransparency false in
 @[grind =]
@@ -131,7 +132,8 @@ theorem countP_set {xs : Array α} {i : Nat} {a : α} (h : i < xs.size) :
     (xs.set i a).countP p = xs.countP p - (if p xs[i] then 1 else 0) + (if p a then 1 else 0) := by
   rcases xs with ⟨xs⟩
   simp at h
-  simp [List.countP_set, h]
+  (set_option backward.instanceTypes.subsingletons.decidable false in
+  simp [List.countP_set, h])
 
 theorem countP_filter {xs : Array α} :
     countP p (filter q xs) = countP (fun a => p a && q a) xs := by

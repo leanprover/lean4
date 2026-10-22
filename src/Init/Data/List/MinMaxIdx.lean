@@ -372,7 +372,8 @@ private theorem combineMinIdxOn_assoc [LE β] [DecidableLE β] [IsLinearPreorder
       (combineMinIdxOn_lt' f xys hi hj h) hk = combineMinIdxOn f i (combineMinIdxOn f j k _ _) hi (combineMinIdxOn_lt f hj hk) := by
   cases h
   open scoped Classical.Order in
-  simp only [combineMinIdxOn]
+  (set_option backward.instanceTypes.subsingletons.decidable false in
+  simp only [combineMinIdxOn])
   split
   · rw [getElem_append_left (by omega)]
     split

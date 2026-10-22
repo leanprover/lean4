@@ -731,6 +731,8 @@ private def parseOffset (withMinutes : Reason) (withSeconds : Reason) (withColon
 
   return Offset.ofSeconds ⟨hours.val * sign⟩
 
+-- TimeFormat is responsible for this one
+set_option backward.isDefEq.respectTransparency.instanceTypes false in
 private def parseWith (config : FormatConfig) : (mod : Modifier) → Parser (TypeFormat mod)
   | .G format =>
     match format with

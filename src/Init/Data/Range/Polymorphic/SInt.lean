@@ -172,7 +172,8 @@ theorem succMany?_eq {α : Type u} [UpwardEnumerable α] [LE α] [LT α]
   have h : ∀ a b c d : Int, a - b + c ≤ d - b ↔ a + c ≤ d := by omega
   simp [UpwardEnumerable.succMany?, BitVec.ofNatLT_eq_ofNat]
   simp [toInt_eq_ofNat_toNat_rotate_sub hn, rotate_intMaxSealed, h]
-  simp only [← Int.natCast_add]
+  (set_option backward.instanceTypes.subsingletons.decidable false in
+  simp only [← Int.natCast_add])
   congr
   · rw [Nat.lt_iff_add_one_le, Int.ofNat_le, Nat.le_sub_iff_add_le]
     exact Nat.pow_pos (Nat.zero_lt_succ _)

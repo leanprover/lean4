@@ -407,8 +407,6 @@ private def isExampleCloseFence (line : String.Slice) : Bool :=
 /-- Returns `some` with an explanation if the test should be skipped -/
 def skip? (md : String) : Option String :=
   if hasHtml md then some "HTML"
-  else if (md.find? "ΑΓΩ").isSome && (md.find? "αγω").isSome then some "Unicode case-folding"
-  else if (md.find? "ẞ").isSome && (md.find? "SS").isSome then some "Unicode case-folding"
   else if hasUnicodeFlanking md then some "Unicode flanking"
   else none
 

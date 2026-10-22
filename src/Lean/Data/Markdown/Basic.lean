@@ -12,6 +12,7 @@ public import Init.Data.String.Subslice
 public import Init.Data.String.Lemmas.Order
 import Init.Data.String.OrderInstances
 import Init.Data.String.Iterate
+import Lean.Data.Markdown.CaseFolding
 public import Init.Data.String.FindPos
 
 namespace Lean.Markdown
@@ -425,12 +426,9 @@ deriving BEq, Hashable, Repr
 Normalizes a CommonMark link label (§6.3). `lines` are the label's source lines without their line
 endings, as `InlineSource.linesBetween` produces them, and each boundary between two lines counts as
 whitespace. Then:
- * Each character is ASCII-lowercased (with `Char.toLower`).
+ * Each character is case folded with `caseFold`, which covers ASCII, Latin-1, and Greek.
  * Internal sequences of whitespace become single spaces.
  * Leading and trailing whitespace is removed.
-
-While CommonMark specifies Unicode case folding, this implementation case-folds only ASCII English
-letters.
 -/
 public def normalizeLabel (lines : Array s.Subslice) : LinkLabel := Id.run do
   let mut out := ""
@@ -445,7 +443,7 @@ public def normalizeLabel (lines : Array s.Subslice) : LinkLabel := Id.run do
         sawWs := true
       else
         if sawNonWs && sawWs then out := out.push ' '
-        out := out.push c.toLower
+        out := out ++ caseFold c
         sawWs := false
         sawNonWs := true
     sawWs := true

@@ -174,6 +174,16 @@ def referenceTargets (src : String) : List (String × Option String) :=
 /-- info: [("/u", none), ("v", some "t")] -/
 #guard_msgs in #eval referenceTargets "[a][r] [b]\n\n[r]: /u\n[b]: <v> 't'"
 
+-- Labels are case folded for Latin-1 and Greek letters, including `ß` to `ss`, final sigma to sigma,
+-- and the micro sign to `μ`.
+/-- info: [("/1", none), ("/2", none), ("/3", none), ("/4", none), ("/5", none)] -/
+#guard_msgs in #eval referenceTargets
+  "[É][] [Straße] [ΑΓΩ] [ς] [µ]\n\n[é]: /1\n[STRASSE]: /2\n[αγω]: /3\n[Σ]: /4\n[Μ]: /5"
+
+-- Letters outside the covered blocks are compared as written.
+/-- info: [] -/
+#guard_msgs in #eval referenceTargets "[Я]\n\n[я]: /u"
+
 /-!
 ## Content that continues onto the next line
 

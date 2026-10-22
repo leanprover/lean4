@@ -1,5 +1,5 @@
-Skipped: 100/655 (15%)
-Overall: 555/555 (100%)
+Skipped: 98/655 (14%)
+Overall: 557/557 (100%)
 
 Per section:
   ATX headings:
@@ -48,15 +48,13 @@ Per section:
     Skip:
       HTML: 1
   Link reference definitions:
-    Pass: 24/24 (100%)
+    Pass: 25/25 (100%)
     Skip:
       HTML: 2
-      Unicode case-folding: 1
   Links:
-    Pass: 81/81 (100%)
+    Pass: 82/82 (100%)
     Skip:
       HTML: 8
-      Unicode case-folding: 1
   List items:
     Pass: 48/48 (100%)
   Lists:

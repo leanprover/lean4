@@ -6,6 +6,7 @@ Authors: David Thrane Christiansen
 module
 
 prelude
+public import Lean.Data.Markdown.CaseFolding
 public import Lean.Data.Markdown.Basic
 public import Lean.Data.Markdown.Text
 public import Lean.Data.Markdown.Parser
@@ -19,6 +20,6 @@ it to provide semantic tokens inside Markdown docstrings. The entry point is
 
 The implementation follows CommonMark 0.31.2 closely with a small set of deviations:
 * HTML blocks and inline HTML are not parsed.
-* Link labels are compared case-insensitively only for the English letters A-Z, and case-sensitively
+* Link labels are case folded for ASCII, Latin-1, and Greek letters, and compared case-sensitively
   for all other characters.
 -/

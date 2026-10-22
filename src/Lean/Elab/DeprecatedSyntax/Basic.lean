@@ -10,8 +10,7 @@ public import Lean.MonadEnv
 public import Lean.Linter.Init
 public import Lean.Elab.Util
 import Lean.Meta.Hint
-import Lean.PrettyPrinter.Formatter
-import Lean.PrettyPrinter.Parenthesizer
+import Lean.Elab.DeprecatedSyntax.FormatReplacement
 
 public section
 
@@ -67,94 +66,6 @@ private unsafe def evalReplacementUnsafe (declName : Name) : CoreM Macro :=
 @[implemented_by evalReplacementUnsafe]
 private opaque evalReplacement (declName : Name) : CoreM Macro
 
-/-!
-A replacement term or tactic is parenthesized unless it parses the same wherever the deprecated
-syntax does, as the position of the deprecated syntax is unknown.
-
-We would like to use the parenthesizer here, but this would need the surrounding syntax, which
-we don't have access to, so we approximate it as best as we can.
--/
-section ParenthesizeReplacement
-
-open PrettyPrinter Parenthesizer in
-/--
-Returns the precedences of `stx` in category `cat`: the minimum precedence of the parsers producing
-`stx`, and the minimum precedence and the category of the nested parser calls that end where `stx`
-ends, if any.
--/
-private def syntaxPrecedences (cat : Name) (stx : Syntax) : CoreM (Option Nat × Option Nat × Name) := do
-  let (_, st) ← (parenthesizeCategoryCore cat 0 {}).run { stxTrav := .fromSyntax stx }
-  return (st.minPrec, st.trailPrec, st.trailCat)
-
-/--
-Whether `newStx` binds at least as tightly as `stx` on both sides in category `cat`, so that it
-parses the same in any position where `stx` parses.
--/
-private def bindsAsTightly (cat : Name) (stx newStx : Syntax) : CoreM Bool := do
-  let (minPrec, trailPrec, trailCat) ← syntaxPrecedences cat stx
-  let (newMinPrec, newTrailPrec, newTrailCat) ← syntaxPrecedences cat newStx
-  -- Syntax after `stx` was not absorbed by its right end, so it has precedence below `trailPrec`
-  let bindsRight := match newTrailPrec, trailPrec with
-    | none, _ => true
-    | some newTrailPrec, some trailPrec => newTrailCat == trailCat && newTrailPrec ≥ trailPrec
-    | some _, none => false
-  return newMinPrec.getD 0 ≥ minPrec.getD Parser.maxPrec && bindsRight
-
-/--
-Wraps the term or tactic `newStx` in parentheses unless it binds at least as tightly as `stx`.
-Other categories are left unchanged.
--/
-private def parenthesizeReplacement (cat : Name) (stx newStx : Syntax) : CoreM Syntax := do
-  unless cat == `term || cat == `tactic do
-    return newStx
-  if (← try bindsAsTightly cat stx newStx catch _ => pure false) then
-    return newStx
-  if cat == `term then
-    `(($(⟨newStx⟩)))
-  else
-    `(tactic| ($(⟨newStx⟩):tactic))
-
-end ParenthesizeReplacement
-
-open PrettyPrinter.Formatter in
-/-- Checks the adjacent whitespace-delimited text using the formatter's token separation rule. -/
-private def needsSpaceBetween (left right : String.Slice) : CoreM Bool := do
-  let mut left := left.takeEndWhile (!·.isWhitespace) |>.copy
-  let right := right.takeWhile (!·.isWhitespace) |>.copy
-  if left.isEmpty || right.isEmpty then return false
-  let table := Parser.getTokenTable (← getEnv)
-  -- The left word may contain several tokens, e.g. `(-`.
-  while !left.isEmpty do
-    let parsed ← parseTokenCore left table
-    if parsed.hasError || parsed.pos == 0 then
-      -- The window can start inside a comment, string, or escaped identifier.
-      left := (left.drop 1).copy
-      continue
-    if parsed.pos == left.rawEndPos then
-      let rightParsed ← parseTokenCore right table
-      let rightIdent := !rightParsed.hasError && rightParsed.stxStack.back.isIdent
-      return ← needsTokenSeparator left right parsed.stxStack.back.isIdent rightIdent table
-    left := (left.sliceFrom (left.pos! parsed.pos)).copy
-  return false
-
-private def formatReplacement (cat : Name) (stx newStx : Syntax) (range : Syntax.Range) :
-    CoreM String := do
-  let map ← getFileMap
-  let (indent, column) := Meta.Tactic.TryThis.getIndentAndColumn map range
-  let suggestion : Meta.Tactic.TryThis.SuggestionText := .tsyntax (kind := cat) ⟨newStx⟩
-  let mut text ← suggestion.prettyExtra (indent := indent) (column := column)
-  if ← needsSpaceBetween (map.source.sliceTo (map.source.pos! range.start)) text.toSlice then
-    text := " " ++ text
-  -- The trailing trivia of `stx` stays in place and separates the replacement from the next token
-  if stx.getTrailingSize > 0 then
-    return text
-  let suffix := map.source.sliceFrom (map.source.pos! range.stop)
-  -- Qualified identifiers also represent field notation, which requires adjacency to `.`.
-  unless cat == `term && newStx.isIdent && suffix.startsWith "." do
-    if ← needsSpaceBetween text.toSlice suffix then
-      text := text ++ " "
-  return text
-
 /--
 Creates a hint offering to replace `stx` by the output of the replacement registered for its kind.
 Returns the empty message if there is no replacement or it fails.
@@ -177,10 +88,7 @@ private def mkReplacementHint (stx : Syntax) : CoreM MessageData := do
       -- The trailing trivia of `stx` is not replaced, so it must not be printed in the replacement
       let newStx :=
         (← withRef stx <| liftMacroM <| replacement stx.unsetTrailing).eraseQuoteMacroScopes
-      -- This is a heuristic to minimize cases where the replacement syntax parses in unexpected
-      -- ways. It does not try to catch all such cases.
-      let newStx ← parenthesizeReplacement cat stx newStx
-      let text ← formatReplacement cat stx newStx range
+      let text ← DeprecatedSyntax.formatReplacement cat stx newStx range
       MessageData.hint "Replace the deprecated syntax:"
         #[{ suggestion := text }] (ref? := stx))
     fun _ => return .nil

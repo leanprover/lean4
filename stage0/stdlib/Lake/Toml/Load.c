@@ -302,7 +302,7 @@ static uint16_t _init_l_Lake_Toml_loadToml___closed__22(void){
 _start:
 {
 uint16_t v___x_68_; uint16_t v___x_69_; uint16_t v___x_70_; 
-v___x_68_ = 512;
+v___x_68_ = 1024;
 v___x_69_ = lean_uint16_once(&l_Lake_Toml_loadToml___closed__6, &l_Lake_Toml_loadToml___closed__6_once, _init_l_Lake_Toml_loadToml___closed__6);
 v___x_70_ = lean_uint16_land(v___x_69_, v___x_68_);
 return v___x_70_;

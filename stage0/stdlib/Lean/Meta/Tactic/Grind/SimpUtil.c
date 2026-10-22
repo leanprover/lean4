@@ -6827,8 +6827,8 @@ lean_object* v_a_2198_; uint8_t v_zetaDelta_2199_; uint8_t v_zeta_2200_; lean_ob
 v_a_2198_ = lean_ctor_get(v___x_2197_, 0);
 lean_inc(v_a_2198_);
 lean_dec_ref_known(v___x_2197_, 1);
-v_zetaDelta_2199_ = lean_ctor_get_uint8(v_config_2189_, sizeof(void*)*14 + 19);
-v_zeta_2200_ = lean_ctor_get_uint8(v_config_2189_, sizeof(void*)*14 + 20);
+v_zetaDelta_2199_ = lean_ctor_get_uint8(v_config_2189_, sizeof(void*)*15 + 19);
+v_zeta_2200_ = lean_ctor_get_uint8(v_config_2189_, sizeof(void*)*15 + 20);
 v___x_2201_ = lean_unsigned_to_nat(100000u);
 v___x_2202_ = lean_unsigned_to_nat(2u);
 v___x_2203_ = 0;

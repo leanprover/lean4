@@ -5239,7 +5239,7 @@ lean_object* v___x_1610_; lean_object* v___x_1611_; lean_object* v___x_1612_; le
 v___x_1610_ = l_Lean_instInhabitedSynthNormMemoSlot_default;
 v___x_1611_ = lean_obj_once(&l_Lean_mkUnknownIdentifierMessageCore___at___00Lean_mkUnknownIdentifierMessage___at___00Lean_throwUnknownIdentifierAt___at___00Lean_throwUnknownConstantAt___at___00Lean_throwUnknownConstant___at___00Lean_getConstInfo___at___00Lean_Meta_Sym_Simp_mkTheoremFromDecl_spec__0_spec__0_spec__1_spec__2_spec__3_spec__4___redArg___closed__0, &l_Lean_mkUnknownIdentifierMessageCore___at___00Lean_mkUnknownIdentifierMessage___at___00Lean_throwUnknownIdentifierAt___at___00Lean_throwUnknownConstantAt___at___00Lean_throwUnknownConstant___at___00Lean_getConstInfo___at___00Lean_Meta_Sym_Simp_mkTheoremFromDecl_spec__0_spec__0_spec__1_spec__2_spec__3_spec__4___redArg___closed__0_once, _init_l_Lean_mkUnknownIdentifierMessageCore___at___00Lean_mkUnknownIdentifierMessage___at___00Lean_throwUnknownIdentifierAt___at___00Lean_throwUnknownConstantAt___at___00Lean_throwUnknownConstant___at___00Lean_getConstInfo___at___00Lean_Meta_Sym_Simp_mkTheoremFromDecl_spec__0_spec__0_spec__1_spec__2_spec__3_spec__4___redArg___closed__0);
 v___x_1612_ = lean_unsigned_to_nat(0u);
-v___x_1613_ = lean_alloc_ctor(0, 12, 0);
+v___x_1613_ = lean_alloc_ctor(0, 11, 0);
 lean_ctor_set(v___x_1613_, 0, v___x_1612_);
 lean_ctor_set(v___x_1613_, 1, v___x_1612_);
 lean_ctor_set(v___x_1613_, 2, v___x_1612_);
@@ -5250,8 +5250,7 @@ lean_ctor_set(v___x_1613_, 6, v___x_1611_);
 lean_ctor_set(v___x_1613_, 7, v___x_1611_);
 lean_ctor_set(v___x_1613_, 8, v___x_1611_);
 lean_ctor_set(v___x_1613_, 9, v___x_1611_);
-lean_ctor_set(v___x_1613_, 10, v___x_1611_);
-lean_ctor_set(v___x_1613_, 11, v___x_1610_);
+lean_ctor_set(v___x_1613_, 10, v___x_1610_);
 return v___x_1613_;
 }
 }
@@ -9365,10 +9364,10 @@ return v___x_3027_;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_containsAux___at___00Lean_PersistentHashMap_contains___at___00__private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Meta_Sym_Simp_getSymSimpExtension_x3f_spec__1_spec__2_spec__3_spec__4___redArg___boxed(lean_object* v_x_3028_, lean_object* v_x_3029_, lean_object* v_x_3030_){
 _start:
 {
-size_t v_x_3994__boxed_3031_; uint8_t v_res_3032_; lean_object* v_r_3033_; 
-v_x_3994__boxed_3031_ = lean_unbox_usize(v_x_3029_);
+size_t v_x_3975__boxed_3031_; uint8_t v_res_3032_; lean_object* v_r_3033_; 
+v_x_3975__boxed_3031_ = lean_unbox_usize(v_x_3029_);
 lean_dec(v_x_3029_);
-v_res_3032_ = l_Lean_PersistentHashMap_containsAux___at___00Lean_PersistentHashMap_contains___at___00__private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Meta_Sym_Simp_getSymSimpExtension_x3f_spec__1_spec__2_spec__3_spec__4___redArg(v_x_3028_, v_x_3994__boxed_3031_, v_x_3030_);
+v_res_3032_ = l_Lean_PersistentHashMap_containsAux___at___00Lean_PersistentHashMap_contains___at___00__private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Meta_Sym_Simp_getSymSimpExtension_x3f_spec__1_spec__2_spec__3_spec__4___redArg(v_x_3028_, v_x_3975__boxed_3031_, v_x_3030_);
 lean_dec_ref(v_x_3030_);
 lean_dec_ref(v_x_3028_);
 v_r_3033_ = lean_box(v_res_3032_);
@@ -9902,15 +9901,15 @@ if (v_logWrites_3211_ == 0)
 lean_object* v___x_3213_; 
 lean_inc_ref(v_toEnvExtension_3200_);
 v___x_3213_ = l___private_Lean_Environment_0__Lean_EnvExtension_modifyStateCore(lean_box(0), v_toEnvExtension_3200_, v_env_3201_, v___f_3195_, v_asyncMode_3210_, v___x_3188_, v___x_3196_);
-v___y_3164_ = v_recordedDeps_3206_;
-v___y_3165_ = v_snapshotTasks_3209_;
-v___y_3166_ = v_auxDeclNGen_3204_;
-v___y_3167_ = v_nextMacroScope_3202_;
-v___y_3168_ = v_traceState_3205_;
-v___y_3169_ = v_infoState_3208_;
+v___y_3164_ = v_traceState_3205_;
+v___y_3165_ = v_nextMacroScope_3202_;
+v___y_3166_ = v_snapshotTasks_3209_;
+v___y_3167_ = v_recordedDeps_3206_;
+v___y_3168_ = v_ngen_3203_;
+v___y_3169_ = v_messages_3207_;
 v___y_3170_ = v___y_3198_;
-v___y_3171_ = v_messages_3207_;
-v___y_3172_ = v_ngen_3203_;
+v___y_3171_ = v_infoState_3208_;
+v___y_3172_ = v_auxDeclNGen_3204_;
 v___y_3173_ = v___x_3212_;
 v___y_3174_ = v___x_3213_;
 goto v___jp_3163_;
@@ -9922,15 +9921,15 @@ lean_inc_ref_n(v_toEnvExtension_3200_, 2);
 v___x_3214_ = l___private_Lean_Environment_0__Lean_EnvExtension_panicUnloggedWrite(lean_box(0), v_toEnvExtension_3200_, v_env_3201_);
 lean_dec_ref(v_env_3201_);
 v___x_3215_ = l___private_Lean_Environment_0__Lean_EnvExtension_modifyStateCore(lean_box(0), v_toEnvExtension_3200_, v___x_3214_, v___f_3195_, v_asyncMode_3210_, v___x_3188_, v___x_3196_);
-v___y_3164_ = v_recordedDeps_3206_;
-v___y_3165_ = v_snapshotTasks_3209_;
-v___y_3166_ = v_auxDeclNGen_3204_;
-v___y_3167_ = v_nextMacroScope_3202_;
-v___y_3168_ = v_traceState_3205_;
-v___y_3169_ = v_infoState_3208_;
+v___y_3164_ = v_traceState_3205_;
+v___y_3165_ = v_nextMacroScope_3202_;
+v___y_3166_ = v_snapshotTasks_3209_;
+v___y_3167_ = v_recordedDeps_3206_;
+v___y_3168_ = v_ngen_3203_;
+v___y_3169_ = v_messages_3207_;
 v___y_3170_ = v___y_3198_;
-v___y_3171_ = v_messages_3207_;
-v___y_3172_ = v_ngen_3203_;
+v___y_3171_ = v_infoState_3208_;
+v___y_3172_ = v_auxDeclNGen_3204_;
 v___y_3173_ = v___x_3212_;
 v___y_3174_ = v___x_3215_;
 goto v___jp_3163_;
@@ -9954,15 +9953,15 @@ lean_object* v___x_3175_; lean_object* v___x_3176_; lean_object* v___x_3177_; le
 v___x_3175_ = lean_obj_once(&l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Meta_Sym_Simp_getSymSimpExtension_x3f_spec__1_spec__2___closed__1, &l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Meta_Sym_Simp_getSymSimpExtension_x3f_spec__1_spec__2___closed__1_once, _init_l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Meta_Sym_Simp_getSymSimpExtension_x3f_spec__1_spec__2___closed__1);
 v___x_3176_ = lean_alloc_ctor(0, 10, 0);
 lean_ctor_set(v___x_3176_, 0, v___y_3174_);
-lean_ctor_set(v___x_3176_, 1, v___y_3167_);
-lean_ctor_set(v___x_3176_, 2, v___y_3172_);
-lean_ctor_set(v___x_3176_, 3, v___y_3166_);
-lean_ctor_set(v___x_3176_, 4, v___y_3168_);
+lean_ctor_set(v___x_3176_, 1, v___y_3165_);
+lean_ctor_set(v___x_3176_, 2, v___y_3168_);
+lean_ctor_set(v___x_3176_, 3, v___y_3172_);
+lean_ctor_set(v___x_3176_, 4, v___y_3164_);
 lean_ctor_set(v___x_3176_, 5, v___x_3175_);
-lean_ctor_set(v___x_3176_, 6, v___y_3164_);
-lean_ctor_set(v___x_3176_, 7, v___y_3171_);
-lean_ctor_set(v___x_3176_, 8, v___y_3169_);
-lean_ctor_set(v___x_3176_, 9, v___y_3165_);
+lean_ctor_set(v___x_3176_, 6, v___y_3167_);
+lean_ctor_set(v___x_3176_, 7, v___y_3169_);
+lean_ctor_set(v___x_3176_, 8, v___y_3171_);
+lean_ctor_set(v___x_3176_, 9, v___y_3166_);
 v___x_3177_ = lean_st_ref_put(v___y_3170_, v___x_3176_);
 v___x_3178_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_3178_, 0, v___y_3173_);
@@ -10534,10 +10533,10 @@ return v___x_3452_;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_containsAux___at___00Lean_PersistentHashMap_contains___at___00__private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Meta_Sym_Simp_getSymSimpExtension_x3f_spec__1_spec__2_spec__3_spec__4___boxed(lean_object* v_00_u03b2_3453_, lean_object* v_x_3454_, lean_object* v_x_3455_, lean_object* v_x_3456_){
 _start:
 {
-size_t v_x_4695__boxed_3457_; uint8_t v_res_3458_; lean_object* v_r_3459_; 
-v_x_4695__boxed_3457_ = lean_unbox_usize(v_x_3455_);
+size_t v_x_4675__boxed_3457_; uint8_t v_res_3458_; lean_object* v_r_3459_; 
+v_x_4675__boxed_3457_ = lean_unbox_usize(v_x_3455_);
 lean_dec(v_x_3455_);
-v_res_3458_ = l_Lean_PersistentHashMap_containsAux___at___00Lean_PersistentHashMap_contains___at___00__private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Meta_Sym_Simp_getSymSimpExtension_x3f_spec__1_spec__2_spec__3_spec__4(v_00_u03b2_3453_, v_x_3454_, v_x_4695__boxed_3457_, v_x_3456_);
+v_res_3458_ = l_Lean_PersistentHashMap_containsAux___at___00Lean_PersistentHashMap_contains___at___00__private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Meta_Sym_Simp_getSymSimpExtension_x3f_spec__1_spec__2_spec__3_spec__4(v_00_u03b2_3453_, v_x_3454_, v_x_4675__boxed_3457_, v_x_3456_);
 lean_dec_ref(v_x_3456_);
 lean_dec_ref(v_x_3454_);
 v_r_3459_ = lean_box(v_res_3458_);

@@ -723,7 +723,7 @@ goto v_resetjp_249_;
 v_resetjp_249_:
 {
 lean_object* v_liaSteps_252_; lean_object* v_steps_253_; lean_object* v_steps_254_; lean_object* v___x_255_; uint8_t v___x_256_; lean_object* v___x_257_; lean_object* v___x_259_; 
-v_liaSteps_252_ = lean_ctor_get(v_a_248_, 8);
+v_liaSteps_252_ = lean_ctor_get(v_a_248_, 9);
 lean_inc(v_liaSteps_252_);
 lean_dec(v_a_248_);
 v_steps_253_ = lean_ctor_get(v_a_245_, 14);

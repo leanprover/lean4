@@ -9578,7 +9578,7 @@ lean_object* v___x_2681_; lean_object* v___x_2682_; lean_object* v___x_2683_; le
 v___x_2681_ = l_Lean_instInhabitedSynthNormMemoSlot_default;
 v___x_2682_ = lean_obj_once(&l_Lean_mkUnknownIdentifierMessageCore___at___00Lean_mkUnknownIdentifierMessage___at___00Lean_throwUnknownIdentifierAt___at___00Lean_throwUnknownConstantAt___at___00Lean_throwUnknownConstant___at___00Lean_getConstInfo___at___00Lean_Meta_Tactic_BVDecide_isPotentialTypeAnalysisType_spec__0_spec__0_spec__1_spec__3_spec__5_spec__6___redArg___closed__1, &l_Lean_mkUnknownIdentifierMessageCore___at___00Lean_mkUnknownIdentifierMessage___at___00Lean_throwUnknownIdentifierAt___at___00Lean_throwUnknownConstantAt___at___00Lean_throwUnknownConstant___at___00Lean_getConstInfo___at___00Lean_Meta_Tactic_BVDecide_isPotentialTypeAnalysisType_spec__0_spec__0_spec__1_spec__3_spec__5_spec__6___redArg___closed__1_once, _init_l_Lean_mkUnknownIdentifierMessageCore___at___00Lean_mkUnknownIdentifierMessage___at___00Lean_throwUnknownIdentifierAt___at___00Lean_throwUnknownConstantAt___at___00Lean_throwUnknownConstant___at___00Lean_getConstInfo___at___00Lean_Meta_Tactic_BVDecide_isPotentialTypeAnalysisType_spec__0_spec__0_spec__1_spec__3_spec__5_spec__6___redArg___closed__1);
 v___x_2683_ = lean_unsigned_to_nat(0u);
-v___x_2684_ = lean_alloc_ctor(0, 12, 0);
+v___x_2684_ = lean_alloc_ctor(0, 11, 0);
 lean_ctor_set(v___x_2684_, 0, v___x_2683_);
 lean_ctor_set(v___x_2684_, 1, v___x_2683_);
 lean_ctor_set(v___x_2684_, 2, v___x_2683_);
@@ -9589,8 +9589,7 @@ lean_ctor_set(v___x_2684_, 6, v___x_2682_);
 lean_ctor_set(v___x_2684_, 7, v___x_2682_);
 lean_ctor_set(v___x_2684_, 8, v___x_2682_);
 lean_ctor_set(v___x_2684_, 9, v___x_2682_);
-lean_ctor_set(v___x_2684_, 10, v___x_2682_);
-lean_ctor_set(v___x_2684_, 11, v___x_2681_);
+lean_ctor_set(v___x_2684_, 10, v___x_2681_);
 return v___x_2684_;
 }
 }
@@ -10438,9 +10437,9 @@ goto _start;
 LEAN_EXPORT lean_object* l_List_allM___at___00Lean_isEnumType___at___00Lean_Meta_Tactic_BVDecide_isPotentialTypeAnalysisType_spec__1_spec__2___boxed(lean_object* v___x_2981_, lean_object* v_x_2982_, lean_object* v___y_2983_, lean_object* v___y_2984_, lean_object* v___y_2985_){
 _start:
 {
-uint8_t v___x_4257__boxed_2986_; lean_object* v_res_2987_; 
-v___x_4257__boxed_2986_ = lean_unbox(v___x_2981_);
-v_res_2987_ = l_List_allM___at___00Lean_isEnumType___at___00Lean_Meta_Tactic_BVDecide_isPotentialTypeAnalysisType_spec__1_spec__2(v___x_4257__boxed_2986_, v_x_2982_, v___y_2983_, v___y_2984_);
+uint8_t v___x_4222__boxed_2986_; lean_object* v_res_2987_; 
+v___x_4222__boxed_2986_ = lean_unbox(v___x_2981_);
+v_res_2987_ = l_List_allM___at___00Lean_isEnumType___at___00Lean_Meta_Tactic_BVDecide_isPotentialTypeAnalysisType_spec__1_spec__2(v___x_4222__boxed_2986_, v_x_2982_, v___y_2983_, v___y_2984_);
 lean_dec(v___y_2984_);
 lean_dec_ref(v___y_2983_);
 return v_res_2987_;

@@ -816,7 +816,7 @@ lean_object* v___x_143_; lean_object* v___x_144_; lean_object* v___x_145_; lean_
 v___x_143_ = l_Lean_instInhabitedSynthNormMemoSlot_default;
 v___x_144_ = lean_obj_once(&l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lean_Elab_checkSimprocType_spec__1_spec__2___closed__1, &l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lean_Elab_checkSimprocType_spec__1_spec__2___closed__1_once, _init_l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lean_Elab_checkSimprocType_spec__1_spec__2___closed__1);
 v___x_145_ = lean_unsigned_to_nat(0u);
-v___x_146_ = lean_alloc_ctor(0, 12, 0);
+v___x_146_ = lean_alloc_ctor(0, 11, 0);
 lean_ctor_set(v___x_146_, 0, v___x_145_);
 lean_ctor_set(v___x_146_, 1, v___x_145_);
 lean_ctor_set(v___x_146_, 2, v___x_145_);
@@ -827,8 +827,7 @@ lean_ctor_set(v___x_146_, 6, v___x_144_);
 lean_ctor_set(v___x_146_, 7, v___x_144_);
 lean_ctor_set(v___x_146_, 8, v___x_144_);
 lean_ctor_set(v___x_146_, 9, v___x_144_);
-lean_ctor_set(v___x_146_, 10, v___x_144_);
-lean_ctor_set(v___x_146_, 11, v___x_143_);
+lean_ctor_set(v___x_146_, 10, v___x_143_);
 return v___x_146_;
 }
 }
@@ -1843,8 +1842,8 @@ goto v___jp_458_;
 }
 else
 {
-lean_dec_ref_known(v_declName_471_, 2);
 lean_dec(v_pre_472_);
+lean_dec_ref_known(v_declName_471_, 2);
 lean_del_object(v___x_456_);
 v___y_459_ = v_a_450_;
 v___y_460_ = v_a_451_;

@@ -1683,7 +1683,7 @@ lean_object* v___x_498_; lean_object* v___x_499_; lean_object* v___x_500_; lean_
 v___x_498_ = l_Lean_instInhabitedSynthNormMemoSlot_default;
 v___x_499_ = lean_obj_once(&l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lean_throwErrorAt___at___00Lean_throwUnknownIdentifierAt___at___00Lean_throwUnknownConstantAt___at___00Lean_throwUnknownConstant___at___00Lean_getConstInfo___at___00Lean_Compiler_LCNF_getOtherDeclBaseType_spec__0_spec__0_spec__1_spec__4_spec__6_spec__8_spec__9___closed__0, &l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lean_throwErrorAt___at___00Lean_throwUnknownIdentifierAt___at___00Lean_throwUnknownConstantAt___at___00Lean_throwUnknownConstant___at___00Lean_getConstInfo___at___00Lean_Compiler_LCNF_getOtherDeclBaseType_spec__0_spec__0_spec__1_spec__4_spec__6_spec__8_spec__9___closed__0_once, _init_l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lean_throwErrorAt___at___00Lean_throwUnknownIdentifierAt___at___00Lean_throwUnknownConstantAt___at___00Lean_throwUnknownConstant___at___00Lean_getConstInfo___at___00Lean_Compiler_LCNF_getOtherDeclBaseType_spec__0_spec__0_spec__1_spec__4_spec__6_spec__8_spec__9___closed__0);
 v___x_500_ = lean_unsigned_to_nat(0u);
-v___x_501_ = lean_alloc_ctor(0, 12, 0);
+v___x_501_ = lean_alloc_ctor(0, 11, 0);
 lean_ctor_set(v___x_501_, 0, v___x_500_);
 lean_ctor_set(v___x_501_, 1, v___x_500_);
 lean_ctor_set(v___x_501_, 2, v___x_500_);
@@ -1694,8 +1694,7 @@ lean_ctor_set(v___x_501_, 6, v___x_499_);
 lean_ctor_set(v___x_501_, 7, v___x_499_);
 lean_ctor_set(v___x_501_, 8, v___x_499_);
 lean_ctor_set(v___x_501_, 9, v___x_499_);
-lean_ctor_set(v___x_501_, 10, v___x_499_);
-lean_ctor_set(v___x_501_, 11, v___x_498_);
+lean_ctor_set(v___x_501_, 10, v___x_498_);
 return v___x_501_;
 }
 }
@@ -2462,7 +2461,7 @@ lean_object* v___x_787_; lean_object* v___x_788_; lean_object* v___x_789_; lean_
 v___x_787_ = l_Lean_instInhabitedSynthNormMemoSlot_default;
 v___x_788_ = lean_obj_once(&l_Lean_Compiler_LCNF_getOtherDeclBaseType___closed__3, &l_Lean_Compiler_LCNF_getOtherDeclBaseType___closed__3_once, _init_l_Lean_Compiler_LCNF_getOtherDeclBaseType___closed__3);
 v___x_789_ = lean_unsigned_to_nat(0u);
-v___x_790_ = lean_alloc_ctor(0, 12, 0);
+v___x_790_ = lean_alloc_ctor(0, 11, 0);
 lean_ctor_set(v___x_790_, 0, v___x_789_);
 lean_ctor_set(v___x_790_, 1, v___x_789_);
 lean_ctor_set(v___x_790_, 2, v___x_789_);
@@ -2473,8 +2472,7 @@ lean_ctor_set(v___x_790_, 6, v___x_788_);
 lean_ctor_set(v___x_790_, 7, v___x_788_);
 lean_ctor_set(v___x_790_, 8, v___x_788_);
 lean_ctor_set(v___x_790_, 9, v___x_788_);
-lean_ctor_set(v___x_790_, 10, v___x_788_);
-lean_ctor_set(v___x_790_, 11, v___x_787_);
+lean_ctor_set(v___x_790_, 10, v___x_787_);
 return v___x_790_;
 }
 }

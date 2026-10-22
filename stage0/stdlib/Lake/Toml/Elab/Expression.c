@@ -670,7 +670,7 @@ lean_object* v___x_125_; lean_object* v___x_126_; lean_object* v___x_127_; lean_
 v___x_125_ = l_Lean_instInhabitedSynthNormMemoSlot_default;
 v___x_126_ = lean_obj_once(&l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lean_throwErrorAt___at___00__private_Lake_Toml_Elab_Expression_0__Lake_Toml_elabSubKeys_spec__0_spec__0_spec__1___closed__1, &l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lean_throwErrorAt___at___00__private_Lake_Toml_Elab_Expression_0__Lake_Toml_elabSubKeys_spec__0_spec__0_spec__1___closed__1_once, _init_l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lean_throwErrorAt___at___00__private_Lake_Toml_Elab_Expression_0__Lake_Toml_elabSubKeys_spec__0_spec__0_spec__1___closed__1);
 v___x_127_ = lean_unsigned_to_nat(0u);
-v___x_128_ = lean_alloc_ctor(0, 12, 0);
+v___x_128_ = lean_alloc_ctor(0, 11, 0);
 lean_ctor_set(v___x_128_, 0, v___x_127_);
 lean_ctor_set(v___x_128_, 1, v___x_127_);
 lean_ctor_set(v___x_128_, 2, v___x_127_);
@@ -681,8 +681,7 @@ lean_ctor_set(v___x_128_, 6, v___x_126_);
 lean_ctor_set(v___x_128_, 7, v___x_126_);
 lean_ctor_set(v___x_128_, 8, v___x_126_);
 lean_ctor_set(v___x_128_, 9, v___x_126_);
-lean_ctor_set(v___x_128_, 10, v___x_126_);
-lean_ctor_set(v___x_128_, 11, v___x_125_);
+lean_ctor_set(v___x_128_, 10, v___x_125_);
 return v___x_128_;
 }
 }

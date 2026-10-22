@@ -363,9 +363,9 @@ return v___x_59_;
 LEAN_EXPORT lean_object* l_Lean_Elab_Command_reproveDecl___lam__0___boxed(lean_object* v___x_73_, lean_object* v___x_74_, lean_object* v___x_75_, lean_object* v_tacticSeq_76_, lean_object* v___y_77_, lean_object* v___y_78_, lean_object* v___y_79_, lean_object* v___y_80_, lean_object* v___y_81_, lean_object* v___y_82_, lean_object* v___y_83_){
 _start:
 {
-uint8_t v___x_2698__boxed_84_; lean_object* v_res_85_; 
-v___x_2698__boxed_84_ = lean_unbox(v___x_74_);
-v_res_85_ = l_Lean_Elab_Command_reproveDecl___lam__0(v___x_73_, v___x_2698__boxed_84_, v___x_75_, v_tacticSeq_76_, v___y_77_, v___y_78_, v___y_79_, v___y_80_, v___y_81_, v___y_82_);
+uint8_t v___x_2679__boxed_84_; lean_object* v_res_85_; 
+v___x_2679__boxed_84_ = lean_unbox(v___x_74_);
+v_res_85_ = l_Lean_Elab_Command_reproveDecl___lam__0(v___x_73_, v___x_2679__boxed_84_, v___x_75_, v_tacticSeq_76_, v___y_77_, v___y_78_, v___y_79_, v___y_80_, v___y_81_, v___y_82_);
 lean_dec(v___y_82_);
 lean_dec_ref(v___y_81_);
 lean_dec(v___y_80_);
@@ -400,7 +400,7 @@ lean_object* v___x_89_; lean_object* v___x_90_; lean_object* v___x_91_; lean_obj
 v___x_89_ = l_Lean_instInhabitedSynthNormMemoSlot_default;
 v___x_90_ = lean_obj_once(&l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lean_Elab_Command_reproveDecl_spec__1_spec__1___redArg___closed__1, &l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lean_Elab_Command_reproveDecl_spec__1_spec__1___redArg___closed__1_once, _init_l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lean_Elab_Command_reproveDecl_spec__1_spec__1___redArg___closed__1);
 v___x_91_ = lean_unsigned_to_nat(0u);
-v___x_92_ = lean_alloc_ctor(0, 12, 0);
+v___x_92_ = lean_alloc_ctor(0, 11, 0);
 lean_ctor_set(v___x_92_, 0, v___x_91_);
 lean_ctor_set(v___x_92_, 1, v___x_91_);
 lean_ctor_set(v___x_92_, 2, v___x_91_);
@@ -411,8 +411,7 @@ lean_ctor_set(v___x_92_, 6, v___x_90_);
 lean_ctor_set(v___x_92_, 7, v___x_90_);
 lean_ctor_set(v___x_92_, 8, v___x_90_);
 lean_ctor_set(v___x_92_, 9, v___x_90_);
-lean_ctor_set(v___x_92_, 10, v___x_90_);
-lean_ctor_set(v___x_92_, 11, v___x_89_);
+lean_ctor_set(v___x_92_, 10, v___x_89_);
 return v___x_92_;
 }
 }

@@ -982,7 +982,7 @@ lean_object* v___x_108_; lean_object* v___x_109_; lean_object* v___x_110_; lean_
 v___x_108_ = l_Lean_instInhabitedSynthNormMemoSlot_default;
 v___x_109_ = lean_obj_once(&l_Lean_mkUnknownIdentifierMessageCore___at___00Lean_mkUnknownIdentifierMessage___at___00Lean_throwUnknownIdentifierAt___at___00Lean_throwUnknownConstantAt___at___00Lean_throwUnknownConstant___at___00Lean_getConstVal___at___00__private_Lean_Meta_Check_0__Lean_Meta_checkConstant_spec__0_spec__0_spec__1_spec__2_spec__3_spec__4___redArg___closed__1, &l_Lean_mkUnknownIdentifierMessageCore___at___00Lean_mkUnknownIdentifierMessage___at___00Lean_throwUnknownIdentifierAt___at___00Lean_throwUnknownConstantAt___at___00Lean_throwUnknownConstant___at___00Lean_getConstVal___at___00__private_Lean_Meta_Check_0__Lean_Meta_checkConstant_spec__0_spec__0_spec__1_spec__2_spec__3_spec__4___redArg___closed__1_once, _init_l_Lean_mkUnknownIdentifierMessageCore___at___00Lean_mkUnknownIdentifierMessage___at___00Lean_throwUnknownIdentifierAt___at___00Lean_throwUnknownConstantAt___at___00Lean_throwUnknownConstant___at___00Lean_getConstVal___at___00__private_Lean_Meta_Check_0__Lean_Meta_checkConstant_spec__0_spec__0_spec__1_spec__2_spec__3_spec__4___redArg___closed__1);
 v___x_110_ = lean_unsigned_to_nat(0u);
-v___x_111_ = lean_alloc_ctor(0, 12, 0);
+v___x_111_ = lean_alloc_ctor(0, 11, 0);
 lean_ctor_set(v___x_111_, 0, v___x_110_);
 lean_ctor_set(v___x_111_, 1, v___x_110_);
 lean_ctor_set(v___x_111_, 2, v___x_110_);
@@ -993,8 +993,7 @@ lean_ctor_set(v___x_111_, 6, v___x_109_);
 lean_ctor_set(v___x_111_, 7, v___x_109_);
 lean_ctor_set(v___x_111_, 8, v___x_109_);
 lean_ctor_set(v___x_111_, 9, v___x_109_);
-lean_ctor_set(v___x_111_, 10, v___x_109_);
-lean_ctor_set(v___x_111_, 11, v___x_108_);
+lean_ctor_set(v___x_111_, 10, v___x_108_);
 return v___x_111_;
 }
 }
@@ -7442,7 +7441,7 @@ lean_inc_ref(v_env_2381_);
 lean_dec(v___x_2357_);
 v___x_2382_ = l_Lean_Kernel_isDiagnosticsEnabled(v_env_2381_);
 lean_dec_ref(v_env_2381_);
-v___x_2383_ = 512;
+v___x_2383_ = 1024;
 v___x_2384_ = lean_uint16_land(v___x_2332_, v___x_2383_);
 v___x_2385_ = 0;
 v___x_2386_ = lean_uint16_dec_eq(v___x_2384_, v___x_2385_);

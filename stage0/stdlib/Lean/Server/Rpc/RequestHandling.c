@@ -4096,7 +4096,7 @@ lean_object* v___x_1421_; lean_object* v___x_1422_; lean_object* v___x_1423_; le
 v___x_1421_ = l_Lean_instInhabitedSynthNormMemoSlot_default;
 v___x_1422_ = lean_obj_once(&l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lean_Server_registerRpcProcedure_spec__3_spec__3___closed__0, &l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lean_Server_registerRpcProcedure_spec__3_spec__3___closed__0_once, _init_l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lean_Server_registerRpcProcedure_spec__3_spec__3___closed__0);
 v___x_1423_ = lean_unsigned_to_nat(0u);
-v___x_1424_ = lean_alloc_ctor(0, 12, 0);
+v___x_1424_ = lean_alloc_ctor(0, 11, 0);
 lean_ctor_set(v___x_1424_, 0, v___x_1423_);
 lean_ctor_set(v___x_1424_, 1, v___x_1423_);
 lean_ctor_set(v___x_1424_, 2, v___x_1423_);
@@ -4107,8 +4107,7 @@ lean_ctor_set(v___x_1424_, 6, v___x_1422_);
 lean_ctor_set(v___x_1424_, 7, v___x_1422_);
 lean_ctor_set(v___x_1424_, 8, v___x_1422_);
 lean_ctor_set(v___x_1424_, 9, v___x_1422_);
-lean_ctor_set(v___x_1424_, 10, v___x_1422_);
-lean_ctor_set(v___x_1424_, 11, v___x_1421_);
+lean_ctor_set(v___x_1424_, 10, v___x_1421_);
 return v___x_1424_;
 }
 }
@@ -4343,7 +4342,7 @@ lean_object* v___x_1524_; lean_object* v___x_1525_; lean_object* v___x_1526_; le
 v___x_1524_ = l_Lean_instInhabitedSynthNormMemoSlot_default;
 v___x_1525_ = lean_obj_once(&l_Lean_Server_registerRpcProcedure___closed__10, &l_Lean_Server_registerRpcProcedure___closed__10_once, _init_l_Lean_Server_registerRpcProcedure___closed__10);
 v___x_1526_ = lean_unsigned_to_nat(0u);
-v___x_1527_ = lean_alloc_ctor(0, 12, 0);
+v___x_1527_ = lean_alloc_ctor(0, 11, 0);
 lean_ctor_set(v___x_1527_, 0, v___x_1526_);
 lean_ctor_set(v___x_1527_, 1, v___x_1526_);
 lean_ctor_set(v___x_1527_, 2, v___x_1526_);
@@ -4354,8 +4353,7 @@ lean_ctor_set(v___x_1527_, 6, v___x_1525_);
 lean_ctor_set(v___x_1527_, 7, v___x_1525_);
 lean_ctor_set(v___x_1527_, 8, v___x_1525_);
 lean_ctor_set(v___x_1527_, 9, v___x_1525_);
-lean_ctor_set(v___x_1527_, 10, v___x_1525_);
-lean_ctor_set(v___x_1527_, 11, v___x_1524_);
+lean_ctor_set(v___x_1527_, 10, v___x_1524_);
 return v___x_1527_;
 }
 }

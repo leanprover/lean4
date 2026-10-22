@@ -1726,7 +1726,7 @@ lean_object* v___x_573_; lean_object* v___x_574_; lean_object* v___x_575_; lean_
 v___x_573_ = l_Lean_instInhabitedSynthNormMemoSlot_default;
 v___x_574_ = lean_obj_once(&l_Lean_mkUnknownIdentifierMessageCore___at___00Lean_mkUnknownIdentifierMessage___at___00Lean_throwUnknownIdentifierAt___at___00Lean_throwUnknownConstantAt___at___00Lean_throwUnknownConstant___at___00Lean_getConstInfo___at___00Lean_ParserCompiler_compileParserExpr_spec__3_spec__3_spec__4_spec__7_spec__8_spec__9___redArg___closed__1, &l_Lean_mkUnknownIdentifierMessageCore___at___00Lean_mkUnknownIdentifierMessage___at___00Lean_throwUnknownIdentifierAt___at___00Lean_throwUnknownConstantAt___at___00Lean_throwUnknownConstant___at___00Lean_getConstInfo___at___00Lean_ParserCompiler_compileParserExpr_spec__3_spec__3_spec__4_spec__7_spec__8_spec__9___redArg___closed__1_once, _init_l_Lean_mkUnknownIdentifierMessageCore___at___00Lean_mkUnknownIdentifierMessage___at___00Lean_throwUnknownIdentifierAt___at___00Lean_throwUnknownConstantAt___at___00Lean_throwUnknownConstant___at___00Lean_getConstInfo___at___00Lean_ParserCompiler_compileParserExpr_spec__3_spec__3_spec__4_spec__7_spec__8_spec__9___redArg___closed__1);
 v___x_575_ = lean_unsigned_to_nat(0u);
-v___x_576_ = lean_alloc_ctor(0, 12, 0);
+v___x_576_ = lean_alloc_ctor(0, 11, 0);
 lean_ctor_set(v___x_576_, 0, v___x_575_);
 lean_ctor_set(v___x_576_, 1, v___x_575_);
 lean_ctor_set(v___x_576_, 2, v___x_575_);
@@ -1737,8 +1737,7 @@ lean_ctor_set(v___x_576_, 6, v___x_574_);
 lean_ctor_set(v___x_576_, 7, v___x_574_);
 lean_ctor_set(v___x_576_, 8, v___x_574_);
 lean_ctor_set(v___x_576_, 9, v___x_574_);
-lean_ctor_set(v___x_576_, 10, v___x_574_);
-lean_ctor_set(v___x_576_, 11, v___x_573_);
+lean_ctor_set(v___x_576_, 10, v___x_573_);
 return v___x_576_;
 }
 }
@@ -5150,7 +5149,7 @@ lean_object* v___x_1890_; lean_object* v___x_1891_; lean_object* v___x_1892_; le
 v___x_1890_ = l_Lean_instInhabitedSynthNormMemoSlot_default;
 v___x_1891_ = lean_obj_once(&l_Lean_ParserCompiler_registerParserCompiler___redArg___lam__0___closed__0, &l_Lean_ParserCompiler_registerParserCompiler___redArg___lam__0___closed__0_once, _init_l_Lean_ParserCompiler_registerParserCompiler___redArg___lam__0___closed__0);
 v___x_1892_ = lean_unsigned_to_nat(0u);
-v___x_1893_ = lean_alloc_ctor(0, 12, 0);
+v___x_1893_ = lean_alloc_ctor(0, 11, 0);
 lean_ctor_set(v___x_1893_, 0, v___x_1892_);
 lean_ctor_set(v___x_1893_, 1, v___x_1892_);
 lean_ctor_set(v___x_1893_, 2, v___x_1892_);
@@ -5161,8 +5160,7 @@ lean_ctor_set(v___x_1893_, 6, v___x_1891_);
 lean_ctor_set(v___x_1893_, 7, v___x_1891_);
 lean_ctor_set(v___x_1893_, 8, v___x_1891_);
 lean_ctor_set(v___x_1893_, 9, v___x_1891_);
-lean_ctor_set(v___x_1893_, 10, v___x_1891_);
-lean_ctor_set(v___x_1893_, 11, v___x_1890_);
+lean_ctor_set(v___x_1893_, 10, v___x_1890_);
 return v___x_1893_;
 }
 }

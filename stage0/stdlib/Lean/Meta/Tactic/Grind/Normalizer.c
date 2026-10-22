@@ -281,6 +281,7 @@ else
 {
 lean_object* v_a_63_; lean_object* v___x_65_; uint8_t v_isShared_66_; uint8_t v_isSharedCheck_70_; 
 lean_dec(v_a_34_);
+lean_dec_ref(v_config_25_);
 v_a_63_ = lean_ctor_get(v___x_35_, 0);
 v_isSharedCheck_70_ = !lean_is_exclusive(v___x_35_);
 if (v_isSharedCheck_70_ == 0)
@@ -322,6 +323,7 @@ return v___x_68_;
 }
 else
 {
+lean_dec_ref(v_config_25_);
 return v___x_33_;
 }
 }
@@ -337,7 +339,6 @@ lean_dec(v___y_76_);
 lean_dec_ref(v___y_75_);
 lean_dec(v___y_74_);
 lean_dec_ref(v___y_73_);
-lean_dec_ref(v_config_72_);
 return v_res_80_;
 }
 }

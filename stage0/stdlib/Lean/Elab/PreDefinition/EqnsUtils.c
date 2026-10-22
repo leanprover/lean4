@@ -908,7 +908,7 @@ lean_inc_ref(v_env_231_);
 lean_dec(v___x_230_);
 v___x_232_ = l_Lean_Kernel_isDiagnosticsEnabled(v_env_231_);
 lean_dec_ref(v_env_231_);
-v___x_233_ = 512;
+v___x_233_ = 1024;
 v___x_234_ = lean_uint16_land(v___x_229_, v___x_233_);
 v___x_235_ = 0;
 v___x_236_ = lean_uint16_dec_eq(v___x_234_, v___x_235_);

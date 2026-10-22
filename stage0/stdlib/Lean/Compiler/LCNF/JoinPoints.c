@@ -19910,7 +19910,7 @@ lean_object* v___x_6445_; lean_object* v___x_6446_; lean_object* v___x_6447_; le
 v___x_6445_ = l_Lean_instInhabitedSynthNormMemoSlot_default;
 v___x_6446_ = lean_obj_once(&l_Lean_addTrace___at___00Lean_Compiler_LCNF_Decl_findJoinPoints_x3f_spec__0___closed__1, &l_Lean_addTrace___at___00Lean_Compiler_LCNF_Decl_findJoinPoints_x3f_spec__0___closed__1_once, _init_l_Lean_addTrace___at___00Lean_Compiler_LCNF_Decl_findJoinPoints_x3f_spec__0___closed__1);
 v___x_6447_ = lean_unsigned_to_nat(0u);
-v___x_6448_ = lean_alloc_ctor(0, 12, 0);
+v___x_6448_ = lean_alloc_ctor(0, 11, 0);
 lean_ctor_set(v___x_6448_, 0, v___x_6447_);
 lean_ctor_set(v___x_6448_, 1, v___x_6447_);
 lean_ctor_set(v___x_6448_, 2, v___x_6447_);
@@ -19921,8 +19921,7 @@ lean_ctor_set(v___x_6448_, 6, v___x_6446_);
 lean_ctor_set(v___x_6448_, 7, v___x_6446_);
 lean_ctor_set(v___x_6448_, 8, v___x_6446_);
 lean_ctor_set(v___x_6448_, 9, v___x_6446_);
-lean_ctor_set(v___x_6448_, 10, v___x_6446_);
-lean_ctor_set(v___x_6448_, 11, v___x_6445_);
+lean_ctor_set(v___x_6448_, 10, v___x_6445_);
 return v___x_6448_;
 }
 }

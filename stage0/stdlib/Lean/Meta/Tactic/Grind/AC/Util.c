@@ -553,7 +553,7 @@ goto v_resetjp_78_;
 v_resetjp_78_:
 {
 lean_object* v_acSteps_81_; lean_object* v_steps_82_; uint8_t v___x_83_; lean_object* v___x_84_; lean_object* v___x_86_; 
-v_acSteps_81_ = lean_ctor_get(v_a_77_, 9);
+v_acSteps_81_ = lean_ctor_get(v_a_77_, 10);
 lean_inc(v_acSteps_81_);
 lean_dec(v_a_77_);
 v_steps_82_ = lean_ctor_get(v_a_75_, 3);
@@ -1963,7 +1963,7 @@ goto v_resetjp_808_;
 v_resetjp_808_:
 {
 uint8_t v_ring_811_; 
-v_ring_811_ = lean_ctor_get_uint8(v_a_807_, sizeof(void*)*14 + 22);
+v_ring_811_ = lean_ctor_get_uint8(v_a_807_, sizeof(void*)*15 + 22);
 lean_dec(v_a_807_);
 if (v_ring_811_ == 0)
 {

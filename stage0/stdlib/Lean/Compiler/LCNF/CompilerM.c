@@ -1540,7 +1540,7 @@ lean_object* v___x_337_; lean_object* v___x_338_; lean_object* v___x_339_; lean_
 v___x_337_ = l_Lean_instInhabitedSynthNormMemoSlot_default;
 v___x_338_ = lean_obj_once(&l_Lean_Compiler_LCNF_instAddMessageContextCompilerM___lam__0___closed__1, &l_Lean_Compiler_LCNF_instAddMessageContextCompilerM___lam__0___closed__1_once, _init_l_Lean_Compiler_LCNF_instAddMessageContextCompilerM___lam__0___closed__1);
 v___x_339_ = lean_unsigned_to_nat(0u);
-v___x_340_ = lean_alloc_ctor(0, 12, 0);
+v___x_340_ = lean_alloc_ctor(0, 11, 0);
 lean_ctor_set(v___x_340_, 0, v___x_339_);
 lean_ctor_set(v___x_340_, 1, v___x_339_);
 lean_ctor_set(v___x_340_, 2, v___x_339_);
@@ -1551,8 +1551,7 @@ lean_ctor_set(v___x_340_, 6, v___x_338_);
 lean_ctor_set(v___x_340_, 7, v___x_338_);
 lean_ctor_set(v___x_340_, 8, v___x_338_);
 lean_ctor_set(v___x_340_, 9, v___x_338_);
-lean_ctor_set(v___x_340_, 10, v___x_338_);
-lean_ctor_set(v___x_340_, 11, v___x_337_);
+lean_ctor_set(v___x_340_, 10, v___x_337_);
 return v___x_340_;
 }
 }
@@ -5552,8 +5551,8 @@ return v___x_1807_;
 else
 {
 lean_object* v___x_1808_; 
-lean_dec_ref_known(v_e_1764_, 2);
 lean_dec(v_n_1803_);
+lean_dec_ref_known(v_e_1764_, 2);
 v___x_1808_ = lean_box(1);
 return v___x_1808_;
 }

@@ -1116,7 +1116,7 @@ lean_object* v___x_334_; lean_object* v___x_335_; lean_object* v___x_336_; lean_
 v___x_334_ = l_Lean_instInhabitedSynthNormMemoSlot_default;
 v___x_335_ = lean_obj_once(&l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00__private_Lean_Elab_Tactic_VCGen_FrameProcAttr_0__Lean_Elab_Tactic_VCGen_initFn_00___x40_Lean_Elab_Tactic_VCGen_FrameProcAttr_1192303900____hygCtx___hyg_2__spec__0_spec__0___closed__0, &l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00__private_Lean_Elab_Tactic_VCGen_FrameProcAttr_0__Lean_Elab_Tactic_VCGen_initFn_00___x40_Lean_Elab_Tactic_VCGen_FrameProcAttr_1192303900____hygCtx___hyg_2__spec__0_spec__0___closed__0_once, _init_l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00__private_Lean_Elab_Tactic_VCGen_FrameProcAttr_0__Lean_Elab_Tactic_VCGen_initFn_00___x40_Lean_Elab_Tactic_VCGen_FrameProcAttr_1192303900____hygCtx___hyg_2__spec__0_spec__0___closed__0);
 v___x_336_ = lean_unsigned_to_nat(0u);
-v___x_337_ = lean_alloc_ctor(0, 12, 0);
+v___x_337_ = lean_alloc_ctor(0, 11, 0);
 lean_ctor_set(v___x_337_, 0, v___x_336_);
 lean_ctor_set(v___x_337_, 1, v___x_336_);
 lean_ctor_set(v___x_337_, 2, v___x_336_);
@@ -1127,8 +1127,7 @@ lean_ctor_set(v___x_337_, 6, v___x_335_);
 lean_ctor_set(v___x_337_, 7, v___x_335_);
 lean_ctor_set(v___x_337_, 8, v___x_335_);
 lean_ctor_set(v___x_337_, 9, v___x_335_);
-lean_ctor_set(v___x_337_, 10, v___x_335_);
-lean_ctor_set(v___x_337_, 11, v___x_334_);
+lean_ctor_set(v___x_337_, 10, v___x_334_);
 return v___x_337_;
 }
 }

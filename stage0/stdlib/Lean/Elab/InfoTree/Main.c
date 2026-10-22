@@ -1252,7 +1252,7 @@ static uint16_t _init_l_Lean_Elab_ContextInfo_runCoreM___redArg___closed__19(voi
 _start:
 {
 uint16_t v___x_215_; uint16_t v___x_216_; uint16_t v___x_217_; 
-v___x_215_ = 512;
+v___x_215_ = 1024;
 v___x_216_ = lean_uint16_once(&l_Lean_Elab_ContextInfo_runCoreM___redArg___closed__2, &l_Lean_Elab_ContextInfo_runCoreM___redArg___closed__2_once, _init_l_Lean_Elab_ContextInfo_runCoreM___redArg___closed__2);
 v___x_217_ = lean_uint16_land(v___x_216_, v___x_215_);
 return v___x_217_;
@@ -1738,7 +1738,7 @@ lean_inc_ref(v_env_362_);
 lean_dec(v___x_361_);
 v___x_363_ = l_Lean_Kernel_isDiagnosticsEnabled(v_env_362_);
 lean_dec_ref(v_env_362_);
-v___x_364_ = 512;
+v___x_364_ = 1024;
 v___x_365_ = lean_uint16_land(v___x_360_, v___x_364_);
 v___x_366_ = 0;
 v___x_367_ = lean_uint16_dec_eq(v___x_365_, v___x_366_);
@@ -7112,7 +7112,7 @@ lean_object* v___x_2184_; lean_object* v___x_2185_; lean_object* v___x_2186_; le
 v___x_2184_ = l_Lean_instInhabitedSynthNormMemoSlot_default;
 v___x_2185_ = lean_obj_once(&l_Lean_mkUnknownIdentifierMessageCore___at___00Lean_mkUnknownIdentifierMessage___at___00Lean_throwUnknownIdentifierAt___at___00Lean_throwUnknownConstantAt___at___00Lean_throwUnknownConstant___at___00Lean_getConstVal___at___00Lean_mkConstWithLevelParams___at___00Lean_Elab_addConstInfo___at___00Lean_Elab_realizeGlobalConstNoOverloadWithInfo_spec__0_spec__0_spec__1_spec__2_spec__5_spec__7_spec__8_spec__9___redArg___closed__0, &l_Lean_mkUnknownIdentifierMessageCore___at___00Lean_mkUnknownIdentifierMessage___at___00Lean_throwUnknownIdentifierAt___at___00Lean_throwUnknownConstantAt___at___00Lean_throwUnknownConstant___at___00Lean_getConstVal___at___00Lean_mkConstWithLevelParams___at___00Lean_Elab_addConstInfo___at___00Lean_Elab_realizeGlobalConstNoOverloadWithInfo_spec__0_spec__0_spec__1_spec__2_spec__5_spec__7_spec__8_spec__9___redArg___closed__0_once, _init_l_Lean_mkUnknownIdentifierMessageCore___at___00Lean_mkUnknownIdentifierMessage___at___00Lean_throwUnknownIdentifierAt___at___00Lean_throwUnknownConstantAt___at___00Lean_throwUnknownConstant___at___00Lean_getConstVal___at___00Lean_mkConstWithLevelParams___at___00Lean_Elab_addConstInfo___at___00Lean_Elab_realizeGlobalConstNoOverloadWithInfo_spec__0_spec__0_spec__1_spec__2_spec__5_spec__7_spec__8_spec__9___redArg___closed__0);
 v___x_2186_ = lean_unsigned_to_nat(0u);
-v___x_2187_ = lean_alloc_ctor(0, 12, 0);
+v___x_2187_ = lean_alloc_ctor(0, 11, 0);
 lean_ctor_set(v___x_2187_, 0, v___x_2186_);
 lean_ctor_set(v___x_2187_, 1, v___x_2186_);
 lean_ctor_set(v___x_2187_, 2, v___x_2186_);
@@ -7123,8 +7123,7 @@ lean_ctor_set(v___x_2187_, 6, v___x_2185_);
 lean_ctor_set(v___x_2187_, 7, v___x_2185_);
 lean_ctor_set(v___x_2187_, 8, v___x_2185_);
 lean_ctor_set(v___x_2187_, 9, v___x_2185_);
-lean_ctor_set(v___x_2187_, 10, v___x_2185_);
-lean_ctor_set(v___x_2187_, 11, v___x_2184_);
+lean_ctor_set(v___x_2187_, 10, v___x_2184_);
 return v___x_2187_;
 }
 }

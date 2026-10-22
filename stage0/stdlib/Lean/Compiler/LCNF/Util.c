@@ -296,7 +296,7 @@ lean_object* v___x_26_; lean_object* v___x_27_; lean_object* v___x_28_; lean_obj
 v___x_26_ = l_Lean_instInhabitedSynthNormMemoSlot_default;
 v___x_27_ = lean_obj_once(&l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lean_throwErrorAt___at___00Lean_throwUnknownIdentifierAt___at___00Lean_throwUnknownConstantAt___at___00Lean_throwUnknownConstant___at___00Lean_getConstInfo___at___00Lean_Compiler_LCNF_getCtorArity_x3f_spec__0_spec__0_spec__1_spec__2_spec__4_spec__6_spec__7___closed__1, &l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lean_throwErrorAt___at___00Lean_throwUnknownIdentifierAt___at___00Lean_throwUnknownConstantAt___at___00Lean_throwUnknownConstant___at___00Lean_getConstInfo___at___00Lean_Compiler_LCNF_getCtorArity_x3f_spec__0_spec__0_spec__1_spec__2_spec__4_spec__6_spec__7___closed__1_once, _init_l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lean_throwErrorAt___at___00Lean_throwUnknownIdentifierAt___at___00Lean_throwUnknownConstantAt___at___00Lean_throwUnknownConstant___at___00Lean_getConstInfo___at___00Lean_Compiler_LCNF_getCtorArity_x3f_spec__0_spec__0_spec__1_spec__2_spec__4_spec__6_spec__7___closed__1);
 v___x_28_ = lean_unsigned_to_nat(0u);
-v___x_29_ = lean_alloc_ctor(0, 12, 0);
+v___x_29_ = lean_alloc_ctor(0, 11, 0);
 lean_ctor_set(v___x_29_, 0, v___x_28_);
 lean_ctor_set(v___x_29_, 1, v___x_28_);
 lean_ctor_set(v___x_29_, 2, v___x_28_);
@@ -307,8 +307,7 @@ lean_ctor_set(v___x_29_, 6, v___x_27_);
 lean_ctor_set(v___x_29_, 7, v___x_27_);
 lean_ctor_set(v___x_29_, 8, v___x_27_);
 lean_ctor_set(v___x_29_, 9, v___x_27_);
-lean_ctor_set(v___x_29_, 10, v___x_27_);
-lean_ctor_set(v___x_29_, 11, v___x_26_);
+lean_ctor_set(v___x_29_, 10, v___x_26_);
 return v___x_29_;
 }
 }

@@ -1128,7 +1128,7 @@ v___x_217_ = l_Lean_Elab_Command_mkMetaContext;
 v___x_218_ = lean_obj_once(&l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Linter_EnvLinter_lintCore_spec__2___lam__0___closed__1, &l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Linter_EnvLinter_lintCore_spec__2___lam__0___closed__1_once, _init_l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Linter_EnvLinter_lintCore_spec__2___lam__0___closed__1);
 v___x_219_ = l_Lean_instInhabitedSynthNormMemoSlot_default;
 lean_inc_n(v___x_209_, 5);
-v___x_220_ = lean_alloc_ctor(0, 12, 0);
+v___x_220_ = lean_alloc_ctor(0, 11, 0);
 lean_ctor_set(v___x_220_, 0, v___x_209_);
 lean_ctor_set(v___x_220_, 1, v___x_209_);
 lean_ctor_set(v___x_220_, 2, v___x_209_);
@@ -1139,8 +1139,7 @@ lean_ctor_set(v___x_220_, 6, v___x_218_);
 lean_ctor_set(v___x_220_, 7, v___x_218_);
 lean_ctor_set(v___x_220_, 8, v___x_218_);
 lean_ctor_set(v___x_220_, 9, v___x_218_);
-lean_ctor_set(v___x_220_, 10, v___x_218_);
-lean_ctor_set(v___x_220_, 11, v___x_219_);
+lean_ctor_set(v___x_220_, 10, v___x_219_);
 v___x_221_ = lean_obj_once(&l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Linter_EnvLinter_lintCore_spec__2___lam__0___closed__2, &l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Linter_EnvLinter_lintCore_spec__2___lam__0___closed__2_once, _init_l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Linter_EnvLinter_lintCore_spec__2___lam__0___closed__2);
 v___x_222_ = lean_unsigned_to_nat(32u);
 v___x_223_ = lean_mk_empty_array_with_capacity(v___x_222_);
@@ -3543,7 +3542,7 @@ lean_object* v___x_1162_; lean_object* v___x_1163_; lean_object* v___x_1164_; le
 v___x_1162_ = l_Lean_instInhabitedSynthNormMemoSlot_default;
 v___x_1163_ = lean_obj_once(&l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Linter_EnvLinter_lintCore_spec__2___lam__0___closed__1, &l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Linter_EnvLinter_lintCore_spec__2___lam__0___closed__1_once, _init_l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Linter_EnvLinter_lintCore_spec__2___lam__0___closed__1);
 v___x_1164_ = lean_unsigned_to_nat(0u);
-v___x_1165_ = lean_alloc_ctor(0, 12, 0);
+v___x_1165_ = lean_alloc_ctor(0, 11, 0);
 lean_ctor_set(v___x_1165_, 0, v___x_1164_);
 lean_ctor_set(v___x_1165_, 1, v___x_1164_);
 lean_ctor_set(v___x_1165_, 2, v___x_1164_);
@@ -3554,8 +3553,7 @@ lean_ctor_set(v___x_1165_, 6, v___x_1163_);
 lean_ctor_set(v___x_1165_, 7, v___x_1163_);
 lean_ctor_set(v___x_1165_, 8, v___x_1163_);
 lean_ctor_set(v___x_1165_, 9, v___x_1163_);
-lean_ctor_set(v___x_1165_, 10, v___x_1163_);
-lean_ctor_set(v___x_1165_, 11, v___x_1162_);
+lean_ctor_set(v___x_1165_, 10, v___x_1162_);
 return v___x_1165_;
 }
 }

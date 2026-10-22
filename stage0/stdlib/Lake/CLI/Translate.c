@@ -514,7 +514,7 @@ static uint16_t _init_l_Lake_Package_mkConfigString___closed__28(void){
 _start:
 {
 uint16_t v___x_131_; uint16_t v___x_132_; uint16_t v___x_133_; 
-v___x_131_ = 512;
+v___x_131_ = 1024;
 v___x_132_ = lean_uint16_once(&l_Lake_Package_mkConfigString___closed__7, &l_Lake_Package_mkConfigString___closed__7_once, _init_l_Lake_Package_mkConfigString___closed__7);
 v___x_133_ = lean_uint16_land(v___x_132_, v___x_131_);
 return v___x_133_;

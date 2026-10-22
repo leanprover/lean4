@@ -10,7 +10,7 @@ theorem ex1 : True := by
   skip
   native_decide
   skip
-/-- info: 'ex1' depends on axioms: [ex1._native.native_decide.ax_1_1] -/
+/-- info: 'ex1' depends on axioms: [ex1._native.native_decide.ax_1_3] -/
 #guard_msgs in #print axioms ex1
 
 

@@ -35,6 +35,6 @@ We managed to prove `False` using the unsound annotation `implemented_by` above.
 theorem unsound : False :=
 Bool.noConfusion trueEqFalse
 
-/-- info: 'unsound' depends on axioms: [fConst._native.native_decide.ax_1_3] -/
+/-- info: 'unsound' depends on axioms: [fConst._native.native_decide.ax_1_5] -/
 #guard_msgs in
 #print axioms unsound

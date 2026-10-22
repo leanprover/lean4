@@ -42,3 +42,35 @@ example (x : Fin 2) (h : x = OfNat.ofNat 0) : x = 0 := by
 
 example (x : UInt8) (h : x = OfNat.ofNat 3) : x = 3 := by
   grind
+
+/-!
+`BitVec` example from the comments of #15541: `BitVec w` and `BitVec 32` are definitionally
+equal, but the canonicalizer does not unfold `w`. `(1 : BitVec w)` and `(1 : BitVec 32)` used to
+be distinct interpreted nodes denoting the same value. The hypotheses are satisfiable, so `grind`
+must fail.
+-/
+
+@[implicit_reducible] def w : Nat := 32
+def w' : Nat := 32
+
+/-- warning: declaration uses `sorry` -/
+#guard_msgs in
+example (x : BitVec w) (y : BitVec 32) (h : x ≍ y) (h₁ : y = 1) (h₂ : x ≠ 0) : False := by
+  fail_if_success grind
+  sorry
+
+/-- warning: declaration uses `sorry` -/
+#guard_msgs in
+example (x : BitVec w) (h₁ : x = (1 : BitVec 32)) (h₂ : x ≠ 0) : False := by
+  fail_if_success grind
+  sorry
+
+/-- warning: declaration uses `sorry` -/
+#guard_msgs in
+example (x : BitVec w') (h₁ : x = (1 : BitVec 32)) (h₂ : x ≠ 0) : False := by
+  fail_if_success grind
+  sorry
+
+example (x : BitVec w) (h₁ : x = (1 : BitVec 32)) : x ≠ 0 := by grind
+
+example (x : BitVec w) (y : BitVec 32) (h : x ≍ y) (h₁ : y = 1) (h₂ : x = 0) : False := by grind

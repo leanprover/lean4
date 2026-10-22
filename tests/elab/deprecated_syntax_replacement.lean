@@ -10,9 +10,9 @@ set_option linter.deprecated.syntax true
 open Lean Elab Command in
 /--
 Elaborates `cmd` and logs its source with the edits of all resulting code action suggestions
-applied.
+applied. With `!`, also parses and elaborates the edited command.
 -/
-elab "#apply_suggestions " cmd:command : command => do
+elab "#apply_suggestions " check?:("!")? cmd:command : command => do
   let initTrees ← modifyGet fun s => (s.infoState.trees, { s with infoState.trees := {} })
   elabCommand cmd
   let trees := (← get).infoState.trees
@@ -37,6 +37,10 @@ elab "#apply_suggestions " cmd:command : command => do
     pos := stop
   result := result ++ String.Pos.Raw.extract fileMap.source pos range.stop
   logInfo result
+  if check?.isSome then
+    let edited ← ofExcept <| Parser.runParserCategory (← getEnv) `command result
+    withReader (fun ctx => { ctx with fileMap := FileMap.ofString result }) do
+      elabCommand edited
 
 /-! ## Terms -/
 
@@ -512,6 +516,99 @@ info: example (h : True) : True := by
 #guard_msgs in
 #apply_suggestions example (h : True) : True := by
   old_exact h
+
+/-! ## Parenthesization of tactics -/
+
+syntax:lead (name := oldChoice) "old_choice" : tactic
+macro_rules | `(tactic| old_choice) => `(tactic| first | skip | fail "no")
+
+deprecated_syntax oldChoice (since := "2026-10-22")
+  | _ => `(tactic| first | skip | fail "no")
+
+-- The left precedences agree, but the right end of `first` would absorb the following `<;>`.
+/--
+info: example : True := by
+  (first
+    | skip
+    | fail "no") <;> exact True.intro
+-/
+#guard_msgs (drop warning, all) in
+#apply_suggestions! example : True := by
+  old_choice <;> exact True.intro
+
+syntax (name := oldTry) "old_try" : tactic
+macro_rules | `(tactic| old_try) => `(tactic| try fail "no")
+
+deprecated_syntax oldTry (since := "2026-10-22")
+  | _ => `(tactic| try fail "no")
+
+/--
+info: example : True := by
+  (try fail "no") <;> exact True.intro
+-/
+#guard_msgs (drop warning, all) in
+#apply_suggestions! example : True := by
+  old_try <;> exact True.intro
+
+syntax (name := oldRepeat) "old_repeat" : tactic
+macro_rules | `(tactic| old_repeat) => `(tactic| repeat fail "no")
+
+deprecated_syntax oldRepeat (since := "2026-10-22")
+  | _ => `(tactic| repeat fail "no")
+
+/--
+info: example : True := by
+  (repeat fail "no") <;> exact True.intro
+-/
+#guard_msgs (drop warning, all) in
+#apply_suggestions! example : True := by
+  old_repeat <;> exact True.intro
+
+syntax (name := oldAndThen) "old_and_then" : tactic
+macro_rules | `(tactic| old_and_then) => `(tactic| skip <;> skip)
+
+deprecated_syntax oldAndThen (since := "2026-10-22")
+  | _ => `(tactic| skip <;> skip)
+
+-- A replacement used on the right of `<;>` must also remain a single tactic.
+/--
+info: example : True := by
+  skip <;> (skip <;> skip)
+  trivial
+-/
+#guard_msgs (drop warning, all) in
+#apply_suggestions! example : True := by
+  skip <;> old_and_then
+  trivial
+
+syntax:1 (name := oldSeq) tactic " <;>' " tactic:2 : tactic
+macro_rules | `(tactic| $a:tactic <;>' $b:tactic) => `(tactic| $a:tactic <;> $b:tactic)
+
+deprecated_syntax oldSeq (since := "2026-10-22")
+  | `(tactic| $a:tactic <;>' $b:tactic) => `(tactic| $a:tactic <;> $b:tactic)
+
+-- Equal precedences do not require parentheses.
+/--
+info: example : True ∧ True := by
+  constructor <;> trivial
+-/
+#guard_msgs (drop warning, all) in
+#apply_suggestions! example : True ∧ True := by
+  constructor <;>' trivial
+
+deprecated_syntax oldChoice (since := "2026-10-22")
+  | _ => `(tactic| (first | skip | fail "no"))
+
+-- Parentheses supplied by the replacement are not doubled.
+/--
+info: example : True := by
+  (first
+    | skip
+    | fail "no") <;> exact True.intro
+-/
+#guard_msgs (drop warning, all) in
+#apply_suggestions! example : True := by
+  old_choice <;> exact True.intro
 
 /-! ## Commands -/
 
@@ -1036,15 +1133,15 @@ deprecated_syntax Lean.Parser.Tactic.rwaAtLegacyLocation
 warning: syntax 'Lean.Parser.Tactic.rwaAtLegacyLocation' has been deprecated: use `rw [...] at ... <;> assumption` instead
 
 Hint: Replace the deprecated syntax:
-  r̵w̵a̵r̲w̲ [h] at * ̲<̲;̲>̲ ̲a̲s̲s̲u̲m̲p̲t̲i̲o̲n̲
+  r̵w̵a̵(̲r̲w̲ [h] at * ̲<̲;̲>̲ ̲a̲s̲s̲u̲m̲p̲t̲i̲o̲n̲)̲
 
 Note: This linter can be disabled with `set_option linter.deprecated.syntax false`
 ---
 info: example (a b : Nat) (h : a = b) (h' : a = 0) : b = 0 := by
-  rw [h] at * <;> assumption
+  (rw [h] at * <;> assumption)
 -/
 #guard_msgs in
-#apply_suggestions example (a b : Nat) (h : a = b) (h' : a = 0) : b = 0 := by
+#apply_suggestions! example (a b : Nat) (h : a = b) (h' : a = 0) : b = 0 := by
   rwa [h] at *
 
 /-! ## Redeprecation without alternatives removes the replacement -/

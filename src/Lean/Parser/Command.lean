@@ -702,11 +702,11 @@ as ``| _ => `(tactic| trivial)``, also receives every use, which is convenient f
 arguments.
 
 The result is printed as source text, so it should be syntax that can be kept in the source. A
-replacement term that binds less tightly than the deprecated syntax, such as `a + b` replacing a
-notation of maximal precedence, is wrapped in parentheses so that it parses as a whole wherever the
-deprecated syntax was used. Macro scopes that the quotations add to identifiers are erased, so
-these identifiers are printed as written and are not hygienic. Identifiers created with `mkIdent`
-from a name that has macro scopes keep them and are printed as inaccessible names such as `x✝`.
+replacement term or tactic that binds less tightly than the deprecated syntax, such as `a + b`
+replacing a notation of maximal precedence, is wrapped in parentheses so that it parses as a whole
+wherever the deprecated syntax was used. Macro scopes that the quotations add to identifiers are
+erased, so these identifiers are printed as written and are not hygienic. Identifiers created with
+`mkIdent` from a name that has macro scopes keep them and are printed as inaccessible names such as `x✝`.
 
 Suggestions are only offered for deprecated syntax written by the user, not for deprecated syntax
 produced by a macro, and only if the syntax kind belongs to a single syntax category. A later

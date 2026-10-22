@@ -66,6 +66,90 @@ info: #check (1 + (2 * 3))
 #guard_msgs in
 #apply_suggestions #check old_add 1 (2 * 3)
 
+/-! ## Token boundaries -/
+
+syntax:75 (name := oldBoundaryNeg) "old_boundary_neg " term:75 : term
+macro_rules | `(old_boundary_neg $e) => `(-$e)
+
+deprecated_syntax oldBoundaryNeg (since := "2026-10-22")
+  | `(old_boundary_neg $e) => `(-$e)
+
+-- The two minus signs must not become a line comment.
+/-- info: example : Int := - -1 -/
+#guard_msgs (drop warning, all) in
+#apply_suggestions! example : Int := -old_boundary_neg 1
+
+/-- info: example : Int := (- -1) -/
+#guard_msgs (drop warning, all) in
+#apply_suggestions! example : Int := (-old_boundary_neg 1)
+
+/-- info: example : Int := - -1 -/
+#guard_msgs (drop warning, all) in
+#apply_suggestions! example : Int := - old_boundary_neg 1
+
+-- Adjacent tokens that remain distinct do not need extra whitespace.
+/-- info: example : Int := (-1) -/
+#guard_msgs (drop warning, all) in
+#apply_suggestions! example : Int := (old_boundary_neg 1)
+
+/-- info: example (α : Int) : Int := - -α -/
+#guard_msgs (drop warning, all) in
+#apply_suggestions! example (α : Int) : Int := -old_boundary_neg α
+
+/-- info: example : Int := 1/ -1 -/
+#guard_msgs (drop warning, all) in
+#apply_suggestions! example : Int := 1/old_boundary_neg 1
+
+-- Lexical context may start inside a string or comment.
+/-- info: example (n : Int) : String := s!"value: {- -n}" -/
+#guard_msgs (drop warning, all) in
+#apply_suggestions! example (n : Int) : String := s!"value: {-old_boundary_neg n}"
+
+/-- info: example : Int := /- comment -/- -1 -/
+#guard_msgs (drop warning, all) in
+#apply_suggestions! example : Int := /- comment -/-old_boundary_neg 1
+
+-- Trivia after the deprecated syntax stays in place and already separates the replacement.
+/-- info: example : Int := (-1/- comment -/) -/
+#guard_msgs (drop warning, all) in
+#apply_suggestions! example : Int := (old_boundary_neg 1/- comment -/)
+
+section
+
+-- The current token table must be used, including tokens spanning more than two characters.
+local prefix:75 "+++" => Neg.neg
+local prefix:75 "+++-" => id
+
+/-- info: example : Int := +++ -1 -/
+#guard_msgs (drop warning, all) in
+#apply_suggestions! example : Int := +++old_boundary_neg 1
+
+-- A replacement can also collide with the token after it.
+local syntax:max (name := oldBoundaryUnit) "old_boundary_unit" : term
+local macro_rules | `(old_boundary_unit) => `(())
+local postfix:max ")!" => id
+local postfix:max "))!" => id
+
+deprecated_syntax oldBoundaryUnit (since := "2026-10-22")
+  | `(old_boundary_unit) => `(())
+
+/-- info: example : Unit := () )! -/
+#guard_msgs (drop warning, all) in
+#apply_suggestions! example : Unit := old_boundary_unit)!
+
+local syntax:max (name := oldBoundaryId) "old_boundary_id%" term:max "%" : term
+local macro_rules | `(old_boundary_id% $e %) => `($e)
+
+deprecated_syntax oldBoundaryId (since := "2026-10-22")
+  | `(old_boundary_id% $e %) => `($e)
+
+-- Field notation requires adjacency, as recorded by `checkNoWsBefore` in its formatter.
+/-- info: example (n : Nat) : Nat := n.succ -/
+#guard_msgs (drop warning, all) in
+#apply_suggestions! example (n : Nat) : Nat := old_boundary_id% n %.succ
+
+end
+
 /-! ## Parenthesization of terms -/
 
 syntax:max (name := oldSucc) "old_succ " term:max : term

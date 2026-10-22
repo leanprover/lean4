@@ -10,6 +10,7 @@ public import Lean.MonadEnv
 public import Lean.Linter.Init
 public import Lean.Elab.Util
 import Lean.Meta.Hint
+import Lean.PrettyPrinter.Formatter
 import Lean.PrettyPrinter.Parenthesizer
 
 public section
@@ -115,6 +116,45 @@ private def parenthesizeReplacement (cat : Name) (stx newStx : Syntax) : CoreM S
 
 end ParenthesizeReplacement
 
+open PrettyPrinter.Formatter in
+/-- Checks the adjacent whitespace-delimited text using the formatter's token separation rule. -/
+private def needsSpaceBetween (left right : String.Slice) : CoreM Bool := do
+  let mut left := left.takeEndWhile (!·.isWhitespace) |>.copy
+  let right := right.takeWhile (!·.isWhitespace) |>.copy
+  if left.isEmpty || right.isEmpty then return false
+  let table := Parser.getTokenTable (← getEnv)
+  -- The left word may contain several tokens, e.g. `(-`.
+  while !left.isEmpty do
+    let parsed ← parseTokenCore left table
+    if parsed.hasError || parsed.pos == 0 then
+      -- The window can start inside a comment, string, or escaped identifier.
+      left := (left.drop 1).copy
+      continue
+    if parsed.pos == left.rawEndPos then
+      let rightParsed ← parseTokenCore right table
+      let rightIdent := !rightParsed.hasError && rightParsed.stxStack.back.isIdent
+      return ← needsTokenSeparator left right parsed.stxStack.back.isIdent rightIdent table
+    left := (left.sliceFrom (left.pos! parsed.pos)).copy
+  return false
+
+private def formatReplacement (cat : Name) (stx newStx : Syntax) (range : Syntax.Range) :
+    CoreM String := do
+  let map ← getFileMap
+  let (indent, column) := Meta.Tactic.TryThis.getIndentAndColumn map range
+  let suggestion : Meta.Tactic.TryThis.SuggestionText := .tsyntax (kind := cat) ⟨newStx⟩
+  let mut text ← suggestion.prettyExtra (indent := indent) (column := column)
+  if ← needsSpaceBetween (map.source.sliceTo (map.source.pos! range.start)) text.toSlice then
+    text := " " ++ text
+  -- The trailing trivia of `stx` stays in place and separates the replacement from the next token
+  if stx.getTrailingSize > 0 then
+    return text
+  let suffix := map.source.sliceFrom (map.source.pos! range.stop)
+  -- Qualified identifiers also represent field notation, which requires adjacency to `.`.
+  unless cat == `term && newStx.isIdent && suffix.startsWith "." do
+    if ← needsSpaceBetween text.toSlice suffix then
+      text := text ++ " "
+  return text
+
 /--
 Creates a hint offering to replace `stx` by the output of the replacement registered for its kind.
 Returns the empty message if there is no replacement or it fails.
@@ -125,7 +165,7 @@ private def mkReplacementHint (stx : Syntax) : CoreM MessageData := do
     | return .nil
   -- Printing the replacement requires its category, so it must be unambiguous
   let #[cat] := Parser.getSyntaxNodeKindCategories env stx.getKind | return .nil
-  unless (stx.getRange? (canonicalOnly := true)).isSome do return .nil
+  let some range := stx.getRange? (canonicalOnly := true) | return .nil
   -- Elaborators may rewrite syntax before elaborating it, e.g. by lifting nested actions out of a
   -- `do` element, and the replacement of such syntax does not reflect the source
   let isRewritten (s : Syntax) := (s.isAtom || s.isIdent) && !(s.getHeadInfo matches .original ..)
@@ -140,8 +180,9 @@ private def mkReplacementHint (stx : Syntax) : CoreM MessageData := do
       -- This is a heuristic to minimize cases where the replacement syntax parses in unexpected
       -- ways. It does not try to catch all such cases.
       let newStx ← parenthesizeReplacement cat stx newStx
+      let text ← formatReplacement cat stx newStx range
       MessageData.hint "Replace the deprecated syntax:"
-        #[{ suggestion := .tsyntax (kind := cat) ⟨newStx⟩ }] (ref? := stx))
+        #[{ suggestion := text }] (ref? := stx))
     fun _ => return .nil
 
 private def SyntaxDeprecationEntry.textSuffix (entry : SyntaxDeprecationEntry) : MessageData :=

@@ -360,14 +360,25 @@ def trailingNode.formatter (k : SyntaxNodeKind) (_ _ : Nat) (p : Formatter) : Fo
     -- leading term, not actually produced by `p`
     categoryParser.formatter (← read).cat
 
-def parseToken (s : String) : FormatterM ParserState :=
+def parseTokenCore (s : String) (table : Parser.TokenTable) : CoreM ParserState :=
   -- include comment tokens, e.g. when formatting `- -0`
   let ictx := .mk s "" (fileMap := FileMap.ofString "")
   return (Parser.andthenFn Parser.whitespace (Parser.tokenFn [])).run ictx
     {
       env := ← getEnv,
       options := ← getOptions
-    } ((← read).table) (Parser.mkParserState s)
+    } table (Parser.mkParserState s)
+
+def parseToken (s : String) : FormatterM ParserState := do
+  parseTokenCore s (← read).table
+
+/-- Whether adjoining `tk` and `leadWord` requires a space to keep their tokens separate. -/
+def needsTokenSeparator (tk leadWord : String) (ident leadWordIdent : Bool)
+    (table : Parser.TokenTable) : CoreM Bool := do
+  if ident && leadWordIdent then
+    return true
+  let tk := tk.trimAsciiStart.copy
+  return (← parseTokenCore (tk ++ leadWord) table).pos > tk.rawEndPos
 
 def pushToken (info : SourceInfo) (tk : String) (ident : Bool) : FormatterM Unit := do
   if let SourceInfo.original _ _ ss _ := info then
@@ -389,20 +400,7 @@ def pushToken (info : SourceInfo) (tk : String) (ident : Bool) : FormatterM Unit
   let st ← get
   -- If there is no space between `tk` and the next word, see if we should insert a discretionary space.
   if st.leadWord != "" && tk.trimAsciiEnd == tk.toSlice then
-    let insertSpace ← do
-      if ident && st.leadWordIdent then
-        -- Both idents => need space
-        pure true
-      else
-        -- Check if we would parse more than `tk` as a single token
-        let tk' := tk.trimAsciiStart.copy
-        let t ← parseToken $ tk' ++ st.leadWord
-        if t.pos ≤ tk'.rawEndPos then
-          -- stopped within `tk` => use it as is
-          pure false
-        else
-          -- stopped after `tk` => add space
-          pure true
+    let insertSpace ← needsTokenSeparator tk st.leadWord ident st.leadWordIdent (← read).table
     if !insertSpace then
       -- extend `leadWord` if not prefixed by whitespace
       push tk

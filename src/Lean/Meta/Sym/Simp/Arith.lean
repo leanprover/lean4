@@ -121,4 +121,13 @@ def simpNatRel : Simproc := fun e => do
     return .rfl
   | _ => return .rfl
 
+/--
+Cancels the common part of the sides of a `Nat` subtraction (`Arith.cancelNatSub?`), simplifying
+the atoms with `simp`: `x + 2 - 1` becomes `x + 1 - 0`, and `x * y + 3 - (x * y + z + 1)`
+becomes `2 - z`. The result is not final, so rewrite rules such as `Nat.sub_zero` see it.
+Intended as a `post` simproc. `distrib` must be the one given to `simpArith`.
+-/
+def simpNatSub (distrib : Bool := true) : Simproc := fun e =>
+  Arith.cancelNatSub? e simp (distrib := distrib)
+
 end Lean.Meta.Sym.Simp

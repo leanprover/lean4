@@ -16,6 +16,7 @@ public import Lean.Meta.Sym.Arith.VarRename
 import Lean.Meta.Sym.Arith.ToExpr
 public import Lean.Meta.Sym.Simp.App
 import Lean.Meta.AppBuilder
+public import Lean.Meta.NatInstTesters
 public import Lean.Meta.Sym.AlphaShareBuilder
 import Lean.Data.RArray
 import Init.Grind.Norm
@@ -1429,6 +1430,67 @@ private def normalizeDvd? (v : Visitor m) (e dvdFn arg : Expr) (k : Int) (distri
       match r₀ with
       | .rfl _ cd₀ => return .step e' h₂ (done := true) (contextDependent := cd₀)
       | .step _ h₁ _ cd₀ => mkEqTransResult e e₁ h₁ (.step e' h₂ (done := true)) cd₀
+
+/--
+The `NormM` part of `cancelNatSub?`, for the visited sides `a` and `b`: the steps `a = a' + c` and
+`b = b' + c` and the terms `a'`, `b'`, `c`, or `none` when the common part `c` is zero.
+-/
+private def cancelNatSubCore (a b : Expr) (na nb : Node) : NormM (Option (Result × Result × Expr × Expr × Expr)) := do
+  let (f, vars) ← compactVars (.add na.re nb.re)
+  let pa := renamePoly na.p f true
+  let pb := renamePoly nb.p f true
+  let c := commonPart pa pb
+  if c.isZero then return none
+  let a' := (pa.combine (c.mulConst (-1))).toExpr
+  let b' := (pb.combine (c.mulConst (-1))).toExpr
+  let sr ← getCommSemiring
+  let ctx ← mkContext sr.type vars
+  let denote (x : RingExpr) : NormM Expr := do share (← denoteSemiringExpr' vars x)
+  -- `x = x' + c`, chained after the node's own step `x = x₁`.
+  let termStep (x : Expr) (n : Node) (x' : RingExpr) : NormM Result := do
+    let x₁ := n.r.getResultExpr x
+    let xC : RingExpr := .add x' c.toExpr
+    let ex ← denote xC
+    if isSameExpr x₁ ex then return n.r
+    let h := mkExpectedPropHint
+      (mkApp6 (mkConst ``Grind.CommRing.eq_normS [sr.u]) sr.type sr.commSemiringInst ctx (toExpr (n.re.renameVars f)) (toExpr xC) eagerReflBoolTrue)
+      (mkApp3 (mkConst ``Eq [sr.u.succ]) sr.type x₁ ex)
+    chainResults x x₁ n.r (.step ex h)
+  return some (← termStep a na a', ← termStep b nb b', ← denote a', ← denote b', ← denote c.toExpr)
+
+/-- `e₁ := (a' + c) - (b' + c) = a' - b'`, by `Nat.add_sub_add_right`. -/
+private def mkNatSubCancelStep (subFn e₁ a' b' c : Expr) : NormM (Expr × Expr) := do
+  let e' ← mkAppS₂ subFn a' b'
+  let h := mkApp3 (mkConst ``Nat.add_sub_add_right) a' c b'
+  return (e', mkExpectedPropHint h (mkNatEq e₁ e'))
+
+/--
+Cancels the common part of the sides of the `Nat` subtraction `e := a - b`, an atom of the `Nat`
+semiring: with `a` and `b` normalized to `a' + c` and `b' + c`, where `c` is the monomial-wise
+minimum of their polynomials, `e` becomes `a' - b'` (`Nat.add_sub_add_right`). So `x + 2 - 1`
+is `x + 1 - 0` and `x * y + 3 - (x * y + z + 1)` is `2 - z`; `a' - 0` and `0 - b'` are left
+to the caller. Returns `.rfl` when `c` is zero. The result is not `done`. `simpAtom` and
+`distrib` are as in `normalize?`.
+-/
+def cancelNatSub? (e : Expr) (simpAtom : Expr → m Result) (distrib : Bool := true) : m Result := do
+  let_expr HSub.hSub α β γ inst a b := e | return .rfl
+  -- Distinct atoms have nothing in common, and `x - x` is left to `Nat.sub_self`.
+  unless isInterpreted a || isInterpreted b do return .rfl
+  unless α.isConstOf ``Nat && β.isConstOf ``Nat && γ.isConstOf ``Nat do return .rfl
+  unless (← Structural.isInstHSubNat inst) do return .rfl
+  let some kind@(.commSemiring _) ← classifyKind? α | return .rfl
+  let v : Visitor m := { simpAtom, discharge? := fun _ => pure none }
+  runNorm kind distrib do
+    match h : e with
+    | .app fa@h':(.app subFn a) b =>
+      let na ← visit v a
+      let nb ← visit v b
+      let some (ra, rb, ea', eb', ec) ← liftNorm (cancelNatSubCore a b na nb) | return .rfl
+      let r₀ ← congrBin e fa subFn a b ra rb h h'
+      let e₁ := r₀.getResultExpr e
+      let (e', h) ← liftNorm (mkNatSubCancelStep subFn e₁ ea' eb' ec)
+      chainResults e e₁ r₀ (.step e' h)
+    | _ => unreachable!
 
 end Entry
 

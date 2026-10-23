@@ -345,7 +345,7 @@ private def tryApplyCanonicalInstance (instType : Expr) :
     -- If we have additional variables from `forallTelescopeReducing` here, we have to revert them
     unless vars.isEmpty do
       outVars ← outVars.mapM fun (outVar, allowMore) => do
-        let mvarApp ← mkFreshRevertedMVarAt (← outVar.getType) lctx linsts
+        let mvarApp ← mkFreshRevertedMVarAt lctx linsts (← outVar.getType)
         outVar.assign mvarApp
         return (mvarApp.getAppFn.mvarId!, allowMore)
     trace[Elab.Deriving] "Result: {res}, {outVars}"
@@ -407,7 +407,7 @@ nonrec def DerivingM.run (x : DerivingM α) (ctx : Deriving.Context) : TermElabM
 private def pushInstanceHypothesis (type : Expr) (className : Name) : DerivingM Expr := do
   -- We simply add the new metavariables as local instances for instance synthesis to pick up
   -- That way we can detect redundant instances more easily
-  let mvarApp ← mkFreshRevertedMVarAt type (← read).paramLCtx (← read).paramLInsts
+  let mvarApp ← mkFreshRevertedMVarAt (← read).paramLCtx (← read).paramLInsts type
   let goal := mvarApp.getAppFn.mvarId!
   modify fun state => {
     state with

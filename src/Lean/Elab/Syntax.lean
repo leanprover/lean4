@@ -9,6 +9,7 @@ prelude
 public import Lean.Elab.Command
 public import Lean.Parser.Syntax
 public meta import Lean.Parser.Syntax
+import Lean.Elab.DeprecatedSyntax.Basic
 import Init.Data.String.Modify
 import Init.Omega
 
@@ -378,6 +379,20 @@ def resolveSyntaxKind (k : Name) : CommandElabM Name := do
   checkSyntaxNodeKindAtNamespaces k (← getCurrNamespace)
   <|>
   throwError "invalid syntax node kind `{k}`"
+
+/--
+Like `adaptExpander`, for commands that define rules for a syntax kind, such as `macro_rules`: `exp`
+also returns that kind, if known. If it is deprecated, the expansion does not report deprecated
+constants and syntax: as with the body of a deprecated declaration, the references go away along
+with the rules.
+-/
+def adaptRulesExpander (exp : Syntax → CommandElabM (Option SyntaxNodeKind × Syntax)) :
+    CommandElab := fun stx => do
+  let (k?, stx') ← exp stx
+  let elabExpansion := withMacroExpansion stx stx' <| elabCommand stx'
+  unless k?.any (isDeprecatedSyntax (← getEnv)) do
+    return ← elabExpansion
+  withReader ({ · with checkDeprecated := .none }) elabExpansion
 
 def isLocalAttrKind (attrKind : Syntax) : Bool :=
   match attrKind with

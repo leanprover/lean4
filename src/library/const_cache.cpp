@@ -5,6 +5,7 @@ Author: Sebastian Ullrich
 */
 #include <atomic>
 #include <lean/lean.h>
+#include "runtime/alloc.h"
 
 namespace lean {
 /*
@@ -184,10 +185,17 @@ static inline __attribute__((always_inline)) lean_obj_res find_cached_in(cache &
         }
     }
     lean_inc(root); lean_inc(n);
+    // Whether a lookup misses depends on other threads using the same cache, so the miss path must
+    // not count toward the heartbeats of the current thread.
+    uint64_t heartbeats = get_num_heartbeats();
     lean_object * r = core(root, n);
+    set_heartbeats(heartbeats);
+    // Marked even when it is not cached, so that the result is never exclusive: whether it is
+    // cached depends on other threads, and an exclusive result would let the caller save
+    // allocations, making heartbeats nondeterministic.
+    lean_mark_mt(r);
     if (empty == t->m_num_slots)
         return r;
-    lean_mark_mt(r);
     // Pin the key, and the root unless it owns the cache; hits only compare them. An owned cache
     // releases its keys from whichever thread frees it, so they must be multi-threaded.
     if (!owned)

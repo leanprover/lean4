@@ -36,4 +36,4 @@ theorem test (f : Nat → List (List Nat)) {l : List Nat} :
       (fun x y ↦
         (if x ^ i ≤ n then List.map (fun m ↦ x :: m) (f x) else []).Disjoint
         (if y ^ i ≤ n then List.map (fun m ↦ y :: m) (f y) else [])) := by
-  grind
+  grind +verbose

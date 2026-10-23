@@ -28,7 +28,7 @@ h✝ : ¬op a d = op (op a b) c
 #guard_msgs in
 example {α : Type u} (op : α → α → α) [Std.Associative op] (a b c d : α)
     : d = op b c → op a d = op (op a b) c := by
-  grind => skip
+  grind +verbose => skip
 
 example {α : Type u} (op : α → α → α) [Std.Associative op] (a b c d : α)
     : d = op b c → op a d = op (op a b) c := by
@@ -134,7 +134,7 @@ h✝ : a * b ≤ 0
 -/
 #guard_msgs in
 example {a b : Int} : a > 0 → b > 0 → a*b > 0 := by
-  grind => finish
+  grind +verbose => finish
 
 
 /--
@@ -310,6 +310,7 @@ h✝² : h bs = 1
 h✝¹ : h as = 0
 h✝ : as = []
 ⊢ False
+use `+verbose` to obtain diagnostic information
 -/
 #guard_msgs in
 example : h bs = 1 → h as ≠ 0 := by
@@ -368,7 +369,7 @@ trace: [cutsat] Assignment satisfying linear constraints
 -/
 #guard_msgs in
 example : y > (z+1)*2 → x > y → x > 10 := by
-  grind =>
+  grind +verbose =>
     lia
     sorry
 
@@ -382,7 +383,7 @@ trace: [ring] Ring `Int`
 -/
 #guard_msgs in
 example {y z x : Int} : y = (z+1)*2 → x*y = 1 → x = 0 := by
-  grind =>
+  grind +verbose =>
     ring
     sorry
 
@@ -496,6 +497,7 @@ h✝¹ : p ∨ ¬q
 h2 : ¬p ∨ q
 h✝ : ¬p ∨ ¬q
 ⊢ False
+use `+verbose` to obtain diagnostic information
 -/
 #guard_msgs in
 example (r p q : Prop) : p ∨ r → p ∨ q → p ∨ ¬q → ¬p ∨ q → ¬p ∨ ¬q → False := by
@@ -558,6 +560,7 @@ h✝² : y + 2 ≤ x
 h✝¹ : ¬q x y
 h✝ : x ≤ y + 2
 ⊢ False
+use `+verbose` to obtain diagnostic information
 -/
 #guard_msgs in
 example : x > y + 1 → q x y := by

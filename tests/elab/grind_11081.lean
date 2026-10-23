@@ -99,6 +99,7 @@ left_25 : l₁.diff l₂ ++ l₂ ~ l₁.diff l₂ ++ l₂ ++ l₁
 right_25 : ∀ (a : α), count a (l₁.diff l₂ ++ l₂) = count a (l₁.diff l₂ ++ l₂ ++ l₁)
 h_39 : (fun x => decide (x = w)) = fun x => decide (x = w_1)
 ⊢ False
+use `+verbose` to obtain diagnostic information
 -/
 #guard_msgs in
 theorem countP_diff (hl : Subperm l₂ l₁) (p : α → Bool) :

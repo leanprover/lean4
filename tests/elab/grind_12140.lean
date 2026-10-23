@@ -25,6 +25,7 @@ ih : (Foo.mk n).num = 0
 h : ¬(Foo.mk (n + 1)).num = 0
 h_1 : 1 = n + 1
 ⊢ False
+use `+verbose` to obtain diagnostic information
 -/
 #guard_msgs in
 theorem foo (n : Nat) : (Foo.mk n).num = 0 := by

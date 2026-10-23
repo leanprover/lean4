@@ -232,6 +232,7 @@ X : SSet.Truncated' 2
 Δ : X.obj { unop := { obj := ⦋1⦌, property := ⋯ } }
 h : ¬X.map (SimplexCategory.δ 0).op (X.map (SimplexCategory.σ 0).op Δ) = Δ
 ⊢ False
+use `+verbose` to obtain diagnostic information
 -/
 #guard_msgs in
 example (X : SSet.Truncated' 2) (Δ : X.obj (Opposite.op ⟨⦋1⦌, by decide⟩)) :

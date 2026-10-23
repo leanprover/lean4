@@ -7,3 +7,6 @@ pool: the dependent ran
 poolIdle: child exited with code 0
 poolIdle: child returns from main
 poolIdle: the dependent ran
+poolSync: child exited with code 0
+poolSync: child returns from main
+poolSync: the dependent ran

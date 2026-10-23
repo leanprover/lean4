@@ -165,8 +165,8 @@ def collectFVarsToRevert (e : Expr)(dontRevert : FVarId → Bool) : MetaM (Array
     let new := new.filter (not <| dontRevert ·.fvarId!)
     if new.size == xs.size then xs := new; break
     let types ← new.mapM inferType
-    let forbidden := .ofArray new
-    let s := (types.foldl collectFVars {visitedExpr := forbidden}).fvarIds |>.filter (not ∘ dontRevert)
+    let forbidden : FVarIdSet := new.foldl (·.insert ·.fvarId!) {}
+    let s := (types.foldl collectFVars {}).fvarIds |>.filter fun x => !forbidden.contains x && !dontRevert x
     xs := new ++ s.map mkFVar
     if s.isEmpty then break -- no need for another iteration; collectForwardDeps is idempotent
   return xs

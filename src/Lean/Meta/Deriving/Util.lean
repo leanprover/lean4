@@ -63,23 +63,6 @@ def Lean.mkInstance (name : Name) (levelParams : List Name) (type value : Expr)
   enableRealizationsForConst name
   addDeclarationRangesFromSyntax name (← getRef)
 
-/--
-Creates a new metavariable in the local context `lctx`, reverting any free variables in `ty` that
-do not occur in `lctx`. The return value will be an application of the metavariable with the
-reverted variables, i.e. a metavariable application of type `ty`.
-
-Note: This function assumes that the `lctx` is a subprefix of the current local context.
--/
-def Lean.Meta.mkFreshRevertedMVarAt (ty : Expr) (lctx : LocalContext) (linsts : LocalInstances)
-    (kind : MetavarKind := .syntheticOpaque) : MetaM Expr := do
-  let ty ← instantiateMVars ty
-  let state ← (collectFVars {} ty).addDependencies
-  let toRevert := (← getLCtx).getFVarIds.filter (fun f => state.fvarSet.contains f && !lctx.contains f)
-  let toRevert := toRevert.map Expr.fvar
-  let ty' ← mkForallFVars toRevert ty
-  let mvar ← mkFreshExprMVarAt lctx linsts ty' kind (numScopeArgs := toRevert.size)
-  return mkAppN mvar toRevert
-
 namespace Lean.Meta.Deriving
 
 /--

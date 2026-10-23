@@ -310,8 +310,8 @@ private def tryApplyCanonicalInstance (instType : Expr) :
     let instances ← getGlobalInstancesIndex
     let matching ← instances.getUnify body
     let env ← getEnv
+    let matching ← filterActiveInstances matching
     let filtered := matching.filter fun inst => goodKeys inst.keys env && inst.globalName?.isSome
-    let filtered ← filterActiveInstances filtered
     let some instEntry ← chooseInstance filtered | return .error (.nonUnique matching filtered)
     let some name := instEntry.globalName? | unreachable!
     let c ← mkConstWithFreshMVarLevels name

@@ -481,8 +481,10 @@ info: /a/b
 #guard_msgs in
 #eval IO.println <| toString (URI.parse! "http://example.com/a/./b").path.normalize
 
+-- RFC 3986 §5.2.4 step 2B replaces a trailing `/..` with `/`, so the result still names a
+-- collection.
 /--
-info: /a
+info: /a/
 -/
 #guard_msgs in
 #eval IO.println (URI.parse! "http://example.com/a/b/..").path.normalize
@@ -523,8 +525,9 @@ info: /
 #guard_msgs in
 #eval IO.println (URI.parse! "http://example.com/../../../").path.normalize
 
+-- Likewise for a trailing `/.` (RFC 3986 §5.2.4 step 2C).
 /--
-info: /a/b/c
+info: /a/b/c/
 -/
 #guard_msgs in
 #eval IO.println (URI.parse! "http://example.com/./a/./b/./c/.").path.normalize

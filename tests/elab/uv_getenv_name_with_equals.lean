@@ -14,6 +14,9 @@ open Std.Internal.UV
 
 #eval show IO Unit from do
   for (name, value) in ← System.osEnviron do
+    -- libuv lists a Unix entry that starts with `=` under the empty name, which is never found.
+    if name.isEmpty then
+      continue
     let found ← System.osGetenv name
     unless found == some value do
       throw <| IO.userError s!"getenv {name} returned {found}, but environ lists {value}"

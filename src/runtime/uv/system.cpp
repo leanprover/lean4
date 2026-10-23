@@ -249,10 +249,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_environ() {
 /* Std.Internal.UV.System.osGetenv : @& String → IO (Option String) */
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_getenv(b_obj_arg name) {
     const char* name_str = lean_string_cstr(name);
-    // No name has an `=` past its first character (Windows keeps hidden variables such as `=C:`), but
-    // the C library may match a name only up to its `=`.
-    if (strlen(name_str) != lean_string_size(name) - 1 ||
-        (name_str[0] != '\0' && strchr(name_str + 1, '=') != nullptr)) {
+    if (strlen(name_str) != lean_string_size(name) - 1 || !is_env_var_name(name_str)) {
         return lean_io_result_mk_ok(mk_option_none());
     }
     char stack_buffer[1024];

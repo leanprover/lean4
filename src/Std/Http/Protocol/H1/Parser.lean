@@ -51,12 +51,26 @@ def isOwsByte (c : UInt8) : Bool :=
 -- Parser blocks
 
 /--
+Like `optional (attempt p)`, but an `.eof` failure of `p` is propagated instead of becoming `none`.
+
+The protocol machine treats `.eof` as "need more data". If an item is cut off by the end of the
+currently buffered input, swallowing the `.eof` would backtrack and let the next parser fail on the
+unfinished item's bytes, turning a valid message into a hard parse error.
+-/
+@[inline]
+def optionalUnlessEof (p : Parser α) : Parser (Option α) := fun it =>
+  match p it with
+  | .success rem res => .success rem (some res)
+  | .error rem .eof => .error rem .eof
+  | .error _ _ => .success it none
+
+/--
 Repeatedly applies `parser` until it returns `none` or the `maxCount` limit is
 exceeded. Returns the collected results as an array.
 -/
 partial def manyItems {α : Type} (parser : Parser (Option α)) (maxCount : Nat) : Parser (Array α) := do
   let rec go (acc : Array α) : Parser (Array α) := do
-    let step ← optional <| attempt do
+    let step ← optionalUnlessEof do
       match ← parser with
       | none => fail "end of items"
       | some x => return x
@@ -400,7 +414,7 @@ Parses the size and extensions of a chunk.
 -/
 public def parseChunkSize (limits : H1.Config) : Parser (Nat × Array (Chunk.ExtensionName × Option Chunk.ExtensionValue)) := do
   let size ← hex
-  let ext ← manyItems (optional (attempt (parseChunkExt limits))) limits.maxChunkExtensions
+  let ext ← manyItems (optionalUnlessEof (parseChunkExt limits)) limits.maxChunkExtensions
   crlf
   return (size, ext)
 

@@ -562,9 +562,7 @@ def DoElemCont.mkBindUnlessPure (dec : DoElemCont) (e : Expr) : DoElabM Expr := 
         return (isPure, isDuplicable)
       if isPure then
         if isDuplicable then
-          return ← mapLetDeclZeta (nondep := true) (kind := declKind) x eResultTy eRes fun _ => k
-        -- else -- would be too aggressive
-        --   return ← mapLetDecl (nondep := true) (kind := declKind) x eResultTy eRes fun _ => k ref
+          return ← body.replaceFVarsM #[xFVar] #[eRes]
 
     let body ← Term.ensureHasType (← mkMonadApp kResultTy) body
     let k ← mkLambdaFVars #[xFVar] body
@@ -1033,9 +1031,7 @@ partial def elabDoElem (stx : DoElem) (cont : DoElemCont) (catchExPostpone : Boo
   if (← read).deadCode matches .deadSemantically then
     logWarningAt stx "This `do` element and its control-flow region are dead code. Consider refactoring your code to remove it."
   withDeadCode .alive do -- we have warned for this doElem. No need to warn for every element of the block
-  let env ← getEnv
-  if let some (decl, stxNew?) ← liftMacroM (expandMacroImpl? env stx) then
-    let stxNew ← liftMacroM <| liftExcept stxNew?
+  if let some (decl, stxNew) ← Term.expandMacroReportingDeprecated? stx then
     return ← withTermInfoContext' decl stx mγ <|
       Term.withMacroExpansion stx stxNew <|
         withRef stxNew <| elabDoElem ⟨stxNew⟩ cont
@@ -1044,6 +1040,8 @@ partial def elabDoElem (stx : DoElem) (cont : DoElemCont) (catchExPostpone : Boo
   if !doElems.isEmpty then
     return ← elabDoElems1 (doElems.push stx) cont
 
+  -- After `expandNestedActions`, as syntax with nested actions is elaborated again without them
+  Term.reportDeprecatedSyntax stx
   match doElemElabAttribute.getEntries (← getEnv) k with
   | []      => throwError "elaboration function for `{k}` has not been implemented{indentD stx}"
   | elabFns => elabDoElemFns stx cont elabFns catchExPostpone

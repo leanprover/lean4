@@ -137,4 +137,50 @@ where
     else
       addMonomial e p
 
+/--
+Returns `true` if `toLinearExpr` decomposes `e`: `e` is a numeral, `-a`, `a + b`, `a - b`,
+`k * a`, or `a * k` for a numeral `k`.
+-/
+private def isLinearArith (e : Expr) : GoalM Bool := do
+  match_expr e with
+  | OfNat.ofNat _ _ _ => return (← getIntValue? e).isSome
+  | Neg.neg _ i _ => isInstNegInt i
+  | HAdd.hAdd _ _ _ i _ _ => isInstHAddInt i
+  | HSub.hSub _ _ _ i _ _ => isInstHSubInt i
+  | HMul.hMul _ _ _ i a b =>
+    unless (← isInstHMulInt i) do return false
+    return (← getIntValue? a).isSome || (← getIntValue? b).isSome
+  | _ => return false
+
+/--
+Returns the polynomial `p` of `e` if `e` is in the normal form produced by the `grind` preprocessor,
+and `none` otherwise. The normal form is a left-nested sum of monomials `k * a` (`k ∉ {0, 1}`) or
+`a`, followed by an optional nonzero numeral, where no atom `a` is decomposed by `toLinearExpr`.
+For terms in this form, `p.denote'` is definitionally equal to `e` by unfolding.
+
+Terms in dependent positions may not be in normal form because the preprocessor cannot rewrite
+them. The caller must normalize them using `toLinearExpr` and `Int.Internal.Linear.Expr.norm`.
+-/
+partial def toPoly? (e : Expr) : GoalM (Option Poly) := do
+  if let some k ← getIntValue? e then
+    return some (.num k)
+  let some (a, b) ← isAdd? e | monomial? e (.num 0)
+  if let some k ← getIntValue? b then
+    if k == 0 then return none
+    go a (.num k)
+  else
+    let some p ← monomial? b (.num 0) | return none
+    go a p
+where
+  monomial? (e : Expr) (p : Poly) : GoalM (Option Poly) := do
+    if let some (k, a) ← isMul? e then
+      if k == 0 || k == 1 || (← isLinearArith a) then return none
+      return some (.add k (← mkVar a) p)
+    if (← isLinearArith e) then return none
+    return some (.add 1 (← mkVar e) p)
+  go (e : Expr) (p : Poly) : GoalM (Option Poly) := do
+    let some (a, b) ← isAdd? e | monomial? e p
+    let some p ← monomial? b p | return none
+    go a p
+
 end Lean.Meta.Grind.Arith.Cutsat

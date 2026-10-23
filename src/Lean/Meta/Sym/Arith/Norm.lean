@@ -16,6 +16,7 @@ public import Lean.Meta.Sym.Arith.VarRename
 import Lean.Meta.Sym.Arith.ToExpr
 public import Lean.Meta.Sym.Simp.App
 import Lean.Meta.AppBuilder
+public import Lean.Meta.NatInstTesters
 public import Lean.Meta.Sym.AlphaShareBuilder
 import Lean.Data.RArray
 import Init.Grind.Norm
@@ -184,13 +185,13 @@ numeral, returns its carrier type.
 -/
 def getArithType? (e : Expr) : Option Expr :=
   match_expr e with
-  | HAdd.hAdd α _ _ _ _ _ => some α
-  | HSub.hSub α _ _ _ _ _ => some α
-  | HMul.hMul α _ _ _ _ _ => some α
-  | HPow.hPow α β _ _ _ _ => if β.isConstOf ``Nat then some α else none
-  | HSMul.hSMul σ α _ _ _ _ => if σ.isConstOf ``Nat || σ.isConstOf ``Int then some α else none
+  | HAdd.hAdd α β γ _ _ _ => homoType? α β γ
+  | HSub.hSub α β γ _ _ _ => homoType? α β γ
+  | HMul.hMul α β γ _ _ _ => homoType? α β γ
+  | HPow.hPow α β γ _ _ _ => if β.isConstOf ``Nat then homoType? α α γ else none
+  | HSMul.hSMul σ α γ _ _ _ => if σ.isConstOf ``Nat || σ.isConstOf ``Int then homoType? α α γ else none
   | Neg.neg α _ _ => some α
-  | HDiv.hDiv α _ _ _ _ _ => some α
+  | HDiv.hDiv α β γ _ _ _ => homoType? α β γ
   | Inv.inv α _ _ => some α
   | NatCast.natCast α _ a => if (Sym.getNatValue? a).run.isSome then some α else none
   | IntCast.intCast α _ a => if (Sym.getIntValue? a).run.isSome then some α else none
@@ -833,7 +834,14 @@ private partial def visit (v : Visitor m) (e : Expr) : VisitM m Node := do
       let ok ← isInst (← liftNorm getNegFn) f
       unless ok do unexpected
       match (← if ok then runPoly (SafePoly.mulConst (-1) na.p) else pure none) with
-      | some p => return { r := (← Simp.mkCongrArg e f a na.r h), re := .neg na.re, p }
+      | some p =>
+        -- A negative numeral is reified as `.num (-k)`, the form the normalizer renders it
+        -- in, so that `-1 = x` is recognized as an equation between a numeral and an atom.
+        -- `-0` stays `.neg (.num 0)`: `.num 0` denotes to `0`, which is not `-0` in a general ring.
+        let re := match na.re with
+          | .num k => if k == 0 then .neg na.re else .num (-k)
+          | re => .neg re
+        return { r := (← Simp.mkCongrArg e f a na.r h), re, p }
       | none =>
         let r ← Simp.mkCongrArg e f a (← normalizeNode v a na) h
         mkAtom (r.getResultExpr e) r (kept := true)
@@ -1028,6 +1036,12 @@ private def solvableCoeff? (c : Nat) : Poly → Option Int
   | .add k₁ _ (.add k₂ _ (.num 0)) => if k₁ + k₂ == c then some k₁ else none
   | _ => none
 
+/-- `p` is a numeral or a single variable: the sides of the equations `simp +arith` leaves alone. -/
+private def isNumOrAtom : Poly → Bool
+  | .num _ => true
+  | .add 1 (.mult ⟨_, 1⟩ .unit) (.num 0) => true
+  | _ => false
+
 /--
 Given the reified sides `l`, `r` of `e := rel lhs rhs`, with their polynomials `pl`, `pr` and the
 variables `vars` they index (compact, in `Expr.lt` order), returns the normalized relation.
@@ -1045,19 +1059,6 @@ private def normalizeRelCore (rel : RelKind) (relFn : Expr) (order? : Option Ord
     -- Instance for the certificate theorem: `CommRing` or `Ring`.
     let inst ← if kind.isComm then pure (← getCommRing).commRingInst else pure ring.ringInst
     let char? := ring.charInst?.bind fun (inst, c) => if c != 0 then some (inst, c) else none
-    -- `simp +arith` leaves equations between atoms and numerals alone (`x = y`, `x = 3`,
-    -- `3 = x`): `grind` and other tactics handle these directly. Canonicalization may still
-    -- have changed a numeral (`(7 : Fin 5)` is `2`).
-    if lhsOnly && rel == .eq then
-      match l, r with
-      | .var _, .var _ | .var _, .num _ | .num _, .var _ =>
-        -- A numeral side is canonicalized (`(7 : Fin 5)` is `2`); both are definitionally equal.
-        let side (x : RingExpr) (ex : Expr) : NormM Expr :=
-          if x matches .num _ then canonExpr ex else pure ex
-        let e' ← share (mkApp2 relFn (← side l lhs) (← side r rhs))
-        if isSameExpr e' e then return .normal
-        return .step e' (mkExpectedPropHint (mkApp2 (mkConst ``Eq.refl [1]) (mkSort .zero) e') (mkPropEq e e'))
-      | _, _ => pure ()
     let some p ← (do SafePoly.combine pl (← SafePoly.mulConst (-1) pr) : PolyM Poly).run budget | return .notApplicable
     -- Fields: cancel the discharged inverse atoms; in characteristic zero, split the numerator
     -- of `lhs - rhs`, whose denominator's sign needs `IsLinearOrder` for `≤`/`<`.
@@ -1067,6 +1068,12 @@ private def normalizeRelCore (rel : RelKind) (relFn : Expr) (order? : Option Ord
     let linInst? ← if invs.isEmpty || rel == .eq then pure none else
       MonadCanon.synthInstance? (mkApp2 (mkConst ``Std.IsLinearOrder [u]) ring.type order?.get!.leInst)
     if rel != .eq && linInst?.isNone then invs := #[]
+    -- `simp +arith` leaves equations between atoms and numerals alone (`x = y`, `x = 3`,
+    -- `3 = x`): `grind` and other tactics handle these directly. The sides are classified by
+    -- their polynomials, so `2 * 3 - 7 = x` is `-1 = x` and `(7 : Fin 5) = x` is `2 = x`; they
+    -- are rendered below without solving for a side. With inverse atoms, the sides must go
+    -- through the field normalization below.
+    let numOrAtom := lhsOnly && rel == .eq && invs.isEmpty && ainvs.isEmpty && isNumOrAtom pl && isNumOrAtom pr
     let p := if !invs.isEmpty then (p.toPolyQ invs.toList ainvsL).num
       else if !ainvs.isEmpty then p.cancelInvs ainvsL
       else p
@@ -1076,7 +1083,7 @@ private def normalizeRelCore (rel : RelKind) (relFn : Expr) (order? : Option Ord
     -- `(q, k, c)` for the certificate (`IntSolver.lean`).
     let mut p := p
     let mut tight? : Option (Poly × Int × Int) := none
-    if ring.type.isConstOf ``Int && invs.isEmpty && ainvs.isEmpty && char?.isNone && rel != .lt then
+    if ring.type.isConstOf ``Int && invs.isEmpty && ainvs.isEmpty && char?.isNone && rel != .lt && !numOrAtom then
       let k := gcdMonCoeffs p
       if k > 1 then
         let c := polyConst p
@@ -1092,32 +1099,41 @@ private def normalizeRelCore (rel : RelKind) (relFn : Expr) (order? : Option Ord
     -- `k` has an inverse modulo `c`, multiply by it, so that the equation is solved for `m`
     -- below. `scale?` records `k` and its inverse for the certificate.
     let mut scale? : Option (Int × Int) := none
-    if lhsOnly && rel == .eq && kind.isComm && ainvs.isEmpty then
+    if lhsOnly && rel == .eq && kind.isComm && ainvs.isEmpty && !numOrAtom then
       if let some (_, c) := char? then
         if let some k := solvableCoeff? c p then
           if k != 1 then
             if let some k' := modInv? k c then
               p := p.mulConstC k' c
               scale? := some (k, k')
-    -- Like `simp +arith`, an equation already of the form `p = 0` is left alone, and the
-    -- equations `x = y` and `x = k` are kept in that form instead of `x - y = 0`.
-    if lhsOnly && rel == .eq && char?.isNone && r == .num 0 && p.toExpr == l then return .normal
-    let (lp, rp) :=
-      if lhsOnly then
+    -- Like `simp +arith`, the equations `x - y = 0` and `x + k = 0` are written `x = y` and
+    -- `x = -k`, and any other equation already of the form `p = 0` is left alone.
+    let (lp, rp) ←
+      if numOrAtom then
+        pure (pl, pr)
+      else if lhsOnly then
         match rel, char?, p with
-        | .eq, none, .add 1 m₁ (.add (-1) m₂ (.num 0)) => (.add 1 m₁ (.num 0), .add 1 m₂ (.num 0))
-        | .eq, none, .add (-1) m₂ (.add 1 m₁ (.num 0)) => (.add 1 m₁ (.num 0), .add 1 m₂ (.num 0))
-        | .eq, none, .add 1 m (.num k) => (.add 1 m (.num 0), .num (-k))
+        | .eq, none, .add 1 m₁ (.add (-1) m₂ (.num 0)) => pure (.add 1 m₁ (.num 0), .add 1 m₂ (.num 0))
+        | .eq, none, .add (-1) m₂ (.add 1 m₁ (.num 0)) => pure (.add 1 m₁ (.num 0), .add 1 m₂ (.num 0))
+        | .eq, none, .add 1 m (.num k) => pure (.add 1 m (.num 0), .num (-k))
         | .eq, some (_, c), .add 1 m₁ (.add k m₂ (.num 0)) =>
-          if k + 1 == c then (.add 1 m₁ (.num 0), .add 1 m₂ (.num 0)) else (p, .num 0)
-        | .eq, some (_, c), .add 1 m (.num k) => (.add 1 m (.num 0), .num ((c - k) % c))
-        | _, _, _ => (p, .num 0)
+          pure <| if k + 1 == c then (.add 1 m₁ (.num 0), .add 1 m₂ (.num 0)) else (p, .num 0)
+        | .eq, some (_, c), .add 1 m (.num k) => pure (.add 1 m (.num 0), .num ((c - k) % c))
+        | _, _, _ =>
+          if rel == .eq && char?.isNone && r == .num 0 && p.toExpr == l then return .normal
+          pure (p, .num 0)
       else
         let (lp, rp, c) := splitPoly (char?.map (·.2)) p
-        (if c > 0 then lp.addConst c else lp, if c < 0 then rp.addConst (-c) else rp)
+        pure (if c > 0 then lp.addConst c else lp, if c < 0 then rp.addConst (-c) else rp)
     let l' := lp.toExpr
     let r' := rp.toExpr
-    let e' ← share (mkApp2 relFn (← denoteRingExpr' vars l') (← denoteRingExpr' vars r'))
+    -- A numeral side of a kept `x = k`: a numeral written as such keeps its canonical form, since a
+    -- rendered one would use the structure's type as written (`BitVec (id 32)`, `Fin (4 + 1)`)
+    -- and be a second literal node; an evaluated one (`2 * 3 - 7`) is rendered.
+    let side (p : Poly) (re : RingExpr) (ex : Expr) (ep : RingExpr) : NormM Expr :=
+      if numOrAtom && p matches .num _ && re matches .num _ then canonExpr ex
+      else denoteRingExpr' vars ep
+    let e' ← share (mkApp2 relFn (← side lp l lhs l') (← side rp r rhs r'))
     if isSameExpr e' e then return .normal
     let ctx ← mkContext ring.type vars
     let hoka ← if ainvs.isEmpty then pure (mkConst ``True.intro) else pure (mkInvAtomsOk (← getCommRing) ctx vars ainvs)
@@ -1274,6 +1290,22 @@ private def runNorm (kind : Kind) (distrib : Bool) (k : VisitM m α) : m α := d
   let (polyCfg, charZero) ← runNormM kind do pure (← polyConfig, (← fieldChar0?).isSome)
   (k.run { kind, distrib, polyCfg, charZero }).run' {}
 
+/--
+`true` if the structure `kind` has a characteristic the normalizer must leave alone: a numeral
+above `maxChar?`, or one that is not a numeral (`BitVec w`, `Fin n`). See `normalize?`.
+-/
+private def charAboveLimit (kind : Kind) (maxChar? : Option Nat) : m Bool := do
+  let some maxChar := maxChar? | return false
+  let s ← (getArithState : SymM _)
+  let (charInst?, symbolicChar) := match kind with
+    | .commRing id => let r := s.rings[id]!; (r.charInst?, r.symbolicChar)
+    | .commSemiring id => let r := s.rings[s.semirings[id]!.ringId]!; (r.charInst?, r.symbolicChar)
+    | .ring id => let r := s.ncRings[id]!; (r.charInst?, r.symbolicChar)
+    | .semiring id => let r := s.ncSemirings[id]!; (r.charInst?, r.symbolicChar)
+  if symbolicChar then return true
+  let some (_, c) := charInst? | return false
+  return c > maxChar
+
 /-- The kind of the structure of `α`, if the normalizer supports it. -/
 private def classifyKind? (α : Expr) : m (Option Kind) := do
   return match (← classify? α) with
@@ -1284,8 +1316,9 @@ private def classifyKind? (α : Expr) : m (Option Kind) := do
     | .none => none
 
 /-- The `normalize?` path for relations; `e` is `rel lhs rhs` with carrier `α`. -/
-private def normalizeRel? (v : Visitor m) (rel : RelKind) (α e lhs rhs : Expr) (lhsOnly distrib : Bool) : m Result := do
+private def normalizeRel? (v : Visitor m) (rel : RelKind) (α e lhs rhs : Expr) (lhsOnly distrib : Bool) (maxChar? : Option Nat) : m Result := do
   let some kind ← classifyKind? α | return .rfl
+  if (← charAboveLimit kind maxChar?) then return .rfl
   let order? ← match rel with
     | .eq => pure none
     | .le | .lt =>
@@ -1349,9 +1382,14 @@ The result distinguishes three cases:
 `discharge?` proves the side conditions `x ≠ 0` that cancel `x * x⁻¹` in a field; a result
 that asked for one is `contextDependent`. `distrib` is described at `normalize?`.
 -/
-private def normalizeTerm? (v : Visitor m) (e : Expr) (distrib : Bool) : m Result := do
+private def normalizeTerm? (v : Visitor m) (e : Expr) (distrib : Bool) (maxChar? : Option Nat) : m Result := do
   let some α := getArithType? e | return .rfl
   let some kind ← classifyKind? α | return .rfl
+  if (← charAboveLimit kind maxChar?) then
+    -- A cast of a numeral still becomes the numeral of the carrier, so that a numeral has one
+    -- representation; everything else is left as written.
+    let some (e₂, h) ← runNormM kind (mkCastLitStep? kind e) | return .rfl
+    return .step e₂ h (done := true)
   let isRing := kind.isRing
   let isField ← isFieldKind kind
   -- Roots that the structure does not interpret are atoms.
@@ -1373,8 +1411,9 @@ The `normalize?` path for `k ∣ arg` over `Int` with a numeral `k ≠ 0`; `dvdF
 the coefficients of `arg`: `k ∣ g * q + c` becomes `False` when `g ∤ c`, and `k / g ∣ q + c / g`
 otherwise (`IntSolver.lean`).
 -/
-private def normalizeDvd? (v : Visitor m) (e dvdFn arg : Expr) (k : Int) (distrib : Bool) : m Result := do
+private def normalizeDvd? (v : Visitor m) (e dvdFn arg : Expr) (k : Int) (distrib : Bool) (maxChar? : Option Nat) : m Result := do
   let some kind@(.commRing _) ← classifyKind? dvdFn.appFn!.appArg! | return .rfl
+  if (← charAboveLimit kind maxChar?) then return .rfl
   runNorm kind distrib do
     let n ← visit v arg
     let r₀ ← match h : e with
@@ -1391,6 +1430,67 @@ private def normalizeDvd? (v : Visitor m) (e dvdFn arg : Expr) (k : Int) (distri
       match r₀ with
       | .rfl _ cd₀ => return .step e' h₂ (done := true) (contextDependent := cd₀)
       | .step _ h₁ _ cd₀ => mkEqTransResult e e₁ h₁ (.step e' h₂ (done := true)) cd₀
+
+/--
+The `NormM` part of `cancelNatSub?`, for the visited sides `a` and `b`: the steps `a = a' + c` and
+`b = b' + c` and the terms `a'`, `b'`, `c`, or `none` when the common part `c` is zero.
+-/
+private def cancelNatSubCore (a b : Expr) (na nb : Node) : NormM (Option (Result × Result × Expr × Expr × Expr)) := do
+  let (f, vars) ← compactVars (.add na.re nb.re)
+  let pa := renamePoly na.p f true
+  let pb := renamePoly nb.p f true
+  let c := commonPart pa pb
+  if c.isZero then return none
+  let a' := (pa.combine (c.mulConst (-1))).toExpr
+  let b' := (pb.combine (c.mulConst (-1))).toExpr
+  let sr ← getCommSemiring
+  let ctx ← mkContext sr.type vars
+  let denote (x : RingExpr) : NormM Expr := do share (← denoteSemiringExpr' vars x)
+  -- `x = x' + c`, chained after the node's own step `x = x₁`.
+  let termStep (x : Expr) (n : Node) (x' : RingExpr) : NormM Result := do
+    let x₁ := n.r.getResultExpr x
+    let xC : RingExpr := .add x' c.toExpr
+    let ex ← denote xC
+    if isSameExpr x₁ ex then return n.r
+    let h := mkExpectedPropHint
+      (mkApp6 (mkConst ``Grind.CommRing.eq_normS [sr.u]) sr.type sr.commSemiringInst ctx (toExpr (n.re.renameVars f)) (toExpr xC) eagerReflBoolTrue)
+      (mkApp3 (mkConst ``Eq [sr.u.succ]) sr.type x₁ ex)
+    chainResults x x₁ n.r (.step ex h)
+  return some (← termStep a na a', ← termStep b nb b', ← denote a', ← denote b', ← denote c.toExpr)
+
+/-- `e₁ := (a' + c) - (b' + c) = a' - b'`, by `Nat.add_sub_add_right`. -/
+private def mkNatSubCancelStep (subFn e₁ a' b' c : Expr) : NormM (Expr × Expr) := do
+  let e' ← mkAppS₂ subFn a' b'
+  let h := mkApp3 (mkConst ``Nat.add_sub_add_right) a' c b'
+  return (e', mkExpectedPropHint h (mkNatEq e₁ e'))
+
+/--
+Cancels the common part of the sides of the `Nat` subtraction `e := a - b`, an atom of the `Nat`
+semiring: with `a` and `b` normalized to `a' + c` and `b' + c`, where `c` is the monomial-wise
+minimum of their polynomials, `e` becomes `a' - b'` (`Nat.add_sub_add_right`). So `x + 2 - 1`
+is `x + 1 - 0` and `x * y + 3 - (x * y + z + 1)` is `2 - z`; `a' - 0` and `0 - b'` are left
+to the caller. Returns `.rfl` when `c` is zero. The result is not `done`. `simpAtom` and
+`distrib` are as in `normalize?`.
+-/
+def cancelNatSub? (e : Expr) (simpAtom : Expr → m Result) (distrib : Bool := true) : m Result := do
+  let_expr HSub.hSub α β γ inst a b := e | return .rfl
+  -- Distinct atoms have nothing in common, and `x - x` is left to `Nat.sub_self`.
+  unless isInterpreted a || isInterpreted b do return .rfl
+  unless α.isConstOf ``Nat && β.isConstOf ``Nat && γ.isConstOf ``Nat do return .rfl
+  unless (← Structural.isInstHSubNat inst) do return .rfl
+  let some kind@(.commSemiring _) ← classifyKind? α | return .rfl
+  let v : Visitor m := { simpAtom, discharge? := fun _ => pure none }
+  runNorm kind distrib do
+    match h : e with
+    | .app fa@h':(.app subFn a) b =>
+      let na ← visit v a
+      let nb ← visit v b
+      let some (ra, rb, ea', eb', ec) ← liftNorm (cancelNatSubCore a b na nb) | return .rfl
+      let r₀ ← congrBin e fa subFn a b ra rb h h'
+      let e₁ := r₀.getResultExpr e
+      let (e', h) ← liftNorm (mkNatSubCancelStep subFn e₁ ea' eb' ec)
+      chainResults e e₁ r₀ (.step e' h)
+    | _ => unreachable!
 
 end Entry
 
@@ -1420,20 +1520,29 @@ field `(a * b)⁻¹` and `(a ^ n)⁻¹` are not rewritten. Any other product, po
 atom whose factors are normalized separately, so `x * (y + 1)` stays `x * (y + 1)` while
 `2 * (y + 1)` becomes `2 * y + 2`. This keeps the nonlinear atoms that decision procedures for
 linear arithmetic see, as a simplifier that only linearizes would.
+
+With `maxChar? := some c`, terms over a structure whose characteristic is a numeral above `c`,
+or is not a numeral (`BitVec w`, `Fin n`), are left as written; only casts of numerals are still
+rewritten to the numeral of the carrier. In such a structure the normal form reduces
+coefficients modulo the characteristic, so `x - y` over `BitVec 64` would become
+`x + 18446744073709551615 * y`, which hides the subtraction from rewrite rules and from
+`grind`'s `[grind hom]` translation. Structures with no `IsCharP` instance are normalized:
+without a known characteristic no coefficient is reduced.
 -/
 def normalize? [Monad m] [MonadLiftT SymM m] [MonadLiftT MetaM m] (e : Expr) (simpAtom : Expr → m Result)
-    (discharge? : Expr → m (Option Expr) := fun _ => pure none) (lhsOnly : Bool := false) (distrib : Bool := true) : m Result := do
+    (discharge? : Expr → m (Option Expr) := fun _ => pure none) (lhsOnly : Bool := false) (distrib : Bool := true)
+    (maxChar? : Option Nat := none) : m Result := do
   let v : Visitor m := { simpAtom, discharge? }
   match_expr e with
-  | Eq α lhs rhs => normalizeRel? v .eq α e lhs rhs lhsOnly distrib
-  | LE.le α _ lhs rhs => normalizeRel? v .le α e lhs rhs lhsOnly distrib
-  | LT.lt α _ lhs rhs => normalizeRel? v .lt α e lhs rhs lhsOnly distrib
+  | Eq α lhs rhs => normalizeRel? v .eq α e lhs rhs lhsOnly distrib maxChar?
+  | LE.le α _ lhs rhs => normalizeRel? v .le α e lhs rhs lhsOnly distrib maxChar?
+  | LT.lt α _ lhs rhs => normalizeRel? v .lt α e lhs rhs lhsOnly distrib maxChar?
   | Dvd.dvd α _ k arg =>
     if α.isConstOf ``Int then
       if let some kv := (Sym.getIntValue? k).run then
         if kv != 0 then
-          return ← normalizeDvd? v e e.appFn!.appFn! arg kv distrib
-    normalizeTerm? v e distrib
-  | _ => normalizeTerm? v e distrib
+          return ← normalizeDvd? v e e.appFn!.appFn! arg kv distrib maxChar?
+    normalizeTerm? v e distrib maxChar?
+  | _ => normalizeTerm? v e distrib maxChar?
 
 end Lean.Meta.Sym.Arith

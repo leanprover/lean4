@@ -378,6 +378,14 @@ def setNonCommSemiringDiseqUnsat (a b : Expr) (sa sb : SemiringExpr) : NonCommSe
   let h := mkApp3 h (toExpr sa) (toExpr sb) eagerReflBoolTrue
   closeGoal (mkApp hne h)
 
+/--
+Given `a ≠ b` in the core, where `a b : type` and `charInst : IsCharP type semiringInst 1`,
+close the goal.
+-/
+def setCharOneDiseqUnsat (u : Level) (type semiringInst charInst a b : Expr) : GoalM Unit := do
+  let h := mkApp5 (mkConst ``Grind.IsCharP.eq_of_charOne [u]) type semiringInst charInst a b
+  closeGoal (mkApp (← mkDiseqProof a b) h)
+
 private structure NormResult where
   lhs  : RingExpr
   rhs  : RingExpr

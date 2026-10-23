@@ -129,7 +129,7 @@ def GrindM.run (x : GrindM α) (params : Params) (evalTactic? : Option EvalTacti
   let (symSimpMethods, symDSimpMethods) ← if backward.grind.normalizer.get (← getOptions) then
       pure ({}, {})
     else
-      let thms ← mkNormSymTheorems
+      let thms ← getNormSymTheorems
       pure (mkNormSymMethods config thms, mkNormSymDSimpMethods config thms)
   let symPrios := params.symPrios
   let extensions := params.extensions
@@ -351,6 +351,9 @@ private def initCore (mvarId : MVarId) : GrindM Goal := do
   let mvarId ← if config.revert then mvarId.revertAll else pure mvarId
   let mvarId ← mvarId.unfoldReducible
   let mvarId ← mvarId.betaReduce
+  -- `have` wraps the goal type in `mdata` (`noImplicitLambda`), which would hide an implication
+  -- or a universal quantifier from `introNext`.
+  let mvarId ← mvarId.eraseIrrelevantMData
   appendTagSuffix mvarId `grind
   let goal ← mkGoalCore mvarId
   if config.revert then

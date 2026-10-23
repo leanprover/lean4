@@ -2288,6 +2288,14 @@ def mkNatSub (a b : Expr) : Expr :=
 def mkNatMul (a b : Expr) : Expr :=
   mkApp2 natMulFn a b
 
+/-- Given `a b : Nat`, returns `a / b` -/
+def mkNatDiv (a b : Expr) : Expr :=
+  mkApp6 (mkConst ``HDiv.hDiv [0, 0, 0]) Nat.mkType Nat.mkType Nat.mkType Nat.mkInstHDiv a b
+
+/-- Given `a b : Nat`, returns `a % b` -/
+def mkNatMod (a b : Expr) : Expr :=
+  mkApp6 (mkConst ``HMod.hMod [0, 0, 0]) Nat.mkType Nat.mkType Nat.mkType Nat.mkInstHMod a b
+
 /-- Given `a b : Nat`, returns `a ^ b` -/
 def mkNatPow (a b : Expr) : Expr :=
   mkApp2 natPowFn a b

@@ -59,12 +59,35 @@ because of the symmetric case. By using `eqCongrSymmPlaceholderProof`, we retain
 def eqCongrSymmPlaceholderProof := mkConst (Name.mkSimple "[eq_congr_symm]")
 
 /--
+Returns `true` if `type` is, structurally, the type of a literal with a normal form: `Nat`, `Int`,
+`String`, `Char`, `UInt8`, `UInt16`, `UInt32`, `UInt64`, or `Fin n`/`BitVec n` where `n` is a
+numeral. `Float` and `Float32` are excluded since their literals have no normal form
+(e.g., `2`, `2.0`, and `2.00` are the same `Float`).
+-/
+private def isNormalLitType (type : Expr) : MetaM Bool := do
+  match type.consumeMData with
+  | .const declName [] =>
+    return declName == ``Nat || declName == ``Int || declName == ``String || declName == ``Char
+      || declName == ``UInt8 || declName == ``UInt16 || declName == ``UInt32 || declName == ``UInt64
+  | .app (.const declName []) n =>
+    if declName == ``Fin || declName == ``BitVec then
+      return (← getNatValue? n).isSome
+    return false
+  | _ => return false
+
+/--
 Returns `true` if `e` is `True`, `False`, or a literal value.
 See `Lean.Meta.LitValues` for supported literals.
+`grind` assumes distinct interpreted terms denote distinct values, so a literal is interpreted
+only if it is in normal form, and in particular its type must be in normal form
+(see `isNormalLitType`). `LitValues` recognizes literals up to `whnfD` on their types, e.g.
+`(1 : BitVec w)` for `def w := 32`, but the canonicalizer does not unfold `w`, and
+`(1 : BitVec w)` and `(1 : BitVec 32)` would be distinct interpreted terms denoting the same value.
 -/
 def isInterpreted (e : Expr) : MetaM Bool := do
   if e.isTrue || e.isFalse then return true
-  isLitValue e
+  unless (← isLitValue e) do return false
+  isNormalLitType (← instantiateMVars (← inferType e))
 
 register_builtin_option grind.debug : Bool := {
   defValue := false
@@ -494,6 +517,11 @@ The `grind` core propagates equalities and disequalities to the theory solvers
 using these "marked" terms. The root of the equivalence class
 contains a list of representatives sorted by solver id. Note that many E-nodes
 do not have any solver terms attached to them.
+
+A solver has one representative per type in the equivalence class. A class contains
+terms of different types (e.g., `Fin n` and `Fin m`) only if it was merged via `HEq`
+(see `ENode.heqProofs`). Thus, the solvers are only notified about equalities and
+disequalities between terms of the same type.
 
 "Solver terms" are referenced as "theory variables" in the SMT literature.
 The SMT solver Z3 uses a similar representation.
@@ -2050,10 +2078,34 @@ def Solvers.mkActionCore : IO Action := do
     return Action.notApplicable
 
 /--
+Returns the representative of the solver `id` in `sTerms` whose type is the type of `e`.
+`checkType := false` if the equivalence class has no heterogeneous equalities. Then,
+all its terms have the same type, and the first representative of the solver is returned.
+-/
+private def findSolverTerm? (id : Nat) (e : Expr) (checkType : Bool) (sTerms : SolverTerms) : GoalM (Option Expr) := do
+  match sTerms with
+  | .nil => return none
+  | .next id' e' sTerms =>
+    if id == id' then
+      if (← pure !checkType <||> hasSameType e e') then
+        return some e'
+      else
+        findSolverTerm? id e checkType sTerms
+    else if id < id' then
+      return none
+    else
+      findSolverTerm? id e checkType sTerms
+
+/--
 Given a new disequality `lhs ≠ rhs`, propagates it to relevant theories.
 -/
 def Solvers.propagateDiseqs (lhs rhs : Expr) : GoalM Unit := do
-  go (← getRootENode lhs).sTerms (← getRootENode rhs).sTerms
+  let lhsRoot ← getRootENode lhs
+  let rhsRoot ← getRootENode rhs
+  if lhsRoot.heqProofs || rhsRoot.heqProofs then
+    goHEq lhsRoot rhsRoot none lhsRoot.sTerms
+  else
+    go lhsRoot.sTerms rhsRoot.sTerms
 where
   go (lhsTerms rhsTerms : SolverTerms) : GoalM Unit := do
     match lhsTerms, rhsTerms with
@@ -2068,25 +2120,53 @@ where
       else
         go (.next id₁ lhs lhsTerms) rhsTerms
 
+  /--
+  Uses the representatives with the type of `lhs` and `rhs`. A solver may have many
+  representatives: `prevId?` is the solver of the previous one in `lhsRoot.sTerms`.
+  -/
+  goHEq (lhsRoot rhsRoot : ENode) (prevId? : Option Nat) (lhsTerms : SolverTerms) : GoalM Unit := do
+    match lhsTerms with
+    | .nil => return ()
+    | .next id _ lhsTermsRest =>
+      unless prevId? == some id do
+        -- `lhsTerms` starts with the first representative of the solver `id`
+        if let some lhsTerm ← findSolverTerm? id lhs lhsRoot.heqProofs lhsTerms then
+          if let some rhsTerm ← findSolverTerm? id rhs rhsRoot.heqProofs rhsRoot.sTerms then
+            (← solverExtensionsRef.get)[id]!.newDiseq lhsTerm rhsTerm
+      goHEq lhsRoot rhsRoot (some id) lhsTermsRest
+
 /--
-If both `lhs` and `rhs` have a term of the solver `id`, runs `k` on these terms.
+If both `lhs` and `rhs` have a term of the solver `id` with their type, runs `k` on these terms.
 -/
 @[specialize]
 private def withSolverTermsOf (id : Nat) (lhs rhs : Expr) (k : Expr → Expr → GoalM Unit) : GoalM Unit := do
-  visitLhs (← getRootENode lhs).sTerms
+  let lhsRoot ← getRootENode lhs
+  if lhsRoot.heqProofs then
+    let some lhsTerm ← findSolverTerm? id lhs (checkType := true) lhsRoot.sTerms | return ()
+    visitRhs lhsTerm
+  else
+    visitLhs lhsRoot.sTerms
 where
   visitLhs (sTerms : SolverTerms) : GoalM Unit := do
     match sTerms with
     | .nil => return ()
     | .next id' e sTerms =>
       if id == id' then
-        visitRhs e (← getRootENode rhs).sTerms
+        visitRhs e
       else if id < id' then
         return ()
       else
         visitLhs sTerms
 
-  visitRhs (lhsTerm : Expr) (sTerms : SolverTerms) : GoalM Unit := do
+  visitRhs (lhsTerm : Expr) : GoalM Unit := do
+    let rhsRoot ← getRootENode rhs
+    if rhsRoot.heqProofs then
+      let some rhsTerm ← findSolverTerm? id rhs (checkType := true) rhsRoot.sTerms | return ()
+      k lhsTerm rhsTerm
+    else
+      visitRhsTerms lhsTerm rhsRoot.sTerms
+
+  visitRhsTerms (lhsTerm : Expr) (sTerms : SolverTerms) : GoalM Unit := do
     match sTerms with
     | .nil => return ()
     | .next id' e sTerms =>
@@ -2095,7 +2175,7 @@ where
       else if id < id' then
         return ()
       else
-        visitRhs lhsTerm sTerms
+        visitRhsTerms lhsTerm sTerms
 
 /-- Runs the `newDiseq` callback of the solver `id` if both `lhs` and `rhs` have a term of it. -/
 private def propagateDiseqOf (id : Nat) (lhs rhs : Expr) : GoalM Unit :=
@@ -2106,6 +2186,18 @@ private def propagateDiseqOf (id : Nat) (lhs rhs : Expr) : GoalM Unit :=
 private def pushSolverDiseqOf (id : Nat) (lhs rhs : Expr) : GoalM Unit :=
   withSolverTermsOf id lhs rhs fun lhsTerm rhsTerm =>
     modify fun s => { s with toProcess := s.toProcess.push <| .solverDiseq id lhsTerm rhsTerm }
+
+/--
+Similar to `forEachDiseq`, but only for disequalities between terms of the type of `e`,
+where `e` is a new representative of a solver in an equivalence class containing terms
+of different types. The other disequalities were propagated when the other representatives
+were added.
+-/
+@[inline] private def forEachDiseqOfType (parents : ParentSet) (e : Expr)
+    (k : Expr → Expr → GoalM Unit) : GoalM Unit :=
+  forEachDiseq parents fun lhs rhs => do
+    if (← hasSameType e lhs) then
+      k lhs rhs
 
 /-- Runs the queued `newEq` callback. See `ToProcessElement.solverEq`. -/
 def Solvers.newEq (solverId : Nat) (lhs rhs : Expr) : GoalM Unit := do
@@ -2118,10 +2210,17 @@ def Solvers.newDiseq (solverId : Nat) (lhs rhs : Expr) : GoalM Unit := do
 def isSameSolverTerms (a b : SolverTerms) : Bool :=
   unsafe ptrEq a b
 
+/-- Inserts `e` as a representative of the solver `id`, after its existing representatives. -/
+private def SolverTerms.insert (sTerms : SolverTerms) (id : Nat) (e : Expr) : SolverTerms :=
+  match sTerms with
+  | .nil => .next id e .nil
+  | .next id' e' sTerms' => if id < id' then .next id e sTerms else .next id' e' (sTerms'.insert id e)
+
 /--
 Registers `e` as a term of the solver `ext`. If the equivalence class of `e` already has a term
-`e'` of this solver, the solver learns `e = e'`; if a class disequal to it has a term of this
-solver, the solver learns that disequality. These callbacks are queued, not run here: `markTerm`
+`e'` of this solver with the same type, the solver learns `e = e'`. Otherwise, `e` becomes a
+representative of the class, and if a class disequal to it has a term of this solver, the solver
+learns that disequality. These callbacks are queued, not run here: `markTerm`
 is called from `internalize` hooks, where the callbacks must not internalize new terms yet.
 See `ToProcessElement.solverEq` and `GoalState.internalizing`.
 -/
@@ -2133,26 +2232,29 @@ def SolverExtension.markTerm (ext : SolverExtension σ) (e : Expr) : GoalM Unit 
     | .nil => return .next id e .nil
     | .next id' e' sTerms' =>
       if id == id' then
-        -- Skip if `e` and `e'` have different types (e.g., they were merged via `HEq` from `cast`).
-        -- This can happen when we have heterogeneous equalities in an equivalence class containing types such as `Fin n` and `Fin m`
         if (← pure !root.heqProofs <||> hasSameType e e') then
           modify fun s => { s with toProcess := s.toProcess.push <| .solverEq id e e' }
-        return sTerms
+          return sTerms
+        -- `e` and `e'` have different types. Keep searching for a representative with the type of `e`.
       else if id < id' then
         return .next id e sTerms
+      let sTermsNew ← go sTerms'
+      if isSameSolverTerms sTermsNew sTerms' then
+        return sTerms
       else
-        let sTermsNew ← go sTerms'
-        if isSameSolverTerms sTermsNew sTerms' then
-          return sTerms
-        else
-          return .next id' e' sTermsNew
+        return .next id' e' sTermsNew
   let sTermsNew ← go root.sTerms
   unless isSameSolverTerms sTermsNew root.sTerms do
     setENode root.self { root with sTerms := sTermsNew }
-    forEachDiseq (← getParents root.self) (pushSolverDiseqOf id)
+    if root.heqProofs then
+      forEachDiseqOfType (← getParents root.self) e (pushSolverDiseqOf id)
+    else
+      forEachDiseq (← getParents root.self) (pushSolverDiseqOf id)
 
 /--
 Returns `some t` if `t` is the solver term for `ext` associated with `e`.
+If the equivalence class of `e` contains terms of different types, `t` is one of
+the representatives of `ext`.
 -/
 def SolverExtension.getTerm (ext : SolverExtension σ) (e : ENode) : Option Expr :=
   go ext.id e.sTerms
@@ -2176,12 +2278,21 @@ private inductive PendingSolverPropagationsData where
   | nil
   | eq (solverId : Nat) (lhs rhs : Expr) (rest : PendingSolverPropagationsData)
   | diseqs (solverId : Nat) (ps : ParentSet) (rest : PendingSolverPropagationsData)
+  /--
+  Similar to `diseqs`, but `e` is a new representative of the solver in an equivalence class
+  containing terms of different types. See `forEachDiseqOfType`.
+  -/
+  | diseqsOfType (solverId : Nat) (e : Expr) (ps : ParentSet) (rest : PendingSolverPropagationsData)
 
 structure PendingSolverPropagations where private mk ::
   private data : PendingSolverPropagationsData
 
-def Solvers.mergeTerms (rhsRoot lhsRoot : ENode) : GoalM PendingSolverPropagations := do
-  let (sTerms, data) ← go rhsRoot.sTerms lhsRoot.sTerms
+/--
+Merges the solver terms of `lhsRoot` into `rhsRoot`, the root of the merged class.
+`heqProofs := true` if the merged class contains heterogeneous equalities.
+-/
+def Solvers.mergeTerms (rhsRoot lhsRoot : ENode) (heqProofs : Bool) : GoalM PendingSolverPropagations := do
+  let (sTerms, data) ← if heqProofs then goHEq else go rhsRoot.sTerms lhsRoot.sTerms
   unless sTerms matches .nil do
     -- We have to retrieve the node because other fields have been updated
     let rhsRoot ← getENode rhsRoot.self
@@ -2209,6 +2320,34 @@ where
         let (s, p) ← go (.next id₁ rhs rhsTerms) lhsTerms
         return (.next id₂ lhs s, .diseqs id₂ (← getParents rhsRoot.self) p)
 
+  /-- Merges the representatives by solver and type. See `SolverTerms`. -/
+  goHEq : GoalM (SolverTerms × PendingSolverPropagationsData) := do
+    let (sTerms, p) ← goHEqLhs lhsRoot.sTerms rhsRoot.sTerms .nil
+    return (sTerms, ← goHEqRhs rhsRoot.sTerms p)
+
+  /--
+  Adds each representative in `lhsTerms` to `sTerms` unless `rhsRoot` has a representative of
+  the same solver and type. In this case, the solver learns that they are equal.
+  -/
+  goHEqLhs (lhsTerms sTerms : SolverTerms) (p : PendingSolverPropagationsData) : GoalM (SolverTerms × PendingSolverPropagationsData) := do
+    match lhsTerms with
+    | .nil => return (sTerms, p)
+    | .next id lhs lhsTerms =>
+      if let some rhs ← findSolverTerm? id lhs (checkType := true) rhsRoot.sTerms then
+        goHEqLhs lhsTerms sTerms (.eq id lhs rhs p)
+      else
+        goHEqLhs lhsTerms (sTerms.insert id lhs) (.diseqsOfType id lhs (← getParents rhsRoot.self) p)
+
+  /-- Representatives in `rhsTerms` without a representative of the same solver and type in `lhsRoot`. -/
+  goHEqRhs (rhsTerms : SolverTerms) (p : PendingSolverPropagationsData) : GoalM PendingSolverPropagationsData := do
+    match rhsTerms with
+    | .nil => return p
+    | .next id rhs rhsTerms =>
+      if (← findSolverTerm? id rhs (checkType := true) lhsRoot.sTerms).isSome then
+        goHEqRhs rhsTerms p
+      else
+        goHEqRhs rhsTerms (.diseqsOfType id rhs (← getParents lhsRoot.self) p)
+
 def PendingSolverPropagations.propagate (p : PendingSolverPropagations) : GoalM Unit := do
   go p.data
 where
@@ -2216,14 +2355,13 @@ where
     match p with
     | .nil => return ()
     | .eq solverId lhs rhs rest =>
-      -- Skip if `lhs` and `rhs` have different types (e.g., they were merged via `HEq` from `cast`).
-      -- This can happen when we have heterogeneous equalities in an equivalence class containing types such as `Fin n` and `Fin m`
-      let root ← getRootENode lhs
-      if (← pure !root.heqProofs <||> hasSameType lhs rhs) then
-        (← solverExtensionsRef.get)[solverId]!.newEq lhs rhs
+      (← solverExtensionsRef.get)[solverId]!.newEq lhs rhs
       go rest
     | .diseqs solverId parentSet rest =>
       forEachDiseq parentSet (propagateDiseqOf solverId)
+      go rest
+    | .diseqsOfType solverId e parentSet rest =>
+      forEachDiseqOfType parentSet e (propagateDiseqOf solverId)
       go rest
 
 def anchorPrefixToString (numDigits : Nat) (anchorPrefix : UInt64) : String :=

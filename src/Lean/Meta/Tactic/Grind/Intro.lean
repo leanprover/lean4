@@ -248,7 +248,8 @@ private def applyCases? (goal : Goal) (fvarId : FVarId) (generation : Nat) (kp :
     pure goal
   if goal.inconsistent then return some (← kp goal)
   let mvarIds ← cases goal.mvarId (mkFVar fvarId)
-  let subgoals := mvarIds.map fun mvarId => { goal with mvarId }
+  -- This is a case split, so the E-matching round counter is reset as in `selectNextSplit?`.
+  let subgoals := mvarIds.map fun mvarId => { goal with mvarId, ematch.num := 0 }
   let mut seqNew : Array (TSyntax `grind) := #[]
   let mut stuckNew : Array Goal := #[]
   for subgoal in subgoals do

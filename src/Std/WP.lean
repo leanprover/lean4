@@ -6,6 +6,7 @@ Authors: Vladimir Gladshtein, Sebastian Graf
 module
 
 prelude
+public import Std.WP.Automation
 public import Std.WP.Basic
 public import Std.WP.Conjunctive
 public import Std.WP.Frame

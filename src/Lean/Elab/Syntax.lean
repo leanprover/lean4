@@ -9,6 +9,7 @@ prelude
 public import Lean.Elab.Command
 public import Lean.Parser.Syntax
 public meta import Lean.Parser.Syntax
+import Lean.Elab.DeprecatedSyntax.Basic
 import Init.Data.String.Modify
 import Init.Omega
 
@@ -147,9 +148,8 @@ where
     else if kind == ``Lean.Parser.Syntax.unicodeAtom then
       processUnicode stx
     else
-      let stxNew? ← liftM (liftMacroM (expandMacro? stx) : TermElabM _)
-      match stxNew? with
-      | some stxNew => process stxNew
+      match (← liftM (Term.expandMacroReportingDeprecated? stx : TermElabM _)) with
+      | some (_, stxNew) => Term.withPushMacroExpansionStack stx stxNew <| process stxNew
       | none => throwErrorAt stx "unexpected syntax kind of category `syntax`: {kind}"
 
   /-- Sequence (aka NullNode) -/
@@ -380,6 +380,20 @@ def resolveSyntaxKind (k : Name) : CommandElabM Name := do
   <|>
   throwError "invalid syntax node kind `{k}`"
 
+/--
+Like `adaptExpander`, for commands that define rules for a syntax kind, such as `macro_rules`: `exp`
+also returns that kind, if known. If it is deprecated, the expansion does not report deprecated
+constants and syntax: as with the body of a deprecated declaration, the references go away along
+with the rules.
+-/
+def adaptRulesExpander (exp : Syntax → CommandElabM (Option SyntaxNodeKind × Syntax)) :
+    CommandElab := fun stx => do
+  let (k?, stx') ← exp stx
+  let elabExpansion := withMacroExpansion stx stx' <| elabCommand stx'
+  unless k?.any (isDeprecatedSyntax (← getEnv)) do
+    return ← elabExpansion
+  withReader ({ · with checkDeprecated := .none }) elabExpansion
+
 def isLocalAttrKind (attrKind : Syntax) : Bool :=
   match attrKind with
   | `(Parser.Term.attrKind| local) => true
@@ -475,6 +489,32 @@ def inferMacroRulesAltKind : TSyntax ``matchAlt → CommandElabM SyntaxNodeKind
       throwUnsupportedSyntax
     let quoted := getQuotContent pat
     pure quoted.getKind
+  | _ => throwUnsupportedSyntax
+
+/--
+Checks that the quotation pattern of `alt` matches syntax of kind `k`, selecting the interpretation
+of kind `k` if the pattern is ambiguous. `cmdName` is used in error messages.
+-/
+def checkRuleAltKind (cmdName : String) (k : SyntaxNodeKind) (alt : TSyntax ``matchAlt) :
+    CommandElabM (TSyntax ``matchAlt) :=
+  match alt with
+  | `(matchAltExpr| | $pats,* => $rhs) => do
+    let pat := pats.elemsAndSeps[0]!
+    if !pat.isQuot then
+      throwUnsupportedSyntax
+    let quoted := getQuotContent pat
+    let k' := quoted.getKind
+    if checkRuleKind k' k then
+      pure alt
+    else if k' == choiceKind then
+       match quoted.getArgs.find? fun quotAlt => checkRuleKind quotAlt.getKind k with
+       | none        => throwErrorAt alt "invalid {cmdName} alternative, expected syntax node kind `{k}`"
+       | some quoted =>
+         let pat := pat.setArg 1 quoted
+         let pats := pats.elemsAndSeps.set! 0 pat
+         `(matchAltExpr| | $(⟨pats⟩),* => $rhs)
+    else
+      throwErrorAt alt "invalid {cmdName} alternative, unexpected syntax node kind `{k'}`"
   | _ => throwUnsupportedSyntax
 
 /--

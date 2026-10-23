@@ -11,13 +11,13 @@ public import Lean.Util.OccursCheck
 public import Lean.Elab.Tactic.Basic
 public import Lean.Meta.AbstractNestedProofs
 public import Init.Data.List.Sort.Basic
-import all Lean.Elab.ErrorUtils
+import Lean.Elab.ErrorUtils
 
 public section
 
 namespace Lean.Elab.Term
 open Tactic (TacticM evalTactic getUnsolvedGoals withTacticInfoContext)
-open Meta
+open Meta Internal.ErrorUtils
 
 /-- Auxiliary function used to implement `synthesizeSyntheticMVars`. -/
 private def resumeElabTerm (stx : Syntax) (expectedType? : Option Expr) (errToSorry := true) : TermElabM Expr :=
@@ -83,6 +83,28 @@ private def synthesizePendingInstMVar (instMVar : MVarId) (extraErrorMsg? : Opti
     catch
       | ex@(.error ..) => logException ex; return true
       | _              => unreachable!
+
+/-- Returns `true` if `instMVar` got stuck before and none of the metavariables it was blocked on has been assigned since. -/
+private def isStuckTCUnchanged (instMVar : MVarId) : TermElabM Bool := do
+  let some (mvarIds, levelMVarIds) := (← get).stuckTCMVars.get? instMVar | return false
+  if (← instMVar.isAssigned) then return false
+  if (← mvarIds.anyM fun mvarId => return (← mvarId.isAssigned) || (← mvarId.isDelayedAssigned)) then return false
+  if (← levelMVarIds.anyM isLevelMVarAssigned) then return false
+  return true
+
+/--
+Records the metavariables `instMVar`'s goal is blocked on. We only record when they are the only
+input that can change, i.e., the instance metavariable is unassigned and the local instances contain
+no metavariables.
+-/
+private def recordStuckTC (instMVar : MVarId) : TermElabM Unit := instMVar.withContext do
+  if (← instMVar.isAssigned) || (← read).ignoreTCFailures then return
+  for localInst in (← getLocalInstances) do
+    if (← instantiateMVars (← inferType localInst.fvar)).hasMVar then return
+  let type ← instantiateMVars (← instMVar.getType)
+  let mvarIds ← getMVars type
+  let levelMVarIds := (collectLevelMVars {} type).result
+  modify fun s => { s with stuckTCMVars := s.stuckTCMVars.insert instMVar (mvarIds, levelMVarIds) }
 
 /--
   Try to synthesize `mvarId` by starting using a default instance with the given priority.
@@ -541,7 +563,12 @@ mutual
     let some mvarSyntheticDecl ← getSyntheticMVarDecl? mvarId | return true -- The metavariable has already been synthesized
     withRef mvarSyntheticDecl.stx do
     match mvarSyntheticDecl.kind with
-    | .typeClass extraErrorMsg? => synthesizePendingInstMVar mvarId extraErrorMsg?
+    | .typeClass extraErrorMsg? =>
+      if (← isStuckTCUnchanged mvarId) then return false
+      if (← synthesizePendingInstMVar mvarId extraErrorMsg?) then
+        return true
+      recordStuckTC mvarId
+      return false
     | .coe _header? expectedType e _f? _ => mvarId.withContext do
       if (← withDefault do isDefEq (← inferType e) expectedType) then
         -- Types may be defeq now due to mvar assignments, type class

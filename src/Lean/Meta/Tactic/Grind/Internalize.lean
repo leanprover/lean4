@@ -186,6 +186,23 @@ private def pushCastHEqs (e : Expr) : GoalM Unit := do
 private def mkENode' (e : Expr) (generation : Nat) (funCC := false) : GoalM Unit :=
   mkENodeCore e (ctor := false) (interpreted := false) (generation := generation) (funCC := funCC)
 
+/--
+If `e` is a term `⟨v, h⟩ : {x // p x}`, asserts `p v`.
+
+The proposition `grind` learns from the nested proof `h` is its inferred type, which may be only
+definitionally equal to `p v`. For example, the instance of `∀ x : {x // p x}, q x` for `⟨v, h⟩`
+is `p v → q ⟨v, h⟩` after `Subtype.forall`, and it is only usable if `p v` is known to be true.
+
+This function must run once per internalized `Subtype.mk` application, like `mkInjEq`. It is not
+an upward propagator because those rerun whenever the class of an argument is merged, and the fact
+would be preprocessed and asserted again each time. We may want a general mechanism for
+propagators that run only once. A solver extension would also work, but it is too heavy for this.
+-/
+private def propagateSubtypeMk (e : Expr) : GoalM Unit := do
+  let_expr Subtype.mk _ p v h := e | return ()
+  let prop := p.beta #[v]
+  pushNewFact' prop (mkExpectedPropHint h prop) (← getGeneration e)
+
 /-- Internalizes the nested ground terms in the given pattern. -/
 private partial def internalizePattern (pattern : Expr) (generation : Nat) (origin : Origin) : GoalM Expr := do
   -- Recall that it is important to ensure patterns are maximally shared since
@@ -431,8 +448,10 @@ private def addSplitCandidatesForExt (arg : Expr) (generation : Nat) (parent? : 
     it := it.appFn!
 where
   found (f : Expr) (i : Nat) (type : Expr) (parent : Expr) : GoalM Unit := do
-    trace_goal[grind.debug.ext] "{f}, {i}, {arg}"
     let others := (← get).split.argsAt.find? (f, i) |>.getD []
+    -- `arg` is recorded once per `(f, i)`. Its candidates were created when it was first found there.
+    if others.any fun other => isSameExpr arg other.arg then return ()
+    trace_goal[grind.debug.ext] "{f}, {i}, {arg}"
     for other in others do
       if (← isDefEqD type other.type) then
         let eq := mkApp3 (mkConst ``Eq [← getLevel type]) type arg other.arg
@@ -616,6 +635,14 @@ private partial def internalizeImpl (e : Expr) (generation : Nat) (parent? : Opt
     Otherwise, it will not be able to propagate that `a + 1 = 1` when `a = 0`
     -/
     Solvers.internalize e parent?
+    /-
+    Function extensionality candidates are indexed by the parent function symbol and argument
+    position. A lambda that occurs as the argument of a second application must also be
+    recorded under that application. Otherwise, the candidate for the lambdas at that position
+    would never be created.
+    -/
+    if e.isLambda then
+      addSplitCandidatesForFunext e generation parent?
   else
     go
     propagateEtaStruct e generation
@@ -704,6 +731,7 @@ where
         pushPropagateUp e
         propagateBetaForNewApp e
         mkInjEq e
+        propagateSubtypeMk e
 
   /-- Visits the arguments of `e` and registers `e` as their parent. -/
   internalizeArgs (f : Expr) (args : Array Expr) (funCC : Bool) : GoalM Unit := do

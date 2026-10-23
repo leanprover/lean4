@@ -14,6 +14,10 @@ public import Lean.Meta.Tactic.Replace
 public import Std.WP
 import Lean.Meta.Sym.InferType
 import Lean.Meta.Sym.InstantiateMVarsS
+import Lean.Meta.Sym.AbstractS
+import Lean.Meta.Sym.MaxFVar
+import Lean.Meta.Sym.InstantiateS
+import Init.Sym.Lemmas
 
 open Lean Meta Elab Tactic Sym Sym.Internal
 open Lean.Elab.Tactic.VCGen.SpecAttr
@@ -35,15 +39,100 @@ public def unfoldTriple (goal : MVarId) : VCGenM MVarId := do
     | throwError "Failed to unfold the Triple target of {goal}"
   return goal
 
+/-- Decide whether `substEqHyp?` can substitute the equation `eqn` in the goal `eqn → G`.
+
+Consider this goal:
+```
+s  : Nat
+hs : 0 < s
+i  : Fin s
+⊢ s = 41 → P s
+```
+Here `eqn` is `s = 41` and `G` is `P s`. The result is `some (s, 41, P #0)`: the variable, its
+value, and `G` with `s` abstracted to `#0`. `substEqHyp?` then uses `fun y => P y` as the motive and
+continues with `s = 41 → P 41`.
+
+The result is `none` in these variations of the goal:
+* `G` is `P 0`. `s` does not occur in `G`, so there is nothing to substitute.
+* `eqn` is `s = s + 1`. `s` occurs in its own value.
+* `G` is `Q s i`. The motive `fun y => Q y i` is ill-typed, because `i : Fin s` mentions `s`. `G`
+  can mention `s`, but not a local whose type mentions `s`. Thus `G := P s` is fine although the type
+  of `hs` mentions `s`.
+* `s` is a `let` variable. -/
+def eqSubstCandidate? (eqn G : Expr) : VCGenM (Option (Expr × Expr × Expr)) := do
+  let eqn ← instantiateMVarsS eqn
+  let_expr Eq _ x t := eqn | return none
+  let .fvar fvarId := x | return none
+  let lctx ← getLCtx
+  let some decl := lctx.find? fvarId | return none
+  if decl.isLet || t.containsFVar fvarId then return none
+  -- The `maxFVar` entries of `G` let `abstractFVarsRange` skip the subterms without `x`.
+  let some maxFVarId ← getMaxFVar? G | return none
+  if (← maxFVarId.getDecl).index < decl.index then return none
+  let deps := lctx.foldl (start := decl.index + 1) (init := #[]) fun acc d =>
+    if d.type.containsFVar fvarId then acc.push d.toExpr else acc
+  -- The first `x` makes `xs[0]` the minimal variable, as `abstractFVarsRange` requires. The last
+  -- `x` maps `x` to `#0`. Each local in `deps` maps to an index of at least `1`, so
+  -- `looseBVarRange == 1` holds iff `G` mentions no local whose type mentions `x`.
+  let xs := (#[x] ++ deps).push x
+  let body ← abstractFVarsRange G 0 xs
+  unless body.looseBVarRange == 1 do return none
+  return some (x, t, body)
+
+/-- Whether the conjunction `φ` has a conjunct that `eqSubstCandidate?` accepts for `G`. -/
+partial def hasSubstConjunct (φ G : Expr) : VCGenM Bool := do
+  match_expr φ with
+  | And a b => hasSubstConjunct a G <||> hasSubstConjunct b G
+  | _ => return (← eqSubstCandidate? φ G).isSome
+
+/-- Curry the hypothesis `a ∧ b` of the goal `a ∧ b → G` into `a → b → G` when a conjunct is an
+equation that `substEqHyp?` substitutes. -/
+def splitConjHyp? (goal : MVarId) (target : Expr) (nm : Name) (φ G : Expr) :
+    VCGenM (Option MVarId) := do
+  let_expr And a b := φ | return none
+  unless ← hasSubstConjunct φ G do return none
+  let newTarget ← mkForallS nm .default a (← mkForallS nm .default b G)
+  let k ← liftMetaM <| mkFreshExprSyntheticOpaqueMVar newTarget
+  goal.assign (mkApp4 (mkConst ``Iff.mpr) target newTarget (mkApp3 (mkConst ``and_imp) a b G) k)
+  return some k.mvarId!
+
+/-- Substitute `t` for `x` in `G` in the goal `x = t → G`, leaving `x = t → G[t/x]`. `x` stays in
+the local context. -/
+def substEqHyp? (goal : MVarId) (nm : Name) (eqn G : Expr) : VCGenM (Option MVarId) := do
+  let some (x, t, body) ← eqSubstCandidate? eqn G | return none
+  let α ← Sym.inferType x
+  let u ← Sym.getLevel α
+  let motive ← mkLambdaS (← x.fvarId!.getUserName) .default α body
+  let newTarget ← mkForallS nm .default eqn (← instantiateRevBetaS body #[t])
+  let k ← liftMetaM <| mkFreshExprSyntheticOpaqueMVar newTarget
+  goal.assign (mkApp5 (mkConst ``Lean.Sym.imp_subst [u]) α x t motive k)
+  trace[Elab.Tactic.Do.vcgen] "subst: {x} := {t}"
+  return some k.mvarId!
+
 /-- Apply precondition-intro rule `rule` to `goal`, then introduce the freed hypothesis,
 leaving `⊤` as the residual precondition. Returns the new goal and the introduced hypothesis. -/
 public def introPre (rule : BackwardRule) (goal : MVarId) : VCGenM (MVarId × FVarId) := do
   let .goals [goal] ← rule.applyChecked goal
     | throwError "Failed to apply precondition intro rule to {goal}"
-  let goal ← introsHygienic goal
-  let some decl := (← goal.withContext getLCtx).lastDecl
-    | throwError "Failed to intro the lifted precondition of {goal}"
-  return (goal, decl.fvarId)
+  let mut goal := goal
+  let mut pending := 1
+  let mut last? : Option FVarId := none
+  while pending > 0 do
+    let target ← goal.getType
+    let .forallE nm φ G _ := target
+      | throwError "Failed to intro the lifted precondition of {goal}"
+    unless G.hasLooseBVars do
+      if let some g ← goal.withContext (splitConjHyp? goal target nm φ G) then
+        goal := g
+        pending := pending + 1
+        continue
+      if let some g ← goal.withContext (substEqHyp? goal nm φ G) then
+        goal := g
+    goal ← introsHygienicN goal 1
+    last? := (← goal.withContext getLCtx).lastDecl.map (·.fvarId)
+    pending := pending - 1
+  let some h := last? | throwError "Failed to intro the lifted precondition of {goal}"
+  return (goal, h)
 
 /--
 Reduce a `Prod.fst` projection of a concrete tuple on the RHS of `pre ⊑ rhs` to the component it

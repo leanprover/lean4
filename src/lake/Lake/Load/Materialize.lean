@@ -26,6 +26,43 @@ or resolve a local path dependency.
 namespace Lake
 
 /--
+Converts a dependency's {lit}`subDir` into a path relative to the repository root,
+suitable for a Git sparse checkout.
+Returns none if the subdirectory is the repository root or outside the repository.
+-/
+def sparseCheckoutDir? (subDir : FilePath) : Option String :=
+  let comps := subDir.components.filter fun c => !c.isEmpty && c != "."
+  if comps.isEmpty || comps.contains ".." then none else some ("/".intercalate comps)
+
+/-- Lexically normalizes an absolute path, resolving {lit}`.` and {lit}`..` components. -/
+def lexicalNormalize (path : FilePath) : FilePath :=
+  let comps := path.components.foldl (init := #[]) fun acc c =>
+    if c == "." || (c.isEmpty && !acc.isEmpty) then acc
+    else if c == ".." && acc.size > 1 then acc.pop
+    else acc.push c
+  FilePath.mk (System.FilePath.pathSeparator.toString.intercalate comps.toList)
+
+/--
+  Ensures {lean}`dir` is checked out: If {lean}`dir` is a subdirectory of a checkout inside pkgsDir,
+  and that checkout is sparse, and {lean}`dir` is not already in the sparse checkout cone, add it to
+  the sparse checkout. Otherwise, do nothing.
+-/
+def addPathDepToSparseCheckout (name : String) (dir pkgsDir : FilePath) : LoggerIO Unit := do
+  let dirComps := (lexicalNormalize dir).components
+  let pkgsComps := (lexicalNormalize pkgsDir).components
+  -- Only consider directories within a Lake-managed repository (`<pkgsDir>/<pkg>/...`).
+  unless dirComps.length > pkgsComps.length + 1 && dirComps.take pkgsComps.length == pkgsComps do
+    return
+  let some repoName := dirComps[pkgsComps.length]? | return
+  let repo : GitRepo := pkgsDir / repoName
+  let some cone ← repo.getSparseCheckoutCone? | return
+  let relDir := "/".intercalate (dirComps.drop (pkgsComps.length + 1))
+  if cone.any (fun c => relDir == c || relDir.startsWith (c ++ "/")) then return
+  logInfo s!"{name}: adding '{relDir}' to the sparse checkout of {repo}"
+  unless (← repo.setSparseCheckoutCone (cone.push relDir)) do
+    logWarning s!"{name}: failed to add '{relDir}' to the sparse checkout of {repo}"
+
+/--
 Materialize the Git repository from {lean}`url` into {lean}`repo` at {lean}`rev?`.
 
 If no revision is specified (i.e., {lean}`rev? = none`), the latest {lit}`master` is used.
@@ -33,9 +70,13 @@ If no revision is specified (i.e., {lean}`rev? = none`), the latest {lit}`master
 If the repository is already at {lean}`rev?`, return early with no fetch.
 Otherwise, fetch the revision {lean}`rev?` from the remote {lean}`url` and check it out.
 If no local repository exists, initialize a new one.
+
+If {lean}`sparseDir?` is set, the working tree is restricted to a cone-mode sparse checkout of
+that directory. This also affects what blobs are downloaded by Git.
 -/
 def materializeGitRepo
   (name : String) (repo : GitRepo) (url : String) (rev? : Option GitRev)
+  (sparseDir? : Option String := none)
 : LoggerIO Unit := do
   let rev := rev?.getD Git.upstreamBranch
   let remote := Git.defaultRemote
@@ -52,6 +93,8 @@ def materializeGitRepo
         repo.setRemoteUrl remote url
     else
       repo.addRemote remote url
+    -- Sync the sparse checkout (e.g., an older full checkout or a changed `subDir`).
+    syncSparseCheckout (isNew := false)
     -- Skip fetch if already on revision. Avoids errors when offline.
     -- https://github.com/leanprover/lake/issues/104
     if (← repo.getHeadRevision?) = some rev then
@@ -71,6 +114,7 @@ def materializeGitRepo
     IO.FS.createDirAll repo.dir
     repo.quietInit
     repo.addRemote remote url
+    syncSparseCheckout (isNew := true)
   -- # New revision
   logInfo s!"{name}: fetching revision '{rev}' from {url}"
   let some rev ← repo.fetchRevision? remote rev
@@ -93,6 +137,25 @@ where
       return path.toString
     else
       return url
+  syncSparseCheckout (isNew : Bool) : LoggerIO Unit := do
+    match sparseDir? with
+    | some dir =>
+      -- Keep extra directories (e.g., added for path dependencies) if the cone still covers `dir`.
+      let cone? ← if isNew then pure none else repo.getSparseCheckoutCone?
+      if cone?.any (·.contains dir) then return
+      if isNew then
+        logVerbose s!"{name}: using a sparse checkout of '{dir}'"
+      else
+        logInfo s!"{name}: restricting the checkout to '{dir}' (sparse checkout)"
+      unless (← repo.setSparseCheckoutCone #[dir]) do
+        logWarning s!"{name}: failed to set up a sparse checkout of '{dir}' \
+          (requires Git 2.26+); the whole repository will be checked out"
+    | none =>
+      if isNew then return
+      if (← repo.getSparseCheckoutCone?).isSome then
+        logInfo s!"{name}: disabling sparse checkout"
+        unless (← repo.disableSparseCheckout) do
+          logWarning s!"{name}: failed to disable sparse checkout"
   @[inline] checkout rev := do
     logInfo s!"{name}: checking out revision '{rev}'"
     repo.checkoutDetach rev
@@ -208,6 +271,8 @@ public def Dependency.materialize
     match src with
     | .path dir copy =>
       let relSrc := relParentDir / dir
+      if lakeEnv.sparseCheckout then
+        addPathDepToSparseCheckout dep.prettyName (wsDir / relSrc) (wsDir / relPkgsDir)
       let relPath ← mkPath wsDir relPkgsDir relSrc dep.dirName copy (update := true)
       mkDep dep.prettyName (relPath) "" (.path relSrc copy)
     | .git url inputRev? subDir? => do
@@ -247,7 +312,8 @@ where
     let gitDir := wsDir / relPkgDir
     let repo := GitRepo.mk gitDir
     let gitUrl := lakeEnv.pkgUrlMap.find? dep.name |>.getD gitUrl
-    materializeGitRepo name repo gitUrl inputRev?
+    let sparseDir? := if lakeEnv.sparseCheckout then subDir?.bind sparseCheckoutDir? else none
+    materializeGitRepo name repo gitUrl inputRev? sparseDir?
     let rev ← repo.getHeadRevision
     let relPkgDir := if let some subDir := subDir? then relPkgDir / subDir else relPkgDir
     mkDep name relPkgDir remoteUrl <| .git gitUrl rev inputRev? subDir?
@@ -270,13 +336,16 @@ public def PackageEntry.materialize
 : LoggerIO MaterializedDep := do
   match manifestEntry.src with
   | .path (dir := relSrc) (copy := copy) .. =>
+    if lakeEnv.sparseCheckout then
+      addPathDepToSparseCheckout manifestEntry.prettyName (wsDir / relSrc) (wsDir / relPkgsDir)
     let relPath ← mkPath wsDir relPkgsDir relSrc manifestEntry.dirName copy (update := false)
     mkDep relPath ""
   | .git (url := url) (rev := rev) (subDir? := subDir?) .. =>
     let relGitDir := relPkgsDir / manifestEntry.dirName
     let repo := GitRepo.mk (wsDir / relGitDir)
     let url := lakeEnv.pkgUrlMap.getD manifestEntry.name url
-    materializeGitRepo manifestEntry.prettyName repo url rev
+    let sparseDir? := if lakeEnv.sparseCheckout then subDir?.bind sparseCheckoutDir? else none
+    materializeGitRepo manifestEntry.prettyName repo url rev sparseDir?
     let relPkgDir := match subDir? with | .some subDir => relGitDir / subDir | .none => relGitDir
     mkDep relPkgDir (Git.filterUrl? url |>.getD "")
 where

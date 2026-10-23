@@ -47,6 +47,11 @@ public structure Env where
   /-- Whether the system cache has been disabled (`LAKE_CACHE_DIR` is set but empty). -/
   noSystemCache : Bool := false
   /--
+  Whether Git dependencies with a {lit}`subDir` are materialized with a cone-mode sparse checkout
+  of that subdirectory (i.e., `LAKE_SPARSE_CHECKOUT`).
+  -/
+  sparseCheckout : Bool := true
+  /--
   The directory for the Lake cache. Customized by `LAKE_CACHE_DIR`.
 
   If `none`, no suitable system directory for the cache exists.
@@ -176,6 +181,7 @@ public def compute
     noCache := (noCache <|> (← IO.getEnv "LAKE_NO_CACHE").bind envToBool?).getD false
     enableArtifactCache? := (← IO.getEnv "LAKE_ARTIFACT_CACHE").bind envToBool?
     restoreAllArtifacts? := (← IO.getEnv "LAKE_RESTORE_ARTIFACTS").bind envToBool?
+    sparseCheckout := ((← IO.getEnv "LAKE_SPARSE_CHECKOUT").bind envToBool?).getD true
     lakeConfig? := (← IO.getEnv "LAKE_CONFIG") <|> userHome?.map (· / ".lake" / "config.toml" |>.toString)
     cacheKey? := (← IO.getEnv "LAKE_CACHE_KEY").map (·.trimAscii.copy)
     cacheArtifactEndpoint? := (← IO.getEnv "LAKE_CACHE_ARTIFACT_ENDPOINT").map normalizeUrl

@@ -1,8 +1,7 @@
 import Std.Internal.UV.System
 
 /-!
-Process priorities at the edges (PR #15653), on a child process so the test does not lower its own
-priority: pid 0 means the calling process, 19 is accepted and read back, a priority below -20 is
+Process priorities at the edges, on a child process so the test does not lower its own priority: pid 0 means the calling process, 19 is accepted and read back, a priority below -20 is
 rejected, and a process that has exited and been reaped is reported as missing.
 -/
 

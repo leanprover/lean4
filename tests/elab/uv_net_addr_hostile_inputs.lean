@@ -2,10 +2,11 @@ import Std.Async
 import Std.Net
 
 /-!
-Hostile text crossing the address and DNS FFI (PR #15653): malformed, over-long or NUL-containing
-address strings (including IPv6 text with a `%` zone suffix) parse to `none`, DNS names that libuv or the resolver reject fail with an error
-instead of crashing, and reverse lookups of ports 0 and 65535 and of an IPv4-mapped IPv6 address
-succeed. IPv6 text at the maximum `INET6_ADDRSTRLEN` length parses and prints.
+Hostile text crossing the address and DNS FFI: malformed, over-long or NUL-containing address
+strings (including IPv6 text with a `%` zone suffix) parse to `none`, DNS names that libuv or the
+resolver reject fail with an error instead of crashing, and reverse lookups of ports 0 and 65535 and
+of an IPv4-mapped IPv6 address succeed. IPv6 text at the maximum `INET6_ADDRSTRLEN` length parses
+and prints.
 -/
 
 open Std.Async

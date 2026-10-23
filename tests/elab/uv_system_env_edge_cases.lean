@@ -1,8 +1,7 @@
 import Std.Internal.UV.System
 
 /-!
-Edge cases of the environment and path queries that cross the libuv FFI (PR #15653): an empty value
-is distinct from an unset variable, values containing `=` or non-ASCII text round-trip, values around
+Edge cases of the environment and path queries that cross the libuv FFI: an empty value is distinct from an unset variable, values containing `=` or non-ASCII text round-trip, values around
 the 1024-byte stack buffer of `osGetenv` (including a multi-byte character straddling it) and a 1 MB
 value come back whole, and names or values with an embedded NUL are rejected instead of being
 truncated at the NUL. `cwd` is checked at exactly `PATH_MAX` bytes on macOS, the one length at which

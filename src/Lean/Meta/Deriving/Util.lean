@@ -656,6 +656,9 @@ def isRecursive : DerivingM Bool := do
 def isNested : DerivingM Bool := do
   return (← read).indInfo.isNested
 
+def isNestedOrReflexive : DerivingM Bool := do
+  return (← read).indInfo.isNested || (← read).indInfo.isReflexive
+
 def eliminatesToProp : DerivingM Bool := do
   let recInfo ← getConstInfoRec (mkRecName (← read).indInfo.name)
   return recInfo.levelParams.length == (← read).indInfo.levelParams.length
@@ -889,6 +892,11 @@ def postprocessUsingCtor (usePartial : Bool) (predef : PreDefinition) : MetaM Pr
 /--
 Constructs an instance of the class using its constructor, running `perField` on every field given
 the name of the projection function of the field.
+
+For `supportsRec := true` (the default), it tries to make the helpers non-partial if the inductive
+is not nested or reflexive. This is however only guaranteed to work if the fields provided to
+`perCtor` are only used as arguments to instance projections of the class. Otherwise, use
+`supportsRec := false`.
 -/
 def InstanceInfo.usingCtor (perField : Name → FieldHelperProvider α)
     (supportsRec : Bool := true) (induct : Name) :
@@ -921,7 +929,7 @@ def InstanceInfo.usingCtor (perField : Name → FieldHelperProvider α)
       throwError "Invalid use of `{.ofConstName decl_name%}`, incorrect level for inductive"
   let typeApp ← inductAppWithParams induct
   let indInfo ← getConstInfoInduct induct
-  let usePartial := (← isNested) || !supportsRec
+  let usePartial := (← isNestedOrReflexive) || !supportsRec
   forallBoundedTelescope (whnfType := true) (← inferType typeApp) indInfo.numIndices fun indices body => do
     let .sort _ := body
       | throwError "Unexpected inductive type type{indentExpr (← inferType typeApp)}"
@@ -969,8 +977,8 @@ def InstanceInfo.usingCtor (perField : Name → FieldHelperProvider α)
 
 /--
 Derive an instance for a transformation type class by applying `perCtor` for each constructor
-with the inductive info, constructor info, and the fields. A transformation type class is a type
-class of the shape
+with the inductive info, constructor info, the fields, and the constructor application. A
+transformation type class is a type class of the shape
 ```
 class ClassName (α : Sort u) where -- or (α : Type u) or (α : Type)
   fieldName : α → TargetType
@@ -1004,6 +1012,10 @@ def toSExprHandler : DerivingHandler :=
 
 initialize registerDerivingHandler ``ToSExpr toSExprHandler
 ```
+For `supportsRec := true` (the default), it tries to make the helpers non-partial if the inductive
+is not nested or reflexive. This however is only guaranteed to work if the fields provided to
+`perCtor` are only used as arguments to the instance projection of the class
+(i.e. `ToSExpr.toSExpr` in the example above). Otherwise, use `supportsRec := false`.
 -/
 def deriveTransformationInstPerConstructor
     (perCtor : InductiveVal → ConstructorVal → Array Expr → Expr → DerivingM Expr)

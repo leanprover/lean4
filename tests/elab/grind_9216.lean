@@ -31,6 +31,8 @@ introduce an auxiliary definition to make the pattern matching more effective.
 Example:
 -/
 @[grind] def IsAddInv (a b : Int) : Prop := a = -b
+
+local grind_pattern List.eq_or_mem_of_mem_cons => b :: l, a ∈ l in
 example (seen : HashSet Int) (xs : List Int) (x : Int) (h : ¬-x ∈ seen) :
     (∃ a, a ∈ seen.insert x ∧ ∃ b, b ∈ xs ∧ IsAddInv a b) ↔
     (∃ y, y ∈ xs ∧ IsAddInv x y) ∨ ∃ a, a ∈ seen ∧ ∃ b, b ∈ x :: xs ∧ IsAddInv a b := by

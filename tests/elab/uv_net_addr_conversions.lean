@@ -6,8 +6,7 @@ Addresses survive the conversions between Lean values and the C socket structure
 results, the addresses and netmasks of the network interfaces, and socket addresses passed to and
 returned by the kernel, port included. The values use a different byte in every position, so a
 swapped byte or segment shows up. Parsing and printing are each checked against fixed values, so a
-byte-order error in either direction fails on every host (#15653 fixed one that only showed on
-big-endian hosts).
+byte-order error in either direction fails, even one that a round trip would cancel out.
 -/
 
 open Std.Async

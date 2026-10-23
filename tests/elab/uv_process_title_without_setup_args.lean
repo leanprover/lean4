@@ -12,9 +12,9 @@ open Std.Internal.UV
   if System.Platform.isWindows then
     return
   match ← System.getProcessTitle.toBaseIO with
-  | .error (.resourceExhausted _ code _) =>
-    -- `ENOMEM` is 12 on Linux and macOS.
-    if code == 12 then
-      throw <| IO.userError "getProcessTitle: out of memory"
+  -- `ENOBUFS` and `ENOMEM` both decode to `resourceExhausted`, so the libuv message tells them apart.
+  | .error (.resourceExhausted _ _ details) =>
+    unless details == "no buffer space available" do
+      throw <| IO.userError s!"getProcessTitle: {details}"
   | .error e => throw <| IO.userError s!"getProcessTitle: unexpected error {e}"
   | .ok t => throw <| IO.userError s!"getProcessTitle: read {t.length} bytes without uv_setup_args"

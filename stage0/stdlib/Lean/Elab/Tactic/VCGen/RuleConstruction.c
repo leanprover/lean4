@@ -1176,13 +1176,13 @@ return v_res_108_;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_withLocalDecls_loop___at___00Lean_Meta_withLocalDecls___at___00Lean_Meta_withLocalDeclsD___at___00Lean_Meta_withLocalDeclsDND___at___00__private_Lean_Elab_Tactic_VCGen_RuleConstruction_0__Lean_Elab_Tactic_VCGen_mkPostPointwisePremise_spec__1_spec__2_spec__4_spec__9___lam__0(lean_object* v___x_109_, lean_object* v___x_110_, lean_object* v_a_111_, lean_object* v___y_112_, lean_object* v___y_113_, lean_object* v___y_114_, lean_object* v___y_115_){
 _start:
 {
-lean_object* v___x_2976__overap_117_; lean_object* v___x_118_; 
-v___x_2976__overap_117_ = l_instInhabitedOfMonad___redArg(v___x_109_, v___x_110_);
+lean_object* v___x_2977__overap_117_; lean_object* v___x_118_; 
+v___x_2977__overap_117_ = l_instInhabitedOfMonad___redArg(v___x_109_, v___x_110_);
 lean_inc(v___y_115_);
 lean_inc_ref(v___y_114_);
 lean_inc(v___y_113_);
 lean_inc_ref(v___y_112_);
-v___x_118_ = lean_apply_5(v___x_2976__overap_117_, v___y_112_, v___y_113_, v___y_114_, v___y_115_, lean_box(0));
+v___x_118_ = lean_apply_5(v___x_2977__overap_117_, v___y_112_, v___y_113_, v___y_114_, v___y_115_, lean_box(0));
 return v___x_118_;
 }
 }
@@ -6828,9 +6828,9 @@ return v___x_2135_;
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Tactic_VCGen_RuleConstruction_0__Lean_Elab_Tactic_VCGen_eqSpecToWp_x3f___lam__0___boxed(lean_object* v___x_2143_, lean_object* v_arg_2144_, lean_object* v___x_2145_, lean_object* v___y_2146_, lean_object* v___y_2147_, lean_object* v___y_2148_, lean_object* v___y_2149_, lean_object* v___y_2150_){
 _start:
 {
-uint8_t v___x_13257__boxed_2151_; lean_object* v_res_2152_; 
-v___x_13257__boxed_2151_ = lean_unbox(v___x_2143_);
-v_res_2152_ = l___private_Lean_Elab_Tactic_VCGen_RuleConstruction_0__Lean_Elab_Tactic_VCGen_eqSpecToWp_x3f___lam__0(v___x_13257__boxed_2151_, v_arg_2144_, v___x_2145_, v___y_2146_, v___y_2147_, v___y_2148_, v___y_2149_);
+uint8_t v___x_13258__boxed_2151_; lean_object* v_res_2152_; 
+v___x_13258__boxed_2151_ = lean_unbox(v___x_2143_);
+v_res_2152_ = l___private_Lean_Elab_Tactic_VCGen_RuleConstruction_0__Lean_Elab_Tactic_VCGen_eqSpecToWp_x3f___lam__0(v___x_13258__boxed_2151_, v_arg_2144_, v___x_2145_, v___y_2146_, v___y_2147_, v___y_2148_, v___y_2149_);
 lean_dec(v___y_2149_);
 lean_dec_ref(v___y_2148_);
 lean_dec(v___y_2147_);

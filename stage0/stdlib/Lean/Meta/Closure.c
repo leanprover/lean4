@@ -10871,9 +10871,9 @@ return v_res_3288_;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Closure_0__Lean_Meta_Closure_sortDecls_visit___lam__0___boxed(lean_object* v___x_3289_, lean_object* v_m_3290_, lean_object* v_e_3291_, lean_object* v___y_3292_, lean_object* v___y_3293_, lean_object* v___y_3294_, lean_object* v___y_3295_){
 _start:
 {
-uint8_t v___x_17738__boxed_3296_; lean_object* v_res_3297_; 
-v___x_17738__boxed_3296_ = lean_unbox(v___x_3289_);
-v_res_3297_ = l___private_Lean_Meta_Closure_0__Lean_Meta_Closure_sortDecls_visit___lam__0(v___x_17738__boxed_3296_, v_m_3290_, v_e_3291_, v___y_3292_, v___y_3293_, v___y_3294_);
+uint8_t v___x_17740__boxed_3296_; lean_object* v_res_3297_; 
+v___x_17740__boxed_3296_ = lean_unbox(v___x_3289_);
+v_res_3297_ = l___private_Lean_Meta_Closure_0__Lean_Meta_Closure_sortDecls_visit___lam__0(v___x_17740__boxed_3296_, v_m_3290_, v_e_3291_, v___y_3292_, v___y_3293_, v___y_3294_);
 lean_dec(v___y_3294_);
 lean_dec_ref(v___y_3293_);
 lean_dec_ref(v_e_3291_);

@@ -1842,9 +1842,9 @@ return v___x_637_;
 LEAN_EXPORT lean_object* l_Lean_addTrace___at___00Lean_Meta_Grind_Arith_Cutsat_requestReorder_spec__0___boxed(lean_object* v_cls_638_, lean_object* v_msg_639_, lean_object* v___y_640_, lean_object* v___y_641_, lean_object* v___y_642_, lean_object* v___y_643_, lean_object* v___y_644_, lean_object* v___y_645_, lean_object* v___y_646_, lean_object* v___y_647_, lean_object* v___y_648_, lean_object* v___y_649_, lean_object* v___y_650_, lean_object* v___y_651_, lean_object* v___y_652_){
 _start:
 {
-uint8_t v___y_24222__boxed_653_; lean_object* v_res_654_; 
-v___y_24222__boxed_653_ = lean_unbox(v___y_640_);
-v_res_654_ = l_Lean_addTrace___at___00Lean_Meta_Grind_Arith_Cutsat_requestReorder_spec__0(v_cls_638_, v_msg_639_, v___y_24222__boxed_653_, v___y_641_, v___y_642_, v___y_643_, v___y_644_, v___y_645_, v___y_646_, v___y_647_, v___y_648_, v___y_649_, v___y_650_, v___y_651_);
+uint8_t v___y_24223__boxed_653_; lean_object* v_res_654_; 
+v___y_24223__boxed_653_ = lean_unbox(v___y_640_);
+v_res_654_ = l_Lean_addTrace___at___00Lean_Meta_Grind_Arith_Cutsat_requestReorder_spec__0(v_cls_638_, v_msg_639_, v___y_24223__boxed_653_, v___y_641_, v___y_642_, v___y_643_, v___y_644_, v___y_645_, v___y_646_, v___y_647_, v___y_648_, v___y_649_, v___y_650_, v___y_651_);
 lean_dec(v___y_651_);
 lean_dec_ref(v___y_650_);
 lean_dec(v___y_649_);

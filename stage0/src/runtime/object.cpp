@@ -521,6 +521,13 @@ extern "C" LEAN_EXPORT lean_obj_res lean_array_set_panic(lean_obj_arg a, lean_ob
 // =======================================
 // Thunks
 
+// Whether `o` is owned by one thread: its count is single-threaded or overflowed from one.
+// sync with tests/elab/rc_model.lean (`isUnshared`)
+static inline bool is_unshared(object * o) {
+    int rc = lean_internal_get_rc(o);
+    return rc > 0 || rc <= LEAN_RC_STUCK_ST;
+}
+
 extern "C" LEAN_EXPORT b_obj_res lean_thunk_get_core(b_obj_arg t) {
     object * c = lean_to_thunk(t)->m_closure.exchange(nullptr);
     if (c != nullptr) {
@@ -531,10 +538,19 @@ extern "C" LEAN_EXPORT b_obj_res lean_thunk_get_core(b_obj_arg t) {
            to be object stored in the constructor object.
 
            Recall that `apply_1` also consumes `c`'s RC. */
+        bool shared = !is_unshared(t);
+        // Which thread first forces a shared thunk depends on scheduling, so its evaluation must not
+        // count toward that thread's heartbeats.
+        uint64_t heartbeats = shared ? get_num_heartbeats() : 0;
         object * r = lean_apply_1(c, lean_box(0));
         lean_assert(r != nullptr); /* Closure must return a valid lean object */
         lean_assert(lean_to_thunk(t)->m_value == nullptr);
-        mark_mt(r);
+        // Marking `t` later also marks its value, so the value only needs marking now if `t` is
+        // shared already, possibly only since the start of the evaluation.
+        if (!is_unshared(t))
+            mark_mt(r);
+        if (shared)
+            set_heartbeats(heartbeats);
         lean_to_thunk(t)->m_value = r;
         return r;
     } else {
@@ -642,13 +658,6 @@ static obj_res mark_mt_fn(obj_arg o) {
     lean_mark_mt(o);
     lean_dec(o);
     return lean_box(0);
-}
-
-// Whether `o` is owned by one thread: its count is single-threaded or overflowed from one.
-// sync with tests/elab/rc_model.lean (`isUnshared`)
-static inline bool is_unshared(object * o) {
-    int rc = lean_internal_get_rc(o);
-    return rc > 0 || rc <= LEAN_RC_STUCK_ST;
 }
 
 extern "C" LEAN_EXPORT void lean_mark_mt(object * o) {

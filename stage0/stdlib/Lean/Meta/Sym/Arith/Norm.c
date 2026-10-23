@@ -8754,10 +8754,10 @@ v___jp_2300_:
 {
 lean_object* v___x_2314_; lean_object* v___x_2315_; lean_object* v___x_2316_; lean_object* v___x_2317_; 
 lean_inc_ref(v___y_2304_);
-lean_inc_ref(v___y_2303_);
-v___x_2314_ = l_Lean_Name_mkStr2(v___y_2303_, v___y_2304_);
+lean_inc_ref(v___y_2302_);
+v___x_2314_ = l_Lean_Name_mkStr2(v___y_2302_, v___y_2304_);
 v___x_2315_ = l_Lean_mkConst(v___x_2314_, v___y_2301_);
-v___x_2316_ = l_Lean_mkAppB(v___x_2315_, v___y_2302_, v_inst_2305_);
+v___x_2316_ = l_Lean_mkAppB(v___x_2315_, v___y_2303_, v_inst_2305_);
 v___x_2317_ = l_Lean_Meta_Sym_canon(v___x_2316_, v___y_2308_, v___y_2309_, v___y_2310_, v___y_2311_, v___y_2312_, v___y_2313_);
 if (lean_obj_tag(v___x_2317_) == 0)
 {
@@ -8915,8 +8915,8 @@ lean_dec_ref_known(v___x_2358_, 1);
 if (lean_obj_tag(v_a_2359_) == 0)
 {
 v___y_2301_ = v___x_2351_;
-v___y_2302_ = v_type_2345_;
-v___y_2303_ = v___x_2354_;
+v___y_2302_ = v___x_2354_;
+v___y_2303_ = v_type_2345_;
 v___y_2304_ = v___x_2348_;
 v_inst_2305_ = v_inst_x27_2353_;
 v___y_2306_ = v___y_2272_;
@@ -8941,8 +8941,8 @@ if (lean_obj_tag(v___x_2362_) == 0)
 {
 lean_dec_ref_known(v___x_2362_, 1);
 v___y_2301_ = v___x_2351_;
-v___y_2302_ = v_type_2345_;
-v___y_2303_ = v___x_2354_;
+v___y_2302_ = v___x_2354_;
+v___y_2303_ = v_type_2345_;
 v___y_2304_ = v___x_2348_;
 v_inst_2305_ = v_val_2360_;
 v___y_2306_ = v___y_2272_;

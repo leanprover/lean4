@@ -815,9 +815,9 @@ return v___x_271_;
 LEAN_EXPORT lean_object* l___private_Lean_BuiltinDocAttr_0__Lean_initFn___lam__0_00___x40_Lean_BuiltinDocAttr_939411776____hygCtx___hyg_2____boxed(lean_object* v_decl_273_, lean_object* v_stx_274_, lean_object* v_x_275_, lean_object* v___y_276_, lean_object* v___y_277_, lean_object* v___y_278_){
 _start:
 {
-uint8_t v_x_1091__boxed_279_; lean_object* v_res_280_; 
-v_x_1091__boxed_279_ = lean_unbox(v_x_275_);
-v_res_280_ = l___private_Lean_BuiltinDocAttr_0__Lean_initFn___lam__0_00___x40_Lean_BuiltinDocAttr_939411776____hygCtx___hyg_2_(v_decl_273_, v_stx_274_, v_x_1091__boxed_279_, v___y_276_, v___y_277_);
+uint8_t v_x_1092__boxed_279_; lean_object* v_res_280_; 
+v_x_1092__boxed_279_ = lean_unbox(v_x_275_);
+v_res_280_ = l___private_Lean_BuiltinDocAttr_0__Lean_initFn___lam__0_00___x40_Lean_BuiltinDocAttr_939411776____hygCtx___hyg_2_(v_decl_273_, v_stx_274_, v_x_1092__boxed_279_, v___y_276_, v___y_277_);
 lean_dec(v___y_277_);
 lean_dec_ref(v___y_276_);
 return v_res_280_;

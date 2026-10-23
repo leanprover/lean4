@@ -1,0 +1,10 @@
+name = "bulkUnpack"
+enableArtifactCache = true
+buildDir = "out"
+leanLibDir = "lib"
+irDir = "ir"
+defaultTargets = ["Foo"]
+
+[[lean_lib]]
+name = "Foo"
+srcDir = "src"

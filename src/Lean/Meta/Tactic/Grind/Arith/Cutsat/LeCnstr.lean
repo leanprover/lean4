@@ -115,7 +115,7 @@ def LeCnstr.assertImpl (c : LeCnstr) : GoalM Unit := do
   let .add a x _ := c.p | c.throwUnexpected
   if (← findEq c) then
     return ()
-  let c ← refineWithDiseq c
+  let c ← (← refineWithDiseq c).markStored
   trace[grind.lia.assert.store] "{← c.pp}"
   c.p.updateOccs
   if a < 0 then

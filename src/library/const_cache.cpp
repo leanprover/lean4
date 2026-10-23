@@ -161,9 +161,21 @@ lean_external_class * get_cache_class() {
 }
 }
 
-/* Specialized per `owned` and inlined into `find_cached`: a shared out-of-line copy measurably slows
-   down the hot path. */
+/* The module index stored in a lookup result `Option (α × Nat)`, plus one, or zero for `none`. */
+static inline lean_object * mod_idx_of(b_lean_obj_arg r) {
+    if (lean_is_scalar(r))
+        return lean_box(0);
+    return lean_box(lean_unbox(lean_ctor_get(lean_ctor_get(r, 0), 1)) + 1);
+}
+
 template <bool owned>
+static lean_obj_res find_cached_miss(cache & c, table * t, uint64_t h, size_t empty,
+        b_lean_obj_arg root, b_lean_obj_arg n, lean_object * (*core)(lean_obj_arg, lean_obj_arg));
+
+/* Specialized per `owned` and inlined into `find_cached`: a shared out-of-line copy measurably slows
+   down the hot path. With `idx_only`, returns `mod_idx_of` the result instead, so that hits need no
+   reference counting. */
+template <bool owned, bool idx_only>
 static inline __attribute__((always_inline)) lean_obj_res find_cached_in(cache & c,
         b_lean_obj_arg root, b_lean_obj_arg n, lean_object * (*core)(lean_obj_arg, lean_obj_arg)) {
     table * t = c.m_table.load();
@@ -179,11 +191,25 @@ static inline __attribute__((always_inline)) lean_obj_res find_cached_in(cache &
             break;
         }
         if (e->m_root == root && lean_name_eq(e->m_key, n)) {
+            if (idx_only)
+                return mod_idx_of(e->m_val);
             // the value is pinned by the entry and multi-threaded
             lean_inc(e->m_val);
             return e->m_val;
         }
     }
+    lean_object * r = find_cached_miss<owned>(c, t, h, empty, root, n, core);
+    if (idx_only) {
+        lean_object * i = mod_idx_of(r);
+        lean_dec(r);
+        return i;
+    }
+    return r;
+}
+
+template <bool owned>
+static lean_obj_res find_cached_miss(cache & c, table * t, uint64_t h, size_t empty,
+        b_lean_obj_arg root, b_lean_obj_arg n, lean_object * (*core)(lean_obj_arg, lean_obj_arg)) {
     lean_inc(root); lean_inc(n);
     // Whether a lookup misses depends on other threads using the same cache, so the miss path must
     // not count toward the heartbeats of the current thread.
@@ -225,27 +251,38 @@ static inline __attribute__((always_inline)) lean_obj_res find_cached_in(cache &
     return r;
 }
 
+template <bool idx_only>
 static lean_obj_res find_cached(b_lean_obj_arg opt, b_lean_obj_arg root, b_lean_obj_arg n,
         lean_object * (*core)(lean_obj_arg, lean_obj_arg)) {
     if (!lean_is_scalar(opt)) {
         cache * c = static_cast<cache *>(lean_get_external_data(lean_ctor_get(opt, 0)));
-        return find_cached_in<true>(*c, root, n, core);
+        return find_cached_in<true, idx_only>(*c, root, n, core);
     }
-    return find_cached_in<false>(g_global_cache, root, n, core);
+    return find_cached_in<false, idx_only>(g_global_cache, root, n, core);
 }
 
 /* ImportedConsts.findConstEntryCachedImpl (cache? : @& Option LookupCache)
      (t : @& ImportedConsts ConstantInfo) (n : @& Name) : Option (ConstantInfo × Nat) */
 extern "C" LEAN_EXPORT lean_obj_res lean_imported_consts_find_entry_cached(
         b_lean_obj_arg cache, b_lean_obj_arg root, b_lean_obj_arg n) {
-    return find_cached(cache, root, n, lean_imported_consts_find_entry_core);
+    return find_cached<false>(cache, root, n, lean_imported_consts_find_entry_core);
 }
 
 /* ImportedConsts.findExtraEntryCachedImpl (cache? : @& Option LookupCache)
      (t : @& ImportedConsts Unit) (n : @& Name) : Option (Unit × Nat) */
 extern "C" LEAN_EXPORT lean_obj_res lean_imported_extra_consts_find_entry_cached(
         b_lean_obj_arg cache, b_lean_obj_arg root, b_lean_obj_arg n) {
-    return find_cached(cache, root, n, lean_imported_extra_consts_find_entry_core);
+    return find_cached<false>(cache, root, n, lean_imported_extra_consts_find_entry_core);
+}
+
+extern "C" LEAN_EXPORT lean_obj_res lean_imported_consts_find_mod_idx_cached(
+        b_lean_obj_arg cache, b_lean_obj_arg root, b_lean_obj_arg n) {
+    return find_cached<true>(cache, root, n, lean_imported_consts_find_entry_core);
+}
+
+extern "C" LEAN_EXPORT lean_obj_res lean_imported_extra_consts_find_mod_idx_cached(
+        b_lean_obj_arg cache, b_lean_obj_arg root, b_lean_obj_arg n) {
+    return find_cached<true>(cache, root, n, lean_imported_extra_consts_find_entry_core);
 }
 
 /* LookupCache.new : BaseIO LookupCache */

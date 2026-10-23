@@ -308,8 +308,8 @@ negative cache entry in) the much larger `constants.map₁`.
 -/
 private def looksLikeCodegenName : Name → Bool
   | .str _ s =>
-    s == "_boxed" || s == "_redArg" || "_closed_".isPrefixOf s || "_lam_".isPrefixOf s
-      || "_elambda".isPrefixOf s || "_cstage".isPrefixOf s
+    "_".isPrefixOf s && (s == "_boxed" || s == "_redArg" || "_closed_".isPrefixOf s
+      || "_lam_".isPrefixOf s || "_elambda".isPrefixOf s || "_cstage".isPrefixOf s)
   | _ => false
 
 /--

@@ -33,9 +33,19 @@ opaque findConstEntryCachedImpl (cache? : @& Option LookupCache)
 public def findConstCached? (t : ImportedConsts ConstantInfo) (n : Name) : Option ConstantInfo :=
   (t.findConstEntryCached? n).map (·.1)
 
+/--
+The module index of `findConstEntryCached?` plus one, or zero if not found; returning a scalar avoids
+reference counting on hits.
+-/
+@[extern "lean_imported_consts_find_mod_idx_cached"]
+opaque findConstModIdxCachedImpl (cache? : @& Option LookupCache)
+    (t : @& ImportedConsts ConstantInfo) (n : @& Name) : Nat
+
 @[inherit_doc findConstEntryCached?, inline]
 public def findConstModIdxCached? (t : ImportedConsts ConstantInfo) (n : Name) : Option Nat :=
-  (t.findConstEntryCached? n).map (·.2)
+  match findConstModIdxCachedImpl t.cache? t n with
+  | 0 => none
+  | i + 1 => some i
 
 end ImportedConsts
 

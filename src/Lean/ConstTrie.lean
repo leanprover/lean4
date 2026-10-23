@@ -327,9 +327,19 @@ else a process-global one; sound because `t` is immutable per import set.
     Option (Unit × Nat) :=
   findExtraEntryCachedImpl t.cache? t n
 
+/--
+The module index of `findExtraEntryCached?` plus one, or zero if not found; returning a scalar avoids
+reference counting on hits.
+-/
+@[extern "lean_imported_extra_consts_find_mod_idx_cached"]
+opaque findExtraModIdxCachedImpl (cache? : @& Option LookupCache) (t : @& ImportedConsts Unit)
+    (n : @& Name) : Nat
+
 @[inherit_doc findExtraEntryCached?, inline]
 public def findExtraModIdxCached? (t : ImportedConsts Unit) (n : Name) : Option Nat :=
-  (t.findExtraEntryCached? n).map (·.2)
+  match findExtraModIdxCachedImpl t.cache? t n with
+  | 0 => none
+  | i + 1 => some i
 
 public def find? (t : ImportedConsts α) (n : Name) : Option α :=
   let path := prefixesOf n

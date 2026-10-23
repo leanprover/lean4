@@ -302,8 +302,9 @@ def getCurrentUser : IO SystemUser := do
   }
 
 /--
-Gets the group by its ID, or `none` if there is no such group. Throws an `IO.Error.invalidArgument` for an
-ID that does not fit the operating system's group ID type.
+Gets the group by its ID, or `none` if there is no such group. Throws an `IO.Error.invalidArgument`
+for an ID that does not fit the operating system's group ID type, and an
+`IO.Error.unsupportedOperation` on Windows.
 -/
 def getGroup (groupId : GroupId) : IO (Option GroupInfo) := do
   let groupInfo ← UV.System.osGetGroup groupId.toNat

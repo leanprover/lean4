@@ -32,9 +32,12 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_get_process_title() {
     char * buffer = stack_buffer;
     size_t size = sizeof(stack_buffer);
 
-    // libuv does not report the size the title needs, so the buffer doubles until it fits.
+    // libuv does not report the size the title needs, so the buffer doubles until it fits. The bound,
+    // above any argv area, ends the doubling when `uv_setup_args` was never called (as in the `lean`
+    // binary), since libuv then reports `UV_ENOBUFS` for every size.
+    constexpr size_t max_size = 16 * 1024 * 1024;
     int result;
-    while ((result = uv_get_process_title(buffer, size)) == UV_ENOBUFS) {
+    while ((result = uv_get_process_title(buffer, size)) == UV_ENOBUFS && size < max_size) {
         size *= 2;
         heap_buffer.reset(new (std::nothrow) char[size]);
         if (!heap_buffer) {
@@ -250,8 +253,10 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_environ() {
 /* Std.Internal.UV.System.osGetenv : @& String → IO (Option String) */
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_getenv(b_obj_arg name) {
     const char* name_str = lean_string_cstr(name);
-    // No variable has a name containing `=`, but the C library may match the name only up to the `=`.
-    if (strlen(name_str) != lean_string_size(name) - 1 || strchr(name_str, '=') != nullptr) {
+    // No name has an `=` past its first character (Windows keeps hidden variables such as `=C:`), but
+    // the C library may match a name only up to its `=`.
+    if (strlen(name_str) != lean_string_size(name) - 1 ||
+        (name_str[0] != '\0' && strchr(name_str + 1, '=') != nullptr)) {
         return lean_io_result_mk_ok(mk_option_none());
     }
     char stack_buffer[1024];

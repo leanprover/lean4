@@ -159,9 +159,9 @@ Gets a subset of the password file entry for the current user.
 opaque osGetPasswd : IO PasswdInfo
 
 /--
-Gets the group with the given id, or `none` if there is no such group. Throws an invalid-argument error
-for an id that does not fit the operating system's group id type, and an unsupported-operation error on
-Windows.
+Gets the group with the given id, or `none` if there is no such group. Throws
+`IO.Error.invalidArgument` for an id that does not fit the operating system's group id type, and
+`IO.Error.unsupportedOperation` on Windows.
 -/
 @[extern "lean_uv_os_get_group"]
 opaque osGetGroup : @& Nat → IO (Option GroupInfo)
@@ -198,6 +198,9 @@ opaque osGetHostname : IO String
 
 /--
 Gets the scheduling priority of a process.
+
+Throws `IO.Error.invalidArgument` for a process id that does not fit the operating system's process
+id type.
 -/
 @[extern "lean_uv_os_getpriority"]
 opaque osGetPriority : UInt64 → IO Int64
@@ -206,7 +209,7 @@ opaque osGetPriority : UInt64 → IO Int64
 Sets the scheduling priority of a process.
 
 Throws `IO.Error.invalidArgument` if the priority is outside the range from -20 (highest) to 19
-(lowest).
+(lowest), or for a process id that does not fit the operating system's process id type.
 -/
 @[extern "lean_uv_os_setpriority"]
 opaque osSetPriority : UInt64 → Int64 → IO Unit

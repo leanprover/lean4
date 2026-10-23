@@ -21,6 +21,7 @@ Author: Leonardo de Moura
 #include "runtime/interrupt.h"
 #include "runtime/buffer.h"
 #include "runtime/io.h"
+#include "runtime/libuv.h"
 #include "runtime/hash.h"
 
 #if defined(__GLIBC__) || defined(__APPLE__)
@@ -1102,8 +1103,12 @@ public:
 
         lock.lock();
         m_worker_done_cv.wait(lock, [&]() { return m_discarding == 0; });
+        lock.unlock();
         // never seems to terminate under Emscripten
 #endif
+        // The workers finish with the event loop still running, so a task blocked on a libuv promise
+        // completes. The loop resolves promises through the task manager, so it stops before it is freed.
+        finalize_libuv();
     }
 
     void enqueue(lean_task_object * t) {

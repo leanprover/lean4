@@ -5,12 +5,11 @@ Author: Sofia Rodrigues
 */
 #include "runtime/uv/signal.h"
 #include "runtime/uv/util.h"
+#include <memory>
 #include <new>
 
 namespace lean {
 #ifndef LEAN_EMSCRIPTEN
-
-using namespace std;
 
 // The finalizer of the `Signal`.
 static void signal_finalizer(void* ptr) {
@@ -18,6 +17,8 @@ static void signal_finalizer(void* ptr) {
 
     // Released after the unlock.
     owned_ref promise;
+    // Freed after the unlock when the teardown at exit already closed the handle.
+    std::unique_ptr<lean_uv_signal_object> closed_at_exit;
 
     {
         event_loop_guard guard;
@@ -26,6 +27,11 @@ static void signal_finalizer(void* ptr) {
         promise = std::move(signal->m_promise);
         // While a promise is pending the loop holds a reference, so the signal cannot be finalized.
         lean_assert(promise.get() == nullptr || promise_is_resolved(promise.get()));
+
+        if (uv_is_closing((uv_handle_t*)&signal->m_uv_signal)) {
+            closed_at_exit.reset(signal);
+            return;
+        }
 
         // The Lean object is being freed, so the close callback gets the struct instead. No callback
         // reads `data` as the Lean object after `uv_close`.
@@ -45,7 +51,7 @@ static bool signal_promise_is_finished(lean_uv_signal_object * signal) {
     return signal->m_promise.get() == nullptr || promise_is_resolved(signal->m_promise.get());
 }
 
-void handle_signal_event(uv_signal_t* handle, int) {
+static void handle_signal_event(uv_signal_t* handle, int) {
     lean_object * obj = (lean_object*)handle->data;
     lean_uv_signal_object * signal = lean_to_uv_signal(obj);
     int const signum = signal->m_lean_signum;
@@ -59,12 +65,20 @@ void handle_signal_event(uv_signal_t* handle, int) {
         if (signal_promise_is_finished(signal)) {
             // Kept for the next `next`, so that a signal between two waits is not lost.
             signal->m_received = true;
+
+            if (signal->m_promise.get() != nullptr) {
+                // Its holder resolved it, so nothing waits on the signal any more. Released last, since
+                // the signal may be freed with the loop's reference.
+                owned_ref resolved = std::move(signal->m_promise);
+                lean_dec(obj);
+            }
             return;
         }
 
-        // Resolving runs `(sync := true)` continuations inline, which may `cancel` or `stop` the
-        // signal and release the field's reference.
-        promise = owned_ref::retain(signal->m_promise.get());
+        // The field's reference moves to `promise`, and the loop's reference is released with it, so
+        // that a signal that nothing waits on is freed once it is dropped. `next` takes both again.
+        promise = std::move(signal->m_promise);
+        lean_dec(obj);
     } else {
         uv_signal_stop(&signal->m_uv_signal);
         signal->m_state = signal_state::Finished;
@@ -185,21 +199,29 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_signal_next(b_obj_arg obj) {
             }
         } else if (signal->m_state == signal_state::Running &&
                    (signal->m_repeating ? signal_promise_is_finished(signal) : signal->m_promise.get() == nullptr)) {
-            if (signal->m_promise.get() == nullptr) {
-                // `cancel` released the loop's reference along with the promise.
-                lean_inc(obj);
-            }
-
+            // The loop holds a reference exactly while a promise is pending.
+            bool const loop_ref = signal->m_promise.get() != nullptr;
             dropped = std::move(signal->m_promise);
-            signal->m_promise = owned_ref(mk_mt_promise());
 
             if (signal->m_received) {
+                // A signal that arrived with no promise pending resolves this one at once, so the
+                // signal keeps no promise and the loop no reference.
                 signal->m_received = false;
-                lean_dec(lean_io_promise_resolve(lean_box(signal->m_lean_signum), signal->m_promise.get()));
+                promise = owned_ref(mk_mt_promise());
+                lean_dec(lean_io_promise_resolve(lean_box(signal->m_lean_signum), promise.get()));
+                if (loop_ref) {
+                    lean_dec(obj);
+                }
+            } else {
+                if (!loop_ref) {
+                    // A delivery or `cancel` released the loop's reference along with the promise.
+                    lean_inc(obj);
+                }
+                signal->m_promise = owned_ref(mk_mt_promise());
             }
         }
 
-        if (signal->m_promise.get() != nullptr) {
+        if (promise.get() == nullptr && signal->m_promise.get() != nullptr) {
             promise = owned_ref::retain(signal->m_promise.get());
         }
     }

@@ -5,12 +5,17 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Sofia Rodrigues, Henrik Böving
 */
 #include "runtime/uv/event_loop.h"
+#include "runtime/uv/signal.h"
+#include "runtime/uv/tcp.h"
+#include "runtime/uv/timer.h"
+#include "runtime/uv/udp.h"
 #include "runtime/thread.h"
+#include <csignal>
+#include <cstdio>
+#include <type_traits>
 
 namespace lean {
 #ifndef LEAN_EMSCRIPTEN
-using namespace std;
-
 event_loop global_ev;
 
 // Utility function for error checking. This function is only used inside the
@@ -23,21 +28,32 @@ static void check_uv(int result, const char * msg) {
 }
 
 void event_loop::start() {
-    m_loop = uv_default_loop();
+    // A loop of our own: the teardown treats every handle on it as one of ours.
+    m_loop = &m_loop_storage;
+    check_uv(uv_loop_init(m_loop), "Failed to initialize loop");
     check_uv(uv_mutex_init_recursive(&m_mutex), "Failed to initialize mutex");
+    check_uv(uv_mutex_init(&m_async_mutex), "Failed to initialize mutex");
     check_uv(uv_cond_init(&m_cond), "Failed to initialize condition variable");
     check_uv(uv_async_init(m_loop, &m_async, nullptr), "Failed to initialize async");
     m_waiters = 0;
+    m_running = true;
 
-    lthread([this]() { run(); });
+    m_thread = new lthread([this]() { run(); });
 }
 
 void event_loop::lock() {
     if (uv_mutex_trylock(&m_mutex) != 0) {
         m_waiters++;
-        int result = uv_async_send(&m_async);
-        (void)result;
-        lean_assert(result == 0);
+        {
+            // `stop` closes `m_async` once it is no longer running.
+            uv_mutex_lock(&m_async_mutex);
+            if (m_running) {
+                int result = uv_async_send(&m_async);
+                (void)result;
+                lean_assert(result == 0);
+            }
+            uv_mutex_unlock(&m_async_mutex);
+        }
         uv_mutex_lock(&m_mutex);
         m_waiters--;
     }
@@ -63,12 +79,12 @@ void event_loop::run() {
     while (true) {
         uv_mutex_lock(&m_mutex);
 
-        while (m_waiters != 0) {
+        while (m_waiters != 0 && m_running) {
             uv_cond_wait(&m_cond, &m_mutex);
         }
 
         // Checked with the lock held, since `alive` unreferences `m_async` under it.
-        if (!uv_loop_alive(m_loop)) {
+        if (!m_running || !uv_loop_alive(m_loop)) {
             uv_mutex_unlock(&m_mutex);
             break;
         }
@@ -79,6 +95,122 @@ void event_loop::run() {
 
         uv_mutex_unlock(&m_mutex);
     }
+}
+
+void event_loop::exit_drop(owned_ref ref) {
+    lean_object * o = ref.get();
+    if (o == nullptr) {
+        return;
+    }
+    if (lean_is_promise(o) && !promise_is_resolved(o)) {
+        // Releasing it would resolve it with `none` and run its continuations; a `result!` on it would
+        // then fail instead of waiting.
+        static auto * kept = new std::vector<lean_object *>();
+        kept->push_back(ref.release());
+    } else {
+        m_released.push_back(std::move(ref));
+    }
+}
+
+// Hands the Lean references of a handle's object to the loop: the loop's own references to the object,
+// then the ones the object holds. The handle is the object's first member.
+template<class T>
+static void drop_handle_refs(uv_handle_t * handle) {
+    static_assert(std::is_standard_layout_v<T>);
+    T * object = reinterpret_cast<T *>(handle);
+    for (unsigned n = object->loop_refs(); n > 0; n--) {
+        global_ev.exit_drop(owned_ref((lean_object *)handle->data));
+    }
+    for (owned_ref * ref : object->lean_refs()) {
+        global_ev.exit_drop(std::move(*ref));
+    }
+}
+
+static void close_for_exit(uv_handle_t * handle, void *) {
+    // A finalizer closes its handle itself, and the close callback frees the object.
+    if (uv_is_closing(handle)) {
+        return;
+    }
+
+    switch (handle->type) {
+        case UV_TIMER:
+            drop_handle_refs<lean_uv_timer_object>(handle);
+            break;
+        case UV_SIGNAL:
+            drop_handle_refs<lean_uv_signal_object>(handle);
+            break;
+        case UV_TCP:
+            uv_read_stop((uv_stream_t *)handle);
+#ifdef _WIN32
+            {
+                // A write to a peer that stopped reading would keep the socket open forever. libuv cancels
+                // writes with `CancelIo`, which only reaches I/O issued by the calling thread, and the
+                // writes were issued by worker threads that have exited.
+                uv_os_fd_t fd;
+                if (uv_fileno(handle, &fd) == 0) {
+                    CancelIoEx(fd, nullptr);
+                }
+            }
+#endif
+            drop_handle_refs<lean_uv_tcp_socket_object>(handle);
+            break;
+        case UV_UDP:
+            uv_udp_recv_stop((uv_udp_t *)handle);
+            drop_handle_refs<lean_uv_udp_socket_object>(handle);
+            break;
+        case UV_ASYNC:
+            break;
+        default:
+            lean_internal_panic("unexpected libuv handle at exit");
+    }
+
+    // The object is freed by its finalizer, which finds the handle closed.
+    uv_close(handle, nullptr);
+}
+
+void event_loop::stop() {
+    if (m_thread == nullptr) {
+        return;
+    }
+
+    lock();
+    uv_mutex_lock(&m_async_mutex);
+    m_running = false;
+    uv_mutex_unlock(&m_async_mutex);
+    // Wakes the loop thread if it waits for other threads to take the lock.
+    uv_cond_broadcast(&m_cond);
+    unlock();
+
+    // Waits for a callback the loop thread is running, including a `(sync := true)` continuation, so one
+    // that blocks delays the exit for as long as it blocks.
+    m_thread->join();
+    delete m_thread;
+    m_thread = nullptr;
+
+    std::vector<owned_ref> released;
+    {
+        event_loop_guard guard;
+
+        uv_walk(m_loop, close_for_exit, nullptr);
+
+        // Closing a handle cancels its requests, and threadpool requests run to completion. Their callbacks
+        // hand their references to `exit_drop`.
+        uv_run(m_loop, UV_RUN_DEFAULT);
+
+        int result = uv_loop_close(m_loop);
+        if (result != 0) {
+            fprintf(stderr, "warning: libuv event loop did not close at exit: %s\n", uv_strerror(result));
+        }
+
+#ifndef _WIN32
+        // Closing a signal handle installs the default action, which for a `SIGPIPE` handle would undo
+        // the runtime ignoring it.
+        signal(SIGPIPE, SIG_IGN);
+#endif
+
+        released = std::move(m_released);
+    }
+    // Released after the unlock: the finalizers this runs take the lock themselves.
 }
 
 /* Std.Internal.UV.Loop.configure (options : @& Loop.Options) : IO Unit */

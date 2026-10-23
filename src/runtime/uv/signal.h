@@ -19,7 +19,6 @@ inline lean_external_class * g_uv_signal_external_class = nullptr;
 void initialize_libuv_signal();
 
 #ifndef LEAN_EMSCRIPTEN
-using namespace std;
 
 enum class signal_state { Initial, Running, Finished };
 
@@ -46,9 +45,8 @@ struct lean_uv_signal_object {
     }
 };
 
-// `m_promise` may be null in any state: `stop` leaves a finished signal without one, and `cancel`
-// leaves it running without one. A repeating signal also keeps its last
-// promise after resolving it, until `next` replaces it.
+// `m_promise` may be null in any state: `stop` leaves a finished signal without one, and a delivery or
+// `cancel` leaves a repeating signal running without one.
 //
 // The event loop holds a reference to the signal object exactly while it is running with a non-null
 // `m_promise`.

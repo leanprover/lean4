@@ -70,12 +70,13 @@ def elabElabRulesAux (doc? : Option (TSyntax ``docComment))
     throwError "unsupported syntax category `{catName}`"
 
 @[builtin_command_elab «elab_rules»] def elabElabRules : CommandElab :=
-  adaptExpander fun stx => match stx with
+  adaptRulesExpander fun stx => match stx with
   | `($[$doc?:docComment]? $[@[$attrs?,*]]? $attrKind:attrKind elab_rules $[: $cat?]? $[<= $expty?]? $alts:matchAlt*) =>
-    expandNoKindMacroRulesAux alts "elab_rules" fun kind? alts =>
-      `($[$doc?:docComment]? $[@[$attrs?,*]]? $attrKind:attrKind elab_rules $[(kind := $(mkIdent <$> kind?))]? $[: $cat?]? $[<= $expty?]? $alts:matchAlt*)
-  | `($[$doc?:docComment]? $[@[$attrs?,*]]? $attrKind:attrKind elab_rules (kind := $kind) $[: $cat?]? $[<= $expty?]? $alts:matchAlt*) =>
-    do elabElabRulesAux doc? attrs? attrKind (← resolveSyntaxKind kind.getId) cat? expty? alts
+    return (none, ← expandNoKindMacroRulesAux alts "elab_rules" fun kind? alts =>
+      `($[$doc?:docComment]? $[@[$attrs?,*]]? $attrKind:attrKind elab_rules $[(kind := $(mkIdent <$> kind?))]? $[: $cat?]? $[<= $expty?]? $alts:matchAlt*))
+  | `($[$doc?:docComment]? $[@[$attrs?,*]]? $attrKind:attrKind elab_rules (kind := $kind) $[: $cat?]? $[<= $expty?]? $alts:matchAlt*) => do
+    let k ← resolveSyntaxKind kind.getId
+    return (k, ← elabElabRulesAux doc? attrs? attrKind k cat? expty? alts)
   | _  => throwUnsupportedSyntax
 
 @[builtin_command_elab Lean.Parser.Command.elab]

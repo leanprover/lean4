@@ -212,6 +212,10 @@ def getInstances (type : Expr) : MetaM (Array Instance) := do
     match className? with
     | none   => throwError "type class instance expected{indentExpr type}"
     | some className =>
+      let env ← getEnv
+      if instanceChangesLogged env then
+        recordInstClassChanges className (getInstanceClassChanges env className)
+        recordInstClassChanges .anonymous (getInstanceClassChanges env .anonymous)
       let globalInstances ← getGlobalInstancesIndex
       let result ← globalInstances.getUnify type
       -- Using insertion sort because it is stable and the array `result` should be mostly sorted.
@@ -941,6 +945,7 @@ private def validEnvDeps (env : Environment) (deps : RecordedDeps) : Bool :=
   -- dependency can have changed.
   deps.baseTrackedGen == env.trackedGen && deps.baseChangeLogPos == env.declChangeLog.size ||
     deps.extGens.all (fun (idx, gen) => EnvExtension.getGenAt env idx == gen) &&
+    deps.instClassChanges.all (fun (c, l) => getInstanceClassChanges env c == l) &&
     env.checkDeclChangeLog deps.baseChangeLogPos deps.baseConstGen
 
 /-- Adds the dependencies of a nested query or a used cache entry to those of the enclosing query. -/
@@ -952,7 +957,9 @@ private def _root_.Lean.RecordedDeps.mergeInto (child parent : RecordedDeps) : R
   -- Keep the parent's earlier generation, as in `recordExtGenAccess`.
   let extGens := child.extGens.foldl (init := parent.extGens) fun l d =>
     if l.any (·.1 == d.1) then l else l.push d
-  { parent with options, extGens }
+  let instClassChanges := child.instClassChanges.foldl (init := parent.instClassChanges) fun l d =>
+    if l.any (·.1 == d.1) then l else l.push d
+  { parent with options, extGens, instClassChanges }
 
 /--
 Adds `entry` to `c`, replacing the entries for `key` that recorded the same option lookups with the
@@ -1232,8 +1239,11 @@ def synthInstanceCore? (type : Expr) (maxResultSize? : Option Nat := none) : Met
     let localInsts ← getLocalInstances
     let type ← instantiateMVars type
     let { type, cacheKeyType, kind } ← preprocess type
-    -- Recorded once per query, covering every read of the instance table on the search path.
-    recordExtGenAccess instanceExtension.ext.toEnvExtension
+    -- The instance table is read only by `getInstances`, which records the changes of the consulted
+    -- classes (`RecordedDeps.instClassChanges`) instead of the generation of the whole table, except
+    -- in an environment that was not imported (`Instances.logChanges`).
+    unless instanceChangesLogged (← getEnv) do
+      recordExtGenAccess instanceExtension.ext.toEnvExtension
     let cacheKey := { localInsts, type := cacheKeyType, synthPendingDepth := (← read).synthPendingDepth,
                       maxResultSize, optionFlags := (← getOptionFlags),
                       tracing := (← isTracingEnabledFor `Meta.synthInstance),

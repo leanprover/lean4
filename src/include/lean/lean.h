@@ -326,11 +326,13 @@ typedef struct {
      * We must keep the task object alive until one of these transitions because in either case, we have live
        (internal, unowned) references to the task up to that point
      * transition: task dependency Deactivated ==> freed
+     * transition: task dependency Discarded   ==> freed (`task_manager::discard`)
    * Discarded
      * condition: m_imp != nullptr && m_imp->m_deleted == 2
-     * Entered instead of Queued or Running once `~task_manager` has stopped running tasks, and from Waiting when the
-       task dependency is Discarded (`task_manager::discard`)
-     * invariant: in no queue and no dependency list, so it never runs or finishes
+     * Entered instead of Queued or Running once `lean_finalize_task_manager` has stopped running tasks, until the
+       next `lean_init_task_manager`, and from Waiting when the task dependency is Discarded (`task_manager::discard`)
+     * invariant: in no queue and no dependency list, so it never runs or finishes: `IO.getTaskState` reports it as
+       running and `IO.hasFinished` as unfinished forever
      * invariant: m_imp->m_closure == nullptr && m_imp->m_head_dep == nullptr && m_value == nullptr
      * transition: RC becomes 0 ==> freed (`deactivate_task` lock)
    * Finished
@@ -1610,8 +1612,19 @@ static inline lean_obj_res lean_thunk_get_own(b_lean_obj_arg t) {
 
 /* Tasks */
 
+/* Starts the task manager, or restarts one that `lean_finalize_task_manager` stopped. Without one, which is the case
+   for 0 workers, tasks run inline and `IO.Promise.new` panics. */
 LEAN_EXPORT void lean_init_task_manager(void);
 LEAN_EXPORT void lean_init_task_manager_using(unsigned num_workers);
+/* Stops the task manager. It returns once no task is queued or running, including `(sync := true)` tasks running on
+   threads the task manager does not own, and no worker is left. Until then, tasks see `IO.checkCanceled` as true.
+   Work that becomes runnable after that point is discarded without running: tasks queued by threads the task manager
+   does not own, and dependents of promises they resolve. Such threads should therefore stop using the task manager
+   before calling this, and call `lean_finalize_thread` first if their thread-local state can hold tasks or promises.
+   It must not be called from a task.
+   Until the next `lean_init_task_manager`, new tasks run inline and a task that becomes runnable is discarded, so
+   of the unfinished tasks only the result of a promise can still finish, and waiting for any other one blocks
+   forever. Tasks and promises that outlive this call stay valid in later cycles. */
 LEAN_EXPORT void lean_finalize_task_manager(void);
 
 LEAN_EXPORT lean_obj_res lean_task_spawn_core(lean_obj_arg c, unsigned prio, bool keep_alive);

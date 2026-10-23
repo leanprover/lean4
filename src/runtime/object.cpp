@@ -782,8 +782,11 @@ class task_manager {
     condition_variable                            m_worker_done_cv;
     // Read without the lock by `lean_io_check_canceled_core`.
     std::atomic<bool>                             m_shutting_down{false};
-    // Set by `~task_manager` once no task is running or queued. A task that becomes runnable afterwards is discarded.
+    // Set by `shutdown` once no task is running or queued. A task that becomes runnable afterwards is discarded.
     bool                                          m_workers_exit{false};
+    // Set once `shutdown` has finished, until `restart`. Read without the lock by the entry points that run tasks
+    // inline while dormant.
+    std::atomic<bool>                             m_dormant{false};
     // During shutdown, the standard workers whose thread-local objects, which can hold tasks and promises,
     // have not been freed since they last ran a task.
     unsigned                                      m_unfinalized_std_workers{0};
@@ -1100,12 +1103,16 @@ public:
         m_max_std_workers(max_std_workers) {
     }
 
-    ~task_manager() {
+    // Runs the exit sequence and leaves the manager dormant until `restart`. A dormant manager runs no task: a task
+    // that becomes runnable is discarded, and new tasks run inline, as without a task manager.
+    void shutdown() {
         if (g_current_task_object) {
             // The drain below would wait for the calling task itself.
             lean_internal_panic("the task manager cannot be finalized from a task");
         }
         unique_lock<mutex> lock(m_mutex);
+        if (m_dormant)
+            return;
         m_shutting_down = true;
         m_unfinalized_std_workers = m_std_workers.size();
         m_queue_cv.notify_all();
@@ -1115,8 +1122,7 @@ public:
         // foreign thread is running when this wait starts finishes, with what it queues, before the wait ends.
         // A thread the task manager does not own must stop queueing tasks and resolving promises before this wait
         // ends: a task it queues later, or a continuation of a promise it resolves later (`sync := true` ones
-        // included), is discarded without running, and a thread waiting for it is never woken. It must not call into
-        // the task manager after `~task_manager` returns.
+        // included), is discarded without running, and a thread waiting for it is never woken.
         m_worker_done_cv.wait(lock, [&]() { return quiescent(); });
         // No dedicated worker is left, and `enqueue_core` starts none from here on.
 #endif
@@ -1131,7 +1137,26 @@ public:
         lock.lock();
         m_worker_done_cv.wait(lock, [&]() { return m_discarding == 0; });
         // never seems to terminate under Emscripten
+#else
+        lock.lock();
 #endif
+        m_std_workers.clear();
+        m_dormant = true;
+    }
+
+    // Makes a dormant manager run tasks again, as a new one would.
+    void restart(unsigned max_std_workers) {
+        unique_lock<mutex> lock(m_mutex);
+        lean_assert(m_dormant && m_queues_size == 0 && m_idle_std_workers == 0);
+        m_max_std_workers = max_std_workers;
+        m_unfinalized_std_workers = 0;
+        m_workers_exit = false;
+        m_shutting_down = false;
+        m_dormant = false;
+    }
+
+    bool dormant() const {
+        return m_dormant.load(std::memory_order_relaxed);
     }
 
     void enqueue(lean_task_object * t) {
@@ -1258,9 +1283,12 @@ public:
 static task_manager * g_task_manager = nullptr;
 
 extern "C" LEAN_EXPORT void lean_init_task_manager_using(unsigned num_workers) {
-    lean_assert(g_task_manager == nullptr);
 #if defined(LEAN_MULTI_THREAD)
-    if (num_workers > 0) {
+    if (num_workers == 0)
+        return;
+    if (g_task_manager) {
+        g_task_manager->restart(num_workers);
+    } else {
         g_task_manager = new task_manager(num_workers);
     }
 #endif
@@ -1285,41 +1313,29 @@ extern "C" LEAN_EXPORT void lean_init_task_manager() {
 }
 
 extern "C" LEAN_EXPORT void lean_finalize_task_manager() {
+    // The manager is kept dormant rather than freed: tasks and promises left unfinished can still reach it, from the
+    // host or from a later `lean_init_task_manager`.
     if (g_task_manager) {
-        delete g_task_manager;
-        g_task_manager = nullptr;
+        g_task_manager->shutdown();
     }
 }
 
 scoped_task_manager::scoped_task_manager(unsigned num_workers) {
-    lean_assert(g_task_manager == nullptr);
-#if defined(LEAN_MULTI_THREAD)
-    if (num_workers > 0) {
-        g_task_manager = new task_manager(num_workers);
-    }
-#endif
+    lean_init_task_manager_using(num_workers);
 }
 
 scoped_task_manager::~scoped_task_manager() {
-    if (g_task_manager) {
-        delete g_task_manager;
-        g_task_manager = nullptr;
-    }
+    lean_finalize_task_manager();
 }
 
 void deactivate_task(lean_task_object * t) {
     if (g_task_manager) {
         g_task_manager->deactivate_task(t);
     } else {
-        // Without a task manager, a pending task can be freed only if `discard` took it out of the task graph: any
-        // other one may still be linked in a dependency list, so it is left allocated.
-        lean_assert(t->m_value || t->m_imp.load(std::memory_order_relaxed)->m_deleted == LEAN_TASK_DISCARDED);
-        if (object * v = t->m_value) {
-            lean_dec(v);
-            free_task(t);
-        } else if (t->m_imp.load(std::memory_order_relaxed)->m_deleted == LEAN_TASK_DISCARDED) {
-            free_task(t);
-        }
+        // Without a task manager every task is finished: tasks run inline, and no promise can be created.
+        lean_assert(t->m_value != nullptr);
+        lean_dec(t->m_value);
+        free_task(t);
     }
 }
 
@@ -1351,7 +1367,7 @@ static lean_task_object * alloc_task(obj_arg v) {
 
 
 extern "C" LEAN_EXPORT obj_res lean_task_spawn_core(obj_arg c, unsigned prio, bool keep_alive) {
-    if (!g_task_manager) {
+    if (!g_task_manager || g_task_manager->dormant()) {
         return lean_task_pure(apply_1(c, box(0)));
     } else {
         lean_task_object * new_task = alloc_task(c, prio, keep_alive);
@@ -1374,7 +1390,8 @@ static obj_res task_map_fn(obj_arg f, obj_arg t, obj_arg w) {
 
 extern "C" LEAN_EXPORT obj_res lean_task_map_core(obj_arg f, obj_arg t, unsigned prio,
       bool sync, bool keep_alive) {
-    if (!g_task_manager || (sync && lean_to_task(t)->m_value)) {
+    // A dormant manager discards a task made runnable, so a dependent of an unfinished task is linked as usual.
+    if (!g_task_manager || (lean_to_task(t)->m_value && (sync || g_task_manager->dormant()))) {
         return lean_task_pure(apply_1(f, lean_task_get_own(t)));
     } else {
         lean_task_object * new_task = alloc_task(mk_closure_3_2(task_map_fn, f, t), sync ? LEAN_SYNC_PRIO : prio, keep_alive);
@@ -1436,7 +1453,7 @@ static obj_res task_bind_fn1(obj_arg x, obj_arg f, obj_arg) {
 
 extern "C" LEAN_EXPORT obj_res lean_task_bind_core(obj_arg x, obj_arg f, unsigned prio,
       bool sync, bool keep_alive) {
-    if (!g_task_manager || (sync && lean_to_task(x)->m_value)) {
+    if (!g_task_manager || (lean_to_task(x)->m_value && (sync || g_task_manager->dormant()))) {
         return apply_1(f, lean_task_get_own(x));
     } else {
         lean_task_object * new_task = alloc_task(mk_closure_3_2(task_bind_fn1, x, f), sync ? LEAN_SYNC_PRIO : prio, keep_alive);

@@ -2937,10 +2937,30 @@ theorem isEmpty_inter_comm [TransCmp cmp] :
     (t₁ ∩ t₂).isEmpty = (t₂ ∩ t₁).isEmpty :=
   t₁.inductionOn₂ t₂ fun _ _ => DTreeMap.isEmpty_inter_comm
 
+@[simp]
+theorem isEmpty_union_inter [TransCmp cmp] {t₃ : ExtDTreeMap α β cmp} :
+    ((t₁ ∪ t₂) ∩ t₃).isEmpty = ((t₁ ∩ t₃).isEmpty && (t₂ ∩ t₃).isEmpty) :=
+  t₁.inductionOn₂ t₂ fun _ _ => t₃.inductionOn fun _ => DTreeMap.isEmpty_union_inter
+
+@[simp]
+theorem isEmpty_inter_union [TransCmp cmp] {t₃ : ExtDTreeMap α β cmp} :
+    (t₁ ∩ (t₂ ∪ t₃)).isEmpty = ((t₁ ∩ t₂).isEmpty && (t₁ ∩ t₃).isEmpty) :=
+  t₁.inductionOn₂ t₂ fun _ _ => t₃.inductionOn fun _ => DTreeMap.isEmpty_inter_union
+
 theorem inter_eq_empty_comm [TransCmp cmp] :
     t₁ ∩ t₂ = ∅ ↔ t₂ ∩ t₁ = ∅ := by
   rw [← isEmpty_iff, ← isEmpty_iff, ← Bool.eq_iff_iff]
   exact isEmpty_inter_comm
+
+@[simp]
+theorem union_inter_eq_empty_iff [TransCmp cmp] {t₃ : ExtDTreeMap α β cmp} :
+    (t₁ ∪ t₂) ∩ t₃ = ∅ ↔ t₁ ∩ t₃ = ∅ ∧ t₂ ∩ t₃ = ∅ := by
+  simp only [← isEmpty_iff, isEmpty_union_inter, Bool.and_eq_true]
+
+@[simp]
+theorem inter_union_eq_empty_iff [TransCmp cmp] {t₃ : ExtDTreeMap α β cmp} :
+    t₁ ∩ (t₂ ∪ t₃) = ∅ ↔ t₁ ∩ t₂ = ∅ ∧ t₁ ∩ t₃ = ∅ := by
+  simp only [← isEmpty_iff, isEmpty_inter_union, Bool.and_eq_true]
 
 end Inter
 

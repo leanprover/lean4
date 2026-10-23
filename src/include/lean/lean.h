@@ -170,6 +170,7 @@ which use extra pointer bits which do not fit (https://github.com/leanprover/lea
 The field `m_other` is used to store the number of fields in a constructor object and the element size in a scalar array.
 For arrays, scalar arrays and strings its uppermost bit (`LEAN_LINEAR_MARK_MASK`) holds the linearity marker set by
 `markLinear`; read the element size of a scalar array with `lean_sarray_elem_size`, which masks it out.
+For tasks, it holds the immutable `LEAN_TASK_PURE_MARKER` for tasks created with an available value, and zero otherwise.
 */
 typedef struct {
     int      m_rc;
@@ -278,10 +279,20 @@ typedef struct {
     uint8_t              m_deleted;
 } lean_task_imp;
 
+/* Marker in a task's `m_other` header field; see the lifetime invariant below. */
+#define LEAN_TASK_PURE_MARKER 1u
+
 /* Object of type `Task _`. The lifetime of a `lean_task` object can be represented as a state machine with atomic
    state transitions.
 
    In the following, `condition` describes a predicate uniquely identifying a state.
+
+   Tasks created by `lean_task_pure` have `m_header.m_other == LEAN_TASK_PURE_MARKER` throughout their lifetime.
+   They start with a non-null `m_value`, never have an `m_imp`, and never enter scheduler queues or dependency lists.
+   Their value pointer does not change during ordinary heap lifetime. After the last owned reference is released,
+   they can be freed without the task-manager mutex. Compaction preserves the marker, but compacted tasks have no RC.
+   Scheduled and promise-backed tasks keep a zero marker, even after completion. The marker means "created pure",
+   not "finished": a scheduled task can publish its value before scheduler cleanup finishes.
 
    creation:
    * Task.spawn ==> Queued
@@ -328,7 +339,7 @@ typedef struct {
    * Finished
      * condition: m_value != nullptr
      * invariant: m_imp == nullptr
-     * transition: RC becomes 0 ==> freed (`deactivate_task` lock) */
+     * transition: RC becomes 0 ==> freed (`deactivate_task` lock, except for marked pure tasks) */
 typedef struct lean_task {
     lean_object              m_header;
     _Atomic(lean_object *)   m_value;

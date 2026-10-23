@@ -156,9 +156,11 @@ def declareBuiltin (forDecl : Name) (value : Expr) : CoreM Unit :=
     addAndCompile decl
     IO.ofExcept (setBuiltinInitAttr (← getEnv) name) >>= setEnv
 
-private unsafe def runInitAttrForMod
-    (env : Environment) (opts : Options) (mod : EffectiveImport) (modIdx : Nat) : IO Unit := do
+/-- Initializes the given module, returning how it was carried out if `profiling`. -/
+private unsafe def runInitAttrForMod (env : Environment) (opts : Options) (mod : EffectiveImport)
+    (modIdx : Nat) (profiling : Bool) : IO (Option ExecKind) := do
   let initRuntime := Elab.inServer.get opts || mod.irPhases != .runtime
+  let report (exec : ExecKind) : Option ExecKind := if profiling then some exec else none
 
   -- any native Lean code reachable by the interpreter (i.e. from shared
   -- libraries with their corresponding module in the Environment) must
@@ -168,15 +170,16 @@ private unsafe def runInitAttrForMod
     let initializedRuntime ← pure initRuntime <&&> runModInit (phases := .runtime) mod.module pkg?
     let initializedComptime ← runModInit (phases := .comptime) mod.module pkg?
     if initializedRuntime || initializedComptime then
-      return
+      return report <| .native <|
+        if !initializedComptime then .runtime else if !initializedRuntime then .comptime else .all
   else
     if (← runModInit (phases := .all) mod.module pkg?) then
-      return
+      return report <| .native .all
 
   -- As `[init]` decls can have global side effects, ensure we run them at most once,
   -- just like the compiled code does.
   if (← interpretedModInits.get).contains mod.module then
-    return
+    return report .alreadyInterpreted
   interpretedModInits.modify (·.insert mod.module)
   let modEntries := regularInitAttr.ext.getModuleEntries env modIdx
   -- `getModuleIREntries` is identical to `getModuleEntries` if we loaded only one of
@@ -185,22 +188,39 @@ private unsafe def runInitAttrForMod
   -- If we have both, we should not need to worry about their relative ordering as `meta` and
   -- non-`meta` initialize should not have interdependencies.
   let modEntries := modEntries ++ (regularInitAttr.ext.getModuleIREntries env modIdx).filter (!modEntries.contains ·)
+  let mut ran : Array InitDeclCost := #[]
+  let mut skipped : Array Name := #[]
   for (decl, initDecl) in modEntries do
     if !initRuntime && getIRPhases env decl == .runtime then
+      if profiling then
+        skipped := skipped.push decl
       continue
-    if initDecl.isAnonymous then
-        -- Don't check `meta` again as it would not respect `Elab.inServer`
-      let initFn ← IO.ofExcept <| env.evalConst (checkMeta := false) (IO Unit) opts decl
-      initFn
-    else
-      runInit env opts decl initDecl
+    let (_, range?) ← MonoNanosRange.measureIf profiling do
+      if initDecl.isAnonymous then
+          -- Don't check `meta` again as it would not respect `Elab.inServer`
+        let initFn ← IO.ofExcept <| env.evalConst (checkMeta := false) (IO Unit) opts decl
+        initFn
+      else
+        runInit env opts decl initDecl
+    if let some range := range? then
+      ran := ran.push { range with decl }
+  return report <|
+    if !ran.isEmpty then .interpreted ran skipped
+    else if !skipped.isEmpty then .allSkipped skipped
+    else .noInitDecls
 
 @[export lean_run_init_attrs]
-private unsafe def runInitAttrs (env : Environment) (opts : Options) : IO Unit := do
+private unsafe def runInitAttrs (env : Environment) (opts : Options) (profiling : Bool) :
+    IO (Array ModuleInitCost) := do
   if !(← isInitializerExecutionEnabled) then
     throw <| IO.userError "`enableInitializersExecution` must be run before calling `importModules (loadExts := true)`"
+  let mut costs : Array ModuleInitCost := #[]
   for mod in env.header.modules, modIdx in 0...* do
-    runInitAttrForMod env opts mod modIdx
+    let (exec?, range?) ← MonoNanosRange.measureIf profiling <|
+      runInitAttrForMod env opts mod modIdx profiling
+    if let (some exec, some range) := (exec?, range?) then
+      costs := costs.push { range with exec }
+  return costs
 
 /--
 Like `runInitAttrs`, but walks only the given module indices. Used by `--incr-load`: the indices
@@ -215,7 +235,7 @@ unsafe def runInitAttrsForModules
     throw <| IO.userError "`enableInitializersExecution` must be run before reusing a `--incr-load` snapshot"
   for modIdx in modIdxs do
     if h : modIdx < env.header.modules.size then
-      runInitAttrForMod env opts env.header.modules[modIdx] modIdx
+      discard <| runInitAttrForMod env opts env.header.modules[modIdx] modIdx (profiling := false)
 
 /--
 Returns the indices of modules in `env.header.modules` whose `regularInitAttr` has non-empty

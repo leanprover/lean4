@@ -66,7 +66,9 @@ example (hFalse : false = true) : ⦃ True ⦄ (pure 3 : Id Nat) ⦃ fun r => r 
 
 /-! A lifted equation `x = t` on a local variable `x` replaces `x` by `t` in the rest of the goal.
 The postcondition `r = 41 ∧ s = 41` of `peek_spec` is split into its conjuncts, and `r = 41` pins
-`r`, so `bump_41` applies to `bump r`. -/
+`r`, so `bump_41` applies to `bump r`. `sym.debug` checks the `SymM` invariants of both steps. -/
+
+set_option sym.debug true
 
 def peek : StateM Nat Nat := get
 

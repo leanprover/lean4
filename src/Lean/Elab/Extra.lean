@@ -208,7 +208,7 @@ where
         match (← expandMacroReportingDeprecated? s) with
         | some (macroName, s') =>
           withPushMacroExpansionStack s s' do
-            return .macroExpansion macroName s s' (← go s')
+            return .macroExpansion macroName s s' (← withDeprecationContextForSyntax s <| go s')
         | none => processLeaf s
 
   processBinOp (ref : Syntax) (kind : BinOpKind) (f lhs rhs : Syntax) := do

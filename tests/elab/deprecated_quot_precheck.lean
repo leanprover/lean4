@@ -2,12 +2,13 @@ import Lean
 
 /-!
 Tests that the quotation precheck of notations and checked quotations reports deprecated
-constants where the quotation mentions them, not only where the notation is used.
+constants and syntax where the quotation mentions them, not only where the notation is used.
 -/
 
 open Lean
 
 set_option linter.deprecated true
+set_option linter.deprecated.syntax true
 
 def newConst := 1
 
@@ -75,6 +76,23 @@ macro "lintOffOld" : term => ``(oldConst)
 #guard_msgs in
 @[deprecated "use `newConst`" (since := "2026-10-22")]
 def mkOld : MacroM Term := ``(oldConst)
+
+-- Deprecated declarations do not report deprecated syntax in quotations either.
+syntax (name := oldSyntax) "old_syntax" : term
+macro_rules | `(old_syntax) => `(newConst)
+deprecated_syntax oldSyntax "use `newConst` instead" (since := "2026-10-22")
+
+/--
+warning: quotation uses deprecated syntax 'oldSyntax': use `newConst` instead
+
+Note: This linter can be disabled with `set_option linter.deprecated.syntax false`
+-/
+#guard_msgs in
+def mkOldSyntax : MacroM Term := ``(old_syntax)
+
+#guard_msgs in
+@[deprecated "use `newConst`" (since := "2026-10-22")]
+def mkOldSyntaxDeprecated : MacroM Term := ``(old_syntax)
 
 -- Variables bound in the quotation shadow deprecated constants.
 @[deprecated "" (since := "2026-10-22")]

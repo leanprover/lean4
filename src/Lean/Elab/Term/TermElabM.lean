@@ -1641,6 +1641,21 @@ def getBodyInfo? : Info → Option BodyInfo
   | .ofCustomInfo { value, .. } => value.get? BodyInfo
   | _ => none
 
+/--
+Info node for the value of a definition-like declaration, for example the proof of a theorem. The
+`stx` of the node is the value. `elabMutualDef` adds this node directly after it elaborates the
+header. Thus, in contrast to `BodyInfo`, the node is available before the (possibly asynchronous)
+elaboration of the value finishes.
+-/
+structure DeclValueInfo where
+  /-- The full name of the declaration. -/
+  declName  : Name
+  /-- The header of the declaration, i.e. everything up to the value. -/
+  headerRef : Syntax
+  /-- Whether the type of the declaration is a proposition, i.e. whether the value is a proof. -/
+  isProof   : Bool
+deriving TypeName
+
 def withTermInfoContext' (elaborator : Name) (stx : Syntax) (x : TermElabM Expr)
     (expectedType? : Option Expr := none) (lctx? : Option LocalContext := none)
     (isBinder : Bool := false) (isDisplayableTerm : Bool := false):

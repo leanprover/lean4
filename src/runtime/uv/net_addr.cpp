@@ -12,17 +12,22 @@ namespace lean {
 
 #ifndef LEAN_EMSCRIPTEN
 
+typedef union in_addr_storage {
+    in_addr ipv4;
+    in6_addr ipv6;
+} in_addr_storage;
+
 // In network byte order the bytes of `s_addr` are the octets of an `IPv4Addr`, and each pair of bytes
 // of `s6_addr` is one big-endian segment of an `IPv6Addr`.
 
-void lean_ipv4_addr_to_in_addr(b_obj_arg ipv4_addr, in_addr* out) {
+static void lean_ipv4_addr_to_in_addr(b_obj_arg ipv4_addr, in_addr* out) {
     uint8_t* bytes = (uint8_t*)&out->s_addr;
     for (int i = 0; i < 4; i++) {
         bytes[i] = (uint8_t)lean_unbox(array_uget(ipv4_addr, i));
     }
 }
 
-void lean_ipv6_addr_to_in6_addr(b_obj_arg ipv6_addr, in6_addr* out) {
+static void lean_ipv6_addr_to_in6_addr(b_obj_arg ipv6_addr, in6_addr* out) {
     for (int i = 0; i < 8; i++) {
         uint16_t segment = (uint16_t)lean_unbox(array_uget(ipv6_addr, i));
         out->s6_addr[2 * i] = (uint8_t)(segment >> 8);
@@ -30,7 +35,7 @@ void lean_ipv6_addr_to_in6_addr(b_obj_arg ipv6_addr, in6_addr* out) {
     }
 }
 
-void lean_ip_addr_to_in_addr_storage(b_obj_arg ip_addr, int* type, in_addr_storage* out) {
+static void lean_ip_addr_to_in_addr_storage(b_obj_arg ip_addr, int* type, in_addr_storage* out) {
     lean_object* ip_obj = lean_ctor_get(ip_addr, 0);
 
     if (lean_ptr_tag(ip_addr) == 0) {
@@ -79,7 +84,7 @@ void lean_socket_address_to_sockaddr_storage(b_obj_arg socket_addr, sockaddr_sto
     }
 }
 
-lean_obj_res lean_in_addr_to_ipv4_addr(const in_addr* ipv4_addr) {
+static lean_obj_res lean_in_addr_to_ipv4_addr(const in_addr* ipv4_addr) {
     const uint8_t* bytes = (const uint8_t*)&ipv4_addr->s_addr;
     lean_object* ret = lean_alloc_array(4, 4);
     for (int i = 0; i < 4; i++) {
@@ -88,7 +93,7 @@ lean_obj_res lean_in_addr_to_ipv4_addr(const in_addr* ipv4_addr) {
     return ret;
 }
 
-lean_obj_res lean_in6_addr_to_ipv6_addr(const in6_addr* ipv6_addr) {
+static lean_obj_res lean_in6_addr_to_ipv6_addr(const in6_addr* ipv6_addr) {
     lean_object* ret = lean_alloc_array(8, 8);
     for (int i = 0; i < 8; i++) {
         uint16_t segment = (uint16_t)((ipv6_addr->s6_addr[2 * i] << 8) | ipv6_addr->s6_addr[2 * i + 1]);
@@ -97,7 +102,7 @@ lean_obj_res lean_in6_addr_to_ipv6_addr(const in6_addr* ipv6_addr) {
     return ret;
 }
 
-lean_obj_res lean_phys_addr_to_mac_addr(const char phys_addr[6]) {
+static lean_obj_res lean_phys_addr_to_mac_addr(const char phys_addr[6]) {
     lean_object* ret = lean_alloc_array(6, 6);
     for (int i = 0; i < 6; i++) {
         lean_array_set_core(ret, i, lean_box((uint8_t)phys_addr[i]));

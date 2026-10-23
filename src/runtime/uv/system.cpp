@@ -3,8 +3,9 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Author: Sofia Rodrigues
 */
-#include <limits>
+#include <cerrno>
 #include <cstring>
+#include <limits>
 #include <memory>
 #include <new>
 #include "runtime/uv/system.h"
@@ -186,14 +187,13 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_get_passwd() {
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_get_group(b_obj_arg gid_obj) {
 #if UV_VERSION_HEX >= 0x012D00
 #ifdef LEAN_WINDOWS
-    // libuv has no group lookup on Windows.
     (void)gid_obj;
-    return io_result_mk_uv_error(UV_ENOTSUP);
+    return lean_io_result_mk_error(lean_mk_io_error_unsupported_operation(ENOTSUP, mk_string("group lookup is not supported on Windows")));
 #else
     // Checked before converting, which would wrap a larger id around to another group. A `Nat` too
     // large to be a scalar is past any 32-bit id.
     if (!lean_is_scalar(gid_obj) || lean_unbox(gid_obj) > std::numeric_limits<uv_uid_t>::max()) {
-        return io_result_mk_uv_error(UV_EINVAL);
+        return lean_io_result_mk_error(lean_mk_io_error_invalid_argument(EINVAL, mk_string("group id out of range")));
     }
     uv_uid_t gid = (uv_uid_t)lean_unbox(gid_obj);
     uv_group_t group;
@@ -321,7 +321,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_gethostname() {
 /* Std.Internal.UV.System.osGetPriority : UInt64 → IO Int64 */
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_getpriority(uint64_t pid) {
     if (pid > (uint64_t)std::numeric_limits<uv_pid_t>::max()) {
-        return io_result_mk_uv_error(UV_EINVAL);
+        return lean_io_result_mk_error(lean_mk_io_error_invalid_argument(EINVAL, mk_string("process id out of range")));
     }
     int priority;
     int result = uv_os_getpriority(pid, &priority);
@@ -333,8 +333,10 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_getpriority(uint64_t pid) {
 
 /* Std.Internal.UV.System.osSetPriority : UInt64 → Int64 → IO Unit */
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_setpriority(uint64_t pid, int64_t priority) {
-    if (pid > (uint64_t)std::numeric_limits<uv_pid_t>::max() ||
-        priority < std::numeric_limits<int>::min() || priority > std::numeric_limits<int>::max()) {
+    if (pid > (uint64_t)std::numeric_limits<uv_pid_t>::max()) {
+        return lean_io_result_mk_error(lean_mk_io_error_invalid_argument(EINVAL, mk_string("process id out of range")));
+    }
+    if (priority < std::numeric_limits<int>::min() || priority > std::numeric_limits<int>::max()) {
         return io_result_mk_uv_error(UV_EINVAL);
     }
     int result = uv_os_setpriority(pid, (int)priority);

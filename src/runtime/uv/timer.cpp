@@ -257,8 +257,6 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_cancel(b_obj_arg obj) {
 
 #else
 
-void lean_uv_timer_finalizer(void* ptr);
-
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_mk(uint64_t timeout, uint8_t repeating) {
     lean_always_assert(
         false && ("Please build a version of Lean4 with libuv to invoke this.")

@@ -1,7 +1,7 @@
 /-!
 Tests that the type class resolution cache persists across commands, that adding, erasing or
-changing the scoped instances in effect invalidates its entries, and that entries computed with
-local instances do not persist.
+changing the scoped instances of a class invalidates the entries whose search consulted the class,
+and only those, and that entries computed with local instances do not persist.
 
 New persistent entries are environment modifications, so they are rolled back together with the
 environment; in particular `example`s (which are elaborated inside `withoutModifyingEnv`) can
@@ -48,23 +48,19 @@ trace: [Meta.synthInstance.cache] cached: Coo Nat
 #guard_msgs in
 def c2 : Unit := let _ : Coo Nat := inferInstance; ()
 
--- Adding an instance resets the cache, so the cached failure above is discarded.
+-- Adding an instance of `Coo` discards the cached failure above.
 instance : Coo Nat := ⟨⟩
 
 /-- trace: [Meta.synthInstance.cache] new: Coo Nat -/
 #guard_msgs in
 def c3 : Unit := let _ : Coo Nat := inferInstance; ()
 
--- The reset clears the whole cache, including unrelated entries.
-/-- trace: [Meta.synthInstance.cache] new: Boo Nat -/
+-- The entries of other classes are kept.
+/-- trace: [Meta.synthInstance.cache] cached: Boo Nat -/
 #guard_msgs in
 def b3 : Unit := let _ : Boo Nat := inferInstance; ()
 
-/-- trace: [Meta.synthInstance.cache] cached: Boo Nat -/
-#guard_msgs in
-def b4 : Unit := let _ : Boo Nat := inferInstance; ()
-
--- Erasing an instance resets the cache.
+-- Erasing an instance of `Boo` discards the cached success.
 attribute [-instance] booNat
 
 /--
@@ -102,23 +98,23 @@ open N in
 #guard_msgs in
 def d2 : Unit := let _ : Doo Nat := inferInstance; ()
 
--- Ending the scope changes the instances in effect again, so the query is recomputed rather than
--- served from before the `open`.
+-- Ending the scope restores the instances in effect before the `open`, for which the failure cached
+-- by `d1` holds again.
 /--
 error: failed to synthesize instance of type class
   Doo Nat
 
 Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
 ---
-trace: [Meta.synthInstance.cache] new: Doo Nat
+trace: [Meta.synthInstance.cache] cached: Doo Nat
 -/
 #guard_msgs in
 def d3 : Unit := let _ : Doo Nat := inferInstance; ()
 
--- Re-activating the scope is another change of the instances in effect.
+-- Re-activating the scope brings back the instances in effect for `d2`, whose entry holds again.
 open N
 
-/-- trace: [Meta.synthInstance.cache] new: Doo Nat -/
+/-- trace: [Meta.synthInstance.cache] cached: Doo Nat -/
 #guard_msgs in
 def d4 : Unit := let _ : Doo Nat := inferInstance; ()
 
@@ -172,13 +168,9 @@ def f2 : Unit := let _ : Foo Nat := inferInstance; ()
 
 -- `synthInstance.maxSize` is part of the cache key, so cached results (in particular failures)
 -- obtained under a different size limit are not reused.
-/-- trace: [Meta.synthInstance.cache] new: Coo Nat -/
-#guard_msgs in
-def c4 : Unit := let _ : Coo Nat := inferInstance; ()
-
 /-- trace: [Meta.synthInstance.cache] cached: Coo Nat -/
 #guard_msgs in
-def c5 : Unit := let _ : Coo Nat := inferInstance; ()
+def c4 : Unit := let _ : Coo Nat := inferInstance; ()
 
 set_option synthInstance.maxSize 100 in
 /-- trace: [Meta.synthInstance.cache] new: Coo Nat -/

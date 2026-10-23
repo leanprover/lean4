@@ -1,11 +1,10 @@
 import Lean
 
 /-!
-Tests that the memoized free-variable normalization of the local instances (see
-`Lean.Meta.SynthNormClosureMemo`) is not used after what it was computed from has changed: a
-metavariable assignment that was reverted, or a local declaration that was replaced under the same
-`FVarId`. In both cases the stale memo would yield the cache key of `[inst : Foo Nat] ⊢ Baz` and
-serve its instance.
+Tests that cached results are not served after what the free-variable normalization of their
+context saw has changed: a metavariable assignment that was reverted, or a local declaration that was
+replaced under the same `FVarId`. In both cases a stale normalization (e.g. one memoized by an
+earlier query) would yield the cache key of `[inst : Foo Nat] ⊢ Baz` and serve its instance.
 -/
 
 open Lean Meta
@@ -35,7 +34,7 @@ run_meta do
     withNewLocalInstances #[inst] 0 do
       let s ← saveState
       α.mvarId!.assign (mkConst ``Nat)
-      -- computes the memo with `inst : Foo Nat`
+      -- an earlier query under `inst : Foo Nat`
       discard <| synthInstance? (mkConst ``Qux)
       s.restore
       α.mvarId!.assign (mkConst ``Int)
@@ -51,7 +50,7 @@ run_meta do
   synthBazUnderFooNat
   withLocalDeclD `inst (mkApp (mkConst ``Foo) (mkConst ``Nat)) fun inst =>
     withNewLocalInstances #[inst] 0 do
-      -- computes the memo with `inst : Foo Nat`
+      -- an earlier query under `inst : Foo Nat`
       discard <| synthInstance? (mkConst ``Qux)
       let lctx := (← getLCtx).modifyLocalDecl inst.fvarId!
         (·.setType (mkApp (mkConst ``Foo) (mkConst ``Int)))

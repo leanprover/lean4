@@ -840,6 +840,31 @@ def mkSnapshot? (output : String) (ctx : Context) (st : State)
     traces := st.traceState
   } st.snapshotTasks
 
+/-- Runs `act` with reset reporting state, returning its output and, if `rethrow`, its exception. -/
+private def runIsolatedForSnapshot (act : CoreM Unit) (desc : String) (rethrow : Bool) :
+    CoreM (String × Option Exception) := do
+  IO.FS.withIsolatedStreams (isolateStderr := stderrAsMessages.get (← getOptions)) do
+    let tid ← IO.getTID
+    -- reset trace/info state and message log so as not to report them twice
+    modify fun st => { st with
+      messages := st.messages.markAllReported
+      traceState := { tid }
+      snapshotTasks := #[]
+      infoState := {}
+    }
+    try
+      withTraceNode `Elab.async (fun _ => return desc) do
+        act
+      return none
+    catch e =>
+      if rethrow then
+        return some e
+      unless e.isInterrupt do
+        logError e.toMessageData
+      return none
+    finally
+      addTraceAsMessages
+
 open Language in
 /--
 Wraps the given action for use in `BaseIO.asTask` etc., discarding its final state except for
@@ -860,35 +885,6 @@ def wrapAsyncAsSnapshot {α : Type} (act : α → CoreM Unit) (cancelTk? : Optio
     -- interrupt or abort exception as `try catch` in `runIsolatedForSnapshot` should have caught
     -- any others
     | .error _ => default
-where
-  /--
-  Runs `act` with reset reporting state so that the final state contains only its own messages,
-  traces, and snapshot tasks. Returns the captured output and, if `rethrow` is set, the exception
-  `act` threw instead of logging it.
-  -/
-  runIsolatedForSnapshot (act : CoreM Unit) (desc : String) (rethrow : Bool) :
-      CoreM (String × Option Exception) := do
-    IO.FS.withIsolatedStreams (isolateStderr := stderrAsMessages.get (← getOptions)) do
-      let tid ← IO.getTID
-      -- reset trace/info state and message log so as not to report them twice
-      modify fun st => { st with
-        messages := st.messages.markAllReported
-        traceState := { tid }
-        snapshotTasks := #[]
-        infoState := {}
-      }
-      try
-        withTraceNode `Elab.async (fun _ => return desc) do
-          act
-        return none
-      catch e =>
-        if rethrow then
-          return some e
-        unless e.isInterrupt do
-          logError e.toMessageData
-        return none
-      finally
-        addTraceAsMessages
 
 open Language in
 /--
@@ -911,7 +907,7 @@ def forkAsSnapshot (act : CoreM Unit) (after : Task α)
   else
     let ctx ← read
     let ((output, ex?), st) ← liftM (m := EIO Exception) <|
-      (wrapAsyncAsSnapshot.runIsolatedForSnapshot act desc (rethrow := true)).run ctx (← forkState)
+      (runIsolatedForSnapshot act desc (rethrow := true)).run ctx (← forkState)
     -- unlike in a separate task, recording may be active here and must observe `act`'s accesses
     modify fun s => { s with recordedDeps := st.recordedDeps }
     let tree := (← mkSnapshot? output ctx st desc).getD (toSnapshotTree (default : SnapshotLeaf))

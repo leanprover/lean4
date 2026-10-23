@@ -699,8 +699,8 @@ private def checkTypesAndAssign (mvar : Expr) (v : Expr) : MetaM Bool :=
       let mvarType ← inferType mvar
       let vType ← inferType v
       unless (← checkTypesForInstanceTypedMVarAssignment mvarType vType v) do
-        if (← isDiagnosticsEnabled) then withInferTypeConfig do
-          if (← Meta.isExprDefEqAux mvarType vType) then
+        if (← isDiagnosticsEnabled) then
+          if (← withoutModifyingState <| withInferTypeConfig <| Meta.isExprDefEqAux mvarType vType) then
             trace[diagnostics] "failure when assigning class-typed metavariable with type{indentExpr mvarType}\nwhich is not definitionally equal to{indentExpr vType}\nwhen using `.instances` transparency, but it is with `.default`.\nWorkaround: `set_option backward.isDefEq.respectTransparency.instanceTypes false`"
         return false
       unless (← spineMVarsAdmissible v) do
@@ -719,8 +719,8 @@ private def checkTypesAndAssign (mvar : Expr) (v : Expr) : MetaM Bool :=
             mvar.mvarId!.assign v
             return true
           else
-            if (← isDiagnosticsEnabled) then withInferTypeConfig do
-              if (← Meta.isExprDefEqAux mvarType vType) then
+            if (← isDiagnosticsEnabled) then
+              if (← withoutModifyingState <| withInferTypeConfig <| Meta.isExprDefEqAux mvarType vType) then
                 trace[diagnostics] "failure when assigning metavariable with type{indentExpr mvarType}\nwhich is not definitionally equal to{indentExpr vType}\nwhen using `.implicit` transparency, but it is with `.default`.\nWorkaround: `set_option backward.isDefEq.respectTransparency.types false`"
             return false
       else

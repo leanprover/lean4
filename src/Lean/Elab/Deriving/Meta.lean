@@ -6,4 +6,4 @@ Authors: Robin Arnez
 module
 
 prelude
-public import Lean.Meta.Deriving.Util
+public import Lean.Elab.Deriving.Meta.Util

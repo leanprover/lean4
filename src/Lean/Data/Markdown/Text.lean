@@ -9,6 +9,9 @@ prelude
 public import Init.Prelude
 import Init.While
 import Init.Data.String.Basic
+import Init.Data.String.Slice.Basic
+import Init.Data.String.Length
+public import Init.Data.String.Subslice
 import Lean.Data.Html.CharRef
 
 namespace Lean.Markdown
@@ -40,15 +43,20 @@ Named references are those of HTML. Decimal references (`#` followed by one to s
 hexadecimal references (`#x` or `#X` followed by one to six hex digits) denote a code point; the
 code point zero, surrogates, and values above U+10FFFF decode to U+FFFD.
 -/
-public def characterReference? (body : String) : Option String :=
-  match Html.numericCharacterReference? body with
-  | some n => do
-    -- The body is ASCII, so its byte size is its length. The digits follow `#` or `#x`.
-    let second := String.Pos.Raw.get body ⟨1⟩
-    let isHex := second == 'x' || second == 'X'
-    guard (body.utf8ByteSize - (if isHex then 2 else 1) ≤ (if isHex then 6 else 7))
+public def characterReference? {s : String.Slice} (body : s.Subslice) : Option String := do
+  let text := body.toSlice
+  -- The longest HTML entity name has 31 characters and a numeric body has at most 8, so a longer
+  -- body is rejected before it is copied for the lookup. `drop` stops at the end of the text, so
+  -- the check costs at most 31 steps.
+  guard (text.drop 31).front?.isNone
+  let str := body.copy
+  if text.front? == some '#' then
+    let isHex := (text.drop 1).front? matches some 'x' | some 'X'
+    guard (str.length - (if isHex then 2 else 1) ≤ (if isHex then 6 else 7))
+    let n ← Html.numericCharacterReference? str
     return String.singleton (Char.ofNat (if n != 0 && n.isValidChar then n else 0xFFFD))
-  | none => Html.namedCharacterReference? body
+  else
+    Html.namedCharacterReference? str
 
 /--
 Whether `c` can occur in the body of a character reference: ASCII letters and digits, and `#`.
@@ -60,34 +68,37 @@ public def isCharacterReferenceChar (c : Char) : Bool :=
 Parses a character reference whose `&` is immediately before `i`. On success, returns the decoded
 text together with the position after the `;`.
 -/
-public def decodeCharacterReference? (s : String) (i : String.Pos.Raw) :
-    Option (String × String.Pos.Raw) := Id.run do
+public def decodeCharacterReference? {s : String.Slice} (i : s.Pos) : Option (String × s.Pos) :=
+    Id.run do
   let mut j := i
-  while h : ¬ j.atEnd s do
-    let c := j.get' s h
+  while h : j ≠ s.endPos do
+    let c := j.get h
     if c == ';' then
-      let some value := characterReference? (i.extract s j) | return none
-      return some (value, j.next' s h)
+      let body :=
+        if hle : i ≤ j then s.subslice i j hle else s.subslice i i (String.Slice.Pos.le_refl i)
+      let some value := characterReference? body | return none
+      return some (value, j.next h)
     if !isCharacterReferenceChar c then return none
-    j := j.next' s h
+    j := j.next h
   return none
 
 /--
 Decodes the backslash escapes and character references in `s`. CommonMark applies this decoding to
 link destinations, link titles, and the info strings of fenced code blocks.
 -/
-public def decodeText (s : String) : String := Id.run do
+public def decodeText (text : String) : String := Id.run do
+  let s := text.toSlice
   let mut out := ""
-  let mut i : String.Pos.Raw := 0
-  while h : ¬ i.atEnd s do
-    let c := i.get' s h
-    let j := i.next' s h
+  let mut i := s.startPos
+  while h : i ≠ s.endPos do
+    let c := i.get h
+    let j := i.next h
     if c == '\\' then
-      if h' : ¬ j.atEnd s then
-        let d := j.get' s h'
+      if h' : j ≠ s.endPos then
+        let d := j.get h'
         if isAsciiPunctuation d then
           out := out.push d
-          i := j.next' s h'
+          i := j.next h'
         else
           out := out.push c
           i := j
@@ -95,7 +106,7 @@ public def decodeText (s : String) : String := Id.run do
         out := out.push c
         i := j
     else if c == '&' then
-      match decodeCharacterReference? s j with
+      match decodeCharacterReference? j with
       | some (value, after) =>
         out := out ++ value
         i := after

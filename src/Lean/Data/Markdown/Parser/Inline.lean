@@ -64,16 +64,15 @@ Parses a character reference at `cur`, which must point at `&`. Returns the resu
 -/
 def parseCharacterReference? (cur : InlineCursor s) : Option (Inline s × s.Pos) := do
   let start := cur.startPos
+  let bodyStart := cur.drop1.startPos
   let mut rest := cur.drop1
-  let mut body := ""
   while !rest.isEmpty do
     let c := rest.front
     if c == ';' then
-      let value ← characterReference? body
+      let value ← characterReference? (subsliceClamped bodyStart rest.startPos)
       let after := rest.drop1.startPos
       return (.entity (subsliceClamped start after) value, after)
     guard (isCharacterReferenceChar c)
-    body := body.push c
     rest := rest.drop1
   failure
 

@@ -43,6 +43,11 @@ def showParagraph (src : String) : String :=
 /-- info: "text⟪&bogus; &#; &#x; &amp ⟫ entity⟪�⟫ text⟪ ⟫ entity⟪�⟫" -/
 #guard_msgs in #eval showParagraph "&bogus; &#; &#x; &amp &#0; &#xD800;"
 
+-- A numeric reference has at most 7 decimal or 6 hexadecimal digits (CommonMark §2.5). Within that
+-- limit, a value above U+10FFFF is U+FFFD; beyond it, the reference is text.
+/-- info: "entity⟪�⟫ text⟪ &#99999999; ⟫ entity⟪�⟫ text⟪ &#x1100000;⟫" -/
+#guard_msgs in #eval showParagraph "&#9999999; &#99999999; &#x110000; &#x1100000;"
+
 /-- info: "text⟪a⟫ softBreak text⟪b⟫" -/
 #guard_msgs in #eval showParagraph "a\nb"
 
@@ -165,11 +170,14 @@ def hasEmphasis (src : String) : Bool :=
 /-- info: "a*b&#&amp;&bogus;\\q" -/
 #guard_msgs in #eval decodeText "a\\*b&amp;&#35;\\&amp;&bogus;\\q"
 
+/-- The decoding of the character reference `&body;`. -/
+def charRef? (body : String) : Option String :=
+  characterReference? body.toSlice.toSubslice
+
 /-- info: [some "&", none, some "A", some "�", some "�", none, none, none, none, none] -/
-#guard_msgs in #eval [characterReference? "amp", characterReference? "Amp", characterReference? "#x41",
-  characterReference? "#x110000", characterReference? "#xD800", characterReference? "#12345678",
-  characterReference? "#00000065", characterReference? "#x0000041", characterReference? "#",
-  characterReference? ""]
+#guard_msgs in #eval [charRef? "amp", charRef? "Amp", charRef? "#x41", charRef? "#x110000",
+  charRef? "#xD800", charRef? "#12345678", charRef? "#00000065", charRef? "#x0000041", charRef? "#",
+  charRef? ""]
 
 /-! ## Heading levels -/
 

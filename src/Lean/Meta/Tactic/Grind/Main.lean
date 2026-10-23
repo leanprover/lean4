@@ -263,6 +263,8 @@ def Result.toMessageData (result : Result) : MetaM MessageData := do
       msgs := msgs ++ [.trace { cls := `grind } "Issues" issues.reverse.toArray]
     if let some msg ← mkGlobalDiag result.counters result.simp result.splitDiags result.ematchDiags then
       msgs := msgs ++ [msg]
+  else
+    msgs := msgs ++ [m!"use `+verbose` to obtain diagnostic information"]
   return MessageData.joinSep msgs m!"\n"
 
 /--

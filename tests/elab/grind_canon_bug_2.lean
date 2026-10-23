@@ -18,5 +18,5 @@ example (m : ExtHashMap Nat Nat) :
     (m.insert 1 2).filter (fun k _ => k > 1000) = (m.insert 1 3).filter fun k _ => k > 100 := by
   ext1 k
   set_option trace.grind.lia.model true in
-  fail_if_success grind (splits := 4)
+  fail_if_success grind +verbose (splits := 4)
   sorry

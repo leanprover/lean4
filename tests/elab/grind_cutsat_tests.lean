@@ -26,7 +26,7 @@ trace: [grind.lia.model] a := 101
 #guard_msgs (trace) in
 set_option trace.grind.lia.model true in
 example (a b c d e : Int) : test1 a b c d e  := by
-  (fail_if_success cutsat); sorry
+  (fail_if_success cutsat +verbose); sorry
 
 /-- info: false -/
 #guard_msgs (info) in

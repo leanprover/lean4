@@ -22,6 +22,7 @@ this : Bar fun x => x
 h : Foo.EqId n f
 h_1 : ¬Bar (Foo.e n f)
 ⊢ False
+use `+verbose` to obtain diagnostic information
 -/
 #guard_msgs in
 theorem EqIdToZero (f : Foo n) : f.EqId → Bar f.e := by

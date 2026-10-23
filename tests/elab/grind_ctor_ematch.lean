@@ -55,7 +55,7 @@ h : ¬Even 16
 -/
 #guard_msgs (error) in
 example : Even 16 := by
-  grind
+  grind +verbose
 
 example : Even 16 := by
   grind (gen := 9) (ematch := 9)

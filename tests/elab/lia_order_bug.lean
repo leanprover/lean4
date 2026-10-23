@@ -23,7 +23,7 @@ h : ¬1 ≤ k
     [prop] 1 ≤ k
 -/
 #guard_msgs in
-example (k : Rat) (hk : 2 ≤ k) : 1 ≤ k := by lia
+example (k : Rat) (hk : 2 ≤ k) : 1 ≤ k := by lia +verbose
 
 example (k : Rat) (hk : 2 ≤ k) : 1 ≤ k := by lia +order
 

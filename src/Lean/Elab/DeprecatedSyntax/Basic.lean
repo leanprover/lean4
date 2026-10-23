@@ -116,6 +116,8 @@ def checkDeprecatedSyntax (stx : Syntax) (macroStack : MacroStack) : CoreM Unit 
   if let some entry := (deprecatedSyntaxExt.getState env).find? kind then
     unless Linter.getLinterValue Linter.linter.deprecated.syntax (← Linter.getLinterOptions) do
       return
+    unless (← Core.shouldCheckDeprecated stx) do
+      return
     let extraMsg := entry.textSuffix
     if stx.getHeadInfo matches .original .. then
       Linter.logLint Linter.linter.deprecated.syntax stx
@@ -148,6 +150,8 @@ def checkDeprecatedQuotedSyntax (stx : Syntax) : CoreM Unit := do
   let some entry := (deprecatedSyntaxExt.getState (← getEnv)).find? stx.getKind | return
   if stx.getHeadInfo matches .synthetic .. then return
   unless Linter.getLinterValue Linter.linter.deprecated.syntax (← Linter.getLinterOptions) do
+    return
+  unless (← Core.shouldCheckDeprecated stx) do
     return
   Linter.logLint Linter.linter.deprecated.syntax stx
     (m!"quotation uses deprecated syntax '{stx.getKind}'{entry.textSuffix}" ++

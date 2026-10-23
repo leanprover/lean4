@@ -73,6 +73,8 @@ structure Context where
   errors; see also `logMessage` below.
   -/
   suppressElabErrors : Bool := false
+  /-- Forwarded to `Core.Context.checkDeprecated`. -/
+  checkDeprecated : Core.DeprecationCheck := .all
 
 abbrev CommandElabM := ReaderT Context $ StateRefT State $ EIO Exception
 abbrev CommandElab  := Syntax → CommandElabM Unit
@@ -288,7 +290,8 @@ private def runCore (x : CoreM α) : CommandElabM α := do
     currMacroScope     := ctx.currMacroScope
     options            := scope.opts
     cancelTk?          := ctx.cancelTk?
-    suppressElabErrors := ctx.suppressElabErrors }
+    suppressElabErrors := ctx.suppressElabErrors
+    checkDeprecated    := ctx.checkDeprecated }
   let x : EIO _ _ := x.run coreCtx {
     env
     ngen := s.ngen
@@ -1138,6 +1141,7 @@ private def liftCommandElabMCore (cmd : CommandElabM α) (throwOnError : Bool) :
       snap? := none
       cancelTk? := ctx.cancelTk?
       suppressElabErrors := ctx.suppressElabErrors
+      checkDeprecated := ctx.checkDeprecated
     } |>.run {
       env := s.env
       nextMacroScope := s.nextMacroScope

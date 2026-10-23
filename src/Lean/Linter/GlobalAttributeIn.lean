@@ -51,7 +51,7 @@ def globalAttributeIn : Linter where run := withSetOptionIn fun stx => do
     if let some (id, nonScopedNorLocal) := getGlobalAttributesIn? s then
       for attr in nonScopedNorLocal do
         logErrorAt attr
-          m!"Despite the `in`, the attribute {attr} is added globally to {id}\n\
+          m!"Despite the `in`, the attribute `{attr}` is added globally to `{id}`\n\
           please remove the `in` or make this a `local {attr}`"
 
 builtin_initialize addLinter globalAttributeIn

@@ -406,6 +406,13 @@ The package's `buildDir` joined with its `nativeLibDir` configuration.
 public def cacheScope (self : Package) : String :=
   self.baseName.toString (escape := false)
 
+/-- The service declared by this package's `buildCache` URL, if any. -/
+public def buildCacheService? (self : Package) : Option CacheService := do
+  let url := self.config.buildCache.dropEndWhile '/' |>.copy
+  if url.isEmpty then none else
+    some <| CacheService.downloadService s!"{url}/artifacts" s!"{url}/revisions"
+      (some <| .ofString s!"buildCache:{url}")
+
 /-- The cache scope used to identify the package on Reservoir. -/
 def reservoirScope (self : Package) : CacheServiceScope :=
   .ofString s!"{self.scope}/{self.origName.toString (escape := false)}"

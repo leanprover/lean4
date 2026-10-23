@@ -15,6 +15,7 @@ import Lake.Build.Common
 import Lake.Build.Targets
 import Lake.Build.Job.Register
 import Lake.Reservoir
+import Std.Time.DateTime.Timestamp
 
 /-! # Package Facet Builds
 Build function definitions for a package's builtin facets.
@@ -70,11 +71,81 @@ public def Package.transDepsFacetConfig : PackageFacetConfig transDepsFacet :=
   mkFacetJobConfig recComputeTransDeps (buildable := false)
 
 /--
-Tries to download and unpack the package's cached build archive
-(e.g., from Reservoir or GitHub).
+Fetch the current revision's published mappings without downloading artifacts.
 -/
+def Package.fetchArtifactCacheMappings (self : Package) : JobM Bool := do
+  let some service := self.buildCacheService? | return false
+  let repo := GitRepo.mk self.dir
+  let url ← match self.remoteUrl? with
+    | some url => pure url
+    | none => pure <| (← repo.getRemoteUrl?).getD ""
+  let repoName? := url.dropPrefix? "https://github.com/"
+    <|> url.dropPrefix? "git@github.com:"
+    <|> url.dropPrefix? "ssh://git@github.com/"
+    <|> url.dropPrefix? "git://github.com/"
+  let some repoName := repoName?
+    | logVerbose s!"{self.prettyName}: cannot identify GitHub repository for buildCache"
+      return false
+  let repoName := repoName.copy
+  let repoName := if repoName.endsWith ".git" then repoName.dropEnd 4 |>.copy else repoName
+  let scope := CacheServiceScope.ofRepo repoName
+  let rev ← repo.getHeadRevision
+  let ws ← getWorkspace
+  let platform := if self.isPlatformIndependent then CachePlatform.none else .system
+  let toolchain := if self.fixedToolchain || self.bootstrap then .none else ws.cacheToolchain
+  let cache ← getLakeCache
+  let revisionScope := s!"{self.cacheScope}/buildCache/" ++
+    (Hash.ofString <| service.revisionUrl "" scope platform toolchain).hex
+  let path := cache.revisionPath revisionScope rev
+  createParentDirs path
+  let lockFile := cache.outputsDir / self.cacheScope / ".buildCache.lock"
+  createParentDirs lockFile
+  writeFileIfNew lockFile ""
+  let lock ← IO.FS.Handle.mk lockFile .readWrite
+  lock.lock
+  try
+    let readyFile := cache.outputsDir / self.cacheScope / ".buildCache.ready"
+    if let .ok installed ← IO.FS.readFile readyFile |>.toBaseIO then
+      if installed == path.toString then return true
+    let attemptFile := path.addExtension "attempt"
+    let now := (← Std.Time.Timestamp.now).toSecondsSinceUnixEpoch.val
+    if let .ok previous ← attemptFile.metadata |>.toBaseIO then
+      if previous.modified.sec ≤ now && now - previous.modified.sec < 300 then return false
+    IO.FS.writeFile attemptFile ""
+    let contents? ← if (← path.pathExists) then
+      pure <| some (← IO.FS.readFile path)
+    else
+      getUrl? (service.revisionUrl rev scope platform toolchain) #[]
+        #["--retry", "0", "--connect-timeout", "3", "--max-time", "15"]
+    let some contents := contents? | return false
+    let (map?, log) ← (CacheMap.parse path.toString contents self.isPlatformIndependent).captureLog
+    if log.maxLv ≥ .warning || map?.isNone then
+      removeFileIfExists path
+      log.replay
+      return false
+    let some map := map? | return false
+    IO.FS.writeFile path contents
+    -- Preserve local output mappings to avoid repeatedly unpacking published archives.
+    map.forM fun input entry => do
+      let prev? ← try cache.readOutputs? self.cacheScope input catch e =>
+        discard <| takeLogFrom e
+        pure none
+      let replace := prev?.isNone || prev?.any fun prev => prev.service?.any fun oldService =>
+        some oldService.toString != service.name?.map (·.toString) ||
+        prev.scope?.map (·.toString) != some scope.toString
+      cache.writeOutputs self.cacheScope input entry.out service.name? (some scope)
+        (overwrite := replace)
+    IO.FS.writeFile readyFile path.toString
+    return true
+  finally
+    lock.unlock
+
+/-- Fetch the package's published mappings or cached build archive. -/
 def Package.fetchOptBuildCacheCore (self : Package) : FetchM (Job Bool) := do
-  if self.preferReleaseBuild then
+  if self.buildCacheService?.isSome then
+    withRegisterJob s!"{self.baseName}:optCache" (optional := true) <| Job.async do
+      try self.fetchArtifactCacheMappings catch _ => return false
+  else if self.preferReleaseBuild then
     self.optGitHubRelease.fetch
   else
     self.optReservoirBarrel.fetch
@@ -85,10 +156,12 @@ public def Package.optBuildCacheFacetConfig : PackageFacetConfig optBuildCacheFa
 
 /-- Tries to download the package's build cache (if configured). -/
 def Package.maybeFetchBuildCache (self : Package) : FetchM (Job Bool) := do
-  let shouldFetch :=
-    (← getTryCache) &&
-    !(← self.buildDir.pathExists) && -- do not automatically clobber prebuilt artifacts
-    (self.preferReleaseBuild || -- GitHub release
+  unless (← getTryCache) do return pure true
+  let shouldFetch ← if self.buildCacheService?.isSome then
+      self.isArtifactCacheReadable
+    else pure <|
+      !(← self.buildDir.pathExists) && -- do not automatically clobber prebuilt artifacts
+      (self.preferReleaseBuild || -- GitHub release
       ((self.scope == "leanprover" || self.scope == "leanprover-community")
         && !(← getElanToolchain).isEmpty)) -- Reservoir
   if shouldFetch then
@@ -111,7 +184,9 @@ def Package.maybeFetchBuildCacheWithWarning (self : Package) := do
   let job ← self.maybeFetchBuildCache
   job.mapM fun success => do
     unless success do
-      if self.preferReleaseBuild then
+      if self.buildCacheService?.isSome then
+        logVerbose s!"{self.prettyName}: building from source; published cache mappings unavailable"
+      else if self.preferReleaseBuild then
         let details ← self.optFacetDetails optGitHubReleaseFacet
         logWarning s!"building from source; failed to fetch GitHub release{details}"
       else

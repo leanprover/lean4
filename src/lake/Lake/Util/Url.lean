@@ -115,13 +115,14 @@ return the body.  Otherwise, returns `none` on a 404 and errors on anything else
 -/
 public def getUrl?
   (url : String) (headers : Array String := #[])
+  (requestArgs : Array String := #[])
 : LogIO (Option String) := withLogErrorPos do
   let args := #[
       "-s", "-L", "-w", "%{stderr}%{json}\n",
       "--retry", "3" -- intermittent network errors can occur
   ]
   let args := headers.foldl (init := args) (· ++ #["-H", ·])
-  let out ← captureProc' {cmd := ← Internal.getCurl, args := args.push url}
+  let out ← captureProc' {cmd := ← Internal.getCurl, args := args ++ requestArgs |>.push url}
   match Json.parse out.stderr >>= JsonObject.fromJson? with
   | .ok data =>
     let code ← id do

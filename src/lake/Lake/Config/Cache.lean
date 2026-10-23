@@ -550,13 +550,16 @@ end CacheToolchain
 
 /-- **For internal use only.** -/
 public def downloadArtifactCore (hash : Hash) (url : String) (path : FilePath) : LogIO Unit := do
-  download url path
-  let actualHash ← computeFileHash path
-  if actualHash != hash then
-    let errPos ← getLogPos
-    logError s!"{path}: downloaded artifact hash mismatch, got {actualHash}"
-    IO.FS.removeFile path
-    throw errPos
+  let temporary := path.addExtension s!"{← IO.Process.getPID}.{← IO.monoNanosNow}.tmp"
+  try
+    download url temporary
+    let actualHash ← computeFileHash temporary
+    if actualHash != hash then
+      error s!"{path}: downloaded artifact hash mismatch, got {actualHash}"
+    if let .error e ← IO.FS.rename temporary path |>.toBaseIO then
+      unless (← path.pathExists) do error s!"{path}: failed to persist artifact: {e}"
+  finally
+    removeFileIfExists temporary
 
 /-- Uploads a file to an online bucket using the Amazon S3 protocol. -/
 def uploadS3

@@ -18,6 +18,7 @@ A Lake configuration file defines the package's basic configuration. It also typ
   + [Build & Run](#build--run)
   + [Test & Lint](#test--lint)
   + [Cloud Releases](#cloud-releases)
+  + [Published Artifact Caches](#published-artifact-caches)
 * [Specifying Targets](#specifying-targets)
 * [Defining Targets](#defining-targets)
   + [Lean Libraries](#lean-libraries)
@@ -233,6 +234,41 @@ These options define a cloud release for the package. See the section on [GitHub
 * `buildArchive`: The name of the build archive for the GitHub cloud release.
 Defaults to `{(pkg-)name}-{System.Platform.target}.tar.gz`.
 * `preferReleaseBuild`: Whether to prefer downloading a prebuilt release (from GitHub) rather than building this package from the source when this package is used as a dependency.
+
+### Published Artifact Caches
+
+A package can advertise an artifact cache with one field in its `lakefile.toml`:
+
+```toml
+buildCache = "https://cache.taucetiproject.org"
+```
+
+When a downstream build first uses the package, Lake downloads the pinned Git revision's
+input-to-output mappings from `<buildCache>/revisions`. It then downloads artifacts from
+`<buildCache>/artifacts` only as the build needs them. Downstream users do not need to run
+`lake cache get` or configure a system cache service. The `buildCache` URL is ignored when
+empty, and `--no-cache` disables automatic downloads.
+
+Successful mapping installations are reused without rescanning the revision map. Unavailable
+or malformed mappings are retried after five minutes; `lake cache clean` clears that delay.
+Automatic mapping requests have a three-second connection timeout and a fifteen-second
+overall timeout. Concurrent processes coordinate mapping installation, and individual
+artifact downloads are verified before their temporary files are published in the cache.
+
+The cache uses the repository, toolchain, and platform layout of `lake cache put --repo`.
+Lake identifies the repository from its GitHub remote, including HTTPS and SSH remotes.
+`platformIndependent = true` omits the platform from mapping URLs; `fixedToolchain = true`
+omits the toolchain. The server must publish mappings and artifacts for the package's build
+inputs; this declaration does not publish anything or configure caches for other dependencies.
+
+Missing mappings or artifacts fall back to local compilation. Lake queries the current Git
+revision only, and validates build inputs before using cached outputs, including for locally
+modified sources. Building the package as the workspace root does not automatically retrieve
+its mappings. This feature does not change source checkouts.
+
+When `buildCache` is set, it takes precedence over GitHub release archives and Reservoir
+barrels, including for the `cache` and `optCache` package facets. A missing published mapping
+falls back to source compilation rather than downloading a whole-package archive.
 
 ## Specifying Targets
 

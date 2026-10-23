@@ -881,9 +881,6 @@ class task_manager {
             run_task(lock, t);
             return;
         }
-        // Enqueued by the event loop before `finalize_libuv` stopped it; nothing will run it.
-        if (m_workers_joined)
-            return;
         if (prio > LEAN_MAX_PRIO) {
             spawn_dedicated_worker(t);
             return;
@@ -1106,6 +1103,7 @@ public:
 
         lock.lock();
         m_worker_done_cv.wait(lock, [&]() { return m_discarding == 0; });
+        lock.unlock();
         // never seems to terminate under Emscripten
 #endif
         // The workers finish with the event loop still running, so a task blocked on a libuv promise

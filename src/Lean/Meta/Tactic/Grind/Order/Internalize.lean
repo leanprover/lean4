@@ -18,10 +18,11 @@ import Lean.Meta.Tactic.Grind.Order.StructId
 import Lean.Meta.Tactic.Grind.Order.Util
 import Lean.Meta.Tactic.Grind.Order.Assert
 import Lean.Meta.Tactic.Grind.Order.Proof
+import Lean.Meta.Sym.Arith.Classify
 namespace Lean.Meta.Grind.Order
 
 open Arith CommRing
-open Sym.Arith (getRing)
+open Sym.Arith (getRing homoType?)
 
 def getType? (e : Expr) : Option Expr :=
   match_expr e with
@@ -38,8 +39,8 @@ def getType? (e : Expr) : Option Expr :=
       none
   | LE.le α _ _ _ => some α
   | LT.lt α _ _ _ => some α
-  | HAdd.hAdd α _ _ _ _ _ => some α
-  | HSub.hSub α _ _ _ _ _ => some α
+  | HAdd.hAdd α β γ _ _ _ => homoType? α β γ
+  | HSub.hSub α β γ _ _ _ => homoType? α β γ
   | OfNat.ofNat α _ _ => some α
   | _ => none
 
@@ -173,6 +174,25 @@ def updateTermMap (e eNew h α : Expr) : GoalM Unit := do
     termMapInv := s.termMapInv.insert { expr := eNew } (e, h)
   }
 
+/--
+Returns the `Nat` term `a` whose translation by `Arith.Cutsat.natToInt` may be the `Int` term `e`.
+
+**Note**: This function "inverts" `natToInt`: each case undoes a case of `natToInt'`, and they must
+be kept in sync. It does not check types or instances, so `a` is only a candidate: the caller must
+check that `natToInt a` is `e`.
+-/
+partial def toNatTerm? (e : Expr) : Option Expr :=
+  match_expr e with
+  | HAdd.hAdd _ _ _ _ a b => return mkNatAdd (← toNatTerm? a) (← toNatTerm? b)
+  | HMul.hMul _ _ _ _ a b => return mkNatMul (← toNatTerm? a) (← toNatTerm? b)
+  | HDiv.hDiv _ _ _ _ a b => return mkNatDiv (← toNatTerm? a) (← toNatTerm? b)
+  | HMod.hMod _ _ _ _ a b => return mkNatMod (← toNatTerm? a) (← toNatTerm? b)
+  | HPow.hPow _ _ _ _ a k => return mkNatPow (← toNatTerm? a) k
+  | NatCast.natCast _ _ a => some a
+  | _ => do
+    let n ← e.int?
+    if n ≥ 0 then some (mkNatLit n.toNat) else none
+
 def mkNode (e : Expr) : OrderM NodeId := do
   if let some nodeId := (← getStruct).nodeMap.find? { expr := e } then
     return nodeId
@@ -196,15 +216,33 @@ def mkNode (e : Expr) : OrderM NodeId := do
     orderExt.markTerm e'
   return nodeId
 where
-  getOriginal? (e : Expr) : GoalM (Option Expr) := do
+  getOriginal? (e : Expr) : OrderM (Option Expr) := do
     if let some (e', _) := (← get').termMapInv.find? { expr := e } then
       return some e'
-    let_expr NatCast.natCast α _ a := e | return none
+    let_expr NatCast.natCast α _ a := e | getNatTerm? e
     if (← alreadyInternalized a) then
       updateTermMap a e (← mkEqRefl e) α
       return some a
     else
       return none
+  /--
+  Returns the internalized `Nat` term `a` such that `natToInt a` is the node `e`, and records
+  `a ↦ e` in `termMap`. For example, when internalizing `a + b ≤ c`:
+  - `internalize` does not call `adapt` on `a + b` because its parent `a + b ≤ c` is forbidden.
+  - When `internalize` processes `a + b ≤ c`, `adapt` translates it into `↑a + ↑b ≤ ↑c`, and
+    records only this pair in `termMap`.
+  - `internalizeCnstr` then creates the node `↑a + ↑b`, which has no entry in `termMapInv`.
+  - `getOriginal?` falls back to `getNatTerm?`, which returns `a + b`.
+  -/
+  getNatTerm? (e : Expr) : OrderM (Option Expr) := do
+    unless (← isInt) do return none
+    let some a := toNatTerm? e | return none
+    let a ← shareCommon a
+    unless (← alreadyInternalized a) do return none
+    let (e', h) ← Arith.Cutsat.natToInt a
+    unless isSameExpr e e' do return none
+    updateTermMap a e h (← getIntExpr)
+    return some a
 
 def internalizeCnstr (e : Expr) (kind : CnstrKind) (lhs rhs : Expr) : OrderM Unit := do
   let some c ← mkCnstr? e kind lhs rhs | return ()
@@ -331,8 +369,8 @@ def alreadyInternalizedHere (e : Expr) : OrderM Bool := do
 public def internalize (e : Expr) (parent? : Option Expr) : GoalM Unit := do
   unless (← getConfig).order do return ()
   let some α := getType? e | return ()
-  let (α, e) ← adapt α e
   if isForbiddenParent parent? then return ()
+  let (α, e) ← adapt α e
   if let some structId ← getStructId? α then OrderM.run structId do
     if (← alreadyInternalizedHere e) then return ()
     match_expr e with

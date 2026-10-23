@@ -1,0 +1,36 @@
+wait: child exited with code 0
+wait: child returns from main
+wait: the task finished
+waitAny: child exited with code 0
+waitAny: child returns from main
+waitAny: the task finished
+get: child exited with code 0
+get: child returns from main
+get: the task finished
+map: child exited with code 0
+map: child returns from main
+map: the task finished
+bind: child exited with code 0
+bind: child returns from main
+bind: the task finished
+nested: child exited with code 0
+nested: child returns from main
+nested: the task finished
+pool: child exited with code 0
+pool: child returns from main
+pool: the task finished
+prio: child exited with code 0
+prio: child returns from main
+prio: the task finished
+mapDedicated: child exited with code 0
+mapDedicated: child returns from main
+mapDedicated: the task finished
+waitAnyRunning: child exited with code 0
+waitAnyRunning: child returns from main
+waitAnyRunning: the task finished
+forever: child exited with code 0
+forever: child returns from main
+forever: the task finished
+process: child exited with code 0
+process: child returns from main
+process: the task finished

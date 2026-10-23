@@ -31,6 +31,8 @@ namespace Formatter
 structure Context where
   options : Options
   table   : Parser.TokenTable
+  /-- We need to store this `categoryParser` argument to deal with the implicit Pratt parser call in `trailingNode.formatter`. -/
+  cat     : Name := Name.anonymous
 
 structure State where
   stxTrav  : Syntax.Traverser
@@ -285,7 +287,7 @@ def tokenWithAntiquot.formatter (p : Formatter) : Formatter := do
   else
     p
 
-def categoryFormatterCore (cat : Name) : Formatter := do
+def categoryFormatterCore (cat : Name) : Formatter := withReader ({ · with cat }) do
   modify fun st => { st with mustBeGrouped := true, isUngrouped := false }
   let stx ← getCur
   trace[PrettyPrinter.format] "formatting {indentD (format stx)}"
@@ -356,7 +358,7 @@ def trailingNode.formatter (k : SyntaxNodeKind) (_ _ : Nat) (p : Formatter) : Fo
   visitArgs do
     p;
     -- leading term, not actually produced by `p`
-    categoryParser.formatter `foo
+    categoryParser.formatter (← read).cat
 
 def parseToken (s : String) : FormatterM ParserState :=
   -- include comment tokens, e.g. when formatting `- -0`

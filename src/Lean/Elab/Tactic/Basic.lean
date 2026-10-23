@@ -8,7 +8,7 @@ module
 prelude
 public import Lean.Meta.Tactic.Util
 public import Lean.Elab.Term
-import Lean.Elab.DeprecatedSyntax
+import Lean.Elab.DeprecatedSyntax.Basic
 import Init.Omega
 
 public section
@@ -202,15 +202,14 @@ partial def evalTactic (stx : Syntax) : TacticM Unit := do
         Term.withoutTacticIncrementality true <| withTacticInfoContext stx do
           stx.getArgs.forM evalTactic
       else withTraceNode `Elab.step (fun _ => return stx) (tag := stx.getKind.toString) do
-        if (← readThe Term.Context).checkDeprecated then
-          checkDeprecatedSyntax stx (← readThe Term.Context).macroStack
+        Term.reportDeprecatedSyntax stx
         let evalFns := tacticElabAttribute.getEntries (← getEnv) stx.getKind
         let macros  := macroAttribute.getEntries (← getEnv) stx.getKind
         if evalFns.isEmpty && macros.isEmpty then
           throwErrorAt stx "Tactic `{stx.getKind}` has not been implemented"
         let s ← Tactic.saveState
         if isDeprecatedSyntax (← getEnv) stx.getKind then
-          Term.withoutCheckDeprecated <| expandEval s macros evalFns #[]
+          Term.withoutCheckDeprecatedSynthetic <| expandEval s macros evalFns #[]
         else
           expandEval s macros evalFns #[]
     | .missing => pure ()

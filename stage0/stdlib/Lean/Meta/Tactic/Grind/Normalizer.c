@@ -19,7 +19,7 @@ lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* l_Lean_Core_instMonadOptionsCoreM_checkedOptions(lean_object*);
 extern lean_object* l_Lean_Meta_Grind_backward_grind_normalizer;
 lean_object* l_Lean_Meta_Sym_preprocessExpr(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_Grind_mkNormSymTheorems(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_Grind_getNormSymTheorems___redArg(lean_object*);
 lean_object* l_Lean_Meta_Grind_mkNormSymMethods(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Sym_Simp_simp___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Sym_Simp_SimpM_run___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -144,7 +144,7 @@ lean_object* v_a_34_; lean_object* v___x_35_;
 v_a_34_ = lean_ctor_get(v___x_33_, 0);
 lean_inc(v_a_34_);
 lean_dec_ref_known(v___x_33_, 1);
-v___x_35_ = l_Lean_Meta_Grind_mkNormSymTheorems(v___y_28_, v___y_29_, v___y_30_, v___y_31_);
+v___x_35_ = l_Lean_Meta_Grind_getNormSymTheorems___redArg(v___y_31_);
 if (lean_obj_tag(v___x_35_) == 0)
 {
 lean_object* v_a_36_; lean_object* v___x_37_; lean_object* v___x_38_; lean_object* v___x_39_; lean_object* v___x_40_; lean_object* v___x_41_; 
@@ -281,6 +281,7 @@ else
 {
 lean_object* v_a_63_; lean_object* v___x_65_; uint8_t v_isShared_66_; uint8_t v_isSharedCheck_70_; 
 lean_dec(v_a_34_);
+lean_dec_ref(v_config_25_);
 v_a_63_ = lean_ctor_get(v___x_35_, 0);
 v_isSharedCheck_70_ = !lean_is_exclusive(v___x_35_);
 if (v_isSharedCheck_70_ == 0)
@@ -322,6 +323,7 @@ return v___x_68_;
 }
 else
 {
+lean_dec_ref(v_config_25_);
 return v___x_33_;
 }
 }
@@ -337,7 +339,6 @@ lean_dec(v___y_76_);
 lean_dec_ref(v___y_75_);
 lean_dec(v___y_74_);
 lean_dec_ref(v___y_73_);
-lean_dec_ref(v_config_72_);
 return v_res_80_;
 }
 }

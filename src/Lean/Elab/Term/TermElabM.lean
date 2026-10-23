@@ -9,7 +9,7 @@ prelude
 public import Lean.Meta.Coe
 public import Lean.Util.CollectLevelMVars
 public import Lean.Linter.Deprecated
-import Lean.Elab.DeprecatedSyntax
+import Lean.Elab.DeprecatedSyntax.Basic
 public import Lean.Elab.Attributes
 public import Lean.Elab.Level
 public import Lean.Elab.PreDefinition.TerminationHint
@@ -198,6 +198,12 @@ structure State where
   -/
   mvarArgNames      : MVarIdMap Name := {}
   letRecsToLift     : List LetRecToLift := []
+  /--
+  Maps a pending type class problem that got stuck to the metavariables of its goal at that point.
+  `synthesizeSyntheticMVars` does not retry it until one of them, or the instance metavariable itself,
+  is assigned, since type class resolution would get stuck on the same goal again.
+  -/
+  stuckTCMVars      : MVarIdMap (Array MVarId × Array LMVarId) := {}
   deriving Inhabited
 
 /--
@@ -292,6 +298,19 @@ end Tactic
 
 namespace Term
 
+/-- Which uses of deprecated constants and syntax are reported. See `Context.checkDeprecated`. -/
+inductive DeprecationCheck where
+  /-- Report all uses. -/
+  | all
+  /--
+  Report only uses at syntax written by the user, i.e. with original source info. This is used for
+  the expansion of deprecated syntax, which is reported as a whole, while the user-written syntax
+  it contains is still checked.
+  -/
+  | userWritten
+  /-- Report nothing. -/
+  | none
+
 structure Context where
   declName? : Option Name := none
   macroStack        : MacroStack      := []
@@ -370,9 +389,10 @@ structure Context where
   -/
   holesAsSyntheticOpaque : Bool := false
   /--
-  If `checkDeprecated := true`, then `Linter.checkDeprecated` when creating constants.
+  Which uses of deprecated constants (`Linter.checkDeprecated`) and syntax
+  (`checkDeprecatedSyntax`) are reported.
   -/
-  checkDeprecated : Bool := true
+  checkDeprecated : DeprecationCheck := .all
   /--
   Fixed term elaborators for supporting `elabToSyntax`.
   -/
@@ -825,8 +845,10 @@ def elabLevel (stx : Syntax) : TermElabM Level :=
   liftLevelM <| Level.elabLevel stx
 
 /-- Elaborate `x` with `stx` on the macro stack -/
-def withPushMacroExpansionStack (beforeStx afterStx : Syntax) (x : TermElabM α) : TermElabM α :=
-  withReader (fun ctx => { ctx with macroStack := { before := beforeStx, after := afterStx } :: ctx.macroStack }) x
+def withPushMacroExpansionStack [MonadWithReaderOf Context m] (beforeStx afterStx : Syntax)
+    (x : m α) : m α :=
+  withTheReader Context (fun ctx =>
+    { ctx with macroStack := { before := beforeStx, after := afterStx } :: ctx.macroStack }) x
 
 /-- Elaborate `x` with `stx` on the macro stack and produce macro expansion info -/
 @[specialize]
@@ -1695,9 +1717,54 @@ private def elabUsingElabFns (stx : Syntax) (expectedType? : Option Expr) (catch
   | []      => throwError "elaboration function for `{k}` has not been implemented{indentD stx}"
   | elabFns => elabUsingElabFnsAux s stx expectedType? catchExPostpone elabFns
 
-instance : MonadMacroAdapter TermElabM where
-  getNextMacroScope := return (← getThe Core.State).nextMacroScope
-  setNextMacroScope next := modifyThe Core.State fun s => { s with nextMacroScope := next }
+-- Shortcut instance; otherwise every use searches for a lift down to `CoreM`.
+instance : MonadMacroAdapter TermElabM := inferInstance
+
+/-- Whether deprecated constants and syntax are reported at `ref`. -/
+private def shouldCheckDeprecated (ref : Syntax) : TermElabM Bool := do
+  return match (← read).checkDeprecated with
+    | .all => true
+    | .userWritten => (ref.getHeadInfo matches .original ..)
+    | .none => false
+
+/--
+Reports `stx` if its syntax kind is deprecated by `deprecated_syntax`, unless deprecation checks are
+disabled by `withoutCheckDeprecated`, or by `withoutCheckDeprecatedSynthetic` for syntax not written
+by the user.
+
+The elaborator of a syntax category calls this before running the elaborators of `stx`, as
+`elabTerm` does for terms. Macros are instead reported when expanding them with
+`expandMacroReportingDeprecated?`.
+-/
+def reportDeprecatedSyntax (stx : Syntax) : TermElabM Unit := do
+  if (← shouldCheckDeprecated stx) then
+    checkDeprecatedSyntax stx (← read).macroStack
+
+/--
+Expands the macro `stx`, if any, returning the name of the macro declaration and the expansion.
+Unlike `expandMacroImpl?`, this reports `stx` if its syntax kind is deprecated. Elaborators that
+expand macros themselves instead of elaborating them with `elabTerm` should use this function,
+while analyses that do not elaborate the expansion should use `expandMacroImpl?`, so that
+deprecated syntax is reported once.
+-/
+def expandMacroReportingDeprecated? (stx : Syntax) : TermElabM (Option (Name × Syntax)) := do
+  let some (declName, stxNew?) ← liftMacroM <| expandMacroImpl? (← getEnv) stx | return none
+  reportDeprecatedSyntax stx
+  return some (declName, ← liftMacroM <| liftExcept stxNew?)
+
+/--
+Expands all macros in `stx` like `expandMacros`, except in nodes whose kind does not satisfy `p`,
+and reports deprecated syntax like `expandMacroReportingDeprecated?`.
+-/
+partial def expandMacrosReportingDeprecated (stx : Syntax)
+    (p : SyntaxNodeKind → Bool := (· != ``Parser.Term.byTactic)) : TermElabM Syntax :=
+  withRef stx <| withIncRecDepth do
+    let .node info k args := stx | return stx
+    unless p k do return stx
+    if let some (_, stxNew) ← expandMacroReportingDeprecated? stx then
+      withPushMacroExpansionStack stx stxNew <| expandMacrosReportingDeprecated stxNew p
+    else
+      return .node info k (← args.mapM (expandMacrosReportingDeprecated · p))
 
 private def isExplicit (stx : Syntax) : Bool :=
   match stx with
@@ -1854,17 +1921,14 @@ private partial def elabTermAux (expectedType? : Option Expr) (catchExPostpone :
     withTraceNode `Elab.step (fun _ => return m!"expected type: {expectedType?}, term\n{stx}")
       (tag := stx.getKind.toString) do
     checkSystem "elaborator"
-    if (← read).checkDeprecated then
-      checkDeprecatedSyntax stx (← read).macroStack
-    let env ← getEnv
-    let result ← match (← liftMacroM (expandMacroImpl? env stx)) with
-    | some (decl, stxNew?) =>
-      let stxNew ← liftMacroM <| liftExcept stxNew?
+    let result ← match (← expandMacroReportingDeprecated? stx) with
+    | some (decl, stxNew) =>
       withTermInfoContext' decl stx (expectedType? := expectedType?) <|
         withMacroExpansion stx stxNew <|
           withRef stxNew <|
             elabTermAux expectedType? catchExPostpone implicitLambda stxNew
     | _ =>
+      reportDeprecatedSyntax stx
       let useImplicitResult ← if implicitLambda && (← read).implicitLambda then useImplicitLambda stx expectedType? else pure .no
       match useImplicitResult with
       | .yes expectedType => elabImplicitLambda stx catchExPostpone expectedType
@@ -2144,7 +2208,7 @@ def isLetRecAuxMVar (mvarId : MVarId) : TermElabM Bool := do
   return (← get).letRecsToLift.any (·.mvarId == mvarId)
 
 def checkDeprecatedCore (constName : Name) (allowSuggestion := true) : TermElabM Unit := do
-  if (← read).checkDeprecated then
+  if (← shouldCheckDeprecated (← getRef)) then
     Linter.checkDeprecated constName allowSuggestion
 
 /--
@@ -2152,7 +2216,7 @@ def checkDeprecatedCore (constName : Name) (allowSuggestion := true) : TermElabM
   Remark: fresh universe metavariables are created if the constant has more universe
   parameters than `explicitLevels`.
 
-  If `checkDeprecated := true`, then `Linter.checkDeprecated` is invoked.
+  Reports `constName` if it is deprecated, subject to `Context.checkDeprecated`.
 -/
 def mkConst (constName : Name) (explicitLevels : List Level := []) : TermElabM Expr := do
   checkDeprecatedCore constName (allowSuggestion := false)
@@ -2169,7 +2233,15 @@ def checkDeprecated (ref : Syntax) (e : Expr) : TermElabM Unit := do
     withRef ref do checkDeprecatedCore declName
 
 @[inline] def withoutCheckDeprecated [MonadWithReaderOf Context m] : m α → m α :=
-  withTheReader Context (fun ctx => { ctx with checkDeprecated := false })
+  withTheReader Context (fun ctx => { ctx with checkDeprecated := .none })
+
+/--
+Runs `x` without reporting deprecated constants and syntax, except at syntax written by the user.
+See `DeprecationCheck.userWritten`.
+-/
+@[inline] def withoutCheckDeprecatedSynthetic [MonadWithReaderOf Context m] : m α → m α :=
+  withTheReader Context fun ctx =>
+    if ctx.checkDeprecated matches .all then { ctx with checkDeprecated := .userWritten } else ctx
 
 private def mkConsts (candidates : List (Name × List String)) (explicitLevels : List Level) : TermElabM (List (Expr × List String × List Level)) := do
   candidates.foldlM (init := []) fun result (declName, projs) => do

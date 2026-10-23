@@ -429,18 +429,11 @@ return v___x_134_;
 }
 else
 {
-if (v___x_134_ == 0)
-{
-return v___x_134_;
-}
-else
-{
 size_t v___x_135_; size_t v___x_136_; uint8_t v___x_137_; 
 v___x_135_ = ((size_t)0ULL);
 v___x_136_ = lean_usize_of_nat(v___x_133_);
 v___x_137_ = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00Array_contains___at___00Lean_Elab_WF_checkCodomains_spec__2_spec__2(v_a_131_, v_as_130_, v___x_135_, v___x_136_);
 return v___x_137_;
-}
 }
 }
 }

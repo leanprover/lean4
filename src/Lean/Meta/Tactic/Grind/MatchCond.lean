@@ -372,7 +372,7 @@ partial def tryToProveFalse (e : Expr) : GoalM Unit := do
           -- The congruence closure already knows that `lhs = rhs`.
           pure rhs
         else
-          let lhs' ← go lhs
+          let lhs' ← go lhs rhs
           trace[grind.debug.matchCond.proveFalse] "{lhs'} =?= {rhs}"
           /-
           `rhs` is pattern-like for actual `match`-expression conditions. For hypotheses that
@@ -401,23 +401,25 @@ where
   /--
   Returns a term that is equal to `e`, but containing constructor applications
   and literal values. `e` is the left-hand side of the equations in a `match`-expression
-  condition.
-  Remark: we could use the right-hand side to interrupt the recursion. For example,
-  suppose the equation is `x = ?head :: ?tail`. We only need to show that `x` is equal to
-  some term of the form `a :: as` to satisfy it. This function may return `a₁ :: b :: bs`,
-  which still allows us to satisfy the equation, but may have a bigger proof (e.g.,
-  a proof that `as` is equal to `b::bs`)
+  condition, and `pat` the corresponding pattern. The recursion follows `pat`: it stops at
+  pattern variables, and must not follow the e-graph alone because equivalence classes may be
+  cyclic (e.g., `as = a :: as`, issue #15640).
   -/
-  go (e : Expr) : GoalM Expr := do
+  go (e pat : Expr) : GoalM Expr := do
+    if pat.getAppFn.isMVar then return e
     let root ← getRootENode e
     if root.ctor then
       let ctor := root.self
       let some ctorInfo ← isConstructorApp? ctor | return ctor
+      let some patInfo ← isConstructorApp? pat | return ctor
+      let numArgs := ctorInfo.numParams + ctorInfo.numFields
+      unless ctorInfo.name == patInfo.name && pat.getAppNumArgs == numArgs do return ctor
+      let patArgs := pat.getAppArgs
       let mut ctorArgs := ctor.getAppArgs
       let mut modified := false
-      for i in ctorInfo.numParams...(ctorInfo.numParams + ctorInfo.numFields) do
+      for i in ctorInfo.numParams...numArgs do
         let arg  := ctorArgs[i]!
-        let arg' ← go arg
+        let arg' ← go arg patArgs[i]!
         unless isSameExpr arg arg' do
           ctorArgs := ctorArgs.set! i arg'
           modified := true

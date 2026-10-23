@@ -12,6 +12,7 @@ public import Init.Grind.Ring.OfScientific  -- shake: keep (used in `init_grind_
 public import Init.Data.Int.Pow  -- shake: keep (used in `init_grind_norm`)
 public import Init.Data.Int.DivMod.Lemmas  -- shake: keep (used in `init_grind_norm`)
 public import Init.Data.BitVec.Bootstrap  -- shake: keep (used in `init_grind_norm`)
+public import Init.Data.Subtype.Basic  -- shake: keep (used in `init_grind_norm`)
 public import Init.Omega
 import Init.ByCases
 public section
@@ -181,6 +182,9 @@ init_grind_norm
   iff_eq heq_eq_eq eq_self
   -- And
   and_true true_and and_false false_and and_assoc
+  -- Subtype: `grind` splits subtype binders eagerly (`[grind cases eager]`), so quantifiers over
+  -- a subtype are stated over the underlying type and the property.
+  Subtype.forall Subtype.exists
   -- ite
   ite_true_false ite_false_true
   -- Bool cond

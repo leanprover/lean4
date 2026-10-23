@@ -9,7 +9,7 @@ open GetThrowSet
 -- Copy Goal into a separate namespace so the benchmark label reads `GetThrowSetGrind(n)`
 -- instead of colliding with the `GetThrowSet(n)` label in vcgen_get_throw_set.
 namespace GetThrowSetGrind
-def Goal (n : Nat) : Prop := ⦃fun s => s = 0⦄ loop n ⦃fun _ s => s = n⦄
+def Goal (n : Nat) : Prop := ⦃fun s => s ≤ 0⦄ loop n ⦃fun _ s => s = n⦄
 end GetThrowSetGrind
 
 set_option maxRecDepth 100000

@@ -147,9 +147,8 @@ where
     else if kind == ``Lean.Parser.Syntax.unicodeAtom then
       processUnicode stx
     else
-      let stxNew? ← liftM (liftMacroM (expandMacro? stx) : TermElabM _)
-      match stxNew? with
-      | some stxNew => process stxNew
+      match (← liftM (Term.expandMacroReportingDeprecated? stx : TermElabM _)) with
+      | some (_, stxNew) => Term.withPushMacroExpansionStack stx stxNew <| process stxNew
       | none => throwErrorAt stx "unexpected syntax kind of category `syntax`: {kind}"
 
   /-- Sequence (aka NullNode) -/
@@ -475,6 +474,32 @@ def inferMacroRulesAltKind : TSyntax ``matchAlt → CommandElabM SyntaxNodeKind
       throwUnsupportedSyntax
     let quoted := getQuotContent pat
     pure quoted.getKind
+  | _ => throwUnsupportedSyntax
+
+/--
+Checks that the quotation pattern of `alt` matches syntax of kind `k`, selecting the interpretation
+of kind `k` if the pattern is ambiguous. `cmdName` is used in error messages.
+-/
+def checkRuleAltKind (cmdName : String) (k : SyntaxNodeKind) (alt : TSyntax ``matchAlt) :
+    CommandElabM (TSyntax ``matchAlt) :=
+  match alt with
+  | `(matchAltExpr| | $pats,* => $rhs) => do
+    let pat := pats.elemsAndSeps[0]!
+    if !pat.isQuot then
+      throwUnsupportedSyntax
+    let quoted := getQuotContent pat
+    let k' := quoted.getKind
+    if checkRuleKind k' k then
+      pure alt
+    else if k' == choiceKind then
+       match quoted.getArgs.find? fun quotAlt => checkRuleKind quotAlt.getKind k with
+       | none        => throwErrorAt alt "invalid {cmdName} alternative, expected syntax node kind `{k}`"
+       | some quoted =>
+         let pat := pat.setArg 1 quoted
+         let pats := pats.elemsAndSeps.set! 0 pat
+         `(matchAltExpr| | $(⟨pats⟩),* => $rhs)
+    else
+      throwErrorAt alt "invalid {cmdName} alternative, unexpected syntax node kind `{k'}`"
   | _ => throwUnsupportedSyntax
 
 /--

@@ -89,50 +89,84 @@ where
       modify' fun s => { s with assignment := s.assignment.set x v }
       go xs
 
-private def eqCoeffs (p₁ p₂ : Poly) (neg : Bool) :=
-  match p₁, p₂ with
-  | .num _, .num _ => true
-  | .add k₁ x₁ p₁, .add k₂ x₂ p₂ =>
-    (if neg then k₁ == -k₂ else k₁ == k₂) && x₁ == x₂ && eqCoeffs p₁ p₂ neg
-  | _, _ => false
+/--
+Tightens `c` using the divisibility constraints of the variables occurring in `c.p`.
+For a variable `z` with coefficient `a` in `c.p` and constraint `d ∣ p'` where `p'` has leading
+coefficient `±1` on `z`, let `r := c.p - t*p'` with `t := a / (±1)`, and `g` be the gcd of `d`
+and the variable coefficients of `r`. If `g > 1`, the value of `c.p` is congruent to the constant
+of `r` modulo `g`, and `c.p ≤ 0` can be strengthened to the largest such value `≤ 0`.
+Example: `32768 ∣ x` and `-x + 32768*q + 1 ≤ 0` give `-x + 32768*q + 32768 ≤ 0`.
 
-def tightUsingDvd (c : LeCnstr) (dvd? : Option DvdCnstr) : GoalM LeCnstr := do
-  let some dvd := dvd? | return c
-  let d  := dvd.d
-  let b₁ := dvd.p.getConst
-  if eqCoeffs dvd.p c.p false then
-    let b₂ := c.p.getConst
-    if (b₂ - b₁) % d != 0 then
-      let b₂' := b₁ - d * ((b₁ - b₂) / d)
-      let p := c.p.addConst (b₂'-b₂)
-      return { p, h := .dvdTight dvd c }
-  if eqCoeffs dvd.p c.p true then
-    let b₁ := -b₁
-    let b₂ := c.p.getConst
-    if (b₂ - b₁) % d != 0 then
-      let b₂' := b₁ - d * ((b₁ - b₂) / d)
-      let p := c.p.addConst (b₂'-b₂)
-      return { p, h := .negDvdTight dvd c }
+If `decFreeOnly := true`, only the divisibility constraints of the state saved at the first case
+split are used. They do not depend on decisions, so neither does the result.
+-/
+def tightUsingDvds (c : LeCnstr) (decFreeOnly : Bool) : SearchM LeCnstr := do
+  let s ← get'
+  let s₀ := (← get).cases[0]? |>.map (·.saved) |>.getD s
+  let mut c := c
+  let mut p := c.p
+  repeat
+    let .add a z p' := p | break
+    p := p'
+    -- `z` may have been created after the snapshot was taken.
+    let dvd₀? := s₀.dvds[z]?.bind id
+    if let some dvd₀ := dvd₀? then
+      if let some c' := tighten c a dvd₀ then
+        c := c'
+    unless decFreeOnly do
+      if let some dvd := s.dvds[z]! then
+        if dvd₀?.all fun dvd₀ => dvd₀.d != dvd.d || dvd₀.p != dvd.p then
+          if let some c' := tighten c a dvd then
+            c := c'
   return c
+where
+  tighten (c : LeCnstr) (a : Int) (dvd : DvdCnstr) : Option LeCnstr := do
+    let .add lead _ _ := dvd.p | none
+    guard (lead.natAbs == 1)
+    let t := a * lead
+    let r := c.p.combine (dvd.p.mul (-t))
+    let g := r.gcdCoeffs dvd.d.natAbs
+    guard (g > 1)
+    let shift := -(Int.Internal.Linear.cmod r.getConst g)
+    guard (shift != 0)
+    return { p := c.p.addConst shift, h := .dvdTightMod dvd c t g }
+
+/--
+Best bound for a variable. `val` and `c` use all divisibility constraints for tightening,
+`val₀` and `c₀` only those that do not depend on decisions. Conflicts are explained with
+`c₀` whenever possible, so that they do not depend on the current case: the untightened bound
+often refutes all cases of a Cooper split at once.
+-/
+structure Bound where
+  val  : Rat
+  c    : LeCnstr
+  val₀ : Rat
+  c₀   : LeCnstr
+
+private def Bound.update (b? : Option Bound) (val : Rat) (c : LeCnstr) (val₀ : Rat) (c₀ : LeCnstr) (better : Rat → Rat → Bool) : Option Bound :=
+  match b? with
+  | none => some { val, c, val₀, c₀ }
+  | some b =>
+    let b := if better val b.val then { b with val, c } else b
+    let b := if better val₀ b.val₀ then { b with val₀, c₀ } else b
+    some b
+
+private def evalBound (c : LeCnstr) (lower : Bool) : GoalM Rat := do
+  let .add k _ p := c.p | c.throwUnexpected
+  let some v ← p.eval? | c.throwUnexpected
+  return if lower then v / (-k) else (-v) / k
 
 /--
 Assuming all variables smaller than `x` have already been assigned,
 returns the best lower bound for `x` using the given partial assignment and
 inequality constraints where `x` is the maximal variable.
 -/
-def getBestLower? (x : Var) (dvd? : Option DvdCnstr) : GoalM (Option (Rat × LeCnstr)) := do
-  let s ← get'
+def getBestLower? (x : Var) : SearchM (Option Bound) := do
   let mut best? := none
-  for c in s.lowers[x]! do
-    let c ← tightUsingDvd c dvd?
-    let .add k _ p := c.p | c.throwUnexpected
-    let some v ← p.eval? | c.throwUnexpected
-    let lower' := v / (-k)
-    if let some (lower, _) := best? then
-      if lower' > lower then
-        best? := some (lower', c)
-    else
-      best? := some (lower', c)
+  for c in (← get').lowers[x]! do
+    let c' ← tightUsingDvds c (decFreeOnly := false)
+    let c₀ ← tightUsingDvds c (decFreeOnly := true)
+    best? := Bound.update best? (← evalBound c' true) c' (← evalBound c₀ true) c₀ (· > ·)
   return best?
 
 /--
@@ -140,19 +174,12 @@ Assuming all variables smaller than `x` have already been assigned,
 returns the best upper bound for `x` using the given partial assignment and
 inequality constraints where `x` is the maximal variable.
 -/
-def getBestUpper? (x : Var) (dvd? : Option DvdCnstr) : GoalM (Option (Rat × LeCnstr)) := do
-  let s ← get'
+def getBestUpper? (x : Var) : SearchM (Option Bound) := do
   let mut best? := none
-  for c in s.uppers[x]! do
-    let c ← tightUsingDvd c dvd?
-    let .add k _ p := c.p | c.throwUnexpected
-    let some v ← p.eval? | c.throwUnexpected
-    let upper' := (-v) / k
-    if let some (upper, _) := best? then
-      if upper' < upper then
-        best? := some (upper', c)
-    else
-      best? := some (upper', c)
+  for c in (← get').uppers[x]! do
+    let c' ← tightUsingDvds c (decFreeOnly := false)
+    let c₀ ← tightUsingDvds c (decFreeOnly := true)
+    best? := Bound.update best? (← evalBound c' false) c' (← evalBound c₀ false) c₀ (· < ·)
   return best?
 
 /-- Returns values we cannot assign `x` because of disequality constraints. -/
@@ -174,25 +201,34 @@ def getDiseqValues (x : Var) : SearchM (Array (Rat × DiseqCnstr)) := do
 
 /--
 Solution space for a divisibility constraint of the form `d ∣ a*x + b`
-See `DvdCnstr.getSolutions?` to understand how it is computed.
+See `DvdCnstr.getSolutions` to understand how it is computed.
 -/
 structure DvdSolution where
   d : Int := 1
   b : Int := 0
 
-def DvdCnstr.getSolutions? (c : DvdCnstr) : SearchM (Option DvdSolution) := do
+inductive DvdSolutionResult where
+  | found (s : DvdSolution)
+  | /-- The constraint has no solution. -/
+    unsat
+  | /--
+    The constraint cannot be used because the current (rational) assignment makes its
+    tail non-integer. The model has been marked as imprecise.
+    -/
+    skip
+
+def DvdCnstr.getSolutions (c : DvdCnstr) : SearchM DvdSolutionResult := do
   let d := c.d
   let .add a _ p := c.p | c.throwUnexpected
   let some b ← p.eval? | c.throwUnexpected
   if b.den != 1 then
-    -- `b` is a rational number, mark model as imprecise, and ignore the constraint
     setImprecise
-    return none
+    return .skip
   let b := b.num
   -- We must solve `d ∣ a*x + b`
   let g := d.gcd a
   if b % g != 0 then
-    return none -- no solutions
+    return .unsat
   let d := d / g
   let a := a / g
   let b := b / g
@@ -204,7 +240,7 @@ def DvdCnstr.getSolutions? (c : DvdCnstr) : SearchM (Option DvdSolution) := do
   -- `a*x = -b (mod d)`
   -- `x = -b*a' (mod d)`
   -- `x = k*d + -b*a'` for any k
-  return some { d, b := -b*a' }
+  return .found { d, b := -b*a' }
 
 def resolveDvdConflict (c : DvdCnstr) : GoalM Unit := do
   trace[grind.debug.lia.search.conflict] "{← c.pp}"
@@ -327,6 +363,10 @@ def resolveCooperPred (pred : CooperSplitPred) : SearchM Unit := do
   if (← resolveCooperUnary pred) then
     return
   let n := pred.numCases
+  if n > (← getConfig).liaReorderCases then
+    let .add _ x _ := pred.c₁.p | pred.c₁.throwUnexpected
+    if (← requestReorder x) then
+      return
   let fvarId ← mkCase (.cooper pred #[] {})
   { pred, k := n - 1, h := .dec fvarId : CooperSplit }.assert
 
@@ -394,39 +434,56 @@ def processVar (x : Var) : SearchM Unit := do
   -- Solution space for divisibility constraint is `x = k*d + b`
   let dvd? := (← get').dvds[x]!
   let dvdSol ← if let some c := dvd? then
-    if let some solutions ← c.getSolutions? then
-      pure solutions
-    else
-      trace[grind.debug.lia.search] "dvd conflict: {← c.pp}"
-      resolveDvdConflict c
-      return ()
+    match (← c.getSolutions) with
+    | .found solutions => pure solutions
+    | .skip => pure {}
+    | .unsat =>
+      if (← isApprox) && !(← get).precise then
+        /-
+        Some variable was assigned a value that ignores one of its constraints, so the
+        resolvent may already be present and resolving would not make progress.
+        The `.int` search handles the conflict.
+        -/
+        pure {}
+      else
+        trace[grind.debug.lia.search] "dvd conflict: {← c.pp}"
+        resolveDvdConflict c
+        return ()
   else
     pure {}
-  let lower? ← getBestLower? x dvd?
-  let upper? ← getBestUpper? x dvd?
+  let lower? ← getBestLower? x
+  let upper? ← getBestUpper? x
   let diseqVals ← getDiseqValues x
   match lower?, upper? with
   | none, none =>
     let v := dvdSol.geAvoiding 0 diseqVals
     setAssignment x v
-  | some (lower, _), none =>
-    let lower := lower.ceil
+  | some lo, none =>
+    let lower := lo.val.ceil
     let v := dvdSol.geAvoiding lower diseqVals
     trace[grind.debug.lia.search] "{lower} ≤ {quoteIfArithTerm (← getVar x)} := {v}"
     setAssignment x v
-  | none, some (upper, _) =>
-    let upper := upper.floor
+  | none, some up =>
+    let upper := up.val.floor
     let v := dvdSol.leAvoiding upper diseqVals
     trace[grind.debug.lia.search] "{quoteIfArithTerm (← getVar x)} := {v} ≤ {upper}"
     setAssignment x v
-  | some (lower, c₁), some (upper, c₂) =>
+  | some lo, some up =>
+    let lower := lo.val
+    let upper := up.val
+    let c₁ := lo.c
+    let c₂ := up.c
     trace[grind.debug.lia.search] "{lower} ≤ {lower.ceil} ≤ {quoteIfArithTerm (← getVar x)} ≤ {upper.floor} ≤ {upper}"
     if lower > upper then
+      -- Prefer the explanation that does not depend on decisions.
+      let (c₁, c₂) := if lo.val₀ > up.val₀ then (lo.c₀, up.c₀) else (c₁, c₂)
       let .true ← resolveRealLowerUpperConflict c₁ c₂
         | throwError "`grind` internal error, conflict resolution failed"
       return ()
     -- `lower ≤ upper` here
     if lower.ceil > upper.floor then
+      if (← resolveRealLowerUpperConflict lo.c₀ up.c₀) then
+        return ()
       if (← resolveRealLowerUpperConflict c₁ c₂) then
         -- Resolved conflict using "real" shadow
         return ()
@@ -505,6 +562,8 @@ private def searchAssignmentMain : SearchM Unit := do
   repeat
     trace[grind.debug.lia.search] "main loop"
     checkSystem "cutsat"
+    if (← get).reorderRequest?.isSome then
+      return ()
     if (← hasAssignment) then
       return ()
     if (← isInconsistent) then
@@ -512,9 +571,17 @@ private def searchAssignmentMain : SearchM Unit := do
       return ()
     if let some c := (← get').conflict? then
       resolveConflict c
+      /-
+      Resolving a conflict is a step too. The next case of a Cooper or disequality split may be
+      refuted as soon as it is asserted, so a long enumeration never reaches `processVar`.
+      We only interrupt below a decision because `resetDecisionStack` then discards the possibly
+      pending `conflict?` together with the cases. At level zero, the next iteration resolves it.
+      -/
+      if (← (return !(← get).cases.isEmpty) <&&> checkMaxSteps) then
+        trace[grind.debug.lia.search] "search interrupted, maximum number of steps reached"
+        setImprecise
+        return ()
     else if (← checkMaxSteps) then
-      -- Interrupt the search. Remark: we do not interrupt while a conflict is unresolved
-      -- because the cutsat state would be left with a pending `conflict?`.
       trace[grind.debug.lia.search] "search interrupted, maximum number of steps reached"
       setImprecise
       return ()
@@ -527,9 +594,10 @@ private def resetDecisionStack : SearchM Unit := do
   if (← get).cases.isEmpty then
     -- Nothing to reset
     return ()
-  -- Backtrack changes but keep the assignment
+  -- Backtrack changes but keep the assignment. Variables created during the search
+  -- (e.g., by nonlinear term propagation) are rolled back, so their values are dropped.
   let first := (← get).cases[0]!
-  modify' fun s => { first.saved with assignment := s.assignment }
+  modify' fun s => { first.saved with assignment := shrink s.assignment first.saved.vars.size }
 
 private def searchQLiaAssignment : GoalM Bool := do
   let go : SearchM Bool := do
@@ -555,14 +623,21 @@ private def traceActiveCnstrs : GoalM Unit := do
         trace[grind.debug.lia.search.cnstrs] "{← c.pp}"
 
 private def searchLiaAssignment : GoalM Unit := do
-  let go : SearchM Unit := do
+  let go : SearchM Bool := do
     searchAssignmentMain
     resetDecisionStack
     saveSteps
+    saveReorderRequest
   traceActiveCnstrs
   reorderVars
   traceActiveCnstrs
-  go .int |>.run' {}
+  repeat
+    let requested ← go .int |>.run' {}
+    unless requested do return
+    trace[grind.debug.lia.search] "restart after reordering request #{(← get').numReorderRequests}"
+    modify' fun s => { s with assignment := {} }
+    reorderVars (force := true)
+    traceActiveCnstrs
 
 def searchAssignment : GoalM Unit := do
   let precise ← searchQLiaAssignment

@@ -8,6 +8,7 @@ prelude
 public import Lean.Elab.Tactic.Basic
 public import Lean.Meta.Tactic.Grind.Main
 import Lean.Meta.Tactic.Grind.Intro
+import Lean.Elab.DeprecatedSyntax.Basic
 public import Lean.Meta.Sym.Apply
 public import Lean.Meta.Sym.Util
 public import Lean.Meta.Sym.Simp.SimpM
@@ -149,12 +150,16 @@ partial def evalGrindTactic (stx : Syntax) : GrindTacticM Unit := do
         Term.withoutTacticIncrementality true <| withTacticInfoContext stx do
           stx.getArgs.forM evalGrindTactic
       else withTraceNode `Elab.step (fun _ => return stx) (tag := stx.getKind.toString) do
+        Term.reportDeprecatedSyntax stx
         let evalFns := grindTacElabAttribute.getEntries (← getEnv) stx.getKind
         let macros  := macroAttribute.getEntries (← getEnv) stx.getKind
         if evalFns.isEmpty && macros.isEmpty then
           throwErrorAt stx "Grind tactic `{stx.getKind}` has not been implemented"
         let s ← Grind.saveState
-        expandEval s macros evalFns #[]
+        if isDeprecatedSyntax (← getEnv) stx.getKind then
+          Term.withoutCheckDeprecatedSynthetic <| expandEval s macros evalFns #[]
+        else
+          expandEval s macros evalFns #[]
     | .missing => pure ()
     | _ => throwError m!"Unexpected grind tactic{indentD stx}"
 where

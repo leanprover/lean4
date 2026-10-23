@@ -63,6 +63,11 @@ structure Search.State where
   back when backtracking case splits.
   -/
   steps : Nat := 0
+  /--
+  Term of the variable the search was abandoned for, to reorder the variables.
+  See `requestReorder`.
+  -/
+  reorderRequest? : Option Expr := none
 
 abbrev SearchM := ReaderT Search.Kind (StateRefT Search.State GoalM)
 
@@ -90,6 +95,34 @@ rolls back the cutsat state.
 def saveSteps : SearchM Unit := do
   let steps := (← get).steps
   modify' fun s => { s with steps := s.steps + steps }
+
+/--
+Requests a reordering of the variables before splitting on `x`, if the budget `liaReorders`
+is not exhausted. A Cooper split on `x` enumerates as many cases as the coefficient of `x` in
+the conflicting bounds. Ordering `x` first makes it a parameter of those bounds, so that the
+conflict surfaces at a variable with a smaller coefficient, which is what the static order was
+estimating. The restart discards the open case splits, including the enumerated cases of an
+enclosing Cooper split, but a split nested in another one is where enumerations explode.
+-/
+def requestReorder (x : Var) : SearchM Bool := do
+  if (← get').numReorderRequests ≥ (← getConfig).liaReorders then return false
+  let e ← getVar x
+  trace[grind.debug.lia.search] "reordering request for {quoteIfArithTerm e}"
+  modify fun s => { s with reorderRequest? := some e }
+  return true
+
+/--
+Records the penalty of a pending reordering request in the cutsat state. It must be invoked
+after `resetDecisionStack`, which rolls the cutsat state back to the first case split.
+-/
+def saveReorderRequest : SearchM Bool := do
+  let some e := (← get).reorderRequest? | return false
+  let key : ExprPtr := { expr := e }
+  modify' fun s => { s with
+    penalties := s.penalties.insert key ((s.penalties.find? key).getD 0 + 1)
+    numReorderRequests := s.numReorderRequests + 1
+  }
+  return true
 
 def mkCase (kind : CaseKind) : SearchM FVarId := do
   let fvarId ← mkFreshFVarId

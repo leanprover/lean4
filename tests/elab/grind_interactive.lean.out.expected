@@ -25,10 +25,10 @@ Try these:
   [thm] #c5bb := ∀ (x : Nat), q x
   [thm] #bfb8 := ∀ (x : Nat), p x → p (f x)
 [splits] Case split candidates
-  [split] #4b88 := x✝ + 1 ≤ y✝ ∨ y✝ + 1 ≤ x✝
+  [split] #cb61 := x✝ + 1 ≤ y✝ ∨ y✝ + 1 ≤ x✝
 [splits] Case split candidates
   [split] #dded := y + 1 ≤ w ∨ w + 1 ≤ y
 [splits] Case split candidates
-  [split] #4b88 := x✝ + 1 ≤ y✝ ∨ y✝ + 1 ≤ x✝
+  [split] #cb61 := x✝ + 1 ≤ y✝ ∨ y✝ + 1 ≤ x✝
 [splits] Case split candidates
   [split] #dded := y + 1 ≤ w ∨ w + 1 ≤ y

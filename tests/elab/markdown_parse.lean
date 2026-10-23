@@ -486,11 +486,18 @@ A list is loose when two blocks of one of its items are separated by a blank lin
 /-!
 ## Link titles
 
-A parenthesized title may contain `(` and `)` only backslash-escaped (CommonMark §6.3).
+A parenthesized title may contain `(` and `)` only backslash-escaped, and a title must be separated
+from the destination by whitespace (CommonMark §6.3).
 -/
 
 /-- info: "text⟪[a](/u (x(y))⟫" -/
 #guard_msgs in #eval showParagraph "[a](/u (x(y))"
+
+/-- info: [["\"", "t", "\""]] -/
+#guard_msgs in #eval titleParts "[a](<b> \"t\")"
+
+/-- info: "text⟪[a](⟫ html⟪<b>⟫ text⟪\"title\")⟫" -/
+#guard_msgs in #eval showParagraph "[a](<b>\"title\")"
 
 /-- info: [["(", "x\\(y", ")"]] -/
 #guard_msgs in #eval titleParts "[a](/u (x\\(y))"

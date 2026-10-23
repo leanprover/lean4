@@ -219,7 +219,8 @@ def parseInlineLinkTarget? (cur : InlineCursor s) :
   let cAfter ← afterUrlRest.front?
   let mut title? : Option (LinkTitle s) := none
   let mut afterTitle := afterUrlWs
-  if cAfter == '"' || cAfter == '\'' || cAfter == '(' then
+  -- A title must be separated from the destination by whitespace (CommonMark §6.3).
+  if (cAfter == '"' || cAfter == '\'' || cAfter == '(') && afterUrlWs != afterUrl then
     let closer : Char := if cAfter == '(' then ')' else cAfter
     let opener ← afterUrlRest.charSubslice?
     let titleStart := opener.endExclusive

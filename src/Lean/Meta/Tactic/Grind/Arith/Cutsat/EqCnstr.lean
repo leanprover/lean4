@@ -94,6 +94,7 @@ def DiseqCnstr.assert (c : DiseqCnstr) : GoalM Unit := do
   if (← c.findLe) then
     return ()
   let .add _ x _ := c.p | c.throwUnexpected
+  let c ← c.markStored
   c.p.updateOccs
   trace[grind.lia.assert.store] "{← c.pp}"
   modify' fun s => { s with diseqs := s.diseqs.modify x (·.push c) }
@@ -300,7 +301,7 @@ private def updateElimEqs (a : Int) (x : Var) (c : EqCnstr) (y : Var) : GoalM Un
   let some c₂ := (← get').elimEqs[y]! | return ()
   let b := c₂.p.coeff x
   if b == 0 then return ()
-  let c₂ := { p := c₂.p.mul a |>.combine (c.p.mul (-b)), h := .subst x c₂ c : EqCnstr }
+  let c₂ ← { p := c₂.p.mul a |>.combine (c.p.mul (-b)), h := .subst x c₂ c : EqCnstr }.markStored
   trace[grind.debug.lia.elimEq] "updated: {← getVar y}, {← c₂.pp}"
   modify' fun s => { s with elimEqs := s.elimEqs.set y (some c₂) }
   propagateNonlinearTerms y
@@ -343,6 +344,7 @@ partial def _root_.Int.Internal.Linear.Poly.updateOccsForElimEq (p : Poly) (x : 
 
 /-- Eliminates `x` using `c`, where `k` is the coefficient of `x` in `c.p` and `|k| = 1`. -/
 private def EqCnstr.elimVar (c : EqCnstr) (k : Int) (x : Var) : GoalM Unit := do
+  let c ← c.markStored
   trace[grind.debug.lia.subst] ">> {← getVar x}, {← c.pp}"
   trace[grind.lia.assert.store] "{← c.pp}"
   trace[grind.debug.lia.elimEq] "{← getVar x}, {← c.pp}"

@@ -8,6 +8,7 @@ prelude
 public import Init.Data.Queue
 public import Init.Grind.Config
 public import Lean.Meta.Sym.SymM
+public import Lean.Meta.Sym.ObjectPtr
 public import Lean.Meta.Tactic.Grind.Attr
 public import Lean.Meta.Tactic.Grind.CheckResult
 public import Lean.Meta.Sym.Canon
@@ -284,6 +285,50 @@ structure EMatchDiagInfo where
   target  : EMatchDiagNode
   deriving Inhabited
 
+/--
+A declaration hoisted to the goal of a case split, see `hoistDecl`: the proof of a fact, or a value
+such as the variable context of a solver. The subgoals of the split refer to it using `fvarId`, and
+`mkHoistedDecls` declares it in the proof of the split.
+-/
+structure HoistedDecl where
+  fvarId : FVarId
+  /-- Binder name of the declaration. -/
+  name   : Name := `h
+  type   : Expr
+  /-- `none` while the value is postponed, see `reserveHoistedDecl`. -/
+  value? : Option Expr
+  /-- `false` for a `let` whose value must be visible to the kernel, e.g., the variable context of a solver. -/
+  nondep : Bool := true
+
+/--
+Identifies a hoisted declaration, so that it is created only once and shared by all subgoals of a
+case split, see `hoistDecl`.
+-/
+inductive HoistKey where
+  | /--
+    A solver object, compared by address. The subgoals of a case split share the objects created
+    before it, so they also share the declaration associated with the object.
+    -/
+    ptr (obj : Sym.ObjectPtr)
+  | /--
+    The variable context of a solver with the given atoms, e.g., a cutsat `RArray`. Proofs that use
+    equal contexts share one `let` declaration, which keeps the kernel from checking copies of it.
+    -/
+    ctx (atoms : Array Expr)
+  deriving BEq, Hashable
+
+/--
+The declarations hoisted to the goal of a case split in progress, see `Action.splitCore`.
+They are shared by all subgoals of the split, and declared in the order `front.reverse ++ decls`.
+-/
+structure HoistedDecls where
+  /-- Declarations added at the front, see `hoistDecl`. The last one is declared first. -/
+  front : Array HoistedDecl := #[]
+  /-- Declarations in creation order. -/
+  decls : Array HoistedDecl := #[]
+  /-- Maps each key to the free variable of its declaration in `front` or `decls`. -/
+  keys  : Std.HashMap HoistKey FVarId := {}
+
 /-- State for the `GrindM` monad. -/
 structure State where
   /--
@@ -325,6 +370,8 @@ structure State where
   /-- Accumulated E-matching instance map for precise unused lemma tracking.
   Only populated when `config.markInstances` is `true`. -/
   instanceMap : Std.HashMap Name EMatchTheorem := {}
+  /-- Declarations hoisted to the case splits in progress, indexed by the metavariable of the goal being split. -/
+  hoistedDecls : Std.HashMap MVarId HoistedDecls := {}
 
 instance : Nonempty State :=
   .intro {}
@@ -1093,6 +1140,13 @@ structure GoalState where
   clean        : Clean.State := {}
   /-- Solver states. -/
   sstates      : Array SolverExtensionState := #[]
+  /--
+  Goals of the enclosing case splits in progress, outermost first.
+  Its size is the split depth of the goal. See `hoistDecl`.
+  Remark: each case split copies the array when pushing its goal, but the split depth is small, and
+  hoisting needs constant-time access by depth.
+  -/
+  goalStack    : Array (MVarId × GoalState) := #[]
   deriving Inhabited
 
 /--
@@ -1124,6 +1178,156 @@ abbrev GoalM := StateRefT Goal GrindM
 
 @[inline] def GoalM.run' (goal : Goal) (x : GoalM Unit) : GrindM Goal :=
   goal.mvarId.withContext do StateRefT'.run' (x *> get) goal
+
+/-- Returns the number of enclosing case splits. -/
+def getGoalStackDepth : GoalM Nat :=
+  return (← get).goalStack.size
+
+/--
+Returns the goal at split depth `depth`: the goal of the enclosing case split at `depth`, or the current
+goal if `depth` is its split depth.
+-/
+def getGoalAtDepth (depth : Nat) : GoalM Goal := do
+  let goal ← get
+  if depth == goal.goalStack.size then
+    return goal
+  let some (mvarId, s) := goal.goalStack[depth]?
+    | throwError "`grind` internal error, no case split at depth {depth}"
+  return { s with mvarId }
+
+/--
+Returns the free variable of the declaration registered for `key` in the goal of the enclosing case
+split at `depth`, if any.
+-/
+def findHoistedDecl? (depth : Nat) (key : HoistKey) : GoalM (Option FVarId) := do
+  let goal ← getGoalAtDepth depth
+  let some decls := (← getThe State).hoistedDecls[goal.mvarId]?
+    | throwError "`grind` internal error, case split at depth {depth} is not in progress"
+  return decls.keys[key]?
+
+/--
+Returns the free variable of the declaration `name : type := value` hoisted to the goal of the enclosing
+case split at `depth`. `value` is only executed if no declaration has been registered for `key` yet,
+and it must be valid in that goal.
+
+As with local declarations, hoisted declarations must be created in the right order: the value of a
+declaration may only use declarations created before it. If `front := true`, the declaration is
+added before the existing ones, and its value may only use declarations of enclosing case splits.
+This is useful for values that are known only after the declarations that use them are created,
+e.g., the variable context of a solver.
+-/
+def hoistDecl (depth : Nat) (key : HoistKey) (name : Name) (type : Expr) (value : GoalM Expr)
+    (nondep := true) (front := false) : GoalM FVarId := do
+  let goal ← getGoalAtDepth depth
+  let some decls := (← getThe State).hoistedDecls[goal.mvarId]?
+    | throwError "`grind` internal error, case split at depth {depth} is not in progress"
+  if let some fvarId := decls.keys[key]? then
+    return fvarId
+  let fvarId ← mkFreshFVarId
+  let decl := { fvarId, name, type, value? := some (← value), nondep }
+  modifyThe State fun s => { s with hoistedDecls := s.hoistedDecls.modify goal.mvarId fun decls =>
+    let decls := if front then { decls with front := decls.front.push decl } else { decls with decls := decls.decls.push decl }
+    { decls with keys := decls.keys.insert key fvarId }
+  }
+  return fvarId
+
+/--
+Similar to `hoistDecl`, but postpones the value. Returns the free variable of a new declaration of type
+`type` hoisted to the goal of the enclosing case split at `depth`, and its index in `HoistedDecls.decls`.
+No declaration may be registered for `key` yet (see `findHoistedDecl?`). The value must be provided with
+`setHoistedDeclValue` before the case split completes, and it may only use declarations created before
+this one.
+-/
+def reserveHoistedDecl (depth : Nat) (key : HoistKey) (type : Expr) : GoalM (FVarId × Nat) := do
+  let goal ← getGoalAtDepth depth
+  let some decls := (← getThe State).hoistedDecls[goal.mvarId]?
+    | throwError "`grind` internal error, case split at depth {depth} is not in progress"
+  let fvarId ← mkFreshFVarId
+  modifyThe State fun s => { s with hoistedDecls := s.hoistedDecls.modify goal.mvarId fun decls => { decls with
+    decls := decls.decls.push { fvarId, type, value? := none }
+    keys  := decls.keys.insert key fvarId
+  } }
+  return (fvarId, decls.decls.size)
+
+/--
+Sets the value of the postponed declaration at index `idx` of `HoistedDecls.decls` in the goal of the
+enclosing case split at `depth`, see `reserveHoistedDecl`.
+-/
+def setHoistedDeclValue (depth : Nat) (idx : Nat) (value : Expr) : GoalM Unit := do
+  let goal ← getGoalAtDepth depth
+  modifyThe State fun s => { s with hoistedDecls := s.hoistedDecls.modify goal.mvarId fun decls => { decls with
+    decls := decls.decls.modify idx ({ · with value? := some value })
+  } }
+
+/--
+Executes `k`, which proves `goal` using case splits, while declarations can be hoisted to `goal`,
+see `hoistDecl`. The subgoals of the split must include `goal` in their `goalStack`.
+-/
+def withHoistedDecls (goal : Goal) (k : GrindM α) : GrindM α := do
+  modify fun s => { s with hoistedDecls := s.hoistedDecls.insert goal.mvarId {} }
+  try k finally
+    modify fun s => { s with hoistedDecls := s.hoistedDecls.erase goal.mvarId }
+
+/-- Returns the declarations hoisted to `goal`, see `withHoistedDecls`. -/
+def getHoistedDecls (goal : Goal) : GrindM HoistedDecls :=
+  return (← get).hoistedDecls.getD goal.mvarId {}
+
+/--
+Similar to `instantiateMVars`, but also resolves the delayed assignments `?m #[xs] := ?pending`
+created inside the current `withNewMCtxDepth` block, which is entered by `grind` during its startup.
+`instantiateMVars` only resolves a delayed assignment when `?pending`'s assignment `val` is ground
+(no unassigned expression metavariables). This ground restriction exists because `val` may contain
+metavariables that have `xs` in their scope. For example, if `xs = #[x]` and `val = ?n + x` where `x`
+is in the scope of `?n`, then `mkLambda` creates `fun x => ?n + x`. If `?n` is later assigned to
+`f x`, the term becomes ill-formed with a dangling free variable.
+
+This scenario cannot occur here: in a `grind` proof, `val` only contains metavariables created
+before `withNewMCtxDepth`, and they cannot contain free variables created by `grind`, so the
+conversion is safe. Delayed assignments created before `withNewMCtxDepth` are left untouched,
+as they are meant to be resolved by other tactics.
+-/
+partial def instantiateMVarsResolvingDelayed (e : Expr) : MetaM Expr := do
+  if !e.hasMVar then return e
+  let mctx ← getMCtx
+  for mvarId in (e.collectMVars {}).result do
+    if let some decl := mctx.findDecl? mvarId then
+      if decl.depth == mctx.depth then
+        if let some { fvars, mvarIdPending } ← getDelayedMVarAssignment? mvarId then
+          if let some val ← getExprMVarAssignment? mvarIdPending then
+            let pendingDecl ← mvarIdPending.getDecl
+            let val ← instantiateMVarsResolvingDelayed (← instantiateMVars val)
+            mvarId.assign (pendingDecl.lctx.mkLambda fvars val)
+  instantiateMVars e
+
+/--
+Wraps `e` with each declaration in `decls` that `e` uses, directly or through other declarations.
+-/
+def mkHoistedDecls (decls : HoistedDecls) (e : Expr) : MetaM Expr := do
+  let all := decls.front.reverse ++ decls.decls
+  if all.isEmpty then return e
+  /-
+  The declarations may occur in subterms that `instantiateMVars` leaves behind delayed assignments,
+  e.g., when the goal contains metavariables created before `grind`.
+  -/
+  let e ← instantiateMVarsResolvingDelayed e
+  -- A declaration only uses the ones before it, so a reverse scan finds the used declarations.
+  let mut used := collectFVars {} e
+  let mut kept := #[]
+  for decl in all.reverse do
+    if used.fvarSet.contains decl.fvarId then
+      let some value := decl.value?
+        | throwError "`grind` internal error, hoisted declaration has no value"
+      used := collectFVars used value
+      kept := kept.push (decl, value)
+  kept := kept.reverse
+  -- Abstract all declarations in a single pass, as `mkLetFVars` does.
+  let xs := kept.map fun (decl, _) => mkFVar decl.fvarId
+  let mut e := e.abstract xs
+  let mut i := kept.size
+  for (decl, value) in kept.reverse do
+    i := i - 1
+    e := .letE decl.name decl.type (value.abstractRange i xs) e decl.nondep
+  return e
 
 /--
 Sets `nextDeclIdx` to point past the last local declaration in the local context.

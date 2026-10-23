@@ -97,9 +97,9 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_dns_get_info(b_obj_arg name, b_obj_a
             const void * ip;
 
             if (sa->sa_family == AF_INET) {
-                ip = &reinterpret_cast<const sockaddr_in*>(sa)->sin_addr;
+                ip = &((const sockaddr_in*)sa)->sin_addr;
             } else if (sa->sa_family == AF_INET6) {
-                ip = &reinterpret_cast<const sockaddr_in6*>(sa)->sin6_addr;
+                ip = &((const sockaddr_in6*)sa)->sin6_addr;
             } else {
                 continue;
             }

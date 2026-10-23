@@ -16,6 +16,21 @@ open Std.Internal.UV
     unless found == some value do
       throw <| IO.userError s!"getenv {name} returned {found}, but environ lists {value}"
 
+-- Windows accepts an `=` as the first character of a name, so the test sets such a variable itself
+-- rather than rely on the environment it is run in.
+#eval show IO Unit from do
+  unless System.Platform.isWindows do
+    return
+  System.osSetenv "=LEAN_UV_EQ_LEAD" "value"
+  try
+    let found ← System.osGetenv "=LEAN_UV_EQ_LEAD"
+    unless found == some "value" do
+      throw <| IO.userError s!"getenv =LEAN_UV_EQ_LEAD returned {found}"
+    unless (← System.osEnviron).any (· == ("=LEAN_UV_EQ_LEAD", "value")) do
+      throw <| IO.userError "environ does not list =LEAN_UV_EQ_LEAD"
+  finally
+    System.osUnsetenv "=LEAN_UV_EQ_LEAD"
+
 #eval show IO Unit from do
   if System.Platform.isWindows then
     return

@@ -3,7 +3,6 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Author: Sofia Rodrigues
 */
-#include <climits>
 #include <limits>
 #include <cstring>
 #include <memory>
@@ -187,19 +186,16 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_get_passwd() {
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_get_group(b_obj_arg gid_obj) {
 #if UV_VERSION_HEX >= 0x012D00
 #ifdef LEAN_WINDOWS
-    // libuv has no group lookup on Windows, where `uv_uid_t` is a single byte, so the range check below
-    // would report most ids as invalid instead.
+    // libuv has no group lookup on Windows.
     (void)gid_obj;
     return io_result_mk_uv_error(UV_ENOTSUP);
 #else
-    // Checked as a `Nat`, since converting first would wrap a larger id around to another group.
-    lean_object * max_gid = lean_uint64_to_nat(std::numeric_limits<uv_uid_t>::max());
-    bool in_range = lean_nat_le(gid_obj, max_gid);
-    lean_dec(max_gid);
-    if (!in_range) {
+    // Checked before converting, which would wrap a larger id around to another group. A `Nat` too
+    // large to be a scalar is past any 32-bit id.
+    if (!lean_is_scalar(gid_obj) || lean_unbox(gid_obj) > std::numeric_limits<uv_uid_t>::max()) {
         return io_result_mk_uv_error(UV_EINVAL);
     }
-    uv_uid_t gid = (uv_uid_t)lean_uint64_of_nat(gid_obj);
+    uv_uid_t gid = (uv_uid_t)lean_unbox(gid_obj);
     uv_group_t group;
     int result = uv_os_get_group(&group, gid);
     if (result == UV_ENOENT) {
@@ -212,7 +208,6 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_get_group(b_obj_arg gid_obj) {
     std::unique_ptr<uv_group_t, decltype(&uv_os_free_group)> group_strings(&group, uv_os_free_group);
 
     lean_object* members = lean_mk_empty_array();
-
     for (char ** member = group.members; member && *member != nullptr; member++) {
         members = lean_array_push(members, lean_mk_string(*member));
     }
@@ -338,7 +333,8 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_getpriority(uint64_t pid) {
 
 /* Std.Internal.UV.System.osSetPriority : UInt64 → Int64 → IO Unit */
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_setpriority(uint64_t pid, int64_t priority) {
-    if (pid > (uint64_t)std::numeric_limits<uv_pid_t>::max() || priority < INT_MIN || priority > INT_MAX) {
+    if (pid > (uint64_t)std::numeric_limits<uv_pid_t>::max() ||
+        priority < std::numeric_limits<int>::min() || priority > std::numeric_limits<int>::max()) {
         return io_result_mk_uv_error(UV_EINVAL);
     }
     int result = uv_os_setpriority(pid, (int)priority);

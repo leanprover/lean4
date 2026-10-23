@@ -50,10 +50,16 @@ def expectError (what : String) (x : Async α) : IO Unit := do
 
   let mapped ← runAsync <| DNS.getAddrInfo "::ffff:127.0.0.1" "80"
   check "IPv4-mapped numeric host"
-    (mapped.size > 0 && mapped.all (· == IPAddr.v6 (.ofParts 0 0 0 0 0 0xffff 0x7f00 1))) s!"{mapped}"
+    (mapped.size > 0 && mapped.all (· == IPAddr.v6 (.ofParts 0 0 0 0 0 0xffff 0x7f00 1)))
+    s!"{mapped}"
 
-  for port in [0, 65535] do
+  -- 41394 (0xA1B2) reads differently with its bytes swapped, and has no service name.
+  for port in [0, 41394, 65535] do
     let info ← runAsync <| DNS.getNameInfo (.v4 ⟨.ofParts 127 0 0 1, port⟩)
     check s!"getNameInfo port {port}" (info.service == toString port) info.service
-  let info ← runAsync <| DNS.getNameInfo (.v6 ⟨.ofParts 0 0 0 0 0 0xffff 0x7f00 1, 65535⟩)
-  check "getNameInfo IPv4-mapped" (info.service == "65535" && !info.host.isEmpty) s!"{info.host} {info.service}"
+  -- The reverse lookup of an IPv4-mapped address may go to a DNS server, which an offline host cannot
+  -- reach, so only a lookup that succeeds is checked.
+  let mapped := SocketAddress.v6 ⟨.ofParts 0 0 0 0 0 0xffff 0x7f00 1, 41394⟩
+  if let .ok info ← (runAsync <| DNS.getNameInfo mapped).toBaseIO then
+    check "getNameInfo IPv4-mapped" (info.service == "41394" && !info.host.isEmpty)
+      s!"{info.host} {info.service}"

@@ -7,6 +7,7 @@ module
 
 prelude
 import Init.Data.Nat.Lemmas
+import Init.Data.Option.Lemmas
 public import Init.Data.Range.Polymorphic.Instances
 import Init.Data.Nat.MinMax
 import Init.Omega
@@ -76,6 +77,50 @@ instance : Rxo.LawfulHasSize Nat := inferInstance
 instance : Rxo.IsAlwaysFinite Nat := inferInstance
 
 instance : LinearlyUpwardEnumerable Nat := inferInstance
+
+instance : DownwardEnumerable Nat where
+  pred? n := if n = 0 then none else some (n - 1)
+  predMany? k n := if k ≤ n then some (n - k) else none
+
+instance : LawfulDownwardEnumerable Nat where
+  ne_of_lt a b h := by
+    simp only [DownwardEnumerable.LT, DownwardEnumerable.predMany?] at h
+    have ⟨n, h'⟩ := h
+    split at h' <;> simp_all <;> omega
+  predMany?_zero a := by simp [DownwardEnumerable.predMany?]
+  predMany?_add_one k a := by
+    simp only [DownwardEnumerable.predMany?, DownwardEnumerable.pred?]
+    split <;> split <;> simp_all <;> try split <;> simp_all
+    all_goals omega
+
+instance : LawfulDownwardEnumerableLE Nat where
+  le_iff a b := by
+    constructor
+    · intro h
+      exact ⟨b - a, by simp [DownwardEnumerable.predMany?, Nat.sub_sub_self h]⟩
+    · rintro ⟨n, hn⟩
+      simp only [DownwardEnumerable.predMany?] at hn
+      split at hn <;> simp at hn
+      omega
+
+instance : LawfulDownwardEnumerableLT Nat where
+  lt_iff a b := by
+    constructor
+    · intro h
+      exact ⟨b - (a + 1), by simp [DownwardEnumerable.predMany?]; omega⟩
+    · rintro ⟨n, hn⟩
+      simp only [DownwardEnumerable.predMany?] at hn
+      split at hn <;> simp at hn
+      omega
+
+instance : Rcx.IsAlwaysFiniteRev Nat where
+  finite init lo := ⟨init + 1, by simp [DownwardEnumerable.predMany?, Nat.not_add_one_le_self]⟩
+
+instance : Rox.IsAlwaysFiniteRev Nat where
+  finite init lo := ⟨init + 1, by simp [DownwardEnumerable.predMany?, Nat.not_add_one_le_self]⟩
+
+instance : Rix.IsAlwaysFiniteRev Nat where
+  finite init := ⟨init + 1, by simp [DownwardEnumerable.predMany?, Nat.not_add_one_le_self]⟩
 
 end PRange
 

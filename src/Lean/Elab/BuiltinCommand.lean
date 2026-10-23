@@ -802,9 +802,9 @@ private def elabDeprecatedSyntaxReplacement (kind : SyntaxNodeKind) (alts : Arra
     elabCommand <| ← `(public meta def $(mkIdentFrom (← getRef) id):ident : Lean.Macro := $body)
   let declName := (← getCurrNamespace) ++ id
   let env ← getEnv
-  -- Elaboration errors of the alternatives have already been reported
+  -- Elaboration and compilation errors of the alternatives have already been reported
   let some info := env.find? declName | throwAbortCommand
-  if info.value?.any (·.hasSyntheticSorry) then
+  if info.value?.any (·.hasSyntheticSorry) || hasCompileError env declName then
     throwAbortCommand
   if (IR.getSorryDep env declName).isSome then
     throwError "invalid deprecated_syntax alternatives, they must not use `sorry`"

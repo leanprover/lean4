@@ -212,9 +212,30 @@ where
           return false
       return true
 
-/--
-  Try to solve `a := (fun x => t) =?= b` by eta-expanding `b`,
+/-- Partial applications of recursors of k-like and structure types may progress from getting eta-expanded.
+  See https://github.com/leanprover/lean4/issues/12520.
+  If `a` is a partial recursor call who can reduce on a neutral major, returns the eta-expanded, iota-reduced form of `a`.
+-/
+private def etaReduceRecursor? (a : Expr) : MetaM (Option Expr) := do
+  let afn := a.getAppFn
+  let some a_name := afn.constName? | return none
+  let .recInfo recVal ← getConstInfo a_name | return none
+  unless recVal.k || isNonRecStructure (← getEnv) recVal.getMajorInduct do
+    return none
+  let args := a.getAppArgs
+  if args.size > recVal.getMajorIdx then
+    return none
+  let nExps := recVal.getMajorIdx + 1 - args.size
+  let aType ← inferType a
+  withTransparency .default do
+    forallBoundedTelescope (whnfType := true) aType (some nExps) fun xs _ => do
+      if xs.size != nExps then
+        return none
+      reduceRec recVal afn.constLevels! (args ++ xs) (fun _ => pure none) (fun e => return (← mkLambdaFVars xs e))
+
+/-- Try to solve `a := (fun x => t) =?= b` by eta-expanding `b`,
   resulting in `t =?= b x` (with a fresh free variable `x`).
+  We also eta-expand `b` when it is a partial application of a recursor of k-like and structure type.
 
   Remark: eta-reduction is not a good alternative even in a system without universe cumulativity like Lean.
   Example:
@@ -228,7 +249,7 @@ where
   Backtracking after η-expansion results in lots of duplicate δ-reductions,
   because we can δ-reduce `a` before and after the η-expansion.
   The fresh free variable `x` also busts the cache.
-  See https://github.com/leanprover/lean4/pull/2002 -/
+  See https://github.com/leanprover/lean4/pull/2002-/
 private def isDefEqEta (a b : Expr) : MetaM LBool := do
   if a.isLambda && !b.isLambda then
     let bType ← inferType b
@@ -238,6 +259,8 @@ private def isDefEqEta (a b : Expr) : MetaM LBool := do
       let b' := mkLambda n c d (mkApp b (mkBVar 0))
       toLBoolM <| Meta.isExprDefEqAux a b'
     | _ => return .undef
+  else if let some b ← etaReduceRecursor? b then
+    toLBoolM <| Meta.isExprDefEqAux a b
   else
     return .undef
 
@@ -2615,6 +2638,7 @@ builtin_initialize
   registerTraceClass `Meta.isDefEq.delta.unfoldRight (inherited := true)
   registerTraceClass `Meta.isDefEq.delta.unfoldLeftRight (inherited := true)
   registerTraceClass `Meta.isDefEq.assign
+  registerTraceClass `Meta.isDefEq.eta
   registerTraceClass `Meta.isDefEq.assign.checkTypes (inherited := true)
   registerTraceClass `Meta.isDefEq.assign.outOfScopeFVar (inherited := true)
   registerTraceClass `Meta.isDefEq.assign.beforeMkLambda (inherited := true)

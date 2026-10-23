@@ -384,6 +384,14 @@ bool type_checker::is_prop(expr const & e) {
     return normalizes_to_zero(sort_level(s));
 }
 
+optional<expr> type_checker::inductive_reduce_recursor(expr const & e, bool cheap_rec, bool cheap_proj) {
+    return inductive_reduce_rec(env(), e,
+                                [&](expr const & e) { return cheap_rec ? whnf_core(e, cheap_rec, cheap_proj) : whnf(e); },
+                                [&](expr const & e) { return infer(e); },
+                                [&](expr const & e1, expr const & e2) { return is_def_eq(e1, e2); },
+                                [&](expr const & e) { return is_prop(e); });
+}
+
 /** \brief Apply normalizer extensions to \c e.
     If `cheap == true`, then we don't perform delta-reduction when reducing major premise. */
 optional<expr> type_checker::reduce_recursor(expr const & e, bool cheap_rec, bool cheap_proj) {
@@ -392,11 +400,7 @@ optional<expr> type_checker::reduce_recursor(expr const & e, bool cheap_rec, boo
             return r;
         }
     }
-    if (optional<expr> r = inductive_reduce_rec(env(), e,
-                                                [&](expr const & e) { return cheap_rec ? whnf_core(e, cheap_rec, cheap_proj) : whnf(e); },
-                                                [&](expr const & e) { return infer(e); },
-                                                [&](expr const & e1, expr const & e2) { return is_def_eq(e1, e2); },
-                                                [&](expr const & e) { return is_prop(e); })) {
+    if (optional<expr> r = inductive_reduce_recursor(e, cheap_rec, cheap_proj)) {
         return r;
     }
     return none_expr();
@@ -833,6 +837,37 @@ bool type_checker::is_def_eq_args(expr t, expr s) {
     return !is_app(t) && !is_app(s);
 }
 
+/** \brief Partial applications of recursors of k-like and structure types may progress
+    from getting eta-expanded. See https://github.com/leanprover/lean4/issues/12520.
+    If \c s is a partial recursor call who can reduce on a neutral major, returns the eta-expanded, iota-reduced form of \c s */
+optional<expr> type_checker::eta_expand_iota_reduce_recursor(expr const & s) {
+    buffer<expr> s_args;
+    expr const & s_fn = get_app_args(s, s_args);
+    if (!is_constant(s_fn)) return none_expr();
+    name s_fn_name = const_name(s_fn);
+    constant_info s_info = env().get(s_fn_name);
+    if (!s_info.is_recursor()) return none_expr();
+    recursor_val rec_val = s_info.to_recursor_val();
+    if (s_args.size() > rec_val.get_major_idx()) return none_expr();
+    if (!rec_val.is_k() && !is_non_rec_structure(env(), rec_val.get_major_induct()))
+        return none_expr();
+    unsigned n_exps = rec_val.get_major_idx() + 1 - s_args.size();
+    expr s_type = whnf(infer_type(s));
+    flet<local_ctx> save_lctx(m_lctx, m_lctx);
+    buffer<expr> fvars;
+    for(unsigned i = 0; i < n_exps; i++) {
+        if (!is_pi(s_type))
+            return none_expr();
+        expr fvar = m_lctx.mk_local_decl(m_st->m_ngen, binding_name(s_type), binding_domain(s_type), binding_info(s_type));
+        fvars.push_back(fvar);
+        s_type = whnf(instantiate(binding_body(s_type), fvar));
+    };
+    if (optional<expr> r = inductive_reduce_recursor(mk_app(s, fvars), false, false)) {
+        return some_expr(m_lctx.mk_lambda(fvars, *r));
+    }
+    return none_expr();
+}
+
 /** \brief Try to solve (fun (x : A), B) =?= s by trying eta-expansion on s */
 bool type_checker::try_eta_expansion_core(expr const & t, expr const & s) {
     if (is_lambda(t) && !is_lambda(s)) {
@@ -840,12 +875,10 @@ bool type_checker::try_eta_expansion_core(expr const & t, expr const & s) {
         if (!is_pi(s_type))
             return false;
         expr new_s  = mk_lambda(binding_name(s_type), binding_domain(s_type), mk_app(s, mk_bvar(0)), binding_info(s_type));
-        if (!is_def_eq(t, new_s))
-            return false;
-        return true;
-    } else {
-        return false;
-    }
+        return is_def_eq(t, new_s);
+    } else if (auto new_s = eta_expand_iota_reduce_recursor(s) ) {
+        return is_def_eq(t, *new_s);
+    } else return false;
 }
 
 /** \brief check whether \c s is of the form <tt>mk t.1 ... t.n</tt> */

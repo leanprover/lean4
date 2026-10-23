@@ -77,6 +77,7 @@ private:
     expr infer_type(expr const & e);
 
     enum class reduction_status { Continue, DefUnknown, DefEqual, DefDiff };
+    optional<expr> inductive_reduce_recursor(expr const & e, bool cheap_rec, bool cheap_proj);
     optional<expr> reduce_recursor(expr const & e, bool cheap_rec, bool cheap_proj);
     optional<expr> reduce_proj_core(expr c, name const & sname, unsigned idx);
     optional<expr> reduce_proj(expr const & e, bool cheap_rec, bool cheap_proj);
@@ -90,6 +91,7 @@ private:
     lbool quick_is_def_eq(expr const & t, expr const & s);
     lbool is_def_eq_offset(expr const & t, expr const & s);
     bool is_def_eq_args(expr t, expr s);
+    optional<expr> eta_expand_iota_reduce_recursor(expr const & s);
     bool try_eta_expansion_core(expr const & t, expr const & s);
     bool try_eta_expansion(expr const & t, expr const & s) {
         return try_eta_expansion_core(t, s) || try_eta_expansion_core(s, t);

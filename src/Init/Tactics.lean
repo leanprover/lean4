@@ -662,6 +662,8 @@ macro (name := rwaAtLegacyLocation) (priority := low) "rwa " rws:rwRuleSeq
 
 deprecated_syntax Lean.Parser.Tactic.rwaAtLegacyLocation
   "use `rw [...] at ... <;> assumption` instead" (since := "2026-08-27")
+  | `(tactic| rwa $rws:rwRuleSeq $loc:location) =>
+    `(tactic| rw $rws:rwRuleSeq $loc:location <;> assumption)
 
 /--
 The `injection` tactic is based on the fact that constructors of inductive data

@@ -1332,11 +1332,7 @@ Note: This linter can be disabled with `set_option linter.deprecated.syntax fals
 
 /-! ## Core syntax -/
 
-deprecated_syntax Lean.Parser.Tactic.rwaAtLegacyLocation
-  "use `rw [...] at ... <;> assumption` instead" (since := "2026-08-27")
-  | `(tactic| rwa $rws:rwRuleSeq $loc:location) =>
-    `(tactic| rw $rws:rwRuleSeq $loc:location <;> assumption)
-
+-- The replacement is declared in `Init.Tactics`.
 /--
 warning: syntax 'Lean.Parser.Tactic.rwaAtLegacyLocation' has been deprecated: use `rw [...] at ... <;> assumption` instead
 

@@ -12,7 +12,7 @@ open Std.Internal.UV
   if System.Platform.isWindows then
     return
   match ← System.getProcessTitle.toBaseIO with
-  | .error (.resourceExhausted code _) =>
+  | .error (.resourceExhausted _ code _) =>
     -- `ENOMEM` is 12 on Linux and macOS.
     if code == 12 then
       throw <| IO.userError "getProcessTitle: out of memory"

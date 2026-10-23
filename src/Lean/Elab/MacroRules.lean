@@ -17,6 +17,16 @@ open Lean.Parser.Term hiding macroArg
 open Lean.Parser.Command
 
 /--
+Returns a `Macro` that runs the right-hand side of the first alternative in `alts` whose pattern
+matches, and throws `Macro.Exception.unsupportedSyntax` if there is none. Checks that the patterns
+are quotations of syntax of kind `k`, naming the command `cmdName` in errors.
+-/
+def mkMacroRulesFun (cmdName : String) (k : SyntaxNodeKind) (alts : Array (TSyntax ``matchAlt)) :
+    CommandElabM Term := do
+  let alts ← alts.mapM (checkRuleAltKind cmdName k)
+  `(fun $alts:matchAlt* | _ => no_error_if_unused% throw Lean.Macro.Exception.unsupportedSyntax)
+
+/--
   Remark: `k` is the user provided kind with the current namespace included.
   Recall that syntax node kinds contain the current namespace.
 -/
@@ -24,15 +34,14 @@ def elabMacroRulesAux (doc? : Option (TSyntax ``docComment))
     (attrs? : Option (TSepArray ``attrInstance ",")) (attrKind : TSyntax ``attrKind)
     (tk : Syntax) (k : SyntaxNodeKind) (alts : Array (TSyntax ``matchAlt)) :
     CommandElabM Syntax := do
-  let alts ← alts.mapM (checkRuleAltKind "macro_rules" k)
+  let body ← mkMacroRulesFun "macro_rules" k alts
   let attr ← `(attrInstance| $attrKind macro $(Lean.mkIdent k))
   let attrs := match attrs? with
     | some attrs => attrs.getElems.push attr
     | none => #[attr]
   let vis := Parser.Command.visibility.ofAttrKind attrKind
   `($[$doc?:docComment]? @[$attrs,*] $vis:visibility
-    aux_def macroRules $(mkIdentFrom tk k (canonical := true)) : Macro :=
-     fun $alts:matchAlt* | _ => no_error_if_unused% throw Lean.Macro.Exception.unsupportedSyntax)
+    aux_def macroRules $(mkIdentFrom tk k (canonical := true)) : Macro := $body)
 
 @[builtin_command_elab «macro_rules»] def elabMacroRules : CommandElab :=
   adaptExpander fun stx => match stx with

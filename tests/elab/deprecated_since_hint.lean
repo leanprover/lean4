@@ -253,6 +253,20 @@ info: deprecated_syntax Lean.Parser.Term.suffices "use `have` instead" (since :=
 #guard_msgs in
 #since_hint deprecated_syntax Lean.Parser.Term.suffices "use `have` instead"
 
+-- The date is inserted before the replacement alternatives.
+/--
+warning: `deprecated_syntax` should specify the date or library version at which the deprecation was introduced, using `(since := "...")`
+
+Hint: Add the current date:
+  [apply] (since := "<today>")
+---
+info: deprecated_syntax Lean.Parser.Term.show "use `have` instead" (since := "<today>")
+  | `(show $t from $e) => `(($e : $t))
+-/
+#guard_msgs in
+#since_hint deprecated_syntax Lean.Parser.Term.show "use `have` instead"
+  | `(show $t from $e) => `(($e : $t))
+
 /-! ## `deprecated_module` -/
 
 /--

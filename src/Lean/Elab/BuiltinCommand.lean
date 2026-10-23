@@ -11,6 +11,9 @@ public import Lean.Elab.Eval
 public import Lean.Elab.Command
 import Lean.Elab.ConfigEval
 import Lean.Elab.DeprecatedSyntax.Basic
+import Lean.Elab.AuxDef
+import Lean.Elab.MacroRules
+import Lean.Compiler.IR.CompilerM
 public import Lean.Elab.Open
 import Init.Data.Nat.Order
 import Init.Data.Order.Lemmas
@@ -774,6 +777,42 @@ def elabShowDeprecatedModules : CommandElab := fun _ => do
     parts := parts.push s!"'{modName}' deprecates to\n{replacements.map (·.module)}\nwith {msg}\n"
   logInfo (String.intercalate "\n" parts.toList)
 
+open Parser.Term in
+/--
+Defines the `Macro` given by the alternatives `alts` of a `deprecated_syntax` command for `kind` and
+returns its name. Throws if the alternatives are invalid, so that the command has no effect.
+-/
+private def elabDeprecatedSyntaxReplacement (kind : SyntaxNodeKind) (alts : Array Syntax) :
+    CommandElabM Name := withRef (mkNullNode alts) do
+  let alts : Array (TSyntax ``matchAlt) := alts.map (⟨·⟩)
+  let catchAllAlt? : Option (Term × Term) := do
+    let #[alt] := alts | none
+    let `(matchAltExpr| | $pat:term => $rhs) := alt | none
+    guard <| pat.raw.isIdent || pat.raw.isOfKind ``hole
+    return (pat, rhs)
+  let body ← if let some (pat, rhs) := catchAllAlt? then `(fun $pat:term => $rhs) else
+    for alt in alts do
+      if let `(matchAltExpr| | $pat:term => $_) := alt then
+        unless pat.raw.isQuot do
+          throwErrorAt pat "invalid deprecated_syntax alternative, expected a syntax quotation \
+            pattern or a single identifier or `_` pattern"
+    mkMacroRulesFun "deprecated_syntax" kind alts
+  let id ← mkAuxDefName (`deprecatedSyntax ++ kind)
+  withExporting do
+    elabCommand <| ← `(public meta def $(mkIdentFrom (← getRef) id):ident : Lean.Macro := $body)
+  let declName := (← getCurrNamespace) ++ id
+  let env ← getEnv
+  -- Elaboration and compilation errors of the alternatives have already been reported
+  let some info := env.find? declName | throwAbortCommand
+  if info.value?.any (·.hasSyntheticSorry) || hasCompileError env declName then
+    throwAbortCommand
+  if (IR.getSorryDep env declName).isSome then
+    throwError "invalid deprecated_syntax alternatives, they must not use `sorry`"
+  -- Section variables used by the alternatives become parameters of the definition
+  unless info.type.isConstOf ``Lean.Macro do
+    throwError "invalid deprecated_syntax alternatives, they must not refer to section variables"
+  return declName
+
 @[builtin_command_elab Parser.Command.deprecatedSyntax] def elabDeprecatedSyntax : CommandElab := fun stx => do
   let id := stx[1]
   let kind ← liftCoreM <| checkSyntaxNodeKindAtNamespaces id.getId (← getCurrNamespace)
@@ -782,8 +821,12 @@ def elabShowDeprecatedModules : CommandElab := fun _ => do
   if since?.isNone then
     logWarning <| m!"`deprecated_syntax` should specify the date or library version at which the \
       deprecation was introduced, using `(since := \"...\")`" ++
-      (← liftCoreM <| Linter.mkSinceHint stx)
+      (← liftCoreM <| Linter.mkSinceHint (mkNullNode (stx.getArgs.extract 0 4)))
+  let replacement? ← if stx[4].isNone then pure none else
+    some <$> elabDeprecatedSyntaxReplacement kind stx[4][0][0].getArgs
   modifyEnv fun env =>
     deprecatedSyntaxExt.addEntry env { kind, text?, since? }
+  modifyEnv fun env =>
+    deprecatedSyntaxReplacementExt.addEntry env (kind, replacement?)
 
 end Lean.Elab.Command

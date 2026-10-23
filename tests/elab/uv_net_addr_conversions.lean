@@ -20,10 +20,12 @@ def runAsync (x : Async α) : IO α := do
   (← x.toIO).block
 
 -- A wrong address or port sends the datagram elsewhere, which must fail the test rather than hang it.
-def withTimeout [Inhabited α] (what : String) (x : Async α) : IO α := runAsync do
-  match ← Async.race (x.map Except.ok) (sleep 5000 |>.map Except.error) with
-  | .ok a => pure a
-  | .error _ => throw <| .userError s!"{what}: timed out"
+def recvWithTimeout (s : UDP.Socket) (size : UInt64) : IO (ByteArray × Option SocketAddress) :=
+  runAsync do
+    let timeout ← Sleep.mk 5000
+    Selectable.one #[
+      .case (s.recvSelector size) pure,
+      .case timeout.selector fun _ => throw <| .userError "recv: timed out"]
 
 /--
 Binds `addr`, or returns `false` for an IPv6 address on a host without IPv6 (for example, a container
@@ -77,7 +79,7 @@ def roundTrip (loopback : IPAddr) (mkAddr : UInt16 → SocketAddress) : IO Unit 
   let senderAddr ← sender.getSockName
 
   runAsync <| sender.send "ping".toUTF8 (some receiverAddr)
-  let (data, source) ← withTimeout "recv" <| receiver.recv 64
+  let (data, source) ← recvWithTimeout receiver 64
   check "datagram" (data == "ping".toUTF8)
   check "source address" (source == some senderAddr) s!"{source}, expected {senderAddr}"
 

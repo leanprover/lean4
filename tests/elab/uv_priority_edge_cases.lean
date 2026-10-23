@@ -22,6 +22,7 @@ def check (name : String) (cond : Bool) (detail : String := "") : IO Unit :=
     throw <| IO.userError "priority out of the `int` range succeeded"
 
 #eval do
+  -- The test spawns `sleep` and `true`, which Windows does not have.
   if System.Platform.isWindows then
     return
   check "pid 0 is the calling process"
@@ -40,10 +41,14 @@ def check (name : String) (cond : Bool) (detail : String := "") : IO Unit :=
     child.kill
     discard child.wait
 
-  let reaped ← IO.Process.spawn { cmd := "true" }
-  let pid := reaped.pid.toUInt64
-  discard reaped.wait
-  match ← (System.osGetPriority pid).toBaseIO with
-  | .error (.noSuchThing ..) => pure ()
-  | .error e => throw <| IO.userError s!"reaped pid: unexpected error {e}"
-  | .ok p => throw <| IO.userError s!"reaped pid: priority {p}"
+  -- A new process may reuse a reaped pid, so only a pid found on every try fails the test.
+  let mut found := #[]
+  for _ in [0:3] do
+    let reaped ← IO.Process.spawn { cmd := "true" }
+    let pid := reaped.pid.toUInt64
+    discard reaped.wait
+    match ← (System.osGetPriority pid).toBaseIO with
+    | .error (.noSuchThing ..) => return
+    | .error e => throw <| IO.userError s!"reaped pid: unexpected error {e}"
+    | .ok p => found := found.push (pid, p)
+  throw <| IO.userError s!"reaped pids still have a priority: {found}"

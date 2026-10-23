@@ -16,7 +16,7 @@ namespace lean {
 #ifndef LEAN_EMSCRIPTEN
 
 void lean_socket_address_to_sockaddr_storage(b_obj_arg socket_addr, sockaddr_storage* out);
-void lean_ip_addr_ntop(b_obj_arg ip_addr, char *buffer, size_t buffer_size);
+void lean_ip_addr_ntop(b_obj_arg ip_addr, char* buffer, size_t buffer_size);
 
 // `addr` points to an `in_addr` if `family` is `AF_INET`, and to an `in6_addr` if it is `AF_INET6`.
 lean_obj_res lean_in_addr_to_ip_addr(int family, const void* addr);

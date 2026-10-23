@@ -22,6 +22,7 @@ def expectInvalidArgument (what : String) (x : IO α) : IO Unit := do
   | .ok _ => throw <| IO.userError s!"{what}: succeeded"
 
 #eval do
+  -- Windows limits a variable to 32767 characters, below the 1 MB value checked here.
   if System.Platform.isWindows then
     return
   System.osSetenv "LEAN_UV_ENV_EMPTY" ""

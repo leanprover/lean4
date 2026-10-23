@@ -17,7 +17,7 @@ Author: Sofia Rodrigues, Henrik Böving
 namespace lean {
 #ifndef LEAN_EMSCRIPTEN
 
-static bool is_safe_ascii_str(const char *s, size_t len) {
+static bool is_safe_ascii_str(const char * s, size_t len) {
     while (len > 0) {
         char c = *s++;
         if (!((c >= 'a' && c <= 'z') ||
@@ -69,7 +69,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_dns_get_info(b_obj_arg name, b_obj_a
     req->promise = owned_ref(mk_mt_promise());
     owned_ref promise = owned_ref::retain(req->promise.get());
 
-    struct addrinfo hints;
+    addrinfo hints;
     memset(&hints, 0, sizeof(hints));
 
     // Just to avoid changes in enum values changes between platforms.
@@ -81,7 +81,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_dns_get_info(b_obj_arg name, b_obj_a
         default: hints.ai_family = PF_UNSPEC; break;
     }
 
-    auto on_resolved = [](uv_getaddrinfo_t * uv, int status, struct addrinfo* res) {
+    auto on_resolved = [](uv_getaddrinfo_t * uv, int status, addrinfo * res) {
         std::unique_ptr<getaddrinfo_req_t> req(static_cast<getaddrinfo_req_t*>(uv->data));
 
         if (status != 0) {

@@ -47,7 +47,7 @@ static void lean_ip_addr_to_in_addr_storage(b_obj_arg ip_addr, int* type, in_add
     }
 }
 
-void lean_ip_addr_ntop(b_obj_arg ip_addr, char *buffer, size_t buffer_size) {
+void lean_ip_addr_ntop(b_obj_arg ip_addr, char* buffer, size_t buffer_size) {
     int ip_type;
     in_addr_storage ip_addr_storage;
 
@@ -121,9 +121,9 @@ lean_obj_res lean_in_addr_to_ip_addr(int family, const void* addr) {
     lean_object* part;
 
     if (family == AF_INET) {
-        part = lean_in_addr_to_ipv4_addr(static_cast<const in_addr*>(addr));
+        part = lean_in_addr_to_ipv4_addr((const in_addr*)addr);
     } else if (family == AF_INET6) {
-        part = lean_in6_addr_to_ipv6_addr(static_cast<const in6_addr*>(addr));
+        part = lean_in6_addr_to_ipv6_addr((const in6_addr*)addr);
     } else {
         lean_unreachable();
     }
@@ -214,7 +214,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_interface_addresses() {
     }
     uv_owned_array<uv_interface_address_t, uv_free_interface_addresses> interfaces(infos, count);
 
-    lean_object *arr = lean_alloc_array(0, count);
+    lean_object* arr = lean_alloc_array(0, count);
 
     for (const uv_interface_address_t& info : interfaces) {
         int family = info.address.address4.sin_family;
@@ -231,7 +231,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_interface_addresses() {
             continue;
         }
 
-        lean_object *iface = lean_alloc_ctor(0, 4, 1);
+        lean_object* iface = lean_alloc_ctor(0, 4, 1);
         lean_ctor_set(iface, 0, lean_mk_string(info.name));
         lean_ctor_set(iface, 1, lean_phys_addr_to_mac_addr(info.phys_addr));
         lean_ctor_set(iface, 2, lean_in_addr_to_ip_addr(family, address));

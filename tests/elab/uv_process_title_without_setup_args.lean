@@ -9,6 +9,7 @@ fails with `ENOMEM` (or, under ASan, aborts the process).
 open Std.Internal.UV
 
 #eval show IO Unit from do
+  -- On Windows libuv reads the console title, which needs no `uv_setup_args`.
   if System.Platform.isWindows then
     return
   match ← System.getProcessTitle.toBaseIO with

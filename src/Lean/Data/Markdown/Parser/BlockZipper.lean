@@ -117,10 +117,13 @@ public structure BlockZipper (s : String.Slice) where
   /-- An open leaf node, if one is present. -/
   openLeaf? : Option (OpenLeaf s) := none
   /--
-  After a blank line that may make a list loose (CommonMark §5.3), the least spine index of a list or
-  list item whose blocks the blank line separates: from that index to the deepest open container,
-  every frame is a list or a list item. `none` after a blank line whose deepest open container is a
-  blockquote, since a blockquote keeps its blank lines to itself, and after the next block begins.
+  The position in `spine` of the outermost list that the most recent blank line could still make
+  loose (CommonMark §5.3), or `none` when there is no such list or the next block has begun.
+
+  A blank line makes a list loose when the next block begins in one of the list's items. The lists
+  it could make loose are therefore the open lists around it, from this position inward. The
+  outermost of them is inside the nearest enclosing blockquote, because a blank line inside a
+  blockquote separates blocks of the blockquote, not blocks of a list that contains the blockquote.
   -/
   blankLineFloor? : Option Nat := none
 deriving Inhabited

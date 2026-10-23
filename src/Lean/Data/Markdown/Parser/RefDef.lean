@@ -38,7 +38,7 @@ public def parseLinkLabel? (cur : InlineCursor s) : Option (Lines s × InlineCur
   while len < 1000 do
     let some c := cur.front? | break
     let curNext := cur.drop1
-    if c == '\\' && curNext.front?.any isAsciiPunctuation then
+    if c == '\\' && Option.any isAsciiPunctuation curNext.front? then
       sawNonWs := true
       sawNewline := false
       cur := curNext.drop1
@@ -48,10 +48,10 @@ public def parseLinkLabel? (cur : InlineCursor s) : Option (Lines s × InlineCur
       return (cur.source.linesBetween labelStart cur.startPos, cur)
     else if c == '[' then
       failure
-    else if c == '\n' then
+    else if let some (_, afterEnding) := cur.parseLineEnding? then
       guard !sawNewline  -- blank line in label
       sawNewline := true
-      cur := curNext
+      cur := afterEnding
       len := len + 1
     else
       if c != ' ' && c != '\t' then
@@ -65,12 +65,12 @@ public def parseLinkLabel? (cur : InlineCursor s) : Option (Lines s × InlineCur
 Parses the destination of a link reference definition at the head of `cur`, in the
 bracketed `<url>` or unbracketed form. Returns the destination and the cursor, which is positioned
 just past it. Fails
-on an unclosed `<`, an empty destination, unbalanced parens, or an embedded `\n`.
+on an unclosed `<`, an empty destination, unbalanced parens, or an embedded line ending.
 -/
 def parseRefDefUrl? (cur : InlineCursor s) : Option (LinkDestination s × InlineCursor s) := do
   let urlStart := cur.startPos
   if cur.front? == some '<' then
-    -- Bracketed: scan until the next `>`; reject `<` and `\n`.
+    -- Bracketed: read up to the next `>`; reject `<` and line endings.
     let openAngle ← cur.charSubslice?
     let mut cur := cur.drop1
     let urlContentStart := cur.startPos
@@ -78,12 +78,12 @@ def parseRefDefUrl? (cur : InlineCursor s) : Option (LinkDestination s × Inline
     while !cur.isEmpty && closeAngle?.isNone do
       let c := cur.front
       let curNext := cur.drop1
-      if c == '\\' && curNext.front?.any isAsciiPunctuation then
+      if c == '\\' && Option.any isAsciiPunctuation curNext.front? then
         cur := curNext.drop1
       else if c == '>' then
         closeAngle? := cur.charSubslice?
         cur := curNext
-      else if c == '<' || c == '\n' then
+      else if c == '<' || c == '\n' || c == '\r' then
         failure
       else
         cur := curNext
@@ -100,9 +100,9 @@ def parseRefDefUrl? (cur : InlineCursor s) : Option (LinkDestination s × Inline
     while !cur.isEmpty do
       let c := cur.front
       let curNext := cur.drop1
-      if c == '\\' && curNext.front?.any isAsciiPunctuation then
+      if c == '\\' && Option.any isAsciiPunctuation curNext.front? then
         cur := curNext.drop1
-      else if c == ' ' || c == '\t' || c == '\n' then
+      else if c.isWhitespace then
         break
       else if c == '(' then
         parenDepth := parenDepth + 1
@@ -121,59 +121,56 @@ def parseRefDefUrl? (cur : InlineCursor s) : Option (LinkDestination s × Inline
 
 /--
 Skips the whitespace gap between a link reference definition's `:` and its destination: spaces,
-tabs, and at most one newline. Returns `none` if a blank line (two newlines) is encountered.
+tabs, and at most one line ending. Returns `none` if a blank line (two line endings) is encountered.
 -/
 def skipRefDefDestGap (cur : InlineCursor s) : Option (InlineCursor s) := do
   let mut cur := cur
-  let mut newlinesSeen := 0
+  let mut endingsSeen := 0
   repeat
     let some c := cur.front? | break
     if c == ' ' || c == '\t' then cur := cur.drop1
-    else if c == '\n' then
-      newlinesSeen := newlinesSeen + 1
-      if newlinesSeen ≥ 2 then failure
-      cur := cur.drop1
+    else if let some (_, afterEnding) := cur.parseLineEnding? then
+      endingsSeen := endingsSeen + 1
+      if endingsSeen ≥ 2 then failure
+      cur := afterEnding
     else break
   return cur
 
 /--
-Consumes any same-line trailing whitespace from `cur`, then an optional single `\n`. Returns the
-cursor past the `\n` (or at end-of-buffer if the line was the last). Returns `none` if
-non-whitespace content remains on the line.
+Consumes the spaces and tabs at `cur` and then the line ending, if there is one, returning the
+cursor after them. Fails when the line has other content after `cur`.
 -/
 def consumeRefDefLineEnd (cur : InlineCursor s) : Option (InlineCursor s) := do
   let mut cur := cur
   while cur.front? == some ' ' || cur.front? == some '\t' do
     cur := cur.drop1
   if cur.isEmpty then return cur
-  if cur.front? == some '\n' then return cur.drop1
+  if let some (_, afterEnding) := cur.parseLineEnding? then return afterEnding
   none
 
 /--
-Tries to consume an optional title that follows the destination of a link reference definition, plus
-any trailing whitespace and the line's `\n`. Returns the title and the cursor past the trailing `\n`
-(or end-of-buffer).
+Parses the optional title of a link reference definition after its destination, together with the
+spaces, tabs, and line ending that follow it. Returns the title and the cursor after the line ending
+or at the end of the input.
 
-The title may sit on the *same line* as the URL (separated by at least one space or tab and
-delimited by `"…"`/`'…'`/`(…)`) or on the *next line*, after exactly one newline plus optional
-indentation.
+The title is delimited by `"…"`, `'…'`, or `(…)`. It may be on the line of the destination, after
+at least one space or tab, or on the next line, after optional indentation.
 
-A blank line inside the title is forbidden, as is an unescaped `(` inside a `(…)` title. After the
-closing delimiter, only same-line whitespace and an optional trailing newline are permitted;
-otherwise the title attempt is abandoned (`none`) so the caller can fall back to a no-title
-interpretation.
+Blank lines are not permitted inside the title, nor is an unescaped `(` inside a `(…)` title. After
+the closing delimiter, only spaces and tabs may follow on the line, then an optional line ending;
+otherwise the title attempt fails so that the caller can fall back to a definition without a title.
 -/
 def parseRefDefTitle? (cur : InlineCursor s) : Option (LinkTitle s × InlineCursor s) := do
-  -- Locate the title opener: either same-line after whitespace, or on the
-  -- next line after a single newline plus optional leading whitespace.
+  -- Locate the title opener: on the line of the destination after spaces or tabs, or on the next
+  -- line after optional indentation.
   let mut sawWs := false
   let mut p := cur
   while p.front? == some ' ' || p.front? == some '\t' do
     sawWs := true
     p := p.drop1
   let mut openerR : InlineCursor s := p
-  if p.front? == some '\n' then
-    openerR := p.drop1
+  if let some (_, afterEnding) := p.parseLineEnding? then
+    openerR := afterEnding
     while openerR.front? == some ' ' || openerR.front? == some '\t' do
       openerR := openerR.drop1
   else
@@ -195,7 +192,7 @@ def parseRefDefTitle? (cur : InlineCursor s) : Option (LinkTitle s × InlineCurs
     let c := tt.front
     let curPos := tt.startPos
     let ttNext := tt.drop1
-    if c == '\\' && ttNext.front?.any isAsciiPunctuation then
+    if c == '\\' && Option.any isAsciiPunctuation ttNext.front? then
       tt := ttNext.drop1
       lastWasNewline := false
     else if c == closer then
@@ -204,11 +201,11 @@ def parseRefDefTitle? (cur : InlineCursor s) : Option (LinkTitle s × InlineCurs
       tt := ttNext
     else if c == opener && opener == '(' then
       bail := true  -- unescaped `(` inside a `(...)` title is forbidden
-    else if c == '\n' then
+    else if let some (_, afterEnding) := tt.parseLineEnding? then
       if lastWasNewline then bail := true
       else
         lastWasNewline := true
-        tt := ttNext
+        tt := afterEnding
     else
       if c != ' ' && c != '\t' then lastWasNewline := false
       tt := ttNext
@@ -228,7 +225,8 @@ lines are not permitted inside it.
 
 Returns the definition plus the position one past the last consumed character.
 -/
-public def parseLinkRefDef? (source : InlineSource s) (start : s.Pos) : Option (RefDef s × s.Pos) := do
+public def parseLinkRefDef? (source : InlineSource s) (start : s.Pos) :
+    Option (RefDef s × s.Pos) := do
   -- `InlineSource.ofLines` has removed each line's leading spaces and tabs, so `start` is at `[`.
   let cur := source.cursor start source.stopPos
   -- `[label]`.

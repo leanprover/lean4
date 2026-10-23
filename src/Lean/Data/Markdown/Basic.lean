@@ -95,9 +95,9 @@ deriving Inhabited
 A line of a code block or HTML block, after the prefixes of the enclosing containers and the block's
 own indentation.
 
-A tab spans the columns up to the next tab stop (CommonMark §2.2), so the indentation may end partway
-through a tab. Such a tab is not part of `source`, and its columns after the indentation are
-`leadingSpaces`.
+A tab spans the columns up to the next tab stop (CommonMark §2.2), so the indentation may end
+partway through a tab. Such a tab is not part of `source`, and its columns after the indentation
+are `leadingSpaces`.
 -/
 public structure VerbatimLine (s : String.Slice) where
   /-- The line's source, without its line ending. -/
@@ -128,7 +128,8 @@ variable {s : String.Slice}
 public def singleton (line : s.Subslice) : Lines s := ⟨#[line], by simp⟩
 
 /-- Appends a line. -/
-public def push (lines : Lines s) (line : s.Subslice) : Lines s := ⟨lines.toArray.push line, by simp⟩
+public def push (lines : Lines s) (line : s.Subslice) : Lines s :=
+  ⟨lines.toArray.push line, by simp⟩
 
 /-- The first line. -/
 public def first (lines : Lines s) : s.Subslice := lines.toArray[0]'lines.nonempty
@@ -210,7 +211,8 @@ public inductive Block.Raw (s : String.Slice) where
   An ATX heading (the usual kind). `level` is the number of opening `#` characters, `hashes` is that
   opening sequence, and `closeHashes?` an optional closing sequence.
   -/
-  | atxHeading (level : Nat) (hashes : s.Subslice) (content : s.Subslice) (closeHashes? : Option s.Subslice)
+  | atxHeading (level : Nat) (hashes : s.Subslice) (content : s.Subslice)
+      (closeHashes? : Option s.Subslice)
   /--
   A setext heading (CommonMark §4.3): one or more lines of paragraph text that are followed by an
   `underline` (`===` for level 1, `---` for level 2).
@@ -354,8 +356,8 @@ public inductive Inline (s : String.Slice) where
   /--
   An autolink: `<https://...>` or `<scheme:...>` for URI form, or `<user@domain>` for email form
   (CommonMark §6.5). The URL between the angle brackets is verbatim: no backslash-escape, entity, or
-  other markdown processing applies inside. `isEmail` distinguishes the email form, whose href gets a
-  `mailto:` prefix when rendered to HTML.
+  other markdown processing applies inside. `isEmail` distinguishes the email form, whose href gets
+  a `mailto:` prefix when rendered to HTML.
   -/
   | autolink (openAngle : s.Subslice) (url : s.Subslice) (closeAngle : s.Subslice) (isEmail : Bool)
   /--
@@ -364,8 +366,7 @@ public inductive Inline (s : String.Slice) where
   -/
   | html (lines : Lines s)
   /--
-  A soft line break (CommonMark §6.8): the line ending between two lines of a paragraph, which is
-  the newline character.
+  A soft line break (CommonMark §6.8): the line ending between two lines of a paragraph.
   -/
   | softBreak (range : s.Subslice)
   /--
@@ -417,9 +418,27 @@ variable {s : String.Slice}
 public def subsliceClamped (a b : s.Pos) : s.Subslice :=
   if h : a ≤ b then s.subslice a b h else s.subslice a a (String.Slice.Pos.le_refl a)
 
-/-- The subslice from the start of `r` to the end of `r'`. -/
-def span (r r' : s.Subslice) : s.Subslice :=
-  subsliceClamped r.startInclusive r'.endExclusive
+/--
+Parses a line ending at `p` in `input`: `\r\n`, `\r`, or `\n` (CommonMark §2.1). Returns the
+position after the ending.
+-/
+public def parseLineEnding? (input : s.Subslice) (p : s.Pos) : Option s.Pos :=
+  if h : p < input.endExclusive then
+    let h' := String.Slice.Pos.ne_endPos_of_lt h
+    let q := p.next h'
+    match p.get h' with
+    | '\n' => some q
+    | '\r' =>
+      if h2 : q < input.endExclusive then
+        let h2' := String.Slice.Pos.ne_endPos_of_lt h2
+        some (if q.get h2' == '\n' then q.next h2' else q)
+      else some q
+    | _ => none
+  else none
+
+/-- The subslice from the start of `first` to the end of `last`. -/
+def span (first last : s.Subslice) : s.Subslice :=
+  subsliceClamped first.startInclusive last.endExclusive
 
 /-- The subslice from the start of the first line to the end of the last. -/
 public def Lines.extent (lines : Lines s) : s.Subslice :=
@@ -495,13 +514,19 @@ where
     | .escape _ char => char.copy
     | .entity _ value => value
 
-/-- The subslice from the start of the first subslice in `rs` to the end of the last, if there are any. -/
+/--
+The subslice from the start of the first subslice in `rs` to the end of the last one, or `none` if
+`rs` is empty.
+-/
 def span? (rs : Array s.Subslice) : Option s.Subslice := do
   let first ← rs[0]?
   let last ← rs.back?
   return span first last
 
-/-- The subslice from the start of the first line's source to the end of the last's, if there are any. -/
+/--
+The subslice from the start of the first line to the end of the last line, or `none` if there are no
+lines.
+-/
 def VerbatimLine.span? (lines : Array (VerbatimLine s)) : Option s.Subslice := do
   let first ← lines[0]?
   let last ← lines.back?
@@ -513,7 +538,8 @@ The whole block, from its first delimiter to the end of its last line.
 public partial def Block.extent? : Block s → Option s.Subslice
   | .paragraph content => Inline.extentOf? content
   | .atxHeading _ hashes content closeHashes? =>
-    let stop := closeHashes?.map (·.endExclusive) <|> (Inline.extentOf? content).map (·.endExclusive)
+    let stop :=
+      closeHashes?.map (·.endExclusive) <|> (Inline.extentOf? content).map (·.endExclusive)
     some (subsliceClamped hashes.startInclusive (stop.getD hashes.endExclusive))
   | .setextHeading _ content underline =>
     let start := (Inline.extentOf? content).map (·.startInclusive) |>.getD underline.startInclusive
@@ -531,7 +557,8 @@ public partial def Block.extent? : Block s → Option s.Subslice
     return subsliceClamped first.startInclusive stop
   | .list _ _ items => span? (items.filterMap Block.extent?)
   | .listItem marker children =>
-    let stop := (span? (children.filterMap Block.extent?)).map (·.endExclusive) |>.getD marker.endExclusive
+    let stop :=
+      (span? (children.filterMap Block.extent?)).map (·.endExclusive) |>.getD marker.endExclusive
     some (subsliceClamped marker.startInclusive stop)
   | .linkRefDef m =>
     let stop := match m.title? with
@@ -552,7 +579,10 @@ The constructor is private. Build values via `normalizeLabel`.
 -/
 public structure LinkLabel where
   private mk ::
-  /-- The normalized label string (see `normalizeLabel`). -/
+  /--
+  The label's text after normalization: case folded, with internal whitespace collapsed to single
+  spaces and leading and trailing whitespace removed.
+  -/
   name : String
 deriving BEq, Hashable, Repr
 
@@ -583,7 +613,7 @@ public def normalizeLabel (lines : Lines s) : LinkLabel := Id.run do
   return ⟨out⟩
 
 /--
-A document's link reference definitions by normalized label. During inline parsing, these are used to
-recognize valid references.
+A document's link reference definitions by normalized label. During inline parsing, these are used
+to recognize valid references.
 -/
 public abbrev RefTable (s : String.Slice) := Std.HashMap LinkLabel (RefDef s)

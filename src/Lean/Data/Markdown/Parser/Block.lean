@@ -88,15 +88,17 @@ def consumeIndentCapped (c : Cursor s) (maxCols : Nat) : Cursor s × Nat := Id.r
       break
   return (c, cols)
 
-/-- The line at `c` as a line of an indented code block: its content after four columns of indentation. -/
+/--
+The line at `c` as a line of an indented code block: its content after four columns of indentation.
+-/
 def indentedCodeLine (c : Cursor s) : VerbatimLine s :=
   let (afterIndent, _) := consumeIndentCapped c 4
   afterIndent.verbatimLine
 
-/-- The position after the last character in `[start, stop)` that is not a space or tab. -/
-def trimTrailingWs (start stop : s.Pos) : s.Pos := Id.run do
-  let mut stop := stop
-  while start < stop do
+/-- The end of `text` without its trailing spaces and tabs. -/
+def trimTrailingWs (text : s.Subslice) : s.Pos := Id.run do
+  let mut stop := text.endExclusive
+  while text.startInclusive < stop do
     match stop.prev? with
     | some q =>
       if q.get? == some ' ' || q.get? == some '\t' then stop := q else break
@@ -113,18 +115,18 @@ def dropIndent (line : s.Subslice) (indent : Nat) : s.Subslice := Id.run do
     else break
   return subsliceClamped p line.endExclusive
 
-/-- Splits `r` into lines, each excluding its trailing `'\n'`. -/
-def splitLines (r : s.Subslice) : Array s.Subslice := Id.run do
+/-- Splits `text` into lines, each excluding its line ending (`\r\n`, `\r`, or `\n`). -/
+def splitLines (text : s.Subslice) : Array s.Subslice := Id.run do
   let mut lines : Array s.Subslice := #[]
-  let mut p := r.startInclusive
-  let mut lineStart := r.startInclusive
-  while h : p < r.endExclusive do
-    let h' := String.Slice.Pos.ne_endPos_of_lt h
-    let q := p.next h'
-    if p.get h' == '\n' then
+  let mut p := text.startInclusive
+  let mut lineStart := text.startInclusive
+  while h : p < text.endExclusive do
+    match parseLineEnding? text p with
+    | some q =>
       lines := lines.push (subsliceClamped lineStart p)
       lineStart := q
-    p := q
+      p := q
+    | none => p := p.next (String.Slice.Pos.ne_endPos_of_lt h)
   if lineStart < p then
     lines := lines.push (subsliceClamped lineStart p)
   return lines
@@ -149,8 +151,8 @@ def parseAtxHeading? (c : Cursor s) : Option (AtxHeadingMatch s) :=  do
   let (c, indent) := countIndentCols c
   guard (indent ≤ 3)
   let hashStart := c.pos
-  -- CommonMark §4.2 caps ATX heading levels at 6. We scan up to 7 hashes so
-  -- sequences of 7 or more fall through the `count ≤ 6` guard below as non-headings.
+  -- CommonMark §4.2 caps ATX heading levels at 6. Up to 7 hashes are counted, so sequences of 7 or
+  -- more fall through the `count ≤ 6` guard below as non-headings.
   let mut rest := c
   let mut count := 0
   while rest.front? == some '#' && count < 7 do
@@ -163,7 +165,7 @@ def parseAtxHeading? (c : Cursor s) : Option (AtxHeadingMatch s) :=  do
   -- Skip whitespace (spaces or tabs) between the hashes and the content.
   let (cAfterGap, _) := countIndentCols rest
   let contentStart := cAfterGap.pos
-  let mut contentEnd := trimTrailingWs contentStart c.stop
+  let mut contentEnd := trimTrailingWs cAfterGap.toEol
   -- Optional closing `#` sequence: a trailing sequence of `#` characters that
   -- is either preceded by a space/tab or extends to the start of content
   -- (CommonMark §4.2). Strip it from the content range.
@@ -181,7 +183,7 @@ def parseAtxHeading? (c : Cursor s) : Option (AtxHeadingMatch s) :=  do
       let cb := beforeClose.get?
       if cb == some ' ' || cb == some '\t' then
         closeHashes? := some (subsliceClamped closeStart contentEnd)
-        contentEnd := trimTrailingWs contentStart closeStart
+        contentEnd := trimTrailingWs (subsliceClamped contentStart closeStart)
   return {
     level := count
     hashes
@@ -244,7 +246,7 @@ def parseFenceOpen? (c : Cursor s) : Option (FenceInfo s × s.Subslice) := do
   let openFence := subsliceClamped fenceStart cAfterFence.pos
   let (cAfterWs, _) := cAfterFence.advanceWhile fun ch => ch == ' ' || ch == '\t'
   let infoStart := cAfterWs.pos
-  let infoEnd := trimTrailingWs infoStart c.stop
+  let infoEnd := trimTrailingWs cAfterWs.toEol
   -- A backtick fence's info string may not contain backticks.
   if fenceChar == .backtick then
     let mut p := infoStart
@@ -354,8 +356,8 @@ def parseListMarker? (c : Cursor s) : Option (ListMarkerMatch s) := do
     let mut rest := c
     let mut digits := 0
     let mut value : Nat := 0
-    -- CommonMark §5.2: an ordered-list marker has 1–9 digits. We scan up to
-    -- 10 so sequences of 10 or more digits fall through the `digits ≤ 9` guard below.
+    -- CommonMark §5.2: an ordered-list marker has 1–9 digits. Up to 10 are counted, so sequences of
+    -- 10 or more digits fall through the `digits ≤ 9` guard below.
     while digits < 10 do
       let some digit := rest.front? | break
       if !digit.isDigit then break
@@ -389,15 +391,15 @@ def parseHtmlBlockStart? (c : Cursor s) : Option HtmlBlockKind := do
   match afterLt.front? with
   | some '!' =>
     let afterBang := afterLt.next
-    if startsWithAscii afterBang.pos c.stop "--" then return .comment
-    if startsWithAscii afterBang.pos c.stop "[CDATA[" then return .cdata
-    guard (afterBang.front?.any Char.isAlpha)
+    if startsWithAscii afterBang.toEol "--" then return .comment
+    if startsWithAscii afterBang.toEol "[CDATA[" then return .cdata
+    guard (Option.any Char.isAlpha afterBang.front?)
     return .declaration
   | some '?' => return .processingInstruction
   | _ =>
     let isClosing := afterLt.front? == some '/'
     let nameStart := if isClosing then afterLt.next else afterLt
-    guard (nameStart.front?.any Char.isAlpha)
+    guard (Option.any Char.isAlpha nameStart.front?)
     let (afterName, _) := nameStart.advanceWhile Char.isAlphanum
     let name := subsliceClamped nameStart.pos afterName.pos
     let delimited :=
@@ -405,7 +407,7 @@ def parseHtmlBlockStart? (c : Cursor s) : Option HtmlBlockKind := do
       | none | some ' ' | some '\t' | some '>' => true
       | _ => false
     if !isClosing && delimited && isRawTextTagName name then return .rawText
-    if isBlockTagName name && (delimited || startsWithAscii afterName.pos c.stop "/>") then
+    if isBlockTagName name && (delimited || startsWithAscii afterName.toEol "/>") then
       return .blockTag
     let src := InlineSource.ofSubslice (subsliceClamped afterLt.pos c.stop)
     guard (parseCompleteTagLine? (src.cursor src.startPos src.stopPos)).isSome
@@ -426,13 +428,15 @@ def listMarkerInterruptsParagraph (after : Cursor s) (kind : ListKind) : Bool :=
      | .bullet _ => true
 
 /--
-Whether the line at `c` starts a block, so that it cannot lazily continue a paragraph that is open in
-a container that did not continue on this line.
+Whether the line at `c` begins a block rather than paragraph text, which decides lazy continuation
+(CommonMark §5.1): a paragraph inside a blockquote or list item continues onto a line without the
+container's marker, as long as that line is paragraph text. A blank line, a blockquote or list
+marker, an ATX heading, a code fence, a thematic break, or the start of an HTML block ends the
+paragraph instead.
 
-Indented code blocks are intentionally not interrupts (CommonMark §4.4: an indented code block
-cannot interrupt a paragraph). Any list marker is one: the §5.2 rules of
-`listMarkerInterruptsParagraph` apply to a marker on the line after a paragraph that is the
-innermost open block, which `openContainerPrefixes` checks.
+Indentation is paragraph text here, because an indented code block cannot interrupt a paragraph
+(CommonMark §4.4). Any list marker begins a block here, since the §5.2 restrictions on which list
+items may interrupt a paragraph apply only when the paragraph is the innermost open block.
 -/
 def isInterrupt (c : Cursor s) : Bool :=
   c.isBlank ||
@@ -440,7 +444,7 @@ def isInterrupt (c : Cursor s) : Bool :=
   (parseListMarker? c).isSome ||
   (parseAtxHeading? c).isSome ||
   (parseFenceOpen? c).isSome ||
-  (parseHtmlBlockStart? c).any (·.interruptsParagraph) ||
+  Option.any (·.interruptsParagraph) (parseHtmlBlockStart? c) ||
   isThematicBreak c
 
 /-!
@@ -552,8 +556,9 @@ def continueContainers : ContainerM s Unit := do
         -- Lists themselves have no continuation marker; their listItem children do.
         st := { st with matched := st.matched + 1, matched_le := h }
       | .listItem _ contentColumn =>
-        -- A line that is indented to the item's content column continues the item. A blank line that
-        -- is indented less also continues it, and all of its whitespace is consumed.
+        -- A line that is indented to the item's content column continues the item. A blank line
+        -- that is indented less also continues the item, and all of the blank line's whitespace is
+        -- consumed.
         let (cAfter, consumed) := consumeIndentCapped st.cursor contentColumn
         if consumed ≥ contentColumn then
           st := { st with cursor := cAfter, matched := st.matched + 1, matched_le := h }
@@ -603,10 +608,10 @@ def tryLazyContinuation : ContainerM s Unit := do
 Closes the open containers that the current line is not part of.
 
 A line is part of an open blockquote when it begins with the blockquote's `>` marker, and part of
-an open list item when it is indented to the item's content column. `continueContainers` consumed
-these prefixes and counted the containers that they belong to in `matched`, from the outermost
-inward. The remaining containers are closed here, innermost first, and the rest of the line is
-parsed inside the innermost container that stays open (CommonMark's phase 1).
+an open list item when it is indented to the item's content column. `matched` is the number of open
+containers, counted from the outermost inward, that the line is part of. The remaining containers
+are closed here, innermost first, and the rest of the line is parsed inside the innermost container
+that stays open (CommonMark's phase 1).
 
 A line that lazily continues a paragraph, or that completes a setext heading, is finished before
 this step runs.
@@ -841,9 +846,9 @@ def parseBlocksRaw (s : String.Slice) (indent : Nat := 0) : Array (Block.Raw s) 
   return z.finalize
 
 /--
-Traverses blocks, extracting link reference definitions off the front of each paragraph, and emits a
-`linkRefDef` block in source order for each. Setext headings had their definitions extracted at their
-underline (`trySetextHeading`).
+Traverses blocks, extracting link reference definitions off the front of each paragraph, and emits
+a `linkRefDef` block in source order for each. Setext headings had their definitions extracted at
+their underline.
 -/
 partial def postProcessRefDefs (blocks : Array (Block.Raw s)) : Array (Block.Raw s) := Id.run do
   let mut out : Array (Block.Raw s) := #[]

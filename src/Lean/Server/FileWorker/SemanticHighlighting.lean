@@ -373,19 +373,21 @@ private def MarkupAttrs.tokenType (a : MarkupAttrs) : SemanticTokenType :=
 private def MarkupAttrs.modifiers (a : MarkupAttrs) : List SemanticTokenModifier :=
   (if a.bold then [.markupBold] else []) ++ (if a.italic then [.markupItalic] else [])
 
-/-- The raw source range of `r` in the underlying string, which the LSP layer converts to positions. -/
-@[inline] private def toSyntaxRange (r : s.Subslice) : Syntax.Range :=
-  ⟨r.startInclusive.str.offset, r.endExclusive.str.offset⟩
+/--
+The raw source range of `sub` in the underlying string, which the LSP layer converts to positions.
+-/
+@[inline] private def toSyntaxRange (sub : s.Subslice) : Syntax.Range :=
+  ⟨sub.startInclusive.str.offset, sub.endExclusive.str.offset⟩
 
 /--
-Pushes a `LeanSemanticToken` for `r`, which is on a single source line. Does nothing when `r` is
+Pushes a `LeanSemanticToken` for `sub`, which is on a single source line. Does nothing when `sub` is
 empty.
 -/
-@[inline] private def pushTok (out : Array LeanSemanticToken) (r : s.Subslice)
+@[inline] private def pushTok (out : Array LeanSemanticToken) (sub : s.Subslice)
     (tokenType : SemanticTokenType) (priority : Nat := 5)
     (modifiers : List SemanticTokenModifier := []) : Array LeanSemanticToken :=
-  if r.toSlice.isEmpty then out
-  else out.push { range := toSyntaxRange r, type := tokenType, priority, modifiers }
+  if sub.toSlice.isEmpty then out
+  else out.push { range := toSyntaxRange sub, type := tokenType, priority, modifiers }
 
 /-- Pushes one `LeanSemanticToken` per line in `lines`. -/
 private def pushLines (out : Array LeanSemanticToken) (lines : Markdown.Lines s)
@@ -393,14 +395,14 @@ private def pushLines (out : Array LeanSemanticToken) (lines : Markdown.Lines s)
   lines.toArray.foldl (init := out) fun out line => pushTok out line tokenType priority
 
 /-- Pushes a delimiter: a `keyword` token with the `markupSyntax` modifier. -/
-@[inline] private def pushDelimiter (out : Array LeanSemanticToken) (r : s.Subslice) :
+@[inline] private def pushDelimiter (out : Array LeanSemanticToken) (delimiter : s.Subslice) :
     Array LeanSemanticToken :=
-  pushTok out r .keyword (modifiers := [.markupSyntax])
+  pushTok out delimiter .keyword (modifiers := [.markupSyntax])
 
 /-- Pushes text with the type and modifiers of the attributes `a`. -/
-@[inline] private def pushText (out : Array LeanSemanticToken) (r : s.Subslice) (a : MarkupAttrs) :
-    Array LeanSemanticToken :=
-  pushTok out r a.tokenType (priority := 4) (modifiers := a.modifiers)
+@[inline] private def pushText (out : Array LeanSemanticToken) (text : s.Subslice)
+    (a : MarkupAttrs) : Array LeanSemanticToken :=
+  pushTok out text a.tokenType (priority := 4) (modifiers := a.modifiers)
 
 /-- Emits a destination: keyword on its angle brackets, if any, and URL on the URL. -/
 private def emitDestination (out : Array LeanSemanticToken) (d : Markdown.LinkDestination s) :

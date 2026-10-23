@@ -94,7 +94,7 @@ position of the closing `>`.
 -/
 def parseAutolinkUri? (cur : InlineCursor s) : Option s.Pos := do
   let mut rest := cur
-  guard <| rest.front?.any Char.isAlpha
+  guard <| Option.any Char.isAlpha rest.front?
   rest := rest.drop1
   let mut schemeLen := 1
   while !rest.isEmpty && schemeLen < 32 do
@@ -109,7 +109,7 @@ def parseAutolinkUri? (cur : InlineCursor s) : Option s.Pos := do
   while !rest.isEmpty do
     let c := rest.front
     if c == '>' then return rest.startPos
-    guard !(c == '<' || c == ' ' || c == '\t' || c == '\n' || c == '\r')
+    guard !(c == '<' || c.isWhitespace)
     -- Reject ASCII control characters (0x7f is DEL, the others are below 0x20)
     guard <| c.toNat ≥ 0x20 && c.toNat != 0x7f
     rest := rest.drop1
@@ -122,7 +122,7 @@ CommonMark §6.5's HTML5-style email regex. Returns the position of the closing 
 def parseAutolinkEmail? (cur : InlineCursor s) : Option s.Pos := do
   let mut rest := cur
   let mut localLen := 0
-  while rest.front?.any isEmailLocalChar do
+  while Option.any isEmailLocalChar rest.front? do
     localLen := localLen + 1
     rest := rest.drop1
   guard <| localLen != 0
@@ -188,10 +188,10 @@ def parseRawHtml? (cur : InlineCursor s) : Option (Inline s × s.Pos) := do
     | none => none
   return (.html (cur.source.linesBetween cur.startPos after.startPos), after.startPos)
 
-/-- Skips ASCII whitespace (' ', '\t', '\r', and '\n') at the start of `cur`. -/
+/-- Skips the spaces, tabs, and line endings at the start of `cur`. -/
 def skipInlineWs (cur : InlineCursor s) : s.Pos := Id.run do
   let mut cur := cur
-  while cur.front?.any fun c => c == ' ' || c == '\t' || c == '\n' || c == '\r' do
+  while Option.any Char.isWhitespace cur.front? do
     cur := cur.drop1
   return cur.startPos
 
@@ -229,7 +229,7 @@ def parseInlineLinkTarget? (cur : InlineCursor s) :
       let c := titleRest.front
       let q := titleRest.startPos
       let titleRestNext := titleRest.drop1
-      if c == '\\' && titleRestNext.front?.any isAsciiPunctuation then
+      if c == '\\' && Option.any isAsciiPunctuation titleRestNext.front? then
         titleRest := titleRestNext.drop1
       else if c == closer then
         titleEnd? := some q
@@ -248,8 +248,8 @@ def parseInlineLinkTarget? (cur : InlineCursor s) :
   return (destination, title?, afterTitle)
 where
   /--
-  Bracketed form `<url>`. Backslash escapes are allowed; an unescaped `<` or `\n` inside fails the
-  whole target. Returns the destination and the position one past the closing `>`.
+  Bracketed form `<url>`. Backslash escapes are allowed; an unescaped `<` or line ending inside
+  fails the whole target. Returns the destination and the position one past the closing `>`.
   -/
   bracketedUrl (rest : InlineCursor s) : Option (LinkDestination s × s.Pos) := do
     let openAngle ← rest.charSubslice?
@@ -259,14 +259,14 @@ where
       let c := rest.front
       let p := rest.startPos
       let restNext := rest.drop1
-      if c == '\\' && restNext.front?.any isAsciiPunctuation then
+      if c == '\\' && Option.any isAsciiPunctuation restNext.front? then
         rest := restNext.drop1
       else if c == '>' then
         let closeAngle ← rest.charSubslice?
         let destination : LinkDestination s :=
           { angles? := some (openAngle, closeAngle), url := subsliceClamped urlContentStart p }
         return (destination, closeAngle.endExclusive)
-      else if c == '<' || c == '\n' then
+      else if c == '<' || c == '\n' || c == '\r' then
         failure
       else
         rest := restNext
@@ -283,9 +283,9 @@ where
     while !rest.isEmpty do
       let c := rest.front
       let restNext := rest.drop1
-      if c == '\\' && restNext.front?.any isAsciiPunctuation then
+      if c == '\\' && Option.any isAsciiPunctuation restNext.front? then
         rest := restNext.drop1
-      else if c == ' ' || c == '\t' || c == '\n' || c == '\r' then
+      else if c.isWhitespace then
         break
       else if c == '(' then
         parenDepth := parenDepth + 1
@@ -300,7 +300,8 @@ where
         rest := restNext
     guard (parenDepth == 0)
     let urlContentEnd := rest.startPos
-    return ({ angles? := none, url := subsliceClamped urlContentStart urlContentEnd }, urlContentEnd)
+    return ({ angles? := none, url := subsliceClamped urlContentStart urlContentEnd },
+      urlContentEnd)
 
 /--
 Classifies a `*`/`_` delimiter sequence by the characters that surround it, determining whether it
@@ -326,18 +327,18 @@ def classifyDelim (ch prevChar nextChar : Char) : Bool × Bool :=
   (canOpen, canClose)
 
 /--
-Whether the text between `start` and `stop` is a link label (CommonMark §6.3): at most 999
-characters and no unescaped brackets.
+Whether the input after `cur` is a link label (CommonMark §6.3): at most 999 characters and no
+unescaped brackets.
 -/
-def isLinkLabel (src : InlineSource s) (start stop : s.Pos) : Bool := Id.run do
-  let mut cur := src.cursor start stop
+def isLinkLabel (cur : InlineCursor s) : Bool := Id.run do
+  let mut cur := cur
   let mut len := 0
   while !cur.isEmpty do
     if len ≥ 999 then return false
     let c := cur.front
     cur := cur.drop1
     len := len + 1
-    if c == '\\' && cur.front?.any isAsciiPunctuation then
+    if c == '\\' && Option.any isAsciiPunctuation cur.front? then
       cur := cur.drop1
       len := len + 1
     else if c == '[' || c == ']' then
@@ -402,7 +403,7 @@ where
     return (.reference definition label .shortcut, afterClose)
   /-- The lines of the bracket interior, if it is a link label. -/
   interiorLabel? : Option (Lines s) := do
-    guard (isLinkLabel src openBracket.endExclusive closeBracket.startInclusive)
+    guard (isLinkLabel (src.cursor openBracket.endExclusive closeBracket.startInclusive))
     return src.linesBetween openBracket.endExclusive closeBracket.startInclusive
 
 /-!
@@ -431,7 +432,9 @@ The tokenizer's mutable state (`InlineTokenizerState` below) is touched through 
 
 /-- A `[` or `![` that may begin a link or image. -/
 structure BracketOpener (s : String.Slice) where
-  /-- The index in the output of the opener's text token. The tokens after it are the link's text. -/
+  /--
+  The index in the output of the opener's text token. The tokens after it are the link's text.
+  -/
   tokIdx : Nat
   /-- The `!` of an image opener. -/
   bang? : Option s.Subslice
@@ -547,7 +550,8 @@ def closeBracket (refs : RefTable s) (src : InlineSource s) (closeBracket : s.Su
     skipChar
   else
     let stop := src.stopPos
-    match parseLinkSuffix? refs src stop opener.openBracket closeBracket closeBracket.endExclusive with
+    let afterClose := closeBracket.endExclusive
+    match parseLinkSuffix? refs src stop opener.openBracket closeBracket afterClose with
     | some (target, after) =>
       -- The output is taken out of the state so that it is shrunk and extended in place.
       let out ← modifyGet fun ⟨out, rest, textStart, prevChar, brackets⟩ =>
@@ -606,12 +610,9 @@ def tokenizeInlines (refs : RefTable s) (src : InlineSource s) : Array (InlineTo
         let nextC := restNext.front
         let restAfterEsc := restNext.drop1
         let escapedNext := restAfterEsc.startPos
-        if nextC == '\n' then
+        if let some (ending, afterEnding) := restNext.parseLineEnding? then
           -- Backslash before a line ending is a hard line break (§6.7).
-          match restNext.charSubslice? with
-          | some newline =>
-            recognize (.inline (.hardBreak charSubslice newline)) cursor restAfterEsc ' '
-          | none => skipChar
+          recognize (.inline (.hardBreak charSubslice ending)) cursor afterEnding ' '
         else if isAsciiPunctuation nextC then
           let escapedRange := (restNext.charSubslice?).getD (subsliceClamped cursorNext escapedNext)
           recognize (.inline (.escape charSubslice escapedRange)) cursor restAfterEsc nextC
@@ -642,7 +643,7 @@ def tokenizeInlines (refs : RefTable s) (src : InlineSource s) : Array (InlineTo
         | some (entity, after) =>
           recognize (.inline entity) cursor (src.cursor after stop) ';'
         | none => skipChar
-      else if c == '\n' then
+      else if let some (ending, afterEnding) := st.rest.parseLineEnding? then
         -- A line ending normalizes to a soft break (or, with two or more trailing spaces, a hard
         -- break, §6.7). Per §4.8 paragraph-content normalization, trailing spaces before the line
         -- ending are dropped in either case so they don't leak into the rendered output.
@@ -656,19 +657,20 @@ def tokenizeInlines (refs : RefTable s) (src : InlineSource s) : Array (InlineTo
               spaces := spaces + 1
             else break
           | none => break
-        -- `restNext` begins at the next line's first non-whitespace character, which is where the
-        -- tokenizer resumes; the break itself ends after the `\n`.
+        -- `afterEnding` begins at the next line's first non-whitespace character, which is where
+        -- the tokenizer resumes; the break itself is the whole line ending.
         if spaces >= 2 then
-          recognize (.inline (.hardBreak (subsliceClamped q cursor) charSubslice)) q restNext ' '
+          recognize (.inline (.hardBreak (subsliceClamped q cursor) ending)) q afterEnding ' '
         else
-          recognize (.inline (.softBreak charSubslice)) q restNext '\n'
+          recognize (.inline (.softBreak ending)) q afterEnding '\n'
       else if c == '*' || c == '_' then
         let (n, seqEnd) := countSequence st.rest c
         let seqEndRest : InlineCursor s := src.cursor seqEnd stop
         let nextC := seqEndRest.front?.getD ' '
         let (canOpen, canClose) := classifyDelim c st.prevChar nextC
         recognize
-          (.delim { startPos := cursor, endPos := seqEnd, ch := c, origLen := n, canOpen, canClose })
+          (.delim
+            { startPos := cursor, endPos := seqEnd, ch := c, origLen := n, canOpen, canClose })
           cursor seqEndRest c
       else
         skipChar

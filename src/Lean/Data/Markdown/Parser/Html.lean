@@ -38,13 +38,12 @@ def isAttributeNameChar (c : Char) : Bool :=
 
 /-- Whether `c` may be part of an unquoted attribute value. -/
 def isUnquotedValueChar (c : Char) : Bool :=
-  !(c == ' ' || c == '\t' || c == '\n' || c == '\r' || c == '"' || c == '\'' || c == '=' ||
-    c == '<' || c == '>' || c == '`')
+  !(c.isWhitespace || c == '"' || c == '\'' || c == '=' || c == '<' || c == '>' || c == '`')
 
 /-- Advances past the characters that satisfy `p`. -/
 def skipChars (cur : InlineCursor s) (p : Char → Bool) : InlineCursor s := Id.run do
   let mut cur := cur
-  while cur.front?.any p do
+  while Option.any p cur.front? do
     cur := cur.drop1
   return cur
 
@@ -58,11 +57,11 @@ def skipTagWhitespace (cur : InlineCursor s) : InlineCursor s := Id.run do
   repeat
     match cur.front? with
     | some ' ' | some '\t' => cur := cur.drop1
-    | some '\n' =>
+    | _ =>
+      let some (_, afterEnding) := cur.parseLineEnding? | break
       if sawLineEnding then break
       sawLineEnding := true
-      cur := cur.drop1
-    | _ => break
+      cur := afterEnding
   return cur
 
 /-- If `cur` begins with the characters `pat`, advances past them. -/
@@ -94,7 +93,7 @@ public def parseOpenTag? (cur : InlineCursor s) : Option (InlineCursor s) := do
   let mut cur := skipChars cur.drop1 isTagNameChar
   repeat
     let afterWs := skipTagWhitespace cur
-    if afterWs.startPos != cur.startPos && afterWs.front?.any isAttributeNameStart then
+    if afterWs.startPos != cur.startPos && Option.any isAttributeNameStart afterWs.front? then
       let afterName := skipChars afterWs.drop1 isAttributeNameChar
       let beforeEq := skipTagWhitespace afterName
       if beforeEq.front? == some '=' then
@@ -112,7 +111,7 @@ Parses an HTML closing tag after its `</` at `cur`: the tag name, optional white
 Returns the cursor after the `>`.
 -/
 public def parseClosingTag? (cur : InlineCursor s) : Option (InlineCursor s) := do
-  guard <| cur.front?.any Char.isAlpha
+  guard <| Option.any Char.isAlpha cur.front?
   let afterName := skipTagWhitespace (skipChars cur.drop1 isTagNameChar)
   guard <| afterName.front? == some '>'
   return afterName.drop1
@@ -131,7 +130,7 @@ public def parseMarkupDeclaration? (cur : InlineCursor s) : Option (InlineCursor
   else if let some afterCdata := startsWithChars cur ['[', 'C', 'D', 'A', 'T', 'A', '['] then
     advancePast afterCdata [']', ']', '>']
   else
-    guard <| cur.front?.any Char.isAlpha
+    guard <| Option.any Char.isAlpha cur.front?
     advancePast cur.drop1 ['>']
 
 /-!
@@ -139,14 +138,14 @@ public def parseMarkupDeclaration? (cur : InlineCursor s) : Option (InlineCursor
 -/
 
 /--
-The position after `needle` if the text from `p` to `stop` begins with it. With `ignoreCase`, each
-character of the text is lowercased before the comparison, so a lowercase ASCII `needle` matches
-case-insensitively.
+Parses `needle` at `p` in `input`, returning the position after it. With `ignoreCase`, ASCII letters
+of the text match `needle`'s letters in either case, so `needle` should be lowercase.
 -/
-def matchAscii? (p stop : s.Pos) (needle : String) (ignoreCase := false) : Option s.Pos := Id.run do
+def matchAscii? (input : s.Subslice) (p : s.Pos) (needle : String) (ignoreCase := false) :
+    Option s.Pos := Id.run do
   let mut p := p
   for c in needle.toSlice do
-    if h : p < stop then
+    if h : p < input.endExclusive then
       let h' := String.Slice.Pos.ne_endPos_of_lt h
       let d := p.get h'
       if (if ignoreCase then d.toLower else d) != c then return none
@@ -155,19 +154,28 @@ def matchAscii? (p stop : s.Pos) (needle : String) (ignoreCase := false) : Optio
       return none
   return some p
 
-/-- Whether the text from `p` to `stop` begins with `needle`, compared as in `matchAscii?`. -/
-public def startsWithAscii (p stop : s.Pos) (needle : String) (ignoreCase := false) : Bool :=
-  (matchAscii? p stop needle ignoreCase).isSome
+/--
+Whether `text` begins with `needle`. With `ignoreCase`, ASCII letters of the text match `needle`'s
+letters in either case, so `needle` should be lowercase.
+-/
+public def startsWithAscii (text : s.Subslice) (needle : String) (ignoreCase := false) : Bool :=
+  (matchAscii? text text.startInclusive needle ignoreCase).isSome
 
-/-- Whether `r` is `needle`, compared as in `matchAscii?`. -/
-def equalsAscii (r : s.Subslice) (needle : String) (ignoreCase := false) : Bool :=
-  matchAscii? r.startInclusive r.endExclusive needle ignoreCase == some r.endExclusive
+/--
+Whether `text` is `needle`. With `ignoreCase`, ASCII letters of the text match `needle`'s letters in
+either case, so `needle` should be lowercase.
+-/
+def equalsAscii (text : s.Subslice) (needle : String) (ignoreCase := false) : Bool :=
+  matchAscii? text text.startInclusive needle ignoreCase == some text.endExclusive
 
-/-- Whether `r` contains `needle`, compared as in `matchAscii?`. -/
-def containsAscii (r : s.Subslice) (needle : String) (ignoreCase := false) : Bool := Id.run do
-  let mut p := r.startInclusive
-  while h : p < r.endExclusive do
-    if startsWithAscii p r.endExclusive needle ignoreCase then return true
+/--
+Whether `text` contains `needle`. With `ignoreCase`, ASCII letters of the text match `needle`'s
+letters in either case, so `needle` should be lowercase.
+-/
+def containsAscii (text : s.Subslice) (needle : String) (ignoreCase := false) : Bool := Id.run do
+  let mut p := text.startInclusive
+  while h : p < text.endExclusive do
+    if (matchAscii? text p needle ignoreCase).isSome then return true
     p := p.next (String.Slice.Pos.ne_endPos_of_lt h)
   return false
 
@@ -205,7 +213,7 @@ public def parseCompleteTagLine? (cur : InlineCursor s) : Option (InlineCursor s
     if cur.front? == some '/' then
       parseClosingTag? cur.drop1
     else
-      guard <| cur.front?.any Char.isAlpha
+      guard <| Option.any Char.isAlpha cur.front?
       let afterName := skipChars cur.drop1 isTagNameChar
       guard !(isRawTextTagName (subsliceClamped cur.startPos afterName.startPos))
       parseOpenTag? cur
@@ -239,7 +247,10 @@ deriving Repr, BEq, Inhabited
 
 namespace HtmlBlockKind
 
-/-- Whether a block of this kind ends before a blank line, instead of at a line that contains an end marker. -/
+/--
+Whether a block of this kind ends before a blank line, instead of at a line that contains an end
+marker.
+-/
 public def endsAtBlankLine : HtmlBlockKind → Bool
   | .blockTag | .completeTag => true
   | _ => false

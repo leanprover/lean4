@@ -658,3 +658,44 @@ def infoStrings (src : String) : List (Option String) :=
 
 /-- info: [some "lean", some "lean"] -/
 #guard_msgs in #eval infoStrings "```\tlean\t\n```\n\n``` lean \n```"
+
+/-!
+## Line endings
+
+A line ending is `\r\n`, `\r`, or `\n` (CommonMark §2.1). Verbatim lines and the lines of inline
+content exclude the ending, and a soft or hard break is the whole ending.
+-/
+
+/-- info: ["heading⟪text⟪head⟫⟫", "list[item[paragraph⟪text⟪item⟫⟫]]"] -/
+#guard_msgs in #eval showDocument "# head\r\n\r\n- item\r\n" 0
+
+/-- info: ["setext⟪text⟪foo⟫⟫"] -/
+#guard_msgs in #eval showDocument "foo\r\n===\r\n" 0
+
+/-- info: ["text⟪a⟫ softBreak text⟪b⟫", "text⟪a⟫ softBreak text⟪b⟫"] -/
+#guard_msgs in #eval [showParagraph "a\r\nb", showParagraph "a\rb"]
+
+/-- info: ["text⟪a⟫ hardBreak⟪\\⟫ text⟪b⟫", "text⟪a⟫ hardBreak⟪  ⟫ text⟪b⟫"] -/
+#guard_msgs in #eval [showParagraph "a\\\r\nb", showParagraph "a  \r\nb"]
+
+/-- The source text of each soft break in the first paragraph of `src`. -/
+def softBreakTexts (src : String) : Array String :=
+  (firstParagraph src).filterMap fun | .softBreak r => some r.copy | _ => none
+
+/-- info: #["\x0d\n"] -/
+#guard_msgs in #eval softBreakTexts "a\r\nb"
+
+/-- info: [["a", "b"]] -/
+#guard_msgs in #eval codeLines "`a\r\nb`"
+
+/-- info: ["indentedCode#[\"x\", \"y\"]", "html#[\"<div>\", \"x\", \"</div>\"]"] -/
+#guard_msgs in #eval showDocument "    x\r\n    y\r\n\r\n<div>\r\nx\r\n</div>\r\n" 0
+
+/-- info: [["\"", "t", "\""]] -/
+#guard_msgs in #eval titleParts "[r]: /u\r\n  \"t\"\r\n\r\n[r]"
+
+/-- info: ["blockquote[paragraph⟪text⟪a⟫ softBreak text⟪b⟫⟫]"] -/
+#guard_msgs in #eval showDocument "> a\r\n> b\r\n" 0
+
+/-- info: ["looseList[item[paragraph⟪text⟪c⟫⟫, paragraph⟪text⟪d⟫⟫]]"] -/
+#guard_msgs in #eval showDocument "- c\r\n\r\n  d\r\n" 0

@@ -662,8 +662,8 @@ punctuation, the mathematical operators and arrows, currency signs, and emoji, a
 letters, digits, whitespace, and combining marks.
 -/
 public def isUnicodePunctuation (c : Char) : Bool :=
-  -- A range is less than a probe when it ends before the probe's code point, so the search finds the
-  -- range that contains the code point if there is one.
+  -- A range is less than a probe when it ends before the probe's code point, so the search finds
+  -- the range that contains the code point if there is one.
   punctuationRanges.binSearchContains (c.val, c.val) fun a b => a.2 < b.1
 
 /--

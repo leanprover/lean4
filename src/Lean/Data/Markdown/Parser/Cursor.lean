@@ -15,8 +15,8 @@ namespace Lean.Markdown
 /-!
 ## Line cursors
 
-The block parser processes one line at a time, and within each line it is constantly asking “what's at
-column N relative to the parent container's indent?”. Because CommonMark counts indentation in
+The block parser processes one line at a time, and within each line it is constantly asking “what's
+at column N relative to the parent container's indent?”. Because CommonMark counts indentation in
 *columns* but the underlying source is characters, and a single tab can advance the column by 1–4
 (CommonMark §2.2's partial-tab rule), position and column are not in lockstep. The cursor is a
 structure that tracks both.
@@ -79,7 +79,10 @@ one, which is correct for every character but a tab; for tabs use `countIndentCo
 -/
 @[inline] public def next (c : Cursor s) : Cursor s :=
   if h : c.pos < c.stop then
-    { c with pos := c.pos.next (String.Slice.Pos.ne_endPos_of_lt h), col := c.col + 1, partialTab := false }
+    { c with
+      pos := c.pos.next (String.Slice.Pos.ne_endPos_of_lt h)
+      col := c.col + 1
+      partialTab := false }
   else c
 
 /--

@@ -7,6 +7,7 @@ module
 
 prelude
 import Init.While
+import Init.Data.Vector.Basic
 public import Lean.Data.Markdown.Basic
 
 namespace Lean.Markdown
@@ -94,8 +95,9 @@ deriving Inhabited
 ### Delimiter matching
 
 CommonMark §6.2 specifies emphasis matching as an algorithm over a *delimiter stack*: each `*`/`_`
-sequence that could open emphasis is pushed on the stack while non-delimiter inlines are added to the
-inline output, and a closing sequence looks down the stack for a compatible opener to match against.
+sequence that could open emphasis is pushed on the stack while non-delimiter inlines are added to
+the inline output, and for each closing sequence the stack is searched downward for a compatible
+opener.
 The spec describes the algorithm imperatively over two pieces of state, the delimiter stack and the
 inline output, and those are maintained in a single `DelimiterMatchState` structure.
 
@@ -110,8 +112,10 @@ The index into `openersBottom` for a closer: by its character, its original leng
 whether it can also open emphasis, which are the properties that decide whether an opener can match
 it.
 -/
-def bottomKey (seq : DelimSequence s) : Nat :=
-  (if seq.ch == '*' then 0 else 6) + (seq.origLen % 3) * 2 + (if seq.canOpen then 1 else 0)
+def bottomKey (seq : DelimSequence s) : Fin 12 :=
+  let lenMod3 : Fin 12 :=
+    ⟨seq.origLen % 3, Nat.lt_of_lt_of_le (Nat.mod_lt _ (by decide)) (by decide)⟩
+  (if seq.ch == '*' then 0 else 6) + lenMod3 * 2 + (if seq.canOpen then 1 else 0)
 
 /--
 The state that is maintained while running CommonMark §6.2's delimiter matching algorithm: the
@@ -123,14 +127,22 @@ structure DelimiterMatchState (s : String.Slice) where
   /-- The inlines that have been emitted so far, including the text of the openers on the stack. -/
   output : Array (Inline s)
   /--
-  For each kind of closer (see `bottomKey`), the stack index below which no opener can match it,
-  because a search for that kind of closer already failed there.
+  For each kind of closer, the index into `delimiters` at which the search for an opener to match a
+  closer of that kind begins; openers below that index are skipped.
+
+  Whether an opener can match a closer depends on three properties of the closer: its delimiter
+  character (`*` or `_`), its length modulo 3, and whether it could also open emphasis. The 12
+  combinations of these properties are the kinds of closer, numbered by `bottomKey`.
+
+  When the search for an opener to match a closer fails, the openers that are on the stack would
+  fail to match a later closer of the same kind too, so the entry for that kind becomes the stack's
+  current size.
   -/
-  openersBottom : Array Nat
+  openersBottom : Vector Nat 12
 
 /-- The empty initial state. -/
 def DelimiterMatchState.empty : DelimiterMatchState s :=
-  { delimiters := #[], output := #[], openersBottom := Array.replicate 12 0 }
+  { delimiters := #[], output := #[], openersBottom := Vector.replicate 12 0 }
 
 /-- The state monad for §6.2's delimiter-matching algorithm. -/
 abbrev DelimM (s : String.Slice) := StateM (DelimiterMatchState s)
@@ -167,8 +179,8 @@ def openDelimiter (ch : Char) (startPos : s.Pos) (origLen remaining : Nat) (canC
     openersBottom := st.openersBottom.map (min · size) }
 
 /--
-Abandons the topmost delimiter. Its still-unmatched characters stay in the output as text, so this is
-a pop of the delimiter stack.
+Abandons the topmost delimiter. Its still-unmatched characters stay in the output as text, so this
+is a pop of the delimiter stack.
 
 This is used both when a closer's match leaves unmatched openers above it on the stack and at the
 end, when every opener still on the stack is abandoned.
@@ -213,9 +225,9 @@ def finalizeEmphasis : DelimM s (Array (Inline s)) := do
   return coalesceText (← get).output
 
 /--
-Searches the delimiter stack top-down, stopping above index `bottom`, for an opener compatible with
-the closer `seq`, honoring CommonMark §6.2's rule about lengths that are a multiple of 3. Returns the
-index (from the bottom) of the first compatible opener, or `none`.
+Searches the delimiter stack top-down, stopping above index `bottom`, for an opener that is
+compatible with the closer `seq`, honoring CommonMark §6.2's rule about lengths that are a multiple
+of 3. Returns the index (from the bottom) of the first compatible opener, or `none`.
 -/
 def findMatchingOpener (stack : Array (OpenerFrame s)) (seq : DelimSequence s) (bottom : Nat) :
     Option Nat := Id.run do
@@ -246,18 +258,19 @@ def processDelimSequence (seq : DelimSequence s) : DelimM s Unit := do
     let key := bottomKey seq
     while seqRem > 0 do
       let st ← get
-      match findMatchingOpener st.delimiters seq (st.openersBottom[key]?.getD 0) with
+      match findMatchingOpener st.delimiters seq st.openersBottom[key] with
       | none =>
         -- No opener on the stack can match this kind of closer, so later searches for the same
         -- kind start above the current stack.
-        modify fun st => { st with openersBottom := st.openersBottom.set! key st.delimiters.size }
+        modify fun st => { st with openersBottom := st.openersBottom.set key st.delimiters.size }
         break
       | some idx =>
         while (← get).delimiters.size > idx + 1 do
           abandonOpener
         let opener := (← get).delimiters.back!
         let matchLen := if opener.remaining >= 2 && seqRem >= 2 then 2 else 1
-        let openDelim := delimiterSubslice (opener.startPos.nextn (opener.remaining - matchLen)) matchLen
+        let openDelim :=
+          delimiterSubslice (opener.startPos.nextn (opener.remaining - matchLen)) matchLen
         let closeDelim := delimiterSubslice seqStart matchLen
         closeMatched matchLen openDelim closeDelim
         seqRem := seqRem - matchLen
@@ -269,9 +282,9 @@ def processDelimSequence (seq : DelimSequence s) : DelimM s Unit := do
       emit <| .text (delimiterSubslice seqStart seqRem)
 
 /--
-Processes the emphasis delimiter sequences in `toks`, producing a final flat inline array. Implements
-CommonMark §6.2's delimiter-matching algorithm (including the rule about lengths that are a multiple
-of 3). Unmatched delimiters are turned into literal text.
+Processes the emphasis delimiter sequences in `toks`, producing a final flat inline array.
+Implements CommonMark §6.2's delimiter-matching algorithm (including the rule about lengths that are
+a multiple of 3). Unmatched delimiters are turned into literal text.
 -/
 public def processEmphasis (toks : Array (InlineTok s)) : Array (Inline s) :=
   let go : DelimM s (Array (Inline s)) := do

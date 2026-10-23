@@ -37,8 +37,8 @@ public def isAsciiPunctuation (c : Char) : Bool :=
 Decodes the body of a character reference `&body;` (CommonMark §2.5): the text between `&` and `;`.
 
 Named references are those of HTML. Decimal references (`#` followed by one to seven digits) and
-hexadecimal references (`#x` or `#X` followed by one to six hex digits) denote a code point; the code
-point zero, surrogates, and values above U+10FFFF decode to U+FFFD.
+hexadecimal references (`#x` or `#X` followed by one to six hex digits) denote a code point; the
+code point zero, surrogates, and values above U+10FFFF decode to U+FFFD.
 -/
 public def characterReference? (body : String) : Option String :=
   match Html.numericCharacterReference? body with
@@ -57,10 +57,10 @@ public def isCharacterReferenceChar (c : Char) : Bool :=
   c.isAlphanum || c == '#'
 
 /--
-Recognizes a character reference whose `&` is immediately before `i`. On success, returns the decoded
+Parses a character reference whose `&` is immediately before `i`. On success, returns the decoded
 text together with the position after the `;`.
 -/
-public def scanCharacterReference? (s : String) (i : String.Pos.Raw) :
+public def decodeCharacterReference? (s : String) (i : String.Pos.Raw) :
     Option (String × String.Pos.Raw) := Id.run do
   let mut j := i
   while h : ¬ j.atEnd s do
@@ -95,7 +95,7 @@ public def decodeText (s : String) : String := Id.run do
         out := out.push c
         i := j
     else if c == '&' then
-      match scanCharacterReference? s j with
+      match decodeCharacterReference? s j with
       | some (value, after) =>
         out := out ++ value
         i := after

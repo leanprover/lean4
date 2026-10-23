@@ -1,0 +1,6 @@
+exclusive before pid: true
+pid is nonzero: true
+exclusive after pid: true
+boxed pid matches: true
+exclusive after boxed pid: true
+exit code: 0

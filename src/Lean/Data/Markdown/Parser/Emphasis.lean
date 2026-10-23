@@ -38,8 +38,6 @@ terms), classified by the CommonMark left/right-flanking rules.
 public structure DelimSequence (s : String.Slice) where
   /-- Position of the first delimiter character. -/
   startPos : s.Pos
-  /-- Position one past the last delimiter character. -/
-  endPos : s.Pos
   /-- The delimiter character (`*` or `_`). -/
   ch : Char
   /-- Number of consecutive delimiter characters. -/

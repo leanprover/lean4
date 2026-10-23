@@ -670,8 +670,7 @@ def tokenizeInlines (refs : RefTable s) (src : InlineSource s) : Array (InlineTo
         let nextC := seqEndRest.front?.getD ' '
         let (canOpen, canClose) := classifyDelim c st.prevChar nextC
         recognize
-          (.delim
-            { startPos := cursor, endPos := seqEnd, ch := c, origLen := n, canOpen, canClose })
+          (.delim { startPos := cursor, ch := c, origLen := n, canOpen, canClose })
           cursor seqEndRest c
       else
         skipChar

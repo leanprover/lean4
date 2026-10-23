@@ -161,6 +161,20 @@ where
     | _ => none
 
 /--
+Appends the Unicode full case folding of `c` to `out`, for ASCII, the Latin-1 Supplement block, the
+Greek and Coptic block, and the other characters whose foldings are drawn from those blocks. Any
+other character is appended unchanged.
+-/
+public def pushCaseFolded (out : String) (c : Char) : String :=
+  -- The micro sign U+00B5 is the first character past ASCII with a folding, so below it the
+  -- folding is ASCII lowercasing.
+  if c.val < 0xB5 then out.push c.toLower
+  else
+    match fold? c with
+    | some folded => out ++ folded
+    | none => out.push c
+
+/--
 The Unicode full case folding of `c` for the following characters:
 * ASCII
 * The Latin-1 Supplement block
@@ -176,8 +190,4 @@ letters with case in Cyrillic, the Latin Extended blocks (Turkish, Vietnamese, P
 others), Armenian, Georgian, Cherokee, Greek Extended (polytonic Greek), and the fullwidth and
 enclosed forms are not folded. This limitation may be lifted in the future.
 -/
-public def caseFold (c : Char) : String :=
-  -- The micro sign U+00B5 is the first character past ASCII with a folding, so below it the
-  -- folding is ASCII lowercasing.
-  if c.val < 0xB5 then String.singleton c.toLower
-  else (fold? c).getD (String.singleton c)
+public def caseFold (c : Char) : String := pushCaseFolded "" c

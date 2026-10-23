@@ -12,6 +12,7 @@ public import Init.Data.String.Subslice
 public import Init.Data.String.Lemmas.Order
 import Init.Data.String.OrderInstances
 import Init.Data.String.Iterate
+import Init.While
 import Init.Data.String.TakeDrop
 import Lean.Data.Markdown.Unicode.CaseFolding
 import Lean.Data.Markdown.Text
@@ -436,6 +437,16 @@ public def parseLineEnding? (input : s.Subslice) (p : s.Pos) : Option s.Pos :=
     | _ => none
   else none
 
+/-- `text` without the trailing characters that satisfy `p`. -/
+public def trimTrailing (text : s.Subslice) (p : Char → Bool) : s.Subslice := Id.run do
+  let mut stop := text.endExclusive
+  while text.startInclusive < stop do
+    match stop.prev? with
+    | some q =>
+      if text.startInclusive ≤ q && Option.any p q.get? then stop := q else break
+    | none => break
+  return subsliceClamped text.startInclusive stop
+
 /-- The subslice from the start of `first` to the end of `last`. -/
 def span (first last : s.Subslice) : s.Subslice :=
   subsliceClamped first.startInclusive last.endExclusive
@@ -606,7 +617,7 @@ public def normalizeLabel (lines : Lines s) : LinkLabel := Id.run do
         sawWs := true
       else
         if sawNonWs && sawWs then out := out.push ' '
-        out := out ++ caseFold c
+        out := pushCaseFolded out c
         sawWs := false
         sawNonWs := true
     sawWs := true

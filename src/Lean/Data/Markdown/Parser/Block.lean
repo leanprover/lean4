@@ -6,9 +6,8 @@ Authors: David Thrane Christiansen
 module
 
 prelude
-public import Init.Data.Nat.Fold
-public import Init.Data.String.TakeDrop
 public import Init.While
+import Init.Data.String.Iterate
 import Init.Data.Range.Polymorphic.Iterators
 import Init.Data.Range.Polymorphic.Nat
 public import Lean.Data.Markdown.Basic
@@ -95,15 +94,9 @@ def indentedCodeLine (c : Cursor s) : VerbatimLine s :=
   let (afterIndent, _) := consumeIndentCapped c 4
   afterIndent.verbatimLine
 
-/-- The end of `text` without its trailing spaces and tabs. -/
-def trimTrailingWs (text : s.Subslice) : s.Pos := Id.run do
-  let mut stop := text.endExclusive
-  while text.startInclusive < stop do
-    match stop.prev? with
-    | some q =>
-      if q.get? == some ' ' || q.get? == some '\t' then stop := q else break
-    | none => break
-  return stop
+/-- `text` without its trailing spaces and tabs. -/
+def trimTrailingWs (text : s.Subslice) : s.Subslice :=
+  trimTrailing text fun c => c == ' ' || c == '\t'
 
 /-- Moves the start of `line` past up to `indent` leading spaces. -/
 def dropIndent (line : s.Subslice) (indent : Nat) : s.Subslice := Id.run do
@@ -165,31 +158,26 @@ def parseAtxHeading? (c : Cursor s) : Option (AtxHeadingMatch s) :=  do
   -- Skip whitespace (spaces or tabs) between the hashes and the content.
   let (cAfterGap, _) := countIndentCols rest
   let contentStart := cAfterGap.pos
-  let mut contentEnd := trimTrailingWs cAfterGap.toEol
+  let mut content := trimTrailingWs cAfterGap.toEol
   -- Optional closing `#` sequence: a trailing sequence of `#` characters that
   -- is either preceded by a space/tab or extends to the start of content
-  -- (CommonMark §4.2). Strip it from the content range.
-  let mut closeStart := contentEnd
+  -- (CommonMark §4.2). Strip it from the content.
+  let mut closeStart := content.endExclusive
   while contentStart < closeStart do
     match closeStart.prev? with
     | some q => if q.get? == some '#' then closeStart := q else break
     | none => break
   let mut closeHashes? : Option s.Subslice := none
-  if closeStart < contentEnd then
+  if closeStart < content.endExclusive then
     if closeStart == contentStart then
-      closeHashes? := some (subsliceClamped closeStart contentEnd)
-      contentEnd := closeStart
+      closeHashes? := some (subsliceClamped closeStart content.endExclusive)
+      content := subsliceClamped contentStart closeStart
     else if let some beforeClose := closeStart.prev? then
       let cb := beforeClose.get?
       if cb == some ' ' || cb == some '\t' then
-        closeHashes? := some (subsliceClamped closeStart contentEnd)
-        contentEnd := trimTrailingWs (subsliceClamped contentStart closeStart)
-  return {
-    level := count
-    hashes
-    content := subsliceClamped contentStart contentEnd
-    closeHashes := closeHashes?
-  }
+        closeHashes? := some (subsliceClamped closeStart content.endExclusive)
+        content := trimTrailingWs (subsliceClamped contentStart closeStart)
+  return { level := count, hashes, content, closeHashes := closeHashes? }
 
 /--
 Whether the line at `c` is a thematic break: up to 3 leading spaces, followed by 3+ matching
@@ -245,17 +233,12 @@ def parseFenceOpen? (c : Cursor s) : Option (FenceInfo s × s.Subslice) := do
   guard (count ≥ 3)
   let openFence := subsliceClamped fenceStart cAfterFence.pos
   let (cAfterWs, _) := cAfterFence.advanceWhile fun ch => ch == ' ' || ch == '\t'
-  let infoStart := cAfterWs.pos
-  let infoEnd := trimTrailingWs cAfterWs.toEol
+  let info := trimTrailingWs cAfterWs.toEol
   -- A backtick fence's info string may not contain backticks.
   if fenceChar == .backtick then
-    let mut p := infoStart
-    while h : p < infoEnd do
-      let h' := String.Slice.Pos.ne_endPos_of_lt h
-      guard (p.get h' != '`')
-      p := p.next h'
-  let infoString? : Option s.Subslice :=
-    if infoStart < infoEnd then some (subsliceClamped infoStart infoEnd) else none
+    for ch in info.toSlice do
+      guard (ch != '`')
+  let infoString? : Option s.Subslice := if info.toSlice.isEmpty then none else some info
   return ({ fenceChar, fenceLen := count, openIndent := indent, infoString? }, openFence)
 
 /--

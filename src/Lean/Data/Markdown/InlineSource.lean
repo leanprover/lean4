@@ -139,16 +139,7 @@ public def ofLines (lines : Array s.Subslice) : InlineSource s := Id.run do
   if h : out.size > 0 then
     let lastIdx := out.size - 1
     have hlt : lastIdx < out.size := Nat.sub_one_lt_of_lt h
-    let r := out[lastIdx]
-    let mut stop := r.endExclusive
-    while r.startInclusive < stop do
-      match stop.prev? with
-      | some q =>
-        if r.startInclusive ≤ q && Option.any Char.isWhitespace q.get? then
-          stop := q
-        else break
-      | none => break
-    out := out.set lastIdx (subsliceClamped r.startInclusive stop) hlt
+    out := out.set lastIdx (trimTrailing out[lastIdx] Char.isWhitespace) hlt
   return ⟨out⟩
 
 /--

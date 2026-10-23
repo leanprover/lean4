@@ -93,8 +93,7 @@ def splitConjHyp? (goal : MVarId) (target : Expr) (nm : Name) (φ G : Expr) :
   unless ← hasSubstConjunct φ G do return none
   let newTarget ← mkForallS nm .default a (← mkForallS nm .default b G)
   let k ← liftMetaM <| mkFreshExprSyntheticOpaqueMVar newTarget
-  let andImp ← mkAppNS (← mkConstS ``and_imp) #[a, b, G]
-  goal.assign (← mkAppNS (← mkConstS ``Iff.mpr) #[target, newTarget, andImp, k])
+  goal.assign (mkApp4 (mkConst ``Iff.mpr) target newTarget (mkApp3 (mkConst ``and_imp) a b G) k)
   return some k.mvarId!
 
 /-- Substitute `t` for `x` in `G` in the goal `x = t → G`, leaving `x = t → G[t/x]`. `x` stays in
@@ -106,7 +105,7 @@ def substEqHyp? (goal : MVarId) (nm : Name) (eqn G : Expr) : VCGenM (Option MVar
   let motive ← mkLambdaS (← x.fvarId!.getUserName) .default α body
   let newTarget ← mkForallS nm .default eqn (← instantiateRevBetaS body #[t])
   let k ← liftMetaM <| mkFreshExprSyntheticOpaqueMVar newTarget
-  goal.assign (← mkAppNS (← mkConstS ``Lean.Sym.imp_subst [u]) #[α, x, t, motive, k])
+  goal.assign (mkApp5 (mkConst ``Lean.Sym.imp_subst [u]) α x t motive k)
   trace[Elab.Tactic.Do.vcgen] "subst: {x} := {t}"
   return some k.mvarId!
 

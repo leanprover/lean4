@@ -155,7 +155,8 @@ public def ofSubslice (sub : s.Subslice) : InlineSource s := ⟨#[sub]⟩
 
 /--
 Returns an `InlineSource` whose lines represent the suffix of `src` that starts at position `p`.
-Lines fully before `p` are dropped and the line containing `p` (if any) is trimmed to start at `p`.
+Lines fully before `p` are dropped and the line that contains `p` (if any) is trimmed to start at
+`p`.
 -/
 public def dropUpTo (src : InlineSource s) (p : s.Pos) : InlineSource s := Id.run do
   let mut out : Array s.Subslice := #[]
@@ -174,7 +175,7 @@ A cursor over an `InlineSource`, analogous to a `String.Slice` over a `String`: 
 the position at which the view ends, and the index of the line that contains the current position.
 -/
 public structure InlineCursor (s : String.Slice) where
-  /-- The source being tokenized. -/
+  /-- The source that is being tokenized. -/
   source : InlineSource s
   /--
   The index in `source.lines` of the line that contains `startPos`, or `source.lines.size` if no

@@ -39,7 +39,7 @@ variable {s : String.Slice}
 /--
 Counts tab-aware leading whitespace (CommonMark §2.2): each tab advances to the next 4-column tab
 stop, computed relative to the cursor's current column. Returns the advanced cursor and the total
-number of columns consumed. Tabs are always crossed in full.
+number of columns that it consumes. Tabs are always crossed in full.
 -/
 def countIndentCols (c : Cursor s) : Cursor s × Nat := Id.run do
   let mut c := c
@@ -271,9 +271,9 @@ def parseFenceClose? (c : Cursor s) (info : FenceInfo s) : Option s.Subslice := 
   return subsliceClamped cAtFence.pos cAfterFence.pos
 
 /--
-Parses a single blockquote marker (`>` plus optional space). Returns the marker and a
-cursor positioned just past the consumed prefix (with column adjusted, possibly mid-tab per
-CommonMark §2.2's partial-tab rule).
+Parses a single blockquote marker (`>` plus optional space). Returns the marker and a cursor that is
+positioned just past the consumed prefix (with column adjusted, possibly mid-tab per CommonMark
+§2.2's partial tab rule).
 -/
 def parseBlockquoteMarker? (c : Cursor s) : Option (s.Subslice × Cursor s) := do
   let (c, indent) := countIndentCols c
@@ -301,7 +301,7 @@ A successful list marker match.
 structure ListMarkerMatch (s : String.Slice) where
   /-- The marker itself. -/
   marker : s.Subslice
-  /-- A cursor positioned just past the absorbed prefix. -/
+  /-- A cursor that is positioned just past the absorbed prefix. -/
   after : Cursor s
   /-- The marker's kind.-/
   kind : ListKind
@@ -318,7 +318,7 @@ def parseListMarker? (c : Cursor s) : Option (ListMarkerMatch s) := do
   guard (indent ≤ 3)
   let ch ← c.front?
   -- After matching the marker, compute the listItem's content column. Per
-  -- CommonMark §5.2: 1 ≤ N ≤ 4 cols of whitespace following the marker are
+  -- CommonMark §5.2: 1 ≤ N ≤ 4 cols of whitespace that follow the marker are
   -- absorbed into the listItem prefix; if the line is empty after the marker
   -- or has 5+ cols of whitespace (i.e., the content is itself indented
   -- code), the listItem absorbs only one col of whitespace. Tabs may be
@@ -412,8 +412,8 @@ def parseHtmlBlockStart? (c : Cursor s) : Option HtmlBlockKind := do
     return .completeTag
 
 /--
-Whether a list marker matched at the current cursor is allowed to interrupt an open paragraph
-(CommonMark §5.2):
+Whether a list marker that was matched at the current cursor is allowed to interrupt an open
+paragraph (CommonMark §5.2):
  * An empty list item cannot interrupt a paragraph
  * An ordered list marker can interrupt only if its start number is `1`.
 
@@ -449,9 +449,9 @@ def isInterrupt (c : Cursor s) : Bool :=
 Lines are processed one at a time. A kind of rightward-only zipper is maintained, allowing blocks to
 be added at the lower right of the syntax tree.
 
-Each step of the pipeline is a `ProcessM Unit` named after its description in the CommonMark spec.
-Steps that produce the line's final zipper end the pipeline with `finishLine`, while steps that only
-mutate the in-flight state fall through to the next.
+Each step of the pipeline is a `ProcessM Unit` that is named after its description in the CommonMark
+spec. Steps that produce the line's final zipper end the pipeline with `finishLine`, while steps
+that only mutate the in-flight state fall through to the next.
 -/
 
 /--
@@ -486,9 +486,9 @@ The monad for determining which containers should continue for a given line.
 abbrev ContainerM (s : String.Slice) := EStateM (BlockZipper s) (ContState s)
 
 /-!
-A state read with `get` is shared with the monad, so extending one of the zipper's arrays would copy
-the array. The zipper is changed either inside `modify`, or after `takeState` has taken the state out
-of the monad.
+A state that is read with `get` is shared with the monad, so extending one of the zipper's arrays
+would copy the array. The zipper should be changed only either inside `modify` or after `takeState`
+has taken the state out of the monad.
 -/
 
 /--
@@ -532,7 +532,7 @@ def runContainerM (act : ContainerM s Unit) : ProcessM s Nat := do
 /--
 Traverses the spine, advancing the cursor past the markers of containers that continue. Updates the
 zipper in place (e.g. pushing markers into blockquote frames) and writes `matched`, the number of
-inner spine frames that continued, so subsequent steps can close the rest. The document root
+outermost spine frames that continued, so subsequent steps can close the rest. The document root
 continues implicitly and is not counted.
 -/
 def continueContainers : ContainerM s Unit := do
@@ -552,18 +552,16 @@ def continueContainers : ContainerM s Unit := do
         -- Lists themselves have no continuation marker; their listItem children do.
         st := { st with matched := st.matched + 1, matched_le := h }
       | .listItem _ contentColumn =>
-        if st.cursor.isBlank then
-          -- A blank line continues the list item, and all of its whitespace belongs to the prefix.
+        -- A line that is indented to the item's content column continues the item. A blank line that
+        -- is indented less also continues it, and all of its whitespace is consumed.
+        let (cAfter, consumed) := consumeIndentCapped st.cursor contentColumn
+        if consumed ≥ contentColumn then
+          st := { st with cursor := cAfter, matched := st.matched + 1, matched_le := h }
+        else if st.cursor.isBlank then
           let (afterWhitespace, _) := countIndentCols st.cursor
           st := { st with cursor := afterWhitespace, matched := st.matched + 1, matched_le := h }
         else
-          -- The item continues when `contentColumn` columns of indentation can be consumed, with
-          -- a tab consumed in part when it straddles that column.
-          let (cAfter, consumed) := consumeIndentCapped st.cursor contentColumn
-          if consumed ≥ contentColumn then
-            st := { st with cursor := cAfter, matched := st.matched + 1, matched_le := h }
-          else
-            break
+          break
     else
       break
   set st
@@ -602,9 +600,16 @@ def tryLazyContinuation : ContainerM s Unit := do
   ContainerM.finishLineWith (·.extendParagraph cursor.toEol)
 
 /--
-Closes any spine containers that did not continue on this line. Takes the `matched` count produced
-by the container continuation phase as an argument and closes the suffix of the parents that are
-indicated.
+Closes the open containers that the current line is not part of.
+
+A line is part of an open blockquote when it begins with the blockquote's `>` marker, and part of
+an open list item when it is indented to the item's content column. `continueContainers` consumed
+these prefixes and counted the containers that they belong to in `matched`, from the outermost
+inward. The remaining containers are closed here, innermost first, and the rest of the line is
+parsed inside the innermost container that stays open (CommonMark's phase 1).
+
+A line that lazily continues a paragraph, or that completes a setext heading, is finished before
+this step runs.
 -/
 def closeNonContinuingContainers (matched : Nat) : ProcessM s Unit :=
   modify fun st => { st with zipper := closeAbove st.zipper }
@@ -624,10 +629,11 @@ def consumeFencedCode : ProcessM s Unit := do
   let some (.fencedCode info _ _) := (← get).zipper.openLeaf? | return
   let cursor := (← get).cursor
   match parseFenceClose? cursor info with
-  | some closeFence => finishLineWith (·.closeFencedCode closeFence)
+  | some closeFence => finishLineWith (·.closeFencedCode closeFence |>.recordContentLine)
   | none =>
+    -- A blank line inside fenced code is content, so it is recorded as such.
     let (afterIndent, _) := consumeIndentCapped cursor info.openIndent
-    finishLineWith (·.extendFencedCode afterIndent.verbatimLine)
+    finishLineWith fun z => (z.extendFencedCode afterIndent.verbatimLine).recordContentLine
 
 /--
 An HTML block consumes lines verbatim until its end condition is met (CommonMark §4.6). A line that
@@ -641,31 +647,29 @@ def consumeHtmlBlock : ProcessM s Unit := do
     if cursor.isBlank then
       modify fun st => { st with zipper := st.zipper.closeLeaf }
     else
-      finishLineWith (·.extendHtml cursor.verbatimLine)
+      finishLineWith fun z => (z.extendHtml cursor.verbatimLine).recordContentLine
   else
     let line := cursor.verbatimLine
     if kind.endConditionMet line.source then
-      finishLineWith fun z => (z.extendHtml line).closeLeaf
+      finishLineWith fun z => (z.extendHtml line).closeLeaf.recordContentLine
+    else if cursor.isBlank then
+      finishLineWith fun z => (z.extendHtml line).recordBlankLine
     else
-      finishLineWith (·.extendHtml line)
+      finishLineWith fun z => (z.extendHtml line).recordContentLine
 
 /--
 Indented code consumes 4+-indented lines verbatim and records blank lines provisionally. Any other
 line closes the block and falls through to the remaining steps.
 -/
 def consumeIndentedCode : ProcessM s Unit := do
-  let some (.indentedCode _ pendingBlanks) := (← get).zipper.openLeaf? | return
+  let some (.indentedCode _ _) := (← get).zipper.openLeaf? | return
   let cursor := (← get).cursor
   if cursor.isBlank then
-    finishLineWith (·.indentedCodeAddBlank (indentedCodeLine cursor))
+    finishLineWith fun z => (z.indentedCodeAddBlank (indentedCodeLine cursor)).recordBlankLine
   let (_, indent) := countIndentCols cursor
   if indent ≥ 4 then
-    finishLineWith (·.indentedCodeAddLine (indentedCodeLine cursor))
-  -- The block ends here. Blank lines after its last content line separate it from the block that
-  -- this line begins in the same list item, which makes the list loose (CommonMark §5.3).
-  modify fun st =>
-    let z := st.zipper.closeLeaf
-    { st with zipper := if pendingBlanks.isEmpty then z else z.markLooseAbove 0 }
+    finishLineWith fun z => (z.indentedCodeAddLine (indentedCodeLine cursor)).recordContentLine
+  modify fun st => { st with zipper := st.zipper.closeLeaf }
 
 /--
 If the deepest container is a list whose previous item just closed and this line is non-blank
@@ -749,16 +753,10 @@ def tryBlankLine (openedListItemThisLine : Bool) : ProcessM s Unit := do
         if let .listItem _ _ := lastFrame.container then
           if lastFrame.closedChildren.isEmpty then
             z := z.closeContainer
-    -- The blank line may make a list loose when the deepest open container is a list item (the
-    -- blank line is inside the item's body) or a list (the empty item just closed). A blank line
-    -- inside a blockquote keeps to the blockquote.
-    let topIsListLike :=
-      match z.spine.back?.map (·.container) with
-      | some (.listItem _ _) | some (.list _) => true
-      | _ => false
-    let blankLineFloor? :=
-      if topIsListLike && !openedListItemThisLine then some z.listLikeFloor else none
-    return { z with blankLineFloor? }
+    -- An item may begin with one blank line (CommonMark §5.2). When the marker is alone on its
+    -- line, this is that blank line. It precedes the item's first block instead of separating two
+    -- blocks, so it is recorded like a content line and leaves the list tight.
+    return if openedListItemThisLine then z.recordContentLine else z.recordBlankLine
 
 /-- Parses an ATX heading -/
 def tryAtxHeading : ProcessM s Unit := do

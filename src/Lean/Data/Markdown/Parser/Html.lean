@@ -26,7 +26,7 @@ variable {s : String.Slice}
 ## Tags
 -/
 
-/-- Whether `c` may continue a tag name: an ASCII letter, digit, or hyphen. -/
+/-- Whether `c` may continue an HTML tag name: an ASCII letter, digit, or hyphen. -/
 public def isTagNameChar (c : Char) : Bool := c.isAlphanum || c == '-'
 
 /-- Whether `c` may begin an attribute name: an ASCII letter, `_`, or `:`. -/
@@ -41,14 +41,17 @@ def isUnquotedValueChar (c : Char) : Bool :=
   !(c == ' ' || c == '\t' || c == '\n' || c == '\r' || c == '"' || c == '\'' || c == '=' ||
     c == '<' || c == '>' || c == '`')
 
-/-- Advances past the characters satisfying `p`. -/
+/-- Advances past the characters that satisfy `p`. -/
 def skipChars (cur : InlineCursor s) (p : Char → Bool) : InlineCursor s := Id.run do
   let mut cur := cur
   while cur.front?.any p do
     cur := cur.drop1
   return cur
 
-/-- Advances past spaces, tabs, and up to one line ending, which is the whitespace allowed inside a tag. -/
+/--
+Advances past spaces, tabs, and up to one line ending: the whitespace that CommonMark permits
+inside an HTML tag (§6.6).
+-/
 def skipTagWhitespace (cur : InlineCursor s) : InlineCursor s := Id.run do
   let mut cur := cur
   let mut sawLineEnding := false
@@ -83,7 +86,7 @@ def parseAttributeValue? (cur : InlineCursor s) : Option (InlineCursor s) :=
   | none => none
 
 /--
-Parses an open tag after its `<` at `cur`, which must point at an ASCII letter: the tag name,
+Parses an HTML open tag after its `<` at `cur`, which must point at an ASCII letter: the tag name,
 attributes, optional whitespace, an optional `/`, and `>`. Each attribute is preceded by whitespace.
 Returns the cursor after the `>`.
 -/
@@ -105,8 +108,8 @@ public def parseOpenTag? (cur : InlineCursor s) : Option (InlineCursor s) := do
   none
 
 /--
-Parses a closing tag after its `</` at `cur`: the tag name, optional whitespace, and `>`. Returns the
-cursor after the `>`.
+Parses an HTML closing tag after its `</` at `cur`: the tag name, optional whitespace, and `>`.
+Returns the cursor after the `>`.
 -/
 public def parseClosingTag? (cur : InlineCursor s) : Option (InlineCursor s) := do
   guard <| cur.front?.any Char.isAlpha
@@ -192,9 +195,10 @@ public def isBlockTagName (name : s.Subslice) : Bool :=
   blockTagNames.any (equalsAscii name · (ignoreCase := true))
 
 /--
-Parses a complete open or closing tag after its `<` at `cur`, followed by nothing but spaces and
-tabs, which is the start condition of a complete-tag HTML block (CommonMark §4.6, start condition
-7). Open tags of the raw text elements are excluded. Returns the cursor at the end of the input.
+Parses a complete HTML open or closing tag after its `<` at `cur`, followed by nothing but spaces
+and tabs, which is the start condition of a complete-tag HTML block (CommonMark §4.6, start
+condition 7). Open tags of the raw text elements are excluded. Returns the cursor at the end of the
+input.
 -/
 public def parseCompleteTagLine? (cur : InlineCursor s) : Option (InlineCursor s) := do
   let afterTag ←

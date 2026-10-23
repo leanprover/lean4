@@ -1,4 +1,10 @@
-/-
+module
+import Lean.Data.Markdown
+import all Lean.Data.Markdown.Parser.Inline
+import Lean.Data.Json
+import Std.Data.HashMap
+
+/-!
 Conformance runner for the CommonMark reference test suite.
 
 Usage:
@@ -26,11 +32,6 @@ Obtain the spec source with:
   curl -L -o tests/markdown_conformance/spec.txt \\
     https://raw.githubusercontent.com/commonmark/commonmark-spec/master/spec.txt
 -/
-module
-import Lean.Data.Markdown
-import all Lean.Data.Markdown.Parser.Inline
-import Lean.Data.Json
-import Std.Data.HashMap
 
 open Std
 open Lean.Markdown
@@ -38,16 +39,14 @@ open Lean.Markdown
 /-!
 ## CommonMark HTML rendering (test-only)
 
-A simple HTML renderer for the `Block` tree produced by
-`Lean.Markdown.parseDocument`. This lives inside the
-conformance runner because nothing else in the toolchain needs it: the
-language server emits semantic tokens, not HTML.
+A simple HTML renderer for the `Block` tree that `Lean.Markdown.parseDocument` produces. This lives
+inside the conformance runner because nothing else in the toolchain needs it: the language server
+emits semantic tokens, not HTML.
 
-The renderer aims for byte-identical output with the CommonMark reference
-implementation on the constructs we support, but does not attempt to
-faithfully implement the full spec. It is primarily a conformance-suite
-oracle: feed Markdown to `parseDocument` plus this renderer, compare to
-the expected HTML, and tally divergences.
+The renderer aims for byte-identical output with the CommonMark reference implementation on the
+constructs we support, but does not attempt to faithfully implement the full spec. It is primarily a
+conformance-suite oracle: feed Markdown to `parseDocument` plus this renderer, compare to the
+expected HTML, and tally divergences.
 -/
 
 namespace Lean.Markdown.Html
@@ -73,12 +72,10 @@ private def appendHex2 (out : String) (n : Nat) : String :=
   out.push '%' |>.push (hexDigit (n / 16)) |>.push (hexDigit (n % 16))
 
 /--
-Whether `c` is an ASCII character that should pass through URL
-percent-encoding unchanged. Matches the cmark "safe" set used by
-CommonMark conformance tests: alphanumerics plus the URL-syntax
-punctuation `-_.~!$&'()*+,;=:@/?#`. The `%` character is treated
-specially by the caller to preserve existing percent-encoded sequences;
-brackets `[`/`]` and braces are *not* in the set because cmark
+Whether `c` is an ASCII character that should pass through URL percent-encoding unchanged. Matches
+the cmark "safe" set that CommonMark conformance tests use: alphanumerics plus the URL-syntax
+punctuation `-_.~!$&'()*+,;=:@/?#`. The `%` character is treated specially by the caller to preserve
+existing percent-encoded sequences; brackets `[`/`]` and braces are *not* in the set because cmark
 percent-encodes them in autolink-style URLs.
 -/
 private def isUrlSafe (c : Char) : Bool :=
@@ -285,7 +282,7 @@ partial def renderBlock (b : Block s) : String :=
   | .listItem _ children =>
     -- A `listItem` is normally rendered by its parent list (which knows the
     -- tight/loose flag). The branch here handles the unusual case of a list
-    -- item appearing outside a list.
+    -- item that appears outside a list.
     let inner := children.foldl (init := "") fun acc c => acc ++ renderBlock c
     s!"<li>\n{inner}</li>\n"
   | .linkRefDef .. => ""
@@ -323,7 +320,7 @@ private def detab (s : String) : String :=
   s.replace "→" "\t"
 
 /--
-Whether `line` is a long-backtick fence containing the word `example`. The
+Whether `line` is a long-backtick fence that contains the word `example`. The
 spec uses 32 backticks; a fence of at least 12 is accepted.
 -/
 private def isExampleOpenFence (line : String.Slice) : Bool :=

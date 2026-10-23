@@ -508,8 +508,8 @@ example {v : SemanticTokenType} : open SemanticTokenType in
   cases v <;> native_decide
 
 /--
-The semantic token modifiers included by default in the LSP specification, followed by Lean's own.
-The standard modifiers are available to users extending the Lean server.
+The semantic token modifiers that the LSP specification includes by default, followed by Lean's own.
+The standard modifiers are available to users who extend the Lean server.
 -/
 inductive SemanticTokenModifier where
   | declaration

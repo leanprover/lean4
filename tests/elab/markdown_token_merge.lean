@@ -232,7 +232,7 @@ token, since VS Code does not support multi-line semantic tokens.
 ## Multi-line link reference definitions
 
 A ref-def label may span newlines (CommonMark §4.7) and a title may sit
-on the line following the URL. Both are split at line boundaries so each
+on the line that follows the URL. Both are split at line boundaries so each
 emitted token stays on a single line.
 -/
 
@@ -342,7 +342,7 @@ Inline HTML is inline code, one token per line.
 ## Indented documents
 
 With a nonzero indent, the indentation of the document as a whole is skipped, so a continuation line
-indented by it is text and only lines indented four columns past it are code.
+that is indented by it is text and only lines that are indented four columns past it are code.
 -/
 
 def markupAtIndented (input : String) (indent byteIdx : Nat) : String := Id.run do
@@ -357,7 +357,7 @@ def markupAtIndented (input : String) (indent byteIdx : Nat) : String := Id.run 
 #guard_msgs in #eval
   ["  a\n\n    b", "  a\n\n      c", "a\n\n    b"].zipWith (fun s (i, p) => markupAtIndented s i p) [(2, 9), (2, 11), (0, 7)]
 
--- A fenced code block indented inside an indented document: the code token starts after the
+-- A fenced code block that is indented inside an indented document: the code token starts after the
 -- document's two columns of indentation and the fence's two, so byte 11 (the last of those four
 -- spaces) is untokenized and byte 12 (the first of the line's own two spaces) is code.
 /-- info: ["<none>", "markupCodeBlock"] -/

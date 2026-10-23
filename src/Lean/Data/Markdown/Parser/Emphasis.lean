@@ -51,7 +51,7 @@ deriving Inhabited
 
 /--
 An intermediate token: either a finalized non-emphasis inline, or a raw emphasis delimiter sequence
-awaiting matching.
+that awaits matching.
 -/
 public inductive InlineTok (s : String.Slice) where
   | inline (i : Inline s)
@@ -80,8 +80,8 @@ structure OpenerFrame (s : String.Slice) where
   /-- Original total length of the opening sequence. -/
   origLen : Nat
   /--
-  The number of delimiter characters not yet consumed. The available chars are the leftmost
-  `remaining` chars; matches consume from the right.
+  The number of delimiter characters that have not yet been consumed. The available chars are the
+  leftmost `remaining` chars; matches consume from the right.
   -/
   remaining : Nat
   /-- Whether the original sequence could close. -/
@@ -114,13 +114,13 @@ def bottomKey (seq : DelimSequence s) : Nat :=
   (if seq.ch == '*' then 0 else 6) + (seq.origLen % 3) * 2 + (if seq.canOpen then 1 else 0)
 
 /--
-The state maintained while running CommonMark §6.2's delimiter-matching algorithm: the delimiter
-stack and the inline output.
+The state that is maintained while running CommonMark §6.2's delimiter matching algorithm: the
+delimiter stack and the inline output.
 -/
 structure DelimiterMatchState (s : String.Slice) where
   /-- The delimiter stack: openers whose sequences have not yet been matched, innermost last. -/
   delimiters : Array (OpenerFrame s)
-  /-- The inlines emitted so far, including the text of the openers on the stack. -/
+  /-- The inlines that have been emitted so far, including the text of the openers on the stack. -/
   output : Array (Inline s)
   /--
   For each kind of closer (see `bottomKey`), the stack index below which no opener can match it,
@@ -154,8 +154,8 @@ def emit (inl : Inline s) : DelimM s Unit := modify fun st =>
 
 /--
 Pushes an opener onto the delimiter stack, with its delimiter characters as a text inline in the
-output. Openers popped since the last search leave `openersBottom` bounds above the stack, which are
-lowered to the stack's size.
+output. Openers that were popped since the last search leave `openersBottom` bounds above the stack,
+which are lowered to the stack's size.
 -/
 def openDelimiter (ch : Char) (startPos : s.Pos) (origLen remaining : Nat) (canClose : Bool) :
     DelimM s Unit := modify fun st =>
@@ -181,8 +181,8 @@ Wraps the output after the topmost opener as `.bold` (when `matchLen == 2`) or `
 `matchLen == 1`) using `openDelim`/`closeDelim` as its delimiters, and then either drops the opener
 or shrinks its text to the characters that remain.
 
-Precondition: the delimiter stack is non-empty and its top is the opener chosen to match this closer
-(any unmatched openers above it have already been abandoned).
+Precondition: the delimiter stack is non-empty and its top is the opener that was chosen to match
+this closer (any unmatched openers above it have already been abandoned).
 -/
 def closeMatched (matchLen : Nat) (openDelim closeDelim : s.Subslice) :
     DelimM s Unit := do

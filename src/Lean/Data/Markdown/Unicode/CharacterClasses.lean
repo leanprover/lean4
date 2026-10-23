@@ -23,15 +23,12 @@ CommonMark's flanking rules classify the characters around a `*` or {lit}`_` seq
 punctuation, or other. Whitespace is the Unicode {lit}`Zs` category plus tab, line feed, form feed,
 and carriage return, and punctuation is the Unicode {lit}`P` and {lit}`S` categories. Both
 predicates follow Unicode 18.0.0 exactly.
-
-The two predicates are the only entry points, so that this module can be replaced by Unicode tables
-in core.
 -/
 
 /--
 The characters of the Unicode {lit}`P` and {lit}`S` general categories in Unicode 18.0.0, as 385
 inclusive ranges in increasing order, one per line as two hexadecimal code points. Each range lies
-within one block, and lines starting with `#` are comments.
+within one block, and lines that start with `#` are comments.
 
 The table is a string to keep the {lit}`.olean` file and generated C small.
 -/

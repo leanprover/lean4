@@ -47,12 +47,12 @@ public inductive ListKind where
   | bullet (kind : BulletKind)
   /--
   An ordered list. `start` is the value of the first item; `delim` is the
-  punctuation following the digits.
+  punctuation that follows the digits.
   -/
   | ordered (start : Nat) (delim : OrderedDelim)
 deriving Repr, BEq, Hashable
 
-/-- The fence character used by a fenced code block. -/
+/-- The fence character that a fenced code block uses. -/
 public inductive FenceChar where
   /-- A backtick (`` ` ``) fence. The info string may not contain backticks. -/
   | backtick
@@ -73,7 +73,7 @@ public def toChar : FenceChar → Char
 
 end FenceChar
 
-/-- Information attached to a fenced code block at its opening fence. -/
+/-- Information that is attached to a fenced code block at its opening fence. -/
 public structure FenceInfo (s : String.Slice) where
   /-- The fence character: `` ` `` or `~`. -/
   fenceChar : FenceChar
@@ -188,7 +188,7 @@ public structure RefDef (s : String.Slice) where
   label : Lines s
   /-- The closing `]` of the label. -/
   closeBracket : s.Subslice
-  /-- The `:` separating the label from the destination. -/
+  /-- The `:` that separates the label from the destination. -/
   colon : s.Subslice
   /-- The destination. -/
   destination : LinkDestination s
@@ -212,8 +212,8 @@ public inductive Block.Raw (s : String.Slice) where
   -/
   | atxHeading (level : Nat) (hashes : s.Subslice) (content : s.Subslice) (closeHashes? : Option s.Subslice)
   /--
-  A setext heading (CommonMark §4.3): one or more lines of paragraph text followed by an `underline`
-  (`===` for level 1, `---` for level 2).
+  A setext heading (CommonMark §4.3): one or more lines of paragraph text that are followed by an
+  `underline` (`===` for level 1, `---` for level 2).
   -/
   | setextHeading (level : Nat) (lines : Array s.Subslice) (underline : s.Subslice)
   /--
@@ -224,8 +224,8 @@ public inductive Block.Raw (s : String.Slice) where
   | fencedCode (info : FenceInfo s) (openFence : s.Subslice) (closeFence? : Option s.Subslice)
     (lines : Array (VerbatimLine s))
   /--
-  An indented code block: a sequence of lines indented four or more columns, which exclude those
-  four columns.
+  An indented code block: a sequence of lines that are indented four or more columns. The verbatim
+  lines exclude the four column indentation.
   -/
   | indentedCode (lines : Array (VerbatimLine s))
   /-- An HTML block (CommonMark §4.6), which has at least one line. -/
@@ -242,8 +242,8 @@ public inductive Block.Raw (s : String.Slice) where
   -/
   | list (kind : ListKind) (tight : Bool) (items : Array (Block.Raw s))
   /--
-  A list item. `marker` is the bullet or ordered marker, and `children` are the blocks
-  contained inside the item.
+  A list item. `marker` is the bullet or ordered marker, and `children` are the blocks that
+  the item contains.
   -/
   | listItem (marker : s.Subslice) (children : Array (Block.Raw s))
   /--
@@ -300,8 +300,8 @@ public inductive LinkTarget (s : String.Slice) where
   /--
   A reference target: `definition` is the link reference definition that the label resolved to, and
   `label` is the label's text: the interior of the second bracket pair in full form, and the link's
-  text in collapsed and shortcut form. In Markdown, unresolvable references never produce a
-  `link`/`image`; instead, the surrounding bracket characters fall through to plain text.
+  text in collapsed and shortcut form. A reference whose label doesn't match any definition is
+  plain text, brackets included, so every reference link has a definition.
   -/
   | reference (definition : RefDef s) (label : Lines s) (form : ReferenceLinkForm s)
 deriving Inhabited
@@ -501,6 +501,12 @@ def span? (rs : Array s.Subslice) : Option s.Subslice := do
   let last ← rs.back?
   return span first last
 
+/-- The subslice from the start of the first line's source to the end of the last's, if there are any. -/
+def VerbatimLine.span? (lines : Array (VerbatimLine s)) : Option s.Subslice := do
+  let first ← lines[0]?
+  let last ← lines.back?
+  return span first.source last.source
+
 /--
 The whole block, from its first delimiter to the end of its last line.
 -/
@@ -515,8 +521,7 @@ public partial def Block.extent? : Block s → Option s.Subslice
   | .fencedCode _ openFence closeFence? lines =>
     let stop := closeFence?.map (·.endExclusive) <|> lines.back?.map (·.source.endExclusive)
     some (subsliceClamped openFence.startInclusive (stop.getD openFence.endExclusive))
-  | .indentedCode lines => span? (lines.map (·.source))
-  | .html lines => span? (lines.map (·.source))
+  | .indentedCode lines | .html lines => VerbatimLine.span? lines
   | .blockquote markers children => do
     let first ← markers[0]?
     let last ← markers.back?

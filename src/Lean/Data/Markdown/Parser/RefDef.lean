@@ -9,6 +9,7 @@ prelude
 public import Init.While
 public import Lean.Data.Markdown.Basic
 public import Lean.Data.Markdown.InlineSource
+import Lean.Data.Markdown.Text
 
 namespace Lean.Markdown
 
@@ -23,11 +24,10 @@ front of paragraphs: at a setext heading underline, and after the block structur
 variable {s : String.Slice}
 
 /--
-Parses the content of a link label (CommonMark §6.3) at `cur`, which is positioned just
-after the `[`.
-Newlines are permitted inside the label so long as no blank line appears, and unescaped brackets are
-not. The label must contain at least one non-whitespace character and at most 999 characters.
-Returns the label's lines and the cursor positioned at the closing `]`.
+Parses the content of a link label (CommonMark §6.3) at `cur`, which is positioned just after the
+`[`. A label may span lines, but blank lines and unescaped brackets are not permitted inside it, and
+it must contain at least one non-whitespace character and at most 999 characters. Returns the
+label's lines and the cursor, which is positioned at the closing `]`.
 -/
 public def parseLinkLabel? (cur : InlineCursor s) : Option (Lines s × InlineCursor s) := do
   let labelStart := cur.startPos
@@ -38,7 +38,7 @@ public def parseLinkLabel? (cur : InlineCursor s) : Option (Lines s × InlineCur
   while len < 1000 do
     let some c := cur.front? | break
     let curNext := cur.drop1
-    if c == '\\' && !curNext.isEmpty then
+    if c == '\\' && curNext.front?.any isAsciiPunctuation then
       sawNonWs := true
       sawNewline := false
       cur := curNext.drop1
@@ -63,8 +63,8 @@ public def parseLinkLabel? (cur : InlineCursor s) : Option (Lines s × InlineCur
 
 /--
 Parses the destination of a link reference definition at the head of `cur`, in the
-bracketed `<url>` or unbracketed form. Returns the destination and the cursor positioned just past
-it. Fails
+bracketed `<url>` or unbracketed form. Returns the destination and the cursor, which is positioned
+just past it. Fails
 on an unclosed `<`, an empty destination, unbalanced parens, or an embedded `\n`.
 -/
 def parseRefDefUrl? (cur : InlineCursor s) : Option (LinkDestination s × InlineCursor s) := do
@@ -78,7 +78,7 @@ def parseRefDefUrl? (cur : InlineCursor s) : Option (LinkDestination s × Inline
     while !cur.isEmpty && closeAngle?.isNone do
       let c := cur.front
       let curNext := cur.drop1
-      if c == '\\' && !curNext.isEmpty then
+      if c == '\\' && curNext.front?.any isAsciiPunctuation then
         cur := curNext.drop1
       else if c == '>' then
         closeAngle? := cur.charSubslice?
@@ -100,7 +100,7 @@ def parseRefDefUrl? (cur : InlineCursor s) : Option (LinkDestination s × Inline
     while !cur.isEmpty do
       let c := cur.front
       let curNext := cur.drop1
-      if c == '\\' && !curNext.isEmpty then
+      if c == '\\' && curNext.front?.any isAsciiPunctuation then
         cur := curNext.drop1
       else if c == ' ' || c == '\t' || c == '\n' then
         break
@@ -150,7 +150,7 @@ def consumeRefDefLineEnd (cur : InlineCursor s) : Option (InlineCursor s) := do
   none
 
 /--
-Tries to consume an optional title following the destination of a link reference definition, plus
+Tries to consume an optional title that follows the destination of a link reference definition, plus
 any trailing whitespace and the line's `\n`. Returns the title and the cursor past the trailing `\n`
 (or end-of-buffer).
 
@@ -195,7 +195,7 @@ def parseRefDefTitle? (cur : InlineCursor s) : Option (LinkTitle s × InlineCurs
     let c := tt.front
     let curPos := tt.startPos
     let ttNext := tt.drop1
-    if c == '\\' && !ttNext.isEmpty then
+    if c == '\\' && ttNext.front?.any isAsciiPunctuation then
       tt := ttNext.drop1
       lastWasNewline := false
     else if c == closer then
@@ -221,10 +221,10 @@ def parseRefDefTitle? (cur : InlineCursor s) : Option (LinkTitle s × InlineCurs
   return (title, afterEol)
 
 /--
-Tries to parse a CommonMark link reference definition starting at `start` in `source`. Recognizes
+Tries to parse a CommonMark link reference definition that starts at `start` in `source`. Recognizes
 both bracketed `<url>` and unbracketed link destinations, and optional `"…"`/`'…'`/`(…)` titles
-(which may appear on the line following the URL). The label may span multiple lines, but no blank
-line is permitted inside it.
+(which may appear on the line that follows the URL). The label may span multiple lines, but blank
+lines are not permitted inside it.
 
 Returns the definition plus the position one past the last consumed character.
 -/

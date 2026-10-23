@@ -15,10 +15,10 @@ namespace Lean.Markdown
 variable {s : String.Slice}
 
 /--
-Parses the inline content of the blocks identified in a Markdown document using `parseInlines`. This
-is the second pass of the algorithm suggested in the CommonMark specification. Two passes are
-necessary because the presence of a link definition later in the document affects the syntactic
-interpretation of reference-style links earlier in the document.
+Parses the inline content of the blocks that were identified in a Markdown document using
+`parseInlines`. This is the second pass of the algorithm suggested in the CommonMark specification.
+Two passes are necessary because the presence of a link definition later in the document affects the
+syntactic interpretation of reference-style links earlier in the document.
 -/
 partial def parseInlinesInBlock (refs : RefTable s) : Block.Raw s → Block s
   | .paragraph lines =>
@@ -47,7 +47,7 @@ partial def parseInlinesInBlock (refs : RefTable s) : Block.Raw s → Block s
 /--
 Parses `s` as a Markdown document. Up to `indent` leading spaces of each line are skipped.
 
-This parser is based on the two-pass algorithm specified in the CommonMark specification.
+This parser is based on the two-pass algorithm that the CommonMark specification describes.
 -/
 public def parseDocument (s : String.Slice) (indent : Nat := 0) : Array (Block s) :=
   let blocks := parseBlocks s indent

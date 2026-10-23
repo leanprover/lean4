@@ -17,9 +17,6 @@ This module implements Unicode full case folding, as specified by the entries wi
 and Coptic block, together with every character elsewhere whose folding consists of characters from
 those blocks, such as `Ÿ`, `ẞ`, the Kelvin sign, and the ligature `ﬁ`. Every other character folds
 to itself.
-
-`caseFold` is the only entry point, so that this module can be replaced by Unicode tables in the
-future.
 -/
 
 /-- Whether `c` is between `lo` and `hi`, inclusive. -/

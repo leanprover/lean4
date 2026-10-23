@@ -52,6 +52,10 @@ def showParagraph (src : String) : String :=
 /-- info: "text⟪a⟫ hardBreak⟪  ⟫ text⟪b⟫" -/
 #guard_msgs in #eval showParagraph "a  \nb"
 
+-- Spaces before a soft break are removed (CommonMark §6.8); a tab is text.
+/-- info: "text⟪z\t⟫ softBreak text⟪b⟫" -/
+#guard_msgs in #eval showParagraph "z\t\nb"
+
 /-- info: "text⟪\\a ⟫ escape⟪\\⟫ text⟪ ⟫ escape⟪&⟫ text⟪amp;⟫" -/
 #guard_msgs in #eval showParagraph "\\a \\\\ \\&amp;"
 
@@ -61,8 +65,8 @@ def showParagraph (src : String) : String :=
 /-!
 ## Emphasis with leftover delimiters
 
-An opener left over after part of its sequence matched a closer keeps the sequence's original length
-due to rule 9 of CommonMark §6.2.
+An opener that is left over after part of its sequence matched a closer keeps the sequence's
+original length due to rule 9 of CommonMark §6.2.
 -/
 
 /-- info: "italic[text⟪a⟫] text⟪*⟫ italic[text⟪b⟫]" -/
@@ -120,7 +124,7 @@ Tags, comments, processing instructions, declarations, and CDATA sections are ra
 /-- info: "html⟪<a href=u>⟫ html⟪<br/>⟫" -/
 #guard_msgs in #eval showParagraph "<a href=u><br/>"
 
--- A tag continuing onto the next line has one subslice per source line.
+-- A tag that continues onto the next line has one subslice per source line.
 /-- info: "html⟪<a\nhref=\"u\">⟫" -/
 #guard_msgs in #eval showParagraph "<a\nhref=\"u\">"
 
@@ -145,6 +149,10 @@ def hasEmphasis (src : String) : Bool :=
 
 /-- info: "text⟪*£*bravo⟫" -/
 #guard_msgs in #eval showParagraph "*£*bravo"
+
+-- A currency sign outside the Basic Multilingual Plane is punctuation too.
+/-- info: "text⟪*𞋿*a⟫" -/
+#guard_msgs in #eval showParagraph "*𞋿*a"
 
 /-- info: "italic[text⟪α⟫] text⟪β⟫" -/
 #guard_msgs in #eval showParagraph "*α*β"
@@ -327,8 +335,9 @@ def showDocument (src : String) (indent : Nat) : List String :=
 /-- info: ["heading⟪text⟪h⟫⟫", "indentedCode#[\"## h2\"]"] -/
 #guard_msgs in #eval showDocument "# h\n    ## h2" 0
 
--- An indented document with a continuation line indented less than four more columns, an indented
--- code block, and a list item whose continuation and second paragraph are indented to its content.
+-- An indented document with a continuation line that is indented less than four more columns, an
+-- indented code block, and a list item whose continuation and second paragraph are indented to its
+-- content.
 /--
 info: ["paragraph⟪text⟪Intro⟫ softBreak text⟪continued⟫⟫", "indentedCode#[\"code line\", \"  more code\"]",
  "looseList[item[paragraph⟪text⟪item⟫ softBreak text⟪item continued⟫⟫, paragraph⟪text⟪item paragraph⟫⟫]]"]
@@ -336,7 +345,8 @@ info: ["paragraph⟪text⟪Intro⟫ softBreak text⟪continued⟫⟫", "indented
 #guard_msgs in #eval showDocument
   "    Intro\n      continued\n\n        code line\n          more code\n\n    - item\n      item continued\n\n      item paragraph\n" 4
 
--- Indentation is counted in spaces; a line indented less than `indent` loses only its own spaces.
+-- Indentation is counted in spaces; a line that is indented less than `indent` loses only its own
+-- spaces.
 /-- info: ["heading⟪text⟪h⟫⟫", "paragraph⟪text⟪p⟫⟫"] -/
 #guard_msgs in #eval showDocument "  # h\n\n    p" 4
 
@@ -381,6 +391,29 @@ line, any marker starts a list.
 -- After a blockquote that did not continue, likewise.
 /-- info: ["blockquote[paragraph⟪text⟪a⟫⟫]", "list[item[paragraph⟪text⟪b⟫⟫]]"] -/
 #guard_msgs in #eval showDocument "> a\n5. b\n" 0
+
+/-!
+## Lazy continuation lines
+
+A line that lazily continues a paragraph has its leading whitespace removed (CommonMark §4.8), also
+when the paragraph so far ends with a hard break or consists of link reference definitions.
+-/
+
+/-- info: ["blockquote[paragraph⟪hardBreak⟪\\⟫ text⟪e⟫⟫]"] -/
+#guard_msgs in #eval showDocument ">\\\n e\n" 0
+
+/-- info: ["blockquote[refDef, paragraph⟪text⟪b⟫⟫]"] -/
+#guard_msgs in #eval showDocument ">[r]:u\n b\n" 0
+
+/-!
+## Blank lines after an empty item
+
+An item whose marker is alone on its line ends at the next line when that line is blank, whatever
+its indentation (CommonMark §5.2).
+-/
+
+/-- info: ["list[item[]]", "paragraph⟪text⟪o⟫⟫"] -/
+#guard_msgs in #eval showDocument "-\n  \n  o\n" 0
 
 /-!
 ## List tightness
@@ -428,6 +461,28 @@ A list is loose when two blocks of one of its items are separated by a blank lin
 /-- info: ["looseList[item[paragraph⟪text⟪a⟫⟫, blockquote[paragraph⟪text⟪b⟫⟫]]]"] -/
 #guard_msgs in #eval showDocument "- a\n\n  > b\n" 0
 
+-- A thematic break is a block of the item, so a blank line after it separates it from the
+-- paragraph that follows.
+/-- info: ["looseList[item[other, paragraph⟪text⟪o⟫⟫]]"] -/
+#guard_msgs in #eval showDocument "-\n  ---\n\n  o\n" 0
+
+-- A blank line that an indented code block or an HTML block consumes still separates list items,
+-- unless the block continues after it, as in cmark. A blank line inside fenced code is content.
+/-- info: ["looseList[item[indentedCode#[\"code\"]], item[paragraph⟪text⟪b⟫⟫]]"] -/
+#guard_msgs in #eval showDocument "-     code\n\n- b\n" 0
+
+/-- info: ["list[item[indentedCode#[\"a\", \"\", \"b\"], paragraph⟪text⟪c⟫⟫]]"] -/
+#guard_msgs in #eval showDocument "-     a\n\n      b\n  c\n" 0
+
+/-- info: ["looseList[item[html#[\"<!--\", \"\"]], item[paragraph⟪text⟪b⟫⟫]]"] -/
+#guard_msgs in #eval showDocument "- <!--\n\n- b\n" 0
+
+/-- info: ["list[item[html#[\"<!--\", \"\", \"-->\"], paragraph⟪text⟪c⟫⟫]]"] -/
+#guard_msgs in #eval showDocument "- <!--\n\n  -->\n  c\n" 0
+
+/-- info: ["list[item[fencedCode#[\"\"]], item[paragraph⟪text⟪b⟫⟫]]"] -/
+#guard_msgs in #eval showDocument "- ```\n\n  ```\n- b\n" 0
+
 /-!
 ## Link titles
 
@@ -441,10 +496,29 @@ A parenthesized title may contain `(` and `)` only backslash-escaped (CommonMark
 #guard_msgs in #eval titleParts "[a](/u (x\\(y))"
 
 /-!
+## Backslashes in labels, destinations, and titles
+
+A backslash escapes the ASCII punctuation character after it (CommonMark §2.4). Before any other
+character it is an ordinary character, so it neither hides a space or line ending nor spans one.
+-/
+
+/-- info: "text⟪[a](/u\\ v)⟫" -/
+#guard_msgs in #eval showParagraph "[a](/u\\ v)"
+
+/-- info: ["refDef", "paragraph⟪text⟪`⟫⟫"] -/
+#guard_msgs in #eval showDocument "[r]:\n\\\n`\n" 0
+
+/-- info: ["list[item[paragraph⟪text⟪[r]:⟫ softBreak text⟪\\ b⟫⟫]]"] -/
+#guard_msgs in #eval showDocument "1. [r]:\n\\ b\n" 0
+
+/-- info: ["paragraph⟪text⟪[a\\⟫⟫", "paragraph⟪text⟪b]: /u⟫⟫"] -/
+#guard_msgs in #eval showDocument "[a\\\n\nb]: /u\n" 0
+
+/-!
 ## Canceled setext headings
 
-A setext heading whose text is nothing but link reference definitions is no heading. Its underline
-is paragraph text, which the following paragraph or setext heading continues.
+A setext heading whose text is nothing but link reference definitions is not a heading. Its
+underline is paragraph text, which the following paragraph or setext heading continues.
 -/
 
 /-- info: ["refDef", "setext⟪text⟪===⟫ softBreak text⟪bar⟫⟫"] -/
@@ -464,12 +538,16 @@ is paragraph text, which the following paragraph or setext heading continues.
 /-- info: ["refDef", "paragraph⟪text⟪=⟫⟫", "paragraph⟪text⟪]⟫⟫"] -/
 #guard_msgs in #eval showDocument "[o]:l\n=\n\n]\n" 0
 
+-- A backslash is a non-whitespace character of a label, whatever it escapes.
+/-- info: ["refDef", "paragraph⟪link[text⟪\\ ⟫]⟫"] -/
+#guard_msgs in #eval showDocument "[\\ ]: /url\n\n[\\ ]\n" 0
+
 /-!
 ## Tabs in verbatim blocks
 
 A tab ends inside a container prefix or a block's indentation when the columns it spans straddle
 that boundary (CommonMark §2.2). The remaining columns of the tab are leading spaces of the line in
-code blocks and HTML blocks. On a blank line, a list item's prefix takes all of the line's whitespace.
+code blocks and HTML blocks, on blank lines too, as in cmark.
 -/
 
 -- After `1.`, the content column is 3, so a tab leaves one column; after `*`, two.
@@ -482,19 +560,19 @@ code blocks and HTML blocks. On a blank line, a list item's prefix takes all of 
 /-- info: ["list[item[indentedCode#[\"  foo\"]]]"] -/
 #guard_msgs in #eval showDocument "-\t\tfoo\n" 0
 
--- A fence indented one column takes one column of a tab on each content line.
+-- A fence that is indented one column takes one column of a tab on each content line.
 /-- info: ["fencedCode#[\"   \"]"] -/
 #guard_msgs in #eval showDocument " ```\n\t\n```\n" 0
 
--- A blank line in a list item has no content left for the code block.
-/-- info: ["list[item[fencedCode#[\"\"]]]"] -/
+-- A blank line in a list item keeps the remaining column of its tab.
+/-- info: ["list[item[fencedCode#[\" \"]]]"] -/
 #guard_msgs in #eval showDocument "1) ~~~\n\t\n   ~~~\n" 0
 
 -- A tab that begins after the indentation is content, even at a column that is no tab stop.
 /-- info: ["looseList[item[paragraph⟪text⟪x⟫⟫, indentedCode#[\"\\tfoo\"]]]"] -/
 #guard_msgs in #eval showDocument "1. x\n\n       \tfoo\n" 0
 
--- Indentation that continues past a partly consumed tab leaves no tab columns for the line.
+-- Indentation that continues past a partly consumed tab uses up the tab's remaining columns.
 /-- info: ["list[item[indentedCode#[\".\"]]]"] -/
 #guard_msgs in #eval showDocument "+\n\t  .\n" 0
 
@@ -533,8 +611,8 @@ info: ["paragraph⟪text⟪para⟫⟫", "html#[\"<div>\", \"*not emphasis*\"]", 
 -/
 #guard_msgs in #eval showDocument "para\n<div>\n*not emphasis*\n\n*emphasis*\n</div>\n" 0
 
--- A complete tag on a line of its own starts a block, except after a paragraph line; a tag followed
--- by other text is inline HTML.
+-- A complete tag on a line of its own starts a block, except after a paragraph line; a tag that is
+-- followed by other text is inline HTML.
 /--
 info: ["paragraph⟪text⟪para⟫ softBreak html⟪<span>⟫⟫", "html#[\"<span class='x'>  \", \"text\"]",
  "paragraph⟪html⟪<span>⟫ text⟪ text⟫⟫"]

@@ -58,8 +58,8 @@ public structure ZipperFrame (s : String.Slice) where
   -/
   closedChildren : Array (Block.Raw s) := #[]
   /--
-  For list frames: set when a blank line followed by more content in this list has been observed
-  during parsing.
+  For list frames: set when a blank line that is followed by more content in this list has been
+  observed during parsing.
   -/
   loose : Bool := false
 deriving Inhabited
@@ -67,8 +67,8 @@ deriving Inhabited
 /-- A leaf block that is currently open and may still accept additional source lines. -/
 public inductive OpenLeaf (s : String.Slice) where
   /--
-  An open paragraph being extended line by line. Closing the paragraph (because of a blank line, a
-  new block opener, or the parent container closing) finalizes it as `Block.Raw.paragraph`.
+  An open paragraph that is being extended line by line. Closing the paragraph (because of a blank
+  line, a new block opener, or the parent container closing) finalizes it as `Block.Raw.paragraph`.
   -/
   | paragraph (lines : Array s.Subslice)
   /--
@@ -80,11 +80,12 @@ public inductive OpenLeaf (s : String.Slice) where
   /--
   An open indented code block.
 
-  - `lines` are the content lines committed so far, after the four columns of indentation.
+  - `lines` are the content lines that have been committed so far, after the four columns of
+    indentation.
   - `pendingBlanks` records blank lines that may belong to this block: they are promoted to `lines`
     when a subsequent indented line continues the block, and discarded when an unindented non-blank
     line closes the block. This matches CommonMark's rule that blank lines between indented chunks
-    are part of the code block, but blank lines following the final chunk are not.
+    are part of the code block, but blank lines that follow the final chunk are not.
   -/
   | indentedCode (lines : Array (VerbatimLine s)) (pendingBlanks : Array (VerbatimLine s))
   /--
@@ -178,10 +179,32 @@ public def listLikeFloor (z : BlockZipper s) : Nat := Id.run do
   return 0
 
 /--
+Records a blank line in the deepest open container.
+
+A blank line between two blocks of a list item, or between two items, makes the list loose
+(CommonMark §5.3). Which list that is depends on where the next block begins, so the blank line is
+remembered until then, along with the outermost list it could affect. A blank line inside a
+blockquote affects only the blockquote's own content.
+-/
+public def recordBlankLine (z : BlockZipper s) : BlockZipper s :=
+  let topIsListLike :=
+    match z.spine.back?.map (·.container) with
+    | some (.listItem _ _) | some (.list _) => true
+    | _ => false
+  { z with blankLineFloor? := if topIsListLike then some z.listLikeFloor else none }
+
+/--
+Records a line that continues the open block. Any blank line before it was inside that block
+instead of between two blocks, so it doesn't make any list loose.
+-/
+public def recordContentLine (z : BlockZipper s) : BlockZipper s :=
+  { z with blankLineFloor? := none }
+
+/--
 Marks a list as loose (CommonMark §5.3) when the deepest open container is a list item or a list at
 index `floor` or deeper: a blank line separates the blocks of that item, or the items of that list.
 -/
-public def markLooseAbove (z : BlockZipper s) (floor : Nat) : BlockZipper s :=
+def markLooseAbove (z : BlockZipper s) (floor : Nat) : BlockZipper s :=
   let top := z.spine.size - 1
   if z.spine.isEmpty || top < floor then z
   else
@@ -256,8 +279,8 @@ public def closeFencedCode (z : BlockZipper s) (closeFence : s.Subslice) : Block
   | _ => z
 
 /--
-Appends an indented content line to the open indented code block. Any pending blanks recorded since
-the last content line are promoted to real content lines first.
+Appends an indented content line to the open indented code block. Any pending blanks that were
+recorded since the last content line are promoted to real content lines first.
 -/
 public def indentedCodeAddLine (z : BlockZipper s) (line : VerbatimLine s) : BlockZipper s :=
   z.modifyLeaf fun

@@ -378,8 +378,8 @@ private def MarkupAttrs.modifiers (a : MarkupAttrs) : List SemanticTokenModifier
   ⟨r.startInclusive.str.offset, r.endExclusive.str.offset⟩
 
 /--
-Pushes a `LeanSemanticToken` for `r`, which is on a single source line. An empty `r` produces no
-token.
+Pushes a `LeanSemanticToken` for `r`, which is on a single source line. Does nothing when `r` is
+empty.
 -/
 @[inline] private def pushTok (out : Array LeanSemanticToken) (r : s.Subslice)
     (tokenType : SemanticTokenType) (priority : Nat := 5)

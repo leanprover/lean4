@@ -62,13 +62,6 @@ variable {s : String.Slice}
   subsliceClamped c.pos c.stop
 
 /--
-Moves the cursor to position `p` and column `newCol`. The caller is responsible for ensuring that
-`p` is between `c.pos` and `c.stop` and that `newCol` is the column of `p`.
--/
-@[inline] public def moveTo (c : Cursor s) (p : s.Pos) (newCol : Nat) : Cursor s :=
-  { c with pos := p, col := newCol, partialTab := false }
-
-/--
 Consumes `cols` columns of the tab at the cursor, leaving the position at the tab (CommonMark §2.2's
 partial-tab rule). The caller is responsible for ensuring that the tab has that many columns left.
 -/
@@ -90,8 +83,8 @@ one, which is correct for every character but a tab; for tabs use `countIndentCo
   else c
 
 /--
-Advances the cursor over the longest prefix of characters satisfying `pred`, returning the resulting
-cursor and the number of characters consumed.
+Advances the cursor over the longest prefix of characters that satisfy `pred`, returning the
+resulting cursor and the number of characters that it consumes.
 
 The column is incremented by the consumed count, which is correct only when `pred` rejects the tab
 character (each matched char then advances the column by exactly one). For tab-aware whitespace

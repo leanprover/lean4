@@ -18,7 +18,7 @@ class MonadCache (α β : Type) (m : Type → Type) where
 
 /-- If entry `a := b` is already in the cache, then return `b`.
     Otherwise, execute `b ← f ()`, store `a := b` in the cache and return `b`. -/
-@[always_inline, inline]
+@[always_inline]
 def checkCache {α β : Type} {m : Type → Type} [MonadCache α β m] [Monad m] (a : α) (f : Unit → m β) : m β := do
   match (← MonadCache.findCached? a) with
   | some b => pure b
@@ -44,12 +44,12 @@ class MonadHashMapCacheAdapter (α β : Type) (m : Type → Type) [BEq α] [Hash
 
 namespace MonadHashMapCacheAdapter
 
-@[always_inline, inline]
+@[always_inline]
 def findCached? {α β : Type} {m : Type → Type} [BEq α] [Hashable α] [Monad m] [MonadHashMapCacheAdapter α β m] (a : α) : m (Option β) := do
   let c ← getCache
   pure (c.get? a)
 
-@[always_inline, inline]
+@[always_inline]
 def cache {α β : Type} {m : Type → Type} [BEq α] [Hashable α] [MonadHashMapCacheAdapter α β m] (a : α) (b : β) : m Unit :=
   modifyCache fun s => s.insert a b
 
@@ -93,7 +93,7 @@ instance  : MonadHashMapCacheAdapter α β (MonadStateCacheT α β m) where
   getCache := (get : StateT ..)
   modifyCache f := (modify f : StateT ..)
 
-@[always_inline, inline] def run {σ} (x : MonadStateCacheT α β m σ) : m σ :=
+@[always_inline] def run {σ} (x : MonadStateCacheT α β m σ) : m σ :=
   x.run' ∅
 
 instance : Monad (MonadStateCacheT α β m) := inferInstanceAs (Monad (StateT _ _))

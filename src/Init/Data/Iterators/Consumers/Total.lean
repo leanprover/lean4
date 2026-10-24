@@ -27,7 +27,7 @@ structure Iter.Total {α : Type w} (β : Type w) where
 For an iterator {name}`it`, {lean}`it.ensureTermination` provides variants of consumers that always
 terminate.
 -/
-@[always_inline, inline]
+@[always_inline]
 def Iter.ensureTermination {α : Type w} {β : Type w}
     (it : Iter (α := α) β) :
   Iter.Total (α := α) β :=

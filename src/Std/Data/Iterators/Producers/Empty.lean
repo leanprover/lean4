@@ -20,7 +20,7 @@ Returns an iterator that terminates immediately.
 * `Finite` instance: always
 * `Productive` instance: always
 -/
-@[always_inline, inline]
+@[always_inline]
 def Iter.empty (β : Type w) :=
   ((IterM.empty Id β).toIter : Iter β)
 

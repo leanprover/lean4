@@ -36,7 +36,7 @@ it.take 3   ---a--⊥
 
 This combinator incurs an additional O(1) cost with each output of `it`.
 -/
-@[cbv_opaque, always_inline, inline]
+@[cbv_opaque, always_inline]
 def Iter.take {α : Type w} {β : Type w} [Iterator α Id β] (n : Nat) (it : Iter (α := α) β) :
     Iter (α := Take α Id) β :=
   it.toIterM.take n |>.toIter
@@ -63,7 +63,7 @@ it.toTake   ---a----b---c--d-e--⊥
 
 This combinator incurs an additional O(1) cost with each output of `it`.
 -/
-@[always_inline, inline]
+@[always_inline]
 def Iter.toTake {α : Type w} {β : Type w} [Iterator α Id β] [Finite α Id] (it : Iter (α := α) β) :
     Iter (α := Take α Id) β :=
   it.toIterM.toTake.toIter

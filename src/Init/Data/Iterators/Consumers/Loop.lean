@@ -35,7 +35,7 @@ A `ForIn'` instance for iterators. Its generic membership relation is not easy t
 so this is not marked as `instance`. This way, more convenient instances can be built on top of it
 or future library improvements will make it more comfortable.
 -/
-@[always_inline, inline, expose, instance_reducible]
+@[always_inline, expose, instance_reducible]
 def Iter.instForIn' {α : Type w} {β : Type w} {n : Type x → Type x'} [Monad n]
     [Iterator α Id β] [IteratorLoop α Id n] :
     ForIn' n (Iter (α := α) β) β ⟨fun it out => it.IsPlausibleIndirectOutput out⟩ where
@@ -53,7 +53,7 @@ instance (α : Type w) (β : Type w) (n : Type x → Type x') [Monad n]
 /--
 An implementation of `for h : ... in ... do ...` notation for partial iterators.
 -/
-@[always_inline, inline, expose, instance_reducible]
+@[always_inline, expose, instance_reducible]
 def Iter.Partial.instForIn' {α : Type w} {β : Type w} {n : Type x → Type x'} [Monad n]
     [Iterator α Id β] [IteratorLoop α Id n] :
     ForIn' n (Iter.Partial (α := α) β) β ⟨fun it out => it.it.IsPlausibleIndirectOutput out⟩ where
@@ -71,7 +71,7 @@ instance (α : Type w) (β : Type w) (n : Type x → Type x') [Monad n]
 A `ForIn'` instance for iterators that is guaranteed to terminate after finitely many steps.
 It is not marked as an instance because the membership predicate is difficult to work with.
 -/
-@[always_inline, inline, expose, instance_reducible]
+@[always_inline, expose, instance_reducible]
 def Iter.Total.instForIn' {α : Type w} {β : Type w} {n : Type x → Type x'} [Monad n]
     [Iterator α Id β] [IteratorLoop α Id n] [Finite α Id] :
     ForIn' n (Iter.Total (α := α) β) β ⟨fun it out => it.it.IsPlausibleIndirectOutput out⟩ where
@@ -104,7 +104,7 @@ The accumulated value is combined with the each element of the list in order, us
 
 It is equivalent to `it.toList.foldlM`.
 -/
-@[always_inline, inline]
+@[always_inline]
 def Iter.foldM {m : Type x → Type x'} [Monad m]
     {α : Type w} {β : Type w} {γ : Type x} [Iterator α Id β]
     [IteratorLoop α Id m] (f : γ → β → m γ)
@@ -120,7 +120,7 @@ It is equivalent to `it.toList.foldlM`.
 This variant terminates after finitely many steps and requires a proof that the iterator is
 finite. If such a proof is not available, consider using `Iter.foldM`.
 -/
-@[always_inline, inline]
+@[always_inline]
 def Iter.Total.foldM {m : Type x → Type x'} [Monad m]
     {α : Type w} {β : Type w} {γ : Type x} [Iterator α Id β]
     [IteratorLoop α Id m] [Finite α Id] (f : γ → β → m γ)
@@ -133,7 +133,7 @@ The accumulated value is combined with the each element of the list in order, us
 
 It is equivalent to `it.toList.foldl`.
 -/
-@[always_inline, inline]
+@[always_inline]
 def Iter.fold {α : Type w} {β : Type w} {γ : Type x} [Iterator α Id β]
     [IteratorLoop α Id Id] (f : γ → β → γ)
     (init : γ) (it : Iter (α := α) β) : γ :=
@@ -148,7 +148,7 @@ It is equivalent to `it.toList.foldl`.
 This variant terminates after finitely many steps and requires a proof that the iterator is
 finite. If such a proof is not available, consider using `Iter.fold`.
 -/
-@[always_inline, inline]
+@[always_inline]
 def Iter.Total.fold {α : Type w} {β : Type w} {γ : Type x} [Iterator α Id β]
     [IteratorLoop α Id Id] [Finite α Id] (f : γ → β → γ)
     (init : γ) (it : Iter.Total (α := α) β) : γ :=
@@ -183,7 +183,7 @@ examined in order of iteration.
 This variant terminates after finitely many steps and requires a proof that the iterator is
 finite. If such a proof is not available, consider using {name}`Iter.anyM`.
 -/
-@[always_inline, inline]
+@[always_inline]
 def Iter.Total.anyM {α β : Type w} {m : Type → Type w'} [Monad m]
     [Iterator α Id β] [IteratorLoop α Id m] [Finite α Id]
     (p : β → m Bool) (it : Iter.Total (α := α) β) : m Bool :=
@@ -228,7 +228,7 @@ all element emitted by the iterator {name}`it`.
 {lit}`O(|xs|)`. Short-circuits upon encountering the first match. The elements in {name}`it` are
 examined in order of iteration.
 -/
-@[always_inline, inline]
+@[always_inline]
 def Iter.allM {α β : Type w} {m : Type → Type w'} [Monad m]
     [Iterator α Id β] [IteratorLoop α Id m]
     (p : β → m Bool) (it : Iter (α := α) β) : m Bool :=
@@ -249,7 +249,7 @@ examined in order of iteration.
 This variant terminates after finitely mall steps and requires a proof that the iterator is
 finite. If such a proof is not available, consider using {name}`Iter.allM`.
 -/
-@[always_inline, inline]
+@[always_inline]
 def Iter.Total.allM {α β : Type w} {m : Type → Type w'} [Monad m]
     [Iterator α Id β] [IteratorLoop α Id m] [Finite α Id]
     (p : β → m Bool) (it : Iter.Total (α := α) β) : m Bool :=
@@ -580,7 +580,7 @@ Steps through the whole iterator, counting the number of outputs emitted.
 
 This function's runtime is linear in the number of steps taken by the iterator.
 -/
-@[always_inline, inline, expose]
+@[always_inline, expose]
 def Iter.length {α : Type w} {β : Type w} [Iterator α Id β] [IteratorLoop α Id Id]
     (it : Iter (α := α) β) : Nat :=
   it.toIterM.length.run.down

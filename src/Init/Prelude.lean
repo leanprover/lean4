@@ -4306,7 +4306,7 @@ ordinary actions in `m`.
 /--
 Interpret `ρ → m α` as an element of `ReaderT ρ m α`.
 -/
-@[always_inline, inline]
+@[always_inline]
 def ReaderT.mk {ρ : Type u} {m : Type u → Type v} {α : Type u} (x : ρ → m α) : ReaderT ρ m α := x
 
 instance (ρ : Type u) (m : Type u → Type v) (α : Type u) [Inhabited (m α)] : Inhabited (ReaderT ρ m α) where
@@ -4315,7 +4315,7 @@ instance (ρ : Type u) (m : Type u → Type v) (α : Type u) [Inhabited (m α)] 
 /--
 Executes an action from a monad with a read-only value in the underlying monad `m`.
 -/
-@[always_inline, inline]
+@[always_inline]
 def ReaderT.run {ρ : Type u} {m : Type u → Type v} {α : Type u} (x : ReaderT ρ m α) (r : ρ) : m α :=
   x r
 
@@ -4341,7 +4341,7 @@ variable {ρ : Type u} {m : Type u → Type v}
 Retrieves the reader monad's local value. Typically accessed via `read`, or via `readThe` when more
 than one local value is available.
 -/
-@[always_inline, inline]
+@[always_inline]
 protected def read [Monad m] : ReaderT ρ m ρ :=
   pure
 
@@ -4349,7 +4349,7 @@ protected def read [Monad m] : ReaderT ρ m ρ :=
 Returns the provided value `a`, ignoring the reader monad's local value. Typically used via
 `Pure.pure`.
 -/
-@[always_inline, inline]
+@[always_inline]
 protected def pure [Monad m] {α} (a : α) : ReaderT ρ m α :=
   fun _ => pure a
 
@@ -4357,7 +4357,7 @@ protected def pure [Monad m] {α} (a : α) : ReaderT ρ m α :=
 Sequences two reader monad computations. Both are provided with the local value, and the second is
 passed the value of the first. Typically used via the `>>=` operator.
 -/
-@[always_inline, inline]
+@[always_inline]
 protected def bind [Monad m] {α β} (x : ReaderT ρ m α) (f : α → ReaderT ρ m β) : ReaderT ρ m β :=
   fun r => bind (x r) fun a => f a r
 
@@ -4383,7 +4383,7 @@ instance (ρ m) : MonadFunctor m (ReaderT ρ m) where
 Modifies a reader monad's local value with `f`. The resulting computation applies `f` to the
 incoming local value and passes the result to the inner computation.
 -/
-@[always_inline, inline]
+@[always_inline]
 protected def adapt {ρ' α : Type u} (f : ρ' → ρ) : ReaderT ρ m α → ReaderT ρ' m α :=
   fun x r => x (f r)
 
@@ -4431,7 +4431,7 @@ one type of value.
 
 Use `read` for a version that expects the type `ρ` to be inferred from `m`.
 -/
-@[always_inline, inline]
+@[always_inline]
 def readThe (ρ : Type u) {m : Type u → Type v} [MonadReaderOf ρ m] : m ρ :=
   MonadReaderOf.read
 
@@ -4469,7 +4469,7 @@ control returns from `x`, the reader monad's value is restored.
 
 Use `withReader` for a version that expects the local value's type to be inferred from `m`.
 -/
-@[always_inline, inline]
+@[always_inline]
 def withTheReader (ρ : Type u) {m : Type u → Type v} [MonadWithReaderOf ρ m] {α : Type u} (f : ρ → ρ) (x : m α) : m α :=
   MonadWithReaderOf.withReader f x
 
@@ -4547,7 +4547,7 @@ It is equivalent to `do set (f (← get))`. However, using `modify` may lead to 
 because it doesn't add a new reference to the state value. Additional references can inhibit
 in-place updates of data.
 -/
-@[always_inline, inline]
+@[always_inline]
 abbrev modifyThe (σ : Type u) {m : Type u → Type v} [MonadStateOf σ m] (f : σ → σ) : m PUnit :=
   MonadStateOf.modifyGet fun s => (PUnit.unit, f s)
 
@@ -4560,7 +4560,7 @@ It is equivalent to `do let (a, s) := f (← getThe σ); set s; pure a`. However
 may lead to higher performance because it doesn't add a new reference to the state value. Additional
 references can inhibit in-place updates of data.
 -/
-@[always_inline, inline]
+@[always_inline]
 abbrev modifyGetThe {α : Type u} (σ : Type u) {m : Type u → Type v} [MonadStateOf σ m] (f : σ → Prod α σ) : m α :=
   MonadStateOf.modifyGet f
 
@@ -4610,7 +4610,7 @@ It is equivalent to `do set (f (← get))`. However, using `modify` may lead to 
 because it doesn't add a new reference to the state value. Additional references can inhibit
 in-place updates of data.
 -/
-@[always_inline, inline]
+@[always_inline]
 def modify {σ : Type u} {m : Type u → Type v} [MonadState σ m] (f : σ → σ) : m PUnit :=
   modifyGet fun s => (PUnit.unit, f s)
 
@@ -4619,7 +4619,7 @@ Replaces the state with the result of applying `f` to it. Returns the old value 
 
 It is equivalent to `get <* modify f` but may be more efficient.
 -/
-@[always_inline, inline]
+@[always_inline]
 def getModify {σ : Type u} {m : Type u → Type v} [MonadState σ m] (f : σ → σ) : m σ :=
   modifyGet fun s => (s, f s)
 
@@ -4673,24 +4673,24 @@ instance [Inhabited ε] : Inhabited (EStateM ε σ α) where
 /--
 Returns a value without modifying the state or throwing an exception.
 -/
-@[always_inline, inline]
+@[always_inline]
 protected def pure (a : α) : EStateM ε σ α := fun s =>
   Result.ok a s
 
-@[always_inline, inline, inherit_doc MonadState.set]
+@[always_inline, inherit_doc MonadState.set]
 protected def set (s : σ) : EStateM ε σ PUnit := fun _ =>
   Result.ok ⟨⟩ s
 
-@[always_inline, inline, inherit_doc MonadState.get]
+@[always_inline, inherit_doc MonadState.get]
 protected def get : EStateM ε σ σ := fun s =>
   Result.ok s s
 
-@[always_inline, inline, inherit_doc MonadState.modifyGet]
+@[always_inline, inherit_doc MonadState.modifyGet]
 protected def modifyGet (f : σ → Prod α σ) : EStateM ε σ α := fun s =>
   match f s with
   | (a, s) => Result.ok a s
 
-@[always_inline, inline, inherit_doc MonadExcept.throw]
+@[always_inline, inherit_doc MonadExcept.throw]
 protected def throw (e : ε) : EStateM ε σ α := fun s =>
   Result.error e s
 
@@ -4717,7 +4717,7 @@ The `Backtrackable δ σ` instance is used to save a snapshot of part of the sta
 the state. If no instance of `Backtrackable` is provided, a fallback instance in which `δ` is `Unit`
 is used, and no information is rolled back.
 -/
-@[always_inline, inline]
+@[always_inline]
 protected def tryCatch {δ} [Backtrackable δ σ] {α} (x : EStateM ε σ α) (handle : ε → EStateM ε σ α) : EStateM ε σ α := fun s =>
   let d := Backtrackable.save s
   match x s with
@@ -4732,7 +4732,7 @@ The `Backtrackable δ σ` instance is used to save a snapshot of part of the sta
 the state. If no instance of `Backtrackable` is provided, a fallback instance in which `δ` is `Unit`
 is used, and no information is rolled back.
 -/
-@[always_inline, inline]
+@[always_inline]
 protected def orElse {δ} [Backtrackable δ σ] (x₁ : EStateM ε σ α) (x₂ : Unit → EStateM ε σ α) : EStateM ε σ α := fun s =>
   let d := Backtrackable.save s;
   match x₁ s with
@@ -4742,7 +4742,7 @@ protected def orElse {δ} [Backtrackable δ σ] (x₁ : EStateM ε σ α) (x₂ 
 /--
 Transforms exceptions with a function, doing nothing on successful results.
 -/
-@[always_inline, inline]
+@[always_inline]
 def adaptExcept {ε' : Type u} (f : ε → ε') (x : EStateM ε σ α) : EStateM ε' σ α := fun s =>
   match x s with
   | Result.error e s => Result.error (f e) s
@@ -4751,7 +4751,7 @@ def adaptExcept {ε' : Type u} (f : ε → ε') (x : EStateM ε σ α) : EStateM
 /--
 Sequences two `EStateM ε σ` actions, passing the returned value from the first into the second.
 -/
-@[always_inline, inline]
+@[always_inline]
 protected def bind (x : EStateM ε σ α) (f : α → EStateM ε σ β) : EStateM ε σ β := fun s =>
   match x s with
   | Result.ok a s    => f a s
@@ -4760,7 +4760,7 @@ protected def bind (x : EStateM ε σ α) (f : α → EStateM ε σ β) : EState
 /--
 Transforms the value returned from an `EStateM ε σ` action using a function.
 -/
-@[always_inline, inline]
+@[always_inline]
 protected def map (f : α → β) (x : EStateM ε σ α) : EStateM ε σ β := fun s =>
   match x s with
   | Result.ok a s    => Result.ok (f a) s
@@ -4770,7 +4770,7 @@ protected def map (f : α → β) (x : EStateM ε σ α) : EStateM ε σ β := f
 Sequences two `EStateM ε σ` actions, running `x` before `y`. The first action's return value is
 ignored.
 -/
-@[always_inline, inline]
+@[always_inline]
 protected def seqRight (x : EStateM ε σ α) (y : Unit → EStateM ε σ β) : EStateM ε σ β := fun s =>
   match x s with
   | Result.ok _ s    => y () s
@@ -4799,14 +4799,14 @@ instance {δ} [Backtrackable δ σ] : MonadExceptOf ε (EStateM ε σ) where
 Executes an `EStateM` action with the initial state `s`. The returned value includes the final state
 and indicates whether an exception was thrown or a value was returned.
 -/
-@[always_inline, inline]
+@[always_inline]
 def run (x : EStateM ε σ α) (s : σ) : Result ε σ α := x s
 
 /--
 Executes an `EStateM` with the initial state `s` for the returned value `α`, discarding the final
 state. Returns `none` if an unhandled exception was thrown.
 -/
-@[always_inline, inline]
+@[always_inline]
 def run' (x : EStateM ε σ α) (s : σ) : Option α :=
   match run x s with
   | Result.ok v _   => some v
@@ -5696,7 +5696,7 @@ Run `x : m α` with a modified value for the `ref`. This is not exactly
 the same as `MonadRef.withRef`, because it uses `replaceRef` to avoid putting
 syntax with bad spans in the state.
 -/
-@[always_inline, inline]
+@[always_inline]
 def withRef [Monad m] [MonadRef m] {α} (ref : Syntax) (x : m α) : m α :=
   bind getRef fun oldRef =>
   let ref := replaceRef ref oldRef
@@ -5706,7 +5706,7 @@ def withRef [Monad m] [MonadRef m] {α} (ref : Syntax) (x : m α) : m α :=
 If `ref? = some ref`, run `x : m α` with a modified value for the `ref` by calling `withRef`.
 Otherwise, run `x` directly.
 -/
-@[always_inline, inline]
+@[always_inline]
 def withRef? [Monad m] [MonadRef m] {α} (ref? : Option Syntax) (x : m α) : m α :=
   match ref? with
   | some ref => withRef ref x

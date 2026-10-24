@@ -17,7 +17,7 @@ This module provides a combinator that only yields every `n`-th element of anoth
 namespace Std
 open Std.Iterators
 
-@[always_inline, inline, inherit_doc IterM.stepSize]
+@[always_inline, inherit_doc IterM.stepSize]
 def Iter.stepSize [Iterator α Id β] [IteratorAccess α Id]
     (it : Iter (α := α) β) (n : Nat) :
     Iter (α := Types.StepSizeIterator α Id β) β :=

@@ -47,7 +47,7 @@ Traverses the given iterator and stores the emitted values in an array.
 If the iterator is not finite, this function might run forever. The variant
 `it.ensureTermination.toArray` always terminates after finitely many steps.
 -/
-@[always_inline, inline]
+@[always_inline]
 def IterM.toArray {α β : Type w} {m : Type w → Type w'} [Monad m] [Iterator α m β]
     (it : IterM (α := α) m β) : m (Array β) :=
   go it #[]
@@ -68,7 +68,7 @@ Traverses the given iterator and stores the emitted values in an array.
 This variant terminates after finitely many steps and requires a proof that the iterator is
 finite. If such a proof is not available, consider using `IterM.toArray`.
 -/
-@[always_inline, inline]
+@[always_inline]
 def IterM.Total.toArray {α : Type w} {m : Type w → Type w'} {β : Type w} [Monad m]
     [Iterator α m β] [Finite α m] (it : IterM.Total (α := α) m β) :
     m (Array β) :=
@@ -83,12 +83,12 @@ lists are prepend-only, this `toListRev` is usually more efficient that `toList`
 If the iterator is not finite, this function might run forever. The variant
 `it.ensureTermination.toListRev` always terminates after finitely many steps.
 -/
-@[always_inline, inline]
+@[always_inline]
 def IterM.toListRev {α : Type w} {m : Type w → Type w'} [Monad m] {β : Type w}
     [Iterator α m β] (it : IterM (α := α) m β) : m (List β) :=
   go it []
 where
-  @[always_inline, inline]
+  @[always_inline]
   go (it : IterM m β) acc :=
     WellFounded.extrinsicFix₂ (InvImage TerminationMeasures.Finite.Rel (·.1.finitelyManySteps!))
       (fun it acc recur => do
@@ -104,7 +104,7 @@ lists are prepend-only, this `toListRev` is usually more efficient that `toList`
 This variant terminates after finitely many steps and requires a proof that the iterator is
 finite. If such a proof is not available, consider using `IterM.toListRev`.
 -/
-@[always_inline, inline]
+@[always_inline]
 def IterM.Total.toListRev {α : Type w} {m : Type w → Type w'} {β : Type w} [Monad m]
     [Iterator α m β] [Finite α m] (it : IterM.Total (α := α) m β) :
     m (List β) :=
@@ -117,7 +117,7 @@ lists are prepend-only, `toListRev` is usually more efficient that `toList`.
 If the iterator is not finite, this function might run forever. The variant
 `it.ensureTermination.toList` always terminates after finitely many steps.
 -/
-@[always_inline, inline]
+@[always_inline]
 def IterM.toList {α : Type w} {m : Type w → Type w'} [Monad m] {β : Type w}
     [Iterator α m β] (it : IterM (α := α) m β) : m (List β) :=
   Array.toList <$> IterM.toArray it
@@ -129,7 +129,7 @@ lists are prepend-only, `toListRev` is usually more efficient that `toList`.
 This variant terminates after finitely many steps and requires a proof that the iterator is
 finite. If such a proof is not available, consider using `IterM.toList`.
 -/
-@[always_inline, inline]
+@[always_inline]
 def IterM.Total.toList {α : Type w} {m : Type w → Type w'} {β : Type w} [Monad m]
     [Iterator α m β] [Finite α m] (it : IterM.Total (α := α) m β) :
     m (List β) :=

@@ -340,7 +340,7 @@ def closeWithError (stream : Stream) (err : IO.Error) : Async Unit :=
 /--
 Checks whether the channel is closed.
 -/
-@[always_inline, inline]
+@[always_inline]
 def isClosed (stream : Stream) : Async Bool :=
   stream.state.atomically do
     return (← get).closed
@@ -348,7 +348,7 @@ def isClosed (stream : Stream) : Async Bool :=
 /--
 Gets the known size if available.
 -/
-@[always_inline, inline]
+@[always_inline]
 def getKnownSize (stream : Stream) : Async (Option Body.Length) :=
   stream.state.atomically do
     return (← get).knownSize
@@ -356,7 +356,7 @@ def getKnownSize (stream : Stream) : Async (Option Body.Length) :=
 /--
 Sets known size metadata.
 -/
-@[always_inline, inline]
+@[always_inline]
 def setKnownSize (stream : Stream) (size : Option Body.Length) : Async Unit :=
   stream.state.atomically do
     modify fun st => { st with knownSize := size }

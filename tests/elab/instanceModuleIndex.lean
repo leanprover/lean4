@@ -34,5 +34,5 @@ def sameInstances (d₁ d₂ : Instances) : Bool :=
   unless sameInstances d (sequentialInstances env) do
     throwError "instances differ from the sequentially built ones"
   unless d.discrTree.size > 5000 do throwError "too few instances: {d.discrTree.size}"
-  if d.instanceNames.imported.owned.isEmpty then
+  if d.instanceNames.imported.ownedKeys.isEmpty then
     throwError "imported instance names were not looked up per module"

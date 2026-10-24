@@ -99,8 +99,8 @@ does not require adding each entry (see `ScopedEnvExtension.ModuleIndex`).
 -/
 structure InstanceModuleIndex where
   roots   : Array (DiscrTree.Key × DiscrTree.Trie InstanceEntry)
-  /-- The named entries owned by the module (see `ImportedDeclMap.sortOwned`). -/
-  owned   : Array (Name × InstanceEntry)
+  /-- The names and entries of the named entries owned by the module (see `ImportedDeclMap.sortOwned`). -/
+  owned   : Array Name × Array InstanceEntry
   /-- The remaining named entries, in order. -/
   foreign : Array (Name × InstanceEntry)
   deriving Inhabited
@@ -132,7 +132,7 @@ def InstanceModuleIndex.addImported (d : Instances)
   return { d with
     discrTree := DiscrTree.ofModuleRoots (idxs.map (·.roots))
     instanceNames.imported := ImportedDeclMap.ofModules (← read).env.toKernelEnv.constants.map₁
-      (mods.map (·.1.map (·.owned) |>.getD #[])) (idxs.map (·.foreign)) }
+      (mods.map (·.1.map (·.owned) |>.getD (#[], #[]))) (idxs.map (·.foreign)) }
 
 builtin_initialize instanceExtension : SimpleScopedEnvExtension InstanceEntry Instances ←
   registerSimpleScopedEnvExtension {

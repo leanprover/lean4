@@ -34,6 +34,8 @@ protected def Key.hash : Key → UInt64
 
 instance : Hashable Key := ⟨Key.hash⟩
 
+-- `Thunk` fields have no `sizeOf` theorems
+set_option genSizeOfSpec false in
 /--
 Discrimination tree trie. See `DiscrTree`.
 -/
@@ -45,6 +47,11 @@ inductive Trie (α : Type) where
     -/
   | chain (key : Key) (child : Trie α) : Trie α
   | node (vs : Array α) (children : Array (Key × Trie α)) : Trie α
+    /--
+    A node shared by the tries of several imported modules, merged on first access (see
+    `DiscrTree.ofModuleRoots`). The merged node is never itself `lazy`.
+    -/
+  | lazy (t : Thunk (Trie α)) : Trie α
 
 end DiscrTree
 

@@ -478,6 +478,7 @@ private partial def getMatchLoop (todo : Array Expr) (c : Trie α) (result : Arr
       match k with
       | .star  => return result
       | _      => visitNonStar k args result
+  | .lazy t => getMatchLoop todo t.get result
 
 private def getMatchRoot (d : DiscrTree α) (k : Key) (args : Array Expr) (result : Array α) : MetaM (Array α) :=
   match d.root.find? k with
@@ -565,6 +566,7 @@ where
       for (_, trie) in cs do
         result := go trie result
       return result
+    | .lazy t => go t.get result
 
 /--
 A liberal version of `getMatch` which only takes the root symbol of `e` into account.
@@ -592,7 +594,7 @@ partial def getUnify (d : DiscrTree α) (e : Expr) : MetaM (Array α) :=
       | some c => process 0 args c result
 where
   process (skip : Nat) (todo : Array Expr) (c : Trie α) (result : Array α) : MetaM (Array α) := do
-    match skip, c with
+    match skip, c.force with
     | skip+1, .chain key child =>
       process (skip + key.arity) todo child result
     | skip+1, .node _  cs =>
@@ -600,6 +602,7 @@ where
         return result
       else
         cs.foldlM (init := result) fun result ⟨k, c⟩ => process (skip + k.arity) todo c result
+    | _+1, .lazy _ => unreachable!
     | 0, _ =>
       if todo.isEmpty then
         return result ++ c.nodeValues

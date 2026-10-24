@@ -1627,7 +1627,7 @@ private unsafe def modifyStateImpl {σ : Type} (ext : EnvExtension σ) (exts : A
     have : Inhabited (Array EnvExtensionState) := ⟨exts⟩
     panic! invalidExtMsg
 
-private unsafe def getStateImpl {σ} [Inhabited σ] (ext : EnvExtension σ) (exts : Array EnvExtensionState) : σ :=
+@[inline] private unsafe def getStateImpl {σ} [Inhabited σ] (ext : EnvExtension σ) (exts : Array EnvExtensionState) : σ :=
   if h : ext.idx < exts.size then
     unsafeCast exts[ext.idx]
   else

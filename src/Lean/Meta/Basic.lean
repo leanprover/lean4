@@ -412,7 +412,8 @@ Type class resolution cache. Each key holds one entry per observed set of depend
 records what it observes as the entry's `RecordedDeps`, and a lookup only uses an entry whose
 recorded dependencies still hold in the current context. What the search never observes does not
 partition the cache. The recorded dependencies are the option lookups (`getRecordedOption`), the
-generations of the instance and unification-hint extensions read
+changes of the global instances of the consulted classes (`RecordedDeps.instClassChanges`), the
+generations of the other generation-tracked extensions read, i.e. unification hints
 (`PersistentEnvExtensionDescrCore.trackGen`), and the position in `Environment.declChangeLog`,
 against whose later changes of declaration-keyed state the entry is validated. The search runs with
 `Core.Context.isRecordingDeps` set, so an unrecorded read of an option or an environment extension
@@ -439,36 +440,23 @@ as otherwise a stale entry can be revalidated.
 abbrev SynthInstanceCache :=
   PersistentHashMap SynthInstanceCacheKey (List SynthInstanceCacheEntry)
 
-/-- The value stored in `Environment.synthCacheRaw?`. -/
-private structure PersistentSynthInstanceCache where
-  /-- `Environment.trackedGen` that `entries` were recorded at. -/
-  gen     : Nat
-  entries : SynthInstanceCache
-  deriving Inhabited
-
 /--
 Persistent tier of the type class resolution cache, which survives the current command. It holds
 only context-free entries (see `Lean.Meta.SynthInstance`), and as it is part of the environment, it
-rolls back together with the counters its entries are validated against.
-
-The entries are only kept until the instances or unification hints in effect change: the tier
-remembers the `Environment.trackedGen` its entries were recorded at, and this function returns an
-empty cache once the environment's value differs. Such a change invalidates almost every entry
-anyway, as almost every search depends on the instances, and dropping them all avoids keeping the
-invalidated entries in the environment until their query recurs.
+rolls back together with the counters its entries are validated against. A change of the instances
+in effect only invalidates the entries whose search consulted the class it affects
+(`RecordedDeps.instClassChanges`): an invalidated entry is rejected when it is looked up (see
+`RecordedDeps`), and replaced when its query is stored again.
 -/
 def _root_.Lean.Environment.synthCache (env : Environment) : SynthInstanceCache :=
   match env.synthCacheRaw? with
-  | some v =>
-    -- safety: only `setSynthCache` stores a value
-    let c : PersistentSynthInstanceCache := unsafe unsafeCast v
-    if c.gen == env.trackedGen then c.entries else {}
+  -- safety: only `setSynthCache` stores a value
+  | some v => unsafe unsafeCast v
   | none   => {}
 
 /-- Replaces the persistent tier of the type class resolution cache; see `Environment.synthCache`. -/
 def _root_.Lean.Environment.setSynthCache (env : Environment) (c : SynthInstanceCache) :
     Environment :=
-  let c : PersistentSynthInstanceCache := { gen := env.trackedGen, entries := c }
   { env with synthCacheRaw? := some (unsafe unsafeCast c) }
 
 /--

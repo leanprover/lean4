@@ -15,4 +15,15 @@ namespace Sc
 attribute [scoped simp] f_two
 end Sc
 
+class C (α : Type) where
+  c : Nat
+
+instance instCNat : C Nat := ⟨1⟩
+instance (priority := low) instCNat2 : C Nat := ⟨2⟩
+def instCInt : C Int := ⟨3⟩
+
+namespace Sc
+scoped instance instCString : C String := ⟨4⟩
+end Sc
+
 end SMI

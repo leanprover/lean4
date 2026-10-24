@@ -9,7 +9,6 @@ public import Init.Data.Int.Basic
 public import Init.Data.Int.DivMod.Basic
 public import Init.Data.Int.Gcd
 import Init.Data.Int.LemmasAux
-import Init.Omega
 public section
 
 /-!
@@ -155,10 +154,13 @@ theorem negOfNat_k_eq (k : Nat) : Int.negOfNat_k k = Int.negOfNat k := by
   simp only [Int.lcm_k, natAbs_k_eq]; rfl
 
 @[simp] theorem bmod_k_eq (x : Int) (m : Nat) : Int.bmod_k x m = x.bmod m := by
-  simp only [Int.bmod_k, emod_k_eq, sub_k_eq, Int.bmod]
-  cases h : Int.blt' (x % Int.ofNat m) (Int.ofNat ((m + 1) / 2))
-  · simp at h; simp; omega
-  · simp at h; simp [h]
+  have hm : Int.ofNat (Nat.div (Nat.add m 1) 2) = ((m : Int) + 1) / 2 := natCast_ediv (m + 1) 2
+  simp only [Int.bmod_k, Int.bmod, emod_k_eq, sub_k_eq, hm, ofNat_eq_natCast]
+  cases hb : Int.blt' (x % m) ((m + 1) / 2)
+  · have hc : ¬ x % m < (m + 1) / 2 := by rw [← blt'_eq_false]; exact hb
+    simp only [hc, ↓reduceIte]
+  · have hc : x % m < (m + 1) / 2 := by rw [← blt'_eq_true]; exact hb
+    simp only [hc, ↓reduceIte]
 
 @[simp] theorem toNat_k_eq (a : Int) : Int.toNat_k a = a.toNat := by
   cases a <;> rfl

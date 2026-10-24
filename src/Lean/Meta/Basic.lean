@@ -15,7 +15,6 @@ public import Lean.Compiler.InlineAttrs
 public import Lean.Meta.TransparencyMode
 import Init.Data.Range.Polymorphic.Iterators
 import all Lean.Environment  -- for accessing `Environment.synthCacheRaw?`
-import all Lean.MetavarContext  -- for accessing `SynthNormMemoSlot.raw?`
 import Init.While
 
 public section
@@ -385,9 +384,9 @@ structure SynthInstanceCacheKey where
   isExporting       : Bool
   /--
   For a key whose free variables are normalized (see `Lean.Meta.SynthNorm`), these are the types of
-  the free variables `type` and `localInsts` mention, by canonical position. Free variables are
-  abstracted to loose bound variables, so that structurally identical queries in different local
-  contexts share an entry. Empty for other keys.
+  the free variables `type` mentions, by canonical position. Free variables are abstracted to loose
+  bound variables, so that structurally identical queries in different local contexts share an
+  entry. Empty for other keys.
   -/
   normFVarTypes     : Array Expr := #[]
   deriving Hashable, BEq
@@ -402,21 +401,55 @@ structure AbstractMVarsResult where
 def AbstractMVarsResult.numMVars (r : AbstractMVarsResult) : Nat :=
   r.mvars.size
 
+/--
+The local instances a cached type class resolution result depends on: the local instances of the
+consulted classes (`RecordedDeps.localInstClasses`), with free variables normalized jointly with the
+query type, together with the types of those free variables by canonical position.
+-/
+structure SynthInstanceRelevantLocalInsts where
+  /--
+  The classes whose local instances the search consulted. A context is matched by its local
+  instances of these classes, in order, and ignoring all others.
+  -/
+  classes         : Array Name
+  /--
+  The local instances of `classes` in the context of the search, with each free variable replaced by
+  a loose bound variable for its canonical position. The free variables of the query type come first,
+  so a position means the same in the key and here.
+  -/
+  canonLocalInsts : LocalInstances
+  /--
+  The type of each free variable by canonical position, abstracted over the preceding ones: those of
+  the query type, the local instances and, transitively, their types. Equal values mean the contexts
+  agree up to renaming of free variables.
+  -/
+  fvarTypes       : Array Expr
+
 /-- A type class resolution result together with the dependencies it was computed under. -/
 structure SynthInstanceCacheEntry where
   deps    : RecordedDeps
   result? : Option AbstractMVarsResult
+  /--
+  Set for entries keyed by the query type alone (normalized over its own free variables): the entry
+  is valid in a context whose local instances of `classes` normalize to `canonLocalInsts`.
+  -/
+  relevant? : Option SynthInstanceRelevantLocalInsts := none
 
 /--
 Type class resolution cache. Each key holds one entry per observed set of dependencies: the search
 records what it observes as the entry's `RecordedDeps`, and a lookup only uses an entry whose
 recorded dependencies still hold in the current context. What the search never observes does not
 partition the cache. The recorded dependencies are the option lookups (`getRecordedOption`), the
-generations of the instance and unification-hint extensions read
+changes of the global instances of the consulted classes (`RecordedDeps.instClassChanges`), the
+generations of the other generation-tracked extensions read, i.e. unification hints
 (`PersistentEnvExtensionDescrCore.trackGen`), and the position in `Environment.declChangeLog`,
 against whose later changes of declaration-keyed state the entry is validated. The search runs with
 `Core.Context.isRecordingDeps` set, so an unrecorded read of an option or an environment extension
 panics.
+
+A result is stored under its raw key, with the query type and all local instances, and under the
+query type alone with its free variables normalized, for contexts whose local instances of the
+consulted classes agree (`SynthInstanceCacheEntry.relevant?`).
 
 The cache has two tiers. The transient tier, `Meta.Cache.synthInstance`, lives as long as the
 current `Meta.State`. Context-free entries are also stored in the persistent tier,
@@ -439,85 +472,29 @@ as otherwise a stale entry can be revalidated.
 abbrev SynthInstanceCache :=
   PersistentHashMap SynthInstanceCacheKey (List SynthInstanceCacheEntry)
 
-/-- The value stored in `Environment.synthCacheRaw?`. -/
-private structure PersistentSynthInstanceCache where
-  /-- `Environment.trackedGen` that `entries` were recorded at. -/
-  gen     : Nat
-  entries : SynthInstanceCache
-  deriving Inhabited
-
 /--
 Persistent tier of the type class resolution cache, which survives the current command. It holds
 only context-free entries (see `Lean.Meta.SynthInstance`), and as it is part of the environment, it
-rolls back together with the counters its entries are validated against.
+rolls back together with the counters its entries are validated against. A change of the instances
+in effect only invalidates the entries whose search consulted the class it affects
+(`RecordedDeps.instClassChanges`).
 
-The entries are only kept until the instances or unification hints in effect change: the tier
-remembers the `Environment.trackedGen` its entries were recorded at, and this function returns an
-empty cache once the environment's value differs. Such a change invalidates almost every entry
-anyway, as almost every search depends on the instances, and dropping them all avoids keeping the
-invalidated entries in the environment until their query recurs.
+In the past, every entry depended on the generation of the whole instance table, so declaring any
+instance invalidated almost every entry, and the tier was dropped as a whole whenever the instances
+or unification hints in effect changed. Entries now depend only on the instances of the classes
+their search consulted, so most of them survive such a change and are kept: an invalidated entry is
+rejected when it is looked up (see `RecordedDeps`), and replaced when its query is stored again.
 -/
 def _root_.Lean.Environment.synthCache (env : Environment) : SynthInstanceCache :=
   match env.synthCacheRaw? with
-  | some v =>
-    -- safety: only `setSynthCache` stores a value
-    let c : PersistentSynthInstanceCache := unsafe unsafeCast v
-    if c.gen == env.trackedGen then c.entries else {}
+  -- safety: only `setSynthCache` stores a value
+  | some v => unsafe unsafeCast v
   | none   => {}
 
 /-- Replaces the persistent tier of the type class resolution cache; see `Environment.synthCache`. -/
 def _root_.Lean.Environment.setSynthCache (env : Environment) (c : SynthInstanceCache) :
     Environment :=
-  let c : PersistentSynthInstanceCache := { gen := env.trackedGen, entries := c }
   { env with synthCacheRaw? := some (unsafe unsafeCast c) }
-
-/--
-The free-variable normalization of a local instance context (see `Lean.Meta.SynthNorm`): every free
-variable reachable from the local instances, transitively through their types, by canonical
-position, and the normalized types of these variables.
--/
-structure SynthNormClosure where
-  fvarSet  : PersistentHashSet FVarId
-  idx2fvar : Array Expr
-  types    : Array Expr
-
-/--
-The memoized result of normalizing the free variables of the local instances `localInsts`. It does
-not depend on the query, so every type class resolution query made under the same local instances
-shares it. One slot suffices, as the local instances change rarely relative to the number of
-queries made under them.
-
-The result depends on the local declarations of the variables it visited, and on the metavariable
-assignments through their types.
-* A local declaration can be replaced under the same `FVarId`, e.g. by `change … at`, so the memo
-  records the declarations it was computed from (`decls`) and is only used while the local context
-  still has them with the same types.
-* The memo is stored in the `MetavarContext`, so that it is reverted together with the assignments.
-  Assignments made after it was computed do not affect a `closure?`, whose types are fully
-  instantiated.
--/
-structure SynthNormClosureMemo where
-  localInsts : LocalInstances
-  /-- The local declarations visited by the normalization. -/
-  decls : Array LocalDecl
-  /-- `none` if the local instances cannot be normalized. -/
-  closure? : Option SynthNormClosure
-  /--
-  If the normalization failed on a variable whose type has an unassigned metavariable, that type.
-  The failure holds as long as the type still has an unassigned metavariable.
-  -/
-  stuckType? : Option Expr
-
-/-- The memo for the type class resolution cache key normalization; see `SynthNormClosureMemo`. -/
-def _root_.Lean.MetavarContext.synthNormMemo? (mctx : MetavarContext) :
-    Option SynthNormClosureMemo :=
-  -- safety: only `setSynthNormMemo` stores a value
-  unsafe unsafeCast mctx.synthNormMemo.raw?
-
-/-- Replaces the memo for the type class resolution cache key normalization. -/
-def _root_.Lean.MetavarContext.setSynthNormMemo (mctx : MetavarContext)
-    (memo : SynthNormClosureMemo) : MetavarContext :=
-  { mctx with synthNormMemo := { raw? := some (unsafe unsafeCast memo) } }
 
 -- Key for `InferType` and `WHNF` caches
 structure ExprConfigCacheKey where

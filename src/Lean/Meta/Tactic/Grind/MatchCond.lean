@@ -198,8 +198,14 @@ def collectMatchCondLhssAndAbstract (matchCond : Expr) : GoalM (Array Expr × Ex
 /--
 Helper function for `isSatisfied`.
 See `isSatisfied`.
+If `matchCond?` is `some c`, then `c` is registered as a parent of each subterm that blocks the
+decision: a subterm whose root is neither a constructor application nor a literal value, at a
+position where the pattern is not a pattern variable. `internalizeMatchCond` registers `c` as a parent
+of the left-hand sides only, but the result also depends on these nested subterms. For example,
+given `∀ n, v = .lit (.nat n) → False` and `v = .lit l`, `c` must be revisited when `l` is merged
+with a constructor application (issue #15697).
 -/
-private partial def isMatchCondFalseHyp (e : Expr) : GoalM Bool := do
+private partial def isMatchCondFalseHyp (e : Expr) (matchCond? : Option Expr := none) : GoalM Bool := do
   let some (_, lhs, rhs) := isEqHEq? e | return false
   isFalse lhs rhs
 where
@@ -221,6 +227,10 @@ where
       unless (← isLitValue rhs) do return false
       return (← normLitValue root.self) != (← normLitValue rhs)
     else
+      -- Pattern variables are loose bound variables in the condition.
+      if let some matchCond := matchCond? then
+        unless rhs.getAppFn.isBVar do
+          registerParent matchCond lhs
       return false
 
 /--
@@ -250,13 +260,16 @@ the following auxiliary `Grind.MatchCond` terms for an application `f a b`:
 
 `isSatisfied` uses the fact that constructor applications and literal values
 are always the root of their equivalence classes.
+It also registers `e` as a parent of the nested subterms blocking the decision
+(see `isMatchCondFalseHyp`).
 -/
 private partial def isSatisfied (e : Expr) : GoalM Bool := do
+  let matchCond := e
   let_expr Grind.MatchCond e ← e | return false
   let mut e := e
   repeat
     let .forallE _ d b _ := e | break
-    if (← isMatchCondFalseHyp d) then
+    if (← isMatchCondFalseHyp d matchCond) then
       trace_goal[grind.debug.matchCond] "satifised{indentExpr e}\nthe following equality is false{indentExpr d}"
       return true
     e := b

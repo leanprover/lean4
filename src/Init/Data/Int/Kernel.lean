@@ -7,6 +7,9 @@ module
 prelude
 public import Init.Data.Int.Basic
 public import Init.Data.Int.DivMod.Basic
+public import Init.Data.Int.Gcd
+import Init.Data.Int.LemmasAux
+import Init.Omega
 public section
 
 /-!
@@ -74,6 +77,19 @@ namespace Int
       (fun n => Int.ofNat (Nat.add (Nat.div m (Nat.add n 1)) 1)) b)
     a
 
+/-- `a.gcd b` for kernel reduction. -/
+@[expose] protected noncomputable def gcd_k (a b : Int) : Nat :=
+  Nat.gcd (Int.natAbs_k a) (Int.natAbs_k b)
+
+/-- `a.lcm b` for kernel reduction. -/
+@[expose] protected noncomputable def lcm_k (a b : Int) : Nat :=
+  Nat.lcm (Int.natAbs_k a) (Int.natAbs_k b)
+
+/-- `x.bmod m` for kernel reduction. -/
+@[expose] protected noncomputable def bmod_k (x : Int) (m : Nat) : Int :=
+  let r := Int.emod_k x (Int.ofNat m)
+  Bool.rec (Int.sub_k r (Int.ofNat m)) r (Int.blt' r (Int.ofNat (Nat.div (Nat.add m 1) 2)))
+
 theorem subNatNat_k_eq (m n : Nat) : Int.subNatNat_k m n = Int.subNatNat m n := by
   unfold Int.subNatNat_k Int.subNatNat
   cases h : Nat.ble n m with
@@ -120,5 +136,17 @@ theorem negOfNat_k_eq (k : Nat) : Int.negOfNat_k k = Int.negOfNat k := by
 
 @[simp] theorem sub_k_eq (a b : Int) : Int.sub_k a b = a - b := by
   simp only [Int.sub_k, add_k_eq, neg_k_eq]; rfl
+
+@[simp] theorem gcd_k_eq (a b : Int) : Int.gcd_k a b = a.gcd b := by
+  simp only [Int.gcd_k, natAbs_k_eq]; rfl
+
+@[simp] theorem lcm_k_eq (a b : Int) : Int.lcm_k a b = a.lcm b := by
+  simp only [Int.lcm_k, natAbs_k_eq]; rfl
+
+@[simp] theorem bmod_k_eq (x : Int) (m : Nat) : Int.bmod_k x m = x.bmod m := by
+  simp only [Int.bmod_k, emod_k_eq, sub_k_eq, Int.bmod]
+  cases h : Int.blt' (x % Int.ofNat m) (Int.ofNat ((m + 1) / 2))
+  · simp at h; simp; omega
+  · simp at h; simp [h]
 
 end Int

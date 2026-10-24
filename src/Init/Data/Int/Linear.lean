@@ -424,31 +424,6 @@ def Poly.divCoeffs (k : Int) : Poly → Bool
 @[simp] theorem cmod_k_eq (a b : Int) : cmod_k a b = cmod a b := by
   simp only [cmod_k, cmod, Int.neg_k_eq, Int.emod_k_eq]; rfl
 
-/-- `Int.gcd` for kernel reduction. -/
-@[expose] noncomputable def gcd_k (a b : Int) : Nat :=
-  Nat.gcd (Int.natAbs_k a) (Int.natAbs_k b)
-
-@[simp] theorem gcd_k_eq (a b : Int) : gcd_k a b = Int.gcd a b := by
-  simp only [gcd_k, Int.natAbs_k_eq]; rfl
-
-/-- `Int.lcm` for kernel reduction. -/
-@[expose] noncomputable def lcm_k (a b : Int) : Nat :=
-  Nat.lcm (Int.natAbs_k a) (Int.natAbs_k b)
-
-@[simp] theorem lcm_k_eq (a b : Int) : lcm_k a b = Int.lcm a b := by
-  simp only [lcm_k, Int.natAbs_k_eq]; rfl
-
-/-- `Int.bmod` for kernel reduction. -/
-@[expose] noncomputable def bmod_k (x : Int) (m : Nat) : Int :=
-  let r := Int.emod_k x (Int.ofNat m)
-  Bool.rec (Int.sub_k r (Int.ofNat m)) r (Int.blt' r (Int.ofNat (Nat.div (Nat.add m 1) 2)))
-
-@[simp] theorem bmod_k_eq (x : Int) (m : Nat) : bmod_k x m = Int.bmod x m := by
-  simp only [bmod_k, Int.emod_k_eq, Int.sub_k_eq, Int.bmod]
-  cases h : Int.blt' (x % Int.ofNat m) (Int.ofNat ((m + 1) / 2))
-  · simp at h; simp; omega
-  · simp at h; simp [h]
-
 /-- `Poly.getConst` for kernel reduction. -/
 @[expose] noncomputable def Poly.getConst_k (p : Poly) : Int :=
   Poly.rec (fun k => k) (fun _ _ _ ih => ih) p
@@ -1052,7 +1027,7 @@ private theorem dvd_gcd_of_dvd (d a x p : Int) (h : d ∣ a * x + p) : gcd d a �
 noncomputable def dvd_elim_cert (k₁ : Int) (p₁ : Poly) (k₂ : Int) (p₂ : Poly) : Bool :=
   Poly.rec
     (fun _ => false)
-    (fun a _ p _ => k₂.beq' (Int.ofNat (gcd_k k₁ a)) |>.and (p₂.beq' p))
+    (fun a _ p _ => k₂.beq' (Int.ofNat (Int.gcd_k k₁ a)) |>.and (p₂.beq' p))
     p₁
 
 theorem dvd_elim (ctx : Context) (k₁ : Int) (p₁ : Poly) (k₂ : Int) (p₂ : Poly)
@@ -1174,17 +1149,17 @@ def Poly.bmodCoeffs (m : Nat) : Poly → Poly
     if k == 0 then bmodCoeffs m p else .add k v (bmodCoeffs m p)
 
 @[expose] noncomputable def Poly.bmodCoeffs_k (m : Nat) (p : Poly) : Poly :=
-  Poly.rec (fun k => .num (bmod_k k m))
-    (fun k v _ ih => Bool.rec (.add (bmod_k k m) v ih) ih (Int.beqZero_k (bmod_k k m)))
+  Poly.rec (fun k => .num (Int.bmod_k k m))
+    (fun k v _ ih => Bool.rec (.add (Int.bmod_k k m) v ih) ih (Int.beqZero_k (Int.bmod_k k m)))
     p
 
 @[simp] theorem Poly.bmodCoeffs_k_eq_bmodCoeffs (m : Nat) (p : Poly) : p.bmodCoeffs_k m = p.bmodCoeffs m := by
   induction p with
-  | num k => show Poly.num (bmod_k k m) = _; simp [bmodCoeffs]
+  | num k => show Poly.num (Int.bmod_k k m) = _; simp [bmodCoeffs]
   | add k v p ih =>
-    show Bool.rec (motive := fun _ => Poly) (.add (bmod_k k m) v (p.bmodCoeffs_k m)) (p.bmodCoeffs_k m)
-      (Int.beqZero_k (bmod_k k m)) = _
-    simp only [bmod_k_eq, Int.beqZero_k_eq, ih, bmodCoeffs]
+    show Bool.rec (motive := fun _ => Poly) (.add (Int.bmod_k k m) v (p.bmodCoeffs_k m)) (p.bmodCoeffs_k m)
+      (Int.beqZero_k (Int.bmod_k k m)) = _
+    simp only [Int.bmod_k_eq, Int.beqZero_k_eq, ih, bmodCoeffs]
     cases Int.bmod k m == 0 <;> rfl
 
 theorem Poly.dvd_denote_sub_bmodCoeffs (ctx : Context) (m : Nat) (p : Poly)
@@ -1672,7 +1647,7 @@ noncomputable def cooper_dvd_left_cert (p₁ p₂ p₃ : Poly) (d : Int) (n : Na
   p₃.casesOn (fun _ => false) fun c z _ =>
    .and (x.beq y) <| .and (x.beq z) <|
    .and (Int.blt' a 0)  <| .and (Int.blt' 0 b)  <|
-   .and (Int.blt' 0 d)  <| n.beq (lcm_k a (Int.ediv_k (Int.mul_k a d) (Int.ofNat (gcd_k (Int.mul_k a d) c))))
+   .and (Int.blt' 0 d)  <| n.beq (Int.lcm_k a (Int.ediv_k (Int.mul_k a d) (Int.ofNat (Int.gcd_k (Int.mul_k a d) c))))
 
 @[expose]
 def Poly.tail (p : Poly) : Poly :=
@@ -1868,7 +1843,7 @@ noncomputable def cooper_dvd_right_cert (p₁ p₂ p₃ : Poly) (d : Int) (n : N
   p₃.casesOn (fun _ => false) fun c z _ =>
    .and (x.beq y) <| .and (x.beq z) <|
    .and (Int.blt' a 0)  <| .and (Int.blt' 0 b)  <|
-   .and (Int.blt' 0 d)  <| n.beq (lcm_k b (Int.ediv_k (Int.mul_k b d) (Int.ofNat (gcd_k (Int.mul_k b d) c))))
+   .and (Int.blt' 0 d)  <| n.beq (Int.lcm_k b (Int.ediv_k (Int.mul_k b d) (Int.ofNat (Int.gcd_k (Int.mul_k b d) c))))
 
 @[expose]
 def cooper_dvd_right_split (ctx : Context) (p₁ p₂ p₃ : Poly) (d : Int) (k : Nat) : Prop :=

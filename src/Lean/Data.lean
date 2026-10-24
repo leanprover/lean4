@@ -15,6 +15,7 @@ public import Lean.Data.KVMap
 public import Lean.Data.LBool
 public import Lean.Data.LOption
 public import Lean.Data.Lsp
+public import Lean.Data.Markdown
 public import Lean.Data.Name
 public import Lean.Data.NameMap
 public import Lean.Data.OpenDecl

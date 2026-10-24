@@ -2178,6 +2178,37 @@ Returns {lean}`none` when {lit}`&ref;` is not listed in the HTML standard. -/
 def namedCharacterReference? (ref : String) : Option String :=
   namedCharacterReferences.binSearch (ref, "") (fun a b => a.1 < b.1) |>.map (·.2)
 
+/-- Parses the body {name}`ref` of a numeric
+[character reference](https://html.spec.whatwg.org/dev/syntax.html#character-references)
+{lit}`&ref;` in decimal ({lit}`&#123;`) or hexadecimal ({lit}`&#x7B;`) notation to the number it
+denotes. The number is not checked to be a Unicode scalar value.
+Returns {lean}`none` when {name}`ref` is not {lit}`#` or {lit}`#x` followed by one or more digits. -/
+def numericCharacterReference? (ref : String) : Option Nat :=
+  let i : String.Pos.Raw := 0
+  if h : i.atEnd ref then none
+  else if i.get' ref h == '#' then
+    let i := i.next' ref h
+    if h : i.atEnd ref then none
+    else if i.get' ref h == 'x' || i.get' ref h == 'X' then numeric 16 ref (i.next' ref h)
+    else numeric 10 ref i
+  else none
+where
+  numeric (radix : Nat) (ref : String) (i : String.Pos.Raw) : Option Nat := do
+    if i.atEnd ref then none
+    let mut n : Nat := 0
+    let mut i := i
+    while h : ¬i.atEnd ref do
+      let d ← digit? (i.get' ref h)
+      if d ≥ radix then none
+      n := n * radix + d
+      i := i.next' ref h
+    return n
+  digit? (c : Char) : Option Nat :=
+    if '0' ≤ c && c ≤ '9' then some (c.toNat - '0'.toNat)
+    else if 'a' ≤ c && c ≤ 'f' then some (10 + c.toNat - 'a'.toNat)
+    else if 'A' ≤ c && c ≤ 'F' then some (10 + c.toNat - 'A'.toNat)
+    else none
+
 /-- Looks up the string denoted by the body {name}`ref`
 of an [HTML character reference](https://html.spec.whatwg.org/dev/syntax.html#character-references)
 {lit}`&ref;`.
@@ -2188,32 +2219,15 @@ Numeric references in decimal ({lit}`&#123;`) or hexadecimal ({lit}`&#x7B;`) not
 must denote a Unicode scalar value that is not U+0000, U+000D,
 a noncharacter, or a control other than ASCII whitespace. -/
 def characterReference? (ref : String) : Option String :=
-  let i : String.Pos.Raw := 0
-  if h : i.atEnd ref then none
-  else if i.get' ref h == '#' then
-    let i := i.next' ref h
-    if h : i.atEnd ref then none
-    else if i.get' ref h == 'x' || i.get' ref h == 'X' then numeric 16 ref (i.next' ref h)
-    else numeric 10 ref i
-  else namedCharacterReference? ref
+  match numericCharacterReference? ref with
+  | some n => scalar? n
+  | none => namedCharacterReference? ref
 where
-  numeric (radix : Nat) (ref : String) (i : String.Pos.Raw) : Option String := do
-    let mut n : Nat := 0
-    let mut i := i
-    while h : ¬i.atEnd ref do
-      let d ← digit? (i.get' ref h)
-      if d ≥ radix then none
-      n := n * radix + d
-      if n > 0x10FFFF then none -- exceeded Unicode range
-      i := i.next' ref h
+  scalar? (n : Nat) : Option String := do
+    if n > 0x10FFFF then none
     let c := Char.ofNat n
     if c == '\x00' || c == '\x0d' || isNonCharacter c || (isControl c && !isAsciiWhitespace c) then
       none
     return String.singleton c
-  digit? (c : Char) : Option Nat :=
-    if '0' ≤ c && c ≤ '9' then some (c.toNat - '0'.toNat)
-    else if 'a' ≤ c && c ≤ 'f' then some (10 + c.toNat - 'a'.toNat)
-    else if 'A' ≤ c && c ≤ 'F' then some (10 + c.toNat - 'A'.toNat)
-    else none
 
 end Lean.Html

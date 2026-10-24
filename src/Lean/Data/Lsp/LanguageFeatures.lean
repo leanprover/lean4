@@ -427,6 +427,10 @@ structure CallHierarchyOutgoingCall where
 
 inductive SemanticTokenType where
   -- Used by Lean
+  /--
+  A keyword. Delimiters of Verso and Markdown syntax in docstrings, such as `*`, `#`, `>`, fences,
+  and brackets, are keywords with the `markupSyntax` modifier.
+  -/
   | keyword
   | variable
   | property
@@ -454,6 +458,36 @@ inductive SemanticTokenType where
   | decorator
   -- Extensions
   | leanSorryLike
+  -- Markup in Verso and Markdown docstrings
+  /--
+  Text in a docstring or module docstring that is not in a heading, blockquote, or list item. May
+  have the `markupBold` and `markupItalic` modifiers.
+  -/
+  | markupDocText
+  /--
+  Text outside of a docstring, such as in a Verso document, that is not in a heading, blockquote, or
+  list item. May have the `markupBold` and `markupItalic` modifiers. It is for tools that highlight
+  Verso documents, so that themes can style their text as ordinary text rather than as
+  documentation.
+  -/
+  | markupPlainText
+  /-- Text in a heading. May have the `markupBold` and `markupItalic` modifiers. -/
+  | markupHeading
+  /-- Text in a blockquote. May have the `markupBold` and `markupItalic` modifiers. -/
+  | markupQuote
+  /-- Text in a list item. May have the `markupBold` and `markupItalic` modifiers. -/
+  | markupList
+  /-- The content of inline code or inline math. -/
+  | markupInlineCode
+  /-- A line of a code block. -/
+  | markupCodeBlock
+  /-- A URL in a link, image, autolink, or link reference definition. -/
+  | markupUrl
+  /--
+  A reference label: that of a link reference definition, of a reference-style link, or of a
+  footnote.
+  -/
+  | markupCrossReference
   deriving ToJson, FromJson, BEq, Hashable
 
 -- must be in the same order as the constructors
@@ -461,7 +495,9 @@ def SemanticTokenType.names : Array String :=
   #["keyword", "variable", "property", "function", "namespace", "type", "class",
     "enum", "interface", "struct", "typeParameter", "parameter", "enumMember",
     "event", "method", "macro", "modifier", "comment", "string", "number",
-    "regexp", "operator", "decorator", "leanSorryLike"]
+    "regexp", "operator", "decorator", "leanSorryLike",
+    "markupDocText", "markupPlainText", "markupHeading", "markupQuote", "markupList",
+    "markupInlineCode", "markupCodeBlock", "markupUrl", "markupCrossReference"]
 
 def SemanticTokenType.toNat (tokenType : SemanticTokenType) : Nat :=
   tokenType.ctorIdx
@@ -472,9 +508,8 @@ example {v : SemanticTokenType} : open SemanticTokenType in
   cases v <;> native_decide
 
 /--
-The semantic token modifiers included by default in the LSP specification.
-Not used by the Lean core, but implementing them here allows them to be
-utilized by users extending the Lean server.
+The semantic token modifiers that the LSP specification includes by default, followed by Lean's own.
+The standard modifiers are available to users who extend the Lean server.
 -/
 inductive SemanticTokenModifier where
   | declaration
@@ -487,12 +522,24 @@ inductive SemanticTokenModifier where
   | modification
   | documentation
   | defaultLibrary
-  deriving ToJson, FromJson
+  -- Extensions
+  /-- Bold text, such as `*bold*` in Verso or `**bold**` in Markdown. -/
+  | markupBold
+  /-- Emphasized text, typically shown in italics, such as `_emph_` in Verso or Markdown. -/
+  | markupItalic
+  /--
+  A delimiter of Verso or Markdown syntax, such as `*`, `#`, a fence, or a bracket. Delimiters are
+  `keyword` tokens with this modifier, so that themes can style them like keywords by default and
+  single them out when they want to.
+  -/
+  | markupSyntax
+  deriving ToJson, FromJson, BEq, Hashable
 
 -- must be in the same order as the constructors
 def SemanticTokenModifier.names : Array String :=
   #["declaration", "definition", "readonly", "static", "deprecated", "abstract",
-    "async", "modification", "documentation", "defaultLibrary"]
+    "async", "modification", "documentation", "defaultLibrary",
+    "markupBold", "markupItalic", "markupSyntax"]
 
 def SemanticTokenModifier.toNat (modifier : SemanticTokenModifier) : Nat :=
   modifier.ctorIdx

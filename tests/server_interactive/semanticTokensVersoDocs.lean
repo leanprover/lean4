@@ -3,7 +3,7 @@ set_option doc.verso.suggestions false
 /-!
 This test checks that Verso docstring semantic tokens work as expected. In particular, it tests that
 overlapping token handling does what we want, because the unannotated identifiers and the spaces in
-the {lit}`code` elements are assigned the string type, while variables etc are given info-based
+the {lit}`code` elements are assigned the `markupInlineCode` type, while variables etc are given info-based
 tokens. A code block's lines are tokenized one at a time, so an indented block's indentation is not
 part of any token and an empty block contributes none. Inline code and math are tokenized one line
 at a time as well, and a continuation line's indentation up to the docstring's base column is not
@@ -81,6 +81,21 @@ def fromDoc := 1
 {set_option maxRecDepth 512}
 -/
 def x := ()
+
+/--
+Plain text in a Verso docstring should be tagged as documentation: the leading sentence here, and
+the trailing one, are pure inline text with no role markup, *with one piece of bold* and _one
+piece of italic_, plus *_bold and italic combined_*. The role {lit}`mid` sits between them,
+surrounded by ordinary spaces.
+
+# Heading text with *bold* and _italic_
+
+> Blockquoted text with *bold* and _italic_.
+
+* Bullet item with *bold* and _italic_.
+* Another item.
+-/
+def textExample : Nat := 0
 
 --^ collectDiagnostics
 --^ textDocument/semanticTokens/full

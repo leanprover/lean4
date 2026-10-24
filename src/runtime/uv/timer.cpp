@@ -6,12 +6,11 @@ Author: Sofia Rodrigues, Henrik Böving
 */
 #include "runtime/uv/timer.h"
 #include "runtime/uv/util.h"
+#include <memory>
 #include <new>
 
 namespace lean {
 #ifndef LEAN_EMSCRIPTEN
-
-using namespace std;
 
 // The finalizer of the `Timer`.
 static void timer_finalizer(void* ptr) {
@@ -19,6 +18,8 @@ static void timer_finalizer(void* ptr) {
 
     // Released after the unlock.
     owned_ref promise;
+    // Freed after the unlock when the teardown at exit already closed the handle.
+    std::unique_ptr<lean_uv_timer_object> closed_at_exit;
 
     {
         // A repeating timer without a pending promise may still be running, so the handle is closed
@@ -29,6 +30,11 @@ static void timer_finalizer(void* ptr) {
         promise = std::move(timer->m_promise);
         // While a promise is pending the loop holds a reference, so the timer cannot be finalized.
         lean_assert(promise.get() == nullptr || promise_is_resolved(promise.get()));
+
+        if (uv_is_closing((uv_handle_t*)&timer->m_uv_timer)) {
+            closed_at_exit.reset(timer);
+            return;
+        }
 
         // The Lean object is being freed, so the close callback gets the struct instead. No callback
         // reads `data` as the Lean object after `uv_close`.
@@ -44,7 +50,7 @@ void initialize_libuv_timer() {
     g_uv_timer_external_class = lean_register_external_class(timer_finalizer, uv_foreach_refs<lean_uv_timer_object>);
 }
 
-void handle_timer_event(uv_timer_t* handle) {
+static void handle_timer_event(uv_timer_t* handle) {
     lean_object * obj = (lean_object*)handle->data;
     lean_uv_timer_object * timer = lean_to_uv_timer(obj);
 

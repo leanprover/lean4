@@ -142,7 +142,8 @@ def ofParts (a b c d e f g h : UInt16) : IPv6Addr :=
 
 /--
 Try to parse `s` as an IPv6 address according to
-[RFC 2373](https://datatracker.ietf.org/doc/html/rfc2373), returning `none` on failure.
+[RFC 2373](https://datatracker.ietf.org/doc/html/rfc2373), returning `none` on failure. A zone suffix
+such as `%eth0` is rejected, since an `IPv6Addr` has no zone.
 -/
 @[extern "lean_uv_pton_v6"]
 opaque ofString (s : @&String) : Option IPv6Addr

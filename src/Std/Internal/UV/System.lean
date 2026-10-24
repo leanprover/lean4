@@ -159,10 +159,12 @@ Gets a subset of the password file entry for the current user.
 opaque osGetPasswd : IO PasswdInfo
 
 /--
-Gets information about the current user's group.
+Gets the group with the given id, or `none` if there is no such group. Throws an invalid-argument error
+for an id that does not fit the operating system's group id type, and an unsupported-operation error on
+Windows.
 -/
 @[extern "lean_uv_os_get_group"]
-opaque osGetGroup : UInt64 → IO (Option GroupInfo)
+opaque osGetGroup : @& Nat → IO (Option GroupInfo)
 
 /--
 Gets all environment variables.

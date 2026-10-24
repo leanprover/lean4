@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Sofia Rodrigues
 */
 #include <climits>
+#include <limits>
 #include <cstring>
 #include <memory>
 #include <new>
@@ -13,7 +14,7 @@ Author: Sofia Rodrigues
 namespace lean {
 #ifndef LEAN_EMSCRIPTEN
 
-using namespace std;
+namespace {
 
 // A `uv_random` request. The callback fills `byte_array` and deletes it, and so does a failed submit.
 struct random_req_t {
@@ -22,14 +23,29 @@ struct random_req_t {
     owned_ref   byte_array;
 };
 
+}
+
 /* Std.Internal.UV.System.getProcessTitle : IO String */
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_get_process_title() {
-    char title[512];
-    int result = uv_get_process_title(title, sizeof(title));
+    char stack_buffer[512];
+    std::unique_ptr<char[]> heap_buffer;
+    char * buffer = stack_buffer;
+    size_t size = sizeof(stack_buffer);
+
+    // libuv does not report the size the title needs, so the buffer doubles until it fits.
+    int result;
+    while ((result = uv_get_process_title(buffer, size)) == UV_ENOBUFS) {
+        size *= 2;
+        heap_buffer.reset(new (std::nothrow) char[size]);
+        if (!heap_buffer) {
+            return io_result_mk_enomem();
+        }
+        buffer = heap_buffer.get();
+    }
     if (result < 0) {
         return io_result_mk_uv_error(result);
     }
-    return lean_io_result_mk_ok(lean_mk_string(title));
+    return lean_io_result_mk_ok(lean_mk_string(buffer));
 }
 
 /* Std.Internal.UV.System.setProcessTitle : @& String → IO Unit */
@@ -158,15 +174,29 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_get_passwd() {
     lean_object* passwd_info = lean_alloc_ctor(0, 5, 0);
     lean_ctor_set(passwd_info, 0, lean_mk_string(passwd.username));
     lean_ctor_set(passwd_info, 1, passwd.uid != (unsigned long)(-1) ? mk_option_some(lean_box_uint64(passwd.uid)) : mk_option_none());
-    lean_ctor_set(passwd_info, 2, passwd.uid != (unsigned long)(-1) ? mk_option_some(lean_box_uint64(passwd.gid)) : mk_option_none());
+    lean_ctor_set(passwd_info, 2, passwd.gid != (unsigned long)(-1) ? mk_option_some(lean_box_uint64(passwd.gid)) : mk_option_none());
     lean_ctor_set(passwd_info, 3, passwd.shell ? mk_option_some(lean_mk_string(passwd.shell)) : mk_option_none());
     lean_ctor_set(passwd_info, 4, passwd.homedir ? mk_option_some(lean_mk_string(passwd.homedir)) : mk_option_none());
     return lean_io_result_mk_ok(passwd_info);
 }
 
-/* Std.Internal.UV.System.osGetGroup : IO (Option GroupInfo) */
-extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_get_group(uint64_t gid) {
+/* Std.Internal.UV.System.osGetGroup : @& Nat → IO (Option GroupInfo) */
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_get_group(b_obj_arg gid_obj) {
 #if UV_VERSION_HEX >= 0x012D00
+#ifdef LEAN_WINDOWS
+    // libuv has no group lookup on Windows, where `uv_uid_t` is a single byte, so the range check below
+    // would report most ids as invalid instead.
+    (void)gid_obj;
+    return io_result_mk_uv_error(UV_ENOTSUP);
+#else
+    // Checked as a `Nat`, since converting first would wrap a larger id around to another group.
+    lean_object * max_gid = lean_uint64_to_nat(std::numeric_limits<uv_uid_t>::max());
+    bool in_range = lean_nat_le(gid_obj, max_gid);
+    lean_dec(max_gid);
+    if (!in_range) {
+        return io_result_mk_uv_error(UV_EINVAL);
+    }
+    uv_uid_t gid = (uv_uid_t)lean_uint64_of_nat(gid_obj);
     uv_group_t group;
     int result = uv_os_get_group(&group, gid);
     if (result == UV_ENOENT) {
@@ -179,6 +209,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_get_group(uint64_t gid) {
     std::unique_ptr<uv_group_t, decltype(&uv_os_free_group)> group_strings(&group, uv_os_free_group);
 
     lean_object* members = lean_mk_empty_array();
+
     for (char ** member = group.members; member && *member != nullptr; member++) {
         members = lean_array_push(members, lean_mk_string(*member));
     }
@@ -188,6 +219,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_get_group(uint64_t gid) {
     lean_ctor_set(group_info, 1, members);
     lean_ctor_set_uint64(group_info, sizeof(void*)*2, group.gid);
     return lean_io_result_mk_ok(mk_option_some(group_info));
+#endif
 #else
     lean_always_assert(
         false && ("Please build a version of Lean4 with libuv version at least 1.45.0 to invoke this.")
@@ -218,7 +250,8 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_environ() {
 /* Std.Internal.UV.System.osGetenv : @& String → IO (Option String) */
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_getenv(b_obj_arg name) {
     const char* name_str = lean_string_cstr(name);
-    if (strlen(name_str) != lean_string_size(name) - 1) {
+    // No variable has a name containing `=`, but the C library may match the name only up to the `=`.
+    if (strlen(name_str) != lean_string_size(name) - 1 || strchr(name_str, '=') != nullptr) {
         return lean_io_result_mk_ok(mk_option_none());
     }
     char stack_buffer[1024];
@@ -276,7 +309,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_unsetenv(b_obj_arg name) {
 
 /* Std.Internal.UV.System.osGetHostname : IO String */
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_gethostname() {
-    char hostname[256];
+    char hostname[UV_MAXHOSTNAMESIZE];
     size_t size = sizeof(hostname);
     int result = uv_os_gethostname(hostname, &size);
     if (result < 0) {
@@ -287,6 +320,9 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_gethostname() {
 
 /* Std.Internal.UV.System.osGetPriority : UInt64 → IO Int64 */
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_getpriority(uint64_t pid) {
+    if (pid > (uint64_t)std::numeric_limits<uv_pid_t>::max()) {
+        return io_result_mk_uv_error(UV_EINVAL);
+    }
     int priority;
     int result = uv_os_getpriority(pid, &priority);
     if (result < 0) {
@@ -297,7 +333,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_getpriority(uint64_t pid) {
 
 /* Std.Internal.UV.System.osSetPriority : UInt64 → Int64 → IO Unit */
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_setpriority(uint64_t pid, int64_t priority) {
-    if (priority < INT_MIN || priority > INT_MAX) {
+    if (pid > (uint64_t)std::numeric_limits<uv_pid_t>::max() || priority < INT_MIN || priority > INT_MAX) {
         return io_result_mk_uv_error(UV_EINVAL);
     }
     int result = uv_os_setpriority(pid, (int)priority);
@@ -345,6 +381,9 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_random(uint64_t size) {
 
     auto on_random = [](uv_random_t * uv, int status, void * buf, size_t buflen) {
         std::unique_ptr<random_req_t> req(static_cast<random_req_t*>(uv->data));
+        if (uv_dropped_at_exit(req->promise, req->byte_array)) {
+            return;
+        }
 
         if (status < 0) {
             lean_promise_resolve(mk_except_err(lean_decode_uv_error(status, nullptr)), req->promise.get());
@@ -517,8 +556,8 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_get_passwd() {
     );
 }
 
-// Std.Internal.UV.System.osGetGroup : IO (Option GroupInfo)
-extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_get_group(uint64_t gid) {
+// Std.Internal.UV.System.osGetGroup : @& Nat → IO (Option GroupInfo)
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_get_group(b_obj_arg gid) {
     lean_always_assert(
         false && ("Please build a version of Lean4 with libuv to invoke this.")
     );

@@ -17,9 +17,7 @@ Author: Sofia Rodrigues, Henrik Böving
 namespace lean {
 #ifndef LEAN_EMSCRIPTEN
 
-using namespace std;
-
-bool is_safe_ascii_str(const char *s, size_t len) {
+static bool is_safe_ascii_str(const char *s, size_t len) {
     while (len > 0) {
         char c = *s++;
         if (!((c >= 'a' && c <= 'z') ||
@@ -35,6 +33,8 @@ bool is_safe_ascii_str(const char *s, size_t len) {
     return true;
 }
 
+namespace {
+
 // A DNS request and the promise its callback settles. The callback deletes it, and so does a failed
 // submit. libuv copies the host, service, hints and address it is given.
 template<class Req>
@@ -45,6 +45,8 @@ struct dns_req_t {
 
 using getaddrinfo_req_t = dns_req_t<uv_getaddrinfo_t>;
 using getnameinfo_req_t = dns_req_t<uv_getnameinfo_t>;
+
+}
 
 // Std.Internal.IO.Async.DNS.getAddrInfo (host service : @& String) (family : UInt8) : IO (IO.Promise (Except IO.Error (Array IPAddr)))
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_dns_get_info(b_obj_arg name, b_obj_arg service, uint8_t family) {
@@ -81,32 +83,32 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_dns_get_info(b_obj_arg name, b_obj_a
 
     auto on_resolved = [](uv_getaddrinfo_t * uv, int status, struct addrinfo* res) {
         std::unique_ptr<getaddrinfo_req_t> req(static_cast<getaddrinfo_req_t*>(uv->data));
+        std::unique_ptr<addrinfo, decltype(&uv_freeaddrinfo)> owned_res(res, uv_freeaddrinfo);
+
+        if (uv_dropped_at_exit(req->promise)) {
+            return;
+        }
 
         if (status != 0) {
             resolve_with_code(status, req->promise.get());
             return;
         }
 
-        std::unique_ptr<addrinfo, decltype(&uv_freeaddrinfo)> owned_res(res, uv_freeaddrinfo);
         lean_object * arr = lean_alloc_array(0, 1);
 
-        for (struct addrinfo* ai = res; ai != NULL; ai = ai->ai_next) {
-            const struct sockaddr* sin_addr = (const struct sockaddr*)ai->ai_addr;
+        for (addrinfo * ai = res; ai != nullptr; ai = ai->ai_next) {
+            const sockaddr * sa = ai->ai_addr;
+            const void * ip;
 
-            in_addr_storage* storage_addr;
-
-            if (sin_addr->sa_family == AF_INET) {
-                struct sockaddr_in* ipv4 = (struct sockaddr_in*)sin_addr;
-                storage_addr = (in_addr_storage*)&(ipv4->sin_addr);
-            } else if (sin_addr->sa_family == AF_INET6) {
-                struct sockaddr_in6* ipv6 = (struct sockaddr_in6*)sin_addr;
-                storage_addr = (in_addr_storage*)&(ipv6->sin6_addr);
+            if (sa->sa_family == AF_INET) {
+                ip = &reinterpret_cast<const sockaddr_in*>(sa)->sin_addr;
+            } else if (sa->sa_family == AF_INET6) {
+                ip = &reinterpret_cast<const sockaddr_in6*>(sa)->sin6_addr;
             } else {
                 continue;
             }
 
-            lean_object* addr = lean_in_addr_storage_to_ip_addr((short)sin_addr->sa_family, storage_addr);
-            arr = lean_array_push(arr, addr);
+            arr = lean_array_push(arr, lean_in_addr_to_ip_addr(sa->sa_family, ip));
         }
 
         lean_promise_resolve(mk_except_ok(arr), req->promise.get());
@@ -142,6 +144,9 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_dns_get_name(b_obj_arg addr) {
 
     auto on_resolved = [](uv_getnameinfo_t * uv, int status, const char * hostname, const char * service) {
         std::unique_ptr<getnameinfo_req_t> req(static_cast<getnameinfo_req_t*>(uv->data));
+        if (uv_dropped_at_exit(req->promise)) {
+            return;
+        }
 
         if (status != 0) {
             resolve_with_code(status, req->promise.get());

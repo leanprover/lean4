@@ -15,6 +15,8 @@ namespace lean {
 
 #ifndef LEAN_EMSCRIPTEN
 
+namespace {
+
 // A connect request. The callback deletes it, and so does a failed submit.
 struct tcp_connect_req_t {
     uv_connect_t uv;
@@ -31,6 +33,8 @@ struct tcp_send_req_t {
     owned_ref  promise;
 };
 
+}
+
 // =======================================
 // TCP socket object manipulation functions.
 
@@ -41,7 +45,15 @@ static void tcp_socket_finalizer(void* ptr) {
         lean_always_assert(ref->get() == nullptr);
     }
 
+    // Freed after the unlock when the teardown at exit already closed the handle.
+    std::unique_ptr<lean_uv_tcp_socket_object> closed_at_exit;
+
     event_loop_guard guard;
+
+    if (uv_is_closing((uv_handle_t*)&tcp_socket->m_uv_tcp)) {
+        closed_at_exit.reset(tcp_socket);
+        return;
+    }
 
     // The Lean object is being freed, so the close callback gets the struct instead. No callback
     // reads `data` as the Lean object after `uv_close`.
@@ -105,6 +117,9 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_connect(b_obj_arg socket, b_obj_
 
     auto on_connect = [](uv_connect_t * uv, int status) {
         std::unique_ptr<tcp_connect_req_t> req(static_cast<tcp_connect_req_t*>(uv->data));
+        if (uv_dropped_at_exit(req->promise, req->socket)) {
+            return;
+        }
         resolve_with_code(status, req->promise.get());
     };
 
@@ -152,6 +167,9 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_send(b_obj_arg socket, obj_arg d
 
     auto on_write = [](uv_write_t * uv, int status) {
         std::unique_ptr<tcp_send_req_t> req(static_cast<tcp_send_req_t*>(uv->data));
+        if (uv_dropped_at_exit(req->promise, req->socket, req->data)) {
+            return;
+        }
         resolve_with_code(status, req->promise.get());
     };
 
@@ -181,7 +199,8 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_recv(b_obj_arg socket, uint64_t 
     };
 
     auto read_cb = [](uv_stream_t* stream, ssize_t nread, const uv_buf_t* buf) {
-        if (nread == 0) return;
+        // libuv before 1.45 can still report a read on Windows once the handle is no longer reading.
+        if (nread == 0 || !global_ev.running() || uv_is_closing((uv_handle_t*)stream)) return;
 
         uv_read_stop(stream);
 
@@ -244,14 +263,15 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_wait_readable(b_obj_arg socket) 
     auto alloc_cb = [](uv_handle_t* handle, size_t suggested_size, uv_buf_t* buf) {
         // According to libuv documentation if we do this we do not lose data and a UV_ENOBUFS will
         // be triggered in the read cb.
-        buf->base = NULL;
+        buf->base = nullptr;
         buf->len = 0;
     };
 
     auto read_cb = [](uv_stream_t* stream, ssize_t nread, const uv_buf_t* buf) {
         // `nread == 0` is libuv's equivalent of `EAGAIN`: the socket is not actually readable, so
-        // keep waiting rather than resolving the promise.
-        if (nread == 0) return;
+        // keep waiting rather than resolving the promise. libuv before 1.45 can still report a read on
+        // Windows once the handle is no longer reading.
+        if (nread == 0 || !global_ev.running() || uv_is_closing((uv_handle_t*)stream)) return;
 
         uv_read_stop(stream);
 
@@ -346,6 +366,9 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_listen(b_obj_arg socket, int32_t
     lean_uv_tcp_socket_object* tcp_socket = lean_to_uv_tcp_socket(socket);
 
     auto on_connection = [](uv_stream_t* stream, int status) {
+        // On Windows a connection that completed before the listener was closed is still reported.
+        if (!global_ev.running() || uv_is_closing((uv_handle_t*)stream)) return;
+
         lean_object* socket = (lean_object*)stream->data;
         lean_uv_tcp_socket_object* tcp_socket = lean_to_uv_tcp_socket(socket);
 
@@ -561,6 +584,12 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_shutdown(b_obj_arg socket) {
     lean_uv_tcp_socket_object* tcp_socket = lean_to_uv_tcp_socket(socket);
 
     auto on_shutdown = [](uv_shutdown_t* req, int status) {
+        // The teardown at exit already handed the promise and the loop's reference to the loop.
+        if (!global_ev.running()) {
+            free(req);
+            return;
+        }
+
         lean_uv_tcp_socket_object* tcp_socket = lean_to_uv_tcp_socket((lean_object*)req->data);
 
         // Declared first so it is released last.

@@ -1736,12 +1736,12 @@ Examples:
 -/
 @[export lean_expr_consume_type_annotations]
 partial def consumeTypeAnnotations (e : Expr) : Expr :=
-  if e.isOptParam || e.isAutoParam then
-    consumeTypeAnnotations e.appFn!.appArg!
-  else if e.isOutParam || e.isSemiOutParam then
-    consumeTypeAnnotations e.appArg!
-  else
-    e
+  match e with
+  | .app (.const c _) a =>
+    if c == ``outParam || c == ``semiOutParam then consumeTypeAnnotations a else e
+  | .app (.app (.const c _) a) _ =>
+    if c == ``optParam || c == ``autoParam then consumeTypeAnnotations a else e
+  | _ => e
 
 /--
 Remove metadata annotations and `outParam`, `semiOutParam`, `optParam`, and `autoParam`

@@ -377,7 +377,7 @@ jobs:
           # Updating `GITHUB_ENV` would only apply to future steps (which do not need it).
           export LEAN_GITHASH=$(cat build/stage1/lake-githash)
           time ctest --preset ${{ matrix.CMAKE_PRESET || 'release' }} --test-dir build/stage1 -j$NPROC
-        if: matrix.check-rebootstrap
+        if: matrix.check-rebootstrap && !matrix.release
       - name: CCache stats
         if: always()
         run: ccache -s

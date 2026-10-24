@@ -41,6 +41,9 @@ jobs:
       # somehow MinGW clang64 (or cmake?) defaults to `g++` even though it doesn't exist
       CXX: c++
       MACOSX_DEPLOYMENT_TARGET: 11.0
+      # Fail the package test on a missing Beam executable in jobs that explicitly build it.
+      # Match the native release build condition; use shell-friendly 1/0 values.
+      LEAN_BEAM_REQUIRED: ${{ matrix.release && !matrix.wasm && '1' || '0' }}
     steps:
       - name: Install Nix
         uses: DeterminateSystems/nix-installer-action@ef8a148080ab6020fd15196c2084a2eea5ff2d25 # v22
@@ -236,7 +239,7 @@ jobs:
         if: matrix.release && !matrix.wasm
         run: |
           make -C build/$TARGET_STAGE leanchecker-paranoid -j$NPROC
-      - name: Build lean4lean and con-leche
+      - name: Build lean4lean, con-leche, and lean-beam
         if: matrix.release && !matrix.wasm
         run: |
           if ! command -v elan > /dev/null; then
@@ -247,7 +250,9 @@ jobs:
             export PATH="$PWD/build/elan/bin:$PATH"
           fi
           elan --version  # fails step if not found
-          make -C build/$TARGET_STAGE lean4lean con-leche
+          # MSYS2 resets PATH in later steps; retain the executable for the selector fixtures.
+          printf 'LEAN_BEAM_TEST_ELAN=%s\n' "$(command -v elan)" >> "$GITHUB_ENV"
+          make -C build/$TARGET_STAGE lean4lean con-leche lean-beam
       - name: Build nanoda and con-ron
         if: matrix.release && !matrix.wasm
         run: |
@@ -367,6 +372,10 @@ jobs:
           # Set Lake's githash to the new stage0 hash used during the build (for the tests).
           # Updating `GITHUB_ENV` would only apply to future steps (which do not need it).
           export LEAN_GITHASH=$(cat build/stage1/lake-githash)
+          # Beam's plugin must use the rebuilt compiler.
+          if [[ '${{ matrix.release && !matrix.wasm }}' == true ]]; then
+            make -C build/stage1 lean-beam
+          fi
           time ctest --preset ${{ matrix.CMAKE_PRESET || 'release' }} --test-dir build/stage1 -j$NPROC
         if: matrix.check-rebootstrap
       - name: CCache stats

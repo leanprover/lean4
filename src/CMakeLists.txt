@@ -1100,6 +1100,37 @@ if(NOT CMAKE_SYSTEM_NAME MATCHES "Emscripten")
       ${CMAKE_BINARY_DIR}/bin
   )
 
+  if(STAGE GREATER 0)
+    # Beam's plugin must be built with the toolchain that will load it.
+    set(LEAN_BEAM_NATIVE_CMAKE_ARGS "")
+    if(LEAN_BEAM_NATIVE_CLANG_RESOURCE_DIR)
+      list(APPEND LEAN_BEAM_NATIVE_CMAKE_ARGS
+        "-DNATIVE_CLANG_RESOURCE_DIR=${LEAN_BEAM_NATIVE_CLANG_RESOURCE_DIR}")
+    endif()
+    if(LEAN_BEAM_NATIVE_SYSTEM_INCLUDE_DIR)
+      list(APPEND LEAN_BEAM_NATIVE_CMAKE_ARGS
+        "-DNATIVE_SYSTEM_INCLUDE_DIRS=${LEAN_BEAM_NATIVE_SYSTEM_INCLUDE_DIR}")
+    endif()
+    ExternalProject_Add(
+      lean-beam
+      PREFIX lean-beam-native
+      EXCLUDE_FROM_ALL ON
+      GIT_REPOSITORY https://github.com/leanprover/lean-beam
+      GIT_TAG ac580a9c3f46356188bc94c68c0a98cbda5f6992
+      CONFIGURE_COMMAND ""
+      BUILD_COMMAND ${CMAKE_COMMAND}
+        -DLEAN_PREFIX=${CMAKE_BINARY_DIR}
+        ${LEAN_BEAM_NATIVE_CMAKE_ARGS}
+        -P <SOURCE_DIR>/scripts/build-toolchain.cmake
+      BUILD_IN_SOURCE ON
+      BUILD_ALWAYS ON
+      INSTALL_COMMAND ${CMAKE_COMMAND}
+        -DLEAN_PREFIX=${CMAKE_BINARY_DIR}
+        -DPREFIX=${CMAKE_BINARY_DIR}
+        -P <SOURCE_DIR>/scripts/install-toolchain.cmake
+    )
+  endif()
+
   # Not in `ALL` as it's expensive; release CI builds it explicitly. Its only submodule is the
   # Aeneas verifier, which the binary does not need.
   ExternalProject_Add(
@@ -1160,6 +1191,7 @@ if(STAGE GREATER 0 AND NOT CMAKE_SYSTEM_NAME MATCHES "Emscripten")
     COMMAND $(MAKE) -f ${CMAKE_BINARY_DIR}/stdlib.make leanc
     VERBATIM
   )
+  add_dependencies(lean-beam lake leanc)
 endif()
 
 file(COPY ${LEAN_SOURCE_DIR}/bin/leanmake DESTINATION ${CMAKE_BINARY_DIR}/bin)

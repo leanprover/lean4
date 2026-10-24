@@ -45,6 +45,9 @@ echo -n " -DLEAN_STANDALONE=ON"
 echo -n " -DCMAKE_C_COMPILER=$PWD/stage1/bin/clang.exe -DCMAKE_C_COMPILER_WORKS=1 -DCMAKE_CXX_COMPILER=$PWD/llvm/bin/clang++.exe -DCMAKE_CXX_COMPILER_WORKS=1 -DLEAN_CXX_STDLIB='-lc++ -lc++abi'"
 echo -n " -DSTAGE0_CMAKE_C_COMPILER=clang -DSTAGE0_CMAKE_CXX_COMPILER=clang++"
 echo -n " -DLEAN_EXTRA_CXX_FLAGS='--sysroot $PWD/llvm -idirafter /clang64/include/'"
+# Beam's native helpers need full compiler and CRT headers, beyond the distributed subset.
+echo -n " -DLEAN_BEAM_NATIVE_CLANG_RESOURCE_DIR='$(cygpath -m "$(llvm/bin/clang --print-resource-dir)")'"
+echo -n " -DLEAN_BEAM_NATIVE_SYSTEM_INCLUDE_DIR='$(cygpath -m /clang64/include)'"
 # cadical is linked into the Lean libraries, so it needs the same sysroot. It cannot come from
 # `CMAKE_CXX_FLAGS` as on Linux because stage0 is built with the msys2 compiler here.
 echo -n " -DCADICAL_EXTRA_CXX_FLAGS='--sysroot $PWD/llvm -idirafter /clang64/include/' -DCADICAL_USE_LEANC_LINKER_FLAGS=ON"

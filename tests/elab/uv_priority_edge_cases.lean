@@ -2,9 +2,9 @@ import Std.Internal.UV.System
 
 /-!
 Process priorities at the edges. A priority outside the C `int` range is rejected instead of
-wrapping. On a child process, so the test does not lower its own priority: pid 0 means the calling
-process, 19 is accepted and read back, a priority below -20 is rejected, and a process that has
-exited and been reaped is reported as missing.
+wrapping, and pid 0 means the calling process. The priorities that are accepted are set on a child
+process, so the test does not lower its own: 19 is accepted and read back, and a priority below -20
+is rejected. A process that has exited and been reaped is reported as missing.
 -/
 
 open Std.Internal.UV

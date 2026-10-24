@@ -44,7 +44,8 @@ def expectInvalidArgument (what : String) (x : IO α) : IO Unit := do
     check s!"value of {n} bytes" (r == some v) s!"{r.map String.length}"
   let straddle := String.ofList (List.replicate 1022 'x') ++ "✓✓"
   System.osSetenv "LEAN_UV_ENV_BIG" straddle
-  check "multi-byte value across the buffer size" ((← System.osGetenv "LEAN_UV_ENV_BIG") == some straddle)
+  check "multi-byte value across the buffer size"
+    ((← System.osGetenv "LEAN_UV_ENV_BIG") == some straddle)
   System.osUnsetenv "LEAN_UV_ENV_BIG"
 
   -- Names and values are C strings: a NUL would silently cut them short.
@@ -59,8 +60,8 @@ def expectInvalidArgument (what : String) (x : IO α) : IO Unit := do
   expectInvalidArgument "chdir NUL" <| System.chdir "/\x00tmp"
   expectInvalidArgument "setProcessTitle NUL" <| System.setProcessTitle "a\x00b"
 
--- `PATH_MAX` is 1024 on macOS. libuv reads the working directory into the 1024-byte stack buffer when
--- it fits and reports the size it needs when it is exactly 1024 bytes long.
+-- `PATH_MAX` is 1024 on macOS. libuv reads the working directory into the 1024-byte stack buffer
+-- when it fits and reports the size it needs when it is exactly 1024 bytes long.
 #eval do
   unless System.Platform.isOSX do
     return
@@ -70,20 +71,33 @@ def expectInvalidArgument (what : String) (x : IO α) : IO Unit := do
   try
     for target in [1023, 1024] do
       System.chdir root
-      IO.FS.createDir s!"t{target}"
-      System.chdir s!"t{target}"
-      -- The real path: on macOS the temporary directory is behind the `/var` symlink.
-      let mut cur ← System.cwd
-      while cur.length < target do
-        -- Each component adds `n + 1` bytes; never leave a remainder of 1, which has no component.
-        let r := target - cur.length
-        let n := if r ≤ 201 then r - 1 else if r == 202 then 198 else 200
-        let comp := String.ofList (List.replicate n 'd')
-        IO.FS.createDir comp
-        System.chdir comp
-        cur := cur ++ "/" ++ comp
-      let c ← System.cwd
-      check s!"cwd of {target} bytes" (c == cur && c.utf8ByteSize == target) s!"got {c.length} bytes"
+      let top := s!"t{target}"
+      IO.FS.createDir top
+      System.chdir top
+      -- The tree is removed one level at a time through relative paths, since its deepest absolute
+      -- path is too long to remove.
+      let dirs ← IO.mkRef #[top]
+      try
+        -- The real path, which is longer than `root` when the temporary directory is behind a
+        -- symlink, as `/var` is on macOS.
+        let mut cur ← System.cwd
+        while cur.utf8ByteSize < target do
+          -- Each component adds `n + 1` bytes; never leave a remainder of 1, which has no
+          -- component.
+          let r := target - cur.utf8ByteSize
+          let n := if r ≤ 201 then r - 1 else if r == 202 then 198 else 200
+          let comp := String.ofList (List.replicate n 'd')
+          IO.FS.createDir comp
+          dirs.modify (·.push comp)
+          System.chdir comp
+          cur := cur ++ "/" ++ comp
+        let c ← System.cwd
+        check s!"cwd of {target} bytes" (c == cur && c.utf8ByteSize == target)
+          s!"got {c.utf8ByteSize} bytes"
+      finally
+        for dir in (← dirs.get).reverse do
+          System.chdir ".."
+          IO.FS.removeDir dir
   finally
     System.chdir base
     IO.FS.removeDirAll root

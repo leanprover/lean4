@@ -19,7 +19,8 @@ def check (name : String) (cond : Bool) (detail : String := "") : IO Unit :=
 def runAsync (x : Async α) : IO α := do
   (← x.toIO).block
 
--- A wrong address or port sends the datagram elsewhere, which must fail the test rather than hang it.
+-- A wrong address or port sends the datagram elsewhere, which must fail the test rather than hang
+-- it.
 def recvWithTimeout (s : UDP.Socket) (size : UInt64) : IO (ByteArray × Option SocketAddress) :=
   runAsync do
     let timeout ← Sleep.mk 5000
@@ -28,9 +29,9 @@ def recvWithTimeout (s : UDP.Socket) (size : UInt64) : IO (ByteArray × Option S
       .case timeout.selector fun _ => throw <| .userError "recv: timed out"]
 
 /--
-Binds `addr`, or returns `false` for an IPv6 address on a host without IPv6 (for example, a container
-with IPv6 disabled). Any other failure, such as an IPv4 loopback the kernel does not recognize, is an
-error.
+Binds `addr`, or returns `false` for an IPv6 address on a host without IPv6 (for example, a
+container with IPv6 disabled). Any other failure, such as an IPv4 loopback the kernel does not
+recognize, is an error.
 -/
 def tryBind (bind : SocketAddress → IO Unit) (addr : SocketAddress) : IO Bool := do
   try
@@ -54,7 +55,8 @@ def tryBind (bind : SocketAddress → IO Unit) (addr : SocketAddress) : IO Bool 
 -- The loopback interface reports its address with the matching netmask.
 #eval do
   let ifaces : Array InterfaceAddress ← interfaceAddresses
-  let summary := ifaces.toList.map fun (i : InterfaceAddress) => s!"{i.name} {i.address}/{i.netMask}"
+  let summary := ifaces.toList.map fun (i : InterfaceAddress) =>
+    s!"{i.name} {i.address}/{i.netMask}"
   let isV4Loopback (i : InterfaceAddress) :=
     i.address == IPAddr.v4 (.ofParts 127 0 0 1) && i.netMask == IPAddr.v4 (.ofParts 255 0 0 0) &&
       i.isLoopback
@@ -64,8 +66,8 @@ def tryBind (bind : SocketAddress → IO Unit) (addr : SocketAddress) : IO Bool 
       let allOnes := IPAddr.v6 (.ofParts 0xffff 0xffff 0xffff 0xffff 0xffff 0xffff 0xffff 0xffff)
       check "IPv6 loopback netmask" (i.netMask == allOnes) s!"{summary}"
 
--- A socket address goes to the kernel on `bind` and `send`, and comes back from `getSockName` and as
--- the source of a received datagram.
+-- A socket address goes to the kernel on `bind` and `send`, and comes back from `getSockName` and
+-- as the source of a received datagram.
 def roundTrip (loopback : IPAddr) (mkAddr : UInt16 → SocketAddress) : IO Unit := do
   let receiver ← UDP.Socket.mk
   unless ← tryBind receiver.bind (mkAddr 0) do
@@ -87,7 +89,8 @@ def roundTrip (loopback : IPAddr) (mkAddr : UInt16 → SocketAddress) : IO Unit 
 #eval roundTrip (.v6 (.ofParts 0 0 0 0 0 0 0 1)) fun port => .v6 ⟨.ofParts 0 0 0 0 0 0 0 1, port⟩
 
 -- `ofString` converts C to Lean and `toString` converts Lean to C. Each direction is compared to
--- fixed values on its own, since a byte swap applied in both directions cancels out in a round trip.
+-- fixed values on its own, since a byte swap applied in both directions cancels out in a round
+-- trip.
 def checkV6 (text : String) (parts : IPv6Addr) : IO Unit := do
   let some parsed := IPv6Addr.ofString text
     | throw <| IO.userError s!"IPv6 {text}: not parsed"

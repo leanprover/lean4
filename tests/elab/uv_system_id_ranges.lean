@@ -50,8 +50,8 @@ def isInvalidArgument : IO.Error → Bool
     unless g.gid == 2 ^ 32 - 1 do
       throw <| IO.userError s!"getGroup (2^32 - 1): returned gid {g.gid}"
 
--- Windows has no group lookup. Every id reports that, including ids that do not fit libuv's one-byte
--- `uv_uid_t` there.
+-- Windows has no group lookup. Every id reports that, including ids that do not fit libuv's
+-- one-byte `uv_uid_t` there.
 #eval do
   unless System.Platform.isWindows && Lean.libUVVersion >= 0x012D00 do
     return
@@ -63,11 +63,17 @@ def isInvalidArgument : IO.Error → Bool
 
 -- The uid and gid of the current user are both reported, and match the passwd entry as `id` reads
 -- it. `id` is given the user name, since without one it reports the process's effective ids, which
--- differ from the passwd entry under `sg`, `sudo -g` or `docker --user`.
-#eval do
+-- differ from the passwd entry under `sg`, `sudo -g` or `docker --user`. A container may run under
+-- a uid that has no passwd entry at all.
+#eval show IO Unit from do
   if System.Platform.isWindows then
     return
-  let passwd ← System.osGetPasswd
+  let r ← System.osGetPasswd.toBaseIO
+  if let .error (.noSuchThing ..) := r then
+    return
+  let passwd ← match r with
+    | .ok passwd => pure passwd
+    | .error e => throw e
   let id (flag : String) : IO (Option UInt64) := do
     let out ← IO.Process.output { cmd := "id", args := #[flag, passwd.username] }
     return out.stdout.trimAscii.toNat?.map Nat.toUInt64

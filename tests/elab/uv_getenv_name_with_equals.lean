@@ -2,12 +2,14 @@ import Std.Internal.UV.System
 
 /-!
 `osGetenv` must not find a variable for a name with an `=` past its first character: no variable
-has such a name, and `osSetenv` rejects it, but on macOS the C library's `getenv` matches only up to
-the `=`, so `osGetenv "PATH=junk"` would return the value of `PATH`. On Windows a leading `=`
-belongs to the name, as in the hidden `=C:` variables, so every variable `osEnviron` lists is found
-by its name. Elsewhere a name that starts with `=`, or is empty, is not found either: macOS
-`getenv` would match it to any variable whose name starts with `=`. `setenv` cannot create such a
-variable, so Python's `execve` plants one in a child `lean` process that runs those lookups.
+has such a name, and `osSetenv` rejects it, but the C library's `getenv` can match it to another
+variable. macOS matches only up to the `=`, so `osGetenv "PATH=junk"` would return the value of
+`PATH`, and glibc returns `b` for `"X=a"` when `X` is `a=b`, so the test's variable has a value
+containing `=`. On Windows a leading `=` belongs to the name, as in the hidden `=C:` variables, so
+every variable `osEnviron` lists is found by its name. Elsewhere a name that starts with `=`, or is
+empty, is not found either: macOS `getenv` would match it to any environment entry that starts with
+`=`. `setenv` cannot create such an entry, so Python's `execve` plants one in a child `lean` process
+that runs those lookups.
 -/
 
 open Std.Internal.UV
@@ -37,9 +39,7 @@ open Std.Internal.UV
     System.osUnsetenv "=LEAN_UV_EQ_LEAD"
 
 #eval show IO Unit from do
-  if System.Platform.isWindows then
-    return
-  System.osSetenv "LEAN_UV_EQ_NAME" "value"
+  System.osSetenv "LEAN_UV_EQ_NAME" "value=x"
   try
     for name in ["LEAN_UV_EQ_NAME=junk", "LEAN_UV_EQ_NAME=", "LEAN_UV_EQ_NAME=value"] do
       if let some v ← System.osGetenv name then

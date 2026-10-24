@@ -657,16 +657,20 @@ private def expandDivMod (a : Expr) (b : Int) : GoalM Unit := do
       pushEq ediv neg_a <| mkApp (mkConst ``Int.ediv_minus_one) a
   else
     let n : Int := 1 - b.natAbs
-    let facts := #[mkApp2 (mkConst ``Int.Internal.Linear.ediv_emod) a b',
-      mkApp3 (mkConst ``Int.Internal.Linear.emod_nonneg) a b' eagerReflBoolTrue,
-      mkApp4 (mkConst ``Int.Internal.Linear.emod_le) a b' (toExpr n) eagerReflBoolTrue]
+    let h₁ := mkApp2 (mkConst ``Int.Internal.Linear.ediv_emod) a b'
+    let h₂ := mkApp3 (mkConst ``Int.Internal.Linear.emod_nonneg) a b' eagerReflBoolTrue
+    let h₃ := mkApp4 (mkConst ``Int.Internal.Linear.emod_le) a b' (toExpr n) eagerReflBoolTrue
     -- Cutsat is the only arithmetic solver in `lia`. Elsewhere, solvers such as the ring solver use
     -- these facts through the E-graph.
     if (← getIdentity) == `lia then
       let gen ← getGeneration a
-      facts.forM (assertLinearFact · gen)
+      assertLinearFact h₁ gen
+      assertLinearFact h₂ gen
+      assertLinearFact h₃ gen
     else
-      facts.forM pushDivModFact
+      pushDivModFact h₁
+      pushDivModFact h₂
+      pushDivModFact h₃
 
 private def propagateDiv (e : Expr) : GoalM Unit := do
   let_expr HDiv.hDiv _ _ _ inst a b ← e | return ()

@@ -168,7 +168,7 @@ public def main (args : List String) : IO UInt32 := do
 
   -- Save, basing `.ir` on top of `.ir.sig`
   let irSigFile := (irFile : System.FilePath).addExtension "sig"
-  saveModuleDataParts (env.mainModule ++ `ir) #[
+  saveModuleDataParts (env.mainModule ++ `ir) (mainModule := env.mainModule) #[
     (irSigFile, ← mkIRSigData env),
     (irFile, ← mkIRData env)]
 

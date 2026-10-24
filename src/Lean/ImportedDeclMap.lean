@@ -32,7 +32,7 @@ public instance : ImportedDeclMap.Key Name where
 public structure ImportedDeclMap (κ α : Type) [BEq κ] [Hashable κ] where
   /-- The imported constants, used to find the module declaring a constant. -/
   consts  : ImportedConsts ConstantInfo := .empty
-  /-- Per module index, the keys of the entries owned by the module (see `isOwnedBy`), sorted. -/
+  /-- Per module index, the keys of the entries owned by the module (see `isOwned`), sorted. -/
   ownedKeys : Array (Array κ) := #[]
   /--
   Per module index, the values of the owned entries, in the order of `ownedKeys`, or no values if
@@ -50,12 +50,12 @@ namespace ImportedDeclMap
 variable {κ α : Type} [BEq κ] [Hashable κ] [Key κ] [Inhabited α]
 
 /--
-Whether the module with index `modIdx?` (the current module if `none`) owns an entry about constant
-`n`: it declares `n`, which does not have a reserved name. Constants with reserved names, such as
-equational theorems, may be realized by several modules.
+Whether the current module owns an entry about constant `n`: it declares `n`, which does not have a
+reserved name. Constants with reserved names, such as equational theorems, may be realized by several
+modules.
 -/
-public def isOwnedBy (env : Environment) (modIdx? : Option ModuleIdx) (n : Name) : Bool :=
-  (env.getModuleIdxFor? n).map (·.toNat) == modIdx?.map (·.toNat) && !isReservedName env n
+public def isOwned (env : Environment) (n : Name) : Bool :=
+  (env.getModuleIdxFor? n).isNone && !isReservedName env n
 
 /--
 Sorts the entries a module owns by key, keeping the last entry of each key, and returns their keys

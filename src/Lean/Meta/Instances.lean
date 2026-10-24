@@ -105,14 +105,14 @@ structure InstanceModuleIndex where
   foreign : Array (Name × InstanceEntry)
   deriving Inhabited
 
-/-- Preprocesses the global instance entries of a module, the current one if `modIdx?` is `none`. -/
-def InstanceModuleIndex.ofEntries (env : Environment) (modIdx? : Option ModuleIdx)
-    (es : Array InstanceEntry) : InstanceModuleIndex := Id.run do
+/-- Preprocesses the global instance entries the current module exports. -/
+def InstanceModuleIndex.ofEntries (env : Environment) (es : Array InstanceEntry) :
+    InstanceModuleIndex := Id.run do
   let mut owned := #[]
   let mut foreign := #[]
   for e in es do
     if let some n := e.globalName? then
-      if ImportedDeclMap.isOwnedBy env modIdx? n then
+      if ImportedDeclMap.isOwned env n then
         owned := owned.push (n, e)
       else
         foreign := foreign.push (n, e)

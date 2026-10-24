@@ -91,9 +91,9 @@ builtin_facet importInfo : Module => ModuleImportInfo
 
 /--
 **For internal use only.**
-The part of `importInfo` needed to elaborate the module outside the language server. If the module
-postpones its code generation, this does not wait on the IR of its plain imports and only
-`directArts`, `trace`, and `transTrace` are valid.
+The part of `importInfo` needed to elaborate the module outside the language server. For a module
+system module, plain imports contribute at most their `.ir.sig` (and nothing of their IR if the
+module postpones its code generation), and only `directArts`, `trace`, and `transTrace` are valid.
 -/
 builtin_facet elabImportInfo : Module => ModuleImportInfo
 

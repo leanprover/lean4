@@ -9,6 +9,7 @@ prelude
 public import Lean.Parser.Module
 meta import Lean.Parser.Module
 import Lean.Compiler.ModPkgExt
+import Lean.Compiler.Options
 public import Lean.DeprecatedModule
 import Init.Data.String.Modify
 
@@ -154,10 +155,13 @@ def processHeaderCore
       .exported
   else
     .private
+  -- A file that does not postpone its codegen to `leanir` needs the imported LCNF signatures, which
+  -- live in the `.ir.sig` of imports that do postpone. The server loads every import's full IR.
+  let loadCodegenIR := !Compiler.compiler.postponeCompile.get opts && level != .server
   let (env, messages) ← try
     let env ←
       importModules (leakEnv := leakEnv) (loadExts := true) (level := level)
-        imports opts trustLevel plugins arts
+        (loadCodegenIR := loadCodegenIR) imports opts trustLevel plugins arts
     pure (env, messages)
   catch e =>
     let env ← mkEmptyEnvironment

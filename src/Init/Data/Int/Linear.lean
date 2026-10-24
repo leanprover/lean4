@@ -11,6 +11,7 @@ import Init.LawfulBEqTactics
 public import Init.Data.Bool
 public import Init.Data.Int.Gcd
 public import Init.Data.RArray
+public import Init.Data.Int.Kernel
 import Init.Data.Int.Cooper
 import Init.Data.Int.LemmasAux
 public section
@@ -137,7 +138,7 @@ def Poly.addConst (p : Poly) (k : Int) : Poly :=
   | .add k' v' p => .add k' v' (addConst p k)
 
 @[expose] noncomputable def Poly.addConst_k (p : Poly) (k : Int) : Poly :=
-   Poly.rec (fun k' => .num (Int.add k k')) (fun k' v' _ ih => .add k' v' ih) p
+   Poly.rec (fun k' => .num (Int.add_k k k')) (fun k' v' _ ih => .add k' v' ih) p
 
 @[simp] theorem Poly.addConst_k_eq_addConst (p : Poly) (k : Int) : p.addConst_k k = p.addConst k := by
   fun_induction Poly.addConst
@@ -228,7 +229,7 @@ the versions defined by structural recursion.
     (fun k' v' p ih =>
       Bool.rec
         (Bool.rec (.add k' v' ih)
-          (Bool.rec (.add (Int.add k k') v' p) p (Int.beq' (Int.add k k') 0))
+          (Bool.rec (.add (Int.add_k k k') v' p) p (Int.beq' (Int.add_k k k') 0))
           (Nat.beq v v'))
         (.add k v (.add k' v' p))
         (Nat.blt v' v)) p
@@ -237,7 +238,7 @@ the versions defined by structural recursion.
   induction p with
   | num k' => rfl
   | add k' v' p ih =>
-    simp only [insert_k, Poly.insert] at *
+    simp only [insert_k, Poly.insert, Int.add_k_eq] at *
     rw [← ih]
     cases Nat.blt v' v <;> cases Nat.beq v v' <;> simp only [Int.beq'_eq_beq] <;> try rfl
     all_goals (cases h : (k.add k' == 0) <;> simp_all [Int.add_def])
@@ -252,13 +253,13 @@ the versions defined by structural recursion.
 
 @[expose] noncomputable def Expr.toPoly'_k.go : Expr → Int → Poly → Poly :=
   @Expr.rec (fun _ => Int → Poly → Poly)
-    (fun k c p => Bool.rec (p.addConst_k (Int.mul c k)) p (Int.beq' k 0))
+    (fun k c p => Bool.rec (p.addConst_k (Int.mul_k c k)) p (Int.beq' k 0))
     (fun v c p => .add c v p)
     (fun _ _ iha ihb c p => iha c (ihb c p))
-    (fun _ _ iha ihb c p => iha c (ihb (Int.neg c) p))
-    (fun _ iha c p => iha (Int.neg c) p)
-    (fun k _ iha c p => Bool.rec (iha (Int.mul c k) p) p (Int.beq' k 0))
-    (fun _ k iha c p => Bool.rec (iha (Int.mul c k) p) p (Int.beq' k 0))
+    (fun _ _ iha ihb c p => iha c (ihb (Int.neg_k c) p))
+    (fun _ iha c p => iha (Int.neg_k c) p)
+    (fun k _ iha c p => Bool.rec (iha (Int.mul_k c k) p) p (Int.beq' k 0))
+    (fun _ k iha c p => Bool.rec (iha (Int.mul_k c k) p) p (Int.beq' k 0))
 
 @[expose] noncomputable def Expr.toPoly'_k (e : Expr) : Poly :=
   Expr.toPoly'_k.go e 1 (.num 0)
@@ -266,18 +267,18 @@ the versions defined by structural recursion.
 theorem Expr.toPoly'_k.go_eq (e : Expr) (c : Int) (p : Poly) : Expr.toPoly'_k.go e c p = Expr.toPoly'.go c e p := by
   induction e generalizing c p with
   | num k =>
-    show Bool.rec (motive := fun _ => Poly) (p.addConst_k (Int.mul c k)) p (Int.beq' k 0) = _
-    rw [Int.beq'_eq_beq, Poly.addConst_k_eq_addConst]; simp only [Expr.toPoly'.go]; cases k == 0 <;> rfl
+    show Bool.rec (motive := fun _ => Poly) (p.addConst_k (Int.mul_k c k)) p (Int.beq' k 0) = _
+    rw [Int.beq'_eq_beq, Poly.addConst_k_eq_addConst, Int.mul_k_eq]; simp only [Expr.toPoly'.go]; cases k == 0 <;> rfl
   | var v => rfl
   | add a b iha ihb => simp only [go, Expr.toPoly'.go, Function.comp] at *; rw [iha, ihb]
-  | sub a b iha ihb => simp only [go, Expr.toPoly'.go, Function.comp] at *; rw [iha, ihb]; rfl
-  | neg a iha => simp only [go, Expr.toPoly'.go] at *; rw [iha]; rfl
+  | sub a b iha ihb => simp only [go, Expr.toPoly'.go, Function.comp] at *; rw [iha, ihb, Int.neg_k_eq]; rfl
+  | neg a iha => simp only [go, Expr.toPoly'.go] at *; rw [iha, Int.neg_k_eq]; rfl
   | mulL k a iha =>
-    show Bool.rec (motive := fun _ => Poly) (go a (Int.mul c k) p) p (Int.beq' k 0) = _
-    rw [iha, Int.beq'_eq_beq]; simp only [Expr.toPoly'.go]; cases k == 0 <;> rfl
+    show Bool.rec (motive := fun _ => Poly) (go a (Int.mul_k c k) p) p (Int.beq' k 0) = _
+    rw [iha, Int.beq'_eq_beq, Int.mul_k_eq]; simp only [Expr.toPoly'.go]; cases k == 0 <;> rfl
   | mulR a k iha =>
-    show Bool.rec (motive := fun _ => Poly) (go a (Int.mul c k) p) p (Int.beq' k 0) = _
-    rw [iha, Int.beq'_eq_beq]; simp only [Expr.toPoly'.go]; cases k == 0 <;> rfl
+    show Bool.rec (motive := fun _ => Poly) (go a (Int.mul_k c k) p) p (Int.beq' k 0) = _
+    rw [iha, Int.beq'_eq_beq, Int.mul_k_eq]; simp only [Expr.toPoly'.go]; cases k == 0 <;> rfl
 
 @[simp] theorem Expr.toPoly'_k_eq_toPoly' (e : Expr) : e.toPoly'_k = e.toPoly' := by
   simp [toPoly'_k, Expr.toPoly'_k.go_eq, Expr.toPoly']
@@ -409,8 +410,8 @@ def Poly.mul (p : Poly) (k : Int) : Poly :=
 
 @[expose] noncomputable def Poly.mul_k (p : Poly) (k : Int) : Poly :=
   Bool.rec
-    (Poly.rec (fun k' => .num (Int.mul k k'))
-      (fun k' v _ ih => .add (Int.mul k k') v ih)
+    (Poly.rec (fun k' => .num (Int.mul_k k k'))
+      (fun k' v _ ih => .add (Int.mul_k k k') v ih)
       p)
     (.num 0)
     (Int.beq' k 0)
@@ -448,9 +449,58 @@ def Poly.mul (p : Poly) (k : Int) : Poly :=
       p₁)
     fuel
 
+/-- `combine_mul_k'` using `Int.add_k` and `Int.mul_k`. -/
+@[expose] noncomputable def Poly.combine_mul_kk' (fuel : Nat) (a b : Int) : Poly → Poly → Poly :=
+  Nat.rec (fun p₁ p₂ => Poly.append (p₁.mul a) (p₂.mul b))
+    (fun _ ih p₁ => Poly.rec
+      (fun k₁ p₂ => Poly.rec
+        (fun k₂ => .num (Int.add_k (Int.mul_k a k₁) (Int.mul_k b k₂)))
+        (fun a₂ x₂ p₂ _ => .add (Int.mul_k b a₂) x₂ (ih p₁ p₂))
+        p₂)
+      (fun a₁ x₁ p₁ _ p₂ => Poly.rec
+        (fun _ => .add (Int.mul_k a a₁) x₁ (ih p₁ p₂))
+        (fun a₂ x₂ p₂ _ => Bool.rec
+          (Bool.rec
+            (.add (Int.mul_k b a₂) x₂ (ih (.add a₁ x₁ p₁) p₂))
+            (.add (Int.mul_k a a₁) x₁ (ih p₁ (.add a₂ x₂ p₂)))
+            (Nat.blt x₂ x₁))
+          (let a := Int.add_k (Int.mul_k a a₁) (Int.mul_k b a₂)
+           Bool.rec (.add a x₁ (ih p₁ p₂)) (ih p₁ p₂) (Int.beq' a 0))
+          (Nat.beq x₁ x₂))
+        p₂)
+      p₁)
+    fuel
+
+theorem Poly.combine_mul_kk'_eq (fuel : Nat) (a b : Int) (p₁ p₂ : Poly) :
+    Poly.combine_mul_kk' fuel a b p₁ p₂ = Poly.combine_mul_k' fuel a b p₁ p₂ := by
+  induction fuel generalizing p₁ p₂ with
+  | zero => rfl
+  | succ n ih =>
+    cases p₁ <;> cases p₂
+    · show Poly.num (Int.add_k (Int.mul_k a _) (Int.mul_k b _)) = Poly.num (Int.add (Int.mul a _) (Int.mul b _))
+      simp only [Int.add_k_eq, Int.mul_k_eq]
+    · show Poly.add (Int.mul_k b _) _ (combine_mul_kk' n a b _ _) = Poly.add (Int.mul b _) _ (combine_mul_k' n a b _ _)
+      simp only [Int.mul_k_eq, ih]
+    · show Poly.add (Int.mul_k a _) _ (combine_mul_kk' n a b _ _) = Poly.add (Int.mul a _) _ (combine_mul_k' n a b _ _)
+      simp only [Int.mul_k_eq, ih]
+    · rename_i a₁ x₁ p₁ a₂ x₂ p₂
+      show Bool.rec (motive := fun _ => Poly)
+          (Bool.rec (motive := fun _ => Poly) (.add (Int.mul_k b a₂) x₂ (combine_mul_kk' n a b (.add a₁ x₁ p₁) p₂))
+            (.add (Int.mul_k a a₁) x₁ (combine_mul_kk' n a b p₁ (.add a₂ x₂ p₂))) (Nat.blt x₂ x₁))
+          (Bool.rec (motive := fun _ => Poly) (.add (Int.add_k (Int.mul_k a a₁) (Int.mul_k b a₂)) x₁ (combine_mul_kk' n a b p₁ p₂))
+            (combine_mul_kk' n a b p₁ p₂) (Int.beq' (Int.add_k (Int.mul_k a a₁) (Int.mul_k b a₂)) 0))
+          (Nat.beq x₁ x₂) =
+        Bool.rec (motive := fun _ => Poly)
+          (Bool.rec (motive := fun _ => Poly) (.add (Int.mul b a₂) x₂ (combine_mul_k' n a b (.add a₁ x₁ p₁) p₂))
+            (.add (Int.mul a a₁) x₁ (combine_mul_k' n a b p₁ (.add a₂ x₂ p₂))) (Nat.blt x₂ x₁))
+          (Bool.rec (motive := fun _ => Poly) (.add (Int.add (Int.mul a a₁) (Int.mul b a₂)) x₁ (combine_mul_k' n a b p₁ p₂))
+            (combine_mul_k' n a b p₁ p₂) (Int.beq' (Int.add (Int.mul a a₁) (Int.mul b a₂)) 0))
+          (Nat.beq x₁ x₂)
+      simp only [Int.add_k_eq, Int.mul_k_eq, ih]
+
 @[expose] noncomputable def Poly.combine_mul_k (a b : Int) (p₁ p₂ : Poly) : Poly :=
   Bool.rec
-    (Bool.rec (combine_mul_k' hugeFuel a b p₁ p₂) (p₁.mul_k a) (Int.beq' b 0))
+    (Bool.rec (combine_mul_kk' hugeFuel a b p₁ p₂) (p₁.mul_k a) (Int.beq' b 0))
     (p₂.mul_k b)
     (Int.beq' a 0)
 
@@ -496,6 +546,7 @@ theorem Poly.denote_combine (ctx : Context) (p₁ p₂ : Poly) : (p₁.combine p
 
 theorem Poly.denote_combine_mul_k (ctx : Context) (a b : Int) (p₁ p₂ : Poly) : (p₁.combine_mul_k a b p₂).denote ctx = a * p₁.denote ctx + b * p₂.denote ctx := by
   unfold combine_mul_k
+  simp only [combine_mul_kk'_eq]
   cases h₁ : Int.beq' a 0 <;> simp at h₁ <;> simp [*]
   cases h₂ : Int.beq' b 0 <;> simp at h₂ <;> simp [*]
   generalize hugeFuel = fuel
@@ -1343,9 +1394,9 @@ theorem eq_eq_subst' (ctx : Context) (a b : Int) (p₁ : Poly) (p₂ : Poly) (p�
 
 @[expose]
 noncomputable def eq_le_subst_nonneg_cert (x : Var) (p₁ : Poly) (p₂ : Poly) (p₃ : Poly) : Bool :=
-  let a := p₁.coeff x
-  let b := p₂.coeff x
-  Int.ble' 0 a |>.and (p₃.beq' (p₂.combine_mul_k a (-b) p₁))
+  let a := p₁.coeff_k x
+  let b := p₂.coeff_k x
+  Int.ble' 0 a |>.and (p₃.beq' (p₂.combine_mul_k a (Int.neg_k b) p₁))
 
 theorem eq_le_subst_nonneg (ctx : Context) (x : Var) (p₁ : Poly) (p₂ : Poly) (p₃ : Poly)
     : eq_le_subst_nonneg_cert x p₁ p₂ p₃ → p₁.denote' ctx = 0 → p₂.denote' ctx ≤ 0 → p₃.denote' ctx ≤ 0 := by
@@ -1359,9 +1410,9 @@ theorem eq_le_subst_nonneg (ctx : Context) (x : Var) (p₁ : Poly) (p₂ : Poly)
 
 @[expose]
 noncomputable def eq_le_subst_nonpos_cert (x : Var) (p₁ : Poly) (p₂ : Poly) (p₃ : Poly) : Bool :=
-  let a := p₁.coeff x
-  let b := p₂.coeff x
-  Int.ble' a 0 |>.and (p₃.beq' (p₁.combine_mul_k b (-a) p₂))
+  let a := p₁.coeff_k x
+  let b := p₂.coeff_k x
+  Int.ble' a 0 |>.and (p₃.beq' (p₁.combine_mul_k b (Int.neg_k a) p₂))
 
 theorem eq_le_subst_nonpos (ctx : Context) (x : Var) (p₁ : Poly) (p₂ : Poly) (p₃ : Poly)
     : eq_le_subst_nonpos_cert x p₁ p₂ p₃ → p₁.denote' ctx = 0 → p₂.denote' ctx ≤ 0 → p₃.denote' ctx ≤ 0 := by
@@ -1410,9 +1461,9 @@ theorem diseq_unsat (ctx : Context) (p : Poly) : p.isUnsatDiseq_k → p.denote' 
 
 @[expose]
 noncomputable def diseq_eq_subst_cert (x : Var) (p₁ : Poly) (p₂ : Poly) (p₃ : Poly) : Bool :=
-  let a := p₁.coeff x
-  let b := p₂.coeff x
-  !a.beq' 0 |>.and (p₃.beq' (p₁.combine_mul_k b (-a) p₂))
+  let a := p₁.coeff_k x
+  let b := p₂.coeff_k x
+  !a.beq' 0 |>.and (p₃.beq' (p₁.combine_mul_k b (Int.neg_k a) p₂))
 
 theorem eq_diseq_subst (ctx : Context) (x : Var) (p₁ : Poly) (p₂ : Poly) (p₃ : Poly)
     : diseq_eq_subst_cert x p₁ p₂ p₃ → p₁.denote' ctx = 0 → p₂.denote' ctx ≠ 0 → p₃.denote' ctx ≠ 0 := by

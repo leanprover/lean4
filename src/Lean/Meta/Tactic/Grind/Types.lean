@@ -197,6 +197,8 @@ structure Context where
   /-- Methods of the `Sym.dsimp`-based normalizer. Unused when `backward.grind.normalizer` is set. -/
   symDSimpMethods : Sym.DSimp.Methods := {}
   config       : Grind.Config
+  /-- Name of the tactic running `grind`, e.g., `lia` or `grind_order`. Each tactic sets it at startup. -/
+  identity     : Name
   /--
   If `anchorRefs? := some anchorRefs`, then only local instances and case-splits in `anchorRefs`
   are considered.
@@ -437,6 +439,10 @@ abbrev withEmatchDiagSource [MonadControlT GrindM m] [Monad m] (ematchDiagSource
 /-- Returns the user-defined configuration options -/
 def getConfig : GrindM Grind.Config :=
   return (← readThe Context).config
+
+/-- Returns the name of the tactic running `grind`. See `Context.identity`. -/
+def getIdentity : GrindM Name :=
+  return (← readThe Context).identity
 
 /-- Returns extension states associate with `grind` attributes in use -/
 def getExtensions : GrindM Grind.ExtensionStateArray :=

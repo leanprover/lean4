@@ -607,9 +607,27 @@ Pushes a linear fact about `a / b` and `a % b`. The `simp`-based preprocessor is
 are linear combinations that cutsat normalizes itself, and the preprocessor would only redistribute
 the coefficients.
 -/
-private def pushDivModFact (proof : Expr) : GoalM Unit := do
+private def pushDivModFact (proof : Expr) (gen : Nat) : GoalM Unit := do
   let prop ← preprocessLight (← inferType proof)
-  pushNewFactCore prop proof 0
+  pushNewFactCore prop proof gen
+
+/--
+Asserts the fact `h : lhs = rhs` or `h : lhs ≤ rhs` over `Int` directly into cutsat, without adding it
+to the E-graph.
+-/
+private def assertLinearFact (h : Expr) (gen : Nat) : GoalM Unit := do
+  match_expr (← inferType h) with
+  | Eq _ l r =>
+    let lhs ← toLinearExpr l gen
+    let rhs ← toLinearExpr r gen
+    let c := { p := lhs.sub rhs |>.norm, h := .hyp h lhs rhs : EqCnstr }
+    c.assertCore
+  | LE.le _ _ l r =>
+    let lhs ← toLinearExpr l gen
+    let rhs ← toLinearExpr r gen
+    let c := { p := lhs.sub rhs |>.norm, h := .hyp h lhs rhs : LeCnstr }
+    c.assert
+  | _ => throwError "internal `grind` error, unexpected linear fact{indentExpr (← inferType h)}"
 
 private def expandDivMod (a : Expr) (b : Int) : GoalM Unit := do
   if (← get').divMod.contains (a, b) then return ()
@@ -639,9 +657,20 @@ private def expandDivMod (a : Expr) (b : Int) : GoalM Unit := do
       pushEq ediv neg_a <| mkApp (mkConst ``Int.ediv_minus_one) a
   else
     let n : Int := 1 - b.natAbs
-    pushDivModFact <| mkApp2 (mkConst ``Int.Internal.Linear.ediv_emod) a b'
-    pushDivModFact <| mkApp3 (mkConst ``Int.Internal.Linear.emod_nonneg) a b' eagerReflBoolTrue
-    pushDivModFact <| mkApp4 (mkConst ``Int.Internal.Linear.emod_le) a b' (toExpr n) eagerReflBoolTrue
+    let h₁ := mkApp2 (mkConst ``Int.Internal.Linear.ediv_emod) a b'
+    let h₂ := mkApp3 (mkConst ``Int.Internal.Linear.emod_nonneg) a b' eagerReflBoolTrue
+    let h₃ := mkApp4 (mkConst ``Int.Internal.Linear.emod_le) a b' (toExpr n) eagerReflBoolTrue
+    let gen ← getGeneration a
+    -- Cutsat is the only arithmetic solver in `lia`. Elsewhere, solvers such as the ring solver use
+    -- these facts through the E-graph.
+    if (← getIdentity) == `lia then
+      assertLinearFact h₁ gen
+      assertLinearFact h₂ gen
+      assertLinearFact h₃ gen
+    else
+      pushDivModFact h₁ gen
+      pushDivModFact h₂ gen
+      pushDivModFact h₃ gen
 
 private def propagateDiv (e : Expr) : GoalM Unit := do
   let_expr HDiv.hDiv _ _ _ inst a b ← e | return ()

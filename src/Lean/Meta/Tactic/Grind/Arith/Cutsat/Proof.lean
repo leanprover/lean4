@@ -417,6 +417,8 @@ private partial def EqCnstr.toExprProofImpl (c' : EqCnstr) : ProofM Expr := cach
   | .coreToInt a b toIntThm lhs rhs =>
     let h := mkApp toIntThm (← mkEqProof a b)
     return mkApp6 (mkConst ``Int.Internal.Linear.eq_norm_expr) (← getContext) (← mkExprDecl lhs) (← mkExprDecl rhs) (← mkPolyDecl c'.p) eagerReflBoolTrue h
+  | .hyp h lhs rhs =>
+    return mkApp6 (mkConst ``Int.Internal.Linear.eq_norm_expr) (← getContext) (← mkExprDecl lhs) (← mkExprDecl rhs) (← mkPolyDecl c'.p) eagerReflBoolTrue h
   | .defn e p =>
     let x ← getVarOf e
     return mkApp6 (mkConst ``Int.Internal.Linear.eq_def) (← getContext) (← mkVarDecl x) (← mkPolyDecl p) (← mkPolyDecl c'.p) eagerReflBoolTrue (← mkEqRefl e)
@@ -551,6 +553,8 @@ private partial def LeCnstr.toExprProof (c' : LeCnstr) : ProofM Expr := caching 
       return mkApp6 (mkConst ``Int.Internal.Linear.not_le_norm_expr) (← getContext) (← mkExprDecl lhs) (← mkExprDecl rhs) (← mkPolyDecl c'.p) eagerReflBoolTrue h
   | .ofNatNonneg a =>
     return mkApp (mkConst ``Nat.ToInt.toNat_nonneg) a
+  | .hyp h lhs rhs =>
+    return mkApp6 (mkConst ``Int.Internal.Linear.le_norm_expr) (← getContext) (← mkExprDecl lhs) (← mkExprDecl rhs) (← mkPolyDecl c'.p) eagerReflBoolTrue h
   | .bound h => return h
   | .dec h =>
     return mkFVar h
@@ -797,7 +801,7 @@ mutual
 partial def EqCnstr.collectDecVars (c' : EqCnstr) : CollectDecVarsM Unit := do unless (← alreadyVisited c') do
   match c'.h with
   | .core0 .. | .core .. | .defn .. | .defnExpr ..
-  | .defnCommRing .. | .defnExprCommRing .. | .coreToInt .. => return () -- Equalities coming from the core never contain cutsat decision variables
+  | .defnCommRing .. | .defnExprCommRing .. | .coreToInt .. | .hyp .. => return () -- Equalities coming from the core never contain cutsat decision variables
   | .commRingNorm c .. | .reorder c | .norm c | .divCoeffs c | .div _ _ c | .mod _ _ c => c.collectDecVars
   | .ofZeroDvd c | .ofDvdDiv c .. => c.collectDecVars
   | .subst _ c₁ c₂ | .ofLeGe c₁ c₂ => c₁.collectDecVars; c₂.collectDecVars
@@ -823,7 +827,7 @@ partial def DvdCnstr.collectDecVars (c' : DvdCnstr) : CollectDecVarsM Unit := do
 
 partial def LeCnstr.collectDecVars (c' : LeCnstr) : CollectDecVarsM Unit := do unless (← alreadyVisited c') do
   match c'.h with
-  | .core .. | .coreNeg .. | .coreToInt .. | .coreExpr .. | .ofNatNonneg .. | .bound .. => return ()
+  | .core .. | .coreNeg .. | .coreToInt .. | .coreExpr .. | .ofNatNonneg .. | .hyp .. | .bound .. => return ()
   | .dec h => markAsFound h
   | .commRingNorm c .. | .reorder c | .cooper c
   | .norm c | .divCoeffs c => c.collectDecVars

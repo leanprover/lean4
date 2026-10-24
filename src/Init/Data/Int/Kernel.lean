@@ -90,6 +90,17 @@ namespace Int
   let r := Int.emod_k x (Int.ofNat m)
   Bool.rec (Int.sub_k r (Int.ofNat m)) r (Int.blt' r (Int.ofNat (Nat.div (Nat.add m 1) 2)))
 
+/-- `a.toNat` for kernel reduction. -/
+@[expose] protected noncomputable def toNat_k (a : Int) : Nat :=
+  Int.rec (fun m => m) (fun _ => 0) a
+
+/-- `a ^ n` for kernel reduction. -/
+@[expose] protected noncomputable def pow_k (a : Int) (n : Nat) : Int :=
+  Int.rec (fun m => Int.ofNat (Nat.pow m n))
+    (fun m => Bool.rec (Int.negOfNat_k (Nat.pow (Nat.add m 1) n)) (Int.ofNat (Nat.pow (Nat.add m 1) n))
+      (Nat.beq (Nat.mod n 2) 0))
+    a
+
 theorem subNatNat_k_eq (m n : Nat) : Int.subNatNat_k m n = Int.subNatNat m n := by
   unfold Int.subNatNat_k Int.subNatNat
   cases h : Nat.ble n m with
@@ -148,5 +159,20 @@ theorem negOfNat_k_eq (k : Nat) : Int.negOfNat_k k = Int.negOfNat k := by
   cases h : Int.blt' (x % Int.ofNat m) (Int.ofNat ((m + 1) / 2))
   · simp at h; simp; omega
   · simp at h; simp [h]
+
+@[simp] theorem toNat_k_eq (a : Int) : Int.toNat_k a = a.toNat := by
+  cases a <;> rfl
+
+@[simp] theorem pow_k_eq (a : Int) (n : Nat) : Int.pow_k a n = a ^ n := by
+  show Int.pow_k a n = Int.pow a n
+  cases a with
+  | ofNat m => rfl
+  | negSucc m =>
+    unfold Int.pow_k Int.pow
+    cases h : Nat.beq (Nat.mod n 2) 0
+    · have : ¬ n % 2 = 0 := Nat.ne_of_beq_eq_false h
+      simp only [this, negOfNat_k_eq, ↓reduceIte]; rfl
+    · have : n % 2 = 0 := Nat.eq_of_beq_eq_true h
+      simp only [this, ↓reduceIte]; rfl
 
 end Int

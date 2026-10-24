@@ -1,17 +1,26 @@
 import Lean
 
 /-!
-`Expr.cleanupAnnotations` agrees with its previous definition, which applied `consumeMData` and
-`consumeTypeAnnotations` until a fixpoint: it removes metadata and the `optParam`, `autoParam`,
-`outParam`, and `semiOutParam` annotations at the root only, and returns the expression itself
-when there is nothing to remove.
+`Expr.cleanupAnnotations` and `Expr.consumeTypeAnnotations` agree with their previous definitions.
+`cleanupAnnotations` removes metadata and the `optParam`, `autoParam`, `outParam`, and
+`semiOutParam` annotations at the root only, `consumeTypeAnnotations` removes only the latter, and
+both return the expression itself when there is nothing to remove.
 -/
 
 open Lean
 
+/-- The previous definition of `Expr.consumeTypeAnnotations`. -/
+partial def referenceConsume (e : Expr) : Expr :=
+  if e.isOptParam || e.isAutoParam then
+    referenceConsume e.appFn!.appArg!
+  else if e.isOutParam || e.isSemiOutParam then
+    referenceConsume e.appArg!
+  else
+    e
+
 /-- The previous definition of `Expr.cleanupAnnotations`. -/
 partial def reference (e : Expr) : Expr :=
-  let e' := e.consumeMData.consumeTypeAnnotations
+  let e' := referenceConsume e.consumeMData
   if e' == e then e else reference e'
 
 def nat := mkConst ``Nat
@@ -42,7 +51,17 @@ def agrees (e : Expr) : Bool :=
   let r' := reference e
   r == r' && unsafe (ptrEq r e == ptrEq r' e)
 
+def agreesConsume (e : Expr) : Bool :=
+  let r := e.consumeTypeAnnotations
+  let r' := referenceConsume e
+  r == r' && unsafe (ptrEq r e == ptrEq r' e)
+
 #guard inputs.all agrees
 #guard (out (opt nat dflt)).cleanupAnnotations == nat
 #guard (md (out (md (opt (md nat) dflt)))).cleanupAnnotations == nat
 #guard (mkApp (md (mkConst ``outParam [1])) nat).cleanupAnnotations == mkApp (md (mkConst ``outParam [1])) nat
+
+#guard inputs.all agreesConsume
+#guard (out (opt nat dflt)).consumeTypeAnnotations == nat
+#guard (md (out nat)).consumeTypeAnnotations == md (out nat)
+#guard (out (md (opt nat dflt))).consumeTypeAnnotations == md (opt nat dflt)

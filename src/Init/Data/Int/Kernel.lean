@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Init.Data.Int.Basic
+public import Init.Data.Int.DivMod.Basic
 public section
 
 /-!
@@ -43,6 +44,32 @@ namespace Int
     (fun m => Int.rec (fun n => Int.negOfNat_k (Nat.mul (Nat.add m 1) n)) (fun n => Int.ofNat (Nat.mul (Nat.add m 1) (Nat.add n 1))) b)
     a
 
+/-- `a.natAbs` for kernel reduction. -/
+@[expose] protected noncomputable def natAbs_k (a : Int) : Nat :=
+  Int.rec (fun m => m) (fun m => Nat.add m 1) a
+
+/-- `a == 0` for kernel reduction. Unlike `Int.beq' a 0`, it inspects `a` only once. -/
+@[expose] protected noncomputable def beqZero_k (a : Int) : Bool :=
+  Int.rec (fun m => Nat.beq m 0) (fun _ => false) a
+
+/-- `a != 0` for kernel reduction. -/
+@[expose] protected noncomputable def bneZero_k (a : Int) : Bool :=
+  Int.rec (fun m => Nat.blt 0 m) (fun _ => true) a
+
+/-- `a % b` for kernel reduction. -/
+@[expose] protected noncomputable def emod_k (a b : Int) : Int :=
+  Int.rec (fun m => Int.ofNat (Nat.mod m (Int.natAbs_k b)))
+    (fun m => Int.subNatNat_k (Int.natAbs_k b) (Nat.add (Nat.mod m (Int.natAbs_k b)) 1))
+    a
+
+/-- `a / b` for kernel reduction. -/
+@[expose] protected noncomputable def ediv_k (a b : Int) : Int :=
+  Int.rec
+    (fun m => Int.rec (fun n => Int.ofNat (Nat.div m n)) (fun n => Int.negOfNat_k (Nat.div m (Nat.add n 1))) b)
+    (fun m => Int.rec (fun n => Bool.rec (Int.negSucc (Nat.div m n)) (Int.ofNat 0) (Nat.beq n 0))
+      (fun n => Int.ofNat (Nat.add (Nat.div m (Nat.add n 1)) 1)) b)
+    a
+
 theorem subNatNat_k_eq (m n : Nat) : Int.subNatNat_k m n = Int.subNatNat m n := by
   unfold Int.subNatNat_k Int.subNatNat
   cases h : Nat.ble n m with
@@ -65,5 +92,26 @@ theorem negOfNat_k_eq (k : Nat) : Int.negOfNat_k k = Int.negOfNat k := by
 
 @[simp] theorem mul_k_eq (a b : Int) : Int.mul_k a b = Int.mul a b := by
   cases a <;> cases b <;> simp only [Int.mul_k, negOfNat_k_eq] <;> rfl
+
+@[simp] theorem natAbs_k_eq (a : Int) : Int.natAbs_k a = a.natAbs := by
+  cases a <;> rfl
+
+@[simp] theorem beqZero_k_eq (a : Int) : Int.beqZero_k a = (a == 0) := by
+  cases a with
+  | ofNat m => cases m <;> rfl
+  | negSucc m => rfl
+
+@[simp] theorem bneZero_k_eq (a : Int) : Int.bneZero_k a = (a != 0) := by
+  cases a with
+  | ofNat m => cases m <;> rfl
+  | negSucc m => rfl
+
+@[simp] theorem emod_k_eq (a b : Int) : Int.emod_k a b = a % b := by
+  cases a <;> simp only [Int.emod_k, natAbs_k_eq, subNatNat_k_eq] <;> rfl
+
+@[simp] theorem ediv_k_eq (a b : Int) : Int.ediv_k a b = a / b := by
+  cases a <;> cases b
+  case negSucc.ofNat m n => cases n <;> rfl
+  all_goals simp only [Int.ediv_k, negOfNat_k_eq] <;> rfl
 
 end Int

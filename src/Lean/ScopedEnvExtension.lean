@@ -49,26 +49,27 @@ structure StateStack (α : Type) (β : Type) (σ : Type) where
   deriving Inhabited
 
 /--
-Precomputed data summarizing the global entries of a module, stored in its olean next to the entries
-themselves so that importing them is cheaper than adding each entry. On import, `addImported`
-initializes the state from the summaries of all imported modules, after which each imported global
-entry is added using `addImportedEntry` in place of `Descr.addEntry`. Create one using
-`ModuleIndex.ofTyped`.
+Precomputed data summarizing the global entries of a module, stored in its olean in front of the
+entries themselves. On import, `addImported` adds all imported global entries to the initial state
+using these summaries instead of `Descr.addEntry`. Create one using `ModuleIndex.ofTyped`.
 -/
-structure ModuleIndex (α : Type) (β : Type) (σ : Type) where
-  /-- Summarizes the global entries a module exports at one olean level. -/
-  build : Array α → EnvExtensionEntry
-  /-- Adds the summaries of all imported modules, in import order, to the initial state. -/
-  addImported : σ → Array EnvExtensionEntry → σ
-  /-- Adds an imported global entry, the rest of whose effect is covered by `addImported`. -/
-  addImportedEntry : σ → β → σ
+structure ModuleIndex (α : Type) (σ : Type) where
+  /--
+  Summarizes the global entries of a module at one olean level: of the current module (`none`) when
+  exporting, or of the given imported module when it was exported without summary.
+  -/
+  build : Environment → Option ModuleIdx → Array α → EnvExtensionEntry
+  /--
+  Adds the global entries of all imported modules, given in module order with their summaries if
+  they have global entries, to the initial state.
+  -/
+  addImported : σ → Array (Option EnvExtensionEntry × Array (Entry α)) → ImportM σ
 
 /-- Creates a `ModuleIndex` whose summaries have type `ι`. -/
-def ModuleIndex.ofTyped {ι : Type} (build : Array α → ι) (addImported : σ → Array ι → σ)
-    (addImportedEntry : σ → β → σ) : ModuleIndex α β σ where
-  build as := unsafe unsafeCast (build as)
-  addImported s is := addImported s (unsafe unsafeCast is)
-  addImportedEntry
+def ModuleIndex.ofTyped {ι : Type} (build : Environment → Option ModuleIdx → Array α → ι)
+    (addImported : σ → Array (Option ι × Array (Entry α)) → ImportM σ) : ModuleIndex α σ where
+  build env modIdx? as := unsafe unsafeCast (build env modIdx? as)
+  addImported s mods := addImported s (unsafe unsafeCast mods)
 
 structure Descr (α : Type) (β : Type) (σ : Type) where
   name           : Name := by exact decl_name%
@@ -88,7 +89,7 @@ structure Descr (α : Type) (β : Type) (σ : Type) where
   -/
   entryDecl? : Option (β → Name) := none
   /-- See `ModuleIndex`. -/
-  moduleIndex? : Option (ModuleIndex α β σ) := none
+  moduleIndex? : Option (ModuleIndex α σ) := none
 
 /--
 Whether scope operations that change the effective state must be recorded like content changes;
@@ -127,23 +128,26 @@ def ScopedEntries.insert (scopedEntries : ScopedEntries β) (ns : Name) (b : β)
 
 def addImportedFn (descr : Descr α β σ) (as : Array (Array (Entry α))) : ImportM (StateStack α β σ) := do
   let mut s ← descr.mkInitial
-  let mut addGlobal := descr.addEntry
+  let mut indexed := false
   if let some idx := descr.moduleIndex? then
+    let env := (← read).env
     -- `exportEntriesFn` puts the summary first. Modules exported without `moduleIndex?`, e.g. by an
     -- older stage during bootstrapping, have none, so we build theirs here.
-    s := idx.addImported s <| as.filterMap fun a => match (a[0]? : Option (Entry α)) with
-      | some (.index d) => some d
+    let mods := as.mapIdx fun i a => match (a[0]? : Option (Entry α)) with
+      | some (.index d) => (some d, a)
       | _ =>
         let globals := a.filterMap fun | .global e => some e | _ => none
-        if globals.isEmpty then none else some (idx.build globals)
-    addGlobal := idx.addImportedEntry
+        (if globals.isEmpty then none else some (idx.build env (some (i : ModuleIdx)) globals), a)
+    s ← idx.addImported s mods
+    indexed := true
   let mut scopedEntries : ScopedEntries β := {}
   for a in as do
     for e in a do
       match e with
       | Entry.global a =>
-        let b ← descr.ofOLeanEntry s a
-        s := addGlobal s b
+        unless indexed do
+          let b ← descr.ofOLeanEntry s a
+          s := descr.addEntry s b
       | Entry.scoped ns a =>
         let b ← descr.ofOLeanEntry s a
         scopedEntries := scopedEntries.insert ns b
@@ -192,7 +196,7 @@ def exportEntriesFn (descr : Descr α β σ) (env : Environment) (s : StateStack
   if let some idx := descr.moduleIndex? then
     let withIndex (es : Array (Entry α)) :=
       let globals := es.filterMap fun | .global e => some e | _ => none
-      if globals.isEmpty then es else #[.index (idx.build globals)] ++ es
+      if globals.isEmpty then es else #[.index (idx.build env none globals)] ++ es
     return { exported := withIndex exported, server := withIndex server, «private» := withIndex priv }
   return { exported, server, «private» := priv }
 
@@ -389,7 +393,7 @@ structure SimpleScopedEnvExtension.Descr (α : Type) (σ : Type) where
   /-- See `ScopedEnvExtension.Descr.entryDecl?`. -/
   entryDecl? : Option (α → Name) := none
   /-- See `ScopedEnvExtension.ModuleIndex`. -/
-  moduleIndex? : Option (ModuleIndex α α σ) := none
+  moduleIndex? : Option (ModuleIndex α σ) := none
 
 def registerSimpleScopedEnvExtension (descr : SimpleScopedEnvExtension.Descr α σ) : IO (SimpleScopedEnvExtension α σ) := do
   registerScopedEnvExtension {

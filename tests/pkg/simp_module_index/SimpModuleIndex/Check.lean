@@ -23,6 +23,25 @@ example (n : Nat) : SMI.p n = SMI.q n := by simp
 #eval show MetaM Unit from
   checkSimpSets [`SimpModuleIndex.A, `SimpModuleIndex.M] (perModule := true)
 
+example : SMI.C.c Nat = 1 := rfl
+example : SMI.C Int := by
+  fail_if_success exact inferInstance
+  exact ⟨0⟩
+example : SMI.C String := by
+  fail_if_success exact inferInstance
+  exact ⟨0⟩
+open SMI.Sc in
+example : SMI.C.c String = 4 := rfl
+-- `M` is imported at the private level here
+example : SMI.D.d Bool = 6 := rfl
+
+#eval show MetaM Unit from do
+  checkInstances [`SimpModuleIndex.A, `SimpModuleIndex.M]
+  unless (← isInstance ``SMI.instCNat2) && !(← isInstance ``SMI.instCInt) do
+    throwError "unexpected instance names"
+  unless (← getInstancePriority? ``SMI.instCNat2) == some (eval_prio low) do
+    throwError "unexpected priority"
+
 -- changes on top of the imported lemma names
 attribute [-simp] SMI.f_zero
 example : SMI.f 0 = 1 := by

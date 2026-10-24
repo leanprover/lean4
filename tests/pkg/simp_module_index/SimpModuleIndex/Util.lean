@@ -59,7 +59,7 @@ def checkInstances (mods : List Name) : MetaM Unit := do
   let d := instanceExtension.getState env
   unless sameInstances d (sequentialInstances env) do
     throwError "instances differ from the sequentially built ones"
-  if d.instanceNames.imported.owned.isEmpty then
+  if d.instanceNames.imported.ownedKeys.isEmpty then
     throwError "imported instance names were not looked up per module"
 
 /--
@@ -77,5 +77,5 @@ def checkSimpSets (mods : List Name) (perModule : Bool) : MetaM Unit := do
   for (attr, ext) in (← simpExtensionMapRef.get) do
     unless sameState (ext.getState env) (sequentialState ext env) do
       throwError "simp set `{attr}` differs from the sequentially built one"
-  unless (← getSimpTheorems).lemmaNames.imported.owned.isEmpty != perModule do
+  unless (← getSimpTheorems).lemmaNames.imported.ownedKeys.isEmpty != perModule do
     throwError "unexpected representation of imported lemma names"

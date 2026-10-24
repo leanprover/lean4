@@ -749,7 +749,7 @@ structure SimpModuleIndex where
   pre      : Array (DiscrTree.Key × DiscrTree.Trie SimpTheorem)
   post     : Array (DiscrTree.Key × DiscrTree.Trie SimpTheorem)
   /-- The origins of theorems owned by the module (see `ImportedDeclMap.sortOwned`). -/
-  owned    : Array (Origin × Unit)
+  owned    : Array Origin
   /-- The origins of the remaining theorems. -/
   foreign  : Array (Origin × Unit)
   /-- The constants of theorems added in the backward direction. -/
@@ -776,7 +776,7 @@ def SimpModuleIndex.ofEntries (env : Environment) (modIdx? : Option ModuleIdx) (
   return {
     pre := DiscrTree.moduleRootsOf (thms.filter (!·.2.post))
     post := DiscrTree.moduleRootsOf (thms.filter (·.2.post))
-    owned := ImportedDeclMap.sortOwned owned, foreign, backward
+    owned := (ImportedDeclMap.sortOwned owned).1, foreign, backward
     rest := es.filter fun e => !(e matches .thm _) }
 
 /--
@@ -790,7 +790,7 @@ def SimpModuleIndex.addImported (d : SimpTheorems)
     pre := DiscrTree.ofModuleRoots (idxs.map (·.pre))
     post := DiscrTree.ofModuleRoots (idxs.map (·.post)) }
   let imported := ImportedDeclMap.ofModules (← read).env.toKernelEnv.constants.map₁
-    (mods.map (·.1.map (·.owned) |>.getD #[])) (idxs.map (·.foreign))
+    (mods.map fun (idx?, _) => (idx?.map (·.owned) |>.getD #[], #[])) (idxs.map (·.foreign))
   if idxs.any (·.backward.any fun n => imported.contains (.decl n (inv := false))) then
     -- Adding a theorem erases its converse (`eraseFwdIfBwd`), so we replay all entries in order.
     return mods.foldl (init := d) fun d (_, es) => es.foldl (init := d) fun d e => match e with

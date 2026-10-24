@@ -48,5 +48,5 @@ def sameState (d₁ d₂ : SimpTheorems) : Bool :=
   -- make sure the comparison covered the default simp set
   unless n > 10000 do throwError "too few simp theorems: {n}"
   -- no constant is a simp theorem in both directions, so lemma names are looked up per module
-  if (← getSimpTheorems).lemmaNames.imported.owned.isEmpty then
+  if (← getSimpTheorems).lemmaNames.imported.ownedKeys.isEmpty then
     throwError "imported lemma names were replayed"

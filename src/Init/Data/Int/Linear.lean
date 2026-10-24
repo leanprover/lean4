@@ -217,6 +217,77 @@ where
 def Expr.norm (e : Expr) : Poly :=
   e.toPoly'.norm
 
+/-!
+Kernel-reduction variants of `Poly.insert`, `Poly.norm`, `Expr.toPoly'` and `Expr.norm`, written
+with recursors and `Int.beq'`, for use in certificates. The kernel evaluates them 2-3x faster than
+the versions defined by structural recursion.
+-/
+
+@[expose] noncomputable def Poly.insert_k (k : Int) (v : Var) (p : Poly) : Poly :=
+  Poly.rec (fun k' => .add k v (.num k'))
+    (fun k' v' p ih =>
+      Bool.rec
+        (Bool.rec (.add k' v' ih)
+          (Bool.rec (.add (Int.add k k') v' p) p (Int.beq' (Int.add k k') 0))
+          (Nat.beq v v'))
+        (.add k v (.add k' v' p))
+        (Nat.blt v' v)) p
+
+@[simp] theorem Poly.insert_k_eq_insert (k : Int) (v : Var) (p : Poly) : p.insert_k k v = p.insert k v := by
+  induction p with
+  | num k' => rfl
+  | add k' v' p ih =>
+    simp only [insert_k, Poly.insert] at *
+    rw [← ih]
+    cases Nat.blt v' v <;> cases Nat.beq v v' <;> simp only [Int.beq'_eq_beq] <;> try rfl
+    all_goals (cases h : (k.add k' == 0) <;> simp_all [Int.add_def])
+
+@[expose] noncomputable def Poly.norm_k (p : Poly) : Poly :=
+  Poly.rec (fun k => .num k) (fun k v _ ih => ih.insert_k k v) p
+
+@[simp] theorem Poly.norm_k_eq_norm (p : Poly) : p.norm_k = p.norm := by
+  induction p with
+  | num k => rfl
+  | add k v p ih => simp only [norm_k, Poly.norm] at *; rw [← ih, Poly.insert_k_eq_insert]
+
+@[expose] noncomputable def Expr.toPoly'_k.go : Expr → Int → Poly → Poly :=
+  @Expr.rec (fun _ => Int → Poly → Poly)
+    (fun k c p => Bool.rec (p.addConst_k (Int.mul c k)) p (Int.beq' k 0))
+    (fun v c p => .add c v p)
+    (fun _ _ iha ihb c p => iha c (ihb c p))
+    (fun _ _ iha ihb c p => iha c (ihb (Int.neg c) p))
+    (fun _ iha c p => iha (Int.neg c) p)
+    (fun k _ iha c p => Bool.rec (iha (Int.mul c k) p) p (Int.beq' k 0))
+    (fun _ k iha c p => Bool.rec (iha (Int.mul c k) p) p (Int.beq' k 0))
+
+@[expose] noncomputable def Expr.toPoly'_k (e : Expr) : Poly :=
+  Expr.toPoly'_k.go e 1 (.num 0)
+
+theorem Expr.toPoly'_k.go_eq (e : Expr) (c : Int) (p : Poly) : Expr.toPoly'_k.go e c p = Expr.toPoly'.go c e p := by
+  induction e generalizing c p with
+  | num k =>
+    show Bool.rec (motive := fun _ => Poly) (p.addConst_k (Int.mul c k)) p (Int.beq' k 0) = _
+    rw [Int.beq'_eq_beq, Poly.addConst_k_eq_addConst]; simp only [Expr.toPoly'.go]; cases k == 0 <;> rfl
+  | var v => rfl
+  | add a b iha ihb => simp only [go, Expr.toPoly'.go, Function.comp] at *; rw [iha, ihb]
+  | sub a b iha ihb => simp only [go, Expr.toPoly'.go, Function.comp] at *; rw [iha, ihb]; rfl
+  | neg a iha => simp only [go, Expr.toPoly'.go] at *; rw [iha]; rfl
+  | mulL k a iha =>
+    show Bool.rec (motive := fun _ => Poly) (go a (Int.mul c k) p) p (Int.beq' k 0) = _
+    rw [iha, Int.beq'_eq_beq]; simp only [Expr.toPoly'.go]; cases k == 0 <;> rfl
+  | mulR a k iha =>
+    show Bool.rec (motive := fun _ => Poly) (go a (Int.mul c k) p) p (Int.beq' k 0) = _
+    rw [iha, Int.beq'_eq_beq]; simp only [Expr.toPoly'.go]; cases k == 0 <;> rfl
+
+@[simp] theorem Expr.toPoly'_k_eq_toPoly' (e : Expr) : e.toPoly'_k = e.toPoly' := by
+  simp [toPoly'_k, Expr.toPoly'_k.go_eq, Expr.toPoly']
+
+@[expose] noncomputable def Expr.norm_k (e : Expr) : Poly :=
+  e.toPoly'_k.norm_k
+
+@[simp] theorem Expr.norm_k_eq_norm (e : Expr) : e.norm_k = e.norm := by
+  simp [norm_k, Expr.norm]
+
 /--
 Returns the ceiling of the division `a / b`. That is, the result is equivalent to `⌈a / b⌉`.
 Examples:
@@ -533,7 +604,7 @@ theorem Expr.eq_of_norm_eq (ctx : Context) (e : Expr) (p : Poly) (h : e.norm.beq
 
 @[expose]
 noncomputable def norm_eq_cert (lhs rhs : Expr) (p : Poly) : Bool :=
-  p.beq' (lhs.sub rhs).norm
+  p.beq' (lhs.sub rhs).norm_k
 
 theorem norm_eq (ctx : Context) (lhs rhs : Expr) (p : Poly) (h : norm_eq_cert lhs rhs p) : (lhs.denote ctx = rhs.denote ctx) = (p.denote' ctx = 0) := by
   simp [norm_eq_cert] at h; subst p
@@ -549,7 +620,7 @@ theorem norm_le (ctx : Context) (lhs rhs : Expr) (p : Poly) (h : norm_eq_cert lh
 
 @[expose]
 noncomputable def norm_eq_var_cert (lhs rhs : Expr) (x y : Var) : Bool :=
-  (lhs.sub rhs).norm.beq' (.add 1 x (.add (-1) y (.num 0)))
+  (lhs.sub rhs).norm_k.beq' (.add 1 x (.add (-1) y (.num 0)))
 
 theorem norm_eq_var (ctx : Context) (lhs rhs : Expr) (x y : Var) (h : norm_eq_var_cert lhs rhs x y)
     : (lhs.denote ctx = rhs.denote ctx) = (x.denote ctx = y.denote ctx) := by
@@ -560,7 +631,7 @@ theorem norm_eq_var (ctx : Context) (lhs rhs : Expr) (x y : Var) (h : norm_eq_va
 
 @[expose]
 noncomputable def norm_eq_var_const_cert (lhs rhs : Expr) (x : Var) (k : Int) : Bool :=
-  (lhs.sub rhs).norm.beq' (.add 1 x (.num (-k)))
+  (lhs.sub rhs).norm_k.beq' (.add 1 x (.num (-k)))
 
 theorem norm_eq_var_const (ctx : Context) (lhs rhs : Expr) (x : Var) (k : Int) (h : norm_eq_var_const_cert lhs rhs x k)
     : (lhs.denote ctx = rhs.denote ctx) = (x.denote ctx = k) := by
@@ -579,7 +650,7 @@ theorem norm_eq_coeff' (ctx : Context) (p p' : Poly) (k : Int) : p = p'.mul k �
 
 @[expose]
 noncomputable def norm_eq_coeff_cert (lhs rhs : Expr) (p : Poly) (k : Int) : Bool :=
-  (lhs.sub rhs).norm.beq' (p.mul_k k) |>.and (Int.blt' 0 k)
+  (lhs.sub rhs).norm_k.beq' (p.mul_k k) |>.and (Int.blt' 0 k)
 
 theorem norm_eq_coeff (ctx : Context) (lhs rhs : Expr) (p : Poly) (k : Int)
     : norm_eq_coeff_cert lhs rhs p k → (lhs.denote ctx = rhs.denote ctx) = (p.denote' ctx = 0) := by
@@ -644,7 +715,7 @@ private theorem eq_of_norm_eq_of_divCoeffs {ctx : Context} {p₁ p₂ : Poly} {k
 
 @[expose]
 noncomputable def norm_le_coeff_tight_cert (lhs rhs : Expr) (p : Poly) (k : Int) : Bool :=
-  let p' := lhs.sub rhs |>.norm
+  let p' := lhs.sub rhs |>.norm_k
   (Int.blt' 0 k) |>.and (p'.divCoeffs k |>.and (p.beq' (p'.div k)))
 
 theorem norm_le_coeff_tight (ctx : Context) (lhs rhs : Expr) (p : Poly) (k : Int)
@@ -756,7 +827,7 @@ private theorem poly_eq_zero_eq_false (ctx : Context) {p : Poly} {k : Int} : p.d
 
 @[expose]
 noncomputable def unsatEqDivCoeffCert (lhs rhs : Expr) (k : Int) : Bool :=
-  let p := (lhs.sub rhs).norm
+  let p := (lhs.sub rhs).norm_k
   p.divCoeffs k |>.and (Int.blt' 0 k |>.and (cmod p.getConst k < 0))
 
 theorem eq_eq_false_of_divCoeff (ctx : Context) (lhs rhs : Expr) (k : Int) : unsatEqDivCoeffCert lhs rhs k → (lhs.denote ctx = rhs.denote ctx) = False := by
@@ -837,7 +908,7 @@ noncomputable def dvd_coeff_cert (k₁ : Int) (p₁ : Poly) (k₂ : Int) (p₂ :
 
 @[expose]
 noncomputable def norm_dvd_gcd_cert (k₁ : Int) (e₁ : Expr) (k₂ : Int) (p₂ : Poly) (k : Int) : Bool :=
-  dvd_coeff_cert k₁ e₁.norm k₂ p₂ k
+  dvd_coeff_cert k₁ e₁.norm_k k₂ p₂ k
 
 theorem norm_dvd_gcd (ctx : Context) (k₁ : Int) (e₁ : Expr) (k₂ : Int) (p₂ : Poly) (g : Int)
     : norm_dvd_gcd_cert k₁ e₁ k₂ p₂ g → (k₁ ∣ e₁.denote ctx) = (k₂ ∣ p₂.denote' ctx) := by
@@ -1057,7 +1128,7 @@ theorem dvd_of_eq_zero (ctx : Context) (d : Int) (p : Poly) : p.denote' ctx = 0 
 
 @[expose]
 noncomputable def eq_of_dvd_ediv_cert (d : Int) (e : Expr) (p p' : Poly) (x : Var) : Bool :=
-  e.norm.beq' p |>.and (p'.beq' (Poly.add (-d) x p))
+  e.norm_k.beq' p |>.and (p'.beq' (Poly.add (-d) x p))
 
 /--
 Omega-style elimination step: given `d ∣ p` and a variable `x` denoting `e / d` where `e` normalizes
@@ -1066,7 +1137,7 @@ to `p`, we have `p - d*x = 0`.
 theorem eq_of_dvd_ediv (ctx : Context) (d : Int) (e : Expr) (p p' : Poly) (x : Var)
     (hx : x.denote ctx = e.denote ctx / d)
     : eq_of_dvd_ediv_cert d e p p' x → d ∣ p.denote' ctx → p'.denote' ctx = 0 := by
-  simp only [eq_of_dvd_ediv_cert, Bool.and_eq_true, Poly.beq'_eq, and_imp]
+  simp only [eq_of_dvd_ediv_cert, Expr.norm_k_eq_norm, Bool.and_eq_true, Poly.beq'_eq, and_imp]
   intro h₁ h₂ hd; subst p' p
   have he : Expr.denote ctx e = Poly.denote ctx e.norm := by
     rw [← Poly.denote'_eq_denote]; exact Expr.eq_of_norm_eq ctx e e.norm (by simp)
@@ -2024,7 +2095,7 @@ theorem le_norm_expr (ctx : Context) (lhs rhs : Expr) (p : Poly)
 
 @[expose]
 noncomputable def not_le_norm_expr_cert (lhs rhs : Expr) (p : Poly) : Bool :=
-  p.beq' ((((lhs.sub rhs).norm).mul_k (-1)).addConst_k 1)
+  p.beq' ((((lhs.sub rhs).norm_k).mul_k (-1)).addConst_k 1)
 
 theorem not_le_norm_expr (ctx : Context) (lhs rhs : Expr) (p : Poly)
     : not_le_norm_expr_cert lhs rhs p → ¬ lhs.denote ctx ≤ rhs.denote ctx → p.denote' ctx ≤ 0 := by
@@ -2071,7 +2142,7 @@ theorem eq_def_norm (ctx : Context) (x : Var) (xPoly xPoly' : Poly) (p : Poly)
 
 @[expose]
 noncomputable def eq_def'_cert (x : Var) (e : Expr) (p : Poly) : Bool :=
-  p.beq' (.add (-1) x e.norm)
+  p.beq' (.add (-1) x e.norm_k)
 
 theorem eq_def' (ctx : Context) (x : Var) (e : Expr) (p : Poly)
     : eq_def'_cert x e p → x.denote ctx = e.denote ctx → p.denote' ctx = 0 := by
@@ -2080,7 +2151,7 @@ theorem eq_def' (ctx : Context) (x : Var) (e : Expr) (p : Poly)
 
 @[expose]
 noncomputable def eq_def_struct_cert (x : Var) (e : Expr) (p : Poly) : Bool :=
-  p.beq' (.add (-1) x e.toPoly')
+  p.beq' (.add (-1) x e.toPoly'_k)
 
 theorem eq_def_struct (ctx : Context) (x : Var) (e : Expr) (p : Poly)
     : eq_def_struct_cert x e p → x.denote ctx = e.denote ctx → p.denote' ctx = 0 := by
@@ -2090,7 +2161,7 @@ theorem eq_def_struct (ctx : Context) (x : Var) (e : Expr) (p : Poly)
 
 @[expose]
 noncomputable def eq_def'_norm_cert (x : Var) (e : Expr) (ePoly ePoly' p : Poly) : Bool :=
-  ePoly.beq' e.norm |>.and (p.beq' (.add (-1) x ePoly'))
+  ePoly.beq' e.norm_k |>.and (p.beq' (.add (-1) x ePoly'))
 
 theorem eq_def'_norm (ctx : Context) (x : Var) (e : Expr) (ePoly ePoly' : Poly) (p : Poly)
     : eq_def'_norm_cert x e ePoly ePoly' p → x.denote ctx = e.denote ctx → ePoly.denote' ctx = ePoly'.denote' ctx → p.denote' ctx = 0 := by
@@ -2099,7 +2170,7 @@ theorem eq_def'_norm (ctx : Context) (x : Var) (e : Expr) (ePoly ePoly' : Poly) 
 
 @[expose]
 noncomputable def eq_def_struct_norm_cert (x : Var) (e : Expr) (ePoly ePoly' p : Poly) : Bool :=
-  ePoly.beq' e.toPoly' |>.and (p.beq' (.add (-1) x ePoly'))
+  ePoly.beq' e.toPoly'_k |>.and (p.beq' (.add (-1) x ePoly'))
 
 theorem eq_def_struct_norm (ctx : Context) (x : Var) (e : Expr) (ePoly ePoly' : Poly) (p : Poly)
     : eq_def_struct_norm_cert x e ePoly ePoly' p → x.denote ctx = e.denote ctx → ePoly.denote' ctx = ePoly'.denote' ctx → p.denote' ctx = 0 := by

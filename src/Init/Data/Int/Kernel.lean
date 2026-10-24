@@ -52,6 +52,10 @@ namespace Int
 @[expose] protected noncomputable def beqZero_k (a : Int) : Bool :=
   Int.rec (fun m => Nat.beq m 0) (fun _ => false) a
 
+/-- `a - b` for kernel reduction. -/
+@[expose] protected noncomputable def sub_k (a b : Int) : Int :=
+  Int.add_k a (Int.neg_k b)
+
 /-- `a != 0` for kernel reduction. -/
 @[expose] protected noncomputable def bneZero_k (a : Int) : Bool :=
   Int.rec (fun m => Nat.blt 0 m) (fun _ => true) a
@@ -113,5 +117,8 @@ theorem negOfNat_k_eq (k : Nat) : Int.negOfNat_k k = Int.negOfNat k := by
   cases a <;> cases b
   case negSucc.ofNat m n => cases n <;> rfl
   all_goals simp only [Int.ediv_k, negOfNat_k_eq] <;> rfl
+
+@[simp] theorem sub_k_eq (a b : Int) : Int.sub_k a b = a - b := by
+  simp only [Int.sub_k, add_k_eq, neg_k_eq]; rfl
 
 end Int

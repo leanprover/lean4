@@ -12,22 +12,26 @@ namespace lean {
 
 #ifndef LEAN_EMSCRIPTEN
 
-typedef union in_addr_storage {
+namespace {
+
+union in_addr_storage {
     in_addr ipv4;
     in6_addr ipv6;
-} in_addr_storage;
+};
+
+}
 
 // In network byte order the bytes of `s_addr` are the octets of an `IPv4Addr`, and each pair of bytes
 // of `s6_addr` is one big-endian segment of an `IPv6Addr`.
 
-static void lean_ipv4_addr_to_in_addr(b_obj_arg ipv4_addr, in_addr* out) {
+static void ipv4_addr_to_in_addr(b_obj_arg ipv4_addr, in_addr* out) {
     uint8_t* bytes = (uint8_t*)&out->s_addr;
     for (int i = 0; i < 4; i++) {
         bytes[i] = (uint8_t)lean_unbox(array_uget(ipv4_addr, i));
     }
 }
 
-static void lean_ipv6_addr_to_in6_addr(b_obj_arg ipv6_addr, in6_addr* out) {
+static void ipv6_addr_to_in6_addr(b_obj_arg ipv6_addr, in6_addr* out) {
     for (int i = 0; i < 8; i++) {
         uint16_t segment = (uint16_t)lean_unbox(array_uget(ipv6_addr, i));
         out->s6_addr[2 * i] = (uint8_t)(segment >> 8);
@@ -35,14 +39,14 @@ static void lean_ipv6_addr_to_in6_addr(b_obj_arg ipv6_addr, in6_addr* out) {
     }
 }
 
-static void lean_ip_addr_to_in_addr_storage(b_obj_arg ip_addr, int* type, in_addr_storage* out) {
+static void ip_addr_to_in_addr_storage(b_obj_arg ip_addr, int* type, in_addr_storage* out) {
     lean_object* ip_obj = lean_ctor_get(ip_addr, 0);
 
     if (lean_ptr_tag(ip_addr) == 0) {
-        lean_ipv4_addr_to_in_addr(ip_obj, &out->ipv4);
+        ipv4_addr_to_in_addr(ip_obj, &out->ipv4);
         *type = AF_INET;
     } else {
-        lean_ipv6_addr_to_in6_addr(ip_obj, &out->ipv6);
+        ipv6_addr_to_in6_addr(ip_obj, &out->ipv6);
         *type = AF_INET6;
     }
 }
@@ -51,7 +55,7 @@ void lean_ip_addr_ntop(b_obj_arg ip_addr, char* buffer, size_t buffer_size) {
     int ip_type;
     in_addr_storage ip_addr_storage;
 
-    lean_ip_addr_to_in_addr_storage(ip_addr, &ip_type, &ip_addr_storage);
+    ip_addr_to_in_addr_storage(ip_addr, &ip_type, &ip_addr_storage);
     int ret = uv_inet_ntop(ip_type, &ip_addr_storage, buffer, buffer_size);
 
     lean_always_assert(ret == 0);
@@ -67,7 +71,7 @@ void lean_socket_address_to_sockaddr_storage(b_obj_arg socket_addr, sockaddr_sto
 
     if (lean_ptr_tag(socket_addr) == 0) {
         sockaddr_in* sin = (sockaddr_in*)out;
-        lean_ipv4_addr_to_in_addr(ip_addr, &sin->sin_addr);
+        ipv4_addr_to_in_addr(ip_addr, &sin->sin_addr);
         sin->sin_family = AF_INET;
 #ifdef SIN6_LEN
         sin->sin_len = sizeof(*sin);
@@ -75,7 +79,7 @@ void lean_socket_address_to_sockaddr_storage(b_obj_arg socket_addr, sockaddr_sto
         sin->sin_port = htons(port);
     } else {
         sockaddr_in6* sin6 = (sockaddr_in6*)out;
-        lean_ipv6_addr_to_in6_addr(ip_addr, &sin6->sin6_addr);
+        ipv6_addr_to_in6_addr(ip_addr, &sin6->sin6_addr);
         sin6->sin6_family = AF_INET6;
 #ifdef SIN6_LEN
         sin6->sin6_len = sizeof(*sin6);
@@ -84,7 +88,7 @@ void lean_socket_address_to_sockaddr_storage(b_obj_arg socket_addr, sockaddr_sto
     }
 }
 
-static lean_obj_res lean_in_addr_to_ipv4_addr(const in_addr* ipv4_addr) {
+static lean_obj_res in_addr_to_ipv4_addr(const in_addr* ipv4_addr) {
     const uint8_t* bytes = (const uint8_t*)&ipv4_addr->s_addr;
     lean_object* ret = lean_alloc_array(4, 4);
     for (int i = 0; i < 4; i++) {
@@ -93,7 +97,7 @@ static lean_obj_res lean_in_addr_to_ipv4_addr(const in_addr* ipv4_addr) {
     return ret;
 }
 
-static lean_obj_res lean_in6_addr_to_ipv6_addr(const in6_addr* ipv6_addr) {
+static lean_obj_res in6_addr_to_ipv6_addr(const in6_addr* ipv6_addr) {
     lean_object* ret = lean_alloc_array(8, 8);
     for (int i = 0; i < 8; i++) {
         uint16_t segment = (uint16_t)((ipv6_addr->s6_addr[2 * i] << 8) | ipv6_addr->s6_addr[2 * i + 1]);
@@ -102,7 +106,7 @@ static lean_obj_res lean_in6_addr_to_ipv6_addr(const in6_addr* ipv6_addr) {
     return ret;
 }
 
-static lean_obj_res lean_phys_addr_to_mac_addr(const char phys_addr[6]) {
+static lean_obj_res phys_addr_to_mac_addr(const char phys_addr[6]) {
     lean_object* ret = lean_alloc_array(6, 6);
     for (int i = 0; i < 6; i++) {
         lean_array_set_core(ret, i, lean_box((uint8_t)phys_addr[i]));
@@ -121,9 +125,9 @@ lean_obj_res lean_in_addr_to_ip_addr(int family, const void* addr) {
     lean_object* part;
 
     if (family == AF_INET) {
-        part = lean_in_addr_to_ipv4_addr((const in_addr*)addr);
+        part = in_addr_to_ipv4_addr((const in_addr*)addr);
     } else if (family == AF_INET6) {
-        part = lean_in6_addr_to_ipv6_addr((const in6_addr*)addr);
+        part = in6_addr_to_ipv6_addr((const in6_addr*)addr);
     } else {
         lean_unreachable();
     }
@@ -140,12 +144,12 @@ lean_obj_res lean_sockaddr_to_socketaddress(const sockaddr* sa) {
 
     if (sa->sa_family == AF_INET) {
         const sockaddr_in* sin = (const sockaddr_in*)sa;
-        ip_addr = lean_in_addr_to_ipv4_addr(&sin->sin_addr);
+        ip_addr = in_addr_to_ipv4_addr(&sin->sin_addr);
         port = ntohs(sin->sin_port);
         tag = 0;
     } else if (sa->sa_family == AF_INET6) {
         const sockaddr_in6* sin6 = (const sockaddr_in6*)sa;
-        ip_addr = lean_in6_addr_to_ipv6_addr(&sin6->sin6_addr);
+        ip_addr = in6_addr_to_ipv6_addr(&sin6->sin6_addr);
         port = ntohs(sin6->sin6_port);
         tag = 1;
     } else {
@@ -167,13 +171,13 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_pton_v4(b_obj_arg str_obj) {
     if (uv_inet_pton(AF_INET, str, &internal) != 0) {
         return mk_option_none();
     }
-    return mk_option_some(lean_in_addr_to_ipv4_addr(&internal));
+    return mk_option_some(in_addr_to_ipv4_addr(&internal));
 }
 
 /* Std.Net.IPV4Addr.toString (addr : @&IPV4Addr) : String */
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_ntop_v4(b_obj_arg ipv4_addr) {
     in_addr internal;
-    lean_ipv4_addr_to_in_addr(ipv4_addr, &internal);
+    ipv4_addr_to_in_addr(ipv4_addr, &internal);
     char dst[INET_ADDRSTRLEN];
     int ret = uv_inet_ntop(AF_INET, &internal, dst, sizeof(dst));
     lean_always_assert(ret == 0);
@@ -191,13 +195,13 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_pton_v6(b_obj_arg str_obj) {
     if (uv_inet_pton(AF_INET6, str, &internal) != 0) {
         return mk_option_none();
     }
-    return mk_option_some(lean_in6_addr_to_ipv6_addr(&internal));
+    return mk_option_some(in6_addr_to_ipv6_addr(&internal));
 }
 
 /* Std.Net.IPV6Addr.toString (addr : @&IPV6Addr) : String */
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_ntop_v6(b_obj_arg ipv6_addr) {
     in6_addr internal;
-    lean_ipv6_addr_to_in6_addr(ipv6_addr, &internal);
+    ipv6_addr_to_in6_addr(ipv6_addr, &internal);
     char dst[INET6_ADDRSTRLEN];
     int ret = uv_inet_ntop(AF_INET6, &internal, dst, sizeof(dst));
     lean_always_assert(ret == 0);
@@ -233,7 +237,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_interface_addresses() {
 
         lean_object* iface = lean_alloc_ctor(0, 4, 1);
         lean_ctor_set(iface, 0, lean_mk_string(info.name));
-        lean_ctor_set(iface, 1, lean_phys_addr_to_mac_addr(info.phys_addr));
+        lean_ctor_set(iface, 1, phys_addr_to_mac_addr(info.phys_addr));
         lean_ctor_set(iface, 2, lean_in_addr_to_ip_addr(family, address));
         lean_ctor_set(iface, 3, lean_in_addr_to_ip_addr(family, netmask));
         lean_ctor_set_uint8(iface, sizeof(void*)*4, info.is_internal);

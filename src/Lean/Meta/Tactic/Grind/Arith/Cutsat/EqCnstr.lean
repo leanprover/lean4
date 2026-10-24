@@ -602,6 +602,15 @@ private def internalizeInt (e : Expr) : GoalM Unit := do
       let c := { p := .add (-1) x p, h := .defnExpr h x e' : EqCnstr }
       c.assert
 
+/--
+Pushes a linear fact about `a / b` and `a % b`. The `simp`-based preprocessor is skipped: these facts
+are linear combinations that cutsat normalizes itself, and the preprocessor would only redistribute
+the coefficients.
+-/
+private def pushDivModFact (proof : Expr) : GoalM Unit := do
+  let prop ← preprocessLight (← inferType proof)
+  pushNewFactCore prop proof 0
+
 private def expandDivMod (a : Expr) (b : Int) : GoalM Unit := do
   if (← get').divMod.contains (a, b) then return ()
   modify' fun s => { s with divMod := s.divMod.insert (a, b) }
@@ -630,9 +639,9 @@ private def expandDivMod (a : Expr) (b : Int) : GoalM Unit := do
       pushEq ediv neg_a <| mkApp (mkConst ``Int.ediv_minus_one) a
   else
     let n : Int := 1 - b.natAbs
-    pushNewFact <| mkApp2 (mkConst ``Int.Internal.Linear.ediv_emod) a b'
-    pushNewFact <| mkApp3 (mkConst ``Int.Internal.Linear.emod_nonneg) a b' eagerReflBoolTrue
-    pushNewFact <| mkApp4 (mkConst ``Int.Internal.Linear.emod_le) a b' (toExpr n) eagerReflBoolTrue
+    pushDivModFact <| mkApp2 (mkConst ``Int.Internal.Linear.ediv_emod) a b'
+    pushDivModFact <| mkApp3 (mkConst ``Int.Internal.Linear.emod_nonneg) a b' eagerReflBoolTrue
+    pushDivModFact <| mkApp4 (mkConst ``Int.Internal.Linear.emod_le) a b' (toExpr n) eagerReflBoolTrue
 
 private def propagateDiv (e : Expr) : GoalM Unit := do
   let_expr HDiv.hDiv _ _ _ inst a b ← e | return ()

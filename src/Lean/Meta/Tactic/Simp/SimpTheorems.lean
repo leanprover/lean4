@@ -7,6 +7,7 @@ module
 prelude
 public import Lean.Meta.DiscrTree.Main
 public import Lean.Meta.Tactic.AuxLemma
+public import Lean.ImportedDeclMap
 public import Lean.DocString
 import Lean.Meta.AppBuilder
 import Lean.Meta.Eqns
@@ -600,82 +601,39 @@ def Origin.quickLt : Origin → Origin → Bool
   | _, .decl .. => false
   | a, b => Name.quickLt a.key b.key
 
+instance : ImportedDeclMap.Key Origin where
+  declName := Origin.key
+  lt := Origin.quickLt
+
 /--
-The origins of the imported theorems of a simp set, represented without building a set of all of
-them: a theorem about a constant declared in the module that added it is looked up in that module's
-array, all others in `foreign`.
+The origins of the theorems in a simp set (`SimpTheorems.lemmaNames`). Imported origins are
+represented as an `ImportedDeclMap`.
 -/
-structure ImportedSimpLemmaNames where
-  /-- The imported constants, used to find the module declaring a constant. -/
-  consts  : ImportedConsts ConstantInfo := .empty
-  /-- Per module index, the origins owned by the module, sorted by `Origin.quickLt`. -/
-  owned   : Array (Array Origin) := #[]
-  /-- The origins not owned by the module declaring their constant. -/
-  foreign : PHashSet Origin := {}
-  /-- The number of origins. -/
-  size    : Nat := 0
-  deriving Inhabited
-
-def ImportedSimpLemmaNames.contains (s : ImportedSimpLemmaNames) (o : Origin) : Bool :=
-  s.foreign.contains o || match o with
-    | .decl n .. =>
-      if s.owned.isEmpty then false
-      else match s.consts.findConstModIdxCached? n with
-        | some i => (s.owned[i]?.getD #[]).binSearchContains o Origin.quickLt
-        | none => false
-    | _ => false
-
-def ImportedSimpLemmaNames.toList (s : ImportedSimpLemmaNames) : List Origin :=
-  s.owned.foldr (init := s.foreign.toList) fun os l => os.toList ++ l
-
-/-- The origins of the theorems in a simp set (`SimpTheorems.lemmaNames`). -/
-structure SimpLemmaNames where
-  imported : ImportedSimpLemmaNames := {}
-  /-- The erased imported origins. -/
-  removed  : PHashSet Origin := {}
-  /-- The size of `removed`. -/
-  numRemoved : Nat := 0
-  /-- The origins that are not imported. -/
-  added    : PHashSet Origin := {}
+structure SimpLemmaNames extends DeclMap Origin Unit
   deriving Inhabited
 
 namespace SimpLemmaNames
 
 def contains (s : SimpLemmaNames) (o : Origin) : Bool :=
-  s.added.contains o || (s.imported.contains o && !s.removed.contains o)
+  s.toDeclMap.contains o
 
 def insert (s : SimpLemmaNames) (o : Origin) : SimpLemmaNames :=
-  if s.imported.contains o then
-    if s.removed.contains o then
-      { s with removed := s.removed.erase o, numRemoved := s.numRemoved - 1 }
-    else
-      s
-  else
-    { s with added := s.added.insert o }
+  ⟨s.toDeclMap.insert o ()⟩
 
 def erase (s : SimpLemmaNames) (o : Origin) : SimpLemmaNames :=
-  if s.imported.contains o then
-    if s.removed.contains o then
-      s
-    else
-      { s with removed := s.removed.insert o, numRemoved := s.numRemoved + 1 }
-  else
-    { s with added := s.added.erase o }
+  ⟨s.toDeclMap.erase o⟩
 
 def isEmpty (s : SimpLemmaNames) : Bool :=
-  s.added.isEmpty && s.imported.size == s.numRemoved
+  s.toDeclMap.isEmpty
 
-@[inline] def foldM [Monad m] (f : β → Origin → m β) (init : β) (s : SimpLemmaNames) : m β := do
-  let f' b o := if s.removed.contains o then pure b else f b o
-  let b ← s.imported.owned.foldlM (init := init) fun b os => os.foldlM f' b
-  let b ← s.imported.foreign.foldM f' b
-  s.added.foldM f b
+@[inline] def foldM [Monad m] (f : β → Origin → m β) (init : β) (s : SimpLemmaNames) : m β :=
+  s.toDeclMap.foldM (fun b o _ => f b o) init
 
 @[inline] def fold (f : β → Origin → β) (init : β) (s : SimpLemmaNames) : β :=
   Id.run <| s.foldM (pure <| f · ·) init
 
 def toList (s : SimpLemmaNames) : List Origin :=
-  s.imported.toList.filter (!s.removed.contains ·) ++ s.added.toList
+  s.fold (init := []) fun l o => o :: l
 
 end SimpLemmaNames
 
@@ -790,24 +748,17 @@ not require adding each entry (see `ScopedEnvExtension.ModuleIndex`).
 structure SimpModuleIndex where
   pre      : Array (DiscrTree.Key × DiscrTree.Trie SimpTheorem)
   post     : Array (DiscrTree.Key × DiscrTree.Trie SimpTheorem)
-  /--
-  The origins of theorems about constants declared in the module, sorted by `Origin.quickLt` and
-  without duplicates (see `ImportedSimpLemmaNames`).
-  -/
-  owned    : Array Origin
+  /-- The origins of theorems owned by the module (see `ImportedDeclMap.sortOwned`). -/
+  owned    : Array (Origin × Unit)
   /-- The origins of the remaining theorems. -/
-  foreign  : Array Origin
+  foreign  : Array (Origin × Unit)
   /-- The constants of theorems added in the backward direction. -/
   backward : Array Name
   /-- The entries other than theorems, in order. -/
   rest     : Array SimpEntry
   deriving Inhabited
 
-/--
-Preprocesses the global simp entries of a module, the current one if `modIdx?` is `none`. Constants
-with reserved names, such as equational theorems, may be realized by several modules, so their
-theorems are not owned by any module.
--/
+/-- Preprocesses the global simp entries of a module, the current one if `modIdx?` is `none`. -/
 def SimpModuleIndex.ofEntries (env : Environment) (modIdx? : Option ModuleIdx) (es : Array SimpEntry) :
     SimpModuleIndex := Id.run do
   let thms := es.filterMap fun | .thm e => some (e.keys, e) | _ => none
@@ -818,16 +769,14 @@ def SimpModuleIndex.ofEntries (env : Environment) (modIdx? : Option ModuleIdx) (
     if let .decl n _ inv := t.origin then
       if inv then
         backward := backward.push n
-      if (env.getModuleIdxFor? n).map (·.toNat) == modIdx?.map (·.toNat) && !isReservedName env n then
-        owned := owned.push t.origin
+      if ImportedDeclMap.isOwnedBy env modIdx? n then
+        owned := owned.push (t.origin, ())
         continue
-    foreign := foreign.push t.origin
-  let sorted := owned.qsort Origin.quickLt |>.foldl (init := #[]) fun os o =>
-    if os.back?.any (· == o) then os else os.push o
+    foreign := foreign.push (t.origin, ())
   return {
     pre := DiscrTree.moduleRootsOf (thms.filter (!·.2.post))
     post := DiscrTree.moduleRootsOf (thms.filter (·.2.post))
-    owned := sorted, foreign, backward
+    owned := ImportedDeclMap.sortOwned owned, foreign, backward
     rest := es.filter fun e => !(e matches .thm _) }
 
 /--
@@ -840,15 +789,8 @@ def SimpModuleIndex.addImported (d : SimpTheorems)
   let d := { d with
     pre := DiscrTree.ofModuleRoots (idxs.map (·.pre))
     post := DiscrTree.ofModuleRoots (idxs.map (·.post)) }
-  let owned := mods.map (·.1.map (·.owned) |>.getD #[])
-  let mut imported : ImportedSimpLemmaNames := {
-    consts := (← read).env.toKernelEnv.constants.map₁
-    owned
-    size := owned.foldl (· + ·.size) 0 }
-  for idx in idxs do
-    for o in idx.foreign do
-      unless imported.contains o do
-        imported := { imported with foreign := imported.foreign.insert o, size := imported.size + 1 }
+  let imported := ImportedDeclMap.ofModules (← read).env.toKernelEnv.constants.map₁
+    (mods.map (·.1.map (·.owned) |>.getD #[])) (idxs.map (·.foreign))
   if idxs.any (·.backward.any fun n => imported.contains (.decl n (inv := false))) then
     -- Adding a theorem erases its converse (`eraseFwdIfBwd`), so we replay all entries in order.
     return mods.foldl (init := d) fun d (_, es) => es.foldl (init := d) fun d e => match e with

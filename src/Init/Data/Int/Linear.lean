@@ -56,7 +56,7 @@ attribute [semireducible] Var.denote Expr.denote
   Expr.rec (fun k => k) (fun v => v.denote ctx) (fun _ _ a b => a + b) (fun _ _ a b => a - b)
     (fun _ a => -a) (fun k _ a => k * a) (fun _ k a => a * k) e
 
-@[simp] theorem Expr.denote_k_eq (ctx : Context) (e : Expr) : e.denote_k ctx = e.denote ctx := by
+@[simp] theorem Expr.denote_k_eq_denote (ctx : Context) (e : Expr) : e.denote_k ctx = e.denote ctx := by
   induction e with
   | num => rfl
   | var => rfl
@@ -414,21 +414,21 @@ def Poly.divCoeffs (k : Int) : Poly → Bool
 @[expose] noncomputable def cdiv_k (a b : Int) : Int :=
   Int.neg_k (Int.ediv_k (Int.neg_k a) b)
 
-@[simp] theorem cdiv_k_eq (a b : Int) : cdiv_k a b = cdiv a b := by
+@[simp] theorem cdiv_k_eq_cdiv (a b : Int) : cdiv_k a b = cdiv a b := by
   simp only [cdiv_k, cdiv, Int.neg_k_eq, Int.ediv_k_eq]; rfl
 
 /-- `cmod` for kernel reduction. -/
 @[expose] noncomputable def cmod_k (a b : Int) : Int :=
   Int.neg_k (Int.emod_k (Int.neg_k a) b)
 
-@[simp] theorem cmod_k_eq (a b : Int) : cmod_k a b = cmod a b := by
+@[simp] theorem cmod_k_eq_cmod (a b : Int) : cmod_k a b = cmod a b := by
   simp only [cmod_k, cmod, Int.neg_k_eq, Int.emod_k_eq]; rfl
 
 /-- `Poly.getConst` for kernel reduction. -/
 @[expose] noncomputable def Poly.getConst_k (p : Poly) : Int :=
   Poly.rec (fun k => k) (fun _ _ _ ih => ih) p
 
-@[simp] theorem Poly.getConst_k_eq (p : Poly) : p.getConst_k = p.getConst := by
+@[simp] theorem Poly.getConst_k_eq_getConst (p : Poly) : p.getConst_k = p.getConst := by
   induction p with
   | num _ => rfl
   | add _ _ p ih => show p.getConst_k = _; simp [getConst, ih]
@@ -1235,7 +1235,7 @@ to `p`, we have `p - d*x = 0`.
 theorem eq_of_dvd_ediv (ctx : Context) (d : Int) (e : Expr) (p p' : Poly) (x : Var)
     (hx : x.denote ctx = e.denote_k ctx / d)
     : eq_of_dvd_ediv_cert d e p p' x → d ∣ p.denote' ctx → p'.denote' ctx = 0 := by
-  rw [Expr.denote_k_eq] at hx
+  rw [Expr.denote_k_eq_denote] at hx
   simp only [eq_of_dvd_ediv_cert, Expr.norm_k_eq_norm, Bool.and_eq_true, Poly.beq'_eq, and_imp]
   intro h₁ h₂ hd; subst p' p
   have he : Expr.denote ctx e = Poly.denote ctx e.norm := by
@@ -1283,7 +1283,7 @@ def Poly.leadCoeff (p : Poly) : Int :=
 @[expose] noncomputable def Poly.leadCoeff_k (p : Poly) : Int :=
   Poly.rec (fun _ => 1) (fun a _ _ _ => a) p
 
-@[simp] theorem Poly.leadCoeff_k_eq (p : Poly) : p.leadCoeff_k = p.leadCoeff := by
+@[simp] theorem Poly.leadCoeff_k_eq_leadCoeff (p : Poly) : p.leadCoeff_k = p.leadCoeff := by
   cases p <;> rfl
 
 @[expose]
@@ -1311,14 +1311,14 @@ noncomputable def le_combine_coeff_cert (p₁ p₂ p₃ : Poly) (k : Int) : Bool
 
 theorem le_combine_coeff (ctx : Context) (p₁ p₂ p₃ : Poly) (k : Int)
     : le_combine_coeff_cert p₁ p₂ p₃ k → p₁.denote' ctx ≤ 0 → p₂.denote' ctx ≤ 0 → p₃.denote' ctx ≤ 0 := by
-  simp only [le_combine_coeff_cert, Int.natAbs_k_eq, Poly.leadCoeff_k_eq, Int.ofNat_eq_natCast,
+  simp only [le_combine_coeff_cert, Int.natAbs_k_eq, Poly.leadCoeff_k_eq_leadCoeff, Int.ofNat_eq_natCast,
              Poly.divCoeffs_k_eq_divCoeffs, Poly.div_k_eq_div, Poly.beq'_eq, Bool.and_eq_true, and_imp]
   let a₁ := p₁.leadCoeff.natAbs
   let a₂ := p₂.leadCoeff.natAbs
   generalize h : (p₁.combine_mul_k a₂ a₁ p₂) = p
   intro h₁ h₂ h₃ h₄ h₅
   have := le_combine ctx p₁ p₂ p
-  simp only [le_combine_cert, Int.natAbs_k_eq, Poly.leadCoeff_k_eq, Int.ofNat_eq_natCast, Poly.beq'_eq] at this
+  simp only [le_combine_cert, Int.natAbs_k_eq, Poly.leadCoeff_k_eq_leadCoeff, Int.ofNat_eq_natCast, Poly.beq'_eq] at this
   have aux₁ := this h.symm h₄ h₅
   have := le_coeff ctx p p₃ k
   simp only [le_coeff_cert, Poly.divCoeffs_k_eq_divCoeffs, Poly.div_k_eq_div, Poly.beq'_eq,
@@ -1678,7 +1678,7 @@ def Poly.tail (p : Poly) : Poly :=
 @[expose] noncomputable def Poly.tail_k (p : Poly) : Poly :=
   Poly.rec (fun k => .num k) (fun _ _ p _ => p) p
 
-@[simp] theorem Poly.tail_k_eq (p : Poly) : p.tail_k = p.tail := by
+@[simp] theorem Poly.tail_k_eq_tail (p : Poly) : p.tail_k = p.tail := by
   cases p <;> rfl
 
 @[expose]
@@ -2108,7 +2108,7 @@ theorem cooper_unsat (ctx : Context) (p₁ p₂ p₃ : Poly) (d : Int) (α β : 
   rename_i k₁ x p₁ k₂ y p₂ c z p₃
   cases p₁ <;> cases p₂ <;> cases p₃ <;> simp only [Poly.casesOnNum, Int.reduceNeg,
     Int.beq'_eq, Nat.beq_eq, Bool.and_eq_true, Int.blt'_eq_true, Int.add_k_eq, Int.mul_k_eq,
-    Int.neg_k_eq, Int.emod_k_eq, Int.sub_k_eq, cdiv_k_eq, neg_fold, mul_fold', add_fold',
+    Int.neg_k_eq, Int.emod_k_eq, Int.sub_k_eq, cdiv_k_eq_cdiv, neg_fold, mul_fold', add_fold',
     and_imp, Bool.false_eq_true, false_implies, Poly.denote]
   rename_i a b e
   intro _ _ _ _; subst k₁ k₂ y z
@@ -2167,7 +2167,7 @@ value `≤ 0` congruent to `c` modulo `g`. Generalizes `dvd_le_tight`, which is 
 theorem dvd_le_tight_mod (ctx : Context) (d : Int) (p₁ p₂ p₃ : Poly) (t g : Int)
     : dvd_le_tight_mod_cert d p₁ p₂ p₃ t g → d ∣ p₁.denote' ctx → p₂.denote' ctx ≤ 0 → p₃.denote' ctx ≤ 0 := by
   simp only [dvd_le_tight_mod_cert, Bool.and_eq_true, Int.blt'_eq_true, Poly.beq'_eq,
-    Int.beqZero_k_eq, Int.emod_k_eq, beq_iff_eq, Int.neg_k_eq, neg_fold, cmod_k_eq, Poly.getConst_k_eq,
+    Int.beqZero_k_eq, Int.emod_k_eq, beq_iff_eq, Int.neg_k_eq, neg_fold, cmod_k_eq_cmod, Poly.getConst_k_eq_getConst,
     Poly.divCoeffs_k_eq_divCoeffs, Poly.addConst_k_eq_addConst, Poly.denote'_eq_denote, and_imp]
   intro hg hdg hdiv hp₃ h₁ h₂
   subst hp₃
@@ -2186,7 +2186,7 @@ theorem dvd_le_tight_mod (ctx : Context) (d : Int) (p₁ p₂ p₃ : Poly) (t g 
 
 theorem le_norm_expr (ctx : Context) (lhs rhs : Expr) (p : Poly)
     : norm_eq_cert lhs rhs p → lhs.denote_k ctx ≤ rhs.denote_k ctx → p.denote' ctx ≤ 0 := by
-  simp only [Expr.denote_k_eq]; intro h₁ h₂; rwa [norm_le ctx lhs rhs p h₁] at h₂
+  simp only [Expr.denote_k_eq_denote]; intro h₁ h₂; rwa [norm_le ctx lhs rhs p h₁] at h₂
 
 @[expose]
 noncomputable def not_le_norm_expr_cert (lhs rhs : Expr) (p : Poly) : Bool :=
@@ -2207,7 +2207,7 @@ theorem dvd_norm_expr (ctx : Context) (d : Int) (e : Expr) (p : Poly)
 
 theorem eq_norm_expr (ctx : Context) (lhs rhs : Expr) (p : Poly)
     : norm_eq_cert lhs rhs p → lhs.denote_k ctx = rhs.denote_k ctx → p.denote' ctx = 0 := by
-  simp only [Expr.denote_k_eq]; intro h₁ h₂; rwa [norm_eq ctx lhs rhs p h₁] at h₂
+  simp only [Expr.denote_k_eq_denote]; intro h₁ h₂; rwa [norm_eq ctx lhs rhs p h₁] at h₂
 
 theorem not_eq_norm_expr (ctx : Context) (lhs rhs : Expr) (p : Poly)
     : norm_eq_cert lhs rhs p → ¬ lhs.denote_k ctx = rhs.denote_k ctx → ¬ p.denote' ctx = 0 := by

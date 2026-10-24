@@ -442,11 +442,18 @@ def findEncoded? (query : Query) (key : EncodedQueryParam) : Option (Option Enco
   matchingKey.map (fun x => x.snd)
 
 /--
-Finds the first value of a query parameter by raw key string. The key is percent-encoded before
-matching. This avoids aliasing between raw and pre-encoded spellings.
+Whether the parameter name `name` decodes to `key`. Percent-encoding is not canonical (`a:b` and
+`a%3Ab` spell the same name), so names are compared after decoding rather than byte for byte.
+Since `+` decodes to a space, `a+b` matches the key `"a b"`.
+-/
+private def nameIs (key : String) (name : EncodedQueryParam) : Bool :=
+  name.decode == some key
+
+/--
+Finds the first value of a query parameter whose name decodes to `key`, however it is spelled.
 -/
 def find? (query : Query) (key : String) : Option (Option EncodedQueryParam) :=
-  query.findEncoded? (EncodedQueryParam.encode key)
+  (Array.find? (fun x => nameIs key x.fst) query).map (fun x => x.snd)
 
 /--
 Finds all values of a query parameter by key name. Returns an empty array if the key is not found.
@@ -460,10 +467,10 @@ def findAllEncoded (query : Query) (key : EncodedQueryParam) : Array (Option Enc
       none)
 
 /--
-Finds all values of a query parameter by raw key string. The key is percent-encoded before matching.
+Finds all values of query parameters whose name decodes to `key`, however it is spelled.
 -/
 def findAll (query : Query) (key : String) : Array (Option EncodedQueryParam) :=
-  query.findAllEncoded (EncodedQueryParam.encode key)
+  query.filterMap (fun x => if nameIs key x.fst then some x.snd else none)
 
 /--
 Adds a query parameter to the query string.
@@ -497,10 +504,10 @@ def containsEncoded (query : Query) (key : EncodedQueryParam) : Bool :=
   query.any (fun x => x.fst.toByteArray = key.toByteArray)
 
 /--
-Checks if a query parameter exists by raw key string. The key is percent-encoded before matching.
+Checks if a query parameter whose name decodes to `key` exists, however it is spelled.
 -/
 def contains (query : Query) (key : String) : Bool :=
-  query.containsEncoded (EncodedQueryParam.encode key)
+  query.any (fun x => nameIs key x.fst)
 
 /--
 Removes all occurrences of a query parameter by key name.
@@ -511,10 +518,10 @@ def eraseEncoded (query : Query) (key : EncodedQueryParam) : Query :=
   )
 
 /--
-Removes all occurrences of a query parameter by raw key string. The key is percent-encoded before matching.
+Removes all query parameters whose name decodes to `key`, however it is spelled.
 -/
 def erase (query : Query) (key : String) : Query :=
-  query.eraseEncoded (EncodedQueryParam.encode key)
+  query.filter (fun x => !nameIs key x.fst)
 
 /--
 Gets the first value of a query parameter by key name, decoded as a string.

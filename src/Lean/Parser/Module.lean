@@ -29,10 +29,11 @@ structure ModuleParserState where
   pos        : String.Pos.Raw := 0
   recovering : Bool := false
   /--
-  Whether there is leading whitespace before `pos`.
-  Used to associate whitespace at the start of the file with the first token of the file.
+  Start of the initial whitespace to associate with the first token, or `none` if it has already
+  been associated or should be discarded. When constructing a state directly for an embedded region,
+  use `some` of the region's start position to retain its initial whitespace.
   -/
-  hasLeading : Bool := true
+  leadingStartPos? : Option String.Pos.Raw := some 0
   deriving Inhabited
 
 private partial def mkErrorMessage (c : InputContext) (pos : String.Pos.Raw) (stk : SyntaxStack) (e : Parser.Error) : Message := Id.run do
@@ -66,17 +67,28 @@ where
       if let .original (trailing := trailing) .. := stx.getTailInfo then pure (some trailing)
         else none
 
-private def setStartOfFileLeading (stx : Syntax) : Syntax × Bool := Id.run do
+private def setLeadingStart (stx : Syntax) (startPos : String.Pos.Raw) : Syntax × Bool := Id.run do
   let some (.original leading pos trailing endPos) ← stx.getHeadInfo?
     | return (stx, false)
-  let info := .original { leading with startPos := 0 } pos trailing endPos
+  let info := .original { leading with startPos } pos trailing endPos
   return (stx.setHeadInfo info, true)
 
-def parseHeader (inputCtx : InputContext) : IO (TSyntax ``Module.header × ModuleParserState × MessageLog) := do
+/--
+Parses a module header starting at `startPos` (default: `0`), bounded by `inputCtx.endPos`.
+
+`startPos` must be a valid UTF-8 byte position in `inputCtx.inputString` at or before
+`inputCtx.endPos`. Compute it after any line-ending normalization by `mkInputContext`.
+Syntax offsets refer to this string; diagnostic positions use `inputCtx.fileMap`.
+
+Pass the returned parser state to `parseCommand` to continue parsing the same region.
+-/
+def parseHeader (inputCtx : InputContext) (startPos : String.Pos.Raw := 0) :
+    IO (TSyntax ``Module.header × ModuleParserState × MessageLog) := do
   let dummyEnv ← mkEmptyEnvironment
   let p   := andthenFn whitespace Module.header.fn
   let tokens := Module.updateTokens (getTokenTable dummyEnv)
-  let s   := p.run inputCtx { env := dummyEnv, options := {} } tokens (mkParserState inputCtx.inputString)
+  let s   := p.run inputCtx { env := dummyEnv, options := {} } tokens
+    { mkParserState inputCtx.inputString with pos := startPos }
   let stx := if s.stxStack.isEmpty then .missing else s.stxStack.back
   let mut messages : MessageLog := {}
   for (pos, stk, err) in s.allErrors do
@@ -108,8 +120,12 @@ def parseHeader (inputCtx : InputContext) : IO (TSyntax ``Module.header × Modul
                 consider using separate `public import {mod}` and `import all {mod}` directives \
                 in order to import public data into the public scope and private data into the \
                 private scope."
-  let (stx, isLeadingSet) := setStartOfFileLeading stx
-  pure (⟨stx⟩, { pos := s.pos, recovering := s.hasError, hasLeading := ! isLeadingSet }, messages)
+  let (stx, isLeadingSet) := setLeadingStart stx startPos
+  pure (⟨stx⟩, {
+    pos := s.pos
+    recovering := s.hasError
+    leadingStartPos? := if isLeadingSet then none else some startPos
+  }, messages)
 
 private def mkEOI (inputCtx : InputContext) (pos : String.Pos.Raw) : Syntax :=
   let emptyAt := inputCtx.substring pos pos
@@ -172,10 +188,10 @@ partial def parseCommand (inputCtx : InputContext) (pmctx : ParserModuleContext)
       else
         stx := s.stxStack.back
         break
-  if mps.hasLeading then
-    -- File header was empty - set start-of-file leading whitespace on first token in `stx`
-    (stx, _) := setStartOfFileLeading stx
-  return (stx, { pos, recovering, hasLeading := false }, messages)
+  if let some startPos := mps.leadingStartPos? then
+    -- Header was empty - anchor the first token's leading whitespace at the start of the region.
+    (stx, _) := setLeadingStart stx startPos
+  return (stx, { pos, recovering, leadingStartPos? := none }, messages)
 
 -- only useful for testing since most Lean files cannot be parsed without elaboration
 

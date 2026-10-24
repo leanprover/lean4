@@ -52,6 +52,11 @@ inductive Trie (α : Type) where
     `DiscrTree.ofModuleRoots`). The merged node is never itself `lazy`.
     -/
   | lazy (t : Thunk (Trie α)) : Trie α
+    /--
+    The path of the single value `v` through the remaining keys `keys[i:]`, equivalent to `.chain`
+    nodes for these keys ending in `.node #[v] #[]`. `keys` is usually shared with `v`'s own keys.
+    -/
+  | suffix (keys : Array Key) (i : Nat) (v : α) : Trie α
 
 end DiscrTree
 

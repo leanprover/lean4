@@ -27,9 +27,13 @@ instance : Inhabited (DiscrTree α) where
 
 def empty : DiscrTree α := { root := {} }
 
-/-- The node `t` stands for, merging it first if it is `lazy`. The result is never `lazy`. -/
+/--
+The node `t` stands for as a `chain` or `node`: merges a `lazy` node and unfolds the first key of a
+`suffix`.
+-/
 @[inline] def Trie.force : Trie α → Trie α
   | .lazy t => t.get
+  | .suffix ks i v => if h : i < ks.size then .chain ks[i] (.suffix ks (i + 1) v) else .node #[v] #[]
   | t => t
 
 instance : ToExpr Key where
@@ -72,6 +76,7 @@ partial def Trie.format [ToFormat α] : Trie α → Format
     "node" ++ (if vs.isEmpty then Format.nil else " " ++ Std.format vs)
     ++ Format.join (cs.toList.map fun ⟨k, c⟩ => Format.line ++ Format.paren (Std.format k ++ " => " ++ format c))
   | .lazy t => format t.get
+  | t@(.suffix ..) => format t.force
 
 instance [ToFormat α] : ToFormat (Trie α) := ⟨Trie.format⟩
 
@@ -132,13 +137,7 @@ where
     return r
 
 private def createNodes (keys : Array Key) (v : α) (i : Nat) : Trie α :=
-  if h : i < keys.size then
-    let k := keys[i]
-    let c := createNodes keys v (i+1)
-    .chain k c
-  else
-    .node #[v] #[]
-termination_by keys.size - i
+  .suffix keys i v
 
 /--
 If `vs` contains an element `v'` such that `v == v'`, then replace `v'` with `v`.
@@ -181,7 +180,7 @@ private def insertAux [BEq α] (keys : Array Key) (v : α) (i : Nat) (t : Trie �
       .node vs c
     else
       .node (insertVal vs v) cs
-  | _, .lazy _ => unreachable!
+  | _, .lazy _ | _, .suffix .. => unreachable!
 termination_by keys.size - i
 
 def insertKeyValue [BEq α] (d : DiscrTree α) (keys : Array Key) (v : α) : DiscrTree α :=
@@ -221,7 +220,7 @@ private partial def mergeTries [BEq α] (ts : Array (Trie α)) : Trie α :=
   let nodes := ts.map fun t => match t.force with
     | .chain k c => (#[], #[(k, c)])
     | .node vs cs => (vs, cs)
-    | .lazy _ => unreachable!
+    | .lazy _ | .suffix .. => unreachable!
   -- `insertVal` replaces equal values in place, so the values of a single trie need no re-insertion
   let vs := nodes.foldl (init := #[]) fun vs (tvs, _) =>
     if vs.isEmpty then tvs else tvs.foldl insertVal vs
@@ -283,7 +282,7 @@ private def getEntriesWithKeysAux (keys : Array Key) (i : Nat) (t : Trie α) : A
       | some (_, t) => getEntriesWithKeysAux keys (i + 1) t
     else
       vs
-  | _, .lazy _ => unreachable!
+  | _, .lazy _ | _, .suffix .. => unreachable!
 termination_by keys.size - i
 
 /--

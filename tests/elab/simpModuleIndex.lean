@@ -3,7 +3,8 @@ import Lean
 /-!
 The simp sets built at import from per-module theorem trees (`SimpModuleIndex`) equal those obtained
 by adding each imported entry in module order, down to the order of theorems in the trees, and
-that imported lemma names are looked up in per-module arrays.
+that imported lemma names are looked up in per-module arrays when all imported modules store their
+summaries.
 -/
 
 open Lean Meta
@@ -37,6 +38,14 @@ def sameState (d₁ d₂ : SimpTheorems) : Bool :=
   sortedNames d₁.toUnfold.toList == sortedNames d₂.toUnfold.toList &&
   sortedNames (d₁.toUnfoldThms.toList.map (·.1)) == sortedNames (d₂.toUnfoldThms.toList.map (·.1))
 
+/--
+Whether all imported modules with global entries store a summary, without which the per-module data
+is not used (e.g. at stage 1, whose core library is exported by stage 0).
+-/
+def allIndexed (entries : Array (Array (ScopedEnvExtension.Entry α))) : Bool :=
+  entries.all fun es =>
+    ((es[0]? : Option (ScopedEnvExtension.Entry α)) matches some (.index _)) || !es.any (· matches .global _)
+
 #eval show CoreM Unit from do
   let env ← getEnv
   let mut n := 0
@@ -48,5 +57,7 @@ def sameState (d₁ d₂ : SimpTheorems) : Bool :=
   -- make sure the comparison covered the default simp set
   unless n > 10000 do throwError "too few simp theorems: {n}"
   -- no constant is a simp theorem in both directions, so lemma names are looked up per module
-  if (← getSimpTheorems).lemmaNames.imported.ownedKeys.isEmpty then
-    throwError "imported lemma names were replayed"
+  -- whenever the summaries are used
+  let indexed := allIndexed (simpExtension.ext.toEnvExtension.getState env).importedEntries
+  unless (← getSimpTheorems).lemmaNames.imported.ownedKeys.isEmpty != indexed do
+    throwError "unexpected representation of imported lemma names"

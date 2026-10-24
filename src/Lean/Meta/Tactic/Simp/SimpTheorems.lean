@@ -758,8 +758,8 @@ structure SimpModuleIndex where
   rest     : Array SimpEntry
   deriving Inhabited
 
-/-- Preprocesses the global simp entries of a module, the current one if `modIdx?` is `none`. -/
-def SimpModuleIndex.ofEntries (env : Environment) (modIdx? : Option ModuleIdx) (es : Array SimpEntry) :
+/-- Preprocesses the global simp entries the current module exports. -/
+def SimpModuleIndex.ofEntries (env : Environment) (es : Array SimpEntry) :
     SimpModuleIndex := Id.run do
   let thms := es.filterMap fun | .thm e => some (e.keys, e) | _ => none
   let mut owned := #[]
@@ -769,7 +769,7 @@ def SimpModuleIndex.ofEntries (env : Environment) (modIdx? : Option ModuleIdx) (
     if let .decl n _ inv := t.origin then
       if inv then
         backward := backward.push n
-      if ImportedDeclMap.isOwnedBy env modIdx? n then
+      if ImportedDeclMap.isOwned env n then
         owned := owned.push (t.origin, ())
         continue
     foreign := foreign.push (t.origin, ())

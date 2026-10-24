@@ -31,6 +31,14 @@ def sameState (d₁ d₂ : SimpTheorems) : Bool :=
   sortedNames d₁.toUnfold.toList == sortedNames d₂.toUnfold.toList &&
   sortedNames (d₁.toUnfoldThms.toList.map (·.1)) == sortedNames (d₂.toUnfoldThms.toList.map (·.1))
 
+/--
+Whether all imported modules with global entries store a summary, without which the per-module data
+is not used (e.g. at stage 1, whose core library is exported by stage 0).
+-/
+def allIndexed (entries : Array (Array (ScopedEnvExtension.Entry α))) : Bool :=
+  entries.all fun es =>
+    ((es[0]? : Option (ScopedEnvExtension.Entry α)) matches some (.index _)) || !es.any (· matches .global _)
+
 def sequentialInstances (env : Environment) : Instances :=
   (instanceExtension.ext.toEnvExtension.getState env).importedEntries.foldl (init := {}) fun d es =>
     es.foldl (init := d) fun d e => match e with
@@ -59,13 +67,14 @@ def checkInstances (mods : List Name) : MetaM Unit := do
   let d := instanceExtension.getState env
   unless sameInstances d (sequentialInstances env) do
     throwError "instances differ from the sequentially built ones"
-  if d.instanceNames.imported.ownedKeys.isEmpty then
-    throwError "imported instance names were not looked up per module"
+  let indexed := allIndexed (instanceExtension.ext.toEnvExtension.getState env).importedEntries
+  unless d.instanceNames.imported.ownedKeys.isEmpty != indexed do
+    throwError "unexpected representation of imported instance names"
 
 /--
 Checks that the given modules store their simp index, that all simp sets equal the sequentially
-built ones, and whether imported lemma names are looked up per module (`perModule`) or were
-replayed.
+built ones, and whether imported lemma names are looked up per module (`perModule`, if all imported
+modules store summaries) or were replayed.
 -/
 def checkSimpSets (mods : List Name) (perModule : Bool) : MetaM Unit := do
   let env ← getEnv
@@ -77,5 +86,6 @@ def checkSimpSets (mods : List Name) (perModule : Bool) : MetaM Unit := do
   for (attr, ext) in (← simpExtensionMapRef.get) do
     unless sameState (ext.getState env) (sequentialState ext env) do
       throwError "simp set `{attr}` differs from the sequentially built one"
-  unless (← getSimpTheorems).lemmaNames.imported.ownedKeys.isEmpty != perModule do
+  let indexed := allIndexed (simpExtension.ext.toEnvExtension.getState env).importedEntries
+  unless (← getSimpTheorems).lemmaNames.imported.ownedKeys.isEmpty != (perModule && indexed) do
     throwError "unexpected representation of imported lemma names"

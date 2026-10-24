@@ -1377,6 +1377,17 @@ def inferImplicit (e : Expr) (numParams : Nat) (considerRange : Bool) : Expr :=
   | e, _ => e
 
 /--
+Given an `n`-ary lambda or forall expression, replaces explicit binder infos in any of the `n`
+binders with implicit binder infos.
+-/
+def explicitToImplicit : Expr → Expr
+  | .forallE nm t b bi =>
+    .forallE nm t b.explicitToImplicit (if bi.isExplicit then .implicit else bi)
+  | .lam nm t b bi =>
+    .lam nm t b.explicitToImplicit (if bi.isExplicit then .implicit else bi)
+  | e => e
+
+/--
 Uses `binderInfos?` to update the binder infos of the corresponding forall expressions.
 -/
 def updateForallBinderInfos (e : Expr) (binderInfos? : List (Option BinderInfo)) : Expr :=

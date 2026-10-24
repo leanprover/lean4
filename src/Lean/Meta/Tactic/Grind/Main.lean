@@ -60,6 +60,8 @@ def getLiaExtensions : MetaM ExtensionStateArray := do
 
 structure Params where
   config      : Grind.Config
+  /-- See `Context.identity`. -/
+  identity    : Name := `grind
   extensions  : ExtensionStateArray := #[]
   extra       : PArray EMatchTheorem := {}
   extraInj    : PArray InjectiveTheorem := {}
@@ -134,11 +136,12 @@ def GrindM.run (x : GrindM α) (params : Params) (evalTactic? : Option EvalTacti
   let symPrios := params.symPrios
   let extensions := params.extensions
   let anchorRefs? := params.anchorRefs?
+  let identity := params.identity
   let debug := grind.debug.get (← getOptions)
   let ematchDiag := grind.ematch.diagnostics.get (← getOptions)
   Sym.Arith.setExpThreshold config.exp
   x (← mkMethods evalTactic?).toMethodsRef
-    { config, anchorRefs?, simpMethods, symSimpMethods, symDSimpMethods, simp, extensions, symPrios, debug, ematchDiag }
+    { config, identity, anchorRefs?, simpMethods, symSimpMethods, symDSimpMethods, simp, extensions, symPrios, debug, ematchDiag }
     |>.run' {}
 
 private def mkCleanState (mvarId : MVarId) : GrindM Clean.State := mvarId.withContext do

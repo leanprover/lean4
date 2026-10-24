@@ -200,6 +200,7 @@ partial def getMatchLoop (mctx : MetavarContext) (todo : Array Expr) (c : Trie Î
       match findKey? cs (getKey e) with
       | none   => result
       | some c => getMatchLoop mctx (pushArgsTodo todo e) c.2 result
+  | .lazy t => getMatchLoop mctx todo t.get result
 
 /--
 Retrieves all values whose patterns match the expression `e`.

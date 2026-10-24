@@ -22,7 +22,7 @@ namespace Nat
 
 theorem compare_eq_ite_lt (a b : Nat) :
     compare a b = if a < b then .lt else if b < a then .gt else .eq := by
-  simp only [compare, compareOfLessAndEq]
+  simp only [compare, Nat.compare, compareOfLessAndEq]
   split
   · rfl
   next h =>

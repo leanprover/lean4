@@ -365,6 +365,45 @@ def simpMatchDiscrs? (info : MatcherInfo) (e : Expr) : SimpM (Option Result) := 
     r ← mkCongrFun r arg
   return some r
 
+/--
+Returns `true` if none of the equation theorems of the matcher application `e` can rewrite it, so
+that they do not have to be generated. The left-hand side of the equation theorem of an alternative
+applies the matcher to the alternative's patterns. It cannot rewrite a partial application of the
+matcher. Nor can it rewrite `e` if a discriminant of `e` is a local variable without a value that is
+not a proof, while the pattern at that position is a constructor application of a type that is not
+a non-recursive structure: these are never definitionally equal, as there is nothing to unfold and
+neither structure eta nor proof irrelevance applies. The function returns `true` if this holds for
+every alternative.
+-/
+private def matchEqnsCannotApply (matcherName : Name) (info : MatcherInfo) (e : Expr) :
+    MetaM Bool := do
+  if e.getAppNumArgs < info.arity then
+    return true
+  let args := e.getAppArgs
+  let mut fvarDiscrs := #[]
+  for i in *...info.numDiscrs do
+    let discr := args[info.getFirstDiscrPos + i]!
+    if let .fvar fvarId := discr then
+      if let some (.cdecl ..) := (← getLCtx).find? fvarId then
+        unless (← isProof discr) do
+          fvarDiscrs := fvarDiscrs.push i
+  if fvarDiscrs.isEmpty then
+    return false
+  let env ← getEnv
+  let isNonStructureCtorApp (pattern : Expr) : Bool :=
+    match pattern.getAppFn.constName? >>= env.find? with
+    | some (.ctorInfo val) => !isNonRecStructure env val.induct
+    | _ => false
+  let mut type := (← getConstInfo matcherName).type.getForallBodyMaxDepth info.getFirstAltPos
+  for _ in *...info.numAlts do
+    let .forallE _ altType body _ := type | return false
+    type := body
+    -- The alternative's patterns are the arguments of the motive in its result type.
+    let patterns := altType.getForallBody.getAppArgs
+    unless fvarDiscrs.any fun i => patterns[i]?.any isNonStructureCtorApp do
+      return false
+  return true
+
 def simpMatchCore (matcherName : Name) (e : Expr) : SimpM Step := do
   for matchEq in (← Match.getEquationsFor matcherName).eqnNames do
     -- Try lemma
@@ -384,6 +423,8 @@ def simpMatch : Simproc := fun e => do
     | return .continue
   if let some r ← simpMatchDiscrs? info e then
     return .visit r
+  if (← matchEqnsCannotApply declName info e) then
+    return .continue
   simpMatchCore declName e
 
 def rewritePre (rflOnly := false) : Simproc := fun e => do

@@ -57,3 +57,29 @@ example (a k : Nat) (as bs cs : List Nat) (h₁ : as = a :: bs) (h₂ : bs = k :
 example (a k : Nat) (as bs cs : List Nat) (h₁ : as = a :: bs) (h₂ : bs = k :: cs ∨ bs = k :: as)
     (h₃ : k = 5) : g as = 2 := by
   grind [g]
+
+/-!
+A hypothesis that has the shape of a `match`-expression condition, but whose right-hand sides are
+not patterns, is not treated as one. It is simplified as usual, and is available for E-matching.
+-/
+
+def F (n : Nat) : L := .nat (n + 1)
+
+example (v : L) (m : Nat) (h : ∀ n, v = F n → False) (h₁ : v = F m) : False := by
+  grind
+
+example (v : V) (l : L) (m : Nat) (h : ∀ n, v = .lit (F n) → False)
+    (h₁ : v = .lit l) (h₂ : l = F m) : False := by
+  grind
+
+example (v : V) (l : L) (m : Nat) (h : ∀ n, v = .lit (F n) → False)
+    (h₂ : l = F m) (h₁ : v = .lit l) : False := by
+  grind
+
+example (v w : V) (h : v = w → False) (h₁ : v = w) : False := by
+  grind
+
+-- Offsets are patterns: the hypothesis is still a `match`-expression condition.
+example (l : L) (m : Nat) (h : ∀ n, l = .nat (n + 1) → False) (h₁ : l = .nat m) (h₂ : m = 5) :
+    False := by
+  grind

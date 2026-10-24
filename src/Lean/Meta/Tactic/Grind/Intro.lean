@@ -34,13 +34,49 @@ private def isAlreadyNorm? (e : Expr) : Option Expr :=
   some c
 
 /--
-Similar to `Grind.preprocess`, but does not simplify `e` if
-`isMatchCondCandidate` (aka `Simp.isEqnThmHypothesis`) is `true`.
+Returns `true` if `e` is a pattern: a pattern variable (i.e., a loose bound variable),
+a literal value, an offset `p + k`, or a constructor application whose fields are patterns.
+-/
+private partial def isPattern (e : Expr) : MetaM Bool := do
+  if e.getAppFn.isBVar then return true
+  -- `isLitValue` assumes `e` has no loose bound variables.
+  if !e.hasLooseBVars && (← isLitValue e) then return true
+  match_expr e with
+  | HAdd.hAdd _ _ _ _ p k => return !k.hasLooseBVars && (← isLitValue k) && (← isPattern p)
+  | _ => pure ()
+  let .const declName _ := e.getAppFn | return false
+  let some (.ctorInfo ctor) := (← getEnv).find? declName | return false
+  unless e.getAppNumArgs == ctor.numParams + ctor.numFields do return false
+  let args := e.getAppArgs
+  for i in ctor.numParams...args.size do
+    unless (← isPattern args[i]!) do return false
+  return true
+
+/--
+Returns `true` if `isMatchCondCandidate e` holds and the right-hand sides of its equations are patterns.
+The `Grind.MatchCond` propagators cannot use a condition whose right-hand sides are not patterns,
+e.g., `∀ n, a = f n → False` (see `tryToProveFalse`).
+-/
+private partial def isMatchCondHyp (e : Expr) : MetaM Bool := do
+  unless isMatchCondCandidate e do return false
+  go e
+where
+  go (e : Expr) : MetaM Bool := do
+    let .forallE _ d b _ := e | return true
+    match_expr d with
+    | Eq _ _ rhs => isPattern rhs <&&> go b
+    | HEq _ _ _ rhs => isPattern rhs <&&> go b
+    | _ => go b
+
+/--
+Similar to `Grind.preprocess`, but does not simplify `e` if it looks like a
+`match`-expression condition (see `isMatchCondHyp`).
 We added this feature because it may be coming from external sources
 (e.g., manually applying an function induction principle before invoking `grind`).
+Other hypotheses are simplified as usual, and become available for E-matching (issue #15697).
 -/
 def preprocessHypothesis (e : Expr) : GoalM Simp.Result := do
-  if isMatchCondCandidate e then
+  if (← isMatchCondHyp e) then
     preprocess (markAsPreMatchCond e)
   else if let some c := isAlreadyNorm? e then
     let c ← shareCommon (← canon c)

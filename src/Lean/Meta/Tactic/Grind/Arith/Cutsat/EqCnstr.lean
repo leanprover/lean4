@@ -607,9 +607,9 @@ Pushes a linear fact about `a / b` and `a % b`. The `simp`-based preprocessor is
 are linear combinations that cutsat normalizes itself, and the preprocessor would only redistribute
 the coefficients.
 -/
-private def pushDivModFact (proof : Expr) : GoalM Unit := do
+private def pushDivModFact (proof : Expr) (gen : Nat) : GoalM Unit := do
   let prop ← preprocessLight (← inferType proof)
-  pushNewFactCore prop proof 0
+  pushNewFactCore prop proof gen
 
 /--
 Asserts the fact `h : lhs = rhs` or `h : lhs ≤ rhs` over `Int` directly into cutsat, without adding it
@@ -660,17 +660,17 @@ private def expandDivMod (a : Expr) (b : Int) : GoalM Unit := do
     let h₁ := mkApp2 (mkConst ``Int.Internal.Linear.ediv_emod) a b'
     let h₂ := mkApp3 (mkConst ``Int.Internal.Linear.emod_nonneg) a b' eagerReflBoolTrue
     let h₃ := mkApp4 (mkConst ``Int.Internal.Linear.emod_le) a b' (toExpr n) eagerReflBoolTrue
+    let gen ← getGeneration a
     -- Cutsat is the only arithmetic solver in `lia`. Elsewhere, solvers such as the ring solver use
     -- these facts through the E-graph.
     if (← getIdentity) == `lia then
-      let gen ← getGeneration a
       assertLinearFact h₁ gen
       assertLinearFact h₂ gen
       assertLinearFact h₃ gen
     else
-      pushDivModFact h₁
-      pushDivModFact h₂
-      pushDivModFact h₃
+      pushDivModFact h₁ gen
+      pushDivModFact h₂ gen
+      pushDivModFact h₃ gen
 
 private def propagateDiv (e : Expr) : GoalM Unit := do
   let_expr HDiv.hDiv _ _ _ inst a b ← e | return ()

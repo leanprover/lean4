@@ -265,6 +265,9 @@ def mkInstanceName (binders : Array Syntax) (type : Syntax) : CommandElabM Name 
     -- Unfortunately we can't include any of the binders from `runTermElabM` since, without
     -- elaborating the body of the instance, we have no idea which of these binders are
     -- actually used.
-    runTermElabM fun _ => NameGen.mkBaseNameWithSuffix' "inst" binders type
+    -- Scoped variables may refer to private declarations even when the instance is public.
+    -- Visibility is checked again when elaborating the actual declaration.
+    withoutExporting do
+      runTermElabM fun _ => NameGen.mkBaseNameWithSuffix' "inst" binders type
   finally
     set savedState

@@ -1,5 +1,5 @@
 module
-public meta import Lean.Meta.Deriving
+public meta import Lean.Elab.Deriving.Meta
 
 @[expose] public section
 

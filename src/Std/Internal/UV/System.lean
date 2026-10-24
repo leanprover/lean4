@@ -94,12 +94,20 @@ deriving Repr, Inhabited
 
 /--
 Gets the title of the current process.
+
+On Linux and macOS, throws `IO.Error.resourceExhausted` in a process whose `main` is not a compiled
+Lean `main`, such as the `lean` executable, since only a compiled `main` sets up the title.
 -/
 @[extern "lean_uv_get_process_title"]
 opaque getProcessTitle : IO String
 
 /--
 Sets the title of the current process.
+
+On Linux and macOS the title is stored in the memory of the process's original command line, so a
+longer title is cut to fit it, possibly in the middle of a UTF-8 character. There it throws
+`IO.Error.resourceExhausted` in a process whose `main` is not a compiled Lean `main`, as
+`getProcessTitle` does.
 -/
 @[extern "lean_uv_set_process_title"]
 opaque setProcessTitle : @& String → IO Unit
@@ -159,10 +167,12 @@ Gets a subset of the password file entry for the current user.
 opaque osGetPasswd : IO PasswdInfo
 
 /--
-Gets information about the current user's group.
+Gets the group with the given ID, or `none` if there is no such group. Throws
+`IO.Error.invalidArgument` for an ID that does not fit the operating system's group ID type, and
+`IO.Error.unsupportedOperation` on Windows.
 -/
 @[extern "lean_uv_os_get_group"]
-opaque osGetGroup : UInt64 → IO (Option GroupInfo)
+opaque osGetGroup : @& Nat → IO (Option GroupInfo)
 
 /--
 Gets all environment variables.
@@ -196,6 +206,9 @@ opaque osGetHostname : IO String
 
 /--
 Gets the scheduling priority of a process.
+
+Throws `IO.Error.invalidArgument` for a process ID that does not fit the operating system's process
+ID type.
 -/
 @[extern "lean_uv_os_getpriority"]
 opaque osGetPriority : UInt64 → IO Int64
@@ -204,7 +217,7 @@ opaque osGetPriority : UInt64 → IO Int64
 Sets the scheduling priority of a process.
 
 Throws `IO.Error.invalidArgument` if the priority is outside the range from -20 (highest) to 19
-(lowest).
+(lowest), or for a process ID that does not fit the operating system's process ID type.
 -/
 @[extern "lean_uv_os_setpriority"]
 opaque osSetPriority : UInt64 → Int64 → IO Unit

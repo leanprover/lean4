@@ -972,9 +972,20 @@ extern "C" LEAN_EXPORT obj_res lean_io_set_heartbeats(obj_arg count) {
     return box(0);
 }
 
+bool is_env_var_name(char const * name) {
+    if (name[0] == '\0') {
+        return false;
+    }
+#if defined(LEAN_WINDOWS)
+    // Windows keeps hidden variables whose names start with `=`, such as `=C:`.
+    name++;
+#endif
+    return strchr(name, '=') == nullptr;
+}
+
 extern "C" LEAN_EXPORT obj_res lean_io_getenv(b_obj_arg env_var) {
     const char* env_var_str = string_cstr(env_var);
-    if (strlen(env_var_str) != lean_string_size(env_var) - 1) {
+    if (strlen(env_var_str) != lean_string_size(env_var) - 1 || !is_env_var_name(env_var_str)) {
         return mk_option_none();
     }
 #if defined(LEAN_EMSCRIPTEN)

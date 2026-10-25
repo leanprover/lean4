@@ -2390,12 +2390,13 @@ mutual
 private partial def isUnitLikeType (e : Expr) : MetaM Bool := do
   let key ← mkExprConfigCacheKey e
   match (← cachedUnitLike? key) with
-    | some b => pure b
-    | none => cacheUnitLike key (← isUnitLikeTypeCore e)
+    | some b =>pure b
+    | none   => cacheUnitLike key (← isUnitLikeTypeCore e)
 
 /-- Takes a type of the form `A1 -> ... -> An-> I As`, checks that `I` is a (non-recursive) structure, and that each (instantiated) fields is itself either a proposition or a unit-like type-/
 private partial def isUnitLikeTypeCore (e : Expr) : MetaM LBool :=
   forallTelescopeReducing (whnfType := true) e fun _ tType => do
+    let e ← instantiateMVars e
     if ← isStuckOnMVar e then return .undef
     let hd := tType.getAppFn
     matchConstNonRecStructure hd (fun _ => pure .false) fun _ _ ctorVal => do

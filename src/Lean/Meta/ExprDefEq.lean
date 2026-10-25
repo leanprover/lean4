@@ -2356,36 +2356,6 @@ private def cacheUnitLike (key : ExprConfigCacheKey) (lb : LBool) : MetaM Bool :
   modify fun s => { s with cache.isUnitLike := s.cache.isUnitLike.insert key b }
   return b
 
-/-- Given a whnf `e`, returns true if the reduction is stuck on an mvar, i.e if `e` is either an mvar, an app whose head function is stuck on an mvar, a projection whose struct is stuck on an mvar, or a recursor whose major is either stuck on an mvar or, in the case the recursor is of a K-like type, if the type of its major contains mvars.
-TODO handle matchers and reduction configurations regarding zeta/iota correctly
--/
-partial def isStuckOnMVar : Expr → MetaM Bool
-  | .bvar _ => unreachable!
-  | .fvar _ | .const .. | .sort _ | .lam .. | .forallE .. |.lit _ => return false
-  | .letE .. => return false --TODO probably wrong
-  | .mvar _  => return true
-  | .mdata _ e | .proj _ _ e => isStuckOnMVar e
-  | e@(.app _ _) => isStuckOnMVarApp e
-where
-  isStuckOnMVarApp (e : Expr) : MetaM Bool :=
-    e.withApp fun hd args => do
-      unless hd.isConst do
-        return (← isStuckOnMVar hd)
-      let constName := hd.constName!
-      if let some info ← getMatcherInfo? constName then
-        let prefixSz := info.numParams + 1 + info.numDiscrs
-        if args.size < prefixSz + info.numAlts then
-          return false
-        let discr := args[info.getDiscrRange.lower:info.getDiscrRange.upper]
-        return discr.any Expr.hasExprMVar -- overapproximation
-      else
-        let some recVal ← isRec? constName | return false
-        let some major := args[recVal.getMajorIdx]? | return false
-        if recVal.k then
-          return (← inferType major).hasMVar
-        else
-          isStuckOnMVar major
-
 mutual
 private partial def isUnitLikeType (e : Expr) : MetaM Bool := do
   let key ← mkExprConfigCacheKey e

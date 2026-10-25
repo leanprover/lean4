@@ -374,18 +374,17 @@ expr lower_loose_bvars(expr const & e, unsigned s, unsigned d) {
     if (d == 0 || s >= get_loose_bvar_range(e))
         return e;
     lean_assert(s >= d);
-    return replace(e, [=](expr const & e, unsigned offset) -> optional<expr> {
+    return replace_tpl(e, [=](expr const & e, unsigned offset) -> optional<expr> {
             unsigned s1 = s + offset;
-            if (s1 < s)
-                return some_expr(e); // overflow, vidx can't be >= max unsigned
-            if (s1 >= get_loose_bvar_range(e))
-                return some_expr(e); // expression e does not contain bound variables with idx >= s1
             if (is_bvar(e) && bvar_idx(e) >= s1) {
                 lean_assert(bvar_idx(e) >= offset + d);
                 return some_expr(mk_bvar(bvar_idx(e) - nat(d)));
             } else {
                 return none_expr();
             }
+        }, true, [=](expr const & e, unsigned offset) {
+            unsigned s1 = s + offset;
+            return s1 < s || s1 >= get_loose_bvar_range(e);
         });
 }
 
@@ -404,17 +403,15 @@ extern "C" LEAN_EXPORT object * lean_expr_lower_loose_bvars(b_obj_arg e, b_obj_a
 expr lift_loose_bvars(expr const & e, unsigned s, unsigned d) {
     if (d == 0 || s >= get_loose_bvar_range(e))
         return e;
-    return replace(e, [=](expr const & e, unsigned offset) -> optional<expr> {
-            unsigned s1 = s + offset;
-            if (s1 < s)
-                return some_expr(e); // overflow, vidx can't be >= max unsigned
-            if (s1 >= get_loose_bvar_range(e))
-                return some_expr(e); // expression e does not contain bound variables with idx >= s1
+    return replace_tpl(e, [=](expr const & e, unsigned offset) -> optional<expr> {
             if (is_var(e) && bvar_idx(e) >= s + offset) {
                 return some_expr(mk_bvar(bvar_idx(e) + nat(d)));
             } else {
                 return none_expr();
             }
+        }, true, [=](expr const & e, unsigned offset) {
+            unsigned s1 = s + offset;
+            return s1 < s || s1 >= get_loose_bvar_range(e);
         });
 }
 

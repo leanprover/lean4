@@ -285,6 +285,7 @@ def processNewDiseq (a b : Expr) : GoalM Unit := do
 
 builtin_initialize
   homExt.setMethods
+    (enabled     := (·.hom))
     (internalize := Homo.internalize)
     (newEq       := Homo.processNewEq)
     (newDiseq    := Homo.processNewDiseq)

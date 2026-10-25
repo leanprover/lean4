@@ -199,6 +199,8 @@ structure Context where
   config       : Grind.Config
   /-- Name of the tactic running `grind`, e.g., `lia` or `grind_order`. Each tactic sets it at startup. -/
   identity     : Name
+  /-- Ids of the solver extensions that `config` enables, see `SolverExtension.enabled`. -/
+  activeSolvers : Array Nat
   /--
   If `anchorRefs? := some anchorRefs`, then only local instances and case-splits in `anchorRefs`
   are considered.
@@ -2144,6 +2146,11 @@ for this extension into each goal's extension state's array.
 structure SolverExtension (σ : Type) where private mk ::
   id          : Nat
   mkInitial   : IO σ
+  /--
+  Returns `true` if the configuration enables the solver. `grind` only invokes the methods of
+  enabled solvers. Every solver has a state, since other solvers may read it.
+  -/
+  enabled     : Grind.Config → Bool
   internalize : Expr → (parent? : Option Expr) → GoalM Unit
   newEq       : Expr → Expr → GoalM Unit
   newDiseq    : Expr → Expr → GoalM Unit
@@ -2167,6 +2174,7 @@ def registerSolverExtension {σ : Type} (mkInitial : IO σ) : IO (SolverExtensio
   let id := exts.size
   let ext : SolverExtension σ := {
     id, mkInitial
+    enabled := fun _ => true
     internalize := fun _ _ => return ()
     newEq := fun _ _ => return ()
     newDiseq := fun _ _ => return ()
@@ -2184,6 +2192,7 @@ Solver extension methods can only be registered during initialization.
 Reason: We do not use any synchronization primitive to access `solverExtensionsRef`.
 -/
 def SolverExtension.setMethods (ext : SolverExtension σ)
+    (enabled     : Grind.Config → Bool := fun _ => true)
     (internalize : Expr → (parent? : Option Expr) → GoalM Unit := fun _ _  => return ())
     (newEq       : Expr → Expr → GoalM Unit := fun _ _ => return ())
     (newDiseq    : Expr → Expr → GoalM Unit := fun _ _ => return ())
@@ -2197,13 +2206,17 @@ def SolverExtension.setMethods (ext : SolverExtension σ)
   unless ext.id < (← solverExtensionsRef.get).size do
     throw (IO.userError "failed to register `grind` solver methods, invalid solver id")
   solverExtensionsRef.modify fun exts => exts.modify ext.id fun s => { s with
-    internalize, newEq, newDiseq, mbtc, action, check, checkInv
+    enabled, internalize, newEq, newDiseq, mbtc, action, check, checkInv
   }
 
 /-- Returns initial state for registered solvers. -/
 def Solvers.mkInitialStates : IO (Array SolverExtensionState) := do
   let exts ← solverExtensionsRef.get
   exts.mapM fun ext => ext.mkInitial
+
+/-- Returns the ids of the solver extensions that `config` enables. -/
+def Solvers.activeIds (config : Grind.Config) : IO (Array Nat) := do
+  return (← solverExtensionsRef.get).filterMap fun ext => if ext.enabled config then some ext.id else none
 
 instance : Inhabited (GoalM σ) where
   default := throwError "<GoalM action default value>"
@@ -2225,25 +2238,30 @@ opaque SolverExtension.getStateCore (ext : SolverExtension σ) (goal : Goal) : I
 def SolverExtension.getState (ext : SolverExtension σ) : GoalM σ := do
   ext.getStateCore (← get)
 
-/-- Internalizes given expression in all registered solvers. -/
+/-- Internalizes given expression in all active solvers. -/
 def Solvers.internalize (e : Expr) (parent? : Option Expr) : GoalM Unit := do
-  (← solverExtensionsRef.get).forM fun ext => ext.internalize e parent?
+  let exts ← solverExtensionsRef.get
+  for id in (← readThe Context).activeSolvers do
+    exts[id]!.internalize e parent?
 
-/-- Checks invariants of all registered solvers. -/
+/-- Checks invariants of all active solvers. -/
 def Solvers.checkInvariants : GoalM Unit := do
-  (← solverExtensionsRef.get).forM fun ext => ext.checkInv
+  let exts ← solverExtensionsRef.get
+  for id in (← readThe Context).activeSolvers do
+    exts[id]!.checkInv
 
 /--
-Performs (expensive) satisfiability checks in all registered solvers,
+Performs (expensive) satisfiability checks in all active solvers,
 and returns the solver ids that made progress.
 -/
 def Solvers.check? : GoalM (Option (Array Nat)) := do
+  let exts ← solverExtensionsRef.get
   let mut result := #[]
-  for ext in (← solverExtensionsRef.get) do
+  for id in (← readThe Context).activeSolvers do
     if (← isInconsistent) then
       return some result
-    if (← ext.check) then
-      result := result.push ext.id
+    if (← exts[id]!.check) then
+      result := result.push id
   if !result.isEmpty then
     processToDo
     return some result
@@ -2253,11 +2271,12 @@ def Solvers.check? : GoalM (Option (Array Nat)) := do
 def Solvers.check : GoalM Bool := do
   return !(← check?).isNone
 
-/-- Invokes model-based theory combination extensions in all registered solvers. -/
+/-- Invokes model-based theory combination extensions in all active solvers. -/
 def Solvers.mbtc : GoalM Bool := do
+  let exts ← solverExtensionsRef.get
   let mut result := false
-  for ext in (← solverExtensionsRef.get) do
-    if (← ext.mbtc) then
+  for id in (← readThe Context).activeSolvers do
+    if (← exts[id]!.mbtc) then
       result := true
   return result
 
@@ -2271,21 +2290,16 @@ def Action.andAlso (x y : Action) : Action := fun goal kna kp => do
   x goal (fun goal => y goal kna kp) (fun goal => y goal kp kp)
 
 /--
-Combines all solver extensions into a single action using `Action.andAlso`.
+Combines the active solver extensions into a single action using `Action.andAlso`.
 Does not drain `newRawFacts`; use `Solvers.mkAction` (defined in `Intro.lean`) which
 wraps this with `assertAll`.
 -/
 def Solvers.mkActionCore : IO Action := do
   let exts ← solverExtensionsRef.get
-  let rec go (i : Nat) (acc : Action) : Action :=
-    if h : i < exts.size then
-      go (i+1) (acc.andAlso exts[i].action)
-    else
-      acc
-  if h : 0 < exts.size then
-    return go 1 exts[0].action
-  else
-    return Action.notApplicable
+  return fun goal kna kp => do
+    let action := (← readThe Context).activeSolvers.foldl (init := Action.notApplicable)
+      fun acc id => acc.andAlso exts[id]!.action
+    action goal kna kp
 
 /--
 Returns the representative of the solver `id` in `sTerms` whose type is the type of `e`.

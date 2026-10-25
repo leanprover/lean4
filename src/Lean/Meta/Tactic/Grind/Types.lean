@@ -202,6 +202,11 @@ structure Context where
   /-- Ids of the solver extensions that `config` enables, see `SolverExtension.enabled`. -/
   activeSolvers : Array Nat
   /--
+  `true` if no tactic runs on the goal after `grind` loads it, as in `grind` without `=>`. Only then
+  can solvers capture hypotheses, see `SolverExtension.captureHyp`.
+  -/
+  terminal     : Bool
+  /--
   If `anchorRefs? := some anchorRefs`, then only local instances and case-splits in `anchorRefs`
   are considered.
   -/
@@ -2151,6 +2156,16 @@ structure SolverExtension (σ : Type) where private mk ::
   enabled solvers. Every solver has a state, since other solvers may read it.
   -/
   enabled     : Grind.Config → Bool
+  /--
+  Tries to assert the hypothesis `e` of the initial goal, with proof `h`, directly to the solver.
+  Returns `true` if the solver captured `e`: then `e` bypasses the preprocessor and the E-graph.
+  -/
+  captureHyp  : Expr → Expr → GoalM Bool
+  /--
+  Returns `true` if the solver may need the fact `e` in the E-graph. A fact bypasses the E-graph,
+  e.g., through `captureHyp`, only if no active solver needs it.
+  -/
+  needsFact   : Expr → GoalM Bool
   internalize : Expr → (parent? : Option Expr) → GoalM Unit
   newEq       : Expr → Expr → GoalM Unit
   newDiseq    : Expr → Expr → GoalM Unit
@@ -2175,6 +2190,8 @@ def registerSolverExtension {σ : Type} (mkInitial : IO σ) : IO (SolverExtensio
   let ext : SolverExtension σ := {
     id, mkInitial
     enabled := fun _ => true
+    captureHyp := fun _ _ => return false
+    needsFact := fun _ => return true
     internalize := fun _ _ => return ()
     newEq := fun _ _ => return ()
     newDiseq := fun _ _ => return ()
@@ -2193,6 +2210,8 @@ Reason: We do not use any synchronization primitive to access `solverExtensionsR
 -/
 def SolverExtension.setMethods (ext : SolverExtension σ)
     (enabled     : Grind.Config → Bool := fun _ => true)
+    (captureHyp  : Expr → Expr → GoalM Bool := fun _ _ => return false)
+    (needsFact   : Expr → GoalM Bool := fun _ => return true)
     (internalize : Expr → (parent? : Option Expr) → GoalM Unit := fun _ _  => return ())
     (newEq       : Expr → Expr → GoalM Unit := fun _ _ => return ())
     (newDiseq    : Expr → Expr → GoalM Unit := fun _ _ => return ())
@@ -2206,7 +2225,7 @@ def SolverExtension.setMethods (ext : SolverExtension σ)
   unless ext.id < (← solverExtensionsRef.get).size do
     throw (IO.userError "failed to register `grind` solver methods, invalid solver id")
   solverExtensionsRef.modify fun exts => exts.modify ext.id fun s => { s with
-    enabled, internalize, newEq, newDiseq, mbtc, action, check, checkInv
+    enabled, captureHyp, needsFact, internalize, newEq, newDiseq, mbtc, action, check, checkInv
   }
 
 /-- Returns initial state for registered solvers. -/
@@ -2237,6 +2256,21 @@ opaque SolverExtension.getStateCore (ext : SolverExtension σ) (goal : Goal) : I
 
 def SolverExtension.getState (ext : SolverExtension σ) : GoalM σ := do
   ext.getStateCore (← get)
+
+/--
+Lets an active solver capture the hypothesis `e` with proof `h`, see `SolverExtension.captureHyp`.
+Returns `true` if a solver captured it. This only happens in terminal runs, and only if no active
+solver needs `e` in the E-graph.
+-/
+def Solvers.captureHyp (e h : Expr) : GoalM Bool := do
+  let ctx ← readThe Context
+  unless ctx.terminal do return false
+  let exts ← solverExtensionsRef.get
+  for id in ctx.activeSolvers do
+    if (← exts[id]!.needsFact e) then return false
+  for id in ctx.activeSolvers do
+    if (← exts[id]!.captureHyp e h) then return true
+  return false
 
 /-- Internalizes given expression in all active solvers. -/
 def Solvers.internalize (e : Expr) (parent? : Option Expr) : GoalM Unit := do

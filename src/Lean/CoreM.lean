@@ -266,7 +266,8 @@ builtin_initialize registerTraceClass `Kernel
 def getMaxHeartbeats (opts : Options) : Nat :=
   maxHeartbeats.get opts * 1000
 
-abbrev InstantiateLevelCache := PersistentHashMap Name (List Level × Expr)
+/-- Instantiations of the universe parameters of constants, by constant name and universe levels. -/
+abbrev InstantiateLevelCache := PersistentHashMap (Name × List Level) Expr
 
 /-- Cache for the `CoreM` monad -/
 structure Cache where
@@ -518,21 +519,19 @@ instance : Elab.MonadInfoTree CoreM where
   modifyCache fun ⟨c₁, c₂⟩ => ⟨c₁, f c₂⟩
 
 def instantiateTypeLevelParams (c : ConstantVal) (us : List Level) : CoreM Expr := do
-  if let some (us', r) := (← get).cache.instLevelType.find? c.name then
-    if us == us' then
-      return r
+  if let some r := (← get).cache.instLevelType.find? (c.name, us) then
+    return r
   let r := c.instantiateTypeLevelParams us
-  modifyInstLevelTypeCache fun s => s.insert c.name (us, r)
+  modifyInstLevelTypeCache fun s => s.insert (c.name, us) r
   return r
 
 def instantiateValueLevelParams (c : ConstantInfo) (us : List Level) (allowOpaque := false) : CoreM Expr := do
-  if let some (us', r) := (← get).cache.instLevelValue.find? c.name then
-    if us == us' then
-      return r
+  if let some r := (← get).cache.instLevelValue.find? (c.name, us) then
+    return r
   unless c.hasValue (allowOpaque := allowOpaque) do
     throwError "Not a definition or theorem: {.ofConstName c.name}"
   let r := c.instantiateValueLevelParams! us (allowOpaque := allowOpaque)
-  modifyInstLevelValueCache fun s => s.insert c.name (us, r)
+  modifyInstLevelValueCache fun s => s.insert (c.name, us) r
   return r
 
 @[inline] def liftIOCore (x : IO α) : CoreM α := do

@@ -2380,8 +2380,6 @@ where
         return discr.any Expr.hasExprMVar -- overapproximation
       else
         let some recVal ← isRec? constName | return false
-        if isNonRecStructure (← getEnv) recVal.getMajorInduct then  --structure majors always get eta-expanded, the recursor cannot get stuck on those
-          return false
         let some major := args[recVal.getMajorIdx]? | return false
         if recVal.k then
           return (← inferType major).hasMVar

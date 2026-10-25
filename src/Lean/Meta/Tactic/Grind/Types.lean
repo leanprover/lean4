@@ -59,36 +59,65 @@ because of the symmetric case. By using `eqCongrSymmPlaceholderProof`, we retain
 -/
 def eqCongrSymmPlaceholderProof := mkConst (Name.mkSimple "[eq_congr_symm]")
 
-/--
-Returns `true` if `type` is, structurally, the type of a literal with a normal form: `Nat`, `Int`,
-`String`, `Char`, `UInt8`, `UInt16`, `UInt32`, `UInt64`, or `Fin n`/`BitVec n` where `n` is a
-numeral. `Float` and `Float32` are excluded since their literals have no normal form
-(e.g., `2`, `2.0`, and `2.00` are the same `Float`).
--/
-private def isNormalLitType (type : Expr) : MetaM Bool := do
-  match type.consumeMData with
-  | .const declName [] =>
-    return declName == ``Nat || declName == ``Int || declName == ``String || declName == ``Char
-      || declName == ``UInt8 || declName == ``UInt16 || declName == ``UInt32 || declName == ``UInt64
-  | .app (.const declName []) n =>
-    if declName == ``Fin || declName == ``BitVec then
-      return (← getNatValue? n).isSome
-    return false
-  | _ => return false
+/-- Checks the signed magnitude range of a fixed-width literal, excluding negative zero. -/
+private def isSIntValueInRange (declName : Name) (v : Nat) (negative : Bool) : Bool :=
+  let limit :=
+    if declName == ``Int8 then 2 ^ 7
+    else if declName == ``Int16 then 2 ^ 15
+    else if declName == ``Int32 then 2 ^ 31
+    else if declName == ``Int64 then 2 ^ 63
+    else 0
+  if negative then 0 < v && v ≤ limit else v < limit
 
 /--
 Returns `true` if `e` is `True`, `False`, or a literal value.
 See `Lean.Meta.LitValues` for supported literals.
 `grind` assumes distinct interpreted terms denote distinct values, so a literal is interpreted
-only if it is in normal form, and in particular its type must be in normal form
-(see `isNormalLitType`). `LitValues` recognizes literals up to `whnfD` on their types, e.g.
+only if it is in normal form, and in particular its type must be structurally a supported
+builtin type, with a numeral parameter for `Fin`/`BitVec`.
+`LitValues` recognizes literals up to `whnfD` on their types, e.g.
 `(1 : BitVec w)` for `def w := 32`, but the canonicalizer does not unfold `w`, and
 `(1 : BitVec w)` and `(1 : BitVec 32)` would be distinct interpreted terms denoting the same value.
+
+The type of a literal is read from `e` itself. For negated literals, both the outer and inner
+types must be the same normal type. `Rat`, `Float`, and `Float32` literals are never interpreted.
+A literal of a signed fixed-width type is interpreted only in the form produced by its `ToExpr`
+instance, i.e., when it is in range: the canonicalizer reduces `OfNat` numerals modulo `2^w`, but
+`(200 : Int8)` and `(-56 : Int8)` still denote the same value, as do `-0` and `0`.
+Assumes `e` has no assigned metavariables.
 -/
 def isInterpreted (e : Expr) : MetaM Bool := do
   if e.isTrue || e.isFalse then return true
-  unless (← isLitValue e) do return false
-  isNormalLitType (← instantiateMVars (← inferType e))
+  if let .lit (.strVal _) := e then return true
+  if e.consumeMData.isRawNatLit then return true
+  match_expr e with
+  | OfNat.ofNat type n _ =>
+    let .lit (.natVal v) := n.consumeMData | return false
+    match type.consumeMData with
+    | .const declName [] =>
+      return declName == ``Nat || declName == ``Int
+        || declName == ``UInt8 || declName == ``UInt16 || declName == ``UInt32 || declName == ``UInt64
+        || isSIntValueInRange declName v false
+    | .app (.const declName []) k =>
+      unless declName == ``Fin || declName == ``BitVec do return false
+      unless (← isNatValue k) do return false
+      let k ← whnfD k
+      if declName == ``Fin then
+        isNonZeroNatValue k
+      else
+        isNatValue k
+    | _ => return false
+  | Neg.neg type _ a =>
+    let_expr OfNat.ofNat innerType n _ := a | return false
+    let type := type.consumeMData
+    unless innerType.consumeMData == type do return false
+    let .const declName [] := type | return false
+    let .lit (.natVal v) := n.consumeMData | return false
+    return declName == ``Int || isSIntValueInRange declName v true
+  | Char.ofNat n => isNatValue n
+  | BitVec.ofNat w v => isNatValue w <&&> isNatValue v
+  | BitVec.ofNatLT w v _ => isNatValue w <&&> isNatValue v
+  | _ => return false
 
 register_builtin_option grind.debug : Bool := {
   defValue := false

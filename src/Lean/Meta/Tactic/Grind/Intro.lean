@@ -33,16 +33,38 @@ private def isAlreadyNorm? (e : Expr) : Option Expr :=
   let_expr Lean.Grind.alreadyNorm c := e | none
   some c
 
+private def isSIntPatternLitValue (e : Expr) : Bool :=
+  match_expr e with
+  | OfNat.ofNat type n _ => isSIntType type && n.consumeMData.isRawNatLit
+  | Neg.neg type _ a =>
+    match_expr a with
+    | OfNat.ofNat innerType n _ =>
+      type.consumeMData == innerType.consumeMData && isSIntType type && n.consumeMData.isRawNatLit
+    | _ => false
+  | _ => false
+where
+  isSIntType (type : Expr) : Bool :=
+    let type := type.consumeMData
+    type.isConstOf ``Int8 || type.isConstOf ``Int16 || type.isConstOf ``Int32 || type.isConstOf ``Int64
+
+/-- Match conditions can also compare noncanonical signed literals using `normLitValue`. -/
+private def isPatternLitValue (e : Expr) : MetaM Bool := do
+  if e.hasLooseBVars || e.isTrue || e.isFalse then return false
+  return (← isInterpreted e) || isSIntPatternLitValue e
+
 /--
 Returns `true` if `e` is a pattern: a pattern variable (i.e., a loose bound variable),
-a literal value, an offset `p + k`, or a constructor application whose fields are patterns.
+a literal supported by match-condition propagation, an offset `p + k`, or a constructor application
+whose fields are patterns.
 -/
 private partial def isPattern (e : Expr) : MetaM Bool := do
   if e.getAppFn.isBVar then return true
-  -- `isLitValue` assumes `e` has no loose bound variables.
-  if !e.hasLooseBVars && (← isLitValue e) then return true
+  if (← isPatternLitValue e) then return true
   match_expr e with
-  | HAdd.hAdd _ _ _ _ p k => return !k.hasLooseBVars && (← isLitValue k) && (← isPattern p)
+  | HAdd.hAdd _ _ _ _ p k =>
+    -- Signed offsets require arithmetic normalization before matching.
+    if isSIntPatternLitValue k then return false
+    return (← isPatternLitValue k <&&> isPattern p)
   | _ => pure ()
   let .const declName _ := e.getAppFn | return false
   let some (.ctorInfo ctor) := (← getEnv).find? declName | return false

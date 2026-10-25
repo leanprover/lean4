@@ -137,11 +137,12 @@ def GrindM.run (x : GrindM α) (params : Params) (evalTactic? : Option EvalTacti
   let extensions := params.extensions
   let anchorRefs? := params.anchorRefs?
   let identity := params.identity
+  let activeSolvers ← Solvers.activeIds config
   let debug := grind.debug.get (← getOptions)
   let ematchDiag := grind.ematch.diagnostics.get (← getOptions)
   Sym.Arith.setExpThreshold config.exp
   x (← mkMethods evalTactic?).toMethodsRef
-    { config, identity, anchorRefs?, simpMethods, symSimpMethods, symDSimpMethods, simp, extensions, symPrios, debug, ematchDiag }
+    { config, identity, activeSolvers, anchorRefs?, simpMethods, symSimpMethods, symDSimpMethods, simp, extensions, symPrios, debug, ematchDiag }
     |>.run' {}
 
 private def mkCleanState (mvarId : MVarId) : GrindM Clean.State := mvarId.withContext do

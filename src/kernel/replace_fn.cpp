@@ -18,21 +18,20 @@ expr replace(expr const & e, std::function<optional<expr>(expr const &, unsigned
 }
 
 class replace_fn {
-    lean::unordered_map<lean_object *, expr> m_cache;
+    replace_cache m_cache;
     lean_object * m_f;
 
     expr save_result(expr const & e, expr const & r, bool shared) {
         if (shared)
-            m_cache.insert(mk_pair(e.raw(), r));
+            m_cache.insert(e.raw(), 0, r);
         return r;
     }
 
     expr apply(expr const & e) {
         bool shared = false;
         if (is_shared(e)) {
-            auto it = m_cache.find(e.raw());
-            if (it != m_cache.end())
-                return it->second;
+            if (lean_object * r = m_cache.find(e.raw()))
+                return expr(r, true);
             shared = true;
         }
 
@@ -92,13 +91,13 @@ extern "C" object * lean_level_instantiate_params(obj_arg u, obj_arg ps, obj_arg
    inlined, so that the traversal and the result are the same as with `Expr.replace`. Levels are
    instantiated by `Level.instantiateParams`. */
 class instantiate_level_params_fn {
-    lean::unordered_map<lean_object *, expr> m_cache;
+    replace_cache m_cache;
     b_obj_arg m_ps;
     b_obj_arg m_us;
 
     expr save_result(expr const & e, expr const & r, bool shared) {
         if (shared)
-            m_cache.insert(mk_pair(e.raw(), r));
+            m_cache.insert(e.raw(), 0, r);
         return r;
     }
 
@@ -143,9 +142,8 @@ class instantiate_level_params_fn {
 
         bool shared = false;
         if (is_shared(e)) {
-            auto it = m_cache.find(e.raw());
-            if (it != m_cache.end())
-                return it->second;
+            if (lean_object * r = m_cache.find(e.raw()))
+                return expr(r, true);
             shared = true;
         }
 

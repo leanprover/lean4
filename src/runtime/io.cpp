@@ -57,6 +57,13 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 #include <dirent.h>
 #endif
 
+#ifndef LEAN_WINDOWS
+#ifndef __APPLE__
+#include <sys/syscall.h>
+#include <linux/fs.h> // RENAME_NOREPLACE
+#endif
+#endif
+
 namespace lean {
 
 extern "C" LEAN_EXPORT void lean_io_result_show_error(b_obj_arg r) {
@@ -1256,7 +1263,8 @@ extern "C" LEAN_EXPORT obj_res lean_io_rename_if_new(b_obj_arg from, b_obj_arg t
 #if defined(__APPLE__)
     bool ok = renameatx_np(AT_FDCWD, from_str, AT_FDCWD, to_str, RENAME_EXCL) == 0;
 #else
-    bool ok = renameat2(AT_FDCWD, from_str, AT_FDCWD, to_str, RENAME_NOREPLACE) == 0;
+    // glibc 2.26 does not yet have `renameat2` (2.28+)
+    bool ok = syscall(SYS_renameat2, AT_FDCWD, from_str, AT_FDCWD, to_str, RENAME_NOREPLACE) == 0;
 #endif
     if (!ok) {
         std::ostringstream s;

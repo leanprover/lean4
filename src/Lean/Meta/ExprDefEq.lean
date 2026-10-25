@@ -2349,27 +2349,71 @@ private def isDefEqApp (t s : Expr) : MetaM Bool := do
 @[inline] private def cachedUnitLike? (key : ExprConfigCacheKey) : MetaM (Option Bool) := do
   return (← get).cache.isUnitLike.find? key
 
-private def cacheUnitLike (key : ExprConfigCacheKey) (b : Bool) : MetaM Bool := do
+-- Only cache results that didn't get stuck on an mvar after reduction
+private def cacheUnitLike (key : ExprConfigCacheKey) (lb : LBool) : MetaM Bool := do
+  if let .undef := lb then return false
+  let b := match lb with | .true => true | .false => false |.undef => unreachable!
   modify fun s => { s with cache.isUnitLike := s.cache.isUnitLike.insert key b }
   return b
 
+/-- Given a whnf `e`, returns true if the reduction is stuck on an mvar, i.e if `e` is either an mvar, an app whose head function is stuck on an mvar, a projection whose struct is stuck on an mvar, or a recursor whose major is either stuck on an mvar or, in the case the recursor is of a K-like type, if the type of its major contains mvars.
+TODO handle matchers and reduction configurations regarding zeta/iota correctly
+-/
+partial def isStuckOnMVar : Expr → MetaM Bool
+  | .bvar _ => unreachable!
+  | .fvar _ | .const .. | .sort _ | .lam .. | .forallE .. |.lit _ => return false
+  | .letE .. => return false --TODO probably wrong
+  | .mvar _  => return true
+  | .mdata _ e | .proj _ _ e => isStuckOnMVar e
+  | e@(.app _ _) => isStuckOnMVarApp e
+where
+  isStuckOnMVarApp (e : Expr) : MetaM Bool :=
+    e.withApp fun hd args => do
+      unless hd.isConst do
+        return (← isStuckOnMVar hd)
+      let constName := hd.constName!
+      if let some info ← getMatcherInfo? constName then
+        let prefixSz := info.numParams + 1 + info.numDiscrs
+        if args.size < prefixSz + info.numAlts then
+          return false
+        let discr := args[info.getDiscrRange.lower:info.getDiscrRange.upper]
+        return discr.any Expr.hasExprMVar -- overapproximation
+      else
+        let some recVal ← isRec? constName | return false
+        if isNonRecStructure (← getEnv) recVal.getMajorInduct then  --structure majors always get eta-expanded, the recursor cannot get stuck on those
+          return false
+        let some major := args[recVal.getMajorIdx]? | return false
+        if recVal.k then
+          return (← inferType major).hasMVar
+        else
+          isStuckOnMVar major
+
+mutual
+private partial def isUnitLikeType (e : Expr) : MetaM Bool := do
+  let key ← mkExprConfigCacheKey e
+  match (← cachedUnitLike? key) with
+    | some b => pure b
+    | none => cacheUnitLike key (← isUnitLikeTypeCore e)
+
 /-- Takes a type of the form `A1 -> ... -> An-> I As`, checks that `I` is a (non-recursive) structure, and that each (instantiated) fields is itself either a proposition or a unit-like type-/
-private partial def isUnitLikeType (e : Expr) : MetaM Bool :=
+private partial def isUnitLikeTypeCore (e : Expr) : MetaM LBool :=
   forallTelescopeReducing (whnfType := true) e fun _ tType => do
+    if ← isStuckOnMVar e then return .undef
     let hd := tType.getAppFn
-    matchConstNonRecStructure hd (fun _ => pure false) fun _ _ ctorVal => do
+    matchConstNonRecStructure hd (fun _ => pure .false) fun _ _ ctorVal => do
       unless ← useEtaStruct ctorVal.induct do
-        return false
+        return .false
       let ctorType := ctorVal.type
           |>.instantiateLevelParams ctorVal.levelParams hd.constLevels!
           -- `tType` is a structure, and in particular has no indices. Furthermore, it is a type, so `tType.getAppNumArgs = (← getConstInfoInduct ctorVal.induct).numParams`
           |>.getForallBodyMaxDepth tType.getAppNumArgs
           |>.instantiateRev tType.getAppArgs
-      forallTelescope ctorType fun xs _ =>
-        xs.allM fun e => do
+      forallTelescope ctorType fun xs _ => do
+        let b ← xs.allM fun e => do
           let ty ← e.fvarId!.getType
           isProp ty <||> isUnitLikeType ty
-
+        return b.toLBool
+end
 /--
   Return `true` if the types of the given expressions is a non-recursive, non-indexed inductive datatype
   with a single constructor for which all fields are unit-like or Prop types,
@@ -2377,15 +2421,7 @@ private partial def isUnitLikeType (e : Expr) : MetaM Bool :=
 -/
 private def isDefEqUnitLike (t : Expr) (s : Expr) : MetaM Bool := do
   let tType ← inferType t
-  let useCache := !tType.hasFVar && !tType.hasExprMVar && (← read).customCanUnfoldPredicate?.isNone
-  let isUnit ←
-    if useCache then do
-      let key ← mkExprConfigCacheKey tType
-      match (← cachedUnitLike? key) with
-      | some b => pure b
-      | none => cacheUnitLike key (← isUnitLikeType tType)
-    else
-      isUnitLikeType tType
+  let isUnit ← isUnitLikeType tType
   if !isUnit then return false
   Meta.isExprDefEqAux tType (← inferType s)
 

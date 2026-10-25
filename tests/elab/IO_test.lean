@@ -44,7 +44,7 @@ pure ()
 #eval test
 
 def test2 : IO Unit := do
-let fn1 := "bar2.txt";
+let fn1 := "IO_test.lean.dir/bar2.txt";
 let fn2 := "IO_test.lean.dir/foo2.txt";
 let xs₀ : String := "⟨[₂,α]⟩";
 let xs₁ := "⟨[6,8,@]⟩";

@@ -1905,10 +1905,23 @@ private def normalizeRelCore (rel : RelKind) (relFn : Expr) (order? : Option Ord
     let cE := toExpr c
     let reflP (p : Expr) := mkApp2 (mkConst ``Eq.refl [1]) (mkConst ``Grind.CommRing.Poly) p
     let reflE (e : Expr) := mkApp2 (mkConst ``Eq.refl [1]) (mkConst ``Grind.CommRing.Expr) e
+    let csInst? ← if kind.isComm then pure (some (← getCommSemiring).commSemiringInst) else pure none
     let mkTermStep (x xC : RingExpr) (px qx : Poly) (ex exC : Expr) : Expr :=
       let xE := toExpr x
       let xCE := toExpr xC
-      let h := if !kind.isComm then
+      -- Large products are stated stepwise when there are any (`denoteSteps?`).
+      let steps? := match csInst? with
+        | some csInst => if px.length ≥ 32 && hasProduct x then
+            (denoteSteps? #[sr.type, csInst, ctx] u .semiring x).run' {}
+          else none
+        | none => none
+      let h := if let some (_, pxE, hx) := steps? then
+          if hasC then
+            mkAppN (mkConst ``Grind.CommRing.Expr.eq_of_denoteS_eq_add_toExpr [u])
+              #[sr.type, inst, ctx, xE, xCE, pxE, toExpr qx, cE, hx, reflE xCE, reflP pxE, eagerReflBoolTrue]
+          else
+            mkAppN (mkConst ``Grind.CommRing.Expr.eq_of_denoteS_eq_toExpr [u]) #[sr.type, inst, ctx, xE, xCE, pxE, hx, reflE xCE]
+        else if !kind.isComm then
           mkApp6 (mkConst normS [u]) sr.type inst ctx xE xCE eagerReflBoolTrue
         else if hasC then
           let pxE := toExpr px

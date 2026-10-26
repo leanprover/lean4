@@ -1058,6 +1058,21 @@ theorem Expr.eq_of_toPolyS_eq_add_toExpr {α} [CommSemiring α] (ctx : Context �
   rw [Poly.toExpr_k_eq, Poly.toExpr_k_eq, Poly.denoteS_toExpr _ _ hq, Poly.denoteS_toExpr _ _ hr]
 
 
+theorem Expr.eq_of_denoteS_eq_toExpr {α} [CommSemiring α] (ctx : Context α) (a b : Expr) (p : Poly)
+    (h₁ : a.denoteS ctx = p.denoteS ctx ∧ p.NonnegCoeffs) (h₂ : b = p.toExpr_k) : a.denoteS ctx = b.denoteS ctx := by
+  subst h₂; rw [Poly.toExpr_k_eq, Poly.denoteS_toExpr _ _ h₁.2, h₁.1]
+
+theorem Expr.eq_of_denoteS_eq_add_toExpr {α} [CommSemiring α] (ctx : Context α) (a b : Expr) (p q r : Poly)
+    (h₁ : a.denoteS ctx = p.denoteS ctx ∧ p.NonnegCoeffs) (h₂ : b = .add q.toExpr_k r.toExpr_k) (h₃ : p = q.combine_k r)
+    (h₄ : (q.nonneg_k && r.nonneg_k) = true) : a.denoteS ctx = b.denoteS ctx := by
+  rw [Bool.and_eq_true] at h₄
+  have hq := Poly.nonnegCoeffs_of_nonneg_k h₄.1
+  have hr := Poly.nonnegCoeffs_of_nonneg_k h₄.2
+  subst h₂
+  rw [h₁.1, h₃, Poly.combine_k_eq_combine, Poly.denoteS_combine _ _ _ hq hr]
+  show _ = q.toExpr_k.denoteS ctx + r.toExpr_k.denoteS ctx
+  rw [Poly.toExpr_k_eq, Poly.toExpr_k_eq, Poly.denoteS_toExpr _ _ hq, Poly.denoteS_toExpr _ _ hr]
+
 /-! Relations whose sides have the same polynomial in a commutative semiring. -/
 
 theorem eq_true_of_toPolyS {α} [CommSemiring α] (ctx : Context α) (bal₁ bal₂ : Bool) (lhs rhs : Expr) (p : Poly)

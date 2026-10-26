@@ -67,6 +67,11 @@ def showParagraph (src : String) : String :=
 /-- info: "code⟪&amp; \\*⟫ text⟪ ⟫ autolink⟪https://x.y/?a&amp;b⟫" -/
 #guard_msgs in #eval showParagraph "`&amp; \\*` <https://x.y/?a&amp;b>"
 
+-- Backtick sequences without a closing sequence of the same length are text (CommonMark §6.1),
+-- also after a sequence that was closed.
+/-- info: ["text⟪`a ``b ```c⟫", "code⟪a` ⟫ text⟪b``⟫"] -/
+#guard_msgs in #eval [showParagraph "`a ``b ```c", showParagraph "``a` ``b``"]
+
 /-!
 ## Emphasis with leftover delimiters
 

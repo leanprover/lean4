@@ -36,28 +36,6 @@ def countSequence (cur : InlineCursor s) (c : Char) : Nat × s.Pos :=
   let (after, n) := cur.takeSequence c
   (n, after.startPos)
 
-/-- Parses inline code at `cur`, which must point at a backtick. -/
-def parseCode? (cur : InlineCursor s) : Option (Inline s × s.Pos) := do
-  let src := cur.source
-  let stopPos := cur.stopPos
-  let start := cur.startPos
-  let (openLen, p) := countSequence cur '`'
-  guard (openLen > 0)
-  let openTicks := subsliceClamped start p
-  let mut rest : InlineCursor s := src.cursor p stopPos
-  while !rest.isEmpty do
-    if rest.front? == some '`' then
-      let q := rest.startPos
-      let (seqLen, qAfterSequence) := countSequence rest '`'
-      if seqLen == openLen then
-        let content := src.linesBetween p q
-        let closeTicks := subsliceClamped q qAfterSequence
-        return (.code openTicks ⟨content⟩ closeTicks, qAfterSequence)
-      rest := src.cursor qAfterSequence stopPos
-    else
-      rest := rest.drop1
-  failure
-
 /--
 Parses a character reference at `cur`, which must point at `&`. Returns the resulting
 `Inline.entity` and the position past the closing `;`.
@@ -467,6 +445,14 @@ structure InlineTokenizerState (s : String.Slice) where
   prevChar : Char
   /-- The bracket openers that have not yet been closed, innermost last. -/
   brackets : Array (BracketOpener s) := #[]
+  /--
+  The start of the last backtick sequence of each length that a search for closing backticks has
+  passed. Once a search has reached the end of the input, a later search for a length whose last
+  sequence starts at or before its opener fails without reading the input.
+  -/
+  lastBacktickSequence : Std.HashMap Nat s.Pos := {}
+  /-- Whether a search for closing backticks has reached the end of the input. -/
+  backticksScanned : Bool := false
 
 /-- The initial state for `src`. -/
 def InlineTokenizerState.init (src : InlineSource s) : InlineTokenizerState s where
@@ -513,6 +499,43 @@ This is used when inline code is not properly closed, forcing its opener to beco
 def skipPast (newRest : InlineCursor s) (newPrev : Char) : TokenizeM s Unit :=
   modify fun st => { st with rest := newRest, prevChar := newPrev }
 
+/--
+Parses inline code at `cur`, which must point at a backtick: an opening backtick sequence, the
+content, and a closing sequence of the same length (CommonMark §6.1).
+
+A search for the closing sequence records the start of every backtick sequence that it passes, by
+length. Once a search has reached the end of the input, a later search for a length whose last
+recorded sequence is at or before the opener fails at once, so over a whole paragraph the searches
+cost time linear in its length.
+-/
+def parseCode? (cur : InlineCursor s) : TokenizeM s (Option (Inline s × s.Pos)) := do
+  let src := cur.source
+  let stopPos := cur.stopPos
+  let start := cur.startPos
+  let (openLen, p) := countSequence cur '`'
+  if openLen == 0 then return none
+  let st ← get
+  if st.backticksScanned then
+    match st.lastBacktickSequence[openLen]? with
+    | some last => if last ≤ start then return none
+    | none => return none
+  let openTicks := subsliceClamped start p
+  let mut rest : InlineCursor s := src.cursor p stopPos
+  while !rest.isEmpty do
+    if rest.front? == some '`' then
+      let q := rest.startPos
+      let (seqLen, qAfterSequence) := countSequence rest '`'
+      modify fun st => { st with lastBacktickSequence := st.lastBacktickSequence.insert seqLen q }
+      if seqLen == openLen then
+        let content := src.linesBetween p q
+        let closeTicks := subsliceClamped q qAfterSequence
+        return some (.code openTicks ⟨content⟩ closeTicks, qAfterSequence)
+      rest := src.cursor qAfterSequence stopPos
+    else
+      rest := rest.drop1
+  modify fun st => { st with backticksScanned := true }
+  return none
+
 /-- Flushes residual pending text and returns the final token array. -/
 def finalizeTokens : TokenizeM s (Array (InlineTok s)) := do
   let st ← get
@@ -524,13 +547,15 @@ input resumes at `resumeRest`, just after the `[`.
 -/
 def openBracket (bang? : Option s.Subslice) (bracket : s.Subslice) (resumeRest : InlineCursor s) :
     TokenizeM s Unit :=
-  -- The state is destructured so that its arrays are unique and extended in place.
-  modify fun ⟨out, _, textStart, _, brackets⟩ =>
+  modify fun st =>
+    -- The output is taken out of the state so that it stays unique and is extended in place.
+    let out := st.out
+    let st := { st with out := #[] }
     let start := (bang?.getD bracket).startInclusive
-    let out := pushTokText out textStart start
-    let tokIdx := out.size
-    { out := out.push (.inline (.text (subsliceClamped start bracket.endExclusive)))
-      brackets := brackets.push { tokIdx, bang?, openBracket := bracket }
+    let out := pushTokText out st.textStart start
+    { st with
+      out := out.push (.inline (.text (subsliceClamped start bracket.endExclusive)))
+      brackets := st.brackets.push { tokIdx := out.size, bang?, openBracket := bracket }
       rest := resumeRest
       textStart := bracket.endExclusive
       prevChar := '[' }
@@ -554,9 +579,8 @@ def closeBracket (refs : RefTable s) (src : InlineSource s) (closeBracket : s.Su
     match parseLinkSuffix? refs src stop opener.openBracket closeBracket afterClose with
     | some (target, after) =>
       -- The output is taken out of the state so that it is shrunk and extended in place.
-      let out ← modifyGet fun ⟨out, rest, textStart, prevChar, brackets⟩ =>
-        (pushTokText out textStart closeBracket.startInclusive,
-         ⟨#[], rest, textStart, prevChar, brackets⟩)
+      let out ← modifyGet fun st => (st.out, { st with out := #[] })
+      let out := pushTokText out (← get).textStart closeBracket.startInclusive
       let interior := processEmphasis (out.extract (opener.tokIdx + 1) out.size)
       let inl : Inline s :=
         match opener.bang? with
@@ -619,7 +643,7 @@ def tokenizeInlines (refs : RefTable s) (src : InlineSource s) : Array (InlineTo
         else
           skipChar
       else if c == '`' then
-        match parseCode? st.rest with
+        match ← parseCode? st.rest with
         | some (inlineCode, after) =>
           recognize (.inline inlineCode) cursor (src.cursor after stop) '`'
         | none =>

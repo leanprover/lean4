@@ -643,6 +643,40 @@ theorem lt_false_of_kronS {α} [CommSemiring α] [AddRightCancel α] [LE α] [LT
   rw [Expr.eq_of_kronS ctx K B a b hB hK h]; exact eq_false Std.lt_irrefl
 
 /-!
+Semiring relations with a common part `c` of both sides: `a = a' + c` and `b = b' + c` are
+checked at the point, and `c` is cancelled, so it is never written as a term of the semiring.
+-/
+
+theorem eq_cancel_of_kronS {α} [CommSemiring α] [AddRightCancel α] (ctx : Context α) (K B : Nat) (a b a' b' c : Expr)
+    (hB₁ : Expr.degSOk_k B a (a'.add c) = true) (hK₁ : Expr.kronOk_k K a (a'.add c) = true)
+    (h₁ : a.kronEval_k K B = (a'.add c).kronEval_k K B)
+    (hB₂ : Expr.degSOk_k B b (b'.add c) = true) (hK₂ : Expr.kronOk_k K b (b'.add c) = true)
+    (h₂ : b.kronEval_k K B = (b'.add c).kronEval_k K B) :
+    (a.denoteS ctx = b.denoteS ctx) = (a'.denoteS ctx = b'.denoteS ctx) := by
+  rw [Expr.eq_of_kronS ctx K B a (a'.add c) hB₁ hK₁ h₁, Expr.eq_of_kronS ctx K B b (b'.add c) hB₂ hK₂ h₂]
+  exact propext AddRightCancel.add_right_cancel_iff
+
+theorem le_cancel_of_kronS {α} [CommSemiring α] [AddRightCancel α] [LE α] [LT α] [IsPreorder α] [OrderedRing α]
+    (ctx : Context α) (K B : Nat) (a b a' b' c : Expr)
+    (hB₁ : Expr.degSOk_k B a (a'.add c) = true) (hK₁ : Expr.kronOk_k K a (a'.add c) = true)
+    (h₁ : a.kronEval_k K B = (a'.add c).kronEval_k K B)
+    (hB₂ : Expr.degSOk_k B b (b'.add c) = true) (hK₂ : Expr.kronOk_k K b (b'.add c) = true)
+    (h₂ : b.kronEval_k K B = (b'.add c).kronEval_k K B) :
+    (a.denoteS ctx ≤ b.denoteS ctx) = (a'.denoteS ctx ≤ b'.denoteS ctx) := by
+  rw [Expr.eq_of_kronS ctx K B a (a'.add c) hB₁ hK₁ h₁, Expr.eq_of_kronS ctx K B b (b'.add c) hB₂ hK₂ h₂]
+  exact propext (OrderedAdd.add_le_left_iff _).symm
+
+theorem lt_cancel_of_kronS {α} [CommSemiring α] [AddRightCancel α] [LE α] [LT α] [LawfulOrderLT α] [IsPreorder α]
+    [OrderedRing α] (ctx : Context α) (K B : Nat) (a b a' b' c : Expr)
+    (hB₁ : Expr.degSOk_k B a (a'.add c) = true) (hK₁ : Expr.kronOk_k K a (a'.add c) = true)
+    (h₁ : a.kronEval_k K B = (a'.add c).kronEval_k K B)
+    (hB₂ : Expr.degSOk_k B b (b'.add c) = true) (hK₂ : Expr.kronOk_k K b (b'.add c) = true)
+    (h₂ : b.kronEval_k K B = (b'.add c).kronEval_k K B) :
+    (a.denoteS ctx < b.denoteS ctx) = (a'.denoteS ctx < b'.denoteS ctx) := by
+  rw [Expr.eq_of_kronS ctx K B a (a'.add c) hB₁ hK₁ h₁, Expr.eq_of_kronS ctx K B b (b'.add c) hB₂ hK₂ h₂]
+  exact propext (OrderedAdd.add_lt_left_iff _).symm
+
+/-!
 Linear identities by evaluation at `xᵢ = X ^ (i + 1)`: when every product has a constant factor
 (`Expr.degB_k e ≤ 1`), the monomials are the variables, and their codes can be `i + 1` instead of
 `B ^ i`, so the values stay small for many variables (`Expr.eq_of_kronLin`).
@@ -2139,5 +2173,96 @@ theorem lt_of_kronQ_rel (ctx : Context α) (K B : Nat) (invs : InvVars)
   rw [← sub_neg_iff', ← sub_neg_iff' (a := lhs'.denote ctx), this]
 
 end
+
+
+/-!
+Relations `lhs ⋈ rhs` rewritten to `lhs' ⋈ rhs'` with `lhs - rhs` and `lhs' - rhs'` the same
+polynomial, checked at a point (`le_of_kron_rel`, and `le_of_kronLin_rel` for linear terms over
+many variables).
+-/
+
+theorem eq_of_kron_rel {α} [CommRing α] (ctx : Context α) (K B : Nat) (l r l' r' : Expr)
+    (hB : Expr.degOk_k B (l.sub r) (l'.sub r') = true) (hK : Expr.kronOk_k K (l.sub r) (l'.sub r') = true)
+    (h : (l.sub r).kronEval_k K B = (l'.sub r').kronEval_k K B) :
+    (l.denote ctx = r.denote ctx) = (l'.denote ctx = r'.denote ctx) := by
+  have h := Expr.eq_of_kron ctx K B _ _ hB hK h
+  rw [← sub_eq_zero_iff (a := l.denote ctx), ← sub_eq_zero_iff (a := l'.denote ctx)]
+  exact congrArg (· = 0) h
+
+theorem eq_of_kronLin_rel {α} [CommRing α] (ctx : Context α) (K : Nat) (l r l' r' : Expr)
+    (hl : Expr.linOk_k (l.sub r) (l'.sub r') = true) (hK : Expr.kronOk_k K (l.sub r) (l'.sub r') = true)
+    (h : (l.sub r).kronLinEval_k K = (l'.sub r').kronLinEval_k K) :
+    (l.denote ctx = r.denote ctx) = (l'.denote ctx = r'.denote ctx) := by
+  have h := Expr.eq_of_kronLin ctx K _ _ hl hK h
+  rw [← sub_eq_zero_iff (a := l.denote ctx), ← sub_eq_zero_iff (a := l'.denote ctx)]
+  exact congrArg (· = 0) h
+
+section
+variable {α : Type u} [CommRing α] [LE α] [LT α] [IsPreorder α] [OrderedRing α]
+
+theorem le_of_kron_rel (ctx : Context α) (K B : Nat) (l r l' r' : Expr)
+    (hB : Expr.degOk_k B (l.sub r) (l'.sub r') = true) (hK : Expr.kronOk_k K (l.sub r) (l'.sub r') = true)
+    (h : (l.sub r).kronEval_k K B = (l'.sub r').kronEval_k K B) :
+    (l.denote ctx ≤ r.denote ctx) = (l'.denote ctx ≤ r'.denote ctx) := by
+  have h := Expr.eq_of_kron ctx K B _ _ hB hK h
+  rw [← sub_nonpos_iff' (a := l.denote ctx), ← sub_nonpos_iff' (a := l'.denote ctx)]
+  exact congrArg (· ≤ 0) h
+
+theorem le_of_kronLin_rel (ctx : Context α) (K : Nat) (l r l' r' : Expr)
+    (hl : Expr.linOk_k (l.sub r) (l'.sub r') = true) (hK : Expr.kronOk_k K (l.sub r) (l'.sub r') = true)
+    (h : (l.sub r).kronLinEval_k K = (l'.sub r').kronLinEval_k K) :
+    (l.denote ctx ≤ r.denote ctx) = (l'.denote ctx ≤ r'.denote ctx) := by
+  have h := Expr.eq_of_kronLin ctx K _ _ hl hK h
+  rw [← sub_nonpos_iff' (a := l.denote ctx), ← sub_nonpos_iff' (a := l'.denote ctx)]
+  exact congrArg (· ≤ 0) h
+
+theorem lt_of_kron_rel [LawfulOrderLT α] (ctx : Context α) (K B : Nat) (l r l' r' : Expr)
+    (hB : Expr.degOk_k B (l.sub r) (l'.sub r') = true) (hK : Expr.kronOk_k K (l.sub r) (l'.sub r') = true)
+    (h : (l.sub r).kronEval_k K B = (l'.sub r').kronEval_k K B) :
+    (l.denote ctx < r.denote ctx) = (l'.denote ctx < r'.denote ctx) := by
+  have h := Expr.eq_of_kron ctx K B _ _ hB hK h
+  rw [← sub_neg_iff' (a := l.denote ctx), ← sub_neg_iff' (a := l'.denote ctx)]
+  exact congrArg (· < 0) h
+
+theorem lt_of_kronLin_rel [LawfulOrderLT α] (ctx : Context α) (K : Nat) (l r l' r' : Expr)
+    (hl : Expr.linOk_k (l.sub r) (l'.sub r') = true) (hK : Expr.kronOk_k K (l.sub r) (l'.sub r') = true)
+    (h : (l.sub r).kronLinEval_k K = (l'.sub r').kronLinEval_k K) :
+    (l.denote ctx < r.denote ctx) = (l'.denote ctx < r'.denote ctx) := by
+  have h := Expr.eq_of_kronLin ctx K _ _ hl hK h
+  rw [← sub_neg_iff' (a := l.denote ctx), ← sub_neg_iff' (a := l'.denote ctx)]
+  exact congrArg (· < 0) h
+
+end
+
+/-! `eq_cancel_of_kronS` and its variants for linear terms over many variables. -/
+
+theorem eq_cancel_of_kronLinS {α} [CommSemiring α] [AddRightCancel α] (ctx : Context α) (K : Nat) (a b a' b' c : Expr)
+    (hl₁ : Expr.linSOk_k a (a'.add c) = true) (hK₁ : Expr.kronOk_k K a (a'.add c) = true)
+    (h₁ : a.kronLinEval_k K = (a'.add c).kronLinEval_k K)
+    (hl₂ : Expr.linSOk_k b (b'.add c) = true) (hK₂ : Expr.kronOk_k K b (b'.add c) = true)
+    (h₂ : b.kronLinEval_k K = (b'.add c).kronLinEval_k K) :
+    (a.denoteS ctx = b.denoteS ctx) = (a'.denoteS ctx = b'.denoteS ctx) := by
+  rw [Expr.eq_of_kronLinS ctx K a (a'.add c) hl₁ hK₁ h₁, Expr.eq_of_kronLinS ctx K b (b'.add c) hl₂ hK₂ h₂]
+  exact propext AddRightCancel.add_right_cancel_iff
+
+theorem le_cancel_of_kronLinS {α} [CommSemiring α] [AddRightCancel α] [LE α] [LT α] [IsPreorder α] [OrderedRing α]
+    (ctx : Context α) (K : Nat) (a b a' b' c : Expr)
+    (hl₁ : Expr.linSOk_k a (a'.add c) = true) (hK₁ : Expr.kronOk_k K a (a'.add c) = true)
+    (h₁ : a.kronLinEval_k K = (a'.add c).kronLinEval_k K)
+    (hl₂ : Expr.linSOk_k b (b'.add c) = true) (hK₂ : Expr.kronOk_k K b (b'.add c) = true)
+    (h₂ : b.kronLinEval_k K = (b'.add c).kronLinEval_k K) :
+    (a.denoteS ctx ≤ b.denoteS ctx) = (a'.denoteS ctx ≤ b'.denoteS ctx) := by
+  rw [Expr.eq_of_kronLinS ctx K a (a'.add c) hl₁ hK₁ h₁, Expr.eq_of_kronLinS ctx K b (b'.add c) hl₂ hK₂ h₂]
+  exact propext (OrderedAdd.add_le_left_iff _).symm
+
+theorem lt_cancel_of_kronLinS {α} [CommSemiring α] [AddRightCancel α] [LE α] [LT α] [LawfulOrderLT α] [IsPreorder α]
+    [OrderedRing α] (ctx : Context α) (K : Nat) (a b a' b' c : Expr)
+    (hl₁ : Expr.linSOk_k a (a'.add c) = true) (hK₁ : Expr.kronOk_k K a (a'.add c) = true)
+    (h₁ : a.kronLinEval_k K = (a'.add c).kronLinEval_k K)
+    (hl₂ : Expr.linSOk_k b (b'.add c) = true) (hK₂ : Expr.kronOk_k K b (b'.add c) = true)
+    (h₂ : b.kronLinEval_k K = (b'.add c).kronLinEval_k K) :
+    (a.denoteS ctx < b.denoteS ctx) = (a'.denoteS ctx < b'.denoteS ctx) := by
+  rw [Expr.eq_of_kronLinS ctx K a (a'.add c) hl₁ hK₁ h₁, Expr.eq_of_kronLinS ctx K b (b'.add c) hl₂ hK₂ h₂]
+  exact propext (OrderedAdd.add_lt_left_iff _).symm
 
 end Lean.Grind.CommRing

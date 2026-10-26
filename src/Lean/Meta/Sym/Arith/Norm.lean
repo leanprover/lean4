@@ -1587,6 +1587,34 @@ private def linearIntRel? (type : Expr) (invs : Array (Var × Nat)) (ainvs : Arr
   return (← toLinearExpr? l, ← toLinearExpr? r, ← toLinearExpr? l', ← toLinearExpr? r')
 
 /--
+The proof of `(l ⋈ r) = (l' ⋈ r')` when `l - r` and `l' - r'` have the same polynomial, by
+evaluation at a point (`le_of_kronLin_rel` for linear terms, `le_of_kron_rel`), if feasible.
+-/
+private def kronRelProof? (rel : RelKind) (order? : Option Order) (type inst ctx : Expr) (u : Level)
+    (l r l' r' : RingExpr) : Option Expr := do
+  let a : RingExpr := .sub l r
+  let b : RingExpr := .sub l' r'
+  let insts ← match rel, order? with
+    | .eq, _ => some #[]
+    | .le, some o => do some #[o.leInst, ← o.ltInst?, o.isPreorderInst, ← o.orderedRingInst?]
+    | .lt, some o => do some #[o.leInst, ← o.ltInst?, o.isPreorderInst, ← o.orderedRingInst?, ← o.lawfulOrderLTInst?]
+    | _, none => none
+  let (linName, name) := match rel with
+    | .eq => (``Grind.CommRing.eq_of_kronLin_rel, ``Grind.CommRing.eq_of_kron_rel)
+    | .le => (``Grind.CommRing.le_of_kronLin_rel, ``Grind.CommRing.le_of_kron_rel)
+    | .lt => (``Grind.CommRing.lt_of_kronLin_rel, ``Grind.CommRing.lt_of_kron_rel)
+  let sides := #[toExpr l, toExpr r, toExpr l', toExpr r']
+  let refl (v : Expr) := mkApp2 (mkConst ``Eq.refl [1]) (mkConst ``Int) v
+  if let some K := kronLinExponent? a b 1000000 then
+    let ev := mkApp2 (mkConst ``Grind.CommRing.Expr.kronLinEval_k) (mkRawNatLit K) (toExpr a)
+    return mkAppN (mkConst linName [u]) (#[type, inst] ++ insts ++ #[ctx, mkRawNatLit K] ++ sides ++
+      #[eagerReflBoolTrue, eagerReflBoolTrue, refl ev])
+  let (K, B) ← kronArgs? a b
+  let ev := mkApp3 (mkConst ``Grind.CommRing.Expr.kronEval_k) (mkRawNatLit K) (mkRawNatLit B) (toExpr a)
+  return mkAppN (mkConst name [u]) (#[type, inst] ++ insts ++ #[ctx, mkRawNatLit K, mkRawNatLit B] ++ sides ++
+    #[eagerReflBoolTrue, eagerReflBoolTrue, refl ev])
+
+/--
 The proof of `(rel lhs rhs) = True` or `(rel lhs rhs) = False` (with `true` for `True`) when the
 polynomial of `l - r` is the constant `k`, if a theorem applies: `=` with `k = 0`, or `k ≠ 0` in
 characteristic zero, and `≤`, `<` in an ordered ring.
@@ -1933,6 +1961,9 @@ private def normalizeRelCore (rel : RelKind) (relFn : Expr) (order? : Option Ord
         | .le => ``Int.Internal.Linear.le_norm_expr_k
         | .lt => ``Int.Internal.Linear.lt_norm_expr_k
       pure (mkApp6 (mkConst name) ctx (ofLinearExpr a) (ofLinearExpr b) (ofLinearExpr a') (ofLinearExpr b') eagerReflBoolTrue)
+    else if let (true, some h) := (invs.isEmpty && ainvs.isEmpty && kind.isComm && char?.isNone,
+        kronRelProof? rel order? ring.type inst ctx u l r l' r') then
+      pure h
     else if invs.isEmpty && ainvs.isEmpty && kind.isComm && char?.isNone && rp matches .num 0 then
       -- `lhs' ⋈ 0`, where `lp` is the polynomial of `lhs - rhs`: both hypotheses of the theorem
       -- are checked by definitional equality.
@@ -2144,6 +2175,43 @@ private def normalizeRelCore (rel : RelKind) (relFn : Expr) (order? : Option Ord
     let reflE (e : Expr) := mkApp2 (mkConst ``Eq.refl [1]) (mkConst ``Grind.CommRing.Expr) e
     let csInst? ← if kind.isComm then pure (some (← getCommSemiring).commSemiringInst) else pure none
     let arcInst? ← if kind.isComm then getAddRightCancelInst? else pure none
+    -- With a common part `c`, `lhs = lhs' + c` and `rhs = rhs' + c` are checked at a point and `c`
+    -- is cancelled in the certificate (`eq_cancel_of_kronS`), so `c` is not written as a term.
+    if let (true, some csInst, some arcInst) := (hasC, csInst?, arcInst?) then
+      -- When a side is all common part, its input term stands for `c`, smaller than the expansion.
+      let cX : RingExpr := if lp matches .num 0 then l else if rp matches .num 0 then r else c.toExpr
+      let lC : RingExpr := .add l' cX
+      let rC : RingExpr := .add r' cX
+      let insts? : Option (Name × Name × Array Expr) := match rel, order? with
+        | .eq, _ => some (``Grind.CommRing.eq_cancel_of_kronLinS, ``Grind.CommRing.eq_cancel_of_kronS, #[])
+        | .le, some o => match o.ltInst?, o.orderedRingInst? with
+          | some ltInst, some orInst => some (``Grind.CommRing.le_cancel_of_kronLinS, ``Grind.CommRing.le_cancel_of_kronS,
+            #[o.leInst, ltInst, o.isPreorderInst, orInst])
+          | _, _ => none
+        | .lt, some o => match o.ltInst?, o.lawfulOrderLTInst?, o.orderedRingInst? with
+          | some ltInst, some lawfulInst, some orInst => some (``Grind.CommRing.lt_cancel_of_kronLinS,
+            ``Grind.CommRing.lt_cancel_of_kronS, #[o.leInst, ltInst, lawfulInst, o.isPreorderInst, orInst])
+          | _, _, _ => none
+        | _, none => none
+      if let (some (linName, _, insts), true, some K₁, some K₂) := (insts?, linSemiOk l lC && linSemiOk r rC,
+          kronLinExponent? l lC 1000000, kronLinExponent? r rC 1000000) then
+        let K := max K₁ K₂
+        let ev (e : RingExpr) := mkApp2 (mkConst ``Grind.CommRing.Expr.kronLinEval_k) (mkRawNatLit K) (toExpr e)
+        let reflI (e : RingExpr) := mkApp2 (mkConst ``Eq.refl [1]) (mkConst ``Int) (ev e)
+        let h := mkAppN (mkConst linName [u]) (#[sr.type, csInst, arcInst] ++ insts ++ #[ctx, mkRawNatLit K,
+          toExpr l, toExpr r, toExpr l', toExpr r', toExpr cX, eagerReflBoolTrue, eagerReflBoolTrue, reflI l,
+          eagerReflBoolTrue, eagerReflBoolTrue, reflI r])
+        return .step e' (mkExpectedPropHint h (mkPropEq e e'))
+      if let (some (_, name, insts), some (K₁, B₁), some (K₂, B₂)) := (insts?, kronArgs? l lC, kronArgs? r rC) then
+        let K := max K₁ K₂
+        let B := max B₁ B₂
+        if semiOk B l lC && semiOk B r rC then
+          let ev (e : RingExpr) := mkApp3 (mkConst ``Grind.CommRing.Expr.kronEval_k) (mkRawNatLit K) (mkRawNatLit B) (toExpr e)
+          let reflI (e : RingExpr) := mkApp2 (mkConst ``Eq.refl [1]) (mkConst ``Int) (ev e)
+          let h := mkAppN (mkConst name [u]) (#[sr.type, csInst, arcInst] ++ insts ++ #[ctx, mkRawNatLit K, mkRawNatLit B,
+            toExpr l, toExpr r, toExpr l', toExpr r', toExpr cX, eagerReflBoolTrue, eagerReflBoolTrue, reflI l,
+            eagerReflBoolTrue, eagerReflBoolTrue, reflI r])
+          return .step e' (mkExpectedPropHint h (mkPropEq e e'))
     let mkTermStep (x xC : RingExpr) (px qx : Poly) (ex exC : Expr) : Expr :=
       let xE := toExpr x
       let xCE := toExpr xC

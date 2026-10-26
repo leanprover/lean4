@@ -386,14 +386,43 @@ private partial def collectSimps1 (c : EqCnstr) (acc : Array (Int × Mon × EqCn
   | _ => return (c, acc)
 
 open Lean.Grind.CommRing in
+/--
+The proof of `p.denote ctx = 0` from `h : lhs = rhs`, where `p` is the polynomial of `lhs - rhs`,
+by Kronecker substitution (`Stepwise.coreK`), if the values stay below a few million bits. In
+characteristic `c`, the difference over `Int` is `c * E` for a stated polynomial `E`.
+-/
+private def mkKronCore? (lhs rhs : RingExpr) (p : Poly) (h : Expr) : ProofM (Option Expr) := do
+  let e : RingExpr := .sub lhs rhs
+  -- Below degree 3 the normalization of `lhs - rhs` is as cheap as the evaluation.
+  if exprDegB e < 3 then return none
+  let B := max 2 (max (exprDegB e) (polyMaxDeg p) + 1)
+  let c? ← nonzeroChar?
+  let E : Poly ← match c? with
+    | none => pure (.num 0)
+    | some c =>
+      let diff := e.toPoly.combine (p.mulConst (-1))
+      let E := diff.divConst c
+      unless E.mulConst c == diff do return none
+      pure E
+  let c := c?.getD 0
+  let maxCode := max (exprMaxCode B e) (polyMaxCode B p)
+  let some K := kronExponent? (exprMajorant e + polyNorm1 p + c * polyNorm1 E) maxCode 4000000 | return none
+  let pre ← mkStepPrefix ``Stepwise.coreK ``Stepwise.coreKC
+  let eArgs ← if c?.isSome then pure #[← mkPolyDecl E] else pure #[]
+  return some (mkAppN pre (#[mkRawNatLit K, mkRawNatLit B, ← mkExprDecl lhs, ← mkExprDecl rhs, ← mkPolyDecl p] ++ eArgs ++
+    #[eagerReflBoolTrue, eagerReflBoolTrue, h]))
+
+open Lean.Grind.CommRing in
 partial def _root_.Lean.Meta.Grind.Arith.CommRing.EqCnstr.toExprProof (c : EqCnstr) : ProofM Expr := caching c do
   match c.h with
   | .core a b lhs rhs =>
+    if let some h ← mkKronCore? lhs rhs c.p (← mkEqProof a b) then return h
     let h ← mkStepPrefix ``Stepwise.core ``Stepwise.coreC
     return mkApp5 h (← mkExprDecl lhs) (← mkExprDecl rhs) (← mkPolyDecl c.p) (← mkPolyRefl c.p) (← mkEqProof a b)
   | .coreS a b sa sb ra rb =>
     let h' ← mkSemiringPrefix ``Grind.Ring.OfSemiring.of_eq
     let h' := mkApp3 h' (← mkSExprDecl sa) (← mkSExprDecl sb) (← mkEqProof a b)
+    if let some h ← mkKronCore? ra rb c.p h' then return h
     let h ← mkStepPrefix ``Stepwise.core ``Stepwise.coreC
     return mkApp5 h (← mkExprDecl ra) (← mkExprDecl rb) (← mkPolyDecl c.p) (← mkPolyRefl c.p) h'
   | .superpose k₁ m₁ c₁ k₂ m₂ c₂ =>

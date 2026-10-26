@@ -1502,6 +1502,29 @@ theorem imp_1eqKC {α c} [CommRing α] [IsCharP α c] (ctx : Context α) (K B : 
   rw [this, h₁, (IsCharP.natCast_eq_zero_iff c c).mpr (Nat.mod_self c), zero_mul, add_zero]
   exact intCast_zero
 
+/-- The input step `lhs = rhs` of `grind`'s ring solver, with `p` the polynomial of `lhs - rhs`, by Kronecker substitution. -/
+theorem coreK {α} [CommRing α] (ctx : Context α) (K B : Nat) (lhs rhs : Expr) (p : Poly)
+    (hB : impOk_k K B 0 (lhs.sub rhs) p (.num 0) = true)
+    (h : Int.beq' ((lhs.sub rhs).kronEval_k K B) (p.kron_k K B) = true) :
+    lhs.denote ctx = rhs.denote ctx → p.denote ctx = 0 := by
+  intro h₁
+  have hB := of_impOk_k hB
+  rw [Int.beq'_eq] at h
+  have := Expr.denote_eq_of_kron_poly ctx K B 0 (lhs.sub rhs) p (.num 0) hB.1 hB.2 (by rw [h]; simp)
+  rw [Semiring.natCast_zero, zero_mul, add_zero] at this
+  rw [← this]; exact sub_eq_zero_iff.mpr h₁
+
+theorem coreKC {α c} [CommRing α] [IsCharP α c] (ctx : Context α) (K B : Nat) (lhs rhs : Expr) (p E : Poly)
+    (hB : impOk_k K B c (lhs.sub rhs) p E = true)
+    (h : Int.beq' ((lhs.sub rhs).kronEval_k K B) (Int.add_k (p.kron_k K B) (Int.mul_k (Int.ofNat c) (E.kron_k K B))) = true) :
+    lhs.denote ctx = rhs.denote ctx → p.denote ctx = 0 := by
+  intro h₁
+  have hB := of_impOk_k hB
+  rw [Int.beq'_eq, Int.add_k_eq, Int.mul_k_eq] at h
+  have := Expr.denote_eq_of_kron_poly ctx K B c (lhs.sub rhs) p E hB.1 hB.2 h
+  rw [(IsCharP.natCast_eq_zero_iff c c).mpr (Nat.mod_self c), zero_mul, add_zero] at this
+  rw [← this]; exact sub_eq_zero_iff.mpr h₁
+
 theorem imp_keqK {α} [CommRing α] (ctx : Context α) [NoNatZeroDivisors α] (k : Int) (K B : Nat) (lhs rhs : Expr) (p₁ p₂ : Poly)
     (hk : Int.beq' k 0 = false) (hB : impOk_k K B 0 (lhs.sub rhs) p₁ (.num 0) = true)
     (h : Int.beq' ((lhs.sub rhs).kronEval_k K B) (p₁.kron_k K B) = true) (hp₂ : p₂ = .num 0) :

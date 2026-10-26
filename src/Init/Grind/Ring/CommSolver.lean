@@ -2720,6 +2720,61 @@ theorem norm_int (ctx : Context Int) (e : Expr) (p : Poly) : norm_int_cert e p �
   simp [norm_int_cert, Poly.denote'_eq_denote]; intro; subst p; simp [Expr.denote_toPoly]
 
 /-!
+Kernel-reduction variants of `Poly.denote'`: `cutsat` states the result of `norm_int` with
+`Poly.denote'_k`, which the kernel unfolds to match it with its own polynomials.
+-/
+
+noncomputable def Mon.denote'_k.go {α} [Semiring α] (ctx : Context α) (m : Mon) : α → α :=
+  Mon.rec (fun acc => acc) (fun pw _ ih acc => ih (acc * pw.denote ctx)) m
+
+noncomputable def Mon.denote'_k {α} [Semiring α] (ctx : Context α) (m : Mon) : α :=
+  Mon.rec 1 (fun pw m _ => Mon.denote'_k.go ctx m (pw.denote ctx)) m
+
+theorem Mon.denote'_k_eq {α} [Semiring α] (ctx : Context α) (m : Mon) : m.denote'_k ctx = m.denote' ctx := by
+  have hgo : ∀ m acc, Mon.denote'_k.go ctx m acc = Mon.denote'.go ctx m acc := by
+    intro m; induction m with
+    | unit => intro acc; rfl
+    | mult pw m ih => intro acc; exact ih _
+  cases m with
+  | unit => rfl
+  | mult pw m => exact hgo m _
+
+noncomputable def denoteTerm_k {α} [Ring α] (ctx : Context α) (k : Int) (m : Mon) : α :=
+  Bool.rec (k • Mon.denote'_k ctx m) (Mon.denote'_k ctx m) (Int.beq' k 1)
+
+theorem denoteTerm_k_eq {α} [Ring α] (ctx : Context α) (k : Int) (m : Mon) : denoteTerm_k ctx k m = denoteTerm ctx k m := by
+  unfold denoteTerm_k denoteTerm
+  rw [Mon.denote'_k_eq, show Int.beq' k 1 = (k == 1) from by simp [Int.beq'_eq_beq]]
+  cases k == 1 <;> rfl
+
+noncomputable def Poly.denote'_k.go {α} [Ring α] (ctx : Context α) (p : Poly) : α → α :=
+  Poly.rec (fun k acc => Bool.rec (acc + Int.cast k) acc (Int.beqZero_k k))
+    (fun k m _ ih acc => ih (acc + denoteTerm_k ctx k m)) p
+
+noncomputable def Poly.denote'_k {α} [Ring α] (ctx : Context α) (p : Poly) : α :=
+  Poly.rec (fun k => Int.cast k) (fun k m p _ => Poly.denote'_k.go ctx p (denoteTerm_k ctx k m)) p
+
+theorem Poly.denote'_k_eq {α} [Ring α] (ctx : Context α) (p : Poly) : p.denote'_k ctx = p.denote' ctx := by
+  have hgo : ∀ p acc, Poly.denote'_k.go ctx p acc = Poly.denote'.go ctx p acc := by
+    intro p; induction p with
+    | num k =>
+      intro acc
+      show Bool.rec (motive := fun _ => α) _ _ (Int.beqZero_k k) = _
+      rw [Int.beqZero_k_eq]
+      cases hk : k == 0
+      · have h : k ≠ 0 := by simpa using hk
+        show acc + Int.cast k = _; simp [Poly.denote'.go, h]
+      · have h : k = 0 := by simpa using hk
+        subst h; rfl
+    | add k m p ih => intro acc; show Poly.denote'_k.go ctx p _ = _; rw [ih, denoteTerm_k_eq]; rfl
+  cases p with
+  | num k => rfl
+  | add k m p => show Poly.denote'_k.go ctx p _ = _; rw [hgo, denoteTerm_k_eq]; rfl
+
+theorem norm_int_k (ctx : Context Int) (e : Expr) (p : Poly) : norm_int_cert e p → e.denote ctx = p.denote'_k ctx := by
+  rw [Poly.denote'_k_eq]; exact norm_int ctx e p
+
+/-!
 Helper theorems for normalizing ring constraints in the `grind order` module.
 -/
 

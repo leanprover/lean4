@@ -448,16 +448,16 @@ private partial def EqCnstr.toExprProofImpl (c' : EqCnstr) : ProofM Expr := cach
       (← mkEqRefl t) eagerReflBoolTrue (← c.toExprProof)
   | .reorder c => withPrevEpoch <| c.toExprProof
   | .commRingNorm c e p =>
-    let h := mkApp4 (mkConst ``Grind.CommRing.norm_int) (← getRingContext) (← mkRingExprDecl e) (← mkRingPolyDecl p) eagerReflBoolTrue
+    let h := mkApp4 (mkConst ``Grind.CommRing.norm_int_k) (← getRingContext) (← mkRingExprDecl e) (← mkRingPolyDecl p) eagerReflBoolTrue
     return mkApp5 (mkConst ``Int.Internal.Linear.eq_norm_poly) (← getContext) (← mkPolyDecl c.p) (← mkPolyDecl c'.p) h (← c.toExprProof)
   | .defnCommRing e p re rp p' =>
-    let h := mkApp4 (mkConst ``Grind.CommRing.norm_int) (← getRingContext) (← mkRingExprDecl re) (← mkRingPolyDecl rp) eagerReflBoolTrue
+    let h := mkApp4 (mkConst ``Grind.CommRing.norm_int_k) (← getRingContext) (← mkRingExprDecl re) (← mkRingPolyDecl rp) eagerReflBoolTrue
     let x ← getVarOf e
     return mkApp8 (mkConst ``Int.Internal.Linear.eq_def_norm) (← getContext)
       (← mkVarDecl x) (← mkPolyDecl p) (← mkPolyDecl p') (← mkPolyDecl c'.p)
       eagerReflBoolTrue (← mkEqRefl e) h
   | .defnExprCommRing h₁ x e' p re rp p' =>
-    let h₂ := mkApp4 (mkConst ``Grind.CommRing.norm_int) (← getRingContext) (← mkRingExprDecl re) (← mkRingPolyDecl rp) eagerReflBoolTrue
+    let h₂ := mkApp4 (mkConst ``Grind.CommRing.norm_int_k) (← getRingContext) (← mkRingExprDecl re) (← mkRingPolyDecl rp) eagerReflBoolTrue
     return mkApp9 (mkConst ``Int.Internal.Linear.eq_def'_norm) (← getContext) (← mkVarDecl x) (← mkExprDecl e')
       (← mkPolyDecl p) (← mkPolyDecl p') (← mkPolyDecl c'.p) eagerReflBoolTrue h₁ h₂
   | .mul a? cs =>
@@ -529,7 +529,7 @@ private partial def DvdCnstr.toExprProof (c' : DvdCnstr) : ProofM Expr := cachin
       (← s.toExprProof) eagerReflBoolTrue
   | .reorder c => withPrevEpoch <| c.toExprProof
   | .commRingNorm c e p =>
-    let h := mkApp4 (mkConst ``Grind.CommRing.norm_int) (← getRingContext) (← mkRingExprDecl e) (← mkRingPolyDecl p) eagerReflBoolTrue
+    let h := mkApp4 (mkConst ``Grind.CommRing.norm_int_k) (← getRingContext) (← mkRingExprDecl e) (← mkRingPolyDecl p) eagerReflBoolTrue
     return mkApp6 (mkConst ``Int.Internal.Linear.dvd_norm_poly) (← getContext) (toExpr c.d) (← mkPolyDecl c.p) (← mkPolyDecl c'.p) h (← c.toExprProof)
 
 private partial def LeCnstr.toExprProof (c' : LeCnstr) : ProofM Expr := caching c' <| hoisting c' c'.depth? c'.p (mkIntLE · (mkIntLit 0)) do
@@ -613,7 +613,7 @@ private partial def LeCnstr.toExprProof (c' : LeCnstr) : ProofM Expr := caching 
         (← getContext) (← mkPolyDecl p₁) (← mkPolyDecl p₂) (← mkPolyDecl c₃.p) (toExpr c₃.d) (toExpr s.k) (toExpr coeff) (← mkPolyDecl c'.p) (← s.toExprProof) eagerReflBoolTrue
   | .reorder c => withPrevEpoch <| c.toExprProof
   | .commRingNorm c e p =>
-    let h := mkApp4 (mkConst ``Grind.CommRing.norm_int) (← getRingContext) (← mkRingExprDecl e) (← mkRingPolyDecl p) eagerReflBoolTrue
+    let h := mkApp4 (mkConst ``Grind.CommRing.norm_int_k) (← getRingContext) (← mkRingExprDecl e) (← mkRingPolyDecl p) eagerReflBoolTrue
     return mkApp5 (mkConst ``Int.Internal.Linear.le_norm_poly) (← getContext) (← mkPolyDecl c.p) (← mkPolyDecl c'.p) h (← c.toExprProof)
 
 private partial def DiseqCnstr.toExprProof (c' : DiseqCnstr) : ProofM Expr := caching c' <| hoisting c' c'.depth? c'.p (fun e => mkNot (mkIntEq e (mkIntLit 0))) do
@@ -639,7 +639,7 @@ private partial def DiseqCnstr.toExprProof (c' : DiseqCnstr) : ProofM Expr := ca
       eagerReflBoolTrue (← c₁.toExprProof) (← c₂.toExprProof)
   | .reorder c => withPrevEpoch <| c.toExprProof
   | .commRingNorm c e p =>
-    let h := mkApp4 (mkConst ``Grind.CommRing.norm_int) (← getRingContext) (← mkRingExprDecl e) (← mkRingPolyDecl p) eagerReflBoolTrue
+    let h := mkApp4 (mkConst ``Grind.CommRing.norm_int_k) (← getRingContext) (← mkRingExprDecl e) (← mkRingPolyDecl p) eagerReflBoolTrue
     return mkApp5 (mkConst ``Int.Internal.Linear.diseq_norm_poly) (← getContext) (← mkPolyDecl c.p) (← mkPolyDecl c'.p) h (← c.toExprProof)
 
 private partial def CooperSplit.toExprProof (s : CooperSplit) : ProofM Expr := caching s do

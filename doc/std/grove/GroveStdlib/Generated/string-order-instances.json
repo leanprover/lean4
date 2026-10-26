@@ -698,427 +698,659 @@
       ]
     },
     {
-      "rowValue": "String",
       "columnValue": "BEq",
       "layerIdentifier": "()",
+      "rowValue": "String",
       "selectedCellOptions": [
         "{\"typeName\": \"String\", \"parameterClassNames\": [], \"className\": \"BEq\"}"
       ]
     },
     {
-      "rowValue": "String",
       "columnValue": "LE",
       "layerIdentifier": "()",
+      "rowValue": "String",
       "selectedCellOptions": [
         "{\"typeName\": \"String\", \"parameterClassNames\": [], \"className\": \"LE\"}"
       ]
     },
     {
-      "rowValue": "String",
       "columnValue": "LT",
       "layerIdentifier": "()",
+      "rowValue": "String",
       "selectedCellOptions": [
         "{\"typeName\": \"String\", \"parameterClassNames\": [], \"className\": \"LT\"}"
       ]
     },
     {
-      "rowValue": "String",
       "columnValue": "Ord",
       "layerIdentifier": "()",
+      "rowValue": "String",
       "selectedCellOptions": [
         "{\"typeName\": \"String\", \"parameterClassNames\": [], \"className\": \"Ord\"}"
       ]
     },
     {
-      "rowValue": "String",
       "columnValue": "Min",
       "layerIdentifier": "()",
+      "rowValue": "String",
       "selectedCellOptions": [
         "{\"typeName\": \"String\", \"parameterClassNames\": [], \"className\": \"Min\"}"
       ]
     },
     {
-      "rowValue": "String",
       "columnValue": "Max",
       "layerIdentifier": "()",
+      "rowValue": "String",
       "selectedCellOptions": [
         "{\"typeName\": \"String\", \"parameterClassNames\": [], \"className\": \"Max\"}"
       ]
     },
     {
-      "rowValue": "String",
       "columnValue": "DecidableEq",
       "layerIdentifier": "()",
+      "rowValue": "String",
       "selectedCellOptions": [
         "{\"typeName\": \"String\", \"parameterClassNames\": [], \"className\": \"DecidableEq\"}"
       ]
     },
     {
-      "rowValue": "String",
       "columnValue": "DecidableLE",
       "layerIdentifier": "()",
+      "rowValue": "String",
       "selectedCellOptions": [
         "{\"typeName\": \"String\", \"parameterClassNames\": [], \"className\": \"DecidableLE\"}"
       ]
     },
     {
-      "rowValue": "String",
       "columnValue": "DecidableLT",
       "layerIdentifier": "()",
+      "rowValue": "String",
       "selectedCellOptions": [
         "{\"typeName\": \"String\", \"parameterClassNames\": [], \"className\": \"DecidableLT\"}"
       ]
     },
     {
-      "rowValue": "String",
       "columnValue": "Std.IsPreorder",
       "layerIdentifier": "()",
+      "rowValue": "String",
       "selectedCellOptions": [
         "{\"typeName\": \"String\", \"parameterClassNames\": [], \"className\": \"Std.IsPreorder\"}"
       ]
     },
     {
-      "rowValue": "String",
       "columnValue": "Std.IsPartialOrder",
       "layerIdentifier": "()",
+      "rowValue": "String",
       "selectedCellOptions": [
         "{\"typeName\": \"String\",\n \"parameterClassNames\": [],\n \"className\": \"Std.IsPartialOrder\"}"
       ]
     },
     {
-      "rowValue": "String",
       "columnValue": "Std.IsLinearPreorder",
       "layerIdentifier": "()",
+      "rowValue": "String",
       "selectedCellOptions": [
         "{\"typeName\": \"String\",\n \"parameterClassNames\": [],\n \"className\": \"Std.IsLinearPreorder\"}"
       ]
     },
     {
-      "rowValue": "String",
       "columnValue": "Std.IsLinearOrder",
       "layerIdentifier": "()",
+      "rowValue": "String",
       "selectedCellOptions": [
         "{\"typeName\": \"String\",\n \"parameterClassNames\": [],\n \"className\": \"Std.IsLinearOrder\"}"
       ]
     },
     {
-      "rowValue": "String",
       "columnValue": "Std.LawfulOrderLT",
       "layerIdentifier": "()",
+      "rowValue": "String",
       "selectedCellOptions": [
         "{\"typeName\": \"String\",\n \"parameterClassNames\": [],\n \"className\": \"Std.LawfulOrderLT\"}"
       ]
     },
     {
-      "rowValue": "String",
       "columnValue": "Std.LawfulOrderBEq",
       "layerIdentifier": "()",
+      "rowValue": "String",
       "selectedCellOptions": [
         "{\"typeName\": \"String\",\n \"parameterClassNames\": [],\n \"className\": \"Std.LawfulOrderBEq\"}"
       ]
     },
     {
-      "rowValue": "String",
       "columnValue": "Std.LawfulOrderOrd",
       "layerIdentifier": "()",
+      "rowValue": "String",
       "selectedCellOptions": [
         "{\"typeName\": \"String\",\n \"parameterClassNames\": [],\n \"className\": \"Std.LawfulOrderOrd\"}"
       ]
     },
     {
-      "rowValue": "String",
       "columnValue": "Std.LawfulOrderMin",
       "layerIdentifier": "()",
+      "rowValue": "String",
       "selectedCellOptions": [
         "{\"typeName\": \"String\",\n \"parameterClassNames\": [],\n \"className\": \"Std.LawfulOrderMin\"}"
       ]
     },
     {
-      "rowValue": "String",
       "columnValue": "Std.LawfulOrderInf",
       "layerIdentifier": "()",
+      "rowValue": "String",
       "selectedCellOptions": [
         "{\"typeName\": \"String\",\n \"parameterClassNames\": [],\n \"className\": \"Std.LawfulOrderInf\"}"
       ]
     },
     {
-      "rowValue": "String",
       "columnValue": "Std.LawfulOrderLeftLeaningMin",
       "layerIdentifier": "()",
+      "rowValue": "String",
       "selectedCellOptions": [
         "{\"typeName\": \"String\",\n \"parameterClassNames\": [],\n \"className\": \"Std.LawfulOrderLeftLeaningMin\"}"
       ]
     },
     {
-      "rowValue": "String",
       "columnValue": "Std.LawfulOrderMax",
       "layerIdentifier": "()",
+      "rowValue": "String",
       "selectedCellOptions": [
         "{\"typeName\": \"String\",\n \"parameterClassNames\": [],\n \"className\": \"Std.LawfulOrderMax\"}"
       ]
     },
     {
-      "rowValue": "String",
       "columnValue": "Std.LawfulOrderSup",
       "layerIdentifier": "()",
+      "rowValue": "String",
       "selectedCellOptions": [
         "{\"typeName\": \"String\",\n \"parameterClassNames\": [],\n \"className\": \"Std.LawfulOrderSup\"}"
       ]
     },
     {
-      "rowValue": "String",
       "columnValue": "Std.LawfulOrderLeftLeaningMax",
       "layerIdentifier": "()",
+      "rowValue": "String",
       "selectedCellOptions": [
         "{\"typeName\": \"String\",\n \"parameterClassNames\": [],\n \"className\": \"Std.LawfulOrderLeftLeaningMax\"}"
       ]
     },
     {
-      "rowValue": "String",
       "columnValue": "Std.ReflOrd",
       "layerIdentifier": "()",
+      "rowValue": "String",
       "selectedCellOptions": [
         "{\"typeName\": \"String\", \"parameterClassNames\": [], \"className\": \"Std.ReflOrd\"}"
       ]
     },
     {
-      "rowValue": "String",
       "columnValue": "Std.OrientedOrd",
       "layerIdentifier": "()",
+      "rowValue": "String",
       "selectedCellOptions": [
         "{\"typeName\": \"String\",\n \"parameterClassNames\": [],\n \"className\": \"Std.OrientedOrd\"}"
       ]
     },
     {
-      "rowValue": "String",
       "columnValue": "Std.TransOrd",
       "layerIdentifier": "()",
+      "rowValue": "String",
       "selectedCellOptions": [
         "{\"typeName\": \"String\", \"parameterClassNames\": [], \"className\": \"Std.TransOrd\"}"
       ]
     },
     {
-      "rowValue": "String",
       "columnValue": "Std.LawfulEqOrd",
       "layerIdentifier": "()",
+      "rowValue": "String",
       "selectedCellOptions": [
         "{\"typeName\": \"String\",\n \"parameterClassNames\": [],\n \"className\": \"Std.LawfulEqOrd\"}"
       ]
     },
     {
-      "rowValue": "String",
       "columnValue": "Std.LawfulBEqOrd",
       "layerIdentifier": "()",
+      "rowValue": "String",
       "selectedCellOptions": [
         "{\"typeName\": \"String\",\n \"parameterClassNames\": [],\n \"className\": \"Std.LawfulBEqOrd\"}"
       ]
     },
     {
-      "rowValue": "String",
       "columnValue": "EquivBEq",
       "layerIdentifier": "()",
+      "rowValue": "String",
       "selectedCellOptions": [
         "{\"typeName\": \"String\", \"parameterClassNames\": [], \"className\": \"EquivBEq\"}"
       ]
     },
     {
-      "rowValue": "String",
       "columnValue": "LawfulBEq",
       "layerIdentifier": "()",
+      "rowValue": "String",
       "selectedCellOptions": [
         "{\"typeName\": \"String\", \"parameterClassNames\": [], \"className\": \"LawfulBEq\"}"
       ]
     },
     {
-      "rowValue": "String.Slice",
       "columnValue": "BEq",
       "layerIdentifier": "()",
+      "rowValue": "String.Slice",
       "selectedCellOptions": [
         "{\"typeName\": \"String.Slice\", \"parameterClassNames\": [], \"className\": \"BEq\"}"
       ]
     },
     {
-      "rowValue": "String.Slice",
       "columnValue": "LE",
       "layerIdentifier": "()",
+      "rowValue": "String.Slice",
       "selectedCellOptions": [
         "{\"typeName\": \"String.Slice\", \"parameterClassNames\": [], \"className\": \"LE\"}"
       ]
     },
     {
-      "rowValue": "String.Slice",
       "columnValue": "LT",
       "layerIdentifier": "()",
+      "rowValue": "String.Slice",
       "selectedCellOptions": [
         "{\"typeName\": \"String.Slice\", \"parameterClassNames\": [], \"className\": \"LT\"}"
       ]
     },
     {
-      "rowValue": "String.Slice",
       "columnValue": "Ord",
       "layerIdentifier": "()",
+      "rowValue": "String.Slice",
       "selectedCellOptions": [
         "{\"typeName\": \"String.Slice\", \"parameterClassNames\": [], \"className\": \"Ord\"}"
       ]
     },
     {
-      "rowValue": "String.Slice",
       "columnValue": "Min",
       "layerIdentifier": "()",
+      "rowValue": "String.Slice",
       "selectedCellOptions": [
         "{\"typeName\": \"String.Slice\", \"parameterClassNames\": [], \"className\": \"Min\"}"
       ]
     },
     {
-      "rowValue": "String.Slice",
       "columnValue": "Max",
       "layerIdentifier": "()",
+      "rowValue": "String.Slice",
       "selectedCellOptions": [
         "{\"typeName\": \"String.Slice\", \"parameterClassNames\": [], \"className\": \"Max\"}"
       ]
     },
     {
-      "rowValue": "String.Slice",
       "columnValue": "DecidableLE",
       "layerIdentifier": "()",
+      "rowValue": "String.Slice",
       "selectedCellOptions": [
         "{\"typeName\": \"String.Slice\",\n \"parameterClassNames\": [],\n \"className\": \"DecidableLE\"}"
       ]
     },
     {
-      "rowValue": "String.Slice",
       "columnValue": "DecidableLT",
       "layerIdentifier": "()",
+      "rowValue": "String.Slice",
       "selectedCellOptions": [
         "{\"typeName\": \"String.Slice\",\n \"parameterClassNames\": [],\n \"className\": \"DecidableLT\"}"
       ]
     },
     {
-      "rowValue": "String.Slice",
       "columnValue": "Std.IsPreorder",
       "layerIdentifier": "()",
+      "rowValue": "String.Slice",
       "selectedCellOptions": [
         "{\"typeName\": \"String.Slice\",\n \"parameterClassNames\": [],\n \"className\": \"Std.IsPreorder\"}"
       ]
     },
     {
-      "rowValue": "String.Slice",
       "columnValue": "Std.IsLinearPreorder",
       "layerIdentifier": "()",
+      "rowValue": "String.Slice",
       "selectedCellOptions": [
         "{\"typeName\": \"String.Slice\",\n \"parameterClassNames\": [],\n \"className\": \"Std.IsLinearPreorder\"}"
       ]
     },
     {
-      "rowValue": "String.Slice",
       "columnValue": "Std.LawfulOrderLT",
       "layerIdentifier": "()",
+      "rowValue": "String.Slice",
       "selectedCellOptions": [
         "{\"typeName\": \"String.Slice\",\n \"parameterClassNames\": [],\n \"className\": \"Std.LawfulOrderLT\"}"
       ]
     },
     {
-      "rowValue": "String.Slice",
       "columnValue": "Std.LawfulOrderBEq",
       "layerIdentifier": "()",
+      "rowValue": "String.Slice",
       "selectedCellOptions": [
         "{\"typeName\": \"String.Slice\",\n \"parameterClassNames\": [],\n \"className\": \"Std.LawfulOrderBEq\"}"
       ]
     },
     {
-      "rowValue": "String.Slice",
       "columnValue": "Std.LawfulOrderOrd",
       "layerIdentifier": "()",
+      "rowValue": "String.Slice",
       "selectedCellOptions": [
         "{\"typeName\": \"String.Slice\",\n \"parameterClassNames\": [],\n \"className\": \"Std.LawfulOrderOrd\"}"
       ]
     },
     {
-      "rowValue": "String.Slice",
       "columnValue": "Std.LawfulOrderMin",
       "layerIdentifier": "()",
+      "rowValue": "String.Slice",
       "selectedCellOptions": [
         "{\"typeName\": \"String.Slice\",\n \"parameterClassNames\": [],\n \"className\": \"Std.LawfulOrderMin\"}"
       ]
     },
     {
-      "rowValue": "String.Slice",
       "columnValue": "Std.LawfulOrderInf",
       "layerIdentifier": "()",
+      "rowValue": "String.Slice",
       "selectedCellOptions": [
         "{\"typeName\": \"String.Slice\",\n \"parameterClassNames\": [],\n \"className\": \"Std.LawfulOrderInf\"}"
       ]
     },
     {
-      "rowValue": "String.Slice",
       "columnValue": "Std.LawfulOrderLeftLeaningMin",
       "layerIdentifier": "()",
+      "rowValue": "String.Slice",
       "selectedCellOptions": [
         "{\"typeName\": \"String.Slice\",\n \"parameterClassNames\": [],\n \"className\": \"Std.LawfulOrderLeftLeaningMin\"}"
       ]
     },
     {
-      "rowValue": "String.Slice",
       "columnValue": "Std.LawfulOrderMax",
       "layerIdentifier": "()",
+      "rowValue": "String.Slice",
       "selectedCellOptions": [
         "{\"typeName\": \"String.Slice\",\n \"parameterClassNames\": [],\n \"className\": \"Std.LawfulOrderMax\"}"
       ]
     },
     {
-      "rowValue": "String.Slice",
       "columnValue": "Std.LawfulOrderSup",
       "layerIdentifier": "()",
+      "rowValue": "String.Slice",
       "selectedCellOptions": [
         "{\"typeName\": \"String.Slice\",\n \"parameterClassNames\": [],\n \"className\": \"Std.LawfulOrderSup\"}"
       ]
     },
     {
-      "rowValue": "String.Slice",
       "columnValue": "Std.LawfulOrderLeftLeaningMax",
       "layerIdentifier": "()",
+      "rowValue": "String.Slice",
       "selectedCellOptions": [
         "{\"typeName\": \"String.Slice\",\n \"parameterClassNames\": [],\n \"className\": \"Std.LawfulOrderLeftLeaningMax\"}"
       ]
     },
     {
-      "rowValue": "String.Slice",
       "columnValue": "Std.ReflOrd",
       "layerIdentifier": "()",
+      "rowValue": "String.Slice",
       "selectedCellOptions": [
         "{\"typeName\": \"String.Slice\",\n \"parameterClassNames\": [],\n \"className\": \"Std.ReflOrd\"}"
       ]
     },
     {
-      "rowValue": "String.Slice",
       "columnValue": "Std.OrientedOrd",
       "layerIdentifier": "()",
+      "rowValue": "String.Slice",
       "selectedCellOptions": [
         "{\"typeName\": \"String.Slice\",\n \"parameterClassNames\": [],\n \"className\": \"Std.OrientedOrd\"}"
       ]
     },
     {
-      "rowValue": "String.Slice",
       "columnValue": "Std.TransOrd",
       "layerIdentifier": "()",
+      "rowValue": "String.Slice",
       "selectedCellOptions": [
         "{\"typeName\": \"String.Slice\",\n \"parameterClassNames\": [],\n \"className\": \"Std.TransOrd\"}"
       ]
     },
     {
-      "rowValue": "String.Slice",
       "columnValue": "Std.LawfulBEqOrd",
       "layerIdentifier": "()",
+      "rowValue": "String.Slice",
       "selectedCellOptions": [
         "{\"typeName\": \"String.Slice\",\n \"parameterClassNames\": [],\n \"className\": \"Std.LawfulBEqOrd\"}"
       ]
     },
     {
+      "columnValue": "EquivBEq",
+      "layerIdentifier": "()",
       "rowValue": "String.Slice",
+      "selectedCellOptions": [
+        "{\"typeName\": \"String.Slice\", \"parameterClassNames\": [], \"className\": \"EquivBEq\"}"
+      ]
+    },
+    {
+      "rowValue": "Char",
+      "columnValue": "BEq",
+      "layerIdentifier": "()",
+      "selectedCellOptions": [
+        "{\"typeName\": \"Char\", \"parameterClassNames\": [], \"className\": \"BEq\"}"
+      ]
+    },
+    {
+      "rowValue": "Char",
+      "columnValue": "LE",
+      "layerIdentifier": "()",
+      "selectedCellOptions": [
+        "{\"typeName\": \"Char\", \"parameterClassNames\": [], \"className\": \"LE\"}"
+      ]
+    },
+    {
+      "rowValue": "Char",
+      "columnValue": "LT",
+      "layerIdentifier": "()",
+      "selectedCellOptions": [
+        "{\"typeName\": \"Char\", \"parameterClassNames\": [], \"className\": \"LT\"}"
+      ]
+    },
+    {
+      "rowValue": "Char",
+      "columnValue": "Ord",
+      "layerIdentifier": "()",
+      "selectedCellOptions": [
+        "{\"typeName\": \"Char\", \"parameterClassNames\": [], \"className\": \"Ord\"}"
+      ]
+    },
+    {
+      "rowValue": "Char",
+      "columnValue": "Min",
+      "layerIdentifier": "()",
+      "selectedCellOptions": [
+        "{\"typeName\": \"Char\", \"parameterClassNames\": [], \"className\": \"Min\"}"
+      ]
+    },
+    {
+      "rowValue": "Char",
+      "columnValue": "Max",
+      "layerIdentifier": "()",
+      "selectedCellOptions": [
+        "{\"typeName\": \"Char\", \"parameterClassNames\": [], \"className\": \"Max\"}"
+      ]
+    },
+    {
+      "rowValue": "Char",
+      "columnValue": "DecidableEq",
+      "layerIdentifier": "()",
+      "selectedCellOptions": [
+        "{\"typeName\": \"Char\", \"parameterClassNames\": [], \"className\": \"DecidableEq\"}"
+      ]
+    },
+    {
+      "rowValue": "Char",
+      "columnValue": "DecidableLE",
+      "layerIdentifier": "()",
+      "selectedCellOptions": [
+        "{\"typeName\": \"Char\", \"parameterClassNames\": [], \"className\": \"DecidableLE\"}"
+      ]
+    },
+    {
+      "rowValue": "Char",
+      "columnValue": "DecidableLT",
+      "layerIdentifier": "()",
+      "selectedCellOptions": [
+        "{\"typeName\": \"Char\", \"parameterClassNames\": [], \"className\": \"DecidableLT\"}"
+      ]
+    },
+    {
+      "rowValue": "Char",
+      "columnValue": "Std.IsPreorder",
+      "layerIdentifier": "()",
+      "selectedCellOptions": [
+        "{\"typeName\": \"Char\", \"parameterClassNames\": [], \"className\": \"Std.IsPreorder\"}"
+      ]
+    },
+    {
+      "rowValue": "Char",
+      "columnValue": "Std.IsPartialOrder",
+      "layerIdentifier": "()",
+      "selectedCellOptions": [
+        "{\"typeName\": \"Char\",\n \"parameterClassNames\": [],\n \"className\": \"Std.IsPartialOrder\"}"
+      ]
+    },
+    {
+      "rowValue": "Char",
+      "columnValue": "Std.IsLinearPreorder",
+      "layerIdentifier": "()",
+      "selectedCellOptions": [
+        "{\"typeName\": \"Char\",\n \"parameterClassNames\": [],\n \"className\": \"Std.IsLinearPreorder\"}"
+      ]
+    },
+    {
+      "rowValue": "Char",
+      "columnValue": "Std.IsLinearOrder",
+      "layerIdentifier": "()",
+      "selectedCellOptions": [
+        "{\"typeName\": \"Char\",\n \"parameterClassNames\": [],\n \"className\": \"Std.IsLinearOrder\"}"
+      ]
+    },
+    {
+      "rowValue": "Char",
+      "columnValue": "Std.LawfulOrderLT",
+      "layerIdentifier": "()",
+      "selectedCellOptions": [
+        "{\"typeName\": \"Char\",\n \"parameterClassNames\": [],\n \"className\": \"Std.LawfulOrderLT\"}"
+      ]
+    },
+    {
+      "rowValue": "Char",
+      "columnValue": "Std.LawfulOrderBEq",
+      "layerIdentifier": "()",
+      "selectedCellOptions": [
+        "{\"typeName\": \"Char\",\n \"parameterClassNames\": [],\n \"className\": \"Std.LawfulOrderBEq\"}"
+      ]
+    },
+    {
+      "rowValue": "Char",
+      "columnValue": "Std.LawfulOrderOrd",
+      "layerIdentifier": "()",
+      "selectedCellOptions": [
+        "{\"typeName\": \"Char\",\n \"parameterClassNames\": [],\n \"className\": \"Std.LawfulOrderOrd\"}"
+      ]
+    },
+    {
+      "rowValue": "Char",
+      "columnValue": "Std.LawfulOrderMin",
+      "layerIdentifier": "()",
+      "selectedCellOptions": [
+        "{\"typeName\": \"Char\",\n \"parameterClassNames\": [],\n \"className\": \"Std.LawfulOrderMin\"}"
+      ]
+    },
+    {
+      "rowValue": "Char",
+      "columnValue": "Std.LawfulOrderInf",
+      "layerIdentifier": "()",
+      "selectedCellOptions": [
+        "{\"typeName\": \"Char\",\n \"parameterClassNames\": [],\n \"className\": \"Std.LawfulOrderInf\"}"
+      ]
+    },
+    {
+      "rowValue": "Char",
+      "columnValue": "Std.LawfulOrderLeftLeaningMin",
+      "layerIdentifier": "()",
+      "selectedCellOptions": [
+        "{\"typeName\": \"Char\",\n \"parameterClassNames\": [],\n \"className\": \"Std.LawfulOrderLeftLeaningMin\"}"
+      ]
+    },
+    {
+      "rowValue": "Char",
+      "columnValue": "Std.LawfulOrderMax",
+      "layerIdentifier": "()",
+      "selectedCellOptions": [
+        "{\"typeName\": \"Char\",\n \"parameterClassNames\": [],\n \"className\": \"Std.LawfulOrderMax\"}"
+      ]
+    },
+    {
+      "rowValue": "Char",
+      "columnValue": "Std.LawfulOrderSup",
+      "layerIdentifier": "()",
+      "selectedCellOptions": [
+        "{\"typeName\": \"Char\",\n \"parameterClassNames\": [],\n \"className\": \"Std.LawfulOrderSup\"}"
+      ]
+    },
+    {
+      "rowValue": "Char",
+      "columnValue": "Std.LawfulOrderLeftLeaningMax",
+      "layerIdentifier": "()",
+      "selectedCellOptions": [
+        "{\"typeName\": \"Char\",\n \"parameterClassNames\": [],\n \"className\": \"Std.LawfulOrderLeftLeaningMax\"}"
+      ]
+    },
+    {
+      "rowValue": "Char",
+      "columnValue": "Std.ReflOrd",
+      "layerIdentifier": "()",
+      "selectedCellOptions": [
+        "{\"typeName\": \"Char\", \"parameterClassNames\": [], \"className\": \"Std.ReflOrd\"}"
+      ]
+    },
+    {
+      "rowValue": "Char",
+      "columnValue": "Std.OrientedOrd",
+      "layerIdentifier": "()",
+      "selectedCellOptions": [
+        "{\"typeName\": \"Char\", \"parameterClassNames\": [], \"className\": \"Std.OrientedOrd\"}"
+      ]
+    },
+    {
+      "rowValue": "Char",
+      "columnValue": "Std.TransOrd",
+      "layerIdentifier": "()",
+      "selectedCellOptions": [
+        "{\"typeName\": \"Char\", \"parameterClassNames\": [], \"className\": \"Std.TransOrd\"}"
+      ]
+    },
+    {
+      "rowValue": "Char",
+      "columnValue": "Std.LawfulEqOrd",
+      "layerIdentifier": "()",
+      "selectedCellOptions": [
+        "{\"typeName\": \"Char\", \"parameterClassNames\": [], \"className\": \"Std.LawfulEqOrd\"}"
+      ]
+    },
+    {
+      "rowValue": "Char",
+      "columnValue": "Std.LawfulBEqOrd",
+      "layerIdentifier": "()",
+      "selectedCellOptions": [
+        "{\"typeName\": \"Char\", \"parameterClassNames\": [], \"className\": \"Std.LawfulBEqOrd\"}"
+      ]
+    },
+    {
+      "rowValue": "Char",
       "columnValue": "EquivBEq",
       "layerIdentifier": "()",
       "selectedCellOptions": [
-        "{\"typeName\": \"String.Slice\", \"parameterClassNames\": [], \"className\": \"EquivBEq\"}"
+        "{\"typeName\": \"Char\", \"parameterClassNames\": [], \"className\": \"EquivBEq\"}"
+      ]
+    },
+    {
+      "rowValue": "Char",
+      "columnValue": "LawfulBEq",
+      "layerIdentifier": "()",
+      "selectedCellOptions": [
+        "{\"typeName\": \"Char\", \"parameterClassNames\": [], \"className\": \"LawfulBEq\"}"
       ]
     }
   ],
@@ -1157,6 +1389,7 @@
     "()"
   ],
   "selectedRowAssociations": [
+    "Char",
     "String",
     "String.Slice",
     "String.Pos",
@@ -5691,8 +5924,8 @@
     {
       "widgetId": "string-order-instances",
       "factId": "String:::BEq:::()",
-      "rowAssociationId": "String",
       "columnAssociationId": "BEq",
+      "rowAssociationId": "String",
       "selectedLayers": [
         "()"
       ],
@@ -5736,15 +5969,15 @@
         }
       ],
       "metadata": {
-        "status": "done",
-        "comment": ""
+        "comment": "",
+        "status": "done"
       }
     },
     {
       "widgetId": "string-order-instances",
       "factId": "String:::LE:::()",
-      "rowAssociationId": "String",
       "columnAssociationId": "LE",
+      "rowAssociationId": "String",
       "selectedLayers": [
         "()"
       ],
@@ -5788,15 +6021,15 @@
         }
       ],
       "metadata": {
-        "status": "done",
-        "comment": ""
+        "comment": "",
+        "status": "done"
       }
     },
     {
       "widgetId": "string-order-instances",
       "factId": "String:::LT:::()",
-      "rowAssociationId": "String",
       "columnAssociationId": "LT",
+      "rowAssociationId": "String",
       "selectedLayers": [
         "()"
       ],
@@ -5840,15 +6073,15 @@
         }
       ],
       "metadata": {
-        "status": "done",
-        "comment": ""
+        "comment": "",
+        "status": "done"
       }
     },
     {
       "widgetId": "string-order-instances",
       "factId": "String:::Ord:::()",
-      "rowAssociationId": "String",
       "columnAssociationId": "Ord",
+      "rowAssociationId": "String",
       "selectedLayers": [
         "()"
       ],
@@ -5892,15 +6125,15 @@
         }
       ],
       "metadata": {
-        "status": "done",
-        "comment": ""
+        "comment": "",
+        "status": "done"
       }
     },
     {
       "widgetId": "string-order-instances",
       "factId": "String:::Min:::()",
-      "rowAssociationId": "String",
       "columnAssociationId": "Min",
+      "rowAssociationId": "String",
       "selectedLayers": [
         "()"
       ],
@@ -5944,15 +6177,15 @@
         }
       ],
       "metadata": {
-        "status": "done",
-        "comment": ""
+        "comment": "",
+        "status": "done"
       }
     },
     {
       "widgetId": "string-order-instances",
       "factId": "String:::Max:::()",
-      "rowAssociationId": "String",
       "columnAssociationId": "Max",
+      "rowAssociationId": "String",
       "selectedLayers": [
         "()"
       ],
@@ -5996,15 +6229,15 @@
         }
       ],
       "metadata": {
-        "status": "done",
-        "comment": ""
+        "comment": "",
+        "status": "done"
       }
     },
     {
       "widgetId": "string-order-instances",
       "factId": "String:::DecidableEq:::()",
-      "rowAssociationId": "String",
       "columnAssociationId": "DecidableEq",
+      "rowAssociationId": "String",
       "selectedLayers": [
         "()"
       ],
@@ -6048,15 +6281,15 @@
         }
       ],
       "metadata": {
-        "status": "done",
-        "comment": ""
+        "comment": "",
+        "status": "done"
       }
     },
     {
       "widgetId": "string-order-instances",
       "factId": "String:::DecidableLE:::()",
-      "rowAssociationId": "String",
       "columnAssociationId": "DecidableLE",
+      "rowAssociationId": "String",
       "selectedLayers": [
         "()"
       ],
@@ -6100,15 +6333,15 @@
         }
       ],
       "metadata": {
-        "status": "done",
-        "comment": ""
+        "comment": "",
+        "status": "done"
       }
     },
     {
       "widgetId": "string-order-instances",
       "factId": "String:::DecidableLT:::()",
-      "rowAssociationId": "String",
       "columnAssociationId": "DecidableLT",
+      "rowAssociationId": "String",
       "selectedLayers": [
         "()"
       ],
@@ -6152,15 +6385,15 @@
         }
       ],
       "metadata": {
-        "status": "done",
-        "comment": ""
+        "comment": "",
+        "status": "done"
       }
     },
     {
       "widgetId": "string-order-instances",
       "factId": "String:::Std.IsPreorder:::()",
-      "rowAssociationId": "String",
       "columnAssociationId": "Std.IsPreorder",
+      "rowAssociationId": "String",
       "selectedLayers": [
         "()"
       ],
@@ -6204,15 +6437,15 @@
         }
       ],
       "metadata": {
-        "status": "done",
-        "comment": ""
+        "comment": "",
+        "status": "done"
       }
     },
     {
       "widgetId": "string-order-instances",
       "factId": "String:::Std.IsPartialOrder:::()",
-      "rowAssociationId": "String",
       "columnAssociationId": "Std.IsPartialOrder",
+      "rowAssociationId": "String",
       "selectedLayers": [
         "()"
       ],
@@ -6256,15 +6489,15 @@
         }
       ],
       "metadata": {
-        "status": "done",
-        "comment": ""
+        "comment": "",
+        "status": "done"
       }
     },
     {
       "widgetId": "string-order-instances",
       "factId": "String:::Std.IsLinearPreorder:::()",
-      "rowAssociationId": "String",
       "columnAssociationId": "Std.IsLinearPreorder",
+      "rowAssociationId": "String",
       "selectedLayers": [
         "()"
       ],
@@ -6308,15 +6541,15 @@
         }
       ],
       "metadata": {
-        "status": "done",
-        "comment": ""
+        "comment": "",
+        "status": "done"
       }
     },
     {
       "widgetId": "string-order-instances",
       "factId": "String:::Std.IsLinearOrder:::()",
-      "rowAssociationId": "String",
       "columnAssociationId": "Std.IsLinearOrder",
+      "rowAssociationId": "String",
       "selectedLayers": [
         "()"
       ],
@@ -6360,15 +6593,15 @@
         }
       ],
       "metadata": {
-        "status": "done",
-        "comment": ""
+        "comment": "",
+        "status": "done"
       }
     },
     {
       "widgetId": "string-order-instances",
       "factId": "String:::Std.LawfulOrderLT:::()",
-      "rowAssociationId": "String",
       "columnAssociationId": "Std.LawfulOrderLT",
+      "rowAssociationId": "String",
       "selectedLayers": [
         "()"
       ],
@@ -6412,15 +6645,15 @@
         }
       ],
       "metadata": {
-        "status": "done",
-        "comment": ""
+        "comment": "",
+        "status": "done"
       }
     },
     {
       "widgetId": "string-order-instances",
       "factId": "String:::Std.LawfulOrderBEq:::()",
-      "rowAssociationId": "String",
       "columnAssociationId": "Std.LawfulOrderBEq",
+      "rowAssociationId": "String",
       "selectedLayers": [
         "()"
       ],
@@ -6464,15 +6697,15 @@
         }
       ],
       "metadata": {
-        "status": "done",
-        "comment": ""
+        "comment": "",
+        "status": "done"
       }
     },
     {
       "widgetId": "string-order-instances",
       "factId": "String:::Std.LawfulOrderOrd:::()",
-      "rowAssociationId": "String",
       "columnAssociationId": "Std.LawfulOrderOrd",
+      "rowAssociationId": "String",
       "selectedLayers": [
         "()"
       ],
@@ -6516,15 +6749,15 @@
         }
       ],
       "metadata": {
-        "status": "done",
-        "comment": ""
+        "comment": "",
+        "status": "done"
       }
     },
     {
       "widgetId": "string-order-instances",
       "factId": "String:::Std.LawfulOrderMin:::()",
-      "rowAssociationId": "String",
       "columnAssociationId": "Std.LawfulOrderMin",
+      "rowAssociationId": "String",
       "selectedLayers": [
         "()"
       ],
@@ -6568,15 +6801,15 @@
         }
       ],
       "metadata": {
-        "status": "done",
-        "comment": ""
+        "comment": "",
+        "status": "done"
       }
     },
     {
       "widgetId": "string-order-instances",
       "factId": "String:::Std.LawfulOrderInf:::()",
-      "rowAssociationId": "String",
       "columnAssociationId": "Std.LawfulOrderInf",
+      "rowAssociationId": "String",
       "selectedLayers": [
         "()"
       ],
@@ -6620,15 +6853,15 @@
         }
       ],
       "metadata": {
-        "status": "done",
-        "comment": ""
+        "comment": "",
+        "status": "done"
       }
     },
     {
       "widgetId": "string-order-instances",
       "factId": "String:::Std.LawfulOrderLeftLeaningMin:::()",
-      "rowAssociationId": "String",
       "columnAssociationId": "Std.LawfulOrderLeftLeaningMin",
+      "rowAssociationId": "String",
       "selectedLayers": [
         "()"
       ],
@@ -6672,15 +6905,15 @@
         }
       ],
       "metadata": {
-        "status": "done",
-        "comment": ""
+        "comment": "",
+        "status": "done"
       }
     },
     {
       "widgetId": "string-order-instances",
       "factId": "String:::Std.LawfulOrderMax:::()",
-      "rowAssociationId": "String",
       "columnAssociationId": "Std.LawfulOrderMax",
+      "rowAssociationId": "String",
       "selectedLayers": [
         "()"
       ],
@@ -6724,15 +6957,15 @@
         }
       ],
       "metadata": {
-        "status": "done",
-        "comment": ""
+        "comment": "",
+        "status": "done"
       }
     },
     {
       "widgetId": "string-order-instances",
       "factId": "String:::Std.LawfulOrderSup:::()",
-      "rowAssociationId": "String",
       "columnAssociationId": "Std.LawfulOrderSup",
+      "rowAssociationId": "String",
       "selectedLayers": [
         "()"
       ],
@@ -6776,15 +7009,15 @@
         }
       ],
       "metadata": {
-        "status": "done",
-        "comment": ""
+        "comment": "",
+        "status": "done"
       }
     },
     {
       "widgetId": "string-order-instances",
       "factId": "String:::Std.LawfulOrderLeftLeaningMax:::()",
-      "rowAssociationId": "String",
       "columnAssociationId": "Std.LawfulOrderLeftLeaningMax",
+      "rowAssociationId": "String",
       "selectedLayers": [
         "()"
       ],
@@ -6828,15 +7061,15 @@
         }
       ],
       "metadata": {
-        "status": "done",
-        "comment": ""
+        "comment": "",
+        "status": "done"
       }
     },
     {
       "widgetId": "string-order-instances",
       "factId": "String:::Std.ReflOrd:::()",
-      "rowAssociationId": "String",
       "columnAssociationId": "Std.ReflOrd",
+      "rowAssociationId": "String",
       "selectedLayers": [
         "()"
       ],
@@ -6880,15 +7113,15 @@
         }
       ],
       "metadata": {
-        "status": "done",
-        "comment": ""
+        "comment": "",
+        "status": "done"
       }
     },
     {
       "widgetId": "string-order-instances",
       "factId": "String:::Std.OrientedOrd:::()",
-      "rowAssociationId": "String",
       "columnAssociationId": "Std.OrientedOrd",
+      "rowAssociationId": "String",
       "selectedLayers": [
         "()"
       ],
@@ -6932,15 +7165,15 @@
         }
       ],
       "metadata": {
-        "status": "done",
-        "comment": ""
+        "comment": "",
+        "status": "done"
       }
     },
     {
       "widgetId": "string-order-instances",
       "factId": "String:::Std.TransOrd:::()",
-      "rowAssociationId": "String",
       "columnAssociationId": "Std.TransOrd",
+      "rowAssociationId": "String",
       "selectedLayers": [
         "()"
       ],
@@ -6984,15 +7217,15 @@
         }
       ],
       "metadata": {
-        "status": "done",
-        "comment": ""
+        "comment": "",
+        "status": "done"
       }
     },
     {
       "widgetId": "string-order-instances",
       "factId": "String:::Std.LawfulEqOrd:::()",
-      "rowAssociationId": "String",
       "columnAssociationId": "Std.LawfulEqOrd",
+      "rowAssociationId": "String",
       "selectedLayers": [
         "()"
       ],
@@ -7036,15 +7269,15 @@
         }
       ],
       "metadata": {
-        "status": "done",
-        "comment": ""
+        "comment": "",
+        "status": "done"
       }
     },
     {
       "widgetId": "string-order-instances",
       "factId": "String:::Std.LawfulBEqOrd:::()",
-      "rowAssociationId": "String",
       "columnAssociationId": "Std.LawfulBEqOrd",
+      "rowAssociationId": "String",
       "selectedLayers": [
         "()"
       ],
@@ -7088,15 +7321,15 @@
         }
       ],
       "metadata": {
-        "status": "done",
-        "comment": ""
+        "comment": "",
+        "status": "done"
       }
     },
     {
       "widgetId": "string-order-instances",
       "factId": "String:::EquivBEq:::()",
-      "rowAssociationId": "String",
       "columnAssociationId": "EquivBEq",
+      "rowAssociationId": "String",
       "selectedLayers": [
         "()"
       ],
@@ -7140,15 +7373,15 @@
         }
       ],
       "metadata": {
-        "status": "done",
-        "comment": ""
+        "comment": "",
+        "status": "done"
       }
     },
     {
       "widgetId": "string-order-instances",
       "factId": "String:::LawfulBEq:::()",
-      "rowAssociationId": "String",
       "columnAssociationId": "LawfulBEq",
+      "rowAssociationId": "String",
       "selectedLayers": [
         "()"
       ],
@@ -7192,15 +7425,15 @@
         }
       ],
       "metadata": {
-        "status": "done",
-        "comment": ""
+        "comment": "",
+        "status": "done"
       }
     },
     {
       "widgetId": "string-order-instances",
       "factId": "String.Slice:::BEq:::()",
-      "rowAssociationId": "String.Slice",
       "columnAssociationId": "BEq",
+      "rowAssociationId": "String.Slice",
       "selectedLayers": [
         "()"
       ],
@@ -7244,15 +7477,15 @@
         }
       ],
       "metadata": {
-        "status": "done",
-        "comment": ""
+        "comment": "",
+        "status": "done"
       }
     },
     {
       "widgetId": "string-order-instances",
       "factId": "String.Slice:::LE:::()",
-      "rowAssociationId": "String.Slice",
       "columnAssociationId": "LE",
+      "rowAssociationId": "String.Slice",
       "selectedLayers": [
         "()"
       ],
@@ -7296,15 +7529,15 @@
         }
       ],
       "metadata": {
-        "status": "done",
-        "comment": ""
+        "comment": "",
+        "status": "done"
       }
     },
     {
       "widgetId": "string-order-instances",
       "factId": "String.Slice:::LT:::()",
-      "rowAssociationId": "String.Slice",
       "columnAssociationId": "LT",
+      "rowAssociationId": "String.Slice",
       "selectedLayers": [
         "()"
       ],
@@ -7348,15 +7581,15 @@
         }
       ],
       "metadata": {
-        "status": "done",
-        "comment": ""
+        "comment": "",
+        "status": "done"
       }
     },
     {
       "widgetId": "string-order-instances",
       "factId": "String.Slice:::Ord:::()",
-      "rowAssociationId": "String.Slice",
       "columnAssociationId": "Ord",
+      "rowAssociationId": "String.Slice",
       "selectedLayers": [
         "()"
       ],
@@ -7400,15 +7633,15 @@
         }
       ],
       "metadata": {
-        "status": "done",
-        "comment": ""
+        "comment": "",
+        "status": "done"
       }
     },
     {
       "widgetId": "string-order-instances",
       "factId": "String.Slice:::Min:::()",
-      "rowAssociationId": "String.Slice",
       "columnAssociationId": "Min",
+      "rowAssociationId": "String.Slice",
       "selectedLayers": [
         "()"
       ],
@@ -7452,15 +7685,15 @@
         }
       ],
       "metadata": {
-        "status": "done",
-        "comment": ""
+        "comment": "",
+        "status": "done"
       }
     },
     {
       "widgetId": "string-order-instances",
       "factId": "String.Slice:::Max:::()",
-      "rowAssociationId": "String.Slice",
       "columnAssociationId": "Max",
+      "rowAssociationId": "String.Slice",
       "selectedLayers": [
         "()"
       ],
@@ -7504,15 +7737,15 @@
         }
       ],
       "metadata": {
-        "status": "done",
-        "comment": ""
+        "comment": "",
+        "status": "done"
       }
     },
     {
       "widgetId": "string-order-instances",
       "factId": "String.Slice:::DecidableEq:::()",
-      "rowAssociationId": "String.Slice",
       "columnAssociationId": "DecidableEq",
+      "rowAssociationId": "String.Slice",
       "selectedLayers": [
         "()"
       ],
@@ -7545,15 +7778,15 @@
         }
       ],
       "metadata": {
-        "status": "done",
-        "comment": "logical equality makes no sense and would be very expensive to check"
+        "comment": "logical equality makes no sense and would be very expensive to check",
+        "status": "done"
       }
     },
     {
       "widgetId": "string-order-instances",
       "factId": "String.Slice:::DecidableLE:::()",
-      "rowAssociationId": "String.Slice",
       "columnAssociationId": "DecidableLE",
+      "rowAssociationId": "String.Slice",
       "selectedLayers": [
         "()"
       ],
@@ -7597,15 +7830,15 @@
         }
       ],
       "metadata": {
-        "status": "done",
-        "comment": ""
+        "comment": "",
+        "status": "done"
       }
     },
     {
       "widgetId": "string-order-instances",
       "factId": "String.Slice:::DecidableLT:::()",
-      "rowAssociationId": "String.Slice",
       "columnAssociationId": "DecidableLT",
+      "rowAssociationId": "String.Slice",
       "selectedLayers": [
         "()"
       ],
@@ -7649,15 +7882,15 @@
         }
       ],
       "metadata": {
-        "status": "done",
-        "comment": ""
+        "comment": "",
+        "status": "done"
       }
     },
     {
       "widgetId": "string-order-instances",
       "factId": "String.Slice:::Std.IsPreorder:::()",
-      "rowAssociationId": "String.Slice",
       "columnAssociationId": "Std.IsPreorder",
+      "rowAssociationId": "String.Slice",
       "selectedLayers": [
         "()"
       ],
@@ -7701,15 +7934,15 @@
         }
       ],
       "metadata": {
-        "status": "done",
-        "comment": ""
+        "comment": "",
+        "status": "done"
       }
     },
     {
       "widgetId": "string-order-instances",
       "factId": "String.Slice:::Std.IsPartialOrder:::()",
-      "rowAssociationId": "String.Slice",
       "columnAssociationId": "Std.IsPartialOrder",
+      "rowAssociationId": "String.Slice",
       "selectedLayers": [
         "()"
       ],
@@ -7742,15 +7975,15 @@
         }
       ],
       "metadata": {
-        "status": "done",
-        "comment": "not a partial order"
+        "comment": "not a partial order",
+        "status": "done"
       }
     },
     {
       "widgetId": "string-order-instances",
       "factId": "String.Slice:::Std.IsLinearPreorder:::()",
-      "rowAssociationId": "String.Slice",
       "columnAssociationId": "Std.IsLinearPreorder",
+      "rowAssociationId": "String.Slice",
       "selectedLayers": [
         "()"
       ],
@@ -7794,15 +8027,15 @@
         }
       ],
       "metadata": {
-        "status": "done",
-        "comment": ""
+        "comment": "",
+        "status": "done"
       }
     },
     {
       "widgetId": "string-order-instances",
       "factId": "String.Slice:::Std.IsLinearOrder:::()",
-      "rowAssociationId": "String.Slice",
       "columnAssociationId": "Std.IsLinearOrder",
+      "rowAssociationId": "String.Slice",
       "selectedLayers": [
         "()"
       ],
@@ -7835,15 +8068,15 @@
         }
       ],
       "metadata": {
-        "status": "done",
-        "comment": "not a preorder"
+        "comment": "not a preorder",
+        "status": "done"
       }
     },
     {
       "widgetId": "string-order-instances",
       "factId": "String.Slice:::Std.LawfulOrderLT:::()",
-      "rowAssociationId": "String.Slice",
       "columnAssociationId": "Std.LawfulOrderLT",
+      "rowAssociationId": "String.Slice",
       "selectedLayers": [
         "()"
       ],
@@ -7887,15 +8120,15 @@
         }
       ],
       "metadata": {
-        "status": "done",
-        "comment": ""
+        "comment": "",
+        "status": "done"
       }
     },
     {
       "widgetId": "string-order-instances",
       "factId": "String.Slice:::Std.LawfulOrderBEq:::()",
-      "rowAssociationId": "String.Slice",
       "columnAssociationId": "Std.LawfulOrderBEq",
+      "rowAssociationId": "String.Slice",
       "selectedLayers": [
         "()"
       ],
@@ -7939,15 +8172,15 @@
         }
       ],
       "metadata": {
-        "status": "done",
-        "comment": ""
+        "comment": "",
+        "status": "done"
       }
     },
     {
       "widgetId": "string-order-instances",
       "factId": "String.Slice:::Std.LawfulOrderOrd:::()",
-      "rowAssociationId": "String.Slice",
       "columnAssociationId": "Std.LawfulOrderOrd",
+      "rowAssociationId": "String.Slice",
       "selectedLayers": [
         "()"
       ],
@@ -7991,15 +8224,15 @@
         }
       ],
       "metadata": {
-        "status": "done",
-        "comment": ""
+        "comment": "",
+        "status": "done"
       }
     },
     {
       "widgetId": "string-order-instances",
       "factId": "String.Slice:::Std.LawfulOrderMin:::()",
-      "rowAssociationId": "String.Slice",
       "columnAssociationId": "Std.LawfulOrderMin",
+      "rowAssociationId": "String.Slice",
       "selectedLayers": [
         "()"
       ],
@@ -8043,15 +8276,15 @@
         }
       ],
       "metadata": {
-        "status": "done",
-        "comment": ""
+        "comment": "",
+        "status": "done"
       }
     },
     {
       "widgetId": "string-order-instances",
       "factId": "String.Slice:::Std.LawfulOrderInf:::()",
-      "rowAssociationId": "String.Slice",
       "columnAssociationId": "Std.LawfulOrderInf",
+      "rowAssociationId": "String.Slice",
       "selectedLayers": [
         "()"
       ],
@@ -8095,15 +8328,15 @@
         }
       ],
       "metadata": {
-        "status": "done",
-        "comment": ""
+        "comment": "",
+        "status": "done"
       }
     },
     {
       "widgetId": "string-order-instances",
       "factId": "String.Slice:::Std.LawfulOrderLeftLeaningMin:::()",
-      "rowAssociationId": "String.Slice",
       "columnAssociationId": "Std.LawfulOrderLeftLeaningMin",
+      "rowAssociationId": "String.Slice",
       "selectedLayers": [
         "()"
       ],
@@ -8147,15 +8380,15 @@
         }
       ],
       "metadata": {
-        "status": "done",
-        "comment": ""
+        "comment": "",
+        "status": "done"
       }
     },
     {
       "widgetId": "string-order-instances",
       "factId": "String.Slice:::Std.LawfulOrderMax:::()",
-      "rowAssociationId": "String.Slice",
       "columnAssociationId": "Std.LawfulOrderMax",
+      "rowAssociationId": "String.Slice",
       "selectedLayers": [
         "()"
       ],
@@ -8199,15 +8432,15 @@
         }
       ],
       "metadata": {
-        "status": "done",
-        "comment": ""
+        "comment": "",
+        "status": "done"
       }
     },
     {
       "widgetId": "string-order-instances",
       "factId": "String.Slice:::Std.LawfulOrderSup:::()",
-      "rowAssociationId": "String.Slice",
       "columnAssociationId": "Std.LawfulOrderSup",
+      "rowAssociationId": "String.Slice",
       "selectedLayers": [
         "()"
       ],
@@ -8251,15 +8484,15 @@
         }
       ],
       "metadata": {
-        "status": "done",
-        "comment": ""
+        "comment": "",
+        "status": "done"
       }
     },
     {
       "widgetId": "string-order-instances",
       "factId": "String.Slice:::Std.LawfulOrderLeftLeaningMax:::()",
-      "rowAssociationId": "String.Slice",
       "columnAssociationId": "Std.LawfulOrderLeftLeaningMax",
+      "rowAssociationId": "String.Slice",
       "selectedLayers": [
         "()"
       ],
@@ -8303,15 +8536,15 @@
         }
       ],
       "metadata": {
-        "status": "done",
-        "comment": ""
+        "comment": "",
+        "status": "done"
       }
     },
     {
       "widgetId": "string-order-instances",
       "factId": "String.Slice:::Std.ReflOrd:::()",
-      "rowAssociationId": "String.Slice",
       "columnAssociationId": "Std.ReflOrd",
+      "rowAssociationId": "String.Slice",
       "selectedLayers": [
         "()"
       ],
@@ -8355,15 +8588,15 @@
         }
       ],
       "metadata": {
-        "status": "done",
-        "comment": ""
+        "comment": "",
+        "status": "done"
       }
     },
     {
       "widgetId": "string-order-instances",
       "factId": "String.Slice:::Std.OrientedOrd:::()",
-      "rowAssociationId": "String.Slice",
       "columnAssociationId": "Std.OrientedOrd",
+      "rowAssociationId": "String.Slice",
       "selectedLayers": [
         "()"
       ],
@@ -8407,15 +8640,15 @@
         }
       ],
       "metadata": {
-        "status": "done",
-        "comment": ""
+        "comment": "",
+        "status": "done"
       }
     },
     {
       "widgetId": "string-order-instances",
       "factId": "String.Slice:::Std.TransOrd:::()",
-      "rowAssociationId": "String.Slice",
       "columnAssociationId": "Std.TransOrd",
+      "rowAssociationId": "String.Slice",
       "selectedLayers": [
         "()"
       ],
@@ -8459,15 +8692,15 @@
         }
       ],
       "metadata": {
-        "status": "done",
-        "comment": ""
+        "comment": "",
+        "status": "done"
       }
     },
     {
       "widgetId": "string-order-instances",
       "factId": "String.Slice:::Std.LawfulEqOrd:::()",
-      "rowAssociationId": "String.Slice",
       "columnAssociationId": "Std.LawfulEqOrd",
+      "rowAssociationId": "String.Slice",
       "selectedLayers": [
         "()"
       ],
@@ -8500,15 +8733,15 @@
         }
       ],
       "metadata": {
-        "status": "done",
-        "comment": "not lawful\n"
+        "comment": "not lawful\n",
+        "status": "done"
       }
     },
     {
       "widgetId": "string-order-instances",
       "factId": "String.Slice:::Std.LawfulBEqOrd:::()",
-      "rowAssociationId": "String.Slice",
       "columnAssociationId": "Std.LawfulBEqOrd",
+      "rowAssociationId": "String.Slice",
       "selectedLayers": [
         "()"
       ],
@@ -8552,15 +8785,15 @@
         }
       ],
       "metadata": {
-        "status": "done",
-        "comment": ""
+        "comment": "",
+        "status": "done"
       }
     },
     {
       "widgetId": "string-order-instances",
       "factId": "String.Slice:::EquivBEq:::()",
-      "rowAssociationId": "String.Slice",
       "columnAssociationId": "EquivBEq",
+      "rowAssociationId": "String.Slice",
       "selectedLayers": [
         "()"
       ],
@@ -8604,15 +8837,15 @@
         }
       ],
       "metadata": {
-        "status": "done",
-        "comment": ""
+        "comment": "",
+        "status": "done"
       }
     },
     {
       "widgetId": "string-order-instances",
       "factId": "String.Slice:::LawfulBEq:::()",
-      "rowAssociationId": "String.Slice",
       "columnAssociationId": "LawfulBEq",
+      "rowAssociationId": "String.Slice",
       "selectedLayers": [
         "()"
       ],
@@ -8642,6 +8875,1514 @@
             }
           },
           "selectedCellStates": []
+        }
+      ],
+      "metadata": {
+        "comment": "",
+        "status": "done"
+      }
+    },
+    {
+      "widgetId": "string-order-instances",
+      "factId": "Char:::BEq:::()",
+      "rowAssociationId": "Char",
+      "columnAssociationId": "BEq",
+      "selectedLayers": [
+        "()"
+      ],
+      "layerStates": [
+        {
+          "layerIdentifier": "()",
+          "rowState": {
+            "value": "Char",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "Char",
+                "renderedStatement": "Char : Type"
+              }
+            }
+          },
+          "columnState": {
+            "value": "BEq",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "BEq",
+                "renderedStatement": "BEq.{u} (α : Type u) : Type u"
+              }
+            }
+          },
+          "selectedCellStates": [
+            {
+              "value": "{\"typeName\": \"Char\", \"parameterClassNames\": [], \"className\": \"BEq\"}",
+              "state": {
+                "result": {
+                  "head": "Std.PreorderPackage.toBEq",
+                  "term": "@Std.PreorderPackage.toBEq Char\n  (@Std.LinearPreorderPackage.toPreorderPackage Char\n    (@Std.LinearOrderPackage.toLinearPreorderPackage Char Char.instLinearOrderPackage))",
+                  "usedInstances": []
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "metadata": {
+        "status": "done",
+        "comment": ""
+      }
+    },
+    {
+      "widgetId": "string-order-instances",
+      "factId": "Char:::LE:::()",
+      "rowAssociationId": "Char",
+      "columnAssociationId": "LE",
+      "selectedLayers": [
+        "()"
+      ],
+      "layerStates": [
+        {
+          "layerIdentifier": "()",
+          "rowState": {
+            "value": "Char",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "Char",
+                "renderedStatement": "Char : Type"
+              }
+            }
+          },
+          "columnState": {
+            "value": "LE",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "LE",
+                "renderedStatement": "LE.{u} (α : Type u) : Type u"
+              }
+            }
+          },
+          "selectedCellStates": [
+            {
+              "value": "{\"typeName\": \"Char\", \"parameterClassNames\": [], \"className\": \"LE\"}",
+              "state": {
+                "result": {
+                  "head": "Char.instLE",
+                  "term": "Char.instLE",
+                  "usedInstances": []
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "metadata": {
+        "status": "done",
+        "comment": ""
+      }
+    },
+    {
+      "widgetId": "string-order-instances",
+      "factId": "Char:::LT:::()",
+      "rowAssociationId": "Char",
+      "columnAssociationId": "LT",
+      "selectedLayers": [
+        "()"
+      ],
+      "layerStates": [
+        {
+          "layerIdentifier": "()",
+          "rowState": {
+            "value": "Char",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "Char",
+                "renderedStatement": "Char : Type"
+              }
+            }
+          },
+          "columnState": {
+            "value": "LT",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "LT",
+                "renderedStatement": "LT.{u} (α : Type u) : Type u"
+              }
+            }
+          },
+          "selectedCellStates": [
+            {
+              "value": "{\"typeName\": \"Char\", \"parameterClassNames\": [], \"className\": \"LT\"}",
+              "state": {
+                "result": {
+                  "head": "Char.instLT",
+                  "term": "Char.instLT",
+                  "usedInstances": []
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "metadata": {
+        "status": "done",
+        "comment": ""
+      }
+    },
+    {
+      "widgetId": "string-order-instances",
+      "factId": "Char:::Ord:::()",
+      "rowAssociationId": "Char",
+      "columnAssociationId": "Ord",
+      "selectedLayers": [
+        "()"
+      ],
+      "layerStates": [
+        {
+          "layerIdentifier": "()",
+          "rowState": {
+            "value": "Char",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "Char",
+                "renderedStatement": "Char : Type"
+              }
+            }
+          },
+          "columnState": {
+            "value": "Ord",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "Ord",
+                "renderedStatement": "Ord.{u} (α : Type u) : Type u"
+              }
+            }
+          },
+          "selectedCellStates": [
+            {
+              "value": "{\"typeName\": \"Char\", \"parameterClassNames\": [], \"className\": \"Ord\"}",
+              "state": {
+                "result": {
+                  "head": "instOrdChar",
+                  "term": "instOrdChar",
+                  "usedInstances": []
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "metadata": {
+        "status": "done",
+        "comment": ""
+      }
+    },
+    {
+      "widgetId": "string-order-instances",
+      "factId": "Char:::Min:::()",
+      "rowAssociationId": "Char",
+      "columnAssociationId": "Min",
+      "selectedLayers": [
+        "()"
+      ],
+      "layerStates": [
+        {
+          "layerIdentifier": "()",
+          "rowState": {
+            "value": "Char",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "Char",
+                "renderedStatement": "Char : Type"
+              }
+            }
+          },
+          "columnState": {
+            "value": "Min",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "Min",
+                "renderedStatement": "Min.{u} (α : Type u) : Type u"
+              }
+            }
+          },
+          "selectedCellStates": [
+            {
+              "value": "{\"typeName\": \"Char\", \"parameterClassNames\": [], \"className\": \"Min\"}",
+              "state": {
+                "result": {
+                  "head": "Std.LinearOrderPackage.toMin",
+                  "term": "@Std.LinearOrderPackage.toMin Char Char.instLinearOrderPackage",
+                  "usedInstances": []
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "metadata": {
+        "status": "done",
+        "comment": ""
+      }
+    },
+    {
+      "widgetId": "string-order-instances",
+      "factId": "Char:::Max:::()",
+      "rowAssociationId": "Char",
+      "columnAssociationId": "Max",
+      "selectedLayers": [
+        "()"
+      ],
+      "layerStates": [
+        {
+          "layerIdentifier": "()",
+          "rowState": {
+            "value": "Char",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "Char",
+                "renderedStatement": "Char : Type"
+              }
+            }
+          },
+          "columnState": {
+            "value": "Max",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "Max",
+                "renderedStatement": "Max.{u} (α : Type u) : Type u"
+              }
+            }
+          },
+          "selectedCellStates": [
+            {
+              "value": "{\"typeName\": \"Char\", \"parameterClassNames\": [], \"className\": \"Max\"}",
+              "state": {
+                "result": {
+                  "head": "Std.LinearOrderPackage.toMax",
+                  "term": "@Std.LinearOrderPackage.toMax Char Char.instLinearOrderPackage",
+                  "usedInstances": []
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "metadata": {
+        "status": "done",
+        "comment": ""
+      }
+    },
+    {
+      "widgetId": "string-order-instances",
+      "factId": "Char:::DecidableEq:::()",
+      "rowAssociationId": "Char",
+      "columnAssociationId": "DecidableEq",
+      "selectedLayers": [
+        "()"
+      ],
+      "layerStates": [
+        {
+          "layerIdentifier": "()",
+          "rowState": {
+            "value": "Char",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "Char",
+                "renderedStatement": "Char : Type"
+              }
+            }
+          },
+          "columnState": {
+            "value": "DecidableEq",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "DecidableEq",
+                "renderedStatement": "DecidableEq.{u} (α : Sort u) : Sort (max 1 u)"
+              }
+            }
+          },
+          "selectedCellStates": [
+            {
+              "value": "{\"typeName\": \"Char\", \"parameterClassNames\": [], \"className\": \"DecidableEq\"}",
+              "state": {
+                "result": {
+                  "head": "instDecidableEqChar",
+                  "term": "instDecidableEqChar",
+                  "usedInstances": []
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "metadata": {
+        "status": "done",
+        "comment": ""
+      }
+    },
+    {
+      "widgetId": "string-order-instances",
+      "factId": "Char:::DecidableLE:::()",
+      "rowAssociationId": "Char",
+      "columnAssociationId": "DecidableLE",
+      "selectedLayers": [
+        "()"
+      ],
+      "layerStates": [
+        {
+          "layerIdentifier": "()",
+          "rowState": {
+            "value": "Char",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "Char",
+                "renderedStatement": "Char : Type"
+              }
+            }
+          },
+          "columnState": {
+            "value": "DecidableLE",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "DecidableLE",
+                "renderedStatement": "DecidableLE.{u} (α : Type u) [LE α] : Type u"
+              }
+            }
+          },
+          "selectedCellStates": [
+            {
+              "value": "{\"typeName\": \"Char\", \"parameterClassNames\": [], \"className\": \"DecidableLE\"}",
+              "state": {
+                "result": {
+                  "head": "Char.instDecidableLe",
+                  "term": "Char.instDecidableLe",
+                  "usedInstances": []
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "metadata": {
+        "status": "done",
+        "comment": ""
+      }
+    },
+    {
+      "widgetId": "string-order-instances",
+      "factId": "Char:::DecidableLT:::()",
+      "rowAssociationId": "Char",
+      "columnAssociationId": "DecidableLT",
+      "selectedLayers": [
+        "()"
+      ],
+      "layerStates": [
+        {
+          "layerIdentifier": "()",
+          "rowState": {
+            "value": "Char",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "Char",
+                "renderedStatement": "Char : Type"
+              }
+            }
+          },
+          "columnState": {
+            "value": "DecidableLT",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "DecidableLT",
+                "renderedStatement": "DecidableLT.{u} (α : Type u) [LT α] : Type u"
+              }
+            }
+          },
+          "selectedCellStates": [
+            {
+              "value": "{\"typeName\": \"Char\", \"parameterClassNames\": [], \"className\": \"DecidableLT\"}",
+              "state": {
+                "result": {
+                  "head": "Char.instDecidableLt",
+                  "term": "Char.instDecidableLt",
+                  "usedInstances": []
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "metadata": {
+        "status": "done",
+        "comment": ""
+      }
+    },
+    {
+      "widgetId": "string-order-instances",
+      "factId": "Char:::Std.IsPreorder:::()",
+      "rowAssociationId": "Char",
+      "columnAssociationId": "Std.IsPreorder",
+      "selectedLayers": [
+        "()"
+      ],
+      "layerStates": [
+        {
+          "layerIdentifier": "()",
+          "rowState": {
+            "value": "Char",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "Char",
+                "renderedStatement": "Char : Type"
+              }
+            }
+          },
+          "columnState": {
+            "value": "Std.IsPreorder",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "Std.IsPreorder",
+                "renderedStatement": "Std.IsPreorder.{u} (α : Type u) [LE α] : Prop"
+              }
+            }
+          },
+          "selectedCellStates": [
+            {
+              "value": "{\"typeName\": \"Char\", \"parameterClassNames\": [], \"className\": \"Std.IsPreorder\"}",
+              "state": {
+                "result": {
+                  "head": "Std.PreorderPackage.toIsPreorder",
+                  "term": "@Std.PreorderPackage.toIsPreorder Char\n  (@Std.LinearPreorderPackage.toPreorderPackage Char\n    (@Std.LinearOrderPackage.toLinearPreorderPackage Char Char.instLinearOrderPackage))",
+                  "usedInstances": []
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "metadata": {
+        "status": "done",
+        "comment": ""
+      }
+    },
+    {
+      "widgetId": "string-order-instances",
+      "factId": "Char:::Std.IsPartialOrder:::()",
+      "rowAssociationId": "Char",
+      "columnAssociationId": "Std.IsPartialOrder",
+      "selectedLayers": [
+        "()"
+      ],
+      "layerStates": [
+        {
+          "layerIdentifier": "()",
+          "rowState": {
+            "value": "Char",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "Char",
+                "renderedStatement": "Char : Type"
+              }
+            }
+          },
+          "columnState": {
+            "value": "Std.IsPartialOrder",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "Std.IsPartialOrder",
+                "renderedStatement": "Std.IsPartialOrder.{u} (α : Type u) [LE α] : Prop"
+              }
+            }
+          },
+          "selectedCellStates": [
+            {
+              "value": "{\"typeName\": \"Char\",\n \"parameterClassNames\": [],\n \"className\": \"Std.IsPartialOrder\"}",
+              "state": {
+                "result": {
+                  "head": "Std.PartialOrderPackage.toIsPartialOrder",
+                  "term": "@Std.PartialOrderPackage.toIsPartialOrder Char\n  (@Std.LinearOrderPackage.toPartialOrderPackage Char Char.instLinearOrderPackage)",
+                  "usedInstances": []
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "metadata": {
+        "status": "done",
+        "comment": ""
+      }
+    },
+    {
+      "widgetId": "string-order-instances",
+      "factId": "Char:::Std.IsLinearPreorder:::()",
+      "rowAssociationId": "Char",
+      "columnAssociationId": "Std.IsLinearPreorder",
+      "selectedLayers": [
+        "()"
+      ],
+      "layerStates": [
+        {
+          "layerIdentifier": "()",
+          "rowState": {
+            "value": "Char",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "Char",
+                "renderedStatement": "Char : Type"
+              }
+            }
+          },
+          "columnState": {
+            "value": "Std.IsLinearPreorder",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "Std.IsLinearPreorder",
+                "renderedStatement": "Std.IsLinearPreorder.{u} (α : Type u) [LE α] : Prop"
+              }
+            }
+          },
+          "selectedCellStates": [
+            {
+              "value": "{\"typeName\": \"Char\",\n \"parameterClassNames\": [],\n \"className\": \"Std.IsLinearPreorder\"}",
+              "state": {
+                "result": {
+                  "head": "Std.LinearPreorderPackage.toIsLinearPreorder",
+                  "term": "@Std.LinearPreorderPackage.toIsLinearPreorder Char\n  (@Std.LinearOrderPackage.toLinearPreorderPackage Char Char.instLinearOrderPackage)",
+                  "usedInstances": []
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "metadata": {
+        "status": "done",
+        "comment": ""
+      }
+    },
+    {
+      "widgetId": "string-order-instances",
+      "factId": "Char:::Std.IsLinearOrder:::()",
+      "rowAssociationId": "Char",
+      "columnAssociationId": "Std.IsLinearOrder",
+      "selectedLayers": [
+        "()"
+      ],
+      "layerStates": [
+        {
+          "layerIdentifier": "()",
+          "rowState": {
+            "value": "Char",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "Char",
+                "renderedStatement": "Char : Type"
+              }
+            }
+          },
+          "columnState": {
+            "value": "Std.IsLinearOrder",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "Std.IsLinearOrder",
+                "renderedStatement": "Std.IsLinearOrder.{u} (α : Type u) [LE α] : Prop"
+              }
+            }
+          },
+          "selectedCellStates": [
+            {
+              "value": "{\"typeName\": \"Char\",\n \"parameterClassNames\": [],\n \"className\": \"Std.IsLinearOrder\"}",
+              "state": {
+                "result": {
+                  "head": "Char.instIsLinearOrder",
+                  "term": "Char.instIsLinearOrder",
+                  "usedInstances": []
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "metadata": {
+        "status": "done",
+        "comment": ""
+      }
+    },
+    {
+      "widgetId": "string-order-instances",
+      "factId": "Char:::Std.LawfulOrderLT:::()",
+      "rowAssociationId": "Char",
+      "columnAssociationId": "Std.LawfulOrderLT",
+      "selectedLayers": [
+        "()"
+      ],
+      "layerStates": [
+        {
+          "layerIdentifier": "()",
+          "rowState": {
+            "value": "Char",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "Char",
+                "renderedStatement": "Char : Type"
+              }
+            }
+          },
+          "columnState": {
+            "value": "Std.LawfulOrderLT",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "Std.LawfulOrderLT",
+                "renderedStatement": "Std.LawfulOrderLT.{u} (α : Type u) [LT α] [LE α] : Prop"
+              }
+            }
+          },
+          "selectedCellStates": [
+            {
+              "value": "{\"typeName\": \"Char\",\n \"parameterClassNames\": [],\n \"className\": \"Std.LawfulOrderLT\"}",
+              "state": {
+                "result": {
+                  "head": "Char.instLawfulOrderLT",
+                  "term": "Char.instLawfulOrderLT",
+                  "usedInstances": []
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "metadata": {
+        "status": "done",
+        "comment": ""
+      }
+    },
+    {
+      "widgetId": "string-order-instances",
+      "factId": "Char:::Std.LawfulOrderBEq:::()",
+      "rowAssociationId": "Char",
+      "columnAssociationId": "Std.LawfulOrderBEq",
+      "selectedLayers": [
+        "()"
+      ],
+      "layerStates": [
+        {
+          "layerIdentifier": "()",
+          "rowState": {
+            "value": "Char",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "Char",
+                "renderedStatement": "Char : Type"
+              }
+            }
+          },
+          "columnState": {
+            "value": "Std.LawfulOrderBEq",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "Std.LawfulOrderBEq",
+                "renderedStatement": "Std.LawfulOrderBEq.{u} (α : Type u) [BEq α] [LE α] : Prop"
+              }
+            }
+          },
+          "selectedCellStates": [
+            {
+              "value": "{\"typeName\": \"Char\",\n \"parameterClassNames\": [],\n \"className\": \"Std.LawfulOrderBEq\"}",
+              "state": {
+                "result": {
+                  "head": "Std.PreorderPackage.toLawfulOrderBEq",
+                  "term": "@Std.PreorderPackage.toLawfulOrderBEq Char\n  (@Std.LinearPreorderPackage.toPreorderPackage Char\n    (@Std.LinearOrderPackage.toLinearPreorderPackage Char Char.instLinearOrderPackage))",
+                  "usedInstances": []
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "metadata": {
+        "status": "done",
+        "comment": ""
+      }
+    },
+    {
+      "widgetId": "string-order-instances",
+      "factId": "Char:::Std.LawfulOrderOrd:::()",
+      "rowAssociationId": "Char",
+      "columnAssociationId": "Std.LawfulOrderOrd",
+      "selectedLayers": [
+        "()"
+      ],
+      "layerStates": [
+        {
+          "layerIdentifier": "()",
+          "rowState": {
+            "value": "Char",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "Char",
+                "renderedStatement": "Char : Type"
+              }
+            }
+          },
+          "columnState": {
+            "value": "Std.LawfulOrderOrd",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "Std.LawfulOrderOrd",
+                "renderedStatement": "Std.LawfulOrderOrd.{u} (α : Type u) [Ord α] [LE α] : Prop"
+              }
+            }
+          },
+          "selectedCellStates": [
+            {
+              "value": "{\"typeName\": \"Char\",\n \"parameterClassNames\": [],\n \"className\": \"Std.LawfulOrderOrd\"}",
+              "state": {
+                "result": {
+                  "head": "Std.LinearPreorderPackage.toLawfulOrderOrd",
+                  "term": "@Std.LinearPreorderPackage.toLawfulOrderOrd Char\n  (@Std.LinearOrderPackage.toLinearPreorderPackage Char Char.instLinearOrderPackage)",
+                  "usedInstances": []
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "metadata": {
+        "status": "done",
+        "comment": ""
+      }
+    },
+    {
+      "widgetId": "string-order-instances",
+      "factId": "Char:::Std.LawfulOrderMin:::()",
+      "rowAssociationId": "Char",
+      "columnAssociationId": "Std.LawfulOrderMin",
+      "selectedLayers": [
+        "()"
+      ],
+      "layerStates": [
+        {
+          "layerIdentifier": "()",
+          "rowState": {
+            "value": "Char",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "Char",
+                "renderedStatement": "Char : Type"
+              }
+            }
+          },
+          "columnState": {
+            "value": "Std.LawfulOrderMin",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "Std.LawfulOrderMin",
+                "renderedStatement": "Std.LawfulOrderMin.{u} (α : Type u) [Min α] [LE α] : Prop"
+              }
+            }
+          },
+          "selectedCellStates": [
+            {
+              "value": "{\"typeName\": \"Char\",\n \"parameterClassNames\": [],\n \"className\": \"Std.LawfulOrderMin\"}",
+              "state": {
+                "result": {
+                  "head": "Std.LinearOrderPackage.toLawfulOrderMin",
+                  "term": "@Std.LinearOrderPackage.toLawfulOrderMin Char Char.instLinearOrderPackage",
+                  "usedInstances": []
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "metadata": {
+        "status": "done",
+        "comment": ""
+      }
+    },
+    {
+      "widgetId": "string-order-instances",
+      "factId": "Char:::Std.LawfulOrderInf:::()",
+      "rowAssociationId": "Char",
+      "columnAssociationId": "Std.LawfulOrderInf",
+      "selectedLayers": [
+        "()"
+      ],
+      "layerStates": [
+        {
+          "layerIdentifier": "()",
+          "rowState": {
+            "value": "Char",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "Char",
+                "renderedStatement": "Char : Type"
+              }
+            }
+          },
+          "columnState": {
+            "value": "Std.LawfulOrderInf",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "Std.LawfulOrderInf",
+                "renderedStatement": "Std.LawfulOrderInf.{u} (α : Type u) [Min α] [LE α] : Prop"
+              }
+            }
+          },
+          "selectedCellStates": [
+            {
+              "value": "{\"typeName\": \"Char\",\n \"parameterClassNames\": [],\n \"className\": \"Std.LawfulOrderInf\"}",
+              "state": {
+                "result": {
+                  "head": "Std.LawfulOrderMin.toLawfulOrderInf",
+                  "term": "@Std.LawfulOrderMin.toLawfulOrderInf Char\n  (@Std.LinearOrderPackage.toMin Char Char.instLinearOrderPackage) Char.instLE\n  (@Std.LinearOrderPackage.toLawfulOrderMin Char Char.instLinearOrderPackage)",
+                  "usedInstances": []
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "metadata": {
+        "status": "done",
+        "comment": ""
+      }
+    },
+    {
+      "widgetId": "string-order-instances",
+      "factId": "Char:::Std.LawfulOrderLeftLeaningMin:::()",
+      "rowAssociationId": "Char",
+      "columnAssociationId": "Std.LawfulOrderLeftLeaningMin",
+      "selectedLayers": [
+        "()"
+      ],
+      "layerStates": [
+        {
+          "layerIdentifier": "()",
+          "rowState": {
+            "value": "Char",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "Char",
+                "renderedStatement": "Char : Type"
+              }
+            }
+          },
+          "columnState": {
+            "value": "Std.LawfulOrderLeftLeaningMin",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "Std.LawfulOrderLeftLeaningMin",
+                "renderedStatement": "Std.LawfulOrderLeftLeaningMin.{u} (α : Type u) [Min α] [LE α] : Prop"
+              }
+            }
+          },
+          "selectedCellStates": [
+            {
+              "value": "{\"typeName\": \"Char\",\n \"parameterClassNames\": [],\n \"className\": \"Std.LawfulOrderLeftLeaningMin\"}",
+              "state": {
+                "result": {
+                  "head": "Std.lawfulOrderLeftLeaningMin_minOfLe",
+                  "term": "@Std.lawfulOrderLeftLeaningMin_minOfLe Char Char.instLE Char.instDecidableLe",
+                  "usedInstances": []
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "metadata": {
+        "status": "done",
+        "comment": ""
+      }
+    },
+    {
+      "widgetId": "string-order-instances",
+      "factId": "Char:::Std.LawfulOrderMax:::()",
+      "rowAssociationId": "Char",
+      "columnAssociationId": "Std.LawfulOrderMax",
+      "selectedLayers": [
+        "()"
+      ],
+      "layerStates": [
+        {
+          "layerIdentifier": "()",
+          "rowState": {
+            "value": "Char",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "Char",
+                "renderedStatement": "Char : Type"
+              }
+            }
+          },
+          "columnState": {
+            "value": "Std.LawfulOrderMax",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "Std.LawfulOrderMax",
+                "renderedStatement": "Std.LawfulOrderMax.{u} (α : Type u) [Max α] [LE α] : Prop"
+              }
+            }
+          },
+          "selectedCellStates": [
+            {
+              "value": "{\"typeName\": \"Char\",\n \"parameterClassNames\": [],\n \"className\": \"Std.LawfulOrderMax\"}",
+              "state": {
+                "result": {
+                  "head": "Std.LinearOrderPackage.toLawfulOrderMax",
+                  "term": "@Std.LinearOrderPackage.toLawfulOrderMax Char Char.instLinearOrderPackage",
+                  "usedInstances": []
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "metadata": {
+        "status": "done",
+        "comment": ""
+      }
+    },
+    {
+      "widgetId": "string-order-instances",
+      "factId": "Char:::Std.LawfulOrderSup:::()",
+      "rowAssociationId": "Char",
+      "columnAssociationId": "Std.LawfulOrderSup",
+      "selectedLayers": [
+        "()"
+      ],
+      "layerStates": [
+        {
+          "layerIdentifier": "()",
+          "rowState": {
+            "value": "Char",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "Char",
+                "renderedStatement": "Char : Type"
+              }
+            }
+          },
+          "columnState": {
+            "value": "Std.LawfulOrderSup",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "Std.LawfulOrderSup",
+                "renderedStatement": "Std.LawfulOrderSup.{u} (α : Type u) [Max α] [LE α] : Prop"
+              }
+            }
+          },
+          "selectedCellStates": [
+            {
+              "value": "{\"typeName\": \"Char\",\n \"parameterClassNames\": [],\n \"className\": \"Std.LawfulOrderSup\"}",
+              "state": {
+                "result": {
+                  "head": "Std.LawfulOrderMax.toLawfulOrderSup",
+                  "term": "@Std.LawfulOrderMax.toLawfulOrderSup Char\n  (@Std.LinearOrderPackage.toMax Char Char.instLinearOrderPackage) Char.instLE\n  (@Std.LinearOrderPackage.toLawfulOrderMax Char Char.instLinearOrderPackage)",
+                  "usedInstances": []
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "metadata": {
+        "status": "done",
+        "comment": ""
+      }
+    },
+    {
+      "widgetId": "string-order-instances",
+      "factId": "Char:::Std.LawfulOrderLeftLeaningMax:::()",
+      "rowAssociationId": "Char",
+      "columnAssociationId": "Std.LawfulOrderLeftLeaningMax",
+      "selectedLayers": [
+        "()"
+      ],
+      "layerStates": [
+        {
+          "layerIdentifier": "()",
+          "rowState": {
+            "value": "Char",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "Char",
+                "renderedStatement": "Char : Type"
+              }
+            }
+          },
+          "columnState": {
+            "value": "Std.LawfulOrderLeftLeaningMax",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "Std.LawfulOrderLeftLeaningMax",
+                "renderedStatement": "Std.LawfulOrderLeftLeaningMax.{u} (α : Type u) [Max α] [LE α] : Prop"
+              }
+            }
+          },
+          "selectedCellStates": [
+            {
+              "value": "{\"typeName\": \"Char\",\n \"parameterClassNames\": [],\n \"className\": \"Std.LawfulOrderLeftLeaningMax\"}",
+              "state": {
+                "result": {
+                  "head": "Std.instLawfulOrderLeftLeaningMax",
+                  "term": "@Std.instLawfulOrderLeftLeaningMax Char Char.instLE Char.instDecidableLe",
+                  "usedInstances": []
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "metadata": {
+        "status": "done",
+        "comment": ""
+      }
+    },
+    {
+      "widgetId": "string-order-instances",
+      "factId": "Char:::Std.ReflOrd:::()",
+      "rowAssociationId": "Char",
+      "columnAssociationId": "Std.ReflOrd",
+      "selectedLayers": [
+        "()"
+      ],
+      "layerStates": [
+        {
+          "layerIdentifier": "()",
+          "rowState": {
+            "value": "Char",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "Char",
+                "renderedStatement": "Char : Type"
+              }
+            }
+          },
+          "columnState": {
+            "value": "Std.ReflOrd",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "Std.ReflOrd",
+                "renderedStatement": "Std.ReflOrd.{u} (α : Type u) [Ord α] : Prop"
+              }
+            }
+          },
+          "selectedCellStates": [
+            {
+              "value": "{\"typeName\": \"Char\", \"parameterClassNames\": [], \"className\": \"Std.ReflOrd\"}",
+              "state": {
+                "result": {
+                  "head": "Std.LawfulEqCmp.toReflCmp",
+                  "term": "@Std.LawfulEqCmp.toReflCmp Char (@compare Char instOrdChar) Char.instLawfulEqOrd",
+                  "usedInstances": []
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "metadata": {
+        "status": "done",
+        "comment": ""
+      }
+    },
+    {
+      "widgetId": "string-order-instances",
+      "factId": "Char:::Std.OrientedOrd:::()",
+      "rowAssociationId": "Char",
+      "columnAssociationId": "Std.OrientedOrd",
+      "selectedLayers": [
+        "()"
+      ],
+      "layerStates": [
+        {
+          "layerIdentifier": "()",
+          "rowState": {
+            "value": "Char",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "Char",
+                "renderedStatement": "Char : Type"
+              }
+            }
+          },
+          "columnState": {
+            "value": "Std.OrientedOrd",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "Std.OrientedOrd",
+                "renderedStatement": "Std.OrientedOrd.{u} (α : Type u) [Ord α] : Prop"
+              }
+            }
+          },
+          "selectedCellStates": [
+            {
+              "value": "{\"typeName\": \"Char\", \"parameterClassNames\": [], \"className\": \"Std.OrientedOrd\"}",
+              "state": {
+                "result": {
+                  "head": "Std.instOrientedOrdOfLawfulOrderOrd",
+                  "term": "@Std.instOrientedOrdOfLawfulOrderOrd Char Char.instLE instOrdChar\n  (@Std.LinearPreorderPackage.toLawfulOrderOrd Char\n    (@Std.LinearOrderPackage.toLinearPreorderPackage Char Char.instLinearOrderPackage))",
+                  "usedInstances": []
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "metadata": {
+        "status": "done",
+        "comment": ""
+      }
+    },
+    {
+      "widgetId": "string-order-instances",
+      "factId": "Char:::Std.TransOrd:::()",
+      "rowAssociationId": "Char",
+      "columnAssociationId": "Std.TransOrd",
+      "selectedLayers": [
+        "()"
+      ],
+      "layerStates": [
+        {
+          "layerIdentifier": "()",
+          "rowState": {
+            "value": "Char",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "Char",
+                "renderedStatement": "Char : Type"
+              }
+            }
+          },
+          "columnState": {
+            "value": "Std.TransOrd",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "Std.TransOrd",
+                "renderedStatement": "Std.TransOrd.{u} (α : Type u) [Ord α] : Prop"
+              }
+            }
+          },
+          "selectedCellStates": [
+            {
+              "value": "{\"typeName\": \"Char\", \"parameterClassNames\": [], \"className\": \"Std.TransOrd\"}",
+              "state": {
+                "result": {
+                  "head": "Char.instTransOrd",
+                  "term": "Char.instTransOrd",
+                  "usedInstances": []
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "metadata": {
+        "status": "done",
+        "comment": ""
+      }
+    },
+    {
+      "widgetId": "string-order-instances",
+      "factId": "Char:::Std.LawfulEqOrd:::()",
+      "rowAssociationId": "Char",
+      "columnAssociationId": "Std.LawfulEqOrd",
+      "selectedLayers": [
+        "()"
+      ],
+      "layerStates": [
+        {
+          "layerIdentifier": "()",
+          "rowState": {
+            "value": "Char",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "Char",
+                "renderedStatement": "Char : Type"
+              }
+            }
+          },
+          "columnState": {
+            "value": "Std.LawfulEqOrd",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "Std.LawfulEqOrd",
+                "renderedStatement": "Std.LawfulEqOrd.{u} (α : Type u) [Ord α] : Prop"
+              }
+            }
+          },
+          "selectedCellStates": [
+            {
+              "value": "{\"typeName\": \"Char\", \"parameterClassNames\": [], \"className\": \"Std.LawfulEqOrd\"}",
+              "state": {
+                "result": {
+                  "head": "Char.instLawfulEqOrd",
+                  "term": "Char.instLawfulEqOrd",
+                  "usedInstances": []
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "metadata": {
+        "status": "done",
+        "comment": ""
+      }
+    },
+    {
+      "widgetId": "string-order-instances",
+      "factId": "Char:::Std.LawfulBEqOrd:::()",
+      "rowAssociationId": "Char",
+      "columnAssociationId": "Std.LawfulBEqOrd",
+      "selectedLayers": [
+        "()"
+      ],
+      "layerStates": [
+        {
+          "layerIdentifier": "()",
+          "rowState": {
+            "value": "Char",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "Char",
+                "renderedStatement": "Char : Type"
+              }
+            }
+          },
+          "columnState": {
+            "value": "Std.LawfulBEqOrd",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "Std.LawfulBEqOrd",
+                "renderedStatement": "Std.LawfulBEqOrd.{u} (α : Type u) [BEq α] [Ord α] : Prop"
+              }
+            }
+          },
+          "selectedCellStates": [
+            {
+              "value": "{\"typeName\": \"Char\", \"parameterClassNames\": [], \"className\": \"Std.LawfulBEqOrd\"}",
+              "state": {
+                "result": {
+                  "head": "Std.instLawfulBEqOrdOfLawfulOrderOrdOfLawfulOrderBEq",
+                  "term": "@Std.instLawfulBEqOrdOfLawfulOrderOrdOfLawfulOrderBEq Char instOrdChar\n  (@Std.PreorderPackage.toBEq Char\n    (@Std.LinearPreorderPackage.toPreorderPackage Char\n      (@Std.LinearOrderPackage.toLinearPreorderPackage Char Char.instLinearOrderPackage)))\n  Char.instLE\n  (@Std.LinearPreorderPackage.toLawfulOrderOrd Char\n    (@Std.LinearOrderPackage.toLinearPreorderPackage Char Char.instLinearOrderPackage))\n  (@Std.PreorderPackage.toLawfulOrderBEq Char\n    (@Std.LinearPreorderPackage.toPreorderPackage Char\n      (@Std.LinearOrderPackage.toLinearPreorderPackage Char Char.instLinearOrderPackage)))",
+                  "usedInstances": []
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "metadata": {
+        "status": "done",
+        "comment": ""
+      }
+    },
+    {
+      "widgetId": "string-order-instances",
+      "factId": "Char:::EquivBEq:::()",
+      "rowAssociationId": "Char",
+      "columnAssociationId": "EquivBEq",
+      "selectedLayers": [
+        "()"
+      ],
+      "layerStates": [
+        {
+          "layerIdentifier": "()",
+          "rowState": {
+            "value": "Char",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "Char",
+                "renderedStatement": "Char : Type"
+              }
+            }
+          },
+          "columnState": {
+            "value": "EquivBEq",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "EquivBEq",
+                "renderedStatement": "EquivBEq.{u_1} (α : Type u_1) [BEq α] : Prop"
+              }
+            }
+          },
+          "selectedCellStates": [
+            {
+              "value": "{\"typeName\": \"Char\", \"parameterClassNames\": [], \"className\": \"EquivBEq\"}",
+              "state": {
+                "result": {
+                  "head": "Std.LawfulBEqOrd.equivBEq",
+                  "term": "@Std.LawfulBEqOrd.equivBEq Char\n  (@Std.PreorderPackage.toBEq Char\n    (@Std.LinearPreorderPackage.toPreorderPackage Char\n      (@Std.LinearOrderPackage.toLinearPreorderPackage Char Char.instLinearOrderPackage)))\n  instOrdChar\n  (@Std.instLawfulBEqOrdOfLawfulOrderOrdOfLawfulOrderBEq Char instOrdChar\n    (@Std.PreorderPackage.toBEq Char\n      (@Std.LinearPreorderPackage.toPreorderPackage Char\n        (@Std.LinearOrderPackage.toLinearPreorderPackage Char Char.instLinearOrderPackage)))\n    Char.instLE\n    (@Std.LinearPreorderPackage.toLawfulOrderOrd Char\n      (@Std.LinearOrderPackage.toLinearPreorderPackage Char Char.instLinearOrderPackage))\n    (@Std.PreorderPackage.toLawfulOrderBEq Char\n      (@Std.LinearPreorderPackage.toPreorderPackage Char\n        (@Std.LinearOrderPackage.toLinearPreorderPackage Char Char.instLinearOrderPackage))))\n  Char.instTransOrd",
+                  "usedInstances": []
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "metadata": {
+        "status": "done",
+        "comment": ""
+      }
+    },
+    {
+      "widgetId": "string-order-instances",
+      "factId": "Char:::LawfulBEq:::()",
+      "rowAssociationId": "Char",
+      "columnAssociationId": "LawfulBEq",
+      "selectedLayers": [
+        "()"
+      ],
+      "layerStates": [
+        {
+          "layerIdentifier": "()",
+          "rowState": {
+            "value": "Char",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "Char",
+                "renderedStatement": "Char : Type"
+              }
+            }
+          },
+          "columnState": {
+            "value": "LawfulBEq",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "LawfulBEq",
+                "renderedStatement": "LawfulBEq.{u} (α : Type u) [BEq α] : Prop"
+              }
+            }
+          },
+          "selectedCellStates": [
+            {
+              "value": "{\"typeName\": \"Char\", \"parameterClassNames\": [], \"className\": \"LawfulBEq\"}",
+              "state": {
+                "result": {
+                  "head": "Std.LawfulBEqOrd.lawfulBEq",
+                  "term": "@Std.LawfulBEqOrd.lawfulBEq Char\n  (@Std.PreorderPackage.toBEq Char\n    (@Std.LinearPreorderPackage.toPreorderPackage Char\n      (@Std.LinearOrderPackage.toLinearPreorderPackage Char Char.instLinearOrderPackage)))\n  instOrdChar\n  (@Std.instLawfulBEqOrdOfLawfulOrderOrdOfLawfulOrderBEq Char instOrdChar\n    (@Std.PreorderPackage.toBEq Char\n      (@Std.LinearPreorderPackage.toPreorderPackage Char\n        (@Std.LinearOrderPackage.toLinearPreorderPackage Char Char.instLinearOrderPackage)))\n    Char.instLE\n    (@Std.LinearPreorderPackage.toLawfulOrderOrd Char\n      (@Std.LinearOrderPackage.toLinearPreorderPackage Char Char.instLinearOrderPackage))\n    (@Std.PreorderPackage.toLawfulOrderBEq Char\n      (@Std.LinearPreorderPackage.toPreorderPackage Char\n        (@Std.LinearOrderPackage.toLinearPreorderPackage Char Char.instLinearOrderPackage))))\n  Char.instLawfulEqOrd",
+                  "usedInstances": []
+                }
+              }
+            }
+          ]
         }
       ],
       "metadata": {

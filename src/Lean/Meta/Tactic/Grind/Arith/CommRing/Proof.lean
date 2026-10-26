@@ -187,6 +187,36 @@ private def mkMergeHints (a b p : Poly) : ProofM Expr := do
       throwError "`grind` internal error, unexpected polynomial in ring proof step"
   return mergeHintsExpr a b
 
+/--
+The sum of the multiples `leaves[lo:hi]` in a balanced `Grind.CommRing.SumTree`: its polynomial,
+the tree, and the proof of `SumTree.AllZero` from the proofs of the leaves.
+-/
+private partial def mkSumTree (leaves : Array (Poly × Expr × Expr)) (lo hi : Nat) : ProofM (Poly × Expr × Expr) := do
+  if hi - lo == 1 then return leaves[lo]!
+  let mid := (lo + hi) / 2
+  let (a, ta, ha) ← mkSumTree leaves lo mid
+  let (b, tb, hb) ← mkSumTree leaves mid hi
+  let t := mkApp3 (mkConst ``Grind.CommRing.SumTree.node) (mergeHintsExpr a b) ta tb
+  let ring ← getCommRing
+  let ctx ← getContext
+  let allZero (t : Expr) := mkApp4 (mkConst ``Grind.CommRing.SumTree.AllZero [ring.u]) ring.type ring.ringInst ctx t
+  return (← combineR a b, t, mkApp4 (mkConst ``And.intro) (allZero ta) (allZero tb) ha hb)
+
+/-- `true` if the proof of `c` was already built. -/
+private def isProofCached (c : EqCnstr) : ProofM Bool := do
+  let addr := unsafe (ptrAddrUnsafe c).toUInt64 >>> 2
+  return (← get).cache.contains addr
+
+/--
+The simplification steps with multiplier `1` leading to `c`, from the last one down, and the
+constraint below them. It stops at a constraint whose proof was already built.
+-/
+private partial def collectSimps1 (c : EqCnstr) (acc : Array (Int × Mon × EqCnstr)) : ProofM (EqCnstr × Array (Int × Mon × EqCnstr)) := do
+  if (← isProofCached c) then return (c, acc)
+  match c.h with
+  | .simp 1 c₁ k₂ m₂ c₂ => collectSimps1 c₁ (acc.push (k₂, m₂, c₂))
+  | _ => return (c, acc)
+
 open Lean.Grind.CommRing in
 partial def _root_.Lean.Meta.Grind.Arith.CommRing.EqCnstr.toExprProof (c : EqCnstr) : ProofM Expr := caching c do
   match c.h with
@@ -207,6 +237,16 @@ partial def _root_.Lean.Meta.Grind.Arith.CommRing.EqCnstr.toExprProof (c : EqCns
       ← mkPolyDecl c.p, hs, ← mkPolyRefl c.p, ← toExprProof c₁, ← toExprProof c₂]
   | .simp k₁ c₁ k₂ m₂ c₂ =>
     if k₁ == 1 then
+      let (base, steps) ← collectSimps1 c₁ #[(k₂, m₂, c₂)]
+      if steps.size > 1 then
+        -- A chain of steps `c.p = base.p + Σ kᵢ * mᵢ * cᵢ.p` is checked at once.
+        let leaves ← steps.reverse.mapM fun (k₂, m₂, c₂) => do
+          let t := mkApp3 (mkConst ``Grind.CommRing.SumTree.leaf) (toExpr k₂) (← mkMonDecl m₂) (← mkPolyDecl c₂.p)
+          return (← mulMonR k₂ m₂ c₂.p, t, ← toExprProof c₂)
+        let (q, t, hAll) ← mkSumTree leaves 0 leaves.size
+        let hs ← mkMergeHints base.p q c.p
+        let h ← mkStepPrefix ``Stepwise.simps ``Stepwise.simpsC
+        return mkAppN h #[← mkPolyDecl base.p, ← mkPolyDecl c.p, t, hs, ← mkPolyRefl c.p, hAll, ← toExprProof base]
       let h ← mkStepPrefix ``Stepwise.simp1 ``Stepwise.simp1C
       let hs ← mkMergeHints c₁.p (← mulMonR k₂ m₂ c₂.p) c.p
       return mkAppN h #[
@@ -244,21 +284,6 @@ private partial def collectSteps1 (d : PolyDerivation) (acc : Array (Int × Mon 
   match d with
   | .step _ 1 d k₂ m₂ c₂ => collectSteps1 d (acc.push (k₂, m₂, c₂))
   | d => (d, acc)
-
-/--
-The sum of the multiples `leaves[lo:hi]` in a balanced `Grind.CommRing.SumTree`: its polynomial,
-the tree, and the proof of `SumTree.AllZero` from the proofs of the leaves.
--/
-private partial def mkSumTree (leaves : Array (Poly × Expr × Expr)) (lo hi : Nat) : ProofM (Poly × Expr × Expr) := do
-  if hi - lo == 1 then return leaves[lo]!
-  let mid := (lo + hi) / 2
-  let (a, ta, ha) ← mkSumTree leaves lo mid
-  let (b, tb, hb) ← mkSumTree leaves mid hi
-  let t := mkApp3 (mkConst ``Grind.CommRing.SumTree.node) (mergeHintsExpr a b) ta tb
-  let ring ← getCommRing
-  let ctx ← getContext
-  let allZero (t : Expr) := mkApp4 (mkConst ``Grind.CommRing.SumTree.AllZero [ring.u]) ring.type ring.ringInst ctx t
-  return (← combineR a b, t, mkApp4 (mkConst ``And.intro) (allZero ta) (allZero tb) ha hb)
 
 open Lean.Grind.CommRing in
 /--

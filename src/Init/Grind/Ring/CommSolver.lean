@@ -2462,6 +2462,11 @@ theorem superpose {α} [CommRing α] (ctx : Context α) (k₁ : Int) (m₁ : Mon
   rw [h, Poly.denote_mergeHint]
   simp [Poly.denote_mulMon, h₁, h₂, mul_zero, add_zero]
 
+theorem simps {α} [CommRing α] (ctx : Context α) (p₁ : Poly) (p : Poly) (t : SumTree) (hs : List Nat)
+    : p = p₁.mergeHint hs t.eval → t.AllZero ctx → p₁.denote ctx = 0 → p.denote ctx = 0 := by
+  intro h ht h₁
+  rw [h, Poly.denote_mergeHint, SumTree.denote_eval ctx t ht, h₁, add_zero]
+
 theorem simp1 {α} [CommRing α] (ctx : Context α) (p₁ : Poly) (k₂ : Int) (m₂ : Mon) (p₂ : Poly) (p : Poly) (hs : List Nat)
     : p = p₁.mergeHint hs (p₂.mulMon_k k₂ m₂) → p₁.denote ctx = 0 → p₂.denote ctx = 0 → p.denote ctx = 0 := by
   intro h h₁ h₂
@@ -2587,6 +2592,11 @@ theorem divC {α c} [CommRing α] [IsCharP α c] (ctx : Context α) [NoNatZeroDi
   simp [div_certC]; intro hnz _ h; subst p₁
   simp [Poly.denote_mulConstC, ← zsmul_eq_intCast_mul] at h
   exact no_int_zero_divisors hnz h
+
+theorem simpsC {α c} [CommRing α] [IsCharP α c] (ctx : Context α) (p₁ : Poly) (p : Poly) (t : SumTree) (hs : List Nat)
+    : p = p₁.mergeHintC c hs (t.evalC c) → t.AllZero ctx → p₁.denote ctx = 0 → p.denote ctx = 0 := by
+  intro h ht h₁
+  rw [h, Poly.denote_mergeHintC, SumTree.denote_evalC ctx t ht, h₁, add_zero]
 
 theorem simp1C {α c} [CommRing α] [IsCharP α c] (ctx : Context α) (p₁ : Poly) (k₂ : Int) (m₂ : Mon) (p₂ : Poly) (p : Poly) (hs : List Nat)
     : p = p₁.mergeHintC c hs (p₂.mulMonC_k k₂ m₂ c) → p₁.denote ctx = 0 → p₂.denote ctx = 0 → p.denote ctx = 0 := by

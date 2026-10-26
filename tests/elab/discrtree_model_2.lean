@@ -119,7 +119,7 @@ This implementation incorporates suffix tries, a performance optimization being 
 
 /--
 {given -show}`g, s`
-Tries linearize a structured term into a sequence of keys: the expression `g (s *) "hi"` can be
+A tries linearizes a structured term into a sequence of keys: the expression `g (s *) "hi"` can be
 represented as a linear sequence of keys:
 {lean (type := "List Key")}`[.const g 2, .const s 1, .star, .lit (.strVal "hi")]`
 -/
@@ -438,7 +438,8 @@ def Trie.WF {α} : Nat → Trie α → Prop
       (Trie.suffix keys (start + 1) (by omega) v).WF (n + keys[start].arity)
 termination_by _ t => t.measure
 decreasing_by
-  · exact Trie.measure_lt_of_mem_nodeChildren (t := .node cs) (by simpa [Trie.nodeChildren] using ‹c ∈ cs›)
+  · exact Trie.measure_lt_of_mem_nodeChildren (t := .node cs) (by simpa only [nodeChildren] using
+    ‹c ∈ cs›)
   · simp only [Trie.measure]; omega
   · simp only [Trie.measure]; omega
   · simp only [Trie.measure]; omega

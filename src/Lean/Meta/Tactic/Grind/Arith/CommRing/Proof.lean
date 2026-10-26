@@ -171,16 +171,21 @@ private partial def mergeHints (a b : Poly) (acc : Array Nat) : Array Nat :=
     | .add _ m' a' => if m' == m then mergeHints a' b (acc.push (2*n + 1)) else mergeHints a b (acc.push (2*n))
     | .num _ => mergeHints a b (acc.push (2*n))
 
+/-- The expression of the hints for `Grind.CommRing.Poly.mergeHint` of `a` and `b`. -/
+private def mergeHintsExpr (a b : Poly) : Expr :=
+  let nat := mkConst ``Nat
+  (mergeHints a b #[]).foldr (init := mkApp (mkConst ``List.nil [0]) nat) fun h e =>
+    mkApp3 (mkConst ``List.cons [0]) nat (mkRawNatLit h) e
+
+private def combineR (a b : Poly) : ProofM Poly := do
+  if let some c ← nonzeroChar? then return a.combineC b c else return a.combine b
+
 /-- Returns the hints for checking `p = a.mergeHint hs b`, where `p` must be the sum of `a` and `b`. -/
 private def mkMergeHints (a b p : Poly) : ProofM Expr := do
   if grind.debug.get (← getOptions) then
-    let r ← if let some c ← nonzeroChar? then pure (a.combineC b c) else pure (a.combine b)
-    unless r == p do
+    unless (← combineR a b) == p do
       throwError "`grind` internal error, unexpected polynomial in ring proof step"
-  let hs := mergeHints a b #[]
-  let nat := mkConst ``Nat
-  return hs.foldr (init := mkApp (mkConst ``List.nil [0]) nat) fun h e =>
-    mkApp3 (mkConst ``List.cons [0]) nat (mkRawNatLit h) e
+  return mergeHintsExpr a b
 
 open Lean.Grind.CommRing in
 partial def _root_.Lean.Meta.Grind.Arith.CommRing.EqCnstr.toExprProof (c : EqCnstr) : ProofM Expr := caching c do
@@ -230,17 +235,65 @@ partial def _root_.Lean.Meta.Grind.Arith.CommRing.EqCnstr.toExprProof (c : EqCns
     return mkApp7 h (toExpr k) (← mkPolyDecl c₁.p) (← mkPolyDecl c₂.p) (← mkPolyDecl c.p)
       eagerReflBoolTrue (← toExprProof c₁) (← toExprProof c₂)
 
+/--
+The steps with multiplier `1` of the derivation `d`, from the outermost one down, and the
+derivation below them.
+-/
+private partial def collectSteps1 (d : PolyDerivation) (acc : Array (Int × Mon × EqCnstr)) :
+    PolyDerivation × Array (Int × Mon × EqCnstr) :=
+  match d with
+  | .step _ 1 d k₂ m₂ c₂ => collectSteps1 d (acc.push (k₂, m₂, c₂))
+  | d => (d, acc)
+
+/--
+The sum of the multiples `leaves[lo:hi]` in a balanced `Grind.CommRing.SumTree`: its polynomial,
+the tree, and the proof of `SumTree.AllZero` from the proofs of the leaves.
+-/
+private partial def mkSumTree (leaves : Array (Poly × Expr × Expr)) (lo hi : Nat) : ProofM (Poly × Expr × Expr) := do
+  if hi - lo == 1 then return leaves[lo]!
+  let mid := (lo + hi) / 2
+  let (a, ta, ha) ← mkSumTree leaves lo mid
+  let (b, tb, hb) ← mkSumTree leaves mid hi
+  let t := mkApp3 (mkConst ``Grind.CommRing.SumTree.node) (mergeHintsExpr a b) ta tb
+  let ring ← getCommRing
+  let ctx ← getContext
+  let allZero (t : Expr) := mkApp4 (mkConst ``Grind.CommRing.SumTree.AllZero [ring.u]) ring.type ring.ringInst ctx t
+  return (← combineR a b, t, mkApp4 (mkConst ``And.intro) (allZero ta) (allZero tb) ha hb)
+
 open Lean.Grind.CommRing in
 /--
 Given a polynomial derivation, returns `(k, p₀, h)` where `h` is a proof that
 `k*p₀ = d.p`
 -/
-private def derivToExprProof (d : PolyDerivation) : ProofM (Int × Poly × Expr) := do
+private partial def derivToExprProof (d : PolyDerivation) : ProofM (Int × Poly × Expr) := do
   match d with
+  | .step p 1 d' k₂ m₂ c₂ =>
+    let (base, steps) := collectSteps1 d' #[(k₂, m₂, c₂)]
+    if steps.size == 1 then derivStep p 1 d' k₂ m₂ c₂ else
+    -- A chain of steps `p = base.p + Σ kᵢ * mᵢ * pᵢ` is checked at once.
+    let (k, p₀, h₁) ← derivToExprProof base
+    let leaves ← steps.reverse.mapM fun (k₂, m₂, c₂) => do
+      let t := mkApp3 (mkConst ``Grind.CommRing.SumTree.leaf) (toExpr k₂) (← mkMonDecl m₂) (← mkPolyDecl c₂.p)
+      return (← mulMonR k₂ m₂ c₂.p, t, ← c₂.toExprProof)
+    let (q, t, hAll) ← mkSumTree leaves 0 leaves.size
+    let hs ← mkMergeHints base.p q p
+    let h ← mkStepPrefix ``Stepwise.d_steps ``Stepwise.d_stepsC
+    return (k, p₀, mkAppN h #[toExpr k, ← mkPolyDecl p₀, ← mkPolyDecl base.p, ← mkPolyDecl p, t, hs, ← mkPolyRefl p, hAll, h₁])
+  | .step p k₁ d k₂ m₂ c₂ => derivStep p k₁ d k₂ m₂ c₂
   | .input p₀ =>
     let h := mkApp (← mkStepBasicPrefix ``Stepwise.d_init) (← mkPolyDecl p₀)
     return (1, p₀, h)
-  | .step p k₁ d k₂ m₂ c₂ =>
+  | .normEq0 p d c =>
+    let (k, p₀, h₁) ← derivToExprProof d
+    let h₂ ← c.toExprProof
+    let .num a := c.p | unreachable!
+    let h ← mkStepBasicPrefix ``Grind.CommRing.d_normEq0
+    let h := mkApp9 h
+      (toExpr k) (toExpr a.natAbs) (← mkPolyDecl p₀) (← mkPolyDecl d.p)
+      (← mkPolyDecl c.p) (← mkPolyDecl p) eagerReflBoolTrue h₁ h₂
+    return (k, p₀, h)
+where
+  derivStep (p : Poly) (k₁ : Int) (d : PolyDerivation) (k₂ : Int) (m₂ : Mon) (c₂ : EqCnstr) : ProofM (Int × Poly × Expr) := do
     let (k, p₀, h₁) ← derivToExprProof d
     let h₂ ← c₂.toExprProof
     let (h, a) ← if k₁ == 1 then
@@ -253,15 +306,6 @@ private def derivToExprProof (d : PolyDerivation) : ProofM (Int × Poly × Expr)
       toExpr k₂, ← mkMonDecl m₂, ← mkPolyDecl c₂.p, ← mkPolyDecl p,
       hs, ← mkPolyRefl p, h₁, h₂]
     return (k₁*k, p₀, h)
-  | .normEq0 p d c =>
-    let (k, p₀, h₁) ← derivToExprProof d
-    let h₂ ← c.toExprProof
-    let .num a := c.p | unreachable!
-    let h ← mkStepBasicPrefix ``Grind.CommRing.d_normEq0
-    let h := mkApp9 h
-      (toExpr k) (toExpr a.natAbs) (← mkPolyDecl p₀) (← mkPolyDecl d.p)
-      (← mkPolyDecl c.p) (← mkPolyDecl p) eagerReflBoolTrue h₁ h₂
-    return (k, p₀, h)
 
 open Lean.Grind.CommRing in
 /--

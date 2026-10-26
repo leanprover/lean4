@@ -2400,6 +2400,49 @@ theorem Poly.denote_mergeHintC {α c} [Ring α] [IsCharP α c] (ctx : Context α
     (fun a k => by rw [addConstC_k_eq_addConstC, denote_addConstC])
     (fun a b => by rw [combineC_k_eq_combineC, denote_combineC]) hs a b
 
+/--
+A sum of multiples `k * m * p` of polynomials `p`, combined with hinted merges (`Poly.mergeHint`).
+It certifies a chain of simplification steps at once: the kernel adds the multiples in a balanced
+tree and then adds their sum to the initial polynomial once.
+-/
+inductive SumTree where
+  | leaf (k : Int) (m : Mon) (p : Poly)
+  | node (hs : List Nat) (a b : SumTree)
+
+noncomputable def SumTree.eval (t : SumTree) : Poly :=
+  SumTree.rec (motive := fun _ => Poly) (fun k m p => p.mulMon_k k m) (fun hs _ _ a b => a.mergeHint hs b) t
+
+noncomputable def SumTree.evalC (c : Nat) (t : SumTree) : Poly :=
+  SumTree.rec (motive := fun _ => Poly) (fun k m p => p.mulMonC_k k m c) (fun hs _ _ a b => a.mergeHintC c hs b) t
+
+/-- Every polynomial of the leaves of `t` denotes `0`. -/
+noncomputable def SumTree.AllZero {α} [Ring α] (ctx : Context α) (t : SumTree) : Prop :=
+  SumTree.rec (motive := fun _ => Prop) (fun _ _ p => p.denote ctx = 0) (fun _ _ _ a b => a ∧ b) t
+
+theorem SumTree.denote_eval {α} [CommRing α] (ctx : Context α) (t : SumTree) (h : t.AllZero ctx) :
+    t.eval.denote ctx = 0 := by
+  induction t with
+  | leaf k m p =>
+    replace h : p.denote ctx = 0 := h
+    show (p.mulMon_k k m).denote ctx = 0
+    simp [Poly.denote_mulMon, h, mul_zero]
+  | node hs a b iha ihb =>
+    obtain ⟨ha, hb⟩ := h
+    show (a.eval.mergeHint hs b.eval).denote ctx = 0
+    rw [Poly.denote_mergeHint, iha ha, ihb hb, add_zero]
+
+theorem SumTree.denote_evalC {α c} [CommRing α] [IsCharP α c] (ctx : Context α) (t : SumTree) (h : t.AllZero ctx) :
+    (t.evalC c).denote ctx = 0 := by
+  induction t with
+  | leaf k m p =>
+    replace h : p.denote ctx = 0 := h
+    show (p.mulMonC_k k m c).denote ctx = 0
+    simp [Poly.denote_mulMonC, h, mul_zero]
+  | node hs a b iha ihb =>
+    obtain ⟨ha, hb⟩ := h
+    show ((a.evalC c).mergeHintC c hs (b.evalC c)).denote ctx = 0
+    rw [Poly.denote_mergeHintC, iha ha, ihb hb, add_zero]
+
 namespace Stepwise
 /-!
 Theorems for stepwise proof-term construction
@@ -2486,6 +2529,11 @@ theorem d_step1 {α} [CommRing α] (ctx : Context α) (k : Int) (init : Poly) (p
   rw [h, Poly.denote_mergeHint]
   simp [Poly.denote_mulMon, h₂, mul_zero, add_zero, h₁]
 
+theorem d_steps {α} [CommRing α] (ctx : Context α) (k : Int) (init : Poly) (p₁ : Poly) (p : Poly) (t : SumTree) (hs : List Nat)
+    : p = p₁.mergeHint hs t.eval → t.AllZero ctx → k * init.denote ctx = p₁.denote ctx → k * init.denote ctx = p.denote ctx := by
+  intro h ht h₁
+  rw [h, Poly.denote_mergeHint, SumTree.denote_eval ctx t ht, add_zero, h₁]
+
 theorem d_stepk {α} [CommRing α] (ctx : Context α) (k₁ : Int) (k : Int) (init : Poly) (p₁ : Poly) (k₂ : Int) (m₂ : Mon) (p₂ : Poly) (p : Poly) (hs : List Nat)
     : p = (p₁.mulConst_k k₁).mergeHint hs (p₂.mulMon_k k₂ m₂) → k * init.denote ctx = p₁.denote ctx → p₂.denote ctx = 0 → (k₁*k : Int) * init.denote ctx = p.denote ctx := by
   intro h h₁ h₂
@@ -2567,6 +2615,11 @@ theorem d_step1C {α c} [CommRing α] [IsCharP α c] (ctx : Context α) (k : Int
   intro h h₁ h₂
   rw [h, Poly.denote_mergeHintC]
   simp [Poly.denote_mulMonC, h₂, mul_zero, add_zero, h₁]
+
+theorem d_stepsC {α c} [CommRing α] [IsCharP α c] (ctx : Context α) (k : Int) (init : Poly) (p₁ : Poly) (p : Poly) (t : SumTree) (hs : List Nat)
+    : p = p₁.mergeHintC c hs (t.evalC c) → t.AllZero ctx → k * init.denote ctx = p₁.denote ctx → k * init.denote ctx = p.denote ctx := by
+  intro h ht h₁
+  rw [h, Poly.denote_mergeHintC, SumTree.denote_evalC ctx t ht, add_zero, h₁]
 
 theorem d_stepkC {α c} [CommRing α] [IsCharP α c] (ctx : Context α) (k₁ : Int) (k : Int) (init : Poly) (p₁ : Poly) (k₂ : Int) (m₂ : Mon) (p₂ : Poly) (p : Poly) (hs : List Nat)
     : p = (p₁.mulConstC_k k₁ c).mergeHintC c hs (p₂.mulMonC_k k₂ m₂ c) → k * init.denote ctx = p₁.denote ctx → p₂.denote ctx = 0 → (k₁*k : Int) * init.denote ctx = p.denote ctx := by

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.Tactic.VCGen
-// Imports: public import Lean.Elab.Tactic.VCGen.Reduce public import Lean.Elab.Tactic.VCGen.SpecDB public import Lean.Elab.Tactic.VCGen.RuleConstruction public import Lean.Elab.Tactic.VCGen.Context public import Lean.Elab.Tactic.VCGen.Util public import Lean.Elab.Tactic.VCGen.RuleCache public import Lean.Elab.Tactic.VCGen.Entails public import Lean.Elab.Tactic.VCGen.Solve public import Lean.Elab.Tactic.VCGen.Driver public import Lean.Elab.Tactic.VCGen.Frontend
+// Imports: public import Lean.Elab.Tactic.VCGen.Reduce public import Lean.Elab.Tactic.VCGen.SpecDB public import Lean.Elab.Tactic.VCGen.RuleConstruction public import Lean.Elab.Tactic.VCGen.Context public import Lean.Elab.Tactic.VCGen.Util public import Lean.Elab.Tactic.VCGen.RuleCache public import Lean.Elab.Tactic.VCGen.Entails public import Lean.Elab.Tactic.VCGen.Solve public import Lean.Elab.Tactic.VCGen.Driver public import Lean.Elab.Tactic.VCGen.SimpAttr public import Lean.Elab.Tactic.VCGen.Frontend
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -22,6 +22,7 @@ lean_object* runtime_initialize_Lean_Elab_Tactic_VCGen_RuleCache(uint8_t builtin
 lean_object* runtime_initialize_Lean_Elab_Tactic_VCGen_Entails(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Elab_Tactic_VCGen_Solve(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Elab_Tactic_VCGen_Driver(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Elab_Tactic_VCGen_SimpAttr(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Elab_Tactic_VCGen_Frontend(uint8_t builtin);
 void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
@@ -57,6 +58,9 @@ lean_dec_ref(res);
 res = runtime_initialize_Lean_Elab_Tactic_VCGen_Driver(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+res = runtime_initialize_Lean_Elab_Tactic_VCGen_SimpAttr(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 res = runtime_initialize_Lean_Elab_Tactic_VCGen_Frontend(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
@@ -78,6 +82,7 @@ lean_object* initialize_Lean_Elab_Tactic_VCGen_RuleCache(uint8_t builtin);
 lean_object* initialize_Lean_Elab_Tactic_VCGen_Entails(uint8_t builtin);
 lean_object* initialize_Lean_Elab_Tactic_VCGen_Solve(uint8_t builtin);
 lean_object* initialize_Lean_Elab_Tactic_VCGen_Driver(uint8_t builtin);
+lean_object* initialize_Lean_Elab_Tactic_VCGen_SimpAttr(uint8_t builtin);
 lean_object* initialize_Lean_Elab_Tactic_VCGen_Frontend(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Elab_Tactic_VCGen(uint8_t builtin) {
@@ -109,6 +114,9 @@ res = initialize_Lean_Elab_Tactic_VCGen_Solve(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Elab_Tactic_VCGen_Driver(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Elab_Tactic_VCGen_SimpAttr(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Elab_Tactic_VCGen_Frontend(builtin);

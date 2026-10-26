@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Init.Grind.Ring.Packed
+public import Init.Grind.Ring.FieldSolver
 import Init.Omega
 import Init.ByCases
 import Init.Data.Int.Order
@@ -1447,5 +1448,344 @@ theorem imp_keqKC {α c} [CommRing α] [IsCharP α c] (ctx : Context α) [NoNatZ
   rw [this, h₁, (IsCharP.natCast_eq_zero_iff c c).mpr (Nat.mod_self c), zero_mul, add_zero]
 
 end Stepwise
+
+/-!
+Field identities with inverses of numerals (`Expr.eq_of_kronQ`). With the variables of `invs`
+denoting `1 / c`, an expression `e` is `num / den` for an integer polynomial `num`
+(`Expr.toPPQ`, only used in proofs). The kernel computes the value of `num` at the point and `den`
+(`Expr.kronQ_k`), so `a = b` follows from `num_a * den_b = num_b * den_a` at the point, with a
+bound on the coefficients (`Expr.majQ_k`).
+-/
+
+/-- `invs.lookup x` for kernel reduction. -/
+noncomputable def InvVars.lookup_k (invs : InvVars) (x : Var) : Option Nat :=
+  List.rec none (fun p _ ih => Bool.rec ih (some p.2) (Nat.beq p.1 x)) invs
+
+/-- `true` if the numerals of `invs` are not `0`. -/
+noncomputable def InvVars.nonzero_k (invs : InvVars) : Bool :=
+  List.rec true (fun p _ ih => Bool.rec false ih (Nat.blt 0 p.2)) invs
+
+theorem InvVars.lookup_k_spec {α} [Field α] (ctx : Context α) (invs : InvVars) (hok : invs.ok ctx)
+    (hnz : InvVars.nonzero_k invs = true) (x : Var) (c : Nat) (h : InvVars.lookup_k invs x = some c) :
+    Var.denote ctx x = (c : α)⁻¹ ∧ c ≠ 0 := by
+  induction invs with
+  | nil => cases h
+  | cons p invs ih =>
+    obtain ⟨y, c'⟩ := p
+    rw [InvVars.ok_cons] at hok
+    have hnz : Bool.rec false (InvVars.nonzero_k invs) (Nat.blt 0 c') = true := hnz
+    have hnz := PPoly.and_of_rec hnz
+    have h : Bool.rec (InvVars.lookup_k invs x) (some c') (Nat.beq y x) = some c := h
+    cases hyx : Nat.beq y x
+    · rw [hyx] at h; exact ih hok.2 hnz.2 h
+    · rw [hyx] at h
+      cases h
+      have : y = x := Nat.eq_of_beq_eq_true hyx
+      subst this
+      refine ⟨by rw [hok.1, Semiring.ofNat_eq_natCast], ?_⟩
+      have := Nat.blt_eq.mp hnz.1; omega
+
+/-- `Expr.degB_k`, where the variables of `invs` are constants. -/
+noncomputable def Expr.degQB_k (invs : InvVars) (e : Expr) : Nat :=
+  Expr.rec (fun _ => 0) (fun _ => 0) (fun _ => 0) (fun x => Option.rec 1 (fun _ => 0) (InvVars.lookup_k invs x)) (fun _ ih => ih)
+    (fun _ _ ih₁ ih₂ => Bool.rec ih₁ ih₂ (Nat.blt ih₁ ih₂))
+    (fun _ _ ih₁ ih₂ => Bool.rec ih₁ ih₂ (Nat.blt ih₁ ih₂))
+    (fun _ _ ih₁ ih₂ => Nat.add ih₁ ih₂)
+    (fun _ k ih => Nat.mul ih k)
+    e
+
+/-- Checks the degree bound of `a` and `b` for the base `B`, where the variables of `invs` are constants. -/
+noncomputable def Expr.degQOk_k (B : Nat) (invs : InvVars) (a b : Expr) : Bool :=
+  Bool.rec false (Bool.rec false (Nat.blt (b.degQB_k invs) B) (Nat.blt (a.degQB_k invs) B)) (Nat.blt 1 B)
+
+theorem Expr.of_degQOk_k {B : Nat} {invs : InvVars} {a b : Expr} (h : degQOk_k B invs a b = true) :
+    1 < B ∧ a.degQB_k invs < B ∧ b.degQB_k invs < B := by
+  unfold degQOk_k at h
+  cases h₁ : Nat.blt 1 B <;> rw [h₁] at h
+  · cases h
+  · cases h₂ : Nat.blt (a.degQB_k invs) B <;> rw [h₂] at h
+    · cases h
+    · exact ⟨Nat.blt_eq.mp h₁, Nat.blt_eq.mp h₂, Nat.blt_eq.mp h⟩
+
+/-- `(num, den)` of `e`, where the variables of `invs` are the constants `1 / c` (only used in proofs). -/
+noncomputable def Expr.toPPQ (B : Nat) (invs : InvVars) : Expr → PPoly × Nat
+  | .num k | .intCast k => (.num k, 1)
+  | .natCast n => (.num n, 1)
+  | .var x => match InvVars.lookup_k invs x with
+    | some c => (.num 1, c)
+    | none => (.add 1 1 (Nat.pow B x) (.num 0), 1)
+  | .neg a => ((toPPQ B invs a).1.mulConst_k (-1), (toPPQ B invs a).2)
+  | .add a b => (((toPPQ B invs a).1.mulConst_k (toPPQ B invs b).2).combine_k ((toPPQ B invs b).1.mulConst_k (toPPQ B invs a).2),
+      (toPPQ B invs a).2 * (toPPQ B invs b).2)
+  | .sub a b => (((toPPQ B invs a).1.mulConst_k (toPPQ B invs b).2).combine_k ((toPPQ B invs b).1.mulConst_k (-((toPPQ B invs a).2 : Int))),
+      (toPPQ B invs a).2 * (toPPQ B invs b).2)
+  | .mul a b => ((toPPQ B invs a).1.mulB_k (toPPQ B invs b).1, (toPPQ B invs a).2 * (toPPQ B invs b).2)
+  | .pow a k => ((toPPQ B invs a).1.powB_k k, (toPPQ B invs a).2 ^ k)
+
+/-- The value of the numerator of `e` at the point `xᵢ = (2 ^ K) ^ (B ^ i)`, and its denominator. -/
+noncomputable def Expr.kronQ_k (K B : Nat) (invs : InvVars) (e : Expr) : Int × Nat :=
+  Expr.rec (motive := fun _ => Int × Nat)
+    (fun k => (k, 1)) (fun n => (Int.ofNat n, 1)) (fun k => (k, 1))
+    (fun x => Option.rec (Int.ofNat (Nat.pow 2 (Nat.mul K (Nat.pow B x))), 1) (fun c => (Int.ofNat 1, c)) (InvVars.lookup_k invs x))
+    (fun _ ih => (Int.neg_k ih.1, ih.2))
+    (fun _ _ ih₁ ih₂ => (Int.add_k (Int.mul_k ih₁.1 (Int.ofNat ih₂.2)) (Int.mul_k ih₂.1 (Int.ofNat ih₁.2)), Nat.mul ih₁.2 ih₂.2))
+    (fun _ _ ih₁ ih₂ => (Int.sub_k (Int.mul_k ih₁.1 (Int.ofNat ih₂.2)) (Int.mul_k ih₂.1 (Int.ofNat ih₁.2)), Nat.mul ih₁.2 ih₂.2))
+    (fun _ _ ih₁ ih₂ => (Int.mul_k ih₁.1 ih₂.1, Nat.mul ih₁.2 ih₂.2))
+    (fun _ k ih => (Int.pow_k ih.1 k, Nat.pow ih.2 k)) e
+
+/-- A bound on the coefficients of the numerator of `e`, and its denominator. -/
+noncomputable def Expr.majQ_k (invs : InvVars) (e : Expr) : Nat × Nat :=
+  Expr.rec (motive := fun _ => Nat × Nat)
+    (fun k => (Int.natAbs_k k, 1)) (fun n => (n, 1)) (fun k => (Int.natAbs_k k, 1))
+    (fun x => Option.rec (1, 1) (fun c => (1, c)) (InvVars.lookup_k invs x))
+    (fun _ ih => ih)
+    (fun _ _ ih₁ ih₂ => (Nat.add (Nat.mul ih₁.1 ih₂.2) (Nat.mul ih₂.1 ih₁.2), Nat.mul ih₁.2 ih₂.2))
+    (fun _ _ ih₁ ih₂ => (Nat.add (Nat.mul ih₁.1 ih₂.2) (Nat.mul ih₂.1 ih₁.2), Nat.mul ih₁.2 ih₂.2))
+    (fun _ _ ih₁ ih₂ => (Nat.mul ih₁.1 ih₂.1, Nat.mul ih₁.2 ih₂.2))
+    (fun _ k ih => (Nat.pow ih.1 k, Nat.pow ih.2 k)) e
+
+theorem PPoly.kron_combine_k (X : Int) {B : Nat} (hB : 1 < B) (p q : PPoly) :
+    (p.combine_k q).kron X = p.kron X + q.kron X := by
+  rw [← denote_kron X hB, ← denote_kron X hB, ← denote_kron X hB, (combine_k_spec _ B 0 p q).1]
+
+theorem Expr.toPPQ_spec {α} [Field α] [IsCharP α 0] (f : Nat → α) (K B : Nat) (hB : 1 < B) (invs : InvVars)
+    (hf : ∀ x c, InvVars.lookup_k invs x = some c → f x = (c : α)⁻¹ ∧ c ≠ 0) (e : Expr) (he : e.degQB_k invs < B) :
+    (e.toPPQ B invs).1.denote f B = ((e.toPPQ B invs).2 : α) * e.denoteF f ∧
+    (e.toPPQ B invs).1.Deg B (e.degQB_k invs) ∧ (e.toPPQ B invs).2 ≠ 0 ∧
+    (e.toPPQ B invs).1.kron (2 ^ K) = (e.kronQ_k K B invs).1 ∧ (e.toPPQ B invs).2 = (e.kronQ_k K B invs).2 ∧
+    (e.toPPQ B invs).1.norm1 ≤ (e.majQ_k invs).1 ∧ (e.toPPQ B invs).2 = (e.majQ_k invs).2 := by
+  induction e with
+  | num k =>
+    refine ⟨?_, trivial, Nat.one_ne_zero, rfl, rfl, ?_, rfl⟩
+    · show (k : α) = ((1 : Nat) : α) * denoteInt k; rw [denoteInt_eq, Semiring.natCast_one, one_mul]
+    · show k.natAbs ≤ Int.natAbs_k k; rw [Int.natAbs_k_eq]; exact Nat.le_refl _
+  | natCast n =>
+    refine ⟨?_, trivial, Nat.one_ne_zero, rfl, rfl, ?_, rfl⟩
+    · show ((n : Int) : α) = ((1 : Nat) : α) * NatCast.natCast n; rw [Semiring.natCast_one, one_mul, intCast_natCast]
+    · show (n : Int).natAbs ≤ n; simp
+  | intCast k =>
+    refine ⟨?_, trivial, Nat.one_ne_zero, rfl, rfl, ?_, rfl⟩
+    · show (k : α) = ((1 : Nat) : α) * IntCast.intCast k; rw [Semiring.natCast_one, one_mul]
+    · show k.natAbs ≤ Int.natAbs_k k; rw [Int.natAbs_k_eq]; exact Nat.le_refl _
+  | var x =>
+    cases hx : InvVars.lookup_k invs x with
+    | some c =>
+      have hc := hf x c hx
+      have e₁ : (Expr.var x).toPPQ B invs = (.num 1, c) := by simp only [toPPQ, hx]
+      have e₂ : (Expr.var x).kronQ_k K B invs = (Int.ofNat 1, c) := by
+        show Option.rec (motive := fun _ => Int × Nat) (Int.ofNat (Nat.pow 2 (Nat.mul K (Nat.pow B x))), 1) (fun c => (Int.ofNat 1, c))
+          (InvVars.lookup_k invs x) = _
+        rw [hx]
+      have e₃ : (Expr.var x).majQ_k invs = (1, c) := by
+        show Option.rec (motive := fun _ => Nat × Nat) (1, 1) (fun c => (1, c)) (InvVars.lookup_k invs x) = _
+        rw [hx]
+      have e₄ : (Expr.var x).degQB_k invs = 0 := by
+        show Option.rec (motive := fun _ => Nat) 1 (fun _ => 0) (InvVars.lookup_k invs x) = _
+        rw [hx]
+      rw [e₁, e₂, e₃, e₄]
+      refine ⟨?_, trivial, hc.2, rfl, rfl, Nat.le_refl _, rfl⟩
+      show ((1 : Int) : α) = (c : α) * f x
+      rw [hc.1, intCast_one, Field.mul_inv_cancel (Field.natCast_ne_zero hc.2)]
+    | none =>
+      have e₁ : (Expr.var x).toPPQ B invs = (.add 1 1 (Nat.pow B x) (.num 0), 1) := by simp only [toPPQ, hx]
+      have e₂ : (Expr.var x).kronQ_k K B invs = (Int.ofNat (Nat.pow 2 (Nat.mul K (Nat.pow B x))), 1) := by
+        show Option.rec (motive := fun _ => Int × Nat) (Int.ofNat (Nat.pow 2 (Nat.mul K (Nat.pow B x))), 1) (fun c => (Int.ofNat 1, c))
+          (InvVars.lookup_k invs x) = _
+        rw [hx]
+      have e₃ : (Expr.var x).majQ_k invs = (1, 1) := by
+        show Option.rec (motive := fun _ => Nat × Nat) (1, 1) (fun c => (1, c)) (InvVars.lookup_k invs x) = _
+        rw [hx]
+      have e₄ : (Expr.var x).degQB_k invs = 1 := by
+        show Option.rec (motive := fun _ => Nat) 1 (fun _ => 0) (InvVars.lookup_k invs x) = _
+        rw [hx]
+      rw [e₁, e₂, e₃, e₄]
+      have hx1 : PPoly.dsum B (Nat.pow B x) = 1 := by
+        have := PPoly.dsum_mul_pow hB x 1 hB; rwa [Nat.one_mul] at this
+      have hm := PPoly.monDenote_mul_pow f hB 0 x 1 hB
+      rw [Nat.one_mul] at hm
+      refine ⟨?_, ⟨by rw [hx1]; exact Nat.le_refl _, trivial⟩, Nat.one_ne_zero, ?_, rfl, by simp [PPoly.norm1], rfl⟩
+      · show ((1 : Int) : α) * PPoly.monDenote f B 0 (Nat.pow B x) + ((0 : Int) : α) = ((1 : Nat) : α) * f x
+        rw [show Nat.pow B x = B ^ x from rfl, hm, Nat.zero_add, pow_one, intCast_one, one_mul, intCast_zero, add_zero,
+          Semiring.natCast_one, one_mul]
+      · show (1 : Int) * (2 ^ K) ^ Nat.pow B x + 0 = Int.ofNat (2 ^ (K * B ^ x))
+        rw [Int.one_mul, Int.add_zero, ← Int.pow_mul]; exact (Int.natCast_pow 2 _).symm
+  | neg a ih =>
+    have ih := ih he
+    obtain ⟨h₁, h₂, h₃, h₄, h₅, h₆, h₇⟩ := ih
+    have hm := PPoly.mulConst_k_spec f B (a.degQB_k invs) (-1) (a.toPPQ B invs).1
+    refine ⟨?_, hm.2 h₂, h₃, ?_, h₅, ?_, h₇⟩
+    · show ((a.toPPQ B invs).1.mulConst_k (-1)).denote f B = _ * - a.denoteF f
+      rw [hm.1, h₁, intCast_neg_one, ← neg_eq_neg_one_mul, mul_neg]; rfl
+    · show ((a.toPPQ B invs).1.mulConst_k (-1)).kron _ = Int.neg_k (a.kronQ_k K B invs).1
+      rw [PPoly.kron_mulConst_k, h₄, Int.neg_k_eq]; show -1 * _ = -_; omega
+    · show ((a.toPPQ B invs).1.mulConst_k (-1)).norm1 ≤ (a.majQ_k invs).1
+      have := PPoly.norm1_mulConst_k (-1) (a.toPPQ B invs).1
+      simp at this; omega
+  | add a b iha ihb =>
+    have hm := Expr.le_max_k (a.degQB_k invs) (b.degQB_k invs)
+    have he' : Bool.rec (a.degQB_k invs) (b.degQB_k invs) (Nat.blt (a.degQB_k invs) (b.degQB_k invs)) < B := he
+    obtain ⟨a₁, a₂, a₃, a₄, a₅, a₆, a₇⟩ := iha (by omega)
+    obtain ⟨b₁, b₂, b₃, b₄, b₅, b₆, b₇⟩ := ihb (by omega)
+    have mp := PPoly.mulConst_k_spec f B (a.degQB_k invs) (((b.toPPQ B invs).2) : Int) ((a.toPPQ B invs).1)
+    have mq := PPoly.mulConst_k_spec f B (b.degQB_k invs) (((a.toPPQ B invs).2) : Int) ((b.toPPQ B invs).1)
+    have hD : (Bool.rec (a.degQB_k invs) (b.degQB_k invs) (Nat.blt (a.degQB_k invs) (b.degQB_k invs)) : Nat) = ((Expr.add a b).degQB_k invs) := rfl
+    have hc := PPoly.combine_k_spec f B ((Expr.add a b).degQB_k invs) (((a.toPPQ B invs).1).mulConst_k ((b.toPPQ B invs).2)) (((b.toPPQ B invs).1).mulConst_k ((a.toPPQ B invs).2))
+    refine ⟨?_, hc.2 (PPoly.Deg.mono (by rw [← hD]; exact hm.1) _ (mp.2 a₂)) (PPoly.Deg.mono (by rw [← hD]; exact hm.2) _ (mq.2 b₂)),
+      Nat.mul_ne_zero a₃ b₃, ?_, ?_, ?_, ?_⟩
+    · show ((((a.toPPQ B invs).1).mulConst_k ((b.toPPQ B invs).2)).combine_k (((b.toPPQ B invs).1).mulConst_k ((a.toPPQ B invs).2))).denote f B = ((((a.toPPQ B invs).2) * ((b.toPPQ B invs).2) : Nat) : α) * (a.denoteF f + b.denoteF f)
+      rw [hc.1, mp.1, mq.1, a₁, b₁, Semiring.natCast_mul, left_distrib, intCast_natCast, intCast_natCast]
+      simp only [mul_assoc, mul_left_comm]
+    · show ((((a.toPPQ B invs).1).mulConst_k ((b.toPPQ B invs).2)).combine_k (((b.toPPQ B invs).1).mulConst_k ((a.toPPQ B invs).2))).kron _ =
+        Int.add_k (Int.mul_k (a.kronQ_k K B invs).1 (Int.ofNat (b.kronQ_k K B invs).2)) (Int.mul_k (b.kronQ_k K B invs).1 (Int.ofNat (a.kronQ_k K B invs).2))
+      rw [PPoly.kron_combine_k _ hB, PPoly.kron_mulConst_k, PPoly.kron_mulConst_k, a₄, b₄, ← a₅, ← b₅, Int.add_k_eq, Int.mul_k_eq, Int.mul_k_eq]
+      show (((b.toPPQ B invs).2) : Int) * _ + (((a.toPPQ B invs).2) : Int) * _ = _ * (((b.toPPQ B invs).2) : Int) + _ * (((a.toPPQ B invs).2) : Int)
+      rw [Int.mul_comm (((b.toPPQ B invs).2) : Int), Int.mul_comm (((a.toPPQ B invs).2) : Int)]
+    · show ((a.toPPQ B invs).2) * ((b.toPPQ B invs).2) = Nat.mul (a.kronQ_k K B invs).2 (b.kronQ_k K B invs).2; rw [← a₅, ← b₅]; rfl
+    · show ((((a.toPPQ B invs).1).mulConst_k ((b.toPPQ B invs).2)).combine_k (((b.toPPQ B invs).1).mulConst_k ((a.toPPQ B invs).2))).norm1 ≤
+        Nat.add (Nat.mul (a.majQ_k invs).1 (b.majQ_k invs).2) (Nat.mul (b.majQ_k invs).1 (a.majQ_k invs).2)
+      have := PPoly.norm1_combine_k (((a.toPPQ B invs).1).mulConst_k ((b.toPPQ B invs).2)) (((b.toPPQ B invs).1).mulConst_k ((a.toPPQ B invs).2))
+      have := PPoly.norm1_mulConst_k (((b.toPPQ B invs).2) : Int) ((a.toPPQ B invs).1)
+      have := PPoly.norm1_mulConst_k (((a.toPPQ B invs).2) : Int) ((b.toPPQ B invs).1)
+      rw [← a₇, ← b₇, Nat.add_eq, Nat.mul_eq, Nat.mul_eq]
+      rw [show ((((b.toPPQ B invs).2) : Int)).natAbs = ((b.toPPQ B invs).2) from rfl] at *
+      rw [show ((((a.toPPQ B invs).2) : Int)).natAbs = ((a.toPPQ B invs).2) from rfl] at *
+      have := Nat.mul_le_mul_left ((b.toPPQ B invs).2) a₆
+      have := Nat.mul_le_mul_left ((a.toPPQ B invs).2) b₆
+      rw [Nat.mul_comm (a.majQ_k invs).1, Nat.mul_comm (b.majQ_k invs).1]
+      omega
+    · show ((a.toPPQ B invs).2) * ((b.toPPQ B invs).2) = Nat.mul (a.majQ_k invs).2 (b.majQ_k invs).2; rw [← a₇, ← b₇]; rfl
+  | sub a b iha ihb =>
+    have hm := Expr.le_max_k (a.degQB_k invs) (b.degQB_k invs)
+    have he' : Bool.rec (a.degQB_k invs) (b.degQB_k invs) (Nat.blt (a.degQB_k invs) (b.degQB_k invs)) < B := he
+    obtain ⟨a₁, a₂, a₃, a₄, a₅, a₆, a₇⟩ := iha (by omega)
+    obtain ⟨b₁, b₂, b₃, b₄, b₅, b₆, b₇⟩ := ihb (by omega)
+    have mp := PPoly.mulConst_k_spec f B (a.degQB_k invs) (((b.toPPQ B invs).2) : Int) ((a.toPPQ B invs).1)
+    have mq := PPoly.mulConst_k_spec f B (b.degQB_k invs) (-(((a.toPPQ B invs).2) : Int)) ((b.toPPQ B invs).1)
+    have hD : (Bool.rec (a.degQB_k invs) (b.degQB_k invs) (Nat.blt (a.degQB_k invs) (b.degQB_k invs)) : Nat) = ((Expr.sub a b).degQB_k invs) := rfl
+    have hc := PPoly.combine_k_spec f B ((Expr.sub a b).degQB_k invs) (((a.toPPQ B invs).1).mulConst_k ((b.toPPQ B invs).2)) (((b.toPPQ B invs).1).mulConst_k (-(((a.toPPQ B invs).2) : Int)))
+    refine ⟨?_, hc.2 (PPoly.Deg.mono (by rw [← hD]; exact hm.1) _ (mp.2 a₂)) (PPoly.Deg.mono (by rw [← hD]; exact hm.2) _ (mq.2 b₂)),
+      Nat.mul_ne_zero a₃ b₃, ?_, ?_, ?_, ?_⟩
+    · show ((((a.toPPQ B invs).1).mulConst_k ((b.toPPQ B invs).2)).combine_k (((b.toPPQ B invs).1).mulConst_k (-(((a.toPPQ B invs).2) : Int)))).denote f B = ((((a.toPPQ B invs).2) * ((b.toPPQ B invs).2) : Nat) : α) * (a.denoteF f - b.denoteF f)
+      rw [hc.1, mp.1, mq.1, a₁, b₁, Semiring.natCast_mul, sub_eq_add_neg, left_distrib, intCast_neg, intCast_natCast, intCast_natCast,
+        neg_mul, mul_neg]
+      simp only [mul_assoc, mul_left_comm]
+    · show ((((a.toPPQ B invs).1).mulConst_k ((b.toPPQ B invs).2)).combine_k (((b.toPPQ B invs).1).mulConst_k (-(((a.toPPQ B invs).2) : Int)))).kron _ =
+        Int.sub_k (Int.mul_k (a.kronQ_k K B invs).1 (Int.ofNat (b.kronQ_k K B invs).2)) (Int.mul_k (b.kronQ_k K B invs).1 (Int.ofNat (a.kronQ_k K B invs).2))
+      rw [PPoly.kron_combine_k _ hB, PPoly.kron_mulConst_k, PPoly.kron_mulConst_k, a₄, b₄, ← a₅, ← b₅, Int.sub_k_eq, Int.mul_k_eq, Int.mul_k_eq]
+      show (((b.toPPQ B invs).2) : Int) * _ + (-(((a.toPPQ B invs).2) : Int)) * _ = _ * (((b.toPPQ B invs).2) : Int) - _ * (((a.toPPQ B invs).2) : Int)
+      rw [Int.mul_comm (((b.toPPQ B invs).2) : Int), Int.neg_mul, Int.mul_comm (((a.toPPQ B invs).2) : Int)]; omega
+    · show ((a.toPPQ B invs).2) * ((b.toPPQ B invs).2) = Nat.mul (a.kronQ_k K B invs).2 (b.kronQ_k K B invs).2; rw [← a₅, ← b₅]; rfl
+    · show ((((a.toPPQ B invs).1).mulConst_k ((b.toPPQ B invs).2)).combine_k (((b.toPPQ B invs).1).mulConst_k (-(((a.toPPQ B invs).2) : Int)))).norm1 ≤
+        Nat.add (Nat.mul (a.majQ_k invs).1 (b.majQ_k invs).2) (Nat.mul (b.majQ_k invs).1 (a.majQ_k invs).2)
+      have := PPoly.norm1_combine_k (((a.toPPQ B invs).1).mulConst_k ((b.toPPQ B invs).2)) (((b.toPPQ B invs).1).mulConst_k (-(((a.toPPQ B invs).2) : Int)))
+      have := PPoly.norm1_mulConst_k (((b.toPPQ B invs).2) : Int) ((a.toPPQ B invs).1)
+      have := PPoly.norm1_mulConst_k (-(((a.toPPQ B invs).2) : Int)) ((b.toPPQ B invs).1)
+      rw [← a₇, ← b₇, Nat.add_eq, Nat.mul_eq, Nat.mul_eq]
+      rw [show ((((b.toPPQ B invs).2) : Int)).natAbs = ((b.toPPQ B invs).2) from rfl] at *
+      rw [show (-(((a.toPPQ B invs).2) : Int)).natAbs = ((a.toPPQ B invs).2) by simp] at *
+      have := Nat.mul_le_mul_left ((b.toPPQ B invs).2) a₆
+      have := Nat.mul_le_mul_left ((a.toPPQ B invs).2) b₆
+      rw [Nat.mul_comm (a.majQ_k invs).1, Nat.mul_comm (b.majQ_k invs).1]
+      omega
+    · show ((a.toPPQ B invs).2) * ((b.toPPQ B invs).2) = Nat.mul (a.majQ_k invs).2 (b.majQ_k invs).2; rw [← a₇, ← b₇]; rfl
+  | mul a b iha ihb =>
+    have he' : Nat.add (a.degQB_k invs) (b.degQB_k invs) < B := he
+    obtain ⟨a₁, a₂, a₃, a₄, a₅, a₆, a₇⟩ := iha (by simp at he'; omega)
+    obtain ⟨b₁, b₂, b₃, b₄, b₅, b₆, b₇⟩ := ihb (by simp at he'; omega)
+    have hp := PPoly.mulB_k_spec f B (a.degQB_k invs) (b.degQB_k invs) hB (by simp at he'; omega) ((a.toPPQ B invs).1) ((b.toPPQ B invs).1) a₂ b₂
+    have hpI := PPoly.mulB_k_spec (fun i => ((2 : Int) ^ K) ^ (B ^ i)) B (a.degQB_k invs) (b.degQB_k invs) hB (by simp at he'; omega) ((a.toPPQ B invs).1) ((b.toPPQ B invs).1) a₂ b₂
+    refine ⟨?_, hp.2, Nat.mul_ne_zero a₃ b₃, ?_, ?_, ?_, ?_⟩
+    · show (((a.toPPQ B invs).1).mulB_k ((b.toPPQ B invs).1)).denote f B = ((((a.toPPQ B invs).2) * ((b.toPPQ B invs).2) : Nat) : α) * (a.denoteF f * b.denoteF f)
+      rw [hp.1, a₁, b₁, Semiring.natCast_mul]; simp only [mul_assoc, mul_left_comm]
+    · show (((a.toPPQ B invs).1).mulB_k ((b.toPPQ B invs).1)).kron _ = Int.mul_k (a.kronQ_k K B invs).1 (b.kronQ_k K B invs).1
+      rw [← PPoly.denote_kron _ hB, hpI.1, PPoly.denote_kron _ hB, PPoly.denote_kron _ hB, a₄, b₄, Int.mul_k_eq]; rfl
+    · show ((a.toPPQ B invs).2) * ((b.toPPQ B invs).2) = Nat.mul (a.kronQ_k K B invs).2 (b.kronQ_k K B invs).2; rw [← a₅, ← b₅]; rfl
+    · show (((a.toPPQ B invs).1).mulB_k ((b.toPPQ B invs).1)).norm1 ≤ Nat.mul (a.majQ_k invs).1 (b.majQ_k invs).1
+      exact Nat.le_trans (PPoly.norm1_mulB_k ((a.toPPQ B invs).1) ((b.toPPQ B invs).1)) (Nat.mul_le_mul a₆ b₆)
+    · show ((a.toPPQ B invs).2) * ((b.toPPQ B invs).2) = Nat.mul (a.majQ_k invs).2 (b.majQ_k invs).2; rw [← a₇, ← b₇]; rfl
+  | pow a k ih =>
+    by_cases hk : k = 0
+    · subst hk
+      refine ⟨?_, trivial, by show (a.toPPQ B invs).2 ^ 0 ≠ 0; simp, ?_, ?_, ?_, ?_⟩
+      · show (((a.toPPQ B invs).1.powB_k 0).denote f B) = (((a.toPPQ B invs).2 ^ 0 : Nat) : α) * a.denoteF f ^ 0
+        show ((Int.ofNat 1 : Int) : α) = _
+        rw [Nat.pow_zero, pow_zero, Semiring.natCast_one, one_mul]; exact intCast_one
+      · show ((a.toPPQ B invs).1.powB_k 0).kron _ = Int.pow_k (a.kronQ_k K B invs).1 0
+        rw [Int.pow_k_eq, Int.pow_zero]; rfl
+      · show (a.toPPQ B invs).2 ^ 0 = Nat.pow (a.kronQ_k K B invs).2 0; simp
+      · show ((a.toPPQ B invs).1.powB_k 0).norm1 ≤ Nat.pow (a.majQ_k invs).1 0; simp [PPoly.powB_k, PPoly.norm1]
+      · show (a.toPPQ B invs).2 ^ 0 = Nat.pow (a.majQ_k invs).2 0; simp
+    have he' : Nat.mul (a.degQB_k invs) k < B := he
+    have hk' : (a.degQB_k invs) ≤ (a.degQB_k invs) * k := Nat.le_mul_of_pos_right _ (by omega)
+    obtain ⟨a₁, a₂, a₃, a₄, a₅, a₆, a₇⟩ := ih (by simp at he'; omega)
+    have hp := PPoly.powB_k_spec f B (a.degQB_k invs) hB ((a.toPPQ B invs).1) k a₂ (by simp at he'; omega)
+    have hpI := PPoly.powB_k_spec (fun i => ((2 : Int) ^ K) ^ (B ^ i)) B (a.degQB_k invs) hB ((a.toPPQ B invs).1) k a₂ (by simp at he'; omega)
+    refine ⟨?_, hp.2, Nat.pos_iff_ne_zero.mp (Nat.pow_pos (Nat.pos_iff_ne_zero.mpr a₃)), ?_, ?_, ?_, ?_⟩
+    · show (((a.toPPQ B invs).1).powB_k k).denote f B = ((((a.toPPQ B invs).2) ^ k : Nat) : α) * a.denoteF f ^ k
+      rw [hp.1, a₁, Semiring.natCast_pow, mul_pow]
+    · show (((a.toPPQ B invs).1).powB_k k).kron _ = Int.pow_k (a.kronQ_k K B invs).1 k
+      rw [← PPoly.denote_kron _ hB, hpI.1, PPoly.denote_kron _ hB, a₄, Int.pow_k_eq]
+    · show ((a.toPPQ B invs).2) ^ k = Nat.pow (a.kronQ_k K B invs).2 k; rw [← a₅]; rfl
+    · show (((a.toPPQ B invs).1).powB_k k).norm1 ≤ Nat.pow (a.majQ_k invs).1 k
+      exact Nat.le_trans (PPoly.norm1_powB_k ((a.toPPQ B invs).1) k) (Nat.pow_le_pow_left a₆ k)
+    · show ((a.toPPQ B invs).2) ^ k = Nat.pow (a.majQ_k invs).2 k; rw [← a₇]; rfl
+
+/-- Checks the bound on the coefficients of `num_a * den_b - num_b * den_a`. -/
+noncomputable def Expr.kronQOk_k (K : Nat) (invs : InvVars) (a b : Expr) : Bool :=
+  Nat.blt (Nat.mul 2 (Nat.add (Nat.mul (b.majQ_k invs).2 (a.majQ_k invs).1) (Nat.mul (a.majQ_k invs).2 (b.majQ_k invs).1))) (Nat.pow 2 K)
+
+/-- `num_a * den_b = num_b * den_a` at the point. -/
+noncomputable def Expr.kronQEq_k (K B : Nat) (invs : InvVars) (a b : Expr) : Bool :=
+  Int.beq' (Int.mul_k (a.kronQ_k K B invs).1 (Int.ofNat (b.kronQ_k K B invs).2))
+    (Int.mul_k (b.kronQ_k K B invs).1 (Int.ofNat (a.kronQ_k K B invs).2))
+
+theorem Expr.eq_of_kronQ {α} [Field α] [IsCharP α 0] (ctx : Context α) (K B : Nat) (invs : InvVars) (hok : invs.ok ctx)
+    (hnz : InvVars.nonzero_k invs = true) (a b : Expr) (hB : degQOk_k B invs a b = true) (hK : kronQOk_k K invs a b = true)
+    (h : kronQEq_k K B invs a b = true) : a.denote ctx = b.denote ctx := by
+  have hB := of_degQOk_k hB
+  have hf := InvVars.lookup_k_spec ctx invs hok hnz
+  obtain ⟨a₁, a₂, a₃, a₄, a₅, a₆, a₇⟩ := toPPQ_spec (Var.denote ctx) K B hB.1 invs hf a hB.2.1
+  obtain ⟨b₁, b₂, b₃, b₄, b₅, b₆, b₇⟩ := toPPQ_spec (Var.denote ctx) K B hB.1 invs hf b hB.2.2
+  have hK : 2 * (((b.toPPQ B invs).2) * (a.majQ_k invs).1 + ((a.toPPQ B invs).2) * (b.majQ_k invs).1) < 2 ^ K := by
+    have := Nat.blt_eq.mp hK; rw [← a₇, ← b₇] at this; simpa using this
+  have hX : (0 : Int) < 2 ^ K := Int.pow_pos (by decide)
+  have mp := PPoly.mulConst_k_spec (Var.denote ctx) B 0 (((b.toPPQ B invs).2) : Int) ((a.toPPQ B invs).1)
+  have mq := PPoly.mulConst_k_spec (Var.denote ctx) B 0 (((a.toPPQ B invs).2) : Int) ((b.toPPQ B invs).1)
+  have heq := PPoly.denote_eq_of_kron (Var.denote ctx) B ((2 : Int) ^ K) hX (((a.toPPQ B invs).1).mulConst_k ((b.toPPQ B invs).2)) (((b.toPPQ B invs).1).mulConst_k ((a.toPPQ B invs).2))
+    (by
+      rw [PPoly.kron_mulConst_k, PPoly.kron_mulConst_k, a₄, b₄]
+      have h := h; unfold kronQEq_k at h; rw [Int.beq'_eq, Int.mul_k_eq, Int.mul_k_eq, ← a₅, ← b₅] at h
+      show (((b.toPPQ B invs).2) : Int) * _ = (((a.toPPQ B invs).2) : Int) * _
+      rw [Int.mul_comm, Int.mul_comm (((a.toPPQ B invs).2) : Int)]; exact h)
+    (by
+      have := PPoly.norm1_mulConst_k (((b.toPPQ B invs).2) : Int) ((a.toPPQ B invs).1)
+      have := PPoly.norm1_mulConst_k (((a.toPPQ B invs).2) : Int) ((b.toPPQ B invs).1)
+      rw [show ((((b.toPPQ B invs).2) : Int)).natAbs = ((b.toPPQ B invs).2) from rfl] at *
+      rw [show ((((a.toPPQ B invs).2) : Int)).natAbs = ((a.toPPQ B invs).2) from rfl] at *
+      have := Nat.mul_le_mul_left ((b.toPPQ B invs).2) a₆
+      have := Nat.mul_le_mul_left ((a.toPPQ B invs).2) b₆
+      have : 2 * ((((a.toPPQ B invs).1).mulConst_k ((b.toPPQ B invs).2)).norm1 + (((b.toPPQ B invs).1).mulConst_k ((a.toPPQ B invs).2)).norm1) < 2 ^ K := by omega
+      have h2 : ((2 ^ K : Nat) : Int) = (2 : Int) ^ K := Int.natCast_pow 2 K
+      rw [← h2]; exact Int.ofNat_lt.mpr (by simpa using this))
+  rw [mp.1, mq.1, a₁, b₁, intCast_natCast, intCast_natCast] at heq
+  have hs : (((a.toPPQ B invs).2) : α) ≠ 0 := Field.natCast_ne_zero a₃
+  have ht : (((b.toPPQ B invs).2) : α) ≠ 0 := Field.natCast_ne_zero b₃
+  have : ((((b.toPPQ B invs).2) : α) * ((a.toPPQ B invs).2)) * (a.denoteF (Var.denote ctx) - b.denoteF (Var.denote ctx)) = 0 := by
+    rw [sub_eq_add_neg, left_distrib, mul_neg, ← sub_eq_add_neg, AddCommGroup.sub_eq_zero_iff]
+    calc (((b.toPPQ B invs).2) : α) * ((a.toPPQ B invs).2) * a.denoteF (Var.denote ctx)
+        = (((b.toPPQ B invs).2) : α) * ((((a.toPPQ B invs).2) : α) * a.denoteF (Var.denote ctx)) := by rw [mul_assoc]
+      _ = (((a.toPPQ B invs).2) : α) * ((((b.toPPQ B invs).2) : α) * b.denoteF (Var.denote ctx)) := heq
+      _ = (((b.toPPQ B invs).2) : α) * ((a.toPPQ B invs).2) * b.denoteF (Var.denote ctx) := by
+        rw [← mul_assoc, CommSemiring.mul_comm (((a.toPPQ B invs).2) : α)]
+  rcases Field.of_mul_eq_zero this with h0 | h0
+  · rcases Field.of_mul_eq_zero h0 with h1 | h1
+    · exact absurd h1 ht
+    · exact absurd h1 hs
+  · rw [Expr.denote_eq_denoteF, Expr.denote_eq_denoteF]; exact AddCommGroup.sub_eq_zero_iff.mp h0
+
+theorem eq_true_of_kronQ {α} [Field α] [IsCharP α 0] (ctx : Context α) (K B : Nat) (invs : InvVars) (hok : invs.ok ctx)
+    (hnz : InvVars.nonzero_k invs = true) (a b : Expr) (hB : Expr.degQOk_k B invs a b = true) (hK : Expr.kronQOk_k K invs a b = true)
+    (h : Expr.kronQEq_k K B invs a b = true) : (a.denote ctx = b.denote ctx) = True :=
+  eq_true (Expr.eq_of_kronQ ctx K B invs hok hnz a b hB hK h)
 
 end Lean.Grind.CommRing

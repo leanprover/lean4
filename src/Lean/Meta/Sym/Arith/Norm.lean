@@ -1158,6 +1158,11 @@ private def mkCertificate (e₁ : Expr) (re : RingExpr) (p : Poly) (vars : Array
   let h ← if !invs.isEmpty then
     let (fieldInst, charInst) := fc?.get!
     let invsE := toExpr invs.toList
+    if let (true, some (K, B)) := (ainvs.isEmpty, kronQArgs? re re' invs.toList 1000000) then
+      -- Both sides are evaluated at a point, with the inverses of numerals (Kronecker substitution).
+      return .step e' (mkExpectedPropHint (mkAppN (mkConst ``Grind.CommRing.Expr.eq_of_kronQ [u]) #[type, fieldInst, charInst, ctx,
+        mkRawNatLit K, mkRawNatLit B, invsE, mkInvVarsOk type u ctx invsE, eagerReflBoolTrue, toExpr re, toExpr re',
+        eagerReflBoolTrue, eagerReflBoolTrue, eagerReflBoolTrue]) (← mkEq e₁ e'))
     let thm := mkApp3 (mkConst ``Grind.CommRing.Expr.eq_of_toPolyQ_eq [u]) type fieldInst charInst
     pure (mkAppN thm #[ctx, toExpr (useBalanced re p.length), invsE, mkInvVarsOk type u ctx invsE, ainvsE, hoka,
       toExpr re, toExpr re', eagerReflBoolTrue])
@@ -1833,6 +1838,10 @@ private def normalizeRelCore (rel : RelKind) (relFn : Expr) (order? : Option Ord
     -- In a field, the numerator of `lhs - rhs` is `0`: the equation is `True`. The sides are
     -- checked alone when they have the same polynomial or the same `PolyQ`.
     if !invs.isEmpty && rel == .eq && p matches .num 0 then
+      -- Both sides have the same polynomial, before eliminating the inverses: a ring identity.
+      if pl == pr then
+        if let some (h, _) ← constRelProof? rel order? ring u inst char? 0 l r pl pr vars then
+          return .step (← getTrueExpr) (mkExpectedPropHint h (mkPropEq e (← getTrueExpr)))
       let (fieldInst, charInst) := fc?.get!
       let ctx ← mkContext ring.type vars
       let hoka ← if ainvs.isEmpty then pure (mkConst ``True.intro) else pure (mkInvAtomsOk (← getCommRing) ctx vars ainvs)
@@ -1842,7 +1851,12 @@ private def normalizeRelCore (rel : RelKind) (relFn : Expr) (order? : Option Ord
       let steps? := if pl.length + pr.length ≥ 64 && (hasProduct l || hasProduct r) then
           denoteStepsBoth? #[ring.type, commRingInst, ctx] u .ring l r
         else none
-      let h := if let (true, some ((pE, h₁), (_, h₂))) := (pl == pr, steps?) then
+      let h := if let (true, some (K, B)) := (ainvs.isEmpty, kronQArgs? l r invs.toList 1000000) then
+          -- Both sides are evaluated at a point, with the inverses of numerals (Kronecker substitution).
+          mkAppN (mkConst ``Grind.CommRing.eq_true_of_kronQ [u]) #[ring.type, fieldInst, charInst, ctx,
+            mkRawNatLit K, mkRawNatLit B, invsE, mkInvVarsOk ring.type u ctx invsE, eagerReflBoolTrue, toExpr l, toExpr r,
+            eagerReflBoolTrue, eagerReflBoolTrue, eagerReflBoolTrue]
+        else if let (true, some ((pE, h₁), (_, h₂))) := (pl == pr, steps?) then
           mkAppN (mkConst ``Grind.CommRing.eq_true_of_denote_eq [u]) #[ring.type, commRingInst, ctx, toExpr l, toExpr r, pE, h₁, h₂]
         else if pl == pr then
           -- Both sides have the same polynomial, before eliminating the inverses.

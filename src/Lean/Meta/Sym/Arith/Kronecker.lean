@@ -89,4 +89,54 @@ def kronLinExponent? (l r : RingExpr) (maxBits : Nat) : Option Nat :=
   else
     none
 
+/--
+The coefficient bound and the denominator `Grind.CommRing.Expr.majQ_k` of `e`, where the variables
+of `invs` denote the inverses of their numerals.
+-/
+def exprMajQ (invs : List (Var × Nat)) : RingExpr → Nat × Nat
+  | .num k | .intCast k => (k.natAbs, 1)
+  | .natCast n => (n, 1)
+  | .var x => match invs.lookup x with
+    | some c => (1, c)
+    | none => (1, 1)
+  | .neg a => exprMajQ invs a
+  | .add a b | .sub a b =>
+    let (m₁, d₁) := exprMajQ invs a
+    let (m₂, d₂) := exprMajQ invs b
+    (m₁ * d₂ + m₂ * d₁, d₁ * d₂)
+  | .mul a b =>
+    let (m₁, d₁) := exprMajQ invs a
+    let (m₂, d₂) := exprMajQ invs b
+    (m₁ * m₂, d₁ * d₂)
+  | .pow a k =>
+    let (m, d) := exprMajQ invs a
+    (m ^ k, d ^ k)
+
+/--
+The arguments `K` and `B` of the Kronecker certificate of a field identity
+(`Grind.CommRing.Expr.eq_of_kronQ`) for `l` and `r`, if the values stay below `maxBits` bits.
+-/
+def kronQArgs? (l r : RingExpr) (invs : List (Var × Nat)) (maxBits : Nat) : Option (Nat × Nat) :=
+  let B := max 2 (max (deg l) (deg r) + 1)
+  let (ml, dl) := exprMajQ invs l
+  let (mr, dr) := exprMajQ invs r
+  (kronExponent? (dr * ml + dl * mr) (max (go B l) (go B r)) maxBits).map (·, B)
+where
+  /-- `exprMaxCode`, where the variables of `invs` are constants. -/
+  go (B : Nat) : RingExpr → Nat
+    | .num _ | .natCast _ | .intCast _ => 0
+    | .var x => if (invs.lookup x).isSome then 0 else B ^ x
+    | .neg a => go B a
+    | .add a b | .sub a b => max (go B a) (go B b)
+    | .mul a b => go B a + go B b
+    | .pow a k => go B a * k
+  /-- `exprDegB`, where the variables of `invs` are constants (`Grind.CommRing.Expr.degQB_k`). -/
+  deg : RingExpr → Nat
+    | .num _ | .natCast _ | .intCast _ => 0
+    | .var x => if (invs.lookup x).isSome then 0 else 1
+    | .neg a => deg a
+    | .add a b | .sub a b => max (deg a) (deg b)
+    | .mul a b => deg a + deg b
+    | .pow a k => deg a * k
+
 end Lean.Meta.Sym.Arith

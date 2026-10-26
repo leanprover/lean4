@@ -804,6 +804,134 @@ private def useBalanced (re : RingExpr) (size : Nat) : Bool :=
   let c := certCost re
   2 * c.balSteps + c.items < 2 * c.steps
 
+/-- `true` for a product of polynomials with `m` and `n` monomials that `denoteSteps` states stepwise. -/
+private def isLargeProduct (m n : Nat) : Bool :=
+  m ≥ 2 && n ≥ 2 && m * n ≥ 64
+
+/-- `true` if `e` has a product or a power, a candidate for `denoteSteps`. -/
+private def hasProduct : RingExpr → Bool
+  | .mul .. | .pow .. => true
+  | .add a b | .sub a b => hasProduct a || hasProduct b
+  | .neg a => hasProduct a
+  | _ => false
+
+/-- Memoized `toExpr` of the monomials of the stepwise certificates, which repeat each other. -/
+private abbrev StepM := StateM (Std.HashMap Mon Expr)
+
+private def monE (m : Mon) : StepM Expr := do
+  if let some e := (← get)[m]? then return e
+  let e := toExpr m
+  modify (·.insert m e)
+  return e
+
+private def polyE : Poly → StepM Expr
+  | .num k => return mkApp (mkConst ``Grind.CommRing.Poly.num) (mkIntLitK k)
+  | .add k m p => return mkApp3 (mkConst ``Grind.CommRing.Poly.add) (mkIntLitK k) (← monE m) (← polyE p)
+
+private def polyListE (ps : List Poly) : StepM Expr := do
+  let polyT := mkConst ``Grind.CommRing.Poly
+  ps.foldrM (init := mkApp (mkConst ``List.nil [0]) polyT) fun p acc => do
+    return mkApp3 (mkConst ``List.cons [0]) polyT (← polyE p) acc
+
+/--
+For `e` with a large product, in a commutative ring of characteristic zero (a commutative semiring
+if `semiring`, with `Expr.denoteS` and the nonnegativity of the coefficients), the polynomial `p` of
+`e`, its expression, and a proof of `e.denote ctx = p.denote ctx` that states the polynomial and the
+partial products of each large product (`Expr.denote_mul_of_terms`, `Expr.denote_pow_succ_of_terms`):
+the kernel evaluates the partial products of `Poly.mulB_k` lazily, again at every level of its
+pairwise additions. Subterms without a large product are checked with `Expr.toPolyX_k`
+(`Expr.toPolySX_k`).
+-/
+private partial def denoteSteps? (type inst ctx : Expr) (u : Level) (semiring : Bool) (e : RingExpr) :
+    StepM (Option (Poly × Expr × Expr)) := do
+  let thm (ring semi : Name) := mkConst (if semiring then semi else ring) [u]
+  match e with
+  | .mul a b =>
+    let ra ← denoteSteps? type inst ctx u semiring a
+    let rb ← denoteSteps? type inst ctx u semiring b
+    let pa := ra.map (·.1) |>.getD (leafPoly a)
+    let pb := rb.map (·.1) |>.getD (leafPoly b)
+    unless ra.isSome || rb.isSome || isLargeProduct pa.length pb.length do return none
+    let (paE, ha) ← proof a ra
+    let (pbE, hb) ← proof b rb
+    let ts := mulTerms pa pb
+    let tsE ← polyListE ts
+    let p := pa.mul pb
+    let pE ← polyE p
+    return some (p, pE, mkAppN (thm ``Grind.CommRing.Expr.denote_mul_of_terms ``Grind.CommRing.Expr.denoteS_mul_of_terms)
+      #[type, inst, ctx, toExpr a, toExpr b, paE, pbE, tsE, pE, ha, hb, reflL tsE, reflP pE])
+  | .pow a k =>
+    let ra ← denoteSteps? type inst ctx u semiring a
+    let pa := ra.map (·.1) |>.getD (leafPoly a)
+    unless k ≥ 2 && (ra.isSome || isLargeProduct pa.length (pa.length * k)) do return none
+    let (paE, ha) ← proof a ra
+    let aE := toExpr a
+    let mut q := pa
+    let mut qE := paE
+    let mut hq := mkAppN (thm ``Grind.CommRing.Expr.denote_pow_one_of ``Grind.CommRing.Expr.denoteS_pow_one_of)
+      #[type, inst, ctx, aE, paE, ha]
+    for j in [1:k] do
+      let ts := mulTerms pa q
+      let tsE ← polyListE ts
+      let p := pa.mul q
+      let pE ← polyE p
+      hq := mkAppN (thm ``Grind.CommRing.Expr.denote_pow_succ_of_terms ``Grind.CommRing.Expr.denoteS_pow_succ_of_terms)
+        #[type, inst, ctx, aE, mkRawNatLit j, paE, qE, tsE, pE, ha, hq, reflL tsE, reflP pE]
+      q := p
+      qE := pE
+    return some (q, qE, hq)
+  | .add a b | .sub a b =>
+    if semiring && e matches .sub .. then return none
+    let ra ← denoteSteps? type inst ctx u semiring a
+    let rb ← denoteSteps? type inst ctx u semiring b
+    if ra.isNone && rb.isNone then return none
+    let pa := ra.map (·.1) |>.getD (leafPoly a)
+    let pb := rb.map (·.1) |>.getD (leafPoly b)
+    let (paE, ha) ← proof a ra
+    let (pbE, hb) ← proof b rb
+    let (name, p) := match e with
+      | .add .. => (thm ``Grind.CommRing.Expr.denote_add_of ``Grind.CommRing.Expr.denoteS_add_of, pa.combine pb)
+      | _ => (mkConst ``Grind.CommRing.Expr.denote_sub_of [u], pa.combine (pb.mulConst (-1)))
+    let pE ← polyE p
+    return some (p, pE, mkAppN name #[type, inst, ctx, toExpr a, toExpr b, paE, pbE, pE, ha, hb, reflP pE])
+  | .neg a =>
+    if semiring then return none
+    let some (pa, paE, ha) ← denoteSteps? type inst ctx u semiring a | return none
+    let p := pa.mulConst (-1)
+    let pE ← polyE p
+    return some (p, pE, mkAppN (mkConst ``Grind.CommRing.Expr.denote_neg_of [u]) #[type, inst, ctx, toExpr a, paE, pE, ha, reflP pE])
+  | _ => return none
+where
+  /-- The polynomial of a subterm without large products. -/
+  leafPoly (e : RingExpr) : Poly := if semiring then e.toPolyS else e.toPoly
+  reflP (pE : Expr) : Expr := mkApp2 (mkConst ``Eq.refl [1]) (mkConst ``Grind.CommRing.Poly) pE
+  reflL (tsE : Expr) : Expr :=
+    mkApp2 (mkConst ``Eq.refl [1]) (mkApp (mkConst ``List [0]) (mkConst ``Grind.CommRing.Poly)) tsE
+  /-- The expression of the polynomial of `e` and the proof, stepwise or with `Expr.toPolyX_k` (`Expr.toPolySX_k`). -/
+  proof (e : RingExpr) (r : Option (Poly × Expr × Expr)) : StepM (Expr × Expr) := do
+    match r with
+    | some (_, pE, h) => return (pE, h)
+    | none =>
+      let p := leafPoly e
+      let pE ← polyE p
+      return (pE, mkAppN (mkConst (if semiring then ``Grind.CommRing.Expr.denoteS_eq_of_toPolySX else ``Grind.CommRing.Expr.denote_eq_of_toPolyX) [u])
+        #[type, inst, ctx, toExpr (useBalanced e p.length), toExpr e, pE, reflP pE])
+
+/--
+The proofs of `l.denote ctx = p.denote ctx` and `r.denote ctx = p.denote ctx` with `denoteSteps?`,
+and the expression of `p`, if `l` or `r` has a large product.
+-/
+private def denoteStepsPair? (type inst ctx : Expr) (u : Level) (semiring : Bool) (l r : RingExpr) :
+    Option (Expr × Expr × Expr) :=
+  let go : StepM (Option (Expr × Expr × Expr)) := do
+    let r₁ ← denoteSteps? type inst ctx u semiring l
+    let r₂ ← denoteSteps? type inst ctx u semiring r
+    if r₁.isNone && r₂.isNone then return none
+    let (pE, h₁) ← denoteSteps?.proof type inst ctx u semiring l r₁
+    let (_, h₂) ← denoteSteps?.proof type inst ctx u semiring r r₂
+    return some (pE, h₁, h₂)
+  go.run' {}
+
 /-- `e` as a linear `Int` expression: numerals, variables, `+`, `-`, negation and products with a numeral. -/
 private def toLinearExpr? : RingExpr → Option Int.Internal.Linear.Expr
   | .num k => some (.num k)
@@ -882,6 +1010,16 @@ private def mkCertificate (e₁ : Expr) (re : RingExpr) (p : Poly) (vars : Array
       toLinearExpr? re, toLinearExpr? re') then
     -- Linear `Int` terms use the cheaper linear normalization of `simp +arith`.
     pure (mkApp4 (mkConst ``Int.Internal.Linear.Expr.eq_of_norm_expr_k) ctx (ofLinearExpr a) (ofLinearExpr a') eagerReflBoolTrue)
+  else if let (.commRing _, none, true) := (kind, char?, p.length ≥ 32 && hasProduct re) then
+    -- Large products are stated stepwise when there are any (`denoteSteps?`).
+    let re'E := toExpr re'
+    let reflE := mkApp2 (mkConst ``Eq.refl [1]) (mkConst ``Grind.CommRing.Expr) re'E
+    if let some (_, pE, h) := (denoteSteps? type inst ctx u false re).run' {} then
+      pure (mkAppN (mkConst ``Grind.CommRing.Expr.eq_of_denote_eq_toExpr [u]) #[type, inst, ctx, toExpr re, re'E, pE, h, reflE])
+    else
+      let pE := toExpr p
+      pure (mkAppN (mkConst ``Grind.CommRing.Expr.eq_of_toPolyX_eq_toExpr [u]) #[type, inst, ctx, toExpr (useBalanced re p.length),
+        toExpr re, re'E, pE, mkApp2 (mkConst ``Eq.refl [1]) (mkConst ``Grind.CommRing.Poly) pE, reflE])
   else if kind matches .commRing _ then
     -- `p = re.toPolyX_k bal` (`re.toPolyC_k c`) and `re' = p.toExpr_k`, both checked by
     -- definitional equality.
@@ -1296,6 +1434,19 @@ private def constRelProof? (rel : RelKind) (order? : Option Order) (ring : Ring)
   -- Equal sides: each side is checked against the polynomial alone.
   if k == 0 then
     let ctx ← mkContext ring.type vars
+    -- Large products are stated stepwise when there are any (`denoteSteps?`).
+    if char?.isNone && size ≥ 64 && (hasProduct l || hasProduct r) then
+      if let some (pE, h₁, h₂) := denoteStepsPair? ring.type inst ctx u false l r then
+        let args := #[ctx, toExpr l, toExpr r, pE, h₁, h₂]
+        match rel, order? with
+        | .eq, _ => return some (mkAppN (mkConst ``Grind.CommRing.eq_true_of_denote_eq [u]) (#[ring.type, inst] ++ args), true)
+        | .le, some o =>
+          return some (mkAppN (mkConst ``Grind.CommRing.le_true_of_denote_eq [u]) (#[ring.type, inst, o.leInst, o.isPreorderInst] ++ args), true)
+        | .lt, some o =>
+          if let (some ltInst, some lawfulInst) := (o.ltInst?, o.lawfulOrderLTInst?) then
+            return some (mkAppN (mkConst ``Grind.CommRing.lt_false_of_denote_eq [u])
+              (#[ring.type, inst, o.leInst, ltInst, lawfulInst, o.isPreorderInst] ++ args), false)
+        | _, _ => pure ()
     -- In a nonzero characteristic, each step of `Expr.toPolyC_k` also reduces coefficients, and
     -- the balanced version pays off for both sides when it does for their difference.
     let (bal₁, bal₂) := if char?.isSome then
@@ -1595,6 +1746,17 @@ private def normalizeRelCore (rel : RelKind) (relFn : Expr) (order? : Option Ord
       | _, none => none
     if let (true, some (name, insts, holds)) := (kind.isComm && pl == pr, sameSides?) then
       let ctx ← mkContext sr.type vars
+      let csInst := (← getCommSemiring).commSemiringInst
+      -- Large products are stated stepwise when there are any (`denoteSteps?`).
+      if pl.length ≥ 32 && (hasProduct l || hasProduct r) then
+        if let some (pE, h₁, h₂) := denoteStepsPair? sr.type csInst ctx u true l r then
+          let name := match rel with
+            | .eq => ``Grind.CommRing.eq_true_of_denoteS_eq
+            | .le => ``Grind.CommRing.le_true_of_denoteS_eq
+            | .lt => ``Grind.CommRing.lt_false_of_denoteS_eq
+          let h := mkAppN (mkConst name [u]) (#[sr.type, csInst] ++ insts ++ #[ctx, toExpr l, toExpr r, pE, h₁, h₂])
+          let e' ← if holds then getTrueExpr else getFalseExpr
+          return .step e' (mkExpectedPropHint h (mkPropEq e e'))
       let pE := toExpr pl
       let reflP := mkApp2 (mkConst ``Eq.refl [1]) (mkConst ``Grind.CommRing.Poly) pE
       let h := mkAppN (mkConst name [u]) (#[sr.type, (← getCommSemiring).commSemiringInst] ++ insts ++

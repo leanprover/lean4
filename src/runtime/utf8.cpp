@@ -29,16 +29,6 @@ unsigned get_utf8_size(unsigned char c) {
         return 1; /* invalid */
 }
 
-extern "C" LEAN_EXPORT size_t lean_utf8_strlen(char const * str) {
-    size_t r = 0;
-    while (*str != 0) {
-        unsigned sz = get_utf8_size(*str);
-        r++;
-        str += sz;
-    }
-    return r;
-}
-
 extern "C" LEAN_EXPORT size_t lean_utf8_n_strlen(char const * str, size_t sz) {
     size_t r = 0;
     size_t i = 0;

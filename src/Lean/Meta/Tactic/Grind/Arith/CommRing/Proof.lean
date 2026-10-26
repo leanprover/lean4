@@ -342,7 +342,7 @@ private def mkKronSum? (declName declNameC : Name) (pre : Array Expr) (base p : 
     ls := mkApp4 (mkConst ``Grind.CommRing.KList.cons) kE mE qE ls
   let pE ← mkPolyDecl p
   let h ← mkStepPrefix declName declNameC
-  let eArgs ← if c?.isSome then pure #[← mkPolyDecl E] else pure #[]
+  let eArgs ← if c?.isSome then pure #[← mkPPolyDecl E B] else pure #[]
   let args := #[mkRawNatLit K, mkRawNatLit B, ← mkPolyDecl base, pE] ++ eArgs ++
     #[ls, eagerReflBoolTrue, eagerReflBoolTrue, hAll]
   return some (mkAppN h (pre ++ args))
@@ -418,7 +418,7 @@ private def mkKronCore? (lhs rhs : RingExpr) (p : Poly) (h : Expr) : ProofM (Opt
   let maxCode := max (exprMaxCode B e) (polyMaxCode B p)
   let some K := kronExponent? (exprMajorant e + polyNorm1 p + c * polyNorm1 E) maxCode 4000000 | return none
   let pre ← mkStepPrefix ``Stepwise.coreK ``Stepwise.coreKC
-  let eArgs ← if c?.isSome then pure #[← mkPolyDecl E] else pure #[]
+  let eArgs ← if c?.isSome then pure #[← mkPPolyDecl E B] else pure #[]
   return some (mkAppN pre (#[mkRawNatLit K, mkRawNatLit B, ← mkExprDecl lhs, ← mkExprDecl rhs, ← mkPolyDecl p] ++ eArgs ++
     #[eagerReflBoolTrue, eagerReflBoolTrue, h]))
 
@@ -605,7 +605,7 @@ private def mkKronImp? (lhs rhs : RingExpr) (d : PolyDerivation) (k : Int) (p₀
   else
     let some nzInst ← noZeroDivisorsInst? | return none
     pure <| mkApp2 (← mkStepPrefix ``Stepwise.imp_keqK ``Stepwise.imp_keqKC) nzInst (toExpr k)
-  let eArgs ← if c?.isSome then pure #[← mkPolyDecl E] else pure #[]
+  let eArgs ← if c?.isSome then pure #[← mkPPolyDecl E B] else pure #[]
   let dp ← mkPolyDecl d.p
   let kArgs := if k == 1 then #[] else #[eagerReflBoolFalse]
   return some (mkAppN pre (#[mkRawNatLit K, mkRawNatLit B, ← mkExprDecl lhs, ← mkExprDecl rhs, ← mkPolyDecl p₀, dp] ++ eArgs ++

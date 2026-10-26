@@ -684,6 +684,16 @@ private def mkCertificate (e₁ : Expr) (re : RingExpr) (p : Poly) (vars : Array
   else if !ainvs.isEmpty then
     let thm := mkApp2 (mkConst ``Grind.CommRing.Expr.eq_of_cancelInvs_eq [u]) type inst
     pure (mkApp6 thm ctx ainvsE hoka (toExpr re) (toExpr re') eagerReflBoolTrue)
+  else if kind matches .commRing _ then
+    -- `p = re.toPoly_k` and `re' = p.toExpr_k`, both checked by definitional equality.
+    let thm := match char? with
+      | some (charInst, c) => mkApp4 (mkConst ``Grind.CommRing.Expr.eq_of_toPolyC_eq_toExpr [u]) type (toExpr c) inst charInst
+      | none => mkApp2 (mkConst ``Grind.CommRing.Expr.eq_of_toPoly_eq_toExpr [u]) type inst
+    let pE := toExpr p
+    let re'E := toExpr re'
+    pure (mkApp6 thm ctx (toExpr re) re'E pE
+      (mkApp2 (mkConst ``Eq.refl [1]) (mkConst ``Grind.CommRing.Poly) pE)
+      (mkApp2 (mkConst ``Eq.refl [1]) (mkConst ``Grind.CommRing.Expr) re'E))
   else
     let thm := match kind, char? with
       | .commRing _, some (charInst, c) => mkApp4 (mkConst ``Grind.CommRing.Expr.eq_of_toPolyC_eq [u]) type (toExpr c) inst charInst
@@ -1146,6 +1156,38 @@ private def normalizeRelCore (rel : RelKind) (relFn : Expr) (order? : Option Ord
       let (charInst, c) := char?.get!
       let h := mkApp4 (mkConst ``Grind.CommRing.eq_norm_mul_exprC [u]) ring.type (toExpr c) inst charInst
       pure (mkApp8 h ctx (toExpr l) (toExpr r) (toExpr l') (toExpr r') (toExpr k) (toExpr k') eagerReflBoolTrue)
+    else if invs.isEmpty && ainvs.isEmpty && kind.isComm then
+      -- `q` is the polynomial of `lhs - rhs` (`rhs - lhs` for `≤`, `<`); every hypothesis of the
+      -- theorem is checked by definitional equality.
+      let q := match rel, char? with
+        | .eq, none => lp.combine (rp.mulConst (-1))
+        | .eq, some (_, c) => lp.combineC (rp.mulConstC (-1) c) c
+        | _, none => rp.combine (lp.mulConst (-1))
+        | _, some (_, c) => rp.combineC (lp.mulConstC (-1) c) c
+      let name := match rel, char? with
+        | .eq, none => ``Grind.CommRing.eq_norm_poly
+        | .eq, some _ => ``Grind.CommRing.eq_norm_polyC
+        | .le, none => ``Grind.CommRing.le_norm_poly
+        | .le, some _ => ``Grind.CommRing.le_norm_polyC
+        | .lt, none => ``Grind.CommRing.lt_norm_poly
+        | .lt, some _ => ``Grind.CommRing.lt_norm_polyC
+      let base := match char? with
+        | none => mkApp2 (mkConst name [u]) ring.type inst
+        | some (charInst, c) => mkApp4 (mkConst name [u]) ring.type (toExpr c) inst charInst
+      let h := match rel with
+        | .eq => base
+        | .le =>
+          let o := order?.get!
+          mkApp4 base o.leInst o.ltInst?.get! o.isPreorderInst o.orderedRingInst?.get!
+        | .lt =>
+          let o := order?.get!
+          mkApp5 base o.leInst o.ltInst?.get! o.lawfulOrderLTInst?.get! o.isPreorderInst o.orderedRingInst?.get!
+      let l'E := toExpr l'
+      let r'E := toExpr r'
+      let qE := toExpr q
+      let reflP := mkApp2 (mkConst ``Eq.refl [1]) (mkConst ``Grind.CommRing.Poly) qE
+      let reflE (e : Expr) := mkApp2 (mkConst ``Eq.refl [1]) (mkConst ``Grind.CommRing.Expr) e
+      pure (mkAppN h #[ctx, toExpr l, toExpr r, l'E, r'E, qE, toExpr lp, toExpr rp, reflP, reflE l'E, reflE r'E, reflP])
     else if invs.isEmpty && ainvs.isEmpty then
       -- `thm type [c] inst [charInst]`, then the order instances.
       let base (name : Name) : Expr :=

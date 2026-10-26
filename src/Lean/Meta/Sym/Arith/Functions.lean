@@ -32,6 +32,10 @@ from imported constants only. Each `grind` goal initializes the operators of its
 The state is a reference created with the environment of the imports, so every declaration of the
 file and all its environment branches share it, while other files, whose imports may differ, have
 their own.
+
+The gain is small: about 1.4% of the elaboration instructions of a `lia` benchmark with the
+`Sym.simp` normalizer, and nothing measurable on `grind`'s ring benchmarks. Reevaluate whether this
+cache pays for its complexity.
 -/
 builtin_initialize checkedInstsExt : EnvExtension (Option (IO.Ref (PHashSet (Expr × Expr)))) ←
   registerEnvExtension (some <$> IO.mkRef {})

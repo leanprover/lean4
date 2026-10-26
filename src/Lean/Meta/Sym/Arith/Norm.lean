@@ -695,6 +695,14 @@ private def mkCertificate (e₁ : Expr) (re : RingExpr) (p : Poly) (vars : Array
     pure (mkApp6 thm ctx (toExpr re) re'E pE
       (mkApp2 (mkConst ``Eq.refl [1]) (mkConst ``Grind.CommRing.Poly) pE)
       (mkApp2 (mkConst ``Eq.refl [1]) (mkConst ``Grind.CommRing.Expr) re'E))
+  else if kind matches .commSemiring _ then
+    -- `p = re.toPolyS_k` and `re' = p.toExpr_k`, both checked by definitional equality.
+    let thm := mkApp2 (mkConst ``Grind.CommRing.Expr.eq_of_toPolyS_eq_toExpr [u]) type inst
+    let pE := toExpr p
+    let re'E := toExpr re'
+    pure (mkApp6 thm ctx (toExpr re) re'E pE
+      (mkApp2 (mkConst ``Eq.refl [1]) (mkConst ``Grind.CommRing.Poly) pE)
+      (mkApp2 (mkConst ``Eq.refl [1]) (mkConst ``Grind.CommRing.Expr) re'E))
   else
     let thm := match kind, char? with
       | .commRing _, some (charInst, c) => mkApp4 (mkConst ``Grind.CommRing.Expr.eq_of_toPolyC_eq [u]) type (toExpr c) inst charInst
@@ -1275,15 +1283,30 @@ private def normalizeRelCore (rel : RelKind) (relFn : Expr) (order? : Option Ord
     if isSameExpr e' e then return .normal
     let ctx ← mkContext sr.type vars
     -- Term steps `lhs = lhs' + c` and `rhs = rhs' + c` (without `+ c` when nothing is cancelled).
-    let mkTermStep (x xC : RingExpr) (ex exC : Expr) : Expr :=
-      mkExpectedPropHint
-        (mkApp6 (mkConst normS [u]) sr.type inst ctx (toExpr x) (toExpr xC) eagerReflBoolTrue)
-        (mkApp3 (mkConst ``Eq [u.succ]) sr.type ex exC)
+    -- `px` is the polynomial of `x` and `qx` the one of the rendered `x'`. In a commutative
+    -- semiring the polynomials are checked by definitional equality and only `x` is normalized.
+    let cE := toExpr c
+    let reflP (p : Expr) := mkApp2 (mkConst ``Eq.refl [1]) (mkConst ``Grind.CommRing.Poly) p
+    let reflE (e : Expr) := mkApp2 (mkConst ``Eq.refl [1]) (mkConst ``Grind.CommRing.Expr) e
+    let mkTermStep (x xC : RingExpr) (px qx : Poly) (ex exC : Expr) : Expr :=
+      let xE := toExpr x
+      let xCE := toExpr xC
+      let h := if !kind.isComm then
+          mkApp6 (mkConst normS [u]) sr.type inst ctx xE xCE eagerReflBoolTrue
+        else if hasC then
+          let pxE := toExpr px
+          let thm := mkApp2 (mkConst ``Grind.CommRing.Expr.eq_of_toPolyS_eq_add_toExpr [u]) sr.type inst
+          mkAppN thm #[ctx, xE, xCE, pxE, toExpr qx, cE, reflP pxE, reflE xCE, reflP pxE, eagerReflBoolTrue]
+        else
+          let pxE := toExpr px
+          let thm := mkApp2 (mkConst ``Grind.CommRing.Expr.eq_of_toPolyS_eq_toExpr [u]) sr.type inst
+          mkApp6 thm ctx xE xCE pxE (reflP pxE) (reflE xCE)
+      mkExpectedPropHint h (mkApp3 (mkConst ``Eq [u.succ]) sr.type ex exC)
     let (lC, rC) : RingExpr × RingExpr := if hasC then (.add l' c.toExpr, .add r' c.toExpr) else (l', r')
     let elC ← if hasC then share (← denoteSemiringExpr' vars lC) else pure el
     let erC ← if hasC then share (← denoteSemiringExpr' vars rC) else pure er
-    let r₁ : Result := if isSameExpr lhs elC then .rfl else .step elC (mkTermStep l lC lhs elC)
-    let r₂ : Result := if isSameExpr rhs erC then .rfl else .step erC (mkTermStep r rC rhs erC)
+    let r₁ : Result := if isSameExpr lhs elC then .rfl else .step elC (mkTermStep l lC pl lp lhs elC)
+    let r₂ : Result := if isSameExpr rhs erC then .rfl else .step erC (mkTermStep r rC pr rp rhs erC)
     let eR ← mkAppS₂ relFn lhs rhs
     let rel₁ ← match h : eR with
       | .app fa@h':(.app f a) b => congrBin eR fa f a b r₁ r₂ h h'

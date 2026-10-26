@@ -3871,6 +3871,51 @@ theorem Expr.eq_of_denote_eq_toExpr {α} [CommRing α] (ctx : Context α) (a b :
     (h₁ : a.denote ctx = p.denote ctx) (h₂ : b = p.toExpr_k) : a.denote ctx = b.denote ctx := by
   subst h₂; rw [Poly.toExpr_k_eq, Poly.denote_toExpr, h₁]
 
+/-! Stepwise certificates for large products in characteristic `c`, like `Expr.denote_mul_of_terms`. -/
+
+section
+variable {α c} [CommRing α] [IsCharP α c] (ctx : Context α)
+
+theorem Expr.denote_eq_of_toPolyXC (bal : Bool) (e : Expr) (p : Poly)
+    (h : p = e.toPolyXC_k bal c) : e.denote ctx = p.denote ctx := by
+  rw [h, Expr.denote_toPolyXC_k]
+
+theorem Expr.denote_mul_of_termsC (a b : Expr) (pa pb : Poly) (ts : List Poly) (p : Poly)
+    (ha : a.denote ctx = pa.denote ctx) (hb : b.denote ctx = pb.denote ctx)
+    (ht : ts = pa.mulTermsC_k pb c) (hp : p = Poly.sumB_k (fun a b => a.combineC_k c b) ts) :
+    (Expr.mul a b).denote ctx = p.denote ctx := by
+  show a.denote ctx * b.denote ctx = _
+  rw [ha, hb, hp, Poly.denote_sumB_k ctx _ (Poly.denote_combineC_k ctx), ht, Poly.denoteList_mulTermsC_k]
+
+theorem Expr.denote_add_ofC (a b : Expr) (pa pb p : Poly)
+    (ha : a.denote ctx = pa.denote ctx) (hb : b.denote ctx = pb.denote ctx)
+    (hp : p = pa.combineC_k c pb) : (Expr.add a b).denote ctx = p.denote ctx := by
+  show a.denote ctx + b.denote ctx = _
+  rw [ha, hb, hp, Poly.denote_combineC_k]
+
+theorem Expr.denote_sub_ofC (a b : Expr) (pa pb p : Poly)
+    (ha : a.denote ctx = pa.denote ctx) (hb : b.denote ctx = pb.denote ctx)
+    (hp : p = pa.combineC_k c (pb.mulConstC_k (Int.negSucc 0) c)) : (Expr.sub a b).denote ctx = p.denote ctx := by
+  show a.denote ctx - b.denote ctx = _
+  rw [ha, hb, hp, Poly.denote_combineC_k, Poly.mulConstC_k_eq_mulConstC, Poly.denote_mulConstC]
+  simp [sub_eq_add_neg, intCast_neg, neg_mul, intCast_one, one_mul]
+
+theorem Expr.denote_neg_ofC (a : Expr) (pa p : Poly)
+    (ha : a.denote ctx = pa.denote ctx) (hp : p = pa.mulConstC_k (Int.negSucc 0) c) : (Expr.neg a).denote ctx = p.denote ctx := by
+  show - a.denote ctx = _
+  rw [ha, hp, Poly.mulConstC_k_eq_mulConstC, Poly.denote_mulConstC]
+  simp [intCast_neg, neg_mul, intCast_one, one_mul]
+
+theorem Expr.denote_pow_succ_of_termsC (a : Expr) (k : Nat) (pa q : Poly) (ts : List Poly) (p : Poly)
+    (ha : a.denote ctx = pa.denote ctx) (hq : (Expr.pow a k).denote ctx = q.denote ctx)
+    (ht : ts = pa.mulTermsC_k q c) (hp : p = Poly.sumB_k (fun a b => a.combineC_k c b) ts) :
+    (Expr.pow a (k + 1)).denote ctx = p.denote ctx := by
+  replace hq : a.denote ctx ^ k = q.denote ctx := hq
+  show a.denote ctx ^ (k + 1) = _
+  rw [hp, Poly.denote_sumB_k ctx _ (Poly.denote_combineC_k ctx), ht, Poly.denoteList_mulTermsC_k, ← hq, ← ha, pow_succ, mul_comm]
+
+end
+
 noncomputable def norm_cnstr_cert (lhs rhs lhs' rhs' : Expr) : Bool :=
   (rhs.sub lhs).toPoly_k.beq' (rhs'.sub lhs').toPoly_k
 

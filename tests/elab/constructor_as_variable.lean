@@ -137,6 +137,7 @@ Hint: Using one of these would be valid:
   [apply] `List.Sublist.below.cons`
   [apply] `Lean.Grind.AC.Seq.cons`
   [apply] `Lean.Grind.CommRing.KList.cons`
+  [apply] `Lean.Grind.CommRing.MList.cons`
   [apply] `Std.DHashMap.Internal.AssocList.cons`
   [apply] `String.Slice.Pattern.Model.IsLongestMatchAtChain.cons`
   [apply] `String.Slice.Pattern.Model.IsLongestRevMatchAtChain.cons`
@@ -175,6 +176,7 @@ Hint: Using one of these would be valid:
   [apply] `List.Sublist.below.cons`
   [apply] `Lean.Grind.AC.Seq.cons`
   [apply] `Lean.Grind.CommRing.KList.cons`
+  [apply] `Lean.Grind.CommRing.MList.cons`
   [apply] `Std.DHashMap.Internal.AssocList.cons`
   [apply] `String.Slice.Pattern.Model.IsLongestMatchAtChain.cons`
   [apply] `String.Slice.Pattern.Model.IsLongestRevMatchAtChain.cons`

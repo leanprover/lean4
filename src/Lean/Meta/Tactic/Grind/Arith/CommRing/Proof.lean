@@ -310,11 +310,12 @@ private def mkPackedSum (declName declNameC : Name) (pre : Array Expr) (base p :
 
 /--
 The proof that `p` is `base` plus the multiples `kᵢ * mᵢ * qᵢ` of `leaves` by Kronecker
-substitution (`Stepwise.simpsK`, `Stepwise.d_stepsK`), applied to `pre`, if the values at the
+substitution (`Stepwise.simpsK`, `Stepwise.d_stepsK`, or `Stepwise.simpsM`, `Stepwise.d_stepsM`
+with the multiples grouped by polynomial), applied to `pre`, if the values at the
 point stay below a few million bits. In characteristic `c`, the difference over `Int` is
 `c * E` for a stated polynomial `E`.
 -/
-private def mkKronSum? (declName declNameC : Name) (pre : Array Expr) (base p : Poly)
+private def mkKronSum? (declName declNameC declNameM declNameMC : Name) (pre : Array Expr) (base p : Poly)
     (leaves : Array (Int × Mon × Poly × Expr)) : ProofM (Option Expr) := do
   let deg := leaves.foldl (fun d (_, m, q, _) => max d (m.degree + polyMaxDeg q)) (max (polyMaxDeg base) (polyMaxDeg p))
   let B := max 2 (deg + 1)
@@ -332,14 +333,36 @@ private def mkKronSum? (declName declNameC : Name) (pre : Array Expr) (base p : 
   let some K := kronExponent? norm maxCode 4000000 | return none
   let ring ← getCommRing
   let ctx ← getContext
-  let mut ls := mkConst ``Grind.CommRing.KList.nil
-  let mut hAll := mkApp3 (mkConst ``Grind.CommRing.KList.allZero_nil [ring.u]) ring.type ring.ringInst ctx
-  for (k, m, q, h) in leaves.reverse do
-    let kE := toExpr k
-    let mE ← mkMonDecl m
-    let qE ← mkPolyDecl q
-    hAll := mkAppN (mkConst ``Grind.CommRing.KList.allZero_cons [ring.u]) #[ring.type, ring.ringInst, ctx, kE, mE, qE, ls, h, hAll]
-    ls := mkApp4 (mkConst ``Grind.CommRing.KList.cons) kE mE qE ls
+  -- The multiples `kᵢ * mᵢ * q` of the same `q` are one multiple `(Σ kᵢ * mᵢ) * q` (`MList`).
+  let mut idx : Std.HashMap Poly Nat := {}
+  let mut groups : Array (Poly × Poly × Expr) := #[]
+  for (k, m, q, h) in leaves do
+    if let some i := idx[q]? then
+      groups := groups.modify i fun (M, q, h) => (.add k m M, q, h)
+    else
+      idx := idx.insert q groups.size
+      groups := groups.push (.add k m (.num 0), q, h)
+  -- Grouping pays off when the polynomials repeat: a group costs a product of two values, a
+  -- multiple a shift.
+  let grouped := 4 * groups.size < leaves.size
+  let (declName, declNameC) := if grouped then (declNameM, declNameMC) else (declName, declNameC)
+  let mut ls := mkConst ``Grind.CommRing.MList.nil
+  let mut hAll := mkApp3 (mkConst ``Grind.CommRing.MList.allZero_nil [ring.u]) ring.type ring.ringInst ctx
+  if grouped then
+    for (M, q, h) in groups.reverse do
+      let ME ← mkPolyDecl M
+      let qE ← mkPolyDecl q
+      hAll := mkAppN (mkConst ``Grind.CommRing.MList.allZero_cons [ring.u]) #[ring.type, ring.ringInst, ctx, ME, qE, ls, h, hAll]
+      ls := mkApp3 (mkConst ``Grind.CommRing.MList.cons) ME qE ls
+  else
+    ls := mkConst ``Grind.CommRing.KList.nil
+    hAll := mkApp3 (mkConst ``Grind.CommRing.KList.allZero_nil [ring.u]) ring.type ring.ringInst ctx
+    for (k, m, q, h) in leaves.reverse do
+      let kE := toExpr k
+      let mE ← mkMonDecl m
+      let qE ← mkPolyDecl q
+      hAll := mkAppN (mkConst ``Grind.CommRing.KList.allZero_cons [ring.u]) #[ring.type, ring.ringInst, ctx, kE, mE, qE, ls, h, hAll]
+      ls := mkApp4 (mkConst ``Grind.CommRing.KList.cons) kE mE qE ls
   let pE ← mkPolyDecl p
   let h ← mkStepPrefix declName declNameC
   let eArgs ← if c?.isSome then pure #[← mkPPolyDecl E B] else pure #[]
@@ -454,7 +477,7 @@ partial def _root_.Lean.Meta.Grind.Arith.CommRing.EqCnstr.toExprProof (c : EqCns
       -- The chain `c.p = base.p + Σ kᵢ * mᵢ * cᵢ.p` is checked at once by Kronecker substitution
       -- when it applies, otherwise when the sum tree pays off.
       if steps.size > 1 then
-        if let some h ← mkKronSum? ``Stepwise.simpsK ``Stepwise.simpsKC #[] base.p c.p hs then
+        if let some h ← mkKronSum? ``Stepwise.simpsK ``Stepwise.simpsKC ``Stepwise.simpsM ``Stepwise.simpsMC #[] base.p c.p hs then
           return mkApp h hBase
       let (q, _, _, treeCost) ← mkSumTree leaves 0 leaves.size
       let seqCost := stepwiseCost base.p (steps.zipWith (fun (_, _, _, c) (q, _, _) => (q, c.p)) leaves)
@@ -529,7 +552,7 @@ private partial def derivToExprProof (d : PolyDerivation) : ProofM (Int × Poly 
     -- The chain `p = base.p + Σ kᵢ * mᵢ * pᵢ` is checked at once by Kronecker substitution when it
     -- applies, otherwise when the sum tree pays off.
     let hs ← steps.mapIdxM fun i (k₂, m₂, c₂, _) => return (k₂, m₂, c₂.p, leaves[i]!.2.2)
-    if let some h ← mkKronSum? ``Stepwise.d_stepsK ``Stepwise.d_stepsKC #[toExpr k, ← mkPolyDecl p₀] base.p p hs then
+    if let some h ← mkKronSum? ``Stepwise.d_stepsK ``Stepwise.d_stepsKC ``Stepwise.d_stepsM ``Stepwise.d_stepsMC #[toExpr k, ← mkPolyDecl p₀] base.p p hs then
       return (k, p₀, mkApp h h₁)
     let (q, _, _, treeCost) ← mkSumTree leaves 0 leaves.size
     let seqCost := stepwiseCost base.p (steps.zipWith (fun (_, _, _, p) (q, _, _) => (q, p)) leaves)

@@ -1167,6 +1167,23 @@ private def normalizeRelCore (rel : RelKind) (relFn : Expr) (order? : Option Ord
       let (charInst, c) := char?.get!
       let h := mkApp4 (mkConst ``Grind.CommRing.eq_norm_mul_exprC [u]) ring.type (toExpr c) inst charInst
       pure (mkApp8 h ctx (toExpr l) (toExpr r) (toExpr l') (toExpr r') (toExpr k) (toExpr k') eagerReflBoolTrue)
+    else if invs.isEmpty && ainvs.isEmpty && kind.isComm && char?.isNone && rp matches .num 0 then
+      -- `lhs' ⋈ 0`, where `lp` is the polynomial of `lhs - rhs`: both hypotheses of the theorem
+      -- are checked by definitional equality.
+      let base (name : Name) : Expr := mkApp2 (mkConst name [u]) ring.type inst
+      let h := match rel with
+        | .eq => base ``Grind.CommRing.eq_norm_poly0
+        | .le =>
+          let o := order?.get!
+          mkApp4 (base ``Grind.CommRing.le_norm_poly0) o.leInst o.ltInst?.get! o.isPreorderInst o.orderedRingInst?.get!
+        | .lt =>
+          let o := order?.get!
+          mkApp5 (base ``Grind.CommRing.lt_norm_poly0) o.leInst o.ltInst?.get! o.lawfulOrderLTInst?.get! o.isPreorderInst o.orderedRingInst?.get!
+      let l'E := toExpr l'
+      let pE := toExpr lp
+      pure (mkAppN h #[ctx, toExpr l, toExpr r, l'E, pE,
+        mkApp2 (mkConst ``Eq.refl [1]) (mkConst ``Grind.CommRing.Poly) pE,
+        mkApp2 (mkConst ``Eq.refl [1]) (mkConst ``Grind.CommRing.Expr) l'E])
     else if invs.isEmpty && ainvs.isEmpty && kind.isComm then
       -- `q` is the polynomial of `lhs - rhs` (`rhs - lhs` for `≤`, `<`); every hypothesis of the
       -- theorem is checked by definitional equality.

@@ -3196,6 +3196,45 @@ theorem lt_norm_polyC {α c} [CommRing α] [IsCharP α c] [LE α] [LT α] [Lawfu
     (lhs.denote ctx < rhs.denote ctx) = (lhs'.denote ctx < rhs'.denote ctx) := by
   rw [← OrderedAdd.sub_pos_iff, sub_eq_of_toExprC ctx _ _ _ _ _ _ _ h₁ h₃ h₂ h₄, OrderedAdd.sub_pos_iff]
 
+/-!
+Relations whose normal form is `p = 0`, `p ≤ 0` or `p < 0` (the `lhsOnly` mode of `Sym.Arith`): the
+rendered side `lhs'` is checked against the polynomial `p` of `lhs - rhs` directly.
+-/
+
+theorem Poly.combine_k_num_zero (p : Poly) (k : Int) : p.combine_k ((Poly.num 0).mulConst_k k) = p := by
+  have h : (Poly.num 0).mulConst k = .num 0 := by
+    simp only [Poly.mulConst, Poly.mulConst.go, Int.mul_zero, cond_eq_ite]; split <;> (try split) <;> rfl
+  rw [Poly.combine_k_eq_combine, Poly.mulConst_k_eq_mulConst, h]
+  cases p <;> simp [Poly.combine, Poly.combine.go, Poly.addConst, cond]
+
+theorem sub_eq_of_toExpr0 {α} [CommRing α] (ctx : Context α) (lhs rhs lhs' : Expr) (p : Poly)
+    (h₁ : p = (lhs.sub rhs).toPoly_k) (h₂ : lhs' = p.toExpr_k) :
+    lhs'.denote ctx = lhs.denote ctx - rhs.denote ctx := by
+  subst h₁ h₂; rw [Poly.toExpr_k_eq, Poly.denote_toExpr, Expr.toPoly_k_eq_toPoly, Expr.denote_toPoly]; rfl
+
+theorem eq_norm_poly0 {α} [CommRing α] (ctx : Context α) (lhs rhs lhs' : Expr) (p : Poly)
+    (h₁ : p = (lhs.sub rhs).toPoly_k) (h₂ : lhs' = p.toExpr_k) :
+    (lhs.denote ctx = rhs.denote ctx) = (lhs'.denote ctx = (Expr.num 0).denote ctx) :=
+  eq_norm_poly ctx lhs rhs lhs' (.num 0) p p (.num 0) h₁ h₂ rfl (Poly.combine_k_num_zero p _).symm
+
+theorem le_norm_poly0 {α} [CommRing α] [LE α] [LT α] [IsPreorder α] [OrderedRing α] (ctx : Context α) (lhs rhs lhs' : Expr) (p : Poly)
+    (h₁ : p = (lhs.sub rhs).toPoly_k) (h₂ : lhs' = p.toExpr_k) :
+    (lhs.denote ctx ≤ rhs.denote ctx) = (lhs'.denote ctx ≤ (Expr.num 0).denote ctx) := by
+  rw [sub_eq_of_toExpr0 ctx lhs rhs lhs' p h₁ h₂]
+  show _ = (_ ≤ denoteInt 0)
+  rw [denoteInt_eq, Ring.intCast_zero]
+  apply propext
+  rw [OrderedAdd.add_le_left_iff (c := - rhs.denote ctx), Ring.sub_eq_add_neg, AddCommGroup.add_neg_cancel]
+
+theorem lt_norm_poly0 {α} [CommRing α] [LE α] [LT α] [LawfulOrderLT α] [IsPreorder α] [OrderedRing α] (ctx : Context α) (lhs rhs lhs' : Expr) (p : Poly)
+    (h₁ : p = (lhs.sub rhs).toPoly_k) (h₂ : lhs' = p.toExpr_k) :
+    (lhs.denote ctx < rhs.denote ctx) = (lhs'.denote ctx < (Expr.num 0).denote ctx) := by
+  rw [sub_eq_of_toExpr0 ctx lhs rhs lhs' p h₁ h₂]
+  show _ = (_ < denoteInt 0)
+  rw [denoteInt_eq, Ring.intCast_zero]
+  apply propext
+  rw [OrderedAdd.add_lt_left_iff (c := - rhs.denote ctx), Ring.sub_eq_add_neg, AddCommGroup.add_neg_cancel]
+
 noncomputable def norm_cnstr_cert (lhs rhs lhs' rhs' : Expr) : Bool :=
   (rhs.sub lhs).toPoly_k.beq' (rhs'.sub lhs').toPoly_k
 

@@ -3,7 +3,7 @@
       Lean.Grind.intro_with_eq (y + 1 < z) (y + 2 ≤ z) (z + x < 3 * z)
         (Eq.trans (Lean.Grind.Nat.lt_eq (y + 1) z)
           (id
-            (Nat.Internal.Linear.ExprCnstr.eq_of_toNormPoly_eq
+            (Nat.Internal.Linear.ExprCnstr.eq_of_toNormPoly_eq_k
               (Lean.RArray.branch 1 (Lean.RArray.leaf y) (Lean.RArray.leaf z))
               { eq := false,
                 lhs :=
@@ -18,7 +18,7 @@
           (id
             (Eq.trans (Lean.Grind.Nat.lt_eq (z + x) (3 * z))
               (id
-                (Nat.Internal.Linear.ExprCnstr.eq_of_toNormPoly_eq
+                (Nat.Internal.Linear.ExprCnstr.eq_of_toNormPoly_eq_k
                   (Lean.RArray.branch 1 (Lean.RArray.leaf x) (Lean.RArray.leaf z))
                   { eq := false,
                     lhs :=

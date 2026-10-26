@@ -16,7 +16,7 @@ import Lean.Meta.Tactic.Cbv.BuiltinCbvSimprocs.String
 import Lean.Meta.Tactic.Cbv.Util
 import Lean.Meta.Tactic.Cbv.TheoremsLookup
 import Lean.Meta.Tactic.Cbv.CbvEvalExt
-import Lean.Meta.Tactic.Cbv.CbvSimproc
+public import Lean.Meta.Tactic.Cbv.CbvSimproc
 import Lean.Meta.Sym
 import Lean.Meta.Tactic.Refl
 import Lean.Meta.Tactic.Replace
@@ -355,18 +355,27 @@ def cbvPreStep : Simproc := fun e => do
   | _ => return .rfl
 
 /-- Pre-pass: skip builtin values and proofs, run pre simprocs, then dispatch structurally. -/
-def cbvPre (simprocs : CbvSimprocs) : Simproc :=
+public def cbvPre (simprocs : CbvSimprocs) : Simproc :=
   isBuiltinValue <|> isProofTerm <|> cbvSimprocDispatch simprocs.pre simprocs.erased <|> cbvPreStep
 
 /-- Post-pass: evaluate ground arithmetic, then try eval simprocs, then try unfolding/beta-reducing applications and finally run post simprocs -/
-def cbvPost (simprocs : CbvSimprocs) : Simproc :=
+public def cbvPost (simprocs : CbvSimprocs) : Simproc :=
   evalGround <|> cbvSimprocDispatch simprocs.eval simprocs.erased <|> handleApp <|> cbvSimprocDispatch simprocs.post simprocs.erased
 
-def mkCbvMethods (simprocs : CbvSimprocs) : Methods :=
+/--
+`cbv` simplifier methods, for running `cbv` via `SimpM.run'` directly. As in `cbvCore`, the
+simplified terms must be preprocessed and the `SimpM` session must run under
+`Sym.withoutShareCommonChecks`.
+-/
+public def mkCbvMethods (simprocs : CbvSimprocs) : Methods :=
   { pre := cbvPre simprocs, post := cbvPost simprocs }
 
 /--
-Core `cbv` evaluator. It disables the `shareCommon` invariant checks for the duration
+Core `cbv` evaluator, usable within an enclosing `SymM` session. `e` must already be
+preprocessed (reducible constants unfolded via `Sym.unfoldReducible` and subterms shared via
+`Sym.shareCommon`), as is the case for subterms of a goal preprocessed by `Sym.preprocessMVar`.
+
+It disables the `shareCommon` invariant checks for the duration
 of the evaluation: `cbv` processes kernel projections natively, so they must not be
 folded into projection function applications, and it continuously constructs fresh
 terms from environment signatures (congruence proofs, `inferType` results) containing
@@ -375,7 +384,7 @@ full-term repair pass. The checks are disabled here (and in `cbvGoalCore`) rathe
 via the `SymM.run` configuration because `cbv` may run inside an enclosing `SymM`
 session (e.g., inside a `sym` block).
 -/
-def cbvCore (e : Expr) (config : Sym.Simp.Config := {}) : Sym.SymM Result := do
+public def cbvCore (e : Expr) (config : Sym.Simp.Config := {}) : Sym.SymM Result := do
   Sym.withoutShareCommonChecks do
     let simprocs ← getCbvSimprocs
     let methods := mkCbvMethods simprocs

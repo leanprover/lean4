@@ -876,9 +876,8 @@ Constructs an instance of the class using its constructor, running `perField` on
 the name of the projection function of the field.
 
 For `supportsRec := true` (the default), it tries to make the helpers non-partial if the inductive
-is not nested or reflexive. This is however only guaranteed to work if the fields provided to
-`perCtor` are only used as arguments to instance projections of the class. Otherwise, use
-`supportsRec := false`.
+is not nested or reflexive. If the helpers are possibly recursive but don't have structural
+termination, you should consider using `supportsRec := false`.
 -/
 def InstanceInfo.usingCtor (perField : Name → FieldHelperProvider α)
     (supportsRec : Bool := true) (induct : Name) :

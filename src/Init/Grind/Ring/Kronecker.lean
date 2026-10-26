@@ -640,6 +640,387 @@ theorem lt_false_of_kronS {α} [CommSemiring α] [AddRightCancel α] [LE α] [LT
   rw [Expr.eq_of_kronS ctx K B a b hS hB hK h]; exact eq_false Std.lt_irrefl
 
 /-!
+Linear identities by evaluation at `xᵢ = X ^ (i + 1)`: when every product has a constant factor
+(`Expr.degB_k e ≤ 1`), the monomials are the variables, and their codes can be `i + 1` instead of
+`B ^ i`, so the values stay small for many variables (`Expr.eq_of_kronLin`).
+-/
+
+/-- `p` with the monomial with code `v` valued at `g v`. -/
+def PPoly.denoteG {α} [Ring α] (g : Nat → α) : PPoly → α
+  | .num k => k
+  | .add k _ v p => k * g v + denoteG g p
+
+theorem PPoly.denoteG_removeCode {α} [Ring α] (g : Nat → α) (hg : g 0 = 1) (c : Nat) (p : PPoly) :
+    p.denoteG g = (p.coeff c : α) * g c + (p.removeCode c).denoteG g := by
+  induction p with
+  | num k =>
+    by_cases h : c = 0
+    · subst h; simp [denoteG, coeff, removeCode, hg, intCast_zero, mul_one, add_zero]
+    · simp [denoteG, coeff, removeCode, h, intCast_zero, zero_mul, zero_add]
+  | add k d v p ih =>
+    by_cases h : v = c
+    · subst h
+      simp only [denoteG, coeff, removeCode, ite_true, intCast_add]
+      rw [ih, right_distrib, add_assoc]
+    · simp only [denoteG, coeff, removeCode, h, ite_false, zero_add]
+      rw [ih, add_left_comm]
+
+theorem PPoly.denoteG_eq_zero_of_coeff {α} [Ring α] (g : Nat → α) (hg : g 0 = 1) :
+    ∀ (n : Nat) (p : PPoly), p.size ≤ n → (∀ c, p.coeff c = 0) → p.denoteG g = 0 := by
+  intro n
+  induction n with
+  | zero =>
+    intro p hs h
+    cases p with
+    | num k => have := h 0; simp [coeff] at this; simp [denoteG, this, intCast_zero]
+    | add => simp [size] at hs
+  | succ n ih =>
+    intro p hs h
+    cases p with
+    | num k => have := h 0; simp [coeff] at this; simp [denoteG, this, intCast_zero]
+    | add k d v p =>
+      rw [denoteG_removeCode g hg v, h v, intCast_zero, zero_mul, zero_add]
+      apply ih
+      · have := size_removeCode_le v p
+        have : ((PPoly.add k d v p).removeCode v).size = (p.removeCode v).size := by simp [removeCode]
+        simp [size] at hs; omega
+      · intro c'; rw [coeff_removeCode]; split <;> simp [h]
+
+theorem PPoly.denoteG_append {α} [Ring α] (g : Nat → α) (p q : PPoly) :
+    (p.append q).denoteG g = p.denoteG g + q.denoteG g := by
+  have hc : ∀ (q : PPoly) (k : Int), (append.addConst q k).denoteG g = q.denoteG g + k := by
+    intro q k
+    induction q with
+    | num k' => simp [append.addConst, denoteG, intCast_add]
+    | add k' d v q ih => simp [append.addConst, denoteG, ih, add_assoc]
+  induction p with
+  | num k => simp [append, denoteG, hc, add_comm]
+  | add k d v p ih => simp [append, denoteG, ih, add_assoc]
+
+theorem PPoly.denoteG_neg {α} [Ring α] (g : Nat → α) (p : PPoly) : p.neg.denoteG g = - p.denoteG g := by
+  induction p with
+  | num k => simp [neg, denoteG, intCast_neg]
+  | add k d v p ih => simp [neg, denoteG, ih, intCast_neg, neg_mul, neg_add]
+
+/-- `p` with its coefficients multiplied by `k`, without dropping zeros. -/
+def PPoly.scale (k : Int) : PPoly → PPoly
+  | .num k' => .num (k * k')
+  | .add k' d v p => .add (k * k') d v (scale k p)
+
+theorem PPoly.denoteG_scale {α} [Ring α] (g : Nat → α) (k : Int) (p : PPoly) :
+    (p.scale k).denoteG g = k * p.denoteG g := by
+  induction p with
+  | num k' => simp [scale, denoteG, intCast_mul]
+  | add k' d v p ih => simp [scale, denoteG, ih, intCast_mul, left_distrib, mul_assoc]
+
+theorem PPoly.kron_scale (X k : Int) (p : PPoly) : (p.scale k).kron X = k * p.kron X := by
+  induction p with
+  | num k' => simp [scale, kron]
+  | add k' d v p ih => simp [scale, kron, ih, Int.mul_add, Int.mul_assoc]
+
+theorem PPoly.norm1_scale (k : Int) (p : PPoly) : (p.scale k).norm1 = k.natAbs * p.norm1 := by
+  induction p with
+  | num k' => simp [scale, norm1, Int.natAbs_mul]
+  | add k' d v p ih => simp [scale, norm1, ih, Int.natAbs_mul, Nat.mul_add]
+
+/-- The value of a constant expression (variables at `0`). -/
+def Expr.evalConst : Expr → Int
+  | .num k | .intCast k => k
+  | .natCast n => n
+  | .var _ => 0
+  | .neg a => - evalConst a
+  | .add a b => evalConst a + evalConst b
+  | .sub a b => evalConst a - evalConst b
+  | .mul a b => evalConst a * evalConst b
+  | .pow a k => evalConst a ^ k
+
+theorem Expr.denoteF_eq_evalConst {α} [CommRing α] (f : Nat → α) (e : Expr) (h : e.degB_k = 0) :
+    e.denoteF f = (e.evalConst : α) := by
+  induction e with
+  | num k => show denoteInt k = _; rw [denoteInt_eq]; rfl
+  | natCast n => show NatCast.natCast n = ((n : Int) : α); rw [intCast_natCast]
+  | intCast k => rfl
+  | var x => exact absurd (show (1 : Nat) = 0 from h) (by decide)
+  | neg a ih => show - a.denoteF f = ((- a.evalConst : Int) : α); rw [ih h, intCast_neg]
+  | add a b iha ihb =>
+    have := Expr.le_max_k a.degB_k b.degB_k
+    have h' : Bool.rec a.degB_k b.degB_k (Nat.blt a.degB_k b.degB_k) = 0 := h
+    show a.denoteF f + b.denoteF f = ((a.evalConst + b.evalConst : Int) : α)
+    rw [iha (by omega), ihb (by omega), intCast_add]
+  | sub a b iha ihb =>
+    have := Expr.le_max_k a.degB_k b.degB_k
+    have h' : Bool.rec a.degB_k b.degB_k (Nat.blt a.degB_k b.degB_k) = 0 := h
+    show a.denoteF f - b.denoteF f = ((a.evalConst - b.evalConst : Int) : α)
+    rw [iha (by omega), ihb (by omega), intCast_sub]
+  | mul a b iha ihb =>
+    have h' : Nat.add a.degB_k b.degB_k = 0 := h
+    show a.denoteF f * b.denoteF f = ((a.evalConst * b.evalConst : Int) : α)
+    rw [iha (by simp at h'; omega), ihb (by simp at h'; omega), intCast_mul]
+  | pow a k ih =>
+    have h' : Nat.mul a.degB_k k = 0 := h
+    show a.denoteF f ^ k = ((a.evalConst ^ k : Int) : α)
+    rw [intCast_pow]
+    rcases Nat.mul_eq_zero.mp h' with h'' | h''
+    · rw [ih h'']
+    · subst h''; rw [pow_zero, pow_zero]
+
+theorem Expr.natAbs_evalConst_le (e : Expr) : e.evalConst.natAbs ≤ e.majorant_k := by
+  induction e with
+  | num k => show k.natAbs ≤ Int.natAbs_k k; rw [Int.natAbs_k_eq]; exact Nat.le_refl _
+  | natCast n => show (n : Int).natAbs ≤ n; simp
+  | intCast k => show k.natAbs ≤ Int.natAbs_k k; rw [Int.natAbs_k_eq]; exact Nat.le_refl _
+  | var x => show (0 : Int).natAbs ≤ 1; simp
+  | neg a ih => show (- a.evalConst).natAbs ≤ a.majorant_k; rw [Int.natAbs_neg]; exact ih
+  | add a b iha ihb =>
+    show (a.evalConst + b.evalConst).natAbs ≤ Nat.add a.majorant_k b.majorant_k
+    have := Int.natAbs_add_le a.evalConst b.evalConst; simp only [Nat.add_eq]; omega
+  | sub a b iha ihb =>
+    show (a.evalConst - b.evalConst).natAbs ≤ Nat.add a.majorant_k b.majorant_k
+    have := Int.natAbs_sub_le a.evalConst b.evalConst; simp only [Nat.add_eq]; omega
+  | mul a b iha ihb =>
+    show (a.evalConst * b.evalConst).natAbs ≤ Nat.mul a.majorant_k b.majorant_k
+    rw [Int.natAbs_mul]; exact Nat.mul_le_mul iha ihb
+  | pow a k ih =>
+    show (a.evalConst ^ k).natAbs ≤ Nat.pow a.majorant_k k
+    rw [Int.natAbs_pow]; exact Nat.pow_le_pow_left ih k
+
+/-- The terms of a linear expression, with code `i + 1` for the variable `i` (only used in proofs). -/
+noncomputable def Expr.toLin : Expr → PPoly
+  | .num k | .intCast k => .num k
+  | .natCast n => .num n
+  | .var x => .add 1 1 (x + 1) (.num 0)
+  | .neg a => (toLin a).neg
+  | .add a b => (toLin a).append (toLin b)
+  | .sub a b => (toLin a).append (toLin b).neg
+  | .mul a b => if a.degB_k = 0 then (toLin b).scale a.evalConst else (toLin a).scale b.evalConst
+  | .pow a k => if k = 0 then .num 1 else if k = 1 then toLin a else .num (a.evalConst ^ k)
+
+/-- The value of `e` at the point `xᵢ = (2 ^ K) ^ (i + 1)`. -/
+noncomputable def Expr.kronLinEval_k (K : Nat) (e : Expr) : Int :=
+  Expr.rec (fun k => k) (fun n => Int.ofNat n) (fun k => k)
+    (fun i => Int.ofNat (Nat.pow 2 (Nat.mul K (Nat.add i 1))))
+    (fun _ ih => Int.neg_k ih) (fun _ _ ih₁ ih₂ => Int.add_k ih₁ ih₂) (fun _ _ ih₁ ih₂ => Int.sub_k ih₁ ih₂)
+    (fun _ _ ih₁ ih₂ => Int.mul_k ih₁ ih₂) (fun _ k ih => Int.pow_k ih k) e
+
+theorem Expr.kronLinEval_k_eq (K : Nat) (e : Expr) :
+    e.kronLinEval_k K = e.denoteF (fun i => ((2 : Int) ^ K) ^ (i + 1)) := by
+  induction e with
+  | num k => show k = denoteInt k; rw [denoteInt_eq]; rfl
+  | natCast n => rfl
+  | intCast k => rfl
+  | var i =>
+    show Int.ofNat (2 ^ (K * (i + 1))) = ((2 : Int) ^ K) ^ (i + 1)
+    rw [← Int.pow_mul]; exact Int.natCast_pow 2 (K * (i + 1))
+  | neg a ih =>
+    show Int.neg_k (a.kronLinEval_k K) = - a.denoteF _; rw [Int.neg_k_eq, ih]; rfl
+  | add a b iha ihb =>
+    show Int.add_k (a.kronLinEval_k K) (b.kronLinEval_k K) = a.denoteF _ + b.denoteF _; rw [Int.add_k_eq, iha, ihb]; rfl
+  | sub a b iha ihb =>
+    show Int.sub_k (a.kronLinEval_k K) (b.kronLinEval_k K) = a.denoteF _ - b.denoteF _; rw [Int.sub_k_eq, iha, ihb]
+  | mul a b iha ihb =>
+    show Int.mul_k (a.kronLinEval_k K) (b.kronLinEval_k K) = a.denoteF _ * b.denoteF _; rw [Int.mul_k_eq, iha, ihb]; rfl
+  | pow a k ih => show Int.pow_k (a.kronLinEval_k K) k = a.denoteF _ ^ k; rw [Int.pow_k_eq, ih]
+
+/-- The valuation of the codes of `Expr.toLin`: the code `i + 1` is the variable `i`. -/
+def PPoly.linVal {α} [Ring α] (f : Nat → α) (v : Nat) : α :=
+  if v = 0 then 1 else f (v - 1)
+
+theorem Expr.toLin_spec {α} [CommRing α] (f : Nat → α) (X : Int) (e : Expr) (h : e.degB_k ≤ 1) :
+    (e.toLin).denoteG (PPoly.linVal f) = e.denoteF f ∧
+    (e.toLin).kron X = e.denoteF (fun i => X ^ (i + 1)) ∧ (e.toLin).norm1 ≤ e.majorant_k := by
+  induction e with
+  | num k =>
+    refine ⟨?_, ?_, ?_⟩
+    · show (k : α) = denoteInt k; rw [denoteInt_eq]
+    · show k = denoteInt k; rw [denoteInt_eq]; rfl
+    · show k.natAbs ≤ Int.natAbs_k k; rw [Int.natAbs_k_eq]; exact Nat.le_refl _
+  | natCast n =>
+    refine ⟨?_, rfl, ?_⟩
+    · show ((n : Int) : α) = NatCast.natCast n; rw [intCast_natCast]
+    · show (n : Int).natAbs ≤ n; simp
+  | intCast k =>
+    refine ⟨rfl, rfl, ?_⟩
+    show k.natAbs ≤ Int.natAbs_k k; rw [Int.natAbs_k_eq]; exact Nat.le_refl _
+  | var x =>
+    refine ⟨?_, ?_, ?_⟩
+    · show ((1 : Int) : α) * PPoly.linVal f (x + 1) + ((0 : Int) : α) = f x
+      simp [PPoly.linVal, intCast_one, one_mul, intCast_zero, add_zero]
+    · show (1 : Int) * X ^ (x + 1) + 0 = X ^ (x + 1); omega
+    · show (1 : Int).natAbs + (0 : Int).natAbs ≤ 1; simp
+  | neg a ih =>
+    have ih := ih h
+    refine ⟨?_, ?_, ?_⟩
+    · show a.toLin.neg.denoteG _ = - a.denoteF f; rw [PPoly.denoteG_neg, ih.1]
+    · show a.toLin.neg.kron X = - a.denoteF _; rw [PPoly.kron_neg, ih.2.1]
+    · show a.toLin.neg.norm1 ≤ a.majorant_k; rw [PPoly.norm1_neg]; exact ih.2.2
+  | add a b iha ihb =>
+    have hm := Expr.le_max_k a.degB_k b.degB_k
+    have h' : Bool.rec a.degB_k b.degB_k (Nat.blt a.degB_k b.degB_k) ≤ 1 := h
+    have iha := iha (by omega)
+    have ihb := ihb (by omega)
+    refine ⟨?_, ?_, ?_⟩
+    · show (a.toLin.append b.toLin).denoteG _ = a.denoteF f + b.denoteF f; rw [PPoly.denoteG_append, iha.1, ihb.1]
+    · show (a.toLin.append b.toLin).kron X = a.denoteF _ + b.denoteF _; rw [PPoly.kron_append, iha.2.1, ihb.2.1]
+    · show (a.toLin.append b.toLin).norm1 ≤ Nat.add a.majorant_k b.majorant_k
+      have := PPoly.norm1_append a.toLin b.toLin; simp only [Nat.add_eq]; omega
+  | sub a b iha ihb =>
+    have hm := Expr.le_max_k a.degB_k b.degB_k
+    have h' : Bool.rec a.degB_k b.degB_k (Nat.blt a.degB_k b.degB_k) ≤ 1 := h
+    have iha := iha (by omega)
+    have ihb := ihb (by omega)
+    refine ⟨?_, ?_, ?_⟩
+    · show (a.toLin.append b.toLin.neg).denoteG _ = a.denoteF f - b.denoteF f
+      rw [PPoly.denoteG_append, PPoly.denoteG_neg, iha.1, ihb.1, sub_eq_add_neg]
+    · show (a.toLin.append b.toLin.neg).kron X = a.denoteF _ - b.denoteF _
+      rw [PPoly.kron_append, PPoly.kron_neg, iha.2.1, ihb.2.1]; rfl
+    · show (a.toLin.append b.toLin.neg).norm1 ≤ Nat.add a.majorant_k b.majorant_k
+      have := PPoly.norm1_append a.toLin b.toLin.neg; rw [PPoly.norm1_neg] at this; simp only [Nat.add_eq]; omega
+  | mul a b iha ihb =>
+    have h' : Nat.add a.degB_k b.degB_k ≤ 1 := h
+    by_cases ha : a.degB_k = 0
+    · have ihb := ihb (by simp at h'; omega)
+      have ca := Expr.denoteF_eq_evalConst f a ha
+      have ca' := Expr.denoteF_eq_evalConst (fun i => X ^ (i + 1)) a ha
+      have na := Expr.natAbs_evalConst_le a
+      refine ⟨?_, ?_, ?_⟩
+      · show (if a.degB_k = 0 then _ else _ : PPoly).denoteG _ = a.denoteF f * b.denoteF f
+        rw [ite_eq_left ha, PPoly.denoteG_scale, ihb.1, ca]
+      · show (if a.degB_k = 0 then _ else _ : PPoly).kron X = a.denoteF _ * b.denoteF _
+        rw [ite_eq_left ha, PPoly.kron_scale, ihb.2.1, ca']; rfl
+      · show (if a.degB_k = 0 then _ else _ : PPoly).norm1 ≤ Nat.mul a.majorant_k b.majorant_k
+        rw [ite_eq_left ha, PPoly.norm1_scale, Nat.mul_eq]; exact Nat.mul_le_mul na ihb.2.2
+    · have hb : b.degB_k = 0 := by simp at h'; omega
+      have iha := iha (by simp at h'; omega)
+      have cb := Expr.denoteF_eq_evalConst f b hb
+      have cb' := Expr.denoteF_eq_evalConst (fun i => X ^ (i + 1)) b hb
+      have nb := Expr.natAbs_evalConst_le b
+      refine ⟨?_, ?_, ?_⟩
+      · show (if a.degB_k = 0 then _ else _ : PPoly).denoteG _ = a.denoteF f * b.denoteF f
+        rw [ite_eq_right ha, PPoly.denoteG_scale, iha.1, cb, CommSemiring.mul_comm]
+      · show (if a.degB_k = 0 then _ else _ : PPoly).kron X = a.denoteF _ * b.denoteF _
+        rw [ite_eq_right ha, PPoly.kron_scale, iha.2.1, cb', Int.mul_comm]; rfl
+      · show (if a.degB_k = 0 then _ else _ : PPoly).norm1 ≤ Nat.mul a.majorant_k b.majorant_k
+        rw [ite_eq_right ha, PPoly.norm1_scale, Nat.mul_eq, Nat.mul_comm]; exact Nat.mul_le_mul iha.2.2 nb
+  | pow a k ih =>
+    have h' : Nat.mul a.degB_k k ≤ 1 := h
+    by_cases hk0 : k = 0
+    · subst hk0
+      refine ⟨?_, ?_, ?_⟩
+      · show (if 0 = 0 then _ else _ : PPoly).denoteG _ = a.denoteF f ^ 0
+        rw [ite_eq_left rfl, pow_zero]; exact intCast_one
+      · show (if 0 = 0 then _ else _ : PPoly).kron X = a.denoteF _ ^ 0
+        rw [ite_eq_left rfl, pow_zero]; rfl
+      · show (if 0 = 0 then _ else _ : PPoly).norm1 ≤ Nat.pow a.majorant_k 0; rw [ite_eq_left rfl]; simp [PPoly.norm1]
+    by_cases hk1 : k = 1
+    · subst hk1
+      have ih := ih (by simp at h'; omega)
+      refine ⟨?_, ?_, ?_⟩
+      · show (if 1 = 0 then _ else if 1 = 1 then _ else _ : PPoly).denoteG _ = a.denoteF f ^ 1
+        rw [ite_eq_right (by decide), ite_eq_left rfl, pow_one, ih.1]
+      · show (if 1 = 0 then _ else if 1 = 1 then _ else _ : PPoly).kron X = a.denoteF _ ^ 1
+        rw [ite_eq_right (by decide), ite_eq_left rfl, ih.2.1]; exact (pow_one _).symm
+      · show (if 1 = 0 then _ else if 1 = 1 then _ else _ : PPoly).norm1 ≤ Nat.pow a.majorant_k 1
+        rw [ite_eq_right (by decide), ite_eq_left rfl, Nat.pow_eq, Nat.pow_one]; exact ih.2.2
+    · have ha : a.degB_k = 0 := by
+        rcases Nat.eq_zero_or_pos a.degB_k with h0 | h0
+        · exact h0
+        · have : 2 ≤ k := by omega
+          have : 2 ≤ a.degB_k * k := Nat.le_trans (by omega) (Nat.mul_le_mul h0 this)
+          have h'' : a.degB_k * k ≤ 1 := h'
+          omega
+      have ca := Expr.denoteF_eq_evalConst f a ha
+      have ca' := Expr.denoteF_eq_evalConst (fun i => X ^ (i + 1)) a ha
+      refine ⟨?_, ?_, ?_⟩
+      · show (if k = 0 then _ else if k = 1 then _ else _ : PPoly).denoteG _ = a.denoteF f ^ k
+        rw [ite_eq_right hk0, ite_eq_right hk1, ca, ← intCast_pow]; rfl
+      · show (if k = 0 then _ else if k = 1 then _ else _ : PPoly).kron X = a.denoteF _ ^ k
+        rw [ite_eq_right hk0, ite_eq_right hk1, ca']; rfl
+      · show (if k = 0 then _ else if k = 1 then _ else _ : PPoly).norm1 ≤ Nat.pow a.majorant_k k
+        rw [ite_eq_right hk0, ite_eq_right hk1]
+        show (a.evalConst ^ k).natAbs ≤ _
+        rw [Int.natAbs_pow, Nat.pow_eq]; exact Nat.pow_le_pow_left (Expr.natAbs_evalConst_le a) k
+
+/-- Checks that `a` and `b` are linear (`Expr.degB_k ≤ 1`). -/
+noncomputable def Expr.linOk_k (a b : Expr) : Bool :=
+  Bool.rec false (Nat.ble b.degB_k 1) (Nat.ble a.degB_k 1)
+
+theorem Expr.eq_of_kronLin {α} [CommRing α] (ctx : Context α) (K : Nat) (a b : Expr)
+    (hl : linOk_k a b = true) (hK : kronOk_k K a b = true) (h : a.kronLinEval_k K = b.kronLinEval_k K) :
+    a.denote ctx = b.denote ctx := by
+  have hl := PPoly.and_of_rec hl
+  have ha := Nat.le_of_ble_eq_true hl.1
+  have hb := Nat.le_of_ble_eq_true hl.2
+  have hK : 2 * (a.majorant_k + b.majorant_k) < 2 ^ K := Nat.blt_eq.mp hK
+  have hX : (0 : Int) < 2 ^ K := Int.pow_pos (by decide)
+  have sa := Expr.toLin_spec (Var.denote ctx) ((2 : Int) ^ K) a ha
+  have sb := Expr.toLin_spec (Var.denote ctx) ((2 : Int) ^ K) b hb
+  have hk : (a.toLin.append b.toLin.neg).kron ((2 : Int) ^ K) = 0 := by
+    rw [PPoly.kron_append, PPoly.kron_neg, sa.2.1, sb.2.1, ← kronLinEval_k_eq, ← kronLinEval_k_eq, h]; omega
+  have hn : 2 * ((a.toLin.append b.toLin.neg).norm1 : Int) < 2 ^ K := by
+    have := PPoly.norm1_append a.toLin b.toLin.neg; rw [PPoly.norm1_neg] at this
+    have : 2 * (a.toLin.append b.toLin.neg).norm1 < 2 ^ K := by have := sa.2.2; have := sb.2.2; omega
+    have h2 : ((2 ^ K : Nat) : Int) = (2 : Int) ^ K := Int.natCast_pow 2 K
+    rw [← h2]; exact Int.ofNat_lt.mpr (by simpa using this)
+  have hz := PPoly.denoteG_eq_zero_of_coeff (PPoly.linVal (Var.denote ctx)) (by simp [PPoly.linVal]) _ _ (Nat.le_refl _)
+    (fun c => PPoly.coeff_eq_zero_of_kron _ hX c _ hk hn)
+  rw [PPoly.denoteG_append, PPoly.denoteG_neg, sa.1, sb.1] at hz
+  rw [Expr.denote_eq_denoteF, Expr.denote_eq_denoteF, ← sub_eq_zero_iff, sub_eq_add_neg, hz]
+
+theorem eq_true_of_kronLin {α} [CommRing α] (ctx : Context α) (K : Nat) (a b : Expr)
+    (hl : Expr.linOk_k a b = true) (hK : Expr.kronOk_k K a b = true) (h : a.kronLinEval_k K = b.kronLinEval_k K) :
+    (a.denote ctx = b.denote ctx) = True :=
+  eq_true (Expr.eq_of_kronLin ctx K a b hl hK h)
+
+theorem le_true_of_kronLin {α} [CommRing α] [LE α] [IsPreorder α] (ctx : Context α) (K : Nat) (a b : Expr)
+    (hl : Expr.linOk_k a b = true) (hK : Expr.kronOk_k K a b = true) (h : a.kronLinEval_k K = b.kronLinEval_k K) :
+    (a.denote ctx ≤ b.denote ctx) = True := by
+  rw [Expr.eq_of_kronLin ctx K a b hl hK h]; exact eq_true (Std.le_refl _)
+
+theorem lt_false_of_kronLin {α} [CommRing α] [LE α] [LT α] [LawfulOrderLT α] [IsPreorder α] (ctx : Context α) (K : Nat)
+    (a b : Expr) (hl : Expr.linOk_k a b = true) (hK : Expr.kronOk_k K a b = true) (h : a.kronLinEval_k K = b.kronLinEval_k K) :
+    (a.denote ctx < b.denote ctx) = False := by
+  rw [Expr.eq_of_kronLin ctx K a b hl hK h]; exact eq_false Std.lt_irrefl
+
+/-- The difference of `a` and `b` is the constant `k`, for the theorems `eq_false_of_sub`, `le_true_of_sub`, .... -/
+theorem Expr.sub_eq_of_kronLin {α} [CommRing α] (ctx : Context α) (K : Nat) (a b : Expr) (k : Int)
+    (hl : linOk_k a (b.add (.num k)) = true) (hK : kronOk_k K a (b.add (.num k)) = true)
+    (h : a.kronLinEval_k K = (b.add (.num k)).kronLinEval_k K) : a.denote ctx - b.denote ctx = (k : α) := by
+  have := Expr.eq_of_kronLin ctx K a (b.add (.num k)) hl hK h
+  rw [this]; show b.denote ctx + denoteInt k - _ = _
+  rw [denoteInt_eq, sub_eq_add_neg, add_comm, ← add_assoc, AddCommGroup.neg_add_cancel, zero_add]
+
+/-- The difference of `a` and `b` is the constant `k`, by Kronecker substitution. -/
+theorem Expr.sub_eq_of_kron {α} [CommRing α] (ctx : Context α) (K B : Nat) (a b : Expr) (k : Int)
+    (hB : degOk_k B a (b.add (.num k)) = true) (hK : kronOk_k K a (b.add (.num k)) = true)
+    (h : a.kronEval_k K B = (b.add (.num k)).kronEval_k K B) : a.denote ctx - b.denote ctx = (k : α) := by
+  have := Expr.eq_of_kron ctx K B a (b.add (.num k)) hB hK h
+  rw [this]; show b.denote ctx + denoteInt k - _ = _
+  rw [denoteInt_eq, sub_eq_add_neg, add_comm, ← add_assoc, AddCommGroup.neg_add_cancel, zero_add]
+
+theorem Expr.eq_of_kronLinS {α} [CommSemiring α] [AddRightCancel α] (ctx : Context α) (K : Nat) (a b : Expr)
+    (hS : Bool.rec false b.semi_k a.semi_k = true) (hl : linOk_k a b = true) (hK : kronOk_k K a b = true)
+    (h : a.kronLinEval_k K = b.kronLinEval_k K) : a.denoteS ctx = b.denoteS ctx := by
+  have hS := semi_k_and hS
+  apply Ring.OfSemiring.toQ_inj
+  rw [← Expr.denoteAsRing_eq, ← Expr.denoteAsRing_eq, ← denote_mapCtx_toQ ctx a hS.1, ← denote_mapCtx_toQ ctx b hS.2]
+  exact Expr.eq_of_kronLin _ K a b hl hK h
+
+theorem eq_true_of_kronLinS {α} [CommSemiring α] [AddRightCancel α] (ctx : Context α) (K : Nat) (a b : Expr)
+    (hS : Bool.rec false b.semi_k a.semi_k = true) (hl : Expr.linOk_k a b = true) (hK : Expr.kronOk_k K a b = true)
+    (h : a.kronLinEval_k K = b.kronLinEval_k K) : (a.denoteS ctx = b.denoteS ctx) = True :=
+  eq_true (Expr.eq_of_kronLinS ctx K a b hS hl hK h)
+
+theorem le_true_of_kronLinS {α} [CommSemiring α] [AddRightCancel α] [LE α] [IsPreorder α] (ctx : Context α) (K : Nat)
+    (a b : Expr) (hS : Bool.rec false b.semi_k a.semi_k = true) (hl : Expr.linOk_k a b = true)
+    (hK : Expr.kronOk_k K a b = true) (h : a.kronLinEval_k K = b.kronLinEval_k K) : (a.denoteS ctx ≤ b.denoteS ctx) = True := by
+  rw [Expr.eq_of_kronLinS ctx K a b hS hl hK h]; exact eq_true (Std.le_refl _)
+
+theorem lt_false_of_kronLinS {α} [CommSemiring α] [AddRightCancel α] [LE α] [LT α] [LawfulOrderLT α] [IsPreorder α]
+    (ctx : Context α) (K : Nat) (a b : Expr) (hS : Bool.rec false b.semi_k a.semi_k = true) (hl : Expr.linOk_k a b = true)
+    (hK : Expr.kronOk_k K a b = true) (h : a.kronLinEval_k K = b.kronLinEval_k K) : (a.denoteS ctx < b.denoteS ctx) = False := by
+  rw [Expr.eq_of_kronLinS ctx K a b hS hl hK h]; exact eq_false Std.lt_irrefl
+
+/-!
 Kronecker certificates for `grind`'s Gröbner steps: a chain `p = p₁ + Σ kᵢ * mᵢ * qᵢ` of stated
 polynomials is checked by comparing values at the point (`Stepwise.simpsK`, `Stepwise.d_stepsK`).
 In characteristic `c`, the difference is `c * E` for a stated polynomial `E` (`Stepwise.simpsKC`).

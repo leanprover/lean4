@@ -72,4 +72,21 @@ def kronExponent? (norm maxCode maxBits : Nat) : Option Nat :=
   let K := (2 * norm).log2 + 1
   if K * (maxCode + 1) > maxBits then none else some K
 
+/-- One more than the largest variable of `e`, the largest code of `Grind.CommRing.Expr.toLin`. -/
+def exprMaxVar : RingExpr → Nat
+  | .num _ | .natCast _ | .intCast _ => 0
+  | .var x => x + 1
+  | .neg a | .pow a _ => exprMaxVar a
+  | .add a b | .sub a b | .mul a b => max (exprMaxVar a) (exprMaxVar b)
+
+/--
+The exponent `K` of the linear Kronecker certificate (`Grind.CommRing.Expr.eq_of_kronLin`) for
+`l` and `r`, if they are linear and the values at the point stay below `maxBits` bits.
+-/
+def kronLinExponent? (l r : RingExpr) (maxBits : Nat) : Option Nat :=
+  if exprDegB l ≤ 1 && exprDegB r ≤ 1 then
+    kronExponent? (exprMajorant l + exprMajorant r) (max (exprMaxVar l) (exprMaxVar r)) maxBits
+  else
+    none
+
 end Lean.Meta.Sym.Arith

@@ -328,7 +328,8 @@ private def mkKronSum? (declName declNameC : Name) (pre : Array Expr) (base p : 
       pure E
   let c := c?.getD 0
   let norm := leaves.foldl (fun n (k, _, q, _) => n + k.natAbs * polyNorm1 q) (polyNorm1 p + polyNorm1 base + c * polyNorm1 E)
-  let some K := kronExponent? norm deg B (← getRingState).vars.size 4000000 | return none
+  let maxCode := leaves.foldl (fun c (_, m, q, _) => max c (monCode B m + polyMaxCode B q)) (max (polyMaxCode B base) (polyMaxCode B p))
+  let some K := kronExponent? norm maxCode 4000000 | return none
   let ring ← getCommRing
   let ctx ← getContext
   let mut ls := mkConst ``Grind.CommRing.KList.nil
@@ -410,14 +411,16 @@ partial def _root_.Lean.Meta.Grind.Arith.CommRing.EqCnstr.toExprProof (c : EqCns
         let t := mkApp3 (mkConst ``Grind.CommRing.SumTree.leaf) (toExpr k₂) (← mkMonDecl m₂) (← mkPolyDecl c₂.p)
         return (← mulMonR k₂ m₂ c₂.p, t, ← toExprProof c₂)
       let hBase ← toExprProof base
-      let (q, t, hAll, treeCost) ← mkSumTree leaves 0 leaves.size
+      let hs ← steps.mapIdxM fun i (k₂, m₂, c₂, _) => return (k₂, m₂, c₂.p, leaves[i]!.2.2)
+      -- The chain `c.p = base.p + Σ kᵢ * mᵢ * cᵢ.p` is checked at once by Kronecker substitution
+      -- when it applies, otherwise when the sum tree pays off.
+      if steps.size > 1 then
+        if let some h ← mkKronSum? ``Stepwise.simpsK ``Stepwise.simpsKC #[] base.p c.p hs then
+          return mkApp h hBase
+      let (q, _, _, treeCost) ← mkSumTree leaves 0 leaves.size
       let seqCost := stepwiseCost base.p (steps.zipWith (fun (_, _, _, c) (q, _, _) => (q, c.p)) leaves)
       let rootHs := mergeHints base.p q #[]
       if steps.size > 1 && useSumTree (treeCost + hintsWalk rootHs) seqCost then
-        -- The chain `c.p = base.p + Σ kᵢ * mᵢ * cᵢ.p` is checked at once.
-        let hs ← steps.mapIdxM fun i (k₂, m₂, c₂, _) => return (k₂, m₂, c₂.p, leaves[i]!.2.2)
-        if let some h ← mkKronSum? ``Stepwise.simpsK ``Stepwise.simpsKC #[] base.p c.p hs then
-          return mkApp h hBase
         let h ← mkPackedSum ``Stepwise.simpsP ``Stepwise.simpsPC #[] base.p c.p hs
         return mkApp h hBase
       -- One step at a time; the proofs of the intermediate constraints are cached.
@@ -484,14 +487,15 @@ private partial def derivToExprProof (d : PolyDerivation) : ProofM (Int × Poly 
     let leaves ← steps.mapM fun (k₂, m₂, c₂, _) => do
       let t := mkApp3 (mkConst ``Grind.CommRing.SumTree.leaf) (toExpr k₂) (← mkMonDecl m₂) (← mkPolyDecl c₂.p)
       return (← mulMonR k₂ m₂ c₂.p, t, ← c₂.toExprProof)
-    let (q, t, hAll, treeCost) ← mkSumTree leaves 0 leaves.size
+    -- The chain `p = base.p + Σ kᵢ * mᵢ * pᵢ` is checked at once by Kronecker substitution when it
+    -- applies, otherwise when the sum tree pays off.
+    let hs ← steps.mapIdxM fun i (k₂, m₂, c₂, _) => return (k₂, m₂, c₂.p, leaves[i]!.2.2)
+    if let some h ← mkKronSum? ``Stepwise.d_stepsK ``Stepwise.d_stepsKC #[toExpr k, ← mkPolyDecl p₀] base.p p hs then
+      return (k, p₀, mkApp h h₁)
+    let (q, _, _, treeCost) ← mkSumTree leaves 0 leaves.size
     let seqCost := stepwiseCost base.p (steps.zipWith (fun (_, _, _, p) (q, _, _) => (q, p)) leaves)
     let rootHs := mergeHints base.p q #[]
     if useSumTree (treeCost + hintsWalk rootHs) seqCost then
-      -- The chain `p = base.p + Σ kᵢ * mᵢ * pᵢ` is checked at once.
-      let hs ← steps.mapIdxM fun i (k₂, m₂, c₂, _) => return (k₂, m₂, c₂.p, leaves[i]!.2.2)
-      if let some h ← mkKronSum? ``Stepwise.d_stepsK ``Stepwise.d_stepsKC #[toExpr k, ← mkPolyDecl p₀] base.p p hs then
-        return (k, p₀, mkApp h h₁)
       let h ← mkPackedSum ``Stepwise.d_stepsP ``Stepwise.d_stepsPC #[toExpr k, ← mkPolyDecl p₀] base.p p hs
       return (k, p₀, mkApp h h₁)
     -- One step at a time.
@@ -555,8 +559,8 @@ private def mkKronImp? (lhs rhs : RingExpr) (d : PolyDerivation) (k : Int) (p₀
       unless E.mulConst c == diff do return none
       pure E
   let c := c?.getD 0
-  let some K := kronExponent? (exprMajorant e + polyNorm1 p₀ + c * polyNorm1 E) deg B (← getRingState).vars.size 4000000
-    | return none
+  let maxCode := max (exprMaxCode B e) (polyMaxCode B p₀)
+  let some K := kronExponent? (exprMajorant e + polyNorm1 p₀ + c * polyNorm1 E) maxCode 4000000 | return none
   let pre ← if k == 1 then
     mkStepPrefix ``Stepwise.imp_1eqK ``Stepwise.imp_1eqKC
   else

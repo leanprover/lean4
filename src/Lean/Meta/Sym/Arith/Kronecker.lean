@@ -43,15 +43,33 @@ def polyNorm1 : Poly → Nat
   | .num k => k.natAbs
   | .add k _ p => k.natAbs + polyNorm1 p
 
+/-- The packed code of `m` in base `B` (`Grind.CommRing.Mon.code_k`). -/
+def monCode (B : Nat) : Mon → Nat
+  | .unit => 0
+  | .mult pw m => pw.k * B ^ pw.x + monCode B m
+
+/-- The largest packed code of the monomials of `p`. -/
+def polyMaxCode (B : Nat) : Poly → Nat
+  | .num _ => 0
+  | .add _ m p => max (monCode B m) (polyMaxCode B p)
+
+/-- An upper bound on the packed codes of the monomials of the polynomials of `e` and its subterms. -/
+def exprMaxCode (B : Nat) : RingExpr → Nat
+  | .num _ | .natCast _ | .intCast _ => 0
+  | .var x => B ^ x
+  | .neg a => exprMaxCode B a
+  | .add a b | .sub a b => max (exprMaxCode B a) (exprMaxCode B b)
+  | .mul a b => exprMaxCode B a + exprMaxCode B b
+  | .pow a k => exprMaxCode B a * k
+
 /--
-The exponent `K` of a Kronecker certificate over `n` variables with degrees below `B`, whose
-coefficients are bounded by `norm`, if the values at the point stay below `maxBits` bits: they have
-about `K * deg * B ^ (n - 1)` bits for the degree `deg`.
+The exponent `K` of a Kronecker certificate whose coefficients are bounded by `norm` and whose
+monomials have codes at most `maxCode`, if the values at the point stay below `maxBits` bits: they
+have about `K * maxCode` bits.
 -/
-def kronExponent? (norm deg B n maxBits : Nat) : Option Nat := Id.run do
-  if (n - 1) * (Nat.log2 B + 1) > 24 then return none
+def kronExponent? (norm maxCode maxBits : Nat) : Option Nat :=
+  if maxCode > maxBits then none else
   let K := (2 * norm).log2 + 1
-  if K * (deg * B ^ (n - 1) + 1) > maxBits then return none
-  return some K
+  if K * (maxCode + 1) > maxBits then none else some K
 
 end Lean.Meta.Sym.Arith

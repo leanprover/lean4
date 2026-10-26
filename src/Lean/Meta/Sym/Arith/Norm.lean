@@ -878,12 +878,12 @@ private def packedArgs (l r : RingExpr) (p : Poly) (bal₁ bal₂ : Bool) : Arra
   #[mkRawNatLit B, toExpr bal₁, toExpr bal₂, toExpr l, toExpr r, pE, eagerReflBoolTrue, refl, refl]
 
 /--
-The arguments `K` and `B` of the Kronecker certificates (`Expr.eq_of_kron`) for `l` and `r` over `n`
-variables, if the values at the point stay below about a million bits (`kronExponent?`).
+The arguments `K` and `B` of the Kronecker certificates (`Expr.eq_of_kron`) for `l` and `r`, if the
+values at the point stay below about a million bits (`kronExponent?`).
 -/
-private def kronArgs? (l r : RingExpr) (n : Nat) : Option (Nat × Nat) :=
+private def kronArgs? (l r : RingExpr) : Option (Nat × Nat) :=
   let B := packedBase l r
-  (kronExponent? (exprMajorant l + exprMajorant r) (max (exprDegB l) (exprDegB r)) B n 1000000).map (·, B)
+  (kronExponent? (exprMajorant l + exprMajorant r) (max (exprMaxCode B l) (exprMaxCode B r)) 1000000).map (·, B)
 
 /-- The arguments `K B l r hB hK h` of the Kronecker certificates (`Expr.eq_of_kron`). -/
 private def kronProofArgs (l r : RingExpr) (K B : Nat) : Array Expr :=
@@ -1163,7 +1163,7 @@ private def mkCertificate (e₁ : Expr) (re : RingExpr) (p : Poly) (vars : Array
       toLinearExpr? re, toLinearExpr? re') then
     -- Linear `Int` terms use the cheaper linear normalization of `simp +arith`.
     pure (mkApp4 (mkConst ``Int.Internal.Linear.Expr.eq_of_norm_expr_k) ctx (ofLinearExpr a) (ofLinearExpr a') eagerReflBoolTrue)
-  else if let (.commRing _, none, some (K, B)) := (kind, char?, kronArgs? re re' vars.size) then
+  else if let (.commRing _, none, some (K, B)) := (kind, char?, kronArgs? re re') then
     -- Both sides are evaluated at a point (Kronecker substitution).
     pure (mkAppN (mkConst ``Grind.CommRing.Expr.eq_of_kron [u]) (#[type, inst, ctx] ++ kronProofArgs re re' K B))
   else if let (.commRing _, none, true) := (kind, char?, usePacked p.length) then
@@ -1193,7 +1193,7 @@ private def mkCertificate (e₁ : Expr) (re : RingExpr) (p : Poly) (vars : Array
       (mkApp2 (mkConst ``Eq.refl [1]) (mkConst ``Grind.CommRing.Poly) pE)
       (mkApp2 (mkConst ``Eq.refl [1]) (mkConst ``Grind.CommRing.Expr) re'E))
   else if kind matches .commSemiring _ then
-    if let (true, some arcInst, some (K, B)) := (isSemi re && isSemi re', ← getAddRightCancelInst?, kronArgs? re re' vars.size) then
+    if let (true, some arcInst, some (K, B)) := (isSemi re && isSemi re', ← getAddRightCancelInst?, kronArgs? re re') then
       -- Both sides are evaluated at a point (Kronecker substitution) in the ring envelope.
       pure (mkAppN (mkConst ``Grind.CommRing.Expr.eq_of_kronS [u]) (#[type, inst, arcInst, ctx] ++ (kronProofArgs re re' K B).insertIdx! 4 eagerReflBoolTrue))
     else if let (true, some arcInst) := (usePacked p.length && isSemi re && isSemi re', ← getAddRightCancelInst?) then
@@ -1605,7 +1605,7 @@ private def constRelProof? (rel : RelKind) (order? : Option Order) (ring : Ring)
     let p₀? := if char?.isNone then some pl else
       let q := l.toPoly
       if q == r.toPoly then some q else none
-    if let (some _, some (K, B)) := (p₀?, kronArgs? l r vars.size) then
+    if let (some _, some (K, B)) := (p₀?, kronArgs? l r) then
       let args := kronProofArgs l r K B
       match rel, order? with
       | .eq, _ => return some (mkAppN (mkConst ``Grind.CommRing.eq_true_of_kron [u]) (#[ring.type, inst, ctx] ++ args), true)
@@ -1986,7 +1986,7 @@ private def normalizeRelCore (rel : RelKind) (relFn : Expr) (order? : Option Ord
     if let (true, some (name, insts, holds)) := (kind.isComm && pl == pr, sameSides?) then
       let ctx ← mkContext sr.type vars
       let csInst := (← getCommSemiring).commSemiringInst
-      if let (true, some arcInst, some (K, B)) := (isSemi l && isSemi r, ← getAddRightCancelInst?, kronArgs? l r vars.size) then
+      if let (true, some arcInst, some (K, B)) := (isSemi l && isSemi r, ← getAddRightCancelInst?, kronArgs? l r) then
         let name := match rel with
           | .eq => ``Grind.CommRing.eq_true_of_kronS
           | .le => ``Grind.CommRing.le_true_of_kronS

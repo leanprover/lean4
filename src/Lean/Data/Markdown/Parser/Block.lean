@@ -8,7 +8,6 @@ module
 prelude
 public import Init.While
 import Init.Data.String.Iterate
-import Init.Data.String.Slice.Pattern
 import Init.Data.Range.Polymorphic.Iterators
 import Init.Data.Range.Polymorphic.Nat
 public import Lean.Data.Markdown.Basic
@@ -110,19 +109,23 @@ def dropIndent (line : s.Subslice) (indent : Nat) : s.Subslice := Id.run do
   return subsliceClamped p line.endExclusive
 
 /-- Splits `text` into lines, each excluding its line ending (`\r\n`, `\r`, or `\n`). -/
-def splitLines (text : String.Slice) : Array text.Subslice := Id.run do
-  let mut lines := #[]
-  for sub in text.splitToSubslice fun c => c == '\n' || c == '\r' do
-    -- `\r\n` is one line ending, so the empty piece between its two characters is dropped.
-    if sub.startInclusive == sub.endExclusive then
-      if let some q := sub.startInclusive.prev? then
-        if q.get? == some '\r' && sub.startInclusive.get? == some '\n' then continue
-    lines := lines.push sub
-  -- A line ending at the end of the text does not begin a line.
-  if let some last := lines.back? then
-    if last.startInclusive == last.endExclusive && last.endExclusive == text.endPos then
-      lines := lines.pop
-  return lines
+partial def splitLines (text : s.Subslice) : Array s.Subslice :=
+  go text.startInclusive text.startInclusive #[]
+where
+  /-- Scans from `p`; `lineStart` is the start of the current line and `lines` the lines so far. -/
+  go (p lineStart : s.Pos) (lines : Array s.Subslice) : Array s.Subslice :=
+    if h : p < text.endExclusive then
+      let h' := String.Slice.Pos.ne_endPos_of_lt h
+      let c := p.get h'
+      if c == '\n' || c == '\r' then
+        let q := (parseLineEnding? text p).getD (p.next h')
+        go q q (lines.push (subsliceClamped lineStart p))
+      else
+        go (p.next h') lineStart lines
+    else if lineStart < p then
+      lines.push (subsliceClamped lineStart p)
+    else
+      lines
 
 /--
 A successful ATX heading match.
@@ -824,7 +827,7 @@ Parses the block structure of `s`. Up to `indent` leading spaces of each line ar
 -/
 def parseBlocksRaw (s : String.Slice) (indent : Nat := 0) : Array (Block.Raw s) := Id.run do
   let mut z := BlockZipper.empty
-  for line in splitLines s do
+  for line in splitLines s.toSubslice do
     z := processLine z (dropIndent line indent)
   return z.finalize
 

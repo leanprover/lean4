@@ -35,11 +35,8 @@ public structure Cursor (s : String.Slice) where
   pos : s.Pos
   /-- The end of the line. -/
   stop : s.Pos
-  /--
-  The visual column of `pos`. Computed under CommonMark §2.2 tab semantics: a tab advances `col` to
-  the next multiple of 4.
-  -/
-  col : Nat
+  /-- The visual column of `pos`. -/
+  col : Columns
   /--
   Whether `pos` is at a tab of which some columns, up to `col`, belong to a container prefix or to
   a block's indentation. The remaining columns belong to the line's content.
@@ -65,7 +62,7 @@ variable {s : String.Slice}
 Consumes `cols` columns of the tab at the cursor, leaving the position at the tab (CommonMark §2.2's
 partial-tab rule). The caller is responsible for ensuring that the tab has that many columns left.
 -/
-@[inline] public def intoTab (c : Cursor s) (cols : Nat) : Cursor s :=
+@[inline] public def intoTab (c : Cursor s) (cols : Columns) : Cursor s :=
   { c with col := c.col + cols, partialTab := true }
 
 /-- The character at the cursor, if the cursor is not at the end of the line. -/
@@ -81,7 +78,7 @@ one, which is correct for every character but a tab; for tabs use `countIndentCo
   if h : c.pos < c.stop then
     { c with
       pos := c.pos.next (String.Slice.Pos.ne_endPos_of_lt h)
-      col := c.col + 1
+      col := c.col.space
       partialTab := false }
   else c
 
@@ -100,7 +97,7 @@ skipping use `countIndentCols` or `consumeIndentCapped`.
     let h' := String.Slice.Pos.ne_endPos_of_lt h
     if !pred (c.pos.get h') then break
     count := count + 1
-    c := { c with pos := c.pos.next h', col := c.col + 1, partialTab := false }
+    c := { c with pos := c.pos.next h', col := c.col.space, partialTab := false }
   return (c, count)
 
 /-- Whether the rest of the line is blank (only spaces or tabs). -/
@@ -114,7 +111,7 @@ excluded from the source, and its remaining columns become the line's leading sp
 -/
 public def verbatimLine (c : Cursor s) : VerbatimLine s :=
   if c.partialTab then
-    { source := subsliceClamped c.next.pos c.stop, leadingSpaces := 4 - c.col % 4 }
+    { source := subsliceClamped c.next.pos c.stop, leadingSpaces := c.col.tabWidth.count }
   else
     { source := c.toEol }
 

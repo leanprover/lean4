@@ -40,7 +40,7 @@ public inductive OpenContainer (s : String.Slice) where
     subsequent lines must be indented to at least this column to count as
     continuations of this item (CommonMark §5.2).
   -/
-  | listItem (marker : s.Subslice) (contentColumn : Nat)
+  | listItem (marker : s.Subslice) (contentColumn : Columns)
 deriving Inhabited
 
 /--

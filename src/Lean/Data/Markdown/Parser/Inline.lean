@@ -358,6 +358,8 @@ where
   link label, the link text is tried as a shortcut reference instead.
   -/
   referenceForm (afterCloseRest : InlineCursor s) : Option (LinkTarget s × s.Pos) := do
+    -- Without definitions, there's no sense attempting to parse the label because it can never resolve.
+    guard !refs.isEmpty
     let labelOpen ← afterCloseRest.charSubslice?
     let afterOpen := afterCloseRest.drop1
     if afterOpen.front? == some ']' then
@@ -376,6 +378,7 @@ where
         return (.reference definition label (.full labelOpen labelClose), labelClose.endExclusive)
   /-- The shortcut `[…]` / `![…]` form: the bracket interior itself is the label. -/
   shortcutForm : Option (LinkTarget s × s.Pos) := do
+    guard !refs.isEmpty
     let label ← interiorLabel?
     let definition ← refs[normalizeLabel label]?
     return (.reference definition label .shortcut, afterClose)

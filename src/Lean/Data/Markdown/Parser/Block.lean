@@ -40,22 +40,40 @@ Counts tab-aware leading whitespace (CommonMark §2.2): each tab advances to the
 stop, computed relative to the cursor's current column. Returns the advanced cursor and the total
 number of columns that it consumes. Tabs are always crossed in full.
 -/
-def countIndentCols (c : Cursor s) : Cursor s × Nat := Id.run do
+def countIndentCols (c : Cursor s) : Cursor s × Columns := Id.run do
   let mut c := c
-  let mut cols := 0
+  let mut cols : Columns := 0
   while h : c.pos < c.stop do
     let h' := String.Slice.Pos.ne_endPos_of_lt h
     let ch := c.pos.get h'
     if ch == ' ' then
-      cols := cols + 1
-      c := { c with pos := c.pos.next h', col := c.col + 1, partialTab := false }
+      cols := cols.space
+      c := { c with pos := c.pos.next h', col := c.col.space, partialTab := false }
     else if ch == '\t' then
-      let advance := 4 - c.col % 4
-      cols := cols + advance
-      c := { c with pos := c.pos.next h', col := c.col + advance, partialTab := false }
+      cols := cols + c.col.tabWidth
+      c := { c with pos := c.pos.next h', col := c.col.tab, partialTab := false }
     else
       break
   return (c, cols)
+
+/--
+The rest of a line after its indentation, together with the width of that indentation.
+
+Whether a line begins a block depends on how far it is indented and on what follows the indentation
+(CommonMark §4): four or more columns begin indented code, and the other blocks allow at most
+three. The indentation is measured in columns, and tabs advance to the next tab stop (CommonMark
+§2.2).
+-/
+structure IndentedLine (s : String.Slice) where
+  /-- The cursor at the first character after the indentation. -/
+  after : Cursor s
+  /-- The width of the indentation. -/
+  indent : Columns
+
+/-- The line at `c` after its indentation. -/
+def Cursor.skipIndent (c : Cursor s) : IndentedLine s :=
+  let (after, indent) := countIndentCols c
+  { after, indent }
 
 /--
 Consumes up to `maxCols` columns of leading whitespace at `c`, with tab-aware column counting.
@@ -65,24 +83,24 @@ Tabs may be split: if a tab would move the cursor past `maxCols`, the position s
 the column count advances by exactly the requested amount, leaving “leftover” tab columns for
 subsequent consumers (CommonMark §2.2's partial-tab rule).
 -/
-def consumeIndentCapped (c : Cursor s) (maxCols : Nat) : Cursor s × Nat := Id.run do
+def consumeIndentCapped (c : Cursor s) (maxCols : Columns) : Cursor s × Columns := Id.run do
   let mut c := c
-  let mut cols := 0
+  let mut cols : Columns := 0
   while h : c.pos < c.stop do
     if cols ≥ maxCols then break
     let h' := String.Slice.Pos.ne_endPos_of_lt h
     let ch := c.pos.get h'
     if ch == ' ' then
-      cols := cols + 1
-      c := { c with pos := c.pos.next h', col := c.col + 1, partialTab := false }
+      cols := cols.space
+      c := { c with pos := c.pos.next h', col := c.col.space, partialTab := false }
     else if ch == '\t' then
-      let advance := 4 - c.col % 4
-      if cols + advance > maxCols then
+      let width := c.col.tabWidth
+      if cols + width > maxCols then
         c := c.intoTab (maxCols - cols)
         cols := maxCols
       else
-        cols := cols + advance
-        c := { c with pos := c.pos.next h', col := c.col + advance, partialTab := false }
+        cols := cols + width
+        c := { c with pos := c.pos.next h', col := c.col.tab, partialTab := false }
     else
       break
   return (c, cols)
@@ -141,10 +159,10 @@ structure AtxHeadingMatch (s : String.Slice) where
   closeHashes : Option s.Subslice
 
 /--
-Parses an ATX heading at `c`. Trailing whitespace is trimmed from `content`.
+Parses an ATX heading at `line`. Trailing whitespace is trimmed from `content`.
 -/
-def parseAtxHeading? (c : Cursor s) : Option (AtxHeadingMatch s) :=  do
-  let (c, indent) := countIndentCols c
+def parseAtxHeading? (line : IndentedLine s) : Option (AtxHeadingMatch s) := do
+  let { after := c, indent } := line
   guard (indent ≤ 3)
   let hashStart := c.pos
   -- CommonMark §4.2 caps ATX heading levels at 6. Up to 7 hashes are counted, so sequences of 7 or
@@ -183,11 +201,11 @@ def parseAtxHeading? (c : Cursor s) : Option (AtxHeadingMatch s) :=  do
   return { level := count, hashes, content, closeHashes := closeHashes? }
 
 /--
-Whether the line at `c` is a thematic break: up to 3 leading spaces, followed by 3+ matching
-`*`/`-`/`_` characters, with only spaces or tabs allowed between or after them (CommonMark §4.1).
+Whether `line` is a thematic break: up to 3 leading spaces, followed by 3+ matching `*`/`-`/`_`
+characters, with only spaces or tabs allowed between or after them (CommonMark §4.1).
 -/
-def isThematicBreak (c : Cursor s) : Bool := Id.run do
-  let (c, indent) := countIndentCols c
+def isThematicBreak (line : IndentedLine s) : Bool := Id.run do
+  let { after := c, indent } := line
   if indent > 3 then return false
   let some markerChar := c.front? | return false
   if markerChar != '*' && markerChar != '-' && markerChar != '_' then
@@ -214,8 +232,8 @@ Note: a `---` underline overlaps with the thematic-break syntax. The caller must
 precedence rule: setext header parsing applies only when an open paragraph immediately precedes the
 underline; otherwise, the same line is interpreted as a thematic break.
 -/
-def parseSetextUnderline? (c : Cursor s) : Option Nat := do
-  let (c, indent) := countIndentCols c
+def parseSetextUnderline? (line : IndentedLine s) : Option Nat := do
+  let { after := c, indent } := line
   guard (indent ≤ 3)
   let markerChar ← c.front?
   guard (markerChar == '=' || markerChar == '-')
@@ -226,9 +244,9 @@ def parseSetextUnderline? (c : Cursor s) : Option Nat := do
   guard cAfterWs.isEmpty
   return if markerChar == '=' then 1 else 2
 
-/-- Parses an opening code fence at `c`. -/
-def parseFenceOpen? (c : Cursor s) : Option (FenceInfo s × s.Subslice) := do
-  let (c, indent) := countIndentCols c
+/-- Parses an opening code fence at `line`. -/
+def parseFenceOpen? (line : IndentedLine s) : Option (FenceInfo s × s.Subslice) := do
+  let { after := c, indent } := line
   guard (indent ≤ 3)
   let fenceChar ← c.front? >>= FenceChar.ofChar?
   let fenceStart := c.pos
@@ -249,8 +267,8 @@ Parses a closing fence on a line whose container prefixes have already been cons
 The closing fence must match `info`'s character, be at least as long as the opener, and be followed
 only by spaces or tabs.
 -/
-def parseFenceClose? (c : Cursor s) (info : FenceInfo s) : Option s.Subslice := do
-  let (cAtFence, indent) := countIndentCols c
+def parseFenceClose? (line : IndentedLine s) (info : FenceInfo s) : Option s.Subslice := do
+  let { after := cAtFence, indent } := line
   guard (indent ≤ 3)
   guard <| cAtFence.front? == some info.fenceChar.toChar
   let (cAfterFence, count) := cAtFence.advanceWhile (· == info.fenceChar.toChar)
@@ -263,21 +281,19 @@ Parses a single blockquote marker (`>` plus optional space). Returns the marker 
 positioned just past the consumed prefix (with column adjusted, possibly mid-tab per CommonMark
 §2.2's partial tab rule).
 -/
-def parseBlockquoteMarker? (c : Cursor s) : Option (s.Subslice × Cursor s) := do
-  let (c, indent) := countIndentCols c
+def parseBlockquoteMarker? (line : IndentedLine s) : Option (s.Subslice × Cursor s) := do
+  let { after := c, indent } := line
   guard (indent ≤ 3)
   guard (c.front? == some '>')
   let afterMarker := c.next
   let marker := subsliceClamped c.pos afterMarker.pos
   -- The blockquote marker `>` is followed by an optional single space (or
   -- one column of a tab, per CommonMark §2.2's partial-tab rule).
-  let baseCol := afterMarker.col
   match afterMarker.front? with
   | some ' ' => return (marker, afterMarker.next)
   | some '\t' =>
-    let tabStop := baseCol + (4 - baseCol % 4)
-    if tabStop == baseCol + 1 then
-      -- Tab equivalent to one column; cross it fully.
+    -- A tab that spans one column is crossed in full; otherwise one of its columns is consumed.
+    if afterMarker.col.tabWidth == 1 then
       return (marker, afterMarker.next)
     else
       return (marker, afterMarker.intoTab 1)
@@ -297,13 +313,14 @@ structure ListMarkerMatch (s : String.Slice) where
   The column distance from the input cursor to `after`, which is the minimum indentation of
   subsequent continuation lines.
   -/
-  contentColumn : Nat
+  contentColumn : Columns
 
-/-- Parses a bullet or ordered list marker at `c`. -/
-def parseListMarker? (c : Cursor s) : Option (ListMarkerMatch s) := do
-  let initialCol := c.col
-  let (c, indent) := countIndentCols c
+/-- Parses a bullet or ordered list marker at `line`. -/
+def parseListMarker? (line : IndentedLine s) : Option (ListMarkerMatch s) := do
+  let { after := c, indent } := line
   guard (indent ≤ 3)
+  -- The content column is measured from the column before the indentation.
+  let initialCol := c.col - indent
   let ch ← c.front?
   -- After matching the marker, compute the listItem's content column. Per
   -- CommonMark §5.2: 1 ≤ N ≤ 4 cols of whitespace that follow the marker are
@@ -313,13 +330,13 @@ def parseListMarker? (c : Cursor s) : Option (ListMarkerMatch s) := do
   -- partially consumed (CommonMark §2.2).
   let determineContent (afterMarker : Cursor s) : Option (Cursor s) := do
     if afterMarker.isEmpty then
-      return { afterMarker with col := afterMarker.col + 1 }
+      return { afterMarker with col := afterMarker.col.space }
     let nextC ← afterMarker.front?
     guard <| nextC == ' ' || nextC == '\t'
     let (afterWsCursor, wsCols) := countIndentCols afterMarker
     let contentBlank := afterWsCursor.isEmpty
-    let absorbCols : Nat :=
-      if contentBlank || wsCols >= 5 then 1
+    let absorbCols : Columns :=
+      if contentBlank || wsCols ≥ 5 then 1
       else wsCols
     let (cursorAfter, _) := consumeIndentCapped afterMarker absorbCols
     return cursorAfter
@@ -366,11 +383,11 @@ def parseListMarker? (c : Cursor s) : Option (ListMarkerMatch s) := do
   failure
 
 /--
-Parses the start of an HTML block at `c` (CommonMark §4.6): after up to three spaces of indentation,
-a `<` that begins one of the seven start conditions. Returns the block's kind.
+Parses the start of an HTML block at `line` (CommonMark §4.6): after up to three spaces of
+indentation, a `<` that begins one of the seven start conditions. Returns the block's kind.
 -/
-def parseHtmlBlockStart? (c : Cursor s) : Option HtmlBlockKind := do
-  let (c, indent) := countIndentCols c
+def parseHtmlBlockStart? (line : IndentedLine s) : Option HtmlBlockKind := do
+  let { after := c, indent } := line
   guard (indent ≤ 3)
   guard (c.front? == some '<')
   let afterLt := c.next
@@ -414,7 +431,7 @@ def listMarkerInterruptsParagraph (after : Cursor s) (kind : ListKind) : Bool :=
      | .bullet _ => true
 
 /--
-Whether the line at `c` begins a block rather than paragraph text, which decides lazy continuation
+Whether `line` begins a block rather than paragraph text, which decides lazy continuation
 (CommonMark §5.1): a paragraph inside a blockquote or list item continues onto a line without the
 container's marker, as long as that line is paragraph text. A blank line, a blockquote or list
 marker, an ATX heading, a code fence, a thematic break, or the start of an HTML block ends the
@@ -424,14 +441,14 @@ Indentation is paragraph text here, because an indented code block cannot interr
 (CommonMark §4.4). Any list marker begins a block here, since the §5.2 restrictions on which list
 items may interrupt a paragraph apply only when the paragraph is the innermost open block.
 -/
-def isInterrupt (c : Cursor s) : Bool :=
-  c.isBlank ||
-  (parseBlockquoteMarker? c).isSome ||
-  (parseListMarker? c).isSome ||
-  (parseAtxHeading? c).isSome ||
-  (parseFenceOpen? c).isSome ||
-  Option.any (·.interruptsParagraph) (parseHtmlBlockStart? c) ||
-  isThematicBreak c
+def isInterrupt (line : IndentedLine s) : Bool :=
+  line.after.isEmpty ||
+  (parseBlockquoteMarker? line).isSome ||
+  (parseListMarker? line).isSome ||
+  (parseAtxHeading? line).isSome ||
+  (parseFenceOpen? line).isSome ||
+  Option.any (·.interruptsParagraph) (parseHtmlBlockStart? line) ||
+  isThematicBreak line
 
 /-!
 # Processing Lines
@@ -486,11 +503,10 @@ Takes the state out of the monad, leaving behind one with an empty zipper, so th
 arrays can be extended in place. The caller puts a state back with `set`, or ends the line with
 `finishLine`.
 -/
-def takeState : ProcessM s (LineState s) :=
+@[inline] def takeState : ProcessM s (LineState s) :=
   modifyGet fun st => (st, { st with zipper := .empty })
 
-@[inherit_doc takeState]
-def ContainerM.takeState : ContainerM s (ContState s) :=
+@[inherit_doc takeState, inline] def ContainerM.takeState : ContainerM s (ContState s) :=
   modifyGet fun st => (st, { st with zipper := .empty, matched := 0, matched_le := Nat.zero_le _ })
 
 /-- Ends the processing of the current line, with `z` as the document so far. -/
@@ -499,11 +515,11 @@ def ContainerM.takeState : ContainerM s (ContState s) :=
 /--
 Ends the processing of the current line with the zipper that `f` produces from the current one.
 -/
-def finishLineWith (f : BlockZipper s → BlockZipper s) : ProcessM s Unit := do
+@[inline] def finishLineWith (f : BlockZipper s → BlockZipper s) : ProcessM s Unit := do
   let st ← takeState
   finishLine (f st.zipper)
 
-@[inherit_doc finishLineWith]
+@[inherit_doc finishLineWith, inline]
 def ContainerM.finishLineWith (f : BlockZipper s → BlockZipper s) : ContainerM s Unit := do
   let st ← ContainerM.takeState
   finishLine (f st.zipper)
@@ -511,7 +527,7 @@ def ContainerM.finishLineWith (f : BlockZipper s → BlockZipper s) : ContainerM
 /--
 Lifts a `ContainerM` action to `ProcessM`.
 -/
-def runContainerM (act : ContainerM s Unit) : ProcessM s Nat := do
+@[inline] def runContainerM (act : ContainerM s Unit) : ProcessM s Nat := do
   let st ← takeState
   let init : ContState s :=
     { st with matched := 0, matched_le := Nat.zero_le _ }
@@ -531,7 +547,7 @@ def continueContainers : ContainerM s Unit := do
     if h : st.matched < st.zipper.spine.size then
       match (st.zipper.spine[st.matched]).container with
       | .blockquote _ =>
-        let some (markerRange, cAfter) := parseBlockquoteMarker? st.cursor | break
+        let some (markerRange, cAfter) := parseBlockquoteMarker? st.cursor.skipIndent | break
         st := { st with
           zipper := st.zipper.pushBlockquoteMarker st.matched markerRange
           cursor := cAfter
@@ -564,11 +580,11 @@ Link reference definitions at the front of the paragraph become blocks before th
 remaining lines are the heading's text. When the paragraph contains only definitions, conversion to
 a heading fails and the underline begins a new paragraph.
 -/
-def trySetextHeading : ContainerM s Unit := do
+@[inline] def trySetextHeading : ContainerM s Unit := do
   unless (← get).zipper.spine.size == (← get).matched do return
   let some (.paragraph lines) := (← get).zipper.openLeaf? | return
   let cursor := (← get).cursor
-  let some level := parseSetextUnderline? cursor | return
+  let some level := parseSetextUnderline? cursor.skipIndent | return
   let underline := cursor.toEol
   let (defs, residual) := extractRefDefs (InlineSource.ofLines lines)
   ContainerM.finishLineWith fun z =>
@@ -583,11 +599,11 @@ Lazy paragraph continuation: if some containers failed to continue but we have a
 the line is not an interrupt (i.e. doesn't open some other kind of block), the line lazily continues
 the paragraph in its deepest open context.
 -/
-def tryLazyContinuation : ContainerM s Unit := do
+@[inline] def tryLazyContinuation : ContainerM s Unit := do
   unless (← get).zipper.spine.size > (← get).matched do return
   let some (.paragraph _) := (← get).zipper.openLeaf? | return
   let cursor := (← get).cursor
-  if isInterrupt cursor then return
+  if isInterrupt cursor.skipIndent then return
   ContainerM.finishLineWith (·.extendParagraph cursor.toEol)
 
 /--
@@ -602,7 +618,7 @@ that stays open (CommonMark's phase 1).
 A line that lazily continues a paragraph, or that completes a setext heading, is finished before
 this step runs.
 -/
-def closeNonContinuingContainers (matched : Nat) : ProcessM s Unit :=
+@[inline] def closeNonContinuingContainers (matched : Nat) : ProcessM s Unit :=
   modify fun st => { st with zipper := closeAbove st.zipper }
 where
   /-- Closes containers until at most `matched` spine frames remain. -/
@@ -616,10 +632,10 @@ where
 Fenced code consumes lines until a matching closing fence appears. Each content line loses up to
 the opening fence's indentation (CommonMark §4.5). Either way, this step finalizes the line.
 -/
-def consumeFencedCode : ProcessM s Unit := do
+@[inline] def consumeFencedCode : ProcessM s Unit := do
   let some (.fencedCode info _ _) := (← get).zipper.openLeaf? | return
   let cursor := (← get).cursor
-  match parseFenceClose? cursor info with
+  match parseFenceClose? cursor.skipIndent info with
   | some closeFence => finishLineWith (·.closeFencedCode closeFence |>.recordContentLine)
   | none =>
     -- A blank line inside fenced code is content, so it is recorded as such.
@@ -631,7 +647,7 @@ An HTML block consumes lines verbatim until its end condition is met (CommonMark
 contains the kind's end marker is the block's last line. For the kinds that end before a blank
 line, the blank line closes the block and falls through to the remaining steps.
 -/
-def consumeHtmlBlock : ProcessM s Unit := do
+@[inline] def consumeHtmlBlock : ProcessM s Unit := do
   let some (.html kind _) := (← get).zipper.openLeaf? | return
   let cursor := (← get).cursor
   if kind.endsAtBlankLine then
@@ -652,13 +668,13 @@ def consumeHtmlBlock : ProcessM s Unit := do
 Indented code consumes 4+-indented lines verbatim and records blank lines provisionally. Any other
 line closes the block and falls through to the remaining steps.
 -/
-def consumeIndentedCode : ProcessM s Unit := do
+@[inline] def consumeIndentedCode : ProcessM s Unit := do
   let some (.indentedCode _ _) := (← get).zipper.openLeaf? | return
   let cursor := (← get).cursor
-  if cursor.isBlank then
+  let line := cursor.skipIndent
+  if line.after.isEmpty then
     finishLineWith fun z => (z.indentedCodeAddBlank (indentedCodeLine cursor)).recordBlankLine
-  let (_, indent) := countIndentCols cursor
-  if indent ≥ 4 then
+  if line.indent ≥ 4 then
     finishLineWith fun z => (z.indentedCodeAddLine (indentedCodeLine cursor)).recordContentLine
   modify fun st => { st with zipper := st.zipper.closeLeaf }
 
@@ -666,30 +682,31 @@ def consumeIndentedCode : ProcessM s Unit := do
 If the deepest container is a list whose previous item just closed and this line is non-blank
 without a sibling marker, close the list so subsequent content doesn't become a stray child.
 -/
-def closeFinishedSiblingList : ProcessM s Unit := do
+@[inline] def closeFinishedSiblingList (line : IndentedLine s) : ProcessM s Unit := do
   let some (.list _) := (← get).zipper.top? | return
-  let cursor := (← get).cursor
-  if !cursor.isBlank && (parseListMarker? cursor).isNone then
+  if !line.after.isEmpty && (parseListMarker? line).isNone then
     modify fun st => { st with zipper := st.zipper.closeContainer }
 
 /--
 Opens as many container prefixes (blockquote, list-item) as the line provides, in order. Returns
 whether a list item was opened on this line, because the blank line handler downstream needs that
-information to distinguish an empty list item's body from a blank-line separator.
+information to distinguish an empty list item's body from a blank-line separator, together with the
+rest of the line after the prefixes.
 
 Thematic break has higher precedence than list markers (CommonMark §5.2: `* * *` is a thematic
 break, not a one-item list), so each iteration short-circuits when a thematic break starts at the
 current cursor.
 -/
-def openContainerPrefixes : ProcessM s Bool := do
+def openContainerPrefixes (line : IndentedLine s) : ProcessM s (Bool × IndentedLine s) := do
+  let mut line := line
   let mut openedListItemThisLine := false
   repeat
-    let cursor := (← get).cursor
-    if isThematicBreak cursor then break
-    if let some (markerRange, cAfter) := parseBlockquoteMarker? cursor then
+    if isThematicBreak line then break
+    if let some (markerRange, cAfter) := parseBlockquoteMarker? line then
       modify fun st =>
         { st with zipper := st.zipper.openContainer (.blockquote #[markerRange]), cursor := cAfter }
-    else if let some m := parseListMarker? cursor then
+      line := cAfter.skipIndent
+    else if let some m := parseListMarker? line then
       -- An open paragraph here is the innermost block, since every container that did not continue
       -- has been closed, so the marker is on the line after the paragraph's text.
       let interruptingPara := match (← get).zipper.openLeaf? with
@@ -714,17 +731,14 @@ def openContainerPrefixes : ProcessM s Bool := do
                 |>.openContainer (.listItem m.marker m.contentColumn)
           { st with zipper := z, cursor := m.after }
         openedListItemThisLine := true
+        line := m.after.skipIndent
     else
       break
-  return openedListItemThisLine
+  return (openedListItemThisLine, line)
 
-/--
-Parses a thematic break after any container prefixes have been consumed.
--/
-def tryThematicBreak : ProcessM s Unit := do
-  let cursor := (← get).cursor
-  unless isThematicBreak cursor do return
-  let line := cursor.toEol
+/-- Adds a thematic break for the line and finishes it. -/
+@[inline] def finishThematicBreak : ProcessM s Unit := do
+  let line := (← get).cursor.toEol
   finishLineWith fun z => Id.run do
     let mut z := z
     while (match z.top? with | some (.list _) => true | _ => false) do
@@ -732,11 +746,14 @@ def tryThematicBreak : ProcessM s Unit := do
     return z.addBlock (.thematicBreak line)
 
 /--
-A blank line closes any open paragraph; list/blockquote frames stay open and may close at the next
-non-continuing line.
+Finishes a blank line (CommonMark §4.9). A blank line is one that is blank _after_ the prefix of
+block opener markers such as `>` or `*`.
+
+Blank lines end the currently-open paragraph. They also end list items that have no content yet,
+unless the item's marker is on the very blank line that's being finished. Blockquotes and lists
+stay open, since whether they continue is decided by the next line that has content.
 -/
-def tryBlankLine (openedListItemThisLine : Bool) : ProcessM s Unit := do
-  unless (← get).cursor.isBlank do return
+@[inline] def finishBlankLine (openedListItemThisLine : Bool) : ProcessM s Unit := do
   finishLineWith fun z => Id.run do
     let mut z := z.closeLeaf
     if !openedListItemThisLine then
@@ -749,23 +766,25 @@ def tryBlankLine (openedListItemThisLine : Bool) : ProcessM s Unit := do
     -- blocks, so it is recorded like a content line and leaves the list tight.
     return if openedListItemThisLine then z.recordContentLine else z.recordBlankLine
 
-/-- Parses an ATX heading -/
-def tryAtxHeading : ProcessM s Unit := do
-  let some m := parseAtxHeading? (← get).cursor | return
+/-- When `line` is an ATX heading (CommonMark §4.2), adds the heading and finishes the line. -/
+@[inline] def tryAtxHeading (line : IndentedLine s) : ProcessM s Unit := do
+  let some m := parseAtxHeading? line | return
   finishLineWith (·.addBlock (.atxHeading m.level m.hashes m.content m.closeHashes))
 
-/-- Parses an opening code fence. -/
-def tryFencedCodeOpener : ProcessM s Unit := do
-  let some (info, openFence) := parseFenceOpen? (← get).cursor | return
+/--
+When `line` is an opening code fence (CommonMark §4.5), opens the block and finishes the line.
+-/
+@[inline] def tryFencedCodeOpener (line : IndentedLine s) : ProcessM s Unit := do
+  let some (info, openFence) := parseFenceOpen? line | return
   finishLineWith (·.openLeaf (.fencedCode info openFence #[]))
 
 /--
 Opens an HTML block (CommonMark §4.6). A block whose first line also meets its end condition is
 complete at once. A complete HTML block cannot interrupt a paragraph.
 -/
-def tryHtmlBlockOpener : ProcessM s Unit := do
+@[inline] def tryHtmlBlockOpener (line : IndentedLine s) : ProcessM s Unit := do
   let cursor := (← get).cursor
-  let some kind := parseHtmlBlockStart? cursor | return
+  let some kind := parseHtmlBlockStart? line | return
   if let some (.paragraph _) := (← get).zipper.openLeaf? then
     unless kind.interruptsParagraph do return
   let line := cursor.verbatimLine
@@ -775,13 +794,13 @@ def tryHtmlBlockOpener : ProcessM s Unit := do
     finishLineWith (·.openLeaf (.html kind #[line]))
 
 /--
-Parses the start of an indented code block.
+When `line` is indented four or more columns, opens an indented code block and finishes the line.
+When a paragraph is open, the line is left for the paragraph instead, since indented code cannot
+interrupt a paragraph (CommonMark §4.4).
 -/
-def tryIndentedCodeOpener : ProcessM s Unit := do
-  unless (← get).zipper.openLeaf?.isNone do return
+@[inline] def tryIndentedCodeOpener (line : IndentedLine s) : ProcessM s Unit := do
+  unless line.indent ≥ 4 && (← get).zipper.openLeaf?.isNone do return
   let cursor := (← get).cursor
-  let (_, indent) := countIndentCols cursor
-  unless indent ≥ 4 do return
   finishLineWith (·.openLeaf (.indentedCode #[indentedCodeLine cursor] #[]))
 
 /--
@@ -789,11 +808,37 @@ Starts a new paragraph, or extends the one that's open.
 
 This is the default parser if no others apply.
 -/
-def emitParagraph : ProcessM s Unit := do
+@[inline] def emitParagraph : ProcessM s Unit := do
   let line := (← get).cursor.toEol
   match (← get).zipper.openLeaf? with
   | some (.paragraph _) => finishLineWith (·.extendParagraph line)
   | _ => finishLineWith (·.openLeaf (.paragraph #[line]))
+
+/--
+Finishes the line by opening the leaf block that `line` begins or, if it doesn't begin a block, by
+adding the line to a paragraph.
+
+The block to open is decided by the line's indentation and first character: a blank line; four or
+more columns of indentation for indented code; and otherwise `#` for an ATX heading, a backtick or
+tilde for a code fence, `<` for an HTML block, and `*`, `-`, or `_` for a thematic break. Other
+lines are paragraph text.
+-/
+@[inline]
+def openLeafBlock (openedListItemThisLine : Bool) (line : IndentedLine s) : ProcessM s Unit := do
+  match line.after.front? with
+  | none => finishBlankLine openedListItemThisLine
+  | some c =>
+    if line.indent ≥ 4 then
+      tryIndentedCodeOpener line
+    else if c == '#' then
+      tryAtxHeading line
+    else if c == '`' || c == '~' then
+      tryFencedCodeOpener line
+    else if c == '<' then
+      tryHtmlBlockOpener line
+    else if (c == '*' || c == '-' || c == '_') && isThematicBreak line then
+      finishThematicBreak
+    emitParagraph
 
 /--
 Processes a single source line, updating the zipper.
@@ -809,15 +854,10 @@ def processLine (z : BlockZipper s) (line : s.Subslice) : BlockZipper s :=
     consumeFencedCode
     consumeHtmlBlock
     consumeIndentedCode
-    closeFinishedSiblingList
-    let openedListItemThisLine ← openContainerPrefixes
-    tryThematicBreak
-    tryBlankLine openedListItemThisLine
-    tryAtxHeading
-    tryFencedCodeOpener
-    tryHtmlBlockOpener
-    tryIndentedCodeOpener
-    emitParagraph
+    let line := (← get).cursor.skipIndent
+    closeFinishedSiblingList line
+    let (openedListItemThisLine, line) ← openContainerPrefixes line
+    openLeafBlock openedListItemThisLine line
   match pipeline.run init with
   | .ok _ st    => st.zipper
   | .error z _ => z

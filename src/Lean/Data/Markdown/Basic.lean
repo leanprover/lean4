@@ -21,6 +21,51 @@ public import Init.Data.String.FindPos
 namespace Lean.Markdown
 
 
+/--
+A count of columns. Indentation is measured in columns (CommonMark §2.2): a space is one column,
+and a tab advances to the next tab stop, which is the next multiple of four.
+-/
+public structure Columns where
+  /-- The number of columns. -/
+  count : Nat
+deriving DecidableEq, Repr, Inhabited
+
+namespace Columns
+
+@[inline] public instance : BEq Columns := ⟨fun a b => a.count == b.count⟩
+
+@[inline] public instance : OfNat Columns n where
+  ofNat := ⟨n⟩
+
+public instance : LE Columns where
+  le a b := a.count ≤ b.count
+
+public instance : LT Columns where
+  lt a b := a.count < b.count
+
+@[inline] public instance (a b : Columns) : Decidable (a ≤ b) :=
+  inferInstanceAs (Decidable (a.count ≤ b.count))
+
+@[inline] public instance (a b : Columns) : Decidable (a < b) :=
+  inferInstanceAs (Decidable (a.count < b.count))
+
+@[inline] public instance : Add Columns where
+  add a b := ⟨a.count + b.count⟩
+
+@[inline] public instance : Sub Columns where
+  sub a b := ⟨a.count - b.count⟩
+
+/-- The columns after a space. -/
+@[inline] public def space (c : Columns) : Columns := ⟨ c.count + 1 ⟩
+
+/-- The width of a tab at `c`: the columns up to the next tab stop. -/
+@[inline] public def tabWidth (c : Columns) : Columns := ⟨4 - c.count % 4⟩
+
+/-- The columns after a tab: the next tab stop. -/
+@[inline] public def tab (c : Columns) : Columns := c + c.tabWidth
+
+end Columns
+
 /-- The marker character of a bullet list. -/
 public inductive BulletKind where
   /-- A `*`-marked bullet list. -/
@@ -84,10 +129,10 @@ public structure FenceInfo (s : String.Slice) where
   -/
   fenceLen : Nat
   /--
-  Indentation in spaces of the opening fence's first character. The content lines exclude up to
-  this many leading spaces.
+  The indentation of the opening fence's first character. The content lines exclude up to this much
+  indentation.
   -/
-  openIndent : Nat
+  openIndent : Columns
   /-- The info string, if there is one. This is usually a language tag. -/
   infoString? : Option s.Subslice
 deriving Inhabited

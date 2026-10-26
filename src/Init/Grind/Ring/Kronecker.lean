@@ -1899,4 +1899,71 @@ theorem eq_true_of_kronQ {α} [Field α] [IsCharP α 0] (ctx : Context α) (K B 
     (h : Expr.kronQEq_k K B invs a b = true) : (a.denote ctx = b.denote ctx) = True :=
   eq_true (Expr.eq_of_kronQ ctx K B invs hok hnz a b hB hK h)
 
+/--
+`lhs - rhs` is `lhs' - rhs'` divided by `d`, by Kronecker substitution: the normalization of a
+relation with inverses of numerals, whose sides `lhs'` and `rhs'` have no denominators.
+-/
+theorem Expr.sub_mul_eq_of_kronQ {α} [Field α] [IsCharP α 0] (ctx : Context α) (K B : Nat) (invs : InvVars)
+    (hok : invs.ok ctx) (hnz : InvVars.nonzero_k invs = true) (d : Nat) (lhs rhs lhs' rhs' : Expr)
+    (hB : Expr.degQOk_k B invs ((lhs.sub rhs).mul (.num d)) (lhs'.sub rhs') = true)
+    (hK : Expr.kronQOk_k K invs ((lhs.sub rhs).mul (.num d)) (lhs'.sub rhs') = true)
+    (h : Expr.kronQEq_k K B invs ((lhs.sub rhs).mul (.num d)) (lhs'.sub rhs') = true) :
+    (lhs.denote ctx - rhs.denote ctx) * (d : α) = lhs'.denote ctx - rhs'.denote ctx := by
+  have := Expr.eq_of_kronQ ctx K B invs hok hnz _ _ hB hK h
+  have hd : denoteInt (α := α) (d : Int) = (d : α) := by rw [denoteInt_eq, Ring.intCast_natCast]
+  rw [← hd]; exact this
+
+theorem eq_of_kronQ_rel {α} [Field α] [IsCharP α 0] (ctx : Context α) (K B : Nat) (invs : InvVars)
+    (hok : invs.ok ctx) (hnz : InvVars.nonzero_k invs = true) (d : Nat) (hd : Nat.blt 0 d = true) (lhs rhs lhs' rhs' : Expr)
+    (hB : Expr.degQOk_k B invs ((lhs.sub rhs).mul (.num d)) (lhs'.sub rhs') = true)
+    (hK : Expr.kronQOk_k K invs ((lhs.sub rhs).mul (.num d)) (lhs'.sub rhs') = true)
+    (h : Expr.kronQEq_k K B invs ((lhs.sub rhs).mul (.num d)) (lhs'.sub rhs') = true) :
+    (lhs.denote ctx = rhs.denote ctx) = (lhs'.denote ctx = rhs'.denote ctx) := by
+  have h := Expr.sub_mul_eq_of_kronQ ctx K B invs hok hnz d lhs rhs lhs' rhs' hB hK h
+  have hd : (d : α) ≠ 0 := Field.natCast_ne_zero (Nat.pos_iff_ne_zero.mp (Nat.blt_eq.mp hd))
+  rw [← AddCommGroup.sub_eq_zero_iff (a := lhs.denote ctx) (b := rhs.denote ctx),
+    ← AddCommGroup.sub_eq_zero_iff (a := lhs'.denote ctx) (b := rhs'.denote ctx), ← h]
+  apply propext; constructor
+  · intro h0; rw [h0, Semiring.zero_mul]
+  · intro h0
+    rcases Field.of_mul_eq_zero h0 with h0 | h0
+    · exact h0
+    · exact absurd h0 hd
+
+private theorem sub_nonpos_iff' {α} [Ring α] [LE α] [IsPreorder α] [OrderedAdd α] {a b : α} : a - b ≤ 0 ↔ a ≤ b := by
+  rw [← OrderedAdd.neg_nonneg_iff, AddCommGroup.neg_sub, OrderedAdd.sub_nonneg_iff]
+
+private theorem sub_neg_iff' {α} [Ring α] [LE α] [LT α] [LawfulOrderLT α] [IsPreorder α] [OrderedAdd α] {a b : α} :
+    a - b < 0 ↔ a < b := by
+  rw [← OrderedAdd.neg_pos_iff, AddCommGroup.neg_sub, OrderedAdd.sub_pos_iff]
+
+section
+variable {α : Type u} [Field α] [IsCharP α 0] [LE α] [LT α] [LawfulOrderLT α] [IsLinearOrder α] [OrderedRing α]
+
+theorem le_of_kronQ_rel (ctx : Context α) (K B : Nat) (invs : InvVars)
+    (hok : invs.ok ctx) (hnz : InvVars.nonzero_k invs = true) (d : Nat) (hd : Nat.blt 0 d = true) (lhs rhs lhs' rhs' : Expr)
+    (hB : Expr.degQOk_k B invs ((lhs.sub rhs).mul (.num d)) (lhs'.sub rhs') = true)
+    (hK : Expr.kronQOk_k K invs ((lhs.sub rhs).mul (.num d)) (lhs'.sub rhs') = true)
+    (h : Expr.kronQEq_k K B invs ((lhs.sub rhs).mul (.num d)) (lhs'.sub rhs') = true) :
+    (lhs.denote ctx ≤ rhs.denote ctx) = (lhs'.denote ctx ≤ rhs'.denote ctx) := by
+  have h := Expr.sub_mul_eq_of_kronQ ctx K B invs hok hnz d lhs rhs lhs' rhs' hB hK h
+  have hd : (0 : α) < d := OrderedRing.pos_natCast_of_pos d (Nat.blt_eq.mp hd)
+  have := Field.IsOrdered.mul_le_mul_iff_of_pos_right (a := lhs.denote ctx - rhs.denote ctx) (b := 0) hd
+  rw [Semiring.zero_mul, h] at this
+  rw [← sub_nonpos_iff', ← sub_nonpos_iff' (a := lhs'.denote ctx), this]
+
+theorem lt_of_kronQ_rel (ctx : Context α) (K B : Nat) (invs : InvVars)
+    (hok : invs.ok ctx) (hnz : InvVars.nonzero_k invs = true) (d : Nat) (hd : Nat.blt 0 d = true) (lhs rhs lhs' rhs' : Expr)
+    (hB : Expr.degQOk_k B invs ((lhs.sub rhs).mul (.num d)) (lhs'.sub rhs') = true)
+    (hK : Expr.kronQOk_k K invs ((lhs.sub rhs).mul (.num d)) (lhs'.sub rhs') = true)
+    (h : Expr.kronQEq_k K B invs ((lhs.sub rhs).mul (.num d)) (lhs'.sub rhs') = true) :
+    (lhs.denote ctx < rhs.denote ctx) = (lhs'.denote ctx < rhs'.denote ctx) := by
+  have h := Expr.sub_mul_eq_of_kronQ ctx K B invs hok hnz d lhs rhs lhs' rhs' hB hK h
+  have hd : (0 : α) < d := OrderedRing.pos_natCast_of_pos d (Nat.blt_eq.mp hd)
+  have := Field.IsOrdered.mul_lt_mul_iff_of_pos_right (a := lhs.denote ctx - rhs.denote ctx) (b := 0) hd
+  rw [Semiring.zero_mul, h] at this
+  rw [← sub_neg_iff', ← sub_neg_iff' (a := lhs'.denote ctx), this]
+
+end
+
 end Lean.Grind.CommRing

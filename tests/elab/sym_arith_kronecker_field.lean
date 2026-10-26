@@ -3,8 +3,9 @@ Certificates by Kronecker substitution for fields in `Sym.simp`'s arithmetic nor
 identities with inverses of numerals are checked by evaluating both sides at one point, with the
 inverses of the numerals as rational constants (`Grind.CommRing.Expr.eq_of_kronQ`,
 `Grind.CommRing.eq_true_of_kronQ`). Identities whose sides have the same polynomial, with the
-inverses as atoms, are ring identities (`Grind.CommRing.eq_true_of_kron`). Each proof is checked by
-the kernel.
+inverses as atoms, are ring identities (`Grind.CommRing.eq_true_of_kron`). Relations are cleared of
+denominators: `(lhs - rhs) * d` and `lhs' - rhs'` are compared at the point
+(`Grind.CommRing.le_of_kronQ_rel` and its variants). Each proof is checked by the kernel.
 -/
 
 register_sym_simp arithSimp where
@@ -23,6 +24,10 @@ example (a b c : Rat) : (a / 3 + b / 4 - c)^6 = (c - b / 4 - a / 3)^2 * (b / 4 -
 example (a b : Rat) : a⁻¹ * 2 + a⁻¹ * b / 3 = a⁻¹ * (6 + b) / 3 := by sym => simp arithSimp
 
 -- Relations are cleared of denominators.
+example (x y z : Rat) : (x / 2 + y / 3 ≤ z / 6) = (3 * x + 2 * y ≤ z) := by sym => simp arithSimp
+example (x y z : Rat) : (x / 2 + y / 3 < z / 6 + x / 4) = (3 * x + 4 * y < 2 * z) := by sym => simp arithSimp
+example (x y : Rat) : ((x / 3 + y / 5)^2 ≤ (x / 3 - y / 5)^2) = (4 * (x * y) ≤ 0) := by sym => simp arithSimp
+example (x y : Rat) : (x / 2 = y / 3) = (3 * x = 2 * y) := by sym => simp arithSimp
 /--
 error: `sym` failed
 case grind

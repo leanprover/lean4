@@ -1799,6 +1799,8 @@ private def normalizeRelCore (rel : RelKind) (relFn : Expr) (order? : Option Ord
     -- are rendered below without solving for a side. With inverse atoms, the sides must go
     -- through the field normalization below.
     let numOrAtom := lhsOnly && rel == .eq && invs.isEmpty && ainvs.isEmpty && isNumOrAtom pl && isNumOrAtom pr
+    -- With inverses of numerals, `lhs - rhs` is `p / den` for the numerator `p` below.
+    let den := if !invs.isEmpty then (p.toPolyQ invs.toList ainvsL).den else 1
     let p := if !invs.isEmpty then (p.toPolyQ invs.toList ainvsL).num
       else if !ainvs.isEmpty then p.cancelInvs ainvsL
       else p
@@ -2008,6 +2010,23 @@ private def normalizeRelCore (rel : RelKind) (relFn : Expr) (order? : Option Ord
           let o := order?.get!
           mkApp5 (base ``Grind.CommRing.lt_normA_expr) o.leInst o.ltInst?.get! o.lawfulOrderLTInst?.get! o.isPreorderInst o.orderedRingInst?.get!
       pure (mkApp8 h ctx ainvsE hoka (toExpr l) (toExpr r) (toExpr l') (toExpr r') eagerReflBoolTrue)
+    else if let (true, some (K, B)) := (ainvs.isEmpty && den > 0,
+        kronQArgs? ((l.sub r).mul (.num den)) (l'.sub r') invs.toList 1000000) then
+      -- `(lhs - rhs) * den` and `lhs' - rhs'` are evaluated at a point (Kronecker substitution).
+      let (fieldInst, charInst) := fc?.get!
+      let base (name : Name) : Expr := mkApp3 (mkConst name [u]) ring.type fieldInst charInst
+      let h := match rel with
+        | .eq => base ``Grind.CommRing.eq_of_kronQ_rel
+        | .le =>
+          let o := order?.get!
+          mkApp5 (base ``Grind.CommRing.le_of_kronQ_rel) o.leInst o.ltInst?.get! o.lawfulOrderLTInst?.get! linInst?.get! o.orderedRingInst?.get!
+        | .lt =>
+          let o := order?.get!
+          mkApp5 (base ``Grind.CommRing.lt_of_kronQ_rel) o.leInst o.ltInst?.get! o.lawfulOrderLTInst?.get! linInst?.get! o.orderedRingInst?.get!
+      let invsE := toExpr invs.toList
+      pure (mkAppN h #[ctx, mkRawNatLit K, mkRawNatLit B, invsE, mkInvVarsOk ring.type u ctx invsE, eagerReflBoolTrue,
+        mkRawNatLit den, eagerReflBoolTrue, toExpr l, toExpr r, toExpr l', toExpr r', eagerReflBoolTrue, eagerReflBoolTrue,
+        eagerReflBoolTrue])
     else
       let (fieldInst, charInst) := fc?.get!
       let base (name : Name) : Expr := mkApp3 (mkConst name [u]) ring.type fieldInst charInst

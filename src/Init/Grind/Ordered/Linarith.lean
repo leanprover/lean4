@@ -58,6 +58,25 @@ abbrev Expr.denote {α} [IntModule α] (ctx : Context α) : Expr → α
   | .intMul k a  => k • denote ctx a
   | .neg a    => -denote ctx a
 
+/--
+`Expr.denote` for kernel reduction. The theorems that take hypotheses about user terms state them
+with `Expr.denote_k`, so that the kernel unfolds `Expr.rec` instead of `Expr.denote`'s `brecOn`.
+-/
+noncomputable def Expr.denote_k {α} [IntModule α] (ctx : Context α) (e : Expr) : α :=
+  Expr.rec 0 (fun v => v.denote ctx) (fun _ _ a b => a + b) (fun _ _ a b => a - b)
+    (fun _ a => -a) (fun k _ a => k • a) (fun k _ a => k • a) e
+
+@[simp] theorem Expr.denote_k_eq_denote {α} [IntModule α] (ctx : Context α) (e : Expr) :
+    e.denote_k ctx = e.denote ctx := by
+  induction e with
+  | zero => rfl
+  | var => rfl
+  | add a b iha ihb => show a.denote_k ctx + b.denote_k ctx = _; rw [iha, ihb]
+  | sub a b iha ihb => show a.denote_k ctx - b.denote_k ctx = _; rw [iha, ihb]
+  | neg a ih => show -a.denote_k ctx = _; rw [ih]
+  | natMul k a ih => show k • a.denote_k ctx = _; rw [ih]
+  | intMul k a ih => show k • a.denote_k ctx = _; rw [ih]
+
 inductive Poly where
   | nil
   | add (k : Int) (v : Var) (p : Poly)
@@ -500,46 +519,46 @@ noncomputable def norm_cert (lhs rhs : Expr) (p : Poly) :=
   p.beq' (lhs.sub rhs).norm_k
 
 theorem eq_norm {α} [IntModule α] (ctx : Context α) (lhs rhs : Expr) (p : Poly)
-    : norm_cert lhs rhs p → lhs.denote ctx = rhs.denote ctx → p.denote' ctx = 0 := by
-  simp [norm_cert]; intro _ h₁; subst p; simp [Expr.denote, h₁, sub_self]
+    : norm_cert lhs rhs p → lhs.denote_k ctx = rhs.denote_k ctx → p.denote' ctx = 0 := by
+  simp only [Expr.denote_k_eq_denote]; simp [norm_cert]; intro _ h₁; subst p; simp [Expr.denote, h₁, sub_self]
 
 theorem le_of_eq {α} [IntModule α] [LE α] [IsPreorder α] [OrderedAdd α] (ctx : Context α) (lhs rhs : Expr) (p : Poly)
-    : norm_cert lhs rhs p → lhs.denote ctx = rhs.denote ctx → p.denote' ctx ≤ 0 := by
-  simp [norm_cert]; intro _ h₁; subst p; simp [Expr.denote, h₁, sub_self]
+    : norm_cert lhs rhs p → lhs.denote_k ctx = rhs.denote_k ctx → p.denote' ctx ≤ 0 := by
+  simp only [Expr.denote_k_eq_denote]; simp [norm_cert]; intro _ h₁; subst p; simp [Expr.denote, h₁, sub_self]
 
 theorem diseq_norm {α} [IntModule α] (ctx : Context α) (lhs rhs : Expr) (p : Poly)
-    : norm_cert lhs rhs p → lhs.denote ctx ≠ rhs.denote ctx → p.denote' ctx ≠ 0 := by
-  simp [norm_cert]; intro _ h₁; subst p; simp [Expr.denote]
+    : norm_cert lhs rhs p → lhs.denote_k ctx ≠ rhs.denote_k ctx → p.denote' ctx ≠ 0 := by
+  simp only [Expr.denote_k_eq_denote]; simp [norm_cert]; intro _ h₁; subst p; simp [Expr.denote]
   intro h
   replace h := congrArg (rhs.denote ctx + ·) h; simp [sub_eq_add_neg] at h
   rw [add_left_comm, ← sub_eq_add_neg, sub_self, add_zero] at h
   contradiction
 
 theorem le_norm {α} [IntModule α] [LE α] [IsPreorder α] [OrderedAdd α] (ctx : Context α) (lhs rhs : Expr) (p : Poly)
-    : norm_cert lhs rhs p → lhs.denote ctx ≤ rhs.denote ctx → p.denote' ctx ≤ 0 := by
-  simp [norm_cert]; intro _ h₁; subst p; simp [Expr.denote]
+    : norm_cert lhs rhs p → lhs.denote_k ctx ≤ rhs.denote_k ctx → p.denote' ctx ≤ 0 := by
+  simp only [Expr.denote_k_eq_denote]; simp [norm_cert]; intro _ h₁; subst p; simp [Expr.denote]
   replace h₁ := add_le_left h₁ (-rhs.denote ctx)
   simp [← sub_eq_add_neg, sub_self] at h₁
   assumption
 
 theorem lt_norm {α} [IntModule α] [LE α] [LT α] [LawfulOrderLT α] [IsPreorder α] [OrderedAdd α] (ctx : Context α) (lhs rhs : Expr) (p : Poly)
-    : norm_cert lhs rhs p → lhs.denote ctx < rhs.denote ctx → p.denote' ctx < 0 := by
-  simp [norm_cert]; intro _ h₁; subst p; simp [Expr.denote]
+    : norm_cert lhs rhs p → lhs.denote_k ctx < rhs.denote_k ctx → p.denote' ctx < 0 := by
+  simp only [Expr.denote_k_eq_denote]; simp [norm_cert]; intro _ h₁; subst p; simp [Expr.denote]
   replace h₁ := add_lt_left h₁ (-rhs.denote ctx)
   simp [← sub_eq_add_neg, sub_self] at h₁
   assumption
 
 theorem not_le_norm {α} [IntModule α] [LE α] [LT α] [LawfulOrderLT α] [IsLinearOrder α] [OrderedAdd α] (ctx : Context α) (lhs rhs : Expr) (p : Poly)
-    : norm_cert rhs lhs p → ¬ lhs.denote ctx ≤ rhs.denote ctx → p.denote' ctx < 0 := by
-  simp [norm_cert]; intro _ h₁; subst p; simp [Expr.denote]
+    : norm_cert rhs lhs p → ¬ lhs.denote_k ctx ≤ rhs.denote_k ctx → p.denote' ctx < 0 := by
+  simp only [Expr.denote_k_eq_denote]; simp [norm_cert]; intro _ h₁; subst p; simp [Expr.denote]
   replace h₁ := LinearOrder.lt_of_not_le h₁
   replace h₁ := add_lt_left h₁ (-lhs.denote ctx)
   simp [← sub_eq_add_neg, sub_self] at h₁
   assumption
 
 theorem not_lt_norm {α} [IntModule α] [LE α] [LT α] [LawfulOrderLT α] [IsLinearOrder α] [OrderedAdd α] (ctx : Context α) (lhs rhs : Expr) (p : Poly)
-    : norm_cert rhs lhs p → ¬ lhs.denote ctx < rhs.denote ctx → p.denote' ctx ≤ 0 := by
-  simp [norm_cert]; intro _ h₁; subst p; simp [Expr.denote]
+    : norm_cert rhs lhs p → ¬ lhs.denote_k ctx < rhs.denote_k ctx → p.denote' ctx ≤ 0 := by
+  simp only [Expr.denote_k_eq_denote]; simp [norm_cert]; intro _ h₁; subst p; simp [Expr.denote]
   replace h₁ := LinearOrder.le_of_not_lt h₁
   replace h₁ := add_le_left h₁ (-lhs.denote ctx)
   simp [← sub_eq_add_neg, sub_self] at h₁
@@ -548,15 +567,15 @@ theorem not_lt_norm {α} [IntModule α] [LE α] [LT α] [LawfulOrderLT α] [IsLi
 -- If the module does not have a linear order, we can still put the expressions in polynomial forms
 
 theorem not_le_norm' {α} [IntModule α] [LE α] [IsPreorder α] [OrderedAdd α] (ctx : Context α) (lhs rhs : Expr) (p : Poly)
-    : norm_cert lhs rhs p → ¬ lhs.denote ctx ≤ rhs.denote ctx → ¬ p.denote' ctx ≤ 0 := by
-  simp [norm_cert]; intro _ h₁; subst p; simp [Expr.denote]; intro h
+    : norm_cert lhs rhs p → ¬ lhs.denote_k ctx ≤ rhs.denote_k ctx → ¬ p.denote' ctx ≤ 0 := by
+  simp only [Expr.denote_k_eq_denote]; simp [norm_cert]; intro _ h₁; subst p; simp [Expr.denote]; intro h
   replace h := add_le_right (rhs.denote ctx) h
   rw [sub_eq_add_neg, add_left_comm, ← sub_eq_add_neg, sub_self] at h; simp at h
   contradiction
 
 theorem not_lt_norm' {α} [IntModule α] [LE α] [LT α] [LawfulOrderLT α] [IsPreorder α] [OrderedAdd α] (ctx : Context α) (lhs rhs : Expr) (p : Poly)
-    : norm_cert lhs rhs p → ¬ lhs.denote ctx < rhs.denote ctx → ¬ p.denote' ctx < 0 := by
-  simp [norm_cert]; intro _ h₁; subst p; simp [Expr.denote]; intro h
+    : norm_cert lhs rhs p → ¬ lhs.denote_k ctx < rhs.denote_k ctx → ¬ p.denote' ctx < 0 := by
+  simp only [Expr.denote_k_eq_denote]; simp [norm_cert]; intro _ h₁; subst p; simp [Expr.denote]; intro h
   replace h := add_lt_right (rhs.denote ctx) h
   rw [sub_eq_add_neg, add_left_comm, ← sub_eq_add_neg, sub_self] at h; simp at h
   contradiction

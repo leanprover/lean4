@@ -244,13 +244,11 @@ public def parseLineEnding? (cur : InlineCursor s) : Option (s.Subslice × Inlin
   return (subsliceClamped cur.startPos stop, after)
 
 /-- Advances past the characters at the start of `cur` that satisfy `p`. -/
-@[specialize] public def skipWhile (cur : InlineCursor s) (p : Char → Bool) : InlineCursor s :=
-    Id.run do
-  let mut cur := cur
-  while h : cur.startPos < cur.stopPos do
-    if !p (cur.startPos.get (String.Slice.Pos.ne_endPos_of_lt h)) then break
-    cur := cur.drop1
-  return cur
+@[specialize] public partial def skipWhile (cur : InlineCursor s) (p : Char → Bool) :
+    InlineCursor s :=
+  if h : cur.startPos < cur.stopPos then
+    if p (cur.startPos.get (String.Slice.Pos.ne_endPos_of_lt h)) then cur.drop1.skipWhile p else cur
+  else cur
 
 /--
 If `cur` begins with `c`, returns that character as a subslice together with `cur` advanced past it.

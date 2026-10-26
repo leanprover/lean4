@@ -506,15 +506,11 @@ characters after it that can't begin one.
 The state is updated once for the whole stretch, and the last character becomes the previous
 character for the flanking rules.
 -/
-def skipText : TokenizeM s Unit := modify fun st => Id.run do
-  let mut prev := st.rest.front
-  let mut rest := st.rest.drop1
-  while h : rest.startPos < rest.stopPos do
-    let c := rest.startPos.get (String.Slice.Pos.ne_endPos_of_lt h)
-    if mayBeginInline c then break
-    prev := c
-    rest := rest.drop1
-  return { st with rest, prevChar := prev }
+def skipText : TokenizeM s Unit := modify fun st =>
+  let rest := st.rest.drop1.skipWhile (!mayBeginInline ·)
+  -- The stretch stays within one line, since a line ending may begin an inline construct, so the
+  -- character before the new position is the last one consumed.
+  { st with rest, prevChar := (rest.startPos.prev? >>= (·.get?)).getD st.rest.front }
 
 /--
 Advances multiple characters as plain text.

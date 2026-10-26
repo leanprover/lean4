@@ -2,7 +2,8 @@
 Certificates with packed monomials (`Grind.CommRing.PPoly`) in `Sym.simp`'s arithmetic
 normalizer: identities (`=`, `≤`, `<`) and normal forms of commutative rings and of commutative
 semirings with `AddRightCancel`, including sums that need the balanced additions of
-`Expr.toPPB_k`. Each proof is checked by the kernel.
+`Expr.toPPB_k`, and identities in a nonzero characteristic that hold over `Int`. Each proof is
+checked by the kernel.
 -/
 
 set_option sym.arith.maxTerms 1000
@@ -36,4 +37,11 @@ example (f : Nat → Nat) (a b c : Nat) :
 example (x₀ x₁ x₂ x₃ x₄ x₅ x₆ x₇ x₈ x₉ x₁₀ x₁₁ : Int) :
     x₀ * x₀ + x₁ * x₁ + x₂ * x₂ + x₃ * x₃ + x₄ * x₄ + x₅ * x₅ + x₆ * x₆ + x₇ * x₇ + x₈ * x₈ + x₉ * x₉ + x₁₀ * x₁₀ + x₁₁ * x₁₁ =
     x₁₁ * x₁₁ + x₁₀ * x₁₀ + x₉ * x₉ + x₈ * x₈ + x₇ * x₇ + x₆ * x₆ + x₅ * x₅ + x₄ * x₄ + x₃ * x₃ + x₂ * x₂ + x₁ * x₁ + x₀ * x₀ := by
+  sym => simp arithSimp
+
+-- Nonzero characteristic: the sides have the same polynomial over `Int`.
+example (x y z : UInt8) : (x + y + z)^4 = (x + y + z)^2 * (x + y + z)^2 := by sym => simp arithSimp
+example (x y z : BitVec 16) : (x + 3 * y + z)^4 = (z + 3 * y + x)^2 * (x + 3 * y + z)^2 := by sym => simp arithSimp
+-- and when they do not, the certificate reduces the coefficients.
+example (x y : UInt8) : (x + y)^8 = x^8 + 8 * x^7 * y + 28 * x^6 * y^2 + 56 * x^5 * y^3 + 70 * x^4 * y^4 + 56 * x^3 * y^5 + 284 * x^2 * y^6 + 8 * x * y^7 + y^8 := by
   sym => simp arithSimp

@@ -1587,8 +1587,13 @@ private def constRelProof? (rel : RelKind) (order? : Option Order) (ring : Ring)
   -- Equal sides: each side is checked against the polynomial alone.
   if k == 0 then
     let ctx ← mkContext ring.type vars
-    if char?.isNone && usePacked pl.length then
-      let args := packedArgs l r pl (packedBal l) (packedBal r)
+    -- The packed certificates hold in any commutative ring: in a nonzero characteristic they
+    -- apply when the sides have the same polynomial over `Int`.
+    let p₀? := if char?.isNone then some pl else
+      let q := l.toPoly
+      if q == r.toPoly then some q else none
+    if let some p₀ := p₀?.filter (usePacked ·.length) then
+      let args := packedArgs l r p₀ (packedBal l) (packedBal r)
       match rel, order? with
       | .eq, _ => return some (mkAppN (mkConst ``Grind.CommRing.eq_true_of_toPPX_eq [u]) (#[ring.type, inst, ctx] ++ args), true)
       | .le, some o =>

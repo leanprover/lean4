@@ -13,31 +13,6 @@ public section
 
 open Lean Meta Elab Command Term
 
-@[specialize]
-def Lean.findFreeName [Monad m] [MonadEnv m] (name : Name)
-    (avoid : Environment → Name → Bool := fun env name => env.contains name) :
-    m Name := do
-  let env ← getEnv
-  if avoid env name then
-    let mut i := 1
-    repeat
-      let newName := name.appendIndexAfter i
-      if avoid env newName then
-        i := i + 1
-        continue
-      return newName
-  return name
-
-@[specialize]
-def Lean.mkInstanceNameOfType (type : Expr)
-    (avoid : Environment → Name → Bool := fun env name => env.contains name) : TermElabM Name := do
-  let mut name ← NameGen.mkBaseNameWithSuffix "inst" type
-  name ← findFreeName ((← getCurrNamespace) ++ name) avoid
-  if (type.find? (·.constName?.any isPrivateName)).isSome then
-    return mkPrivateName (← getEnv) name
-  else
-    return name
-
 def Lean.mkInstance (name : Name) (levelParams : List Name) (type value : Expr)
     (isMeta : Bool) (compile : Bool := true) (attrKind : AttributeKind := .global)
     (prio : Nat := eval_prio default) : TermElabM Unit := do
@@ -48,7 +23,21 @@ def Lean.mkInstance (name : Name) (levelParams : List Name) (type value : Expr)
     else
       let hints := .regular (getMaxHeight (← getEnv) value + 1)
       pure <| .defnDecl <| ← mkDefinitionValInferringUnsafe name levelParams type value hints
-  withExporting (isExporting := !isProp && !isPrivateName name) do
+  let mut shouldExport := false
+  if isProp then
+    -- theorems don't need to be exposed
+    shouldExport := false
+  else if (← getEnv).isExporting then
+    -- in an @[expose] public section, non-prop instances should always be exposed
+    shouldExport := true
+  else if isPrivateName name then
+    -- if we already have a private name, we can't expose
+    shouldExport := false
+  else
+    -- otherwise, we type check the expression in the public scope
+    shouldExport ← withExporting <|
+      isTypeCorrect value <&&> (do isDefEq (← inferType value) type)
+  withExporting (isExporting := shouldExport) do
     addDecl decl
   unless isProp do
     setReducibilityStatus name .instanceReducible
@@ -766,7 +755,7 @@ def makeInstancesUsingMutualBlock (infos : Array (InstanceInfo α))
     infos ← infos.mapM fun info => do
       let extendedHelpers ← info.extendedHelpers.mapM fun helper => do
         let instName := info.declName.get!
-        let declName ← findFreeName (instName ++ helper.suffix) (← get).avoid
+        let declName ← findUnusedName (instName ++ helper.suffix) (← get).avoid
         modifyThe MakeInstancesState (·.add declName)
         let helperRef := mkAppN (.const declName lparams) allParams
         helper.mvar.mvarId!.assign helperRef

@@ -261,12 +261,6 @@ theorem Array.mem_of_binSearch_eq_some {as : Array α} {k : α} {lt : α → α 
   repeat' split at hs
   all_goals first | contradiction | exact Array.binSearchAux_id_eq_some hs
 
-/-- A child trie counts as a subtree for termination purposes. -/
-theorem Trie.sizeOf_lt_of_mem {cs : Array (Key × Trie α)} (h : p ∈ cs) :
-    sizeOf p.snd < sizeOf (Trie.node cs) := by
-  have := Array.sizeOf_lt_of_mem h
-  grind only [= Prod.mk.sizeOf_spec, = node.sizeOf_spec]
-
 theorem List.le_sum_of_mem_nat {l : List Nat} (h : x ∈ l) : x ≤ l.sum := by
   induction l <;> simp_all <;> grind
 
@@ -276,15 +270,14 @@ of {lit}`n` stars counts as {lit}`n` nodes, and a suffix counts its remaining ke
 -/
 def Trie.measure : Trie α → Nat
   | .leaf _ => 1
-  | .node cs => 1 + (cs.attach.map fun ⟨kc, _⟩ => kc.snd.measure).sum
+  | .node cs => 1 + (cs.map (·.snd.measure)).sum
   | .chain _ c => 1 + c.measure
   | .stars n c => 1 + n + c.measure
   | .suffix keys start _ _ => 1 + (keys.size - start)
-termination_by t => sizeOf t
 decreasing_by
   all_goals first
-  | exact Trie.sizeOf_lt_of_mem ‹_›
   | (simp; omega)
+  | (rename_i kc hkc; have := Array.sizeOf_lt_of_mem hkc; cases kc; simp at this ⊢; omega)
 
 /-- Removing a star decreases the measure, even for a zero-length run. -/
 theorem Trie.measure_mkStars_pred_lt (n : Nat) (c : Trie α) :
@@ -300,12 +293,8 @@ theorem Trie.measure_lt_of_mem_nodeChildren {t : Trie α} (h : kc ∈ t.nodeChil
   | leaf vs => simp [nodeChildren] at h
   | node cs =>
     simp only [nodeChildren] at h
-    rw [measure]
-    have : kc.snd.measure ∈ (cs.attach.map fun ⟨kc, _⟩ => kc.snd.measure).toList := by
-      simp only [Array.toList_map, List.mem_map, Array.mem_toList_iff, Array.mem_attach, true_and]
-      exact ⟨⟨kc, h⟩, rfl⟩
-    have := List.le_sum_of_mem_nat this
-    rw [← Array.sum_toList]
+    have := List.le_sum_of_mem_nat (List.mem_map_of_mem (f := (·.snd.measure)) (Array.mem_toList_iff.2 h))
+    simp only [measure, ← Array.sum_toList, Array.toList_map]
     omega
   | chain k c =>
     simp only [nodeChildren, Array.mem_singleton] at h
@@ -808,6 +797,140 @@ section
 variable {α : Type}
 
 /-!
+## Shapes and their key paths
+-/
+
+/-- The key path of a list of shapes, first shape first. -/
+def Spec.F (ds : List ExprShape) : List Key := ds.flatMap (·.getKeyPath.toList)
+
+/-- The key path of a query stack: the top of the stack (its back) comes first. -/
+abbrev Spec.P (es : Array ExprShape) : List Key := F es.toList.reverse
+
+theorem Spec.F_nil : F [] = [] := rfl
+theorem Spec.F_cons : F (d :: ds) = d.getKeyPath.toList ++ F ds := rfl
+theorem Spec.F_append : F (ds ++ ds') = F ds ++ F ds' := List.flatMap_append
+
+theorem Spec.P_push : P (es.push e) = e.getKeyPath.toList ++ P es := by simp [P, F_cons]
+theorem Spec.P_append : P (es ++ es') = P es' ++ P es := by simp [P, F_append]
+
+theorem ExprShape.getKeyPath_eq (e : ExprShape) :
+    e.getKeyPath.toList = e.getKeyArgs.fst :: Spec.P e.getKeyArgs.snd := by
+  cases e <;> simp [getKeyPath, getKeyArgs, Spec.P, Spec.F]
+
+/-- The shape whose key is {lit}`k` and whose argument stack is {lit}`args`. -/
+def Spec.toShape : Key → Array ExprShape → ExprShape
+  | .lit l, _ => .lit l
+  | .const c _, args => .const c args.reverse
+  | .fvar x _, args => .fvar x args.reverse
+  | .arrow, args => .arrow (args[0]?.getD .star)
+  | .star, _ => .star
+  | .other, _ => .other
+
+theorem Spec.getKeyArgs_toShape {k : Key} {args : Array ExprShape} (h : args.size = k.arity) :
+    (toShape k args).getKeyArgs = (k, args) := by
+  cases k <;> simp only [Key.arity] at h
+  case const c n => subst h; simp [toShape, ExprShape.getKeyArgs]
+  case fvar x n => subst h; simp [toShape, ExprShape.getKeyArgs]
+  case arrow =>
+    rcases args with ⟨_ | ⟨e, _ | _⟩⟩ <;> simp at h
+    simp [toShape, ExprShape.getKeyArgs]
+  all_goals
+    obtain rfl := Array.eq_empty_of_size_eq_zero h
+    simp [toShape, ExprShape.getKeyArgs]
+
+theorem Spec.getKeyPath_toShape {k : Key} {args : Array ExprShape} (h : args.size = k.arity) :
+    (toShape k args).getKeyPath.toList = k :: P args := by
+  rw [ExprShape.getKeyPath_eq, getKeyArgs_toShape h]
+
+theorem ExprShape.getKeyArgs_inj {e e' : ExprShape} (h : e.getKeyArgs = e'.getKeyArgs) : e = e' := by
+  cases e <;> cases e' <;> simp_all [getKeyArgs]
+
+theorem ExprShape.size_getKeyArgs_snd {e : ExprShape} : e.getKeyArgs.snd.size = e.getKeyArgs.fst.arity := by
+  cases e <;> simp [getKeyArgs, Key.arity]
+
+theorem ExprShape.getKeyArgs_fst_eq_star {e : ExprShape} : e.getKeyArgs.fst = .star ↔ e = .star := by
+  cases e <;> simp [getKeyArgs]
+
+/-- Splitting off one complete shape from the front of a list of shapes. -/
+theorem Spec.exists_cons_iff {X : List Key} {s : Nat} {R : List Key → Prop} :
+    (∃ ds : List ExprShape, ds.length = s + 1 ∧ R (F ds ++ X)) ↔
+      ∃ k, ∃ ds : List ExprShape, ds.length = s + k.arity ∧ R (k :: (F ds ++ X)) := by
+  constructor
+  · rintro ⟨_ | ⟨d, ds⟩, hl, hr⟩
+    · simp at hl
+    · refine ⟨d.getKeyArgs.fst, d.getKeyArgs.snd.toList.reverse ++ ds, ?_, ?_⟩
+      · simp only [List.length_cons, Nat.add_right_cancel_iff] at hl
+        simp [ExprShape.size_getKeyArgs_snd, hl, Nat.add_comm]
+      · rw [F_cons, ExprShape.getKeyPath_eq] at hr
+        simpa [F_append] using hr
+  · rintro ⟨k, ds, hl, hr⟩
+    refine ⟨toShape k (ds.take k.arity).reverse.toArray :: ds.drop k.arity, by simp; omega, ?_⟩
+    rw [F_cons, getKeyPath_toShape (by simp; omega)]
+    have : F ds = F (ds.take k.arity) ++ F (ds.drop k.arity) := by rw [← F_append, List.take_append_drop]
+    simpa [this, P] using hr
+
+/-- Key paths determine the shapes they came from. -/
+theorem Spec.F_inj : ∀ {ds ds' : List ExprShape} {X X' : List Key},
+    ds.length = ds'.length → F ds ++ X = F ds' ++ X' → ds = ds' ∧ X = X'
+  | [], [], _, _, _, h => by simpa [F_nil] using h
+  | d :: ds, d' :: ds', X, X', hl, h => by
+    rw [F_cons, F_cons, ExprShape.getKeyPath_eq, ExprShape.getKeyPath_eq] at h
+    simp only [List.cons_append, List.cons.injEq] at h
+    obtain ⟨hk, h⟩ := h
+    have hl' : (d.getKeyArgs.snd.toList.reverse ++ ds).length = (d'.getKeyArgs.snd.toList.reverse ++ ds').length := by
+      simp only [List.length_append, List.length_reverse, Array.length_toList, ExprShape.size_getKeyArgs_snd, hk]
+      simp at hl; omega
+    have h' : F (d.getKeyArgs.snd.toList.reverse ++ ds) ++ X = F (d'.getKeyArgs.snd.toList.reverse ++ ds') ++ X' := by
+      simpa [F_append] using h
+    obtain ⟨hds, rfl⟩ := F_inj hl' h'
+    have hsz : (d.getKeyArgs.snd.toList.reverse).length = (d'.getKeyArgs.snd.toList.reverse).length := by
+      simp [ExprShape.size_getKeyArgs_snd, hk]
+    obtain ⟨ha, rfl⟩ := List.append_inj hds hsz
+    refine ⟨?_, rfl⟩
+    rw [ExprShape.getKeyArgs_inj (Prod.ext hk (by simpa using ha))]
+  | [], _ :: _, _, _, hl, _ => by simp at hl
+  | _ :: _, [], _, _, hl, _ => by simp at hl
+termination_by ds => (F ds).length
+decreasing_by
+  rw [F_append, F_cons, ExprShape.getKeyPath_eq]
+  simp
+
+theorem ExprShape.getKeyPath_inj {e e' : ExprShape} (h : e.getKeyPath.toList = e'.getKeyPath.toList) : e = e' := by
+  have := (Spec.F_inj (ds := [e]) (ds' := [e']) (X := []) (X' := []) rfl (by simpa [Spec.F_cons, Spec.F_nil] using h)).1
+  simpa using this
+
+/-- Key paths of {lit}`n` complete shapes. -/
+def Spec.ValidPath (n : Nat) (p : List Key) : Prop := ∃ ds : List ExprShape, ds.length = n ∧ F ds = p
+
+theorem Spec.validPath_nil_iff : ValidPath n [] ↔ n = 0 := by
+  constructor
+  · rintro ⟨_ | ⟨d, ds⟩, rfl, h⟩
+    · rfl
+    · have := d.getKeyPath_size_pos
+      simp [F_cons] at h; simp [h] at this
+  · rintro rfl; exact ⟨[], rfl, rfl⟩
+
+theorem Spec.validPath_cons_iff : ValidPath n (k :: p) ↔ ∃ m, n = m + 1 ∧ ValidPath (m + k.arity) p := by
+  constructor
+  · rintro ⟨_ | ⟨d, ds⟩, rfl, h⟩
+    · simp [F_nil] at h
+    · obtain ⟨k', ds', hl', h'⟩ :=
+        (exists_cons_iff (X := []) (s := ds.length) (R := (· = k :: p))).1 ⟨d :: ds, rfl, by simpa using h⟩
+      simp only [List.append_nil, List.cons.injEq] at h'
+      obtain ⟨rfl, rfl⟩ := h'
+      exact ⟨ds.length, rfl, ds', hl', rfl⟩
+  · rintro ⟨m, rfl, ds, hl, rfl⟩
+    obtain ⟨ds', hl', h'⟩ := (exists_cons_iff (X := []) (s := m) (R := (· = k :: F ds))).2 ⟨k, ds, hl, by simp⟩
+    exact ⟨ds', hl', by simpa using h'⟩
+
+theorem Spec.validPath_getKeyPath (e : ExprShape) : ValidPath 1 e.getKeyPath.toList :=
+  ⟨[e], rfl, by simp [F_cons, F_nil]⟩
+
+theorem Spec.exists_getKeyPath (h : ValidPath 1 p) : ∃ e : ExprShape, e.getKeyPath.toList = p := by
+  obtain ⟨_ | ⟨e, _ | _⟩, hl, rfl⟩ := h <;> simp at hl
+  exact ⟨e, by simp [F_cons, F_nil]⟩
+
+/-!
 ## Semantics: what a trie stores
 -/
 
@@ -825,21 +948,6 @@ theorem Spec.mem_cons_iff : Mem t (k :: p) w ↔ ∃ c, (k, c) ∈ t.nodeChildre
   constructor
   · intro h; cases h; exact ⟨_, by assumption, by assumption⟩
   · rintro ⟨c, hc, h⟩; exact .child hc h
-
-/-- Key paths of {lit}`n` complete shapes. -/
-inductive Spec.ValidPath : Nat → List Key → Prop where
-  | nil : ValidPath 0 []
-  | cons {n : Nat} {k : Key} {p : List Key} : ValidPath (n + k.arity) p → ValidPath (n + 1) (k :: p)
-
-theorem Spec.validPath_nil_iff : ValidPath n [] ↔ n = 0 := by
-  constructor
-  · intro h; cases h; rfl
-  · rintro rfl; exact .nil
-
-theorem Spec.validPath_cons_iff : ValidPath n (k :: p) ↔ ∃ m, n = m + 1 ∧ ValidPath (m + k.arity) p := by
-  constructor
-  · intro h; cases h; exact ⟨_, rfl, by assumption⟩
-  · rintro ⟨m, rfl, h⟩; exact .cons h
 
 /-!
 ## Well-formedness through the node interface
@@ -1017,12 +1125,12 @@ theorem Spec.Mem.validPath {t : Trie α} (hm : Mem t p w) (ht : t.WF n) : ValidP
   induction hm generalizing n with
   | here hw =>
     cases n with
-    | zero => exact .nil
+    | zero => exact validPath_nil_iff.2 rfl
     | succ m => rw [ht.succ.1] at hw; simp at hw
   | child hc _ ih =>
     cases n with
     | zero => rw [ht.nodeChildren_eq_empty] at hc; simp at hc
-    | succ m => exact .cons (ih (ht.succ.2.2 _ hc))
+    | succ m => exact validPath_cons_iff.2 ⟨m, rfl, ih (ht.succ.2.2 _ hc)⟩
 
 theorem Spec.mem_mkNode_iff {cs : Array (Key × Trie α)} (hc : ∀ kc ∈ cs, ∃ n, kc.snd.WF n) :
     Mem (Trie.mkNode cs) p w ↔ ∃ k q c, p = k :: q ∧ (k, c) ∈ cs ∧ Mem c q w := by
@@ -1074,8 +1182,8 @@ theorem Spec.insert_spec {path : Array Key} {hi : i ≤ path.size} {t : Trie α}
   | case1 t _ =>
     have hd : path.toList.drop path.size = [] := by simp
     rw [hd, validPath_nil_iff] at hv
-    rw [hd]
     subst hv
+    rw [hd]
     obtain ⟨vs, rfl, -⟩ := Trie.wf_zero_iff.1 ht
     refine ⟨Trie.wf_zero_iff.2 ⟨_, rfl, by simp⟩, fun p w => ?_⟩
     simp only [Trie.nodeValues, mem_leaf_iff, Array.mem_push]
@@ -1138,127 +1246,6 @@ end
 
 section
 variable {α : Type}
-
-/-!
-## Shapes and their key paths
--/
-
-/-- The key path of a list of shapes, first shape first. -/
-def Spec.F (ds : List ExprShape) : List Key := ds.flatMap (·.getKeyPath.toList)
-
-/-- The key path of a query stack: the top of the stack (its back) comes first. -/
-abbrev Spec.P (es : Array ExprShape) : List Key := F es.toList.reverse
-
-theorem Spec.F_nil : F [] = [] := rfl
-theorem Spec.F_cons : F (d :: ds) = d.getKeyPath.toList ++ F ds := rfl
-theorem Spec.F_append : F (ds ++ ds') = F ds ++ F ds' := List.flatMap_append
-
-theorem Spec.P_push : P (es.push e) = e.getKeyPath.toList ++ P es := by simp [P, F_cons]
-theorem Spec.P_append : P (es ++ es') = P es' ++ P es := by simp [P, F_append]
-
-theorem ExprShape.getKeyPath_eq (e : ExprShape) :
-    e.getKeyPath.toList = e.getKeyArgs.fst :: Spec.P e.getKeyArgs.snd := by
-  cases e <;> simp [getKeyPath, getKeyArgs, Spec.P, Spec.F]
-
-/-- The shape whose key is {lit}`k` and whose argument stack is {lit}`args`. -/
-def Spec.toShape : Key → Array ExprShape → ExprShape
-  | .lit l, _ => .lit l
-  | .const c _, args => .const c args.reverse
-  | .fvar x _, args => .fvar x args.reverse
-  | .arrow, args => .arrow (args[0]?.getD .star)
-  | .star, _ => .star
-  | .other, _ => .other
-
-theorem Spec.getKeyArgs_toShape {k : Key} {args : Array ExprShape} (h : args.size = k.arity) :
-    (toShape k args).getKeyArgs = (k, args) := by
-  cases k <;> simp only [Key.arity] at h
-  case const c n => subst h; simp [toShape, ExprShape.getKeyArgs]
-  case fvar x n => subst h; simp [toShape, ExprShape.getKeyArgs]
-  case arrow =>
-    rcases args with ⟨_ | ⟨e, _ | _⟩⟩ <;> simp at h
-    simp [toShape, ExprShape.getKeyArgs]
-  all_goals
-    obtain rfl := Array.eq_empty_of_size_eq_zero h
-    simp [toShape, ExprShape.getKeyArgs]
-
-theorem Spec.getKeyPath_toShape {k : Key} {args : Array ExprShape} (h : args.size = k.arity) :
-    (toShape k args).getKeyPath.toList = k :: P args := by
-  rw [ExprShape.getKeyPath_eq, getKeyArgs_toShape h]
-
-theorem ExprShape.getKeyArgs_inj {e e' : ExprShape} (h : e.getKeyArgs = e'.getKeyArgs) : e = e' := by
-  cases e <;> cases e' <;> simp_all [getKeyArgs]
-
-theorem ExprShape.size_getKeyArgs_snd {e : ExprShape} : e.getKeyArgs.snd.size = e.getKeyArgs.fst.arity := by
-  cases e <;> simp [getKeyArgs, Key.arity]
-
-theorem ExprShape.getKeyArgs_fst_eq_star {e : ExprShape} : e.getKeyArgs.fst = .star ↔ e = .star := by
-  cases e <;> simp [getKeyArgs]
-
-/-- Splitting off one complete shape from the front of a list of shapes. -/
-theorem Spec.exists_cons_iff {X : List Key} {s : Nat} {R : List Key → Prop} :
-    (∃ ds : List ExprShape, ds.length = s + 1 ∧ R (F ds ++ X)) ↔
-      ∃ k, ∃ ds : List ExprShape, ds.length = s + k.arity ∧ R (k :: (F ds ++ X)) := by
-  constructor
-  · rintro ⟨_ | ⟨d, ds⟩, hl, hr⟩
-    · simp at hl
-    · refine ⟨d.getKeyArgs.fst, d.getKeyArgs.snd.toList.reverse ++ ds, ?_, ?_⟩
-      · simp only [List.length_cons, Nat.add_right_cancel_iff] at hl
-        simp [ExprShape.size_getKeyArgs_snd, hl, Nat.add_comm]
-      · rw [F_cons, ExprShape.getKeyPath_eq] at hr
-        simpa [F_append] using hr
-  · rintro ⟨k, ds, hl, hr⟩
-    refine ⟨toShape k (ds.take k.arity).reverse.toArray :: ds.drop k.arity, by simp; omega, ?_⟩
-    rw [F_cons, getKeyPath_toShape (by simp; omega)]
-    have : F ds = F (ds.take k.arity) ++ F (ds.drop k.arity) := by rw [← F_append, List.take_append_drop]
-    simpa [this, P] using hr
-
-theorem Spec.exists_nil_iff {R : List ExprShape → Prop} :
-    (∃ ds : List ExprShape, ds.length = 0 ∧ R ds) ↔ R [] := by
-  simp
-
-/-- Key paths determine the shapes they came from. -/
-theorem Spec.F_inj : ∀ {ds ds' : List ExprShape} {X X' : List Key},
-    ds.length = ds'.length → F ds ++ X = F ds' ++ X' → ds = ds' ∧ X = X'
-  | [], [], _, _, _, h => by simpa [F_nil] using h
-  | d :: ds, d' :: ds', X, X', hl, h => by
-    rw [F_cons, F_cons, ExprShape.getKeyPath_eq, ExprShape.getKeyPath_eq] at h
-    simp only [List.cons_append, List.cons.injEq] at h
-    obtain ⟨hk, h⟩ := h
-    have hl' : (d.getKeyArgs.snd.toList.reverse ++ ds).length = (d'.getKeyArgs.snd.toList.reverse ++ ds').length := by
-      simp only [List.length_append, List.length_reverse, Array.length_toList, ExprShape.size_getKeyArgs_snd, hk]
-      simp at hl; omega
-    have h' : F (d.getKeyArgs.snd.toList.reverse ++ ds) ++ X = F (d'.getKeyArgs.snd.toList.reverse ++ ds') ++ X' := by
-      simpa [F_append] using h
-    obtain ⟨hds, rfl⟩ := F_inj hl' h'
-    have hsz : (d.getKeyArgs.snd.toList.reverse).length = (d'.getKeyArgs.snd.toList.reverse).length := by
-      simp [ExprShape.size_getKeyArgs_snd, hk]
-    obtain ⟨ha, rfl⟩ := List.append_inj hds hsz
-    refine ⟨?_, rfl⟩
-    rw [ExprShape.getKeyArgs_inj (Prod.ext hk (by simpa using ha))]
-  | [], _ :: _, _, _, hl, _ => by simp at hl
-  | _ :: _, [], _, _, hl, _ => by simp at hl
-termination_by ds => (F ds).length
-decreasing_by
-  rw [F_append, F_cons, ExprShape.getKeyPath_eq]
-  simp
-
-theorem ExprShape.getKeyPath_inj {e e' : ExprShape} (h : e.getKeyPath.toList = e'.getKeyPath.toList) : e = e' := by
-  have := (Spec.F_inj (ds := [e]) (ds' := [e']) (X := []) (X' := []) rfl (by simpa [Spec.F_cons, Spec.F_nil] using h)).1
-  simpa using this
-
-theorem Spec.ValidPath.exists_shapes (h : ValidPath n p) :
-    ∃ ds : List ExprShape, ds.length = n ∧ F ds = p := by
-  induction h with
-  | nil => exact ⟨[], rfl, rfl⟩
-  | @cons n k' p _ ih =>
-    obtain ⟨ds, hl, rfl⟩ := ih
-    obtain ⟨ds', hl', h⟩ := (exists_cons_iff (X := []) (s := n) (R := fun l => l = k' :: F ds)).2
-      ⟨k', ds, hl, by simp⟩
-    exact ⟨ds', hl', by simpa using h⟩
-
-theorem Spec.exists_getKeyPath (h : ValidPath 1 p) : ∃ e : ExprShape, e.getKeyPath.toList = p := by
-  obtain ⟨_ | ⟨e, _ | _⟩, hl, rfl⟩ := h.exists_shapes <;> simp at hl
-  exact ⟨e, by simp [F_cons, F_nil]⟩
 
 /-!
 ## Unification of stacks
@@ -1354,21 +1341,17 @@ theorem Spec.unify_iff_of_ne_star {e q : ExprShape} (hq : q ≠ .star) :
 ## Unification-based lookup
 -/
 
-theorem Spec.mem_foldl_list_iff {β : Type} {f : Array α → β → Array α} {R : β → Prop} (l : List β)
-    (h : ∀ acc x, x ∈ l → (w ∈ f acc x ↔ w ∈ acc ∨ R x)) (acc : Array α) :
-    w ∈ l.foldl f acc ↔ w ∈ acc ∨ ∃ x ∈ l, R x := by
+theorem Spec.mem_foldl_iff {β : Type} {cs : Array β} {f : Array α → β → Array α} {R : β → Prop}
+    (h : ∀ acc x, x ∈ cs → (w ∈ f acc x ↔ w ∈ acc ∨ R x)) (acc : Array α) :
+    w ∈ cs.foldl f acc ↔ w ∈ acc ∨ ∃ x ∈ cs, R x := by
+  rcases cs with ⟨l⟩
+  simp only [List.foldl_toArray', List.mem_toArray] at h ⊢
   induction l generalizing acc with
   | nil => simp
   | cons x l ih =>
     simp only [List.foldl_cons, List.mem_cons, exists_eq_or_imp]
-    rw [ih (fun acc y hy => h acc y (by simp [hy])), h acc x (by simp)]
+    rw [ih _ (fun acc y hy => h acc y (by simp [hy])), h acc x (by simp)]
     grind
-
-theorem Spec.mem_foldl_iff {β : Type} {cs : Array β} {f : Array α → β → Array α} {R : β → Prop}
-    (h : ∀ acc x, x ∈ cs → (w ∈ f acc x ↔ w ∈ acc ∨ R x)) (acc : Array α) :
-    w ∈ cs.foldl f acc ↔ w ∈ acc ∨ ∃ x ∈ cs, R x := by
-  rw [← Array.foldl_toList, mem_foldl_list_iff _ (fun acc x hx => h acc x (Array.mem_toList_iff.1 hx))]
-  simp only [Array.mem_toList_iff]
 
 theorem Array.extract_zero_append_extract {es : Array α} (h : n ≤ es.size) :
     es.extract 0 n ++ es.extract n es.size = es := by
@@ -1417,6 +1400,22 @@ theorem Spec.unify_top_iff {qs : Array ExprShape} {t : Trie α} (hq : q ≠ .sta
       · rw [P_push, getKeyPath_toShape hargs, List.cons_append, mem_cons_iff]
         exact ⟨c, hc, by rwa [P_append] at hm⟩
 
+/-- The wildcard child's contribution to {name}`Trie.getUnify`'s accumulator. -/
+theorem Spec.mem_starAccum_iff {cs : Array (Key × Trie α)} {qs : Array ExprShape} {acc0 : Array α}
+    (hc : ∀ kc ∈ cs, kc.snd.WF (qs.size + kc.fst.arity))
+    (ih : ∀ c, cs[0]? = some (.star, c) → c.WF (0 + qs.size) →
+      (w ∈ Trie.getUnify 0 qs acc0 c ↔
+        w ∈ acc0 ∨ ∃ es, UnifyMany es qs ∧ ∃ ds, ds.length = 0 ∧ Mem c (F ds ++ P es) w)) :
+    w ∈ (match _hs : cs[0]? with
+      | .some (.star, t) => Trie.getUnify 0 qs acc0 t
+      | _ => acc0) ↔
+      w ∈ acc0 ∨ ∃ c, cs[0]? = some (.star, c) ∧ ∃ es, UnifyMany es qs ∧ Mem c (P es) w := by
+  split
+  · rename_i c hs0
+    rw [ih c hs0 (by simpa [Key.arity] using hc _ (Array.mem_of_getElem? hs0))]
+    simp [hs0, F_nil]
+  · grind only
+
 /--
 {name}`Trie.getUnify` on a well-formed trie returns the accumulator plus every value stored under
 {lit}`skip` arbitrary terms followed by terms unifying with the query stack, top first.
@@ -1441,7 +1440,7 @@ theorem Spec.mem_getUnify_iff {t : Trie α} (ht : t.WF (skip + qs.size)) :
       exact ⟨⟨kc, hkc⟩, by simp, es, hu, hm⟩
   | case2 todo accum t hb =>
     obtain rfl : todo = #[] := by simpa using hb
-    simp only [Array.mem_append, exists_nil_iff, F_nil, List.nil_append]
+    simp only [Array.mem_append, List.length_eq_zero_iff, exists_eq_left, F_nil, List.nil_append]
     apply or_congr_right
     constructor
     · intro h; exact ⟨#[], unifyMany_empty, mem_nil_iff.2 (by simpa using h)⟩
@@ -1454,7 +1453,7 @@ theorem Spec.mem_getUnify_iff {t : Trie α} (ht : t.WF (skip + qs.size)) :
     obtain rfl : q = .star := ExprShape.getKeyArgs_fst_eq_star.1 (beq_iff_eq.1 hk)
     simp only [Array.pop_push] at ih ⊢
     rw [ih (by simpa [Nat.add_comm] using ht)]
-    simp only [exists_nil_iff, F_nil, List.nil_append]
+    simp only [List.length_eq_zero_iff, exists_eq_left, F_nil, List.nil_append]
     apply or_congr_right
     constructor
     · rintro ⟨es, hu, ds, hl, hm⟩
@@ -1469,22 +1468,13 @@ theorem Spec.mem_getUnify_iff {t : Trie α} (ht : t.WF (skip + qs.size)) :
     have hqs : q ≠ .star := fun h => hk (by simp [h, ExprShape.getKeyArgs])
     have ht' : t.WF (qs'.size + 1) := by simpa using ht
     obtain ⟨-, hs, hc⟩ := ht'.succ
-    have hacc : w ∈ acc ↔ w ∈ acc0 ∨
-        ∃ c', t.nodeChildren[0]? = some (.star, c') ∧ ∃ es, UnifyMany es qs' ∧ Mem c' (P es) w := by
-      simp only [acc, cs]
-      split
-      · rename_i c' hs0
-        have hwf : c'.WF (0 + (qs'.push q).pop.size) := by
-          have := hc _ (Array.mem_of_getElem? hs0); simpa [Key.arity] using this
-        rw [ih2 c' hs0 hwf]
-        simp only [Array.pop_push, exists_nil_iff, F_nil, List.nil_append]
-        simp [hs0]
-      · grind only
     obtain ⟨hmem, rfl⟩ := Trie.binSearch_key hf
     have hwf : c.WF (0 + ((qs'.push q).pop ++ q.getKeyArgs.snd).size) := by
       have := hc _ hmem; simpa [ExprShape.size_getKeyArgs_snd] using this
-    rw [ih1 hwf, hacc]
-    simp only [Array.pop_push, exists_nil_iff, F_nil, List.nil_append]
+    rw [ih1 hwf]
+    simp only [acc, cs]
+    rw [mem_starAccum_iff (qs := (qs'.push q).pop) (by simpa using hc) ih2]
+    simp only [Array.pop_push, List.length_eq_zero_iff, exists_eq_left, F_nil, List.nil_append]
     rw [unify_top_iff hqs hs]
     have huniq : ∀ c', (q.getKeyArgs.fst, c') ∈ t.nodeChildren ↔ c' = c := fun c' =>
       ⟨fun h => by simpa using hs.eq_of_mem h hmem rfl, fun h => h ▸ hmem⟩
@@ -1495,49 +1485,20 @@ theorem Spec.mem_getUnify_iff {t : Trie α} (ht : t.WF (skip + qs.size)) :
     have hqs : q ≠ .star := fun h => hk (by simp [h, ExprShape.getKeyArgs])
     have ht' : t.WF (qs'.size + 1) := by simpa using ht
     obtain ⟨-, hs, hc⟩ := ht'.succ
-    have hacc : w ∈ acc ↔ w ∈ acc0 ∨
-        ∃ c', t.nodeChildren[0]? = some (.star, c') ∧ ∃ es, UnifyMany es qs' ∧ Mem c' (P es) w := by
-      simp only [acc, cs]
-      split
-      · rename_i c' hs0
-        have hwf : c'.WF (0 + (qs'.push q).pop.size) := by
-          have := hc _ (Array.mem_of_getElem? hs0); simpa [Key.arity] using this
-        rw [ih1 c' hs0 hwf]
-        simp only [Array.pop_push, exists_nil_iff, F_nil, List.nil_append]
-        simp [hs0]
-      · grind only
-    rw [hacc]
-    simp only [exists_nil_iff, F_nil, List.nil_append]
+    simp only [acc, cs]
+    rw [mem_starAccum_iff (qs := (qs'.push q).pop) (by simpa using hc) ih1]
+    simp only [Array.pop_push, List.length_eq_zero_iff, exists_eq_left, F_nil, List.nil_append]
     rw [unify_top_iff hqs hs]
     have hnone : ∀ c', (q.getKeyArgs.fst, c') ∉ t.nodeChildren := fun c' h => by
       have := hs.binSearch_eq (d := Trie.empty) h
       simp only [cs] at hf
       rw [this] at hf
       simp at hf
-    simp [hnone]
+    simp [hnone, cs]
 
 /-!
 ## Whole tries
 -/
-
-theorem Spec.validPath_F : ∀ {ds : List ExprShape} {X : List Key},
-    ValidPath n X → ValidPath (ds.length + n) (F ds ++ X)
-  | [], X, h => by simpa [F_nil] using h
-  | d :: ds, X, h => by
-    rw [F_cons, ExprShape.getKeyPath_eq, List.cons_append, List.length_cons,
-      show ds.length + 1 + n = (ds.length + n) + 1 by omega]
-    have := validPath_F (ds := d.getKeyArgs.snd.toList.reverse ++ ds) h
-    rw [F_append] at this
-    simp only [List.length_append, List.length_reverse, Array.length_toList,
-      ExprShape.size_getKeyArgs_snd] at this
-    refine .cons ?_
-    rw [show ds.length + n + d.getKeyArgs.fst.arity = d.getKeyArgs.fst.arity + ds.length + n by omega]
-    simpa [P, List.append_assoc] using this
-termination_by ds => (F ds).length
-decreasing_by rw [F_append, F_cons, ExprShape.getKeyPath_eq]; simp
-
-theorem Spec.validPath_getKeyPath (e : ExprShape) : ValidPath 1 e.getKeyPath.toList := by
-  simpa [F_cons, F_nil] using validPath_F (ds := [e]) (X := []) (n := 0) .nil
 
 theorem Spec.foldl_insert_spec {L : KVMap α} {t : Trie α} (ht : t.WF 1) :
     (L.foldl (fun x ⟨k, v⟩ => Trie.insert 0 k.getKeyPath (Nat.zero_le _) v x) t).WF 1 ∧
@@ -1573,7 +1534,7 @@ theorem Trie.getUnify_of_empty {t : Trie α} (hc : t.nodeChildren = #[]) (hv : t
 theorem Spec.mem_getUnify_single {t : Trie α} (ht : t.WF 1) :
     w ∈ t.getUnify 0 #[query] #[] ↔ ∃ e, ExprShape.Unify e query ∧ Mem t e.getKeyPath.toList w := by
   rw [mem_getUnify_iff (by simpa using ht)]
-  simp only [Array.not_mem_empty, false_or, exists_nil_iff, F_nil, List.nil_append]
+  simp only [Array.not_mem_empty, false_or, List.length_eq_zero_iff, exists_eq_left, F_nil, List.nil_append]
   have h1 : (#[query] : Array ExprShape) = (#[] : Array ExprShape).push query := rfl
   rw [h1]
   constructor
@@ -1630,10 +1591,8 @@ suffixes mean there's not a unique way of representing a sequence of key/value p
 -/
 
 /-! Repeated insertion produces well-formed tries. -/
-theorem Trie.WF.construct {kvMap : KVMap α} : kvMap = [] ∨ kvMap.toTrie.WF 1 := by
-  by_cases h : kvMap = []
-  · exact .inl h
-  · exact .inr (Spec.toTrie_spec h).1
+theorem Trie.WF.construct {kvMap : KVMap α} : kvMap = [] ∨ kvMap.toTrie.WF 1 :=
+  (Classical.em _).imp_right fun h => (Spec.toTrie_spec h).1
 
 /-! A well-formed trie can be decomposed into key/value mappings. -/
 theorem Trie.WF.represent {t : Trie α} : t.WF 1 →

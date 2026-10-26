@@ -56,6 +56,8 @@ Benchmarks belonging to the old framework are not included in this description.
   Benchmark directories that measure lake performance.
 - `misc`:
   A collection of miscellaneous small test scripts.
+- `misc_dir`:
+  Standalone test directories, including direct tests of the built-in C++ bignums.
 - `misc_bench`:
   A collection of miscellaneous small benchmark scripts.
 - `pkg`:

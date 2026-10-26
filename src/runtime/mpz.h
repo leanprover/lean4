@@ -211,7 +211,8 @@ public:
     friend mpz rem(mpz const & a, mpz const & b) { mpz r(a); return r %= b; }
 
     mpz pow(unsigned int exp) const;
-    /** \brief Modular exponentiation: returns `this^exp mod m`. Requires `m != 0`. */
+    /** \brief Modular exponentiation: returns `this^exp mod |m|`. Requires `m != 0`.
+        Without GMP, requires `exp >= 0`. */
     mpz powm(mpz const & exp, mpz const & m) const;
 
     friend mpz operator+(mpz a, mpz const & b) { return a += b; }
@@ -258,6 +259,7 @@ public:
     static mpz emod(int n, mpz const & d) { return emod(mpz(n), d); }
     static mpz emod(mpz const & n, int d) { return emod(n, mpz(d)); };
 
+    // Without GMP, both operands of bitwise operations must be nonnegative.
     mpz & operator&=(mpz const & o);
     mpz & operator|=(mpz const & o);
     mpz & operator^=(mpz const & o);

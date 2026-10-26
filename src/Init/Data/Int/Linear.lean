@@ -2422,6 +2422,76 @@ theorem mod_eq' (a b b' k : Int) (h₁ : b = b') (h₂ : Int.beq' k (Int.emod_k 
 theorem pow_eq (a : Int) (b : Nat) (a' b' k : Int) (h₁ : a = a') (h₂ : ↑b = b') (h₃ : Int.beq' k (Int.pow_k a' (Int.toNat_k b'))) : a^b = k := by
   simp [← h₁, ← h₂] at h₃; simp [h₃]
 
+
+/-!
+Variants of the theorems used by `simp +arith` that state the user's terms with `Expr.denote_k`,
+so that the kernel matches them by unfolding `Expr.rec` instead of `Expr.denote`'s `brecOn`.
+-/
+
+theorem eq_eq_false_k (ctx : Context) (lhs rhs : Expr) (h : (lhs.sub rhs).norm.isUnsatEq_k) :
+    (lhs.denote_k ctx = rhs.denote_k ctx) = False := by
+  simp only [Expr.denote_k_eq_denote]; exact eq_eq_false ctx lhs rhs h
+
+theorem eq_eq_true_k (ctx : Context) (lhs rhs : Expr) (h : (lhs.sub rhs).norm.isValidEq) :
+    (lhs.denote_k ctx = rhs.denote_k ctx) = True := by
+  simp only [Expr.denote_k_eq_denote]; exact eq_eq_true ctx lhs rhs h
+
+theorem norm_eq_var_k (ctx : Context) (lhs rhs : Expr) (x y : Var) (h : norm_eq_var_cert lhs rhs x y) :
+    (lhs.denote_k ctx = rhs.denote_k ctx) = (x.denote ctx = y.denote ctx) := by
+  simp only [Expr.denote_k_eq_denote]; exact norm_eq_var ctx lhs rhs x y h
+
+theorem norm_eq_var_const_k (ctx : Context) (lhs rhs : Expr) (x : Var) (k : Int) (h : norm_eq_var_const_cert lhs rhs x k) :
+    (lhs.denote_k ctx = rhs.denote_k ctx) = (x.denote ctx = k) := by
+  simp only [Expr.denote_k_eq_denote]; exact norm_eq_var_const ctx lhs rhs x k h
+
+theorem norm_eq_k (ctx : Context) (lhs rhs : Expr) (p : Poly) (h : norm_eq_cert lhs rhs p) :
+    (lhs.denote_k ctx = rhs.denote_k ctx) = (p.denote' ctx = 0) := by
+  simp only [Expr.denote_k_eq_denote]; exact norm_eq ctx lhs rhs p h
+
+theorem norm_eq_coeff_k (ctx : Context) (lhs rhs : Expr) (p : Poly) (k : Int) (h : norm_eq_coeff_cert lhs rhs p k) :
+    (lhs.denote_k ctx = rhs.denote_k ctx) = (p.denote' ctx = 0) := by
+  simp only [Expr.denote_k_eq_denote]; exact norm_eq_coeff ctx lhs rhs p k h
+
+theorem eq_eq_false_of_divCoeff_k (ctx : Context) (lhs rhs : Expr) (k : Int) (h : unsatEqDivCoeffCert lhs rhs k) :
+    (lhs.denote_k ctx = rhs.denote_k ctx) = False := by
+  simp only [Expr.denote_k_eq_denote]; exact eq_eq_false_of_divCoeff ctx lhs rhs k h
+
+theorem le_eq_false_k (ctx : Context) (lhs rhs : Expr) (h : (lhs.sub rhs).norm.isUnsatLe) :
+    (lhs.denote_k ctx ≤ rhs.denote_k ctx) = False := by
+  simp only [Expr.denote_k_eq_denote]; exact le_eq_false ctx lhs rhs h
+
+theorem le_eq_true_k (ctx : Context) (lhs rhs : Expr) (h : (lhs.sub rhs).norm.isValidLe) :
+    (lhs.denote_k ctx ≤ rhs.denote_k ctx) = True := by
+  simp only [Expr.denote_k_eq_denote]; exact le_eq_true ctx lhs rhs h
+
+theorem norm_le_k (ctx : Context) (lhs rhs : Expr) (p : Poly) (h : norm_eq_cert lhs rhs p) :
+    (lhs.denote_k ctx ≤ rhs.denote_k ctx) = (p.denote' ctx ≤ 0) := by
+  simp only [Expr.denote_k_eq_denote]; exact norm_le ctx lhs rhs p h
+
+theorem norm_le_coeff_tight_k (ctx : Context) (lhs rhs : Expr) (p : Poly) (k : Int) (h : norm_le_coeff_tight_cert lhs rhs p k) :
+    (lhs.denote_k ctx ≤ rhs.denote_k ctx) = (p.denote' ctx ≤ 0) := by
+  simp only [Expr.denote_k_eq_denote]; exact norm_le_coeff_tight ctx lhs rhs p k h
+
+theorem norm_le_coeff_k (ctx : Context) (lhs rhs : Expr) (p : Poly) (k : Int) (h : norm_eq_coeff_cert lhs rhs p k) :
+    (lhs.denote_k ctx ≤ rhs.denote_k ctx) = (p.denote' ctx ≤ 0) := by
+  simp only [Expr.denote_k_eq_denote]; exact norm_le_coeff ctx lhs rhs p k h
+
+theorem norm_dvd_k (ctx : Context) (k : Int) (e : Expr) (p : Poly) (h : e.norm_k.beq' p) :
+    (k ∣ e.denote_k ctx) = (k ∣ p.denote' ctx) := by
+  simp only [Expr.denote_k_eq_denote]; exact norm_dvd ctx k e p h
+
+theorem dvd_eq_false_k (ctx : Context) (k : Int) (e : Expr) (h : e.norm.isUnsatDvd k) :
+    (k ∣ e.denote_k ctx) = False := by
+  simp only [Expr.denote_k_eq_denote]; exact dvd_eq_false ctx k e h
+
+theorem norm_dvd_gcd_k (ctx : Context) (k₁ : Int) (e₁ : Expr) (k₂ : Int) (p₂ : Poly) (g : Int) (h : norm_dvd_gcd_cert k₁ e₁ k₂ p₂ g) :
+    (k₁ ∣ e₁.denote_k ctx) = (k₂ ∣ p₂.denote' ctx) := by
+  simp only [Expr.denote_k_eq_denote]; exact norm_dvd_gcd ctx k₁ e₁ k₂ p₂ g h
+
+theorem Expr.eq_of_norm_eq_k (ctx : Context) (e : Expr) (p : Poly) (h : e.norm.beq' p) :
+    e.denote_k ctx = p.denote' ctx := by
+  simp only [Expr.denote_k_eq_denote]; exact Expr.eq_of_norm_eq ctx e p h
+
 end Int.Internal.Linear
 
 theorem Int.not_le_eq (a b : Int) : (¬a ≤ b) = (b + 1 ≤ a) := by

@@ -1263,11 +1263,11 @@ private def isNumOrAtom : Poly → Bool
   | .add 1 (.mult ⟨_, 1⟩ .unit) (.num 0) => true
   | _ => false
 
-/-- The sides of the `Int` relation `rel l r` normalized to `rel l' r'`, all as linear expressions. -/
-private def linearIntRel? (rel : RelKind) (type : Expr) (invs : Array (Var × Nat)) (ainvs : Array (Var × Var × Expr))
+/-- The sides of an `Int` relation between `l` and `r` normalized to one between `l'` and `r'`, all as linear expressions. -/
+private def linearIntRel? (type : Expr) (invs : Array (Var × Nat)) (ainvs : Array (Var × Var × Expr))
     (char? : Option (Expr × Nat)) (l r l' r' : RingExpr) (size : Nat) :
     Option (Int.Internal.Linear.Expr × Int.Internal.Linear.Expr × Int.Internal.Linear.Expr × Int.Internal.Linear.Expr) := do
-  guard <| type.isConstOf ``Int && (rel == .eq || rel == .le) && invs.isEmpty && ainvs.isEmpty && char?.isNone
+  guard <| type.isConstOf ``Int && invs.isEmpty && ainvs.isEmpty && char?.isNone
     && isSmallSum (.sub l r) size
   return (← toLinearExpr? l, ← toLinearExpr? r, ← toLinearExpr? l', ← toLinearExpr? r')
 
@@ -1433,9 +1433,12 @@ private def normalizeRelCore (rel : RelKind) (relFn : Expr) (order? : Option Ord
       let (charInst, c) := char?.get!
       let h := mkApp4 (mkConst ``Grind.CommRing.eq_norm_mul_exprC [u]) ring.type (toExpr c) inst charInst
       pure (mkApp8 h ctx (toExpr l) (toExpr r) (toExpr l') (toExpr r') (toExpr k) (toExpr k') eagerReflBoolTrue)
-    else if let some (a, b, a', b') := linearIntRel? rel ring.type invs ainvs char? l r l' r' (pl.length + pr.length) then
+    else if let some (a, b, a', b') := linearIntRel? ring.type invs ainvs char? l r l' r' (pl.length + pr.length) then
       -- Linear `Int` relations use the cheaper linear normalization of `simp +arith`.
-      let name := if rel == .eq then ``Int.Internal.Linear.eq_norm_expr_k else ``Int.Internal.Linear.le_norm_expr_k
+      let name := match rel with
+        | .eq => ``Int.Internal.Linear.eq_norm_expr_k
+        | .le => ``Int.Internal.Linear.le_norm_expr_k
+        | .lt => ``Int.Internal.Linear.lt_norm_expr_k
       pure (mkApp6 (mkConst name) ctx (ofLinearExpr a) (ofLinearExpr b) (ofLinearExpr a') (ofLinearExpr b') eagerReflBoolTrue)
     else if invs.isEmpty && ainvs.isEmpty && kind.isComm && char?.isNone && rp matches .num 0 then
       -- `lhs' ⋈ 0`, where `lp` is the polynomial of `lhs - rhs`: both hypotheses of the theorem

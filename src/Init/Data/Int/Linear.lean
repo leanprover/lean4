@@ -2609,6 +2609,13 @@ theorem le_norm_expr_k (ctx : Context) (lhs rhs lhs' rhs' : Expr) (h : (lhs.sub 
   have e (a b : Int) : (a ≤ b) = (a - b ≤ 0) := propext ⟨Int.sub_nonpos_of_le, Int.le_of_sub_nonpos⟩
   rw [e (lhs.denote ctx), h', ← e]
 
+theorem lt_norm_expr_k (ctx : Context) (lhs rhs lhs' rhs' : Expr) (h : (lhs.sub rhs).norm_k.beq' (lhs'.sub rhs').norm_k) :
+    (lhs.denote_k ctx < rhs.denote_k ctx) = (lhs'.denote_k ctx < rhs'.denote_k ctx) := by
+  have h' := Expr.eq_of_norm_expr_k ctx _ _ h
+  simp only [Expr.denote_k_eq_denote, Expr.denote] at h' ⊢
+  have e (a b : Int) : (a < b) = (a - b < 0) := propext ⟨Int.sub_neg_of_lt, Int.lt_of_sub_neg⟩
+  rw [e (lhs.denote ctx), h', ← e]
+
 end Int.Internal.Linear
 
 theorem Int.not_le_eq (a b : Int) : (¬a ≤ b) = (b + 1 ≤ a) := by

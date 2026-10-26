@@ -17,6 +17,7 @@ import Lean.Meta.Sym.Arith.VarRename
 import Init.Data.Nat.Order
 import Init.Data.Order.Lemmas
 import Init.Grind.Ring.Packed
+import Init.Grind.Ring.Kronecker
 public section
 namespace Lean.Meta.Grind.Arith.CommRing
 open Sym.Arith
@@ -67,6 +68,8 @@ structure ProofM.State where
   monDecls    : Std.HashMap Mon Expr := {}
   exprDecls   : Std.HashMap RingExpr Expr := {}
   sexprDecls  : Std.HashMap SemiringExpr Expr := {}
+  /-- Packed polynomials `Grind.CommRing.PPoly` in a base, built after the variables are renamed. -/
+  ppolyDecls  : Std.HashMap (Poly × Nat) Expr := {}
 
 structure ProofM.Context where
   ctx   : Expr
@@ -106,6 +109,11 @@ local macro "declare! " decls:ident a:ident : term =>
 
 private def mkPolyDecl (p : Poly) : ProofM Expr := do
   declare! polyDecls p
+
+/-- The packed polynomial `p` in base `B`. -/
+private def mkPPolyDecl (p : Poly) (B : Nat) : ProofM Expr := do
+  let key := (p, B)
+  declare! ppolyDecls key
 
 private def mkExprDecl (e : RingExpr) : ProofM Expr := do
   declare! exprDecls e
@@ -291,17 +299,62 @@ private def mkPackedSum (declName declNameC : Name) (pre : Array Expr) (base p :
     let (Q, hQ) ← match packed[q]? with
       | some r => pure r
       | none =>
-        let Q := packedPolyExpr B q
+        let Q ← mkPPolyDecl q B
         let hQ := mkAppN (mkConst ``Grind.CommRing.PSumTree.leaf_zero [ring.u])
           #[ring.type, ring.commRingInst, ctx, BE, ← mkPolyDecl q, Q, eagerReflBoolTrue, mkApp2 (mkConst ``Eq.refl [1]) ppT Q, h]
         packed := packed.insert q (Q, hQ)
         pure (Q, hQ)
     ls := ls.push (mkApp4 (mkConst ``Grind.CommRing.PSumTree.leaf) (toExpr k) (← mkMonDecl m) (mkRawNatLit (maxDegOf q)) Q, hQ)
   let (t, hAll) ← mkPSumTree BE ls 0 ls.size
-  let P := packedPolyExpr B p
+  let P ← mkPPolyDecl p B
   let refl := mkApp2 (mkConst ``Eq.refl [1]) ppT P
   let h ← mkStepPrefix declName declNameC
   return mkAppN h (pre ++ #[BE, ← mkPolyDecl base, ← mkPolyDecl p, P, t, eagerReflBoolTrue, refl, refl, hAll])
+
+private def norm1Of : Poly → Nat
+  | .num k => k.natAbs
+  | .add k _ p => k.natAbs + norm1Of p
+
+/--
+The proof that `p` is `base` plus the multiples `kᵢ * mᵢ * qᵢ` of `leaves` by Kronecker
+substitution (`Stepwise.simpsK`, `Stepwise.d_stepsK`), applied to `pre`, if the values at the
+point stay below a few million bits. In characteristic `c`, the difference over `Int` is
+`c * E` for a stated polynomial `E`.
+-/
+private def mkKronSum? (declName declNameC : Name) (pre : Array Expr) (base p : Poly)
+    (leaves : Array (Int × Mon × Poly × Expr)) : ProofM (Option Expr) := do
+  let deg := leaves.foldl (fun d (_, m, q, _) => max d (m.degree + maxDegOf q)) (max (maxDegOf base) (maxDegOf p))
+  let B := max 2 (deg + 1)
+  let n := (← getRingState).vars.size
+  if (n - 1) * (Nat.log2 B + 1) > 24 then return none
+  let c? ← nonzeroChar?
+  let E : Poly ← match c? with
+    | none => pure (.num 0)
+    | some c =>
+      let d := leaves.foldl (init := p.combine (base.mulConst (-1))) fun acc (k, m, q, _) => acc.combine (q.mulMon (-k) m)
+      let E := d.divConst c
+      unless E.mulConst c == d do return none
+      pure E
+  let c := c?.getD 0
+  let norm := leaves.foldl (fun n (k, _, q, _) => n + k.natAbs * norm1Of q) (norm1Of p + norm1Of base + c * norm1Of E)
+  let K := (2 * norm).log2 + 1
+  if K * (deg * B ^ (n - 1) + 1) > 4000000 then return none
+  let ring ← getCommRing
+  let ctx ← getContext
+  let mut ls := mkConst ``Grind.CommRing.KList.nil
+  let mut hAll := mkApp3 (mkConst ``Grind.CommRing.KList.allZero_nil [ring.u]) ring.type ring.ringInst ctx
+  for (k, m, q, h) in leaves.reverse do
+    let kE := toExpr k
+    let mE ← mkMonDecl m
+    let qE ← mkPolyDecl q
+    hAll := mkAppN (mkConst ``Grind.CommRing.KList.allZero_cons [ring.u]) #[ring.type, ring.ringInst, ctx, kE, mE, qE, ls, h, hAll]
+    ls := mkApp4 (mkConst ``Grind.CommRing.KList.cons) kE mE qE ls
+  let pE ← mkPolyDecl p
+  let h ← mkStepPrefix declName declNameC
+  let eArgs ← if c?.isSome then pure #[← mkPolyDecl E] else pure #[]
+  let args := #[mkRawNatLit K, mkRawNatLit B, ← mkPolyDecl base, pE] ++ eArgs ++
+    #[ls, eagerReflBoolTrue, eagerReflBoolTrue, hAll]
+  return some (mkAppN h (pre ++ args))
 
 /--
 An estimate of the kernel cost of checking a chain `p₀, …, pₙ` with `pᵢ = pᵢ₋₁ + qᵢ` one step at a
@@ -373,6 +426,8 @@ partial def _root_.Lean.Meta.Grind.Arith.CommRing.EqCnstr.toExprProof (c : EqCns
       if steps.size > 1 && useSumTree (treeCost + hintsWalk rootHs) seqCost then
         -- The chain `c.p = base.p + Σ kᵢ * mᵢ * cᵢ.p` is checked at once.
         let hs ← steps.mapIdxM fun i (k₂, m₂, c₂, _) => return (k₂, m₂, c₂.p, leaves[i]!.2.2)
+        if let some h ← mkKronSum? ``Stepwise.simpsK ``Stepwise.simpsKC #[] base.p c.p hs then
+          return mkApp h hBase
         let h ← mkPackedSum ``Stepwise.simpsP ``Stepwise.simpsPC #[] base.p c.p hs
         return mkApp h hBase
       -- One step at a time; the proofs of the intermediate constraints are cached.
@@ -445,6 +500,8 @@ private partial def derivToExprProof (d : PolyDerivation) : ProofM (Int × Poly 
     if useSumTree (treeCost + hintsWalk rootHs) seqCost then
       -- The chain `p = base.p + Σ kᵢ * mᵢ * pᵢ` is checked at once.
       let hs ← steps.mapIdxM fun i (k₂, m₂, c₂, _) => return (k₂, m₂, c₂.p, leaves[i]!.2.2)
+      if let some h ← mkKronSum? ``Stepwise.d_stepsK ``Stepwise.d_stepsKC #[toExpr k, ← mkPolyDecl p₀] base.p p hs then
+        return (k, p₀, mkApp h h₁)
       let h ← mkPackedSum ``Stepwise.d_stepsP ``Stepwise.d_stepsPC #[toExpr k, ← mkPolyDecl p₀] base.p p hs
       return (k, p₀, mkApp h h₁)
     -- One step at a time.
@@ -545,6 +602,7 @@ private def mkContext (h : Expr) : ProofM Expr := do
     return vals.insert m (← monToExprShared (m.renameVars varRename))).run cache
   let h := mkLetOfMap (← get).polyDecls h `p (mkConst ``Grind.CommRing.Poly) (vals[·]!)
   let h := mkLetOfMap (← get).monDecls h `m (mkConst ``Grind.CommRing.Mon) (mvals[·]!)
+  let h := mkLetOfMap (← get).ppolyDecls h `pp (mkConst ``Grind.CommRing.PPoly) fun (p, B) => packedPolyExpr B (p.renameVars varRename)
   let h := mkLetOfMap (← get).exprDecls h `e (mkConst ``Grind.CommRing.Expr) fun e => toExpr <| e.renameVars varRename
   let h := h.abstract #[(← read).ctx]
   if h.hasLooseBVars then

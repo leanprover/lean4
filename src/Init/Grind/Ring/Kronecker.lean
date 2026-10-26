@@ -639,4 +639,323 @@ theorem lt_false_of_kronS {α} [CommSemiring α] [AddRightCancel α] [LE α] [LT
     (hK : Expr.kronOk_k K a b = true) (h : a.kronEval_k K B = b.kronEval_k K B) : (a.denoteS ctx < b.denoteS ctx) = False := by
   rw [Expr.eq_of_kronS ctx K B a b hS hB hK h]; exact eq_false Std.lt_irrefl
 
+/-!
+Kronecker certificates for `grind`'s Gröbner steps: a chain `p = p₁ + Σ kᵢ * mᵢ * qᵢ` of stated
+polynomials is checked by comparing values at the point (`Stepwise.simpsK`, `Stepwise.d_stepsK`).
+In characteristic `c`, the difference is `c * E` for a stated polynomial `E` (`Stepwise.simpsKC`).
+-/
+
+/-- `a * 2 ^ s` for kernel reduction. -/
+noncomputable def Int.shl_k (a : Int) (s : Nat) : Int :=
+  Int.rec (fun n => Int.ofNat (Nat.shiftLeft n s)) (fun n => Int.negOfNat_k (Nat.shiftLeft (Nat.add n 1) s)) a
+
+theorem Int.shl_k_eq (a : Int) (s : Nat) : Int.shl_k a s = a * 2 ^ s := by
+  have h2 : ((2 ^ s : Nat) : Int) = (2 : Int) ^ s := Int.natCast_pow 2 s
+  cases a with
+  | ofNat n =>
+    show Int.ofNat (n <<< s) = _
+    rw [Nat.shiftLeft_eq, ← h2]; rfl
+  | negSucc n =>
+    show Int.negOfNat_k ((n + 1) <<< s) = _
+    rw [Int.negOfNat_k_eq, Nat.shiftLeft_eq, Int.negSucc_eq, ← h2, Int.negOfNat_eq, Int.neg_mul]
+    rfl
+
+/-- Adds the integers of `ps` by levels of pairwise additions, so that the kernel evaluates sums of nesting depth logarithmic in their number. -/
+noncomputable def Int.pairs_k (ps : List Int) : Option Int → List Int :=
+  List.rec (motive := fun _ => Option Int → List Int)
+    (fun pend => Option.rec [] (fun p => [p]) pend)
+    (fun a _ ih pend => Option.rec (ih (some a)) (fun p => Int.add_k p a :: ih none) pend)
+    ps
+
+noncomputable def Int.sumGo_k (fuel : List Int) : List Int → Int :=
+  List.rec (motive := fun _ => List Int → Int)
+    (fun ps => List.rec (Int.ofNat 0) (fun a _ ih => Int.add_k a ih) ps)
+    (fun _ _ ih ps => List.rec (Int.ofNat 0) (fun a rest _ => List.rec a (fun _ _ _ => ih (Int.pairs_k ps none)) rest) ps)
+    fuel
+
+noncomputable def Int.sumB_k (ps : List Int) : Int :=
+  Int.sumGo_k ps ps
+
+theorem Int.pairs_k_sum (ps : List Int) (pend : Option Int) :
+    (Int.pairs_k ps pend).foldr (· + ·) 0 = pend.elim 0 id + ps.foldr (· + ·) 0 := by
+  induction ps generalizing pend with
+  | nil => cases pend <;> simp [Int.pairs_k, Option.elim]
+  | cons a ps ih =>
+    cases pend with
+    | none => show (Int.pairs_k ps (some a)).foldr (· + ·) 0 = _; rw [ih]; simp [Option.elim]
+    | some p => show Int.add_k p a + (Int.pairs_k ps none).foldr (· + ·) 0 = _; rw [ih, Int.add_k_eq]; simp [Option.elim]; omega
+
+theorem Int.sumGo_k_eq (fuel ps : List Int) : Int.sumGo_k fuel ps = ps.foldr (· + ·) 0 := by
+  induction fuel generalizing ps with
+  | nil =>
+    show List.rec (motive := fun _ => Int) (Int.ofNat 0) (fun a _ ih => Int.add_k a ih) ps = _
+    induction ps with
+    | nil => rfl
+    | cons a ps ih => show Int.add_k a _ = _; rw [ih, Int.add_k_eq]; rfl
+  | cons _ fuel ih =>
+    cases ps with
+    | nil => rfl
+    | cons a rest =>
+      cases rest with
+      | nil => show a = a + 0; omega
+      | cons b rest =>
+        show Int.sumGo_k fuel (Int.pairs_k (a :: b :: rest) none) = _
+        rw [ih, Int.pairs_k_sum]; simp [Option.elim]
+
+theorem Int.sumB_k_eq (ps : List Int) : Int.sumB_k ps = ps.foldr (· + ·) 0 := Int.sumGo_k_eq ps ps
+
+/-- The values of the terms of `p` at the point `xᵢ = (2 ^ K) ^ (B ^ i)`. -/
+noncomputable def Poly.kronTerms_k (K B : Nat) (p : Poly) : List Int :=
+  Poly.rec (fun k => [k]) (fun k m _ ih => Int.shl_k k (Nat.mul K (Mon.code_k B m)) :: ih) p
+
+/-- The value of `p` at the point `xᵢ = (2 ^ K) ^ (B ^ i)`. -/
+noncomputable def Poly.kron_k (K B : Nat) (p : Poly) : Int :=
+  Int.sumB_k (p.kronTerms_k K B)
+
+noncomputable def Poly.norm1_k (p : Poly) : Nat :=
+  Poly.rec (fun k => Int.natAbs_k k) (fun k _ _ ih => Nat.add (Int.natAbs_k k) ih) p
+
+theorem Poly.kron_k_eq (K B : Nat) (p : Poly) : p.kron_k K B = (p.toPP_k B).kron (2 ^ K) := by
+  rw [Poly.kron_k, Int.sumB_k_eq]
+  induction p with
+  | num k => show k + 0 = k; omega
+  | add k m p ih =>
+    show Int.shl_k k (Nat.mul K (Mon.code_k B m)) + (p.kronTerms_k K B).foldr (· + ·) 0 = k * (2 ^ K) ^ (Mon.code_k B m) + _
+    rw [Int.shl_k_eq, ih, ← Int.pow_mul]; rfl
+
+theorem Poly.norm1_k_eq (B : Nat) (p : Poly) : p.norm1_k = (p.toPP_k B).norm1 := by
+  induction p with
+  | num k => show Int.natAbs_k k = _; rw [Int.natAbs_k_eq]; rfl
+  | add k m p ih => show Nat.add (Int.natAbs_k k) p.norm1_k = _; rw [Int.natAbs_k_eq, ih]; rfl
+
+/-- The multiples `k * m * q` of a Gröbner step. -/
+inductive KList where
+  | nil
+  | cons (k : Int) (m : Mon) (q : Poly) (ls : KList)
+
+/-- The values of the multiples of `ls` at the point. -/
+noncomputable def KList.kronTerms_k (K B : Nat) (ls : KList) : List Int :=
+  KList.rec [] (fun k m q _ ih => Int.mul_k k (Int.shl_k (q.kron_k K B) (Nat.mul K (Mon.code_k B m))) :: ih) ls
+
+noncomputable def KList.kron_k (K B : Nat) (ls : KList) : Int :=
+  Int.sumB_k (ls.kronTerms_k K B)
+
+noncomputable def KList.norm_k (ls : KList) : Nat :=
+  KList.rec 0 (fun k _ q _ ih => Nat.add (Nat.mul (Int.natAbs_k k) q.norm1_k) ih) ls
+
+noncomputable def KList.ok_k (B : Nat) (ls : KList) : Bool :=
+  KList.rec true (fun _ m q _ ih => Bool.rec false ih (Nat.blt (Nat.add (Mon.degree_k m) q.maxDeg_k) B)) ls
+
+/-- Every polynomial of `ls` denotes `0`. -/
+noncomputable def KList.AllZero {α} [Ring α] (ctx : Context α) (ls : KList) : Prop :=
+  KList.rec True (fun _ _ q _ ih => q.denote ctx = 0 ∧ ih) ls
+
+theorem KList.allZero_nil {α} [Ring α] (ctx : Context α) : KList.nil.AllZero ctx := trivial
+
+theorem KList.allZero_cons {α} [Ring α] (ctx : Context α) (k : Int) (m : Mon) (q : Poly) (ls : KList)
+    (hq : q.denote ctx = 0) (hls : ls.AllZero ctx) : (KList.cons k m q ls).AllZero ctx := ⟨hq, hls⟩
+
+/-- The multiples of `ls` with packed monomials, appended. -/
+noncomputable def KList.toPP (B : Nat) (ls : KList) : PPoly :=
+  KList.rec (.num 0) (fun k m q _ ih => ((q.toPP_k B).mulMonN_k (fun k => k) k (Mon.degree_k m) (Mon.code_k B m)).append ih) ls
+
+theorem PPoly.kron_mulMonN (X : Int) (k : Int) (d v : Nat) (p : PPoly) :
+    (p.mulMonN_k (fun k => k) k d v).kron X = k * X ^ v * p.kron X := by
+  induction p with
+  | num k' =>
+    unfold mulMonN_k; dsimp only
+    cases hv : Nat.beq v 0
+    · dsimp only
+      cases hz : Int.beqZero_k (Int.mul_k k k')
+      · show Int.mul_k k k' * X ^ v + 0 = _
+        rw [Int.mul_k_eq]; show k * k' * X ^ v + 0 = _
+        rw [Int.add_zero, Int.mul_assoc, Int.mul_comm k', ← Int.mul_assoc]; rfl
+      · rw [Int.beqZero_k_eq, Int.mul_k_eq] at hz
+        have : k * k' = 0 := by simpa using hz
+        show (0 : Int) = _
+        rw [Int.mul_assoc, Int.mul_comm (X ^ v), ← Int.mul_assoc]; show (0 : Int) = k * k' * X ^ v; rw [this, Int.zero_mul]
+    · have : v = 0 := Nat.eq_of_beq_eq_true hv
+      subst this
+      show Int.mul_k k k' = _
+      rw [Int.mul_k_eq, Int.pow_zero, Int.mul_one]; rfl
+  | add k' d' v' p ih =>
+    show (Bool.rec (.add (Int.mul_k k k') (Nat.add d d') (Nat.add v v') (p.mulMonN_k (fun k => k) k d v)) (p.mulMonN_k (fun k => k) k d v)
+      (Int.beqZero_k (Int.mul_k k k')) : PPoly).kron X = _
+    cases hz : Int.beqZero_k (Int.mul_k k k')
+    · show Int.mul_k k k' * X ^ (Nat.add v v') + (p.mulMonN_k (fun k => k) k d v).kron X = k * X ^ v * (k' * X ^ v' + p.kron X)
+      rw [ih, Int.mul_k_eq, Nat.add_eq, Int.pow_add, Int.mul_add]
+      show k * k' * (X ^ v * X ^ v') + _ = _
+      congr 1
+      simp only [Int.mul_assoc, Int.mul_left_comm]
+    · rw [Int.beqZero_k_eq, Int.mul_k_eq] at hz
+      have : k * k' = 0 := by simpa using hz
+      show (p.mulMonN_k (fun k => k) k d v).kron X = k * X ^ v * (k' * X ^ v' + p.kron X)
+      rw [ih, Int.mul_add]
+      have : k * X ^ v * (k' * X ^ v') = 0 := by
+        rw [show k * X ^ v * (k' * X ^ v') = (k * k') * (X ^ v * X ^ v') by
+          simp only [Int.mul_assoc, Int.mul_left_comm], this, Int.zero_mul]
+      rw [this, Int.zero_add]
+
+theorem PPoly.norm1_mulMonN (k : Int) (d v : Nat) (p : PPoly) :
+    (p.mulMonN_k (fun k => k) k d v).norm1 ≤ k.natAbs * p.norm1 := by
+  induction p with
+  | num k' =>
+    unfold mulMonN_k; dsimp only
+    cases Nat.beq v 0
+    · dsimp only
+      cases Int.beqZero_k (Int.mul_k k k')
+      · show (Int.mul_k k k').natAbs + (Int.ofNat 0).natAbs ≤ _
+        rw [Int.mul_k_eq]; show (k * k').natAbs + 0 ≤ _; rw [Int.natAbs_mul]; simp [norm1]
+      · show (Int.ofNat 0).natAbs ≤ _; simp
+    · show (Int.mul_k k k').natAbs ≤ _; rw [Int.mul_k_eq]; show (k * k').natAbs ≤ _; rw [Int.natAbs_mul]; simp [norm1]
+  | add k' d' v' p ih =>
+    show (Bool.rec (.add (Int.mul_k k k') (Nat.add d d') (Nat.add v v') (p.mulMonN_k (fun k => k) k d v)) (p.mulMonN_k (fun k => k) k d v)
+      (Int.beqZero_k (Int.mul_k k k')) : PPoly).norm1 ≤ _
+    cases Int.beqZero_k (Int.mul_k k k')
+    · show (Int.mul_k k k').natAbs + (p.mulMonN_k (fun k => k) k d v).norm1 ≤ _
+      rw [Int.mul_k_eq]; show (k * k').natAbs + _ ≤ _
+      rw [Int.natAbs_mul]; simp only [norm1, Nat.mul_add]; omega
+    · show (p.mulMonN_k (fun k => k) k d v).norm1 ≤ _
+      simp only [norm1, Nat.mul_add]; omega
+
+theorem KList.toPP_spec {α} [CommRing α] (ctx : Context α) (K B : Nat) (hB : 1 < B) (ls : KList) (hok : ls.ok_k B = true) :
+    (ls.toPP B).kron (2 ^ K) = ls.kron_k K B ∧ (ls.toPP B).norm1 ≤ ls.norm_k ∧
+    (ls.AllZero ctx → (ls.toPP B).denote (Var.denote ctx) B = 0) := by
+  induction ls with
+  | nil => exact ⟨rfl, Nat.le_refl _, fun _ => intCast_zero⟩
+  | cons k m q ls ih =>
+    have hok : Bool.rec false (ls.ok_k B) (Nat.blt (Nat.add (Mon.degree_k m) q.maxDeg_k) B) = true := hok
+    have hok := PPoly.and_of_rec hok
+    have ih := ih hok.2
+    have hd := Nat.blt_eq.mp hok.1
+    rw [Mon.degree_k_eq_degree, Nat.add_eq] at hd
+    refine ⟨?_, ?_, fun hz => ?_⟩
+    · show (PPoly.append _ (ls.toPP B)).kron (2 ^ K) = Int.sumB_k (Int.mul_k k (Int.shl_k (q.kron_k K B) (Nat.mul K (Mon.code_k B m))) :: ls.kronTerms_k K B)
+      rw [PPoly.kron_append, PPoly.kron_mulMonN, ih.1, KList.kron_k, Int.sumB_k_eq, Int.sumB_k_eq]
+      show _ = Int.mul_k k (Int.shl_k (q.kron_k K B) (Nat.mul K (Mon.code_k B m))) + _
+      rw [Int.mul_k_eq, Int.shl_k_eq, Poly.kron_k_eq]
+      show k * ((2 : Int) ^ K) ^ (Mon.code_k B m) * _ + _ = k * (_ * (2 : Int) ^ (K * Mon.code_k B m)) + _
+      rw [Int.pow_mul, Int.mul_assoc, Int.mul_comm (((2 : Int) ^ K) ^ (Mon.code_k B m))]
+    · show (PPoly.append _ (ls.toPP B)).norm1 ≤ Nat.add (Nat.mul (Int.natAbs_k k) q.norm1_k) ls.norm_k
+      have := PPoly.norm1_append ((q.toPP_k B).mulMonN_k (fun k => k) k (Mon.degree_k m) (Mon.code_k B m)) (ls.toPP B)
+      have := PPoly.norm1_mulMonN k (Mon.degree_k m) (Mon.code_k B m) (q.toPP_k B)
+      rw [Int.natAbs_k_eq, Poly.norm1_k_eq B, Nat.add_eq, Nat.mul_eq]
+      have := ih.2.1
+      omega
+    · obtain ⟨hq, hz⟩ := hz
+      show (PPoly.append _ (ls.toPP B)).denote (Var.denote ctx) B = 0
+      have hp := Poly.toPP_k_spec ctx hB q (by omega)
+      have hc := Mon.code_k_spec ctx hB m (by omega)
+      have hm := PPoly.mulMonN_k_spec (Var.denote ctx) (fun k => k) (fun _ => rfl) B m.degree q.maxDeg_k hB k (Mon.degree_k m)
+        (m.code_k B) (by rw [hc.1]; exact Nat.le_refl _) hd _ hp.2
+      rw [PPoly.denote_append, hm.1, hp.1, hq, mul_zero, ih.2.2 hz, add_zero]
+
+theorem PPoly.kron_mulConst_k (X : Int) (k : Int) (p : PPoly) : (p.mulConst_k k).kron X = k * p.kron X := by
+  unfold mulConst_k
+  cases hk : Int.beqZero_k k
+  · dsimp only
+    induction p with
+    | num k' => show Int.mul_k k k' = _; rw [Int.mul_k_eq]; rfl
+    | add k' d v p ih =>
+      show Int.mul_k k k' * X ^ v + _ = k * (k' * X ^ v + p.kron X)
+      rw [ih, Int.mul_k_eq, Int.mul_add]
+      show k * k' * X ^ v + _ = _
+      rw [Int.mul_assoc]
+  · rw [Int.beqZero_k_eq] at hk
+    have : k = 0 := by simpa using hk
+    subst this; show (0 : Int) = 0 * _; rw [Int.zero_mul]
+
+/-- `p` and `p₁ + Σ ls + c * E` have the same value at the point, so they denote the same. -/
+theorem KList.denote_eq {α} [CommRing α] (ctx : Context α) (K B c : Nat) (p₁ p E : Poly) (ls : KList)
+    (hB : 1 < B ∧ p.maxDeg_k < B ∧ p₁.maxDeg_k < B ∧ E.maxDeg_k < B ∧ ls.ok_k B = true)
+    (hK : 2 * (p.norm1_k + p₁.norm1_k + ls.norm_k + c * E.norm1_k) < 2 ^ K)
+    (h : p.kron_k K B = p₁.kron_k K B + ls.kron_k K B + c * E.kron_k K B) (hz : ls.AllZero ctx) :
+    p.denote ctx = p₁.denote ctx + (c : α) * E.denote ctx := by
+  obtain ⟨hB, hp, hp₁, hE, hok⟩ := hB
+  have hl := KList.toPP_spec ctx K B hB ls hok
+  have sp := Poly.toPP_k_spec ctx hB p hp
+  have sp₁ := Poly.toPP_k_spec ctx hB p₁ hp₁
+  have sE := Poly.toPP_k_spec ctx hB E hE
+  have hX : (0 : Int) < 2 ^ K := Int.pow_pos (by decide)
+  have hEc := PPoly.mulConst_k_spec (Var.denote ctx) B (B - 1) (c : Int) (E.toPP_k B)
+  have heq := PPoly.denote_eq_of_kron (Var.denote ctx) B ((2 : Int) ^ K) hX (p.toPP_k B)
+    ((p₁.toPP_k B).append ((ls.toPP B).append ((E.toPP_k B).mulConst_k (c : Int))))
+    (by
+      rw [PPoly.kron_append, PPoly.kron_append, PPoly.kron_mulConst_k, ← Poly.kron_k_eq, ← Poly.kron_k_eq,
+        ← Poly.kron_k_eq, hl.1, h, Int.add_assoc])
+    (by
+      have h₁ := PPoly.norm1_append (p₁.toPP_k B) ((ls.toPP B).append ((E.toPP_k B).mulConst_k (c : Int)))
+      have h₂ := PPoly.norm1_append (ls.toPP B) ((E.toPP_k B).mulConst_k (c : Int))
+      have h₃ := PPoly.norm1_mulConst_k (c : Int) (E.toPP_k B)
+      rw [← Poly.norm1_k_eq] at h₁ h₃
+      have h₄ := hl.2.1
+      rw [show ((c : Int)).natAbs = c from rfl] at h₃
+      have : 2 * ((p.toPP_k B).norm1 + ((p₁.toPP_k B).append ((ls.toPP B).append ((E.toPP_k B).mulConst_k (c : Int)))).norm1) < 2 ^ K := by
+        rw [← Poly.norm1_k_eq]
+        have := Nat.mul_le_mul_left c (Nat.le_refl E.norm1_k)
+        omega
+      have h2 : ((2 ^ K : Nat) : Int) = (2 : Int) ^ K := Int.natCast_pow 2 K
+      rw [← h2]; exact Int.ofNat_lt.mpr (by simpa using this))
+  rw [PPoly.denote_append, PPoly.denote_append, hEc.1, sp.1, sp₁.1, sE.1, hl.2.2 hz, zero_add] at heq
+  rw [heq]; congr 1; rw [intCast_natCast]
+
+namespace Stepwise
+
+/-- The checks of the Kronecker certificates of `grind`'s steps: degrees below `B`, coefficients below `2 ^ K`. -/
+noncomputable def kronOk_k (K B c : Nat) (p₁ p E : Poly) (ls : KList) : Bool :=
+  Bool.rec false (Bool.rec false (Bool.rec false (Bool.rec false (Bool.rec false
+    (Nat.blt (Nat.mul 2 (Nat.add (Nat.add (Nat.add p.norm1_k p₁.norm1_k) ls.norm_k) (Nat.mul c E.norm1_k))) (Nat.pow 2 K))
+    (ls.ok_k B)) (Nat.blt E.maxDeg_k B)) (Nat.blt p₁.maxDeg_k B)) (Nat.blt p.maxDeg_k B)) (Nat.blt 1 B)
+
+theorem of_kronOk_k {K B c : Nat} {p₁ p E : Poly} {ls : KList} (h : kronOk_k K B c p₁ p E ls = true) :
+    (1 < B ∧ p.maxDeg_k < B ∧ p₁.maxDeg_k < B ∧ E.maxDeg_k < B ∧ ls.ok_k B = true) ∧
+    2 * (p.norm1_k + p₁.norm1_k + ls.norm_k + c * E.norm1_k) < 2 ^ K := by
+  unfold kronOk_k at h
+  have h₁ := PPoly.and_of_rec h
+  have h₂ := PPoly.and_of_rec h₁.2
+  have h₃ := PPoly.and_of_rec h₂.2
+  have h₄ := PPoly.and_of_rec h₃.2
+  have h₅ := PPoly.and_of_rec h₄.2
+  exact ⟨⟨Nat.blt_eq.mp h₁.1, Nat.blt_eq.mp h₂.1, Nat.blt_eq.mp h₃.1, Nat.blt_eq.mp h₄.1, h₅.1⟩, Nat.blt_eq.mp h₅.2⟩
+
+theorem simpsK {α} [CommRing α] (ctx : Context α) (K B : Nat) (p₁ p : Poly) (ls : KList)
+    (hB : kronOk_k K B 0 p₁ p (.num 0) ls = true) (h : Int.beq' (p.kron_k K B) (Int.add_k (p₁.kron_k K B) (ls.kron_k K B)) = true) :
+    ls.AllZero ctx → p₁.denote ctx = 0 → p.denote ctx = 0 := by
+  intro hz h₁
+  have hB := of_kronOk_k hB
+  rw [Int.beq'_eq] at h
+  rw [KList.denote_eq ctx K B 0 p₁ p (.num 0) ls hB.1 hB.2 (by rw [h, Int.add_k_eq]; simp) hz, h₁]
+  simp [Semiring.natCast_zero, zero_mul, add_zero]
+
+theorem simpsKC {α c} [CommRing α] [IsCharP α c] (ctx : Context α) (K B : Nat) (p₁ p E : Poly) (ls : KList)
+    (hB : kronOk_k K B c p₁ p E ls = true)
+    (h : Int.beq' (p.kron_k K B) (Int.add_k (Int.add_k (p₁.kron_k K B) (ls.kron_k K B)) (Int.mul_k (Int.ofNat c) (E.kron_k K B))) = true) :
+    ls.AllZero ctx → p₁.denote ctx = 0 → p.denote ctx = 0 := by
+  intro hz h₁
+  have hB := of_kronOk_k hB
+  rw [Int.beq'_eq] at h
+  rw [KList.denote_eq ctx K B c p₁ p E ls hB.1 hB.2 (by rw [h, Int.add_k_eq, Int.add_k_eq, Int.mul_k_eq]; rfl) hz, h₁,
+    (IsCharP.natCast_eq_zero_iff c c).mpr (Nat.mod_self c), zero_mul, add_zero]
+
+theorem d_stepsK {α} [CommRing α] (ctx : Context α) (k : Int) (init : Poly) (K B : Nat) (p₁ p : Poly) (ls : KList)
+    (hB : kronOk_k K B 0 p₁ p (.num 0) ls = true) (h : Int.beq' (p.kron_k K B) (Int.add_k (p₁.kron_k K B) (ls.kron_k K B)) = true) :
+    ls.AllZero ctx → k * init.denote ctx = p₁.denote ctx → k * init.denote ctx = p.denote ctx := by
+  intro hz h₁
+  have hB := of_kronOk_k hB
+  rw [Int.beq'_eq] at h
+  rw [KList.denote_eq ctx K B 0 p₁ p (.num 0) ls hB.1 hB.2 (by rw [h, Int.add_k_eq]; simp) hz, h₁]
+  simp [Semiring.natCast_zero, zero_mul, add_zero]
+
+theorem d_stepsKC {α c} [CommRing α] [IsCharP α c] (ctx : Context α) (k : Int) (init : Poly) (K B : Nat) (p₁ p E : Poly) (ls : KList)
+    (hB : kronOk_k K B c p₁ p E ls = true)
+    (h : Int.beq' (p.kron_k K B) (Int.add_k (Int.add_k (p₁.kron_k K B) (ls.kron_k K B)) (Int.mul_k (Int.ofNat c) (E.kron_k K B))) = true) :
+    ls.AllZero ctx → k * init.denote ctx = p₁.denote ctx → k * init.denote ctx = p.denote ctx := by
+  intro hz h₁
+  have hB := of_kronOk_k hB
+  rw [Int.beq'_eq] at h
+  rw [KList.denote_eq ctx K B c p₁ p E ls hB.1 hB.2 (by rw [h, Int.add_k_eq, Int.add_k_eq, Int.mul_k_eq]; rfl) hz, h₁,
+    (IsCharP.natCast_eq_zero_iff c c).mpr (Nat.mod_self c), zero_mul, add_zero]
+
+end Stepwise
+
 end Lean.Grind.CommRing

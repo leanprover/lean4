@@ -118,6 +118,12 @@ def kronLinExponent? (l r : RingExpr) (maxBits : Nat) : Option Nat :=
   else
     none
 
+/-- `Grind.CommRing.InvVars.lookup_k`: the search stops at the first larger variable. -/
+def invLookup (invs : List (Var × Nat)) (x : Var) : Option Nat :=
+  match invs with
+  | [] => none
+  | (y, c) :: invs => if x < y then none else if y == x then some c else invLookup invs x
+
 /--
 The coefficient bound and the denominator `Grind.CommRing.Expr.majQ_k` of `e`, where the variables
 of `invs` denote the inverses of their numerals.
@@ -125,7 +131,7 @@ of `invs` denote the inverses of their numerals.
 def exprMajQ (invs : List (Var × Nat)) : RingExpr → Nat × Nat
   | .num k | .intCast k => (k.natAbs, 1)
   | .natCast n => (n, 1)
-  | .var x => match invs.lookup x with
+  | .var x => match invLookup invs x with
     | some c => (1, c)
     | none => (1, 1)
   | .neg a => exprMajQ invs a
@@ -154,7 +160,7 @@ where
   /-- `exprMaxCode`, where the variables of `invs` are constants. -/
   go (B : Nat) : RingExpr → Nat
     | .num _ | .natCast _ | .intCast _ => 0
-    | .var x => if (invs.lookup x).isSome then 0 else B ^ x
+    | .var x => if (invLookup invs x).isSome then 0 else B ^ x
     | .neg a => go B a
     | .add a b | .sub a b => max (go B a) (go B b)
     | .mul a b => go B a + go B b
@@ -162,10 +168,38 @@ where
   /-- `exprDegB`, where the variables of `invs` are constants (`Grind.CommRing.Expr.degQB_k`). -/
   deg : RingExpr → Nat
     | .num _ | .natCast _ | .intCast _ => 0
-    | .var x => if (invs.lookup x).isSome then 0 else 1
+    | .var x => if (invLookup invs x).isSome then 0 else 1
     | .neg a => deg a
     | .add a b | .sub a b => max (deg a) (deg b)
     | .mul a b => deg a + deg b
     | .pow a k => deg a * k
+
+/-- `Grind.CommRing.Expr.degQL_k`: `exprLin`, where the variables of `invs` are constants. -/
+def exprDegQL (invs : List (Var × Nat)) : RingExpr → Nat
+  | .num _ | .natCast _ | .intCast _ => 0
+  | .var x => if (invLookup invs x).isSome then 0 else 1
+  | .neg a => exprDegQL invs a
+  | .add a b | .sub a b => exprDegQL invs a ||| exprDegQL invs b
+  | .mul a b => exprDegQL invs a + exprDegQL invs b
+  | .pow a k => exprDegQL invs a * k
+
+/--
+The exponent `K` of the linear field certificate (`Grind.CommRing.Expr.eq_of_kronQLin`) for `l`
+and `r`, if they are linear in the variables not in `invs` and the values stay below `maxBits` bits.
+-/
+def kronQLinExponent? (l r : RingExpr) (invs : List (Var × Nat)) (maxBits : Nat) : Option Nat :=
+  if exprDegQL invs l ≤ 1 && exprDegQL invs r ≤ 1 then
+    let (ml, dl) := exprMajQ invs l
+    let (mr, dr) := exprMajQ invs r
+    kronExponent? (dr * ml + dl * mr) (max (maxVar l) (maxVar r)) maxBits
+  else
+    none
+where
+  /-- `exprMaxVar`, where the variables of `invs` are constants. -/
+  maxVar : RingExpr → Nat
+    | .num _ | .natCast _ | .intCast _ => 0
+    | .var x => if (invLookup invs x).isSome then 0 else x + 1
+    | .neg a | .pow a _ => maxVar a
+    | .add a b | .sub a b | .mul a b => max (maxVar a) (maxVar b)
 
 end Lean.Meta.Sym.Arith

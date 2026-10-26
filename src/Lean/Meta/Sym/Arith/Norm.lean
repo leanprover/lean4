@@ -1159,6 +1159,11 @@ private def mkCertificate (e₁ : Expr) (re : RingExpr) (p : Poly) (vars : Array
       return .step e' (mkExpectedPropHint (mkAppN (mkConst ``Grind.CommRing.Expr.eq_of_kronQ [u]) #[type, fieldInst, charInst, ctx,
         mkRawNatLit K, mkRawNatLit B, invsE, mkInvVarsOk type u ctx invsE, eagerReflBoolTrue, toExpr re, toExpr re',
         eagerReflBoolTrue, eagerReflBoolTrue, eagerReflBoolTrue]) (← mkEq e₁ e'))
+    if let (true, some K) := (ainvs.isEmpty, kronQLinExponent? re re' invs.toList 1000000) then
+      -- Linear terms over many variables: the point `xᵢ = (2 ^ K) ^ (i + 1)`.
+      return .step e' (mkExpectedPropHint (mkAppN (mkConst ``Grind.CommRing.Expr.eq_of_kronQLin [u]) #[type, fieldInst, charInst, ctx,
+        mkRawNatLit K, invsE, mkInvVarsOk type u ctx invsE, eagerReflBoolTrue, toExpr re, toExpr re',
+        eagerReflBoolTrue, eagerReflBoolTrue, eagerReflBoolTrue]) (← mkEq e₁ e'))
     let thm := mkApp3 (mkConst ``Grind.CommRing.Expr.eq_of_toPolyQ_eq [u]) type fieldInst charInst
     pure (mkAppN thm #[ctx, toExpr (useBalanced re p.length), invsE, mkInvVarsOk type u ctx invsE, ainvsE, hoka,
       toExpr re, toExpr re', eagerReflBoolTrue])
@@ -1864,8 +1869,9 @@ private def normalizeRelCore (rel : RelKind) (relFn : Expr) (order? : Option Ord
     -- In a field, the numerator of `lhs - rhs` is `0`: the equation is `True`. The sides are
     -- checked alone when they have the same polynomial or the same `PolyQ`.
     if !invs.isEmpty && rel == .eq && p matches .num 0 then
-      -- Both sides have the same polynomial, before eliminating the inverses: a ring identity.
-      if pl == pr then
+      -- Both sides have the same polynomial, before eliminating the inverses: a ring identity,
+      -- when it can be checked at a point.
+      if pl == pr && ((kronLinExponent? l r 1000000).isSome || (kronArgs? l r).isSome) then
         if let some (h, _) ← constRelProof? rel order? ring u inst char? 0 l r pl pr vars then
           return .step (← getTrueExpr) (mkExpectedPropHint h (mkPropEq e (← getTrueExpr)))
       let (fieldInst, charInst) := fc?.get!
@@ -1881,6 +1887,10 @@ private def normalizeRelCore (rel : RelKind) (relFn : Expr) (order? : Option Ord
           -- Both sides are evaluated at a point, with the inverses of numerals (Kronecker substitution).
           mkAppN (mkConst ``Grind.CommRing.eq_true_of_kronQ [u]) #[ring.type, fieldInst, charInst, ctx,
             mkRawNatLit K, mkRawNatLit B, invsE, mkInvVarsOk ring.type u ctx invsE, eagerReflBoolTrue, toExpr l, toExpr r,
+            eagerReflBoolTrue, eagerReflBoolTrue, eagerReflBoolTrue]
+        else if let (true, some K) := (ainvs.isEmpty, kronQLinExponent? l r invs.toList 1000000) then
+          mkAppN (mkConst ``Grind.CommRing.eq_true_of_kronQLin [u]) #[ring.type, fieldInst, charInst, ctx,
+            mkRawNatLit K, invsE, mkInvVarsOk ring.type u ctx invsE, eagerReflBoolTrue, toExpr l, toExpr r,
             eagerReflBoolTrue, eagerReflBoolTrue, eagerReflBoolTrue]
         else if let (true, some ((pE, h₁), (_, h₂))) := (pl == pr, steps?) then
           mkAppN (mkConst ``Grind.CommRing.eq_true_of_denote_eq [u]) #[ring.type, commRingInst, ctx, toExpr l, toExpr r, pE, h₁, h₂]
@@ -2056,6 +2066,23 @@ private def normalizeRelCore (rel : RelKind) (relFn : Expr) (order? : Option Ord
           mkApp5 (base ``Grind.CommRing.lt_of_kronQ_rel) o.leInst o.ltInst?.get! o.lawfulOrderLTInst?.get! linInst?.get! o.orderedRingInst?.get!
       let invsE := toExpr invs.toList
       pure (mkAppN h #[ctx, mkRawNatLit K, mkRawNatLit B, invsE, mkInvVarsOk ring.type u ctx invsE, eagerReflBoolTrue,
+        mkRawNatLit den, eagerReflBoolTrue, toExpr l, toExpr r, toExpr l', toExpr r', eagerReflBoolTrue, eagerReflBoolTrue,
+        eagerReflBoolTrue])
+    else if let (true, some K) := (ainvs.isEmpty && den > 0,
+        kronQLinExponent? ((l.sub r).mul (.num den)) (l'.sub r') invs.toList 1000000) then
+      -- The same for linear terms over many variables (`le_of_kronQLin_rel`).
+      let (fieldInst, charInst) := fc?.get!
+      let base (name : Name) : Expr := mkApp3 (mkConst name [u]) ring.type fieldInst charInst
+      let h := match rel with
+        | .eq => base ``Grind.CommRing.eq_of_kronQLin_rel
+        | .le =>
+          let o := order?.get!
+          mkApp5 (base ``Grind.CommRing.le_of_kronQLin_rel) o.leInst o.ltInst?.get! o.lawfulOrderLTInst?.get! linInst?.get! o.orderedRingInst?.get!
+        | .lt =>
+          let o := order?.get!
+          mkApp5 (base ``Grind.CommRing.lt_of_kronQLin_rel) o.leInst o.ltInst?.get! o.lawfulOrderLTInst?.get! linInst?.get! o.orderedRingInst?.get!
+      let invsE := toExpr invs.toList
+      pure (mkAppN h #[ctx, mkRawNatLit K, invsE, mkInvVarsOk ring.type u ctx invsE, eagerReflBoolTrue,
         mkRawNatLit den, eagerReflBoolTrue, toExpr l, toExpr r, toExpr l', toExpr r', eagerReflBoolTrue, eagerReflBoolTrue,
         eagerReflBoolTrue])
     else

@@ -1642,8 +1642,10 @@ private def constRelProof? (rel : RelKind) (order? : Option Order) (ring : Ring)
       return some (mkAppN (mkConst ``Grind.CommRing.lt_false_of_toPoly_eq [u])
         (#[ring.type, inst, o.leInst, ltInst, lawfulInst, o.isPreorderInst, ctx] ++ sides), false)
     | _, _ => pure ()
-  -- A nonzero constant difference with large products: the difference is stated stepwise.
-  if k != 0 && char?.isNone && size ≥ 64 && (hasProduct l || hasProduct r) then
+  -- A nonzero constant difference with large polynomials: the difference is checked with packed
+  -- monomials, or stated stepwise.
+  let packed := usePacked (max pl.length pr.length)
+  if k != 0 && char?.isNone && (packed || size ≥ 64 && (hasProduct l || hasProduct r)) then
     let ctx ← mkContext ring.type vars
     let pre := #[ring.type, inst, ctx]
     -- `name`, the sides of the difference, `n` and the instances of the theorem.
@@ -1661,7 +1663,16 @@ private def constRelProof? (rel : RelKind) (order? : Option Order) (ring : Ring)
           | _ => if k < 0 then (``Grind.CommRing.lt_true_of_sub, r, l, mkRawNatLit (-k - 1).toNat, insts)
             else (``Grind.CommRing.lt_false_of_sub, l, r, mkRawNatLit k.toNat, insts)
     if let some (name, a, b, n, insts) := thm? then
-      if let some (_, _, h) := (denoteSteps? pre u .ring (.sub a b)).run' {} then
+      let h? := if packed then
+          -- `a - b` is the constant `kab`; `a` has the polynomial `pa` and `b` the polynomial `q`.
+          let (pa, q, kab) := if a == l then (pl, pr, k) else (pr, pl, -k)
+          let B := packedBase a b
+          let reflP (p : Poly) := mkApp2 (mkConst ``Eq.refl [1]) (mkConst ``Grind.CommRing.PPoly) (ofPackedPoly B p)
+          some (mkAppN (mkConst ``Grind.CommRing.Expr.sub_eq_of_toPPX [u]) #[ring.type, inst, ctx, mkRawNatLit B,
+            toExpr (packedBal a), toExpr (packedBal b), toExpr a, toExpr b, ofPackedPoly B q, mkIntLitK kab, eagerReflBoolTrue,
+            reflP pa, reflP q])
+        else (denoteSteps? pre u .ring (.sub a b)).run' {} |>.map (·.2.2)
+      if let some h := h? then
         let args := #[ctx, toExpr l, toExpr r, n, h] ++ (if rel == .eq then #[eagerReflBoolFalse] else #[])
         return some (mkAppN (mkConst name [u]) (#[ring.type] ++ insts ++ args), rel != .eq && (k < 0 || (rel == .le && k == 0)))
   let mk (name : Name) (insts : Array Expr) (rhsFirst : Bool) (args : Array Expr) (isTrue : Bool) : NormM (Option (Expr × Bool)) := do
@@ -2022,9 +2033,16 @@ private def normalizeRelCore (rel : RelKind) (relFn : Expr) (order? : Option Ord
     let reflP (p : Expr) := mkApp2 (mkConst ``Eq.refl [1]) (mkConst ``Grind.CommRing.Poly) p
     let reflE (e : Expr) := mkApp2 (mkConst ``Eq.refl [1]) (mkConst ``Grind.CommRing.Expr) e
     let csInst? ← if kind.isComm then pure (some (← getCommSemiring).commSemiringInst) else pure none
+    let arcInst? ← if kind.isComm then getAddRightCancelInst? else pure none
     let mkTermStep (x xC : RingExpr) (px qx : Poly) (ex exC : Expr) : Expr :=
       let xE := toExpr x
       let xCE := toExpr xC
+      -- Large polynomials are checked with packed monomials in the ring envelope.
+      if let (some csInst, some arcInst, true) := (csInst?, arcInst?, usePacked px.length && isSemi x && isSemi xC) then
+        let h := mkAppN (mkConst ``Grind.CommRing.Expr.eq_of_toPPX_eqS [u])
+          (#[sr.type, csInst, arcInst, ctx] ++ packedArgsS x xC px (packedBal x) (packedBal xC))
+        mkExpectedPropHint h (mkApp3 (mkConst ``Eq [u.succ]) sr.type ex exC)
+      else
       -- Large products are stated stepwise when there are any (`denoteSteps?`).
       let steps? := match csInst? with
         | some csInst => if px.length ≥ 32 && hasProduct x then

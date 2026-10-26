@@ -45,3 +45,9 @@ example (x y z : BitVec 16) : (x + 3 * y + z)^4 = (z + 3 * y + x)^2 * (x + 3 * y
 -- and when they do not, the certificate reduces the coefficients.
 example (x y : UInt8) : (x + y)^8 = x^8 + 8 * x^7 * y + 28 * x^6 * y^2 + 56 * x^5 * y^3 + 70 * x^4 * y^4 + 56 * x^3 * y^5 + 284 * x^2 * y^6 + 8 * x * y^7 + y^8 := by
   sym => simp arithSimp
+
+-- Relations whose sides differ by a constant.
+example (a b c : Int) : ((a + b + c)^4 < (a + b + c)^2 * (a + b + c)^2 + 1) = True := by sym => simp arithSimp
+example (a b c : Int) : ((a + b + c)^4 + 2 ≤ (a + b + c)^2 * (a + b + c)^2 + 1) = False := by sym => simp arithSimp
+example (a b c : Int) : ((a + b + c)^4 = (a + b + c)^2 * (a + b + c)^2 + 1) = False := by sym => simp arithSimp
+example (a b c : Nat) : ((a + b + c)^4 < (a + b + c)^2 * (a + b + c)^2 + 1) = True := by sym => simp arithSimp

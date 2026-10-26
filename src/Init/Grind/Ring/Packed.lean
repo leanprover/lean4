@@ -906,6 +906,14 @@ theorem lt_false_of_toPPX_eq {α} [CommRing α] [LE α] [LT α] [LawfulOrderLT �
     (h₂ : p = b.toPPX_k B bal₂) : (a.denote ctx < b.denote ctx) = False := by
   rw [Expr.eq_of_toPPX_eq ctx B bal₁ bal₂ a b p hB h₁ h₂]; exact eq_false Std.lt_irrefl
 
+/-- The difference of `a` and `b` is the constant `k`, for the theorems `eq_false_of_sub`, `le_true_of_sub`, .... -/
+theorem Expr.sub_eq_of_toPPX {α} [CommRing α] (ctx : Context α) (B : Nat) (bal₁ bal₂ : Bool) (a b : Expr) (q : PPoly) (k : Int)
+    (hB : degOk_k B a b = true) (h₁ : q.addConst_k k = a.toPPX_k B bal₁) (h₂ : q = b.toPPX_k B bal₂) :
+    a.denote ctx - b.denote ctx = (k : α) := by
+  have hB := of_degOk_k hB
+  rw [← denote_toPPX_k ctx B hB.1 bal₁ a hB.2.1, ← denote_toPPX_k ctx B hB.1 bal₂ b hB.2.2, ← h₁, ← h₂,
+    (PPoly.addConst_k_spec ctx B 0 q k).1, sub_eq_add_neg, add_comm, ← add_assoc, AddCommGroup.neg_add_cancel, zero_add]
+
 /-!
 Commutative semirings with `AddRightCancel`, through the ring envelope `Ring.OfSemiring.Q`, where
 `toQ` is injective.

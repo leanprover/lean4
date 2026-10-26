@@ -169,7 +169,7 @@ theorem Poly.denoteS_mulConst {α} [Semiring α] (ctx : Context α) (k : Int) (p
 
 theorem Poly.denoteS_combine {α} [Semiring α] (ctx : Context α) (p₁ p₂ : Poly)
     : p₁.NonnegCoeffs → p₂.NonnegCoeffs → (combine p₁ p₂).denoteS ctx = p₁.denoteS ctx + p₂.denoteS ctx := by
-  unfold combine; generalize hugeFuel = fuel
+  unfold combine; generalize p₁.length + p₂.length + 1 = fuel
   fun_induction combine.go
   case case1 => intros; apply denoteS_concat <;> assumption
   case case2 => intro h₁ h₂; cases h₁; cases h₂; simp [denoteS, Int.toNat_add, natCast_add, *]
@@ -343,7 +343,7 @@ theorem Poly.concat_NonnegCoeffs {p₁ p₂ : Poly} : p₁.NonnegCoeffs → p₂
   next ih => intro h₁ h₂; cases h₁; constructor; assumption; apply ih <;> assumption
 
 theorem Poly.combine_NonnegCoeffs {p₁ p₂ : Poly} : p₁.NonnegCoeffs → p₂.NonnegCoeffs → (p₁.combine p₂).NonnegCoeffs := by
-  unfold combine; generalize hugeFuel = fuel
+  unfold combine; generalize p₁.length + p₂.length + 1 = fuel
   fun_induction combine.go
   next => intros; apply Poly.concat_NonnegCoeffs <;> assumption
   next => intro h₁ h₂; cases h₁; cases h₂; constructor; apply Int.add_nonneg <;> assumption

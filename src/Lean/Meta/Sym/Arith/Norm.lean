@@ -721,10 +721,10 @@ private def mkCertificate (e₁ : Expr) (re : RingExpr) (p : Poly) (vars : Array
       (mkApp2 (mkConst ``Eq.refl [1]) (mkConst ``Grind.CommRing.Expr) re'E))
   else if kind matches .commSemiring _ then
     -- `p = re.toPolyS_k` and `re' = p.toExpr_k`, both checked by definitional equality.
-    let thm := mkApp2 (mkConst ``Grind.CommRing.Expr.eq_of_toPolyS_eq_toExpr [u]) type inst
+    let thm := mkApp4 (mkConst ``Grind.CommRing.Expr.eq_of_toPolyS_eq_toExpr [u]) type inst ctx (toExpr (useBalanced re p.length))
     let pE := toExpr p
     let re'E := toExpr re'
-    pure (mkApp6 thm ctx (toExpr re) re'E pE
+    pure (mkApp5 thm (toExpr re) re'E pE
       (mkApp2 (mkConst ``Eq.refl [1]) (mkConst ``Grind.CommRing.Poly) pE)
       (mkApp2 (mkConst ``Eq.refl [1]) (mkConst ``Grind.CommRing.Expr) re'E))
   else
@@ -1340,11 +1340,11 @@ private def normalizeRelCore (rel : RelKind) (relFn : Expr) (order? : Option Ord
         else if hasC then
           let pxE := toExpr px
           let thm := mkApp2 (mkConst ``Grind.CommRing.Expr.eq_of_toPolyS_eq_add_toExpr [u]) sr.type inst
-          mkAppN thm #[ctx, xE, xCE, pxE, toExpr qx, cE, reflP pxE, reflE xCE, reflP pxE, eagerReflBoolTrue]
+          mkAppN thm #[ctx, toExpr (useBalanced x px.length), xE, xCE, pxE, toExpr qx, cE, reflP pxE, reflE xCE, reflP pxE, eagerReflBoolTrue]
         else
           let pxE := toExpr px
           let thm := mkApp2 (mkConst ``Grind.CommRing.Expr.eq_of_toPolyS_eq_toExpr [u]) sr.type inst
-          mkApp6 thm ctx xE xCE pxE (reflP pxE) (reflE xCE)
+          mkApp7 thm ctx (toExpr (useBalanced x px.length)) xE xCE pxE (reflP pxE) (reflE xCE)
       mkExpectedPropHint h (mkApp3 (mkConst ``Eq [u.succ]) sr.type ex exC)
     let (lC, rC) : RingExpr × RingExpr := if hasC then (.add l' c.toExpr, .add r' c.toExpr) else (l', r')
     let elC ← if hasC then share (← denoteSemiringExpr' vars lC) else pure el

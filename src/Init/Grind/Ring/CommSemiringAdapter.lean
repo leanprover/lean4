@@ -13,14 +13,34 @@ import Init.Omega
 namespace Lean.Grind
 namespace CommRing
 
-def Expr.denoteS {α} [Semiring α] (ctx : Context α) : Expr → α
-  | .num k     => OfNat.ofNat (α := α) k.natAbs
-  | .natCast k => OfNat.ofNat (α := α) k
-  | .var v     => v.denote ctx
-  | .add a b   => denoteS ctx a + denoteS ctx b
-  | .mul a b   => denoteS ctx a * denoteS ctx b
-  | .pow a k   => denoteS ctx a ^ k
-  | .sub .. | .neg .. | .intCast .. => 0
+noncomputable abbrev Expr.denoteS {α} [Semiring α] (ctx : Context α) (e : Expr) : α :=
+  Expr.rec
+    (fun k => OfNat.ofNat (α := α) k.natAbs)
+    (fun k => OfNat.ofNat (α := α) k)
+    (fun _ => 0)
+    (fun v => v.denote ctx)
+    (fun _ _ => 0)
+    (fun _ _ ih₁ ih₂ => ih₁ + ih₂)
+    (fun _ _ _ _ => 0)
+    (fun _ _ ih₁ ih₂ => ih₁ * ih₂)
+    (fun _ k ih => ih ^ k)
+    e
+
+set_option allowUnsafeReducibility true in
+attribute [semireducible] Expr.denoteS
+
+section
+variable {α} [Semiring α] (ctx : Context α)
+theorem Expr.denoteS_num (k : Int) : (Expr.num k).denoteS ctx = OfNat.ofNat (α := α) k.natAbs := rfl
+theorem Expr.denoteS_natCast (k : Nat) : (Expr.natCast k).denoteS ctx = OfNat.ofNat (α := α) k := rfl
+theorem Expr.denoteS_intCast (k : Int) : (Expr.intCast k).denoteS ctx = 0 := rfl
+theorem Expr.denoteS_var (v : Var) : (Expr.var v).denoteS ctx = v.denote ctx := rfl
+theorem Expr.denoteS_neg (a : Expr) : (Expr.neg a).denoteS ctx = 0 := rfl
+theorem Expr.denoteS_add (a b : Expr) : (Expr.add a b).denoteS ctx = a.denoteS ctx + b.denoteS ctx := rfl
+theorem Expr.denoteS_sub (a b : Expr) : (Expr.sub a b).denoteS ctx = 0 := rfl
+theorem Expr.denoteS_mul (a b : Expr) : (Expr.mul a b).denoteS ctx = a.denoteS ctx * b.denoteS ctx := rfl
+theorem Expr.denoteS_pow (a : Expr) (k : Nat) : (Expr.pow a k).denoteS ctx = a.denoteS ctx ^ k := rfl
+end
 
 def Expr.denoteSAsRing {α} [Semiring α] (ctx : Context α) : Expr → Ring.OfSemiring.Q α
   | .num k     => OfNat.ofNat (α := Ring.OfSemiring.Q α) k.natAbs
@@ -621,7 +641,7 @@ attribute [local simp] Expr.toPolyS_nc_NonnegCoeffs
 
 theorem Expr.denoteS_toPolyS {α} [CommSemiring α] (ctx : Context α) (e : Expr)
    : e.toPolyS.denoteS ctx = e.denoteS ctx := by
-  fun_induction toPolyS <;> simp [denoteS, Poly.denoteS, Poly.denoteS_ofVar, denoteSInt_eq]
+  fun_induction toPolyS <;> simp [denoteS_num, denoteS_natCast, denoteS_intCast, denoteS_var, denoteS_neg, denoteS_add, denoteS_sub, denoteS_mul, denoteS_pow, Poly.denoteS, Poly.denoteS_ofVar, denoteSInt_eq]
   next => simp [Semiring.ofNat_eq_natCast]
   next => simp [Poly.denoteS_combine] <;> simp [*]
   next => simp [Poly.denoteS_mul] <;> simp [*]
@@ -636,7 +656,7 @@ theorem Expr.denoteS_toPolyS {α} [CommSemiring α] (ctx : Context α) (e : Expr
 
 theorem Expr.denoteS_toPolyS_nc {α} [Semiring α] (ctx : Context α) (e : Expr)
    : e.toPolyS_nc.denoteS ctx = e.denoteS ctx := by
-  fun_induction Expr.toPolyS_nc <;> simp [denoteS, Poly.denoteS, Poly.denoteS_ofVar, denoteSInt_eq]
+  fun_induction Expr.toPolyS_nc <;> simp [denoteS_num, denoteS_natCast, denoteS_intCast, denoteS_var, denoteS_neg, denoteS_add, denoteS_sub, denoteS_mul, denoteS_pow, Poly.denoteS, Poly.denoteS_ofVar, denoteSInt_eq]
   next => simp [Semiring.ofNat_eq_natCast]
   next => simp [Poly.denoteS_combine] <;> simp [*]
   next => simp [Poly.denoteS_mul_nc] <;> simp [*]

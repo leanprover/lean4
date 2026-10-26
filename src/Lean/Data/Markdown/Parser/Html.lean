@@ -40,13 +40,6 @@ def isAttributeNameChar (c : Char) : Bool :=
 def isUnquotedValueChar (c : Char) : Bool :=
   !(c.isWhitespace || c == '"' || c == '\'' || c == '=' || c == '<' || c == '>' || c == '`')
 
-/-- Advances past the characters that satisfy `p`. -/
-def skipChars (cur : InlineCursor s) (p : Char → Bool) : InlineCursor s := Id.run do
-  let mut cur := cur
-  while Option.any p cur.front? do
-    cur := cur.drop1
-  return cur
-
 /--
 Advances past spaces, tabs, and up to one line ending: the whitespace that CommonMark permits
 inside an HTML tag (§6.6).
@@ -81,7 +74,7 @@ def parseAttributeValue? (cur : InlineCursor s) : Option (InlineCursor s) :=
   match cur.front? with
   | some '"' => advancePast cur.drop1 ['"']
   | some '\'' => advancePast cur.drop1 ['\'']
-  | some c => if isUnquotedValueChar c then some (skipChars cur isUnquotedValueChar) else none
+  | some c => if isUnquotedValueChar c then some (cur.skipWhile isUnquotedValueChar) else none
   | none => none
 
 /--
@@ -90,11 +83,11 @@ attributes, optional whitespace, an optional `/`, and `>`. Each attribute is pre
 Returns the cursor after the `>`.
 -/
 public def parseOpenTag? (cur : InlineCursor s) : Option (InlineCursor s) := do
-  let mut cur := skipChars cur.drop1 isTagNameChar
+  let mut cur := cur.drop1.skipWhile isTagNameChar
   repeat
     let afterWs := skipTagWhitespace cur
     if afterWs.startPos != cur.startPos && Option.any isAttributeNameStart afterWs.front? then
-      let afterName := skipChars afterWs.drop1 isAttributeNameChar
+      let afterName := afterWs.drop1.skipWhile isAttributeNameChar
       let beforeEq := skipTagWhitespace afterName
       if beforeEq.front? == some '=' then
         cur ← parseAttributeValue? (skipTagWhitespace beforeEq.drop1)
@@ -112,7 +105,7 @@ Returns the cursor after the `>`.
 -/
 public def parseClosingTag? (cur : InlineCursor s) : Option (InlineCursor s) := do
   guard <| Option.any Char.isAlpha cur.front?
-  let afterName := skipTagWhitespace (skipChars cur.drop1 isTagNameChar)
+  let afterName := skipTagWhitespace (cur.drop1.skipWhile isTagNameChar)
   guard <| afterName.front? == some '>'
   return afterName.drop1
 
@@ -214,10 +207,10 @@ public def parseCompleteTagLine? (cur : InlineCursor s) : Option (InlineCursor s
       parseClosingTag? cur.drop1
     else
       guard <| Option.any Char.isAlpha cur.front?
-      let afterName := skipChars cur.drop1 isTagNameChar
+      let afterName := cur.drop1.skipWhile isTagNameChar
       guard !(isRawTextTagName (subsliceClamped cur.startPos afterName.startPos))
       parseOpenTag? cur
-  let atEnd := skipChars afterTag fun c => c == ' ' || c == '\t'
+  let atEnd := afterTag.skipWhile fun c => c == ' ' || c == '\t'
   guard atEnd.isEmpty
   return atEnd
 

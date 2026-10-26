@@ -114,12 +114,15 @@ def splitLines (text : s.Subslice) : Array s.Subslice := Id.run do
   let mut p := text.startInclusive
   let mut lineStart := text.startInclusive
   while h : p < text.endExclusive do
-    match parseLineEnding? text p with
-    | some q =>
+    let h' := String.Slice.Pos.ne_endPos_of_lt h
+    let c := p.get h'
+    if c == '\n' || c == '\r' then
+      let q := (parseLineEnding? text p).getD (p.next h')
       lines := lines.push (subsliceClamped lineStart p)
       lineStart := q
       p := q
-    | none => p := p.next (String.Slice.Pos.ne_endPos_of_lt h)
+    else
+      p := p.next h'
   if lineStart < p then
     lines := lines.push (subsliceClamped lineStart p)
   return lines

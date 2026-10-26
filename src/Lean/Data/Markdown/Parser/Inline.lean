@@ -492,6 +492,31 @@ def skipChar : TokenizeM s Unit := modify fun st =>
   { st with rest := st.rest.drop1, prevChar := st.rest.front }
 
 /--
+Whether `c` may begin an inline construct or a line ending: a backslash escape, inline code, an
+image or link bracket, an autolink or raw HTML, a character reference, or an emphasis delimiter.
+-/
+def mayBeginInline (c : Char) : Bool :=
+  c == '\\' || c == '`' || c == '!' || c == '[' || c == ']' || c == '<' || c == '&' || c == '*' ||
+  c == '_' || c == '\n' || c == '\r'
+
+/--
+Advances over plain text: the current character, which did not begin an inline construct, and the
+characters after it that can't begin one.
+
+The state is updated once for the whole stretch, and the last character becomes the previous
+character for the flanking rules.
+-/
+def skipText : TokenizeM s Unit := modify fun st => Id.run do
+  let mut prev := st.rest.front
+  let mut rest := st.rest.drop1
+  while h : rest.startPos < rest.stopPos do
+    let c := rest.startPos.get (String.Slice.Pos.ne_endPos_of_lt h)
+    if mayBeginInline c then break
+    prev := c
+    rest := rest.drop1
+  return { st with rest, prevChar := prev }
+
+/--
 Advances multiple characters as plain text.
 
 This is used when inline code is not properly closed, forcing its opener to become text instead.
@@ -696,7 +721,7 @@ def tokenizeInlines (refs : RefTable s) (src : InlineSource s) : Array (InlineTo
           (.delim { startPos := cursor, ch := c, origLen := n, canOpen, canClose })
           cursor seqEndRest c
       else
-        skipChar
+        skipText
     finalizeTokens
   go.run' (.init src)
 

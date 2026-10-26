@@ -711,7 +711,8 @@ private def mkCertificate (e₁ : Expr) (re : RingExpr) (p : Poly) (vars : Array
     -- `p = re.toPolyX_k bal` (`re.toPolyC_k c`) and `re' = p.toExpr_k`, both checked by
     -- definitional equality.
     let thm := match char? with
-      | some (charInst, c) => mkApp5 (mkConst ``Grind.CommRing.Expr.eq_of_toPolyC_eq_toExpr [u]) type (toExpr c) inst charInst ctx
+      | some (charInst, c) =>
+        mkApp6 (mkConst ``Grind.CommRing.Expr.eq_of_toPolyC_eq_toExpr [u]) type (toExpr c) inst charInst ctx (toExpr (useBalanced re p.length))
       | none =>
         mkApp4 (mkConst ``Grind.CommRing.Expr.eq_of_toPolyX_eq_toExpr [u]) type inst ctx (toExpr (useBalanced re p.length))
     let pE := toExpr p
@@ -1241,8 +1242,7 @@ private def normalizeRelCore (rel : RelKind) (relFn : Expr) (order? : Option Ord
       let reflP := mkApp2 (mkConst ``Eq.refl [1]) (mkConst ``Grind.CommRing.Poly) qE
       let reflE (e : Expr) := mkApp2 (mkConst ``Eq.refl [1]) (mkConst ``Grind.CommRing.Expr) e
       let args := #[toExpr l, toExpr r, l'E, r'E, qE, toExpr lp, toExpr rp, reflP, reflE l'E, reflE r'E, reflP]
-      let args := if char?.isNone then #[ctx, toExpr (useBalanced (.sub l r) (pl.length + pr.length))] ++ args else #[ctx] ++ args
-      pure (mkAppN h args)
+      pure (mkAppN h (#[ctx, toExpr (useBalanced (.sub l r) (pl.length + pr.length))] ++ args))
     else if invs.isEmpty && ainvs.isEmpty then
       -- `thm type [c] inst [charInst]`, then the order instances.
       let base (name : Name) : Expr :=

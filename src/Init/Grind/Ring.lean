@@ -13,3 +13,4 @@ public import Init.Grind.Ring.CommSolver
 public import Init.Grind.Ring.FieldSolver
 public import Init.Grind.Ring.IntSolver
 public import Init.Grind.Ring.CommSemiringAdapter
+public import Init.Grind.Ring.Packed

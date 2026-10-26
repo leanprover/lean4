@@ -22,6 +22,7 @@ import Lean.Data.RArray
 import Init.Grind.Norm
 import Init.Grind.Ring.FieldSolver
 import Init.Grind.Ring.IntSolver
+import Init.Grind.Ring.Packed
 import Init.Data.Int.Linear
 public section
 namespace Lean.Meta.Sym.Arith
@@ -815,6 +816,90 @@ private def hasProduct : RingExpr → Bool
   | .neg a => hasProduct a
   | _ => false
 
+/-- The degree bound `Expr.degB_k` of `e`. -/
+private def degB : RingExpr → Nat
+  | .num _ | .natCast _ | .intCast _ => 0
+  | .var _ => 1
+  | .neg a => degB a
+  | .add a b | .sub a b => max (degB a) (degB b)
+  | .mul a b => degB a + degB b
+  | .pow a k => degB a * k
+
+/-- The base of the packed certificates for `l` and `r`: larger than every degree. -/
+private def packedBase (l r : RingExpr) : Nat :=
+  max 2 (max (degB l) (degB r) + 1)
+
+/-- `p` as a `Grind.CommRing.PPoly` in base `B`, with the same order of terms. -/
+private def ofPackedPoly (B : Nat) : Poly → Expr
+  | .num k => mkApp (mkConst ``Grind.CommRing.PPoly.num) (mkIntLitK k)
+  | .add k m p => mkApp4 (mkConst ``Grind.CommRing.PPoly.add) (mkIntLitK k) (mkRawNatLit m.degree) (mkRawNatLit (code m)) (ofPackedPoly B p)
+where
+  code : Mon → Nat
+    | .unit => 0
+    | .mult pw m => pw.k * B ^ pw.x + code m
+
+private def addSummands : RingExpr → Array RingExpr → Array RingExpr
+  | .add a b, acc | .sub a b, acc => addSummands b (addSummands a acc)
+  | .neg a, acc => addSummands a acc
+  | e, acc => acc.push e
+
+/--
+`true` if the kernel should compute the polynomial of `e` with `Expr.toPPB_k` instead of
+`Expr.toPP_k`. `Expr.toPP_k` adds the summands from the right into an accumulator, which costs
+the comparisons of a summand with the terms of the accumulator that come before its last term:
+linear for a sum in decreasing order, quadratic for a sum in increasing order. The pairwise
+additions of `Expr.toPPB_k` cost about the number of terms per level.
+-/
+private def packedBal (e : RingExpr) : Bool := Id.run do
+  let ss := addSummands e #[]
+  if ss.size < 8 then return false
+  let mut acc : Poly := .num 0
+  let mut accCost := 0
+  let mut total := 0
+  for s in ss.reverse do
+    let p := s.toPoly
+    total := total + p.length
+    accCost := accCost + p.length + (match lastMon? p with
+      | some m => countGt acc m 0
+      | none => 0)
+    acc := p.combine acc
+  return accCost > total * (Nat.log2 ss.size + 2)
+where
+  lastMon? : Poly → Option Mon
+    | .num _ => none
+    | .add _ m (.num _) => some m
+    | .add _ _ p => lastMon? p
+  countGt (p : Poly) (m : Mon) (n : Nat) : Nat :=
+    match p with
+    | .num _ => n
+    | .add _ m' p => if m'.grevlex m == .gt then countGt p m (n + 1) else n
+
+/--
+The arguments `B bal₁ bal₂ l r p hB h₁ h₂` of the packed certificates (`Expr.eq_of_toPPX_eq`)
+for `l` and `r` with polynomial `p`.
+-/
+private def packedArgs (l r : RingExpr) (p : Poly) (bal₁ bal₂ : Bool) : Array Expr :=
+  let B := packedBase l r
+  let pE := ofPackedPoly B p
+  let refl := mkApp2 (mkConst ``Eq.refl [1]) (mkConst ``Grind.CommRing.PPoly) pE
+  #[mkRawNatLit B, toExpr bal₁, toExpr bal₂, toExpr l, toExpr r, pE, eagerReflBoolTrue, refl, refl]
+
+/-- `true` if the packed certificates pay off for a polynomial with `size` monomials. -/
+private def usePacked (size : Nat) : Bool :=
+  size ≥ 8
+
+/-- `true` if `e` has no subtraction, negation, `Int` cast or negative numeral (`Expr.semi_k`). -/
+private def isSemi : RingExpr → Bool
+  | .num k => k ≥ 0
+  | .natCast _ | .var _ => true
+  | .intCast _ | .neg _ | .sub .. => false
+  | .add a b | .mul a b => isSemi a && isSemi b
+  | .pow a _ => isSemi a
+
+/-- `packedArgs` for the semiring certificates (`Expr.eq_of_toPPX_eqS`), with the `Expr.semi_k` check. -/
+private def packedArgsS (l r : RingExpr) (p : Poly) (bal₁ bal₂ : Bool) : Array Expr :=
+  (packedArgs l r p bal₁ bal₂).insertIdx! 6 eagerReflBoolTrue
+
 /-- Memoized `toExpr` of the monomials of the stepwise certificates, which repeat each other. -/
 private abbrev StepM := StateM (Std.HashMap Mon Expr)
 
@@ -1071,6 +1156,9 @@ private def mkCertificate (e₁ : Expr) (re : RingExpr) (p : Poly) (vars : Array
       toLinearExpr? re, toLinearExpr? re') then
     -- Linear `Int` terms use the cheaper linear normalization of `simp +arith`.
     pure (mkApp4 (mkConst ``Int.Internal.Linear.Expr.eq_of_norm_expr_k) ctx (ofLinearExpr a) (ofLinearExpr a') eagerReflBoolTrue)
+  else if let (.commRing _, none, true) := (kind, char?, usePacked p.length) then
+    -- Both sides are normalized with packed monomials; `re'` is in decreasing order.
+    pure (mkAppN (mkConst ``Grind.CommRing.Expr.eq_of_toPPX_eq [u]) (#[type, inst, ctx] ++ packedArgs re re' p (packedBal re) false))
   else if let (.commRing _, none, true) := (kind, char?, p.length ≥ 32 && hasProduct re) then
     -- Large products are stated stepwise when there are any (`denoteSteps?`).
     let re'E := toExpr re'
@@ -1095,13 +1183,17 @@ private def mkCertificate (e₁ : Expr) (re : RingExpr) (p : Poly) (vars : Array
       (mkApp2 (mkConst ``Eq.refl [1]) (mkConst ``Grind.CommRing.Poly) pE)
       (mkApp2 (mkConst ``Eq.refl [1]) (mkConst ``Grind.CommRing.Expr) re'E))
   else if kind matches .commSemiring _ then
-    -- `p = re.toPolyS_k` and `re' = p.toExpr_k`, both checked by definitional equality.
-    let thm := mkApp4 (mkConst ``Grind.CommRing.Expr.eq_of_toPolyS_eq_toExpr [u]) type inst ctx (toExpr (useBalanced re p.length))
-    let pE := toExpr p
-    let re'E := toExpr re'
-    pure (mkApp5 thm (toExpr re) re'E pE
-      (mkApp2 (mkConst ``Eq.refl [1]) (mkConst ``Grind.CommRing.Poly) pE)
-      (mkApp2 (mkConst ``Eq.refl [1]) (mkConst ``Grind.CommRing.Expr) re'E))
+    if let (true, some arcInst) := (usePacked p.length && isSemi re && isSemi re', ← getAddRightCancelInst?) then
+      -- Both sides are normalized with packed monomials in the ring envelope.
+      pure (mkAppN (mkConst ``Grind.CommRing.Expr.eq_of_toPPX_eqS [u]) (#[type, inst, arcInst, ctx] ++ packedArgsS re re' p (packedBal re) false))
+    else
+      -- `p = re.toPolyS_k` and `re' = p.toExpr_k`, both checked by definitional equality.
+      let thm := mkApp4 (mkConst ``Grind.CommRing.Expr.eq_of_toPolyS_eq_toExpr [u]) type inst ctx (toExpr (useBalanced re p.length))
+      let pE := toExpr p
+      let re'E := toExpr re'
+      pure (mkApp5 thm (toExpr re) re'E pE
+        (mkApp2 (mkConst ``Eq.refl [1]) (mkConst ``Grind.CommRing.Poly) pE)
+        (mkApp2 (mkConst ``Eq.refl [1]) (mkConst ``Grind.CommRing.Expr) re'E))
   else
     let thm := match kind, char? with
       | .commRing _, some (charInst, c) => mkApp4 (mkConst ``Grind.CommRing.Expr.eq_of_toPolyC_eq [u]) type (toExpr c) inst charInst
@@ -1495,6 +1587,17 @@ private def constRelProof? (rel : RelKind) (order? : Option Order) (ring : Ring)
   -- Equal sides: each side is checked against the polynomial alone.
   if k == 0 then
     let ctx ← mkContext ring.type vars
+    if char?.isNone && usePacked pl.length then
+      let args := packedArgs l r pl (packedBal l) (packedBal r)
+      match rel, order? with
+      | .eq, _ => return some (mkAppN (mkConst ``Grind.CommRing.eq_true_of_toPPX_eq [u]) (#[ring.type, inst, ctx] ++ args), true)
+      | .le, some o =>
+        return some (mkAppN (mkConst ``Grind.CommRing.le_true_of_toPPX_eq [u]) (#[ring.type, inst, o.leInst, o.isPreorderInst, ctx] ++ args), true)
+      | .lt, some o =>
+        if let (some ltInst, some lawfulInst) := (o.ltInst?, o.lawfulOrderLTInst?) then
+          return some (mkAppN (mkConst ``Grind.CommRing.lt_false_of_toPPX_eq [u])
+            (#[ring.type, inst, o.leInst, ltInst, lawfulInst, o.isPreorderInst, ctx] ++ args), false)
+      | _, _ => pure ()
     -- Large products are stated stepwise when there are any (`denoteSteps?`).
     if size ≥ 64 && (hasProduct l || hasProduct r) then
       let (pre, mode) := match char? with
@@ -1843,6 +1946,14 @@ private def normalizeRelCore (rel : RelKind) (relFn : Expr) (order? : Option Ord
     if let (true, some (name, insts, holds)) := (kind.isComm && pl == pr, sameSides?) then
       let ctx ← mkContext sr.type vars
       let csInst := (← getCommSemiring).commSemiringInst
+      if let (true, some arcInst) := (usePacked pl.length && isSemi l && isSemi r, ← getAddRightCancelInst?) then
+        let name := match rel with
+          | .eq => ``Grind.CommRing.eq_true_of_toPPX_eqS
+          | .le => ``Grind.CommRing.le_true_of_toPPX_eqS
+          | .lt => ``Grind.CommRing.lt_false_of_toPPX_eqS
+        let h := mkAppN (mkConst name [u]) (#[sr.type, csInst, arcInst] ++ insts ++ #[ctx] ++ packedArgsS l r pl (packedBal l) (packedBal r))
+        let e' ← if holds then getTrueExpr else getFalseExpr
+        return .step e' (mkExpectedPropHint h (mkPropEq e e'))
       -- Large products are stated stepwise when there are any (`denoteSteps?`).
       if pl.length ≥ 32 && (hasProduct l || hasProduct r) then
         if let some (pE, h₁, h₂) := denoteStepsPair? #[sr.type, csInst, ctx] u .semiring l r then

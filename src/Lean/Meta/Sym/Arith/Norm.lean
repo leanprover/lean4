@@ -1164,13 +1164,13 @@ private def mkCertificate (e₁ : Expr) (re : RingExpr) (p : Poly) (vars : Array
   else if !ainvs.isEmpty then
     let thm := mkApp2 (mkConst ``Grind.CommRing.Expr.eq_of_cancelInvs_eq [u]) type inst
     pure (mkApp6 thm ctx ainvsE hoka (toExpr re) (toExpr re') eagerReflBoolTrue)
+  else if let (true, some a, some a') := (type.isConstOf ``Int && char?.isNone && isSmallSum re p.length,
+      toLinearExpr? re, toLinearExpr? re') then
+    -- Small linear `Int` terms use the cheaper linear normalization of `simp +arith`.
+    pure (mkApp4 (mkConst ``Int.Internal.Linear.Expr.eq_of_norm_expr_k) ctx (ofLinearExpr a) (ofLinearExpr a') eagerReflBoolTrue)
   else if let (.commRing _, none, some K) := (kind, char?, kronLinExponent? re re' 1000000) then
     -- Linear terms are evaluated at a point (Kronecker substitution with small values).
     pure (mkAppN (mkConst ``Grind.CommRing.Expr.eq_of_kronLin [u]) (#[type, inst, ctx] ++ kronLinProofArgs re re' K))
-  else if let (true, some a, some a') := (type.isConstOf ``Int && char?.isNone && isSmallSum re p.length,
-      toLinearExpr? re, toLinearExpr? re') then
-    -- Linear `Int` terms use the cheaper linear normalization of `simp +arith`.
-    pure (mkApp4 (mkConst ``Int.Internal.Linear.Expr.eq_of_norm_expr_k) ctx (ofLinearExpr a) (ofLinearExpr a') eagerReflBoolTrue)
   else if let (.commRing _, none, some (K, B)) := (kind, char?, kronArgs? re re') then
     -- Both sides are evaluated at a point (Kronecker substitution).
     pure (mkAppN (mkConst ``Grind.CommRing.Expr.eq_of_kron [u]) (#[type, inst, ctx] ++ kronProofArgs re re' K B))
@@ -1599,7 +1599,8 @@ private def constRelProof? (rel : RelKind) (order? : Option Order) (ring : Ring)
     let p₀? := if char?.isNone then some pl else
       let q := l.toPoly
       if q == r.toPoly then some q else none
-    if let (some _, some K) := (p₀?, kronLinExponent? l r 1000000) then
+    let smallInt := ring.type.isConstOf ``Int && isSmallSum (.sub l r) size && (toLinearExpr? l).isSome && (toLinearExpr? r).isSome
+    if let (false, some _, some K) := (smallInt, p₀?, kronLinExponent? l r 1000000) then
       let ctx ← mkContext ring.type vars
       let args := kronLinProofArgs l r K
       match rel, order? with

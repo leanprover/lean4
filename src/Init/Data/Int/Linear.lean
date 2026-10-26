@@ -1528,6 +1528,10 @@ theorem eq_of_core (ctx : Context) (p₁ : Poly) (p₂ : Poly) (p₃ : Poly)
   intro; subst p₃; simp
   intro h; rw [h, Int.add_neg_eq_sub, Int.sub_self]
 
+theorem eq_of_core_rfl (ctx : Context) (p₁ : Poly) (p₂ : Poly) (p₃ : Poly) (h : p₃ = p₁.combine_mul_k 1 (-1) p₂) :
+    p₁.denote' ctx = p₂.denote' ctx → p₃.denote' ctx = 0 :=
+  eq_of_core ctx p₁ p₂ p₃ (by simp [eq_of_core_cert, h])
+
 @[expose] def Poly.isUnsatDiseq (p : Poly) : Bool :=
   match p with
   | .num 0 => true
@@ -2229,6 +2233,10 @@ theorem le_norm_expr (ctx : Context) (lhs rhs : Expr) (p : Poly)
     : norm_eq_cert lhs rhs p → lhs.denote_k ctx ≤ rhs.denote_k ctx → p.denote' ctx ≤ 0 := by
   simp only [Expr.denote_k_eq_denote]; intro h₁ h₂; rwa [norm_le ctx lhs rhs p h₁] at h₂
 
+theorem le_norm_expr_rfl (ctx : Context) (lhs rhs : Expr) (p : Poly) (h : p = (lhs.sub rhs).norm_k) :
+    lhs.denote_k ctx ≤ rhs.denote_k ctx → p.denote' ctx ≤ 0 :=
+  le_norm_expr ctx lhs rhs p (by simp [norm_eq_cert, h])
+
 @[expose]
 noncomputable def not_le_norm_expr_cert (lhs rhs : Expr) (p : Poly) : Bool :=
   p.beq' ((((lhs.sub rhs).norm_k).mul_k (-1)).addConst_k 1)
@@ -2249,6 +2257,10 @@ theorem dvd_norm_expr (ctx : Context) (d : Int) (e : Expr) (p : Poly)
 theorem eq_norm_expr (ctx : Context) (lhs rhs : Expr) (p : Poly)
     : norm_eq_cert lhs rhs p → lhs.denote_k ctx = rhs.denote_k ctx → p.denote' ctx = 0 := by
   simp only [Expr.denote_k_eq_denote]; intro h₁ h₂; rwa [norm_eq ctx lhs rhs p h₁] at h₂
+
+theorem eq_norm_expr_rfl (ctx : Context) (lhs rhs : Expr) (p : Poly) (h : p = (lhs.sub rhs).norm_k) :
+    lhs.denote_k ctx = rhs.denote_k ctx → p.denote' ctx = 0 :=
+  eq_norm_expr ctx lhs rhs p (by simp [norm_eq_cert, h])
 
 theorem not_eq_norm_expr (ctx : Context) (lhs rhs : Expr) (p : Poly)
     : norm_eq_cert lhs rhs p → ¬ lhs.denote_k ctx = rhs.denote_k ctx → ¬ p.denote' ctx = 0 := by
@@ -2271,6 +2283,10 @@ theorem eq_def (ctx : Context) (x : Var) (xPoly : Poly) (p : Poly)
   simp [eq_def_cert]; intro _ h; subst p; simp [h]
   rw [← Int.sub_eq_add_neg, Int.sub_self]
 
+theorem eq_def_rfl (ctx : Context) (x : Var) (xPoly : Poly) (p : Poly) (h : p = .add (-1) x xPoly) :
+    x.denote ctx = xPoly.denote' ctx → p.denote' ctx = 0 :=
+  eq_def ctx x xPoly p (by simp [eq_def_cert, h])
+
 theorem eq_def_norm (ctx : Context) (x : Var) (xPoly xPoly' : Poly) (p : Poly)
     : eq_def_cert x xPoly' p → x.denote ctx = xPoly.denote' ctx → xPoly.denote' ctx = xPoly'.denote' ctx → p.denote' ctx = 0 := by
   simp [eq_def_cert]; intro _ h₁ h₂; subst p; simp [h₁, h₂]
@@ -2284,6 +2300,10 @@ theorem eq_def' (ctx : Context) (x : Var) (e : Expr) (p : Poly)
     : eq_def'_cert x e p → x.denote ctx = e.denote_k ctx → p.denote' ctx = 0 := by
   simp [eq_def'_cert]; intro _ h; subst p; simp [h]
   rw [← Int.sub_eq_add_neg, Int.sub_self]
+
+theorem eq_def'_rfl (ctx : Context) (x : Var) (e : Expr) (p : Poly) (h : p = .add (-1) x e.norm_k) :
+    x.denote ctx = e.denote_k ctx → p.denote' ctx = 0 :=
+  eq_def' ctx x e p (by simp [eq_def'_cert, h])
 
 @[expose]
 noncomputable def eq_def_struct_cert (x : Var) (e : Expr) (p : Poly) : Bool :=

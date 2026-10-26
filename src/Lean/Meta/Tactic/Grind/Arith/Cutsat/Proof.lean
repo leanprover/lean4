@@ -417,17 +417,17 @@ private partial def EqCnstr.toExprProofImpl (c' : EqCnstr) : ProofM Expr := cach
     mkEqProof a zero
   | .core a b p₁ p₂ =>
     let h ← mkEqProof a b
-    return mkApp6 (mkConst ``Int.Internal.Linear.eq_of_core) (← getContext) (← mkPolyDecl p₁) (← mkPolyDecl p₂) (← mkPolyDecl c'.p) eagerReflBoolTrue h
+    return mkApp6 (mkConst ``Int.Internal.Linear.eq_of_core_rfl) (← getContext) (← mkPolyDecl p₁) (← mkPolyDecl p₂) (← mkPolyDecl c'.p) (← mkPolyRefl c'.p) h
   | .coreToInt a b toIntThm lhs rhs =>
     let h := mkApp toIntThm (← mkEqProof a b)
-    return mkApp6 (mkConst ``Int.Internal.Linear.eq_norm_expr) (← getContext) (← mkExprDecl lhs) (← mkExprDecl rhs) (← mkPolyDecl c'.p) eagerReflBoolTrue h
+    return mkApp6 (mkConst ``Int.Internal.Linear.eq_norm_expr_rfl) (← getContext) (← mkExprDecl lhs) (← mkExprDecl rhs) (← mkPolyDecl c'.p) (← mkPolyRefl c'.p) h
   | .hyp h lhs rhs =>
-    return mkApp6 (mkConst ``Int.Internal.Linear.eq_norm_expr) (← getContext) (← mkExprDecl lhs) (← mkExprDecl rhs) (← mkPolyDecl c'.p) eagerReflBoolTrue h
+    return mkApp6 (mkConst ``Int.Internal.Linear.eq_norm_expr_rfl) (← getContext) (← mkExprDecl lhs) (← mkExprDecl rhs) (← mkPolyDecl c'.p) (← mkPolyRefl c'.p) h
   | .defn e p =>
     let x ← getVarOf e
-    return mkApp6 (mkConst ``Int.Internal.Linear.eq_def) (← getContext) (← mkVarDecl x) (← mkPolyDecl p) (← mkPolyDecl c'.p) eagerReflBoolTrue (← mkEqRefl e)
+    return mkApp6 (mkConst ``Int.Internal.Linear.eq_def_rfl) (← getContext) (← mkVarDecl x) (← mkPolyDecl p) (← mkPolyDecl c'.p) (← mkPolyRefl c'.p) (← mkEqRefl e)
   | .defnExpr h x e =>
-    return mkApp6 (mkConst ``Int.Internal.Linear.eq_def') (← getContext) (← mkVarDecl x) (← mkExprDecl e) (← mkPolyDecl c'.p) eagerReflBoolTrue h
+    return mkApp6 (mkConst ``Int.Internal.Linear.eq_def'_rfl) (← getContext) (← mkVarDecl x) (← mkExprDecl e) (← mkPolyDecl c'.p) (← mkPolyRefl c'.p) h
   | .norm c =>
     return mkApp5 (mkConst ``Int.Internal.Linear.eq_norm_rfl) (← getContext) (← mkPolyDecl c.p) (← mkPolyDecl c'.p) (← mkPolyRefl c'.p) (← c.toExprProof)
   | .divCoeffs c =>
@@ -547,18 +547,18 @@ private partial def LeCnstr.toExprProof (c' : LeCnstr) : ProofM Expr := caching 
   | .coreToInt e pos toIntThm lhs rhs =>
     let h ← if pos then pure <| mkOfEqTrueCore e (← mkEqTrueProof e) else pure <| mkOfEqFalseCore e (← mkEqFalseProof e)
     let h := mkApp toIntThm h
-    return mkApp6 (mkConst ``Int.Internal.Linear.le_norm_expr) (← getContext) (← mkExprDecl lhs) (← mkExprDecl rhs) (← mkPolyDecl c'.p) eagerReflBoolTrue h
+    return mkApp6 (mkConst ``Int.Internal.Linear.le_norm_expr_rfl) (← getContext) (← mkExprDecl lhs) (← mkExprDecl rhs) (← mkPolyDecl c'.p) (← mkPolyRefl c'.p) h
   | .coreExpr e pos lhs rhs =>
     if pos then
       let h ← mkOfEqTrue (← mkEqTrueProof e)
-      return mkApp6 (mkConst ``Int.Internal.Linear.le_norm_expr) (← getContext) (← mkExprDecl lhs) (← mkExprDecl rhs) (← mkPolyDecl c'.p) eagerReflBoolTrue h
+      return mkApp6 (mkConst ``Int.Internal.Linear.le_norm_expr_rfl) (← getContext) (← mkExprDecl lhs) (← mkExprDecl rhs) (← mkPolyDecl c'.p) (← mkPolyRefl c'.p) h
     else
       let h ← mkOfEqFalse (← mkEqFalseProof e)
       return mkApp6 (mkConst ``Int.Internal.Linear.not_le_norm_expr) (← getContext) (← mkExprDecl lhs) (← mkExprDecl rhs) (← mkPolyDecl c'.p) eagerReflBoolTrue h
   | .ofNatNonneg a =>
     return mkApp (mkConst ``Nat.ToInt.toNat_nonneg) a
   | .hyp h lhs rhs =>
-    return mkApp6 (mkConst ``Int.Internal.Linear.le_norm_expr) (← getContext) (← mkExprDecl lhs) (← mkExprDecl rhs) (← mkPolyDecl c'.p) eagerReflBoolTrue h
+    return mkApp6 (mkConst ``Int.Internal.Linear.le_norm_expr_rfl) (← getContext) (← mkExprDecl lhs) (← mkExprDecl rhs) (← mkPolyDecl c'.p) (← mkPolyRefl c'.p) h
   | .bound h => return h
   | .dec h =>
     return mkFVar h

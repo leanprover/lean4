@@ -560,3 +560,7 @@ structure Flag : Type where
   on : Bool
 
 run_cmd toULiftHandler #[``Flag]
+
+class ByteEncodable (α : Type u) where
+  encode : α → ByteArray → ByteArray
+  decode? : ByteArray → Nat → Option α

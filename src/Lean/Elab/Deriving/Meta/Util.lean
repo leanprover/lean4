@@ -13,6 +13,20 @@ public section
 
 open Lean Meta Elab Command Term
 
+/--
+Convenience function for creating and registering an instance declaration with a given name, level
+parameters, type and value.
+
+If `isMeta` is true, the instance declaration is marked `meta`; this flag should usually be
+inferred either from the context or from the declaration the instance is for.
+
+If the `compile` flag is true, the declaration is compiled unless `type` is a proposition.
+
+For local or scoped instances, use `attrKind := .local` and `attrKind := .scoped` respectively.
+You can also set the priority of the instance using e.g. `prio := eval_prio low`.
+
+In most cases, the instance name should be computed using `mkInstanceNameOfType`.
+-/
 def Lean.mkInstance (name : Name) (levelParams : List Name) (type value : Expr)
     (isMeta : Bool) (compile : Bool := true) (attrKind : AttributeKind := .global)
     (prio : Nat := eval_prio default) : TermElabM Unit := do
@@ -412,6 +426,9 @@ private def pushInstanceHypothesis (type : Expr) (className : Name) : DerivingM 
   }
   return mvarApp
 
+/--
+Returns true if `e` contains any reference to inductives from the mutual block being operated on.
+-/
 def containsRecursiveDecl (e : Expr) : DerivingM Bool := do
   let ctx ← read
   let all := ctx.indInfo.all
@@ -622,15 +639,28 @@ def mkInstanceForDeriving (instanceHyps : Array Expr) (type value : Expr)
   let type := if deriving.implicitBinders.get (← getOptions) then type.explicitToImplicit else type
   mkInstance instName (← read).levelParams type value (← read).isMeta
 
+/-- Returns whether the mutual inductive block being operated on is recursive. -/
 def isRecursive : DerivingM Bool := do
   return (← read).indInfo.isRec
 
+/--
+Returns whether the mutual inductive block being operated on is nested.
+In many cases, you may also want to consider reflexive inductives
+(i.e. types with a `α → Induct ...` recurrence). In those cases, use `isNestedOrReflexive`.
+-/
 def isNested : DerivingM Bool := do
   return (← read).indInfo.isNested
 
+/--
+Returns whether the mutual inductive block being operated on is nested or reflexive, i.e.
+has complex recurrences like `Array Induct` or `Bool → Induct`.
+-/
 def isNestedOrReflexive : DerivingM Bool := do
   return (← read).indInfo.isNested || (← read).indInfo.isReflexive
 
+/--
+Returns whether the recursors of the mutual inductive block being operated on only eliminate into proposition
+-/
 def eliminatesToProp : DerivingM Bool := do
   let recInfo ← getConstInfoRec (mkRecName (← read).indInfo.name)
   return recInfo.levelParams.length == (← read).indInfo.levelParams.length
@@ -804,19 +834,45 @@ def makeInstancesUsingMutualBlock (infos : Array (InstanceInfo α))
       unless nameSet.contains info.induct do continue
       mkInstance info.declName.get! (← read).levelParams info.fullType.get! info.value (← read).isMeta
 
+/--
+Information on how a particular field should be filled in: inline in the instance or using a
+helper.
+-/
 inductive FieldHelperInfo (α : Type) where
+  /--
+  The field should receive the value inline in the instance. In contrast to `.usingHelper`, that
+  means that `e` cannot refer to the other instances recursively.
+  -/
   | inline (e : Expr)
+  /--
+  The field should be computed using an auxiliary function whose value is computed using `mkValue`
+  with all recursive instances in context.
+  -/
   | usingHelper (mkValue : (instances : Array Expr) → α → DerivingM Expr)
 
+/--
+A field helper provider provides information on how a field of a type class should be filled given
+level parameters for the class, an application of the inductive type to derive an instance for, a
+`ConstantVal` for the instance projection function corresponding to the field and the expected type
+of the field.
+-/
 @[expose]
 def FieldHelperProvider (α : Type) :=
   (classLParams : List Level) → (typeApp : Expr) → (fieldInfo : ConstantVal) →
     (expectedType : Expr) → DerivingM (FieldHelperInfo α)
 
+/--
+Throws an error explaining that the given field was unhandled. Meant to be used as a catch-all
+branch of `InstanceInfo.usingCtor`. See `InstanceInfo.usingCtor` for more information.
+-/
 def FieldHelperProvider.unhandled (fieldName : Name) : FieldHelperProvider α := fun _ _ _ _ => do
   throwError "Internal error in deriving handler for `{.ofConstName <| (← read).className}`:\n\
     Unhandled field `{.ofConstName fieldName}`"
 
+/--
+Creates a helper that matches on the first argument, calling `perCtor` for each constructor with
+the inductive info, constructor info, fields and a constructor application.
+-/
 def FieldHelperProvider.cases
     (perCtor : InductiveVal → ConstructorVal → Array Expr → Expr → α → DerivingM Expr) :
     FieldHelperProvider α := fun _ typeApp fieldInfo expectedType =>
@@ -867,6 +923,34 @@ the name of the projection function of the field.
 For `supportsRec := true` (the default), it tries to make the helpers non-partial if the inductive
 is not nested or reflexive. If the helpers are possibly recursive but don't have structural
 termination, you should consider using `supportsRec := false`.
+
+Example:
+```
+class TypeInfo (α : Type u) where
+  ctorName : α → Name
+  inductName : Name
+
+open Lean Meta Elab Deriving
+
+meta def deriveTypeInfo : DerivingHandler :=
+  mkInductiveDerivingHandler ``ByteEncodable do
+    makeInstancesUsingMutualBlock <| ← (← read).indInfo.all.toArray.mapM <|
+      InstanceInfo.usingCtor fun
+        | ``TypeInfo.ctorName =>
+          -- using the `FieldHelperProvider.cases` helper
+          .cases fun _inductVal ctorVal _fields _ctorApp _ => do
+            return toExpr ctorVal.name
+        | ``TypeInfo.inductName =>
+          -- or directly using the definition of `FieldHelperProvider`
+          fun _classLParams typeApp _fieldInfo _expectedType =>
+            return .inline <| toExpr typeApp.getAppFn.constName!
+        -- throws an error if we add a new field to `TypeInfo`
+        -- without adding a new branch here
+        | name => .unhandled name
+    return true
+
+meta initialize registerDerivingHandler ``TypeInfo deriveTypeInfo
+```
 -/
 def InstanceInfo.usingCtor (perField : Name → FieldHelperProvider α)
     (supportsRec : Bool := true) (induct : Name) :
@@ -965,7 +1049,7 @@ class ToSExpr (α : Type u) where
 
 open Lean Meta Elab Deriving
 
-def toSExprHandler : DerivingHandler :=
+meta def toSExprHandler : DerivingHandler :=
   mkInductiveDerivingHandler ``ToSExpr do
   deriveTransformationInstPerConstructor fun _indVal ctorVal fields _ctorApp => do
     let tag := mkApp (mkConst ``SExpr.atom) (toExpr ctorVal.name.getString!)
@@ -980,7 +1064,7 @@ def toSExprHandler : DerivingHandler :=
       return tag
     return mkApp (mkConst ``SExpr.list) (← mkListLit (mkConst ``SExpr) (tag :: args.toList))
 
-initialize registerDerivingHandler ``ToSExpr toSExprHandler
+meta initialize registerDerivingHandler ``ToSExpr toSExprHandler
 ```
 For `supportsRec := true` (the default), it tries to make the helpers non-partial if the inductive
 is not nested or reflexive. This however is only guaranteed to work if the fields provided to

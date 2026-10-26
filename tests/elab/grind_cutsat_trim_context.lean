@@ -4,8 +4,8 @@ trace: [grind.debug.proof] fun h h_1 h_2 h_3 h_4 h_5 h_6 h_7 h_8 =>
       id
         (let ctx := RArray.leaf (f 2);
         le_unsat ctx (Poly.num 1) (eagerReduce (Eq.refl true))
-          (le_combine ctx (Poly.add (-1) 0 (Poly.num 1)) (Poly.add 1 0 (Poly.num 0)) (Poly.num 1)
-            (eagerReduce (Eq.refl true)) h_8 h_1))
+          (le_combine_rfl ctx (Poly.add (-1) 0 (Poly.num 1)) (Poly.add 1 0 (Poly.num 0)) (Poly.num 1)
+            (Eq.refl (Poly.num 1)) h_8 h_1))
 -/
 #guard_msgs in -- `cutsat` context should contain only `f 2`
 open Lean Int.Internal.Linear in

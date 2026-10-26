@@ -2791,4 +2791,411 @@ theorem lt_cancel_of_kronLinS {α} [CommSemiring α] [AddRightCancel α] [LE α]
   rw [Expr.eq_of_kronLinS ctx K a (a'.add c) hl₁ hK₁ h₁, Expr.eq_of_kronLinS ctx K b (b'.add c) hl₂ hK₂ h₂]
   exact propext (OrderedAdd.add_lt_left_iff _).symm
 
+/-!
+Identities in commutative semirings without `AddRightCancel`, where the ring envelope does not
+apply (`Expr.eq_of_kronSN`): the terms of both sides, expanded without merging (`Expr.toTL`), have
+nonnegative coefficients; equal values at the point give equal coefficients for each monomial,
+and terms with the same monomial are regrouped in the semiring.
+-/
+
+/-- All coefficients of `p` are nonnegative. -/
+def PPoly.NonNeg : PPoly → Prop
+  | .num k => 0 ≤ k
+  | .add k _ _ p => 0 ≤ k ∧ NonNeg p
+
+/-- The denotation of a polynomial with nonnegative coefficients in a semiring. -/
+noncomputable def PPoly.denoteSN {α} [Semiring α] (f : Nat → α) (B : Nat) : PPoly → α
+  | .num k => (k.toNat : α)
+  | .add k _ v p => (k.toNat : α) * monDenote f B 0 v + denoteSN f B p
+
+/-- `q` multiplied by the term `k * x^v` of degree `d`, without merging. -/
+def PPoly.mulTermTL (k : Int) (d v : Nat) : PPoly → PPoly
+  | .num c => .add (k * c) d v (.num 0)
+  | .add k' d' v' q => .add (k * k') (d + d') (v + v') (mulTermTL k d v q)
+
+/-- The product of `p` and `q`, without merging. -/
+def PPoly.mulTL : PPoly → PPoly → PPoly
+  | .num k, q => q.scale k
+  | .add k d v p, q => (mulTermTL k d v q).append (mulTL p q)
+
+def PPoly.powTL (p : PPoly) : Nat → PPoly
+  | 0 => .num 1
+  | k + 1 => mulTL (powTL p k) p
+
+theorem PPoly.NonNeg.addConst {q : PPoly} {k : Int} (hq : q.NonNeg) (hk : 0 ≤ k) : (append.addConst q k).NonNeg := by
+  induction q with
+  | num k' => simp only [append.addConst, NonNeg] at *; omega
+  | add k' d v q ih => exact ⟨hq.1, ih hq.2⟩
+
+theorem PPoly.NonNeg.append {p q : PPoly} (hp : p.NonNeg) (hq : q.NonNeg) : (p.append q).NonNeg := by
+  induction p with
+  | num k => exact NonNeg.addConst hq hp
+  | add k d v p ih => exact ⟨hp.1, ih hp.2⟩
+
+theorem PPoly.NonNeg.scale {p : PPoly} {k : Int} (hp : p.NonNeg) (hk : 0 ≤ k) : (p.scale k).NonNeg := by
+  induction p with
+  | num k' => exact Int.mul_nonneg hk hp
+  | add k' d v p ih => exact ⟨Int.mul_nonneg hk hp.1, ih hp.2⟩
+
+theorem PPoly.NonNeg.mulTermTL {q : PPoly} {k : Int} {d v : Nat} (hq : q.NonNeg) (hk : 0 ≤ k) : (q.mulTermTL k d v).NonNeg := by
+  induction q with
+  | num c => exact ⟨Int.mul_nonneg hk hq, Int.le_refl 0⟩
+  | add k' d' v' q ih => exact ⟨Int.mul_nonneg hk hq.1, ih hq.2⟩
+
+theorem PPoly.NonNeg.mulTL {p q : PPoly} (hp : p.NonNeg) (hq : q.NonNeg) : (p.mulTL q).NonNeg := by
+  induction p with
+  | num k => exact NonNeg.scale hq hp
+  | add k d v p ih => exact NonNeg.append (NonNeg.mulTermTL hq hp.1) (ih hp.2)
+
+theorem PPoly.NonNeg.powTL {p : PPoly} (hp : p.NonNeg) (k : Nat) : (p.powTL k).NonNeg := by
+  induction k with
+  | zero => show (0 : Int) ≤ 1; decide
+  | succ k ih => exact NonNeg.mulTL ih hp
+
+theorem PPoly.kron_mulTermTL (X k : Int) (d v : Nat) (q : PPoly) : (q.mulTermTL k d v).kron X = k * X ^ v * q.kron X := by
+  induction q with
+  | num c => simp only [mulTermTL, kron]; rw [Int.add_zero, Int.mul_comm k c, Int.mul_comm (k * X ^ v) c]; simp only [Int.mul_assoc, Int.mul_left_comm]
+  | add k' d' v' q ih =>
+    simp only [mulTermTL, kron, ih, Int.pow_add, Int.mul_add]
+    simp only [Int.mul_assoc, Int.mul_left_comm]
+
+theorem PPoly.kron_mulTL (X : Int) (p q : PPoly) : (p.mulTL q).kron X = p.kron X * q.kron X := by
+  induction p with
+  | num k => simp only [mulTL, kron_scale, kron]
+  | add k d v p ih => simp only [mulTL, kron_append, kron_mulTermTL, ih, kron, Int.add_mul]
+
+theorem PPoly.kron_powTL (X : Int) (p : PPoly) (k : Nat) : (p.powTL k).kron X = p.kron X ^ k := by
+  induction k with
+  | zero => simp [powTL, kron]
+  | succ k ih => simp only [powTL, kron_mulTL, ih, Int.pow_succ]
+
+theorem PPoly.norm1_mulTermTL (k : Int) (d v : Nat) (q : PPoly) : (q.mulTermTL k d v).norm1 ≤ k.natAbs * q.norm1 := by
+  induction q with
+  | num c => simp [mulTermTL, norm1, Int.natAbs_mul]
+  | add k' d' v' q ih => simp only [mulTermTL, norm1, Int.natAbs_mul, Nat.mul_add]; omega
+
+theorem PPoly.norm1_mulTL (p q : PPoly) : (p.mulTL q).norm1 ≤ p.norm1 * q.norm1 := by
+  induction p with
+  | num k => simp [mulTL, norm1_scale, norm1]
+  | add k d v p ih =>
+    simp only [mulTL, norm1]
+    have := norm1_append (q.mulTermTL k d v) (p.mulTL q)
+    have := norm1_mulTermTL k d v q
+    rw [Nat.add_mul]; omega
+
+theorem PPoly.norm1_powTL (p : PPoly) (k : Nat) : (p.powTL k).norm1 ≤ p.norm1 ^ k := by
+  induction k with
+  | zero => simp [powTL, norm1]
+  | succ k ih =>
+    simp only [powTL, Nat.pow_succ]
+    exact Nat.le_trans (norm1_mulTL _ _) (Nat.mul_le_mul_right _ ih)
+
+theorem PPoly.Deg.addConst {B D : Nat} {q : PPoly} (k : Int) (hq : q.Deg B D) : (append.addConst q k).Deg B D := by
+  induction q with
+  | num => trivial
+  | add k' d v q ih => exact ⟨hq.1, ih hq.2⟩
+
+theorem PPoly.Deg.append {B D : Nat} {p q : PPoly} (hp : p.Deg B D) (hq : q.Deg B D) : (p.append q).Deg B D := by
+  induction p with
+  | num k => exact Deg.addConst k hq
+  | add k d v p ih => exact ⟨hp.1, ih hp.2⟩
+
+theorem PPoly.Deg.scale {B D : Nat} {p : PPoly} (k : Int) (hp : p.Deg B D) : (p.scale k).Deg B D := by
+  induction p with
+  | num => trivial
+  | add k' d v p ih => exact ⟨hp.1, ih hp.2⟩
+
+theorem PPoly.Deg.mulTermTL {B D₁ D₂ : Nat} (hB : 1 < B) {q : PPoly} (k : Int) (d v : Nat) (hv : dsum B v ≤ D₁)
+    (hq : q.Deg B D₂) (hD : D₁ + D₂ < B) : (q.mulTermTL k d v).Deg B (D₁ + D₂) := by
+  induction q with
+  | num c => exact ⟨by omega, trivial⟩
+  | add k' d' v' q ih =>
+    refine ⟨?_, ih hq.2⟩
+    rw [dsum_add hB v v' (by have := hq.1; omega)]; have := hq.1; omega
+
+theorem PPoly.Deg.mulTL {B D₁ D₂ : Nat} (hB : 1 < B) {p q : PPoly} (hp : p.Deg B D₁) (hq : q.Deg B D₂)
+    (hD : D₁ + D₂ < B) : (p.mulTL q).Deg B (D₁ + D₂) := by
+  induction p with
+  | num k => exact Deg.mono (by omega) _ (Deg.scale k hq)
+  | add k d v p ih => exact Deg.append (Deg.mulTermTL hB k d v hp.1 hq hD) (ih hp.2)
+
+theorem PPoly.Deg.powTL {B D : Nat} (hB : 1 < B) {p : PPoly} (hp : p.Deg B D) (k : Nat) (hD : D * k < B) :
+    (p.powTL k).Deg B (D * k) := by
+  induction k with
+  | zero => trivial
+  | succ k ih =>
+    have := Deg.mulTL hB (ih (by rw [Nat.mul_succ] at hD; omega)) hp (by rw [Nat.mul_succ] at hD; omega)
+    rwa [← Nat.mul_succ] at this
+
+theorem PPoly.denoteSN_addConst {α} [Semiring α] (f : Nat → α) (B : Nat) {q : PPoly} {k : Int} (hq : q.NonNeg) (hk : 0 ≤ k) :
+    (append.addConst q k).denoteSN f B = q.denoteSN f B + (k.toNat : α) := by
+  induction q with
+  | num k' =>
+    show ((k' + k).toNat : α) = (k'.toNat : α) + (k.toNat : α)
+    rw [Int.toNat_add hq hk, Semiring.natCast_add]
+  | add k' d v q ih =>
+    show (k'.toNat : α) * monDenote f B 0 v + (append.addConst q k).denoteSN f B = _
+    rw [ih hq.2]; exact (add_assoc _ _ _).symm
+
+theorem PPoly.denoteSN_append {α} [Semiring α] (f : Nat → α) (B : Nat) {p q : PPoly} (hp : p.NonNeg) (hq : q.NonNeg) :
+    (p.append q).denoteSN f B = p.denoteSN f B + q.denoteSN f B := by
+  induction p with
+  | num k => show (append.addConst q k).denoteSN f B = _; rw [denoteSN_addConst f B hq hp, add_comm]; rfl
+  | add k d v p ih =>
+    show (k.toNat : α) * monDenote f B 0 v + (p.append q).denoteSN f B = _
+    rw [ih hp.2]; exact (add_assoc _ _ _).symm
+
+theorem PPoly.denoteSN_scale {α} [Semiring α] (f : Nat → α) (B : Nat) {p : PPoly} {k : Int} (hp : p.NonNeg) (hk : 0 ≤ k) :
+    (p.scale k).denoteSN f B = (k.toNat : α) * p.denoteSN f B := by
+  induction p with
+  | num k' => show ((k * k').toNat : α) = _; rw [Int.toNat_mul hk hp, Semiring.natCast_mul]; rfl
+  | add k' d v p ih =>
+    show ((k * k').toNat : α) * monDenote f B 0 v + (p.scale k).denoteSN f B = (k.toNat : α) * ((k'.toNat : α) * monDenote f B 0 v + p.denoteSN f B)
+    rw [ih hp.2, Int.toNat_mul hk hp.1, Semiring.natCast_mul, left_distrib, mul_assoc]
+
+theorem PPoly.denoteSN_mulTermTL {α} [CommSemiring α] (f : Nat → α) {B D₁ D₂ : Nat} (hB : 1 < B) {q : PPoly} {k : Int} (d v : Nat)
+    (hq : q.NonNeg) (hk : 0 ≤ k) (hv : dsum B v ≤ D₁) (hd : q.Deg B D₂) (hD : D₁ + D₂ < B) :
+    (q.mulTermTL k d v).denoteSN f B = (k.toNat : α) * monDenote f B 0 v * q.denoteSN f B := by
+  induction q with
+  | num c =>
+    show ((k * c).toNat : α) * monDenote f B 0 v + ((0 : Int).toNat : α) = _ * (c.toNat : α)
+    rw [Int.toNat_mul hk hq, Semiring.natCast_mul, show (0 : Int).toNat = 0 from rfl, Semiring.natCast_zero, add_zero,
+      mul_assoc, mul_assoc, CommSemiring.mul_comm (c.toNat : α)]
+  | add k' d' v' q ih =>
+    show ((k * k').toNat : α) * monDenote f B 0 (v + v') + (q.mulTermTL k d v).denoteSN f B =
+      (k.toNat : α) * monDenote f B 0 v * ((k'.toNat : α) * monDenote f B 0 v' + q.denoteSN f B)
+    rw [ih hq.2 hd.2, Int.toNat_mul hk hq.1, Semiring.natCast_mul, monDenote_add f hB 0 v v' (by have := hd.1; omega),
+      left_distrib]
+    congr 1
+    simp only [mul_assoc, CommSemiring.mul_left_comm]
+
+theorem PPoly.denoteSN_mulTL {α} [CommSemiring α] (f : Nat → α) {B D₁ D₂ : Nat} (hB : 1 < B) {p q : PPoly}
+    (hp : p.NonNeg) (hq : q.NonNeg) (dp : p.Deg B D₁) (dq : q.Deg B D₂) (hD : D₁ + D₂ < B) :
+    (p.mulTL q).denoteSN f B = p.denoteSN f B * q.denoteSN f B := by
+  induction p with
+  | num k => show (q.scale k).denoteSN f B = (k.toNat : α) * _; rw [denoteSN_scale f B hq hp]
+  | add k d v p ih =>
+    show ((q.mulTermTL k d v).append (p.mulTL q)).denoteSN f B = ((k.toNat : α) * monDenote f B 0 v + p.denoteSN f B) * _
+    rw [denoteSN_append f B (NonNeg.mulTermTL hq hp.1) (NonNeg.mulTL hp.2 hq), denoteSN_mulTermTL f hB d v hq hp.1 dp.1 dq hD,
+      ih hp.2 dp.2, right_distrib]
+
+theorem PPoly.denoteSN_powTL {α} [CommSemiring α] (f : Nat → α) {B D : Nat} (hB : 1 < B) {p : PPoly}
+    (hp : p.NonNeg) (dp : p.Deg B D) (k : Nat) (hD : D * k < B) :
+    (p.powTL k).denoteSN f B = p.denoteSN f B ^ k := by
+  induction k with
+  | zero => show ((1 : Int).toNat : α) = _; rw [pow_zero]; exact Semiring.natCast_one
+  | succ k ih =>
+    show ((p.powTL k).mulTL p).denoteSN f B = _
+    rw [denoteSN_mulTL f hB (NonNeg.powTL hp k) hp (Deg.powTL hB dp k (by rw [Nat.mul_succ] at hD; omega)) dp
+      (by rw [Nat.mul_succ] at hD; omega), ih (by rw [Nat.mul_succ] at hD; omega), pow_succ]
+
+/-- The terms of `e` with packed monomials in base `B`, without merging (only used in proofs). -/
+noncomputable def Expr.toTL (B : Nat) : Expr → PPoly
+  | .num k | .intCast k => .num k
+  | .natCast n => .num n
+  | .var x => .add 1 1 (B ^ x) (.num 0)
+  | .neg a => (toTL B a).neg
+  | .add a b => (toTL B a).append (toTL B b)
+  | .sub a b => (toTL B a).append (toTL B b).neg
+  | .mul a b => (toTL B a).mulTL (toTL B b)
+  | .pow a k => (toTL B a).powTL k
+
+theorem Expr.toTL_spec {α} [CommSemiring α] (ctx : Context α) (X : Int) {B : Nat} (hB : 1 < B) (e : Expr)
+    (hs : e.semi_k = true) (he : e.degB_k < B) :
+    (e.toTL B).NonNeg ∧ (e.toTL B).Deg B e.degB_k ∧ (e.toTL B).denoteSN (Var.denote ctx) B = e.denoteS ctx ∧
+    (e.toTL B).kron X = e.denoteF (fun i => X ^ (B ^ i)) ∧ (e.toTL B).norm1 ≤ e.majorant_k := by
+  induction e with
+  | num k =>
+    cases k with
+    | ofNat n =>
+      refine ⟨Int.natCast_nonneg n, trivial, ?_, ?_, ?_⟩
+      · show ((Int.ofNat n).toNat : α) = OfNat.ofNat (α := α) (Int.ofNat n).natAbs
+        rw [Semiring.ofNat_eq_natCast]; rfl
+      · show (Int.ofNat n) = denoteInt (Int.ofNat n); rw [denoteInt_eq]; rfl
+      · show (Int.ofNat n).natAbs ≤ Int.natAbs_k (Int.ofNat n); rw [Int.natAbs_k_eq]; exact Nat.le_refl _
+    | negSucc => cases hs
+  | natCast n =>
+    refine ⟨Int.natCast_nonneg n, trivial, ?_, rfl, ?_⟩
+    · show ((n : Int).toNat : α) = OfNat.ofNat (α := α) n; rw [Semiring.ofNat_eq_natCast]; rfl
+    · show (n : Int).natAbs ≤ n; simp
+  | intCast => cases hs
+  | var x =>
+    refine ⟨⟨by decide, show (0 : Int) ≤ 0 by decide⟩, ⟨?_, trivial⟩, ?_, ?_, ?_⟩
+    · have := PPoly.dsum_mul_pow hB x 1 hB; rw [Nat.one_mul] at this; rw [this]; exact Nat.le_refl _
+    · show ((1 : Int).toNat : α) * PPoly.monDenote (Var.denote ctx) B 0 (B ^ x) + ((0 : Int).toNat : α) = Var.denote ctx x
+      have hm := PPoly.monDenote_mul_pow (Var.denote ctx) hB 0 x 1 hB
+      rw [Nat.one_mul, Nat.zero_add, pow_one] at hm
+      rw [hm, show (1 : Int).toNat = 1 from rfl, show (0 : Int).toNat = 0 from rfl, Semiring.natCast_one, one_mul,
+        Semiring.natCast_zero, add_zero]
+    · show (1 : Int) * X ^ (B ^ x) + 0 = X ^ (B ^ x); omega
+    · show (1 : Int).natAbs + (0 : Int).natAbs ≤ 1; simp
+  | neg => cases hs
+  | sub => cases hs
+  | add a b iha ihb =>
+    have hs := semi_k_and hs
+    have hm := Expr.le_max_k a.degB_k b.degB_k
+    have he' : Bool.rec a.degB_k b.degB_k (Nat.blt a.degB_k b.degB_k) < B := he
+    obtain ⟨a₁, a₂, a₃, a₄, a₅⟩ := iha hs.1 (by omega)
+    obtain ⟨b₁, b₂, b₃, b₄, b₅⟩ := ihb hs.2 (by omega)
+    have hD : (Bool.rec a.degB_k b.degB_k (Nat.blt a.degB_k b.degB_k) : Nat) = (Expr.add a b).degB_k := rfl
+    refine ⟨PPoly.NonNeg.append a₁ b₁, PPoly.Deg.append (PPoly.Deg.mono (by rw [← hD]; exact hm.1) _ a₂)
+      (PPoly.Deg.mono (by rw [← hD]; exact hm.2) _ b₂), ?_, ?_, ?_⟩
+    · show ((a.toTL B).append (b.toTL B)).denoteSN _ B = a.denoteS ctx + b.denoteS ctx
+      rw [PPoly.denoteSN_append _ B a₁ b₁, a₃, b₃]
+    · show ((a.toTL B).append (b.toTL B)).kron X = a.denoteF _ + b.denoteF _; rw [PPoly.kron_append, a₄, b₄]
+    · show ((a.toTL B).append (b.toTL B)).norm1 ≤ Nat.add a.majorant_k b.majorant_k
+      have := PPoly.norm1_append (a.toTL B) (b.toTL B); simp only [Nat.add_eq]; omega
+  | mul a b iha ihb =>
+    have hs := semi_k_and hs
+    have he' : Nat.add a.degB_k b.degB_k < B := he
+    obtain ⟨a₁, a₂, a₃, a₄, a₅⟩ := iha hs.1 (by simp at he'; omega)
+    obtain ⟨b₁, b₂, b₃, b₄, b₅⟩ := ihb hs.2 (by simp at he'; omega)
+    refine ⟨PPoly.NonNeg.mulTL a₁ b₁, PPoly.Deg.mulTL (D₁ := a.degB_k) (D₂ := b.degB_k) hB a₂ b₂ (by simp at he'; omega), ?_, ?_, ?_⟩
+    · show ((a.toTL B).mulTL (b.toTL B)).denoteSN _ B = a.denoteS ctx * b.denoteS ctx
+      rw [PPoly.denoteSN_mulTL _ hB a₁ b₁ a₂ b₂ (by simp at he'; omega), a₃, b₃]
+    · show ((a.toTL B).mulTL (b.toTL B)).kron X = a.denoteF _ * b.denoteF _; rw [PPoly.kron_mulTL, a₄, b₄]
+    · show ((a.toTL B).mulTL (b.toTL B)).norm1 ≤ Nat.mul a.majorant_k b.majorant_k
+      exact Nat.le_trans (PPoly.norm1_mulTL _ _) (Nat.mul_le_mul a₅ b₅)
+  | pow a k ih =>
+    have he' : Nat.mul a.degB_k k < B := he
+    by_cases hk : k = 0
+    · subst hk
+      refine ⟨by show (0 : Int) ≤ 1; decide, trivial, ?_, ?_, ?_⟩
+      · show ((1 : Int).toNat : α) = a.denoteS ctx ^ 0; rw [pow_zero]; exact Semiring.natCast_one
+      · show (1 : Int) = a.denoteF _ ^ 0; rw [pow_zero]
+      · show (1 : Int).natAbs ≤ Nat.pow a.majorant_k 0; simp
+    have hk' : a.degB_k ≤ a.degB_k * k := Nat.le_mul_of_pos_right _ (by omega)
+    obtain ⟨a₁, a₂, a₃, a₄, a₅⟩ := ih hs (by simp at he'; omega)
+    refine ⟨PPoly.NonNeg.powTL a₁ k, PPoly.Deg.powTL hB a₂ k (by simp at he'; omega), ?_, ?_, ?_⟩
+    · show ((a.toTL B).powTL k).denoteSN _ B = a.denoteS ctx ^ k
+      rw [PPoly.denoteSN_powTL _ hB a₁ a₂ k (by simp at he'; omega), a₃]
+    · show ((a.toTL B).powTL k).kron X = a.denoteF _ ^ k; rw [PPoly.kron_powTL, a₄]
+    · show ((a.toTL B).powTL k).norm1 ≤ Nat.pow a.majorant_k k
+      exact Nat.le_trans (PPoly.norm1_powTL _ k) (Nat.pow_le_pow_left a₅ k)
+
+theorem PPoly.coeff_append (c : Nat) (p q : PPoly) : (p.append q).coeff c = p.coeff c + q.coeff c := by
+  have hc : ∀ (q : PPoly) (k : Int), (append.addConst q k).coeff c = q.coeff c + (if c = 0 then k else 0) := by
+    intro q k
+    induction q with
+    | num k' => simp only [append.addConst, coeff]; split <;> omega
+    | add k' d v q ih => simp only [append.addConst, coeff, ih]; omega
+  induction p with
+  | num k => simp only [append, coeff, hc]; omega
+  | add k d v p ih => simp only [append, coeff, ih]; omega
+
+theorem PPoly.coeff_neg (c : Nat) (p : PPoly) : p.neg.coeff c = - p.coeff c := by
+  induction p with
+  | num k => simp only [neg, coeff]; split <;> omega
+  | add k d v p ih => simp only [neg, coeff, ih]; split <;> omega
+
+theorem PPoly.NonNeg.coeff {p : PPoly} (hp : p.NonNeg) (c : Nat) : 0 ≤ p.coeff c := by
+  induction p with
+  | num k => simp only [PPoly.coeff]; split; exact hp; exact Int.le_refl 0
+  | add k d v p ih => simp only [PPoly.coeff]; have := ih hp.2; have := hp.1; split <;> omega
+
+theorem PPoly.NonNeg.removeCode {p : PPoly} (hp : p.NonNeg) (c : Nat) : (p.removeCode c).NonNeg := by
+  induction p with
+  | num k => simp only [PPoly.removeCode]; split; exact Int.le_refl 0; exact hp
+  | add k d v p ih => simp only [PPoly.removeCode]; split; exact ih hp.2; exact ⟨hp.1, ih hp.2⟩
+
+theorem PPoly.denoteSN_removeCode {α} [Semiring α] (f : Nat → α) (B c : Nat) (p : PPoly) (hp : p.NonNeg) :
+    p.denoteSN f B = ((p.coeff c).toNat : α) * monDenote f B 0 c + (p.removeCode c).denoteSN f B := by
+  induction p with
+  | num k =>
+    by_cases h : c = 0
+    · subst h
+      simp only [denoteSN, coeff, removeCode, ite_true, monDenote_zero, mul_one]
+      rw [show (0 : Int).toNat = 0 from rfl, Semiring.natCast_zero, add_zero]
+    · simp only [denoteSN, coeff, removeCode, h, ite_false]
+      rw [show (0 : Int).toNat = 0 from rfl, Semiring.natCast_zero, zero_mul, zero_add]
+  | add k d v p ih =>
+    have hc := NonNeg.coeff hp.2 c
+    by_cases h : v = c
+    · subst h
+      simp only [denoteSN, coeff, removeCode, ite_true]
+      rw [ih hp.2, Int.toNat_add hp.1 hc, Semiring.natCast_add, right_distrib, add_assoc]
+    · simp only [denoteSN, coeff, removeCode, h, ite_false, Int.zero_add]
+      rw [ih hp.2, add_left_comm]
+
+theorem PPoly.denoteSN_eq_of_coeff {α} [Semiring α] (f : Nat → α) (B : Nat) :
+    ∀ (n : Nat) (p q : PPoly), p.size + q.size ≤ n → p.NonNeg → q.NonNeg → (∀ c, p.coeff c = q.coeff c) →
+      p.denoteSN f B = q.denoteSN f B := by
+  intro n
+  induction n with
+  | zero =>
+    intro p q hs hp hq h
+    cases p with
+    | add => simp [size] at hs
+    | num k =>
+      cases q with
+      | add => simp [size] at hs
+      | num k' => have := h 0; simp only [coeff, ite_true] at this; subst this; rfl
+  | succ n ih =>
+    intro p q hs hp hq h
+    have step : ∀ (c : Nat), (p.removeCode c).size + (q.removeCode c).size ≤ n → p.denoteSN f B = q.denoteSN f B := by
+      intro c hs'
+      rw [denoteSN_removeCode f B c p hp, denoteSN_removeCode f B c q hq, h c]
+      congr 1
+      apply ih _ _ hs' (NonNeg.removeCode hp c) (NonNeg.removeCode hq c)
+      intro c'; rw [coeff_removeCode, coeff_removeCode, h c']
+    cases p with
+    | add k d v p =>
+      apply step v
+      have := size_removeCode_le v p
+      have := size_removeCode_le v q
+      have : ((PPoly.add k d v p).removeCode v).size = (p.removeCode v).size := by simp [removeCode]
+      simp [size] at hs; omega
+    | num k =>
+      cases q with
+      | add k' d' v' q =>
+        apply step v'
+        have := size_removeCode_le v' q
+        have : ((PPoly.add k' d' v' q).removeCode v').size = (q.removeCode v').size := by simp [removeCode]
+        have : ((PPoly.num k).removeCode v').size = 0 := by simp only [removeCode]; split <;> rfl
+        simp [size] at hs; omega
+      | num k' => have := h 0; simp only [coeff, ite_true] at this; subst this; rfl
+
+/--
+Identities in commutative semirings, without cancellation: the terms of both sides have
+nonnegative coefficients, the same value at the point gives the same coefficient for each
+monomial, and terms with the same monomial are regrouped (`PPoly.denoteSN_eq_of_coeff`).
+-/
+theorem Expr.eq_of_kronSN {α} [CommSemiring α] (ctx : Context α) (K B : Nat) (a b : Expr)
+    (hB : degSOk_k B a b = true) (hK : kronOk_k K a b = true) (h : a.kronEval_k K B = b.kronEval_k K B) :
+    a.denoteS ctx = b.denoteS ctx := by
+  obtain ⟨hS, hB⟩ := of_degSOk_k hB
+  have hS := semi_k_and hS
+  have hB := of_degOk_k hB
+  have hK : 2 * (a.majorant_k + b.majorant_k) < 2 ^ K := Nat.blt_eq.mp hK
+  have hX : (0 : Int) < 2 ^ K := Int.pow_pos (by decide)
+  obtain ⟨a₁, -, a₃, a₄, a₅⟩ := Expr.toTL_spec ctx ((2 : Int) ^ K) hB.1 a hS.1 hB.2.1
+  obtain ⟨b₁, -, b₃, b₄, b₅⟩ := Expr.toTL_spec ctx ((2 : Int) ^ K) hB.1 b hS.2 hB.2.2
+  have hk : ((a.toTL B).append (b.toTL B).neg).kron ((2 : Int) ^ K) = 0 := by
+    rw [PPoly.kron_append, PPoly.kron_neg, a₄, b₄, ← kronEval_k_eq, ← kronEval_k_eq, h]; omega
+  have hn : 2 * (((a.toTL B).append (b.toTL B).neg).norm1 : Int) < 2 ^ K := by
+    have := PPoly.norm1_append (a.toTL B) (b.toTL B).neg; rw [PPoly.norm1_neg] at this
+    have : 2 * ((a.toTL B).append (b.toTL B).neg).norm1 < 2 ^ K := by omega
+    have h2 : ((2 ^ K : Nat) : Int) = (2 : Int) ^ K := Int.natCast_pow 2 K
+    rw [← h2]; exact Int.ofNat_lt.mpr (by simpa using this)
+  have hc : ∀ c, (a.toTL B).coeff c = (b.toTL B).coeff c := fun c => by
+    have := PPoly.coeff_eq_zero_of_kron _ hX c _ hk hn
+    rw [PPoly.coeff_append, PPoly.coeff_neg] at this; omega
+  rw [← a₃, ← b₃]
+  exact PPoly.denoteSN_eq_of_coeff _ B _ _ _ (Nat.le_refl _) a₁ b₁ hc
+
+theorem eq_true_of_kronSN {α} [CommSemiring α] (ctx : Context α) (K B : Nat) (a b : Expr)
+    (hB : Expr.degSOk_k B a b = true) (hK : Expr.kronOk_k K a b = true) (h : a.kronEval_k K B = b.kronEval_k K B) :
+    (a.denoteS ctx = b.denoteS ctx) = True :=
+  eq_true (Expr.eq_of_kronSN ctx K B a b hB hK h)
+
+theorem le_true_of_kronSN {α} [CommSemiring α] [LE α] [IsPreorder α] (ctx : Context α) (K B : Nat) (a b : Expr)
+    (hB : Expr.degSOk_k B a b = true) (hK : Expr.kronOk_k K a b = true) (h : a.kronEval_k K B = b.kronEval_k K B) :
+    (a.denoteS ctx ≤ b.denoteS ctx) = True := by
+  rw [Expr.eq_of_kronSN ctx K B a b hB hK h]; exact eq_true (Std.le_refl _)
+
+theorem lt_false_of_kronSN {α} [CommSemiring α] [LE α] [LT α] [LawfulOrderLT α] [IsPreorder α] (ctx : Context α)
+    (K B : Nat) (a b : Expr) (hB : Expr.degSOk_k B a b = true) (hK : Expr.kronOk_k K a b = true)
+    (h : a.kronEval_k K B = b.kronEval_k K B) : (a.denoteS ctx < b.denoteS ctx) = False := by
+  rw [Expr.eq_of_kronSN ctx K B a b hB hK h]; exact eq_false Std.lt_irrefl
+
 end Lean.Grind.CommRing

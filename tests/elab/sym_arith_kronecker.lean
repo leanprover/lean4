@@ -5,7 +5,8 @@ both sides at one point. Covers `=`, `≤`, `<`, commutative rings and semirings
 coefficients, high powers, negative coefficients, a nonzero characteristic, linear terms over many
 variables (`Expr.eq_of_kronLin`), relations whose sides differ by a constant, relations rewritten to
 their normal form (`le_of_kron_rel`), and semiring relations whose common part is cancelled in the
-certificate (`le_cancel_of_kronS`, `le_cancel_of_kronLinS`). Each proof is checked by the kernel.
+certificate (`le_cancel_of_kronS`, `le_cancel_of_kronLinS`), and commutative semirings without
+`AddRightCancel` (`Expr.eq_of_kronSN`). Each proof is checked by the kernel.
 -/
 
 set_option sym.arith.maxTerms 1000
@@ -60,3 +61,12 @@ example (a b c d : Nat) : ((a + b + c + d)^6 < (a + b + c + d)^2 * (a + b + c + 
 example (a b c : Nat) : ((a + b)^3 + 2 * c ≤ (b + a)^3 + c + 5) = (c ≤ 5) := by sym => simp arithSimp
 example (a b c : Nat) : ((a + b)^3 + 2 * c = (b + a)^3 + c + 5) = (c = 5) := by sym => simp arithSimp
 example (x0 x1 x2 x3 x4 x5 x6 x7 x8 x9 x10 x11 x12 x13 x14 x15 x16 x17 x18 x19 x20 x21 x22 x23 x24 x25 x26 x27 x28 x29 x30 x31 x32 x33 x34 x35 x36 x37 x38 x39 w : Nat) : (x0 + x1 + x2 + x3 + x4 + x5 + x6 + x7 + x8 + x9 + x10 + x11 + x12 + x13 + x14 + x15 + x16 + x17 + x18 + x19 + x20 + x21 + x22 + x23 + x24 + x25 + x26 + x27 + x28 + x29 + x30 + x31 + x32 + x33 + x34 + x35 + x36 + x37 + x38 + x39 + 3 ≤ x39 + x38 + x37 + x36 + x35 + x34 + x33 + x32 + x31 + x30 + x29 + x28 + x27 + x26 + x25 + x24 + x23 + x22 + x21 + x20 + x19 + x18 + x17 + x16 + x15 + x14 + x13 + x12 + x11 + x10 + x9 + x8 + x7 + x6 + x5 + x4 + x3 + x2 + x1 + x0 + w) = (3 ≤ w) := by sym => simp arithSimp
+
+-- Commutative semirings without `AddRightCancel`: the terms are regrouped in the semiring
+-- (`Grind.CommRing.Expr.eq_of_kronSN`).
+example [Lean.Grind.CommSemiring α] (a b c d : α) : (a + b + c + d)^6 = (a + b + c + d)^3 * (d + c + b + a)^3 := by
+  sym => simp arithSimp
+example [Lean.Grind.CommSemiring α] (a b : α) : (a + 2 * b)^3 = a^3 + 6 * a^2 * b + 12 * a * b^2 + 8 * b^3 := by
+  sym => simp arithSimp
+example [Lean.Grind.CommSemiring α] (f : α → α) (a b : α) : f ((a + b)^3) = f (b^3 + 3 * a * b^2 + 3 * a^2 * b + a^3) := by
+  sym => simp arithSimp

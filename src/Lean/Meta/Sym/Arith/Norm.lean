@@ -1212,6 +1212,9 @@ private def mkCertificate (e₁ : Expr) (re : RingExpr) (p : Poly) (vars : Array
     else if let (some arcInst, some (K, B)) := (← getAddRightCancelInst?, (kronArgs? re re').filter (semiOk ·.2 re re')) then
       -- Both sides are evaluated at a point (Kronecker substitution) in the ring envelope.
       pure (mkAppN (mkConst ``Grind.CommRing.Expr.eq_of_kronS [u]) (#[type, inst, arcInst, ctx] ++ kronProofArgs re re' K B))
+    else if let some (K, B) := (kronArgs? re re').filter (semiOk ·.2 re re') then
+      -- Without `AddRightCancel`, the terms are regrouped in the semiring (`Expr.eq_of_kronSN`).
+      pure (mkAppN (mkConst ``Grind.CommRing.Expr.eq_of_kronSN [u]) (#[type, inst, ctx] ++ kronProofArgs re re' K B))
     else if let (true, some arcInst) := (usePacked p.length && semiOk (packedBase re re') re re', ← getAddRightCancelInst?) then
       -- Both sides are normalized with packed monomials in the ring envelope.
       pure (mkAppN (mkConst ``Grind.CommRing.Expr.eq_of_toPPX_eqS [u]) (#[type, inst, arcInst, ctx] ++ packedArgs re re' p (packedBal re) false))
@@ -2130,6 +2133,15 @@ private def normalizeRelCore (rel : RelKind) (relFn : Expr) (order? : Option Ord
         let h := mkAppN (mkConst name [u]) (#[sr.type, csInst, arcInst] ++ insts ++ #[ctx] ++ kronProofArgs l r K B)
         let e' ← if holds then getTrueExpr else getFalseExpr
         return .step e' (mkExpectedPropHint h (mkPropEq e e'))
+      if let some (K, B) := (kronArgs? l r).filter (semiOk ·.2 l r) then
+        -- Without `AddRightCancel`, the terms are regrouped in the semiring (`Expr.eq_of_kronSN`).
+        let name := match rel with
+          | .eq => ``Grind.CommRing.eq_true_of_kronSN
+          | .le => ``Grind.CommRing.le_true_of_kronSN
+          | .lt => ``Grind.CommRing.lt_false_of_kronSN
+        let h := mkAppN (mkConst name [u]) (#[sr.type, csInst] ++ insts ++ #[ctx] ++ kronProofArgs l r K B)
+        let e' ← if holds then getTrueExpr else getFalseExpr
+        return .step e' (mkExpectedPropHint h (mkPropEq e e'))
       if let (true, some arcInst) := (usePacked pl.length && semiOk (packedBase l r) l r, ← getAddRightCancelInst?) then
         let name := match rel with
           | .eq => ``Grind.CommRing.eq_true_of_toPPX_eqS
@@ -2251,6 +2263,9 @@ private def normalizeRelCore (rel : RelKind) (relFn : Expr) (order? : Option Ord
       else if let (some csInst, some arcInst, some (K, B)) := (csInst?, arcInst?, (kronArgs? x xC).filter (semiOk ·.2 x xC)) then
         let h := mkAppN (mkConst ``Grind.CommRing.Expr.eq_of_kronS [u])
           (#[sr.type, csInst, arcInst, ctx] ++ kronProofArgs x xC K B)
+        mkExpectedPropHint h (mkApp3 (mkConst ``Eq [u.succ]) sr.type ex exC)
+      else if let (some csInst, some (K, B)) := (csInst?, (kronArgs? x xC).filter (semiOk ·.2 x xC)) then
+        let h := mkAppN (mkConst ``Grind.CommRing.Expr.eq_of_kronSN [u]) (#[sr.type, csInst, ctx] ++ kronProofArgs x xC K B)
         mkExpectedPropHint h (mkApp3 (mkConst ``Eq [u.succ]) sr.type ex exC)
       else if let (some csInst, some arcInst, true) := (csInst?, arcInst?, usePacked px.length && semiOk (packedBase x xC) x xC) then
         let h := mkAppN (mkConst ``Grind.CommRing.Expr.eq_of_toPPX_eqS [u])

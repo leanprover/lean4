@@ -14105,7 +14105,6 @@ _start:
 {
 lean_object* v___y_4123_; lean_object* v___y_4124_; uint8_t v___y_4125_; lean_object* v___x_4128_; lean_object* v___x_4129_; 
 v___x_4128_ = ((lean_object*)(l___private_Lean_Meta_Tactic_Cbv_Main_0__Lean_Meta_Tactic_Cbv_cbvPost___closed__0));
-lean_inc_ref(v_a_4111_);
 v___x_4129_ = l___private_Lean_Meta_Sym_Simp_EvalGround_0__Lean_Meta_Sym_Simp_evalGroundCore___redArg(v_a_4111_, v___x_4128_, v_a_4115_, v_a_4116_, v_a_4117_, v_a_4118_, v_a_4119_, v_a_4120_);
 if (lean_obj_tag(v___x_4129_) == 0)
 {
@@ -18616,7 +18615,7 @@ else
 {
 lean_object* v_e_x27_5506_; lean_object* v_proof_5507_; uint8_t v___x_5508_; 
 v_e_x27_5506_ = lean_ctor_get(v_a_5505_, 0);
-lean_inc_ref_n(v_e_x27_5506_, 2);
+lean_inc_ref(v_e_x27_5506_);
 v_proof_5507_ = lean_ctor_get(v_a_5505_, 1);
 lean_inc_ref(v_proof_5507_);
 lean_dec_ref_known(v_a_5505_, 2);
@@ -19888,7 +19887,7 @@ else
 lean_object* v_e_x27_6091_; lean_object* v_proof_6092_; uint8_t v___x_6093_; 
 lean_del_object(v___x_6085_);
 v_e_x27_6091_ = lean_ctor_get(v_a_6083_, 0);
-lean_inc_ref_n(v_e_x27_6091_, 2);
+lean_inc_ref(v_e_x27_6091_);
 v_proof_6092_ = lean_ctor_get(v_a_6083_, 1);
 lean_inc_ref(v_proof_6092_);
 lean_dec_ref_known(v_a_6083_, 2);

@@ -5804,7 +5804,6 @@ lean_object* v_a_1802_; lean_object* v___x_1804_; uint8_t v_isShared_1805_; uint
 lean_dec_ref(v___f_1782_);
 lean_dec(v_idxs_1775_);
 lean_dec(v_params_1774_);
-lean_dec(v_univs_1773_);
 v_a_1802_ = lean_ctor_get(v___x_1784_, 0);
 v_isSharedCheck_1809_ = !lean_is_exclusive(v___x_1784_);
 if (v_isSharedCheck_1809_ == 0)
@@ -5854,6 +5853,7 @@ lean_dec(v_a_1817_);
 lean_dec_ref(v_a_1816_);
 lean_dec(v_a_1815_);
 lean_dec_ref(v_a_1814_);
+lean_dec(v_univs_1810_);
 return v_res_1819_;
 }
 }
@@ -10330,7 +10330,6 @@ if (lean_obj_tag(v_x_3255_) == 0)
 lean_object* v___x_3262_; lean_object* v___x_3263_; 
 lean_dec(v___x_3254_);
 lean_dec(v___x_3253_);
-lean_dec(v_univs_3252_);
 v___x_3262_ = l_List_reverse___redArg(v_x_3256_);
 v___x_3263_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_3263_, 0, v___x_3262_);
@@ -10362,7 +10361,6 @@ v_resetjp_3266_:
 lean_object* v___x_3269_; 
 lean_inc(v___x_3254_);
 lean_inc(v___x_3253_);
-lean_inc(v_univs_3252_);
 v___x_3269_ = l___private_Lean_Meta_MkIffOfInductiveProp_0__Lean_Meta_constrToProp(v_univs_3252_, v___x_3253_, v___x_3254_, v_head_3264_, v___y_3257_, v___y_3258_, v___y_3259_, v___y_3260_);
 if (lean_obj_tag(v___x_3269_) == 0)
 {
@@ -10401,7 +10399,6 @@ lean_dec(v_tail_3265_);
 lean_dec(v_x_3256_);
 lean_dec(v___x_3254_);
 lean_dec(v___x_3253_);
-lean_dec(v_univs_3252_);
 v_a_3275_ = lean_ctor_get(v___x_3269_, 0);
 v_isSharedCheck_3282_ = !lean_is_exclusive(v___x_3269_);
 if (v_isSharedCheck_3282_ == 0)
@@ -10453,6 +10450,7 @@ lean_dec(v___y_3292_);
 lean_dec_ref(v___y_3291_);
 lean_dec(v___y_3290_);
 lean_dec_ref(v___y_3289_);
+lean_dec(v_univs_3284_);
 return v_res_3294_;
 }
 }
@@ -10539,6 +10537,7 @@ v___x_3319_ = l_List_drop___redArg(v_numParams_3303_, v_fvars_x27_3316_);
 lean_dec(v_fvars_x27_3316_);
 v___x_3320_ = lean_box(0);
 v___x_3321_ = l_List_mapM_loop___at___00__private_Lean_Meta_MkIffOfInductiveProp_0__Lean_Meta_mkIffOfInductivePropImpl_spec__0(v_univs_3302_, v___x_3318_, v___x_3319_, v_ctors_3304_, v___x_3320_, v___y_3308_, v___y_3309_, v___y_3310_, v___y_3311_);
+lean_dec(v_univs_3302_);
 if (lean_obj_tag(v___x_3321_) == 0)
 {
 lean_object* v_a_3322_; lean_object* v___x_3323_; lean_object* v_fst_3324_; lean_object* v_snd_3325_; lean_object* v___x_3327_; uint8_t v_isShared_3328_; uint8_t v_isSharedCheck_3367_; 

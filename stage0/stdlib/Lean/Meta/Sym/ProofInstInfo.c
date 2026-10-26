@@ -429,6 +429,7 @@ v_a_95_ = lean_ctor_get(v___x_94_, 0);
 lean_inc(v_a_95_);
 lean_dec_ref_known(v___x_94_, 1);
 v___x_96_ = l_Lean_Expr_cleanupAnnotations(v_a_95_);
+lean_dec(v_a_95_);
 v___x_97_ = l_Lean_Expr_isApp(v___x_96_);
 if (v___x_97_ == 0)
 {
@@ -439,25 +440,27 @@ return v___x_98_;
 }
 else
 {
-lean_object* v_arg_99_; lean_object* v___x_100_; uint8_t v___x_101_; 
-v_arg_99_ = lean_ctor_get(v___x_96_, 1);
-lean_inc_ref(v_arg_99_);
-v___x_100_ = l_Lean_Expr_appFnCleanup___redArg(v___x_96_);
-v___x_101_ = l_Lean_Expr_isApp(v___x_100_);
-if (v___x_101_ == 0)
+lean_object* v___x_99_; uint8_t v___x_100_; 
+v___x_99_ = l_Lean_Expr_appFnCleanup___redArg(v___x_96_);
+v___x_100_ = l_Lean_Expr_isApp(v___x_99_);
+if (v___x_100_ == 0)
 {
-lean_object* v___x_102_; 
-lean_dec_ref(v___x_100_);
-lean_dec_ref(v_arg_99_);
-v___x_102_ = l_Lean_Meta_zetaReduce(v_a_84_, v_zetaDelta_85_, v___x_86_, v___x_86_, v___y_89_, v___y_90_, v___y_91_, v___y_92_);
-return v___x_102_;
+lean_object* v___x_101_; 
+lean_dec_ref(v___x_99_);
+lean_dec_ref(v___x_96_);
+v___x_101_ = l_Lean_Meta_zetaReduce(v_a_84_, v_zetaDelta_85_, v___x_86_, v___x_86_, v___y_89_, v___y_90_, v___y_91_, v___y_92_);
+return v___x_101_;
 }
 else
 {
-lean_object* v_arg_103_; lean_object* v___x_104_; lean_object* v___x_105_; uint8_t v___x_106_; 
-v_arg_103_ = lean_ctor_get(v___x_100_, 1);
+lean_object* v_arg_102_; lean_object* v_arg_103_; lean_object* v___x_104_; lean_object* v___x_105_; uint8_t v___x_106_; 
+v_arg_102_ = lean_ctor_get(v___x_96_, 1);
+lean_inc_ref(v_arg_102_);
+lean_dec_ref(v___x_96_);
+v_arg_103_ = lean_ctor_get(v___x_99_, 1);
 lean_inc_ref(v_arg_103_);
-v___x_104_ = l_Lean_Expr_appFnCleanup___redArg(v___x_100_);
+v___x_104_ = l_Lean_Expr_appFnCleanup___redArg(v___x_99_);
+lean_dec_ref(v___x_99_);
 v___x_105_ = ((lean_object*)(l_Lean_Meta_Sym_preprocessType___lam__0___closed__1));
 v___x_106_ = l_Lean_Expr_isConstOf(v___x_104_, v___x_105_);
 if (v___x_106_ == 0)
@@ -469,32 +472,33 @@ if (v___x_107_ == 0)
 lean_object* v___x_108_; 
 lean_dec_ref(v___x_104_);
 lean_dec_ref(v_arg_103_);
-lean_dec_ref(v_arg_99_);
+lean_dec_ref(v_arg_102_);
 v___x_108_ = l_Lean_Meta_zetaReduce(v_a_84_, v_zetaDelta_85_, v___x_86_, v___x_86_, v___y_89_, v___y_90_, v___y_91_, v___y_92_);
 return v___x_108_;
 }
 else
 {
-lean_object* v_arg_109_; lean_object* v___x_110_; lean_object* v___x_111_; uint8_t v___x_112_; 
-v_arg_109_ = lean_ctor_get(v___x_104_, 1);
-lean_inc_ref(v_arg_109_);
-v___x_110_ = l_Lean_Expr_appFnCleanup___redArg(v___x_104_);
-v___x_111_ = ((lean_object*)(l_Lean_Meta_Sym_preprocessType___lam__0___closed__3));
-v___x_112_ = l_Lean_Expr_isConstOf(v___x_110_, v___x_111_);
-if (v___x_112_ == 0)
+lean_object* v___x_109_; lean_object* v___x_110_; uint8_t v___x_111_; 
+v___x_109_ = l_Lean_Expr_appFnCleanup___redArg(v___x_104_);
+v___x_110_ = ((lean_object*)(l_Lean_Meta_Sym_preprocessType___lam__0___closed__3));
+v___x_111_ = l_Lean_Expr_isConstOf(v___x_109_, v___x_110_);
+if (v___x_111_ == 0)
 {
-lean_object* v___x_113_; 
-lean_dec_ref(v___x_110_);
-lean_dec_ref(v_arg_109_);
+lean_object* v___x_112_; 
+lean_dec_ref(v___x_109_);
+lean_dec_ref(v___x_104_);
 lean_dec_ref(v_arg_103_);
-lean_dec_ref(v_arg_99_);
-v___x_113_ = l_Lean_Meta_zetaReduce(v_a_84_, v_zetaDelta_85_, v___x_86_, v___x_86_, v___y_89_, v___y_90_, v___y_91_, v___y_92_);
-return v___x_113_;
+lean_dec_ref(v_arg_102_);
+v___x_112_ = l_Lean_Meta_zetaReduce(v_a_84_, v_zetaDelta_85_, v___x_86_, v___x_86_, v___y_89_, v___y_90_, v___y_91_, v___y_92_);
+return v___x_112_;
 }
 else
 {
-lean_object* v___x_114_; 
+lean_object* v_arg_113_; lean_object* v___x_114_; 
 lean_dec_ref(v_a_84_);
+v_arg_113_ = lean_ctor_get(v___x_104_, 1);
+lean_inc_ref(v_arg_113_);
+lean_dec_ref(v___x_104_);
 v___x_114_ = l_Lean_Meta_zetaReduce(v_arg_103_, v_zetaDelta_85_, v___x_86_, v___x_86_, v___y_89_, v___y_90_, v___y_91_, v___y_92_);
 if (lean_obj_tag(v___x_114_) == 0)
 {
@@ -502,16 +506,16 @@ lean_object* v_a_115_; lean_object* v___x_116_; uint8_t v___x_117_; lean_object*
 v_a_115_ = lean_ctor_get(v___x_114_, 0);
 lean_inc(v_a_115_);
 lean_dec_ref_known(v___x_114_, 1);
-v___x_116_ = l_Lean_mkApp3(v___x_110_, v_arg_109_, v_a_115_, v_arg_99_);
+v___x_116_ = l_Lean_mkApp3(v___x_109_, v_arg_113_, v_a_115_, v_arg_102_);
 v___x_117_ = 1;
 v___x_118_ = l_Lean_Meta_mkForallFVars(v_xs_87_, v___x_116_, v___x_106_, v___x_86_, v___x_86_, v___x_117_, v___y_89_, v___y_90_, v___y_91_, v___y_92_);
 return v___x_118_;
 }
 else
 {
-lean_dec_ref(v___x_110_);
-lean_dec_ref(v_arg_109_);
-lean_dec_ref(v_arg_99_);
+lean_dec_ref(v_arg_113_);
+lean_dec_ref(v___x_109_);
+lean_dec_ref(v_arg_102_);
 return v___x_114_;
 }
 }
@@ -528,7 +532,7 @@ lean_object* v_a_120_; lean_object* v___x_121_; uint8_t v___x_122_; uint8_t v___
 v_a_120_ = lean_ctor_get(v___x_119_, 0);
 lean_inc(v_a_120_);
 lean_dec_ref_known(v___x_119_, 1);
-v___x_121_ = l_Lean_mkAppB(v___x_104_, v_a_120_, v_arg_99_);
+v___x_121_ = l_Lean_mkAppB(v___x_104_, v_a_120_, v_arg_102_);
 v___x_122_ = 0;
 v___x_123_ = 1;
 v___x_124_ = l_Lean_Meta_mkForallFVars(v_xs_87_, v___x_121_, v___x_122_, v___x_86_, v___x_86_, v___x_123_, v___y_89_, v___y_90_, v___y_91_, v___y_92_);
@@ -537,7 +541,7 @@ return v___x_124_;
 else
 {
 lean_dec_ref(v___x_104_);
-lean_dec_ref(v_arg_99_);
+lean_dec_ref(v_arg_102_);
 return v___x_119_;
 }
 }
@@ -554,10 +558,10 @@ return v___x_94_;
 LEAN_EXPORT lean_object* l_Lean_Meta_Sym_preprocessType___lam__0___boxed(lean_object* v_a_125_, lean_object* v_zetaDelta_126_, lean_object* v___x_127_, lean_object* v_xs_128_, lean_object* v_body_129_, lean_object* v___y_130_, lean_object* v___y_131_, lean_object* v___y_132_, lean_object* v___y_133_, lean_object* v___y_134_){
 _start:
 {
-uint8_t v_zetaDelta_boxed_135_; uint8_t v___x_1473__boxed_136_; lean_object* v_res_137_; 
+uint8_t v_zetaDelta_boxed_135_; uint8_t v___x_1465__boxed_136_; lean_object* v_res_137_; 
 v_zetaDelta_boxed_135_ = lean_unbox(v_zetaDelta_126_);
-v___x_1473__boxed_136_ = lean_unbox(v___x_127_);
-v_res_137_ = l_Lean_Meta_Sym_preprocessType___lam__0(v_a_125_, v_zetaDelta_boxed_135_, v___x_1473__boxed_136_, v_xs_128_, v_body_129_, v___y_130_, v___y_131_, v___y_132_, v___y_133_);
+v___x_1465__boxed_136_ = lean_unbox(v___x_127_);
+v_res_137_ = l_Lean_Meta_Sym_preprocessType___lam__0(v_a_125_, v_zetaDelta_boxed_135_, v___x_1465__boxed_136_, v_xs_128_, v_body_129_, v___y_130_, v___y_131_, v___y_132_, v___y_133_);
 lean_dec(v___y_133_);
 lean_dec_ref(v___y_132_);
 lean_dec(v___y_131_);

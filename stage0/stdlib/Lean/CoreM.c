@@ -8485,8 +8485,6 @@ goto v___jp_2570_;
 v___jp_2570_:
 {
 lean_object* v___x_2572_; lean_object* v___x_2573_; lean_object* v_cache_2574_; lean_object* v_env_2575_; lean_object* v_nextMacroScope_2576_; lean_object* v_ngen_2577_; lean_object* v_auxDeclNGen_2578_; lean_object* v_traceState_2579_; lean_object* v_recordedDeps_2580_; lean_object* v_messages_2581_; lean_object* v_infoState_2582_; lean_object* v_snapshotTasks_2583_; lean_object* v___x_2585_; uint8_t v_isShared_2586_; uint8_t v_isSharedCheck_2604_; 
-lean_inc(v_us_2567_);
-lean_inc_ref(v_c_2566_);
 v___x_2572_ = l_Lean_ConstantVal_instantiateTypeLevelParams(v_c_2566_, v_us_2567_);
 v___x_2573_ = lean_st_ref_take(v___y_2571_);
 v_cache_2574_ = lean_ctor_get(v___x_2573_, 5);
@@ -9030,7 +9028,6 @@ goto v___jp_2823_;
 v___jp_2788_:
 {
 lean_object* v___x_2790_; lean_object* v___x_2791_; lean_object* v_cache_2792_; lean_object* v_env_2793_; lean_object* v_nextMacroScope_2794_; lean_object* v_ngen_2795_; lean_object* v_auxDeclNGen_2796_; lean_object* v_traceState_2797_; lean_object* v_recordedDeps_2798_; lean_object* v_messages_2799_; lean_object* v_infoState_2800_; lean_object* v_snapshotTasks_2801_; lean_object* v___x_2803_; uint8_t v_isShared_2804_; uint8_t v_isSharedCheck_2822_; 
-lean_inc(v_us_2783_);
 v___x_2790_ = l_Lean_ConstantInfo_instantiateValueLevelParams_x21(v_c_2782_, v_us_2783_, v_allowOpaque_2784_);
 v___x_2791_ = lean_st_ref_take(v___y_2789_);
 v_cache_2792_ = lean_ctor_get(v___x_2791_, 5);

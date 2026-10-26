@@ -1752,7 +1752,6 @@ _start:
 {
 lean_object* v___x_633_; lean_object* v___x_634_; 
 v___x_633_ = lean_box(0);
-lean_inc_ref(v___y_622_);
 v___x_634_ = l_Lean_Meta_Sym_DSimp_evalGround___redArg(v___x_620_, v___y_622_, v___y_626_, v___y_627_, v___y_628_, v___y_629_, v___y_630_, v___y_631_);
 if (lean_obj_tag(v___x_634_) == 0)
 {
@@ -2017,7 +2016,6 @@ lean_inc(v_a_753_);
 lean_dec_ref_known(v___x_752_, 1);
 v_type_754_ = lean_ctor_get(v_a_753_, 1);
 v_value_755_ = lean_ctor_get(v_a_753_, 2);
-lean_inc_ref(v_type_754_);
 v___x_756_ = l_Lean_Expr_isFalse(v_type_754_);
 if (v___x_756_ == 0)
 {

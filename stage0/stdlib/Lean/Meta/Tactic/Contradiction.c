@@ -4202,6 +4202,7 @@ _start:
 {
 uint8_t v_res_1275_; lean_object* v_r_1276_; 
 v_res_1275_ = l___private_Lean_Meta_Tactic_Contradiction_0__Lean_Meta_isGenDiseq(v_e_1274_);
+lean_dec_ref(v_e_1274_);
 v_r_1276_ = lean_box(v_res_1275_);
 return v_r_1276_;
 }
@@ -5947,7 +5948,6 @@ _start:
 {
 lean_object* v___x_1744_; uint8_t v___x_1745_; 
 v___x_1744_ = l_Lean_LocalDecl_type(v_localDecl_1738_);
-lean_inc_ref(v___x_1744_);
 v___x_1745_ = l_Lean_Meta_Simp_isEqnThmHypothesis(v___x_1744_);
 if (v___x_1745_ == 0)
 {
@@ -6591,6 +6591,7 @@ else
 {
 uint8_t v___x_1879_; 
 v___x_1879_ = l_Lean_Meta_Simp_isEqnThmHypothesis(v___x_1870_);
+lean_dec_ref(v___x_1870_);
 if (v___x_1879_ == 0)
 {
 v___y_1844_ = v___y_1872_;
@@ -9726,6 +9727,7 @@ else
 {
 uint8_t v___x_2489_; 
 v___x_2489_ = l_Lean_Meta_Simp_isEqnThmHypothesis(v___x_2480_);
+lean_dec_ref(v___x_2480_);
 if (v___x_2489_ == 0)
 {
 v___y_2454_ = v___y_2482_;
@@ -12900,6 +12902,7 @@ else
 {
 uint8_t v___x_3103_; 
 v___x_3103_ = l_Lean_Meta_Simp_isEqnThmHypothesis(v___x_3094_);
+lean_dec_ref(v___x_3094_);
 if (v___x_3103_ == 0)
 {
 v___y_3067_ = v___y_3096_;
@@ -16206,6 +16209,7 @@ else
 {
 uint8_t v___x_3745_; 
 v___x_3745_ = l_Lean_Meta_Simp_isEqnThmHypothesis(v___x_3736_);
+lean_dec_ref(v___x_3736_);
 if (v___x_3745_ == 0)
 {
 v___y_3709_ = v___y_3738_;

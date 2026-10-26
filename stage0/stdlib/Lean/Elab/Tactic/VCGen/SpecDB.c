@@ -885,6 +885,7 @@ if (v___x_268_ == 0)
 {
 lean_object* v___x_269_; uint8_t v___x_270_; 
 v___x_269_ = l_Lean_Expr_cleanupAnnotations(v_snd_237_);
+lean_dec(v_snd_237_);
 v___x_270_ = l_Lean_Expr_isApp(v___x_269_);
 if (v___x_270_ == 0)
 {
@@ -901,6 +902,7 @@ else
 {
 lean_object* v___x_271_; uint8_t v___x_272_; 
 v___x_271_ = l_Lean_Expr_appFnCleanup___redArg(v___x_269_);
+lean_dec_ref(v___x_269_);
 v___x_272_ = l_Lean_Expr_isApp(v___x_271_);
 if (v___x_272_ == 0)
 {
@@ -917,6 +919,7 @@ else
 {
 lean_object* v___x_273_; uint8_t v___x_274_; 
 v___x_273_ = l_Lean_Expr_appFnCleanup___redArg(v___x_271_);
+lean_dec_ref(v___x_271_);
 v___x_274_ = l_Lean_Expr_isApp(v___x_273_);
 if (v___x_274_ == 0)
 {
@@ -931,16 +934,14 @@ return v___x_194_;
 }
 else
 {
-lean_object* v_arg_275_; lean_object* v___x_276_; lean_object* v___x_277_; uint8_t v___x_278_; 
-v_arg_275_ = lean_ctor_get(v___x_273_, 1);
-lean_inc_ref(v_arg_275_);
-v___x_276_ = l_Lean_Expr_appFnCleanup___redArg(v___x_273_);
-v___x_277_ = ((lean_object*)(l_Lean_Elab_Tactic_VCGen_SpecAttr_SpecTheorem_instantiate___closed__1));
-v___x_278_ = l_Lean_Expr_isConstOf(v___x_276_, v___x_277_);
-lean_dec_ref(v___x_276_);
-if (v___x_278_ == 0)
+lean_object* v___x_275_; lean_object* v___x_276_; uint8_t v___x_277_; 
+v___x_275_ = l_Lean_Expr_appFnCleanup___redArg(v___x_273_);
+v___x_276_ = ((lean_object*)(l_Lean_Elab_Tactic_VCGen_SpecAttr_SpecTheorem_instantiate___closed__1));
+v___x_277_ = l_Lean_Expr_isConstOf(v___x_275_, v___x_276_);
+lean_dec_ref(v___x_275_);
+if (v___x_277_ == 0)
 {
-lean_dec_ref(v_arg_275_);
+lean_dec_ref(v___x_273_);
 lean_dec(v_etaArgs_238_);
 lean_dec(v_fst_236_);
 lean_del_object(v___x_204_);
@@ -951,8 +952,11 @@ return v___x_194_;
 }
 else
 {
-lean_object* v___x_279_; uint8_t v_transparency_280_; uint8_t v___x_281_; uint8_t v___x_282_; uint8_t v___x_283_; 
+lean_object* v_arg_278_; lean_object* v___x_279_; uint8_t v_transparency_280_; uint8_t v___x_281_; uint8_t v___x_282_; uint8_t v___x_283_; 
 lean_dec_ref_known(v___x_194_, 1);
+v_arg_278_ = lean_ctor_get(v___x_273_, 1);
+lean_inc_ref(v_arg_278_);
+lean_dec_ref(v___x_273_);
 v___x_279_ = l_Lean_Meta_Context_config(v_a_187_);
 v_transparency_280_ = lean_ctor_get_uint8(v___x_279_, 9);
 lean_dec_ref(v___x_279_);
@@ -993,7 +997,7 @@ lean_ctor_set_uint8(v___x_296_, sizeof(void*)*7, v_trackZetaDelta_285_);
 lean_ctor_set_uint8(v___x_296_, sizeof(void*)*7 + 1, v_univApprox_292_);
 lean_ctor_set_uint8(v___x_296_, sizeof(void*)*7 + 2, v_inTypeClassResolution_293_);
 lean_ctor_set_uint8(v___x_296_, sizeof(void*)*7 + 3, v_cacheInferType_294_);
-v___x_297_ = l_Lean_Meta_forallMetaBoundedTelescope(v_arg_275_, v_etaArgs_238_, v___x_281_, v___x_296_, v_a_188_, v_a_189_, v_a_190_);
+v___x_297_ = l_Lean_Meta_forallMetaBoundedTelescope(v_arg_278_, v_etaArgs_238_, v___x_281_, v___x_296_, v_a_188_, v_a_189_, v_a_190_);
 lean_dec_ref_known(v___x_296_, 7);
 v___y_241_ = v___x_297_;
 goto v___jp_240_;
@@ -1001,7 +1005,7 @@ goto v___jp_240_;
 else
 {
 lean_object* v___x_298_; 
-v___x_298_ = l_Lean_Meta_forallMetaBoundedTelescope(v_arg_275_, v_etaArgs_238_, v___x_281_, v_a_187_, v_a_188_, v_a_189_, v_a_190_);
+v___x_298_ = l_Lean_Meta_forallMetaBoundedTelescope(v_arg_278_, v_etaArgs_238_, v___x_281_, v_a_187_, v_a_188_, v_a_189_, v_a_190_);
 v___y_241_ = v___x_298_;
 goto v___jp_240_;
 }

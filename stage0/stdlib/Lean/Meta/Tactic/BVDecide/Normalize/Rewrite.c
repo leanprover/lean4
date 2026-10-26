@@ -1283,7 +1283,6 @@ _start:
 {
 lean_object* v___x_393_; lean_object* v___x_394_; 
 v___x_393_ = lean_box(0);
-lean_inc_ref(v___y_382_);
 v___x_394_ = l___private_Lean_Meta_Sym_Simp_EvalGround_0__Lean_Meta_Sym_Simp_evalGroundCore___redArg(v___y_382_, v___x_380_, v___y_386_, v___y_387_, v___y_388_, v___y_389_, v___y_390_, v___y_391_);
 if (lean_obj_tag(v___x_394_) == 0)
 {
@@ -2116,7 +2115,6 @@ _start:
 {
 lean_object* v___x_671_; lean_object* v___x_672_; 
 v___x_671_ = lean_box(0);
-lean_inc_ref(v___y_660_);
 v___x_672_ = l_Lean_Meta_Sym_DSimp_evalGround___redArg(v___x_658_, v___y_660_, v___y_664_, v___y_665_, v___y_666_, v___y_667_, v___y_668_, v___y_669_);
 if (lean_obj_tag(v___x_672_) == 0)
 {
@@ -2986,7 +2984,6 @@ lean_inc(v_a_974_);
 lean_dec_ref_known(v___x_973_, 1);
 v_type_975_ = lean_ctor_get(v_a_974_, 1);
 v_value_976_ = lean_ctor_get(v_a_974_, 2);
-lean_inc_ref(v_type_975_);
 v___x_977_ = l_Lean_Expr_isFalse(v_type_975_);
 if (v___x_977_ == 0)
 {

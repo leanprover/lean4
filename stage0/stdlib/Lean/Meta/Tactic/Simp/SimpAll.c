@@ -3547,7 +3547,6 @@ v_userName_1082_ = lean_ctor_get(v_a_1080_, 1);
 v_origType_1083_ = lean_ctor_get(v_a_1080_, 3);
 v_type_1084_ = lean_ctor_get(v_a_1080_, 4);
 v_proof_1085_ = lean_ctor_get(v_a_1080_, 5);
-lean_inc_ref(v_type_1084_);
 v___x_1099_ = l_Lean_Expr_isTrue(v_type_1084_);
 if (v___x_1099_ == 0)
 {

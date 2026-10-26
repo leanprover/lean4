@@ -5264,10 +5264,9 @@ if (lean_obj_tag(v___x_1815_) == 0)
 {
 lean_object* v_a_1816_; lean_object* v___y_1818_; lean_object* v___y_1819_; lean_object* v___y_1820_; lean_object* v___y_1821_; lean_object* v___y_1822_; lean_object* v___y_1823_; lean_object* v___y_1824_; lean_object* v___y_1858_; lean_object* v___y_1859_; lean_object* v___y_1860_; lean_object* v___y_1861_; lean_object* v___y_1862_; lean_object* v___y_1863_; lean_object* v___x_1868_; lean_object* v___x_1869_; lean_object* v___x_1870_; lean_object* v___x_1871_; 
 v_a_1816_ = lean_ctor_get(v___x_1815_, 0);
-lean_inc_n(v_a_1816_, 2);
+lean_inc(v_a_1816_);
 lean_dec_ref_known(v___x_1815_, 1);
 v___x_1868_ = l_Lean_ConstantInfo_type(v_a_1802_);
-lean_inc(v___x_1797_);
 v___x_1869_ = l_Lean_Expr_instantiateLevelParams(v___x_1868_, v___x_1797_, v_a_1816_);
 v___x_1870_ = l_Lean_ConstantInfo_type(v_a_1804_);
 lean_inc_ref(v___x_1870_);
@@ -5469,6 +5468,8 @@ v___jp_1817_:
 {
 lean_object* v___x_1825_; lean_object* v___x_1826_; 
 v___x_1825_ = l_Lean_Expr_instantiateLevelParams(v___y_1824_, v___x_1797_, v_a_1816_);
+lean_dec(v_a_1816_);
+lean_dec(v___x_1797_);
 lean_dec_ref(v___y_1824_);
 lean_inc_ref(v___x_1825_);
 lean_inc_ref(v_val_1799_);
@@ -5787,6 +5788,8 @@ lean_inc(v_a_1963_);
 lean_dec_ref_known(v___x_1962_, 1);
 v___x_1964_ = l_Lean_ConstantInfo_type(v_a_1935_);
 v___x_1965_ = l_Lean_Expr_instantiateLevelParams(v___x_1964_, v___x_1933_, v_a_1963_);
+lean_dec(v_a_1963_);
+lean_dec(v___x_1933_);
 lean_inc(v_a_1961_);
 v___x_1966_ = l_Lean_Meta_isExprDefEq(v___x_1965_, v_a_1961_, v___y_1943_, v___y_1944_, v___y_1945_, v___y_1946_);
 if (lean_obj_tag(v___x_1966_) == 0)

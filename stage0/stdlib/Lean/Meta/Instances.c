@@ -12371,6 +12371,7 @@ _start:
 {
 lean_object* v___x_3816_; 
 v___x_3816_ = l_Lean_Expr_cleanupAnnotations(v_e_3815_);
+lean_dec_ref(v_e_3815_);
 switch(lean_obj_tag(v___x_3816_))
 {
 case 7:

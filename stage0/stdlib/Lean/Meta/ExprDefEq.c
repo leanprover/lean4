@@ -61717,6 +61717,8 @@ v___x_18182_ = l_Lean_Expr_getAppNumArgs(v_tType_18145_);
 v___x_18183_ = l_Lean_Expr_constLevels_x21(v_hd_18155_);
 lean_dec_ref_known(v_hd_18155_, 2);
 v___x_18184_ = l_Lean_Expr_instantiateLevelParams(v_type_18179_, v_levelParams_18178_, v___x_18183_);
+lean_dec(v___x_18183_);
+lean_dec(v_levelParams_18178_);
 lean_dec_ref(v_type_18179_);
 lean_inc_n(v___x_18182_, 2);
 v___x_18185_ = l_Lean_Expr_getForallBodyMaxDepth(v___x_18182_, v___x_18184_);

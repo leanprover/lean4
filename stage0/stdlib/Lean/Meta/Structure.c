@@ -10327,9 +10327,9 @@ return v___x_3771_;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Structure_0__Lean_Meta_instantiateStructDefaultValueFn_x3f_go_x3f___redArg___lam__0___boxed(lean_object* v_toPure_3772_, lean_object* v_usedFields_3773_, lean_object* v_binderName_3774_, lean_object* v_body_3775_, lean_object* v_val_3776_, lean_object* v_inst_3777_, lean_object* v_inst_3778_, lean_object* v_fieldVal_x3f_3779_, lean_object* v_____do__lift_3780_){
 _start:
 {
-uint8_t v_____do__lift_291__boxed_3781_; lean_object* v_res_3782_; 
-v_____do__lift_291__boxed_3781_ = lean_unbox(v_____do__lift_3780_);
-v_res_3782_ = l___private_Lean_Meta_Structure_0__Lean_Meta_instantiateStructDefaultValueFn_x3f_go_x3f___redArg___lam__0(v_toPure_3772_, v_usedFields_3773_, v_binderName_3774_, v_body_3775_, v_val_3776_, v_inst_3777_, v_inst_3778_, v_fieldVal_x3f_3779_, v_____do__lift_291__boxed_3781_);
+uint8_t v_____do__lift_285__boxed_3781_; lean_object* v_res_3782_; 
+v_____do__lift_285__boxed_3781_ = lean_unbox(v_____do__lift_3780_);
+v_res_3782_ = l___private_Lean_Meta_Structure_0__Lean_Meta_instantiateStructDefaultValueFn_x3f_go_x3f___redArg___lam__0(v_toPure_3772_, v_usedFields_3773_, v_binderName_3774_, v_body_3775_, v_val_3776_, v_inst_3777_, v_inst_3778_, v_fieldVal_x3f_3779_, v_____do__lift_285__boxed_3781_);
 lean_dec_ref(v_val_3776_);
 lean_dec_ref(v_body_3775_);
 return v_res_3782_;
@@ -10445,7 +10445,6 @@ goto v_resetjp_3822_;
 v_resetjp_3822_:
 {
 lean_object* v___x_3825_; uint8_t v___x_3826_; 
-lean_inc_ref(v_e_3808_);
 v___x_3825_ = l_Lean_Expr_cleanupAnnotations(v_e_3808_);
 v___x_3826_ = l_Lean_Expr_isApp(v___x_3825_);
 if (v___x_3826_ == 0)
@@ -10456,38 +10455,40 @@ goto v___jp_3812_;
 }
 else
 {
-lean_object* v_arg_3827_; lean_object* v___x_3828_; uint8_t v___x_3829_; 
-v_arg_3827_ = lean_ctor_get(v___x_3825_, 1);
-lean_inc_ref(v_arg_3827_);
-v___x_3828_ = l_Lean_Expr_appFnCleanup___redArg(v___x_3825_);
-v___x_3829_ = l_Lean_Expr_isApp(v___x_3828_);
-if (v___x_3829_ == 0)
+lean_object* v___x_3827_; uint8_t v___x_3828_; 
+v___x_3827_ = l_Lean_Expr_appFnCleanup___redArg(v___x_3825_);
+v___x_3828_ = l_Lean_Expr_isApp(v___x_3827_);
+if (v___x_3828_ == 0)
 {
-lean_dec_ref(v___x_3828_);
-lean_dec_ref(v_arg_3827_);
+lean_dec_ref(v___x_3827_);
+lean_dec_ref(v___x_3825_);
 lean_del_object(v___x_3823_);
 goto v___jp_3812_;
 }
 else
 {
-lean_object* v___x_3830_; lean_object* v___x_3831_; uint8_t v___x_3832_; 
-v___x_3830_ = l_Lean_Expr_appFnCleanup___redArg(v___x_3828_);
-v___x_3831_ = ((lean_object*)(l___private_Lean_Meta_Structure_0__Lean_Meta_instantiateStructDefaultValueFn_x3f_go_x3f___redArg___closed__1));
-v___x_3832_ = l_Lean_Expr_isConstOf(v___x_3830_, v___x_3831_);
-lean_dec_ref(v___x_3830_);
-if (v___x_3832_ == 0)
+lean_object* v___x_3829_; lean_object* v___x_3830_; uint8_t v___x_3831_; 
+v___x_3829_ = l_Lean_Expr_appFnCleanup___redArg(v___x_3827_);
+lean_dec_ref(v___x_3827_);
+v___x_3830_ = ((lean_object*)(l___private_Lean_Meta_Structure_0__Lean_Meta_instantiateStructDefaultValueFn_x3f_go_x3f___redArg___closed__1));
+v___x_3831_ = l_Lean_Expr_isConstOf(v___x_3829_, v___x_3830_);
+lean_dec_ref(v___x_3829_);
+if (v___x_3831_ == 0)
 {
-lean_dec_ref(v_arg_3827_);
+lean_dec_ref(v___x_3825_);
 lean_del_object(v___x_3823_);
 goto v___jp_3812_;
 }
 else
 {
-lean_object* v___x_3834_; 
+lean_object* v_arg_3832_; lean_object* v___x_3834_; 
 lean_dec_ref(v_e_3808_);
+v_arg_3832_ = lean_ctor_get(v___x_3825_, 1);
+lean_inc_ref(v_arg_3832_);
+lean_dec_ref(v___x_3825_);
 if (v_isShared_3824_ == 0)
 {
-lean_ctor_set(v___x_3823_, 1, v_arg_3827_);
+lean_ctor_set(v___x_3823_, 1, v_arg_3832_);
 lean_ctor_set(v___x_3823_, 0, v_usedFields_3807_);
 v___x_3834_ = v___x_3823_;
 goto v_reusejp_3833_;
@@ -10497,7 +10498,7 @@ else
 lean_object* v_reuseFailAlloc_3837_; 
 v_reuseFailAlloc_3837_ = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(v_reuseFailAlloc_3837_, 0, v_usedFields_3807_);
-lean_ctor_set(v_reuseFailAlloc_3837_, 1, v_arg_3827_);
+lean_ctor_set(v_reuseFailAlloc_3837_, 1, v_arg_3832_);
 v___x_3834_ = v_reuseFailAlloc_3837_;
 goto v_reusejp_3833_;
 }

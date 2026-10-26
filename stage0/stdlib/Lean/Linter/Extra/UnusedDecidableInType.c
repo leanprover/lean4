@@ -501,6 +501,7 @@ _start:
 {
 lean_object* v___x_3_; lean_object* v___x_4_; 
 v___x_3_ = l_Lean_Expr_cleanupAnnotations(v_type_2_);
+lean_dec_ref(v_type_2_);
 v___x_4_ = l_Lean_Expr_getAppFn_x27(v___x_3_);
 lean_dec_ref(v___x_3_);
 switch(lean_obj_tag(v___x_4_))
@@ -549,6 +550,7 @@ _start:
 {
 lean_object* v___x_17_; 
 v___x_17_ = l_Lean_Expr_cleanupAnnotations(v_e_16_);
+lean_dec_ref(v_e_16_);
 switch(lean_obj_tag(v___x_17_))
 {
 case 7:
@@ -622,6 +624,7 @@ _start:
 {
 lean_object* v___x_38_; 
 v___x_38_ = l_Lean_Expr_cleanupAnnotations(v_body_35_);
+lean_dec_ref(v_body_35_);
 switch(lean_obj_tag(v___x_38_))
 {
 case 7:
@@ -3635,6 +3638,7 @@ _start:
 {
 lean_object* v_e_1347_; uint8_t v___x_1348_; 
 v_e_1347_ = l_Lean_Expr_cleanupAnnotations(v_e_1338_);
+lean_dec_ref(v_e_1338_);
 v___x_1348_ = l_Lean_Expr_isForall(v_e_1347_);
 if (v___x_1348_ == 0)
 {

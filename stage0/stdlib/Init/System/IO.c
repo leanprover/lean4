@@ -13253,6 +13253,7 @@ _start:
 {
 uint32_t v_res_4434_; lean_object* v_r_4435_; 
 v_res_4434_ = lean_io_process_child_pid(v_cfg_4432_, v_a_00___x40___internal___hyg_4433_);
+lean_dec_ref(v_a_00___x40___internal___hyg_4433_);
 lean_dec_ref(v_cfg_4432_);
 v_r_4435_ = lean_box_uint32(v_res_4434_);
 return v_r_4435_;

@@ -14486,76 +14486,78 @@ goto v___jp_5153_;
 }
 else
 {
-lean_object* v_arg_5158_; lean_object* v___x_5159_; uint8_t v___x_5160_; 
-v_arg_5158_ = lean_ctor_get(v___x_5156_, 1);
-lean_inc_ref(v_arg_5158_);
-v___x_5159_ = l_Lean_Expr_appFnCleanup___redArg(v___x_5156_);
-v___x_5160_ = l_Lean_Expr_isApp(v___x_5159_);
-if (v___x_5160_ == 0)
+lean_object* v___x_5158_; uint8_t v___x_5159_; 
+v___x_5158_ = l_Lean_Expr_appFnCleanup___redArg(v___x_5156_);
+v___x_5159_ = l_Lean_Expr_isApp(v___x_5158_);
+if (v___x_5159_ == 0)
 {
-lean_dec_ref(v___x_5159_);
-lean_dec_ref(v_arg_5158_);
+lean_dec_ref(v___x_5158_);
+lean_dec_ref(v___x_5156_);
 goto v___jp_5153_;
 }
 else
 {
-lean_object* v_arg_5161_; lean_object* v___x_5162_; uint8_t v___x_5163_; 
-v_arg_5161_ = lean_ctor_get(v___x_5159_, 1);
-lean_inc_ref(v_arg_5161_);
-v___x_5162_ = l_Lean_Expr_appFnCleanup___redArg(v___x_5159_);
-v___x_5163_ = l_Lean_Expr_isApp(v___x_5162_);
-if (v___x_5163_ == 0)
+lean_object* v___x_5160_; uint8_t v___x_5161_; 
+v___x_5160_ = l_Lean_Expr_appFnCleanup___redArg(v___x_5158_);
+v___x_5161_ = l_Lean_Expr_isApp(v___x_5160_);
+if (v___x_5161_ == 0)
 {
+lean_dec_ref(v___x_5160_);
+lean_dec_ref(v___x_5158_);
+lean_dec_ref(v___x_5156_);
+goto v___jp_5153_;
+}
+else
+{
+lean_object* v___x_5162_; lean_object* v___x_5163_; uint8_t v___x_5164_; 
+v___x_5162_ = l_Lean_Expr_appFnCleanup___redArg(v___x_5160_);
+v___x_5163_ = ((lean_object*)(l___private_Lean_Meta_Tactic_BVDecide_Normalize_Enums_0__Lean_Meta_Tactic_BVDecide_Normalize_enumEqToBitVecEq___redArg___closed__1));
+v___x_5164_ = l_Lean_Expr_isConstOf(v___x_5162_, v___x_5163_);
 lean_dec_ref(v___x_5162_);
-lean_dec_ref(v_arg_5161_);
-lean_dec_ref(v_arg_5158_);
+if (v___x_5164_ == 0)
+{
+lean_dec_ref(v___x_5160_);
+lean_dec_ref(v___x_5158_);
+lean_dec_ref(v___x_5156_);
 goto v___jp_5153_;
 }
 else
 {
-lean_object* v_arg_5164_; lean_object* v___x_5165_; lean_object* v___x_5166_; uint8_t v___x_5167_; 
-v_arg_5164_ = lean_ctor_get(v___x_5162_, 1);
-lean_inc_ref(v_arg_5164_);
-v___x_5165_ = l_Lean_Expr_appFnCleanup___redArg(v___x_5162_);
-v___x_5166_ = ((lean_object*)(l___private_Lean_Meta_Tactic_BVDecide_Normalize_Enums_0__Lean_Meta_Tactic_BVDecide_Normalize_enumEqToBitVecEq___redArg___closed__1));
-v___x_5167_ = l_Lean_Expr_isConstOf(v___x_5165_, v___x_5166_);
-lean_dec_ref(v___x_5165_);
-if (v___x_5167_ == 0)
+lean_object* v_arg_5165_; lean_object* v___x_5166_; 
+v_arg_5165_ = lean_ctor_get(v___x_5160_, 1);
+lean_inc_ref(v_arg_5165_);
+lean_dec_ref(v___x_5160_);
+v___x_5166_ = l_Lean_Expr_getAppFn_x27(v_arg_5165_);
+lean_dec_ref(v_arg_5165_);
+if (lean_obj_tag(v___x_5166_) == 4)
 {
-lean_dec_ref(v_arg_5164_);
-lean_dec_ref(v_arg_5161_);
-lean_dec_ref(v_arg_5158_);
-goto v___jp_5153_;
-}
-else
+lean_object* v_declName_5167_; lean_object* v___x_5168_; 
+v_declName_5167_ = lean_ctor_get(v___x_5166_, 0);
+lean_inc(v_declName_5167_);
+lean_dec_ref_known(v___x_5166_, 2);
+v___x_5168_ = l_Std_DHashMap_Internal_Raw_u2080_Const_get_x3f___at___00__private_Lean_Meta_Tactic_BVDecide_Normalize_Enums_0__Lean_Meta_Tactic_BVDecide_Normalize_enumEqToBitVecEq_spec__0___redArg(v_index_5144_, v_declName_5167_);
+lean_dec(v_declName_5167_);
+if (lean_obj_tag(v___x_5168_) == 1)
 {
-lean_object* v___x_5168_; 
-v___x_5168_ = l_Lean_Expr_getAppFn_x27(v_arg_5164_);
-lean_dec_ref(v_arg_5164_);
-if (lean_obj_tag(v___x_5168_) == 4)
-{
-lean_object* v_declName_5169_; lean_object* v___x_5170_; 
-v_declName_5169_ = lean_ctor_get(v___x_5168_, 0);
-lean_inc(v_declName_5169_);
-lean_dec_ref_known(v___x_5168_, 2);
-v___x_5170_ = l_Std_DHashMap_Internal_Raw_u2080_Const_get_x3f___at___00__private_Lean_Meta_Tactic_BVDecide_Normalize_Enums_0__Lean_Meta_Tactic_BVDecide_Normalize_enumEqToBitVecEq_spec__0___redArg(v_index_5144_, v_declName_5169_);
-lean_dec(v_declName_5169_);
-if (lean_obj_tag(v___x_5170_) == 1)
-{
-lean_object* v_val_5171_; lean_object* v_toBitVec_5172_; lean_object* v_toBitVecLemma_5173_; lean_object* v___x_5174_; lean_object* v___x_5175_; lean_object* v___x_5176_; lean_object* v___x_5177_; 
-v_val_5171_ = lean_ctor_get(v___x_5170_, 0);
-lean_inc(v_val_5171_);
-lean_dec_ref_known(v___x_5170_, 1);
-v_toBitVec_5172_ = lean_ctor_get(v_val_5171_, 0);
+lean_object* v_val_5169_; lean_object* v_arg_5170_; lean_object* v_arg_5171_; lean_object* v_toBitVec_5172_; lean_object* v_toBitVecLemma_5173_; lean_object* v___x_5174_; lean_object* v___x_5175_; lean_object* v___x_5176_; lean_object* v___x_5177_; 
+v_val_5169_ = lean_ctor_get(v___x_5168_, 0);
+lean_inc(v_val_5169_);
+lean_dec_ref_known(v___x_5168_, 1);
+v_arg_5170_ = lean_ctor_get(v___x_5156_, 1);
+lean_inc_ref(v_arg_5170_);
+lean_dec_ref(v___x_5156_);
+v_arg_5171_ = lean_ctor_get(v___x_5158_, 1);
+lean_inc_ref_n(v_arg_5171_, 2);
+lean_dec_ref(v___x_5158_);
+v_toBitVec_5172_ = lean_ctor_get(v_val_5169_, 0);
 lean_inc_n(v_toBitVec_5172_, 2);
-v_toBitVecLemma_5173_ = lean_ctor_get(v_val_5171_, 1);
+v_toBitVecLemma_5173_ = lean_ctor_get(v_val_5169_, 1);
 lean_inc(v_toBitVecLemma_5173_);
-lean_dec(v_val_5171_);
+lean_dec(v_val_5169_);
 v___x_5174_ = lean_unsigned_to_nat(1u);
 v___x_5175_ = lean_mk_empty_array_with_capacity(v___x_5174_);
-lean_inc_ref(v_arg_5161_);
 lean_inc_ref(v___x_5175_);
-v___x_5176_ = lean_array_push(v___x_5175_, v_arg_5161_);
+v___x_5176_ = lean_array_push(v___x_5175_, v_arg_5171_);
 v___x_5177_ = l_Lean_Meta_mkAppM(v_toBitVec_5172_, v___x_5176_, v_a_5148_, v_a_5149_, v_a_5150_, v_a_5151_);
 if (lean_obj_tag(v___x_5177_) == 0)
 {
@@ -14563,8 +14565,8 @@ lean_object* v_a_5178_; lean_object* v___x_5179_; lean_object* v___x_5180_;
 v_a_5178_ = lean_ctor_get(v___x_5177_, 0);
 lean_inc(v_a_5178_);
 lean_dec_ref_known(v___x_5177_, 1);
-lean_inc_ref(v_arg_5158_);
-v___x_5179_ = lean_array_push(v___x_5175_, v_arg_5158_);
+lean_inc_ref(v_arg_5170_);
+v___x_5179_ = lean_array_push(v___x_5175_, v_arg_5170_);
 v___x_5180_ = l_Lean_Meta_mkAppM(v_toBitVec_5172_, v___x_5179_, v_a_5148_, v_a_5149_, v_a_5150_, v_a_5151_);
 if (lean_obj_tag(v___x_5180_) == 0)
 {
@@ -14581,8 +14583,8 @@ lean_inc(v_a_5183_);
 lean_dec_ref_known(v___x_5182_, 1);
 v___x_5184_ = lean_unsigned_to_nat(2u);
 v___x_5185_ = lean_mk_empty_array_with_capacity(v___x_5184_);
-v___x_5186_ = lean_array_push(v___x_5185_, v_arg_5161_);
-v___x_5187_ = lean_array_push(v___x_5186_, v_arg_5158_);
+v___x_5186_ = lean_array_push(v___x_5185_, v_arg_5171_);
+v___x_5187_ = lean_array_push(v___x_5186_, v_arg_5170_);
 v___x_5188_ = l_Lean_Meta_mkAppM(v_toBitVecLemma_5173_, v___x_5187_, v_a_5148_, v_a_5149_, v_a_5150_, v_a_5151_);
 if (lean_obj_tag(v___x_5188_) == 0)
 {
@@ -14779,8 +14781,8 @@ else
 {
 lean_object* v_a_5227_; lean_object* v___x_5229_; uint8_t v_isShared_5230_; uint8_t v_isSharedCheck_5234_; 
 lean_dec(v_toBitVecLemma_5173_);
-lean_dec_ref(v_arg_5161_);
-lean_dec_ref(v_arg_5158_);
+lean_dec_ref(v_arg_5171_);
+lean_dec_ref(v_arg_5170_);
 v_a_5227_ = lean_ctor_get(v___x_5182_, 0);
 v_isSharedCheck_5234_ = !lean_is_exclusive(v___x_5182_);
 if (v_isSharedCheck_5234_ == 0)
@@ -14825,8 +14827,8 @@ else
 lean_object* v_a_5235_; lean_object* v___x_5237_; uint8_t v_isShared_5238_; uint8_t v_isSharedCheck_5242_; 
 lean_dec(v_a_5178_);
 lean_dec(v_toBitVecLemma_5173_);
-lean_dec_ref(v_arg_5161_);
-lean_dec_ref(v_arg_5158_);
+lean_dec_ref(v_arg_5171_);
+lean_dec_ref(v_arg_5170_);
 v_a_5235_ = lean_ctor_get(v___x_5180_, 0);
 v_isSharedCheck_5242_ = !lean_is_exclusive(v___x_5180_);
 if (v_isSharedCheck_5242_ == 0)
@@ -14872,8 +14874,8 @@ lean_object* v_a_5243_; lean_object* v___x_5245_; uint8_t v_isShared_5246_; uint
 lean_dec_ref(v___x_5175_);
 lean_dec(v_toBitVecLemma_5173_);
 lean_dec(v_toBitVec_5172_);
-lean_dec_ref(v_arg_5161_);
-lean_dec_ref(v_arg_5158_);
+lean_dec_ref(v_arg_5171_);
+lean_dec_ref(v_arg_5170_);
 v_a_5243_ = lean_ctor_get(v___x_5177_, 0);
 v_isSharedCheck_5250_ = !lean_is_exclusive(v___x_5177_);
 if (v_isSharedCheck_5250_ == 0)
@@ -14916,9 +14918,9 @@ return v___x_5248_;
 else
 {
 lean_object* v___x_5251_; lean_object* v___x_5252_; 
-lean_dec(v___x_5170_);
-lean_dec_ref(v_arg_5161_);
-lean_dec_ref(v_arg_5158_);
+lean_dec(v___x_5168_);
+lean_dec_ref(v___x_5158_);
+lean_dec_ref(v___x_5156_);
 v___x_5251_ = ((lean_object*)(l___private_Lean_Meta_Tactic_BVDecide_Normalize_Enums_0__Lean_Meta_Tactic_BVDecide_Normalize_enumToBitVecCtor___closed__0));
 v___x_5252_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_5252_, 0, v___x_5251_);
@@ -14928,9 +14930,9 @@ return v___x_5252_;
 else
 {
 lean_object* v___x_5253_; lean_object* v___x_5254_; 
-lean_dec_ref(v___x_5168_);
-lean_dec_ref(v_arg_5161_);
-lean_dec_ref(v_arg_5158_);
+lean_dec_ref(v___x_5166_);
+lean_dec_ref(v___x_5158_);
+lean_dec_ref(v___x_5156_);
 v___x_5253_ = ((lean_object*)(l___private_Lean_Meta_Tactic_BVDecide_Normalize_Enums_0__Lean_Meta_Tactic_BVDecide_Normalize_enumToBitVecCtor___closed__0));
 v___x_5254_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_5254_, 0, v___x_5253_);
@@ -14961,6 +14963,7 @@ lean_dec(v_a_5260_);
 lean_dec_ref(v_a_5259_);
 lean_dec(v_a_5258_);
 lean_dec_ref(v_a_5257_);
+lean_dec_ref(v_e_5256_);
 lean_dec_ref(v_index_5255_);
 return v_res_5264_;
 }
@@ -14987,6 +14990,7 @@ lean_dec_ref(v_a_5283_);
 lean_dec(v_a_5282_);
 lean_dec_ref(v_a_5281_);
 lean_dec(v_a_5280_);
+lean_dec_ref(v_e_5279_);
 lean_dec_ref(v_index_5278_);
 return v_res_5290_;
 }
@@ -19298,7 +19302,6 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Tactic_BVDecide_Normalize_enumsPass___lam__
 _start:
 {
 lean_object* v___x_7093_; 
-lean_inc_ref(v___y_7082_);
 v___x_7093_ = l___private_Lean_Meta_Tactic_BVDecide_Normalize_Enums_0__Lean_Meta_Tactic_BVDecide_Normalize_enumEqToBitVecEq___redArg(v_snd_7080_, v___y_7082_, v___y_7086_, v___y_7087_, v___y_7088_, v___y_7089_, v___y_7090_, v___y_7091_);
 if (lean_obj_tag(v___x_7093_) == 0)
 {

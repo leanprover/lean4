@@ -4018,6 +4018,7 @@ v_resetjp_1087_:
 {
 lean_object* v___x_1090_; uint8_t v___x_1091_; 
 v___x_1090_ = l_Lean_Expr_cleanupAnnotations(v_a_1086_);
+lean_dec(v_a_1086_);
 v___x_1091_ = l_Lean_Expr_isApp(v___x_1090_);
 if (v___x_1091_ == 0)
 {
@@ -4031,6 +4032,7 @@ lean_object* v_arg_1092_; lean_object* v___x_1093_; lean_object* v___x_1094_; ui
 v_arg_1092_ = lean_ctor_get(v___x_1090_, 1);
 lean_inc_ref(v_arg_1092_);
 v___x_1093_ = l_Lean_Expr_appFnCleanup___redArg(v___x_1090_);
+lean_dec_ref(v___x_1090_);
 v___x_1094_ = ((lean_object*)(l___private_Lean_Meta_Sym_Simp_Theorems_0__Lean_Meta_Sym_Simp_selectEqKey___redArg___closed__5));
 v___x_1095_ = l_Lean_Expr_isConstOf(v___x_1093_, v___x_1094_);
 if (v___x_1095_ == 0)
@@ -4050,6 +4052,7 @@ lean_object* v_arg_1097_; lean_object* v___x_1098_; lean_object* v___x_1099_; ui
 v_arg_1097_ = lean_ctor_get(v___x_1093_, 1);
 lean_inc_ref(v_arg_1097_);
 v___x_1098_ = l_Lean_Expr_appFnCleanup___redArg(v___x_1093_);
+lean_dec_ref(v___x_1093_);
 v___x_1099_ = ((lean_object*)(l___private_Lean_Meta_Sym_Simp_Theorems_0__Lean_Meta_Sym_Simp_selectEqKey___redArg___closed__7));
 v___x_1100_ = l_Lean_Expr_isConstOf(v___x_1098_, v___x_1099_);
 if (v___x_1100_ == 0)
@@ -4068,6 +4071,7 @@ else
 {
 lean_object* v___x_1102_; lean_object* v___x_1103_; uint8_t v___x_1104_; 
 v___x_1102_ = l_Lean_Expr_appFnCleanup___redArg(v___x_1098_);
+lean_dec_ref(v___x_1098_);
 v___x_1103_ = ((lean_object*)(l___private_Lean_Meta_Sym_Simp_Theorems_0__Lean_Meta_Sym_Simp_selectEqKey___redArg___closed__9));
 v___x_1104_ = l_Lean_Expr_isConstOf(v___x_1102_, v___x_1103_);
 lean_dec_ref(v___x_1102_);

@@ -1324,6 +1324,8 @@ v_levelParams_401_ = lean_ctor_get(v_pattern_375_, 0);
 lean_inc(v_levelParams_401_);
 lean_dec_ref(v_pattern_375_);
 v___x_402_ = l_Lean_Expr_instantiateLevelParams(v_rhs_376_, v_levelParams_401_, v_a_390_);
+lean_dec(v_a_390_);
+lean_dec(v_levelParams_401_);
 lean_dec_ref(v_rhs_376_);
 v___x_403_ = l_Lean_Meta_Sym_shareCommonInc(v___x_402_, v___y_365_, v___y_366_, v___y_367_, v___y_368_, v___y_369_, v___y_370_);
 if (lean_obj_tag(v___x_403_) == 0)

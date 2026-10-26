@@ -5854,7 +5854,7 @@ _start:
 lean_object* v___x_1873_; lean_object* v___x_1874_; lean_object* v___x_1875_; lean_object* v___x_1876_; lean_object* v___x_1877_; lean_object* v___x_1878_; 
 v___x_1873_ = ((lean_object*)(l___private_Lean_Meta_LetToHave_0__Lean_Meta_LetToHave_visitApp___closed__2));
 v___x_1874_ = lean_unsigned_to_nat(18u);
-v___x_1875_ = lean_unsigned_to_nat(1864u);
+v___x_1875_ = lean_unsigned_to_nat(1870u);
 v___x_1876_ = ((lean_object*)(l___private_Lean_Meta_LetToHave_0__Lean_Meta_LetToHave_visitApp___closed__1));
 v___x_1877_ = ((lean_object*)(l___private_Lean_Meta_LetToHave_0__Lean_Meta_LetToHave_visitApp___closed__0));
 v___x_1878_ = l_mkPanicMessageWithDecl(v___x_1877_, v___x_1876_, v___x_1875_, v___x_1874_, v___x_1873_);
@@ -8281,7 +8281,7 @@ _start:
 lean_object* v___x_2673_; lean_object* v___x_2674_; lean_object* v___x_2675_; lean_object* v___x_2676_; lean_object* v___x_2677_; lean_object* v___x_2678_; 
 v___x_2673_ = ((lean_object*)(l___private_Lean_Meta_LetToHave_0__Lean_Meta_LetToHave_visitProj___closed__1));
 v___x_2674_ = lean_unsigned_to_nat(18u);
-v___x_2675_ = lean_unsigned_to_nat(1913u);
+v___x_2675_ = lean_unsigned_to_nat(1919u);
 v___x_2676_ = ((lean_object*)(l___private_Lean_Meta_LetToHave_0__Lean_Meta_LetToHave_visitProj___closed__0));
 v___x_2677_ = ((lean_object*)(l___private_Lean_Meta_LetToHave_0__Lean_Meta_LetToHave_visitApp___closed__0));
 v___x_2678_ = l_mkPanicMessageWithDecl(v___x_2677_, v___x_2676_, v___x_2675_, v___x_2674_, v___x_2673_);
@@ -8624,6 +8624,7 @@ v_expr_2778_ = lean_ctor_get(v_struct_2690_, 0);
 lean_inc_ref(v_expr_2778_);
 lean_dec_ref(v_struct_2690_);
 v___x_2779_ = l_Lean_Expr_cleanupAnnotations(v_snd_2777_);
+lean_dec(v_snd_2777_);
 if (lean_obj_tag(v_e_2687_) == 11)
 {
 lean_object* v_typeName_2780_; lean_object* v_idx_2781_; lean_object* v_struct_2782_; size_t v___x_2783_; size_t v___x_2784_; uint8_t v___x_2785_; 

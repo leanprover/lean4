@@ -2146,6 +2146,7 @@ lean_dec_ref(v_a_602_);
 lean_dec(v_a_601_);
 lean_dec_ref(v_a_600_);
 lean_dec(v_baseName_599_);
+lean_dec_ref(v_e_598_);
 return v_res_605_;
 }
 }
@@ -2174,7 +2175,6 @@ LEAN_EXPORT lean_object* l___private_Lean_PrettyPrinter_Delaborator_FieldNotatio
 _start:
 {
 lean_object* v___x_627_; 
-lean_inc_ref(v_type_620_);
 v___x_627_ = l___private_Lean_PrettyPrinter_Delaborator_FieldNotation_0__Lean_PrettyPrinter_Delaborator_isAppOfBaseName(v_type_620_, v_baseName_621_, v___y_622_, v___y_623_, v___y_624_, v___y_625_);
 if (lean_obj_tag(v___x_627_) == 0)
 {
@@ -2210,7 +2210,7 @@ if (lean_obj_tag(v___x_634_) == 0)
 {
 lean_object* v_a_635_; lean_object* v___x_636_; 
 v_a_635_ = lean_ctor_get(v___x_634_, 0);
-lean_inc_n(v_a_635_, 2);
+lean_inc(v_a_635_);
 lean_dec_ref_known(v___x_634_, 1);
 v___x_636_ = l___private_Lean_PrettyPrinter_Delaborator_FieldNotation_0__Lean_PrettyPrinter_Delaborator_isAppOfBaseName(v_a_635_, v_baseName_621_, v___y_622_, v___y_623_, v___y_624_, v___y_625_);
 if (lean_obj_tag(v___x_636_) == 0)
@@ -3286,6 +3286,7 @@ v_a_899_ = lean_ctor_get(v___x_898_, 0);
 lean_inc(v_a_899_);
 lean_dec_ref_known(v___x_898_, 1);
 v___x_900_ = l___private_Lean_PrettyPrinter_Delaborator_FieldNotation_0__Lean_PrettyPrinter_Delaborator_isAppOfBaseName(v_a_899_, v_baseName_877_, v___y_880_, v___y_881_, v___y_882_, v___y_883_);
+lean_dec(v_a_899_);
 if (lean_obj_tag(v___x_900_) == 0)
 {
 lean_object* v_a_901_; uint8_t v___x_902_; 

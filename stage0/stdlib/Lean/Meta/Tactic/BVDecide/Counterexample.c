@@ -6883,6 +6883,7 @@ v_resetjp_2355_:
 {
 lean_object* v___x_2358_; uint8_t v___x_2359_; 
 v___x_2358_ = l_Lean_Expr_cleanupAnnotations(v_a_2354_);
+lean_dec(v_a_2354_);
 v___x_2359_ = l_Lean_Expr_isApp(v___x_2358_);
 if (v___x_2359_ == 0)
 {
@@ -6902,6 +6903,7 @@ lean_object* v_arg_2360_; lean_object* v___y_2362_; lean_object* v___y_2368_; le
 v_arg_2360_ = lean_ctor_get(v___x_2358_, 1);
 lean_inc_ref(v_arg_2360_);
 v___x_2383_ = l_Lean_Expr_appFnCleanup___redArg(v___x_2358_);
+lean_dec_ref(v___x_2358_);
 v___x_2384_ = ((lean_object*)(l___private_Lean_Meta_Tactic_BVDecide_Counterexample_0__Lean_Meta_Tactic_BVDecide_DiagnosisM_diagnose_transformEquation___closed__9));
 v___x_2385_ = l_Lean_Expr_isConstOf(v___x_2383_, v___x_2384_);
 if (v___x_2385_ == 0)
@@ -6967,6 +6969,7 @@ lean_object* v_arg_2403_; lean_object* v___y_2405_; lean_object* v___y_2409_; le
 v_arg_2403_ = lean_ctor_get(v___x_2383_, 1);
 lean_inc_ref(v_arg_2403_);
 v___x_2412_ = l_Lean_Expr_appFnCleanup___redArg(v___x_2383_);
+lean_dec_ref(v___x_2383_);
 v___x_2413_ = ((lean_object*)(l___private_Lean_Meta_Tactic_BVDecide_Counterexample_0__Lean_Meta_Tactic_BVDecide_DiagnosisM_diagnose_transformEquation___closed__28));
 v___x_2414_ = l_Lean_Expr_isConstOf(v___x_2412_, v___x_2413_);
 if (v___x_2414_ == 0)

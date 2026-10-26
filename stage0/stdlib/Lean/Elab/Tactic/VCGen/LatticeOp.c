@@ -4740,6 +4740,7 @@ lean_dec(v_a_1481_);
 v___x_1484_ = lean_array_to_list(v_paramNames_1482_);
 v___x_1485_ = lean_box(0);
 v___x_1486_ = l_Lean_Meta_Sym_mkBackwardRuleFromExpr(v_expr_1483_, v___x_1484_, v___x_1485_, v___y_1475_, v___y_1476_, v___y_1477_, v___y_1478_);
+lean_dec(v___x_1484_);
 return v___x_1486_;
 }
 else

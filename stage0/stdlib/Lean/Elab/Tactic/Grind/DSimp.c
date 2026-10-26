@@ -4856,7 +4856,7 @@ else
 {
 lean_object* v_e_x27_1505_; uint8_t v___x_1506_; 
 v_e_x27_1505_ = lean_ctor_get(v_fst_1477_, 0);
-lean_inc_ref_n(v_e_x27_1505_, 2);
+lean_inc_ref(v_e_x27_1505_);
 lean_dec_ref_known(v_fst_1477_, 1);
 v___x_1506_ = l_Lean_Expr_isTrue(v_e_x27_1505_);
 if (v___x_1506_ == 0)

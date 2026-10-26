@@ -5134,6 +5134,7 @@ v_resetjp_1793_:
 lean_object* v___x_1796_; lean_object* v___x_1797_; lean_object* v___x_1798_; lean_object* v___y_1800_; lean_object* v___y_1801_; lean_object* v___y_1810_; lean_object* v_fvarId_1813_; 
 v___x_1796_ = l_Lean_LocalDecl_type(v_val_1792_);
 v___x_1797_ = l_Lean_Expr_cleanupAnnotations(v___x_1796_);
+lean_dec_ref(v___x_1796_);
 v___x_1798_ = l_Lean_LocalDecl_setType(v_val_1792_, v___x_1797_);
 v_fvarId_1813_ = lean_ctor_get(v___x_1798_, 1);
 lean_inc(v_fvarId_1813_);

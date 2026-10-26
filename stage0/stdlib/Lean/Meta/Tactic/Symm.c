@@ -7036,6 +7036,7 @@ v_a_2205_ = lean_ctor_get(v___x_2204_, 0);
 lean_inc(v_a_2205_);
 lean_dec_ref(v___x_2204_);
 v___x_2206_ = l_Lean_Expr_cleanupAnnotations(v_a_2205_);
+lean_dec(v_a_2205_);
 lean_inc_ref(v___x_2206_);
 v___x_2207_ = l_Lean_Expr_getSymmLems(v___x_2206_, v_a_2197_, v_a_2198_, v_a_2199_, v_a_2200_);
 if (lean_obj_tag(v___x_2207_) == 0)

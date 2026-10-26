@@ -6943,6 +6943,7 @@ else
 lean_object* v___x_2495_; lean_object* v___x_2496_; 
 v___x_2495_ = ((lean_object*)(l_Lean_Meta_IndPredBelow_mkBelow___closed__0));
 v___x_2496_ = l_Lean_ConstantVal_instantiateTypeLevelParams(v_toConstantVal_2478_, v___x_2495_);
+lean_dec_ref(v_toConstantVal_2478_);
 v___y_2488_ = v___x_2496_;
 goto v___jp_2487_;
 }
@@ -7295,6 +7296,7 @@ else
 lean_object* v___x_2743_; lean_object* v___x_2744_; 
 v___x_2743_ = ((lean_object*)(l_Lean_Meta_IndPredBelow_mkBelow___closed__0));
 v___x_2744_ = l_Lean_ConstantVal_instantiateTypeLevelParams(v_toConstantVal_2726_, v___x_2743_);
+lean_dec_ref(v_toConstantVal_2726_);
 v___y_2736_ = v___x_2744_;
 goto v___jp_2735_;
 }
@@ -7804,6 +7806,7 @@ else
 lean_object* v___x_2658_; lean_object* v___x_2659_; 
 v___x_2658_ = ((lean_object*)(l_Lean_Meta_IndPredBelow_mkBelow___closed__0));
 v___x_2659_ = l_Lean_ConstantVal_instantiateTypeLevelParams(v_toConstantVal_2649_, v___x_2658_);
+lean_dec_ref(v_toConstantVal_2649_);
 lean_inc(v_numParams_2650_);
 v___y_2606_ = v_levelParams_2644_;
 v___y_2607_ = v_numParams_2650_;
@@ -7984,6 +7987,7 @@ else
 lean_object* v___x_2689_; lean_object* v___x_2690_; 
 v___x_2689_ = ((lean_object*)(l_Lean_Meta_IndPredBelow_mkBelow___closed__0));
 v___x_2690_ = l_Lean_ConstantVal_instantiateTypeLevelParams(v_toConstantVal_2680_, v___x_2689_);
+lean_dec_ref(v_toConstantVal_2680_);
 lean_inc(v_numParams_2681_);
 v___y_2555_ = v_numNested_2674_;
 v___y_2556_ = v_all_2673_;
@@ -13555,8 +13559,7 @@ v_a_4971_ = lean_ctor_get(v___x_4970_, 0);
 lean_inc(v_a_4971_);
 lean_dec_ref_known(v___x_4970_, 1);
 v_toConstantVal_4972_ = lean_ctor_get(v_a_4971_, 0);
-lean_inc_ref_n(v_toConstantVal_4972_, 2);
-lean_inc(v_us_4723_);
+lean_inc_ref(v_toConstantVal_4972_);
 v___x_4973_ = l_Lean_ConstantVal_instantiateTypeLevelParams(v_toConstantVal_4972_, v_us_4723_);
 lean_inc(v_fields_4724_);
 v___x_4974_ = lean_array_mk(v_fields_4724_);
@@ -13764,8 +13767,7 @@ v_a_5018_ = lean_ctor_get(v___x_5017_, 0);
 lean_inc(v_a_5018_);
 lean_dec_ref_known(v___x_5017_, 1);
 v_toConstantVal_5019_ = lean_ctor_get(v_a_5018_, 0);
-lean_inc_ref_n(v_toConstantVal_5019_, 2);
-lean_inc(v_us_4723_);
+lean_inc_ref(v_toConstantVal_5019_);
 v___x_5020_ = l_Lean_ConstantVal_instantiateTypeLevelParams(v_toConstantVal_5019_, v_us_4723_);
 lean_inc(v_fields_4724_);
 v___x_5021_ = lean_array_mk(v_fields_4724_);
@@ -14348,8 +14350,7 @@ v_a_4816_ = lean_ctor_get(v___x_4815_, 0);
 lean_inc(v_a_4816_);
 lean_dec_ref_known(v___x_4815_, 1);
 v_toConstantVal_4817_ = lean_ctor_get(v_a_4816_, 0);
-lean_inc_ref_n(v_toConstantVal_4817_, 2);
-lean_inc(v_us_4723_);
+lean_inc_ref(v_toConstantVal_4817_);
 v___x_4818_ = l_Lean_ConstantVal_instantiateTypeLevelParams(v_toConstantVal_4817_, v_us_4723_);
 lean_inc(v_fields_4724_);
 v___x_4819_ = lean_array_mk(v_fields_4724_);

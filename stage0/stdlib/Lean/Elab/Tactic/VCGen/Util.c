@@ -5319,7 +5319,6 @@ goto v_resetjp_1843_;
 v_resetjp_1843_:
 {
 lean_object* v___y_1847_; lean_object* v___y_1848_; lean_object* v___y_1849_; lean_object* v___y_1850_; lean_object* v___x_1855_; uint8_t v___x_1856_; 
-lean_inc(v_a_1842_);
 v___x_1855_ = l_Lean_Expr_cleanupAnnotations(v_a_1842_);
 v___x_1856_ = l_Lean_Expr_isApp(v___x_1855_);
 if (v___x_1856_ == 0)
@@ -5334,6 +5333,7 @@ else
 {
 lean_object* v___x_1857_; uint8_t v___x_1858_; 
 v___x_1857_ = l_Lean_Expr_appFnCleanup___redArg(v___x_1855_);
+lean_dec_ref(v___x_1855_);
 v___x_1858_ = l_Lean_Expr_isApp(v___x_1857_);
 if (v___x_1858_ == 0)
 {
@@ -5347,6 +5347,7 @@ else
 {
 lean_object* v___x_1859_; uint8_t v___x_1860_; 
 v___x_1859_ = l_Lean_Expr_appFnCleanup___redArg(v___x_1857_);
+lean_dec_ref(v___x_1857_);
 v___x_1860_ = l_Lean_Expr_isApp(v___x_1859_);
 if (v___x_1860_ == 0)
 {
@@ -5360,6 +5361,7 @@ else
 {
 lean_object* v___x_1861_; uint8_t v___x_1862_; 
 v___x_1861_ = l_Lean_Expr_appFnCleanup___redArg(v___x_1859_);
+lean_dec_ref(v___x_1859_);
 v___x_1862_ = l_Lean_Expr_isApp(v___x_1861_);
 if (v___x_1862_ == 0)
 {
@@ -5371,16 +5373,14 @@ goto v___jp_1838_;
 }
 else
 {
-lean_object* v_arg_1863_; lean_object* v___x_1864_; lean_object* v___x_1865_; uint8_t v___x_1866_; 
-v_arg_1863_ = lean_ctor_get(v___x_1861_, 1);
-lean_inc_ref(v_arg_1863_);
-v___x_1864_ = l_Lean_Expr_appFnCleanup___redArg(v___x_1861_);
-v___x_1865_ = ((lean_object*)(l_Lean_Elab_Tactic_VCGen_introsExcessArgs___lam__0___closed__13));
-v___x_1866_ = l_Lean_Expr_isConstOf(v___x_1864_, v___x_1865_);
-lean_dec_ref(v___x_1864_);
-if (v___x_1866_ == 0)
+lean_object* v___x_1863_; lean_object* v___x_1864_; uint8_t v___x_1865_; 
+v___x_1863_ = l_Lean_Expr_appFnCleanup___redArg(v___x_1861_);
+v___x_1864_ = ((lean_object*)(l_Lean_Elab_Tactic_VCGen_introsExcessArgs___lam__0___closed__13));
+v___x_1865_ = l_Lean_Expr_isConstOf(v___x_1863_, v___x_1864_);
+lean_dec_ref(v___x_1863_);
+if (v___x_1865_ == 0)
 {
-lean_dec_ref(v_arg_1863_);
+lean_dec_ref(v___x_1861_);
 lean_del_object(v___x_1844_);
 lean_dec(v_a_1842_);
 lean_dec(v_goal_1825_);
@@ -5388,9 +5388,12 @@ goto v___jp_1838_;
 }
 else
 {
-uint8_t v___x_1867_; 
-v___x_1867_ = l_Lean_Expr_isForall(v_arg_1863_);
-lean_dec_ref(v_arg_1863_);
+lean_object* v_arg_1866_; uint8_t v___x_1867_; 
+v_arg_1866_ = lean_ctor_get(v___x_1861_, 1);
+lean_inc_ref(v_arg_1866_);
+lean_dec_ref(v___x_1861_);
+v___x_1867_ = l_Lean_Expr_isForall(v_arg_1866_);
+lean_dec_ref(v_arg_1866_);
 if (v___x_1867_ == 0)
 {
 lean_object* v___x_1868_; lean_object* v___x_1870_; 

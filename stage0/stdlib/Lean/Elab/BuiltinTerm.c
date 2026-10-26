@@ -15943,6 +15943,7 @@ v___jp_6141_:
 uint8_t v___x_6142_; lean_object* v___x_6143_; lean_object* v___x_6145_; 
 v___x_6142_ = 0;
 v___x_6143_ = l_Lean_ConstantInfo_instantiateValueLevelParams_x21(v_a_6137_, v_us_6135_, v___x_6142_);
+lean_dec(v_us_6135_);
 lean_dec(v_a_6137_);
 if (v_isShared_6140_ == 0)
 {

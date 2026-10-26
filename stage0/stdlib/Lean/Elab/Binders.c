@@ -10864,6 +10864,7 @@ v_body_3850_ = lean_ctor_get(v_a_3845_, 2);
 lean_inc_ref(v_body_3850_);
 lean_dec_ref_known(v_a_3845_, 3);
 v___x_3851_ = l_Lean_Expr_cleanupAnnotations(v_binderType_3849_);
+lean_dec_ref(v_binderType_3849_);
 v___x_3852_ = l_Lean_Meta_isExprDefEq(v_fvarType_3825_, v___x_3851_, v_a_3827_, v_a_3828_, v_a_3829_, v_a_3830_);
 if (lean_obj_tag(v___x_3852_) == 0)
 {
@@ -22029,6 +22030,7 @@ v_resetjp_8527_:
 lean_object* v___x_8530_; lean_object* v___x_8531_; lean_object* v___x_8532_; lean_object* v___y_8534_; lean_object* v___y_8535_; lean_object* v___y_8544_; lean_object* v_fvarId_8547_; 
 v___x_8530_ = l_Lean_LocalDecl_type(v_val_8526_);
 v___x_8531_ = l_Lean_Expr_cleanupAnnotations(v___x_8530_);
+lean_dec_ref(v___x_8530_);
 v___x_8532_ = l_Lean_LocalDecl_setType(v_val_8526_, v___x_8531_);
 v_fvarId_8547_ = lean_ctor_get(v___x_8532_, 1);
 lean_inc(v_fvarId_8547_);

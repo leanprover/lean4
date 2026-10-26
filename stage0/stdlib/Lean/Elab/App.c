@@ -8857,6 +8857,7 @@ if (lean_obj_tag(v___x_2241_) == 1)
 lean_object* v___x_2242_; lean_object* v___x_2243_; lean_object* v___x_2244_; lean_object* v___x_2245_; 
 v___x_2242_ = l_Lean_LocalDecl_type(v_a_2240_);
 v___x_2243_ = l_Lean_Expr_cleanupAnnotations(v___x_2242_);
+lean_dec_ref(v___x_2242_);
 v___x_2244_ = l_Lean_Expr_fvarId_x21(v_curr_2217_);
 v___x_2245_ = l_Lean_exprDependsOn___at___00__private_Lean_Elab_App_0__Lean_Elab_Term_ElabAppArgs_findNamedArgDependsOn_x3f_spec__1___redArg(v___x_2243_, v___x_2244_, v___y_2221_);
 if (lean_obj_tag(v___x_2245_) == 0)
@@ -64568,7 +64569,6 @@ _start:
 if (v___x_21761_ == 0)
 {
 lean_object* v___x_21770_; uint8_t v___x_21771_; 
-lean_inc_ref(v_type_21762_);
 v___x_21770_ = l_Lean_Expr_cleanupAnnotations(v_type_21762_);
 v___x_21771_ = l_Lean_Expr_isAppOf(v___x_21770_, v_baseName_21763_);
 lean_dec_ref(v___x_21770_);

@@ -871,6 +871,7 @@ lean_dec_ref_known(v___x_220_, 1);
 v___x_222_ = lean_array_to_list(v_paramNames_212_);
 v___x_223_ = lean_box(0);
 v___x_224_ = l_Lean_Meta_Sym_mkPatternFromExpr(v_a_221_, v___x_222_, v___x_223_, v_a_203_, v_a_204_, v_a_205_, v_a_206_);
+lean_dec(v___x_222_);
 return v___x_224_;
 }
 else

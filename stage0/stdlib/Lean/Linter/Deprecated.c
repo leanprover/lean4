@@ -1462,9 +1462,9 @@ v___x_307_ = l_Lean_ConstantInfo_levelParams(v_decl_u2081_275_);
 v___x_308_ = ((lean_object*)(l___private_Lean_Linter_Deprecated_0__Lean_Linter_areTypesReduciblyDefEq___closed__0));
 v_levels_309_ = l_List_mapIdx_go___at___00__private_Lean_Linter_Deprecated_0__Lean_Linter_areTypesReduciblyDefEq_spec__0(v___x_307_, v___x_308_);
 lean_dec(v___x_307_);
-lean_inc(v_levels_309_);
 v_type_u2081_310_ = l_Lean_ConstantInfo_instantiateTypeLevelParams(v_decl_u2081_275_, v_levels_309_);
 v_type_u2082_311_ = l_Lean_ConstantInfo_instantiateTypeLevelParams(v_decl_u2082_276_, v_levels_309_);
+lean_dec(v_levels_309_);
 v___x_312_ = 2;
 v___x_313_ = l_Lean_Meta_instBEqTransparencyMode_beq(v_transparency_306_, v___x_312_);
 if (v___x_313_ == 0)

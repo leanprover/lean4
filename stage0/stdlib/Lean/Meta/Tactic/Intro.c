@@ -1284,6 +1284,7 @@ v_a_301_ = lean_ctor_get(v___x_300_, 0);
 lean_inc(v_a_301_);
 lean_dec_ref_known(v___x_300_, 1);
 v___x_302_ = l_Lean_Expr_cleanupAnnotations(v_a_301_);
+lean_dec(v_a_301_);
 v___x_307_ = l_Lean_Expr_isForall(v___x_302_);
 if (v___x_307_ == 0)
 {
@@ -4811,6 +4812,7 @@ v_a_1614_ = lean_ctor_get(v___x_1613_, 0);
 lean_inc(v_a_1614_);
 lean_dec_ref_known(v___x_1613_, 1);
 v___x_1615_ = l_Lean_Expr_cleanupAnnotations(v_a_1614_);
+lean_dec(v_a_1614_);
 v___x_1620_ = l_Lean_Expr_isForall(v___x_1615_);
 if (v___x_1620_ == 0)
 {

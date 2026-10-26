@@ -230,7 +230,7 @@ def setTag  [Monad m] [MonadError m] [MonadEnv m] (attr : TagAttribute) (decl : 
 
 def hasTag (attr : TagAttribute) (env : Environment) (decl : Name) : Bool :=
   match env.getModuleIdxFor? decl with
-  | some modIdx => (attr.ext.getModuleEntries env modIdx).binSearchContains decl Name.quickLt
+  | some modIdx => containsSortedName (attr.ext.getModuleEntries env modIdx) decl
   | none        => (attr.ext.getState (asyncDecl := decl) env).contains decl
 
 end TagAttribute
@@ -313,7 +313,7 @@ def getParamFromExt? [Inhabited α]
   match env.getModuleIdxFor? decl with
   | some modIdx =>
     let entry? := if preserveOrder then
-      (ext.getModuleEntries env modIdx).find? (·.1 == decl)
+      findByName? (ext.getModuleEntries env modIdx) decl
     else
       (ext.getModuleEntries env modIdx).binSearch (decl, default) (fun a b => Name.quickLt a.1 b.1)
     match entry? with

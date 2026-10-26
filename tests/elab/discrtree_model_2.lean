@@ -267,22 +267,8 @@ theorem Trie.sizeOf_lt_of_mem {cs : Array (Key × Trie α)} (h : p ∈ cs) :
   have := Array.sizeOf_lt_of_mem h
   grind only [= Prod.mk.sizeOf_spec, = node.sizeOf_spec]
 
-/-- Removing a star from a run makes the trie smaller. -/
-theorem Trie.sizeOf_mkStars_pred_lt (n : Nat) (t : Trie α) :
-    sizeOf (mkStars (n - 1) t) < sizeOf (Trie.stars n t) := by
-  unfold mkStars
-  split
-  · simp; omega
-  · split <;> simp <;> omega
-
 theorem List.le_sum_of_mem_nat {l : List Nat} (h : x ∈ l) : x ≤ l.sum := by
-  induction l with
-  | nil => simp at h
-  | cons y l ih =>
-    simp only [List.mem_cons] at h
-    rcases h with rfl | h
-    · simp
-    · have := ih h; simp; omega
+  induction l <;> simp_all <;> grind
 
 /--
 A size measure for tries that decreases from a trie to each of its {name}`Trie.nodeChildren`: a run
@@ -300,14 +286,13 @@ decreasing_by
   | exact Trie.sizeOf_lt_of_mem ‹_›
   | (simp; omega)
 
-theorem Trie.measure_mkStars_lt {c : Trie α} (h : 0 < n) : (mkStars (n - 1) c).measure < (Trie.stars n c : Trie α).measure := by
+/-- Removing a star decreases the measure, even for a zero-length run. -/
+theorem Trie.measure_mkStars_pred_lt (n : Nat) (c : Trie α) :
+    (mkStars (n - 1) c).measure < (Trie.stars n c).measure := by
   unfold mkStars
   split
   · simp only [measure]; omega
-  · split
-    · rename_i m c'
-      simp only [measure]; omega
-    · simp only [measure]; omega
+  · split <;> simp only [measure] <;> omega
 
 theorem Trie.measure_lt_of_mem_nodeChildren {t : Trie α} (h : kc ∈ t.nodeChildren) :
     kc.snd.measure < t.measure := by
@@ -328,9 +313,7 @@ theorem Trie.measure_lt_of_mem_nodeChildren {t : Trie α} (h : kc ∈ t.nodeChil
   | stars n c =>
     simp only [nodeChildren, Array.mem_singleton] at h
     subst h
-    by_cases hn : n = 0
-    · subst hn; simp [mkStars, measure]
-    · exact measure_mkStars_lt (by omega)
+    exact measure_mkStars_pred_lt n c
   | suffix keys start hs v =>
     simp only [nodeChildren] at h
     split at h <;> simp only [Array.mem_singleton] at h <;> subst h <;> simp only [measure] <;> omega
@@ -489,7 +472,6 @@ deriving instance ReflBEq, LawfulBEq for Lean.Literal
 deriving instance ReflBEq, LawfulBEq for Lean.FVarId
 deriving instance ReflBEq, LawfulBEq for Key
 
-
 /-!
 ## Keys are strictly ordered
 -/
@@ -587,36 +569,24 @@ theorem Name.eq_of_not_quickLt {n n' : Name} (h₁ : n.quickLt n' = false) (h₂
   · exact Name.quickCmpAux_eq_iff.mp this
   · contradiction
 
-theorem FVarId.beq_eq_name_beq {x y : FVarId} : (x == y) = (x.name == y.name) := by
-  cases x; cases y; rfl
-
-theorem String.eq_of_not_lt {s t : String} (h₁ : ¬ s < t) (h₂ : ¬ t < s) : s = t := by grind
-
 theorem Literal.eq_of_not_lt {l l' : Literal} (h₁ : l.lt l' = false) (h₂ : l'.lt l = false) : l = l' := by
-  cases l <;> cases l' <;> simp_all [Literal.lt]
-  · omega
-  · exact String.eq_of_not_lt h₁ h₂
+  cases l <;> cases l' <;> simp_all [Literal.lt] <;> grind
 
 theorem Literal.lt_irrefl (l : Literal) : l.lt l = false := by
   cases l <;> simp [Literal.lt, Std.lt_irrefl]
 
 theorem Literal.lt_trans {a b c : Literal} (h₁ : a.lt b) (h₂ : b.lt c) : a.lt c := by
-  cases a <;> cases b <;> cases c <;> simp_all [Literal.lt]
-  · omega
-  · exact Std.lt_trans h₁ h₂
+  cases a <;> cases b <;> cases c <;> simp_all [Literal.lt] <;> grind
 
 theorem Key.eq_of_not_lt {k k' : Key} (h₁ : k.lt k' = false) (h₂ : k'.lt k = false) : k = k' := by
   cases k <;> cases k' <;> simp_all [Key.lt, Key.ctorIdx]
-  case lit.lit l l' => exact Literal.eq_of_not_lt (by simpa [LT.lt] using h₁) (by simpa [LT.lt] using h₂)
-  case fvar.fvar x a y b =>
-    have h := Name.eq_of_not_quickLt h₁.1 h₂.1
-    have hxy : x = y := by cases x; cases y; simp_all
-    subst hxy
-    have := h₁.2 (by simp); have := h₂.2 (by simp)
-    exact ⟨rfl, by omega⟩
-  case const.const x a y b =>
-    have h := Name.eq_of_not_quickLt h₁.1 h₂.1
-    have := h₁.2 h; have := h₂.2 h.symm; exact ⟨h, by omega⟩
+  · exact Literal.eq_of_not_lt (by simpa [LT.lt] using h₁) (by simpa [LT.lt] using h₂)
+  case fvar.fvar x _ y _ =>
+    have := Name.eq_of_not_quickLt h₁.1 h₂.1
+    cases x; cases y
+    grind
+  · have := Name.eq_of_not_quickLt h₁.1 h₂.1
+    grind
 
 theorem Key.lt_iff {a b : Key} : a < b ↔ Key.lt a b = true := Iff.rfl
 
@@ -628,32 +598,15 @@ theorem Key.lt_irrefl (k : Key) : ¬ k < k := by
 
 theorem Key.lt_trans {a b c : Key} (h₁ : a < b) (h₂ : b < c) : a < c := by
   rw [Key.lt_iff] at *
-  cases a <;> cases b <;> cases c <;> simp only [Key.lt, decide_eq_true_eq] at * <;>
-    (try (simp only [Key.ctorIdx] at *; omega))
-  case lit.lit.lit => simp only [Literal.lt_iff] at *; exact Literal.lt_trans h₁ h₂
-  all_goals simp only [Bool.or_eq_true, Bool.and_eq_true, beq_iff_eq, decide_eq_true_eq] at *
-  case fvar.fvar.fvar x a y b z c =>
-    have hfv {u v : FVarId} : (u == v) = true ↔ u = v := by
-      cases u; cases v; simp [FVarId.beq_eq_name_beq]
-    simp only [hfv] at *
-    rcases h₁ with h₁ | ⟨rfl, h₁⟩ <;> rcases h₂ with h₂ | ⟨rfl, h₂⟩
-    · exact .inl (Name.quickLt_trans h₁ h₂)
-    · exact .inl h₁
-    · exact .inl h₂
-    · exact .inr ⟨rfl, by omega⟩
-  case const.const.const x a y b z c =>
-    rcases h₁ with h₁ | ⟨rfl, h₁⟩ <;> rcases h₂ with h₂ | ⟨rfl, h₂⟩
-    · exact .inl (Name.quickLt_trans h₁ h₂)
-    · exact .inl h₁
-    · exact .inl h₂
-    · exact .inr ⟨rfl, by omega⟩
+  cases a <;> cases b <;> cases c <;>
+    simp_all [Key.lt, Key.ctorIdx, Literal.lt_iff] <;>
+    grind [Name.quickLt_trans, Literal.lt_trans]
 
 theorem Key.lt_asymm {a b : Key} (h : a < b) : ¬ b < a :=
   fun h' => Key.lt_irrefl a (Key.lt_trans h h')
 
 theorem Key.not_lt_star (k : Key) : ¬ k < .star := by
   rw [Key.lt_iff]; cases k <;> simp [Key.lt, Key.ctorIdx]
-
 
 /-!
 ## Sorted children
@@ -704,28 +657,10 @@ theorem Array.binSearchAux_complete {lt : α → α → Bool} {as : Array α} {k
     rcases Nat.lt_or_eq_of_le hjm with hjm | rfl
     · grind
     · simpa [h_eq] using h_x
-  fun_induction Array.binSearchAux lt id as k lo hi h with
-  | case1 lo hi _ m a hlt _ _ ih =>
-    refine ih ?_ h_hi
-    show m + 1 ≤ j
-    have : m < as.size := by omega
-    have := below this
-    by_cases hjm : j ≤ m
-    · simp_all [a]
-    · omega
-  | case2 lo hi _ m a hlt _ _ =>
-    have := below (m := m) (by omega) (by omega); simp_all [a]
-  | case3 lo hi _ m a _ hgt h' _ =>
-    have := above (m := m) (by omega) (by omega); simp_all [a]
-  | case4 lo hi _ m a _ hgt _ _ ih =>
-    refine ih h_lo ?_
-    show j ≤ m - 1
-    have : m < as.size := by omega
-    have := above this
-    by_cases hjm : m ≤ j
-    · simp_all [a]
-    · omega
-  | case5 => exact ⟨_, rfl⟩
+  clear h_sorted h_asymm h_k h_x h_eq
+  fun_induction Array.binSearchAux lt id as k lo hi h
+  case case5 => exact ⟨_, rfl⟩
+  all_goals grind only
 
 theorem Array.binSearch_complete {lt : α → α → Bool} {as : Array α} {k x : α}
     (h_sorted : ∀ i j (hi : i < as.size) (hj : j < as.size), i < j → lt as[i] as[j])
@@ -758,7 +693,6 @@ theorem Spec.KeysSorted.getElem?_zero {cs : Array (Key × Trie α)} (hs : KeysSo
   · have := hs.lt (by omega) hj hj0
     rw [h_eq] at this
     exact absurd this (Key.not_lt_star _)
-
 
 /-!
 ## Binary insertion
@@ -818,15 +752,6 @@ theorem Array.binInsertM_id_cases {lt : α → α → Bool} {merge : α → Id �
   · rename_i h0 _ _ _ hgt
     exact Array.binInsertAux_id_cases h_asymm _ _ _ _ (by simpa using hgt)
 
-
-theorem Array.eq_empty_or_eq_push (xs : Array α) : xs = #[] ∨ ∃ (ys : Array α) (y : α), xs = ys.push y := by
-  rcases Nat.eq_zero_or_pos xs.size with h | h
-  · exact .inl (Array.eq_empty_of_size_eq_zero h)
-  · obtain ⟨ys, y, rfl⟩ := Array.exists_push_of_size_pos h
-    exact .inr ⟨ys, y, rfl⟩
-
-/-- A stack is determined by the stack left after consuming its top shape, plus that shape's key. -/
-
 theorem List.map_insertIdx' {f : β → γ} {l : List β} {i : Nat} {x : β} :
     (l.insertIdx i x).map f = (l.map f).insertIdx i (f x) := by
   induction l generalizing i with
@@ -878,19 +803,6 @@ theorem Spec.KeysSorted.insertIdx {cs : Array (Key × Trie α)} (hs : KeysSorted
     (by simp only [List.length_map, Array.length_toList]; exact hi) hs (fun h => ?_) (fun h => ?_)
   · simp only [List.getElem_map, Array.getElem_toList]; exact hprev h
   · grind
-
-
-theorem Array.foldl_eq_append_flatMap {xs : Array β} {f : Array α → β → Array α} {g : β → Array α}
-    (h : ∀ acc, ∀ x ∈ xs, f acc x = acc ++ g x) (init : Array α) :
-    xs.foldl f init = init ++ xs.flatMap g := by
-  rcases xs with ⟨l⟩
-  simp only [List.foldl_toArray', List.flatMap_toArray, List.mem_toArray] at h ⊢
-  induction l generalizing init with
-  | nil => simp
-  | cons x l ih =>
-    rw [List.foldl_cons, h _ x (by simp), ih _ (fun acc y hy => h acc y (by simp [hy]))]
-    simp only [List.flatMap_cons, ← List.append_toArray, Array.toArray_toList, Array.append_assoc]
-
 
 section
 variable {α : Type}
@@ -995,20 +907,11 @@ theorem Trie.WF.succ {t : Trie α} (h : t.WF (m + 1)) :
 theorem Trie.WF.nodeChildren_eq_empty {t : Trie α} (h : t.WF 0) : t.nodeChildren = #[] := by
   obtain ⟨vs, rfl, -⟩ := wf_zero_iff.1 h; rfl
 
-
 theorem Trie.nodeValues_mkChain : (mkChain k c : Trie α).nodeValues = #[] := by
   unfold mkChain; split <;> rfl
 
 theorem Trie.nodeValues_mkNode {cs : Array (Key × Trie α)} : (mkNode cs).nodeValues = #[] := by
-  unfold mkNode
-  split
-  · dsimp only
-    split
-    · split
-      · rfl
-      · exact nodeValues_mkChain
-    · exact nodeValues_mkChain
-  · rfl
+  fun_cases mkNode <;> first | rfl | exact nodeValues_mkChain
 
 theorem Trie.nodeChildren_mkChain {c : Trie α} (hc : c.WF n) : (mkChain k c).nodeChildren = #[(k, c)] := by
   unfold mkChain
@@ -1106,20 +1009,8 @@ theorem Spec.mem_suffix_iff {keys : Array Key} {start : Nat} {h : start < keys.s
     split
     · rename_i he
       have : keys.toList.drop (start + 1) = [] := by simp; omega
-      simp only [this, Array.mem_singleton, Prod.mk.injEq, List.cons.injEq]
-      constructor
-      · rintro ⟨c, ⟨rfl, rfl⟩, hm⟩
-        obtain ⟨rfl, hw⟩ := mem_leaf_iff.1 hm
-        simp_all
-      · rintro ⟨⟨rfl, rfl⟩, rfl⟩
-        exact ⟨_, ⟨rfl, rfl⟩, mem_leaf_iff.2 ⟨rfl, by simp⟩⟩
-    · simp only [Array.mem_singleton, Prod.mk.injEq, List.cons.injEq]
-      constructor
-      · rintro ⟨c, ⟨rfl, rfl⟩, hm⟩
-        obtain ⟨rfl, rfl⟩ := mem_suffix_iff.1 hm
-        simp
-      · rintro ⟨⟨rfl, rfl⟩, rfl⟩
-        exact ⟨_, ⟨rfl, rfl⟩, mem_suffix_iff.2 ⟨rfl, rfl⟩⟩
+      simp [this, mem_leaf_iff, and_assoc]
+    · simp [mem_suffix_iff (keys := keys) (start := start + 1), and_assoc]
 termination_by keys.size - start
 
 theorem Spec.Mem.validPath {t : Trie α} (hm : Mem t p w) (ht : t.WF n) : ValidPath n p := by
@@ -1135,19 +1026,11 @@ theorem Spec.Mem.validPath {t : Trie α} (hm : Mem t p w) (ht : t.WF n) : ValidP
 
 theorem Spec.mem_mkNode_iff {cs : Array (Key × Trie α)} (hc : ∀ kc ∈ cs, ∃ n, kc.snd.WF n) :
     Mem (Trie.mkNode cs) p w ↔ ∃ k q c, p = k :: q ∧ (k, c) ∈ cs ∧ Mem c q w := by
-  cases p with
-  | nil => simp [mem_nil_iff, Trie.nodeValues_mkNode]
-  | cons k q =>
-    simp only [mem_cons_iff, Trie.nodeChildren_mkNode hc, List.cons.injEq]
-    exact ⟨fun ⟨c, h1, h2⟩ => ⟨_, _, c, ⟨rfl, rfl⟩, h1, h2⟩, fun ⟨_, _, c, ⟨rfl, rfl⟩, h1, h2⟩ => ⟨c, h1, h2⟩⟩
+  cases p <;> simp [mem_nil_iff, mem_cons_iff, Trie.nodeValues_mkNode, Trie.nodeChildren_mkNode hc] <;> grind
 
 theorem Spec.mem_succ_iff {t : Trie α} (ht : t.WF (m + 1)) :
     Mem t p w ↔ ∃ k q c, p = k :: q ∧ (k, c) ∈ t.nodeChildren ∧ Mem c q w := by
-  cases p with
-  | nil => simp [mem_nil_iff, ht.succ.1]
-  | cons k q =>
-    simp only [mem_cons_iff, List.cons.injEq]
-    exact ⟨fun ⟨c, h1, h2⟩ => ⟨_, _, c, ⟨rfl, rfl⟩, h1, h2⟩, fun ⟨_, _, c, ⟨rfl, rfl⟩, h1, h2⟩ => ⟨c, h1, h2⟩⟩
+  cases p <;> simp [mem_nil_iff, mem_cons_iff, ht.succ.1] <;> grind
 
 end
 
@@ -1172,25 +1055,16 @@ theorem Array.binInsertM_id_induct {lt : α → α → Bool} {merge : α → Id 
 
 theorem Spec.KeysSorted.mem_set_iff {cs : Array (Key × Trie α)} (hs : KeysSorted cs) {i : Nat} (hi : i < cs.size)
     (hk : cs[i].fst = key) : (k, c) ∈ cs.set i (key, x) ↔ (k = key ∧ c = x) ∨ ((k, c) ∈ cs ∧ k ≠ key) := by
-  constructor
-  · intro h
-    obtain ⟨j, hj, hjeq⟩ := Array.mem_iff_getElem.1 h
-    simp only [Array.size_set] at hj
-    by_cases hji : j = i
-    · subst hji
-      simp only [Array.getElem_set_self, Prod.mk.injEq] at hjeq
-      exact .inl ⟨hjeq.1.symm, hjeq.2.symm⟩
-    · rw [Array.getElem_set_ne hi hj (Ne.symm hji)] at hjeq
-      refine .inr ⟨hjeq ▸ Array.getElem_mem hj, fun hkk => ?_⟩
-      have h1 : cs[j].fst = cs[i].fst := by rw [hjeq, hk, hkk]
-      rcases Nat.lt_or_gt_of_ne hji with h2 | h2
-      · exact Key.lt_irrefl _ (h1 ▸ hs.lt hj hi h2)
-      · exact Key.lt_irrefl _ (h1 ▸ hs.lt hi hj h2)
-  · rintro (⟨rfl, rfl⟩ | ⟨h, hkk⟩)
-    · exact Array.mem_iff_getElem.2 ⟨i, by simpa using hi, by simp⟩
-    · obtain ⟨j, hj, hjeq⟩ := Array.mem_iff_getElem.1 h
-      have hji : i ≠ j := fun hij => hkk (by subst hij; rw [← hk, hjeq])
-      exact Array.mem_iff_getElem.2 ⟨j, by simpa using hj, by rw [Array.getElem_set_ne hi hj hji, hjeq]⟩
+  have hkey {j : Nat} (hj : j < cs.size) : cs[j].fst = key ↔ j = i := by
+    constructor
+    · intro h
+      rcases Nat.lt_trichotomy j i with hji | hji | hij
+      · exact (Key.lt_irrefl key (by simpa [h, hk] using hs.lt hj hi hji)).elim
+      · exact hji
+      · exact (Key.lt_irrefl key (by simpa [h, hk] using hs.lt hi hj hij)).elim
+    · rintro rfl; exact hk
+  simp only [Array.mem_iff_getElem, Array.size_set, Array.getElem_set]
+  grind
 
 theorem Spec.insert_spec {path : Array Key} {hi : i ≤ path.size} {t : Trie α} (ht : t.WF n)
     (hv : ValidPath n (path.toList.drop i)) :
@@ -1231,22 +1105,11 @@ theorem Spec.insert_spec {path : Array Key} {hi : i ≤ path.size} {t : Trie α}
         · exact hc _ hmem
       refine ⟨Trie.WF.mkNode (by simp; omega) (hs.set hj (by simp [hcj])) hc', fun p w => ?_⟩
       rw [mem_mkNode_iff (fun kc hkc => ⟨_, hc' kc hkc⟩), mem_succ_iff ht]
-      constructor
-      · rintro ⟨k', q, c', rfl, hkc, hm⟩
-        rcases (hs.mem_set_iff hj hcj).1 hkc with ⟨rfl, rfl⟩ | ⟨hmem, -⟩
-        · rcases (ihm q w).1 hm with hm | ⟨rfl, rfl⟩
-          · exact .inl ⟨_, _, _, rfl, hcm, hm⟩
-          · exact .inr ⟨rfl, rfl⟩
-        · exact .inl ⟨_, _, _, rfl, hmem, hm⟩
-      · rintro (⟨k', q, c', rfl, hkc, hm⟩ | ⟨rfl, rfl⟩)
-        · by_cases hk : k' = path[i]
-          · subst hk
-            obtain rfl : c' = c := by
-              have := hs.eq_of_mem hkc hcm rfl
-              simpa using this
-            exact ⟨_, _, _, rfl, (hs.mem_set_iff hj hcj).2 (.inl ⟨rfl, rfl⟩), (ihm q w).2 (.inl hm)⟩
-          · exact ⟨_, _, _, rfl, (hs.mem_set_iff hj hcj).2 (.inr ⟨hkc, hk⟩), hm⟩
-        · exact ⟨_, _, _, rfl, (hs.mem_set_iff hj hcj).2 (.inl ⟨rfl, rfl⟩), (ihm _ _).2 (.inr ⟨rfl, rfl⟩)⟩
+      have huniq : ∀ c', (path[i], c') ∈ t.nodeChildren → c' = c := by
+        intro c' hc'
+        simpa using hs.eq_of_mem hc' hcm rfl
+      simp only [hs.mem_set_iff hj hcj]
+      grind only
     · intro j hj hprev hnext
       dsimp only [Id.run]
       generalize hnew : Trie.singleton (i + 1) path _ v = new
@@ -1269,13 +1132,7 @@ theorem Spec.insert_spec {path : Array Key} {hi : i ≤ path.size} {t : Trie α}
         fun p w => ?_⟩
       rw [mem_mkNode_iff (fun kc hkc => ⟨_, hc' kc hkc⟩), mem_succ_iff ht]
       simp only [Array.mem_insertIdx, Prod.mk.injEq]
-      constructor
-      · rintro ⟨k', q, c', rfl, ⟨rfl, rfl⟩ | hkc, hm⟩
-        · exact .inr (by simpa using (hnw.2 q w).1 hm)
-        · exact .inl ⟨_, _, _, rfl, hkc, hm⟩
-      · rintro (⟨k', q, c', rfl, hkc, hm⟩ | ⟨rfl, rfl⟩)
-        · exact ⟨_, _, _, rfl, .inr hkc, hm⟩
-        · exact ⟨_, _, _, rfl, .inl ⟨rfl, rfl⟩, (hnw.2 _ _).2 ⟨rfl, rfl⟩⟩
+      grind only [hnw.2]
 
 end
 
@@ -1357,11 +1214,7 @@ theorem Spec.exists_cons_iff {X : List Key} {s : Nat} {R : List Key → Prop} :
 
 theorem Spec.exists_nil_iff {R : List ExprShape → Prop} :
     (∃ ds : List ExprShape, ds.length = 0 ∧ R ds) ↔ R [] := by
-  constructor
-  · rintro ⟨_ | _, hl, hr⟩
-    · exact hr
-    · simp at hl
-  · intro h; exact ⟨[], rfl, h⟩
+  simp
 
 /-- Key paths determine the shapes they came from. -/
 theorem Spec.F_inj : ∀ {ds ds' : List ExprShape} {X X' : List Key},
@@ -1421,21 +1274,10 @@ theorem Spec.UnifyMany.size_eq (h : UnifyMany es qs) : es.size = qs.size := h.1
 
 theorem Spec.unifyMany_push :
     UnifyMany (es.push e) (qs.push q) ↔ UnifyMany es qs ∧ ExprShape.Unify e q := by
-  constructor
-  · rintro ⟨h_len, h⟩
-    simp only [Array.size_push, Nat.add_right_cancel_iff] at h_len
-    refine ⟨⟨h_len, fun i hi => ?_⟩, ?_⟩
-    · have := h i (by simp; omega)
-      simpa [Array.getElem_push, hi, h_len ▸ hi] using this
-    · have := h es.size (by simp)
-      simpa [Array.getElem_push, h_len] using this
-  · rintro ⟨⟨h_len, h⟩, hq⟩
-    refine ⟨by simp [h_len], fun i hi => ?_⟩
-    simp only [Array.size_push] at hi
-    rw [Array.getElem_push, Array.getElem_push]
-    split
-    · grind
-    · grind
+  simp only [UnifyMany, Array.size_push, Nat.add_right_cancel_iff]
+  by_cases hs : es.size = qs.size
+  · simp +contextual [hs, Nat.forall_lt_succ_right', Array.getElem_push]
+  · grind only [Array.size_push]
 
 theorem Spec.unifyMany_append (hs : es.size = qs.size) :
     UnifyMany (es ++ es') (qs ++ qs') ↔ UnifyMany es qs ∧ UnifyMany es' qs' := by
@@ -1464,9 +1306,7 @@ theorem Spec.unifyMany_reverse : UnifyMany es.reverse qs.reverse ↔ UnifyMany e
     refine ⟨hl, fun i hi => ?_⟩
     have := h (es.size - 1 - i) (by simp; omega)
     simp only [Array.getElem_reverse] at this
-    have e1 : es.size - 1 - (es.size - 1 - i) = i := by omega
-    have e2 : qs.size - 1 - (es.size - 1 - i) = i := by omega
-    simpa [e1, e2] using this
+    grind
   · rintro ⟨hl, h⟩
     refine ⟨by simp [hl], fun i hi => ?_⟩
     simp only [Array.size_reverse] at hi
@@ -1638,18 +1478,8 @@ theorem Spec.mem_getUnify_iff {t : Trie α} (ht : t.WF (skip + qs.size)) :
           have := hc _ (Array.mem_of_getElem? hs0); simpa [Key.arity] using this
         rw [ih2 c' hs0 hwf]
         simp only [Array.pop_push, exists_nil_iff, F_nil, List.nil_append]
-        apply or_congr_right
-        constructor
-        · rintro ⟨es, hu, hm⟩; exact ⟨c', hs0, es, hu, hm⟩
-        · rintro ⟨c'', h0, es, hu, hm⟩
-          rw [hs0] at h0
-          simp only [Option.some.injEq, Prod.mk.injEq, true_and] at h0
-          subst h0
-          exact ⟨es, hu, hm⟩
-      · rename_i hn
-        rw [iff_self_or]
-        rintro ⟨c', h0, -⟩
-        exact (hn c' h0).elim
+        simp [hs0]
+      · grind only
     obtain ⟨hmem, rfl⟩ := Trie.binSearch_key hf
     have hwf : c.WF (0 + ((qs'.push q).pop ++ q.getKeyArgs.snd).size) := by
       have := hc _ hmem; simpa [ExprShape.size_getKeyArgs_snd] using this
@@ -1674,18 +1504,8 @@ theorem Spec.mem_getUnify_iff {t : Trie α} (ht : t.WF (skip + qs.size)) :
           have := hc _ (Array.mem_of_getElem? hs0); simpa [Key.arity] using this
         rw [ih1 c' hs0 hwf]
         simp only [Array.pop_push, exists_nil_iff, F_nil, List.nil_append]
-        apply or_congr_right
-        constructor
-        · rintro ⟨es, hu, hm⟩; exact ⟨c', hs0, es, hu, hm⟩
-        · rintro ⟨c'', h0, es, hu, hm⟩
-          rw [hs0] at h0
-          simp only [Option.some.injEq, Prod.mk.injEq, true_and] at h0
-          subst h0
-          exact ⟨es, hu, hm⟩
-      · rename_i hn
-        rw [iff_self_or]
-        rintro ⟨c', h0, -⟩
-        exact (hn c' h0).elim
+        simp [hs0]
+      · grind only
     rw [hacc]
     simp only [exists_nil_iff, F_nil, List.nil_append]
     rw [unify_top_iff hqs hs]
@@ -1847,9 +1667,4 @@ theorem Trie.mem_getUnify_toTrie {kvMap : KVMap α} :
   · obtain ⟨hw, hm⟩ := Spec.toTrie_spec h
     rw [Spec.mem_getUnify_single hw]
     simp only [hm, KVMap.getUnify, List.mem_map, List.mem_filter, decide_eq_true_eq]
-    constructor
-    · rintro ⟨e, he, kv, hkv, hp, rfl⟩
-      obtain rfl := ExprShape.getKeyPath_inj hp
-      exact ⟨kv, ⟨hkv, he⟩, rfl⟩
-    · rintro ⟨kv, ⟨hkv, he⟩, rfl⟩
-      exact ⟨kv.key, he, kv, hkv, rfl, rfl⟩
+    grind only [ExprShape.getKeyPath_inj]

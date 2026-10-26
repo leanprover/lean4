@@ -501,7 +501,8 @@ bool mpz::is_size_t() const {
 int mpz::get_int() const {
     lean_assert(is_int());
     if (m_sign) {
-        return -static_cast<int>(m_digits[0]);
+        // Negate as `unsigned`: the magnitude of `INT_MIN` does not fit in an `int`.
+        return static_cast<int>(-m_digits[0]);
     } else {
         return m_digits[0];
     }
@@ -513,7 +514,6 @@ unsigned int mpz::get_unsigned_int() const {
 }
 
 size_t mpz::get_size_t() const {
-    lean_assert(is_size_t());
     if (sizeof(size_t) == 8) {
         if (m_size == 1)
             return m_digits[0];
@@ -826,14 +826,13 @@ mpz mpz::emod(mpz const & n, mpz const & d) {
 }
 
 mpz mpz::pow(unsigned int p) const {
-    unsigned mask = 1;
     mpz power(*this);
     mpz result(1);
-    while (mask <= p) {
-        if (mask & p)
+    for (; p != 0; p >>= 1) {
+        if (p & 1)
             result *= power;
-        power *= power;
-        mask = mask << 1;
+        if (p > 1)
+            power *= power;
     }
     return result;
 }

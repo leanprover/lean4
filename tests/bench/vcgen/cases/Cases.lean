@@ -2,7 +2,6 @@ import Cases.AdcChain
 import Cases.AddSubCancel
 import Cases.AddSubCancelDeep
 import Cases.AddSubCancelSimp
-import Cases.DeadBranch
 import Cases.DiteSplit
 import Cases.GetThrowSet
 import Cases.IfsJP
@@ -12,4 +11,5 @@ import Cases.MatchIota
 import Cases.MatchSplit
 import Cases.PurePrecond
 import Cases.ReaderState
+import Cases.RegFile
 import Cases.WideJP

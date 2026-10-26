@@ -13,6 +13,7 @@ import Lean.Meta.Tactic.Grind.Diseq
 import Lean.Meta.Tactic.Grind.ProofUtil
 import Lean.Meta.Tactic.Grind.Arith.CommRing.DenoteExpr
 import Lean.Meta.Sym.Arith.ToExpr
+import Lean.Meta.Sym.Arith.Kronecker
 import Lean.Meta.Sym.Arith.VarRename
 import Init.Data.Nat.Order
 import Init.Data.Order.Lemmas
@@ -256,10 +257,6 @@ private partial def mkSumTree (leaves : Array (Poly × Expr × Expr)) (lo hi : N
   let allZero (t : Expr) := mkApp4 (mkConst ``Grind.CommRing.SumTree.AllZero [ring.u]) ring.type ring.ringInst ctx t
   return (p, t, mkApp4 (mkConst ``And.intro) (allZero ta) (allZero tb) ha hb, ca + cb + hintsWalk hs)
 
-private def maxDegOf : Poly → Nat
-  | .num _ => 0
-  | .add _ m p => max m.degree (maxDegOf p)
-
 /-- `p` as a `Grind.CommRing.PPoly` in base `B`, with the same order of terms. -/
 private def packedPolyExpr (B : Nat) : Poly → Expr
   | .num k => mkApp (mkConst ``Grind.CommRing.PPoly.num) (mkIntLitK k)
@@ -287,7 +284,7 @@ in a base larger than every degree of the step. Each polynomial `qᵢ` is packed
 -/
 private def mkPackedSum (declName declNameC : Name) (pre : Array Expr) (base p : Poly)
     (leaves : Array (Int × Mon × Poly × Expr)) : ProofM Expr := do
-  let deg := leaves.foldl (fun d (_, m, q, _) => max d (m.degree + maxDegOf q)) (max (maxDegOf base) (maxDegOf p))
+  let deg := leaves.foldl (fun d (_, m, q, _) => max d (m.degree + polyMaxDeg q)) (max (polyMaxDeg base) (polyMaxDeg p))
   let B := max 2 (deg + 1)
   let BE := mkRawNatLit B
   let ring ← getCommRing
@@ -304,16 +301,12 @@ private def mkPackedSum (declName declNameC : Name) (pre : Array Expr) (base p :
           #[ring.type, ring.commRingInst, ctx, BE, ← mkPolyDecl q, Q, eagerReflBoolTrue, mkApp2 (mkConst ``Eq.refl [1]) ppT Q, h]
         packed := packed.insert q (Q, hQ)
         pure (Q, hQ)
-    ls := ls.push (mkApp4 (mkConst ``Grind.CommRing.PSumTree.leaf) (toExpr k) (← mkMonDecl m) (mkRawNatLit (maxDegOf q)) Q, hQ)
+    ls := ls.push (mkApp4 (mkConst ``Grind.CommRing.PSumTree.leaf) (toExpr k) (← mkMonDecl m) (mkRawNatLit (polyMaxDeg q)) Q, hQ)
   let (t, hAll) ← mkPSumTree BE ls 0 ls.size
   let P ← mkPPolyDecl p B
   let refl := mkApp2 (mkConst ``Eq.refl [1]) ppT P
   let h ← mkStepPrefix declName declNameC
   return mkAppN h (pre ++ #[BE, ← mkPolyDecl base, ← mkPolyDecl p, P, t, eagerReflBoolTrue, refl, refl, hAll])
-
-private def norm1Of : Poly → Nat
-  | .num k => k.natAbs
-  | .add k _ p => k.natAbs + norm1Of p
 
 /--
 The proof that `p` is `base` plus the multiples `kᵢ * mᵢ * qᵢ` of `leaves` by Kronecker
@@ -323,10 +316,8 @@ point stay below a few million bits. In characteristic `c`, the difference over 
 -/
 private def mkKronSum? (declName declNameC : Name) (pre : Array Expr) (base p : Poly)
     (leaves : Array (Int × Mon × Poly × Expr)) : ProofM (Option Expr) := do
-  let deg := leaves.foldl (fun d (_, m, q, _) => max d (m.degree + maxDegOf q)) (max (maxDegOf base) (maxDegOf p))
+  let deg := leaves.foldl (fun d (_, m, q, _) => max d (m.degree + polyMaxDeg q)) (max (polyMaxDeg base) (polyMaxDeg p))
   let B := max 2 (deg + 1)
-  let n := (← getRingState).vars.size
-  if (n - 1) * (Nat.log2 B + 1) > 24 then return none
   let c? ← nonzeroChar?
   let E : Poly ← match c? with
     | none => pure (.num 0)
@@ -336,9 +327,8 @@ private def mkKronSum? (declName declNameC : Name) (pre : Array Expr) (base p : 
       unless E.mulConst c == d do return none
       pure E
   let c := c?.getD 0
-  let norm := leaves.foldl (fun n (k, _, q, _) => n + k.natAbs * norm1Of q) (norm1Of p + norm1Of base + c * norm1Of E)
-  let K := (2 * norm).log2 + 1
-  if K * (deg * B ^ (n - 1) + 1) > 4000000 then return none
+  let norm := leaves.foldl (fun n (k, _, q, _) => n + k.natAbs * polyNorm1 q) (polyNorm1 p + polyNorm1 base + c * polyNorm1 E)
+  let some K := kronExponent? norm deg B (← getRingState).vars.size 4000000 | return none
   let ring ← getCommRing
   let ctx ← getContext
   let mut ls := mkConst ``Grind.CommRing.KList.nil
@@ -547,11 +537,45 @@ where
 
 open Lean.Grind.CommRing in
 /--
+The proof of `lhs = rhs` from `h₁ : k * p₀ = d.p` by Kronecker substitution (`Stepwise.imp_1eqK`,
+`Stepwise.imp_keqK`): `lhs - rhs` and `p₀` have the same value at the point, if the values stay
+below a few million bits. In characteristic `c`, the difference over `Int` is `c * E` for a stated
+polynomial `E`.
+-/
+private def mkKronImp? (lhs rhs : RingExpr) (d : PolyDerivation) (k : Int) (p₀ : Poly) (h₁ : Expr) : ProofM (Option Expr) := do
+  let e : RingExpr := .sub lhs rhs
+  let deg := max (exprDegB e) (polyMaxDeg p₀)
+  let B := max 2 (deg + 1)
+  let c? ← nonzeroChar?
+  let E : Poly ← match c? with
+    | none => pure (.num 0)
+    | some c =>
+      let diff := e.toPoly.combine (p₀.mulConst (-1))
+      let E := diff.divConst c
+      unless E.mulConst c == diff do return none
+      pure E
+  let c := c?.getD 0
+  let some K := kronExponent? (exprMajorant e + polyNorm1 p₀ + c * polyNorm1 E) deg B (← getRingState).vars.size 4000000
+    | return none
+  let pre ← if k == 1 then
+    mkStepPrefix ``Stepwise.imp_1eqK ``Stepwise.imp_1eqKC
+  else
+    let some nzInst ← noZeroDivisorsInst? | return none
+    pure <| mkApp2 (← mkStepPrefix ``Stepwise.imp_keqK ``Stepwise.imp_keqKC) nzInst (toExpr k)
+  let eArgs ← if c?.isSome then pure #[← mkPolyDecl E] else pure #[]
+  let dp ← mkPolyDecl d.p
+  let kArgs := if k == 1 then #[] else #[eagerReflBoolFalse]
+  return some (mkAppN pre (#[mkRawNatLit K, mkRawNatLit B, ← mkExprDecl lhs, ← mkExprDecl rhs, ← mkPolyDecl p₀, dp] ++ eArgs ++
+    kArgs ++ #[eagerReflBoolTrue, eagerReflBoolTrue, mkApp2 (mkConst ``Eq.refl [1]) (mkConst ``Grind.CommRing.Poly) dp, h₁]))
+
+open Lean.Grind.CommRing in
+/--
 Given a derivation `d` for `k * p = 0` where `lhs - rhs = p`, returns a proof for `lhs = rhs`.
 -/
 private def mkImpEqExprProof (lhs rhs : RingExpr) (d : PolyDerivation) : ProofM Expr := do
   assert! d.p matches .num 0
   let (k, p₀, h₁) ← derivToExprProof d
+  if let some h ← mkKronImp? lhs rhs d k p₀ h₁ then return h
   let h ← if k == 1 then
     mkStepPrefix ``Stepwise.imp_1eq ``Stepwise.imp_1eqC
   else

@@ -14,6 +14,7 @@ public import Lean.Meta.Sym.SynthInstance
 public import Lean.Meta.Sym.Arith.Classify
 public import Lean.Meta.Sym.Arith.VarRename
 import Lean.Meta.Sym.Arith.ToExpr
+import Lean.Meta.Sym.Arith.Kronecker
 public import Lean.Meta.Sym.Simp.App
 import Lean.Meta.AppBuilder
 public import Lean.Meta.NatInstTesters
@@ -817,18 +818,9 @@ private def hasProduct : RingExpr → Bool
   | .neg a => hasProduct a
   | _ => false
 
-/-- The degree bound `Expr.degB_k` of `e`. -/
-private def degB : RingExpr → Nat
-  | .num _ | .natCast _ | .intCast _ => 0
-  | .var _ => 1
-  | .neg a => degB a
-  | .add a b | .sub a b => max (degB a) (degB b)
-  | .mul a b => degB a + degB b
-  | .pow a k => degB a * k
-
 /-- The base of the packed certificates for `l` and `r`: larger than every degree. -/
 private def packedBase (l r : RingExpr) : Nat :=
-  max 2 (max (degB l) (degB r) + 1)
+  max 2 (max (exprDegB l) (exprDegB r) + 1)
 
 /-- `p` as a `Grind.CommRing.PPoly` in base `B`, with the same order of terms. -/
 private def ofPackedPoly (B : Nat) : Poly → Expr
@@ -885,28 +877,13 @@ private def packedArgs (l r : RingExpr) (p : Poly) (bal₁ bal₂ : Bool) : Arra
   let refl := mkApp2 (mkConst ``Eq.refl [1]) (mkConst ``Grind.CommRing.PPoly) pE
   #[mkRawNatLit B, toExpr bal₁, toExpr bal₂, toExpr l, toExpr r, pE, eagerReflBoolTrue, refl, refl]
 
-/-- The coefficient bound `Expr.majorant_k` of `e`. -/
-private def majorant : RingExpr → Nat
-  | .num k | .intCast k => k.natAbs
-  | .natCast n => n
-  | .var _ => 1
-  | .neg a => majorant a
-  | .add a b | .sub a b => majorant a + majorant b
-  | .mul a b => majorant a * majorant b
-  | .pow a k => majorant a ^ k
-
 /--
 The arguments `K` and `B` of the Kronecker certificates (`Expr.eq_of_kron`) for `l` and `r` over `n`
-variables, if the values at the point stay below about a million bits: they have about
-`K * d * B ^ (n - 1)` bits for the degree `d`.
+variables, if the values at the point stay below about a million bits (`kronExponent?`).
 -/
-private def kronArgs? (l r : RingExpr) (n : Nat) : Option (Nat × Nat) := Id.run do
+private def kronArgs? (l r : RingExpr) (n : Nat) : Option (Nat × Nat) :=
   let B := packedBase l r
-  let d := max (degB l) (degB r)
-  if (n - 1) * (Nat.log2 B + 1) > 24 then return none
-  let K := (2 * (majorant l + majorant r)).log2 + 1
-  if K * (d * B ^ (n - 1) + 1) > 1000000 then return none
-  return some (K, B)
+  (kronExponent? (exprMajorant l + exprMajorant r) (max (exprDegB l) (exprDegB r)) B n 1000000).map (·, B)
 
 /-- The arguments `K B l r hB hK h` of the Kronecker certificates (`Expr.eq_of_kron`). -/
 private def kronProofArgs (l r : RingExpr) (K B : Nat) : Array Expr :=

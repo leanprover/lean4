@@ -899,6 +899,37 @@ theorem KList.denote_eq {α} [CommRing α] (ctx : Context α) (K B c : Nat) (p�
   rw [PPoly.denote_append, PPoly.denote_append, hEc.1, sp.1, sp₁.1, sE.1, hl.2.2 hz, zero_add] at heq
   rw [heq]; congr 1; rw [intCast_natCast]
 
+/-- `e` and `p + c * E` have the same value at the point, so they denote the same. -/
+theorem Expr.denote_eq_of_kron_poly {α} [CommRing α] (ctx : Context α) (K B c : Nat) (e : Expr) (p E : Poly)
+    (hB : 1 < B ∧ e.degB_k < B ∧ p.maxDeg_k < B ∧ E.maxDeg_k < B)
+    (hK : 2 * (e.majorant_k + p.norm1_k + c * E.norm1_k) < 2 ^ K)
+    (h : e.kronEval_k K B = p.kron_k K B + c * E.kron_k K B) :
+    e.denote ctx = p.denote ctx + (c : α) * E.denote ctx := by
+  obtain ⟨hB, he, hp, hE⟩ := hB
+  have sp := Poly.toPP_k_spec ctx hB p hp
+  have sE := Poly.toPP_k_spec ctx hB E hE
+  have hX : (0 : Int) < 2 ^ K := Int.pow_pos (by decide)
+  have hEc := PPoly.mulConst_k_spec (Var.denote ctx) B (B - 1) (c : Int) (E.toPP_k B)
+  have heq := PPoly.denote_eq_of_kron (Var.denote ctx) B ((2 : Int) ^ K) hX (e.toPP_k B)
+    ((p.toPP_k B).append ((E.toPP_k B).mulConst_k (c : Int)))
+    (by
+      rw [PPoly.kron_append, PPoly.kron_mulConst_k, ← Poly.kron_k_eq, ← Poly.kron_k_eq, ← PPoly.denote_kron _ hB,
+        denote_toPP_k _ B hB e he, ← kronEval_k_eq, h])
+    (by
+      have h₁ := PPoly.norm1_append (p.toPP_k B) ((E.toPP_k B).mulConst_k (c : Int))
+      have h₃ := PPoly.norm1_mulConst_k (c : Int) (E.toPP_k B)
+      rw [← Poly.norm1_k_eq] at h₁ h₃
+      rw [show ((c : Int)).natAbs = c from rfl] at h₃
+      have h₄ := norm1_toPPAcc_k B e (.num (Int.ofNat 0))
+      rw [show (PPoly.num (Int.ofNat 0)).norm1 = 0 from rfl, Nat.add_zero] at h₄
+      have : 2 * ((e.toPP_k B).norm1 + ((p.toPP_k B).append ((E.toPP_k B).mulConst_k (c : Int))).norm1) < 2 ^ K := by
+        have := Nat.mul_le_mul_left c (Nat.le_refl E.norm1_k)
+        unfold toPP_k; omega
+      have h2 : ((2 ^ K : Nat) : Int) = (2 : Int) ^ K := Int.natCast_pow 2 K
+      rw [← h2]; exact Int.ofNat_lt.mpr (by simpa using this))
+  rw [PPoly.denote_append, hEc.1, sp.1, sE.1, denote_toPP_k _ B hB e he] at heq
+  rw [Expr.denote_eq_denoteF, heq]; congr 1; rw [intCast_natCast]
+
 namespace Stepwise
 
 /-- The checks of the Kronecker certificates of `grind`'s steps: degrees below `B`, coefficients below `2 ^ K`. -/
@@ -955,6 +986,84 @@ theorem d_stepsKC {α c} [CommRing α] [IsCharP α c] (ctx : Context α) (k : In
   rw [Int.beq'_eq] at h
   rw [KList.denote_eq ctx K B c p₁ p E ls hB.1 hB.2 (by rw [h, Int.add_k_eq, Int.add_k_eq, Int.mul_k_eq]; rfl) hz, h₁,
     (IsCharP.natCast_eq_zero_iff c c).mpr (Nat.mod_self c), zero_mul, add_zero]
+
+/-- The checks of the Kronecker certificates of `grind`'s implications. -/
+noncomputable def impOk_k (K B c : Nat) (e : Expr) (p E : Poly) : Bool :=
+  Bool.rec false (Bool.rec false (Bool.rec false (Bool.rec false
+    (Nat.blt (Nat.mul 2 (Nat.add (Nat.add e.majorant_k p.norm1_k) (Nat.mul c E.norm1_k))) (Nat.pow 2 K))
+    (Nat.blt E.maxDeg_k B)) (Nat.blt p.maxDeg_k B)) (Nat.blt e.degB_k B)) (Nat.blt 1 B)
+
+theorem of_impOk_k {K B c : Nat} {e : Expr} {p E : Poly} (h : impOk_k K B c e p E = true) :
+    (1 < B ∧ e.degB_k < B ∧ p.maxDeg_k < B ∧ E.maxDeg_k < B) ∧ 2 * (e.majorant_k + p.norm1_k + c * E.norm1_k) < 2 ^ K := by
+  unfold impOk_k at h
+  have h₁ := PPoly.and_of_rec h
+  have h₂ := PPoly.and_of_rec h₁.2
+  have h₃ := PPoly.and_of_rec h₂.2
+  have h₄ := PPoly.and_of_rec h₃.2
+  exact ⟨⟨Nat.blt_eq.mp h₁.1, Nat.blt_eq.mp h₂.1, Nat.blt_eq.mp h₃.1, Nat.blt_eq.mp h₄.1⟩, Nat.blt_eq.mp h₄.2⟩
+
+theorem imp_1eqK {α} [CommRing α] (ctx : Context α) (K B : Nat) (lhs rhs : Expr) (p₁ p₂ : Poly)
+    (hB : impOk_k K B 0 (lhs.sub rhs) p₁ (.num 0) = true)
+    (h : Int.beq' ((lhs.sub rhs).kronEval_k K B) (p₁.kron_k K B) = true) (hp₂ : p₂ = .num 0) :
+    (1 : Int) * p₁.denote ctx = p₂.denote ctx → lhs.denote ctx = rhs.denote ctx := by
+  intro h₁
+  have hB := of_impOk_k hB
+  rw [Int.beq'_eq] at h
+  have := Expr.denote_eq_of_kron_poly ctx K B 0 (lhs.sub rhs) p₁ (.num 0) hB.1 hB.2 (by rw [h]; simp)
+  subst hp₂
+  rw [intCast_one, one_mul] at h₁
+  rw [← sub_eq_zero_iff]
+  show (lhs.sub rhs).denote ctx = 0
+  rw [this, h₁]; simp [Poly.denote, Semiring.natCast_zero, zero_mul, add_zero, intCast_zero]
+
+theorem imp_1eqKC {α c} [CommRing α] [IsCharP α c] (ctx : Context α) (K B : Nat) (lhs rhs : Expr) (p₁ p₂ E : Poly)
+    (hB : impOk_k K B c (lhs.sub rhs) p₁ E = true)
+    (h : Int.beq' ((lhs.sub rhs).kronEval_k K B) (Int.add_k (p₁.kron_k K B) (Int.mul_k (Int.ofNat c) (E.kron_k K B))) = true)
+    (hp₂ : p₂ = .num 0) :
+    (1 : Int) * p₁.denote ctx = p₂.denote ctx → lhs.denote ctx = rhs.denote ctx := by
+  intro h₁
+  have hB := of_impOk_k hB
+  rw [Int.beq'_eq, Int.add_k_eq, Int.mul_k_eq] at h
+  have := Expr.denote_eq_of_kron_poly ctx K B c (lhs.sub rhs) p₁ E hB.1 hB.2 h
+  subst hp₂
+  rw [intCast_one, one_mul] at h₁
+  rw [← sub_eq_zero_iff]
+  show (lhs.sub rhs).denote ctx = 0
+  rw [this, h₁, (IsCharP.natCast_eq_zero_iff c c).mpr (Nat.mod_self c), zero_mul, add_zero]
+  exact intCast_zero
+
+theorem imp_keqK {α} [CommRing α] (ctx : Context α) [NoNatZeroDivisors α] (k : Int) (K B : Nat) (lhs rhs : Expr) (p₁ p₂ : Poly)
+    (hk : Int.beq' k 0 = false) (hB : impOk_k K B 0 (lhs.sub rhs) p₁ (.num 0) = true)
+    (h : Int.beq' ((lhs.sub rhs).kronEval_k K B) (p₁.kron_k K B) = true) (hp₂ : p₂ = .num 0) :
+    k * p₁.denote ctx = p₂.denote ctx → lhs.denote ctx = rhs.denote ctx := by
+  intro h₁
+  have hB := of_impOk_k hB
+  rw [Int.beq'_eq] at h
+  have := Expr.denote_eq_of_kron_poly ctx K B 0 (lhs.sub rhs) p₁ (.num 0) hB.1 hB.2 (by rw [h]; simp)
+  subst hp₂
+  have hk : k ≠ 0 := by simpa using hk
+  rw [← zsmul_eq_intCast_mul] at h₁
+  replace h₁ := no_int_zero_divisors hk (by rw [h₁]; exact intCast_zero)
+  rw [← sub_eq_zero_iff]
+  show (lhs.sub rhs).denote ctx = 0
+  rw [this, h₁]; simp [Poly.denote, Semiring.natCast_zero, zero_mul, add_zero]
+
+theorem imp_keqKC {α c} [CommRing α] [IsCharP α c] (ctx : Context α) [NoNatZeroDivisors α] (k : Int) (K B : Nat) (lhs rhs : Expr)
+    (p₁ p₂ E : Poly) (hk : Int.beq' k 0 = false) (hB : impOk_k K B c (lhs.sub rhs) p₁ E = true)
+    (h : Int.beq' ((lhs.sub rhs).kronEval_k K B) (Int.add_k (p₁.kron_k K B) (Int.mul_k (Int.ofNat c) (E.kron_k K B))) = true)
+    (hp₂ : p₂ = .num 0) :
+    k * p₁.denote ctx = p₂.denote ctx → lhs.denote ctx = rhs.denote ctx := by
+  intro h₁
+  have hB := of_impOk_k hB
+  rw [Int.beq'_eq, Int.add_k_eq, Int.mul_k_eq] at h
+  have := Expr.denote_eq_of_kron_poly ctx K B c (lhs.sub rhs) p₁ E hB.1 hB.2 h
+  subst hp₂
+  have hk : k ≠ 0 := by simpa using hk
+  rw [← zsmul_eq_intCast_mul] at h₁
+  replace h₁ := no_int_zero_divisors hk (by rw [h₁]; exact intCast_zero)
+  rw [← sub_eq_zero_iff]
+  show (lhs.sub rhs).denote ctx = 0
+  rw [this, h₁, (IsCharP.natCast_eq_zero_iff c c).mpr (Nat.mod_self c), zero_mul, add_zero]
 
 end Stepwise
 

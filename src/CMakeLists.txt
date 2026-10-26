@@ -558,6 +558,11 @@ if(LLVM)
     " -L${LLVM_CONFIG_LIBDIR} ${LLVM_CONFIG_LDFLAGS} ${LLVM_CONFIG_LIBS} ${LLVM_CONFIG_SYSTEM_LIBS}"
   )
   string(APPEND CMAKE_CXX_FLAGS " -I${LLVM_CONFIG_INCLUDEDIR}")
+  # `llvm.cpp` is part of `libleancpp`, and its symbols are not contained in `libleanshared`, so
+  # programs linked with `leanc` need the LLVM libraries on their link line as well.
+  set(LEAN_LLVM_LINKER_FLAGS " -L${LLVM_CONFIG_LIBDIR} ${LLVM_CONFIG_LDFLAGS} ${LLVM_CONFIG_LIBS} ${LLVM_CONFIG_SYSTEM_LIBS}")
+  string(APPEND LEANC_STATIC_LINKER_FLAGS "${LEAN_LLVM_LINKER_FLAGS}")
+  string(APPEND LEANC_SHARED_LINKER_FLAGS "${LEAN_LLVM_LINKER_FLAGS}")
 endif()
 
 if(LLVM AND STAGE GREATER 0)

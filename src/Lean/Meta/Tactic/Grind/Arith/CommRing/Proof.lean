@@ -16,6 +16,7 @@ import Lean.Meta.Sym.Arith.ToExpr
 import Lean.Meta.Sym.Arith.VarRename
 import Init.Data.Nat.Order
 import Init.Data.Order.Lemmas
+import Init.Grind.Ring.Packed
 public section
 namespace Lean.Meta.Grind.Arith.CommRing
 open Sym.Arith
@@ -247,6 +248,61 @@ private partial def mkSumTree (leaves : Array (Poly × Expr × Expr)) (lo hi : N
   let allZero (t : Expr) := mkApp4 (mkConst ``Grind.CommRing.SumTree.AllZero [ring.u]) ring.type ring.ringInst ctx t
   return (p, t, mkApp4 (mkConst ``And.intro) (allZero ta) (allZero tb) ha hb, ca + cb + hintsWalk hs)
 
+private def maxDegOf : Poly → Nat
+  | .num _ => 0
+  | .add _ m p => max m.degree (maxDegOf p)
+
+/-- `p` as a `Grind.CommRing.PPoly` in base `B`, with the same order of terms. -/
+private def packedPolyExpr (B : Nat) : Poly → Expr
+  | .num k => mkApp (mkConst ``Grind.CommRing.PPoly.num) (mkIntLitK k)
+  | .add k m p => mkApp4 (mkConst ``Grind.CommRing.PPoly.add) (mkIntLitK k) (mkRawNatLit m.degree) (mkRawNatLit (code m)) (packedPolyExpr B p)
+where
+  code : Mon → Nat
+    | .unit => 0
+    | .mult pw m => pw.k * B ^ pw.x + code m
+
+/-- A balanced `Grind.CommRing.PSumTree` of `leaves[lo:hi]`, and the proof of its `PSumTree.AllZero`. -/
+private partial def mkPSumTree (B : Expr) (leaves : Array (Expr × Expr)) (lo hi : Nat) : ProofM (Expr × Expr) := do
+  if hi - lo == 1 then return leaves[lo]!
+  let mid := (lo + hi) / 2
+  let (ta, ha) ← mkPSumTree B leaves lo mid
+  let (tb, hb) ← mkPSumTree B leaves mid hi
+  let ring ← getCommRing
+  let ctx ← getContext
+  let allZero (t : Expr) := mkApp5 (mkConst ``Grind.CommRing.PSumTree.AllZero [ring.u]) ring.type ring.ringInst ctx B t
+  return (mkApp2 (mkConst ``Grind.CommRing.PSumTree.node) ta tb, mkApp4 (mkConst ``And.intro) (allZero ta) (allZero tb) ha hb)
+
+/--
+The proof that `p` is `base` plus the multiples `kᵢ * mᵢ * qᵢ` of `leaves`, with the step theorem
+`declName` (`Stepwise.simpsP`, `Stepwise.d_stepsP`) applied to `pre`, checked with packed monomials
+in a base larger than every degree of the step. Each polynomial `qᵢ` is packed once.
+-/
+private def mkPackedSum (declName declNameC : Name) (pre : Array Expr) (base p : Poly)
+    (leaves : Array (Int × Mon × Poly × Expr)) : ProofM Expr := do
+  let deg := leaves.foldl (fun d (_, m, q, _) => max d (m.degree + maxDegOf q)) (max (maxDegOf base) (maxDegOf p))
+  let B := max 2 (deg + 1)
+  let BE := mkRawNatLit B
+  let ring ← getCommRing
+  let ctx ← getContext
+  let ppT := mkConst ``Grind.CommRing.PPoly
+  let mut packed : Std.HashMap Poly (Expr × Expr) := {}
+  let mut ls := #[]
+  for (k, m, q, h) in leaves do
+    let (Q, hQ) ← match packed[q]? with
+      | some r => pure r
+      | none =>
+        let Q := packedPolyExpr B q
+        let hQ := mkAppN (mkConst ``Grind.CommRing.PSumTree.leaf_zero [ring.u])
+          #[ring.type, ring.commRingInst, ctx, BE, ← mkPolyDecl q, Q, eagerReflBoolTrue, mkApp2 (mkConst ``Eq.refl [1]) ppT Q, h]
+        packed := packed.insert q (Q, hQ)
+        pure (Q, hQ)
+    ls := ls.push (mkApp4 (mkConst ``Grind.CommRing.PSumTree.leaf) (toExpr k) (← mkMonDecl m) (mkRawNatLit (maxDegOf q)) Q, hQ)
+  let (t, hAll) ← mkPSumTree BE ls 0 ls.size
+  let P := packedPolyExpr B p
+  let refl := mkApp2 (mkConst ``Eq.refl [1]) ppT P
+  let h ← mkStepPrefix declName declNameC
+  return mkAppN h (pre ++ #[BE, ← mkPolyDecl base, ← mkPolyDecl p, P, t, eagerReflBoolTrue, refl, refl, hAll])
+
 /--
 An estimate of the kernel cost of checking a chain `p₀, …, pₙ` with `pᵢ = pᵢ₋₁ + qᵢ` one step at a
 time, in monomials: each step walks `pᵢ₋₁` and `qᵢ`, and each intermediate `pᵢ` is data of the proof.
@@ -316,9 +372,9 @@ partial def _root_.Lean.Meta.Grind.Arith.CommRing.EqCnstr.toExprProof (c : EqCns
       let rootHs := mergeHints base.p q #[]
       if steps.size > 1 && useSumTree (treeCost + hintsWalk rootHs) seqCost then
         -- The chain `c.p = base.p + Σ kᵢ * mᵢ * cᵢ.p` is checked at once.
-        let hs ← mkMergeHintsOf base.p q c.p rootHs
-        let h ← mkStepPrefix ``Stepwise.simps ``Stepwise.simpsC
-        return mkAppN h #[← mkPolyDecl base.p, ← mkPolyDecl c.p, t, hs, ← mkPolyRefl c.p, hAll, hBase]
+        let hs ← steps.mapIdxM fun i (k₂, m₂, c₂, _) => return (k₂, m₂, c₂.p, leaves[i]!.2.2)
+        let h ← mkPackedSum ``Stepwise.simpsP ``Stepwise.simpsPC #[] base.p c.p hs
+        return mkApp h hBase
       -- One step at a time; the proofs of the intermediate constraints are cached.
       let mut prev := base
       let mut hPrev := hBase
@@ -388,9 +444,9 @@ private partial def derivToExprProof (d : PolyDerivation) : ProofM (Int × Poly 
     let rootHs := mergeHints base.p q #[]
     if useSumTree (treeCost + hintsWalk rootHs) seqCost then
       -- The chain `p = base.p + Σ kᵢ * mᵢ * pᵢ` is checked at once.
-      let hs ← mkMergeHintsOf base.p q p rootHs
-      let h ← mkStepPrefix ``Stepwise.d_steps ``Stepwise.d_stepsC
-      return (k, p₀, mkAppN h #[toExpr k, ← mkPolyDecl p₀, ← mkPolyDecl base.p, ← mkPolyDecl p, t, hs, ← mkPolyRefl p, hAll, h₁])
+      let hs ← steps.mapIdxM fun i (k₂, m₂, c₂, _) => return (k₂, m₂, c₂.p, leaves[i]!.2.2)
+      let h ← mkPackedSum ``Stepwise.d_stepsP ``Stepwise.d_stepsPC #[toExpr k, ← mkPolyDecl p₀] base.p p hs
+      return (k, p₀, mkApp h h₁)
     -- One step at a time.
     let mut prev := base.p
     let mut hPrev := h₁

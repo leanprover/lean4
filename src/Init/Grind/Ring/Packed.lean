@@ -915,6 +915,329 @@ theorem Expr.sub_eq_of_toPPX {α} [CommRing α] (ctx : Context α) (B : Nat) (ba
     (PPoly.addConst_k_spec ctx B 0 q k).1, sub_eq_add_neg, add_comm, ← add_assoc, AddCommGroup.neg_add_cancel, zero_add]
 
 /-!
+Packed sums of multiples for `grind`'s Gröbner certificates (`Stepwise.simpsP`, `Stepwise.d_stepsP`).
+The polynomials of the steps stay `Poly` literals and are packed by the kernel (`Poly.toPP_k`).
+The operations take the normalization `nrm` of the coefficients: the identity in characteristic
+zero, and the remainder modulo `c` in characteristic `c`.
+-/
+
+theorem PPoly.and_of_rec {a b : Bool} (h : Bool.rec false b a = true) : a = true ∧ b = true := by
+  cases a <;> cases b <;> simp_all
+
+/-- The packed code of `m` in base `B`. -/
+noncomputable def Mon.code_k (B : Nat) (m : Mon) : Nat :=
+  Mon.rec 0 (fun pw _ ih => Nat.add (Nat.mul pw.k (Nat.pow B pw.x)) ih) m
+
+/-- The maximum degree of the monomials of `p`. -/
+noncomputable def Poly.maxDeg_k (p : Poly) : Nat :=
+  Poly.rec (fun _ => 0) (fun _ m _ ih => Bool.rec ih (Mon.degree_k m) (Nat.blt ih (Mon.degree_k m))) p
+
+/-- `p` with packed monomials, in the same order. -/
+noncomputable def Poly.toPP_k (B : Nat) (p : Poly) : PPoly :=
+  Poly.rec (fun k => .num k) (fun k m _ ih => .add k (Mon.degree_k m) (Mon.code_k B m) ih) p
+
+noncomputable def PPoly.addConstN_k (nrm : Int → Int) (p : PPoly) (k : Int) : PPoly :=
+  PPoly.rec (fun k' => .num (nrm (Int.add_k k' k))) (fun k' d v _ ih => .add k' d v ih) p
+
+noncomputable def PPoly.combineN_k (nrm : Int → Int) (p₁ : PPoly) : PPoly → PPoly :=
+  PPoly.rec (motive := fun _ => PPoly → PPoly)
+    (fun k₁ p₂ => addConstN_k nrm p₂ k₁)
+    (fun k₁ d₁ v₁ p₁ ih₁ p₂ =>
+      PPoly.rec (motive := fun _ => PPoly)
+        (fun k₂ => addConstN_k nrm (.add k₁ d₁ v₁ p₁) k₂)
+        (fun k₂ d₂ v₂ p₂ ih₂ =>
+          Bool.rec
+            (Bool.rec (.add k₁ d₁ v₁ (ih₁ (.add k₂ d₂ v₂ p₂))) (.add k₂ d₂ v₂ ih₂) (Nat.blt d₁ d₂))
+            (Bool.rec
+              (Bool.rec (.add k₂ d₂ v₂ ih₂) (.add k₁ d₁ v₁ (ih₁ (.add k₂ d₂ v₂ p₂))) (Nat.blt v₁ v₂))
+              (Bool.rec (.add (nrm (Int.add_k k₁ k₂)) d₁ v₁ (ih₁ p₂)) (ih₁ p₂) (Int.beqZero_k (nrm (Int.add_k k₁ k₂))))
+              (Nat.beq v₁ v₂))
+            (Nat.beq d₁ d₂))
+        p₂)
+    p₁
+
+/-- `k * m * p` for the monomial `m` with degree `d` and code `v`; the constant of `p` stays a constant when `m` is `1`. -/
+noncomputable def PPoly.mulMonN_k (nrm : Int → Int) (k : Int) (d v : Nat) (p : PPoly) : PPoly :=
+  PPoly.rec
+    (fun k' => Bool.rec (Bool.rec (.add (nrm (Int.mul_k k k')) d v (.num (Int.ofNat 0))) (.num (Int.ofNat 0)) (Int.beqZero_k (nrm (Int.mul_k k k'))))
+      (.num (nrm (Int.mul_k k k'))) (Nat.beq v 0))
+    (fun k' d' v' _ ih => Bool.rec (.add (nrm (Int.mul_k k k')) (Nat.add d d') (Nat.add v v') ih) ih (Int.beqZero_k (nrm (Int.mul_k k k')))) p
+
+/--
+A sum of multiples `k * m * p` of packed polynomials `p` whose monomials have degree at most `D`,
+added in a balanced tree.
+-/
+inductive PSumTree where
+  | leaf (k : Int) (m : Mon) (D : Nat) (p : PPoly)
+  | node (a b : PSumTree)
+
+noncomputable def PSumTree.eval_k (nrm : Int → Int) (B : Nat) (t : PSumTree) : PPoly :=
+  PSumTree.rec (motive := fun _ => PPoly) (fun k m _ p => p.mulMonN_k nrm k (Mon.degree_k m) (Mon.code_k B m))
+    (fun _ _ a b => PPoly.combineN_k nrm a b) t
+
+/-- The degrees of the products of `t` are below `B`. -/
+noncomputable def PSumTree.ok_k (B : Nat) (t : PSumTree) : Bool :=
+  PSumTree.rec (motive := fun _ => Bool) (fun _ m D _ => Nat.blt (Nat.add (Mon.degree_k m) D) B)
+    (fun _ _ a b => Bool.rec false b a) t
+
+/-- Every polynomial of the leaves of `t` denotes `0`, and its monomials have degree at most `D`. -/
+noncomputable def PSumTree.AllZero {α} [Ring α] (ctx : Context α) (B : Nat) (t : PSumTree) : Prop :=
+  PSumTree.rec (motive := fun _ => Prop) (fun _ _ D p => p.denote ctx B = 0 ∧ p.Deg B D) (fun _ _ a b => a ∧ b) t
+
+theorem Mon.code_k_spec {α} [CommSemiring α] (ctx : Context α) {B : Nat} (hB : 1 < B) (m : Mon) (h : m.degree < B) :
+    PPoly.dsum B (m.code_k B) = m.degree ∧ PPoly.monDenote ctx B 0 (m.code_k B) = m.denote ctx := by
+  induction m with
+  | unit => exact ⟨PPoly.dsum_zero B, PPoly.monDenote_zero ctx B 0⟩
+  | mult pw m ih =>
+    have hd : pw.k + m.degree < B := h
+    have ih := ih (by omega)
+    have hk := PPoly.dsum_mul_pow hB pw.x pw.k (by omega)
+    show PPoly.dsum B (Nat.add (Nat.mul pw.k (Nat.pow B pw.x)) (m.code_k B)) = pw.k + m.degree ∧
+      PPoly.monDenote ctx B 0 (Nat.add (Nat.mul pw.k (Nat.pow B pw.x)) (m.code_k B)) = pw.denote ctx * m.denote ctx
+    rw [show Nat.mul pw.k (Nat.pow B pw.x) = pw.k * B ^ pw.x from rfl, Nat.add_eq]
+    refine ⟨?_, ?_⟩
+    · rw [PPoly.dsum_add hB _ _ (by rw [hk, ih.1]; exact hd), hk, ih.1]
+    · rw [PPoly.monDenote_add ctx hB 0 _ _ (by rw [hk, ih.1]; exact hd), PPoly.monDenote_mul_pow ctx hB 0 pw.x pw.k (by omega),
+        ih.2, Nat.zero_add, Power.denote_eq]
+
+theorem Poly.le_maxDeg_k (k : Int) (m : Mon) (p : Poly) :
+    m.degree ≤ (Poly.add k m p).maxDeg_k ∧ p.maxDeg_k ≤ (Poly.add k m p).maxDeg_k := by
+  show m.degree ≤ Bool.rec p.maxDeg_k (Mon.degree_k m) (Nat.blt p.maxDeg_k (Mon.degree_k m)) ∧
+    p.maxDeg_k ≤ Bool.rec p.maxDeg_k (Mon.degree_k m) (Nat.blt p.maxDeg_k (Mon.degree_k m))
+  rw [Mon.degree_k_eq_degree]
+  have := Expr.le_max_k p.maxDeg_k m.degree
+  exact ⟨this.2, this.1⟩
+
+theorem Poly.toPP_k_spec {α} [CommRing α] (ctx : Context α) {B : Nat} (hB : 1 < B) (p : Poly) (h : p.maxDeg_k < B) :
+    (p.toPP_k B).denote ctx B = p.denote ctx ∧ (p.toPP_k B).Deg B p.maxDeg_k := by
+  induction p with
+  | num k => exact ⟨rfl, trivial⟩
+  | add k m p ih =>
+    have hm := Poly.le_maxDeg_k k m p
+    have ih := ih (by omega)
+    have hc := Mon.code_k_spec ctx hB m (by omega)
+    refine ⟨?_, ⟨by rw [hc.1]; exact hm.1, PPoly.Deg.mono hm.2 _ ih.2⟩⟩
+    show (k : α) * PPoly.monDenote ctx B 0 (m.code_k B) + (p.toPP_k B).denote ctx B = k • m.denote ctx + p.denote ctx
+    rw [hc.2, ih.1, zsmul_eq_intCast_mul]
+
+section
+variable {α} [Ring α] (ctx : Context α) (nrm : Int → Int) (hn : ∀ k, ((nrm k : Int) : α) = (k : α))
+include hn
+
+theorem PPoly.addConstN_k_spec (B D : Nat) (p : PPoly) (k : Int) :
+    (p.addConstN_k nrm k).denote ctx B = p.denote ctx B + k ∧ (p.Deg B D → (p.addConstN_k nrm k).Deg B D) := by
+  induction p with
+  | num k' =>
+    refine ⟨?_, fun _ => trivial⟩
+    show ((nrm (Int.add_k k' k) : Int) : α) = (k' : α) + (k : α)
+    rw [hn, Int.add_k_eq]; exact intCast_add k' k
+  | add k' d v p ih =>
+    refine ⟨?_, fun hd => ⟨hd.1, ih.2 hd.2⟩⟩
+    show (k' : α) * _ + (p.addConstN_k nrm k).denote ctx B = ((k' : α) * _ + denote ctx B p) + _
+    rw [ih.1, add_assoc]
+
+theorem PPoly.combineN_k_spec (B D : Nat) (p₁ p₂ : PPoly) :
+    (p₁.combineN_k nrm p₂).denote ctx B = p₁.denote ctx B + p₂.denote ctx B ∧
+    (p₁.Deg B D → p₂.Deg B D → (p₁.combineN_k nrm p₂).Deg B D) := by
+  induction p₁ generalizing p₂ with
+  | num k₁ =>
+    have := addConstN_k_spec ctx nrm hn B D p₂ k₁
+    exact ⟨by rw [add_comm]; exact this.1, fun _ h => this.2 h⟩
+  | add k₁ d₁ v₁ p₁ ih₁ =>
+    induction p₂ with
+    | num k₂ =>
+      have := addConstN_k_spec ctx nrm hn B D (.add k₁ d₁ v₁ p₁) k₂
+      exact ⟨this.1, fun h _ => this.2 h⟩
+    | add k₂ d₂ v₂ p₂ ih₂ =>
+      have e : (PPoly.add k₁ d₁ v₁ p₁).combineN_k nrm (.add k₂ d₂ v₂ p₂) =
+          Bool.rec (motive := fun _ => PPoly)
+            (Bool.rec (.add k₁ d₁ v₁ (p₁.combineN_k nrm (.add k₂ d₂ v₂ p₂))) (.add k₂ d₂ v₂ ((PPoly.add k₁ d₁ v₁ p₁).combineN_k nrm p₂)) (Nat.blt d₁ d₂))
+            (Bool.rec
+              (Bool.rec (.add k₂ d₂ v₂ ((PPoly.add k₁ d₁ v₁ p₁).combineN_k nrm p₂)) (.add k₁ d₁ v₁ (p₁.combineN_k nrm (.add k₂ d₂ v₂ p₂))) (Nat.blt v₁ v₂))
+              (Bool.rec (.add (nrm (Int.add_k k₁ k₂)) d₁ v₁ (p₁.combineN_k nrm p₂)) (p₁.combineN_k nrm p₂) (Int.beqZero_k (nrm (Int.add_k k₁ k₂))))
+              (Nat.beq v₁ v₂))
+            (Nat.beq d₁ d₂) := rfl
+      rw [e]
+      have h₁ := ih₁ (.add k₂ d₂ v₂ p₂)
+      have h₁' := ih₁ p₂
+      have hsnd : (PPoly.add k₂ d₂ v₂ ((PPoly.add k₁ d₁ v₁ p₁).combineN_k nrm p₂)).denote ctx B =
+          (PPoly.add k₁ d₁ v₁ p₁).denote ctx B + (PPoly.add k₂ d₂ v₂ p₂).denote ctx B ∧
+          ((PPoly.add k₁ d₁ v₁ p₁).Deg B D → (PPoly.add k₂ d₂ v₂ p₂).Deg B D →
+            (PPoly.add k₂ d₂ v₂ ((PPoly.add k₁ d₁ v₁ p₁).combineN_k nrm p₂)).Deg B D) := by
+        refine ⟨?_, fun ha hb => ⟨hb.1, ih₂.2 ha hb.2⟩⟩
+        show (k₂ : α) * _ + _ = _ + ((k₂ : α) * _ + _)
+        rw [ih₂.1, add_left_comm]
+      have hfst : (PPoly.add k₁ d₁ v₁ (p₁.combineN_k nrm (.add k₂ d₂ v₂ p₂))).denote ctx B =
+          (PPoly.add k₁ d₁ v₁ p₁).denote ctx B + (PPoly.add k₂ d₂ v₂ p₂).denote ctx B ∧
+          ((PPoly.add k₁ d₁ v₁ p₁).Deg B D → (PPoly.add k₂ d₂ v₂ p₂).Deg B D →
+            (PPoly.add k₁ d₁ v₁ (p₁.combineN_k nrm (.add k₂ d₂ v₂ p₂))).Deg B D) := by
+        refine ⟨?_, fun ha hb => ⟨ha.1, h₁.2 ha.2 hb⟩⟩
+        show (k₁ : α) * _ + _ = ((k₁ : α) * _ + _) + _
+        rw [h₁.1, add_assoc]
+      cases Nat.beq d₁ d₂
+      · cases Nat.blt d₁ d₂
+        · exact hfst
+        · exact hsnd
+      · cases hv : Nat.beq v₁ v₂
+        · cases Nat.blt v₁ v₂
+          · exact hsnd
+          · exact hfst
+        · have hv : v₁ = v₂ := Nat.eq_of_beq_eq_true hv
+          subst hv
+          have hs : ((nrm (Int.add_k k₁ k₂) : Int) : α) = (k₁ : α) + (k₂ : α) := by
+            rw [hn, Int.add_k_eq]; exact intCast_add k₁ k₂
+          cases hk : Int.beqZero_k (nrm (Int.add_k k₁ k₂))
+          · refine ⟨?_, fun ha hb => ⟨ha.1, h₁'.2 ha.2 hb.2⟩⟩
+            show ((nrm (Int.add_k k₁ k₂) : Int) : α) * _ + _ = ((k₁ : α) * _ + _) + ((k₂ : α) * _ + _)
+            rw [h₁'.1, hs, right_distrib]
+            simp only [add_assoc, add_left_comm]
+          · have hk : nrm (Int.add_k k₁ k₂) = 0 := by rw [Int.beqZero_k_eq] at hk; exact beq_iff_eq.mp hk
+            refine ⟨?_, fun ha hb => h₁'.2 ha.2 hb.2⟩
+            show _ = ((k₁ : α) * _ + _) + ((k₂ : α) * _ + _)
+            rw [h₁'.1]
+            have : (k₁ : α) * monDenote ctx B 0 v₁ + (k₂ : α) * monDenote ctx B 0 v₁ = 0 := by
+              rw [← right_distrib, ← hs, hk, intCast_zero, zero_mul]
+            calc p₁.denote ctx B + p₂.denote ctx B
+                = ((k₁ : α) * monDenote ctx B 0 v₁ + (k₂ : α) * monDenote ctx B 0 v₁) + (p₁.denote ctx B + p₂.denote ctx B) := by
+                  rw [this, zero_add]
+              _ = _ := by simp only [add_assoc, add_left_comm]
+
+end
+
+theorem PPoly.mulMonN_k_spec {α} [CommRing α] (ctx : Context α) (nrm : Int → Int) (hn : ∀ k, ((nrm k : Int) : α) = (k : α))
+    (B D₁ D₂ : Nat) (hB : 1 < B) (k : Int) (d v : Nat) (hv : dsum B v ≤ D₁) (hD : D₁ + D₂ < B) (p : PPoly) (hp : p.Deg B D₂) :
+    (p.mulMonN_k nrm k d v).denote ctx B = k * monDenote ctx B 0 v * p.denote ctx B ∧ (p.mulMonN_k nrm k d v).Deg B (D₁ + D₂) := by
+  induction p with
+  | num k' =>
+    unfold mulMonN_k
+    dsimp only
+    have hs : ((nrm (Int.mul_k k k') : Int) : α) = (k : α) * (k' : α) := by rw [hn, Int.mul_k_eq]; exact intCast_mul k k'
+    cases hv0 : Nat.beq v 0
+    case true =>
+      have : v = 0 := Nat.eq_of_beq_eq_true hv0
+      subst this
+      refine ⟨?_, trivial⟩
+      show ((nrm (Int.mul_k k k') : Int) : α) = _ * ((k' : Int) : α)
+      rw [hs, monDenote_zero, mul_one]
+    dsimp only
+    cases h : Int.beqZero_k (nrm (Int.mul_k k k'))
+    · refine ⟨?_, ⟨by omega, trivial⟩⟩
+      show ((nrm (Int.mul_k k k') : Int) : α) * _ + ((Int.ofNat 0 : Int) : α) = _ * ((k' : Int) : α)
+      rw [hs]
+      show _ + ((0 : Int) : α) = _
+      rw [intCast_zero, add_zero]
+      simp only [mul_assoc, mul_comm, mul_left_comm]
+    · have h : nrm (Int.mul_k k k') = 0 := by rw [Int.beqZero_k_eq] at h; exact beq_iff_eq.mp h
+      refine ⟨?_, trivial⟩
+      show ((Int.ofNat 0 : Int) : α) = _ * ((k' : Int) : α)
+      rw [show ((Int.ofNat 0 : Int) : α) = 0 from intCast_zero]
+      have : (k : α) * (k' : α) = 0 := by rw [← hs, h, intCast_zero]
+      calc (0 : α) = (k : α) * (k' : α) * monDenote ctx B 0 v := by rw [this, zero_mul]
+        _ = _ := by simp only [mul_assoc, mul_comm, mul_left_comm]
+  | add k' d' v' p ih =>
+    obtain ⟨ih₁, ih₂⟩ := ih hp.2
+    have hs : ((nrm (Int.mul_k k k') : Int) : α) = (k : α) * (k' : α) := by rw [hn, Int.mul_k_eq]; exact intCast_mul k k'
+    show (Bool.rec (.add (nrm (Int.mul_k k k')) (Nat.add d d') (Nat.add v v') (p.mulMonN_k nrm k d v)) (p.mulMonN_k nrm k d v)
+      (Int.beqZero_k (nrm (Int.mul_k k k'))) : PPoly).denote ctx B = _ ∧
+      (Bool.rec (.add (nrm (Int.mul_k k k')) (Nat.add d d') (Nat.add v v') (p.mulMonN_k nrm k d v)) (p.mulMonN_k nrm k d v)
+      (Int.beqZero_k (nrm (Int.mul_k k k'))) : PPoly).Deg B (D₁ + D₂)
+    cases h : Int.beqZero_k (nrm (Int.mul_k k k'))
+    · have hsum := dsum_add hB v v' (by have := hp.1; omega)
+      refine ⟨?_, ⟨by rw [Nat.add_eq, hsum]; have := hp.1; omega, ih₂⟩⟩
+      show ((nrm (Int.mul_k k k') : Int) : α) * monDenote ctx B 0 (Nat.add v v') + (p.mulMonN_k nrm k d v).denote ctx B =
+        _ * ((k' : α) * _ + denote ctx B p)
+      rw [ih₁, hs, Nat.add_eq, monDenote_add ctx hB 0 v v' (by have := hp.1; omega), left_distrib]
+      simp only [mul_assoc, mul_left_comm]
+    · have h : nrm (Int.mul_k k k') = 0 := by rw [Int.beqZero_k_eq] at h; exact beq_iff_eq.mp h
+      refine ⟨?_, ih₂⟩
+      show (p.mulMonN_k nrm k d v).denote ctx B = _ * ((k' : α) * _ + denote ctx B p)
+      have : (k : α) * (k' : α) = 0 := by rw [← hs, h, intCast_zero]
+      rw [ih₁, left_distrib]
+      have h0 : (k : α) * monDenote ctx B 0 v * ((k' : α) * monDenote ctx B 0 v') = 0 := by
+        calc (k : α) * monDenote ctx B 0 v * ((k' : α) * monDenote ctx B 0 v')
+            = ((k : α) * (k' : α)) * (monDenote ctx B 0 v * monDenote ctx B 0 v') := by simp only [mul_assoc, mul_left_comm]
+          _ = 0 := by rw [this, zero_mul]
+      rw [h0, zero_add]
+
+/-- The packed polynomial `P` of `p` denotes `0`, and its monomials have degree at most `p.maxDeg_k`. -/
+theorem PSumTree.leaf_zero {α} [CommRing α] (ctx : Context α) (B : Nat) (p : Poly) (P : PPoly)
+    (hB : Bool.rec false (Nat.blt p.maxDeg_k B) (Nat.blt 1 B) = true) (h : P = p.toPP_k B) (hp : p.denote ctx = 0) :
+    P.denote ctx B = 0 ∧ P.Deg B p.maxDeg_k := by
+  have hB := PPoly.and_of_rec hB
+  have := Poly.toPP_k_spec ctx (Nat.blt_eq.mp hB.1) p (Nat.blt_eq.mp hB.2)
+  rw [h, this.1, hp]; exact ⟨rfl, this.2⟩
+
+theorem PSumTree.eval_k_spec {α} [CommRing α] (ctx : Context α) (nrm : Int → Int) (hn : ∀ k, ((nrm k : Int) : α) = (k : α))
+    {B : Nat} (hB : 1 < B) (t : PSumTree) (hok : t.ok_k B = true) (h : t.AllZero ctx B) :
+    (t.eval_k nrm B).denote ctx B = 0 ∧ (t.eval_k nrm B).Deg B (B - 1) := by
+  induction t with
+  | leaf k m D p =>
+    have hok : Nat.blt (Nat.add (Mon.degree_k m) D) B = true := hok
+    rw [Nat.blt_eq, Mon.degree_k_eq_degree, Nat.add_eq] at hok
+    replace h : p.denote ctx B = 0 ∧ p.Deg B D := h
+    have hc := Mon.code_k_spec ctx hB m (by omega)
+    have hm := PPoly.mulMonN_k_spec ctx nrm hn B m.degree D hB k (Mon.degree_k m) (m.code_k B) (by rw [hc.1]; exact Nat.le_refl _) hok _ h.2
+    refine ⟨?_, PPoly.Deg.mono (by omega) _ hm.2⟩
+    show (p.mulMonN_k nrm k (Mon.degree_k m) (m.code_k B)).denote ctx B = 0
+    rw [hm.1, h.1, mul_zero]
+  | node a b iha ihb =>
+    have hok : Bool.rec false (b.ok_k B) (a.ok_k B) = true := hok
+    have hok := PPoly.and_of_rec hok
+    obtain ⟨ha, hb⟩ := h
+    have ha := iha hok.1 ha
+    have hb := ihb hok.2 hb
+    have hc := PPoly.combineN_k_spec ctx nrm hn B (B - 1) (a.eval_k nrm B) (b.eval_k nrm B)
+    refine ⟨?_, hc.2 ha.2 hb.2⟩
+    show (PPoly.combineN_k nrm (a.eval_k nrm B) (b.eval_k nrm B)).denote ctx B = 0
+    rw [hc.1, ha.1, hb.1, add_zero]
+
+/-- `p₁ + Σ` of the multiples `t` is `p`, checked with packed monomials. -/
+theorem PSumTree.denote_eq {α} [CommRing α] (ctx : Context α) (nrm : Int → Int) (hn : ∀ k, ((nrm k : Int) : α) = (k : α))
+    (B : Nat) (p₁ p : Poly) (P : PPoly) (t : PSumTree)
+    (hB : Bool.rec false (Bool.rec false (Bool.rec false (t.ok_k B) (Nat.blt p₁.maxDeg_k B)) (Nat.blt p.maxDeg_k B)) (Nat.blt 1 B) = true)
+    (h₁ : P = p.toPP_k B) (h₂ : P = (p₁.toPP_k B).combineN_k nrm (t.eval_k nrm B)) (ht : t.AllZero ctx B) :
+    p.denote ctx = p₁.denote ctx := by
+  have h := PPoly.and_of_rec hB
+  have h' := PPoly.and_of_rec h.2
+  have h'' := PPoly.and_of_rec h'.2
+  have hB : 1 < B := Nat.blt_eq.mp h.1
+  have he := PSumTree.eval_k_spec ctx nrm hn hB t h''.2 ht
+  have hp := Poly.toPP_k_spec ctx hB p (Nat.blt_eq.mp h'.1)
+  have hp₁ := Poly.toPP_k_spec ctx hB p₁ (Nat.blt_eq.mp h''.1)
+  have hc := PPoly.combineN_k_spec ctx nrm hn B 0 (p₁.toPP_k B) (t.eval_k nrm B)
+  rw [← hp.1, ← h₁, h₂, hc.1, he.1, hp₁.1, add_zero]
+
+namespace Stepwise
+
+theorem simpsP {α} [CommRing α] (ctx : Context α) (B : Nat) (p₁ p : Poly) (P : PPoly) (t : PSumTree)
+    (hB : Bool.rec false (Bool.rec false (Bool.rec false (t.ok_k B) (Nat.blt p₁.maxDeg_k B)) (Nat.blt p.maxDeg_k B)) (Nat.blt 1 B) = true)
+    (h₁ : P = p.toPP_k B) (h₂ : P = (p₁.toPP_k B).combineN_k (fun k => k) (t.eval_k (fun k => k) B)) :
+    t.AllZero ctx B → p₁.denote ctx = 0 → p.denote ctx = 0 := by
+  intro ht h; rw [PSumTree.denote_eq ctx (fun k => k) (fun _ => rfl) B p₁ p P t hB h₁ h₂ ht, h]
+
+theorem simpsPC {α c} [CommRing α] [IsCharP α c] (ctx : Context α) (B : Nat) (p₁ p : Poly) (P : PPoly) (t : PSumTree)
+    (hB : Bool.rec false (Bool.rec false (Bool.rec false (t.ok_k B) (Nat.blt p₁.maxDeg_k B)) (Nat.blt p.maxDeg_k B)) (Nat.blt 1 B) = true)
+    (h₁ : P = p.toPP_k B) (h₂ : P = (p₁.toPP_k B).combineN_k (fun k => Int.emod_k k (Int.ofNat c)) (t.eval_k (fun k => Int.emod_k k (Int.ofNat c)) B)) :
+    t.AllZero ctx B → p₁.denote ctx = 0 → p.denote ctx = 0 := by
+  intro ht h
+  rw [PSumTree.denote_eq ctx _ (fun k => by rw [Int.emod_k_eq, Int.ofNat_eq_natCast, IsCharP.intCast_emod]) B p₁ p P t hB h₁ h₂ ht, h]
+
+theorem d_stepsP {α} [CommRing α] (ctx : Context α) (k : Int) (init : Poly) (B : Nat) (p₁ p : Poly) (P : PPoly) (t : PSumTree)
+    (hB : Bool.rec false (Bool.rec false (Bool.rec false (t.ok_k B) (Nat.blt p₁.maxDeg_k B)) (Nat.blt p.maxDeg_k B)) (Nat.blt 1 B) = true)
+    (h₁ : P = p.toPP_k B) (h₂ : P = (p₁.toPP_k B).combineN_k (fun k => k) (t.eval_k (fun k => k) B)) :
+    t.AllZero ctx B → k * init.denote ctx = p₁.denote ctx → k * init.denote ctx = p.denote ctx := by
+  intro ht h; rw [PSumTree.denote_eq ctx (fun k => k) (fun _ => rfl) B p₁ p P t hB h₁ h₂ ht, h]
+
+theorem d_stepsPC {α c} [CommRing α] [IsCharP α c] (ctx : Context α) (k : Int) (init : Poly) (B : Nat) (p₁ p : Poly) (P : PPoly) (t : PSumTree)
+    (hB : Bool.rec false (Bool.rec false (Bool.rec false (t.ok_k B) (Nat.blt p₁.maxDeg_k B)) (Nat.blt p.maxDeg_k B)) (Nat.blt 1 B) = true)
+    (h₁ : P = p.toPP_k B) (h₂ : P = (p₁.toPP_k B).combineN_k (fun k => Int.emod_k k (Int.ofNat c)) (t.eval_k (fun k => Int.emod_k k (Int.ofNat c)) B)) :
+    t.AllZero ctx B → k * init.denote ctx = p₁.denote ctx → k * init.denote ctx = p.denote ctx := by
+  intro ht h
+  rw [PSumTree.denote_eq ctx _ (fun k => by rw [Int.emod_k_eq, Int.ofNat_eq_natCast, IsCharP.intCast_emod]) B p₁ p P t hB h₁ h₂ ht, h]
+
+end Stepwise
+
+/-!
 Commutative semirings with `AddRightCancel`, through the ring envelope `Ring.OfSemiring.Q`, where
 `toQ` is injective.
 -/

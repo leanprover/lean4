@@ -182,7 +182,7 @@ info: d5: a ^ 2 * b ^ 2 + (a + 1) ^ 2
 ---
 info: d6: (x + 1) * (x + 1) (normal)
 ---
-info: d7: 0 = 0
+info: d7: True
 -/
 #guard_msgs in
 run_meta SymM.run do
@@ -205,9 +205,9 @@ info: r1: b = a + c
 ---
 info: r2: 0 ≤ b
 ---
-info: r3: 0 < 1
+info: r3: True
 ---
-info: r4: 0 = 0
+info: r4: True
 ---
 info: r5: a = b (normal)
 ---
@@ -253,9 +253,9 @@ def cr2 : Prop := 255 * u = u * 3 - 4 * u
 def cr3 : Prop := u + 2 = v
 
 /--
-info: cr1: 0 = 0
+info: cr1: True
 ---
-info: cr2: 0 = 0
+info: cr2: True
 ---
 info: cr3: u + 2 = v (normal)
 -/

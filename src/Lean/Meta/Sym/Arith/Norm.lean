@@ -1229,6 +1229,50 @@ private def isNumOrAtom : Poly → Bool
   | _ => false
 
 /--
+The proof of `(rel lhs rhs) = True` or `(rel lhs rhs) = False` (with `true` for `True`) when the
+polynomial of `l - r` is the constant `k`, if a theorem applies: `=` with `k = 0`, or `k ≠ 0` in
+characteristic zero, and `≤`, `<` in an ordered ring.
+-/
+private def constRelProof? (rel : RelKind) (order? : Option Order) (ring : Ring) (u : Level) (inst : Expr)
+    (char? : Option (Expr × Nat)) (k : Int) (l r : RingExpr) (size : Nat) (vars : Array Expr) :
+    NormM (Option (Expr × Bool)) := do
+  let reflP (p : Poly) := mkApp2 (mkConst ``Eq.refl [1]) (mkConst ``Grind.CommRing.Poly) (toExpr p)
+  let mk (name : Name) (insts : Array Expr) (rhsFirst : Bool) (args : Array Expr) (isTrue : Bool) : NormM (Option (Expr × Bool)) := do
+    let ctx ← mkContext ring.type vars
+    let (a, b) := if rhsFirst then (r, l) else (l, r)
+    let bal := useBalanced (.sub a b) size
+    let thm := mkAppN (mkConst name [u]) (#[ring.type] ++ insts ++ #[ctx, toExpr bal, toExpr l, toExpr r] ++ args)
+    return some (thm, isTrue)
+  match rel with
+  | .eq =>
+    if k == 0 then
+      match char? with
+      | none => mk ``Grind.CommRing.eq_true_of_poly0 #[inst] false #[reflP (.num 0)] true
+      | some (charInst, c) =>
+        let ctx ← mkContext ring.type vars
+        let bal := useBalanced (.sub l r) size
+        let thm := mkAppN (mkConst ``Grind.CommRing.eq_true_of_poly0C [u])
+          #[ring.type, toExpr c, inst, charInst, ctx, toExpr bal, toExpr l, toExpr r, reflP (.num 0)]
+        return some (thm, true)
+    else if char?.isNone then
+      let some (charInst, 0) := ring.charInst? | return none
+      mk ``Grind.CommRing.eq_false_of_poly #[inst, charInst] false #[toExpr k, reflP (.num k), eagerReflBoolFalse] false
+    else return none
+  | .le | .lt =>
+    let some o := order? | return none
+    let (some ltInst, some lawfulInst, some orderedInst) := (o.ltInst?, o.lawfulOrderLTInst?, o.orderedRingInst?) | return none
+    if char?.isSome then return none
+    let insts := #[inst, o.leInst, ltInst, lawfulInst, o.isPreorderInst, orderedInst]
+    let nat (n : Nat) : Poly := .num (Int.ofNat n)
+    match rel with
+    | .le =>
+      if k ≤ 0 then mk ``Grind.CommRing.le_true_of_poly insts true #[mkRawNatLit (-k).toNat, reflP (nat (-k).toNat)] true
+      else mk ``Grind.CommRing.le_false_of_poly insts false #[mkRawNatLit (k - 1).toNat, reflP (nat k.toNat)] false
+    | _ =>
+      if k < 0 then mk ``Grind.CommRing.lt_true_of_poly insts true #[mkRawNatLit (-k - 1).toNat, reflP (nat (-k).toNat)] true
+      else mk ``Grind.CommRing.lt_false_of_poly insts false #[mkRawNatLit k.toNat, reflP (nat k.toNat)] false
+
+/--
 Given the reified sides `l`, `r` of `e := rel lhs rhs`, with their polynomials `pl`, `pr` and the
 variables `vars` they index (compact, in `Expr.lt` order), returns the normalized relation.
 `relFn` is the canonical `Eq α`/`LE.le α inst`/`LT.lt α inst`, `order?` the order classification,
@@ -1292,6 +1336,12 @@ private def normalizeRelCore (rel : RelKind) (relFn : Expr) (order? : Option Ord
             if let some k' := modInv? k c then
               p := p.mulConstC k' c
               scale? := some (k, k')
+    -- `lhs - rhs` is a constant: the relation is `True` or `False`.
+    if invs.isEmpty && ainvs.isEmpty && kind.isComm && tight?.isNone && scale?.isNone && !numOrAtom then
+      if let .num k := p then
+        if let some h ← constRelProof? rel order? ring u inst char? k l r (pl.length + pr.length) vars then
+          let e' ← if h.2 then getTrueExpr else getFalseExpr
+          return .step e' (mkExpectedPropHint h.1 (mkPropEq e e'))
     -- Like `simp +arith`, the equations `x - y = 0` and `x + k = 0` are written `x = y` and
     -- `x = -k`, and any other equation already of the form `p = 0` is left alone.
     let (lp, rp) ←

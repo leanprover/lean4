@@ -40,6 +40,8 @@ elab "#check_builtin_class_insts" : command => liftTermElabM do
     checkQuery (app ``Grind.IsCharP #[t, sr, ← mkFreshExprMVar nat])
     let cs ← mkFreshExprMVar (app ``Grind.CommSemiring #[t])
     checkQuery (app ``Grind.PowIdentity #[t, cs, ← mkFreshExprMVar nat])
+  for c in [``Grind.CommRing, ``Grind.Ring, ``Grind.CommSemiring, ``Grind.Semiring] do
+    checkQuery (app c #[mkConst ``Bool])
   logInfo "ok"
 
 /-- info: ok -/

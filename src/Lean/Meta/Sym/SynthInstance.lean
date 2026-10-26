@@ -102,12 +102,14 @@ def getBuiltinInstance? (type : Expr) : Option Expr :=
 
 /--
 The algebraic structure instances of `Int` and `Nat` that `Sym.Arith` classification queries, as
-synthesized from the core instances. A `none` entry is a query without instance. Each `grind`
-goal classifies the types again, and resolving these queries dominated the classification cost.
+synthesized from the core instances, and the structures that `Bool` does not have. A `none` entry
+is a query without instance. Each `grind` goal classifies the types again, and resolving these
+queries dominated the classification cost.
 -/
 private def builtinClassInsts : Std.HashMap Expr (Option Expr) :=
   let nat := Nat.mkType
   let int := Int.mkType
+  let bool := mkConst ``Bool
   let z := [Level.zero]
   let app (n : Name) (args : Array Expr) := mkAppN (mkConst n z) args
   -- `Int`
@@ -164,6 +166,10 @@ private def builtinClassInsts : Std.HashMap Expr (Option Expr) :=
     (app ``NatCast #[nat], some (mkConst ``instNatCastNat)),
     (app ``Max #[nat], some (mkConst ``Nat.instMax)),
     (app ``Dvd #[nat], some (mkConst ``Nat.instDvd)),
+    (app ``Grind.CommRing #[bool], none),
+    (app ``Grind.Ring #[bool], none),
+    (app ``Grind.CommSemiring #[bool], none),
+    (app ``Grind.Semiring #[bool], none),
   ]
 
 /--

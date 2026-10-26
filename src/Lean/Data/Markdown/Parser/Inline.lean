@@ -358,7 +358,8 @@ where
   link label, the link text is tried as a shortcut reference instead.
   -/
   referenceForm (afterCloseRest : InlineCursor s) : Option (LinkTarget s × s.Pos) := do
-    -- Without definitions, there's no sense attempting to parse the label because it can never resolve.
+    -- Without definitions, there's no sense attempting to parse the label because it can never
+    -- resolve.
     guard !refs.isEmpty
     let labelOpen ← afterCloseRest.charSubslice?
     let afterOpen := afterCloseRest.drop1

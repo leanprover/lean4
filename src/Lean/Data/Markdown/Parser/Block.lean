@@ -29,8 +29,9 @@ CommonMark is parsed in two passes:
 2. Within each block, the second pass finds the structure of inlines and applies fallback rules for
    poorly nested or mismatched delimiters.
 
-This file contains the first pass. Link labels are compared after `normalizeLabel`, whose case
-folding covers ASCII, Latin-1, and Greek.
+This file contains the first pass. Link labels are compared modulo `normalizeLabel`, whose case
+folding covers only ASCII, Latin-1, and Greek, rather than the full Unicode case fold specified by
+CommonMark.
 -/
 
 variable {s : String.Slice}

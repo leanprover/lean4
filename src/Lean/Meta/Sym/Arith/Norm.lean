@@ -595,6 +595,7 @@ private def opFn (ring semiring : NormM Expr) : VisitM m Expr := do
 
 /-- `true` if `pre` (`HAdd.hAdd α α α inst`, ...) is the structure's canonical function `fn` for the operator. -/
 private def isInst (fn pre : Expr) : VisitM m Bool := do
+  if isSameExpr fn pre then return true
   return isSameExpr fn (← liftNorm (canonExpr pre))
 
 end Visit
@@ -634,7 +635,7 @@ where
 /-- The compact `Expr.lt`-ordered variables of `re`: the renaming and the renamed variable array. -/
 private def compactVars (re : RingExpr) : NormM (Grind.VarRename × Array Expr) := do
   let vars := (← get).vars
-  let used := (re.collectVars {}).toArray.qsort fun i j => Expr.lt vars[i]! vars[j]!
+  let used := Std.HashSet.toArray (re.collectVars {}) |>.qsort fun i j => Expr.lt vars[i]! vars[j]!
   return (Grind.mkVarRename used, used.map (vars[·]!))
 
 /--
@@ -770,9 +771,8 @@ private def isInterpreted (e : Expr) : Bool :=
   (getArithType? e).isSome || e.isAppOfArity ``OfNat.ofNat 3 || e.isAppOfArity ``BitVec.ofNat 2
 
 private partial def visit (v : Visitor m) (e : Expr) : VisitM m Node := do
-  let kind ← liftNorm getKind
+  let kind := (← read).kind
   let isRing := kind.isRing
-  let isField ← liftNorm (isFieldKind kind)
   -- An atom: simplified by `simpAtom`; its result is visited when it is a term the structure
   -- interprets (e.g., `3#8` evaluates to the numeral `3`, `f x` unfolds to `x + 1`).
   let atom : VisitM m Node := do
@@ -890,12 +890,12 @@ private partial def visit (v : Visitor m) (e : Expr) : VisitM m Node := do
       chainNode e e₂ r₁ (← visit v e₂)
     | _ => unreachable!
   | HDiv.hDiv _ _ _ _ a b =>
-    unless isField do return (← atom)
+    unless (← liftNorm (isFieldKind kind)) do return (← atom)
     unless (← isInst (← liftNorm getDivFn) e.appFn!.appFn!) do return (← atom)
     let (e₂, h) ← liftNorm (mkDivStep e a b)
     chainNode e e₂ (.step e₂ h) (← visit v e₂)
   | Inv.inv _ _ _ =>
-    unless isField do return (← atom)
+    unless (← liftNorm (isFieldKind kind)) do return (← atom)
     unless (← isInst (← liftNorm getInvFn) e.appFn!) do return (← atom)
     -- Simplify `x` (a proper subterm, so `simp` normalizes it without re-entering `e`),
     -- then rewrite `x'⁻¹`.
@@ -1015,9 +1015,12 @@ private def polyConst : Poly → Int
   | .add _ _ p => polyConst p
 
 /-- The gcd of the monomial coefficients of `p` (without the constant); `0` for a constant. -/
-private def gcdMonCoeffs : Poly → Nat
-  | .num _ => 0
-  | .add k _ p => Nat.gcd k.natAbs (gcdMonCoeffs p)
+private def gcdMonCoeffs (p : Poly) : Nat :=
+  go p 0
+where
+  go : Poly → Nat → Nat
+    | .num _, g => g
+    | .add k _ p, g => let g := Nat.gcd g k.natAbs; if g == 1 then 1 else go p g
 
 /-- Divides the monomial coefficients of `p` by `k` and drops the constant. -/
 private def divMonCoeffs (k : Nat) : Poly → Poly

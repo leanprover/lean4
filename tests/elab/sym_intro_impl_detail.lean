@@ -68,6 +68,6 @@ h✝ : ¬0 < n
 open Std.WP in
 example : ⦃ True ⦄ f n ⦃ fun r => r > 1 ⦄ := by
   unfold f
-  vcgen
+  vcgen -simp
   all_goals trace_state
   all_goals omega

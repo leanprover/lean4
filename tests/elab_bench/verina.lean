@@ -579,7 +579,7 @@ def ifPowerOfFour (n : Nat) : Id Bool
     return current = 1
 where finally
   | spec =>
-    case vc6 => sorry
+    case vc5 => sorry
     all_goals grind [isPowerOfFour_iff_div_four, Nat.lt_pow_self, Nat.pow_succ,
       -Array.extract_eq_pop, -Nat.min_def]
 

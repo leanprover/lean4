@@ -27,7 +27,7 @@ a✝ : a✝¹ = "x"
 -/
 #guard_msgs in
 example : ⦃True⦄ fails ⦃fun _ => False; fun e => e = "x" ∨ e = "y"⦄ := by
-  vcgen
+  vcgen -simp
   trace_state
   grind
 
@@ -88,7 +88,7 @@ a✝ : a✝¹ = "boom"
 -/
 #guard_msgs in
 example : ⦃True⦄ boom ⦃fun _ => True; { onThrow e := e = "boom" ∨ e = "crash" }⦄ := by
-  vcgen
+  vcgen -simp
   trace_state
   grind
 
@@ -138,4 +138,3 @@ def boomC : Prog Unit ensures _ => True throws e => e = "boom" := .throw "boom"
 
 example : ⦃True⦄ boomC ⦃fun _ => True; { onThrow e := e = "boom" ∨ e = "x" }⦄ := by
   vcgen
-  grind

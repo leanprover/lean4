@@ -30,6 +30,12 @@ example : ⦃ fun _ => True ⦄ (if "a" = "b" then pure 1 else pure 2 : M Nat) �
   trace_state
   all_goals sorry
 
+/-! Ground evaluation turns the verification condition `"x" = "x" ∨ "x" = "y"` into `True ∨ False`,
+which the `@[vcgen_simp]` theorem `true_or` rewrites to `True`. -/
+
+example : ⦃ fun _ => True ⦄ (pure "x" : M String) ⦃ fun r _ => r = "x" ∨ r = "y" ⦄ := by
+  vcgen
+
 /-! The state argument `0 + s` rewrites to `s` with the clause theorem `Nat.zero_add`. -/
 
 /--

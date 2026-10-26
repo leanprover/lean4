@@ -19,7 +19,6 @@ inline lean_external_class * g_uv_timer_external_class = nullptr;
 void initialize_libuv_timer();
 
 #ifndef LEAN_EMSCRIPTEN
-using namespace std;
 
 enum class timer_state { Initial, Running, Finished };
 
@@ -54,7 +53,7 @@ struct lean_uv_timer_object {
 static inline lean_object* lean_uv_timer_new(lean_uv_timer_object * s) { return lean_alloc_external(g_uv_timer_external_class, s); }
 static inline lean_uv_timer_object* lean_to_uv_timer(lean_object * o) { return (lean_uv_timer_object*)(lean_get_external_data(o)); }
 
-#else
+#endif
 
 // =======================================
 // Timer manipulation functions
@@ -63,7 +62,5 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_next(b_obj_arg timer);
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_reset(b_obj_arg timer);
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_stop(b_obj_arg timer);
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_cancel(b_obj_arg timer);
-
-#endif
 
 }

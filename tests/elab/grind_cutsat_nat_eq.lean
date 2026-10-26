@@ -82,7 +82,7 @@ trace: [grind.lia.model] x := 3
 #guard_msgs (trace) in
 set_option trace.grind.lia.model true in
 example (x y z : Nat) : x ≥ 3 → x ≠ z → x > y → z ≤ 6 → x + y = z → False := by
-  fail_if_success grind
+  fail_if_success grind +verbose
   sorry
 
 /--
@@ -92,7 +92,7 @@ trace: [grind.lia.model] x := 13
 #guard_msgs (trace) in
 set_option trace.grind.lia.model true in
 example (x y : Nat) : x > 8 → y > 8 → x ≠ y → (x - y) % 4 = 1 := by
-  fail_if_success grind
+  fail_if_success grind +verbose
   sorry
 
 -- The following example can be solved with a single case-split if Nat.sub_sub is a preprocessing rule.
@@ -126,7 +126,7 @@ trace: [grind.lia.model] x := 4
 #guard_msgs (trace) in
 set_option trace.grind.lia.model true in
 example (x y : Nat) : x = y + 3 → y > 0 → False := by
-  fail_if_success grind
+  fail_if_success grind +verbose
   sorry
 
 example (a b : Nat) : a  = a + b - b := by

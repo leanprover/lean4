@@ -77,7 +77,7 @@ structure Config where
   /-- TODO -/
   lookahead : Bool := true
   /-- If `verbose` is `false`, additional diagnostics information is not collected. -/
-  verbose : Bool := true
+  verbose : Bool := false
   /-- If `clean` is `true`, `grind` uses `expose_names` and only generates accessible names. -/
   clean : Bool := true
   /--

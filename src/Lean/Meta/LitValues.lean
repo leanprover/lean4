@@ -42,6 +42,23 @@ def getNatValue? (e : Expr) : MetaM (Option Nat) := do
   let some (n, _) ← getOfNatValue? e ``Nat | return none
   return some n
 
+/-- Returns `true` if `getNatValue? e` is `some _`. -/
+def isNatValue (e : Expr) : MetaM Bool := do
+  let e := e.consumeMData
+  if e.isRawNatLit then return true
+  let_expr OfNat.ofNat type n _ ← e | return false
+  unless n.consumeMData.isRawNatLit do return false
+  return (← whnfD type).getAppFn.isConstOf ``Nat
+
+/-- Returns `true` if `getNatValue? e` is `some n` with `n ≠ 0`. -/
+def isNonZeroNatValue (e : Expr) : MetaM Bool := do
+  let e := e.consumeMData
+  if let .lit (.natVal n) := e then return n != 0
+  let_expr OfNat.ofNat type n _ ← e | return false
+  let .lit (.natVal n) := n.consumeMData | return false
+  if n == 0 then return false
+  return (← whnfD type).getAppFn.isConstOf ``Nat
+
 /-- Return `some i` if `e` `OfNat.ofNat`-application encoding an integer, or `Neg.neg`-application of one. -/
 def getIntValue? (e : Expr) : MetaM (Option Int) := do
   if let some (n, _) ← getOfNatValue? e ``Int then
@@ -50,9 +67,27 @@ def getIntValue? (e : Expr) : MetaM (Option Int) := do
   let some (n, _) ← getOfNatValue? a ``Int | return none
   return some (-↑n)
 
+/-- Return `some b` if `e` is the boolean literal `true` or `false`. -/
+private def getBoolLit? (e : Expr) : Option Bool :=
+  match e.consumeMData with
+  | .const ``Bool.true _  => some true
+  | .const ``Bool.false _ => some false
+  | _ => none
+
+/-- Recognize a non-negated `Rat` literal: an `OfScientific` or `OfNat` application. -/
+private def getRatLit? (e : Expr) : MetaM (Option Rat) := OptionT.run do
+  match_expr e with
+  | OfScientific.ofScientific type _ m s exp =>
+    guard ((← whnfD type).isConstOf ``Rat)
+    let some s := getBoolLit? s | failure
+    return Rat.ofScientific (← getNatValue? m) s (← getNatValue? exp)
+  | _ =>
+    let (n, _) ← getOfNatValue? e ``Rat
+    return (n : Rat)
+
 /--
-Return `some i` if `e` `OfNat.ofNat`-application encoding a rational, or `Neg.neg`-application of one,
-or a division.
+Return `some r` if `e` is a rational `OfNat` or `OfScientific` literal, optionally negated,
+or a division of an optionally negated `OfNat` literal by an `OfNat` literal.
 -/
 def getRatValue? (e : Expr) : MetaM (Option Rat) := do
   match_expr e with
@@ -60,14 +95,17 @@ def getRatValue? (e : Expr) : MetaM (Option Rat) := do
     let some n ← getRatValueNum? a | return none
     let some (d, _) ← getOfNatValue? b ``Rat | return none
     return some (n / (d : Rat))
-  | _ => getRatValueNum? e
+  | Neg.neg _ _ a =>
+    let some n ← getRatLit? a | return none
+    return some (-n)
+  | _ => getRatLit? e
 where
   getRatValueNum? (e : Expr) : MetaM (Option Rat) := do
     if let some (n, _) ← getOfNatValue? e ``Rat then
       return some (n : Rat)
     let_expr Neg.neg _ _ a ← e | return none
     let some (n, _) ← getOfNatValue? a ``Rat | return none
-    return some (- (n : Rat))
+    return some (-(n : Rat))
 
 /-- Return `some c` if `e` is a `Char.ofNat`-application that encodes the character `c`. -/
 def getCharValue? (e : Expr) : MetaM (Option Char) := do
@@ -152,12 +190,34 @@ def getUInt64Value? (e : Expr) : MetaM (Option UInt64) := OptionT.run do
   let (n, _) ← getOfNatValue? e ``UInt64
   return UInt64.ofNat n
 
-/-- Return `some b` if `e` is the boolean literal `true` or `false`. -/
-private def getBoolLit? (e : Expr) : Option Bool :=
-  match e.consumeMData with
-  | .const ``Bool.true _  => some true
-  | .const ``Bool.false _ => some false
-  | _ => none
+/--
+Return `some i` if `e` is an `OfNat.ofNat`-application encoding `i` for a type with name `typeDeclName`,
+or `Neg.neg`-application of one.
+-/
+private def getSignedOfNatValue? (e : Expr) (typeDeclName : Name) : MetaM (Option Int) := OptionT.run do
+  match_expr e with
+  | Neg.neg _ _ a =>
+    let (n, _) ← getOfNatValue? a typeDeclName
+    return -(n : Int)
+  | _ =>
+    let (n, _) ← getOfNatValue? e typeDeclName
+    return n
+
+/-- Return `some i` if `e` is an `OfNat.ofNat`-application encoding the `Int8` with value `i`, or `Neg.neg`-application of one. -/
+def getInt8Value? (e : Expr) : MetaM (Option Int8) :=
+  return (← getSignedOfNatValue? e ``Int8).map Int8.ofInt
+
+/-- Return `some i` if `e` is an `OfNat.ofNat`-application encoding the `Int16` with value `i`, or `Neg.neg`-application of one. -/
+def getInt16Value? (e : Expr) : MetaM (Option Int16) :=
+  return (← getSignedOfNatValue? e ``Int16).map Int16.ofInt
+
+/-- Return `some i` if `e` is an `OfNat.ofNat`-application encoding the `Int32` with value `i`, or `Neg.neg`-application of one. -/
+def getInt32Value? (e : Expr) : MetaM (Option Int32) :=
+  return (← getSignedOfNatValue? e ``Int32).map Int32.ofInt
+
+/-- Return `some i` if `e` is an `OfNat.ofNat`-application encoding the `Int64` with value `i`, or `Neg.neg`-application of one. -/
+def getInt64Value? (e : Expr) : MetaM (Option Int64) :=
+  return (← getSignedOfNatValue? e ``Int64).map Int64.ofInt
 
 /-- Recognize a non-negated `Float` literal: an `OfScientific` or `OfNat` application. -/
 private def getFloatLit? (e : Expr) : MetaM (Option Float) := OptionT.run do
@@ -219,28 +279,83 @@ def normLitValue (e : Expr) : MetaM Expr := do
   if let some n ← getUInt16Value? e then return toExpr n
   if let some n ← getUInt32Value? e then return toExpr n
   if let some n ← getUInt64Value? e then return toExpr n
+  if let some n ← getInt8Value? e then return toExpr n
+  if let some n ← getInt16Value? e then return toExpr n
+  if let some n ← getInt32Value? e then return toExpr n
+  if let some n ← getInt64Value? e then return toExpr n
   -- `Float`/`Float32` literals are left untouched: there is no `ToExpr` instance for them, and their
   -- only canonical form would be `Float.ofBits`, which is less legible than the original literal.
   return e
 
+private def isOfScientificLitArgs (m s exp : Expr) : MetaM Bool := do
+  let s := s.consumeMData
+  unless s.isConstOf ``Bool.true || s.isConstOf ``Bool.false do return false
+  isNatValue m <&&> isNatValue exp
+
+/-- Returns `true` if `OfScientific.ofScientific type _ m s exp` is a `Rat`, `Float`, or `Float32` literal. -/
+private def isOfScientificLitValue (type m s exp : Expr) : MetaM Bool := do
+  let type ← whnfD type
+  unless type.isConstOf ``Rat || type.isConstOf ``Float || type.isConstOf ``Float32 do return false
+  isOfScientificLitArgs m s exp
+
+/-- Returns `true` if `OfNat.ofNat type n _` is a literal value. -/
+private def isOfNatLitValue (type n : Expr) : MetaM Bool := do
+  unless n.consumeMData.isRawNatLit do return false
+  let type ← whnfD type
+  let .const declName _ := type.getAppFn | return false
+  if declName == ``Nat || declName == ``Int || declName == ``Rat || declName == ``Float || declName == ``Float32
+      || declName == ``UInt8 || declName == ``UInt16 || declName == ``UInt32 || declName == ``UInt64
+      || declName == ``Int8 || declName == ``Int16 || declName == ``Int32 || declName == ``Int64 then
+    return true
+  else if declName == ``Fin then
+    isNonZeroNatValue (← whnfD type.appArg!)
+  else if declName == ``BitVec then
+    isNatValue (← whnfD type.appArg!)
+  else
+    return false
+
 /--
-Returns `true` if `e` is a literal value.
+Returns `true` if `Neg.neg _ _ a` is an `Int`, `Int8`, `Int16`, `Int32`, `Int64`, `Rat`, `Float`,
+or `Float32` literal.
+-/
+private def isNegLitValue (a : Expr) : MetaM Bool := do
+  match_expr a with
+  | OfNat.ofNat type n _ =>
+    unless n.consumeMData.isRawNatLit do return false
+    let .const declName _ := (← whnfD type).getAppFn | return false
+    return declName == ``Int || declName == ``Rat || declName == ``Float || declName == ``Float32
+      || declName == ``Int8 || declName == ``Int16 || declName == ``Int32 || declName == ``Int64
+  | OfScientific.ofScientific type _ m s exp => isOfScientificLitValue type m s exp
+  | _ => return false
+
+/-- Returns `true` if `HDiv.hDiv _ _ _ _ a b` encodes a rational literal. -/
+private def isRatDivLitValue (a b : Expr) : MetaM Bool := do
+  let a := match_expr a with
+    | Neg.neg _ _ a => a
+    | _ => a
+  isRatOfNat a <&&> isRatOfNat b
+where
+  isRatOfNat (e : Expr) : MetaM Bool := do
+    let_expr OfNat.ofNat type n _ := e | return false
+    unless n.consumeMData.isRawNatLit do return false
+    return (← whnfD type).getAppFn.isConstOf ``Rat
+
+/--
+Returns `true` if `e` is a literal value, i.e., one of the `get*Value?` functions above returns `some _`.
 -/
 def isLitValue (e : Expr) : MetaM Bool := do
   let e ← instantiateMVars e
-  if (← getNatValue? e).isSome then return true
-  if (← getIntValue? e).isSome then return true
-  if (← getFinValue? e).isSome then return true
-  if (← getBitVecValue? e).isSome then return true
-  if (getStringValue? e).isSome then return true
-  if (← getCharValue? e).isSome then return true
-  if (← getUInt8Value? e).isSome then return true
-  if (← getUInt16Value? e).isSome then return true
-  if (← getUInt32Value? e).isSome then return true
-  if (← getUInt64Value? e).isSome then return true
-  if (← getFloatValue? e).isSome then return true
-  if (← getFloat32Value? e).isSome then return true
-  return false
+  if let .lit (.strVal _) := e then return true
+  if e.consumeMData.isRawNatLit then return true
+  match_expr e with
+  | OfNat.ofNat type n _ => isOfNatLitValue type n
+  | Neg.neg _ _ a => isNegLitValue a
+  | Char.ofNat n => isNatValue n
+  | BitVec.ofNat w v => isNatValue w <&&> isNatValue v
+  | BitVec.ofNatLT w v _ => isNatValue w <&&> isNatValue v
+  | OfScientific.ofScientific type _ m s exp => isOfScientificLitValue type m s exp
+  | HDiv.hDiv _ _ _ _ a b => isRatDivLitValue a b
+  | _ => return false
 
 /--
 If `e` is a `Nat`, `Int`, or `Fin` literal value, converts it into a constructor application.

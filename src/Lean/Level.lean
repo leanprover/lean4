@@ -619,6 +619,10 @@ def getParamSubst : List Name → List Level → Name → Option Level
 def instantiateParams (u : Level) (paramNames : List Name) (vs : List Level) : Level :=
   u.substParams (getParamSubst paramNames vs)
 
+@[export lean_level_instantiate_params]
+private def instantiateParamsEx (u : Level) (paramNames : List Name) (vs : List Level) : Level :=
+  u.instantiateParams paramNames vs
+
 def geq (u v : Level) : Bool :=
   go u.normalize v.normalize
 where

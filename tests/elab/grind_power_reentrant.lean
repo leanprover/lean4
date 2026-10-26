@@ -18,6 +18,7 @@ h_3 : 2 * m + n + m * n = 2 * m
 h_4 : n = 2 * m
 h_5 : m = 2 * m
 ⊢ False
+use `+verbose` to obtain diagnostic information
 -/
 #guard_msgs in
 example {R : Type} [CommSemiring R] (x : R) (m n : Nat) :
@@ -38,6 +39,7 @@ h_3 : 2 * m + n + m * n = 2 * m
 h_4 : n = 2 * m
 h_5 : m = 2 * m
 ⊢ False
+use `+verbose` to obtain diagnostic information
 -/
 #guard_msgs in
 example {R : Type} [Semiring R] (x : R) (m n : Nat) :

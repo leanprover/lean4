@@ -15,6 +15,50 @@ def newConst := 1
 @[deprecated newConst (since := "2026-10-23")]
 def oldConst := 1
 
+@[deprecated Nat.add (since := "2026-10-23")]
+def oldAdd (a b : Nat) := a + b
+
+/-! Rules of syntax deprecated with `@[deprecated]` -/
+
+#guard_msgs in
+@[deprecated "use `newConst` instead" (since := "2026-10-23")]
+notation "notationOld" => oldConst
+
+#guard_msgs in
+@[deprecated "use `newConst + x` instead" (since := "2026-10-23")]
+macro "macroOld " x:term:max : term => ``(oldConst + $x)
+
+#guard_msgs in
+@[deprecated "use `+` instead" (since := "2026-10-23")]
+infixl:65 " +' " => oldAdd
+
+namespace Class
+
+@[deprecated "use `Class.inter` instead" (since := "2026-10-23")]
+def sInter (x : Nat) : Nat := x
+
+end Class
+
+namespace Foo
+
+#guard_msgs in
+@[deprecated "use `⋂` instead" (since := "2026-10-23")]
+scoped prefix:110 "⋂₀ " => Class.sInter
+
+end Foo
+
+-- The implementation of a deprecated macro is part of the deprecated syntax as well.
+#guard_msgs in
+@[deprecated "use `newConst` instead" (since := "2026-10-23")]
+macro "macroBodyOld" : term => do
+  let _ := oldConst
+  ``(notationOld)
+
+#guard_msgs in
+@[deprecated "use `newConst` instead" (since := "2026-10-23")]
+elab "elabOld" : term => do
+  elabTerm (← ``(oldConst)) none
+
 /-! Rules of syntax deprecated with `deprecated_syntax` -/
 
 syntax (name := rulesOld) "rules_old" : term

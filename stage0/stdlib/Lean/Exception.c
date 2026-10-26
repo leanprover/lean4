@@ -1089,6 +1089,7 @@ lean_object* v___x_264_; lean_object* v___x_265_; lean_object* v___x_266_; lean_
 v___x_264_ = lean_obj_once(&l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__0___closed__2, &l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__0___closed__2_once, _init_l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__0___closed__2);
 v___x_265_ = lean_obj_once(&l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__0___closed__5, &l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__0___closed__5_once, _init_l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__0___closed__5);
 v___x_266_ = l_Lean_Options_empty;
+lean_inc_ref(v___x_261_);
 v___x_267_ = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(v___x_267_, 0, v___x_261_);
 lean_ctor_set(v___x_267_, 1, v___x_264_);
@@ -1099,7 +1100,8 @@ v___x_268_ = l_Lean_MessageData_ofConstName(v_declHint_253_, v___x_258_);
 v_c_269_ = lean_alloc_ctor(3, 2, 0);
 lean_ctor_set(v_c_269_, 0, v___x_267_);
 lean_ctor_set(v_c_269_, 1, v___x_268_);
-v___x_270_ = l_Lean_Environment_getModuleIdxFor_x3f(v_env_257_, v_declHint_253_);
+v___x_270_ = l_Lean_Environment_getModuleIdxFor_x3f(v___x_261_, v_declHint_253_);
+lean_dec_ref(v___x_261_);
 if (lean_obj_tag(v___x_270_) == 0)
 {
 lean_object* v___x_271_; lean_object* v___x_272_; lean_object* v___x_273_; lean_object* v___x_274_; lean_object* v___x_275_; lean_object* v___x_276_; lean_object* v___x_277_; 

@@ -376,12 +376,51 @@ where
 partial def handleFoldingRange (_ : FoldingRangeParams)
   : RequestM (RequestTask (Array FoldingRange)) := do
   let doc ← readDoc
-  let t := doc.cmdSnaps.waitAll
-  mapTaskCostly t fun (snaps, _) => do
-    let stxs := snaps.map (·.stx)
-    let (_, ranges) ← StateT.run (addRanges doc.meta.text [] stxs) #[]
-    return ranges
+  let text := doc.meta.text
+  mapTaskCostly (waitCmdStxs doc.initSnap).asServerTask fun stxs => do
+    let (_, ranges) ← StateT.run (addRanges text [] stxs.toList) #[]
+    let trees ← IO.wait (waitPartialInfoTrees doc.initSnap)
+    let (_, proofRanges) ← StateT.run (s := #[]) do
+      for cmdTrees in trees do
+        RequestM.checkCancelled
+        for tree in cmdTrees do
+          addProofRanges text tree
+    -- VS Code keeps only one of multiple folding ranges with the same start line, so we prefer
+    -- the proof over the region of its declaration
+    let proofStartLines : Std.HashSet Nat :=
+      proofRanges.foldl (init := {}) (·.insert ·.startLine)
+    return ranges.filter (!proofStartLines.contains ·.startLine) ++ proofRanges
   where
+    /-- Waits for the syntax of the header and of all commands. -/
+    waitCmdStxs (initSnap : Language.Lean.InitialSnapshot) : Task (Array Syntax) :=
+      mapCmdSnaps initSnap (.pure ·.stx) |>.map (sync := true) (#[initSnap.stx] ++ ·)
+
+    /--
+    Waits for the info trees of all commands. The info trees are partial: they contain holes for
+    asynchronous elaboration, for example of proofs, and we do not wait for these holes.
+    `DeclValueInfo` nodes are outside of the holes.
+    -/
+    waitPartialInfoTrees (initSnap : Language.Lean.InitialSnapshot) :
+        Task (Array (PersistentArray Elab.InfoTree)) :=
+      mapCmdSnaps initSnap fun cmdParsed =>
+        cmdParsed.elabSnap.resultSnap.task.map (sync := true) (·.cmdState.infoState.trees)
+
+    /-- Waits for the snapshots of all commands and for the result of `f` on each of them. -/
+    mapCmdSnaps {β : Type} (initSnap : Language.Lean.InitialSnapshot)
+        (f : Language.Lean.CommandParsedSnapshot → Task β) : Task (Array β) := Id.run do
+      let some headerParsed := initSnap.result? | .pure #[]
+      headerParsed.processedSnap.task.bind (sync := true) fun headerProcessed => Id.run do
+        let some headerSuccess := headerProcessed.result? | .pure #[]
+        headerSuccess.firstCmdSnap.task.bind (sync := true) (mapCmdSnapsFrom f #[])
+
+    mapCmdSnapsFrom {β : Type} (f : Language.Lean.CommandParsedSnapshot → Task β) (acc : Array β)
+        (cmdParsed : Language.Lean.CommandParsedSnapshot) : Task (Array β) :=
+      f cmdParsed |>.bind (sync := true) fun b =>
+        let acc := acc.push b
+        match cmdParsed.nextCmdSnap? with
+        | some next => next.task.bind (sync := true) (mapCmdSnapsFrom f acc)
+        | none      => .pure acc
+
     isImport stx := stx.isOfKind ``Lean.Parser.Module.header || stx.isOfKind ``Lean.Parser.Command.open
 
     addRanges (text : FileMap) sections
@@ -443,6 +482,15 @@ partial def handleFoldingRange (_ : FoldingRangeParams)
           addRangeFromSyntax text FoldingRangeKind.region stx
       | _ =>
         addRangeFromSyntax text FoldingRangeKind.region stx
+
+    addProofRanges (text : FileMap) (tree : Elab.InfoTree) : StateT (Array FoldingRange) RequestM Unit :=
+      tree.foldInfoM (init := ()) fun _ info _ => do
+        let .ofCustomInfo { stx, value } := info | return
+        let some { headerRef, isProof := true, .. } := value.get? Elab.Term.DeclValueInfo | return
+        -- Starting at the end of the header lets folding hide the full proof, even if it starts
+        -- on a new line
+        addRange text FoldingRangeKind.proof (headerRef.getTailPos? (canonicalOnly := true))
+          (stx.getTailPos? (canonicalOnly := true))
 
     addRangeFromSyntax (text : FileMap) kind stx := addRange text kind stx.getPos? stx.getTailPos?
 

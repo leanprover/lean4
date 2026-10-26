@@ -1,13 +1,17 @@
+/*
+Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Author: Sofia Rodrigues
+*/
 #pragma once
 #include <lean/lean.h>
 #include "runtime/uv/event_loop.h"
 
-namespace lean {
-
 #ifndef LEAN_EMSCRIPTEN
-using namespace std;
 #include <uv.h>
 #endif
+
+namespace lean {
 
 // =======================================
 // System information functions
@@ -23,7 +27,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_chdir(b_obj_arg path);
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_homedir();
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_tmpdir();
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_get_passwd();
-extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_get_group(uint64_t gid);
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_get_group(b_obj_arg gid);
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_environ();
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_getenv(b_obj_arg name);
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_setenv(b_obj_arg name, b_obj_arg value);

@@ -376,12 +376,10 @@ lean_dec_ref_known(v_fn_61_, 2);
 if (v_root_53_ == 0)
 {
 uint8_t v___x_87_; 
-lean_inc_ref(v_e_56_);
 v___x_87_ = l_Lean_Meta_Sym_isOffset_x27(v_declName_73_, v_e_56_);
 if (v___x_87_ == 0)
 {
 uint8_t v___x_88_; 
-lean_inc_ref(v_e_56_);
 v___x_88_ = l_Lean_Meta_Sym_isQuasiOffset(v_e_56_);
 if (v___x_88_ == 0)
 {

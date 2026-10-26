@@ -87,7 +87,7 @@ trace: [grind.lia.model] a := 2
 #guard_msgs (drop error, trace) in
 set_option trace.grind.lia.model true in
 example (a b : Fin 3) : a > 0 → a ≠ b → a + b ≠ 0 → a + b ≠ 1 → False := by
-  grind
+  grind +verbose
 
 -- We use `↑a` when pretty printing `ToInt.toInt a`
 /--

@@ -20,6 +20,9 @@ inline lean_obj_res decode_uv_error(int errnum, b_lean_obj_arg fname) { return l
 inline lean_obj_res io_result_mk_uv_error(int errnum) { return io_result_mk_error(decode_uv_error(errnum, nullptr)); }
 inline lean_obj_res io_result_mk_enomem() { return io_result_mk_error(decode_io_error(ENOMEM, nullptr)); }
 LEAN_EXPORT lean_obj_res mk_embedded_nul_error(b_lean_obj_arg str);
+// Whether a variable can have the name `name`. `getenv` may match a name only up to its first `=`, so
+// a name no variable has can find another variable instead.
+LEAN_EXPORT bool is_env_var_name(char const * name);
 LEAN_EXPORT lean_obj_res io_wrap_handle(FILE * hfile);
 void initialize_io();
 void finalize_io();

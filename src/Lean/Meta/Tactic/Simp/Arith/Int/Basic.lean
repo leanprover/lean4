@@ -190,22 +190,27 @@ partial def leCnstr? (e : Expr) : M (Option (Int.Internal.Linear.Expr × Int.Int
     return (← toLinearExpr a, ← toLinearExpr b)
   | Int.lt a b =>
     return (.add (← toLinearExpr a) (.num 1), ← toLinearExpr b)
-  | LE.le _ i a b =>
+  | LE.le α i a b =>
+    let_expr Int ← α | failure
     guard (← DefEq.isInstLEInt i)
     return (← toLinearExpr a, ← toLinearExpr b)
-  | LT.lt _ i a b =>
+  | LT.lt α i a b =>
+    let_expr Int ← α | failure
     guard (← DefEq.isInstLTInt i)
     return (.add (← toLinearExpr a) (.num 1), ← toLinearExpr b)
-  | GE.ge _ i a b =>
+  | GE.ge α i a b =>
+    let_expr Int ← α | failure
     guard (← DefEq.isInstLEInt i)
     return (← toLinearExpr b, ← toLinearExpr a)
-  | GT.gt _ i a b =>
+  | GT.gt α i a b =>
+    let_expr Int ← α | failure
     guard (← DefEq.isInstLTInt i)
     return (.add (← toLinearExpr b) (.num 1), ← toLinearExpr a)
   | _ => failure
 
 partial def dvdCnstr? (e : Expr) : M (Option (Int × Int.Internal.Linear.Expr)) := OptionT.run do
-  let_expr Dvd.dvd _ inst k b ← e | failure
+  let_expr Dvd.dvd α inst k b ← e | failure
+  let_expr Int ← α | failure
   guard (← DefEq.isInstDvdInt inst)
   let some k ← getIntValue? k | failure
   return (k, ← toLinearExpr b)

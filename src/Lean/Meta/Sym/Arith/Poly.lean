@@ -182,10 +182,6 @@ def Poly.size : Poly → Nat
   | .num _ => 1
   | .add _ m p => m.size + 1 + p.size
 
-def Poly.length : Poly → Nat
-  | .num _ => 0
-  | .add _ _ p => 1 + p.length
-
 def Power.toExpr (pw : Power) : Expr :=
   if pw.k == 1 then
     .var pw.x

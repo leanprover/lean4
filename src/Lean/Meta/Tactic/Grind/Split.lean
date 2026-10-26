@@ -450,7 +450,7 @@ Remark: `numCases` and `isRec` are computed using `checkSplitStatus`.
 def splitCore (c : SplitInfo) (numCases : Nat) (isRec : Bool)
     (stopAtFirstFailure : Bool)
     (compress : Bool)
-    (candidates? : Option (List SplitInfo) := none) : Action := fun goal _ kp => do
+    (candidates? : Option (List SplitInfo) := none) : Action := fun goal _ kp => withHoistedDecls goal do
   let traceEnabled := (← getConfig).trace
   let mvarId ← goal.mkAuxMVar
   let cExpr := c.getExpr
@@ -490,13 +490,22 @@ def splitCore (c : SplitInfo) (numCases : Nat) (isRec : Bool)
   For recursive types or subsequent cases (`i > 0`), we always increment the counter since
   these represent genuine branches in the proof search.
   -/
+  let goalStack := goal.goalStack.push (goal.mvarId, goal.toGoalState)
   let subgoals := mvarIds.mapIdx fun i mvarId =>
     let numSplits := goal.split.num
     let numSplits := if i > 0 || isRec then numSplits + 1 else numSplits
     { goal with
-      mvarId
+      mvarId, goalStack
       split.num := numSplits
       split.trace := { expr := cExpr, i, num := numSubgoals, source := c.source } :: goal.split.trace }
+  /-
+  **Note**: Stuck goals are returned to the caller, and they may be processed after this split completes,
+  e.g., by the next tactic in `grind => ...` mode. By then, the declarations hoisted to `goal` have been
+  declared in its proof and erased (see `withHoistedDecls`). Thus, we truncate the goal stack of stuck
+  goals to the one of `goal`, and they can only hoist declarations to the case splits enclosing `goal`.
+  -/
+  let exitSplit (gs : List Goal) : List Goal :=
+    gs.map fun g => { g with goalStack := g.goalStack.extract 0 goal.goalStack.size }
   let mut seqNew : Array (List (TSyntax `grind)) := #[]
   let mut stuckNew : Array Goal := #[]
   for subgoal in subgoals do
@@ -507,21 +516,22 @@ def splitCore (c : SplitInfo) (numCases : Nat) (isRec : Bool)
         **Note**: We don't need to assign `goal.mvarId` when `stopAtFirstFailure = true`
         because the caller will not be able to process the all failure/stuck goals anyway.
         -/
-        return .stuck gs
+        return .stuck (exitSplit gs)
       else
-        stuckNew := stuckNew ++ gs
+        stuckNew := stuckNew ++ exitSplit gs
     | .closed seq =>
       if let some falseProof ← getFalseProof? subgoal.mvarId then
-        goal.mvarId.assignFalseProof falseProof
+        goal.mvarId.assignFalseProof (← mkHoistedDecls (← getHoistedDecls goal) falseProof)
         return .closed seq
       else if !seq.isEmpty then
         /- **Note**: if the sequence is empty, it means the user will never see this goal. -/
         seqNew := seqNew.push seq
+  let proof ← mkHoistedDecls (← getHoistedDecls goal) (← instantiateMVars (mkMVar mvarId))
   if (← goal.mvarId.getType).isFalse then
     /- **Note**: We add the marker to assist `getFalseExpr?` -/
-    goal.mvarId.assign (mkExpectedPropHint (← instantiateMVars (mkMVar mvarId)) (mkConst ``False))
+    goal.mvarId.assign (mkExpectedPropHint proof (mkConst ``False))
   else
-    goal.mvarId.assign (← instantiateMVars (mkMVar mvarId))
+    goal.mvarId.assign proof
   if stuckNew.isEmpty then
     if let some anchorInfo := anchorInfo? then
       let cases ← anchorInfo.toSyntax

@@ -160,6 +160,94 @@ theorem Poly.denote_cancelInvs [CommRing α] (ctx : Context α) (p : Poly) (ainv
     simp only [cancelInvs, List.foldl_cons] at *
     rw [ih _ h.2, Poly.denote_cancelInv _ _ _ _ h.1]
 
+/-! Kernel-reduction variants for inverse cancellation. -/
+
+noncomputable def Mon.degreeOf_k (m : Mon) (x : Var) : Nat :=
+  Mon.rec 0 (fun pw _ ih => Bool.rec ih pw.k (Nat.beq pw.x x)) m
+
+noncomputable def Mon.cancelVar_k (m : Mon) (x : Var) : Mon :=
+  Mon.rec .unit (fun pw m ih => Bool.rec (.mult pw ih) m (Nat.beq pw.x x)) m
+
+noncomputable def Mon.mulPow_k (pw : Power) (m : Mon) : Mon :=
+  Mon.rec (.mult pw .unit)
+    (fun pw' m ih => Bool.rec
+      (Bool.rec (.mult {x := pw.x, k := Nat.add pw.k pw'.k} m) (.mult pw' ih) (Nat.blt pw'.x pw.x))
+      (.mult pw (.mult pw' m)) (Nat.blt pw.x pw'.x)) m
+
+noncomputable def Mon.cancelInv_k (x y : Var) (m : Mon) : Mon :=
+  let a := Mon.degreeOf_k m x
+  let b := Mon.degreeOf_k m y
+  let m' := Mon.cancelVar_k (Mon.cancelVar_k m x) y
+  Bool.rec
+    (Bool.rec
+      (Bool.rec
+        (Bool.rec (Bool.rec m' (Mon.mulPow_k ⟨x, Nat.sub a b⟩ m') (Nat.blt b a))
+          (Mon.mulPow_k ⟨y, Nat.sub b a⟩ m') (Nat.blt a b))
+        m (Nat.beq b 0))
+      m (Nat.beq a 0))
+    m (Nat.beq x y)
+
+noncomputable def Poly.cancelInv_k (x y : Var) (p : Poly) : Poly :=
+  Poly.rec (motive := fun _ => Poly → Poly)
+    (fun k acc => acc.addConst_k k)
+    (fun k m _ ih acc => ih (acc.insert_k k (Mon.cancelInv_k x y m))) p (.num 0)
+
+noncomputable def Poly.cancelInvs_k (p : Poly) (invs : InvAtoms) : Poly :=
+  List.rec (motive := fun _ => Poly → Poly) (fun p => p)
+    (fun yx _ ih p => ih (Poly.cancelInv_k yx.2 yx.1 p)) invs p
+
+@[simp] theorem Mon.degreeOf_k_eq_degreeOf (m : Mon) (x : Var) : Mon.degreeOf_k m x = m.degreeOf x := by
+  induction m with
+  | unit => rfl
+  | mult pw m ih =>
+    change Bool.rec (motive := fun _ => Nat) (Mon.degreeOf_k m x) pw.k (Nat.beq pw.x x) = _
+    rw [ih]
+    simp only [Mon.degreeOf, Bool.rec_eq, cond_eq_ite]
+    rfl
+
+@[simp] theorem Mon.cancelVar_k_eq_cancelVar (m : Mon) (x : Var) : Mon.cancelVar_k m x = m.cancelVar x := by
+  induction m with
+  | unit => rfl
+  | mult pw m ih =>
+    change Bool.rec (motive := fun _ => Mon) (.mult pw (Mon.cancelVar_k m x)) m (Nat.beq pw.x x) = _
+    rw [ih]
+    simp only [Mon.cancelVar, Bool.rec_eq, cond_eq_ite]
+    rfl
+
+@[simp] theorem Mon.mulPow_k_eq_mulPow (pw : Power) (m : Mon) : Mon.mulPow_k pw m = m.mulPow pw := by
+  induction m with
+  | unit => rfl
+  | mult pw' m ih =>
+    change Bool.rec (motive := fun _ => Mon)
+      (Bool.rec (.mult {x := pw.x, k := Nat.add pw.k pw'.k} m) (.mult pw' (Mon.mulPow_k pw m)) (Nat.blt pw'.x pw.x))
+      (.mult pw (.mult pw' m)) (Nat.blt pw.x pw'.x) = _
+    rw [ih]
+    simp only [Mon.mulPow, Bool.rec_eq, cond_eq_ite, Power.varLt]
+    rfl
+
+@[simp] theorem Mon.cancelInv_k_eq_cancelInv (x y : Var) (m : Mon) : Mon.cancelInv_k x y m = m.cancelInv x y := by
+  simp only [Mon.cancelInv_k, Mon.degreeOf_k_eq_degreeOf, Mon.cancelVar_k_eq_cancelVar, Mon.mulPow_k_eq_mulPow, Bool.rec_eq,
+    Mon.cancelInv, cond_eq_ite, Bool.or_eq_true, Nat.beq_eq_true_eq, Nat.beq_eq, Nat.blt_eq, decide_eq_true_eq]
+  split <;> simp_all
+  split <;> simp_all
+
+@[simp] theorem Poly.cancelInv_k_eq_cancelInv (x y : Var) (p : Poly) : Poly.cancelInv_k x y p = p.cancelInv x y := by
+  suffices h : ∀ acc, Poly.rec (motive := fun _ => Poly → Poly)
+      (fun k acc => acc.addConst_k k)
+      (fun k m _ ih acc => ih (acc.insert_k k (Mon.cancelInv_k x y m))) p acc = Poly.cancelInv.go x y p acc by
+    exact h (.num 0)
+  induction p with
+  | num k => intro acc; simp [Poly.cancelInv.go]
+  | add k m p ih => intro acc; simp only [Poly.cancelInv.go, ← ih, Poly.insert_k_eq_insert, Mon.cancelInv_k_eq_cancelInv]
+
+@[simp] theorem Poly.cancelInvs_k_eq_cancelInvs (p : Poly) (invs : InvAtoms) : Poly.cancelInvs_k p invs = p.cancelInvs invs := by
+  induction invs generalizing p with
+  | nil => rfl
+  | cons yx l ih =>
+    change Poly.cancelInvs_k (Poly.cancelInv_k yx.2 yx.1 p) l = _
+    rw [ih, Poly.cancelInv_k_eq_cancelInv]
+    rfl
+
 /-! ## Inverses of numerals -/
 
 def PolyQ.denote [Field α] (ctx : Context α) (q : PolyQ) : α :=
@@ -197,6 +285,20 @@ the result to lowest terms.
 -/
 def Poly.toPolyQ (p : Poly) (invs : InvVars) (ainvs : InvAtoms) : PolyQ :=
   (invs.foldl (fun (q : PolyQ) xc => q.substInv xc.1 xc.2) ⟨p.cancelInvs ainvs, 1⟩).reduce
+
+noncomputable def Poly.toPolyQ_k (p : Poly) (invs : InvVars) (ainvs : InvAtoms) : PolyQ :=
+  (invs.foldl (fun (q : PolyQ) xc => q.substInv xc.1 xc.2) ⟨p.cancelInvs_k ainvs, 1⟩).reduce
+
+@[simp] theorem Poly.toPolyQ_k_eq_toPolyQ (p : Poly) (invs : InvVars) (ainvs : InvAtoms) :
+    p.toPolyQ_k invs ainvs = p.toPolyQ invs ainvs := by
+  simp only [toPolyQ_k, toPolyQ, cancelInvs_k_eq_cancelInvs]
+
+protected noncomputable def PolyQ.beq' (p q : PolyQ) : Bool :=
+  Bool.rec false (Nat.beq p.den q.den) (p.num.beq' q.num)
+
+@[simp] theorem PolyQ.beq'_eq (p q : PolyQ) : p.beq' q = (p = q) := by
+  change (p.num.beq' q.num && Nat.beq p.den q.den) = (p = q)
+  cases p; cases q; simp
 
 def Expr.toPolyQ (e : Expr) (invs : InvVars) (ainvs : InvAtoms) : PolyQ :=
   e.toPoly.toPolyQ invs ainvs
@@ -313,22 +415,22 @@ private theorem sub_neg_iff [Ring α] [LE α] [LT α] [LawfulOrderLT α] [IsPreo
 
 /-! ## Certificates for inverses of atoms only -/
 
-def Expr.cancelInvs_cert (ainvs : InvAtoms) (a b : Expr) : Bool :=
-  a.toPoly.cancelInvs ainvs == b.toPoly.cancelInvs ainvs
+noncomputable def Expr.cancelInvs_cert (ainvs : InvAtoms) (a b : Expr) : Bool :=
+  (a.toPoly_k.cancelInvs_k ainvs).beq' (b.toPoly_k.cancelInvs_k ainvs)
 
 theorem Expr.eq_of_cancelInvs_eq [CommRing α] (ctx : Context α) (ainvs : InvAtoms) (hok : ainvs.ok ctx)
     (a b : Expr) (h : cancelInvs_cert ainvs a b) : a.denote ctx = b.denote ctx := by
-  simp only [cancelInvs_cert, beq_iff_eq] at h
+  simp only [cancelInvs_cert, Poly.beq'_eq, Poly.cancelInvs_k_eq_cancelInvs, Expr.toPoly_k_eq_toPoly] at h
   have := congrArg (Poly.denote ctx) h
   rwa [Poly.denote_cancelInvs _ _ _ hok, Poly.denote_cancelInvs _ _ _ hok, Expr.denote_toPoly, Expr.denote_toPoly] at this
 
-def normA_cert (ainvs : InvAtoms) (lhs rhs lhs' rhs' : Expr) : Bool :=
-  (lhs.sub rhs).toPoly.cancelInvs ainvs == (lhs'.sub rhs').toPoly
+noncomputable def normA_cert (ainvs : InvAtoms) (lhs rhs lhs' rhs' : Expr) : Bool :=
+  ((lhs.sub rhs).toPoly_k.cancelInvs_k ainvs).beq' (lhs'.sub rhs').toPoly_k
 
 private theorem denote_sub_of_normA_cert [CommRing α] (ctx : Context α) (ainvs : InvAtoms) (hok : ainvs.ok ctx)
     (lhs rhs lhs' rhs' : Expr) (h : normA_cert ainvs lhs rhs lhs' rhs') :
     lhs.denote ctx - rhs.denote ctx = lhs'.denote ctx - rhs'.denote ctx := by
-  simp only [normA_cert, beq_iff_eq] at h
+  simp only [normA_cert, Poly.beq'_eq, Poly.cancelInvs_k_eq_cancelInvs, Expr.toPoly_k_eq_toPoly] at h
   have := congrArg (Poly.denote ctx) h
   rw [Poly.denote_cancelInvs _ _ _ hok, Expr.denote_toPoly, Expr.denote_toPoly] at this
   exact this
@@ -356,25 +458,27 @@ theorem lt_normA_expr [CommRing α] [LE α] [LT α] [LawfulOrderLT α] [IsPreord
 
 /-! ## Certificates for rational coefficients -/
 
-def Expr.toPolyQ_cert (invs : InvVars) (ainvs : InvAtoms) (a b : Expr) : Bool :=
-  a.toPolyQ invs ainvs == b.toPolyQ invs ainvs
+noncomputable def Expr.toPolyQ_cert (invs : InvVars) (ainvs : InvAtoms) (a b : Expr) : Bool :=
+  (a.toPoly_k.toPolyQ_k invs ainvs).beq' (b.toPoly_k.toPolyQ_k invs ainvs)
 
 theorem Expr.eq_of_toPolyQ_eq [Field α] [IsCharP α 0] (ctx : Context α) (invs : InvVars) (hok : invs.ok ctx)
     (ainvs : InvAtoms) (hoka : ainvs.ok ctx) (a b : Expr) (h : toPolyQ_cert invs ainvs a b) :
     a.denote ctx = b.denote ctx := by
-  simp only [toPolyQ_cert, beq_iff_eq] at h
+  simp only [toPolyQ_cert, PolyQ.beq'_eq, Poly.toPolyQ_k_eq_toPolyQ, Expr.toPoly_k_eq_toPoly] at h
+  change a.toPolyQ invs ainvs = b.toPolyQ invs ainvs at h
   have ha := denote_toPolyQ ctx a invs ainvs hok hoka
   have hb := denote_toPolyQ ctx b invs ainvs hok hoka
   rw [← ha, ← hb, h]
 
 /-- `lhs' - rhs'` is the numerator of `lhs - rhs`; the relation between `lhs'` and `rhs'` is denominator-free. -/
-def normQ_cert (invs : InvVars) (ainvs : InvAtoms) (lhs rhs lhs' rhs' : Expr) : Bool :=
-  ((lhs.sub rhs).toPolyQ invs ainvs).num == (lhs'.sub rhs').toPoly
+noncomputable def normQ_cert (invs : InvVars) (ainvs : InvAtoms) (lhs rhs lhs' rhs' : Expr) : Bool :=
+  ((lhs.sub rhs).toPoly_k.toPolyQ_k invs ainvs).num.beq' (lhs'.sub rhs').toPoly_k
 
 private theorem denote_sub_of_normQ_cert [Field α] [IsCharP α 0] (ctx : Context α) (invs : InvVars) (hok : invs.ok ctx)
     (ainvs : InvAtoms) (hoka : ainvs.ok ctx) (lhs rhs lhs' rhs' : Expr) (h : normQ_cert invs ainvs lhs rhs lhs' rhs') :
     ∃ d : Nat, d ≠ 0 ∧ lhs.denote ctx - rhs.denote ctx = (lhs'.denote ctx - rhs'.denote ctx) * (d : α)⁻¹ := by
-  simp only [normQ_cert, beq_iff_eq] at h
+  simp only [normQ_cert, Poly.beq'_eq, Poly.toPolyQ_k_eq_toPolyQ, Expr.toPoly_k_eq_toPoly] at h
+  change ((lhs.sub rhs).toPolyQ invs ainvs).num = (lhs'.sub rhs').toPoly at h
   refine ⟨((lhs.sub rhs).toPolyQ invs ainvs).den, Expr.toPolyQ_den_ne_zero (lhs.sub rhs) invs ainvs, ?_⟩
   have h₁ := Expr.denote_toPolyQ ctx (lhs.sub rhs) invs ainvs hok hoka
   have h₂ := Expr.denote_toPoly ctx (lhs'.sub rhs')

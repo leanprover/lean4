@@ -12,7 +12,7 @@ case grind
 -/
 #guard_msgs in
 example : False := by
-  grind +lax [foo]
+  grind +verbose +lax [foo]
 
 /-- error: Unknown constant `foo` -/
 #guard_msgs in
@@ -28,7 +28,7 @@ case grind
 -/
 #guard_msgs in
 example : False := by
-  grind +lax [-foo]
+  grind +verbose +lax [-foo]
 
 theorem foo : True := .intro
 
@@ -49,7 +49,7 @@ case grind
 -/
 #guard_msgs in
 example : False := by
-  grind +lax [= foo]
+  grind +verbose +lax [= foo]
 
 theorem bar : Nat = Int := sorry
 

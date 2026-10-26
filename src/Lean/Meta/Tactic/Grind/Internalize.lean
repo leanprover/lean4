@@ -357,7 +357,7 @@ private def activateTheorems (declName : Name) (generation : Nat) : GoalM Unit :
 /--
 Marks the constants occurring in `e` as found and activates their theorems.
 The internalizer does not descend into binders (lambdas, `let`s, and dependent codomains of
-`forall`s) nor into nonparametric literals (see `isNonParametricLitValue`), but pattern symbol
+`forall`s) nor into nonparametric literals, but pattern symbol
 collection does (see `saveSymbolsAt`). Thus, a theorem whose ground pattern is `myPred (fun _ => True)`
 is also indexed by `True`, and one whose ground pattern is `f 'a'` is also indexed by `Char.ofNat`.
 They would never be activated if these symbols were not marked as found.
@@ -512,23 +512,44 @@ private def useFunCongrAtFn (f : Expr) : GrindM Bool := do
   let .const declName _ := f | return true
   useFunCongrAtDecl declName
 
-/--
-Returns true if `e` is a nonparametric literal.
-For example, `BitVec` and `Fin` are parametric literals, but `Nat` is not.
--/
-private def isNonParametricLitValue (e : Expr) : MetaM Bool := do
-  if (← getNatValue? e).isSome then return true
-  if (← getIntValue? e).isSome then return true
-  if (getStringValue? e).isSome then return true
-  if (← getCharValue? e).isSome then return true
-  if (← getUInt8Value? e).isSome then return true
-  if (← getUInt16Value? e).isSome then return true
-  if (← getUInt32Value? e).isSome then return true
-  if (← getUInt64Value? e).isSome then return true
-  return false
+/-- Literal applications that `internalize` handles specially. -/
+private inductive LitKind where
+  | notLit
+  /-- A `Nat`, `Int`, `Char`, `UInt8`, `UInt16`, `UInt32`, `UInt64`, `Int8`, `Int16`, `Int32`, or `Int64` literal. -/
+  | nonParametric
+  /-- An `OfNat.ofNat` literal of type `BitVec _` or `Fin _`. -/
+  | ofNatFinBitVec
 
 /--
-Internalizer for nonparametric literals (see `isNonParametricLitValue`).
+Classifies the application `e`. For example, `BitVec` and `Fin` are parametric literals, but `Nat` is not.
+The types of nonparametric literals are reduced using `whnfD`, but `BitVec` and `Fin` must occur syntactically.
+-/
+private def getLitKind (e : Expr) : MetaM LitKind := do
+  match_expr e with
+  | OfNat.ofNat type n _ =>
+    unless n.consumeMData.isRawNatLit do return .notLit
+    match_expr type with
+    | BitVec w => return if (← isNatValue (← whnfD w)) then .ofNatFinBitVec else .notLit
+    | Fin k => return if (← isNonZeroNatValue (← whnfD k)) then .ofNatFinBitVec else .notLit
+    | _ =>
+      let .const declName _ := (← whnfD type).getAppFn | return .notLit
+      if declName == ``Nat || declName == ``Int
+          || declName == ``UInt8 || declName == ``UInt16 || declName == ``UInt32 || declName == ``UInt64
+          || declName == ``Int8 || declName == ``Int16 || declName == ``Int32 || declName == ``Int64 then
+        return .nonParametric
+      return .notLit
+  | Neg.neg _ _ a =>
+    let_expr OfNat.ofNat type n _ ← a | return .notLit
+    unless n.consumeMData.isRawNatLit do return .notLit
+    let .const declName _ := (← whnfD type).getAppFn | return .notLit
+    if declName == ``Int || declName == ``Int8 || declName == ``Int16 || declName == ``Int32 || declName == ``Int64 then
+      return .nonParametric
+    return .notLit
+  | Char.ofNat n => return if (← isNatValue n) then .nonParametric else .notLit
+  | _ => return .notLit
+
+/--
+Internalizer for nonparametric literals (see `getLitKind`).
 For this kind of literal, we do **not** internalize its children nor
 we activate theorems associated with their function symbol.
 This is relevant because we do not want to internalize, for example,
@@ -548,17 +569,7 @@ private def internalizeNonParametricLiteral (e : Expr) (generation : Nat) (paren
   Solvers.internalize e parent?
 
 /--
-Returns `true` if `e` is a `OfNat.ofNat` literal of type `BitVec _` or `Fin _`.
--/
-private def isOfNatFinBitVecLiteral (e : Expr) : MetaM Bool := do
-  let_expr OfNat.ofNat α _ _ := e | return false
-  match_expr α with
-  | BitVec _ => return (← getBitVecValue? e).isSome
-  | Fin _ => return (← getFinValue? e).isSome
-  | _ => return false
-
-/--
-Internalizer for parametric `OfNat.ofNat` literals (see `isOfNatFinBitVecLiteral`).
+Internalizer for parametric `OfNat.ofNat` literals (see `getLitKind`).
 For this kind of literal, we do **not** internalize its nested raw literal, but
 we do internalize the type and instance to address issue #11545.
 For example, we can have patterns of the form ``[P #0 (@OfNat.ofNat (Fin _) `[0] _)]``.
@@ -707,31 +718,31 @@ where
       mkENode' e generation
       Solvers.internalize e parent?
     | .app .. =>
-      if (← isNonParametricLitValue e) then
-        internalizeNonParametricLiteral e generation parent?
-      else if (← isOfNatFinBitVecLiteral e) then
-        internalizeOfNatFinBitVecLiteral e generation parent?
-      else if e.isAppOfArity ``Grind.MatchCond 1 then
-        internalizeMatchCond e generation
-      else e.withApp fun f args => do
-        let funCC ← useFunCongrAtFn f
-        mkENode e generation (funCC := funCC)
-        updateAppMap e
-        checkAndAddSplitCandidate e
-        addMatchEqns f generation
-        if (← isDebugEnabled) then
-          modify fun s => { s with internalizing := s.internalizing.push e }
-          try internalizeArgs f args funCC
-          finally modify fun s => { s with internalizing := s.internalizing.pop }
-        else
-          internalizeArgs f args funCC
-        pushCastHEqs e
-        addCongrTable e
-        Solvers.internalize e parent?
-        pushPropagateUp e
-        propagateBetaForNewApp e
-        mkInjEq e
-        propagateSubtypeMk e
+      match (← getLitKind e) with
+      | .nonParametric => internalizeNonParametricLiteral e generation parent?
+      | .ofNatFinBitVec => internalizeOfNatFinBitVecLiteral e generation parent?
+      | .notLit =>
+        if e.isAppOfArity ``Grind.MatchCond 1 then
+          internalizeMatchCond e generation
+        else e.withApp fun f args => do
+          let funCC ← useFunCongrAtFn f
+          mkENode e generation (funCC := funCC)
+          updateAppMap e
+          checkAndAddSplitCandidate e
+          addMatchEqns f generation
+          if (← isDebugEnabled) then
+            modify fun s => { s with internalizing := s.internalizing.push e }
+            try internalizeArgs f args funCC
+            finally modify fun s => { s with internalizing := s.internalizing.pop }
+          else
+            internalizeArgs f args funCC
+          pushCastHEqs e
+          addCongrTable e
+          Solvers.internalize e parent?
+          pushPropagateUp e
+          propagateBetaForNewApp e
+          mkInjEq e
+          propagateSubtypeMk e
 
   /-- Visits the arguments of `e` and registers `e` as their parent. -/
   internalizeArgs (f : Expr) (args : Array Expr) (funCC : Bool) : GoalM Unit := do

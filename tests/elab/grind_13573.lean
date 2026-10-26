@@ -26,6 +26,7 @@ h_14 : x2 + x3 * x1 + -4294967295 ≤ 0
 h_15 : -1 * x1 + 8 ≤ 0
 h_16 : x1 + -4294967295 ≤ 0
 ⊢ False
+use `+verbose` to obtain diagnostic information
 -/
 #guard_msgs in
 example (x1 x2 x3 x4 x5 x6 x7 x8 : Int) :

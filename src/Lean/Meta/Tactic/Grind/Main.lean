@@ -60,6 +60,8 @@ def getLiaExtensions : MetaM ExtensionStateArray := do
 
 structure Params where
   config      : Grind.Config
+  /-- See `Context.identity`. -/
+  identity    : Name := `grind
   extensions  : ExtensionStateArray := #[]
   extra       : PArray EMatchTheorem := {}
   extraInj    : PArray InjectiveTheorem := {}
@@ -134,11 +136,13 @@ def GrindM.run (x : GrindM α) (params : Params) (evalTactic? : Option EvalTacti
   let symPrios := params.symPrios
   let extensions := params.extensions
   let anchorRefs? := params.anchorRefs?
+  let identity := params.identity
+  let activeSolvers ← Solvers.activeIds config
   let debug := grind.debug.get (← getOptions)
   let ematchDiag := grind.ematch.diagnostics.get (← getOptions)
   Sym.Arith.setExpThreshold config.exp
   x (← mkMethods evalTactic?).toMethodsRef
-    { config, anchorRefs?, simpMethods, symSimpMethods, symDSimpMethods, simp, extensions, symPrios, debug, ematchDiag }
+    { config, identity, activeSolvers, anchorRefs?, simpMethods, symSimpMethods, symDSimpMethods, simp, extensions, symPrios, debug, ematchDiag }
     |>.run' {}
 
 private def mkCleanState (mvarId : MVarId) : GrindM Clean.State := mvarId.withContext do
@@ -263,6 +267,8 @@ def Result.toMessageData (result : Result) : MetaM MessageData := do
       msgs := msgs ++ [.trace { cls := `grind } "Issues" issues.reverse.toArray]
     if let some msg ← mkGlobalDiag result.counters result.simp result.splitDiags result.ematchDiags then
       msgs := msgs ++ [msg]
+  else
+    msgs := msgs ++ [m!"use `+verbose` to obtain diagnostic information"]
   return MessageData.joinSep msgs m!"\n"
 
 /--
@@ -409,25 +415,16 @@ def main (mvarId : MVarId) (params : Params) : MetaM Result := do profileitM Exc
     return result
 
 /--
-Resolves delayed metavariable assignments created inside the current `withNewMCtxDepth` block.
-`instantiateMVars` only resolves a delayed assignment `?m #[xs] := ?pending` when `?pending`'s
-assignment is ground (no unassigned expression metavariables). This ground restriction exists
-because `val` may contain metavariables that have `fvars` in their scope. For example, if
-`fvars = #[x]` and `val = ?m + x` where `x` is in the scope of `?m`, then `mkLambda` creates
-`fun x => ?m + x`. If `?m` is later assigned to `f x`, the term becomes ill-formed with a
-dangling free variable.
-
-This scenario cannot occur here: metavariables created before `withNewMCtxDepth` cannot contain
-free variables created by `grind`, so the conversion is safe. Only metavariables at the current
-depth are processed; pre-existing delayed assignments are left untouched as they are meant to
-be resolved by other tactics.
+Resolves delayed metavariable assignments created inside the current `withNewMCtxDepth` block
+(see `instantiateMVarsResolvingDelayed`), and checks that no metavariable at the current depth
+remains.
 
 We do not need to erase the delayed assignments from `dAssignment` because they will be
 discarded when `withNewMCtxDepth` restores the metavariable context.
 -/
-private partial def resolveDelayedMVarAssignments (e : Expr) : MetaM Expr := do
+private def resolveDelayedMVarAssignments (e : Expr) : MetaM Expr := do
   if !e.hasMVar then return e
-  let e ← go e
+  let e ← instantiateMVarsResolvingDelayed e
   -- Ensure no metavariables at the current depth remain. They would become
   -- dangling references after `withNewMCtxDepth` restores the metavariable context.
   let mctx ← getMCtx
@@ -436,19 +433,6 @@ private partial def resolveDelayedMVarAssignments (e : Expr) : MetaM Expr := do
       if decl.depth == mctx.depth then
         throwError "`grind` failed, proof contains unresolved internal metavariable {Expr.mvar mvarId}"
   return e
-where
-  go (e : Expr) : MetaM Expr := do
-    let mctx ← getMCtx
-    let mvars := (e.collectMVars {}).result
-    for mvarId in mvars do
-      if let some decl := mctx.findDecl? mvarId then
-        if decl.depth == mctx.depth then
-          if let some { fvars, mvarIdPending } ← getDelayedMVarAssignment? mvarId then
-            if let some val ← getExprMVarAssignment? mvarIdPending then
-              let pendingDecl ← mvarIdPending.getDecl
-              let val ← go (← instantiateMVars val)
-              mvarId.assign (pendingDecl.lctx.mkLambda fvars val)
-    instantiateMVars e
 
 /--
 A helper combinator for executing a `grind`-based terminal tactic.

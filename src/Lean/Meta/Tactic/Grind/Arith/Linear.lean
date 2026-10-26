@@ -45,6 +45,7 @@ builtin_initialize registerTraceClass `grind.debug.linarith.subst
 
 builtin_initialize
   linearExt.setMethods
+    (enabled     := (·.linarith))
     (internalize := Linear.internalize)
     (newEq       := Linear.processNewEq)
     (newDiseq    := Linear.processNewDiseq)

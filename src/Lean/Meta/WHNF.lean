@@ -1060,35 +1060,32 @@ def reduceNat? (e : Expr) : MetaM (Option Expr) :=
   else
     return true
 
-@[inline] private def cached? (useCache : Bool) (e : Expr) : MetaM (Option Expr) := do
-  if useCache then
-    return (← get).cache.whnf.find? (← mkExprConfigCacheKey e)
-  else
-    return none
-
-private def cache (useCache : Bool) (e r : Expr) : MetaM Expr := do
-  if useCache then
-    let key ← mkExprConfigCacheKey e
-    modify fun s => { s with cache.whnf := s.cache.whnf.insert key r }
-  return r
-
 set_option compiler.ignoreBorrowAnnotation true in
 @[export lean_whnf]
 partial def whnfImp (e : Expr) : MetaM Expr :=
   withIncRecDepth <| whnfEasyCases e fun e => do
-    let useCache ← useWHNFCache e
-    match (← cached? useCache e) with
-    | some e' => pure e'
-    | none    =>
-      withTraceNode `Meta.whnf (fun _ => return m!"Non-easy whnf: {e}") do
-        checkSystem "whnf"
-        let e' ← whnfCore e
-        match (← reduceNat? e') with
-        | some v => cache useCache e v
-        | none   =>
-          match (← unfoldDefinition? e') with
-          | some e'' => cache useCache e (← whnfImp e'')
-          | none => cache useCache e e'
+    if (← useWHNFCache e) then
+      -- one key for the lookup and the insertion: the configuration does not change in between
+      let key ← mkExprConfigCacheKey e
+      match (← get).cache.whnf.find? key with
+      | some e' => pure e'
+      | none    =>
+        let r ← whnfUncached e
+        modify fun s => { s with cache.whnf := s.cache.whnf.insert key r }
+        return r
+    else
+      whnfUncached e
+where
+  whnfUncached (e : Expr) : MetaM Expr :=
+    withTraceNode `Meta.whnf (fun _ => return m!"Non-easy whnf: {e}") do
+      checkSystem "whnf"
+      let e' ← whnfCore e
+      match (← reduceNat? e') with
+      | some v => return v
+      | none   =>
+        match (← unfoldDefinition? e') with
+        | some e'' => whnfImp e''
+        | none => return e'
 
 /-- If `e` is a projection function that satisfies `p`, then reduce it -/
 def reduceProjOf? (e : Expr) (p : Name → Bool) : MetaM (Option Expr) := do

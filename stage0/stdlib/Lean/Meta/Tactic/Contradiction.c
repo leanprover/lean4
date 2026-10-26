@@ -2323,13 +2323,13 @@ return v_res_653_;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Meta_ElimEmptyInductive_elim_spec__2___lam__0___boxed(lean_object* v_toInductionSubgoal_661_, lean_object* v_mvarId_662_, lean_object* v_fields_663_, lean_object* v_sz_664_, lean_object* v___x_665_, lean_object* v___x_666_, lean_object* v___x_667_, lean_object* v___y_668_, lean_object* v___y_669_, lean_object* v___y_670_, lean_object* v___y_671_, lean_object* v___y_672_, lean_object* v___y_673_){
 _start:
 {
-size_t v_sz_boxed_674_; size_t v___x_15987__boxed_675_; uint8_t v___x_15989__boxed_676_; lean_object* v_res_677_; 
+size_t v_sz_boxed_674_; size_t v___x_15988__boxed_675_; uint8_t v___x_15990__boxed_676_; lean_object* v_res_677_; 
 v_sz_boxed_674_ = lean_unbox_usize(v_sz_664_);
 lean_dec(v_sz_664_);
-v___x_15987__boxed_675_ = lean_unbox_usize(v___x_665_);
+v___x_15988__boxed_675_ = lean_unbox_usize(v___x_665_);
 lean_dec(v___x_665_);
-v___x_15989__boxed_676_ = lean_unbox(v___x_667_);
-v_res_677_ = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Meta_ElimEmptyInductive_elim_spec__2___lam__0(v_toInductionSubgoal_661_, v_mvarId_662_, v_fields_663_, v_sz_boxed_674_, v___x_15987__boxed_675_, v___x_666_, v___x_15989__boxed_676_, v___y_668_, v___y_669_, v___y_670_, v___y_671_, v___y_672_);
+v___x_15990__boxed_676_ = lean_unbox(v___x_667_);
+v_res_677_ = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Meta_ElimEmptyInductive_elim_spec__2___lam__0(v_toInductionSubgoal_661_, v_mvarId_662_, v_fields_663_, v_sz_boxed_674_, v___x_15988__boxed_675_, v___x_666_, v___x_15990__boxed_676_, v___y_668_, v___y_669_, v___y_670_, v___y_671_, v___y_672_);
 lean_dec(v___y_672_);
 lean_dec_ref(v___y_671_);
 lean_dec(v___y_670_);
@@ -3013,10 +3013,10 @@ return v___x_864_;
 LEAN_EXPORT lean_object* l_Lean_Meta_ElimEmptyInductive_elim___lam__0___boxed(lean_object* v_mvarId_867_, lean_object* v_fvarId_868_, lean_object* v___x_869_, lean_object* v___x_870_, lean_object* v___x_871_, lean_object* v_val_872_, lean_object* v___x_873_, lean_object* v___y_874_, lean_object* v___y_875_, lean_object* v___y_876_, lean_object* v___y_877_, lean_object* v___y_878_, lean_object* v___y_879_){
 _start:
 {
-uint8_t v___x_16109__boxed_880_; uint8_t v___x_16112__boxed_881_; lean_object* v_res_882_; 
-v___x_16109__boxed_880_ = lean_unbox(v___x_870_);
-v___x_16112__boxed_881_ = lean_unbox(v___x_873_);
-v_res_882_ = l_Lean_Meta_ElimEmptyInductive_elim___lam__0(v_mvarId_867_, v_fvarId_868_, v___x_869_, v___x_16109__boxed_880_, v___x_871_, v_val_872_, v___x_16112__boxed_881_, v___y_874_, v___y_875_, v___y_876_, v___y_877_, v___y_878_);
+uint8_t v___x_16110__boxed_880_; uint8_t v___x_16113__boxed_881_; lean_object* v_res_882_; 
+v___x_16110__boxed_880_ = lean_unbox(v___x_870_);
+v___x_16113__boxed_881_ = lean_unbox(v___x_873_);
+v_res_882_ = l_Lean_Meta_ElimEmptyInductive_elim___lam__0(v_mvarId_867_, v_fvarId_868_, v___x_869_, v___x_16110__boxed_880_, v___x_871_, v_val_872_, v___x_16113__boxed_881_, v___y_874_, v___y_875_, v___y_876_, v___y_877_, v___y_878_);
 lean_dec(v___y_878_);
 lean_dec_ref(v___y_877_);
 lean_dec(v___y_876_);
@@ -4202,6 +4202,7 @@ _start:
 {
 uint8_t v_res_1275_; lean_object* v_r_1276_; 
 v_res_1275_ = l___private_Lean_Meta_Tactic_Contradiction_0__Lean_Meta_isGenDiseq(v_e_1274_);
+lean_dec_ref(v_e_1274_);
 v_r_1276_ = lean_box(v_res_1275_);
 return v_r_1276_;
 }
@@ -5947,7 +5948,6 @@ _start:
 {
 lean_object* v___x_1744_; uint8_t v___x_1745_; 
 v___x_1744_ = l_Lean_LocalDecl_type(v_localDecl_1738_);
-lean_inc_ref(v___x_1744_);
 v___x_1745_ = l_Lean_Meta_Simp_isEqnThmHypothesis(v___x_1744_);
 if (v___x_1745_ == 0)
 {
@@ -6591,6 +6591,7 @@ else
 {
 uint8_t v___x_1879_; 
 v___x_1879_ = l_Lean_Meta_Simp_isEqnThmHypothesis(v___x_1870_);
+lean_dec_ref(v___x_1870_);
 if (v___x_1879_ == 0)
 {
 v___y_1844_ = v___y_1872_;
@@ -9726,6 +9727,7 @@ else
 {
 uint8_t v___x_2489_; 
 v___x_2489_ = l_Lean_Meta_Simp_isEqnThmHypothesis(v___x_2480_);
+lean_dec_ref(v___x_2480_);
 if (v___x_2489_ == 0)
 {
 v___y_2454_ = v___y_2482_;
@@ -12900,6 +12902,7 @@ else
 {
 uint8_t v___x_3103_; 
 v___x_3103_ = l_Lean_Meta_Simp_isEqnThmHypothesis(v___x_3094_);
+lean_dec_ref(v___x_3094_);
 if (v___x_3103_ == 0)
 {
 v___y_3067_ = v___y_3096_;
@@ -16206,6 +16209,7 @@ else
 {
 uint8_t v___x_3745_; 
 v___x_3745_ = l_Lean_Meta_Simp_isEqnThmHypothesis(v___x_3736_);
+lean_dec_ref(v___x_3736_);
 if (v___x_3745_ == 0)
 {
 v___y_3709_ = v___y_3738_;

@@ -94,6 +94,7 @@ def DiseqCnstr.assert (c : DiseqCnstr) : GoalM Unit := do
   if (← c.findLe) then
     return ()
   let .add _ x _ := c.p | c.throwUnexpected
+  let c ← c.markStored
   c.p.updateOccs
   trace[grind.lia.assert.store] "{← c.pp}"
   modify' fun s => { s with diseqs := s.diseqs.modify x (·.push c) }
@@ -300,7 +301,7 @@ private def updateElimEqs (a : Int) (x : Var) (c : EqCnstr) (y : Var) : GoalM Un
   let some c₂ := (← get').elimEqs[y]! | return ()
   let b := c₂.p.coeff x
   if b == 0 then return ()
-  let c₂ := { p := c₂.p.mul a |>.combine (c.p.mul (-b)), h := .subst x c₂ c : EqCnstr }
+  let c₂ ← { p := c₂.p.mul a |>.combine (c.p.mul (-b)), h := .subst x c₂ c : EqCnstr }.markStored
   trace[grind.debug.lia.elimEq] "updated: {← getVar y}, {← c₂.pp}"
   modify' fun s => { s with elimEqs := s.elimEqs.set y (some c₂) }
   propagateNonlinearTerms y
@@ -343,6 +344,7 @@ partial def _root_.Int.Internal.Linear.Poly.updateOccsForElimEq (p : Poly) (x : 
 
 /-- Eliminates `x` using `c`, where `k` is the coefficient of `x` in `c.p` and `|k| = 1`. -/
 private def EqCnstr.elimVar (c : EqCnstr) (k : Int) (x : Var) : GoalM Unit := do
+  let c ← c.markStored
   trace[grind.debug.lia.subst] ">> {← getVar x}, {← c.pp}"
   trace[grind.lia.assert.store] "{← c.pp}"
   trace[grind.debug.lia.elimEq] "{← getVar x}, {← c.pp}"
@@ -600,6 +602,33 @@ private def internalizeInt (e : Expr) : GoalM Unit := do
       let c := { p := .add (-1) x p, h := .defnExpr h x e' : EqCnstr }
       c.assert
 
+/--
+Pushes a linear fact about `a / b` and `a % b`. The `simp`-based preprocessor is skipped: these facts
+are linear combinations that cutsat normalizes itself, and the preprocessor would only redistribute
+the coefficients.
+-/
+private def pushDivModFact (proof : Expr) (gen : Nat) : GoalM Unit := do
+  let prop ← preprocessLight (← inferType proof)
+  pushNewFactCore prop proof gen
+
+/--
+Asserts the fact `h : lhs = rhs` or `h : lhs ≤ rhs` over `Int` directly into cutsat, without adding it
+to the E-graph.
+-/
+private def assertLinearFact (h : Expr) (gen : Nat) : GoalM Unit := do
+  match_expr (← inferType h) with
+  | Eq _ l r =>
+    let lhs ← toLinearExpr l gen
+    let rhs ← toLinearExpr r gen
+    let c := { p := lhs.sub rhs |>.norm, h := .hyp h lhs rhs : EqCnstr }
+    c.assertCore
+  | LE.le _ _ l r =>
+    let lhs ← toLinearExpr l gen
+    let rhs ← toLinearExpr r gen
+    let c := { p := lhs.sub rhs |>.norm, h := .hyp h lhs rhs : LeCnstr }
+    c.assert
+  | _ => throwError "internal `grind` error, unexpected linear fact{indentExpr (← inferType h)}"
+
 private def expandDivMod (a : Expr) (b : Int) : GoalM Unit := do
   if (← get').divMod.contains (a, b) then return ()
   modify' fun s => { s with divMod := s.divMod.insert (a, b) }
@@ -628,9 +657,20 @@ private def expandDivMod (a : Expr) (b : Int) : GoalM Unit := do
       pushEq ediv neg_a <| mkApp (mkConst ``Int.ediv_minus_one) a
   else
     let n : Int := 1 - b.natAbs
-    pushNewFact <| mkApp2 (mkConst ``Int.Internal.Linear.ediv_emod) a b'
-    pushNewFact <| mkApp3 (mkConst ``Int.Internal.Linear.emod_nonneg) a b' eagerReflBoolTrue
-    pushNewFact <| mkApp4 (mkConst ``Int.Internal.Linear.emod_le) a b' (toExpr n) eagerReflBoolTrue
+    let h₁ := mkApp2 (mkConst ``Int.Internal.Linear.ediv_emod) a b'
+    let h₂ := mkApp3 (mkConst ``Int.Internal.Linear.emod_nonneg) a b' eagerReflBoolTrue
+    let h₃ := mkApp4 (mkConst ``Int.Internal.Linear.emod_le) a b' (toExpr n) eagerReflBoolTrue
+    let gen ← getGeneration a
+    -- Cutsat is the only arithmetic solver in `lia`. Elsewhere, solvers such as the ring solver use
+    -- these facts through the E-graph.
+    if (← getIdentity) == `lia then
+      assertLinearFact h₁ gen
+      assertLinearFact h₂ gen
+      assertLinearFact h₃ gen
+    else
+      pushDivModFact h₁ gen
+      pushDivModFact h₂ gen
+      pushDivModFact h₃ gen
 
 private def propagateDiv (e : Expr) : GoalM Unit := do
   let_expr HDiv.hDiv _ _ _ inst a b ← e | return ()

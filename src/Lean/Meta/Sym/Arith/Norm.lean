@@ -1387,6 +1387,18 @@ private def normalizeRelCore (rel : RelKind) (relFn : Expr) (order? : Option Ord
             if let some k' := modInv? k c then
               p := p.mulConstC k' c
               scale? := some (k, k')
+    -- In a field, the numerator of `lhs - rhs` is `0`: the equation is `True`.
+    if !invs.isEmpty && rel == .eq && p matches .num 0 then
+      let (fieldInst, charInst) := fc?.get!
+      let ctx ← mkContext ring.type vars
+      let hoka ← if ainvs.isEmpty then pure (mkConst ``True.intro) else pure (mkInvAtomsOk (← getCommRing) ctx vars ainvs)
+      let invsE := toExpr invs.toList
+      let bal := useBalanced (.sub l r) (pl.length + pr.length) || pl.length + pr.length ≥ 32
+      let h := mkAppN (mkConst ``Grind.CommRing.eq_true_of_polyQ0 [u]) #[ring.type, fieldInst, charInst, ctx, toExpr bal,
+        invsE, mkInvVarsOk ring.type u ctx invsE, toExpr ainvsL, hoka, toExpr l, toExpr r,
+        mkApp2 (mkConst ``Eq.refl [1]) (mkConst ``Grind.CommRing.Poly) (toExpr p)]
+      let e' ← getTrueExpr
+      return .step e' (mkExpectedPropHint h (mkPropEq e e'))
     -- `lhs - rhs` is a constant: the relation is `True` or `False`.
     if invs.isEmpty && ainvs.isEmpty && kind.isComm && tight?.isNone && scale?.isNone && !numOrAtom then
       if let .num k := p then
@@ -1535,6 +1547,22 @@ private def normalizeRelCore (rel : RelKind) (relFn : Expr) (order? : Option Ord
   else
     let sr ← getSemiring
     let u := sr.u
+    -- Both sides have the same polynomial: `=` and `≤` are `True`, `<` is `False`.
+    let sameSides? : Option (Name × Array Expr × Bool) := match rel, order? with
+      | .eq, _ => some (``Grind.CommRing.eq_true_of_toPolyS, #[], true)
+      | .le, some o => some (``Grind.CommRing.le_true_of_toPolyS, #[o.leInst, o.isPreorderInst], true)
+      | .lt, some o => match o.ltInst?, o.lawfulOrderLTInst? with
+        | some ltInst, some lawfulInst => some (``Grind.CommRing.lt_false_of_toPolyS, #[o.leInst, ltInst, lawfulInst, o.isPreorderInst], false)
+        | _, _ => none
+      | _, none => none
+    if let (true, some (name, insts, holds)) := (kind.isComm && pl == pr, sameSides?) then
+      let ctx ← mkContext sr.type vars
+      let pE := toExpr pl
+      let reflP := mkApp2 (mkConst ``Eq.refl [1]) (mkConst ``Grind.CommRing.Poly) pE
+      let h := mkAppN (mkConst name [u]) (#[sr.type, (← getCommSemiring).commSemiringInst] ++ insts ++
+        #[ctx, toExpr (useBalanced l pl.length), toExpr (useBalanced r pr.length), toExpr l, toExpr r, pE, reflP, reflP])
+      let e' ← if holds then getTrueExpr else getFalseExpr
+      return .step e' (mkExpectedPropHint h (mkPropEq e e'))
     -- Instance for `eq_normS` / `eq_normS_nc`: `CommSemiring` or `Semiring`.
     let (inst, normS) ← if kind.isComm then
         pure ((← getCommSemiring).commSemiringInst, ``Grind.CommRing.eq_normS)

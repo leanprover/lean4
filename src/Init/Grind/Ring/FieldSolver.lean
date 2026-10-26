@@ -719,6 +719,18 @@ theorem eq_normQ_expr [Field α] [IsCharP α 0] (ctx : Context α) (bal : Bool) 
     · exact absurd h0 hd'
   · intro h0; rw [h0, Semiring.zero_mul]
 
+theorem eq_true_of_polyQ0 [Field α] [IsCharP α 0] (ctx : Context α) (bal : Bool) (invs : InvVars) (hok : invs.ok ctx)
+    (ainvs : InvAtoms) (hoka : ainvs.ok ctx) (lhs rhs : Expr)
+    (h : (((lhs.sub rhs).toPolyX_k bal).toPolyQX_k bal invs ainvs).num = .num 0) :
+    (lhs.denote ctx = rhs.denote ctx) = True := by
+  have h₁ := Poly.denote_toPolyQX_k ctx bal ((lhs.sub rhs).toPolyX_k bal) invs ainvs hok hoka
+  rw [Expr.denote_toPolyX_k] at h₁
+  simp only [PolyQ.denote, h] at h₁
+  replace h₁ : ((0 : Int) : α) * (((((lhs.sub rhs).toPolyX_k bal).toPolyQX_k bal invs ainvs).den : Nat) : α)⁻¹
+      = lhs.denote ctx - rhs.denote ctx := h₁
+  rw [Ring.intCast_zero, Semiring.zero_mul] at h₁
+  exact eq_true (AddCommGroup.sub_eq_zero_iff.mp h₁.symm)
+
 section
 variable {α : Type u} [Field α] [LE α] [LT α] [LawfulOrderLT α] [IsLinearOrder α] [OrderedRing α]
 

@@ -236,11 +236,11 @@ info: nr2: 0 ≤ y
 ---
 info: nr3: 0 < 1
 ---
-info: nr4: 0 = 0
+info: nr4: True
 ---
 info: nr5: x + 2 ≤ y
 ---
-info: nr6: 0 = 0
+info: nr6: True
 -/
 #guard_msgs in
 run_meta SymM.run do
@@ -319,7 +319,7 @@ info: fr2: r ≤ 2 * s
 ---
 info: fr3: 0 < r
 ---
-info: fr4: 0 = 0
+info: fr4: True
 -/
 #guard_msgs in
 run_meta SymM.run do

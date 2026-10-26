@@ -681,6 +681,9 @@ Mark a syntax kind as deprecated. When this syntax is elaborated, a warning will
 deprecated_syntax Lean.Parser.Term.let_fun "use `have` instead" (since := "2026-03-18")
 ```
 
+Syntax can also be deprecated where it is declared, using `@[deprecated "..." (since := "...")]`
+on the `syntax`, `macro`, `elab` or `notation` command that declares it.
+
 The deprecation can be followed by `macro_rules`-style alternatives that rewrite the deprecated
 syntax into its replacement. When the user writes syntax matched by one of the alternatives, the
 warning offers the result as a "Try this" suggestion. Only the first alternative whose pattern

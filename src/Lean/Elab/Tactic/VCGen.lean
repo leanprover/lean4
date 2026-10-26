@@ -15,6 +15,7 @@ public import Lean.Elab.Tactic.VCGen.RuleCache
 public import Lean.Elab.Tactic.VCGen.Entails
 public import Lean.Elab.Tactic.VCGen.Solve
 public import Lean.Elab.Tactic.VCGen.Driver
+public import Lean.Elab.Tactic.VCGen.SimpAttr
 public import Lean.Elab.Tactic.VCGen.Frontend
 
 /-!
@@ -29,5 +30,6 @@ The `vcgen` tactic, split across the modules above.
 - `VCGen.Entails` — entailment-shaped goal decomposition (Triple unfolding, state/precondition intro, component and lattice steps).
 - `VCGen.Solve` — the main `solve` step / `SolveResult`.
 - `VCGen.Driver` — the worklist driver (`work`, `emitVC`, `main`, `Result`).
+- `VCGen.SimpAttr` — the `@[vcgen_simp]` theorem set.
 - `VCGen.Frontend` — the `vcgen` syntax + tactic elaborator + `mkSpecContext`.
 -/

@@ -620,14 +620,22 @@ theorem Spec.KeysSorted.lt {cs : Array (Key × Trie α)} (hs : KeysSorted cs) {i
   have := List.pairwise_iff_getElem.1 hs i j (by simpa using hi) (by simpa using hj) hij
   simpa using this
 
+/-- In strictly sorted children, a key identifies its index. -/
+theorem Spec.KeysSorted.getElem_fst_inj {cs : Array (Key × Trie α)} (hs : KeysSorted cs)
+    (hi : i < cs.size) (hj : j < cs.size) : cs[i].fst = cs[j].fst ↔ i = j := by
+  constructor
+  · intro h
+    have hij := hs.lt hi hj
+    have hji := hs.lt hj hi
+    grind only [Key.lt_irrefl]
+  · rintro rfl; rfl
+
 theorem Spec.KeysSorted.eq_of_mem {cs : Array (Key × Trie α)} (hs : KeysSorted cs)
     (ha : a ∈ cs) (hb : b ∈ cs) (h : a.fst = b.fst) : a = b := by
   obtain ⟨i, hi, rfl⟩ := Array.mem_iff_getElem.1 ha
   obtain ⟨j, hj, rfl⟩ := Array.mem_iff_getElem.1 hb
-  rcases Nat.lt_trichotomy i j with hij | rfl | hij
-  · exact absurd (h ▸ hs.lt hi hj hij) (Key.lt_irrefl _)
-  · rfl
-  · exact absurd (h ▸ hs.lt hj hi hij) (Key.lt_irrefl _)
+  obtain rfl := (hs.getElem_fst_inj hi hj).1 h
+  rfl
 
 theorem Array.binSearchAux_complete {lt : α → α → Bool} {as : Array α} {k x : α}
     (h_sorted : ∀ i j (hi : i < as.size) (hj : j < as.size), i < j → lt as[i] as[j])
@@ -810,6 +818,7 @@ theorem Spec.F_nil : F [] = [] := rfl
 theorem Spec.F_cons : F (d :: ds) = d.getKeyPath.toList ++ F ds := rfl
 theorem Spec.F_append : F (ds ++ ds') = F ds ++ F ds' := List.flatMap_append
 
+theorem Spec.P_empty : P #[] = [] := rfl
 theorem Spec.P_push : P (es.push e) = e.getKeyPath.toList ++ P es := by simp [P, F_cons]
 theorem Spec.P_append : P (es ++ es') = P es' ++ P es := by simp [P, F_append]
 
@@ -832,7 +841,7 @@ theorem Spec.getKeyArgs_toShape {k : Key} {args : Array ExprShape} (h : args.siz
   case const c n => subst h; simp [toShape, ExprShape.getKeyArgs]
   case fvar x n => subst h; simp [toShape, ExprShape.getKeyArgs]
   case arrow =>
-    rcases args with ⟨_ | ⟨e, _ | _⟩⟩ <;> simp at h
+    obtain ⟨e, rfl⟩ := Array.size_eq_one_iff.1 h
     simp [toShape, ExprShape.getKeyArgs]
   all_goals
     obtain rfl := Array.eq_empty_of_size_eq_zero h
@@ -911,17 +920,14 @@ theorem Spec.validPath_nil_iff : ValidPath n [] ↔ n = 0 := by
   · rintro rfl; exact ⟨[], rfl, rfl⟩
 
 theorem Spec.validPath_cons_iff : ValidPath n (k :: p) ↔ ∃ m, n = m + 1 ∧ ValidPath (m + k.arity) p := by
-  constructor
-  · rintro ⟨_ | ⟨d, ds⟩, rfl, h⟩
-    · simp [F_nil] at h
-    · obtain ⟨k', ds', hl', h'⟩ :=
-        (exists_cons_iff (X := []) (s := ds.length) (R := (· = k :: p))).1 ⟨d :: ds, rfl, by simpa using h⟩
-      simp only [List.append_nil, List.cons.injEq] at h'
-      obtain ⟨rfl, rfl⟩ := h'
-      exact ⟨ds.length, rfl, ds', hl', rfl⟩
-  · rintro ⟨m, rfl, ds, hl, rfl⟩
-    obtain ⟨ds', hl', h'⟩ := (exists_cons_iff (X := []) (s := m) (R := (· = k :: F ds))).2 ⟨k, ds, hl, by simp⟩
-    exact ⟨ds', hl', by simpa using h'⟩
+  cases n with
+  | zero => simp [ValidPath, F_nil]
+  | succ n =>
+    simp only [Nat.add_right_cancel_iff, exists_eq_left', ValidPath]
+    have h := exists_cons_iff (X := []) (s := n) (R := (· = k :: p))
+    simp only [List.append_nil, List.cons.injEq] at h
+    rw [h]
+    grind only
 
 theorem Spec.validPath_getKeyPath (e : ExprShape) : ValidPath 1 e.getKeyPath.toList :=
   ⟨[e], rfl, by simp [F_cons, F_nil]⟩
@@ -963,9 +969,11 @@ theorem Trie.wf_node_iff {cs : Array (Key × Trie α)} : (Trie.node cs).WF (n + 
 theorem Trie.wf_chain_iff : (Trie.chain k c : Trie α).WF (n + 1) ↔ k ≠ .star ∧ c.WF (n + k.arity) := by
   simp [Trie.WF]
 
-theorem Trie.wf_stars_iff : (Trie.stars j c : Trie α).WF (n + 1) ↔
-    j > 0 ∧ n + 1 ≥ j ∧ ¬ isStars c ∧ c.WF (n + 1 - j) := by
-  simp [Trie.WF]
+theorem Trie.wf_stars_iff : (Trie.stars j c : Trie α).WF n ↔
+    j > 0 ∧ n ≥ j ∧ ¬ isStars c ∧ c.WF (n - j) := by
+  cases n with
+  | zero => simp only [Trie.WF, false_iff]; omega
+  | succ n => simp only [Trie.WF]
 
 theorem Trie.wf_suffix_succ_iff {keys : Array Key} {h : start < keys.size} :
     (Trie.suffix keys start h v : Trie α).WF (n + 1) ↔
@@ -998,8 +1006,8 @@ theorem Trie.WF.succ {t : Trie α} (h : t.WF (m + 1)) :
     by_cases hj1 : j = 1
     · subst hj1; simpa [mkStars] using hc
     · rw [mkStars_of_not_isStars hns (by omega)]
-      obtain ⟨m', rfl⟩ : ∃ m', m = m' + 1 := ⟨m - 1, by omega⟩
-      exact wf_stars_iff.2 ⟨by omega, by omega, hns, by rwa [show m' + 1 + 1 - j = m' + 1 - (j - 1) by omega] at hc⟩
+      rw [wf_stars_iff]
+      grind only
   | suffix keys start hs v =>
     rw [wf_suffix_succ_iff] at h
     refine ⟨rfl, ?_, ?_⟩
@@ -1025,22 +1033,18 @@ theorem Trie.nodeChildren_mkChain {c : Trie α} (hc : c.WF n) : (mkChain k c).no
   unfold mkChain
   split
   · rename_i j c'
-    cases n with
-    | zero => simp [wf_zero_iff] at hc
-    | succ n =>
-      obtain ⟨hj, -, hns, -⟩ := wf_stars_iff.1 hc
-      simp [nodeChildren, mkStars_of_not_isStars hns hj]
+    obtain ⟨hj, -, hns, -⟩ := wf_stars_iff.1 hc
+    simp [nodeChildren, mkStars_of_not_isStars hns hj]
   · simp [nodeChildren, mkStars]
   · rfl
 
 theorem Trie.nodeChildren_mkNode {cs : Array (Key × Trie α)} (hc : ∀ kc ∈ cs, ∃ n, kc.snd.WF n) :
     (mkNode cs).nodeChildren = cs := by
   by_cases h1 : cs.size = 1
-  · rcases cs with ⟨_ | ⟨⟨k, c⟩, _ | _⟩⟩ <;> simp at h1
+  · obtain ⟨⟨k, c⟩, rfl⟩ := Array.size_eq_one_iff.1 h1
     obtain ⟨n, hn⟩ := hc (k, c) (by simp)
     unfold mkNode
-    simp only [List.size_toArray, List.length_singleton, ↓reduceDIte, List.getElem_toArray,
-      List.getElem_cons_zero]
+    simp only [Array.size_singleton, ↓reduceDIte, Array.getElem_singleton]
     split
     · rename_i keys start hk v
       split
@@ -1056,12 +1060,8 @@ theorem Trie.WF.mkChain {c : Trie α} (hc : c.WF (m + k.arity)) : (Trie.mkChain 
   unfold Trie.mkChain
   split
   · rename_i j c'
-    simp only [Key.arity, Nat.add_zero] at hc
-    cases m with
-    | zero => simp [wf_zero_iff] at hc
-    | succ m =>
-      obtain ⟨hj, hle, hns, hc⟩ := wf_stars_iff.1 hc
-      exact wf_stars_iff.2 ⟨by omega, by omega, hns, by rwa [show m + 1 + 1 - (j + 1) = m + 1 - j by omega]⟩
+    simp only [Key.arity, Nat.add_zero, wf_stars_iff] at hc ⊢
+    grind only
   · rename_i hns
     simp only [Key.arity, Nat.add_zero] at hc
     exact wf_stars_iff.2 ⟨by omega, by omega, by cases c <;> simp_all [isStars], by simpa using hc⟩
@@ -1070,11 +1070,10 @@ theorem Trie.WF.mkChain {c : Trie α} (hc : c.WF (m + k.arity)) : (Trie.mkChain 
 theorem Trie.WF.mkNode {cs : Array (Key × Trie α)} (hsz : 0 < cs.size) (hs : Spec.KeysSorted cs)
     (hc : ∀ kc ∈ cs, kc.snd.WF (m + kc.fst.arity)) : (Trie.mkNode cs).WF (m + 1) := by
   by_cases h1 : cs.size = 1
-  · rcases cs with ⟨_ | ⟨⟨k, c⟩, _ | _⟩⟩ <;> simp at h1
+  · obtain ⟨⟨k, c⟩, rfl⟩ := Array.size_eq_one_iff.1 h1
     have hn := hc (k, c) (by simp)
     unfold Trie.mkNode
-    simp only [List.size_toArray, List.length_singleton, ↓reduceDIte, List.getElem_toArray,
-      List.getElem_cons_zero]
+    simp only [Array.size_singleton, ↓reduceDIte, Array.getElem_singleton]
     split
     · rename_i keys start hk v
       split
@@ -1164,15 +1163,23 @@ theorem Array.binInsertM_id_induct {lt : α → α → Bool} {merge : α → Id 
 theorem Spec.KeysSorted.mem_set_iff {cs : Array (Key × Trie α)} (hs : KeysSorted cs) {i : Nat} (hi : i < cs.size)
     (hk : cs[i].fst = key) : (k, c) ∈ cs.set i (key, x) ↔ (k = key ∧ c = x) ∨ ((k, c) ∈ cs ∧ k ≠ key) := by
   have hkey {j : Nat} (hj : j < cs.size) : cs[j].fst = key ↔ j = i := by
-    constructor
-    · intro h
-      rcases Nat.lt_trichotomy j i with hji | hji | hij
-      · exact (Key.lt_irrefl key (by simpa [h, hk] using hs.lt hj hi hji)).elim
-      · exact hji
-      · exact (Key.lt_irrefl key (by simpa [h, hk] using hs.lt hi hj hij)).elim
-    · rintro rfl; exact hk
+    rw [← hk, hs.getElem_fst_inj hj hi]
   simp only [Array.mem_iff_getElem, Array.size_set, Array.getElem_set]
   grind
+
+/-- A singleton stores exactly its remaining key path and preserves that path's depth. -/
+theorem Spec.singleton_spec {path : Array Key} {hi : i ≤ path.size}
+    (hv : ValidPath n (path.toList.drop i)) :
+    (Trie.singleton i path hi v : Trie α).WF n ∧
+      ∀ p w, Mem (Trie.singleton i path hi v) p w ↔ p = path.toList.drop i ∧ w = v := by
+  unfold Trie.singleton
+  split
+  · rename_i he
+    have hd : path.toList.drop i = [] := by simp [he]
+    rw [hd, validPath_nil_iff] at hv
+    rw [hv, hd]
+    exact ⟨Trie.wf_zero_iff.2 ⟨_, rfl, by simp⟩, fun p w => by simp [mem_leaf_iff]⟩
+  · exact ⟨Trie.wf_suffix_iff.2 hv, fun p w => mem_suffix_iff⟩
 
 theorem Spec.insert_spec {path : Array Key} {hi : i ≤ path.size} {t : Trie α} (ht : t.WF n)
     (hv : ValidPath n (path.toList.drop i)) :
@@ -1220,27 +1227,18 @@ theorem Spec.insert_spec {path : Array Key} {hi : i ≤ path.size} {t : Trie α}
       grind only
     · intro j hj hprev hnext
       dsimp only [Id.run]
-      generalize hnew : Trie.singleton (i + 1) path _ v = new
-      have hnw : new.WF (m + path[i].arity) ∧ ∀ q w, Mem new q w ↔ q = path.toList.drop (i + 1) ∧ w = v := by
-        subst hnew
-        unfold Trie.singleton
-        split
-        · rename_i he
-          have hd : path.toList.drop (i + 1) = [] := by simp; omega
-          rw [hd, validPath_nil_iff] at hv
-          rw [hv, hd]
-          exact ⟨Trie.wf_zero_iff.2 ⟨_, rfl, by simp⟩, fun q w => by simp [mem_leaf_iff]⟩
-        · exact ⟨Trie.wf_suffix_iff.2 hv, fun q w => mem_suffix_iff⟩
+      let new := Trie.singleton (i + 1) path (by omega) v
+      obtain ⟨hnw, hnm⟩ := singleton_spec (v := v) (hi := show i + 1 ≤ path.size by omega) hv
       have hc' : ∀ kc ∈ t.nodeChildren.insertIdx j (path[i], new), kc.snd.WF (m + kc.fst.arity) := by
         intro kc hkc
         rcases Array.mem_insertIdx.1 hkc with rfl | hmem
-        · exact hnw.1
+        · exact hnw
         · exact hc _ hmem
       refine ⟨Trie.WF.mkNode (by simp) (hs.insertIdx hj (by simpa using hprev) (by simpa using hnext)) hc',
         fun p w => ?_⟩
       rw [mem_mkNode_iff (fun kc hkc => ⟨_, hc' kc hkc⟩), mem_succ_iff ht]
       simp only [Array.mem_insertIdx, Prod.mk.injEq]
-      grind only [hnw.2]
+      grind only
 
 end
 
@@ -1265,6 +1263,24 @@ theorem Spec.unifyMany_push :
   by_cases hs : es.size = qs.size
   · simp +contextual [hs, Nat.forall_lt_succ_right', Array.getElem_push]
   · grind only [Array.size_push]
+
+theorem Spec.unifyMany_empty_right : UnifyMany es #[] ↔ es = #[] := by
+  constructor
+  · intro h
+    exact Array.eq_empty_of_size_eq_zero h.size_eq
+  · rintro rfl; exact unifyMany_empty
+
+/-- Split the top shape from any stack that unifies with a nonempty query stack. -/
+theorem Spec.exists_unifyMany_push {R : Array ExprShape → Prop} :
+    (∃ es, UnifyMany es (qs.push q) ∧ R es) ↔
+      ∃ es e, UnifyMany es qs ∧ ExprShape.Unify e q ∧ R (es.push e) := by
+  constructor
+  · rintro ⟨es, hu, hr⟩
+    obtain ⟨es, e, rfl⟩ := Array.exists_push_of_size_pos (by simp [hu.size_eq] : 0 < es.size)
+    obtain ⟨hu, he⟩ := unifyMany_push.1 hu
+    exact ⟨es, e, hu, he, hr⟩
+  · rintro ⟨es, e, hu, he, hr⟩
+    exact ⟨es.push e, unifyMany_push.2 ⟨hu, he⟩, hr⟩
 
 theorem Spec.unifyMany_append (hs : es.size = qs.size) :
     UnifyMany (es ++ es') (qs ++ qs') ↔ UnifyMany es qs ∧ UnifyMany es' qs' := by
@@ -1374,10 +1390,9 @@ theorem Spec.unify_top_iff {qs : Array ExprShape} {t : Trie α} (hq : q ≠ .sta
       (∃ c, t.nodeChildren[0]? = some (.star, c) ∧ ∃ es, UnifyMany es qs ∧ Mem c (P es) w) ∨
       (∃ c, (q.getKeyArgs.fst, c) ∈ t.nodeChildren ∧
         ∃ es, UnifyMany es (qs ++ q.getKeyArgs.snd) ∧ Mem c (P es) w) := by
+  rw [exists_unifyMany_push]
   constructor
-  · rintro ⟨es, hu, hm⟩
-    obtain ⟨es', e, rfl⟩ := Array.exists_push_of_size_pos (by simp [hu.size_eq] : 0 < es.size)
-    obtain ⟨hu', he⟩ := unifyMany_push.1 hu
+  · rintro ⟨es', e, hu', he, hm⟩
     rw [P_push, ExprShape.getKeyPath_eq, List.cons_append, mem_cons_iff] at hm
     obtain ⟨c, hc, hm⟩ := hm
     rcases (unify_iff_of_ne_star hq).1 he with rfl | ⟨hk, ha⟩
@@ -1385,7 +1400,7 @@ theorem Spec.unify_top_iff {qs : Array ExprShape} {t : Trie α} (hq : q ≠ .sta
     · refine .inr ⟨c, hk ▸ hc, es' ++ e.getKeyArgs.snd, (unifyMany_append hu'.size_eq).2 ⟨hu', ha⟩, ?_⟩
       rwa [P_append]
   · rintro (⟨c, hc, es, hu, hm⟩ | ⟨c, hc, es, hu, hm⟩)
-    · refine ⟨es.push .star, unifyMany_push.2 ⟨hu, .star_left⟩, ?_⟩
+    · refine ⟨es, .star, hu, .star_left, ?_⟩
       rw [P_push, show ExprShape.star.getKeyPath.toList = [.star] by simp [ExprShape.getKeyPath]]
       exact mem_cons_iff.2 ⟨c, Array.mem_of_getElem? hc, hm⟩
     · have hsz := hu.size_eq
@@ -1394,8 +1409,8 @@ theorem Spec.unify_top_iff {qs : Array ExprShape} {t : Trie α} (hq : q ≠ .sta
       obtain ⟨hu₁, hu₂⟩ := (unifyMany_append (by simp; omega)).1 hu
       have hargs : (es.extract qs.size es.size).size = q.getKeyArgs.fst.arity := by
         simp [← ExprShape.size_getKeyArgs_snd]; omega
-      refine ⟨(es.extract 0 qs.size).push (toShape q.getKeyArgs.fst (es.extract qs.size es.size)),
-        unifyMany_push.2 ⟨hu₁, (unify_iff_of_ne_star hq).2 (.inr ?_)⟩, ?_⟩
+      refine ⟨es.extract 0 qs.size, toShape q.getKeyArgs.fst (es.extract qs.size es.size),
+        hu₁, (unify_iff_of_ne_star hq).2 (.inr ?_), ?_⟩
       · rw [getKeyArgs_toShape hargs]; exact ⟨rfl, hu₂⟩
       · rw [P_push, getKeyPath_toShape hargs, List.cons_append, mem_cons_iff]
         exact ⟨c, hc, by rwa [P_append] at hm⟩
@@ -1440,13 +1455,8 @@ theorem Spec.mem_getUnify_iff {t : Trie α} (ht : t.WF (skip + qs.size)) :
       exact ⟨⟨kc, hkc⟩, by simp, es, hu, hm⟩
   | case2 todo accum t hb =>
     obtain rfl : todo = #[] := by simpa using hb
-    simp only [Array.mem_append, List.length_eq_zero_iff, exists_eq_left, F_nil, List.nil_append]
-    apply or_congr_right
-    constructor
-    · intro h; exact ⟨#[], unifyMany_empty, mem_nil_iff.2 (by simpa using h)⟩
-    · rintro ⟨es, hu, hm⟩
-      obtain rfl := Array.eq_empty_of_size_eq_zero hu.size_eq
-      exact mem_nil_iff.1 hm
+    simp only [Array.mem_append, unifyMany_empty_right, exists_eq_left, List.length_eq_zero_iff,
+      F_nil, List.nil_append, P_empty, mem_nil_iff]
   | case3 todo accum t keyArgs hb hk ih =>
     obtain ⟨q, hq, rfl⟩ := Option.map_eq_some_iff.1 hb
     obtain ⟨qs', rfl⟩ := Array.back?_eq_some_iff.1 hq
@@ -1454,14 +1464,10 @@ theorem Spec.mem_getUnify_iff {t : Trie α} (ht : t.WF (skip + qs.size)) :
     simp only [Array.pop_push] at ih ⊢
     rw [ih (by simpa [Nat.add_comm] using ht)]
     simp only [List.length_eq_zero_iff, exists_eq_left, F_nil, List.nil_append]
-    apply or_congr_right
-    constructor
-    · rintro ⟨es, hu, ds, hl, hm⟩
-      rcases ds with _ | ⟨d, _ | _⟩ <;> simp at hl
-      exact ⟨es.push d, unifyMany_push.2 ⟨hu, .star_right⟩, by simpa [P_push, F_cons, F_nil] using hm⟩
-    · rintro ⟨es, hu, hm⟩
-      obtain ⟨es', e, rfl⟩ := Array.exists_push_of_size_pos (by simp [hu.size_eq] : 0 < es.size)
-      exact ⟨es', (unifyMany_push.1 hu).1, [e], rfl, by simpa [P_push, F_cons, F_nil] using hm⟩
+    rw [exists_unifyMany_push]
+    simp only [List.length_eq_one_iff, ← exists_and_right]
+    simp only [exists_comm (α := List ExprShape) (β := ExprShape), exists_eq_left,
+      F_cons, F_nil, List.append_nil, P_push, ExprShape.Unify.star_right, true_and, exists_and_left]
   | case4 todo acc0 t keyArgs hb hk cs acc k' c hf ih3 ih2 ih1 =>
     obtain ⟨q, hq, rfl⟩ := Option.map_eq_some_iff.1 hb
     obtain ⟨qs', rfl⟩ := Array.back?_eq_some_iff.1 hq
@@ -1535,16 +1541,8 @@ theorem Spec.mem_getUnify_single {t : Trie α} (ht : t.WF 1) :
     w ∈ t.getUnify 0 #[query] #[] ↔ ∃ e, ExprShape.Unify e query ∧ Mem t e.getKeyPath.toList w := by
   rw [mem_getUnify_iff (by simpa using ht)]
   simp only [Array.not_mem_empty, false_or, List.length_eq_zero_iff, exists_eq_left, F_nil, List.nil_append]
-  have h1 : (#[query] : Array ExprShape) = (#[] : Array ExprShape).push query := rfl
-  rw [h1]
-  constructor
-  · rintro ⟨es, hu, hm⟩
-    obtain ⟨es', e, rfl⟩ := Array.exists_push_of_size_pos (by simp [hu.size_eq] : 0 < es.size)
-    obtain ⟨hu', he⟩ := unifyMany_push.1 hu
-    obtain rfl := Array.eq_empty_of_size_eq_zero hu'.size_eq
-    exact ⟨e, he, by simpa [P, F] using hm⟩
-  · rintro ⟨e, he, hm⟩
-    exact ⟨#[].push e, unifyMany_push.2 ⟨unifyMany_empty, he⟩, by simpa [P, F] using hm⟩
+  rw [show #[query] = (#[] : Array ExprShape).push query from rfl, exists_unifyMany_push]
+  simp only [unifyMany_empty_right, exists_and_left, exists_eq_left, P_push, P_empty, List.append_nil]
 
 /-- Everything a trie stores, as a list of key paths and values. -/
 def Spec.entries (t : Trie α) : List (List Key × α) :=
@@ -1554,20 +1552,10 @@ termination_by t.measure
 decreasing_by exact Trie.measure_lt_of_mem_nodeChildren ‹_›
 
 theorem Spec.mem_entries {t : Trie α} : (p, w) ∈ entries t ↔ Mem t p w := by
-  rw [entries]
-  cases p with
-  | nil => simp [mem_nil_iff]
-  | cons k q =>
-    simp only [List.mem_append, List.mem_map, Prod.mk.injEq, reduceCtorEq, false_and, and_false,
-      exists_false, List.mem_flatMap, Array.mem_toList_iff, Array.mem_attach, true_and, false_or,
-      List.cons.injEq, mem_cons_iff]
-    constructor
-    · rintro ⟨⟨⟨k', c⟩, hc⟩, ⟨q', w'⟩, hm, ⟨rfl, rfl⟩, rfl⟩
-      exact ⟨c, hc, mem_entries.1 hm⟩
-    · rintro ⟨c, hc, hm⟩
-      exact ⟨⟨(k, c), hc⟩, (q, w), mem_entries.2 hm, ⟨rfl, rfl⟩, rfl⟩
-termination_by t.measure
-decreasing_by all_goals exact Trie.measure_lt_of_mem_nodeChildren ‹_ ∈ t.nodeChildren›
+  fun_induction entries t generalizing p w with
+  | case1 t ih =>
+    cases p <;> simp [mem_nil_iff, mem_cons_iff, List.mem_map, Prod.exists, Subtype.exists, and_assoc]
+    grind only
 
 end
 

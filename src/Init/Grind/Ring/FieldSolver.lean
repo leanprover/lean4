@@ -313,22 +313,22 @@ private theorem sub_neg_iff [Ring α] [LE α] [LT α] [LawfulOrderLT α] [IsPreo
 
 /-! ## Certificates for inverses of atoms only -/
 
-def Expr.cancelInvs_cert (ainvs : InvAtoms) (a b : Expr) : Bool :=
-  a.toPoly.cancelInvs ainvs == b.toPoly.cancelInvs ainvs
+noncomputable def Expr.cancelInvs_cert (ainvs : InvAtoms) (a b : Expr) : Bool :=
+  (a.toPoly_k.cancelInvs ainvs).beq' (b.toPoly_k.cancelInvs ainvs)
 
 theorem Expr.eq_of_cancelInvs_eq [CommRing α] (ctx : Context α) (ainvs : InvAtoms) (hok : ainvs.ok ctx)
     (a b : Expr) (h : cancelInvs_cert ainvs a b) : a.denote ctx = b.denote ctx := by
-  simp only [cancelInvs_cert, beq_iff_eq] at h
+  simp only [cancelInvs_cert, Poly.beq'_eq, Expr.toPoly_k_eq_toPoly] at h
   have := congrArg (Poly.denote ctx) h
   rwa [Poly.denote_cancelInvs _ _ _ hok, Poly.denote_cancelInvs _ _ _ hok, Expr.denote_toPoly, Expr.denote_toPoly] at this
 
-def normA_cert (ainvs : InvAtoms) (lhs rhs lhs' rhs' : Expr) : Bool :=
-  (lhs.sub rhs).toPoly.cancelInvs ainvs == (lhs'.sub rhs').toPoly
+noncomputable def normA_cert (ainvs : InvAtoms) (lhs rhs lhs' rhs' : Expr) : Bool :=
+  ((lhs.sub rhs).toPoly_k.cancelInvs ainvs).beq' (lhs'.sub rhs').toPoly_k
 
 private theorem denote_sub_of_normA_cert [CommRing α] (ctx : Context α) (ainvs : InvAtoms) (hok : ainvs.ok ctx)
     (lhs rhs lhs' rhs' : Expr) (h : normA_cert ainvs lhs rhs lhs' rhs') :
     lhs.denote ctx - rhs.denote ctx = lhs'.denote ctx - rhs'.denote ctx := by
-  simp only [normA_cert, beq_iff_eq] at h
+  simp only [normA_cert, Poly.beq'_eq, Expr.toPoly_k_eq_toPoly] at h
   have := congrArg (Poly.denote ctx) h
   rw [Poly.denote_cancelInvs _ _ _ hok, Expr.denote_toPoly, Expr.denote_toPoly] at this
   exact this
@@ -356,25 +356,27 @@ theorem lt_normA_expr [CommRing α] [LE α] [LT α] [LawfulOrderLT α] [IsPreord
 
 /-! ## Certificates for rational coefficients -/
 
-def Expr.toPolyQ_cert (invs : InvVars) (ainvs : InvAtoms) (a b : Expr) : Bool :=
-  a.toPolyQ invs ainvs == b.toPolyQ invs ainvs
+noncomputable def Expr.toPolyQ_cert (invs : InvVars) (ainvs : InvAtoms) (a b : Expr) : Bool :=
+  a.toPoly_k.toPolyQ invs ainvs == b.toPoly_k.toPolyQ invs ainvs
 
 theorem Expr.eq_of_toPolyQ_eq [Field α] [IsCharP α 0] (ctx : Context α) (invs : InvVars) (hok : invs.ok ctx)
     (ainvs : InvAtoms) (hoka : ainvs.ok ctx) (a b : Expr) (h : toPolyQ_cert invs ainvs a b) :
     a.denote ctx = b.denote ctx := by
-  simp only [toPolyQ_cert, beq_iff_eq] at h
+  simp only [toPolyQ_cert, beq_iff_eq, Expr.toPoly_k_eq_toPoly] at h
+  change a.toPolyQ invs ainvs = b.toPolyQ invs ainvs at h
   have ha := denote_toPolyQ ctx a invs ainvs hok hoka
   have hb := denote_toPolyQ ctx b invs ainvs hok hoka
   rw [← ha, ← hb, h]
 
 /-- `lhs' - rhs'` is the numerator of `lhs - rhs`; the relation between `lhs'` and `rhs'` is denominator-free. -/
-def normQ_cert (invs : InvVars) (ainvs : InvAtoms) (lhs rhs lhs' rhs' : Expr) : Bool :=
-  ((lhs.sub rhs).toPolyQ invs ainvs).num == (lhs'.sub rhs').toPoly
+noncomputable def normQ_cert (invs : InvVars) (ainvs : InvAtoms) (lhs rhs lhs' rhs' : Expr) : Bool :=
+  ((lhs.sub rhs).toPoly_k.toPolyQ invs ainvs).num.beq' (lhs'.sub rhs').toPoly_k
 
 private theorem denote_sub_of_normQ_cert [Field α] [IsCharP α 0] (ctx : Context α) (invs : InvVars) (hok : invs.ok ctx)
     (ainvs : InvAtoms) (hoka : ainvs.ok ctx) (lhs rhs lhs' rhs' : Expr) (h : normQ_cert invs ainvs lhs rhs lhs' rhs') :
     ∃ d : Nat, d ≠ 0 ∧ lhs.denote ctx - rhs.denote ctx = (lhs'.denote ctx - rhs'.denote ctx) * (d : α)⁻¹ := by
-  simp only [normQ_cert, beq_iff_eq] at h
+  simp only [normQ_cert, Poly.beq'_eq, Expr.toPoly_k_eq_toPoly] at h
+  change ((lhs.sub rhs).toPolyQ invs ainvs).num = (lhs'.sub rhs').toPoly at h
   refine ⟨((lhs.sub rhs).toPolyQ invs ainvs).den, Expr.toPolyQ_den_ne_zero (lhs.sub rhs) invs ainvs, ?_⟩
   have h₁ := Expr.denote_toPolyQ ctx (lhs.sub rhs) invs ainvs hok hoka
   have h₂ := Expr.denote_toPoly ctx (lhs'.sub rhs')

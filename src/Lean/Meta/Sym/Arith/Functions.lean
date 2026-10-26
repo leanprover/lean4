@@ -25,9 +25,26 @@ canonicalizes the result via `canonExpr`, and stores it.
 
 variable [MonadLiftT MetaM m] [MonadError m] [Monad m] [MonadCanon m]
 
+/--
+The pairs of instances that `checkInst` found definitionally equal, when both are closed and built
+from imported constants only, which denote the same declarations in every file. Each `grind` goal
+initializes the operators of its structures again.
+-/
+builtin_initialize checkedInstsRef : IO.Ref (Std.HashSet (Expr × Expr)) ← IO.mkRef {}
+
+private def isClosedImported (env : Environment) (e : Expr) : Bool :=
+  !e.hasFVar && !e.hasMVar && !e.hasLevelParam &&
+    (e.find? fun e => match e with
+      | .const c _ => !env.isImportedConst c
+      | _ => false).isNone
+
 private def checkInst (declName : Name) (inst inst' : Expr) : MetaM Unit := do
+  let env ← getEnv
+  let cacheable := isClosedImported env inst && isClosedImported env inst'
+  if cacheable && (← checkedInstsRef.get).contains (inst, inst') then return
   unless (← withReducibleAndInstances <| isDefEq inst inst') do
     throwError "error while initializing arithmetic operators:\ninstance for `{declName}` {indentExpr inst}\nis not definitionally equal to the expected one {indentExpr inst'}\nwhen only reducible definitions and instances are reduced"
+  if cacheable then checkedInstsRef.modify (·.insert (inst, inst'))
 
 private def mkUnaryFn (type : Expr) (u : Level) (instDeclName : Name) (declName : Name) (expectedInst : Expr) : m Expr := do
   let inst ← MonadCanon.synthInstance <| mkApp (mkConst instDeclName [u]) type

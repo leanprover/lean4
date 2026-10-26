@@ -731,6 +731,16 @@ theorem eq_true_of_polyQ0 [Field α] [IsCharP α 0] (ctx : Context α) (bal : Bo
   rw [Ring.intCast_zero, Semiring.zero_mul] at h₁
   exact eq_true (AddCommGroup.sub_eq_zero_iff.mp h₁.symm)
 
+theorem eq_true_of_toPolyQ_eq [Field α] [IsCharP α 0] (ctx : Context α) (bal₁ bal₂ : Bool) (invs : InvVars)
+    (hok : invs.ok ctx) (ainvs : InvAtoms) (hoka : ainvs.ok ctx) (lhs rhs : Expr) (q : PolyQ)
+    (h₁ : q = (lhs.toPolyX_k bal₁).toPolyQX_k bal₁ invs ainvs) (h₂ : q = (rhs.toPolyX_k bal₂).toPolyQX_k bal₂ invs ainvs) :
+    (lhs.denote ctx = rhs.denote ctx) = True := by
+  have e₁ := Poly.denote_toPolyQX_k ctx bal₁ (lhs.toPolyX_k bal₁) invs ainvs hok hoka
+  have e₂ := Poly.denote_toPolyQX_k ctx bal₂ (rhs.toPolyX_k bal₂) invs ainvs hok hoka
+  rw [← h₁, Expr.denote_toPolyX_k] at e₁
+  rw [← h₂, Expr.denote_toPolyX_k] at e₂
+  exact eq_true (e₁.symm.trans e₂)
+
 section
 variable {α : Type u} [Field α] [LE α] [LT α] [LawfulOrderLT α] [IsLinearOrder α] [OrderedRing α]
 

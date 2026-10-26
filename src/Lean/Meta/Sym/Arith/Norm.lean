@@ -1409,16 +1409,32 @@ private def normalizeRelCore (rel : RelKind) (relFn : Expr) (order? : Option Ord
             if let some k' := modInv? k c then
               p := p.mulConstC k' c
               scale? := some (k, k')
-    -- In a field, the numerator of `lhs - rhs` is `0`: the equation is `True`.
+    -- In a field, the numerator of `lhs - rhs` is `0`: the equation is `True`. The sides are
+    -- checked alone when they have the same polynomial or the same `PolyQ`.
     if !invs.isEmpty && rel == .eq && p matches .num 0 then
       let (fieldInst, charInst) := fc?.get!
       let ctx ← mkContext ring.type vars
       let hoka ← if ainvs.isEmpty then pure (mkConst ``True.intro) else pure (mkInvAtomsOk (← getCommRing) ctx vars ainvs)
       let invsE := toExpr invs.toList
-      let bal := useBalanced (.sub l r) (pl.length + pr.length) || pl.length + pr.length ≥ 32
-      let h := mkAppN (mkConst ``Grind.CommRing.eq_true_of_polyQ0 [u]) #[ring.type, fieldInst, charInst, ctx, toExpr bal,
-        invsE, mkInvVarsOk ring.type u ctx invsE, toExpr ainvsL, hoka, toExpr l, toExpr r,
-        mkApp2 (mkConst ``Eq.refl [1]) (mkConst ``Grind.CommRing.Poly) (toExpr p)]
+      let ql := pl.toPolyQ invs.toList ainvsL
+      let commRingInst := (← getCommRing).commRingInst
+      let h := if pl == pr then
+          -- Both sides have the same polynomial, before eliminating the inverses.
+          let reflP := mkApp2 (mkConst ``Eq.refl [1]) (mkConst ``Grind.CommRing.Poly) (toExpr pl)
+          mkAppN (mkConst ``Grind.CommRing.eq_true_of_toPoly_eq [u]) #[ring.type, commRingInst, ctx,
+            toExpr (useBalanced l pl.length), toExpr (useBalanced r pr.length), toExpr l, toExpr r, toExpr pl, reflP, reflP]
+        else if ql == pr.toPolyQ invs.toList ainvsL then
+          -- Both sides have the same `PolyQ`: each side is normalized alone.
+          let qE := mkApp2 (mkConst ``Grind.CommRing.PolyQ.mk) (toExpr ql.num) (mkRawNatLit ql.den)
+          let reflQ := mkApp2 (mkConst ``Eq.refl [1]) (mkConst ``Grind.CommRing.PolyQ) qE
+          mkAppN (mkConst ``Grind.CommRing.eq_true_of_toPolyQ_eq [u]) #[ring.type, fieldInst, charInst, ctx,
+            toExpr (useBalanced l pl.length || pl.length ≥ 32), toExpr (useBalanced r pr.length || pr.length ≥ 32),
+            invsE, mkInvVarsOk ring.type u ctx invsE, toExpr ainvsL, hoka, toExpr l, toExpr r, qE, reflQ, reflQ]
+        else
+          let bal := useBalanced (.sub l r) (pl.length + pr.length) || pl.length + pr.length ≥ 32
+          mkAppN (mkConst ``Grind.CommRing.eq_true_of_polyQ0 [u]) #[ring.type, fieldInst, charInst, ctx, toExpr bal,
+            invsE, mkInvVarsOk ring.type u ctx invsE, toExpr ainvsL, hoka, toExpr l, toExpr r,
+            mkApp2 (mkConst ``Eq.refl [1]) (mkConst ``Grind.CommRing.Poly) (toExpr p)]
       let e' ← getTrueExpr
       return .step e' (mkExpectedPropHint h (mkPropEq e e'))
     -- `lhs - rhs` is a constant: the relation is `True` or `False`.

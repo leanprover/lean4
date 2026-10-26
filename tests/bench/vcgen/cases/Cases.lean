@@ -2,6 +2,7 @@ import Cases.AdcChain
 import Cases.AddSubCancel
 import Cases.AddSubCancelDeep
 import Cases.AddSubCancelSimp
+import Cases.DeadBranch
 import Cases.DiteSplit
 import Cases.GetThrowSet
 import Cases.IfsJP

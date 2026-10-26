@@ -673,7 +673,7 @@ instance : MyShl UInt64 Int32 := {
 error: unsolved goals
 case vc1
 a : UInt64
-h✝ : (UInt64.toBitVec 0).uaddOverflow (a <<< UInt64.ofNat (Int32.toInt 32).toNat).toBitVec = true
+h✝ : (0#64).uaddOverflow (a <<< UInt64.ofNat (Int32.toInt 32).toNat).toBitVec = true
 ⊢ wp (Except.error "") (fun x => True) ⊥
 -/
 #guard_msgs in

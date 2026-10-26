@@ -106,8 +106,10 @@ public structure Context where
   /-- The `@[frameproc]` registry snapshot taken at frontend init. `solve` selects a procedure per
   program node by the node's monad. -/
   frameProcs : FrameProcs := {}
-  /-- User-customizable simp methods used to pre-simplify hypotheses. -/
-  hypSimpMethods : Option Sym.Simp.Methods := none
+  /-- The `Sym.simp` methods that rewrite hypotheses, state arguments and verification conditions
+  with the `@[vcgen_simp]` theorems and those of the `simp [...]` clause. `none` when the `simp`
+  config option is `false`. -/
+  simpMethods : Option Sym.Simp.Methods := none
   /-- The `jp` config option: when `true`, `tryLetIntro` recognises `__do_jp` lets
   whose body is a splitter and sets up shared-continuation handling instead of
   zeta-unfolding. When `false` (default, matching original `mvcgen`), every call
@@ -211,8 +213,7 @@ public structure State where
   -/
   vcs : Array Grind.Goal := #[]
   /--
-  Persistent cache for the `Sym.Simp` simplifier used to pre-simplify hypotheses
-  before grind internalization. Threading this cache across VCGen iterations avoids
+  Persistent cache of `Context.simpMethods`. Threading this cache across VCGen iterations avoids
   re-simplifying shared subexpressions (e.g., `s + 1 + 1 + ...` chains).
   -/
   simpState : Sym.Simp.State := {}

@@ -77,12 +77,28 @@ def handleInvariantSubgoals (subgoals : List MVarId) : VCGenM (Array MVarId) := 
   return others
 
 /--
+Simplify the target of a verification condition with `Context.simpMethods`, unless the target
+contains a program, which `until` or a missing spec leaves behind.
+-/
+def simpVC (goal : MVarId) : VCGenM Sym.SimpGoalResult := goal.withContext do
+  let some methods := (← read).simpMethods | return .noProgress
+  let target ← goal.getType
+  if (target.find? (·.isAppOf ``Std.WP.wp)).isSome then return .noProgress
+  let (result, simpState') ← Sym.Simp.SimpM.run (Sym.Simp.simp target) methods {} (← get).simpState
+  modify fun s => { s with simpState := simpState' }
+  result.toSimpGoalResult goal
+
+/--
 Called when decomposing the goal further did not succeed; in this case we emit a VC for the goal.
 Invariant subgoals are handled separately by `handleInvariantSubgoals` directly inside `work`,
 so they never reach this path.
 -/
 public def emitVC (goal : Grind.Goal) : VCGenM Unit := do
   let mut goal := { goal with mvarId := ← elimTopPre goal.mvarId }
+  match ← simpVC goal.mvarId with
+  | .closed => return
+  | .goal mvarId => goal := { goal with mvarId }
+  | .noProgress => pure ()
   goal ← processHypotheses goal
   if goal.inconsistent then return
   let some mvarId ← cleanupVC goal.mvarId | return

@@ -212,26 +212,22 @@ private def hintsToExpr (hs : Array Nat) : Expr :=
   hs.foldr (init := mkApp (mkConst ``List.nil [0]) nat) fun h e =>
     mkApp3 (mkConst ``List.cons [0]) nat (mkRawNatLit h) e
 
-/-- The expression of the hints for `Grind.CommRing.Poly.mergeHint` of `a` and `b`. -/
-private def mergeHintsExpr (a b : Poly) : Expr :=
-  hintsToExpr (mergeHints a b #[])
-
 private def combineR (a b : Poly) : ProofM Poly := do
   if let some c ← nonzeroChar? then return a.combineC b c else return a.combine b
 
-/-- Returns the hints for checking `p = a.mergeHint hs b`, where `p` must be the sum of `a` and `b`. -/
-private def mkMergeHints (a b p : Poly) : ProofM Expr := do
-  if grind.debug.get (← getOptions) then
-    unless (← combineR a b) == p do
-      throwError "`grind` internal error, unexpected polynomial in ring proof step"
-  return mergeHintsExpr a b
-
-/-- Like `mkMergeHints`, for the hints `hs` of `a` and `b` that were already computed. -/
+/--
+The expression of the hints `hs` for checking `p = a.mergeHint hs b`, where `p` must be the sum of
+`a` and `b`, and `hs` the hints of `a` and `b` (`mergeHints`).
+-/
 private def mkMergeHintsOf (a b p : Poly) (hs : Array Nat) : ProofM Expr := do
   if grind.debug.get (← getOptions) then
     unless (← combineR a b) == p do
       throwError "`grind` internal error, unexpected polynomial in ring proof step"
   return hintsToExpr hs
+
+/-- Returns the hints for checking `p = a.mergeHint hs b`, where `p` must be the sum of `a` and `b`. -/
+private def mkMergeHints (a b p : Poly) : ProofM Expr :=
+  mkMergeHintsOf a b p (mergeHints a b #[])
 
 /--
 The sum of the multiples `leaves[lo:hi]` in a balanced `Grind.CommRing.SumTree`: its polynomial,

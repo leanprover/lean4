@@ -894,7 +894,7 @@ def InstanceInfo.usingCtor (perField : Name → FieldHelperProvider α)
         expected `{.ofConstName className}`'s parameter to be a type parameter"
   let some structInfo := getStructureInfo? (← getEnv) className
     | throwError "Invalid use of `{.ofConstName decl_name%}`, \
-        expected {.ofConstName className} to be a structure"
+        expected `{.ofConstName className}` to be a structure"
   let [ctor] := classInfo.ctors | unreachable!
   let mut classLParams := []
   if let [u] := levelParams then

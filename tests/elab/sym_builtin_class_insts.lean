@@ -1,7 +1,8 @@
 import Lean
 /-!
 `Sym.synthInstanceMeta?` answers the algebraic structure queries of `Sym.Arith` classification for
-`Int` and `Nat` from a table. The answers must be the ones of type class resolution.
+`Int`, `Nat` and `Rat`, and the operator queries for `Rat`, from a table. The answers must be the
+ones of type class resolution.
 -/
 open Lean Meta Elab Command
 
@@ -42,6 +43,33 @@ elab "#check_builtin_class_insts" : command => liftTermElabM do
     checkQuery (app ``Grind.PowIdentity #[t, cs, ← mkFreshExprMVar nat])
   for c in [``Grind.CommRing, ``Grind.Ring, ``Grind.CommSemiring, ``Grind.Semiring] do
     checkQuery (app c #[mkConst ``Bool])
+    checkQuery (app c #[mkSort 0])
+  -- `Rat`
+  let rat := mkConst ``Rat
+  let crR := app ``Grind.Field.toCommRing #[rat, mkConst ``Grind.instFieldRat]
+  let srR := app ``Grind.Ring.toSemiring #[rat, app ``Grind.CommRing.toRing #[rat, crR]]
+  let nmR := app ``Grind.Semiring.toNatModule #[rat, app ``Grind.CommSemiring.toSemiring #[rat,
+    app ``Grind.CommRing.toCommSemiring #[rat, crR]]]
+  let leR := mkConst ``Rat.instLE
+  let ltR := mkConst ``Rat.instLT
+  let some preR ← synthInstance? (app ``Std.IsPreorder #[rat, leR]) | unreachable!
+  for c in [``Grind.CommRing, ``Grind.Ring, ``Grind.Field, ``Grind.CommSemiring, ``Grind.Semiring, ``Grind.NatModule,
+      ``NatCast, ``IntCast, ``Max, ``LE, ``LT, ``Neg, ``Inv] do
+    checkQuery (app c #[rat])
+  checkQuery (app ``Grind.NoNatZeroDivisors #[rat, nmR])
+  for c in [``Std.IsPreorder, ``Std.IsPartialOrder, ``Std.IsLinearPreorder, ``Std.IsLinearOrder] do
+    checkQuery (app c #[rat, leR])
+  checkQuery (app ``Std.LawfulOrderLT #[rat, ltR, leR])
+  checkQuery (app ``Grind.OrderedRing #[rat, srR, leR, ltR, preR])
+  checkQuery (app ``Grind.IsCharP #[rat, srR, ← mkFreshExprMVar (mkConst ``Nat)])
+  let cs ← mkFreshExprMVar (app ``Grind.CommSemiring #[rat])
+  checkQuery (app ``Grind.PowIdentity #[rat, cs, ← mkFreshExprMVar (mkConst ``Nat)])
+  let us := [Level.zero, Level.zero, Level.zero]
+  for c in [``HAdd, ``HSub, ``HMul, ``HDiv] do
+    checkQuery (mkApp3 (mkConst c us) rat rat rat)
+  checkQuery (mkApp3 (mkConst ``HPow us) rat (mkConst ``Nat) rat)
+  for n in [0, 1, 7] do
+    checkQuery (mkApp2 (mkConst ``OfNat [Level.zero]) rat (mkRawNatLit n))
   logInfo "ok"
 
 /-- info: ok -/

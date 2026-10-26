@@ -11,6 +11,7 @@ import Init.Grind.Ring
 import Init.Grind.Ordered.Ring
 import Init.GrindInstances
 import Init.Grind.Ordered.Int
+import Init.Grind.Ordered.Rat
 import Init.Data.Int.Package
 public section
 namespace Lean.Meta.Sym
@@ -101,15 +102,19 @@ def getBuiltinInstance? (type : Expr) : Option Expr :=
   | _ => none
 
 /--
-The algebraic structure instances of `Int` and `Nat` that `Sym.Arith` classification queries, as
-synthesized from the core instances, and the structures that `Bool` does not have. A `none` entry
-is a query without instance. Each `grind` goal classifies the types again, and resolving these
-queries dominated the classification cost.
+The algebraic structure instances of `Int`, `Nat` and `Rat` that `Sym.Arith` classification
+queries, and the operator instances of `Rat` it uses, as synthesized from the core instances,
+together with the structures that `Bool` and `Prop` do not have. A `none` entry is a query
+without instance. Each `grind` goal classifies the types again, and resolving these queries
+dominated the classification cost.
 -/
 private def builtinClassInsts : Std.HashMap Expr (Option Expr) :=
   let nat := Nat.mkType
   let int := Int.mkType
   let bool := mkConst ``Bool
+  let prop := mkSort 0
+  let rat := mkConst ``Rat
+  let us := [Level.zero, Level.zero, Level.zero]
   let z := [Level.zero]
   let app (n : Name) (args : Array Expr) := mkAppN (mkConst n z) args
   -- `Int`
@@ -131,6 +136,18 @@ private def builtinClassInsts : Std.HashMap Expr (Option Expr) :=
   let ltN := mkConst ``instLTNat
   let preN := mkConst ``Grind.instIsPreorderNat
   let linN := mkConst ``Nat.instIsLinearOrder
+  -- `Rat`, a field whose order instances are not derived from a linear order package
+  let fieldR := mkConst ``Grind.instFieldRat
+  let crR := app ``Grind.Field.toCommRing #[rat, fieldR]
+  let ringR := app ``Grind.CommRing.toRing #[rat, crR]
+  let srR := app ``Grind.Ring.toSemiring #[rat, ringR]
+  let csR := app ``Grind.CommRing.toCommSemiring #[rat, crR]
+  let nmR := app ``Grind.Semiring.toNatModule #[rat, app ``Grind.CommSemiring.toSemiring #[rat, csR]]
+  let leR := mkConst ``Rat.instLE
+  let ltR := mkConst ``Rat.instLT
+  let linR := mkConst ``Grind.instIsLinearOrderRat
+  let lpreR := app ``Std.IsLinearOrder.toIsLinearPreorder #[rat, leR, linR]
+  let preR := app ``Std.IsLinearPreorder.toIsPreorder #[rat, leR, lpreR]
   Std.HashMap.ofList [
     (app ``Grind.CommRing #[int], some crI),
     (app ``Grind.Ring #[int], some ringI),
@@ -170,22 +187,55 @@ private def builtinClassInsts : Std.HashMap Expr (Option Expr) :=
     (app ``Grind.Ring #[bool], none),
     (app ``Grind.CommSemiring #[bool], none),
     (app ``Grind.Semiring #[bool], none),
+    (app ``Grind.CommRing #[prop], none),
+    (app ``Grind.Ring #[prop], none),
+    (app ``Grind.CommSemiring #[prop], none),
+    (app ``Grind.Semiring #[prop], none),
+    (app ``Grind.Field #[rat], some fieldR),
+    (app ``Grind.CommRing #[rat], some crR),
+    (app ``Grind.Ring #[rat], some ringR),
+    (app ``Grind.CommSemiring #[rat], some csR),
+    (app ``Grind.Semiring #[rat], some (app ``Grind.CommSemiring.toSemiring #[rat, csR])),
+    (app ``Grind.NatModule #[rat], some nmR),
+    (app ``Grind.NoNatZeroDivisors #[rat, nmR], some (mkConst ``Grind.instNoNatZeroDivisorsRat)),
+    (app ``Std.IsPreorder #[rat, leR], some preR),
+    (app ``Std.IsPartialOrder #[rat, leR], some (app ``Std.IsLinearOrder.toIsPartialOrder #[rat, leR, linR])),
+    (app ``Std.IsLinearPreorder #[rat, leR], some lpreR),
+    (app ``Std.IsLinearOrder #[rat, leR], some linR),
+    (app ``Std.LawfulOrderLT #[rat, ltR, leR], some (mkConst ``Grind.instLawfulOrderLTRat)),
+    (app ``Grind.OrderedRing #[rat, srR, leR, ltR, preR], some (mkConst ``Grind.instOrderedRingRat)),
+    (app ``NatCast #[rat], some (mkConst ``Rat.instNatCast)),
+    (app ``IntCast #[rat], some (mkConst ``Rat.instIntCast)),
+    (app ``Max #[rat], some (mkConst ``Rat.instMax)),
+    (app ``LE #[rat], some leR),
+    (app ``LT #[rat], some ltR),
+    (app ``Neg #[rat], some (mkConst ``Rat.instNeg)),
+    (app ``Inv #[rat], some (mkConst ``Rat.instInv)),
+    (mkApp3 (mkConst ``HAdd us) rat rat rat, some (app ``instHAdd #[rat, mkConst ``Rat.instAdd])),
+    (mkApp3 (mkConst ``HSub us) rat rat rat, some (app ``instHSub #[rat, mkConst ``Rat.instSub])),
+    (mkApp3 (mkConst ``HMul us) rat rat rat, some (app ``instHMul #[rat, mkConst ``Rat.instMul])),
+    (mkApp3 (mkConst ``HDiv us) rat rat rat, some (app ``instHDiv #[rat, mkConst ``Rat.instDiv])),
+    (mkApp3 (mkConst ``HPow us) rat nat rat, some (mkAppN (mkConst ``instHPow [0, 0]) #[rat, nat, mkConst ``Rat.instPowNat])),
   ]
 
 /--
-Queries of `builtinClassInsts` with output parameters: `IsCharP α s ?n` for the semiring `s` of the
-classified `Int` and `Nat`, and `PowIdentity α ?s ?p`, which `Int` and `Nat` do not have.
+Queries of `builtinClassInsts` with output parameters or a parameter: `IsCharP α s ?n` for the
+semiring `s` of the classified `Int`, `Nat` and `Rat`, `PowIdentity α ?s ?p`, which they do not
+have, and the numerals `OfNat Rat n`.
 -/
 private def builtinOutParamInst? (type : Expr) : MetaM (Option (Option Expr)) := do
   match_expr type with
   | Grind.IsCharP α s n =>
     let inst ← if α.isConstOf ``Int && s == intSemiring then pure (mkConst ``Grind.instIsCharPIntOfNatNat)
       else if α.isConstOf ``Nat && s == natSemiring then pure (mkConst ``Grind.instIsCharPNatOfNat)
+      else if α.isConstOf ``Rat && s == ratSemiring then pure (mkConst ``Grind.instIsCharPRatOfNatNat)
       else return none
     -- assigns the characteristic `0` of the instance's type, as resolution does
     if (← isDefEq n (← inferType inst).appArg!) then return some (some inst) else return none
   | Grind.PowIdentity α _ _ =>
-    if α.isConstOf ``Int || α.isConstOf ``Nat then return some none else return none
+    if α.isConstOf ``Int || α.isConstOf ``Nat || α.isConstOf ``Rat then return some none else return none
+  | OfNat α n =>
+    if α.isConstOf ``Rat then return some (some (mkApp (mkConst ``Rat.instOfNat) n)) else return none
   | _ => return none
 where
   intSemiring : Expr :=
@@ -193,6 +243,10 @@ where
       (mkApp2 (mkConst ``Grind.CommRing.toRing [0]) Int.mkType (mkConst ``Grind.instCommRingInt))
   natSemiring : Expr :=
     mkApp2 (mkConst ``Grind.CommSemiring.toSemiring [0]) Nat.mkType (mkConst ``Grind.instCommSemiringNat)
+  ratSemiring : Expr :=
+    let rat := mkConst ``Rat
+    mkApp2 (mkConst ``Grind.Ring.toSemiring [0]) rat (mkApp2 (mkConst ``Grind.CommRing.toRing [0]) rat
+      (mkApp2 (mkConst ``Grind.Field.toCommRing [0]) rat (mkConst ``Grind.instFieldRat)))
 
 def synthInstanceMeta? (type : Expr) : MetaM (Option Expr) := do profileitM Exception "sym typeclass inference" (← getOptions) (decl := type.getAppFn.constName?.getD .anonymous) do
   if let some inst := getBuiltinInstance? type then

@@ -966,6 +966,19 @@ where
       return (pE, mkAppN thm (pre ++ #[toExpr (useBalanced e p.length), toExpr e, pE, reflP pE]))
 
 /--
+The expressions of the polynomials of `l` and `r` and the proofs of `l.denote ctx = pl.denote ctx`
+and `r.denote ctx = pr.denote ctx` with `denoteSteps?`, if `l` or `r` has a large product.
+-/
+private def denoteStepsBoth? (pre : Array Expr) (u : Level) (mode : StepMode) (l r : RingExpr) :
+    Option ((Expr × Expr) × (Expr × Expr)) :=
+  let go : StepM (Option ((Expr × Expr) × (Expr × Expr))) := do
+    let r₁ ← denoteSteps? pre u mode l
+    let r₂ ← denoteSteps? pre u mode r
+    if r₁.isNone && r₂.isNone then return none
+    return some (← denoteSteps?.proof pre u mode l r₁, ← denoteSteps?.proof pre u mode r r₂)
+  go.run' {}
+
+/--
 The proofs of `l.denote ctx = p.denote ctx` and `r.denote ctx = p.denote ctx` with `denoteSteps?`,
 and the expression of `p`, if `l` or `r` has a large product.
 -/
@@ -1620,7 +1633,12 @@ private def normalizeRelCore (rel : RelKind) (relFn : Expr) (order? : Option Ord
       let invsE := toExpr invs.toList
       let ql := pl.toPolyQ invs.toList ainvsL
       let commRingInst := (← getCommRing).commRingInst
-      let h := if pl == pr then
+      let steps? := if pl.length + pr.length ≥ 64 && (hasProduct l || hasProduct r) then
+          denoteStepsBoth? #[ring.type, commRingInst, ctx] u .ring l r
+        else none
+      let h := if let (true, some ((pE, h₁), (_, h₂))) := (pl == pr, steps?) then
+          mkAppN (mkConst ``Grind.CommRing.eq_true_of_denote_eq [u]) #[ring.type, commRingInst, ctx, toExpr l, toExpr r, pE, h₁, h₂]
+        else if pl == pr then
           -- Both sides have the same polynomial, before eliminating the inverses.
           let reflP := mkApp2 (mkConst ``Eq.refl [1]) (mkConst ``Grind.CommRing.Poly) (toExpr pl)
           mkAppN (mkConst ``Grind.CommRing.eq_true_of_toPoly_eq [u]) #[ring.type, commRingInst, ctx,
@@ -1629,6 +1647,11 @@ private def normalizeRelCore (rel : RelKind) (relFn : Expr) (order? : Option Ord
           -- Both sides have the same `PolyQ`: each side is normalized alone.
           let qE := mkApp2 (mkConst ``Grind.CommRing.PolyQ.mk) (toExpr ql.num) (mkRawNatLit ql.den)
           let reflQ := mkApp2 (mkConst ``Eq.refl [1]) (mkConst ``Grind.CommRing.PolyQ) qE
+          if let some ((plE, h₁), (prE, h₂)) := steps? then
+            mkAppN (mkConst ``Grind.CommRing.eq_true_of_denote_toPolyQ_eq [u]) #[ring.type, fieldInst, charInst, ctx,
+              toExpr (decide (pl.length ≥ 32)), toExpr (decide (pr.length ≥ 32)), invsE, mkInvVarsOk ring.type u ctx invsE, toExpr ainvsL, hoka,
+              toExpr l, toExpr r, plE, prE, qE, h₁, h₂, reflQ, reflQ]
+          else
           mkAppN (mkConst ``Grind.CommRing.eq_true_of_toPolyQ_eq [u]) #[ring.type, fieldInst, charInst, ctx,
             toExpr (useBalanced l pl.length || pl.length ≥ 32), toExpr (useBalanced r pr.length || pr.length ≥ 32),
             invsE, mkInvVarsOk ring.type u ctx invsE, toExpr ainvsL, hoka, toExpr l, toExpr r, qE, reflQ, reflQ]

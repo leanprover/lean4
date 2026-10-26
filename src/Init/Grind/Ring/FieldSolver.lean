@@ -741,6 +741,16 @@ theorem eq_true_of_toPolyQ_eq [Field α] [IsCharP α 0] (ctx : Context α) (bal�
   rw [← h₂, Expr.denote_toPolyX_k] at e₂
   exact eq_true (e₁.symm.trans e₂)
 
+theorem eq_true_of_denote_toPolyQ_eq [Field α] [IsCharP α 0] (ctx : Context α) (bal₁ bal₂ : Bool) (invs : InvVars)
+    (hok : invs.ok ctx) (ainvs : InvAtoms) (hoka : ainvs.ok ctx) (lhs rhs : Expr) (pl pr : Poly) (q : PolyQ)
+    (h₁ : lhs.denote ctx = pl.denote ctx) (h₂ : rhs.denote ctx = pr.denote ctx)
+    (hq₁ : q = pl.toPolyQX_k bal₁ invs ainvs) (hq₂ : q = pr.toPolyQX_k bal₂ invs ainvs) :
+    (lhs.denote ctx = rhs.denote ctx) = True := by
+  have e₁ := Poly.denote_toPolyQX_k ctx bal₁ pl invs ainvs hok hoka
+  have e₂ := Poly.denote_toPolyQX_k ctx bal₂ pr invs ainvs hok hoka
+  rw [← hq₁] at e₁; rw [← hq₂] at e₂
+  exact eq_true (h₁.trans (e₁.symm.trans (e₂.trans h₂.symm)))
+
 section
 variable {α : Type u} [Field α] [LE α] [LT α] [LawfulOrderLT α] [IsLinearOrder α] [OrderedRing α]
 

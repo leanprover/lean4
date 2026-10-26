@@ -248,6 +248,15 @@ jobs:
           fi
           elan --version  # fails step if not found
           make -C build/$TARGET_STAGE lean4lean con-leche
+      - name: Build lean-beam
+        if: matrix.release && !matrix.wasm && runner.os != 'Windows'
+        run: |
+          if [ -d build/elan/bin ]; then
+            echo "$PWD/build/elan/bin" >> "$GITHUB_PATH"
+          fi
+          # Require Beam in the package test only when this job explicitly builds it.
+          echo 'LEAN_BEAM_REQUIRED=1' >> "$GITHUB_ENV"
+          make -C build/$TARGET_STAGE lean-beam
       - name: Build nanoda and con-ron
         if: matrix.release && !matrix.wasm
         run: |

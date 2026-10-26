@@ -1,0 +1,235 @@
+# Beam is built explicitly by Linux and macOS release CI, like the external kernel checkers.
+# LEAN_BEAM_REQUIRED=1 makes a missing executable fail; ordinary builds may skip.
+beam_prefix="${LEAN_BEAM_TEST_PREFIX:-$BUILD_DIR}"
+if [ ! -x "$beam_prefix/bin/lean-beam" ]; then
+    [ "${LEAN_BEAM_REQUIRED:-0}" = 0 ] || fail "lean-beam not built"
+    echo "lean-beam not built; skipping"
+    exit 0
+fi
+test -x "$beam_prefix/bin/lean-beam-mcp" || fail "lean-beam-mcp not built"
+
+python3 - "$beam_prefix" <<'PY_MANIFEST'
+import hashlib
+import json
+from pathlib import Path, PurePosixPath
+import sys
+
+prefix = Path(sys.argv[1])
+record = json.loads((prefix / "lib/lean-beam/provenance.json").read_text())
+assert record["schemaVersion"] == 3, "expected Beam provenance schema 3"
+assert record["buildId"] and record["sourceCommit"] and record["payloadHash"]
+frontends = record["components"]["frontends"]
+target, = record["components"]["targets"]
+assert target["compilerRevision"] == frontends["compilerRevision"]
+expected = {frontends["cli"], frontends["mcp"], target["daemon"],
+            target["plugin"], record["components"]["license"]}
+destinations = set()
+for artifact in record["artifacts"]:
+    relative = PurePosixPath(artifact["destination"])
+    assert not relative.is_absolute() and ".." not in relative.parts
+    assert str(relative) not in destinations, relative
+    destinations.add(str(relative))
+    actual = hashlib.sha256((prefix / relative).read_bytes()).hexdigest()
+    assert actual == artifact["hash"], f"Beam artifact hash mismatch: {relative}"
+assert destinations == expected, "unexpected native Beam inventory"
+PY_MANIFEST
+
+# Exercise relocation without copying the standard library's large module tree.
+toolchain="$TMP_DIR/toolchain with spaces"
+mkdir -p "$toolchain/lib"
+cp -R "$beam_prefix/bin" "$toolchain/bin"
+for entry in "$beam_prefix"/lib/*; do
+    if [ "$(basename "$entry")" = lean-beam ]; then
+        cp -R "$entry" "$toolchain/lib/lean-beam"
+    else
+        ln -s "$entry" "$toolchain/lib/$(basename "$entry")"
+    fi
+done
+beam="$toolchain/bin/lean-beam"
+mcp="$toolchain/bin/lean-beam-mcp"
+project="$TMP_DIR/project"
+mkdir -p "$project"
+printf 'name = "beam_smoke"\n' > "$project/lakefile.toml"
+printf 'def answer : Nat := 42\n' > "$project/Main.lean"
+
+owner_pid=""
+cleanup_beam() {
+    if [ -n "$owner_pid" ]; then
+        "$beam" --root "$project" stop || true
+        kill "$owner_pid" 2>/dev/null || true
+        wait "$owner_pid" || true
+    fi
+    rm -rf "$TMP_DIR"
+}
+trap cleanup_beam EXIT
+
+# Ambient standalone Beam installations must not affect the bundled runtime.
+export BEAM_HOME="$TMP_DIR/missing-beam-home"
+export BEAM_INSTALL_BUNDLE_DIR="$TMP_DIR/missing-bundles"
+export BEAM_BUNDLE_DIR="$TMP_DIR/missing-bundles"
+"$beam" --version | grep -q '^lean-beam '
+"$beam" toolchain-build-info > "$TMP_DIR/build-info.json"
+python3 - "$toolchain" "$TMP_DIR/build-info.json" <<'PY_BUILD_INFO'
+import json
+from pathlib import Path
+import sys
+
+record = json.loads((Path(sys.argv[1]) / "lib/lean-beam/provenance.json").read_text())
+info = json.loads(Path(sys.argv[2]).read_text())
+assert info["sourceRevision"] == record["sourceCommit"]
+assert info["buildId"] == record["buildId"]
+assert info["compiledLeanRevision"] == info["loadedLeanRevision"]
+assert info["loadedLeanRevision"] == record["components"]["frontends"]["compilerRevision"]
+PY_BUILD_INFO
+"$beam" --root "$project" doctor > "$TMP_DIR/doctor"
+grep -q '^target membership: present$' "$TMP_DIR/doctor"
+
+daemon=$(sed -n 's/^bundle daemon: //p' "$TMP_DIR/doctor")
+plugin=$(sed -n 's/^plugin: //p' "$TMP_DIR/doctor")
+# macOS temporary directories may use a symlink such as /var -> /private/var.
+owned_toolchain=$(cd "$toolchain" && pwd -P)
+case "$daemon" in "$owned_toolchain"/*) ;; *) fail "daemon outside relocated toolchain" ;; esac
+case "$plugin" in "$owned_toolchain"/*) ;; *) fail "plugin outside relocated toolchain" ;; esac
+
+mv "$daemon" "$daemon.saved"
+capture_fail "$beam" --root "$project" doctor
+check_out_contains "$(basename "$daemon")"
+mv "$daemon.saved" "$daemon"
+mv "$plugin" "$plugin.saved"
+capture_fail "$beam" --root "$project" doctor
+check_out_contains "$(basename "$plugin")"
+mv "$plugin.saved" "$plugin"
+
+"$beam" --root "$project" serve > "$TMP_DIR/owner.out" 2> "$TMP_DIR/owner.err" &
+owner_pid=$!
+ready=0
+for ((attempt = 0; attempt < 300; attempt++)); do
+    if grep -q 'serving Beam session' "$TMP_DIR/owner.err"; then
+        ready=1
+        break
+    fi
+    kill -0 "$owner_pid" || break
+    sleep 0.1
+done
+if [ "$ready" = 0 ]; then
+    cat "$TMP_DIR/owner.err"
+    fail "bundled Beam session did not start"
+fi
+
+"$beam" --root "$project" update Main.lean > "$TMP_DIR/update.json"
+version=$(python3 -c 'import json, sys; print(json.load(open(sys.argv[1]))["result"]["version"])' "$TMP_DIR/update.json")
+"$beam" --root "$project" run-at Main.lean "$version" 1 0 '#check answer' > "$TMP_DIR/probe.json"
+python3 -c 'import json, sys; assert json.load(open(sys.argv[1]))["result"]["success"]' "$TMP_DIR/probe.json"
+"$beam" --root "$project" stop
+wait "$owner_pid"
+owner_pid=""
+test ! -e "$TMP_DIR/missing-bundles"
+test ! -e "$project/.beam/bundles"
+
+"$mcp" --version | grep -q '^lean-beam-mcp '
+python3 - "$mcp" "$project" <<'PY_MCP'
+import json
+from pathlib import Path
+import queue
+import shutil
+import subprocess
+import sys
+import tempfile
+import threading
+import time
+
+server = str(Path(sys.argv[1]).resolve())
+root = Path(sys.argv[2]).resolve()
+# MSYS2 does not translate paths embedded in JSON.
+workspace_root = (subprocess.check_output(["cygpath", "-m", str(root)], text=True).strip()
+                  if shutil.which("cygpath") else str(root))
+protocol = "2026-07-28"
+meta = {
+    "io.modelcontextprotocol/protocolVersion": protocol,
+    "io.modelcontextprotocol/clientCapabilities": {},
+    "io.modelcontextprotocol/clientInfo": {"name": "lean-toolchain-test", "version": "0"},
+}
+with tempfile.TemporaryFile(mode="w+", encoding="utf-8") as stderr:
+    child = subprocess.Popen([server], cwd=root, stdin=subprocess.PIPE,
+                             stdout=subprocess.PIPE, stderr=stderr, text=True, encoding="utf-8")
+    lines = queue.Queue()
+
+    def read_stdout():
+        for line in child.stdout:
+            lines.put(line)
+        lines.put(None)
+
+    reader = threading.Thread(target=read_stdout, daemon=True)
+    reader.start()
+
+    def request(request_id, method, params):
+        params = dict(params, _meta=meta)
+        child.stdin.write(json.dumps({"jsonrpc": "2.0", "id": request_id,
+                                     "method": method, "params": params}) + "\n")
+        child.stdin.flush()
+        deadline = time.monotonic() + 120
+        while True:
+            line = lines.get(timeout=max(0, deadline - time.monotonic()))
+            assert line is not None, f"MCP closed stdout during {method}"
+            response = json.loads(line)
+            assert response.get("jsonrpc") == "2.0", response
+            if "method" in response:
+                assert "id" not in response, response
+                continue
+            assert response.get("id") == request_id and "error" not in response, response
+            result = response["result"]
+            assert result["resultType"] == "complete", result
+            return result
+
+    try:
+        try:
+            discovery = request(1, "server/discover", {})
+            assert protocol in discovery["supportedVersions"], discovery
+            result = request(2, "tools/call", {
+                "name": "lean_sync",
+                "arguments": {"path": "Main.lean", "workspace": {"root": workspace_root}},
+            })
+            assert result.get("isError") is False, result
+            progress = result["structuredContent"]["document_progress"]
+            assert type(progress["updates"]) is int and progress["updates"] >= 0, progress
+            assert type(progress["done"]) is bool, progress
+        finally:
+            child.stdin.close()
+            try:
+                child.wait(timeout=30)
+            except subprocess.TimeoutExpired:
+                child.kill()
+                child.wait(timeout=10)
+                raise
+        assert child.returncode == 0, f"MCP exited with code {child.returncode}"
+        reader.join(timeout=5)
+        assert not reader.is_alive(), "MCP stdout stayed open after shutdown"
+    except BaseException:
+        stderr.seek(0)
+        print(stderr.read()[-65536:], file=sys.stderr)
+        raise
+PY_MCP
+capture_fail "$mcp" --beam-cli /different/toolchain/bin/lean-beam --version
+check_out_contains 'unexpected lean-beam-mcp argument'
+test ! -e "$TMP_DIR/missing-bundles"
+test ! -e "$project/.beam/bundles"
+
+# Exercise unavailable selectors separately from existing foreign installations.
+real_elan=$(command -v elan) || fail "elan is required for the installed-selector fixtures"
+export ELAN_HOME="$TMP_DIR/elan-home"
+unset ELAN_TOOLCHAIN
+"$real_elan" toolchain link beam-bundle-matching "$toolchain"
+"$real_elan" toolchain link beam-bundle-foreign "$beam_prefix"
+
+printf 'beam-bundle-unavailable\n' > "$project/lean-toolchain"
+capture_fail "$beam" --root "$project" serve
+check_out_contains 'unavailable locally'
+
+printf 'beam-bundle-foreign\n' > "$project/lean-toolchain"
+capture_fail "$beam" --root "$project" serve
+check_out_contains 'is not a member of this Beam installation'
+
+printf 'beam-bundle-matching\n' > "$project/lean-toolchain"
+"$beam" --root "$project" doctor > "$TMP_DIR/matching-doctor"
+grep -q '^target membership: present$' "$TMP_DIR/matching-doctor"
+test ! -e "$ELAN_HOME/toolchains/beam-bundle-unavailable"

@@ -201,6 +201,12 @@ partial def _root_.Lean.Meta.Grind.Arith.CommRing.EqCnstr.toExprProof (c : EqCns
       toExpr k₂, ← mkMonDecl m₂, ← mkPolyDecl c₂.p,
       ← mkPolyDecl c.p, hs, ← mkPolyRefl c.p, ← toExprProof c₁, ← toExprProof c₂]
   | .simp k₁ c₁ k₂ m₂ c₂ =>
+    if k₁ == 1 then
+      let h ← mkStepPrefix ``Stepwise.simp1 ``Stepwise.simp1C
+      let hs ← mkMergeHints c₁.p (← mulMonR k₂ m₂ c₂.p) c.p
+      return mkAppN h #[
+        ← mkPolyDecl c₁.p, toExpr k₂, ← mkMonDecl m₂, ← mkPolyDecl c₂.p,
+        ← mkPolyDecl c.p, hs, ← mkPolyRefl c.p, ← toExprProof c₁, ← toExprProof c₂]
     let h ← mkStepPrefix ``Stepwise.simp ``Stepwise.simpC
     let hs ← mkMergeHints (← mulConstR k₁ c₁.p) (← mulMonR k₂ m₂ c₂.p) c.p
     return mkAppN h #[

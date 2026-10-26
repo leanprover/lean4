@@ -159,17 +159,49 @@ private def mulMonR (k : Int) (m : Mon) (p : Poly) : ProofM Poly := do
 
 /-- Hints for `Grind.CommRing.Poly.mergeHint`: one per monomial of `b`, see `Grind.CommRing.Poly.mergeHintG`. -/
 private partial def mergeHints (a b : Poly) (acc : Array Nat) : Array Nat :=
-  match b with
-  | .num _ => acc
-  | .add _ m b =>
-    let rec skip (a : Poly) (n : Nat) : Nat × Poly :=
+  go a b 0 acc
+where
+  go (a b : Poly) (n : Nat) (acc : Array Nat) : Array Nat :=
+    match b with
+    | .num _ => acc
+    | .add _ m b' =>
       match a with
-      | .add _ m' a' => if m'.grevlex m == .gt then skip a' (n + 1) else (n, a)
-      | .num _ => (n, a)
-    let (n, a) := skip a 0
-    match a with
-    | .add _ m' a' => if m' == m then mergeHints a' b (acc.push (2*n + 1)) else mergeHints a b (acc.push (2*n))
-    | .num _ => mergeHints a b (acc.push (2*n))
+      | .add _ m' a' =>
+        match m'.grevlex m with
+        | .gt => go a' b (n + 1) acc
+        | .eq => go a' b' 0 (acc.push (2*n + 1))
+        | .lt => go a b' 0 (acc.push (2*n))
+      | .num _ => go a b' 0 (acc.push (2*n))
+
+/--
+The sum of `a` and `b` (`Poly.combineC` in characteristic `c`, `Poly.combine` otherwise) together
+with `mergeHints a b #[]`, in one walk.
+-/
+private partial def combineHints (a b : Poly) (char? : Option Nat) : Poly × Array Nat :=
+  go a b 0 #[] #[]
+where
+  go (a b : Poly) (n : Nat) (hs : Array Nat) (ms : Array (Int × Mon)) : Poly × Array Nat :=
+    match b with
+    | .num k₂ =>
+      let rec rest (a : Poly) (ms : Array (Int × Mon)) : Poly :=
+        match a with
+        | .add k m a => rest a (ms.push (k, m))
+        | .num k₁ =>
+          let k := k₁ + k₂
+          let k := if let some c := char? then k % c else k
+          ms.foldr (init := .num k) fun (k, m) p => .add k m p
+      (rest a ms, hs)
+    | .add k₂ m₂ b' =>
+      match a with
+      | .add k₁ m₁ a' =>
+        match m₁.grevlex m₂ with
+        | .gt => go a' b (n + 1) hs (ms.push (k₁, m₁))
+        | .eq =>
+          let k := k₁ + k₂
+          let k := if let some c := char? then k % c else k
+          go a' b' 0 (hs.push (2*n + 1)) (if k == 0 then ms else ms.push (k, m₁))
+        | .lt => go a b' 0 (hs.push (2*n)) (ms.push (k₂, m₂))
+      | .num _ => go a b' 0 (hs.push (2*n)) (ms.push (k₂, m₂))
 
 /-- The number of monomials that the kernel walks to check `a.mergeHint hs b`. -/
 private def hintsWalk (hs : Array Nat) : Nat :=
@@ -194,6 +226,13 @@ private def mkMergeHints (a b p : Poly) : ProofM Expr := do
       throwError "`grind` internal error, unexpected polynomial in ring proof step"
   return mergeHintsExpr a b
 
+/-- Like `mkMergeHints`, for the hints `hs` of `a` and `b` that were already computed. -/
+private def mkMergeHintsOf (a b p : Poly) (hs : Array Nat) : ProofM Expr := do
+  if grind.debug.get (← getOptions) then
+    unless (← combineR a b) == p do
+      throwError "`grind` internal error, unexpected polynomial in ring proof step"
+  return hintsToExpr hs
+
 /--
 The sum of the multiples `leaves[lo:hi]` in a balanced `Grind.CommRing.SumTree`: its polynomial,
 the tree, and the proof of `SumTree.AllZero` from the proofs of the leaves.
@@ -205,12 +244,12 @@ private partial def mkSumTree (leaves : Array (Poly × Expr × Expr)) (lo hi : N
   let mid := (lo + hi) / 2
   let (a, ta, ha, ca) ← mkSumTree leaves lo mid
   let (b, tb, hb, cb) ← mkSumTree leaves mid hi
-  let hs := mergeHints a b #[]
+  let (p, hs) := combineHints a b (← nonzeroChar?)
   let t := mkApp3 (mkConst ``Grind.CommRing.SumTree.node) (hintsToExpr hs) ta tb
   let ring ← getCommRing
   let ctx ← getContext
   let allZero (t : Expr) := mkApp4 (mkConst ``Grind.CommRing.SumTree.AllZero [ring.u]) ring.type ring.ringInst ctx t
-  return (← combineR a b, t, mkApp4 (mkConst ``And.intro) (allZero ta) (allZero tb) ha hb, ca + cb + hintsWalk hs)
+  return (p, t, mkApp4 (mkConst ``And.intro) (allZero ta) (allZero tb) ha hb, ca + cb + hintsWalk hs)
 
 /--
 An estimate of the kernel cost of checking a chain `p₀, …, pₙ` with `pᵢ = pᵢ₋₁ + qᵢ` one step at a
@@ -278,9 +317,10 @@ partial def _root_.Lean.Meta.Grind.Arith.CommRing.EqCnstr.toExprProof (c : EqCns
       let hBase ← toExprProof base
       let (q, t, hAll, treeCost) ← mkSumTree leaves 0 leaves.size
       let seqCost := stepwiseCost base.p (steps.zipWith (fun (_, _, _, c) (q, _, _) => (q, c.p)) leaves)
-      if steps.size > 1 && useSumTree (treeCost + hintsWalk (mergeHints base.p q #[])) seqCost then
+      let rootHs := mergeHints base.p q #[]
+      if steps.size > 1 && useSumTree (treeCost + hintsWalk rootHs) seqCost then
         -- The chain `c.p = base.p + Σ kᵢ * mᵢ * cᵢ.p` is checked at once.
-        let hs ← mkMergeHints base.p q c.p
+        let hs ← mkMergeHintsOf base.p q c.p rootHs
         let h ← mkStepPrefix ``Stepwise.simps ``Stepwise.simpsC
         return mkAppN h #[← mkPolyDecl base.p, ← mkPolyDecl c.p, t, hs, ← mkPolyRefl c.p, hAll, hBase]
       -- One step at a time; the proofs of the intermediate constraints are cached.
@@ -349,9 +389,10 @@ private partial def derivToExprProof (d : PolyDerivation) : ProofM (Int × Poly 
       return (← mulMonR k₂ m₂ c₂.p, t, ← c₂.toExprProof)
     let (q, t, hAll, treeCost) ← mkSumTree leaves 0 leaves.size
     let seqCost := stepwiseCost base.p (steps.zipWith (fun (_, _, _, p) (q, _, _) => (q, p)) leaves)
-    if useSumTree (treeCost + hintsWalk (mergeHints base.p q #[])) seqCost then
+    let rootHs := mergeHints base.p q #[]
+    if useSumTree (treeCost + hintsWalk rootHs) seqCost then
       -- The chain `p = base.p + Σ kᵢ * mᵢ * pᵢ` is checked at once.
-      let hs ← mkMergeHints base.p q p
+      let hs ← mkMergeHintsOf base.p q p rootHs
       let h ← mkStepPrefix ``Stepwise.d_steps ``Stepwise.d_stepsC
       return (k, p₀, mkAppN h #[toExpr k, ← mkPolyDecl p₀, ← mkPolyDecl base.p, ← mkPolyDecl p, t, hs, ← mkPolyRefl p, hAll, h₁])
     -- One step at a time.

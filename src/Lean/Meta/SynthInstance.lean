@@ -1108,7 +1108,10 @@ private def getClosure? (localInsts : LocalInstances) : MetaM (Option SynthNormC
       match memo.stuckType? with
       | none      => return memo.closure?
       | some type => if (← instantiateMVars type).hasMVar then return none
-  let (_, st) ← (localInsts.forM fun li => addFVars li.fvar).run {}
+  let (_, st) ← (localInsts.forM fun (li : LocalInstance) =>
+    -- The key only covers the types of free variables. A local instance that is another term, such
+    -- as a metavariable (see `LocalInstance.fvar`), can have a type mentioning other variables.
+    if li.fvar.isFVar then addFVars li.fvar else modify fun s => { s with bail := true }).run {}
   let closure? :=
     if st.bail then none
     else some { fvarSet := st.fvarSet, idx2fvar := st.idx2fvar, types := st.types }

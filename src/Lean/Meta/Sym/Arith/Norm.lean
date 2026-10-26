@@ -652,13 +652,152 @@ private def summands : RingExpr → Nat × Nat
   | .pow a _ => (1, (summands a).2)
   | _ => (1, 1)
 
+/-- The number of monomial comparisons of `Poly.combine p₁ p₂`. -/
+private partial def combineSteps (p₁ p₂ : Poly) (n : Nat := 0) : Nat :=
+  match p₁, p₂ with
+  | .add _ m₁ q₁, .add _ m₂ q₂ =>
+    match m₁.grevlex m₂ with
+    | .gt => combineSteps q₁ p₂ (n + 1)
+    | .lt => combineSteps p₁ q₂ (n + 1)
+    | .eq => combineSteps q₁ q₂ (n + 1)
+  | _, _ => n
+
 /--
-`true` if the kernel should compute the polynomial of `re` with `Expr.toPolyB_k`, whose balanced
-additions pay off for sums of many summands and for large polynomials (`size` monomials), but
-cost more kernel steps than `Expr.toPoly_k` for small ones.
+Kernel cost model of the certificates: the number of monomial comparisons made by the additions
+of `Expr.toPoly_k` (`steps`), and those of `Expr.toPolyB_k` together with the number of polynomials
+it adds as lists (`balSteps`, `items`).
+-/
+private structure CertCost where
+  steps : Nat := 0
+  balSteps : Nat := 0
+  items : Nat := 0
+
+/-- `Poly.sumB_k`: adds `ps` pairwise, level by level, counting the comparisons in `n`. -/
+private partial def sumBSteps (ps : List Poly) (n : Nat) : Poly × Nat :=
+  match ps with
+  | [] => (.num 0, n)
+  | [p] => (p, n)
+  | _ =>
+    let rec pairs : List Poly → Array Poly → Nat → Array Poly × Nat
+      | a :: b :: ps, acc, n => pairs ps (acc.push (a.combine b)) (n + combineSteps a b)
+      | [a], acc, n => (acc.push a, n)
+      | [], acc, n => (acc, n)
+    let (ps, n) := pairs ps #[] n
+    sumBSteps ps.toList n
+
+/-- The partial products of `p₁ * p₂`, as `Poly.mulTerms_k`. -/
+private def mulTerms (p₁ p₂ : Poly) : List Poly :=
+  match p₁ with
+  | .num k => [p₂.mulConst k]
+  | .add k m p₁ => p₂.mulMon k m :: mulTerms p₁ p₂
+
+/-- `Poly.mul p₁ p₂` (`Poly.mul_k`), and its comparisons added to `n`. -/
+private def mulSteps (p₁ p₂ : Poly) (n : Nat) : Poly × Nat :=
+  (mulTerms p₁ p₂).foldl (init := (.num 0, n)) fun (acc, n) q => (acc.combine q, n + combineSteps acc q)
+
+/-- `Poly.mulB_k p₁ p₂`, its comparisons added to `n`, and its partial products added to `items`. -/
+private def mulBSteps (p₁ p₂ : Poly) (n items : Nat) : Poly × Nat × Nat :=
+  match p₁, p₂ with
+  | .num k, _ => (p₂.mulConst k, n, items)
+  | _, .num k => (p₁.mulConst k, n, items)
+  | .add k m (.num 0), _ => (p₂.mulMon k m, n, items)
+  | _, .add k m (.num 0) => (p₁.mulMon k m, n, items)
+  | _, _ =>
+    let ts := mulTerms p₁ p₂
+    let (p, n) := sumBSteps ts n
+    (p, n, items + ts.length)
+
+/-- The polynomial of the numeral, variable or power `a ^ k` when `a` is a numeral or variable. -/
+private def powAtom? (a : RingExpr) (k : Nat) : Option Poly :=
+  if k == 0 then some (.num 1) else
+  match a with
+  | .num n | .intCast n => some (.num (n ^ k))
+  | .natCast n => some (.num ((n : Int) ^ k))
+  | .var x => some (.ofMon (.mult { x, k } .unit))
+  | _ => none
+
+/-- The polynomial of `e` and the comparisons of `Expr.toPoly_k` (`Poly.mul`, `Poly.pow`), added to `n`. -/
+private def oldSteps (e : RingExpr) (n : Nat) : Poly × Nat :=
+  match e with
+  | .num k | .intCast k => (.num k, n)
+  | .natCast k => (.num k, n)
+  | .var x => (.ofVar x, n)
+  | .neg a => let (p, n) := oldSteps a n; (p.mulConst (-1), n)
+  | .add a b =>
+    let (pa, n) := oldSteps a n
+    let (pb, n) := oldSteps b n
+    (pa.combine pb, n + combineSteps pa pb)
+  | .sub a b =>
+    let (pa, n) := oldSteps a n
+    let (pb, n) := oldSteps b n
+    let pb := pb.mulConst (-1)
+    (pa.combine pb, n + combineSteps pa pb)
+  | .mul a b =>
+    let (pa, n) := oldSteps a n
+    let (pb, n) := oldSteps b n
+    mulSteps pa pb n
+  | .pow a k =>
+    if let some p := powAtom? a k then (p, n) else
+    let (pa, n) := oldSteps a n
+    (List.range (k - 1)).foldl (init := (pa, n)) fun (acc, n) _ => mulSteps pa acc n
+
+/--
+The summands of `e` (negated if `neg`) prepended to `acc`, as `Expr.sumsB_k`, with the
+comparisons and the polynomials added as lists by `Expr.toPolyB_k`.
+-/
+private partial def balSummands (e : RingExpr) (neg : Bool) (acc : List Poly) (n items : Nat) : List Poly × Nat × Nat :=
+  match e with
+  | .add a b =>
+    let (acc, n, items) := balSummands b neg acc n items
+    balSummands a neg acc n items
+  | .sub a b =>
+    let (acc, n, items) := balSummands b (!neg) acc n items
+    balSummands a neg acc n items
+  | .neg a => balSummands a (!neg) acc n items
+  | _ =>
+    let (p, n, items) := balLeaf e n items
+    ((if neg then p.mulConst (-1) else p) :: acc, n, items + 1)
+where
+  /-- The polynomial of a summand, which is not a sum, difference or negation. -/
+  balLeaf (e : RingExpr) (n items : Nat) : Poly × Nat × Nat :=
+    match e with
+    | .num k | .intCast k => (.num k, n, items)
+    | .natCast k => (.num k, n, items)
+    | .var x => (.ofVar x, n, items)
+    | .mul a b =>
+      let (pa, n, items) := balPoly a n items
+      let (pb, n, items) := balPoly b n items
+      mulBSteps pa pb n items
+    | .pow a k =>
+      if let some p := powAtom? a k then (p, n, items) else
+      let (pa, n, items) := balPoly a n items
+      (List.range (k - 1)).foldl (init := (pa, n, items)) fun (acc, n, items) _ => mulBSteps pa acc n items
+    | _ => (.num 0, n, items)
+  /-- `Expr.toPolyB_k`. -/
+  balPoly (e : RingExpr) (n items : Nat) : Poly × Nat × Nat :=
+    let (ps, n, items) := balSummands e false [] n items
+    let (p, n) := sumBSteps ps n
+    (p, n, items)
+
+/-- The cost model of the certificates for `e`. -/
+private def certCost (e : RingExpr) : CertCost :=
+  let (_, steps) := oldSteps e 0
+  let (_, balSteps, items) := balSummands.balPoly e 0 0
+  { steps, balSteps, items }
+
+/--
+`true` if the kernel should compute the polynomial of `re` with `Expr.toPolyB_k` instead of
+`Expr.toPoly_k`. Adding the summands of a sum one at a time costs a quadratic number of monomial
+comparisons when each summand goes at the end of the polynomial, and the partial products of
+large multiplications have the same issue, but the balanced additions cost extra kernel steps per
+polynomial they add as a list. Small polynomials (`size` monomials) and short sums use
+`Expr.toPoly_k`; otherwise the comparisons of both are counted. A comparison costs about the same
+kernel time in both, and a polynomial added as a list about half a comparison.
 -/
 private def useBalanced (re : RingExpr) (size : Nat) : Bool :=
-  size ≥ 32 || (summands re).2 ≥ 12
+  if size < 32 && (summands re).2 < 12 then false else
+  let c := certCost re
+  2 * c.balSteps + c.items < 2 * c.steps
 
 /--
 The certificate for `e₁` reified as `re` with polynomial `p`, both over the compact variables

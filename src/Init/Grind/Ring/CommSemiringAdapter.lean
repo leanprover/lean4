@@ -918,7 +918,35 @@ theorem Poly.mulB_k_nonneg {p₁ p₂ : Poly} (h₁ : p₁.NonnegCoeffs) (h₂ :
     (mulB_k p₁ p₂).NonnegCoeffs ∧ (mulB_k p₁ p₂).denoteS ctx = p₁.denoteS ctx * p₂.denoteS ctx := by
   have ht := mulTerms_k_nonneg ctx p₁ p₂ h₁ h₂
   have := sumB_k_nonneg ctx _ ht.1
-  exact ⟨this.1, by rw [mulB_k, this.2, ht.2]⟩
+  cases p₁ with
+  | num k =>
+    cases h₁; rename_i hk
+    refine ⟨by show (p₂.mulConst_k k).NonnegCoeffs; rw [mulConst_k_eq_mulConst]; exact mulConst_NonnegCoeffs hk h₂, ?_⟩
+    show (p₂.mulConst_k k).denoteS ctx = _
+    rw [mulConst_k_eq_mulConst, denoteS_mulConst ctx k p₂ hk h₂]; simp [denoteS]
+  | add k₁ m₁ q₁ =>
+    cases p₂ with
+    | num k =>
+      cases h₂; rename_i hk
+      refine ⟨by show ((Poly.add k₁ m₁ q₁).mulConst_k k).NonnegCoeffs; rw [mulConst_k_eq_mulConst]; exact mulConst_NonnegCoeffs hk h₁, ?_⟩
+      show ((Poly.add k₁ m₁ q₁).mulConst_k k).denoteS ctx = _
+      rw [mulConst_k_eq_mulConst, denoteS_mulConst ctx k _ hk h₁, CommSemiring.mul_comm]; simp [denoteS]
+    | add k₂ m₂ q₂ =>
+      have hmon {p q : Poly} (hp : p.NonnegCoeffs) (hq : q.NonnegCoeffs) (h : p.isMon_k = true) :
+          (p.mulByMon_k q).NonnegCoeffs ∧ (p.mulByMon_k q).denoteS ctx = p.denoteS ctx * q.denoteS ctx := by
+        have ⟨k, m, hpm⟩ := eq_of_isMon_k h; subst hpm
+        cases hp; rename_i hk _
+        refine ⟨by show (q.mulMon_k k m).NonnegCoeffs; rw [mulMon_k_eq_mulMon]; exact mulMon_NonnegCoeffs m hk hq, ?_⟩
+        show (q.mulMon_k k m).denoteS ctx = _
+        rw [mulMon_k_eq_mulMon, denoteS_mulMon ctx k m q hk hq]; simp [denoteS]
+      show (Bool.rec (Bool.rec _ _ (Poly.add k₂ m₂ q₂).isMon_k) _ (Poly.add k₁ m₁ q₁).isMon_k : Poly).NonnegCoeffs ∧
+        (Bool.rec (Bool.rec _ _ (Poly.add k₂ m₂ q₂).isMon_k) _ (Poly.add k₁ m₁ q₁).isMon_k : Poly).denoteS ctx = _
+      cases hm₁ : (Poly.add k₁ m₁ q₁).isMon_k
+      · cases hm₂ : (Poly.add k₂ m₂ q₂).isMon_k
+        · exact ⟨this.1, by rw [show sumB_k combine_k _ = sumB_k combine_k _ from rfl, this.2, ht.2]⟩
+        · have := hmon h₂ h₁ hm₂
+          exact ⟨this.1, by rw [this.2, CommSemiring.mul_comm]⟩
+      · exact hmon h₁ h₂ hm₁
 
 theorem Poly.powB_k_nonneg {p : Poly} (k : Nat) (h : p.NonnegCoeffs) :
     (powB_k p k).NonnegCoeffs ∧ (powB_k p k).denoteS ctx = p.denoteS ctx ^ k := by

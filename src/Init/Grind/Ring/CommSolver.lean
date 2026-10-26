@@ -2528,8 +2528,25 @@ noncomputable def Poly.sumB_k (f : Poly → Poly → Poly) (ps : List Poly) : Po
 noncomputable def Poly.mulTerms_k (p₁ p₂ : Poly) : List Poly :=
   Poly.rec (fun k => [p₂.mulConst_k k]) (fun k m _ ih => p₂.mulMon_k k m :: ih) p₁
 
+/-- `true` if `p` is a monomial `k * m` without constant. -/
+noncomputable def Poly.isMon_k (p : Poly) : Bool :=
+  Poly.rec (fun _ => false) (fun _ _ q _ => Poly.rec (fun c => Int.beqZero_k c) (fun _ _ _ _ => false) q) p
+
+/-- `q` multiplied by the first monomial of `p`. -/
+noncomputable def Poly.mulByMon_k (p q : Poly) : Poly :=
+  Poly.rec (fun _ => .num 0) (fun k m _ _ => q.mulMon_k k m) p
+
+/--
+`p₁ * p₂`, adding the partial products pairwise unless a factor is a constant or a monomial.
+-/
 noncomputable def Poly.mulB_k (p₁ p₂ : Poly) : Poly :=
-  sumB_k combine_k (mulTerms_k p₁ p₂)
+  Poly.rec (motive := fun _ => Poly) (fun k => p₂.mulConst_k k)
+    (fun _ _ _ _ => Poly.rec (motive := fun _ => Poly) (fun k => p₁.mulConst_k k)
+      (fun _ _ _ _ =>
+        Bool.rec (Bool.rec (sumB_k combine_k (mulTerms_k p₁ p₂)) (p₂.mulByMon_k p₁) p₂.isMon_k)
+          (p₁.mulByMon_k p₂) p₁.isMon_k)
+      p₂)
+    p₁
 
 noncomputable def Poly.powB_k (p : Poly) (k : Nat) : Poly :=
   Nat.rec (.num 1) (fun k ih => Bool.rec (p.mulB_k ih) p (Nat.beq k 0)) k
@@ -2625,8 +2642,39 @@ theorem Poly.denoteList_mulTerms_k (p₁ p₂ : Poly) : denoteList ctx (mulTerms
     show (p₂.mulMon_k k m).denote ctx + denoteList ctx (mulTerms_k p p₂) = _
     rw [ih, mulMon_k_eq_mulMon, denote_mulMon]; simp [denote, zsmul_eq_intCast_mul, right_distrib]
 
+theorem Poly.eq_of_isMon_k {p : Poly} (h : p.isMon_k = true) : ∃ k m, p = .add k m (.num 0) := by
+  cases p with
+  | num => cases h
+  | add k m q =>
+    cases q with
+    | num c =>
+      have : Int.beqZero_k c = true := h
+      rw [Int.beqZero_k_eq] at this; simp at this; subst this; exact ⟨k, m, rfl⟩
+    | add => cases h
+
+theorem Poly.denote_mulByMon_k {p : Poly} (q : Poly) (h : p.isMon_k = true) :
+    (p.mulByMon_k q).denote ctx = p.denote ctx * q.denote ctx := by
+  have ⟨k, m, hp⟩ := eq_of_isMon_k h; subst hp
+  show (q.mulMon_k k m).denote ctx = _
+  rw [mulMon_k_eq_mulMon, denote_mulMon]; simp [denote, zsmul_eq_intCast_mul, intCast_zero, add_zero]
+
 theorem Poly.denote_mulB_k (p₁ p₂ : Poly) : (mulB_k p₁ p₂).denote ctx = p₁.denote ctx * p₂.denote ctx := by
-  rw [mulB_k, denote_sumB_k ctx _ (denote_combine_k ctx), denoteList_mulTerms_k]
+  cases p₁ with
+  | num k => show (p₂.mulConst_k k).denote ctx = _; rw [mulConst_k_eq_mulConst, denote_mulConst]; rfl
+  | add k₁ m₁ q₁ =>
+    cases p₂ with
+    | num k =>
+      show ((Poly.add k₁ m₁ q₁).mulConst_k k).denote ctx = _
+      rw [mulConst_k_eq_mulConst, denote_mulConst, mul_comm]; rfl
+    | add k₂ m₂ q₂ =>
+      show (Bool.rec (Bool.rec _ _ (Poly.add k₂ m₂ q₂).isMon_k) _ (Poly.add k₁ m₁ q₁).isMon_k : Poly).denote ctx = _
+      cases h₁ : (Poly.add k₁ m₁ q₁).isMon_k
+      · cases h₂ : (Poly.add k₂ m₂ q₂).isMon_k
+        · show (sumB_k combine_k (mulTerms_k _ _)).denote ctx = _
+          rw [denote_sumB_k ctx _ (denote_combine_k ctx), denoteList_mulTerms_k]
+        · show ((Poly.add k₂ m₂ q₂).mulByMon_k _).denote ctx = _
+          rw [denote_mulByMon_k ctx _ h₂, mul_comm]
+      · exact denote_mulByMon_k ctx _ h₁
 
 theorem Poly.denote_powB_k (p : Poly) (k : Nat) : (powB_k p k).denote ctx = p.denote ctx ^ k := by
   induction k with
@@ -2702,8 +2750,19 @@ theorem Expr.eq_of_toPolyX_eq_toExpr {α} [CommRing α] (ctx : Context α) (bal 
 noncomputable def Poly.mulTermsC_k (p₁ p₂ : Poly) (c : Nat) : List Poly :=
   Poly.rec (fun k => [p₂.mulConstC_k k c]) (fun k m _ ih => p₂.mulMonC_k k m c :: ih) p₁
 
+/-- `q` multiplied by the first monomial of `p` in characteristic `c`. -/
+noncomputable def Poly.mulByMonC_k (p q : Poly) (c : Nat) : Poly :=
+  Poly.rec (fun _ => .num 0) (fun k m _ _ => q.mulMonC_k k m c) p
+
+/-- `Poly.mulB_k` in characteristic `c`. -/
 noncomputable def Poly.mulBC_k (p₁ p₂ : Poly) (c : Nat) : Poly :=
-  sumB_k (fun a b => a.combineC_k c b) (mulTermsC_k p₁ p₂ c)
+  Poly.rec (motive := fun _ => Poly) (fun k => p₂.mulConstC_k k c)
+    (fun _ _ _ _ => Poly.rec (motive := fun _ => Poly) (fun k => p₁.mulConstC_k k c)
+      (fun _ _ _ _ =>
+        Bool.rec (Bool.rec (sumB_k (fun a b => a.combineC_k c b) (mulTermsC_k p₁ p₂ c)) (p₂.mulByMonC_k p₁ c) p₂.isMon_k)
+          (p₁.mulByMonC_k p₂ c) p₁.isMon_k)
+      p₂)
+    p₁
 
 noncomputable def Poly.powBC_k (p : Poly) (k : Nat) (c : Nat) : Poly :=
   Nat.rec (.num 1) (fun k ih => Bool.rec (p.mulBC_k ih c) p (Nat.beq k 0)) k
@@ -2762,8 +2821,29 @@ theorem Poly.denoteList_mulTermsC_k (p₁ p₂ : Poly) : denoteList ctx (mulTerm
     show (p₂.mulMonC_k k m c).denote ctx + denoteList ctx (mulTermsC_k p p₂ c) = _
     rw [ih, mulMonC_k_eq_mulMonC, denote_mulMonC]; simp [denote, zsmul_eq_intCast_mul, right_distrib]
 
+theorem Poly.denote_mulByMonC_k {p : Poly} (q : Poly) (h : p.isMon_k = true) :
+    (p.mulByMonC_k q c).denote ctx = p.denote ctx * q.denote ctx := by
+  have ⟨k, m, hp⟩ := eq_of_isMon_k h; subst hp
+  show (q.mulMonC_k k m c).denote ctx = _
+  rw [mulMonC_k_eq_mulMonC, denote_mulMonC]; simp [denote, zsmul_eq_intCast_mul, intCast_zero, add_zero]
+
 theorem Poly.denote_mulBC_k (p₁ p₂ : Poly) : (mulBC_k p₁ p₂ c).denote ctx = p₁.denote ctx * p₂.denote ctx := by
-  rw [mulBC_k, denote_sumB_k ctx _ (denote_combineC_k ctx), denoteList_mulTermsC_k]
+  cases p₁ with
+  | num k => show (p₂.mulConstC_k k c).denote ctx = _; rw [mulConstC_k_eq_mulConstC, denote_mulConstC]; rfl
+  | add k₁ m₁ q₁ =>
+    cases p₂ with
+    | num k =>
+      show ((Poly.add k₁ m₁ q₁).mulConstC_k k c).denote ctx = _
+      rw [mulConstC_k_eq_mulConstC, denote_mulConstC, mul_comm]; rfl
+    | add k₂ m₂ q₂ =>
+      show (Bool.rec (Bool.rec _ _ (Poly.add k₂ m₂ q₂).isMon_k) _ (Poly.add k₁ m₁ q₁).isMon_k : Poly).denote ctx = _
+      cases h₁ : (Poly.add k₁ m₁ q₁).isMon_k
+      · cases h₂ : (Poly.add k₂ m₂ q₂).isMon_k
+        · show (sumB_k _ (mulTermsC_k _ _ c)).denote ctx = _
+          rw [denote_sumB_k ctx _ (denote_combineC_k ctx), denoteList_mulTermsC_k]
+        · show ((Poly.add k₂ m₂ q₂).mulByMonC_k _ c).denote ctx = _
+          rw [denote_mulByMonC_k ctx _ h₂, mul_comm]
+      · exact denote_mulByMonC_k ctx _ h₁
 
 theorem Poly.denote_powBC_k (p : Poly) (k : Nat) : (powBC_k p k c).denote ctx = p.denote ctx ^ k := by
   induction k with

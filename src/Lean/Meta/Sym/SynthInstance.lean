@@ -178,12 +178,12 @@ classified `Int` and `Nat`, and `PowIdentity α ?s ?p`, which `Int` and `Nat` do
 -/
 private def builtinOutParamInst? (type : Expr) : MetaM (Option (Option Expr)) := do
   match_expr type with
-  | Grind.IsCharP α s _ =>
+  | Grind.IsCharP α s n =>
     let inst ← if α.isConstOf ``Int && s == intSemiring then pure (mkConst ``Grind.instIsCharPIntOfNatNat)
       else if α.isConstOf ``Nat && s == natSemiring then pure (mkConst ``Grind.instIsCharPNatOfNat)
       else return none
-    -- assigns the characteristic, as resolution does
-    if (← isDefEq type (← inferType inst)) then return some (some inst) else return none
+    -- assigns the characteristic `0` of the instance's type, as resolution does
+    if (← isDefEq n (← inferType inst).appArg!) then return some (some inst) else return none
   | Grind.PowIdentity α _ _ =>
     if α.isConstOf ``Int || α.isConstOf ``Nat then return some none else return none
   | _ => return none

@@ -87,10 +87,11 @@ structure Power where
   deriving BEq, ReflBEq, LawfulBEq, Repr, Inhabited, Hashable
 
 protected noncomputable def Power.beq' (pw₁ pw₂ : Power) : Bool :=
-  Power.rec (fun x₁ k₁ => Power.rec (fun x₂ k₂ => Nat.beq x₁ x₂ && Nat.beq k₁ k₂) pw₂) pw₁
+  Bool.rec false (Nat.beq pw₁.k pw₂.k) (Nat.beq pw₁.x pw₂.x)
 
 @[simp] theorem Power.beq'_eq (pw₁ pw₂ : Power) : pw₁.beq' pw₂ = (pw₁ = pw₂) := by
-  cases pw₁; cases pw₂; simp [Power.beq']
+  change (Nat.beq pw₁.x pw₂.x && Nat.beq pw₁.k pw₂.k) = (pw₁ = pw₂)
+  cases pw₁; cases pw₂; simp
 
 def Power.varLt (p₁ p₂ : Power) : Bool :=
   p₁.x.blt p₂.x
@@ -112,14 +113,19 @@ inductive Mon where
 protected noncomputable def Mon.beq' (m₁ : Mon) : Mon → Bool :=
   Mon.rec
     (fun m₂ => Mon.rec true (fun _ _ _ => false) m₂)
-    (fun pw₁ _ ih m₂ => Mon.rec false (fun pw₂ m₂ _ => (Power.beq' pw₁ pw₂).and (ih m₂)) m₂) m₁
+    (fun pw₁ _ ih m₂ => Mon.rec false (fun pw₂ m₂ _ =>
+      Bool.rec false (Bool.rec false (ih m₂) (Nat.beq pw₁.k pw₂.k)) (Nat.beq pw₁.x pw₂.x)) m₂) m₁
 
 @[simp] theorem Mon.beq'_eq (m₁ m₂ : Mon) : m₁.beq' m₂ = (m₁ = m₂) := by
-  induction m₁ generalizing m₂ <;> cases m₂ <;> simp [Mon.beq']
-  rename_i pw₁ _ ih _ m₂
-  intro; subst pw₁
-  simp [← ih m₂]
-  rfl
+  induction m₁ generalizing m₂ with
+  | unit => cases m₂ <;> simp [Mon.beq']
+  | mult pw₁ m₁ ih =>
+    cases m₂ with
+    | unit => simp [Mon.beq']
+    | mult pw₂ m₂ =>
+      change (Nat.beq pw₁.x pw₂.x && (Nat.beq pw₁.k pw₂.k && m₁.beq' m₂)) = (_ = _)
+      cases pw₁; cases pw₂
+      simp [ih, and_assoc]
 
 abbrev Mon.denote {α} [Semiring α] (ctx : Context α) : Mon → α
   | unit => 1
@@ -386,15 +392,18 @@ protected noncomputable def Poly.beq' (p₁ : Poly) : Poly → Bool :=
     (fun k₁ v₁ _ ih p₂ =>
       Poly.rec
         (fun _ => false)
-        (fun k₂ v₂ p₂ _ => (Int.beq' k₁ k₂).and ((Mon.beq' v₁ v₂).and (ih p₂))) p₂)
+        (fun k₂ v₂ p₂ _ => Bool.rec false (Bool.rec false (ih p₂) (Mon.beq' v₁ v₂)) (Int.beq' k₁ k₂)) p₂)
     p₁
 
 @[simp] theorem Poly.beq'_eq (p₁ p₂ : Poly) : p₁.beq' p₂ = (p₁ = p₂) := by
-  induction p₁ generalizing p₂ <;> cases p₂ <;> simp [Poly.beq']
-  rename_i k₁ m₁ p₁ ih k₂ m₂ p₂
-  rw [← eq_iff_iff]
-  intro _ _; subst k₁ m₁
-  simp [← ih p₂]; rfl
+  induction p₁ generalizing p₂ with
+  | num k₁ => cases p₂ <;> simp [Poly.beq']
+  | add k₁ m₁ p₁ ih =>
+    cases p₂ with
+    | num k₂ => simp [Poly.beq']
+    | add k₂ m₂ p₂ =>
+      change (Int.beq' k₁ k₂ && (Mon.beq' m₁ m₂ && p₁.beq' p₂)) = (_ = _)
+      simp [ih]
 
 abbrev Poly.denote [Ring α] (ctx : Context α) (p : Poly) : α :=
   match p with
@@ -2071,12 +2080,12 @@ noncomputable def Poly.addEq_k (p₁ : Poly) : Poly → Poly → Bool :=
           Bool.rec
             (Poly.rec (fun _ => false)
               (fun k m p _ => Bool.rec
-                (Bool.rec false ((Int.beq' k k₂).and (ih₂ p)) (Mon.beq' m m₂))
-                ((Int.beq' k k₁).and (ih₁ (.add k₂ m₂ q) p))
+                (Bool.rec false (Bool.rec false (ih₂ p) (Int.beq' k k₂)) (Mon.beq' m m₂))
+                (Bool.rec false (ih₁ (.add k₂ m₂ q) p) (Int.beq' k k₁))
                 (Mon.beq' m m₁)) p)
             (Bool.rec
               (Poly.rec (fun _ => false)
-                (fun k m p _ => (Mon.beq' m m₁).and ((Int.beq' k (Int.add_k k₁ k₂)).and (ih₁ q p))) p)
+                (fun k m p _ => Bool.rec false (Bool.rec false (ih₁ q p) (Int.beq' k (Int.add_k k₁ k₂))) (Mon.beq' m m₁)) p)
               (ih₁ q p)
               (Int.beqZero_k (Int.add_k k₁ k₂)))
             (Mon.beq' m₁ m₂))
@@ -2181,12 +2190,14 @@ noncomputable def Poly.addEqC_k (p₁ : Poly) (c : Nat) : Poly → Poly → Bool
           Bool.rec
             (Poly.rec (fun _ => false)
               (fun k m p _ => Bool.rec
-                (Bool.rec false ((Int.beq' k k₂).and (ih₂ p)) (Mon.beq' m m₂))
-                ((Int.beq' k k₁).and (ih₁ (.add k₂ m₂ q) p))
+                (Bool.rec false (Bool.rec false (ih₂ p) (Int.beq' k k₂)) (Mon.beq' m m₂))
+                (Bool.rec false (ih₁ (.add k₂ m₂ q) p) (Int.beq' k k₁))
                 (Mon.beq' m m₁)) p)
             (Bool.rec
               (Poly.rec (fun _ => false)
-                (fun k m p _ => (Mon.beq' m m₁).and ((Int.beq' k (Int.emod_k (Int.add_k k₁ k₂) (Int.ofNat c))).and (ih₁ q p))) p)
+                (fun k m p _ => Bool.rec false
+                  (Bool.rec false (ih₁ q p) (Int.beq' k (Int.emod_k (Int.add_k k₁ k₂) (Int.ofNat c))))
+                  (Mon.beq' m m₁)) p)
               (ih₁ q p)
               (Int.beqZero_k (Int.emod_k (Int.add_k k₁ k₂) (Int.ofNat c))))
             (Mon.beq' m₁ m₂))

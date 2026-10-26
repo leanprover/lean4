@@ -42,19 +42,37 @@ theorem Expr.denoteS_mul (a b : Expr) : (Expr.mul a b).denoteS ctx = a.denoteS c
 theorem Expr.denoteS_pow (a : Expr) (k : Nat) : (Expr.pow a k).denoteS ctx = a.denoteS ctx ^ k := rfl
 end
 
-def Expr.denoteSAsRing {α} [Semiring α] (ctx : Context α) : Expr → Ring.OfSemiring.Q α
-  | .num k     => OfNat.ofNat (α := Ring.OfSemiring.Q α) k.natAbs
-  | .natCast k => OfNat.ofNat (α := Ring.OfSemiring.Q α) k
-  | .var v     => Ring.OfSemiring.toQ (v.denote ctx)
-  | .add a b   => denoteSAsRing ctx a + denoteSAsRing ctx b
-  | .mul a b   => denoteSAsRing ctx a * denoteSAsRing ctx b
-  | .pow a k   => denoteSAsRing ctx a ^ k
-  | .sub .. | .neg .. | .intCast .. => 0
+noncomputable abbrev Expr.denoteSAsRing {α} [Semiring α] (ctx : Context α) (e : Expr) : Ring.OfSemiring.Q α :=
+  Expr.rec
+    (fun k => OfNat.ofNat (α := Ring.OfSemiring.Q α) k.natAbs)
+    (fun k => OfNat.ofNat (α := Ring.OfSemiring.Q α) k)
+    (fun _ => 0)
+    (fun v => Ring.OfSemiring.toQ (v.denote ctx))
+    (fun _ _ => 0)
+    (fun _ _ ih₁ ih₂ => ih₁ + ih₂)
+    (fun _ _ _ _ => 0)
+    (fun _ _ ih₁ ih₂ => ih₁ * ih₂)
+    (fun _ k ih => ih ^ k)
+    e
+
+set_option allowUnsafeReducibility true in
+attribute [semireducible] Expr.denoteSAsRing
 
 attribute [local simp] Ring.OfSemiring.toQ_add Ring.OfSemiring.toQ_mul Ring.OfSemiring.toQ_ofNat
   Ring.OfSemiring.toQ_pow Ring.OfSemiring.toQ_zero in
 theorem Expr.denoteAsRing_eq {α} [Semiring α] (ctx : Context α) (e : Expr) : e.denoteSAsRing ctx = Ring.OfSemiring.toQ (e.denoteS ctx) := by
-  induction e <;> simp [denoteS, denoteSAsRing, *]
+  induction e with
+  | num k => show OfNat.ofNat _ = Ring.OfSemiring.toQ (OfNat.ofNat _); simp
+  | natCast k => show OfNat.ofNat _ = Ring.OfSemiring.toQ (OfNat.ofNat _); simp
+  | intCast k => show (0 : Ring.OfSemiring.Q α) = Ring.OfSemiring.toQ 0; simp
+  | var v => rfl
+  | neg a _ => show (0 : Ring.OfSemiring.Q α) = Ring.OfSemiring.toQ 0; simp
+  | add a b iha ihb =>
+    show a.denoteSAsRing ctx + b.denoteSAsRing ctx = Ring.OfSemiring.toQ (a.denoteS ctx + b.denoteS ctx); simp [iha, ihb]
+  | sub a b _ _ => show (0 : Ring.OfSemiring.Q α) = Ring.OfSemiring.toQ 0; simp
+  | mul a b iha ihb =>
+    show a.denoteSAsRing ctx * b.denoteSAsRing ctx = Ring.OfSemiring.toQ (a.denoteS ctx * b.denoteS ctx); simp [iha, ihb]
+  | pow a k ih => show a.denoteSAsRing ctx ^ k = Ring.OfSemiring.toQ (a.denoteS ctx ^ k); simp [ih]
 
 def Expr.toPolyS : Expr → CommRing.Poly
   | .num n   => .num n.natAbs

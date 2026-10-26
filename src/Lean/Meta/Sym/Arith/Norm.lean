@@ -22,6 +22,7 @@ import Lean.Data.RArray
 import Init.Grind.Norm
 import Init.Grind.Ring.FieldSolver
 import Init.Grind.Ring.IntSolver
+import Init.Data.Int.Linear
 public section
 namespace Lean.Meta.Sym.Arith
 open Lean.Meta.Sym.Simp (Result mkEqTransResult)
@@ -785,6 +786,10 @@ private def certCost (e : RingExpr) : CertCost :=
   let (_, balSteps, items) := balSummands.balPoly e 0 0
   { steps, balSteps, items }
 
+/-- `true` for small polynomials (`size` monomials) and short sums. -/
+private def isSmallSum (re : RingExpr) (size : Nat) : Bool :=
+  size < 32 && (summands re).2 < 12
+
 /--
 `true` if the kernel should compute the polynomial of `re` with `Expr.toPolyB_k` instead of
 `Expr.toPoly_k`. Adding the summands of a sum one at a time costs a quadratic number of monomial
@@ -795,9 +800,35 @@ polynomial they add as a list. Small polynomials (`size` monomials) and short su
 kernel time in both, and a polynomial added as a list about half a comparison.
 -/
 private def useBalanced (re : RingExpr) (size : Nat) : Bool :=
-  if size < 32 && (summands re).2 < 12 then false else
+  if isSmallSum re size then false else
   let c := certCost re
   2 * c.balSteps + c.items < 2 * c.steps
+
+/-- `e` as a linear `Int` expression: numerals, variables, `+`, `-`, negation and products with a numeral. -/
+private def toLinearExpr? : RingExpr → Option Int.Internal.Linear.Expr
+  | .num k => some (.num k)
+  | .var x => some (.var x)
+  | .add a b => return .add (← toLinearExpr? a) (← toLinearExpr? b)
+  | .sub a b => return .sub (← toLinearExpr? a) (← toLinearExpr? b)
+  | .neg a => return .neg (← toLinearExpr? a)
+  | .mul (.num k) a => return .mulL k (← toLinearExpr? a)
+  | .mul a (.num k) => return .mulR (← toLinearExpr? a) k
+  | _ => none
+
+/--
+`e` as an expression. Numerals are written as `OfNat.ofNat` and `Neg.neg` applications, as
+`Int.Internal.Linear.Expr.denote_k` produces them in the terms the certificate is matched against.
+-/
+private def ofLinearExpr (e : Int.Internal.Linear.Expr) : Expr :=
+  open Int.Internal.Linear.Expr in
+  match e with
+  | .num v    => mkApp (mkConst ``num) (toExpr v)
+  | .var i    => mkApp (mkConst ``var) (mkRawNatLit i)
+  | .neg a    => mkApp (mkConst ``neg) (ofLinearExpr a)
+  | .add a b  => mkApp2 (mkConst ``add) (ofLinearExpr a) (ofLinearExpr b)
+  | .sub a b  => mkApp2 (mkConst ``sub) (ofLinearExpr a) (ofLinearExpr b)
+  | .mulL k a => mkApp2 (mkConst ``mulL) (toExpr k) (ofLinearExpr a)
+  | .mulR a k => mkApp2 (mkConst ``mulR) (ofLinearExpr a) (toExpr k)
 
 /--
 The certificate for `e₁` reified as `re` with polynomial `p`, both over the compact variables
@@ -847,6 +878,10 @@ private def mkCertificate (e₁ : Expr) (re : RingExpr) (p : Poly) (vars : Array
   else if !ainvs.isEmpty then
     let thm := mkApp2 (mkConst ``Grind.CommRing.Expr.eq_of_cancelInvs_eq [u]) type inst
     pure (mkApp6 thm ctx ainvsE hoka (toExpr re) (toExpr re') eagerReflBoolTrue)
+  else if let (true, some a, some a') := (type.isConstOf ``Int && char?.isNone && isSmallSum re p.length,
+      toLinearExpr? re, toLinearExpr? re') then
+    -- Linear `Int` terms use the cheaper linear normalization of `simp +arith`.
+    pure (mkApp4 (mkConst ``Int.Internal.Linear.Expr.eq_of_norm_expr_k) ctx (ofLinearExpr a) (ofLinearExpr a') eagerReflBoolTrue)
   else if kind matches .commRing _ then
     -- `p = re.toPolyX_k bal` (`re.toPolyC_k c`) and `re' = p.toExpr_k`, both checked by
     -- definitional equality.
@@ -1228,6 +1263,14 @@ private def isNumOrAtom : Poly → Bool
   | .add 1 (.mult ⟨_, 1⟩ .unit) (.num 0) => true
   | _ => false
 
+/-- The sides of the `Int` relation `rel l r` normalized to `rel l' r'`, all as linear expressions. -/
+private def linearIntRel? (rel : RelKind) (type : Expr) (invs : Array (Var × Nat)) (ainvs : Array (Var × Var × Expr))
+    (char? : Option (Expr × Nat)) (l r l' r' : RingExpr) (size : Nat) :
+    Option (Int.Internal.Linear.Expr × Int.Internal.Linear.Expr × Int.Internal.Linear.Expr × Int.Internal.Linear.Expr) := do
+  guard <| type.isConstOf ``Int && (rel == .eq || rel == .le) && invs.isEmpty && ainvs.isEmpty && char?.isNone
+    && isSmallSum (.sub l r) size
+  return (← toLinearExpr? l, ← toLinearExpr? r, ← toLinearExpr? l', ← toLinearExpr? r')
+
 /--
 The proof of `(rel lhs rhs) = True` or `(rel lhs rhs) = False` (with `true` for `True`) when the
 polynomial of `l - r` is the constant `k`, if a theorem applies: `=` with `k = 0`, or `k ≠ 0` in
@@ -1236,6 +1279,14 @@ characteristic zero, and `≤`, `<` in an ordered ring.
 private def constRelProof? (rel : RelKind) (order? : Option Order) (ring : Ring) (u : Level) (inst : Expr)
     (char? : Option (Expr × Nat)) (k : Int) (l r : RingExpr) (size : Nat) (vars : Array Expr) :
     NormM (Option (Expr × Bool)) := do
+  -- Linear `Int` relations use the cheaper certificates of `simp +arith`.
+  if ring.type.isConstOf ``Int && (rel == .eq || rel == .le) && isSmallSum (.sub l r) size then
+    if let (some a, some b) := (toLinearExpr? l, toLinearExpr? r) then
+      let (name, holds) := match rel with
+        | .eq => if k == 0 then (``Int.Internal.Linear.eq_eq_true_k, true) else (``Int.Internal.Linear.eq_eq_false_k, false)
+        | _ => if k ≤ 0 then (``Int.Internal.Linear.le_eq_true_k, true) else (``Int.Internal.Linear.le_eq_false_k, false)
+      let ctx ← mkContext ring.type vars
+      return some (mkApp4 (mkConst name) ctx (ofLinearExpr a) (ofLinearExpr b) eagerReflBoolTrue, holds)
   let reflP (p : Poly) := mkApp2 (mkConst ``Eq.refl [1]) (mkConst ``Grind.CommRing.Poly) (toExpr p)
   let mk (name : Name) (insts : Array Expr) (rhsFirst : Bool) (args : Array Expr) (isTrue : Bool) : NormM (Option (Expr × Bool)) := do
     let ctx ← mkContext ring.type vars
@@ -1382,6 +1433,10 @@ private def normalizeRelCore (rel : RelKind) (relFn : Expr) (order? : Option Ord
       let (charInst, c) := char?.get!
       let h := mkApp4 (mkConst ``Grind.CommRing.eq_norm_mul_exprC [u]) ring.type (toExpr c) inst charInst
       pure (mkApp8 h ctx (toExpr l) (toExpr r) (toExpr l') (toExpr r') (toExpr k) (toExpr k') eagerReflBoolTrue)
+    else if let some (a, b, a', b') := linearIntRel? rel ring.type invs ainvs char? l r l' r' (pl.length + pr.length) then
+      -- Linear `Int` relations use the cheaper linear normalization of `simp +arith`.
+      let name := if rel == .eq then ``Int.Internal.Linear.eq_norm_expr_k else ``Int.Internal.Linear.le_norm_expr_k
+      pure (mkApp6 (mkConst name) ctx (ofLinearExpr a) (ofLinearExpr b) (ofLinearExpr a') (ofLinearExpr b') eagerReflBoolTrue)
     else if invs.isEmpty && ainvs.isEmpty && kind.isComm && char?.isNone && rp matches .num 0 then
       -- `lhs' ⋈ 0`, where `lp` is the polynomial of `lhs - rhs`: both hypotheses of the theorem
       -- are checked by definitional equality.

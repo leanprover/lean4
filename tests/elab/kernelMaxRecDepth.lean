@@ -28,3 +28,30 @@ run_meta addDeepDef `tooDeep
 
 set_option maxRecDepth 100000 in
 run_meta addDeepDef `deepEnough
+
+/-! Check the multiplication boundary without building a deeply nested declaration. -/
+private def addShallowDef (name : Name) : MetaM Unit :=
+  Lean.addDecl <| .defnDecl {
+    name, levelParams := [], type := .const ``Nat [],
+    value := mkNatLit 0, hints := .opaque, safety := .safe
+  }
+
+run_meta
+  withOptions (maxRecDepth.set · ((USize.size - 1) / 16)) do
+    addShallowDef `largestRecDepth
+
+/-- error: (kernel) maxRecDepth is too large to compute the kernel recursion limit -/
+#guard_msgs in
+run_meta
+  withOptions (maxRecDepth.set · ((USize.size - 1) / 16 + 1)) do
+    addShallowDef `overflowRecDepth
+
+/-- error: (kernel) maxRecDepth is too large to compute the kernel recursion limit -/
+#guard_msgs in
+run_meta
+  withOptions (maxRecDepth.set · ((USize.size - 1) / 16 + 2)) do
+    addShallowDef `wrappedRecDepth
+
+run_meta
+  withOptions (maxRecDepth.set · 0) do
+    addShallowDef `unlimitedRecDepth

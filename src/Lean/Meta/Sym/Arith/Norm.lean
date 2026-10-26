@@ -638,6 +638,28 @@ private def compactVars (re : RingExpr) : NormM (Grind.VarRename × Array Expr) 
   let used := Std.HashSet.toArray (re.collectVars {}) |>.qsort fun i j => Expr.lt vars[i]! vars[j]!
   return (Grind.mkVarRename used, used.map (vars[·]!))
 
+/-- The number of summands of the sum or difference `e`, and the largest such number in `e`. -/
+private def summands : RingExpr → Nat × Nat
+  | .add a b | .sub a b =>
+    let (n₁, m₁) := summands a
+    let (n₂, m₂) := summands b
+    (n₁ + n₂, max (n₁ + n₂) (max m₁ m₂))
+  | .neg a => summands a
+  | .mul a b =>
+    let (_, m₁) := summands a
+    let (_, m₂) := summands b
+    (1, max m₁ m₂)
+  | .pow a _ => (1, (summands a).2)
+  | _ => (1, 1)
+
+/--
+`true` if the kernel should compute the polynomial of `re` with `Expr.toPolyB_k`, whose balanced
+additions pay off for sums of many summands and for large polynomials (`size` monomials), but
+cost more kernel steps than `Expr.toPoly_k` for small ones.
+-/
+private def useBalanced (re : RingExpr) (size : Nat) : Bool :=
+  size ≥ 32 || (summands re).2 ≥ 12
+
 /--
 The certificate for `e₁` reified as `re` with polynomial `p`, both over the compact variables
 `vars`; `ainvs` are the inverse pairs with discharged side conditions, over the same variables.
@@ -686,13 +708,15 @@ private def mkCertificate (e₁ : Expr) (re : RingExpr) (p : Poly) (vars : Array
     let thm := mkApp2 (mkConst ``Grind.CommRing.Expr.eq_of_cancelInvs_eq [u]) type inst
     pure (mkApp6 thm ctx ainvsE hoka (toExpr re) (toExpr re') eagerReflBoolTrue)
   else if kind matches .commRing _ then
-    -- `p = re.toPoly_k` and `re' = p.toExpr_k`, both checked by definitional equality.
+    -- `p = re.toPolyX_k bal` (`re.toPolyC_k c`) and `re' = p.toExpr_k`, both checked by
+    -- definitional equality.
     let thm := match char? with
-      | some (charInst, c) => mkApp4 (mkConst ``Grind.CommRing.Expr.eq_of_toPolyC_eq_toExpr [u]) type (toExpr c) inst charInst
-      | none => mkApp2 (mkConst ``Grind.CommRing.Expr.eq_of_toPoly_eq_toExpr [u]) type inst
+      | some (charInst, c) => mkApp5 (mkConst ``Grind.CommRing.Expr.eq_of_toPolyC_eq_toExpr [u]) type (toExpr c) inst charInst ctx
+      | none =>
+        mkApp4 (mkConst ``Grind.CommRing.Expr.eq_of_toPolyX_eq_toExpr [u]) type inst ctx (toExpr (useBalanced re p.length))
     let pE := toExpr p
     let re'E := toExpr re'
-    pure (mkApp6 thm ctx (toExpr re) re'E pE
+    pure (mkApp5 thm (toExpr re) re'E pE
       (mkApp2 (mkConst ``Eq.refl [1]) (mkConst ``Grind.CommRing.Poly) pE)
       (mkApp2 (mkConst ``Eq.refl [1]) (mkConst ``Grind.CommRing.Expr) re'E))
   else if kind matches .commSemiring _ then
@@ -1181,7 +1205,8 @@ private def normalizeRelCore (rel : RelKind) (relFn : Expr) (order? : Option Ord
           mkApp5 (base ``Grind.CommRing.lt_norm_poly0) o.leInst o.ltInst?.get! o.lawfulOrderLTInst?.get! o.isPreorderInst o.orderedRingInst?.get!
       let l'E := toExpr l'
       let pE := toExpr lp
-      pure (mkAppN h #[ctx, toExpr l, toExpr r, l'E, pE,
+      let bal := useBalanced (.sub l r) (pl.length + pr.length)
+      pure (mkAppN h #[ctx, toExpr bal, toExpr l, toExpr r, l'E, pE,
         mkApp2 (mkConst ``Eq.refl [1]) (mkConst ``Grind.CommRing.Poly) pE,
         mkApp2 (mkConst ``Eq.refl [1]) (mkConst ``Grind.CommRing.Expr) l'E])
     else if invs.isEmpty && ainvs.isEmpty && kind.isComm then
@@ -1215,7 +1240,9 @@ private def normalizeRelCore (rel : RelKind) (relFn : Expr) (order? : Option Ord
       let qE := toExpr q
       let reflP := mkApp2 (mkConst ``Eq.refl [1]) (mkConst ``Grind.CommRing.Poly) qE
       let reflE (e : Expr) := mkApp2 (mkConst ``Eq.refl [1]) (mkConst ``Grind.CommRing.Expr) e
-      pure (mkAppN h #[ctx, toExpr l, toExpr r, l'E, r'E, qE, toExpr lp, toExpr rp, reflP, reflE l'E, reflE r'E, reflP])
+      let args := #[toExpr l, toExpr r, l'E, r'E, qE, toExpr lp, toExpr rp, reflP, reflE l'E, reflE r'E, reflP]
+      let args := if char?.isNone then #[ctx, toExpr (useBalanced (.sub l r) (pl.length + pr.length))] ++ args else #[ctx] ++ args
+      pure (mkAppN h args)
     else if invs.isEmpty && ainvs.isEmpty then
       -- `thm type [c] inst [charInst]`, then the order instances.
       let base (name : Name) : Expr :=

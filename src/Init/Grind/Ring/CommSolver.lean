@@ -2489,6 +2489,218 @@ theorem Expr.eq_of_toPolyC_eq_toExpr {α c} [CommRing α] [IsCharP α c] (ctx : 
   subst h₁ h₂; rw [Poly.toExpr_k_eq, Poly.denote_toExpr, Expr.toPolyC_k_eq_toPolyC, Expr.denote_toPolyC]
 
 /-!
+Balanced polynomial normalization for certificates. `Expr.toPolyB_k` collects the summands of
+sums and differences into a list and adds them pairwise, level by level, and so does
+`Poly.mulB_k` with the partial products of a multiplication. The kernel then checks a sum of `n`
+summands with `O(n log n)` monomial comparisons, instead of the `O(n²)` of adding them one by one
+with `Expr.toPoly_k` when each summand goes at the end of the polynomial. The result is the
+same polynomial as `Expr.toPoly`, because `Poly.combine` of polynomials in normal form is their
+normal form.
+-/
+
+/-- The sum of the denotations of `ps`. -/
+def Poly.denoteList {α} [Ring α] (ctx : Context α) : List Poly → α
+  | [] => 0
+  | p :: ps => p.denote ctx + denoteList ctx ps
+
+/-- One level of pairwise additions with `f`, with `pend` the pending first summand of a pair. -/
+noncomputable def Poly.pairs_k (f : Poly → Poly → Poly) (ps : List Poly) : Option Poly → List Poly :=
+  List.rec (motive := fun _ => Option Poly → List Poly)
+    (fun pend => Option.rec [] (fun p => [p]) pend)
+    (fun a _ ih pend => Option.rec (ih (some a)) (fun p => f p a :: ih none) pend)
+    ps
+
+/-- Adds `ps` with `f` from the right. -/
+noncomputable def Poly.foldr_k (f : Poly → Poly → Poly) (ps : List Poly) : Poly :=
+  List.rec (.num 0) (fun a _ ih => f a ih) ps
+
+/--
+Adds `ps` with `f` by levels of pairwise additions. Each level consumes an element of `fuel`;
+the list of summands is at most halved by each level, so `ps` itself is enough fuel.
+-/
+noncomputable def Poly.sumGo_k (f : Poly → Poly → Poly) (fuel : List Poly) : List Poly → Poly :=
+  List.rec (motive := fun _ => List Poly → Poly)
+    (fun ps => foldr_k f ps)
+    (fun _ _ ih ps => List.rec (.num 0) (fun a rest _ => List.rec a (fun _ _ _ => ih (pairs_k f ps none)) rest) ps)
+    fuel
+
+noncomputable def Poly.sumB_k (f : Poly → Poly → Poly) (ps : List Poly) : Poly :=
+  sumGo_k f ps ps
+
+/-- The partial products of `p₁ * p₂`, one per monomial of `p₁`. -/
+noncomputable def Poly.mulTerms_k (p₁ p₂ : Poly) : List Poly :=
+  Poly.rec (fun k => [p₂.mulConst_k k]) (fun k m _ ih => p₂.mulMon_k k m :: ih) p₁
+
+noncomputable def Poly.mulB_k (p₁ p₂ : Poly) : Poly :=
+  sumB_k combine_k (mulTerms_k p₁ p₂)
+
+noncomputable def Poly.powB_k (p : Poly) (k : Nat) : Poly :=
+  Nat.rec (.num 1) (fun k ih => Bool.rec (p.mulB_k ih) p (Nat.beq k 0)) k
+
+/-- The polynomial of `a ^ k`, where `p` is the polynomial of `a`. -/
+noncomputable def Expr.powLeafB_k (a : Expr) (k : Nat) (p : Poly) : Poly :=
+  Bool.rec
+    (Expr.rec (fun n => .num (Int.pow_k n k)) (fun n => .num (Int.ofNat (Nat.pow n k))) (fun n => .num (Int.pow_k n k))
+      (fun x => .ofMon (.mult {x, k} .unit)) (fun _ _ => p.powB_k k)
+      (fun _ _ _ _ => p.powB_k k)
+      (fun _ _ _ _ => p.powB_k k)
+      (fun _ _ _ _ => p.powB_k k)
+      (fun _ _ _ => p.powB_k k)
+      a)
+    (.num 1)
+    (k.beq 0)
+
+/-- `p`, negated if `s`. -/
+noncomputable def Poly.signB_k (p : Poly) (s : Bool) : Poly :=
+  Bool.rec p (p.mulConst_k (Int.negSucc 0)) s
+
+/--
+`e.sumsB_k s acc` prepends to `acc` the polynomials of the summands of `e`, negated if `s`.
+The summands are the maximal subterms of `e` that are not sums, differences or negations.
+-/
+noncomputable def Expr.sumsB_k (e : Expr) : Bool → List Poly → List Poly :=
+  Expr.rec
+    (fun k s acc => (Poly.num k).signB_k s :: acc)
+    (fun k s acc => (Poly.num k).signB_k s :: acc)
+    (fun k s acc => (Poly.num k).signB_k s :: acc)
+    (fun x s acc => (Poly.ofVar x).signB_k s :: acc)
+    (fun _ ih s acc => ih (Bool.rec true false s) acc)
+    (fun _ _ ih₁ ih₂ s acc => ih₁ s (ih₂ s acc))
+    (fun _ _ ih₁ ih₂ s acc => ih₁ s (ih₂ (Bool.rec true false s) acc))
+    (fun _ _ ih₁ ih₂ s acc => ((Poly.sumB_k Poly.combine_k (ih₁ false [])).mulB_k (Poly.sumB_k Poly.combine_k (ih₂ false []))).signB_k s :: acc)
+    (fun a k ih s acc => (a.powLeafB_k k (Poly.sumB_k Poly.combine_k (ih false []))).signB_k s :: acc)
+    e
+
+noncomputable def Expr.toPolyB_k (e : Expr) : Poly :=
+  Poly.sumB_k Poly.combine_k (e.sumsB_k false [])
+
+/--
+`Expr.toPolyB_k` if `bal`, and `Expr.toPoly_k` otherwise. The balanced additions cost more
+kernel steps for short sums, so the certificate producer chooses.
+-/
+noncomputable def Expr.toPolyX_k (bal : Bool) (e : Expr) : Poly :=
+  Bool.rec e.toPoly_k e.toPolyB_k bal
+
+section
+variable {α} [CommRing α] (ctx : Context α)
+
+theorem Poly.denoteList_pairs_k (f : Poly → Poly → Poly) (hf : ∀ a b, (f a b).denote ctx = a.denote ctx + b.denote ctx)
+    (ps : List Poly) (pend : Option Poly) :
+    denoteList ctx (pairs_k f ps pend) = (Option.rec 0 (fun p => p.denote ctx) pend : α) + denoteList ctx ps := by
+  induction ps generalizing pend with
+  | nil => cases pend <;> simp [pairs_k, denoteList, add_zero]
+  | cons a ps ih =>
+    cases pend with
+    | none => show denoteList ctx (pairs_k f ps (some a)) = _; rw [ih]; simp [denoteList, zero_add]
+    | some p =>
+      show (f p a).denote ctx + denoteList ctx (pairs_k f ps none) = _
+      rw [ih, hf]; simp [denoteList, zero_add, add_assoc]
+
+theorem Poly.denote_foldr_k (f : Poly → Poly → Poly) (hf : ∀ a b, (f a b).denote ctx = a.denote ctx + b.denote ctx)
+    (ps : List Poly) : (foldr_k f ps).denote ctx = denoteList ctx ps := by
+  induction ps with
+  | nil => show ((0 : Int) : α) = 0; rw [intCast_zero]
+  | cons a ps ih => show (f a (foldr_k f ps)).denote ctx = _; rw [hf, ih]; rfl
+
+theorem Poly.denote_sumGo_k (f : Poly → Poly → Poly) (hf : ∀ a b, (f a b).denote ctx = a.denote ctx + b.denote ctx)
+    (fuel ps : List Poly) : (sumGo_k f fuel ps).denote ctx = denoteList ctx ps := by
+  induction fuel generalizing ps with
+  | nil => exact denote_foldr_k ctx f hf ps
+  | cons _ fuel ih =>
+    match ps with
+    | [] => show ((0 : Int) : α) = 0; rw [intCast_zero]
+    | [a] => show a.denote ctx = a.denote ctx + 0; rw [add_zero]
+    | a :: b :: ps =>
+      show (sumGo_k f fuel (pairs_k f (a :: b :: ps) none)).denote ctx = _
+      rw [ih, denoteList_pairs_k ctx f hf]; simp [zero_add]
+
+theorem Poly.denote_sumB_k (f : Poly → Poly → Poly) (hf : ∀ a b, (f a b).denote ctx = a.denote ctx + b.denote ctx)
+    (ps : List Poly) : (sumB_k f ps).denote ctx = denoteList ctx ps :=
+  denote_sumGo_k ctx f hf ps ps
+
+theorem Poly.denote_combine_k (a b : Poly) : (combine_k a b).denote ctx = a.denote ctx + b.denote ctx := by
+  rw [combine_k_eq_combine, denote_combine]
+
+theorem Poly.denoteList_mulTerms_k (p₁ p₂ : Poly) : denoteList ctx (mulTerms_k p₁ p₂) = p₁.denote ctx * p₂.denote ctx := by
+  induction p₁ with
+  | num k => show (p₂.mulConst_k k).denote ctx + 0 = _; rw [add_zero, mulConst_k_eq_mulConst, denote_mulConst]; rfl
+  | add k m p ih =>
+    show (p₂.mulMon_k k m).denote ctx + denoteList ctx (mulTerms_k p p₂) = _
+    rw [ih, mulMon_k_eq_mulMon, denote_mulMon]; simp [denote, zsmul_eq_intCast_mul, right_distrib]
+
+theorem Poly.denote_mulB_k (p₁ p₂ : Poly) : (mulB_k p₁ p₂).denote ctx = p₁.denote ctx * p₂.denote ctx := by
+  rw [mulB_k, denote_sumB_k ctx _ (denote_combine_k ctx), denoteList_mulTerms_k]
+
+theorem Poly.denote_powB_k (p : Poly) (k : Nat) : (powB_k p k).denote ctx = p.denote ctx ^ k := by
+  induction k with
+  | zero => show ((1 : Int) : α) = _; rw [intCast_one, pow_zero]
+  | succ k ih =>
+    cases k with
+    | zero => show p.denote ctx = _; rw [pow_succ, pow_zero, one_mul]
+    | succ k =>
+      show (p.mulB_k (powB_k p (k + 1))).denote ctx = _
+      rw [denote_mulB_k, ih, pow_succ (n := k + 1), mul_comm]
+
+theorem Expr.denote_powLeafB_k (a : Expr) (k : Nat) (p : Poly) (h : p.denote ctx = a.denote ctx) :
+    (a.powLeafB_k k p).denote ctx = a.denote ctx ^ k := by
+  unfold powLeafB_k
+  cases hk : k.beq 0
+  · have hk : k ≠ 0 := Nat.ne_of_beq_eq_false hk
+    dsimp only
+    cases a <;> simp [Expr.denote, Poly.denote_powB_k, h, Poly.denote, Poly.denote_ofMon, Mon.denote, Power.denote_eq, mul_one, intCast_pow, denoteInt_eq, Ring.intCast_natCast, Semiring.natCast_pow]
+  · have hk : k = 0 := Nat.eq_of_beq_eq_true hk
+    subst hk; show ((1 : Int) : α) = _; rw [intCast_one, pow_zero]
+
+theorem Poly.denote_signB_k (p : Poly) (s : Bool) : (p.signB_k s).denote ctx = bif s then -p.denote ctx else p.denote ctx := by
+  cases s
+  · rfl
+  · show (p.mulConst_k (Int.negSucc 0)).denote ctx = _
+    rw [mulConst_k_eq_mulConst, denote_mulConst]; simp [intCast_neg, neg_mul, intCast_one, one_mul]
+
+theorem Expr.denoteList_sumsB_k (e : Expr) (s : Bool) (acc : List Poly) :
+    Poly.denoteList ctx (e.sumsB_k s acc) = (bif s then -e.denote ctx else e.denote ctx) + Poly.denoteList ctx acc := by
+  have hB (a : Expr) (ih : ∀ s acc, Poly.denoteList ctx (a.sumsB_k s acc) = (bif s then -a.denote ctx else a.denote ctx) + Poly.denoteList ctx acc) :
+      (Poly.sumB_k Poly.combine_k (a.sumsB_k false [])).denote ctx = a.denote ctx := by
+    rw [Poly.denote_sumB_k ctx _ (Poly.denote_combine_k ctx), ih]; simp [Poly.denoteList, add_zero]
+  induction e generalizing s acc with
+  | num k => show Poly.denote ctx (Poly.signB_k (Poly.num k) s) + _ = _; rw [Poly.denote_signB_k]; simp [Expr.denote, Poly.denote, denoteInt_eq]
+  | natCast k => show Poly.denote ctx (Poly.signB_k (Poly.num k) s) + _ = _; rw [Poly.denote_signB_k]; simp [Expr.denote, Poly.denote, Ring.intCast_natCast]
+  | intCast k => show Poly.denote ctx (Poly.signB_k (Poly.num k) s) + _ = _; rw [Poly.denote_signB_k]; simp [Expr.denote, Poly.denote]
+  | var x => show Poly.denote ctx (Poly.signB_k (Poly.ofVar x) s) + _ = _; rw [Poly.denote_signB_k, Poly.denote_ofVar]; rfl
+  | neg a ih =>
+    show Poly.denoteList ctx (a.sumsB_k (Bool.rec true false s) acc) = _
+    rw [ih]; cases s <;> simp [Expr.denote, neg_neg]
+  | add a b iha ihb =>
+    show Poly.denoteList ctx (a.sumsB_k s (b.sumsB_k s acc)) = _
+    rw [iha, ihb]; cases s <;> simp [Expr.denote, neg_add, add_assoc]
+  | sub a b iha ihb =>
+    show Poly.denoteList ctx (a.sumsB_k s (b.sumsB_k (Bool.rec true false s) acc)) = _
+    rw [iha, ihb]; cases s <;> simp [Expr.denote, sub_eq_add_neg, neg_add, neg_neg, add_assoc]
+  | mul a b iha ihb =>
+    show (((Poly.sumB_k Poly.combine_k (a.sumsB_k false [])).mulB_k
+      (Poly.sumB_k Poly.combine_k (b.sumsB_k false []))).signB_k s).denote ctx + Poly.denoteList ctx acc = _
+    rw [Poly.denote_signB_k, Poly.denote_mulB_k, hB a iha, hB b ihb]; rfl
+  | pow a k ih =>
+    show ((a.powLeafB_k k (Poly.sumB_k Poly.combine_k (a.sumsB_k false []))).signB_k s).denote ctx + Poly.denoteList ctx acc = _
+    rw [Poly.denote_signB_k, Expr.denote_powLeafB_k ctx a k _ (hB a ih)]; rfl
+
+theorem Expr.denote_toPolyB_k (e : Expr) : e.toPolyB_k.denote ctx = e.denote ctx := by
+  rw [toPolyB_k, Poly.denote_sumB_k ctx _ (Poly.denote_combine_k ctx), denoteList_sumsB_k]
+  simp [Poly.denoteList, add_zero]
+
+end
+
+theorem Expr.denote_toPolyX_k {α} [CommRing α] (ctx : Context α) (bal : Bool) (e : Expr) :
+    (e.toPolyX_k bal).denote ctx = e.denote ctx := by
+  cases bal
+  · show e.toPoly_k.denote ctx = _; rw [toPoly_k_eq_toPoly, denote_toPoly]
+  · exact denote_toPolyB_k ctx e
+
+theorem Expr.eq_of_toPolyX_eq_toExpr {α} [CommRing α] (ctx : Context α) (bal : Bool) (a b : Expr) (p : Poly)
+    (h₁ : p = a.toPolyX_k bal) (h₂ : b = p.toExpr_k) : a.denote ctx = b.denote ctx := by
+  subst h₁ h₂; rw [Poly.toExpr_k_eq, Poly.denote_toExpr, Expr.denote_toPolyX_k]
+
+/-!
 Hint-directed addition of polynomials. Certificates state the result `p` of a step and prove
 `p = a.mergeHint hs b` by `Eq.refl`, so the kernel checks the step by definitional equality: the
 monomials that `p` shares with `a` are compared by pointer after the kernel's hash-consing, and the
@@ -3187,13 +3399,13 @@ Relation certificates over the polynomials of the normalized sides: `p` is the p
 hypothesis is checked by definitional equality.
 -/
 
-theorem sub_eq_of_toExpr {α} [CommRing α] (ctx : Context α) (a b a' b' : Expr) (p pa pb : Poly)
-    (h₁ : p = (a.sub b).toPoly_k) (h₂ : a' = pa.toExpr_k) (h₃ : b' = pb.toExpr_k)
+theorem sub_eq_of_toExpr {α} [CommRing α] (ctx : Context α) (bal : Bool) (a b a' b' : Expr) (p pa pb : Poly)
+    (h₁ : p = (a.sub b).toPolyX_k bal) (h₂ : a' = pa.toExpr_k) (h₃ : b' = pb.toExpr_k)
     (h₄ : p = pa.combine_k (pb.mulConst_k (Int.negSucc 0))) :
     a.denote ctx - b.denote ctx = a'.denote ctx - b'.denote ctx := by
   have e₁ := congrArg (Poly.denote ctx) h₁
   have e₄ := congrArg (Poly.denote ctx) h₄
-  rw [Expr.toPoly_k_eq_toPoly, Expr.denote_toPoly] at e₁
+  rw [Expr.denote_toPolyX_k] at e₁
   rw [Poly.combine_k_eq_combine, Poly.mulConst_k_eq_mulConst, Poly.denote_combine, Poly.denote_mulConst] at e₄
   subst h₂ h₃
   rw [Poly.toExpr_k_eq, Poly.toExpr_k_eq, Poly.denote_toExpr, Poly.denote_toExpr]
@@ -3215,11 +3427,11 @@ theorem sub_eq_of_toExprC {α c} [CommRing α] [IsCharP α c] (ctx : Context α)
   rw [← e₁, e₄, Int.negSucc_eq, Int.natCast_zero, Int.zero_add, Ring.intCast_neg, Ring.intCast_one,
     Ring.neg_mul, Semiring.one_mul, sub_eq_add_neg]
 
-theorem eq_norm_poly {α} [CommRing α] (ctx : Context α) (lhs rhs lhs' rhs' : Expr) (p lp rp : Poly)
-    (h₁ : p = (lhs.sub rhs).toPoly_k) (h₂ : lhs' = lp.toExpr_k) (h₃ : rhs' = rp.toExpr_k)
+theorem eq_norm_poly {α} [CommRing α] (ctx : Context α) (bal : Bool) (lhs rhs lhs' rhs' : Expr) (p lp rp : Poly)
+    (h₁ : p = (lhs.sub rhs).toPolyX_k bal) (h₂ : lhs' = lp.toExpr_k) (h₃ : rhs' = rp.toExpr_k)
     (h₄ : p = lp.combine_k (rp.mulConst_k (Int.negSucc 0))) :
     (lhs.denote ctx = rhs.denote ctx) = (lhs'.denote ctx = rhs'.denote ctx) := by
-  rw [← AddCommGroup.sub_eq_zero_iff (a := lhs.denote ctx), sub_eq_of_toExpr ctx _ _ _ _ _ _ _ h₁ h₂ h₃ h₄, AddCommGroup.sub_eq_zero_iff]
+  rw [← AddCommGroup.sub_eq_zero_iff (a := lhs.denote ctx), sub_eq_of_toExpr ctx bal _ _ _ _ _ _ _ h₁ h₂ h₃ h₄, AddCommGroup.sub_eq_zero_iff]
 
 theorem eq_norm_polyC {α c} [CommRing α] [IsCharP α c] (ctx : Context α) (lhs rhs lhs' rhs' : Expr) (p lp rp : Poly)
     (h₁ : p = (lhs.sub rhs).toPolyC_k c) (h₂ : lhs' = lp.toExpr_k) (h₃ : rhs' = rp.toExpr_k)
@@ -3227,11 +3439,11 @@ theorem eq_norm_polyC {α c} [CommRing α] [IsCharP α c] (ctx : Context α) (lh
     (lhs.denote ctx = rhs.denote ctx) = (lhs'.denote ctx = rhs'.denote ctx) := by
   rw [← AddCommGroup.sub_eq_zero_iff (a := lhs.denote ctx), sub_eq_of_toExprC ctx _ _ _ _ _ _ _ h₁ h₂ h₃ h₄, AddCommGroup.sub_eq_zero_iff]
 
-theorem le_norm_poly {α} [CommRing α] [LE α] [LT α] [IsPreorder α] [OrderedRing α] (ctx : Context α) (lhs rhs lhs' rhs' : Expr) (p lp rp : Poly)
-    (h₁ : p = (rhs.sub lhs).toPoly_k) (h₂ : lhs' = lp.toExpr_k) (h₃ : rhs' = rp.toExpr_k)
+theorem le_norm_poly {α} [CommRing α] [LE α] [LT α] [IsPreorder α] [OrderedRing α] (ctx : Context α) (bal : Bool) (lhs rhs lhs' rhs' : Expr) (p lp rp : Poly)
+    (h₁ : p = (rhs.sub lhs).toPolyX_k bal) (h₂ : lhs' = lp.toExpr_k) (h₃ : rhs' = rp.toExpr_k)
     (h₄ : p = rp.combine_k (lp.mulConst_k (Int.negSucc 0))) :
     (lhs.denote ctx ≤ rhs.denote ctx) = (lhs'.denote ctx ≤ rhs'.denote ctx) := by
-  rw [← OrderedAdd.sub_nonneg_iff, sub_eq_of_toExpr ctx _ _ _ _ _ _ _ h₁ h₃ h₂ h₄, OrderedAdd.sub_nonneg_iff]
+  rw [← OrderedAdd.sub_nonneg_iff, sub_eq_of_toExpr ctx bal _ _ _ _ _ _ _ h₁ h₃ h₂ h₄, OrderedAdd.sub_nonneg_iff]
 
 theorem le_norm_polyC {α c} [CommRing α] [IsCharP α c] [LE α] [LT α] [IsPreorder α] [OrderedRing α] (ctx : Context α) (lhs rhs lhs' rhs' : Expr) (p lp rp : Poly)
     (h₁ : p = (rhs.sub lhs).toPolyC_k c) (h₂ : lhs' = lp.toExpr_k) (h₃ : rhs' = rp.toExpr_k)
@@ -3239,11 +3451,11 @@ theorem le_norm_polyC {α c} [CommRing α] [IsCharP α c] [LE α] [LT α] [IsPre
     (lhs.denote ctx ≤ rhs.denote ctx) = (lhs'.denote ctx ≤ rhs'.denote ctx) := by
   rw [← OrderedAdd.sub_nonneg_iff, sub_eq_of_toExprC ctx _ _ _ _ _ _ _ h₁ h₃ h₂ h₄, OrderedAdd.sub_nonneg_iff]
 
-theorem lt_norm_poly {α} [CommRing α] [LE α] [LT α] [LawfulOrderLT α] [IsPreorder α] [OrderedRing α] (ctx : Context α) (lhs rhs lhs' rhs' : Expr) (p lp rp : Poly)
-    (h₁ : p = (rhs.sub lhs).toPoly_k) (h₂ : lhs' = lp.toExpr_k) (h₃ : rhs' = rp.toExpr_k)
+theorem lt_norm_poly {α} [CommRing α] [LE α] [LT α] [LawfulOrderLT α] [IsPreorder α] [OrderedRing α] (ctx : Context α) (bal : Bool) (lhs rhs lhs' rhs' : Expr) (p lp rp : Poly)
+    (h₁ : p = (rhs.sub lhs).toPolyX_k bal) (h₂ : lhs' = lp.toExpr_k) (h₃ : rhs' = rp.toExpr_k)
     (h₄ : p = rp.combine_k (lp.mulConst_k (Int.negSucc 0))) :
     (lhs.denote ctx < rhs.denote ctx) = (lhs'.denote ctx < rhs'.denote ctx) := by
-  rw [← OrderedAdd.sub_pos_iff, sub_eq_of_toExpr ctx _ _ _ _ _ _ _ h₁ h₃ h₂ h₄, OrderedAdd.sub_pos_iff]
+  rw [← OrderedAdd.sub_pos_iff, sub_eq_of_toExpr ctx bal _ _ _ _ _ _ _ h₁ h₃ h₂ h₄, OrderedAdd.sub_pos_iff]
 
 theorem lt_norm_polyC {α c} [CommRing α] [IsCharP α c] [LE α] [LT α] [LawfulOrderLT α] [IsPreorder α] [OrderedRing α] (ctx : Context α) (lhs rhs lhs' rhs' : Expr) (p lp rp : Poly)
     (h₁ : p = (rhs.sub lhs).toPolyC_k c) (h₂ : lhs' = lp.toExpr_k) (h₃ : rhs' = rp.toExpr_k)
@@ -3262,29 +3474,29 @@ theorem Poly.combine_k_num_zero (p : Poly) (k : Int) : p.combine_k ((Poly.num 0)
   rw [Poly.combine_k_eq_combine, Poly.mulConst_k_eq_mulConst, h]
   cases p <;> simp [Poly.combine, Poly.combine.go, Poly.addConst, cond]
 
-theorem sub_eq_of_toExpr0 {α} [CommRing α] (ctx : Context α) (lhs rhs lhs' : Expr) (p : Poly)
-    (h₁ : p = (lhs.sub rhs).toPoly_k) (h₂ : lhs' = p.toExpr_k) :
+theorem sub_eq_of_toExpr0 {α} [CommRing α] (ctx : Context α) (bal : Bool) (lhs rhs lhs' : Expr) (p : Poly)
+    (h₁ : p = (lhs.sub rhs).toPolyX_k bal) (h₂ : lhs' = p.toExpr_k) :
     lhs'.denote ctx = lhs.denote ctx - rhs.denote ctx := by
-  subst h₁ h₂; rw [Poly.toExpr_k_eq, Poly.denote_toExpr, Expr.toPoly_k_eq_toPoly, Expr.denote_toPoly]; rfl
+  subst h₁ h₂; rw [Poly.toExpr_k_eq, Poly.denote_toExpr, Expr.denote_toPolyX_k]; rfl
 
-theorem eq_norm_poly0 {α} [CommRing α] (ctx : Context α) (lhs rhs lhs' : Expr) (p : Poly)
-    (h₁ : p = (lhs.sub rhs).toPoly_k) (h₂ : lhs' = p.toExpr_k) :
+theorem eq_norm_poly0 {α} [CommRing α] (ctx : Context α) (bal : Bool) (lhs rhs lhs' : Expr) (p : Poly)
+    (h₁ : p = (lhs.sub rhs).toPolyX_k bal) (h₂ : lhs' = p.toExpr_k) :
     (lhs.denote ctx = rhs.denote ctx) = (lhs'.denote ctx = (Expr.num 0).denote ctx) :=
-  eq_norm_poly ctx lhs rhs lhs' (.num 0) p p (.num 0) h₁ h₂ rfl (Poly.combine_k_num_zero p _).symm
+  eq_norm_poly ctx bal lhs rhs lhs' (.num 0) p p (.num 0) h₁ h₂ rfl (Poly.combine_k_num_zero p _).symm
 
-theorem le_norm_poly0 {α} [CommRing α] [LE α] [LT α] [IsPreorder α] [OrderedRing α] (ctx : Context α) (lhs rhs lhs' : Expr) (p : Poly)
-    (h₁ : p = (lhs.sub rhs).toPoly_k) (h₂ : lhs' = p.toExpr_k) :
+theorem le_norm_poly0 {α} [CommRing α] [LE α] [LT α] [IsPreorder α] [OrderedRing α] (ctx : Context α) (bal : Bool) (lhs rhs lhs' : Expr) (p : Poly)
+    (h₁ : p = (lhs.sub rhs).toPolyX_k bal) (h₂ : lhs' = p.toExpr_k) :
     (lhs.denote ctx ≤ rhs.denote ctx) = (lhs'.denote ctx ≤ (Expr.num 0).denote ctx) := by
-  rw [sub_eq_of_toExpr0 ctx lhs rhs lhs' p h₁ h₂]
+  rw [sub_eq_of_toExpr0 ctx bal lhs rhs lhs' p h₁ h₂]
   show _ = (_ ≤ denoteInt 0)
   rw [denoteInt_eq, Ring.intCast_zero]
   apply propext
   rw [OrderedAdd.add_le_left_iff (c := - rhs.denote ctx), Ring.sub_eq_add_neg, AddCommGroup.add_neg_cancel]
 
-theorem lt_norm_poly0 {α} [CommRing α] [LE α] [LT α] [LawfulOrderLT α] [IsPreorder α] [OrderedRing α] (ctx : Context α) (lhs rhs lhs' : Expr) (p : Poly)
-    (h₁ : p = (lhs.sub rhs).toPoly_k) (h₂ : lhs' = p.toExpr_k) :
+theorem lt_norm_poly0 {α} [CommRing α] [LE α] [LT α] [LawfulOrderLT α] [IsPreorder α] [OrderedRing α] (ctx : Context α) (bal : Bool) (lhs rhs lhs' : Expr) (p : Poly)
+    (h₁ : p = (lhs.sub rhs).toPolyX_k bal) (h₂ : lhs' = p.toExpr_k) :
     (lhs.denote ctx < rhs.denote ctx) = (lhs'.denote ctx < (Expr.num 0).denote ctx) := by
-  rw [sub_eq_of_toExpr0 ctx lhs rhs lhs' p h₁ h₂]
+  rw [sub_eq_of_toExpr0 ctx bal lhs rhs lhs' p h₁ h₂]
   show _ = (_ < denoteInt 0)
   rw [denoteInt_eq, Ring.intCast_zero]
   apply propext

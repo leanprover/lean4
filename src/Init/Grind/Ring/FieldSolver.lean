@@ -164,12 +164,6 @@ theorem Poly.denote_cancelInvs [CommRing α] (ctx : Context α) (p : Poly) (ainv
 
 /-! Kernel-reduction variants for inverse cancellation. -/
 
-noncomputable def Mon.degreeOf_k (m : Mon) (x : Var) : Nat :=
-  Mon.rec 0 (fun pw _ ih => Bool.rec ih pw.k (Nat.beq pw.x x)) m
-
-noncomputable def Mon.cancelVar_k (m : Mon) (x : Var) : Mon :=
-  Mon.rec .unit (fun pw m ih => Bool.rec (.mult pw ih) m (Nat.beq pw.x x)) m
-
 noncomputable def Mon.mulPow_k (pw : Power) (m : Mon) : Mon :=
   Mon.rec (.mult pw .unit)
     (fun pw' m ih => Bool.rec
@@ -197,24 +191,6 @@ noncomputable def Poly.cancelInv_k (x y : Var) (p : Poly) : Poly :=
 noncomputable def Poly.cancelInvs_k (p : Poly) (invs : InvAtoms) : Poly :=
   List.rec (motive := fun _ => Poly → Poly) (fun p => p)
     (fun yx _ ih p => ih (Poly.cancelInv_k yx.2 yx.1 p)) invs p
-
-@[simp] theorem Mon.degreeOf_k_eq_degreeOf (m : Mon) (x : Var) : Mon.degreeOf_k m x = m.degreeOf x := by
-  induction m with
-  | unit => rfl
-  | mult pw m ih =>
-    change Bool.rec (motive := fun _ => Nat) (Mon.degreeOf_k m x) pw.k (Nat.beq pw.x x) = _
-    rw [ih]
-    simp only [Mon.degreeOf, Bool.rec_eq, cond_eq_ite]
-    rfl
-
-@[simp] theorem Mon.cancelVar_k_eq_cancelVar (m : Mon) (x : Var) : Mon.cancelVar_k m x = m.cancelVar x := by
-  induction m with
-  | unit => rfl
-  | mult pw m ih =>
-    change Bool.rec (motive := fun _ => Mon) (.mult pw (Mon.cancelVar_k m x)) m (Nat.beq pw.x x) = _
-    rw [ih]
-    simp only [Mon.cancelVar, Bool.rec_eq, cond_eq_ite]
-    rfl
 
 @[simp] theorem Mon.mulPow_k_eq_mulPow (pw : Power) (m : Mon) : Mon.mulPow_k pw m = m.mulPow pw := by
   induction m with
@@ -311,43 +287,6 @@ theorem Poly.maxDegreeOf_k_eq (p : Poly) (x : Var) : p.maxDegreeOf_k x = p.maxDe
       show acc = Nat.max acc (m.degreeOf x); exact (Nat.max_eq_left (Nat.le_of_lt (Nat.not_le.mp this))).symm
     · have : acc ≤ m.degreeOf x := by rw [← Nat.ble_eq]; exact h
       show m.degreeOf x = Nat.max acc (m.degreeOf x); exact (Nat.max_eq_right this).symm
-
-noncomputable def Poly.cancelVar_k (c : Int) (x : Var) (p : Poly) : Poly :=
-  Poly.rec (motive := fun _ => Poly → Poly) (fun k acc => acc.addConst_k k)
-    (fun k m _ ih acc =>
-      Bool.rec (ih (acc.insert_k k m))
-        (ih (acc.insert_k (Int.ediv_k k (Int.pow_k c (Mon.degreeOf_k m x))) (Mon.cancelVar_k m x)))
-        (Nat.blt 0 (Mon.degreeOf_k m x) && Int.beqZero_k (Int.emod_k k (Int.pow_k c (Mon.degreeOf_k m x)))))
-    p (.num 0)
-
-theorem Poly.cancelVar_k_eq (c : Int) (x : Var) (p : Poly) : p.cancelVar_k c x = p.cancelVar c x := by
-  suffices h : ∀ acc, Poly.rec (motive := fun _ => Poly → Poly) (fun k acc => acc.addConst_k k)
-    (fun k m _ ih acc =>
-      Bool.rec (ih (acc.insert_k k m))
-        (ih (acc.insert_k (Int.ediv_k k (Int.pow_k c (Mon.degreeOf_k m x))) (Mon.cancelVar_k m x)))
-        (Nat.blt 0 (Mon.degreeOf_k m x) && Int.beqZero_k (Int.emod_k k (Int.pow_k c (Mon.degreeOf_k m x)))))
-    p acc = Poly.cancelVar' c x p acc by exact h (.num 0)
-  induction p with
-  | num k => intro acc; show acc.addConst_k k = _; rw [Poly.addConst_k_eq_addConst]; rfl
-  | add k m p ih =>
-    intro acc
-    show Bool.rec (motive := fun _ => Poly) _ _ _ = _
-    rw [Mon.degreeOf_k_eq_degreeOf, Mon.cancelVar_k_eq_cancelVar, Int.pow_k_eq, Int.emod_k_eq, Int.ediv_k_eq,
-      Int.beqZero_k_eq]
-    simp only [Poly.cancelVar', cond_eq_ite]
-    have hd : (Nat.blt 0 (m.degreeOf x) && (k % c ^ m.degreeOf x == 0)) =
-        (decide (m.degreeOf x > 0) && decide (c ^ m.degreeOf x ∣ k)) := by
-      cases h₁ : Nat.blt 0 (m.degreeOf x)
-      · have : ¬ 0 < m.degreeOf x := by rw [← Nat.blt_eq, h₁]; simp
-        simp [this]
-      · have : 0 < m.degreeOf x := by rw [← Nat.blt_eq, h₁]
-        simp [this, Int.dvd_iff_emod_eq_zero, Bool.beq_eq_decide_eq]
-    rw [← hd]
-    cases (Nat.blt 0 (m.degreeOf x) && (k % c ^ m.degreeOf x == 0))
-    · show Poly.rec (motive := fun _ => Poly → Poly) _ _ p _ = _
-      rw [ih, Poly.insert_k_eq_insert]; rfl
-    · show Poly.rec (motive := fun _ => Poly → Poly) _ _ p _ = _
-      rw [ih, Poly.insert_k_eq_insert]; rfl
 
 noncomputable def Poly.gcdCoeffs_k.go (p : Poly) : Nat → Nat :=
   Poly.rec (motive := fun _ => Nat → Nat)

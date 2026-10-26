@@ -1534,6 +1534,28 @@ private def constRelProof? (rel : RelKind) (order? : Option Order) (ring : Ring)
       return some (mkAppN (mkConst ``Grind.CommRing.lt_false_of_toPoly_eq [u])
         (#[ring.type, inst, o.leInst, ltInst, lawfulInst, o.isPreorderInst, ctx] ++ sides), false)
     | _, _ => pure ()
+  -- A nonzero constant difference with large products: the difference is stated stepwise.
+  if k != 0 && char?.isNone && size ≥ 64 && (hasProduct l || hasProduct r) then
+    let ctx ← mkContext ring.type vars
+    let pre := #[ring.type, inst, ctx]
+    -- `name`, the sides of the difference, `n` and the instances of the theorem.
+    let thm? : Option (Name × RingExpr × RingExpr × Expr × Array Expr) ← match rel with
+      | .eq =>
+        if let some (charInst, 0) := ring.charInst? then pure (some (``Grind.CommRing.eq_false_of_sub, l, r, toExpr k, #[inst, charInst]))
+        else pure none
+      | .le | .lt =>
+        let some o := order? | pure none
+        let (some ltInst, some lawfulInst, some orderedInst) := (o.ltInst?, o.lawfulOrderLTInst?, o.orderedRingInst?) | pure none
+        let insts := #[inst, o.leInst, ltInst, lawfulInst, o.isPreorderInst, orderedInst]
+        pure <| some <| match rel with
+          | .le => if k ≤ 0 then (``Grind.CommRing.le_true_of_sub, r, l, mkRawNatLit (-k).toNat, insts)
+            else (``Grind.CommRing.le_false_of_sub, l, r, mkRawNatLit (k - 1).toNat, insts)
+          | _ => if k < 0 then (``Grind.CommRing.lt_true_of_sub, r, l, mkRawNatLit (-k - 1).toNat, insts)
+            else (``Grind.CommRing.lt_false_of_sub, l, r, mkRawNatLit k.toNat, insts)
+    if let some (name, a, b, n, insts) := thm? then
+      if let some (_, _, h) := (denoteSteps? pre u .ring (.sub a b)).run' {} then
+        let args := #[ctx, toExpr l, toExpr r, n, h] ++ (if rel == .eq then #[eagerReflBoolFalse] else #[])
+        return some (mkAppN (mkConst name [u]) (#[ring.type] ++ insts ++ args), rel != .eq && (k < 0 || (rel == .le && k == 0)))
   let mk (name : Name) (insts : Array Expr) (rhsFirst : Bool) (args : Array Expr) (isTrue : Bool) : NormM (Option (Expr × Bool)) := do
     let ctx ← mkContext ring.type vars
     let (a, b) := if rhsFirst then (r, l) else (l, r)

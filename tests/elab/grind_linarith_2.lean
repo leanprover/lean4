@@ -14,7 +14,7 @@ trace: [grind.debug.proof] Classical.byContradiction fun h =>
         let e_1 := Expr.zero;
         let e_2 := Expr.intMul 0 (Expr.var 0);
         let rctx := RArray.branch 1 (RArray.leaf a) (RArray.leaf b);
-        let rp_1 := CommRing.Poly.num 0;
+        let rp_1 := CommRing.Poly.num (Int.ofNat 0);
         let re_1 := (CommRing.Expr.var 0).add (CommRing.Expr.var 1);
         let re_2 := (CommRing.Expr.var 1).add (CommRing.Expr.var 0);
         diseq_unsat ctx

@@ -23,6 +23,35 @@ def exprDegB : RingExpr → Nat
   | .mul a b => exprDegB a + exprDegB b
   | .pow a k => exprDegB a * k
 
+/-- `Grind.CommRing.Expr.lin_k e`: `exprDegB` with `|||` in place of the maximum. -/
+def exprLin : RingExpr → Nat
+  | .num _ | .natCast _ | .intCast _ => 0
+  | .var _ => 1
+  | .neg a => exprLin a
+  | .add a b | .sub a b => exprLin a ||| exprLin b
+  | .mul a b => exprLin a + exprLin b
+  | .pow a k => exprLin a * k
+
+/-- `Grind.CommRing.Expr.linS_k e`: `exprLin e`, or at least `2` if `e` is not a semiring term. -/
+def exprLinS : RingExpr → Nat
+  | .num k => if k ≥ 0 then 0 else 2
+  | .natCast _ => 0
+  | .var _ => 1
+  | .intCast _ | .neg _ | .sub .. => 2
+  | .add a b => exprLinS a ||| exprLinS b
+  | .mul a b => exprLinS a + exprLinS b
+  | .pow a k => let d := exprLinS a; if 2 ≤ d then 2 else d * k
+
+/-- `Grind.CommRing.Expr.degS_k B e`: `exprDegB e`, or `B` if `e` is not a semiring term. -/
+def exprDegS (B : Nat) : RingExpr → Nat
+  | .num k => if k ≥ 0 then 0 else B
+  | .natCast _ => 0
+  | .var _ => 1
+  | .intCast _ | .neg _ | .sub .. => B
+  | .add a b => max (exprDegS B a) (exprDegS B b)
+  | .mul a b => exprDegS B a + exprDegS B b
+  | .pow a k => let d := exprDegS B a; if B ≤ d then B else d * k
+
 /-- The coefficient bound `Grind.CommRing.Expr.majorant_k` of `e`. -/
 def exprMajorant : RingExpr → Nat
   | .num k | .intCast k => k.natAbs
@@ -84,7 +113,7 @@ The exponent `K` of the linear Kronecker certificate (`Grind.CommRing.Expr.eq_of
 `l` and `r`, if they are linear and the values at the point stay below `maxBits` bits.
 -/
 def kronLinExponent? (l r : RingExpr) (maxBits : Nat) : Option Nat :=
-  if exprDegB l ≤ 1 && exprDegB r ≤ 1 then
+  if exprLin l ≤ 1 && exprLin r ≤ 1 then
     kronExponent? (exprMajorant l + exprMajorant r) (max (exprMaxVar l) (exprMaxVar r)) maxBits
   else
     none

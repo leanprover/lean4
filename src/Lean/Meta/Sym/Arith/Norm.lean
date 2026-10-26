@@ -900,17 +900,13 @@ private def kronProofArgs (l r : RingExpr) (K B : Nat) : Array Expr :=
 private def usePacked (size : Nat) : Bool :=
   size ≥ 8
 
-/-- `true` if `e` has no subtraction, negation, `Int` cast or negative numeral (`Expr.semi_k`). -/
-private def isSemi : RingExpr → Bool
-  | .num k => k ≥ 0
-  | .natCast _ | .var _ => true
-  | .intCast _ | .neg _ | .sub .. => false
-  | .add a b | .mul a b => isSemi a && isSemi b
-  | .pow a _ => isSemi a
+/-- `true` if `l` and `r` pass the checks of the semiring certificates in base `B` (`Expr.degSOk_k`). -/
+private def semiOk (B : Nat) (l r : RingExpr) : Bool :=
+  1 < B && exprDegS B l < B && exprDegS B r < B
 
-/-- `packedArgs` for the semiring certificates (`Expr.eq_of_toPPX_eqS`), with the `Expr.semi_k` check. -/
-private def packedArgsS (l r : RingExpr) (p : Poly) (bal₁ bal₂ : Bool) : Array Expr :=
-  (packedArgs l r p bal₁ bal₂).insertIdx! 6 eagerReflBoolTrue
+/-- `true` if `l` and `r` pass the checks of the linear semiring certificates (`Expr.linSOk_k`). -/
+private def linSemiOk (l r : RingExpr) : Bool :=
+  exprLinS l ≤ 1 && exprLinS r ≤ 1
 
 /-- Memoized `toExpr` of the monomials of the stepwise certificates, which repeat each other. -/
 private abbrev StepM := StateM (Std.HashMap Mon Expr)
@@ -1206,14 +1202,14 @@ private def mkCertificate (e₁ : Expr) (re : RingExpr) (p : Poly) (vars : Array
       (mkApp2 (mkConst ``Eq.refl [1]) (mkConst ``Grind.CommRing.Poly) pE)
       (mkApp2 (mkConst ``Eq.refl [1]) (mkConst ``Grind.CommRing.Expr) re'E))
   else if kind matches .commSemiring _ then
-    if let (true, some arcInst, some K) := (isSemi re && isSemi re', ← getAddRightCancelInst?, kronLinExponent? re re' 1000000) then
-      pure (mkAppN (mkConst ``Grind.CommRing.Expr.eq_of_kronLinS [u]) (#[type, inst, arcInst, ctx] ++ (kronLinProofArgs re re' K).insertIdx! 3 eagerReflBoolTrue))
-    else if let (true, some arcInst, some (K, B)) := (isSemi re && isSemi re', ← getAddRightCancelInst?, kronArgs? re re') then
+    if let (true, some arcInst, some K) := (linSemiOk re re', ← getAddRightCancelInst?, kronLinExponent? re re' 1000000) then
+      pure (mkAppN (mkConst ``Grind.CommRing.Expr.eq_of_kronLinS [u]) (#[type, inst, arcInst, ctx] ++ kronLinProofArgs re re' K))
+    else if let (some arcInst, some (K, B)) := (← getAddRightCancelInst?, (kronArgs? re re').filter (semiOk ·.2 re re')) then
       -- Both sides are evaluated at a point (Kronecker substitution) in the ring envelope.
-      pure (mkAppN (mkConst ``Grind.CommRing.Expr.eq_of_kronS [u]) (#[type, inst, arcInst, ctx] ++ (kronProofArgs re re' K B).insertIdx! 4 eagerReflBoolTrue))
-    else if let (true, some arcInst) := (usePacked p.length && isSemi re && isSemi re', ← getAddRightCancelInst?) then
+      pure (mkAppN (mkConst ``Grind.CommRing.Expr.eq_of_kronS [u]) (#[type, inst, arcInst, ctx] ++ kronProofArgs re re' K B))
+    else if let (true, some arcInst) := (usePacked p.length && semiOk (packedBase re re') re re', ← getAddRightCancelInst?) then
       -- Both sides are normalized with packed monomials in the ring envelope.
-      pure (mkAppN (mkConst ``Grind.CommRing.Expr.eq_of_toPPX_eqS [u]) (#[type, inst, arcInst, ctx] ++ packedArgsS re re' p (packedBal re) false))
+      pure (mkAppN (mkConst ``Grind.CommRing.Expr.eq_of_toPPX_eqS [u]) (#[type, inst, arcInst, ctx] ++ packedArgs re re' p (packedBal re) false))
     else
       -- `p = re.toPolyS_k` and `re' = p.toExpr_k`, both checked by definitional equality.
       let thm := mkApp4 (mkConst ``Grind.CommRing.Expr.eq_of_toPolyS_eq_toExpr [u]) type inst ctx (toExpr (useBalanced re p.length))
@@ -2041,28 +2037,28 @@ private def normalizeRelCore (rel : RelKind) (relFn : Expr) (order? : Option Ord
     if let (true, some (name, insts, holds)) := (kind.isComm && pl == pr, sameSides?) then
       let ctx ← mkContext sr.type vars
       let csInst := (← getCommSemiring).commSemiringInst
-      if let (true, some arcInst, some K) := (isSemi l && isSemi r, ← getAddRightCancelInst?, kronLinExponent? l r 1000000) then
+      if let (true, some arcInst, some K) := (linSemiOk l r, ← getAddRightCancelInst?, kronLinExponent? l r 1000000) then
         let name := match rel with
           | .eq => ``Grind.CommRing.eq_true_of_kronLinS
           | .le => ``Grind.CommRing.le_true_of_kronLinS
           | .lt => ``Grind.CommRing.lt_false_of_kronLinS
-        let h := mkAppN (mkConst name [u]) (#[sr.type, csInst, arcInst] ++ insts ++ #[ctx] ++ (kronLinProofArgs l r K).insertIdx! 3 eagerReflBoolTrue)
+        let h := mkAppN (mkConst name [u]) (#[sr.type, csInst, arcInst] ++ insts ++ #[ctx] ++ kronLinProofArgs l r K)
         let e' ← if holds then getTrueExpr else getFalseExpr
         return .step e' (mkExpectedPropHint h (mkPropEq e e'))
-      if let (true, some arcInst, some (K, B)) := (isSemi l && isSemi r, ← getAddRightCancelInst?, kronArgs? l r) then
+      if let (some arcInst, some (K, B)) := (← getAddRightCancelInst?, (kronArgs? l r).filter (semiOk ·.2 l r)) then
         let name := match rel with
           | .eq => ``Grind.CommRing.eq_true_of_kronS
           | .le => ``Grind.CommRing.le_true_of_kronS
           | .lt => ``Grind.CommRing.lt_false_of_kronS
-        let h := mkAppN (mkConst name [u]) (#[sr.type, csInst, arcInst] ++ insts ++ #[ctx] ++ (kronProofArgs l r K B).insertIdx! 4 eagerReflBoolTrue)
+        let h := mkAppN (mkConst name [u]) (#[sr.type, csInst, arcInst] ++ insts ++ #[ctx] ++ kronProofArgs l r K B)
         let e' ← if holds then getTrueExpr else getFalseExpr
         return .step e' (mkExpectedPropHint h (mkPropEq e e'))
-      if let (true, some arcInst) := (usePacked pl.length && isSemi l && isSemi r, ← getAddRightCancelInst?) then
+      if let (true, some arcInst) := (usePacked pl.length && semiOk (packedBase l r) l r, ← getAddRightCancelInst?) then
         let name := match rel with
           | .eq => ``Grind.CommRing.eq_true_of_toPPX_eqS
           | .le => ``Grind.CommRing.le_true_of_toPPX_eqS
           | .lt => ``Grind.CommRing.lt_false_of_toPPX_eqS
-        let h := mkAppN (mkConst name [u]) (#[sr.type, csInst, arcInst] ++ insts ++ #[ctx] ++ packedArgsS l r pl (packedBal l) (packedBal r))
+        let h := mkAppN (mkConst name [u]) (#[sr.type, csInst, arcInst] ++ insts ++ #[ctx] ++ packedArgs l r pl (packedBal l) (packedBal r))
         let e' ← if holds then getTrueExpr else getFalseExpr
         return .step e' (mkExpectedPropHint h (mkPropEq e e'))
       -- Large products are stated stepwise when there are any (`denoteSteps?`).
@@ -2134,17 +2130,17 @@ private def normalizeRelCore (rel : RelKind) (relFn : Expr) (order? : Option Ord
       let xCE := toExpr xC
       -- Terms are evaluated at a point (Kronecker substitution), or large polynomials are checked
       -- with packed monomials, in the ring envelope.
-      if let (some csInst, some arcInst, true, some K) := (csInst?, arcInst?, isSemi x && isSemi xC, kronLinExponent? x xC 1000000) then
+      if let (some csInst, some arcInst, true, some K) := (csInst?, arcInst?, linSemiOk x xC, kronLinExponent? x xC 1000000) then
         let h := mkAppN (mkConst ``Grind.CommRing.Expr.eq_of_kronLinS [u])
-          (#[sr.type, csInst, arcInst, ctx] ++ (kronLinProofArgs x xC K).insertIdx! 3 eagerReflBoolTrue)
+          (#[sr.type, csInst, arcInst, ctx] ++ kronLinProofArgs x xC K)
         mkExpectedPropHint h (mkApp3 (mkConst ``Eq [u.succ]) sr.type ex exC)
-      else if let (some csInst, some arcInst, true, some (K, B)) := (csInst?, arcInst?, isSemi x && isSemi xC, kronArgs? x xC) then
+      else if let (some csInst, some arcInst, some (K, B)) := (csInst?, arcInst?, (kronArgs? x xC).filter (semiOk ·.2 x xC)) then
         let h := mkAppN (mkConst ``Grind.CommRing.Expr.eq_of_kronS [u])
-          (#[sr.type, csInst, arcInst, ctx] ++ (kronProofArgs x xC K B).insertIdx! 4 eagerReflBoolTrue)
+          (#[sr.type, csInst, arcInst, ctx] ++ kronProofArgs x xC K B)
         mkExpectedPropHint h (mkApp3 (mkConst ``Eq [u.succ]) sr.type ex exC)
-      else if let (some csInst, some arcInst, true) := (csInst?, arcInst?, usePacked px.length && isSemi x && isSemi xC) then
+      else if let (some csInst, some arcInst, true) := (csInst?, arcInst?, usePacked px.length && semiOk (packedBase x xC) x xC) then
         let h := mkAppN (mkConst ``Grind.CommRing.Expr.eq_of_toPPX_eqS [u])
-          (#[sr.type, csInst, arcInst, ctx] ++ packedArgsS x xC px (packedBal x) (packedBal xC))
+          (#[sr.type, csInst, arcInst, ctx] ++ packedArgs x xC px (packedBal x) (packedBal xC))
         mkExpectedPropHint h (mkApp3 (mkConst ``Eq [u.succ]) sr.type ex exC)
       else
       -- Large products are stated stepwise when there are any (`denoteSteps?`).

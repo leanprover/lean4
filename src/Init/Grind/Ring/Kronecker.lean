@@ -12,6 +12,7 @@ import Init.ByCases
 import Init.Data.Int.Order
 import Init.Data.Int.LemmasAux
 import Init.Data.Nat.Lemmas
+import Init.Data.Nat.Bitwise.Lemmas
 
 @[expose] public section
 
@@ -618,27 +619,28 @@ theorem lt_false_of_kron {α} [CommRing α] [LE α] [LT α] [LawfulOrderLT α] [
   rw [Expr.eq_of_kron ctx K B a b hB hK h]; exact eq_false Std.lt_irrefl
 
 theorem Expr.eq_of_kronS {α} [CommSemiring α] [AddRightCancel α] (ctx : Context α) (K B : Nat) (a b : Expr)
-    (hS : Bool.rec false b.semi_k a.semi_k = true) (hB : degOk_k B a b = true) (hK : kronOk_k K a b = true)
+    (hB : degSOk_k B a b = true) (hK : kronOk_k K a b = true)
     (h : a.kronEval_k K B = b.kronEval_k K B) : a.denoteS ctx = b.denoteS ctx := by
+  obtain ⟨hS, hB⟩ := of_degSOk_k hB
   have hS := semi_k_and hS
   apply Ring.OfSemiring.toQ_inj
   rw [← Expr.denoteAsRing_eq, ← Expr.denoteAsRing_eq, ← denote_mapCtx_toQ ctx a hS.1, ← denote_mapCtx_toQ ctx b hS.2]
   exact Expr.eq_of_kron _ K B a b hB hK h
 
 theorem eq_true_of_kronS {α} [CommSemiring α] [AddRightCancel α] (ctx : Context α) (K B : Nat) (a b : Expr)
-    (hS : Bool.rec false b.semi_k a.semi_k = true) (hB : Expr.degOk_k B a b = true) (hK : Expr.kronOk_k K a b = true)
+    (hB : Expr.degSOk_k B a b = true) (hK : Expr.kronOk_k K a b = true)
     (h : a.kronEval_k K B = b.kronEval_k K B) : (a.denoteS ctx = b.denoteS ctx) = True :=
-  eq_true (Expr.eq_of_kronS ctx K B a b hS hB hK h)
+  eq_true (Expr.eq_of_kronS ctx K B a b hB hK h)
 
 theorem le_true_of_kronS {α} [CommSemiring α] [AddRightCancel α] [LE α] [IsPreorder α] (ctx : Context α) (K B : Nat)
-    (a b : Expr) (hS : Bool.rec false b.semi_k a.semi_k = true) (hB : Expr.degOk_k B a b = true)
+    (a b : Expr) (hB : Expr.degSOk_k B a b = true)
     (hK : Expr.kronOk_k K a b = true) (h : a.kronEval_k K B = b.kronEval_k K B) : (a.denoteS ctx ≤ b.denoteS ctx) = True := by
-  rw [Expr.eq_of_kronS ctx K B a b hS hB hK h]; exact eq_true (Std.le_refl _)
+  rw [Expr.eq_of_kronS ctx K B a b hB hK h]; exact eq_true (Std.le_refl _)
 
 theorem lt_false_of_kronS {α} [CommSemiring α] [AddRightCancel α] [LE α] [LT α] [LawfulOrderLT α] [IsPreorder α]
-    (ctx : Context α) (K B : Nat) (a b : Expr) (hS : Bool.rec false b.semi_k a.semi_k = true) (hB : Expr.degOk_k B a b = true)
+    (ctx : Context α) (K B : Nat) (a b : Expr) (hB : Expr.degSOk_k B a b = true)
     (hK : Expr.kronOk_k K a b = true) (h : a.kronEval_k K B = b.kronEval_k K B) : (a.denoteS ctx < b.denoteS ctx) = False := by
-  rw [Expr.eq_of_kronS ctx K B a b hS hB hK h]; exact eq_false Std.lt_irrefl
+  rw [Expr.eq_of_kronS ctx K B a b hB hK h]; exact eq_false Std.lt_irrefl
 
 /-!
 Linear identities by evaluation at `xᵢ = X ^ (i + 1)`: when every product has a constant factor
@@ -941,16 +943,36 @@ theorem Expr.toLin_spec {α} [CommRing α] (f : Nat → α) (X : Int) (e : Expr)
         show (a.evalConst ^ k).natAbs ≤ _
         rw [Int.natAbs_pow, Nat.pow_eq]; exact Nat.pow_le_pow_left (Expr.natAbs_evalConst_le a) k
 
-/-- Checks that `a` and `b` are linear (`Expr.degB_k ≤ 1`). -/
+/--
+An upper bound on `Expr.degB_k e`, with `Nat.lor` in place of the maximum: it is the degree when
+the degree is at most `1`, and is cheaper to reduce.
+-/
+noncomputable def Expr.lin_k (e : Expr) : Nat :=
+  Expr.rec (fun _ => 0) (fun _ => 0) (fun _ => 0) (fun _ => 1) (fun _ ih => ih) (fun _ _ ih₁ ih₂ => Nat.lor ih₁ ih₂)
+    (fun _ _ ih₁ ih₂ => Nat.lor ih₁ ih₂) (fun _ _ ih₁ ih₂ => Nat.add ih₁ ih₂) (fun _ k ih => Nat.mul ih k) e
+
+theorem Expr.max_le_lor (a b c d : Nat) (h₁ : a ≤ c) (h₂ : b ≤ d) : (Bool.rec a b (Nat.blt a b) : Nat) ≤ Nat.lor c d := by
+  have := @Nat.left_le_or c d; have := @Nat.right_le_or c d
+  rw [Expr.max_k_eq]; show max a b ≤ c ||| d; omega
+
+theorem Expr.degB_le_lin_k (e : Expr) : e.degB_k ≤ e.lin_k := by
+  induction e with
+  | num | natCast | intCast | var => exact Nat.le_refl _
+  | neg a ih => exact ih
+  | add a b iha ihb | sub a b iha ihb => exact Expr.max_le_lor _ _ _ _ iha ihb
+  | mul a b iha ihb => exact Nat.add_le_add iha ihb
+  | pow a k ih => exact Nat.mul_le_mul_right k ih
+
+/-- Checks that `a` and `b` are linear (`Expr.degB_k ≤ 1`, through `Expr.lin_k`). -/
 noncomputable def Expr.linOk_k (a b : Expr) : Bool :=
-  Bool.rec false (Nat.ble b.degB_k 1) (Nat.ble a.degB_k 1)
+  Bool.rec false (Nat.ble b.lin_k 1) (Nat.ble a.lin_k 1)
 
 theorem Expr.eq_of_kronLin {α} [CommRing α] (ctx : Context α) (K : Nat) (a b : Expr)
     (hl : linOk_k a b = true) (hK : kronOk_k K a b = true) (h : a.kronLinEval_k K = b.kronLinEval_k K) :
     a.denote ctx = b.denote ctx := by
   have hl := PPoly.and_of_rec hl
-  have ha := Nat.le_of_ble_eq_true hl.1
-  have hb := Nat.le_of_ble_eq_true hl.2
+  have ha := Nat.le_trans (Expr.degB_le_lin_k a) (Nat.le_of_ble_eq_true hl.1)
+  have hb := Nat.le_trans (Expr.degB_le_lin_k b) (Nat.le_of_ble_eq_true hl.2)
   have hK : 2 * (a.majorant_k + b.majorant_k) < 2 ^ K := Nat.blt_eq.mp hK
   have hX : (0 : Int) < 2 ^ K := Int.pow_pos (by decide)
   have sa := Expr.toLin_spec (Var.denote ctx) ((2 : Int) ^ K) a ha
@@ -998,28 +1020,94 @@ theorem Expr.sub_eq_of_kron {α} [CommRing α] (ctx : Context α) (K B : Nat) (a
   rw [this]; show b.denote ctx + denoteInt k - _ = _
   rw [denoteInt_eq, sub_eq_add_neg, add_comm, ← add_assoc, AddCommGroup.neg_add_cancel, zero_add]
 
+/--
+`Expr.lin_k e`, or at least `2` if `e` is not a semiring term (`Expr.semi_k`): one traversal checks
+that a semiring term is linear.
+-/
+noncomputable def Expr.linS_k (e : Expr) : Nat :=
+  Expr.rec (fun k => Int.rec (fun _ => 0) (fun _ => 2) k) (fun _ => 0) (fun _ => 2) (fun _ => 1)
+    (fun _ _ => 2) (fun _ _ ih₁ ih₂ => Nat.lor ih₁ ih₂) (fun _ _ _ _ => 2)
+    (fun _ _ ih₁ ih₂ => Nat.add ih₁ ih₂) (fun _ k ih => Bool.rec (Nat.mul ih k) 2 (Nat.ble 2 ih)) e
+
+theorem Expr.of_linS_k (e : Expr) (h : e.linS_k ≤ 1) : e.semi_k = true ∧ e.lin_k ≤ e.linS_k := by
+  induction e with
+  | num k =>
+    cases k with
+    | ofNat => exact ⟨rfl, Nat.le_refl _⟩
+    | negSucc => exact (Nat.not_succ_le_self 1 h).elim
+  | natCast => exact ⟨rfl, Nat.le_refl _⟩
+  | intCast => exact (Nat.not_succ_le_self 1 h).elim
+  | var => exact ⟨rfl, Nat.le_refl _⟩
+  | neg => exact (Nat.not_succ_le_self 1 h).elim
+  | sub => exact (Nat.not_succ_le_self 1 h).elim
+  | add a b iha ihb =>
+    have h' : a.linS_k ||| b.linS_k ≤ 1 := h
+    have := @Nat.left_le_or a.linS_k b.linS_k; have := @Nat.right_le_or a.linS_k b.linS_k
+    obtain ⟨sa, da⟩ := iha (by omega)
+    obtain ⟨sb, db⟩ := ihb (by omega)
+    refine ⟨show Bool.rec false b.semi_k a.semi_k = true by rw [sa, sb], ?_⟩
+    show a.lin_k ||| b.lin_k ≤ a.linS_k ||| b.linS_k
+    have h₃ : a.linS_k ≤ 1 := by omega
+    have h₄ : b.linS_k ≤ 1 := by omega
+    rcases Nat.le_one_iff_eq_zero_or_eq_one.mp h₃ with h₃ | h₃ <;>
+    rcases Nat.le_one_iff_eq_zero_or_eq_one.mp h₄ with h₄ | h₄ <;>
+    rcases Nat.le_one_iff_eq_zero_or_eq_one.mp (Nat.le_trans da (by omega)) with h₁ | h₁ <;>
+    rcases Nat.le_one_iff_eq_zero_or_eq_one.mp (Nat.le_trans db (by omega)) with h₂ | h₂ <;>
+    simp only [h₁, h₂, h₃, h₄] at da db ⊢ <;> first | decide | omega
+  | mul a b iha ihb =>
+    have h' : Nat.add a.linS_k b.linS_k ≤ 1 := h
+    obtain ⟨sa, da⟩ := iha (by simp at h'; omega)
+    obtain ⟨sb, db⟩ := ihb (by simp at h'; omega)
+    refine ⟨show Bool.rec false b.semi_k a.semi_k = true by rw [sa, sb], ?_⟩
+    show Nat.add a.lin_k b.lin_k ≤ Nat.add a.linS_k b.linS_k
+    simp only [Nat.add_eq]; omega
+  | pow a k ih =>
+    have h' : (Bool.rec (Nat.mul a.linS_k k) 2 (Nat.ble 2 a.linS_k) : Nat) ≤ 1 := h
+    cases hb : Nat.ble 2 a.linS_k
+    · rw [hb] at h'
+      have ha : a.linS_k ≤ 1 := Nat.le_of_lt_succ (Nat.gt_of_not_le (fun hle => by rw [Nat.ble_eq.mpr hle] at hb; cases hb))
+      obtain ⟨sa, da⟩ := ih ha
+      refine ⟨sa, ?_⟩
+      show Nat.mul a.lin_k k ≤ Bool.rec (Nat.mul a.linS_k k) 2 (Nat.ble 2 a.linS_k)
+      rw [hb]; exact Nat.mul_le_mul_right k da
+    · rw [hb] at h'; exact (Nat.not_succ_le_self 1 h').elim
+
+/-- Checks that `a` and `b` are linear semiring terms (`Expr.linS_k`). -/
+noncomputable def Expr.linSOk_k (a b : Expr) : Bool :=
+  Bool.rec false (Nat.ble b.linS_k 1) (Nat.ble a.linS_k 1)
+
+theorem Expr.of_linSOk_k {a b : Expr} (h : linSOk_k a b = true) :
+    Bool.rec false b.semi_k a.semi_k = true ∧ linOk_k a b = true := by
+  have h := PPoly.and_of_rec h
+  obtain ⟨sa, da⟩ := of_linS_k a (Nat.le_of_ble_eq_true h.1)
+  obtain ⟨sb, db⟩ := of_linS_k b (Nat.le_of_ble_eq_true h.2)
+  refine ⟨by rw [sa, sb], ?_⟩
+  unfold linOk_k
+  rw [Nat.ble_eq.mpr (Nat.le_trans da (Nat.le_of_ble_eq_true h.1)), Nat.ble_eq.mpr (Nat.le_trans db (Nat.le_of_ble_eq_true h.2))]
+
 theorem Expr.eq_of_kronLinS {α} [CommSemiring α] [AddRightCancel α] (ctx : Context α) (K : Nat) (a b : Expr)
-    (hS : Bool.rec false b.semi_k a.semi_k = true) (hl : linOk_k a b = true) (hK : kronOk_k K a b = true)
+    (hl : linSOk_k a b = true) (hK : kronOk_k K a b = true)
     (h : a.kronLinEval_k K = b.kronLinEval_k K) : a.denoteS ctx = b.denoteS ctx := by
+  obtain ⟨hS, hl⟩ := of_linSOk_k hl
   have hS := semi_k_and hS
   apply Ring.OfSemiring.toQ_inj
   rw [← Expr.denoteAsRing_eq, ← Expr.denoteAsRing_eq, ← denote_mapCtx_toQ ctx a hS.1, ← denote_mapCtx_toQ ctx b hS.2]
   exact Expr.eq_of_kronLin _ K a b hl hK h
 
 theorem eq_true_of_kronLinS {α} [CommSemiring α] [AddRightCancel α] (ctx : Context α) (K : Nat) (a b : Expr)
-    (hS : Bool.rec false b.semi_k a.semi_k = true) (hl : Expr.linOk_k a b = true) (hK : Expr.kronOk_k K a b = true)
+    (hl : Expr.linSOk_k a b = true) (hK : Expr.kronOk_k K a b = true)
     (h : a.kronLinEval_k K = b.kronLinEval_k K) : (a.denoteS ctx = b.denoteS ctx) = True :=
-  eq_true (Expr.eq_of_kronLinS ctx K a b hS hl hK h)
+  eq_true (Expr.eq_of_kronLinS ctx K a b hl hK h)
 
 theorem le_true_of_kronLinS {α} [CommSemiring α] [AddRightCancel α] [LE α] [IsPreorder α] (ctx : Context α) (K : Nat)
-    (a b : Expr) (hS : Bool.rec false b.semi_k a.semi_k = true) (hl : Expr.linOk_k a b = true)
+    (a b : Expr) (hl : Expr.linSOk_k a b = true)
     (hK : Expr.kronOk_k K a b = true) (h : a.kronLinEval_k K = b.kronLinEval_k K) : (a.denoteS ctx ≤ b.denoteS ctx) = True := by
-  rw [Expr.eq_of_kronLinS ctx K a b hS hl hK h]; exact eq_true (Std.le_refl _)
+  rw [Expr.eq_of_kronLinS ctx K a b hl hK h]; exact eq_true (Std.le_refl _)
 
 theorem lt_false_of_kronLinS {α} [CommSemiring α] [AddRightCancel α] [LE α] [LT α] [LawfulOrderLT α] [IsPreorder α]
-    (ctx : Context α) (K : Nat) (a b : Expr) (hS : Bool.rec false b.semi_k a.semi_k = true) (hl : Expr.linOk_k a b = true)
+    (ctx : Context α) (K : Nat) (a b : Expr) (hl : Expr.linSOk_k a b = true)
     (hK : Expr.kronOk_k K a b = true) (h : a.kronLinEval_k K = b.kronLinEval_k K) : (a.denoteS ctx < b.denoteS ctx) = False := by
-  rw [Expr.eq_of_kronLinS ctx K a b hS hl hK h]; exact eq_false Std.lt_irrefl
+  rw [Expr.eq_of_kronLinS ctx K a b hl hK h]; exact eq_false Std.lt_irrefl
 
 /-!
 Kronecker certificates for `grind`'s Gröbner steps: a chain `p = p₁ + Σ kᵢ * mᵢ * qᵢ` of stated

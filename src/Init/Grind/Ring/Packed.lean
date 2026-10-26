@@ -1285,6 +1285,76 @@ noncomputable def Expr.semi_k (e : Expr) : Bool :=
 theorem Expr.semi_k_and {a b : Bool} (h : Bool.rec false b a = true) : a = true ∧ b = true := by
   cases a <;> cases b <;> simp_all
 
+/--
+`Expr.degB_k e`, or `B` if `e` is not a semiring term (`Expr.semi_k`): one traversal checks both.
+-/
+noncomputable def Expr.degS_k (B : Nat) (e : Expr) : Nat :=
+  Expr.rec (fun k => Int.rec (fun _ => 0) (fun _ => B) k) (fun _ => 0) (fun _ => B) (fun _ => 1)
+    (fun _ _ => B) (fun _ _ ih₁ ih₂ => Bool.rec ih₁ ih₂ (Nat.blt ih₁ ih₂)) (fun _ _ _ _ => B)
+    (fun _ _ ih₁ ih₂ => Nat.add ih₁ ih₂) (fun _ k ih => Bool.rec (Nat.mul ih k) B (Nat.ble B ih)) e
+
+theorem Expr.max_k_eq (a b : Nat) : (Bool.rec a b (Nat.blt a b) : Nat) = max a b := by
+  cases h : Nat.blt a b
+  · have := Nat.le_of_not_lt (fun hlt => by rw [Nat.blt_eq.mpr hlt] at h; cases h)
+    show a = max a b; omega
+  · have := Nat.blt_eq.mp h
+    show b = max a b; omega
+
+theorem Expr.of_degS_k (B : Nat) (e : Expr) (h : e.degS_k B < B) : e.semi_k = true ∧ e.degB_k ≤ e.degS_k B := by
+  induction e with
+  | num k =>
+    cases k with
+    | ofNat => exact ⟨rfl, Nat.le_refl _⟩
+    | negSucc => exact absurd h (Nat.lt_irrefl _)
+  | natCast => exact ⟨rfl, Nat.le_refl _⟩
+  | intCast => exact absurd h (Nat.lt_irrefl _)
+  | var => exact ⟨rfl, Nat.le_refl _⟩
+  | neg => exact absurd h (Nat.lt_irrefl _)
+  | sub => exact absurd h (Nat.lt_irrefl _)
+  | add a b iha ihb =>
+    have h' : max (a.degS_k B) (b.degS_k B) < B := by rw [← Expr.max_k_eq]; exact h
+    obtain ⟨sa, da⟩ := iha (by omega)
+    obtain ⟨sb, db⟩ := ihb (by omega)
+    refine ⟨show Bool.rec false b.semi_k a.semi_k = true by rw [sa, sb], ?_⟩
+    show (Bool.rec a.degB_k b.degB_k (Nat.blt a.degB_k b.degB_k) : Nat) ≤ Bool.rec (a.degS_k B) (b.degS_k B) (Nat.blt (a.degS_k B) (b.degS_k B))
+    rw [Expr.max_k_eq, Expr.max_k_eq]; omega
+  | mul a b iha ihb =>
+    have h' : Nat.add (a.degS_k B) (b.degS_k B) < B := h
+    obtain ⟨sa, da⟩ := iha (by simp at h'; omega)
+    obtain ⟨sb, db⟩ := ihb (by simp at h'; omega)
+    refine ⟨show Bool.rec false b.semi_k a.semi_k = true by rw [sa, sb], ?_⟩
+    show Nat.add a.degB_k b.degB_k ≤ Nat.add (a.degS_k B) (b.degS_k B)
+    simp only [Nat.add_eq]; omega
+  | pow a k ih =>
+    have h' : (Bool.rec (Nat.mul (a.degS_k B) k) B (Nat.ble B (a.degS_k B)) : Nat) < B := h
+    cases hb : Nat.ble B (a.degS_k B)
+    · rw [hb] at h'
+      have ha : a.degS_k B < B := Nat.gt_of_not_le (fun hle => by rw [Nat.ble_eq.mpr hle] at hb; cases hb)
+      obtain ⟨sa, da⟩ := ih ha
+      refine ⟨sa, ?_⟩
+      show Nat.mul a.degB_k k ≤ Bool.rec (Nat.mul (a.degS_k B) k) B (Nat.ble B (a.degS_k B))
+      rw [hb]; exact Nat.mul_le_mul_right k da
+    · rw [hb] at h'; exact absurd h' (Nat.lt_irrefl _)
+
+/-- Checks `1 < B` and the degree bounds of `a` and `b` for the base `B`, and that they are semiring terms. -/
+noncomputable def Expr.degSOk_k (B : Nat) (a b : Expr) : Bool :=
+  Bool.rec false (Bool.rec false (Nat.blt (b.degS_k B) B) (Nat.blt (a.degS_k B) B)) (Nat.blt 1 B)
+
+theorem Expr.of_degSOk_k {B : Nat} {a b : Expr} (h : degSOk_k B a b = true) :
+    Bool.rec false b.semi_k a.semi_k = true ∧ degOk_k B a b = true := by
+  unfold degSOk_k at h
+  cases h₁ : Nat.blt 1 B <;> rw [h₁] at h
+  · cases h
+  · cases h₂ : Nat.blt (a.degS_k B) B <;> rw [h₂] at h
+    · cases h
+    · obtain ⟨sa, da⟩ := of_degS_k B a (Nat.blt_eq.mp h₂)
+      obtain ⟨sb, db⟩ := of_degS_k B b (Nat.blt_eq.mp h)
+      refine ⟨by rw [sa, sb], ?_⟩
+      unfold degOk_k
+      have ha : Nat.blt a.degB_k B = true := Nat.blt_eq.mpr (Nat.lt_of_le_of_lt da (Nat.blt_eq.mp h₂))
+      have hb : Nat.blt b.degB_k B = true := Nat.blt_eq.mpr (Nat.lt_of_le_of_lt db (Nat.blt_eq.mp h))
+      rw [h₁, ha, hb]
+
 theorem Expr.denote_mapCtx_toQ {α} [CommSemiring α] (ctx : Context α) (e : Expr) (h : e.semi_k = true) :
     e.denote (PPoly.mapCtx Ring.OfSemiring.toQ ctx) = e.denoteSAsRing ctx := by
   induction e with
@@ -1312,27 +1382,27 @@ theorem Expr.denote_mapCtx_toQ {α} [CommSemiring α] (ctx : Context α) (e : Ex
     rw [ih h]
 
 theorem Expr.eq_of_toPPX_eqS {α} [CommSemiring α] [AddRightCancel α] (ctx : Context α) (B : Nat) (bal₁ bal₂ : Bool)
-    (a b : Expr) (p : PPoly) (hS : Bool.rec false b.semi_k a.semi_k = true) (hB : degOk_k B a b = true)
+    (a b : Expr) (p : PPoly) (hB : degSOk_k B a b = true)
     (h₁ : p = a.toPPX_k B bal₁) (h₂ : p = b.toPPX_k B bal₂) : a.denoteS ctx = b.denoteS ctx := by
+  obtain ⟨hS, hB⟩ := of_degSOk_k hB
   have hS := semi_k_and hS
   apply Ring.OfSemiring.toQ_inj
   rw [← Expr.denoteAsRing_eq, ← Expr.denoteAsRing_eq, ← denote_mapCtx_toQ ctx a hS.1, ← denote_mapCtx_toQ ctx b hS.2]
   exact Expr.eq_of_toPPX_eq _ B bal₁ bal₂ a b p hB h₁ h₂
 
 theorem eq_true_of_toPPX_eqS {α} [CommSemiring α] [AddRightCancel α] (ctx : Context α) (B : Nat) (bal₁ bal₂ : Bool)
-    (a b : Expr) (p : PPoly) (hS : Bool.rec false b.semi_k a.semi_k = true) (hB : Expr.degOk_k B a b = true)
+    (a b : Expr) (p : PPoly) (hB : Expr.degSOk_k B a b = true)
     (h₁ : p = a.toPPX_k B bal₁) (h₂ : p = b.toPPX_k B bal₂) : (a.denoteS ctx = b.denoteS ctx) = True :=
-  eq_true (Expr.eq_of_toPPX_eqS ctx B bal₁ bal₂ a b p hS hB h₁ h₂)
+  eq_true (Expr.eq_of_toPPX_eqS ctx B bal₁ bal₂ a b p hB h₁ h₂)
 
 theorem le_true_of_toPPX_eqS {α} [CommSemiring α] [AddRightCancel α] [LE α] [IsPreorder α] (ctx : Context α) (B : Nat)
-    (bal₁ bal₂ : Bool) (a b : Expr) (p : PPoly) (hS : Bool.rec false b.semi_k a.semi_k = true) (hB : Expr.degOk_k B a b = true)
+    (bal₁ bal₂ : Bool) (a b : Expr) (p : PPoly) (hB : Expr.degSOk_k B a b = true)
     (h₁ : p = a.toPPX_k B bal₁) (h₂ : p = b.toPPX_k B bal₂) : (a.denoteS ctx ≤ b.denoteS ctx) = True := by
-  rw [Expr.eq_of_toPPX_eqS ctx B bal₁ bal₂ a b p hS hB h₁ h₂]; exact eq_true (Std.le_refl _)
+  rw [Expr.eq_of_toPPX_eqS ctx B bal₁ bal₂ a b p hB h₁ h₂]; exact eq_true (Std.le_refl _)
 
 theorem lt_false_of_toPPX_eqS {α} [CommSemiring α] [AddRightCancel α] [LE α] [LT α] [LawfulOrderLT α] [IsPreorder α]
-    (ctx : Context α) (B : Nat) (bal₁ bal₂ : Bool) (a b : Expr) (p : PPoly) (hS : Bool.rec false b.semi_k a.semi_k = true)
-    (hB : Expr.degOk_k B a b = true) (h₁ : p = a.toPPX_k B bal₁) (h₂ : p = b.toPPX_k B bal₂) :
-    (a.denoteS ctx < b.denoteS ctx) = False := by
-  rw [Expr.eq_of_toPPX_eqS ctx B bal₁ bal₂ a b p hS hB h₁ h₂]; exact eq_false Std.lt_irrefl
+    (ctx : Context α) (B : Nat) (bal₁ bal₂ : Bool) (a b : Expr) (p : PPoly) (hB : Expr.degSOk_k B a b = true)
+    (h₁ : p = a.toPPX_k B bal₁) (h₂ : p = b.toPPX_k B bal₂) : (a.denoteS ctx < b.denoteS ctx) = False := by
+  rw [Expr.eq_of_toPPX_eqS ctx B bal₁ bal₂ a b p hB h₁ h₂]; exact eq_false Std.lt_irrefl
 
 end Lean.Grind.CommRing

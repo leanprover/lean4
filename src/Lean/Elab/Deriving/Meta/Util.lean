@@ -791,7 +791,6 @@ def makeInstancesUsingMutualBlock (infos : Array (InstanceInfo α))
       env.hasUnsafe info.fullType.get! || env.hasUnsafe info.value ||
         info.extendedHelpers.any fun helper =>
           env.hasUnsafe helper.type || env.hasUnsafe helper.value.get!
-    let isUnsafe ← pure isUnsafe <|> allParams.anyM (do pure <| env.hasUnsafe <| ← inferType ·)
     let computeKind := if (← read).isMeta then .meta else .regular
     for info in infos do
       for helper in info.extendedHelpers do

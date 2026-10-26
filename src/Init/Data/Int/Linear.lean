@@ -2423,18 +2423,48 @@ theorem pow_eq (a : Int) (b : Nat) (a' b' k : Int) (h₁ : a = a') (h₂ : ↑b 
   simp [← h₁, ← h₂] at h₃; simp [h₃]
 
 
+/-- `Poly.isValidEq` for kernel reduction. -/
+@[expose] noncomputable def Poly.isValidEq_k (p : Poly) : Bool :=
+  Poly.rec (fun k => Int.beq' k 0) (fun _ _ _ _ => false) p
+
+theorem Poly.isValidEq_k_eq (p : Poly) : p.isValidEq_k = p.isValidEq := by
+  cases p <;> simp [isValidEq_k, isValidEq, Int.beq'_eq_beq]
+
+/-- `Poly.isValidLe` for kernel reduction. -/
+@[expose] noncomputable def Poly.isValidLe_k (p : Poly) : Bool :=
+  Poly.rec (fun k => Bool.rec true false (Int.blt' 0 k)) (fun _ _ _ _ => false) p
+
+theorem Poly.isValidLe_k_eq (p : Poly) : p.isValidLe_k = p.isValidLe := by
+  cases p with
+  | num k =>
+    show Bool.rec (motive := fun _ => Bool) true false (Int.blt' 0 k) = decide (k ≤ 0)
+    cases h : Int.blt' 0 k
+    · have := (Int.blt'_eq_false 0 k).mp h; simp; omega
+    · have := (Int.blt'_eq_true 0 k).mp h; simp; omega
+  | add => rfl
+
+theorem Poly.isUnsatLe_k_eq (p : Poly) : p.isUnsatLe_k = p.isUnsatLe := by
+  cases p with
+  | num k =>
+    show Int.blt' 0 k = decide (k > 0)
+    cases h : Int.blt' 0 k
+    · have := (Int.blt'_eq_false 0 k).mp h; simp; omega
+    · have := (Int.blt'_eq_true 0 k).mp h; simp; omega
+  | add => rfl
+
 /-!
 Variants of the theorems used by `simp +arith` that state the user's terms with `Expr.denote_k`,
 so that the kernel matches them by unfolding `Expr.rec` instead of `Expr.denote`'s `brecOn`.
 -/
 
-theorem eq_eq_false_k (ctx : Context) (lhs rhs : Expr) (h : (lhs.sub rhs).norm.isUnsatEq_k) :
+theorem eq_eq_false_k (ctx : Context) (lhs rhs : Expr) (h : (lhs.sub rhs).norm_k.isUnsatEq_k) :
     (lhs.denote_k ctx = rhs.denote_k ctx) = False := by
-  simp only [Expr.denote_k_eq_denote]; exact eq_eq_false ctx lhs rhs h
+  simp only [Expr.denote_k_eq_denote]; exact eq_eq_false ctx lhs rhs (by simpa only [Expr.norm_k_eq_norm] using h)
 
-theorem eq_eq_true_k (ctx : Context) (lhs rhs : Expr) (h : (lhs.sub rhs).norm.isValidEq) :
+theorem eq_eq_true_k (ctx : Context) (lhs rhs : Expr) (h : (lhs.sub rhs).norm_k.isValidEq_k) :
     (lhs.denote_k ctx = rhs.denote_k ctx) = True := by
-  simp only [Expr.denote_k_eq_denote]; exact eq_eq_true ctx lhs rhs h
+  simp only [Expr.denote_k_eq_denote]
+  exact eq_eq_true ctx lhs rhs (by simpa only [Expr.norm_k_eq_norm, Poly.isValidEq_k_eq] using h)
 
 theorem norm_eq_var_k (ctx : Context) (lhs rhs : Expr) (x y : Var) (h : norm_eq_var_cert lhs rhs x y) :
     (lhs.denote_k ctx = rhs.denote_k ctx) = (x.denote ctx = y.denote ctx) := by
@@ -2456,13 +2486,15 @@ theorem eq_eq_false_of_divCoeff_k (ctx : Context) (lhs rhs : Expr) (k : Int) (h 
     (lhs.denote_k ctx = rhs.denote_k ctx) = False := by
   simp only [Expr.denote_k_eq_denote]; exact eq_eq_false_of_divCoeff ctx lhs rhs k h
 
-theorem le_eq_false_k (ctx : Context) (lhs rhs : Expr) (h : (lhs.sub rhs).norm.isUnsatLe) :
+theorem le_eq_false_k (ctx : Context) (lhs rhs : Expr) (h : (lhs.sub rhs).norm_k.isUnsatLe_k) :
     (lhs.denote_k ctx ≤ rhs.denote_k ctx) = False := by
-  simp only [Expr.denote_k_eq_denote]; exact le_eq_false ctx lhs rhs h
+  simp only [Expr.denote_k_eq_denote]
+  exact le_eq_false ctx lhs rhs (by simpa only [Expr.norm_k_eq_norm, Poly.isUnsatLe_k_eq] using h)
 
-theorem le_eq_true_k (ctx : Context) (lhs rhs : Expr) (h : (lhs.sub rhs).norm.isValidLe) :
+theorem le_eq_true_k (ctx : Context) (lhs rhs : Expr) (h : (lhs.sub rhs).norm_k.isValidLe_k) :
     (lhs.denote_k ctx ≤ rhs.denote_k ctx) = True := by
-  simp only [Expr.denote_k_eq_denote]; exact le_eq_true ctx lhs rhs h
+  simp only [Expr.denote_k_eq_denote]
+  exact le_eq_true ctx lhs rhs (by simpa only [Expr.norm_k_eq_norm, Poly.isValidLe_k_eq] using h)
 
 theorem norm_le_k (ctx : Context) (lhs rhs : Expr) (p : Poly) (h : norm_eq_cert lhs rhs p) :
     (lhs.denote_k ctx ≤ rhs.denote_k ctx) = (p.denote' ctx ≤ 0) := by
@@ -2480,17 +2512,18 @@ theorem norm_dvd_k (ctx : Context) (k : Int) (e : Expr) (p : Poly) (h : e.norm_k
     (k ∣ e.denote_k ctx) = (k ∣ p.denote' ctx) := by
   simp only [Expr.denote_k_eq_denote]; exact norm_dvd ctx k e p h
 
-theorem dvd_eq_false_k (ctx : Context) (k : Int) (e : Expr) (h : e.norm.isUnsatDvd k) :
+theorem dvd_eq_false_k (ctx : Context) (k : Int) (e : Expr) (h : e.norm_k.isUnsatDvd_k k) :
     (k ∣ e.denote_k ctx) = False := by
-  simp only [Expr.denote_k_eq_denote]; exact dvd_eq_false ctx k e h
+  simp only [Expr.denote_k_eq_denote]
+  exact dvd_eq_false ctx k e (by simpa only [Expr.norm_k_eq_norm, Poly.isUnsatDvd_k_eq_isUnsatDvd] using h)
 
 theorem norm_dvd_gcd_k (ctx : Context) (k₁ : Int) (e₁ : Expr) (k₂ : Int) (p₂ : Poly) (g : Int) (h : norm_dvd_gcd_cert k₁ e₁ k₂ p₂ g) :
     (k₁ ∣ e₁.denote_k ctx) = (k₂ ∣ p₂.denote' ctx) := by
   simp only [Expr.denote_k_eq_denote]; exact norm_dvd_gcd ctx k₁ e₁ k₂ p₂ g h
 
-theorem Expr.eq_of_norm_eq_k (ctx : Context) (e : Expr) (p : Poly) (h : e.norm.beq' p) :
+theorem Expr.eq_of_norm_eq_k (ctx : Context) (e : Expr) (p : Poly) (h : e.norm_k.beq' p) :
     e.denote_k ctx = p.denote' ctx := by
-  simp only [Expr.denote_k_eq_denote]; exact Expr.eq_of_norm_eq ctx e p h
+  simp only [Expr.denote_k_eq_denote]; exact Expr.eq_of_norm_eq ctx e p (by simpa only [Expr.norm_k_eq_norm] using h)
 
 end Int.Internal.Linear
 

@@ -526,7 +526,9 @@ size_t mpz::get_size_t() const {
 
 mpz & mpz::operator=(mpz const & v) {
     if (v.m_digits != m_digits) {
-        if (v.m_size == m_size) {
+        // A moved-from object has `m_digits == nullptr` but keeps its old `m_size`.
+        if (m_digits && v.m_size == m_size) {
+            m_sign = v.m_sign;
             memcpy(m_digits, v.m_digits, m_size * sizeof(mpn_digit));
         } else {
             mpz_dealloc(m_digits, sizeof(mpn_digit)*m_size);
@@ -1064,8 +1066,7 @@ int64 mpz::smod64() const {
 }
 
 void power(mpz & a, mpz const & b, unsigned k) {
-    a = b;
-    a.pow(k);
+    a = b.pow(k);
 }
 
 void gcd(mpz & g, mpz const & a, mpz const & b) {

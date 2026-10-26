@@ -61,10 +61,7 @@ abbrev Var.denote {α} (ctx : Context α) (v : Var) : α :=
   ctx.get v
 
 noncomputable abbrev denoteInt {α} [Ring α] (k : Int) : α :=
-  Bool.rec
-    (OfNat.ofNat (α := α) k.natAbs)
-    (- OfNat.ofNat (α := α) k.natAbs)
-    (Int.blt' k 0)
+  Int.rec (fun n => OfNat.ofNat (α := α) n) (fun n => - OfNat.ofNat (α := α) n.succ) k
 
 noncomputable abbrev Expr.denote {α} [Ring α] (ctx : Context α) (e : Expr) : α :=
   Expr.rec
@@ -1532,9 +1529,11 @@ open Ring hiding sub_eq_add_neg
 open CommSemiring
 
 theorem denoteInt_eq {α} [Ring α] (k : Int) : denoteInt (α := α) k = k := by
-  simp [denoteInt] <;> cases h : k.blt' 0 <;> simp <;> simp at h
-  next h => rw [ofNat_eq_natCast, ← intCast_natCast, ← Int.eq_natAbs_of_nonneg h]
-  next h => rw [ofNat_eq_natCast, ← intCast_natCast, ← Ring.intCast_neg, ← Int.eq_neg_natAbs_of_nonpos (Int.le_of_lt h)]
+  cases k with
+  | ofNat n => show OfNat.ofNat (α := α) n = _; rw [ofNat_eq_natCast, ← intCast_natCast]; rfl
+  | negSucc n =>
+    show - OfNat.ofNat (α := α) n.succ = _
+    rw [ofNat_eq_natCast, ← intCast_natCast, ← Ring.intCast_neg]; rfl
 
 theorem Power.denote_eq {α} [Semiring α] (ctx : Context α) (p : Power)
     : p.denote ctx = p.x.denote ctx ^ p.k := by

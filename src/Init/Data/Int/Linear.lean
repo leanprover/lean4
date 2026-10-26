@@ -2616,6 +2616,18 @@ theorem lt_norm_expr_k (ctx : Context) (lhs rhs lhs' rhs' : Expr) (h : (lhs.sub 
   have e (a b : Int) : (a < b) = (a - b < 0) := propext ⟨Int.sub_neg_of_lt, Int.lt_of_sub_neg⟩
   rw [e (lhs.denote ctx), h', ← e]
 
+theorem eq_true_of_norm_eq_k (ctx : Context) (lhs rhs : Expr) (h : lhs.norm_k.beq' rhs.norm_k) :
+    (lhs.denote_k ctx = rhs.denote_k ctx) = True :=
+  eq_true (Expr.eq_of_norm_expr_k ctx lhs rhs h)
+
+theorem le_true_of_norm_eq_k (ctx : Context) (lhs rhs : Expr) (h : lhs.norm_k.beq' rhs.norm_k) :
+    (lhs.denote_k ctx ≤ rhs.denote_k ctx) = True := by
+  rw [Expr.eq_of_norm_expr_k ctx lhs rhs h]; exact eq_true (Int.le_refl _)
+
+theorem lt_false_of_norm_eq_k (ctx : Context) (lhs rhs : Expr) (h : lhs.norm_k.beq' rhs.norm_k) :
+    (lhs.denote_k ctx < rhs.denote_k ctx) = False := by
+  rw [Expr.eq_of_norm_expr_k ctx lhs rhs h]; exact eq_false (Int.lt_irrefl _)
+
 end Int.Internal.Linear
 
 theorem Int.not_le_eq (a b : Int) : (¬a ≤ b) = (b + 1 ≤ a) := by

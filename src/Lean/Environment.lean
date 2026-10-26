@@ -3097,8 +3097,11 @@ def hasUnsafe (env : Environment) (e : Expr) : Bool :=
   -- there is a fast path for theorems, so we want to make sure we do not perceive them merely as
   -- axioms (for imported theorems this does not matter as there is nothing to block on).
   let env := env.setExporting false
+  let imported := env.base.get env |>.constants.map₁
   let c? := e.find? fun e => match e with
     | Expr.const c _ =>
+      -- Like `find?`, avoid going through `AsyncConstantInfo` for imported constants.
+      if let some cinfo := imported.findConstCached? c then cinfo.isUnsafe else
       match env.findAsync? c with
       | some cinfo => cinfo.isUnsafe
       | none       => false

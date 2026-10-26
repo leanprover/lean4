@@ -52,6 +52,19 @@ def exprDegS (B : Nat) : RingExpr → Nat
   | .mul a b => exprDegS B a + exprDegS B b
   | .pow a k => let d := exprDegS B a; if B ≤ d then B else d * k
 
+/--
+`true` if normalizing `e` multiplies out a sum: a product or power with a sum of nonconstant
+terms. Otherwise normalizing `e` only merges terms, and is cheaper than a Kronecker certificate.
+-/
+def exprExpandsSum : RingExpr → Bool
+  | .mul a b => (isSum a && exprDegB b ≥ 1) || (isSum b && exprDegB a ≥ 1) || exprExpandsSum a || exprExpandsSum b
+  | .pow a k => (k ≥ 2 && isSum a) || exprExpandsSum a
+  | .add a b | .sub a b => exprExpandsSum a || exprExpandsSum b
+  | .neg a => exprExpandsSum a
+  | _ => false
+where
+  isSum (e : RingExpr) : Bool := (e matches .add .. || e matches .sub ..) && exprDegB e ≥ 1
+
 /-- The coefficient bound `Grind.CommRing.Expr.majorant_k` of `e`. -/
 def exprMajorant : RingExpr → Nat
   | .num k | .intCast k => k.natAbs

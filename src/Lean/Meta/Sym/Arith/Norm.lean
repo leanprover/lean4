@@ -1597,6 +1597,12 @@ private def linearIntRel? (type : Expr) (invs : Array (Var × Nat)) (ainvs : Arr
     && isSmallSum (.sub l r) size
   return (← toLinearExpr? l, ← toLinearExpr? r, ← toLinearExpr? l', ← toLinearExpr? r')
 
+/-- The number of summands of `e`, through additions, subtractions and negations. -/
+private def summandsOf : RingExpr → Nat
+  | .add a b | .sub a b => summandsOf a + summandsOf b
+  | .neg a => summandsOf a
+  | _ => 1
+
 /--
 The proof of `(l ⋈ r) = (l' ⋈ r')` when `l - r` and `l' - r'` have the same polynomial, by
 evaluation at a point (`le_of_kronLin_rel` for linear terms, `le_of_kron_rel`), if feasible.
@@ -1616,10 +1622,13 @@ private def kronRelProof? (rel : RelKind) (order? : Option Order) (type inst ctx
     | .lt => (``Grind.CommRing.lt_of_kronLin_rel, ``Grind.CommRing.lt_of_kron_rel)
   let sides := #[toExpr l, toExpr r, toExpr l', toExpr r']
   let refl (v : Expr) := mkApp2 (mkConst ``Eq.refl [1]) (mkConst ``Int) v
-  if let some K := kronLinExponent? a b 1000000 then
+  -- Small relations are cheaper to normalize in the kernel than to evaluate: below 16 summands
+  -- for linear terms, and below 6 for other terms that do not multiply out a sum.
+  if let some K := (kronLinExponent? a b kronMaxBits).filter fun _ => summandsOf a ≥ 16 then
     let ev := mkApp2 (mkConst ``Grind.CommRing.Expr.kronLinEval_k) (mkRawNatLit K) (toExpr a)
     return mkAppN (mkConst linName [u]) (#[type, inst] ++ insts ++ #[ctx, mkRawNatLit K] ++ sides ++
       #[eagerReflBoolTrue, eagerReflBoolTrue, refl ev])
+  guard (exprExpandsSum a || summandsOf a ≥ 6)
   let (K, B) ← kronArgs? a b
   let ev := mkApp3 (mkConst ``Grind.CommRing.Expr.kronEval_k) (mkRawNatLit K) (mkRawNatLit B) (toExpr a)
   return mkAppN (mkConst name [u]) (#[type, inst] ++ insts ++ #[ctx, mkRawNatLit K, mkRawNatLit B] ++ sides ++
@@ -1758,7 +1767,7 @@ private def constRelProof? (rel : RelKind) (order? : Option Order) (ring : Ring)
       -- `a - b` is the constant `kab`.
       let kab := if a == l then k else -k
       let bk : RingExpr := .add b (.num kab)
-      let h? : Option Expr := if let some K := kronLinExponent? a bk 1000000 then
+      let h? : Option Expr := if let some K := kronLinExponent? a bk kronMaxBits then
           some (mkAppN (mkConst ``Grind.CommRing.Expr.sub_eq_of_kronLin [u]) (#[ring.type, inst, ctx] ++
             #[mkRawNatLit K, toExpr a, toExpr b, toExpr kab, eagerReflBoolTrue, eagerReflBoolTrue,
               mkApp2 (mkConst ``Eq.refl [1]) (mkConst ``Int) (mkApp2 (mkConst ``Grind.CommRing.Expr.kronLinEval_k) (mkRawNatLit K) (toExpr a))]))
@@ -2236,7 +2245,7 @@ private def normalizeRelCore (rel : RelKind) (relFn : Expr) (order? : Option Ord
           | _, _, _ => none
         | _, none => none
       if let (some (linName, _, insts), true, some K₁, some K₂) := (insts?, linSemiOk l lC && linSemiOk r rC,
-          kronLinExponent? l lC 1000000, kronLinExponent? r rC kronMaxBits) then
+          kronLinExponent? l lC kronMaxBits, kronLinExponent? r rC kronMaxBits) then
         let K := max K₁ K₂
         let ev (e : RingExpr) := mkApp2 (mkConst ``Grind.CommRing.Expr.kronLinEval_k) (mkRawNatLit K) (toExpr e)
         let reflI (e : RingExpr) := mkApp2 (mkConst ``Eq.refl [1]) (mkConst ``Int) (ev e)

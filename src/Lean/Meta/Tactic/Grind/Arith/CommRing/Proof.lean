@@ -408,16 +408,6 @@ private partial def collectSimps1 (c : EqCnstr) (acc : Array (Int × Mon × EqCn
   | .simp 1 c₁ k₂ m₂ c₂ => collectSimps1 c₁ (acc.push (k₂, m₂, c₂, c))
   | _ => return (c, acc)
 
-/-- `true` if normalizing `e` multiplies out a sum: a product or power with a sum of nonconstant terms. -/
-private def expandsSum : RingExpr → Bool
-  | .mul a b => (isSum a && exprDegB b ≥ 1) || (isSum b && exprDegB a ≥ 1) || expandsSum a || expandsSum b
-  | .pow a k => (k ≥ 2 && isSum a) || expandsSum a
-  | .add a b | .sub a b => expandsSum a || expandsSum b
-  | .neg a => expandsSum a
-  | _ => false
-where
-  isSum (e : RingExpr) : Bool := (e matches .add .. || e matches .sub ..) && exprDegB e ≥ 1
-
 open Lean.Grind.CommRing in
 /--
 The proof of `p.denote ctx = 0` from `h : lhs = rhs`, where `p` is the polynomial of `lhs - rhs`,
@@ -427,7 +417,7 @@ characteristic `c`, the difference over `Int` is `c * E` for a stated polynomial
 private def mkKronCore? (lhs rhs : RingExpr) (p : Poly) (h : Expr) : ProofM (Option Expr) := do
   let e : RingExpr := .sub lhs rhs
   -- The evaluation pays off when the normalization of `lhs - rhs` multiplies out sums of degree 3 or more.
-  if !expandsSum e || exprDegB e < 3 then return none
+  if !exprExpandsSum e || exprDegB e < 3 then return none
   let B := max 2 (max (exprDegB e) (polyMaxDeg p) + 1)
   let c? ← nonzeroChar?
   let E : Poly ← match c? with

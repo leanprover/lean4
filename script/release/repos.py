@@ -411,18 +411,6 @@ _register(DOC_GEN4)
 BATTERIES.ignored_deps.append(DOC_GEN4)
 
 
-# To create a new release, open a PR into `master`. In it, bump the toolchain
-# and all dependencies.
-#
-# Once the release PR is merged, tag the resulting commit with the lean version.
-LEAN4EXPORT = ReleaseRepo(
-    github=("leanprover", "lean4export"),
-    rc1_pr_base="downstream",
-    release_tag="lean",
-)
-_register(LEAN4EXPORT)
-
-
 ###################
 ## Visualization ##
 ###################

@@ -556,10 +556,7 @@ def continueContainers : ContainerM s Unit := do
           matched := st.matched + 1
           matched_le := by rw [BlockZipper.spine_size_pushBlockquoteMarker]; exact h
         }
-      | .list _ =>
-        -- Lists themselves have no continuation marker; their listItem children do.
-        st := { st with matched := st.matched + 1, matched_le := h }
-      | .listItem _ contentColumn =>
+      | .listItem _ _ contentColumn =>
         -- A line that is indented to the item's content column continues the item. A blank line
         -- that is indented less also continues the item, and all of the blank line's whitespace is
         -- consumed.
@@ -680,15 +677,6 @@ line closes the block and falls through to the remaining steps.
   modify fun st => { st with zipper := st.zipper.closeLeaf }
 
 /--
-If the deepest container is a list whose previous item just closed and this line is non-blank
-without a sibling marker, close the list so subsequent content doesn't become a stray child.
--/
-@[inline] def closeFinishedSiblingList (line : IndentedLine s) : ProcessM s Unit := do
-  let some (.list _) := (← get).zipper.top? | return
-  if !line.after.isEmpty && (parseListMarker? line).isNone then
-    modify fun st => { st with zipper := st.zipper.closeContainer }
-
-/--
 Opens as many container prefixes (blockquote, list-item) as the line provides, in order. Returns
 whether a list item was opened on this line, because the blank line handler downstream needs that
 information to distinguish an empty list item's body from a blank-line separator, together with the
@@ -705,7 +693,7 @@ def openContainerPrefixes (line : IndentedLine s) : ProcessM s (Bool × Indented
     if isThematicBreak line then break
     if let some (markerRange, cAfter) := parseBlockquoteMarker? line then
       modify fun st =>
-        { st with zipper := st.zipper.openContainer (.blockquote #[markerRange]), cursor := cAfter }
+        { st with zipper := st.zipper.openBlockquote #[markerRange], cursor := cAfter }
       line := cAfter.skipIndent
     else if let some m := parseListMarker? line then
       -- An open paragraph here is the innermost block, since every container that did not continue
@@ -717,20 +705,8 @@ def openContainerPrefixes (line : IndentedLine s) : ProcessM s (Bool × Indented
         break
       else
         modify fun st =>
-          let z := st.zipper
-          let z :=
-            match z.top? with
-            | some (.list k) =>
-              if k.sameKind m.kind then
-                z.openContainer (.listItem m.marker m.contentColumn)
-              else
-                z.closeContainer
-                  |>.openContainer (.list m.kind)
-                  |>.openContainer (.listItem m.marker m.contentColumn)
-            | _ =>
-              z.openContainer (.list m.kind)
-                |>.openContainer (.listItem m.marker m.contentColumn)
-          { st with zipper := z, cursor := m.after }
+          { st with
+            zipper := st.zipper.openItem m.kind m.marker m.contentColumn, cursor := m.after }
         openedListItemThisLine := true
         line := m.after.skipIndent
     else
@@ -742,11 +718,7 @@ Adds a thematic break for the line and finishes it.
 -/
 @[inline] def finishThematicBreak : ProcessM s Unit := do
   let line := trimTrailingWs (← get).cursor.skipIndent.after.toEol
-  finishLineWith fun z => Id.run do
-    let mut z := z
-    while (match z.top? with | some (.list _) => true | _ => false) do
-      z := z.closeContainer
-    return z.addBlock (.thematicBreak line)
+  finishLineWith (·.addBlock (.thematicBreak line))
 
 /--
 Finishes a blank line (CommonMark §4.9). A blank line is one that is blank _after_ the prefix of
@@ -760,10 +732,11 @@ stay open, since whether they continue is decided by the next line that has cont
   finishLineWith fun z => Id.run do
     let mut z := z.closeLeaf
     if !openedListItemThisLine then
-      if let some lastFrame := z.spine.back? then
-        if let .listItem _ _ := lastFrame.container then
-          if lastFrame.closedChildren.isEmpty then
-            z := z.closeContainer
+      let emptyItem :=
+        if let some { container := .listItem .., children } := z.spine.back? then
+          children.isEmpty
+        else false
+      if emptyItem then z := z.closeContainer
     -- An item may begin with one blank line (CommonMark §5.2). When the marker is alone on its
     -- line, this is that blank line. It precedes the item's first block instead of separating two
     -- blocks, so it is recorded like a content line and leaves the list tight.
@@ -859,7 +832,6 @@ def processLine (z : BlockZipper s) (line : s.Subslice) : BlockZipper s :=
     consumeHtmlBlock
     consumeIndentedCode
     let line := (← get).cursor.skipIndent
-    closeFinishedSiblingList line
     let (openedListItemThisLine, line) ← openContainerPrefixes line
     openLeafBlock openedListItemThisLine line
   match pipeline.run init with

@@ -28,6 +28,10 @@ extern "C" void finalize_libuv() {
     global_ev.stop();
 }
 
+extern "C" void restart_libuv() {
+    global_ev.start();
+}
+
 extern "C" LEAN_EXPORT char ** lean_setup_args(int argc, char ** argv) {
     return uv_setup_args(argc, argv);
 }
@@ -41,6 +45,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_libuv_version(lean_obj_arg o) {
 
 extern "C" void initialize_libuv() {}
 extern "C" void finalize_libuv() {}
+extern "C" void restart_libuv() {}
 
 extern "C" LEAN_EXPORT lean_obj_res lean_libuv_version(lean_obj_arg o) {
     return lean_box(0);

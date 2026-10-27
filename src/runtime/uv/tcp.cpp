@@ -86,6 +86,12 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_new() {
 
     {
         event_loop_guard guard;
+
+        if (guard.stopped()) {
+            delete tcp_socket;
+            return io_result_mk_uv_error(UV_ECANCELED);
+        }
+
         result = uv_tcp_init(global_ev.m_loop, &tcp_socket->m_uv_tcp);
     }
 
@@ -130,7 +136,13 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_connect(b_obj_arg socket, b_obj_
     int result;
     {
         event_loop_guard guard;
-        result = tcp_socket->m_closed ? UV_EBADF : uv_tcp_connect(&req->uv, &tcp_socket->m_uv_tcp, (sockaddr*)&addr_struct, on_connect);
+
+        if (guard.closed(&tcp_socket->m_uv_tcp)) {
+            delete req;
+            return io_result_mk_uv_error(tcp_socket->m_closed ? UV_EBADF : UV_ECANCELED);
+        }
+
+        result = uv_tcp_connect(&req->uv, &tcp_socket->m_uv_tcp, (sockaddr*)&addr_struct, on_connect);
     }
 
     if (result < 0) {
@@ -180,7 +192,13 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_send(b_obj_arg socket, obj_arg d
     int result;
     {
         event_loop_guard guard;
-        result = tcp_socket->m_closed ? UV_EBADF : uv_write(&req->uv, (uv_stream_t*)&tcp_socket->m_uv_tcp, bufs.data(), bufs.count(), on_write);
+
+        if (guard.closed(&tcp_socket->m_uv_tcp)) {
+            delete req;
+            return io_result_mk_uv_error(tcp_socket->m_closed ? UV_EBADF : UV_ECANCELED);
+        }
+
+        result = uv_write(&req->uv, (uv_stream_t*)&tcp_socket->m_uv_tcp, bufs.data(), bufs.count(), on_write);
     }
 
     if (result < 0) {
@@ -231,8 +249,8 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_recv(b_obj_arg socket, uint64_t 
         // Locking early prevents potential parallelism issues setting the receive buffer.
         event_loop_guard guard;
 
-        if (tcp_socket->m_closed) {
-            return io_result_mk_uv_error(UV_EBADF);
+        if (guard.closed(&tcp_socket->m_uv_tcp)) {
+            return io_result_mk_uv_error(tcp_socket->m_closed ? UV_EBADF : UV_ECANCELED);
         }
 
         if (tcp_socket->m_read.pending()) {
@@ -302,8 +320,8 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_wait_readable(b_obj_arg socket) 
     {
         event_loop_guard guard;
 
-        if (tcp_socket->m_closed) {
-            return io_result_mk_uv_error(UV_EBADF);
+        if (guard.closed(&tcp_socket->m_uv_tcp)) {
+            return io_result_mk_uv_error(tcp_socket->m_closed ? UV_EBADF : UV_ECANCELED);
         }
 
         if (tcp_socket->m_read.pending()) {
@@ -340,6 +358,11 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_cancel_recv(b_obj_arg socket) {
     {
         event_loop_guard guard;
 
+        // `close` already cancelled the pending read.
+        if (!tcp_socket->m_closed && guard.closed(&tcp_socket->m_uv_tcp)) {
+            return io_result_mk_uv_error(UV_ECANCELED);
+        }
+
         if (tcp_socket->m_read.pending()) {
             uv_read_stop((uv_stream_t*)&tcp_socket->m_uv_tcp);
 
@@ -361,8 +384,13 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_bind(b_obj_arg socket, b_obj_arg
     int result;
     {
         event_loop_guard guard;
+
         // On a closed handle, libuv would open a new socket.
-        result = tcp_socket->m_closed ? UV_EBADF : uv_tcp_bind(&tcp_socket->m_uv_tcp, (sockaddr*)&addr_ptr, 0);
+        if (guard.closed(&tcp_socket->m_uv_tcp)) {
+            return io_result_mk_uv_error(tcp_socket->m_closed ? UV_EBADF : UV_ECANCELED);
+        }
+
+        result = uv_tcp_bind(&tcp_socket->m_uv_tcp, (sockaddr*)&addr_ptr, 0);
     }
 
     if (result < 0) {
@@ -413,7 +441,11 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_listen(b_obj_arg socket, int32_t
     {
         event_loop_guard guard;
 
-        result = tcp_socket->m_closed ? UV_EBADF : uv_listen((uv_stream_t*)&tcp_socket->m_uv_tcp, backlog, on_connection);
+        if (guard.closed(&tcp_socket->m_uv_tcp)) {
+            return io_result_mk_uv_error(tcp_socket->m_closed ? UV_EBADF : UV_ECANCELED);
+        }
+
+        result = uv_listen((uv_stream_t*)&tcp_socket->m_uv_tcp, backlog, on_connection);
 
         if (result == 0) {
             tcp_socket->m_listening = true;
@@ -443,8 +475,8 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_accept(b_obj_arg socket) {
         // Locking early prevents potential parallelism issues setting `m_accept`.
         event_loop_guard guard;
 
-        if (tcp_socket->m_closed) {
-            return io_result_mk_uv_error(UV_EBADF);
+        if (guard.closed(&tcp_socket->m_uv_tcp)) {
+            return io_result_mk_uv_error(tcp_socket->m_closed ? UV_EBADF : UV_ECANCELED);
         }
 
         if (tcp_socket->m_accept.pending()) {
@@ -501,8 +533,8 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_try_accept(b_obj_arg socket) {
         // Locking early prevents potential parallelism issues setting `m_accept`.
         event_loop_guard guard;
 
-        if (tcp_socket->m_closed) {
-            return io_result_mk_uv_error(UV_EBADF);
+        if (guard.closed(&tcp_socket->m_uv_tcp)) {
+            return io_result_mk_uv_error(tcp_socket->m_closed ? UV_EBADF : UV_ECANCELED);
         }
 
         if (tcp_socket->m_accept.pending()) {
@@ -550,8 +582,8 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_wait_acceptable(b_obj_arg socket
     {
         event_loop_guard guard;
 
-        if (tcp_socket->m_closed) {
-            return io_result_mk_uv_error(UV_EBADF);
+        if (guard.closed(&tcp_socket->m_uv_tcp)) {
+            return io_result_mk_uv_error(tcp_socket->m_closed ? UV_EBADF : UV_ECANCELED);
         }
 
         if (tcp_socket->m_accept.pending()) {
@@ -589,6 +621,11 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_cancel_accept(b_obj_arg socket) 
     uv_pending_op op;
     {
         event_loop_guard guard;
+
+        // `close` already cancelled the pending accept.
+        if (!tcp_socket->m_closed && guard.closed(&tcp_socket->m_uv_tcp)) {
+            return io_result_mk_uv_error(UV_ECANCELED);
+        }
 
         if (tcp_socket->m_accept.pending()) {
             op = std::move(tcp_socket->m_accept);
@@ -633,12 +670,12 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_shutdown(b_obj_arg socket) {
         // Locking early prevents potential parallelism issues setting the m_promise_shutdown.
         event_loop_guard guard;
 
-        // `uv_shutdown` clears the writable flag right away, so a second request fails with `ENOTCONN`
-        // no matter whether the first one is still pending; reject it here to report a meaningful error.
-        if (tcp_socket->m_closed) {
-            return io_result_mk_uv_error(UV_EBADF);
+        if (guard.closed(&tcp_socket->m_uv_tcp)) {
+            return io_result_mk_uv_error(tcp_socket->m_closed ? UV_EBADF : UV_ECANCELED);
         }
 
+        // `uv_shutdown` clears the writable flag right away, so a second request fails with `ENOTCONN`
+        // no matter whether the first one is still pending; reject it here to report a meaningful error.
         if (tcp_socket->m_shutdown_requested) {
             return lean_io_result_mk_error(lean_mk_io_error_other_error(-UV_EALREADY, mk_string("shutdown already requested")));
         }
@@ -686,7 +723,8 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_close(b_obj_arg socket) {
     {
         event_loop_guard guard;
 
-        if (tcp_socket->m_closed) {
+        // Also true once a teardown closed the handle.
+        if (guard.closed(&tcp_socket->m_uv_tcp)) {
             return lean_io_result_mk_ok(lean_box(0));
         }
         tcp_socket->m_closed = true;
@@ -740,7 +778,12 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_getpeername(b_obj_arg socket) {
     int result;
     {
         event_loop_guard guard;
-        result = tcp_socket->m_closed ? UV_EBADF : uv_tcp_getpeername(&tcp_socket->m_uv_tcp, (struct sockaddr*)&addr_storage, &addr_len);
+
+        if (guard.closed(&tcp_socket->m_uv_tcp)) {
+            return io_result_mk_uv_error(tcp_socket->m_closed ? UV_EBADF : UV_ECANCELED);
+        }
+
+        result = uv_tcp_getpeername(&tcp_socket->m_uv_tcp, (struct sockaddr*)&addr_storage, &addr_len);
     }
 
     if (result < 0) {
@@ -762,7 +805,12 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_getsockname(b_obj_arg socket) {
     int result;
     {
         event_loop_guard guard;
-        result = tcp_socket->m_closed ? UV_EBADF : uv_tcp_getsockname(&tcp_socket->m_uv_tcp, (struct sockaddr*)&addr_storage, &addr_len);
+
+        if (guard.closed(&tcp_socket->m_uv_tcp)) {
+            return io_result_mk_uv_error(tcp_socket->m_closed ? UV_EBADF : UV_ECANCELED);
+        }
+
+        result = uv_tcp_getsockname(&tcp_socket->m_uv_tcp, (struct sockaddr*)&addr_storage, &addr_len);
     }
 
     if (result < 0) {
@@ -780,7 +828,12 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_nodelay(b_obj_arg socket) {
     int result;
     {
         event_loop_guard guard;
-        result = tcp_socket->m_closed ? UV_EBADF : uv_tcp_nodelay(&tcp_socket->m_uv_tcp, 1);
+
+        if (guard.closed(&tcp_socket->m_uv_tcp)) {
+            return io_result_mk_uv_error(tcp_socket->m_closed ? UV_EBADF : UV_ECANCELED);
+        }
+
+        result = uv_tcp_nodelay(&tcp_socket->m_uv_tcp, 1);
     }
 
     if (result < 0) {
@@ -797,8 +850,13 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_keepalive(b_obj_arg socket, uint
     int result;
     {
         event_loop_guard guard;
+
+        if (guard.closed(&tcp_socket->m_uv_tcp)) {
+            return io_result_mk_uv_error(tcp_socket->m_closed ? UV_EBADF : UV_ECANCELED);
+        }
+
         // Lean passes `Int8` as `uint8_t`.
-        result = tcp_socket->m_closed ? UV_EBADF : uv_tcp_keepalive(&tcp_socket->m_uv_tcp, (int8_t)enable, delay);
+        result = uv_tcp_keepalive(&tcp_socket->m_uv_tcp, (int8_t)enable, delay);
     }
 
     if (result < 0) {

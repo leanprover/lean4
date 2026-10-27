@@ -151,6 +151,12 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_signal_mk(uint32_t signum_obj, uint8
 
     {
         event_loop_guard guard;
+
+        if (guard.stopped()) {
+            delete signal;
+            return io_result_mk_uv_error(UV_ECANCELED);
+        }
+
         result = uv_signal_init(global_ev.m_loop, &signal->m_uv_signal);
     }
 
@@ -177,6 +183,10 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_signal_next(b_obj_arg obj) {
 
     {
         event_loop_guard guard;
+
+        if (guard.closed(&signal->m_uv_signal)) {
+            return io_result_mk_uv_error(UV_ECANCELED);
+        }
 
         if (signal->m_state == signal_state::Initial) {
             signal->m_promise = owned_ref(mk_mt_promise());
@@ -247,6 +257,10 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_signal_stop(b_obj_arg obj) {
         // Locked so that a firing one-shot signal cannot finish it concurrently.
         event_loop_guard guard;
 
+        if (guard.closed(&signal->m_uv_signal)) {
+            return io_result_mk_uv_error(UV_ECANCELED);
+        }
+
         if (signal->m_state == signal_state::Running) {
             result = uv_signal_stop(&signal->m_uv_signal);
             promise = std::move(signal->m_promise);
@@ -277,6 +291,10 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_signal_cancel(b_obj_arg obj) {
     {
         // It's locking here to avoid changing the state during other operations.
         event_loop_guard guard;
+
+        if (guard.closed(&signal->m_uv_signal)) {
+            return io_result_mk_uv_error(UV_ECANCELED);
+        }
 
         // The signal keeps listening, so one that arrives before the next `next` is not lost. The loop
         // stops keeping it alive, so a signal that is dropped instead is closed by its finalizer.

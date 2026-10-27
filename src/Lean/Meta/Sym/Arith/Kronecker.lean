@@ -14,6 +14,27 @@ Parameters of the certificates by Kronecker substitution (`Init/Grind/Ring/Krone
 elaborator side of the bounds that the kernel checks.
 -/
 
+/--
+The estimates below saturate at `2 ^ kronSatBits`, which is larger than the bit limit of every
+Kronecker certificate: an estimate that reaches it rejects the certificate (`kronExponent?`), and
+the estimate is never computed in full. Without saturation, `((x - x) ^ 64) ^ 64 …` builds integers
+of billions of bits.
+-/
+def kronSatBits : Nat := 2 ^ 22
+
+/-- `a * b`, or a value of at least `2 ^ kronSatBits` if `a * b` is larger. -/
+def satMul (a b : Nat) : Nat :=
+  if a.log2 + b.log2 < kronSatBits then a * b else 2 ^ kronSatBits
+
+/--
+`a ^ k`, or a value of at least `2 ^ kronSatBits` if `a ^ k` is larger. A saturated `a` stays
+saturated even for `k = 0`: the kernel still computes the estimate of the base.
+-/
+def satPow (a k : Nat) : Nat :=
+  if kronSatBits ≤ a.log2 then a
+  else if a ≤ 1 then a ^ k
+  else if k * a.log2 < kronSatBits then a ^ k else 2 ^ kronSatBits
+
 /-- The degree bound `Grind.CommRing.Expr.degB_k` of `e`. -/
 def exprDegB : RingExpr → Nat
   | .num _ | .natCast _ | .intCast _ => 0
@@ -72,8 +93,8 @@ def exprMajorant : RingExpr → Nat
   | .var _ => 1
   | .neg a => exprMajorant a
   | .add a b | .sub a b => exprMajorant a + exprMajorant b
-  | .mul a b => exprMajorant a * exprMajorant b
-  | .pow a k => exprMajorant a ^ k
+  | .mul a b => satMul (exprMajorant a) (exprMajorant b)
+  | .pow a k => satPow (exprMajorant a) k
 
 /-- The maximum degree of the monomials of `p` (`Grind.CommRing.Poly.maxDeg_k`). -/
 def polyMaxDeg : Poly → Nat
@@ -95,14 +116,17 @@ def polyMaxCode (B : Nat) : Poly → Nat
   | .num _ => 0
   | .add _ m p => max (monCode B m) (polyMaxCode B p)
 
-/-- An upper bound on the packed codes of the monomials of the polynomials of `e` and its subterms. -/
+/--
+An upper bound on the packed codes of the monomials of the polynomials of `e` and its subterms.
+The base of `a ^ 0` counts too, since the kernel evaluates it at the point.
+-/
 def exprMaxCode (B : Nat) : RingExpr → Nat
   | .num _ | .natCast _ | .intCast _ => 0
-  | .var x => B ^ x
+  | .var x => satPow B x
   | .neg a => exprMaxCode B a
   | .add a b | .sub a b => max (exprMaxCode B a) (exprMaxCode B b)
   | .mul a b => exprMaxCode B a + exprMaxCode B b
-  | .pow a k => exprMaxCode B a * k
+  | .pow a k => let c := exprMaxCode B a; if k = 0 then c else satMul c k
 
 /--
 The exponent `K` of a Kronecker certificate whose coefficients are bounded by `norm` and whose
@@ -151,14 +175,14 @@ def exprMajQ (invs : List (Var × Nat)) : RingExpr → Nat × Nat
   | .add a b | .sub a b =>
     let (m₁, d₁) := exprMajQ invs a
     let (m₂, d₂) := exprMajQ invs b
-    (m₁ * d₂ + m₂ * d₁, d₁ * d₂)
+    (satMul m₁ d₂ + satMul m₂ d₁, satMul d₁ d₂)
   | .mul a b =>
     let (m₁, d₁) := exprMajQ invs a
     let (m₂, d₂) := exprMajQ invs b
-    (m₁ * m₂, d₁ * d₂)
+    (satMul m₁ m₂, satMul d₁ d₂)
   | .pow a k =>
     let (m, d) := exprMajQ invs a
-    (m ^ k, d ^ k)
+    (satPow m k, satPow d k)
 
 /--
 The arguments `K` and `B` of the Kronecker certificate of a field identity
@@ -168,16 +192,16 @@ def kronQArgs? (l r : RingExpr) (invs : List (Var × Nat)) (maxBits : Nat) : Opt
   let B := max 2 (max (deg l) (deg r) + 1)
   let (ml, dl) := exprMajQ invs l
   let (mr, dr) := exprMajQ invs r
-  (kronExponent? (dr * ml + dl * mr) (max (go B l) (go B r)) maxBits).map (·, B)
+  (kronExponent? (satMul dr ml + satMul dl mr) (max (go B l) (go B r)) maxBits).map (·, B)
 where
   /-- `exprMaxCode`, where the variables of `invs` are constants. -/
   go (B : Nat) : RingExpr → Nat
     | .num _ | .natCast _ | .intCast _ => 0
-    | .var x => if (invLookup invs x).isSome then 0 else B ^ x
+    | .var x => if (invLookup invs x).isSome then 0 else satPow B x
     | .neg a => go B a
     | .add a b | .sub a b => max (go B a) (go B b)
     | .mul a b => go B a + go B b
-    | .pow a k => go B a * k
+    | .pow a k => let c := go B a; if k = 0 then c else satMul c k
   /-- `exprDegB`, where the variables of `invs` are constants (`Grind.CommRing.Expr.degQB_k`). -/
   deg : RingExpr → Nat
     | .num _ | .natCast _ | .intCast _ => 0
@@ -204,7 +228,7 @@ def kronQLinExponent? (l r : RingExpr) (invs : List (Var × Nat)) (maxBits : Nat
   if exprDegQL invs l ≤ 1 && exprDegQL invs r ≤ 1 then
     let (ml, dl) := exprMajQ invs l
     let (mr, dr) := exprMajQ invs r
-    kronExponent? (dr * ml + dl * mr) (max (maxVar l) (maxVar r)) maxBits
+    kronExponent? (satMul dr ml + satMul dl mr) (max (maxVar l) (maxVar r)) maxBits
   else
     none
 where

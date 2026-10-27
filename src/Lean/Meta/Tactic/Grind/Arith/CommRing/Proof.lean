@@ -309,6 +309,40 @@ private def mkPackedSum (declName declNameC : Name) (pre : Array Expr) (base p :
   return mkAppN h (pre ++ #[BE, ← mkPolyDecl base, ← mkPolyDecl p, P, t, eagerReflBoolTrue, refl, refl, hAll])
 
 /--
+The largest number of terms of the quotient `E` of a Kronecker certificate in a nonzero
+characteristic. `E` is stated as a term with one node per term, and the kernel recurses through it.
+-/
+private def kronQuotientMaxTerms : Nat := 2048
+
+/-- `t ^ k`, or a value larger than `limit` if `t ^ k` is larger. -/
+private def termsPow (limit t : Nat) : Nat → Nat → Nat
+  | 0, acc => min (limit + 1) acc
+  | k + 1, acc => if acc > limit then acc else termsPow limit t k (min (limit + 1) (acc * t))
+
+/-- An upper bound on the number of terms of `e.toPoly` by sums and products, or a value larger than `limit`. -/
+private def exprTermsBySize (limit : Nat) : RingExpr → Nat
+  | .num _ | .natCast _ | .intCast _ | .var _ => 1
+  | .neg a => exprTermsBySize limit a
+  | .add a b | .sub a b => min (limit + 1) (exprTermsBySize limit a + exprTermsBySize limit b)
+  | .mul a b => min (limit + 1) (exprTermsBySize limit a * exprTermsBySize limit b)
+  | .pow a k => termsPow limit (exprTermsBySize limit a) k 1
+
+/--
+The number `C(d + n, n)` of monomials of degree at most `d` in `n` variables, computed as
+`C(d + i, i)` for `i = 1, …, n`, or a value larger than `limit`.
+-/
+private def numMonomials (limit d : Nat) : Nat → Nat → Nat → Nat
+  | 0, _, acc => acc
+  | n + 1, i, acc => if acc > limit then acc else numMonomials limit d n (i + 1) (acc * (d + i) / i)
+
+/--
+An upper bound on the number of terms of `e.toPoly` over `Int`, or a value larger than `limit`. In
+a nonzero characteristic, `e` can have few terms while its expansion over `Int` has thousands.
+-/
+private def exprTermsBound (limit : Nat) (e : RingExpr) : Nat :=
+  min (exprTermsBySize limit e) (numMonomials limit (exprDegB e) (e.collectVars {}).size 1 1)
+
+/--
 The proof that `p` is `base` plus the multiples `kᵢ * mᵢ * qᵢ` of `leaves` by Kronecker
 substitution (`Stepwise.simpsK`, `Stepwise.d_stepsK`, or `Stepwise.simpsM`, `Stepwise.d_stepsM`
 with the multiples grouped by polynomial), applied to `pre`, if the values at the
@@ -319,18 +353,20 @@ private def mkKronSum? (declName declNameC declNameM declNameMC : Name) (pre : A
     (leaves : Array (Int × Mon × Poly × Expr)) : ProofM (Option Expr) := do
   let deg := leaves.foldl (fun d (_, m, q, _) => max d (m.degree + polyMaxDeg q)) (max (polyMaxDeg base) (polyMaxDeg p))
   let B := max 2 (deg + 1)
+  let norm₀ := leaves.foldl (fun n (k, _, q, _) => n + k.natAbs * polyNorm1 q) (polyNorm1 p + polyNorm1 base)
+  let maxCode := leaves.foldl (fun c (_, m, q, _) => max c (monCode B m + polyMaxCode B q)) (max (polyMaxCode B base) (polyMaxCode B p))
+  -- As in `mkKronCore?`, the bound is checked without the characteristic quotient first.
+  if (kronExponent? norm₀ maxCode 4000000).isNone then return none
   let c? ← nonzeroChar?
   let E : Poly ← match c? with
     | none => pure (.num 0)
     | some c =>
       let d := leaves.foldl (init := p.combine (base.mulConst (-1))) fun acc (k, m, q, _) => acc.combine (q.mulMon (-k) m)
       let E := d.divConst c
-      unless E.mulConst c == d do return none
+      unless E.mulConst c == d && E.length ≤ kronQuotientMaxTerms do return none
       pure E
   let c := c?.getD 0
-  let norm := leaves.foldl (fun n (k, _, q, _) => n + k.natAbs * polyNorm1 q) (polyNorm1 p + polyNorm1 base + c * polyNorm1 E)
-  let maxCode := leaves.foldl (fun c (_, m, q, _) => max c (monCode B m + polyMaxCode B q)) (max (polyMaxCode B base) (polyMaxCode B p))
-  let some K := kronExponent? norm maxCode 4000000 | return none
+  let some K := kronExponent? (norm₀ + c * polyNorm1 E) maxCode 4000000 | return none
   let ring ← getCommRing
   let ctx ← getContext
   -- The multiples `kᵢ * mᵢ * q` of the same `q` are one multiple `(Σ kᵢ * mᵢ) * q` (`MList`).
@@ -419,7 +455,12 @@ private def mkKronCore? (lhs rhs : RingExpr) (p : Poly) (h : Expr) : ProofM (Opt
   -- The evaluation pays off when the normalization of `lhs - rhs` multiplies out sums of degree 3 or more.
   if !exprExpandsSum e || exprDegB e < 3 then return none
   let B := max 2 (max (exprDegB e) (polyMaxDeg p) + 1)
+  let maxCode := max (exprMaxCode B e) (polyMaxCode B p)
+  -- Expanding `e` over `Int` for the characteristic quotient can be much larger than `p`, so the
+  -- bound and the size of the expansion are checked first.
+  if (kronExponent? (exprMajorant e + polyNorm1 p) maxCode 4000000).isNone then return none
   let c? ← nonzeroChar?
+  if c?.isSome && exprTermsBound kronQuotientMaxTerms e > kronQuotientMaxTerms then return none
   let E : Poly ← match c? with
     | none => pure (.num 0)
     | some c =>
@@ -428,7 +469,6 @@ private def mkKronCore? (lhs rhs : RingExpr) (p : Poly) (h : Expr) : ProofM (Opt
       unless E.mulConst c == diff do return none
       pure E
   let c := c?.getD 0
-  let maxCode := max (exprMaxCode B e) (polyMaxCode B p)
   let some K := kronExponent? (exprMajorant e + polyNorm1 p + c * polyNorm1 E) maxCode 4000000 | return none
   let pre ← mkStepPrefix ``Stepwise.coreK ``Stepwise.coreKC
   let eArgs ← if c?.isSome then pure #[← mkPPolyDecl E B] else pure #[]
@@ -602,7 +642,12 @@ private def mkKronImp? (lhs rhs : RingExpr) (d : PolyDerivation) (k : Int) (p₀
   let e : RingExpr := .sub lhs rhs
   let deg := max (exprDegB e) (polyMaxDeg p₀)
   let B := max 2 (deg + 1)
+  let maxCode := max (exprMaxCode B e) (polyMaxCode B p₀)
+  -- Expanding `e` over `Int` for the characteristic quotient can be much larger than `p₀`, so the
+  -- bound and the size of the expansion are checked first.
+  if (kronExponent? (exprMajorant e + polyNorm1 p₀) maxCode 4000000).isNone then return none
   let c? ← nonzeroChar?
+  if c?.isSome && exprTermsBound kronQuotientMaxTerms e > kronQuotientMaxTerms then return none
   let E : Poly ← match c? with
     | none => pure (.num 0)
     | some c =>
@@ -611,7 +656,6 @@ private def mkKronImp? (lhs rhs : RingExpr) (d : PolyDerivation) (k : Int) (p₀
       unless E.mulConst c == diff do return none
       pure E
   let c := c?.getD 0
-  let maxCode := max (exprMaxCode B e) (polyMaxCode B p₀)
   let some K := kronExponent? (exprMajorant e + polyNorm1 p₀ + c * polyNorm1 E) maxCode 4000000 | return none
   let pre ← if k == 1 then
     mkStepPrefix ``Stepwise.imp_1eqK ``Stepwise.imp_1eqKC

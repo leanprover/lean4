@@ -888,6 +888,24 @@ private def kronArgs? (l r : RingExpr) : Option (Nat × Nat) :=
   let B := packedBase l r
   (kronExponent? (exprMajorant l + exprMajorant r) (max (exprMaxCode B l) (exprMaxCode B r)) kronMaxBits).map (·, B)
 
+/--
+The arguments `K` and `B` shared by the Kronecker certificates for `l₁ = r₁` and `l₂ = r₂`. A larger
+`B` raises the codes of the other pair, so the bound is checked for the shared arguments.
+-/
+private def kronArgs₂? (l₁ r₁ l₂ r₂ : RingExpr) : Option (Nat × Nat) :=
+  let B := max (packedBase l₁ r₁) (packedBase l₂ r₂)
+  let norm := max (exprMajorant l₁ + exprMajorant r₁) (exprMajorant l₂ + exprMajorant r₂)
+  let maxCode := max (max (exprMaxCode B l₁) (exprMaxCode B r₁)) (max (exprMaxCode B l₂) (exprMaxCode B r₂))
+  (kronExponent? norm maxCode kronMaxBits).map (·, B)
+
+/-- The exponent `K` shared by the linear Kronecker certificates for `l₁ = r₁` and `l₂ = r₂`. -/
+private def kronLinExponent₂? (l₁ r₁ l₂ r₂ : RingExpr) : Option Nat := do
+  let K₁ ← kronLinExponent? l₁ r₁ kronMaxBits
+  let K₂ ← kronLinExponent? l₂ r₂ kronMaxBits
+  let K := max K₁ K₂
+  let maxCode := max (max (exprMaxVar l₁) (exprMaxVar r₁)) (max (exprMaxVar l₂) (exprMaxVar r₂))
+  if K * (maxCode + 1) > kronMaxBits then none else some K
+
 /-- The arguments `K l r hl hK h` of the linear Kronecker certificates (`Expr.eq_of_kronLin`). -/
 private def kronLinProofArgs (l r : RingExpr) (K : Nat) : Array Expr :=
   let ev := mkApp2 (mkConst ``Grind.CommRing.Expr.kronLinEval_k) (mkRawNatLit K) (toExpr l)
@@ -2244,18 +2262,15 @@ private def normalizeRelCore (rel : RelKind) (relFn : Expr) (order? : Option Ord
             ``Grind.CommRing.lt_cancel_of_kronS, #[o.leInst, ltInst, lawfulInst, o.isPreorderInst, orInst])
           | _, _, _ => none
         | _, none => none
-      if let (some (linName, _, insts), true, some K₁, some K₂) := (insts?, linSemiOk l lC && linSemiOk r rC,
-          kronLinExponent? l lC kronMaxBits, kronLinExponent? r rC kronMaxBits) then
-        let K := max K₁ K₂
+      if let (some (linName, _, insts), true, some K) := (insts?, linSemiOk l lC && linSemiOk r rC,
+          kronLinExponent₂? l lC r rC) then
         let ev (e : RingExpr) := mkApp2 (mkConst ``Grind.CommRing.Expr.kronLinEval_k) (mkRawNatLit K) (toExpr e)
         let reflI (e : RingExpr) := mkApp2 (mkConst ``Eq.refl [1]) (mkConst ``Int) (ev e)
         let h := mkAppN (mkConst linName [u]) (#[sr.type, csInst, arcInst] ++ insts ++ #[ctx, mkRawNatLit K,
           toExpr l, toExpr r, toExpr l', toExpr r', toExpr cX, eagerReflBoolTrue, eagerReflBoolTrue, reflI l,
           eagerReflBoolTrue, eagerReflBoolTrue, reflI r])
         return .step e' (mkExpectedPropHint h (mkPropEq e e'))
-      if let (some (_, name, insts), some (K₁, B₁), some (K₂, B₂)) := (insts?, kronArgs? l lC, kronArgs? r rC) then
-        let K := max K₁ K₂
-        let B := max B₁ B₂
+      if let (some (_, name, insts), some (K, B)) := (insts?, kronArgs₂? l lC r rC) then
         if semiOk B l lC && semiOk B r rC then
           let ev (e : RingExpr) := mkApp3 (mkConst ``Grind.CommRing.Expr.kronEval_k) (mkRawNatLit K) (mkRawNatLit B) (toExpr e)
           let reflI (e : RingExpr) := mkApp2 (mkConst ``Eq.refl [1]) (mkConst ``Int) (ev e)

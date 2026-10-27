@@ -326,10 +326,6 @@ def wpSimpStateArgs? (goal : MVarId) (info : WPApp) :
   | .app f rhs =>
     let (result, simpState') ← Sym.Simp.SimpM.run
       (do
-        -- Without a rewrite in the state arguments, return before the congruence proof.
-        -- `simpAppArgRange` finds the results of the first pass in the cache.
-        unless ← info.excessArgs.anyM fun a => return (← Sym.Simp.simp a) matches .step .. do
-          return .rfl
         let ar ← Sym.Simp.simpAppArgRange rhs start (start + info.excessArgs.size)
         Sym.Simp.mkCongr target f rhs .rfl ar h)
       methods {} (← get).simpState

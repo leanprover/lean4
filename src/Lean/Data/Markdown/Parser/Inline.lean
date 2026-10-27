@@ -305,12 +305,13 @@ def classifyDelim (ch prevChar nextChar : Char) : Bool × Bool :=
   (canOpen, canClose)
 
 /--
-Whether the input after `cur` is a link label (CommonMark §6.3): at most 999 characters and no
-unescaped brackets.
+Whether the input after `cur` is a link label (CommonMark §6.3): at most 999 characters, no
+unescaped brackets, and at least one character that is not a space, tab, or line ending.
 -/
 def isLinkLabel (cur : InlineCursor s) : Bool := Id.run do
   let mut cur := cur
   let mut len := 0
+  let mut sawNonWs := false
   while !cur.isEmpty do
     if len ≥ 999 then return false
     let c := cur.front
@@ -319,9 +320,12 @@ def isLinkLabel (cur : InlineCursor s) : Bool := Id.run do
     if c == '\\' && Option.any isAsciiPunctuation cur.front? then
       cur := cur.drop1
       len := len + 1
+      sawNonWs := true
     else if c == '[' || c == ']' then
       return false
-  return true
+    else if !c.isWhitespace then
+      sawNonWs := true
+  return sawNonWs
 
 /-- The monad for parsing link targets. Failure is `none`. -/
 abbrev LinkTargetM (s : String.Slice) := ReaderT (InlineContext s) Option

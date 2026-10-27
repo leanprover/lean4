@@ -506,6 +506,18 @@ A list is loose when two blocks of one of its items are separated by a blank lin
 /-- info: ["list[item[fencedCode#[\"\"]], item[paragraph⟪text⟪b⟫⟫]]"] -/
 #guard_msgs in #eval showDocument "- ```\n\n  ```\n- b\n" 0
 
+-- A blank line between an empty item and the next item separates them, so the list is loose
+-- (CommonMark §5.3), as cmark and commonmark.js also read it.
+/-- info: ["looseList[item[], item[paragraph⟪text⟪bar⟫⟫]]"] -/
+#guard_msgs in #eval showDocument "-\n\n- bar\n" 0
+
+/-- info: ["looseList[item[paragraph⟪text⟪a⟫⟫], item[], item[paragraph⟪text⟪c⟫⟫]]"] -/
+#guard_msgs in #eval showDocument "* a\n*\n\n* c\n" 0
+
+-- Without the blank line, the list is tight.
+/-- info: ["list[item[paragraph⟪text⟪a⟫⟫], item[], item[paragraph⟪text⟪c⟫⟫]]"] -/
+#guard_msgs in #eval showDocument "- a\n-\n- c\n" 0
+
 /-!
 ## Link Titles
 
@@ -805,6 +817,7 @@ def externalTargets (src : String) : List (String × Bool) :=
       |>.insert "Knuth 1984" { destination := "references.html#knuth", title? := some "Knuth" }
       |>.insert "r" { destination := "/external" }
       |>.insert "o" { destination := "/override", overrideDocument := true }
+      |>.insert " " { destination := "/blank" }
   let blocks := parseDocument src.toSlice (externalRefs := externalRefs)
   let content := blocks.findSome? (fun | .paragraph content => some content | _ => none) |>.getD #[]
   content.toList.filterMap fun
@@ -820,3 +833,8 @@ def externalTargets (src : String) : List (String × Bool) :=
 
 /-- info: [("/override", true), ("/override", true)] -/
 #guard_msgs in #eval externalTargets "[o] [O]\n\n[o]: /document\n"
+
+-- A link label must contain a character that is not whitespace, so brackets around nothing or
+-- around spaces are text even when an external definition is keyed by a blank label.
+/-- info: [] -/
+#guard_msgs in #eval externalTargets "[ ] [] [x][ ] [x][]\n"

@@ -25,6 +25,9 @@ If the `compile` flag is true, the declaration is compiled unless `type` is a pr
 For local or scoped instances, use `attrKind := .local` and `attrKind := .scoped` respectively.
 You can also set the priority of the instance using e.g. `prio := eval_prio low`.
 
+The instance is exposed whenever possible, i.e. its type is not a proposition, it is not private
+and it type checks in the public scope.
+
 In most cases, the instance name should be computed using `mkInstanceNameOfType`.
 -/
 def Lean.mkInstance (name : Name) (levelParams : List Name) (type value : Expr)
@@ -368,7 +371,7 @@ structure Deriving.Context where
   className : Name
   /-- Level parameters for the instances -/
   levelParams : List Name
-  /-- Parameters for the instances. These should be free variables -/
+  /-- Free variables for instance parameters -/
   params : Array Expr
   /-- The local context that contains all `params` -/
   paramLCtx : LocalContext
@@ -933,7 +936,7 @@ class TypeInfo (α : Type u) where
 open Lean Meta Elab Deriving
 
 meta def deriveTypeInfo : DerivingHandler :=
-  mkInductiveDerivingHandler ``ByteEncodable do
+  mkInductiveDerivingHandler ``TypeInfo do
     makeInstancesUsingMutualBlock <| ← (← read).indInfo.all.toArray.mapM <|
       InstanceInfo.usingCtor fun
         | ``TypeInfo.ctorName =>
@@ -1051,18 +1054,18 @@ open Lean Meta Elab Deriving
 
 meta def toSExprHandler : DerivingHandler :=
   mkInductiveDerivingHandler ``ToSExpr do
-  deriveTransformationInstPerConstructor fun _indVal ctorVal fields _ctorApp => do
-    let tag := mkApp (mkConst ``SExpr.atom) (toExpr ctorVal.name.getString!)
-    let mut args := #[]
-    for field in fields do
-      let ty ← inferType field
-      -- Proofs live in `Prop`, not in `Type u`, so we skip them.
-      let some u ← getDecLevel? ty | continue
-      let inst ← synthInstanceDeriving (mkApp (.const ``ToSExpr [u]) ty)
-      args := args.push (mkApp3 (.const ``ToSExpr.toSExpr [u]) ty inst field)
-    if args.isEmpty then
-      return tag
-    return mkApp (mkConst ``SExpr.list) (← mkListLit (mkConst ``SExpr) (tag :: args.toList))
+    deriveTransformationInstPerConstructor fun _indVal ctorVal fields _ctorApp => do
+      let tag : Expr := .app (mkConst ``SExpr.atom) (toExpr ctorVal.name.getString!)
+      let mut args := #[]
+      for field in fields do
+        let ty ← inferType field
+        -- Proofs live in `Prop`, not in `Type u`, so we skip them.
+        let some u ← getDecLevel? ty | continue
+        let inst ← synthInstanceDeriving (mkApp (.const ``ToSExpr [u]) ty)
+        args := args.push (mkApp3 (.const ``ToSExpr.toSExpr [u]) ty inst field)
+      if args.isEmpty then
+        return tag
+      return mkApp (mkConst ``SExpr.list) (← mkListLit (mkConst ``SExpr) (tag :: args.toList))
 
 meta initialize registerDerivingHandler ``ToSExpr toSExprHandler
 ```

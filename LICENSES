@@ -1373,7 +1373,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ==============================================================================
 leantar and lean4lean are by Mario Carneiro, nanoda is by Chris Bailey,
-con-leche and con-ron are by Lean FRO; all are distributed under the
+con-leche, con-ron, and lean-beam are by Lean FRO; all are distributed under the
 Apache 2.0 License:
 ==============================================================================
                                  Apache License

@@ -10,6 +10,7 @@ public import Lean.Meta.Tactic.Grind.Main
 public import Lean.Elab.Tactic.VCGen.Context
 public import Lean.Elab.Tactic.VCGen.Reduce
 public import Lean.Meta.Sym.AlphaShareBuilder
+public import Lean.Meta.Sym.InstantiateMVarsS
 public import Lean.Meta.Sym.Intro
 public import Lean.Meta.Sym.Simp.Goal
 public import Lean.Meta.Sym.Simp.Telescope
@@ -185,7 +186,7 @@ This procedure may assign metavariables in `e₁`/`e₂`, for example for `e = ?
 public partial def cleanupVC (goal : MVarId) : VCGenM (Option MVarId) :=
     goal.withContext do
   let ctx ← read
-  let ty ← instantiateMVars (← goal.getType)
+  let ty ← instantiateMVarsIfMVarAppS (← goal.getType)
   let (goal, ty) ← match ← reduceHead? ty with
     | some ty' => pure (← goal.replaceTargetDefEqFast ty', ty')
     | none => pure (goal, ty)

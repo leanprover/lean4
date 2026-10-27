@@ -94,7 +94,14 @@ Invariant subgoals are handled separately by `handleInvariantSubgoals` directly 
 so they never reach this path.
 -/
 public def emitVC (goal : Grind.Goal) : VCGenM Unit := do
-  let mut goal := { goal with mvarId := ← elimTopPre goal.mvarId }
+  let mvarId ← elimTopPre goal.mvarId
+  -- An invariant from an `invariants` alternative is assigned while the target is built, as in
+  -- `?inv pref suff (a, b)`. Instantiating it lets `simp` reduce the body of the invariant.
+  let target ← mvarId.getType
+  let target' ← instantiateMVarsS target
+  let mvarId ← if isSameExpr target target' then pure mvarId
+    else mvarId.replaceTargetDefEqFast target'
+  let mut goal := { goal with mvarId }
   match ← simpVC goal.mvarId with
   | .closed => return
   | .goal mvarId => goal := { goal with mvarId }

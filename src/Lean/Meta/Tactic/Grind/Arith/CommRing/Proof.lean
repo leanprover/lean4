@@ -147,29 +147,200 @@ private def mkSemiringAddRightCancelPrefix (declName : Name) : ProofM Expr := do
     | throwError "`grind` internal error, `AddRightCancel` instance is not available"
   return mkApp4 (mkConst declName [semiring.u]) semiring.type semiring.semiringInst addRightCancelInst sctx
 
+/-- Proof of `p = p` for the certificate argument `p = …` of a step checked by definitional equality. -/
+private def mkPolyRefl (p : Poly) : ProofM Expr := do
+  return mkApp2 (mkConst ``Eq.refl [1]) (mkConst ``Grind.CommRing.Poly) (← mkPolyDecl p)
+
+private def mulConstR (k : Int) (p : Poly) : ProofM Poly := do
+  if let some c ← nonzeroChar? then return p.mulConstC k c else return p.mulConst k
+
+private def mulMonR (k : Int) (m : Mon) (p : Poly) : ProofM Poly := do
+  if let some c ← nonzeroChar? then return p.mulMonC k m c else return p.mulMon k m
+
+/-- Hints for `Grind.CommRing.Poly.mergeHint`: one per monomial of `b`, see `Grind.CommRing.Poly.mergeHintG`. -/
+private partial def mergeHints (a b : Poly) (acc : Array Nat) : Array Nat :=
+  go a b 0 acc
+where
+  go (a b : Poly) (n : Nat) (acc : Array Nat) : Array Nat :=
+    match b with
+    | .num _ => acc
+    | .add _ m b' =>
+      match a with
+      | .add _ m' a' =>
+        match m'.grevlex m with
+        | .gt => go a' b (n + 1) acc
+        | .eq => go a' b' 0 (acc.push (2*n + 1))
+        | .lt => go a b' 0 (acc.push (2*n))
+      | .num _ => go a b' 0 (acc.push (2*n))
+
+/--
+The sum of `a` and `b` (`Poly.combineC` in characteristic `c`, `Poly.combine` otherwise) together
+with `mergeHints a b #[]`, in one walk.
+-/
+private partial def combineHints (a b : Poly) (char? : Option Nat) : Poly × Array Nat :=
+  go a b 0 #[] #[]
+where
+  go (a b : Poly) (n : Nat) (hs : Array Nat) (ms : Array (Int × Mon)) : Poly × Array Nat :=
+    match b with
+    | .num k₂ =>
+      let rec rest (a : Poly) (ms : Array (Int × Mon)) : Poly :=
+        match a with
+        | .add k m a => rest a (ms.push (k, m))
+        | .num k₁ =>
+          let k := k₁ + k₂
+          let k := if let some c := char? then k % c else k
+          ms.foldr (init := .num k) fun (k, m) p => .add k m p
+      (rest a ms, hs)
+    | .add k₂ m₂ b' =>
+      match a with
+      | .add k₁ m₁ a' =>
+        match m₁.grevlex m₂ with
+        | .gt => go a' b (n + 1) hs (ms.push (k₁, m₁))
+        | .eq =>
+          let k := k₁ + k₂
+          let k := if let some c := char? then k % c else k
+          go a' b' 0 (hs.push (2*n + 1)) (if k == 0 then ms else ms.push (k, m₁))
+        | .lt => go a b' 0 (hs.push (2*n)) (ms.push (k₂, m₂))
+      | .num _ => go a b' 0 (hs.push (2*n)) (ms.push (k₂, m₂))
+
+/-- The number of monomials that the kernel walks to check `a.mergeHint hs b`. -/
+private def hintsWalk (hs : Array Nat) : Nat :=
+  hs.foldl (fun n h => n + h / 2 + 1) 0
+
+private def hintsToExpr (hs : Array Nat) : Expr :=
+  let nat := mkConst ``Nat
+  hs.foldr (init := mkApp (mkConst ``List.nil [0]) nat) fun h e =>
+    mkApp3 (mkConst ``List.cons [0]) nat (mkRawNatLit h) e
+
+private def combineR (a b : Poly) : ProofM Poly := do
+  if let some c ← nonzeroChar? then return a.combineC b c else return a.combine b
+
+/--
+The expression of the hints `hs` for checking `p = a.mergeHint hs b`, where `p` must be the sum of
+`a` and `b`, and `hs` the hints of `a` and `b` (`mergeHints`).
+-/
+private def mkMergeHintsOf (a b p : Poly) (hs : Array Nat) : ProofM Expr := do
+  if grind.debug.get (← getOptions) then
+    unless (← combineR a b) == p do
+      throwError "`grind` internal error, unexpected polynomial in ring proof step"
+  return hintsToExpr hs
+
+/-- Returns the hints for checking `p = a.mergeHint hs b`, where `p` must be the sum of `a` and `b`. -/
+private def mkMergeHints (a b p : Poly) : ProofM Expr :=
+  mkMergeHintsOf a b p (mergeHints a b #[])
+
+/--
+The sum of the multiples `leaves[lo:hi]` in a balanced `Grind.CommRing.SumTree`: its polynomial,
+the tree, and the proof of `SumTree.AllZero` from the proofs of the leaves.
+-/
+private partial def mkSumTree (leaves : Array (Poly × Expr × Expr)) (lo hi : Nat) : ProofM (Poly × Expr × Expr × Nat) := do
+  if hi - lo == 1 then
+    let (q, t, h) := leaves[lo]!
+    return (q, t, h, 0)
+  let mid := (lo + hi) / 2
+  let (a, ta, ha, ca) ← mkSumTree leaves lo mid
+  let (b, tb, hb, cb) ← mkSumTree leaves mid hi
+  let (p, hs) := combineHints a b (← nonzeroChar?)
+  let t := mkApp3 (mkConst ``Grind.CommRing.SumTree.node) (hintsToExpr hs) ta tb
+  let ring ← getCommRing
+  let ctx ← getContext
+  let allZero (t : Expr) := mkApp4 (mkConst ``Grind.CommRing.SumTree.AllZero [ring.u]) ring.type ring.ringInst ctx t
+  return (p, t, mkApp4 (mkConst ``And.intro) (allZero ta) (allZero tb) ha hb, ca + cb + hintsWalk hs)
+
+/--
+An estimate of the kernel cost of checking a chain `p₀, …, pₙ` with `pᵢ = pᵢ₋₁ + qᵢ` one step at a
+time, in monomials: each step walks `pᵢ₋₁` and `qᵢ`, and each intermediate `pᵢ` is data of the proof.
+-/
+private def stepwiseCost (p₀ : Poly) (steps : Array (Poly × Poly)) : Nat := Id.run do
+  let mut cost := 0
+  let mut prev := p₀.length
+  for h : i in [0:steps.size] do
+    let (q, p) := steps[i]
+    let n := p.length
+    cost := cost + prev + q.length
+    if i + 1 < steps.size then cost := cost + n / 2
+    prev := n
+  return cost
+
+/--
+`true` if a chain is checked with a sum tree of cost `treeCost` (see `mkSumTree`) rather than one
+step at a time. The tree has a fixed cost per node, and it only pays off when the multiples are
+small compared to the polynomials of the chain, as in long reductions of a large polynomial.
+-/
+private def useSumTree (treeCost seqCost : Nat) : Bool :=
+  3 * treeCost < seqCost
+
+/-- `true` if the proof of `c` was already built. -/
+private def isProofCached (c : EqCnstr) : ProofM Bool := do
+  let addr := unsafe (ptrAddrUnsafe c).toUInt64 >>> 2
+  return (← get).cache.contains addr
+
+/--
+The simplification steps with multiplier `1` leading to `c`, from the last one down, and the
+constraint below them. It stops at a constraint whose proof was already built.
+-/
+private partial def collectSimps1 (c : EqCnstr) (acc : Array (Int × Mon × EqCnstr × EqCnstr)) : ProofM (EqCnstr × Array (Int × Mon × EqCnstr × EqCnstr)) := do
+  if (← isProofCached c) then return (c, acc)
+  match c.h with
+  | .simp 1 c₁ k₂ m₂ c₂ => collectSimps1 c₁ (acc.push (k₂, m₂, c₂, c))
+  | _ => return (c, acc)
+
 open Lean.Grind.CommRing in
 partial def _root_.Lean.Meta.Grind.Arith.CommRing.EqCnstr.toExprProof (c : EqCnstr) : ProofM Expr := caching c do
   match c.h with
   | .core a b lhs rhs =>
     let h ← mkStepPrefix ``Stepwise.core ``Stepwise.coreC
-    return mkApp5 h (← mkExprDecl lhs) (← mkExprDecl rhs) (← mkPolyDecl c.p) eagerReflBoolTrue (← mkEqProof a b)
+    return mkApp5 h (← mkExprDecl lhs) (← mkExprDecl rhs) (← mkPolyDecl c.p) (← mkPolyRefl c.p) (← mkEqProof a b)
   | .coreS a b sa sb ra rb =>
     let h' ← mkSemiringPrefix ``Grind.Ring.OfSemiring.of_eq
     let h' := mkApp3 h' (← mkSExprDecl sa) (← mkSExprDecl sb) (← mkEqProof a b)
     let h ← mkStepPrefix ``Stepwise.core ``Stepwise.coreC
-    return mkApp5 h (← mkExprDecl ra) (← mkExprDecl rb) (← mkPolyDecl c.p) eagerReflBoolTrue h'
+    return mkApp5 h (← mkExprDecl ra) (← mkExprDecl rb) (← mkPolyDecl c.p) (← mkPolyRefl c.p) h'
   | .superpose k₁ m₁ c₁ k₂ m₂ c₂ =>
     let h ← mkStepPrefix ``Stepwise.superpose ``Stepwise.superposeC
-    return mkApp10 h
-      (toExpr k₁) (← mkMonDecl m₁) (← mkPolyDecl c₁.p)
-      (toExpr k₂) (← mkMonDecl m₂) (← mkPolyDecl c₂.p)
-      (← mkPolyDecl c.p) eagerReflBoolTrue (← toExprProof c₁) (← toExprProof c₂)
+    let hs ← mkMergeHints (← mulMonR k₁ m₁ c₁.p) (← mulMonR k₂ m₂ c₂.p) c.p
+    return mkAppN h #[
+      toExpr k₁, ← mkMonDecl m₁, ← mkPolyDecl c₁.p,
+      toExpr k₂, ← mkMonDecl m₂, ← mkPolyDecl c₂.p,
+      ← mkPolyDecl c.p, hs, ← mkPolyRefl c.p, ← toExprProof c₁, ← toExprProof c₂]
   | .simp k₁ c₁ k₂ m₂ c₂ =>
+    if k₁ == 1 then
+      let (base, steps) ← collectSimps1 c₁ #[(k₂, m₂, c₂, c)]
+      let steps := steps.reverse
+      let leaves ← steps.mapM fun (k₂, m₂, c₂, _) => do
+        let t := mkApp3 (mkConst ``Grind.CommRing.SumTree.leaf) (toExpr k₂) (← mkMonDecl m₂) (← mkPolyDecl c₂.p)
+        return (← mulMonR k₂ m₂ c₂.p, t, ← toExprProof c₂)
+      let hBase ← toExprProof base
+      let (q, t, hAll, treeCost) ← mkSumTree leaves 0 leaves.size
+      let seqCost := stepwiseCost base.p (steps.zipWith (fun (_, _, _, c) (q, _, _) => (q, c.p)) leaves)
+      let rootHs := mergeHints base.p q #[]
+      if steps.size > 1 && useSumTree (treeCost + hintsWalk rootHs) seqCost then
+        -- The chain `c.p = base.p + Σ kᵢ * mᵢ * cᵢ.p` is checked at once.
+        let hs ← mkMergeHintsOf base.p q c.p rootHs
+        let h ← mkStepPrefix ``Stepwise.simps ``Stepwise.simpsC
+        return mkAppN h #[← mkPolyDecl base.p, ← mkPolyDecl c.p, t, hs, ← mkPolyRefl c.p, hAll, hBase]
+      -- One step at a time; the proofs of the intermediate constraints are cached.
+      let mut prev := base
+      let mut hPrev := hBase
+      for h : i in [0:steps.size] do
+        let (k₂, m₂, c₂, cᵢ) := steps[i]
+        let (qᵢ, _, hᵢ) := leaves[i]!
+        let hs ← mkMergeHints prev.p qᵢ cᵢ.p
+        let pr := mkAppN (← mkStepPrefix ``Stepwise.simp1 ``Stepwise.simp1C) #[
+          ← mkPolyDecl prev.p, toExpr k₂, ← mkMonDecl m₂, ← mkPolyDecl c₂.p,
+          ← mkPolyDecl cᵢ.p, hs, ← mkPolyRefl cᵢ.p, hPrev, hᵢ]
+        if i + 1 < steps.size then
+          let addr := unsafe (ptrAddrUnsafe cᵢ).toUInt64 >>> 2
+          modify fun s => { s with cache := s.cache.insert addr pr }
+        prev := cᵢ
+        hPrev := pr
+      return hPrev
     let h ← mkStepPrefix ``Stepwise.simp ``Stepwise.simpC
-    return mkApp9 h
-      (toExpr k₁) (← mkPolyDecl c₁.p)
-      (toExpr k₂) (← mkMonDecl m₂) (← mkPolyDecl c₂.p)
-      (← mkPolyDecl c.p) eagerReflBoolTrue (← toExprProof c₁) (← toExprProof c₂)
+    let hs ← mkMergeHints (← mulConstR k₁ c₁.p) (← mulMonR k₂ m₂ c₂.p) c.p
+    return mkAppN h #[
+      toExpr k₁, ← mkPolyDecl c₁.p,
+      toExpr k₂, ← mkMonDecl m₂, ← mkPolyDecl c₂.p,
+      ← mkPolyDecl c.p, hs, ← mkPolyRefl c.p, ← toExprProof c₁, ← toExprProof c₂]
   | .mul k c₁ =>
     let h ← mkStepPrefix ``Stepwise.mul ``Stepwise.mulC
     return mkApp5 h (← mkPolyDecl c₁.p) (toExpr k) (← mkPolyDecl c.p) eagerReflBoolTrue (← toExprProof c₁)
@@ -187,28 +358,56 @@ partial def _root_.Lean.Meta.Grind.Arith.CommRing.EqCnstr.toExprProof (c : EqCns
     return mkApp7 h (toExpr k) (← mkPolyDecl c₁.p) (← mkPolyDecl c₂.p) (← mkPolyDecl c.p)
       eagerReflBoolTrue (← toExprProof c₁) (← toExprProof c₂)
 
+/--
+The steps with multiplier `1` of the derivation `d`, from the outermost one down, and the
+derivation below them.
+-/
+private partial def collectSteps1 (d : PolyDerivation) (acc : Array (Int × Mon × EqCnstr × Poly)) :
+    PolyDerivation × Array (Int × Mon × EqCnstr × Poly) :=
+  match d with
+  | .step p 1 d k₂ m₂ c₂ => collectSteps1 d (acc.push (k₂, m₂, c₂, p))
+  | d => (d, acc)
+
 open Lean.Grind.CommRing in
 /--
 Given a polynomial derivation, returns `(k, p₀, h)` where `h` is a proof that
 `k*p₀ = d.p`
 -/
-private def derivToExprProof (d : PolyDerivation) : ProofM (Int × Poly × Expr) := do
+private partial def derivToExprProof (d : PolyDerivation) : ProofM (Int × Poly × Expr) := do
   match d with
+  | .step p 1 d' k₂ m₂ c₂ =>
+    let (base, steps) := collectSteps1 d' #[(k₂, m₂, c₂, p)]
+    if steps.size == 1 then derivStep p 1 d' k₂ m₂ c₂ else
+    let steps := steps.reverse
+    let (k, p₀, h₁) ← derivToExprProof base
+    let leaves ← steps.mapM fun (k₂, m₂, c₂, _) => do
+      let t := mkApp3 (mkConst ``Grind.CommRing.SumTree.leaf) (toExpr k₂) (← mkMonDecl m₂) (← mkPolyDecl c₂.p)
+      return (← mulMonR k₂ m₂ c₂.p, t, ← c₂.toExprProof)
+    let (q, t, hAll, treeCost) ← mkSumTree leaves 0 leaves.size
+    let seqCost := stepwiseCost base.p (steps.zipWith (fun (_, _, _, p) (q, _, _) => (q, p)) leaves)
+    let rootHs := mergeHints base.p q #[]
+    if useSumTree (treeCost + hintsWalk rootHs) seqCost then
+      -- The chain `p = base.p + Σ kᵢ * mᵢ * pᵢ` is checked at once.
+      let hs ← mkMergeHintsOf base.p q p rootHs
+      let h ← mkStepPrefix ``Stepwise.d_steps ``Stepwise.d_stepsC
+      return (k, p₀, mkAppN h #[toExpr k, ← mkPolyDecl p₀, ← mkPolyDecl base.p, ← mkPolyDecl p, t, hs, ← mkPolyRefl p, hAll, h₁])
+    -- One step at a time.
+    let mut prev := base.p
+    let mut hPrev := h₁
+    for h : i in [0:steps.size] do
+      let (k₂, m₂, c₂, pᵢ) := steps[i]
+      let (qᵢ, _, hᵢ) := leaves[i]!
+      let hs ← mkMergeHints prev qᵢ pᵢ
+      hPrev := mkAppN (← mkStepPrefix ``Stepwise.d_step1 ``Stepwise.d_step1C) #[
+        toExpr k, ← mkPolyDecl p₀, ← mkPolyDecl prev,
+        toExpr k₂, ← mkMonDecl m₂, ← mkPolyDecl c₂.p, ← mkPolyDecl pᵢ,
+        hs, ← mkPolyRefl pᵢ, hPrev, hᵢ]
+      prev := pᵢ
+    return (k, p₀, hPrev)
+  | .step p k₁ d k₂ m₂ c₂ => derivStep p k₁ d k₂ m₂ c₂
   | .input p₀ =>
     let h := mkApp (← mkStepBasicPrefix ``Stepwise.d_init) (← mkPolyDecl p₀)
     return (1, p₀, h)
-  | .step p k₁ d k₂ m₂ c₂ =>
-    let (k, p₀, h₁) ← derivToExprProof d
-    let h₂ ← c₂.toExprProof
-    let h ← if k₁ == 1 then
-      mkStepPrefix ``Stepwise.d_step1 ``Stepwise.d_step1C
-    else
-      pure <| mkApp (← mkStepPrefix ``Stepwise.d_stepk ``Stepwise.d_stepkC) (toExpr k₁)
-    let h := mkApp10 h
-      (toExpr k) (← mkPolyDecl p₀) (← mkPolyDecl d.p)
-      (toExpr k₂) (← mkMonDecl m₂) (← mkPolyDecl c₂.p) (← mkPolyDecl p)
-      eagerReflBoolTrue h₁ h₂
-    return (k₁*k, p₀, h)
   | .normEq0 p d c =>
     let (k, p₀, h₁) ← derivToExprProof d
     let h₂ ← c.toExprProof
@@ -218,6 +417,20 @@ private def derivToExprProof (d : PolyDerivation) : ProofM (Int × Poly × Expr)
       (toExpr k) (toExpr a.natAbs) (← mkPolyDecl p₀) (← mkPolyDecl d.p)
       (← mkPolyDecl c.p) (← mkPolyDecl p) eagerReflBoolTrue h₁ h₂
     return (k, p₀, h)
+where
+  derivStep (p : Poly) (k₁ : Int) (d : PolyDerivation) (k₂ : Int) (m₂ : Mon) (c₂ : EqCnstr) : ProofM (Int × Poly × Expr) := do
+    let (k, p₀, h₁) ← derivToExprProof d
+    let h₂ ← c₂.toExprProof
+    let (h, a) ← if k₁ == 1 then
+      pure (← mkStepPrefix ``Stepwise.d_step1 ``Stepwise.d_step1C, d.p)
+    else
+      pure (mkApp (← mkStepPrefix ``Stepwise.d_stepk ``Stepwise.d_stepkC) (toExpr k₁), ← mulConstR k₁ d.p)
+    let hs ← mkMergeHints a (← mulMonR k₂ m₂ c₂.p) p
+    let h := mkAppN h #[
+      toExpr k, ← mkPolyDecl p₀, ← mkPolyDecl d.p,
+      toExpr k₂, ← mkMonDecl m₂, ← mkPolyDecl c₂.p, ← mkPolyDecl p,
+      hs, ← mkPolyRefl p, h₁, h₂]
+    return (k₁*k, p₀, h)
 
 open Lean.Grind.CommRing in
 /--

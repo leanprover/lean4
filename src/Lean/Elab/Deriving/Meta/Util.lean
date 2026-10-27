@@ -875,6 +875,10 @@ def FieldHelperProvider.unhandled (fieldName : Name) : FieldHelperProvider α :=
 /--
 Creates a helper that matches on the first argument, calling `perCtor` for each constructor with
 the inductive info, constructor info, fields and a constructor application.
+
+The additional `α` argument receives the result of the `preHelpers` computation provided to
+`makeInstancesUsingMutualBlock`. If you don't use `preHelpers`, you can simply ignore this
+parameter.
 -/
 def FieldHelperProvider.cases
     (perCtor : InductiveVal → ConstructorVal → Array Expr → Expr → α → DerivingM Expr) :

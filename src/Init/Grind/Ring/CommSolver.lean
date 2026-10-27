@@ -61,10 +61,7 @@ abbrev Var.denote {α} (ctx : Context α) (v : Var) : α :=
   ctx.get v
 
 noncomputable abbrev denoteInt {α} [Ring α] (k : Int) : α :=
-  Bool.rec
-    (OfNat.ofNat (α := α) k.natAbs)
-    (- OfNat.ofNat (α := α) k.natAbs)
-    (Int.blt' k 0)
+  Int.rec (fun n => OfNat.ofNat (α := α) n) (fun n => - OfNat.ofNat (α := α) n.succ) k
 
 noncomputable abbrev Expr.denote {α} [Ring α] (ctx : Context α) (e : Expr) : α :=
   Expr.rec
@@ -1532,9 +1529,11 @@ open Ring hiding sub_eq_add_neg
 open CommSemiring
 
 theorem denoteInt_eq {α} [Ring α] (k : Int) : denoteInt (α := α) k = k := by
-  simp [denoteInt] <;> cases h : k.blt' 0 <;> simp <;> simp at h
-  next h => rw [ofNat_eq_natCast, ← intCast_natCast, ← Int.eq_natAbs_of_nonneg h]
-  next h => rw [ofNat_eq_natCast, ← intCast_natCast, ← Ring.intCast_neg, ← Int.eq_neg_natAbs_of_nonpos (Int.le_of_lt h)]
+  cases k with
+  | ofNat n => show OfNat.ofNat (α := α) n = _; rw [ofNat_eq_natCast, ← intCast_natCast]; rfl
+  | negSucc n =>
+    show - OfNat.ofNat (α := α) n.succ = _
+    rw [ofNat_eq_natCast, ← intCast_natCast, ← Ring.intCast_neg]; rfl
 
 theorem Power.denote_eq {α} [Semiring α] (ctx : Context α) (p : Power)
     : p.denote ctx = p.x.denote ctx ^ p.k := by
@@ -1855,27 +1854,90 @@ theorem Poly.denote_cancelVar {α} [CommRing α] (ctx : Context α) (p : Poly) (
   have := denote_cancelVar' ctx p c x (.num 0) h₁ h₂
   rw [cancelVar, this, denote, Ring.intCast_zero, Semiring.add_zero]
 
+/-! Kernel-reduction variants of `Mon.degreeOf`, `Mon.cancelVar` and `Poly.cancelVar`. -/
+
+noncomputable def Mon.degreeOf_k (m : Mon) (x : Var) : Nat :=
+  Mon.rec 0 (fun pw _ ih => Bool.rec ih pw.k (Nat.beq pw.x x)) m
+
+noncomputable def Mon.cancelVar_k (m : Mon) (x : Var) : Mon :=
+  Mon.rec .unit (fun pw m ih => Bool.rec (.mult pw ih) m (Nat.beq pw.x x)) m
+
+@[simp] theorem Mon.degreeOf_k_eq_degreeOf (m : Mon) (x : Var) : Mon.degreeOf_k m x = m.degreeOf x := by
+  induction m with
+  | unit => rfl
+  | mult pw m ih =>
+    change Bool.rec (motive := fun _ => Nat) (Mon.degreeOf_k m x) pw.k (Nat.beq pw.x x) = _
+    rw [ih]
+    simp only [Mon.degreeOf, Bool.rec_eq, cond_eq_ite]
+    rfl
+
+@[simp] theorem Mon.cancelVar_k_eq_cancelVar (m : Mon) (x : Var) : Mon.cancelVar_k m x = m.cancelVar x := by
+  induction m with
+  | unit => rfl
+  | mult pw m ih =>
+    change Bool.rec (motive := fun _ => Mon) (.mult pw (Mon.cancelVar_k m x)) m (Nat.beq pw.x x) = _
+    rw [ih]
+    simp only [Mon.cancelVar, Bool.rec_eq, cond_eq_ite]
+    rfl
+
+noncomputable def Poly.cancelVar_k (c : Int) (x : Var) (p : Poly) : Poly :=
+  Poly.rec (motive := fun _ => Poly → Poly) (fun k acc => acc.addConst_k k)
+    (fun k m _ ih acc =>
+      Bool.rec (ih (acc.insert_k k m))
+        (ih (acc.insert_k (Int.ediv_k k (Int.pow_k c (Mon.degreeOf_k m x))) (Mon.cancelVar_k m x)))
+        (Nat.blt 0 (Mon.degreeOf_k m x) && Int.beqZero_k (Int.emod_k k (Int.pow_k c (Mon.degreeOf_k m x)))))
+    p (.num 0)
+
+theorem Poly.cancelVar_k_eq (c : Int) (x : Var) (p : Poly) : p.cancelVar_k c x = p.cancelVar c x := by
+  suffices h : ∀ acc, Poly.rec (motive := fun _ => Poly → Poly) (fun k acc => acc.addConst_k k)
+    (fun k m _ ih acc =>
+      Bool.rec (ih (acc.insert_k k m))
+        (ih (acc.insert_k (Int.ediv_k k (Int.pow_k c (Mon.degreeOf_k m x))) (Mon.cancelVar_k m x)))
+        (Nat.blt 0 (Mon.degreeOf_k m x) && Int.beqZero_k (Int.emod_k k (Int.pow_k c (Mon.degreeOf_k m x)))))
+    p acc = Poly.cancelVar' c x p acc by exact h (.num 0)
+  induction p with
+  | num k => intro acc; show acc.addConst_k k = _; rw [Poly.addConst_k_eq_addConst]; rfl
+  | add k m p ih =>
+    intro acc
+    show Bool.rec (motive := fun _ => Poly) _ _ _ = _
+    rw [Mon.degreeOf_k_eq_degreeOf, Mon.cancelVar_k_eq_cancelVar, Int.pow_k_eq, Int.emod_k_eq, Int.ediv_k_eq,
+      Int.beqZero_k_eq]
+    simp only [Poly.cancelVar', cond_eq_ite]
+    have hd : (Nat.blt 0 (m.degreeOf x) && (k % c ^ m.degreeOf x == 0)) =
+        (decide (m.degreeOf x > 0) && decide (c ^ m.degreeOf x ∣ k)) := by
+      cases h₁ : Nat.blt 0 (m.degreeOf x)
+      · have : ¬ 0 < m.degreeOf x := by rw [← Nat.blt_eq, h₁]; simp
+        simp [this]
+      · have : 0 < m.degreeOf x := by rw [← Nat.blt_eq, h₁]
+        simp [this, Int.dvd_iff_emod_eq_zero, Bool.beq_eq_decide_eq]
+    rw [← hd]
+    cases (Nat.blt 0 (m.degreeOf x) && (k % c ^ m.degreeOf x == 0))
+    · show Poly.rec (motive := fun _ => Poly → Poly) _ _ p _ = _
+      rw [ih, Poly.insert_k_eq_insert]; rfl
+    · show Poly.rec (motive := fun _ => Poly → Poly) _ _ p _ = _
+      rw [ih, Poly.insert_k_eq_insert]; rfl
+
 noncomputable def cancel_var_cert (c : Int) (x : Var) (p₁ p₂ : Poly) : Bool :=
-  c != 0 && p₂.beq' (p₁.cancelVar c x)
+  Int.bneZero_k c && p₂.beq' (p₁.cancelVar_k c x)
 
 theorem eq_cancel_var {α} [CommRing α] (ctx : Context α) (c : Int) (x : Var) (p₁ p₂ : Poly)
     : cancel_var_cert c x p₁ p₂ → c * x.denote ctx = 1 → p₁.denote ctx = 0 → p₂.denote ctx = 0 := by
-  simp [cancel_var_cert]; intros h₁ _ h₂ _; subst p₂
+  simp [cancel_var_cert, Poly.cancelVar_k_eq]; intros h₁ _ h₂ _; subst p₂
   simp [Poly.denote_cancelVar ctx p₁ c x h₁ h₂]; assumption
 
 theorem diseq_cancel_var {α} [CommRing α] (ctx : Context α) (c : Int) (x : Var) (p₁ p₂ : Poly)
     : cancel_var_cert c x p₁ p₂ → c * x.denote ctx = 1 → p₁.denote ctx ≠ 0 → p₂.denote ctx ≠ 0 := by
-  simp [cancel_var_cert]; intros h₁ _ h₂ _; subst p₂
+  simp [cancel_var_cert, Poly.cancelVar_k_eq]; intros h₁ _ h₂ _; subst p₂
   simp [Poly.denote_cancelVar ctx p₁ c x h₁ h₂]; assumption
 
 theorem le_cancel_var {α} [CommRing α] [LE α] (ctx : Context α) (c : Int) (x : Var) (p₁ p₂ : Poly)
     : cancel_var_cert c x p₁ p₂ → c * x.denote ctx = 1 → p₁.denote ctx ≤ 0 → p₂.denote ctx ≤ 0 := by
-  simp [cancel_var_cert]; intros h₁ _ h₂ _; subst p₂
+  simp [cancel_var_cert, Poly.cancelVar_k_eq]; intros h₁ _ h₂ _; subst p₂
   simp [Poly.denote_cancelVar ctx p₁ c x h₁ h₂]; assumption
 
 theorem lt_cancel_var {α} [CommRing α] [LT α] (ctx : Context α) (c : Int) (x : Var) (p₁ p₂ : Poly)
     : cancel_var_cert c x p₁ p₂ → c * x.denote ctx = 1 → p₁.denote ctx < 0 → p₂.denote ctx < 0 := by
-  simp [cancel_var_cert]; intros h₁ _ h₂ _; subst p₂
+  simp [cancel_var_cert, Poly.cancelVar_k_eq]; intros h₁ _ h₂ _; subst p₂
   simp [Poly.denote_cancelVar ctx p₁ c x h₁ h₂]; assumption
 
 end

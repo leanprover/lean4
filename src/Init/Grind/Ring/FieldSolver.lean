@@ -11,6 +11,8 @@ public import Init.Data.Nat.Gcd
 import Init.LawfulBEqTactics
 import Init.Data.Nat.Lemmas
 import Init.Omega
+import Init.Data.Nat.MinMax
+import Init.Data.Bool
 
 @[expose] public section
 
@@ -162,12 +164,6 @@ theorem Poly.denote_cancelInvs [CommRing α] (ctx : Context α) (p : Poly) (ainv
 
 /-! Kernel-reduction variants for inverse cancellation. -/
 
-noncomputable def Mon.degreeOf_k (m : Mon) (x : Var) : Nat :=
-  Mon.rec 0 (fun pw _ ih => Bool.rec ih pw.k (Nat.beq pw.x x)) m
-
-noncomputable def Mon.cancelVar_k (m : Mon) (x : Var) : Mon :=
-  Mon.rec .unit (fun pw m ih => Bool.rec (.mult pw ih) m (Nat.beq pw.x x)) m
-
 noncomputable def Mon.mulPow_k (pw : Power) (m : Mon) : Mon :=
   Mon.rec (.mult pw .unit)
     (fun pw' m ih => Bool.rec
@@ -195,24 +191,6 @@ noncomputable def Poly.cancelInv_k (x y : Var) (p : Poly) : Poly :=
 noncomputable def Poly.cancelInvs_k (p : Poly) (invs : InvAtoms) : Poly :=
   List.rec (motive := fun _ => Poly → Poly) (fun p => p)
     (fun yx _ ih p => ih (Poly.cancelInv_k yx.2 yx.1 p)) invs p
-
-@[simp] theorem Mon.degreeOf_k_eq_degreeOf (m : Mon) (x : Var) : Mon.degreeOf_k m x = m.degreeOf x := by
-  induction m with
-  | unit => rfl
-  | mult pw m ih =>
-    change Bool.rec (motive := fun _ => Nat) (Mon.degreeOf_k m x) pw.k (Nat.beq pw.x x) = _
-    rw [ih]
-    simp only [Mon.degreeOf, Bool.rec_eq, cond_eq_ite]
-    rfl
-
-@[simp] theorem Mon.cancelVar_k_eq_cancelVar (m : Mon) (x : Var) : Mon.cancelVar_k m x = m.cancelVar x := by
-  induction m with
-  | unit => rfl
-  | mult pw m ih =>
-    change Bool.rec (motive := fun _ => Mon) (.mult pw (Mon.cancelVar_k m x)) m (Nat.beq pw.x x) = _
-    rw [ih]
-    simp only [Mon.cancelVar, Bool.rec_eq, cond_eq_ite]
-    rfl
 
 @[simp] theorem Mon.mulPow_k_eq_mulPow (pw : Power) (m : Mon) : Mon.mulPow_k pw m = m.mulPow pw := by
   induction m with
@@ -286,12 +264,125 @@ the result to lowest terms.
 def Poly.toPolyQ (p : Poly) (invs : InvVars) (ainvs : InvAtoms) : PolyQ :=
   (invs.foldl (fun (q : PolyQ) xc => q.substInv xc.1 xc.2) ⟨p.cancelInvs ainvs, 1⟩).reduce
 
+/-! Kernel-reduction variants of the functions used by `Poly.toPolyQ`. -/
+
+noncomputable def Poly.maxDegreeOf_k (p : Poly) (x : Var) : Nat :=
+  Poly.rec (motive := fun _ => Nat → Nat) (fun _ acc => acc)
+    (fun _ m _ ih acc => ih (Bool.rec acc (Mon.degreeOf_k m x) (Nat.ble acc (Mon.degreeOf_k m x)))) p 0
+
+theorem Poly.maxDegreeOf_k_eq (p : Poly) (x : Var) : p.maxDegreeOf_k x = p.maxDegreeOf x := by
+  suffices h : ∀ acc, Poly.rec (motive := fun _ => Nat → Nat) (fun _ acc => acc)
+      (fun _ m _ ih acc => ih (Bool.rec acc (Mon.degreeOf_k m x) (Nat.ble acc (Mon.degreeOf_k m x)))) p acc
+      = Poly.maxDegreeOf.go x p acc by exact h 0
+  induction p with
+  | num k => intro acc; rfl
+  | add k m p ih =>
+    intro acc
+    show Poly.rec (motive := fun _ => Nat → Nat) _ _ p _ = _
+    rw [ih, Mon.degreeOf_k_eq_degreeOf]
+    simp only [Poly.maxDegreeOf.go]
+    congr 1
+    cases h : Nat.ble acc (m.degreeOf x)
+    · have : ¬ acc ≤ m.degreeOf x := by rw [← Nat.ble_eq]; simp [h]
+      show acc = Nat.max acc (m.degreeOf x); exact (Nat.max_eq_left (Nat.le_of_lt (Nat.not_le.mp this))).symm
+    · have : acc ≤ m.degreeOf x := by rw [← Nat.ble_eq]; exact h
+      show m.degreeOf x = Nat.max acc (m.degreeOf x); exact (Nat.max_eq_right this).symm
+
+noncomputable def Poly.gcdCoeffs_k.go (p : Poly) : Nat → Nat :=
+  Poly.rec (motive := fun _ => Nat → Nat)
+    (fun k acc => Bool.rec (Nat.gcd acc (Int.natAbs_k k)) acc (Nat.beq acc 1))
+    (fun k _ _ ih acc => Bool.rec (ih (Nat.gcd acc (Int.natAbs_k k))) acc (Nat.beq acc 1)) p
+
+noncomputable def Poly.gcdCoeffs_k (p : Poly) : Nat :=
+  Poly.rec (fun k => Int.natAbs_k k) (fun k _ p _ => Poly.gcdCoeffs_k.go p (Int.natAbs_k k)) p
+
+theorem Poly.gcdCoeffs_k_eq (p : Poly) : p.gcdCoeffs_k = p.gcdCoeffs := by
+  have hgo : ∀ p acc, Poly.gcdCoeffs_k.go p acc = Poly.gcdCoeffs.go p acc := by
+    intro p
+    induction p with
+    | num k =>
+      intro acc
+      show Bool.rec (motive := fun _ => Nat) _ _ (Nat.beq acc 1) = _
+      unfold Poly.gcdCoeffs.go
+      cases h : Nat.beq acc 1
+      · have : (acc == 1) = false := h
+        simp [this]
+      · have : (acc == 1) = true := h
+        simp [this]
+    | add k m p ih =>
+      intro acc
+      show Bool.rec (motive := fun _ => Nat) _ _ (Nat.beq acc 1) = _
+      unfold Poly.gcdCoeffs.go
+      cases h : Nat.beq acc 1
+      · have : (acc == 1) = false := h
+        simp only [this, Bool.false_eq_true, ↓reduceIte]
+        show Poly.gcdCoeffs_k.go p _ = _
+        rw [ih]; simp
+      · have : (acc == 1) = true := h
+        simp [this]
+  cases p with
+  | num k => simp [gcdCoeffs_k, gcdCoeffs]
+  | add k m p => show Poly.gcdCoeffs_k.go p (Int.natAbs_k k) = _; rw [hgo]; simp [gcdCoeffs]
+
+noncomputable def Poly.divConst_k (p : Poly) (a : Int) : Poly :=
+  Poly.rec (fun k => .num (Int.ediv_k k a)) (fun k m _ ih => .add (Int.ediv_k k a) m ih) p
+
+theorem Poly.divConst_k_eq (p : Poly) (a : Int) : p.divConst_k a = p.divConst a := by
+  induction p with
+  | num k => simp [divConst_k, divConst]
+  | add k m p ih => show Poly.add _ m (p.divConst_k a) = _; rw [ih]; simp [divConst]
+
+noncomputable def Poly.substInv_k (p : Poly) (x : Var) (c : Nat) : PolyQ :=
+  Bool.rec
+    ⟨(p.mulConst_k (Int.ofNat (Nat.pow c (p.maxDegreeOf_k x)))).cancelVar_k (Int.ofNat c) x, Nat.pow c (p.maxDegreeOf_k x)⟩
+    ⟨p, 1⟩ (Nat.beq c 0)
+
+theorem Poly.substInv_k_eq (p : Poly) (x : Var) (c : Nat) : p.substInv_k x c = p.substInv x c := by
+  unfold substInv_k substInv
+  cases h : Nat.beq c 0
+  · have : (c == 0) = false := h
+    simp only [this, Bool.cond_false]
+    rw [Poly.maxDegreeOf_k_eq, Poly.mulConst_k_eq_mulConst, Poly.cancelVar_k_eq]; rfl
+  · have : (c == 0) = true := h
+    simp only [this, Bool.cond_true]
+
+noncomputable def PolyQ.substInv_k (q : PolyQ) (x : Var) (c : Nat) : PolyQ :=
+  ⟨(q.num.substInv_k x c).num, Nat.mul q.den (q.num.substInv_k x c).den⟩
+
+theorem PolyQ.substInv_k_eq (q : PolyQ) (x : Var) (c : Nat) : q.substInv_k x c = q.substInv x c := by
+  unfold substInv_k substInv; rw [Poly.substInv_k_eq]; rfl
+
+noncomputable def PolyQ.reduce_k (q : PolyQ) : PolyQ :=
+  Bool.rec
+    (Bool.rec q ⟨q.num.divConst_k (Int.ofNat (Nat.gcd q.num.gcdCoeffs_k q.den)), Nat.div q.den (Nat.gcd q.num.gcdCoeffs_k q.den)⟩
+      (((q.num.divConst_k (Int.ofNat (Nat.gcd q.num.gcdCoeffs_k q.den))).mulConst_k (Int.ofNat (Nat.gcd q.num.gcdCoeffs_k q.den))).beq' q.num
+        && Nat.beq (Nat.mul (Nat.div q.den (Nat.gcd q.num.gcdCoeffs_k q.den)) (Nat.gcd q.num.gcdCoeffs_k q.den)) q.den))
+    q (Nat.ble (Nat.gcd q.num.gcdCoeffs_k q.den) 1)
+
+theorem PolyQ.reduce_k_eq (q : PolyQ) : q.reduce_k = q.reduce := by
+  unfold reduce_k reduce
+  rw [Poly.gcdCoeffs_k_eq, Poly.divConst_k_eq, Poly.mulConst_k_eq_mulConst]
+  generalize Nat.gcd q.num.gcdCoeffs q.den = g
+  dsimp only
+  have e₁ : Nat.ble g 1 = decide (g ≤ 1) := by
+    cases h : Nat.ble g 1
+    · have : ¬ g ≤ 1 := by rw [← Nat.ble_eq, h]; simp
+      simp [this]
+    · have : g ≤ 1 := by rw [← Nat.ble_eq, h]
+      simp [this]
+  have e₂ : ((q.num.divConst (Int.ofNat g)).mulConst (Int.ofNat g)).beq' q.num =
+      ((q.num.divConst (Int.ofNat g)).mulConst (Int.ofNat g) == q.num) := by
+    apply Bool.eq_iff_iff.mpr; rw [Poly.beq'_eq, beq_iff_eq]
+  have e₃ : Nat.beq (Nat.mul (Nat.div q.den g) g) q.den = (q.den / g * g == q.den) := rfl
+  rw [e₁, e₂, e₃]
+  cases decide (g ≤ 1) <;> cases ((q.num.divConst (Int.ofNat g)).mulConst (Int.ofNat g) == q.num && q.den / g * g == q.den) <;> rfl
+
 noncomputable def Poly.toPolyQ_k (p : Poly) (invs : InvVars) (ainvs : InvAtoms) : PolyQ :=
-  (invs.foldl (fun (q : PolyQ) xc => q.substInv xc.1 xc.2) ⟨p.cancelInvs_k ainvs, 1⟩).reduce
+  (invs.foldl (fun (q : PolyQ) xc => q.substInv_k xc.1 xc.2) ⟨p.cancelInvs_k ainvs, 1⟩).reduce_k
 
 @[simp] theorem Poly.toPolyQ_k_eq_toPolyQ (p : Poly) (invs : InvVars) (ainvs : InvAtoms) :
     p.toPolyQ_k invs ainvs = p.toPolyQ invs ainvs := by
-  simp only [toPolyQ_k, toPolyQ, cancelInvs_k_eq_cancelInvs]
+  simp only [toPolyQ_k, toPolyQ, cancelInvs_k_eq_cancelInvs, PolyQ.reduce_k_eq, PolyQ.substInv_k_eq]
 
 protected noncomputable def PolyQ.beq' (p q : PolyQ) : Bool :=
   Bool.rec false (Nat.beq p.den q.den) (p.num.beq' q.num)

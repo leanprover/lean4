@@ -86,7 +86,7 @@ Returns the address at which an object is allocated.
 
 This function is unsafe because it can distinguish between definitionally equal values.
 -/
-@[extern "lean_ptr_addr"]
+@[extern "lean_ptr_addr", never_extract]
 unsafe opaque ptrAddrUnsafe {α : Type u} (a : @& α) : USize
 
 /--
@@ -95,7 +95,7 @@ Returns `true` if `a` is an exclusive object.
 An object is exclusive if it is single-threaded and its reference counter is 1. This function is
 unsafe because it can distinguish between definitionally equal values.
 -/
-@[extern "lean_is_exclusive_obj"]
+@[extern "lean_is_exclusive_obj", never_extract]
 unsafe opaque isExclusiveUnsafe {α : Type u} (a : @& α) : Bool
 
 set_option linter.unusedVariables.funArgs false in

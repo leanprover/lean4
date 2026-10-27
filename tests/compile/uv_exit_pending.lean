@@ -7,10 +7,10 @@ the event loop at exit runs no Lean code.
 
 Pending at exit: timers, signals, connects, accepts on 64 listeners, receives, a write the peer never
 reads, a half-close queued behind it, a select cycle, a detached retry loop's sleep, and timers whose
-only reference is the loop's. Each of these promises stays pending: a continuation that runs prints,
-a `result!` that runs would panic and hang, a failing sleep would make the retry loop spin into a stack
-overflow, and a cycle left unreachable is a leak that leak checkers report. The teardown also prints a
-warning if the loop does not close.
+only reference is the loop's. The teardown drops each of these promises without running its
+continuations: a continuation that runs prints, a `result!` that runs would panic and hang, a failing
+sleep would make the retry loop spin forever, and a cycle left unreachable is a leak that leak checkers
+report. The teardown also prints a warning if the loop does not close.
 
 Exit still waits for running tasks with the loop up, so a task blocked on a timer wakes, and timer
 finalizers racing the start of exit on worker threads are fine.
@@ -116,8 +116,8 @@ def startStreams : IO Unit := do
 
 /--
 A `(sync := true)` continuation that is the only owner of three handles hangs off a promise still
-pending at exit. If the teardown resolved or released that promise, the continuation would run during
-the teardown and drop handles the walk is still visiting.
+pending at exit. If it ran, or were dropped before the loop is closed, it would release handles the
+walk is still visiting.
 -/
 def startWalkReentrancy : IO Unit := do
   let listener ← TCP.Socket.new
@@ -136,7 +136,7 @@ def startWalkReentrancy : IO Unit := do
     let _ ← (IO.println "continuation ran" : IO _).toBaseIO
     pure ()
 
-/-- A `result!` continuation would panic and then block if the teardown resolved its promise. -/
+/-- A `result!` continuation would panic and then block if it ran once the teardown drops its promise. -/
 def startResultBang : IO Unit := do
   let timer ← Timer.mk 3600000 false
   let fired ← timer.next
@@ -210,8 +210,6 @@ def startWaitingTask : IO Unit := do
     started.resolve ()
     let woke ← IO.wait fired.result?
     IO.println s!"woke: {woke.isSome}"
-    -- Keeps `fired` referenced across the wait.
-    fired.resolve ()
   discard <| IO.wait started.result?
 
 def main : IO Unit := do

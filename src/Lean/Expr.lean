@@ -7,6 +7,7 @@ module
 
 prelude
 public import Init.Data.Hashable
+public import Lean.Data.LBool
 public import Lean.Level
 import Init.Omega
 
@@ -816,6 +817,38 @@ Binder names and annotations are taken into account.
 -/
 @[extern "lean_expr_equal"]
 opaque equal (a : @& Expr) (b : @& Expr) : Bool
+
+/--
+Budgeted version of `Expr.eqv`, ignoring binder names and annotations. Returns `.true` or `.false`
+when equality or inequality is established, and `.undef` when the budget is exhausted.
+
+Pointer equality, differing hashes, and comparison-local cache hits consume no budget. Bound
+variables, free variables, metavariables, sorts, and literals bypass the comparison cache. Their
+comparisons consume no budget, except that string contents are charged by UTF-8 byte length when
+pointer and length checks do not decide equality. Other expression comparisons consume one unit
+each. `Expr.mdata` payloads are additionally charged for their constructor fields, array elements,
+and string or arbitrary-precision integer bytes before comparison. Names, universe levels, and natural number
+literals use ordinary equality. The accounting is an implementation detail; it does not bound
+the cost of these ordinary payload comparisons.
+
+**This operation breaks referential transparency.** Its result depends on pointer sharing:
+structurally equal inputs with the same budget may return `.true` when shared and `.undef` when
+allocated separately. Use it for best-effort operations such as cache lookup, where `.undef` can
+be treated as a miss, rather than as a replacement for exact equality.
+-/
+@[extern "lean_expr_eqv_budgeted"]
+unsafe opaque eqvBudgeted (a : @& Expr) (b : @& Expr) (budget : USize) : LBool
+
+/--
+Budgeted version of `Expr.equal`, taking binder names and annotations into account. Returns `.true`
+or `.false` when decided, and `.undef` on budget exhaustion. See `Expr.eqvBudgeted` for accounting.
+
+**This operation breaks referential transparency.** Pointer sharing can change the result between
+a definite answer and `.undef`, even for structurally identical inputs and the same budget.
+It is intended for best-effort operations such as cache lookup.
+-/
+@[extern "lean_expr_equal_budgeted"]
+unsafe opaque equalBudgeted (a : @& Expr) (b : @& Expr) (budget : USize) : LBool
 
 /-- Return `true` if the given expression is a `.sort ..` -/
 def isSort : Expr → Bool

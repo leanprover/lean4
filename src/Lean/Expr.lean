@@ -826,10 +826,12 @@ Pointer equality, differing hashes, and comparison-local cache hits consume no b
 variables, free variables, metavariables, sorts, and literals bypass the comparison cache. Their
 comparisons consume no budget, except that string contents are charged by UTF-8 byte length when
 pointer and length checks do not decide equality. Other expression comparisons consume one unit
-each. `Expr.mdata` payloads are additionally charged for their constructor fields, array elements,
-and string or arbitrary-precision integer bytes before comparison. Names, universe levels, and natural number
-literals use ordinary equality. The accounting is an implementation detail; it does not bound
-the cost of these ordinary payload comparisons.
+each. Metadata comparisons consume one unit per entry, skipping shared list tails and values.
+Metadata strings use the same byte accounting as string literals. Syntax metadata is additionally
+charged for constructor fields, array elements, and string or arbitrary-precision integer bytes in
+both unfolded representations before comparison. Names, universe levels, natural number literals,
+and non-string, non-syntax metadata values use ordinary equality. The accounting is an
+implementation detail; it does not bound the cost of these ordinary payload comparisons.
 
 **This operation breaks referential transparency.** Its result depends on pointer sharing:
 structurally equal inputs with the same budget may return `.true` when shared and `.undef` when

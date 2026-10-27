@@ -172,11 +172,40 @@ class budgeted_expr_eq_fn {
         return true;
     }
 
-    bool mdata_eq(kvmap const & a, kvmap const & b) {
+    bool string_eq(string_ref const & s1, string_ref const & s2) {
+        if (s1.raw() == s2.raw()) return true;
+        size_t n = s1.num_bytes();
+        if (n != s2.num_bytes()) return false;
+        return consume(n) && s1 == s2;
+    }
+
+    bool data_value_eq(data_value const & a, data_value const & b) {
         if (a.raw() == b.raw()) return true;
-        // Bound existing metadata equality by both unfolded representations.
-        // Do not deduplicate its DAG: Syntax.structEq, for example, can revisit shared nodes.
-        return charge_payload(a.raw()) && charge_payload(b.raw()) && a == b;
+        if (a.kind() != b.kind()) return false;
+        switch (a.kind()) {
+        case data_value_kind::String:
+            return string_eq(a.get_string(), b.get_string());
+        case data_value_kind::Syntax:
+            // Syntax.structEq revisits shared nodes; bound it by both unfolded trees.
+            return charge_payload(a.raw()) && charge_payload(b.raw()) && a == b;
+        default:
+            return a == b;
+        }
+    }
+
+    bool mdata_eq(kvmap const & a, kvmap const & b) {
+        object * it1 = a.raw();
+        object * it2 = b.raw();
+        while (!is_scalar(it1) && !is_scalar(it2)) {
+            if (it1 == it2) return true;
+            if (!consume()) return false;
+            kvmap_entry const & e1 = head<kvmap_entry>(it1);
+            kvmap_entry const & e2 = head<kvmap_entry>(it2);
+            if (e1.fst() != e2.fst() || !data_value_eq(e1.snd(), e2.snd())) return false;
+            it1 = cnstr_get(it1, 1);
+            it2 = cnstr_get(it2, 1);
+        }
+        return is_scalar(it1) && is_scalar(it2);
     }
 
     bool literal_eq(literal const & a, literal const & b) {
@@ -184,14 +213,8 @@ class budgeted_expr_eq_fn {
         switch (a.kind()) {
         case literal_kind::Nat:
             return a.get_nat() == b.get_nat();
-        case literal_kind::String: {
-            string_ref const & s1 = a.get_string();
-            string_ref const & s2 = b.get_string();
-            if (s1.raw() == s2.raw()) return true;
-            size_t n = s1.num_bytes();
-            if (n != s2.num_bytes()) return false;
-            return consume(n) && s1 == s2;
-        }
+        case literal_kind::String:
+            return string_eq(a.get_string(), b.get_string());
         }
         lean_unreachable(); // LCOV_EXCL_LINE
     }

@@ -13,10 +13,12 @@ import Lean.Meta.Tactic.Grind.Diseq
 import Lean.Meta.Tactic.Grind.ProofUtil
 import Lean.Meta.Tactic.Grind.Arith.CommRing.DenoteExpr
 import Lean.Meta.Sym.Arith.ToExpr
+import Lean.Meta.Sym.Arith.Kronecker
 import Lean.Meta.Sym.Arith.VarRename
 import Init.Data.Nat.Order
 import Init.Data.Order.Lemmas
 import Init.Grind.Ring.Packed
+import Init.Grind.Ring.Kronecker
 public section
 namespace Lean.Meta.Grind.Arith.CommRing
 open Sym.Arith
@@ -67,6 +69,8 @@ structure ProofM.State where
   monDecls    : Std.HashMap Mon Expr := {}
   exprDecls   : Std.HashMap RingExpr Expr := {}
   sexprDecls  : Std.HashMap SemiringExpr Expr := {}
+  /-- Packed polynomials `Grind.CommRing.PPoly` in a base, built after the variables are renamed. -/
+  ppolyDecls  : Std.HashMap (Poly × Nat) Expr := {}
 
 structure ProofM.Context where
   ctx   : Expr
@@ -106,6 +110,11 @@ local macro "declare! " decls:ident a:ident : term =>
 
 private def mkPolyDecl (p : Poly) : ProofM Expr := do
   declare! polyDecls p
+
+/-- The packed polynomial `p` in base `B`. -/
+private def mkPPolyDecl (p : Poly) (B : Nat) : ProofM Expr := do
+  let key := (p, B)
+  declare! ppolyDecls key
 
 private def mkExprDecl (e : RingExpr) : ProofM Expr := do
   declare! exprDecls e
@@ -248,10 +257,6 @@ private partial def mkSumTree (leaves : Array (Poly × Expr × Expr)) (lo hi : N
   let allZero (t : Expr) := mkApp4 (mkConst ``Grind.CommRing.SumTree.AllZero [ring.u]) ring.type ring.ringInst ctx t
   return (p, t, mkApp4 (mkConst ``And.intro) (allZero ta) (allZero tb) ha hb, ca + cb + hintsWalk hs)
 
-private def maxDegOf : Poly → Nat
-  | .num _ => 0
-  | .add _ m p => max m.degree (maxDegOf p)
-
 /-- `p` as a `Grind.CommRing.PPoly` in base `B`, with the same order of terms. -/
 private def packedPolyExpr (B : Nat) : Poly → Expr
   | .num k => mkApp (mkConst ``Grind.CommRing.PPoly.num) (mkIntLitK k)
@@ -279,7 +284,7 @@ in a base larger than every degree of the step. Each polynomial `qᵢ` is packed
 -/
 private def mkPackedSum (declName declNameC : Name) (pre : Array Expr) (base p : Poly)
     (leaves : Array (Int × Mon × Poly × Expr)) : ProofM Expr := do
-  let deg := leaves.foldl (fun d (_, m, q, _) => max d (m.degree + maxDegOf q)) (max (maxDegOf base) (maxDegOf p))
+  let deg := leaves.foldl (fun d (_, m, q, _) => max d (m.degree + polyMaxDeg q)) (max (polyMaxDeg base) (polyMaxDeg p))
   let B := max 2 (deg + 1)
   let BE := mkRawNatLit B
   let ring ← getCommRing
@@ -291,17 +296,117 @@ private def mkPackedSum (declName declNameC : Name) (pre : Array Expr) (base p :
     let (Q, hQ) ← match packed[q]? with
       | some r => pure r
       | none =>
-        let Q := packedPolyExpr B q
+        let Q ← mkPPolyDecl q B
         let hQ := mkAppN (mkConst ``Grind.CommRing.PSumTree.leaf_zero [ring.u])
           #[ring.type, ring.commRingInst, ctx, BE, ← mkPolyDecl q, Q, eagerReflBoolTrue, mkApp2 (mkConst ``Eq.refl [1]) ppT Q, h]
         packed := packed.insert q (Q, hQ)
         pure (Q, hQ)
-    ls := ls.push (mkApp4 (mkConst ``Grind.CommRing.PSumTree.leaf) (toExpr k) (← mkMonDecl m) (mkRawNatLit (maxDegOf q)) Q, hQ)
+    ls := ls.push (mkApp4 (mkConst ``Grind.CommRing.PSumTree.leaf) (toExpr k) (← mkMonDecl m) (mkRawNatLit (polyMaxDeg q)) Q, hQ)
   let (t, hAll) ← mkPSumTree BE ls 0 ls.size
-  let P := packedPolyExpr B p
+  let P ← mkPPolyDecl p B
   let refl := mkApp2 (mkConst ``Eq.refl [1]) ppT P
   let h ← mkStepPrefix declName declNameC
   return mkAppN h (pre ++ #[BE, ← mkPolyDecl base, ← mkPolyDecl p, P, t, eagerReflBoolTrue, refl, refl, hAll])
+
+/--
+The largest number of terms of the quotient `E` of a Kronecker certificate in a nonzero
+characteristic. `E` is stated as a term with one node per term, and the kernel recurses through it.
+-/
+private def kronQuotientMaxTerms : Nat := 2048
+
+/-- `acc * t ^ k`, or a value larger than `limit` if it is larger. -/
+private def termsPow (limit t : Nat) : Nat → Nat → Nat
+  | 0, acc => min (limit + 1) acc
+  | k + 1, acc =>
+    -- For `t ≤ 1`, `acc * t ^ (k + 1) = acc * t`: no need to iterate `k` times.
+    if acc > limit || t ≤ 1 then min (limit + 1) (acc * t) else termsPow limit t k (min (limit + 1) (acc * t))
+
+/-- An upper bound on the number of terms of `e.toPoly` by sums and products, or a value larger than `limit`. -/
+private def exprTermsBySize (limit : Nat) : RingExpr → Nat
+  | .num _ | .natCast _ | .intCast _ | .var _ => 1
+  | .neg a => exprTermsBySize limit a
+  | .add a b | .sub a b => min (limit + 1) (exprTermsBySize limit a + exprTermsBySize limit b)
+  | .mul a b => min (limit + 1) (exprTermsBySize limit a * exprTermsBySize limit b)
+  | .pow a k => termsPow limit (exprTermsBySize limit a) k 1
+
+/--
+The number `C(d + n, n)` of monomials of degree at most `d` in `n` variables, computed as
+`C(d + i, i)` for `i = 1, …, n`, or a value larger than `limit`.
+-/
+private def numMonomials (limit d : Nat) : Nat → Nat → Nat → Nat
+  | 0, _, acc => acc
+  | n + 1, i, acc => if acc > limit then acc else numMonomials limit d n (i + 1) (acc * (d + i) / i)
+
+/--
+An upper bound on the number of terms of `e.toPoly` over `Int`, or a value larger than `limit`. In
+a nonzero characteristic, `e` can have few terms while its expansion over `Int` has thousands.
+-/
+private def exprTermsBound (limit : Nat) (e : RingExpr) : Nat :=
+  min (exprTermsBySize limit e) (numMonomials limit (exprDegB e) (e.collectVars {}).size 1 1)
+
+/--
+The proof that `p` is `base` plus the multiples `kᵢ * mᵢ * qᵢ` of `leaves` by Kronecker
+substitution (`Stepwise.simpsK`, `Stepwise.d_stepsK`, or `Stepwise.simpsM`, `Stepwise.d_stepsM`
+with the multiples grouped by polynomial), applied to `pre`, if the values at the
+point stay below a few million bits. In characteristic `c`, the difference over `Int` is
+`c * E` for a stated polynomial `E`.
+-/
+private def mkKronSum? (declName declNameC declNameM declNameMC : Name) (pre : Array Expr) (base p : Poly)
+    (leaves : Array (Int × Mon × Poly × Expr)) : ProofM (Option Expr) := do
+  let deg := leaves.foldl (fun d (_, m, q, _) => max d (m.degree + polyMaxDeg q)) (max (polyMaxDeg base) (polyMaxDeg p))
+  let B := max 2 (deg + 1)
+  let norm₀ := leaves.foldl (fun n (k, _, q, _) => n + k.natAbs * polyNorm1 q) (polyNorm1 p + polyNorm1 base)
+  let maxCode := leaves.foldl (fun c (_, m, q, _) => max c (monCode B m + polyMaxCode B q)) (max (polyMaxCode B base) (polyMaxCode B p))
+  -- As in `mkKronCore?`, the bound is checked without the characteristic quotient first.
+  if (kronExponent? norm₀ maxCode 4000000).isNone then return none
+  let c? ← nonzeroChar?
+  let E : Poly ← match c? with
+    | none => pure (.num 0)
+    | some c =>
+      let d := leaves.foldl (init := p.combine (base.mulConst (-1))) fun acc (k, m, q, _) => acc.combine (q.mulMon (-k) m)
+      let E := d.divConst c
+      unless E.mulConst c == d && E.length ≤ kronQuotientMaxTerms do return none
+      pure E
+  let c := c?.getD 0
+  let some K := kronExponent? (norm₀ + c * polyNorm1 E) maxCode 4000000 | return none
+  let ring ← getCommRing
+  let ctx ← getContext
+  -- The multiples `kᵢ * mᵢ * q` of the same `q` are one multiple `(Σ kᵢ * mᵢ) * q` (`MList`).
+  let mut idx : Std.HashMap Poly Nat := {}
+  let mut groups : Array (Poly × Poly × Expr) := #[]
+  for (k, m, q, h) in leaves do
+    if let some i := idx[q]? then
+      groups := groups.modify i fun (M, q, h) => (.add k m M, q, h)
+    else
+      idx := idx.insert q groups.size
+      groups := groups.push (.add k m (.num 0), q, h)
+  -- Grouping pays off when the polynomials repeat: a group costs a product of two values, a
+  -- multiple a shift.
+  let grouped := 4 * groups.size < leaves.size
+  let (declName, declNameC) := if grouped then (declNameM, declNameMC) else (declName, declNameC)
+  let mut ls := mkConst ``Grind.CommRing.MList.nil
+  let mut hAll := mkApp3 (mkConst ``Grind.CommRing.MList.allZero_nil [ring.u]) ring.type ring.ringInst ctx
+  if grouped then
+    for (M, q, h) in groups.reverse do
+      let ME ← mkPolyDecl M
+      let qE ← mkPolyDecl q
+      hAll := mkAppN (mkConst ``Grind.CommRing.MList.allZero_cons [ring.u]) #[ring.type, ring.ringInst, ctx, ME, qE, ls, h, hAll]
+      ls := mkApp3 (mkConst ``Grind.CommRing.MList.cons) ME qE ls
+  else
+    ls := mkConst ``Grind.CommRing.KList.nil
+    hAll := mkApp3 (mkConst ``Grind.CommRing.KList.allZero_nil [ring.u]) ring.type ring.ringInst ctx
+    for (k, m, q, h) in leaves.reverse do
+      let kE := toExpr k
+      let mE ← mkMonDecl m
+      let qE ← mkPolyDecl q
+      hAll := mkAppN (mkConst ``Grind.CommRing.KList.allZero_cons [ring.u]) #[ring.type, ring.ringInst, ctx, kE, mE, qE, ls, h, hAll]
+      ls := mkApp4 (mkConst ``Grind.CommRing.KList.cons) kE mE qE ls
+  let pE ← mkPolyDecl p
+  let h ← mkStepPrefix declName declNameC
+  let eArgs ← if c?.isSome then pure #[← mkPPolyDecl E B] else pure #[]
+  let args := #[mkRawNatLit K, mkRawNatLit B, ← mkPolyDecl base, pE] ++ eArgs ++
+    #[ls, eagerReflBoolTrue, eagerReflBoolTrue, hAll]
+  return some (mkAppN h (pre ++ args))
 
 /--
 An estimate of the kernel cost of checking a chain `p₀, …, pₙ` with `pᵢ = pᵢ₋₁ + qᵢ` one step at a
@@ -342,14 +447,47 @@ private partial def collectSimps1 (c : EqCnstr) (acc : Array (Int × Mon × EqCn
   | _ => return (c, acc)
 
 open Lean.Grind.CommRing in
+/--
+The proof of `p.denote ctx = 0` from `h : lhs = rhs`, where `p` is the polynomial of `lhs - rhs`,
+by Kronecker substitution (`Stepwise.coreK`), if the values stay below a few million bits. In
+characteristic `c`, the difference over `Int` is `c * E` for a stated polynomial `E`.
+-/
+private def mkKronCore? (lhs rhs : RingExpr) (p : Poly) (h : Expr) : ProofM (Option Expr) := do
+  let e : RingExpr := .sub lhs rhs
+  -- The evaluation pays off when the normalization of `lhs - rhs` multiplies out sums of degree 3 or more.
+  if !exprExpandsSum e || exprDegB e < 3 then return none
+  let B := max 2 (max (exprDegB e) (polyMaxDeg p) + 1)
+  let maxCode := max (exprMaxCode B e) (polyMaxCode B p)
+  -- Expanding `e` over `Int` for the characteristic quotient can be much larger than `p`, so the
+  -- bound and the size of the expansion are checked first.
+  if (kronExponent? (exprMajorant e + polyNorm1 p) maxCode 4000000).isNone then return none
+  let c? ← nonzeroChar?
+  if c?.isSome && exprTermsBound kronQuotientMaxTerms e > kronQuotientMaxTerms then return none
+  let E : Poly ← match c? with
+    | none => pure (.num 0)
+    | some c =>
+      let diff := e.toPoly.combine (p.mulConst (-1))
+      let E := diff.divConst c
+      unless E.mulConst c == diff do return none
+      pure E
+  let c := c?.getD 0
+  let some K := kronExponent? (exprMajorant e + polyNorm1 p + c * polyNorm1 E) maxCode 4000000 | return none
+  let pre ← mkStepPrefix ``Stepwise.coreK ``Stepwise.coreKC
+  let eArgs ← if c?.isSome then pure #[← mkPPolyDecl E B] else pure #[]
+  return some (mkAppN pre (#[mkRawNatLit K, mkRawNatLit B, ← mkExprDecl lhs, ← mkExprDecl rhs, ← mkPolyDecl p] ++ eArgs ++
+    #[eagerReflBoolTrue, eagerReflBoolTrue, h]))
+
+open Lean.Grind.CommRing in
 partial def _root_.Lean.Meta.Grind.Arith.CommRing.EqCnstr.toExprProof (c : EqCnstr) : ProofM Expr := caching c do
   match c.h with
   | .core a b lhs rhs =>
+    if let some h ← mkKronCore? lhs rhs c.p (← mkEqProof a b) then return h
     let h ← mkStepPrefix ``Stepwise.core ``Stepwise.coreC
     return mkApp5 h (← mkExprDecl lhs) (← mkExprDecl rhs) (← mkPolyDecl c.p) (← mkPolyRefl c.p) (← mkEqProof a b)
   | .coreS a b sa sb ra rb =>
     let h' ← mkSemiringPrefix ``Grind.Ring.OfSemiring.of_eq
     let h' := mkApp3 h' (← mkSExprDecl sa) (← mkSExprDecl sb) (← mkEqProof a b)
+    if let some h ← mkKronCore? ra rb c.p h' then return h
     let h ← mkStepPrefix ``Stepwise.core ``Stepwise.coreC
     return mkApp5 h (← mkExprDecl ra) (← mkExprDecl rb) (← mkPolyDecl c.p) (← mkPolyRefl c.p) h'
   | .superpose k₁ m₁ c₁ k₂ m₂ c₂ =>
@@ -367,12 +505,16 @@ partial def _root_.Lean.Meta.Grind.Arith.CommRing.EqCnstr.toExprProof (c : EqCns
         let t := mkApp3 (mkConst ``Grind.CommRing.SumTree.leaf) (toExpr k₂) (← mkMonDecl m₂) (← mkPolyDecl c₂.p)
         return (← mulMonR k₂ m₂ c₂.p, t, ← toExprProof c₂)
       let hBase ← toExprProof base
-      let (q, t, hAll, treeCost) ← mkSumTree leaves 0 leaves.size
+      let hs ← steps.mapIdxM fun i (k₂, m₂, c₂, _) => return (k₂, m₂, c₂.p, leaves[i]!.2.2)
+      -- The chain `c.p = base.p + Σ kᵢ * mᵢ * cᵢ.p` is checked at once by Kronecker substitution
+      -- when it applies, otherwise when the sum tree pays off.
+      if steps.size > 1 then
+        if let some h ← mkKronSum? ``Stepwise.simpsK ``Stepwise.simpsKC ``Stepwise.simpsM ``Stepwise.simpsMC #[] base.p c.p hs then
+          return mkApp h hBase
+      let (q, _, _, treeCost) ← mkSumTree leaves 0 leaves.size
       let seqCost := stepwiseCost base.p (steps.zipWith (fun (_, _, _, c) (q, _, _) => (q, c.p)) leaves)
       let rootHs := mergeHints base.p q #[]
       if steps.size > 1 && useSumTree (treeCost + hintsWalk rootHs) seqCost then
-        -- The chain `c.p = base.p + Σ kᵢ * mᵢ * cᵢ.p` is checked at once.
-        let hs ← steps.mapIdxM fun i (k₂, m₂, c₂, _) => return (k₂, m₂, c₂.p, leaves[i]!.2.2)
         let h ← mkPackedSum ``Stepwise.simpsP ``Stepwise.simpsPC #[] base.p c.p hs
         return mkApp h hBase
       -- One step at a time; the proofs of the intermediate constraints are cached.
@@ -439,12 +581,15 @@ private partial def derivToExprProof (d : PolyDerivation) : ProofM (Int × Poly 
     let leaves ← steps.mapM fun (k₂, m₂, c₂, _) => do
       let t := mkApp3 (mkConst ``Grind.CommRing.SumTree.leaf) (toExpr k₂) (← mkMonDecl m₂) (← mkPolyDecl c₂.p)
       return (← mulMonR k₂ m₂ c₂.p, t, ← c₂.toExprProof)
-    let (q, t, hAll, treeCost) ← mkSumTree leaves 0 leaves.size
+    -- The chain `p = base.p + Σ kᵢ * mᵢ * pᵢ` is checked at once by Kronecker substitution when it
+    -- applies, otherwise when the sum tree pays off.
+    let hs ← steps.mapIdxM fun i (k₂, m₂, c₂, _) => return (k₂, m₂, c₂.p, leaves[i]!.2.2)
+    if let some h ← mkKronSum? ``Stepwise.d_stepsK ``Stepwise.d_stepsKC ``Stepwise.d_stepsM ``Stepwise.d_stepsMC #[toExpr k, ← mkPolyDecl p₀] base.p p hs then
+      return (k, p₀, mkApp h h₁)
+    let (q, _, _, treeCost) ← mkSumTree leaves 0 leaves.size
     let seqCost := stepwiseCost base.p (steps.zipWith (fun (_, _, _, p) (q, _, _) => (q, p)) leaves)
     let rootHs := mergeHints base.p q #[]
     if useSumTree (treeCost + hintsWalk rootHs) seqCost then
-      -- The chain `p = base.p + Σ kᵢ * mᵢ * pᵢ` is checked at once.
-      let hs ← steps.mapIdxM fun i (k₂, m₂, c₂, _) => return (k₂, m₂, c₂.p, leaves[i]!.2.2)
       let h ← mkPackedSum ``Stepwise.d_stepsP ``Stepwise.d_stepsPC #[toExpr k, ← mkPolyDecl p₀] base.p p hs
       return (k, p₀, mkApp h h₁)
     -- One step at a time.
@@ -490,11 +635,49 @@ where
 
 open Lean.Grind.CommRing in
 /--
+The proof of `lhs = rhs` from `h₁ : k * p₀ = d.p` by Kronecker substitution (`Stepwise.imp_1eqK`,
+`Stepwise.imp_keqK`): `lhs - rhs` and `p₀` have the same value at the point, if the values stay
+below a few million bits. In characteristic `c`, the difference over `Int` is `c * E` for a stated
+polynomial `E`.
+-/
+private def mkKronImp? (lhs rhs : RingExpr) (d : PolyDerivation) (k : Int) (p₀ : Poly) (h₁ : Expr) : ProofM (Option Expr) := do
+  let e : RingExpr := .sub lhs rhs
+  let deg := max (exprDegB e) (polyMaxDeg p₀)
+  let B := max 2 (deg + 1)
+  let maxCode := max (exprMaxCode B e) (polyMaxCode B p₀)
+  -- Expanding `e` over `Int` for the characteristic quotient can be much larger than `p₀`, so the
+  -- bound and the size of the expansion are checked first.
+  if (kronExponent? (exprMajorant e + polyNorm1 p₀) maxCode 4000000).isNone then return none
+  let c? ← nonzeroChar?
+  if c?.isSome && exprTermsBound kronQuotientMaxTerms e > kronQuotientMaxTerms then return none
+  let E : Poly ← match c? with
+    | none => pure (.num 0)
+    | some c =>
+      let diff := e.toPoly.combine (p₀.mulConst (-1))
+      let E := diff.divConst c
+      unless E.mulConst c == diff do return none
+      pure E
+  let c := c?.getD 0
+  let some K := kronExponent? (exprMajorant e + polyNorm1 p₀ + c * polyNorm1 E) maxCode 4000000 | return none
+  let pre ← if k == 1 then
+    mkStepPrefix ``Stepwise.imp_1eqK ``Stepwise.imp_1eqKC
+  else
+    let some nzInst ← noZeroDivisorsInst? | return none
+    pure <| mkApp2 (← mkStepPrefix ``Stepwise.imp_keqK ``Stepwise.imp_keqKC) nzInst (toExpr k)
+  let eArgs ← if c?.isSome then pure #[← mkPPolyDecl E B] else pure #[]
+  let dp ← mkPolyDecl d.p
+  let kArgs := if k == 1 then #[] else #[eagerReflBoolFalse]
+  return some (mkAppN pre (#[mkRawNatLit K, mkRawNatLit B, ← mkExprDecl lhs, ← mkExprDecl rhs, ← mkPolyDecl p₀, dp] ++ eArgs ++
+    kArgs ++ #[eagerReflBoolTrue, eagerReflBoolTrue, mkApp2 (mkConst ``Eq.refl [1]) (mkConst ``Grind.CommRing.Poly) dp, h₁]))
+
+open Lean.Grind.CommRing in
+/--
 Given a derivation `d` for `k * p = 0` where `lhs - rhs = p`, returns a proof for `lhs = rhs`.
 -/
 private def mkImpEqExprProof (lhs rhs : RingExpr) (d : PolyDerivation) : ProofM Expr := do
   assert! d.p matches .num 0
   let (k, p₀, h₁) ← derivToExprProof d
+  if let some h ← mkKronImp? lhs rhs d k p₀ h₁ then return h
   let h ← if k == 1 then
     mkStepPrefix ``Stepwise.imp_1eq ``Stepwise.imp_1eqC
   else
@@ -545,6 +728,7 @@ private def mkContext (h : Expr) : ProofM Expr := do
     return vals.insert m (← monToExprShared (m.renameVars varRename))).run cache
   let h := mkLetOfMap (← get).polyDecls h `p (mkConst ``Grind.CommRing.Poly) (vals[·]!)
   let h := mkLetOfMap (← get).monDecls h `m (mkConst ``Grind.CommRing.Mon) (mvals[·]!)
+  let h := mkLetOfMap (← get).ppolyDecls h `pp (mkConst ``Grind.CommRing.PPoly) fun (p, B) => packedPolyExpr B (p.renameVars varRename)
   let h := mkLetOfMap (← get).exprDecls h `e (mkConst ``Grind.CommRing.Expr) fun e => toExpr <| e.renameVars varRename
   let h := h.abstract #[(← read).ctx]
   if h.hasLooseBVars then

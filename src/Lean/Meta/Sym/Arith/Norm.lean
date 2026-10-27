@@ -14,6 +14,7 @@ public import Lean.Meta.Sym.SynthInstance
 public import Lean.Meta.Sym.Arith.Classify
 public import Lean.Meta.Sym.Arith.VarRename
 import Lean.Meta.Sym.Arith.ToExpr
+import Lean.Meta.Sym.Arith.Kronecker
 public import Lean.Meta.Sym.Simp.App
 import Lean.Meta.AppBuilder
 public import Lean.Meta.NatInstTesters
@@ -23,6 +24,7 @@ import Init.Grind.Norm
 import Init.Grind.Ring.FieldSolver
 import Init.Grind.Ring.IntSolver
 import Init.Grind.Ring.Packed
+import Init.Grind.Ring.Kronecker
 import Init.Data.Int.Linear
 public section
 namespace Lean.Meta.Sym.Arith
@@ -816,18 +818,12 @@ private def hasProduct : RingExpr → Bool
   | .neg a => hasProduct a
   | _ => false
 
-/-- The degree bound `Expr.degB_k` of `e`. -/
-private def degB : RingExpr → Nat
-  | .num _ | .natCast _ | .intCast _ => 0
-  | .var _ => 1
-  | .neg a => degB a
-  | .add a b | .sub a b => max (degB a) (degB b)
-  | .mul a b => degB a + degB b
-  | .pow a k => degB a * k
-
 /-- The base of the packed certificates for `l` and `r`: larger than every degree. -/
 private def packedBase (l r : RingExpr) : Nat :=
-  max 2 (max (degB l) (degB r) + 1)
+  max 2 (max (exprDegB l) (exprDegB r) + 1)
+
+/-- The largest number of bits of the values at the point in the Kronecker certificates. -/
+private def kronMaxBits : Nat := 1000000
 
 /-- `p` as a `Grind.CommRing.PPoly` in base `B`, with the same order of terms. -/
 private def ofPackedPoly (B : Nat) : Poly → Expr
@@ -884,21 +880,54 @@ private def packedArgs (l r : RingExpr) (p : Poly) (bal₁ bal₂ : Bool) : Arra
   let refl := mkApp2 (mkConst ``Eq.refl [1]) (mkConst ``Grind.CommRing.PPoly) pE
   #[mkRawNatLit B, toExpr bal₁, toExpr bal₂, toExpr l, toExpr r, pE, eagerReflBoolTrue, refl, refl]
 
+/--
+The arguments `K` and `B` of the Kronecker certificates (`Expr.eq_of_kron`) for `l` and `r`, if the
+values at the point stay below about a million bits (`kronExponent?`).
+-/
+private def kronArgs? (l r : RingExpr) : Option (Nat × Nat) :=
+  let B := packedBase l r
+  (kronExponent? (exprMajorant l + exprMajorant r) (max (exprMaxCode B l) (exprMaxCode B r)) kronMaxBits).map (·, B)
+
+/--
+The arguments `K` and `B` shared by the Kronecker certificates for `l₁ = r₁` and `l₂ = r₂`. A larger
+`B` raises the codes of the other pair, so the bound is checked for the shared arguments.
+-/
+private def kronArgs₂? (l₁ r₁ l₂ r₂ : RingExpr) : Option (Nat × Nat) :=
+  let B := max (packedBase l₁ r₁) (packedBase l₂ r₂)
+  let norm := max (exprMajorant l₁ + exprMajorant r₁) (exprMajorant l₂ + exprMajorant r₂)
+  let maxCode := max (max (exprMaxCode B l₁) (exprMaxCode B r₁)) (max (exprMaxCode B l₂) (exprMaxCode B r₂))
+  (kronExponent? norm maxCode kronMaxBits).map (·, B)
+
+/-- The exponent `K` shared by the linear Kronecker certificates for `l₁ = r₁` and `l₂ = r₂`. -/
+private def kronLinExponent₂? (l₁ r₁ l₂ r₂ : RingExpr) : Option Nat := do
+  let K₁ ← kronLinExponent? l₁ r₁ kronMaxBits
+  let K₂ ← kronLinExponent? l₂ r₂ kronMaxBits
+  let K := max K₁ K₂
+  let maxCode := max (max (exprLinCode l₁) (exprLinCode r₁)) (max (exprLinCode l₂) (exprLinCode r₂))
+  if K * (maxCode + 1) > kronMaxBits then none else some K
+
+/-- The arguments `K l r hl hK h` of the linear Kronecker certificates (`Expr.eq_of_kronLin`). -/
+private def kronLinProofArgs (l r : RingExpr) (K : Nat) : Array Expr :=
+  let ev := mkApp2 (mkConst ``Grind.CommRing.Expr.kronLinEval_k) (mkRawNatLit K) (toExpr l)
+  #[mkRawNatLit K, toExpr l, toExpr r, eagerReflBoolTrue, eagerReflBoolTrue, mkApp2 (mkConst ``Eq.refl [1]) (mkConst ``Int) ev]
+
+/-- The arguments `K B l r hB hK h` of the Kronecker certificates (`Expr.eq_of_kron`). -/
+private def kronProofArgs (l r : RingExpr) (K B : Nat) : Array Expr :=
+  let ev (e : RingExpr) := mkApp3 (mkConst ``Grind.CommRing.Expr.kronEval_k) (mkRawNatLit K) (mkRawNatLit B) (toExpr e)
+  #[mkRawNatLit K, mkRawNatLit B, toExpr l, toExpr r, eagerReflBoolTrue, eagerReflBoolTrue,
+    mkApp2 (mkConst ``Eq.refl [1]) (mkConst ``Int) (ev l)]
+
 /-- `true` if the packed certificates pay off for a polynomial with `size` monomials. -/
 private def usePacked (size : Nat) : Bool :=
   size ≥ 8
 
-/-- `true` if `e` has no subtraction, negation, `Int` cast or negative numeral (`Expr.semi_k`). -/
-private def isSemi : RingExpr → Bool
-  | .num k => k ≥ 0
-  | .natCast _ | .var _ => true
-  | .intCast _ | .neg _ | .sub .. => false
-  | .add a b | .mul a b => isSemi a && isSemi b
-  | .pow a _ => isSemi a
+/-- `true` if `l` and `r` pass the checks of the semiring certificates in base `B` (`Expr.degSOk_k`). -/
+private def semiOk (B : Nat) (l r : RingExpr) : Bool :=
+  1 < B && exprDegS B l < B && exprDegS B r < B
 
-/-- `packedArgs` for the semiring certificates (`Expr.eq_of_toPPX_eqS`), with the `Expr.semi_k` check. -/
-private def packedArgsS (l r : RingExpr) (p : Poly) (bal₁ bal₂ : Bool) : Array Expr :=
-  (packedArgs l r p bal₁ bal₂).insertIdx! 6 eagerReflBoolTrue
+/-- `true` if `l` and `r` pass the checks of the linear semiring certificates (`Expr.linSOk_k`). -/
+private def linSemiOk (l r : RingExpr) : Bool :=
+  exprLinS l ≤ 1 && exprLinS r ≤ 1
 
 /-- Memoized `toExpr` of the monomials of the stepwise certificates, which repeat each other. -/
 private abbrev StepM := StateM (Std.HashMap Mon Expr)
@@ -1146,6 +1175,16 @@ private def mkCertificate (e₁ : Expr) (re : RingExpr) (p : Poly) (vars : Array
   let h ← if !invs.isEmpty then
     let (fieldInst, charInst) := fc?.get!
     let invsE := toExpr invs.toList
+    if let (true, some (K, B)) := (ainvs.isEmpty, kronQArgs? re re' invs.toList kronMaxBits) then
+      -- Both sides are evaluated at a point, with the inverses of numerals (Kronecker substitution).
+      return .step e' (mkExpectedPropHint (mkAppN (mkConst ``Grind.CommRing.Expr.eq_of_kronQ [u]) #[type, fieldInst, charInst, ctx,
+        mkRawNatLit K, mkRawNatLit B, invsE, mkInvVarsOk type u ctx invsE, eagerReflBoolTrue, toExpr re, toExpr re',
+        eagerReflBoolTrue, eagerReflBoolTrue, eagerReflBoolTrue]) (← mkEq e₁ e'))
+    if let (true, some K) := (ainvs.isEmpty, kronQLinExponent? re re' invs.toList kronMaxBits) then
+      -- Linear terms over many variables: the point `xᵢ = (2 ^ K) ^ (i + 1)`.
+      return .step e' (mkExpectedPropHint (mkAppN (mkConst ``Grind.CommRing.Expr.eq_of_kronQLin [u]) #[type, fieldInst, charInst, ctx,
+        mkRawNatLit K, invsE, mkInvVarsOk type u ctx invsE, eagerReflBoolTrue, toExpr re, toExpr re',
+        eagerReflBoolTrue, eagerReflBoolTrue, eagerReflBoolTrue]) (← mkEq e₁ e'))
     let thm := mkApp3 (mkConst ``Grind.CommRing.Expr.eq_of_toPolyQ_eq [u]) type fieldInst charInst
     pure (mkAppN thm #[ctx, toExpr (useBalanced re p.length), invsE, mkInvVarsOk type u ctx invsE, ainvsE, hoka,
       toExpr re, toExpr re', eagerReflBoolTrue])
@@ -1154,8 +1193,14 @@ private def mkCertificate (e₁ : Expr) (re : RingExpr) (p : Poly) (vars : Array
     pure (mkApp6 thm ctx ainvsE hoka (toExpr re) (toExpr re') eagerReflBoolTrue)
   else if let (true, some a, some a') := (type.isConstOf ``Int && char?.isNone && isSmallSum re p.length,
       toLinearExpr? re, toLinearExpr? re') then
-    -- Linear `Int` terms use the cheaper linear normalization of `simp +arith`.
+    -- Small linear `Int` terms use the cheaper linear normalization of `simp +arith`.
     pure (mkApp4 (mkConst ``Int.Internal.Linear.Expr.eq_of_norm_expr_k) ctx (ofLinearExpr a) (ofLinearExpr a') eagerReflBoolTrue)
+  else if let (.commRing _, none, some K) := (kind, char?, kronLinExponent? re re' kronMaxBits) then
+    -- Linear terms are evaluated at a point (Kronecker substitution with small values).
+    pure (mkAppN (mkConst ``Grind.CommRing.Expr.eq_of_kronLin [u]) (#[type, inst, ctx] ++ kronLinProofArgs re re' K))
+  else if let (.commRing _, none, some (K, B)) := (kind, char?, kronArgs? re re') then
+    -- Both sides are evaluated at a point (Kronecker substitution).
+    pure (mkAppN (mkConst ``Grind.CommRing.Expr.eq_of_kron [u]) (#[type, inst, ctx] ++ kronProofArgs re re' K B))
   else if let (.commRing _, none, true) := (kind, char?, usePacked p.length) then
     -- Both sides are normalized with packed monomials; `re'` is in decreasing order.
     pure (mkAppN (mkConst ``Grind.CommRing.Expr.eq_of_toPPX_eq [u]) (#[type, inst, ctx] ++ packedArgs re re' p (packedBal re) false))
@@ -1183,9 +1228,17 @@ private def mkCertificate (e₁ : Expr) (re : RingExpr) (p : Poly) (vars : Array
       (mkApp2 (mkConst ``Eq.refl [1]) (mkConst ``Grind.CommRing.Poly) pE)
       (mkApp2 (mkConst ``Eq.refl [1]) (mkConst ``Grind.CommRing.Expr) re'E))
   else if kind matches .commSemiring _ then
-    if let (true, some arcInst) := (usePacked p.length && isSemi re && isSemi re', ← getAddRightCancelInst?) then
+    if let (true, some arcInst, some K) := (linSemiOk re re', ← getAddRightCancelInst?, kronLinExponent? re re' kronMaxBits) then
+      pure (mkAppN (mkConst ``Grind.CommRing.Expr.eq_of_kronLinS [u]) (#[type, inst, arcInst, ctx] ++ kronLinProofArgs re re' K))
+    else if let (some arcInst, some (K, B)) := (← getAddRightCancelInst?, (kronArgs? re re').filter (semiOk ·.2 re re')) then
+      -- Both sides are evaluated at a point (Kronecker substitution) in the ring envelope.
+      pure (mkAppN (mkConst ``Grind.CommRing.Expr.eq_of_kronS [u]) (#[type, inst, arcInst, ctx] ++ kronProofArgs re re' K B))
+    else if let some (K, B) := (kronArgs? re re').filter (semiOk ·.2 re re') then
+      -- Without `AddRightCancel`, the terms are regrouped in the semiring (`Expr.eq_of_kronSN`).
+      pure (mkAppN (mkConst ``Grind.CommRing.Expr.eq_of_kronSN [u]) (#[type, inst, ctx] ++ kronProofArgs re re' K B))
+    else if let (true, some arcInst) := (usePacked p.length && semiOk (packedBase re re') re re', ← getAddRightCancelInst?) then
       -- Both sides are normalized with packed monomials in the ring envelope.
-      pure (mkAppN (mkConst ``Grind.CommRing.Expr.eq_of_toPPX_eqS [u]) (#[type, inst, arcInst, ctx] ++ packedArgsS re re' p (packedBal re) false))
+      pure (mkAppN (mkConst ``Grind.CommRing.Expr.eq_of_toPPX_eqS [u]) (#[type, inst, arcInst, ctx] ++ packedArgs re re' p (packedBal re) false))
     else
       -- `p = re.toPolyS_k` and `re' = p.toExpr_k`, both checked by definitional equality.
       let thm := mkApp4 (mkConst ``Grind.CommRing.Expr.eq_of_toPolyS_eq_toExpr [u]) type inst ctx (toExpr (useBalanced re p.length))
@@ -1562,6 +1615,43 @@ private def linearIntRel? (type : Expr) (invs : Array (Var × Nat)) (ainvs : Arr
     && isSmallSum (.sub l r) size
   return (← toLinearExpr? l, ← toLinearExpr? r, ← toLinearExpr? l', ← toLinearExpr? r')
 
+/-- The number of summands of `e`, through additions, subtractions and negations. -/
+private def summandsOf : RingExpr → Nat
+  | .add a b | .sub a b => summandsOf a + summandsOf b
+  | .neg a => summandsOf a
+  | _ => 1
+
+/--
+The proof of `(l ⋈ r) = (l' ⋈ r')` when `l - r` and `l' - r'` have the same polynomial, by
+evaluation at a point (`le_of_kronLin_rel` for linear terms, `le_of_kron_rel`), if feasible.
+-/
+private def kronRelProof? (rel : RelKind) (order? : Option Order) (type inst ctx : Expr) (u : Level)
+    (l r l' r' : RingExpr) : Option Expr := do
+  let a : RingExpr := .sub l r
+  let b : RingExpr := .sub l' r'
+  let insts ← match rel, order? with
+    | .eq, _ => some #[]
+    | .le, some o => do some #[o.leInst, ← o.ltInst?, o.isPreorderInst, ← o.orderedRingInst?]
+    | .lt, some o => do some #[o.leInst, ← o.ltInst?, o.isPreorderInst, ← o.orderedRingInst?, ← o.lawfulOrderLTInst?]
+    | _, none => none
+  let (linName, name) := match rel with
+    | .eq => (``Grind.CommRing.eq_of_kronLin_rel, ``Grind.CommRing.eq_of_kron_rel)
+    | .le => (``Grind.CommRing.le_of_kronLin_rel, ``Grind.CommRing.le_of_kron_rel)
+    | .lt => (``Grind.CommRing.lt_of_kronLin_rel, ``Grind.CommRing.lt_of_kron_rel)
+  let sides := #[toExpr l, toExpr r, toExpr l', toExpr r']
+  let refl (v : Expr) := mkApp2 (mkConst ``Eq.refl [1]) (mkConst ``Int) v
+  -- Small relations are cheaper to normalize in the kernel than to evaluate: below 16 summands
+  -- for linear terms, and below 6 for other terms that do not multiply out a sum.
+  if let some K := (kronLinExponent? a b kronMaxBits).filter fun _ => summandsOf a ≥ 16 then
+    let ev := mkApp2 (mkConst ``Grind.CommRing.Expr.kronLinEval_k) (mkRawNatLit K) (toExpr a)
+    return mkAppN (mkConst linName [u]) (#[type, inst] ++ insts ++ #[ctx, mkRawNatLit K] ++ sides ++
+      #[eagerReflBoolTrue, eagerReflBoolTrue, refl ev])
+  guard (exprExpandsSum a || summandsOf a ≥ 6)
+  let (K, B) ← kronArgs? a b
+  let ev := mkApp3 (mkConst ``Grind.CommRing.Expr.kronEval_k) (mkRawNatLit K) (mkRawNatLit B) (toExpr a)
+  return mkAppN (mkConst name [u]) (#[type, inst] ++ insts ++ #[ctx, mkRawNatLit K, mkRawNatLit B] ++ sides ++
+    #[eagerReflBoolTrue, eagerReflBoolTrue, refl ev])
+
 /--
 The proof of `(rel lhs rhs) = True` or `(rel lhs rhs) = False` (with `true` for `True`) when the
 polynomial of `l - r` is the constant `k`, if a theorem applies: `=` with `k = 0`, or `k ≠ 0` in
@@ -1571,6 +1661,24 @@ private def constRelProof? (rel : RelKind) (order? : Option Order) (ring : Ring)
     (char? : Option (Expr × Nat)) (k : Int) (l r : RingExpr) (pl pr : Poly) (vars : Array Expr) :
     NormM (Option (Expr × Bool)) := do
   let size := pl.length + pr.length
+  -- Linear identities are evaluated at a point (Kronecker substitution with small values).
+  if k == 0 then
+    let p₀? := if char?.isNone then some pl else
+      let q := l.toPoly
+      if q == r.toPoly then some q else none
+    let smallInt := ring.type.isConstOf ``Int && isSmallSum (.sub l r) size && (toLinearExpr? l).isSome && (toLinearExpr? r).isSome
+    if let (false, some _, some K) := (smallInt, p₀?, kronLinExponent? l r kronMaxBits) then
+      let ctx ← mkContext ring.type vars
+      let args := kronLinProofArgs l r K
+      match rel, order? with
+      | .eq, _ => return some (mkAppN (mkConst ``Grind.CommRing.eq_true_of_kronLin [u]) (#[ring.type, inst, ctx] ++ args), true)
+      | .le, some o =>
+        return some (mkAppN (mkConst ``Grind.CommRing.le_true_of_kronLin [u]) (#[ring.type, inst, o.leInst, o.isPreorderInst, ctx] ++ args), true)
+      | .lt, some o =>
+        if let (some ltInst, some lawfulInst) := (o.ltInst?, o.lawfulOrderLTInst?) then
+          return some (mkAppN (mkConst ``Grind.CommRing.lt_false_of_kronLin [u])
+            (#[ring.type, inst, o.leInst, ltInst, lawfulInst, o.isPreorderInst, ctx] ++ args), false)
+      | _, _ => pure ()
   -- Linear `Int` relations use the cheaper certificates of `simp +arith`. With equal sides, each
   -- side is normalized alone.
   if ring.type.isConstOf ``Int && isSmallSum (.sub l r) size then
@@ -1592,6 +1700,17 @@ private def constRelProof? (rel : RelKind) (order? : Option Order) (ring : Ring)
     let p₀? := if char?.isNone then some pl else
       let q := l.toPoly
       if q == r.toPoly then some q else none
+    if let (some _, some (K, B)) := (p₀?, kronArgs? l r) then
+      let args := kronProofArgs l r K B
+      match rel, order? with
+      | .eq, _ => return some (mkAppN (mkConst ``Grind.CommRing.eq_true_of_kron [u]) (#[ring.type, inst, ctx] ++ args), true)
+      | .le, some o =>
+        return some (mkAppN (mkConst ``Grind.CommRing.le_true_of_kron [u]) (#[ring.type, inst, o.leInst, o.isPreorderInst, ctx] ++ args), true)
+      | .lt, some o =>
+        if let (some ltInst, some lawfulInst) := (o.ltInst?, o.lawfulOrderLTInst?) then
+          return some (mkAppN (mkConst ``Grind.CommRing.lt_false_of_kron [u])
+            (#[ring.type, inst, o.leInst, ltInst, lawfulInst, o.isPreorderInst, ctx] ++ args), false)
+      | _, _ => pure ()
     if let some p₀ := p₀?.filter (usePacked ·.length) then
       let args := packedArgs l r p₀ (packedBal l) (packedBal r)
       match rel, order? with
@@ -1645,7 +1764,7 @@ private def constRelProof? (rel : RelKind) (order? : Option Order) (ring : Ring)
   -- A nonzero constant difference with large polynomials: the difference is checked with packed
   -- monomials, or stated stepwise.
   let packed := usePacked (max pl.length pr.length)
-  if k != 0 && char?.isNone && (packed || size ≥ 64 && (hasProduct l || hasProduct r)) then
+  if k != 0 && char?.isNone then
     let ctx ← mkContext ring.type vars
     let pre := #[ring.type, inst, ctx]
     -- `name`, the sides of the difference, `n` and the instances of the theorem.
@@ -1663,15 +1782,28 @@ private def constRelProof? (rel : RelKind) (order? : Option Order) (ring : Ring)
           | _ => if k < 0 then (``Grind.CommRing.lt_true_of_sub, r, l, mkRawNatLit (-k - 1).toNat, insts)
             else (``Grind.CommRing.lt_false_of_sub, l, r, mkRawNatLit k.toNat, insts)
     if let some (name, a, b, n, insts) := thm? then
-      let h? := if packed then
-          -- `a - b` is the constant `kab`; `a` has the polynomial `pa` and `b` the polynomial `q`.
+      -- `a - b` is the constant `kab`.
+      let kab := if a == l then k else -k
+      let bk : RingExpr := .add b (.num kab)
+      let h? : Option Expr := if let some K := kronLinExponent? a bk kronMaxBits then
+          some (mkAppN (mkConst ``Grind.CommRing.Expr.sub_eq_of_kronLin [u]) (#[ring.type, inst, ctx] ++
+            #[mkRawNatLit K, toExpr a, toExpr b, toExpr kab, eagerReflBoolTrue, eagerReflBoolTrue,
+              mkApp2 (mkConst ``Eq.refl [1]) (mkConst ``Int) (mkApp2 (mkConst ``Grind.CommRing.Expr.kronLinEval_k) (mkRawNatLit K) (toExpr a))]))
+        else if let some (K, B) := kronArgs? a bk then
+          some (mkAppN (mkConst ``Grind.CommRing.Expr.sub_eq_of_kron [u]) (#[ring.type, inst, ctx] ++
+            #[mkRawNatLit K, mkRawNatLit B, toExpr a, toExpr b, toExpr kab, eagerReflBoolTrue, eagerReflBoolTrue,
+              mkApp2 (mkConst ``Eq.refl [1]) (mkConst ``Int)
+                (mkApp3 (mkConst ``Grind.CommRing.Expr.kronEval_k) (mkRawNatLit K) (mkRawNatLit B) (toExpr a))]))
+        else if packed then
+          -- `a` has the polynomial `pa` and `b` the polynomial `q`.
           let (pa, q, kab) := if a == l then (pl, pr, k) else (pr, pl, -k)
           let B := packedBase a b
           let reflP (p : Poly) := mkApp2 (mkConst ``Eq.refl [1]) (mkConst ``Grind.CommRing.PPoly) (ofPackedPoly B p)
           some (mkAppN (mkConst ``Grind.CommRing.Expr.sub_eq_of_toPPX [u]) #[ring.type, inst, ctx, mkRawNatLit B,
             toExpr (packedBal a), toExpr (packedBal b), toExpr a, toExpr b, ofPackedPoly B q, mkIntLitK kab, eagerReflBoolTrue,
             reflP pa, reflP q])
-        else (denoteSteps? pre u .ring (.sub a b)).run' {} |>.map (·.2.2)
+        else if size ≥ 64 && (hasProduct l || hasProduct r) then ((denoteSteps? pre u StepMode.ring (.sub a b)).run' {}).map (·.2.2)
+        else none
       if let some h := h? then
         let args := #[ctx, toExpr l, toExpr r, n, h] ++ (if rel == .eq then #[eagerReflBoolFalse] else #[])
         return some (mkAppN (mkConst name [u]) (#[ring.type] ++ insts ++ args), rel != .eq && (k < 0 || (rel == .le && k == 0)))
@@ -1733,6 +1865,8 @@ private def normalizeRelCore (rel : RelKind) (relFn : Expr) (order? : Option Ord
     -- are rendered below without solving for a side. With inverse atoms, the sides must go
     -- through the field normalization below.
     let numOrAtom := lhsOnly && rel == .eq && invs.isEmpty && ainvs.isEmpty && isNumOrAtom pl && isNumOrAtom pr
+    -- With inverses of numerals, `lhs - rhs` is `p / den` for the numerator `p` below.
+    let den := if !invs.isEmpty then (p.toPolyQ invs.toList ainvsL).den else 1
     let p := if !invs.isEmpty then (p.toPolyQ invs.toList ainvsL).num
       else if !ainvs.isEmpty then p.cancelInvs ainvsL
       else p
@@ -1768,6 +1902,11 @@ private def normalizeRelCore (rel : RelKind) (relFn : Expr) (order? : Option Ord
     -- In a field, the numerator of `lhs - rhs` is `0`: the equation is `True`. The sides are
     -- checked alone when they have the same polynomial or the same `PolyQ`.
     if !invs.isEmpty && rel == .eq && p matches .num 0 then
+      -- Both sides have the same polynomial, before eliminating the inverses: a ring identity,
+      -- when it can be checked at a point.
+      if pl == pr && ((kronLinExponent? l r kronMaxBits).isSome || (kronArgs? l r).isSome) then
+        if let some (h, _) ← constRelProof? rel order? ring u inst char? 0 l r pl pr vars then
+          return .step (← getTrueExpr) (mkExpectedPropHint h (mkPropEq e (← getTrueExpr)))
       let (fieldInst, charInst) := fc?.get!
       let ctx ← mkContext ring.type vars
       let hoka ← if ainvs.isEmpty then pure (mkConst ``True.intro) else pure (mkInvAtomsOk (← getCommRing) ctx vars ainvs)
@@ -1777,7 +1916,16 @@ private def normalizeRelCore (rel : RelKind) (relFn : Expr) (order? : Option Ord
       let steps? := if pl.length + pr.length ≥ 64 && (hasProduct l || hasProduct r) then
           denoteStepsBoth? #[ring.type, commRingInst, ctx] u .ring l r
         else none
-      let h := if let (true, some ((pE, h₁), (_, h₂))) := (pl == pr, steps?) then
+      let h := if let (true, some (K, B)) := (ainvs.isEmpty, kronQArgs? l r invs.toList kronMaxBits) then
+          -- Both sides are evaluated at a point, with the inverses of numerals (Kronecker substitution).
+          mkAppN (mkConst ``Grind.CommRing.eq_true_of_kronQ [u]) #[ring.type, fieldInst, charInst, ctx,
+            mkRawNatLit K, mkRawNatLit B, invsE, mkInvVarsOk ring.type u ctx invsE, eagerReflBoolTrue, toExpr l, toExpr r,
+            eagerReflBoolTrue, eagerReflBoolTrue, eagerReflBoolTrue]
+        else if let (true, some K) := (ainvs.isEmpty, kronQLinExponent? l r invs.toList kronMaxBits) then
+          mkAppN (mkConst ``Grind.CommRing.eq_true_of_kronQLin [u]) #[ring.type, fieldInst, charInst, ctx,
+            mkRawNatLit K, invsE, mkInvVarsOk ring.type u ctx invsE, eagerReflBoolTrue, toExpr l, toExpr r,
+            eagerReflBoolTrue, eagerReflBoolTrue, eagerReflBoolTrue]
+        else if let (true, some ((pE, h₁), (_, h₂))) := (pl == pr, steps?) then
           mkAppN (mkConst ``Grind.CommRing.eq_true_of_denote_eq [u]) #[ring.type, commRingInst, ctx, toExpr l, toExpr r, pE, h₁, h₂]
         else if pl == pr then
           -- Both sides have the same polynomial, before eliminating the inverses.
@@ -1856,6 +2004,9 @@ private def normalizeRelCore (rel : RelKind) (relFn : Expr) (order? : Option Ord
         | .le => ``Int.Internal.Linear.le_norm_expr_k
         | .lt => ``Int.Internal.Linear.lt_norm_expr_k
       pure (mkApp6 (mkConst name) ctx (ofLinearExpr a) (ofLinearExpr b) (ofLinearExpr a') (ofLinearExpr b') eagerReflBoolTrue)
+    else if let (true, some h) := (invs.isEmpty && ainvs.isEmpty && kind.isComm && char?.isNone,
+        kronRelProof? rel order? ring.type inst ctx u l r l' r') then
+      pure h
     else if invs.isEmpty && ainvs.isEmpty && kind.isComm && char?.isNone && rp matches .num 0 then
       -- `lhs' ⋈ 0`, where `lp` is the polynomial of `lhs - rhs`: both hypotheses of the theorem
       -- are checked by definitional equality.
@@ -1933,6 +2084,40 @@ private def normalizeRelCore (rel : RelKind) (relFn : Expr) (order? : Option Ord
           let o := order?.get!
           mkApp5 (base ``Grind.CommRing.lt_normA_expr) o.leInst o.ltInst?.get! o.lawfulOrderLTInst?.get! o.isPreorderInst o.orderedRingInst?.get!
       pure (mkApp8 h ctx ainvsE hoka (toExpr l) (toExpr r) (toExpr l') (toExpr r') eagerReflBoolTrue)
+    else if let (true, some (K, B)) := (ainvs.isEmpty && den > 0,
+        kronQArgs? ((l.sub r).mul (.num den)) (l'.sub r') invs.toList kronMaxBits) then
+      -- `(lhs - rhs) * den` and `lhs' - rhs'` are evaluated at a point (Kronecker substitution).
+      let (fieldInst, charInst) := fc?.get!
+      let base (name : Name) : Expr := mkApp3 (mkConst name [u]) ring.type fieldInst charInst
+      let h := match rel with
+        | .eq => base ``Grind.CommRing.eq_of_kronQ_rel
+        | .le =>
+          let o := order?.get!
+          mkApp5 (base ``Grind.CommRing.le_of_kronQ_rel) o.leInst o.ltInst?.get! o.lawfulOrderLTInst?.get! linInst?.get! o.orderedRingInst?.get!
+        | .lt =>
+          let o := order?.get!
+          mkApp5 (base ``Grind.CommRing.lt_of_kronQ_rel) o.leInst o.ltInst?.get! o.lawfulOrderLTInst?.get! linInst?.get! o.orderedRingInst?.get!
+      let invsE := toExpr invs.toList
+      pure (mkAppN h #[ctx, mkRawNatLit K, mkRawNatLit B, invsE, mkInvVarsOk ring.type u ctx invsE, eagerReflBoolTrue,
+        mkRawNatLit den, eagerReflBoolTrue, toExpr l, toExpr r, toExpr l', toExpr r', eagerReflBoolTrue, eagerReflBoolTrue,
+        eagerReflBoolTrue])
+    else if let (true, some K) := (ainvs.isEmpty && den > 0,
+        kronQLinExponent? ((l.sub r).mul (.num den)) (l'.sub r') invs.toList kronMaxBits) then
+      -- The same for linear terms over many variables (`le_of_kronQLin_rel`).
+      let (fieldInst, charInst) := fc?.get!
+      let base (name : Name) : Expr := mkApp3 (mkConst name [u]) ring.type fieldInst charInst
+      let h := match rel with
+        | .eq => base ``Grind.CommRing.eq_of_kronQLin_rel
+        | .le =>
+          let o := order?.get!
+          mkApp5 (base ``Grind.CommRing.le_of_kronQLin_rel) o.leInst o.ltInst?.get! o.lawfulOrderLTInst?.get! linInst?.get! o.orderedRingInst?.get!
+        | .lt =>
+          let o := order?.get!
+          mkApp5 (base ``Grind.CommRing.lt_of_kronQLin_rel) o.leInst o.ltInst?.get! o.lawfulOrderLTInst?.get! linInst?.get! o.orderedRingInst?.get!
+      let invsE := toExpr invs.toList
+      pure (mkAppN h #[ctx, mkRawNatLit K, invsE, mkInvVarsOk ring.type u ctx invsE, eagerReflBoolTrue,
+        mkRawNatLit den, eagerReflBoolTrue, toExpr l, toExpr r, toExpr l', toExpr r', eagerReflBoolTrue, eagerReflBoolTrue,
+        eagerReflBoolTrue])
     else
       let (fieldInst, charInst) := fc?.get!
       let base (name : Name) : Expr := mkApp3 (mkConst name [u]) ring.type fieldInst charInst
@@ -1962,12 +2147,37 @@ private def normalizeRelCore (rel : RelKind) (relFn : Expr) (order? : Option Ord
     if let (true, some (name, insts, holds)) := (kind.isComm && pl == pr, sameSides?) then
       let ctx ← mkContext sr.type vars
       let csInst := (← getCommSemiring).commSemiringInst
-      if let (true, some arcInst) := (usePacked pl.length && isSemi l && isSemi r, ← getAddRightCancelInst?) then
+      if let (true, some arcInst, some K) := (linSemiOk l r, ← getAddRightCancelInst?, kronLinExponent? l r kronMaxBits) then
+        let name := match rel with
+          | .eq => ``Grind.CommRing.eq_true_of_kronLinS
+          | .le => ``Grind.CommRing.le_true_of_kronLinS
+          | .lt => ``Grind.CommRing.lt_false_of_kronLinS
+        let h := mkAppN (mkConst name [u]) (#[sr.type, csInst, arcInst] ++ insts ++ #[ctx] ++ kronLinProofArgs l r K)
+        let e' ← if holds then getTrueExpr else getFalseExpr
+        return .step e' (mkExpectedPropHint h (mkPropEq e e'))
+      if let (some arcInst, some (K, B)) := (← getAddRightCancelInst?, (kronArgs? l r).filter (semiOk ·.2 l r)) then
+        let name := match rel with
+          | .eq => ``Grind.CommRing.eq_true_of_kronS
+          | .le => ``Grind.CommRing.le_true_of_kronS
+          | .lt => ``Grind.CommRing.lt_false_of_kronS
+        let h := mkAppN (mkConst name [u]) (#[sr.type, csInst, arcInst] ++ insts ++ #[ctx] ++ kronProofArgs l r K B)
+        let e' ← if holds then getTrueExpr else getFalseExpr
+        return .step e' (mkExpectedPropHint h (mkPropEq e e'))
+      if let some (K, B) := (kronArgs? l r).filter (semiOk ·.2 l r) then
+        -- Without `AddRightCancel`, the terms are regrouped in the semiring (`Expr.eq_of_kronSN`).
+        let name := match rel with
+          | .eq => ``Grind.CommRing.eq_true_of_kronSN
+          | .le => ``Grind.CommRing.le_true_of_kronSN
+          | .lt => ``Grind.CommRing.lt_false_of_kronSN
+        let h := mkAppN (mkConst name [u]) (#[sr.type, csInst] ++ insts ++ #[ctx] ++ kronProofArgs l r K B)
+        let e' ← if holds then getTrueExpr else getFalseExpr
+        return .step e' (mkExpectedPropHint h (mkPropEq e e'))
+      if let (true, some arcInst) := (usePacked pl.length && semiOk (packedBase l r) l r, ← getAddRightCancelInst?) then
         let name := match rel with
           | .eq => ``Grind.CommRing.eq_true_of_toPPX_eqS
           | .le => ``Grind.CommRing.le_true_of_toPPX_eqS
           | .lt => ``Grind.CommRing.lt_false_of_toPPX_eqS
-        let h := mkAppN (mkConst name [u]) (#[sr.type, csInst, arcInst] ++ insts ++ #[ctx] ++ packedArgsS l r pl (packedBal l) (packedBal r))
+        let h := mkAppN (mkConst name [u]) (#[sr.type, csInst, arcInst] ++ insts ++ #[ctx] ++ packedArgs l r pl (packedBal l) (packedBal r))
         let e' ← if holds then getTrueExpr else getFalseExpr
         return .step e' (mkExpectedPropHint h (mkPropEq e e'))
       -- Large products are stated stepwise when there are any (`denoteSteps?`).
@@ -2034,13 +2244,59 @@ private def normalizeRelCore (rel : RelKind) (relFn : Expr) (order? : Option Ord
     let reflE (e : Expr) := mkApp2 (mkConst ``Eq.refl [1]) (mkConst ``Grind.CommRing.Expr) e
     let csInst? ← if kind.isComm then pure (some (← getCommSemiring).commSemiringInst) else pure none
     let arcInst? ← if kind.isComm then getAddRightCancelInst? else pure none
+    -- With a common part `c`, `lhs = lhs' + c` and `rhs = rhs' + c` are checked at a point and `c`
+    -- is cancelled in the certificate (`eq_cancel_of_kronS`), so `c` is not written as a term.
+    if let (true, some csInst, some arcInst) := (hasC, csInst?, arcInst?) then
+      -- When a side is all common part, its input term stands for `c`, smaller than the expansion.
+      let cX : RingExpr := if lp matches .num 0 then l else if rp matches .num 0 then r else c.toExpr
+      let lC : RingExpr := .add l' cX
+      let rC : RingExpr := .add r' cX
+      let insts? : Option (Name × Name × Array Expr) := match rel, order? with
+        | .eq, _ => some (``Grind.CommRing.eq_cancel_of_kronLinS, ``Grind.CommRing.eq_cancel_of_kronS, #[])
+        | .le, some o => match o.ltInst?, o.orderedRingInst? with
+          | some ltInst, some orInst => some (``Grind.CommRing.le_cancel_of_kronLinS, ``Grind.CommRing.le_cancel_of_kronS,
+            #[o.leInst, ltInst, o.isPreorderInst, orInst])
+          | _, _ => none
+        | .lt, some o => match o.ltInst?, o.lawfulOrderLTInst?, o.orderedRingInst? with
+          | some ltInst, some lawfulInst, some orInst => some (``Grind.CommRing.lt_cancel_of_kronLinS,
+            ``Grind.CommRing.lt_cancel_of_kronS, #[o.leInst, ltInst, lawfulInst, o.isPreorderInst, orInst])
+          | _, _, _ => none
+        | _, none => none
+      if let (some (linName, _, insts), true, some K) := (insts?, linSemiOk l lC && linSemiOk r rC,
+          kronLinExponent₂? l lC r rC) then
+        let ev (e : RingExpr) := mkApp2 (mkConst ``Grind.CommRing.Expr.kronLinEval_k) (mkRawNatLit K) (toExpr e)
+        let reflI (e : RingExpr) := mkApp2 (mkConst ``Eq.refl [1]) (mkConst ``Int) (ev e)
+        let h := mkAppN (mkConst linName [u]) (#[sr.type, csInst, arcInst] ++ insts ++ #[ctx, mkRawNatLit K,
+          toExpr l, toExpr r, toExpr l', toExpr r', toExpr cX, eagerReflBoolTrue, eagerReflBoolTrue, reflI l,
+          eagerReflBoolTrue, eagerReflBoolTrue, reflI r])
+        return .step e' (mkExpectedPropHint h (mkPropEq e e'))
+      if let (some (_, name, insts), some (K, B)) := (insts?, kronArgs₂? l lC r rC) then
+        if semiOk B l lC && semiOk B r rC then
+          let ev (e : RingExpr) := mkApp3 (mkConst ``Grind.CommRing.Expr.kronEval_k) (mkRawNatLit K) (mkRawNatLit B) (toExpr e)
+          let reflI (e : RingExpr) := mkApp2 (mkConst ``Eq.refl [1]) (mkConst ``Int) (ev e)
+          let h := mkAppN (mkConst name [u]) (#[sr.type, csInst, arcInst] ++ insts ++ #[ctx, mkRawNatLit K, mkRawNatLit B,
+            toExpr l, toExpr r, toExpr l', toExpr r', toExpr cX, eagerReflBoolTrue, eagerReflBoolTrue, reflI l,
+            eagerReflBoolTrue, eagerReflBoolTrue, reflI r])
+          return .step e' (mkExpectedPropHint h (mkPropEq e e'))
     let mkTermStep (x xC : RingExpr) (px qx : Poly) (ex exC : Expr) : Expr :=
       let xE := toExpr x
       let xCE := toExpr xC
-      -- Large polynomials are checked with packed monomials in the ring envelope.
-      if let (some csInst, some arcInst, true) := (csInst?, arcInst?, usePacked px.length && isSemi x && isSemi xC) then
+      -- Terms are evaluated at a point (Kronecker substitution), or large polynomials are checked
+      -- with packed monomials, in the ring envelope.
+      if let (some csInst, some arcInst, true, some K) := (csInst?, arcInst?, linSemiOk x xC, kronLinExponent? x xC kronMaxBits) then
+        let h := mkAppN (mkConst ``Grind.CommRing.Expr.eq_of_kronLinS [u])
+          (#[sr.type, csInst, arcInst, ctx] ++ kronLinProofArgs x xC K)
+        mkExpectedPropHint h (mkApp3 (mkConst ``Eq [u.succ]) sr.type ex exC)
+      else if let (some csInst, some arcInst, some (K, B)) := (csInst?, arcInst?, (kronArgs? x xC).filter (semiOk ·.2 x xC)) then
+        let h := mkAppN (mkConst ``Grind.CommRing.Expr.eq_of_kronS [u])
+          (#[sr.type, csInst, arcInst, ctx] ++ kronProofArgs x xC K B)
+        mkExpectedPropHint h (mkApp3 (mkConst ``Eq [u.succ]) sr.type ex exC)
+      else if let (some csInst, some (K, B)) := (csInst?, (kronArgs? x xC).filter (semiOk ·.2 x xC)) then
+        let h := mkAppN (mkConst ``Grind.CommRing.Expr.eq_of_kronSN [u]) (#[sr.type, csInst, ctx] ++ kronProofArgs x xC K B)
+        mkExpectedPropHint h (mkApp3 (mkConst ``Eq [u.succ]) sr.type ex exC)
+      else if let (some csInst, some arcInst, true) := (csInst?, arcInst?, usePacked px.length && semiOk (packedBase x xC) x xC) then
         let h := mkAppN (mkConst ``Grind.CommRing.Expr.eq_of_toPPX_eqS [u])
-          (#[sr.type, csInst, arcInst, ctx] ++ packedArgsS x xC px (packedBal x) (packedBal xC))
+          (#[sr.type, csInst, arcInst, ctx] ++ packedArgs x xC px (packedBal x) (packedBal xC))
         mkExpectedPropHint h (mkApp3 (mkConst ``Eq [u.succ]) sr.type ex exC)
       else
       -- Large products are stated stepwise when there are any (`denoteSteps?`).

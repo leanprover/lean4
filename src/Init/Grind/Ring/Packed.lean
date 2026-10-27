@@ -188,8 +188,8 @@ termination_by v
 decreasing_by exact Nat.div_lt_self _h.2 _h.1
 
 /-- The monomial whose exponent of the variable `i + j` is the `j`-th digit of `v` in base `B`. -/
-noncomputable def PPoly.monDenote {α} [Semiring α] (ctx : Context α) (B : Nat) (i v : Nat) : α :=
-  if _h : 1 < B ∧ 0 < v then (Var.denote ctx i) ^ (v % B) * monDenote ctx B (i + 1) (v / B) else 1
+noncomputable def PPoly.monDenote {α} [Semiring α] (ctx : Nat → α) (B : Nat) (i v : Nat) : α :=
+  if _h : 1 < B ∧ 0 < v then (ctx i) ^ (v % B) * monDenote ctx B (i + 1) (v / B) else 1
 termination_by v
 decreasing_by exact Nat.div_lt_self _h.2 _h.1
 
@@ -203,11 +203,11 @@ theorem PPoly.dsum_eq (hB : 1 < B) (v : Nat) : dsum B v = v % B + dsum B (v / B)
   · have : v = 0 := by omega
     subst this; simp [dsum_zero]
 
-theorem PPoly.monDenote_zero {α} [Semiring α] (ctx : Context α) (B i : Nat) : monDenote ctx B i 0 = 1 := by
+theorem PPoly.monDenote_zero {α} [Semiring α] (ctx : Nat → α) (B i : Nat) : monDenote ctx B i 0 = 1 := by
   rw [monDenote]; simp
 
-theorem PPoly.monDenote_eq {α} [Semiring α] (ctx : Context α) (hB : 1 < B) (i v : Nat) :
-    monDenote ctx B i v = (Var.denote ctx i) ^ (v % B) * monDenote ctx B (i + 1) (v / B) := by
+theorem PPoly.monDenote_eq {α} [Semiring α] (ctx : Nat → α) (hB : 1 < B) (i v : Nat) :
+    monDenote ctx B i v = (ctx i) ^ (v % B) * monDenote ctx B (i + 1) (v / B) := by
   rw [monDenote]
   split
   · rfl
@@ -244,7 +244,7 @@ theorem PPoly.dsum_add (hB : 1 < B) (v₁ v₂ : Nat) (h : dsum B v₁ + dsum B 
     rw [dsum_eq hB (v₁ + v₂), hr.1, hr.2, hq, dsum_eq hB v₁, dsum_eq hB v₂]
     omega
 
-theorem PPoly.monDenote_add {α} [CommSemiring α] (ctx : Context α) (hB : 1 < B) (i v₁ v₂ : Nat)
+theorem PPoly.monDenote_add {α} [CommSemiring α] (ctx : Nat → α) (hB : 1 < B) (i v₁ v₂ : Nat)
     (h : dsum B v₁ + dsum B v₂ < B) :
     monDenote ctx B i (v₁ + v₂) = monDenote ctx B i v₁ * monDenote ctx B i v₂ := by
   induction v₁ using Nat.strongRecOn generalizing v₂ i with
@@ -265,8 +265,8 @@ theorem PPoly.dsum_mul_pow (hB : 1 < B) (x k : Nat) (hk : k < B) : dsum B (k * B
     · subst hk0; simp [dsum_zero]
     rw [dsum_eq hB, Nat.pow_succ, ← Nat.mul_assoc, Nat.mul_mod_left, Nat.mul_div_cancel _ (by omega), ih, Nat.zero_add]
 
-theorem PPoly.monDenote_mul_pow {α} [Semiring α] (ctx : Context α) (hB : 1 < B) (i x k : Nat) (hk : k < B) :
-    monDenote ctx B i (k * B ^ x) = Var.denote ctx (i + x) ^ k := by
+theorem PPoly.monDenote_mul_pow {α} [Semiring α] (ctx : Nat → α) (hB : 1 < B) (i x k : Nat) (hk : k < B) :
+    monDenote ctx B i (k * B ^ x) = ctx (i + x) ^ k := by
   induction x generalizing i with
   | zero =>
     rw [Nat.pow_zero, Nat.mul_one, monDenote_eq ctx hB, Nat.mod_eq_of_lt hk, Nat.div_eq_of_lt hk, monDenote_zero, mul_one]; rfl
@@ -276,7 +276,7 @@ theorem PPoly.monDenote_mul_pow {α} [Semiring α] (ctx : Context α) (hB : 1 < 
     rw [monDenote_eq ctx hB, Nat.pow_succ, ← Nat.mul_assoc, Nat.mul_mod_left, Nat.mul_div_cancel _ (by omega), ih,
       pow_zero, one_mul, Nat.add_assoc, Nat.add_comm 1 x]
 
-noncomputable def PPoly.denote {α} [Ring α] (ctx : Context α) (B : Nat) : PPoly → α
+noncomputable def PPoly.denote {α} [Ring α] (ctx : Nat → α) (B : Nat) : PPoly → α
   | .num k => (k : α)
   | .add k _ v p => (k : α) * monDenote ctx B 0 v + denote ctx B p
 
@@ -289,7 +289,7 @@ theorem PPoly.Deg.mono {B D D' : Nat} (h : D ≤ D') : (p : PPoly) → p.Deg B D
   | .num _, _ => trivial
   | .add _ _ _ p, ⟨h₁, h₂⟩ => ⟨by omega, Deg.mono h p h₂⟩
 
-theorem PPoly.addConst_k_spec {α} [Ring α] (ctx : Context α) (B D : Nat) (p : PPoly) (k : Int) :
+theorem PPoly.addConst_k_spec {α} [Ring α] (ctx : Nat → α) (B D : Nat) (p : PPoly) (k : Int) :
     (p.addConst_k k).denote ctx B = p.denote ctx B + k ∧ (p.Deg B D → (p.addConst_k k).Deg B D) := by
   unfold addConst_k
   cases h : Int.beqZero_k k
@@ -304,7 +304,7 @@ theorem PPoly.addConst_k_spec {α} [Ring α] (ctx : Context α) (B D : Nat) (p :
   · simp at h; subst h
     exact ⟨by simp [intCast_zero, add_zero], id⟩
 
-theorem PPoly.combine_k_spec {α} [Ring α] (ctx : Context α) (B D : Nat) (p₁ p₂ : PPoly) :
+theorem PPoly.combine_k_spec {α} [Ring α] (ctx : Nat → α) (B D : Nat) (p₁ p₂ : PPoly) :
     (p₁.combine_k p₂).denote ctx B = p₁.denote ctx B + p₂.denote ctx B ∧
     (p₁.Deg B D → p₂.Deg B D → (p₁.combine_k p₂).Deg B D) := by
   induction p₁ generalizing p₂ with
@@ -371,7 +371,7 @@ theorem PPoly.combine_k_spec {α} [Ring α] (ctx : Context α) (B D : Nat) (p₁
                   rw [this, zero_add]
               _ = _ := by simp only [add_assoc, add_left_comm]
 
-theorem PPoly.mulConst_k_spec {α} [Ring α] (ctx : Context α) (B D : Nat) (k : Int) (p : PPoly) :
+theorem PPoly.mulConst_k_spec {α} [Ring α] (ctx : Nat → α) (B D : Nat) (k : Int) (p : PPoly) :
     (p.mulConst_k k).denote ctx B = k * p.denote ctx B ∧ (p.Deg B D → (p.mulConst_k k).Deg B D) := by
   unfold mulConst_k
   cases h : Int.beqZero_k k
@@ -388,7 +388,7 @@ theorem PPoly.mulConst_k_spec {α} [Ring α] (ctx : Context α) (B D : Nat) (k :
   · simp at h; subst h
     exact ⟨by show ((Int.ofNat 0 : Int) : α) = _; simp [intCast_zero, zero_mul], fun _ => trivial⟩
 
-theorem PPoly.mulMon_k_spec {α} [CommRing α] (ctx : Context α) (B D₁ D₂ : Nat) (hB : 1 < B) (k : Int) (d v : Nat)
+theorem PPoly.mulMon_k_spec {α} [CommRing α] (ctx : Nat → α) (B D₁ D₂ : Nat) (hB : 1 < B) (k : Int) (d v : Nat)
     (hv : dsum B v ≤ D₁) (hD : D₁ + D₂ < B) (p : PPoly) (hp : p.Deg B D₂) :
     (p.mulMon_k k d v).denote ctx B = k * monDenote ctx B 0 v * p.denote ctx B ∧ (p.mulMon_k k d v).Deg B (D₁ + D₂) := by
   induction p with
@@ -417,16 +417,16 @@ theorem PPoly.mulMon_k_spec {α} [CommRing α] (ctx : Context α) (B D₁ D₂ :
     rw [intCast_mul, left_distrib]
     simp only [mul_assoc, mul_left_comm]
 
-noncomputable def PPoly.denoteList {α} [Ring α] (ctx : Context α) (B : Nat) (ps : List PPoly) : α :=
+noncomputable def PPoly.denoteList {α} [Ring α] (ctx : Nat → α) (B : Nat) (ps : List PPoly) : α :=
   ps.foldr (fun p acc => p.denote ctx B + acc) 0
 
 def PPoly.DegList (B D : Nat) (ps : List PPoly) : Prop :=
   ∀ p ∈ ps, p.Deg B D
 
-theorem PPoly.denoteList_cons {α} [Ring α] (ctx : Context α) (B : Nat) (p : PPoly) (ps : List PPoly) :
+theorem PPoly.denoteList_cons {α} [Ring α] (ctx : Nat → α) (B : Nat) (p : PPoly) (ps : List PPoly) :
     denoteList ctx B (p :: ps) = p.denote ctx B + denoteList ctx B ps := rfl
 
-theorem PPoly.pairs_k_spec {α} [Ring α] (ctx : Context α) (B D : Nat) (ps : List PPoly) (pend : Option PPoly) :
+theorem PPoly.pairs_k_spec {α} [Ring α] (ctx : Nat → α) (B D : Nat) (ps : List PPoly) (pend : Option PPoly) :
     denoteList ctx B (pairs_k ps pend) = (pend.elim 0 (·.denote ctx B)) + denoteList ctx B ps ∧
     (DegList B D ps → (∀ p, pend = some p → p.Deg B D) → DegList B D (pairs_k ps pend)) := by
   induction ps generalizing pend with
@@ -455,7 +455,7 @@ theorem PPoly.pairs_k_spec {α} [Ring α] (ctx : Context α) (B D : Nat) (ps : L
         · subst hq; exact hc.2 (h₂ p rfl) (h₁ a (by simp))
         · exact this.2 (fun q hq => h₁ q (List.mem_cons_of_mem _ hq)) (by simp) q hq
 
-theorem PPoly.foldr_k_spec {α} [Ring α] (ctx : Context α) (B D : Nat) (ps : List PPoly) :
+theorem PPoly.foldr_k_spec {α} [Ring α] (ctx : Nat → α) (B D : Nat) (ps : List PPoly) :
     (foldr_k ps).denote ctx B = denoteList ctx B ps ∧ (DegList B D ps → (foldr_k ps).Deg B D) := by
   induction ps with
   | nil => exact ⟨by show ((Int.ofNat 0 : Int) : α) = 0; exact intCast_zero, fun _ => trivial⟩
@@ -465,7 +465,7 @@ theorem PPoly.foldr_k_spec {α} [Ring α] (ctx : Context α) (B D : Nat) (ps : L
     show (a.combine_k (foldr_k ps)).denote ctx B = _
     rw [hc.1, ih.1, denoteList_cons]
 
-theorem PPoly.sumGo_k_spec {α} [Ring α] (ctx : Context α) (B D : Nat) (fuel ps : List PPoly) :
+theorem PPoly.sumGo_k_spec {α} [Ring α] (ctx : Nat → α) (B D : Nat) (fuel ps : List PPoly) :
     (sumGo_k fuel ps).denote ctx B = denoteList ctx B ps ∧ (DegList B D ps → (sumGo_k fuel ps).Deg B D) := by
   induction fuel generalizing ps with
   | nil => exact foldr_k_spec ctx B D ps
@@ -484,11 +484,11 @@ theorem PPoly.sumGo_k_spec {α} [Ring α] (ctx : Context α) (B D : Nat) (fuel p
         show (sumGo_k fuel (pairs_k (a :: b :: rest) none)).denote ctx B = _
         rw [this.1, hp.1]; simp [Option.elim, zero_add]
 
-theorem PPoly.sumB_k_spec {α} [Ring α] (ctx : Context α) (B D : Nat) (ps : List PPoly) :
+theorem PPoly.sumB_k_spec {α} [Ring α] (ctx : Nat → α) (B D : Nat) (ps : List PPoly) :
     (sumB_k ps).denote ctx B = denoteList ctx B ps ∧ (DegList B D ps → (sumB_k ps).Deg B D) :=
   sumGo_k_spec ctx B D ps ps
 
-theorem PPoly.mulTerms_k_spec {α} [CommRing α] (ctx : Context α) (B D₁ D₂ : Nat) (hB : 1 < B) (hD : D₁ + D₂ < B)
+theorem PPoly.mulTerms_k_spec {α} [CommRing α] (ctx : Nat → α) (B D₁ D₂ : Nat) (hB : 1 < B) (hD : D₁ + D₂ < B)
     (p₁ p₂ : PPoly) (h₁ : p₁.Deg B D₁) (h₂ : p₂.Deg B D₂) :
     denoteList ctx B (mulTerms_k p₁ p₂) = p₁.denote ctx B * p₂.denote ctx B ∧ DegList B (D₁ + D₂) (mulTerms_k p₁ p₂) := by
   induction p₁ with
@@ -520,7 +520,7 @@ theorem PPoly.isMon_k_eq (p : PPoly) (h : p.isMon_k = true) : ∃ k d v, p = .ad
     | num c => simp [isMon_k] at h; subst h; exact ⟨k, d, v, rfl⟩
     | add => cases h
 
-theorem PPoly.mulB_k_spec {α} [CommRing α] (ctx : Context α) (B D₁ D₂ : Nat) (hB : 1 < B) (hD : D₁ + D₂ < B)
+theorem PPoly.mulB_k_spec {α} [CommRing α] (ctx : Nat → α) (B D₁ D₂ : Nat) (hB : 1 < B) (hD : D₁ + D₂ < B)
     (p₁ p₂ : PPoly) (h₁ : p₁.Deg B D₁) (h₂ : p₂.Deg B D₂) :
     (mulB_k p₁ p₂).denote ctx B = p₁.denote ctx B * p₂.denote ctx B ∧ (mulB_k p₁ p₂).Deg B (D₁ + D₂) := by
   cases p₁ with
@@ -560,7 +560,7 @@ theorem PPoly.mulB_k_spec {α} [CommRing α] (ctx : Context α) (B D₁ D₂ : N
         show _ = ((k : α) * _ + ((0 : Int) : α)) * _
         rw [intCast_zero, add_zero]
 
-theorem PPoly.powB_k_spec {α} [CommRing α] (ctx : Context α) (B D : Nat) (hB : 1 < B) (p : PPoly) (k : Nat)
+theorem PPoly.powB_k_spec {α} [CommRing α] (ctx : Nat → α) (B D : Nat) (hB : 1 < B) (p : PPoly) (k : Nat)
     (hp : p.Deg B D) (hD : D * k < B) :
     (powB_k p k).denote ctx B = p.denote ctx B ^ k ∧ (powB_k p k).Deg B (D * k) := by
   induction k with
@@ -589,15 +589,31 @@ theorem Expr.toPPAcc_k_sub : (Expr.sub a b).toPPAcc_k B acc = a.toPPAcc_k B (PPo
 theorem Expr.toPPAcc_k_mul : (Expr.mul a b).toPPAcc_k B acc = PPoly.combine_k (PPoly.mulB_k (a.toPPAcc_k B (.num (Int.ofNat 0))) (b.toPPAcc_k B (.num (Int.ofNat 0)))) acc := rfl
 theorem Expr.toPPAcc_k_pow : (Expr.pow a k).toPPAcc_k B acc = PPoly.combine_k (a.powPP_k B k (a.toPPAcc_k B (.num (Int.ofNat 0)))) acc := rfl
 
-theorem PPoly.denote_num_zero {α} [Ring α] (ctx : Context α) (B : Nat) :
+/-- `Expr.denote` for a valuation `f` of the variables. -/
+noncomputable abbrev Expr.denoteF {α} [Ring α] (f : Nat → α) (e : Expr) : α :=
+  Expr.rec
+    (fun k => denoteInt k)
+    (fun k => NatCast.natCast (R := α) k)
+    (fun k => IntCast.intCast (R := α) k)
+    (fun x => f x)
+    (fun _ ih => - ih)
+    (fun _ _ ih₁ ih₂ => ih₁ + ih₂)
+    (fun _ _ ih₁ ih₂ => ih₁ - ih₂)
+    (fun _ _ ih₁ ih₂ => ih₁ * ih₂)
+    (fun _ k ih => ih ^ k)
+    e
+
+theorem Expr.denote_eq_denoteF {α} [Ring α] (ctx : Context α) (e : Expr) : e.denote ctx = e.denoteF (Var.denote ctx) := rfl
+
+theorem PPoly.denote_num_zero {α} [Ring α] (ctx : Nat → α) (B : Nat) :
     (PPoly.num (Int.ofNat 0)).denote ctx B = 0 := intCast_zero
 
-theorem Expr.powPP_k_spec {α} [CommRing α] (ctx : Context α) (B : Nat) (hB : 1 < B) (a : Expr) (k : Nat) (p : PPoly)
-    (hp : 0 < k → p.denote ctx B = a.denote ctx ∧ p.Deg B a.degB_k) (hk : a.degB_k * k < B) :
-    (a.powPP_k B k p).denote ctx B = a.denote ctx ^ k ∧ (a.powPP_k B k p).Deg B (a.degB_k * k) := by
+theorem Expr.powPP_k_spec {α} [CommRing α] (ctx : Nat → α) (B : Nat) (hB : 1 < B) (a : Expr) (k : Nat) (p : PPoly)
+    (hp : 0 < k → p.denote ctx B = a.denoteF ctx ∧ p.Deg B a.degB_k) (hk : a.degB_k * k < B) :
+    (a.powPP_k B k p).denote ctx B = a.denoteF ctx ^ k ∧ (a.powPP_k B k p).Deg B (a.degB_k * k) := by
   unfold powPP_k
   cases hk0 : Nat.beq k 0
-  · have hgen : (p.powB_k k).denote ctx B = a.denote ctx ^ k ∧ (p.powB_k k).Deg B (a.degB_k * k) := by
+  · have hgen : (p.powB_k k).denote ctx B = a.denoteF ctx ^ k ∧ (p.powB_k k).Deg B (a.degB_k * k) := by
       have hp := hp (by cases k; simp at hk0; omega)
       have := PPoly.powB_k_spec ctx B a.degB_k hB p k hp.2 hk
       rw [hp.1] at this; exact this
@@ -618,7 +634,7 @@ theorem Expr.powPP_k_spec {α} [CommRing α] (ctx : Context α) (B : Nat) (hB : 
     | var x =>
       have hkB : k < B := by have : Expr.degB_k (.var x) * k = 1 * k := rfl; omega
       refine ⟨?_, ⟨?_, trivial⟩⟩
-      · show ((Int.ofNat 1 : Int) : α) * PPoly.monDenote ctx B 0 (Nat.mul k (Nat.pow B x)) + ((Int.ofNat 0 : Int) : α) = Var.denote ctx x ^ k
+      · show ((Int.ofNat 1 : Int) : α) * PPoly.monDenote ctx B 0 (Nat.mul k (Nat.pow B x)) + ((Int.ofNat 0 : Int) : α) = ctx x ^ k
         rw [show Nat.mul k (Nat.pow B x) = k * B ^ x from rfl, PPoly.monDenote_mul_pow ctx hB 0 x k hkB, Nat.zero_add]
         show ((1 : Int) : α) * _ + ((0 : Int) : α) = _
         rw [intCast_one, one_mul, intCast_zero, add_zero]
@@ -633,9 +649,9 @@ theorem Expr.powPP_k_spec {α} [CommRing α] (ctx : Context α) (B : Nat) (hB : 
     subst this
     exact ⟨by show ((Int.ofNat 1 : Int) : α) = _; rw [pow_zero]; exact intCast_one, trivial⟩
 
-theorem Expr.toPPAcc_k_spec {α} [CommRing α] (ctx : Context α) (B : Nat) (hB : 1 < B) (e : Expr) :
+theorem Expr.toPPAcc_k_spec {α} [CommRing α] (ctx : Nat → α) (B : Nat) (hB : 1 < B) (e : Expr) :
     ∀ (D : Nat) (acc : PPoly), e.degB_k ≤ D → D < B → acc.Deg B D →
-      (e.toPPAcc_k B acc).denote ctx B = e.denote ctx + acc.denote ctx B ∧ (e.toPPAcc_k B acc).Deg B D := by
+      (e.toPPAcc_k B acc).denote ctx B = e.denoteF ctx + acc.denote ctx B ∧ (e.toPPAcc_k B acc).Deg B D := by
   induction e with
   | num k =>
     intro D acc _ _ hacc
@@ -663,7 +679,7 @@ theorem Expr.toPPAcc_k_spec {α} [CommRing α] (ctx : Context α) (B : Nat) (hB 
     have := PPoly.combine_k_spec ctx B D (.add (Int.ofNat 1) 1 (Nat.pow B x) (.num (Int.ofNat 0))) acc
     refine ⟨?_, this.2 ⟨by rw [hx]; exact hd, trivial⟩ hacc⟩
     rw [toPPAcc_k_var, this.1]
-    show _ = Var.denote ctx x + _
+    show _ = ctx x + _
     show ((Int.ofNat 1 : Int) : α) * PPoly.monDenote ctx B 0 (Nat.pow B x) + ((Int.ofNat 0 : Int) : α) + _ = _
     have hm := PPoly.monDenote_mul_pow ctx hB 0 x 1 hB
     rw [Nat.one_mul] at hm
@@ -677,7 +693,7 @@ theorem Expr.toPPAcc_k_spec {α} [CommRing α] (ctx : Context α) (B : Nat) (hB 
     have hc := PPoly.combine_k_spec ctx B D ((a.toPPAcc_k B (.num (Int.ofNat 0))).mulConst_k (Int.negSucc 0)) acc
     refine ⟨?_, by rw [toPPAcc_k_neg]; exact hc.2 (hn.2 ha.2) hacc⟩
     rw [toPPAcc_k_neg, hc.1, hn.1, ha.1, PPoly.denote_num_zero, add_zero]
-    show ((-1 : Int) : α) * _ + _ = - a.denote ctx + _
+    show ((-1 : Int) : α) * _ + _ = - a.denoteF ctx + _
     rw [intCast_neg_one, ← neg_eq_neg_one_mul]
   | add a b iha ihb =>
     intro D acc hd hD hacc
@@ -686,7 +702,7 @@ theorem Expr.toPPAcc_k_spec {α} [CommRing α] (ctx : Context α) (B : Nat) (hB 
     have ha := iha D (b.toPPAcc_k B acc) (Nat.le_trans hm.1 hd) hD hb.2
     refine ⟨?_, by rw [toPPAcc_k_add]; exact ha.2⟩
     rw [toPPAcc_k_add, ha.1, hb.1]
-    show _ = a.denote ctx + b.denote ctx + _
+    show _ = a.denoteF ctx + b.denoteF ctx + _
     rw [add_assoc]
   | sub a b iha ihb =>
     intro D acc hd hD hacc
@@ -697,7 +713,7 @@ theorem Expr.toPPAcc_k_spec {α} [CommRing α] (ctx : Context α) (B : Nat) (hB 
     have ha := iha D _ (Nat.le_trans hm.1 hd) hD (hc.2 (hn.2 hb.2) hacc)
     refine ⟨?_, by rw [toPPAcc_k_sub]; exact ha.2⟩
     rw [toPPAcc_k_sub, ha.1, hc.1, hn.1, hb.1, PPoly.denote_num_zero, add_zero]
-    show _ + (((-1 : Int) : α) * _ + _) = a.denote ctx - b.denote ctx + _
+    show _ + (((-1 : Int) : α) * _ + _) = a.denoteF ctx - b.denoteF ctx + _
     rw [sub_eq_add_neg, add_assoc]
     rw [intCast_neg_one, ← neg_eq_neg_one_mul]
   | mul a b iha ihb =>
@@ -707,7 +723,7 @@ theorem Expr.toPPAcc_k_spec {α} [CommRing α] (ctx : Context α) (B : Nat) (hB 
     have hp := PPoly.mulB_k_spec ctx B a.degB_k b.degB_k hB (by have : a.degB_k + b.degB_k ≤ D := hd; omega) _ _ ha.2 hb.2
     have hc := PPoly.combine_k_spec ctx B D (PPoly.mulB_k (a.toPPAcc_k B (.num (Int.ofNat 0))) (b.toPPAcc_k B (.num (Int.ofNat 0)))) acc
     refine ⟨?_, by rw [toPPAcc_k_mul]; exact hc.2 (PPoly.Deg.mono hd _ hp.2) hacc⟩
-    rw [toPPAcc_k_mul, hc.1, hp.1, ha.1, hb.1, PPoly.denote_num_zero, add_zero, add_zero]; rfl
+    rw [toPPAcc_k_mul, hc.1, hp.1, ha.1, hb.1, PPoly.denote_num_zero, add_zero, add_zero]
   | pow a k ih =>
     intro D acc hd hD hacc
     have hd' : a.degB_k * k ≤ D := hd
@@ -717,10 +733,10 @@ theorem Expr.toPPAcc_k_spec {α} [CommRing α] (ctx : Context α) (B : Nat) (hB 
       rw [PPoly.denote_num_zero, add_zero] at this; exact this) (by omega)
     have hc := PPoly.combine_k_spec ctx B D (a.powPP_k B k (a.toPPAcc_k B (.num (Int.ofNat 0)))) acc
     rw [toPPAcc_k_pow]
-    exact ⟨by rw [hc.1, hp.1]; rfl, hc.2 (PPoly.Deg.mono hd' _ hp.2) hacc⟩
+    exact ⟨by rw [hc.1, hp.1], hc.2 (PPoly.Deg.mono hd' _ hp.2) hacc⟩
 
-theorem Expr.denote_toPP_k {α} [CommRing α] (ctx : Context α) (B : Nat) (hB : 1 < B) (e : Expr) (he : e.degB_k < B) :
-    (e.toPP_k B).denote ctx B = e.denote ctx := by
+theorem Expr.denote_toPP_k {α} [CommRing α] (ctx : Nat → α) (B : Nat) (hB : 1 < B) (e : Expr) (he : e.degB_k < B) :
+    (e.toPP_k B).denote ctx B = e.denoteF ctx := by
   have := toPPAcc_k_spec ctx B hB e e.degB_k (.num (Int.ofNat 0)) (Nat.le_refl _) he trivial
   rw [Expr.toPP_k, this.1, PPoly.denote_num_zero, add_zero]
 
@@ -728,14 +744,15 @@ theorem Expr.eq_of_toPP_eq {α} [CommRing α] (ctx : Context α) (B : Nat) (a b 
     (hB : (Nat.blt 1 B && (Nat.blt a.degB_k B && Nat.blt b.degB_k B)) = true)
     (h₁ : p = a.toPP_k B) (h₂ : p = b.toPP_k B) : a.denote ctx = b.denote ctx := by
   simp only [Bool.and_eq_true, Nat.blt_eq] at hB
-  rw [← denote_toPP_k ctx B hB.1 a hB.2.1, ← denote_toPP_k ctx B hB.1 b hB.2.2, ← h₁, ← h₂]
+  rw [Expr.denote_eq_denoteF, Expr.denote_eq_denoteF, ← denote_toPP_k (Var.denote ctx) B hB.1 a hB.2.1,
+    ← denote_toPP_k (Var.denote ctx) B hB.1 b hB.2.2, ← h₁, ← h₂]
 
 theorem eq_true_of_toPP_eq {α} [CommRing α] (ctx : Context α) (B : Nat) (a b : Expr) (p : PPoly)
     (hB : (Nat.blt 1 B && (Nat.blt a.degB_k B && Nat.blt b.degB_k B)) = true)
     (h₁ : p = a.toPP_k B) (h₂ : p = b.toPP_k B) : (a.denote ctx = b.denote ctx) = True :=
   eq_true (Expr.eq_of_toPP_eq ctx B a b p hB h₁ h₂)
 
-theorem PPoly.signB_k_spec {α} [Ring α] (ctx : Context α) (B D : Nat) (p : PPoly) (s : Bool) :
+theorem PPoly.signB_k_spec {α} [Ring α] (ctx : Nat → α) (B D : Nat) (p : PPoly) (s : Bool) :
     (p.signB_k s).denote ctx B = Bool.rec (p.denote ctx B) (- p.denote ctx B) s ∧ (p.Deg B D → (p.signB_k s).Deg B D) := by
   cases s
   · exact ⟨rfl, id⟩
@@ -759,9 +776,9 @@ theorem Expr.sumsPP_k_mul : (Expr.mul a b).sumsPP_k B s acc =
 theorem Expr.sumsPP_k_pow : (Expr.pow a k).sumsPP_k B s acc =
     PPoly.signB_k (a.powPP_k B k (PPoly.sumB_k (a.sumsPP_k B false []))) s :: acc := rfl
 
-theorem Expr.sumsPP_k_spec {α} [CommRing α] (ctx : Context α) (B : Nat) (hB : 1 < B) (e : Expr) :
+theorem Expr.sumsPP_k_spec {α} [CommRing α] (ctx : Nat → α) (B : Nat) (hB : 1 < B) (e : Expr) :
     ∀ (D : Nat) (s : Bool) (acc : List PPoly), e.degB_k ≤ D → D < B → PPoly.DegList B D acc →
-      PPoly.denoteList ctx B (e.sumsPP_k B s acc) = Bool.rec (e.denote ctx) (- e.denote ctx) s + PPoly.denoteList ctx B acc ∧
+      PPoly.denoteList ctx B (e.sumsPP_k B s acc) = Bool.rec (e.denoteF ctx) (- e.denoteF ctx) s + PPoly.denoteList ctx B acc ∧
       PPoly.DegList B D (e.sumsPP_k B s acc) := by
   induction e with
   | num k =>
@@ -793,11 +810,11 @@ theorem Expr.sumsPP_k_spec {α} [CommRing α] (ctx : Context α) (B : Nat) (hB :
       have := PPoly.dsum_mul_pow hB x 1 hB; rwa [Nat.one_mul] at this
     have := PPoly.signB_k_spec ctx B D (.add (Int.ofNat 1) 1 (Nat.pow B x) (.num (Int.ofNat 0))) s
     refine ⟨?_, PPoly.DegList.cons (this.2 ⟨by rw [hx]; exact hd, trivial⟩) hacc⟩
-    show (PPoly.signB_k _ s).denote ctx B + _ = Bool.rec (motive := fun _ => α) (Var.denote ctx x) (- Var.denote ctx x) s + _
+    show (PPoly.signB_k _ s).denote ctx B + _ = Bool.rec (motive := fun _ => α) (ctx x) (- ctx x) s + _
     rw [this.1]
     have hm := PPoly.monDenote_mul_pow ctx hB 0 x 1 hB
     rw [Nat.one_mul] at hm
-    have : (PPoly.add (Int.ofNat 1) 1 (Nat.pow B x) (.num (Int.ofNat 0))).denote ctx B = Var.denote ctx x := by
+    have : (PPoly.add (Int.ofNat 1) 1 (Nat.pow B x) (.num (Int.ofNat 0))).denote ctx B = ctx x := by
       show ((Int.ofNat 1 : Int) : α) * PPoly.monDenote ctx B 0 (Nat.pow B x) + ((Int.ofNat 0 : Int) : α) = _
       rw [show Nat.pow B x = B ^ x from rfl, hm, Nat.zero_add, pow_one]
       show ((1 : Int) : α) * _ + ((0 : Int) : α) = _
@@ -807,11 +824,11 @@ theorem Expr.sumsPP_k_spec {α} [CommRing α] (ctx : Context α) (B : Nat) (hB :
     intro D s acc hd hD hacc
     have := ih D (Bool.rec true false s) acc hd hD hacc
     refine ⟨?_, this.2⟩
-    show PPoly.denoteList ctx B (a.sumsPP_k B (Bool.rec true false s) acc) = Bool.rec (motive := fun _ => α) (- a.denote ctx) (- - a.denote ctx) s + _
+    show PPoly.denoteList ctx B (a.sumsPP_k B (Bool.rec true false s) acc) = Bool.rec (motive := fun _ => α) (- a.denoteF ctx) (- - a.denoteF ctx) s + _
     rw [this.1]
     cases s
     · rfl
-    · show a.denote ctx + _ = - - a.denote ctx + _; rw [neg_neg]
+    · show a.denoteF ctx + _ = - - a.denoteF ctx + _; rw [neg_neg]
   | add a b iha ihb =>
     intro D s acc hd hD hacc
     have hm := Expr.le_max_k a.degB_k b.degB_k
@@ -819,11 +836,11 @@ theorem Expr.sumsPP_k_spec {α} [CommRing α] (ctx : Context α) (B : Nat) (hB :
     have ha := iha D s _ (Nat.le_trans hm.1 hd) hD hb.2
     refine ⟨?_, ha.2⟩
     show PPoly.denoteList ctx B (a.sumsPP_k B s (b.sumsPP_k B s acc)) =
-      Bool.rec (motive := fun _ => α) (a.denote ctx + b.denote ctx) (- (a.denote ctx + b.denote ctx)) s + _
+      Bool.rec (motive := fun _ => α) (a.denoteF ctx + b.denoteF ctx) (- (a.denoteF ctx + b.denoteF ctx)) s + _
     rw [ha.1, hb.1]
     cases s
     · show _ = _ + _ + _; rw [add_assoc]
-    · show -a.denote ctx + (-b.denote ctx + _) = _; rw [neg_add, add_assoc]
+    · show -a.denoteF ctx + (-b.denoteF ctx + _) = _; rw [neg_add, add_assoc]
   | sub a b iha ihb =>
     intro D s acc hd hD hacc
     have hm := Expr.le_max_k a.degB_k b.degB_k
@@ -831,13 +848,13 @@ theorem Expr.sumsPP_k_spec {α} [CommRing α] (ctx : Context α) (B : Nat) (hB :
     have ha := iha D s _ (Nat.le_trans hm.1 hd) hD hb.2
     refine ⟨?_, ha.2⟩
     show PPoly.denoteList ctx B (a.sumsPP_k B s (b.sumsPP_k B (Bool.rec true false s) acc)) =
-      Bool.rec (motive := fun _ => α) (a.denote ctx - b.denote ctx) (- (a.denote ctx - b.denote ctx)) s + _
+      Bool.rec (motive := fun _ => α) (a.denoteF ctx - b.denoteF ctx) (- (a.denoteF ctx - b.denoteF ctx)) s + _
     rw [ha.1, hb.1]
     cases s
-    · show a.denote ctx + (- b.denote ctx + _) = _ - _ + _; rw [sub_eq_add_neg, add_assoc]
-    · show _ = -(a.denote ctx - b.denote ctx) + _
+    · show a.denoteF ctx + (- b.denoteF ctx + _) = _ - _ + _; rw [sub_eq_add_neg, add_assoc]
+    · show _ = -(a.denoteF ctx - b.denoteF ctx) + _
       rw [neg_sub, sub_eq_add_neg]
-      show -a.denote ctx + (b.denote ctx + _) = _
+      show -a.denoteF ctx + (b.denoteF ctx + _) = _
       rw [add_assoc, add_left_comm]
   | mul a b iha ihb =>
     intro D s acc hd hD hacc
@@ -864,10 +881,10 @@ theorem Expr.sumsPP_k_spec {α} [CommRing α] (ctx : Context α) (B : Nat) (hB :
     have hs := PPoly.signB_k_spec ctx B D (a.powPP_k B k (PPoly.sumB_k (a.sumsPP_k B false []))) s
     rw [sumsPP_k_pow]
     refine ⟨?_, PPoly.DegList.cons (hs.2 (PPoly.Deg.mono hd' _ hp.2)) hacc⟩
-    rw [PPoly.denoteList_cons, hs.1, hp.1]; rfl
+    rw [PPoly.denoteList_cons, hs.1, hp.1]
 
-theorem Expr.denote_toPPX_k {α} [CommRing α] (ctx : Context α) (B : Nat) (hB : 1 < B) (bal : Bool) (e : Expr) (he : e.degB_k < B) :
-    (e.toPPX_k B bal).denote ctx B = e.denote ctx := by
+theorem Expr.denote_toPPX_k {α} [CommRing α] (ctx : Nat → α) (B : Nat) (hB : 1 < B) (bal : Bool) (e : Expr) (he : e.degB_k < B) :
+    (e.toPPX_k B bal).denote ctx B = e.denoteF ctx := by
   cases bal
   · exact denote_toPP_k ctx B hB e he
   · have h := sumsPP_k_spec ctx B hB e e.degB_k false [] (Nat.le_refl _) he (fun _ h => by cases h)
@@ -890,7 +907,8 @@ theorem Expr.of_degOk_k {B : Nat} {a b : Expr} (h : degOk_k B a b = true) : 1 < 
 theorem Expr.eq_of_toPPX_eq {α} [CommRing α] (ctx : Context α) (B : Nat) (bal₁ bal₂ : Bool) (a b : Expr) (p : PPoly)
     (hB : degOk_k B a b = true) (h₁ : p = a.toPPX_k B bal₁) (h₂ : p = b.toPPX_k B bal₂) : a.denote ctx = b.denote ctx := by
   have hB := of_degOk_k hB
-  rw [← denote_toPPX_k ctx B hB.1 bal₁ a hB.2.1, ← denote_toPPX_k ctx B hB.1 bal₂ b hB.2.2, ← h₁, ← h₂]
+  rw [Expr.denote_eq_denoteF, Expr.denote_eq_denoteF, ← denote_toPPX_k (Var.denote ctx) B hB.1 bal₁ a hB.2.1,
+    ← denote_toPPX_k (Var.denote ctx) B hB.1 bal₂ b hB.2.2, ← h₁, ← h₂]
 
 theorem eq_true_of_toPPX_eq {α} [CommRing α] (ctx : Context α) (B : Nat) (bal₁ bal₂ : Bool) (a b : Expr) (p : PPoly)
     (hB : Expr.degOk_k B a b = true) (h₁ : p = a.toPPX_k B bal₁) (h₂ : p = b.toPPX_k B bal₂) : (a.denote ctx = b.denote ctx) = True :=
@@ -911,8 +929,8 @@ theorem Expr.sub_eq_of_toPPX {α} [CommRing α] (ctx : Context α) (B : Nat) (ba
     (hB : degOk_k B a b = true) (h₁ : q.addConst_k k = a.toPPX_k B bal₁) (h₂ : q = b.toPPX_k B bal₂) :
     a.denote ctx - b.denote ctx = (k : α) := by
   have hB := of_degOk_k hB
-  rw [← denote_toPPX_k ctx B hB.1 bal₁ a hB.2.1, ← denote_toPPX_k ctx B hB.1 bal₂ b hB.2.2, ← h₁, ← h₂,
-    (PPoly.addConst_k_spec ctx B 0 q k).1, sub_eq_add_neg, add_comm, ← add_assoc, AddCommGroup.neg_add_cancel, zero_add]
+  rw [Expr.denote_eq_denoteF, Expr.denote_eq_denoteF, ← denote_toPPX_k (Var.denote ctx) B hB.1 bal₁ a hB.2.1,
+    ← denote_toPPX_k (Var.denote ctx) B hB.1 bal₂ b hB.2.2, ← h₁, ← h₂, (PPoly.addConst_k_spec (Var.denote ctx) B 0 q k).1, sub_eq_add_neg, add_comm, ← add_assoc, AddCommGroup.neg_add_cancel, zero_add]
 
 /-!
 Packed sums of multiples for `grind`'s Gröbner certificates (`Stepwise.simpsP`, `Stepwise.d_stepsP`).
@@ -982,22 +1000,22 @@ noncomputable def PSumTree.ok_k (B : Nat) (t : PSumTree) : Bool :=
 
 /-- Every polynomial of the leaves of `t` denotes `0`, and its monomials have degree at most `D`. -/
 noncomputable def PSumTree.AllZero {α} [Ring α] (ctx : Context α) (B : Nat) (t : PSumTree) : Prop :=
-  PSumTree.rec (motive := fun _ => Prop) (fun _ _ D p => p.denote ctx B = 0 ∧ p.Deg B D) (fun _ _ a b => a ∧ b) t
+  PSumTree.rec (motive := fun _ => Prop) (fun _ _ D p => p.denote (Var.denote ctx) B = 0 ∧ p.Deg B D) (fun _ _ a b => a ∧ b) t
 
 theorem Mon.code_k_spec {α} [CommSemiring α] (ctx : Context α) {B : Nat} (hB : 1 < B) (m : Mon) (h : m.degree < B) :
-    PPoly.dsum B (m.code_k B) = m.degree ∧ PPoly.monDenote ctx B 0 (m.code_k B) = m.denote ctx := by
+    PPoly.dsum B (m.code_k B) = m.degree ∧ PPoly.monDenote (Var.denote ctx) B 0 (m.code_k B) = m.denote ctx := by
   induction m with
-  | unit => exact ⟨PPoly.dsum_zero B, PPoly.monDenote_zero ctx B 0⟩
+  | unit => exact ⟨PPoly.dsum_zero B, PPoly.monDenote_zero (Var.denote ctx) B 0⟩
   | mult pw m ih =>
     have hd : pw.k + m.degree < B := h
     have ih := ih (by omega)
     have hk := PPoly.dsum_mul_pow hB pw.x pw.k (by omega)
     show PPoly.dsum B (Nat.add (Nat.mul pw.k (Nat.pow B pw.x)) (m.code_k B)) = pw.k + m.degree ∧
-      PPoly.monDenote ctx B 0 (Nat.add (Nat.mul pw.k (Nat.pow B pw.x)) (m.code_k B)) = pw.denote ctx * m.denote ctx
+      PPoly.monDenote (Var.denote ctx) B 0 (Nat.add (Nat.mul pw.k (Nat.pow B pw.x)) (m.code_k B)) = pw.denote ctx * m.denote ctx
     rw [show Nat.mul pw.k (Nat.pow B pw.x) = pw.k * B ^ pw.x from rfl, Nat.add_eq]
     refine ⟨?_, ?_⟩
     · rw [PPoly.dsum_add hB _ _ (by rw [hk, ih.1]; exact hd), hk, ih.1]
-    · rw [PPoly.monDenote_add ctx hB 0 _ _ (by rw [hk, ih.1]; exact hd), PPoly.monDenote_mul_pow ctx hB 0 pw.x pw.k (by omega),
+    · rw [PPoly.monDenote_add (Var.denote ctx) hB 0 _ _ (by rw [hk, ih.1]; exact hd), PPoly.monDenote_mul_pow (Var.denote ctx) hB 0 pw.x pw.k (by omega),
         ih.2, Nat.zero_add, Power.denote_eq]
 
 theorem Poly.le_maxDeg_k (k : Int) (m : Mon) (p : Poly) :
@@ -1009,7 +1027,7 @@ theorem Poly.le_maxDeg_k (k : Int) (m : Mon) (p : Poly) :
   exact ⟨this.2, this.1⟩
 
 theorem Poly.toPP_k_spec {α} [CommRing α] (ctx : Context α) {B : Nat} (hB : 1 < B) (p : Poly) (h : p.maxDeg_k < B) :
-    (p.toPP_k B).denote ctx B = p.denote ctx ∧ (p.toPP_k B).Deg B p.maxDeg_k := by
+    (p.toPP_k B).denote (Var.denote ctx) B = p.denote ctx ∧ (p.toPP_k B).Deg B p.maxDeg_k := by
   induction p with
   | num k => exact ⟨rfl, trivial⟩
   | add k m p ih =>
@@ -1017,11 +1035,11 @@ theorem Poly.toPP_k_spec {α} [CommRing α] (ctx : Context α) {B : Nat} (hB : 1
     have ih := ih (by omega)
     have hc := Mon.code_k_spec ctx hB m (by omega)
     refine ⟨?_, ⟨by rw [hc.1]; exact hm.1, PPoly.Deg.mono hm.2 _ ih.2⟩⟩
-    show (k : α) * PPoly.monDenote ctx B 0 (m.code_k B) + (p.toPP_k B).denote ctx B = k • m.denote ctx + p.denote ctx
+    show (k : α) * PPoly.monDenote (Var.denote ctx) B 0 (m.code_k B) + (p.toPP_k B).denote (Var.denote ctx) B = k • m.denote ctx + p.denote ctx
     rw [hc.2, ih.1, zsmul_eq_intCast_mul]
 
 section
-variable {α} [Ring α] (ctx : Context α) (nrm : Int → Int) (hn : ∀ k, ((nrm k : Int) : α) = (k : α))
+variable {α} [Ring α] (ctx : Nat → α) (nrm : Int → Int) (hn : ∀ k, ((nrm k : Int) : α) = (k : α))
 include hn
 
 theorem PPoly.addConstN_k_spec (B D : Nat) (p : PPoly) (k : Int) :
@@ -1104,7 +1122,7 @@ theorem PPoly.combineN_k_spec (B D : Nat) (p₁ p₂ : PPoly) :
 
 end
 
-theorem PPoly.mulMonN_k_spec {α} [CommRing α] (ctx : Context α) (nrm : Int → Int) (hn : ∀ k, ((nrm k : Int) : α) = (k : α))
+theorem PPoly.mulMonN_k_spec {α} [CommRing α] (ctx : Nat → α) (nrm : Int → Int) (hn : ∀ k, ((nrm k : Int) : α) = (k : α))
     (B D₁ D₂ : Nat) (hB : 1 < B) (k : Int) (d v : Nat) (hv : dsum B v ≤ D₁) (hD : D₁ + D₂ < B) (p : PPoly) (hp : p.Deg B D₂) :
     (p.mulMonN_k nrm k d v).denote ctx B = k * monDenote ctx B 0 v * p.denote ctx B ∧ (p.mulMonN_k nrm k d v).Deg B (D₁ + D₂) := by
   induction p with
@@ -1162,23 +1180,23 @@ theorem PPoly.mulMonN_k_spec {α} [CommRing α] (ctx : Context α) (nrm : Int �
 /-- The packed polynomial `P` of `p` denotes `0`, and its monomials have degree at most `p.maxDeg_k`. -/
 theorem PSumTree.leaf_zero {α} [CommRing α] (ctx : Context α) (B : Nat) (p : Poly) (P : PPoly)
     (hB : Bool.rec false (Nat.blt p.maxDeg_k B) (Nat.blt 1 B) = true) (h : P = p.toPP_k B) (hp : p.denote ctx = 0) :
-    P.denote ctx B = 0 ∧ P.Deg B p.maxDeg_k := by
+    P.denote (Var.denote ctx) B = 0 ∧ P.Deg B p.maxDeg_k := by
   have hB := PPoly.and_of_rec hB
   have := Poly.toPP_k_spec ctx (Nat.blt_eq.mp hB.1) p (Nat.blt_eq.mp hB.2)
   rw [h, this.1, hp]; exact ⟨rfl, this.2⟩
 
 theorem PSumTree.eval_k_spec {α} [CommRing α] (ctx : Context α) (nrm : Int → Int) (hn : ∀ k, ((nrm k : Int) : α) = (k : α))
     {B : Nat} (hB : 1 < B) (t : PSumTree) (hok : t.ok_k B = true) (h : t.AllZero ctx B) :
-    (t.eval_k nrm B).denote ctx B = 0 ∧ (t.eval_k nrm B).Deg B (B - 1) := by
+    (t.eval_k nrm B).denote (Var.denote ctx) B = 0 ∧ (t.eval_k nrm B).Deg B (B - 1) := by
   induction t with
   | leaf k m D p =>
     have hok : Nat.blt (Nat.add (Mon.degree_k m) D) B = true := hok
     rw [Nat.blt_eq, Mon.degree_k_eq_degree, Nat.add_eq] at hok
-    replace h : p.denote ctx B = 0 ∧ p.Deg B D := h
+    replace h : p.denote (Var.denote ctx) B = 0 ∧ p.Deg B D := h
     have hc := Mon.code_k_spec ctx hB m (by omega)
-    have hm := PPoly.mulMonN_k_spec ctx nrm hn B m.degree D hB k (Mon.degree_k m) (m.code_k B) (by rw [hc.1]; exact Nat.le_refl _) hok _ h.2
+    have hm := PPoly.mulMonN_k_spec (Var.denote ctx) nrm hn B m.degree D hB k (Mon.degree_k m) (m.code_k B) (by rw [hc.1]; exact Nat.le_refl _) hok _ h.2
     refine ⟨?_, PPoly.Deg.mono (by omega) _ hm.2⟩
-    show (p.mulMonN_k nrm k (Mon.degree_k m) (m.code_k B)).denote ctx B = 0
+    show (p.mulMonN_k nrm k (Mon.degree_k m) (m.code_k B)).denote (Var.denote ctx) B = 0
     rw [hm.1, h.1, mul_zero]
   | node a b iha ihb =>
     have hok : Bool.rec false (b.ok_k B) (a.ok_k B) = true := hok
@@ -1186,9 +1204,9 @@ theorem PSumTree.eval_k_spec {α} [CommRing α] (ctx : Context α) (nrm : Int �
     obtain ⟨ha, hb⟩ := h
     have ha := iha hok.1 ha
     have hb := ihb hok.2 hb
-    have hc := PPoly.combineN_k_spec ctx nrm hn B (B - 1) (a.eval_k nrm B) (b.eval_k nrm B)
+    have hc := PPoly.combineN_k_spec (Var.denote ctx) nrm hn B (B - 1) (a.eval_k nrm B) (b.eval_k nrm B)
     refine ⟨?_, hc.2 ha.2 hb.2⟩
-    show (PPoly.combineN_k nrm (a.eval_k nrm B) (b.eval_k nrm B)).denote ctx B = 0
+    show (PPoly.combineN_k nrm (a.eval_k nrm B) (b.eval_k nrm B)).denote (Var.denote ctx) B = 0
     rw [hc.1, ha.1, hb.1, add_zero]
 
 /-- `p₁ + Σ` of the multiples `t` is `p`, checked with packed monomials. -/
@@ -1204,7 +1222,7 @@ theorem PSumTree.denote_eq {α} [CommRing α] (ctx : Context α) (nrm : Int → 
   have he := PSumTree.eval_k_spec ctx nrm hn hB t h''.2 ht
   have hp := Poly.toPP_k_spec ctx hB p (Nat.blt_eq.mp h'.1)
   have hp₁ := Poly.toPP_k_spec ctx hB p₁ (Nat.blt_eq.mp h''.1)
-  have hc := PPoly.combineN_k_spec ctx nrm hn B 0 (p₁.toPP_k B) (t.eval_k nrm B)
+  have hc := PPoly.combineN_k_spec (Var.denote ctx) nrm hn B 0 (p₁.toPP_k B) (t.eval_k nrm B)
   rw [← hp.1, ← h₁, h₂, hc.1, he.1, hp₁.1, add_zero]
 
 namespace Stepwise
@@ -1267,6 +1285,76 @@ noncomputable def Expr.semi_k (e : Expr) : Bool :=
 theorem Expr.semi_k_and {a b : Bool} (h : Bool.rec false b a = true) : a = true ∧ b = true := by
   cases a <;> cases b <;> simp_all
 
+/--
+`Expr.degB_k e`, or `B` if `e` is not a semiring term (`Expr.semi_k`): one traversal checks both.
+-/
+noncomputable def Expr.degS_k (B : Nat) (e : Expr) : Nat :=
+  Expr.rec (fun k => Int.rec (fun _ => 0) (fun _ => B) k) (fun _ => 0) (fun _ => B) (fun _ => 1)
+    (fun _ _ => B) (fun _ _ ih₁ ih₂ => Bool.rec ih₁ ih₂ (Nat.blt ih₁ ih₂)) (fun _ _ _ _ => B)
+    (fun _ _ ih₁ ih₂ => Nat.add ih₁ ih₂) (fun _ k ih => Bool.rec (Nat.mul ih k) B (Nat.ble B ih)) e
+
+theorem Expr.max_k_eq (a b : Nat) : (Bool.rec a b (Nat.blt a b) : Nat) = max a b := by
+  cases h : Nat.blt a b
+  · have := Nat.le_of_not_lt (fun hlt => by rw [Nat.blt_eq.mpr hlt] at h; cases h)
+    show a = max a b; omega
+  · have := Nat.blt_eq.mp h
+    show b = max a b; omega
+
+theorem Expr.of_degS_k (B : Nat) (e : Expr) (h : e.degS_k B < B) : e.semi_k = true ∧ e.degB_k ≤ e.degS_k B := by
+  induction e with
+  | num k =>
+    cases k with
+    | ofNat => exact ⟨rfl, Nat.le_refl _⟩
+    | negSucc => exact absurd h (Nat.lt_irrefl _)
+  | natCast => exact ⟨rfl, Nat.le_refl _⟩
+  | intCast => exact absurd h (Nat.lt_irrefl _)
+  | var => exact ⟨rfl, Nat.le_refl _⟩
+  | neg => exact absurd h (Nat.lt_irrefl _)
+  | sub => exact absurd h (Nat.lt_irrefl _)
+  | add a b iha ihb =>
+    have h' : max (a.degS_k B) (b.degS_k B) < B := by rw [← Expr.max_k_eq]; exact h
+    obtain ⟨sa, da⟩ := iha (by omega)
+    obtain ⟨sb, db⟩ := ihb (by omega)
+    refine ⟨show Bool.rec false b.semi_k a.semi_k = true by rw [sa, sb], ?_⟩
+    show (Bool.rec a.degB_k b.degB_k (Nat.blt a.degB_k b.degB_k) : Nat) ≤ Bool.rec (a.degS_k B) (b.degS_k B) (Nat.blt (a.degS_k B) (b.degS_k B))
+    rw [Expr.max_k_eq, Expr.max_k_eq]; omega
+  | mul a b iha ihb =>
+    have h' : Nat.add (a.degS_k B) (b.degS_k B) < B := h
+    obtain ⟨sa, da⟩ := iha (by simp at h'; omega)
+    obtain ⟨sb, db⟩ := ihb (by simp at h'; omega)
+    refine ⟨show Bool.rec false b.semi_k a.semi_k = true by rw [sa, sb], ?_⟩
+    show Nat.add a.degB_k b.degB_k ≤ Nat.add (a.degS_k B) (b.degS_k B)
+    simp only [Nat.add_eq]; omega
+  | pow a k ih =>
+    have h' : (Bool.rec (Nat.mul (a.degS_k B) k) B (Nat.ble B (a.degS_k B)) : Nat) < B := h
+    cases hb : Nat.ble B (a.degS_k B)
+    · rw [hb] at h'
+      have ha : a.degS_k B < B := Nat.gt_of_not_le (fun hle => by rw [Nat.ble_eq.mpr hle] at hb; cases hb)
+      obtain ⟨sa, da⟩ := ih ha
+      refine ⟨sa, ?_⟩
+      show Nat.mul a.degB_k k ≤ Bool.rec (Nat.mul (a.degS_k B) k) B (Nat.ble B (a.degS_k B))
+      rw [hb]; exact Nat.mul_le_mul_right k da
+    · rw [hb] at h'; exact absurd h' (Nat.lt_irrefl _)
+
+/-- Checks `1 < B` and the degree bounds of `a` and `b` for the base `B`, and that they are semiring terms. -/
+noncomputable def Expr.degSOk_k (B : Nat) (a b : Expr) : Bool :=
+  Bool.rec false (Bool.rec false (Nat.blt (b.degS_k B) B) (Nat.blt (a.degS_k B) B)) (Nat.blt 1 B)
+
+theorem Expr.of_degSOk_k {B : Nat} {a b : Expr} (h : degSOk_k B a b = true) :
+    Bool.rec false b.semi_k a.semi_k = true ∧ degOk_k B a b = true := by
+  unfold degSOk_k at h
+  cases h₁ : Nat.blt 1 B <;> rw [h₁] at h
+  · cases h
+  · cases h₂ : Nat.blt (a.degS_k B) B <;> rw [h₂] at h
+    · cases h
+    · obtain ⟨sa, da⟩ := of_degS_k B a (Nat.blt_eq.mp h₂)
+      obtain ⟨sb, db⟩ := of_degS_k B b (Nat.blt_eq.mp h)
+      refine ⟨by rw [sa, sb], ?_⟩
+      unfold degOk_k
+      have ha : Nat.blt a.degB_k B = true := Nat.blt_eq.mpr (Nat.lt_of_le_of_lt da (Nat.blt_eq.mp h₂))
+      have hb : Nat.blt b.degB_k B = true := Nat.blt_eq.mpr (Nat.lt_of_le_of_lt db (Nat.blt_eq.mp h))
+      rw [h₁, ha, hb]
+
 theorem Expr.denote_mapCtx_toQ {α} [CommSemiring α] (ctx : Context α) (e : Expr) (h : e.semi_k = true) :
     e.denote (PPoly.mapCtx Ring.OfSemiring.toQ ctx) = e.denoteSAsRing ctx := by
   induction e with
@@ -1294,27 +1382,27 @@ theorem Expr.denote_mapCtx_toQ {α} [CommSemiring α] (ctx : Context α) (e : Ex
     rw [ih h]
 
 theorem Expr.eq_of_toPPX_eqS {α} [CommSemiring α] [AddRightCancel α] (ctx : Context α) (B : Nat) (bal₁ bal₂ : Bool)
-    (a b : Expr) (p : PPoly) (hS : Bool.rec false b.semi_k a.semi_k = true) (hB : degOk_k B a b = true)
+    (a b : Expr) (p : PPoly) (hB : degSOk_k B a b = true)
     (h₁ : p = a.toPPX_k B bal₁) (h₂ : p = b.toPPX_k B bal₂) : a.denoteS ctx = b.denoteS ctx := by
+  obtain ⟨hS, hB⟩ := of_degSOk_k hB
   have hS := semi_k_and hS
   apply Ring.OfSemiring.toQ_inj
   rw [← Expr.denoteAsRing_eq, ← Expr.denoteAsRing_eq, ← denote_mapCtx_toQ ctx a hS.1, ← denote_mapCtx_toQ ctx b hS.2]
   exact Expr.eq_of_toPPX_eq _ B bal₁ bal₂ a b p hB h₁ h₂
 
 theorem eq_true_of_toPPX_eqS {α} [CommSemiring α] [AddRightCancel α] (ctx : Context α) (B : Nat) (bal₁ bal₂ : Bool)
-    (a b : Expr) (p : PPoly) (hS : Bool.rec false b.semi_k a.semi_k = true) (hB : Expr.degOk_k B a b = true)
+    (a b : Expr) (p : PPoly) (hB : Expr.degSOk_k B a b = true)
     (h₁ : p = a.toPPX_k B bal₁) (h₂ : p = b.toPPX_k B bal₂) : (a.denoteS ctx = b.denoteS ctx) = True :=
-  eq_true (Expr.eq_of_toPPX_eqS ctx B bal₁ bal₂ a b p hS hB h₁ h₂)
+  eq_true (Expr.eq_of_toPPX_eqS ctx B bal₁ bal₂ a b p hB h₁ h₂)
 
 theorem le_true_of_toPPX_eqS {α} [CommSemiring α] [AddRightCancel α] [LE α] [IsPreorder α] (ctx : Context α) (B : Nat)
-    (bal₁ bal₂ : Bool) (a b : Expr) (p : PPoly) (hS : Bool.rec false b.semi_k a.semi_k = true) (hB : Expr.degOk_k B a b = true)
+    (bal₁ bal₂ : Bool) (a b : Expr) (p : PPoly) (hB : Expr.degSOk_k B a b = true)
     (h₁ : p = a.toPPX_k B bal₁) (h₂ : p = b.toPPX_k B bal₂) : (a.denoteS ctx ≤ b.denoteS ctx) = True := by
-  rw [Expr.eq_of_toPPX_eqS ctx B bal₁ bal₂ a b p hS hB h₁ h₂]; exact eq_true (Std.le_refl _)
+  rw [Expr.eq_of_toPPX_eqS ctx B bal₁ bal₂ a b p hB h₁ h₂]; exact eq_true (Std.le_refl _)
 
 theorem lt_false_of_toPPX_eqS {α} [CommSemiring α] [AddRightCancel α] [LE α] [LT α] [LawfulOrderLT α] [IsPreorder α]
-    (ctx : Context α) (B : Nat) (bal₁ bal₂ : Bool) (a b : Expr) (p : PPoly) (hS : Bool.rec false b.semi_k a.semi_k = true)
-    (hB : Expr.degOk_k B a b = true) (h₁ : p = a.toPPX_k B bal₁) (h₂ : p = b.toPPX_k B bal₂) :
-    (a.denoteS ctx < b.denoteS ctx) = False := by
-  rw [Expr.eq_of_toPPX_eqS ctx B bal₁ bal₂ a b p hS hB h₁ h₂]; exact eq_false Std.lt_irrefl
+    (ctx : Context α) (B : Nat) (bal₁ bal₂ : Bool) (a b : Expr) (p : PPoly) (hB : Expr.degSOk_k B a b = true)
+    (h₁ : p = a.toPPX_k B bal₁) (h₂ : p = b.toPPX_k B bal₂) : (a.denoteS ctx < b.denoteS ctx) = False := by
+  rw [Expr.eq_of_toPPX_eqS ctx B bal₁ bal₂ a b p hB h₁ h₂]; exact eq_false Std.lt_irrefl
 
 end Lean.Grind.CommRing

@@ -199,8 +199,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_recv(b_obj_arg socket, uint64_t 
     };
 
     auto read_cb = [](uv_stream_t* stream, ssize_t nread, const uv_buf_t* buf) {
-        // libuv before 1.45 can still report a read on Windows once the handle is no longer reading.
-        if (nread == 0 || !global_ev.running() || uv_is_closing((uv_handle_t*)stream)) return;
+        if (nread == 0) return;
 
         uv_read_stop(stream);
 
@@ -269,9 +268,8 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_wait_readable(b_obj_arg socket) 
 
     auto read_cb = [](uv_stream_t* stream, ssize_t nread, const uv_buf_t* buf) {
         // `nread == 0` is libuv's equivalent of `EAGAIN`: the socket is not actually readable, so
-        // keep waiting rather than resolving the promise. libuv before 1.45 can still report a read on
-        // Windows once the handle is no longer reading.
-        if (nread == 0 || !global_ev.running() || uv_is_closing((uv_handle_t*)stream)) return;
+        // keep waiting rather than resolving the promise.
+        if (nread == 0) return;
 
         uv_read_stop(stream);
 
@@ -366,9 +364,6 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_listen(b_obj_arg socket, int32_t
     lean_uv_tcp_socket_object* tcp_socket = lean_to_uv_tcp_socket(socket);
 
     auto on_connection = [](uv_stream_t* stream, int status) {
-        // On Windows a connection that completed before the listener was closed is still reported.
-        if (!global_ev.running() || uv_is_closing((uv_handle_t*)stream)) return;
-
         lean_object* socket = (lean_object*)stream->data;
         lean_uv_tcp_socket_object* tcp_socket = lean_to_uv_tcp_socket(socket);
 

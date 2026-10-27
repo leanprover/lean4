@@ -1177,8 +1177,9 @@ uint32 run_main(elab_environment const & env, options const & opts, list_ref<str
     return interpreter::with_interpreter<uint32>(env, opts, "main", [&](interpreter & interp) { return interp.run_main(args); });
 }
 
-/* runMain (env : Environment) (opts : Options) (args : List String) : BaseIO UInt32 */
-extern "C" LEAN_EXPORT uint32_t lean_eval_main(b_obj_arg env, b_obj_arg opts, b_obj_arg args) {
+/* runMain (env : Environment) (opts : Options) (progName : String) (args : List String) : BaseIO UInt32 */
+extern "C" LEAN_EXPORT uint32_t lean_eval_main(b_obj_arg env, b_obj_arg opts, b_obj_arg prog_name, b_obj_arg args) {
+    set_program_name(string_cstr(prog_name));
     uint32 ret = run_main(TO_REF(elab_environment, env), TO_REF(options, opts), TO_REF(list_ref<string_ref>, args));
     return ret;
 }

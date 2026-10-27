@@ -24,7 +24,8 @@ namespace Lean
 
 /- Runs the `main` function of the module with `args` using the Lean interpreter. -/
 @[extern "lean_eval_main"]
-opaque runMain (env : @& Environment) (opts : @& Options) (args : @& List String) : BaseIO UInt32
+opaque runMain (env : @& Environment) (opts : @& Options) (progName : @& String)
+    (args : @& List String) : BaseIO UInt32
 
 /--
 Initializes the LLVM subsystem.
@@ -548,7 +549,7 @@ def shellMain (args : List String) (opts : ShellOptions) : IO UInt32 := do
     (incrHeaderSaveFileName? := opts.incrHeaderSaveFileName?)
   if let some env := env? then
     if opts.run then
-      return ← runMain env opts.leanOpts args
+      return ← runMain env opts.leanOpts fileName args
     if let some c := opts.cFileName? then
       writeFileAtomically c fun out => do
         profileitIO "C code generation" opts.leanOpts do

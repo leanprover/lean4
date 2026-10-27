@@ -24,6 +24,8 @@ LEAN_EXPORT lean_obj_res mk_embedded_nul_error(b_lean_obj_arg str);
 // a name no variable has can find another variable instead.
 LEAN_EXPORT bool is_env_var_name(char const * name);
 LEAN_EXPORT lean_obj_res io_wrap_handle(FILE * hfile);
+// Sets the name `IO.getProgramName` returns, which is `argv[0]` for a compiled Lean `main`.
+LEAN_EXPORT void set_program_name(char const * name);
 void initialize_io();
 void finalize_io();
 }

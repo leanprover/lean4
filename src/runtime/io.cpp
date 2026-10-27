@@ -1428,6 +1428,30 @@ extern "C" LEAN_EXPORT obj_res lean_io_app_path() {
 #endif
 }
 
+// `lean --run` sets the name while other threads may be running, so the name is guarded by a mutex.
+// `lean_setup_args` sets it before the runtime is initialized, so the mutex is a static object, which
+// is constant-initialized, rather than one created in `initialize_io`.
+static mutex         g_program_name_mutex;
+static std::string * g_program_name = nullptr;
+
+void set_program_name(char const * name) {
+    lock_guard<mutex> lock(g_program_name_mutex);
+    if (g_program_name == nullptr) {
+        g_program_name = new std::string(name);
+    } else {
+        *g_program_name = name;
+    }
+}
+
+/* IO.getProgramName : IO String */
+extern "C" LEAN_EXPORT obj_res lean_io_get_program_name() {
+    lock_guard<mutex> lock(g_program_name_mutex);
+    if (g_program_name == nullptr) {
+        return io_result_mk_error("the program name is unknown");
+    }
+    return io_result_mk_ok(mk_string(*g_program_name));
+}
+
 extern "C" LEAN_EXPORT obj_res lean_io_current_dir() {
     char buffer[PATH_MAX];
     char * cwd = getcwd(buffer, sizeof(buffer));

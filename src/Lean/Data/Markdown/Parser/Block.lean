@@ -225,15 +225,15 @@ def isThematicBreak (line : IndentedLine s) : Bool := Id.run do
   return markerCount >= 3
 
 /--
-Recognizes a setext heading underline (CommonMark §4.3): up to three leading spaces, then a sequence
-of `=` (level 1) or `-` (level 2), then optional trailing whitespace. Returns the heading level on
-success.
+Parses a setext heading underline (CommonMark §4.3): up to three leading spaces, then a sequence of
+`=` (level 1) or `-` (level 2), then optional trailing whitespace. Returns the heading level and the
+marker sequence.
 
 Note: a `---` underline overlaps with the thematic-break syntax. The caller must enforce the
 precedence rule: setext header parsing applies only when an open paragraph immediately precedes the
 underline; otherwise, the same line is interpreted as a thematic break.
 -/
-def parseSetextUnderline? (line : IndentedLine s) : Option Nat := do
+def parseSetextUnderline? (line : IndentedLine s) : Option (Nat × s.Subslice) := do
   let { after := c, indent } := line
   guard (indent ≤ 3)
   let markerChar ← c.front?
@@ -243,7 +243,8 @@ def parseSetextUnderline? (line : IndentedLine s) : Option Nat := do
   let (cAfterWs, _) := cAfterSequence.advanceWhile fun ch =>
     ch == ' ' || ch == '\t'
   guard cAfterWs.isEmpty
-  return if markerChar == '=' then 1 else 2
+  let level := if markerChar == '=' then 1 else 2
+  return (level, subsliceClamped c.pos cAfterSequence.pos)
 
 /-- Parses an opening code fence at `line`. -/
 def parseFenceOpen? (line : IndentedLine s) : Option (FenceInfo s × s.Subslice) := do
@@ -585,13 +586,13 @@ a heading fails and the underline begins a new paragraph.
   unless (← get).zipper.spine.size == (← get).matched do return
   let some (.paragraph lines) := (← get).zipper.openLeaf? | return
   let cursor := (← get).cursor
-  let some level := parseSetextUnderline? cursor.skipIndent | return
-  let underline := cursor.toEol
+  let some (level, underline) := parseSetextUnderline? cursor.skipIndent | return
+  let line := cursor.toEol
   let (defs, residual) := extractRefDefs (InlineSource.ofLines lines)
   ContainerM.finishLineWith fun z =>
     let z := defs.foldl BlockZipper.addBlock { z with openLeaf? := none }
     if residual.lines.isEmpty then
-      z.openLeaf (.paragraph #[underline])
+      z.openLeaf (.paragraph #[line])
     else
       z.addBlock (.setextHeading level residual.lines underline)
 
@@ -737,9 +738,11 @@ def openContainerPrefixes (line : IndentedLine s) : ProcessM s (Bool × Indented
       break
   return (openedListItemThisLine, line)
 
-/-- Adds a thematic break for the line and finishes it. -/
+/--
+Adds a thematic break for the line and finishes it.
+-/
 @[inline] def finishThematicBreak : ProcessM s Unit := do
-  let line := (← get).cursor.toEol
+  let line := trimTrailingWs (← get).cursor.skipIndent.after.toEol
   finishLineWith fun z => Id.run do
     let mut z := z
     while (match z.top? with | some (.list _) => true | _ => false) do

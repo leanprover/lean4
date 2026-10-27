@@ -104,6 +104,15 @@ Every delimiter is a `keyword` token with the `markupSyntax` modifier.
 /-- info: ["keyword markupSyntax", "keyword markupSyntax", "keyword markupSyntax", "keyword markupSyntax"] -/
 #guard_msgs in #eval ["**x**", "# x", "> x", "* x"].zipWith markupAt [0, 0, 0, 0]
 
+-- A setext underline token is the marker sequence alone, without the indentation before it or the
+-- whitespace after it.
+/-- info: ["<none>", "keyword markupSyntax", "keyword markupSyntax", "<none>"] -/
+#guard_msgs in #eval [9, 11, 13, 14].map (markupAt "  Setext\n  ===   \n")
+
+-- A thematic break token runs from its first marker to its last, spaces between them included.
+/-- info: ["<none>", "keyword markupSyntax", "keyword markupSyntax", "keyword markupSyntax", "<none>"] -/
+#guard_msgs in #eval [1, 2, 3, 6, 7].map (markupAt "  * * *  \n")
+
 /-!
 ## Code
 

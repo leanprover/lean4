@@ -86,7 +86,7 @@ syntax (name := vcgen) "vcgen" optConfig
   (&" until " term)?
   (&" frames " withPosition((colGe frameAlt)+))?
   (invariantAlts)?
-  (ppSpace colGt &"simp" " [" withoutPosition((simpStar <|> simpErase <|> simpLemma),*,?) "]")?
+  (colGt &" simp" " [" withoutPosition((simpStar <|> simpErase <|> simpLemma),*,?) "]")?
   (&" with " vcgenDischarge)? : tactic
 
 namespace Grind
@@ -98,7 +98,7 @@ syntax (name := vcgen) "vcgen" optConfig
   (&" until " term)?
   (&" frames " withPosition((colGe frameAlt)+))?
   (invariantAlts)?
-  (ppSpace colGt &"simp" " [" withoutPosition((simpStar <|> simpErase <|> simpLemma),*,?) "]")?
+  (colGt &" simp" " [" withoutPosition((simpStar <|> simpErase <|> simpLemma),*,?) "]")?
   : grind
 
 end Grind

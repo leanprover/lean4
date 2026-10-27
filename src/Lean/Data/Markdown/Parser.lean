@@ -22,8 +22,9 @@ specification.
 Two passes are necessary because the presence of a link definition later in the document affects the
 syntactic interpretation of reference-style links earlier in the document.
 -/
-public partial def parseInlinesInBlock (refs : RefTable s) (extensions : Extensions := {}) :
-    Block.Raw s → Block s
+public partial def parseInlinesInBlock (refs : RefTable s) (block : Block.Raw s)
+    (extensions : Extensions := {}) : Block s :=
+  match block with
   | .paragraph lines =>
     .paragraph (parseInlines refs (.ofLines lines) extensions)
   | .atxHeading level hashes content closeHashes? =>
@@ -37,11 +38,11 @@ public partial def parseInlinesInBlock (refs : RefTable s) (extensions : Extensi
   | .html lines =>
     .html lines
   | .blockquote markers children =>
-    .blockquote markers (children.map (parseInlinesInBlock refs extensions))
+    .blockquote markers (children.map (parseInlinesInBlock refs · extensions))
   | .list kind tight items =>
-    .list kind tight (items.map (parseInlinesInBlock refs extensions))
+    .list kind tight (items.map (parseInlinesInBlock refs · extensions))
   | .listItem marker children =>
-    .listItem marker (children.map (parseInlinesInBlock refs extensions))
+    .listItem marker (children.map (parseInlinesInBlock refs · extensions))
   | .linkRefDef m =>
     .linkRefDef m
   | .thematicBreak line =>
@@ -57,4 +58,4 @@ public def parseDocument (s : String.Slice) (indent : Nat := 0) (extensions : Ex
     Array (Block s) :=
   let blocks := parseBlocks s indent
   let refs := buildRefTable blocks
-  blocks.map (parseInlinesInBlock refs extensions)
+  blocks.map (parseInlinesInBlock refs · extensions)

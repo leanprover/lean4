@@ -1221,7 +1221,8 @@ protected def comparator : CliM PUnit := do
   let cfg ← mkLoadConfig opts
   exit <| ←
     Check.runComparator opts.comparatorConfig? opts.challengeFromExport? opts.solutionFromExport?
-      opts.paranoid opts.inadvisablyNoSandbox leanInstall lakeInstall cfg.wsDir
+      opts.paranoid opts.inadvisablyNoSandbox (opts.outFormat matches .json) leanInstall lakeInstall
+      cfg.wsDir
 
 /--
 The half of `lake check` that runs inside the sandbox, selected by `LAKE_CHECK_EXPORT`.
@@ -1253,7 +1254,7 @@ protected def check : CliM PUnit := do
     -- execution, and containing it is what the sandbox is for.
     let cfg ← mkLoadConfig opts
     exit <| ← Check.runCheck opts.checkFromExport? opts.paranoid opts.inadvisablyNoSandbox
-      leanInstall lakeInstall cfg.wsDir
+      (opts.outFormat matches .json) leanInstall lakeInstall cfg.wsDir
 
 protected def script : CliM PUnit := do
   if let some cmd ← takeArg? then

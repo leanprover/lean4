@@ -14,7 +14,11 @@ extern "C" void lean_internal_panic(char const * message) {
 extern "C" void lean_internal_panic_out_of_memory() { lean_internal_panic("out of memory"); }
 extern "C" void lean_internal_panic_overflow() { lean_internal_panic("size overflow"); }
 extern "C" void lean_internal_panic_unreachable() { lean_internal_panic("unreachable"); }
-extern "C" void free_sized(void * ptr, size_t) { std::free(ptr); }
+extern "C"
+#if defined(__GLIBC__) && (defined(__GNUC__) || defined(__clang__))
+__attribute__((nothrow))
+#endif
+void free_sized(void * ptr, size_t) { std::free(ptr); }
 
 using lean::mpz;
 static unsigned failures = 0;

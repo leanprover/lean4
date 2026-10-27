@@ -8,7 +8,7 @@ cat > "$TMP_DIR/non_gmp_config.h" <<'EOF'
 EOF
 
 read -r -a mpz_test_compiler <<< "$CXX"
-"${mpz_test_compiler[@]}" -std=c++20 -DNDEBUG -I"$SRC_DIR" -I"$BUILD_DIR/include" \
+"${mpz_test_compiler[@]}" -std=c++20 -DNDEBUG -DLEAN_MULTI_THREAD -I"$SRC_DIR" -I"$BUILD_DIR/include" \
     -include "$TMP_DIR/non_gmp_config.h" \
     main.cpp "$SRC_DIR/runtime/mpz.cpp" "$SRC_DIR/runtime/mpn.cpp" \
     "$SRC_DIR/runtime/exception.cpp" -o "$TMP_DIR/mpz_signs"

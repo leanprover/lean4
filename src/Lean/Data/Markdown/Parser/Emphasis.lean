@@ -9,6 +9,7 @@ prelude
 import Init.While
 import Init.Data.Vector.Basic
 public import Lean.Data.Markdown.Basic
+public import Lean.Data.Markdown.InlineSource
 
 namespace Lean.Markdown
 
@@ -16,13 +17,15 @@ namespace Lean.Markdown
 /-!
 ## Emphasis matching (CommonMark §6.2)
 
-Implements CommonMark's emit-as-you-go delimiter stack algorithm.
+Implements CommonMark's delimiter stack algorithm.
 
 The entry point is `processEmphasis`, which consumes a flat sequence of `InlineTok`s. Each is either
 a fully-finalized non-emphasis `Inline` or a raw `*`/`_` delimiter sequence. It returns the final
 `Array Inline` with all matched emphasis spans wrapped as `.bold` or `.italic`. Tokens of the input
 are produced by the tokenizer in `Lean.Data.Markdown.Parser.Inline`; this module is the second half
 of the inline element parsing pass.
+
+With the `latexMath` extension, the tokens also include `$` delimiter sequences.
 -/
 
 variable {s : String.Slice}
@@ -34,11 +37,13 @@ def delimiterSubslice (p : s.Pos) (n : Nat) : s.Subslice :=
 /--
 A sequence of `*` or `_` delimiter characters (a delimiter run, in the CommonMark specification's
 terms), classified by the CommonMark left/right-flanking rules.
+
+With the `latexMath` extension, delimiters may also be a sequence of one or two `$`.
 -/
 public structure DelimSequence (s : String.Slice) where
   /-- Position of the first delimiter character. -/
   startPos : s.Pos
-  /-- The delimiter character (`*` or `_`). -/
+  /-- The delimiter character (`*`, `_`, or `$`). -/
   ch : Char
   /-- Number of consecutive delimiter characters. -/
   origLen : Nat
@@ -125,6 +130,11 @@ structure DelimiterMatchState (s : String.Slice) where
   /-- The inlines that have been emitted so far, including the text of the openers on the stack. -/
   output : Array (Inline s)
   /--
+  The pending math openers, most recent last, each with its position, its length, and the index in
+  the output of its text inline. Empty unless the `latexMath` extension is enabled.
+  -/
+  mathOpeners : Array (s.Pos × Nat × Nat)
+  /--
   For each kind of closer, the index into `delimiters` at which the search for an opener to match a
   closer of that kind begins; openers below that index are skipped.
 
@@ -140,10 +150,13 @@ structure DelimiterMatchState (s : String.Slice) where
 
 /-- The empty initial state. -/
 def DelimiterMatchState.empty : DelimiterMatchState s :=
-  { delimiters := #[], output := #[], openersBottom := Vector.replicate 12 0 }
+  { delimiters := #[], output := #[], mathOpeners := #[], openersBottom := Vector.replicate 12 0 }
 
-/-- The state monad for §6.2's delimiter-matching algorithm. -/
-abbrev DelimM (s : String.Slice) := StateM (DelimiterMatchState s)
+/--
+The monad for §6.2's delimiter matching algorithm.
+-/
+abbrev DelimM (s : String.Slice) :=
+  ReaderT (InlineContext s) (StateM (DelimiterMatchState s))
 
 /--
 Merges each text inline of `inlines` that begins where the preceding text inline ends into it, so
@@ -203,16 +216,20 @@ def closeMatched (matchLen : Nat) (openDelim closeDelim : s.Subslice) :
     let wrapped : Inline s :=
       if matchLen == 2 then .bold openDelim content closeDelim
       else .italic openDelim content closeDelim
+    -- A matched emphasis span discards the math openers inside it.
+    let mathOpeners := st.mathOpeners.filter fun (_, _, outIdx) => outIdx ≤ opener.outIdx
     if newRem == 0 then
       { st with
         output := (st.output.shrink opener.outIdx).push wrapped
-        delimiters := st.delimiters.pop }
+        delimiters := st.delimiters.pop
+        mathOpeners }
     else
       { st with
         output := (st.output.shrink (opener.outIdx + 1))
           |>.set! opener.outIdx (.text (delimiterSubslice opener.startPos newRem))
           |>.push wrapped
-        delimiters := st.delimiters.pop.push { opener with remaining := newRem } }
+        delimiters := st.delimiters.pop.push { opener with remaining := newRem }
+        mathOpeners }
 
 /--
 Abandons every opener still on the stack and returns the final inline output. This is the final step
@@ -280,15 +297,51 @@ def processDelimSequence (seq : DelimSequence s) : DelimM s Unit := do
       emit <| .text (delimiterSubslice seqStart seqRem)
 
 /--
-Processes the emphasis delimiter sequences in `toks`, producing a final flat inline array.
-Implements CommonMark §6.2's delimiter-matching algorithm (including the rule about lengths that are
-a multiple of 3). Unmatched delimiters are turned into literal text.
+Processes one `$` delimiter sequence.
+
+A sequence that can close matches the most recent pending opener when the two have the same
+length. The output since that opener becomes the content of the math, taken verbatim from the
+source, and every pending opener inside it is discarded.
+
+A sequence that can open becomes a pending opener, and any other sequence is text.
 -/
-public def processEmphasis (toks : Array (InlineTok s)) : Array (Inline s) :=
+def processMathSequence (seq : DelimSequence s) : DelimM s Unit := do
+  let st ← get
+  let dollars := delimiterSubslice seq.startPos seq.origLen
+  if seq.canClose then
+    if let some (openStart, openLen, outIdx) := st.mathOpeners.back? then
+      if openLen == seq.origLen then
+        let openDollars := delimiterSubslice openStart openLen
+        let content := (← inlineSource).linesBetween (openStart.nextn openLen) seq.startPos
+        let math : Inline s := .math openDollars ⟨content⟩ dollars (seq.origLen == 2)
+        let delimiters := st.delimiters.filter (·.outIdx < outIdx)
+        set { st with
+          output := (st.output.shrink outIdx).push math
+          delimiters
+          openersBottom := st.openersBottom.map (min · delimiters.size)
+          mathOpeners := #[] }
+        return
+  if seq.canOpen then
+    set { st with
+      output := st.output.push (.text dollars)
+      mathOpeners := st.mathOpeners.push (seq.startPos, seq.origLen, st.output.size) }
+  else
+    emit (.text dollars)
+
+/--
+Processes the delimiter sequences in `toks`, producing a final flat inline array.
+
+Implements CommonMark §6.2's delimiter-matching algorithm for emphasis (including the rule about
+lengths that are a multiple of 3), as well as the LaTeX math extension if enabled. Unmatched
+delimiters fall back to literal text.
+-/
+public def processEmphasis (ctx : InlineContext s) (toks : Array (InlineTok s)) :
+    Array (Inline s) :=
   let go : DelimM s (Array (Inline s)) := do
     for tok in toks do
       match tok with
       | .inline inl => emit inl
-      | .delim seq => processDelimSequence seq
+      | .delim seq =>
+        if seq.ch == '$' then processMathSequence seq else processDelimSequence seq
     finalizeEmphasis
-  go.run' .empty
+  go.run ctx |>.run' .empty

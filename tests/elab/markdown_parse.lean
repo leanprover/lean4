@@ -17,6 +17,7 @@ partial def showInline {s : String.Slice} : Inline s → String
   | .image _ _ cs _ _ => s!"image[{showInlines cs}]"
   | .hardBreak m _ => s!"hardBreak⟪{m.copy}⟫"
   | .autolink _ u _ _ => s!"autolink⟪{u.copy}⟫"
+  | .math _ content _ display => s!"{if display then "displayMath" else "math"}⟪{content.text}⟫"
   | .html lines => s!"html⟪{lines.text}⟫"
   | .softBreak _ => "softBreak"
   | .escape _ c => s!"escape⟪{c.copy}⟫"
@@ -71,6 +72,10 @@ def showParagraph (src : String) : String :=
 -- also after a sequence that was closed.
 /-- info: ["text⟪`a ``b ```c⟫", "code⟪a` ⟫ text⟪b``⟫"] -/
 #guard_msgs in #eval [showParagraph "`a ``b ```c", showParagraph "``a` ``b``"]
+
+-- A second code span after an unclosed longer sequence is still a code span.
+/-- info: "text⟪x ``a⟫ code⟪b⟫ text⟪ ⟫ code⟪c⟫" -/
+#guard_msgs in #eval showParagraph "x ``a`b` `c`"
 
 /-!
 ## Emphasis with leftover delimiters
@@ -719,3 +724,62 @@ def softBreakTexts (src : String) : Array String :=
 
 /-- info: ["looseList[item[paragraph⟪text⟪c⟫⟫, paragraph⟪text⟪d⟫⟫]]"] -/
 #guard_msgs in #eval showDocument "- c\r\n\r\n  d\r\n" 0
+
+/-!
+## LaTeX math
+
+The `latexMath` extension recognizes `$…$` and `$$…$$` with the following rules, which are
+compatible with `md4c`:
+
+* a dollar sequence opens only at the start of a line or after whitespace or punctuation
+* a dollar sequence closes only at the end of a line or before whitespace or punctuation
+* potentially-closing dollar sequences match the most recent opener of the same length
+
+Without the extension, dollar signs are ordinary text.
+-/
+
+/-- The inlines of the first paragraph of `src`, with LaTeX math enabled. -/
+def showMathParagraph (src : String) : String :=
+  let blocks := parseDocument src.toSlice (extensions := { latexMath := true })
+  let content := blocks.findSome? (fun | .paragraph content => some content | _ => none) |>.getD #[]
+  showInline.showInlines content
+
+/-- info: "text⟪a ⟫ math⟪x_1⟫ text⟪ b ⟫ displayMath⟪y⟫ text⟪ c⟫" -/
+#guard_msgs in #eval showMathParagraph "a $x_1$ b $$y$$ c"
+
+/-- info: "text⟪a $x_1$ b⟫" -/
+#guard_msgs in #eval showParagraph "a $x_1$ b"
+
+-- The closer matches the most recent opener, and a match discards the openers before it.
+/-- info: "text⟪$a ⟫ math⟪b⟫ text⟪ c⟫" -/
+#guard_msgs in #eval showMathParagraph "$a $b$ c"
+
+-- Openers and closers match only when their lengths agree, and the match discards the pending
+-- opener of the other length.
+/-- info: "text⟪$a ⟫ displayMath⟪b⟫ text⟪ c$⟫" -/
+#guard_msgs in #eval showMathParagraph "$a $$b$$ c$"
+
+-- A dollar sign inside a word neither opens nor closes.
+/-- info: "text⟪a$b$ $c$d⟫" -/
+#guard_msgs in #eval showMathParagraph "a$b$ $c$d"
+
+-- Escaped dollar signs and dollar signs inside inline code take no part, so here the first and last
+-- dollar signs match, and the escape and the code between them are content.
+/-- info: "math⟪a \\$ `$b$` c⟫" -/
+#guard_msgs in #eval showMathParagraph "$a \\$ `$b$` c$"
+
+/-- info: "text⟪a ⟫ escape⟪$⟫ text⟪ ⟫ code⟪$b$⟫ text⟪ c⟫" -/
+#guard_msgs in #eval showMathParagraph "a \\$ `$b$` c"
+
+-- Markdown syntax inside a span is content, so emphasis cannot cross a span.
+/-- info: "math⟪a*b⟫ text⟪ and ⟫ math⟪c*d⟫" -/
+#guard_msgs in #eval showMathParagraph "$a*b$ and $c*d$"
+
+-- Three or more dollar signs are text.
+/-- info: "text⟪$$$a$$$⟫" -/
+#guard_msgs in #eval showMathParagraph "$$$a$$$"
+
+-- Multiple-line joining rules: a line's leading whitespace is dropped, and its line ending becomes
+-- a space unless the previous line already ends with one.
+/-- info: ["math⟪a  + b⟫", "math⟪a\t b⟫"] -/
+#guard_msgs in #eval [showMathParagraph "$a  \n  +\n b$", showMathParagraph "$a\t\nb$"]

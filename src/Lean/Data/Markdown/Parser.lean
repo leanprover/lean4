@@ -15,18 +15,21 @@ namespace Lean.Markdown
 variable {s : String.Slice}
 
 /--
-Parses the inline content of the blocks that were identified in a Markdown document using
-`parseInlines`. This is the second pass of the algorithm suggested in the CommonMark specification.
+Parses the inline content of a block from the first pass, with `refs` set to the document's link
+reference definitions. This is the second pass of the algorithm described in the CommonMark
+specification.
+
 Two passes are necessary because the presence of a link definition later in the document affects the
 syntactic interpretation of reference-style links earlier in the document.
 -/
-partial def parseInlinesInBlock (refs : RefTable s) : Block.Raw s → Block s
+public partial def parseInlinesInBlock (refs : RefTable s) (extensions : Extensions := {}) :
+    Block.Raw s → Block s
   | .paragraph lines =>
-    .paragraph (parseInlines refs (.ofLines lines))
+    .paragraph (parseInlines refs (.ofLines lines) extensions)
   | .atxHeading level hashes content closeHashes? =>
-    .atxHeading level hashes (parseInlines refs (.ofSubslice content)) closeHashes?
+    .atxHeading level hashes (parseInlines refs (.ofSubslice content) extensions) closeHashes?
   | .setextHeading level lines underline =>
-    .setextHeading level (parseInlines refs (.ofLines lines)) underline
+    .setextHeading level (parseInlines refs (.ofLines lines) extensions) underline
   | .fencedCode info openFence closeFence? lines =>
     .fencedCode info openFence closeFence? lines
   | .indentedCode lines =>
@@ -34,22 +37,24 @@ partial def parseInlinesInBlock (refs : RefTable s) : Block.Raw s → Block s
   | .html lines =>
     .html lines
   | .blockquote markers children =>
-    .blockquote markers (children.map (parseInlinesInBlock refs))
+    .blockquote markers (children.map (parseInlinesInBlock refs extensions))
   | .list kind tight items =>
-    .list kind tight (items.map (parseInlinesInBlock refs))
+    .list kind tight (items.map (parseInlinesInBlock refs extensions))
   | .listItem marker children =>
-    .listItem marker (children.map (parseInlinesInBlock refs))
+    .listItem marker (children.map (parseInlinesInBlock refs extensions))
   | .linkRefDef m =>
     .linkRefDef m
   | .thematicBreak line =>
     .thematicBreak line
 
 /--
-Parses `s` as a Markdown document. Up to `indent` leading spaces of each line are skipped.
+Parses `s` as a Markdown document. Up to `indent` leading spaces of each line are skipped, and
+`extensions` selects syntax beyond CommonMark, none by default.
 
 This parser is based on the two-pass algorithm that the CommonMark specification describes.
 -/
-public def parseDocument (s : String.Slice) (indent : Nat := 0) : Array (Block s) :=
+public def parseDocument (s : String.Slice) (indent : Nat := 0) (extensions : Extensions := {}) :
+    Array (Block s) :=
   let blocks := parseBlocks s indent
   let refs := buildRefTable blocks
-  blocks.map (parseInlinesInBlock refs)
+  blocks.map (parseInlinesInBlock refs extensions)

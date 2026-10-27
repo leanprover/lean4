@@ -323,17 +323,24 @@ def isLinkLabel (cur : InlineCursor s) : Bool := Id.run do
       return false
   return true
 
+/-- The monad for parsing link targets. Failure is `none`. -/
+abbrev LinkTargetM (s : String.Slice) := ReaderT (InlineContext s) Option
+
+/-- The link reference definition that `label` refers to. Fails when there is none. -/
+@[inline] def linkRef (label : Lines s) : LinkTargetM s (RefDef s) := do
+  let some definition := (← refTable)[normalizeLabel label]? | failure
+  return definition
+
 /--
 Parses the target of a `[…]…` link or `![…]…` image, after the caller has located the outer `[…]`
 (with `openBracket`/`closeBracket` the brackets, and `afterClose` one past the `]`). This function
 picks among the inline `(url)`, full reference `[label]`, collapsed `[]`, and shortcut forms, and
 returns the target together with the position after it.
 -/
-def parseLinkSuffix?
-    (refs : RefTable s) (src : InlineSource s) (stop : s.Pos)
-    (openBracket closeBracket : s.Subslice) (afterClose : s.Pos) :
-    Option (LinkTarget s × s.Pos) :=
-  let afterCloseRest : InlineCursor s := src.cursor afterClose stop
+def parseLinkSuffix? (openBracket closeBracket : s.Subslice) (afterClose : s.Pos) :
+    LinkTargetM s (LinkTarget s × s.Pos) := do
+  let src ← inlineSource
+  let afterCloseRest : InlineCursor s := src.cursor afterClose src.stopPos
   -- Inline form `(url)` takes precedence; on failure, fall back to shortcut. A link label or `[]`
   -- commits to the reference form, so an unresolved label is a hard failure; any other `[` leaves
   -- the shortcut form.
@@ -345,11 +352,12 @@ def parseLinkSuffix?
     shortcutForm
 where
   /-- The `[…](url)` / `![…](url "title")` form. -/
-  inlineForm (afterCloseRest : InlineCursor s) : Option (LinkTarget s × s.Pos) := do
+  inlineForm (afterCloseRest : InlineCursor s) : LinkTargetM s (LinkTarget s × s.Pos) := do
+    let src ← inlineSource
     let openParen ← afterCloseRest.charSubslice?
     let (destination, title?, parenEnd) ←
-      parseInlineLinkTarget? (src.cursor openParen.endExclusive stop)
-    let closeParen ← (src.cursor parenEnd stop).charSubslice?
+      parseInlineLinkTarget? (src.cursor openParen.endExclusive src.stopPos)
+    let closeParen ← (src.cursor parenEnd src.stopPos).charSubslice?
     return (.inline openParen destination closeParen title?, closeParen.endExclusive)
   /--
   The full `[…][label]` / `![…][label]` and collapsed `[…][]` / `![…][]` forms. `afterCloseRest` is
@@ -357,17 +365,17 @@ where
   that form, and it fails when the label doesn't match any definition. When the `[` doesn't begin a
   link label, the link text is tried as a shortcut reference instead.
   -/
-  referenceForm (afterCloseRest : InlineCursor s) : Option (LinkTarget s × s.Pos) := do
+  referenceForm (afterCloseRest : InlineCursor s) : LinkTargetM s (LinkTarget s × s.Pos) := do
     -- Without definitions, there's no sense attempting to parse the label because it can never
     -- resolve.
-    guard !refs.isEmpty
+    guard !(← refTable).isEmpty
     let labelOpen ← afterCloseRest.charSubslice?
     let afterOpen := afterCloseRest.drop1
     if afterOpen.front? == some ']' then
       -- Collapsed reference: the link text/image alt serves as the label.
       let labelClose ← afterOpen.charSubslice?
       let label ← interiorLabel?
-      let definition ← refs[normalizeLabel label]?
+      let definition ← linkRef label
       return (.reference definition label (.collapsed labelOpen labelClose),
         labelClose.endExclusive)
     else
@@ -375,16 +383,17 @@ where
       | none => shortcutForm
       | some (label, atClose) =>
         let labelClose ← atClose.charSubslice?
-        let definition ← refs[normalizeLabel label]?
+        let definition ← linkRef label
         return (.reference definition label (.full labelOpen labelClose), labelClose.endExclusive)
   /-- The shortcut `[…]` / `![…]` form: the bracket interior itself is the label. -/
-  shortcutForm : Option (LinkTarget s × s.Pos) := do
-    guard !refs.isEmpty
+  shortcutForm : LinkTargetM s (LinkTarget s × s.Pos) := do
+    guard !(← refTable).isEmpty
     let label ← interiorLabel?
-    let definition ← refs[normalizeLabel label]?
+    let definition ← linkRef label
     return (.reference definition label .shortcut, afterClose)
   /-- The lines of the bracket interior, if it is a link label. -/
-  interiorLabel? : Option (Lines s) := do
+  interiorLabel? : LinkTargetM s (Lines s) := do
+    let src ← inlineSource
     guard (isLinkLabel (src.cursor openBracket.endExclusive closeBracket.startInclusive))
     return src.linesBetween openBracket.endExclusive closeBracket.startInclusive
 
@@ -465,8 +474,11 @@ def InlineTokenizerState.init (src : InlineSource s) : InlineTokenizerState s wh
   textStart := src.startPos
   prevChar := ' '
 
-/-- The state monad for inline tokenization. -/
-abbrev TokenizeM (s : String.Slice) := StateM (InlineTokenizerState s)
+/--
+The monad for inline tokenization.
+-/
+abbrev TokenizeM (s : String.Slice) :=
+  ReaderT (InlineContext s) (StateM (InlineTokenizerState s))
 
 /--
 Emits the token `tok` for an inline construct that begins at `matchStart`, and resumes tokenizing
@@ -497,11 +509,12 @@ def skipChar : TokenizeM s Unit := modify fun st =>
 
 /--
 Whether `c` may begin an inline construct or a line ending: a backslash escape, inline code, an
-image or link bracket, an autolink or raw HTML, a character reference, or an emphasis delimiter.
+image or link bracket, an autolink or raw HTML, a character reference, an emphasis delimiter, or,
+with the `latexMath` extension, LaTeX math.
 -/
-def mayBeginInline (c : Char) : Bool :=
+def mayBeginInline (extensions : Extensions) (c : Char) : Bool :=
   c == '\\' || c == '`' || c == '!' || c == '[' || c == ']' || c == '<' || c == '&' || c == '*' ||
-  c == '_' || c == '\n' || c == '\r'
+  c == '_' || c == '\n' || c == '\r' || (extensions.latexMath && c == '$')
 
 /--
 Advances over plain text: the current character, which did not begin an inline construct, and the
@@ -510,11 +523,13 @@ characters after it that can't begin one.
 The state is updated once for the whole stretch, and the last character becomes the previous
 character for the flanking rules.
 -/
-def skipText : TokenizeM s Unit := modify fun st =>
-  let rest := st.rest.drop1.skipWhile (!mayBeginInline ·)
-  -- The stretch stays within one line, since a line ending may begin an inline construct, so the
-  -- character before the new position is the last one consumed.
-  { st with rest, prevChar := (rest.startPos.prev? >>= (·.get?)).getD st.rest.front }
+def skipText : TokenizeM s Unit := do
+  let extensions ← extensions
+  modify fun st =>
+    let rest := st.rest.drop1.skipWhile (!mayBeginInline extensions ·)
+    -- The stretch stays within one line, since a line ending may begin an inline construct, so the
+    -- character before the new position is the last one consumed.
+    { st with rest, prevChar := (rest.startPos.prev? >>= (·.get?)).getD st.rest.front }
 
 /--
 Advances multiple characters as plain text.
@@ -550,7 +565,11 @@ def parseCode? (cur : InlineCursor s) : TokenizeM s (Option (Inline s × s.Pos))
     if rest.front? == some '`' then
       let q := rest.startPos
       let (seqLen, qAfterSequence) := countSequence rest '`'
-      modify fun st => { st with lastBacktickSequence := st.lastBacktickSequence.insert seqLen q }
+      -- A search that began later may have passed a later sequence already, so the entry only moves
+      -- forward.
+      modify fun st =>
+        if Option.any (q ≤ ·) st.lastBacktickSequence[seqLen]? then st
+        else { st with lastBacktickSequence := st.lastBacktickSequence.insert seqLen q }
       if seqLen == openLen then
         let content := src.linesBetween p q
         let closeTicks := subsliceClamped q qAfterSequence
@@ -591,8 +610,9 @@ opener on the bracket stack and a link target or reference after the `]`, the to
 opener become the text of a link or image that replaces them; otherwise the `]` is literal text. The
 opener is popped in either case, and a completed link deactivates every earlier `[`.
 -/
-def closeBracket (refs : RefTable s) (src : InlineSource s) (closeBracket : s.Subslice) :
-    TokenizeM s Unit := do
+def closeBracket (closeBracket : s.Subslice) : TokenizeM s Unit := do
+  let ctx ← read
+  let src ← inlineSource
   let some opener := (← get).brackets.back? | skipChar
   let popOpener : TokenizeM s Unit := modify fun st => { st with brackets := st.brackets.pop }
   if !opener.active then
@@ -601,12 +621,12 @@ def closeBracket (refs : RefTable s) (src : InlineSource s) (closeBracket : s.Su
   else
     let stop := src.stopPos
     let afterClose := closeBracket.endExclusive
-    match parseLinkSuffix? refs src stop opener.openBracket closeBracket afterClose with
+    match (parseLinkSuffix? opener.openBracket closeBracket afterClose).run ctx with
     | some (target, after) =>
       -- The output is taken out of the state so that it is shrunk and extended in place.
       let out ← modifyGet fun st => (st.out, { st with out := #[] })
       let out := pushTokText out (← get).textStart closeBracket.startInclusive
-      let interior := processEmphasis (out.extract (opener.tokIdx + 1) out.size)
+      let interior := processEmphasis ctx (out.extract (opener.tokIdx + 1) out.size)
       let inl : Inline s :=
         match opener.bang? with
         | some bang => .image bang opener.openBracket interior closeBracket target
@@ -644,90 +664,109 @@ Tokenizes the inline content of a block into a flat sequence of already-finalize
 inlines and unprocessed emphasis delimiter sequences. Emphasis matching is deferred to
 `processEmphasis`.
 -/
-def tokenizeInlines (refs : RefTable s) (src : InlineSource s) : Array (InlineTok s) :=
+def tokenizeInlines : TokenizeM s (Array (InlineTok s)) := do
+  let src ← inlineSource
+  let extensions ← extensions
   let stop := src.stopPos
-  let go : TokenizeM s (Array (InlineTok s)) := do
-    repeat
-      let st ← get
-      -- The subslice of the current character, which exists exactly when input remains.
-      let some charSubslice := st.rest.charSubslice? | break
-      let c := st.rest.front
-      let cursor := st.rest.startPos
-      let restNext := st.rest.drop1
-      let cursorNext := restNext.startPos
-      if c == '\\' && !restNext.isEmpty then
-        let nextC := restNext.front
-        let restAfterEsc := restNext.drop1
-        let escapedNext := restAfterEsc.startPos
-        if let some (ending, afterEnding) := restNext.parseLineEnding? then
-          -- Backslash before a line ending is a hard line break (§6.7).
-          recognize (.inline (.hardBreak charSubslice ending)) cursor afterEnding ' '
-        else if isAsciiPunctuation nextC then
-          let escapedRange := (restNext.charSubslice?).getD (subsliceClamped cursorNext escapedNext)
-          recognize (.inline (.escape charSubslice escapedRange)) cursor restAfterEsc nextC
-        else
-          skipChar
-      else if c == '`' then
-        match ← parseCode? st.rest with
-        | some (inlineCode, after) =>
-          recognize (.inline inlineCode) cursor (src.cursor after stop) '`'
-        | none =>
-          let (_, seqEnd) := countSequence st.rest '`'
-          skipPast (src.cursor seqEnd stop) '`'
-      else if c == '!' && restNext.front? == some '[' then
-        match restNext.charSubslice? with
-        | some bracket => openBracket (some charSubslice) bracket restNext.drop1
-        | none => skipChar
-      else if c == '[' then
-        openBracket none charSubslice restNext
-      else if c == ']' then
-        closeBracket refs src charSubslice
-      else if c == '<' then
-        match parseAutolink? st.rest <|> parseRawHtml? st.rest with
-        | some (inl, after) =>
-          recognize (.inline inl) cursor (src.cursor after stop) '>'
-        | none => skipChar
-      else if c == '&' then
-        match parseCharacterReference? st.rest with
-        | some (entity, after) =>
-          recognize (.inline entity) cursor (src.cursor after stop) ';'
-        | none => skipChar
-      else if let some (ending, afterEnding) := st.rest.parseLineEnding? then
-        -- A line ending normalizes to a soft break (or, with two or more trailing spaces, a hard
-        -- break, §6.7). Per §4.8 paragraph-content normalization, trailing spaces before the line
-        -- ending are dropped in either case so they don't leak into the rendered output.
-        let mut q := cursor
-        let mut spaces := 0
-        while st.textStart < q do
-          match q.prev? with
-          | some p =>
-            if p.get? == some ' ' then
-              q := p
-              spaces := spaces + 1
-            else break
-          | none => break
-        -- `afterEnding` begins at the next line's first non-whitespace character, which is where
-        -- the tokenizer resumes; the break itself is the whole line ending.
-        if spaces >= 2 then
-          recognize (.inline (.hardBreak (subsliceClamped q cursor) ending)) q afterEnding ' '
-        else
-          recognize (.inline (.softBreak ending)) q afterEnding '\n'
-      else if c == '*' || c == '_' then
-        let (n, seqEnd) := countSequence st.rest c
-        let seqEndRest : InlineCursor s := src.cursor seqEnd stop
-        let nextC := seqEndRest.front?.getD ' '
-        let (canOpen, canClose) := classifyDelim c st.prevChar nextC
+  repeat
+    let st ← get
+    -- The subslice of the current character, which exists exactly when input remains.
+    let some charSubslice := st.rest.charSubslice? | break
+    let c := st.rest.front
+    let cursor := st.rest.startPos
+    let restNext := st.rest.drop1
+    let cursorNext := restNext.startPos
+    if c == '\\' && !restNext.isEmpty then
+      let nextC := restNext.front
+      let restAfterEsc := restNext.drop1
+      let escapedNext := restAfterEsc.startPos
+      if let some (ending, afterEnding) := restNext.parseLineEnding? then
+        -- Backslash before a line ending is a hard line break (§6.7).
+        recognize (.inline (.hardBreak charSubslice ending)) cursor afterEnding ' '
+      else if isAsciiPunctuation nextC then
+        let escapedRange := (restNext.charSubslice?).getD (subsliceClamped cursorNext escapedNext)
+        recognize (.inline (.escape charSubslice escapedRange)) cursor restAfterEsc nextC
+      else
+        skipChar
+    else if c == '`' then
+      match ← parseCode? st.rest with
+      | some (inlineCode, after) =>
+        recognize (.inline inlineCode) cursor (src.cursor after stop) '`'
+      | none =>
+        let (_, seqEnd) := countSequence st.rest '`'
+        skipPast (src.cursor seqEnd stop) '`'
+    else if c == '!' && restNext.front? == some '[' then
+      match restNext.charSubslice? with
+      | some bracket => openBracket (some charSubslice) bracket restNext.drop1
+      | none => skipChar
+    else if c == '[' then
+      openBracket none charSubslice restNext
+    else if c == ']' then
+      closeBracket charSubslice
+    else if c == '<' then
+      match parseAutolink? st.rest <|> parseRawHtml? st.rest with
+      | some (inl, after) =>
+        recognize (.inline inl) cursor (src.cursor after stop) '>'
+      | none => skipChar
+    else if c == '&' then
+      match parseCharacterReference? st.rest with
+      | some (entity, after) =>
+        recognize (.inline entity) cursor (src.cursor after stop) ';'
+      | none => skipChar
+    else if let some (ending, afterEnding) := st.rest.parseLineEnding? then
+      -- A line ending normalizes to a soft break (or, with two or more trailing spaces, a hard
+      -- break, §6.7). Per §4.8 paragraph-content normalization, trailing spaces before the line
+      -- ending are dropped in either case so they don't leak into the rendered output.
+      let mut q := cursor
+      let mut spaces := 0
+      while st.textStart < q do
+        match q.prev? with
+        | some p =>
+          if p.get? == some ' ' then
+            q := p
+            spaces := spaces + 1
+          else break
+        | none => break
+      -- `afterEnding` begins at the next line's first non-whitespace character, which is where
+      -- the tokenizer resumes; the break itself is the whole line ending.
+      if spaces >= 2 then
+        recognize (.inline (.hardBreak (subsliceClamped q cursor) ending)) q afterEnding ' '
+      else
+        recognize (.inline (.softBreak ending)) q afterEnding '\n'
+    else if c == '$' && extensions.latexMath then
+      -- A sequence of one or two dollar signs is a math delimiter (md4c's rules): it may open
+      -- after whitespace or punctuation, which includes the start of a line, and may close before
+      -- whitespace or punctuation, which includes the end of the input. Longer sequences are
+      -- text.
+      let (n, seqEnd) := countSequence st.rest c
+      let seqEndRest : InlineCursor s := src.cursor seqEnd stop
+      if n ≤ 2 then
+        let canOpen := isUnicodeWhitespace st.prevChar || isUnicodePunctuation st.prevChar
+        let canClose := match seqEndRest.front? with
+          | none => true
+          | some d => isUnicodeWhitespace d || isUnicodePunctuation d
         recognize
           (.delim { startPos := cursor, ch := c, origLen := n, canOpen, canClose })
           cursor seqEndRest c
       else
-        skipText
-    finalizeTokens
-  go.run' (.init src)
+        skipPast seqEndRest c
+    else if c == '*' || c == '_' then
+      let (n, seqEnd) := countSequence st.rest c
+      let seqEndRest : InlineCursor s := src.cursor seqEnd stop
+      let nextC := seqEndRest.front?.getD ' '
+      let (canOpen, canClose) := classifyDelim c st.prevChar nextC
+      recognize
+        (.delim { startPos := cursor, ch := c, origLen := n, canOpen, canClose })
+        cursor seqEndRest c
+    else
+      skipText
+  finalizeTokens
 
 /--
 Parses the inline content of `src`, typically a paragraph or a heading's content, into a flat array
 of inlines.
 -/
-public def parseInlines (refs : RefTable s) (src : InlineSource s) : Array (Inline s) :=
-  processEmphasis (tokenizeInlines refs src)
+public def parseInlines (refs : RefTable s) (src : InlineSource s)
+    (extensions : Extensions := {}) : Array (Inline s) :=
+  let ctx : InlineContext s := { refs, src, extensions }
+  processEmphasis ctx ((tokenizeInlines.run ctx).run' (.init src))

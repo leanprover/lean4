@@ -181,6 +181,10 @@ partial def renderInline (i : Inline s) : String :=
     escape (normalizeParaText r.copy)
   | .code _ content _ =>
     s!"<code>{escape content.text}</code>"
+  | .math _ content _ display =>
+    -- The element and attribute that md4c's HTML renderer emits, for comparison with it.
+    let type := if display then " type=\"display\"" else ""
+    s!"<x-equation{type}>{escape content.text}</x-equation>"
   | .italic _ content _ =>
     let inner := content.foldl (init := "") fun acc i => acc ++ renderInline i
     s!"<em>{inner}</em>"
@@ -297,8 +301,8 @@ def renderBlocks (blocks : Array (Block s)) : String :=
 Convenience: parse `source` as a Markdown document and render it as HTML,
 suitable for direct comparison with CommonMark's reference output.
 -/
-def renderToHtml (source : String) : String :=
-  renderBlocks (parseDocument source.toSlice)
+def renderToHtml (source : String) (extensions : Extensions := {}) : String :=
+  renderBlocks (parseDocument source.toSlice (extensions := extensions))
 
 end Lean.Markdown.Html
 
@@ -382,6 +386,8 @@ structure Opts where
   verbose : Bool := false
   /-- A JSON array of documents to render instead of running the suite. -/
   batch? : Option String := none
+  /-- Whether to enable the `latexMath` extension when rendering a batch. -/
+  math : Bool := false
 
 def Opts.spec (o : Opts) : String := o.spec?.getD "tests/markdown_conformance/spec.txt"
 
@@ -391,6 +397,7 @@ def readOpts (opts : Opts) : List String → IO Opts
     readOpts { opts with «section?» := some sec } more
   | "--verbose" :: more | "-v" :: more => readOpts { opts with verbose := true } more
   | "--batch" :: path :: more => readOpts { opts with batch? := some path } more
+  | "--math" :: more => readOpts { opts with math := true } more
   | spec :: more =>
     if spec.startsWith "-" then
       throw <| .userError s!"Unknown option {spec}"
@@ -403,7 +410,7 @@ def readOpts (opts : Opts) : List String → IO Opts
 Renders each document of the JSON array in the file at `path` and prints the renderings as a JSON
 array.
 -/
-def runBatch (path : String) : IO UInt32 := do
+def runBatch (path : String) (extensions : Extensions) : IO UInt32 := do
   let source ← IO.FS.readFile path
   match Lean.Json.parse source >>= (·.getArr?) with
   | .error e =>
@@ -416,13 +423,13 @@ def runBatch (path : String) : IO UInt32 := do
       | .error e =>
         IO.eprintln s!"{path}: {e}"
         return 2
-      | .ok md => renderings := renderings.push (Lean.Json.str (Html.renderToHtml md))
+      | .ok md => renderings := renderings.push (Lean.Json.str (Html.renderToHtml md extensions))
     IO.println (Lean.Json.arr renderings).compress
     return 0
 
 public def main (args : List String) : IO UInt32 := do
   let opts ← readOpts {} args
-  if let some path := opts.batch? then return ← runBatch path
+  if let some path := opts.batch? then return ← runBatch path { latexMath := opts.math }
   let path := opts.spec
   let source ← IO.FS.readFile path
   let entries := extractEntries source

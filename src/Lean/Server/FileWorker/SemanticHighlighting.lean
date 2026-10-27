@@ -456,6 +456,9 @@ where
       out := pushDelimiter out openAngle
       out := pushDelimiter out closeAngle
       out := pushTok out url .markupUrl
+    | .math .. =>
+      -- The server doesn't enable extensions
+      pure ()
     | .html lines =>
       out := pushLines out lines .markupInlineCode (priority := 6)
     return out

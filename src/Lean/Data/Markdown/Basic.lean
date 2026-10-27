@@ -66,6 +66,16 @@ public instance : LT Columns where
 
 end Columns
 
+/--
+Non-standard extensions that can be optionally enabled.
+-/
+public structure Extensions where
+  /--
+  LaTeX math: `$…$` for inline math and `$$…$$` for display math.
+  -/
+  latexMath : Bool := false
+deriving Inhabited
+
 /-- The marker character of a bullet list. -/
 public inductive BulletKind where
   /-- A `*`-marked bullet list. -/
@@ -364,6 +374,30 @@ public structure InlineCodeContent (s : String.Slice) where
 deriving Inhabited
 
 /--
+The content of LaTeX math between the dollar signs. The lines are verbatim source.
+
+Use `MathContent.text` to extract the normalized single-line string representation.
+-/
+public structure MathContent (s : String.Slice) where
+  /-- The source lines. -/
+  lines : Lines s
+deriving Inhabited
+
+/--
+The normalized single-line string representation of LaTeX math.
+
+Leading spaces and tabs are removed from all lines after the first, and line endings become spaces
+unless the line already ends with a space.
+-/
+public def MathContent.text {s : String.Slice} (content : MathContent s) : String := Id.run do
+  let isBlank (c : Char) := c == ' ' || c == '\t'
+  let mut out := content.lines.first.copy
+  for line in content.lines.toArray[1:] do
+    if !out.endsWith " " then out := out.push ' '
+    out := out ++ (line.copy.dropWhile isBlank).toString
+  return out
+
+/--
 The string that inline code denotes (CommonMark §6.1): its lines joined by spaces, with one space
 removed from each end when the result begins and ends with a space and is not all spaces.
 -/
@@ -406,6 +440,14 @@ public inductive Inline (s : String.Slice) where
   a `mailto:` prefix when rendered to HTML.
   -/
   | autolink (openAngle : s.Subslice) (url : s.Subslice) (closeAngle : s.Subslice) (isEmail : Bool)
+  /--
+  LaTeX math, produced only when the `latexMath` extension is enabled.
+
+  This extension uses `$…$` for inline math and `$$…$$` for display math, with `display` set to
+  `true` for the latter.
+  -/
+  | math (openDollars : s.Subslice) (content : MathContent s) (closeDollars : s.Subslice)
+    (display : Bool)
   /--
   Raw HTML (CommonMark §6.6): an open or closing tag, a comment, a processing instruction, a
   declaration, or a `CDATA` section. The HTML is stored verbatim.
@@ -541,6 +583,7 @@ public def Inline.extent : Inline s → s.Subslice
     subsliceClamped bang.startInclusive (target.stop?.getD closeBracket.endExclusive)
   | .hardBreak marker newline => span marker newline
   | .autolink openAngle _ closeAngle _ => span openAngle closeAngle
+  | .math openDollars _ closeDollars _ => span openDollars closeDollars
   | .html lines => lines.extent
   | .softBreak range => range
   | .escape backslash char => span backslash char
@@ -553,9 +596,13 @@ public def Inline.extentOf? (inlines : Array (Inline s)) : Option s.Subslice := 
   return span first.extent last.extent
 
 /--
-The plain text of inline content, as for an image's `alt` attribute: markup is dropped; text,
-escapes, and entities contribute the text they denote; inline code contributes its content; line
-breaks contribute a newline; autolinks contribute their URL; and raw HTML contributes nothing.
+The plain text of inline content, as for an image's `alt` attribute:
+* Markup is dropped
+* Text, escapes, and entities are mapped to their plain text
+* Inline code and math are mapped to their literal content
+* Line breaks are mapped to newlines
+* Autolinks are mapped to their URLs
+* Raw HTML is deleted
 -/
 public partial def Inline.plainText (inlines : Array (Inline s)) : String :=
   inlines.foldl (init := "") fun acc i => acc ++ go i
@@ -563,6 +610,7 @@ where
   go : Inline s → String
     | .text r => r.copy
     | .code _ content _ => content.text
+    | .math _ content _ _ => content.text
     | .italic _ cs _ | .bold _ cs _ | .link _ cs _ _ | .image _ _ cs _ _ => plainText cs
     | .hardBreak .. | .softBreak _ => "\n"
     | .autolink _ url _ _ => url.copy

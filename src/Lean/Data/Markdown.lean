@@ -21,4 +21,7 @@ it to provide semantic tokens inside Markdown docstrings. The entry point is
 
 The implementation follows CommonMark 0.31.2, with one deviation: link labels are case folded for
 ASCII, Latin-1, and Greek letters, and compared case-sensitively for all other characters.
+
+The parser additionally supports one optional non-standard extension: LaTeX-style math in `$…$` and
+`$$…$$`.
 -/

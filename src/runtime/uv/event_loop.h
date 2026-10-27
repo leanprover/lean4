@@ -40,10 +40,11 @@ class lthread;
 //
 // When the task manager shuts down, `stop` ends the loop thread and tears the loop down: it closes every
 // handle and runs the loop until everything has finished. No Lean code runs during the teardown.
-// Everything the loop held is released once the loop is closed, including promises that are still
-// pending: no worker is left by then, so the task manager discards their continuations, `(sync := true)`
-// ones included. When the task manager restarts, `start` starts a fresh loop, and a handle the teardown
-// closed stays closed.
+// Everything the loop held is released once the loop is closed, except promises that are still pending,
+// which the next teardown releases. Releasing one discards its continuations, since no worker is left by
+// then, and work that only such a continuation could have finished, such as a select waiting on a
+// channel, stays behind as a reference cycle. Kept, it is still reachable when the process exits. When
+// the task manager restarts, `start` starts a fresh loop, and a handle the teardown closed stays closed.
 class event_loop {
 public:
     uv_loop_t * m_loop = nullptr;
@@ -60,7 +61,8 @@ public:
     // Whether the loop is still running, as opposed to torn down by `stop`. Call with the lock held.
     bool running() const { return m_running; }
 
-    // Hands a reference to the loop during the teardown. Call with the lock held.
+    // Hands a reference to the loop during the teardown: a pending promise is kept until the next
+    // teardown, anything else is released once the loop is closed. Call with the lock held.
     void exit_drop(owned_ref ref);
 
 private:
@@ -75,6 +77,8 @@ private:
     lthread *        m_thread = nullptr;
     // What the teardown releases once the loop is closed.
     std::vector<owned_ref> m_released;
+    // The pending promises of the last teardown. Never freed, so that they are reachable at exit.
+    std::vector<owned_ref> * m_kept = nullptr;
 
     void lock();
     void unlock();

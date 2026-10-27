@@ -23,6 +23,14 @@ namespace lean {
 class event_loop_guard;
 class lthread;
 
+// A threadpool request that `stop` cancels at exit, linked into the loop's list from a successful submit
+// until its callback runs.
+struct uv_tracked_req {
+    uv_req_t *       m_req = nullptr;
+    uv_tracked_req * m_prev = nullptr;
+    uv_tracked_req * m_next = nullptr;
+};
+
 // The libuv loop, shared by all threads. libuv is not thread-safe, so the loop thread and every other
 // thread take turns holding `m_mutex`, and every libuv call and handle field is accessed under it:
 //
@@ -39,12 +47,13 @@ class lthread;
 //   `m_cond` only between iterations, at depth 1, where waiting fully releases the mutex.
 //
 // When the task manager shuts down, `stop` ends the loop thread and tears the loop down: it closes every
-// handle and runs the loop until everything has finished. No Lean code runs during the teardown.
-// Everything the loop held is released once the loop is closed, except promises that are still pending,
-// which the next teardown releases. Releasing one discards its continuations, since no worker is left by
-// then, and work that only such a continuation could have finished, such as a select waiting on a
-// channel, stays behind as a reference cycle. Kept, it is still reachable when the process exits. When
-// the task manager restarts, `start` starts a fresh loop, and a handle the teardown closed stays closed.
+// handle, cancels the threadpool requests that have not started, and runs the loop until everything has
+// finished. No Lean code runs during the teardown. Everything the loop held is released once the loop is
+// closed, except promises that are still pending, which the next teardown releases. Releasing one
+// discards its continuations, since no worker is left by then, and work that only such a continuation
+// could have finished, such as a select waiting on a channel, stays behind as a reference cycle. Kept, it
+// is still reachable when the process exits. When the task manager restarts, `start` starts a fresh
+// loop, and a handle the teardown closed stays closed.
 class event_loop {
 public:
     uv_loop_t * m_loop = nullptr;
@@ -65,6 +74,11 @@ public:
     // teardown, anything else is released once the loop is closed. Call with the lock held.
     void exit_drop(owned_ref ref);
 
+    // Links or unlinks a submitted threadpool request. Call with the lock held.
+    void track(uv_tracked_req * link, uv_req_t * req);
+
+    void untrack(uv_tracked_req * link);
+
 private:
     uv_loop_t        m_loop_storage;
     uv_mutex_t       m_mutex;
@@ -75,6 +89,7 @@ private:
     uv_mutex_t       m_async_mutex;
     bool             m_running = false;
     lthread *        m_thread = nullptr;
+    uv_tracked_req * m_requests = nullptr;
     // What the teardown releases once the loop is closed.
     std::vector<owned_ref> m_released;
     // The pending promises of the last teardown. Never freed, so that they are reachable at exit.

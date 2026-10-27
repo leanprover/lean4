@@ -76,36 +76,34 @@ def handleInvariantSubgoals (subgoals : List MVarId) : VCGenM (Array MVarId) := 
       others := others.push sg
   return others
 
-/--
-Simplify the target of a verification condition with `Context.simpMethods`, unless the target
-contains a program, which `until` or a missing spec leaves behind.
--/
+/-- Simplify the target of a verification condition with `Context.simpMethods`. -/
 def simpVC (goal : MVarId) : VCGenM Sym.SimpGoalResult := goal.withContext do
   let some methods := (← read).simpMethods | return .noProgress
   let target ← goal.getType
-  if (target.find? (·.isAppOf ``Std.WP.wp)).isSome then return .noProgress
   let (result, simpState') ← Sym.Simp.SimpM.run (Sym.Simp.simp target) methods {} (← get).simpState
   modify fun s => { s with simpState := simpState' }
   result.toSimpGoalResult goal
 
 /--
 Called when decomposing the goal further did not succeed; in this case we emit a VC for the goal.
+`simp` rewrites the VC only when `reason` says that nothing is left to decompose, so a VC that
+`until`, a missing spec or the step limit leaves behind keeps its program as written.
 Invariant subgoals are handled separately by `handleInvariantSubgoals` directly inside `work`,
 so they never reach this path.
 -/
-public def emitVC (goal : Grind.Goal) : VCGenM Unit := do
-  let mvarId ← elimTopPre goal.mvarId
-  -- An invariant from an `invariants` alternative is assigned while the target is built, as in
-  -- `?inv pref suff (a, b)`. Instantiating it lets `simp` reduce the body of the invariant.
-  let target ← mvarId.getType
-  let target' ← instantiateMVarsS target
-  let mvarId ← if isSameExpr target target' then pure mvarId
-    else mvarId.replaceTargetDefEqFast target'
-  let mut goal := { goal with mvarId }
-  match ← simpVC goal.mvarId with
-  | .closed => return
-  | .goal mvarId => goal := { goal with mvarId }
-  | .noProgress => pure ()
+public def emitVC (goal : Grind.Goal) (reason : SolveResult.StopReason) : VCGenM Unit := do
+  let mut goal := { goal with mvarId := ← elimTopPre goal.mvarId }
+  if reason matches .noEntailment .. | .noProgress .. then
+    -- An invariant from an `invariants` alternative is assigned while the target is built, as in
+    -- `?inv pref suff (a, b)`. Instantiating it lets `simp` reduce the body of the invariant.
+    let target ← goal.mvarId.getType
+    let target' ← instantiateMVarsS target
+    unless isSameExpr target target' do
+      goal := { goal with mvarId := ← goal.mvarId.replaceTargetDefEqFast target' }
+    match ← simpVC goal.mvarId with
+    | .closed => return
+    | .goal mvarId => goal := { goal with mvarId }
+    | .noProgress => pure ()
   goal ← processHypotheses goal
   if goal.inconsistent then return
   let some mvarId ← cleanupVC goal.mvarId | return
@@ -128,8 +126,8 @@ public def work (scope : Scope) (goal : Grind.Goal) : VCGenM Unit := do
     let goal ← processHypotheses s.goal
     if goal.inconsistent then continue
     match ← solve s.scope goal.mvarId with
-    | .stop _reason =>
-      emitVC goal
+    | .stop reason =>
+      emitVC goal reason
     | .goals scope subgoals =>
       -- Handle invariant subgoals eagerly here, so that VC subgoals popped
       -- from the worklist later see the invariant MVar already assigned.

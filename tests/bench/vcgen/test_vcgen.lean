@@ -26,6 +26,7 @@ Each case exercises a different aspect of the VC generation:
 - `IfsJP`: several `if`s with a shared continuation, exercising `vcgen +jp`
 - `MatchesJP`: several `match`es with a shared continuation, exercising `vcgen +jp` on matchers
 - `WideJP`: one join point reached by many jumps, exercising `vcgen +jp` on wide disjunctions
+- `LoopInvariant`: `vcgen … with finish` re-establishing a loop invariant over `BitVec 64` registers
 -/
 
 open Lean Order Parser Meta Elab Tactic Sym Std WP
@@ -66,6 +67,10 @@ set_option maxHeartbeats 10000000
     `(tactic| vcgen +jp) `(tactic| sorry) [3]
   runBenchUsingTactic ``WideJP.Goal [``WideJP.wide, ``WideJP.chain]
     `(tactic| vcgen +jp) `(tactic| sorry) [4]
+  runBenchUsingTactic ``LoopInvariant.Goal [``LoopInvariant.prog, ``LoopInvariant.exits]
+    `(tactic| vcgen simplifying_assumptions [LoopInvariant.M.rdi_mk, LoopInvariant.M.rdx_mk,
+      LoopInvariant.M.rcx_mk, LoopInvariant.M.r8_mk, LoopInvariant.M.lt_mk]
+      with finish -abstractProof) `(tactic| fail) [2]
 
 -- Verify `simplifying_assumptions [Nat.add_assoc]` works end-to-end with `simp only` unfolding.
 /--

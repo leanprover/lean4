@@ -6,6 +6,7 @@ import Cases.DiteSplit
 import Cases.GetThrowSet
 import Cases.IfsJP
 import Cases.LetBinding
+import Cases.LoopInvariant
 import Cases.MatchesJP
 import Cases.MatchIota
 import Cases.MatchSplit

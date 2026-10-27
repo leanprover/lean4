@@ -1575,8 +1575,6 @@ def run (args : SpawnArgs) (input? : Option String := none) : IO String := do
 /--
 Terminates the current process with the provided exit code. `0` indicates success, all other values
 indicate failure.
-
-Unlike returning from `main`, this neither waits for running tasks nor tears down the libuv event loop.
 -/
 @[extern "lean_io_exit"] opaque exit : UInt8 → IO α
 

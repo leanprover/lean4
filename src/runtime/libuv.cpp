@@ -23,7 +23,6 @@ extern "C" void initialize_libuv() {
     global_ev.start();
 }
 
-// Tears the event loop down. `~task_manager` calls this once the workers have finished.
 extern "C" void finalize_libuv() {
     global_ev.stop();
 }

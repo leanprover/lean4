@@ -5,7 +5,6 @@ Author: Sofia Rodrigues
 */
 #include "runtime/uv/signal.h"
 #include "runtime/uv/util.h"
-#include <memory>
 #include <new>
 
 namespace lean {
@@ -17,8 +16,6 @@ static void signal_finalizer(void* ptr) {
 
     // Released after the unlock.
     owned_ref promise;
-    // Freed after the unlock when the teardown at exit already closed the handle.
-    std::unique_ptr<lean_uv_signal_object> closed_at_exit;
 
     {
         event_loop_guard guard;
@@ -28,8 +25,9 @@ static void signal_finalizer(void* ptr) {
         // While a promise is pending the loop holds a reference, so the signal cannot be finalized.
         lean_assert(promise.get() == nullptr || promise_is_resolved(promise.get()));
 
+        // The teardown at exit already closed the handle.
         if (uv_is_closing((uv_handle_t*)&signal->m_uv_signal)) {
-            closed_at_exit.reset(signal);
+            delete signal;
             return;
         }
 

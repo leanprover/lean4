@@ -39,10 +39,9 @@ class lthread;
 //   `m_cond` only between iterations, at depth 1, where waiting fully releases the mutex.
 //
 // At exit, `stop` ends the loop thread and tears the loop down: it closes every handle and runs the
-// loop until everything has finished. No Lean code runs during the teardown. A promise that is still
-// pending is never resolved or released: it stays reachable from a list that is never freed, so code
-// waiting on it keeps waiting instead of failing. Everything else the loop held is released once the
-// loop is closed.
+// loop until everything has finished. No Lean code runs during the teardown. Everything the loop held
+// is released once the loop is closed, including promises that are still pending: no worker is left by
+// then, so the task manager discards their continuations, `(sync := true)` ones included.
 class event_loop {
 public:
     uv_loop_t * m_loop;
@@ -59,20 +58,21 @@ public:
     // Whether the loop is still running, as opposed to torn down by `stop`. Call with the lock held.
     bool running() const { return m_running; }
 
-    // Hands a reference to the loop during the teardown: a pending promise is kept forever, anything
-    // else is released once the loop is closed. Call with the lock held.
+    // Hands a reference to the loop during the teardown. Call with the lock held.
     void exit_drop(owned_ref ref);
 
 private:
     uv_loop_t        m_loop_storage;
     uv_mutex_t       m_mutex;
     uv_cond_t        m_cond;
-    uv_async_t       m_async;          // Interrupts `uv_run` for a waiting thread.
-    uv_mutex_t       m_async_mutex;    // Orders every send on `m_async` before `stop` closes it.
-    std::atomic<int> m_waiters;        // Threads waiting for `m_mutex`.
+    uv_async_t       m_async;   // Interrupts `uv_run` for a waiting thread.
+    std::atomic<int> m_waiters; // Threads waiting for `m_mutex`.
+    // Orders every send on `m_async` before `stop` closes it.
+    uv_mutex_t       m_async_mutex;
     bool             m_running = false;
     lthread *        m_thread = nullptr;
-    std::vector<owned_ref> m_released; // What the teardown releases once the loop is closed.
+    // What the teardown releases once the loop is closed.
+    std::vector<owned_ref> m_released;
 
     void lock();
     void unlock();

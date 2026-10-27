@@ -35,13 +35,11 @@ static void udp_socket_finalizer(void* ptr) {
         lean_always_assert(ref->get() == nullptr);
     }
 
-    // Freed after the unlock when the teardown at exit already closed the handle.
-    std::unique_ptr<lean_uv_udp_socket_object> closed_at_exit;
-
     event_loop_guard guard;
 
+    // The teardown at exit already closed the handle.
     if (uv_is_closing((uv_handle_t*)&udp_socket->m_uv_udp)) {
-        closed_at_exit.reset(udp_socket);
+        delete udp_socket;
         return;
     }
 

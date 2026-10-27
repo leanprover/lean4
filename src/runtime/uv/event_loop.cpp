@@ -10,7 +10,6 @@ Author: Sofia Rodrigues, Henrik Böving
 #include "runtime/uv/timer.h"
 #include "runtime/uv/udp.h"
 #include "runtime/thread.h"
-#include <csignal>
 #include <cstdio>
 #include <type_traits>
 
@@ -44,16 +43,14 @@ void event_loop::start() {
 void event_loop::lock() {
     if (uv_mutex_trylock(&m_mutex) != 0) {
         m_waiters++;
-        {
-            // `stop` closes `m_async` once it is no longer running.
-            uv_mutex_lock(&m_async_mutex);
-            if (m_running) {
-                int result = uv_async_send(&m_async);
-                (void)result;
-                lean_assert(result == 0);
-            }
-            uv_mutex_unlock(&m_async_mutex);
+        // `stop` closes `m_async` once it is no longer running.
+        uv_mutex_lock(&m_async_mutex);
+        if (m_running) {
+            int result = uv_async_send(&m_async);
+            (void)result;
+            lean_assert(result == 0);
         }
+        uv_mutex_unlock(&m_async_mutex);
         uv_mutex_lock(&m_mutex);
         m_waiters--;
     }
@@ -79,7 +76,7 @@ void event_loop::run() {
     while (true) {
         uv_mutex_lock(&m_mutex);
 
-        while (m_waiters != 0 && m_running) {
+        while (m_waiters != 0) {
             uv_cond_wait(&m_cond, &m_mutex);
         }
 
@@ -98,18 +95,7 @@ void event_loop::run() {
 }
 
 void event_loop::exit_drop(owned_ref ref) {
-    lean_object * o = ref.get();
-    if (o == nullptr) {
-        return;
-    }
-    if (lean_is_promise(o) && !promise_is_resolved(o)) {
-        // Releasing it would resolve it with `none` and run its continuations; a `result!` on it would
-        // then fail instead of waiting.
-        static auto * kept = new std::vector<lean_object *>();
-        kept->push_back(ref.release());
-    } else {
-        m_released.push_back(std::move(ref));
-    }
+    m_released.push_back(std::move(ref));
 }
 
 // Hands the Lean references of a handle's object to the loop: the loop's own references to the object,
@@ -140,11 +126,9 @@ static void close_for_exit(uv_handle_t * handle, void *) {
             drop_handle_refs<lean_uv_signal_object>(handle);
             break;
         case UV_TCP:
-            uv_read_stop((uv_stream_t *)handle);
             drop_handle_refs<lean_uv_tcp_socket_object>(handle);
             break;
         case UV_UDP:
-            uv_udp_recv_stop((uv_udp_t *)handle);
             drop_handle_refs<lean_uv_udp_socket_object>(handle);
             break;
         case UV_ASYNC:
@@ -166,8 +150,6 @@ void event_loop::stop() {
     uv_mutex_lock(&m_async_mutex);
     m_running = false;
     uv_mutex_unlock(&m_async_mutex);
-    // Wakes the loop thread if it waits for other threads to take the lock.
-    uv_cond_broadcast(&m_cond);
     unlock();
 
     // Waits for a callback the loop thread is running, including a `(sync := true)` continuation, so one

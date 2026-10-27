@@ -1617,6 +1617,24 @@ extern "C" LEAN_EXPORT lean_obj_res lean_nat_big_shiftr(b_lean_obj_arg a1, b_lea
     return mpz_to_nat(r);
 }
 
+// Computes `b ^ e` in machine words, by repeated squaring, if the result is at most
+// `LEAN_MAX_SMALL_NAT`; returns `false` if it is larger.
+static bool nat_pow_small(size_t b, size_t e, size_t & r) {
+    r = 1;
+    if (e == 0 || b == 1) return true;
+    if (b == 0) { r = 0; return true; }
+    while (true) {
+        if (e & 1) {
+            if (lean_usize_mul_would_overflow(r, b) || r * b > LEAN_MAX_SMALL_NAT) return false;
+            r *= b;
+        }
+        e >>= 1;
+        if (e == 0) return true;
+        if (lean_usize_mul_would_overflow(b, b) || b * b > LEAN_MAX_SMALL_NAT) return false;
+        b *= b;
+    }
+}
+
 extern "C" LEAN_EXPORT lean_obj_res lean_nat_pow(b_lean_obj_arg a1, b_lean_obj_arg a2) {
     if (!lean_is_scalar(a2) || lean_unbox(a2) > UINT_MAX) {
         // The exponent does not fit in a machine word, so the result would
@@ -1629,10 +1647,14 @@ extern "C" LEAN_EXPORT lean_obj_res lean_nat_pow(b_lean_obj_arg a1, b_lean_obj_a
         }
         lean_internal_panic("Nat.pow exponent is too big");
     }
-    if (lean_is_scalar(a1))
+    if (lean_is_scalar(a1)) {
+        size_t r;
+        if (nat_pow_small(lean_unbox(a1), lean_unbox(a2), r))
+            return lean_box(r);
         return mpz_to_nat(mpz::of_size_t(lean_unbox(a1)).pow(lean_unbox(a2)));
-    else
+    } else {
         return mpz_to_nat(mpz_value(a1).pow(lean_unbox(a2)));
+    }
 }
 
 extern "C" LEAN_EXPORT lean_obj_res lean_nat_powmod(b_lean_obj_arg b, b_lean_obj_arg e, b_lean_obj_arg m) {

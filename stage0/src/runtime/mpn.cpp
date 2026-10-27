@@ -136,15 +136,15 @@ public:
     }
 
     void resize(size_t nsz, const mpn_digit & elem = 0) {
-        buffer<mpn_digit>::resize(nsz, elem);
+        buffer<mpn_digit>::resize(static_cast<unsigned>(nsz), elem);
     }
 
     mpn_digit & operator[](size_t idx) {
-        return buffer<mpn_digit>::operator[](idx);
+        return buffer<mpn_digit>::operator[](static_cast<unsigned>(idx));
     }
 
     const mpn_digit & operator[](size_t idx) const {
-        return buffer<mpn_digit>::operator[](idx);
+        return buffer<mpn_digit>::operator[](static_cast<unsigned>(idx));
     }
 };
 

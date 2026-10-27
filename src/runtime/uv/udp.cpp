@@ -204,8 +204,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_recv(b_obj_arg socket, uint64_t 
     };
 
     auto recv_cb = [](uv_udp_t *handle, ssize_t nread, const uv_buf_t *buf, const struct sockaddr *addr, unsigned flags) {
-        // libuv before 1.45 can still report a receive on Windows once the handle is no longer receiving.
-        if ((nread == 0 && addr == nullptr) || !global_ev.running() || uv_is_closing((uv_handle_t*)handle)) return;
+        if (nread == 0 && addr == nullptr) return;
 
         uv_udp_recv_stop(handle);
 
@@ -287,9 +286,8 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_wait_readable(b_obj_arg socket) 
 
     auto recv_cb = [](uv_udp_t* handle, ssize_t nread, const uv_buf_t *buf, const struct sockaddr *addr, unsigned flags) {
         // `nread == 0` without an address is libuv's equivalent of `EAGAIN`: the socket is not
-        // actually readable, so keep waiting rather than resolving the promise. libuv before 1.45 can still
-        // report a receive on Windows once the handle is no longer receiving.
-        if ((nread == 0 && addr == nullptr) || !global_ev.running() || uv_is_closing((uv_handle_t*)handle)) return;
+        // actually readable, so keep waiting rather than resolving the promise.
+        if (nread == 0 && addr == nullptr) return;
 
         uv_udp_recv_stop(handle);
 

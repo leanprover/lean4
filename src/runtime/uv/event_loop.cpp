@@ -141,17 +141,6 @@ static void close_for_exit(uv_handle_t * handle, void *) {
             break;
         case UV_TCP:
             uv_read_stop((uv_stream_t *)handle);
-#ifdef _WIN32
-            {
-                // A write to a peer that stopped reading would keep the socket open forever. libuv cancels
-                // writes with `CancelIo`, which only reaches I/O issued by the calling thread, and the
-                // writes were issued by worker threads that have exited.
-                uv_os_fd_t fd;
-                if (uv_fileno(handle, &fd) == 0) {
-                    CancelIoEx(fd, nullptr);
-                }
-            }
-#endif
             drop_handle_refs<lean_uv_tcp_socket_object>(handle);
             break;
         case UV_UDP:
@@ -201,12 +190,6 @@ void event_loop::stop() {
         if (result != 0) {
             fprintf(stderr, "warning: libuv event loop did not close at exit: %s\n", uv_strerror(result));
         }
-
-#ifndef _WIN32
-        // Closing a signal handle installs the default action, which for a `SIGPIPE` handle would undo
-        // the runtime ignoring it.
-        signal(SIGPIPE, SIG_IGN);
-#endif
 
         released = std::move(m_released);
     }

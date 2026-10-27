@@ -118,6 +118,12 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_dns_get_info(b_obj_arg name, b_obj_a
 
     {
         event_loop_guard guard;
+
+        if (guard.stopped()) {
+            delete req;
+            return io_result_mk_uv_error(UV_ECANCELED);
+        }
+
         result = uv_getaddrinfo(global_ev.m_loop, &req->uv, on_resolved, name_cstr, service_cstr, &hints);
     }
 
@@ -163,6 +169,12 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_dns_get_name(b_obj_arg addr) {
     int result;
     {
         event_loop_guard guard;
+
+        if (guard.stopped()) {
+            delete req;
+            return io_result_mk_uv_error(UV_ECANCELED);
+        }
+
         result = uv_getnameinfo(global_ev.m_loop, &req->uv, on_resolved, (const struct sockaddr*)&addr_ptr, 0);
     }
 

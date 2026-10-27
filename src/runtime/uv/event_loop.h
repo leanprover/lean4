@@ -38,18 +38,20 @@ class lthread;
 // - The mutex is recursive, since callbacks call back into the bindings. The loop thread waits on
 //   `m_cond` only between iterations, at depth 1, where waiting fully releases the mutex.
 //
-// At exit, `stop` ends the loop thread and tears the loop down: it closes every handle and runs the
-// loop until everything has finished. No Lean code runs during the teardown. Everything the loop held
-// is released once the loop is closed, including promises that are still pending: no worker is left by
-// then, so the task manager discards their continuations, `(sync := true)` ones included.
+// When the task manager shuts down, `stop` ends the loop thread and tears the loop down: it closes every
+// handle and runs the loop until everything has finished. No Lean code runs during the teardown.
+// Everything the loop held is released once the loop is closed, including promises that are still
+// pending: no worker is left by then, so the task manager discards their continuations, `(sync := true)`
+// ones included. When the task manager restarts, `start` starts a fresh loop, and a handle the teardown
+// closed stays closed.
 class event_loop {
 public:
-    uv_loop_t * m_loop;
+    uv_loop_t * m_loop = nullptr;
 
-    // Initializes the loop and starts the loop thread.
+    // Starts a fresh loop and the loop thread, at startup and again after each `stop`.
     void start();
 
-    // Tears the loop down at exit. Called once, after the task manager's workers have finished.
+    // Tears the loop down. Called after the task manager's workers have finished.
     void stop();
 
     // Whether the loop has work other than `m_async`.
@@ -92,6 +94,15 @@ public:
     ~event_loop_guard() { global_ev.unlock(); }
     event_loop_guard(event_loop_guard const &) = delete;
     event_loop_guard & operator=(event_loop_guard const &) = delete;
+
+    // Whether the loop is torn down, between a `stop` and the next `start`. An FFI entry point then fails
+    // with `UV_ECANCELED` instead of calling libuv.
+    bool stopped() const { return !global_ev.running(); }
+
+    // Whether `handle` can no longer be used: the loop is torn down, or a teardown closed the handle before
+    // the loop was started again. A finalizer closes only handles that Lean code can no longer reach.
+    template<class H>
+    bool closed(H * handle) const { return stopped() || uv_is_closing((uv_handle_t*)handle); }
 };
 
 // The first thing a request callback does: during the teardown at exit it hands the request's

@@ -77,6 +77,12 @@ partial def shouldExtractLetValue (isRoot : Bool) (v : LetValue .pure) : M Bool 
       return false
     if hasNeverExtractAttribute (← getEnv) name then
       return false
+    if name == ``unsafeCast && args.size == 3 then
+      match args[2]! with
+      | .fvar fvarId =>
+        let some letDecl ← findLetDecl? fvarId | return false
+        return ← shouldExtractLetValue isRoot letDecl.value
+      | .erased | .type _ => return !isRoot
     if isRoot then
       if let some constInfo := (← getEnv).find? name then
         let shouldExtract := match constInfo with

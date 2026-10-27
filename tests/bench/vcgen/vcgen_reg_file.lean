@@ -16,4 +16,4 @@ set_option maxHeartbeats 100000000
 
 -- `vcgen` folds the state into a `Regs.mk` literal with the `@[vcgen_simp]` theorems.
 #eval runBenchUsingTactic ``Goal [``loop, ``step] `(tactic| vcgen with finish) `(tactic| fail)
-  [4, 16, 64]
+  [128, 256, 384]

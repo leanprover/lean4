@@ -187,6 +187,19 @@ private def natSemiring : Expr :=
   mkApp2 (mkConst ``Grind.CommSemiring.toSemiring [0]) Nat.mkType (mkConst ``Grind.instCommSemiringNat)
 
 /--
+Whether the environment contains the constants of the builtin instance `inst`. `grind` also runs in
+`Init` modules that do not import the modules declaring the instances, and resolution handles them.
+
+Only constants and applications are visited, which is correct only because the builtin instances
+are applications of constants, without binders, `let`s or projections. A shared subterm is visited
+once per occurrence, which is cheap because the instances are small.
+-/
+private def isDeclared (env : Environment) : Expr → Bool
+  | .const n _ => env.contains n
+  | .app f a => isDeclared env f && isDeclared env a
+  | _ => true
+
+/--
 Queries of `builtinAlgebraicInsts` with output parameters or a parameter: `IsCharP α s ?n` for the
 semiring `s` of the classified `Int` and `Nat`, and `PowIdentity α ?s ?p`, which they do not have.
 -/
@@ -196,6 +209,7 @@ private def builtinOutParamInst? (type : Expr) : MetaM (Option (Option Expr)) :=
     let inst ← if α.isConstOf ``Int && s == intSemiring then pure (mkConst ``Grind.instIsCharPIntOfNatNat)
       else if α.isConstOf ``Nat && s == natSemiring then pure (mkConst ``Grind.instIsCharPNatOfNat)
       else return none
+    unless isDeclared (← getEnv) inst do return none
     -- assigns the characteristic `0` of the instance's type, as resolution does
     if (← isDefEq n (← inferType inst).appArg!) then return some (some inst) else return none
   | Grind.PowIdentity α _ _ =>
@@ -206,7 +220,8 @@ def synthInstanceMeta? (type : Expr) : MetaM (Option Expr) := do profileitM Exce
   if let some inst := getBuiltinInstance? type then
     return inst
   if let some inst? := builtinAlgebraicInsts[type]? then
-    return inst?
+    let env ← getEnv
+    if inst?.all (isDeclared env) then return inst?
   if let some inst? ← builtinOutParamInst? type then
     return inst?
   catchInternalId isDefEqStuckExceptionId

@@ -7,10 +7,11 @@ the event loop at exit runs no Lean code.
 
 Pending at exit: timers, signals, connects, accepts on 64 listeners, receives, a write the peer never
 reads, a half-close queued behind it, a select cycle, a detached retry loop's sleep, and timers whose
-only reference is the loop's. The teardown drops each of these promises without running its
-continuations: a continuation that runs prints, a `result!` that runs would panic and hang, a failing
-sleep would make the retry loop spin forever, and a cycle left unreachable is a leak that leak checkers
-report. The teardown also prints a warning if the loop does not close.
+only reference is the loop's. The teardown runs none of their continuations and keeps the promises
+pending: a continuation that runs prints, a `result!` that runs would panic and hang, a failing sleep
+would make the retry loop spin forever, and the select cycle, once its promises are released, is an
+unreachable cycle that leak checkers report. The teardown also prints a warning if the loop does not
+close.
 
 Exit still waits for running tasks with the loop up, so a task blocked on a timer wakes, and timer
 finalizers racing the start of exit on worker threads are fine.
@@ -136,7 +137,7 @@ def startWalkReentrancy : IO Unit := do
     let _ ← (IO.println "continuation ran" : IO _).toBaseIO
     pure ()
 
-/-- A `result!` continuation would panic and then block if it ran once the teardown drops its promise. -/
+/-- A `result!` continuation would panic and then block if it ran on a dropped promise. -/
 def startResultBang : IO Unit := do
   let timer ← Timer.mk 3600000 false
   let fired ← timer.next

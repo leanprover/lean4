@@ -9,6 +9,7 @@ prelude
 import Init.Data.Int.Bitwise.Lemmas
 public import Init.Data.Int.Bitwise.Basic
 public import Init.Data.Order.Classes
+public import Init.Data.Ord.Basic
 public import Init.Data.Rat.Basic
 import Init.ByCases
 import Init.Data.Int.DivMod.Lemmas
@@ -736,6 +737,9 @@ instance : Std.IsLinearPreorder Dyadic where
   le_total := Dyadic.le_total
 
 instance : Std.IsLinearOrder Dyadic where
+
+instance : Ord Dyadic where
+  compare x y := compareOfLessAndEq x y
 
 /-- `roundUp x prec` is the least dyadic number with precision at most `prec` which is greater than or equal to `x`. -/
 def roundUp (x : Dyadic) (prec : Int) : Dyadic :=

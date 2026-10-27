@@ -638,6 +638,167 @@ private def compactVars (re : RingExpr) : NormM (Grind.VarRename × Array Expr) 
   let used := Std.HashSet.toArray (re.collectVars {}) |>.qsort fun i j => Expr.lt vars[i]! vars[j]!
   return (Grind.mkVarRename used, used.map (vars[·]!))
 
+/-- The number of summands of the sum or difference `e`, and the largest such number in `e`. -/
+private def summands : RingExpr → Nat × Nat
+  | .add a b | .sub a b =>
+    let (n₁, m₁) := summands a
+    let (n₂, m₂) := summands b
+    (n₁ + n₂, max (n₁ + n₂) (max m₁ m₂))
+  | .neg a => summands a
+  | .mul a b =>
+    let (_, m₁) := summands a
+    let (_, m₂) := summands b
+    (1, max m₁ m₂)
+  | .pow a _ => (1, (summands a).2)
+  | _ => (1, 1)
+
+/-- The number of monomial comparisons of `Poly.combine p₁ p₂`. -/
+private partial def combineSteps (p₁ p₂ : Poly) (n : Nat := 0) : Nat :=
+  match p₁, p₂ with
+  | .add _ m₁ q₁, .add _ m₂ q₂ =>
+    match m₁.grevlex m₂ with
+    | .gt => combineSteps q₁ p₂ (n + 1)
+    | .lt => combineSteps p₁ q₂ (n + 1)
+    | .eq => combineSteps q₁ q₂ (n + 1)
+  | _, _ => n
+
+/--
+Kernel cost model of the certificates: the number of monomial comparisons made by the additions
+of `Expr.toPoly_k` (`steps`), and those of `Expr.toPolyB_k` together with the number of polynomials
+it adds as lists (`balSteps`, `items`).
+-/
+private structure CertCost where
+  steps : Nat := 0
+  balSteps : Nat := 0
+  items : Nat := 0
+
+/-- `Poly.sumB_k`: adds `ps` pairwise, level by level, counting the comparisons in `n`. -/
+private partial def sumBSteps (ps : List Poly) (n : Nat) : Poly × Nat :=
+  match ps with
+  | [] => (.num 0, n)
+  | [p] => (p, n)
+  | _ =>
+    let rec pairs : List Poly → Array Poly → Nat → Array Poly × Nat
+      | a :: b :: ps, acc, n => pairs ps (acc.push (a.combine b)) (n + combineSteps a b)
+      | [a], acc, n => (acc.push a, n)
+      | [], acc, n => (acc, n)
+    let (ps, n) := pairs ps #[] n
+    sumBSteps ps.toList n
+
+/-- The partial products of `p₁ * p₂`, as `Poly.mulTerms_k`. -/
+private def mulTerms (p₁ p₂ : Poly) : List Poly :=
+  match p₁ with
+  | .num k => [p₂.mulConst k]
+  | .add k m p₁ => p₂.mulMon k m :: mulTerms p₁ p₂
+
+/-- `Poly.mul p₁ p₂` (`Poly.mul_k`), and its comparisons added to `n`. -/
+private def mulSteps (p₁ p₂ : Poly) (n : Nat) : Poly × Nat :=
+  (mulTerms p₁ p₂).foldl (init := (.num 0, n)) fun (acc, n) q => (acc.combine q, n + combineSteps acc q)
+
+/-- `Poly.mulB_k p₁ p₂`, its comparisons added to `n`, and its partial products added to `items`. -/
+private def mulBSteps (p₁ p₂ : Poly) (n items : Nat) : Poly × Nat × Nat :=
+  match p₁, p₂ with
+  | .num k, _ => (p₂.mulConst k, n, items)
+  | _, .num k => (p₁.mulConst k, n, items)
+  | .add k m (.num 0), _ => (p₂.mulMon k m, n, items)
+  | _, .add k m (.num 0) => (p₁.mulMon k m, n, items)
+  | _, _ =>
+    let ts := mulTerms p₁ p₂
+    let (p, n) := sumBSteps ts n
+    (p, n, items + ts.length)
+
+/-- The polynomial of the numeral, variable or power `a ^ k` when `a` is a numeral or variable. -/
+private def powAtom? (a : RingExpr) (k : Nat) : Option Poly :=
+  if k == 0 then some (.num 1) else
+  match a with
+  | .num n | .intCast n => some (.num (n ^ k))
+  | .natCast n => some (.num ((n : Int) ^ k))
+  | .var x => some (.ofMon (.mult { x, k } .unit))
+  | _ => none
+
+/-- The polynomial of `e` and the comparisons of `Expr.toPoly_k` (`Poly.mul`, `Poly.pow`), added to `n`. -/
+private def oldSteps (e : RingExpr) (n : Nat) : Poly × Nat :=
+  match e with
+  | .num k | .intCast k => (.num k, n)
+  | .natCast k => (.num k, n)
+  | .var x => (.ofVar x, n)
+  | .neg a => let (p, n) := oldSteps a n; (p.mulConst (-1), n)
+  | .add a b =>
+    let (pa, n) := oldSteps a n
+    let (pb, n) := oldSteps b n
+    (pa.combine pb, n + combineSteps pa pb)
+  | .sub a b =>
+    let (pa, n) := oldSteps a n
+    let (pb, n) := oldSteps b n
+    let pb := pb.mulConst (-1)
+    (pa.combine pb, n + combineSteps pa pb)
+  | .mul a b =>
+    let (pa, n) := oldSteps a n
+    let (pb, n) := oldSteps b n
+    mulSteps pa pb n
+  | .pow a k =>
+    if let some p := powAtom? a k then (p, n) else
+    let (pa, n) := oldSteps a n
+    (List.range (k - 1)).foldl (init := (pa, n)) fun (acc, n) _ => mulSteps pa acc n
+
+/--
+The summands of `e` (negated if `neg`) prepended to `acc`, as `Expr.sumsB_k`, with the
+comparisons and the polynomials added as lists by `Expr.toPolyB_k`.
+-/
+private partial def balSummands (e : RingExpr) (neg : Bool) (acc : List Poly) (n items : Nat) : List Poly × Nat × Nat :=
+  match e with
+  | .add a b =>
+    let (acc, n, items) := balSummands b neg acc n items
+    balSummands a neg acc n items
+  | .sub a b =>
+    let (acc, n, items) := balSummands b (!neg) acc n items
+    balSummands a neg acc n items
+  | .neg a => balSummands a (!neg) acc n items
+  | _ =>
+    let (p, n, items) := balLeaf e n items
+    ((if neg then p.mulConst (-1) else p) :: acc, n, items + 1)
+where
+  /-- The polynomial of a summand, which is not a sum, difference or negation. -/
+  balLeaf (e : RingExpr) (n items : Nat) : Poly × Nat × Nat :=
+    match e with
+    | .num k | .intCast k => (.num k, n, items)
+    | .natCast k => (.num k, n, items)
+    | .var x => (.ofVar x, n, items)
+    | .mul a b =>
+      let (pa, n, items) := balPoly a n items
+      let (pb, n, items) := balPoly b n items
+      mulBSteps pa pb n items
+    | .pow a k =>
+      if let some p := powAtom? a k then (p, n, items) else
+      let (pa, n, items) := balPoly a n items
+      (List.range (k - 1)).foldl (init := (pa, n, items)) fun (acc, n, items) _ => mulBSteps pa acc n items
+    | _ => (.num 0, n, items)
+  /-- `Expr.toPolyB_k`. -/
+  balPoly (e : RingExpr) (n items : Nat) : Poly × Nat × Nat :=
+    let (ps, n, items) := balSummands e false [] n items
+    let (p, n) := sumBSteps ps n
+    (p, n, items)
+
+/-- The cost model of the certificates for `e`. -/
+private def certCost (e : RingExpr) : CertCost :=
+  let (_, steps) := oldSteps e 0
+  let (_, balSteps, items) := balSummands.balPoly e 0 0
+  { steps, balSteps, items }
+
+/--
+`true` if the kernel should compute the polynomial of `re` with `Expr.toPolyB_k` instead of
+`Expr.toPoly_k`. Adding the summands of a sum one at a time costs a quadratic number of monomial
+comparisons when each summand goes at the end of the polynomial, and the partial products of
+large multiplications have the same issue, but the balanced additions cost extra kernel steps per
+polynomial they add as a list. Small polynomials (`size` monomials) and short sums use
+`Expr.toPoly_k`; otherwise the comparisons of both are counted. A comparison costs about the same
+kernel time in both, and a polynomial added as a list about half a comparison.
+-/
+private def useBalanced (re : RingExpr) (size : Nat) : Bool :=
+  if size < 32 && (summands re).2 < 12 then false else
+  let c := certCost re
+  2 * c.balSteps + c.items < 2 * c.steps
+
 /--
 The certificate for `e₁` reified as `re` with polynomial `p`, both over the compact variables
 `vars`; `ainvs` are the inverse pairs with discharged side conditions, over the same variables.
@@ -681,26 +842,30 @@ private def mkCertificate (e₁ : Expr) (re : RingExpr) (p : Poly) (vars : Array
     let (fieldInst, charInst) := fc?.get!
     let invsE := toExpr invs.toList
     let thm := mkApp3 (mkConst ``Grind.CommRing.Expr.eq_of_toPolyQ_eq [u]) type fieldInst charInst
-    pure (mkApp8 thm ctx invsE (mkInvVarsOk type u ctx invsE) ainvsE hoka (toExpr re) (toExpr re') eagerReflBoolTrue)
+    pure (mkAppN thm #[ctx, toExpr (useBalanced re p.length), invsE, mkInvVarsOk type u ctx invsE, ainvsE, hoka,
+      toExpr re, toExpr re', eagerReflBoolTrue])
   else if !ainvs.isEmpty then
     let thm := mkApp2 (mkConst ``Grind.CommRing.Expr.eq_of_cancelInvs_eq [u]) type inst
     pure (mkApp6 thm ctx ainvsE hoka (toExpr re) (toExpr re') eagerReflBoolTrue)
   else if kind matches .commRing _ then
-    -- `p = re.toPoly_k` and `re' = p.toExpr_k`, both checked by definitional equality.
+    -- `p = re.toPolyX_k bal` (`re.toPolyC_k c`) and `re' = p.toExpr_k`, both checked by
+    -- definitional equality.
     let thm := match char? with
-      | some (charInst, c) => mkApp4 (mkConst ``Grind.CommRing.Expr.eq_of_toPolyC_eq_toExpr [u]) type (toExpr c) inst charInst
-      | none => mkApp2 (mkConst ``Grind.CommRing.Expr.eq_of_toPoly_eq_toExpr [u]) type inst
+      | some (charInst, c) =>
+        mkApp6 (mkConst ``Grind.CommRing.Expr.eq_of_toPolyC_eq_toExpr [u]) type (toExpr c) inst charInst ctx (toExpr (useBalanced re p.length))
+      | none =>
+        mkApp4 (mkConst ``Grind.CommRing.Expr.eq_of_toPolyX_eq_toExpr [u]) type inst ctx (toExpr (useBalanced re p.length))
     let pE := toExpr p
     let re'E := toExpr re'
-    pure (mkApp6 thm ctx (toExpr re) re'E pE
+    pure (mkApp5 thm (toExpr re) re'E pE
       (mkApp2 (mkConst ``Eq.refl [1]) (mkConst ``Grind.CommRing.Poly) pE)
       (mkApp2 (mkConst ``Eq.refl [1]) (mkConst ``Grind.CommRing.Expr) re'E))
   else if kind matches .commSemiring _ then
     -- `p = re.toPolyS_k` and `re' = p.toExpr_k`, both checked by definitional equality.
-    let thm := mkApp2 (mkConst ``Grind.CommRing.Expr.eq_of_toPolyS_eq_toExpr [u]) type inst
+    let thm := mkApp4 (mkConst ``Grind.CommRing.Expr.eq_of_toPolyS_eq_toExpr [u]) type inst ctx (toExpr (useBalanced re p.length))
     let pE := toExpr p
     let re'E := toExpr re'
-    pure (mkApp6 thm ctx (toExpr re) re'E pE
+    pure (mkApp5 thm (toExpr re) re'E pE
       (mkApp2 (mkConst ``Eq.refl [1]) (mkConst ``Grind.CommRing.Poly) pE)
       (mkApp2 (mkConst ``Eq.refl [1]) (mkConst ``Grind.CommRing.Expr) re'E))
   else
@@ -1181,7 +1346,8 @@ private def normalizeRelCore (rel : RelKind) (relFn : Expr) (order? : Option Ord
           mkApp5 (base ``Grind.CommRing.lt_norm_poly0) o.leInst o.ltInst?.get! o.lawfulOrderLTInst?.get! o.isPreorderInst o.orderedRingInst?.get!
       let l'E := toExpr l'
       let pE := toExpr lp
-      pure (mkAppN h #[ctx, toExpr l, toExpr r, l'E, pE,
+      let bal := useBalanced (.sub l r) (pl.length + pr.length)
+      pure (mkAppN h #[ctx, toExpr bal, toExpr l, toExpr r, l'E, pE,
         mkApp2 (mkConst ``Eq.refl [1]) (mkConst ``Grind.CommRing.Poly) pE,
         mkApp2 (mkConst ``Eq.refl [1]) (mkConst ``Grind.CommRing.Expr) l'E])
     else if invs.isEmpty && ainvs.isEmpty && kind.isComm then
@@ -1215,7 +1381,8 @@ private def normalizeRelCore (rel : RelKind) (relFn : Expr) (order? : Option Ord
       let qE := toExpr q
       let reflP := mkApp2 (mkConst ``Eq.refl [1]) (mkConst ``Grind.CommRing.Poly) qE
       let reflE (e : Expr) := mkApp2 (mkConst ``Eq.refl [1]) (mkConst ``Grind.CommRing.Expr) e
-      pure (mkAppN h #[ctx, toExpr l, toExpr r, l'E, r'E, qE, toExpr lp, toExpr rp, reflP, reflE l'E, reflE r'E, reflP])
+      let args := #[toExpr l, toExpr r, l'E, r'E, qE, toExpr lp, toExpr rp, reflP, reflE l'E, reflE r'E, reflP]
+      pure (mkAppN h (#[ctx, toExpr (useBalanced (.sub l r) (pl.length + pr.length))] ++ args))
     else if invs.isEmpty && ainvs.isEmpty then
       -- `thm type [c] inst [charInst]`, then the order instances.
       let base (name : Name) : Expr :=
@@ -1254,7 +1421,8 @@ private def normalizeRelCore (rel : RelKind) (relFn : Expr) (order? : Option Ord
           let o := order?.get!
           mkApp5 (base ``Grind.CommRing.lt_normQ_expr) o.leInst o.ltInst?.get! o.lawfulOrderLTInst?.get! linInst?.get! o.orderedRingInst?.get!
       let invsE := toExpr invs.toList
-      pure (mkApp10 h ctx invsE (mkInvVarsOk ring.type u ctx invsE) ainvsE hoka (toExpr l) (toExpr r) (toExpr l') (toExpr r') eagerReflBoolTrue)
+      pure (mkAppN h #[ctx, toExpr (useBalanced (.sub l r) (pl.length + pr.length)), invsE,
+        mkInvVarsOk ring.type u ctx invsE, ainvsE, hoka, toExpr l, toExpr r, toExpr l', toExpr r', eagerReflBoolTrue])
     return .step e' (mkExpectedPropHint h (mkPropEq e e'))
   else
     let sr ← getSemiring
@@ -1313,11 +1481,11 @@ private def normalizeRelCore (rel : RelKind) (relFn : Expr) (order? : Option Ord
         else if hasC then
           let pxE := toExpr px
           let thm := mkApp2 (mkConst ``Grind.CommRing.Expr.eq_of_toPolyS_eq_add_toExpr [u]) sr.type inst
-          mkAppN thm #[ctx, xE, xCE, pxE, toExpr qx, cE, reflP pxE, reflE xCE, reflP pxE, eagerReflBoolTrue]
+          mkAppN thm #[ctx, toExpr (useBalanced x px.length), xE, xCE, pxE, toExpr qx, cE, reflP pxE, reflE xCE, reflP pxE, eagerReflBoolTrue]
         else
           let pxE := toExpr px
           let thm := mkApp2 (mkConst ``Grind.CommRing.Expr.eq_of_toPolyS_eq_toExpr [u]) sr.type inst
-          mkApp6 thm ctx xE xCE pxE (reflP pxE) (reflE xCE)
+          mkApp7 thm ctx (toExpr (useBalanced x px.length)) xE xCE pxE (reflP pxE) (reflE xCE)
       mkExpectedPropHint h (mkApp3 (mkConst ``Eq [u.succ]) sr.type ex exC)
     let (lC, rC) : RingExpr × RingExpr := if hasC then (.add l' c.toExpr, .add r' c.toExpr) else (l', r')
     let elC ← if hasC then share (← denoteSemiringExpr' vars lC) else pure el

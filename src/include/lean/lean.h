@@ -1633,7 +1633,10 @@ LEAN_EXPORT void lean_init_task_manager_using(unsigned num_workers);
    `(sync := true)` tasks running on any thread. While one of these waits for a task, queued work keeps running. The
    rest is discarded and never finishes, as is what becomes runnable before the next start; until then, a new task
    runs inline once its input has finished. Tasks and promises stay valid in later cycles. Calling this, or starting
-   the task manager meanwhile, from a thread that this waits for is an internal panic. */
+   the task manager meanwhile, from a thread that this waits for is an internal panic.
+   It then tears the libuv event loop down, closing every handle. Until the next `lean_init_task_manager` starts a
+   fresh one, libuv operations fail with `UV_ECANCELED`. A handle that outlives this call stays closed, so its
+   operations keep failing, and options set with `Std.Internal.UV.Loop.configure` do not carry over. */
 LEAN_EXPORT void lean_finalize_task_manager(void);
 
 /* All priorities above `Task.Priority.max` mean the same; `UINT_MAX` is reserved for synchronous tasks. */

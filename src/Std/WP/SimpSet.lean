@@ -14,9 +14,7 @@ public section
 # The `@[vcgen_simp]` set
 
 `vcgen` rewrites hypotheses, state arguments and verification conditions with the `@[vcgen_simp]`
-theorems and with the evaluation of ground terms. This module adds the theorems that remove the
-propositional constants `True` and `False`. For example, ground evaluation turns
-`"x" = "x" ∨ "x" = "y"` into `True ∨ False`, and `true_or` rewrites that to `True`.
+theorems. This module seeds the set with a few theorems about the logical connectives.
 -/
 
 attribute [vcgen_simp] eq_self iff_self

@@ -2309,8 +2309,26 @@ noncomputable def Poly.skipThen (n : Nat) (a : Poly) (f : Poly → Poly) : Poly 
 
 /--
 `mergeHintG norm addK comb hs a b` adds `a` and `b` following the hints `hs`, one per monomial of
-`b`: the hint `h` keeps `h / 2` monomials of `a` and then places the head of `b` with
-`mergeHead` (adding it to the head of `a` if `h` is odd). The constant of `b` is added with `addK`.
+`b`, in order. `mergeHint` and `mergeHintC` instantiate `norm`, `addK` and `comb` for rings
+without and with a characteristic. A hint `h = 2*n + c` places the head monomial `k*m` of `b`:
+- the first `n = h / 2` monomials of the remaining part of `a` are kept, since they are greater
+  than `m`;
+- if `c = h % 2` is `1`, the next monomial of `a` is `k₁*m`, and the two are added into
+  `norm (k₁ + k) * m`, which is dropped if its coefficient is zero;
+- if `c` is `0`, `k*m` is inserted before the next monomial of `a`.
+
+The next hint continues after `m` in both `a` and `b`. When `b` reaches its constant, it is added
+with `addK`. If the hints run out before the monomials of `b`, the rest is added with `comb`.
+Wrong hints produce a wrong sum, and the certificate `p = a.mergeHint hs b` then fails to check.
+
+Example: in the order `x³ > x² > x`, with `a = 5*x³ + 2*x² + 7` and `b = 3*x² + 4*x + 1`,
+`hs = [3, 0]`:
+- `3 = 2*1 + 1` keeps `5*x³` and adds `3*x²` to `2*x²`, giving `5*x²`;
+- `0 = 2*0 + 0` inserts `4*x` before the constant `7`;
+- the constant `1` of `b` is added to `7`.
+
+The sum is `5*x³ + 5*x² + 4*x + 8`. With `a = x² + 2*x` and `b = -x² + 1`, `hs = [1]` adds `-x²`
+to `x²`, drops the zero monomial, and the sum is `2*x + 1`.
 -/
 noncomputable def Poly.mergeHintG (norm : Int → Int) (addK : Poly → Int → Poly) (comb : Poly → Poly → Poly)
     (hs : List Nat) : Poly → Poly → Poly :=
@@ -2404,6 +2422,19 @@ theorem Poly.denote_mergeHintC {α c} [Ring α] [IsCharP α c] (ctx : Context α
 A sum of multiples `k * m * p` of polynomials `p`, combined with hinted merges (`Poly.mergeHint`).
 It certifies a chain of simplification steps at once: the kernel adds the multiples in a balanced
 tree and then adds their sum to the initial polynomial once.
+
+Example: a chain of four steps simplifies `p₁` by the basis polynomials `q₁`, ..., `q₄`:
+```
+p₂ = p₁ + k₁*m₁*q₁,  p₃ = p₂ + k₂*m₂*q₂,  p₄ = p₃ + k₃*m₃*q₃,  p = p₄ + k₄*m₄*q₄
+```
+Checking each step copies most of the large `pᵢ`. Instead, `Stepwise.simps ctx p₁ p t hs` proves
+`p.denote ctx = 0` from `p₁.denote ctx = 0` and `t.AllZero ctx`, where
+```
+t = .node hs₀ (.node hs₁ (.leaf k₁ m₁ q₁) (.leaf k₂ m₂ q₂))
+              (.node hs₂ (.leaf k₃ m₃ q₃) (.leaf k₄ m₄ q₄))
+```
+The certificate `p = p₁.mergeHint hs t.eval` adds the small multiples first, and `hs` merges their
+sum into `p₁` once. The intermediate `p₂`, `p₃` and `p₄` are never stated.
 -/
 inductive SumTree where
   | leaf (k : Int) (m : Mon) (p : Poly)

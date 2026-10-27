@@ -1011,6 +1011,8 @@ def ematch (extraThms : Array EMatchTheorem := #[]) : GoalM Bool :=
 def ematchOnly (thms : Array EMatchTheorem) : GoalM Bool := do
   let numInstances := (← get).ematch.numInstances
   let (_, s) ← go |>.run
+  -- See `ematch'`: activating guards internalizes terms, which queues work.
+  processToDo
   if (← getConfig).markInstances then
     modifyThe Grind.State fun st => { st with instanceMap := st.instanceMap.insertMany s.instanceMap.toArray }
   return (← get).ematch.numInstances != numInstances

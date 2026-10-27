@@ -404,6 +404,15 @@ private def pushLines (out : Array LeanSemanticToken) (lines : Markdown.Lines s)
     (a : MarkupAttrs) : Array LeanSemanticToken :=
   pushTok out text a.tokenType (priority := 4) (modifiers := a.modifiers)
 
+/-- Pushes a link title: delimiters on its opener and closer and `string` on each line of its text. -/
+private def pushTitle (out : Array LeanSemanticToken) (t : Markdown.LinkTitle s) :
+    Array LeanSemanticToken := Id.run do
+  let mut out := out
+  out := pushDelimiter out t.opener
+  out := pushLines out t.content .string
+  out := pushDelimiter out t.closer
+  return out
+
 /-- Emits a destination: keyword on its angle brackets, if any, and URL on the URL. -/
 private def emitDestination (out : Array LeanSemanticToken) (d : Markdown.LinkDestination s) :
     Array LeanSemanticToken := Id.run do
@@ -503,10 +512,7 @@ where
       out := emitInlines a inner out
       out := pushDelimiter out openParen
       out := emitDestination out destination
-      if let some t := title? then
-        out := pushDelimiter out t.opener
-        out := pushLines out t.content .string
-        out := pushDelimiter out t.closer
+      if let some t := title? then out := pushTitle out t
       out := pushDelimiter out closeParen
     | .reference _ label form =>
       out := emitReferenceForm a out inner label form
@@ -525,10 +531,7 @@ private def emitRefDef (out : Array LeanSemanticToken) (r : Markdown.RefDef s) :
   out := pushDelimiter out r.closeBracket
   out := pushDelimiter out r.colon
   out := emitDestination out r.destination
-  if let some t := r.title? then
-    out := pushDelimiter out t.opener
-    out := pushLines out t.content .string
-    out := pushDelimiter out t.closer
+  if let some t := r.title? then out := pushTitle out t
   return out
 
 private partial def emitBlocks (a : MarkupAttrs) (blocks : Array (Markdown.Block s))

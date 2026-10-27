@@ -37,3 +37,12 @@ example [Lean.Grind.CommRing α] [Lean.Grind.IsCharP α 2] (a b c d e f g h : α
 example [Lean.Grind.CommRing α] [Lean.Grind.IsCharP α 2] (x y : α) :
     (((((((x + y + 1)^2)^2)^2)^2)^2)^2)^2 = x^128 + y^128 + 1 := by
   grind
+
+-- The linear certificate counts the codes of powers under `^ 0`, which the kernel evaluates.
+set_option sym.arith.maxDegree 1000000000 in
+example (x : Int) : (x^1000000000)^0 = 1 := by sym => simp arithSimp
+
+-- Counting the terms of a power of a single term takes constant time.
+set_option maxHeartbeats 20000 in
+example [Lean.Grind.CommRing α] [Lean.Grind.IsCharP α 2] :
+    (1 : α)^4000000000 = 1 := by grind (exp := 4000000000)

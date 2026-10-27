@@ -314,10 +314,12 @@ characteristic. `E` is stated as a term with one node per term, and the kernel r
 -/
 private def kronQuotientMaxTerms : Nat := 2048
 
-/-- `t ^ k`, or a value larger than `limit` if `t ^ k` is larger. -/
+/-- `acc * t ^ k`, or a value larger than `limit` if it is larger. -/
 private def termsPow (limit t : Nat) : Nat → Nat → Nat
   | 0, acc => min (limit + 1) acc
-  | k + 1, acc => if acc > limit then acc else termsPow limit t k (min (limit + 1) (acc * t))
+  | k + 1, acc =>
+    -- For `t ≤ 1`, `acc * t ^ (k + 1) = acc * t`: no need to iterate `k` times.
+    if acc > limit || t ≤ 1 then min (limit + 1) (acc * t) else termsPow limit t k (min (limit + 1) (acc * t))
 
 /-- An upper bound on the number of terms of `e.toPoly` by sums and products, or a value larger than `limit`. -/
 private def exprTermsBySize (limit : Nat) : RingExpr → Nat

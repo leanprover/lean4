@@ -903,7 +903,7 @@ private def kronLinExponent₂? (l₁ r₁ l₂ r₂ : RingExpr) : Option Nat :=
   let K₁ ← kronLinExponent? l₁ r₁ kronMaxBits
   let K₂ ← kronLinExponent? l₂ r₂ kronMaxBits
   let K := max K₁ K₂
-  let maxCode := max (max (exprMaxVar l₁) (exprMaxVar r₁)) (max (exprMaxVar l₂) (exprMaxVar r₂))
+  let maxCode := max (max (exprLinCode l₁) (exprLinCode r₁)) (max (exprLinCode l₂) (exprLinCode r₂))
   if K * (maxCode + 1) > kronMaxBits then none else some K
 
 /-- The arguments `K l r hl hK h` of the linear Kronecker certificates (`Expr.eq_of_kronLin`). -/

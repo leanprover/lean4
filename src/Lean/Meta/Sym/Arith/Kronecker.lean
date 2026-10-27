@@ -138,12 +138,19 @@ def kronExponent? (norm maxCode maxBits : Nat) : Option Nat :=
   let K := (2 * norm).log2 + 1
   if K * (maxCode + 1) > maxBits then none else some K
 
-/-- One more than the largest variable of `e`, the largest code of `Grind.CommRing.Expr.toLin`. -/
-def exprMaxVar : RingExpr → Nat
+/--
+An upper bound on the codes of the values of `e` and its subterms at the point of the linear
+certificates, where the variable `x` has code `x + 1` (`Grind.CommRing.Expr.toLin`). For a linear
+`e`, this is one more than its largest variable, but powers count, as in `exprMaxCode`: the kernel
+evaluates `x ^ k` in `(x ^ k) ^ 0`.
+-/
+def exprLinCode : RingExpr → Nat
   | .num _ | .natCast _ | .intCast _ => 0
   | .var x => x + 1
-  | .neg a | .pow a _ => exprMaxVar a
-  | .add a b | .sub a b | .mul a b => max (exprMaxVar a) (exprMaxVar b)
+  | .neg a => exprLinCode a
+  | .add a b | .sub a b => max (exprLinCode a) (exprLinCode b)
+  | .mul a b => exprLinCode a + exprLinCode b
+  | .pow a k => let c := exprLinCode a; if k = 0 then c else satMul c k
 
 /--
 The exponent `K` of the linear Kronecker certificate (`Grind.CommRing.Expr.eq_of_kronLin`) for
@@ -151,7 +158,7 @@ The exponent `K` of the linear Kronecker certificate (`Grind.CommRing.Expr.eq_of
 -/
 def kronLinExponent? (l r : RingExpr) (maxBits : Nat) : Option Nat :=
   if exprLin l ≤ 1 && exprLin r ≤ 1 then
-    kronExponent? (exprMajorant l + exprMajorant r) (max (exprMaxVar l) (exprMaxVar r)) maxBits
+    kronExponent? (exprMajorant l + exprMajorant r) (max (exprLinCode l) (exprLinCode r)) maxBits
   else
     none
 
@@ -232,11 +239,13 @@ def kronQLinExponent? (l r : RingExpr) (invs : List (Var × Nat)) (maxBits : Nat
   else
     none
 where
-  /-- `exprMaxVar`, where the variables of `invs` are constants. -/
+  /-- `exprLinCode`, where the variables of `invs` are constants. -/
   maxVar : RingExpr → Nat
     | .num _ | .natCast _ | .intCast _ => 0
     | .var x => if (invLookup invs x).isSome then 0 else x + 1
-    | .neg a | .pow a _ => maxVar a
-    | .add a b | .sub a b | .mul a b => max (maxVar a) (maxVar b)
+    | .neg a => maxVar a
+    | .add a b | .sub a b => max (maxVar a) (maxVar b)
+    | .mul a b => maxVar a + maxVar b
+    | .pow a k => let c := maxVar a; if k = 0 then c else satMul c k
 
 end Lean.Meta.Sym.Arith

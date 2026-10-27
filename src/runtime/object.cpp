@@ -1292,6 +1292,9 @@ extern "C" LEAN_EXPORT void lean_init_task_manager_using(unsigned num_workers) {
         return;
     if (g_task_manager) {
         g_task_manager->restart(num_workers);
+        // `shutdown` tore the event loop down. Until here, libuv calls fail instead of starting work whose
+        // continuations a dormant manager would discard.
+        restart_libuv();
     } else {
         g_task_manager = new task_manager(num_workers);
     }

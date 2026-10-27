@@ -11,4 +11,5 @@ import Cases.MatchIota
 import Cases.MatchSplit
 import Cases.PurePrecond
 import Cases.ReaderState
+import Cases.RegFile
 import Cases.WideJP

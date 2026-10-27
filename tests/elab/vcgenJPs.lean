@@ -114,7 +114,6 @@ def set42 : StateM Nat Unit := set 42
 @[spec]
 theorem set42_triple : ⦃ fun _ => True ⦄ set42 ⦃ fun _ s => ⌜s > 13⌝ ⦄ := by
   vcgen [set42]
-  grind
 
 def mixed_matches_state (f : Nat → Option Nat) : StateM Nat Nat := do
   set 42

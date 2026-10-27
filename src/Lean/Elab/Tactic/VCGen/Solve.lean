@@ -314,13 +314,12 @@ def wpLet? (scope : Scope) (goal : MVarId) (info : WPApp) :
 
 /-- Strategy 11b: fold the state arguments of the program's `wp` application, so the symbolic
 state a spec application threads through the goal is normalized as it is produced rather than left
-to the discharging tactic. Runs the `simplifying_assumptions` rewrite set when one is configured
-and the plain `Sym.Simp` methods otherwise; the program, the postcondition and the precondition are
-left untouched. -/
+to the discharging tactic. Rewrites with `Context.simpMethods`; the program, the postcondition and
+the precondition are left untouched. -/
 def wpSimpStateArgs? (goal : MVarId) (info : WPApp) :
     VCGenM (Option (List MVarId)) := goal.withContext do
   if info.excessArgs.isEmpty then return none
-  let some methods := (← read).hypSimpMethods | return none
+  let some methods := (← read).simpMethods | return none
   let start := info.args.size
   let target ← goal.getType
   match h : target with

@@ -9,7 +9,8 @@ prelude
 public import Lean.Meta.Sym.Simp.Attr
 
 /-!
-The `@[vcgen_simp]` attribute collects the `Sym.simp` theorems of `vcgen`.
+The `@[vcgen_simp]` attribute registers the `Sym.simp` theorems that `vcgen` rewrites hypotheses,
+state arguments and verification conditions with.
 -/
 
 public section

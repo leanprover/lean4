@@ -709,7 +709,7 @@ theorem eq_normS_nc {α} [Semiring α] (ctx : Context α) (lhs rhs : Expr)
 
 /-!
 Certificates that check the normal form of a commutative semiring term by definitional equality,
-as `Expr.eq_of_toPoly_eq_toExpr` does for rings: the kernel computes the polynomial of the term
+as `Expr.eq_of_toPolyX_eq_toExpr` does for rings: the kernel computes the polynomial of the term
 once and renders it with `Poly.toExpr_k`, instead of normalizing both sides.
 -/
 

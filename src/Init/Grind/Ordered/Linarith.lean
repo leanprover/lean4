@@ -564,37 +564,6 @@ theorem not_lt_norm {α} [IntModule α] [LE α] [LT α] [LawfulOrderLT α] [IsLi
   simp [← sub_eq_add_neg, sub_self] at h₁
   assumption
 
--- If the module does not have a linear order, we can still put the expressions in polynomial forms
-
-theorem not_le_norm' {α} [IntModule α] [LE α] [IsPreorder α] [OrderedAdd α] (ctx : Context α) (lhs rhs : Expr) (p : Poly)
-    : norm_cert lhs rhs p → ¬ lhs.denote_k ctx ≤ rhs.denote_k ctx → ¬ p.denote' ctx ≤ 0 := by
-  simp only [Expr.denote_k_eq_denote]; simp [norm_cert]; intro _ h₁; subst p; simp [Expr.denote]; intro h
-  replace h := add_le_right (rhs.denote ctx) h
-  rw [sub_eq_add_neg, add_left_comm, ← sub_eq_add_neg, sub_self] at h; simp at h
-  contradiction
-
-theorem not_lt_norm' {α} [IntModule α] [LE α] [LT α] [LawfulOrderLT α] [IsPreorder α] [OrderedAdd α] (ctx : Context α) (lhs rhs : Expr) (p : Poly)
-    : norm_cert lhs rhs p → ¬ lhs.denote_k ctx < rhs.denote_k ctx → ¬ p.denote' ctx < 0 := by
-  simp only [Expr.denote_k_eq_denote]; simp [norm_cert]; intro _ h₁; subst p; simp [Expr.denote]; intro h
-  replace h := add_lt_right (rhs.denote ctx) h
-  rw [sub_eq_add_neg, add_left_comm, ← sub_eq_add_neg, sub_self] at h; simp at h
-  contradiction
-
-/-!
-Equality detection
--/
-noncomputable def eq_of_le_ge_cert (p₁ p₂ : Poly) : Bool :=
-  p₂.beq' (p₁.mul_k (-1))
-
-theorem eq_of_le_ge {α} [IntModule α] [LE α] [IsPartialOrder α] [OrderedAdd α] (ctx : Context α) (p₁ : Poly) (p₂ : Poly)
-    : eq_of_le_ge_cert p₁ p₂ → p₁.denote' ctx ≤ 0 → p₂.denote' ctx ≤ 0 → p₁.denote' ctx = 0 := by
-  simp [eq_of_le_ge_cert]
-  intro; subst p₂; simp
-  intro h₁ h₂
-  replace h₂ := add_le_left h₂ (p₁.denote ctx)
-  rw [add_comm, neg_zsmul, one_zsmul, ← sub_eq_add_neg, sub_self, zero_add] at h₂
-  exact le_antisymm h₁ h₂
-
 /-!
 Helper theorems for closing the goal
 -/
@@ -615,36 +584,6 @@ theorem zero_lt_one {α} [Ring α] [LE α] [LT α] [LawfulOrderLT α] [IsPreorde
   simp [zero_lt_one_cert]; intro _ h; subst p; simp [Poly.denote, h, One.one, neg_zsmul]
   rw [neg_lt_iff, neg_zero]; apply OrderedRing.zero_lt_one
 
-noncomputable def zero_ne_one_cert (p : Poly) : Bool :=
-  p.beq' (.add 1 0 .nil)
-
-theorem zero_ne_one_of_ord_ring {α} [Ring α] [LE α] [LT α] [LawfulOrderLT α] [IsPreorder α] [OrderedRing α] (ctx : Context α) (p : Poly)
-    : zero_ne_one_cert p → (0 : Var).denote ctx = One.one → p.denote' ctx ≠ 0 := by
-  simp [zero_ne_one_cert]; intro _ h; subst p; simp [Poly.denote, h, One.one]
-  intro h; have := OrderedRing.zero_lt_one (R := α); simp [h, Preorder.lt_irrefl] at this
-
-theorem zero_ne_one_of_field {α} [Field α] (ctx : Context α) (p : Poly)
-    : zero_ne_one_cert p → (0 : Var).denote ctx = One.one → p.denote' ctx ≠ 0 := by
-  simp [zero_ne_one_cert]; intro _ h; subst p; simp [Poly.denote, h, One.one]
-  intro h; have := Field.zero_ne_one (α := α); simp [h] at this
-
-theorem zero_ne_one_of_char0 {α} [Ring α] [IsCharP α 0] (ctx : Context α) (p : Poly)
-    : zero_ne_one_cert p → (0 : Var).denote ctx = One.one → p.denote' ctx ≠ 0 := by
-  simp [zero_ne_one_cert]; intro _ h; subst p; simp [Poly.denote, h, One.one]
-  intro h; have := IsCharP.intCast_eq_zero_iff (α := α) 0 1; simp [Ring.intCast_one] at this
-  contradiction
-
-noncomputable def zero_ne_one_of_charC_cert (c : Nat) (p : Poly) : Bool :=
-  (c:Int) > 1 && p.beq' (.add 1 0 .nil)
-
-theorem zero_ne_one_of_charC {α c} [Ring α] [IsCharP α c] (ctx : Context α) (p : Poly)
-    : zero_ne_one_of_charC_cert c p → (0 : Var).denote ctx = One.one → p.denote' ctx ≠ 0 := by
-  simp [zero_ne_one_of_charC_cert]; intro hc _ h; subst p; simp [Poly.denote, h, One.one]
-  intro h; have h' := IsCharP.intCast_eq_zero_iff (α := α) c 1; simp [Ring.intCast_one] at h'
-  replace h' := h'.mp h
-  have := Int.emod_eq_of_lt (by decide) hc
-  simp [this] at h'
-
 /-!
 Coefficient normalization
 -/
@@ -663,27 +602,6 @@ theorem eq_coeff {α} [IntModule α] [NoNatZeroDivisors α] (ctx : Context α) (
     : eq_coeff_cert p₁ p₂ k → p₁.denote' ctx = 0 → p₂.denote' ctx = 0 := by
   simp [eq_coeff_cert]; intro h _; subst p₁; simp [*, zsmul_natCast_eq_nsmul]
   exact NoNatZeroDivisors.eq_zero_of_mul_eq_zero h
-
-noncomputable def coeff_cert (p₁ p₂ : Poly) (k : Nat) :=
-  k > 0 && p₁.beq' (p₂.mul_k k)
-
-theorem le_coeff {α} [IntModule α] [LE α] [LT α] [LawfulOrderLT α] [IsLinearOrder α] [OrderedAdd α] (ctx : Context α) (p₁ p₂ : Poly) (k : Nat)
-    : coeff_cert p₁ p₂ k → p₁.denote' ctx ≤ 0 → p₂.denote' ctx ≤ 0 := by
-  simp [coeff_cert]; intro h _; subst p₁; simp
-  have : ↑k > (0 : Int) := Int.natCast_pos.mpr h
-  intro h₁; apply Classical.byContradiction
-  intro h₂; replace h₂ := LinearOrder.lt_of_not_le h₂
-  replace h₂ := zsmul_pos_iff (↑k) h₂ |>.mpr this
-  exact Preorder.lt_irrefl 0 (Preorder.lt_of_lt_of_le h₂ h₁)
-
-theorem lt_coeff {α} [IntModule α] [LE α] [LT α] [LawfulOrderLT α] [IsLinearOrder α] [OrderedAdd α] (ctx : Context α) (p₁ p₂ : Poly) (k : Nat)
-    : coeff_cert p₁ p₂ k → p₁.denote' ctx < 0 → p₂.denote' ctx < 0 := by
-  simp [coeff_cert]; intro h _; subst p₁; simp
-  have : ↑k > (0 : Int) := Int.natCast_pos.mpr h
-  intro h₁; apply Classical.byContradiction
-  intro h₂; replace h₂ := LinearOrder.le_of_not_lt h₂
-  replace h₂ := zsmul_nonneg (Int.le_of_lt this) h₂
-  exact Preorder.lt_irrefl 0 (Preorder.lt_of_le_of_lt h₂ h₁)
 
 theorem diseq_neg {α} [IntModule α] (ctx : Context α) (p p' : Poly) : p'.beq' (p.mul_k (-1)) → p.denote' ctx ≠ 0 → p'.denote' ctx ≠ 0 := by
   simp; intro _ _; subst p'; simp [neg_zsmul]
@@ -721,26 +639,6 @@ theorem eq_diseq_subst1 {α} [IntModule α] (ctx : Context α) (k : Int) (p₁ p
     : eq_diseq_subst1_cert k p₁ p₂ p₃ → p₁.denote' ctx = 0 → p₂.denote' ctx ≠ 0 → p₃.denote' ctx ≠ 0 := by
   simp [eq_diseq_subst1_cert]; intro _ h₁ h₂; subst p₃
   simp [h₁, h₂]
-
-noncomputable def eq_le_subst_cert (x : Var) (p₁ p₂ p₃ : Poly) :=
-  let a := p₁.coeff_k x
-  let b := p₂.coeff_k x
-  a ≥ 0 && p₃.beq' (p₂.mul_k a |>.combine_k (p₁.mul_k (Int.neg_k b)))
-
-theorem eq_le_subst {α} [IntModule α] [LE α] [IsPreorder α] [OrderedAdd α] (ctx : Context α) (x : Var) (p₁ p₂ p₃ : Poly)
-    : eq_le_subst_cert x p₁ p₂ p₃ → p₁.denote' ctx = 0 → p₂.denote' ctx ≤ 0 → p₃.denote' ctx ≤ 0 := by
-  simp [eq_le_subst_cert]; intro h _ h₁ h₂; subst p₃; simp [h₁]
-  exact zsmul_nonpos h h₂
-
-noncomputable def eq_lt_subst_cert (x : Var) (p₁ p₂ p₃ : Poly) :=
-  let a := p₁.coeff_k x
-  let b := p₂.coeff_k x
-  a > 0 && p₃.beq' (p₂.mul_k a |>.combine_k (p₁.mul_k (Int.neg_k b)))
-
-theorem eq_lt_subst {α} [IntModule α] [LE α] [LT α] [LawfulOrderLT α] [IsPreorder α] [OrderedAdd α] (ctx : Context α) (x : Var) (p₁ p₂ p₃ : Poly)
-    : eq_lt_subst_cert x p₁ p₂ p₃ → p₁.denote' ctx = 0 → p₂.denote' ctx < 0 → p₃.denote' ctx < 0 := by
-  simp [eq_lt_subst_cert]; intro h _ h₁ h₂; subst p₃; simp [h₁]
-  exact zsmul_neg_iff (p₁.coeff x) h₂ |>.mpr h
 
 noncomputable def eq_eq_subst_cert (x : Var) (p₁ p₂ p₃ : Poly) :=
   let a := p₁.coeff_k x

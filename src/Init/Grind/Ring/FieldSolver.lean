@@ -391,9 +391,6 @@ protected noncomputable def PolyQ.beq' (p q : PolyQ) : Bool :=
   change (p.num.beq' q.num && Nat.beq p.den q.den) = (p = q)
   cases p; cases q; simp
 
-def Expr.toPolyQ (e : Expr) (invs : InvVars) (ainvs : InvAtoms) : PolyQ :=
-  e.toPoly.toPolyQ invs ainvs
-
 theorem Poly.denote_substInv [Field α] [IsCharP α 0] (ctx : Context α) (p : Poly) (x : Var) (c : Nat)
     (h : x.denote ctx = (OfNat.ofNat (α := α) c)⁻¹) : (p.substInv x c).denote ctx = p.denote ctx := by
   simp only [substInv, PolyQ.denote, cond_eq_ite]
@@ -456,10 +453,6 @@ theorem Poly.denote_toPolyQ [Field α] [IsCharP α 0] (ctx : Context α) (p : Po
     rw [InvVars.ok_cons] at h
     rw [List.foldl_cons, ih h.2, PolyQ.denote_substInv _ _ _ _ h.1]
 
-theorem Expr.denote_toPolyQ [Field α] [IsCharP α 0] (ctx : Context α) (e : Expr) (invs : InvVars)
-    (ainvs : InvAtoms) (h : invs.ok ctx) (h' : ainvs.ok ctx) : (e.toPolyQ invs ainvs).denote ctx = e.denote ctx := by
-  rw [toPolyQ, Poly.denote_toPolyQ _ _ _ _ h h', Expr.denote_toPoly]
-
 theorem Poly.substInv_den_ne_zero (p : Poly) (x : Var) (c : Nat) : (p.substInv x c).den ≠ 0 := by
   simp only [substInv, cond_eq_ite]
   split
@@ -493,9 +486,6 @@ theorem Poly.toPolyQ_den_ne_zero (p : Poly) (invs : InvVars) (ainvs : InvAtoms) 
     rw [List.foldl_cons]
     apply ih
     exact Nat.mul_ne_zero h (Poly.substInv_den_ne_zero q.num xc.1 xc.2)
-
-theorem Expr.toPolyQ_den_ne_zero (e : Expr) (invs : InvVars) (ainvs : InvAtoms) : (e.toPolyQ invs ainvs).den ≠ 0 :=
-  Poly.toPolyQ_den_ne_zero e.toPoly invs ainvs
 
 /-!
 Balanced elimination of numeral inverses. `Poly.cancelVar_k` inserts each monomial into the

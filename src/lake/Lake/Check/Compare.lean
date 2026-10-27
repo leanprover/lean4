@@ -9,6 +9,7 @@ prelude
 public import LeanExport.Parse
 import Lake.Check.Util
 import Init.Data.ToString.Macro
+import Init.While
 import Std.Data.HashSet
 
 namespace Lake.Check
@@ -109,5 +110,74 @@ public def compareAt (challenge solution : LeanExport.ExportedEnv) (theoremTarge
   let definitionTargets := Std.HashSet.ofArray definitionTargets
   let theoremTargets := Std.HashSet.ofArray theoremTargets
   Compare.loop.run { challenge, solution, definitionTargets, theoremTargets } |>.run' { worklist, checked := {} }
+
+/-- Match an exact approved proposition, or a conjunction of such propositions. -/
+partial def matchAcceptedInput (accepted : Array (Prod Lean.Name Lean.Expr))
+    (input : Lean.Expr) : Option (Array Lean.Name) := do
+  for (name, statement) in accepted do
+    if input == .const name [] || input == statement then
+      return #[name]
+  if input.isAppOfArity ``And 2 then
+    let left <- matchAcceptedInput accepted input.appFn!.appArg!
+    let right <- matchAcceptedInput accepted input.appArg!
+    return left ++ right
+  none
+
+/--
+Compare with additional, closed proposition hypotheses explicitly approved by the challenge author.
+Only leading, nondependent hypotheses may be removed. The returned names are the hypotheses of
+each conditional theorem, in occurrence order without duplicates, not an audit of proof-term usage.
+The original solution must still be checked for axioms and replayed through the kernel.
+-/
+public def compareWithAcceptedStatements (challenge solution : LeanExport.ExportedEnv)
+    (theoremTargets definitionTargets primitive acceptedNames : Array Lean.Name) :
+    Except String (Array (Prod Lean.Name (Array Lean.Name))) := do
+  if acceptedNames.isEmpty then
+    compareAt challenge solution theoremTargets definitionTargets primitive
+    return #[]
+
+  let mut accepted := #[]
+  for name in acceptedNames do
+    if theoremTargets.contains name || definitionTargets.contains name then
+      throw s!"Accepted statement cannot be a comparison target: '{name}'"
+    let some (.defnInfo info) := challenge.constMap[name]?
+      | throw s!"Accepted statement must be a closed proposition definition: '{name}'"
+    unless info.type == .sort .zero && info.levelParams.isEmpty && info.safety == .safe do
+      throw s!"Accepted statement must be a closed proposition definition: '{name}'"
+    accepted := accepted.push (name, info.value)
+
+  let mut report := #[]
+  let mut inputConsts := #[]
+  let mut comparisonSolution := solution
+  for target in theoremTargets do
+    let some (.thmInfo cc) := challenge.constMap[target]? | continue
+    let some (.thmInfo sc) := solution.constMap[target]? | continue
+    let mut type := sc.type
+    let mut used := #[]
+    while type != cc.type do
+      let .forallE _ input body _ := type
+        | throw s!"Unaccepted conditional input or mismatched conclusion: '{target}'"
+      -- A removed proof must not change the remaining statement or later hypotheses.
+      if body.hasLooseBVars then
+        throw s!"Dependent conditional input is not supported: '{target}'"
+      let some names := matchAcceptedInput accepted input
+        | throw s!"Unaccepted conditional input or mismatched conclusion: '{target}'"
+      for name in names do
+        unless used.contains name do
+          used := used.push name
+      inputConsts := inputConsts ++ input.getUsedConstants
+      type := body
+    unless used.isEmpty do
+      report := report.push (target, used)
+      -- This copy is solely for structural comparison; no checker receives a rewritten theorem.
+      comparisonSolution := { comparisonSolution with
+        constMap := comparisonSolution.constMap.insert target (.thmInfo { sc with type }) }
+
+  -- No theorem/definition-hole exemptions apply to accepted statements or their dependencies.
+  -- This also checks And itself when conjunctions were stripped from a theorem's type.
+  Compare.loop.run { challenge, solution, definitionTargets := {}, theoremTargets := {} }
+    |>.run' { worklist := inputConsts, checked := {} }
+  compareAt challenge comparisonSolution theoremTargets definitionTargets primitive
+  return report
 
 end Lake.Check

@@ -13,6 +13,7 @@ public import Lake.Util.Exit
 public import Lean.Data.Json.FromToJson
 import Lean.Environment
 import Lean.Replay
+import Init.Data.String.Modify
 import Init.Data.String.Search
 import Init.Data.String.TakeDrop
 import Init.Data.ToString.Macro
@@ -50,6 +51,11 @@ structure Context where
   solutionModule : Lean.Name
   theoremNames : Array Lean.Name
   definitionNames : Array Lean.Name
+  acceptedStatements : Array Lean.Name := #[]
+  /-- Parsed before any submission code runs; never reloaded from a project search path. -/
+  evaluatorChallenge : Option LeanExport.ExportedEnv := none
+  /-- Private storage mounted at `.lake`, hiding submitted caches and filesystem aliases. -/
+  isolatedBuildDir : Option System.FilePath := none
   legalAxioms : Array Lean.Name
   /-- Bound into the sandbox: an `elan` toolchain lives under the home directory it covers. -/
   leanPrefix : System.FilePath
@@ -165,7 +171,7 @@ Only the paths in `writablePaths` are writable, and the network is a namespace r
 a run either has one or has none at all.
 -/
 def buildSandboxArgs (spawnArgs : SandboxArgs) (env : Array (String × String))
-    (projectDir : System.FilePath) : Array String :=
+    (projectDir : System.FilePath) (isolatedBuildDir : Option System.FilePath := none) : Array String :=
   let args := #[
     "--ro-bind", "/", "/",
     "--tmpfs", "/home",
@@ -181,8 +187,14 @@ def buildSandboxArgs (spawnArgs : SandboxArgs) (env : Array (String × String))
     (fun acc path => acc ++ #["--tmpfs", path.toString])
   let args := spawnArgs.readablePaths.foldl (init := args)
     (fun acc path => acc ++ #["--ro-bind", path.toString, path.toString])
+  let dotLake := projectDir / ".lake"
+  let args := if let some dir := isolatedBuildDir then
+    args ++ #["--ro-bind", dir.toString, dotLake.toString]
+    else args
   let args := spawnArgs.writablePaths.foldl (init := args)
-    (fun acc path => acc ++ #["--bind", path.toString, path.toString])
+    (fun acc path =>
+      let source := if path == dotLake then isolatedBuildDir.getD path else path
+      acc ++ #["--bind", source.toString, path.toString])
   let args := env.foldl (init := args) (fun acc (name, value) => acc ++ #["--setenv", name, value])
   -- Set last, so it wins over an inherited one: the invoking user's `HOME` is no longer there to
   -- point at, and `git` and Lake's caches want somewhere writable. This one goes with the run.
@@ -215,7 +227,8 @@ def sandboxSpawnArgs (spawnArgs : SandboxArgs) : M IO.Process.SpawnArgs := do
       cmd := (← read).whichEnvBin.toString
       args :=
         #["-i", whichSandbox]
-          ++ buildSandboxArgs spawnArgs (← sandboxEnv spawnArgs) (← getProjectDir)
+          ++ buildSandboxArgs spawnArgs (<- sandboxEnv spawnArgs) (<- getProjectDir)
+            (<- read).isolatedBuildDir
       cwd := ← getProjectDir
     }
 
@@ -513,35 +526,55 @@ def builtinTargets : M (Array Lean.Name) := do
   return additional
 
 def verifyMatch (challengeExportPath : System.FilePath) (solutionExportPath : System.FilePath) :
-    M Unit := do
-  verifyCompare
+    M (Array (Prod Lean.Name (Array Lean.Name))) := do
+  let report <- verifyCompare
   runKernels solutionExportPath
+  return report
 where
-  verifyCompare : M Unit := do
-    let challenge ← LeanExport.parseStream <| .ofHandle (← IO.FS.Handle.mk challengeExportPath .read)
+  verifyCompare : M (Array (Prod Lean.Name (Array Lean.Name))) := do
+    let challenge <- match (<- read).evaluatorChallenge with
+      | some challenge => pure challenge
+      | none => LeanExport.parseStream <| .ofHandle (<- IO.FS.Handle.mk challengeExportPath .read)
     let solution ← LeanExport.parseStream <| .ofHandle (← IO.FS.Handle.mk solutionExportPath .read)
     let theoremNames ← getTheoremNames
     let definitionNames ← getDefinitionNames
     let targets := (← getTheoremNames) ++ (← getLegalAxioms)
-    IO.ofExcept <| compareAt challenge solution targets definitionNames (← primitiveTargets)
+    let accepted := (<- read).acceptedStatements
+    let report <- IO.ofExcept <| compareWithAcceptedStatements challenge solution targets
+      definitionNames (<- primitiveTargets) accepted
     IO.ofExcept <| checkAxioms solution theoremNames definitionNames (← getLegalAxioms)
+    IO.ofExcept <| checkAxioms challenge #[] accepted (<- getLegalAxioms)
+    return report
 
-def compareIt : M Unit := do
+def compareIt : M ExitCode := do
   let exportTargets := (← builtinTargets) ++ (← getTheoremNames) ++ (← getLegalAxioms)
     ++ (← primitiveTargets) ++ (← getDefinitionNames)
+  let exportTargets := if (<- read).acceptedStatements.isEmpty then exportTargets
+    else exportTargets.push ``And
 
   let challengeModule ← getChallengeModule
-  withSafeBuildAndExport .challenge challengeModule exportTargets fun challengeExportPath => do
+  let challengeTargets := exportTargets ++ (<- read).acceptedStatements
+  withSafeBuildAndExport .challenge challengeModule challengeTargets fun challengeExportPath => do
     let solutionModule ← getSolutionModule
     withSafeBuildAndExport .solution solutionModule exportTargets fun solutionExportPath => do
-      verifyMatch challengeExportPath solutionExportPath
-      IO.println "Your solution is okay!"
+      let report <- verifyMatch challengeExportPath solutionExportPath
+      if report.isEmpty then
+        IO.println "Your solution is okay!"
+        return 0
+      else
+        for (target, statements) in report do
+          let names := ", ".intercalate (statements.toList.map Lean.Name.toString)
+          IO.println s!"Theorem '{target}' matches conditional on: {names}"
+        IO.println "Your solution matches conditional on the accepted statements listed above."
+        return 3
 
 public structure Config where
   challenge_module : String
   solution_module : String
   theorem_names : Array String
   definition_names : Option (Array String) := none
+  /-- A JSON array of proposition-definition names, relative to the configuration file. -/
+  accepted_statements_file : Option System.FilePath := none
   permitted_axioms : Array String
   enable_nanoda? : Option Bool
   external_kernels? : Option (Std.TreeMap String (Array String))
@@ -551,6 +584,61 @@ public structure Config where
 def cannotRun (msg : String) : IO ExitCode := do
   IO.eprintln s!"error: {msg}"
   return 2
+
+/-- Read the trusted approval list before running any code from the solution project. -/
+def readAcceptedStatements (configFile : System.FilePath) (file : System.FilePath) :
+    IO (Except ExitCode (Array Lean.Name)) := do
+  let file := if file.isAbsolute then file else configFile.parent.getD "." / file
+  let contents <-
+    try IO.FS.readFile file
+    catch e => return .error (<- cannotRun s!"could not read accepted statements '{file}': {e}")
+  let entries <-
+    match Lean.Json.parse contents >>= (Lean.fromJson? : Lean.Json -> Except String (Array String)) with
+    | .error e => return .error (<- cannotRun s!"malformed accepted statements in '{file}': {e}")
+    | .ok entries => pure entries
+  let mut names := #[]
+  for entry in entries do
+    let name := entry.toName
+    if name.isAnonymous then
+      return .error (<- cannotRun s!"empty accepted statement name in '{file}'")
+    if names.contains name then
+      return .error (<- cannotRun s!"duplicate accepted statement '{name}' in '{file}'")
+    names := names.push name
+  return .ok names
+
+/-- Resolve evaluator inputs outside the canonical submission tree, including through symlinks. -/
+def evaluatorInput (projectDir : System.FilePath) (label : String) (path : System.FilePath) :
+    IO (Except ExitCode System.FilePath) := do
+  let path <-
+    try IO.FS.realPath path
+    catch e => return .error (<- cannotRun s!"could not read {label} '{path}': {e}")
+  let components (p : System.FilePath) :=
+    if System.Platform.isWindows then p.components.map String.toLower else p.components
+  if (components projectDir).isPrefixOf (components path) then
+    return .error (<- cannotRun s!"evaluator {label} must be outside the solution project: '{path}'")
+  return .ok path
+
+/-- Snapshot the evaluator's authority before loading even the submission's Lake configuration. -/
+def readEvaluatorInputs (projectDir configFile acceptedFile : System.FilePath)
+    (challengePath? : Option System.FilePath) :
+    IO (Except ExitCode (Prod (Array Lean.Name) LeanExport.ExportedEnv)) := do
+  let some challengePath := challengePath?
+    | return .error (<- cannotRun "accepted statements require --challenge-from-export from an independent evaluator workspace")
+  let acceptedFile := if acceptedFile.isAbsolute then acceptedFile
+    else configFile.parent.getD "." / acceptedFile
+  for (label, path) in #[ ("configuration", configFile),
+      ("accepted statements", acceptedFile), ("challenge export", challengePath)] do
+    if let .error rc <- evaluatorInput projectDir label path then
+      return .error rc
+  let names <- match <- readAcceptedStatements configFile acceptedFile with
+    | .error rc => return .error rc
+    | .ok names => pure names
+  let challenge <-
+    try LeanExport.parseStream <| .ofHandle (<- IO.FS.Handle.mk challengePath .read)
+    catch e => return .error (<- cannotRun s!"could not parse evaluator challenge export: {e}")
+  if challenge.constMap.isEmpty then
+    return .error (<- cannotRun "could not parse evaluator challenge export: no declarations found")
+  return .ok (names, challenge)
 
 /--
 Reports whether the project carries the manifest that sandboxed dependency resolution needs.
@@ -715,6 +803,12 @@ public def runComparator (configFile? : Option System.FilePath)
 
   let theoremNames := cfg.theorem_names.map String.toName
   let definitionNames := cfg.definition_names.getD #[] |>.map String.toName
+  let (acceptedStatements, evaluatorChallenge) <-
+    if let some file := cfg.accepted_statements_file then
+      match <- readEvaluatorInputs base.projectDir configFile file moduleStore[ModuleKind.challenge]? with
+      | .error rc => return rc
+      | .ok (names, challenge) => pure (names, some challenge)
+    else pure (#[], none)
   if theoremNames.isEmpty && definitionNames.isEmpty then
     return ← cannotRun "nothing to check: the configuration names no theorems or definitions"
   let externalKernels ←
@@ -724,6 +818,11 @@ public def runComparator (configFile? : Option System.FilePath)
 
   let needsProject := !(moduleStore.contains .challenge && moduleStore.contains .solution)
   if needsProject then
+    if evaluatorChallenge.isSome then
+      let dotLake := base.projectDir / ".lake"
+      if <- dotLake.pathExists then
+        unless (<- IO.FS.realPath dotLake) == dotLake do
+          return <- cannotRun "solution .lake must not be a symbolic link in evaluator mode"
     if let some rc ← checkManifest "comparator" base.projectDir then
       return rc
 
@@ -733,15 +832,21 @@ public def runComparator (configFile? : Option System.FilePath)
       solutionModule := cfg.solution_module.toName,
       theoremNames,
       definitionNames,
+      acceptedStatements,
+      evaluatorChallenge,
       legalAxioms := cfg.permitted_axioms.map String.toName,
       externalKernels
     }
     if needsProject then
-      let (leanPath, binPath) ← ReaderT.run safeResolveWorkspace ctx
-      ReaderT.run compareIt { ctx with leanPath, binPath }
+      let run (ctx : Context) := do
+        let (leanPath, binPath) <- ReaderT.run safeResolveWorkspace ctx
+        ReaderT.run compareIt { ctx with leanPath, binPath }
+      if evaluatorChallenge.isSome then
+        IO.FS.withTempDir fun dir => run { ctx with isolatedBuildDir := some dir }
+      else
+        run ctx
     else
       ReaderT.run compareIt ctx
-    return 0
   catch e =>
     IO.eprintln s!"error: {e}"
     return 1

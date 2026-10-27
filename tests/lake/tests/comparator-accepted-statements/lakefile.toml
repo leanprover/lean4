@@ -1,0 +1,53 @@
+name = "conditionaltest"
+version = "0.1.0"
+
+[[lean_lib]]
+name = "Accepted"
+
+[[lean_lib]]
+name = "Task"
+
+[[lean_lib]]
+name = "Conditional"
+
+[[lean_lib]]
+name = "Direct"
+
+[[lean_lib]]
+name = "Unconditional"
+
+[[lean_lib]]
+name = "Unlisted"
+
+[[lean_lib]]
+name = "Disjunction"
+
+[[lean_lib]]
+name = "Changed"
+
+[[lean_lib]]
+name = "ForbiddenAxiom"
+
+[[lean_lib]]
+name = "Sorry"
+
+[[lean_lib]]
+name = "Wrong"
+
+[[lean_lib]]
+name = "Dependent"
+
+[[lean_lib]]
+name = "DependencyTask"
+
+[[lean_lib]]
+name = "DependencyChanged"
+
+[[lean_lib]]
+name = "Bare"
+
+[[lean_lib]]
+name = "StatementTask"
+
+[[lean_lib]]
+name = "StatementChanged"

@@ -1,0 +1,4 @@
+name = "evaluator"
+
+[[lean_lib]]
+name = "Reference"

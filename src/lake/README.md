@@ -31,6 +31,7 @@ A Lake configuration file defines the package's basic configuration. It also typ
   + [TOML `require`](#toml-require)
 * [GitHub Release Builds](#github-release-builds)
 * [Writing and Running Scripts](#writing-and-running-scripts)
+* [Conditional Proofs with Comparator](#conditional-proofs-with-comparator)
 * [Building and Running Lake from the Source](#building-and-running-lake-from-the-source)
   + [Building with Nix Flakes](#building-with-nix-flakes)
   + [Augmenting Lake's Search Path](#augmenting-lakes-search-path)
@@ -574,6 +575,77 @@ USAGE:
 
 Greet the entity with the given name. Otherwise, greet the whole world.
 ```
+
+## Conditional Proofs with Comparator
+
+`lake comparator` normally requires every solution theorem to have exactly the challenge's statement. A challenge author can opt into conditional proofs by adding `"accepted_statements_file": "accepted.json"` to the trusted comparator configuration. The named file is a JSON array of declaration names, resolved relative to that configuration file:
+
+```json
+["Accepted.first", "Accepted.second"]
+```
+
+Define the propositions in an evaluator-controlled Lean module imported by the challenge. Build and export it in a separate workspace with evaluator-controlled dependencies and a matching Lean toolchain, before evaluating the submitted project. The solution can use a copy of these definitions, or spell out just the propositions it needs:
+
+```lean
+module
+
+public section
+
+def Accepted.first : Prop := forall n : Nat, n + n = 2 * n
+def Accepted.second : Prop := forall n : Nat, n + 0 = n
+```
+
+These are proposition definitions, not proofs or custom axioms. They illustrate the format; an application can instead list substantial mathematical statements whose Lean proofs are unavailable. The caller is responsible for reviewing their truth and consistency.
+
+For an unconditional challenge such as `theorem task : True := by sorry`, the corresponding solution can have additional leading hypotheses:
+
+```lean
+theorem task (_ : Accepted.first) (_ : Accepted.second) : True := True.intro
+```
+
+Each additional input must be exactly a listed proposition's name, its exported body, or a nested conjunction of such inputs. For example, `And Accepted.first Accepted.second` is accepted. General logical equivalence, disjunction, instantiation of a universally quantified approval, and dependent hypotheses are not inferred. Ordinary parameters remain in the challenge's statement, after the additional hypotheses. Accepted definitions must be safe, closed, monomorphic definitions of type `Prop`, and cannot themselves be theorem targets or definition holes.
+
+Comparator compares the hypotheses and their transitive dependencies against the trusted challenge. Changing the meaning of a proposition in the solution, including disguising `False` as an approved proposition, fails this comparison. Unused approval definitions need not be present in the solution. The axiom policy still applies to the original proof and approved definitions' dependencies. Every configured kernel checks the original conditional theorem; no approved statement is inserted as an axiom, and no unconditional proof is manufactured.
+
+A successful conditional result exits with code 3 and reports the exact approval names for each conditional theorem, deduplicated in first-occurrence order:
+
+```text
+Theorem 'task' matches conditional on: Accepted.first, Accepted.second
+Your solution matches conditional on the accepted statements listed above.
+```
+
+This reports hypotheses required by the theorem's type, including any that its proof happens not to use. Approvals absent from the theorem's hypotheses are not reported. If at least one checked theorem requires an approved hypothesis, the entire run returns 3 after all comparisons, axiom checks, and configured kernel checks pass. Otherwise, it returns 0 and prints the unconditional success message. Merely configuring approvals does not make a result conditional. This distinction applies both to source builds and to supplied exports.
+
+| Exit code | Meaning |
+| --- | --- |
+| 0 | All checked targets match unconditionally. |
+| 1 | Rejected: a comparison, axiom check, kernel check, or build failed. |
+| 2 | Could not start because of a configuration or environment error. |
+| 3 | All checks passed, with at least one theorem conditional on the reported accepted statements. |
+
+Automation must handle code 3 explicitly as a conditional match and preserve the reported assumptions. Shells, `set -e`, and CI systems normally treat any nonzero status as failure; code 3 deliberately requires consumers to opt into accepting conditional results. A rejected solution still returns 1 even if its statement would otherwise match conditionally.
+
+Omitting `accepted_statements_file` retains the original behavior. Supplying an empty list retains exact statement comparison but still requires the independent evaluator inputs described below. Missing or malformed approval files, empty names, duplicate names, and invalid input locations are configuration errors (exit code 2). Invalid proposition definitions, unapproved hypotheses, changed dependencies, prohibited axioms, and failed kernel checks reject the solution (exit code 1).
+
+### Independent evaluator inputs
+
+Whenever `accepted_statements_file` is present, `--challenge-from-export` is required. The configuration, approval list, and challenge export must all resolve outside the solution project's directory, including through symbolic links. The caller must supply evaluator-owned files: their location is enforced, but Comparator cannot determine who authored an arbitrary file or whether a proposition is true. Do not create the reference by importing modules or running a Lake configuration supplied by the submission.
+
+For example, with an evaluator directory beside the submitted project, run this from the submitted project's directory:
+
+```console
+lake comparator --config ../evaluator/comparator.json --challenge-from-export ../evaluator/reference.export
+```
+
+The reference export must contain the challenge targets, every approved definition, `And`, and the usual permitted axioms and kernel primitives. Use the matching toolchain's `leanexport` in the evaluator workspace to produce it. `challenge_module` remains a required configuration field, but no challenge module is loaded from the submission when this option is enabled. An explicit `--solution-from-export` is also supported; that export remains untrusted and is checked normally.
+
+Comparator reads the configuration and approval list and parses the complete reference export before running any submitted configuration, dependency resolution, compilation, or exporter. It retains that reference in memory. Same-named project modules, notation, instances, definitions, or approval files cannot change its meaning. A conflicting definition used in a compared statement causes rejection; an unused conflicting definition does not affect a correct literal statement.
+
+On Linux, sandboxed evaluation uses fresh private storage mounted at `.lake` for the submission's build. Submitted build caches and hard links are hidden, and a symbolic link replacing `.lake` is rejected. Evaluator files remain outside the writable mount. This rebuilds dependencies and solution artifacts for each evaluation instead of reusing the submission's cache. The submitted project still needs a dependency manifest, as in ordinary sandboxed Comparator runs.
+
+Use a real `bubblewrap` sandbox and trusted toolchain, executable paths, and environment for third-party evaluation. `--inadvisably-no-sandbox` remains an explicit escape hatch for trusted local tests; it cannot provide filesystem or process isolation. A project using this feature during its own development can prepare a separate reference workspace in the same way. Without the feature, source-mode comparison retains its existing behavior and does not establish an independently authored reference.
+
+`lake check` is unaffected: it still checks the project without discharging hypotheses or approving custom axioms. The `comparator-evaluator-isolation` test suite exercises conflicting project definitions and attempted writes to evaluator inputs using real Linux namespaces. Set `COMPARATOR_REQUIRE_SANDBOX_TESTS=1` to require this coverage rather than skip when Linux or bubblewrap is unavailable; a sandbox setup failure always fails the suite.
 
 ## Building and Running Lake from the Source
 

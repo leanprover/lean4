@@ -182,37 +182,4 @@ def Poly.size : Poly → Nat
   | .num _ => 1
   | .add _ m p => m.size + 1 + p.size
 
-def Power.toExpr (pw : Power) : Expr :=
-  if pw.k == 1 then
-    .var pw.x
-  else
-    .pow (.var pw.x) pw.k
-
-def Mon.toExpr (m : Mon) : Expr :=
-  match m with
-  | .unit => .num 1
-  | .mult pw m => go m pw.toExpr
-where
-  go (m : Mon) (acc : Expr) : Expr :=
-    match m with
-    | .unit => acc
-    | .mult pw m => go m (.mul acc pw.toExpr)
-
-def Poly.toExpr (p : Poly) : Expr :=
-  match p with
-  | .num k => .num k
-  | .add k m p => go p (goTerm k m)
-where
-  goTerm (k : Int) (m : Mon) : Expr :=
-    if k == 1 then
-      m.toExpr
-    else
-      .mul (.num k) m.toExpr
-
-  go (p : Poly) (acc : Expr) : Expr :=
-    match p with
-    | .num 0 => acc
-    | .num k => .add acc (.num k)
-    | .add k m p => go p (.add acc (goTerm k m))
-
 end Lean.Grind.CommRing

@@ -707,6 +707,110 @@ theorem eq_normS_nc {α} [Semiring α] (ctx : Context α) (lhs rhs : Expr)
   simp [Expr.denoteS_toPolyS_nc, *] at h
   assumption
 
+/-!
+Certificates that check the normal form of a commutative semiring term by definitional equality,
+as `Expr.eq_of_toPoly_eq_toExpr` does for rings: the kernel computes the polynomial of the term
+once and renders it with `Poly.toExpr_k`, instead of normalizing both sides.
+-/
+
+theorem Expr.denoteS_num_of_nonneg {α} [Semiring α] (ctx : Context α) (k : Int) (h : k ≥ 0) :
+    (Expr.num k).denoteS ctx = denoteSInt k := by
+  simp [Expr.denoteS, denoteSInt, Int.not_lt.mpr h]
+
+theorem Power.denoteS_toExpr {α} [Semiring α] (ctx : Context α) (pw : Power) :
+    pw.toExpr.denoteS ctx = pw.denote ctx := by
+  rw [Power.denote_eq]; unfold Power.toExpr; split
+  · next h => simp at h; simp [Expr.denoteS, h, pow_one]
+  · simp [Expr.denoteS]
+
+theorem Mon.denoteS_toExpr_go {α} [Semiring α] (ctx : Context α) (m : Mon) (acc : Expr) :
+    (Mon.toExpr.go m acc).denoteS ctx = acc.denoteS ctx * m.denote ctx := by
+  induction m generalizing acc with
+  | unit => simp [Mon.toExpr.go, Mon.denote, mul_one]
+  | mult pw m ih =>
+    simp only [Mon.toExpr.go, ih]
+    show acc.denoteS ctx * pw.toExpr.denoteS ctx * m.denote ctx = _
+    rw [Power.denoteS_toExpr, mul_assoc]; rfl
+
+theorem Mon.denoteS_toExpr {α} [Semiring α] (ctx : Context α) (m : Mon) : m.toExpr.denoteS ctx = m.denote ctx := by
+  cases m with
+  | unit => simp [Mon.toExpr, Expr.denoteS, Mon.denote]
+  | mult pw m => simp only [Mon.toExpr, Mon.denoteS_toExpr_go, Power.denoteS_toExpr]; rfl
+
+theorem Poly.denoteS_toExpr_goTerm {α} [Semiring α] (ctx : Context α) (k : Int) (m : Mon) (h : k ≥ 0) :
+    (Poly.toExpr.goTerm k m).denoteS ctx = denoteSInt k * m.denote ctx := by
+  unfold toExpr.goTerm; split
+  · next h' =>
+    simp at h'; subst h'
+    rw [Mon.denoteS_toExpr, denoteSInt_eq]; simp [natCast_one, one_mul]
+  · show (Expr.num k).denoteS ctx * m.toExpr.denoteS ctx = _
+    rw [Expr.denoteS_num_of_nonneg ctx k h, Mon.denoteS_toExpr]
+
+theorem Poly.denoteS_toExpr_go {α} [Semiring α] (ctx : Context α) (p : Poly) (acc : Expr) (h : p.NonnegCoeffs) :
+    (Poly.toExpr.go p acc).denoteS ctx = acc.denoteS ctx + p.denoteS ctx := by
+  induction p generalizing acc with
+  | num k =>
+    cases h; rename_i hk
+    cases hk0 : k == 0
+    · simp only [toExpr.go, hk0, Bool.cond_false]
+      show acc.denoteS ctx + (Expr.num k).denoteS ctx = _
+      rw [Expr.denoteS_num_of_nonneg ctx k hk]; rfl
+    · have : k = 0 := by simpa using hk0
+      subst this; simp [toExpr.go, Poly.denoteS, denoteSInt, add_zero]
+  | add k m p ih =>
+    cases h; rename_i hk hp
+    simp only [toExpr.go]
+    rw [ih _ hp]
+    show acc.denoteS ctx + (toExpr.goTerm k m).denoteS ctx + p.denoteS ctx = _
+    rw [Poly.denoteS_toExpr_goTerm ctx k m hk, add_assoc]; rfl
+
+theorem Poly.denoteS_toExpr {α} [Semiring α] (ctx : Context α) (p : Poly) (h : p.NonnegCoeffs) :
+    p.toExpr.denoteS ctx = p.denoteS ctx := by
+  cases p with
+  | num k => cases h; rename_i hk; exact Expr.denoteS_num_of_nonneg ctx k hk
+  | add k m p =>
+    cases h; rename_i hk hp
+    simp only [toExpr]
+    rw [Poly.denoteS_toExpr_go ctx p _ hp, Poly.denoteS_toExpr_goTerm ctx k m hk]; rfl
+
+noncomputable def Poly.nonneg_k (p : Poly) : Bool :=
+  Poly.rec (fun k => Bool.rec true false (Int.blt' k (Int.ofNat 0)))
+    (fun k _ _ ih => Bool.rec ih false (Int.blt' k (Int.ofNat 0))) p
+
+theorem Poly.nonnegCoeffs_of_nonneg_k {p : Poly} (h : p.nonneg_k = true) : p.NonnegCoeffs := by
+  induction p with
+  | num k =>
+    have h' : Bool.rec (motive := fun _ => Bool) true false (Int.blt' k (Int.ofNat 0)) = true := h
+    cases hk : Int.blt' k (Int.ofNat 0)
+    · constructor; have := (Int.blt'_eq_false k 0).mp hk; omega
+    · rw [hk] at h'; cases h'
+  | add k m p ih =>
+    have h' : Bool.rec (motive := fun _ => Bool) p.nonneg_k false (Int.blt' k (Int.ofNat 0)) = true := h
+    cases hk : Int.blt' k (Int.ofNat 0)
+    · rw [hk] at h'
+      constructor
+      · have := (Int.blt'_eq_false k 0).mp hk; omega
+      · exact ih h'
+    · rw [hk] at h'; cases h'
+
+theorem Expr.eq_of_toPolyS_eq_toExpr {α} [CommSemiring α] (ctx : Context α) (a b : Expr) (p : Poly)
+    (h₁ : p = a.toPolyS_k) (h₂ : b = p.toExpr_k) : a.denoteS ctx = b.denoteS ctx := by
+  subst h₁ h₂
+  rw [Poly.toExpr_k_eq, Expr.toPolyS_k_eq_toPolyS, Poly.denoteS_toExpr _ _ Expr.toPolyS_NonnegCoeffs,
+    Expr.denoteS_toPolyS]
+
+theorem Expr.eq_of_toPolyS_eq_add_toExpr {α} [CommSemiring α] (ctx : Context α) (a b : Expr) (p q r : Poly)
+    (h₁ : p = a.toPolyS_k) (h₂ : b = .add q.toExpr_k r.toExpr_k) (h₃ : p = q.combine_k r)
+    (h₄ : (q.nonneg_k && r.nonneg_k) = true) : a.denoteS ctx = b.denoteS ctx := by
+  rw [Bool.and_eq_true] at h₄
+  have hq := Poly.nonnegCoeffs_of_nonneg_k h₄.1
+  have hr := Poly.nonnegCoeffs_of_nonneg_k h₄.2
+  subst h₂
+  rw [← Expr.denoteS_toPolyS, ← Expr.toPolyS_k_eq_toPolyS, ← h₁, h₃, Poly.combine_k_eq_combine,
+    Poly.denoteS_combine _ _ _ hq hr]
+  show _ = q.toExpr_k.denoteS ctx + r.toExpr_k.denoteS ctx
+  rw [Poly.toExpr_k_eq, Poly.toExpr_k_eq, Poly.denoteS_toExpr _ _ hq, Poly.denoteS_toExpr _ _ hr]
+
 end CommRing
 
 namespace Ring.OfSemiring

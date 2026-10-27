@@ -414,6 +414,11 @@ structure GoalsAtResult where
   nothing about where the block's tactics are placed.
   -/
   hangingBy  : Bool := false
+  /--
+  Whether the tactic info has no nested tactic infos, such as those of a nested tactic block, apart
+  from proofs nested in terms.
+  -/
+  isLeaf     : Bool := true
   -- for overlapping goals, only keep those of the highest reported priority
   priority   : Nat
 
@@ -465,6 +470,7 @@ partial def InfoTree.goalsAt? (text : FileMap) (t : InfoTree) (hoverPos : String
           useAfter := hoverPos > pos && !cs.any (hasNestedTactic pos tailPos)
           indented := col > hoverCol
           hangingBy := isByBlock i.stx
+          isLeaf := !cs.any hasTacticInfo
           -- use goals just before cursor as fall-back only
           -- thus for `(by foo)`, placing the cursor after `foo` shows its state as long
           -- as there is no state on `)`
@@ -487,6 +493,12 @@ where
     | InfoTree.node (Info.ofMacroExpansionInfo _) cs =>
       cs.any (hasNestedTactic pos tailPos)
     | _ => false
+  hasTacticInfo : InfoTree → Bool
+    -- ignore term-nested proofs such as in `exact ⟨by simp, foo⟩`
+    | .node i@(.ofTacticInfo _) _ => !isByBlock i.stx
+    | .node _ cs => cs.any hasTacticInfo
+    | .context _ t => hasTacticInfo t
+    | .hole _ => false
   isByBlock (stx : Syntax) : Bool :=
     -- there are multiple `by` kinds with the same structure
     stx.isToken "by" || stx.getNumArgs == 2 && stx[0].isToken "by"

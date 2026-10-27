@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <atomic>
+#include <charconv>
 #include <string>
 #include <algorithm>
 #include <vector>
@@ -1928,13 +1929,59 @@ extern "C" LEAN_EXPORT isize lean_isize_of_big_int(b_obj_arg a) {
 // =======================================
 // Float
 
-extern "C" LEAN_EXPORT lean_obj_res lean_float_to_string(double a) {
+// Writes `a` as the shortest decimal that reads back to the same value, laid out as Python's
+// `repr` does: positional notation when `1e-4 <= |a| < 1e16`, scientific notation otherwise.
+// The result always contains a `.` or an `e`, so it reads back as a float literal.
+template<typename T> static std::string float_to_string(T a) {
     if (isnan(a))
         // override NaN because we don't want NaNs to be distinguishable
         // because the sign bit / payload bits can be architecture-dependent
-        return mk_ascii_string_unchecked("NaN");
-    else
-        return mk_ascii_string_unchecked(std::to_string(a));
+        return "NaN";
+    if (isinf(a))
+        return a < 0 ? "-inf" : "inf";
+    // Without a precision, `to_chars` writes the shortest digits that round-trip, here as
+    // `[-]d[.ddd]e(+|-)xx`.
+    char buf[64];
+    std::to_chars_result r =
+        std::to_chars(buf, buf + sizeof(buf), a, std::chars_format::scientific);
+    lean_assert(r.ec == std::errc());
+    std::string out = buf[0] == '-' ? "-" : "";
+    std::string digits;
+    char const * p = buf;
+    for (; *p != 'e'; p++)
+        if ('0' <= *p && *p <= '9') digits += *p;
+    int exp = 0;
+    std::from_chars(p + (p[1] == '+' ? 2 : 1), r.ptr, exp);
+    // the value is `0.<digits> * 10^point`
+    int n = static_cast<int>(digits.size());
+    int point = exp + 1;
+    if (point <= -4 || point > 16) {
+        out += digits[0];
+        if (n > 1) {
+            out += '.';
+            out.append(digits, 1);
+        }
+        out += exp < 0 ? "e-" : "e+";
+        if (-10 < exp && exp < 10) out += '0';
+        out += std::to_string(exp < 0 ? -exp : exp);
+    } else if (point <= 0) {
+        out += "0.";
+        out.append(-point, '0');
+        out += digits;
+    } else if (point >= n) {
+        out += digits;
+        out.append(point - n, '0');
+        out += ".0";
+    } else {
+        out.append(digits, 0, point);
+        out += '.';
+        out.append(digits, point);
+    }
+    return out;
+}
+
+extern "C" LEAN_EXPORT lean_obj_res lean_float_to_string(double a) {
+    return mk_ascii_string_unchecked(float_to_string(a));
 }
 
 extern "C" LEAN_EXPORT double lean_float_scaleb(double a, b_lean_obj_arg b) {
@@ -1981,12 +2028,7 @@ extern "C" LEAN_EXPORT uint64_t lean_float_to_bits(double d)
 // Float32
 
 extern "C" LEAN_EXPORT lean_obj_res lean_float32_to_string(float a) {
-    if (isnan(a))
-        // override NaN because we don't want NaNs to be distinguishable
-        // because the sign bit / payload bits can be architecture-dependent
-        return mk_ascii_string_unchecked("NaN");
-    else
-        return mk_ascii_string_unchecked(std::to_string(a));
+    return mk_ascii_string_unchecked(float_to_string(a));
 }
 
 extern "C" LEAN_EXPORT float lean_float32_scaleb(float a, b_lean_obj_arg b) {

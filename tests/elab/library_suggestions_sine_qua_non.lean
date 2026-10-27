@@ -17,13 +17,13 @@ example {x : Dyadic} {prec : Int} : (x.roundUp prec).precision ≤ some prec := 
   fail_if_success grind
   grind +suggestions
 
-/-- info: [(HAppend.hAppend, 1.000000)] -/
+/-- info: [(HAppend.hAppend, 1.0)] -/
 #guard_msgs in
 run_meta do
   let r ← triggerSymbols (← getConstInfo `List.append_assoc)
   logInfo m!"{r}"
 
-/-- info: [(HAppend.hAppend, 1.000000)] -/
+/-- info: [(HAppend.hAppend, 1.0)] -/
 #guard_msgs in
 run_meta do
   let r ← sineQuaNonTriggersFor `List.append_assoc

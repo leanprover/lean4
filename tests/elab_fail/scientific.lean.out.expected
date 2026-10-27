@@ -1,13 +1,13 @@
-10.000000
-10.000000
-0.100000
-0.000000
-5843.000000
-8430000.000000
-0.000001
-123.000000
-123000.000000
--8.534000
+10.0
+10.0
+0.1
+1.453e-08
+5843.0
+8430000.0
+5.2342e-07
+123.0
+123000.0
+-8.534
 scientific.lean:14:6-14:7: error: invalid occurrence of `·` notation, it must be surrounded by parentheses (e.g. `(· + 1)`)
 scientific.lean:14:7-14:10: error: unexpected token; expected command
 scientific.lean:15:6-15:7: error: invalid occurrence of `·` notation, it must be surrounded by parentheses (e.g. `(· + 1)`)

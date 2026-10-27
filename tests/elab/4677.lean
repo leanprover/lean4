@@ -29,25 +29,25 @@ inductive Boo where | mk (x : Float)
 deriving Repr
 
 /--
-info: [-1.000000, 2.000000]
+info: [-1.0, 2.0]
 -/
 #guard_msgs in
 #eval [-1.0, 2.0]
 
 /--
-info: Boo.mk (-1.000000)
+info: Boo.mk (-1.0)
 -/
 #guard_msgs in
 #eval Boo.mk (-1.0)
 
 /--
-info: Boo.mk 1.000000
+info: Boo.mk 1.0
 -/
 #guard_msgs in
 #eval Boo.mk 1.0
 
 /--
-info: -1.000000
+info: -1.0
 -/
 #guard_msgs in
 #eval -1.0

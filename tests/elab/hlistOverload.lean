@@ -39,7 +39,7 @@ example : [10, true, 20.1].nth #2 = (20.1:Float) := rfl
 #guard_msgs in
 #eval [10, true, 20.1].nth #1
 
-/-- info: 20.100000 -/
+/-- info: 20.1 -/
 #guard_msgs in
 #eval [10, true, 20.1].nth #2
 

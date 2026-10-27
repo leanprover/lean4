@@ -78,10 +78,10 @@ private meta def sampleTree : TraceTree :=
 
 -- `selfTime` appends the time not accounted for by child nodes.
 /--
-info: [a] [0.100000] root (self: 10.0ms)
-  [b] [0.030000] fast leaf (self: 30.0ms)
-  [c] [0.060000] slow branch (self: 40.0ms)
-    [d] [0.020000] grandchild (self: 20.0ms)
+info: [a] [0.10000000000000009] root (self: 10.0ms)
+  [b] [0.030000000000000027] fast leaf (self: 30.0ms)
+  [c] [0.06000000000000005] slow branch (self: 40.0ms)
+    [d] [0.020000000000000018] grandchild (self: 20.0ms)
 -/
 #guard_msgs in
 #eval runPost selfTime #[timedTree]
@@ -104,18 +104,18 @@ info: [a] root (5 nodes)
 
 -- `minSelfTimeMs` matches only `c` (40ms self time); `filter` keeps its ancestors and children.
 /--
-info: [a] [0.100000] root
-  [c] [0.060000] slow branch
-    [d] [0.020000] grandchild
+info: [a] [0.10000000000000009] root
+  [c] [0.06000000000000005] slow branch
+    [d] [0.020000000000000018] grandchild
 -/
 #guard_msgs in
 #eval runPost (filterSubtrees (minSelfTimeMs 35)) #[timedTree]
 
 -- Patterns are ordinary predicates and can combine built-in patterns with custom conditions.
 /--
-info: [a] [0.100000] root
-  [c] [0.060000] slow branch
-    [d] [0.020000] grandchild
+info: [a] [0.10000000000000009] root
+  [c] [0.06000000000000005] slow branch
+    [d] [0.020000000000000018] grandchild
 -/
 #guard_msgs in
 #eval runPost (filterSubtrees fun t => return (← minTimeMs 50 t) && t.cls? != some `a) #[timedTree]

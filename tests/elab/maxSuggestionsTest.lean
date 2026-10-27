@@ -29,11 +29,11 @@ set_library_suggestions (fun _ cfg => pure <|
 -- Baseline: with default maxSuggestions, all 5 suggestions shown
 /--
 info: Library suggestions:
-  p1 (score: 1.000000)
-  p2 (score: 0.900000)
-  p3 (score: 0.800000)
-  p4 (score: 0.700000)
-  p5 (score: 0.600000)
+  p1 (score: 1.0)
+  p2 (score: 0.9)
+  p3 (score: 0.8)
+  p4 (score: 0.7)
+  p5 (score: 0.6)
 -/
 #guard_msgs in
 example : P 1 := by

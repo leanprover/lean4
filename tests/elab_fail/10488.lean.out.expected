@@ -1,8 +1,8 @@
 2
 31. : Float
 31.0 : Float
-31.000000
-31.000000
+31.0
+31.0
 10488.lean:8:10: error: missing exponent digits in scientific literal
 10488.lean:9:10: error: missing exponent digits in scientific literal
 10488.lean:11:7: error: unexpected identifier after decimal point; consider parenthesizing the number

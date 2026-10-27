@@ -6,6 +6,6 @@
 #guard_msgs in
 #eval ByteArray.foldl (·+·) 0 ⟨#[1,2,3]⟩ (start := 5) (stop := 10)
 
-/-- info: 0.000000 -/
+/-- info: 0.0 -/
 #guard_msgs in
 #eval FloatArray.foldl (·+·) 0 ⟨#[1,2,3]⟩ (start := 5) (stop := 10)

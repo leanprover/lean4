@@ -781,8 +781,9 @@ static inline bool lean_is_exclusive(lean_object * o) {
     }
 }
 
+/* Implements `isExclusiveUnsafe`, whose argument can have any type and so can be a tagged scalar. */
 static inline uint8_t lean_is_exclusive_obj(lean_object * o) {
-    return lean_is_exclusive(o);
+    return !lean_is_scalar(o) && lean_is_exclusive(o);
 }
 
 static inline bool lean_is_shared(lean_object * o) {

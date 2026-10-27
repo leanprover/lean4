@@ -429,6 +429,25 @@ public def getPreservedParams (params : Array (TSyntax ``Parser.Tactic.grindPara
     | _ => return true
 
 /--
+Returns `inj` parameters for the `[grind inj]` theorems without hypotheses used in `proof`.
+These theorems are asserted directly instead of instantiated, so generated scripts do not
+mention them.
+-/
+public def getUsedInjParams (params : Grind.Params) (proof : Expr) :
+    MetaM (Array (TSyntax ``Parser.Tactic.grindParam)) := do
+  let used := proof.getUsedConstantsAsSet
+  let mut result := #[]
+  for ext in params.extensions do
+    for origin in ext.inj.getOrigins do
+      let .decl declName := origin | continue
+      if used.contains declName && !(← getConstInfo declName).type.isForall then
+        let decl := mkIdent (← unresolveNameGlobalAvoidingLocals declName)
+        let param ← `(Parser.Tactic.grindParam| inj $decl:ident)
+        unless result.contains param do
+          result := result.push param
+  return result
+
+/--
 Helper method for processing parameters in tactics such as `finish` and `finish?`
 -/
 public def withParams (params : Grind.Params) (ps : TSyntaxArray ``Parser.Tactic.grindParam) (only : Bool)

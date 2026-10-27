@@ -381,6 +381,12 @@ private def elabGrindConfig' (config : TSyntax ``Lean.Parser.Tactic.optConfig) (
       if result.hasFailed then
         throwError "`sym` failed\n{← result.toMessageData}"
 
+/-- Appends to `ps` the `inj` parameters used by the proof assigned to `mvarId`. -/
+private def addUsedInjParams (params : Grind.Params) (mvarId : MVarId) (ps : Array Grind.TParam) :
+    MetaM (Array Grind.TParam) := do
+  let injParams ← Grind.getUsedInjParams params (← instantiateMVars (mkMVar mvarId))
+  return ps ++ injParams.filter (!ps.contains ·)
+
 def evalGrindTraceCore (stx : Syntax) (trace := true) (verbose := true) (useSorry := true) : TacticM (Array (TSyntax `tactic)) := withMainContext do
   let `(tactic| grind? $configStx:optConfig $[only%$only]?  $[ [$params?:grindParam,*] ]?) := stx
     | throwUnsupportedSyntax
@@ -398,11 +404,12 @@ def evalGrindTraceCore (stx : Syntax) (trace := true) (verbose := true) (useSorr
       let goal :: goals ← Grind.getGoals
         | -- Goal was closed during initialization
           let configStx' := filterSuggestionsAndLocalsFromGrindConfig configStx
-          if termParamStxs.isEmpty then
+          let onlyParams ← addUsedInjParams params mvarId' termParamStxs
+          if onlyParams.isEmpty then
             let tac ← `(tactic| grind $configStx':optConfig only)
             return #[tac]
           else
-            let tac ← `(tactic| grind $configStx':optConfig only [$termParamStxs,*])
+            let tac ← `(tactic| grind $configStx':optConfig only [$onlyParams,*])
             return #[tac]
       Grind.liftGrindM do
         -- **Note**: If we get failures when using the first suggestion, we should test is using `saved`
@@ -421,7 +428,7 @@ def evalGrindTraceCore (stx : Syntax) (trace := true) (verbose := true) (useSorr
             throwError "`grind?` failed\n{← result.toMessageData}"
         let seq ← if h : seqs.size = 1 then pure seqs[0] else seqs.toList.mapM fun seq => Grind.Action.mkGrindNext seq
         let configStx' := filterSuggestionsAndLocalsFromGrindConfig configStx
-        let tacs ← Grind.mkGrindOnlyTactics configStx' seq termParamStxs
+        let tacs ← Grind.mkGrindOnlyTactics configStx' seq (← addUsedInjParams params mvarId' termParamStxs)
         let seq := Grind.Action.mkGrindSeq seq
         /-
         **Note**: The script must carry the preserved parameters (e.g., types marked for

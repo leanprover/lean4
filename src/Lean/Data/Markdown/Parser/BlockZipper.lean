@@ -283,7 +283,7 @@ public def openItem (z : BlockZipper s) (kind : ListKind) (marker : s.Subslice)
     let z := { z with spine := z.spine.push { container := .listItem list marker contentColumn } }
     z.startBlock
   | none =>
-    let z := z.closeLeaf.startBlock
+    let z := z.startBlock
     { z with spine := z.spine.push { container := .listItem { kind } marker contentColumn } }
 
 /-- Replaces the open leaf at the bottom of the spine, closing any prior one. -/

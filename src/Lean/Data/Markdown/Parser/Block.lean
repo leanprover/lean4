@@ -444,6 +444,9 @@ Indentation is paragraph text here, because an indented code block cannot interr
 items may interrupt a paragraph apply only when the paragraph is the innermost open block.
 -/
 def isInterrupt (line : IndentedLine s) : Bool :=
+  -- A line that interrupts is examined again by `openLeafBlock`, which repeats these checks. The
+  -- repetition is cheap: it is paid once per interrupting line, and the HTML check, the only one
+  -- that allocates, runs only for lines that begin with `<`.
   line.after.isEmpty ||
   (parseBlockquoteMarker? line).isSome ||
   (parseListMarker? line).isSome ||

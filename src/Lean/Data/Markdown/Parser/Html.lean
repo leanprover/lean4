@@ -265,8 +265,7 @@ public def isBlockTagName (name : s.Subslice) : Bool :=
 /--
 Parses a complete HTML open or closing tag after its `<` at `cur`, followed by nothing but spaces
 and tabs, which is the start condition of a complete-tag HTML block (CommonMark §4.6, start
-condition 7). Open tags of the raw text elements are excluded. Returns the cursor at the end of the
-input.
+condition 7). Returns the cursor at the end of the input.
 -/
 public def parseCompleteTagLine? (cur : InlineCursor s) : Option (InlineCursor s) := do
   let afterTag ←
@@ -274,8 +273,6 @@ public def parseCompleteTagLine? (cur : InlineCursor s) : Option (InlineCursor s
       parseClosingTag? cur.drop1
     else
       guard <| Option.any Char.isAlpha cur.front?
-      let afterName := cur.drop1.skipWhile isTagNameChar
-      guard !(isRawTextTagName (subsliceClamped cur.startPos afterName.startPos))
       parseOpenTag? cur
   let atEnd := afterTag.skipWhile fun c => c == ' ' || c == '\t'
   guard atEnd.isEmpty
@@ -322,7 +319,7 @@ public def interruptsParagraph : HtmlBlockKind → Bool
 
 /--
 Whether `line` contains the end marker of a block of this kind, which makes the line the block's
-last. Kinds that end before a blank line have no end marker.
+last. Kinds that end before a blank line don't have an end marker.
 -/
 public def endConditionMet (kind : HtmlBlockKind) (line : s.Subslice) : Bool :=
   match kind with

@@ -203,8 +203,8 @@ public inductive Block.Raw (s : String.Slice) where
   | blockquote (markers : Array s.Subslice) (children : Array (Block.Raw s))
   /--
   A list container. All `items` are `listItem` blocks. `tight` reflects CommonMark's tight/loose
-  distinction (§5.3): a tight list has no blank lines between its items or between blocks within an
-  item.
+  distinction (§5.3): a tight list doesn't have blank lines between its items or between blocks
+  within an item.
   -/
   | list (kind : ListKind) (tight : Bool) (items : Array (Block.Raw s))
   /--
@@ -218,7 +218,7 @@ public inductive Block.Raw (s : String.Slice) where
   | linkRefDef (m : RefDef s)
   /--
   A thematic break (`***`, `---`, or `___`, optionally with interior spaces or tabs). `line` is the
-  entire source line that produced the break.
+  line's content from its first marker to its last.
   -/
   | thematicBreak (line : s.Subslice)
 deriving Inhabited

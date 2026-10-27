@@ -301,7 +301,7 @@ Processes one `$` delimiter sequence.
 
 A sequence that can close matches the most recent pending opener when the two have the same
 length. The output since that opener becomes the content of the math, taken verbatim from the
-source, and every pending opener inside it is discarded.
+source, and every pending opener is discarded, including those before the matched one.
 
 A sequence that can open becomes a pending opener, and any other sequence is text.
 -/

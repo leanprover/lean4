@@ -682,8 +682,17 @@ info: ["paragraph⟪text⟪para⟫ softBreak html⟪<span>⟫⟫", "html#[\"<spa
 /-- info: ["html#[\"<DIV/>\"]", "html#[\"</Table>\"]"] -/
 #guard_msgs in #eval showDocument "<DIV/>\n\n</Table>\n" 0
 
+-- A complete tag of a raw text element starts a block too, as in cmark and commonmark.js, which
+-- ignore the exclusion of these elements from §4.6 start condition 7.
+/-- info: ["html#[\"<pre/>\", \"foo\"]", "html#[\"</pre>\", \"bar\"]"] -/
+#guard_msgs in #eval showDocument "<pre/>\nfoo\n\n</pre>\nbar\n" 0
+
 /-- info: ["paragraph⟪text⟪< div> and <33>⟫⟫"] -/
 #guard_msgs in #eval showDocument "< div> and <33>\n" 0
+
+-- A tag name begins with an ASCII letter and may continue with digits and hyphens.
+/-- info: ["paragraph⟪text⟪<===⟫ softBreak text⟪<-> <a b=>⟫⟫", "html#[\"<a->\"]"] -/
+#guard_msgs in #eval showDocument "<===\n<-> <a b=>\n\n<a->\n" 0
 
 -- Up to three spaces of indentation are allowed and kept; four make indented code.
 /-- info: ["html#[\"   <div>\"]", "indentedCode#[\"<div>\"]"] -/

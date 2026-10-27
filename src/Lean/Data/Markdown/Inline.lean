@@ -143,7 +143,8 @@ public inductive ReferenceLinkForm (s : String.Slice) where
   -/
   | collapsed (openBracket : s.Subslice) (closeBracket : s.Subslice)
   /--
-  Shortcut form `[label]`. There are no second brackets and the link's text serves as the label.
+  Shortcut form `[label]`. There aren't any second brackets, and the link's text serves as the
+  label.
   -/
   | shortcut
 deriving Inhabited

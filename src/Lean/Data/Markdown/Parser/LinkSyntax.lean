@@ -7,8 +7,8 @@ module
 
 prelude
 public import Init.While
-public import Lean.Data.Markdown.Basic
-public import Lean.Data.Markdown.InlineSource
+public import Lean.Data.Markdown.Inline
+public import Lean.Data.Markdown.InlineCursor
 import Lean.Data.Markdown.Text
 
 namespace Lean.Markdown

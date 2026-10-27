@@ -10,8 +10,8 @@ public import Init.While
 import Init.Data.String.Iterate
 import Init.Data.Range.Polymorphic.Iterators
 import Init.Data.Range.Polymorphic.Nat
-public import Lean.Data.Markdown.Basic
-public import Lean.Data.Markdown.InlineSource
+public import Lean.Data.Markdown.Block
+public import Lean.Data.Markdown.InlineCursor
 public import Lean.Data.Markdown.Parser.RefDef
 import Lean.Data.Markdown.Parser.Cursor
 import Lean.Data.Markdown.Parser.BlockZipper
@@ -414,7 +414,7 @@ def parseHtmlBlockStart? (line : IndentedLine s) : Option HtmlBlockKind := do
     if !isClosing && delimited && isRawTextTagName name then return .rawText
     if isBlockTagName name && (delimited || startsWithAscii afterName.toEol "/>") then
       return .blockTag
-    let src := InlineSource.ofSubslice (subsliceClamped afterLt.pos c.stop)
+    let src := InlineSource.ofLines (.singleton (subsliceClamped afterLt.pos c.stop))
     guard (parseCompleteTagLine? (src.cursor src.startPos src.stopPos)).isSome
     return .completeTag
 
@@ -588,13 +588,12 @@ a heading fails and the underline begins a new paragraph.
   let cursor := (← get).cursor
   let some (level, underline) := parseSetextUnderline? cursor.skipIndent | return
   let line := cursor.toEol
-  let (defs, residual) := extractRefDefs (InlineSource.ofLines lines)
+  let (defs, residual?) := extractRefDefs (InlineSource.ofLines lines)
   ContainerM.finishLineWith fun z =>
     let z := defs.foldl BlockZipper.addBlock { z with openLeaf? := none }
-    if residual.lines.isEmpty then
-      z.openLeaf (.paragraph #[line])
-    else
-      z.addBlock (.setextHeading level residual underline)
+    match residual? with
+    | none => z.openLeaf (.paragraph (.singleton line))
+    | some residual => z.addBlock (.setextHeading level residual underline)
 
 /--
 Lazy paragraph continuation: if some containers failed to continue but we have an open paragraph and
@@ -773,7 +772,8 @@ stay open, since whether they continue is decided by the next line that has cont
 /-- When `line` is an ATX heading (CommonMark §4.2), adds the heading and finishes the line. -/
 @[inline] def tryAtxHeading (line : IndentedLine s) : ProcessM s Unit := do
   let some m := parseAtxHeading? line | return
-  finishLineWith (·.addBlock (.atxHeading m.level m.hashes m.content m.closeHashes))
+  let content := InlineSource.ofLines (.singleton m.content)
+  finishLineWith (·.addBlock (.atxHeading m.level m.hashes content m.closeHashes))
 
 /--
 When `line` is an opening code fence (CommonMark §4.5), opens the block and finishes the line.
@@ -816,7 +816,7 @@ This is the default parser if no others apply.
   let line := (← get).cursor.toEol
   match (← get).zipper.openLeaf? with
   | some (.paragraph _) => finishLineWith (·.extendParagraph line)
-  | _ => finishLineWith (·.openLeaf (.paragraph #[line]))
+  | _ => finishLineWith (·.openLeaf (.paragraph (.singleton line)))
 
 /--
 Finishes the line by opening the leaf block that `line` begins or, if it doesn't begin a block, by
@@ -887,10 +887,9 @@ partial def postProcessRefDefs (blocks : Array (Block.Raw s)) : Array (Block.Raw
     let b := blocks[i]
     match b with
     | .paragraph content =>
-      let (defs, residual) := extractRefDefs content
+      let (defs, residual?) := extractRefDefs content
       out := out ++ defs
-      unless residual.lines.isEmpty do
-        out := out.push (.paragraph residual)
+      if let some residual := residual? then out := out.push (.paragraph residual)
     | .blockquote markers children =>
       let newChildren := postProcessRefDefs children
       out := out.push (.blockquote markers newChildren)

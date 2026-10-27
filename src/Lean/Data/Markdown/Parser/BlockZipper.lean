@@ -7,7 +7,7 @@ module
 
 prelude
 import Init
-public import Lean.Data.Markdown.Basic
+public import Lean.Data.Markdown.Block
 public import Lean.Data.Markdown.Parser.Html
 import Lean.Data.Markdown.InlineSource
 
@@ -71,7 +71,7 @@ public inductive OpenLeaf (s : String.Slice) where
   An open paragraph that is being extended line by line. Closing the paragraph (because of a blank
   line, a new block opener, or the parent container closing) finalizes it as `Block.Raw.paragraph`.
   -/
-  | paragraph (lines : Array s.Subslice)
+  | paragraph (lines : Lines s)
   /--
   An open fenced code block. `lines` accumulates content lines until either a matching closing fence
   appears (yielding `Block.Raw.fencedCode` with `closeFence? := some _`) or the parent container

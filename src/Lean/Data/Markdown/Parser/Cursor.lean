@@ -7,7 +7,7 @@ module
 
 prelude
 public import Init.While
-public import Lean.Data.Markdown.Basic
+public import Lean.Data.Markdown.Block
 
 namespace Lean.Markdown
 

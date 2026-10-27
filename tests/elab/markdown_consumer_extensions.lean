@@ -76,7 +76,7 @@ def withTables (refs : RefTable s) (block : Block.Raw s) : TableBlock s :=
       let header := rowOf lines[0]
       let delimiters := rowOf lines[1]
       if header.size == delimiters.size && delimiters.all isDelimiterCell then
-        let parseCell (cell : s.Subslice) := parseInlines refs (.ofSubslice cell)
+        let parseCell (cell : s.Subslice) := parseInlines refs (.ofLines (.singleton cell))
         let padded (cells : Array s.Subslice) : Array (Array (Inline s)) :=
           (Array.range header.size).map fun i =>
             match cells[i]? with

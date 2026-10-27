@@ -9,9 +9,9 @@ prelude
 public import Init.Data.Array.Basic
 public import Init.While
 public import Std.Data.HashMap
-public import Lean.Data.Markdown.Basic
+public import Lean.Data.Markdown.Inline
 public import Lean.Data.Markdown.Text
-public import Lean.Data.Markdown.InlineSource
+public import Lean.Data.Markdown.InlineCursor
 public import Lean.Data.Markdown.Parser.Block
 import Lean.Data.Markdown.Unicode.CharacterClasses
 import Lean.Data.Markdown.Parser.Emphasis
@@ -568,17 +568,23 @@ where
   contain a link. Openers below an inactive one are already inactive, so the walk stops there.
   -/
   deactivateBelow (brackets : Array (BracketOpener s)) (isLink : Bool) :
-      Array (BracketOpener s) := Id.run do
-    unless isLink do return brackets
-    let mut brackets := brackets
-    let mut i := brackets.size
-    while i > 0 do
-      i := i - 1
-      let b := brackets[i]!
-      if b.bang?.isSome then continue
-      if !b.active then break
-      brackets := brackets.set! i { b with active := false }
-    return brackets
+      Array (BracketOpener s) :=
+    if isLink then deactivateFrom brackets brackets.size (Nat.le_refl _) else brackets
+  /--
+  Deactivates the `[` openers at the indices below `i`, from the highest down, stopping at the
+  first that is already inactive.
+  -/
+  deactivateFrom (brackets : Array (BracketOpener s)) (i : Nat) (h : i ≤ brackets.size) :
+      Array (BracketOpener s) :=
+    match i with
+    | 0 => brackets
+    | i + 1 =>
+      let b := brackets[i]
+      if b.bang?.isSome then deactivateFrom brackets i (Nat.le_of_succ_le h)
+      else if !b.active then brackets
+      else
+        deactivateFrom (brackets.set i { b with active := false }) i
+          (by simpa using Nat.le_of_succ_le h)
 
 /--
 Tokenizes the inline content of a block into a flat sequence of already-finalized non-emphasis

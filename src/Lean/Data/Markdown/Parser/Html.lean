@@ -10,7 +10,7 @@ public import Init.While
 public import Init.Control.Option
 public import Init.Control.State
 import Init.Data.String.Iterate
-public import Lean.Data.Markdown.InlineSource
+public import Lean.Data.Markdown.InlineCursor
 
 namespace Lean.Markdown
 

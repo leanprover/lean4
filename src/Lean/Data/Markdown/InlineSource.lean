@@ -9,42 +9,54 @@ prelude
 public import Init.Data.Array.Basic
 public import Init.While
 import Init.Omega
+import Init.Data.Array.MapIdx
 import Init.Data.Range.Polymorphic.Iterators
 import Init.Data.Range.Polymorphic.Nat
 import Init.Data.String.OrderInstances
-public import Lean.Data.Markdown.Basic
+public import Lean.Data.Markdown.Lines
 
 namespace Lean.Markdown
 
-
 /-!
-# Inline Source
+# Inline Sources
 
-The block parser carves a paragraph (or heading) into a sequence of source lines, with leading
-container prefixes already removed. The inline parser then needs to read that content as if it were
-a single contiguous string, while still producing subslices of `s`.
-`InlineSource` bundles the per-line subslices, and `InlineCursor` steps through the lines with
-`drop1`, skipping the inter-line gaps that contain block markers and removed indentation.
+The block parser carves a paragraph or heading into a sequence of source lines with the prefixes of
+enclosing containers already removed. The inline parser then reads that content as if it were a
+single contiguous string, while still producing subslices of `s`. `InlineSource` bundles the
+per-line subslices. Its constructor is private to prevent missing or double normalization.
+
+`ofLines` normalizes a block's lines as CommonMark §4.8 requires, and `dropUpTo` keeps a suffix of
+an already-normalized source.
 -/
+
+/--
+The lines of a paragraph or setext heading, each as a subslice of the source. These lines form the
+input to the inline parser.
+
+Container prefixes such as `>` and leading spaces and tabs are not included in the lines. Each line
+except the last line of the block ends with its line ending, so the inline parser sees a line ending
+at each line boundary. The last line does not include its trailing whitespace.
+
+The lines are in source order and do not overlap.
+-/
+public structure InlineSource (s : String.Slice) where
+  private mk ::
+  /-- The lines, in source order. -/
+  lines : Array s.Subslice
+  /-- There is at least one line. -/
+  nonempty : 0 < lines.size
 
 namespace InlineSource
 
 variable {s : String.Slice}
 
-/-- The empty source. -/
-public def empty : InlineSource s := ⟨#[]⟩
-
-/-- The first source position of `src`, or the start of the string if there are no lines. -/
+/-- The first source position of `src`. -/
 public def startPos (src : InlineSource s) : s.Pos :=
-  match src.lines[0]? with
-  | some r => r.startInclusive
-  | none => s.startPos
+  (src.lines[0]'src.nonempty).startInclusive
 
-/-- One past the last source position of `src`, or the start of the string if there are no lines. -/
+/-- One past the last source position of `src`. -/
 public def stopPos (src : InlineSource s) : s.Pos :=
-  match src.lines.back? with
-  | some r => r.endExclusive
-  | none => s.startPos
+  (src.lines.back src.nonempty).endExclusive
 
 /--
 The index of the first line that ends after `p`, which is the line that contains `p` when some line
@@ -108,192 +120,41 @@ def skipSpaces (input : s.Subslice) (p : s.Pos) : s.Pos := Id.run do
 
 /--
 Constructs an `InlineSource` from the source lines of a paragraph. This implements the
-CommonMark §4.8 paragraph-content normalization:
+CommonMark §4.8 paragraph content normalization:
 
 - Leading spaces and tabs are removed from each line.
-- Each non-final line ends with the line ending that follows it in the source.
-- Trailing whitespace is removed from the final line.
+- Each line except the last ends with the line ending that follows it in the source.
+- Trailing whitespace is removed from the last line.
 -/
-public def ofLines (lines : Array s.Subslice) : InlineSource s := Id.run do
-  let mut out : Array s.Subslice := Array.emptyWithCapacity lines.size
-  for h : idx in 0...lines.size do
-    let line := lines[idx]
+public def ofLines (lines : Lines s) : InlineSource s :=
+  let count := lines.toArray.size
+  let out := lines.toArray.mapIdx fun idx line =>
     let start := skipSpaces line line.startInclusive
     let stop :=
-      if idx + 1 < lines.size then
+      if idx + 1 < count then
         (parseLineEnding? s.toSubslice line.endExclusive).getD line.endExclusive
       else line.endExclusive
-    out := out.push (subsliceClamped start stop)
-  if h : out.size > 0 then
-    let lastIdx := out.size - 1
-    have hlt : lastIdx < out.size := Nat.sub_one_lt_of_lt h
-    out := out.set lastIdx (trimTrailing out[lastIdx] Char.isWhitespace) hlt
-  return ⟨out⟩
+    subsliceClamped start stop
+  have h : 0 < out.size := by simpa [out, Array.size_mapIdx] using lines.nonempty
+  let lastIdx := out.size - 1
+  have hlt : lastIdx < out.size := Nat.sub_one_lt_of_lt h
+  { lines := out.set lastIdx (trimTrailing out[lastIdx] Char.isWhitespace) hlt
+    nonempty := by simpa using h }
+
+public instance : Inhabited (InlineSource s) := ⟨ofLines (.singleton default)⟩
 
 /--
-A single-line `InlineSource` over `sub`. Used for content that is naturally a single contiguous
-source span (e.g. an ATX heading's content).
+Returns an `InlineSource` whose lines represent the suffix of `src` that starts at position `p`, or
+`none` when `p` is at or past the end of the last line. Lines fully before `p` are dropped. The line
+that contains `p` (if any) is cut to start at the first character on or after `p` that is not a
+space or tab.
 -/
-public def ofSubslice (sub : s.Subslice) : InlineSource s := ⟨#[sub]⟩
-
-/--
-Returns an `InlineSource` whose lines represent the suffix of `src` that starts at position `p`.
-Lines fully before `p` are dropped and the line that contains `p` (if any) is trimmed to start at
-`p`.
--/
-public def dropUpTo (src : InlineSource s) (p : s.Pos) : InlineSource s := Id.run do
+public def dropUpTo (src : InlineSource s) (p : s.Pos) : Option (InlineSource s) := Id.run do
   let mut out : Array s.Subslice := #[]
   for r in src.lines do
     if r.endExclusive ≤ p then continue
     if r.startInclusive < p then
-      out := out.push (subsliceClamped p r.endExclusive)
+      out := out.push (subsliceClamped (skipSpaces r p) r.endExclusive)
     else
       out := out.push r
-  return ⟨out⟩
-
-end InlineSource
-
-/--
-A cursor into an `InlineSource`, analogous to a slice of a `String`: the current position, the end
-of the input, and the index of the line that contains the current position. A parser that is given a
-cursor reads the text from the current position to the end of the input and nothing else.
--/
-public structure InlineCursor (s : String.Slice) where
-  /-- The source that is being tokenized. -/
-  source : InlineSource s
-  /--
-  The index in `source.lines` of the line that contains `startPos`, or `source.lines.size` if no
-  line does.
-  -/
-  line : Nat
-  /-- The current position. -/
-  startPos : s.Pos
-  /-- The end of the input. -/
-  stopPos : s.Pos
-deriving Inhabited
-
-/-- A cursor at `startPos` whose input ends at `stopPos`. -/
-public def InlineSource.cursor (src : InlineSource s) (startPos stopPos : s.Pos) : InlineCursor s :=
-  { source := src, line := src.lineIndex startPos, startPos, stopPos }
-
-namespace InlineCursor
-
-variable {s : String.Slice}
-
-/-- Whether the input has been fully consumed. -/
-public def isEmpty (cur : InlineCursor s) : Bool :=
-  cur.stopPos ≤ cur.startPos
-
-/-- The character at the cursor, if input remains. -/
-public def front? (cur : InlineCursor s) : Option Char :=
-  if cur.startPos < cur.stopPos then cur.startPos.get? else none
-
-/-- The character at the cursor, or the default character if no input remains. -/
-public def front (cur : InlineCursor s) : Char :=
-  cur.front?.getD default
-
-/-- The input after the cursor, as a subslice. -/
-public def toSubslice (cur : InlineCursor s) : s.Subslice :=
-  subsliceClamped cur.startPos cur.stopPos
-
-/-- The character at the cursor as a subslice, if input remains. -/
-public def charSubslice? (cur : InlineCursor s) : Option s.Subslice :=
-  if h : cur.startPos < cur.stopPos then
-    let h' := String.Slice.Pos.ne_endPos_of_lt h
-    some (s.subslice cur.startPos (cur.startPos.next h') String.Slice.Pos.le_next)
-  else none
-
-/--
-Advances the cursor by one character. At the end of a line, the cursor moves to the start of the
-next line, skipping the gap between them.
--/
-public def drop1 (cur : InlineCursor s) : InlineCursor s :=
-  if h : cur.startPos < cur.stopPos then
-    let q := cur.startPos.next (String.Slice.Pos.ne_endPos_of_lt h)
-    match cur.source.lines[cur.line]? with
-    | some lineRange =>
-      if q < lineRange.endExclusive then { cur with startPos := q }
-      else
-        match cur.source.lines[cur.line + 1]? with
-        | some nextLine => { cur with line := cur.line + 1, startPos := nextLine.startInclusive }
-        | none => { cur with line := cur.line + 1, startPos := q }
-    | none => { cur with startPos := q }
-  else cur
-
-/--
-Parses a line ending at `cur`: `\r\n`, `\r`, or `\n` (CommonMark §2.1). Returns the ending as a
-subslice together with the cursor after it. The ending stops at the end of the input, so a `\r`
-just before it is a line ending by itself.
--/
-public def parseLineEnding? (cur : InlineCursor s) : Option (s.Subslice × InlineCursor s) := do
-  let stop ← Lean.Markdown.parseLineEnding? cur.toSubslice cur.startPos
-  let mut after := cur.drop1
-  if after.startPos < stop then after := after.drop1
-  return (subsliceClamped cur.startPos stop, after)
-
-/--
-Advances past the characters at the start of `cur` that satisfy `p`.
--/
-@[specialize] public partial def skipWhile (cur : InlineCursor s) (p : Char → Bool) :
-    InlineCursor s :=
-  let lineEnd :=
-    match cur.source.lines[cur.line]? with
-    | some line => if line.endExclusive < cur.stopPos then line.endExclusive else cur.stopPos
-    | none => cur.stopPos
-  let pos := go cur.startPos lineEnd
-  if pos < lineEnd || lineEnd == cur.stopPos then
-    { cur with startPos := pos }
-  else
-    match lineEnd.prev? with
-    | some last => ({ cur with startPos := last }).drop1.skipWhile p
-    | none => cur
-where
-  /-- The first position in `[q, lineEnd)` whose character does not satisfy `p`, or `lineEnd`. -/
-  @[specialize] go (q lineEnd : s.Pos) : s.Pos :=
-    if h : q < lineEnd then
-      let h' := String.Slice.Pos.ne_endPos_of_lt h
-      if p (q.get h') then go (q.next h') lineEnd else q
-    else q
-
-/--
-If `cur` begins with `c`, returns that character as a subslice together with `cur` advanced past it.
--/
-public def parseChar? (c : Char) (cur : InlineCursor s) : Option (s.Subslice × InlineCursor s) := do
-  guard (cur.front? == some c)
-  let sub ← cur.charSubslice?
-  return (sub, cur.drop1)
-
-/--
-Advances past a sequence of `c`s at the start of `cur`. Returns the cursor after the sequence and
-its length.
--/
-public partial def takeSequence (c : Char) (cur : InlineCursor s) : InlineCursor s × Nat :=
-  go cur 0
-where
-  go (cur : InlineCursor s) (n : Nat) : InlineCursor s × Nat :=
-    if cur.front? == some c then go cur.drop1 (n + 1) else (cur, n)
-
-end InlineCursor
-
-/--
-Information needed during parsing the inline contents of a block.
--/
-public structure InlineContext (s : String.Slice) where
-  /-- The link reference definitions of the entire document. -/
-  refs : RefTable s
-  /-- The content to be parsed. -/
-  src : InlineSource s
-  /-- The non-standard Markdown extensions that are enabled. -/
-  extensions : Extensions
-
-@[inherit_doc InlineContext.refs, inline]
-public def refTable [Monad m] : ReaderT (InlineContext s) m (RefTable s) :=
-  return (← read).refs
-
-@[inherit_doc InlineContext.src, inline]
-public def inlineSource [Monad m] : ReaderT (InlineContext s) m (InlineSource s) :=
-  return (← read).src
-
-@[inherit_doc InlineContext.extensions, inline]
-public def extensions [Monad m] : ReaderT (InlineContext s) m Extensions :=
-  return (← read).extensions
+  if h : 0 < out.size then some { lines := out, nonempty := h } else none

@@ -28,7 +28,7 @@ public partial def parseInlinesInBlock (refs : RefTable s) (block : Block.Raw s)
   | .paragraph content =>
     .paragraph (parseInlines refs content extensions)
   | .atxHeading level hashes content closeHashes? =>
-    .atxHeading level hashes (parseInlines refs (.ofSubslice content) extensions) closeHashes?
+    .atxHeading level hashes (parseInlines refs content extensions) closeHashes?
   | .setextHeading level content underline =>
     .setextHeading level (parseInlines refs content extensions) underline
   | .fencedCode info openFence closeFence? lines =>

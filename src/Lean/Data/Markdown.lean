@@ -8,7 +8,8 @@ module
 prelude
 public import Lean.Data.Markdown.Unicode.CaseFolding
 public import Lean.Data.Markdown.Unicode.CharacterClasses
-public import Lean.Data.Markdown.Basic
+public import Lean.Data.Markdown.Inline
+public import Lean.Data.Markdown.Block
 public import Lean.Data.Markdown.Text
 public import Lean.Data.Markdown.Parser
 

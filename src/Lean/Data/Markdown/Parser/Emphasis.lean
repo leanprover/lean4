@@ -8,8 +8,8 @@ module
 prelude
 import Init.While
 import Init.Data.Vector.Basic
-public import Lean.Data.Markdown.Basic
-public import Lean.Data.Markdown.InlineSource
+public import Lean.Data.Markdown.Inline
+public import Lean.Data.Markdown.InlineCursor
 
 namespace Lean.Markdown
 

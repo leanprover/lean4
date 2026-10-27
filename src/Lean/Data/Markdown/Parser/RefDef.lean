@@ -7,8 +7,8 @@ module
 
 prelude
 public import Init.While
-public import Lean.Data.Markdown.Basic
-public import Lean.Data.Markdown.InlineSource
+public import Lean.Data.Markdown.Block
+public import Lean.Data.Markdown.InlineCursor
 import Lean.Data.Markdown.Text
 import Lean.Data.Markdown.Parser.LinkSyntax
 
@@ -155,10 +155,11 @@ public def parseLinkRefDef? (source : InlineSource s) (start : s.Pos) :
 /--
 Greedily consumes link ref definitions from the front of `source`.
 
-Returns the extracted `linkRefDef` blocks and a residual `InlineSource`.
+Returns the extracted `linkRefDef` blocks together with the residual `InlineSource`. The residual is
+`none` when the definitions consumed every line.
 -/
 public def extractRefDefs (source : InlineSource s) :
-    Array (Block.Raw s) × InlineSource s := Id.run do
+    Array (Block.Raw s) × Option (InlineSource s) := Id.run do
   let mut defs : Array (Block.Raw s) := #[]
   let mut p := source.startPos
   let mut keep := true

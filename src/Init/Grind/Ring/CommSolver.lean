@@ -3733,52 +3733,77 @@ theorem sub_eq_of_toPolyX_k {α} [CommRing α] (ctx : Context α) (bal : Bool) (
   have h' := congrArg (Poly.denote ctx) h
   rwa [Expr.denote_toPolyX_k] at h'
 
-theorem eq_false_of_poly {α} [CommRing α] [IsCharP α 0] (ctx : Context α) (bal : Bool) (lhs rhs : Expr) (k : Int)
-    (h : (lhs.sub rhs).toPolyX_k bal = .num k) (hk : Int.beqZero_k k = false) : (lhs.denote ctx = rhs.denote ctx) = False := by
-  have h' := sub_eq_of_toPolyX_k ctx bal lhs rhs k h
+/-!
+The relation from the constant difference of its sides, `h`, which the theorems below state with
+`Expr.toPolyX_k`, and stepwise certificates (`Expr.denote_mul_of_terms`) as
+`(lhs.sub rhs).denote ctx = (Poly.num k).denote ctx`.
+-/
+
+theorem eq_false_of_sub {α} [CommRing α] [IsCharP α 0] (ctx : Context α) (lhs rhs : Expr) (k : Int)
+    (h : lhs.denote ctx - rhs.denote ctx = (k : α)) (hk : Int.beqZero_k k = false) : (lhs.denote ctx = rhs.denote ctx) = False := by
   rw [Int.beqZero_k_eq] at hk
   apply eq_false; intro he
-  rw [he, AddCommGroup.sub_self] at h'
-  have := (IsCharP.intCast_eq_zero_iff (α := α) 0 k).mp h'.symm
+  rw [he, AddCommGroup.sub_self] at h
+  have := (IsCharP.intCast_eq_zero_iff (α := α) 0 k).mp h.symm
   simp at this; simp [this] at hk
 
-theorem le_true_of_poly {α} [CommRing α] [LE α] [LT α] [LawfulOrderLT α] [IsPreorder α] [OrderedRing α] (ctx : Context α)
-    (bal : Bool) (lhs rhs : Expr) (n : Nat) (h : (rhs.sub lhs).toPolyX_k bal = .num (Int.ofNat n)) :
+theorem le_true_of_sub {α} [CommRing α] [LE α] [LT α] [LawfulOrderLT α] [IsPreorder α] [OrderedRing α] (ctx : Context α)
+    (lhs rhs : Expr) (n : Nat) (h : rhs.denote ctx - lhs.denote ctx = ((Int.ofNat n : Int) : α)) :
     (lhs.denote ctx ≤ rhs.denote ctx) = True := by
-  have h' := sub_eq_of_toPolyX_k ctx bal rhs lhs _ h
-  rw [Int.ofNat_eq_natCast, Ring.intCast_natCast] at h'
+  rw [Int.ofNat_eq_natCast, Ring.intCast_natCast] at h
   apply eq_true
-  rw [← OrderedAdd.sub_nonneg_iff, h']
+  rw [← OrderedAdd.sub_nonneg_iff, h]
   exact OrderedRing.natCast_nonneg
 
-theorem lt_true_of_poly {α} [CommRing α] [LE α] [LT α] [LawfulOrderLT α] [IsPreorder α] [OrderedRing α] (ctx : Context α)
-    (bal : Bool) (lhs rhs : Expr) (n : Nat) (h : (rhs.sub lhs).toPolyX_k bal = .num (Int.ofNat (n + 1))) :
+theorem lt_true_of_sub {α} [CommRing α] [LE α] [LT α] [LawfulOrderLT α] [IsPreorder α] [OrderedRing α] (ctx : Context α)
+    (lhs rhs : Expr) (n : Nat) (h : rhs.denote ctx - lhs.denote ctx = ((Int.ofNat (n + 1) : Int) : α)) :
     (lhs.denote ctx < rhs.denote ctx) = True := by
-  have h' := sub_eq_of_toPolyX_k ctx bal rhs lhs _ h
-  rw [Int.ofNat_eq_natCast, Ring.intCast_natCast] at h'
+  rw [Int.ofNat_eq_natCast, Ring.intCast_natCast] at h
   apply eq_true
-  rw [← OrderedAdd.sub_pos_iff, h']
+  rw [← OrderedAdd.sub_pos_iff, h]
   exact OrderedRing.pos_natCast_of_pos _ (Nat.succ_pos n)
 
-theorem le_false_of_poly {α} [CommRing α] [LE α] [LT α] [LawfulOrderLT α] [IsPreorder α] [OrderedRing α] (ctx : Context α)
-    (bal : Bool) (lhs rhs : Expr) (n : Nat) (h : (lhs.sub rhs).toPolyX_k bal = .num (Int.ofNat (n + 1))) :
+theorem le_false_of_sub {α} [CommRing α] [LE α] [LT α] [LawfulOrderLT α] [IsPreorder α] [OrderedRing α] (ctx : Context α)
+    (lhs rhs : Expr) (n : Nat) (h : lhs.denote ctx - rhs.denote ctx = ((Int.ofNat (n + 1) : Int) : α)) :
     (lhs.denote ctx ≤ rhs.denote ctx) = False := by
-  have h' := sub_eq_of_toPolyX_k ctx bal lhs rhs _ h
-  rw [Int.ofNat_eq_natCast, Ring.intCast_natCast] at h'
+  rw [Int.ofNat_eq_natCast, Ring.intCast_natCast] at h
   apply eq_false; intro hle
-  have h₁ : 0 < lhs.denote ctx - rhs.denote ctx := by rw [h']; exact OrderedRing.pos_natCast_of_pos _ (Nat.succ_pos n)
+  have h₁ : 0 < lhs.denote ctx - rhs.denote ctx := by rw [h]; exact OrderedRing.pos_natCast_of_pos _ (Nat.succ_pos n)
   rw [OrderedAdd.sub_pos_iff] at h₁
   exact Std.lt_irrefl (Std.lt_of_le_of_lt hle h₁)
 
-theorem lt_false_of_poly {α} [CommRing α] [LE α] [LT α] [LawfulOrderLT α] [IsPreorder α] [OrderedRing α] (ctx : Context α)
-    (bal : Bool) (lhs rhs : Expr) (n : Nat) (h : (lhs.sub rhs).toPolyX_k bal = .num (Int.ofNat n)) :
+theorem lt_false_of_sub {α} [CommRing α] [LE α] [LT α] [LawfulOrderLT α] [IsPreorder α] [OrderedRing α] (ctx : Context α)
+    (lhs rhs : Expr) (n : Nat) (h : lhs.denote ctx - rhs.denote ctx = ((Int.ofNat n : Int) : α)) :
     (lhs.denote ctx < rhs.denote ctx) = False := by
-  have h' := sub_eq_of_toPolyX_k ctx bal lhs rhs _ h
-  rw [Int.ofNat_eq_natCast, Ring.intCast_natCast] at h'
+  rw [Int.ofNat_eq_natCast, Ring.intCast_natCast] at h
   apply eq_false; intro hlt
-  have h₁ : 0 ≤ lhs.denote ctx - rhs.denote ctx := by rw [h']; exact OrderedRing.natCast_nonneg
+  have h₁ : 0 ≤ lhs.denote ctx - rhs.denote ctx := by rw [h]; exact OrderedRing.natCast_nonneg
   rw [OrderedAdd.sub_nonneg_iff] at h₁
   exact Std.lt_irrefl (Std.lt_of_lt_of_le hlt h₁)
+
+theorem eq_false_of_poly {α} [CommRing α] [IsCharP α 0] (ctx : Context α) (bal : Bool) (lhs rhs : Expr) (k : Int)
+    (h : (lhs.sub rhs).toPolyX_k bal = .num k) (hk : Int.beqZero_k k = false) : (lhs.denote ctx = rhs.denote ctx) = False :=
+  eq_false_of_sub ctx lhs rhs k (sub_eq_of_toPolyX_k ctx bal lhs rhs k h) hk
+
+theorem le_true_of_poly {α} [CommRing α] [LE α] [LT α] [LawfulOrderLT α] [IsPreorder α] [OrderedRing α] (ctx : Context α)
+    (bal : Bool) (lhs rhs : Expr) (n : Nat) (h : (rhs.sub lhs).toPolyX_k bal = .num (Int.ofNat n)) :
+    (lhs.denote ctx ≤ rhs.denote ctx) = True :=
+  le_true_of_sub ctx lhs rhs n (sub_eq_of_toPolyX_k ctx bal rhs lhs _ h)
+
+theorem lt_true_of_poly {α} [CommRing α] [LE α] [LT α] [LawfulOrderLT α] [IsPreorder α] [OrderedRing α] (ctx : Context α)
+    (bal : Bool) (lhs rhs : Expr) (n : Nat) (h : (rhs.sub lhs).toPolyX_k bal = .num (Int.ofNat (n + 1))) :
+    (lhs.denote ctx < rhs.denote ctx) = True :=
+  lt_true_of_sub ctx lhs rhs n (sub_eq_of_toPolyX_k ctx bal rhs lhs _ h)
+
+theorem le_false_of_poly {α} [CommRing α] [LE α] [LT α] [LawfulOrderLT α] [IsPreorder α] [OrderedRing α] (ctx : Context α)
+    (bal : Bool) (lhs rhs : Expr) (n : Nat) (h : (lhs.sub rhs).toPolyX_k bal = .num (Int.ofNat (n + 1))) :
+    (lhs.denote ctx ≤ rhs.denote ctx) = False :=
+  le_false_of_sub ctx lhs rhs n (sub_eq_of_toPolyX_k ctx bal lhs rhs _ h)
+
+theorem lt_false_of_poly {α} [CommRing α] [LE α] [LT α] [LawfulOrderLT α] [IsPreorder α] [OrderedRing α] (ctx : Context α)
+    (bal : Bool) (lhs rhs : Expr) (n : Nat) (h : (lhs.sub rhs).toPolyX_k bal = .num (Int.ofNat n)) :
+    (lhs.denote ctx < rhs.denote ctx) = False :=
+  lt_false_of_sub ctx lhs rhs n (sub_eq_of_toPolyX_k ctx bal lhs rhs _ h)
 
 /-! Relations whose sides have the same polynomial `p`: each side is checked against `p` alone. -/
 
@@ -3804,6 +3829,117 @@ theorem lt_false_of_toPoly_eq {α} [CommRing α] [LE α] [LT α] [LawfulOrderLT 
     (bal₁ bal₂ : Bool) (lhs rhs : Expr) (p : Poly)
     (h₁ : p = lhs.toPolyX_k bal₁) (h₂ : p = rhs.toPolyX_k bal₂) : (lhs.denote ctx < rhs.denote ctx) = False := by
   rw [of_eq_true (eq_true_of_toPoly_eq ctx bal₁ bal₂ lhs rhs p h₁ h₂)]; exact eq_false Std.lt_irrefl
+
+/-!
+Stepwise certificates for large products. The kernel evaluates the partial products of
+`Poly.mulB_k` lazily, and evaluates each again at every level of the pairwise additions that
+compares its monomials. These theorems state the polynomial of each large product, and the list of
+its partial products, so that the kernel evaluates each partial product once, when it checks the
+list by definitional equality, and adds the stated ones.
+-/
+
+theorem Expr.denote_eq_of_toPolyX {α} [CommRing α] (ctx : Context α) (bal : Bool) (e : Expr) (p : Poly)
+    (h : p = e.toPolyX_k bal) : e.denote ctx = p.denote ctx := by
+  rw [h, Expr.denote_toPolyX_k]
+
+theorem Expr.denote_mul_of_terms {α} [CommRing α] (ctx : Context α) (a b : Expr) (pa pb : Poly) (ts : List Poly) (p : Poly)
+    (ha : a.denote ctx = pa.denote ctx) (hb : b.denote ctx = pb.denote ctx)
+    (ht : ts = pa.mulTerms_k pb) (hp : p = Poly.sumB_k Poly.combine_k ts) : (Expr.mul a b).denote ctx = p.denote ctx := by
+  show a.denote ctx * b.denote ctx = _
+  rw [ha, hb, hp, Poly.denote_sumB_k ctx _ (Poly.denote_combine_k ctx), ht, Poly.denoteList_mulTerms_k]
+
+theorem Expr.denote_add_of {α} [CommRing α] (ctx : Context α) (a b : Expr) (pa pb p : Poly)
+    (ha : a.denote ctx = pa.denote ctx) (hb : b.denote ctx = pb.denote ctx)
+    (hp : p = pa.combine_k pb) : (Expr.add a b).denote ctx = p.denote ctx := by
+  show a.denote ctx + b.denote ctx = _
+  rw [ha, hb, hp, Poly.denote_combine_k]
+
+theorem Expr.denote_sub_of {α} [CommRing α] (ctx : Context α) (a b : Expr) (pa pb p : Poly)
+    (ha : a.denote ctx = pa.denote ctx) (hb : b.denote ctx = pb.denote ctx)
+    (hp : p = pa.combine_k (pb.mulConst_k (Int.negSucc 0))) : (Expr.sub a b).denote ctx = p.denote ctx := by
+  show a.denote ctx - b.denote ctx = _
+  rw [ha, hb, hp, Poly.denote_combine_k, Poly.mulConst_k_eq_mulConst, Poly.denote_mulConst]
+  simp [sub_eq_add_neg, intCast_neg, neg_mul, intCast_one, one_mul]
+
+/-- `a ^ (k + 1)` from `a ^ k`, multiplying by the polynomial `pa` of `a`. -/
+theorem Expr.denote_pow_succ_of_terms {α} [CommRing α] (ctx : Context α) (a : Expr) (k : Nat) (pa q : Poly) (ts : List Poly) (p : Poly)
+    (ha : a.denote ctx = pa.denote ctx) (hq : (Expr.pow a k).denote ctx = q.denote ctx)
+    (ht : ts = pa.mulTerms_k q) (hp : p = Poly.sumB_k Poly.combine_k ts) : (Expr.pow a (k + 1)).denote ctx = p.denote ctx := by
+  replace hq : a.denote ctx ^ k = q.denote ctx := hq
+  show a.denote ctx ^ (k + 1) = _
+  rw [hp, Poly.denote_sumB_k ctx _ (Poly.denote_combine_k ctx), ht, Poly.denoteList_mulTerms_k, ← hq, ← ha, pow_succ, mul_comm]
+
+theorem Expr.denote_pow_one_of {α} [CommRing α] (ctx : Context α) (a : Expr) (pa : Poly)
+    (ha : a.denote ctx = pa.denote ctx) : (Expr.pow a 1).denote ctx = pa.denote ctx := by
+  show a.denote ctx ^ 1 = _
+  rw [pow_succ, pow_zero, one_mul, ha]
+
+theorem eq_true_of_denote_eq {α} [CommRing α] (ctx : Context α) (lhs rhs : Expr) (p : Poly)
+    (h₁ : lhs.denote ctx = p.denote ctx) (h₂ : rhs.denote ctx = p.denote ctx) : (lhs.denote ctx = rhs.denote ctx) = True :=
+  eq_true (h₁.trans h₂.symm)
+
+theorem Expr.denote_neg_of {α} [CommRing α] (ctx : Context α) (a : Expr) (pa p : Poly)
+    (ha : a.denote ctx = pa.denote ctx) (hp : p = pa.mulConst_k (Int.negSucc 0)) : (Expr.neg a).denote ctx = p.denote ctx := by
+  show - a.denote ctx = _
+  rw [ha, hp, Poly.mulConst_k_eq_mulConst, Poly.denote_mulConst]
+  simp [intCast_neg, neg_mul, intCast_one, one_mul]
+
+theorem le_true_of_denote_eq {α} [CommRing α] [LE α] [IsPreorder α] (ctx : Context α) (lhs rhs : Expr) (p : Poly)
+    (h₁ : lhs.denote ctx = p.denote ctx) (h₂ : rhs.denote ctx = p.denote ctx) : (lhs.denote ctx ≤ rhs.denote ctx) = True := by
+  rw [h₁, h₂]; exact eq_true (Std.le_refl _)
+
+theorem lt_false_of_denote_eq {α} [CommRing α] [LE α] [LT α] [LawfulOrderLT α] [IsPreorder α] (ctx : Context α) (lhs rhs : Expr) (p : Poly)
+    (h₁ : lhs.denote ctx = p.denote ctx) (h₂ : rhs.denote ctx = p.denote ctx) : (lhs.denote ctx < rhs.denote ctx) = False := by
+  rw [h₁, h₂]; exact eq_false Std.lt_irrefl
+
+theorem Expr.eq_of_denote_eq_toExpr {α} [CommRing α] (ctx : Context α) (a b : Expr) (p : Poly)
+    (h₁ : a.denote ctx = p.denote ctx) (h₂ : b = p.toExpr_k) : a.denote ctx = b.denote ctx := by
+  subst h₂; rw [Poly.toExpr_k_eq, Poly.denote_toExpr, h₁]
+
+/-! Stepwise certificates for large products in characteristic `c`, like `Expr.denote_mul_of_terms`. -/
+
+section
+variable {α c} [CommRing α] [IsCharP α c] (ctx : Context α)
+
+theorem Expr.denote_eq_of_toPolyXC (bal : Bool) (e : Expr) (p : Poly)
+    (h : p = e.toPolyXC_k bal c) : e.denote ctx = p.denote ctx := by
+  rw [h, Expr.denote_toPolyXC_k]
+
+theorem Expr.denote_mul_of_termsC (a b : Expr) (pa pb : Poly) (ts : List Poly) (p : Poly)
+    (ha : a.denote ctx = pa.denote ctx) (hb : b.denote ctx = pb.denote ctx)
+    (ht : ts = pa.mulTermsC_k pb c) (hp : p = Poly.sumB_k (fun a b => a.combineC_k c b) ts) :
+    (Expr.mul a b).denote ctx = p.denote ctx := by
+  show a.denote ctx * b.denote ctx = _
+  rw [ha, hb, hp, Poly.denote_sumB_k ctx _ (Poly.denote_combineC_k ctx), ht, Poly.denoteList_mulTermsC_k]
+
+theorem Expr.denote_add_ofC (a b : Expr) (pa pb p : Poly)
+    (ha : a.denote ctx = pa.denote ctx) (hb : b.denote ctx = pb.denote ctx)
+    (hp : p = pa.combineC_k c pb) : (Expr.add a b).denote ctx = p.denote ctx := by
+  show a.denote ctx + b.denote ctx = _
+  rw [ha, hb, hp, Poly.denote_combineC_k]
+
+theorem Expr.denote_sub_ofC (a b : Expr) (pa pb p : Poly)
+    (ha : a.denote ctx = pa.denote ctx) (hb : b.denote ctx = pb.denote ctx)
+    (hp : p = pa.combineC_k c (pb.mulConstC_k (Int.negSucc 0) c)) : (Expr.sub a b).denote ctx = p.denote ctx := by
+  show a.denote ctx - b.denote ctx = _
+  rw [ha, hb, hp, Poly.denote_combineC_k, Poly.mulConstC_k_eq_mulConstC, Poly.denote_mulConstC]
+  simp [sub_eq_add_neg, intCast_neg, neg_mul, intCast_one, one_mul]
+
+theorem Expr.denote_neg_ofC (a : Expr) (pa p : Poly)
+    (ha : a.denote ctx = pa.denote ctx) (hp : p = pa.mulConstC_k (Int.negSucc 0) c) : (Expr.neg a).denote ctx = p.denote ctx := by
+  show - a.denote ctx = _
+  rw [ha, hp, Poly.mulConstC_k_eq_mulConstC, Poly.denote_mulConstC]
+  simp [intCast_neg, neg_mul, intCast_one, one_mul]
+
+theorem Expr.denote_pow_succ_of_termsC (a : Expr) (k : Nat) (pa q : Poly) (ts : List Poly) (p : Poly)
+    (ha : a.denote ctx = pa.denote ctx) (hq : (Expr.pow a k).denote ctx = q.denote ctx)
+    (ht : ts = pa.mulTermsC_k q c) (hp : p = Poly.sumB_k (fun a b => a.combineC_k c b) ts) :
+    (Expr.pow a (k + 1)).denote ctx = p.denote ctx := by
+  replace hq : a.denote ctx ^ k = q.denote ctx := hq
+  show a.denote ctx ^ (k + 1) = _
+  rw [hp, Poly.denote_sumB_k ctx _ (Poly.denote_combineC_k ctx), ht, Poly.denoteList_mulTermsC_k, ← hq, ← ha, pow_succ, mul_comm]
+
+end
 
 noncomputable def norm_cnstr_cert (lhs rhs lhs' rhs' : Expr) : Bool :=
   (rhs.sub lhs).toPoly_k.beq' (rhs'.sub lhs').toPoly_k

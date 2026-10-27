@@ -1058,6 +1058,21 @@ theorem Expr.eq_of_toPolyS_eq_add_toExpr {α} [CommSemiring α] (ctx : Context �
   rw [Poly.toExpr_k_eq, Poly.toExpr_k_eq, Poly.denoteS_toExpr _ _ hq, Poly.denoteS_toExpr _ _ hr]
 
 
+theorem Expr.eq_of_denoteS_eq_toExpr {α} [CommSemiring α] (ctx : Context α) (a b : Expr) (p : Poly)
+    (h₁ : a.denoteS ctx = p.denoteS ctx ∧ p.NonnegCoeffs) (h₂ : b = p.toExpr_k) : a.denoteS ctx = b.denoteS ctx := by
+  subst h₂; rw [Poly.toExpr_k_eq, Poly.denoteS_toExpr _ _ h₁.2, h₁.1]
+
+theorem Expr.eq_of_denoteS_eq_add_toExpr {α} [CommSemiring α] (ctx : Context α) (a b : Expr) (p q r : Poly)
+    (h₁ : a.denoteS ctx = p.denoteS ctx ∧ p.NonnegCoeffs) (h₂ : b = .add q.toExpr_k r.toExpr_k) (h₃ : p = q.combine_k r)
+    (h₄ : (q.nonneg_k && r.nonneg_k) = true) : a.denoteS ctx = b.denoteS ctx := by
+  rw [Bool.and_eq_true] at h₄
+  have hq := Poly.nonnegCoeffs_of_nonneg_k h₄.1
+  have hr := Poly.nonnegCoeffs_of_nonneg_k h₄.2
+  subst h₂
+  rw [h₁.1, h₃, Poly.combine_k_eq_combine, Poly.denoteS_combine _ _ _ hq hr]
+  show _ = q.toExpr_k.denoteS ctx + r.toExpr_k.denoteS ctx
+  rw [Poly.toExpr_k_eq, Poly.toExpr_k_eq, Poly.denoteS_toExpr _ _ hq, Poly.denoteS_toExpr _ _ hr]
+
 /-! Relations whose sides have the same polynomial in a commutative semiring. -/
 
 theorem eq_true_of_toPolyS {α} [CommSemiring α] (ctx : Context α) (bal₁ bal₂ : Bool) (lhs rhs : Expr) (p : Poly)
@@ -1077,6 +1092,65 @@ theorem lt_false_of_toPolyS {α} [CommSemiring α] [LE α] [LT α] [Std.LawfulOr
     (h₁ : p = lhs.toPolySX_k bal₁) (h₂ : p = rhs.toPolySX_k bal₂) : (lhs.denoteS ctx < rhs.denoteS ctx) = False := by
   have h := of_eq_true (eq_true_of_toPolyS ctx bal₁ bal₂ lhs rhs p h₁ h₂)
   rw [h]; exact eq_false (Std.lt_irrefl)
+
+
+/-! Stepwise certificates for large products in a commutative semiring, like `Expr.denote_mul_of_terms`. -/
+
+theorem Expr.denoteS_eq_of_toPolySX {α} [CommSemiring α] (ctx : Context α) (bal : Bool) (e : Expr) (p : Poly)
+    (h : p = e.toPolySX_k bal) : e.denoteS ctx = p.denoteS ctx ∧ p.NonnegCoeffs := by
+  have := Expr.toPolySX_k_nonneg ctx bal e
+  rw [h]; exact ⟨this.2.symm, this.1⟩
+
+theorem Expr.denoteS_mul_of_terms {α} [CommSemiring α] (ctx : Context α) (a b : Expr) (pa pb : Poly) (ts : List Poly) (p : Poly)
+    (ha : a.denoteS ctx = pa.denoteS ctx ∧ pa.NonnegCoeffs) (hb : b.denoteS ctx = pb.denoteS ctx ∧ pb.NonnegCoeffs)
+    (ht : ts = pa.mulTerms_k pb) (hp : p = Poly.sumB_k Poly.combine_k ts) :
+    (Expr.mul a b).denoteS ctx = p.denoteS ctx ∧ p.NonnegCoeffs := by
+  have hts := Poly.mulTerms_k_nonneg ctx pa pb ha.2 hb.2
+  rw [← ht] at hts
+  have hs := Poly.sumB_k_nonneg ctx ts hts.1
+  rw [← hp] at hs
+  refine ⟨?_, hs.1⟩
+  rw [Expr.denoteS_mul, ha.1, hb.1, hs.2, hts.2]
+
+theorem Expr.denoteS_add_of {α} [CommSemiring α] (ctx : Context α) (a b : Expr) (pa pb p : Poly)
+    (ha : a.denoteS ctx = pa.denoteS ctx ∧ pa.NonnegCoeffs) (hb : b.denoteS ctx = pb.denoteS ctx ∧ pb.NonnegCoeffs)
+    (hp : p = pa.combine_k pb) : (Expr.add a b).denoteS ctx = p.denoteS ctx ∧ p.NonnegCoeffs := by
+  have hc := Poly.combine_k_nonneg ctx ha.2 hb.2
+  rw [← hp] at hc
+  exact ⟨by rw [Expr.denoteS_add, ha.1, hb.1, hc.2], hc.1⟩
+
+theorem Expr.denoteS_pow_succ_of_terms {α} [CommSemiring α] (ctx : Context α) (a : Expr) (k : Nat) (pa q : Poly) (ts : List Poly) (p : Poly)
+    (ha : a.denoteS ctx = pa.denoteS ctx ∧ pa.NonnegCoeffs) (hq : (Expr.pow a k).denoteS ctx = q.denoteS ctx ∧ q.NonnegCoeffs)
+    (ht : ts = pa.mulTerms_k q) (hp : p = Poly.sumB_k Poly.combine_k ts) :
+    (Expr.pow a (k + 1)).denoteS ctx = p.denoteS ctx ∧ p.NonnegCoeffs := by
+  have hts := Poly.mulTerms_k_nonneg ctx pa q ha.2 hq.2
+  rw [← ht] at hts
+  have hs := Poly.sumB_k_nonneg ctx ts hts.1
+  rw [← hp] at hs
+  refine ⟨?_, hs.1⟩
+  have hq₁ : a.denoteS ctx ^ k = q.denoteS ctx := hq.1
+  rw [Expr.denoteS_pow, hs.2, hts.2, ← hq₁, ← ha.1, Semiring.pow_succ, CommSemiring.mul_comm]
+
+theorem Expr.denoteS_pow_one_of {α} [CommSemiring α] (ctx : Context α) (a : Expr) (pa : Poly)
+    (ha : a.denoteS ctx = pa.denoteS ctx ∧ pa.NonnegCoeffs) : (Expr.pow a 1).denoteS ctx = pa.denoteS ctx ∧ pa.NonnegCoeffs := by
+  refine ⟨?_, ha.2⟩
+  rw [Expr.denoteS_pow, Semiring.pow_succ, Semiring.pow_zero, one_mul, ha.1]
+
+theorem eq_true_of_denoteS_eq {α} [CommSemiring α] (ctx : Context α) (lhs rhs : Expr) (p : Poly)
+    (h₁ : lhs.denoteS ctx = p.denoteS ctx ∧ p.NonnegCoeffs) (h₂ : rhs.denoteS ctx = p.denoteS ctx ∧ p.NonnegCoeffs) :
+    (lhs.denoteS ctx = rhs.denoteS ctx) = True :=
+  eq_true (h₁.1.trans h₂.1.symm)
+
+theorem le_true_of_denoteS_eq {α} [CommSemiring α] [LE α] [Std.IsPreorder α] (ctx : Context α) (lhs rhs : Expr) (p : Poly)
+    (h₁ : lhs.denoteS ctx = p.denoteS ctx ∧ p.NonnegCoeffs) (h₂ : rhs.denoteS ctx = p.denoteS ctx ∧ p.NonnegCoeffs) :
+    (lhs.denoteS ctx ≤ rhs.denoteS ctx) = True := by
+  rw [h₁.1, h₂.1]; exact eq_true (Std.le_refl _)
+
+theorem lt_false_of_denoteS_eq {α} [CommSemiring α] [LE α] [LT α] [Std.LawfulOrderLT α] [Std.IsPreorder α] (ctx : Context α)
+    (lhs rhs : Expr) (p : Poly)
+    (h₁ : lhs.denoteS ctx = p.denoteS ctx ∧ p.NonnegCoeffs) (h₂ : rhs.denoteS ctx = p.denoteS ctx ∧ p.NonnegCoeffs) :
+    (lhs.denoteS ctx < rhs.denoteS ctx) = False := by
+  rw [h₁.1, h₂.1]; exact eq_false Std.lt_irrefl
 
 end CommRing
 

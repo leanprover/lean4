@@ -41,7 +41,7 @@ example : ⦃ fun _ => True ⦄ (pure "x" : M String) ⦃ fun r _ => r = "x" ∨
 /--
 trace: case vc1
 s✝ : Nat
-⊢ s✝ = (PUnit.unit, s✝).snd + 1
+⊢ s✝ = s✝ + 1
 ---
 warning: declaration uses `sorry`
 -/

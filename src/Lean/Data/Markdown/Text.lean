@@ -17,7 +17,7 @@ import Lean.Data.Html.CharRef
 namespace Lean.Markdown
 
 /-!
-# Text-level decoding
+# Text-Level Decoding
 
 CommonMark §2.4 and §2.5: backslash escapes and character references. The inline parser recognizes
 both as inline elements in paragraph text. Link destinations, link titles, and info strings are not

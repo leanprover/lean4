@@ -326,10 +326,10 @@ def isLinkLabel (cur : InlineCursor s) : Bool := Id.run do
 /-- The monad for parsing link targets. Failure is `none`. -/
 abbrev LinkTargetM (s : String.Slice) := ReaderT (InlineContext s) Option
 
-/-- The link reference definition that `label` refers to. Fails when there is none. -/
-@[inline] def linkRef (label : Lines s) : LinkTargetM s (RefDef s) := do
-  let some definition := (← refTable)[normalizeLabel label]? | failure
-  return definition
+/-- The reference target that `label` refers to. Fails when there is none. -/
+@[inline] def linkRef (label : Lines s) : LinkTargetM s (RefTarget s) := do
+  let some target := (← refTable)[normalizeLabel label]? | failure
+  return target
 
 /--
 Parses the target of a `[…]…` link or `![…]…` image, after the caller has located the outer `[…]`
@@ -375,22 +375,22 @@ where
       -- Collapsed reference: the link text/image alt serves as the label.
       let labelClose ← afterOpen.charSubslice?
       let label ← interiorLabel?
-      let definition ← linkRef label
-      return (.reference definition label (.collapsed labelOpen labelClose),
+      let target ← linkRef label
+      return (.reference target label (.collapsed labelOpen labelClose),
         labelClose.endExclusive)
     else
       match parseLinkLabel? afterOpen with
       | none => shortcutForm
       | some (label, atClose) =>
         let labelClose ← atClose.charSubslice?
-        let definition ← linkRef label
-        return (.reference definition label (.full labelOpen labelClose), labelClose.endExclusive)
+        let target ← linkRef label
+        return (.reference target label (.full labelOpen labelClose), labelClose.endExclusive)
   /-- The shortcut `[…]` / `![…]` form: the bracket interior itself is the label. -/
   shortcutForm : LinkTargetM s (LinkTarget s × s.Pos) := do
     guard !(← refTable).isEmpty
     let label ← interiorLabel?
-    let definition ← linkRef label
-    return (.reference definition label .shortcut, afterClose)
+    let target ← linkRef label
+    return (.reference target label .shortcut, afterClose)
   /-- The lines of the bracket interior, if it is a link label. -/
   interiorLabel? : LinkTargetM s (Lines s) := do
     let src ← inlineSource

@@ -78,7 +78,7 @@ def showParagraph (src : String) : String :=
 #guard_msgs in #eval showParagraph "x ``a`b` `c`"
 
 /-!
-## Emphasis with leftover delimiters
+## Emphasis with Leftover Delimiters
 
 An opener that is left over after part of its sequence matched a closer keeps the sequence's
 original length due to rule 9 of CommonMark §6.2.
@@ -148,7 +148,7 @@ Tags, comments, processing instructions, declarations, and CDATA sections are ra
 #guard_msgs in #eval showParagraph "<https://e.com>"
 
 /-!
-## Emphasis next to Unicode punctuation and whitespace
+## Emphasis Next to Unicode Punctuation and Whitespace
 
 The flanking rules classify characters by Unicode category for Latin-1, Greek, and the symbol
 blocks, so `_` emphasis opens after and closes before a mathematical symbol, a `*` after a currency
@@ -247,7 +247,7 @@ def destinationParts (src : String) : List (List String) :=
 /-- The URL and title of the definition that each reference link in the first paragraph resolved to. -/
 def referenceTargets (src : String) : List (String × Option String) :=
   (firstParagraph src).toList.filterMap fun
-    | .link _ _ _ (.reference d _ _) =>
+    | .link _ _ _ (.reference (.inDocument d) _ _) =>
       some (d.destination.url.copy, d.title?.map (·.content.text))
     | _ => none
 
@@ -265,7 +265,7 @@ def referenceTargets (src : String) : List (String × Option String) :=
 #guard_msgs in #eval referenceTargets "[Я]\n\n[я]: /u"
 
 /-!
-## Content that continues onto the next line
+## Content That Continues onto the Next Line
 
 The content of inline code, a link title, or a reference label that continues onto the next line of
 a container has one subslice per line, without the container's prefix.
@@ -316,7 +316,7 @@ def blockRanges (src : String) : List String :=
 #guard_msgs in #eval blockRanges "> # h\n> para\n\n- a\n  b\n- c\n\n[r]: /u \"t\"\n\n```lean\ncode\n```\n\n***\n\n    code\n"
 
 /-!
-## Indented documents
+## Indented Documents
 
 Up to `indent` leading spaces of each line are indentation of the document as a whole, as in an
 indented docstring, and are skipped before the line is parsed.
@@ -378,7 +378,7 @@ info: ["paragraph⟪text⟪Intro⟫ softBreak text⟪continued⟫⟫", "indented
 #guard_msgs in #eval showDocument "    Intro\n\n      ```\n      code\n        indented\n     x\n      ```\n" 4
 
 /-!
-## List markers after paragraph text
+## List Markers after Paragraph Text
 
 A list marker on the line after a paragraph's text starts a list only if its item may interrupt a
 paragraph (CommonMark §5.2): the item has content, and an ordered list starts at 1. This applies
@@ -411,7 +411,7 @@ line, any marker starts a list.
 #guard_msgs in #eval showDocument "> a\n5. b\n" 0
 
 /-!
-## Lazy continuation lines
+## Lazy Continuation Lines
 
 A line that lazily continues a paragraph has its leading whitespace removed (CommonMark §4.8), also
 when the paragraph so far ends with a hard break or consists of link reference definitions.
@@ -424,7 +424,7 @@ when the paragraph so far ends with a hard break or consists of link reference d
 #guard_msgs in #eval showDocument ">[r]:u\n b\n" 0
 
 /-!
-## Blank lines after an empty item
+## Blank Lines after an Empty Item
 
 An item whose marker is alone on its line ends at the next line when that line is blank, whatever
 its indentation (CommonMark §5.2).
@@ -434,7 +434,7 @@ its indentation (CommonMark §5.2).
 #guard_msgs in #eval showDocument "-\n  \n  o\n" 0
 
 /-!
-## List tightness
+## List Tightness
 
 A list is loose when two blocks of one of its items are separated by a blank line (CommonMark
 §5.3). Blank lines after the list, and blank lines inside an indented code block, are not separators.
@@ -502,7 +502,7 @@ A list is loose when two blocks of one of its items are separated by a blank lin
 #guard_msgs in #eval showDocument "- ```\n\n  ```\n- b\n" 0
 
 /-!
-## Link titles
+## Link Titles
 
 A parenthesized title may contain `(` and `)` only backslash-escaped, and a title must be separated
 from the destination by whitespace (CommonMark §6.3).
@@ -521,7 +521,7 @@ from the destination by whitespace (CommonMark §6.3).
 #guard_msgs in #eval titleParts "[a](/u (x\\(y))"
 
 /-!
-## Backslashes in labels, destinations, and titles
+## Backslashes in Labels, Destinations, and Titles
 
 A backslash escapes the ASCII punctuation character after it (CommonMark §2.4). Before any other
 character it is an ordinary character, so it neither hides a space or line ending nor spans one.
@@ -540,7 +540,7 @@ character it is an ordinary character, so it neither hides a space or line endin
 #guard_msgs in #eval showDocument "[a\\\n\nb]: /u\n" 0
 
 /-!
-## Canceled setext headings
+## Canceled Setext Headings
 
 A setext heading whose text is nothing but link reference definitions is not a heading. Its
 underline is paragraph text, which the following paragraph or setext heading continues.
@@ -568,7 +568,7 @@ underline is paragraph text, which the following paragraph or setext heading con
 #guard_msgs in #eval showDocument "[\\ ]: /url\n\n[\\ ]\n" 0
 
 /-!
-## Tabs in verbatim blocks
+## Tabs in Verbatim Blocks
 
 A tab ends inside a container prefix or a block's indentation when the columns it spans straddle
 that boundary (CommonMark §2.2). The remaining columns of the tab are leading spaces of the line in
@@ -606,7 +606,7 @@ code blocks and HTML blocks, on blank lines too, as in cmark.
 #guard_msgs in #eval showDocument "2) ```\n\t```\n" 0
 
 /-!
-## HTML blocks
+## HTML Blocks
 
 An HTML block (CommonMark §4.6) starts with a line that meets one of seven start conditions, after up
 to three spaces of indentation, and ends with the line that meets the matching end condition. For raw
@@ -663,7 +663,7 @@ info: ["paragraph⟪text⟪para⟫ softBreak html⟪<span>⟫⟫", "html#[\"<spa
 #guard_msgs in #eval blockRanges "<div>\na\n\n<!-- c -->\n"
 
 /-!
-## Code fences
+## Code Fences
 
 A closing fence may be followed by spaces or tabs and nothing else. The info string is trimmed of
 leading and trailing spaces or tabs.
@@ -685,7 +685,7 @@ def infoStrings (src : String) : List (Option String) :=
 #guard_msgs in #eval infoStrings "```\tlean\t\n```\n\n``` lean \n```"
 
 /-!
-## Line endings
+## Line Endings
 
 A line ending is `\r\n`, `\r`, or `\n` (CommonMark §2.1). Verbatim lines and the lines of inline
 content exclude the ending, and a soft or hard break is the whole ending.
@@ -726,7 +726,7 @@ def softBreakTexts (src : String) : Array String :=
 #guard_msgs in #eval showDocument "- c\r\n\r\n  d\r\n" 0
 
 /-!
-## LaTeX math
+## LaTeX Math
 
 The `latexMath` extension recognizes `$…$` and `$$…$$` with the following rules, which are
 compatible with `md4c`:
@@ -783,3 +783,35 @@ def showMathParagraph (src : String) : String :=
 -- a space unless the previous line already ends with one.
 /-- info: ["math⟪a  + b⟫", "math⟪a\t b⟫"] -/
 #guard_msgs in #eval [showMathParagraph "$a  \n  +\n b$", showMathParagraph "$a\t\nb$"]
+
+/-!
+## External Reference Definitions
+
+A caller may supply additional reference definitions that are not present in the document. The
+document's definitions take precedence unless an external definition sets `overrideDocument`.
+-/
+
+/--
+The destination text of each reference link in the first paragraph, and whether it is external.
+-/
+def externalTargets (src : String) : List (String × Bool) :=
+  let externalRefs : Std.HashMap String ExternalRef :=
+    ({} : Std.HashMap String ExternalRef)
+      |>.insert "Knuth 1984" { destination := "references.html#knuth", title? := some "Knuth" }
+      |>.insert "r" { destination := "/external" }
+      |>.insert "o" { destination := "/override", overrideDocument := true }
+  let blocks := parseDocument src.toSlice (externalRefs := externalRefs)
+  let content := blocks.findSome? (fun | .paragraph content => some content | _ => none) |>.getD #[]
+  content.toList.filterMap fun
+    | .link _ _ _ target@(.reference refTarget _ _) =>
+      some (target.destination, refTarget matches .external ..)
+    | _ => none
+
+/-- info: [("references.html#knuth", true), ("/document", false), ("/document", false)] -/
+#guard_msgs in #eval externalTargets "[knuth 1984] [r] [x][r]\n\n[r]: /document\n"
+
+/-- info: [("/external", true)] -/
+#guard_msgs in #eval externalTargets "[r]\n"
+
+/-- info: [("/override", true), ("/override", true)] -/
+#guard_msgs in #eval externalTargets "[o] [O]\n\n[o]: /document\n"

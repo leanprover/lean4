@@ -49,13 +49,23 @@ public partial def parseInlinesInBlock (refs : RefTable s) (block : Block.Raw s)
     .thematicBreak line
 
 /--
-Parses `s` as a Markdown document. Up to `indent` leading spaces of each line are skipped, and
-`extensions` selects syntax beyond CommonMark, none by default.
+Parses `s` as a Markdown document.
 
-This parser is based on the two-pass algorithm that the CommonMark specification describes.
+Up to `indent` leading spaces of each line are skipped.
+
+By default, the parser adheres to CommonMark with one exception: it compares link labels modulo
+Unicode case folding only for the Latin-1 and Greek ranges, while CommonMark specifies full Unicode
+case folding. Use `extensions` to enable non-standard extensions like LaTeX math.
+
+The `externalRefs` table maps labels to reference definitions beyond the document's own link
+reference definitions. Its labels are normalized like those in the document. A reference definition
+in the document takes precedence over an external definition with the same label unless the external
+definition has `overrideDocument` set.
+
+This parser is based on the two-pass algorithm described in the CommonMark specification.
 -/
-public def parseDocument (s : String.Slice) (indent : Nat := 0) (extensions : Extensions := {}) :
-    Array (Block s) :=
+public def parseDocument (s : String.Slice) (indent : Nat := 0) (extensions : Extensions := {})
+    (externalRefs : Std.HashMap String ExternalRef := {}) : Array (Block s) :=
   let blocks := parseBlocks s indent
-  let refs := buildRefTable blocks
+  let refs := buildRefTable blocks externalRefs
   blocks.map (parseInlinesInBlock refs · extensions)

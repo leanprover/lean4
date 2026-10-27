@@ -906,17 +906,23 @@ partial def postProcessRefDefs (blocks : Array (Block.Raw s)) : Array (Block.Raw
   return out
 
 /--
-Builds the document's reference table. Earlier definitions of the same label take precedence.
+Builds the document's reference table from its link reference definitions and from `externalRefs`,
+which maps labels to definitions that the caller supplies. An earlier definition of a label in the
+document takes precedence over a later one. A definition in the document takes precedence over an
+external one with the same label unless the external one has `overrideDocument` set. The labels of
+`externalRefs` are normalized like those in the document.
 -/
-public partial def buildRefTable (blocks : Array (Block.Raw s)) : RefTable s :=
-  go blocks |>.run {} |>.2
+public partial def buildRefTable (blocks : Array (Block.Raw s))
+    (externalRefs : Std.HashMap String ExternalRef := {}) : RefTable s :=
+  let inDocument := go blocks |>.run {} |>.2
+  externalRefs.fold (init := inDocument) fun table label ref =>
+    let normLabel := LinkLabel.ofString label
+    if ref.overrideDocument then table.insert normLabel (.external ref)
+    else table.insertIfNew normLabel (.external ref)
 where
   go (bs : Array (Block.Raw s)) : StateM (RefTable s) Unit :=
     bs.forM fun
-      | .linkRefDef m => do
-        let normLabel := normalizeLabel m.label
-        if (← get).contains normLabel then pure ()
-        else modify (·.insert normLabel m)
+      | .linkRefDef m => modify (·.insertIfNew (normalizeLabel m.label) (.inDocument m))
       | .blockquote _ children => go children
       | .list _ _ items => go items
       | .listItem _ children => go children

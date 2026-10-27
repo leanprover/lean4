@@ -37,7 +37,7 @@ open Std
 open Lean.Markdown
 
 /-!
-## CommonMark HTML rendering (test-only)
+## CommonMark HTML Rendering (Test-Only)
 
 A simple HTML renderer for the `Block` tree that `Lean.Markdown.parseDocument` produces. This lives
 inside the conformance runner because nothing else in the toolchain needs it: the language server
@@ -171,7 +171,7 @@ private def normalizeParaText (s : String) : String :=
 /-- The `title` attribute of a link or image, if its target has a title. -/
 private def titleAttr (target : LinkTarget s) : String :=
   match target.title? with
-  | some t => s!" title=\"{escape t.text}\""
+  | some t => s!" title=\"{escape t}\""
   | none => ""
 
 /-- Renders a single inline element. -/
@@ -193,9 +193,9 @@ partial def renderInline (i : Inline s) : String :=
     s!"<strong>{inner}</strong>"
   | .link _ text _ target =>
     let inner := text.foldl (init := "") fun acc i => acc ++ renderInline i
-    s!"<a href=\"{escape (percentEncode target.destination.text)}\"{titleAttr target}>{inner}</a>"
+    s!"<a href=\"{escape (percentEncode target.destination)}\"{titleAttr target}>{inner}</a>"
   | .image _ _ alt _ target =>
-    s!"<img src=\"{escape (percentEncode target.destination.text)}\" alt=\"{escape (Inline.plainText alt)}\"{titleAttr target} />"
+    s!"<img src=\"{escape (percentEncode target.destination)}\" alt=\"{escape (Inline.plainText alt)}\"{titleAttr target} />"
   | .hardBreak _ _ => "<br />\n"
   | .autolink _ url _ isEmail =>
     -- Autolink contents are verbatim (no backslash escapes, no entity

@@ -100,7 +100,7 @@ partial def showInline : Inline s → String
   | .code _ content _ => s!"`{content.text}`"
   | .italic _ cs _ => s!"*{showInlines cs}*"
   | .bold _ cs _ => s!"**{showInlines cs}**"
-  | .link _ cs _ target => s!"[{showInlines cs}]({target.destination.text})"
+  | .link _ cs _ target => s!"[{showInlines cs}]({target.destination})"
   | .autolink _ url _ isEmail => s!"<{if isEmail then "mailto:" else ""}{url.copy}>"
   | .escape _ c => c.copy
   | .softBreak _ => "⏎"

@@ -13,7 +13,7 @@ public import Lean.Data.Markdown.Text
 public import Lean.Data.Markdown.Parser
 
 /-!
-# Markdown parser
+# Markdown Parser
 
 A CommonMark parser that records the source range of every construct. The Lean language server uses
 it to provide semantic tokens inside Markdown docstrings. The entry point is

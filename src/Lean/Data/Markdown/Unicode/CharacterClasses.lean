@@ -17,7 +17,7 @@ set_option doc.verso true
 namespace Lean.Markdown
 
 /-!
-# Character classes for the emphasis rules
+# Character Classes for the Emphasis Rules
 
 CommonMark's flanking rules classify the characters around a `*` or {lit}`_` sequence as whitespace,
 punctuation, or other. Whitespace is the Unicode {lit}`Zs` category plus tab, line feed, form feed,

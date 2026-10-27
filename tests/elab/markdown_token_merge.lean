@@ -36,7 +36,7 @@ def tokenCount (input : String) (typeName : String) : Nat := Id.run do
   return n
 
 /-!
-## Cross-product over (emphasis, block context)
+## Cross-Product over (Emphasis, Block Context)
 
 Each line places an `x` content character inside the smallest snippet that produces the targeted
 attribute combination. The block context selects the type, and the emphasis adds the `markupBold`
@@ -148,7 +148,7 @@ emphasis.
 #guard_msgs in #eval markupAt "`a\nb`" 3
 
 /-!
-## Image alt content
+## Image Alt Content
 
 Per CommonMark §6.4, an image description has inline elements as its
 contents (with the same rules as link text, plus that links are explicitly
@@ -173,7 +173,7 @@ inline code, and links inside alt text receive their normal token types.
 #guard_msgs in #eval markupAt "![<https://e.com>](http://e.com)" 3
 
 /-!
-## Order independence
+## Order Independence
 
 The two snippets nest bold and italic in opposite orders. The inner content
 character must receive the same modifiers in both arrangements; otherwise
@@ -205,7 +205,7 @@ attribute accumulation depends on traversal order.
 #guard_msgs in #eval markupAt "* *a **x** a*" 7
 
 /-!
-## Soft breaks do not produce multi-line tokens
+## Soft Breaks Do Not Produce Multi-Line Tokens
 
 The inline parser emits a one-byte `.softBreak` element for each `\n`
 between paragraph lines so downstream renderers can reproduce the line
@@ -229,7 +229,7 @@ token, since VS Code does not support multi-line semantic tokens.
 #guard_msgs in #eval markupAt "hello\nworld" 6
 
 /-!
-## Multi-line link reference definitions
+## Multi-Line Link Reference Definitions
 
 A ref-def label may span newlines (CommonMark §4.7) and a title may sit
 on the line that follows the URL. Both are split at line boundaries so each
@@ -245,7 +245,7 @@ emitted token stays on a single line.
 #guard_msgs in #eval tokenCount "[a]: https://e.com \"title\nspans lines\"\n" "string"
 
 /-!
-## Ref defs inside blockquotes
+## Ref Defs inside Blockquotes
 
 `postProcessRefDefs` descends into blockquote and list children, so a ref
 def inside a blockquote still produces a `markupCrossReference` token on
@@ -256,7 +256,7 @@ its label.
 #guard_msgs in #eval markupAt "> [foo]: https://e.com\n" 3
 
 /-!
-## ATX heading guards
+## ATX Heading Guards
 
 Seven or more `#` characters are not a valid ATX heading (CommonMark
 §4.2 caps the level at six). The line falls through to a paragraph and
@@ -271,7 +271,7 @@ its content receives the plain `markupDocText` type.
 #guard_msgs in #eval markupAt "###### x" 7
 
 /-!
-## Nested lists with mixed bullet kinds
+## Nested Lists with Mixed Bullet Kinds
 
 Different bullet characters at different nesting levels form distinct
 sibling-incompatible lists. The inner list's content still receives the
@@ -285,7 +285,7 @@ sibling-incompatible lists. The inner list's content still receives the
 #guard_msgs in #eval markupAt "* outer\n  + inner" 12
 
 /-!
-## Link titles
+## Link Titles
 
 A title's delimiters are markup syntax like the brackets around the link text, and its text is a
 string, both for inline targets and for link reference definitions.
@@ -298,7 +298,7 @@ string, both for inline targets and for link reference definitions.
 #guard_msgs in #eval ["[r]: /u (t)", "[r]: /u (t)", "[r]: /u (t)"].zipWith markupAt [8, 9, 10]
 
 /-!
-## Hard breaks and escapes
+## Hard Breaks and Escapes
 
 The backslash or the trailing spaces that make a line ending a hard break are markup syntax, as is
 the backslash of an escape. The escaped character is text.
@@ -311,7 +311,7 @@ the backslash of an escape. The escaped character is text.
 #guard_msgs in #eval ["\\*x", "\\*x"].zipWith markupAt [0, 1]
 
 /-!
-## Content that continues onto the next line of a container
+## Content That Continues onto the Next Line of a Container
 
 Inline code, a link title, or a reference label that continues onto the next line of a blockquote gets
 one token per line, and the blockquote marker on the second line stays a delimiter.
@@ -339,7 +339,7 @@ Inline HTML is inline code, one token per line.
 #guard_msgs in #eval ["a <b>c</b>", "a <b>c</b>", "a <b>c</b>"].zipWith markupAt [2, 5, 7]
 
 /-!
-## Indented documents
+## Indented Documents
 
 With a nonzero indent, the indentation of the document as a whole is skipped, so a continuation line
 that is indented by it is text and only lines that are indented four columns past it are code.
@@ -365,7 +365,7 @@ def markupAtIndented (input : String) (indent byteIdx : Nat) : String := Id.run 
   ["    ```\n      x\n    ```\n", "    ```\n      x\n    ```\n"].zipWith (fun s (i, p) => markupAtIndented s i p) [(2, 11), (2, 12)]
 
 /-!
-## Bracketed destinations
+## Bracketed Destinations
 
 The angle brackets around a destination are markup syntax, and only the URL between them is a URL,
 both for inline targets and for link reference definitions.

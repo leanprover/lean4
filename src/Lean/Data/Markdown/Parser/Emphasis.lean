@@ -15,7 +15,7 @@ namespace Lean.Markdown
 
 
 /-!
-## Emphasis matching (CommonMark §6.2)
+## Emphasis Matching (CommonMark §6.2)
 
 Implements CommonMark's delimiter stack algorithm.
 
@@ -95,7 +95,7 @@ structure OpenerFrame (s : String.Slice) where
 deriving Inhabited
 
 /-!
-### Delimiter matching
+### Delimiter Matching
 
 CommonMark §6.2 specifies emphasis matching as an algorithm over a *delimiter stack*: each `*`/`_`
 sequence that could open emphasis is pushed on the stack while non-delimiter inlines are added to

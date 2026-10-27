@@ -254,6 +254,47 @@ public structure RefDef (s : String.Slice) where
 deriving Inhabited
 
 /--
+A reference definition from outside the document that is supplied by the parser's caller. The
+destination URL and title are used as-is, with no backslash escapes or character references decoded.
+-/
+public structure ExternalRef where
+  /-- The destination URL. -/
+  destination : String
+  /-- The optional title. -/
+  title? : Option String := none
+  /--
+  Whether this definition takes precedence over a link reference definition in the document that
+  has the same label.
+  -/
+  overrideDocument : Bool := false
+deriving Inhabited
+
+/--
+What a reference link may resolve to.
+-/
+public inductive RefTarget (s : String.Slice) where
+  /-- A link reference definition in the document. -/
+  | inDocument (definition : RefDef s)
+  /-- A definition from outside the document. -/
+  | external (ref : ExternalRef)
+deriving Inhabited
+
+/--
+The destination of a reference target, with backslash escapes and character references decoded.
+-/
+public def RefTarget.destination {s : String.Slice} : RefTarget s → String
+  | .inDocument definition => definition.destination.text
+  | .external ref => ref.destination
+
+/--
+The title of a reference target, if it has one, with backslash escapes and character references
+decoded.
+-/
+public def RefTarget.title? {s : String.Slice} : RefTarget s → Option String
+  | .inDocument definition => definition.title?.map (·.text)
+  | .external ref => ref.title?
+
+/--
 A block of the source string `s` after the first pass, which determines the type and extent of every
 block but does not parse inline content. Paragraphs and setext headings consist of their source
 lines, with container prefixes such as `>` removed.
@@ -356,12 +397,14 @@ public inductive LinkTarget (s : String.Slice) where
   | inline (openParen : s.Subslice) (destination : LinkDestination s) (closeParen : s.Subslice)
     (title? : Option (LinkTitle s) := none)
   /--
-  A reference target: `definition` is the link reference definition that the label resolved to, and
-  `label` is the label's text: the interior of the second bracket pair in full form, and the link's
-  text in collapsed and shortcut form. A reference whose label doesn't match any definition is
-  plain text, brackets included, so every reference link has a definition.
+  A reference target: `refTarget` is what the label resolved to, and `label` is the label's text.
+
+  The label text is the interior of the second bracket pair in full form, and the link's text in
+  collapsed and shortcut form. In Markdown, seeming links to labels that don't match any definition
+  in the document are not in fact links (they are just plain text), so every reference link has a
+  resolved target.
   -/
-  | reference (definition : RefDef s) (label : Lines s) (form : ReferenceLinkForm s)
+  | reference (refTarget : RefTarget s) (label : Lines s) (form : ReferenceLinkForm s)
 deriving Inhabited
 
 /--
@@ -556,20 +599,41 @@ public def LinkTarget.stop? : LinkTarget s → Option s.Pos
   | .reference _ _ .shortcut => none
 
 /--
-The destination of the link or image: the inline target's, or that of the definition that the
-reference resolved to.
+The source of the destination of the link or image in the original document.
+
+This may be that of an inline target's, or that of the reference definition that a label resolved
+to.  A reference that resolved to an external definition has none.
 -/
-public def LinkTarget.destination : LinkTarget s → LinkDestination s
-  | .inline _ destination _ _ => destination
-  | .reference definition _ _ => definition.destination
+public def LinkTarget.destinationSource? : LinkTarget s → Option (LinkDestination s)
+  | .inline _ destination _ _ => some destination
+  | .reference (.inDocument definition) _ _ => some definition.destination
+  | .reference (.external ..) _ _ => none
 
 /--
-The title of the link or image, if it has one: the inline target's, or that of the definition that
-the reference resolved to.
+The source of the title of the link or image, if it has one.
+
+This may be that of an inline target, or that of the link reference definition that the reference
+resolved to. References that resolve to external definitions have none.
 -/
-public def LinkTarget.title? : LinkTarget s → Option (LinkTitle s)
+public def LinkTarget.titleSource? : LinkTarget s → Option (LinkTitle s)
   | .inline _ _ _ title? => title?
-  | .reference definition _ _ => definition.title?
+  | .reference (.inDocument definition) _ _ => definition.title?
+  | .reference (.external ..) _ _ => none
+
+/--
+The destination of the link or image, with backslash escapes and character references decoded.
+-/
+public def LinkTarget.destination : LinkTarget s → String
+  | .inline _ destination _ _ => destination.text
+  | .reference refTarget _ _ => refTarget.destination
+
+/--
+The title of the link or image, if it has one, with backslash escapes and character references
+decoded.
+-/
+public def LinkTarget.title? : LinkTarget s → Option String
+  | .inline _ _ _ title? => title?.map (·.text)
+  | .reference refTarget _ _ => refTarget.title?
 
 /-- The whole inline element, from its first to its last character. -/
 public def Inline.extent : Inline s → s.Subslice
@@ -716,8 +780,11 @@ public def normalizeLabel (lines : Lines s) : LinkLabel := Id.run do
     sawWs := true
   return ⟨out⟩
 
+/-- The normalized form of `label`, for a label that is given as a string. -/
+public def LinkLabel.ofString (label : String) : LinkLabel :=
+  normalizeLabel (Lines.singleton label.toSlice.toSubslice)
+
 /--
-A document's link reference definitions by normalized label. During inline parsing, these are used
-to recognize valid references.
+A mapping from normalized link labels to a document's reference targets.
 -/
-public abbrev RefTable (s : String.Slice) := Std.HashMap LinkLabel (RefDef s)
+public abbrev RefTable (s : String.Slice) := Std.HashMap LinkLabel (RefTarget s)

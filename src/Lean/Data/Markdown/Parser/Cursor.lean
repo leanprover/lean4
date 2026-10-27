@@ -13,7 +13,7 @@ namespace Lean.Markdown
 
 
 /-!
-## Line cursors
+## Line Cursors
 
 The block parser processes one line at a time, and within each line it is constantly asking “what's
 at column N relative to the parent container's indent?”. Because CommonMark counts indentation in

@@ -127,7 +127,7 @@ public def parseMarkupDeclaration? (cur : InlineCursor s) : Option (InlineCursor
     advancePast cur.drop1 ['>']
 
 /-!
-## HTML blocks (CommonMark §4.6)
+## HTML Blocks (CommonMark §4.6)
 -/
 
 /--

@@ -220,35 +220,40 @@ def sandboxSpawnArgs (spawnArgs : SandboxArgs) : M IO.Process.SpawnArgs := do
     }
 
 open IO.Process in
-partial def runSandBoxedWithStdoutTo (handle : IO.FS.Handle) (spawnArgs : SandboxArgs) : M Unit := do
-  let (stderr, exitCode) ← pipedOutput (← sandboxSpawnArgs spawnArgs)
-  IO.eprint stderr
-  if exitCode != 0 then
-    throw <| .userError s!"Child exited with {exitCode}"
-where
-  pipedOutput (args : SpawnArgs) : IO (String × UInt32) := do
-    let child ← spawn { args with stdout := .piped, stderr := .piped, stdin := .null }
-    let stdout ← IO.asTask (prio := .dedicated) do
-      let rec loop : IO Unit := do
-        let buf ← child.stdout.read 4096
-        if buf.isEmpty then
-          handle.flush
-          return ()
-        else
-          handle.write buf
-          loop
-      loop
-    let stderr ← child.stderr.readToEnd
-    let exitCode ← child.wait
-    discard <| IO.ofExcept stdout.get
-    return (stderr, exitCode)
+/--
+Runs `spawnArgs` sandboxed, with `readStdout` reading its standard output, to the end, in a task of
+its own.
 
-def runSandBoxedWithStdout (spawnArgs : SandboxArgs) : M String := do
-  let { stdout, stderr, exitCode } ← IO.Process.output (← sandboxSpawnArgs spawnArgs)
-  IO.eprint stderr
+The standard error is collected as bytes and passed on unchanged once the process has exited, since
+what the sandboxed process writes need not be UTF-8. Errors are thrown only after that: from reading
+the standard error, then a nonzero exit code, then from reading the standard output.
+-/
+def runSandBoxedWith (spawnArgs : SandboxArgs) (readStdout : IO.FS.Handle → IO α) : M α := do
+  let args ← sandboxSpawnArgs spawnArgs
+  let child ← spawn { args with stdout := .piped, stderr := .piped, stdin := .null }
+  let stdout ← IO.asTask (prio := .dedicated) (readStdout child.stdout)
+  let stderr ← child.stderr.readBinToEnd.toBaseIO
+  let exitCode ← child.wait
+  let h ← IO.getStderr
+  h.write (← IO.ofExcept stderr)
+  h.flush
   if exitCode != 0 then
     throw <| .userError s!"Child exited with {exitCode}"
-  return stdout
+  IO.ofExcept stdout.get
+
+partial def runSandBoxedWithStdoutTo (handle : IO.FS.Handle) (spawnArgs : SandboxArgs) : M Unit :=
+  runSandBoxedWith spawnArgs loop
+where
+  loop (stdout : IO.FS.Handle) : IO Unit := do
+    let buf ← stdout.read 4096
+    if buf.isEmpty then
+      handle.flush
+    else
+      handle.write buf
+      loop stdout
+
+def runSandBoxedWithStdout (spawnArgs : SandboxArgs) : M String :=
+  runSandBoxedWith spawnArgs (·.readToEnd)
 
 /-- Runs `spawnArgs` sandboxed, letting its output through, and returns its exit code. -/
 def runSandBoxedExitCode (spawnArgs : SandboxArgs) : M UInt32 := do

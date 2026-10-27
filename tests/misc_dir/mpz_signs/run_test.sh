@@ -8,8 +8,13 @@ cat > "$TMP_DIR/non_gmp_config.h" <<'EOF'
 EOF
 
 read -r -a mpz_test_compiler <<< "$CXX"
+mpz_test_linker_flags=()
+if [[ $(uname -s) == Linux ]]; then
+    # Standalone Linux builds bundle libc++ in the build's library directory.
+    mpz_test_linker_flags+=("-Wl,-rpath,$BUILD_DIR/lib")
+fi
 "${mpz_test_compiler[@]}" -std=c++20 -DNDEBUG -DLEAN_MULTI_THREAD -I"$SRC_DIR" -I"$BUILD_DIR/include" \
     -include "$TMP_DIR/non_gmp_config.h" \
     main.cpp "$SRC_DIR/runtime/mpz.cpp" "$SRC_DIR/runtime/mpn.cpp" \
-    "$SRC_DIR/runtime/exception.cpp" -o "$TMP_DIR/mpz_signs"
+    "$SRC_DIR/runtime/exception.cpp" "${mpz_test_linker_flags[@]}" -o "$TMP_DIR/mpz_signs"
 "$TMP_DIR/mpz_signs"

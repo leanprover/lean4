@@ -782,7 +782,11 @@ static inline bool lean_is_exclusive(lean_object * o) {
 }
 
 static inline uint8_t lean_is_exclusive_obj(lean_object * o) {
-    return lean_is_exclusive(o);
+    if (lean_is_scalar(o)) {
+        return 1;
+    } else {
+        return lean_is_exclusive(o);
+    }
 }
 
 static inline bool lean_is_shared(lean_object * o) {
@@ -1512,7 +1516,6 @@ static inline lean_obj_res lean_string_push(lean_obj_arg s, uint32_t c) {
 LEAN_EXPORT lean_obj_res lean_string_append(lean_obj_arg s1, b_lean_obj_arg s2);
 static inline lean_obj_res lean_string_length(b_lean_obj_arg s) { return lean_box(lean_string_len(s)); }
 LEAN_EXPORT lean_obj_res lean_string_mk(lean_obj_arg cs);
-LEAN_EXPORT lean_obj_res lean_string_data(lean_obj_arg s);
 LEAN_EXPORT uint32_t  lean_string_utf8_get(b_lean_obj_arg s, b_lean_obj_arg i);
 LEAN_EXPORT uint32_t lean_string_utf8_get_fast_cold(char const * str, size_t i, size_t size, unsigned char c);
 static inline uint32_t lean_string_utf8_get_fast(b_lean_obj_arg s, b_lean_obj_arg i) {

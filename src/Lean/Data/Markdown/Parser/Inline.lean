@@ -597,9 +597,10 @@ def openBracket (bang? : Option s.Subslice) (bracket : s.Subslice) (resumeRest :
     let st := { st with out := #[] }
     let start := (bang?.getD bracket).startInclusive
     let out := pushTokText out st.textStart start
+    let tokIdx := out.size
     { st with
       out := out.push (.inline (.text (subsliceClamped start bracket.endExclusive)))
-      brackets := st.brackets.push { tokIdx := out.size, bang?, openBracket := bracket }
+      brackets := st.brackets.push { tokIdx, bang?, openBracket := bracket }
       rest := resumeRest
       textStart := bracket.endExclusive
       prevChar := '[' }

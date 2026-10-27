@@ -3726,6 +3726,85 @@ theorem lt_norm_poly0 {α} [CommRing α] [LE α] [LT α] [LawfulOrderLT α] [IsP
   apply propext
   rw [OrderedAdd.add_lt_left_iff (c := - rhs.denote ctx), Ring.sub_eq_add_neg, AddCommGroup.add_neg_cancel]
 
+/-! Relations whose sides differ by a constant: the relation is `True` or `False`. -/
+
+theorem sub_eq_of_toPolyX_k {α} [CommRing α] (ctx : Context α) (bal : Bool) (lhs rhs : Expr) (k : Int)
+    (h : (lhs.sub rhs).toPolyX_k bal = .num k) : lhs.denote ctx - rhs.denote ctx = (k : α) := by
+  have h' := congrArg (Poly.denote ctx) h
+  rwa [Expr.denote_toPolyX_k] at h'
+
+theorem eq_false_of_poly {α} [CommRing α] [IsCharP α 0] (ctx : Context α) (bal : Bool) (lhs rhs : Expr) (k : Int)
+    (h : (lhs.sub rhs).toPolyX_k bal = .num k) (hk : Int.beqZero_k k = false) : (lhs.denote ctx = rhs.denote ctx) = False := by
+  have h' := sub_eq_of_toPolyX_k ctx bal lhs rhs k h
+  rw [Int.beqZero_k_eq] at hk
+  apply eq_false; intro he
+  rw [he, AddCommGroup.sub_self] at h'
+  have := (IsCharP.intCast_eq_zero_iff (α := α) 0 k).mp h'.symm
+  simp at this; simp [this] at hk
+
+theorem le_true_of_poly {α} [CommRing α] [LE α] [LT α] [LawfulOrderLT α] [IsPreorder α] [OrderedRing α] (ctx : Context α)
+    (bal : Bool) (lhs rhs : Expr) (n : Nat) (h : (rhs.sub lhs).toPolyX_k bal = .num (Int.ofNat n)) :
+    (lhs.denote ctx ≤ rhs.denote ctx) = True := by
+  have h' := sub_eq_of_toPolyX_k ctx bal rhs lhs _ h
+  rw [Int.ofNat_eq_natCast, Ring.intCast_natCast] at h'
+  apply eq_true
+  rw [← OrderedAdd.sub_nonneg_iff, h']
+  exact OrderedRing.natCast_nonneg
+
+theorem lt_true_of_poly {α} [CommRing α] [LE α] [LT α] [LawfulOrderLT α] [IsPreorder α] [OrderedRing α] (ctx : Context α)
+    (bal : Bool) (lhs rhs : Expr) (n : Nat) (h : (rhs.sub lhs).toPolyX_k bal = .num (Int.ofNat (n + 1))) :
+    (lhs.denote ctx < rhs.denote ctx) = True := by
+  have h' := sub_eq_of_toPolyX_k ctx bal rhs lhs _ h
+  rw [Int.ofNat_eq_natCast, Ring.intCast_natCast] at h'
+  apply eq_true
+  rw [← OrderedAdd.sub_pos_iff, h']
+  exact OrderedRing.pos_natCast_of_pos _ (Nat.succ_pos n)
+
+theorem le_false_of_poly {α} [CommRing α] [LE α] [LT α] [LawfulOrderLT α] [IsPreorder α] [OrderedRing α] (ctx : Context α)
+    (bal : Bool) (lhs rhs : Expr) (n : Nat) (h : (lhs.sub rhs).toPolyX_k bal = .num (Int.ofNat (n + 1))) :
+    (lhs.denote ctx ≤ rhs.denote ctx) = False := by
+  have h' := sub_eq_of_toPolyX_k ctx bal lhs rhs _ h
+  rw [Int.ofNat_eq_natCast, Ring.intCast_natCast] at h'
+  apply eq_false; intro hle
+  have h₁ : 0 < lhs.denote ctx - rhs.denote ctx := by rw [h']; exact OrderedRing.pos_natCast_of_pos _ (Nat.succ_pos n)
+  rw [OrderedAdd.sub_pos_iff] at h₁
+  exact Std.lt_irrefl (Std.lt_of_le_of_lt hle h₁)
+
+theorem lt_false_of_poly {α} [CommRing α] [LE α] [LT α] [LawfulOrderLT α] [IsPreorder α] [OrderedRing α] (ctx : Context α)
+    (bal : Bool) (lhs rhs : Expr) (n : Nat) (h : (lhs.sub rhs).toPolyX_k bal = .num (Int.ofNat n)) :
+    (lhs.denote ctx < rhs.denote ctx) = False := by
+  have h' := sub_eq_of_toPolyX_k ctx bal lhs rhs _ h
+  rw [Int.ofNat_eq_natCast, Ring.intCast_natCast] at h'
+  apply eq_false; intro hlt
+  have h₁ : 0 ≤ lhs.denote ctx - rhs.denote ctx := by rw [h']; exact OrderedRing.natCast_nonneg
+  rw [OrderedAdd.sub_nonneg_iff] at h₁
+  exact Std.lt_irrefl (Std.lt_of_lt_of_le hlt h₁)
+
+/-! Relations whose sides have the same polynomial `p`: each side is checked against `p` alone. -/
+
+theorem eq_true_of_toPoly_eq {α} [CommRing α] (ctx : Context α) (bal₁ bal₂ : Bool) (lhs rhs : Expr) (p : Poly)
+    (h₁ : p = lhs.toPolyX_k bal₁) (h₂ : p = rhs.toPolyX_k bal₂) : (lhs.denote ctx = rhs.denote ctx) = True := by
+  have e₁ := Expr.denote_toPolyX_k ctx bal₁ lhs
+  have e₂ := Expr.denote_toPolyX_k ctx bal₂ rhs
+  rw [← h₁] at e₁; rw [← h₂] at e₂
+  exact eq_true (e₁.symm.trans e₂)
+
+theorem eq_true_of_toPolyC_eq {α c} [CommRing α] [IsCharP α c] (ctx : Context α) (bal₁ bal₂ : Bool) (lhs rhs : Expr) (p : Poly)
+    (h₁ : p = lhs.toPolyXC_k bal₁ c) (h₂ : p = rhs.toPolyXC_k bal₂ c) : (lhs.denote ctx = rhs.denote ctx) = True := by
+  have e₁ := Expr.denote_toPolyXC_k ctx bal₁ lhs
+  have e₂ := Expr.denote_toPolyXC_k ctx bal₂ rhs
+  rw [← h₁] at e₁; rw [← h₂] at e₂
+  exact eq_true (e₁.symm.trans e₂)
+
+theorem le_true_of_toPoly_eq {α} [CommRing α] [LE α] [IsPreorder α] (ctx : Context α) (bal₁ bal₂ : Bool) (lhs rhs : Expr) (p : Poly)
+    (h₁ : p = lhs.toPolyX_k bal₁) (h₂ : p = rhs.toPolyX_k bal₂) : (lhs.denote ctx ≤ rhs.denote ctx) = True := by
+  rw [of_eq_true (eq_true_of_toPoly_eq ctx bal₁ bal₂ lhs rhs p h₁ h₂)]; exact eq_true (Std.le_refl _)
+
+theorem lt_false_of_toPoly_eq {α} [CommRing α] [LE α] [LT α] [LawfulOrderLT α] [IsPreorder α] (ctx : Context α)
+    (bal₁ bal₂ : Bool) (lhs rhs : Expr) (p : Poly)
+    (h₁ : p = lhs.toPolyX_k bal₁) (h₂ : p = rhs.toPolyX_k bal₂) : (lhs.denote ctx < rhs.denote ctx) = False := by
+  rw [of_eq_true (eq_true_of_toPoly_eq ctx bal₁ bal₂ lhs rhs p h₁ h₂)]; exact eq_false Std.lt_irrefl
+
 noncomputable def norm_cnstr_cert (lhs rhs lhs' rhs' : Expr) : Bool :=
   (rhs.sub lhs).toPoly_k.beq' (rhs'.sub lhs').toPoly_k
 

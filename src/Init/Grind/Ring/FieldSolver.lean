@@ -719,6 +719,28 @@ theorem eq_normQ_expr [Field α] [IsCharP α 0] (ctx : Context α) (bal : Bool) 
     · exact absurd h0 hd'
   · intro h0; rw [h0, Semiring.zero_mul]
 
+theorem eq_true_of_polyQ0 [Field α] [IsCharP α 0] (ctx : Context α) (bal : Bool) (invs : InvVars) (hok : invs.ok ctx)
+    (ainvs : InvAtoms) (hoka : ainvs.ok ctx) (lhs rhs : Expr)
+    (h : (((lhs.sub rhs).toPolyX_k bal).toPolyQX_k bal invs ainvs).num = .num 0) :
+    (lhs.denote ctx = rhs.denote ctx) = True := by
+  have h₁ := Poly.denote_toPolyQX_k ctx bal ((lhs.sub rhs).toPolyX_k bal) invs ainvs hok hoka
+  rw [Expr.denote_toPolyX_k] at h₁
+  simp only [PolyQ.denote, h] at h₁
+  replace h₁ : ((0 : Int) : α) * (((((lhs.sub rhs).toPolyX_k bal).toPolyQX_k bal invs ainvs).den : Nat) : α)⁻¹
+      = lhs.denote ctx - rhs.denote ctx := h₁
+  rw [Ring.intCast_zero, Semiring.zero_mul] at h₁
+  exact eq_true (AddCommGroup.sub_eq_zero_iff.mp h₁.symm)
+
+theorem eq_true_of_toPolyQ_eq [Field α] [IsCharP α 0] (ctx : Context α) (bal₁ bal₂ : Bool) (invs : InvVars)
+    (hok : invs.ok ctx) (ainvs : InvAtoms) (hoka : ainvs.ok ctx) (lhs rhs : Expr) (q : PolyQ)
+    (h₁ : q = (lhs.toPolyX_k bal₁).toPolyQX_k bal₁ invs ainvs) (h₂ : q = (rhs.toPolyX_k bal₂).toPolyQX_k bal₂ invs ainvs) :
+    (lhs.denote ctx = rhs.denote ctx) = True := by
+  have e₁ := Poly.denote_toPolyQX_k ctx bal₁ (lhs.toPolyX_k bal₁) invs ainvs hok hoka
+  have e₂ := Poly.denote_toPolyQX_k ctx bal₂ (rhs.toPolyX_k bal₂) invs ainvs hok hoka
+  rw [← h₁, Expr.denote_toPolyX_k] at e₁
+  rw [← h₂, Expr.denote_toPolyX_k] at e₂
+  exact eq_true (e₁.symm.trans e₂)
+
 section
 variable {α : Type u} [Field α] [LE α] [LT α] [LawfulOrderLT α] [IsLinearOrder α] [OrderedRing α]
 

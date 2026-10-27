@@ -1057,6 +1057,27 @@ theorem Expr.eq_of_toPolyS_eq_add_toExpr {α} [CommSemiring α] (ctx : Context �
   show _ = q.toExpr_k.denoteS ctx + r.toExpr_k.denoteS ctx
   rw [Poly.toExpr_k_eq, Poly.toExpr_k_eq, Poly.denoteS_toExpr _ _ hq, Poly.denoteS_toExpr _ _ hr]
 
+
+/-! Relations whose sides have the same polynomial in a commutative semiring. -/
+
+theorem eq_true_of_toPolyS {α} [CommSemiring α] (ctx : Context α) (bal₁ bal₂ : Bool) (lhs rhs : Expr) (p : Poly)
+    (h₁ : p = lhs.toPolySX_k bal₁) (h₂ : p = rhs.toPolySX_k bal₂) : (lhs.denoteS ctx = rhs.denoteS ctx) = True := by
+  have e₁ := (Expr.toPolySX_k_nonneg ctx bal₁ lhs).2
+  have e₂ := (Expr.toPolySX_k_nonneg ctx bal₂ rhs).2
+  rw [← h₁] at e₁; rw [← h₂] at e₂
+  exact eq_true (e₁.symm.trans e₂)
+
+theorem le_true_of_toPolyS {α} [CommSemiring α] [LE α] [Std.IsPreorder α] (ctx : Context α) (bal₁ bal₂ : Bool) (lhs rhs : Expr) (p : Poly)
+    (h₁ : p = lhs.toPolySX_k bal₁) (h₂ : p = rhs.toPolySX_k bal₂) : (lhs.denoteS ctx ≤ rhs.denoteS ctx) = True := by
+  have h := of_eq_true (eq_true_of_toPolyS ctx bal₁ bal₂ lhs rhs p h₁ h₂)
+  rw [h]; exact eq_true (Std.le_refl _)
+
+theorem lt_false_of_toPolyS {α} [CommSemiring α] [LE α] [LT α] [Std.LawfulOrderLT α] [Std.IsPreorder α] (ctx : Context α)
+    (bal₁ bal₂ : Bool) (lhs rhs : Expr) (p : Poly)
+    (h₁ : p = lhs.toPolySX_k bal₁) (h₂ : p = rhs.toPolySX_k bal₂) : (lhs.denoteS ctx < rhs.denoteS ctx) = False := by
+  have h := of_eq_true (eq_true_of_toPolyS ctx bal₁ bal₂ lhs rhs p h₁ h₂)
+  rw [h]; exact eq_false (Std.lt_irrefl)
+
 end CommRing
 
 namespace Ring.OfSemiring

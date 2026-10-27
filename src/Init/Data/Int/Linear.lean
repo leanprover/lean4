@@ -2586,6 +2586,48 @@ theorem Expr.eq_of_norm_eq_k (ctx : Context) (e : Expr) (p : Poly) (h : e.norm_k
     e.denote_k ctx = p.denote' ctx := by
   simp only [Expr.denote_k_eq_denote]; exact Expr.eq_of_norm_eq ctx e p (by simpa only [Expr.norm_k_eq_norm] using h)
 
+/-!
+Variants for normal forms written as expressions, as `Sym.simp`'s arithmetic normalizer renders
+them: the kernel normalizes both sides.
+-/
+
+theorem Expr.eq_of_norm_expr_k (ctx : Context) (e e' : Expr) (h : e.norm_k.beq' e'.norm_k) :
+    e.denote_k ctx = e'.denote_k ctx := by
+  simp only [Expr.denote_k_eq_denote, Poly.beq'_eq, Expr.norm_k_eq_norm] at h ⊢
+  rw [← Expr.denote_norm ctx e, h, Expr.denote_norm]
+
+theorem eq_norm_expr_k (ctx : Context) (lhs rhs lhs' rhs' : Expr) (h : (lhs.sub rhs).norm_k.beq' (lhs'.sub rhs').norm_k) :
+    (lhs.denote_k ctx = rhs.denote_k ctx) = (lhs'.denote_k ctx = rhs'.denote_k ctx) := by
+  have h' := Expr.eq_of_norm_expr_k ctx _ _ h
+  simp only [Expr.denote_k_eq_denote, Expr.denote] at h' ⊢
+  rw [← propext (Int.sub_eq_zero (a := lhs.denote ctx)), h', propext Int.sub_eq_zero]
+
+theorem le_norm_expr_k (ctx : Context) (lhs rhs lhs' rhs' : Expr) (h : (lhs.sub rhs).norm_k.beq' (lhs'.sub rhs').norm_k) :
+    (lhs.denote_k ctx ≤ rhs.denote_k ctx) = (lhs'.denote_k ctx ≤ rhs'.denote_k ctx) := by
+  have h' := Expr.eq_of_norm_expr_k ctx _ _ h
+  simp only [Expr.denote_k_eq_denote, Expr.denote] at h' ⊢
+  have e (a b : Int) : (a ≤ b) = (a - b ≤ 0) := propext ⟨Int.sub_nonpos_of_le, Int.le_of_sub_nonpos⟩
+  rw [e (lhs.denote ctx), h', ← e]
+
+theorem lt_norm_expr_k (ctx : Context) (lhs rhs lhs' rhs' : Expr) (h : (lhs.sub rhs).norm_k.beq' (lhs'.sub rhs').norm_k) :
+    (lhs.denote_k ctx < rhs.denote_k ctx) = (lhs'.denote_k ctx < rhs'.denote_k ctx) := by
+  have h' := Expr.eq_of_norm_expr_k ctx _ _ h
+  simp only [Expr.denote_k_eq_denote, Expr.denote] at h' ⊢
+  have e (a b : Int) : (a < b) = (a - b < 0) := propext ⟨Int.sub_neg_of_lt, Int.lt_of_sub_neg⟩
+  rw [e (lhs.denote ctx), h', ← e]
+
+theorem eq_true_of_norm_eq_k (ctx : Context) (lhs rhs : Expr) (h : lhs.norm_k.beq' rhs.norm_k) :
+    (lhs.denote_k ctx = rhs.denote_k ctx) = True :=
+  eq_true (Expr.eq_of_norm_expr_k ctx lhs rhs h)
+
+theorem le_true_of_norm_eq_k (ctx : Context) (lhs rhs : Expr) (h : lhs.norm_k.beq' rhs.norm_k) :
+    (lhs.denote_k ctx ≤ rhs.denote_k ctx) = True := by
+  rw [Expr.eq_of_norm_expr_k ctx lhs rhs h]; exact eq_true (Int.le_refl _)
+
+theorem lt_false_of_norm_eq_k (ctx : Context) (lhs rhs : Expr) (h : lhs.norm_k.beq' rhs.norm_k) :
+    (lhs.denote_k ctx < rhs.denote_k ctx) = False := by
+  rw [Expr.eq_of_norm_expr_k ctx lhs rhs h]; exact eq_false (Int.lt_irrefl _)
+
 end Int.Internal.Linear
 
 theorem Int.not_le_eq (a b : Int) : (¬a ≤ b) = (b + 1 ≤ a) := by

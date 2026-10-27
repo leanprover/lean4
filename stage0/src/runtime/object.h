@@ -244,6 +244,7 @@ inline obj_res string_push(obj_arg s, uint32 c) { return lean_string_push(s, c);
 inline obj_res string_append(obj_arg s1, b_obj_arg s2) { return lean_string_append(s1, s2); }
 inline obj_res string_length(b_obj_arg s) { return lean_string_length(s); }
 inline obj_res string_mk(obj_arg cs) { return lean_string_mk(cs); }
+inline obj_res string_data(obj_arg s) { return lean_string_data(s); }
 inline uint32  string_utf8_get(b_obj_arg s, b_obj_arg i) { return lean_string_utf8_get(s, i); }
 inline obj_res string_utf8_next(b_obj_arg s, b_obj_arg i) { return lean_string_utf8_next(s, i); }
 inline obj_res string_utf8_prev(b_obj_arg s, b_obj_arg i) { return lean_string_utf8_prev(s, i); }

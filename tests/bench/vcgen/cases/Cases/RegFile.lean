@@ -3,10 +3,9 @@ import Std.WP
 
 /-!
 A register file in `StateM`. Each `step` adds `1` to every register, through the `Regs.get` and
-`Regs.set` accessors. The theorems that turn `s.set .rK v` into a structure literal and
-`(Regs.mk …).rK` into a field are tagged both `@[vcgen_simp]` and `@[grind norm]`. With simp,
-`vcgen` keeps the state as one `Regs.mk` literal as it produces the state. With `vcgen -simp`, the
-state after `n` steps is a chain of `8 * n` writes, which `grind` normalizes.
+`Regs.set` accessors. The `@[vcgen_simp]` theorems turn `s.set .rK v` into a structure literal and
+`(Regs.mk …).rK` into a field, so `vcgen` keeps the state as one `Regs.mk` literal as it produces
+the state.
 -/
 
 open Lean Meta Order Std.WP
@@ -50,32 +49,32 @@ def Regs.set (s : Regs) (r : R) (v : BitVec 64) : Regs :=
   | .r6 => { s with r6 := v }
   | .r7 => { s with r7 := v }
 
-@[vcgen_simp, grind norm] theorem Regs.set_r0 (s : Regs) (v : BitVec 64) : s.set .r0 v = { s with r0 := v } := rfl
-@[vcgen_simp, grind norm] theorem Regs.set_r1 (s : Regs) (v : BitVec 64) : s.set .r1 v = { s with r1 := v } := rfl
-@[vcgen_simp, grind norm] theorem Regs.set_r2 (s : Regs) (v : BitVec 64) : s.set .r2 v = { s with r2 := v } := rfl
-@[vcgen_simp, grind norm] theorem Regs.set_r3 (s : Regs) (v : BitVec 64) : s.set .r3 v = { s with r3 := v } := rfl
-@[vcgen_simp, grind norm] theorem Regs.set_r4 (s : Regs) (v : BitVec 64) : s.set .r4 v = { s with r4 := v } := rfl
-@[vcgen_simp, grind norm] theorem Regs.set_r5 (s : Regs) (v : BitVec 64) : s.set .r5 v = { s with r5 := v } := rfl
-@[vcgen_simp, grind norm] theorem Regs.set_r6 (s : Regs) (v : BitVec 64) : s.set .r6 v = { s with r6 := v } := rfl
-@[vcgen_simp, grind norm] theorem Regs.set_r7 (s : Regs) (v : BitVec 64) : s.set .r7 v = { s with r7 := v } := rfl
-@[vcgen_simp, grind norm] theorem Regs.get_r0 (s : Regs) : s.get .r0 = s.r0 := rfl
-@[vcgen_simp, grind norm] theorem Regs.get_r1 (s : Regs) : s.get .r1 = s.r1 := rfl
-@[vcgen_simp, grind norm] theorem Regs.get_r2 (s : Regs) : s.get .r2 = s.r2 := rfl
-@[vcgen_simp, grind norm] theorem Regs.get_r3 (s : Regs) : s.get .r3 = s.r3 := rfl
-@[vcgen_simp, grind norm] theorem Regs.get_r4 (s : Regs) : s.get .r4 = s.r4 := rfl
-@[vcgen_simp, grind norm] theorem Regs.get_r5 (s : Regs) : s.get .r5 = s.r5 := rfl
-@[vcgen_simp, grind norm] theorem Regs.get_r6 (s : Regs) : s.get .r6 = s.r6 := rfl
-@[vcgen_simp, grind norm] theorem Regs.get_r7 (s : Regs) : s.get .r7 = s.r7 := rfl
-@[vcgen_simp, grind norm] theorem Regs.r0_mk {a0 a1 a2 a3 a4 a5 a6 a7 : BitVec 64} : (Regs.mk a0 a1 a2 a3 a4 a5 a6 a7).r0 = a0 := rfl
-@[vcgen_simp, grind norm] theorem Regs.r1_mk {a0 a1 a2 a3 a4 a5 a6 a7 : BitVec 64} : (Regs.mk a0 a1 a2 a3 a4 a5 a6 a7).r1 = a1 := rfl
-@[vcgen_simp, grind norm] theorem Regs.r2_mk {a0 a1 a2 a3 a4 a5 a6 a7 : BitVec 64} : (Regs.mk a0 a1 a2 a3 a4 a5 a6 a7).r2 = a2 := rfl
-@[vcgen_simp, grind norm] theorem Regs.r3_mk {a0 a1 a2 a3 a4 a5 a6 a7 : BitVec 64} : (Regs.mk a0 a1 a2 a3 a4 a5 a6 a7).r3 = a3 := rfl
-@[vcgen_simp, grind norm] theorem Regs.r4_mk {a0 a1 a2 a3 a4 a5 a6 a7 : BitVec 64} : (Regs.mk a0 a1 a2 a3 a4 a5 a6 a7).r4 = a4 := rfl
-@[vcgen_simp, grind norm] theorem Regs.r5_mk {a0 a1 a2 a3 a4 a5 a6 a7 : BitVec 64} : (Regs.mk a0 a1 a2 a3 a4 a5 a6 a7).r5 = a5 := rfl
-@[vcgen_simp, grind norm] theorem Regs.r6_mk {a0 a1 a2 a3 a4 a5 a6 a7 : BitVec 64} : (Regs.mk a0 a1 a2 a3 a4 a5 a6 a7).r6 = a6 := rfl
-@[vcgen_simp, grind norm] theorem Regs.r7_mk {a0 a1 a2 a3 a4 a5 a6 a7 : BitVec 64} : (Regs.mk a0 a1 a2 a3 a4 a5 a6 a7).r7 = a7 := rfl
+@[vcgen_simp] theorem Regs.set_r0 (s : Regs) (v : BitVec 64) : s.set .r0 v = { s with r0 := v } := rfl
+@[vcgen_simp] theorem Regs.set_r1 (s : Regs) (v : BitVec 64) : s.set .r1 v = { s with r1 := v } := rfl
+@[vcgen_simp] theorem Regs.set_r2 (s : Regs) (v : BitVec 64) : s.set .r2 v = { s with r2 := v } := rfl
+@[vcgen_simp] theorem Regs.set_r3 (s : Regs) (v : BitVec 64) : s.set .r3 v = { s with r3 := v } := rfl
+@[vcgen_simp] theorem Regs.set_r4 (s : Regs) (v : BitVec 64) : s.set .r4 v = { s with r4 := v } := rfl
+@[vcgen_simp] theorem Regs.set_r5 (s : Regs) (v : BitVec 64) : s.set .r5 v = { s with r5 := v } := rfl
+@[vcgen_simp] theorem Regs.set_r6 (s : Regs) (v : BitVec 64) : s.set .r6 v = { s with r6 := v } := rfl
+@[vcgen_simp] theorem Regs.set_r7 (s : Regs) (v : BitVec 64) : s.set .r7 v = { s with r7 := v } := rfl
+@[vcgen_simp] theorem Regs.get_r0 (s : Regs) : s.get .r0 = s.r0 := rfl
+@[vcgen_simp] theorem Regs.get_r1 (s : Regs) : s.get .r1 = s.r1 := rfl
+@[vcgen_simp] theorem Regs.get_r2 (s : Regs) : s.get .r2 = s.r2 := rfl
+@[vcgen_simp] theorem Regs.get_r3 (s : Regs) : s.get .r3 = s.r3 := rfl
+@[vcgen_simp] theorem Regs.get_r4 (s : Regs) : s.get .r4 = s.r4 := rfl
+@[vcgen_simp] theorem Regs.get_r5 (s : Regs) : s.get .r5 = s.r5 := rfl
+@[vcgen_simp] theorem Regs.get_r6 (s : Regs) : s.get .r6 = s.r6 := rfl
+@[vcgen_simp] theorem Regs.get_r7 (s : Regs) : s.get .r7 = s.r7 := rfl
+@[vcgen_simp] theorem Regs.r0_mk {a0 a1 a2 a3 a4 a5 a6 a7 : BitVec 64} : (Regs.mk a0 a1 a2 a3 a4 a5 a6 a7).r0 = a0 := rfl
+@[vcgen_simp] theorem Regs.r1_mk {a0 a1 a2 a3 a4 a5 a6 a7 : BitVec 64} : (Regs.mk a0 a1 a2 a3 a4 a5 a6 a7).r1 = a1 := rfl
+@[vcgen_simp] theorem Regs.r2_mk {a0 a1 a2 a3 a4 a5 a6 a7 : BitVec 64} : (Regs.mk a0 a1 a2 a3 a4 a5 a6 a7).r2 = a2 := rfl
+@[vcgen_simp] theorem Regs.r3_mk {a0 a1 a2 a3 a4 a5 a6 a7 : BitVec 64} : (Regs.mk a0 a1 a2 a3 a4 a5 a6 a7).r3 = a3 := rfl
+@[vcgen_simp] theorem Regs.r4_mk {a0 a1 a2 a3 a4 a5 a6 a7 : BitVec 64} : (Regs.mk a0 a1 a2 a3 a4 a5 a6 a7).r4 = a4 := rfl
+@[vcgen_simp] theorem Regs.r5_mk {a0 a1 a2 a3 a4 a5 a6 a7 : BitVec 64} : (Regs.mk a0 a1 a2 a3 a4 a5 a6 a7).r5 = a5 := rfl
+@[vcgen_simp] theorem Regs.r6_mk {a0 a1 a2 a3 a4 a5 a6 a7 : BitVec 64} : (Regs.mk a0 a1 a2 a3 a4 a5 a6 a7).r6 = a6 := rfl
+@[vcgen_simp] theorem Regs.r7_mk {a0 a1 a2 a3 a4 a5 a6 a7 : BitVec 64} : (Regs.mk a0 a1 a2 a3 a4 a5 a6 a7).r7 = a7 := rfl
 
-attribute [vcgen_simp, grind norm] BitVec.add_assoc
+attribute [vcgen_simp] BitVec.add_assoc
 
 def addi (d a : R) (i : BitVec 64) : StateM Regs Unit := modify fun s => s.set d (s.get a + i)
 

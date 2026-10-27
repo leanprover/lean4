@@ -11,20 +11,9 @@ set_option experimental.vcgen true
 open Lean Order Parser Meta Elab Tactic Sym Std WP
 open RegFile
 
--- Copy Goal into a separate namespace so the benchmark label reads `RegFileNoSimp(n)`
--- instead of colliding with the `RegFile(n)` label below.
-namespace RegFileNoSimp
-def Goal (n : Nat) : Prop := RegFile.Goal n
-end RegFileNoSimp
-
 set_option maxRecDepth 100000
 set_option maxHeartbeats 100000000
 
 -- `vcgen` folds the state into a `Regs.mk` literal with the `@[vcgen_simp]` theorems.
 #eval runBenchUsingTactic ``Goal [``loop, ``step] `(tactic| vcgen with finish) `(tactic| fail)
-  [4, 16, 64]
-
--- `grind` normalizes the chain of `Regs.set` writes with the same theorems as `@[grind norm]`.
-#eval runBenchUsingTactic ``RegFileNoSimp.Goal [``RegFile.Goal, ``loop, ``step]
-  `(tactic| vcgen -simp with finish) `(tactic| fail)
   [4, 16, 64]

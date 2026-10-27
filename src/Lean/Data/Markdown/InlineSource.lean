@@ -27,18 +27,6 @@ a single contiguous string, while still producing subslices of `s`.
 `drop1`, skipping the inter-line gaps that contain block markers and removed indentation.
 -/
 
-/--
-The lines of a paragraph-like block, each as a subslice of the source. A line starts after its
-leading spaces and tabs, and the line ending of each non-final line is its last character, so the
-inline parser sees a real line ending at each line boundary.
-
-The lines are in source order and do not overlap.
--/
-public structure InlineSource (s : String.Slice) where
-  /-- The lines, in source order. -/
-  lines : Array s.Subslice
-deriving Inhabited
-
 namespace InlineSource
 
 variable {s : String.Slice}
@@ -119,7 +107,7 @@ def skipSpaces (input : s.Subslice) (p : s.Pos) : s.Pos := Id.run do
   return p
 
 /--
-Constructs an `InlineSource` from the lines of a paragraph block. This implements the
+Constructs an `InlineSource` from the source lines of a paragraph. This implements the
 CommonMark §4.8 paragraph-content normalization:
 
 - Leading spaces and tabs are removed from each line.

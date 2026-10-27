@@ -86,7 +86,8 @@ def x := ()
 Plain text in a Verso docstring should be tagged as documentation: the leading sentence here, and
 the trailing one, are pure inline text with no role markup, *with one piece of bold* and _one
 piece of italic_, plus *_bold and italic combined_*. The role {lit}`mid` sits between them,
-surrounded by ordinary spaces.
+surrounded by ordinary spaces, and {manual section "deriving-instances"}[a role applied to text]
+ends the paragraph. A *bolded {manual section "deriving-instances"}[role applied to text]* follows.
 
 # Heading text with *bold* and _italic_
 

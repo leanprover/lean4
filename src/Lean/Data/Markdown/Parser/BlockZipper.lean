@@ -9,6 +9,7 @@ prelude
 import Init
 public import Lean.Data.Markdown.Basic
 public import Lean.Data.Markdown.Parser.Html
+import Lean.Data.Markdown.InlineSource
 
 namespace Lean.Markdown
 
@@ -144,7 +145,7 @@ Converts an open leaf into its closed `Block.Raw` form. Fenced code blocks are n
 fence.
 -/
 public def leafToBlock : OpenLeaf s → Block.Raw s
-  | .paragraph lines => .paragraph lines
+  | .paragraph lines => .paragraph (.ofLines lines)
   | .fencedCode info openFence lines => .fencedCode info openFence none lines
   | .indentedCode lines _pendingBlanks => .indentedCode lines
   | .html _ lines => .html lines

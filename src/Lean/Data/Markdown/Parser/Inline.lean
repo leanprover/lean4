@@ -16,6 +16,7 @@ public import Lean.Data.Markdown.Parser.Block
 import Lean.Data.Markdown.Unicode.CharacterClasses
 import Lean.Data.Markdown.Parser.Emphasis
 import Lean.Data.Markdown.Parser.Html
+import Lean.Data.Markdown.Parser.LinkSyntax
 
 namespace Lean.Markdown
 
@@ -182,104 +183,17 @@ def parseInlineLinkTarget? (cur : InlineCursor s) :
     Option (LinkDestination s × Option (LinkTitle s) × s.Pos) := do
   let src := cur.source
   let stop := cur.stopPos
-  let p0 := skipInlineWs cur
-  let rest : InlineCursor s := src.cursor p0 stop
-  let (destination, afterUrl) ←
-    if rest.isEmpty then
-      pure ({ angles? := none, url := subsliceClamped p0 p0 }, p0)
-    else if rest.front == '<' then
-      bracketedUrl rest
-    else
-      unbracketedUrl rest
-  let afterUrlWs := skipInlineWs (src.cursor afterUrl stop)
-  let afterUrlRest : InlineCursor s := src.cursor afterUrlWs stop
-  let cAfter ← afterUrlRest.front?
+  let (destination, afterUrl) ← parseLinkDestination? (src.cursor (skipInlineWs cur) stop)
+  let afterUrlWs := skipInlineWs afterUrl
   let mut title? : Option (LinkTitle s) := none
   let mut afterTitle := afterUrlWs
   -- A title must be separated from the destination by whitespace (CommonMark §6.3).
-  if (cAfter == '"' || cAfter == '\'' || cAfter == '(') && afterUrlWs != afterUrl then
-    let closer : Char := if cAfter == '(' then ')' else cAfter
-    let opener ← afterUrlRest.charSubslice?
-    let titleStart := opener.endExclusive
-    let mut titleRest : InlineCursor s := src.cursor titleStart stop
-    let mut titleEnd? : Option s.Pos := none
-    while !titleRest.isEmpty do
-      let c := titleRest.front
-      let q := titleRest.startPos
-      let titleRestNext := titleRest.drop1
-      if c == '\\' && Option.any isAsciiPunctuation titleRestNext.front? then
-        titleRest := titleRestNext.drop1
-      else if c == closer then
-        titleEnd? := some q
-        break
-      else if c == '(' && closer == ')' then
-        -- An unescaped `(` inside a parenthesized title fails the title (CommonMark §6.3).
-        break
-      else
-        titleRest := titleRestNext
-    let te ← titleEnd?
-    let closerRange ← (src.cursor te stop).charSubslice?
-    title? := some { opener, content := src.linesBetween titleStart te, closer := closerRange }
-    afterTitle := skipInlineWs (src.cursor closerRange.endExclusive stop)
-  let afterTitleRest : InlineCursor s := src.cursor afterTitle stop
-  guard <| afterTitleRest.front? == some ')'
+  if afterUrlWs != afterUrl.startPos then
+    if let some (title, afterCloser) := parseLinkTitle? (src.cursor afterUrlWs stop) then
+      title? := some title
+      afterTitle := skipInlineWs afterCloser
+  guard <| (src.cursor afterTitle stop).front? == some ')'
   return (destination, title?, afterTitle)
-where
-  /--
-  Bracketed form `<url>`. Backslash escapes are allowed; an unescaped `<` or line ending inside
-  fails the whole target. Returns the destination and the position one past the closing `>`.
-  -/
-  bracketedUrl (rest : InlineCursor s) : Option (LinkDestination s × s.Pos) := do
-    let openAngle ← rest.charSubslice?
-    let mut rest := rest.drop1
-    let urlContentStart := rest.startPos
-    while !rest.isEmpty do
-      let c := rest.front
-      let p := rest.startPos
-      let restNext := rest.drop1
-      if c == '\\' && Option.any isAsciiPunctuation restNext.front? then
-        rest := restNext.drop1
-      else if c == '>' then
-        let closeAngle ← rest.charSubslice?
-        let destination : LinkDestination s :=
-          { angles? := some (openAngle, closeAngle), url := subsliceClamped urlContentStart p }
-        return (destination, closeAngle.endExclusive)
-      else if c == '<' || c == '\n' || c == '\r' then
-        failure
-      else
-        rest := restNext
-    failure
-  /--
-  Unbracketed form. Stops at whitespace, an ASCII control char, or an unbalanced `)`; balances
-  `(`/`)` pairs and rejects targets with unmatched opens (CommonMark §6.3: a link destination's
-  parens must balance). Returns the destination and the (same) position right after it.
-  -/
-  unbracketedUrl (rest : InlineCursor s) : Option (LinkDestination s × s.Pos) := do
-    let urlContentStart := rest.startPos
-    let mut rest := rest
-    let mut parenDepth : Nat := 0
-    while !rest.isEmpty do
-      let c := rest.front
-      let restNext := rest.drop1
-      if c == '\\' && Option.any isAsciiPunctuation restNext.front? then
-        rest := restNext.drop1
-      else if c.isWhitespace then
-        break
-      else if c == '(' then
-        parenDepth := parenDepth + 1
-        rest := restNext
-      else if c == ')' then
-        if parenDepth == 0 then break
-        parenDepth := parenDepth - 1
-        rest := restNext
-      else if c.toNat < 0x20 then
-        break
-      else
-        rest := restNext
-    guard (parenDepth == 0)
-    let urlContentEnd := rest.startPos
-    return ({ angles? := none, url := subsliceClamped urlContentStart urlContentEnd },
-      urlContentEnd)
 
 /--
 Classifies a `*`/`_` delimiter sequence by the characters that surround it, determining whether it

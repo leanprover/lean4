@@ -295,15 +295,30 @@ public def RefTarget.title? {s : String.Slice} : RefTarget s → Option String
   | .external ref => ref.title?
 
 /--
+The lines of a paragraph or setext heading, each as a subslice of the source. These lines form the
+input to the inline parser.
+
+Container prefixes such as `>` and leading spaces and tabs are not included in the lines. Each line
+except the last line of the block ends with its line ending, so the inline parser sees a line ending
+at each line boundary. The last line does not include its trailing whitespace.
+
+The lines are in source order and do not overlap.
+-/
+public structure InlineSource (s : String.Slice) where
+  /-- The lines, in source order. -/
+  lines : Array s.Subslice
+deriving Inhabited
+
+/--
 A block of the source string `s` after the first pass, which determines the type and extent of every
-block but does not parse inline content. Paragraphs and setext headings consist of their source
-lines, with container prefixes such as `>` removed.
+block but does not parse inline content. The content of a paragraph or setext heading is an
+`InlineSource`.
 -/
 public inductive Block.Raw (s : String.Slice) where
   /--
   A paragraph: a sequence of consecutive non-blank lines that did not open any other leaf.
   -/
-  | paragraph (lines : Array s.Subslice)
+  | paragraph (content : InlineSource s)
   /--
   An ATX heading (the usual kind). `level` is the number of opening `#` characters, `hashes` is that
   opening sequence, and `closeHashes?` an optional closing sequence.
@@ -314,7 +329,7 @@ public inductive Block.Raw (s : String.Slice) where
   A setext heading (CommonMark §4.3): one or more lines of paragraph text that are followed by an
   `underline` (`===` for level 1, `---` for level 2).
   -/
-  | setextHeading (level : Nat) (lines : Array s.Subslice) (underline : s.Subslice)
+  | setextHeading (level : Nat) (content : InlineSource s) (underline : s.Subslice)
   /--
   A fenced code block. `openFence`/`closeFence?` are the fences. The closing fence is
   optional because an unterminated fenced code block spans the rest of the input. The content

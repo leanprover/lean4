@@ -594,7 +594,7 @@ a heading fails and the underline begins a new paragraph.
     if residual.lines.isEmpty then
       z.openLeaf (.paragraph #[line])
     else
-      z.addBlock (.setextHeading level residual.lines underline)
+      z.addBlock (.setextHeading level residual underline)
 
 /--
 Lazy paragraph continuation: if some containers failed to continue but we have an open paragraph and
@@ -886,15 +886,11 @@ partial def postProcessRefDefs (blocks : Array (Block.Raw s)) : Array (Block.Raw
   while h : i < blocks.size do
     let b := blocks[i]
     match b with
-    | .paragraph lines =>
-      let (defs, residual) := extractRefDefs (InlineSource.ofLines lines)
-      if defs.isEmpty then
-        -- No ref-defs at the front: keep the paragraph's original lines.
-        out := out.push (.paragraph lines)
-      else
-        for d in defs do out := out.push d
-        unless residual.lines.isEmpty do
-          out := out.push (.paragraph residual.lines)
+    | .paragraph content =>
+      let (defs, residual) := extractRefDefs content
+      out := out ++ defs
+      unless residual.lines.isEmpty do
+        out := out.push (.paragraph residual)
     | .blockquote markers children =>
       let newChildren := postProcessRefDefs children
       out := out.push (.blockquote markers newChildren)

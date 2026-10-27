@@ -10,6 +10,7 @@ public import Init.While
 public import Lean.Data.Markdown.Basic
 public import Lean.Data.Markdown.InlineSource
 import Lean.Data.Markdown.Text
+import Lean.Data.Markdown.Parser.LinkSyntax
 
 namespace Lean.Markdown
 
@@ -62,64 +63,6 @@ public def parseLinkLabel? (cur : InlineCursor s) : Option (Lines s × InlineCur
   none
 
 /--
-Parses the destination of a link reference definition at the head of `cur`, in the
-bracketed `<url>` or unbracketed form. Returns the destination and the cursor, which is positioned
-just past it. Fails
-on an unclosed `<`, an empty destination, unbalanced parens, or an embedded line ending.
--/
-def parseRefDefUrl? (cur : InlineCursor s) : Option (LinkDestination s × InlineCursor s) := do
-  let urlStart := cur.startPos
-  if cur.front? == some '<' then
-    -- Bracketed: read up to the next `>`; reject `<` and line endings.
-    let openAngle ← cur.charSubslice?
-    let mut cur := cur.drop1
-    let urlContentStart := cur.startPos
-    let mut closeAngle? : Option s.Subslice := none
-    while !cur.isEmpty && closeAngle?.isNone do
-      let c := cur.front
-      let curNext := cur.drop1
-      if c == '\\' && Option.any isAsciiPunctuation curNext.front? then
-        cur := curNext.drop1
-      else if c == '>' then
-        closeAngle? := cur.charSubslice?
-        cur := curNext
-      else if c == '<' || c == '\n' || c == '\r' then
-        failure
-      else
-        cur := curNext
-    let closeAngle ← closeAngle?
-    let destination : LinkDestination s :=
-      { angles? := some (openAngle, closeAngle)
-        url := subsliceClamped urlContentStart closeAngle.startInclusive }
-    return (destination, cur)
-  else
-    -- Unbracketed: stop at whitespace/control; balance parens.
-    guard !cur.isEmpty
-    let mut cur := cur
-    let mut parenDepth : Nat := 0
-    while !cur.isEmpty do
-      let c := cur.front
-      let curNext := cur.drop1
-      if c == '\\' && Option.any isAsciiPunctuation curNext.front? then
-        cur := curNext.drop1
-      else if c.isWhitespace then
-        break
-      else if c == '(' then
-        parenDepth := parenDepth + 1
-        cur := curNext
-      else if c == ')' then
-        if parenDepth == 0 then break
-        parenDepth := parenDepth - 1
-        cur := curNext
-      else if c.toNat < 0x20 then
-        break
-      else
-        cur := curNext
-    guard <| cur.startPos != urlStart  -- non-empty destination
-    guard <| parenDepth == 0
-    return ({ angles? := none, url := subsliceClamped urlStart cur.startPos }, cur)
-
-/--
 Skips the whitespace gap between a link reference definition's `:` and its destination: spaces,
 tabs, and at most one line ending. Returns `none` if a blank line (two line endings) is encountered.
 -/
@@ -153,12 +96,11 @@ Parses the optional title of a link reference definition after its destination, 
 spaces, tabs, and line ending that follow it. Returns the title and the cursor after the line ending
 or at the end of the input.
 
-The title is delimited by `"…"`, `'…'`, or `(…)`. It may be on the line of the destination, after
-at least one space or tab, or on the next line, after optional indentation.
+The title is delimited by `"…"`, `'…'`, or `(…)`. It may be on the line of the destination, after at
+least one space or tab, or on the next line, after optional indentation.
 
-Blank lines are not permitted inside the title, nor is an unescaped `(` inside a `(…)` title. After
-the closing delimiter, only spaces and tabs may follow on the line, then an optional line ending;
-otherwise the title attempt fails so that the caller can fall back to a definition without a title.
+After the closing delimiter, only spaces and tabs may follow on the same line. Otherwise the title
+attempt fails so that the caller can fall back to a definition without a title.
 -/
 def parseRefDefTitle? (cur : InlineCursor s) : Option (LinkTitle s × InlineCursor s) := do
   -- Locate the title opener: on the line of the destination after spaces or tabs, or on the next
@@ -175,46 +117,8 @@ def parseRefDefTitle? (cur : InlineCursor s) : Option (LinkTitle s × InlineCurs
       openerR := openerR.drop1
   else
     guard sawWs
-  let opener ← openerR.front?
-  guard <| opener == '"' || opener == '\'' || opener == '('
-  let openerRange ← openerR.charSubslice?
-  -- Parse content up to a matching closer; reject blank lines and unescaped
-  -- `(` in `(...)` titles.
-  let closer : Char := if opener == '(' then ')' else opener
-  let afterOpener := openerR.drop1
-  let titleContentStart := afterOpener.startPos
-  let mut tt := afterOpener
-  let mut titleContentEnd := titleContentStart
-  let mut closerRange? : Option s.Subslice := none
-  let mut bail := false
-  let mut lastWasNewline := false
-  while !tt.isEmpty && closerRange?.isNone && !bail do
-    let c := tt.front
-    let curPos := tt.startPos
-    let ttNext := tt.drop1
-    if c == '\\' && Option.any isAsciiPunctuation ttNext.front? then
-      tt := ttNext.drop1
-      lastWasNewline := false
-    else if c == closer then
-      titleContentEnd := curPos
-      closerRange? := tt.charSubslice?
-      tt := ttNext
-    else if c == opener && opener == '(' then
-      bail := true  -- unescaped `(` inside a `(...)` title is forbidden
-    else if let some (_, afterEnding) := tt.parseLineEnding? then
-      if lastWasNewline then bail := true
-      else
-        lastWasNewline := true
-        tt := afterEnding
-    else
-      if c != ' ' && c != '\t' then lastWasNewline := false
-      tt := ttNext
-  guard !bail
-  let closerRange ← closerRange?
-  let afterEol ← consumeRefDefLineEnd tt
-  let title : LinkTitle s :=
-    { opener := openerRange, content := cur.source.linesBetween titleContentStart titleContentEnd,
-      closer := closerRange }
+  let (title, afterTitle) ← parseLinkTitle? openerR
+  let afterEol ← consumeRefDefLineEnd afterTitle
   return (title, afterEol)
 
 /--
@@ -237,8 +141,9 @@ public def parseLinkRefDef? (source : InlineSource s) (start : s.Pos) :
   let (colon, cur) ← cur.parseChar? ':'
   -- Whitespace (including up to one newline) before the destination.
   let cur ← skipRefDefDestGap cur
-  -- Destination.
-  let (destination, afterUrl) ← parseRefDefUrl? cur
+  -- Destination, which must be nonempty unless it is bracketed.
+  let (destination, afterUrl) ← parseLinkDestination? cur
+  guard (destination.angles?.isSome || afterUrl.startPos != cur.startPos)
   -- Optional title; on a syntactic failure or on trailing junk, fall back to
   -- a no-title interpretation, in which case the URL itself must end the
   -- line.

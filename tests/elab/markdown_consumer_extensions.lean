@@ -68,7 +68,8 @@ descended into.
 -/
 def withTables (refs : RefTable s) (block : Block.Raw s) : TableBlock s :=
   match block with
-  | .paragraph lines =>
+  | .paragraph content =>
+    let lines := content.lines
     if h : 2 ≤ lines.size then
       -- A line from the block pass may still have its line ending.
       let rowOf (line : s.Subslice) := splitCells (trimTrailing line Char.isWhitespace)

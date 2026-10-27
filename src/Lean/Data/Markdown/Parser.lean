@@ -25,12 +25,12 @@ syntactic interpretation of reference-style links earlier in the document.
 public partial def parseInlinesInBlock (refs : RefTable s) (block : Block.Raw s)
     (extensions : Extensions := {}) : Block s :=
   match block with
-  | .paragraph lines =>
-    .paragraph (parseInlines refs (.ofLines lines) extensions)
+  | .paragraph content =>
+    .paragraph (parseInlines refs content extensions)
   | .atxHeading level hashes content closeHashes? =>
     .atxHeading level hashes (parseInlines refs (.ofSubslice content) extensions) closeHashes?
-  | .setextHeading level lines underline =>
-    .setextHeading level (parseInlines refs (.ofLines lines) extensions) underline
+  | .setextHeading level content underline =>
+    .setextHeading level (parseInlines refs content extensions) underline
   | .fencedCode info openFence closeFence? lines =>
     .fencedCode info openFence closeFence? lines
   | .indentedCode lines =>

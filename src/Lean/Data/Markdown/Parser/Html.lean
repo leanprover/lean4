@@ -7,6 +7,8 @@ module
 
 prelude
 public import Init.While
+public import Init.Control.Option
+public import Init.Control.State
 import Init.Data.String.Iterate
 public import Lean.Data.Markdown.InlineSource
 
@@ -69,6 +71,71 @@ def advancePast (cur : InlineCursor s) (pat : List Char) : Option (InlineCursor 
     cur := cur.drop1
   return none
 
+/-- The closing delimiter of a comment, a processing instruction, a CDATA section, or a declaration. -/
+public inductive HtmlCloser where
+  /-- `-->` -/
+  | comment
+  /-- `?>` -/
+  | processingInstruction
+  /-- `]]>` -/
+  | cdata
+  /-- `>` -/
+  | declaration
+
+/-- The characters of the closer. -/
+def HtmlCloser.chars : HtmlCloser → List Char
+  | .comment => ['-', '-', '>']
+  | .processingInstruction => ['?', '>']
+  | .cdata => [']', ']', '>']
+  | .declaration => ['>']
+
+/--
+For each closer, the start of the first search for it that reached the end of the input without
+finding it. A search that starts at or after that position fails without reading the input.
+-/
+public structure HtmlScanMemo (s : String.Slice) where
+  /-- The start of the first failed search for `-->`. -/
+  comment? : Option s.Pos := none
+  /-- The start of the first failed search for `?>`. -/
+  processingInstruction? : Option s.Pos := none
+  /-- The start of the first failed search for `]]>`. -/
+  cdata? : Option s.Pos := none
+  /-- The start of the first failed search for `>`. -/
+  declaration? : Option s.Pos := none
+
+/-- The start of the first failed search for `closer`, if there has been one. -/
+def HtmlScanMemo.failedFrom? (memo : HtmlScanMemo s) : HtmlCloser → Option s.Pos
+  | .comment => memo.comment?
+  | .processingInstruction => memo.processingInstruction?
+  | .cdata => memo.cdata?
+  | .declaration => memo.declaration?
+
+/-- Records that the search for `closer` that started at `start` failed. -/
+def HtmlScanMemo.recordFailure (memo : HtmlScanMemo s) (closer : HtmlCloser) (start : s.Pos) :
+    HtmlScanMemo s :=
+  match closer with
+  | .comment => { memo with comment? := some start }
+  | .processingInstruction => { memo with processingInstruction? := some start }
+  | .cdata => { memo with cdata? := some start }
+  | .declaration => { memo with declaration? := some start }
+
+/-- The monad for parsing raw HTML whose closers are searched for: failure, over an `HtmlScanMemo`. -/
+public abbrev HtmlM (s : String.Slice) := OptionT (StateM (HtmlScanMemo s))
+
+/-- The value of `x?`, or failure when it is `none`. -/
+@[inline] public def HtmlM.ofOption (x? : Option α) : HtmlM s α := OptionT.mk (pure x?)
+
+/--
+Advances past the first occurrence of `closer`, or fails when there is none. A failed search is
+recorded so that later searches for the same closer from the same position or beyond fail without
+reading the input.
+-/
+def advancePastCloser (cur : InlineCursor s) (closer : HtmlCloser) : HtmlM s (InlineCursor s) := do
+  if Option.any (· ≤ cur.startPos) ((← get).failedFrom? closer) then failure
+  let some after := advancePast cur closer.chars
+    | modify (·.recordFailure closer cur.startPos); failure
+  return after
+
 /-- Parses an attribute value at `cur`: unquoted, single-quoted, or double-quoted. -/
 def parseAttributeValue? (cur : InlineCursor s) : Option (InlineCursor s) :=
   match cur.front? with
@@ -110,21 +177,21 @@ public def parseClosingTag? (cur : InlineCursor s) : Option (InlineCursor s) := 
   return afterName.drop1
 
 /-- Parses a processing instruction after its `<?` at `cur`, through the first `?>`. -/
-public def parseProcessingInstruction? (cur : InlineCursor s) : Option (InlineCursor s) :=
-  advancePast cur ['?', '>']
+public def parseProcessingInstruction? (cur : InlineCursor s) : HtmlM s (InlineCursor s) :=
+  advancePastCloser cur .processingInstruction
 
 /-- Parses a comment, a CDATA section, or a declaration after its `<!` at `cur`. -/
-public def parseMarkupDeclaration? (cur : InlineCursor s) : Option (InlineCursor s) := do
+public def parseMarkupDeclaration? (cur : InlineCursor s) : HtmlM s (InlineCursor s) := do
   if let some afterDashes := startsWithChars cur ['-', '-'] then
     -- `<!-->` and `<!--->` are complete comments; any other comment runs to the first `-->`.
     if afterDashes.front? == some '>' then return afterDashes.drop1
     if let some afterArrow := startsWithChars afterDashes ['-', '>'] then return afterArrow
-    advancePast afterDashes ['-', '-', '>']
+    advancePastCloser afterDashes .comment
   else if let some afterCdata := startsWithChars cur ['[', 'C', 'D', 'A', 'T', 'A', '['] then
-    advancePast afterCdata [']', ']', '>']
+    advancePastCloser afterCdata .cdata
   else
     guard <| Option.any Char.isAlpha cur.front?
-    advancePast cur.drop1 ['>']
+    advancePastCloser cur.drop1 .declaration
 
 /-!
 ## HTML Blocks (CommonMark §4.6)

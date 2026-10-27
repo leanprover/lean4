@@ -147,6 +147,11 @@ Tags, comments, processing instructions, declarations, and CDATA sections are ra
 /-- info: "autolink⟪https://e.com⟫" -/
 #guard_msgs in #eval showParagraph "<https://e.com>"
 
+-- A search for a closer that reaches the end of the input is remembered, so a later opener of the
+-- same kind is text without another search, while openers of other kinds still find their closers.
+/-- info: "text⟪x <!-- a <!-- b ⟫ html⟪<?c?>⟫ text⟪ <!-- d ⟫ html⟪<![CDATA[e]]>⟫ text⟪ <!f <!g⟫" -/
+#guard_msgs in #eval showParagraph "x <!-- a <!-- b <?c?> <!-- d <![CDATA[e]]> <!f <!g"
+
 /-!
 ## Emphasis Next to Unicode Punctuation and Whitespace
 

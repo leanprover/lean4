@@ -153,16 +153,16 @@ Parses raw HTML (CommonMark §6.6) at `cur`, which must point at `<`: an open ta
 comment, a processing instruction, a declaration, or a CDATA section. Returns the `Inline.html` and
 the position after its closing `>`.
 -/
-def parseRawHtml? (cur : InlineCursor s) : Option (Inline s × s.Pos) := do
+def parseRawHtml? (cur : InlineCursor s) : HtmlM s (Inline s × s.Pos) := do
   guard <| cur.front? == some '<'
   let afterOpen := cur.drop1
   let after ←
     match afterOpen.front? with
-    | some '/' => parseClosingTag? afterOpen.drop1
+    | some '/' => HtmlM.ofOption (parseClosingTag? afterOpen.drop1)
     | some '?' => parseProcessingInstruction? afterOpen.drop1
     | some '!' => parseMarkupDeclaration? afterOpen.drop1
-    | some c => if c.isAlpha then parseOpenTag? afterOpen else none
-    | none => none
+    | some c => if c.isAlpha then HtmlM.ofOption (parseOpenTag? afterOpen) else failure
+    | none => failure
   return (.html (cur.source.linesBetween cur.startPos after.startPos), after.startPos)
 
 /-- Skips the spaces, tabs, and line endings at the start of `cur`. -/
@@ -466,6 +466,8 @@ structure InlineTokenizerState (s : String.Slice) where
   lastBacktickSequence : Std.HashMap Nat s.Pos := {}
   /-- Whether a search for closing backticks has reached the end of the input. -/
   backticksScanned : Bool := false
+  /-- The searches for the closers of raw HTML that have reached the end of the input. -/
+  htmlScans : HtmlScanMemo s := {}
 
 /-- The initial state for `src`. -/
 def InlineTokenizerState.init (src : InlineSource s) : InlineTokenizerState s where
@@ -705,7 +707,13 @@ def tokenizeInlines : TokenizeM s (Array (InlineTok s)) := do
     else if c == ']' then
       closeBracket charSubslice
     else if c == '<' then
-      match parseAutolink? st.rest <|> parseRawHtml? st.rest with
+      let html? ← match parseAutolink? st.rest with
+        | some autolink => pure (some autolink)
+        | none =>
+          let (html?, htmlScans) := (parseRawHtml? st.rest).run.run st.htmlScans
+          modify fun st => { st with htmlScans }
+          pure html?
+      match html? with
       | some (inl, after) =>
         recognize (.inline inl) cursor (src.cursor after stop) '>'
       | none => skipChar

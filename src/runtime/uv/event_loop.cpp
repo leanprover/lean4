@@ -27,15 +27,28 @@ static void check_uv(int result, const char * msg) {
 }
 
 void event_loop::start() {
-    // A loop of our own: the teardown treats every handle on it as one of ours.
-    m_loop = &m_loop_storage;
+    if (m_thread != nullptr) {
+        return;
+    }
+
+    if (m_loop == nullptr) {
+        // Threads keep taking the lock while the loop is torn down, so it outlives the loop.
+        check_uv(uv_mutex_init_recursive(&m_mutex), "Failed to initialize mutex");
+        check_uv(uv_mutex_init(&m_async_mutex), "Failed to initialize mutex");
+        check_uv(uv_cond_init(&m_cond), "Failed to initialize condition variable");
+        m_waiters = 0;
+        // A loop of our own: the teardown treats every handle on it as one of ours.
+        m_loop = &m_loop_storage;
+    }
+
+    // On a restart, other threads may be calling into libuv.
+    lock();
     check_uv(uv_loop_init(m_loop), "Failed to initialize loop");
-    check_uv(uv_mutex_init_recursive(&m_mutex), "Failed to initialize mutex");
-    check_uv(uv_mutex_init(&m_async_mutex), "Failed to initialize mutex");
-    check_uv(uv_cond_init(&m_cond), "Failed to initialize condition variable");
     check_uv(uv_async_init(m_loop, &m_async, nullptr), "Failed to initialize async");
-    m_waiters = 0;
+    uv_mutex_lock(&m_async_mutex);
     m_running = true;
+    uv_mutex_unlock(&m_async_mutex);
+    unlock();
 
     m_thread = new lthread([this]() { run(); });
 }
@@ -80,8 +93,7 @@ void event_loop::run() {
             uv_cond_wait(&m_cond, &m_mutex);
         }
 
-        // Checked with the lock held, since `alive` unreferences `m_async` under it.
-        if (!m_running || !uv_loop_alive(m_loop)) {
+        if (!m_running) {
             uv_mutex_unlock(&m_mutex);
             break;
         }
@@ -126,6 +138,17 @@ static void close_for_exit(uv_handle_t * handle, void *) {
             drop_handle_refs<lean_uv_signal_object>(handle);
             break;
         case UV_TCP:
+#ifdef _WIN32
+            {
+                // libuv cancels writes with `CancelIo`, which only reaches I/O issued by the calling thread,
+                // and keeps the socket open until they finish. A write that a worker issued to a peer that
+                // stopped reading would never finish.
+                uv_os_fd_t fd;
+                if (uv_fileno(handle, &fd) == 0) {
+                    CancelIoEx(fd, nullptr);
+                }
+            }
+#endif
             drop_handle_refs<lean_uv_tcp_socket_object>(handle);
             break;
         case UV_UDP:
@@ -152,8 +175,6 @@ void event_loop::stop() {
     uv_mutex_unlock(&m_async_mutex);
     unlock();
 
-    // Waits for a callback the loop thread is running, including a `(sync := true)` continuation, so one
-    // that blocks delays the exit for as long as it blocks.
     m_thread->join();
     delete m_thread;
     m_thread = nullptr;
@@ -173,9 +194,10 @@ void event_loop::stop() {
             fprintf(stderr, "warning: libuv event loop did not close at exit: %s\n", uv_strerror(result));
         }
 
-        released = std::move(m_released);
+        released.swap(m_released);
     }
-    // Released after the unlock: the finalizers this runs take the lock themselves.
+    // Released only once the loop is closed: the finalizers this runs free objects whose handles the walk
+    // closed, which libuv uses until then.
 }
 
 /* Std.Internal.UV.Loop.configure (options : @& Loop.Options) : IO Unit */
@@ -188,7 +210,9 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_event_loop_configure(b_obj_arg optio
     {
         event_loop_guard guard;
 
-        if (accum) {
+        if (guard.stopped()) {
+            result = UV_ECANCELED;
+        } else if (accum) {
             result = uv_loop_configure(global_ev.m_loop, UV_METRICS_IDLE_TIME);
         }
 
@@ -209,7 +233,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_event_loop_configure(b_obj_arg optio
 /* Std.Internal.UV.Loop.alive : BaseIO Bool */
 extern "C" LEAN_EXPORT uint8_t lean_uv_event_loop_alive() {
     event_loop_guard guard;
-    return global_ev.alive(guard);
+    return !guard.stopped() && global_ev.alive(guard);
 }
 
 #else

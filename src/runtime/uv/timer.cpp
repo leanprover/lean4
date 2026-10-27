@@ -6,7 +6,6 @@ Author: Sofia Rodrigues, Henrik Böving
 */
 #include "runtime/uv/timer.h"
 #include "runtime/uv/util.h"
-#include <memory>
 #include <new>
 
 namespace lean {
@@ -18,8 +17,6 @@ static void timer_finalizer(void* ptr) {
 
     // Released after the unlock.
     owned_ref promise;
-    // Freed after the unlock when the teardown at exit already closed the handle.
-    std::unique_ptr<lean_uv_timer_object> closed_at_exit;
 
     {
         // A repeating timer without a pending promise may still be running, so the handle is closed
@@ -31,8 +28,9 @@ static void timer_finalizer(void* ptr) {
         // While a promise is pending the loop holds a reference, so the timer cannot be finalized.
         lean_assert(promise.get() == nullptr || promise_is_resolved(promise.get()));
 
+        // The teardown at exit already closed the handle.
         if (uv_is_closing((uv_handle_t*)&timer->m_uv_timer)) {
-            closed_at_exit.reset(timer);
+            delete timer;
             return;
         }
 

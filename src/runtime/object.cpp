@@ -1134,14 +1134,15 @@ public:
 #ifndef LEAN_EMSCRIPTEN
         for (auto & t : m_std_workers)
             t->join();
-        // never seems to terminate under Emscripten
-#endif
+
         // The workers finish with the event loop still running, so a task blocked on a libuv promise completes. Stopping
         // the loop releases references, which takes the lock and can discard tasks.
         finalize_libuv();
         lock.lock();
-#ifndef LEAN_EMSCRIPTEN
         m_worker_done_cv.wait(lock, [&]() { return m_discarding == 0; });
+        // never seems to terminate under Emscripten
+#else
+        lock.lock();
 #endif
         m_std_workers.clear();
         m_dormant = true;

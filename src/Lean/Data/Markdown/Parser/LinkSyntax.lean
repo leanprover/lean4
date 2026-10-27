@@ -28,8 +28,8 @@ Parses a link destination at `cur`. Returns the destination and the cursor after
 * A bracketed destination is `<`, then characters other than an unescaped `<` or `>` or a line
   ending, then `>`.
 * An unbracketed destination is a sequence of characters other than ASCII whitespace and control
-  characters in which parentheses balance, and it ends before a `)` that has no matching `(`. An
-  unbracketed destination may be empty.
+  characters in which parentheses balance and nest at most 32 deep, and it ends before a `)` that
+  has no matching `(`. An unbracketed destination may be empty.
 -/
 public def parseLinkDestination? (cur : InlineCursor s) :
     Option (LinkDestination s × InlineCursor s) := do
@@ -65,6 +65,7 @@ public def parseLinkDestination? (cur : InlineCursor s) :
         break
       else if c == '(' then
         parenDepth := parenDepth + 1
+        if parenDepth > 32 then failure
         cur := curNext
       else if c == ')' then
         if parenDepth == 0 then break

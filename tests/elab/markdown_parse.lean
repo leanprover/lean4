@@ -519,6 +519,23 @@ A list is loose when two blocks of one of its items are separated by a blank lin
 #guard_msgs in #eval showDocument "- a\n-\n- c\n" 0
 
 /-!
+## Parentheses in Link Destinations
+
+CommonMark §6.3 allows implementations to limit the nesting of parentheses in an unbracketed
+destination, as long as at least three levels work. This implementation limits nesting to 32.
+-/
+
+/-- The paragraph `[a](` followed by `depth` nested parentheses around `u`, then `)`. -/
+def nestedDestination (depth : Nat) : String :=
+  "[a](" ++ "".pushn '(' depth ++ "u" ++ "".pushn ')' depth ++ ")"
+
+/-- info: true -/
+#guard_msgs in #eval (showParagraph (nestedDestination 32)).startsWith "link["
+
+/-- info: false -/
+#guard_msgs in #eval (showParagraph (nestedDestination 33)).startsWith "link["
+
+/-!
 ## Link Titles
 
 A parenthesized title may contain `(` and `)` only backslash-escaped, and a title must be separated

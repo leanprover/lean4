@@ -669,7 +669,7 @@ where
 
   goDesc (a : MarkupAttrs) (item : DescItemView) : StateM (Array LeanSemanticToken) Unit := do
     delim item.marker
-    for i in item.term do go a i.raw
+    for i in item.term do go (a.withBlock .list) i.raw
     for b in item.desc do go a b.raw
 
   go (a : MarkupAttrs) (stx : Syntax) : StateM (Array LeanSemanticToken) Unit := do
@@ -749,7 +749,7 @@ where
     | .ol v =>
       for item in v.items do goItem (a.withBlock .list) item.marker item.contents
     | .dl v =>
-      for item in v.items do goDesc (a.withBlock .list) item
+      for item in v.items do goDesc a item
     | .blockquote v =>
       delim v.marker
       for b in v.content do go (a.withBlock .quote) b.raw

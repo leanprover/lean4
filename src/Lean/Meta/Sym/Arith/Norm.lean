@@ -1535,25 +1535,15 @@ private partial def commonPart : Poly → Poly → Poly
     | .gt => commonPart p (.add k₂ m₂ q)
     | .lt => commonPart (.add k₁ m₁ p) q
 
-/--
-The ring relation theorem for `rel`: the `_nc` variant for non-commutative rings, the `C`
-variant for a nonzero characteristic. Spelled out so that a renamed theorem is caught when
-this file is compiled.
--/
-private def relThmName (rel : RelKind) (comm : Bool) (char : Bool) : Name :=
-  match rel, comm, char with
-  | .eq, true,  false => ``Grind.CommRing.eq_norm_expr
-  | .eq, true,  true  => ``Grind.CommRing.eq_norm_exprC
-  | .eq, false, false => ``Grind.CommRing.eq_norm_expr_nc
-  | .eq, false, true  => ``Grind.CommRing.eq_norm_exprC_nc
-  | .le, true,  false => ``Grind.CommRing.le_norm_expr
-  | .le, true,  true  => ``Grind.CommRing.le_norm_exprC
-  | .le, false, false => ``Grind.CommRing.le_norm_expr_nc
-  | .le, false, true  => ``Grind.CommRing.le_norm_exprC_nc
-  | .lt, true,  false => ``Grind.CommRing.lt_norm_expr
-  | .lt, true,  true  => ``Grind.CommRing.lt_norm_exprC
-  | .lt, false, false => ``Grind.CommRing.lt_norm_expr_nc
-  | .lt, false, true  => ``Grind.CommRing.lt_norm_exprC_nc
+/-- The noncommutative ring relation theorem for `rel`, using the `C` variant in a nonzero characteristic. -/
+private def relThmName (rel : RelKind) (char : Bool) : Name :=
+  match rel, char with
+  | .eq, false => ``Grind.CommRing.eq_norm_expr_nc
+  | .eq, true  => ``Grind.CommRing.eq_norm_exprC_nc
+  | .le, false => ``Grind.CommRing.le_norm_expr_nc
+  | .le, true  => ``Grind.CommRing.le_norm_exprC_nc
+  | .lt, false => ``Grind.CommRing.lt_norm_expr_nc
+  | .lt, true  => ``Grind.CommRing.lt_norm_exprC_nc
 
 private def mkIffSymm (a b h : Expr) : Expr :=
   mkApp3 (mkConst ``Iff.symm) a b h
@@ -2065,13 +2055,13 @@ private def normalizeRelCore (rel : RelKind) (relFn : Expr) (order? : Option Ord
         | none => mkApp2 (mkConst name [u]) ring.type inst
         | some (charInst, c) => mkApp4 (mkConst name [u]) ring.type (toExpr c) inst charInst
       let h := match rel with
-        | .eq => base (relThmName rel kind.isComm char?.isSome)
+        | .eq => base (relThmName rel char?.isSome)
         | .le =>
           let o := order?.get!
-          mkApp4 (base (relThmName rel kind.isComm char?.isSome)) o.leInst o.ltInst?.get! o.isPreorderInst o.orderedRingInst?.get!
+          mkApp4 (base (relThmName rel char?.isSome)) o.leInst o.ltInst?.get! o.isPreorderInst o.orderedRingInst?.get!
         | .lt =>
           let o := order?.get!
-          mkApp5 (base (relThmName rel kind.isComm char?.isSome)) o.leInst o.ltInst?.get! o.lawfulOrderLTInst?.get! o.isPreorderInst o.orderedRingInst?.get!
+          mkApp5 (base (relThmName rel char?.isSome)) o.leInst o.ltInst?.get! o.lawfulOrderLTInst?.get! o.isPreorderInst o.orderedRingInst?.get!
       pure (mkApp6 h ctx (toExpr l) (toExpr r) (toExpr l') (toExpr r') eagerReflBoolTrue)
     else if invs.isEmpty then
       let base (name : Name) : Expr := mkApp2 (mkConst name [u]) ring.type inst

@@ -178,7 +178,7 @@ private def isForallOrNot? (e : Expr) : Option (Name × Expr × Expr) :=
 
 /--
 Applies the following rewriting rules:
-- `Grind.imp_true_eq`
+- `implies_true`
 - `Grind.imp_false_eq`
 - `Grind.true_imp_eq`
 - `Grind.false_imp_eq`

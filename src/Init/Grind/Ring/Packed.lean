@@ -740,18 +740,6 @@ theorem Expr.denote_toPP_k {α} [CommRing α] (ctx : Nat → α) (B : Nat) (hB :
   have := toPPAcc_k_spec ctx B hB e e.degB_k (.num (Int.ofNat 0)) (Nat.le_refl _) he trivial
   rw [Expr.toPP_k, this.1, PPoly.denote_num_zero, add_zero]
 
-theorem Expr.eq_of_toPP_eq {α} [CommRing α] (ctx : Context α) (B : Nat) (a b : Expr) (p : PPoly)
-    (hB : (Nat.blt 1 B && (Nat.blt a.degB_k B && Nat.blt b.degB_k B)) = true)
-    (h₁ : p = a.toPP_k B) (h₂ : p = b.toPP_k B) : a.denote ctx = b.denote ctx := by
-  simp only [Bool.and_eq_true, Nat.blt_eq] at hB
-  rw [Expr.denote_eq_denoteF, Expr.denote_eq_denoteF, ← denote_toPP_k (Var.denote ctx) B hB.1 a hB.2.1,
-    ← denote_toPP_k (Var.denote ctx) B hB.1 b hB.2.2, ← h₁, ← h₂]
-
-theorem eq_true_of_toPP_eq {α} [CommRing α] (ctx : Context α) (B : Nat) (a b : Expr) (p : PPoly)
-    (hB : (Nat.blt 1 B && (Nat.blt a.degB_k B && Nat.blt b.degB_k B)) = true)
-    (h₁ : p = a.toPP_k B) (h₂ : p = b.toPP_k B) : (a.denote ctx = b.denote ctx) = True :=
-  eq_true (Expr.eq_of_toPP_eq ctx B a b p hB h₁ h₂)
-
 theorem PPoly.signB_k_spec {α} [Ring α] (ctx : Nat → α) (B D : Nat) (p : PPoly) (s : Bool) :
     (p.signB_k s).denote ctx B = Bool.rec (p.denote ctx B) (- p.denote ctx B) s ∧ (p.Deg B D → (p.signB_k s).Deg B D) := by
   cases s

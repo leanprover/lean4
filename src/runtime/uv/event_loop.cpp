@@ -39,6 +39,7 @@ void event_loop::start() {
         m_waiters = 0;
         // A loop of our own: the teardown treats every handle on it as one of ours.
         m_loop = &m_loop_storage;
+        m_kept = new std::vector<owned_ref>();
     }
 
     // On a restart, other threads may be calling into libuv.
@@ -89,7 +90,7 @@ void event_loop::run() {
     while (true) {
         uv_mutex_lock(&m_mutex);
 
-        while (m_waiters != 0) {
+        while (m_running && m_waiters != 0) {
             uv_cond_wait(&m_cond, &m_mutex);
         }
 
@@ -107,7 +108,12 @@ void event_loop::run() {
 }
 
 void event_loop::exit_drop(owned_ref ref) {
-    m_released.push_back(std::move(ref));
+    lean_object * o = ref.get();
+    if (o != nullptr && lean_is_promise(o) && !promise_is_resolved(o)) {
+        m_kept->push_back(std::move(ref));
+    } else {
+        m_released.push_back(std::move(ref));
+    }
 }
 
 // Hands the Lean references of a handle's object to the loop: the loop's own references to the object,
@@ -173,6 +179,9 @@ void event_loop::stop() {
     uv_mutex_lock(&m_async_mutex);
     m_running = false;
     uv_mutex_unlock(&m_async_mutex);
+    // `unlock` wakes the loop thread only once no other thread waits for the lock, which may never happen
+    // while other threads keep calling into libuv.
+    uv_cond_signal(&m_cond);
     unlock();
 
     m_thread->join();
@@ -183,6 +192,9 @@ void event_loop::stop() {
     {
         event_loop_guard guard;
 
+        // The task manager is dormant again, so the pending promises the last teardown kept go too.
+        m_released.swap(*m_kept);
+
         uv_walk(m_loop, close_for_exit, nullptr);
 
         // Closing a handle cancels its requests, and threadpool requests run to completion. Their callbacks
@@ -192,6 +204,8 @@ void event_loop::stop() {
         int result = uv_loop_close(m_loop);
         if (result != 0) {
             fprintf(stderr, "warning: libuv event loop did not close at exit: %s\n", uv_strerror(result));
+            // libuv may still use the loop, so the next `start` initializes another one.
+            m_loop = new uv_loop_t;
         }
 
         released.swap(m_released);

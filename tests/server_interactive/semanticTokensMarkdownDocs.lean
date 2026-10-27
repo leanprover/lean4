@@ -17,7 +17,7 @@ Setext heading
 ==============
 
 Paragraph with **bold**, *italic*, ***both***, `inline code`, a [link](https://example.com), an
-![image](https://example.com/x.png "title"), an autolink <https://example.com>, and a hard break on
+![image](https://example.com/x.png "title"), an autolink <https://example.com>, and a hard break on\
 the next line.
 
 ---

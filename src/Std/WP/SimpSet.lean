@@ -7,6 +7,7 @@ module
 
 prelude
 public import Init.SimpLemmas
+public import Init.Data.Nat.Basic
 
 public section
 
@@ -16,7 +17,8 @@ public section
 `vcgen` rewrites hypotheses, state arguments and verification conditions with the `@[vcgen_simp]`
 theorems and with the evaluation of ground terms. This module adds the theorems that remove the
 propositional constants `True` and `False`. For example, ground evaluation turns
-`"x" = "x" ∨ "x" = "y"` into `True ∨ False`, and `true_or` rewrites that to `True`.
+`"x" = "x" ∨ "x" = "y"` into `True ∨ False`, and `true_or` rewrites that to `True`. It also adds
+`Nat.sub_zero`, which removes the `x - 0` that `vcgen +arith` makes from `x + 1 - 1`.
 -/
 
 attribute [vcgen_simp] eq_self iff_self
@@ -25,5 +27,6 @@ attribute [vcgen_simp] eq_self iff_self
   not_true_eq_false not_false_eq_true
   true_implies implies_true false_implies
   ite_true ite_false dite_true dite_false
+  Nat.sub_zero
 
 end

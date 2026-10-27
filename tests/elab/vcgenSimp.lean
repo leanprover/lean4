@@ -79,7 +79,39 @@ example (n : Nat) : ⦃ fun _ => True ⦄ (pure (0 + n) : M Nat) ⦃ fun r _ => 
   vcgen
   simp
 
+/-! With `+arith`, the simp set normalizes arithmetic. The verification condition
+`s + 2 - 1 + 0 = s + 2 - 1` becomes `True`. -/
+
+example : ⦃ fun _ => True ⦄ (do modify (· + 2); modify (· - 1); get : M Nat) ⦃ fun r s => r + 0 = s ⦄ := by
+  vcgen +arith
+
+/-! `+arith` cancels the common summand `2` of the sides of `s + 2 = n + 2`. -/
+
+/--
+trace: case vc1
+n s✝ : Nat
+⊢ s✝ = n
+---
+warning: declaration uses `sorry`
+-/
+#guard_msgs in
+example (n : Nat) : ⦃ fun _ => True ⦄ (do modify (· + 2); get : M Nat) ⦃ fun r _ => r = n + 2 ⦄ := by
+  vcgen +arith
+  trace_state
+  all_goals sorry
+
+/-! `+arith` decides the trivial `Nat` relations. The hypothesis `s + 1 = 0` becomes `False`, which
+closes the verification condition of the `then` branch. -/
+
+example : ⦃ fun _ => True ⦄ (do let s ← get; if s + 1 = 0 then pure 1 else pure 2 : M Nat) ⦃ fun r _ => r = 2 ⦄ := by
+  vcgen +arith -internalize
+
 /-! Errors. -/
+
+/-- error: the config option `arith := true` requires `simp := true` -/
+#guard_msgs in
+example : ⦃ fun _ => True ⦄ (pure 1 : M Nat) ⦃ fun r _ => r = 1 ⦄ := by
+  vcgen +arith -simp
 
 /-- error: `vcgen simp [...]` conflicts with the config option `simp := false` -/
 #guard_msgs in

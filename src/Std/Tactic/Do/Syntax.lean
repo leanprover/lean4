@@ -75,6 +75,12 @@ structure Config where
   Ignored by `mvcgen`.
   -/
   simp : Bool := true
+  /--
+  If `true`, the `vcgen` simp set also normalizes arithmetic terms and relations over types of
+  characteristic zero, such as `Nat` and `Int`, into polynomial normal form, so that
+  `x + 2 - 1 = y + 1` becomes `x = y`. Requires `simp`. Off by default. Ignored by `mvcgen`.
+  -/
+  arith : Bool := false
 end Lean.Elab.Tactic.Do.VCGen
 
 namespace Lean.Parser

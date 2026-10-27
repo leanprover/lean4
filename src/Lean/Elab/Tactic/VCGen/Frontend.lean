@@ -11,6 +11,7 @@ public import Lean.Elab.Tactic.VCGen.Context
 public import Lean.Elab.Tactic.VCGen.Driver
 public import Lean.Elab.Tactic.VCGen.FrameProcAttr
 public import Lean.Elab.Tactic.VCGen.SimpAttr
+public import Lean.Meta.Sym.Simp.Arith
 public import Lean.Meta.Sym.Simp.EvalGround
 public import Lean.Meta.Sym.Simp.Reduce
 public import Lean.Meta.Sym.Simp.Rewrite
@@ -403,10 +404,16 @@ def parseArgs (stx : Syntax) (goal : MVarId) : TermElabM ParsedArgs := goal.with
     else elabFrameDB progTy stx[4][1].getArgs
   let invariantAlts? ← parseInvariantMap stx[5]
   let simpArgs := if stx[6].isNone then #[] else stx[6][2].getSepArgs
+  if config.arith && !config.simp then
+    throwErrorAt stx[1] "the config option `arith := true` requires `simp := true`"
   let simpMethods ← if config.simp then
       let thms ← elabSimpTheorems simpArgs
-      pure (some { pre := Sym.Simp.beta >> Sym.Simp.reduceProj >> Sym.Simp.reduceMatcher
-                   post := Sym.Simp.evalGround >> thms.rewrite })
+      let pre := Sym.Simp.beta >> Sym.Simp.reduceProj >> Sym.Simp.reduceMatcher
+      let post := Sym.Simp.evalGround >> thms.rewrite
+      pure <| some <| if config.arith then
+          { pre := pre >> Sym.Simp.simpArith (maxChar? := some 0), post := post >> Sym.Simp.simpNatRel >> Sym.Simp.simpNatSub }
+        else
+          { pre, post }
     else if simpArgs.isEmpty then
       pure none
     else

@@ -14,6 +14,7 @@ import Init.LawfulBEqTactics
 public import Init.Classical
 public import Init.Data.Bool
 public import Init.Data.Int.DivMod.Lemmas
+public import Init.Data.Int.Kernel
 public import Init.Data.RArray
 public import Init.Ext
 import Init.Data.Hashable
@@ -86,10 +87,11 @@ structure Power where
   deriving BEq, ReflBEq, LawfulBEq, Repr, Inhabited, Hashable
 
 protected noncomputable def Power.beq' (pw₁ pw₂ : Power) : Bool :=
-  Power.rec (fun x₁ k₁ => Power.rec (fun x₂ k₂ => Nat.beq x₁ x₂ && Nat.beq k₁ k₂) pw₂) pw₁
+  Bool.rec false (Nat.beq pw₁.k pw₂.k) (Nat.beq pw₁.x pw₂.x)
 
 @[simp] theorem Power.beq'_eq (pw₁ pw₂ : Power) : pw₁.beq' pw₂ = (pw₁ = pw₂) := by
-  cases pw₁; cases pw₂; simp [Power.beq']
+  change (Nat.beq pw₁.x pw₂.x && Nat.beq pw₁.k pw₂.k) = (pw₁ = pw₂)
+  cases pw₁; cases pw₂; simp
 
 def Power.varLt (p₁ p₂ : Power) : Bool :=
   p₁.x.blt p₂.x
@@ -111,14 +113,19 @@ inductive Mon where
 protected noncomputable def Mon.beq' (m₁ : Mon) : Mon → Bool :=
   Mon.rec
     (fun m₂ => Mon.rec true (fun _ _ _ => false) m₂)
-    (fun pw₁ _ ih m₂ => Mon.rec false (fun pw₂ m₂ _ => (Power.beq' pw₁ pw₂).and (ih m₂)) m₂) m₁
+    (fun pw₁ _ ih m₂ => Mon.rec false (fun pw₂ m₂ _ =>
+      Bool.rec false (Bool.rec false (ih m₂) (Nat.beq pw₁.k pw₂.k)) (Nat.beq pw₁.x pw₂.x)) m₂) m₁
 
 @[simp] theorem Mon.beq'_eq (m₁ m₂ : Mon) : m₁.beq' m₂ = (m₁ = m₂) := by
-  induction m₁ generalizing m₂ <;> cases m₂ <;> simp [Mon.beq']
-  rename_i pw₁ _ ih _ m₂
-  intro; subst pw₁
-  simp [← ih m₂]
-  rfl
+  induction m₁ generalizing m₂ with
+  | unit => cases m₂ <;> simp [Mon.beq']
+  | mult pw₁ m₁ ih =>
+    cases m₂ with
+    | unit => simp [Mon.beq']
+    | mult pw₂ m₂ =>
+      change (Nat.beq pw₁.x pw₂.x && (Nat.beq pw₁.k pw₂.k && m₁.beq' m₂)) = (_ = _)
+      cases pw₁; cases pw₂
+      simp [ih, and_assoc]
 
 abbrev Mon.denote {α} [Semiring α] (ctx : Context α) : Mon → α
   | unit => 1
@@ -171,11 +178,8 @@ def Mon.length : Mon → Nat
   | .unit => 0
   | .mult _ m => 1 + length m
 
-def hugeFuel := 1000000
-
 def Mon.mul (m₁ m₂ : Mon) : Mon :=
-  -- We could use `m₁.length + m₂.length` to avoid hugeFuel
-  go hugeFuel m₁ m₂
+  go (m₁.length + m₂.length + 1) m₁ m₂
 where
   go (fuel : Nat) (m₁ m₂ : Mon) : Mon :=
     match fuel with
@@ -192,52 +196,52 @@ where
         else
           .mult { x := pw₁.x, k := pw₁.k + pw₂.k } (go fuel m₁ m₂)
 
-noncomputable def Mon.mul_k : Mon → Mon → Mon :=
-  Nat.rec
-    (fun m₁ m₂ => concat m₁ m₂)
-    (fun _ ih m₁ m₂ =>
-      Mon.rec (t := m₂)
-        m₁
-        (fun pw₂ m₂' _ => Mon.rec (t := m₁)
-          m₂
-          (fun pw₁ m₁' _ =>
-            Bool.rec (t := pw₁.varLt pw₂)
-              (Bool.rec (t := pw₂.varLt pw₁)
-                (.mult { x := pw₁.x, k := Nat.add pw₁.k pw₂.k } (ih m₁' m₂'))
-                (.mult pw₂ (ih (.mult pw₁ m₁') m₂')))
-              (.mult pw₁ (ih m₁' (.mult pw₂ m₂'))))))
-    hugeFuel
+/-!
+Kernel-reduction variants of the monomial and polynomial operations, written with recursors,
+`Bool.rec` and the operations of `Init.Data.Int.Kernel`, for use in certificates. A function that
+merges two sorted lists recurses on the first one, and on the second one in a nested recursor
+whose induction hypothesis handles the steps where only the second list shrinks.
+-/
 
-theorem Mon.mul_k_eq_mul : Mon.mul_k m₁ m₂ = Mon.mul m₁ m₂ := by
-  unfold mul_k mul
-  generalize hugeFuel = fuel
-  fun_induction mul.go
-  · rfl
-  · rfl
-  case case3 m₂ _ =>
-    cases m₂
-    · contradiction
-    · dsimp
-  case case4 fuel pw₁ m₁ pw₂ m₂ h ih =>
-    dsimp only
-    rw [h]
-    dsimp only
-    rw [ih]
-  case case5 fuel pw₁ m₁ pw₂ m₂ h₁ h₂ ih =>
-    dsimp only
-    rw [h₁]
-    dsimp only
-    rw [h₂]
-    dsimp only
-    rw [ih]
-  case case6 fuel pw₁ m₁ pw₂ m₂ h₁ h₂ ih =>
-    dsimp only
-    rw [h₁]
-    dsimp only
-    rw [h₂]
-    dsimp only
-    rw [ih]
-    rfl
+noncomputable def Mon.mul_k (m₁ : Mon) : Mon → Mon :=
+  Mon.rec (motive := fun _ => Mon → Mon)
+    (fun m₂ => m₂)
+    (fun pw₁ m₁ ih₁ m₂ =>
+      Mon.rec (motive := fun _ => Mon)
+        (.mult pw₁ m₁)
+        (fun pw₂ m₂ ih₂ =>
+          Bool.rec
+            (Bool.rec
+              (.mult { x := pw₁.x, k := Nat.add pw₁.k pw₂.k } (ih₁ m₂))
+              (.mult pw₂ ih₂)
+              (Nat.blt pw₂.x pw₁.x))
+            (.mult pw₁ (ih₁ (.mult pw₂ m₂)))
+            (Nat.blt pw₁.x pw₂.x))
+        m₂)
+    m₁
+
+theorem Mon.mul_k_eq_mul_go (fuel : Nat) (m₁ m₂ : Mon) (h : m₁.length + m₂.length < fuel) :
+    Mon.mul_k m₁ m₂ = Mon.mul.go fuel m₁ m₂ := by
+  induction fuel generalizing m₁ m₂ with
+  | zero => contradiction
+  | succ fuel ih =>
+    cases m₁ with
+    | unit => cases m₂ <;> rfl
+    | mult pw₁ m₁ =>
+      cases m₂ with
+      | unit => rfl
+      | mult pw₂ m₂ =>
+        simp only [Mon.length] at h
+        change Bool.rec (motive := fun _ => Mon) _ _ (Nat.blt pw₁.x pw₂.x) = _
+        simp only [Mon.mul.go, Power.varLt, cond_eq_ite]
+        cases h₁ : Nat.blt pw₁.x pw₂.x
+        · cases h₂ : Nat.blt pw₂.x pw₁.x
+          · simp only [Bool.false_eq_true, ↓reduceIte]; congr 1; exact ih _ _ (by omega)
+          · simp only [Bool.false_eq_true, ↓reduceIte]; congr 1; exact ih (.mult pw₁ m₁) m₂ (by simp [Mon.length]; omega)
+        · simp only [↓reduceIte]; congr 1; exact ih m₁ (.mult pw₂ m₂) (by simp [Mon.length]; omega)
+
+@[simp] theorem Mon.mul_k_eq_mul (m₁ m₂ : Mon) : Mon.mul_k m₁ m₂ = Mon.mul m₁ m₂ :=
+  Mon.mul_k_eq_mul_go _ _ _ (Nat.lt_succ_self _)
 
 def Mon.mul_nc (m₁ m₂ : Mon) : Mon :=
   match m₁ with
@@ -249,27 +253,13 @@ def Mon.degree : Mon → Nat
   | .unit => 0
   | .mult pw m => pw.k + degree m
 
-noncomputable def Mon.degree_k : Mon → Nat :=
-  Nat.rec
-    (fun m => m.degree)
-    (fun _ ih m =>
-      Mon.rec (t := m)
-        0
-        (fun pw m' _ => Nat.add pw.k (ih m')))
-    hugeFuel
+noncomputable def Mon.degree_k (m : Mon) : Nat :=
+  Mon.rec 0 (fun pw _ ih => Nat.add pw.k ih) m
 
-theorem Mon.degree_k_eq_degree : Mon.degree_k m = Mon.degree m := by
-  unfold degree_k
-  generalize hugeFuel = fuel
-  induction fuel generalizing m with
-  | zero => rfl
-  | succ fuel ih =>
-    conv => rhs; unfold degree
-    split
-    · rfl
-    · dsimp only
-      rw [← ih]
-      rfl
+@[simp] theorem Mon.degree_k_eq_degree (m : Mon) : Mon.degree_k m = Mon.degree m := by
+  induction m with
+  | unit => rfl
+  | mult pw m ih => change Nat.add pw.k m.degree_k = _; rw [ih]; rfl
 
 def Var.revlex (x y : Var) : Ordering :=
   bif x.blt y then .gt
@@ -324,77 +314,72 @@ def Mon.revlexFuel (fuel : Nat) (m₁ m₂ : Mon) : Ordering :=
         revlexFuel fuel (.mult pw₁ m₁) m₂ |>.then .gt
 
 def Mon.revlex (m₁ m₂ : Mon) : Ordering :=
-  revlexFuel hugeFuel m₁ m₂
+  revlexFuel (m₁.length + m₂.length + 1) m₁ m₂
 
 def Mon.grevlex (m₁ m₂ : Mon) : Ordering :=
   compare m₁.degree m₂.degree |>.then (revlex m₁ m₂)
 
-noncomputable def Mon.revlex_k : Mon → Mon → Ordering :=
-  Nat.rec
-    revlexWF
-    (fun _ ih m₁ => Mon.rec
-      (fun m₂ => Mon.rec .eq (fun _ _ _ => .gt) m₂)
-      (fun pw₁ m₁ _ m₂ => Mon.rec
+noncomputable def Mon.revlex_k (m₁ : Mon) : Mon → Ordering :=
+  Mon.rec (motive := fun _ => Mon → Ordering)
+    (fun m₂ => Mon.rec .eq (fun _ _ _ => .gt) m₂)
+    (fun pw₁ _ ih₁ m₂ =>
+      Mon.rec (motive := fun _ => Ordering)
         .lt
-        (fun pw₂ m₂ _ => Bool.rec
-          (Bool.rec
-            (ih (.mult pw₁ m₁) m₂ |>.then' .gt)
-            (ih m₁ (.mult pw₂ m₂) |>.then' .lt)
-            (pw₁.x.blt pw₂.x))
-          (ih m₁ m₂ |>.then' (powerRevlex_k pw₁.k pw₂.k))
-          (Nat.beq pw₁.x pw₂.x))
+        (fun pw₂ m₂ ih₂ =>
+          Bool.rec
+            (Bool.rec (ih₂.then' .gt) ((ih₁ (.mult pw₂ m₂)).then' .lt) (Nat.blt pw₁.x pw₂.x))
+            ((ih₁ m₂).then' (powerRevlex_k pw₁.k pw₂.k))
+            (Nat.beq pw₁.x pw₂.x))
         m₂)
-      m₁)
-    hugeFuel
+    m₁
 
 noncomputable def Mon.grevlex_k (m₁ m₂ : Mon) : Ordering :=
   Bool.rec
-    (Bool.rec .gt .lt (Nat.blt m₁.degree m₂.degree))
+    (Bool.rec .gt .lt (Nat.blt m₁.degree_k m₂.degree_k))
     (revlex_k m₁ m₂)
     (Nat.beq m₁.degree_k m₂.degree_k)
 
-theorem Mon.revlex_k_eq_revlex (m₁ m₂ : Mon) : m₁.revlex_k m₂ = m₁.revlex m₂ := by
-  unfold revlex_k revlex
-  generalize hugeFuel = fuel
-  induction fuel generalizing m₁ m₂
-  next => rfl
-  next =>
-    simp [revlexFuel, -cond_eq_ite]; split <;> try rfl
-    next ih _ _ pw₁ m₁ pw₂ m₂ =>
-      simp only [cond_eq_ite, beq_iff_eq]
-      split
-      next h =>
-        replace h : Nat.beq pw₁.x pw₂.x = true := by rw [Nat.beq_eq, h]
-        simp [h, ← ih m₁ m₂, Ordering.then'_eq_then, powerRevlex_k_eq_powerRevlex]
-      next h =>
-        replace h : Nat.beq pw₁.x pw₂.x = false := by
-          rw [← Bool.not_eq_true, Nat.beq_eq]; exact h
-        simp only [h]
-        split
-        next h => simp [h, ← ih m₁ (mult pw₂ m₂), Ordering.then'_eq_then]
-        next h =>
-          rw [Bool.not_eq_true] at h
-          simp [h, ← ih (mult pw₁ m₁) m₂, Ordering.then'_eq_then]
+theorem Mon.revlex_k_eq_revlexWF (m₁ m₂ : Mon) : m₁.revlex_k m₂ = m₁.revlexWF m₂ := by
+  fun_induction revlexWF
+  case case1 => rfl
+  case case2 => rfl
+  case case3 => rfl
+  case case4 pw₁ m₁ pw₂ m₂ h ih =>
+    have h : Nat.beq pw₁.x pw₂.x = true := by simpa using h
+    change Bool.rec (motive := fun _ => Ordering) _ _ (Nat.beq pw₁.x pw₂.x) = _
+    rw [h]; dsimp only; rw [← ih, Ordering.then'_eq_then, powerRevlex_k_eq_powerRevlex]; rfl
+  case case5 pw₁ m₁ pw₂ m₂ h₁ h₂ ih =>
+    have h₁ : Nat.beq pw₁.x pw₂.x = false := by rw [← Bool.not_eq_true, Nat.beq_eq]; simpa using h₁
+    change Bool.rec (motive := fun _ => Ordering) _ _ (Nat.beq pw₁.x pw₂.x) = _
+    rw [h₁]; dsimp only; rw [h₂]; dsimp only; rw [← ih, Ordering.then'_eq_then]; rfl
+  case case6 pw₁ m₁ pw₂ m₂ h₁ h₂ ih =>
+    have h₁ : Nat.beq pw₁.x pw₂.x = false := by rw [← Bool.not_eq_true, Nat.beq_eq]; simpa using h₁
+    have h₂ : Nat.blt pw₁.x pw₂.x = false := by simpa using h₂
+    change Bool.rec (motive := fun _ => Ordering) _ _ (Nat.beq pw₁.x pw₂.x) = _
+    rw [h₁]; dsimp only; rw [h₂]; dsimp only; rw [← ih, Ordering.then'_eq_then]; rfl
 
-theorem Mon.grevlex_k_eq_grevlex (m₁ m₂ : Mon) : m₁.grevlex_k m₂ = m₁.grevlex m₂ := by
-  unfold grevlex_k grevlex; simp [revlex_k_eq_revlex]
-  simp [*, compare, compareOfLessAndEq]
-  split
-  next h =>
-    have h₁ : Nat.blt m₁.degree m₂.degree = true := by simp [h]
-    have h₂ : Nat.beq m₁.degree m₂.degree = false := by rw [← Bool.not_eq_true, Nat.beq_eq]; omega
-    simp [degree_k_eq_degree, h₁, h₂]
-  next h =>
-    split
-    next h' =>
-      have h₂ : Nat.beq m₁.degree m₂.degree = true := by rw [Nat.beq_eq, h']
-      simp [degree_k_eq_degree, h₂]
-    next h' =>
-      have h₁ : Nat.blt m₁.degree m₂.degree = false := by
-        rw [← Bool.not_eq_true, Nat.blt_eq]; assumption
-      have h₂ : Nat.beq m₁.degree m₂.degree = false := by
-        rw [← Bool.not_eq_true, Nat.beq_eq]; assumption
-      simp [degree_k_eq_degree, h₁, h₂]
+theorem Mon.revlexFuel_eq_revlexWF (fuel : Nat) (m₁ m₂ : Mon) : revlexFuel fuel m₁ m₂ = revlexWF m₁ m₂ := by
+  fun_induction revlexFuel
+  case case1 => rfl
+  all_goals simp_all [revlexWF]
+
+@[simp] theorem Mon.revlex_k_eq_revlex (m₁ m₂ : Mon) : m₁.revlex_k m₂ = m₁.revlex m₂ := by
+  rw [revlex_k_eq_revlexWF, revlex, revlexFuel_eq_revlexWF]
+
+@[simp] theorem Mon.grevlex_k_eq_grevlex (m₁ m₂ : Mon) : m₁.grevlex_k m₂ = m₁.grevlex m₂ := by
+  unfold grevlex_k grevlex
+  rw [degree_k_eq_degree, degree_k_eq_degree, revlex_k_eq_revlex]
+  simp only [compare, compareOfLessAndEq]
+  cases h : Nat.beq m₁.degree m₂.degree
+  · have h' : m₁.degree ≠ m₂.degree := Nat.ne_of_beq_eq_false h
+    simp only [h']
+    cases h'' : Nat.blt m₁.degree m₂.degree
+    · have : ¬ m₁.degree < m₂.degree := fun h => by simp [Nat.blt_eq.mpr h] at h''
+      simp [this]
+    · have : m₁.degree < m₂.degree := by simpa using h''
+      simp [this]
+  · have h' : m₁.degree = m₂.degree := Nat.eq_of_beq_eq_true h
+    simp [h']
 
 inductive Poly where
   | num (k : Int)
@@ -407,15 +392,18 @@ protected noncomputable def Poly.beq' (p₁ : Poly) : Poly → Bool :=
     (fun k₁ v₁ _ ih p₂ =>
       Poly.rec
         (fun _ => false)
-        (fun k₂ v₂ p₂ _ => (Int.beq' k₁ k₂).and ((Mon.beq' v₁ v₂).and (ih p₂))) p₂)
+        (fun k₂ v₂ p₂ _ => Bool.rec false (Bool.rec false (ih p₂) (Mon.beq' v₁ v₂)) (Int.beq' k₁ k₂)) p₂)
     p₁
 
 @[simp] theorem Poly.beq'_eq (p₁ p₂ : Poly) : p₁.beq' p₂ = (p₁ = p₂) := by
-  induction p₁ generalizing p₂ <;> cases p₂ <;> simp [Poly.beq']
-  rename_i k₁ m₁ p₁ ih k₂ m₂ p₂
-  rw [← eq_iff_iff]
-  intro _ _; subst k₁ m₁
-  simp [← ih p₂]; rfl
+  induction p₁ generalizing p₂ with
+  | num k₁ => cases p₂ <;> simp [Poly.beq']
+  | add k₁ m₁ p₁ ih =>
+    cases p₂ with
+    | num k₂ => simp [Poly.beq']
+    | add k₂ m₂ p₂ =>
+      change (Int.beq' k₁ k₂ && (Mon.beq' m₁ m₂ && p₁.beq' p₂)) = (_ = _)
+      simp [ih]
 
 abbrev Poly.denote [Ring α] (ctx : Context α) (p : Poly) : α :=
   match p with
@@ -464,18 +452,18 @@ where
 
 noncomputable def Poly.addConst_k (p : Poly) (k : Int) : Poly :=
   Bool.rec
-    (Poly.rec (fun k' => .num (Int.add k' k)) (fun k' m _ ih => .add k' m ih) p)
+    (Poly.rec (fun k' => .num (Int.add_k k' k)) (fun k' m _ ih => .add k' m ih) p)
     p
-    (Int.beq' k 0)
+    (Int.beqZero_k k)
 
-theorem Poly.addConst_k_eq_addConst (p : Poly) (k : Int) : addConst_k p k = addConst p k := by
-  unfold addConst_k addConst; rw [cond_eq_ite]
-  split
-  next h => rw [← Int.beq'_eq_beq] at h; rw [h]
-  next h =>
-    rw [← Int.beq'_eq_beq, Bool.not_eq_true] at h; simp [h]
-    induction p <;> simp [addConst.go]
-    next ih => rw [← ih]
+@[simp] theorem Poly.addConst_k_eq_addConst (p : Poly) (k : Int) : addConst_k p k = addConst p k := by
+  unfold addConst_k addConst; rw [Int.beqZero_k_eq, cond_eq_ite]
+  cases h : k == 0
+  · simp only [Bool.false_eq_true, ↓reduceIte]
+    induction p with
+    | num k' => show Poly.num (Int.add_k k' k) = _; simp [addConst.go]
+    | add k' m p ih => simp only [addConst.go, ← ih]
+  · rfl
 
 def Poly.insert (k : Int) (m : Mon) (p : Poly) : Poly :=
   bif k == 0 then
@@ -518,28 +506,21 @@ where
 noncomputable def Poly.mulConst_k (k : Int) (p : Poly) : Poly :=
   Bool.rec
     (Bool.rec
-      (Poly.rec (fun k' => .num (Int.mul k k')) (fun k' m _ ih => .add (Int.mul k k') m ih) p)
+      (Poly.rec (fun k' => .num (Int.mul_k k k')) (fun k' m _ ih => .add (Int.mul_k k k') m ih) p)
       p (Int.beq' k 1))
     (.num 0)
-    (Int.beq' k 0)
+    (Int.beqZero_k k)
 
 @[simp] theorem Poly.mulConst_k_eq_mulConst (k : Int) (p : Poly) : p.mulConst_k k = p.mulConst k := by
-  simp [mulConst_k, mulConst, cond_eq_ite]; split
-  next =>
-    have h : Int.beq' k 0 = true := by simp [*]
-    simp [h]
-  next =>
-    have h₁ : Int.beq' k 0 = false := by rw [← Bool.not_eq_true, Int.beq'_eq]; assumption
-    split
-    next =>
-      have h₂ : Int.beq' k 1 = true := by simp [*]
-      simp [h₁, h₂]
-    next =>
-      have h₂ : Int.beq' k 1 = false := by rw [← Bool.not_eq_true, Int.beq'_eq]; assumption
-      simp [h₁, h₂]
-      induction p
-      next => rfl
-      next k m p ih => simp [mulConst.go, ← ih]
+  unfold mulConst_k mulConst; rw [Int.beqZero_k_eq, Int.beq'_eq_beq, cond_eq_ite, cond_eq_ite]
+  cases h₀ : k == 0
+  · cases h₁ : k == 1
+    · simp only [Bool.false_eq_true, ↓reduceIte]
+      induction p with
+      | num k' => show Poly.num (Int.mul_k k k') = _; simp [mulConst.go]
+      | add k' m p ih => show Poly.add (Int.mul_k k k') m _ = _; simp only [mulConst.go, ← ih, Int.mul_k_eq]; rfl
+    · rfl
+  · rfl
 
 def Poly.mulMon (k : Int) (m : Mon) (p : Poly) : Poly :=
   bif k == 0 then
@@ -559,40 +540,33 @@ where
 
 noncomputable def Poly.mulMon_k (k : Int) (m : Mon) (p : Poly) : Poly :=
   Bool.rec
-    (Bool.rec
-      (Poly.rec
-        (fun k' => Bool.rec (.add (Int.mul k k') m (.num 0)) (.num 0) (Int.beq' k' 0))
-        (fun k' m' _ ih => .add (Int.mul k k') (m.mul_k m') ih)
-        p)
+    (Mon.rec
       (p.mulConst_k k)
-      (Mon.beq' m .unit))
+      (fun _ _ _ => Poly.rec
+        (fun k' => Bool.rec (.add (Int.mul_k k k') m (.num 0)) (.num 0) (Int.beqZero_k k'))
+        (fun k' m' _ ih => .add (Int.mul_k k k') (m.mul_k m') ih)
+        p)
+      m)
     (.num 0)
-    (Int.beq' k 0)
+    (Int.beqZero_k k)
 
 @[simp] theorem Poly.mulMon_k_eq_mulMon (k : Int) (m : Mon) (p : Poly) : p.mulMon_k k m = p.mulMon k m := by
-  simp [mulMon_k, mulMon, cond_eq_ite]; split
-  next =>
-    have h : Int.beq' k 0 = true := by simp [*]
-    simp [h]
-  next =>
-    have h₁ : Int.beq' k 0 = false := by rw [← Bool.not_eq_true, Int.beq'_eq]; assumption
-    simp [h₁]; split
-    next h =>
-      have h₂ : m.beq' .unit = true := by rw [Mon.beq'_eq]; simp at h; assumption
-      simp [h₂]
-    next h =>
-      have h₂ : m.beq' .unit = false := by rw [← Bool.not_eq_true, Mon.beq'_eq]; simp at h; assumption
-      simp [h₂]
-      induction p <;> simp [mulMon.go, cond_eq_ite]
-      next k =>
-        split
-        next =>
-          have h : Int.beq' k 0 = true := by simp [*]
-          simp [h]
-        next =>
-          have h : Int.beq' k 0 = false := by simp [*]
-          simp [h]
-      next ih => simp [← ih, Mon.mul_k_eq_mul]
+  unfold mulMon_k mulMon; rw [Int.beqZero_k_eq, cond_eq_ite, cond_eq_ite]
+  cases h₀ : k == 0
+  · cases m with
+    | unit => simp [mulConst_k_eq_mulConst]
+    | mult pw m =>
+      have : (Mon.mult pw m == .unit) = false := rfl
+      simp only [Bool.false_eq_true, ↓reduceIte, this]
+      induction p with
+      | num k' =>
+        show Bool.rec (motive := fun _ => Poly) _ _ (Int.beqZero_k k') = _
+        rw [Int.beqZero_k_eq]; simp only [mulMon.go, cond_eq_ite, Int.mul_k_eq]
+        cases k' == 0 <;> rfl
+      | add k' m' p ih =>
+        show Poly.add (Int.mul_k k k') ((Mon.mult pw m).mul_k m') _ = _
+        simp only [mulMon.go, ← ih, Int.mul_k_eq, Mon.mul_k_eq_mul]; rfl
+  · rfl
 
 def Poly.mulMon_nc (k : Int) (m : Mon) (p : Poly) : Poly :=
   bif k == 0 then
@@ -607,8 +581,12 @@ where
     | .num k' => acc.insert (k*k') m
     | .add k' m' p => go p (acc.insert (k*k') (m.mul_nc m'))
 
+def Poly.length : Poly → Nat
+  | .num _ => 0
+  | .add _ _ p => 1 + p.length
+
 def Poly.combine (p₁ p₂ : Poly) : Poly :=
-  go hugeFuel p₁ p₂
+  go (p₁.length + p₂.length + 1) p₁ p₂
 where
   go (fuel : Nat) (p₁ p₂ : Poly) : Poly :=
     match fuel with
@@ -628,47 +606,49 @@ where
         | .gt => .add k₁ m₁ (go fuel p₁ (.add k₂ m₂ p₂))
         | .lt => .add k₂ m₂ (go fuel (.add k₁ m₁ p₁) p₂)
 
-/-- A `Poly.combine` optimized for the kernel. -/
-noncomputable def Poly.combine_k : Poly → Poly → Poly :=
-  Nat.rec Poly.concat
-    (fun _ ih p₁ =>
-      Poly.rec
-        (fun k₁ p₂ => Poly.rec
-          (fun k₂ => .num (Int.add k₁ k₂))
-          (fun k₂ m₂ p₂ _ => addConst_k (.add k₂ m₂ p₂) k₁)
-          p₂)
-        (fun k₁ m₁ p₁ _ p₂ => Poly.rec
-          (fun k₂ => addConst_k (.add k₁ m₁ p₁) k₂)
-          (fun k₂ m₂ p₂ _ => Ordering.rec
-            (.add k₂ m₂ (ih (.add k₁ m₁ p₁) p₂))
-            (let k := Int.add k₁ k₂
-             Bool.rec
-               (.add k m₁ (ih p₁ p₂))
-               (ih p₁ p₂)
-               (Int.beq' k 0))
-            (.add k₁ m₁ (ih p₁ (.add k₂ m₂ p₂)))
+noncomputable def Poly.combine_k (p₁ : Poly) : Poly → Poly :=
+  Poly.rec (motive := fun _ => Poly → Poly)
+    (fun k₁ p₂ => Poly.rec (fun k₂ => .num (Int.add_k k₁ k₂)) (fun k₂ m₂ p₂ _ => addConst_k (.add k₂ m₂ p₂) k₁) p₂)
+    (fun k₁ m₁ p₁ ih₁ p₂ =>
+      Poly.rec (motive := fun _ => Poly)
+        (fun k₂ => addConst_k (.add k₁ m₁ p₁) k₂)
+        (fun k₂ m₂ p₂ ih₂ =>
+          Ordering.rec
+            (.add k₂ m₂ ih₂)
+            (Bool.rec (.add (Int.add_k k₁ k₂) m₁ (ih₁ p₂)) (ih₁ p₂) (Int.beqZero_k (Int.add_k k₁ k₂)))
+            (.add k₁ m₁ (ih₁ (.add k₂ m₂ p₂)))
             (m₁.grevlex_k m₂))
-          p₂)
-        p₁)
-    hugeFuel
+        p₂)
+    p₁
 
-@[simp] theorem Poly.combine_k_eq_combine (p₁ p₂ : Poly) : p₁.combine_k p₂ = p₁.combine p₂ := by
-  unfold Poly.combine Poly.combine_k
-  generalize hugeFuel = fuel
-  induction fuel generalizing p₁ p₂
-  next => simp [Poly.combine.go]; rfl
-  next =>
-   unfold Poly.combine.go; simp only [Int.add_def]
-   split <;> simp only [← addConst_k_eq_addConst, ← Mon.grevlex_k_eq_grevlex]
-   next ih _ _ k₁ m₁ p₁ k₂ m₂ p₂ =>
-    split
-    next h =>
-      simp [h, Int.add_def, ← ih p₁ p₂, cond]
-      split
-      next h => rw [← Int.beq'_eq_beq] at h; simp [h]
-      next h => rw [← Int.beq'_eq_beq] at h; simp [h]
-    next h => simp [h]; rw [← ih p₁ (add k₂ m₂ p₂)]; rfl
-    next h => simp [h]; rw [← ih (add k₁ m₁ p₁) p₂]; rfl
+theorem Poly.combine_k_eq_combine_go (fuel : Nat) (p₁ p₂ : Poly) (h : p₁.length + p₂.length < fuel) :
+    p₁.combine_k p₂ = Poly.combine.go fuel p₁ p₂ := by
+  induction fuel generalizing p₁ p₂ with
+  | zero => contradiction
+  | succ fuel ih =>
+    cases p₁ with
+    | num k₁ =>
+      cases p₂ with
+      | num k₂ => show Poly.num (Int.add_k k₁ k₂) = _; simp [combine.go]
+      | add k₂ m₂ p₂ => exact addConst_k_eq_addConst (.add k₂ m₂ p₂) k₁
+    | add k₁ m₁ p₁ =>
+      cases p₂ with
+      | num k₂ => exact addConst_k_eq_addConst (.add k₁ m₁ p₁) k₂
+      | add k₂ m₂ p₂ =>
+        simp only [Poly.length] at h
+        change Ordering.rec (motive := fun _ => Poly) _ _ _ (m₁.grevlex_k m₂) = _
+        rw [Mon.grevlex_k_eq_grevlex]; simp only [combine.go]
+        cases m₁.grevlex m₂ with
+        | lt => dsimp only; congr 1; exact ih (.add k₁ m₁ p₁) p₂ (by simp [Poly.length]; omega)
+        | gt => dsimp only; congr 1; exact ih p₁ (.add k₂ m₂ p₂) (by simp [Poly.length]; omega)
+        | eq =>
+          dsimp only; rw [Int.beqZero_k_eq, Int.add_k_eq, cond_eq_ite]
+          cases (Int.add k₁ k₂ == 0)
+          · simp only [Bool.false_eq_true, ↓reduceIte]; congr 1; exact ih p₁ p₂ (by omega)
+          · exact ih p₁ p₂ (by omega)
+
+@[simp] theorem Poly.combine_k_eq_combine (p₁ p₂ : Poly) : p₁.combine_k p₂ = p₁.combine p₂ :=
+  combine_k_eq_combine_go _ _ _ (Nat.lt_succ_self _)
 
 def Poly.mul (p₁ : Poly) (p₂ : Poly) : Poly :=
   go p₁ (.num 0)
@@ -691,6 +671,30 @@ def Poly.pow (p : Poly) (k : Nat) : Poly :=
   | 0 => .num 1
   | 1 => p
   | k+1 => p.mul (pow p k)
+
+noncomputable def Poly.mul_k (p₁ p₂ : Poly) : Poly :=
+  Poly.rec (motive := fun _ => Poly → Poly)
+    (fun k acc => acc.combine_k (p₂.mulConst_k k))
+    (fun k m _ ih acc => ih (acc.combine_k (p₂.mulMon_k k m)))
+    p₁ (.num 0)
+
+@[simp] theorem Poly.mul_k_eq_mul (p₁ p₂ : Poly) : p₁.mul_k p₂ = p₁.mul p₂ := by
+  unfold mul_k mul; generalize Poly.num 0 = acc
+  induction p₁ generalizing acc with
+  | num k => simp [mul.go]
+  | add k m p₁ ih => simp only [mul.go, ← ih, combine_k_eq_combine, mulMon_k_eq_mulMon]
+
+noncomputable def Poly.pow_k (p : Poly) (k : Nat) : Poly :=
+  Nat.rec (.num 1) (fun k ih => Bool.rec (p.mul_k ih) p (Nat.beq k 0)) k
+
+@[simp] theorem Poly.pow_k_eq_pow (p : Poly) (k : Nat) : p.pow_k k = p.pow k := by
+  induction k with
+  | zero => rfl
+  | succ k ih =>
+    change Bool.rec (motive := fun _ => Poly) (p.mul_k (p.pow_k k)) p (Nat.beq k 0) = _
+    cases k with
+    | zero => rfl
+    | succ k => simp only [Nat.beq, ih, mul_k_eq_mul]; rfl
 
 def Poly.pow_nc (p : Poly) (k : Nat) : Poly :=
   match k with
@@ -721,17 +725,17 @@ noncomputable def Expr.toPoly_k (e : Expr) : Poly :=
   Expr.rec
     (fun k => .num k) (fun k => .num k) (fun k => .num k)
     (fun x => .ofVar x)
-    (fun _ ih => ih.mulConst_k (-1))
+    (fun _ ih => ih.mulConst_k (Int.negSucc 0))
     (fun _ _ ih₁ ih₂ => ih₁.combine_k ih₂)
-    (fun _ _ ih₁ ih₂ => ih₁.combine_k (ih₂.mulConst_k (-1)))
-    (fun _ _ ih₁ ih₂ => ih₁.mul ih₂)
+    (fun _ _ ih₁ ih₂ => ih₁.combine_k (ih₂.mulConst_k (Int.negSucc 0)))
+    (fun _ _ ih₁ ih₂ => ih₁.mul_k ih₂)
     (fun a k ih => Bool.rec
-      (Expr.rec (fun n => .num (n^k)) (fun n => .num (n^k)) (fun n => (.num (n^k)))
-        (fun x => .ofMon (.mult {x, k} .unit)) (fun _ _ => ih.pow k)
-        (fun _ _ _ _ => ih.pow k)
-        (fun _ _ _ _ => ih.pow k)
-        (fun _ _ _ _ => ih.pow k)
-        (fun _ _ _ => ih.pow k)
+      (Expr.rec (fun n => .num (Int.pow_k n k)) (fun n => .num (Int.ofNat (Nat.pow n k))) (fun n => .num (Int.pow_k n k))
+        (fun x => .ofMon (.mult {x, k} .unit)) (fun _ _ => ih.pow_k k)
+        (fun _ _ _ _ => ih.pow_k k)
+        (fun _ _ _ _ => ih.pow_k k)
+        (fun _ _ _ _ => ih.pow_k k)
+        (fun _ _ _ => ih.pow_k k)
         a)
       (.num 1)
       (k.beq 0))
@@ -789,26 +793,26 @@ where
   next a ih => rw [Poly.mulConst_k_eq_mulConst]; congr
   case add => rw [← Poly.combine_k_eq_combine]; congr
   case sub => rw [← Poly.combine_k_eq_combine, ← Poly.mulConst_k_eq_mulConst]; congr
-  case mul => congr
+  case mul => rw [← Poly.mul_k_eq_mul]; congr
   case pow a k ih =>
     rw [cond_eq_ite]; split
     next h => rw [Nat.beq_eq_true_eq, ← Nat.beq_eq] at h; rw [h]
     next h =>
       rw [Nat.beq_eq_true_eq, ← Nat.beq_eq, Bool.not_eq_true] at h; rw [h]; dsimp only
       show
-        (Expr.rec (fun n => .num (n^k)) (fun n => .num (n^k)) (fun n => (.num (n^k)))
-          (fun x => .ofMon (.mult {x, k} .unit)) (fun _ _ => a.toPoly_k.pow k)
-          (fun _ _ _ _ => a.toPoly_k.pow k)
-          (fun _ _ _ _ => a.toPoly_k.pow k)
-          (fun _ _ _ _ => a.toPoly_k.pow k)
-          (fun _ _ _ => a.toPoly_k.pow k)
+        (Expr.rec (fun n => .num (Int.pow_k n k)) (fun n => .num (Int.ofNat (Nat.pow n k))) (fun n => .num (Int.pow_k n k))
+          (fun x => .ofMon (.mult {x, k} .unit)) (fun _ _ => a.toPoly_k.pow_k k)
+          (fun _ _ _ _ => a.toPoly_k.pow_k k)
+          (fun _ _ _ _ => a.toPoly_k.pow_k k)
+          (fun _ _ _ _ => a.toPoly_k.pow_k k)
+          (fun _ _ _ => a.toPoly_k.pow_k k)
           a) = match a with
             | num n => Poly.num (n ^ k)
             | .intCast n => .num (n^k)
             | .natCast n => .num (n^k)
             | var x => Poly.ofMon (Mon.mult { x := x, k := k } Mon.unit)
             | x => a.toPoly.pow k
-      cases a <;> try simp [*]
+      cases a <;> simp [*, Int.pow_k_eq] <;> rfl
 
 def Expr.toPoly_nc : Expr → Poly
   | .num k     => .num k
@@ -1010,6 +1014,514 @@ where
       | .var x => Poly.ofMon (.mult {x, k} .unit)
       | _ => (go a).powC_nc k c
 
+/-! Kernel-reduction variants of the definitions for the `IsCharP` case. -/
+
+noncomputable def Poly.addConstC_k (p : Poly) (k : Int) (c : Nat) : Poly :=
+  Poly.rec (fun k' => .num (Int.emod_k (Int.add_k k' k) (Int.ofNat c))) (fun k' m _ ih => .add k' m ih) p
+
+@[simp] theorem Poly.addConstC_k_eq_addConstC (p : Poly) (k : Int) (c : Nat) : p.addConstC_k k c = p.addConstC k c := by
+  induction p with
+  | num k' => show Poly.num (Int.emod_k (Int.add_k k' k) (Int.ofNat c)) = _; simp [addConstC]
+  | add k' m p ih => show Poly.add k' m (p.addConstC_k k c) = _; rw [ih]; rfl
+
+noncomputable def Poly.insertC_k.go (k : Int) (m : Mon) (c : Nat) (p : Poly) : Poly :=
+  Poly.rec (fun k' => .add k m (.num k'))
+    (fun k' m' p ih => Ordering.rec
+      (.add k' m' ih)
+      (Bool.rec (.add (Int.emod_k (Int.add_k k k') (Int.ofNat c)) m p) p
+        (Int.beqZero_k (Int.emod_k (Int.add_k k k') (Int.ofNat c))))
+      (.add k m (.add k' m' p))
+      (m.grevlex_k m'))
+    p
+
+noncomputable def Poly.insertC_k (k : Int) (m : Mon) (p : Poly) (c : Nat) : Poly :=
+  Bool.rec (insertC_k.go (Int.emod_k k (Int.ofNat c)) m c p) p (Int.beqZero_k (Int.emod_k k (Int.ofNat c)))
+
+@[simp] theorem Poly.insertC_k_eq_insertC (k : Int) (m : Mon) (p : Poly) (c : Nat) : p.insertC_k k m c = p.insertC k m c := by
+  have hgo : ∀ k p, insertC_k.go k m c p = insertC.go m c k p := by
+    intro k p
+    induction p with
+    | num k' => rfl
+    | add k' m' p ih =>
+      change Ordering.rec (motive := fun _ => Poly) _ _ _ (m.grevlex_k m') = _
+      rw [Mon.grevlex_k_eq_grevlex]; simp only [insertC.go]
+      cases m.grevlex m' with
+      | lt => exact congrArg _ ih
+      | eq =>
+        dsimp only; rw [Int.beqZero_k_eq, Int.emod_k_eq, Int.add_k_eq, cond_eq_ite]
+        cases ((Int.add k k') % (Int.ofNat c) == 0) <;> rfl
+      | gt => rfl
+  unfold insertC_k insertC; rw [Int.beqZero_k_eq, Int.emod_k_eq, cond_eq_ite]
+  cases h : (k % Int.ofNat c == 0)
+  · simp only [Bool.false_eq_true, ↓reduceIte]; exact hgo _ _
+  · rfl
+
+noncomputable def Poly.mulConstC_k.go (k : Int) (c : Nat) (p : Poly) : Poly :=
+  Poly.rec (fun k' => .num (Int.emod_k (Int.mul_k k k') (Int.ofNat c)))
+    (fun k' m _ ih => Bool.rec (.add (Int.emod_k (Int.mul_k k k') (Int.ofNat c)) m ih) ih
+      (Int.beqZero_k (Int.emod_k (Int.mul_k k k') (Int.ofNat c))))
+    p
+
+noncomputable def Poly.mulConstC_k (k : Int) (p : Poly) (c : Nat) : Poly :=
+  Bool.rec
+    (Bool.rec (mulConstC_k.go k c p) p (Int.beq' (Int.emod_k k (Int.ofNat c)) 1))
+    (.num 0)
+    (Int.beqZero_k (Int.emod_k k (Int.ofNat c)))
+
+@[simp] theorem Poly.mulConstC_k_eq_mulConstC (k : Int) (p : Poly) (c : Nat) : p.mulConstC_k k c = p.mulConstC k c := by
+  have hgo : ∀ k p, mulConstC_k.go k c p = mulConstC.go k c p := by
+    intro k p
+    induction p with
+    | num k' => show Poly.num (Int.emod_k (Int.mul_k k k') (Int.ofNat c)) = _; simp [mulConstC.go]
+    | add k' m p ih =>
+      change Bool.rec (motive := fun _ => Poly) _ _ (Int.beqZero_k (Int.emod_k (Int.mul_k k k') (Int.ofNat c))) = _
+      rw [Int.beqZero_k_eq, Int.emod_k_eq, Int.mul_k_eq]; simp only [mulConstC.go, cond_eq_ite]
+      cases (Int.mul k k' % Int.ofNat c == 0) <;> simp only [Bool.false_eq_true, ↓reduceIte] <;> first | rfl | exact congrArg _ ih | exact ih
+  unfold mulConstC_k mulConstC; rw [Int.beqZero_k_eq, Int.beq'_eq_beq, Int.emod_k_eq, cond_eq_ite, cond_eq_ite]
+  cases (k % Int.ofNat c == 0)
+  · cases (k % Int.ofNat c == 1)
+    · simp only [Bool.false_eq_true, ↓reduceIte]; exact hgo _ _
+    · rfl
+  · rfl
+
+noncomputable def Poly.mulMonC_k.go (k : Int) (m : Mon) (c : Nat) (p : Poly) : Poly :=
+  Poly.rec
+    (fun k' => Bool.rec (.add (Int.emod_k (Int.mul_k k k') (Int.ofNat c)) m (.num 0)) (.num 0)
+      (Int.beqZero_k (Int.emod_k (Int.mul_k k k') (Int.ofNat c))))
+    (fun k' m' _ ih => Bool.rec (.add (Int.emod_k (Int.mul_k k k') (Int.ofNat c)) (m.mul_k m') ih) ih
+      (Int.beqZero_k (Int.emod_k (Int.mul_k k k') (Int.ofNat c))))
+    p
+
+noncomputable def Poly.mulMonC_k (k : Int) (m : Mon) (p : Poly) (c : Nat) : Poly :=
+  Bool.rec
+    (Mon.rec (p.mulConstC_k (Int.emod_k k (Int.ofNat c)) c) (fun _ _ _ => mulMonC_k.go k m c p) m)
+    (.num 0)
+    (Int.beqZero_k (Int.emod_k k (Int.ofNat c)))
+
+@[simp] theorem Poly.mulMonC_k_eq_mulMonC (k : Int) (m : Mon) (p : Poly) (c : Nat) : p.mulMonC_k k m c = p.mulMonC k m c := by
+  have hgo : ∀ k p, mulMonC_k.go k m c p = mulMonC.go k m c p := by
+    intro k p
+    induction p with
+    | num k' =>
+      change Bool.rec (motive := fun _ => Poly) _ _ (Int.beqZero_k (Int.emod_k (Int.mul_k k k') (Int.ofNat c))) = _
+      rw [Int.beqZero_k_eq, Int.emod_k_eq, Int.mul_k_eq]; simp only [mulMonC.go, cond_eq_ite]
+      cases (Int.mul k k' % Int.ofNat c == 0) <;> rfl
+    | add k' m' p ih =>
+      change Bool.rec (motive := fun _ => Poly) _ _ (Int.beqZero_k (Int.emod_k (Int.mul_k k k') (Int.ofNat c))) = _
+      rw [Int.beqZero_k_eq, Int.emod_k_eq, Int.mul_k_eq]; simp only [mulMonC.go, cond_eq_ite]
+      cases (Int.mul k k' % Int.ofNat c == 0) <;> simp only [Bool.false_eq_true, ↓reduceIte] <;> first | exact ih | (rw [Mon.mul_k_eq_mul]; exact congrArg _ ih)
+  unfold mulMonC_k mulMonC; rw [Int.beqZero_k_eq, Int.emod_k_eq, cond_eq_ite, cond_eq_ite]
+  cases (k % Int.ofNat c == 0)
+  · cases m with
+    | unit => simp [mulConstC_k_eq_mulConstC]
+    | mult pw m =>
+      have : (Mon.mult pw m == .unit) = false := rfl
+      simp only [Bool.false_eq_true, ↓reduceIte, this]; exact hgo _ _
+  · rfl
+
+noncomputable def Poly.combineC_k (p₁ : Poly) (c : Nat) : Poly → Poly :=
+  Poly.rec (motive := fun _ => Poly → Poly)
+    (fun k₁ p₂ => Poly.rec (fun k₂ => .num (Int.emod_k (Int.add_k k₁ k₂) (Int.ofNat c)))
+      (fun k₂ m₂ p₂ _ => addConstC_k (.add k₂ m₂ p₂) k₁ c) p₂)
+    (fun k₁ m₁ p₁ ih₁ p₂ =>
+      Poly.rec (motive := fun _ => Poly)
+        (fun k₂ => addConstC_k (.add k₁ m₁ p₁) k₂ c)
+        (fun k₂ m₂ p₂ ih₂ =>
+          Ordering.rec
+            (.add k₂ m₂ ih₂)
+            (Bool.rec (.add (Int.emod_k (Int.add_k k₁ k₂) (Int.ofNat c)) m₁ (ih₁ p₂)) (ih₁ p₂)
+              (Int.beqZero_k (Int.emod_k (Int.add_k k₁ k₂) (Int.ofNat c))))
+            (.add k₁ m₁ (ih₁ (.add k₂ m₂ p₂)))
+            (m₁.grevlex_k m₂))
+        p₂)
+    p₁
+
+@[simp] theorem Poly.combineC_k_eq_combineC (p₁ p₂ : Poly) (c : Nat) : p₁.combineC_k c p₂ = p₁.combineC p₂ c := by
+  fun_induction Poly.combineC
+  case case1 k₁ k₂ => show Poly.num (Int.emod_k (Int.add_k k₁ k₂) (Int.ofNat c)) = _; simp
+  case case2 k₁ k₂ m₂ p₂ => exact addConstC_k_eq_addConstC (.add k₂ m₂ p₂) k₁ c
+  case case3 k₁ m₁ p₁ k₂ => exact addConstC_k_eq_addConstC (.add k₁ m₁ p₁) k₂ c
+  case case4 k₁ m₁ p₁ k₂ m₂ p₂ h k h' ih =>
+    change Ordering.rec (motive := fun _ => Poly) _ _ _ (m₁.grevlex_k m₂) = _
+    rw [Mon.grevlex_k_eq_grevlex, h]; dsimp only
+    rw [Int.beqZero_k_eq, Int.emod_k_eq, Int.add_k_eq]
+    simp only [k] at h'
+    rw [show ((Int.add k₁ k₂) % (Int.ofNat c) == 0) = true from h']; exact ih
+  case case5 k₁ m₁ p₁ k₂ m₂ p₂ h k h' ih =>
+    change Ordering.rec (motive := fun _ => Poly) _ _ _ (m₁.grevlex_k m₂) = _
+    rw [Mon.grevlex_k_eq_grevlex, h]; dsimp only
+    rw [Int.beqZero_k_eq, Int.emod_k_eq, Int.add_k_eq]
+    simp only [k] at h'
+    have h'' : ((Int.add k₁ k₂) % (Int.ofNat c) == 0) = false := by simpa using h'
+    rw [h'']; exact congrArg _ ih
+  case case6 k₁ m₁ p₁ k₂ m₂ p₂ h ih =>
+    change Ordering.rec (motive := fun _ => Poly) _ _ _ (m₁.grevlex_k m₂) = _
+    rw [Mon.grevlex_k_eq_grevlex, h]; exact congrArg _ ih
+  case case7 k₁ m₁ p₁ k₂ m₂ p₂ h ih =>
+    change Ordering.rec (motive := fun _ => Poly) _ _ _ (m₁.grevlex_k m₂) = _
+    rw [Mon.grevlex_k_eq_grevlex, h]; exact congrArg _ ih
+
+noncomputable def Poly.mulC_k (p₁ p₂ : Poly) (c : Nat) : Poly :=
+  Poly.rec (motive := fun _ => Poly → Poly)
+    (fun k acc => acc.combineC_k c (p₂.mulConstC_k k c))
+    (fun k m _ ih acc => ih (acc.combineC_k c (p₂.mulMonC_k k m c)))
+    p₁ (.num 0)
+
+@[simp] theorem Poly.mulC_k_eq_mulC (p₁ p₂ : Poly) (c : Nat) : p₁.mulC_k p₂ c = p₁.mulC p₂ c := by
+  unfold mulC_k mulC; generalize Poly.num 0 = acc
+  induction p₁ generalizing acc with
+  | num k => simp [mulC.go, combineC_k_eq_combineC, mulConstC_k_eq_mulConstC]
+  | add k m p₁ ih => simp only [mulC.go, ← ih, combineC_k_eq_combineC, mulMonC_k_eq_mulMonC]
+
+noncomputable def Poly.powC_k (p : Poly) (k : Nat) (c : Nat) : Poly :=
+  Nat.rec (.num 1) (fun k ih => Bool.rec (p.mulC_k ih c) p (Nat.beq k 0)) k
+
+@[simp] theorem Poly.powC_k_eq_powC (p : Poly) (k : Nat) (c : Nat) : p.powC_k k c = p.powC k c := by
+  induction k with
+  | zero => rfl
+  | succ k ih =>
+    change Bool.rec (motive := fun _ => Poly) (p.mulC_k (p.powC_k k c) c) p (Nat.beq k 0) = _
+    cases k with
+    | zero => rfl
+    | succ k => simp only [Nat.beq, ih, mulC_k_eq_mulC]; rfl
+
+noncomputable def Expr.toPolyC_k (e : Expr) (c : Nat) : Poly :=
+  Expr.rec
+    (fun k => .num (Int.emod_k k (Int.ofNat c)))
+    (fun k => .num (Int.emod_k (Int.ofNat k) (Int.ofNat c)))
+    (fun k => .num (Int.emod_k k (Int.ofNat c)))
+    (fun x => .ofVar x)
+    (fun _ ih => ih.mulConstC_k (Int.negSucc 0) c)
+    (fun _ _ ih₁ ih₂ => ih₁.combineC_k c ih₂)
+    (fun _ _ ih₁ ih₂ => ih₁.combineC_k c (ih₂.mulConstC_k (Int.negSucc 0) c))
+    (fun _ _ ih₁ ih₂ => ih₁.mulC_k ih₂ c)
+    (fun a k ih => Bool.rec
+      (Expr.rec (fun n => .num (Int.emod_k (Int.pow_k n k) (Int.ofNat c)))
+        (fun _ => ih.powC_k k c) (fun _ => ih.powC_k k c)
+        (fun x => .ofMon (.mult {x, k} .unit)) (fun _ _ => ih.powC_k k c)
+        (fun _ _ _ _ => ih.powC_k k c)
+        (fun _ _ _ _ => ih.powC_k k c)
+        (fun _ _ _ _ => ih.powC_k k c)
+        (fun _ _ _ => ih.powC_k k c)
+        a)
+      (.num 1)
+      (k.beq 0))
+    e
+
+@[simp] theorem Expr.toPolyC_k_eq_toPolyC (e : Expr) (c : Nat) : e.toPolyC_k c = e.toPolyC c := by
+  unfold toPolyC
+  induction e with
+  | num k => show Poly.num (Int.emod_k k (Int.ofNat c)) = _; simp [toPolyC.go]
+  | natCast k => show Poly.num (Int.emod_k (Int.ofNat k) (Int.ofNat c)) = _; simp [toPolyC.go]
+  | intCast k => show Poly.num (Int.emod_k k (Int.ofNat c)) = _; simp [toPolyC.go]
+  | var x => rfl
+  | neg a ih => show (a.toPolyC_k c).mulConstC_k (Int.negSucc 0) c = _; rw [ih, Poly.mulConstC_k_eq_mulConstC]; rfl
+  | add a b iha ihb => show (a.toPolyC_k c).combineC_k c (b.toPolyC_k c) = _; rw [iha, ihb, Poly.combineC_k_eq_combineC]; rfl
+  | sub a b iha ihb =>
+    show (a.toPolyC_k c).combineC_k c ((b.toPolyC_k c).mulConstC_k (Int.negSucc 0) c) = _
+    rw [iha, ihb, Poly.mulConstC_k_eq_mulConstC, Poly.combineC_k_eq_combineC]; rfl
+  | mul a b iha ihb => show (a.toPolyC_k c).mulC_k (b.toPolyC_k c) c = _; rw [iha, ihb, Poly.mulC_k_eq_mulC]; rfl
+  | pow a k ih =>
+    simp only [toPolyC.go, cond_eq_ite]
+    split
+    next h => rw [Nat.beq_eq_true_eq, ← Nat.beq_eq] at h; show Bool.rec (motive := fun _ => Poly) _ _ (k.beq 0) = _; rw [h]
+    next h =>
+      rw [Nat.beq_eq_true_eq, ← Nat.beq_eq, Bool.not_eq_true] at h
+      show Bool.rec (motive := fun _ => Poly) _ _ (k.beq 0) = _
+      rw [h]; dsimp only
+      show
+        (Expr.rec (fun n => .num (Int.emod_k (Int.pow_k n k) (Int.ofNat c)))
+          (fun _ => (a.toPolyC_k c).powC_k k c) (fun _ => (a.toPolyC_k c).powC_k k c)
+          (fun x => .ofMon (.mult {x, k} .unit)) (fun _ _ => (a.toPolyC_k c).powC_k k c)
+          (fun _ _ _ _ => (a.toPolyC_k c).powC_k k c)
+          (fun _ _ _ _ => (a.toPolyC_k c).powC_k k c)
+          (fun _ _ _ _ => (a.toPolyC_k c).powC_k k c)
+          (fun _ _ _ => (a.toPolyC_k c).powC_k k c)
+          a) = match a with
+            | .num n => Poly.num ((n ^ k) % c)
+            | .var x => Poly.ofMon (Mon.mult { x := x, k := k } Mon.unit)
+            | _ => (toPolyC.go c a).powC k c
+      cases a <;> simp [*, Int.pow_k_eq, Int.emod_k_eq, Poly.powC_k_eq_powC] <;> rfl
+
+/-! Kernel-reduction variants of `Poly.insert` and of the definitions for the non-commutative case. -/
+
+noncomputable def Poly.insert_k.go (k : Int) (m : Mon) (p : Poly) : Poly :=
+  Poly.rec (fun k' => .add k m (.num k'))
+    (fun k' m' p ih => Ordering.rec
+      (.add k' m' ih)
+      (Bool.rec (.add (Int.add_k k k') m p) p (Int.beqZero_k (Int.add_k k k')))
+      (.add k m (.add k' m' p))
+      (m.grevlex_k m'))
+    p
+
+noncomputable def Poly.insert_k (k : Int) (m : Mon) (p : Poly) : Poly :=
+  Bool.rec (Mon.rec (p.addConst_k k) (fun _ _ _ => insert_k.go k m p) m) p (Int.beqZero_k k)
+
+@[simp] theorem Poly.insert_k_eq_insert (k : Int) (m : Mon) (p : Poly) : p.insert_k k m = p.insert k m := by
+  have hgo : ∀ p, insert_k.go k m p = insert.go k m p := by
+    intro p
+    induction p with
+    | num k' => rfl
+    | add k' m' p ih =>
+      change Ordering.rec (motive := fun _ => Poly) _ _ _ (m.grevlex_k m') = _
+      rw [Mon.grevlex_k_eq_grevlex]; simp only [insert.go]
+      cases m.grevlex m' with
+      | lt => exact congrArg _ ih
+      | eq =>
+        dsimp only; rw [Int.beqZero_k_eq, Int.add_k_eq, cond_eq_ite]
+        cases (Int.add k k' == 0) <;> rfl
+      | gt => rfl
+  unfold insert_k insert; rw [Int.beqZero_k_eq, cond_eq_ite, cond_eq_ite]
+  cases (k == 0)
+  · cases m with
+    | unit => simp [addConst_k_eq_addConst]
+    | mult pw m =>
+      have : (Mon.mult pw m == .unit) = false := rfl
+      simp only [Bool.false_eq_true, ↓reduceIte, this]; exact hgo _
+  · rfl
+
+noncomputable def Mon.mulPow_nc_k (pw : Power) (m : Mon) : Mon :=
+  Mon.rec (.mult pw .unit)
+    (fun pw' m _ => Bool.rec (.mult pw (.mult pw' m)) (.mult { x := pw.x, k := Nat.add pw.k pw'.k } m) (Nat.beq pw.x pw'.x))
+    m
+
+@[simp] theorem Mon.mulPow_nc_k_eq_mulPow_nc (pw : Power) (m : Mon) : Mon.mulPow_nc_k pw m = Mon.mulPow_nc pw m := by
+  cases m with
+  | unit => rfl
+  | mult pw' m =>
+    change Bool.rec (motive := fun _ => Mon) _ _ (Nat.beq pw.x pw'.x) = _
+    simp only [mulPow_nc, cond_eq_ite]
+    cases h : Nat.beq pw.x pw'.x
+    · have : ¬ pw.x = pw'.x := by rw [← Nat.beq_eq, h]; simp
+      simp [this]
+    · have : pw.x = pw'.x := Nat.eq_of_beq_eq_true h
+      simp [this]
+
+noncomputable def Mon.mul_nc_k (m₁ m₂ : Mon) : Mon :=
+  Mon.rec (motive := fun _ => Mon) m₂
+    (fun pw m₁ ih => Mon.rec (motive := fun _ => Mon) (mulPow_nc_k pw m₂) (fun _ _ _ => .mult pw ih) m₁)
+    m₁
+
+@[simp] theorem Mon.mul_nc_k_eq_mul_nc (m₁ m₂ : Mon) : Mon.mul_nc_k m₁ m₂ = Mon.mul_nc m₁ m₂ := by
+  induction m₁ with
+  | unit => rfl
+  | mult pw m₁ ih =>
+    cases m₁ with
+    | unit => exact mulPow_nc_k_eq_mulPow_nc pw m₂
+    | mult pw' m₁ =>
+      change Mon.mult pw (Mon.mul_nc_k (.mult pw' m₁) m₂) = _
+      rw [ih]; rfl
+
+noncomputable def Poly.mulMon_nc_k.go (k : Int) (m : Mon) (p : Poly) : Poly → Poly :=
+  Poly.rec (motive := fun _ => Poly → Poly)
+    (fun k' acc => acc.insert_k (Int.mul_k k k') m)
+    (fun k' m' _ ih acc => ih (acc.insert_k (Int.mul_k k k') (m.mul_nc_k m')))
+    p
+
+noncomputable def Poly.mulMon_nc_k (k : Int) (m : Mon) (p : Poly) : Poly :=
+  Bool.rec (Mon.rec (p.mulConst_k k) (fun _ _ _ => mulMon_nc_k.go k m p (.num 0)) m) (.num 0) (Int.beqZero_k k)
+
+@[simp] theorem Poly.mulMon_nc_k_eq_mulMon_nc (k : Int) (m : Mon) (p : Poly) : p.mulMon_nc_k k m = p.mulMon_nc k m := by
+  have hgo : ∀ p acc, mulMon_nc_k.go k m p acc = mulMon_nc.go k m p acc := by
+    intro p
+    induction p with
+    | num k' => intro acc; show acc.insert_k (Int.mul_k k k') m = _; simp [mulMon_nc.go]
+    | add k' m' p ih =>
+      intro acc
+      show mulMon_nc_k.go k m p (acc.insert_k (Int.mul_k k k') (m.mul_nc_k m')) = _
+      rw [ih]; simp [mulMon_nc.go]
+  unfold mulMon_nc_k mulMon_nc; rw [Int.beqZero_k_eq, cond_eq_ite, cond_eq_ite]
+  cases (k == 0)
+  · cases m with
+    | unit => simp [mulConst_k_eq_mulConst]
+    | mult pw m =>
+      have : (Mon.mult pw m == .unit) = false := rfl
+      simp only [Bool.false_eq_true, ↓reduceIte, this]; exact hgo _ _
+  · rfl
+
+noncomputable def Poly.mul_nc_k (p₁ p₂ : Poly) : Poly :=
+  Poly.rec (motive := fun _ => Poly → Poly)
+    (fun k acc => acc.combine_k (p₂.mulConst_k k))
+    (fun k m _ ih acc => ih (acc.combine_k (p₂.mulMon_nc_k k m)))
+    p₁ (.num 0)
+
+@[simp] theorem Poly.mul_nc_k_eq_mul_nc (p₁ p₂ : Poly) : p₁.mul_nc_k p₂ = p₁.mul_nc p₂ := by
+  unfold mul_nc_k mul_nc; generalize Poly.num 0 = acc
+  induction p₁ generalizing acc with
+  | num k => simp [mul_nc.go]
+  | add k m p₁ ih => simp only [mul_nc.go, ← ih, combine_k_eq_combine, mulMon_nc_k_eq_mulMon_nc]
+
+noncomputable def Poly.pow_nc_k (p : Poly) (k : Nat) : Poly :=
+  Nat.rec (.num 1) (fun k ih => Bool.rec (ih.mul_nc_k p) p (Nat.beq k 0)) k
+
+@[simp] theorem Poly.pow_nc_k_eq_pow_nc (p : Poly) (k : Nat) : p.pow_nc_k k = p.pow_nc k := by
+  induction k with
+  | zero => rfl
+  | succ k ih =>
+    change Bool.rec (motive := fun _ => Poly) ((p.pow_nc_k k).mul_nc_k p) p (Nat.beq k 0) = _
+    cases k with
+    | zero => rfl
+    | succ k => simp only [Nat.beq, ih, mul_nc_k_eq_mul_nc]; rfl
+
+noncomputable def Expr.toPoly_nc_k (e : Expr) : Poly :=
+  Expr.rec
+    (fun k => .num k) (fun k => .num k) (fun k => .num k)
+    (fun x => .ofVar x)
+    (fun _ ih => ih.mulConst_k (Int.negSucc 0))
+    (fun _ _ ih₁ ih₂ => ih₁.combine_k ih₂)
+    (fun _ _ ih₁ ih₂ => ih₁.combine_k (ih₂.mulConst_k (Int.negSucc 0)))
+    (fun _ _ ih₁ ih₂ => ih₁.mul_nc_k ih₂)
+    (fun a k ih => Bool.rec
+      (Expr.rec (fun n => .num (Int.pow_k n k)) (fun n => .num (Int.ofNat (Nat.pow n k))) (fun n => .num (Int.pow_k n k))
+        (fun x => .ofMon (.mult {x, k} .unit)) (fun _ _ => ih.pow_nc_k k)
+        (fun _ _ _ _ => ih.pow_nc_k k)
+        (fun _ _ _ _ => ih.pow_nc_k k)
+        (fun _ _ _ _ => ih.pow_nc_k k)
+        (fun _ _ _ => ih.pow_nc_k k)
+        a)
+      (.num 1)
+      (k.beq 0))
+    e
+
+@[simp] theorem Expr.toPoly_nc_k_eq_toPoly_nc (e : Expr) : e.toPoly_nc_k = e.toPoly_nc := by
+  induction e <;> simp only [toPoly_nc, toPoly_nc_k]
+  next a ih => rw [Poly.mulConst_k_eq_mulConst]; congr
+  case add => rw [← Poly.combine_k_eq_combine]; congr
+  case sub => rw [← Poly.combine_k_eq_combine, ← Poly.mulConst_k_eq_mulConst]; congr
+  case mul => rw [← Poly.mul_nc_k_eq_mul_nc]; congr
+  case pow a k ih =>
+    rw [cond_eq_ite]; split
+    next h => rw [Nat.beq_eq_true_eq, ← Nat.beq_eq] at h; rw [h]
+    next h =>
+      rw [Nat.beq_eq_true_eq, ← Nat.beq_eq, Bool.not_eq_true] at h; rw [h]; dsimp only
+      show
+        (Expr.rec (fun n => .num (Int.pow_k n k)) (fun n => .num (Int.ofNat (Nat.pow n k))) (fun n => .num (Int.pow_k n k))
+          (fun x => .ofMon (.mult {x, k} .unit)) (fun _ _ => a.toPoly_nc_k.pow_nc_k k)
+          (fun _ _ _ _ => a.toPoly_nc_k.pow_nc_k k)
+          (fun _ _ _ _ => a.toPoly_nc_k.pow_nc_k k)
+          (fun _ _ _ _ => a.toPoly_nc_k.pow_nc_k k)
+          (fun _ _ _ => a.toPoly_nc_k.pow_nc_k k)
+          a) = match a with
+            | num n => Poly.num (n ^ k)
+            | .intCast n => .num (n^k)
+            | .natCast n => .num (n^k)
+            | var x => Poly.ofMon (Mon.mult { x := x, k := k } Mon.unit)
+            | x => a.toPoly_nc.pow_nc k
+      cases a <;> simp [*, Int.pow_k_eq] <;> rfl
+
+noncomputable def Poly.mulMonC_nc_k.go (k : Int) (m : Mon) (c : Nat) (p : Poly) : Poly → Poly :=
+  Poly.rec (motive := fun _ => Poly → Poly)
+    (fun k' acc => acc.insert_k (Int.emod_k (Int.mul_k k k') (Int.ofNat c)) m)
+    (fun k' m' _ ih acc => ih (acc.insert_k (Int.emod_k (Int.mul_k k k') (Int.ofNat c)) (m.mul_nc_k m')))
+    p
+
+noncomputable def Poly.mulMonC_nc_k (k : Int) (m : Mon) (p : Poly) (c : Nat) : Poly :=
+  Bool.rec
+    (Mon.rec (p.mulConstC_k (Int.emod_k k (Int.ofNat c)) c) (fun _ _ _ => mulMonC_nc_k.go k m c p (.num 0)) m)
+    (.num 0)
+    (Int.beqZero_k (Int.emod_k k (Int.ofNat c)))
+
+@[simp] theorem Poly.mulMonC_nc_k_eq_mulMonC_nc (k : Int) (m : Mon) (p : Poly) (c : Nat) :
+    p.mulMonC_nc_k k m c = p.mulMonC_nc k m c := by
+  have hgo : ∀ p acc, mulMonC_nc_k.go k m c p acc = mulMonC_nc.go k m c p acc := by
+    intro p
+    induction p with
+    | num k' => intro acc; show acc.insert_k (Int.emod_k (Int.mul_k k k') (Int.ofNat c)) m = _; simp [mulMonC_nc.go]
+    | add k' m' p ih =>
+      intro acc
+      show mulMonC_nc_k.go k m c p (acc.insert_k (Int.emod_k (Int.mul_k k k') (Int.ofNat c)) (m.mul_nc_k m')) = _
+      rw [ih]; simp [mulMonC_nc.go]
+  unfold mulMonC_nc_k mulMonC_nc; rw [Int.beqZero_k_eq, Int.emod_k_eq, cond_eq_ite, cond_eq_ite]
+  cases (k % Int.ofNat c == 0)
+  · cases m with
+    | unit => simp [mulConstC_k_eq_mulConstC]
+    | mult pw m =>
+      have : (Mon.mult pw m == .unit) = false := rfl
+      simp only [Bool.false_eq_true, ↓reduceIte, this]; exact hgo _ _
+  · rfl
+
+noncomputable def Poly.mulC_nc_k (p₁ p₂ : Poly) (c : Nat) : Poly :=
+  Poly.rec (motive := fun _ => Poly → Poly)
+    (fun k acc => acc.combineC_k c (p₂.mulConstC_k k c))
+    (fun k m _ ih acc => ih (acc.combineC_k c (p₂.mulMonC_nc_k k m c)))
+    p₁ (.num 0)
+
+@[simp] theorem Poly.mulC_nc_k_eq_mulC_nc (p₁ p₂ : Poly) (c : Nat) : p₁.mulC_nc_k p₂ c = p₁.mulC_nc p₂ c := by
+  unfold mulC_nc_k mulC_nc; generalize Poly.num 0 = acc
+  induction p₁ generalizing acc with
+  | num k => simp [mulC_nc.go, combineC_k_eq_combineC, mulConstC_k_eq_mulConstC]
+  | add k m p₁ ih => simp only [mulC_nc.go, ← ih, combineC_k_eq_combineC, mulMonC_nc_k_eq_mulMonC_nc]
+
+noncomputable def Poly.powC_nc_k (p : Poly) (k : Nat) (c : Nat) : Poly :=
+  Nat.rec (.num 1) (fun k ih => Bool.rec (ih.mulC_nc_k p c) p (Nat.beq k 0)) k
+
+@[simp] theorem Poly.powC_nc_k_eq_powC_nc (p : Poly) (k : Nat) (c : Nat) : p.powC_nc_k k c = p.powC_nc k c := by
+  induction k with
+  | zero => rfl
+  | succ k ih =>
+    change Bool.rec (motive := fun _ => Poly) ((p.powC_nc_k k c).mulC_nc_k p c) p (Nat.beq k 0) = _
+    cases k with
+    | zero => rfl
+    | succ k => simp only [Nat.beq, ih, mulC_nc_k_eq_mulC_nc]; rfl
+
+noncomputable def Expr.toPolyC_nc_k (e : Expr) (c : Nat) : Poly :=
+  Expr.rec
+    (fun k => .num (Int.emod_k k (Int.ofNat c)))
+    (fun k => .num (Int.emod_k (Int.ofNat k) (Int.ofNat c)))
+    (fun k => .num (Int.emod_k k (Int.ofNat c)))
+    (fun x => .ofVar x)
+    (fun _ ih => ih.mulConstC_k (Int.negSucc 0) c)
+    (fun _ _ ih₁ ih₂ => ih₁.combineC_k c ih₂)
+    (fun _ _ ih₁ ih₂ => ih₁.combineC_k c (ih₂.mulConstC_k (Int.negSucc 0) c))
+    (fun _ _ ih₁ ih₂ => ih₁.mulC_nc_k ih₂ c)
+    (fun a k ih => Bool.rec
+      (Expr.rec (fun n => .num (Int.emod_k (Int.pow_k n k) (Int.ofNat c)))
+        (fun _ => ih.powC_nc_k k c) (fun _ => ih.powC_nc_k k c)
+        (fun x => .ofMon (.mult {x, k} .unit)) (fun _ _ => ih.powC_nc_k k c)
+        (fun _ _ _ _ => ih.powC_nc_k k c)
+        (fun _ _ _ _ => ih.powC_nc_k k c)
+        (fun _ _ _ _ => ih.powC_nc_k k c)
+        (fun _ _ _ => ih.powC_nc_k k c)
+        a)
+      (.num 1)
+      (k.beq 0))
+    e
+
+@[simp] theorem Expr.toPolyC_nc_k_eq_toPolyC_nc (e : Expr) (c : Nat) : e.toPolyC_nc_k c = e.toPolyC_nc c := by
+  unfold toPolyC_nc
+  induction e with
+  | num k => show Poly.num (Int.emod_k k (Int.ofNat c)) = _; simp [toPolyC_nc.go]
+  | natCast k => show Poly.num (Int.emod_k (Int.ofNat k) (Int.ofNat c)) = _; simp [toPolyC_nc.go]
+  | intCast k => show Poly.num (Int.emod_k k (Int.ofNat c)) = _; simp [toPolyC_nc.go]
+  | var x => rfl
+  | neg a ih => show (a.toPolyC_nc_k c).mulConstC_k (Int.negSucc 0) c = _; rw [ih, Poly.mulConstC_k_eq_mulConstC]; rfl
+  | add a b iha ihb => show (a.toPolyC_nc_k c).combineC_k c (b.toPolyC_nc_k c) = _; rw [iha, ihb, Poly.combineC_k_eq_combineC]; rfl
+  | sub a b iha ihb =>
+    show (a.toPolyC_nc_k c).combineC_k c ((b.toPolyC_nc_k c).mulConstC_k (Int.negSucc 0) c) = _
+    rw [iha, ihb, Poly.mulConstC_k_eq_mulConstC, Poly.combineC_k_eq_combineC]; rfl
+  | mul a b iha ihb => show (a.toPolyC_nc_k c).mulC_nc_k (b.toPolyC_nc_k c) c = _; rw [iha, ihb, Poly.mulC_nc_k_eq_mulC_nc]; rfl
+  | pow a k ih =>
+    simp only [toPolyC_nc.go, cond_eq_ite]
+    split
+    next h => rw [Nat.beq_eq_true_eq, ← Nat.beq_eq] at h; show Bool.rec (motive := fun _ => Poly) _ _ (k.beq 0) = _; rw [h]
+    next h =>
+      rw [Nat.beq_eq_true_eq, ← Nat.beq_eq, Bool.not_eq_true] at h
+      show Bool.rec (motive := fun _ => Poly) _ _ (k.beq 0) = _
+      rw [h]; dsimp only
+      show
+        (Expr.rec (fun n => .num (Int.emod_k (Int.pow_k n k) (Int.ofNat c)))
+          (fun _ => (a.toPolyC_nc_k c).powC_nc_k k c) (fun _ => (a.toPolyC_nc_k c).powC_nc_k k c)
+          (fun x => .ofMon (.mult {x, k} .unit)) (fun _ _ => (a.toPolyC_nc_k c).powC_nc_k k c)
+          (fun _ _ _ _ => (a.toPolyC_nc_k c).powC_nc_k k c)
+          (fun _ _ _ _ => (a.toPolyC_nc_k c).powC_nc_k k c)
+          (fun _ _ _ _ => (a.toPolyC_nc_k c).powC_nc_k k c)
+          (fun _ _ _ => (a.toPolyC_nc_k c).powC_nc_k k c)
+          a) = match a with
+            | .num n => Poly.num ((n ^ k) % c)
+            | .var x => Poly.ofMon (Mon.mult { x := x, k := k } Mon.unit)
+            | _ => (toPolyC_nc.go c a).powC_nc k c
+      cases a <;> simp [*, Int.pow_k_eq, Int.emod_k_eq, Poly.powC_nc_k_eq_powC_nc] <;> rfl
+
 /-!
 Theorems for justifying the procedure for commutative rings in `grind`.
 -/
@@ -1072,7 +1584,7 @@ theorem Mon.denote_mulPow_nc {α} [Semiring α] (ctx : Context α) (p : Power) (
 theorem Mon.denote_mul {α} [CommSemiring α] (ctx : Context α) (m₁ m₂ : Mon)
     : denote ctx (mul m₁ m₂) = m₁.denote ctx * m₂.denote ctx := by
   unfold mul
-  generalize hugeFuel = fuel
+  generalize m₁.length + m₂.length + 1 = fuel
   fun_induction mul.go
     <;> simp [denote, denote_concat, one_mul,
       mul_assoc, mul_left_comm, CommSemiring.mul_comm, *]
@@ -1225,7 +1737,7 @@ theorem Poly.denote_mulMon_nc {α} [Ring α] (ctx : Context α) (k : Int) (m : M
 
 theorem Poly.denote_combine {α} [Ring α] (ctx : Context α) (p₁ p₂ : Poly)
     : (combine p₁ p₂).denote ctx = p₁.denote ctx + p₂.denote ctx := by
-  unfold combine; generalize hugeFuel = fuel
+  unfold combine; generalize p₁.length + p₂.length + 1 = fuel
   fun_induction combine.go
     <;> simp [*, denote_concat, denote_addConst, denote, intCast_add, add_comm, add_left_comm, add_assoc, zsmul_eq_intCast_mul]
   case case5 hg _ h _ =>
@@ -1289,13 +1801,15 @@ theorem Expr.denote_toPoly_nc {α} [Ring α] (ctx : Context α) (e : Expr)
   next => rw [Ring.intCast_natCast]
   next => simp [Poly.denote_ofMon, Mon.denote, Power.denote_eq, mul_one]
 
-theorem Expr.eq_of_toPoly_eq {α} [CommRing α] (ctx : Context α) (a b : Expr) (h : a.toPoly == b.toPoly) : a.denote ctx = b.denote ctx := by
-  have h := congrArg (Poly.denote ctx) (eq_of_beq h)
+theorem Expr.eq_of_toPoly_eq {α} [CommRing α] (ctx : Context α) (a b : Expr) (h : a.toPoly_k.beq' b.toPoly_k) : a.denote ctx = b.denote ctx := by
+  simp only [Poly.beq'_eq, toPoly_k_eq_toPoly] at h
+  have h := congrArg (Poly.denote ctx) h
   simp [denote_toPoly] at h
   assumption
 
-theorem Expr.eq_of_toPoly_nc_eq {α} [Ring α] (ctx : Context α) (a b : Expr) (h : a.toPoly_nc == b.toPoly_nc) : a.denote ctx = b.denote ctx := by
-  have h := congrArg (Poly.denote ctx) (eq_of_beq h)
+theorem Expr.eq_of_toPoly_nc_eq {α} [Ring α] (ctx : Context α) (a b : Expr) (h : a.toPoly_nc_k.beq' b.toPoly_nc_k) : a.denote ctx = b.denote ctx := by
+  simp only [Poly.beq'_eq, Expr.toPoly_nc_k_eq_toPoly_nc] at h
+  have h := congrArg (Poly.denote ctx) h
   simp [denote_toPoly_nc] at h
   assumption
 
@@ -1539,16 +2053,234 @@ theorem Expr.denote_toPolyC_nc {α c} [Ring α] [IsCharP α c] (ctx : Context α
   next => simp [Poly.denote_ofMon, Mon.denote, Power.denote_eq, mul_one]
 
 theorem Expr.eq_of_toPolyC_eq {α c} [CommRing α] [IsCharP α c] (ctx : Context α) (a b : Expr)
-    (h : a.toPolyC c == b.toPolyC c) : a.denote ctx = b.denote ctx := by
-  have h := congrArg (Poly.denote ctx) (eq_of_beq h)
+    (h : (a.toPolyC_k c).beq' (b.toPolyC_k c)) : a.denote ctx = b.denote ctx := by
+  simp only [Poly.beq'_eq, Expr.toPolyC_k_eq_toPolyC] at h
+  have h := congrArg (Poly.denote ctx) h
   simp [denote_toPolyC] at h
   assumption
 
 theorem Expr.eq_of_toPolyC_nc_eq {α c} [Ring α] [IsCharP α c] (ctx : Context α) (a b : Expr)
-    (h : a.toPolyC_nc c == b.toPolyC_nc c) : a.denote ctx = b.denote ctx := by
-  have h := congrArg (Poly.denote ctx) (eq_of_beq h)
+    (h : (a.toPolyC_nc_k c).beq' (b.toPolyC_nc_k c)) : a.denote ctx = b.denote ctx := by
+  simp only [Poly.beq'_eq, Expr.toPolyC_nc_k_eq_toPolyC_nc] at h
+  have h := congrArg (Poly.denote ctx) h
   simp [denote_toPolyC_nc] at h
   assumption
+
+/--
+`p₁.addEq_k q p` checks `p = p₁.combine q` for sorted `p₁` and `q` in one pass, comparing the head
+of `p` with the heads of `p₁` and `q` by equality instead of ordering them.
+-/
+noncomputable def Poly.addEq_k (p₁ : Poly) : Poly → Poly → Bool :=
+  Poly.rec (motive := fun _ => Poly → Poly → Bool)
+    (fun k₁ q p => (q.addConst_k k₁).beq' p)
+    (fun k₁ m₁ p₁ ih₁ q =>
+      Poly.rec (motive := fun _ => Poly → Bool)
+        (fun k₂ p => ((Poly.add k₁ m₁ p₁).addConst_k k₂).beq' p)
+        (fun k₂ m₂ q ih₂ p =>
+          Bool.rec
+            (Poly.rec (fun _ => false)
+              (fun k m p _ => Bool.rec
+                (Bool.rec false (Bool.rec false (ih₂ p) (Int.beq' k k₂)) (Mon.beq' m m₂))
+                (Bool.rec false (ih₁ (.add k₂ m₂ q) p) (Int.beq' k k₁))
+                (Mon.beq' m m₁)) p)
+            (Bool.rec
+              (Poly.rec (fun _ => false)
+                (fun k m p _ => Bool.rec false (Bool.rec false (ih₁ q p) (Int.beq' k (Int.add_k k₁ k₂))) (Mon.beq' m m₁)) p)
+              (ih₁ q p)
+              (Int.beqZero_k (Int.add_k k₁ k₂)))
+            (Mon.beq' m₁ m₂))
+        q)
+    p₁
+
+theorem Poly.addEq_k_num (k₁ : Int) (q p : Poly) : (Poly.num k₁).addEq_k q p = (q.addConst_k k₁).beq' p := rfl
+
+theorem Poly.addEq_k_add_num (k₁ : Int) (m₁ : Mon) (p₁ : Poly) (k₂ : Int) (p : Poly) :
+    (Poly.add k₁ m₁ p₁).addEq_k (.num k₂) p = ((Poly.add k₁ m₁ p₁).addConst_k k₂).beq' p := rfl
+
+theorem Mon.beq'_eq_beq (m₁ m₂ : Mon) : m₁.beq' m₂ = (m₁ == m₂) := by
+  cases h : m₁ == m₂
+  · have : m₁ ≠ m₂ := fun e => by simp [e] at h
+    rw [← Bool.not_eq_true, Mon.beq'_eq]; exact this
+  · rw [Mon.beq'_eq]; exact eq_of_beq h
+
+theorem Poly.addEq_k_add_add_num (k₁ : Int) (m₁ : Mon) (p₁ : Poly) (k₂ : Int) (m₂ : Mon) (q : Poly) (k : Int) :
+    (Poly.add k₁ m₁ p₁).addEq_k (.add k₂ m₂ q) (.num k) =
+      Bool.rec false (Bool.rec false (p₁.addEq_k q (.num k)) (Int.beqZero_k (Int.add_k k₁ k₂))) (Mon.beq' m₁ m₂) := rfl
+
+theorem Poly.addEq_k_add_add_add (k₁ : Int) (m₁ : Mon) (p₁ : Poly) (k₂ : Int) (m₂ : Mon) (q : Poly)
+    (k : Int) (m : Mon) (p : Poly) :
+    (Poly.add k₁ m₁ p₁).addEq_k (.add k₂ m₂ q) (.add k m p) =
+      Bool.rec
+        (Bool.rec
+          (Bool.rec false ((Int.beq' k k₂).and ((Poly.add k₁ m₁ p₁).addEq_k q p)) (Mon.beq' m m₂))
+          ((Int.beq' k k₁).and (p₁.addEq_k (.add k₂ m₂ q) p))
+          (Mon.beq' m m₁))
+        (Bool.rec
+          ((Mon.beq' m m₁).and ((Int.beq' k (Int.add_k k₁ k₂)).and (p₁.addEq_k q p)))
+          (p₁.addEq_k q (.add k m p))
+          (Int.beqZero_k (Int.add_k k₁ k₂)))
+        (Mon.beq' m₁ m₂) := rfl
+
+theorem Poly.denote_of_addEq_k {α} [Ring α] (ctx : Context α) (p₁ q p : Poly) (h : p₁.addEq_k q p) :
+    p.denote ctx = p₁.denote ctx + q.denote ctx := by
+  induction p₁ generalizing q p with
+  | num k₁ =>
+    rw [addEq_k_num, Poly.beq'_eq, addConst_k_eq_addConst] at h
+    rw [← h, denote_addConst, Semiring.add_comm]; rfl
+  | add k₁ m₁ p₁ ih₁ =>
+    induction q generalizing p with
+    | num k₂ =>
+      rw [addEq_k_add_num, Poly.beq'_eq, addConst_k_eq_addConst] at h
+      rw [← h, denote_addConst]; rfl
+    | add k₂ m₂ q ih₂ =>
+      have hz : ∀ (k : Int) (p : Poly), Int.beqZero_k (Int.add_k k₁ k₂) = true → p₁.addEq_k q p = true →
+          p.denote ctx = (Poly.add k₁ m₁ p₁).denote ctx + (Poly.add k₂ m₂ q).denote ctx → True := fun _ _ _ _ _ => trivial
+      clear hz
+      cases p with
+      | num k =>
+        rw [addEq_k_add_add_num] at h
+        cases h₁₂ : Mon.beq' m₁ m₂ <;> rw [h₁₂] at h <;> dsimp only at h
+        · contradiction
+        · rw [Mon.beq'_eq] at h₁₂; subst h₁₂
+          cases hk : Int.beqZero_k (Int.add_k k₁ k₂) <;> rw [hk] at h <;> dsimp only at h
+          · contradiction
+          · rw [Int.beqZero_k_eq, Int.add_k_eq, beq_iff_eq, Int.add_def] at hk
+            rw [ih₁ q _ h]; simp only [denote, zsmul_eq_intCast_mul]
+            rw [Semiring.add_assoc, add_left_comm (denote ctx p₁), ← Semiring.add_assoc,
+              ← right_distrib, ← Ring.intCast_add, hk, Ring.intCast_zero, Semiring.zero_mul, AddCommMonoid.zero_add]
+      | add k m p =>
+        rw [addEq_k_add_add_add] at h
+        cases h₁₂ : Mon.beq' m₁ m₂ <;> rw [h₁₂] at h <;> dsimp only at h
+        · cases hm₁ : Mon.beq' m m₁ <;> rw [hm₁] at h <;> dsimp only at h
+          · cases hm₂ : Mon.beq' m m₂ <;> rw [hm₂] at h <;> dsimp only at h
+            · contradiction
+            · rw [Bool.and_eq_true, Int.beq'_eq] at h
+              rw [Mon.beq'_eq] at hm₂
+              obtain ⟨rfl, h⟩ := h
+              have := ih₂ p h
+              simp only [denote, zsmul_eq_intCast_mul, hm₂] at this ⊢
+              rw [this]; simp only [Semiring.add_assoc, add_left_comm]
+          · rw [Bool.and_eq_true, Int.beq'_eq] at h
+            rw [Mon.beq'_eq] at hm₁
+            obtain ⟨rfl, h⟩ := h
+            simp only [denote, zsmul_eq_intCast_mul, hm₁, ih₁ _ p h]
+            simp only [Semiring.add_assoc, add_left_comm]
+        · rw [Mon.beq'_eq] at h₁₂; subst h₁₂
+          cases hk : Int.beqZero_k (Int.add_k k₁ k₂) <;> rw [hk] at h <;> dsimp only at h
+          · simp only [Bool.and_eq_true, Int.beq'_eq, Mon.beq'_eq, Int.add_k_eq] at h
+            obtain ⟨rfl, rfl, h⟩ := h
+            simp only [denote, zsmul_eq_intCast_mul, ih₁ q p h, Int.add_def, Ring.intCast_add, right_distrib]
+            simp only [Semiring.add_assoc, add_left_comm]
+          · rw [Int.beqZero_k_eq, Int.add_k_eq, beq_iff_eq, Int.add_def] at hk
+            rw [ih₁ q _ h]; simp only [denote, zsmul_eq_intCast_mul]
+            rw [Semiring.add_assoc, add_left_comm (denote ctx p₁), ← Semiring.add_assoc,
+              ← right_distrib, ← Ring.intCast_add, hk, Ring.intCast_zero, Semiring.zero_mul, AddCommMonoid.zero_add]
+
+/--
+`p₁.addEqC_k c q p` checks `p = p₁.combineC q c` for sorted `p₁` and `q` in one pass, comparing the head
+of `p` with the heads of `p₁` and `q` by equality instead of ordering them.
+-/
+noncomputable def Poly.addEqC_k (p₁ : Poly) (c : Nat) : Poly → Poly → Bool :=
+  Poly.rec (motive := fun _ => Poly → Poly → Bool)
+    (fun k₁ q p => (q.addConstC_k k₁ c).beq' p)
+    (fun k₁ m₁ p₁ ih₁ q =>
+      Poly.rec (motive := fun _ => Poly → Bool)
+        (fun k₂ p => ((Poly.add k₁ m₁ p₁).addConstC_k k₂ c).beq' p)
+        (fun k₂ m₂ q ih₂ p =>
+          Bool.rec
+            (Poly.rec (fun _ => false)
+              (fun k m p _ => Bool.rec
+                (Bool.rec false (Bool.rec false (ih₂ p) (Int.beq' k k₂)) (Mon.beq' m m₂))
+                (Bool.rec false (ih₁ (.add k₂ m₂ q) p) (Int.beq' k k₁))
+                (Mon.beq' m m₁)) p)
+            (Bool.rec
+              (Poly.rec (fun _ => false)
+                (fun k m p _ => Bool.rec false
+                  (Bool.rec false (ih₁ q p) (Int.beq' k (Int.emod_k (Int.add_k k₁ k₂) (Int.ofNat c))))
+                  (Mon.beq' m m₁)) p)
+              (ih₁ q p)
+              (Int.beqZero_k (Int.emod_k (Int.add_k k₁ k₂) (Int.ofNat c))))
+            (Mon.beq' m₁ m₂))
+        q)
+    p₁
+
+theorem Poly.addEqC_k_num (c : Nat) (k₁ : Int) (q p : Poly) : (Poly.num k₁).addEqC_k c q p = (q.addConstC_k k₁ c).beq' p := rfl
+
+theorem Poly.addEqC_k_add_num (c : Nat) (k₁ : Int) (m₁ : Mon) (p₁ : Poly) (k₂ : Int) (p : Poly) :
+    (Poly.add k₁ m₁ p₁).addEqC_k c (.num k₂) p = ((Poly.add k₁ m₁ p₁).addConstC_k k₂ c).beq' p := rfl
+
+theorem Poly.addEqC_k_add_add_num (c : Nat) (k₁ : Int) (m₁ : Mon) (p₁ : Poly) (k₂ : Int) (m₂ : Mon) (q : Poly) (k : Int) :
+    (Poly.add k₁ m₁ p₁).addEqC_k c (.add k₂ m₂ q) (.num k) =
+      Bool.rec false (Bool.rec false (p₁.addEqC_k c q (.num k)) (Int.beqZero_k (Int.emod_k (Int.add_k k₁ k₂) (Int.ofNat c)))) (Mon.beq' m₁ m₂) := rfl
+
+theorem Poly.addEqC_k_add_add_add (c : Nat) (k₁ : Int) (m₁ : Mon) (p₁ : Poly) (k₂ : Int) (m₂ : Mon) (q : Poly)
+    (k : Int) (m : Mon) (p : Poly) :
+    (Poly.add k₁ m₁ p₁).addEqC_k c (.add k₂ m₂ q) (.add k m p) =
+      Bool.rec
+        (Bool.rec
+          (Bool.rec false ((Int.beq' k k₂).and ((Poly.add k₁ m₁ p₁).addEqC_k c q p)) (Mon.beq' m m₂))
+          ((Int.beq' k k₁).and (p₁.addEqC_k c (.add k₂ m₂ q) p))
+          (Mon.beq' m m₁))
+        (Bool.rec
+          ((Mon.beq' m m₁).and ((Int.beq' k (Int.emod_k (Int.add_k k₁ k₂) (Int.ofNat c))).and (p₁.addEqC_k c q p)))
+          (p₁.addEqC_k c q (.add k m p))
+          (Int.beqZero_k (Int.emod_k (Int.add_k k₁ k₂) (Int.ofNat c))))
+        (Mon.beq' m₁ m₂) := rfl
+
+theorem Poly.denote_of_addEqC_k {α c} [Ring α] [IsCharP α c] (ctx : Context α) (p₁ q p : Poly) (h : p₁.addEqC_k c q p) :
+    p.denote ctx = p₁.denote ctx + q.denote ctx := by
+  induction p₁ generalizing q p with
+  | num k₁ =>
+    rw [addEqC_k_num, Poly.beq'_eq, addConstC_k_eq_addConstC] at h
+    rw [← h, denote_addConstC, Semiring.add_comm]; rfl
+  | add k₁ m₁ p₁ ih₁ =>
+    induction q generalizing p with
+    | num k₂ =>
+      rw [addEqC_k_add_num, Poly.beq'_eq, addConstC_k_eq_addConstC] at h
+      rw [← h, denote_addConstC]; rfl
+    | add k₂ m₂ q ih₂ =>
+      have hz : ∀ (k : Int) (p : Poly), Int.beqZero_k (Int.emod_k (Int.add_k k₁ k₂) (Int.ofNat c)) = true → p₁.addEqC_k c q p = true →
+          p.denote ctx = (Poly.add k₁ m₁ p₁).denote ctx + (Poly.add k₂ m₂ q).denote ctx → True := fun _ _ _ _ _ => trivial
+      clear hz
+      cases p with
+      | num k =>
+        rw [addEqC_k_add_add_num] at h
+        cases h₁₂ : Mon.beq' m₁ m₂ <;> rw [h₁₂] at h <;> dsimp only at h
+        · contradiction
+        · rw [Mon.beq'_eq] at h₁₂; subst h₁₂
+          cases hk : Int.beqZero_k (Int.emod_k (Int.add_k k₁ k₂) (Int.ofNat c)) <;> rw [hk] at h <;> dsimp only at h
+          · contradiction
+          · rw [Int.beqZero_k_eq, Int.emod_k_eq, Int.add_k_eq, beq_iff_eq, Int.add_def, Int.ofNat_eq_natCast] at hk
+            rw [ih₁ q _ h]; simp only [denote, zsmul_eq_intCast_mul]
+            rw [Semiring.add_assoc, add_left_comm (denote ctx p₁), ← Semiring.add_assoc,
+              ← right_distrib, ← Ring.intCast_add, ← IsCharP.intCast_emod (p := c), hk, Ring.intCast_zero, Semiring.zero_mul, AddCommMonoid.zero_add]
+      | add k m p =>
+        rw [addEqC_k_add_add_add] at h
+        cases h₁₂ : Mon.beq' m₁ m₂ <;> rw [h₁₂] at h <;> dsimp only at h
+        · cases hm₁ : Mon.beq' m m₁ <;> rw [hm₁] at h <;> dsimp only at h
+          · cases hm₂ : Mon.beq' m m₂ <;> rw [hm₂] at h <;> dsimp only at h
+            · contradiction
+            · rw [Bool.and_eq_true, Int.beq'_eq] at h
+              rw [Mon.beq'_eq] at hm₂
+              obtain ⟨rfl, h⟩ := h
+              have := ih₂ p h
+              simp only [denote, zsmul_eq_intCast_mul, hm₂] at this ⊢
+              rw [this]; simp only [Semiring.add_assoc, add_left_comm]
+          · rw [Bool.and_eq_true, Int.beq'_eq] at h
+            rw [Mon.beq'_eq] at hm₁
+            obtain ⟨rfl, h⟩ := h
+            simp only [denote, zsmul_eq_intCast_mul, hm₁, ih₁ _ p h]
+            simp only [Semiring.add_assoc, add_left_comm]
+        · rw [Mon.beq'_eq] at h₁₂; subst h₁₂
+          cases hk : Int.beqZero_k (Int.emod_k (Int.add_k k₁ k₂) (Int.ofNat c)) <;> rw [hk] at h <;> dsimp only at h
+          · simp only [Bool.and_eq_true, Int.beq'_eq, Mon.beq'_eq, Int.add_k_eq, Int.emod_k_eq] at h
+            obtain ⟨rfl, rfl, h⟩ := h
+            simp only [denote, zsmul_eq_intCast_mul, ih₁ q p h, Int.add_def, Int.ofNat_eq_natCast, IsCharP.intCast_emod, Ring.intCast_add, right_distrib]
+            simp only [Semiring.add_assoc, add_left_comm]
+          · rw [Int.beqZero_k_eq, Int.emod_k_eq, Int.add_k_eq, beq_iff_eq, Int.add_def, Int.ofNat_eq_natCast] at hk
+            rw [ih₁ q _ h]; simp only [denote, zsmul_eq_intCast_mul]
+            rw [Semiring.add_assoc, add_left_comm (denote ctx p₁), ← Semiring.add_assoc,
+              ← right_distrib, ← Ring.intCast_add, ← IsCharP.intCast_emod (p := c), hk, Ring.intCast_zero, Semiring.zero_mul, AddCommMonoid.zero_add]
 
 namespace Stepwise
 /-!
@@ -1564,20 +2296,22 @@ theorem core {α} [CommRing α] (ctx : Context α) (lhs rhs : Expr) (p : Poly)
   simp [sub_eq_zero_iff]
 
 noncomputable def superpose_cert (k₁ : Int) (m₁ : Mon) (p₁ : Poly) (k₂ : Int) (m₂ : Mon) (p₂ : Poly) (p : Poly) : Bool :=
-  (p₁.mulMon_k k₁ m₁).combine_k (p₂.mulMon_k k₂ m₂) |>.beq' p
+  (p₁.mulMon_k k₁ m₁).addEq_k (p₂.mulMon_k k₂ m₂) p
 
 theorem superpose {α} [CommRing α] (ctx : Context α) (k₁ : Int) (m₁ : Mon) (p₁ : Poly) (k₂ : Int) (m₂ : Mon) (p₂ : Poly) (p : Poly)
     : superpose_cert k₁ m₁ p₁ k₂ m₂ p₂ p → p₁.denote ctx = 0 → p₂.denote ctx = 0 → p.denote ctx = 0 := by
-  simp [superpose_cert]; intro _ h₁ h₂; subst p
-  simp [Poly.denote_combine, Poly.denote_mulMon, h₁, h₂, mul_zero, add_zero]
+  intro h h₁ h₂
+  rw [Poly.denote_of_addEq_k ctx _ _ _ h]
+  simp [Poly.denote_mulMon, h₁, h₂, mul_zero, add_zero]
 
 noncomputable def simp_cert (k₁ : Int) (p₁ : Poly) (k₂ : Int) (m₂ : Mon) (p₂ : Poly) (p : Poly) : Bool :=
-  (p₁.mulConst_k k₁).combine_k (p₂.mulMon_k k₂ m₂) |>.beq' p
+  (p₁.mulConst_k k₁).addEq_k (p₂.mulMon_k k₂ m₂) p
 
 theorem simp {α} [CommRing α] (ctx : Context α) (k₁ : Int) (p₁ : Poly) (k₂ : Int) (m₂ : Mon) (p₂ : Poly) (p : Poly)
     : simp_cert k₁ p₁ k₂ m₂ p₂ p → p₁.denote ctx = 0 → p₂.denote ctx = 0 → p.denote ctx = 0 := by
-  simp [simp_cert]; intro _ h₁ h₂; subst p
-  simp [Poly.denote_combine, Poly.denote_mulMon, Poly.denote_mulConst, h₁, h₂, mul_zero, add_zero]
+  intro h h₁ h₂
+  rw [Poly.denote_of_addEq_k ctx _ _ _ h]
+  simp [Poly.denote_mulMon, Poly.denote_mulConst, h₁, h₂, mul_zero, add_zero]
 
 noncomputable def mul_cert (p₁ : Poly) (k : Int) (p : Poly) : Bool :=
   p₁.mulConst_k k |>.beq' p
@@ -1629,20 +2363,22 @@ theorem d_init {α} [CommRing α] (ctx : Context α) (p : Poly) : (1:Int) * p.de
   rw [intCast_one, one_mul]
 
 noncomputable def d_step1_cert (p₁ : Poly) (k₂ : Int) (m₂ : Mon) (p₂ : Poly) (p : Poly) : Bool :=
-  p.beq' (p₁.combine_k (p₂.mulMon_k k₂ m₂))
+  p₁.addEq_k (p₂.mulMon_k k₂ m₂) p
 
 theorem d_step1 {α} [CommRing α] (ctx : Context α) (k : Int) (init : Poly) (p₁ : Poly) (k₂ : Int) (m₂ : Mon) (p₂ : Poly) (p : Poly)
     : d_step1_cert p₁ k₂ m₂ p₂ p → k * init.denote ctx = p₁.denote ctx → p₂.denote ctx = 0 → k * init.denote ctx = p.denote ctx := by
-  simp [d_step1_cert]; intro _ h₁ h₂; subst p
-  simp [Poly.denote_combine, Poly.denote_mulMon, h₂, mul_zero, add_zero, h₁]
+  intro h h₁ h₂
+  rw [Poly.denote_of_addEq_k ctx _ _ _ h]
+  simp [Poly.denote_mulMon, h₂, mul_zero, add_zero, h₁]
 
 noncomputable def d_stepk_cert (k₁ : Int) (p₁ : Poly) (k₂ : Int) (m₂ : Mon) (p₂ : Poly) (p : Poly) : Bool :=
-  p.beq' ((p₁.mulConst_k k₁).combine_k (p₂.mulMon_k k₂ m₂))
+  (p₁.mulConst_k k₁).addEq_k (p₂.mulMon_k k₂ m₂) p
 
 theorem d_stepk {α} [CommRing α] (ctx : Context α) (k₁ : Int) (k : Int) (init : Poly) (p₁ : Poly) (k₂ : Int) (m₂ : Mon) (p₂ : Poly) (p : Poly)
     : d_stepk_cert k₁ p₁ k₂ m₂ p₂ p → k * init.denote ctx = p₁.denote ctx → p₂.denote ctx = 0 → (k₁*k : Int) * init.denote ctx = p.denote ctx := by
-  simp [d_stepk_cert]; intro _ h₁ h₂; subst p
-  simp [Poly.denote_combine, Poly.denote_mulMon, Poly.denote_mulConst, h₂, mul_zero, add_zero]
+  intro h h₁ h₂
+  rw [Poly.denote_of_addEq_k ctx _ _ _ h]
+  simp [Poly.denote_mulMon, Poly.denote_mulConst, h₂, mul_zero, add_zero]
   rw [intCast_mul, mul_assoc, h₁]
 
 noncomputable def imp_1eq_cert (lhs rhs : Expr) (p₁ p₂ : Poly) : Bool :=
@@ -1664,7 +2400,7 @@ theorem imp_keq  {α} [CommRing α] (ctx : Context α) [NoNatZeroDivisors α] (k
   rw [← sub_eq_zero_iff, h]
 
 noncomputable def core_certC (lhs rhs : Expr) (p : Poly) (c : Nat) : Bool :=
-  (lhs.sub rhs).toPolyC c |>.beq' p
+  (lhs.sub rhs).toPolyC_k c |>.beq' p
 
 theorem coreC {α c} [CommRing α] [IsCharP α c] (ctx : Context α) (lhs rhs : Expr) (p : Poly)
     : core_certC lhs rhs p c → lhs.denote ctx = rhs.denote ctx → p.denote ctx = 0 := by
@@ -1673,15 +2409,16 @@ theorem coreC {α c} [CommRing α] [IsCharP α c] (ctx : Context α) (lhs rhs : 
   simp [sub_eq_zero_iff]
 
 noncomputable def superpose_certC (k₁ : Int) (m₁ : Mon) (p₁ : Poly) (k₂ : Int) (m₂ : Mon) (p₂ : Poly) (p : Poly) (c : Nat) : Bool :=
-  (p₁.mulMonC k₁ m₁ c).combineC (p₂.mulMonC k₂ m₂ c) c |>.beq' p
+  (p₁.mulMonC_k k₁ m₁ c).addEqC_k c (p₂.mulMonC_k k₂ m₂ c) p
 
 theorem superposeC {α c} [CommRing α] [IsCharP α c] (ctx : Context α) (k₁ : Int) (m₁ : Mon) (p₁ : Poly) (k₂ : Int) (m₂ : Mon) (p₂ : Poly) (p : Poly)
     : superpose_certC k₁ m₁ p₁ k₂ m₂ p₂ p c → p₁.denote ctx = 0 → p₂.denote ctx = 0 → p.denote ctx = 0 := by
-  simp [superpose_certC]; intro _ h₁ h₂; subst p
-  simp [Poly.denote_combineC, Poly.denote_mulMonC, h₁, h₂, mul_zero, add_zero]
+  intro h h₁ h₂
+  rw [Poly.denote_of_addEqC_k ctx _ _ _ h]
+  simp [Poly.denote_mulMonC, h₁, h₂, mul_zero, add_zero]
 
 noncomputable def mul_certC (p₁ : Poly) (k : Int) (p : Poly) (c : Nat) : Bool :=
-  p₁.mulConstC k c |>.beq' p
+  p₁.mulConstC_k k c |>.beq' p
 
 theorem mulC {α c} [CommRing α] [IsCharP α c] (ctx : Context α) (p₁ : Poly) (k : Int) (p : Poly)
     : mul_certC p₁ k p c → p₁.denote ctx = 0 → p.denote ctx = 0 := by
@@ -1689,7 +2426,7 @@ theorem mulC {α c} [CommRing α] [IsCharP α c] (ctx : Context α) (p₁ : Poly
   simp [Poly.denote_mulConstC, *, mul_zero]
 
 noncomputable def div_certC (p₁ : Poly) (k : Int) (p : Poly) (c : Nat) : Bool :=
-  !Int.beq' k 0 |>.and ((p.mulConstC k c).beq' p₁)
+  !Int.beq' k 0 |>.and ((p.mulConstC_k k c).beq' p₁)
 
 theorem divC {α c} [CommRing α] [IsCharP α c] (ctx : Context α) [NoNatZeroDivisors α] (p₁ : Poly) (k : Int) (p : Poly)
     : div_certC p₁ k p c → p₁.denote ctx = 0 → p.denote ctx = 0 := by
@@ -1698,15 +2435,16 @@ theorem divC {α c} [CommRing α] [IsCharP α c] (ctx : Context α) [NoNatZeroDi
   exact no_int_zero_divisors hnz h
 
 noncomputable def simp_certC (k₁ : Int) (p₁ : Poly) (k₂ : Int) (m₂ : Mon) (p₂ : Poly) (p : Poly) (c : Nat) : Bool :=
-  (p₁.mulConstC k₁ c).combineC (p₂.mulMonC k₂ m₂ c) c |>.beq' p
+  (p₁.mulConstC_k k₁ c).addEqC_k c (p₂.mulMonC_k k₂ m₂ c) p
 
 theorem simpC {α c} [CommRing α] [IsCharP α c] (ctx : Context α) (k₁ : Int) (p₁ : Poly) (k₂ : Int) (m₂ : Mon) (p₂ : Poly) (p : Poly)
     : simp_certC k₁ p₁ k₂ m₂ p₂ p c → p₁.denote ctx = 0 → p₂.denote ctx = 0 → p.denote ctx = 0 := by
-  simp [simp_certC]; intro _ h₁ h₂; subst p
-  simp [Poly.denote_combineC, Poly.denote_mulMonC, Poly.denote_mulConstC, h₁, h₂, mul_zero, add_zero]
+  intro h h₁ h₂
+  rw [Poly.denote_of_addEqC_k ctx _ _ _ h]
+  simp [Poly.denote_mulMonC, Poly.denote_mulConstC, h₁, h₂, mul_zero, add_zero]
 
 noncomputable def unsat_eq_certC (p : Poly) (k : Int) (c : Nat) : Bool :=
-  !Int.beq' (k % c) 0 |>.and (p.beq' (.num k))
+  !Int.beq' (Int.emod_k k (Int.ofNat c)) 0 |>.and (p.beq' (.num k))
 
 theorem unsat_eqC {α c} [CommRing α] [IsCharP α c] (ctx : Context α) (p : Poly) (k : Int)
     : unsat_eq_certC p k c → p.denote ctx = 0 → False := by
@@ -1716,24 +2454,26 @@ theorem unsat_eqC {α c} [CommRing α] [IsCharP α c] (ctx : Context α) (p : Po
   assumption
 
 noncomputable def d_step1_certC (p₁ : Poly) (k₂ : Int) (m₂ : Mon) (p₂ : Poly) (p : Poly) (c : Nat) : Bool :=
-  p.beq' (p₁.combineC (p₂.mulMonC k₂ m₂ c) c)
+  p₁.addEqC_k c (p₂.mulMonC_k k₂ m₂ c) p
 
 theorem d_step1C {α c} [CommRing α] [IsCharP α c] (ctx : Context α) (k : Int) (init : Poly) (p₁ : Poly) (k₂ : Int) (m₂ : Mon) (p₂ : Poly) (p : Poly)
     : d_step1_certC p₁ k₂ m₂ p₂ p c → k * init.denote ctx = p₁.denote ctx → p₂.denote ctx = 0 → k * init.denote ctx = p.denote ctx := by
-  simp [d_step1_certC]; intro _ h₁ h₂; subst p
-  simp [Poly.denote_combineC, Poly.denote_mulMonC, h₂, mul_zero, add_zero, h₁]
+  intro h h₁ h₂
+  rw [Poly.denote_of_addEqC_k ctx _ _ _ h]
+  simp [Poly.denote_mulMonC, h₂, mul_zero, add_zero, h₁]
 
 noncomputable def d_stepk_certC (k₁ : Int) (p₁ : Poly) (k₂ : Int) (m₂ : Mon) (p₂ : Poly) (p : Poly) (c : Nat) : Bool :=
-  p.beq' ((p₁.mulConstC k₁ c).combineC (p₂.mulMonC k₂ m₂ c) c)
+  (p₁.mulConstC_k k₁ c).addEqC_k c (p₂.mulMonC_k k₂ m₂ c) p
 
 theorem d_stepkC {α c} [CommRing α] [IsCharP α c] (ctx : Context α) (k₁ : Int) (k : Int) (init : Poly) (p₁ : Poly) (k₂ : Int) (m₂ : Mon) (p₂ : Poly) (p : Poly)
     : d_stepk_certC k₁ p₁ k₂ m₂ p₂ p c → k * init.denote ctx = p₁.denote ctx → p₂.denote ctx = 0 → (k₁*k : Int) * init.denote ctx = p.denote ctx := by
-  simp [d_stepk_certC]; intro _ h₁ h₂; subst p
-  simp [Poly.denote_combineC, Poly.denote_mulMonC, Poly.denote_mulConstC, h₂, mul_zero, add_zero]
+  intro h h₁ h₂
+  rw [Poly.denote_of_addEqC_k ctx _ _ _ h]
+  simp [Poly.denote_mulMonC, Poly.denote_mulConstC, h₂, mul_zero, add_zero]
   rw [intCast_mul, mul_assoc, h₁]
 
 noncomputable def imp_1eq_certC (lhs rhs : Expr) (p₁ p₂ : Poly) (c : Nat) : Bool :=
-  ((lhs.sub rhs).toPolyC c).beq' p₁ |>.and (p₂.beq' (.num 0))
+  ((lhs.sub rhs).toPolyC_k c).beq' p₁ |>.and (p₂.beq' (.num 0))
 
 theorem imp_1eqC {α c} [CommRing α] [IsCharP α c] (ctx : Context α) (lhs rhs : Expr) (p₁ p₂ : Poly)
     : imp_1eq_certC lhs rhs p₁ p₂ c → (1:Int) * p₁.denote ctx = p₂.denote ctx → lhs.denote ctx = rhs.denote ctx := by
@@ -1741,7 +2481,7 @@ theorem imp_1eqC {α c} [CommRing α] [IsCharP α c] (ctx : Context α) (lhs rhs
   simp [Expr.denote_toPolyC, Expr.denote, sub_eq_zero_iff, Poly.denote, intCast_zero]
 
 noncomputable def imp_keq_certC (lhs rhs : Expr) (k : Int) (p₁ p₂ : Poly) (c : Nat) : Bool :=
-  !Int.beq' k 0 |>.and (((lhs.sub rhs).toPolyC c).beq' p₁ |>.and (p₂.beq' (.num 0)))
+  !Int.beq' k 0 |>.and (((lhs.sub rhs).toPolyC_k c).beq' p₁ |>.and (p₂.beq' (.num 0)))
 
 theorem imp_keqC {α c} [CommRing α] [IsCharP α c] (ctx : Context α) [NoNatZeroDivisors α] (k : Int) (lhs rhs : Expr) (p₁ p₂ : Poly)
     : imp_keq_certC lhs rhs k p₁ p₂ c → k * p₁.denote ctx = p₂.denote ctx → lhs.denote ctx = rhs.denote ctx := by
@@ -2013,7 +2753,7 @@ theorem eq_norm_expr {α} [CommRing α] (ctx : Context α) (lhs rhs : Expr) (lhs
 /-! Variants of the theorems above for rings with a nonzero characteristic `c`. -/
 
 noncomputable def norm_cnstrC_cert (lhs rhs lhs' rhs' : Expr) (c : Nat) : Bool :=
-  ((rhs.sub lhs).toPolyC c).beq' ((rhs'.sub lhs').toPolyC c)
+  ((rhs.sub lhs).toPolyC_k c).beq' ((rhs'.sub lhs').toPolyC_k c)
 
 theorem le_norm_exprC {α c} [CommRing α] [IsCharP α c] [LE α] [LT α] [IsPreorder α] [OrderedRing α] (ctx : Context α) (lhs rhs : Expr) (lhs' rhs' : Expr)
     : norm_cnstrC_cert lhs rhs lhs' rhs' c → (lhs.denote ctx ≤ rhs.denote ctx) = (lhs'.denote ctx ≤ rhs'.denote ctx) := by
@@ -2030,7 +2770,7 @@ theorem lt_norm_exprC {α c} [CommRing α] [IsCharP α c] [LE α] [LT α] [Lawfu
   rw [← OrderedAdd.sub_pos_iff, h, OrderedAdd.sub_pos_iff]
 
 noncomputable def norm_eqC_cert (lhs rhs lhs' rhs' : Expr) (c : Nat) : Bool :=
-  ((lhs.sub rhs).toPolyC c).beq' ((lhs'.sub rhs').toPolyC c)
+  ((lhs.sub rhs).toPolyC_k c).beq' ((lhs'.sub rhs').toPolyC_k c)
 
 theorem eq_norm_exprC {α c} [CommRing α] [IsCharP α c] (ctx : Context α) (lhs rhs : Expr) (lhs' rhs' : Expr)
     : norm_eqC_cert lhs rhs lhs' rhs' c → (lhs.denote ctx = rhs.denote ctx) = (lhs'.denote ctx = rhs'.denote ctx) := by
@@ -2040,8 +2780,8 @@ theorem eq_norm_exprC {α c} [CommRing α] [IsCharP α c] (ctx : Context α) (lh
   rw [← AddCommGroup.sub_eq_zero_iff, h, AddCommGroup.sub_eq_zero_iff]
 
 noncomputable def norm_eq_mulC_cert (lhs rhs lhs' rhs' : Expr) (k k' : Int) (c : Nat) : Bool :=
-  (Int.beq' ((k * k') % c) 1).and
-    ((((lhs.sub rhs).toPolyC c).mulConstC k' c).beq' ((lhs'.sub rhs').toPolyC c))
+  (Int.beq' (Int.emod_k (Int.mul_k k k') (Int.ofNat c)) 1).and
+    ((((lhs.sub rhs).toPolyC_k c).mulConstC_k k' c).beq' ((lhs'.sub rhs').toPolyC_k c))
 
 /-- In characteristic `c`, an equation can be multiplied by `k'` when `k * k' ≡ 1` modulo `c`. -/
 theorem eq_norm_mul_exprC {α c} [CommRing α] [IsCharP α c] (ctx : Context α) (lhs rhs : Expr) (lhs' rhs' : Expr) (k k' : Int)
@@ -2060,7 +2800,7 @@ theorem eq_norm_mul_exprC {α c} [CommRing α] [IsCharP α c] (ctx : Context α)
     exact h₁
 
 noncomputable def norm_cnstr_nc_cert (lhs rhs lhs' rhs' : Expr) : Bool :=
-  (rhs.sub lhs).toPoly_nc.beq' (rhs'.sub lhs').toPoly_nc
+  (rhs.sub lhs).toPoly_nc_k.beq' (rhs'.sub lhs').toPoly_nc_k
 
 theorem le_norm_expr_nc {α} [Ring α] [LE α] [LT α] [IsPreorder α] [OrderedRing α] (ctx : Context α) (lhs rhs : Expr) (lhs' rhs' : Expr)
     : norm_cnstr_nc_cert lhs rhs lhs' rhs' → (lhs.denote ctx ≤ rhs.denote ctx) = (lhs'.denote ctx ≤ rhs'.denote ctx) := by
@@ -2077,7 +2817,7 @@ theorem lt_norm_expr_nc {α} [Ring α] [LE α] [LT α] [LawfulOrderLT α] [IsPre
   rw [← OrderedAdd.sub_pos_iff, h, OrderedAdd.sub_pos_iff]
 
 noncomputable def norm_eq_nc_cert (lhs rhs lhs' rhs' : Expr) : Bool :=
-  (lhs.sub rhs).toPoly_nc.beq' (lhs'.sub rhs').toPoly_nc
+  (lhs.sub rhs).toPoly_nc_k.beq' (lhs'.sub rhs').toPoly_nc_k
 
 theorem eq_norm_expr_nc {α} [Ring α] (ctx : Context α) (lhs rhs : Expr) (lhs' rhs' : Expr)
     : norm_eq_nc_cert lhs rhs lhs' rhs' → (lhs.denote ctx = rhs.denote ctx) = (lhs'.denote ctx = rhs'.denote ctx) := by
@@ -2088,7 +2828,7 @@ theorem eq_norm_expr_nc {α} [Ring α] (ctx : Context α) (lhs rhs : Expr) (lhs'
 
 
 noncomputable def norm_cnstrC_nc_cert (lhs rhs lhs' rhs' : Expr) (c : Nat) : Bool :=
-  ((rhs.sub lhs).toPolyC_nc c).beq' ((rhs'.sub lhs').toPolyC_nc c)
+  ((rhs.sub lhs).toPolyC_nc_k c).beq' ((rhs'.sub lhs').toPolyC_nc_k c)
 
 theorem le_norm_exprC_nc {α c} [Ring α] [IsCharP α c] [LE α] [LT α] [IsPreorder α] [OrderedRing α] (ctx : Context α) (lhs rhs : Expr) (lhs' rhs' : Expr)
     : norm_cnstrC_nc_cert lhs rhs lhs' rhs' c → (lhs.denote ctx ≤ rhs.denote ctx) = (lhs'.denote ctx ≤ rhs'.denote ctx) := by
@@ -2105,7 +2845,7 @@ theorem lt_norm_exprC_nc {α c} [Ring α] [IsCharP α c] [LE α] [LT α] [Lawful
   rw [← OrderedAdd.sub_pos_iff, h, OrderedAdd.sub_pos_iff]
 
 noncomputable def norm_eqC_nc_cert (lhs rhs lhs' rhs' : Expr) (c : Nat) : Bool :=
-  ((lhs.sub rhs).toPolyC_nc c).beq' ((lhs'.sub rhs').toPolyC_nc c)
+  ((lhs.sub rhs).toPolyC_nc_k c).beq' ((lhs'.sub rhs').toPolyC_nc_k c)
 
 theorem eq_norm_exprC_nc {α c} [Ring α] [IsCharP α c] (ctx : Context α) (lhs rhs : Expr) (lhs' rhs' : Expr)
     : norm_eqC_nc_cert lhs rhs lhs' rhs' c → (lhs.denote ctx = rhs.denote ctx) = (lhs'.denote ctx = rhs'.denote ctx) := by

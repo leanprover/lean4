@@ -21,19 +21,26 @@ with an internal, unused name based on the suggestion `foo`.
 -/
 scoped syntax (name := aux_def) docComment ? attributes ? visibility "aux_def" ident+ ":" term ":=" term : command
 
+/--
+Creates the name of an auxiliary definition based on `suggestion`, as used by `aux_def`. The name is
+public and relative to the current namespace.
+-/
+def mkAuxDefName (suggestion : Name) : CommandElabM Name := do
+  let id := `_aux ++ (← getMainModule) ++ `_ ++ suggestion
+  let id := String.intercalate "_" <| id.components.map (·.toString (escape := false))
+  let ns ← getCurrNamespace
+  -- We use a new generator here because we want more control over the name; the default would
+  -- create a private name that then breaks the `def` declared with it. We assume that `aux_def` is
+  -- not used with the same arguments in parallel contexts.
+  let env := (← getEnv).setExporting true
+  let (id, _) := DeclNameGenerator.ofPrefix ns |>.mkUniqueName env («infix» := Name.mkSimple id)
+  return id.replacePrefix ns Name.anonymous -- TODO: replace with def _root_.id
+
 @[builtin_command_elab «aux_def»]
 def elabAuxDef : CommandElab
   | `($[$doc?:docComment]? $[$attrs?:attributes]? $vis:visibility aux_def $suggestion* : $ty := $body) => do
-    let id := suggestion.map (·.getId.eraseMacroScopes) |>.foldl (· ++ ·) Name.anonymous
-    let id := `_aux ++ (← getMainModule) ++ `_ ++ id
-    let id := String.intercalate "_" <| id.components.map (·.toString (escape := false))
-    let ns ← getCurrNamespace
-    -- We use a new generator here because we want more control over the name; the default would
-    -- create a private name that then breaks the macro below. We assume that `aux_def` is not used
-    -- with the same arguments in parallel contexts.
-    let env := (← getEnv).setExporting true
-    let (id, _) := DeclNameGenerator.ofPrefix ns |>.mkUniqueName env («infix» := Name.mkSimple id)
-    let id := id.replacePrefix ns Name.anonymous -- TODO: replace with def _root_.id
+    let id ← mkAuxDefName <|
+      suggestion.map (·.getId.eraseMacroScopes) |>.foldl (· ++ ·) Name.anonymous
     elabCommand <|
       ← `($[$doc?:docComment]? $[$attrs?:attributes]? $vis:visibility
           meta def $(mkIdentFrom (mkNullNode suggestion) id (canonical := true)):ident : $ty := $body)

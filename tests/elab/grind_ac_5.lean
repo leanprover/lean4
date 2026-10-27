@@ -37,7 +37,7 @@ example (a b c d e f : Nat) :
     max a b = max c d →
     max b e = max d (max e f) →
     max c (max d e) = max (max a d) f := by
-  grind -lia only
+  grind +verbose -lia only
 
 /--
 error: `grind` failed
@@ -70,7 +70,7 @@ h_1 : ¬op (op a b) (op b c) = op (op c d) c
 #guard_msgs in
 example {α : Sort u} (op : α → α → α) [Std.Associative op] (a b c d : α)
     : op a b = op c d → op (op a b) (op b c) = op (op c d) c := by
-  grind only
+  grind +verbose only
 
 set_option warn.sorry false
 set_option grind.debug true
@@ -112,4 +112,4 @@ example (a b c d e p q : Int) :
     a ∘ b = c ∘ d →
     a ∘ q = p →
     (c ∘ d) ∘ e = a ∘ (p ∘ q) := by
-  grind only
+  grind +verbose only

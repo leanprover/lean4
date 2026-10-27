@@ -67,7 +67,16 @@ private structure AbstractM.Context where
 
 /-- State for the `AbstractM` monad used to implement `abstractGroundMismatches?` -/
 private structure AbstractM.State where
-  cache       : Std.HashMap (Expr × Expr) Expr := {}
+  /--
+  Cache keyed by `(offset, lhs, rhs)`. The offset is needed because results contain
+  bound variables whose indices depend on the number of enclosing binders.
+
+  The key does not need the enclosing binders themselves, even though loose bound variables
+  in `lhs` and `rhs` may refer to different binders at different occurrences: loose bound
+  variables are copied to the result unchanged, and the operations that depend on the
+  local context (`isEqv`, `inferType`, ...) are only applied to ground terms.
+  -/
+  cache       : Std.HashMap (Nat × Expr × Expr) Expr := {}
   /-- Types of the new variables created for the auxiliary `fun`. -/
   varTypes    : Array Expr  := #[]
   /-- Ground terms from the `lhs` that have been abstracted so far. -/
@@ -87,14 +96,16 @@ private abbrev withIncOffset (x : AbstractM α) : AbstractM α :=
   withReader (fun ctx => { ctx with offset := ctx.offset + 1 }) x
 
 /--
-Returns `fun (x_0 : varTypes[0]) ... (x_n : varTypes[n]) => b`.
-`b` contains `varTypes.size` loose bound variables.
+Returns `fun (x_n : varTypes[n]) ... (x_0 : varTypes[0]) => b`.
+`b` contains `varTypes.size` loose bound variables, and `#i` refers to `x_i`.
+Note that `x_0` is the innermost binder.
 -/
 private def mkLambdaWithBodyAndVarType (varTypes : Array Expr) (b : Expr) : Expr := Id.run do
   let mut i := 0
   let mut f := b
   for varType in varTypes do
     f := mkLambda ((`_x).appendIndexAfter i) .default varType f
+    i := i + 1
   return f
 
 /--
@@ -116,7 +127,8 @@ private partial def abstractGroundMismatches? (lhs rhs : Expr) : GoalM (Option (
   let fType ← inferType f
   let u ← getLevel fType
   let f := mkApp2 (.const ``Grind.abstractFn [u]) fType f
-  return some (mkAppN f s.lhss, mkAppN f s.rhss)
+  -- `s.lhss[0]` is bound by the innermost binder of `f`, so it is the last argument.
+  return some (mkAppN f s.lhss.reverse, mkAppN f s.rhss.reverse)
 where
   goCore (lhs rhs : Expr) : AbstractM Expr := do
     if (← inBinder) then
@@ -160,10 +172,11 @@ where
   go (lhs rhs : Expr) : AbstractM Expr := do
     if isSameExpr lhs rhs then
       return lhs
-    if let some e := (← get).cache[(lhs, rhs)]? then
+    let key := ((← read).offset, lhs, rhs)
+    if let some e := (← get).cache[key]? then
       return e
     let r ← goCore lhs rhs
-    modify fun s => { s with cache := s.cache.insert (lhs, rhs) r }
+    modify fun s => { s with cache := s.cache.insert key r }
     return r
 
 /-!

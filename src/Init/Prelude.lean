@@ -1077,6 +1077,14 @@ noncomputable def Bool.and (x y : Bool) : Bool :=
   | true  => y
 
 /--
+The dependent version of `a && b`.
+-/
+@[macro_inline, implicit_reducible] def Bool.dand (a : Bool) (b : Eq a true → Bool) : Bool :=
+  match a with
+  | false => false
+  | true => b rfl
+
+/--
 Boolean negation, also known as Boolean complement. `not x` can be written `!x`.
 
 This is a function that maps the value `true` to `false` and the value `false` to `true`. The
@@ -1261,6 +1269,12 @@ instance [dp : Decidable p] : Decidable (Not p) where
     match dp with
     | isTrue  hp => absurd hp
     | isFalse hp => hp
+
+theorem Bool.Reflects.of_imp {x : Bool} {p : Prop} (h₁ : Eq x true → p) (h₂ : p → Eq x true) :
+    x.Reflects p :=
+  match x with
+  | false => fun hp => Bool.noConfusion (h₂ hp)
+  | true => h₁ rfl
 
 /--
 Decides whether two Booleans are equal.
@@ -3045,7 +3059,7 @@ instance : DecidableEq Char := fun c d => {
 }
 
 /-- Returns the number of bytes required to encode this `Char` in UTF-8. -/
-@[implicit_reducible]
+@[implicit_reducible, inline]
 def Char.utf8Size (c : Char) : Nat :=
   let v := c.val
   ite (LE.le v (UInt32.ofNatLT 0x7F (of_decide_eq_true rfl))) 1
@@ -3666,7 +3680,7 @@ implementation. Use `List.asString` instead. -/
 noncomputable def List.utf8Encode (l : List Char) : ByteArray :=
   l.flatMap String.utf8EncodeChar |>.toByteArray
 
-/-- A byte array is valid UTF-8 if it is of the form `List.Internal.utf8Encode m` for some `m`.
+/-- A byte array is valid UTF-8 if it is of the form `List.utf8Encode m` for some `m`.
 
 Note that in order for this definition to be well-behaved it is necessary to know that this `m`
 is unique. To show this, one defines UTF-8 decoding and shows that encoding and decoding are
@@ -3733,7 +3747,7 @@ Character positions (counting the Unicode code points rather than bytes) are rep
 be translated internally to byte positions, which takes linear time.
 
 A byte position `p` is *valid* for a string `s` if `0 ≤ p ≤ s.rawEndPos` and `p` lies on a UTF-8
-character boundary, see `String.Pos.IsValid`.
+character boundary, see `String.Pos.Raw.IsValid`.
 
 There is another type, `String.Pos`, which bundles the validity predicate. Using `String.Pos`
 instead of `String.Pos.Raw` is recommended because it will lead to less error handling and fewer edge cases.

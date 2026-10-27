@@ -71,7 +71,29 @@ Given a type, such as `HAdd Int Int Int`, this function returns the instance def
 core.
 -/
 def getBuiltinInstance? (type : Expr) : Option Expr :=
-  builtinInsts[type]?
+  if let some inst := builtinInsts[type]? then some inst else
+  -- Parametric instances: numerals and decidability of `Int`/`Nat` comparisons.
+  match_expr type with
+  | OfNat α n =>
+    if α.isConstOf ``Int then some (mkApp (mkConst ``instOfNat) n)
+    else if α.isConstOf ``Nat then some (mkApp (mkConst ``instOfNatNat) n)
+    else none
+  | Decidable p =>
+    match_expr p with
+    | LE.le α i a b =>
+      if α.isConstOf ``Int && i.isConstOf ``Int.instLEInt then some (mkApp2 (mkConst ``Int.decLe) a b)
+      else if α.isConstOf ``Nat && i.isConstOf ``instLENat then some (mkApp2 (mkConst ``Nat.decLe) a b)
+      else none
+    | LT.lt α i a b =>
+      if α.isConstOf ``Int && i.isConstOf ``Int.instLTInt then some (mkApp2 (mkConst ``Int.decLt) a b)
+      else if α.isConstOf ``Nat && i.isConstOf ``instLTNat then some (mkApp2 (mkConst ``Nat.decLt) a b)
+      else none
+    | Eq α a b =>
+      if α.isConstOf ``Int then some (mkApp2 (mkConst ``Int.instDecidableEq) a b)
+      else if α.isConstOf ``Nat then some (mkApp2 (mkConst ``instDecidableEqNat) a b)
+      else none
+    | _ => none
+  | _ => none
 
 def synthInstanceMeta? (type : Expr) : MetaM (Option Expr) := do profileitM Exception "sym typeclass inference" (← getOptions) (decl := type.getAppFn.constName?.getD .anonymous) do
   if let some inst := getBuiltinInstance? type then

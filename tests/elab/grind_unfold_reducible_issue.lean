@@ -11,6 +11,7 @@ inst : GetTy σ σs
 s : σ'
 h : Std.Do.SVal.getThe σ s = Std.Do.SVal.getThe σ
 ⊢ False
+use `+verbose` to obtain diagnostic information
 -/
 #guard_msgs in
 open Std.Do.SVal in

@@ -830,10 +830,14 @@ decrease is lexicographic in `(i, j)`. -/
 def countdownLex (n : Nat) : StateT Nat Id Unit := do
   let mut i := n
   let mut j := 0
-  while 0 < i ∨ 0 < j do
-    if 0 < j then
-      j := j - 1
+  let mut k := 0
+  while 0 < i ∨ 0 < j ∨ 0 < k do
+    if 0 < k then
+      k := k - 1
       modify (· + 1)
+    else if 0 < j then
+      j := j - 1
+      k := n
     else
       i := i - 1
       j := n
@@ -843,10 +847,8 @@ theorem countdownLex_spec (n : Nat) :
     ⦃ fun _ => True ⦄ countdownLex n ⦃ fun _ _ => True ⦄ := by
   vcgen [countdownLex] invariants
   | inv1 => WhileInvariant.ofInvariantAndBreak (fun _ _ => True) (fun _ _ => True)
-  | inv2 => .ofMeasure fun (i, j) => (i, j)
-  all_goals simp_all [Variant.evalsBelow_ofMeasure]
-  all_goals subst_vars
-  all_goals decreasing_tactic
+  | inv2 => .ofMeasure fun (i, j, k) => (i, j, k)
+  with finish
 
 end WhileInvariantOfInvariantAndBreak
 namespace WithGrindError

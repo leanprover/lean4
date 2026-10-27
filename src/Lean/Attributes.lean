@@ -191,7 +191,7 @@ def registerTagAttribute (name : Name) (descr : String)
     exportEntriesFnEx := fun env es =>
       let all : Array Name := es.foldl (fun a e => a.push e) #[] |>.qsort Name.quickLt
       -- Do not export info for private defs at exported/server levels
-      let exported := all.filter ((env.setExporting true).contains)
+      let exported := all.filter ((env.setExporting true).contains (skipRealize := false))
       { exported, server := exported, «private» := all }
     statsFn         := fun s => "tag attribute" ++ Format.line ++ "number of local entries: " ++ format s.size
     asyncMode       := asyncMode
@@ -230,7 +230,7 @@ def setTag  [Monad m] [MonadError m] [MonadEnv m] (attr : TagAttribute) (decl : 
 
 def hasTag (attr : TagAttribute) (env : Environment) (decl : Name) : Bool :=
   match env.getModuleIdxFor? decl with
-  | some modIdx => (attr.ext.getModuleEntries env modIdx).binSearchContains decl Name.quickLt
+  | some modIdx => containsSortedName (attr.ext.getModuleEntries env modIdx) decl
   | none        => (attr.ext.getState (asyncDecl := decl) env).contains decl
 
 end TagAttribute
@@ -260,11 +260,11 @@ structure ParametricAttributeImpl (α : Type) extends AttributeImplCore where
   only params on public declarations are exported.
   -/
   filterExport : Environment → Name → α → Bool := fun env n _ =>
-    env.contains n
+    env.contains (skipRealize := false) n
 
 def registerParametricAttributeExt (ref : Name) (preserveOrder : Bool := false)
     (filterExport : Environment → Name → α → Bool := fun env n _ =>
-      env.contains n)
+      env.contains (skipRealize := false) n)
     (logWrites : Bool := false) :
     IO (PersistentEnvExtension (Name × α) (Name × α) (List Name × NameMap α)) :=
   registerPersistentEnvExtension {
@@ -313,7 +313,7 @@ def getParamFromExt? [Inhabited α]
   match env.getModuleIdxFor? decl with
   | some modIdx =>
     let entry? := if preserveOrder then
-      (ext.getModuleEntries env modIdx).find? (·.1 == decl)
+      findByName? (ext.getModuleEntries env modIdx) decl
     else
       (ext.getModuleEntries env modIdx).binSearch (decl, default) (fun a b => Name.quickLt a.1 b.1)
     match entry? with
@@ -359,7 +359,7 @@ def registerEnumAttributes (attrDescrs : List (Name × String × α))
     exportEntriesFnEx := fun env m =>
       let all : Array (Name × α) := m.foldl (fun a n p => a.push (n, p)) #[] |>.qsort (fun a b => Name.quickLt a.1 b.1)
       -- Do not export info for private defs at exported/server levels
-      let exported := all.filter ((env.setExporting true).contains ·.1)
+      let exported := all.filter ((env.setExporting true).contains (skipRealize := false) ·.1)
       { exported, server := exported, «private» := all }
     statsFn         := fun s => "enumeration attribute extension" ++ Format.line ++ "number of local entries: " ++ format s.size
     -- We assume (and check in `modifyState`) that, if used asynchronously, enum attributes are set

@@ -28,6 +28,7 @@ h_1 : b ≍ [1]
 h_2 : a = b ∨ p
 h_3 : ¬p
 ⊢ False
+use `+verbose` to obtain diagnostic information
 -/
 #guard_msgs in
 example (a b : List Nat)
@@ -152,6 +153,7 @@ h_20 : (fun s => decide (w_3.fst = s.fst)) = fun s => decide (x = s.fst)
 left_10 : ⟨x, cast ⋯ w_2.snd⟩ ∈ w_1 :: s₂.entries.kunion s₁.entries
 right_10 : ⟨x, cast ⋯ w_2.snd⟩ = w_1 ∨ ⟨x, cast ⋯ w_2.snd⟩ ∈ s₂.entries.kunion s₁.entries
 ⊢ False
+use `+verbose` to obtain diagnostic information
 -/
 #guard_msgs in
 theorem union_comm_of_disjoint {s₁ s₂ : AList β} (h : Disjoint s₁ s₂) :

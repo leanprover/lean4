@@ -79,47 +79,46 @@ instance {σ : Type s} {Pred : Type u} {Fun : Type v} {α : Type w}
     funext s
     simpa [iSup_apply, top_apply] using inst.total (f s)
 
-@[simp, grind =] theorem NondetFun.evalsTo_pure {Pred : Type u} {α : Type v} [Assertion Pred]
+theorem NondetFun.evalsTo_pure {Pred : Type u} {α : Type v} [Assertion Pred]
     (f a : α) : NondetFun.EvalsTo (Pred := Pred) f a = ⌜f = a⌝ := rfl
 
 /-- Pointwise characterization of `EvalsTo` on a function lattice. -/
-@[simp] theorem NondetFun.evalsTo_apply {σ : Type s} {Pred : Type u} {Fun : Type v}
+theorem NondetFun.evalsTo_apply {σ : Type s} {Pred : Type u} {Fun : Type v}
     {α : Type w} [Assertion Pred] [NondetFun Pred Fun α] (f : σ → Fun) (a : α) (s : σ) :
     NondetFun.EvalsTo (Pred := σ → Pred) f a s = NondetFun.EvalsTo (f s) a := rfl
 
-/-! `Prop`-valued, fixed-arity specializations of `NondetFun.evalsTo_apply`: the graph of a
-state-dependent function at a state-indexed `Prop` lattice, applied to its states, is an
-equation. Fixing the carrier to `Prop` (a ground instance) leaves every parameter recoverable
-from the trigger, so these are usable `@[grind =]` lemmas where the general `evalsTo_apply` is
-not. -/
-
-@[grind =] theorem NondetFun.evalsTo_apply_1 {σ₁ : Type} {α : Type}
+@[deprecated NondetFun.evalsTo_apply +typeChanged (since := "2026-10-15")]
+theorem NondetFun.evalsTo_apply_1 {σ₁ : Type} {α : Type}
     (f : σ₁ → α) (a : α) (s₁ : σ₁) :
     NondetFun.EvalsTo (Pred := σ₁ → Prop) f a s₁ = (f s₁ = a) := by
-  simp
+  simp [NondetFun.evalsTo_apply, NondetFun.evalsTo_pure]
 
-@[grind =] theorem NondetFun.evalsTo_apply_2 {σ₁ σ₂ : Type} {α : Type}
+@[deprecated NondetFun.evalsTo_apply +typeChanged (since := "2026-10-15")]
+theorem NondetFun.evalsTo_apply_2 {σ₁ σ₂ : Type} {α : Type}
     (f : σ₁ → σ₂ → α) (a : α) (s₁ : σ₁) (s₂ : σ₂) :
     NondetFun.EvalsTo (Pred := σ₁ → σ₂ → Prop) f a s₁ s₂ = (f s₁ s₂ = a) := by
-  simp
+  simp [NondetFun.evalsTo_apply, NondetFun.evalsTo_pure]
 
-@[grind =] theorem NondetFun.evalsTo_apply_3 {σ₁ σ₂ σ₃ : Type} {α : Type}
+@[deprecated NondetFun.evalsTo_apply +typeChanged (since := "2026-10-15")]
+theorem NondetFun.evalsTo_apply_3 {σ₁ σ₂ σ₃ : Type} {α : Type}
     (f : σ₁ → σ₂ → σ₃ → α) (a : α) (s₁ : σ₁) (s₂ : σ₂) (s₃ : σ₃) :
     NondetFun.EvalsTo (Pred := σ₁ → σ₂ → σ₃ → Prop) f a s₁ s₂ s₃ = (f s₁ s₂ s₃ = a) := by
-  simp
+  simp [NondetFun.evalsTo_apply, NondetFun.evalsTo_pure]
 
-@[grind =] theorem NondetFun.evalsTo_apply_4 {σ₁ σ₂ σ₃ σ₄ : Type} {α : Type}
+@[deprecated NondetFun.evalsTo_apply +typeChanged (since := "2026-10-15")]
+theorem NondetFun.evalsTo_apply_4 {σ₁ σ₂ σ₃ σ₄ : Type} {α : Type}
     (f : σ₁ → σ₂ → σ₃ → σ₄ → α) (a : α) (s₁ : σ₁) (s₂ : σ₂) (s₃ : σ₃) (s₄ : σ₄) :
     NondetFun.EvalsTo (Pred := σ₁ → σ₂ → σ₃ → σ₄ → Prop) f a s₁ s₂ s₃ s₄
       = (f s₁ s₂ s₃ s₄ = a) := by
-  simp
+  simp [NondetFun.evalsTo_apply, NondetFun.evalsTo_pure]
 
-@[grind =] theorem NondetFun.evalsTo_apply_5 {σ₁ σ₂ σ₃ σ₄ σ₅ : Type} {α : Type}
+@[deprecated NondetFun.evalsTo_apply +typeChanged (since := "2026-10-15")]
+theorem NondetFun.evalsTo_apply_5 {σ₁ σ₂ σ₃ σ₄ σ₅ : Type} {α : Type}
     (f : σ₁ → σ₂ → σ₃ → σ₄ → σ₅ → α) (a : α) (s₁ : σ₁) (s₂ : σ₂) (s₃ : σ₃) (s₄ : σ₄)
     (s₅ : σ₅) :
     NondetFun.EvalsTo (Pred := σ₁ → σ₂ → σ₃ → σ₄ → σ₅ → Prop) f a s₁ s₂ s₃ s₄ s₅
       = (f s₁ s₂ s₃ s₄ s₅ = a) := by
-  simp
+  simp [NondetFun.evalsTo_apply, NondetFun.evalsTo_pure]
 
 /-- Eliminate the covering join of `EvalsTo` from the left of an entailment. -/
 theorem NondetFun.le_of_total_le {Pred : Type u} {Fun : Type v} {α : Type w}

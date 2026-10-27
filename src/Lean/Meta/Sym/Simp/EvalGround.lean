@@ -10,6 +10,7 @@ import Init.Sym.Lemmas
 import Lean.Meta.Sym.LitValues
 import Lean.Meta.StringLitProof
 import Lean.Meta.Offset
+import Init.Data.UInt.Lemmas
 namespace Lean.Meta.Sym.Simp
 
 /-!
@@ -581,6 +582,21 @@ abbrev mkRflBitVec (a : Expr) (n : Nat) : Expr :=
 abbrev mkBitVecType (w : Expr) : Expr :=
   mkApp (mkConst ``BitVec) w
 
+/--
+`USize.toNat n` for a numeral `n < 2^32`. The kernel cannot evaluate `USize` operations, whose
+result depends on the opaque `System.Platform.numBits`, so the step is justified by
+`USize.toNat_ofNat_of_lt_32` instead of `Eq.refl`.
+-/
+def evalUSizeToNat (a : Expr) : EvalM Result := do
+  let some n ← getNatValue? a |>.run | return .rfl
+  unless n < UInt32.size do return .rfl
+  let e ← share <| toExpr n
+  let bound := mkNatLit UInt32.size
+  let lt := mkApp4 (mkConst ``LT.lt [0]) (mkConst ``Nat) (mkConst ``instLTNat) e bound
+  let h := mkApp3 (mkConst ``of_decide_eq_true) lt (mkApp2 (mkConst ``Nat.decLt) e bound)
+    (mkApp2 (mkConst ``Eq.refl [1]) (mkConst ``Bool) (mkConst ``Bool.true))
+  return .step e (mkApp2 (mkConst ``USize.toNat_ofNat_of_lt_32) e h) (done := true)
+
 def evalInt8ToBitVec (a : Expr) : EvalM Result := do
   let some v ← getInt8Value? a |>.run | return .rfl
   let v ← mkBitVecLit v.toBitVec
@@ -630,9 +646,20 @@ def evalBitVecOfNat (n a : Expr) : EvalM Result := do
   let some a ← getNatValue? a |>.run | return .rfl
   -- `BitVec.ofNat` with a literal width is the normal form only when `bitVecOfNat := true`
   if (← getNatValue? n |>.run).isSome && (← read).bitVecOfNat then return .rfl
-  let some n ← evalNat n |>.run | return .rfl -- TODO: consider using dsimp
-  let r ← mkBitVecLit (BitVec.ofNat n a)
-  return .step r (mkRflBitVec r n) (done := true)
+  if let some nv ← evalNat n |>.run then -- TODO: consider using dsimp
+    let r ← mkBitVecLit (BitVec.ofNat nv a)
+    return .step r (mkRflBitVec r nv) (done := true)
+  else
+    /-
+    Symbolic width. With `bitVecOfNat := false`, `OfNat.ofNat` is the normal form for every
+    width, so `0#w` (e.g., in `BitVec.sdiv_zero`) must become `(0 : BitVec w)` to match
+    `(0 : BitVec 32)` after instantiation. The numeral is not reduced modulo `2^w`.
+    -/
+    if (← read).bitVecOfNat then return .rfl
+    let v := mkRawNatLit a
+    let type := mkBitVecType n
+    let r ← share <| mkApp3 (mkConst ``OfNat.ofNat [0]) type v (mkApp2 (mkConst ``BitVec.instOfNat) n v)
+    return .step r (mkApp2 (mkConst ``Eq.refl [1]) type r) (done := true)
 
 def evalBitVecOfNatClamp (n a : Expr) : EvalM Result := do
   let some nv := getNatValue? n | return .rfl
@@ -965,6 +992,7 @@ def evalGroundCore (e : Expr) : EvalM Result :=
   | UInt16.toNat a => evalUnary getUInt16Value? UInt16.toNat a
   | UInt32.toNat a => evalUnary getUInt32Value? UInt32.toNat a
   | UInt64.toNat a => evalUnary getUInt64Value? UInt64.toNat a
+  | USize.toNat a => evalUSizeToNat a
   | _  => return .rfl
 
 /--

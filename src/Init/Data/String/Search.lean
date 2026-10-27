@@ -6,7 +6,8 @@ Authors: Markus Himmel
 module
 
 prelude
-public import Init.Data.String.Slice
+public import Init.Data.String.Slice.Pattern
+public import Init.Data.String.Slice.Numeric
 import Init.Data.Iterators.Consumers.Collect  -- shake: keep (used in verso)
 
 set_option doc.verso true

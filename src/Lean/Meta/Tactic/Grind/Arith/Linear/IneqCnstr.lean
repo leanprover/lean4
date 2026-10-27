@@ -52,7 +52,7 @@ def propagateCommRingIneq (e : Expr) (lhs rhs : Expr) (strict : Bool) (eqTrue : 
     let p := lhs.norm
     let c : IneqCnstr := { p, strict, h := .ring c lhs }
     c.assert
-  else if (← isLinearOrder) then
+  else if (← isLinearOrder <&&> hasLawfulLT) then
     let p := (rhs.sub lhs).toPoly
     let strict := !strict
     let c : RingIneqCnstr := { p, strict, h := .notCore e lhs rhs }
@@ -64,7 +64,7 @@ def propagateCommRingIneq (e : Expr) (lhs rhs : Expr) (strict : Bool) (eqTrue : 
     let c : IneqCnstr := { p, strict, h := .ring c lhs }
     c.assert
   else
-    -- Negation for preorders is not supported
+    -- A negated fact is a `<` fact (`not_le_norm`, `not_lt_norm`), which needs a linear order and a lawful `<`
     modifyStruct fun s => { s with ignored := s.ignored.push e }
 
 def propagateIntModuleIneq (e : Expr) (lhs rhs : Expr) (strict : Bool) (eqTrue : Bool) : LinearM Unit := do
@@ -74,13 +74,13 @@ def propagateIntModuleIneq (e : Expr) (lhs rhs : Expr) (strict : Bool) (eqTrue :
     let p := (lhs.sub rhs).norm
     let c : IneqCnstr := { p, strict, h := .core e lhs rhs }
     c.assert
-  else if (← isLinearOrder) then
+  else if (← isLinearOrder <&&> hasLawfulLT) then
     let p := (rhs.sub lhs).norm
     let strict := !strict
     let c : IneqCnstr := { p, strict, h := .notCore e lhs rhs }
     c.assert
   else
-    -- Negation for preorders is not supported
+    -- A negated fact is a `<` fact (`not_le_norm`, `not_lt_norm`), which needs a linear order and a lawful `<`
     modifyStruct fun s => { s with ignored := s.ignored.push e }
 
 def propagateNatModuleIneq (e : Expr) (lhs rhs : Expr) (strict : Bool) (eqTrue : Bool) : OfNatModuleM Unit := do
@@ -115,6 +115,9 @@ public def propagateIneq (e : Expr) (eqTrue : Bool) : GoalM Unit := do
     else if isInstOf s.ltFn? inst then
       pure true
     else
+      return ()
+    if strict && s.lawfulOrderLTInst?.isNone then
+      modifyStruct fun s => { s with ignored := s.ignored.push e }
       return ()
     if (← isOrderedCommRing) then
       propagateCommRingIneq e lhs rhs strict eqTrue

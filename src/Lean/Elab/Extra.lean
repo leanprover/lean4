@@ -205,11 +205,10 @@ where
         go e
     | _ =>
       withRef s do
-        match (← liftMacroM <| expandMacroImpl? (← getEnv) s) with
-        | some (macroName, s?) =>
-          let s' ← liftMacroM <| liftExcept s?
+        match (← expandMacroReportingDeprecated? s) with
+        | some (macroName, s') =>
           withPushMacroExpansionStack s s' do
-            return .macroExpansion macroName s s' (← go s')
+            return .macroExpansion macroName s s' (← withDeprecationContextForSyntax s <| go s')
         | none => processLeaf s
 
   processBinOp (ref : Syntax) (kind : BinOpKind) (f lhs rhs : Syntax) := do

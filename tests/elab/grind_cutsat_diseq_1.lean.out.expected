@@ -4,9 +4,9 @@ grind_cutsat_diseq_1.lean:24:0-24:7: warning: declaration uses `sorry`
 grind_cutsat_diseq_1.lean:32:0-32:7: warning: declaration uses `sorry`
 grind_cutsat_diseq_1.lean:40:0-40:7: warning: declaration uses `sorry`
 grind_cutsat_diseq_1.lean:48:0-48:7: warning: declaration uses `sorry`
-grind_cutsat_diseq_1.lean:58:0-58:7: warning: declaration uses `sorry`
-grind_cutsat_diseq_1.lean:68:0-68:7: warning: declaration uses `sorry`
-grind_cutsat_diseq_1.lean:78:0-78:7: warning: declaration uses `sorry`
+grind_cutsat_diseq_1.lean:59:0-59:7: warning: declaration uses `sorry`
+grind_cutsat_diseq_1.lean:70:0-70:7: warning: declaration uses `sorry`
+grind_cutsat_diseq_1.lean:81:0-81:7: warning: declaration uses `sorry`
 [grind.lia.assert] -1*「a + 2 * b」 + a + 2*b = 0
 [grind.lia.assert] -1*「0」 = 0
 [grind.lia.assert] 「a + 2 * b」 = 0
@@ -15,5 +15,7 @@ grind_cutsat_diseq_1.lean:78:0-78:7: warning: declaration uses `sorry`
 [grind.lia.assert] -1*「a + 2 * b」 + a + 2*b = 0
 [grind.lia.assert] -1*「0」 = 0
 [grind.lia.assert] 「a + 2 * b」 = 0
-[grind.lia.assert] c + -1*a = 0
 [grind.lia.assert] -1*「2 * b + c」 + 2*b + c = 0
+[grind.lia.assert] 「2 * b + c」 ≠ 0
+[grind.lia.assert] c + -1*a = 0
+[grind.lia.assert] 0 ≠ 0

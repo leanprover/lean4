@@ -34,6 +34,7 @@ builtin_initialize registerTraceClass `grind.debug.ac.eq
 
 builtin_initialize
   acExt.setMethods
+    (enabled     := (·.ac))
     (internalize := AC.internalize)
     (newEq       := AC.processNewEq)
     (newDiseq    := AC.processNewDiseq)

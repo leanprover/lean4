@@ -11,6 +11,7 @@ import Init.While
 import Init.Data.Array.BinSearch
 import Init.Data.String.Basic
 import Lean.Data.Html.Spec
+import Init.Data.String.Compare
 
 set_option doc.verso true
 

@@ -60,4 +60,4 @@ h_1 : ¬q
     [prop] q
 -/
 #guard_msgs in
-example (p q : Prop) : Imp p q := by grind
+example (p q : Prop) : Imp p q := by grind +verbose

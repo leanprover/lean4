@@ -30,7 +30,7 @@ instance : DecidableEq ModuleIdx := instDecidableEqNat
 
 /-- Get the list of declarations in a module (referenced by index). -/
 def Environment.declsInModuleIdx (env : Environment) (idx : ModuleIdx) : List Name :=
-  env.const2ModIdx.fold (fun acc n i => if i = idx then n :: acc else acc) []
+  env.header.moduleData[idx]?.map (·.constNames.toList) |>.getD []
 
 /-- Add info to the info tree corresponding to a module name. -/
 def Elab.addModuleInfo [Monad m] [MonadInfoTree m] (stx : Ident) : m Unit := do

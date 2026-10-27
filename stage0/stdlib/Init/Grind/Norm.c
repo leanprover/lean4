@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Grind.Norm
-// Imports: public import Init.Data.Int.Lemmas public import Init.Data.Int.Linear public import Init.Data.Rat.Lemmas public import Init.Grind.Ring.OfScientific public import Init.Data.Int.Pow public import Init.Data.Int.DivMod.Lemmas public import Init.Data.BitVec.Bootstrap public import Init.Omega import Init.ByCases
+// Imports: public import Init.Data.Int.Lemmas public import Init.Data.Int.Linear public import Init.Data.Rat.Lemmas public import Init.Grind.Ring.OfScientific public import Init.Data.Int.Pow public import Init.Data.Int.DivMod.Lemmas public import Init.Data.BitVec.Bootstrap public import Init.Data.Subtype.Basic public import Init.Omega import Init.ByCases
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -20,6 +20,7 @@ lean_object* runtime_initialize_Init_Grind_Ring_OfScientific(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Int_Pow(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Int_DivMod_Lemmas(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_BitVec_Bootstrap(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Subtype_Basic(uint8_t builtin);
 lean_object* runtime_initialize_Init_Omega(uint8_t builtin);
 lean_object* runtime_initialize_Init_ByCases(uint8_t builtin);
 void lean_initialize_runtime_module();
@@ -50,6 +51,9 @@ lean_dec_ref(res);
 res = runtime_initialize_Init_Data_BitVec_Bootstrap(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+res = runtime_initialize_Init_Data_Subtype_Basic(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 res = runtime_initialize_Init_Omega(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
@@ -72,6 +76,7 @@ lean_object* initialize_Init_Grind_Ring_OfScientific(uint8_t builtin);
 lean_object* initialize_Init_Data_Int_Pow(uint8_t builtin);
 lean_object* initialize_Init_Data_Int_DivMod_Lemmas(uint8_t builtin);
 lean_object* initialize_Init_Data_BitVec_Bootstrap(uint8_t builtin);
+lean_object* initialize_Init_Data_Subtype_Basic(uint8_t builtin);
 lean_object* initialize_Init_Omega(uint8_t builtin);
 lean_object* initialize_Init_ByCases(uint8_t builtin);
 static bool _G_initialized = false;
@@ -98,6 +103,9 @@ res = initialize_Init_Data_Int_DivMod_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_BitVec_Bootstrap(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Subtype_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Omega(builtin);

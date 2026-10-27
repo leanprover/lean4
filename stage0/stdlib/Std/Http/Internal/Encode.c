@@ -89,6 +89,7 @@ goto v_resetjp_11_;
 v_resetjp_11_:
 {
 lean_object* v___x_14_; lean_object* v___x_15_; lean_object* v___x_16_; lean_object* v___x_17_; lean_object* v___x_19_; 
+lean_inc_ref(v___y_8_);
 v___x_14_ = lean_string_to_utf8(v___y_8_);
 lean_inc_ref(v___x_14_);
 v___x_15_ = lean_array_push(v_data_9_, v___x_14_);

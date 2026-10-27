@@ -266,7 +266,7 @@ h_1 : p
 #guard_msgs (error) in
 set_option trace.grind.split true in
 example (p q : Prop) : (p ↔ q) → p → False := by
-  grind -- should not split on (p ↔ q)
+  grind +verbose -- should not split on (p ↔ q)
 
 /--
 error: `grind` failed
@@ -275,6 +275,7 @@ p q : Prop
 h : p = q
 h_1 : p
 ⊢ False
+use `+verbose` to obtain diagnostic information
 -/
 #guard_msgs (error) in
 example (p q : Prop) : (p ↔ q) → p → False := by
@@ -302,7 +303,7 @@ h_1 : p
 #guard_msgs (error) in
 set_option trace.grind.split true in
 example (p q : Prop) : ¬(p ↔ q) → p → False := by
-  grind -- should not split on (p ↔ q)
+  grind +verbose -- should not split on (p ↔ q)
 
 example {a b : Nat} (h : a < b) : ¬ b < a := by
   grind
@@ -385,7 +386,7 @@ h_1 : b = true
 -/
 #guard_msgs (error) in
 example (b : Bool) : (if b then 10 else 20) = a → b = true → False := by
-  grind
+  grind +verbose
 
 -- Should not generate a trace message about canonicalization issues
 #guard_msgs (trace) in

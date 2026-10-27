@@ -234,6 +234,33 @@ private def mkImpEqExprProof (lhs rhs : RingExpr) (d : PolyDerivation) : ProofM 
     pure <| mkApp2 (← mkStepPrefix ``Stepwise.imp_keq ``Stepwise.imp_keqC) nzInst (toExpr k)
   return mkApp6 h (← mkExprDecl lhs) (← mkExprDecl rhs) (← mkPolyDecl p₀) (← mkPolyDecl d.p) eagerReflBoolTrue h₁
 
+/--
+Caches for `polyToExprShared`. The polynomials of a proof have few distinct monomials and
+coefficients, but they are separate objects; without the caches, their expressions would be
+copies that the kernel hash-conses again.
+-/
+private structure SharedExprCache where
+  mons  : Std.HashMap Mon Expr := {}
+  ints  : Std.HashMap Int Expr := {}
+
+private def monToExprShared (m : Mon) : StateM SharedExprCache Expr := do
+  if let some e := (← get).mons[m]? then return e
+  let e := toExpr m
+  modify fun c => { c with mons := c.mons.insert m e }
+  return e
+
+private def intToExprShared (k : Int) : StateM SharedExprCache Expr := do
+  if let some e := (← get).ints[k]? then return e
+  let e := mkIntLitK k
+  modify fun c => { c with ints := c.ints.insert k e }
+  return e
+
+/-- `toExpr p` with shared monomial and coefficient expressions. -/
+private def polyToExprShared (p : Poly) : StateM SharedExprCache Expr :=
+  match p with
+  | .num k => return mkApp (mkConst ``Grind.CommRing.Poly.num) (← intToExprShared k)
+  | .add k m p => return mkApp3 (mkConst ``Grind.CommRing.Poly.add) (← intToExprShared k) (← monToExprShared m) (← polyToExprShared p)
+
 private def mkContext (h : Expr) : ProofM Expr := do
   let usedVars     :=
     collectMapVars (← get).monDecls (·.collectVars) >>
@@ -243,8 +270,12 @@ private def mkContext (h : Expr) : ProofM Expr := do
   let varRename    := mkVarRename vars'
   let vars         := (← getRingState).vars
   let vars         := vars'.map fun x => vars[x]!
-  let h := mkLetOfMap (← get).polyDecls h `p (mkConst ``Grind.CommRing.Poly) fun p => toExpr <| p.renameVars varRename
-  let h := mkLetOfMap (← get).monDecls h `m (mkConst ``Grind.CommRing.Mon) fun m => toExpr <| m.renameVars varRename
+  let (vals, cache) := ((← get).polyDecls.foldM (init := ({} : Std.HashMap Poly Expr)) fun (vals : Std.HashMap Poly Expr) (p : Poly) _ =>
+    return vals.insert p (← polyToExprShared (p.renameVars varRename))).run {}
+  let (mvals, _) := ((← get).monDecls.foldM (init := ({} : Std.HashMap Mon Expr)) fun (vals : Std.HashMap Mon Expr) (m : Mon) _ =>
+    return vals.insert m (← monToExprShared (m.renameVars varRename))).run cache
+  let h := mkLetOfMap (← get).polyDecls h `p (mkConst ``Grind.CommRing.Poly) (vals[·]!)
+  let h := mkLetOfMap (← get).monDecls h `m (mkConst ``Grind.CommRing.Mon) (mvals[·]!)
   let h := mkLetOfMap (← get).exprDecls h `e (mkConst ``Grind.CommRing.Expr) fun e => toExpr <| e.renameVars varRename
   let h := h.abstract #[(← read).ctx]
   if h.hasLooseBVars then
@@ -377,6 +408,14 @@ def setNonCommSemiringDiseqUnsat (a b : Expr) (sa sb : SemiringExpr) : NonCommSe
   let h := mkApp3 (mkConst ``Grind.CommRing.eq_normS_nc [semiring.u]) semiring.type semiring.semiringInst ctx
   let h := mkApp3 h (toExpr sa) (toExpr sb) eagerReflBoolTrue
   closeGoal (mkApp hne h)
+
+/--
+Given `a ≠ b` in the core, where `a b : type` and `charInst : IsCharP type semiringInst 1`,
+close the goal.
+-/
+def setCharOneDiseqUnsat (u : Level) (type semiringInst charInst a b : Expr) : GoalM Unit := do
+  let h := mkApp5 (mkConst ``Grind.IsCharP.eq_of_charOne [u]) type semiringInst charInst a b
+  closeGoal (mkApp (← mkDiseqProof a b) h)
 
 private structure NormResult where
   lhs  : RingExpr

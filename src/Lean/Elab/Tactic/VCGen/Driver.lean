@@ -61,7 +61,7 @@ each in `State.invariants` (1-based stable index) and try to inline-elaborate
 its matching user alt. Returns the remaining non-invariant subgoals for `work`
 to enqueue. Eager handling here ensures dependent VCs see `?inv` assigned by
 the time they reach `emitVC`. -/
-private def handleInvariantSubgoals (subgoals : List MVarId) : VCGenM (Array MVarId) := do
+def handleInvariantSubgoals (subgoals : List MVarId) : VCGenM (Array MVarId) := do
   let env ← getEnv
   let mut others : Array MVarId := #[]
   for sg in subgoals do
@@ -89,7 +89,7 @@ public def emitVC (goal : Grind.Goal) : VCGenM Unit := do
   mvarId.setKind .syntheticOpaque
   modify fun s => { s with vcs := s.vcs.push { goal with mvarId } }
 
-private structure WorkItem where
+structure WorkItem where
   goal : Grind.Goal
   scope : Scope
 
@@ -99,6 +99,9 @@ public def work (scope : Scope) (goal : Grind.Goal) : VCGenM Unit := do
   while let some s := worklist.back? do
     worklist := worklist.pop
     if ← s.goal.mvarId.isAssigned then continue
+    if let some (jp, jumps) := (← get).pendingJoinPoints[s.goal.mvarId]? then
+      modify fun st => { st with pendingJoinPoints := st.pendingJoinPoints.erase s.goal.mvarId }
+      finalizeJoinPoint jp jumps
     let goal ← processHypotheses s.goal
     if goal.inconsistent then continue
     match ← solve s.scope goal.mvarId with

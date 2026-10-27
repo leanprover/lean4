@@ -267,7 +267,8 @@ private def Internal.Meta.toString (n : Name) (escape := true) : String :=
 
 end ToString
 
-private def hasNum : Name → Bool
+/-- Returns true if the name has any numeric components. -/
+def hasNum : Name → Bool
   | anonymous => false
   | num ..    => true
   | str p ..  => hasNum p
@@ -673,6 +674,9 @@ end Syntax
 /--
   Expand macros in the given syntax.
   A node with kind `k` is visited only if `p k` is true.
+
+  To elaborate the expansion in `TermElabM`, use `Lean.Elab.Term.expandMacrosReportingDeprecated`
+  instead, which also reports deprecated syntax.
 
   Note that the default value for `p` returns false for `by ...` nodes.
   This is a "hack". The tactic framework abuses the macro system to implement extensible tactics.

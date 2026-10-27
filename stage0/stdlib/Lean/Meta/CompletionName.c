@@ -13,18 +13,18 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-uint8_t l_Lean_isNoConfusion(lean_object*, lean_object*);
-uint8_t l_Lean_isRecCore(lean_object*, lean_object*);
-lean_object* l_Lean_Name_mkStr3(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_mkTagDeclarationExtension(lean_object*, lean_object*, uint8_t);
-uint8_t l_Lean_TagDeclarationExtension_isTagged(lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l_Lean_Meta_isMatcherCore(lean_object*, lean_object*);
 uint8_t lean_uint32_dec_eq(uint32_t, uint32_t);
 extern lean_object* l_Lean_privateHeader;
 uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* lean_string_utf8_byte_size(lean_object*);
 lean_object* l_String_Slice_Pos_get_x3f(lean_object*, lean_object*);
 uint8_t l_Lean_isAuxRecursor(lean_object*, lean_object*);
+uint8_t l_Lean_isNoConfusion(lean_object*, lean_object*);
+uint8_t l_Lean_isRecCore(lean_object*, lean_object*);
+lean_object* l_Lean_Name_mkStr3(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_mkTagDeclarationExtension(lean_object*, lean_object*, uint8_t);
+uint8_t l_Lean_TagDeclarationExtension_isTagged(lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l_Lean_Meta_isMatcherCore(lean_object*, lean_object*);
 lean_object* l_Lean_TagDeclarationExtension_tag(lean_object*, lean_object*, lean_object*);
 static const lean_string_object l___private_Lean_Meta_CompletionName_0__Lean_Meta_initFn___closed__0_00___x40_Lean_Meta_CompletionName_3302084676____hygCtx___hyg_2__value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 5, .m_capacity = 5, .m_length = 4, .m_data = "Lean"};
 static const lean_object* l___private_Lean_Meta_CompletionName_0__Lean_Meta_initFn___closed__0_00___x40_Lean_Meta_CompletionName_3302084676____hygCtx___hyg_2_ = (const lean_object*)&l___private_Lean_Meta_CompletionName_0__Lean_Meta_initFn___closed__0_00___x40_Lean_Meta_CompletionName_3302084676____hygCtx___hyg_2__value;
@@ -167,25 +167,15 @@ return v_r_42_;
 LEAN_EXPORT uint8_t l___private_Lean_Meta_CompletionName_0__Lean_Meta_isBlacklisted(lean_object* v_env_43_, lean_object* v_declName_44_){
 _start:
 {
-uint8_t v___y_46_; uint8_t v___x_54_; 
-v___x_54_ = l___private_Lean_Meta_CompletionName_0__Lean_Meta_isInternalNameModuloPrivate(v_declName_44_);
-if (v___x_54_ == 0)
+uint8_t v___x_45_; 
+v___x_45_ = l___private_Lean_Meta_CompletionName_0__Lean_Meta_isInternalNameModuloPrivate(v_declName_44_);
+if (v___x_45_ == 0)
 {
-uint8_t v___x_55_; 
+uint8_t v___x_46_; 
 lean_inc(v_declName_44_);
 lean_inc_ref(v_env_43_);
-v___x_55_ = l_Lean_isAuxRecursor(v_env_43_, v_declName_44_);
-v___y_46_ = v___x_55_;
-goto v___jp_45_;
-}
-else
-{
-v___y_46_ = v___x_54_;
-goto v___jp_45_;
-}
-v___jp_45_:
-{
-if (v___y_46_ == 0)
+v___x_46_ = l_Lean_isAuxRecursor(v_env_43_, v_declName_44_);
+if (v___x_46_ == 0)
 {
 uint8_t v___x_47_; 
 lean_inc(v_declName_44_);
@@ -237,46 +227,52 @@ else
 {
 lean_dec(v_declName_44_);
 lean_dec_ref(v_env_43_);
-return v___y_46_;
+return v___x_46_;
 }
-}
-}
-}
-LEAN_EXPORT lean_object* l___private_Lean_Meta_CompletionName_0__Lean_Meta_isBlacklisted___boxed(lean_object* v_env_56_, lean_object* v_declName_57_){
-_start:
-{
-uint8_t v_res_58_; lean_object* v_r_59_; 
-v_res_58_ = l___private_Lean_Meta_CompletionName_0__Lean_Meta_isBlacklisted(v_env_56_, v_declName_57_);
-v_r_59_ = lean_box(v_res_58_);
-return v_r_59_;
-}
-}
-LEAN_EXPORT uint8_t l_Lean_Meta_allowCompletion(lean_object* v_env_60_, lean_object* v_declName_61_){
-_start:
-{
-uint8_t v___x_62_; 
-v___x_62_ = l___private_Lean_Meta_CompletionName_0__Lean_Meta_isBlacklisted(v_env_60_, v_declName_61_);
-if (v___x_62_ == 0)
-{
-uint8_t v___x_63_; 
-v___x_63_ = 1;
-return v___x_63_;
 }
 else
 {
-uint8_t v___x_64_; 
-v___x_64_ = 0;
-return v___x_64_;
+lean_dec(v_declName_44_);
+lean_dec_ref(v_env_43_);
+return v___x_45_;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Meta_allowCompletion___boxed(lean_object* v_env_65_, lean_object* v_declName_66_){
+LEAN_EXPORT lean_object* l___private_Lean_Meta_CompletionName_0__Lean_Meta_isBlacklisted___boxed(lean_object* v_env_54_, lean_object* v_declName_55_){
 _start:
 {
-uint8_t v_res_67_; lean_object* v_r_68_; 
-v_res_67_ = l_Lean_Meta_allowCompletion(v_env_65_, v_declName_66_);
-v_r_68_ = lean_box(v_res_67_);
-return v_r_68_;
+uint8_t v_res_56_; lean_object* v_r_57_; 
+v_res_56_ = l___private_Lean_Meta_CompletionName_0__Lean_Meta_isBlacklisted(v_env_54_, v_declName_55_);
+v_r_57_ = lean_box(v_res_56_);
+return v_r_57_;
+}
+}
+LEAN_EXPORT uint8_t l_Lean_Meta_allowCompletion(lean_object* v_env_58_, lean_object* v_declName_59_){
+_start:
+{
+uint8_t v___x_60_; 
+v___x_60_ = l___private_Lean_Meta_CompletionName_0__Lean_Meta_isBlacklisted(v_env_58_, v_declName_59_);
+if (v___x_60_ == 0)
+{
+uint8_t v___x_61_; 
+v___x_61_ = 1;
+return v___x_61_;
+}
+else
+{
+uint8_t v___x_62_; 
+v___x_62_ = 0;
+return v___x_62_;
+}
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Meta_allowCompletion___boxed(lean_object* v_env_63_, lean_object* v_declName_64_){
+_start:
+{
+uint8_t v_res_65_; lean_object* v_r_66_; 
+v_res_65_ = l_Lean_Meta_allowCompletion(v_env_63_, v_declName_64_);
+v_r_66_ = lean_box(v_res_65_);
+return v_r_66_;
 }
 }
 lean_object* runtime_initialize_Lean_Meta_Match_MatcherInfo(uint8_t builtin);

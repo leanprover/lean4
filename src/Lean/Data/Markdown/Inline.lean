@@ -89,7 +89,8 @@ deriving Inhabited
 
 /--
 A reference definition from outside the document that is supplied by the parser's caller. The
-destination URL and title are used as-is, with no backslash escapes or character references decoded.
+destination URL and title are used as-is: backslash escapes and character references in them are
+not decoded.
 -/
 public structure ExternalRef where
   /-- The destination URL. -/
@@ -236,9 +237,9 @@ public inductive Inline (s : String.Slice) where
   | hardBreak (marker : s.Subslice) (newline : s.Subslice)
   /--
   An autolink: `<https://...>` or `<scheme:...>` for URI form, or `<user@domain>` for email form
-  (CommonMark §6.5). The URL between the angle brackets is verbatim: no backslash-escape, entity, or
-  other markdown processing applies inside. `isEmail` distinguishes the email form, whose href gets
-  a `mailto:` prefix when rendered to HTML.
+  (CommonMark §6.5). The URL between the angle brackets is verbatim: backslash escapes, character
+  references, and other Markdown syntax are not processed inside it. `isEmail` distinguishes the
+  email form, whose href gets a `mailto:` prefix when rendered to HTML.
   -/
   | autolink (openAngle : s.Subslice) (url : s.Subslice) (closeAngle : s.Subslice) (isEmail : Bool)
   /--

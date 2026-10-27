@@ -58,9 +58,10 @@ Unicode case folding only for the Latin-1 and Greek ranges, while CommonMark spe
 case folding. Use `extensions` to enable non-standard extensions like LaTeX math.
 
 The `externalRefs` table maps labels to reference definitions beyond the document's own link
-reference definitions. Its labels are normalized like those in the document. A reference definition
-in the document takes precedence over an external definition with the same label unless the external
-definition has `overrideDocument` set.
+reference definitions. Its labels are normalized like those in the document, and when several of
+them normalize to the same label, the definition of the lexicographically least of them is used. A
+reference definition in the document takes precedence over an external definition with the same
+label unless the external definition has `overrideDocument` set.
 
 This parser is based on the two-pass algorithm described in the CommonMark specification.
 -/

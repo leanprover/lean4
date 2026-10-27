@@ -10,6 +10,8 @@ public import Init.While
 import Init.Data.String.Iterate
 import Init.Data.Range.Polymorphic.Iterators
 import Init.Data.Range.Polymorphic.Nat
+import Init.Data.Array.QSort.Basic
+import Init.Data.String.Compare
 public import Lean.Data.Markdown.Block
 public import Lean.Data.Markdown.InlineCursor
 public import Lean.Data.Markdown.Parser.RefDef
@@ -201,16 +203,29 @@ def parseAtxHeading? (line : IndentedLine s) : Option (AtxHeadingMatch s) := do
         content := trimTrailingWs (subsliceClamped contentStart closeStart)
   return { level := count, hashes, content, closeHashes := closeHashes? }
 
+/-- The result of checking a line for a thematic break. -/
+inductive ThematicBreakCheck (s : String.Slice) where
+  /-- The line is a thematic break. -/
+  | isBreak
+  /--
+  The scan of the line failed at `pos`: the first character that is neither the marker character
+  nor a space or tab, or the end of the line when it has fewer than three markers. A scan that
+  starts before `pos` and after the first marker fails at `pos` too.
+  -/
+  | failsAt (pos : s.Pos)
+  /-- The line is indented too far or does not begin with a marker character. -/
+  | notCandidate
+
 /--
-Whether `line` is a thematic break: up to 3 leading spaces, followed by 3+ matching `*`/`-`/`_`
-characters, with only spaces or tabs allowed between or after them (CommonMark §4.1).
+Checks whether `line` is a thematic break: up to 3 leading spaces, followed by 3+ matching
+`*`/`-`/`_` characters, with only spaces or tabs allowed between or after them (CommonMark §4.1).
 -/
-def isThematicBreak (line : IndentedLine s) : Bool := Id.run do
+def checkThematicBreak (line : IndentedLine s) : ThematicBreakCheck s := Id.run do
   let { after := c, indent } := line
-  if indent > 3 then return false
-  let some markerChar := c.front? | return false
+  if indent > 3 then return .notCandidate
+  let some markerChar := c.front? | return .notCandidate
   if markerChar != '*' && markerChar != '-' && markerChar != '_' then
-    return false
+    return .notCandidate
   let mut rest := c
   let mut markerCount := 0
   repeat
@@ -221,8 +236,14 @@ def isThematicBreak (line : IndentedLine s) : Bool := Id.run do
     else if ch == ' ' || ch == '\t' then
       rest := rest.next
     else
-      return false
-  return markerCount >= 3
+      return .failsAt rest.pos
+  return if markerCount ≥ 3 then .isBreak else .failsAt rest.pos
+
+@[inherit_doc checkThematicBreak]
+def isThematicBreak (line : IndentedLine s) : Bool :=
+  match checkThematicBreak line with
+  | .isBreak => true
+  | _ => false
 
 /--
 Parses a setext heading underline (CommonMark §4.3): up to three leading spaces, then a sequence of
@@ -692,8 +713,15 @@ current cursor.
 def openContainerPrefixes (line : IndentedLine s) : ProcessM s (Bool × IndentedLine s) := do
   let mut line := line
   let mut openedListItemThisLine := false
+  -- Where the last thematic break scan failed. A scan that starts before that position fails at
+  -- it too, so the line is not scanned again from every marker of a long `- - - …` prefix.
+  let mut breakScanFailedAt? : Option s.Pos := none
   repeat
-    if isThematicBreak line then break
+    unless Option.any (line.after.pos < ·) breakScanFailedAt? do
+      match checkThematicBreak line with
+      | .isBreak => break
+      | .failsAt pos => breakScanFailedAt? := some pos
+      | .notCandidate => pure ()
     if let some (markerRange, cAfter) := parseBlockquoteMarker? line then
       modify fun st =>
         { st with zipper := st.zipper.openBlockquote #[markerRange], cursor := cAfter }
@@ -883,13 +911,16 @@ Builds the document's reference table from its link reference definitions and fr
 which maps labels to definitions that the caller supplies. An earlier definition of a label in the
 document takes precedence over a later one. A definition in the document takes precedence over an
 external one with the same label unless the external one has `overrideDocument` set. The labels of
-`externalRefs` are normalized like those in the document.
+`externalRefs` are normalized like those in the document. When several of them normalize to the
+same label, the definition of the lexicographically least of them is used.
 -/
 public partial def buildRefTable (blocks : Array (Block.Raw s))
     (externalRefs : Std.HashMap String ExternalRef := {}) : RefTable s :=
   let inDocument := go blocks |>.run {} |>.2
-  externalRefs.fold (init := inDocument) fun table label ref =>
-    let normLabel := LinkLabel.ofString label
+  let sorted := externalRefs.toArray.qsort (·.1 < ·.1)
+  let external : Std.HashMap LinkLabel ExternalRef :=
+    sorted.foldl (init := {}) fun m (label, ref) => m.insertIfNew (LinkLabel.ofString label) ref
+  external.fold (init := inDocument) fun table normLabel ref =>
     if ref.overrideDocument then table.insert normLabel (.external ref)
     else table.insertIfNew normLabel (.external ref)
 where

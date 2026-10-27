@@ -844,6 +844,8 @@ def externalTargets (src : String) : List (String × Bool) :=
       |>.insert "r" { destination := "/external" }
       |>.insert "o" { destination := "/override", overrideDocument := true }
       |>.insert " " { destination := "/blank" }
+      |>.insert "Dup" { destination := "/dup-upper" }
+      |>.insert "dup" { destination := "/dup-lower" }
   let blocks := parseDocument src.toSlice (externalRefs := externalRefs)
   let content := blocks.findSome? (fun | .paragraph content => some content | _ => none) |>.getD #[]
   content.toList.filterMap fun
@@ -853,6 +855,10 @@ def externalTargets (src : String) : List (String × Bool) :=
 
 /-- info: [("references.html#knuth", true), ("/document", false), ("/document", false)] -/
 #guard_msgs in #eval externalTargets "[knuth 1984] [r] [x][r]\n\n[r]: /document\n"
+
+-- External labels that normalize alike: the lexicographically least label's definition is used.
+/-- info: [("/dup-upper", true), ("/dup-upper", true)] -/
+#guard_msgs in #eval externalTargets "[DUP] [dup]\n"
 
 /-- info: [("/external", true)] -/
 #guard_msgs in #eval externalTargets "[r]\n"

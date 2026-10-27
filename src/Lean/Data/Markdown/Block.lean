@@ -38,8 +38,6 @@ deriving DecidableEq, Repr, Inhabited
 
 namespace Columns
 
-@[inline] public instance : BEq Columns := ⟨fun a b => a.count == b.count⟩
-
 @[inline] public instance : OfNat Columns n where
   ofNat := ⟨n⟩
 

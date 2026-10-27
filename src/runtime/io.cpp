@@ -433,7 +433,9 @@ extern "C" LEAN_EXPORT obj_res lean_io_prim_handle_mk(b_obj_arg filename, uint8 
     }
     FILE * fp = fdopen(fd, fp_mode);
     if (!fp) {
-        return io_result_mk_error(decode_io_error(errno, filename));
+        int err = errno;
+        close(fd);
+        return io_result_mk_error(decode_io_error(err, filename));
     } else {
         return io_result_mk_ok(io_wrap_handle(fp));
     }
@@ -1307,6 +1309,14 @@ extern "C" LEAN_EXPORT obj_res lean_io_create_tempfile(lean_object * /* w */) {
         return io_result_mk_error(decode_uv_error(ret, nullptr));
     } else {
         FILE* handle = fdopen(req.result, "r+");
+        if (!handle) {
+            // The caller never learns the path, so do not leave the file behind.
+            int err = errno;
+            close(req.result);
+            remove(req.path);
+            uv_fs_req_cleanup(&req);
+            return io_result_mk_error(decode_io_error(err, nullptr));
+        }
         object_ref pair = mk_cnstr(0, io_wrap_handle(handle), mk_string(req.path));
         uv_fs_req_cleanup(&req);
         return lean_io_result_mk_ok(pair.steal());

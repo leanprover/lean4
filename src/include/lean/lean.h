@@ -1624,7 +1624,13 @@ LEAN_EXPORT void lean_init_task_manager_using(unsigned num_workers);
    It must not be called from a task.
    Until the next `lean_init_task_manager`, new tasks run inline and a task that becomes runnable is discarded, so
    of the unfinished tasks only the result of a promise can still finish, and waiting for any other one blocks
-   forever. Tasks and promises that outlive this call stay valid in later cycles. */
+   forever. Tasks and promises that outlive this call stay valid in later cycles.
+   It then tears the libuv event loop down, closing every handle and waiting for requests that libuv runs on its
+   thread pool, such as DNS lookups. A promise of a libuv operation that is still pending is never resolved: it stays
+   referenced until the next `lean_finalize_task_manager`, which releases it and so discards its continuations.
+   Until the next `lean_init_task_manager` starts a fresh loop, libuv operations fail with `UV_ECANCELED`. A handle
+   that outlives this call stays closed, so its operations keep failing, and options set with
+   `Std.Internal.UV.Loop.configure` do not carry over. */
 LEAN_EXPORT void lean_finalize_task_manager(void);
 
 LEAN_EXPORT lean_obj_res lean_task_spawn_core(lean_obj_arg c, unsigned prio, bool keep_alive);

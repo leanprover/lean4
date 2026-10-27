@@ -21,6 +21,7 @@ Author: Leonardo de Moura
 #include "runtime/interrupt.h"
 #include "runtime/buffer.h"
 #include "runtime/io.h"
+#include "runtime/libuv.h"
 #include "runtime/hash.h"
 
 #if defined(__GLIBC__) || defined(__APPLE__)
@@ -1134,6 +1135,9 @@ public:
         for (auto & t : m_std_workers)
             t->join();
 
+        // The workers finish with the event loop still running, so a task blocked on a libuv promise completes. Stopping
+        // the loop releases references, which takes the lock and can discard tasks.
+        finalize_libuv();
         lock.lock();
         m_worker_done_cv.wait(lock, [&]() { return m_discarding == 0; });
         // never seems to terminate under Emscripten
@@ -1288,6 +1292,9 @@ extern "C" LEAN_EXPORT void lean_init_task_manager_using(unsigned num_workers) {
         return;
     if (g_task_manager) {
         g_task_manager->restart(num_workers);
+        // `shutdown` tore the event loop down. Until here, libuv calls fail instead of starting work whose
+        // continuations a dormant manager would discard.
+        restart_libuv();
     } else {
         g_task_manager = new task_manager(num_workers);
     }

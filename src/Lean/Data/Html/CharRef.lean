@@ -2181,7 +2181,8 @@ def namedCharacterReference? (ref : String) : Option String :=
 /-- Parses the body {name}`ref` of a numeric
 [character reference](https://html.spec.whatwg.org/dev/syntax.html#character-references)
 {lit}`&ref;` in decimal ({lit}`&#123;`) or hexadecimal ({lit}`&#x7B;`) notation to the number it
-denotes. The number is not checked to be a Unicode scalar value.
+denotes. The number is not checked to be a Unicode scalar value, and a number above
+{lit}`0x10FFFF`, the largest code point, is returned as {lit}`0x110000`.
 Returns {lean}`none` when {name}`ref` is not {lit}`#` or {lit}`#x` followed by one or more digits. -/
 def numericCharacterReference? (ref : String) : Option Nat :=
   let i : String.Pos.Raw := 0
@@ -2200,7 +2201,7 @@ where
     while h : ¬i.atEnd ref do
       let d ← digit? (i.get' ref h)
       if d ≥ radix then none
-      n := n * radix + d
+      n := min (n * radix + d) 0x110000
       i := i.next' ref h
     return n
   digit? (c : Char) : Option Nat :=

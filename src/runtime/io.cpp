@@ -330,39 +330,32 @@ static obj_res decode_uv_error_impl(int errnum, int posix_errnum, b_lean_obj_arg
             inc_ref(fname);
             return lean_mk_io_error_already_exists_file(fname, posix_errnum, details);
         }
+    /* The remaining kinds carry no file name, so a caller's `fname` is dropped. Which kind applies
+       depends on the error the system reports, so callers with a file name do get here. */
     case UV_EIO:
-        lean_assert(fname == nullptr);
         return lean_mk_io_error_hardware_fault(posix_errnum, details);
     case UV_ENOTEMPTY:
-        lean_assert(fname == nullptr);
         return lean_mk_io_error_unsatisfied_constraints(posix_errnum, details);
     case UV_ENOTTY:
-        lean_assert(fname == nullptr);
         return lean_mk_io_error_illegal_operation(posix_errnum, details);
     /* LibUV does not map EIDRM, ENETRESET and ENOLINK as of version 1.52.1 */
     case UV_ECONNRESET: case UV_ENETDOWN:
     case UV_EPIPE:
-        lean_assert(fname == nullptr);
         return lean_mk_io_error_resource_vanished(posix_errnum, details);
     case UV_EPROTO: case UV_EPROTONOSUPPORT: case UV_EPROTOTYPE:
-        lean_assert(fname == nullptr);
         return lean_mk_io_error_protocol_error(posix_errnum, details);
     /* LibUV does not map ETIME as of version 1.52.1 */
     case UV_ETIMEDOUT:
-        lean_assert(fname == nullptr);
         return lean_mk_io_error_time_expired(posix_errnum, details);
     /* LibUV does not map EDEADLK as of version 1.52.1 */
     case UV_EADDRINUSE: case UV_EBUSY: case UV_ETXTBSY:
-        lean_assert(fname == nullptr);
         return lean_mk_io_error_resource_busy(posix_errnum, details);
     case UV_EADDRNOTAVAIL: case UV_EAFNOSUPPORT: case UV_ENODEV:
     case UV_ENOPROTOOPT: case UV_ENOSYS: case UV_ENOTSUP:
     case UV_ERANGE: case UV_ESPIPE: case UV_EXDEV:
-        lean_assert(fname == nullptr);
         return lean_mk_io_error_unsupported_operation(posix_errnum, details);
     case UV_EFAULT:
     default:
-        lean_assert(fname == nullptr);
         return lean_mk_io_error_other_error(posix_errnum, details);
     }
 }

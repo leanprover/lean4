@@ -2365,6 +2365,11 @@ private partial def isUnitLikeType (e : Expr) : MetaM Bool :=
           -- `tType` is a structure, and in particular has no indices. Furthermore, it is a type, so `tType.getAppNumArgs = (← getConstInfoInduct ctorVal.induct).numParams`
           |>.getForallBodyMaxDepth tType.getAppNumArgs
           |>.instantiateRev tType.getAppArgs
+      -- Under the module system, constructor types may mention private declarations that are not
+      -- visible in the current environment; conservatively decline then.
+      let env ← getEnv
+      if ctorType.getUsedConstants.any (!env.contains ·) then
+        return false
       forallTelescope ctorType fun xs _ =>
         xs.allM fun e => do
           let ty ← e.fvarId!.getType

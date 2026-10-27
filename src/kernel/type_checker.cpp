@@ -20,6 +20,7 @@ Author: Leonardo de Moura
 #include "kernel/abstract.h"
 #include "kernel/replace_fn.h"
 #include "kernel/for_each_fn.h"
+#include "kernel/find_fn.h"
 #include "kernel/quot.h"
 #include "kernel/inductive.h"
 
@@ -1160,6 +1161,10 @@ bool type_checker::is_unit_like(expr const & t) {
     for (unsigned i = 0; i < args.size(); i++)
         ctor_ty = binding_body(ctor_ty);
     ctor_ty = instantiate_rev(ctor_ty, args.size(), args.data());
+    // Under the module system, constructor types may mention private declarations that are not
+    // part of the current environment; conservatively decline then.
+    if (find(ctor_ty, [&](expr const & e, unsigned) { return is_constant(e) && !env().find(const_name(e)); }))
+        return false;
     // Check that every field (read, every domain) of the constructor are themselves unit-like
     while (is_pi(ctor_ty)) {
         expr hd = binding_domain(ctor_ty);

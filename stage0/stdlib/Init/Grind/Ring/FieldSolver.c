@@ -13,34 +13,33 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* l_Lean_Grind_CommRing_Expr_toPoly(lean_object*);
-lean_object* lean_nat_to_int(lean_object*);
-lean_object* l_Lean_Grind_CommRing_Poly_addConst(lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
+lean_object* l_Lean_Grind_CommRing_Poly_maxDegreeOf(lean_object*, lean_object*);
+lean_object* lean_nat_to_int(lean_object*);
+lean_object* lean_nat_pow(lean_object*, lean_object*);
+lean_object* l_Lean_Grind_CommRing_Poly_mulConst(lean_object*, lean_object*);
+lean_object* l_Lean_Grind_CommRing_Poly_cancelVar(lean_object*, lean_object*, lean_object*);
+lean_object* lean_nat_mul(lean_object*, lean_object*);
+lean_object* lean_string_length(lean_object*);
+lean_object* l_Lean_Grind_CommRing_instReprPoly_repr(lean_object*, lean_object*);
+lean_object* l_Nat_reprFast(lean_object*);
+lean_object* l_Lean_Grind_CommRing_Poly_addConst(lean_object*, lean_object*);
 lean_object* l_Lean_Grind_CommRing_Mon_degreeOf(lean_object*, lean_object*);
 lean_object* l_Lean_Grind_CommRing_Mon_cancelVar(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* l_Lean_Grind_CommRing_Mon_mulPow(lean_object*, lean_object*);
 lean_object* l_Lean_Grind_CommRing_Poly_insert(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Grind_CommRing_Poly_maxDegreeOf(lean_object*, lean_object*);
-lean_object* lean_nat_pow(lean_object*, lean_object*);
-lean_object* l_Lean_Grind_CommRing_Poly_mulConst(lean_object*, lean_object*);
-lean_object* l_Lean_Grind_CommRing_Poly_cancelVar(lean_object*, lean_object*, lean_object*);
-lean_object* lean_nat_mul(lean_object*, lean_object*);
+extern lean_object* l_Lean_Grind_CommRing_instInhabitedPoly_default;
+lean_object* l_List_reverse___redArg(lean_object*);
+lean_object* l_Lean_RArray_getImpl___redArg(lean_object*, lean_object*);
+lean_object* l_List_mapTR_loop___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Grind_CommRing_Poly_gcdCoeffs(lean_object*);
 lean_object* lean_nat_gcd(lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 lean_object* l_Lean_Grind_CommRing_Poly_divConst(lean_object*, lean_object*);
 uint8_t l_Lean_Grind_CommRing_instBEqPoly_beq(lean_object*, lean_object*);
 lean_object* lean_nat_div(lean_object*, lean_object*);
-lean_object* lean_string_length(lean_object*);
-lean_object* l_Lean_Grind_CommRing_instReprPoly_repr(lean_object*, lean_object*);
-lean_object* l_Nat_reprFast(lean_object*);
-extern lean_object* l_Lean_Grind_CommRing_instInhabitedPoly_default;
-lean_object* l_List_reverse___redArg(lean_object*);
-lean_object* l_Lean_RArray_getImpl___redArg(lean_object*, lean_object*);
-lean_object* l_List_mapTR_loop___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Grind_CommRing_Poly_denote___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Grind_CommRing_instBEqPolyQ_beq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_CommRing_instBEqPolyQ_beq___boxed(lean_object*, lean_object*);
@@ -125,7 +124,6 @@ LEAN_EXPORT lean_object* l_List_foldl___at___00Lean_Grind_CommRing_Poly_toPolyQ_
 LEAN_EXPORT lean_object* l_Lean_Grind_CommRing_Poly_toPolyQ(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Grind_Ring_FieldSolver_0__Lean_Grind_CommRing_Poly_denote_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Grind_Ring_FieldSolver_0__Lean_Grind_CommRing_Poly_denote_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Grind_CommRing_Expr_toPolyQ(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Grind_CommRing_instBEqPolyQ_beq(lean_object* v_x_1_, lean_object* v_x_2_){
 _start:
 {
@@ -1055,15 +1053,6 @@ lean_dec_ref_known(v_p_327_, 3);
 v___x_335_ = lean_apply_3(v_h__2_329_, v_k_332_, v_v_333_, v_p_334_);
 return v___x_335_;
 }
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Grind_CommRing_Expr_toPolyQ(lean_object* v_e_336_, lean_object* v_invs_337_, lean_object* v_ainvs_338_){
-_start:
-{
-lean_object* v___x_339_; lean_object* v___x_340_; 
-v___x_339_ = l_Lean_Grind_CommRing_Expr_toPoly(v_e_336_);
-v___x_340_ = l_Lean_Grind_CommRing_Poly_toPolyQ(v___x_339_, v_invs_337_, v_ainvs_338_);
-return v___x_340_;
 }
 }
 lean_object* runtime_initialize_Init_Grind_Ring_CommSolver(uint8_t builtin);

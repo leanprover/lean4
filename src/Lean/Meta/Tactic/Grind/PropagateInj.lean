@@ -30,11 +30,13 @@ def getInvFor? (f : Expr) (a : Expr) : GoalM (Option (Expr × Expr)) := do
 /--
 If `e` is an application of the form `f a` where `f` is an injective function
 in `(← get).inj.fns`, asserts `f⁻¹ (f a) = a`
+
+This method assumes `e` has been hash-consed.
 -/
 public def mkInjEq (e : Expr) : GoalM Unit := do
   let .app f a := e | return ()
   let some (inv, heq) ← getInvFor? f a | return ()
-  let invApp := mkApp inv e
+  let invApp ← shareCommon (mkApp inv e)
   internalize invApp (← getGeneration e)
   trace[grind.inj.assert] "{invApp}, {a}"
   pushEq invApp a <| mkApp heq a

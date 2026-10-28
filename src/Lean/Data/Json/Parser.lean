@@ -225,11 +225,31 @@ private partial def natCoreNumDigitsAux (acc digits : Nat) (k : UInt32) : Parser
       return (acc, digits)
 
 /--
+Reads the first digits of a run into the machine integer `n`, counting them in `k`, and from the
+19th on reads the rest of the run with `natCoreNumDigitsAux`. A number of up to 18 digits is below
+`2 ^ 63`, so on 64-bit platforms it is a small `Nat`, and most numbers are read without arithmetic
+on `Nat`.
+-/
+private partial def natCoreNumDigitsSmall (n : UInt64) (k : UInt32) : Parser (Nat × Nat) := do
+  if ← isEof then
+    return (n.toNat, k.toNat)
+  else
+    let c ← peek!
+    if '0' <= c && c <= '9' then
+      if k = 18 then
+        natCoreNumDigitsAux n.toNat 18 18
+      else
+        skip
+        natCoreNumDigitsSmall (10 * n + (c.val - '0'.val).toUInt64) (k + 1)
+    else
+      return (n.toNat, k.toNat)
+
+/--
 Reads a run of decimal digits spelling `n` with `d` digits, and returns `acc * 10 ^ d + n` and
 `digits + d`.
 -/
 @[inline] def natCoreNumDigits (acc digits : Nat) : Parser (Nat × Nat) :=
-  natCoreNumDigitsAux acc digits 0
+  if acc = 0 && digits = 0 then natCoreNumDigitsSmall 0 0 else natCoreNumDigitsAux acc digits 0
 
 /-- Like `natCoreNumDigitsAux`, without counting the digits. -/
 private partial def natCoreAux (acc : Nat) (k : UInt32) : Parser Nat := do
@@ -246,9 +266,24 @@ private partial def natCoreAux (acc : Nat) (k : UInt32) : Parser Nat := do
     else
       return acc
 
+/-- Like `natCoreNumDigitsSmall`, without counting the digits. -/
+private partial def natCoreSmall (n : UInt64) (k : UInt32) : Parser Nat := do
+  if ← isEof then
+    return n.toNat
+  else
+    let c ← peek!
+    if '0' <= c && c <= '9' then
+      if k = 18 then
+        natCoreAux n.toNat 18
+      else
+        skip
+        natCoreSmall (10 * n + (c.val - '0'.val).toUInt64) (k + 1)
+    else
+      return n.toNat
+
 /-- Reads a run of decimal digits spelling `n` with `d` digits, and returns `acc * 10 ^ d + n`. -/
 @[inline] def natCore (acc : Nat) : Parser Nat :=
-  natCoreAux acc 0
+  if acc = 0 then natCoreSmall 0 0 else natCoreAux acc 0
 
 @[inline]
 def lookahead (p : Char → Prop) (desc : String) [DecidablePred p] : Parser Unit := do

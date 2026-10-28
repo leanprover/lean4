@@ -15,16 +15,19 @@ def valueMod (s : String) (p : Nat) : Nat :=
   s.foldl (fun n c => (10 * n + (c.toNat - 48)) % p) 0
 
 /-!
-Lengths around where the parser stops adding one digit at a time, and around the chunks of 18
-digits it reads after that.
+Lengths around where the parser moves from a machine integer to `Nat`, around where it stops adding
+one digit at a time, and around the chunks of 18 digits it reads after that.
 -/
 
-#guard [1, 17, 18, 19, 35, 36, 37, 38, 54, 55, 56, 72, 73, 1000].all fun len =>
+#guard [1, 15, 16, 17, 18, 19, 35, 36, 37, 38, 54, 55, 56, 72, 73, 1000].all fun len =>
   let ds := digitsOf len
-  match Json.parse ds, Json.parse ("-0." ++ ds), Json.parse ("0.000" ++ ds ++ "e2") with
-  | .ok (.num ⟨m, 0⟩), .ok (.num ⟨m', e'⟩), .ok (.num ⟨m'', e''⟩) =>
-    m == valueMod ds (10 ^ len) && m' == -m && e' == len && m'' == m && e'' == len + 1
-  | _, _, _ => false
+  match Json.parse ds, Json.parse ("-0." ++ ds), Json.parse ("0.000" ++ ds ++ "e2"),
+      Json.parse ("1e-" ++ ds), Json.parse ("[" ++ ds ++ "]") with
+  | .ok (.num ⟨m, 0⟩), .ok (.num ⟨m', e'⟩), .ok (.num ⟨m'', e''⟩), .ok (.num ⟨1, e3⟩),
+      .ok (.arr #[.num ⟨m4, 0⟩]) =>
+    m == valueMod ds (10 ^ len) && m' == -m && e' == len && m'' == m && e'' == len + 1 &&
+      e3 == m.toNat && m4 == m
+  | _, _, _, _, _ => false
 
 /-! A long run of digits, as an integer and as decimals. -/
 

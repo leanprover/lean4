@@ -25,6 +25,7 @@ public import Lake.Build.Library
 public import Lake.Build.Module
 public import Lake.Build.ModuleArtifacts
 public import Lake.Build.Package
+public import Lake.Build.WrappedExec
 public import Lake.Build.Run
 public import Lake.Build.Store
 public import Lake.Build.Target

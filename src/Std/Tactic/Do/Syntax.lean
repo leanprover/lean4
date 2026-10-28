@@ -71,7 +71,7 @@ structure Config where
   internalize : Bool := true
   /--
   If `true` (the default), `vcgen` rewrites hypotheses, state arguments and verification
-  conditions with the `@[vcgen_simp]` theorems and those of its `simp [...]` clause.
+  conditions with the `@[vcgen_simp]` theorems and those of its `simps [...]` clause.
   Ignored by `mvcgen`.
   -/
   simp : Bool := true

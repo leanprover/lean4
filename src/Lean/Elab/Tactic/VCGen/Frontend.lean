@@ -200,20 +200,20 @@ def warnIgnoredConfig (config : Do.VCGen.Config) : MetaM Unit := do
 
 /--
 The theorems of `vcgen`'s simp set: the `@[vcgen_simp]` theorems and the arguments `args` of the
-`simp [...]` clause. An argument is a theorem or definition name, a local hypothesis, a proof term,
+`simps [...]` clause. An argument is a theorem or definition name, a local hypothesis, a proof term,
 or `*` for every local hypothesis that is a proposition.
 -/
 def elabSimpTheorems (args : Array Syntax) : TermElabM Sym.Simp.Theorems := do
   let mut thms ← vcgenSimpExt.getTheorems
   for arg in args do
     if arg.getKind == ``simpErase then
-      throwErrorAt arg "`vcgen simp [...]` cannot erase a theorem"
+      throwErrorAt arg "`vcgen simps [...]` cannot erase a theorem"
     else if arg.getKind == ``simpStar then
       for fvar in ← getPropHyps do
         thms := thms.insert (← Sym.Simp.mkTheoremFromExpr (mkFVar fvar))
     else if arg.getKind == ``simpLemma then
       unless arg[0].isNone && arg[1].isNone do
-        throwErrorAt arg "`vcgen simp [...]` takes no `←`, `↑` or `↓` modifier"
+        throwErrorAt arg "`vcgen simps [...]` takes no `←`, `↑` or `↓` modifier"
       let term := arg[2]
       match ← Term.resolveId? term (withInfo := true) <|> Term.elabCDotFunctionAlias? ⟨term⟩ with
       | some (.const declName _) =>
@@ -224,7 +224,7 @@ def elabSimpTheorems (args : Array Syntax) : TermElabM Sym.Simp.Theorems := do
       | _ =>
         let some (levelParams, proof) ← elabProofArg term | continue
         unless levelParams.isEmpty do
-          throwErrorAt term "`vcgen simp [...]` takes no universe-polymorphic proof term"
+          throwErrorAt term "`vcgen simps [...]` takes no universe-polymorphic proof term"
         thms := thms.insert (← Sym.Simp.mkTheoremFromExpr proof)
     else
       throwUnsupportedSyntax
@@ -410,7 +410,7 @@ def parseArgs (stx : Syntax) (goal : MVarId) : TermElabM ParsedArgs := goal.with
     else if simpArgs.isEmpty then
       pure none
     else
-      throwErrorAt stx[6] "`vcgen simp [...]` conflicts with the config option `simp := false`"
+      throwErrorAt stx[6] "`vcgen simps [...]` conflicts with the config option `simp := false`"
   let ctx := { ctx with
     simpMethods,
     frameProcs,
@@ -464,7 +464,7 @@ grind step share an internalised E-graph with `vcgen`. -/
 @[builtin_tactic Lean.Parser.Tactic.vcgen]
 public def elabVCGen : Tactic := fun stx => withMainContext do
   let `(tactic| vcgen%$tk $cfg:optConfig $[[$lems,*]]? $[until $u:term]? $[frames $fas*]? $(invs)?
-        $[simp [$simpArgs,*]]? $[with $w:vcgenDischarge]?) := stx
+        $[simps [$simpArgs,*]]? $[with $w:vcgenDischarge]?) := stx
     | throwUnsupportedSyntax
   let g? ← elabVCGenDischarge w
   -- Without `with`, no downstream grind step will read the E-graph, so opt out of
@@ -475,7 +475,7 @@ public def elabVCGen : Tactic := fun stx => withMainContext do
         let off ← `(optConfig| -internalize)
         pure (Lean.Parser.Tactic.appendConfig off cfg)
   let core ← `(grind| vcgen%$tk $cfg:optConfig $[[$lems,*]]? $[until $u:term]? $[frames $fas*]? $(invs)?
-        $[simp [$simpArgs,*]]?)
+        $[simps [$simpArgs,*]]?)
   let step ← match g? with
     | some g => `(grind| $core <;> $g)
     | none   => pure core

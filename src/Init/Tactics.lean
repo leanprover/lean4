@@ -2512,7 +2512,7 @@ carries `s.2 = 7` past the call, and `vcgen` proves that `mkFreshNat` preserves 
 are in scope in the frame, bound to the matched arguments.
 
 ```
-vcgen simp [Nat.add_assoc, h]
+vcgen simps [Nat.add_assoc, h]
 ```
 adds theorems to the simp set of `vcgen`. `vcgen` rewrites the hypotheses it introduces, the state
 arguments of the program and the verification conditions with the theorems tagged

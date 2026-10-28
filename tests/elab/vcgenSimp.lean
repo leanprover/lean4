@@ -2,7 +2,7 @@ import Std.WP
 
 /-!
 `vcgen` rewrites hypotheses, state arguments and verification conditions with its simp set: the
-`@[vcgen_simp]` theorems, the theorems of the `simp [...]` clause, and the evaluation of ground
+`@[vcgen_simp]` theorems, the theorems of the `simps [...]` clause, and the evaluation of ground
 terms. `vcgen -simp` turns the rewriting off.
 -/
 
@@ -47,7 +47,7 @@ warning: declaration uses `sorry`
 -/
 #guard_msgs in
 example : ⦃ fun _ => True ⦄ (do modify (0 + ·); get : M Nat) ⦃ fun r s => r = s + 1 ⦄ := by
-  vcgen simp [Nat.zero_add]
+  vcgen simps [Nat.zero_add]
   trace_state
   all_goals sorry
 
@@ -56,13 +56,13 @@ example : ⦃ fun _ => True ⦄ (do modify (0 + ·); get : M Nat) ⦃ fun r s =>
 opaque f : Nat → Nat
 
 example (h : f 3 = 5) : ⦃ fun _ => True ⦄ (pure (f 3) : M Nat) ⦃ fun r _ => r = 5 ⦄ := by
-  vcgen simp [h]
+  vcgen simps [h]
 
 example (h : f 3 = 5) : ⦃ fun _ => True ⦄ (pure (f 3) : M Nat) ⦃ fun r _ => r = 5 ⦄ := by
-  vcgen simp [show f 3 = 5 from h]
+  vcgen simps [show f 3 = 5 from h]
 
 example (h : f 3 = 5) : ⦃ fun _ => True ⦄ (pure (f 3) : M Nat) ⦃ fun r _ => r = 5 ⦄ := by
-  vcgen simp [*]
+  vcgen simps [*]
 
 /-! A theorem tagged `@[vcgen_simp]` is in the simp set of every `vcgen` call. -/
 
@@ -79,14 +79,20 @@ example (n : Nat) : ⦃ fun _ => True ⦄ (pure (0 + n) : M Nat) ⦃ fun r _ => 
   vcgen
   simp
 
+/-! The `simps [...]` clause can start a line at the column of `vcgen`. -/
+
+example (n : Nat) : ⦃ fun _ => True ⦄ (pure (0 + n) : M Nat) ⦃ fun r _ => r = n ⦄ := by
+  vcgen
+  simps [Nat.zero_add]
+
 /-! Errors. -/
 
-/-- error: `vcgen simp [...]` conflicts with the config option `simp := false` -/
+/-- error: `vcgen simps [...]` conflicts with the config option `simp := false` -/
 #guard_msgs in
 example : ⦃ fun _ => True ⦄ (pure 1 : M Nat) ⦃ fun r _ => r = 1 ⦄ := by
-  vcgen -simp simp [Nat.add_zero]
+  vcgen -simp simps [Nat.add_zero]
 
-/-- error: `vcgen simp [...]` cannot erase a theorem -/
+/-- error: `vcgen simps [...]` cannot erase a theorem -/
 #guard_msgs in
 example : ⦃ fun _ => True ⦄ (pure 1 : M Nat) ⦃ fun r _ => r = 1 ⦄ := by
-  vcgen simp [-Nat.add_zero]
+  vcgen simps [-Nat.add_zero]

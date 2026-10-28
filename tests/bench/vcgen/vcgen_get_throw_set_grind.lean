@@ -17,7 +17,7 @@ set_option maxHeartbeats 100000000
 
 -- Benchmark `vcgen with finish`: grind integrated into VCGen loop for incremental
 -- context internalization. This avoids O(n) re-internalization per VC.
--- `simp [Nat.add_assoc]` here speeds up grind and kernel checking by a factor
+-- `simps [Nat.add_assoc]` here speeds up grind and kernel checking by a factor
 -- of 2 because long chains `s + 1 + ... + 1` are collapsed into `s + n`.
-#eval runBenchUsingTactic ``GetThrowSetGrind.Goal [``loop, ``step] `(tactic| vcgen simp [Nat.add_assoc] with finish) `(tactic| fail)
+#eval runBenchUsingTactic ``GetThrowSetGrind.Goal [``loop, ``step] `(tactic| vcgen simps [Nat.add_assoc] with finish) `(tactic| fail)
   [100, 200, 300]

@@ -67,7 +67,7 @@ set_option maxHeartbeats 10000000
   runBenchUsingTactic ``WideJP.Goal [``WideJP.wide, ``WideJP.chain]
     `(tactic| vcgen +jp) `(tactic| sorry) [4]
 
--- Verify `simp [Nat.add_assoc]` works end-to-end with `simp only` unfolding.
+-- Verify `simps [Nat.add_assoc]` works end-to-end with `simp only` unfolding.
 /--
 trace: s : Nat
 a✝ : s ≤ 0
@@ -87,7 +87,7 @@ h✝ : ¬9 < s + 9
 open GetThrowSet in
 example : Goal 10 := by
   simp only [Goal, loop, step]
-  vcgen simp [Nat.add_assoc]
+  vcgen simps [Nat.add_assoc]
   case vc11 => trace_state; grind
   all_goals grind
 

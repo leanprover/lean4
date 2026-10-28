@@ -107,7 +107,7 @@ public structure Context where
   program node by the node's monad. -/
   frameProcs : FrameProcs := {}
   /-- The `Sym.simp` methods that rewrite hypotheses, state arguments and verification conditions
-  with the `@[vcgen_simp]` theorems and those of the `simp [...]` clause. `none` when the `simp`
+  with the `@[vcgen_simp]` theorems and those of the `simps [...]` clause. `none` when the `simp`
   config option is `false`. -/
   simpMethods : Option Sym.Simp.Methods := none
   /-- The `jp` config option: when `true`, `tryLetIntro` recognises `__do_jp` lets

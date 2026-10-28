@@ -24,7 +24,7 @@ variable {α : Type} [DecidableEq α] {l₁ l₂ : List α}
 open List
 
 /--
-error: `grind` has failed, use `+verbose` to obtain diagnostic information
+error: `grind` has failed after reaching the threshold `(instances := 1000)`, use `+verbose` to obtain diagnostic information
 -/
 #guard_msgs in
 theorem countP_diff (hl : Subperm l₂ l₁) (p : α → Bool) :

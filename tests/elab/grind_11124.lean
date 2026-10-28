@@ -101,7 +101,7 @@ def Disjoint (s₁ s₂ : AList β) : Prop :=
   ∀ k ∈ s₁.keys, k ∉ s₂.keys
 
 /--
-error: `grind` has failed, use `+verbose` to obtain diagnostic information
+error: `grind` has failed after reaching the threshold `(gen := 8)`, use `+verbose` to obtain diagnostic information
 -/
 #guard_msgs in
 theorem union_comm_of_disjoint {s₁ s₂ : AList β} (h : Disjoint s₁ s₂) :

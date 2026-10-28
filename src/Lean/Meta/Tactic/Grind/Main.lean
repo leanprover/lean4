@@ -278,13 +278,23 @@ def Result.toMessageData (result : Result) : MetaM MessageData := do
   return MessageData.joinSep msgs m!"\n"
 
 /--
-Error message for a failed run of `tacticName`. Without `+verbose`, the goal and diagnostics are omitted.
+Error message for a failed run of `tacticName`. Without `+verbose`, the goal and diagnostics are
+omitted, and only the thresholds that were reached are listed.
 -/
 def Result.toErrorMessageData (result : Result) (tacticName : Name := result.identity) : MetaM MessageData := do
   if result.config.verbose then
     return m!"`{tacticName}` failed\n{← result.toMessageData}"
   else
-    return m!"`{tacticName}` has failed, use `+verbose` to obtain diagnostic information"
+    let ts ← match result.failure? with
+      | some goal => getThresholdsReached goal result.config
+      | none => pure #[]
+    let items := ts.map (·.toConfigItem)
+    let reached := match items.toList with
+      | [] => m!""
+      | [t] => m!" after reaching the threshold {t}"
+      | [t₁, t₂] => m!" after reaching the thresholds {t₁} and {t₂}"
+      | ts => m!" after reaching the thresholds {MessageData.joinSep ts.dropLast ", "}, and {ts.getLast!}"
+    return m!"`{tacticName}` has failed{reached}, use `+verbose` to obtain diagnostic information"
 
 /--
 Walks the proof term collecting `Origin`s of E-matching instances that appear,

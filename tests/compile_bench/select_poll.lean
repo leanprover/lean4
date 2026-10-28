@@ -6,13 +6,15 @@ open Std Async
 /-!
 Benchmarks `Selectable.one` in the shape of the HTTP server's connection poll (#14246): every poll
 races a cancellation context, the socket (here a channel), a freshly created sleep timer and the
-handler's response channel.
+handler's response channel. Arming and cancelling that timer wakes the libuv loop thread, as it
+does in the server, so this file's instruction counts are noisier than those of single-threaded
+benchmarks.
 
 - `random_bytes`: `IO.getRandomBytes 8`, which used to seed every selection. `Selectable.one` now
   seeds from `IO.stdGenRef`; this guards the per-call cost of `IO.getRandomBytes` itself.
 - `poll_ready`: the data channel already holds a value, so the poll resolves through `tryFn`.
-- `poll_pingpong`: a worker thread answers each request, which is only sent once the poll has
-  registered its waiters, so every poll takes the registration slow path.
+- `poll_dispatch`: each reply comes from a task spawned once the poll has registered its waiters,
+  as the server dispatches a request to its handler, so every poll takes the registration path.
 -/
 
 @[noinline]
@@ -43,33 +45,27 @@ def benchPollReady (iters : Nat) : IO Nat := Async.block do
   return acc
 
 /--
-Receives the reply to `request` from `replies`, sending `request` only once a waiter is registered,
-so the reply can never be ready when `tryFn` runs.
+Receives `reply` from `replies`, but only spawns the task that sends it once a waiter is registered
+(as `Server.Connection` dispatches handlers: `asTask`, then `chainTask` into a channel), so the reply
+can never be ready when `tryFn` runs.
 -/
-def replyAfterRegister (requests replies : Std.Channel Nat) (request : Nat) : Selector Nat :=
+def replyAfterRegister (replies : Std.Channel Nat) (reply : Nat) : Selector Nat :=
   let inner := replies.recvSelector
   { tryFn := inner.tryFn
     registerFn := fun waiter => do
       inner.registerFn waiter
-      discard <| requests.send request
+      let handler ← BaseIO.asTask (pure reply)
+      discard <| BaseIO.chainTask handler (discard ∘ replies.send)
     unregisterFn := inner.unregisterFn }
 
 @[noinline]
-def benchPollPingPong (iters : Nat) : IO Nat := do
-  let requests : Std.Channel Nat ← Std.Channel.new
-  let replies : Std.Channel Nat ← Std.Channel.new
-  let worker ← BaseIO.asTask (prio := .dedicated) do
-    for _ in *...iters do
-      let v ← requests.sync.recv
-      replies.sync.send v
-  let acc ← Async.block do
-    let ctx ← CancellationContext.new
-    let idle ← Std.Channel.new
-    let mut acc := 0
-    for i in *...iters do
-      acc := acc + (← poll ctx (replyAfterRegister requests replies (i + 1)) idle)
-    return acc
-  IO.wait worker
+def benchPollDispatch (iters : Nat) : IO Nat := Async.block do
+  let ctx ← CancellationContext.new
+  let replies ← Std.Channel.new
+  let idle ← Std.Channel.new
+  let mut acc := 0
+  for i in *...iters do
+    acc := acc + (← poll ctx (replyAfterRegister replies (i + 1)) idle)
   return acc
 
 def run (name : String) (expected : Nat) (act : IO Nat) : IO Unit := do
@@ -82,8 +78,9 @@ def run (name : String) (expected : Nat) (act : IO Nat) : IO Unit := do
 
 def main (args : List String) : IO Unit := do
   let iters := args[0]!.toNat!
-  run "random_bytes" (iters * 8) (benchRandomBytes iters)
+  -- System calls dominate `IO.getRandomBytes`, so fewer iterations give the same signal.
+  run "random_bytes" ((iters / 4 + 1) * 8) (benchRandomBytes (iters / 4 + 1))
   run "poll_ready" (iters * (iters + 1) / 2) (benchPollReady iters)
-  -- Thread wake-ups make this scenario noisy, so it is kept small next to the deterministic ones.
-  let pings := iters / 20 + 1
-  run "poll_pingpong" (pings * (pings + 1) / 2) (benchPollPingPong pings)
+  -- Spawning a task and arming a timer per poll make this path several times slower than the others.
+  let dispatches := iters / 4 + 1
+  run "poll_dispatch" (dispatches * (dispatches + 1) / 2) (benchPollDispatch dispatches)

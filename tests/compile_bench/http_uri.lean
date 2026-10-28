@@ -9,7 +9,6 @@ Benchmarks the URI operations that handlers and clients run per request.
 - `query_get`: decoded query parameter lookups (`URI.Query.get`), including absent keys.
 - `path_decode`: percent-decoding of path segments (`URI.Path.toDecodedSegments`).
 - `query_build`: building a query from unencoded strings and rendering it (`URI.Query.insert`).
-- `target_to_string`: rendering request targets back to text, as when encoding a request head.
 -/
 
 def absoluteUris : Array String := #[
@@ -74,14 +73,6 @@ def benchQueryBuild (params : Array (String × String)) (iters : Nat) : IO Nat :
     total := total + (toString (query.insert "page" (toString (i % 100)))).length
   return total
 
-@[noinline]
-def benchToString (parsed : Array RequestTarget) (iters : Nat) : IO Nat := do
-  let mut total := 0
-  for _ in *...iters do
-    for target in parsed do
-      total := total + (toString target).length
-  return total
-
 def run (name : String) (act : IO Nat) (check : Nat → Bool) : IO Unit := do
   let t1 ← IO.monoNanosNow
   let result ← act
@@ -100,10 +91,8 @@ def main (args : List String) : IO Unit := do
   -- Decoded lengths of `page=3`, `q=lean+theorem+prover`, `page=2`, `name=résumé.pdf` and
   -- `utm_campaign=launch`; `missing` is absent everywhere.
   run "query_get" (benchQueryGet parsed keys (4 * iters)) (· == 4 * iters * (1 + 19 + 1 + 10 + 6))
-  -- Every iteration decodes and renders the same targets, so one untimed iteration gives the total.
-  let decoded ← benchPathDecode parsed 1
-  run "path_decode" (benchPathDecode parsed (4 * iters)) (· == 4 * iters * decoded)
+  -- Decoded segment lengths: `search`; `api`, `v1`, `users`, `12345`, `orders`; `files`, `a b`,
+  -- `c/d`, `✓.txt`; `articles`, `2026`, `10`, `http-benchmarks`.
+  run "path_decode" (benchPathDecode parsed (4 * iters)) (· == 4 * iters * (6 + 21 + 16 + 29))
   let built ← benchQueryBuild params 1
   run "query_build" (benchQueryBuild params (4 * iters)) (· ≥ 4 * iters * built)
-  let rendered ← benchToString parsed 1
-  run "target_to_string" (benchToString parsed (4 * iters)) (· == 4 * iters * rendered)

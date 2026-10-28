@@ -10,6 +10,8 @@ Benchmarks the body types that carry data between the HTTP connection loop and h
   consumer, as the connection loop hands request bodies to a handler.
 - `stream_read_all`: a fresh `Body.Stream` per request, filled with four chunks and collected with
   `readAll`, as handlers that read whole request bodies do.
+- `stream_incomplete`: a 4 MiB chunk sent as 8 KiB pieces marked `incomplete`, which the stream
+  merges before handing the whole chunk over, as it does for a large chunk spread over many reads.
 - `full_response`: building a `Body.Full` text response and draining it, as the connection loop does
   for `Response.ok |>.text`.
 -/
@@ -46,6 +48,23 @@ def benchReadAll (n : Nat) : IO Nat := Async.block do
   return total
 
 @[noinline]
+def benchIncomplete (n : Nat) (piece : Chunk) : IO Nat := Async.block do
+  let mut total := 0
+  for _ in *...n do
+    let stream ← Body.mkStream
+    let producer ← async do
+      for _ in *...511 do
+        stream.send piece (incomplete := true)
+      stream.send piece
+      stream.close
+    repeat
+      match ← stream.recv with
+      | some chunk => total := total + chunk.data.size
+      | none => break
+    await producer
+  return total
+
+@[noinline]
 def benchFullResponse (n : Nat) : IO Nat := Async.block do
   let mut total := 0
   for i in *...n do
@@ -70,4 +89,7 @@ def main (args : List String) : IO Unit := do
   let n := args[0]!.toNat!
   run "stream_handoff" (n * 1024) (benchHandoff n)
   run "stream_read_all" ((n / 4 + 1) * 4 * 1024) (benchReadAll (n / 4 + 1))
+  let piece : Chunk := { data := ByteArray.mk (Array.replicate 8192 'p'.toUInt8) }
+  let merges := n / 4000 + 1
+  run "stream_incomplete" (merges * 512 * 8192) (benchIncomplete merges piece)
   run "full_response" (2 * n * 14) (benchFullResponse n)

@@ -44,13 +44,14 @@ def benchLookup (all : Array Headers) (iters : Nat) : IO Nat := do
   let mut hits := 0
   for _ in *...iters do
     for headers in all do
-      if (headers.getAll? .contentLength).isSome then hits := hits + 1
-      if (headers.getAll? .transferEncoding).isSome then hits := hits + 1
-      if (headers.getAll? .connection).isSome then hits := hits + 1
-      if (headers.getAll? .expect).isSome then hits := hits + 1
+      -- Using the values keeps their retrieval from being dropped as dead code.
+      if let some values := headers.getAll? .contentLength then hits := hits + values.size
+      if let some values := headers.getAll? .transferEncoding then hits := hits + values.size
+      if let some values := headers.getAll? .connection then hits := hits + values.size
+      if let some values := headers.getAll? .expect then hits := hits + values.size
       if headers.contains .server then hits := hits + 1
       if headers.contains .date then hits := hits + 1
-      if (headers.get? .host).isSome then hits := hits + 1
+      if let some host := headers.get? .host then hits := hits + host.value.utf8ByteSize
   return hits
 
 @[noinline]
@@ -117,9 +118,9 @@ def main (args : List String) : IO Unit := do
   ]
 
   run "build" (benchBuild (typed browserHeaders) (10 * iters)) (· == 10 * iters * browserHeaders.size)
-  -- Hits per pass: `connection`, `host` (browser); `content-length`, `connection` (response);
-  -- `content-length`, `host` (post); `transfer-encoding`, `connection`, `host` (chunked).
-  run "lookup" (benchLookup headers (10 * iters)) (· == 10 * iters * 9)
+  -- Per pass: one value each for `connection` (browser); `content-length`, `connection` (response);
+  -- `content-length` (post); `transfer-encoding`, `connection` (chunked); plus three 15-byte hosts.
+  run "lookup" (benchLookup headers (10 * iters)) (· == 10 * iters * (6 + 3 * 15))
   -- Sizes after normalizing: 11 (browser), 5 (response), 4 (post), 3 (chunked).
   run "normalize" (benchNormalize headers iters) (· == iters * 23)
   -- Sizes `0 + 1`, `1024 + 1`, none, `0 + 1`; all keep alive except the `Connection: close` one.

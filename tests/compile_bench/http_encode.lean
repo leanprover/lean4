@@ -40,21 +40,23 @@ def checksum (buffer : ChunkedBuffer) : Nat :=
   buffer.size + buffer.data.size
 
 @[noinline]
-def benchResponseHead (statuses : Array Status) (headers : Headers) (iters : Nat) : IO Nat := do
+def benchResponseHead (start : ChunkedBuffer) (version : Version) (statuses : Array Status)
+    (headers : Headers) (iters : Nat) : IO Nat := do
   let mut total := 0
   for _ in *...iters do
     for status in statuses do
-      let head : Response.Head := { status, headers }
-      total := total + checksum (Encode.encode (v := .v11) ChunkedBuffer.empty head)
+      let head : Response.Head := { status, version, headers }
+      total := total + checksum (Encode.encode (v := .v11) start head)
   return total
 
 @[noinline]
-def benchRequestHead (targets : Array RequestTarget) (headers : Headers) (iters : Nat) : IO Nat := do
+def benchRequestHead (start : ChunkedBuffer) (method : Method) (version : Version)
+    (targets : Array RequestTarget) (headers : Headers) (iters : Nat) : IO Nat := do
   let mut total := 0
   for _ in *...iters do
     for uri in targets do
-      let head : Request.Head := { method := .get, version := .v11, uri, headers }
-      total := total + checksum (Encode.encode (v := .v11) ChunkedBuffer.empty head)
+      let head : Request.Head := { method, version, uri, headers }
+      total := total + checksum (Encode.encode (v := .v11) start head)
   return total
 
 @[noinline]
@@ -97,10 +99,13 @@ def main (args : List String) : IO Unit := do
   let chunks := #[small, large, small, withExt, small, large, small, small]
 
   -- Every iteration encodes the same values, so one untimed iteration gives the expected total.
-  let response ← benchResponseHead statuses responseHeaders 1
-  run "response_head" (benchResponseHead statuses responseHeaders iters) (· == iters * response)
-  let request ← benchRequestHead targets requestHeaders 1
-  run "request_head" (benchRequestHead targets requestHeaders iters) (· == iters * request)
+  -- The start buffer, version and method are arguments so that encoding them is not precomputed.
+  let encodeResponses := benchResponseHead .empty .v11 statuses responseHeaders
+  let response ← encodeResponses 1
+  run "response_head" (encodeResponses iters) (· == iters * response)
+  let encodeRequests := benchRequestHead .empty .get .v11 targets requestHeaders
+  let request ← encodeRequests 1
+  run "request_head" (encodeRequests iters) (· == iters * request)
   let chunk ← benchChunk chunks 1
   run "chunk" (benchChunk chunks (4 * iters)) (· == 4 * iters * chunk)
   -- `toHTTPDateString` is fixed-width: `Tue, 27 Oct 2026 12:00:00 GMT`.

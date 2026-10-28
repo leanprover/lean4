@@ -44,8 +44,8 @@ the server never completes would otherwise block until the test runner's timeout
 -/
 def withDeadline (seconds : Nat) (act : IO α) : IO α := do
   let watchdog ← IO.asTask (prio := .dedicated) do
-    for _ in *...(seconds * 10) do
-      IO.sleep 100
+    for _ in *...(seconds * 100) do
+      IO.sleep 10
       if ← IO.checkCanceled then
         return
     IO.eprintln s!"timed out after {seconds} s"

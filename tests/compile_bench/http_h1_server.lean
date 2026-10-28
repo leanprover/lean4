@@ -80,9 +80,13 @@ def run (name : String) (n : Nat) (bodySize : Nat) (keep close : String) : IO Un
   let c ← pump { machine := machine.feed input |>.noMoreInput }
   let t2 ← IO.monoNanosNow
 
-  unless c.responses == n ∧ c.machine.halted ∧ c.received == n * bodySize do
-    throw <| .userError
-      s!"{name}: expected {n} responses with {n * bodySize} body bytes, got {c.responses} with {c.received}"
+  -- Every response carries at least its status line and its body (`"ok"` for requests without one).
+  let minResponse := "HTTP/1.1 200 OK\r\n".utf8ByteSize + (if bodySize == 0 then 2 else bodySize)
+  unless c.responses == n ∧ c.machine.halted ∧ c.received == n * bodySize ∧
+      c.outBytes ≥ n * minResponse do
+    throw <| .userError <|
+      s!"{name}: expected {n} responses with {n * bodySize} body bytes, got {c.responses} " ++
+      s!"with {c.received}, in {c.outBytes} output bytes"
   IO.println s!"measurement: {name} {(t2 - t1).toFloat / 1000000000.0} s"
 
 def browserGet (connection : String) : String :=

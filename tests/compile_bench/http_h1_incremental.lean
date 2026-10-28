@@ -125,9 +125,13 @@ def run (name : String) (n : Nat) (bodySize : Nat) (perRequest : Bool)
   c ← pump { c with machine := c.machine.noMoreInput }
   let t2 ← IO.monoNanosNow
 
-  unless c.responses == n ∧ c.machine.halted ∧ c.received == n * bodySize do
-    throw <| .userError
-      s!"{name}: expected {n} responses with {n * bodySize} body bytes, got {c.responses} with {c.received}"
+  -- Every response carries at least its status line and the decimal body size it answers with.
+  let minResponse := "HTTP/1.1 200 OK\r\n".utf8ByteSize + (toString bodySize).length
+  unless c.responses == n ∧ c.machine.halted ∧ c.received == n * bodySize ∧
+      c.outBytes ≥ n * minResponse do
+    throw <| .userError <|
+      s!"{name}: expected {n} responses with {n * bodySize} body bytes, got {c.responses} " ++
+      s!"with {c.received}, in {c.outBytes} output bytes"
   IO.println s!"measurement: {name} {(t2 - t1).toFloat / 1000000000.0} s"
 
 def browserGet (connection : String) : String :=
@@ -146,7 +150,7 @@ def browserGet (connection : String) : String :=
 def main (args : List String) : IO Unit := do
   let n := args[0]!.toNat!
 
-  run "get_browser_bytes" (n / 10 + 1) 0 false (segments · 1) (browserGet "keep-alive") (browserGet "close")
+  run "get_browser_bytes" (n / 20 + 1) 0 false (segments · 1) (browserGet "keep-alive") (browserGet "close")
   run "get_browser_segments" n 0 false (segments · 61) (browserGet "keep-alive") (browserGet "close")
 
   let body := String.ofList (List.replicate 16384 'x')

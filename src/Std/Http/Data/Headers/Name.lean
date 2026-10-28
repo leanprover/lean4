@@ -92,8 +92,8 @@ characters for HTTP header names or is empty.
 -/
 def ofString? (s : String) : Option Name :=
   let val := s.trimAscii.toString.toLower
-  if h : IsValidHeaderName val ∧ IsLowerCase val then
-    some ⟨val, h.left, h.right⟩
+  if h : IsValidHeaderName val then
+    some ⟨val, h, IsLowerCase.isLowerCase_toLower⟩
   else
     none
 

@@ -8,6 +8,9 @@ module
 prelude
 public import Init.Data.ToString
 public import Std.Http.Internal
+public import Init.Data.String.Search
+import Init.Data.String.Lemmas.Pattern.TakeDrop.Pred
+import Init.Data.String.Lemmas.Search
 
 public section
 
@@ -75,8 +78,9 @@ def ofString? (s : String) : Option Value :=
   -- A field value does not include leading or trailing whitespace.
   let val := s.trimAscii.toString
 
-  if h : IsValidHeaderValue val then
-    some ⟨val, h⟩
+  if h : val.all Char.fieldContent ∧ (val.front?.map Char.fieldVchar |>.getD true) ∧
+      (val.back?.map Char.fieldVchar |>.getD true) then
+    some ⟨val, by simpa [IsValidHeaderValue, String.all_bool_eq, String.front?_eq, String.back?_eq] using h⟩
   else
     none
 

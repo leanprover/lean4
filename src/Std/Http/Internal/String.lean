@@ -6,6 +6,7 @@ Authors: Sofia Rodrigues
 module
 
 prelude
+import Init.Data.String.Lemmas.Pattern.TakeDrop.Pred
 import Init.Grind
 public import Init.Data.String.TakeDrop
 public import Std.Http.Internal.Char
@@ -28,21 +29,19 @@ open Std.Http.Internal.Char
 set_option linter.all true
 
 /--
-Core character quoting used by `quoteHttpString`.
+Quotes `s` as an HTTP `quoted-string`: `DQUOTE *( qdtext / quoted-pair ) DQUOTE`.
 
-Emits `qdtext` characters directly and `"` / `\\` as `quoted-pair`.
-The proof `h₀ : quotedStringChar c` guarantees the impossible branch is unreachable.
+Requires a proof that every character passes `quotedStringChar`. This function always adds quotes;
+use `quoteHttpString` to preserve valid tokens.
 -/
-def quoteCore (c : Char) (h₀ : quotedStringChar c) : String :=
-  if h : qdtext c then
-    .singleton c
-  else if h₁ : c = '\"' || c = '\\' then
-    .append "\\" (.singleton c)
-  else
-    absurd h₀ (not_quotedStringChar_of_not_qdtext_not_dquote_backslash _ (quotedStringChar_lt_0x80 h₀) ⟨h, h₁⟩)
+@[expose]
+def quoteHttpStringCore (s : String) (_h : s.toList.all quotedStringChar) : String :=
+  let quoteChar (out : String) (c : Char) : String :=
+    (if c == '"' || c == '\\' then out.push '\\' else out).push c
+  (s.foldl quoteChar "\"").push '"'
 
 /--
-Quotes `s` as an HTTP `quoted-string`: `DQUOTE *( qdtext / quoted-pair ) DQUOTE`.
+Quotes `s` as an HTTP `quoted-string` if necessary, otherwise returns `s`.
 
 If every character is a `tchar` and the string is non-empty, the string is returned as-is (it is
 already a valid token). Otherwise the string is wrapped in double quotes, escaping `"` and `\`
@@ -52,15 +51,10 @@ Requires a proof that every character passes `quotedStringChar`.
 -/
 @[expose]
 def quoteHttpString (s : String) (h : s.toList.all quotedStringChar) : String :=
-  let sl := s.toList.attach
-
-  if sl.all (tchar ·.val) ∧ ¬sl.isEmpty then
+  if !s.isEmpty && s.all tchar then
     s
   else
-    (.append
-      (sl.foldl (fun acc x =>
-        .append acc (quoteCore x.val (List.all_eq_true.mp h x.val x.2))) "\"")
-      "\"")
+    quoteHttpStringCore s h
 
 /--
 Attempts to quote `s` as an HTTP `quoted-string`.
@@ -69,8 +63,8 @@ Returns `some` with the quoted result when every character passes `quotedStringC
 when any character cannot be represented by the grammar.
 -/
 def quoteHttpString? (s : String) : Option String :=
-  if h : s.toList.all quotedStringChar then
-    some <| quoteHttpString s h
+  if h : s.all quotedStringChar then
+    some <| quoteHttpString s (by simpa [String.all_bool_eq] using h)
   else
     none
 
@@ -121,5 +115,20 @@ Checks whether a string is a valid non-empty HTTP token.
 def isToken (s : String) : Bool :=
   let s := s.toList
   ¬s.isEmpty ∧ s.all Char.tchar
+
+/--
+Runtime implementation of `isToken` that avoids materializing `toList`.
+-/
+def isTokenImpl (s : String) : Bool :=
+  !s.isEmpty && s.all Char.tchar
+
+/--
+Use `isTokenImpl` at run time while leaving the list-based version for proofs.
+-/
+@[csimp]
+theorem isToken_eq_isTokenImpl : isToken = isTokenImpl := by
+  funext s
+  rw [Bool.eq_iff_iff]
+  simp [isToken, isTokenImpl, String.all_bool_eq, List.isEmpty_iff]
 
 end Std.Http.Internal

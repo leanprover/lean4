@@ -19,29 +19,6 @@ open Std.Tactic.BVDecide
 
 namespace Cegar
 
-/--
-An entry for a particular function symbol in a model
--/
-structure FunModel.Entry where
-  /--
-  An entry is a map from inputs to the function symbol to values + the particular application of
-  that function symbol with that value.
-  -/
-  map : Std.HashMap (Array BVExpr.PackedBitVec) (BVExpr.PackedBitVec × Expr)
-  deriving Inhabited
-
-/--
-A model for the UF component of the problem, derived from a SAT/BitVec model.
--/
-structure FunModel where
-  /--
-  A model is a map from function symbols (keep in mind that these are lambdas that potentially fix
-  some non-BitVec arguments like a dependent width) to the set of input/output pairs known for this
-  function.
-  -/
-  model : Std.HashMap Sym.ExprPtr FunModel.Entry := {}
-  deriving Inhabited
-
 namespace FunModel
 
 namespace Entry
@@ -160,6 +137,7 @@ public def checkUf (cex : CegarM.CounterExample) : CegarM Bool :=
       addedLemma := true
     else
       funModel := funModel.insert funPattern args value funAtom.funExpr
+  CegarM.modifyTheoryState fun s => { s with funState.currentModel := funModel }
   return addedLemma
 where
   evalArgs (args : Array Expr) (mask : Array Bool) : CegarM (Array BVExpr.PackedBitVec) := do

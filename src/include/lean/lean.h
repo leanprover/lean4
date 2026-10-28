@@ -976,8 +976,8 @@ static inline unsigned lean_closure_arity(lean_object * o) { return lean_to_clos
 static inline unsigned lean_closure_num_fixed(lean_object * o) { return lean_to_closure(o)->m_num_fixed; }
 static inline lean_object ** lean_closure_arg_cptr(lean_object * o) { return lean_to_closure(o)->m_objs; }
 static inline lean_obj_res lean_alloc_closure(void * fun, unsigned arity, unsigned num_fixed) {
-    assert(arity > 0);
-    assert(num_fixed < arity);
+    if (LEAN_UNLIKELY(arity == 0 || arity > UINT16_MAX)) lean_internal_panic("invalid closure arity");
+    if (LEAN_UNLIKELY(num_fixed >= arity)) lean_internal_panic("invalid number of fixed closure arguments");
     lean_closure_object * o = (lean_closure_object*)lean_alloc_object(lean_usize_add_checked(sizeof(lean_closure_object), lean_usize_mul_checked(sizeof(void*), num_fixed)));
     lean_set_st_header((lean_object*)o, LeanClosure, 0);
     o->m_fun = fun;
@@ -1018,6 +1018,7 @@ LEAN_EXPORT lean_object* lean_apply_13(lean_object* f, lean_object* a1, lean_obj
 LEAN_EXPORT lean_object* lean_apply_14(lean_object* f, lean_object* a1, lean_object* a2, lean_object* a3, lean_object* a4, lean_object* a5, lean_object* a6, lean_object* a7, lean_object* a8, lean_object* a9, lean_object* a10, lean_object* a11, lean_object* a12, lean_object* a13, lean_object* a14);
 LEAN_EXPORT lean_object* lean_apply_15(lean_object* f, lean_object* a1, lean_object* a2, lean_object* a3, lean_object* a4, lean_object* a5, lean_object* a6, lean_object* a7, lean_object* a8, lean_object* a9, lean_object* a10, lean_object* a11, lean_object* a12, lean_object* a13, lean_object* a14, lean_object* a15);
 LEAN_EXPORT lean_object* lean_apply_16(lean_object* f, lean_object* a1, lean_object* a2, lean_object* a3, lean_object* a4, lean_object* a5, lean_object* a6, lean_object* a7, lean_object* a8, lean_object* a9, lean_object* a10, lean_object* a11, lean_object* a12, lean_object* a13, lean_object* a14, lean_object* a15, lean_object* a16);
+/* The generic application entry points require n <= UINT16_MAX. */
 LEAN_EXPORT lean_object* lean_apply_n(lean_object* f, unsigned n, lean_object** args);
 /* Pre: n > 16 */
 LEAN_EXPORT lean_object* lean_apply_m(lean_object* f, unsigned n, lean_object** args);

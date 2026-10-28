@@ -165,6 +165,7 @@ case 0: lean_unreachable();\n"
 
 def mkApplyM (max : Nat) : M Unit :=
   emit s!"extern \"C\" LEAN_EXPORT obj* lean_apply_m(obj* f, unsigned n, obj** as) \{
+if (LEAN_UNLIKELY(n > UINT16_MAX)) lean_internal_panic(\"too many arguments in closure application\");
 lean_assert(n > {max});
 if (lean_is_scalar(f)) \{ for (unsigned i = 0; i < n; i++) \{ lean_dec(as[i]); } return f; } // f is an erased proof
 unsigned arity = lean_closure_arity(f);

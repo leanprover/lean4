@@ -549,6 +549,80 @@ example {v : SemanticTokenModifier} : open SemanticTokenModifier in
     names[v.toNat]?.map (toString <| toJson ·) = some (toString <| toJson v) := by
   cases v <;> native_decide
 
+/-- Every modifier, in the order of `names`. -/
+def SemanticTokenModifier.all : Array SemanticTokenModifier :=
+  #[.declaration, .definition, .readonly, .static, .deprecated, .abstract,
+    .async, .modification, .documentation, .defaultLibrary,
+    .markupBold, .markupItalic, .markupSyntax]
+
+-- sanity check
+example : SemanticTokenModifier.all.map (·.toNat) = Array.range SemanticTokenModifier.names.size := by
+  native_decide
+
+/--
+A set of semantic token modifiers.
+
+Use the standard set notation for them:
+* The empty set is `{}`
+* The set with the modifiers `a` and `b` is `{a, b}`
+* Union, intersection, and difference are invoked via the `Union`, `Inter`, and `SDiff` instances
+* `m ∈ s` is membership.
+-/
+structure SemanticTokenModifiers where
+  private mk ::
+  /-- The set as LSP encodes it: bit `m.toNat` is set for each modifier `m` in the set. -/
+  toBits : Nat
+  deriving Inhabited, DecidableEq, Hashable
+
+namespace SemanticTokenModifiers
+
+/-- The empty set. -/
+def empty : SemanticTokenModifiers := ⟨0⟩
+
+/-- The set that contains only `m`. -/
+def singleton (m : SemanticTokenModifier) : SemanticTokenModifiers := ⟨1 <<< m.toNat⟩
+
+/-- The union of `s` and `t`. -/
+def union (s t : SemanticTokenModifiers) : SemanticTokenModifiers := ⟨s.toBits ||| t.toBits⟩
+
+/-- The intersection of `s` and `t`. -/
+def inter (s t : SemanticTokenModifiers) : SemanticTokenModifiers := ⟨s.toBits &&& t.toBits⟩
+
+/-- The modifiers of `s` that are not in `t`. -/
+def sdiff (s t : SemanticTokenModifiers) : SemanticTokenModifiers :=
+  ⟨s.toBits ^^^ (s.toBits &&& t.toBits)⟩
+
+/-- The set that LSP encodes as `bits`, for a client of the server that decodes its tokens. -/
+def ofBits (bits : Nat) : SemanticTokenModifiers := ⟨bits⟩
+
+instance : ToJson SemanticTokenModifiers := ⟨fun s => toJson s.toBits⟩
+
+instance : FromJson SemanticTokenModifiers := ⟨fun j => ofBits <$> fromJson? j⟩
+
+instance : EmptyCollection SemanticTokenModifiers := ⟨empty⟩
+
+instance : Singleton SemanticTokenModifier SemanticTokenModifiers := ⟨singleton⟩
+
+instance : Union SemanticTokenModifiers := ⟨union⟩
+
+instance : Inter SemanticTokenModifiers := ⟨inter⟩
+
+instance : SDiff SemanticTokenModifiers := ⟨sdiff⟩
+
+instance : Insert SemanticTokenModifier SemanticTokenModifiers := ⟨fun m s => s ∪ singleton m⟩
+
+instance : Membership SemanticTokenModifier SemanticTokenModifiers :=
+  ⟨fun s m => s.toBits.testBit m.toNat = true⟩
+
+instance (m : SemanticTokenModifier) (s : SemanticTokenModifiers) : Decidable (m ∈ s) :=
+  inferInstanceAs (Decidable (s.toBits.testBit m.toNat = true))
+
+/-- The modifiers in `s`, in the same order as in `SemanticTokenModifier.all`. -/
+def toArray (s : SemanticTokenModifiers) : Array SemanticTokenModifier :=
+  SemanticTokenModifier.all.filter (· ∈ s)
+
+end SemanticTokenModifiers
+
 structure SemanticTokensLegend where
   tokenTypes     : Array String
   tokenModifiers : Array String

@@ -25,8 +25,8 @@ enclosing containers already removed. The inline parser then reads that content 
 single contiguous string, while still producing subslices of `s`. `InlineSource` bundles the
 per-line subslices. Its constructor is private to prevent missing or double normalization.
 
-`ofLines` normalizes a block's lines as CommonMark §4.8 requires, and `dropUpTo` keeps a suffix of
-an already-normalized source.
+`ofLines` normalizes a block's lines as CommonMark §4.8 requires, and it is the only way to build an
+`InlineSource`.
 -/
 
 /--
@@ -142,19 +142,3 @@ public def ofLines (lines : Lines s) : InlineSource s :=
     nonempty := by simpa using h }
 
 public instance : Inhabited (InlineSource s) := ⟨ofLines (.singleton default)⟩
-
-/--
-Returns an `InlineSource` whose lines represent the suffix of `src` that starts at position `p`, or
-`none` when `p` is at or past the end of the last line. Lines fully before `p` are dropped. The line
-that contains `p` (if any) is cut to start at the first character on or after `p` that is not a
-space or tab.
--/
-public def dropUpTo (src : InlineSource s) (p : s.Pos) : Option (InlineSource s) := Id.run do
-  let mut out : Array s.Subslice := #[]
-  for r in src.lines do
-    if r.endExclusive ≤ p then continue
-    if r.startInclusive < p then
-      out := out.push (subsliceClamped (skipSpaces r p) r.endExclusive)
-    else
-      out := out.push r
-  if h : 0 < out.size then some { lines := out, nonempty := h } else none

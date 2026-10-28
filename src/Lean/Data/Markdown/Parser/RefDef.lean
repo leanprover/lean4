@@ -153,6 +153,23 @@ public def parseLinkRefDef? (source : InlineSource s) (start : s.Pos) :
   return ({ openBracket, label, closeBracket, colon, destination, title? }, finalRest.startPos)
 
 /--
+The suffix of `source` that starts at `p`, or `none` when only whitespace and line endings follow
+`p`. The lines before `p` are dropped, and the line that contains `p` is cut to start at it. The
+lines are normalized again, which strips the spaces and tabs at `p`.
+-/
+def sourceFrom? (source : InlineSource s) (p : s.Pos) : Option (InlineSource s) := Id.run do
+  let mut kept : Array s.Subslice := #[]
+  for line in source.lines do
+    if line.endExclusive ≤ p then continue
+    if line.startInclusive < p then
+      let rest := subsliceClamped p line.endExclusive
+      -- A cut line that is only its line ending contributes nothing.
+      unless parseLineEnding? rest p == some line.endExclusive do kept := kept.push rest
+    else
+      kept := kept.push line
+  if h : 0 < kept.size then some (.ofLines ⟨kept, h⟩) else none
+
+/--
 Greedily consumes link ref definitions from the front of `source`.
 
 Returns the extracted `linkRefDef` blocks together with the residual `InlineSource`. The residual is
@@ -169,4 +186,5 @@ public def extractRefDefs (source : InlineSource s) :
     | some (m, posAfter) =>
       defs := defs.push (.linkRefDef m)
       p := posAfter
-  return (defs, source.dropUpTo p)
+  if defs.isEmpty then return (defs, some source)
+  return (defs, sourceFrom? source p)

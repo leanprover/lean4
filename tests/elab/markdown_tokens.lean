@@ -21,7 +21,7 @@ def markupAt (input : String) (byteIdx : Nat) : String := Id.run do
   let tok? := toks.findSome? fun t => do
     guard <| t.range.start.byteIdx ≤ byteIdx && byteIdx < t.range.stop.byteIdx
     let type ← SemanticTokenType.names[t.type.toNat]?
-    let modifiers := t.modifiers.filterMap fun m => SemanticTokenModifier.names[m.toNat]?
+    let modifiers := t.modifiers.toArray.toList.filterMap fun m => SemanticTokenModifier.names[m.toNat]?
     return " ".intercalate (type :: modifiers)
   tok?.getD "<none>"
 

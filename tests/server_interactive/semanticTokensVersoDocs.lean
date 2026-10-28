@@ -1,3 +1,4 @@
+import Lean.Elab.DocString
 set_option doc.verso true
 set_option doc.verso.suggestions false
 /-!
@@ -10,8 +11,14 @@ at a time as well, and a continuation line's indentation up to the docstring's b
 part of any token. Empty content, such as an image without alternate text or a link reference
 without a URL, contributes no token. The final docstring exercises the remaining element kinds:
 roles with named arguments, flags, and brackets, inline link targets, footnotes, display math,
-description list terms, code blocks with arguments, and block commands.
+description list terms, code blocks with arguments, directives, and block commands.
 -/
+open Lean Doc Elab Term in
+/-- A directive whose content is its blocks, unchanged. -/
+@[doc_directive]
+def identity (content : TSyntaxArray ``Parser.block) : DocM (Block ElabInline ElabBlock) :=
+  .concat <$> content.mapM elabBlock
+
 /-- {name}`foo1` {lean}`foo1 x` {assert}`foo1 4 = 5` -/
 def foo1 (x : Nat) := x.succ
 /-- {name}`foo1` {lean}`foo1 x` {assert}`foo2 = foo1` -/
@@ -75,6 +82,10 @@ $$`E = mc^2`
 ```lean -error +show
 def fromDoc := 1
 ```
+
+:::identity
+Inside a *directive*.
+:::
 
 {open Nat}
 

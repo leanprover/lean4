@@ -52,16 +52,16 @@ structure LeanSemanticToken where
   /-- In case of overlap, higher-priority tokens will take precedence -/
   priority : Nat := 5
   /-- Modifiers of the semantic token. -/
-  modifiers : List SemanticTokenModifier := []
+  modifiers : SemanticTokenModifiers := {}
 
 /-- The semantic token for the source range of `stx`, if it has one. -/
 def LeanSemanticToken.ofSyntax? (stx : Syntax) (tokenType : SemanticTokenType) (priority : Nat := 5)
-    (modifiers : List SemanticTokenModifier := []) : Option LeanSemanticToken :=
+    (modifiers : SemanticTokenModifiers := {}) : Option LeanSemanticToken :=
   stx.getRange?.map fun range => { range, type := tokenType, priority, modifiers }
 
 /-- Appends the semantic token for the source range of `stx`, if it has one. -/
 def pushSyntaxToken (toks : Array LeanSemanticToken) (stx : Syntax) (tokenType : SemanticTokenType)
-    (priority : Nat := 5) (modifiers : List SemanticTokenModifier := []) :
+    (priority : Nat := 5) (modifiers : SemanticTokenModifiers := {}) :
     Array LeanSemanticToken :=
   match LeanSemanticToken.ofSyntax? stx tokenType priority modifiers with
   | some tok => toks.push tok
@@ -75,15 +75,11 @@ structure AbsoluteLspSemanticToken where
   tailPos : Lsp.Position
   /-- Type of the semantic token. -/
   type    : SemanticTokenType
-  /-- In case of overlap, higher-priority tokens will take precedence -/
+  /-- In case of overlap, higher-priority tokens will take precedence. -/
   priority : Nat := 5
-  /-- The token's modifiers, as the bit set that LSP expects: bit `m.toNat` is set for each modifier `m`. -/
-  modifiers : Nat := 0
+  /-- The token's modifiers. -/
+  modifiers : SemanticTokenModifiers := {}
   deriving BEq, Hashable, FromJson, ToJson
-
-/-- Encodes modifiers as the bit set that LSP expects. -/
-private def encodeModifiers (modifiers : List SemanticTokenModifier) : Nat :=
-  modifiers.foldl (fun acc m => acc ||| (1 <<< m.toNat)) 0
 
 /--
 Given a set of `LeanSemanticToken`, computes the `AbsoluteLspSemanticToken` with absolute
@@ -105,7 +101,7 @@ def computeAbsoluteLspSemanticTokens
       tailPos := text.utf8PosToLspPos tailPos
       type := tok.type
       priority := tok.priority
-      modifiers := encodeModifiers tok.modifiers
+      modifiers := tok.modifiers
     }
 
 /--
@@ -320,7 +316,7 @@ def computeDeltaLspSemanticTokens (tokens : Array AbsoluteLspSemanticToken) : Se
     let deltaStart := pos.character - (if pos.line == lastPos.line then lastPos.character else 0)
     let length := tailPos.character - pos.character
     let tokenType := tokenType.toNat
-    data := data ++ #[deltaLine, deltaStart, length, tokenType, tokenModifiers]
+    data := data ++ #[deltaLine, deltaStart, length, tokenType, tokenModifiers.toBits]
     lastPos := pos
   return { data }
 
@@ -345,12 +341,18 @@ private inductive MarkupBlockCtxt where
 /--
 The formatting that applies to a piece of text: whether it is inside bold emphasis, whether it is
 inside italic emphasis, and the innermost heading, blockquote, or list item that contains it. The
-block context determines the token type of the text, and the emphasis its modifiers.
+block context determines the token type of the text and the emphasis its modifiers.
 -/
 private structure MarkupAttrs where
-  bold   : Bool := false
+  bold : Bool := false
   italic : Bool := false
-  block  : MarkupBlockCtxt := .none
+  block : MarkupBlockCtxt := .none
+  /--
+  The token type used for text that's not in a block with its own text token.
+
+  This is used when `block` is `none`.
+  -/
+  text : SemanticTokenType := .markupDocText
 
 @[inline] private def MarkupAttrs.withBold (a : MarkupAttrs) : MarkupAttrs :=
   { a with bold := true }
@@ -364,14 +366,14 @@ private structure MarkupAttrs where
 /-- The token type of text with these attributes. -/
 private def MarkupAttrs.tokenType (a : MarkupAttrs) : SemanticTokenType :=
   match a.block with
-  | .none => .markupDocText
+  | .none => a.text
   | .heading => .markupHeading
   | .quote => .markupQuote
   | .list => .markupList
 
 /-- The token modifiers of text with these attributes. -/
-private def MarkupAttrs.modifiers (a : MarkupAttrs) : List SemanticTokenModifier :=
-  (if a.bold then [.markupBold] else []) ++ (if a.italic then [.markupItalic] else [])
+private def MarkupAttrs.modifiers (a : MarkupAttrs) : SemanticTokenModifiers :=
+  (if a.bold then {.markupBold} else {}) ∪ (if a.italic then {.markupItalic} else {})
 
 /--
 The raw source range of `sub` in the underlying string, which the LSP layer converts to positions.
@@ -380,31 +382,51 @@ The raw source range of `sub` in the underlying string, which the LSP layer conv
   ⟨sub.startInclusive.str.offset, sub.endExclusive.str.offset⟩
 
 /--
+The priority of a markup token of type `k`, used by both Verso and Markdown semantic tokens.
+
+Code tokens are the default highlighting of code element contents, so anything more specific that
+elaboration finds in the code, such as a variable name, takes precedence over them. Every other
+markup token has the default priority.
+-/
+private def markupPriority (k : SemanticTokenType) : Nat :=
+  match k with
+  | .markupInlineCode | .markupCodeBlock => 3
+  | _ => 5
+
+/--
 Pushes a `LeanSemanticToken` for `sub`, which is on a single source line. Does nothing when `sub` is
 empty.
 -/
 @[inline] private def pushTok (out : Array LeanSemanticToken) (sub : s.Subslice)
-    (tokenType : SemanticTokenType) (priority : Nat := 5)
-    (modifiers : List SemanticTokenModifier := []) : Array LeanSemanticToken :=
+    (tokenType : SemanticTokenType) (modifiers : SemanticTokenModifiers := {}) :
+    Array LeanSemanticToken :=
   if sub.toSlice.isEmpty then out
-  else out.push { range := toSyntaxRange sub, type := tokenType, priority, modifiers }
+  else
+    out.push {
+      range := toSyntaxRange sub,
+      type := tokenType,
+      priority := markupPriority tokenType,
+      modifiers
+    }
 
 /-- Pushes one `LeanSemanticToken` per line in `lines`. -/
 private def pushLines (out : Array LeanSemanticToken) (lines : Markdown.Lines s)
-    (tokenType : SemanticTokenType) (priority : Nat := 5) : Array LeanSemanticToken :=
-  lines.toArray.foldl (init := out) fun out line => pushTok out line tokenType priority
+    (tokenType : SemanticTokenType) : Array LeanSemanticToken :=
+  lines.toArray.foldl (init := out) fun out line => pushTok out line tokenType
 
 /-- Pushes a delimiter: a `keyword` token with the `markupSyntax` modifier. -/
 @[inline] private def pushDelimiter (out : Array LeanSemanticToken) (delimiter : s.Subslice) :
     Array LeanSemanticToken :=
-  pushTok out delimiter .keyword (modifiers := [.markupSyntax])
+  pushTok out delimiter .keyword (modifiers := {.markupSyntax})
 
 /-- Pushes text with the type and modifiers of the attributes `a`. -/
 @[inline] private def pushText (out : Array LeanSemanticToken) (text : s.Subslice)
     (a : MarkupAttrs) : Array LeanSemanticToken :=
-  pushTok out text a.tokenType (priority := 4) (modifiers := a.modifiers)
+  pushTok out text a.tokenType (modifiers := a.modifiers)
 
-/-- Pushes a link title: delimiters on its opener and closer and `string` on each line of its text. -/
+/--
+Pushes a link title: delimiters on its opener and closer and `string` on each line of its text.
+-/
 private def pushTitle (out : Array LeanSemanticToken) (t : Markdown.LinkTitle s) :
     Array LeanSemanticToken := Id.run do
   let mut out := out
@@ -446,7 +468,7 @@ where
     | .code openTicks content closeTicks =>
       out := pushDelimiter out openTicks
       out := pushDelimiter out closeTicks
-      out := pushLines out content.lines .markupInlineCode (priority := 6)
+      out := pushLines out content.lines .markupInlineCode
     | .italic openDelim content closeDelim =>
       out := pushDelimiter out openDelim
       out := pushDelimiter out closeDelim
@@ -469,7 +491,7 @@ where
       -- The server doesn't enable extensions
       pure ()
     | .html lines =>
-      out := pushLines out lines .markupInlineCode (priority := 6)
+      out := pushLines out lines .markupInlineCode
     return out
 
   /--
@@ -492,7 +514,7 @@ where
       out := pushDelimiter out openB
       out := pushDelimiter out closeB
     | .shortcut => pure ()
-    out := pushLines out label .markupCrossReference (priority := 6)
+    out := pushLines out label .markupCrossReference
     return out
 
   /--
@@ -598,25 +620,25 @@ def collectMarkdownTokens (text : FileMap) (startPos endPos : String.Pos.Raw) (i
   | _, _ => #[]
 
 open Lean.Doc MarkupTokens in
+/--
+Collects the semantic tokens of the Verso syntax `stx`.
+
+`text` is the default text token type, which is `markupDocText` in a documentation comment and
+`markupPlainText` elsewhere. `getTokens` collects the tokens of the Lean syntax contained in Verso
+metadata elements.
+-/
 private partial def collectVersoTokens
-    (stx : Syntax) (getTokens : (stx : Syntax) → Array LeanSemanticToken) :
-    Array LeanSemanticToken :=
-  go {} stx |>.run #[] |>.2
+    (stx : Syntax) (getTokens : (stx : Syntax) → Array LeanSemanticToken)
+    (text : SemanticTokenType := .markupDocText) : Array LeanSemanticToken :=
+  go { text } stx |>.run #[] |>.2
 where
-  tok (tk : Syntax) (k : SemanticTokenType) (modifiers : List SemanticTokenModifier := []) :
+  tok (tk : Syntax) (k : SemanticTokenType) (modifiers : SemanticTokenModifiers := {}) :
       StateM (Array LeanSemanticToken) Unit :=
-    let priority :=
-      match k with
-      -- Code tokens are the default highlighting of code element contents. They should be
-      -- overridden by anything more specific, like variable names, that occurs in these elements,
-      -- so they get a lower priority.
-      | .markupInlineCode | .markupCodeBlock => 3
-      | _ => 5
-    modify (pushSyntaxToken · tk k priority modifiers)
+    modify (pushSyntaxToken · tk k (markupPriority k) modifiers)
 
   /-- Emits a delimiter: a `keyword` token with the `markupSyntax` modifier. -/
   delim (tk : Syntax) : StateM (Array LeanSemanticToken) Unit :=
-    tok tk .keyword [.markupSyntax]
+    tok tk .keyword {.markupSyntax}
 
   /--
   The region of a code block line to highlight. The line's final newline is omitted because some LSP
@@ -787,6 +809,13 @@ partial def collectSyntaxBasedSemanticTokens (text : FileMap) : (stx : Syntax) �
         return collectMarkdownTokens text startPos endPos indent
       else
         return #[]
+    -- Verso syntax outside a documentation comment, such as the body of a Verso document command,
+    -- get the markup tokens too. However, their plain text gets a different token so themes can
+    -- style Verso inside and outside of docstrings differently. The kinds of Verso syntax are in
+    -- the `Lean.Doc.Parser` namespace. The namespace check removes unnecessary comparisons.
+    if (`Lean.Doc.Parser).isPrefixOf stx.getKind then
+      if (Doc.BlockView.of ⟨stx⟩).isSome || (Doc.InlineView.of ⟨stx⟩).isSome then
+        return collectVersoTokens stx (collectSyntaxBasedSemanticTokens text) .markupPlainText
     let mut tokens :=
       if stx.isOfKind choiceKind then
         collectSyntaxBasedSemanticTokens text stx[0]
@@ -833,7 +862,8 @@ def dbgShowTokens (text : FileMap) (toks : Array LeanSemanticToken) : String := 
   let mut out := ""
   for (l, vals) in byLine.toList.mergeSort (fun x y => x.1 ≤ y.1) do
     let vals := vals.toList.mergeSort fun x y => x.1 ≤ y.1
-    out := out ++ s!"{l}:\t{vals.map (fun (c1, c2, tok) => (c1, c2, toJson tok.type, tok.priority, tok.modifiers.map toJson))}\n"
+    out := out ++
+      s!"{l}:\t{vals.map (fun (c1, c2, tok) => (c1, c2, toJson tok.type, tok.priority, tok.modifiers.toArray.map toJson))}\n"
   out
 
 def computeSemanticTokens  (doc : EditableDocument) (beginPos : String.Pos.Raw)

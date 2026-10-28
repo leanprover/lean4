@@ -28,13 +28,21 @@ variable {s : String.Slice}
 ## Tags
 -/
 
-/-- Whether `c` may continue an HTML tag name: an ASCII letter, digit, or hyphen. -/
-public def isTagNameChar (c : Char) : Bool := c.isAlphanum || c == '-'
+/--
+Whether `c` may continue an HTML tag name. Tag names continue with ASCII letters, digits, and
+hyphens.
+-/
+def isTagNameChar (c : Char) : Bool := c.isAlphanum || c == '-'
 
-/-- Whether `c` may begin an attribute name: an ASCII letter, `_`, or `:`. -/
+/--
+Whether `c` may begin an attribute name. Attribute names begin with an ASCII letter, `_`, or `:`.
+-/
 def isAttributeNameStart (c : Char) : Bool := c.isAlpha || c == '_' || c == ':'
 
-/-- Whether `c` may continue an attribute name: an ASCII letter, digit, `_`, `.`, `:`, or `-`. -/
+/--
+Whether `c` may continue an attribute name. Attribute names continue with ASCII letters, digits,
+`_`, `.`, `:`, and `-`.
+-/
 def isAttributeNameChar (c : Char) : Bool :=
   c.isAlphanum || c == '_' || c == '.' || c == ':' || c == '-'
 
@@ -43,8 +51,8 @@ def isUnquotedValueChar (c : Char) : Bool :=
   !(c.isWhitespace || c == '"' || c == '\'' || c == '=' || c == '<' || c == '>' || c == '`')
 
 /--
-Advances past spaces, tabs, and up to one line ending: the whitespace that CommonMark permits
-inside an HTML tag (§6.6).
+Advances past the whitespace that CommonMark permits inside an HTML tag (§6.6). That whitespace is
+spaces, tabs, and up to one line ending.
 -/
 def skipTagWhitespace (cur : InlineCursor s) : InlineCursor s := Id.run do
   let mut cur := cur
@@ -119,14 +127,16 @@ def HtmlScanMemo.recordFailure (memo : HtmlScanMemo s) (closer : HtmlCloser) (st
   | .cdata => { memo with cdata? := some start }
   | .declaration => { memo with declaration? := some start }
 
-/-- The monad for parsing raw HTML whose closers are searched for: failure, over an `HtmlScanMemo`. -/
+/--
+The monad for parsing raw HTML whose closers are searched for.
+-/
 public abbrev HtmlM (s : String.Slice) := OptionT (StateM (HtmlScanMemo s))
 
 /-- The value of `x?`, or failure when it is `none`. -/
 @[inline] public def HtmlM.ofOption (x? : Option α) : HtmlM s α := OptionT.mk (pure x?)
 
 /--
-Advances past the first occurrence of `closer`, or fails when there is none. A failed search is
+Advances past the first occurrence of `closer`, or fails when there is none. Failed searches are
 recorded so that later searches for the same closer from the same position or beyond fail without
 reading the input.
 -/
@@ -136,7 +146,7 @@ def advancePastCloser (cur : InlineCursor s) (closer : HtmlCloser) : HtmlM s (In
     | modify (·.recordFailure closer cur.startPos); failure
   return after
 
-/-- Parses an attribute value at `cur`: unquoted, single-quoted, or double-quoted. -/
+/-- Parses an unquoted, single-quoted, or double-quoted attribute value at `cur`. -/
 def parseAttributeValue? (cur : InlineCursor s) : Option (InlineCursor s) :=
   match cur.front? with
   | some '"' => advancePast cur.drop1 ['"']
@@ -145,8 +155,9 @@ def parseAttributeValue? (cur : InlineCursor s) : Option (InlineCursor s) :=
   | none => none
 
 /--
-Parses an HTML open tag after its `<` at `cur`, which must point at an ASCII letter: the tag name,
-attributes, optional whitespace, an optional `/`, and `>`. Each attribute is preceded by whitespace.
+Parses an HTML open tag after its `<` at `cur`, which must point at an ASCII letter. After the `<`,
+the tag consists of the tag name, attributes, optional whitespace, an optional `/`, and `>`. Each
+attribute is preceded by whitespace.
 Returns the cursor after the `>`.
 -/
 public def parseOpenTag? (cur : InlineCursor s) : Option (InlineCursor s) := do
@@ -167,8 +178,8 @@ public def parseOpenTag? (cur : InlineCursor s) : Option (InlineCursor s) := do
   none
 
 /--
-Parses an HTML closing tag after its `</` at `cur`: the tag name, optional whitespace, and `>`.
-Returns the cursor after the `>`.
+Parses an HTML closing tag after its `</` at `cur`. After the `</`, the tag consists of the tag
+name, optional whitespace, and `>`. Returns the cursor after the `>`.
 -/
 public def parseClosingTag? (cur : InlineCursor s) : Option (InlineCursor s) := do
   guard <| Option.any Char.isAlpha cur.front?
@@ -331,5 +342,3 @@ public def endConditionMet (kind : HtmlBlockKind) (line : s.Subslice) : Bool :=
   | .declaration => containsAscii line ">"
   | .cdata => containsAscii line "]]>"
   | .blockTag | .completeTag => false
-
-end HtmlBlockKind

@@ -24,9 +24,9 @@ namespace Lean.Markdown
 /-!
 # Pass 2: Inline Parser
 
-Parses the inline elements of a block's text.
-
-A backslash escape `\X` of an ASCII punctuation character becomes an `Inline.escape`.
+The second pass parses the inline elements of a block's text. This requires a global view of the
+document because forward references to defined labels determine whether a piece of syntax is a link
+or just plain text.
 -/
 
 variable {s : String.Slice}
@@ -48,8 +48,8 @@ def parseCharacterReference? (cur : InlineCursor s) : Option (Inline s × s.Pos)
   return (.entity (subsliceClamped start after) value, after)
 
 /--
-Whether `c` is in the email autolink local-part character set (CommonMark §6.5): ASCII alphanumerics
-plus ``.!#$%&'*+/=?^_`{|}~-``.
+Whether `c` is in the email autolink local-part character set (CommonMark §6.5), which is ASCII
+alphanumerics plus ``.!#$%&'*+/=?^_`{|}~-``.
 -/
 def isEmailLocalChar (c : Char) : Bool :=
   c.isAlpha || c.isDigit || c == '.' || c == '!' || c == '#'
@@ -96,7 +96,7 @@ def parseAutolinkEmail? (cur : InlineCursor s) : Option s.Pos := do
   guard <| localLen != 0
   guard <| rest.front? == some '@'
   rest := rest.drop1
-  -- Domain: at least one label.
+  -- The domain has at least one label.
   while !rest.isEmpty do
     let firstC := rest.front
     guard firstC.isAlphanum
@@ -140,9 +140,9 @@ def parseAutolink? (cur : InlineCursor s) : Option (Inline s × s.Pos) := do
   return (.autolink openAngle urlRange closeAngle !isLink, closeAngle.endExclusive)
 
 /--
-Parses raw HTML (CommonMark §6.6) at `cur`, which must point at `<`: an open tag, a closing tag, a
-comment, a processing instruction, a declaration, or a CDATA section. Returns the `Inline.html` and
-the position after its closing `>`.
+Parses raw HTML (CommonMark §6.6) at `cur`, which must point at `<`. The HTML is an open tag, a
+closing tag, a comment, a processing instruction, a declaration, or a CDATA section. Returns the
+`Inline.html` and the position after its closing `>`.
 -/
 def parseRawHtml? (cur : InlineCursor s) : HtmlM s (Inline s × s.Pos) := do
   guard <| cur.front? == some '<'
@@ -257,7 +257,7 @@ where
     let labelOpen ← afterCloseRest.charSubslice?
     let afterOpen := afterCloseRest.drop1
     if afterOpen.front? == some ']' then
-      -- Collapsed reference: the link text/image alt serves as the label.
+      -- In the collapsed reference form, the link text/image alt serves as the label.
       let labelClose ← afterOpen.charSubslice?
       let label ← interiorLabel?
       let target ← linkRef label
@@ -270,7 +270,7 @@ where
         let labelClose ← atClose.charSubslice?
         let target ← linkRef label
         return (.reference target label (.full labelOpen labelClose), labelClose.endExclusive)
-  /-- The shortcut `[…]` / `![…]` form: the bracket interior itself is the label. -/
+  /-- The shortcut `[…]` / `![…]` form, in which the bracket interior itself is the label. -/
   shortcutForm : LinkTargetM s (LinkTarget s × s.Pos) := do
     guard !(← refTable).isEmpty
     let label ← interiorLabel?
@@ -290,24 +290,24 @@ where
 /-!
 ### Inline Tokenization
 
-The §6.2 emphasis algorithm consumes a flat sequence of tokens, each either a fully-finalized
-non-emphasis `Inline` (inline code, link, image, autolink, soft/hard break, escaped char) or a
-still-raw `*`/`_` delimiter sequence.  `tokenizeInlines` produces this sequence. It reads the inline
-source, recognizes each non-emphasis inline kind in turn (backslash escape §2.4, character reference
-§2.5, inline code §6.1, link §6.3, image §6.4, autolink §6.5, raw HTML §6.6, hard line break §6.7,
-soft line break §6.8), and saves delimiter sequences for §6.2 to handle later.
+The emphasis algorithm in §6.2 of CommonMark consumes a flat sequence of tokens. Each token is
+either a fully-finalized non-emphasis `Inline` (inline code, link, image, autolink, soft/hard break,
+escaped char) or a raw `*`/`_` delimiter sequence.  `tokenizeInlines` produces this sequence. It
+reads the inline source, recognizes each non-emphasis inline kind in turn (backslash escape §2.4,
+character reference §2.5, inline code §6.1, link §6.3, image §6.4, autolink §6.5, raw HTML §6.6,
+hard line break §6.7, soft line break §6.8), and saves delimiter sequences for §6.2 to handle later.
 
-Links and images follow the bracket-stack procedure of the specification's appendix. A `[` or `![`
-is emitted as a text token and pushed on a stack of bracket openers. A `]` pops the nearest opener
-and tries to parse a link target or reference after itself. On success, the tokens that were emitted
-since the opener become the link's text, with their emphasis processed, and the opener's text token
-is replaced by the link or image; every earlier `[` is then deactivated, since a link may not
-contain a link. On failure, the brackets stay text. Each `]` thus does work proportional to the
+Links and images follow the bracket stack procedure described in the specification's appendix. A `[`
+or `![` is emitted as a text token and pushed on a stack of bracket openers. A `]` pops the nearest
+opener and tries to parse a link target or reference after itself. On success, the tokens that were
+emitted since the opener become the link's text, with their emphasis processed, and the opener's
+text token is replaced by the link or image; every earlier `[` is then deactivated, since a link may
+not contain a link. On failure, the brackets stay text. Each `]` thus does work proportional to the
 tokens since its opener.
 
-The tokenizer's mutable state (`InlineTokenizerState` below) is touched through a few operations:
-`recognize` for “matched an inline,” `skipChar` for “no match, this character is literal text,”
-`skipPast` for the one place where we leap forward past several literal chars at once, and
+The tokenizer's mutable state (`InlineTokenizerState` below) is touched through a few operations,
+which are `recognize` for “matched an inline,” `skipChar` for “no match, this character is literal
+text,” `skipPast` for the one place where we leap forward past several literal chars at once, and
 `openBracket`/`closeBracket` for the bracket stack.
 -/
 
@@ -331,8 +331,8 @@ emphasis matching (CommonMark §6.2) consumes.
 
 Consecutive characters that don't begin any inline construct are pending plain text. They become a
 single `.text` inline immediately before the next token, or at the end of the input. The character
-before the unconsumed input is kept because the flanking rules (CommonMark §6.2) classify a `*` or
-`_` sequence by the characters on both sides of it.
+before the unconsumed input is kept because the flanking rules classify a `*` or `_` sequence by the
+characters on both sides of it.
 -/
 structure InlineTokenizerState (s : String.Slice) where
   /-- Tokens that have been emitted so far. -/
@@ -378,7 +378,7 @@ with the input `resumeRest`. `newPrev` is the character before that input, which
 flanking rules.
 
 The pending plain text ends where the construct begins, so it becomes a `.text` inline before
-`tok`. For a line break, the construct begins before the trailing spaces of the line: two or more
+`tok`. For a line break, the construct begins before the trailing spaces of the line. Two or more
 of them are the hard line break itself (CommonMark §6.7), and fewer are removed with the soft line
 break (CommonMark §6.8).
 -/
@@ -400,17 +400,17 @@ def skipChar : TokenizeM s Unit := modify fun st =>
   { st with rest := st.rest.drop1, prevChar := st.rest.front }
 
 /--
-Whether `c` may begin an inline construct or a line ending: a backslash escape, inline code, an
-image or link bracket, an autolink or raw HTML, a character reference, an emphasis delimiter, or,
-with the `latexMath` extension, LaTeX math.
+Whether `c` may begin an inline construct or a line ending. The inline constructs are a backslash
+escape, inline code, an image or link bracket, an autolink or raw HTML, a character reference, an
+emphasis delimiter, or, with the `latexMath` extension, LaTeX math.
 -/
 def mayBeginInline (extensions : Extensions) (c : Char) : Bool :=
   c == '\\' || c == '`' || c == '!' || c == '[' || c == ']' || c == '<' || c == '&' || c == '*' ||
   c == '_' || c == '\n' || c == '\r' || (extensions.latexMath && c == '$')
 
 /--
-Advances over plain text: the current character, which did not begin an inline construct, and the
-characters after it that can't begin one.
+Advances over plain text. The plain text is the current character, which did not begin an inline
+construct, and the characters after it that can't begin one.
 
 The state is updated once for the whole stretch, and the last character becomes the previous
 character for the flanking rules.
@@ -432,8 +432,8 @@ def skipPast (newRest : InlineCursor s) (newPrev : Char) : TokenizeM s Unit :=
   modify fun st => { st with rest := newRest, prevChar := newPrev }
 
 /--
-Parses inline code at `cur`, which must point at a backtick: an opening backtick sequence, the
-content, and a closing sequence of the same length (CommonMark §6.1).
+Parses inline code at `cur`, which must point at a backtick. Inline code is an opening backtick
+sequence, the content, and a closing sequence of the same length (CommonMark §6.1).
 
 A search for the closing sequence records the start of every backtick sequence that it passes, by
 length. Once a search has reached the end of the input, a later search for a length whose last
@@ -639,7 +639,7 @@ def tokenizeInlines : TokenizeM s (Array (InlineTok s)) := do
       else
         recognize (.inline (.softBreak ending)) q afterEnding '\n'
     else if c == '$' && extensions.latexMath then
-      -- A sequence of one or two dollar signs is a math delimiter (md4c's rules): it may open
+      -- A sequence of one or two dollar signs is a math delimiter (md4c's rules). It may open
       -- after whitespace or punctuation, which includes the start of a line, and may close before
       -- whitespace or punctuation, which includes the end of the input. Longer sequences are
       -- text.

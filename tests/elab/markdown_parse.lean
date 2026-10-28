@@ -1,8 +1,8 @@
 import Lean.Data.Markdown
 
 /-!
-Unit tests for the Markdown parse tree: character references, backslash escapes, soft breaks,
-heading levels, text decoding, and the extent of inline and block constructs.
+Unit tests for the Markdown parse tree, which cover character references, backslash escapes, soft
+breaks, heading levels, text decoding, and the extent of inline and block constructs.
 -/
 
 open Lean Markdown
@@ -94,7 +94,7 @@ original length due to rule 9 of CommonMark §6.2.
 /-!
 ## Brackets
 
-Links and images follow the bracket-stack procedure of the CommonMark appendix: a link may not
+Links and images follow the bracket-stack procedure of the CommonMark appendix. A link may not
 contain another link, an image may contain links, emphasis does not cross a link boundary, and
 unmatched brackets are text. The nesting depth of brackets does not affect parsing time.
 -/
@@ -390,9 +390,9 @@ info: ["paragraph⟪text⟪Intro⟫ softBreak text⟪continued⟫⟫", "indented
 ## List Markers after Paragraph Text
 
 A list marker on the line after a paragraph's text starts a list only if its item may interrupt a
-paragraph (CommonMark §5.2): the item has content, and an ordered list starts at 1. This applies
-when the paragraph is the innermost open block. When a container did not continue on the marker's
-line, any marker starts a list.
+paragraph (CommonMark §5.2), which requires that the item has content and that an ordered list
+starts at 1. This applies when the paragraph is the innermost open block. When a container did not
+continue on the marker's line, any marker starts a list.
 -/
 
 -- At the content column of an item whose paragraph is open, a start other than 1 or an empty item
@@ -834,8 +834,8 @@ def showMathParagraph (src : String) : String :=
 /-- info: "text⟪$$$a$$$⟫" -/
 #guard_msgs in #eval showMathParagraph "$$$a$$$"
 
--- Multiple-line joining rules: a line's leading whitespace is dropped, and its line ending becomes
--- a space unless the previous line already ends with one.
+-- When lines are joined, a line's leading whitespace is dropped, and its line ending becomes a
+-- space unless the previous line already ends with one.
 /-- info: ["math⟪a  + b⟫", "math⟪a\t b⟫"] -/
 #guard_msgs in #eval [showMathParagraph "$a  \n  +\n b$", showMathParagraph "$a\t\nb$"]
 
@@ -868,7 +868,7 @@ def externalTargets (src : String) : List (String × Bool) :=
 /-- info: [("references.html#knuth", true), ("/document", false), ("/document", false)] -/
 #guard_msgs in #eval externalTargets "[knuth 1984] [r] [x][r]\n\n[r]: /document\n"
 
--- External labels that normalize alike: the lexicographically least label's definition is used.
+-- For external labels that normalize alike, the lexicographically least label's definition is used.
 /-- info: [("/dup-upper", true), ("/dup-upper", true)] -/
 #guard_msgs in #eval externalTargets "[DUP] [dup]\n"
 

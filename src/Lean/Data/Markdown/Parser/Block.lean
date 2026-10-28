@@ -39,7 +39,7 @@ by CommonMark.
 variable {s : String.Slice}
 
 /--
-Counts tab-aware leading whitespace (CommonMark §2.2): each tab advances to the next 4-column tab
+Counts tab-aware leading whitespace (CommonMark §2.2). Each tab advances to the next 4-column tab
 stop, computed relative to the cursor's current column. Returns the advanced cursor and the total
 number of columns that it consumes. Tabs are always crossed in full.
 -/
@@ -63,7 +63,7 @@ def countIndentCols (c : Cursor s) : Cursor s × Columns := Id.run do
 The rest of a line after its indentation, together with the width of that indentation.
 
 Whether a line begins a block depends on how far it is indented and on what follows the indentation
-(CommonMark §4): four or more columns begin indented code, and the other blocks allow at most
+(CommonMark §4). Four or more columns begin indented code, and the other blocks allow at most
 three. The indentation is measured in columns, and tabs advance to the next tab stop (CommonMark
 §2.2).
 -/
@@ -82,9 +82,9 @@ def Cursor.skipIndent (c : Cursor s) : IndentedLine s :=
 Consumes up to `maxCols` columns of leading whitespace at `c`, with tab-aware column counting.
 Returns the advanced cursor and the number of columns actually consumed.
 
-Tabs may be split: if a tab would move the cursor past `maxCols`, the position stays at the tab and
+Tabs may be split. If a tab would move the cursor past `maxCols`, the position stays at the tab and
 the column count advances by exactly the requested amount, leaving “leftover” tab columns for
-subsequent consumers (CommonMark §2.2's partial-tab rule).
+subsequent consumers (CommonMark §2.2's partial tab rule).
 -/
 def consumeIndentCapped (c : Cursor s) (maxCols : Columns) : Cursor s × Columns := Id.run do
   let mut c := c
@@ -109,7 +109,8 @@ def consumeIndentCapped (c : Cursor s) (maxCols : Columns) : Cursor s × Columns
   return (c, cols)
 
 /--
-The line at `c` as a line of an indented code block: its content after four columns of indentation.
+The line at `c` as a line of an indented code block, which is its content after four columns of
+indentation.
 -/
 def indentedCodeLine (c : Cursor s) : VerbatimLine s :=
   let (afterIndent, _) := consumeIndentCapped c 4
@@ -183,9 +184,9 @@ def parseAtxHeading? (line : IndentedLine s) : Option (AtxHeadingMatch s) := do
   let (cAfterGap, _) := countIndentCols rest
   let contentStart := cAfterGap.pos
   let mut content := trimTrailingWs cAfterGap.toEol
-  -- Optional closing `#` sequence: a trailing sequence of `#` characters that
-  -- is either preceded by a space/tab or extends to the start of content
-  -- (CommonMark §4.2). Strip it from the content.
+  -- The optional closing `#` sequence is a trailing sequence of `#` characters that is either
+  -- preceded by a space/tab or extends to the start of content (CommonMark §4.2). Strip it from
+  -- the content.
   let mut closeStart := content.endExclusive
   while contentStart < closeStart do
     match closeStart.prev? with
@@ -217,7 +218,7 @@ inductive ThematicBreakCheck (s : String.Slice) where
   | notCandidate
 
 /--
-Checks whether `line` is a thematic break: up to 3 leading spaces, followed by 3+ matching
+Checks whether `line` is a thematic break, which is up to 3 leading spaces, followed by 3+ matching
 `*`/`-`/`_` characters, with only spaces or tabs allowed between or after them (CommonMark §4.1).
 -/
 def checkThematicBreak (line : IndentedLine s) : ThematicBreakCheck s := Id.run do
@@ -246,13 +247,13 @@ def isThematicBreak (line : IndentedLine s) : Bool :=
   | _ => false
 
 /--
-Parses a setext heading underline (CommonMark §4.3): up to three leading spaces, then a sequence of
-`=` (level 1) or `-` (level 2), then optional trailing whitespace. Returns the heading level and the
-marker sequence.
+Parses a setext heading underline (CommonMark §4.3), which is up to three leading spaces, then a
+sequence of `=` (level 1) or `-` (level 2), then optional trailing whitespace. Returns the heading
+level and the marker sequence.
 
 The `---` underline overlaps with the thematic-break syntax. The caller must enforce the precedence
-rule: setext header parsing applies only when an open paragraph immediately precedes the underline.
-Otherwise, the same line is interpreted as a thematic break.
+rule, which is that setext header parsing applies only when an open paragraph immediately precedes
+the underline. Otherwise, the same line is interpreted as a thematic break.
 -/
 def parseSetextUnderline? (line : IndentedLine s) : Option (Nat × s.Subslice) := do
   let { after := c, indent } := line
@@ -312,7 +313,7 @@ def parseBlockquoteMarker? (line : IndentedLine s) : Option (s.Subslice × Curso
   let afterMarker := c.next
   let marker := subsliceClamped c.pos afterMarker.pos
   -- The blockquote marker `>` is followed by an optional single space (or
-  -- one column of a tab, per CommonMark §2.2's partial-tab rule).
+  -- one column of a tab, per CommonMark §2.2's partial tab rule).
   match afterMarker.front? with
   | some ' ' => return (marker, afterMarker.next)
   | some '\t' =>
@@ -347,7 +348,7 @@ def parseListMarker? (line : IndentedLine s) : Option (ListMarkerMatch s) := do
   let initialCol := c.col - indent
   let ch ← c.front?
   -- After matching the marker, compute the listItem's content column. Per
-  -- CommonMark §5.2: 1 ≤ N ≤ 4 cols of whitespace that follow the marker are
+  -- CommonMark §5.2, 1 ≤ N ≤ 4 cols of whitespace that follow the marker are
   -- absorbed into the listItem prefix; if the line is empty after the marker
   -- or has 5+ cols of whitespace (i.e., the content is itself indented
   -- code), the listItem absorbs only one col of whitespace. Tabs may be
@@ -383,8 +384,8 @@ def parseListMarker? (line : IndentedLine s) : Option (ListMarkerMatch s) := do
     let mut rest := c
     let mut digits := 0
     let mut value : Nat := 0
-    -- CommonMark §5.2: an ordered list marker has 1–9 digits. Up to 10 are counted, so sequences of
-    -- 10 or more digits fall through the `digits ≤ 9` guard below.
+    -- An ordered list marker has 1–9 digits (CommonMark §5.2). Up to 10 are counted, so sequences
+    -- of 10 or more digits fall through the `digits ≤ 9` guard below.
     while digits < 10 do
       let some digit := rest.front? | break
       if !digit.isDigit then break
@@ -407,8 +408,8 @@ def parseListMarker? (line : IndentedLine s) : Option (ListMarkerMatch s) := do
   failure
 
 /--
-Parses the start of an HTML block at `line` (CommonMark §4.6): after up to three spaces of
-indentation, a `<` that begins one of the seven start conditions. Returns the block's kind.
+Parses the start of an HTML block at `line` (CommonMark §4.6), which is, after up to three spaces
+of indentation, a `<` that begins one of the seven start conditions. Returns the block's kind.
 -/
 def parseHtmlBlockStart? (line : IndentedLine s) : Option HtmlBlockKind := do
   let { after := c, indent } := line
@@ -456,10 +457,11 @@ def listMarkerInterruptsParagraph (after : Cursor s) (kind : ListKind) : Bool :=
 
 /--
 Whether `line` begins a block rather than paragraph text, which decides lazy continuation
-(CommonMark §5.1): a paragraph inside a blockquote or list item continues onto a line without the
-container's marker, as long as that line is paragraph text. A blank line, a blockquote or list
-marker, an ATX heading, a code fence, a thematic break, or the start of an HTML block ends the
-paragraph instead.
+(CommonMark §5.1).
+
+A paragraph inside a blockquote or list item continues onto a line without the container's marker,
+as long as that line is paragraph text. A blank line, a blockquote or list marker, an ATX heading, a
+code fence, a thematic break, or the start of an HTML block ends the paragraph instead.
 
 Indentation is paragraph text here, because an indented code block cannot interrupt a paragraph
 (CommonMark §4.4). Any list marker begins a block here, since the §5.2 restrictions on which list
@@ -467,7 +469,7 @@ items may interrupt a paragraph apply only when the paragraph is the innermost o
 -/
 def isInterrupt (line : IndentedLine s) : Bool :=
   -- A line that interrupts is examined again by `openLeafBlock`, which repeats these checks. The
-  -- repetition is cheap: it is paid once per interrupting line, and the HTML check, the only one
+  -- repetition is cheap. It is paid once per interrupting line, and the HTML check, the only one
   -- that allocates, runs only for lines that begin with `<`.
   line.after.isEmpty ||
   (parseBlockquoteMarker? line).isSome ||
@@ -619,9 +621,11 @@ a heading fails and the underline begins a new paragraph.
     | some residual => z.addBlock (.setextHeading level residual underline)
 
 /--
-Lazy paragraph continuation: if some containers failed to continue but we have an open paragraph and
-the line is not an interrupt (i.e. doesn't open some other kind of block), the line lazily continues
-the paragraph in its deepest open context.
+Lazy paragraph continuation.
+
+If some containers failed to continue but we have an open paragraph and the line is not an interrupt
+(i.e. doesn't open some other kind of block), the line lazily continues the paragraph in its deepest
+open context.
 -/
 @[inline] def tryLazyContinuation : ContainerM s Unit := do
   unless (← get).zipper.spine.size > (← get).matched do return
@@ -708,7 +712,7 @@ whether a list item was opened on this line, because the blank line handler down
 information to distinguish an empty list item's body from a blank-line separator, together with the
 rest of the line after the prefixes.
 
-Thematic break has higher precedence than list markers (CommonMark §5.2: `* * *` is a thematic
+Thematic break has higher precedence than list markers (by CommonMark §5.2, `* * *` is a thematic
 break, not a one-item list), so each iteration short-circuits when a thematic break starts at the
 current cursor.
 -/
@@ -828,10 +832,10 @@ This is the default parser if no others apply.
 Finishes the line by opening the leaf block that `line` begins or, if it doesn't begin a block, by
 adding the line to a paragraph.
 
-The block to open is decided by the line's indentation and first character: a blank line; four or
-more columns of indentation for indented code; and otherwise `#` for an ATX heading, a backtick or
-tilde for a code fence, `<` for an HTML block, and `*`, `-`, or `_` for a thematic break. Other
-lines are paragraph text.
+The block to open is decided by the line's indentation and first character. A blank line is handled
+first, then four or more columns of indentation, which begin indented code. Otherwise, `#` begins an
+ATX heading, a backtick or tilde a code fence, `<` an HTML block, and `*`, `-`, or `_` a thematic
+break. Other lines are paragraph text.
 -/
 @[inline]
 def openLeafBlock (openedListItemThisLine : Bool) (line : IndentedLine s) : ProcessM s Unit := do

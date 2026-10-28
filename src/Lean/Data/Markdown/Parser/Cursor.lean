@@ -17,8 +17,8 @@ namespace Lean.Markdown
 
 The block parser processes one line at a time, and within each line it is constantly asking “what's
 at column N relative to the parent container's indent?”. Because CommonMark counts indentation in
-*columns* but the underlying source is characters, and a single tab can advance the column by 1–4
-(CommonMark §2.2's partial-tab rule), position and column are not in lockstep. The cursor is a
+_columns_ but the underlying source is characters, and a single tab can advance the column by 1–4
+(CommonMark §2.2's partial tab rule), position and column are not in lockstep. The cursor is a
 structure that tracks both.
 -/
 
@@ -60,7 +60,7 @@ variable {s : String.Slice}
 
 /--
 Consumes `cols` columns of the tab at the cursor, leaving the position at the tab (CommonMark §2.2's
-partial-tab rule). The caller is responsible for ensuring that the tab has that many columns left.
+partial tab rule). The caller is responsible for ensuring that the tab has that many columns left.
 -/
 @[inline] public def intoTab (c : Cursor s) (cols : Columns) : Cursor s :=
   { c with col := c.col + cols, partialTab := true }
@@ -70,9 +70,10 @@ partial-tab rule). The caller is responsible for ensuring that the tab has that 
   if c.pos < c.stop then c.pos.get? else none
 
 /--
-The cursor advanced by one character, or unchanged at the end of the line. The column advances by
-one, which is correct for every character but a tab; for tabs use `countIndentCols` or
-`consumeIndentCapped`.
+The cursor advanced by one character, or is unchanged at the end of the line.
+
+The column advances by one, which is correct for every character but a tab. For tabs use
+`countIndentCols` or `consumeIndentCapped`.
 -/
 @[inline] public def next (c : Cursor s) : Cursor s :=
   if h : c.pos < c.stop then
@@ -106,13 +107,13 @@ public def isBlank (c : Cursor s) : Bool :=
   cAfterWs.isEmpty
 
 /--
-The rest of the line as a line of verbatim block content. A partly consumed tab at the cursor is
-excluded from the source, and its remaining columns become the line's leading spaces.
+The rest of the line as a line of verbatim block content.
+
+A partly consumed tab at the cursor is excluded from the source, with its remaining columns becoming
+the line's leading spaces.
 -/
 public def verbatimLine (c : Cursor s) : VerbatimLine s :=
   if c.partialTab then
     { source := subsliceClamped c.next.pos c.stop, leadingSpaces := c.col.tabWidth.count }
   else
     { source := c.toEol }
-
-end Cursor

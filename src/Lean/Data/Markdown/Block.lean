@@ -20,15 +20,8 @@ public import Lean.Data.Markdown.InlineSource
 
 namespace Lean.Markdown
 
-/-!
-# Blocks
-
-The blocks of a parsed Markdown document: the raw blocks that the first pass produces, and the
-blocks with parsed inline content that the second pass produces.
--/
-
 /--
-A count of columns. Indentation is measured in columns (CommonMark §2.2): a space is one column,
+A count of columns. Indentation is measured in columns (CommonMark §2.2). A space is one column,
 and a tab advances to the next tab stop, which is the next multiple of four.
 -/
 public structure Columns where
@@ -62,10 +55,10 @@ public instance : LT Columns where
 /-- The columns after a space. -/
 @[inline] public def space (c : Columns) : Columns := ⟨ c.count + 1 ⟩
 
-/-- The width of a tab at `c`: the columns up to the next tab stop. -/
+/-- The width of a tab at `c`, which is the number of columns up to the next tab stop. -/
 @[inline] public def tabWidth (c : Columns) : Columns := ⟨4 - c.count % 4⟩
 
-/-- The columns after a tab: the next tab stop. -/
+/-- The columns after a tab at `c`, which is the next tab stop. -/
 @[inline] public def tab (c : Columns) : Columns := c + c.tabWidth
 
 end Columns
@@ -89,8 +82,10 @@ public inductive OrderedDelim where
 deriving Repr, BEq, Hashable
 
 /--
-The kind of a list. All items in a list must share the same kind: an unordered list cannot mix `*`
-with `-`, and an ordered list cannot mix `1.` with `1)`.
+The kind of a list.
+
+All items in a list must share the same kind. An unordered list cannot mix `*` with `-`, and an
+ordered list cannot mix `1.` with `1)`.
 -/
 public inductive ListKind where
   /-- A bullet list with the given marker character. -/
@@ -156,7 +151,7 @@ public structure VerbatimLine (s : String.Slice) where
   leadingSpaces : Nat := 0
 deriving Inhabited
 
-/-- The line's text: `leadingSpaces` spaces followed by the source. -/
+/-- The line's text, which is `leadingSpaces` spaces followed by the source. -/
 public def VerbatimLine.text {s : String.Slice} (line : VerbatimLine s) : String :=
   "".pushn ' ' line.leadingSpaces ++ line.source.copy
 
@@ -166,7 +161,8 @@ block but does not parse inline content. The content of a paragraph or heading i
 -/
 public inductive Block.Raw (s : String.Slice) where
   /--
-  A paragraph: a sequence of consecutive non-blank lines that did not open any other leaf.
+  A paragraph, which is a sequence of consecutive non-blank lines that don't start any other kind of
+  block.
   -/
   | paragraph (content : InlineSource s)
   /--
@@ -176,8 +172,8 @@ public inductive Block.Raw (s : String.Slice) where
   | atxHeading (level : Nat) (hashes : s.Subslice) (content : InlineSource s)
       (closeHashes? : Option s.Subslice)
   /--
-  A setext heading (CommonMark §4.3): one or more lines of paragraph text that are followed by an
-  `underline` (`===` for level 1, `---` for level 2).
+  A setext heading (CommonMark §4.3), which is one or more lines of paragraph text that are
+  followed by an `underline` (`===` for level 1, `---` for level 2).
   -/
   | setextHeading (level : Nat) (content : InlineSource s) (underline : s.Subslice)
   /--
@@ -188,8 +184,8 @@ public inductive Block.Raw (s : String.Slice) where
   | fencedCode (info : FenceInfo s) (openFence : s.Subslice) (closeFence? : Option s.Subslice)
     (lines : Array (VerbatimLine s))
   /--
-  An indented code block: a sequence of lines that are indented four or more columns. The verbatim
-  lines exclude the four column indentation.
+  An indented code block, which is a sequence of lines that are indented four or more columns. The
+  verbatim lines exclude the four column indentation.
   -/
   | indentedCode (lines : Array (VerbatimLine s))
   /-- An HTML block (CommonMark §4.6), which has at least one line. -/
@@ -201,7 +197,7 @@ public inductive Block.Raw (s : String.Slice) where
   | blockquote (markers : Array s.Subslice) (children : Array (Block.Raw s))
   /--
   A list container. All `items` are `listItem` blocks. `tight` reflects CommonMark's tight/loose
-  distinction (§5.3): a tight list doesn't have blank lines between its items or between blocks
+  distinction (§5.3). A tight list doesn't have blank lines between its items or between blocks
   within an item.
   -/
   | list (kind : ListKind) (tight : Bool) (items : Array (Block.Raw s))
@@ -211,7 +207,8 @@ public inductive Block.Raw (s : String.Slice) where
   -/
   | listItem (marker : s.Subslice) (children : Array (Block.Raw s))
   /--
-  A link reference definition: `[label]: destination "title"` (the title is optional).
+  A link reference definition, which is written `[label]: destination "title"` (the title is
+  optional).
   -/
   | linkRefDef (m : RefDef s)
   /--
@@ -226,8 +223,8 @@ namespace ListKind
 /--
 Whether two list kinds belong to the same list (that is, they have matching marker styles).
 
-The starting number of an ordered list is irrelevant: `1.` and `5.` are the same list kind. Bullets
-must use the exact same character, and ordered lists must use the same delimiter.
+The starting number of an ordered list is irrelevant, so `1.` and `5.` are the same list kind.
+Bullets must use the exact same character, and ordered lists must use the same delimiter.
 -/
 public def sameKind : ListKind → ListKind → Bool
   | .bullet a, .bullet b => a == b

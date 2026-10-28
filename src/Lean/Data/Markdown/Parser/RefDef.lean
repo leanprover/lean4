@@ -19,7 +19,7 @@ namespace Lean.Markdown
 # Link Reference Definitions
 
 Parsers for link reference definitions (CommonMark §4.7), which the block parser extracts from the
-front of paragraphs: at a setext heading underline, and after the block structure is complete.
+front of paragraphs at a setext heading underline and after the block structure is complete.
 -/
 
 variable {s : String.Slice}
@@ -28,7 +28,7 @@ variable {s : String.Slice}
 Parses the content of a link label (CommonMark §6.3) at `cur`, which is positioned just after the
 `[`. A label may span lines, but blank lines and unescaped brackets are not permitted inside it, and
 it must contain at least one non-whitespace character and at most 999 characters. Returns the
-label's lines and the cursor, which is positioned at the closing `]`.
+label's lines and the final cursor, which is positioned at the closing `]`.
 -/
 public def parseLinkLabel? (cur : InlineCursor s) : Option (Lines s × InlineCursor s) := do
   let labelStart := cur.startPos
@@ -63,8 +63,8 @@ public def parseLinkLabel? (cur : InlineCursor s) : Option (Lines s × InlineCur
   none
 
 /--
-Skips the whitespace gap between a link reference definition's `:` and its destination: spaces,
-tabs, and at most one line ending. Returns `none` if a blank line (two line endings) is encountered.
+Skips the spaces, tabs, and at most one line ending that separate a link reference definition's `:`
+from its destination. Returns `none` if a blank line (two line endings) is encountered.
 -/
 def skipRefDefDestGap (cur : InlineCursor s) : Option (InlineCursor s) := do
   let mut cur := cur
@@ -103,8 +103,8 @@ After the closing delimiter, only spaces and tabs may follow on the same line. O
 attempt fails so that the caller can fall back to a definition without a title.
 -/
 def parseRefDefTitle? (cur : InlineCursor s) : Option (LinkTitle s × InlineCursor s) := do
-  -- Locate the title opener: on the line of the destination after spaces or tabs, or on the next
-  -- line after optional indentation.
+  -- Locate the title opener, which is on the line of the destination after spaces or tabs, or on
+  -- the next line after optional indentation.
   let mut sawWs := false
   let mut p := cur
   while p.front? == some ' ' || p.front? == some '\t' do

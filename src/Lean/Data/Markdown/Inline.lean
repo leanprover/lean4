@@ -33,13 +33,13 @@ Non-standard extensions that can be optionally enabled.
 -/
 public structure Extensions where
   /--
-  LaTeX math: `$…$` for inline math and `$$…$$` for display math.
+  LaTeX math, which is `$…$` for inline math and `$$…$$` for display math.
   -/
   latexMath : Bool := false
 deriving Inhabited
 
 /--
-The title of a link, image, or link reference definition: `"…"`, `'…'`, or `(…)`.
+The title of a link, image, or link reference definition, which is written `"…"`, `'…'`, or `(…)`.
 -/
 public structure LinkTitle (s : String.Slice) where
   /-- The opening `"`, `'`, or `(`. -/
@@ -55,7 +55,8 @@ public def LinkTitle.text {s : String.Slice} (t : LinkTitle s) : String :=
   decodeText t.content.text
 
 /--
-The destination of a link, image, or link reference definition: a URL, optionally in angle brackets.
+The destination of a link, image, or link reference definition, which is a URL, optionally in angle
+brackets.
 -/
 public structure LinkDestination (s : String.Slice) where
   /-- The `<` and `>` around the URL, if the destination is bracketed. -/
@@ -89,7 +90,7 @@ deriving Inhabited
 
 /--
 A reference definition from outside the document that is supplied by the parser's caller. The
-destination URL and title are used as-is: backslash escapes and character references in them are
+destination URL and title are used as-is. Backslash escapes and character references in them are
 not decoded.
 -/
 public structure ExternalRef where
@@ -134,8 +135,8 @@ The surface form of a reference-style link or image.
 -/
 public inductive ReferenceLinkForm (s : String.Slice) where
   /--
-  Full form `[text][label]`: the second brackets contain an explicit label, distinct from the link's
-  text. `openBracket`/`closeBracket` are the second bracket pair.
+  Full form `[text][label]`, in which the second brackets contain an explicit label, distinct from
+  the link's text. `openBracket`/`closeBracket` are the second bracket pair.
   -/
   | full (openBracket : s.Subslice) (closeBracket : s.Subslice)
   /--
@@ -156,7 +157,8 @@ public inductive LinkTarget (s : String.Slice) where
   | inline (openParen : s.Subslice) (destination : LinkDestination s) (closeParen : s.Subslice)
     (title? : Option (LinkTitle s) := none)
   /--
-  A reference target: `refTarget` is what the label resolved to, and `label` is the label's text.
+  A reference target, in which `refTarget` is what the label resolved to, and `label` is the
+  label's text.
 
   The label text is the interior of the second bracket pair in full form, and the link's text in
   collapsed and shortcut form. In Markdown, seeming links to labels that don't match any definition
@@ -200,8 +202,8 @@ public def MathContent.text {s : String.Slice} (content : MathContent s) : Strin
   return out
 
 /--
-The string that inline code denotes (CommonMark §6.1): its lines joined by spaces, with one space
-removed from each end when the result begins and ends with a space and is not all spaces.
+The string that inline code denotes (CommonMark §6.1), which is its lines joined by spaces, with
+one space removed from each end when the result begins and ends with a space and is not all spaces.
 -/
 public def InlineCodeContent.text {s : String.Slice} (content : InlineCodeContent s) : String :=
   let joined := content.lines.text " "
@@ -236,10 +238,10 @@ public inductive Inline (s : String.Slice) where
   -/
   | hardBreak (marker : s.Subslice) (newline : s.Subslice)
   /--
-  An autolink: `<https://...>` or `<scheme:...>` for URI form, or `<user@domain>` for email form
-  (CommonMark §6.5). The URL between the angle brackets is verbatim: backslash escapes, character
-  references, and other Markdown syntax are not processed inside it. `isEmail` distinguishes the
-  email form, whose href gets a `mailto:` prefix when rendered to HTML.
+  An autolink, which is `<https://...>` or `<scheme:...>` for URI form, or `<user@domain>` for
+  email form (CommonMark §6.5). The URL between the angle brackets is verbatim. Backslash escapes,
+  character references, and other Markdown syntax are not processed inside it. `isEmail`
+  distinguishes the email form, whose href gets a `mailto:` prefix when rendered to HTML.
   -/
   | autolink (openAngle : s.Subslice) (url : s.Subslice) (closeAngle : s.Subslice) (isEmail : Bool)
   /--
@@ -251,12 +253,12 @@ public inductive Inline (s : String.Slice) where
   | math (openDollars : s.Subslice) (content : MathContent s) (closeDollars : s.Subslice)
     (display : Bool)
   /--
-  Raw HTML (CommonMark §6.6): an open or closing tag, a comment, a processing instruction, a
-  declaration, or a `CDATA` section. The HTML is stored verbatim.
+  Raw HTML (CommonMark §6.6), which is an open or closing tag, a comment, a processing instruction,
+  a declaration, or a `CDATA` section. The HTML is stored verbatim.
   -/
   | html (lines : Lines s)
   /--
-  A soft line break (CommonMark §6.8): the line ending between two lines of a paragraph.
+  A soft line break (CommonMark §6.8), which is the line ending between two lines of a paragraph.
   -/
   | softBreak (range : s.Subslice)
   /--
@@ -383,8 +385,10 @@ The constructor is private. Build values via `normalizeLabel`.
 public structure LinkLabel where
   private mk ::
   /--
-  The label's text after normalization: case folded, with internal whitespace collapsed to single
-  spaces and leading and trailing whitespace removed.
+  The label's text after normalization.
+
+  Normalization consists of case folding, collapsing internal whitespace to single spaces, and
+  trimming leading and trailing whitespace.
   -/
   name : String
 deriving BEq, Hashable, Repr

@@ -53,7 +53,7 @@ Parses `s` as a Markdown document.
 
 Up to `indent` leading spaces of each line are skipped.
 
-By default, the parser adheres to CommonMark with one exception: it compares link labels modulo
+By default, the parser adheres to CommonMark with one exception. It compares link labels modulo
 Unicode case folding only for the Latin-1 and Greek ranges, while CommonMark specifies full Unicode
 case folding. Use `extensions` to enable non-standard extensions like LaTeX math.
 

@@ -484,8 +484,9 @@ inductive SemanticTokenType where
   /-- A URL in a link, image, autolink, or link reference definition. -/
   | markupUrl
   /--
-  A reference label: that of a link reference definition, of a reference-style link, or of a
-  footnote.
+  A reference label.
+
+  The label is that of a link reference definition, of a reference-style link, or of a footnote.
   -/
   | markupCrossReference
   deriving ToJson, FromJson, BEq, Hashable
@@ -570,7 +571,7 @@ Use the standard set notation for them:
 -/
 structure SemanticTokenModifiers where
   private mk ::
-  /-- The set as LSP encodes it: bit `m.toNat` is set for each modifier `m` in the set. -/
+  /-- The set as encoded in LSP. The bit `m.toNat` is set for each modifier `m` in the set. -/
   toBits : Nat
   deriving Inhabited, DecidableEq, Hashable
 

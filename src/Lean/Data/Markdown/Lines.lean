@@ -27,8 +27,8 @@ public def subsliceClamped (a b : s.Pos) : s.Subslice :=
   if h : a ≤ b then s.subslice a b h else s.subslice a a (String.Slice.Pos.le_refl a)
 
 /--
-Parses a line ending at `p` in `input`: `\r\n`, `\r`, or `\n` (CommonMark §2.1). Returns the
-position after the ending.
+Parses a line ending, which is `\r\n`, `\r`, or `\n` (CommonMark §2.1), at `p` in `input`. Returns
+the position after the ending.
 -/
 public def parseLineEnding? (input : s.Subslice) (p : s.Pos) : Option s.Pos :=
   if h : p < input.endExclusive then
@@ -55,8 +55,10 @@ public def trimTrailing (text : s.Subslice) (p : Char → Bool) : s.Subslice := 
   return subsliceClamped text.startInclusive stop
 
 /--
-The text of a construct that may span source lines: one subslice per line, in source order, with at
-least one line. The subslices exclude the line endings and the prefixes of enclosing containers.
+The text of a construct that may span source lines, as one subslice per line.
+
+The lines are in source order and are nonempty. The subslices exclude line endings and the prefixes
+of enclosing containers.
 -/
 public structure Lines (s : String.Slice) where
   /-- The subslices, one per source line, in source order. -/

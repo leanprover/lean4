@@ -339,9 +339,11 @@ private inductive MarkupBlockCtxt where
   | list
 
 /--
-The formatting that applies to a piece of text: whether it is inside bold emphasis, whether it is
-inside italic emphasis, and the innermost heading, blockquote, or list item that contains it. The
-block context determines the token type of the text and the emphasis its modifiers.
+The formatting that applies to a piece of text.
+
+It records whether the text is inside a bold or italic region as well as the innermost heading,
+blockquote, or list item that contains it. The block context determines the token type of the text
+and the emphasis determines its modifiers.
 -/
 private structure MarkupAttrs where
   bold : Bool := false
@@ -414,7 +416,7 @@ private def pushLines (out : Array LeanSemanticToken) (lines : Markdown.Lines s)
     (tokenType : SemanticTokenType) : Array LeanSemanticToken :=
   lines.toArray.foldl (init := out) fun out line => pushTok out line tokenType
 
-/-- Pushes a delimiter: a `keyword` token with the `markupSyntax` modifier. -/
+/-- Pushes a delimiter, which is a `keyword` token with the `markupSyntax` modifier. -/
 @[inline] private def pushDelimiter (out : Array LeanSemanticToken) (delimiter : s.Subslice) :
     Array LeanSemanticToken :=
   pushTok out delimiter .keyword (modifiers := {.markupSyntax})
@@ -425,7 +427,7 @@ private def pushLines (out : Array LeanSemanticToken) (lines : Markdown.Lines s)
   pushTok out text a.tokenType (modifiers := a.modifiers)
 
 /--
-Pushes a link title: delimiters on its opener and closer and `string` on each line of its text.
+Pushes a link title, with delimiters on its opener and closer and `string` on each line of its text.
 -/
 private def pushTitle (out : Array LeanSemanticToken) (t : Markdown.LinkTitle s) :
     Array LeanSemanticToken := Id.run do
@@ -435,7 +437,7 @@ private def pushTitle (out : Array LeanSemanticToken) (t : Markdown.LinkTitle s)
   out := pushDelimiter out t.closer
   return out
 
-/-- Emits a destination: keyword on its angle brackets, if any, and URL on the URL. -/
+/-- Emits a destination, with keyword on its angle brackets, if any, and URL on the URL. -/
 private def emitDestination (out : Array LeanSemanticToken) (d : Markdown.LinkDestination s) :
     Array LeanSemanticToken := Id.run do
   let mut out := out
@@ -541,9 +543,13 @@ where
     return out
 
 /--
-Emits the structural tokens of a matched link reference definition: keyword on the brackets and
-colon and the optional title's delimiters, cross-reference on the label, URL on the destination, and
-string on the title's text. The label and the title get one token per source line.
+Emits the structural tokens of a matched link reference definition:
+* keyword on the brackets, the colon, and the optional title's delimiters,
+* cross-reference on the label,
+* URL on the destination, and
+* string on the title's text.
+
+The label and the title get one token per source line.
 -/
 private def emitRefDef (out : Array LeanSemanticToken) (r : Markdown.RefDef s) :
     Array LeanSemanticToken := Id.run do
@@ -636,7 +642,7 @@ where
       StateM (Array LeanSemanticToken) Unit :=
     modify (pushSyntaxToken · tk k (markupPriority k) modifiers)
 
-  /-- Emits a delimiter: a `keyword` token with the `markupSyntax` modifier. -/
+  /-- Emits a delimiter as a `keyword` token with the `markupSyntax` modifier. -/
   delim (tk : Syntax) : StateM (Array LeanSemanticToken) Unit :=
     tok tk .keyword {.markupSyntax}
 

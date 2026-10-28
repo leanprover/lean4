@@ -15,7 +15,7 @@ namespace Lean.Markdown
 
 
 /-!
-## Emphasis Matching (CommonMark §6.2)
+# Emphasis Matching (CommonMark §6.2)
 
 Implements CommonMark's delimiter stack algorithm.
 
@@ -35,8 +35,8 @@ def delimiterSubslice (p : s.Pos) (n : Nat) : s.Subslice :=
   s.subslice p (p.nextn n) String.Slice.Pos.le_nextn
 
 /--
-A sequence of `*` or `_` delimiter characters (a delimiter run, in the CommonMark specification's
-terms), classified by the CommonMark left/right-flanking rules.
+A sequence of `*` or `_` delimiter characters (a _delimiter run_, in the specification's terms),
+classified by the left/right-flanking rules.
 
 With the `latexMath` extension, delimiters may also be a sequence of one or two `$`.
 -/
@@ -54,8 +54,8 @@ public structure DelimSequence (s : String.Slice) where
 deriving Inhabited
 
 /--
-An intermediate token: either a finalized non-emphasis inline, or a raw emphasis delimiter sequence
-that awaits matching.
+An intermediate token, which is either a finalized non-emphasis inline or a raw emphasis delimiter
+sequence that awaits matching.
 -/
 public inductive InlineTok (s : String.Slice) where
   | inline (i : Inline s)
@@ -63,8 +63,7 @@ public inductive InlineTok (s : String.Slice) where
 deriving Inhabited
 
 /--
-Appends a `text` inline as an `InlineTok` for `[textStart:pos)` to `out`,
-if non-empty.
+Appends a `text` inline as an `InlineTok` for `[textStart:pos)` to `out`, if non-empty.
 -/
 public def pushTokText (out : Array (InlineTok s)) (textStart pos : s.Pos) :
     Array (InlineTok s) :=
@@ -95,9 +94,9 @@ structure OpenerFrame (s : String.Slice) where
 deriving Inhabited
 
 /-!
-### Delimiter Matching
+## Delimiter Matching
 
-CommonMark §6.2 specifies emphasis matching as an algorithm over a *delimiter stack*: each `*`/`_`
+CommonMark §6.2 specifies emphasis matching as an algorithm over a *delimiter stack*. Each `*`/`_`
 sequence that could open emphasis is pushed on the stack while non-delimiter inlines are added to
 the inline output, and for each closing sequence the stack is searched downward for a compatible
 opener.
@@ -111,9 +110,10 @@ below the point where the last search for the same kind of closer failed.
 -/
 
 /--
-The index into `openersBottom` for a closer: by its character, its original length modulo 3, and
-whether it can also open emphasis, which are the properties that decide whether an opener can match
-it.
+The index into `openersBottom` for a closer.
+
+This is computed from its character, its original length modulo 3, and whether it can also open
+emphasis.
 -/
 def bottomKey (seq : DelimSequence s) : Fin 12 :=
   let lenMod3 : Fin 12 :=
@@ -121,11 +121,12 @@ def bottomKey (seq : DelimSequence s) : Fin 12 :=
   (if seq.ch == '*' then 0 else 6) + lenMod3 * 2 + (if seq.canOpen then 1 else 0)
 
 /--
-The state that is maintained while running CommonMark §6.2's delimiter matching algorithm: the
-delimiter stack and the inline output.
+The state that is maintained while running CommonMark §6.2's delimiter matching algorithm.
 -/
 structure DelimiterMatchState (s : String.Slice) where
-  /-- The delimiter stack: openers whose sequences have not yet been matched, innermost last. -/
+  /--
+  The delimiter stack, which contains openers whose sequences have not yet been matched, innermost last.
+  -/
   delimiters : Array (OpenerFrame s)
   /-- The inlines that have been emitted so far, including the text of the openers on the stack. -/
   output : Array (Inline s)
@@ -136,11 +137,11 @@ structure DelimiterMatchState (s : String.Slice) where
   mathOpeners : Array (s.Pos × Nat × Nat)
   /--
   For each kind of closer, the index into `delimiters` at which the search for an opener to match a
-  closer of that kind begins; openers below that index are skipped.
+  closer of that kind begins. Openers below that index are skipped.
 
-  Whether an opener can match a closer depends on three properties of the closer: its delimiter
-  character (`*` or `_`), its length modulo 3, and whether it could also open emphasis. The 12
-  combinations of these properties are the kinds of closer, numbered by `bottomKey`.
+  Whether an opener can match a closer depends on three properties of the closer, which are its
+  delimiter character (`*` or `_`), its length modulo 3, and whether it could also open emphasis.
+  The 12 combinations of these properties are the kinds of closer, numbered by `bottomKey`.
 
   When the search for an opener to match a closer fails, the openers that are on the stack would
   fail to match a later closer of the same kind too, so the entry for that kind becomes the stack's
@@ -204,8 +205,8 @@ Wraps the output after the topmost opener as `.bold` (when `matchLen == 2`) or `
 `matchLen == 1`) using `openDelim`/`closeDelim` as its delimiters, and then either drops the opener
 or shrinks its text to the characters that remain.
 
-Precondition: the delimiter stack is non-empty and its top is the opener that was chosen to match
-this closer (any unmatched openers above it have already been abandoned).
+The delimiter stack must be non-empty, and its top must be the opener that was chosen to match this
+closer (any unmatched openers above it have already been abandoned).
 -/
 def closeMatched (matchLen : Nat) (openDelim closeDelim : s.Subslice) :
     DelimM s Unit := do

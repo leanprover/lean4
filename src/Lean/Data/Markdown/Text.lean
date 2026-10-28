@@ -19,21 +19,21 @@ namespace Lean.Markdown
 /-!
 # Text-Level Decoding
 
-CommonMark §2.4 and §2.5: backslash escapes and character references. The inline parser recognizes
+Backslash escapes and character references (CommonMark §2.4 and §2.5). The inline parser recognizes
 both as inline elements in paragraph text. Link destinations, link titles, and info strings are not
 parsed as inlines, so consumers decode them with `decodeText`.
 -/
 
 /--
-Whether `c` is an ASCII control character (CommonMark §2.1): U+0000 to U+001F, or U+007F.
+Whether `c` is an ASCII control character (CommonMark §2.1), which is U+0000 to U+001F, or U+007F.
 -/
 @[inline] public def isAsciiControl (c : Char) : Bool :=
   c.toNat < 0x20 || c.toNat == 0x7F
 
 /--
-Whether `c` is in CommonMark's ASCII-punctuation set: ``!"#$%&'()*+,-./:;<=>?@[\]^_\`{|}~``. These
-are the only characters that a backslash escape consumes; a backslash before any other character is
-a literal backslash followed by the character.
+Whether `c` is in CommonMark's ASCII-punctuation set, which is
+``!"#$%&'()*+,-./:;<=>?@[\]^_\`{|}~``. These are the only characters that a backslash escape
+consumes; a backslash before any other character is a literal backslash followed by the character.
 -/
 public def isAsciiPunctuation (c : Char) : Bool :=
   let n := c.toNat
@@ -43,7 +43,8 @@ public def isAsciiPunctuation (c : Char) : Bool :=
   (123 ≤ n && n ≤ 126)   -- { | } ~
 
 /--
-Decodes the body of a character reference `&body;` (CommonMark §2.5): the text between `&` and `;`.
+Decodes the body of a character reference `&body;` (CommonMark §2.5), which is the text between `&`
+and `;`.
 
 Named references are those of HTML. Decimal references (`#` followed by one to seven digits) and
 hexadecimal references (`#x` or `#X` followed by one to six hex digits) denote a code point; the
@@ -65,7 +66,8 @@ public def characterReference? {s : String.Slice} (body : s.Subslice) : Option S
     Html.namedCharacterReference? str
 
 /--
-Whether `c` can occur in the body of a character reference: ASCII letters and digits, and `#`.
+Whether `c` can occur in the body of a character reference. The body consists of ASCII letters,
+digits, and `#`.
 -/
 public def isCharacterReferenceChar (c : Char) : Bool :=
   c.isAlphanum || c == '#'
@@ -75,8 +77,8 @@ The largest number of characters that may occur between the `&` and the `;` of a
 reference.
 
 The longest named reference is `CounterClockwiseContourIntegral`, with 31 characters, and a numeric
-reference has at most 8: `#` and up to 7 decimal digits, or `#x` and up to 6 hexadecimal digits
-(CommonMark §2.5).
+reference has at most 8, which are `#` and up to 7 decimal digits, or `#x` and up to 6 hexadecimal
+digits (CommonMark §2.5).
 -/
 def maxCharacterReferenceLength : Nat := 31
 

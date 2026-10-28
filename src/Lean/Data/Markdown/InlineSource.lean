@@ -99,8 +99,8 @@ where
   textEnd (line : s.Subslice) : s.Pos :=
     back line (back line line.endExclusive '\n') '\r'
   /--
-  Steps `p` back over one `c`: when the character before `p` is `c` and is within `line`, the
-  position of that character; otherwise `p`.
+  Steps `p` back over one `c`. When the character before `p` is `c` and is within `line`, the
+  result is the position of that character. Otherwise, it is `p`.
   -/
   back (line : s.Subslice) (p : s.Pos) (c : Char) : s.Pos :=
     match p.prev? with

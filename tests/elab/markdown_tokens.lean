@@ -147,7 +147,7 @@ emphasis.
 /-- info: 3 -/
 #guard_msgs in #eval tokenCount "<div>\n*x*\n</div>\n" "markupCodeBlock"
 
--- Inline code that crosses a line break: each line of the content gets its
+-- In inline code that crosses a line break, each line of the content gets its
 -- own `markupInlineCode` token (LSP semantic tokens are per-line), and the
 -- delimiters remain delimiters.
 /-- info: "markupInlineCode" -/
@@ -169,7 +169,7 @@ inline code, and links inside alt text receive their normal token types.
 /-- info: "markupDocText" -/
 #guard_msgs in #eval markupAt "![x](http://e.com)" 2
 
--- Bold inside alt: the inner content character has the modifier.
+-- For bold inside alt, the inner content character has the modifier.
 /-- info: "markupDocText markupBold" -/
 #guard_msgs in #eval markupAt "![**x**](http://e.com)" 4
 
@@ -177,7 +177,7 @@ inline code, and links inside alt text receive their normal token types.
 /-- info: "markupInlineCode" -/
 #guard_msgs in #eval markupAt "![`x`](http://e.com)" 3
 
--- Autolink inside alt: the URL is `markupUrl`.
+-- For an autolink inside alt, the URL is `markupUrl`.
 /-- info: "markupUrl" -/
 #guard_msgs in #eval markupAt "![<https://e.com>](http://e.com)" 3
 
@@ -222,7 +222,7 @@ ending. The semantic-token emitter must not turn that element into an LSP
 token, since VS Code does not support multi-line semantic tokens.
 -/
 
--- Soft break between two paragraph lines: byte 5 is the `\n`.
+-- Byte 5 is the `\n` of the soft break between two paragraph lines.
 /-- info: "<none>" -/
 #guard_msgs in #eval markupAt "hello\nworld" 5
 
@@ -245,11 +245,11 @@ on the line that follows the URL. Both are split at line boundaries so each
 emitted token stays on a single line.
 -/
 
--- Two-line label: one `markupCrossReference` token per source line.
+-- A two-line label gets one `markupCrossReference` token per source line.
 /-- info: 2 -/
 #guard_msgs in #eval tokenCount "[foo\nbar]: https://e.com\n" "markupCrossReference"
 
--- Two-line title: one `string` token per line.
+-- A two-line title gets one `string` token per line.
 /-- info: 2 -/
 #guard_msgs in #eval tokenCount "[a]: https://e.com \"title\nspans lines\"\n" "string"
 
@@ -366,8 +366,8 @@ def markupAtIndented (input : String) (indent byteIdx : Nat) : String := Id.run 
 #guard_msgs in #eval
   ["  a\n\n    b", "  a\n\n      c", "a\n\n    b"].zipWith (fun s (i, p) => markupAtIndented s i p) [(2, 9), (2, 11), (0, 7)]
 
--- A fenced code block that is indented inside an indented document: the code token starts after the
--- document's two columns of indentation and the fence's two, so byte 11 (the last of those four
+-- In a fenced code block that is indented inside an indented document, the code token starts after
+-- the document's two columns of indentation and the fence's two, so byte 11 (the last of those four
 -- spaces) is untokenized and byte 12 (the first of the line's own two spaces) is code.
 /-- info: ["<none>", "markupCodeBlock"] -/
 #guard_msgs in #eval

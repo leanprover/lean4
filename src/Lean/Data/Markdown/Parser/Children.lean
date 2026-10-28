@@ -16,9 +16,9 @@ namespace Lean.Markdown
 
 The children of a container while the block structure is being parsed. A list whose last item has
 closed may still receive another item, so it is kept apart from the finished blocks until the next
-line settles whether it continues. The constructor of `Children` is private: `push` is the only
-operation that appends a block, and it finishes the pending list first, so a block never ends up
-before the list that precedes it.
+line, which determines whether it continues. The constructor of `Children` is private to protect
+invariants. Because `push` is the only operation that appends a block, and it finishes the pending
+list first, a block never ends up before the list that precedes it.
 -/
 
 /-- A list item that has been closed inside its list. -/
@@ -45,7 +45,7 @@ public structure OpenList (s : String.Slice) where
 /--
 The closed children of a container, in source order.
 
-When a list item closes, its list is not finished: the next line that begins with a marker of the
+When a list item closes, its list is not finished. The next line that begins with a marker of the
 same kind adds another item to it. While still open, the list is saved in `pendingList?`. It becomes
 the last element of `blocks` when closed.
 -/

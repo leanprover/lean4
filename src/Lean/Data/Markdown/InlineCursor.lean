@@ -26,9 +26,10 @@ inline parser.
 variable {s : String.Slice}
 
 /--
-A cursor into an `InlineSource`, analogous to a slice of a `String`: the current position, the end
-of the input, and the index of the line that contains the current position. A parser that is given a
-cursor reads the text from the current position to the end of the input and nothing else.
+A cursor into an `InlineSource`, analogous to a slice of a `String`. It consists of the current
+position, the end of the input, and the index of the line that contains the current position. A
+parser that is given a cursor reads the text from the current position to the end of the input and
+nothing else.
 -/
 public structure InlineCursor (s : String.Slice) where
   /-- The source that is being tokenized. -/
@@ -98,9 +99,9 @@ public def drop1 (cur : InlineCursor s) : InlineCursor s :=
   else cur
 
 /--
-Parses a line ending at `cur`: `\r\n`, `\r`, or `\n` (CommonMark §2.1). Returns the ending as a
-subslice together with the cursor after it. The ending stops at the end of the input, so a `\r`
-just before it is a line ending by itself.
+Parses a line ending, which is `\r\n`, `\r`, or `\n` (CommonMark §2.1), at `cur`. Returns the
+ending as a subslice together with the cursor after it. The ending stops at the end of the input,
+so a `\r` just before it is a line ending by itself.
 -/
 public def parseLineEnding? (cur : InlineCursor s) : Option (s.Subslice × InlineCursor s) := do
   let stop ← Lean.Markdown.parseLineEnding? cur.toSubslice cur.startPos

@@ -43,8 +43,8 @@ public inductive OpenContainer (s : String.Slice) where
 deriving Inhabited
 
 /--
-A frame of the zipper's spine: an open container plus the children that have
-already been closed inside it, in source order.
+A frame of the zipper's spine, which is an open container plus the children that have already been
+closed inside it, in source order.
 -/
 public structure ZipperFrame (s : String.Slice) where
   /--
@@ -74,7 +74,7 @@ public inductive OpenLeaf (s : String.Slice) where
 
   - `lines` are the content lines that have been committed so far, after the four columns of
     indentation.
-  - `pendingBlanks` records blank lines that may belong to this block: they are promoted to `lines`
+  - `pendingBlanks` records blank lines that may belong to this block. They are promoted to `lines`
     when a subsequent indented line continues the block, and discarded when an unindented non-blank
     line closes the block. This matches CommonMark's rule that blank lines between indented chunks
     are part of the code block, but blank lines that follow the final chunk are not.
@@ -97,7 +97,7 @@ Invariants:
 - If `openLeaf?` is `some _`, that leaf logically lives inside the deepest spine frame, or directly
   under the document if the spine is empty. Extending the leaf adds to its content, and closing the
   leaf pushes a `Block.Raw` onto that container's children.
-- A list contains only list items: an `OpenList` has items and nothing else, and every open list is
+- A list contains only list items. An `OpenList` has items and nothing else, and every open list is
   either the list of an item frame or the pending list of the container around it. `Children.push`,
   the one operation that appends a block, finishes the pending list first.
 -/
@@ -184,8 +184,9 @@ public def closeLeaf (z : BlockZipper s) : BlockZipper s :=
     { z with openLeaf? := none }
 
 /--
-The least spine index from which every deeper frame is a list item: one past the deepest
-blockquote, or `0` when there is none.
+The least spine index from which every deeper frame is a list item.
+
+It is one past the deepest blockquote, or `0` when there is none.
 -/
 public def listLikeFloor (z : BlockZipper s) : Nat := Id.run do
   let mut i := z.spine.size

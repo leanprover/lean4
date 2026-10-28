@@ -3659,6 +3659,11 @@ theorem List.getElem?_groupByKey [EquivBEq α] [LawfulHashable α] {xs : List β
       List.getD_groupByKey]
   · exact Std.HashMap.getElem?_eq_none (mt List.mem_groupByKey.mp ‹_›)
 
+@[simp, grind =]
+theorem List.getElem!_groupByKey [EquivBEq α] [LawfulHashable α] {xs : List β} :
+    (xs.groupByKey key)[k]! = xs.filter (key · == k) := by
+  rw [Std.HashMap.getElem!_eq_getD_default]; exact List.getD_groupByKey
+
 theorem Array.groupByKey_eq_foldl {xs : Array β} :
     xs.groupByKey key =
       xs.foldl (init := ∅) fun acc x => acc.alter (key x) (some <| ·.getD #[] |>.push x) := by
@@ -3719,5 +3724,10 @@ theorem Array.getElem?_groupByKey [EquivBEq α] [LawfulHashable α] {xs : Array 
   · rw [Std.HashMap.getElem?_eq_some_getD (fallback := #[]) (Array.mem_groupByKey.mpr ‹_›),
       Array.getD_groupByKey]
   · exact Std.HashMap.getElem?_eq_none (mt Array.mem_groupByKey.mp ‹_›)
+
+@[simp, grind =]
+theorem Array.getElem!_groupByKey [EquivBEq α] [LawfulHashable α] {xs : Array β} :
+    (xs.groupByKey key)[k]! = xs.filter (key · == k) := by
+  rw [Std.HashMap.getElem!_eq_getD_default]; exact Array.getD_groupByKey
 
 end groupByKey

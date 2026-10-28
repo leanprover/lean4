@@ -56,6 +56,12 @@ example (xs : List β) : (xs.groupByKey key).isEmpty = xs.isEmpty :=
 example (xs : Array β) : (xs.groupByKey key).isEmpty = xs.isEmpty :=
   Array.isEmpty_groupByKey
 
+example (xs : List β) : (xs.groupByKey key)[k]! = xs.filter (key · == k) :=
+  List.getElem!_groupByKey
+
+example (xs : Array β) : (xs.groupByKey key)[k]! = xs.filter (key · == k) :=
+  Array.getElem!_groupByKey
+
 example (xs : List β) : (xs.groupByKey key).getD k [] = xs.filter (key · == k) := by simp
 example (xs : List β) : k ∈ xs.groupByKey key ↔ xs.any (key · == k) := by simp
 example (xs : Array β) : (xs.groupByKey key).getD k #[] = xs.filter (key · == k) := by simp
@@ -68,6 +74,8 @@ example (xs : Array β) (h : k ∈ xs.groupByKey key) :
     (xs.groupByKey key)[k] = xs.filter (key · == k) := by simp
 example (xs : List β) : (xs.groupByKey key).isEmpty = xs.isEmpty := by simp
 example (xs : Array β) : (xs.groupByKey key).isEmpty = xs.isEmpty := by simp
+example (xs : List β) : (xs.groupByKey key)[k]! = xs.filter (key · == k) := by simp
+example (xs : Array β) : (xs.groupByKey key)[k]! = xs.filter (key · == k) := by simp
 
 end
 
@@ -93,6 +101,8 @@ example : ([0, 1, 2, 3, 4, 5, 6].groupByKey (· % 2)).isEmpty = false := by simp
 example : (#[0, 1, 2, 3, 4, 5, 6].groupByKey (· % 2)).isEmpty = false := by simp
 example : (([] : List Nat).groupByKey (· % 2)).isEmpty = true := by simp
 example : ((#[] : Array Nat).groupByKey (· % 2)).isEmpty = true := by simp
+example : ([0, 1, 2, 3, 4, 5, 6].groupByKey (· % 2))[1]! = [1, 3, 5] := by simp
+example : (#[0, 1, 2, 3, 4, 5, 6].groupByKey (· % 2))[0]! = #[0, 2, 4, 6] := by simp
 
 namespace EquivalentKeys
 

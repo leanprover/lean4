@@ -2,8 +2,8 @@ open Lean Grind
 
 /--
 info: Try these:
-  [apply] cases #e4c4 <;> cases #3e9f <;> ring
-  [apply] finish only [#e4c4, #3e9f]
+  [apply] cases #3499 <;> cases #e25e <;> ring
+  [apply] finish only [#3499, #e25e]
 -/
 #guard_msgs in
 example {α : Type} [CommRing α] (a b c d e : α) :
@@ -105,11 +105,11 @@ set_option warn.sorry false
 /--
 info: Try this:
   [apply] ⏎
-    cases #e4c4
-    · cases #7fb4
+    cases #3499
+    · cases #a4e4
       · ring
       · sorry
-    · cases #7fb4
+    · cases #a4e4
       · ring
       · sorry
 -/
@@ -156,8 +156,8 @@ example (ge : m ≥ n) (x : BitVec n) (i : Nat) :
 /--
 info: Try these:
   [apply] cases #b4ed <;>
-      instantiate only [= BitVec.getElem_and] <;> instantiate only [= BitVec.getElem_or] <;> cases #de0f
-  [apply] finish only [= BitVec.getElem_and, = BitVec.getElem_or, #b4ed, #de0f]
+      instantiate only [= BitVec.getElem_and] <;> instantiate only [= BitVec.getElem_or] <;> cases #b626
+  [apply] finish only [= BitVec.getElem_and, = BitVec.getElem_or, #b4ed, #b626]
 -/
 #guard_msgs in
 example (x y : BitVec 64) : (x ||| y) &&& x = x := by

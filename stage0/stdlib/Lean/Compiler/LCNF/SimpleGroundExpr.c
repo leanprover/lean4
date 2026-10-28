@@ -4946,8 +4946,8 @@ goto _start;
 else
 {
 lean_object* v___x_1681_; lean_object* v___x_1682_; 
-lean_dec(v_head_1667_);
 lean_dec_ref_known(v_x_1661_, 2);
+lean_dec(v_head_1667_);
 lean_dec(v_x_1662_);
 v___x_1681_ = lean_box(0);
 v___x_1682_ = lean_alloc_ctor(0, 1, 0);
@@ -9130,8 +9130,8 @@ goto v___jp_2634_;
 }
 else
 {
-lean_dec(v_pre_2726_);
 lean_dec_ref_known(v_fn_2663_, 2);
+lean_dec(v_pre_2726_);
 lean_dec_ref_known(v___x_2725_, 1);
 lean_dec(v_fvarId_2643_);
 lean_dec_ref(v_k_2627_);

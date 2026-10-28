@@ -1232,9 +1232,9 @@ return v___x_393_;
 LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00Lean_Meta_Tactic_BVDecide_Normalize_reductionPass_spec__1___redArg___lam__7___boxed(lean_object* v___x_396_, lean_object* v___f_397_, lean_object* v_____r_398_, lean_object* v___y_399_, lean_object* v___y_400_, lean_object* v___y_401_, lean_object* v___y_402_, lean_object* v___y_403_, lean_object* v___y_404_, lean_object* v___y_405_, lean_object* v___y_406_, lean_object* v___y_407_, lean_object* v___y_408_, lean_object* v___y_409_, lean_object* v___y_410_){
 _start:
 {
-uint8_t v___x_11565__boxed_411_; lean_object* v_res_412_; 
-v___x_11565__boxed_411_ = lean_unbox(v___x_396_);
-v_res_412_ = l_WellFounded_opaqueFix_u2083___at___00Lean_Meta_Tactic_BVDecide_Normalize_reductionPass_spec__1___redArg___lam__7(v___x_11565__boxed_411_, v___f_397_, v_____r_398_, v___y_399_, v___y_400_, v___y_401_, v___y_402_, v___y_403_, v___y_404_, v___y_405_, v___y_406_, v___y_407_, v___y_408_, v___y_409_);
+uint8_t v___x_11569__boxed_411_; lean_object* v_res_412_; 
+v___x_11569__boxed_411_ = lean_unbox(v___x_396_);
+v_res_412_ = l_WellFounded_opaqueFix_u2083___at___00Lean_Meta_Tactic_BVDecide_Normalize_reductionPass_spec__1___redArg___lam__7(v___x_11569__boxed_411_, v___f_397_, v_____r_398_, v___y_399_, v___y_400_, v___y_401_, v___y_402_, v___y_403_, v___y_404_, v___y_405_, v___y_406_, v___y_407_, v___y_408_, v___y_409_);
 lean_dec(v___y_409_);
 lean_dec_ref(v___y_408_);
 lean_dec(v___y_407_);
@@ -1752,7 +1752,6 @@ _start:
 {
 lean_object* v___x_633_; lean_object* v___x_634_; 
 v___x_633_ = lean_box(0);
-lean_inc_ref(v___y_622_);
 v___x_634_ = l_Lean_Meta_Sym_DSimp_evalGround___redArg(v___x_620_, v___y_622_, v___y_626_, v___y_627_, v___y_628_, v___y_629_, v___y_630_, v___y_631_);
 if (lean_obj_tag(v___x_634_) == 0)
 {
@@ -2017,7 +2016,6 @@ lean_inc(v_a_753_);
 lean_dec_ref_known(v___x_752_, 1);
 v_type_754_ = lean_ctor_get(v_a_753_, 1);
 v_value_755_ = lean_ctor_get(v_a_753_, 2);
-lean_inc_ref(v_type_754_);
 v___x_756_ = l_Lean_Expr_isFalse(v_type_754_);
 if (v___x_756_ == 0)
 {

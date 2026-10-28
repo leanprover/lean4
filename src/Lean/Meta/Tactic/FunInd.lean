@@ -518,6 +518,8 @@ Like `mkLambdaFVars (usedOnly := true)`, but
 
  * silently skips expression in `xs` that are not `.isFVar`
  * also skips let-bound variables
+ * with `checkTypeCorrect := true`, also skips variables whose abstraction yields a
+   type-incorrect term, e.g. `w` when `e` mentions a variable `x : Fin w`
  * returns a mask (same size as `xs`) indicating which variables have been abstracted
    (`true` means was abstracted).
 
@@ -528,20 +530,30 @@ here `xs` are the discriminants of the `match`.
 We do not expect non-trivial discriminants to appear in the goal (and if they do, the user will
 get a helpful equality into the context).
 -/
-def mkLambdaFVarsMasked (xs : Array Expr) (e : Expr) : MetaM (Array Bool × Expr) := do
-  let mut e := e
-  let mut xs := xs
-  let mut mask := #[]
-  while ! xs.isEmpty do
-    let discr := xs.back!
-    xs := xs.pop
-    if discr.isFVar && e.containsFVar discr.fvarId! then
-      unless (← discr.fvarId!.isLetVar) do
-        e ← mkLambdaFVars #[discr] e
-        mask := mask.push true
-        continue
-    mask := mask.push false
-  return (mask.reverse, e)
+def mkLambdaFVarsMasked (xs : Array Expr) (e : Expr) (checkTypeCorrect := false) :
+    MetaM (Array Bool × Expr) := do
+  let r ← go (check := false)
+  unless checkTypeCorrect do return r
+  if ← isTypeCorrect r.2 then return r
+  go (check := true)
+where
+  go (check : Bool) : MetaM (Array Bool × Expr) := do
+    let mut e := e
+    let mut xs := xs
+    let mut mask := #[]
+    while ! xs.isEmpty do
+      let discr := xs.back!
+      xs := xs.pop
+      if discr.isFVar && e.containsFVar discr.fvarId! then
+        unless (← discr.fvarId!.isLetVar) do
+          let e' ← mkLambdaFVars #[discr] e
+          let ok ← if check then isTypeCorrect e' else pure true
+          if ok then
+            e := e'
+            mask := mask.push true
+            continue
+      mask := mask.push false
+    return (mask.reverse, e)
 
 /--
 Applies `rw` to `goal`, passes the rewritten `goal'` to `k` (which should return an expression of
@@ -688,6 +700,7 @@ partial def buildInductionBody (toErase toClear : Array FVarId) (goal : Expr)
       let eType ← newIH.getType
       let motiveBody ← mkArrow eType goal
       let (mask, absMotiveBody) ← mkLambdaFVarsMasked matcherApp.discrs motiveBody
+        (checkTypeCorrect := true)
 
       let matcherApp' ← matcherApp.transform (useSplitter := true)
         (addEqualities := true)
@@ -711,6 +724,7 @@ partial def buildInductionBody (toErase toClear : Array FVarId) (goal : Expr)
     if matcherApp.remaining.isEmpty then
       -- Calculate motive
       let (mask, absMotiveBody) ← mkLambdaFVarsMasked matcherApp.discrs goal
+        (checkTypeCorrect := true)
 
       let matcherApp' ← matcherApp.transform (useSplitter := true)
         (addEqualities := true)

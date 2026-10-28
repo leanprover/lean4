@@ -285,7 +285,7 @@ where
 
 /--
 Normalizes universally quantified propositions and implications:
-`Grind.imp_true_eq`, `Grind.imp_false_eq`, `Grind.true_imp_eq`,
+`implies_true`, `Grind.imp_false_eq`, `Grind.true_imp_eq`,
 `Grind.false_imp_eq`, `Grind.imp_self_eq`, `Grind.forall_true`, `forall_false`,
 `Grind.forall_or_forall`, `Grind.forall_forall_or`, `Grind.forall_and` (see `forallImpAnd?`).
 -/

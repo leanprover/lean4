@@ -7,6 +7,7 @@ error: `grind` failed
 case grind
 h : ¬f Prop True = 0
 ⊢ False
+use `+verbose` to obtain diagnostic information
 -/
 #guard_msgs in
 example: f Prop True = 0 := by

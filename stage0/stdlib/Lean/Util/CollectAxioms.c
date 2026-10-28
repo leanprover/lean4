@@ -960,35 +960,35 @@ return v___x_180_;
 v___jp_184_:
 {
 lean_object* v___x_190_; 
-v___x_190_ = l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___00__private_Lean_Util_CollectAxioms_0__Lean_CollectAxioms_collect_spec__2___redArg(v___y_186_, v___y_188_, v___y_185_, v___y_189_);
+v___x_190_ = l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___00__private_Lean_Util_CollectAxioms_0__Lean_CollectAxioms_collect_spec__2___redArg(v___y_185_, v___y_187_, v___y_188_, v___y_189_);
 lean_dec(v___y_189_);
-lean_dec(v___y_186_);
-v___y_169_ = v___y_187_;
+lean_dec(v___y_185_);
+v___y_169_ = v___y_186_;
 v___y_170_ = v___x_190_;
 goto v___jp_168_;
 }
 v___jp_191_:
 {
 uint8_t v___x_197_; 
-v___x_197_ = lean_nat_dec_le(v___y_196_, v___y_192_);
+v___x_197_ = lean_nat_dec_le(v___y_196_, v___y_193_);
 if (v___x_197_ == 0)
 {
-lean_dec(v___y_192_);
+lean_dec(v___y_193_);
 lean_inc(v___y_196_);
-v___y_185_ = v___y_196_;
-v___y_186_ = v___y_193_;
+v___y_185_ = v___y_192_;
+v___y_186_ = v___y_195_;
 v___y_187_ = v___y_194_;
-v___y_188_ = v___y_195_;
+v___y_188_ = v___y_196_;
 v___y_189_ = v___y_196_;
 goto v___jp_184_;
 }
 else
 {
-v___y_185_ = v___y_196_;
-v___y_186_ = v___y_193_;
+v___y_185_ = v___y_192_;
+v___y_186_ = v___y_195_;
 v___y_187_ = v___y_194_;
-v___y_188_ = v___y_195_;
-v___y_189_ = v___y_192_;
+v___y_188_ = v___y_196_;
+v___y_189_ = v___y_193_;
 goto v___jp_184_;
 }
 }
@@ -1010,19 +1010,19 @@ v___x_209_ = lean_nat_dec_le(v___x_205_, v___x_208_);
 if (v___x_209_ == 0)
 {
 lean_inc(v___x_208_);
-v___y_192_ = v___x_208_;
-v___y_193_ = v___x_204_;
-v___y_194_ = v___y_200_;
-v___y_195_ = v___x_203_;
+v___y_192_ = v___x_204_;
+v___y_193_ = v___x_208_;
+v___y_194_ = v___x_203_;
+v___y_195_ = v___y_200_;
 v___y_196_ = v___x_208_;
 goto v___jp_191_;
 }
 else
 {
-v___y_192_ = v___x_208_;
-v___y_193_ = v___x_204_;
-v___y_194_ = v___y_200_;
-v___y_195_ = v___x_203_;
+v___y_192_ = v___x_204_;
+v___y_193_ = v___x_208_;
+v___y_194_ = v___x_203_;
+v___y_195_ = v___y_200_;
 v___y_196_ = v___x_205_;
 goto v___jp_191_;
 }

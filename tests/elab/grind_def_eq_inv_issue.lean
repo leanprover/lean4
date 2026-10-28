@@ -25,6 +25,7 @@ tail : List ((a : α) × β a)
 tail_ih : (map (Sigma.map id f) tail).keys = tail.keys
 h : ¬(map (Sigma.map id f) (head :: tail)).keys = (head :: tail).keys
 ⊢ False
+use `+verbose` to obtain diagnostic information
 -/
 #guard_msgs in
 set_option grind.debug true in

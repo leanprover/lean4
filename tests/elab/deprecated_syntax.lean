@@ -105,3 +105,16 @@ example : True := by depRec 2
 macro "wrapsDepRec" : tactic => `(tactic| depRec 1)
 
 example : True := by wrapsDepRec
+
+-- Test 12: deprecated syntax produced by a macro in a checked quotation is not reported at the
+-- quotation, which does not contain it, but where the quotation's result is elaborated
+syntax "wrapsOld " ident : term
+macro_rules | `(wrapsOld $_) => `(oldThing)
+def someIdent := 0
+macro "usesWrapsOld" : term => ``(wrapsOld someIdent)
+
+#check usesWrapsOld
+
+-- Test 12b: deprecated syntax written in a macro argument in a checked quotation is reported
+macro "idTerm " x:term:max : term => `($x)
+macro "usesIdTerm" : term => ``(idTerm (oldThing + someIdent))

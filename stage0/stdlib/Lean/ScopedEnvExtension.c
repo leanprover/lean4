@@ -5679,8 +5679,8 @@ return v___x_1782_;
 }
 else
 {
-lean_dec_ref_known(v_stateStack_1776_, 2);
 lean_dec(v_tail_1777_);
+lean_dec_ref_known(v_stateStack_1776_, 2);
 lean_dec_ref(v_ext_1768_);
 return v_env_1769_;
 }

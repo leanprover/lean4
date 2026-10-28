@@ -103,7 +103,7 @@ where
       if val.hasMVar then
         throwError "default value contains metavariables{inlineExprTrailing val}"
       let fvars := Lean.collectFVars {} val
-      let insts' := insts.filter fvars.visitedExpr.contains
+      let insts' := insts.filter (fvars.fvarSet.contains ·.fvarId!)
       let usedInstIdxs := collectUsedLocalsInsts {} localInst2Index val
       assert! insts'.size == usedInstIdxs.size
       trace[Elab.Deriving.inhabited] "inhabited instance using{inlineExpr val}{if insts'.isEmpty then m!"" else m!"(assuming parameters {insts'} are inhabited)"}"

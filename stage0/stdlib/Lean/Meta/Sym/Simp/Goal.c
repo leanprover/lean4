@@ -1307,6 +1307,7 @@ v_resetjp_389_:
 {
 uint8_t v___x_392_; 
 v___x_392_ = l_Lean_Expr_isTrue(v_e_x27_375_);
+lean_dec_ref(v_e_x27_375_);
 if (v___x_392_ == 0)
 {
 lean_object* v___x_393_; lean_object* v___x_394_; lean_object* v___x_396_; 

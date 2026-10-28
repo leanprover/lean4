@@ -230,10 +230,10 @@ def protocolOverview : Array MessageOverview := #[
   .request {
     method := "textDocument/foldingRange"
     direction := .clientToServer
-    kinds := #[.standard]
+    kinds := #[.extendedResponseType #[``FoldingRange.kind?]]
     parameterType := FoldingRangeParams
     responseType := Array FoldingRange
-    description := "Emitted in VS Code when a file is first opened or when it is changed."
+    description := "Emitted in VS Code when a file is first opened or when it is changed. In addition to the standard folding range kinds, the language server uses the kind `proof` for the values of declarations whose types are propositions, for example the proofs of theorems."
   },
   .request {
     method := "textDocument/documentColor"

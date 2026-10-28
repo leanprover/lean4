@@ -16,7 +16,6 @@ import Init.Data.UInt.Lemmas
 public section
 namespace Lean.Sym
 
-theorem ne_self (a : α) : (a ≠ a) = False := by simp
 theorem not_true_eq : (¬ True) = False := by simp
 theorem not_false_eq : (¬ False) = True := by simp
 
@@ -25,6 +24,10 @@ theorem or_eq_right (a b : Prop) (h : a = False) : (a ∨ b) = b := by simp [h]
 
 theorem and_eq_false_left (a b : Prop) (h : a = False) : (a ∧ b) = False := by simp [h]
 theorem and_eq_left (a b : Prop) (h : a = True) : (a ∧ b) = b := by simp [h]
+
+theorem imp_subst {α : Sort u} {x t : α} (motive : α → Prop) (k : x = t → motive t) :
+    x = t → motive x :=
+  fun h => Eq.substr (p := motive) h (k h)
 
 theorem ite_cond_congr {α : Sort u} (c : Prop) {inst : Decidable c} (a b : α)
     (c' : Prop) {inst' : Decidable c'} (h : c = c') : @ite α c inst a b = @ite α c' inst' a b := by
@@ -158,7 +161,6 @@ theorem UInt32.eq_eq_true (a b : UInt32) (h : decide (a = b) = true) : (a = b) =
 theorem UInt64.eq_eq_true (a b : UInt64) (h : decide (a = b) = true) : (a = b) = True := by simp_all
 theorem Fin.eq_eq_true (a b : Fin n) (h : decide (a = b) = true) : (a = b) = True := by simp_all
 theorem BitVec.eq_eq_true (a b : BitVec n) (h : decide (a = b) = true) : (a = b) = True := by simp_all
-theorem String.eq_eq_true (a b : String) (h : decide (a = b) = true) : (a = b) = True := by simp_all
 theorem Char.eq_eq_true (a b : Char) (h : decide (a = b) = true) : (a = b) = True := by simp_all
 
 theorem Bool.eq_eq_false (a b : Bool) (h : decide (a = b) = false) : (a = b) = False := by simp_all
@@ -175,7 +177,6 @@ theorem UInt32.eq_eq_false (a b : UInt32) (h : decide (a = b) = false) : (a = b)
 theorem UInt64.eq_eq_false (a b : UInt64) (h : decide (a = b) = false) : (a = b) = False := by simp_all
 theorem Fin.eq_eq_false (a b : Fin n) (h : decide (a = b) = false) : (a = b) = False := by simp_all
 theorem BitVec.eq_eq_false (a b : BitVec n) (h : decide (a = b) = false) : (a = b) = False := by simp_all
-theorem String.eq_eq_false (a b : String) (h : decide (a = b) = false) : (a = b) = False := by simp_all
 theorem Char.eq_eq_false (a b : Char) (h : decide (a = b) = false) : (a = b) = False := by simp_all
 
 theorem Nat.dvd_eq_true (a b : Nat) (h : decide (a ∣ b) = true) : (a ∣ b) = True := by simp_all

@@ -33,11 +33,27 @@ def hashName (n : Name) : UInt64 :=
   else
     hash n
 
+def isHiddenName (n : Name) : Bool :=
+  n.hasMacroScopes || n.isInaccessibleUserName
+
 -- `mixHash` variant where `0` is treated as don't care
 def mix (a b : UInt64) : UInt64 :=
   if a == 0 then b
   else if b == 0 then a
   else mixHash a b
+
+/--
+Hashes a local variable with a hidden name (e.g., `w✝`). The name alone does not distinguish
+it from other hidden variables with the same base name, so we also use its rank among them.
+-/
+def hashHiddenFVar (decl : LocalDecl) : MetaM UInt64 := do
+  let baseName := decl.userName.eraseMacroScopes
+  let rank := (← getLCtx).foldl (init := 0) fun rank d =>
+    if d.index < decl.index && isHiddenName d.userName && d.userName.eraseMacroScopes == baseName then
+      rank + 1
+    else
+      rank
+  return mixHash (hash baseName) (hash rank)
 
 public partial def getAnchor (e : Expr) : GrindM UInt64 := do
   if let some a := (← get).anchors.find? { expr := e } then
@@ -51,8 +67,9 @@ public partial def getAnchor (e : Expr) : GrindM UInt64 := do
       if (← isMatcher declName) then pure 0
       else pure <| hashName declName
     | .fvar fvarId =>
-      let userName := (← fvarId.getDecl).userName
-      pure <| hashName userName
+      let decl ← fvarId.getDecl
+      if isHiddenName decl.userName then hashHiddenFVar decl
+      else pure <| hashName decl.userName
     | .mdata _ b => getAnchor b
     | .letE n v t b _ =>
       pure <| mix (hashName n) <| mix (← getAnchor t) <| mix (← getAnchor v) (← getAnchor b)

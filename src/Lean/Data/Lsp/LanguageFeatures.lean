@@ -658,12 +658,18 @@ inductive FoldingRangeKind where
   | comment
   | imports
   | region
+  /--
+  The value of a declaration whose type is a proposition, for example the proof of a theorem. This
+  kind is a Lean-specific extension of LSP.
+  -/
+  | proof
 
 instance : ToJson FoldingRangeKind where
   toJson
     | FoldingRangeKind.comment => "comment"
     | FoldingRangeKind.imports => "imports"
     | FoldingRangeKind.region  => "region"
+    | FoldingRangeKind.proof   => "proof"
 
 structure FoldingRange where
   startLine : Nat

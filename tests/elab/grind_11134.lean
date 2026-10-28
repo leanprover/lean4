@@ -88,6 +88,7 @@ w_1 : α
 left_2 : e * w_1 = 1
 right_2 : w_1 * e = 1
 ⊢ False
+use `+verbose` to obtain diagnostic information
 -/
 #guard_msgs in
 theorem dvd_and_not_dvd_iff {x y : α} :

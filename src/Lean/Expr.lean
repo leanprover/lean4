@@ -1728,31 +1728,37 @@ def isTypeAnnotation (e : Expr) : Bool :=
     false
 
 /--
-Remove `outParam`, `optParam`, and `autoParam` applications/annotations from `e`.
+Remove `outParam`, `semiOutParam`, `optParam`, and `autoParam` applications/annotations from `e`.
 Note that it does not remove nested annotations.
 Examples:
-- Given `e` of the form `outParam (optParam Nat b)`, `consumeTypeAnnotations e = b`.
+- Given `e` of the form `outParam (optParam Nat b)`, `consumeTypeAnnotations e = Nat`.
 - Given `e` of the form `Nat → outParam (optParam Nat b)`, `consumeTypeAnnotations e = e`.
 -/
 @[export lean_expr_consume_type_annotations]
 partial def consumeTypeAnnotations (e : Expr) : Expr :=
-  if e.isOptParam || e.isAutoParam then
-    consumeTypeAnnotations e.appFn!.appArg!
-  else if e.isOutParam || e.isSemiOutParam then
-    consumeTypeAnnotations e.appArg!
-  else
-    e
+  match e with
+  | .app (.const c _) a =>
+    if c == ``outParam || c == ``semiOutParam then consumeTypeAnnotations a else e
+  | .app (.app (.const c _) a) _ =>
+    if c == ``optParam || c == ``autoParam then consumeTypeAnnotations a else e
+  | _ => e
 
 /--
-Remove metadata annotations and `outParam`, `optParam`, and `autoParam` applications/annotations from `e`.
+Remove metadata annotations and `outParam`, `semiOutParam`, `optParam`, and `autoParam`
+applications/annotations from `e`.
 Note that it does not remove nested annotations.
 Examples:
-- Given `e` of the form `outParam (optParam Nat b)`, `cleanupAnnotations e = b`.
+- Given `e` of the form `outParam (optParam Nat b)`, `cleanupAnnotations e = Nat`.
 - Given `e` of the form `Nat → outParam (optParam Nat b)`, `cleanupAnnotations e = e`.
 -/
 partial def cleanupAnnotations (e : Expr) : Expr :=
-  let e' := e.consumeMData.consumeTypeAnnotations
-  if e' == e then e else cleanupAnnotations e'
+  match e with
+  | .mdata _ b => cleanupAnnotations b
+  | .app (.const c _) a =>
+    if c == ``outParam || c == ``semiOutParam then cleanupAnnotations a else e
+  | .app (.app (.const c _) a) _ =>
+    if c == ``optParam || c == ``autoParam then cleanupAnnotations a else e
+  | _ => e
 
 /--
 Similar to `appFn`, but also applies `cleanupAnnotations` to resulting function.
@@ -2276,6 +2282,14 @@ def mkNatSub (a b : Expr) : Expr :=
 /-- Given `a b : Nat`, returns `a * b` -/
 def mkNatMul (a b : Expr) : Expr :=
   mkApp2 natMulFn a b
+
+/-- Given `a b : Nat`, returns `a / b` -/
+def mkNatDiv (a b : Expr) : Expr :=
+  mkApp6 (mkConst ``HDiv.hDiv [0, 0, 0]) Nat.mkType Nat.mkType Nat.mkType Nat.mkInstHDiv a b
+
+/-- Given `a b : Nat`, returns `a % b` -/
+def mkNatMod (a b : Expr) : Expr :=
+  mkApp6 (mkConst ``HMod.hMod [0, 0, 0]) Nat.mkType Nat.mkType Nat.mkType Nat.mkInstHMod a b
 
 /-- Given `a b : Nat`, returns `a ^ b` -/
 def mkNatPow (a b : Expr) : Expr :=

@@ -5858,10 +5858,10 @@ lean_object* v___x_2024_; lean_object* v___x_2025_;
 v___x_2024_ = lean_alloc_ctor(0, 6, 0);
 lean_ctor_set(v___x_2024_, 0, v_stx_2013_);
 lean_ctor_set(v___x_2024_, 1, v_openFence_2018_);
-lean_ctor_set(v___x_2024_, 2, v___y_2021_);
+lean_ctor_set(v___x_2024_, 2, v___y_2020_);
 lean_ctor_set(v___x_2024_, 3, v___y_2023_);
-lean_ctor_set(v___x_2024_, 4, v___y_2022_);
-lean_ctor_set(v___x_2024_, 5, v___y_2020_);
+lean_ctor_set(v___x_2024_, 4, v___y_2021_);
+lean_ctor_set(v___x_2024_, 5, v___y_2022_);
 v___x_2025_ = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(v___x_2025_, 0, v___x_2024_);
 return v___x_2025_;
@@ -5873,8 +5873,8 @@ if (lean_obj_tag(v___y_2029_) == 0)
 lean_object* v___x_2031_; 
 v___x_2031_ = ((lean_object*)(l___private_Lean_DocString_View_0__Lean_Doc_codeLinesFrom___closed__0));
 v___y_2020_ = v___y_2027_;
-v___y_2021_ = v___y_2028_;
-v___y_2022_ = v___y_2030_;
+v___y_2021_ = v___y_2030_;
+v___y_2022_ = v___y_2028_;
 v___y_2023_ = v___x_2031_;
 goto v___jp_2019_;
 }
@@ -5885,8 +5885,8 @@ v_val_2032_ = lean_ctor_get(v___y_2029_, 0);
 lean_inc(v_val_2032_);
 lean_dec_ref_known(v___y_2029_, 1);
 v___y_2020_ = v___y_2027_;
-v___y_2021_ = v___y_2028_;
-v___y_2022_ = v___y_2030_;
+v___y_2021_ = v___y_2030_;
+v___y_2022_ = v___y_2028_;
 v___y_2023_ = v_val_2032_;
 goto v___jp_2019_;
 }
@@ -5940,8 +5940,8 @@ if (lean_obj_tag(v___x_2047_) == 0)
 lean_object* v___x_2048_; lean_object* v___x_2049_; 
 v___x_2048_ = l___private_Lean_DocString_View_0__Lean_Doc_emptyContentInfo(v_closeFence_2042_);
 v___x_2049_ = l_Lean_Syntax_setInfo(v___x_2048_, v_s_2037_);
-v___y_2027_ = v_closeFence_2042_;
-v___y_2028_ = v_name_2034_;
+v___y_2027_ = v_name_2034_;
+v___y_2028_ = v_closeFence_2042_;
 v___y_2029_ = v_args_2035_;
 v___y_2030_ = v___x_2049_;
 goto v___jp_2026_;
@@ -5949,8 +5949,8 @@ goto v___jp_2026_;
 else
 {
 lean_dec_ref_known(v___x_2047_, 1);
-v___y_2027_ = v_closeFence_2042_;
-v___y_2028_ = v_name_2034_;
+v___y_2027_ = v_name_2034_;
+v___y_2028_ = v_closeFence_2042_;
 v___y_2029_ = v_args_2035_;
 v___y_2030_ = v_s_2037_;
 goto v___jp_2026_;

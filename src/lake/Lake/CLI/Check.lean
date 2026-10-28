@@ -679,9 +679,9 @@ def checkProject : M Unit := do
   unless (← read).moduleStore.contains .check do
     safeResolveDeps
   withSafeCheckExport fun exportPath => do
-    runKernels exportPath
     let exported ← LeanExport.parseStream <| .ofHandle (← IO.FS.Handle.mk exportPath .read)
     checkUsedAxioms exported
+    runKernels exportPath
 
 /--
 Runs `lake comparator`: builds and exports the challenge and the solution in a sandbox, then judges

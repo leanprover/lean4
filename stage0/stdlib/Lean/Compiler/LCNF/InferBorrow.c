@@ -10515,13 +10515,13 @@ goto v_reusejp_3325_;
 }
 v_reusejp_3325_:
 {
-lean_object* v___x_3327_; lean_object* v___x_3328_; lean_object* v___x_3329_; lean_object* v___f_3330_; lean_object* v___x_3876__overap_3331_; lean_object* v___x_3332_; 
+lean_object* v___x_3327_; lean_object* v___x_3328_; lean_object* v___x_3329_; lean_object* v___f_3330_; lean_object* v___x_3877__overap_3331_; lean_object* v___x_3332_; 
 v___x_3327_ = l_StateRefT_x27_instMonad___redArg(v___x_3326_);
 v___x_3328_ = lean_obj_once(&l_panic___at___00Std_DHashMap_Internal_AssocList_get_x21___at___00Std_DHashMap_Internal_Raw_u2080_Const_get_x21___at___00__private_Lean_Compiler_LCNF_InferBorrow_0__Lean_Compiler_LCNF_apply_go_spec__0_spec__0_spec__3___closed__0, &l_panic___at___00Std_DHashMap_Internal_AssocList_get_x21___at___00Std_DHashMap_Internal_Raw_u2080_Const_get_x21___at___00__private_Lean_Compiler_LCNF_InferBorrow_0__Lean_Compiler_LCNF_apply_go_spec__0_spec__0_spec__3___closed__0_once, _init_l_panic___at___00Std_DHashMap_Internal_AssocList_get_x21___at___00Std_DHashMap_Internal_Raw_u2080_Const_get_x21___at___00__private_Lean_Compiler_LCNF_InferBorrow_0__Lean_Compiler_LCNF_apply_go_spec__0_spec__0_spec__3___closed__0);
 v___x_3329_ = l_instInhabitedOfMonad___redArg(v___x_3327_, v___x_3328_);
 v___f_3330_ = lean_alloc_closure((void*)(l_instInhabitedForall___redArg___lam__0___boxed), 2, 1);
 lean_closure_set(v___f_3330_, 0, v___x_3329_);
-v___x_3876__overap_3331_ = lean_panic_fn_borrowed(v___f_3330_, v_msg_3270_);
+v___x_3877__overap_3331_ = lean_panic_fn_borrowed(v___f_3330_, v_msg_3270_);
 lean_dec_ref(v___f_3330_);
 lean_inc(v___y_3276_);
 lean_inc_ref(v___y_3275_);
@@ -10529,7 +10529,7 @@ lean_inc(v___y_3274_);
 lean_inc_ref(v___y_3273_);
 lean_inc(v___y_3272_);
 lean_inc_ref(v___y_3271_);
-v___x_3332_ = lean_apply_7(v___x_3876__overap_3331_, v___y_3271_, v___y_3272_, v___y_3273_, v___y_3274_, v___y_3275_, v___y_3276_, lean_box(0));
+v___x_3332_ = lean_apply_7(v___x_3877__overap_3331_, v___y_3271_, v___y_3272_, v___y_3273_, v___y_3274_, v___y_3275_, v___y_3276_, lean_box(0));
 return v___x_3332_;
 }
 }

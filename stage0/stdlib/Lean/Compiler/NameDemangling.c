@@ -3044,20 +3044,20 @@ if (v___x_926_ == 0)
 {
 lean_object* v___x_927_; 
 v___x_927_ = lean_array_push(v_fst_922_, v_val_924_);
-v___y_871_ = v_flags_899_;
-v___y_872_ = v_fst_923_;
-v___y_873_ = v___x_909_;
-v___y_874_ = v_flags_888_;
+v___y_871_ = v___x_909_;
+v___y_872_ = v_flags_888_;
+v___y_873_ = v_fst_923_;
+v___y_874_ = v_flags_899_;
 v_entries_875_ = v___x_927_;
 goto v___jp_870_;
 }
 else
 {
 lean_dec(v_val_924_);
-v___y_871_ = v_flags_899_;
-v___y_872_ = v_fst_923_;
-v___y_873_ = v___x_909_;
-v___y_874_ = v_flags_888_;
+v___y_871_ = v___x_909_;
+v___y_872_ = v_flags_888_;
+v___y_873_ = v_fst_923_;
+v___y_874_ = v_flags_899_;
 v_entries_875_ = v_fst_922_;
 goto v___jp_870_;
 }
@@ -3071,10 +3071,10 @@ lean_dec_ref(v___x_918_);
 v_fst_929_ = lean_ctor_get(v_snd_920_, 0);
 lean_inc(v_fst_929_);
 lean_dec(v_snd_920_);
-v___y_871_ = v_flags_899_;
-v___y_872_ = v_fst_929_;
-v___y_873_ = v___x_909_;
-v___y_874_ = v_flags_888_;
+v___y_871_ = v___x_909_;
+v___y_872_ = v_flags_888_;
+v___y_873_ = v_fst_929_;
+v___y_874_ = v_flags_899_;
 v_entries_875_ = v_fst_928_;
 goto v___jp_870_;
 }
@@ -3169,11 +3169,11 @@ v___jp_870_:
 size_t v_sz_876_; size_t v___x_877_; lean_object* v___x_878_; lean_object* v___x_879_; 
 v_sz_876_ = lean_array_size(v_entries_875_);
 v___x_877_ = ((size_t)0ULL);
-v___x_878_ = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00__private_Lean_Compiler_NameDemangling_0__Lean_Name_Demangle_postprocessNameParts_spec__5(v___x_846_, v_entries_875_, v_sz_876_, v___x_877_, v___y_874_);
+v___x_878_ = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00__private_Lean_Compiler_NameDemangling_0__Lean_Name_Demangle_postprocessNameParts_spec__5(v___x_846_, v_entries_875_, v_sz_876_, v___x_877_, v___y_872_);
 lean_dec_ref(v_entries_875_);
-v___x_879_ = l_Array_append___redArg(v___y_873_, v___y_872_);
-lean_dec(v___y_872_);
-v___y_863_ = v___y_871_;
+v___x_879_ = l_Array_append___redArg(v___y_871_, v___y_873_);
+lean_dec(v___y_873_);
+v___y_863_ = v___y_874_;
 v_parts_864_ = v___x_879_;
 v_specEntries_865_ = v___x_878_;
 goto v___jp_862_;

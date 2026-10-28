@@ -616,14 +616,12 @@ LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_Linear_MBTC_0_
 _start:
 {
 uint8_t v___x_181_; uint8_t v___x_182_; 
-lean_inc_ref(v_e_179_);
 v___x_181_ = l_Lean_Meta_Grind_Arith_isInterpretedTerm(v_e_179_);
 v___x_182_ = 1;
 if (v___x_181_ == 0)
 {
 lean_object* v_f_183_; lean_object* v___x_184_; uint8_t v___x_185_; 
 v_f_183_ = l_Lean_Expr_getAppFn(v_e_179_);
-lean_dec_ref(v_e_179_);
 v___x_184_ = ((lean_object*)(l___private_Lean_Meta_Tactic_Grind_Arith_Linear_MBTC_0__Lean_Meta_Grind_Arith_Linear_isInterpreted___redArg___closed__2));
 v___x_185_ = l_Lean_Expr_isConstOf(v_f_183_, v___x_184_);
 if (v___x_185_ == 0)
@@ -665,7 +663,6 @@ return v___x_195_;
 else
 {
 lean_object* v___x_196_; lean_object* v___x_197_; 
-lean_dec_ref(v_e_179_);
 v___x_196_ = lean_box(v___x_182_);
 v___x_197_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_197_, 0, v___x_196_);
@@ -678,6 +675,7 @@ _start:
 {
 lean_object* v_res_200_; 
 v_res_200_ = l___private_Lean_Meta_Tactic_Grind_Arith_Linear_MBTC_0__Lean_Meta_Grind_Arith_Linear_isInterpreted___redArg(v_e_198_);
+lean_dec_ref(v_e_198_);
 return v_res_200_;
 }
 }
@@ -704,6 +702,7 @@ lean_dec(v_a_218_);
 lean_dec_ref(v_a_217_);
 lean_dec(v_a_216_);
 lean_dec(v_a_215_);
+lean_dec_ref(v_e_214_);
 return v_res_226_;
 }
 }

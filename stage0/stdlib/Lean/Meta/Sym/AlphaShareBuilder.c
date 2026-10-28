@@ -1530,18 +1530,18 @@ v_resetjp_475_:
 {
 if (lean_obj_tag(v_a_474_) == 0)
 {
-lean_object* v___x_478_; lean_object* v___x_1316__overap_479_; lean_object* v___x_480_; 
+lean_object* v___x_478_; lean_object* v___x_1322__overap_479_; lean_object* v___x_480_; 
 lean_dec_ref_known(v_a_474_, 1);
 lean_del_object(v___x_476_);
 v___x_478_ = lean_obj_once(&l_Lean_Meta_Sym_Internal_liftBuilderM___redArg___closed__2, &l_Lean_Meta_Sym_Internal_liftBuilderM___redArg___closed__2_once, _init_l_Lean_Meta_Sym_Internal_liftBuilderM___redArg___closed__2);
-v___x_1316__overap_479_ = l_panic___redArg(v___x_464_, v___x_478_);
+v___x_1322__overap_479_ = l_panic___redArg(v___x_464_, v___x_478_);
 lean_inc(v_a_462_);
 lean_inc_ref(v_a_461_);
 lean_inc(v_a_460_);
 lean_inc_ref(v_a_459_);
 lean_inc(v_a_458_);
 lean_inc_ref(v_a_457_);
-v___x_480_ = lean_apply_7(v___x_1316__overap_479_, v_a_457_, v_a_458_, v_a_459_, v_a_460_, v_a_461_, v_a_462_, lean_box(0));
+v___x_480_ = lean_apply_7(v___x_1322__overap_479_, v_a_457_, v_a_458_, v_a_459_, v_a_460_, v_a_461_, v_a_462_, lean_box(0));
 return v___x_480_;
 }
 else
@@ -1671,18 +1671,18 @@ v_resetjp_523_:
 {
 if (lean_obj_tag(v_a_522_) == 0)
 {
-lean_object* v___x_526_; lean_object* v___x_1339__overap_527_; lean_object* v___x_528_; 
+lean_object* v___x_526_; lean_object* v___x_1345__overap_527_; lean_object* v___x_528_; 
 lean_dec_ref_known(v_a_522_, 1);
 lean_del_object(v___x_524_);
 v___x_526_ = lean_obj_once(&l_Lean_Meta_Sym_Internal_liftBuilderM___redArg___closed__2, &l_Lean_Meta_Sym_Internal_liftBuilderM___redArg___closed__2_once, _init_l_Lean_Meta_Sym_Internal_liftBuilderM___redArg___closed__2);
-v___x_1339__overap_527_ = l_panic___redArg(v___x_512_, v___x_526_);
+v___x_1345__overap_527_ = l_panic___redArg(v___x_512_, v___x_526_);
 lean_inc(v_a_510_);
 lean_inc_ref(v_a_509_);
 lean_inc(v_a_508_);
 lean_inc_ref(v_a_507_);
 lean_inc(v_a_506_);
 lean_inc_ref(v_a_505_);
-v___x_528_ = lean_apply_7(v___x_1339__overap_527_, v_a_505_, v_a_506_, v_a_507_, v_a_508_, v_a_509_, v_a_510_, lean_box(0));
+v___x_528_ = lean_apply_7(v___x_1345__overap_527_, v_a_505_, v_a_506_, v_a_507_, v_a_508_, v_a_509_, v_a_510_, lean_box(0));
 return v___x_528_;
 }
 else

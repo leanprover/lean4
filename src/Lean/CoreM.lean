@@ -311,6 +311,19 @@ structure State where
   snapshotTasks : Array (Language.SnapshotTask Language.SnapshotTree) := #[]
   deriving Nonempty
 
+/-- Which uses of deprecated constants and syntax are reported. See `Context.checkDeprecated`. -/
+inductive DeprecationCheck where
+  /-- Report all uses. -/
+  | all
+  /--
+  Report only uses at syntax written by the user, i.e. with original source info. This is used for
+  the expansion of deprecated syntax, which is reported as a whole, while the user-written syntax
+  it contains is still checked.
+  -/
+  | userWritten
+  /-- Report nothing. -/
+  | none
+
 /--
 The pointer-typed fields of `Core.Context` that are not updated on a recursion or `withRef` step.
 
@@ -354,6 +367,11 @@ structure Context extends Context.Cold where
   errors; see also `logMessage` below.
   -/
   suppressElabErrors : Bool := false
+  /--
+  Which uses of deprecated constants (`Elab.Term.checkDeprecatedCore`) and syntax
+  (`Elab.checkDeprecatedSyntax`, `Elab.checkDeprecatedQuotedSyntax`) are reported.
+  -/
+  checkDeprecated : DeprecationCheck := .all
   /--
   Whether the current computation records its dependencies into `Core.State.recordedDeps`. While
   set, reading state that is not recorded panics, see instance `MonadOptions CoreM`.
@@ -711,6 +729,13 @@ instance : MonadLog CoreM where
     let ctx ← read
     let msg := { msg with data := MessageData.withNamingContext { currNamespace := ctx.currNamespace, openDecls := ctx.openDecls } msg.data };
     modify fun s => { s with messages := s.messages.add msg }
+
+/-- Whether deprecated constants and syntax are reported at `ref`, see `Context.checkDeprecated`. -/
+def shouldCheckDeprecated (ref : Syntax) : CoreM Bool := do
+  return match (← read).checkDeprecated with
+    | .all => true
+    | .userWritten => (ref.getHeadInfo matches .original ..)
+    | .none => false
 
 /--
 Includes a given task (such as from `wrapAsyncAsSnapshot`) in the overall snapshot tree for this

@@ -11,6 +11,7 @@ Author: Leonardo de Moura
 #include "runtime/thread.h"
 #include "kernel/expr.h"
 #include "kernel/expr_sets.h"
+#include "kernel/ptr_pair_set.h"
 #include "util/alloc.h"
 
 namespace lean {
@@ -22,24 +23,12 @@ binder information attached to lambda and Pi expressions
 */
 template<bool CompareBinderInfo>
 class expr_eq_fn {
-    struct key_hasher {
-        std::size_t operator()(std::pair<lean_object *, lean_object *> const & p) const {
-            return hash((size_t)p.first >> 3, (size_t)p.second >> 3);
-        }
-    };
-    typedef lean::unordered_set<std::pair<lean_object *, lean_object *>, key_hasher> cache;
-    cache * m_cache = nullptr;
+    ptr_pair_set m_cache;
     size_t m_counter = 0;
     bool check_cache(expr const & a, expr const & b) {
         if (!is_shared(a) || !is_shared(b))
             return false;
-        if (!m_cache)
-            m_cache = new cache();
-        std::pair<lean_object *, lean_object *> key(a.raw(), b.raw());
-        if (m_cache->find(key) != m_cache->end())
-            return true;
-        m_cache->insert(key);
-        return false;
+        return !m_cache.insert(a.raw(), reinterpret_cast<uintptr_t>(b.raw()));
     }
     bool apply(expr const & a, expr const & b, bool root = false) {
         if (is_eqp(a, b))          return true;
@@ -114,7 +103,6 @@ class expr_eq_fn {
 public:
     expr_eq_fn() {}
     ~expr_eq_fn() {
-        if (m_cache) delete m_cache;
         if (m_counter > 0) add_heartbeats(m_counter);
     }
     bool operator()(expr const & a, expr const & b) { return apply(a, b, true); }

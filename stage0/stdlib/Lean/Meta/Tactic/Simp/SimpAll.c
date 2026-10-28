@@ -2202,9 +2202,9 @@ lean_object* v___y_666_ = _args[15];
 lean_object* v___y_667_ = _args[16];
 _start:
 {
-uint8_t v___x_24985__boxed_668_; lean_object* v_res_669_; 
-v___x_24985__boxed_668_ = lean_unbox(v___x_655_);
-v_res_669_ = l_WellFounded_opaqueFix_u2083___at___00__private_Lean_Meta_Tactic_Simp_SimpAll_0__Lean_Meta_SimpAll_loop_spec__3___redArg___lam__0(v_fvarId_651_, v_fst_652_, v_snd_653_, v___x_654_, v___x_24985__boxed_668_, v___x_656_, v_a_657_, v___x_658_, v_userName_659_, v_origType_660_, v_____r_661_, v___y_662_, v___y_663_, v___y_664_, v___y_665_, v___y_666_);
+uint8_t v___x_24989__boxed_668_; lean_object* v_res_669_; 
+v___x_24989__boxed_668_ = lean_unbox(v___x_655_);
+v_res_669_ = l_WellFounded_opaqueFix_u2083___at___00__private_Lean_Meta_Tactic_Simp_SimpAll_0__Lean_Meta_SimpAll_loop_spec__3___redArg___lam__0(v_fvarId_651_, v_fst_652_, v_snd_653_, v___x_654_, v___x_24989__boxed_668_, v___x_656_, v_a_657_, v___x_658_, v_userName_659_, v_origType_660_, v_____r_661_, v___y_662_, v___y_663_, v___y_664_, v___y_665_, v___y_666_);
 lean_dec(v___y_666_);
 lean_dec_ref(v___y_665_);
 lean_dec(v___y_664_);
@@ -3547,7 +3547,6 @@ v_userName_1082_ = lean_ctor_get(v_a_1080_, 1);
 v_origType_1083_ = lean_ctor_get(v_a_1080_, 3);
 v_type_1084_ = lean_ctor_get(v_a_1080_, 4);
 v_proof_1085_ = lean_ctor_get(v_a_1080_, 5);
-lean_inc_ref(v_type_1084_);
 v___x_1099_ = l_Lean_Expr_isTrue(v_type_1084_);
 if (v___x_1099_ == 0)
 {

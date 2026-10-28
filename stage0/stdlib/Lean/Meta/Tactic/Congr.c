@@ -1112,6 +1112,7 @@ lean_dec(v_a_260_);
 v___x_272_ = l_Lean_Expr_appArg_x21(v___x_271_);
 lean_dec_ref(v___x_271_);
 v___x_273_ = l_Lean_Expr_cleanupAnnotations(v___x_272_);
+lean_dec_ref(v___x_272_);
 v___x_274_ = l_Lean_Expr_isApp(v___x_273_);
 if (v___x_274_ == 0)
 {
@@ -2016,6 +2017,7 @@ lean_dec_ref(v___x_517_);
 v___x_519_ = l_Lean_Expr_appArg_x21(v___x_518_);
 lean_dec_ref(v___x_518_);
 v___x_520_ = l_Lean_Expr_cleanupAnnotations(v___x_519_);
+lean_dec_ref(v___x_519_);
 v___x_521_ = l_Lean_Expr_isApp(v___x_520_);
 if (v___x_521_ == 0)
 {

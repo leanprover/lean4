@@ -1342,6 +1342,7 @@ if (lean_obj_tag(v___x_404_) == 0)
 {
 lean_object* v___x_405_; 
 v___x_405_ = l_Lean_Expr_nat_x3f(v_arg_353_);
+lean_dec_ref(v_arg_353_);
 if (lean_obj_tag(v___x_405_) == 0)
 {
 lean_object* v___x_406_; 

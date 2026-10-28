@@ -248,6 +248,15 @@ jobs:
           fi
           elan --version  # fails step if not found
           make -C build/$TARGET_STAGE lean4lean con-leche
+      - name: Build lean-beam
+        if: matrix.release && !matrix.wasm && runner.os != 'Windows'
+        run: |
+          if [ -d build/elan/bin ]; then
+            echo "$PWD/build/elan/bin" >> "$GITHUB_PATH"
+          fi
+          # Require Beam in the package test only when this job explicitly builds it.
+          echo 'LEAN_BEAM_REQUIRED=1' >> "$GITHUB_ENV"
+          make -C build/$TARGET_STAGE lean-beam
       - name: Build nanoda and con-ron
         if: matrix.release && !matrix.wasm
         run: |
@@ -368,7 +377,7 @@ jobs:
           # Updating `GITHUB_ENV` would only apply to future steps (which do not need it).
           export LEAN_GITHASH=$(cat build/stage1/lake-githash)
           time ctest --preset ${{ matrix.CMAKE_PRESET || 'release' }} --test-dir build/stage1 -j$NPROC
-        if: matrix.check-rebootstrap
+        if: matrix.check-rebootstrap && !matrix.release
       - name: CCache stats
         if: always()
         run: ccache -s

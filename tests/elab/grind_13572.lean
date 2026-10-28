@@ -57,6 +57,7 @@ left : -1 * x3 + 1 ≤ 0
 right : x6 = x3
 h_19 : -1 * x7 ≤ 0
 ⊢ False
+use `+verbose` to obtain diagnostic information
 -/
 #guard_msgs in
 example : ∀ (x1 x2 x3 x4 x5 x6 x7 : Int),

@@ -9,8 +9,6 @@ Author: Sofia Rodrigues, Henrik Böving
 
 namespace lean {
 #ifndef LEAN_EMSCRIPTEN
-using namespace std;
-
 event_loop global_ev;
 
 // Utility function for error checking. This function is only used inside the

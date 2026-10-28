@@ -96,6 +96,17 @@ structure Context where
 abbrev CanonM := ReaderT Context SymM
 
 /--
+Returns the value of a `Nat` numeral argument of `OfNat.ofNat`, which may nest `OfNat.ofNat`
+at any depth, e.g. `@OfNat.ofNat Nat (@OfNat.ofNat Nat 4 _) _`.
+-/
+partial def getNestedNatValue? (e : Expr) : Option Nat := do
+  match e.consumeMData with
+  | .lit (.natVal n) => return n
+  | e =>
+    let_expr OfNat.ofNat _ n _ := e | failure
+    getNestedNatValue? n
+
+/--
 Auxiliary function for normalizing the arguments of `OfNat.ofNat` during canonicalization.
 This is needed because satellite solvers create `Nat` and `Int` numerals using the
 APIs `mkNatLit` and `mkIntLit`, which produce terms of the form
@@ -126,7 +137,7 @@ def normOfNatArgs? (args : Array Expr) : MetaM (Option (Array Expr)) := do
     let mut modified := false
     if args[1].isAppOf ``OfNat.ofNat then
       -- If nested `OfNat.ofNat`, convert to raw nat literal
-      let some val ← getNatValue? args[1] | pure ()
+      let some val := getNestedNatValue? args[1] | pure ()
       args := args.set 1 (mkRawNatLit val)
       modified := true
     let inst := args[2]
@@ -390,6 +401,19 @@ where
     canonInst' e report
 
   /--
+  Canonicalizes the instance `inst` of `@OfNat.ofNat α n inst`, where `ofNat` is the function
+  and `α` and `n` are already canonicalized. The instance is resynthesized for `OfNat α n`, not for
+  its own type: the latter may still contain the original spelling of the numeral (e.g.,
+  `instOfNatNat (OfNat.ofNat 4)` after `normOfNatArgs?` replaced `n` with a raw literal), and
+  resynthesizing for it returns `inst` unchanged. Then two spellings of the same literal would
+  produce distinct interpreted nodes (see `valueInconsistency` at `Grind.addEqStep`).
+  Not cached on `inst` alone since the result depends on `α` and `n`; the enclosing application
+  is cached by `canon`.
+  -/
+  canonOfNatInst (ofNat α n inst : Expr) : CanonM Expr := do
+    canonInstCore inst (mkApp2 (mkConst ``OfNat ofNat.constLevels!) α n)
+
+  /--
   Canonicalize a proposition that is also a term instance.
   Given a term `e` of the form `@Grind.nestedProof prop h`, where `g` is the constant `Grind.nestedProof`,
   we canonicalize it as follows:
@@ -517,7 +541,11 @@ where
           match_expr arg with
           | g@Grind.nestedDecidable prop h => canonInstDec g prop h arg
           | g@Grind.nestedProof prop h => canonInstProp g prop h arg
-          | _ => canonInst arg
+          | _ =>
+            if i == 2 && f.isConstOf ``OfNat.ofNat then
+              canonOfNatInst f args[0]! args[1]! arg
+            else
+              canonInst arg
       unless isSameExpr arg arg' do
         args := args.set i arg'
         modified := true

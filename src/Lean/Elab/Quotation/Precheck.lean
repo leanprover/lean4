@@ -7,7 +7,7 @@ module
 
 prelude
 public import Lean.Elab.Quotation.Util
-import Lean.Elab.DeprecatedSyntax
+import Lean.Elab.DeprecatedSyntax.Basic
 
 public section
 
@@ -57,14 +57,7 @@ unsafe builtin_initialize precheckAttribute : KeyedDeclsAttribute Precheck ←
   }
 
 partial def precheck : Precheck := fun stx => do
-  -- Check for deprecated syntax kinds in quotations
-  if let some entry := (deprecatedSyntaxExt.getState (← getEnv)).find? stx.getKind then
-    let extraMsg := match entry.text? with
-      | some text => m!": {text}"
-      | none => m!""
-    withRef stx do
-      Linter.logLintIf Linter.linter.deprecated.syntax stx
-        m!"quotation uses deprecated syntax '{stx.getKind}'{extraMsg}"
+  checkDeprecatedQuotedSyntax stx
   if let p::_ := precheckAttribute.getValues (← getEnv) stx.getKind then
     if ← catchInternalId unsupportedSyntaxExceptionId (do withRef stx <| p stx; pure true) (fun _ => pure false) then
       return
@@ -96,6 +89,15 @@ def runPrecheck (stx : Syntax) : TermElabM Unit := do
 private def isSectionVariable (e : Expr) : TermElabM Bool := do
   return (← read).sectionFVars.any fun _ v => e == v
 
+/-- Whether `n` is a variable bound in the quotation, possibly followed by field projections. -/
+private def isQuotLocal (quotLCtx : NameSet) (n : Name) : Bool :=
+  -- Macro scopes belong to the variable, not the projections, as in `resolveGlobalName`
+  let view := extractMacroScopes n
+  let rec loop : Name → Bool
+    | n@(.str p _) => quotLCtx.contains { view with name := n }.review || loop p
+    | _ => false
+  loop view.name
+
 @[builtin_quot_precheck ident] def precheckIdent : Precheck := fun stx =>
   match stx with
   | Syntax.ident _    _      val preresolved => do
@@ -108,9 +110,16 @@ private def isSectionVariable (e : Expr) : TermElabM Bool := do
        notation "x++" => x.foo
        ```
     -/
-    if let _::_ ← realizeGlobalNameWithInfos stx val then
+    if let consts@(_::_) ← realizeGlobalNameWithInfos stx val then
+      -- As in `precheck`, identifiers produced by macro expansion are reported when elaborating the
+      -- quotation's result, which also resolves overloads. Section variables shadow constants
+      -- there, see `quoteSyntax`.
+      if let [(declName, _)] := consts then
+        unless stx.getHeadInfo matches .synthetic .. || isQuotLocal (← read).quotLCtx val ||
+            !(resolveSectionVariable (← readThe Term.Context).sectionVars val).isEmpty do
+          checkDeprecatedCore declName
       return
-    if (← read).quotLCtx.contains val then
+    if isQuotLocal (← read).quotLCtx val then
       return
     let rs ← try resolveName stx val [] [] catch _ => pure []
     for (e, _, _) in rs do

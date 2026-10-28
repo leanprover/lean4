@@ -31,13 +31,10 @@ else
 {
 lean_object* v_val_3_; uint8_t v___x_4_; 
 v_val_3_ = lean_ctor_get(v_parent_x3f_1_, 0);
-lean_inc_n(v_val_3_, 2);
-lean_dec_ref_known(v_parent_x3f_1_, 1);
 v___x_4_ = l_Lean_Meta_Simp_Arith_isLinearTerm(v_val_3_);
 if (v___x_4_ == 0)
 {
 uint8_t v___x_5_; 
-lean_inc(v_val_3_);
 v___x_5_ = l_Lean_Meta_Simp_Arith_isLinearCnstr(v_val_3_);
 if (v___x_5_ == 0)
 {
@@ -47,13 +44,11 @@ return v___x_6_;
 }
 else
 {
-lean_dec(v_val_3_);
 return v___x_5_;
 }
 }
 else
 {
-lean_dec(v_val_3_);
 return v___x_4_;
 }
 }
@@ -64,6 +59,7 @@ _start:
 {
 uint8_t v_res_8_; lean_object* v_r_9_; 
 v_res_8_ = l_Lean_Meta_Simp_Arith_parentIsTarget(v_parent_x3f_7_);
+lean_dec(v_parent_x3f_7_);
 v_r_9_ = lean_box(v_res_8_);
 return v_r_9_;
 }

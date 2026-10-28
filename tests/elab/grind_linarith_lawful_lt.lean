@@ -40,6 +40,7 @@ h : a < b
 h_1 : b < c
 h_2 : ¬a < c
 ⊢ False
+use `+verbose` to obtain diagnostic information
 -/
 #guard_msgs in
 example [IntModule α] [LE α] [LT α] [IsLinearOrder α] [OrderedAdd α] (a b c : α)
@@ -61,6 +62,7 @@ h_1 : c ≤ b
 h_2 : b ≤ a
 h_3 : ¬a + b = 2 • c
 ⊢ False
+use `+verbose` to obtain diagnostic information
 -/
 #guard_msgs in
 example [IntModule α] [LE α] [IsLinearOrder α] [OrderedAdd α] (a b c : α)

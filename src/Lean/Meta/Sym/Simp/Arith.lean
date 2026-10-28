@@ -58,10 +58,11 @@ relations differ in what `post` sees:
 The discharger `d` proves the side conditions `x ≠ 0` under which `x * x⁻¹` is cancelled in a
 field. With `lhsOnly := true`, relations over rings are normalized to `p = 0`, `p ≤ 0`, `p < 0`
 instead of being split by sign, and with `distrib := false` products of non-constant polynomials
-are kept as atoms; see `Arith.normalize?`.
+are kept as atoms; with `maxChar? := some c`, terms over a structure whose characteristic is a
+numeral above `c`, or not a numeral, are left as written. See `Arith.normalize?`.
 -/
-def simpArith (d : Discharger := dischargeNone) (lhsOnly : Bool := false) (distrib : Bool := true) : Simproc := fun e => do
-  let r ← Arith.normalize? e simp (lhsOnly := lhsOnly) (distrib := distrib) fun p => do
+def simpArith (d : Discharger := dischargeNone) (lhsOnly : Bool := false) (distrib : Bool := true) (maxChar? : Option Nat := none) : Simproc := fun e => do
+  let r ← Arith.normalize? e simp (lhsOnly := lhsOnly) (distrib := distrib) (maxChar? := maxChar?) fun p => do
     match (← d p) with
     | .solved h _ => return some h
     | .failed _ => return none
@@ -119,5 +120,14 @@ def simpNatRel : Simproc := fun e => do
         return .step (← getFalseExpr) (mkApp2 (mkConst ``Grind.Nat.add_succ_le_zero_eq_false) a (mkRawNatLit k)) (done := true)
     return .rfl
   | _ => return .rfl
+
+/--
+Cancels the common part of the sides of a `Nat` subtraction (`Arith.cancelNatSub?`), simplifying
+the atoms with `simp`: `x + 2 - 1` becomes `x + 1 - 0`, and `x * y + 3 - (x * y + z + 1)`
+becomes `2 - z`. The result is not final, so rewrite rules such as `Nat.sub_zero` see it.
+Intended as a `post` simproc. `distrib` must be the one given to `simpArith`.
+-/
+def simpNatSub (distrib : Bool := true) : Simproc := fun e =>
+  Arith.cancelNatSub? e simp (distrib := distrib)
 
 end Lean.Meta.Sym.Simp

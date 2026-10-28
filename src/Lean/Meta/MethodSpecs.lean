@@ -146,7 +146,9 @@ def isSpecThmNameFor (env : Environment) (name : Name) : Option Name := do
   let .str p s := name | none
   [p, privateToUserName p].firstM fun p => do
       let attrData ← methodSpecsAttr.getParam? env p
-      for fieldName in getStructureFields env attrData.clsName do
+      -- the class may not be visible, e.g. when checking a private name in the exported environment
+      let clsInfo ← getStructureInfo? env attrData.clsName
+      for fieldName in clsInfo.fieldNames do
         if isSpecThmLikeSuffix fieldName s then
           if name == mkSpecTheoremName env p attrData.privateSpecs s then
             return p

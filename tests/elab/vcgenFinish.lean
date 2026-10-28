@@ -63,3 +63,22 @@ example (hFalse : False) : ⦃ True ⦄ (pure 3 : Id Nat) ⦃ fun r => r = 3 ⦄
 
 example (hFalse : false = true) : ⦃ True ⦄ (pure 3 : Id Nat) ⦃ fun r => r = 3 ⦄ := by
   vcgen with finish
+
+/-! A lifted equation `x = t` on a local variable `x` replaces `x` by `t` in the rest of the goal.
+The postcondition `r = 41 ∧ s = 41` of `peek_spec` is split into its conjuncts, and `r = 41` pins
+`r`, so `bump_41` applies to `bump r`. `sym.debug` checks the `SymM` invariants of both steps. -/
+
+set_option sym.debug true
+
+def peek : StateM Nat Nat := get
+
+@[spec] theorem peek_spec (n : Nat) : ⦃ fun s => s = n ⦄ peek ⦃ fun r s => r = n ∧ s = n ⦄ := by
+  vcgen [peek] with finish
+
+def bump (n : Nat) : StateM Nat Nat := pure (n + 1)
+
+@[spec] theorem bump_41 : ⦃ fun s => s = 41 ⦄ bump 41 ⦃ fun r s => r = 42 ∧ s = 41 ⦄ := by
+  vcgen [bump] with finish
+
+example : ⦃ fun s => s = 41 ⦄ (do let r ← peek; bump r) ⦃ fun r s => r = 42 ∧ s = 41 ⦄ := by
+  vcgen with finish

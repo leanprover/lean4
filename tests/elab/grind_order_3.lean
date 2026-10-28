@@ -31,6 +31,7 @@ h_1 : b ≤ c
 h_2 : c ≤ a
 h_3 : ¬a = c
 ⊢ False
+use `+verbose` to obtain diagnostic information
 -/
 #guard_msgs in
 example [LE α] [Std.IsPreorder α]

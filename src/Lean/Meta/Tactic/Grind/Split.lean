@@ -452,6 +452,8 @@ def splitCore (c : SplitInfo) (numCases : Nat) (isRec : Bool)
     (compress : Bool)
     (candidates? : Option (List SplitInfo) := none) : Action := fun goal _ kp => withHoistedDecls goal do
   let traceEnabled := (← getConfig).trace
+  let saved? ← saveStateIfTracing
+  let goal₀ := goal
   let mvarId ← goal.mkAuxMVar
   let cExpr := c.getExpr
   let ((mvarIds, anchorInfo?), goal) ← GoalM.run goal do
@@ -510,9 +512,19 @@ def splitCore (c : SplitInfo) (numCases : Nat) (isRec : Bool)
     gs.map fun g => { g with goalStack := g.goalStack.extract 0 goal.goalStack.size }
   let mut seqNew : Array (List (TSyntax `grind)) := #[]
   let mut stuckNew : Array Goal := #[]
+  /-
+  The state for performing non-chronological backtracking (NCB) using the given proof and tactic
+  sequence, if the case-split was kept even though NCB applies.
+  -/
+  let mut ncb? : Option (SavedState × Expr × List (TSyntax `grind)) := none
   for subgoal in subgoals do
     match (← kp subgoal) with
     | .stuck gs =>
+      if let some (s, falseProof, seq) := ncb? then
+        -- Keeping the case-split failed, so we backtrack using the proof that does not need it.
+        s.restore
+        goal.mvarId.assignFalseProof (← mkHoistedDecls (← getHoistedDecls goal) falseProof)
+        return .closed seq
       if stopAtFirstFailure then
         /-
         **Note**: We don't need to assign `goal.mvarId` when `stopAtFirstFailure = true`
@@ -523,8 +535,19 @@ def splitCore (c : SplitInfo) (numCases : Nat) (isRec : Bool)
         stuckNew := stuckNew ++ exitSplit gs
     | .closed seq =>
       if let some falseProof ← getFalseProof? subgoal.mvarId then
-        goal.mvarId.assignFalseProof (← mkHoistedDecls (← getHoistedDecls goal) falseProof)
-        return .closed seq
+        /-
+        **Note**: When tracing, NCB drops the case-split from the generated script only if `seq`
+        still closes the original goal. It may not, even though the proof does not use the
+        case-split: the case-split may have introduced terms used by E-matching, or changed the
+        candidates that `seq` references using anchors. Otherwise, we keep the case-split.
+        -/
+        if (← checkSeqAt saved? goal₀ seq) then
+          goal.mvarId.assignFalseProof (← mkHoistedDecls (← getHoistedDecls goal) falseProof)
+          return .closed seq
+        if ncb?.isNone then
+          ncb? := some (← saveState, falseProof, seq)
+        if !seq.isEmpty then
+          seqNew := seqNew.push seq
       else if !seq.isEmpty then
         /- **Note**: if the sequence is empty, it means the user will never see this goal. -/
         seqNew := seqNew.push seq

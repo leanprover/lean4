@@ -236,6 +236,13 @@ structure Context where
   -/
   anchorRefs?  : Option (Array AnchorRef)
   /--
+  `anchors := true` if anchors may be observed in this run: when generating tactic scripts,
+  restricting the search using `anchorRefs?`, or in interactive mode. Otherwise, `getAnchor`
+  returns `0` and local variable anchors are not assigned. It must not change during a run,
+  since local variable anchors are assigned when the variables are introduced.
+  -/
+  anchors      : Bool := false
+  /--
   If `cheapCases` is `true`, `grind` only applies `cases` to types that contain
   at most one minor premise.
   Recall that `grind` applies `cases` when introducing types tagged with `[grind cases eager]`,
@@ -400,6 +407,11 @@ structure State where
   Cached anchors (aka stable hash codes) for terms in the `grind` state.
   -/
   anchors : PHashMap ExprPtr UInt64 := {}
+  /--
+  Anchors of the local variables introduced by `grind`. They are based on how each variable was
+  introduced instead of its name or position. See `registerFVarAnchor`.
+  -/
+  fvarAnchors : PHashMap FVarId UInt64 := {}
   /-- Accumulated E-matching instance map for precise unused lemma tracking.
   Only populated when `config.markInstances` is `true`. -/
   instanceMap : Std.HashMap Name EMatchTheorem := {}
@@ -490,6 +502,10 @@ abbrev withGTransparency [MonadControlT MetaM n] [MonadLiftT GrindM n] [Monad n]
 /-- Returns the anchor references (if any) being used to restrict the search. -/
 def getAnchorRefs : GrindM (Option (Array AnchorRef)) := do
   return (← readThe Context).anchorRefs?
+
+/-- See `Context.anchors`. -/
+def anchorsEnabled : GrindM Bool :=
+  return (← readThe Context).anchors
 
 def resetAnchors : GrindM Unit := do
   modify fun s => { s with anchors := {} }
@@ -1184,6 +1200,13 @@ structure GoalState where
   hoisting needs constant-time access by depth.
   -/
   goalStack    : Array (MVarId × GoalState) := #[]
+  /--
+  Provenance of the local variables introduced next: the `numIntros`-th one gets anchor
+  `mixHash introBase (hash numIntros)`. Steps that introduce variables, such as case-splits,
+  reset it. See `registerFVarAnchor`.
+  -/
+  introBase    : UInt64 := 0
+  numIntros    : Nat := 0
   deriving Inhabited
 
 /--
@@ -1389,6 +1412,37 @@ This is used to determine whether `grind` needs to internalize new hypotheses.
 def Goal.hasPendingLocalDecls (g : Goal) : MetaM Bool := do
   let mvarDecl ← g.mvarId.getDecl
   return g.nextDeclIdx < mvarDecl.lctx.decls.size
+
+/--
+Sets the provenance of the local variables introduced next in `goal`. See `GoalState.introBase`.
+-/
+def Goal.setIntroBase (goal : Goal) (base : UInt64) : Goal :=
+  { goal with introBase := base, numIntros := 0 }
+
+/-- Assigns the anchor of a local variable just introduced in the current goal. -/
+def registerFVarAnchor (fvarId : FVarId) : GoalM Unit := do
+  unless (← anchorsEnabled) do return
+  let goal ← get
+  let anchor := mixHash goal.introBase (hash goal.numIntros)
+  set { goal with numIntros := goal.numIntros + 1 }
+  modifyThe Grind.State fun s => { s with fvarAnchors := s.fvarAnchors.insert fvarId anchor }
+
+/--
+Assigns the anchors of the local variables in the initial local context of a goal. Variables are
+distinguished by their name and their rank among the variables with the same base name
+(i.e., without macro scopes), e.g., a hidden `x✝` or a shadowed `x`. Variables that already have
+an anchor keep it, since goals may be created during a run (e.g., by `vcgen`).
+-/
+def registerInitialFVarAnchors : GoalM Unit := do
+  unless (← anchorsEnabled) do return
+  let mut ranks : Std.HashMap Name Nat := {}
+  for decl in (← getLCtx) do
+    let baseName := decl.userName.eraseMacroScopes
+    let rank := ranks.getD baseName 0
+    ranks := ranks.insert baseName (rank + 1)
+    unless (← getThe Grind.State).fvarAnchors.contains decl.fvarId do
+      let anchor := mixHash (hash baseName) (hash rank)
+      modifyThe Grind.State fun s => { s with fvarAnchors := s.fvarAnchors.insert decl.fvarId anchor }
 
 def updateLastTag : GoalM Unit := do
   if (← isTracingEnabledFor `grind) then

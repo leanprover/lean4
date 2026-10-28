@@ -70,6 +70,8 @@ structure Params where
   norm        : Simp.Context
   normProcs   : Array Simprocs
   anchorRefs? : Option (Array AnchorRef) := none
+  /-- `true` when running in interactive mode, e.g., `grind => ...`. See `Context.anchors`. -/
+  interactive : Bool := false
   -- TODO: inductives to split
 
 def mkParams (config : Grind.Config) (extensions : ExtensionStateArray) : MetaM Params := do
@@ -136,13 +138,14 @@ def GrindM.run (x : GrindM α) (params : Params) (evalTactic? : Option EvalTacti
   let symPrios := params.symPrios
   let extensions := params.extensions
   let anchorRefs? := params.anchorRefs?
+  let anchors := config.trace || anchorRefs?.isSome || params.interactive
   let identity := params.identity
   let activeSolvers ← Solvers.activeIds config
   let debug := grind.debug.get (← getOptions)
   let ematchDiag := grind.ematch.diagnostics.get (← getOptions)
   Sym.Arith.setExpThreshold config.exp
   x (← mkMethods evalTactic?).toMethodsRef
-    { config, identity, activeSolvers, anchorRefs?, simpMethods, symSimpMethods, symDSimpMethods, simp, extensions, symPrios, debug, ematchDiag }
+    { config, identity, activeSolvers, anchorRefs?, anchors, simpMethods, symSimpMethods, symDSimpMethods, simp, extensions, symPrios, debug, ematchDiag }
     |>.run' {}
 
 private def mkCleanState (mvarId : MVarId) : GrindM Clean.State := mvarId.withContext do
@@ -186,6 +189,7 @@ def mkGoalCore (mvarId : MVarId) : GrindM Goal := do
   let clean ← mkCleanState mvarId
   let sstates ← Solvers.mkInitialStates
   GoalM.run' { mvarId, ematch.thmMap := thmEMatch, inj.thms := thmInj, clean, sstates } do
+    registerInitialFVarAnchors
     initENodeCore falseExpr (interpreted := true) (ctor := false)
     initENodeCore trueExpr (interpreted := true) (ctor := false)
     initENodeCore btrueExpr (interpreted := false) (ctor := true)

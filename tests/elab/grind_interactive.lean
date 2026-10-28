@@ -172,11 +172,11 @@ example (as bs cs : Array α) (v₁ v₂ : α)
 
 /--
 trace: [splits] Case split candidates
-  [split] #7a08 := ¬p ∨ ¬q
-  [split] #8212 := ¬p ∨ q
-  [split] #fc16 := p ∨ ¬q
-  [split] #4283 := p ∨ q
-  [split] #0457 := p ∨ r
+  [split] #7589 := ¬p ∨ ¬q
+  [split] #ce01 := ¬p ∨ q
+  [split] #a5af := p ∨ ¬q
+  [split] #3a71 := p ∨ q
+  [split] #d1bb := p ∨ r
 -/
 #guard_msgs (trace) in
 example (r p q : Prop) : p ∨ r → p ∨ q → p ∨ ¬q → ¬p ∨ q → ¬p ∨ ¬q → False := by
@@ -202,11 +202,11 @@ def h (as : List Nat) :=
 
 /--
 trace: [splits] Case split candidates
-  [split] #8289 := match bs with
+  [split] #1c13 := match bs with
       | [] => 1
       | [head] => 2
       | head :: head_1 :: tail => 3
-  [split] #bf4f := match as with
+  [split] #915c := match as with
       | [] => 1
       | [head] => 2
       | head :: head_1 :: tail => 3
@@ -222,7 +222,7 @@ example : h bs = 1 → h as ≠ 0 := by
   grind [h.eq_def] =>
     instantiate
     show_cases
-    cases #bf4f
+    cases #915c
     instantiate
     focus instantiate
     instantiate
@@ -248,20 +248,20 @@ example : h bs = 1 → h as ≠ 0 := by
 example : h bs = 1 → h as ≠ 0 := by
   grind [h.eq_def] =>
     instantiate | as
-    cases #bf4f
+    cases #915c
     all_goals instantiate
 
 /--
 info: Try these:
-  [apply] cases #7a08 for
+  [apply] cases #7589 for
     ¬p ∨ ¬q
-  [apply] cases #8212 for
+  [apply] cases #ce01 for
     ¬p ∨ q
-  [apply] cases #fc16 for
+  [apply] cases #a5af for
     p ∨ ¬q
-  [apply] cases #4283 for
+  [apply] cases #3a71 for
     p ∨ q
-  [apply] cases #0457 for
+  [apply] cases #d1bb for
     p ∨ r
 -/
 #guard_msgs in
@@ -278,11 +278,11 @@ example (r p q : Prop) : p ∨ r → p ∨ q → p ∨ ¬q → ¬p ∨ q → ¬p
 
 /--
 info: Try these:
-  [apply] cases #7a08 for
+  [apply] cases #7589 for
     ¬p ∨ ¬q
-  [apply] cases #8212 for
+  [apply] cases #ce01 for
     ¬p ∨ q
-  [apply] cases #fc16 for
+  [apply] cases #a5af for
     p ∨ ¬q
 -/
 #guard_msgs in
@@ -294,12 +294,12 @@ example (r p q : Prop) : p ∨ r → p ∨ q → p ∨ ¬q → ¬p ∨ q → ¬p
 example : h bs = 1 → h as ≠ 0 := by
   grind [h.eq_def] =>
     instantiate
-    cases #bf4f <;> instantiate
+    cases #915c <;> instantiate
 
 example : h bs = 1 → h as ≠ 1 := by
   grind [h.eq_def] =>
     instantiate
-    cases #8289
+    cases #1c13
     any_goals instantiate
     sorry
 
@@ -316,7 +316,7 @@ use `+verbose` to obtain diagnostic information
 example : h bs = 1 → h as ≠ 0 := by
   grind -verbose [h.eq_def] =>
     instantiate
-    cases #bf4f
+    cases #915c
     next => skip
     all_goals sorry
 
@@ -329,7 +329,7 @@ def g (as : List Nat) :=
 example : g bs = 1 → g as ≠ 0 := by
   grind [g.eq_def] =>
     instantiate
-    cases #bf4f
+    cases #915c
     next => instantiate
     next => finish
     tactic =>
@@ -518,29 +518,29 @@ opaque p : Point Nat → Prop
 example : (a : Point Nat) → p a → x ≠ y → False := by
   intro a
   grind =>
-    cases #6ccb
+    cases #0d97
     instantiate only [pax]
     show_cases
-    rename_i y w _ -- Must reset cached anchors
+    rename_i y w _ -- Renaming does not change anchors
     show_cases
-    cases #dded
+    cases #1756
     all_goals sorry
 
 example : (a : Point Nat) → p a → x ≠ y → False := by
   intro a
   grind =>
-    cases #6ccb
+    cases #0d97
     instantiate only [pax]
     show_cases
     next y w _ =>
     show_cases
-    cases #dded
+    cases #1756
     all_goals sorry
 
 example : (a : Point Nat) → p a → x ≠ y → False := by
   grind =>
     expose_names
-    cases #6ccb
+    cases #35a9
     sorry
 
 opaque q : Nat → Nat → Prop

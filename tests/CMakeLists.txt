@@ -285,7 +285,8 @@ set(PART2 "")
 # toolchain: requires elan to download toolchain
 # online: downloads remote repositories
 option(LAKE_CI "Enable full Lake test suite (use `lake-ci` label on PRs)" OFF)
-set(LAKE_TEST_GLOBS
+set(
+  LAKE_TEST_GLOBS
   "${LEAN_SOURCE_DIR}/../tests/lake/examples/test.sh"
   "${LEAN_SOURCE_DIR}/../tests/lake/tests/test.sh"
 )
@@ -324,7 +325,7 @@ add_test_pile(
   EXCEPT
     async_select_channel.lean # Flaky
     sync_mutex.lean # Flaky
-  ${ELAB_FIXTURES}
+    ${ELAB_FIXTURES}
 )
 add_test_pile(compile *.lean BENCH PART2)
 add_test_pile(compile_bench *.lean BENCH PART2)

@@ -3626,32 +3626,31 @@ theorem List.getD_groupByKey [EquivBEq α] [LawfulHashable α] {xs : List β} :
   | nil => simp
   | cons x xs ih =>
     rw [List.groupByKey_cons, Std.HashMap.getD_alter, List.filter_cons]
+    simp only [Option.getD_some, ← Std.HashMap.getD_eq_getD_getElem?]
     split
     · rename_i h
-      simp only [Option.getD_some, List.cons.injEq, true_and]
-      rw [← Std.HashMap.getD_eq_getD_getElem?, Std.HashMap.getD_congr h, ih]
+      rw [Std.HashMap.getD_congr h, ih]
     · exact ih
+
+@[simp, grind =]
+theorem List.mem_groupByKey [EquivBEq α] [LawfulHashable α] {xs : List β} :
+    k ∈ xs.groupByKey key ↔ xs.any (key · == k) := by
+  induction xs with
+  | nil => simp
+  | cons x xs ih =>
+    rw [List.groupByKey_cons, Std.HashMap.mem_alter, List.any_cons]
+    split <;> simp_all
 
 @[grind =]
 theorem List.getElem?_groupByKey [EquivBEq α] [LawfulHashable α] {xs : List β} :
     (xs.groupByKey key)[k]? =
       if xs.any (key · == k) then some (xs.filter (key · == k)) else none := by
-  induction xs with
-  | nil => simp
-  | cons x xs ih =>
-    rw [List.groupByKey_cons, Std.HashMap.getElem?_alter, List.filter_cons, List.any_cons]
-    split
-    · rename_i h
-      rw [Std.HashMap.getElem?_congr h, ih]
-      split <;> simp_all
-    · rename_i h
-      simp [h, ih]
-
-@[simp, grind =]
-theorem List.mem_groupByKey [EquivBEq α] [LawfulHashable α] {xs : List β} :
-    k ∈ xs.groupByKey key ↔ xs.any (key · == k) := by
-  rw [← Std.HashMap.isSome_getElem?_iff_mem, List.getElem?_groupByKey]
-  split <;> simp_all
+  split
+  · rename_i h
+    rw [Std.HashMap.getElem?_eq_some_getD (fallback := []) (List.mem_groupByKey.mpr h),
+      List.getD_groupByKey]
+  · rename_i h
+    exact Std.HashMap.getElem?_eq_none (mt List.mem_groupByKey.mp h)
 
 theorem Array.groupByKey_eq_foldl {xs : Array β} :
     xs.groupByKey key =
@@ -3660,26 +3659,21 @@ theorem Array.groupByKey_eq_foldl {xs : Array β} :
   simp only [Array.groupByKey, Id.run, Array.forIn_pure_yield_eq_foldl, Array.foldl_toList]
   rfl
 
-/-- The accumulator-generalized form of `Array.getD_groupByKey`. -/
-private theorem Array.getD_foldl_alter_push [EquivBEq α] [LawfulHashable α] :
-    ∀ (l : List β) (m : Std.HashMap α (Array β)),
-      (l.foldl (fun acc x => acc.alter (key x) (some <| ·.getD #[] |>.push x)) m).getD k #[]
-        = m.getD k #[] ++ (l.filter (key · == k)).toArray
-  | [], _ => by simp
-  | x :: l, m => by
-    rw [List.foldl_cons, Array.getD_foldl_alter_push l, Std.HashMap.getD_alter, List.filter_cons]
-    split
-    · rename_i h
-      simp only [Option.getD_some]
-      rw [← Std.HashMap.getD_eq_getD_getElem?, Std.HashMap.getD_congr h]
-      simp
-    · rfl
-
 @[simp, grind =]
 theorem Array.getD_groupByKey [EquivBEq α] [LawfulHashable α] {xs : Array β} :
     (xs.groupByKey key).getD k #[] = xs.filter (key · == k) := by
-  rw [Array.groupByKey_eq_foldl, Array.getD_foldl_alter_push]
-  simp [← Array.toList_inj]
+  rw [Array.groupByKey_eq_foldl,
+    ← List.foldl_hom (fun m : Std.HashMap α (Array β) => m.getD k #[])
+      (g₂ := fun acc x => if key x == k then acc.push x else acc)]
+  · simp only [Std.HashMap.getD_empty, Array.foldl_toList]
+    rfl
+  · intro m x
+    rw [Std.HashMap.getD_alter]
+    split
+    · rename_i h
+      simp only [Option.getD_some, ← Std.HashMap.getD_eq_getD_getElem?]
+      rw [Std.HashMap.getD_congr h]
+    · rfl
 
 @[simp, grind =]
 theorem Array.mem_groupByKey [EquivBEq α] [LawfulHashable α] {xs : Array β} :
@@ -3703,11 +3697,9 @@ theorem Array.getElem?_groupByKey [EquivBEq α] [LawfulHashable α] {xs : Array 
       if xs.any (key · == k) then some (xs.filter (key · == k)) else none := by
   split
   · rename_i h
-    obtain ⟨v, hv⟩ := Option.isSome_iff_exists.mp
-      (Std.HashMap.mem_iff_isSome_getElem?.mp (Array.mem_groupByKey.mpr h))
-    rw [hv, ← Array.getD_groupByKey (key := key) (k := k), Std.HashMap.getD_eq_getD_getElem?, hv,
-      Option.getD_some]
+    rw [Std.HashMap.getElem?_eq_some_getD (fallback := #[]) (Array.mem_groupByKey.mpr h),
+      Array.getD_groupByKey]
   · rename_i h
-    exact Std.HashMap.getElem?_eq_none fun hm => h (Array.mem_groupByKey.mp hm)
+    exact Std.HashMap.getElem?_eq_none (mt Array.mem_groupByKey.mp h)
 
 end groupByKey

@@ -1,3 +1,5 @@
+module
+
 import Std.Data.HashMap.Lemmas
 
 /-!
@@ -34,7 +36,6 @@ example (xs : Array β) :
 example (xs : Array β) : k ∈ xs.groupByKey key ↔ xs.any (key · == k) :=
   Array.mem_groupByKey
 
--- The `getD` and `mem` forms are simp lemmas.
 example (xs : List β) : (xs.groupByKey key).getD k [] = xs.filter (key · == k) := by simp
 example (xs : List β) : k ∈ xs.groupByKey key ↔ xs.any (key · == k) := by simp
 example (xs : Array β) : (xs.groupByKey key).getD k #[] = xs.filter (key · == k) := by simp
@@ -42,7 +43,6 @@ example (xs : Array β) : k ∈ xs.groupByKey key ↔ xs.any (key · == k) := by
 
 end
 
--- Concrete groups, as in the docstring examples.
 example : ([0, 1, 2, 3, 4, 5, 6].groupByKey (· % 2)).getD 0 [] = [0, 2, 4, 6] := by
   rw [List.getD_groupByKey]; rfl
 example : ([0, 1, 2, 3, 4, 5, 6].groupByKey (· % 2)).getD 1 [] = [1, 3, 5] := by
@@ -56,7 +56,25 @@ example : (#[0, 1, 2, 3, 4, 5, 6].groupByKey (· % 2)).getD 1 #[] = #[1, 3, 5] :
 example : 2 ∉ #[0, 1, 2, 3, 4, 5, 6].groupByKey (· % 2) := by
   simp
 
--- A key that is `==` but not identical to the one used for grouping finds the same group.
-example (xs : List Nat) :
-    (xs.groupByKey (· % 2)).getD 0 [] = (xs.groupByKey (· % 2)).getD (0 + 0) [] := by
-  simp
+namespace EquivalentKeys
+
+structure Key where
+  value : Nat
+  tag : Bool
+
+instance : BEq Key := ⟨fun a b => a.value == b.value⟩
+instance : Hashable Key := ⟨fun a => hash a.value⟩
+instance : EquivBEq Key :=
+  equivBEq_of_iff_apply_eq Key.value (fun a b => (beq_iff_eq : (a.value == b.value) ↔ a.value = b.value))
+instance : LawfulHashable Key where
+  hash_eq _ _ h := congrArg (hash (α := Nat)) (eq_of_beq h)
+
+example : ([0, 1, 2, 3].groupByKey (fun n => Key.mk (n % 2) false)).getD
+    ⟨0, true⟩ [] = [0, 2] := by
+  rw [List.getD_groupByKey]; rfl
+
+example : (#[0, 1, 2, 3].groupByKey (fun n => Key.mk (n % 2) false))[Key.mk 1 true]? =
+    some #[1, 3] := by
+  rw [Array.getElem?_groupByKey, ← Array.any_toList]; rfl
+
+end EquivalentKeys

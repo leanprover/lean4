@@ -8,6 +8,7 @@ module
 prelude
 public import Init.Control.Do
 public import Lean.Data.LOption
+public import Lean.Data.BudgetedCache
 public import Lean.Class
 public import Lean.ReducibilityAttrs
 public import Lean.Util.MonadBacktrack
@@ -534,7 +535,12 @@ instance : BEq ExprConfigCacheKey where
 instance : Hashable ExprConfigCacheKey where
   hash := private fun { expr, configKey } => mixHash (hash expr) (hash configKey)
 
-abbrev InferTypeCache  := PersistentHashMap ExprConfigCacheKey Expr
+instance : BudgetedBEq ExprConfigCacheKey where
+  beq a b budget := do
+    if a.configKey != b.configKey then return .false
+    a.expr.equalBudgeted b.expr budget
+
+abbrev InferTypeCache  := BudgetedCache ExprConfigCacheKey Expr
 abbrev FunInfoCache    := PersistentHashMap InfoCacheKey FunInfo
 abbrev WhnfCache       := PersistentHashMap ExprConfigCacheKey Expr
 abbrev IsUnitLikeCache := PersistentHashMap ExprConfigCacheKey Bool

@@ -13,10 +13,10 @@ private def expect (label : String) (actual expected : LBool) : IO Unit := do
   unless actual == expected do
     throw <| IO.userError s!"{label}: expected {expected}, got {actual}"
 
-private unsafe def expectBoth (label : String) (a b : Expr) (budget : USize)
+private def expectBoth (label : String) (a b : Expr) (budget : USize)
     (expected : LBool) : IO Unit := do
-  expect (label ++ " (eqv)") (a.eqvBudgeted b budget) expected
-  expect (label ++ " (equal)") (a.equalBudgeted b budget) expected
+  expect (label ++ " (eqv)") (← a.eqvBudgeted b budget) expected
+  expect (label ++ " (equal)") (← a.equalBudgeted b budget) expected
 
 private unsafe def expectDistinct (a b : Expr) : IO Unit := do
   if ptrEq a b then
@@ -196,7 +196,7 @@ private unsafe def checkMetadata : IO Unit := do
       let b ← metadataCons `key v₂
       expectBoth "metadata agrees with exact equality" a b 100000 (a == b).toLBool
 
-private unsafe def checkModes : IO Unit := do
+private def checkModes : IO Unit := do
   let ty := mkConst `Nat
   let body := mkBVar 0
   for ctor in [Expr.lam, Expr.forallE] do
@@ -206,14 +206,14 @@ private unsafe def checkModes : IO Unit := do
     for b in [renamed, implicit] do
       unless a.hash == b.hash do
         throw <| IO.userError "expected binder-only differences to have the same hash"
-      expect "binder eqv" (a.eqvBudgeted b 100) .true
-      expect "binder equal" (a.equalBudgeted b 100) .false
+      expect "binder eqv" (← a.eqvBudgeted b 100) .true
+      expect "binder equal" (← a.equalBudgeted b 100) .false
   let a := Expr.letE `x ty (mkNatLit 1) body false
   let b := Expr.letE `y ty (mkNatLit 1) body false
-  expect "let name eqv" (a.eqvBudgeted b 100) .true
-  expect "let name equal" (a.equalBudgeted b 100) .false
+  expect "let name eqv" (← a.eqvBudgeted b 100) .true
+  expect "let name equal" (← a.equalBudgeted b 100) .false
 
-private unsafe def checkCorpus : IO Unit := do
+private def checkCorpus : IO Unit := do
   let nat := mkConst `Nat
   let zero := mkNatLit 0
   let one := mkNatLit 1
@@ -238,14 +238,14 @@ private unsafe def checkCorpus : IO Unit := do
   for a in es do
     for b in es do
       for budget in ([0, 1, 4, 16, 100000] : List USize) do
-        let eqv := a.eqvBudgeted b budget
-        let equal := a.equalBudgeted b budget
+        let eqv ← a.eqvBudgeted b budget
+        let equal ← a.equalBudgeted b budget
         unless eqv == .undef || eqv == (a == b).toLBool do
           throw <| IO.userError "budgeted eqv disagrees with eqv"
         unless equal == .undef || equal == (Expr.equal a b).toLBool do
           throw <| IO.userError "budgeted equal disagrees with equal"
-        expect "symmetric eqv" eqv (b.eqvBudgeted a budget)
-        expect "symmetric equal" equal (b.equalBudgeted a budget)
+        expect "symmetric eqv" eqv (← b.eqvBudgeted a budget)
+        expect "symmetric equal" equal (← b.equalBudgeted a budget)
         if budget == 100000 then
           expect "complete eqv" eqv (a == b).toLBool
           expect "complete equal" equal (Expr.equal a b).toLBool

@@ -30,8 +30,11 @@ def runScenario (name : String) (n : Nat) (keep close : ByteArray) (handler : Te
 
   let count ← Async.block do
     let serveTask ← async (Std.Http.Server.serveConnection conn handler cfg |>.run)
-    client.send raw
-    client.shutdown
+    -- Writing the whole pipeline before reading deadlocks once the socket buffers fill up in both
+    -- directions, so responses are read while the requests are still being sent.
+    let sendTask ← async do
+      client.send raw
+      client.shutdown
 
     let mut result := ByteArray.empty
     repeat
@@ -39,6 +42,7 @@ def runScenario (name : String) (n : Nat) (keep close : ByteArray) (handler : Te
       | none => break
       | some chunk => result := result ++ chunk
 
+    await sendTask
     await serveTask
     pure (countResponses result)
 

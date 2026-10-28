@@ -354,7 +354,7 @@ private def tryApplyCanonicalInstance (instType : Expr) :
     trace[Elab.Deriving] "Result: {res}, {outVars}"
     return .ok (← mkLambdaFVars vars res, outVars)
 
-structure Deriving.State where
+structure State where
   instanceMVars : Array MVarId := #[]
   newLInsts : LocalInstances := #[]
   -- for documentation purposes
@@ -363,7 +363,7 @@ structure Deriving.State where
     newLInsts[i].fvar = .mvar instanceMVars[i] := by nofun
   splitFailures : Array (MVarId × CanonicalInstanceFailure) := #[]
 
-structure Deriving.Context where
+structure Context where
   /-- The name of the type class being derived -/
   className : Name
   /-- Level parameters for the instances -/

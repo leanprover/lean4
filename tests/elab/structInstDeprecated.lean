@@ -156,3 +156,67 @@ example (r : Root) : OtherLeaf := { toRoot := r, extra := 0, flag := false }
 example : OtherLeaf := { toMid.toRoot.value := 1, extra := 0, flag := false }
 
 end ParentSelection
+
+namespace SharedParentFields
+
+structure A where
+  x : Nat
+
+structure B where
+  x : Nat
+  y : Nat
+
+structure C extends A, B
+
+structure D extends C
+
+attribute [deprecated "Use another field" (since := "2026-01-01")] A.x
+
+-- The explicit parent selects B.x, even though C stores the shared field through A.
+#guard_msgs in
+example : C := { toB.x := 1, y := 2 }
+
+/-- warning: `SharedParentFields.A.x` has been deprecated: Use another field -/
+#guard_msgs in
+example : C := { x := 1, y := 2 }
+
+-- Assigning a whole parent does not explicitly use its individual fields.
+#guard_msgs in
+example (a : A) : C := { toA := a, y := 2 }
+
+attribute [deprecated "Use another field" (since := "2026-01-01")] B.x B.y
+
+-- Preserve both the named parent's projections and the original field locations.
+/--
+@ +2:8...9
+warning: `SharedParentFields.B.x` has been deprecated: Use another field
+---
+@ +3:8...9
+warning: `SharedParentFields.B.y` has been deprecated: Use another field
+-/
+#guard_msgs (positions := true, ordering := sorted) in
+example : C :=
+  { toB.x := 1
+    toB.y := 2 }
+
+-- Parent selection also works through an inherited or explicitly written parent path.
+/--
+warning: `SharedParentFields.B.x` has been deprecated: Use another field
+---
+warning: `SharedParentFields.B.y` has been deprecated: Use another field
+-/
+#guard_msgs in
+example : D := { toB.x := 1, toC.toB.y := 2 }
+
+#guard_msgs in
+set_option linter.deprecated false in
+example : C := { toB.x := 1, toB.y := 2 }
+
+end SharedParentFields
+
+-- Structure patterns explicitly name fields, just like structure instances.
+/-- warning: `Point.y` has been deprecated: Use `Point.x` instead -/
+#guard_msgs in
+example (p : Point) : Nat :=
+  match p with
+  | { x := _, y := b } => b

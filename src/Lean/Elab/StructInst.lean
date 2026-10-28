@@ -443,7 +443,7 @@ Assumes field names are already atomic, having been split by `toFieldLHS`.
 
 Normalization is not done for the entire LHS; only the head of each field LHS is normalized.
 
-Validates that fields are indeed fields, and adds completion info.
+Validates that fields are indeed fields, checks deprecations, and adds completion info.
 On validation errors, errors are logged and the corresponding fields are omitted.
 
 Assumed invariant: parent projections and field names are disjoint sets. This is validated in the `structure` elaborator.
@@ -475,7 +475,11 @@ private partial def normalizeField (structName : Name) (fieldView : FieldView) :
         return { fieldView with lhs := [.parentFieldName ident parentName name] }
       else
         normalizeField parentName { fieldView with lhs := rest }
-    else if (findField? env structName name).isSome then
+    else if let some fieldStructName := findField? env structName name then
+      -- Resolve the field while the explicitly selected parent is still known.
+      if let some fieldInfo := getFieldInfo? env fieldStructName name then
+        -- Projection names are not valid field-name replacements.
+        withRef ident <| Term.checkDeprecatedCore fieldInfo.projFn (allowSuggestion := false)
       return fieldView
     else
       throwErrorAt ident m!"`{name}` is not a field of structure `{.ofConstName structName}`"
@@ -738,10 +742,8 @@ private def addStructField (fieldView : ExpandedField) (e : Expr) : StructInstM 
   let env ← getEnv
   if let some structName := findField? env (← read).structName fieldName then
     if let some fieldInfo := getFieldInfo? env structName fieldName then
-      -- Nested fields may have multiple occurrences, which each need terminfo and deprecation checks.
+      -- Nested fields may have multiple occurrences, which each need terminfo.
       fieldView.forRefsM fun ref => do
-        -- Projection names are not valid field-name replacements.
-        withRef ref <| Term.checkDeprecatedCore fieldInfo.projFn (allowSuggestion := false)
         pushInfoLeaf <| Info.ofFieldInfo {
           projName := fieldInfo.projFn, fieldName, lctx := (← getLCtx), val := e, stx := ref
         }
@@ -1055,7 +1057,7 @@ private def processField (loop : StructInstM α) (field : ExpandedField) (fieldT
     loop
   | .nested fields sources _ =>
     -- Nested field. Create synthetic structure instance notation with projected sources, then elaborate it like a `.term` field.
-    -- These generated projections only copy fields; explicit references are checked below.
+    -- These generated projections only copy fields; explicit references were checked during normalization.
     let sourceStxs ← sources.mapM fun source => do
       let proj : Term := ⟨mkProjStx source.stx field.name⟩
       `(set_option linter.deprecated false in $proj)

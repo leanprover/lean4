@@ -267,7 +267,7 @@ def CanonicalInstanceFailure.toMessageData : CanonicalInstanceFailure → MetaM 
 /--
 Filters `possible` for instances that are not erased and available in the environment.
 -/
-def filterActiveInstances (possible : Array InstanceEntry) :
+private def filterActiveInstances (possible : Array InstanceEntry) :
     CoreM (Array InstanceEntry) := do
   let erasedInstances ← getErasedInstances
   let env ← getEnv
@@ -279,7 +279,7 @@ Without `deriving.chooseArbitraryInstance`, returns `some possible[0]` if `possi
 one element and `none` if it has no elements or more than one. Otherwise, returns the last instance
 with the highest priority or `none` if `possible` is empty.
 -/
-def chooseInstance (possible : Array InstanceEntry) : CoreM (Option InstanceEntry) := do
+private def chooseInstance (possible : Array InstanceEntry) : CoreM (Option InstanceEntry) := do
   if possible.isEmpty then
     return none
   if let #[single] := possible then
@@ -317,7 +317,7 @@ private def tryApplyCanonicalInstance (instType : Expr) :
     let matching ← instances.getUnify body
     let env ← getEnv
     let matching ← filterActiveInstances matching
-    let filtered := matching.filter fun inst => goodKeys inst.keys env && inst.globalName?.isSome
+    let filtered := matching.filter fun inst => goodKeys inst.keys env
     let some instEntry ← chooseInstance filtered | return .error (.nonUnique matching filtered)
     let some name := instEntry.globalName? | unreachable!
     let c ← mkConstWithFreshMVarLevels name

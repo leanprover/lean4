@@ -19,7 +19,7 @@ else
   ln -s llvm llvm-host
 fi
 SDK=$(xcrun --show-sdk-path)
-mkdir -p stage1/{bin,lib/libc,include/clang}
+mkdir -p stage1/{bin,lib/libc,lib/frameworks,include/clang}
 CP="gcp -d"  # preserve symlinks
 # a C compiler!
 gcp -L llvm/bin/clang stage1/bin/
@@ -51,11 +51,19 @@ if [[ -L llvm-host ]]; then
   gcp $GMP/lib/libgmp.a stage1/lib/
   gcp $LIBUV/lib/libuv.a stage1/lib/
   gcp $OPENSSL/lib/libssl.a $OPENSSL/lib/libcrypto.a stage1/lib/
-  echo -n " -DLEAN_EXTRA_LINKER_FLAGS='-lgmp -luv -lssl -lcrypto'"
+  # `--sysroot ROOT` hides the host SDK, so bundle the Security and CoreFoundation stubs (for the
+  # Keychain trust store) and the `libobjc` stub CoreFoundation re-exports.
+  for fw in CoreFoundation Security; do
+    mkdir -p stage1/lib/frameworks/$fw.framework
+    gcp -L $SDK/System/Library/Frameworks/$fw.framework/$fw.tbd stage1/lib/frameworks/$fw.framework/
+  done
+  mkdir -p stage1/usr/lib
+  gcp -L $SDK/usr/lib/libobjc.A.tbd stage1/usr/lib/
+  echo -n " -DLEAN_EXTRA_LINKER_FLAGS='-lgmp -luv -lssl -lcrypto -framework CoreFoundation -framework Security'"
 else
   echo -n " -DCMAKE_C_COMPILER=$PWD/llvm-host/bin/clang -DLEANC_OPTS='--sysroot $PWD/stage1 -resource-dir $PWD/stage1/lib/clang/15.0.1 ${EXTRA_FLAGS:-}'"
 fi
 echo -n " -DLEANC_INTERNAL_FLAGS='--sysroot ROOT -nostdinc -isystem ROOT/include/clang' -DLEANC_CC=ROOT/bin/clang"
-echo -n " -DLEANC_INTERNAL_LINKER_FLAGS='--sysroot ROOT -L ROOT/lib -L ROOT/lib/libc -fuse-ld=lld'"
+echo -n " -DLEANC_INTERNAL_LINKER_FLAGS='--sysroot ROOT -L ROOT/lib -L ROOT/lib/libc -F ROOT/lib/frameworks -fuse-ld=lld'"
 # do not set `LEAN_CC` for tests
 echo -n " -DLEAN_TEST_VARS=''"

@@ -4,18 +4,41 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Sofia Rodrigues
 */
 #include "runtime/openssl.h"
+#include "runtime/openssl/context.h"
 
 #ifndef LEAN_EMSCRIPTEN
 #include <openssl/opensslv.h>
 #include <openssl/err.h>
 #include <openssl/ssl.h>
+#include "runtime/thread.h"
 
 namespace lean {
 
-void initialize_openssl() {
-}
+bool ensure_openssl_initialized() {
+    // `NO_ATEXIT`: the default `atexit(OPENSSL_cleanup)` frees global state that thread-pool tasks
+    // outliving `main` may still be using. A standalone toolchain skips `openssl.cnf`, whose
+    // compiled-in path names a directory on the build machine; a system OpenSSL reads the
+    // distribution's crypto policy like any other consumer.
+#ifdef LEAN_STANDALONE
+    uint64_t const config = OPENSSL_INIT_NO_LOAD_CONFIG;
+#else
+    uint64_t const config = OPENSSL_INIT_LOAD_CONFIG;
+#endif
 
-void finalize_openssl() {}
+    static const bool ok = OPENSSL_init_ssl(OPENSSL_INIT_NO_ATEXIT | config, nullptr) == 1;
+
+#ifdef LEAN_WINDOWS
+    // A statically linked libcrypto has no `DllMain` to free a thread's OpenSSL state when it exits.
+    LEAN_THREAD_VALUE(bool, g_thread_stop_registered, false);
+
+    if (ok && !g_thread_stop_registered) {
+        g_thread_stop_registered = true;
+        register_thread_finalizer([](void *) { OPENSSL_thread_stop(); }, nullptr);
+    }
+#endif
+
+    return ok;
+}
 
 }
 
@@ -25,15 +48,14 @@ extern "C" LEAN_EXPORT lean_obj_res lean_openssl_version(lean_obj_arg o) {
 
 #else
 
-namespace lean {
-
-void initialize_openssl() {}
-void finalize_openssl() {}
-
-}
-
 extern "C" LEAN_EXPORT lean_obj_res lean_openssl_version(lean_obj_arg o) {
     return lean_box(0);
 }
 
 #endif
+
+namespace lean {
+void initialize_openssl() {
+    initialize_openssl_context();
+}
+}

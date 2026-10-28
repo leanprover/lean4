@@ -199,6 +199,10 @@ builtin_initialize registerBuiltinAttribute {
     let some (ty, lhs, rhs) := declTy.eq? | failNotEq
     unless lhs.isMVar && rhs.isMVar do failNotEq
     let keys ← withReducible <| DiscrTree.mkPath ty
+    if keys == #[DiscrTree.Key.star] then
+      logWarningAt stx m!"\
+        Extensionality theorem `{.ofConstName declName}` has a maximally general pattern and may be \
+        tried for every type"
     let priority ← liftMacroM <| evalPrio (prio.getD (← `(prio| default)))
     extExtension.add {declName, keys, priority} kind
     -- Realize iff theorem

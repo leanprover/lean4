@@ -69,13 +69,13 @@ lean_object* l_Lean_Meta_instMonadMetaM___lam__0___boxed(lean_object*, lean_obje
 lean_object* l_Lean_Meta_instMonadMetaM___lam__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_StateT_get(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_StateT_bind(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_nat_add(lean_object*, lean_object*);
+lean_object* l_Nat_reprFast(lean_object*);
+lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
+lean_object* l_Lean_Meta_Grind_Arith_CommRing_State_getRing(lean_object*, lean_object*);
 extern lean_object* l_Lean_Meta_Grind_Arith_CommRing_ringExt;
 lean_object* l___private_Lean_Meta_Tactic_Grind_Types_0__Lean_Meta_Grind_SolverExtension_getStateCoreImpl___redArg(lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
-lean_object* l_Nat_reprFast(lean_object*);
-lean_object* lean_nat_add(lean_object*, lean_object*);
-lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
-lean_object* l_Lean_Meta_Grind_Arith_CommRing_State_getRing(lean_object*, lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* lean_io_error_to_string(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_CommRing_PP_0__Lean_Meta_Grind_Arith_CommRing_instMonadCanonM___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -385,20 +385,8 @@ LEAN_EXPORT lean_object* l_Lean_throwError___at___00Lean_Meta_Grind_Arith_CommRi
 LEAN_EXPORT lean_object* l_Lean_throwError___at___00Lean_Meta_Grind_Arith_CommRing_pp_x3f_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Range_Basic_0__Std_Legacy_Range_forIn_x27_loop___at___00Lean_Meta_Grind_Arith_CommRing_pp_x3f_spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Range_Basic_0__Std_Legacy_Range_forIn_x27_loop___at___00Lean_Meta_Grind_Arith_CommRing_pp_x3f_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static const lean_string_object l_Lean_Meta_Grind_Arith_CommRing_addThresholdMessage___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 6, .m_capacity = 6, .m_length = 5, .m_data = "limit"};
-static const lean_object* l_Lean_Meta_Grind_Arith_CommRing_addThresholdMessage___closed__0 = (const lean_object*)&l_Lean_Meta_Grind_Arith_CommRing_addThresholdMessage___closed__0_value;
-static const lean_ctor_object l_Lean_Meta_Grind_Arith_CommRing_addThresholdMessage___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1)),((lean_object*)&l_Lean_Meta_Grind_Arith_CommRing_addThresholdMessage___closed__0_value),LEAN_SCALAR_PTR_LITERAL(202, 254, 210, 223, 64, 235, 83, 93)}};
-static const lean_object* l_Lean_Meta_Grind_Arith_CommRing_addThresholdMessage___closed__1 = (const lean_object*)&l_Lean_Meta_Grind_Arith_CommRing_addThresholdMessage___closed__1_value;
-static const lean_string_object l_Lean_Meta_Grind_Arith_CommRing_addThresholdMessage___closed__2_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 74, .m_capacity = 74, .m_length = 73, .m_data = "maximum number of ring steps has been reached, threshold: `(ringSteps := "};
-static const lean_object* l_Lean_Meta_Grind_Arith_CommRing_addThresholdMessage___closed__2 = (const lean_object*)&l_Lean_Meta_Grind_Arith_CommRing_addThresholdMessage___closed__2_value;
-static lean_once_cell_t l_Lean_Meta_Grind_Arith_CommRing_addThresholdMessage___closed__3_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_Lean_Meta_Grind_Arith_CommRing_addThresholdMessage___closed__3;
-static const lean_string_object l_Lean_Meta_Grind_Arith_CommRing_addThresholdMessage___closed__4_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 3, .m_capacity = 3, .m_length = 2, .m_data = ")`"};
-static const lean_object* l_Lean_Meta_Grind_Arith_CommRing_addThresholdMessage___closed__4 = (const lean_object*)&l_Lean_Meta_Grind_Arith_CommRing_addThresholdMessage___closed__4_value;
-static lean_once_cell_t l_Lean_Meta_Grind_Arith_CommRing_addThresholdMessage___closed__5_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_Lean_Meta_Grind_Arith_CommRing_addThresholdMessage___closed__5;
-LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_CommRing_addThresholdMessage(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_CommRing_addThresholdMessage___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_CommRing_ringStepsReached(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_CommRing_ringStepsReached___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_CommRing_PP_0__Lean_Meta_Grind_Arith_CommRing_instMonadCanonM___lam__0(lean_object* v_e_1_, lean_object* v___y_2_, lean_object* v___y_3_, lean_object* v___y_4_, lean_object* v___y_5_, lean_object* v___y_6_){
 _start:
 {
@@ -7825,188 +7813,112 @@ lean_dec_ref(v_rings_2526_);
 return v_res_2538_;
 }
 }
-static lean_object* _init_l_Lean_Meta_Grind_Arith_CommRing_addThresholdMessage___closed__3(void){
+LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_CommRing_ringStepsReached(lean_object* v_goal_2539_, lean_object* v_c_2540_){
 _start:
 {
-lean_object* v___x_2543_; lean_object* v___x_2544_; 
-v___x_2543_ = ((lean_object*)(l_Lean_Meta_Grind_Arith_CommRing_addThresholdMessage___closed__2));
-v___x_2544_ = l_Lean_stringToMessageData(v___x_2543_);
-return v___x_2544_;
+lean_object* v___x_2542_; lean_object* v___x_2543_; 
+v___x_2542_ = l_Lean_Meta_Grind_Arith_CommRing_ringExt;
+v___x_2543_ = l___private_Lean_Meta_Tactic_Grind_Types_0__Lean_Meta_Grind_SolverExtension_getStateCoreImpl___redArg(v___x_2542_, v_goal_2539_);
+if (lean_obj_tag(v___x_2543_) == 0)
+{
+lean_object* v_a_2544_; lean_object* v___x_2546_; uint8_t v_isShared_2547_; uint8_t v_isSharedCheck_2555_; 
+v_a_2544_ = lean_ctor_get(v___x_2543_, 0);
+v_isSharedCheck_2555_ = !lean_is_exclusive(v___x_2543_);
+if (v_isSharedCheck_2555_ == 0)
+{
+v___x_2546_ = v___x_2543_;
+v_isShared_2547_ = v_isSharedCheck_2555_;
+goto v_resetjp_2545_;
+}
+else
+{
+lean_inc(v_a_2544_);
+lean_dec(v___x_2543_);
+v___x_2546_ = lean_box(0);
+v_isShared_2547_ = v_isSharedCheck_2555_;
+goto v_resetjp_2545_;
+}
+v_resetjp_2545_:
+{
+lean_object* v_ringSteps_2548_; lean_object* v_steps_2549_; uint8_t v___x_2550_; lean_object* v___x_2551_; lean_object* v___x_2553_; 
+v_ringSteps_2548_ = lean_ctor_get(v_c_2540_, 7);
+v_steps_2549_ = lean_ctor_get(v_a_2544_, 8);
+lean_inc(v_steps_2549_);
+lean_dec(v_a_2544_);
+v___x_2550_ = lean_nat_dec_le(v_ringSteps_2548_, v_steps_2549_);
+lean_dec(v_steps_2549_);
+v___x_2551_ = lean_box(v___x_2550_);
+if (v_isShared_2547_ == 0)
+{
+lean_ctor_set(v___x_2546_, 0, v___x_2551_);
+v___x_2553_ = v___x_2546_;
+goto v_reusejp_2552_;
+}
+else
+{
+lean_object* v_reuseFailAlloc_2554_; 
+v_reuseFailAlloc_2554_ = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(v_reuseFailAlloc_2554_, 0, v___x_2551_);
+v___x_2553_ = v_reuseFailAlloc_2554_;
+goto v_reusejp_2552_;
+}
+v_reusejp_2552_:
+{
+return v___x_2553_;
 }
 }
-static lean_object* _init_l_Lean_Meta_Grind_Arith_CommRing_addThresholdMessage___closed__5(void){
+}
+else
+{
+lean_object* v_a_2556_; lean_object* v___x_2558_; uint8_t v_isShared_2559_; uint8_t v_isSharedCheck_2563_; 
+v_a_2556_ = lean_ctor_get(v___x_2543_, 0);
+v_isSharedCheck_2563_ = !lean_is_exclusive(v___x_2543_);
+if (v_isSharedCheck_2563_ == 0)
+{
+v___x_2558_ = v___x_2543_;
+v_isShared_2559_ = v_isSharedCheck_2563_;
+goto v_resetjp_2557_;
+}
+else
+{
+lean_inc(v_a_2556_);
+lean_dec(v___x_2543_);
+v___x_2558_ = lean_box(0);
+v_isShared_2559_ = v_isSharedCheck_2563_;
+goto v_resetjp_2557_;
+}
+v_resetjp_2557_:
+{
+lean_object* v___x_2561_; 
+if (v_isShared_2559_ == 0)
+{
+v___x_2561_ = v___x_2558_;
+goto v_reusejp_2560_;
+}
+else
+{
+lean_object* v_reuseFailAlloc_2562_; 
+v_reuseFailAlloc_2562_ = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(v_reuseFailAlloc_2562_, 0, v_a_2556_);
+v___x_2561_ = v_reuseFailAlloc_2562_;
+goto v_reusejp_2560_;
+}
+v_reusejp_2560_:
+{
+return v___x_2561_;
+}
+}
+}
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_CommRing_ringStepsReached___boxed(lean_object* v_goal_2564_, lean_object* v_c_2565_, lean_object* v_a_2566_){
 _start:
 {
-lean_object* v___x_2546_; lean_object* v___x_2547_; 
-v___x_2546_ = ((lean_object*)(l_Lean_Meta_Grind_Arith_CommRing_addThresholdMessage___closed__4));
-v___x_2547_ = l_Lean_stringToMessageData(v___x_2546_);
-return v___x_2547_;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_CommRing_addThresholdMessage(lean_object* v_goal_2548_, lean_object* v_c_2549_, lean_object* v_msgs_2550_){
-_start:
-{
-lean_object* v___x_2552_; lean_object* v___x_2553_; 
-v___x_2552_ = l_Lean_Meta_Grind_Arith_CommRing_ringExt;
-v___x_2553_ = l___private_Lean_Meta_Tactic_Grind_Types_0__Lean_Meta_Grind_SolverExtension_getStateCoreImpl___redArg(v___x_2552_, v_goal_2548_);
-if (lean_obj_tag(v___x_2553_) == 0)
-{
-lean_object* v_a_2554_; lean_object* v___x_2556_; uint8_t v_isShared_2557_; uint8_t v_isSharedCheck_2582_; 
-v_a_2554_ = lean_ctor_get(v___x_2553_, 0);
-v_isSharedCheck_2582_ = !lean_is_exclusive(v___x_2553_);
-if (v_isSharedCheck_2582_ == 0)
-{
-v___x_2556_ = v___x_2553_;
-v_isShared_2557_ = v_isSharedCheck_2582_;
-goto v_resetjp_2555_;
-}
-else
-{
-lean_inc(v_a_2554_);
-lean_dec(v___x_2553_);
-v___x_2556_ = lean_box(0);
-v_isShared_2557_ = v_isSharedCheck_2582_;
-goto v_resetjp_2555_;
-}
-v_resetjp_2555_:
-{
-lean_object* v_ringSteps_2558_; lean_object* v_steps_2559_; uint8_t v___x_2560_; 
-v_ringSteps_2558_ = lean_ctor_get(v_c_2549_, 7);
-lean_inc(v_ringSteps_2558_);
-lean_dec_ref(v_c_2549_);
-v_steps_2559_ = lean_ctor_get(v_a_2554_, 8);
-lean_inc(v_steps_2559_);
-lean_dec(v_a_2554_);
-v___x_2560_ = lean_nat_dec_le(v_ringSteps_2558_, v_steps_2559_);
-lean_dec(v_steps_2559_);
-if (v___x_2560_ == 0)
-{
-lean_object* v___x_2562_; 
-lean_dec(v_ringSteps_2558_);
-if (v_isShared_2557_ == 0)
-{
-lean_ctor_set(v___x_2556_, 0, v_msgs_2550_);
-v___x_2562_ = v___x_2556_;
-goto v_reusejp_2561_;
-}
-else
-{
-lean_object* v_reuseFailAlloc_2563_; 
-v_reuseFailAlloc_2563_ = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(v_reuseFailAlloc_2563_, 0, v_msgs_2550_);
-v___x_2562_ = v_reuseFailAlloc_2563_;
-goto v_reusejp_2561_;
-}
-v_reusejp_2561_:
-{
-return v___x_2562_;
-}
-}
-else
-{
-lean_object* v___x_2564_; lean_object* v___x_2565_; double v___x_2566_; lean_object* v___x_2567_; lean_object* v___x_2568_; lean_object* v___x_2569_; lean_object* v___x_2570_; lean_object* v___x_2571_; lean_object* v___x_2572_; lean_object* v___x_2573_; lean_object* v___x_2574_; lean_object* v___x_2575_; lean_object* v___x_2576_; lean_object* v___x_2577_; lean_object* v___x_2578_; lean_object* v___x_2580_; 
-v___x_2564_ = ((lean_object*)(l_Lean_Meta_Grind_Arith_CommRing_addThresholdMessage___closed__1));
-v___x_2565_ = lean_box(0);
-v___x_2566_ = lean_float_once(&l___private_Lean_Meta_Tactic_Grind_Arith_CommRing_PP_0__Lean_Meta_Grind_Arith_CommRing_toOption___closed__0, &l___private_Lean_Meta_Tactic_Grind_Arith_CommRing_PP_0__Lean_Meta_Grind_Arith_CommRing_toOption___closed__0_once, _init_l___private_Lean_Meta_Tactic_Grind_Arith_CommRing_PP_0__Lean_Meta_Grind_Arith_CommRing_toOption___closed__0);
-v___x_2567_ = ((lean_object*)(l___private_Lean_Meta_Tactic_Grind_Arith_CommRing_PP_0__Lean_Meta_Grind_Arith_CommRing_toOption___closed__1));
-v___x_2568_ = lean_alloc_ctor(0, 3, 17);
-lean_ctor_set(v___x_2568_, 0, v___x_2564_);
-lean_ctor_set(v___x_2568_, 1, v___x_2565_);
-lean_ctor_set(v___x_2568_, 2, v___x_2567_);
-lean_ctor_set_float(v___x_2568_, sizeof(void*)*3, v___x_2566_);
-lean_ctor_set_float(v___x_2568_, sizeof(void*)*3 + 8, v___x_2566_);
-lean_ctor_set_uint8(v___x_2568_, sizeof(void*)*3 + 16, v___x_2560_);
-v___x_2569_ = lean_obj_once(&l_Lean_Meta_Grind_Arith_CommRing_addThresholdMessage___closed__3, &l_Lean_Meta_Grind_Arith_CommRing_addThresholdMessage___closed__3_once, _init_l_Lean_Meta_Grind_Arith_CommRing_addThresholdMessage___closed__3);
-v___x_2570_ = l_Nat_reprFast(v_ringSteps_2558_);
-v___x_2571_ = lean_alloc_ctor(3, 1, 0);
-lean_ctor_set(v___x_2571_, 0, v___x_2570_);
-v___x_2572_ = l_Lean_MessageData_ofFormat(v___x_2571_);
-v___x_2573_ = lean_alloc_ctor(7, 2, 0);
-lean_ctor_set(v___x_2573_, 0, v___x_2569_);
-lean_ctor_set(v___x_2573_, 1, v___x_2572_);
-v___x_2574_ = lean_obj_once(&l_Lean_Meta_Grind_Arith_CommRing_addThresholdMessage___closed__5, &l_Lean_Meta_Grind_Arith_CommRing_addThresholdMessage___closed__5_once, _init_l_Lean_Meta_Grind_Arith_CommRing_addThresholdMessage___closed__5);
-v___x_2575_ = lean_alloc_ctor(7, 2, 0);
-lean_ctor_set(v___x_2575_, 0, v___x_2573_);
-lean_ctor_set(v___x_2575_, 1, v___x_2574_);
-v___x_2576_ = ((lean_object*)(l_Lean_toTraceElem___at___00__private_Lean_Meta_Tactic_Grind_Arith_CommRing_PP_0__Lean_Meta_Grind_Arith_CommRing_ppBasis_x3f_spec__1___closed__0));
-v___x_2577_ = lean_alloc_ctor(9, 3, 0);
-lean_ctor_set(v___x_2577_, 0, v___x_2568_);
-lean_ctor_set(v___x_2577_, 1, v___x_2575_);
-lean_ctor_set(v___x_2577_, 2, v___x_2576_);
-v___x_2578_ = lean_array_push(v_msgs_2550_, v___x_2577_);
-if (v_isShared_2557_ == 0)
-{
-lean_ctor_set(v___x_2556_, 0, v___x_2578_);
-v___x_2580_ = v___x_2556_;
-goto v_reusejp_2579_;
-}
-else
-{
-lean_object* v_reuseFailAlloc_2581_; 
-v_reuseFailAlloc_2581_ = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(v_reuseFailAlloc_2581_, 0, v___x_2578_);
-v___x_2580_ = v_reuseFailAlloc_2581_;
-goto v_reusejp_2579_;
-}
-v_reusejp_2579_:
-{
-return v___x_2580_;
-}
-}
-}
-}
-else
-{
-lean_object* v_a_2583_; lean_object* v___x_2585_; uint8_t v_isShared_2586_; uint8_t v_isSharedCheck_2590_; 
-lean_dec_ref(v_msgs_2550_);
-lean_dec_ref(v_c_2549_);
-v_a_2583_ = lean_ctor_get(v___x_2553_, 0);
-v_isSharedCheck_2590_ = !lean_is_exclusive(v___x_2553_);
-if (v_isSharedCheck_2590_ == 0)
-{
-v___x_2585_ = v___x_2553_;
-v_isShared_2586_ = v_isSharedCheck_2590_;
-goto v_resetjp_2584_;
-}
-else
-{
-lean_inc(v_a_2583_);
-lean_dec(v___x_2553_);
-v___x_2585_ = lean_box(0);
-v_isShared_2586_ = v_isSharedCheck_2590_;
-goto v_resetjp_2584_;
-}
-v_resetjp_2584_:
-{
-lean_object* v___x_2588_; 
-if (v_isShared_2586_ == 0)
-{
-v___x_2588_ = v___x_2585_;
-goto v_reusejp_2587_;
-}
-else
-{
-lean_object* v_reuseFailAlloc_2589_; 
-v_reuseFailAlloc_2589_ = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(v_reuseFailAlloc_2589_, 0, v_a_2583_);
-v___x_2588_ = v_reuseFailAlloc_2589_;
-goto v_reusejp_2587_;
-}
-v_reusejp_2587_:
-{
-return v___x_2588_;
-}
-}
-}
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_CommRing_addThresholdMessage___boxed(lean_object* v_goal_2591_, lean_object* v_c_2592_, lean_object* v_msgs_2593_, lean_object* v_a_2594_){
-_start:
-{
-lean_object* v_res_2595_; 
-v_res_2595_ = l_Lean_Meta_Grind_Arith_CommRing_addThresholdMessage(v_goal_2591_, v_c_2592_, v_msgs_2593_);
-lean_dec_ref(v_goal_2591_);
-return v_res_2595_;
+lean_object* v_res_2567_; 
+v_res_2567_ = l_Lean_Meta_Grind_Arith_CommRing_ringStepsReached(v_goal_2564_, v_c_2565_);
+lean_dec_ref(v_c_2565_);
+lean_dec_ref(v_goal_2564_);
+return v_res_2567_;
 }
 }
 lean_object* runtime_initialize_Lean_Meta_Tactic_Grind_Types(uint8_t builtin);

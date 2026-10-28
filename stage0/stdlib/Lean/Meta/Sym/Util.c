@@ -7323,7 +7323,7 @@ return v_res_2273_;
 LEAN_EXPORT lean_object* l_Lean_Core_withIncRecDepth___at___00__private_Lean_Meta_Transform_0__Lean_Core_transform_visit___at___00Lean_Core_transform___at___00Lean_Meta_Sym_normalizeLevels_spec__1_spec__1_spec__6___redArg(lean_object* v_x_2274_, lean_object* v___y_2275_, lean_object* v___y_2276_, lean_object* v___y_2277_){
 _start:
 {
-lean_object* v___y_2280_; uint8_t v___y_2290_; lean_object* v___y_2291_; uint8_t v___y_2292_; lean_object* v___y_2293_; lean_object* v___y_2294_; uint8_t v___y_2295_; uint16_t v___y_2296_; lean_object* v_toCold_2301_; lean_object* v_currRecDepth_2302_; lean_object* v_ref_2303_; uint16_t v_optionFlags_2304_; uint8_t v_suppressElabErrors_2305_; uint8_t v_checkDeprecated_2306_; uint8_t v_isRecordingDeps_2307_; lean_object* v_maxRecDepth_2308_; lean_object* v_cancelTk_x3f_2309_; 
+lean_object* v___y_2280_; lean_object* v___y_2290_; uint8_t v___y_2291_; uint16_t v___y_2292_; lean_object* v___y_2293_; uint8_t v___y_2294_; uint8_t v___y_2295_; lean_object* v___y_2296_; lean_object* v_toCold_2301_; lean_object* v_currRecDepth_2302_; lean_object* v_ref_2303_; uint16_t v_optionFlags_2304_; uint8_t v_suppressElabErrors_2305_; uint8_t v_checkDeprecated_2306_; uint8_t v_isRecordingDeps_2307_; lean_object* v_maxRecDepth_2308_; lean_object* v_cancelTk_x3f_2309_; 
 v_toCold_2301_ = lean_ctor_get(v___y_2276_, 0);
 v_currRecDepth_2302_ = lean_ctor_get(v___y_2276_, 1);
 v_ref_2303_ = lean_ctor_get(v___y_2276_, 2);
@@ -7442,16 +7442,16 @@ v___jp_2289_:
 {
 lean_object* v___x_2297_; lean_object* v___x_2298_; lean_object* v___x_2299_; lean_object* v___x_2300_; 
 v___x_2297_ = lean_unsigned_to_nat(1u);
-v___x_2298_ = lean_nat_add(v___y_2291_, v___x_2297_);
-lean_inc_ref(v___y_2294_);
+v___x_2298_ = lean_nat_add(v___y_2293_, v___x_2297_);
+lean_inc_ref(v___y_2290_);
 v___x_2299_ = lean_alloc_ctor(0, 3, 5);
-lean_ctor_set(v___x_2299_, 0, v___y_2294_);
+lean_ctor_set(v___x_2299_, 0, v___y_2290_);
 lean_ctor_set(v___x_2299_, 1, v___x_2298_);
-lean_ctor_set(v___x_2299_, 2, v___y_2293_);
-lean_ctor_set_uint16(v___x_2299_, sizeof(void*)*3, v___y_2296_);
-lean_ctor_set_uint8(v___x_2299_, sizeof(void*)*3 + 2, v___y_2292_);
-lean_ctor_set_uint8(v___x_2299_, sizeof(void*)*3 + 3, v___y_2295_);
-lean_ctor_set_uint8(v___x_2299_, sizeof(void*)*3 + 4, v___y_2290_);
+lean_ctor_set(v___x_2299_, 2, v___y_2296_);
+lean_ctor_set_uint16(v___x_2299_, sizeof(void*)*3, v___y_2292_);
+lean_ctor_set_uint8(v___x_2299_, sizeof(void*)*3 + 2, v___y_2295_);
+lean_ctor_set_uint8(v___x_2299_, sizeof(void*)*3 + 3, v___y_2294_);
+lean_ctor_set_uint8(v___x_2299_, sizeof(void*)*3 + 4, v___y_2291_);
 lean_inc(v___y_2277_);
 lean_inc(v___y_2275_);
 v___x_2300_ = lean_apply_4(v_x_2274_, v___y_2275_, v___x_2299_, v___y_2277_, lean_box(0));
@@ -7470,13 +7470,13 @@ v___x_2313_ = lean_nat_dec_eq(v_currRecDepth_2302_, v_maxRecDepth_2308_);
 if (v___x_2313_ == 0)
 {
 lean_inc(v_ref_2303_);
-v___y_2290_ = v_isRecordingDeps_2307_;
-v___y_2291_ = v_currRecDepth_2302_;
-v___y_2292_ = v_suppressElabErrors_2305_;
-v___y_2293_ = v_ref_2303_;
-v___y_2294_ = v_toCold_2301_;
-v___y_2295_ = v_checkDeprecated_2306_;
-v___y_2296_ = v_optionFlags_2304_;
+v___y_2290_ = v_toCold_2301_;
+v___y_2291_ = v_isRecordingDeps_2307_;
+v___y_2292_ = v_optionFlags_2304_;
+v___y_2293_ = v_currRecDepth_2302_;
+v___y_2294_ = v_checkDeprecated_2306_;
+v___y_2295_ = v_suppressElabErrors_2305_;
+v___y_2296_ = v_ref_2303_;
 goto v___jp_2289_;
 }
 else
@@ -7492,13 +7492,13 @@ goto v___jp_2279_;
 else
 {
 lean_inc(v_ref_2303_);
-v___y_2290_ = v_isRecordingDeps_2307_;
-v___y_2291_ = v_currRecDepth_2302_;
-v___y_2292_ = v_suppressElabErrors_2305_;
-v___y_2293_ = v_ref_2303_;
-v___y_2294_ = v_toCold_2301_;
-v___y_2295_ = v_checkDeprecated_2306_;
-v___y_2296_ = v_optionFlags_2304_;
+v___y_2290_ = v_toCold_2301_;
+v___y_2291_ = v_isRecordingDeps_2307_;
+v___y_2292_ = v_optionFlags_2304_;
+v___y_2293_ = v_currRecDepth_2302_;
+v___y_2294_ = v_checkDeprecated_2306_;
+v___y_2295_ = v_suppressElabErrors_2305_;
+v___y_2296_ = v_ref_2303_;
 goto v___jp_2289_;
 }
 }

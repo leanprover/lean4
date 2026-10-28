@@ -819,9 +819,9 @@ return v___x_61_;
 LEAN_EXPORT lean_object* l_Lean_Meta_withInstancesTypeCheckNote___at___00Lean_Elab_Tactic_elabRewrite_spec__0___redArg___lam__1___boxed(lean_object* v_e_64_, lean_object* v___x_65_, lean_object* v___y_66_, lean_object* v___y_67_, lean_object* v___y_68_, lean_object* v___y_69_, lean_object* v___y_70_){
 _start:
 {
-uint8_t v___x_12335__boxed_71_; lean_object* v_res_72_; 
-v___x_12335__boxed_71_ = lean_unbox(v___x_65_);
-v_res_72_ = l_Lean_Meta_withInstancesTypeCheckNote___at___00Lean_Elab_Tactic_elabRewrite_spec__0___redArg___lam__1(v_e_64_, v___x_12335__boxed_71_, v___y_66_, v___y_67_, v___y_68_, v___y_69_);
+uint8_t v___x_12336__boxed_71_; lean_object* v_res_72_; 
+v___x_12336__boxed_71_ = lean_unbox(v___x_65_);
+v_res_72_ = l_Lean_Meta_withInstancesTypeCheckNote___at___00Lean_Elab_Tactic_elabRewrite_spec__0___redArg___lam__1(v_e_64_, v___x_12336__boxed_71_, v___y_66_, v___y_67_, v___y_68_, v___y_69_);
 lean_dec(v___y_69_);
 lean_dec_ref(v___y_68_);
 lean_dec(v___y_67_);

@@ -1733,8 +1733,8 @@ return v___x_179_;
 }
 else
 {
-lean_dec_ref_known(v___x_167_, 2);
 lean_dec(v_info_168_);
+lean_dec_ref_known(v___x_167_, 2);
 lean_inc_ref(v_s_159_);
 return v_s_159_;
 }
@@ -2165,9 +2165,9 @@ goto v___jp_370_;
 v___jp_331_:
 {
 lean_object* v___x_336_; lean_object* v___x_337_; lean_object* v___x_338_; lean_object* v___x_339_; lean_object* v___x_340_; lean_object* v___x_341_; lean_object* v___x_342_; lean_object* v___x_343_; lean_object* v___x_344_; lean_object* v___x_345_; lean_object* v___x_346_; lean_object* v___x_347_; 
-lean_inc(v___y_333_);
+lean_inc(v___y_332_);
 lean_inc(v_i_326_);
-v___x_336_ = lean_apply_2(v_refAt_327_, v_i_326_, v___y_333_);
+v___x_336_ = lean_apply_2(v_refAt_327_, v_i_326_, v___y_332_);
 v___x_337_ = lean_obj_once(&l_Lean_Html_Syntax_decodeCharacterReferenceAt___closed__1, &l_Lean_Html_Syntax_decodeCharacterReferenceAt___closed__1_once, _init_l_Lean_Html_Syntax_decodeCharacterReferenceAt___closed__1);
 lean_inc_ref(v___y_335_);
 v___x_338_ = l_Lean_stringToMessageData(v___y_335_);
@@ -2178,8 +2178,8 @@ v___x_340_ = lean_obj_once(&l_Lean_Html_Syntax_decodeCharacterReferenceAt___clos
 v___x_341_ = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(v___x_341_, 0, v___x_339_);
 lean_ctor_set(v___x_341_, 1, v___x_340_);
-v___x_342_ = lean_string_utf8_extract(v_s_325_, v_i_326_, v___y_333_);
-lean_dec(v___y_333_);
+v___x_342_ = lean_string_utf8_extract(v_s_325_, v_i_326_, v___y_332_);
+lean_dec(v___y_332_);
 lean_dec(v_i_326_);
 v___x_343_ = l_Lean_stringToMessageData(v___x_342_);
 v___x_344_ = lean_alloc_ctor(7, 2, 0);
@@ -2189,7 +2189,7 @@ v___x_345_ = lean_obj_once(&l_Lean_Html_Syntax_decodeCharacterReferenceAt___clos
 v___x_346_ = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(v___x_346_, 0, v___x_344_);
 lean_ctor_set(v___x_346_, 1, v___x_345_);
-v___x_347_ = l_Lean_throwErrorAt___at___00Lean_Html_Syntax_decodeCharacterReferenceAt_spec__0___redArg(v___x_336_, v___x_346_, v___y_332_, v___y_334_);
+v___x_347_ = l_Lean_throwErrorAt___at___00Lean_Html_Syntax_decodeCharacterReferenceAt_spec__0___redArg(v___x_336_, v___x_346_, v___y_333_, v___y_334_);
 lean_dec(v___x_336_);
 return v___x_347_;
 }
@@ -2207,8 +2207,8 @@ if (v___x_351_ == 0)
 {
 lean_object* v___x_359_; 
 v___x_359_ = ((lean_object*)(l_Lean_Html_Syntax_decodeCharacterReferenceAt___closed__6));
-v___y_332_ = v___y_354_;
-v___y_333_ = v_refEnd_356_;
+v___y_332_ = v_refEnd_356_;
+v___y_333_ = v___y_354_;
 v___y_334_ = v___y_355_;
 v___y_335_ = v___x_359_;
 goto v___jp_331_;
@@ -2217,8 +2217,8 @@ else
 {
 lean_object* v___x_360_; 
 v___x_360_ = ((lean_object*)(l_Lean_Html_Syntax_decodeCharacterReferenceAt___closed__7));
-v___y_332_ = v___y_354_;
-v___y_333_ = v_refEnd_356_;
+v___y_332_ = v_refEnd_356_;
+v___y_333_ = v___y_354_;
 v___y_334_ = v___y_355_;
 v___y_335_ = v___x_360_;
 goto v___jp_331_;

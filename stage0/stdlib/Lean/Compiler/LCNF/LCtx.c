@@ -2535,7 +2535,7 @@ return v_result_788_;
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_LCtx_toLocalContext(lean_object* v_lctx_789_, uint8_t v_pu_790_){
 _start:
 {
-size_t v___y_792_; lean_object* v___y_793_; lean_object* v___y_794_; size_t v___y_799_; lean_object* v___y_800_; lean_object* v___y_801_; lean_object* v_result_807_; lean_object* v___y_809_; 
+lean_object* v___y_792_; size_t v___y_793_; lean_object* v___y_794_; size_t v___y_799_; lean_object* v___y_800_; lean_object* v___y_801_; lean_object* v_result_807_; lean_object* v___y_809_; 
 v_result_807_ = lean_obj_once(&l_Lean_Compiler_LCNF_LCtx_toLocalContext___closed__4, &l_Lean_Compiler_LCNF_LCtx_toLocalContext___closed__4_once, _init_l_Lean_Compiler_LCNF_LCtx_toLocalContext___closed__4);
 if (v_pu_790_ == 0)
 {
@@ -2556,7 +2556,7 @@ v___jp_791_:
 lean_object* v_buckets_795_; size_t v_sz_796_; lean_object* v___x_797_; 
 v_buckets_795_ = lean_ctor_get(v___y_794_, 1);
 v_sz_796_ = lean_array_size(v_buckets_795_);
-v___x_797_ = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Compiler_LCNF_LCtx_toLocalContext_spec__5(v_buckets_795_, v_sz_796_, v___y_792_, v___y_793_);
+v___x_797_ = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Compiler_LCNF_LCtx_toLocalContext_spec__5(v_buckets_795_, v_sz_796_, v___y_793_, v___y_792_);
 return v___x_797_;
 }
 v___jp_798_:
@@ -2569,8 +2569,8 @@ if (v_pu_790_ == 0)
 {
 lean_object* v_funDeclsPure_805_; 
 v_funDeclsPure_805_ = lean_ctor_get(v_lctx_789_, 4);
-v___y_792_ = v___y_799_;
-v___y_793_ = v___x_804_;
+v___y_792_ = v___x_804_;
+v___y_793_ = v___y_799_;
 v___y_794_ = v_funDeclsPure_805_;
 goto v___jp_791_;
 }
@@ -2578,8 +2578,8 @@ else
 {
 lean_object* v_funDeclsImpure_806_; 
 v_funDeclsImpure_806_ = lean_ctor_get(v_lctx_789_, 5);
-v___y_792_ = v___y_799_;
-v___y_793_ = v___x_804_;
+v___y_792_ = v___x_804_;
+v___y_793_ = v___y_799_;
 v___y_794_ = v_funDeclsImpure_806_;
 goto v___jp_791_;
 }

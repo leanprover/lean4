@@ -2960,10 +2960,10 @@ goto v_reusejp_1008_;
 }
 v_reusejp_1008_:
 {
-lean_object* v___x_1010_; lean_object* v___x_1011_; lean_object* v___x_36504__overap_1012_; lean_object* v___x_1013_; 
+lean_object* v___x_1010_; lean_object* v___x_1011_; lean_object* v___x_36505__overap_1012_; lean_object* v___x_1013_; 
 v___x_1010_ = lean_box(0);
 v___x_1011_ = l_instInhabitedOfMonad___redArg(v___x_1009_, v___x_1010_);
-v___x_36504__overap_1012_ = lean_panic_fn_borrowed(v___x_1011_, v_msg_929_);
+v___x_36505__overap_1012_ = lean_panic_fn_borrowed(v___x_1011_, v_msg_929_);
 lean_dec(v___x_1011_);
 lean_inc(v___y_935_);
 lean_inc_ref(v___y_934_);
@@ -2971,7 +2971,7 @@ lean_inc(v___y_933_);
 lean_inc_ref(v___y_932_);
 lean_inc(v___y_931_);
 lean_inc_ref(v___y_930_);
-v___x_1013_ = lean_apply_7(v___x_36504__overap_1012_, v___y_930_, v___y_931_, v___y_932_, v___y_933_, v___y_934_, v___y_935_, lean_box(0));
+v___x_1013_ = lean_apply_7(v___x_36505__overap_1012_, v___y_930_, v___y_931_, v___y_932_, v___y_933_, v___y_934_, v___y_935_, lean_box(0));
 return v___x_1013_;
 }
 }
@@ -4650,9 +4650,9 @@ return v___x_1570_;
 LEAN_EXPORT lean_object* l_List_forIn_x27_loop___at___00__private_Lean_Elab_Deriving_DecEq_0__Lean_Elab_Deriving_DecEq_mkMatchOld_mkAlts_spec__7___redArg___lam__1___boxed(lean_object* v___x_1571_, lean_object* v___y_1572_, lean_object* v___y_1573_, lean_object* v___y_1574_, lean_object* v___y_1575_, lean_object* v___y_1576_, lean_object* v___y_1577_, lean_object* v___y_1578_){
 _start:
 {
-uint8_t v___x_40238__boxed_1579_; lean_object* v_res_1580_; 
-v___x_40238__boxed_1579_ = lean_unbox(v___x_1571_);
-v_res_1580_ = l_List_forIn_x27_loop___at___00__private_Lean_Elab_Deriving_DecEq_0__Lean_Elab_Deriving_DecEq_mkMatchOld_mkAlts_spec__7___redArg___lam__1(v___x_40238__boxed_1579_, v___y_1572_, v___y_1573_, v___y_1574_, v___y_1575_, v___y_1576_, v___y_1577_);
+uint8_t v___x_40240__boxed_1579_; lean_object* v_res_1580_; 
+v___x_40240__boxed_1579_ = lean_unbox(v___x_1571_);
+v_res_1580_ = l_List_forIn_x27_loop___at___00__private_Lean_Elab_Deriving_DecEq_0__Lean_Elab_Deriving_DecEq_mkMatchOld_mkAlts_spec__7___redArg___lam__1(v___x_40240__boxed_1579_, v___y_1572_, v___y_1573_, v___y_1574_, v___y_1575_, v___y_1576_, v___y_1577_);
 lean_dec(v___y_1577_);
 lean_dec_ref(v___y_1576_);
 lean_dec(v___y_1575_);

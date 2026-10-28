@@ -2617,8 +2617,8 @@ else
 {
 lean_dec(v_a_722_);
 lean_dec_ref(v_arg_718_);
-lean_dec_ref(v_fn_717_);
 lean_dec_ref_known(v_e_701_, 2);
+lean_dec_ref(v_fn_717_);
 return v___x_736_;
 }
 }
@@ -2685,8 +2685,8 @@ if (lean_obj_tag(v_a_722_) == 0)
 {
 uint8_t v_contextDependent_749_; lean_object* v___x_750_; lean_object* v___x_752_; 
 lean_dec_ref(v_arg_718_);
-lean_dec_ref(v_fn_717_);
 lean_dec_ref_known(v_e_701_, 2);
+lean_dec_ref(v_fn_717_);
 v_contextDependent_749_ = lean_ctor_get_uint8(v_a_722_, 1);
 lean_dec_ref_known(v_a_722_, 0);
 v___x_750_ = l_Lean_Meta_Sym_Simp_mkRflResultCD(v_contextDependent_749_);
@@ -2834,8 +2834,8 @@ return v___x_774_;
 else
 {
 lean_dec_ref(v_arg_718_);
-lean_dec_ref(v_fn_717_);
 lean_dec_ref_known(v_e_701_, 2);
+lean_dec_ref(v_fn_717_);
 return v___x_721_;
 }
 }
@@ -2950,8 +2950,8 @@ v_a_849_ = lean_ctor_get(v___x_848_, 0);
 if (lean_obj_tag(v_a_849_) == 0)
 {
 lean_dec_ref(v_arg_845_);
-lean_dec_ref_known(v_e_830_, 2);
 lean_dec_ref(v_fn_844_);
+lean_dec_ref_known(v_e_830_, 2);
 return v___x_848_;
 }
 else
@@ -2973,8 +2973,8 @@ return v___x_854_;
 else
 {
 lean_dec_ref(v_arg_845_);
-lean_dec_ref_known(v_e_830_, 2);
 lean_dec_ref(v_fn_844_);
+lean_dec_ref_known(v_e_830_, 2);
 return v___x_848_;
 }
 }
@@ -5254,8 +5254,8 @@ if (lean_obj_tag(v_a_1541_) == 0)
 {
 uint8_t v_contextDependent_1547_; lean_object* v___x_1548_; lean_object* v___x_1550_; 
 lean_dec_ref(v_arg_1537_);
-lean_dec_ref_known(v_e_1523_, 2);
 lean_dec_ref(v_fn_1536_);
+lean_dec_ref_known(v_e_1523_, 2);
 v_contextDependent_1547_ = lean_ctor_get_uint8(v_a_1541_, 1);
 lean_dec_ref_known(v_a_1541_, 0);
 v___x_1548_ = l_Lean_Meta_Sym_Simp_mkRflResultCD(v_contextDependent_1547_);
@@ -5321,8 +5321,8 @@ else
 {
 lean_dec(v_a_1541_);
 lean_dec_ref(v_arg_1537_);
-lean_dec_ref_known(v_e_1523_, 2);
 lean_dec_ref(v_fn_1536_);
+lean_dec_ref_known(v_e_1523_, 2);
 return v___x_1557_;
 }
 }
@@ -5332,8 +5332,8 @@ else
 {
 lean_dec(v___x_1539_);
 lean_dec_ref(v_arg_1537_);
-lean_dec_ref_known(v_e_1523_, 2);
 lean_dec_ref(v_fn_1536_);
+lean_dec_ref_known(v_e_1523_, 2);
 return v___x_1540_;
 }
 }

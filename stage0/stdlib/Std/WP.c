@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.WP
-// Imports: public import Std.WP.Automation public import Std.WP.Basic public import Std.WP.Conjunctive public import Std.WP.Frame public import Std.WP.EPostSlot public import Std.WP.Monad public import Std.WP.Triple public import Std.WP.Gadget.Assert public import Std.WP.Gadget.ForIn public import Std.WP.Tactic
+// Imports: public import Std.WP.Automation public import Std.WP.Basic public import Std.WP.Conjunctive public import Std.WP.Frame public import Std.WP.EPostSlot public import Std.WP.Monad public import Std.WP.Triple public import Std.WP.Gadget.Assert public import Std.WP.Gadget.ForIn public import Std.WP.SimpSet public import Std.WP.Tactic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -22,6 +22,7 @@ lean_object* runtime_initialize_Std_WP_Monad(uint8_t builtin);
 lean_object* runtime_initialize_Std_WP_Triple(uint8_t builtin);
 lean_object* runtime_initialize_Std_WP_Gadget_Assert(uint8_t builtin);
 lean_object* runtime_initialize_Std_WP_Gadget_ForIn(uint8_t builtin);
+lean_object* runtime_initialize_Std_WP_SimpSet(uint8_t builtin);
 lean_object* runtime_initialize_Std_WP_Tactic(uint8_t builtin);
 void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
@@ -57,6 +58,9 @@ lean_dec_ref(res);
 res = runtime_initialize_Std_WP_Gadget_ForIn(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+res = runtime_initialize_Std_WP_SimpSet(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 res = runtime_initialize_Std_WP_Tactic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
@@ -78,6 +82,7 @@ lean_object* initialize_Std_WP_Monad(uint8_t builtin);
 lean_object* initialize_Std_WP_Triple(uint8_t builtin);
 lean_object* initialize_Std_WP_Gadget_Assert(uint8_t builtin);
 lean_object* initialize_Std_WP_Gadget_ForIn(uint8_t builtin);
+lean_object* initialize_Std_WP_SimpSet(uint8_t builtin);
 lean_object* initialize_Std_WP_Tactic(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Std_WP(uint8_t builtin) {
@@ -109,6 +114,9 @@ res = initialize_Std_WP_Gadget_Assert(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Std_WP_Gadget_ForIn(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Std_WP_SimpSet(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Std_WP_Tactic(builtin);

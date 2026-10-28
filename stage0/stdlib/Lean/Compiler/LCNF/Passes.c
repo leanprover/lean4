@@ -3570,8 +3570,8 @@ return v___x_1235_;
 }
 else
 {
-lean_dec(v_pre_1173_);
 lean_dec_ref_known(v_pre_1172_, 2);
+lean_dec(v_pre_1173_);
 lean_dec_ref_known(v_pre_1171_, 2);
 lean_dec_ref_known(v_pre_1170_, 2);
 lean_dec_ref_known(v_declName_1169_, 2);

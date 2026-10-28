@@ -737,7 +737,7 @@ _start:
 lean_object* v___x_178_; lean_object* v___x_179_; lean_object* v___x_180_; lean_object* v___x_181_; lean_object* v___x_182_; lean_object* v___x_183_; 
 v___x_178_ = ((lean_object*)(l_Lean_Meta_Grind_getEqcLambdas___closed__3));
 v___x_179_ = lean_unsigned_to_nat(2u);
-v___x_180_ = lean_unsigned_to_nat(1921u);
+v___x_180_ = lean_unsigned_to_nat(1995u);
 v___x_181_ = ((lean_object*)(l_Lean_Meta_Grind_getEqcLambdas___closed__2));
 v___x_182_ = ((lean_object*)(l_Lean_Meta_Grind_getEqcLambdas___closed__1));
 v___x_183_ = l_mkPanicMessageWithDecl(v___x_182_, v___x_181_, v___x_180_, v___x_179_, v___x_178_);
@@ -2260,7 +2260,7 @@ lean_inc(v_a_695_);
 v___x_706_ = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(v___x_706_, 0, v_a_695_);
 v___x_707_ = lean_box(1);
-v___x_708_ = l_Lean_Meta_Grind_addNewRawFact___redArg(v___y_698_, v___y_697_, v___y_699_, v___x_706_, v___x_707_, v___y_700_, v___y_701_, v___y_702_, v___y_703_, v___y_704_, v___y_705_);
+v___x_708_ = l_Lean_Meta_Grind_addNewRawFact___redArg(v___y_697_, v___y_699_, v___y_698_, v___x_706_, v___x_707_, v___y_700_, v___y_701_, v___y_702_, v___y_703_, v___y_704_, v___y_705_);
 if (lean_obj_tag(v___x_708_) == 0)
 {
 lean_dec_ref_known(v___x_708_, 1);
@@ -2410,9 +2410,9 @@ lean_object* v_a_742_;
 v_a_742_ = lean_ctor_get(v___x_738_, 0);
 lean_inc(v_a_742_);
 lean_dec_ref_known(v___x_738_, 1);
-v___y_697_ = v_a_742_;
-v___y_698_ = v_a_737_;
-v___y_699_ = v___x_721_;
+v___y_697_ = v_a_737_;
+v___y_698_ = v___x_721_;
+v___y_699_ = v_a_742_;
 v___y_700_ = v___y_676_;
 v___y_701_ = v___y_678_;
 v___y_702_ = v___y_682_;
@@ -2433,9 +2433,9 @@ v___x_746_ = lean_obj_once(&l___private_Init_Data_Array_Basic_0__Array_forIn_x27
 v___x_747_ = l___private_Lean_Util_Trace_0__Lean_checkTraceOption_go(v_inheritedTraceOptions_744_, v_options_740_, v___x_746_);
 if (v___x_747_ == 0)
 {
-v___y_697_ = v_a_743_;
-v___y_698_ = v_a_737_;
-v___y_699_ = v___x_721_;
+v___y_697_ = v_a_737_;
+v___y_698_ = v___x_721_;
+v___y_699_ = v_a_743_;
 v___y_700_ = v___y_676_;
 v___y_701_ = v___y_678_;
 v___y_702_ = v___y_682_;
@@ -2467,9 +2467,9 @@ v___x_754_ = l_Lean_addTrace___at___00Lean_Meta_Grind_propagateBetaEqs_spec__1__
 if (lean_obj_tag(v___x_754_) == 0)
 {
 lean_dec_ref_known(v___x_754_, 1);
-v___y_697_ = v_a_743_;
-v___y_698_ = v_a_737_;
-v___y_699_ = v___x_721_;
+v___y_697_ = v_a_737_;
+v___y_698_ = v___x_721_;
+v___y_699_ = v_a_743_;
 v___y_700_ = v___y_676_;
 v___y_701_ = v___y_678_;
 v___y_702_ = v___y_682_;

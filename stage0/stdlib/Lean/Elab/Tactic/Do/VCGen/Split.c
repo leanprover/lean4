@@ -4283,16 +4283,16 @@ goto v_reusejp_2011_;
 }
 v_reusejp_2011_:
 {
-lean_object* v___x_2013_; lean_object* v___x_2014_; lean_object* v___x_2738__overap_2015_; lean_object* v___x_2016_; 
+lean_object* v___x_2013_; lean_object* v___x_2014_; lean_object* v___x_2740__overap_2015_; lean_object* v___x_2016_; 
 v___x_2013_ = l_Lean_Meta_Match_instInhabitedAltParamInfo_default;
 v___x_2014_ = l_instInhabitedOfMonad___redArg(v___x_2012_, v___x_2013_);
-v___x_2738__overap_2015_ = lean_panic_fn_borrowed(v___x_2014_, v_msg_1967_);
+v___x_2740__overap_2015_ = lean_panic_fn_borrowed(v___x_2014_, v_msg_1967_);
 lean_dec(v___x_2014_);
 lean_inc(v___y_1971_);
 lean_inc_ref(v___y_1970_);
 lean_inc(v___y_1969_);
 lean_inc_ref(v___y_1968_);
-v___x_2016_ = lean_apply_5(v___x_2738__overap_2015_, v___y_1968_, v___y_1969_, v___y_1970_, v___y_1971_, lean_box(0));
+v___x_2016_ = lean_apply_5(v___x_2740__overap_2015_, v___y_1968_, v___y_1969_, v___y_1970_, v___y_1971_, lean_box(0));
 return v___x_2016_;
 }
 }

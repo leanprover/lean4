@@ -1718,10 +1718,10 @@ return v___x_454_;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Rewrites_0__Lean_Meta_Rewrites_addImport___lam__1___boxed(lean_object* v___x_481_, lean_object* v_type_482_, lean_object* v___f_483_, lean_object* v___x_484_, lean_object* v___y_485_, lean_object* v___y_486_, lean_object* v___y_487_, lean_object* v___y_488_, lean_object* v___y_489_){
 _start:
 {
-uint8_t v___x_5030__boxed_490_; uint8_t v___x_5032__boxed_491_; lean_object* v_res_492_; 
-v___x_5030__boxed_490_ = lean_unbox(v___x_481_);
-v___x_5032__boxed_491_ = lean_unbox(v___x_484_);
-v_res_492_ = l___private_Lean_Meta_Tactic_Rewrites_0__Lean_Meta_Rewrites_addImport___lam__1(v___x_5030__boxed_490_, v_type_482_, v___f_483_, v___x_5032__boxed_491_, v___y_485_, v___y_486_, v___y_487_, v___y_488_);
+uint8_t v___x_5031__boxed_490_; uint8_t v___x_5033__boxed_491_; lean_object* v_res_492_; 
+v___x_5031__boxed_490_ = lean_unbox(v___x_481_);
+v___x_5033__boxed_491_ = lean_unbox(v___x_484_);
+v_res_492_ = l___private_Lean_Meta_Tactic_Rewrites_0__Lean_Meta_Rewrites_addImport___lam__1(v___x_5031__boxed_490_, v_type_482_, v___f_483_, v___x_5033__boxed_491_, v___y_485_, v___y_486_, v___y_487_, v___y_488_);
 lean_dec(v___y_488_);
 lean_dec_ref(v___y_487_);
 lean_dec(v___y_486_);

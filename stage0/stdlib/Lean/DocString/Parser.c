@@ -22081,8 +22081,8 @@ return v___x_7546_;
 }
 else
 {
-lean_dec(v_info_7543_);
 lean_dec_ref_known(v___x_7542_, 2);
+lean_dec(v_info_7543_);
 lean_dec_ref(v_a_7530_);
 lean_dec_ref(v_p_7529_);
 goto v___jp_7532_;
@@ -25392,12 +25392,12 @@ v___jp_9145_:
 {
 lean_object* v___x_9152_; lean_object* v___x_9153_; 
 v___x_9152_ = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(v___x_9152_, 0, v___y_9147_);
+lean_ctor_set(v___x_9152_, 0, v___y_9151_);
 v___x_9153_ = lean_alloc_ctor(0, 6, 0);
-lean_ctor_set(v___x_9153_, 0, v___y_9151_);
+lean_ctor_set(v___x_9153_, 0, v___y_9146_);
 lean_ctor_set(v___x_9153_, 1, v___y_9149_);
-lean_ctor_set(v___x_9153_, 2, v___y_9146_);
-lean_ctor_set(v___x_9153_, 3, v___y_9148_);
+lean_ctor_set(v___x_9153_, 2, v___y_9148_);
+lean_ctor_set(v___x_9153_, 3, v___y_9147_);
 lean_ctor_set(v___x_9153_, 4, v___x_9152_);
 lean_ctor_set(v___x_9153_, 5, v___y_9150_);
 return v___x_9153_;
@@ -25415,12 +25415,12 @@ lean_inc_ref(v_cache_9158_);
 lean_inc(v_lhsPrec_9156_);
 lean_inc_ref(v_stxStack_9155_);
 lean_dec_ref(v_s_9144_);
-v___y_9146_ = v_fst_9161_;
-v___y_9147_ = v_snd_9162_;
-v___y_9148_ = v_cache_9158_;
+v___y_9146_ = v_stxStack_9155_;
+v___y_9147_ = v_cache_9158_;
+v___y_9148_ = v_fst_9161_;
 v___y_9149_ = v_lhsPrec_9156_;
 v___y_9150_ = v_recoveredErrors_9159_;
-v___y_9151_ = v_stxStack_9155_;
+v___y_9151_ = v_snd_9162_;
 goto v___jp_9145_;
 }
 else
@@ -25432,12 +25432,12 @@ lean_inc_ref(v_cache_9158_);
 lean_inc(v_lhsPrec_9156_);
 lean_inc_ref(v_stxStack_9155_);
 lean_dec_ref(v_s_9144_);
-v___y_9146_ = v_fst_9161_;
-v___y_9147_ = v_snd_9162_;
-v___y_9148_ = v_cache_9158_;
+v___y_9146_ = v_stxStack_9155_;
+v___y_9147_ = v_cache_9158_;
+v___y_9148_ = v_fst_9161_;
 v___y_9149_ = v_lhsPrec_9156_;
 v___y_9150_ = v_recoveredErrors_9159_;
-v___y_9151_ = v_stxStack_9155_;
+v___y_9151_ = v_snd_9162_;
 goto v___jp_9145_;
 }
 else
@@ -25453,12 +25453,12 @@ lean_inc_ref(v_cache_9158_);
 lean_inc(v_lhsPrec_9156_);
 lean_inc_ref(v_stxStack_9155_);
 lean_dec_ref(v_s_9144_);
-v___y_9146_ = v_fst_9161_;
-v___y_9147_ = v_snd_9162_;
-v___y_9148_ = v_cache_9158_;
+v___y_9146_ = v_stxStack_9155_;
+v___y_9147_ = v_cache_9158_;
+v___y_9148_ = v_fst_9161_;
 v___y_9149_ = v_lhsPrec_9156_;
 v___y_9150_ = v_recoveredErrors_9159_;
-v___y_9151_ = v_stxStack_9155_;
+v___y_9151_ = v_snd_9162_;
 goto v___jp_9145_;
 }
 else

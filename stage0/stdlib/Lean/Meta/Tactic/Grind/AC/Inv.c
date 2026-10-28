@@ -4071,7 +4071,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Grind_AC_checkInvariants(lean_object* v_a_1
 _start:
 {
 uint8_t v_debug_1754_; 
-v_debug_1754_ = lean_ctor_get_uint8(v_a_1745_, sizeof(void*)*12 + 2);
+v_debug_1754_ = lean_ctor_get_uint8(v_a_1745_, sizeof(void*)*12 + 3);
 if (v_debug_1754_ == 0)
 {
 lean_object* v___x_1755_; lean_object* v___x_1756_; 

@@ -3681,7 +3681,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_CommRing_checkInvariants(lean_o
 _start:
 {
 uint8_t v_debug_1618_; 
-v_debug_1618_ = lean_ctor_get_uint8(v_a_1609_, sizeof(void*)*12 + 2);
+v_debug_1618_ = lean_ctor_get_uint8(v_a_1609_, sizeof(void*)*12 + 3);
 if (v_debug_1618_ == 0)
 {
 lean_object* v___x_1619_; lean_object* v___x_1620_; 

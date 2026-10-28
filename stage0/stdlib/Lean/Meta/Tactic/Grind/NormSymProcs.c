@@ -1995,8 +1995,8 @@ return v___x_676_;
 else
 {
 lean_dec_ref(v_arg_653_);
-lean_dec_ref_known(v_e_638_, 2);
 lean_dec_ref(v_fn_652_);
+lean_dec_ref_known(v_e_638_, 2);
 return v___x_674_;
 }
 }

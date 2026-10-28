@@ -316,17 +316,20 @@ endforeach(T)
 add_test(NAME lint.py COMMAND python3 lint.py WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
 
 add_test_pile(../doc/examples *.lean)
-add_test_pile(compile *.lean BENCH PART2)
-add_test_pile(compile_bench *.lean BENCH PART2)
-add_test_pile(docparse *.txt)
+add_test_pile(async/compile *.lean BENCH PART2)
+add_test_pile(async/compile_bench *.lean BENCH PART2)
 add_test_pile(
-  elab
+  async/elab
   *.lean
   EXCEPT
     async_select_channel.lean # Flaky
     sync_mutex.lean # Flaky
   ${ELAB_FIXTURES}
 )
+add_test_pile(compile *.lean BENCH PART2)
+add_test_pile(compile_bench *.lean BENCH PART2)
+add_test_pile(docparse *.txt)
+add_test_pile(elab *.lean ${ELAB_FIXTURES})
 add_test_pile(elab_bench *.lean BENCH PART2 ${ELAB_FIXTURES})
 add_test_pile(elab_fail *.lean ${ELAB_FIXTURES})
 add_test_pile(misc *.sh)

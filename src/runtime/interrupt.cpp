@@ -66,6 +66,8 @@ LEAN_EXPORT scope_max_rec_depth::scope_max_rec_depth(size_t max) :
     m_max(g_max_rec_depth, max), m_curr(g_rec_depth, 0) {}
 
 LEAN_EXPORT scope_rec_depth::scope_rec_depth() {
+    if (g_max_rec_depth > std::numeric_limits<size_t>::max() / g_kernel_rec_depth_factor)
+        throw exception("maxRecDepth is too large to compute the kernel recursion limit");
     g_rec_depth++;
     if (g_max_rec_depth > 0 && g_rec_depth > g_max_rec_depth * g_kernel_rec_depth_factor) {
         g_rec_depth--;

@@ -428,7 +428,7 @@ def evalGrindTraceCore (stx : Syntax) (trace := true) (verbose := true) (useSorr
             throwError "`grind?` failed\n{← result.toMessageData}"
         let seq ← if h : seqs.size = 1 then pure seqs[0] else seqs.toList.mapM fun seq => Grind.Action.mkGrindNext seq
         let configStx' := filterSuggestionsAndLocalsFromGrindConfig configStx
-        let tacs ← Grind.mkGrindOnlyTactics configStx' seq (← addUsedInjParams params mvarId' termParamStxs)
+        let tacs ← Grind.mkGrindOnlyTactics configStx' seq (← addUsedInjParams params mvarId' termParamStxs) config.ematch
         let seq := Grind.Action.mkGrindSeq seq
         /-
         **Note**: The script must carry the preserved parameters (e.g., types marked for

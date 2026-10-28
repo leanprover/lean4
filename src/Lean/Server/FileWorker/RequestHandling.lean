@@ -145,8 +145,8 @@ def handleDefinition (kind : GoToKind) (p : TextDocumentPositionParams)
 open Language in
 def findGoalsAt? (doc : EditableDocument) (hoverPos : String.Pos.Raw) : ServerTask (Option (List Elab.GoalsAtResult)) :=
   let text := doc.meta.text
-  Lean.findCmdParsedSnap doc.initSnap doc.meta.text hoverPos |>.asServerTask.bindCostly fun
-    | some cmdParsed =>
+  Lean.findCmdParsedSnapOrSkipped doc.initSnap doc.meta.text hoverPos |>.asServerTask.bindCostly fun
+    | some (cmdParsed, none) =>
       let t := toSnapshotTree cmdParsed.elabSnap |>.foldSnaps [] fun snap oldGoals => Id.run do
         let some stx := snap.stx?
           | return .pure (oldGoals, .proceed (foldChildren := false))
@@ -176,6 +176,21 @@ def findGoalsAt? (doc : EditableDocument) (hoverPos : String.Pos.Raw) : ServerTa
       t.asServerTask.mapCheap fun
         | []    => none
         | goals => goals
+    | some (cmdParsed, some skipped) =>
+      -- `hoverPos` is in input that the parser skipped after a parse error, such as a tactic being
+      -- typed. On the first line of the skipped input, show the goals at its start, which is where
+      -- typing began, treating the skipped input as trailing whitespace of the syntax before it.
+      -- Any lines after the first usually hold tactics that were never run.
+      if (text.toPosition hoverPos).line != (text.toPosition skipped.start).line then
+        .pure none
+      else
+        cmdParsed.elabSnap.infoTreeSnap.task.asServerTask.mapCostly fun s => do
+          let infoTree ← s.infoTree?
+          let trailing : Substring.Raw :=
+            { str := text.source, startPos := skipped.start, stopPos := skipped.stop }
+          match infoTree.addTrailing trailing |>.goalsAt? text skipped.start with
+          | []    => none
+          | goals => some goals
     | none =>
       .pure none
 where

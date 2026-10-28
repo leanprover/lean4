@@ -61,7 +61,7 @@ public def parseLinkDestination? (cur : InlineCursor s) :
       let curNext := cur.drop1
       if c == '\\' && Option.any isAsciiPunctuation curNext.front? then
         cur := curNext.drop1
-      else if c.isWhitespace || c.toNat < 0x20 then
+      else if c.isWhitespace || isAsciiControl c then
         break
       else if c == '(' then
         parenDepth := parenDepth + 1

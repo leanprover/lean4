@@ -49,6 +49,10 @@ def showParagraph (src : String) : String :=
 /-- info: "entity⟪�⟫ text⟪ &#99999999; ⟫ entity⟪�⟫ text⟪ &#x1100000;⟫" -/
 #guard_msgs in #eval showParagraph "&#9999999; &#99999999; &#x110000; &#x1100000;"
 
+-- The longest named reference, `CounterClockwiseContourIntegral` with 31 characters, is decoded.
+/-- info: "entity⟪∳⟫" -/
+#guard_msgs in #eval showParagraph "&CounterClockwiseContourIntegral;"
+
 /-- info: "text⟪a⟫ softBreak text⟪b⟫" -/
 #guard_msgs in #eval showParagraph "a\nb"
 
@@ -534,6 +538,14 @@ def nestedDestination (depth : Nat) : String :=
 
 /-- info: false -/
 #guard_msgs in #eval (showParagraph (nestedDestination 33)).startsWith "link["
+
+-- An ASCII control character, including DEL, ends an unbracketed destination (CommonMark §6.3),
+-- so these targets fail and the brackets are text.
+/-- info: "text⟪[a](b\x01c)⟫" -/
+#guard_msgs in #eval showParagraph "[a](b\x01c)"
+
+/-- info: "text⟪[a](b\x7fc)⟫" -/
+#guard_msgs in #eval showParagraph "[a](b\x7Fc)"
 
 /-!
 ## Link Titles

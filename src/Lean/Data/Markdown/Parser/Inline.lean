@@ -39,21 +39,13 @@ def countSequence (cur : InlineCursor s) (c : Char) : Nat × s.Pos :=
 
 /--
 Parses a character reference at `cur`, which must point at `&`. Returns the resulting
-`Inline.entity` and the position past the closing `;`.
+`Inline.entity` and the position past the closing `;`. References may not contain newlines, so the
+decoder's scan doesn't need to move past the current line.
 -/
 def parseCharacterReference? (cur : InlineCursor s) : Option (Inline s × s.Pos) := do
   let start := cur.startPos
-  let bodyStart := cur.drop1.startPos
-  let mut rest := cur.drop1
-  while !rest.isEmpty do
-    let c := rest.front
-    if c == ';' then
-      let value ← characterReference? (subsliceClamped bodyStart rest.startPos)
-      let after := rest.drop1.startPos
-      return (.entity (subsliceClamped start after) value, after)
-    guard (isCharacterReferenceChar c)
-    rest := rest.drop1
-  failure
+  let (value, after) ← decodeCharacterReference? cur.drop1.startPos
+  return (.entity (subsliceClamped start after) value, after)
 
 /--
 Whether `c` is in the email autolink local-part character set (CommonMark §6.5): ASCII alphanumerics
@@ -87,9 +79,7 @@ def parseAutolinkUri? (cur : InlineCursor s) : Option s.Pos := do
   while !rest.isEmpty do
     let c := rest.front
     if c == '>' then return rest.startPos
-    guard !(c == '<' || c.isWhitespace)
-    -- Reject ASCII control characters (0x7f is DEL, the others are below 0x20)
-    guard <| c.toNat ≥ 0x20 && c.toNat != 0x7f
+    guard !(c == '<' || c.isWhitespace || isAsciiControl c)
     rest := rest.drop1
   failure
 

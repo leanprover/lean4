@@ -25,6 +25,12 @@ parsed as inlines, so consumers decode them with `decodeText`.
 -/
 
 /--
+Whether `c` is an ASCII control character (CommonMark §2.1): U+0000 to U+001F, or U+007F.
+-/
+@[inline] public def isAsciiControl (c : Char) : Bool :=
+  c.toNat < 0x20 || c.toNat == 0x7F
+
+/--
 Whether `c` is in CommonMark's ASCII-punctuation set: ``!"#$%&'()*+,-./:;<=>?@[\]^_\`{|}~``. These
 are the only characters that a backslash escape consumes; a backslash before any other character is
 a literal backslash followed by the character.
@@ -65,12 +71,23 @@ public def isCharacterReferenceChar (c : Char) : Bool :=
   c.isAlphanum || c == '#'
 
 /--
+The largest number of characters that may occur between the `&` and the `;` of a character
+reference.
+
+The longest named reference is `CounterClockwiseContourIntegral`, with 31 characters, and a numeric
+reference has at most 8: `#` and up to 7 decimal digits, or `#x` and up to 6 hexadecimal digits
+(CommonMark §2.5).
+-/
+def maxCharacterReferenceLength : Nat := 31
+
+/--
 Parses a character reference whose `&` is immediately before `i`. On success, returns the decoded
 text together with the position after the `;`.
 -/
 public def decodeCharacterReference? {s : String.Slice} (i : s.Pos) : Option (String × s.Pos) :=
     Id.run do
   let mut j := i
+  let mut len := 0
   while h : j ≠ s.endPos do
     let c := j.get h
     if c == ';' then
@@ -78,7 +95,8 @@ public def decodeCharacterReference? {s : String.Slice} (i : s.Pos) : Option (St
         if hle : i ≤ j then s.subslice i j hle else s.subslice i i (String.Slice.Pos.le_refl i)
       let some value := characterReference? body | return none
       return some (value, j.next h)
-    if !isCharacterReferenceChar c then return none
+    if !isCharacterReferenceChar c || len ≥ maxCharacterReferenceLength then return none
+    len := len + 1
     j := j.next h
   return none
 

@@ -196,7 +196,10 @@ def update [EquivBEq α] [LawfulHashable α] (map : IndexMultiMap α β) (key : 
   if key ∉ map then
     map
   else
-    map.entries.foldl (fun acc (k, v) => acc.insert k (if k == key then f v else v)) empty
+    { map with entries := map.entries.map (fun (k, v) => (k, if k == key then f v else v)), validity := ?_ }
+where finally
+  have _ := map.validity
+  grind
 
 /--
 Replaces the last value associated with `key` with `value`.

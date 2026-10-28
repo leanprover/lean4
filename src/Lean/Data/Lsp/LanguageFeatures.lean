@@ -466,9 +466,9 @@ inductive SemanticTokenType where
   | markupDocText
   /--
   Text outside of a docstring, such as in a Verso document, that is not in a heading, blockquote, or
-  list item. May have the `markupBold` and `markupItalic` modifiers. It is for tools that highlight
-  Verso documents, so that themes can style their text as ordinary text rather than as
-  documentation.
+  list item. May have the `markupBold` and `markupItalic` modifiers. This token exists for tools
+  that highlight Verso documents, so that themes can style their text as ordinary text rather than
+  as documentation.
   -/
   | markupPlainText
   /-- Text in a heading. May have the `markupBold` and `markupItalic` modifiers. -/
@@ -529,8 +529,8 @@ inductive SemanticTokenModifier where
   | markupItalic
   /--
   A delimiter of Verso or Markdown syntax, such as `*`, `#`, a fence, or a bracket. Delimiters are
-  `keyword` tokens with this modifier, so that themes can style them like keywords by default and
-  single them out when they want to.
+  `keyword` tokens with this modifier, so that themes will style them like keywords by default but
+  can single them out when they want to.
   -/
   | markupSyntax
   deriving ToJson, FromJson, BEq, Hashable

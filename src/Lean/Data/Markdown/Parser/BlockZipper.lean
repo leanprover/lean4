@@ -16,7 +16,7 @@ namespace Lean.Markdown
 
 
 /-!
-## The In-Progress Zipper
+# The In-Progress Zipper
 
 While identifying the block structure of a document, lines are checked one at a time and added in
 order. A zipper-like structure makes it easy to see the surrounding block context and to modify it
@@ -34,12 +34,10 @@ public inductive OpenContainer (s : String.Slice) where
   | blockquote (markers : Array s.Subslice)
   /--
   A list item that is open, which makes it the last item of its list so far.
-
-  - `list` is the list that the item belongs to, with the items that closed before this one.
-  - `marker` is this item's bullet or ordered marker.
-  - `contentColumn` is the column at which the item's content begins;
-    subsequent lines must be indented to at least this column to count as
-    continuations of this item (CommonMark §5.2).
+  * `list` is the list that the item belongs to, with the items that closed before this one.
+  * `marker` is this item's bullet or ordered marker.
+  * `contentColumn` is the column at which the item's content begins. Subsequent lines must be
+    indented to at least this column to count as continuations of this item (CommonMark §5.2).
   -/
   | listItem (list : OpenList s) (marker : s.Subslice) (contentColumn : Columns)
 deriving Inhabited
@@ -95,7 +93,7 @@ at the bottom.
 
 An empty spine means that only the document is open.
 
-Invariants (preserved by the zipper operations below):
+Invariants:
 - If `openLeaf?` is `some _`, that leaf logically lives inside the deepest spine frame, or directly
   under the document if the spine is empty. Extending the leaf adds to its content, and closing the
   leaf pushes a `Block.Raw` onto that container's children.

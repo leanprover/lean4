@@ -31,9 +31,9 @@ CommonMark is parsed in two passes:
 2. Within each block, the second pass finds the structure of inlines and applies fallback rules for
    poorly nested or mismatched delimiters.
 
-This file contains the first pass. Link labels are compared modulo `normalizeLabel`, whose case
-folding covers only ASCII, Latin-1, and Greek, rather than the full Unicode case fold specified by
-CommonMark.
+This file contains the first pass. Ref-style link labels are compared modulo `normalizeLabel`, whose
+case folding covers only ASCII, Latin-1, and Greek, rather than the full Unicode case fold specified
+by CommonMark.
 -/
 
 variable {s : String.Slice}
@@ -133,7 +133,7 @@ def dropIndent (line : s.Subslice) (indent : Nat) : s.Subslice := Id.run do
 partial def splitLines (text : s.Subslice) : Array s.Subslice :=
   go text.startInclusive text.startInclusive #[]
 where
-  /-- Scans from `p`; `lineStart` is the start of the current line and `lines` the lines so far. -/
+  /-- Scans from `p`. `lineStart` is the start of the current line and `lines` the lines so far. -/
   go (p lineStart : s.Pos) (lines : Array s.Subslice) : Array s.Subslice :=
     if h : p < text.endExclusive then
       let h' := String.Slice.Pos.ne_endPos_of_lt h
@@ -208,9 +208,9 @@ inductive ThematicBreakCheck (s : String.Slice) where
   /-- The line is a thematic break. -/
   | isBreak
   /--
-  The scan of the line failed at `pos`: the first character that is neither the marker character
-  nor a space or tab, or the end of the line when it has fewer than three markers. A scan that
-  starts before `pos` and after the first marker fails at `pos` too.
+  The scan of the line failed at `pos`, which is the first character that is neither the marker
+  character nor a space or tab, or the end of the line when it has fewer than three marker
+  characters. A scan that starts before `pos` and after the first marker fails at `pos` too.
   -/
   | failsAt (pos : s.Pos)
   /-- The line is indented too far or does not begin with a marker character. -/
@@ -250,9 +250,9 @@ Parses a setext heading underline (CommonMark §4.3): up to three leading spaces
 `=` (level 1) or `-` (level 2), then optional trailing whitespace. Returns the heading level and the
 marker sequence.
 
-Note: a `---` underline overlaps with the thematic-break syntax. The caller must enforce the
-precedence rule: setext header parsing applies only when an open paragraph immediately precedes the
-underline; otherwise, the same line is interpreted as a thematic break.
+The `---` underline overlaps with the thematic-break syntax. The caller must enforce the precedence
+rule: setext header parsing applies only when an open paragraph immediately precedes the underline.
+Otherwise, the same line is interpreted as a thematic break.
 -/
 def parseSetextUnderline? (line : IndentedLine s) : Option (Nat × s.Subslice) := do
   let { after := c, indent } := line
@@ -287,6 +287,7 @@ def parseFenceOpen? (line : IndentedLine s) : Option (FenceInfo s × s.Subslice)
 
 /--
 Parses a closing fence on a line whose container prefixes have already been consumed.
+
 The closing fence must match `info`'s character, be at least as long as the opener, and be followed
 only by spaces or tabs.
 -/
@@ -328,7 +329,7 @@ A successful list marker match.
 structure ListMarkerMatch (s : String.Slice) where
   /-- The marker itself. -/
   marker : s.Subslice
-  /-- A cursor that is positioned just past the absorbed prefix. -/
+  /-- A cursor that is positioned just past the marker and any consumed trailing whitespace. -/
   after : Cursor s
   /-- The marker's kind.-/
   kind : ListKind
@@ -382,7 +383,7 @@ def parseListMarker? (line : IndentedLine s) : Option (ListMarkerMatch s) := do
     let mut rest := c
     let mut digits := 0
     let mut value : Nat := 0
-    -- CommonMark §5.2: an ordered-list marker has 1–9 digits. Up to 10 are counted, so sequences of
+    -- CommonMark §5.2: an ordered list marker has 1–9 digits. Up to 10 are counted, so sequences of
     -- 10 or more digits fall through the `digits ≤ 9` guard below.
     while digits < 10 do
       let some digit := rest.front? | break
@@ -532,7 +533,8 @@ arrays can be extended in place. The caller puts a state back with `set`, or end
 @[inline] def takeState : ProcessM s (LineState s) :=
   modifyGet fun st => (st, { st with zipper := .empty })
 
-@[inherit_doc takeState, inline] def ContainerM.takeState : ContainerM s (ContState s) :=
+@[inherit_doc Lean.Markdown.takeState, inline]
+def ContainerM.takeState : ContainerM s (ContState s) :=
   modifyGet fun st => (st, { st with zipper := .empty, matched := 0, matched_le := Nat.zero_le _ })
 
 /-- Ends the processing of the current line, with `z` as the document so far. -/
@@ -545,7 +547,7 @@ Ends the processing of the current line with the zipper that `f` produces from t
   let st ← takeState
   finishLine (f st.zipper)
 
-@[inherit_doc finishLineWith, inline]
+@[inherit_doc Lean.Markdown.finishLineWith, inline]
 def ContainerM.finishLineWith (f : BlockZipper s → BlockZipper s) : ContainerM s Unit := do
   let st ← ContainerM.takeState
   finishLine (f st.zipper)
@@ -908,11 +910,14 @@ partial def postProcessRefDefs (blocks : Array (Block.Raw s)) : Array (Block.Raw
 
 /--
 Builds the document's reference table from its link reference definitions and from `externalRefs`,
-which maps labels to definitions that the caller supplies. An earlier definition of a label in the
-document takes precedence over a later one. A definition in the document takes precedence over an
-external one with the same label unless the external one has `overrideDocument` set. The labels of
-`externalRefs` are normalized like those in the document. When several of them normalize to the
-same label, the definition of the lexicographically least of them is used.
+which maps labels to definitions that the caller supplies.
+
+An earlier definition of a label in the document takes precedence over a later one. A definition in
+the document takes precedence over an external one with the same label unless the external one has
+`overrideDocument` set.
+
+The labels of `externalRefs` are normalized like those in the document. When several of them
+normalize to the same label, the definition of the lexicographically least of them is used.
 -/
 public partial def buildRefTable (blocks : Array (Block.Raw s))
     (externalRefs : Std.HashMap String ExternalRef := {}) : RefTable s :=

@@ -8,11 +8,12 @@ from a socket: every `feed` is followed by stepping the machine until it asks fo
 cost of resuming a partially parsed message is measured.
 
 - `get_browser_bytes`: browser `GET`s fed one byte at a time (worst case for resumption).
-- `get_browser_segments`: browser `GET`s fed in 61-byte segments that straddle every line boundary.
+- `get_browser_segments`: browser `GET`s fed in 61-byte segments, so reads end mid-line and
+  straddle requests.
 - `upload_fixed`: 16 KiB `Content-Length` uploads, each fed in 1000-byte reads and pulled as they
   arrive.
-- `upload_chunked`: 16 KiB chunked uploads (1 KiB chunks), each fed in 1000-byte reads, so chunk-size
-  lines straddle reads.
+- `upload_chunked`: 16 KiB chunked uploads (1 KiB chunks), each read ending two bytes into a
+  chunk-size line, so every size line is resumed.
 -/
 
 /-- A synchronously driven server connection. -/
@@ -23,6 +24,8 @@ structure Conn where
   /-- Number of body bytes of the pending request pulled so far. -/
   bodyBytes : Nat := 0
   bodyDone : Bool := false
+  /-- Body bytes of all answered requests. -/
+  received : Nat := 0
   responses : Nat := 0
   outBytes : Nat := 0
 
@@ -36,7 +39,9 @@ def respond (c : Conn) : Conn :=
     |>.send responseHead
     |>.sendData #[{ data }]
     |>.userClosedBody
-  { c with machine, pending := false, bodyBytes := 0, bodyDone := false, responses := c.responses + 1 }
+  { c with
+    machine, pending := false, bodyBytes := 0, bodyDone := false, received := c.received + c.bodyBytes
+    responses := c.responses + 1 }
 
 /-- Steps the machine until it halts or needs more input, answering each complete request. -/
 partial def pump (c : Conn) : IO Conn := do
@@ -73,25 +78,42 @@ def segments (data : ByteArray) (size : Nat) : Array ByteArray := Id.run do
     pos := pos + size
   return parts
 
+/-- Splits `data` at each of the ascending offsets `cuts`. -/
+def cutAt (data : ByteArray) (cuts : Array Nat) : Array ByteArray := Id.run do
+  let mut parts := #[]
+  let mut pos := 0
+  for cut in cuts do
+    parts := parts.push (data.extract pos cut)
+    pos := cut
+  return parts.push (data.extract pos data.size)
+
+/-- Returns the offset just past the blank line that ends the head of `request`. -/
+def headEnd (request : ByteArray) : Nat := Id.run do
+  for i in *...(request.size - 3) do
+    if request[i]! == 13 && request[i + 1]! == 10 && request[i + 2]! == 13 && request[i + 3]! == 10 then
+      return i + 4
+  return request.size
+
 def feedAll (c : Conn) (parts : Array ByteArray) : IO Conn :=
   parts.foldlM (fun c part => pump { c with machine := c.machine.feed part }) c
 
 /--
-Feeds `n - 1` copies of `keep` and then `close` as reads of `segmentSize` bytes. With `perRequest`,
-every request starts a fresh read, as a lock-step client's would; otherwise reads straddle requests.
+Feeds `n - 1` copies of `keep` and then `close` as the reads produced by `split`, and checks that
+each request carried `bodySize` body bytes. With `perRequest`, every request is split on its own, as
+a lock-step client's would be; otherwise the whole pipeline is split, so reads straddle requests.
 -/
-def run (name : String) (n : Nat) (segmentSize : Nat) (perRequest : Bool) (keep close : String) :
-    IO Unit := do
+def run (name : String) (n : Nat) (bodySize : Nat) (perRequest : Bool)
+    (split : ByteArray → Array ByteArray) (keep close : String) : IO Unit := do
   let keep := keep.toUTF8
   let close := close.toUTF8
-  let keepParts := segments keep segmentSize
-  let closeParts := segments close segmentSize
+  let keepParts := split keep
+  let closeParts := split close
   let mut pipelineParts := #[]
   unless perRequest do
     let mut input := ByteArray.empty
     for _ in *...(n - 1) do
       input := input ++ keep
-    pipelineParts := segments (input ++ close) segmentSize
+    pipelineParts := split (input ++ close)
 
   let mut c : Conn := { machine := { config := Config.toH1Config { maxRequests := n + 1 } } }
   let t1 ← IO.monoNanosNow
@@ -103,8 +125,9 @@ def run (name : String) (n : Nat) (segmentSize : Nat) (perRequest : Bool) (keep 
   c ← pump { c with machine := c.machine.noMoreInput }
   let t2 ← IO.monoNanosNow
 
-  unless c.responses == n ∧ c.machine.halted do
-    throw <| .userError s!"{name}: expected {n} responses, got {c.responses}"
+  unless c.responses == n ∧ c.machine.halted ∧ c.received == n * bodySize do
+    throw <| .userError
+      s!"{name}: expected {n} responses with {n * bodySize} body bytes, got {c.responses} with {c.received}"
   IO.println s!"measurement: {name} {(t2 - t1).toFloat / 1000000000.0} s"
 
 def browserGet (connection : String) : String :=
@@ -123,16 +146,19 @@ def browserGet (connection : String) : String :=
 def main (args : List String) : IO Unit := do
   let n := args[0]!.toNat!
 
-  run "get_browser_bytes" (n / 10 + 1) 1 false (browserGet "keep-alive") (browserGet "close")
-  run "get_browser_segments" n 61 false (browserGet "keep-alive") (browserGet "close")
+  run "get_browser_bytes" (n / 10 + 1) 0 false (segments · 1) (browserGet "keep-alive") (browserGet "close")
+  run "get_browser_segments" n 0 false (segments · 61) (browserGet "keep-alive") (browserGet "close")
 
   let body := String.ofList (List.replicate 16384 'x')
   let fixed (extra : String) :=
     s!"POST /upload HTTP/1.1\r\nHost: example.com\r\nContent-Length: {body.utf8ByteSize}\r\n{extra}\r\n{body}"
-  run "upload_fixed" n 1000 true (fixed "") (fixed "Connection: close\r\n")
+  run "upload_fixed" n 16384 true (segments · 1000) (fixed "") (fixed "Connection: close\r\n")
 
   let chunk := s!"400\r\n{String.ofList (List.replicate 1024 'y')}\r\n"
   let chunkedBody := String.join (List.replicate 16 chunk) ++ "0\r\n\r\n"
   let chunked (extra : String) :=
     s!"POST /upload HTTP/1.1\r\nHost: example.com\r\nTransfer-Encoding: chunked\r\n{extra}\r\n{chunkedBody}"
-  run "upload_chunked" n 1000 true (chunked "") (chunked "Connection: close\r\n")
+  -- One cut two bytes into each of the 16 data chunks' size lines and into the last chunk's.
+  let inSizeLines (request : ByteArray) :=
+    cutAt request ((Array.range 17).map (headEnd request + · * chunk.utf8ByteSize + 2))
+  run "upload_chunked" n 16384 true inSizeLines (chunked "") (chunked "Connection: close\r\n")

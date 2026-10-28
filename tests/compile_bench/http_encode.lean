@@ -5,8 +5,7 @@ open Std Http Internal Time
 /-!
 Benchmarks the HTTP/1.1 serializers that run for every message written to the wire.
 
-- `response_head`: status lines of common statuses plus typical response headers, flattened to
-  bytes as the server does before sending.
+- `response_head`: status lines of common statuses plus typical response headers.
 - `request_head`: request lines with origin-form targets plus typical client headers.
 - `chunk`: chunked transfer-encoding frames, with and without extensions.
 - `date_header`: formatting the `Date` header value the server adds to every response.
@@ -36,30 +35,33 @@ def requestHeaders : Headers :=
     |>.insert .authorization (.mk "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjM0NSJ9.c2lnbmF0dXJl")
     |>.insert .contentLength (.mk "0")
 
+/-- The server sends the encoded pieces without joining them, so neither does the checksum. -/
+def checksum (buffer : ChunkedBuffer) : Nat :=
+  buffer.size + buffer.data.size
+
 @[noinline]
-def benchResponseHead (iters : Nat) : IO Nat := do
+def benchResponseHead (statuses : Array Status) (headers : Headers) (iters : Nat) : IO Nat := do
   let mut total := 0
   for _ in *...iters do
     for status in statuses do
-      let head : Response.Head := { status, headers := responseHeaders }
-      total := total + (Encode.encode (v := .v11) ChunkedBuffer.empty head).toByteArray.size
+      let head : Response.Head := { status, headers }
+      total := total + checksum (Encode.encode (v := .v11) ChunkedBuffer.empty head)
   return total
 
 @[noinline]
-def benchRequestHead (targets : Array RequestTarget) (iters : Nat) : IO Nat := do
+def benchRequestHead (targets : Array RequestTarget) (headers : Headers) (iters : Nat) : IO Nat := do
   let mut total := 0
   for _ in *...iters do
     for uri in targets do
-      let head : Request.Head := { method := .get, version := .v11, uri, headers := requestHeaders }
-      total := total + (Encode.encode (v := .v11) ChunkedBuffer.empty head).toByteArray.size
+      let head : Request.Head := { method := .get, version := .v11, uri, headers }
+      total := total + checksum (Encode.encode (v := .v11) ChunkedBuffer.empty head)
   return total
 
 @[noinline]
 def benchChunk (chunks : Array Chunk) (iters : Nat) : IO Nat := do
   let mut total := 0
   for _ in *...iters do
-    let buffer := chunks.foldl (Encode.encode (v := .v11)) ChunkedBuffer.empty
-    total := total + buffer.toByteArray.size
+    total := total + checksum (chunks.foldl (Encode.encode (v := .v11)) ChunkedBuffer.empty)
   return total
 
 @[noinline]
@@ -94,8 +96,12 @@ def main (args : List String) : IO Unit := do
   }
   let chunks := #[small, large, small, withExt, small, large, small, small]
 
-  run "response_head" (benchResponseHead iters) (· > 0)
-  run "request_head" (benchRequestHead targets iters) (· > 0)
-  run "chunk" (benchChunk chunks (4 * iters)) (· > 4 * iters * 2 * 4096)
+  -- Every iteration encodes the same values, so one untimed iteration gives the expected total.
+  let response ← benchResponseHead statuses responseHeaders 1
+  run "response_head" (benchResponseHead statuses responseHeaders iters) (· == iters * response)
+  let request ← benchRequestHead targets requestHeaders 1
+  run "request_head" (benchRequestHead targets requestHeaders iters) (· == iters * request)
+  let chunk ← benchChunk chunks 1
+  run "chunk" (benchChunk chunks (4 * iters)) (· == 4 * iters * chunk)
   -- `toHTTPDateString` is fixed-width: `Tue, 27 Oct 2026 12:00:00 GMT`.
   run "date_header" (benchDate iters) (· == iters * 29)

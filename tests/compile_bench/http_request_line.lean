@@ -7,8 +7,9 @@ Benchmarks HTTP/1.1 request-line parsing (`parseRequestLineRawVersion`, as used 
 machine): method dispatch, request-target parsing and version parsing.
 
 - `common`: the methods and targets of everyday traffic.
-- `rare_methods`: methods that are matched late (or never) by the method parser.
-- `absolute_form`: proxy-style absolute-form targets with authority, port and query.
+- `rare_methods`: methods that the method parser tries late.
+- `proxy_form`: proxy-style absolute-form targets with authority, port and query, and a `CONNECT`
+  authority-form target.
 -/
 
 def common : Array String := #[
@@ -31,7 +32,7 @@ def rareMethods : Array String := #[
   "VERSION-CONTROL /dav/files/report.odt HTTP/1.1\r\n"
 ]
 
-def absoluteForm : Array String := #[
+def proxyForm : Array String := #[
   "GET http://www.example.com/ HTTP/1.1\r\n",
   "GET http://www.example.com:8080/articles/2026/10/http-benchmarks?utm_source=feed HTTP/1.1\r\n",
   "GET https://user@api.example.com/v1/items?page=2&per_page=50 HTTP/1.1\r\n",
@@ -60,4 +61,4 @@ def main (args : List String) : IO Unit := do
   let iters := args[0]!.toNat!
   run "common" iters common
   run "rare_methods" iters rareMethods
-  run "absolute_form" iters absoluteForm
+  run "proxy_form" iters proxyForm

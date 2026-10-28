@@ -22,6 +22,8 @@ structure Conn where
   /-- Body of the pending request pulled so far. -/
   body : ByteArray := .empty
   bodyDone : Bool := false
+  /-- Body bytes of all answered requests. -/
+  received : Nat := 0
   responses : Nat := 0
   outBytes : Nat := 0
 
@@ -35,7 +37,9 @@ def respond (c : Conn) : Conn :=
     |>.send responseHead
     |>.sendData #[{ data }]
     |>.userClosedBody
-  { c with machine, pending := false, body := .empty, bodyDone := false, responses := c.responses + 1 }
+  { c with
+    machine, pending := false, body := .empty, bodyDone := false, received := c.received + c.body.size
+    responses := c.responses + 1 }
 
 /-- Steps the machine until it halts or needs more input, answering each complete request. -/
 partial def pump (c : Conn) : IO Conn := do
@@ -63,7 +67,8 @@ partial def pump (c : Conn) : IO Conn := do
     return c
   pump c
 
-def run (name : String) (n : Nat) (keep close : String) : IO Unit := do
+/-- Serves `n - 1` copies of `keep` and then `close`, each carrying `bodySize` body bytes. -/
+def run (name : String) (n : Nat) (bodySize : Nat) (keep close : String) : IO Unit := do
   let keep := keep.toUTF8
   let mut input := ByteArray.empty
   for _ in *...(n - 1) do
@@ -75,8 +80,9 @@ def run (name : String) (n : Nat) (keep close : String) : IO Unit := do
   let c ← pump { machine := machine.feed input |>.noMoreInput }
   let t2 ← IO.monoNanosNow
 
-  unless c.responses == n ∧ c.machine.halted do
-    throw <| .userError s!"{name}: expected {n} responses, got {c.responses}"
+  unless c.responses == n ∧ c.machine.halted ∧ c.received == n * bodySize do
+    throw <| .userError
+      s!"{name}: expected {n} responses with {n * bodySize} body bytes, got {c.responses} with {c.received}"
   IO.println s!"measurement: {name} {(t2 - t1).toFloat / 1000000000.0} s"
 
 def browserGet (connection : String) : String :=
@@ -95,19 +101,19 @@ def browserGet (connection : String) : String :=
 def main (args : List String) : IO Unit := do
   let n := args[0]!.toNat!
 
-  run "get_small" n
+  run "get_small" n 0
     "GET /bench HTTP/1.1\r\nHost: example.com\r\n\r\n"
     "GET /bench HTTP/1.1\r\nHost: example.com\r\nConnection: close\r\n\r\n"
 
-  run "get_browser" n (browserGet "keep-alive") (browserGet "close")
+  run "get_browser" n 0 (browserGet "keep-alive") (browserGet "close")
 
   let body := "{\"id\":12345,\"name\":\"lean\",\"tags\":[\"http\",\"bench\"]}"
   let post (extra : String) :=
     s!"POST /api/items HTTP/1.1\r\nHost: example.com\r\nContent-Type: application/json\r\n" ++
     s!"Content-Length: {body.utf8ByteSize}\r\n{extra}\r\n{body}"
-  run "post_fixed" n (post "") (post "Connection: close\r\n")
+  run "post_fixed" n body.utf8ByteSize (post "") (post "Connection: close\r\n")
 
   let chunked (extra : String) :=
     "POST /api/upload HTTP/1.1\r\nHost: example.com\r\nTransfer-Encoding: chunked\r\n" ++
     s!"{extra}\r\n10\r\n0123456789abcdef\r\n6\r\nghijkl\r\n0\r\n\r\n"
-  run "post_chunked" n (chunked "") (chunked "Connection: close\r\n")
+  run "post_chunked" n 22 (chunked "") (chunked "Connection: close\r\n")

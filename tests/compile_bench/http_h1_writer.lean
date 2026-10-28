@@ -73,8 +73,12 @@ def run (name : String) (n count chunkSize : Nat) (knownSize : Bool) : IO Unit :
   let c ← pump (respond count chunk knownSize) { machine := machine.feed input |>.noMoreInput }
   let t2 ← IO.monoNanosNow
 
-  unless c.responses == n ∧ c.machine.halted ∧ c.outBytes > n * count * chunkSize do
-    throw <| .userError s!"{name}: expected {n} complete responses, got {c.responses}"
+  -- A chunk frame adds at least a hex size and two line breaks; a fixed body adds only the head.
+  let framed :=
+    if knownSize then n * count * chunkSize < c.outBytes ∧ c.outBytes ≤ n * (count * chunkSize + 256)
+    else c.outBytes ≥ n * count * (chunkSize + 6)
+  unless c.responses == n ∧ c.machine.halted ∧ framed do
+    throw <| .userError s!"{name}: expected {n} framed responses, got {c.responses} in {c.outBytes} bytes"
   IO.println s!"measurement: {name} {(t2 - t1).toFloat / 1000000000.0} s"
 
 def main (args : List String) : IO Unit := do

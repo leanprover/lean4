@@ -31,15 +31,15 @@ def targets : Array String := #[
 def keys : Array String := #["page", "q", "name", "utm_campaign", "missing"]
 
 @[noinline]
-def benchAbsolute (iters : Nat) : IO Nat := do
+def benchAbsolute (uris : Array String) (iters : Nat) : IO Nat := do
   let mut ok := 0
   for _ in *...iters do
-    for uri in absoluteUris do
+    for uri in uris do
       if (URI.parse? uri).isSome then ok := ok + 1
   return ok
 
 @[noinline]
-def benchQueryGet (parsed : Array RequestTarget) (iters : Nat) : IO Nat := do
+def benchQueryGet (parsed : Array RequestTarget) (keys : Array String) (iters : Nat) : IO Nat := do
   let mut found := 0
   for _ in *...iters do
     for target in parsed do
@@ -58,17 +58,20 @@ def benchPathDecode (parsed : Array RequestTarget) (iters : Nat) : IO Nat := do
         total := total + segment.length
   return total
 
+/-- Parameters to percent-encode, plus a `page` parameter that changes every iteration. -/
+def params : Array (String × String) := #[
+  ("q", "lean theorem prover"),
+  ("lang", "en"),
+  ("redirect", "/dashboard?tab=settings&view=all"),
+  ("name", "résumé.pdf")
+]
+
 @[noinline]
-def benchQueryBuild (iters : Nat) : IO Nat := do
+def benchQueryBuild (params : Array (String × String)) (iters : Nat) : IO Nat := do
   let mut total := 0
   for i in *...iters do
-    let query := URI.Query.empty
-      |>.insert "q" s!"lean theorem prover {i}"
-      |>.insert "lang" "en"
-      |>.insert "redirect" "/dashboard?tab=settings&view=all"
-      |>.insert "name" "résumé.pdf"
-      |>.insert "page" (toString (i % 100))
-    total := total + (toString query).length
+    let query := params.foldl (fun query (key, value) => query.insert key value) URI.Query.empty
+    total := total + (toString (query.insert "page" (toString (i % 100)))).length
   return total
 
 @[noinline]
@@ -93,8 +96,14 @@ def main (args : List String) : IO Unit := do
   unless parsed.size == targets.size do
     throw <| .userError "failed to parse the request targets"
 
-  run "absolute_parse" (benchAbsolute iters) (· == iters * absoluteUris.size)
-  run "query_get" (benchQueryGet parsed (4 * iters)) (· > 0)
-  run "path_decode" (benchPathDecode parsed (4 * iters)) (· > 0)
-  run "query_build" (benchQueryBuild (4 * iters)) (· > 0)
-  run "target_to_string" (benchToString parsed (4 * iters)) (· > 0)
+  run "absolute_parse" (benchAbsolute absoluteUris iters) (· == iters * absoluteUris.size)
+  -- Decoded lengths of `page=3`, `q=lean+theorem+prover`, `page=2`, `name=résumé.pdf` and
+  -- `utm_campaign=launch`; `missing` is absent everywhere.
+  run "query_get" (benchQueryGet parsed keys (4 * iters)) (· == 4 * iters * (1 + 19 + 1 + 10 + 6))
+  -- Every iteration decodes and renders the same targets, so one untimed iteration gives the total.
+  let decoded ← benchPathDecode parsed 1
+  run "path_decode" (benchPathDecode parsed (4 * iters)) (· == 4 * iters * decoded)
+  let built ← benchQueryBuild params 1
+  run "query_build" (benchQueryBuild params (4 * iters)) (· ≥ 4 * iters * built)
+  let rendered ← benchToString parsed 1
+  run "target_to_string" (benchToString parsed (4 * iters)) (· == 4 * iters * rendered)

@@ -36,23 +36,23 @@ def targets : Array String := #[
 ]
 
 @[noinline]
-def benchNames (iters : Nat) : IO Nat := do
+def benchNames (headers : Array (String × String)) (iters : Nat) : IO Nat := do
   let mut ok := 0
   for _ in *...iters do
-    for (name, _) in browserHeaders do
+    for (name, _) in headers do
       if (Header.Name.ofString? name).isSome then ok := ok + 1
   return ok
 
 @[noinline]
-def benchValues (iters : Nat) : IO Nat := do
+def benchValues (headers : Array (String × String)) (iters : Nat) : IO Nat := do
   let mut ok := 0
   for _ in *...iters do
-    for (_, value) in browserHeaders do
+    for (_, value) in headers do
       if (Header.Value.ofString? value).isSome then ok := ok + 1
   return ok
 
 @[noinline]
-def benchTargets (iters : Nat) : IO Nat := do
+def benchTargets (targets : Array String) (iters : Nat) : IO Nat := do
   let mut ok := 0
   for _ in *...iters do
     for target in targets do
@@ -69,6 +69,6 @@ def run (name : String) (expected : Nat) (act : IO Nat) : IO Unit := do
 
 def main (args : List String) : IO Unit := do
   let iters := args[0]!.toNat!
-  run "name_of_string" (iters * browserHeaders.size) (benchNames iters)
-  run "value_of_string" (iters * browserHeaders.size) (benchValues iters)
-  run "request_target_parse" (iters * targets.size) (benchTargets iters)
+  run "name_of_string" (iters * browserHeaders.size) (benchNames browserHeaders iters)
+  run "value_of_string" (iters * browserHeaders.size) (benchValues browserHeaders iters)
+  run "request_target_parse" (iters * targets.size) (benchTargets targets iters)

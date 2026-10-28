@@ -117,6 +117,10 @@ def main (args : List String) : IO Unit := do
   ]
 
   run "build" (benchBuild (typed browserHeaders) (10 * iters)) (· == 10 * iters * browserHeaders.size)
-  run "lookup" (benchLookup headers (10 * iters)) (· > 0)
-  run "normalize" (benchNormalize headers iters) (· > 0)
-  run "framing" (benchFraming heads iters) (· > 0)
+  -- Hits per pass: `connection`, `host` (browser); `content-length`, `connection` (response);
+  -- `content-length`, `host` (post); `transfer-encoding`, `connection`, `host` (chunked).
+  run "lookup" (benchLookup headers (10 * iters)) (· == 10 * iters * 9)
+  -- Sizes after normalizing: 11 (browser), 5 (response), 4 (post), 3 (chunked).
+  run "normalize" (benchNormalize headers iters) (· == iters * 23)
+  -- Sizes `0 + 1`, `1024 + 1`, none, `0 + 1`; all keep alive except the `Connection: close` one.
+  run "framing" (benchFraming heads iters) (· == iters * (1 + 1025 + 1 + 3))

@@ -38,9 +38,23 @@ def client (addr : Net.SocketAddress) (requests : Nat) : Async Nat := do
   socket.shutdown
   return responses
 
+/--
+Runs `act`, exiting the process if it takes longer than `seconds`: a client waiting for a response
+the server never completes would otherwise block until the test runner's timeout.
+-/
+def withDeadline (seconds : Nat) (act : IO α) : IO α := do
+  let watchdog ← IO.asTask (prio := .dedicated) do
+    for _ in *...(seconds * 10) do
+      IO.sleep 100
+      if ← IO.checkCanceled then
+        return
+    IO.eprintln s!"timed out after {seconds} s"
+    IO.Process.exit 1
+  try act finally IO.cancel watchdog
+
 def run (clients total : Nat) : IO Unit := do
   let perClient := total / clients
-  let (count, time) ← Async.block do
+  let (count, time) ← withDeadline 120 <| Async.block do
     let addr : Net.SocketAddress := .v4 ⟨.ofParts 127 0 0 1, 0⟩
     let server ← Server.serve addr okHandler { maxRequests := perClient + 1 }
     let some addr := server.localAddr

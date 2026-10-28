@@ -189,11 +189,13 @@ open Meta in
 /--
 The goals to show after the tactic of `ti`, which has no nested tactics. If the tactic created no
 new goals, these are `ti.goalsAfter`, preceded by the goals of `ti.goalsBefore` that the tactic
-closed with a term containing an error of its own, that is, a synthetic `sorry` labelled with a
-source range inside the tactic. While the term given to `exact` or `apply` is being typed, it
-usually elaborates to such a `sorry`, and showing no goals then would hide the goal being worked on
-(issue #7136). Errors elsewhere, such as in the statement of the goal, of a hypothesis or of a lemma
-used, are not counted. `text` is the document's file map. Must run in `ti.mctxAfter`.
+closed with a term containing an error of its own, that is, a synthetic `sorry` that term
+elaboration put in place of a term with an error, labelled with a source range inside the tactic.
+While the term given to `exact` or `apply` is being typed, it usually elaborates to such a `sorry`,
+and showing no goals then would hide the goal being worked on (issue #7136). Errors elsewhere, such
+as in the statement of the goal, of a hypothesis or of a lemma used, are not counted, nor are goals
+that error recovery admitted with a unique `sorry`, such as the goal of a `·` block left unsolved.
+`text` is the document's file map. Must run in `ti.mctxAfter`.
 -/
 def goalsAfterForDisplay (text : FileMap) (ti : Elab.TacticInfo) : MetaM (List MVarId) := do
   if ti.goalsAfter.any (!ti.goalsBefore.contains ·) then
@@ -204,7 +206,9 @@ def goalsAfterForDisplay (text : FileMap) (ti : Elab.TacticInfo) : MetaM (List M
   let isOwnError (e : Expr) : Bool := Id.run do
     let some { module? := some m } := isLabeledSorry? e
       | return false
-    m.module == mainModule && e.isSyntheticSorry &&
+    -- term elaboration creates non-unique labelled `sorry`s, whose label is wrapped in
+    -- `Function.const` (see `mkLabeledSorry`)
+    m.module == mainModule && e.isSyntheticSorry && (e.getArg! 2).isAppOfArity ``Function.const 4 &&
       pos ≤ text.ofPosition m.range.pos && text.ofPosition m.range.endPos ≤ tailPos
   let closedWithError ← ti.goalsBefore.filterM fun g => do
     if ti.goalsAfter.contains g then

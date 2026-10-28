@@ -68,6 +68,20 @@ example : True ∧ True := by
   constructor <;> exact foo_
                           --^ $/lean/plainGoal
 
+-- Tactics that expand into other tactics, such as `intro` with a pattern
+example : Nat → True := by
+  intro (foo_ x)
+              --^ $/lean/plainGoal
+
+example : ∃ n : Nat, True := by
+  exists foo_
+           --^ $/lean/plainGoal
+
+-- A tactic cut short by a parse error, whose pattern error recovery closes with `sorry`
+example : Nat → True := by
+  intro (
+       --^ $/lean/plainGoal
+
 -- A term spanning several lines, with the cursor on an earlier line
 example : True ∧ True := by
   exact ⟨foo_,
@@ -102,6 +116,25 @@ example : True := by
   -- next tactic here
 --^ $/lean/plainGoal
   exact h
+
+-- Expansions without an error are unchanged.
+example : ∃ n : Nat, True := by
+  exists 0
+        --^ $/lean/plainGoal
+
+-- Nor is one that error recovery admitted after an empty block, or a block from a macro.
+example : True ∧ True := by
+  constructor
+  next =>
+       --^ $/lean/plainGoal
+
+macro "bullet_simp" : tactic => `(tactic| · simp)
+
+example (p : Prop) : p ∧ True := by
+  constructor
+  bullet_simp
+           --^ $/lean/plainGoal
+  trivial
 
 -- Tactics that leave new goals show those.
 example : True ∧ True := by
@@ -156,7 +189,17 @@ example : True := by
   exact bad.1
            --^ $/lean/plainGoal
 
--- A tactic that admits the goal itself when it fails, like one that throws, keeps it visible.
+-- A goal that error recovery gave up on, here by `grind` itself, is not brought back.
 example (x : Nat) : x = 3 := by
   grind
      --^ $/lean/plainGoal
+
+/-! Not covered yet: the goal view still shows no goals. -/
+
+example (a b : Nat) : a = b := by
+  calc a = b := foo_
+                  --^ $/lean/plainGoal
+
+example : True := by
+  simpa using foo_
+                --^ $/lean/plainGoal

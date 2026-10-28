@@ -416,7 +416,7 @@ structure GoalsAtResult where
   hangingBy  : Bool := false
   /--
   Whether the tactic info has no nested tactic infos, such as those of a nested tactic block, apart
-  from proofs nested in terms.
+  from proofs nested in terms and from the tactic's own macro expansion.
   -/
   isLeaf     : Bool := true
   -- for overlapping goals, only keep those of the highest reported priority
@@ -470,7 +470,7 @@ partial def InfoTree.goalsAt? (text : FileMap) (t : InfoTree) (hoverPos : String
           useAfter := hoverPos > pos && !cs.any (hasNestedTactic pos tailPos)
           indented := col > hoverCol
           hangingBy := isByBlock i.stx
-          isLeaf := !cs.any hasTacticInfo
+          isLeaf := !cs.any (hasTacticInfo pos tailPos)
           -- use goals just before cursor as fall-back only
           -- thus for `(by foo)`, placing the cursor after `foo` shows its state as long
           -- as there is no state on `)`
@@ -493,11 +493,17 @@ where
     | InfoTree.node (Info.ofMacroExpansionInfo _) cs =>
       cs.any (hasNestedTactic pos tailPos)
     | _ => false
-  hasTacticInfo : InfoTree → Bool
-    -- ignore term-nested proofs such as in `exact ⟨by simp, foo⟩`
-    | .node i@(.ofTacticInfo _) _ => !isByBlock i.stx
-    | .node _ cs => cs.any hasTacticInfo
-    | .context _ t => hasTacticInfo t
+  hasTacticInfo (pos tailPos) : InfoTree → Bool
+    | .node i@(.ofTacticInfo _) cs =>
+      -- ignore term-nested proofs such as in `exact ⟨by simp, foo⟩`
+      if isByBlock i.stx then false
+      -- look through the tactic's own macro expansion, whose nodes have no position of their own
+      -- or the tactic's range, such as that of `intro ⟨x, y⟩` into `intro h; match h with ...`
+      else if i.pos?.isNone || (i.pos?, i.tailPos?) == (some pos, some tailPos) then
+        cs.any (hasTacticInfo pos tailPos)
+      else true
+    | .node _ cs => cs.any (hasTacticInfo pos tailPos)
+    | .context _ t => hasTacticInfo pos tailPos t
     | .hole _ => false
   isByBlock (stx : Syntax) : Bool :=
     -- there are multiple `by` kinds with the same structure

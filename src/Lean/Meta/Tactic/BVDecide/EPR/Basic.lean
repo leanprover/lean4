@@ -7,6 +7,7 @@ module
 prelude
 public import Lean.Meta.Sym.SymM
 public import Lean.Meta.Tactic.BVDecide.Normalize.Hyp
+import Std.Tactic.BVDecide.EPR.BitVec
 
 /-!
 This module defines many-sorted EPR problems and their BitVec encoding.
@@ -199,5 +200,24 @@ public structure EprBvProblem where
   -/
   quantifiedFacts : Array QuantifiedFact := {}
   deriving Inhabited
+
+public def toBvPredArity : Std.HashMap Name Nat := {
+  (``Std.Tactic.BVDecide.EPR.BitVec.toBvPred₁, 1),
+  (``Std.Tactic.BVDecide.EPR.BitVec.toBvPred₂, 2),
+  (``Std.Tactic.BVDecide.EPR.BitVec.toBvPred₃, 3),
+  (``Std.Tactic.BVDecide.EPR.BitVec.toBvPred₄, 4),
+  (``Std.Tactic.BVDecide.EPR.BitVec.toBvPred₅, 5),
+  (``Std.Tactic.BVDecide.EPR.BitVec.toBvPred₆, 6),
+  (``Std.Tactic.BVDecide.EPR.BitVec.toBvPred₇, 7),
+  (``Std.Tactic.BVDecide.EPR.BitVec.toBvPred₈, 8),
+  (``Std.Tactic.BVDecide.EPR.BitVec.toBvPred₉, 9),
+  (``Std.Tactic.BVDecide.EPR.BitVec.toBvPred₁₀, 10),
+  (``Std.Tactic.BVDecide.EPR.BitVec.toBvPred₁₁, 11),
+  (``Std.Tactic.BVDecide.EPR.BitVec.toBvPred₁₂, 12),
+  (``Std.Tactic.BVDecide.EPR.BitVec.toBvPred₁₃, 13),
+  (``Std.Tactic.BVDecide.EPR.BitVec.toBvPred₁₄, 14),
+  (``Std.Tactic.BVDecide.EPR.BitVec.toBvPred₁₅, 15),
+  (``Std.Tactic.BVDecide.EPR.BitVec.toBvPred₁₆, 16)
+}
 
 end Lean.Meta.Tactic.BVDecide.EPR

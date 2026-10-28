@@ -100,32 +100,13 @@ def substModel (e : Expr) : EprM TransformStep := do
   else
     e.withApp fun pred args => do
       let .const constName _ := pred | return .continue
-      let some predArity := arityMap[constName]? | return .continue
+      let some predArity := EPR.toBvPredArity[constName]? | return .continue
       let encodingArgsIdx := predArity * 4 + 1
       if args.size < encodingArgsIdx then return .continue
       let encodedPred ← Sym.share <| mkAppN pred args[0...encodingArgsIdx]
       let remainingArgs := args[encodingArgsIdx...*]
       let completedFun ← completedPred encodedPred
       return .done <| completedFun.beta remainingArgs
-where
-  arityMap : Std.HashMap Name Nat := {
-    (``Std.Tactic.BVDecide.EPR.BitVec.toBvPred₁, 1),
-    (``Std.Tactic.BVDecide.EPR.BitVec.toBvPred₂, 2),
-    (``Std.Tactic.BVDecide.EPR.BitVec.toBvPred₃, 3),
-    (``Std.Tactic.BVDecide.EPR.BitVec.toBvPred₄, 4),
-    (``Std.Tactic.BVDecide.EPR.BitVec.toBvPred₅, 5),
-    (``Std.Tactic.BVDecide.EPR.BitVec.toBvPred₆, 6),
-    (``Std.Tactic.BVDecide.EPR.BitVec.toBvPred₇, 7),
-    (``Std.Tactic.BVDecide.EPR.BitVec.toBvPred₈, 8),
-    (``Std.Tactic.BVDecide.EPR.BitVec.toBvPred₉, 9),
-    (``Std.Tactic.BVDecide.EPR.BitVec.toBvPred₁₀, 10),
-    (``Std.Tactic.BVDecide.EPR.BitVec.toBvPred₁₁, 11),
-    (``Std.Tactic.BVDecide.EPR.BitVec.toBvPred₁₂, 12),
-    (``Std.Tactic.BVDecide.EPR.BitVec.toBvPred₁₃, 13),
-    (``Std.Tactic.BVDecide.EPR.BitVec.toBvPred₁₄, 14),
-    (``Std.Tactic.BVDecide.EPR.BitVec.toBvPred₁₅, 15),
-    (``Std.Tactic.BVDecide.EPR.BitVec.toBvPred₁₆, 16)
-  }
 
 
 def mkCounterInst (hyp : EPR.QuantifiedFact) (quantCex : CegarM.CounterExample)

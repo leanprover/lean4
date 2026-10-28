@@ -29,5 +29,5 @@ theorem foobar' {α : Type} (a b : α) (p : α → Prop) (h1 : ∀ (x y : α), p
 
 
 
-theorem card {α : Type} (a b c d : α) (p : α → Prop) (h1 : ∀ (x : α), x = a ∨ x = b) (h2 : p a ≠ p c) (h5 : p b ≠ p c) : False := by
+theorem card {α : Type} (a b c d : α) (p : α → Prop) (h1 : ∀ (x : α), x = a ∨ x = b) (h5 : p b ≠ p c) : False := by
   bv_decide +epr +uf

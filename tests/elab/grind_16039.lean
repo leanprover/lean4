@@ -10,14 +10,14 @@ prefix:arg "#" => Q_ax
 
 /--
 info: Try these:
-  [apply] grind only [#c0c6]
+  [apply] grind only [#f02a]
   [apply] grind only
-  [apply] grind => instantiate only [#c0c6]
+  [apply] grind => instantiate only [#f02a]
 -/
 #guard_msgs in
 example (P : Nat → Prop) (h : ∀ n, P n) : P 0 := by grind?
 
-example (P : Nat → Prop) (h : ∀ n, P n) : P 0 := by grind only [#c0c6]
+example (P : Nat → Prop) (h : ∀ n, P n) : P 0 := by grind only [#f02a]
 
 -- `#` followed by a non-hex identifier still parses as a term parameter.
 /-- error: Unknown identifier `nope` -/

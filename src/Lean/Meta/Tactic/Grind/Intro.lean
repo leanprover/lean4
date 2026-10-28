@@ -14,6 +14,8 @@ import Lean.Meta.Tactic.Grind.Injection
 import Lean.Meta.Tactic.Grind.Core
 import Lean.Meta.Tactic.Grind.Simp
 import Lean.Meta.Tactic.Grind.MarkAccessible
+import Lean.Meta.Tactic.Grind.Anchor
+import Init.Data.List.MapIdx
 import Init.Grind.Util
 public section
 namespace Lean.Meta.Grind
@@ -163,6 +165,7 @@ private def intro1 : GoalM FVarId := do
   let name ← mkCleanName name type
   let (fvarId, mvarId) ← (← get).mvarId.intro name
   modify fun s => { s with mvarId }
+  registerFVarAnchor fvarId
   return fvarId
 
 private partial def introNext (goal : Goal) (generation : Nat) : GrindM IntroResult := do
@@ -178,6 +181,7 @@ private partial def introNext (goal : Goal) (generation : Nat) : GrindM IntroRes
         let tag ← mvarId.getTag
         let qBase := target.bindingBody!
         let fvarId ← mkFreshFVarId
+        registerFVarAnchor fvarId
         let fvar := mkFVar fvarId
         let r ← preprocessHypothesis p
         let lctx := (← getLCtx).mkLocalDecl fvarId (← mkCleanName target.bindingName! r.expr) r.expr target.bindingInfo!
@@ -306,8 +310,10 @@ private def applyCases? (goal : Goal) (fvarId : FVarId) (generation : Nat) (kp :
     pure goal
   if goal.inconsistent then return some (← kp goal)
   let mvarIds ← cases goal.mvarId (mkFVar fvarId)
+  let anchor ← getAnchor (mkFVar fvarId)
   -- This is a case split, so the E-matching round counter is reset as in `selectNextSplit?`.
-  let subgoals := mvarIds.map fun mvarId => { goal with mvarId, ematch.num := 0 }
+  let subgoals := mvarIds.mapIdx fun i mvarId =>
+    { goal with mvarId, ematch.num := 0 }.setIntroBase (mixHash anchor (hash i))
   let mut seqNew : Array (TSyntax `grind) := #[]
   let mut stuckNew : Array Goal := #[]
   for subgoal in subgoals do
@@ -360,7 +366,8 @@ def intros (generation : Nat) : Action :=
 private def assertAt (proof : Expr) (prop : Expr) (generation : Nat) : Action := fun goal kna kp => do
   if (← isEagerCasesCandidate prop) then
     let mvarId ← goal.mvarId.assert (← mkFreshUserName `h) prop proof
-    intros generation { goal with mvarId } kna kp
+    let goal := { goal with mvarId }.setIntroBase (← goal.withContext <| getAnchor prop)
+    intros generation goal kna kp
   else goal.withContext do
     let goal ← GoalM.run' goal do
       let r ← preprocess prop

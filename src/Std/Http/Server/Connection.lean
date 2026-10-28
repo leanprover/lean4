@@ -305,7 +305,7 @@ private def processH1Events
 
 /--
 Dispatches a pending request head to the handler if one is waiting.
-Spawns the handler as an async task and routes its result back through `state.response`.
+Starts the handler and routes its result through `state.response`.
 Returns the updated state with `pendingHead` cleared and `handlerDispatched` set.
 -/
 private def dispatchPendingRequest
@@ -316,9 +316,9 @@ private def dispatchPendingRequest
   if let some line := state.pendingHead then
 
     let task ← Handler.onRequest handler { line, body := state.requestStream, extensions } connectionContext
-      |>.asTask
+      |>.toBaseIO
 
-    BaseIO.chainTask task (discard ∘ state.response.send)
+    BaseIO.chainTask (sync := true) task (discard ∘ state.response.send)
     return { state with pendingHead := none, handlerDispatched := true }
   else
     return state

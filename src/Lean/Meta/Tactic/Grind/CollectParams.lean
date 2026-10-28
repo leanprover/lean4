@@ -171,6 +171,7 @@ public def mkGrindOnlyTactics (cfg : TSyntax `Lean.Parser.Tactic.optConfig) (seq
     (extraParams : Array TParam := #[]) (ematchLimit : Nat) : CoreM (Array (TSyntax `tactic)) := do
   let { hasSorry, params, anchors, maxRounds } ← collectParamsCore seq
   if hasSorry then return #[]
+  let params := if grind.debug.dropParams.get (← getOptions) then #[] else params
   let cfg ← if maxRounds > ematchLimit then
     let item ← `(Parser.Tactic.configItem| ($(mkIdent `ematch):ident := $(quote maxRounds)))
     pure ⟨cfg.raw.setArg 0 (cfg.raw[0].setArgs (cfg.raw[0].getArgs.push item))⟩

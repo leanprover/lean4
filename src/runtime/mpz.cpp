@@ -841,10 +841,15 @@ mpz mpz::pow(unsigned int p) const {
 
 mpz mpz::powm(mpz const & exp, mpz const & m) const {
     lean_assert(!m.is_zero());
+    if (exp.is_neg()) throw exception("negative exponents in mpz::powm require GMP");
+    if (m.is_neg()) {
+        mpz modulus(m);
+        modulus.abs();
+        return powm(exp, modulus);
+    }
     if (m == 1) return mpz(0);
     mpz result(1);
-    mpz base(*this);
-    base %= m;
+    mpz base = emod(*this, m);
     mpz e(exp);
     while (!e.is_zero()) {
         if (e.mod8() & 1) {
@@ -884,6 +889,7 @@ static unsigned log2_uint(unsigned v) {
 }
 
 size_t mpz::log2() const {
+    if (is_neg()) return 0;
     return (m_size - 1)*sizeof(mpn_digit)*8 + log2_uint(m_digits[m_size - 1]);
 }
 
@@ -891,7 +897,13 @@ size_t mpz::size_in_bytes() const {
     return m_size * sizeof(mpn_digit);
 }
 
+static void check_bitwise_args(mpz const & a, mpz const & b) {
+    if (a.is_neg() || b.is_neg())
+        throw exception("bitwise operations on negative mpz values require GMP");
+}
+
 mpz & mpz::operator&=(mpz const & o) {
+    check_bitwise_args(*this, o);
     digit_buffer r;
     size_t sz = std::max(m_size, o.m_size);
     r.ensure_capacity(sz);
@@ -905,6 +917,7 @@ mpz & mpz::operator&=(mpz const & o) {
 }
 
 mpz & mpz::operator|=(mpz const & o) {
+    check_bitwise_args(*this, o);
     digit_buffer r;
     size_t sz = std::max(m_size, o.m_size);
     r.ensure_capacity(sz);
@@ -918,6 +931,7 @@ mpz & mpz::operator|=(mpz const & o) {
 }
 
 mpz & mpz::operator^=(mpz const & o) {
+    check_bitwise_args(*this, o);
     digit_buffer r;
     size_t sz = std::max(m_size, o.m_size);
     r.ensure_capacity(sz);

@@ -26,6 +26,8 @@ structure Conn where
   bodyDone : Bool := false
   /-- Body bytes of all answered requests. -/
   received : Nat := 0
+  /-- Header fields parsed across all requests. -/
+  headers : Nat := 0
   responses : Nat := 0
   outBytes : Nat := 0
 
@@ -52,8 +54,8 @@ partial def pump (c : Conn) : IO Conn := do
     match event with
     | .failed err => throw <| .userError s!"machine failed: {err}"
     | .needMoreData _ => pure ()
-    | .endHeaders _ =>
-      c := { c with pending := true }
+    | .endHeaders head =>
+      c := { c with pending := true, headers := c.headers + head.headers.size }
       progress := true
     | _ => progress := true
   while c.machine.canPullBodyNow do
@@ -99,10 +101,11 @@ def feedAll (c : Conn) (parts : Array ByteArray) : IO Conn :=
 
 /--
 Feeds `n - 1` copies of `keep` and then `close` as the reads produced by `split`, and checks that
-each request carried `bodySize` body bytes. With `perRequest`, every request is split on its own, as
-a lock-step client's would be; otherwise the whole pipeline is split, so reads straddle requests.
+each request carried `bodySize` body bytes and `keepHeaders` or `closeHeaders` header fields. With
+`perRequest`, every request is split on its own, as a lock-step client's would be; otherwise the
+whole pipeline is split, so reads straddle requests.
 -/
-def run (name : String) (n : Nat) (bodySize : Nat) (perRequest : Bool)
+def run (name : String) (n bodySize keepHeaders closeHeaders : Nat) (perRequest : Bool)
     (split : ByteArray → Array ByteArray) (keep close : String) : IO Unit := do
   let keep := keep.toUTF8
   let close := close.toUTF8
@@ -125,13 +128,17 @@ def run (name : String) (n : Nat) (bodySize : Nat) (perRequest : Bool)
   c ← pump { c with machine := c.machine.noMoreInput }
   let t2 ← IO.monoNanosNow
 
-  -- Every response carries at least its status line and the decimal body size it answers with.
-  let minResponse := "HTTP/1.1 200 OK\r\n".utf8ByteSize + (toString bodySize).length
-  unless c.responses == n ∧ c.machine.halted ∧ c.received == n * bodySize ∧
+  -- Every response carries at least its status line, the headers set here and the decimal body
+  -- size it answers with.
+  let length := (toString bodySize).length
+  let minResponse := length +
+    s!"HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: {length}\r\n\r\n".utf8ByteSize
+  let headers := (n - 1) * keepHeaders + closeHeaders
+  unless c.responses == n ∧ c.machine.halted ∧ c.received == n * bodySize ∧ c.headers == headers ∧
       c.outBytes ≥ n * minResponse do
     throw <| .userError <|
-      s!"{name}: expected {n} responses with {n * bodySize} body bytes, got {c.responses} " ++
-      s!"with {c.received}, in {c.outBytes} output bytes"
+      s!"{name}: expected {n} responses with {n * bodySize} body bytes and {headers} headers, got " ++
+      s!"{c.responses} with {c.received} and {c.headers}, in {c.outBytes} output bytes"
   IO.println s!"measurement: {name} {(t2 - t1).toFloat / 1000000000.0} s"
 
 def browserGet (connection : String) : String :=
@@ -150,13 +157,13 @@ def browserGet (connection : String) : String :=
 def main (args : List String) : IO Unit := do
   let n := args[0]!.toNat!
 
-  run "get_browser_bytes" (n / 20 + 1) 0 false (segments · 1) (browserGet "keep-alive") (browserGet "close")
-  run "get_browser_segments" n 0 false (segments · 61) (browserGet "keep-alive") (browserGet "close")
+  run "get_browser_bytes" (n / 20 + 1) 0 10 10 false (segments · 1) (browserGet "keep-alive") (browserGet "close")
+  run "get_browser_segments" n 0 10 10 false (segments · 61) (browserGet "keep-alive") (browserGet "close")
 
   let body := String.ofList (List.replicate 16384 'x')
   let fixed (extra : String) :=
     s!"POST /upload HTTP/1.1\r\nHost: example.com\r\nContent-Length: {body.utf8ByteSize}\r\n{extra}\r\n{body}"
-  run "upload_fixed" n 16384 true (segments · 1000) (fixed "") (fixed "Connection: close\r\n")
+  run "upload_fixed" n 16384 2 3 true (segments · 1000) (fixed "") (fixed "Connection: close\r\n")
 
   let chunk := s!"400\r\n{String.ofList (List.replicate 1024 'y')}\r\n"
   let chunkedBody := String.join (List.replicate 16 chunk) ++ "0\r\n\r\n"
@@ -165,4 +172,4 @@ def main (args : List String) : IO Unit := do
   -- One cut two bytes into each of the 16 data chunks' size lines and into the last chunk's.
   let inSizeLines (request : ByteArray) :=
     cutAt request ((Array.range 17).map (headEnd request + · * chunk.utf8ByteSize + 2))
-  run "upload_chunked" n 16384 true inSizeLines (chunked "") (chunked "Connection: close\r\n")
+  run "upload_chunked" n 16384 2 3 true inSizeLines (chunked "") (chunked "Connection: close\r\n")

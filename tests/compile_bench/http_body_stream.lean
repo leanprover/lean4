@@ -59,7 +59,11 @@ def benchIncomplete (n : Nat) (piece : Chunk) : IO Nat := Async.block do
       stream.close
     repeat
       match ← stream.recv with
-      | some chunk => total := total + chunk.data.size
+      | some chunk =>
+        -- The pieces must arrive merged, not one by one.
+        unless chunk.data.size == 512 * piece.data.size do
+          throw <| .userError s!"expected one merged chunk, got {chunk.data.size} bytes"
+        total := total + chunk.data.size
       | none => break
     await producer
   return total

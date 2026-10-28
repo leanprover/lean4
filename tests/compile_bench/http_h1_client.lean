@@ -73,8 +73,9 @@ def run (name : String) (n : Nat) (response : String) (headers bodySize : Nat) :
     total := total + result
   let t2 ← IO.monoNanosNow
 
-  -- Every request carries at least its request line.
-  let minRequest := "GET /api/v1/items?page=2&per_page=50 HTTP/1.1\r\n".utf8ByteSize
+  -- Every request carries at least its request line and the three headers set in `request`.
+  let minRequest := ("GET /api/v1/items?page=2&per_page=50 HTTP/1.1\r\n" ++
+    "Host: api.example.com\r\nUser-Agent: lean-bench/1.0\r\nAccept: application/json\r\n\r\n").utf8ByteSize
   unless total.bodyBytes == n * bodySize ∧ total.headers == n * headers ∧
       total.outBytes ≥ n * minRequest do
     throw <| .userError <|

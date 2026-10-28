@@ -24,6 +24,8 @@ structure Conn where
   bodyDone : Bool := false
   /-- Body bytes of all answered requests. -/
   received : Nat := 0
+  /-- Header fields parsed across all requests. -/
+  headers : Nat := 0
   responses : Nat := 0
   outBytes : Nat := 0
 
@@ -50,8 +52,8 @@ partial def pump (c : Conn) : IO Conn := do
     match event with
     | .failed err => throw <| .userError s!"machine failed: {err}"
     | .needMoreData _ => pure ()
-    | .endHeaders _ =>
-      c := { c with pending := true }
+    | .endHeaders head =>
+      c := { c with pending := true, headers := c.headers + head.headers.size }
       progress := true
     | _ => progress := true
   while c.machine.canPullBodyNow do
@@ -67,8 +69,11 @@ partial def pump (c : Conn) : IO Conn := do
     return c
   pump c
 
-/-- Serves `n - 1` copies of `keep` and then `close`, each carrying `bodySize` body bytes. -/
-def run (name : String) (n : Nat) (bodySize : Nat) (keep close : String) : IO Unit := do
+/--
+Serves `n - 1` copies of `keep` and then `close`, each carrying `bodySize` body bytes, with
+`keepHeaders` and `closeHeaders` header fields respectively.
+-/
+def run (name : String) (n bodySize keepHeaders closeHeaders : Nat) (keep close : String) : IO Unit := do
   let keep := keep.toUTF8
   let mut input := ByteArray.empty
   for _ in *...(n - 1) do
@@ -80,13 +85,17 @@ def run (name : String) (n : Nat) (bodySize : Nat) (keep close : String) : IO Un
   let c ← pump { machine := machine.feed input |>.noMoreInput }
   let t2 ← IO.monoNanosNow
 
-  -- Every response carries at least its status line and its body (`"ok"` for requests without one).
-  let minResponse := "HTTP/1.1 200 OK\r\n".utf8ByteSize + (if bodySize == 0 then 2 else bodySize)
-  unless c.responses == n ∧ c.machine.halted ∧ c.received == n * bodySize ∧
+  -- Every response carries at least its status line, the headers set here and its body (`"ok"` for
+  -- requests without one).
+  let length := if bodySize == 0 then 2 else bodySize
+  let minResponse := length +
+    s!"HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: {length}\r\n\r\n".utf8ByteSize
+  let headers := (n - 1) * keepHeaders + closeHeaders
+  unless c.responses == n ∧ c.machine.halted ∧ c.received == n * bodySize ∧ c.headers == headers ∧
       c.outBytes ≥ n * minResponse do
     throw <| .userError <|
-      s!"{name}: expected {n} responses with {n * bodySize} body bytes, got {c.responses} " ++
-      s!"with {c.received}, in {c.outBytes} output bytes"
+      s!"{name}: expected {n} responses with {n * bodySize} body bytes and {headers} headers, got " ++
+      s!"{c.responses} with {c.received} and {c.headers}, in {c.outBytes} output bytes"
   IO.println s!"measurement: {name} {(t2 - t1).toFloat / 1000000000.0} s"
 
 def browserGet (connection : String) : String :=
@@ -105,19 +114,19 @@ def browserGet (connection : String) : String :=
 def main (args : List String) : IO Unit := do
   let n := args[0]!.toNat!
 
-  run "get_small" n 0
+  run "get_small" n 0 1 2
     "GET /bench HTTP/1.1\r\nHost: example.com\r\n\r\n"
     "GET /bench HTTP/1.1\r\nHost: example.com\r\nConnection: close\r\n\r\n"
 
-  run "get_browser" n 0 (browserGet "keep-alive") (browserGet "close")
+  run "get_browser" n 0 10 10 (browserGet "keep-alive") (browserGet "close")
 
   let body := "{\"id\":12345,\"name\":\"lean\",\"tags\":[\"http\",\"bench\"]}"
   let post (extra : String) :=
     s!"POST /api/items HTTP/1.1\r\nHost: example.com\r\nContent-Type: application/json\r\n" ++
     s!"Content-Length: {body.utf8ByteSize}\r\n{extra}\r\n{body}"
-  run "post_fixed" n body.utf8ByteSize (post "") (post "Connection: close\r\n")
+  run "post_fixed" n body.utf8ByteSize 3 4 (post "") (post "Connection: close\r\n")
 
   let chunked (extra : String) :=
     "POST /api/upload HTTP/1.1\r\nHost: example.com\r\nTransfer-Encoding: chunked\r\n" ++
     s!"{extra}\r\n10\r\n0123456789abcdef\r\n6\r\nghijkl\r\n0\r\n\r\n"
-  run "post_chunked" n 22 (chunked "") (chunked "Connection: close\r\n")
+  run "post_chunked" n 22 2 3 (chunked "") (chunked "Connection: close\r\n")

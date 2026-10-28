@@ -199,18 +199,20 @@ private def mkGrindParen (s : List TGrind) : CoreM TGrind := do
   `(grind| ($s:grindSeq))
 
 /--
-If tracing is enabled and continuation produced `.closed [t₁, ..., tₙ]`,
+If tracing is enabled and continuation produced `.closed [t₁, ..., tₙ]` with `n > 0`,
 returns the singleton sequence `[t]` where `t` is
 ```
 · t₁
   ...
   tₙ
 ```
+An empty sequence is kept empty: the goal was closed without any tactic, so the user never sees it.
 -/
 def group : Action := fun goal _ kp => do
   let r ← kp goal
   if (← getConfig).trace then
     match r with
+    | .closed [] => return r
     | .closed seq => return .closed [← mkGrindNext seq]
     | _ => return r
   else

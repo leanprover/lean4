@@ -247,7 +247,8 @@ where
       elabEMatchTheorem declName kind minIndexable
     | .infer =>
       let goal ← getMainGoal
-      let thms := goal.ematch.thmMap.find (.decl declName)
+      -- Registered theorems are reused only if they match the requested `!` modifier.
+      let thms := goal.ematch.thmMap.find (.decl declName) |>.filter (·.minIndexable == minIndexable)
       if thms.isEmpty then
         elabEMatchTheorem declName (.default false) minIndexable
       else

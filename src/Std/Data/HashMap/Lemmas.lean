@@ -3632,6 +3632,24 @@ theorem List.mem_groupByKey [EquivBEq α] [LawfulHashable α] {xs : List β} :
   | nil => simp
   | cons x xs ih => rw [List.groupByKey_cons, Std.HashMap.mem_alter]; split <;> simp_all
 
+@[simp, grind =]
+theorem List.contains_groupByKey [EquivBEq α] [LawfulHashable α] {xs : List β} :
+    (xs.groupByKey key).contains k = xs.any (key · == k) := by
+  rw [Bool.eq_iff_iff, Std.HashMap.contains_iff_mem, List.mem_groupByKey]
+
+@[simp, grind =]
+theorem List.isEmpty_groupByKey [EquivBEq α] [LawfulHashable α] {xs : List β} :
+    (xs.groupByKey key).isEmpty = xs.isEmpty := by
+  cases xs with
+  | nil => simp
+  | cons x xs => exact Std.HashMap.isEmpty_eq_false_iff_exists_mem.mpr ⟨key x, by simp⟩
+
+@[simp, grind =]
+theorem List.getElem_groupByKey [EquivBEq α] [LawfulHashable α] {xs : List β}
+    {h : k ∈ xs.groupByKey key} :
+    (xs.groupByKey key)[k] = xs.filter (key · == k) := by
+  rw [Std.HashMap.getElem_eq_getD (fallback := []), List.getD_groupByKey]
+
 @[grind =]
 theorem List.getElem?_groupByKey [EquivBEq α] [LawfulHashable α] {xs : List β} :
     (xs.groupByKey key)[k]? =
@@ -3674,6 +3692,24 @@ theorem Array.mem_groupByKey [EquivBEq α] [LawfulHashable α] {xs : Array β} :
     intro m
     rw [List.foldl_cons, ih, Std.HashMap.mem_alter]
     split <;> simp_all [or_comm]
+
+@[simp, grind =]
+theorem Array.contains_groupByKey [EquivBEq α] [LawfulHashable α] {xs : Array β} :
+    (xs.groupByKey key).contains k = xs.any (key · == k) := by
+  rw [Bool.eq_iff_iff, Std.HashMap.contains_iff_mem, Array.mem_groupByKey]
+
+@[simp, grind =]
+theorem Array.isEmpty_groupByKey [EquivBEq α] [LawfulHashable α] {xs : Array β} :
+    (xs.groupByKey key).isEmpty = xs.isEmpty := by
+  rcases xs with ⟨_ | ⟨x, l⟩⟩
+  · simp [Array.groupByKey_eq_foldl]
+  · exact Std.HashMap.isEmpty_eq_false_iff_exists_mem.mpr ⟨key x, by simp⟩
+
+@[simp, grind =]
+theorem Array.getElem_groupByKey [EquivBEq α] [LawfulHashable α] {xs : Array β}
+    {h : k ∈ xs.groupByKey key} :
+    (xs.groupByKey key)[k] = xs.filter (key · == k) := by
+  rw [Std.HashMap.getElem_eq_getD (fallback := #[]), Array.getD_groupByKey]
 
 @[grind =]
 theorem Array.getElem?_groupByKey [EquivBEq α] [LawfulHashable α] {xs : Array β} :

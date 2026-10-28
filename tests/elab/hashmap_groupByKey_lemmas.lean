@@ -4,8 +4,8 @@ import Std.Data.HashMap.Lemmas
 
 /-!
 Tests for the lemmas about `List.groupByKey` and `Array.groupByKey`: each group is the input
-filtered to the elements with that key, in order, and a key is present exactly when some
-element has it.
+filtered to the elements with that key, in order, a key is present exactly when some
+element has it, and the result is empty exactly when the input is.
 -/
 
 open Std
@@ -36,10 +36,38 @@ example (xs : Array β) :
 example (xs : Array β) : k ∈ xs.groupByKey key ↔ xs.any (key · == k) :=
   Array.mem_groupByKey
 
+example (xs : List β) : (xs.groupByKey key).contains k = xs.any (key · == k) :=
+  List.contains_groupByKey
+
+example (xs : Array β) : (xs.groupByKey key).contains k = xs.any (key · == k) :=
+  Array.contains_groupByKey
+
+example (xs : List β) (h : k ∈ xs.groupByKey key) :
+    (xs.groupByKey key)[k] = xs.filter (key · == k) :=
+  List.getElem_groupByKey
+
+example (xs : Array β) (h : k ∈ xs.groupByKey key) :
+    (xs.groupByKey key)[k] = xs.filter (key · == k) :=
+  Array.getElem_groupByKey
+
+example (xs : List β) : (xs.groupByKey key).isEmpty = xs.isEmpty :=
+  List.isEmpty_groupByKey
+
+example (xs : Array β) : (xs.groupByKey key).isEmpty = xs.isEmpty :=
+  Array.isEmpty_groupByKey
+
 example (xs : List β) : (xs.groupByKey key).getD k [] = xs.filter (key · == k) := by simp
 example (xs : List β) : k ∈ xs.groupByKey key ↔ xs.any (key · == k) := by simp
 example (xs : Array β) : (xs.groupByKey key).getD k #[] = xs.filter (key · == k) := by simp
 example (xs : Array β) : k ∈ xs.groupByKey key ↔ xs.any (key · == k) := by simp
+example (xs : List β) : (xs.groupByKey key).contains k = xs.any (key · == k) := by simp
+example (xs : Array β) : (xs.groupByKey key).contains k = xs.any (key · == k) := by simp
+example (xs : List β) (h : k ∈ xs.groupByKey key) :
+    (xs.groupByKey key)[k] = xs.filter (key · == k) := by simp
+example (xs : Array β) (h : k ∈ xs.groupByKey key) :
+    (xs.groupByKey key)[k] = xs.filter (key · == k) := by simp
+example (xs : List β) : (xs.groupByKey key).isEmpty = xs.isEmpty := by simp
+example (xs : Array β) : (xs.groupByKey key).isEmpty = xs.isEmpty := by simp
 
 end
 
@@ -55,6 +83,16 @@ example : (#[0, 1, 2, 3, 4, 5, 6].groupByKey (· % 2)).getD 1 #[] = #[1, 3, 5] :
   rw [Array.getD_groupByKey]; rfl
 example : 2 ∉ #[0, 1, 2, 3, 4, 5, 6].groupByKey (· % 2) := by
   simp
+example : ([0, 1, 2, 3, 4, 5, 6].groupByKey (· % 2)).contains 1 = true := by simp
+example : (#[0, 1, 2, 3, 4, 5, 6].groupByKey (· % 2)).contains 2 = false := by simp
+example (h : 0 ∈ [0, 1, 2, 3, 4, 5, 6].groupByKey (· % 2)) :
+    ([0, 1, 2, 3, 4, 5, 6].groupByKey (· % 2))[0] = [0, 2, 4, 6] := by simp
+example (h : 1 ∈ #[0, 1, 2, 3, 4, 5, 6].groupByKey (· % 2)) :
+    (#[0, 1, 2, 3, 4, 5, 6].groupByKey (· % 2))[1] = #[1, 3, 5] := by simp
+example : ([0, 1, 2, 3, 4, 5, 6].groupByKey (· % 2)).isEmpty = false := by simp
+example : (#[0, 1, 2, 3, 4, 5, 6].groupByKey (· % 2)).isEmpty = false := by simp
+example : (([] : List Nat).groupByKey (· % 2)).isEmpty = true := by simp
+example : ((#[] : Array Nat).groupByKey (· % 2)).isEmpty = true := by simp
 
 namespace EquivalentKeys
 

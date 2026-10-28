@@ -534,7 +534,7 @@ inductive SemanticTokenModifier where
   can single them out when they want to.
   -/
   | markupSyntax
-  deriving ToJson, FromJson, BEq, Hashable
+  deriving ToJson, FromJson, BEq, Hashable, Repr
 
 -- must be in the same order as the constructors
 def SemanticTokenModifier.names : Array String :=
@@ -621,6 +621,11 @@ instance (m : SemanticTokenModifier) (s : SemanticTokenModifiers) : Decidable (m
 /-- The modifiers in `s`, in the same order as in `SemanticTokenModifier.all`. -/
 def toArray (s : SemanticTokenModifiers) : Array SemanticTokenModifier :=
   SemanticTokenModifier.all.filter (· ∈ s)
+
+/-- The set in set notation, such as `{}` or `{markupBold, markupItalic}`. -/
+instance : Repr SemanticTokenModifiers where
+  reprPrec s _ :=
+    .nestD <| .bracket "{" (.joinSep (s.toArray.toList.map repr) ("," ++ .line)) "}"
 
 end SemanticTokenModifiers
 

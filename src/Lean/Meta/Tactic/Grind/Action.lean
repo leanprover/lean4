@@ -256,21 +256,6 @@ def closeWith (mk : GrindM TGrind) : GrindM ActionResult := do
   else
     return .closed []
 
-/--
-A terminal action which closes the goal or not.
-This kind of action may make progress, but we only include `mkTac` into the resulting tactic sequence
-if it closed the goal.
--/
-def terminalAction (check : GoalM Bool) (mkTac : GrindM TGrind) : Action := fun goal kna kp => do
-  let (progress, goal') ← GoalM.run goal check
-  if progress then
-    if goal'.inconsistent then
-      closeWith mkTac
-    else
-      kp goal'
-  else
-    kna goal'
-
 def saveStateIfTracing : GrindM (Option SavedState) := do
   if (← getConfig).trace then
     return some (← saveState)
@@ -292,6 +277,45 @@ def checkSeqAt (s? : Option SavedState) (goal : Goal) (seq : List TGrind) : Grin
         return subgoals.isEmpty
       catch _  =>
         return false
+
+/--
+Helper for actions whose progress may or may not be used by the rest of the proof, e.g.,
+solvers that update their internal state. Given the result `r` of the continuation at `goal`,
+includes `mkTac` in the resulting tactic sequence only if the sequence cannot close `goal`,
+starting at saved state `s?`, without it.
+
+This is not just an optimization: if we include an unnecessary step, we may fail to replay the
+generated script when `cases` steps are pruned using non-chronological backtracking (NCB).
+For example, when executing `finish?`, we may have performed a `cases #<anchor>` step that
+enabled `ring` to propagate a new fact. If this fact is not used in the final proof, and the
+corresponding `cases #<anchor>` step is pruned by NCB, the `ring` step will fail during replay.
+-/
+def recordIfNeeded (s? : Option SavedState) (goal : Goal) (r : ActionResult)
+    (mkTac : GrindM TGrind) : GrindM ActionResult := do
+  match r with
+  | .closed seq =>
+    if (← checkSeqAt s? goal seq) then
+      return r
+    else
+      return .closed ((← mkTac) :: seq)
+  | r => return r
+
+/--
+A terminal action which closes the goal or not. When it makes progress without closing the goal,
+`mkTac` is included in the resulting tactic sequence only if the rest of the proof needs it.
+-/
+def terminalAction (check : GoalM Bool) (mkTac : GrindM TGrind) : Action := fun goal kna kp => do
+  let saved? ← saveStateIfTracing
+  let (progress, goal') ← GoalM.run goal check
+  if progress then
+    if goal'.inconsistent then
+      closeWith mkTac
+    else if (← getConfig).trace then
+      recordIfNeeded saved? goal (← kp goal') mkTac
+    else
+      kp goal'
+  else
+    kna goal'
 
 /--
 Helper action that checks whether the resulting tactic script produced by its continuation
@@ -320,28 +344,13 @@ def solverAction (check : GoalM CheckResult) (mkTac : GrindM TGrind) : Action :=
   let (result, goal') ← GoalM.run goal check
   match result with
   | .none       => kna goal'
-  | .progress   => kp goal'
-  | .propagated =>
+  | .progress | .propagated =>
     let goal' ← GoalM.run' goal' processToDo
     if goal'.inconsistent then
       closeWith mkTac
     else if (← getConfig).trace then
-      match (← kp goal') with
-      | .closed seq =>
-        /-
-        **Note**: Check whether the progress made by this solver was actually used to close the goal.
-        This is not just an optimization, if we include an unnecessary step, we may fail to replay
-        the generated script when `cases` steps are pruned using non-chronological backtracking (NCB).
-        For example, when executing `finish?`, we may have performed a `cases #<anchor>` step
-        that enabled `ring` to propagate a new fact. If this fact is not used in the final proof,
-        and the corresponding `cases #<anchor>` step is pruned by NCB, the `ring` step will fail during replay.
-        -/
-        if (← checkSeqAt saved? goal seq) then
-          return .closed seq
-        else
-          let tac ← mkTac
-          return .closed (tac :: seq)
-      | r => return r
+      -- The progress may be used by later steps even if no fact was propagated.
+      recordIfNeeded saved? goal (← kp goal') mkTac
     else
       kp goal'
   | .closed     => closeWith mkTac
@@ -351,14 +360,7 @@ def mbtc : Action := fun goal kna kp => do
   let (progress, goal') ← GoalM.run goal Solvers.mbtc
   if progress then
     if (← getConfig).trace then
-      match (← kp goal') with
-      | .closed seq =>
-        if (← checkSeqAt saved? goal seq) then
-          return .closed seq
-        else
-          let tac ← `(grind| mbtc)
-          return .closed (tac :: seq)
-      | r => return r
+      recordIfNeeded saved? goal (← kp goal') `(grind| mbtc)
     else
       kp goal'
   else

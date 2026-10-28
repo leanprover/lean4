@@ -9,6 +9,7 @@ public import Lean.Meta.DiscrTree.Types
 public import Lean.CoreM
 import Init.Data.Range.Polymorphic.Iterators
 import Init.Omega
+import Std.Data.HashMap.Basic
 public section
 namespace Lean.Meta.DiscrTree
 
@@ -25,6 +26,15 @@ instance : Inhabited (DiscrTree α) where
   default := {}
 
 def empty : DiscrTree α := { root := {} }
+
+/--
+The node `t` stands for as a `chain` or `node`: merges a `lazy` node and unfolds the first key of a
+`suffix`.
+-/
+@[inline] def Trie.force : Trie α → Trie α
+  | .lazy t => t.get
+  | .suffix ks i v => if h : i < ks.size then .chain ks[i] (.suffix ks (i + 1) v) else .node #[v] #[]
+  | t => t
 
 instance : ToExpr Key where
   toTypeExpr := mkConst ``Key
@@ -65,6 +75,8 @@ partial def Trie.format [ToFormat α] : Trie α → Format
   | .node vs cs => Format.group $ Format.paren $
     "node" ++ (if vs.isEmpty then Format.nil else " " ++ Std.format vs)
     ++ Format.join (cs.toList.map fun ⟨k, c⟩ => Format.line ++ Format.paren (Std.format k ++ " => " ++ format c))
+  | .lazy t => format t.get
+  | t@(.suffix ..) => format t.force
 
 instance [ToFormat α] : ToFormat (Trie α) := ⟨Trie.format⟩
 
@@ -125,13 +137,7 @@ where
     return r
 
 private def createNodes (keys : Array Key) (v : α) (i : Nat) : Trie α :=
-  if h : i < keys.size then
-    let k := keys[i]
-    let c := createNodes keys v (i+1)
-    .chain k c
-  else
-    .node #[v] #[]
-termination_by keys.size - i
+  .suffix keys i v
 
 /--
 If `vs` contains an element `v'` such that `v == v'`, then replace `v'` with `v`.
@@ -152,7 +158,8 @@ where
       vs.push v
   termination_by vs.size - i
 
-private def insertAux [BEq α] (keys : Array Key) (v : α) : Nat → Trie α → Trie α
+private def insertAux [BEq α] (keys : Array Key) (v : α) (i : Nat) (t : Trie α) : Trie α :=
+  match i, t.force with
   | i, .chain k c =>
     if h : i < keys.size then
       if keys[i] == k then
@@ -173,7 +180,8 @@ private def insertAux [BEq α] (keys : Array Key) (v : α) : Nat → Trie α →
       .node vs c
     else
       .node (insertVal vs v) cs
-termination_by i => keys.size - i
+  | _, .lazy _ | _, .suffix .. => unreachable!
+termination_by keys.size - i
 
 def insertKeyValue [BEq α] (d : DiscrTree α) (keys : Array Key) (v : α) : DiscrTree α :=
   if keys.isEmpty then panic! "invalid key sequence"
@@ -185,11 +193,79 @@ def insertKeyValue [BEq α] (d : DiscrTree α) (keys : Array Key) (v : α) : Dis
           | some c => insertAux keys v 1 c
     }
 
+/--
+Groups the given tries by key, keeping each group in the given order. Groups appear in the order in
+which their keys are last encountered.
+-/
+private def groupByKey (ts : Array (Array (Key × Trie α))) : Array (Key × Array (Trie α)) := Id.run do
+  let mut idx : Std.HashMap Key Nat := {}
+  let mut groups : Array (Key × Array (Trie α) × Nat) := #[]
+  let mut pos := 0
+  for cs in ts do
+    for (k, c) in cs do
+      match idx[k]? with
+      | some i => groups := groups.modify i fun (k, g, _) => (k, g.push c, pos)
+      | none =>
+        idx := idx.insert k groups.size
+        groups := groups.push (k, #[c], pos)
+      pos := pos + 1
+  return groups.qsort (·.2.2 < ·.2.2) |>.map fun (k, g, _) => (k, g)
+
+mutual
+/--
+Merges tries of several modules, given in module order, as if their entries had been inserted in
+this order. Only the root node is merged eagerly; see `mergeGroup`.
+-/
+private partial def mergeTries [BEq α] (ts : Array (Trie α)) : Trie α :=
+  let nodes := ts.map fun t => match t.force with
+    | .chain k c => (#[], #[(k, c)])
+    | .node vs cs => (vs, cs)
+    | .lazy _ | .suffix .. => unreachable!
+  -- `insertVal` replaces equal values in place, so the values of a single trie need no re-insertion
+  let vs := nodes.foldl (init := #[]) fun vs (tvs, _) =>
+    if vs.isEmpty then tvs else tvs.foldl insertVal vs
+  let cs := groupByKey (nodes.map (·.2)) |>.qsort (·.1 < ·.1) |>.map fun (k, g) => (k, mergeGroup g)
+  if h : vs.isEmpty ∧ cs.size = 1 then .chain cs[0].1 cs[0].2 else .node vs cs
+
+/-- Merges the tries of a group on first access, sharing a trie that is alone in its group. -/
+private partial def mergeGroup [BEq α] (g : Array (Trie α)) : Trie α :=
+  if h : g.size = 1 then g[0] else .lazy (Thunk.mk fun _ => mergeTries g)
+end
+
+/--
+Inserts the given entries in order and returns the root of the resulting tree in the form expected
+by `ofModuleRoots`, e.g. for storing the tree of a single module in its olean. Root keys are listed
+in the order of their last insertion.
+-/
+def moduleRootsOf [BEq α] (entries : Array (Array Key × α)) : Array (Key × Trie α) := Id.run do
+  let mut d : DiscrTree α := {}
+  let mut last : Std.HashMap Key Nat := {}
+  let mut i := 0
+  for (ks, v) in entries do
+    if h : 0 < ks.size then
+      last := last.insert ks[0] i
+    d := d.insertKeyValue ks v
+    i := i + 1
+  let keys := last.toArray.qsort (·.2 < ·.2)
+  return keys.map fun (k, _) => (k, d.root.find? k |>.getD default)
+
+/--
+Merges per-module trees, given as `moduleRootsOf` in module order, into a tree equal to the one
+obtained by inserting the entries of all modules in this order, down to the iteration order of its
+root. Only the root is built eagerly: subtrees occurring in a single module are shared with the given
+tries, and nodes occurring in several modules are merged on first access.
+-/
+def ofModuleRoots [BEq α] (mods : Array (Array (Key × Trie α))) : DiscrTree α :=
+  -- `PersistentHashMap.alter` moves updated keys to the end of their collision node, so inserting
+  -- root keys in order of last insertion reproduces the iteration order of `root`
+  { root := groupByKey mods |>.foldl (init := {}) fun root (k, g) => root.insert k (mergeGroup g) }
+
 @[deprecated insertKeyValue (since := "2026-01-02")]
 def insertCore [BEq α] (d : DiscrTree α) (keys : Array Key) (v : α) : DiscrTree α :=
   insertKeyValue d keys v
 
-private def getEntriesWithKeysAux (keys : Array Key) : Nat → Trie α → Array α
+private def getEntriesWithKeysAux (keys : Array Key) (i : Nat) (t : Trie α) : Array α :=
+  match i, t.force with
   | i, .chain k c =>
     if h : i < keys.size then
       if keys[i] == k then
@@ -206,7 +282,8 @@ private def getEntriesWithKeysAux (keys : Array Key) : Nat → Trie α → Array
       | some (_, t) => getEntriesWithKeysAux keys (i + 1) t
     else
       vs
-termination_by i => keys.size - i
+  | _, .lazy _ | _, .suffix .. => unreachable!
+termination_by keys.size - i
 
 /--
 Returns all entries that have exactly the provided key sequence.

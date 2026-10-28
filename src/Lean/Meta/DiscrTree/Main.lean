@@ -435,6 +435,25 @@ private def getStarResult (d : DiscrTree α) : Array α :=
 private abbrev findKey (cs : Array (Key × Trie α)) (k : Key) : Option (Key × Trie α) :=
   cs.binSearch (k, default) (fun a b => a.1 < b.1)
 
+/-- `getMatchLoop` on `.suffix ks i v`, without allocating its unfolding. -/
+private partial def getMatchSuffix (todo : Array Expr) (ks : Array Key) (i : Nat) (v : α)
+    (result : Array α) : MetaM (Array α) := do
+  if h : i < ks.size then
+    if todo.isEmpty then
+      return result
+    let e     := todo.back!
+    let todo  := todo.pop
+    let (k, args) ← getMatchKeyArgs e (root := false)
+    let key := ks[i]
+    if key == .star then
+      getMatchSuffix todo ks (i + 1) v result
+    else if key == k then
+      getMatchSuffix (todo ++ args) ks (i + 1) v result
+    else
+      return result
+  else
+    return if todo.isEmpty then result.push v else result
+
 private partial def getMatchLoop (todo : Array Expr) (c : Trie α) (result : Array α) : MetaM (Array α) := do
   match c with
   | .chain key child =>
@@ -478,6 +497,8 @@ private partial def getMatchLoop (todo : Array Expr) (c : Trie α) (result : Arr
       match k with
       | .star  => return result
       | _      => visitNonStar k args result
+  | .lazy t => getMatchLoop todo t.get result
+  | .suffix ks i v => getMatchSuffix todo ks i v result
 
 private def getMatchRoot (d : DiscrTree α) (k : Key) (args : Array Expr) (result : Array α) : MetaM (Array α) :=
   match d.root.find? k with
@@ -565,6 +586,8 @@ where
       for (_, trie) in cs do
         result := go trie result
       return result
+    | .lazy t => go t.get result
+    | .suffix _ _ v => result.push v
 
 /--
 A liberal version of `getMatch` which only takes the root symbol of `e` into account.
@@ -592,7 +615,9 @@ partial def getUnify (d : DiscrTree α) (e : Expr) : MetaM (Array α) :=
       | some c => process 0 args c result
 where
   process (skip : Nat) (todo : Array Expr) (c : Trie α) (result : Array α) : MetaM (Array α) := do
-    match skip, c with
+    if let .suffix ks i v := c then
+      return (← processSuffix skip todo ks i v result)
+    match skip, c.force with
     | skip+1, .chain key child =>
       process (skip + key.arity) todo child result
     | skip+1, .node _  cs =>
@@ -600,6 +625,7 @@ where
         return result
       else
         cs.foldlM (init := result) fun result ⟨k, c⟩ => process (skip + k.arity) todo c result
+    | _+1, .lazy _ | _+1, .suffix .. => unreachable!
     | 0, _ =>
       if todo.isEmpty then
         return result ++ c.nodeValues
@@ -623,5 +649,25 @@ where
         match k with
         | .star  => cs.foldlM (init := result) fun result ⟨k, c⟩ => process k.arity todo c result
         | _      => visitNonStar k args (← visitStar result)
+  /-- `process` on `.suffix ks i v`, without allocating its unfolding. -/
+  processSuffix (skip : Nat) (todo : Array Expr) (ks : Array Key) (i : Nat) (v : α)
+      (result : Array α) : MetaM (Array α) := do
+    if h : i < ks.size then
+      let key := ks[i]
+      match skip with
+      | skip+1 => processSuffix (skip + key.arity) todo ks (i + 1) v result
+      | 0 =>
+        if todo.isEmpty then
+          return result
+        let e     := todo.back!
+        let todo  := todo.pop
+        let (k, args) ← getUnifyKeyArgs e (root := false)
+        match k with
+        | .star  => processSuffix key.arity todo ks (i + 1) v result
+        | _      =>
+          let result ← if key == .star then processSuffix 0 todo ks (i + 1) v result else pure result
+          if key == k then processSuffix 0 (todo ++ args) ks (i + 1) v result else return result
+    else
+      return if skip == 0 && todo.isEmpty then result.push v else result
 
 end Lean.Meta.DiscrTree

@@ -45,7 +45,7 @@ cp /clang64/lib/{crtbegin,crtend,crt2,dllcrt2}.o stage1/lib/
 # tells the compiler how to dynamically link against `bcrypt.dll` (which is located in the System32 folder).
 # This distinction is relevant specifically for `libicu.a`/`icu.dll` because there we want updates to the time zone database to
 # be delivered to users via Windows Update without having to recompile Lean or Lean programs.
-cp /clang64/lib/lib{m,bcrypt,mingw32,moldname,mingwex,msvcrt,pthread,advapi32,shell32,user32,kernel32,ucrtbase,psapi,iphlpapi,userenv,ws2_32,dbghelp,ole32,icu,crypt32,gdi32}.* /clang64/lib/libgmp.a /clang64/lib/libuv.a /clang64/lib/libssl.a /clang64/lib/libcrypto.a llvm/lib/lib{c++,c++abi,unwind}.a stage1/lib/
+cp /clang64/lib/lib{m,bcrypt,mingw32,moldname,mingwex,msvcrt,pthread,advapi32,shell32,user32,kernel32,ucrtbase,psapi,iphlpapi,userenv,ws2_32,dbghelp,ole32,icu,crypt32,gdi32,synchronization}.* /clang64/lib/libgmp.a /clang64/lib/libuv.a /clang64/lib/libssl.a /clang64/lib/libcrypto.a llvm/lib/lib{c++,c++abi,unwind}.a stage1/lib/
 echo -n " -DLEAN_STANDALONE=ON"
 echo -n " -DCMAKE_C_COMPILER=$PWD/stage1/bin/clang.exe -DCMAKE_C_COMPILER_WORKS=1 -DCMAKE_CXX_COMPILER=$PWD/llvm/bin/clang++.exe -DCMAKE_CXX_COMPILER_WORKS=1 -DLEAN_CXX_STDLIB='-lc++ -lc++abi'"
 echo -n " -DSTAGE0_CMAKE_C_COMPILER=clang -DSTAGE0_CMAKE_CXX_COMPILER=clang++"

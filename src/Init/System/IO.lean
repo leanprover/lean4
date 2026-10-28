@@ -954,6 +954,18 @@ Returns the file name of the currently-running executable.
 -/
 @[extern "lean_io_app_path"] opaque appPath : IO FilePath
 /--
+Returns the name that the program was invoked with, which is `argv[0]` in C. The arguments passed to
+`main` do not include it.
+
+The invoking process chooses this name, so it need not be the path of the executable: it may be a
+symbolic link that was not resolved or an arbitrary string. `IO.appPath` returns the path of the
+executable instead. When `lean --run file.lean` runs `main`, the program name is `file.lean`.
+
+The name may be empty. Throws an error if it is unknown, as when Lean code is called from a C
+`main` function that does not pass its `argv` to `lean_setup_args`.
+-/
+@[extern "lean_io_get_program_name"] opaque getProgramName : IO String
+/--
 Returns the current working directory of the executing process.
 -/
 @[extern "lean_io_current_dir"] opaque currentDir : IO FilePath

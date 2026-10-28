@@ -198,6 +198,8 @@ def mkGoalCore (mvarId : MVarId) : GrindM Goal := do
     initENodeCore ordEqExpr (interpreted := false) (ctor := true)
 
 structure Result where
+  /-- See `Context.identity`. -/
+  identity    : Name
   failure?    : Option Goal
   issues      : List MessageData
   config      : Grind.Config
@@ -274,6 +276,15 @@ def Result.toMessageData (result : Result) : MetaM MessageData := do
   else
     msgs := msgs ++ [m!"use `+verbose` to obtain diagnostic information"]
   return MessageData.joinSep msgs m!"\n"
+
+/--
+Error message for a failed run of `tacticName`. Without `+verbose`, the goal and diagnostics are omitted.
+-/
+def Result.toErrorMessageData (result : Result) (tacticName : Name := result.identity) : MetaM MessageData := do
+  if result.config.verbose then
+    return m!"`{tacticName}` failed\n{← result.toMessageData}"
+  else
+    return m!"`{tacticName}` has failed, use `+verbose` to obtain diagnostic information"
 
 /--
 Walks the proof term collecting `Origin`s of E-matching instances that appear,
@@ -398,7 +409,7 @@ def mkResult (params : Params) (failure? : Option Goal) : GrindM Result := do
       if let some msg ← mkGlobalDiag counters simp splitDiags ematchDiags then
         logInfo msg
   let rings := (← Sym.Arith.getArithState).rings
-  return { failure?, issues, config := params.config, counters, simp, splitDiags, ematchDiags, rings }
+  return { identity := params.identity, failure?, issues, config := params.config, counters, simp, splitDiags, ematchDiags, rings }
 
 def GrindM.runAtGoal (mvarId : MVarId) (params : Params) (k : Goal → GrindM α) (evalTactic? : Option EvalTactic := none) : MetaM α := do
   let go : GrindM α := withGTransparency do

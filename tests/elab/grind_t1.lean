@@ -269,13 +269,7 @@ example (p q : Prop) : (p ↔ q) → p → False := by
   grind +verbose -- should not split on (p ↔ q)
 
 /--
-error: `grind` failed
-case grind
-p q : Prop
-h : p = q
-h_1 : p
-⊢ False
-use `+verbose` to obtain diagnostic information
+error: `grind` has failed, use `+verbose` to obtain diagnostic information
 -/
 #guard_msgs (error) in
 example (p q : Prop) : (p ↔ q) → p → False := by

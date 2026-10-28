@@ -3,11 +3,7 @@ def f (α : Sort u) (_ : α) : Nat := 0
 theorem feq : f (List α) x = 0 := rfl
 
 /--
-error: `grind` failed
-case grind
-h : ¬f Prop True = 0
-⊢ False
-use `+verbose` to obtain diagnostic information
+error: `grind` has failed, use `+verbose` to obtain diagnostic information
 -/
 #guard_msgs in
 example: f Prop True = 0 := by

@@ -20,18 +20,7 @@ example (p : Prop) (a b c : Int) : (p ↔ b ≤ a) → (p ↔ c ≤ b) → ¬ p 
   grind -linarith -lia (splits := 0)
 
 /--
-error: `grind` failed
-case grind
-α : Type u_1
-inst : LE α
-inst_1 : Std.IsPreorder α
-a b c : α
-h : a ≤ b
-h_1 : b ≤ c
-h_2 : c ≤ a
-h_3 : ¬a = c
-⊢ False
-use `+verbose` to obtain diagnostic information
+error: `grind` has failed, use `+verbose` to obtain diagnostic information
 -/
 #guard_msgs in
 example [LE α] [Std.IsPreorder α]

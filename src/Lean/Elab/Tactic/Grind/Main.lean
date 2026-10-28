@@ -268,7 +268,7 @@ def grind
     Grind.withProtectedMCtx config mvarId fun mvarId' => do
       let finalize (result : Grind.Result) : TacticM Unit := do
         if result.hasFailed then
-          throwError "`grind` failed\n{← result.toMessageData}"
+          throwError (← result.toErrorMessageData)
         replaceMainGoal []
       if let some seq := seq? then
         let (result, _) ← Grind.GrindTacticM.runAtGoal mvarId' params do
@@ -379,7 +379,7 @@ private def elabGrindConfig' (config : TSyntax ``Lean.Parser.Tactic.optConfig) (
         let goal? := if let goal :: _ := (← get).goals then some goal else none
         Grind.liftGrindM <| Grind.mkResult params goal?
       if result.hasFailed then
-        throwError "`sym` failed\n{← result.toMessageData}"
+        throwError (← result.toErrorMessageData)
 
 /-- Appends to `ps` the `inj` parameters used by the proof assigned to `mvarId`. -/
 private def addUsedInjParams (params : Grind.Params) (mvarId : MVarId) (ps : Array Grind.TParam) :
@@ -461,7 +461,7 @@ def evalGrindTraceCore (stx : Syntax) (trace := true) (verbose := true) (useSorr
           | .stuck gs =>
             let goal :: _ := gs | throwError "`grind?` failed, but resulting goal is not available"
             let result ← Grind.mkResult params (some goal)
-            throwError "`grind?` failed\n{← result.toMessageData}"
+            throwError (← result.toErrorMessageData `grind?)
         let seq ← if h : seqs.size = 1 then pure seqs[0] else seqs.toList.mapM fun seq => Grind.Action.mkGrindNext seq
         let configStx' := filterSuggestionsAndLocalsFromGrindConfig configStx
         let tacs ← Grind.mkGrindOnlyTactics configStx' seq (← addUsedInjParams params mvarId' termParamStxs) config.ematch

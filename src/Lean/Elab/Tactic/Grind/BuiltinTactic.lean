@@ -94,7 +94,7 @@ open Meta Lean.Meta.Grind
     if let some goal ← liftGrindM <| solve goal then
       let params := (← read).params
       let result ← liftGrindM do mkResult params (some goal)
-      throwError "`finish` failed\n{← result.toMessageData}"
+      throwError (← result.toErrorMessageData `finish)
     else
       replaceMainGoal []
 

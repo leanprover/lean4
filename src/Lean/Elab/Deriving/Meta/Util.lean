@@ -898,18 +898,19 @@ def FieldHelperProvider.cases
           perCtor ival cval fields ctorApp val
 
 private def reduceInstanceProjsOnCtor (e : Expr) : MetaM Expr := do
-  Core.transform e fun e => do
-    let .const projFn _ := e.getAppFn | return .continue
-    let some info ← getProjectionFnInfo? projFn | return .continue
-    unless info.fromClass do return .continue
-    if e.getAppNumArgs ≤ info.numParams then return .continue
+  let env ← getEnv
+  return e.replace fun e => do
+    let .const projFn _ := e.getAppFn | failure
+    let info ← env.getProjectionFnInfo? projFn
+    unless info.fromClass do failure
+    if e.getAppNumArgs ≤ info.numParams then failure
     let numOverargs := e.getAppNumArgs - info.numParams - 1
     let major := e.getArg! info.numParams
-    let .const c _ := major.getAppFn | return .continue
-    unless c == info.ctorName do return .continue
+    let .const c _ := major.getAppFn | failure
+    unless c == info.ctorName do failure
     let argIdx := info.numParams + info.i
-    if major.getAppNumArgs ≤ argIdx then return .continue
-    return .visit <| mkAppN (major.getArg! argIdx) (e.getAppArgsN numOverargs)
+    if major.getAppNumArgs ≤ argIdx then failure
+    return mkAppN (major.getArg! argIdx) (e.getAppArgsN numOverargs)
 
 /--
 Post-process function for `InstanceInfo.usingCtor`: reduces instance projections on constructors

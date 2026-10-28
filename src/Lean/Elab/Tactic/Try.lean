@@ -562,6 +562,8 @@ where
 private def evalSuggestGrindTrace : TryTactic := fun tac => do
   withOriginalHeartbeats do
     let `(tactic| grind? $configStx:optConfig $[only%$only]?  $[ [$params:grindParam,*] ]?) := tac | throwUnsupportedSyntax
+    let mvarId ← getMainGoal
+    let saved ← saveState
     let tacs ← evalGrindTraceCore tac (trace := (← read).config.only) (verbose := false) (useSorry := false)
     let tac ← grindTraceToGrind tac
     trace[try.debug] "`grind` succeeded"
@@ -569,8 +571,9 @@ private def evalSuggestGrindTrace : TryTactic := fun tac => do
     for tac1 in tacs do
       trace[try.debug] ">> {tac1}"
     if (← read).config.only then
+      let tacs ← filterClosingTactics saved mvarId tacs (warn := false)
       -- If config has +suggestions, only return the 'only' version, not the original
-      if configHasSuggestionsOrLocals configStx then
+      if configHasSuggestionsOrLocals configStx && !tacs.isEmpty then
         mkTrySuggestions tacs
       else
         mkTrySuggestions (#[tac] ++ tacs)

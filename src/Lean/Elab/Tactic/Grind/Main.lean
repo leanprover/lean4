@@ -387,6 +387,43 @@ private def addUsedInjParams (params : Grind.Params) (mvarId : MVarId) (ps : Arr
   let injParams ← Grind.getUsedInjParams params (← instantiateMVars (mkMVar mvarId))
   return ps ++ injParams.filter (!ps.contains ·)
 
+/--
+Returns `true` if `tac` closes `mvarId` without errors. Explicit `sorry`s are allowed, since
+`grind?` uses them to mark where the search got stuck. Does not modify the state, including
+trace messages.
+-/
+private def closesGoal (mvarId : MVarId) (tac : TSyntax `tactic) : TacticM Bool := do
+  let traceState ← getTraceState
+  let result ← withoutModifyingState do
+    modifyThe Core.State fun s => { s with messages := {} }
+    try
+      let gs ← Term.withoutErrToSorry <| Tactic.run mvarId (evalTactic tac)
+      return gs.isEmpty && !(← Core.getMessageLog).hasErrors
+        && !(← instantiateMVars (mkMVar mvarId)).hasSyntheticSorry
+    catch _ =>
+      return false
+  setTraceState traceState
+  return result
+
+/--
+Removes the tactics in `tacs` that do not close `mvarId` at the saved state `s`, where `mvarId`
+must not be assigned yet. If `warn` is `true`, reports them in a warning.
+-/
+def filterClosingTactics (s : Tactic.SavedState) (mvarId : MVarId) (tacs : Array (TSyntax `tactic))
+    (warn := true) : TacticM (Array (TSyntax `tactic)) := do
+  let current ← saveState
+  s.restore
+  let mut ok := #[]
+  let mut failed := #[]
+  for tac in tacs do
+    if (← closesGoal mvarId tac) then ok := ok.push tac else failed := failed.push tac
+  current.restore
+  if warn && !failed.isEmpty then
+    let header := if failed.size == 1 then "generated tactic cannot close the goal"
+      else "generated tactics cannot close the goal"
+    logWarning <| failed.foldl (init := m!"{header}") fun msg tac => msg ++ indentD m!"{tac}"
+  return ok
+
 def evalGrindTraceCore (stx : Syntax) (trace := true) (verbose := true) (useSorry := true) : TacticM (Array (TSyntax `tactic)) := withMainContext do
   let `(tactic| grind? $configStx:optConfig $[only%$only]?  $[ [$params?:grindParam,*] ]?) := stx
     | throwUnsupportedSyntax
@@ -399,8 +436,7 @@ def evalGrindTraceCore (stx : Syntax) (trace := true) (verbose := true) (useSorr
   let params ← mkGrindParams config only paramStxs mvarId
   Grind.withProtectedMCtx config mvarId fun mvarId' => do
     let (tacs, _) ← Grind.GrindTacticM.runAtGoal mvarId' params do
-      -- Replays the generated script at the initial goal and warns if it fails.
-      let finish := Grind.Action.checkTactic (warnOnly := true) >> (← Grind.Action.mkFinish)
+      let finish ← Grind.Action.mkFinish
       let goal :: goals ← Grind.getGoals
         | -- Goal was closed during initialization
           let configStx' := filterSuggestionsAndLocalsFromGrindConfig configStx
@@ -429,6 +465,7 @@ def evalGrindTraceCore (stx : Syntax) (trace := true) (verbose := true) (useSorr
         let seq ← if h : seqs.size = 1 then pure seqs[0] else seqs.toList.mapM fun seq => Grind.Action.mkGrindNext seq
         let configStx' := filterSuggestionsAndLocalsFromGrindConfig configStx
         let tacs ← Grind.mkGrindOnlyTactics configStx' seq (← addUsedInjParams params mvarId' termParamStxs) config.ematch
+        let seq := if Grind.grind.debug.dropSteps.get (← getOptions) then seq.dropLast else seq
         let seq := Grind.Action.mkGrindSeq seq
         /-
         **Note**: The script must carry the preserved parameters (e.g., types marked for
@@ -440,11 +477,23 @@ def evalGrindTraceCore (stx : Syntax) (trace := true) (verbose := true) (useSorr
         else
           `(tactic| grind $configStx':optConfig [$termParamStxs,*] => $seq:grindSeq)
         let tacs := tacs.push tac
+        if Grind.grind.debug.badAnchors.get (← getOptions) then
+          let badAnchor ← `(Parser.Tactic.anchor| #$(⟨mkNode `hexnum #[mkAtom "0000"]⟩))
+          return tacs.map fun tac => ⟨Id.run <| tac.raw.replaceM fun stx =>
+            return if stx.isOfKind ``Parser.Tactic.anchor then some badAnchor else none⟩
         return tacs
     return tacs
 
 @[builtin_tactic Lean.Parser.Tactic.grindTrace] def evalGrindTrace : Tactic := fun stx => do
-  let tacs ← evalGrindTraceCore stx
+  let `(tactic| grind? $configStx:optConfig $[only%$only]? $[ [$params?:grindParam,*] ]?) := stx
+    | throwUnsupportedSyntax
+  let mvarId ← getMainGoal
+  let saved ← saveState
+  let tacs ← filterClosingTactics saved mvarId (← evalGrindTraceCore stx)
+  let tacs ← if tacs.isEmpty then
+    pure #[← `(tactic| grind $configStx:optConfig $[only%$only]? $[ [$params?:grindParam,*] ]?)]
+  else
+    pure tacs
   if tacs.size == 1 then
     Tactic.TryThis.addSuggestion stx { suggestion := .tsyntax tacs[0]! }
   else

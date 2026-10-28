@@ -278,18 +278,6 @@ extern "C" LEAN_EXPORT void lean_free_object(lean_object * o) {
     }
 }
 
-static inline lean_object * get_next(lean_object * o) {
-    if (sizeof(void*) == 8) {
-        size_t header = ((size_t*)o)[0];
-        LEAN_BYTE(header, 7) = 0;
-        LEAN_BYTE(header, 6) = 0;
-        return (lean_object*)(header);
-    } else {
-        // 32-bit version
-        return ((lean_object**)o)[0];
-    }
-}
-
 // See the docstring on `lean_object*` for details about pointer packing.
 #if defined(__has_feature)
     #if __has_feature(hwaddress_sanitizer)
@@ -305,45 +293,8 @@ static inline lean_object * get_next(lean_object * o) {
 
 static_assert(sizeof(void*) != 8 || LEAN_PTR_PACKING_SAFE,
     "Cannot compile with HWASAN or ARM MTE enabled; on 64-bit machines, "
-    "the pointer packing in `set_next` truncates the top byte used by these features.\n"
+    "the pointer packing in `lean_del_set_next` truncates the top byte used by these features.\n"
     "See https://github.com/leanprover/lean4/issues/13113.");
-
-static inline void set_next(lean_object * o, lean_object * n) {
-    if (sizeof(void*) == 8) {
-        uint16_t hi;
-        memcpy(&hi, (char*)o + 6, 2);
-        size_t header = ((size_t)hi << 48) | (size_t)n;
-        memcpy(o, &header, 8);
-    } else {
-        // 32-bit version
-        ((lean_object**)o)[0] = n;
-    }
-}
-
-static inline void push_back(lean_object * & todo, lean_object * v) {
-    set_next(v, todo);
-    todo = v;
-}
-
-static inline lean_object * pop_back(lean_object * & todo) {
-    lean_object * r = todo;
-    todo = get_next(todo);
-    return r;
-}
-
-static inline void dec(lean_object * o, lean_object* & todo) {
-    if (lean_is_scalar(o))
-        return;
-    if (LEAN_LIKELY(lean_internal_get_rc(o) > 1)) {
-        lean_internal_sub_rc(o, 1);
-    } else if (lean_internal_get_rc(o) == 1) {
-        push_back(todo, o);
-    } else if (lean_is_never_freed(o)) {
-        return;
-    } else if (std::atomic_fetch_add_explicit(lean_get_rc_mt_addr(o), 1, std::memory_order_acq_rel) == -1) {
-        push_back(todo, o);
-    }
-}
 
 extern "C" LEAN_EXPORT lean_object * lean_alloc_object(size_t sz) {
 #ifdef LEAN_MIMALLOC
@@ -363,70 +314,53 @@ extern "C" LEAN_EXPORT lean_object * lean_alloc_object(size_t sz) {
 static void deactivate_task(lean_task_object * t);
 static void deactivate_promise(lean_promise_object * t);
 
-/* The deletion worklist is passed by value and returned rather than by reference so that it can
-   live in a register across the constructor loop, which is by far the hottest deletion path. */
-static object * lean_del_core_other(object * o, uint8 tag, object * todo) {
-    switch (tag) {
-    case LeanClosure: {
-        object ** it  = lean_closure_arg_cptr(o);
-        object ** end = it + lean_closure_num_fixed(o);
-        for (; it != end; ++it) dec(*it, todo);
-        lean_dealloc(o, lean_closure_byte_size(o));
-        break;
-    }
-    case LeanArray: {
-        object ** it  = lean_array_cptr(o);
-        object ** end = it + lean_array_size(o);
-        for (; it != end; ++it) dec(*it, todo);
-        lean_dealloc(o, lean_array_byte_size(o));
-        break;
-    }
-    case LeanScalarArray:
-        lean_dealloc(o, lean_sarray_byte_size(o));
-        break;
-    case LeanString:
-        lean_dealloc(o, lean_string_byte_size(o));
-        break;
-    case LeanMPZ:
-        to_mpz(o)->m_value.~mpz();
-        lean_free_small_object(o);
-        break;
-    case LeanThunk:
-        if (object * c = lean_to_thunk(o)->m_closure) dec(c, todo);
-        if (object * v = lean_to_thunk(o)->m_value) dec(v, todo);
-        lean_free_small_object(o);
-        break;
-    case LeanRef:
-        if (object * v = lean_to_ref(o)->m_value) dec(v, todo);
-        lean_free_small_object(o);
-        break;
-    case LeanTask:
-        deactivate_task(lean_to_task(o));
-        break;
-    case LeanPromise:
-        deactivate_promise(lean_to_promise(o));
-        break;
-    case LeanExternal:
-        lean_to_external(o)->m_class->m_finalize(lean_to_external(o)->m_data);
-        lean_free_small_object(o);
-        break;
-    default:
-        lean_unreachable();
-    }
-    return todo;
+/* The object operations of the deletion cascade that `lean.h` does not define inline. */
+extern "C" LEAN_EXPORT lean_object * lean_del_free_closure(size_t o) {
+    lean_dealloc((lean_object *)o, lean_closure_byte_size((lean_object *)o));
+    return lean_box(0);
 }
 
-static object * lean_del_core(object * o, object * todo) {
-    uint8 tag = lean_ptr_tag(o);
-    if (LEAN_LIKELY(tag <= LeanMaxCtorTag)) {
-        object ** it  = lean_ctor_obj_cptr(o);
-        object ** end = it + lean_ctor_num_objs(o);
-        for (; it != end; ++it) dec(*it, todo);
-        lean_free_small_object(o);
-        return todo;
-    } else {
-        return lean_del_core_other(o, tag, todo);
-    }
+extern "C" LEAN_EXPORT lean_object * lean_del_free_array(size_t o) {
+    lean_dealloc((lean_object *)o, lean_array_byte_size((lean_object *)o));
+    return lean_box(0);
+}
+
+extern "C" LEAN_EXPORT lean_object * lean_del_free_sarray(size_t o) {
+    lean_dealloc((lean_object *)o, lean_sarray_byte_size((lean_object *)o));
+    return lean_box(0);
+}
+
+extern "C" LEAN_EXPORT lean_object * lean_del_free_string(size_t o) {
+    lean_dealloc((lean_object *)o, lean_string_byte_size((lean_object *)o));
+    return lean_box(0);
+}
+
+extern "C" LEAN_EXPORT lean_object * lean_del_free_mpz(size_t o) {
+    to_mpz((lean_object *)o)->m_value.~mpz();
+    lean_free_small_object((lean_object *)o);
+    return lean_box(0);
+}
+
+extern "C" LEAN_EXPORT lean_object * lean_del_free_external(size_t o) {
+    lean_external_object * e = lean_to_external((lean_object *)o);
+    e->m_class->m_finalize(e->m_data);
+    lean_free_small_object((lean_object *)o);
+    return lean_box(0);
+}
+
+extern "C" LEAN_EXPORT lean_object * lean_del_deactivate_task(size_t o) {
+    deactivate_task(lean_to_task((lean_object *)o));
+    return lean_box(0);
+}
+
+extern "C" LEAN_EXPORT lean_object * lean_del_deactivate_promise(size_t o) {
+    deactivate_promise(lean_to_promise((lean_object *)o));
+    return lean_box(0);
+}
+
+extern "C" LEAN_EXPORT lean_object * lean_del_unreachable(size_t) {
+    lean_internal_panic_unreachable();
+    return lean_box(0);
 }
 
 // sync with tests/elab/rc_model.lean (`incRefHugeN`)
@@ -461,13 +395,7 @@ extern "C" LEAN_EXPORT void lean_dec_ref_cold(lean_object * o) {
         if (std::atomic_fetch_add_explicit(lean_get_rc_mt_addr(o), 1, std::memory_order_acq_rel) != -1)
             return;
     }
-    object * todo = nullptr;
-    while (true) {
-        todo = lean_del_core(o, todo);
-        if (todo == nullptr)
-            return;
-        o = pop_back(todo);
-    }
+    lean_del_cascade((size_t)o);
 }
 
 

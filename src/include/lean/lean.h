@@ -110,6 +110,7 @@ void lean_notify_assert(const char * fileName, int line, const char * condition)
 
 #define LEAN_BYTE(Var, Index) *(((uint8_t*)&Var)+Index)
 
+// sync with src/Init/System/Deletion.lean
 #define LeanMaxCtorTag  243
 #define LeanPromise     244
 #define LeanClosure     245
@@ -660,7 +661,8 @@ static inline _Atomic(int) * lean_get_rc_mt_addr(lean_object* o) {
    the band, and the room between `LEAN_RC_STICKY` and INT_MIN, are what bound how far such adjustments can
    move a frozen count: it takes more of them in flight at once than the band is wide to lift the count back
    out or to wrap it past INT_MIN. `LEAN_RC_INC_MAX` bounds what a single one of them contributes. */
-// sync with tests/elab/rc_model.lean (`LEAN_RC_STICKY`, `LEAN_RC_STICKY_DROP`)
+// sync with tests/elab/rc_model.lean (`LEAN_RC_STICKY`, `LEAN_RC_STICKY_DROP`) and
+// src/Init/System/Deletion.lean (`stickyDrop`)
 #define LEAN_RC_STICKY      (INT_MIN + 0x10000000)
 #define LEAN_RC_STICKY_DROP (INT_MIN + 0x20000000)
 
@@ -1667,6 +1669,76 @@ static inline lean_object * lean_set_external_data(lean_object * o, void * data)
         return o_new;
     }
 }
+
+/* Object operations of the deletion cascade
+
+   `lean_dec_ref_cold` deletes through `lean_del_cascade`, the cascade of `Init/System/Deletion.lean`
+   compiled over these operations on objects and slots as addresses. They are internal to the
+   runtime. The cascade links queued objects through their headers: on 64-bit platforms the link
+   replaces the count and size in the low 48 bits, and the top 16 keep `m_other` and the kind. */
+
+static inline void lean_del_copy(void * dst, void const * src, size_t n) {
+#if defined(__GNUC__) || defined(__clang__)
+    __builtin_memcpy(dst, src, n);
+#else
+    for (size_t i = 0; i < n; i++) ((unsigned char *)dst)[i] = ((unsigned char const *)src)[i];
+#endif
+}
+
+static inline uint32_t lean_del_get_rc(size_t o) { return (uint32_t)lean_internal_get_rc((lean_object *)o); }
+static inline lean_object * lean_del_dec_rc(size_t o) { lean_internal_sub_rc((lean_object *)o, 1); return lean_box(0); }
+static inline uint32_t lean_del_release_mt(size_t o) {
+#ifdef __cplusplus
+    return (uint32_t)std::atomic_fetch_add_explicit(lean_get_rc_mt_addr((lean_object *)o), 1, std::memory_order_acq_rel);
+#else
+    return (uint32_t)atomic_fetch_add_explicit(lean_get_rc_mt_addr((lean_object *)o), 1, memory_order_acq_rel);
+#endif
+}
+static inline lean_object * lean_del_set_next(size_t o, size_t next) {
+    if (sizeof(void *) == 8) {
+        uint16_t hi;
+        lean_del_copy(&hi, (char *)o + 6, 2);
+        uint64_t header = ((uint64_t)hi << 48) | next;
+        lean_del_copy((void *)o, &header, 8);
+    } else {
+        lean_del_copy((void *)o, &next, sizeof(size_t));
+    }
+    return lean_box(0);
+}
+static inline size_t lean_del_get_next(size_t o) {
+    if (sizeof(void *) == 8) {
+        uint64_t header;
+        lean_del_copy(&header, (void *)o, 8);
+        return (size_t)(header & 0xFFFFFFFFFFFFull);
+    } else {
+        size_t header;
+        lean_del_copy(&header, (void *)o, sizeof(size_t));
+        return header;
+    }
+}
+static inline uint8_t lean_del_tag(size_t o) { return lean_ptr_tag((lean_object *)o); }
+static inline size_t lean_del_ctor_objs(size_t o) { return (size_t)lean_ctor_obj_cptr((lean_object *)o); }
+static inline size_t lean_del_ctor_num_objs(size_t o) { return lean_ctor_num_objs((lean_object *)o); }
+static inline size_t lean_del_closure_fixed(size_t o) { return (size_t)lean_closure_arg_cptr((lean_object *)o); }
+static inline size_t lean_del_closure_num_fixed(size_t o) { return lean_closure_num_fixed((lean_object *)o); }
+static inline size_t lean_del_array_elems(size_t o) { return (size_t)lean_array_cptr((lean_object *)o); }
+static inline size_t lean_del_array_size(size_t o) { return lean_array_size((lean_object *)o); }
+static inline size_t lean_del_next_slot(size_t it) { return it + sizeof(lean_object *); }
+static inline size_t lean_del_get_slot(size_t it) { return (size_t)*(lean_object **)it; }
+static inline size_t lean_del_thunk_closure(size_t o) { return (size_t)(lean_object *)lean_to_thunk((lean_object *)o)->m_closure; }
+static inline size_t lean_del_thunk_value(size_t o) { return (size_t)(lean_object *)lean_to_thunk((lean_object *)o)->m_value; }
+static inline size_t lean_del_ref_value(size_t o) { return (size_t)lean_to_ref((lean_object *)o)->m_value; }
+static inline lean_object * lean_del_free_small(size_t o) { lean_free_small_object((lean_object *)o); return lean_box(0); }
+LEAN_EXPORT lean_object * lean_del_free_closure(size_t o);
+LEAN_EXPORT lean_object * lean_del_free_array(size_t o);
+LEAN_EXPORT lean_object * lean_del_free_sarray(size_t o);
+LEAN_EXPORT lean_object * lean_del_free_string(size_t o);
+LEAN_EXPORT lean_object * lean_del_free_mpz(size_t o);
+LEAN_EXPORT lean_object * lean_del_free_external(size_t o);
+LEAN_EXPORT lean_object * lean_del_deactivate_task(size_t o);
+LEAN_EXPORT lean_object * lean_del_deactivate_promise(size_t o);
+LEAN_EXPORT lean_object * lean_del_unreachable(size_t o);
+LEAN_EXPORT lean_object * lean_del_cascade(size_t o);
 
 /* Natural numbers */
 

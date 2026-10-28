@@ -11,3 +11,4 @@ public import Init.System.Platform
 public import Init.System.Uri
 public import Init.System.Promise
 public import Init.System.CancelToken
+public import Init.System.Deletion

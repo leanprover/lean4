@@ -26,3 +26,10 @@ root = "Main"
 [[lean_exe]]
 name = "mixed"
 root = "Mixed"
+
+# A library elaborated at the server level also when built
+[[lean_lib]]
+name = "InServer"
+
+[lean_lib.leanOptions]
+Elab.inServer = true

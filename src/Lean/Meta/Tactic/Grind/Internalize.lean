@@ -630,6 +630,10 @@ them.
 -/
 
 set_option compiler.ignoreBorrowAnnotation true in
+/--
+Creates `ENode`s for `e` and its relevant subterms in the current goal.
+This method assumes `e` has been hash-consed.
+-/
 @[export lean_grind_internalize]
 private partial def internalizeImpl (e : Expr) (generation : Nat) (parent? : Option Expr := none) : GoalM Unit := withIncRecDepth do
   if (← alreadyInternalized e) then
@@ -655,6 +659,13 @@ private partial def internalizeImpl (e : Expr) (generation : Nat) (parent? : Opt
     if e.isLambda then
       addSplitCandidatesForFunext e generation parent?
   else
+    if (← isDebugEnabled) then
+      match (← getThe Sym.State).share.set.find? { expr := e } with
+      | none =>
+        throwError "`grind` internal error, `internalize` received a term that is not hash-consed{indentExpr e}"
+      | some k =>
+        unless isSameExpr k.expr e do
+          throwError "`grind` internal error, `internalize` received an unshared copy of a hash-consed term{indentExpr e}"
     go
     propagateEtaStruct e generation
 where

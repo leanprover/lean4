@@ -292,7 +292,8 @@ macro_rules
       let m := x.size / 2
       let y := x.drop m
       let z := x.take m
-      `(let y := %[ $[$y],* | $k ]
+      -- `let_delayed` elaborates the head first, so the element type is known when elaborating `y`
+      `(let_delayed y := %[ $[$y],* | $k ]
         %[ $[$z],* | y ])
 
 /--

@@ -1,6 +1,11 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+if ! pkg-config --atleast-version=1.53.0 libuv; then
+    echo 'Windows builds require libuv 1.53.0 or newer' >&2
+    exit 1
+fi
+
 # run from root build directory in clang64 shell (NOT mingw64) as in
 # ```
 # eval cmake ../.. $(../../script/prepare-llvm-mingw.sh ~/Downloads/lean-llvm-x86_64-w64-windows-gnu.tar.zst)

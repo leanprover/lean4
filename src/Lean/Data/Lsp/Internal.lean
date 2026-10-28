@@ -67,28 +67,22 @@ inductive RefIdent where
 
 namespace RefIdent
 
-/-- Shortened representation of `RefIdent` for more compact serialization. -/
-abbrev RefIdentJsonRepr := Nat × String × String
-deriving instance FromJson, ToJson for RefIdentJsonRepr
+/-- Decodes `RefIdent` from a JSON array `[kind, moduleName, name]`. -/
+def fromJson? : Json → Except String RefIdent
+  | .arr #[kind, m, n] => do
+    let m ← m.getStr?
+    let n ← n.getStr?
+    match (← kind.getNat?) with
+    | 0 => return const m n
+    | 1 => return fvar m n
+    | _ => throw s!"expected 0 or 1, got '{kind}'"
+  | j => throw s!"expected a 3-element array, got '{j}'"
 
-/-- Converts `id` to its compact serialization representation. -/
-def toJsonRepr : (id : RefIdent) → RefIdentJsonRepr
-  | const moduleName identName => (0, moduleName, identName)
-  | fvar moduleName id => (1, moduleName, id)
-
-/-- Converts `repr` to `RefIdent`. -/
-def fromJsonRepr? : (repr : RefIdentJsonRepr) → Except String RefIdent
-  | (0, m, n) => return const m n
-  | (1, m, i) => return fvar m i
-  | _ => throw "expected 0 or 1"
-
-/-- Converts `RefIdent` from a JSON for `RefIdentJsonRepr`. -/
-def fromJson? (s : Json) : Except String RefIdent :=
-  Lean.FromJson.fromJson? s >>= fromJsonRepr?
-
-/-- Converts `RefIdent` to a JSON for `RefIdentJsonRepr`. -/
-def toJson (id : RefIdent) : Json :=
-  Lean.ToJson.toJson <| toJsonRepr id
+/-- Encodes `RefIdent` as the JSON array `[kind, moduleName, name]`.
+This is a more compact encoding than the `deriving ToJson` default. -/
+def toJson : RefIdent → Json
+  | const m n => .arr #[(0 : Nat), m, n]
+  | fvar m i => .arr #[(1 : Nat), m, i]
 
 instance : FromJson RefIdent where
   fromJson? := fromJson?

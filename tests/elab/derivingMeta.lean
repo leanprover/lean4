@@ -561,6 +561,16 @@ structure Flag : Type where
 
 run_cmd toULiftHandler #[``Flag]
 
-class ByteEncodable (α : Type u) where
-  encode : α → ByteArray → ByteArray
-  decode? : ByteArray → Nat → Option α
+/-!
+The deriving handlers should also work reasonably quickly on large structures
+-/
+
+open Elab Command
+
+/-- Declares `structure name where (f0 : Nat) … (f{n-1} : Nat)`. -/
+meta def declareWide (name : Name) (n : Nat) : CommandElabM Unit := do
+  let fields := (List.range n).toArray.map fun i => mkIdent (.mkSimple s!"f{i}")
+  elabCommand <| ← `(structure $(mkIdent name):ident where $[($fields : Nat)]*)
+
+run_cmd declareWide `Wide400 400
+run_cmd handler #[``Wide400]

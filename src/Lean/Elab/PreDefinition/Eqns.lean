@@ -63,7 +63,7 @@ partial def mkEqnProof (declName : Name) (type : Expr) : MetaM Expr := do
 
     -- Try rfl before deltaLHS to avoid `id` checkpoints in the proof, which would make
     -- the lemma ineligible for dsimp
-    if (← tryURefl mvarId) then
+    if (← tryURefl mvarId #[declName]) then
       trace[Elab.definition.eqns] "proved directly by rfl"
       return ← instantiateMVars main
 

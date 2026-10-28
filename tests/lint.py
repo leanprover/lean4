@@ -106,6 +106,9 @@ for file in glob(
 
 for dir in (
     "doc/examples",
+    "tests/async/compile",
+    "tests/async/compile_bench",
+    "tests/async/elab",
     "tests/compile",
     "tests/compile_bench",
     "tests/docparse",
@@ -200,6 +203,7 @@ for file in glob("**/*.no_test"):
 # Special rules for certain directories
 
 for file in glob(
+    "tests/async/compile_bench/*.no_bench",
     "tests/compile_bench/*.no_bench",
     "tests/elab_bench/*.no_bench",
     "tests/misc_bench/*.no_bench",

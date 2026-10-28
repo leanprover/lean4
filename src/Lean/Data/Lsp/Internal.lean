@@ -11,6 +11,7 @@ public import Lean.Data.Lsp.Basic
 public import Lean.Data.JsonRpc
 public import Lean.Data.DeclarationRange
 public import Init.Data.Array.GetLit
+public import Init.Data.Range.Polymorphic
 import Init.Omega
 
 public section
@@ -290,17 +291,15 @@ instance : ToJson ModuleRefs where
 instance : FromJson ModuleRefs where
   fromJson? j := do
     let a ← j.getArr?
-    if _ : a.size % 2 = 0 then
-      let mut m := {}
-      for h : i in [0:a.size:2] do
-        have : i + 1 < a.size := by
-          have : i < a.size := h.2.1
-          have : i % 2 = 0 := h.2.2
-          omega
-        m := m.insert (← RefIdent.fromJson? a[i]) (← fromJson? a[i+1])
-      return m
-    else
+    unless a.size % 2 = 0 do
       throw "expected even-length array"
+    let mut m := {}
+    for h : i in 0...(a.size / 2) do
+      have : 2 * i + 1 < a.size := by
+        have : i < a.size / 2 := h.2
+        omega
+      m := m.insert (← RefIdent.fromJson? a[2 * i]) (← fromJson? a[2 * i + 1])
+    return m
 
 /--
 Used in the `$/lean/ileanHeaderSetupInfo` watchdog <- worker notifications.

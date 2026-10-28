@@ -30,11 +30,7 @@ example (x y z : Rat) : (x / 2 + y / 3 < z / 6 + x / 4) = (3 * x + 4 * y < 2 * z
 example (x y : Rat) : ((x / 3 + y / 5)^2 ≤ (x / 3 - y / 5)^2) = (4 * (x * y) ≤ 0) := by sym => simp arithSimp
 example (x y : Rat) : (x / 2 = y / 3) = (3 * x = 2 * y) := by sym => simp arithSimp
 /--
-error: `sym` failed
-case grind
-x y : Rat
-⊢ 0 = 9 * x ^ 2 + 12 * (x * y) + 4 * y ^ 2
-use `+verbose` to obtain diagnostic information
+error: `sym` has failed, use `+verbose` to obtain diagnostic information
 -/
 #guard_msgs in
 example (x y : Rat) : (x/2 + y/3)^2 = (3*x + 2*y)^2 / 35 := by sym => simp arithSimp

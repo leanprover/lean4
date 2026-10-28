@@ -28,12 +28,7 @@ example : True := by grind only [#nope]
 example (ab : Nat) : Q ab := by grind only [(#ab)]
 
 /--
-error: `grind` failed
-case grind
-ab : Nat
-h✝ : ¬Q ab
-⊢ False
-use `+verbose` to obtain diagnostic information
+error: `grind` has failed, use `+verbose` to obtain diagnostic information
 -/
 #guard_msgs in
 example (ab : Nat) : Q ab := by grind only [#ab]

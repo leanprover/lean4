@@ -7,7 +7,7 @@ It should not solve rational number inequalities that require the order module.
 
 -- This should fail: lia should not handle rational inequalities
 /--
-error: `grind` failed
+error: `lia` failed
 case grind
 k : Rat
 hk : 2 ≤ k

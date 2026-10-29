@@ -200,15 +200,15 @@ def stripMeetTopPre? (goal : MVarId) (pre : Expr) : VCGenM (Option MVarId) := do
 
 /-- Strategy 5: lift an embedded pure precondition `⌜φ⌝` into the local context, leaving `⊤`
 as the residual precondition. Runs before state-argument introduction, which would otherwise
-leave `⌜φ⌝` applied to the introduced arguments. Returns the new goal and the hypothesis. -/
-def ofPropPreIntro? (goal : MVarId) (pre : Expr) : VCGenM (Option (MVarId × FVarId)) := do
+leave `⌜φ⌝` applied to the introduced arguments. Returns the new goal and the hypothesis, if any. -/
+def ofPropPreIntro? (goal : MVarId) (pre : Expr) : VCGenM (Option (MVarId × Option FVarId)) := do
   let_expr CompleteLattice.ofProp _l _inst φ := pre | return none
   if φ.isTrue then return none
   return some (← introPre (← read).backwardRules.ofPropPreIntro goal)
 
 /-- Strategy 5: lift the pure `φ` of a `⌜φ⌝ ⊓ P` precondition into the local context, leaving
 `P ⊑ rhs`. -/
-def ofPropMeetPreIntro? (goal : MVarId) (pre : Expr) : VCGenM (Option (MVarId × FVarId)) := do
+def ofPropMeetPreIntro? (goal : MVarId) (pre : Expr) : VCGenM (Option (MVarId × Option FVarId)) := do
   let_expr Lean.Order.meet _l _inst lhs _rest := pre | return none
   let_expr CompleteLattice.ofProp _l' _inst' _φ := lhs | return none
   return some (← introPre (← read).backwardRules.ofPropMeetPreIntro goal)
@@ -223,8 +223,8 @@ def iSupPreIntro? (goal : MVarId) (pre : Expr) : VCGenM (Option MVarId) := do
 
 /-- Strategy 7: move a bare `Prop` precondition `φ ⊑ rhs` into the local context via
 `le_of_imp_top_le`, leaving `⊤ ⊑ rhs`. Runs after `True` and `⊤` preconditions are handled, so
-`φ` carries information worth keeping. Returns the new goal and the introduced hypothesis. -/
-def barePreIntro? (goal : MVarId) (α pre : Expr) : VCGenM (Option (MVarId × FVarId)) := do
+`φ` carries information worth keeping. Returns the new goal and the introduced hypothesis, if any. -/
+def barePreIntro? (goal : MVarId) (α pre : Expr) : VCGenM (Option (MVarId × Option FVarId)) := do
   unless α.isProp do return none
   if pre.isAppOf ``Lean.Order.top then return none
   return some (← introPre (← read).backwardRules.propPreIntro goal)
@@ -254,16 +254,16 @@ def normalizePre? (scope : Scope) (goal : MVarId) (α pre target : Expr) :
   if let some g ← stripMeetTopPre? goal pre then
     return some (scope, [g])
   if let some (g, h) ← ofPropPreIntro? goal pre then
-    return some ({ scope with lastLiftedPre? := some h }, [g])
+    return some ({ scope with lastLiftedPre? := h <|> scope.lastLiftedPre? }, [g])
   if let some (g, h) ← ofPropMeetPreIntro? goal pre then
-    return some ({ scope with lastLiftedPre? := some h }, [g])
+    return some ({ scope with lastLiftedPre? := h <|> scope.lastLiftedPre? }, [g])
   if let some g ← iSupPreIntro? goal pre then
     return some (scope, [g])
   if let some goal' ← introsExcessArgs goal then return some (scope, [goal'])
   if let some gs ← normalizePreToTop? goal pre target then
     return some (scope, gs)
   if let some (g, h) ← barePreIntro? goal α pre then
-    return some ({ scope with lastLiftedPre? := some h }, [g])
+    return some ({ scope with lastLiftedPre? := h <|> scope.lastLiftedPre? }, [g])
   return none
 
 /-- Replace the program in `goal`'s target with `prog` (which must be definitionally equal). -/

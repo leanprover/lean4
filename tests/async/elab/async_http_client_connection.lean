@@ -1871,8 +1871,8 @@ private def challenge401 : ByteArray :=
   assertStatusIs response 401
   assertBodyIs response "deny"
 
--- Keeping the challenge body is bounded: past `intermediateBodyDrainLimit` there is nothing left to
--- hand back, so the failure the client ran into is what the caller hears about.
+-- Keeping the challenge body is bounded: past `intermediateBodyDrainLimit` the client gives up on
+-- the challenge and its connection rather than read the rest, and reports the limit.
 #eval show IO _ from
   runWithTimeout "an oversized challenge body is not kept for the caller" 5000 <| Async.block do
   let (mockClient, mockServer) ← Mock.new
@@ -1885,7 +1885,9 @@ private def challenge401 : ByteArray :=
     #[("WWW-Authenticate", "Basic realm=\"x\""), ("Content-Length", "16")] "denydenydenydeny")
   mockServer.getSendChan.close
 
-  expectRetryable (← expectError promise) "an oversized challenge body"
+  match ← expectError promise with
+  | .bodyLimitExceeded => pure ()
+  | e => throw (IO.userError s!"an oversized challenge body: expected bodyLimitExceeded, got {e}")
 
 -- `send` is the same exchange with the error type unwrapped, so it has to arrive with the same
 -- request the tracked variant would have sent.

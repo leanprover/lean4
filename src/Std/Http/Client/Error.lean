@@ -53,7 +53,8 @@ inductive Error where
   | protocol (error : Protocol.H1.Error)
 
   /--
-  The response body exceeded `Config.maxResponseBodySize`.
+  The response body exceeded `Config.maxResponseBodySize`, or the body of a challenge the client
+  answers itself exceeded `Config.intermediateBodyDrainLimit`.
   -/
   | bodyLimitExceeded
 

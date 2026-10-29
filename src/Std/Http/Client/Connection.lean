@@ -1089,30 +1089,46 @@ private def challengeAnswer (connection : Connection) (request : Request Body.An
   return some (challenge.credentialHeader, credential)
 
 /--
-Reads the body of an intermediate response the client answers itself, keeping the bytes instead of
-discarding them. Returns `none` once no whole body is left to hand back: more than `limit` bytes
-arrived, so the body is abandoned and the stream closed and the rest left for the connection to
-drain on its own, or the body failed partway through.
+What `captureIntermediateBody` read of an intermediate response's body.
+-/
+private inductive Captured where
+  /--
+  The whole body.
+  -/
+  | complete (bytes : ByteArray)
 
-A failed body is reported as `none` rather than raised. The failure belongs to the exchange, which
+  /--
+  More than the limit arrived; the body was abandoned and its stream closed.
+  -/
+  | overLimit
+
+  /--
+  The body failed partway through.
+  -/
+  | failed
+
+/--
+Reads the body of an intermediate response the client answers itself, keeping the bytes instead of
+discarding them, up to `limit` bytes.
+
+A failed body is reported as `.failed` rather than raised. The failure belongs to the exchange, which
 states it as a typed `Error` on its completion promise; raising it from here would hand the caller
 an untyped exception instead, which is the one thing `sendTracked` undertakes not to do.
 -/
-private partial def captureIntermediateBody (body : Body.Stream) (limit : Nat) :
-    Async (Option ByteArray) := do
-  let rec loop (captured : ByteArray) : Async (Option ByteArray) := do
+private partial def captureIntermediateBody (body : Body.Stream) (limit : Nat) : Async Captured := do
+  let rec loop (captured : ByteArray) : Async Captured := do
     let received : Except IO.Error (Option Chunk) ←
       try .ok <$> body.recv catch e => pure (.error e)
 
     match received with
-    | .error _ => return none
-    | .ok none => return some captured
+    | .error _ => return .failed
+    | .ok none => return .complete captured
     | .ok (some chunk) =>
       let captured := captured ++ chunk.data
 
       if captured.size > limit then
         body.close
-        return none
+        return .overLimit
 
       loop captured
 
@@ -1196,10 +1212,17 @@ def sendTracked (connection : Connection) (request : Request Body.Any)
   let captured ← captureIntermediateBody response.body
     connection.config.intermediateBodyDrainLimit
 
+  -- The rest of an abandoned body would have to be read off the connection before the retry could
+  -- use it, for as long as the peer cares to send it.
+  if let .overLimit := captured then
+    connection.context.cancel .shutdown
+    stopAcceptingRequests connection.requestChannel
+    return .error .bodyLimitExceeded
+
   let unanswered (err : Error) :=
     match captured with
-    | some body => Except.ok <$> unansweredChallenge response body
-    | none => pure (.error err)
+    | .complete body => Except.ok <$> unansweredChallenge response body
+    | _ => pure (.error err)
 
   if let .error e ← await completion.result! then
     return (← unanswered e)

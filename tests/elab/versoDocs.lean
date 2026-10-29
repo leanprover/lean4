@@ -116,6 +116,73 @@ def splitSuchThat (p : α → Prop) [DecidablePred p] : List α → (List α × 
     else
       ([], x :: xs)
 
+/-!
+Docstrings on definitions by well-founded recursion and `partial_fixpoint` can refer to the
+definition and its parameters, even when the recursion goes through an auxiliary packed definition.
+The auxiliary definition doesn't receive the docstring. This is a regression test for issue #15828.
+-/
+namespace WFRec
+
+#guard_msgs in
+/-- {lean}`g 1 2` -/
+def g : Nat → Nat → Prop
+  | 0, _ => True
+  | n+1, m => g (n/2) m
+termination_by n _ => n
+decreasing_by omega
+
+#guard_msgs in
+/-- {lean}`n` and {lean}`p1` -/
+def p1 (n m : Nat) : Nat := if n < 10 then p1 (n + 1) (m + 1) else m
+
+#guard_msgs in
+/-- {lean}`m` -/
+def p3 (n k m : Nat) : Nat := if n < 10 then p3 (n + 1) (k + 1) m else m
+
+#guard_msgs in
+/-- {lean}`n` -/
+def q (n : Nat) (h : n ≤ 10) : Nat := if h' : n < 10 then q (n + 1) h' else n
+
+#guard_msgs in
+/-- {lean}`t1` -/
+def t1 (n m : Nat) : Nat := if n < 10 then t1 (n + 1) m else m
+
+#guard_msgs in
+/-- {lean}`t2` -/
+def t2 (m n : Nat) : Nat := if n < 10 then t2 m (n + 1) else m
+
+#guard_msgs in
+mutual
+/-- {lean}`isEven n` -/
+def isEven (n : Nat) : Bool := if n = 0 then true else isOdd (n - 1)
+termination_by n
+/-- {lean}`isOdd n` and {lean}`isEven` -/
+def isOdd (n : Nat) : Bool := if n = 0 then false else isEven (n - 1)
+termination_by n
+end
+
+#guard_msgs in
+/-- {lean}`loop n m` -/
+def loop (n m : Nat) : Option Nat := if n = 0 then some m else loop (n + 1) m
+partial_fixpoint
+
+/--
+info: g: true, g._unary: false
+p1: true, p1._unary: false
+isEven: true, isOdd: true, isEven._mutual: false
+loop: true, loop.mutual: false
+-/
+#guard_msgs in
+#eval show Command.CommandElabM Unit from do
+  let env ← getEnv
+  let has (n : Name) : IO Bool := return (← findDocString? env n).isSome
+  IO.println s!"g: {← has ``g}, g._unary: {← has ``g._unary}"
+  IO.println s!"p1: {← has ``p1}, p1._unary: {← has ``p1._unary}"
+  IO.println s!"isEven: {← has ``isEven}, isOdd: {← has ``isOdd}, isEven._mutual: {← has ``isEven._mutual}"
+  IO.println s!"loop: {← has ``loop}, loop.mutual: {← has ``loop.mutual}"
+
+end WFRec
+
 /--
 An induction principle for {name}`Nat.gcd`'s reference implementation via Euclid's algorithm.
 

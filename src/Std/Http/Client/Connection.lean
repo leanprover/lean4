@@ -792,6 +792,33 @@ private def deliverResponseChunk
   try Selectable.one selectables catch e => pure (some (.io e))
 
 /--
+Writes `data` to the transport, bounded by the exchange deadline and by the connection's
+cancellation, which is how `close` reaches a loop whose peer has stopped reading. The write runs in
+a task of its own; one that loses the race keeps running until the transport gives up on it, but the
+exchange no longer waits for it. Reports the failure that ended the wait, or `none` once the write
+finished.
+-/
+private def writeOutput [Transport α] (socket : α) (data : Array ByteArray)
+    (connectionContext : CancellationContext) (deadline : Option Timestamp) : Async (Option Error) := do
+  let finished : Std.Channel (Option Error) ← Std.Channel.new
+  background do
+    let outcome ← try Transport.sendAll socket data; pure none
+      catch _ => pure (some (.closed "connection write failed"))
+    discard <| finished.send outcome
+
+  let mut selectables : Array (Selectable (Option Error)) := #[
+    .case finished.recvSelector pure,
+    .case connectionContext.doneSelector (fun _ => pure (some (.closed "connection shutdown")))
+  ]
+
+  if let some deadline := deadline then
+    let now ← Timestamp.now
+    selectables := selectables.push
+      (.case (← Selector.sleep (deadline - now).toMilliseconds) (fun _ => pure (some .timeout)))
+
+  try Selectable.one selectables catch e => pure (some (.io e))
+
+/--
 Transition for a `.bodyInterest true` event: pulls the next chunk out of the H1 machine, enforces
 `maxResponseBodySize`, and hands the chunk to the caller. The `shouldClose` flag reports the two
 outcomes here that end the connection: the size limit, and a hand-over that outlived the exchange.
@@ -967,9 +994,8 @@ private def run
       state := { state with machine := newMachine }
 
       if step.output.size > 0 then
-        try Transport.sendAll socket step.output.data
-        catch _ =>
-          state ← abortState state (.closed "connection write failed")
+        if let some err ← writeOutput socket step.output.data connectionContext state.requestDeadline then
+          state ← abortState state err
           break
 
       -- Phase 3: process all events emitted by this step.

@@ -986,7 +986,7 @@ private def run
   -- Drain any remaining queued requests.
   repeat do
     match ← requestChannel.tryRecv with
-    | some pending => pending.onError (.closed "connection closed")
+    | some pending => pending.onError (.notSent "connection closed before the request was sent")
     | none => break
 
   Transport.close socket
@@ -1180,7 +1180,7 @@ private def dispatch (connection : Connection) (request : Request Body.Any) (req
     { request, responsePromise, completionPromise, requestOverrides }
 
   let .ok _ ← await task
-    | return .error (.closed "connection closed before request could be sent")
+    | return .error (.notSent "connection closed before request could be sent")
 
   return (← await responsePromise.result!).map ({ response := ·, completion := completionPromise })
 

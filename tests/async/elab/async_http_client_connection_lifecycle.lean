@@ -49,6 +49,7 @@ private def errorConstructor : Error → String
   | .connect _ => ".connect"
   | .timeout => ".timeout"
   | .closed _ => ".closed"
+  | .notSent _ => ".notSent"
   | .protocol _ => ".protocol"
   | .bodyLimitExceeded => ".bodyLimitExceeded"
   | .invalidRequest _ => ".invalidRequest"

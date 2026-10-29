@@ -89,6 +89,7 @@ private def ctorName : Error → String
   | .connect m => s!".connect {m.quote}"
   | .timeout => ".timeout"
   | .closed m => s!".closed {m.quote}"
+  | .notSent m => s!".notSent {m.quote}"
   | .protocol e => s!".protocol {e}"
   | .bodyLimitExceeded => ".bodyLimitExceeded"
   | .invalidRequest m => s!".invalidRequest {m.quote}"

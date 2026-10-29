@@ -482,7 +482,8 @@ exchange, recorded in a ref because middlewares only see the response, and the c
 connection back once it ends.
 -/
 private def dispatchHop (client : Client) (initialOrigin origin : URI.Origin)
-    (request : Request Body.Any) (overrides : RequestOverrides) (fresh : Bool := false) :
+    (request : Request Body.Any) (overrides : RequestOverrides) (answered : IO.Ref Bool)
+    (fresh : Bool := false) :
     Async (Except Error (Response Body.Stream × Option Exchange)) := do
   let exchangeRef ← IO.mkRef (none : Option Exchange)
   let inner : Request Body.Any → Async (Except Error (Response Body.Stream)) :=
@@ -500,6 +501,7 @@ private def dispatchHop (client : Client) (initialOrigin origin : URI.Origin)
           throw err
       match sent with
       | .ok tracked =>
+        answered.set true
         exchangeRef.set (some { connection, completion := tracked.completion })
         return .ok tracked.response
       | .error e =>
@@ -548,12 +550,12 @@ private def evaluateRedirect (origin : URI.Origin) (request : Request Body.Any)
 
 private partial def sendWithRedirects
     (client : Client) (initialOrigin origin : URI.Origin) (request : Request Body.Any)
-    (remaining : Nat) (overrides : RequestOverrides)
+    (remaining : Nat) (overrides : RequestOverrides) (answered : IO.Ref Bool)
     (history : Array (URI.Origin × Method × String) := #[]) (fresh : Bool := false) :
     Async (Except Error (Response Body.Stream)) := do
   let history := history.push (origin, request.line.method, targetKey request.line.uri)
 
-  match ← dispatchHop client initialOrigin origin request overrides fresh with
+  match ← dispatchHop client initialOrigin origin request overrides answered fresh with
   | .error e => return .error e
   | .ok (response, exchange) =>
     match evaluateRedirect origin request response remaining history with
@@ -595,7 +597,7 @@ private partial def sendWithRedirects
         | .error err => return .error (.io err)
         | .ok newRequest =>
           sendWithRedirects client initialOrigin plan.origin newRequest (remaining - 1) overrides
-            history
+            answered history
 
 end Impl
 
@@ -604,8 +606,11 @@ Sends a request to `origin`, following redirects and applying middlewares, retur
 or the typed `Error` that ended the exchange.
 
 On a retryable connection-level failure (see `Error.isRetryable`), retries up to `client.maxRetries`
-times on fresh connections, unless `close` ran since the request started. Application-level failures
-(timeouts, protocol violations, body-size limits) are never retried.
+times on fresh connections, unless `close` ran since the request started. A request with an
+idempotent method and a replayable body is retried after any such failure; any other request only
+when the failure proves it never reached a peer (`Error.isNeverSent`) and no response has arrived
+for it. Application-level failures (timeouts, protocol violations, body-size limits) are never
+retried.
 
 Every attempt, and every redirect hop, checks out a connection to its origin from the client's pool.
 A connection goes back to the pool when its exchange completes, and leaves it when the exchange
@@ -626,9 +631,8 @@ def trySend {β : Type} [Coe β Body.Any] (client : Client) (origin : URI.Origin
         s!"request target {request.line.uri} does not belong to the origin it is sent to, {origin}")
 
   let reset? := request.body.reset?
-  let retries := if request.line.method.isIdempotent && reset?.isSome then client.maxRetries else 0
-
-  let attempts := retries + 1
+  let replayable := request.line.method.isIdempotent && reset?.isSome
+  let attempts := client.maxRetries + 1
 
   let maxRedirects := (overrides.apply client.config).maxRedirects
 
@@ -637,11 +641,15 @@ def trySend {β : Type} [Coe β Body.Any] (client : Client) (origin : URI.Origin
       if let some reset := reset? then
         reset
 
-    match ← Impl.sendWithRedirects client origin origin request maxRedirects overrides
+    -- Set once any hop of this attempt got a response: from then on the request, or the one it was
+    -- redirected from, has reached a peer.
+    let answered ← IO.mkRef false
+    match ← Impl.sendWithRedirects client origin origin request maxRedirects overrides answered
         (fresh := attempt > 0) with
     | .ok response => return .ok response
     | .error e =>
-      if ¬e.isRetryable || attempt + 1 ≥ attempts || (← client.closes.get) != closes then
+      let mayResend := replayable ∨ (e.isNeverSent ∧ ¬(← answered.get))
+      if ¬e.isRetryable ∨ ¬mayResend ∨ attempt + 1 ≥ attempts ∨ (← client.closes.get) != closes then
         return .error e
 
   return .error (.io (IO.userError "HTTP client retry loop exhausted without returning"))

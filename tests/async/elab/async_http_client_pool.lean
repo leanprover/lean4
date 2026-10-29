@@ -497,3 +497,27 @@ def serveAll (body : String) (mock : Mock.Client) : Async Unit := do
     let _ ← drainRequest m0
     m0.send (rawResp "200 OK" #[("Content-Length", "2")] "ok")
     unless (← expectBody s!"/{i}" p) == "ok" do throw (IO.userError s!"wrong body for /{i}")
+
+-- A request that provably never reached a peer is sent again whatever its method: here a `POST`
+-- whose first connection could not be opened.
+#eval show IO _ from
+  runWithTimeout "a POST that never left the client is retried" 4000 <|
+  Async.block do
+  let (mock, server) ← Mock.new
+  let calls ← IO.mkRef 0
+  let connect : Client.Connector := fun origin config => do
+    calls.modify (· + 1)
+    if (← calls.get) == 1 then return .error (.connect "refused")
+    return .ok (← Client.Connection.new server origin config)
+  let client ← Client.new {} connect (maxRetries := 1)
+  let request ← Request.new |>.method .post |>.uri! "/orders" |>.text "item=1"
+  let p : IO.Promise (Except Client.Error (Response Body.Stream)) ← IO.Promise.new
+  background do discard <| p.resolve (← client.trySend (origin "example.com") request)
+  let line := requestLine (← drainRequest mock)
+  unless line.startsWith "POST /orders" do
+    throw (IO.userError s!"unexpected request line {line.quote}")
+  mock.send (rawResp "201 Created" #[("Content-Length", "2")] "ok")
+  match ← await p.result! with
+  | .ok response =>
+    unless (← response.body.readAll (α := String)) == "ok" do throw (IO.userError "wrong body")
+  | .error e => throw (IO.userError s!"the POST was not retried: {e}")

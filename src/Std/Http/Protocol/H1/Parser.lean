@@ -10,6 +10,7 @@ public import Std.Internal.Parsec
 public import Std.Http.Data
 public import Std.Internal.Parsec.ByteArray
 public import Std.Http.Protocol.H1.Config
+import Init.Data.String.Lossy
 
 /-!
 This module defines parsers for HTTP/1.1 request and response lines, headers, and body framing. The
@@ -25,8 +26,7 @@ set_option linter.all true
 /--
 Checks if a byte may appear inside a field value.
 
-This parser enforces strict ASCII-only field values and allows only `field-content`
-(`HTAB / SP / VCHAR`).
+Allows `field-content`: `HTAB / SP / VCHAR / obs-text`.
 -/
 @[inline]
 def isFieldVChar (c : UInt8) : Bool :=
@@ -322,7 +322,8 @@ def parseFieldLine (limits : H1.Config) : Parser (String × String) := do
   let value ← skipByte ':'.toUInt8 *> ows limits *> optional (takeWhileUpTo isFieldVChar limits.maxHeaderValueLength) <* ows limits
 
   let name ← liftOption <| String.fromUTF8? name.toByteArray
-  let value ← liftOption <| String.fromUTF8? <| value.map (·.toByteArray) |>.getD .empty
+  -- obs-text need not be UTF-8; it is kept as opaque data, with any invalid sequence replaced.
+  let value := String.fromUTF8Lossy <| value.map (·.toByteArray) |>.getD .empty
   let value := value.trimAsciiEnd.toString
 
   return (name, value)
@@ -496,7 +497,7 @@ public def parseTrailers (limits : H1.Config) : Parser (Array (String × String)
   return trailers
 
 /--
-Returns `true` if `c` is a valid reason-phrase byte (`HTAB / SP / VCHAR`, strict ASCII-only).
+Returns `true` if `c` is a valid reason-phrase byte (`HTAB / SP / VCHAR / obs-text`).
 -/
 @[inline]
 def isReasonPhraseByte (c : UInt8) : Bool :=
@@ -505,11 +506,12 @@ def isReasonPhraseByte (c : UInt8) : Bool :=
 /--
 Parses a reason phrase (text after status code).
 
-Allows only `HTAB / SP / VCHAR` bytes (strict ASCII-only).
+Allows `HTAB / SP / VCHAR / obs-text` bytes. A client ignores the phrase (RFC 9112 §4), so bytes that
+are not UTF-8 are replaced rather than rejected.
 -/
 def parseReasonPhrase (limits : H1.Config) : Parser String := do
   let bytes ← takeWhileUpTo isReasonPhraseByte limits.maxReasonPhraseLength
-  liftOption <| String.fromUTF8? bytes.toByteArray
+  return String.fromUTF8Lossy bytes.toByteArray
 
 /--
 Parses a status-code (3 decimal digits), the following reason phrase, and the

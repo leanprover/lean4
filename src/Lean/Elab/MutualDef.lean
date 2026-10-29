@@ -711,7 +711,8 @@ private def fillHolesFromWhereFinally (name : Name) (es : Array ExprWithHoles) (
           if !e.isFVar then
             e ← mvarId'.withContext do
               withExporting (isExporting := wasExporting) do
-                abstractProof e
+                -- Use the expected type, as in `Term.runTactic` (#11672).
+                mkAuxTheorem (cache := !e.hasSorry) (← mvarId.getType) e (zetaDelta := true)
           mvarId.assign e
 
 namespace MutualClosure

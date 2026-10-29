@@ -21,8 +21,7 @@ def fails : Except String Nat := .error "x"
 
 /--
 trace: case vc1
-a✝¹ : String
-a✝ : a✝¹ = "x"
+a✝ : String
 ⊢ "x" = "x" ∨ "x" = "y"
 -/
 #guard_msgs in
@@ -82,8 +81,7 @@ def boom' : Prog Unit := .throw "boom"
 
 /--
 trace: case vc1
-a✝¹ : String
-a✝ : a✝¹ = "boom"
+a✝ : String
 ⊢ "boom" = "boom" ∨ "boom" = "crash"
 -/
 #guard_msgs in

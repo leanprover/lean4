@@ -8,7 +8,8 @@ module
 prelude
 public import Std.Http.Server
 public import Std.Http.Client
-public import Std.Http.Test.Helpers
+-- Built with the library for the test suite, but not part of what `import Std.Http` exports.
+import Std.Http.Test.Helpers
 
 public section
 

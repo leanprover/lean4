@@ -696,11 +696,20 @@ private def processH1Events
         state ← abandonRequestBody state
 
     | .next =>
-      -- Reset all per-request state for the next pipelined request, including the effective
-      -- config: the next request's overrides must apply to the connection config, not to the
-      -- one the finished request left behind.
+      -- Bytes already buffered past the end of this response answer no request this connection
+      -- sent: the peer disagrees with the framing, or sent a response nobody asked for. Reused, the
+      -- connection would hand them to the next request as its response, so it ends here, and stops
+      -- accepting requests before the exchange is reported complete.
+      let leftover := state.machine.hasBufferedInput
+      if leftover then
+        stopAcceptingRequests requestChannel
+      -- Reset all per-request state for the next request, including the effective config: the next
+      -- request's overrides must apply to the connection config, not to the one the finished request
+      -- left behind.
       state.inFlight.forM (·.complete)
       state := { state.clearInFlight with config := baseConfig }
+      if leftover then
+        sawFailure := true
 
     | .failed err =>
       -- The closed channel is what tells the pool this connection is spent, so it is closed before
@@ -816,7 +825,13 @@ that tells the main loop to exit.
 private def handleRecvEvent (baseConfig : Config) (connectionContext : CancellationContext)
     (state : ConnectionState) : Recv → Async (ConnectionState × Bool)
   | .bytes (some bytes) =>
-    pure ({ state with machine := state.machine.feed bytes }, false)
+    -- An idle connection has no request for these bytes to answer: an unsolicited response, such as
+    -- the `408` a server sends before closing an idle connection. Fed to the machine they would
+    -- become the next request's response, so the connection ends instead.
+    if state.waitingForRequest then
+      pure (state, true)
+    else
+      pure ({ state with machine := state.machine.feed bytes }, false)
 
   | .bytes none =>
     pure ({ state with machine := state.machine.noMoreInput }, false)

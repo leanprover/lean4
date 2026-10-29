@@ -639,7 +639,8 @@ def trySend {β : Type} [Coe β Body.Any] (client : Client) (origin : URI.Origin
   for attempt in 0...attempts do
     if attempt > 0 then
       if let some reset := reset? then
-        reset
+        -- Rewinding runs the body's own code; its failure is the request's, reported typed.
+        try reset catch err => return .error (.io err)
 
     -- Set once any hop of this attempt got a response: from then on the request, or the one it was
     -- redirected from, has reached a peer.

@@ -521,3 +521,36 @@ def serveAll (body : String) (mock : Mock.Client) : Async Unit := do
   | .ok response =>
     unless (← response.body.readAll (α := String)) == "ok" do throw (IO.userError "wrong body")
   | .error e => throw (IO.userError s!"the POST was not retried: {e}")
+
+/-- A replayable body whose rewind fails. -/
+structure FailingRewind where
+  inner : Body.Full
+
+instance : Body FailingRewind where
+  recv b := Body.recv b.inner
+  recvSelector b := Body.recvSelector b.inner
+  close b := Body.close b.inner
+  isClosed b := Body.isClosed b.inner
+  tryRecv b := Body.tryRecv b.inner
+  getKnownSize b := Body.getKnownSize b.inner
+  setKnownSize b size := Body.setKnownSize b.inner size
+
+instance : Coe FailingRewind Body.Any where
+  coe b := { Body.Any.ofBody b with reset? := some (throw (IO.userError "rewind failed")) }
+
+-- A body that fails to rewind for a retry fails the request with a typed error rather than an
+-- exception thrown out of `trySend`.
+#eval show IO _ from
+  runWithTimeout "a failing rewind is reported as a typed error" 4000 <|
+  Async.block do
+  let calls ← IO.mkRef 0
+  let connect : Client.Connector := fun _ _ => do
+    calls.modify (· + 1)
+    return .error (.connect "refused")
+  let client ← Client.new {} connect (maxRetries := 1)
+  let body : FailingRewind := { inner := ← Body.Full.ofString "data" }
+  let request := Request.new |>.method .put |>.uri! "/doc" |>.body body
+  match ← client.trySend (origin "example.com") request with
+  | .error (.io _) => pure ()
+  | .error e => throw (IO.userError s!"expected an io error, got {e}")
+  | .ok _ => throw (IO.userError "the request succeeded")

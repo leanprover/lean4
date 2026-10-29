@@ -774,14 +774,17 @@ caller's.
 private def deliverResponseChunk
     (connectionContext : CancellationContext) (deadline : Option Timestamp)
     (body : Body.Stream) (pulled : H1.PulledChunk) : Async (Option Error) := do
-  let handed ← try body.trySend pulled.chunk pulled.incomplete catch _ => pure true
+  -- Each piece of a chunk goes to the caller as it arrives, as a chunk of its own: marked incomplete,
+  -- the stream would hold it back and merge it with the rest of the chunk, so one large chunk would
+  -- reach the caller only once it had all arrived. Chunk boundaries carry no meaning for the caller.
+  let handed ← try body.trySend pulled.chunk catch _ => pure true
   if handed then
     return none
 
   let parked : Std.CloseableChannel Unit ← Std.CloseableChannel.new
 
   background do
-    try body.send pulled.chunk pulled.incomplete catch _ => pure ()
+    try body.send pulled.chunk catch _ => pure ()
     try parked.close catch _ => pure ()
 
   let mut selectables : Array (Selectable (Option Error)) := #[

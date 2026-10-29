@@ -39,3 +39,22 @@ def getReq (path : String) : Async (Request Body.Empty) :=
   match ← await p.result! with
   | .ok r => unless (← r.body.readAll (α := String)) == "ok" do throw (IO.userError "wrong body")
   | .error e => throw (IO.userError s!"the request failed: {e}")
+
+def bearer : Header.Value := .ofString! "Bearer SECRET"
+
+-- Only a proxy may ask for proxy credentials: an origin reached directly that answers `407` gets
+-- the response back, not the credential.
+#eval show IO _ from runWithTimeout "a direct origin's 407 is not answered" 3000 <|
+  Async.block do
+  let (mock, server) ← Mock.new
+  let tc ← mkClient server { authenticator := some (Client.Authenticator.const bearer) }
+  let p ← sendInBackground tc (← getReq "/x")
+  discard <| drainRequest mock
+  mock.send (rawResp "407 Proxy Authentication Required"
+    #[("Proxy-Authenticate", "Basic realm=\"p\""), ("Content-Length", "0")] "")
+  match ← await p.result! with
+  | .ok r => unless r.line.status == .proxyAuthenticationRequired do
+      throw (IO.userError s!"expected the 407 back, got {r.line.status.toCode}")
+  | .error e => throw (IO.userError s!"the request failed: {e}")
+  if let some bytes ← mock.tryRecv? then
+    throw (IO.userError s!"the client answered a direct 407: {(String.fromUTF8! bytes).quote}")

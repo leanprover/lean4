@@ -416,7 +416,8 @@ structure GoalsAtResult where
   hangingBy  : Bool := false
   /--
   Whether the tactic info has no nested tactic infos, such as those of a nested tactic block, apart
-  from proofs nested in terms and from the tactic's own macro expansion.
+  from proofs nested in terms and from nodes of the tactic itself: those of its macro expansion,
+  with no position of their own or the tactic's range, and null nodes for a prefix of it.
   -/
   isLeaf     : Bool := true
   -- for overlapping goals, only keep those of the highest reported priority
@@ -497,9 +498,12 @@ where
     | .node i@(.ofTacticInfo _) cs =>
       -- ignore term-nested proofs such as in `exact ⟨by simp, foo⟩`
       if isByBlock i.stx then false
-      -- look through the tactic's own macro expansion, whose nodes have no position of their own
-      -- or the tactic's range, such as that of `intro ⟨x, y⟩` into `intro h; match h with ...`
-      else if i.pos?.isNone || (i.pos?, i.tailPos?) == (some pos, some tailPos) then
+      -- look through nodes of the tactic itself: those of its macro expansion, which have no
+      -- position of their own or the tactic's range, such as that of `intro ⟨x, y⟩` into
+      -- `intro h; match h with ...`, and null nodes for a prefix of the tactic, such as the one for
+      -- `simpa ... using` that shows the simplified goal
+      else if i.pos?.isNone || (i.pos?, i.tailPos?) == (some pos, some tailPos) ||
+          i.pos? == some pos && i.stx.isOfKind nullKind then
         cs.any (hasTacticInfo pos tailPos)
       else true
     | .node _ cs => cs.any (hasTacticInfo pos tailPos)

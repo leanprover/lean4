@@ -82,6 +82,22 @@ example : Nat → True := by
   intro (
        --^ $/lean/plainGoal
 
+-- `calc` with an error in a step, with the cursor on that step or a later one
+example (a b c : Nat) (h : b = c) : a = c := by
+  calc a = b := foo_
+                  --^ $/lean/plainGoal
+    _ = c := h
+            --^ $/lean/plainGoal
+
+-- `simpa` with an error in the `using` term, on a goal that `simp` does not close
+example (p : Prop) : p := by
+  simpa using foo_
+                --^ $/lean/plainGoal
+
+example (p : Prop) (hp : p) : p ∧ True := by
+  simpa using (foo_ : p)
+                      --^ $/lean/plainGoal
+
 -- A term spanning several lines, with the cursor on an earlier line
 example : True ∧ True := by
   exact ⟨foo_,
@@ -136,6 +152,25 @@ example (p : Prop) : p ∧ True := by
            --^ $/lean/plainGoal
   trivial
 
+-- Correct `calc` and `simpa`; on `using`, `simpa` still shows the simplified goal.
+example (a b : Nat) (h : a = b) : a = b := by
+  calc a = b := h
+               --^ $/lean/plainGoal
+
+example (p : Prop) (hp : p) : p ∧ True := by
+  simpa using hp
+              --^ $/lean/plainGoal
+           --^ $/lean/plainGoal
+
+-- A tactic whose first part is a separate tactic, here through an infix macro: the second part
+-- never ran, so the state after the whole tactic is shown as it is.
+syntax:1 tactic " allThen " tactic : tactic
+macro_rules | `(tactic| $a allThen $b) => `(tactic| ($a:tactic; all_goals $b:tactic))
+
+example : True := by
+  exact foo_ allThen simp
+                       --^ $/lean/plainGoal
+
 -- Tactics that leave new goals show those.
 example : True ∧ True := by
   refine ⟨foo_, ?_⟩
@@ -145,6 +180,12 @@ example : True ∧ True := by
 example (h : True → 1 = 1 → False) : False := by
   apply h foo_
             --^ $/lean/plainGoal
+
+example (a b c : Nat) : a = c := by
+  calc a = b := foo_
+    _ = c := ?_
+             --^ $/lean/plainGoal
+  sorry
 
 -- A `sorry` written by the user is not an error.
 example : True := by
@@ -193,13 +234,3 @@ example : True := by
 example (x : Nat) : x = 3 := by
   grind
      --^ $/lean/plainGoal
-
-/-! Not covered yet: the goal view still shows no goals. -/
-
-example (a b : Nat) : a = b := by
-  calc a = b := foo_
-                  --^ $/lean/plainGoal
-
-example : True := by
-  simpa using foo_
-                --^ $/lean/plainGoal

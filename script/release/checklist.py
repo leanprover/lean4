@@ -19,7 +19,6 @@ class Config:
     repos_dir: Path
     interactive: bool
     skip_weak_deps: bool
-    skip_mathlib_checks: bool
     github: Github
 
 
@@ -68,11 +67,10 @@ class RepoChecker:
         head: str,
         title: str,
         body: str | None = None,
-        nightly: ReleaseRepo | None = None,
     ) -> None:
         if not self.prompt(f"Push branch [b]{e(head)}[/b]?"):
             self.cl.fatal("Branch not pushed")
-        self.lrepo.push(head, remote="nightly" if nightly else "origin")
+        self.lrepo.push(head)
 
         if not self.prompt(f"Create PR for branch [b]{e(head)}[/b]?"):
             self.cl.fatal("PR not created")
@@ -82,7 +80,6 @@ class RepoChecker:
             body=body,
             base=base,
             head=head,
-            head_repo=nightly,
         )
         self.cl.blocked(f"PR created: {util.fmt_pr(pr)}")
 
@@ -291,7 +288,6 @@ class DownstreamChecker(RepoChecker):
             if not run.conclusion:
                 what = f"[b u link={run.html_url}]Bump workflow run {run.id}[/]"
                 self.cl.blocked(f"{what} is still running")
-                return
 
         if not self.prompt("No PR or running bump workflow run found. Trigger?"):
             self.cl.fatal("No PR or running bump workflow run found")
@@ -307,20 +303,20 @@ class DownstreamChecker(RepoChecker):
         # Normally; also RC1, rc1_pr_base == "default":
         # 1. Create bump branch from origin/main
         # 2. Create bump commit
-        # 3. Push branch to origin (or nightly, if specified)
+        # 3. Push branch to origin
         # 4. Create bump PR to origin/main
 
         # RC1, rc1_pr_base == "bump":
-        # 1. Create bump branch from origin/bump/v* (or nightly/bump/v*, if specified)
+        # 1. Create bump branch from origin/bump/v*
         # 2. Create bump commit
-        # 3. Push branch to origin (or nightly, if specified)
+        # 3. Push branch to origin
         # 4. Create bump PR to origin/main
 
         # RC1, rc1_pr_base == "downstream":
         # 1. Create bump branch in downstream-lean4, based off of downstream's origin/master
         #   1.1. Fetch that branch into the local repo, so the remaining steps stay normal
         # 2. Create bump commit
-        # 3. Push branch to origin (or nightly, if specified)
+        # 3. Push branch to origin
         # 4. Create bump PR to origin/main
 
         # Determine bump PR info
@@ -335,17 +331,16 @@ class DownstreamChecker(RepoChecker):
             return
 
         # Get the head branch into self.lrepo from whatever rc1 or non-rc1 source is appropriate
-        self.lrepo.prepare(nightly=self.rrepo.nightly)
+        self.lrepo.prepare()
         if self.version.rc == 1 and self.rrepo.rc1_pr_base == "bump":
             # `head` has already been set to the bump branch name earlier
-            remote = "nightly" if self.rrepo.nightly else "origin"
-            self.lrepo.switch(head, remote=remote)
+            self.lrepo.switch(head)
         elif self.version.rc == 1 and self.rrepo.rc1_pr_base == "downstream":
             dsl = repos.DOWNSTREAM_LEAN4.local(self.config.repos_dir)
             dsl.prepare()
             dsl.switch("master")
             dsl.run(
-                *("python", ".downstream/split.py", ".", self.rrepo.gh_name),
+                *("python", ".downstream/export.py", ".", self.rrepo.gh_name),
                 *("-m", "chore: adaptations from downstream-lean4"),
             )
             # See also LocalRepo.prepare and LocalRepo.switch
@@ -362,22 +357,16 @@ class DownstreamChecker(RepoChecker):
         body = None
         if self.rrepo.gh_full_name == repos.VERSO.gh_full_name:
             body = f"No-Changelog: toolchain bump for release {self.version.tag}"
-        self.create_pr(
-            title=title, body=body, base=base, head=head, nightly=self.rrepo.nightly
-        )
+        self.create_pr(title=title, body=body, base=base, head=head)
 
     def check_next_bump_branch(self) -> None:
         if self.rrepo.rc1_pr_base != "bump":
             return
 
-        grepo = self.grepo
-        if self.rrepo.nightly:
-            grepo = self.github.get_repo(self.rrepo.nightly.gh_full_name)
-
         branch_name = util.get_bump_branch(self.version.next_minor)
         what = f"Bump branch [b]{e(branch_name)}[/b]"
         try:
-            grepo.get_branch(branch_name)
+            self.grepo.get_branch(branch_name)
             self.cl.success(f"{what} exists")
             return
         except UnknownObjectException:
@@ -387,21 +376,13 @@ class DownstreamChecker(RepoChecker):
             self.cl.fail(f"{what} not found")
             return
 
-        lean4_nightly = self.github.get_repo(repos.LEAN4_NIGHTLY.gh_full_name)
-        latest_nightly_tag = util.get_latest_nightly_tag(lean4_nightly)
-
-        self.lrepo.prepare(nightly=self.rrepo.nightly)
+        self.lrepo.prepare()
         self.lrepo.create_branch(branch_name)
-        util.set_toolchain(self.lrepo.path, latest_nightly_tag.name)
-
-        message = f"chore: bump toolchain to {latest_nightly_tag.name}"
-        self.lrepo.commit(message)
 
         if not self.prompt(f"Push branch [b]{e(branch_name)}[/b]?"):
             self.cl.fail(f"{what} not found")
             return
-        remote = "nightly" if self.rrepo.nightly else "origin"
-        self.lrepo.push(branch_name, remote=remote)
+        self.lrepo.push(branch_name)
         self.cl.success(f"{what} created")
 
     def _check_lean_release_tag(self) -> GitRef | None:
@@ -540,25 +521,9 @@ class DownstreamChecker(RepoChecker):
         self.lrepo.push("stable", force=True)
         self.cl.success(f"{what} updated to point to toolchain tag")
 
-    def check_mathlib4_version_tags(self) -> None:
-        if self.rrepo.gh_full_name != repos.MATHLIB4.gh_full_name:
-            return
-        if self.config.skip_mathlib_checks:
-            return
-
-        # At this point, the PR has been merged
-        self.lrepo.prepare()
-        self.lrepo.switch(self.grepo.default_branch)
-
-        script = "scripts/verify_version_tags.py"
-        try:
-            self.lrepo.run("python", script, self.version.tag)
-            self.cl.success(f"Version tags verified by [b]{e(script)}[/b]")
-        except Exception:  # noqa: BLE001
-            self.cl.fatal(f"Version tag verification by [b]{e(script)}[/b] failed")
-
     def check(self) -> None:
         self.check_dependencies_completed()
+        self.rrepo.completed = False
 
         # Patch releases are a bit special
         if self.version.patch > 0:
@@ -585,9 +550,6 @@ class DownstreamChecker(RepoChecker):
         release_tag = self.check_release_tag()
         if release_tag:
             self.check_stable_branch_points_to_release_tag(release_tag)
-
-        if toolchain:
-            self.check_mathlib4_version_tags()
 
         self.cl.ensure_success()
         self.rrepo.completed = True
@@ -765,7 +727,6 @@ class LeanChecker(RepoChecker):
         runs = self.grepo.get_workflow_runs(event="push", head_sha=tag_sha).get_page(0)
         if len(runs) == 0:
             self.cl.fatal("Release workflow run not found")
-            return
 
         run = runs[0]
         what = f"[b u link={run.html_url}]Release workflow run {run.id}[/]"
@@ -935,7 +896,6 @@ class Args:
     repos_dir: Path | None
     interactive: bool
     skip_weak_deps: bool
-    skip_mathlib_checks: bool
     graph: bool
 
 
@@ -945,7 +905,6 @@ if __name__ == "__main__":
     parser.add_argument("-d", "--repos-dir", type=Path)
     parser.add_argument("-i", "--interactive", action="store_true")
     parser.add_argument("-W", "--skip-weak-deps", action="store_true")
-    parser.add_argument("-M", "--skip-mathlib-checks", action="store_true")
     parser.add_argument("-g", "--graph", action="store_true")
     args = parser.parse_args(namespace=Args())
 
@@ -956,7 +915,6 @@ if __name__ == "__main__":
         repos_dir=util.get_repos_dir(args.repos_dir),
         interactive=args.interactive,
         skip_weak_deps=args.skip_weak_deps,
-        skip_mathlib_checks=args.skip_mathlib_checks,
         github=github,
     )
 

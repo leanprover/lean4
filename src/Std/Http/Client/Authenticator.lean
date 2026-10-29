@@ -8,6 +8,7 @@ module
 prelude
 public import Std.Async
 public import Std.Http.Data
+public import Std.Http.Client.Proxy
 
 public section
 
@@ -73,6 +74,12 @@ structure Challenge where
   may appear more than once when the peer offers a choice of schemes.
   -/
   headers : Headers
+
+  /--
+  The proxy the challenged request went through, `.direct` when it went straight to `origin`. A
+  proxy challenge always comes with a proxy here.
+  -/
+  proxy : Proxy := .direct
 deriving Repr
 
 namespace Challenge

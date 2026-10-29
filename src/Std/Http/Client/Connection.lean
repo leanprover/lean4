@@ -1045,9 +1045,11 @@ private def prepareRequest (connection : Connection) (request : Request Body.Any
 /--
 The kind of authentication challenge `status` carries, if any.
 -/
-private def challengeKind? (status : Status) : Option Challenge.Kind :=
+private def challengeKind? (proxy : Proxy) (status : Status) : Option Challenge.Kind :=
   if status == .unauthorized then some .server
-  else if status == .proxyAuthenticationRequired then some .proxy
+  -- Only a proxy may ask for proxy credentials: an origin reached directly that answers `407` would
+  -- otherwise be handed them.
+  else if status == .proxyAuthenticationRequired ∧ proxy != .direct then some .proxy
   else none
 
 /--
@@ -1072,14 +1074,15 @@ user code.
 private def challengeAnswer (connection : Connection) (request : Request Body.Any)
     (head : Response.Head) : Async (Option (Header.Name × Header.Value)) := do
   let some authenticator := connection.config.authenticator | return none
-  let some kind := challengeKind? head.status | return none
+  let some kind := challengeKind? connection.proxy head.status | return none
 
   if request.body.reset?.isNone then return none
   if !leavesConnectionReusable connection.config request.line.method head then return none
   if ← connection.isClosed then return none
 
-  let challenge : Challenge :=
-    { kind, origin := connection.origin, target := request.line.uri, headers := head.headers }
+  let challenge : Challenge := {
+    kind, origin := connection.origin, target := request.line.uri, headers := head.headers
+    proxy := connection.proxy }
 
   let some credential ← authenticator.authenticate challenge | return none
   return some (challenge.credentialHeader, credential)
@@ -1175,7 +1178,8 @@ private def exchange (connection : Connection) (request : Request Body.Any) (req
 Queues a request and awaits its response, together with a completion promise that
 resolves when the connection is ready for the next request.
 -/
-def sendTracked (connection : Connection) (request : Request Body.Any) (requestOverrides : RequestOverrides := {}) :
+def sendTracked (connection : Connection) (request : Request Body.Any)
+    (requestOverrides : RequestOverrides := {}) :
     Async (Except Error TrackedResponse) := do
   let (sent, attempt) ← connection.exchange request requestOverrides
 

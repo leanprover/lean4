@@ -313,13 +313,16 @@ that outcome depend on whether the caller's `close` happened to land inside the 
 and the call.
 -/
 def reject (s : InFlightState) (err : Error) : Async Unit := do
+  -- The request body is closed before the caller hears of the failure: a caller that retries rewinds
+  -- that same body, and a close landing after the rewind would send the retry empty. The body's own
+  -- code must not keep the caller from hearing at all.
+  try s.closeRequestBodies catch _ => pure ()
   if s.responseComplete then
     s.pending.onComplete
   else
     s.pending.onError err
   closeBody s.finishedStream
   s.responseStream.forM (·.closeWithError err.toIOError)
-  s.closeRequestBodies
 
 end InFlightState
 

@@ -74,14 +74,13 @@ private def isReplayBody : RedirectBodyAction → Bool
 #guard isDone (decideRedirect origin (mkReq .get) false .v11 .notModified (withLocation "/x"))
 #guard isDone (decideRedirect origin (mkReq .get) false .v11 .multipleChoices (withLocation "/x"))
 
--- 301/302 only auto-follow GET/HEAD/POST; other unsafe methods are terminal.
+-- 301/302 keep every method but POST (RFC 9110 §15.4.2), so a PUT whose body cannot be replayed
+-- is terminal.
 #guard isDone (decideRedirect origin (mkReq .put) false .v11 .movedPermanently (withLocation "/x"))
+#guard isDone (decideRedirect origin (mkReq .patch) false .v11 .found (withLocation "/x"))
 
 -- 307/308 preserve the method, so a non-GET/HEAD request with a non-replayable body is terminal.
 #guard isDone (decideRedirect origin (mkReq .post) false .v11 .temporaryRedirect (withLocation "/x"))
-
--- HTTP/1.0 only defines 301/302; HTTP/1.1-only codes (e.g. 303) must not auto-follow.
-#guard isDone (decideRedirect origin (mkReq .get) false .v10 .seeOther (withLocation "/x"))
 
 /-! ## Followed redirects: method selection -/
 
@@ -117,6 +116,33 @@ private def isReplayBody : RedirectBodyAction → Bool
 -- 307 preserves POST and replays the body when replayable.
 #guard match plan? (decideRedirect origin (mkReq .post) true .v11 .temporaryRedirect (withLocation "/x")) with
   | some p => p.method == .post && isReplayBody p.bodyAction
+  | none => false
+
+-- 301/302 on PUT/PATCH/DELETE keep the method and replay a replayable body, like 307/308.
+#guard match plan? (decideRedirect origin (mkReq .put) true .v11 .movedPermanently (withLocation "/x")) with
+  | some p => p.method == .put && isReplayBody p.bodyAction
+  | none => false
+
+#guard match plan? (decideRedirect origin (mkReq .patch) true .v11 .found (withLocation "/x")) with
+  | some p => p.method == .patch && isReplayBody p.bodyAction
+  | none => false
+
+#guard match plan? (decideRedirect origin (mkReq .delete) true .v10 .found (withLocation "/x")) with
+  | some p => p.method == .delete && isReplayBody p.bodyAction
+  | none => false
+
+-- Status codes mean the same in every HTTP version (RFC 9110 §15), so an HTTP/1.0 response may
+-- redirect with 303/307/308 too.
+#guard match plan? (decideRedirect origin (mkReq .post) false .v10 .seeOther (withLocation "/x")) with
+  | some p => p.method == .get && isEmptyBody p.bodyAction
+  | none => false
+
+#guard match plan? (decideRedirect origin (mkReq .get) false .v10 .temporaryRedirect (withLocation "/x")) with
+  | some p => p.method == .get
+  | none => false
+
+#guard match plan? (decideRedirect origin (mkReq .put) true .v10 .permanentRedirect (withLocation "/x")) with
+  | some p => p.method == .put && isReplayBody p.bodyAction
   | none => false
 
 -- 307 on GET is followed with the method preserved.

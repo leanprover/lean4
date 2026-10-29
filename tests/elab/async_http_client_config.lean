@@ -71,18 +71,26 @@ private def bothChallenges : Headers :=
 
 private def token : Header.Value := .mk "Bearer abc123"
 
--- `const` answers every challenge with the same credential.
+-- `const` answers server challenges only, and `proxy` proxy challenges only, so neither kind of
+-- credential reaches the other kind of peer.
 #eval show IO Unit from do
   let value ← (Authenticator.const token).authenticate serverChallenge |>.block
   unless value.map (·.value) == some "Bearer abc123" do
     throw <| IO.userError "const authenticator must answer a server challenge"
   let value ← (Authenticator.const token).authenticate proxyChallenge |>.block
+  unless value.isNone do
+    throw <| IO.userError "const authenticator must not answer a proxy challenge"
+  let value ← (Authenticator.proxy token).authenticate proxyChallenge |>.block
   unless value.map (·.value) == some "Bearer abc123" do
-    throw <| IO.userError "const authenticator must answer a proxy challenge"
+    throw <| IO.userError "proxy authenticator must answer a proxy challenge"
+  let value ← (Authenticator.proxy token).authenticate serverChallenge |>.block
+  unless value.isNone do
+    throw <| IO.userError "proxy authenticator must not answer a server challenge"
 
 -- `restrict` declines challenges rejected by the predicate.
 #eval show IO Unit from do
-  let serverOnly := (Authenticator.const token).restrict (·.kind == Challenge.Kind.server)
+  let both := (Authenticator.const token).orElse (Authenticator.proxy token)
+  let serverOnly := both.restrict (·.kind == Challenge.Kind.server)
   let value ← serverOnly.authenticate serverChallenge |>.block
   unless value.isSome do
     throw <| IO.userError "restrict must keep challenges accepted by the predicate"

@@ -1524,7 +1524,7 @@ private def challenge401 : ByteArray :=
 #eval show IO _ from runWithTimeout "a 407 is answered in Proxy-Authorization" 5000 <| Async.block do
   let (mockClient, mockServer) ← Mock.new
   let connection ← mkConnection mockClient
-    { proxiedConfig with authenticator := some (Authenticator.const bearer) }
+    { proxiedConfig with authenticator := some (Authenticator.proxy bearer) }
   let promise ← sendInBackground connection (← mkRequest .get "/secret")
 
   discard <| readHead mockServer

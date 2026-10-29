@@ -380,9 +380,9 @@ structure ConnectionState where
 
   /--
   Absolute wall-clock deadline enforcing `config.requestTimeout` for the in-flight exchange, or `none`
-  while idle. Set when a request goes in flight, it first bounds sending the request and receiving
-  the response head; from the head on it is moved forward each time a body chunk reaches the caller,
-  so it then bounds each pause in the body, whether the peer or the caller is the one pausing.
+  while idle. It is moved forward by every completed write, by the response head, and by every body
+  chunk that reaches the caller, so it bounds each pause in the exchange rather than the exchange as a
+  whole, whether the peer or the caller is the one pausing.
   -/
   requestDeadline : Option Timestamp := none
 
@@ -1033,6 +1033,11 @@ private def run
         if let some err ← writeOutput socket step.output.data connectionContext state.requestDeadline then
           state ← abortState state err
           break
+
+        -- A completed write is progress on the exchange, so an upload, like the response body, is
+        -- bounded per pause rather than as a whole.
+        if state.requestDeadline.isSome then
+          state := { state with requestDeadline := some ((← Timestamp.now) + state.config.requestTimeout.val) }
 
       -- Phase 3: process all events emitted by this step.
 

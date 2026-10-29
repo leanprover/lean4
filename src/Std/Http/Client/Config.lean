@@ -90,9 +90,9 @@ structure Config where
   keepAliveTimeout : Timeout := ⟨4000, by decide⟩
 
   /--
-  Bounds each exchange on a connection: sending the request and receiving the response head must
-  finish within it, and after the head every pause in the body must too, whether the peer stops
-  sending or the caller stops reading. A body of any length streams for as long as it keeps moving.
+  Bounds each pause in an exchange on a connection: in sending the request, in waiting for the response
+  head, and in the response body, whether the peer stops or the caller stops reading. An upload or a
+  download of any length goes through for as long as it keeps moving.
   Each redirect hop and authentication retry is a new exchange with a bound of its own. DNS
   resolution and the transport connect are covered by `connectTimeout` instead.
   -/

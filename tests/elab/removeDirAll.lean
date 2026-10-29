@@ -4,7 +4,8 @@ import Lake.Util.IO
 
 /-!
 Regression tests for #14476: recursive deletion must unlink a root symlink without deleting its
-target. Check both Lean and Lake, including child links, dangling links, files, and missing paths.
+target, including when the path has trailing separators. Check both Lean and Lake, including child
+links, dangling links, files, and missing paths.
 -/
 
 open System
@@ -16,8 +17,9 @@ def checkAbsent (path : FilePath) : IO Unit := do
   | .error e => throw e
   | .ok _ => throw <| IO.userError s!"path still exists: {path}"
 
-def checkRemoveDirAll (remove : FilePath → IO Unit) (ignoreMissing : Bool) : IO Unit :=
+def checkRemoveDirAll (remove : FilePath → IO Unit) (ignoreMissing : Bool) (suffix : String) : IO Unit :=
   IO.FS.withTempDir fun root => do
+    let remove := fun (path : FilePath) => remove ⟨path.toString ++ suffix⟩
     let target := root / "target"
     let sentinel := target / "sub" / "sentinel"
     IO.FS.createDirAll (target / "sub")
@@ -52,7 +54,8 @@ def checkRemoveDirAll (remove : FilePath → IO Unit) (ignoreMissing : Bool) : I
 
     -- symlinkMetadata currently follows links on Windows.
     unless System.Platform.isWindows do
-      for dest in [target.toString, "target", "file", "missing"] do
+      let _ ← IO.Process.run { cmd := "ln", args := #["-s", "target", (root / "target-link").toString] }
+      for dest in [target.toString, "target", "target-link", "file", "missing"] do
         let link := root / "link"
         let _ ← IO.Process.run { cmd := "ln", args := #["-s", dest, link.toString] }
         assert! (← link.symlinkMetadata).type == .symlink
@@ -61,6 +64,14 @@ def checkRemoveDirAll (remove : FilePath → IO Unit) (ignoreMissing : Bool) : I
         assert! (← IO.FS.readFile sentinel) == "preserve this file"
         assert! (← IO.FS.readFile file) == "keep this ordinary file"
         checkAbsent missing
+        assert! (← (root / "target-link").symlinkMetadata).type == .symlink
 
-#eval checkRemoveDirAll IO.FS.removeDirAll false
-#eval checkRemoveDirAll Lake.removeDirAllIfExists true
+      -- A backslash is part of a POSIX filename, not a separator.
+      let backslash := root / "directory\\"
+      IO.FS.createDir backslash
+      remove backslash
+      checkAbsent backslash
+
+#eval for suffix in if System.Platform.isWindows then [""] else ["", "/", "///"] do
+  checkRemoveDirAll IO.FS.removeDirAll false suffix
+  checkRemoveDirAll Lake.removeDirAllIfExists true suffix

@@ -9,6 +9,7 @@ prelude
 public import Init.Control.Do
 public import Init.System.IOError
 public import Init.System.FilePath
+import Init.System.Platform
 import Init.Data.String.TakeDrop
 import Init.Data.String.Search
 public import Init.Data.Ord.Basic
@@ -1151,6 +1152,8 @@ opaque metadata : @& FilePath → IO IO.FS.Metadata
 /--
 Returns metadata for the indicated file without following symlinks. Throws an exception if the file
 does not exist or the metadata cannot be accessed.
+
+On Windows, this currently follows symlinks, just like `metadata`.
 -/
 @[extern "lean_io_symlink_metadata"]
 opaque symlinkMetadata : @& FilePath → IO IO.FS.Metadata
@@ -1329,10 +1332,15 @@ partial def createDirAll (p : FilePath) : IO Unit := do
 
 /--
 Fully remove given directory by deleting all contained files and directories in an unspecified order.
-Symlinks, including `p` itself, are deleted but not followed. Fails if any contained entry cannot be
-deleted or was newly created during execution.
+On POSIX systems, symlinks in directory entries or at the final component of `p` are deleted rather
+than followed, ignoring trailing slashes in `p`. Symlinks in parent components are still followed.
+On Windows, symlinks are currently followed.
+Fails if any contained entry cannot be deleted or was newly created during execution.
 -/
 partial def removeDirAll (p : FilePath) : IO Unit := do
+  let p := if System.Platform.isWindows then p else
+    let trimmed := p.toString.dropEndWhile '/'
+    if trimmed.isEmpty then p else ⟨trimmed.copy⟩
   if (← p.symlinkMetadata).type == .symlink then
     removeFile p
     return

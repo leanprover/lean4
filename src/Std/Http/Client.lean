@@ -627,7 +627,8 @@ retried.
 
 Every attempt, and every redirect hop, checks out a connection to its origin from the client's pool.
 A connection goes back to the pool when its exchange completes, and leaves it when the exchange
-fails.
+fails. The caller must read the response body to its end or close it: until then its connection
+carries no other request.
 -/
 def trySend {β : Type} [Coe β Body.Any] (client : Client) (origin : URI.Origin)
     (request : Request β) (overrides : RequestOverrides := {}) :

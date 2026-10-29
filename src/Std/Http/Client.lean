@@ -529,11 +529,12 @@ private def targetKey : RequestTarget → String
 /--
 Decides whether `response` continues the redirect chain. Returns the plan to follow, or `none` when
 the response is delivered to the caller as-is: the hop budget is spent, the response is not a
-followable redirect, or the target was already visited.
+followable redirect, or the chain already sent the same method to the same target. The method is
+part of what was visited, so a `POST` answered with `303` to its own URL is followed with `GET`.
 -/
 private def evaluateRedirect (origin : URI.Origin) (request : Request Body.Any)
     (response : Response Body.Stream) (remaining : Nat)
-    (history : Array (URI.Origin × String)) : Option RedirectPlan := Id.run do
+    (history : Array (URI.Origin × Method × String)) : Option RedirectPlan := Id.run do
   if remaining = 0 then return none
 
   let .follow plan :=
@@ -541,16 +542,16 @@ private def evaluateRedirect (origin : URI.Origin) (request : Request Body.Any)
         response.line.version response.line.status response.line.headers
     | return none
 
-  if history.contains (plan.origin, targetKey plan.target) then return none
+  if history.contains (plan.origin, plan.method, targetKey plan.target) then return none
 
   return some plan
 
 private partial def sendWithRedirects
     (client : Client) (initialOrigin origin : URI.Origin) (request : Request Body.Any)
     (remaining : Nat) (overrides : RequestOverrides)
-    (history : Array (URI.Origin × String) := #[]) (fresh : Bool := false) :
+    (history : Array (URI.Origin × Method × String) := #[]) (fresh : Bool := false) :
     Async (Except Error (Response Body.Stream)) := do
-  let history := history.push (origin, targetKey request.line.uri)
+  let history := history.push (origin, request.line.method, targetKey request.line.uri)
 
   match ← dispatchHop client initialOrigin origin request overrides fresh with
   | .error e => return .error e

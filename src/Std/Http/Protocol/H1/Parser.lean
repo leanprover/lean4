@@ -522,8 +522,9 @@ def parseStatusCode (limits : H1.Config) : Parser Status := do
   let d2 ← digit
   let d3 ← digit
   let code := (d1.toNat - 48) * 100 + (d2.toNat - 48) * 10 + (d3.toNat - 48)
-  sp
-  let phrase ← parseReasonPhrase limits <* crlf
+  -- Servers that send no reason phrase often leave out the space before it too.
+  let phrase := (← optional (sp *> parseReasonPhrase limits)).getD ""
+  crlf
 
   if h : IsValidReasonPhrase phrase then
     if let some status := Status.ofCode (some ⟨phrase, h⟩) code.toUInt16 then

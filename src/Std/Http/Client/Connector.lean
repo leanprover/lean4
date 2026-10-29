@@ -78,6 +78,9 @@ def Connector.tcp : Connector := fun origin config => do
     try
       let socket ← Socket.Client.mk
       socket.connect socketAddr
+      -- A request's head and body are written separately; with Nagle's algorithm the body would
+      -- wait for the peer's delayed ACK of the head.
+      socket.noDelay
       return .ok (← Connection.new socket origin config)
     catch err =>
       lastErr := .connect (toString err)

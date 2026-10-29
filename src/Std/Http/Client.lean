@@ -38,20 +38,31 @@ open Std Async TCP Protocol H1
 open Time
 
 /--
-A middleware intercepts every request/response hop performed by a `Client`.
+A middleware intercepts every request/response hop performed by a `Client`, redirect hops included.
 
-The function receives the outgoing request and a `next` continuation that performs
-the actual send. Call `next req` to forward the (possibly modified) request downstream;
-the result carries either the response or the typed `Error` that ended the hop, which
-the middleware may inspect, replace, or recover from. Return `.ok response` without
-calling `next` to short-circuit the chain.
+The function receives the origin the hop is addressed to, the outgoing request, and a `next`
+continuation that performs the actual send. Call `next req` to forward the (possibly modified)
+request downstream; the result carries either the response or the typed `Error` that ended the hop,
+which the middleware may inspect, replace, or recover from. Return `.ok response` without calling
+`next` to short-circuit the chain.
 
-Middlewares are composed outermost-first: the first element in the array wraps all
-subsequent ones. Each middleware must call `next` at most once per invocation.
+A redirect can lead to another origin, and the client strips credentials from a cross-origin hop
+before the middleware runs. A middleware that adds credentials must therefore check the origin, or
+be wrapped in `Middleware.forOrigin`, or it hands them to whatever host a redirect names.
+
+Middlewares are composed outermost-first: the first element in the array wraps all subsequent ones.
+A middleware that calls `next` again is done with the previous response.
 -/
 abbrev Middleware :=
-  Request Body.Any → (Request Body.Any → Async (Except Error (Response Body.Stream))) →
+  URI.Origin → Request Body.Any → (Request Body.Any → Async (Except Error (Response Body.Stream))) →
     Async (Except Error (Response Body.Stream))
+
+/--
+Applies `middleware` only to hops addressed to `origin`, passing every other hop straight through.
+-/
+def Middleware.forOrigin (origin : URI.Origin) (middleware : Middleware) : Middleware :=
+  fun hopOrigin request next =>
+    if hopOrigin == origin then middleware hopOrigin request next else next request
 
 /--
 What a request waiting at `Config.maxConnectionsPerOrigin` is eventually handed.
@@ -494,7 +505,7 @@ private def dispatchHop (client : Client) (initialOrigin origin : URI.Origin)
       | .error e =>
         connection.close
         return .error e
-  let chain := client.middlewares.foldr (fun mw next req => mw req next) inner
+  let chain := client.middlewares.foldr (fun mw next req => mw origin req next) inner
   let outcome ← try chain request catch err => pure (.error (.io err))
   let exchange ← exchangeRef.get
   match outcome with

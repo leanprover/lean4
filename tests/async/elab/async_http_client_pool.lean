@@ -282,7 +282,7 @@ def serveAll (body : String) (mock : Mock.Client) : Async Unit := do
     dialled.modify (· + 1)
     if (← dialled.get) > 1 then throw (IO.userError "opened a second connection")
     return .ok (← Client.Connection.new server origin config)
-  let refuse : Client.Middleware := fun req next =>
+  let refuse : Client.Middleware := fun _ req next =>
     if (toString req.line.uri).startsWith "/refused" then
       pure (.error (.invalidRequest "refused by middleware"))
     else
@@ -378,7 +378,7 @@ def serveAll (body : String) (mock : Mock.Client) : Async Unit := do
 #eval show IO _ from
   runWithTimeout "a middleware that calls next twice reuses the connection" 4000 <|
   Async.block do
-  let refresh : Client.Middleware := fun req next => do
+  let refresh : Client.Middleware := fun _ req next => do
     match ← next req with
     | .ok response =>
       if response.line.status == .unauthorized then

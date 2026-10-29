@@ -100,3 +100,52 @@ def bearer : Header.Value := .ofString! "Bearer SECRET"
     throw (IO.userError s!"the redirect hop carried credentials: {hop.quote}")
   if let some bytes ← mockB.tryRecv? then
     throw (IO.userError s!"the credential was sent to the redirect target: {(String.fromUTF8! bytes).quote}")
+
+/-- A middleware that adds `Authorization: Bearer SECRET` to every request it sees. -/
+def addBearer : Client.Middleware := fun _ req next =>
+  next { req with line := { req.line with headers := req.line.headers.insert .authorization bearer } }
+
+/-- Sends a request through `middleware`, has `api.example.com` redirect it to `evil.example`, and
+returns what each hop put on the wire. -/
+def redirectedThrough (middleware : Client.Middleware) : Async (String × String) := do
+  let (mockA, serverA) ← Mock.new
+  let (mockB, serverB) ← Mock.new
+  let servers := #[serverA, serverB]
+  let next ← IO.mkRef 0
+  let connect : Client.Connector := fun origin config => do
+    let some server := servers[← next.modifyGet fun i => (i, i + 1)]?
+      | throw (IO.userError "too many connections")
+    return .ok (← Client.Connection.new server origin config)
+  let client ← Client.new {} connect (maxRetries := 0) (middlewares := #[middleware])
+  let request ← getReq "/start"
+  let p : IO.Promise (Except Client.Error (Response Body.Stream)) ← IO.Promise.new
+  background do discard <| p.resolve (← client.trySend (origin "api.example.com") request)
+  let first := String.fromUTF8! (← drainRequest mockA)
+  mockA.send (rawResp "302 Found"
+    #[("Location", "http://evil.example/steal"), ("Content-Length", "0")] "")
+  let second := String.fromUTF8! (← drainRequest mockB)
+  mockB.send (rawResp "200 OK" #[("Content-Length", "0")] "")
+  discard <| await p.result!
+  return (first, second)
+
+-- A middleware is told which origin each hop goes to, redirect hops included.
+#eval show IO _ from runWithTimeout "a middleware sees each hop's origin" 3000 <|
+  Async.block do
+  let seen ← IO.mkRef (#[] : Array String)
+  let record : Client.Middleware := fun hopOrigin req next => do
+    seen.modify (·.push (toString hopOrigin))
+    next req
+  discard <| redirectedThrough record
+  let origins ← seen.get
+  unless origins == #["http://api.example.com", "http://evil.example"] do
+    throw (IO.userError s!"unexpected hop origins {origins}")
+
+-- `Middleware.forOrigin` keeps a credential-adding middleware on its own origin, so a redirect to
+-- another host does not carry the credential there.
+#eval show IO _ from runWithTimeout "a credential middleware scoped to its origin stays there" 3000 <|
+  Async.block do
+  let (first, second) ← redirectedThrough (Client.Middleware.forOrigin (origin "api.example.com") addBearer)
+  unless first.contains "Authorization: Bearer SECRET" do
+    throw (IO.userError s!"the first hop lacked the credential: {first.quote}")
+  if second.contains "Authorization" then
+    throw (IO.userError s!"the credential followed the redirect: {second.quote}")

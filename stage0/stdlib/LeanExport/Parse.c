@@ -9013,8 +9013,8 @@ goto v___jp_2080_;
 }
 else
 {
-lean_dec(v_head_2086_);
 lean_dec_ref_known(v_x_2076_, 2);
+lean_dec(v_head_2086_);
 lean_dec_ref(v___y_2078_);
 lean_dec(v_x_2077_);
 goto v___jp_2080_;
@@ -17596,8 +17596,8 @@ goto v___jp_3801_;
 else
 {
 lean_object* v___x_3891_; lean_object* v___x_3892_; 
-lean_dec(v_head_3813_);
 lean_dec_ref_known(v_x_3797_, 2);
+lean_dec(v_head_3813_);
 lean_dec_ref(v___y_3799_);
 lean_dec(v_x_3798_);
 v___x_3891_ = ((lean_object*)(l_List_mapM_loop___at___00__private_LeanExport_Parse_0__LeanExport_Parse_parseRecInfo_spec__0___closed__1));

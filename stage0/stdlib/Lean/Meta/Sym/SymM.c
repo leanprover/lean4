@@ -133,7 +133,7 @@ lean_object* l_ReaderT_instApplicativeOfMonad___redArg___lam__4(lean_object*, le
 lean_object* l_Lean_Meta_instMonadMetaM___lam__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_instInhabitedExpr;
 lean_object* l_instInhabitedOfMonad___redArg(lean_object*, lean_object*);
-lean_object* l_instInhabitedForall___redArg___lam__0___boxed(lean_object*, lean_object*);
+lean_object* l_instInhabitedReaderT___redArg___lam__0___boxed(lean_object*, lean_object*);
 lean_object* lean_panic_fn_borrowed(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_isProj___boxed(lean_object*);
 uint8_t l_Lean_Expr_hasLooseBVars(lean_object*);
@@ -9019,7 +9019,7 @@ lean_object* v___x_3111_; lean_object* v___x_3112_; lean_object* v___x_3113_; le
 v___x_3111_ = l_StateRefT_x27_instMonad___redArg(v___x_3110_);
 v___x_3112_ = l_Lean_instInhabitedExpr;
 v___x_3113_ = l_instInhabitedOfMonad___redArg(v___x_3111_, v___x_3112_);
-v___f_3114_ = lean_alloc_closure((void*)(l_instInhabitedForall___redArg___lam__0___boxed), 2, 1);
+v___f_3114_ = lean_alloc_closure((void*)(l_instInhabitedReaderT___redArg___lam__0___boxed), 2, 1);
 lean_closure_set(v___f_3114_, 0, v___x_3113_);
 v___x_914__overap_3115_ = lean_panic_fn_borrowed(v___f_3114_, v_msg_3054_);
 lean_dec_ref(v___f_3114_);

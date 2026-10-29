@@ -37,7 +37,7 @@ lean_object* l_Int_toNat(lean_object*);
 lean_object* l_Lean_instToExprInt_mkNat(lean_object*);
 lean_object* l_Lean_mkAppB(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Grind_instInhabitedGoalM___redArg();
-lean_object* l_instInhabitedForall___redArg___lam__0___boxed(lean_object*, lean_object*);
+lean_object* l_instInhabitedReaderT___redArg___lam__0___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkEqTrue(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Grind_Order_getStruct___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkApp5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -2826,7 +2826,7 @@ _start:
 {
 lean_object* v___x_965_; lean_object* v___f_966_; lean_object* v___x_1542__overap_967_; lean_object* v___x_968_; 
 v___x_965_ = lean_obj_once(&l_panic___at___00__private_Lean_Meta_Tactic_Grind_Order_Proof_0__Lean_Meta_Grind_Order_mkPropagateEqTrueProofCore_spec__0___closed__0, &l_panic___at___00__private_Lean_Meta_Tactic_Grind_Order_Proof_0__Lean_Meta_Grind_Order_mkPropagateEqTrueProofCore_spec__0___closed__0_once, _init_l_panic___at___00__private_Lean_Meta_Tactic_Grind_Order_Proof_0__Lean_Meta_Grind_Order_mkPropagateEqTrueProofCore_spec__0___closed__0);
-v___f_966_ = lean_alloc_closure((void*)(l_instInhabitedForall___redArg___lam__0___boxed), 2, 1);
+v___f_966_ = lean_alloc_closure((void*)(l_instInhabitedReaderT___redArg___lam__0___boxed), 2, 1);
 lean_closure_set(v___f_966_, 0, v___x_965_);
 v___x_1542__overap_967_ = lean_panic_fn_borrowed(v___f_966_, v_msg_952_);
 lean_dec_ref(v___f_966_);
@@ -3084,7 +3084,7 @@ v___jp_1093_:
 {
 lean_object* v___x_1097_; lean_object* v___x_1098_; lean_object* v___x_1099_; 
 v___x_1097_ = l_Lean_eagerReflBoolTrue;
-v___x_1098_ = l_Lean_mkApp6(v___y_1095_, v_u_1076_, v_v_1077_, v___y_1094_, v___y_1096_, v___x_1097_, v_huv_1079_);
+v___x_1098_ = l_Lean_mkApp6(v___y_1094_, v_u_1076_, v_v_1077_, v___y_1095_, v___y_1096_, v___x_1097_, v_huv_1079_);
 v___x_1099_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_1099_, 0, v___x_1098_);
 return v___x_1099_;
@@ -3105,8 +3105,8 @@ v___x_1111_ = l_Int_toNat(v___x_1110_);
 lean_dec(v___x_1110_);
 v___x_1112_ = l_Lean_instToExprInt_mkNat(v___x_1111_);
 v___x_1113_ = l_Lean_mkApp3(v___x_1107_, v___x_1108_, v___x_1109_, v___x_1112_);
-v___y_1094_ = v___y_1104_;
-v___y_1095_ = v___y_1103_;
+v___y_1094_ = v___y_1103_;
+v___y_1095_ = v___y_1104_;
 v___y_1096_ = v___x_1113_;
 goto v___jp_1093_;
 }
@@ -3115,8 +3115,8 @@ else
 lean_object* v___x_1114_; lean_object* v___x_1115_; 
 v___x_1114_ = l_Int_toNat(v_k_1100_);
 v___x_1115_ = l_Lean_instToExprInt_mkNat(v___x_1114_);
-v___y_1094_ = v___y_1104_;
-v___y_1095_ = v___y_1103_;
+v___y_1094_ = v___y_1103_;
+v___y_1095_ = v___y_1104_;
 v___y_1096_ = v___x_1115_;
 goto v___jp_1093_;
 }

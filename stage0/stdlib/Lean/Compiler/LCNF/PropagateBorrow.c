@@ -72,7 +72,7 @@ size_t lean_ptr_addr(lean_object*);
 lean_object* l___private_Lean_Compiler_LCNF_CompilerM_0__Lean_Compiler_LCNF_updateFunDeclImp___redArg(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_LCNF_instInhabitedCode_default__1___redArg();
-lean_object* l_instInhabitedForall___redArg___lam__0___boxed(lean_object*, lean_object*);
+lean_object* l_instInhabitedReaderT___redArg___lam__0___boxed(lean_object*, lean_object*);
 lean_object* l_Array_instInhabited___redArg();
 lean_object* l_Lean_Compiler_LCNF_getImpureSignature_x3f___redArg(lean_object*, lean_object*);
 lean_object* lean_st_mk_ref(lean_object*);
@@ -5520,7 +5520,7 @@ lean_object* v___x_1907_; lean_object* v___x_1908_; lean_object* v___x_1909_; le
 v___x_1907_ = l_StateRefT_x27_instMonad___redArg(v___x_1906_);
 v___x_1908_ = lean_obj_once(&l_panic___at___00__private_Lean_Compiler_LCNF_PropagateBorrow_0__Lean_Compiler_LCNF_Decl_applyOwnedness_goCode_spec__2___closed__0, &l_panic___at___00__private_Lean_Compiler_LCNF_PropagateBorrow_0__Lean_Compiler_LCNF_Decl_applyOwnedness_goCode_spec__2___closed__0_once, _init_l_panic___at___00__private_Lean_Compiler_LCNF_PropagateBorrow_0__Lean_Compiler_LCNF_Decl_applyOwnedness_goCode_spec__2___closed__0);
 v___x_1909_ = l_instInhabitedOfMonad___redArg(v___x_1907_, v___x_1908_);
-v___f_1910_ = lean_alloc_closure((void*)(l_instInhabitedForall___redArg___lam__0___boxed), 2, 1);
+v___f_1910_ = lean_alloc_closure((void*)(l_instInhabitedReaderT___redArg___lam__0___boxed), 2, 1);
 lean_closure_set(v___f_1910_, 0, v___x_1909_);
 v___x_2913__overap_1911_ = lean_panic_fn_borrowed(v___f_1910_, v_msg_1876_);
 lean_dec_ref(v___f_1910_);

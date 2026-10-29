@@ -2800,26 +2800,28 @@ return v_res_993_;
 static lean_object* _init_l_Lean_Elab_Tactic_VCGen_meetFrameProc___closed__2(void){
 _start:
 {
-lean_object* v___x_996_; lean_object* v___f_997_; lean_object* v___x_998_; lean_object* v___x_999_; lean_object* v___x_1000_; 
-v___x_996_ = lean_alloc_closure((void*)(l_Lean_Elab_Tactic_VCGen_defaultFrameInferenceProc___boxed), 11, 0);
-v___f_997_ = ((lean_object*)(l_Lean_Elab_Tactic_VCGen_meetFrameProc___closed__0));
-v___x_998_ = ((lean_object*)(l_Lean_Elab_Tactic_VCGen_meetFrameProc___closed__1));
-v___x_999_ = ((lean_object*)(l___private_Lean_Elab_Tactic_VCGen_FrameProc_0__Lean_Elab_Tactic_VCGen_meetOp___closed__3));
-v___x_1000_ = lean_alloc_ctor(0, 5, 0);
-lean_ctor_set(v___x_1000_, 0, v___x_999_);
-lean_ctor_set(v___x_1000_, 1, v___x_999_);
-lean_ctor_set(v___x_1000_, 2, v___x_998_);
-lean_ctor_set(v___x_1000_, 3, v___f_997_);
-lean_ctor_set(v___x_1000_, 4, v___x_996_);
-return v___x_1000_;
+lean_object* v___x_996_; lean_object* v___x_997_; lean_object* v___f_998_; lean_object* v___x_999_; lean_object* v___x_1000_; lean_object* v___x_1001_; 
+v___x_996_ = lean_box(0);
+v___x_997_ = lean_alloc_closure((void*)(l_Lean_Elab_Tactic_VCGen_defaultFrameInferenceProc___boxed), 11, 0);
+v___f_998_ = ((lean_object*)(l_Lean_Elab_Tactic_VCGen_meetFrameProc___closed__0));
+v___x_999_ = ((lean_object*)(l_Lean_Elab_Tactic_VCGen_meetFrameProc___closed__1));
+v___x_1000_ = ((lean_object*)(l___private_Lean_Elab_Tactic_VCGen_FrameProc_0__Lean_Elab_Tactic_VCGen_meetOp___closed__3));
+v___x_1001_ = lean_alloc_ctor(0, 6, 0);
+lean_ctor_set(v___x_1001_, 0, v___x_1000_);
+lean_ctor_set(v___x_1001_, 1, v___x_1000_);
+lean_ctor_set(v___x_1001_, 2, v___x_999_);
+lean_ctor_set(v___x_1001_, 3, v___f_998_);
+lean_ctor_set(v___x_1001_, 4, v___x_997_);
+lean_ctor_set(v___x_1001_, 5, v___x_996_);
+return v___x_1001_;
 }
 }
 static lean_object* _init_l_Lean_Elab_Tactic_VCGen_meetFrameProc(void){
 _start:
 {
-lean_object* v___x_1001_; 
-v___x_1001_ = lean_obj_once(&l_Lean_Elab_Tactic_VCGen_meetFrameProc___closed__2, &l_Lean_Elab_Tactic_VCGen_meetFrameProc___closed__2_once, _init_l_Lean_Elab_Tactic_VCGen_meetFrameProc___closed__2);
-return v___x_1001_;
+lean_object* v___x_1002_; 
+v___x_1002_ = lean_obj_once(&l_Lean_Elab_Tactic_VCGen_meetFrameProc___closed__2, &l_Lean_Elab_Tactic_VCGen_meetFrameProc___closed__2_once, _init_l_Lean_Elab_Tactic_VCGen_meetFrameProc___closed__2);
+return v___x_1002_;
 }
 }
 lean_object* runtime_initialize_Lean_Elab_Tactic_VCGen_WPApp(uint8_t builtin);

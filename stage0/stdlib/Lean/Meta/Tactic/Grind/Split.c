@@ -17889,8 +17889,8 @@ lean_object* v_a_5799_; lean_object* v___x_5801_; uint8_t v_isShared_5802_; uint
 lean_del_object(v___x_5770_);
 lean_dec(v_snd_5768_);
 lean_del_object(v___x_5765_);
-lean_del_object(v___x_5759_);
 lean_dec_ref_known(v_snd_5628_, 1);
+lean_del_object(v___x_5759_);
 lean_del_object(v___x_5630_);
 lean_dec(v_fst_5627_);
 lean_dec(v_fst_5623_);
@@ -17939,8 +17939,8 @@ lean_object* v_a_5807_; lean_object* v___x_5809_; uint8_t v_isShared_5810_; uint
 lean_del_object(v___x_5770_);
 lean_dec(v_snd_5768_);
 lean_del_object(v___x_5765_);
-lean_dec_ref_known(v_snd_5628_, 1);
 lean_del_object(v___x_5759_);
+lean_dec_ref_known(v_snd_5628_, 1);
 lean_del_object(v___x_5630_);
 lean_dec(v_fst_5627_);
 lean_dec(v_fst_5623_);

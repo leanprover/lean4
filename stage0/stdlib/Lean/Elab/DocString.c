@@ -63942,12 +63942,12 @@ goto v___jp_22443_;
 v___jp_22430_:
 {
 lean_object* v___x_22434_; lean_object* v___x_22435_; size_t v___x_22436_; size_t v___x_22437_; lean_object* v___x_22438_; 
-lean_inc(v___y_22432_);
+lean_inc(v___y_22431_);
 v___x_22434_ = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(v___x_22434_, 0, v___y_22432_);
+lean_ctor_set(v___x_22434_, 0, v___y_22431_);
 lean_ctor_set(v___x_22434_, 1, v___y_22433_);
 v___x_22435_ = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(v___x_22435_, 0, v___y_22431_);
+lean_ctor_set(v___x_22435_, 0, v___y_22432_);
 lean_ctor_set(v___x_22435_, 1, v___x_22434_);
 v___x_22436_ = ((size_t)1ULL);
 v___x_22437_ = lean_usize_add(v_i_22366_, v___x_22436_);
@@ -63967,8 +63967,8 @@ v___x_22448_ = lean_string_append(v___x_22447_, v___x_22364_);
 v___x_22449_ = lean_box(0);
 if (lean_obj_tag(v_moreInfo_22381_) == 0)
 {
-v___y_22431_ = v___x_22448_;
-v___y_22432_ = v___x_22449_;
+v___y_22431_ = v___x_22449_;
+v___y_22432_ = v___x_22448_;
 v___y_22433_ = v_moreInfo_22381_;
 goto v___jp_22430_;
 }
@@ -64012,8 +64012,8 @@ goto v_reusejp_22455_;
 }
 v_reusejp_22455_:
 {
-v___y_22431_ = v___x_22448_;
-v___y_22432_ = v___x_22449_;
+v___y_22431_ = v___x_22449_;
+v___y_22432_ = v___x_22448_;
 v___y_22433_ = v___x_22456_;
 goto v___jp_22430_;
 }

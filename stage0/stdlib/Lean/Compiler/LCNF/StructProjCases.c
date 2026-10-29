@@ -78,7 +78,7 @@ lean_object* l_ReaderT_instApplicativeOfMonad___redArg___lam__1(lean_object*, le
 lean_object* l_ReaderT_instApplicativeOfMonad___redArg___lam__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_ReaderT_instApplicativeOfMonad___redArg___lam__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_instInhabitedOfMonad___redArg(lean_object*, lean_object*);
-lean_object* l_instInhabitedForall___redArg___lam__0___boxed(lean_object*, lean_object*);
+lean_object* l_instInhabitedReaderT___redArg___lam__0___boxed(lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* l_Lean_Compiler_LCNF_mkParam(uint8_t, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
@@ -1633,7 +1633,7 @@ lean_object* v___x_435_; lean_object* v___x_436_; lean_object* v___x_437_; lean_
 v___x_435_ = l_StateRefT_x27_instMonad___redArg(v___x_434_);
 v___x_436_ = lean_box(0);
 v___x_437_ = l_instInhabitedOfMonad___redArg(v___x_435_, v___x_436_);
-v___f_438_ = lean_alloc_closure((void*)(l_instInhabitedForall___redArg___lam__0___boxed), 2, 1);
+v___f_438_ = lean_alloc_closure((void*)(l_instInhabitedReaderT___redArg___lam__0___boxed), 2, 1);
 lean_closure_set(v___f_438_, 0, v___x_437_);
 v___x_4146__overap_439_ = lean_panic_fn_borrowed(v___f_438_, v_msg_404_);
 lean_dec_ref(v___f_438_);
@@ -5794,16 +5794,16 @@ return v___x_1854_;
 else
 {
 lean_dec(v_a_1817_);
-lean_dec_ref(v_decl_1651_);
 lean_dec_ref_known(v_code_1529_, 2);
+lean_dec_ref(v_decl_1651_);
 return v___x_1818_;
 }
 }
 else
 {
 lean_object* v_a_1857_; lean_object* v___x_1859_; uint8_t v_isShared_1860_; uint8_t v_isSharedCheck_1864_; 
-lean_dec_ref(v_decl_1651_);
 lean_dec_ref_known(v_code_1529_, 2);
+lean_dec_ref(v_decl_1651_);
 v_a_1857_ = lean_ctor_get(v___x_1816_, 0);
 v_isSharedCheck_1864_ = !lean_is_exclusive(v___x_1816_);
 if (v_isSharedCheck_1864_ == 0)
@@ -5846,8 +5846,8 @@ return v___x_1862_;
 else
 {
 lean_object* v_a_1865_; lean_object* v___x_1867_; uint8_t v_isShared_1868_; uint8_t v_isSharedCheck_1872_; 
-lean_dec_ref(v_decl_1651_);
 lean_dec_ref_known(v_code_1529_, 2);
+lean_dec_ref(v_decl_1651_);
 v_a_1865_ = lean_ctor_get(v___x_1813_, 0);
 v_isSharedCheck_1872_ = !lean_is_exclusive(v___x_1813_);
 if (v_isSharedCheck_1872_ == 0)

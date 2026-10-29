@@ -12223,12 +12223,12 @@ goto v_resetjp_4402_;
 v_resetjp_4402_:
 {
 lean_object* v___x_4405_; 
-lean_inc_ref(v___y_4373_);
+lean_inc_ref(v___y_4375_);
 lean_inc(v___y_4379_);
 lean_inc_ref(v___y_4378_);
 lean_inc(v___y_4377_);
 lean_inc_ref(v___y_4376_);
-v___x_4405_ = lean_apply_5(v___y_4373_, v___y_4376_, v___y_4377_, v___y_4378_, v___y_4379_, lean_box(0));
+v___x_4405_ = lean_apply_5(v___y_4375_, v___y_4376_, v___y_4377_, v___y_4378_, v___y_4379_, lean_box(0));
 if (lean_obj_tag(v___x_4405_) == 0)
 {
 lean_object* v_a_4406_; uint8_t v___x_4407_; 
@@ -12241,7 +12241,7 @@ if (v___x_4407_ == 0)
 {
 lean_del_object(v___x_4403_);
 lean_del_object(v___x_4399_);
-lean_dec(v___y_4375_);
+lean_dec(v___y_4373_);
 v___y_4367_ = v___y_4374_;
 v___y_4368_ = v_fst_4401_;
 goto v___jp_4366_;
@@ -12298,7 +12298,7 @@ goto v_reusejp_4417_;
 v_reusejp_4417_:
 {
 lean_object* v___x_4419_; 
-v___x_4419_ = l_Lean_addTrace___at___00Lean_Elab_Tactic_Omega_Problem_fourierMotzkinSelect_spec__0(v___y_4375_, v___x_4418_, v___y_4376_, v___y_4377_, v___y_4378_, v___y_4379_);
+v___x_4419_ = l_Lean_addTrace___at___00Lean_Elab_Tactic_Omega_Problem_fourierMotzkinSelect_spec__0(v___y_4373_, v___x_4418_, v___y_4376_, v___y_4377_, v___y_4378_, v___y_4379_);
 if (lean_obj_tag(v___x_4419_) == 0)
 {
 lean_dec_ref_known(v___x_4419_, 1);
@@ -12359,8 +12359,8 @@ lean_object* v_a_4430_; lean_object* v___x_4432_; uint8_t v_isShared_4433_; uint
 lean_del_object(v___x_4403_);
 lean_dec(v_fst_4401_);
 lean_del_object(v___x_4399_);
-lean_dec(v___y_4375_);
 lean_dec_ref(v___y_4374_);
+lean_dec(v___y_4373_);
 v_a_4430_ = lean_ctor_get(v___x_4405_, 0);
 v_isSharedCheck_4437_ = !lean_is_exclusive(v___x_4405_);
 if (v_isSharedCheck_4437_ == 0)
@@ -12407,8 +12407,8 @@ else
 lean_object* v_val_4442_; lean_object* v___x_4444_; 
 lean_inc_ref(v_fst_4396_);
 lean_dec(v_a_4392_);
-lean_dec(v___y_4375_);
 lean_dec_ref(v___y_4374_);
+lean_dec(v___y_4373_);
 v_val_4442_ = lean_ctor_get(v_fst_4396_, 0);
 lean_inc(v_val_4442_);
 lean_dec_ref_known(v_fst_4396_, 1);
@@ -12436,8 +12436,8 @@ return v___x_4444_;
 else
 {
 lean_object* v_a_4447_; lean_object* v___x_4449_; uint8_t v_isShared_4450_; uint8_t v_isSharedCheck_4454_; 
-lean_dec(v___y_4375_);
 lean_dec_ref(v___y_4374_);
+lean_dec(v___y_4373_);
 v_a_4447_ = lean_ctor_get(v___x_4391_, 0);
 v_isSharedCheck_4454_ = !lean_is_exclusive(v___x_4391_);
 if (v_isSharedCheck_4454_ == 0)
@@ -12483,12 +12483,12 @@ lean_object* v___x_4455_;
 lean_inc(v___x_4380_);
 lean_dec(v___x_4381_);
 lean_dec_ref(v___y_4374_);
-lean_inc_ref(v___y_4373_);
+lean_inc_ref(v___y_4375_);
 lean_inc(v___y_4379_);
 lean_inc_ref(v___y_4378_);
 lean_inc(v___y_4377_);
 lean_inc_ref(v___y_4376_);
-v___x_4455_ = lean_apply_5(v___y_4373_, v___y_4376_, v___y_4377_, v___y_4378_, v___y_4379_, lean_box(0));
+v___x_4455_ = lean_apply_5(v___y_4375_, v___y_4376_, v___y_4377_, v___y_4378_, v___y_4379_, lean_box(0));
 if (lean_obj_tag(v___x_4455_) == 0)
 {
 lean_object* v_a_4456_; lean_object* v___x_4458_; uint8_t v_isShared_4459_; uint8_t v_isSharedCheck_4489_; 
@@ -12516,7 +12516,7 @@ lean_dec(v_a_4456_);
 if (v___x_4460_ == 0)
 {
 lean_object* v___x_4462_; 
-lean_dec(v___y_4375_);
+lean_dec(v___y_4373_);
 if (v_isShared_4459_ == 0)
 {
 lean_ctor_set(v___x_4458_, 0, v___x_4380_);
@@ -12554,7 +12554,7 @@ v___x_4470_ = lean_obj_once(&l_Lean_Elab_Tactic_Omega_Problem_fourierMotzkinSele
 v___x_4471_ = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(v___x_4471_, 0, v___x_4469_);
 lean_ctor_set(v___x_4471_, 1, v___x_4470_);
-v___x_4472_ = l_Lean_addTrace___at___00Lean_Elab_Tactic_Omega_Problem_fourierMotzkinSelect_spec__0(v___y_4375_, v___x_4471_, v___y_4376_, v___y_4377_, v___y_4378_, v___y_4379_);
+v___x_4472_ = l_Lean_addTrace___at___00Lean_Elab_Tactic_Omega_Problem_fourierMotzkinSelect_spec__0(v___y_4373_, v___x_4471_, v___y_4376_, v___y_4377_, v___y_4378_, v___y_4379_);
 if (lean_obj_tag(v___x_4472_) == 0)
 {
 lean_object* v___x_4474_; uint8_t v_isShared_4475_; uint8_t v_isSharedCheck_4479_; 
@@ -12647,7 +12647,7 @@ else
 {
 lean_object* v_a_4490_; lean_object* v___x_4492_; uint8_t v_isShared_4493_; uint8_t v_isSharedCheck_4497_; 
 lean_dec(v___x_4380_);
-lean_dec(v___y_4375_);
+lean_dec(v___y_4373_);
 v_a_4490_ = lean_ctor_get(v___x_4455_, 0);
 v_isSharedCheck_4497_ = !lean_is_exclusive(v___x_4455_);
 if (v_isSharedCheck_4497_ == 0)
@@ -12701,9 +12701,9 @@ v___x_4504_ = lean_unbox(v_a_4503_);
 lean_dec(v_a_4503_);
 if (v___x_4504_ == 0)
 {
-v___y_4373_ = v___f_4501_;
+v___y_4373_ = v_cls_4500_;
 v___y_4374_ = v___y_4499_;
-v___y_4375_ = v_cls_4500_;
+v___y_4375_ = v___f_4501_;
 v___y_4376_ = v_a_4360_;
 v___y_4377_ = v_a_4361_;
 v___y_4378_ = v_a_4362_;
@@ -12729,9 +12729,9 @@ v___x_4514_ = l_Lean_addTrace___at___00Lean_Elab_Tactic_Omega_Problem_fourierMot
 if (lean_obj_tag(v___x_4514_) == 0)
 {
 lean_dec_ref_known(v___x_4514_, 1);
-v___y_4373_ = v___f_4501_;
+v___y_4373_ = v_cls_4500_;
 v___y_4374_ = v___y_4499_;
-v___y_4375_ = v_cls_4500_;
+v___y_4375_ = v___f_4501_;
 v___y_4376_ = v_a_4360_;
 v___y_4377_ = v_a_4361_;
 v___y_4378_ = v_a_4362_;

@@ -960,11 +960,19 @@ private def closeFinishedBodies (state : ConnectionState) : Async (ConnectionSta
   -- The machine may drain the response body only once the caller's stream is gone or closed. Those
   -- bytes bypass `pullResponseBody`, so the limit is checked here too: abandoning the response
   -- stream must not be a way out of `maxResponseBodySize`.
-  if (← state.responseStream.mapM Body.isClosed).getD true then
+  let streamClosed ← state.responseStream.mapM Body.isClosed
+  if streamClosed.getD true then
     state := { state with machine := state.machine.drainBody }
 
     if state.exceedsBodyLimit then
       return (← abortState state .bodyLimitExceeded, true)
+
+    -- The caller closed a body that is still arriving. Reading the rest off the network only to
+    -- discard it would hold the connection for as long as the peer cares to send, so unless what was
+    -- already buffered completed the body, the connection ends here.
+    if streamClosed == some true then
+      if let .readBody _ := state.machine.reader.state then
+        return (← abortState state (.closed "response body closed before it ended"), true)
 
   return (state, false)
 

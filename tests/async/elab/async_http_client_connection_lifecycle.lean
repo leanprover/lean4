@@ -152,10 +152,10 @@ The other side of that bound: with the peer silent and the body unread, the exch
     connection.close
 
 /-!
-The bound stands down only while bytes for the caller are actually in hand: a caller that walks away
-from its stream hands the body back to the loop, whose wait is the peer's again.
+A caller that closes a body that is still arriving is done with it: the connection does not wait on
+the peer to send the rest only to discard it, but ends at once.
 -/
-#eval show IO _ from runWithTimeout "an abandoned response body re-arms readTimeout" 6000 <|
+#eval show IO _ from runWithTimeout "an abandoned unfinished response body ends the exchange" 6000 <|
     Async.block do
   let (client, peer) ← Mock.new
   let connection ← mkConnection client
@@ -169,7 +169,10 @@ from its stream hands the body back to the loop, whose wait is the peer's again.
 
     response.body.close
 
-    expectTimedOut completion 3000 "an abandoned response body"
+    match ← settleWithin completion 150 "an abandoned response body" with
+    | .error (.closed _) => pure ()
+    | .error e => throw (IO.userError s!"an abandoned response body: expected .closed, got {errorConstructor e}")
+    | .ok () => throw (IO.userError "an abandoned response body: the exchange reported success")
   finally
     connection.close
 

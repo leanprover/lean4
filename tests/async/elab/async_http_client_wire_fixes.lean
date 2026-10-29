@@ -318,3 +318,32 @@ instance : Transport StallingTransport where
   discard <| drainRequest m1
   m1.send (rawResp "200 OK" #[("Content-Length", "2")] "ok")
   unless (← expectBody "/next" p2) == "ok" do throw (IO.userError "wrong body for /next")
+
+-- A server that answers an upload early and stops reading it gets its response delivered, instead
+-- of the client waiting on the blocked write until its deadline.
+#eval show IO _ from runWithTimeout "an early response during a blocked upload is delivered" 3000 <|
+  Async.block do
+  let (peer, server) ← Mock.new
+  let stall ← IO.mkRef false
+  let stalled : IO.Promise Unit ← IO.Promise.new
+  let connection ← Client.Connection.new ({ inner := server, stall } : StallingTransport) (origin)
+    { requestTimeout := ⟨2000, by decide⟩ }
+  let body ← Body.mkStream
+  background do
+    body.send (Chunk.ofByteArray "first".toUTF8)
+    -- From here on every write blocks: the peer has stopped reading.
+    await stalled.result!
+    for _ in [0:20] do
+      try body.send (Chunk.ofByteArray "more".toUTF8) catch _ => break
+  let request := Request.new |>.method .put |>.uri! "/upload" |>.body body
+  let result : IO.Promise (Except Client.Error Client.TrackedResponse) ← IO.Promise.new
+  background do discard <| result.resolve (← connection.sendTracked { request with })
+  discard <| peer.recv?
+  stall.set true
+  stalled.resolve ()
+  IO.sleep 100
+  peer.send (rawResp "413 Content Too Large" #[("Content-Length", "0"), ("Connection", "close")] "")
+  match ← await result.result! with
+  | .ok tracked => unless tracked.response.line.status.toCode == 413 do
+      throw (IO.userError s!"expected the 413, got {tracked.response.line.status.toCode}")
+  | .error e => throw (IO.userError s!"the early response was lost: {e}")

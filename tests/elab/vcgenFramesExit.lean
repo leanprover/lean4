@@ -174,7 +174,7 @@ companion is the pointwise meet on the exception layer and the ignoring companio
 tail. -/
 @[grind .]
 theorem frames_bumpOrThrow {F P : AppState → Prop}
-    (h : ∀ s a, F { s with fst := a } = F s) :
+    (h : ∀ a b, F (a, b) = F (0, b)) :
     WP.Frames meet (bumpOrThrow : MEx Nat) F P := by
   refine WP.frames_of_conjunctive (PartialOrder.rel_trans (meet_le_right _ _) ?_) ?_
   · vcgen [bumpOrThrow] with finish

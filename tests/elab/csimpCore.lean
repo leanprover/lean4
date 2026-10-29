@@ -51,6 +51,7 @@ info: (Acc.rec, Acc.recC)
 (String.utf8EncodeChar, String.utf8EncodeCharFast)
 (Thunk.fn, Thunk.fnImpl)
 (Vector.pmap, Vector.pmapImpl)
+(Std.Http.Internal.isToken, Std.Http.Internal.isTokenImpl)
 (String.Slice.Pos.next, String.Slice.Pos.nextFast)
 -/
 #guard_msgs in

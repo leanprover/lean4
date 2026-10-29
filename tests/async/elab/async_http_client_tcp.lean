@@ -97,9 +97,9 @@ def loopback6 : Net.IPv6Addr := Net.IPv6Addr.ofParts 0 0 0 0 0 0 0 1
   let request ← Request.new |>.method .get |>.uri! "/" |>.empty
   let target : URI.Origin := { scheme := URI.Scheme.ofString! "https", host := .ipv4 loopback4, port := 443 }
   match ← client.trySend target request with
-  | .error (.connect message) =>
+  | .error (.invalidRequest message) =>
     unless message.contains "https" do throw (IO.userError s!"unexpected message {message}")
-  | .error e => throw (IO.userError s!"expected a connect error, got {e}")
+  | .error e => throw (IO.userError s!"expected an invalid request, got {e}")
   | .ok _ => throw (IO.userError "an https request succeeded over plain TCP")
 
 -- A URL is enough: the client takes the origin from it.

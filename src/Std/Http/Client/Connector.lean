@@ -51,12 +51,14 @@ proxy address instead and the origin is left for the HTTP layer to address.
 -/
 def Connector.tcp : Connector := fun origin config => do
 
+  -- A scheme this connector cannot serve is the request's problem, not a failed connection: as a
+  -- connect error it would count as never sent and be tried again to no purpose.
   if origin.scheme.val == "https" then
-    return .error (.connect "default TCP connector does not support https.")
+    return .error (.invalidRequest "the default TCP connector does not support https")
 
   if origin.scheme.val != "http" then
-    return .error (.connect
-      s!"default TCP connector only supports http, got scheme {origin.scheme.val.quote}")
+    return .error (.invalidRequest
+      s!"the default TCP connector only supports http, got scheme {origin.scheme.val.quote}")
 
   let (connectHost, connectPort, literal) : String × UInt16 × Option Std.Net.IPAddr :=
     match config.proxySelector.select origin with

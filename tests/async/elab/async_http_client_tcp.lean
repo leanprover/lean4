@@ -101,3 +101,38 @@ def loopback6 : Net.IPv6Addr := Net.IPv6Addr.ofParts 0 0 0 0 0 0 0 1
     unless message.contains "https" do throw (IO.userError s!"unexpected message {message}")
   | .error e => throw (IO.userError s!"expected a connect error, got {e}")
   | .ok _ => throw (IO.userError "an https request succeeded over plain TCP")
+
+-- A URL is enough: the client takes the origin from it.
+#eval show IO _ from runWithTimeout "GET by URL" 5000 <|
+  Async.block do
+  let server ← Server.serve (.v4 ⟨loopback4, 0⟩) echoPeer
+  let port ← boundPort server
+  let client ← Client.new
+  let response ← client.get s!"http://127.0.0.1:{port}/hello?x=1"
+  let body ← response.body.readAll (α := String)
+  server.shutdownAndWait
+  unless body.startsWith "/hello?x=1 " do
+    throw (IO.userError s!"unexpected body {body.quote}")
+
+-- A request built with an absolute URL is sent to that URL's origin, in origin-form.
+#eval show IO _ from runWithTimeout "execute a request with an absolute URL" 5000 <|
+  Async.block do
+  let server ← Server.serve (.v4 ⟨loopback4, 0⟩) echoPeer
+  let port ← boundPort server
+  let client ← Client.new
+  let request ← Request.new |>.method .post |>.uri! s!"http://127.0.0.1:{port}/items" |>.text "x"
+  let response ← client.execute request
+  let body ← response.body.readAll (α := String)
+  server.shutdownAndWait
+  unless body.startsWith "/items " do
+    throw (IO.userError s!"unexpected body {body.quote}")
+
+-- Something that is not an absolute URL is refused before anything is sent.
+#eval show IO _ from runWithTimeout "a malformed URL is an invalid request" 3000 <|
+  Async.block do
+  let client ← Client.new
+  for url in #["not a url", "/relative/path"] do
+    match ← client.tryGet url with
+    | .error (.invalidRequest _) => pure ()
+    | .error e => throw (IO.userError s!"{url}: expected invalidRequest, got {e}")
+    | .ok _ => throw (IO.userError s!"{url}: a request was sent")

@@ -676,5 +676,48 @@ def send {β : Type} [Coe β Body.Any] (client : Client) (origin : URI.Origin) (
     (overrides : RequestOverrides := {}) : Async (Response Body.Stream) :=
   client.trySend origin request overrides >>= Error.throwOrPure
 
+/--
+Sends a request whose target is an absolute URL (`http://host:8080/path?query`) to the origin that URL
+names, like `trySend` with that origin. The target goes on the wire in origin-form (or in the
+absolute-form a proxy needs), so any user information and fragment in the URL are not sent. Fails with
+`Error.invalidRequest` when the target is not an absolute URL with a host.
+-/
+def tryExecute {β : Type} [Coe β Body.Any] (client : Client) (request : Request β)
+    (overrides : RequestOverrides := {}) : Async (Except Error (Response Body.Stream)) := do
+  let request : Request Body.Any := { request with }
+  let .absoluteForm uri := request.line.uri
+    | return .error (.invalidRequest
+        s!"request target {request.line.uri} is not an absolute URL; use `trySend` with an origin")
+  let some origin := uri.origin?
+    | return .error (.invalidRequest s!"request target {request.line.uri} names no host")
+  let request := { request with line := { request.line with uri := uri.originTarget } }
+  client.trySend origin request overrides
+
+/--
+Sends a request whose target is an absolute URL to the origin that URL names.
+Use `tryExecute` to receive failures as a typed `Error` instead of a thrown exception.
+-/
+def execute {β : Type} [Coe β Body.Any] (client : Client) (request : Request β)
+    (overrides : RequestOverrides := {}) : Async (Response Body.Stream) :=
+  client.tryExecute request overrides >>= Error.throwOrPure
+
+/--
+Sends a `GET` for `url` (`http://host:8080/path?query`). Fails with `Error.invalidRequest` when `url`
+is not an absolute URL with a host.
+-/
+def tryGet (client : Client) (url : String) (overrides : RequestOverrides := {}) :
+    Async (Except Error (Response Body.Stream)) := do
+  let some uri := URI.parse? url
+    | return .error (.invalidRequest s!"not an absolute URL: {url.quote}")
+  client.tryExecute (← Request.get (.absoluteForm uri) |>.empty) overrides
+
+/--
+Sends a `GET` for `url` (`http://host:8080/path?query`).
+Use `tryGet` to receive failures as a typed `Error` instead of a thrown exception.
+-/
+def get (client : Client) (url : String) (overrides : RequestOverrides := {}) :
+    Async (Response Body.Stream) :=
+  client.tryGet url overrides >>= Error.throwOrPure
+
 end Client
 end Std.Http

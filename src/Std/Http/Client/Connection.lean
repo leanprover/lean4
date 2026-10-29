@@ -753,6 +753,11 @@ private def processH1Events
         if flight.responseComplete then
           flight.pending.onComplete
           closeBody flight.finishedStream
+        else if state.machine.error == some .badMessage ∧ ¬sawFailure then
+          -- The writer refused the outgoing message: the caller's body did not match the length it
+          -- declared. That is the request's fault, not the connection's, so it is not retryable.
+          flight.reject (.invalidRequest "the request body did not match its declared length")
+          sawFailure := true
 
   return (state, sawFailure)
 

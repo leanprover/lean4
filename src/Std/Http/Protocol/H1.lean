@@ -1147,6 +1147,10 @@ private partial def processFixedBufferedBody (machine : Machine dir) (n : Nat) :
           machine.setWriterState (.writingBodyFixed 0)
       else
         closeOnBadMessage machine
+    else if writer.userClosedBody ∧ writer.userData.isEmpty then
+      -- The producer finished short of the declared length; waiting for the rest would stall the
+      -- exchange with a peer that is still waiting for it too.
+      closeOnBadMessage machine
     else
       machine.setWriterState (.writingBodyFixed remaining)
 

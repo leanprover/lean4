@@ -462,8 +462,13 @@ private def buildRedirectRequest (plan : RedirectPlan)
     | .replay => do
       request.body.reset?.getD (pure ())
       pure request.body
+  -- `Expect: 100-continue` asks to wait before sending content, and RFC 9110 §10.1.1 forbids it on a
+  -- request that has none.
+  let headers := match plan.bodyAction with
+    | .empty => plan.headers.erase .expect
+    | .replay => plan.headers
   return {
-    line := { request.line with uri := plan.target, method := plan.method, headers := plan.headers }
+    line := { request.line with uri := plan.target, method := plan.method, headers }
     body := newBody
     extensions := request.extensions
   }

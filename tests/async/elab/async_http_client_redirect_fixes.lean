@@ -43,3 +43,19 @@ open Test.ClientHelpers
   | .error e =>
     unless e.isRetryable do throw (IO.userError s!"expected a retryable error, got {e}")
   | .ok r => throw (IO.userError s!"expected a failure, got {r.line.status.toCode}")
+
+-- A redirect that drops the body drops `Expect: 100-continue` with it.
+#eval show IO _ from runWithTimeout "a bodyless redirect does not keep Expect: 100-continue" 3000 <|
+  Async.block do
+  let (mock, server) ← Mock.new
+  let tc ← mkClient server
+  let request ← Request.new |>.method .post |>.uri! "/form"
+    |>.header! "Expect" "100-continue" |>.text "x=1"
+  let p ← sendInBackground tc request
+  discard <| drainRequest mock
+  mock.send (rawResp "303 See Other" #[("Location", "/done"), ("Content-Length", "0")] "")
+  let follow := String.fromUTF8! (← drainRequest mock)
+  if follow.toLower.contains "expect:" then
+    throw (IO.userError s!"the GET kept Expect: {follow.quote}")
+  mock.send (rawResp "200 OK" #[("Content-Length", "2")] "ok")
+  discard <| await p.result!

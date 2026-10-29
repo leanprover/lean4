@@ -178,12 +178,10 @@ structure Client where
   Maximum number of times to retry a failed request on a fresh connection. `0` disables
   retries.
 
-  Retries only apply to connection-level failures (the connection died before a response was
-  received). Application-level errors (4xx, 5xx) are never retried automatically.
-
-  **Only idempotent methods with replayable bodies are retried.** Requests whose method
-  returns `false` from `Method.isIdempotent` (e.g. `POST`, `PATCH`) are never retried
-  regardless of this value, to prevent unintended duplicate side-effects.
+  Retries only apply to connection-level failures (see `Error.isRetryable`); responses, `4xx` and
+  `5xx` included, are never retried. A request with an idempotent method and a replayable body is
+  retried after any such failure. Any other request, a `POST` for instance, is retried only after a
+  failure that proves it never reached a server (`Error.isNeverSent`), so it is never sent twice.
   -/
   maxRetries : Nat := 1
 

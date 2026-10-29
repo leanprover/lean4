@@ -603,6 +603,14 @@ def trySend {β : Type} [Coe β Body.Any] (client : Client) (origin : URI.Origin
   let request : Request Body.Any := { request with }
   let closes ← client.closes.get
 
+  -- An absolute-form target names its own origin. Sending it to another would let the target and the
+  -- connection disagree: through a proxy it would reach the target's host carrying the cookies and
+  -- credentials of `origin`.
+  if let .absoluteForm uri := request.line.uri then
+    unless uri.origin? == some origin do
+      return .error (.invalidRequest
+        s!"request target {request.line.uri} does not belong to the origin it is sent to, {origin}")
+
   let reset? := request.body.reset?
   let retries := if request.line.method.isIdempotent && reset?.isSome then client.maxRetries else 0
 

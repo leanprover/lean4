@@ -12,14 +12,14 @@ open Test.ClientHelpers
 -- Section 7 — Keep-alive and Connection: close
 -- ============================================================
 
--- The simplified pool keeps one connection at a time. A same-origin request sent
--- while the previous response body is unread queues on that connection and reaches
--- the wire only after the caller closes or drains the previous body.
+-- A same-origin request sent while the previous response body is unread does not wait for it: the
+-- pool opens a second connection, and the unread body stays readable on the first.
 
 #eval show IO _ from
-  runWithTimeout "single-connection pool queues behind unread response body" 4000 <|
+  runWithTimeout "pool opens a second connection beside an unread response body" 4000 <|
   Async.block do
   let (mockClient1, mockServer1) ← Mock.new
+  let (mockClient2, mockServer2) ← Mock.new
   let connectCount ← IO.mkRef 0
 
   let connect : Client.Connector := fun origin config => do
@@ -27,6 +27,7 @@ open Test.ClientHelpers
     connectCount.set (n + 1)
     match n with
     | 0 => return .ok (← Client.Connection.new mockServer1 origin config)
+    | 1 => return .ok (← Client.Connection.new mockServer2 origin config)
     | _ => throw (IO.userError "pool opened more connections than expected")
 
   let client ← Client.new {} connect
@@ -66,23 +67,11 @@ open Test.ClientHelpers
       catch e => pure (Except.error (toString e))
     discard <| p2.resolve result
 
-  IO.sleep 50
-  unless (← connectCount.get) == 1 do
-    resp1.body.close
-    mockClient1.close
-    throw (IO.userError "single-connection pool opened a second same-origin connection")
-
+  let secondBytes ← drainRequest mockClient2
   if let some bytes ← mockClient1.tryRecv? then
-    resp1.body.close
-    mockClient1.close
-    let text := String.fromUTF8! bytes
     throw (IO.userError
-      s!"queued request reached the wire before the first body was closed:\n{text.quote}")
-
-  resp1.body.close
-
-  let secondBytes ← drainRequest mockClient1
-  mockClient1.send (rawResp "200 OK"
+      s!"a request went out behind the unread body:\n{(String.fromUTF8! bytes).quote}")
+  mockClient2.send (rawResp "200 OK"
     #[("Content-Length", "3"), ("Connection", "close")] "two")
 
   match ← await p2.result! with
@@ -94,7 +83,11 @@ open Test.ClientHelpers
 
   let secondText := String.fromUTF8! secondBytes
   unless secondText.startsWith "GET /two" do
-    throw <| IO.userError s!"second request did not use the queued connection:\n{secondText.quote}"
+    throw <| IO.userError s!"second request did not use the second connection:\n{secondText.quote}"
+
+  let body1 ← resp1.body.readAll (α := String)
+  unless body1 == "hello" do
+    throw (IO.userError s!"the unread first body was lost: {body1.quote}")
 
 -- Once the caller closes an unread pooled response body, the connection loop
 -- drains the wire body and reports completion. The pool should then park the
@@ -255,10 +248,11 @@ open Test.ClientHelpers
   unless secondText.startsWith "GET /two" do
     throw <| IO.userError s!"second request did not reuse the first connection:\n{secondText.quote}"
 
--- A different origin replaces the pool's single current connection.
+-- Each origin keeps its own connection: a request to another origin neither closes nor replaces
+-- the first origin's, and the first origin's next request reuses it.
 
 #eval show IO _ from
-  runWithTimeout "single-connection pool replaces connection on origin change" 4000 <|
+  runWithTimeout "pool keeps a connection per origin" 4000 <|
   Async.block do
   let (mockClient1, mockServer1) ← Mock.new
   let (mockClient2, mockServer2) ← Mock.new
@@ -273,23 +267,10 @@ open Test.ClientHelpers
     | _ => throw (IO.userError "pool opened more connections than expected")
 
   let client ← Client.new {} connect
-  let some domain1 := URI.DomainName.ofString? "example.com"
-    | throw (IO.userError "DomainName parse failed")
-  let some domain2 := URI.DomainName.ofString? "other.example"
-    | throw (IO.userError "DomainName parse failed")
-  let origin1 : URI.Origin := {
-    scheme := URI.Scheme.ofString! "http"
-    host := .name domain1
-    port := 80
-  }
-  let origin2 : URI.Origin := {
-    scheme := URI.Scheme.ofString! "http"
-    host := .name domain2
-    port := 80
-  }
+  let origin1 := origin "example.com"
+  let origin2 := origin "other.example"
 
-  let req1 ← Request.new |>.method .get |>.uri! "/one"
-    |>.header! "Host" "example.com" |>.empty
+  let req1 ← Request.new |>.method .get |>.uri! "/one" |>.empty
   let p1 : IO.Promise (Except String (Response Body.Stream)) ← IO.Promise.new
   background do
     let result ← try
@@ -299,20 +280,14 @@ open Test.ClientHelpers
     discard <| p1.resolve result
 
   let _ ← drainRequest mockClient1
-  mockClient1.send (rawResp "200 OK"
-    #[("Content-Length", "0"), ("Connection", "keep-alive")] "")
-
+  mockClient1.send (rawResp "200 OK" #[("Content-Length", "1")] "1")
   match ← await p1.result! with
-  | Except.error e => throw (IO.userError s!"first pooled request failed: {e}")
+  | Except.error e => throw (IO.userError s!"first-origin request failed: {e}")
   | Except.ok resp1 =>
-    let body ← resp1.body.readAll (α := String)
-    unless body == "" do
-      throw (IO.userError s!"expected empty body, got {body.quote}")
+    unless (← resp1.body.readAll (α := String)) == "1" do
+      throw (IO.userError "wrong body for the first-origin request")
 
-  IO.sleep 50
-
-  let req2 ← Request.new |>.method .get |>.uri! "/two"
-    |>.header! "Host" "other.example" |>.empty
+  let req2 ← Request.new |>.method .get |>.uri! "/two" |>.empty
   let p2 : IO.Promise (Except String (Response Body.Stream)) ← IO.Promise.new
   background do
     let result ← try
@@ -321,44 +296,45 @@ open Test.ClientHelpers
       catch e => pure (Except.error (toString e))
     discard <| p2.resolve result
 
-  -- `recv?` returns `none` only once the old connection's transport is closed, so this doubles as
-  -- the retirement check: an old connection left open makes the test run out its wall clock here.
-  match ← mockClient1.recv? with
-  | none => pure ()
-  | some bytes =>
-    mockClient1.close
-    mockClient2.close
-    throw (IO.userError
-      s!"the new origin's request was written to the old connection:\n{(String.fromUTF8! bytes).quote}")
-
   let secondBytes ← drainRequest mockClient2
-  mockClient2.send (rawResp "200 OK"
-    #[("Content-Length", "3"), ("Connection", "close")] "two")
-
+  mockClient2.send (rawResp "200 OK" #[("Content-Length", "1")] "2")
   match ← await p2.result! with
   | Except.error e => throw (IO.userError s!"second-origin request failed: {e}")
   | Except.ok resp2 =>
-    let body ← resp2.body.readAll (α := String)
-    unless body == "two" do
-      throw (IO.userError s!"expected second body 'two', got {body.quote}")
+    unless (← resp2.body.readAll (α := String)) == "2" do
+      throw (IO.userError "wrong body for the second-origin request")
+  unless (String.fromUTF8! secondBytes).startsWith "GET /two" do
+    throw (IO.userError "the second origin did not get its own connection")
 
+  let req3 ← Request.new |>.method .get |>.uri! "/three" |>.empty
+  let p3 : IO.Promise (Except String (Response Body.Stream)) ← IO.Promise.new
+  background do
+    let result ← try
+        let resp ← client.send origin1 req3
+        pure (Except.ok resp)
+      catch e => pure (Except.error (toString e))
+    discard <| p3.resolve result
+
+  let thirdBytes ← drainRequest mockClient1
+  mockClient1.send (rawResp "200 OK" #[("Content-Length", "1")] "3")
+  match ← await p3.result! with
+  | Except.error e => throw (IO.userError s!"the first origin's second request failed: {e}")
+  | Except.ok resp3 =>
+    unless (← resp3.body.readAll (α := String)) == "3" do
+      throw (IO.userError "wrong body for the first origin's second request")
+  unless (String.fromUTF8! thirdBytes).startsWith "GET /three" do
+    throw (IO.userError "the first origin's connection was not reused")
   unless (← connectCount.get) == 2 do
-    throw (IO.userError "origin change did not open exactly one replacement connection")
-  let secondText := String.fromUTF8! secondBytes
-  unless secondText.startsWith "GET /two" do
-    throw <| IO.userError
-      s!"second-origin request did not use the replacement connection:\n{secondText.quote}"
+    throw (IO.userError s!"expected 2 connections, got {← connectCount.get}")
 
--- If a pooled cross-origin redirect leaves the original origin, the outgoing
--- connection is retired instead of being returned idle. A target-acquire failure
--- must close that old connection and leave the pool able to open a clean
--- replacement for the original origin.
+-- A cross-origin redirect gives the source connection back to the pool once the redirect body is
+-- read, so it survives a failure to reach the redirect target and serves the next request to its
+-- origin.
 
 #eval show IO _ from
-  runWithTimeout "failed cross-origin redirect retires old connection and keeps pool usable" 4000 <|
+  runWithTimeout "failed cross-origin redirect leaves the source connection reusable" 4000 <|
   Async.block do
   let (mockClient1, mockServer1) ← Mock.new
-  let (mockClient2, mockServer2) ← Mock.new
   let originalConnectCount ← IO.mkRef 0
 
   let connect : Client.Connector := fun origin config => do
@@ -369,7 +345,6 @@ open Test.ClientHelpers
       originalConnectCount.set (n + 1)
       match n with
       | 0 => return .ok (← Client.Connection.new mockServer1 origin config)
-      | 1 => return .ok (← Client.Connection.new mockServer2 origin config)
       | _ => throw (IO.userError "opened too many original-origin connections")
 
   -- Retries are disabled: this test asserts the state the pool is left in after a
@@ -402,23 +377,11 @@ open Test.ClientHelpers
   match ← await p1.result! with
   | Except.ok _ =>
     mockClient1.close
-    mockClient2.close
     throw (IO.userError "redirect unexpectedly succeeded")
   | Except.error e =>
     unless e.contains "redirect target dial failed" do
       mockClient1.close
-      mockClient2.close
       throw (IO.userError s!"unexpected redirect failure: {e}")
-
-  -- As above, `none` means the transport was closed; a source connection left open instead ends
-  -- this test on its wall clock.
-  match ← mockClient1.recv? with
-  | none => pure ()
-  | some bytes =>
-    mockClient1.close
-    mockClient2.close
-    throw (IO.userError
-      s!"a request was written to the retired redirect source connection:\n{(String.fromUTF8! bytes).quote}")
 
   let req2 ← Request.new |>.method .get |>.uri! "/again"
     |>.header! "Host" "example.com" |>.empty
@@ -430,21 +393,13 @@ open Test.ClientHelpers
       catch e => pure (Except.error (toString e))
     discard <| p2.resolve result
 
-  IO.sleep 50
-  if (← originalConnectCount.get) != 2 then
-    mockClient1.close
-    mockClient2.close
-    throw (IO.userError
-      "pool did not open a replacement original-origin connection for the follow-up request")
-
-  let secondBytes ← drainRequest mockClient2
-  mockClient2.send (rawResp "200 OK"
+  let secondBytes ← drainRequest mockClient1
+  mockClient1.send (rawResp "200 OK"
     #[("Content-Length", "2"), ("Connection", "close")] "ok")
 
   match ← await p2.result! with
   | Except.error e =>
-    throw (IO.userError
-      s!"original connection was not reused after failed redirect acquire: {e}")
+    throw (IO.userError s!"the source connection did not serve the follow-up request: {e}")
   | Except.ok resp =>
     let body ← resp.body.readAll (α := String)
     unless body == "ok" do
@@ -453,7 +408,9 @@ open Test.ClientHelpers
   let secondText := String.fromUTF8! secondBytes
   unless secondText.startsWith "GET /again" do
     throw <| IO.userError
-      s!"second request did not use the replacement connection:\n{secondText.quote}"
+      s!"second request did not reuse the source connection:\n{secondText.quote}"
+  unless (← originalConnectCount.get) == 1 do
+    throw (IO.userError "the pool opened a replacement for a reusable connection")
 
 -- Two sequential requests on the same connection must both succeed, exercising the
 -- `.next` reset path in the connection state machine.
@@ -637,15 +594,16 @@ open Test.ClientHelpers
   | Except.ok _ =>
     throw (IO.userError "expected in-flight request to abort when the connection is closed")
 
--- Opening a transport must not hold the pool state mutex. The first connector is deliberately
--- blocked; a second-origin acquisition must enter its connector before the first is released.
-#eval show IO _ from runWithTimeout "pool does not hold state mutex while connecting" 4000 <|
+-- Opening a transport must not hold the pool lock. The first connector is deliberately blocked; a
+-- request to a second origin must enter its connector before the first is released.
+#eval show IO _ from runWithTimeout "pool does not hold its lock while connecting" 4000 <|
   Async.block do
   let (_mockClient1, mockServer1) ← Mock.new
   let (_mockClient2, mockServer2) ← Mock.new
   let calls ← Std.Mutex.new 0
   let firstStarted : IO.Promise Unit ← IO.Promise.new
   let releaseFirst : IO.Promise Unit ← IO.Promise.new
+  let secondEntered : IO.Promise Unit ← IO.Promise.new
   let released ← IO.mkRef false
   let secondSawReleased ← IO.mkRef true
 
@@ -657,41 +615,24 @@ open Test.ClientHelpers
       return .ok (← Client.Connection.new mockServer1 origin config)
     else
       secondSawReleased.set (← released.get)
+      discard <| secondEntered.resolve ()
       return .ok (← Client.Connection.new mockServer2 origin config)
 
-  let client ← Client.new {} connect
-  let some domainA := URI.DomainName.ofString? "a.example"
-    | throw (IO.userError "DomainName parse failed")
-  let some domainB := URI.DomainName.ofString? "b.example"
-    | throw (IO.userError "DomainName parse failed")
-  let originA : URI.Origin := {
-    scheme := URI.Scheme.ofString! "http", host := .name domainA, port := 80 }
-  let originB : URI.Origin := {
-    scheme := URI.Scheme.ofString! "http", host := .name domainB, port := 80 }
+  let client ← Client.new {} connect (maxRetries := 0)
+  let reqA ← Request.new |>.method .get |>.uri! "/a" |>.empty
+  let reqB ← Request.new |>.method .get |>.uri! "/b" |>.empty
 
-  let firstDone : IO.Promise Unit ← IO.Promise.new
-  let secondDone : IO.Promise Unit ← IO.Promise.new
-
-  background do
-    let .ok connection ← client.getOrCreateConnection originA
-      | throw (IO.userError "first-origin connection acquisition failed")
-    discard <| firstDone.resolve ()
-    connection.close
+  background do discard <| client.trySend (origin "a.example") reqA
   await firstStarted.result!
-  background do
-    let .ok connection ← client.getOrCreateConnection originB
-      | throw (IO.userError "second-origin connection acquisition failed")
-    discard <| secondDone.resolve ()
-    connection.close
+  background do discard <| client.trySend (origin "b.example") reqB
   background do
     IO.sleep 300
     released.set true
     discard <| releaseFirst.resolve ()
 
-  await secondDone.result!
+  await secondEntered.result!
   if ← secondSawReleased.get then
-    throw (IO.userError "second connection was blocked behind the pool state mutex")
-  await firstDone.result!
+    throw (IO.userError "the second connection was blocked behind the pool lock")
 
 -- Idempotent requests retry a connector failure, including a failure before a `Connection` exists.
 #eval show IO _ from runWithTimeout "GET retries after the first connection attempt fails" 4000 <|

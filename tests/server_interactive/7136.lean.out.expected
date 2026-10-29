@@ -1,0 +1,124 @@
+{"textDocument": {"uri": "file:///7136.lean"},
+ "position": {"line": 7, "character": 13}}
+{"rendered": "```lean\n⊢ True ∧ False\n```", "goals": ["⊢ True ∧ False"]}
+{"textDocument": {"uri": "file:///7136.lean"},
+ "position": {"line": 12, "character": 7}}
+{"rendered": "```lean\n⊢ True ∧ False\n```", "goals": ["⊢ True ∧ False"]}
+{"textDocument": {"uri": "file:///7136.lean"},
+ "position": {"line": 16, "character": 13}}
+{"rendered": "```lean\n⊢ True ∧ False\n```", "goals": ["⊢ True ∧ False"]}
+{"textDocument": {"uri": "file:///7136.lean"},
+ "position": {"line": 20, "character": 10}}
+{"rendered": "```lean\n⊢ 1 = 1\n```", "goals": ["⊢ 1 = 1"]}
+{"textDocument": {"uri": "file:///7136.lean"},
+ "position": {"line": 24, "character": 7}}
+{"rendered": "```lean\n⊢ True\n```", "goals": ["⊢ True"]}
+{"textDocument": {"uri": "file:///7136.lean"},
+ "position": {"line": 29, "character": 23}}
+{"rendered": "```lean\n⊢ True ∧ True\n```", "goals": ["⊢ True ∧ True"]}
+{"textDocument": {"uri": "file:///7136.lean"},
+ "position": {"line": 35, "character": 12}}
+{"rendered":
+ "```lean\ncase left\n⊢ True\n```\n---\n```lean\ncase right\n⊢ True\n```",
+ "goals": ["case left\n⊢ True", "case right\n⊢ True"]}
+{"textDocument": {"uri": "file:///7136.lean"},
+ "position": {"line": 41, "character": 12}}
+{"rendered": "```lean\n⊢ True ∧ False\n```", "goals": ["⊢ True ∧ False"]}
+{"textDocument": {"uri": "file:///7136.lean"},
+ "position": {"line": 45, "character": 15}}
+{"rendered": "no goals", "goals": []}
+{"textDocument": {"uri": "file:///7136.lean"},
+ "position": {"line": 50, "character": 17}}
+{"rendered": "```lean\n⊢ True\n```", "goals": ["⊢ True"]}
+{"textDocument": {"uri": "file:///7136.lean"},
+ "position": {"line": 55, "character": 13}}
+{"rendered": "```lean\n⊢ True\n```", "goals": ["⊢ True"]}
+{"textDocument": {"uri": "file:///7136.lean"},
+ "position": {"line": 59, "character": 23}}
+{"rendered": "```lean\n⊢ True\n```", "goals": ["⊢ True"]}
+{"textDocument": {"uri": "file:///7136.lean"},
+ "position": {"line": 63, "character": 14}}
+{"rendered": "```lean\nf : ∀ (a : Nat), False\n⊢ True\n```",
+ "goals": ["f : ∀ (a : Nat), False\n⊢ True"]}
+{"textDocument": {"uri": "file:///7136.lean"},
+ "position": {"line": 67, "character": 28}}
+{"rendered":
+ "```lean\ncase left\n⊢ True\n```\n---\n```lean\ncase right\n⊢ True\n```",
+ "goals": ["case left\n⊢ True", "case right\n⊢ True"]}
+{"textDocument": {"uri": "file:///7136.lean"},
+ "position": {"line": 72, "character": 16}}
+{"rendered": "```lean\n⊢ ∀ (a : Nat), True\n```",
+ "goals": ["⊢ ∀ (a : Nat), True"]}
+{"textDocument": {"uri": "file:///7136.lean"},
+ "position": {"line": 76, "character": 13}}
+{"rendered": "```lean\n⊢ ∃ n, True\n```", "goals": ["⊢ ∃ n, True"]}
+{"textDocument": {"uri": "file:///7136.lean"},
+ "position": {"line": 81, "character": 9}}
+{"rendered": "```lean\n⊢ ∀ (a : Nat), True\n```",
+ "goals": ["⊢ ∀ (a : Nat), True"]}
+{"textDocument": {"uri": "file:///7136.lean"},
+ "position": {"line": 86, "character": 14}}
+{"rendered": "```lean\n⊢ True ∧ True\n```", "goals": ["⊢ True ∧ True"]}
+{"textDocument": {"uri": "file:///7136.lean"},
+ "position": {"line": 94, "character": 22}}
+{"rendered": "no goals", "goals": []}
+{"textDocument": {"uri": "file:///7136.lean"},
+ "position": {"line": 101, "character": 11}}
+{"rendered": "```lean\ncase right\nh : True ∧ sorry\n⊢ True\n```",
+ "goals": ["case right\nh : True ∧ sorry\n⊢ True"]}
+{"textDocument": {"uri": "file:///7136.lean"},
+ "position": {"line": 107, "character": 31}}
+{"rendered": "```lean\nh : True ∧ sorry\n⊢ True\n```",
+ "goals": ["h : True ∧ sorry\n⊢ True"]}
+{"textDocument": {"uri": "file:///7136.lean"},
+ "position": {"line": 115, "character": 2}}
+{"rendered": "```lean\nh : True\n⊢ True\n```", "goals": ["h : True\n⊢ True"]}
+{"textDocument": {"uri": "file:///7136.lean"},
+ "position": {"line": 121, "character": 10}}
+{"rendered": "no goals", "goals": []}
+{"textDocument": {"uri": "file:///7136.lean"},
+ "position": {"line": 127, "character": 9}}
+{"rendered": "```lean\n⊢ True\n```", "goals": ["⊢ True"]}
+{"textDocument": {"uri": "file:///7136.lean"},
+ "position": {"line": 134, "character": 13}}
+{"rendered": "```lean\ncase right\np : Prop\n⊢ True\n```",
+ "goals": ["case right\np : Prop\n⊢ True"]}
+{"textDocument": {"uri": "file:///7136.lean"},
+ "position": {"line": 140, "character": 19}}
+{"rendered": "```lean\n⊢ True\n```", "goals": ["⊢ True"]}
+{"textDocument": {"uri": "file:///7136.lean"},
+ "position": {"line": 145, "character": 14}}
+{"rendered": "```lean\nh : True → 1 = 1 → False\n⊢ 1 = 1\n```",
+ "goals": ["h : True → 1 = 1 → False\n⊢ 1 = 1"]}
+{"textDocument": {"uri": "file:///7136.lean"},
+ "position": {"line": 150, "character": 13}}
+{"rendered": "no goals", "goals": []}
+{"textDocument": {"uri": "file:///7136.lean"},
+ "position": {"line": 155, "character": 26}}
+{"rendered": "```lean\n⊢ True ∧ True\n```", "goals": ["⊢ True ∧ True"]}
+{"textDocument": {"uri": "file:///7136.lean"},
+ "position": {"line": 162, "character": 3}}
+{"rendered": "```lean\ncase right\n⊢ True\n```",
+ "goals": ["case right\n⊢ True"]}
+{"textDocument": {"uri": "file:///7136.lean"},
+ "position": {"line": 168, "character": 26}}
+{"rendered": "```lean\n⊢ True ∧ True\n```", "goals": ["⊢ True ∧ True"]}
+{"textDocument": {"uri": "file:///7136.lean"},
+ "position": {"line": 172, "character": 32}}
+{"rendered": "```lean\n⊢ True ∧ True\n```", "goals": ["⊢ True ∧ True"]}
+{"textDocument": {"uri": "file:///7136.lean"},
+ "position": {"line": 180, "character": 2}}
+{"rendered": "```lean\ncase right\n⊢ True\n```",
+ "goals": ["case right\n⊢ True"]}
+{"textDocument": {"uri": "file:///7136.lean"},
+ "position": {"line": 188, "character": 13}}
+{"rendered": "no goals", "goals": []}
+{"textDocument": {"uri": "file:///7136.lean"},
+ "position": {"line": 193, "character": 7}}
+{"rendered": "no goals", "goals": []}
+{"textDocument": {"uri": "file:///7136.lean"},
+ "position": {"line": 199, "character": 20}}
+{"rendered": "no goals", "goals": []}
+{"textDocument": {"uri": "file:///7136.lean"},
+ "position": {"line": 203, "character": 18}}
+{"rendered": "no goals", "goals": []}

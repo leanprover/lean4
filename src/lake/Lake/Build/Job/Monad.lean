@@ -31,14 +31,14 @@ public abbrev JobM := FetchT <| EStateT Log.Pos JobState BaseIO
 /-- Construct a `FetchM` monad from its full functional representation. -/
 @[inline] public def JobM.ofFn
   (f : IndexBuildFn RecBuildM → Option Package → CallStack BuildKey →
-    IO.Ref BuildStore → BuildContext → JobState → BaseIO (EResult Log.Pos JobState α))
+    BuildStoreRef → BuildContext → JobState → BaseIO (EResult Log.Pos JobState α))
 : JobM α := .mk fun fetch => fun pkg? stack store ctx => .mk fun s =>
   f fetch pkg? stack store ctx s
 
 /-- Convert a `JobM` monad to its full functional representation. -/
 @[inline] public def JobM.toFn (self : JobM α) :
   IndexBuildFn RecBuildM → Option Package → CallStack BuildKey →
-    IO.Ref BuildStore → BuildContext → JobState → BaseIO (EResult Log.Pos JobState α)
+    BuildStoreRef → BuildContext → JobState → BaseIO (EResult Log.Pos JobState α)
 := fun fetch pkg? stack store ctx s => self.run fetch pkg? stack store ctx |>.run s
 
 public instance (priority := high) : MonadStateOf JobState JobM := inferInstance
@@ -102,14 +102,14 @@ public abbrev SpawnM := FetchT <| ReaderT BuildTrace <| BaseIO
 /-- Construct a `SpawnM` monad from its full functional representation. -/
 @[inline] public def SpawnM.ofFn
   (f : IndexBuildFn RecBuildM → Option Package → CallStack BuildKey →
-    IO.Ref BuildStore → BuildContext → BuildTrace → BaseIO α)
+    BuildStoreRef → BuildContext → BuildTrace → BaseIO α)
 : SpawnM α := .mk fun fetch => fun pkg? stack store ctx s =>
   f fetch pkg? stack store ctx s
 
 /-- Convert a `SpawnM` monad to its full functional representation. -/
 @[inline] public def SpawnM.toFn (self : SpawnM α) :
   IndexBuildFn RecBuildM → Option Package → CallStack BuildKey →
-    IO.Ref BuildStore → BuildContext → BuildTrace → BaseIO α
+    BuildStoreRef → BuildContext → BuildTrace → BaseIO α
 := fun fetch pkg? stack store ctx s => self.run fetch pkg? stack store ctx |>.run s
 
 @[inline] public def JobM.runSpawnM (x : SpawnM α) : JobM α := .ofFn fun fn pkg? stack store ctx s =>

@@ -434,15 +434,17 @@ a very high degree of certainty.
 REQUIREMENTS:
   Comparator is only able to provide these guarantees under the following
   assumptions:
-  1. Everything (transitively) imported by the challenge file is trusted
+  1. Everything (transitively) imported by the challenge file is trusted.
   2. `lakefile.toml`/`lakefile.lean` and `lake-manifest.json` as well as
-     all the dependencies they require are trusted
+     all the dependencies they require are trusted.
   3. The project operates from a clean build, that is, there is no
      pre-existing `.lake` directory.
   4. You have `bubblewrap` installed for sandboxing the, potentially
-     dangerous, build of the solution.
-  5. You are not running `lake comparator` as a privileged user
-  6. The lean default kernel , or with `--paranoid` at least one of
+     dangerous, build of the solution. `bubblewrap` is currently only
+     available on Linux systems so comparator can only be safely
+     used on Linux.
+  5. You are not running `lake comparator` as a privileged user.
+  6. The lean default kernel, or with `--paranoid` at least one of
      the used kernels, does not have a soundness issue that causes
      it to accept an incorrect proof.
   7. The solution file does not make use of unknown exploits against

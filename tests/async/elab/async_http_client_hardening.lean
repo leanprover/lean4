@@ -166,3 +166,30 @@ def redirectedThrough (middleware : Client.Middleware) : Async (String × String
   | .error e =>
     unless e.contains "exceeds" do throw (IO.userError s!"unexpected error {e}")
   | .ok r => throw (IO.userError s!"expected a failure, got {r.line.status.toCode}")
+
+-- A body builder keeps the `Content-Type` the caller set instead of adding its default beside it.
+#eval show IO _ from runWithTimeout "a caller's Content-Type is not duplicated" 3000 <|
+  Async.block do
+  let request ← Request.new |>.method .post |>.uri! "/x"
+    |>.header! "Content-Type" "application/vnd.example+json" |>.json "{}"
+  let types := (request.line.headers.getAll? .contentType).getD #[]
+  unless types.map (·.value) == #["application/vnd.example+json"] do
+    throw (IO.userError s!"unexpected Content-Type values {types.map (·.value)}")
+
+-- Through a proxy, an origin's `401` does not get the proxy's credential.
+#eval show IO _ from runWithTimeout "an origin's 401 does not get the proxy credential" 3000 <|
+  Async.block do
+  let (mock, server) ← Mock.new
+  let proxyCredential : Header.Value := .ofString! "Basic cHJveHk="
+  let tc ← mkClient server
+    { proxySelector := Client.ProxySelector.of "proxy.example" 3128
+      authenticator := some (Client.Authenticator.proxy proxyCredential) }
+  let p ← sendInBackground tc (← getReq "/x")
+  discard <| drainRequest mock
+  mock.send (rawResp "401 Unauthorized" #[("WWW-Authenticate", "Basic"), ("Content-Length", "0")] "")
+  match ← await p.result! with
+  | .ok r => unless r.line.status == .unauthorized do
+      throw (IO.userError s!"expected the 401 back, got {r.line.status.toCode}")
+  | .error e => throw (IO.userError s!"the request failed: {e}")
+  if let some bytes ← mock.tryRecv? then
+    throw (IO.userError s!"the origin was sent a credential: {(String.fromUTF8! bytes).quote}")

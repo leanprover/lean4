@@ -233,8 +233,8 @@ instance : Transport StallingTransport where
     body.close
   let request := Request.new |>.method .put |>.uri! "/upload" |>.header! "Content-Length" "10" |>.body body
   match ← tc.client.trySend tc.origin request with
-  | .error .timeout => throw (IO.userError "the short body was only noticed by the timeout")
-  | .error _ => pure ()
+  | .error (.invalidRequest _) => pure ()
+  | .error e => throw (IO.userError s!"expected the request to be refused as invalid, got {e}")
   | .ok r => throw (IO.userError s!"a short body succeeded with {r.line.status.toCode}")
 
 -- A forbidden trailer field that does not frame the message is dropped, not a reason to fail a body
@@ -262,3 +262,59 @@ instance : Transport StallingTransport where
   | .ok r =>
     let read : Except String String ← try pure (.ok (← r.body.readAll (α := String))) catch e => pure (.error (toString e))
     if let .ok _ := read then throw (IO.userError "a framing trailer was accepted")
+
+-- A flood of interim responses ends the request instead of holding it until its deadline.
+#eval show IO _ from runWithTimeout "a flood of interim responses is refused" 3000 <|
+  Async.block do
+  let (mock, server) ← Mock.new
+  let tc ← mkClient server
+  let p ← sendInBackground tc (← getReq "/slow")
+  discard <| drainRequest mock
+  for _ in [0:100] do
+    -- The client gives up on the connection partway through.
+    try mock.send "HTTP/1.1 103 Early Hints\r\n\r\n".toUTF8 catch _ => break
+  match ← await p.result! with
+  | .error e => unless e.contains "interim" do throw (IO.userError s!"unexpected error {e}")
+  | .ok r => throw (IO.userError s!"expected a failure, got {r.line.status.toCode}")
+
+-- An upload that keeps moving outlives `requestTimeout`, like a download does: the bound is on each
+-- pause, not on the whole request.
+#eval show IO _ from runWithTimeout "an upload that keeps moving outlives requestTimeout" 4000 <|
+  Async.block do
+  let (mock, server) ← Mock.new
+  let tc ← mkClient server { requestTimeout := ⟨300, by decide⟩ }
+  let body ← Body.mkStream
+  background do
+    for _ in [0:8] do
+      body.send (Chunk.ofByteArray "0123456789".toUTF8)
+      IO.sleep 100
+    body.close
+  let request := Request.new |>.method .put |>.uri! "/upload" |>.body body
+  let p : IO.Promise (Except Client.Error (Response Body.Stream)) ← IO.Promise.new
+  background do discard <| p.resolve (← tc.client.trySend tc.origin request)
+  discard <| drainRequest mock
+  mock.send (rawResp "201 Created" #[("Content-Length", "2")] "ok")
+  match ← await p.result! with
+  | .ok r => unless r.line.status == .created do throw (IO.userError "wrong status")
+  | .error e => throw (IO.userError s!"the moving upload failed: {e}")
+
+-- A size-capped read that gives up closes the body, so the connection is not held for the rest.
+#eval show IO _ from runWithTimeout "a capped read that gives up releases its connection" 3000 <|
+  Async.block do
+  let (m0, s0) ← Mock.new
+  let (m1, s1) ← Mock.new
+  let (tc, _) ← mkFollowingClient #[s0, s1] { maxConnectionsPerOrigin := ⟨1, by decide⟩ }
+  let p1 ← sendInBackground tc (← getReq "/big")
+  discard <| drainRequest m0
+  m0.send (rawResp "200 OK" #[("Transfer-Encoding", "chunked")] s!"c8\r\n{String.ofList (List.replicate 200 'x')}\r\n")
+  let response ← match ← await p1.result! with
+    | .ok r => pure r
+    | .error e => throw (IO.userError s!"the first request failed: {e}")
+  match ← (try .ok <$> response.body.readAll (α := String) (maximumSize := some 100)
+            catch e => pure (.error e) : Async (Except IO.Error String)) with
+  | .ok _ => throw (IO.userError "the capped read did not give up")
+  | .error _ => pure ()
+  let p2 ← sendInBackground tc (← getReq "/next")
+  discard <| drainRequest m1
+  m1.send (rawResp "200 OK" #[("Content-Length", "2")] "ok")
+  unless (← expectBody "/next" p2) == "ok" do throw (IO.userError "wrong body for /next")

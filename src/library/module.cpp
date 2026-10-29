@@ -449,7 +449,8 @@ static object * mk_compacted_region(b_obj_arg ofname, object * root,
 // root to be interpreted as — the C side does no type checking and the caller is responsible for
 // using a type compatible with what was saved (see `CompactedRegion.read`).
 // Supports both `v2` and `v3` formats.
-extern "C" LEAN_EXPORT object * lean_compacted_region_read(b_obj_arg ofname, b_obj_arg odep_regions, object *) {
+extern "C" LEAN_EXPORT object * lean_compacted_region_read(b_obj_arg ofname, b_obj_arg odep_regions,
+                                                           uint8 prefault, object *) {
     std::string olean_fn(lean_string_cstr(ofname));
     try {
         std::vector<region_view> dep_regions = extract_dep_regions(odep_regions);
@@ -571,6 +572,15 @@ extern "C" LEAN_EXPORT object * lean_compacted_region_read(b_obj_arg ofname, b_o
 #if __has_feature(address_sanitizer)
             __lsan_ignore_object(buffer);
 #endif
+#endif
+        }
+
+        // Asynchronously read the whole mapping into the page cache when requested. Worthwhile only
+        // when the caller will go on to read most of the region (a non-`mmap`/`malloc`+`read`
+        // buffer is already fully resident, so the hint is moot there).
+        if (prefault && is_mmap) {
+#if !defined(LEAN_WINDOWS) && defined(MADV_WILLNEED)
+            madvise(buffer, size, MADV_WILLNEED);
 #endif
         }
 

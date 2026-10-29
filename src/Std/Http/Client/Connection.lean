@@ -238,6 +238,14 @@ structure InFlightState where
   -/
   responseComplete : Bool := false
 
+  /--
+  The caller's response stream once it holds the whole body, kept open until the exchange ends, as
+  long as nothing was left to send when the body ended. A pool then gets the connection back, through
+  the completion promise, before the caller sees the body end, so a caller that reads a response to
+  its end and sends again finds the connection idle.
+  -/
+  finishedStream : Option Body.Stream := none
+
 namespace InFlightState
 
 /--
@@ -288,6 +296,7 @@ it. Idempotent.
 -/
 def complete (s : InFlightState) : Async Unit := do
   s.pending.onComplete
+  closeBody s.finishedStream
   s.closeRequestBodies
   closeBody s.responseStream
 
@@ -308,6 +317,7 @@ def reject (s : InFlightState) (err : Error) : Async Unit := do
     s.pending.onComplete
   else
     s.pending.onError err
+  closeBody s.finishedStream
   s.responseStream.forM (·.closeWithError err.toIOError)
   s.closeRequestBodies
 
@@ -327,6 +337,12 @@ structure ConnectionState where
   this socket.
   -/
   machine : H1.Machine .sending
+
+  /--
+  The queue callers send requests on, closed by every terminal transition before it reports the
+  exchange.
+  -/
+  requestChannel : Std.CloseableChannel PendingRequest
 
   /--
   The configuration governing the current exchange: the connection's `Config` with the in-flight
@@ -514,10 +530,32 @@ private def finishRequestBody (state : ConnectionState) : ConnectionState :=
     machine := state.machine.userClosedBody }
 
 /--
-Ends the caller-facing response body: closes the stream and marks the response complete, so a later
-connection failure is reported to the caller as a completion rather than an error.
+Ends the caller-facing response body and marks the response complete, so a later connection failure
+is reported to the caller as a completion rather than an error.
+
+When the request body has been sent or its producer has finished, the exchange completes as soon as
+the connection is done with it, and the stream is held in `finishedStream` until then. A request
+body still being produced could hold it for as long as the upload runs, so the stream is closed at
+once instead.
 -/
 private def finishResponseBody (state : ConnectionState) : Async ConnectionState := do
+  -- A body framed as fixed-length with nothing left to write only waits for its producer's end,
+  -- which the loop is already polling for.
+  let nothingToWrite :=
+    match state.machine.writer.state with
+    | .writingBodyFixed 0 | .complete | .closed => true
+    | _ => false
+  let uploadDone ← match state.requestBody with
+    | none => pure true
+    | some body => if nothingToWrite then pure true else try body.isClosed catch _ => pure false
+  if uploadDone ∧ ¬state.waitingForContinue then
+    return state.mapInFlight fun flight =>
+      { flight with
+        responseStream := none
+        -- The body ends both on its final pull and on the machine's `.closeBody`; whichever comes
+        -- second finds the stream already held.
+        finishedStream := flight.responseStream <|> flight.finishedStream
+        responseComplete := true }
   closeBody state.responseStream
   return state.mapInFlight ({ · with responseStream := none, responseComplete := true })
 
@@ -660,7 +698,9 @@ private def processH1Events
       state := { state.clearInFlight with config := baseConfig }
 
     | .failed err =>
-      -- The closed channel is what tells the pool this connection is spent.
+      -- The closed channel is what tells the pool this connection is spent, so it is closed before
+      -- the exchange is reported.
+      stopAcceptingRequests requestChannel
       state.inFlight.forM (·.reject (.protocol err))
       sawFailure := true
 
@@ -673,6 +713,7 @@ private def processH1Events
       if let some flight := state.inFlight then
         if flight.responseComplete then
           flight.pending.onComplete
+          closeBody flight.finishedStream
 
   return (state, sawFailure)
 
@@ -680,9 +721,11 @@ private def processH1Events
 Terminal transition applied when a caller-facing problem forces the connection
 to end (request timeout, shutdown signal, response body limit exceeded).
 Rejects any in-flight request, closes all per-request resources, and parks
-the H1 machine.
+the H1 machine. The request channel is closed first, so a caller told that the exchange ended,
+possibly as a completion, already sees the connection as closed.
 -/
 private def abortState (state : ConnectionState) (err : Error) : Async ConnectionState := do
+  stopAcceptingRequests state.requestChannel
   state.inFlight.forM (·.reject err)
   return { state.clearInFlight with machine := state.machine.shutdown }
 
@@ -879,7 +922,7 @@ private def run
     (connectionContext : CancellationContext)
     (requestChannel : Std.CloseableChannel PendingRequest) : Async Unit := do
   let mut state : ConnectionState := {
-    machine, config
+    machine, requestChannel, config
     expectData := none
     inFlight := none
   }

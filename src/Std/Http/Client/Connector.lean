@@ -77,9 +77,15 @@ def Connector.tcp : Connector := fun origin config => do
       try DNS.getAddrInfo connectHost (toString connectPort)
       catch err => return .error (.connect (toString err))
 
+  -- The resolver can return an address once per socket type.
+  let addrs := addrs.foldl (fun seen addr => if seen.contains addr then seen else seen.push addr) #[]
+
   if addrs.isEmpty then
     return .error (.connect s!"could not resolve host: {connectHost.quote}")
 
+  -- Each address gets an equal share of `connectTimeout`, so one that never answers cannot use up
+  -- the whole budget before the next is tried.
+  let attemptTimeout := Std.Time.Millisecond.Offset.ofNat (config.connectTimeout.val.val.toNat / addrs.size)
   let mut lastErr : Error := .connect s!"could not connect to {connectHost.quote}:{connectPort}"
 
   for ipAddr in addrs do
@@ -88,11 +94,17 @@ def Connector.tcp : Connector := fun origin config => do
       | .v6 ip => .v6 ⟨ip, connectPort⟩
     try
       let socket ← Socket.Client.mk
-      socket.connect socketAddr
-      -- A request's head and body are written separately; with Nagle's algorithm the body would
-      -- wait for the peer's delayed ACK of the head.
-      socket.noDelay
-      return .ok (← Connection.new socket origin config)
+      let connected ← Async.race (some <$> socket.connect socketAddr) do
+        discard <| Selectable.one #[.case (← Selector.sleep attemptTimeout) pure]
+        pure none
+      match connected with
+      | none =>
+        lastErr := .connect s!"connecting to {socketAddr} timed out after {attemptTimeout}ms"
+      | some () =>
+        -- A request's head and body are written separately; with Nagle's algorithm the body would
+        -- wait for the peer's delayed ACK of the head.
+        socket.noDelay
+        return .ok (← Connection.new socket origin config)
     catch err =>
       lastErr := .connect (toString err)
 

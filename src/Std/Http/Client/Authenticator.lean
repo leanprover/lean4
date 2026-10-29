@@ -80,6 +80,12 @@ structure Challenge where
   proxy challenge always comes with a proxy here.
   -/
   proxy : Proxy := .direct
+
+  /--
+  The origin the caller addressed, before any redirect. It differs from `origin` when a redirect
+  took the request to another origin, which the caller's credentials may not be meant for.
+  -/
+  initialOrigin : URI.Origin := origin
 deriving Repr
 
 namespace Challenge
@@ -125,10 +131,15 @@ structure Authenticator where
 namespace Authenticator
 
 /--
-Answers every challenge with the same credential.
+Answers with the same credential every proxy challenge, and every server challenge from the origin
+the caller addressed. A server challenge from an origin a redirect led to is declined, so the
+credential does not follow the request to another host. Use `restrict` to narrow it further, for
+instance to server challenges only.
 -/
 def const (credential : Header.Value) : Authenticator where
-  authenticate _ := pure (some credential)
+  authenticate challenge :=
+    if challenge.kind == .server ∧ challenge.origin != challenge.initialOrigin then pure none
+    else pure (some credential)
 
 /--
 Declines the challenges rejected by `accepts`, deferring to `authenticator` for the rest. Use it to

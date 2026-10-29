@@ -1072,7 +1072,8 @@ The authenticator is consulted last, so a challenge that cannot be answered here
 user code.
 -/
 private def challengeAnswer (connection : Connection) (request : Request Body.Any)
-    (head : Response.Head) : Async (Option (Header.Name × Header.Value)) := do
+    (head : Response.Head) (initialOrigin : URI.Origin) :
+    Async (Option (Header.Name × Header.Value)) := do
   let some authenticator := connection.config.authenticator | return none
   let some kind := challengeKind? connection.proxy head.status | return none
 
@@ -1082,7 +1083,7 @@ private def challengeAnswer (connection : Connection) (request : Request Body.An
 
   let challenge : Challenge := {
     kind, origin := connection.origin, target := request.line.uri, headers := head.headers
-    proxy := connection.proxy }
+    proxy := connection.proxy, initialOrigin }
 
   let some credential ← authenticator.authenticate challenge | return none
   return some (challenge.credentialHeader, credential)
@@ -1177,15 +1178,19 @@ private def exchange (connection : Connection) (request : Request Body.Any) (req
 /--
 Queues a request and awaits its response, together with a completion promise that
 resolves when the connection is ready for the next request.
+
+`initialOrigin` is the origin the caller addressed before any redirect, reported to the
+authenticator as `Challenge.initialOrigin`; it defaults to this connection's origin.
 -/
 def sendTracked (connection : Connection) (request : Request Body.Any)
-    (requestOverrides : RequestOverrides := {}) :
+    (requestOverrides : RequestOverrides := {}) (initialOrigin : Option URI.Origin := none) :
     Async (Except Error TrackedResponse) := do
   let (sent, attempt) ← connection.exchange request requestOverrides
 
   let .ok ⟨response, completion⟩ := attempt | return attempt
 
-  let some (name, credential) ← connection.challengeAnswer sent response.line
+  let some (name, credential) ←
+      connection.challengeAnswer sent response.line (initialOrigin.getD connection.origin)
     | return attempt
 
   let captured ← captureIntermediateBody response.body

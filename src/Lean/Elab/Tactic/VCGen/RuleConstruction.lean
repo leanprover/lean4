@@ -453,7 +453,8 @@ public def mkBackwardRuleForSplit
 /-! ## Frame rules -/
 
 /-- Locate the assignable subgoal positions of a frame backward rule: the split VC (the premise
-`pre ⊑ (op F W) s⃗`, found by `opHead`) and the frame `F` read off its right-hand side. -/
+`pre ⊑ (op F W) s⃗`, found by `opHead`), the frame `F` read off its right-hand side, and the frame
+condition `WP.Frames op prog F G`. -/
 def analyzeFrameRule (rule : BackwardRule) (opHead : Name) (numExcess : Nat) :
     MetaM FrameBackwardRule := do
   -- The binder telescope of the rule type is the pattern telescope, so `xs` is indexed by the
@@ -464,17 +465,23 @@ def analyzeFrameRule (rule : BackwardRule) (opHead : Name) (numExcess : Nat) :
     let premiseType (listIdx : Nat) : MetaM Expr :=
       Meta.inferType xs[resultPos[listIdx]!]!
     let mut found := none
+    let mut framesIdx? := none
     -- Find the opApp `op F W` in the split VC that looks like `pre ⊑ (op F W) s`
     for i in [0:resultPos.size] do
-      let_expr Lean.Order.PartialOrder.rel _ _ _ rhs := (← premiseType i) | continue
+      let type ← premiseType i
+      if type.isAppOf ``Std.WP.WP.Frames then
+        framesIdx? := some i
+        continue
+      let_expr Lean.Order.PartialOrder.rel _ _ _ rhs := type | continue
       let opApp := rhs.stripArgsN numExcess
-      if opApp.isAppOf opHead then
+      if found.isNone && opApp.isAppOf opHead then
         found := some (i, opApp)
-        break
     let some (splitVCIdx, opApp) := found
       | throwError "frame: could not locate the split VC in the frame rule for `{opHead}`"
+    let some framesIdx := framesIdx?
+      | throwError "frame: could not locate the frame condition in the frame rule for `{opHead}`"
     let frameIdx := resultPos.idxOf (xs.idxOf opApp.appFn!.appArg!)
-    return { rule, splitVCIdx, frameIdx }
+    return { rule, splitVCIdx, frameIdx, framesIdx }
 
 /--
 The frame backward rule for a frame operator `op : R → Pred → Pred`, built from the frame rule

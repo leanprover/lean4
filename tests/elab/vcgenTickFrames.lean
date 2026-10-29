@@ -280,6 +280,7 @@ frames the cost over any base monad. `costConj_apply` unfolds `costConj r b n` t
   mkResourceTy := fun _ => pure (mkConst ``Nat)
   opHead := ``costConj
   proc := tickFrameProc
+  framesThm? := ``frames_costConj
 
 /-- End-to-end: plain `vcgen` infers the shift, applies the `costConj` gadget, fires the registered
 `costSplit`, and the meet machinery closes the residual. -/

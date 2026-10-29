@@ -747,7 +747,7 @@ def incr (n : Nat) : StateT Nat m PUnit := modify (· + n)
 theorem Spec.incr
     (post : PUnit → Nat → Pred) (eposts : EPosts) (n : Nat) :
     ⦃ fun s => post ⟨⟩ (s + n) ⦄ (incr n : StateT Nat m PUnit) ⦃ post; eposts ⦄ := by
-  vcgen [TopBetaReduction.incr]; rfl
+  vcgen [TopBetaReduction.incr]
 
 /--
 error: unsolved goals

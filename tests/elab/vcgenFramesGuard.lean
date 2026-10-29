@@ -69,7 +69,7 @@ end
 /--
 trace: s✝ : St
 a✝ : s✝.mem 5 = 7
-⊢ WP.Frames meet (Instr.poke 1) (fun s => s.mem 5 = 7) fun u => ⌜u = { ptr := 3, mem := s✝.mem }⌝ ⊓ ⊤
+⊢ WP.Frames meet (Instr.poke 1) (fun s => s.mem 5 = 7) fun u => ⌜u = { ptr := 3, mem := s✝.mem }⌝ ⊓ True
 -/
 #guard_msgs (trace) in
 theorem guard_frames_poke :

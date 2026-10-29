@@ -110,6 +110,22 @@ def getAll? (map : IndexMultiMap α β) (key : α) : Option (Array β) :=
     none
 
 /--
+Retrieves the value for the given key if it has exactly one, without building the array of values.
+Agrees with matching `getAll? key` against `some #[v]`.
+-/
+@[inline]
+def getOnly? (map : IndexMultiMap α β) (key : α) : Option β :=
+  match map.indexes.get? key with
+  | some idxs =>
+    if idxs.size == 1 then
+      match map.entries[idxs[0]!]? with
+      | some (_, v) => some v
+      | none => none
+    else
+      none
+  | none => none
+
+/--
 Retrieves the first value for the given key, or `none` if the key is absent.
 -/
 @[inline]

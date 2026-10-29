@@ -416,6 +416,160 @@ def channelKnownSizeRoundtrip : Async Unit := do
 
 #eval channelKnownSizeRoundtrip.block
 
+-- Test pushed chunks are received in order without a waiting receiver
+
+def channelPushWithoutReceiver : Async Unit := do
+  let stream ← Body.mkStream
+  stream.push (Chunk.ofByteArray "one".toUTF8)
+  stream.push (Chunk.ofByteArray "two".toUTF8)
+  assert! !(← stream.hasInterest)
+
+  let first ← stream.recv
+  let second ← stream.tryRecv
+  assert! first.get!.data == "one".toUTF8
+  assert! second.get!.data == "two".toUTF8
+  assert! (← stream.tryRecv).isNone
+
+#eval channelPushWithoutReceiver.block
+
+-- Test pushed chunks stay readable after close, and the stream reports closed once they are received
+
+def channelPushThenClose : Async Unit := do
+  let stream ← Body.mkStream
+  stream.push (Chunk.ofByteArray "foo".toUTF8)
+  stream.push (Chunk.ofByteArray "bar".toUTF8)
+  stream.close
+  assert! !(← stream.isClosed)
+
+  let result : ByteArray ← stream.readAll
+  assert! result == "foobar".toUTF8
+  assert! (← stream.isClosed)
+  assert! (← stream.recv).isNone
+
+#eval channelPushThenClose.block
+
+-- Test a push hands the chunk straight to a blocked receiver
+
+def channelPushToBlockedReceiver : Async Unit := do
+  let stream ← Body.mkStream
+  let recvTask ← async (t := AsyncTask) <| stream.recv
+  waitForInterest stream
+
+  stream.push (Chunk.ofByteArray "direct".toUTF8)
+  let result ← await recvTask
+  assert! result.get!.data == "direct".toUTF8
+  assert! !(← stream.hasInterest)
+
+#eval channelPushToBlockedReceiver.block
+
+-- Test a push hands the chunk to a receiver blocked in a select
+
+def channelPushToSelectReceiver : Async Unit := do
+  let stream ← Body.mkStream
+  let recvTask ← async (t := AsyncTask) <| Selectable.one #[.case stream.recvSelector pure]
+  waitForInterest stream
+
+  stream.push (Chunk.ofByteArray "selected".toUTF8)
+  let result ← await recvTask
+  assert! result.get!.data == "selected".toUTF8
+
+#eval channelPushToSelectReceiver.block
+
+-- Test the receive selector and `Body.tryRecv` deliver pushed chunks before the end of the stream
+
+def channelPushSelectorAndTryRecv : Async Unit := do
+  let stream ← Body.mkStream
+  stream.push (Chunk.ofByteArray "a".toUTF8)
+  stream.close
+  let first ← Selectable.one #[.case stream.recvSelector pure]
+  assert! first.get!.data == "a".toUTF8
+  let eof ← Selectable.one #[.case stream.recvSelector pure]
+  assert! eof.isNone
+
+  let stream ← Body.mkStream
+  stream.push (Chunk.ofByteArray "b".toUTF8)
+  stream.close
+  let first ← Body.tryRecv stream
+  assert! (first.bind id).get!.data == "b".toUTF8
+  let eof ← Body.tryRecv stream
+  assert! eof matches some none
+
+#eval channelPushSelectorAndTryRecv.block
+
+-- Test a terminal error surfaces only after the pushed chunks
+
+def channelPushThenCloseWithError : Async Unit := do
+  let stream ← Body.mkStream
+  stream.push (Chunk.ofByteArray "partial".toUTF8)
+  stream.closeWithError (.userError "truncated")
+
+  let first ← stream.recv
+  assert! first.get!.data == "partial".toUTF8
+  assertThrows stream.recv
+
+#eval channelPushThenCloseWithError.block
+
+-- Test incomplete pushes are collapsed into the next complete one
+
+def channelPushIncomplete : Async Unit := do
+  let stream ← Body.mkStream
+  stream.push (Chunk.ofByteArray "hel".toUTF8) (incomplete := true)
+  assert! (← stream.tryRecv).isNone
+
+  stream.push (Chunk.ofByteArray "lo".toUTF8)
+  assert! (← stream.recv).get!.data == "hello".toUTF8
+
+#eval channelPushIncomplete.block
+
+-- Test the known size decreases when a pushed chunk is received, not when it is pushed
+
+def channelPushKnownSize : Async Unit := do
+  let stream ← Body.mkStream
+  stream.setKnownSize (some (.fixed 5))
+  stream.push (Chunk.ofByteArray "hello".toUTF8)
+  assert! (← stream.getKnownSize) == some (.fixed 5)
+
+  let _ ← stream.recv
+  assert! (← stream.getKnownSize) == some (.fixed 0)
+
+#eval channelPushKnownSize.block
+
+-- Test a chunk sent after pushed chunks is received after them
+
+def channelPushThenSend : Async Unit := do
+  let stream ← Body.mkStream
+  stream.push (Chunk.ofByteArray "first".toUTF8)
+  let sendTask ← async (t := AsyncTask) <| stream.send (Chunk.ofByteArray "second".toUTF8)
+
+  let first ← stream.recv
+  let second ← stream.recv
+  assert! first.get!.data == "first".toUTF8
+  assert! second.get!.data == "second".toUTF8
+  await sendTask
+
+#eval channelPushThenSend.block
+
+-- Test pushing to a closed stream, or while a producer is blocked, raises an error
+
+def channelPushErrors : Async Unit := do
+  let stream ← Body.mkStream
+  stream.close
+  assertThrows (stream.push (Chunk.ofByteArray "late".toUTF8))
+
+  let stream ← Body.mkStream
+  let sendTask ← async (t := AsyncTask) <| stream.send (Chunk.ofByteArray "blocked".toUTF8)
+  -- Yield so `sendTask` can occupy the single pending-producer slot.
+  let _ ← Selectable.one #[
+    .case (← Selector.sleep 5) pure
+  ]
+  assertThrows (stream.push (Chunk.ofByteArray "pushed".toUTF8))
+
+  let first ← stream.recv
+  assert! first.get!.data == "blocked".toUTF8
+  await sendTask
+
+#eval channelPushErrors.block
+
 /-! ## Full tests -/
 
 -- Test Full.recv returns content once then EOF

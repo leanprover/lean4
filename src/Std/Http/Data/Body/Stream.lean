@@ -20,11 +20,12 @@ public section
 /-!
 # Body.Stream
 
-This module defines a zero-buffer rendezvous body channel (`Body.Stream`) that supports
-both sending and receiving chunks.
+This module defines a rendezvous body channel (`Body.Stream`) that supports both sending and
+receiving chunks.
 
-There is no queue and no capacity. A send waits for a receiver and a receive waits for a sender.
-At most one blocked producer and one blocked consumer are supported.
+A send waits for a receiver and a receive waits for a sender. At most one blocked producer and one
+blocked consumer are supported. A producer that already holds the data can `push` it instead, which
+keeps it until it is received.
 -/
 
 namespace Std.Http
@@ -80,6 +81,12 @@ private structure State where
   A single blocked consumer waiting for a producer.
   -/
   pendingConsumer : Option Consumer
+
+  /--
+  Chunks from `Stream.push`, received before a blocked producer's chunk. They stay readable after
+  the channel closes. A consumer only blocks while this is empty.
+  -/
+  pushed : Std.Queue Chunk := .empty
 
   /--
   A waiter for `Stream.interestSelector`.
@@ -177,7 +184,7 @@ private def signalInterest [Monad m] [MonadLiftT (ST IO.RealWorld) m] [MonadLift
 private def recvReady' [Monad m] [MonadLiftT (ST IO.RealWorld) m] :
     AtomicT State m Bool := do
   let st ← get
-  return st.pendingProducer.isSome || st.closed
+  return st.pendingProducer.isSome || !st.pushed.isEmpty || st.closed
 
 private def hasInterest' [Monad m] [MonadLiftT (ST IO.RealWorld) m] :
     AtomicT State m Bool := do
@@ -187,7 +194,10 @@ private def hasInterest' [Monad m] [MonadLiftT (ST IO.RealWorld) m] :
 private def tryRecv' [Monad m] [MonadLiftT (ST IO.RealWorld) m] [MonadLiftT BaseIO m] :
     AtomicT State m (Option Chunk) := do
   let st ← get
-  if let some producer := st.pendingProducer then
+  if let some (chunk, pushed) := st.pushed.dequeue? then
+    set { st with pushed, knownSize := decreaseKnownSize st.knownSize chunk }
+    return some chunk
+  else if let some producer := st.pendingProducer then
     set {
       st with
       pendingProducer := none
@@ -272,17 +282,15 @@ private def recv' (stream : Stream) : BaseIO (AsyncTask (Option Chunk)) := do
   stream.state.atomically do
     Channel.pruneFinishedWaiters
 
-    let { closed, closeError, .. } ← get
-
-    if closed then
-      match closeError with
-      | some err => return Task.pure (.error err)
-      | none => return AsyncTask.pure none
-
     if let some chunk ← Channel.tryRecv' then
       return AsyncTask.pure (some chunk)
 
     let st ← get
+
+    if st.closed then
+      match st.closeError with
+      | some err => return Task.pure (.error err)
+      | none => return AsyncTask.pure none
 
     if st.pendingConsumer.isSome then
       return Task.pure (.error (IO.Error.userError "only one blocked consumer is allowed"))
@@ -338,12 +346,13 @@ def closeWithError (stream : Stream) (err : IO.Error) : Async Unit :=
     Channel.close'
 
 /--
-Checks whether the channel is closed.
+Checks whether the channel is closed and every pushed chunk was received.
 -/
 @[always_inline, inline]
 def isClosed (stream : Stream) : Async Bool :=
   stream.state.atomically do
-    return (← get).closed
+    let st ← get
+    return st.closed && st.pushed.isEmpty
 
 /--
 Gets the known size if available.
@@ -594,6 +603,45 @@ def send (stream : Stream) (chunk : Chunk) (incomplete : Bool := false) : Async 
       return ()
 
     send' stream toSend
+
+/--
+Sends a chunk without waiting for a receiver: a blocked receiver gets it at once, and otherwise it
+is kept until received. Pushed chunks are received in order, before a blocked producer's chunk, and
+remain readable after the channel closes.
+
+`incomplete` works as in `send`.
+-/
+def push (stream : Stream) (chunk : Chunk) (incomplete : Bool := false) : Async Unit := do
+  match (← collapseForSend stream chunk incomplete) with
+  | .error err => throw err
+  | .ok none => pure ()
+  | .ok (some toPush) =>
+    if toPush.data.isEmpty ∧ toPush.extensions.isEmpty then
+      return ()
+
+    let result : Except IO.Error Unit ← stream.state.atomically do
+      Channel.pruneFinishedWaiters
+      let st ← get
+
+      if st.closed then
+        return .error (IO.Error.userError "channel closed")
+
+      if st.pendingProducer.isSome then
+        return .error (IO.Error.userError "only one blocked producer is allowed")
+
+      -- A blocked consumer means nothing is pushed yet, so handing it the chunk keeps the order.
+      if let some consumer := st.pendingConsumer then
+        set { st with pendingConsumer := none }
+        if ← consumer.resolve (.ok (some toPush)) then
+          modify fun st => { st with knownSize := Channel.decreaseKnownSize st.knownSize toPush }
+          return .ok ()
+
+      modify fun st => { st with pushed := st.pushed.enqueue toPush }
+      return .ok ()
+
+    match result with
+    | .error err => throw err
+    | .ok () => pure ()
 
 /--
 Returns `true` when a consumer is currently blocked waiting for data.

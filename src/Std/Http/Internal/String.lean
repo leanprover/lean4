@@ -109,6 +109,20 @@ def unquoteHttpString? (s : String) : Option String :=
     none
 
 /--
+Returns `true` if `s` neither starts nor ends with ASCII whitespace, so that `s.trimAscii` is all of
+`s`.
+-/
+def isAsciiTrimmed (s : String) : Bool :=
+  if h : 0 < s.utf8ByteSize then
+    let ws (b : UInt8) := b == ' '.toUInt8 || b == '\t'.toUInt8 || b == '\r'.toUInt8 || b == '\n'.toUInt8
+    !ws (s.getUTF8Byte ⟨0⟩ h) &&
+      !ws (s.getUTF8Byte ⟨s.utf8ByteSize - 1⟩ (by
+        show s.utf8ByteSize - 1 < s.utf8ByteSize
+        omega))
+  else
+    true
+
+/--
 Checks whether a string is a valid non-empty HTTP token.
 -/
 @[expose]

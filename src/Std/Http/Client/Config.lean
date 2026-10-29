@@ -90,8 +90,11 @@ structure Config where
   keepAliveTimeout : Timeout := ⟨4000, by decide⟩
 
   /--
-  Timeout for the request lifecycle (send + receive) per connection.
-  DNS resolution and TCP connect are not covered by this timeout; see `connectTimeout`.
+  Bounds each exchange on a connection: sending the request and receiving the response head must
+  finish within it, and after the head every pause in the body must too, whether the peer stops
+  sending or the caller stops reading. A body of any length streams for as long as it keeps moving.
+  Each redirect hop and authentication retry is a new exchange with a bound of its own. DNS
+  resolution and the transport connect are covered by `connectTimeout` instead.
   -/
   requestTimeout : Timeout := ⟨120000, by decide⟩
 

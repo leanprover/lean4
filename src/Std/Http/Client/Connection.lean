@@ -371,10 +371,10 @@ structure ConnectionState where
   inFlight : Option InFlightState
 
   /--
-  Absolute wall-clock deadline for the in-flight request/response exchange, or `none` while idle.
-  Enforces `config.requestTimeout` as a bound on the *whole* exchange (send + receive), unlike
-  `currentTimeout`, which only bounds the idle gap between successive I/O events. Set when a request
-  goes in-flight and cleared on completion.
+  Absolute wall-clock deadline enforcing `config.requestTimeout` for the in-flight exchange, or `none`
+  while idle. Set when a request goes in flight, it first bounds sending the request and receiving
+  the response head; from the head on it is moved forward each time a body chunk reaches the caller,
+  so it then bounds each pause in the body, whether the peer or the caller is the one pausing.
   -/
   requestDeadline : Option Timestamp := none
 
@@ -682,6 +682,11 @@ private def processH1Events
             flight.pending.onResponse
               { line := head, body := incoming, extensions := Extensions.empty }
 
+        -- From the head on, `requestTimeout` bounds each pause in the body rather than the exchange
+        -- as a whole, so a body of any length can stream as long as it keeps moving.
+        if state.requestDeadline.isSome then
+          state := { state with requestDeadline := some ((← Timestamp.now) + state.config.requestTimeout.val) }
+
     | .closeBody =>
       state ← finishResponseBody state
 
@@ -794,6 +799,10 @@ private def pullResponseBody (connectionContext : CancellationContext) (state : 
     if let some body := state.responseStream then
       if let some err ← deliverResponseChunk connectionContext state.requestDeadline body pulled then
         return (← abortState state err, true)
+
+      -- The caller took the chunk, so the body is moving: the bound on the next pause starts now.
+      if state.requestDeadline.isSome then
+        state := { state with requestDeadline := some ((← Timestamp.now) + state.config.requestTimeout.val) }
 
       if pulled.final then
         state ← finishResponseBody state

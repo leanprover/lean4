@@ -1421,7 +1421,10 @@ Parses trailers after a zero-size chunk and finalizes chunked body processing.
 private def parseLastChunkBodyState (machine : Machine dir)
     (ext : Array (Chunk.ExtensionName × Option Chunk.ExtensionValue)) :
     Machine dir × Option PulledChunk × Bool :=
-  let (machine, result) := parseWith machine (parseLastChunkBody machine.config) (limit := none)
+  -- A server rejects every field forbidden in a request's trailers; a client, which discards trailers,
+  -- only refuses those that would reframe the response.
+  let strict := match dir with | .receiving => true | .sending => false
+  let (machine, result) := parseWith machine (parseLastChunkBody machine.config strict) (limit := none)
   match result with
   | some _ => emitBodyChunk machine .complete true false ext .empty (closeBody := true)
   | none => bodyNoProgress machine

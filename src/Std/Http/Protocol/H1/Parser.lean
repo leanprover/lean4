@@ -461,40 +461,53 @@ public def parseChunkSizedData (size : Nat) : Parser TakeResult := do
   | .incomplete data res => return .incomplete data res
 
 /--
+Returns `true` if `name` (compared case-insensitively) frames or routes a message
+(`content-length`, `transfer-encoding`, `host`, `connection`, `te`, `upgrade`, `trailer`). In a
+trailer section such a field is an attempt to reframe the message after the fact, which a downstream
+proxy might act on, so the message is rejected.
+-/
+def isFramingTrailerField (name : String) : Bool :=
+  let n := name.toLower
+  n == "content-length" || n == "transfer-encoding" || n == "host" ||
+  n == "connection" || n == "te" || n == "upgrade" || n == "trailer"
+
+/--
 Returns `true` if `name` (compared case-insensitively) is a field that MUST NOT appear in HTTP/1.1
-trailer sections per RFC 9112 §6.5. Forbidden fields are those required for message framing
-(`content-length`, `transfer-encoding`), routing (`host`), or connection management (`connection`).
+trailer sections per RFC 9112 §6.5: the framing and routing fields of `isFramingTrailerField`, and
+fields that control how the message is processed (`expect`, `authorization`, `max-forwards`,
+`cache-control`, `content-encoding`).
 -/
 def isForbiddenTrailerField (name : String) : Bool :=
   let n := name.toLower
-  n == "content-length" || n == "transfer-encoding" || n == "host" ||
-  n == "connection" || n == "expect" || n == "te" ||
-  n == "authorization" || n == "max-forwards" || n == "cache-control" ||
-  n == "content-encoding" || n == "upgrade" || n == "trailer"
+  isFramingTrailerField name || n == "expect" ||
+  n == "authorization" || n == "max-forwards" || n == "cache-control" || n == "content-encoding"
 
 /--
-Parses a trailer header (used after a chunked body), rejecting forbidden field names per RFC 9112
-§6.5. Fields used for message framing (`content-length`, `transfer-encoding`), routing (`host`),
-or connection management (`connection`, `te`, `upgrade`) are rejected to prevent trailer injection
-attacks where a downstream proxy might re-interpret them.
+Parses a trailer header (used after a chunked body). Framing and routing fields
+(`isFramingTrailerField`) are always rejected, to prevent trailer injection attacks where a downstream
+proxy might re-interpret them. With `strict`, every field forbidden in trailers is rejected; without
+it, the others are parsed and left for the caller to drop, since RFC 9110 §6.5.1 asks recipients not to
+merge them rather than to reject a message that is otherwise complete.
 -/
-def parseTrailerHeader (limits : H1.Config) : Parser (Option (String × String)) := do
+def parseTrailerHeader (limits : H1.Config) (strict : Bool := true) :
+    Parser (Option (String × String)) := do
   let result ← parseSingleHeader limits
   if let some (name, _) := result then
-    if isForbiddenTrailerField name then
+    if isFramingTrailerField name || (strict && isForbiddenTrailerField name) then
       fail s!"forbidden trailer field: {name}"
   return result
 
 /--
-Parses trailer headers after a chunked body and returns them as an array of name-value pairs.
+Parses trailer headers after a chunked body and returns them as an array of name-value pairs, without
+the fields RFC 9112 §6.5 forbids in trailers.
 
 This is exposed for callers that need the trailer values directly (e.g. clients). The
 internal protocol machine uses `parseLastChunkBody` instead, which discards trailer values.
 -/
 public def parseTrailers (limits : H1.Config) : Parser (Array (String × String)) := do
-  let trailers ← manyItems (parseTrailerHeader limits) limits.maxTrailerHeaders
+  let trailers ← manyItems (parseTrailerHeader limits (strict := false)) limits.maxTrailerHeaders
   crlf
-  return trailers
+  return trailers.filter (!isForbiddenTrailerField ·.1)
 
 /--
 Returns `true` if `c` is a valid reason-phrase byte (`HTAB / SP / VCHAR / obs-text`).
@@ -560,10 +573,11 @@ public def parseStatusLineRawVersion (limits : H1.Config) : Parser (Status × Op
   return (status, Version.ofNumber? major minor)
 
 /--
-Parses the trailer section that follows the last chunk size line (`0\r\n`).
+Parses the trailer section that follows the last chunk size line (`0\r\n`). `strict` is passed on to
+`parseTrailerHeader`.
 -/
-public def parseLastChunkBody (limits : H1.Config) : Parser Unit := do
-  discard <| manyItems (parseTrailerHeader limits) limits.maxTrailerHeaders
+public def parseLastChunkBody (limits : H1.Config) (strict : Bool := true) : Parser Unit := do
+  discard <| manyItems (parseTrailerHeader limits strict) limits.maxTrailerHeaders
   crlf
 
 end Std.Http.Protocol.H1

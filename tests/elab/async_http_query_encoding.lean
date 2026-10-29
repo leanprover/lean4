@@ -67,6 +67,12 @@ private meta def sampleQuery : Query :=
   | .ok target => target.query.get "a+b" == some "x+y" && target.query.get "a b" == some "x y"
   | .error _ => false
 
+-- A raw plus in a received query name denotes a space, not a literal plus.
+#guard
+  match (Parser.parseRequestTarget <* Std.Internal.Parsec.eof).run "/path?a+b=1".toUTF8 with
+  | .ok target => target.query.get "a b" == some "1" && target.query.get "a+b" == none
+  | .error _ => false
+
 #guard
   let uri := Builder.empty
     |>.setHost! "example.com"

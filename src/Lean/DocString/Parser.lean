@@ -1448,12 +1448,14 @@ def blockSepFallback (base : Nat) : ParserFn := fun c s =>
   else wsFallback lineTailWsFn base c s
 
 /--
-Finds the minimum column of the first non-whitespace character on each non-empty content line
-between `startPos` and `endPos`, returning `init` if no such line exists.
+Finds the minimum column of the first non-whitespace character on each non-empty line between
+`startPos` and `endPos`, excluding the line that contains `startPos`.
+
+The result is `none` if no such line exists.
 -/
-def minContentIndent (text : FileMap) (startPos endPos : String.Pos.Raw)
-    (init : Nat) : Nat := Id.run do
-  let mut result := init
+public def minContentIndent (text : FileMap) (startPos endPos : String.Pos.Raw) :
+    Option Nat := Id.run do
+  let mut result := none
   let mut thisLineCol := 0
   if h : endPos ≤ text.source.rawEndPos then
     let endPos := text.source.posGE endPos h
@@ -1468,7 +1470,7 @@ def minContentIndent (text : FileMap) (startPos endPos : String.Pos.Raw)
           afterNewline := true
           thisLineCol := 0
         else if afterNewline && c != ' ' then
-          result := min result thisLineCol
+          result := some <| if let some col := result then min col thisLineCol else thisLineCol
           afterNewline := false
         else thisLineCol:= thisLineCol + 1
   return result
@@ -1484,7 +1486,11 @@ public def docStringBaseColumn (text : FileMap) (openPos : String.Pos.Raw)
     (startPos : String.Pos.Raw) (endPos : String.Pos.Raw) : Nat :=
   let openCol := (text.toPosition openPos).column
   let closeCol := (text.toPosition endPos).column
-  minContentIndent text startPos endPos (min openCol closeCol)
+  let delimCol := min openCol closeCol
+  if let some contentCol := minContentIndent text startPos endPos then
+    min delimCol contentCol
+  else
+    delimCol
 
 /--
 Computes the `BlockCtxt` for parsing a docstring whose opening delimiter is at `openPos` and whose

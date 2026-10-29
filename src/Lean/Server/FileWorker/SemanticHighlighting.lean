@@ -808,10 +808,9 @@ partial def collectSyntaxBasedSemanticTokens (text : FileMap) : (stx : Syntax) �
         -- The text atom's range excludes the closing delimiter and the whitespace before it.
         let some ⟨startPos, endPos⟩ := stx[1][0].getRange?
           | return #[]
-        let some openPos := stx[0].getPos? | return #[]
-        let some closerPos := stx[1][1].getPos? | return #[]
-        -- The docstring's indentation is its base column, determined as for Verso docstrings.
-        let indent := Doc.Parser.docStringBaseColumn text openPos startPos closerPos
+        -- The indentation is the least indentation of the non-blank lines after the first, which
+        -- are stripped by `String.removeLeadingSpaces` while saving the docstring.
+        let indent := (Doc.Parser.minContentIndent text startPos endPos).getD 0
         return collectMarkdownTokens text startPos endPos indent
       else
         return #[]

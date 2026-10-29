@@ -352,11 +352,10 @@ the pending request, and whether the request body is replayable.
 
 Returns `.done` when:
 * the status is not a 3xx redirection,
-* the response is HTTP/1.0 and the status code is not 301 or 302 (the only
-  redirect codes defined by RFC 2616),
 * no `Location` header is present,
 * the `Location` value does not parse as a URI-reference (RFC 9110 §10.2.2),
-* the target resolves to a non-`http(s)` scheme (SSRF guard).
+* the target names no host, or resolves to a non-`http(s)` scheme (SSRF guard),
+* the redirect keeps a method other than `GET`/`HEAD` but the body cannot be replayed.
 
 Returns `.follow plan` otherwise. The caller is expected to drain the redirect response body and,
 when `plan.bodyAction == .replay`, reset the original body before dispatching the rewritten request.
@@ -380,13 +379,6 @@ def decideRedirect
     (responseHeaders : Headers)
     : RedirectOutcome := Id.run do
   if !status.isRedirection then
-    return .done
-
-  -- RFC 2616 §10.3: only 301 Moved Permanently and 302 Found are defined for
-  -- HTTP/1.0. Codes introduced in HTTP/1.1 (303, 307, 308, …) must not be
-  -- followed automatically when the server spoke HTTP/1.0, since the client
-  -- cannot know whether the server intended the HTTP/1.1 semantics.
-  if responseVersion == .v10 && status != .movedPermanently && status != .found then
     return .done
 
   -- 305 Use Proxy is deprecated (RFC 9110 §15.4.6) and carries a proxy URI in
@@ -421,28 +413,14 @@ def decideRedirect
   let isCrossOrigin := newOrigin != current
   let methodChanged := newMethod != request.method
 
-  -- RFC 9110 §15.4.8/§15.4.9: the same MUST NOT applies to 307/308 — method is preserved, so
-  -- a non-GET/HEAD method with a body requires user confirmation unless the body is replayable.
-  let isGetOrHead := request.method == .get || request.method == .head
-  let isPost := request.method == .post
-
-  match status with
-  | .movedPermanently | .found => if !isGetOrHead && !isPost then return .done
-  | .temporaryRedirect | .permanentRedirect =>
-    -- Method is preserved. Only safe methods and replayable-body requests may follow.
-    if !isGetOrHead && !bodyReplayable then return .done
-  | _ => pure ()
-
   let scrubbed := RedirectPlan.scrubHeaders request.headers isCrossOrigin methodChanged
   let newHeaders :=
     if isCrossOrigin then
       RedirectPlan.rewriteHostHeader scrubbed newOrigin
     else scrubbed
 
-  -- RFC 9110 §15.4.8: for any method-preserving redirect, if the body cannot be replayed the user
-  -- agent MUST NOT automatically redirect. This covers 307/308 (always method-preserving) *and* the
-  -- HTTP/1.0 301/302 case, where `chooseMethod` keeps POST (so the `.movedPermanently | .found` arm
-  -- above, which only checks the method, lets it through without a replay check).
+  -- A redirect that keeps the method resends the original request (RFC 9110 §15.4), body included:
+  -- 307/308 always, and 301/302 for every method but POST.
   if !methodChanged && newMethod != Method.get && newMethod != Method.head && !bodyReplayable then
     return .done
 

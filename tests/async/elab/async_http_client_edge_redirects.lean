@@ -50,13 +50,10 @@ open Test.ClientHelpers
     throw <| IO.userError
       s!"303 must drop body, but redirect request contained it:\n{redirectText.quote}"
 
--- RFC 9110 §15.4.2: "If the 301 status code is received in response to a request other
--- than GET or HEAD, the user client MUST NOT automatically redirect the request unless it
--- can be confirmed by the user." POST→GET is the only automatic exception (prevailing
--- practice). PUT, PATCH, DELETE, etc. must not be silently redirected; the 301 is
--- returned to the caller unchanged.
+-- RFC 9110 §15.4.2 lets a 301 change only POST to GET; every other method is kept, so a PUT is
+-- resent as a PUT with its body, exactly like a 307/308.
 
-#eval show IO _ from runWithTimeout "301 on PUT is not auto-followed (RFC 9110 §15.4.2)" 3000 <|
+#eval show IO _ from runWithTimeout "301 on PUT keeps the method and replays the body" 3000 <|
   Async.block do
   let (mockClient, mockServer) ← Mock.new
   let client ← mkClient mockServer
@@ -69,30 +66,25 @@ open Test.ClientHelpers
 
   let resultPromise ← sendInBackground client request
 
-  -- Keep-alive, so the method rule is the only thing that can stop the follow: a 3xx that ends the
-  -- connection is handed back unfollowed on its own, and the test would pass with the rule gone.
   let _ ← drainRequest mockClient
   mockClient.send (rawResp "301 Moved Permanently"
     #[("Location", "/v2/resource"),
       ("Content-Length", "0"),
       ("Connection", "keep-alive")] "")
 
-  let followed ← IO.mkRef (none : Option ByteArray)
-  background do
-    followed.set (← mockClient.recv?)
+  let redirectBytes ← drainRequest mockClient
+  mockClient.send (rawResp "200 OK"
+    #[("Content-Length", "2"), ("Connection", "close")] "ok")
 
   match ← await resultPromise.result! with
   | Except.error e => throw (IO.userError s!"client error: {e}")
-  | Except.ok resp =>
-    resp.body.close
-    unless resp.line.status == .movedPermanently do
-      throw <| IO.userError
-        s!"expected 301 returned as-is for PUT, got {resp.line.status.toCode}"
+  | Except.ok _ => pure ()
 
-  IO.sleep 100
-  if let some bytes ← followed.get then
-    throw <| IO.userError
-      s!"a 301 on PUT was auto-followed:\n{(String.fromUTF8! bytes).quote}"
+  let redirectText := String.fromUTF8! redirectBytes
+  unless redirectText.startsWith "PUT /v2/resource " do
+    throw <| IO.userError s!"301 must resend PUT to /v2/resource:\n{redirectText.quote}"
+  unless redirectText.contains "payload-x" do
+    throw <| IO.userError s!"301 on PUT must replay the body:\n{redirectText.quote}"
 
 -- 308 Permanent Redirect preserves method AND replayable body.
 -- This is the distinguishing behavior vs. 301: with a replayable full body the
@@ -409,9 +401,8 @@ open Test.ClientHelpers
 -- ============================================================
 -- Section 9 — 301/302 non-POST methods (RFC 9110 §15.4)
 -- ============================================================
--- RFC 9110 §15.4.2-3: "MUST NOT automatically redirect the request unless it can be
--- confirmed by the user" for methods other than GET/HEAD (POST→GET is the only automatic
--- exception). HEAD on 301/302 IS auto-followed (it is safe). PATCH is NOT auto-followed.
+-- RFC 9110 §15.4.2-3: 301/302 may change POST to GET; every other method is kept, so the
+-- request is resent as is and its body must be replayable.
 
 #eval show IO _ from runWithTimeout "301 preserves HEAD method" 3000 <| Async.block do
   let (mockClient, mockServer) ← Mock.new
@@ -439,19 +430,23 @@ open Test.ClientHelpers
   unless redirectText.startsWith "HEAD " do
     throw <| IO.userError s!"301 must preserve HEAD:\n{redirectText.quote}"
 
--- RFC 9110 §15.4.3: same MUST NOT rule for 302. PATCH is not GET/HEAD/POST, so 302
--- on PATCH is returned to the caller as-is without sending a second request.
+-- A 302 keeps PATCH (RFC 9110 §15.4.3), so the request must be resent with its body. A streaming
+-- body cannot be replayed, so the 302 is returned to the caller without a second request.
 
-#eval show IO _ from runWithTimeout "302 on PATCH is not auto-followed (RFC 9110 §15.4.3)" 3000 <|
+#eval show IO _ from runWithTimeout "302 on PATCH with a streaming body is not auto-followed" 3000 <|
   Async.block do
   let (mockClient, mockServer) ← Mock.new
   let client ← mkClient mockServer
 
   let req ← Request.new |>.method .patch |>.uri! "/res"
-    |>.header! "Host" "example.com" |>.text "patch-body"
+    |>.header! "Host" "example.com"
+    |>.stream (fun out => do
+        out.send (Chunk.ofByteArray "patch-body".toUTF8)
+        out.close)
   let p ← sendInBackground client req
 
-  -- Keep-alive for the same reason as the 301/PUT case above: only the method rule may stop this.
+  -- Keep-alive, so the replay rule is the only thing that can stop the follow: a 3xx that ends the
+  -- connection is handed back unfollowed on its own, and the test would pass with the rule gone.
   let _ ← drainRequest mockClient
   mockClient.send (rawResp "302 Found"
     #[("Location", "/res-new"),

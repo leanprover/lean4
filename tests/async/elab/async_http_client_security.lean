@@ -266,8 +266,8 @@ open Test.ClientHelpers
 -- ============================================================
 -- Redirect: non-replayable body blocks auto-follow of 307
 -- ============================================================
--- RFC 9110 §15.4.8: the user client MUST NOT automatically redirect a 307 when
--- the request body cannot be repeated.  A streaming channel body (.stream) is
+-- RFC 9110 §15.4.8: a 307 keeps the method, so the request is resent with its
+-- body, which must therefore be repeatable.  A streaming channel body (.stream) is
 -- consumed on first use and therefore non-replayable.  The client must surface
 -- the 307 response unchanged so the caller can decide what to do next, rather
 -- than silently following the redirect with an empty (or wrong) body.

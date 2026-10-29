@@ -1,7 +1,5 @@
-/* Task destruction with an active task manager. Tasks created by `lean_task_pure` carry
-   `LEAN_TASK_PURE_MARKER` and skip the task-manager mutex; all other tasks keep a zero marker
-   and must be destroyed through the task manager. External finalizers check that values are
-   released exactly once. */
+/* Task destruction with an active task manager, for tasks with and without
+   `LEAN_TASK_PURE_MARKER`. External finalizers check that each value is released exactly once. */
 #include <lean/lean.h>
 
 int printf(char const * fmt, ...);

@@ -350,6 +350,8 @@ object_offset object_compactor::insert_task(object * o) {
     size_t sz = sizeof(lean_task_object);
     object * r = copy_object(o, sz);
     lean_assert(lean_to_task(r)->m_imp == nullptr);
+    // clear the pure-task marker so that equal finished tasks compact to the same bytes and are max-shared
+    r->m_other = 0;
     lean_to_task(r)->m_value = c;
     return save_max_sharing(o, r, sz);
 }

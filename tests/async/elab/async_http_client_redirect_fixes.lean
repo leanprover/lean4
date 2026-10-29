@@ -26,3 +26,20 @@ open Test.ClientHelpers
   match ← await p.result! with
   | .ok r => unless (← r.body.readAll (α := String)) == "list" do throw (IO.userError "wrong body")
   | .error e => throw (IO.userError s!"the request failed: {e}")
+
+-- A redirect whose body is cut short reports the connection failure itself, which a retry can act
+-- on, rather than an untyped I/O error.
+#eval show IO _ from runWithTimeout "a truncated redirect body is a typed, retryable error" 3000 <|
+  Async.block do
+  let (mock, server) ← Mock.new
+  let tc ← mkClient server
+  let request ← Request.new |>.method .get |>.uri! "/old" |>.empty
+  let p : IO.Promise (Except Client.Error (Response Body.Stream)) ← IO.Promise.new
+  background do discard <| p.resolve (← tc.client.trySend tc.origin request)
+  discard <| drainRequest mock
+  mock.send (rawResp "302 Found" #[("Location", "/new"), ("Content-Length", "10")] "12345")
+  mock.close
+  match ← await p.result! with
+  | .error e =>
+    unless e.isRetryable do throw (IO.userError s!"expected a retryable error, got {e}")
+  | .ok r => throw (IO.userError s!"expected a failure, got {r.line.status.toCode}")

@@ -588,6 +588,11 @@ private partial def sendWithRedirects
       match drained with
       | .error err =>
         exchange.forM (·.connection.close)
+        -- A body cut short fails because its exchange did, and the exchange's error says how, in the
+        -- typed form a retry is decided on.
+        if let some exchange := exchange then
+          if let .error e ← await exchange.completion.result! then
+            return .error e
         return .error (.io err)
       | .ok reusable =>
         exchange.forM fun exchange => client.release origin exchange.connection reusable

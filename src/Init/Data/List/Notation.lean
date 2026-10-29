@@ -45,6 +45,13 @@ It uses binary partitioning to construct a tree of intermediate let bindings as 
 -/
 syntax "%[" withoutPosition(term,*,? " | " term) "]" : term
 
+/--
+Auxiliary syntax for implementing `[$elem,*]` list literal syntax.
+It uses binary partitioning to construct a tree of intermediate let bindings as in
+`let left := [d, e, f]; a :: b :: c :: left` to avoid creating very deep expressions.
+-/
+syntax (name := listTreeLit) "%[" withoutPosition(term,*,?) "]" : term
+
 namespace Lean
 
 macro_rules

@@ -59,3 +59,19 @@ open Test.ClientHelpers
     throw (IO.userError s!"the GET kept Expect: {follow.quote}")
   mock.send (rawResp "200 OK" #[("Content-Length", "2")] "ok")
   discard <| await p.result!
+
+-- A redirect that names two targets is not followed: the response goes back to the caller.
+#eval show IO _ from runWithTimeout "a redirect with two Location fields is not followed" 3000 <|
+  Async.block do
+  let (mock, server) ← Mock.new
+  let tc ← mkClient server
+  let p ← sendInBackground tc (← Request.new |>.method .get |>.uri! "/old" |>.empty)
+  discard <| drainRequest mock
+  mock.send (rawResp "302 Found"
+    #[("Location", "/first"), ("Location", "/second"), ("Content-Length", "0")] "")
+  match ← await p.result! with
+  | .ok r => unless r.line.status == .found do
+      throw (IO.userError s!"expected the 302 back, got {r.line.status.toCode}")
+  | .error e => throw (IO.userError s!"the request failed: {e}")
+  if let some bytes ← mock.tryRecv? then
+    throw (IO.userError s!"one of the targets was followed: {(String.fromUTF8! bytes).quote}")

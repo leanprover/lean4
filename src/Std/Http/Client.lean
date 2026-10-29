@@ -544,6 +544,9 @@ private def evaluateRedirect (origin : URI.Origin) (request : Request Body.Any)
     (history : Array (URI.Origin × Method × String)) : Option RedirectPlan := Id.run do
   if remaining = 0 then return none
 
+  -- Several `Location` fields name no single target; picking one would be a guess.
+  if ((response.line.headers.getAll? .location).map (·.size)).getD 0 > 1 then return none
+
   let .follow plan :=
       decideRedirect origin request.line request.body.reset?.isSome
         response.line.version response.line.status response.line.headers

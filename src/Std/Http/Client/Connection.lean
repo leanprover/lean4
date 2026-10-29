@@ -586,7 +586,12 @@ private def pollNextEvent
   -- other sources happen to be active: whether a bound is enforced must not depend on the phase the
   -- machine is in when the loop happens to park.
 
-  if state.machine.needsInput then
+  -- Read backpressure: while the caller holds body bytes it has not pulled, reading more off the
+  -- socket would only buffer them here. Left in the kernel, they let TCP slow the peer down.
+  let backlogged := state.awaitsBodyPull ∧
+    state.machine.reader.input.remainingBytes ≥ 4 * state.config.maxRecvChunkSize
+
+  if state.machine.needsInput ∧ ¬backlogged then
 
     unless state.awaitsCaller do
       selectables := selectables.push (timer (← Selector.sleep state.socketTimeout) .timeout)

@@ -165,6 +165,14 @@ structure Config where
   maxResponseBodySize : Option Nat := none
 
   /--
+  Maximum number of response bytes the connection holds that the caller has not yet read. The
+  connection stops reading from the socket well before this, while the caller has body bytes in hand,
+  so the limit is only reached by a peer that sends more than one read asks for; past it the response
+  fails as too large.
+  -/
+  maxBufferedBodyBytes : Nat := 64 * 1024 * 1024
+
+  /--
   Maximum number of bytes read from the body of an intermediate response the client answers
   itself — a redirect it follows, or a challenge it authenticates — before the follow-up
   request is sent. A body larger than this is abandoned rather than read to its end.
@@ -213,6 +221,6 @@ def toH1Config (config : Config) : Std.Http.Protocol.H1.Config where
   agentName := config.userAgent
   maxBodySize := 2 ^ 64
   maxChunkSize := 2 ^ 64
-  maxBufferedBodyBytes := some (64 * 1024 * 1024)
+  maxBufferedBodyBytes := some config.maxBufferedBodyBytes
 
 end Std.Http.Client.Config

@@ -1287,14 +1287,7 @@ private def exchange (connection : Connection) (request : Request Body.Any) (req
 
   return (sent, outcome)
 
-/--
-Queues a request and awaits its response, together with a completion promise that
-resolves when the connection is ready for the next request.
-
-`initialOrigin` is the origin the caller addressed before any redirect, reported to the
-authenticator as `Challenge.initialOrigin`; it defaults to this connection's origin.
--/
-def sendTracked (connection : Connection) (request : Request Body.Any)
+private def sendTrackedCore (connection : Connection) (request : Request Body.Any)
     (requestOverrides : RequestOverrides := {}) (initialOrigin : Option URI.Origin := none) :
     Async (Except Error TrackedResponse) := do
   let (sent, attempt) ← connection.exchange request requestOverrides
@@ -1337,6 +1330,21 @@ def sendTracked (connection : Connection) (request : Request Body.Any)
       return (← unanswered e)
 
   return answered
+
+/--
+Queues a request and awaits its response, together with a completion promise that
+resolves when the connection is ready for the next request.
+
+`initialOrigin` is the origin the caller addressed before any redirect, reported to the
+authenticator as `Challenge.initialOrigin`; it defaults to this connection's origin.
+-/
+def sendTracked (connection : Connection) (request : Request Body.Any)
+    (requestOverrides : RequestOverrides := {}) (initialOrigin : Option URI.Origin := none) :
+    Async (Except Error TrackedResponse) := do
+  -- The exchange runs user code (the cookie handler, the authenticator, the body's rewind); its
+  -- failures are reported typed, like every other failure here.
+  try sendTrackedCore connection request requestOverrides initialOrigin
+  catch err => pure (.error (.io err))
 
 /--
 Queues a request and awaits its response.

@@ -31,3 +31,4 @@ public import Lean.Data.RBTree -- deprecated_module: ignore
 public import Lean.Data.RBMap -- deprecated_module: ignore
 public import Lean.Data.RArray
 public import Lean.Data.Iterators
+public import Lean.Data.UnionFind

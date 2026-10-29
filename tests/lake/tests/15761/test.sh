@@ -10,7 +10,7 @@ source ../common.sh
 
 mkdir work
 cd work
-WORK=$(pwd)
+cp ../expected-manifest.json lake-manifest.json
 
 # foo: tags `v1` and `v2`
 mkdir foo
@@ -22,6 +22,7 @@ echo '-- v2' > Foo.lean
 git add Foo.lean
 git commit -m "second commit"
 git tag v2
+FOO_V2_REV=$(git rev-parse v2)
 popd
 
 # bar: requires foo@v1 and commits the resulting manifest
@@ -32,12 +33,13 @@ name = "bar"
 
 [[require]]
 name = "foo"
-git = "$WORK/foo"
+git = "../foo"
 rev = "v1"
 TOML
 test_run update --keep-toolchain
 echo /.lake > .gitignore
 init_git
+BAR_REV=$(git rev-parse HEAD)
 popd
 
 # root: requires foo@v2 before bar
@@ -48,29 +50,22 @@ name = "root"
 
 [[require]]
 name = "foo"
-git = "$WORK/foo"
+git = "../foo"
 rev = "v2"
 
 [[require]]
 name = "bar"
-git = "$WORK/bar"
+git = "../bar"
 rev = "master"
 TOML
 
-V2=$(git -C ../foo rev-parse v2)
-
-check_foo() {
-  test_cmd_eq "$V2" jq -r '.packages[] | select(.name == "foo") | .rev' lake-manifest.json
-  test_cmd_eq "false" jq -r '.packages[] | select(.name == "foo") | .inherited' lake-manifest.json
-}
+FOO_TMP=ffffffffffffffffffffffffffffffffffffffff
+sed_i s/$FOO_TMP/$FOO_V2_REV/g ../lake-manifest.json
+BAR_TMP=bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+sed_i s/$BAR_TMP/$BAR_REV/g ../lake-manifest.json
 
 test_run update
-check_foo
+test_cmd diff -u --strip-trailing-cr ../lake-manifest.json lake-manifest.json
 rm -rf .lake lake-manifest.json
 test_run update --keep-toolchain
-check_foo
-popd
-
-# Cleanup
-cd ..
-./clean.sh
+test_cmd diff -u --strip-trailing-cr ../lake-manifest.json lake-manifest.json

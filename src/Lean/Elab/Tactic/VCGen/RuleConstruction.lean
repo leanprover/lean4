@@ -453,8 +453,7 @@ public def mkBackwardRuleForSplit
 /-! ## Frame rules -/
 
 /-- Locate the assignable subgoal positions of a frame backward rule: the split VC (the premise
-`pre ⊑ (op F W) s⃗`, found by `opHead`), the frame `F` read off its right-hand side, and the frame
-condition `WP.Frames op prog F G`. -/
+`pre ⊑ (op F W) s⃗`, found by `opHead`) and the frame `F` read off its right-hand side. -/
 def analyzeFrameRule (rule : BackwardRule) (opHead : Name) (numExcess : Nat) :
     MetaM FrameBackwardRule := do
   -- The binder telescope of the rule type is the pattern telescope, so `xs` is indexed by the
@@ -465,23 +464,17 @@ def analyzeFrameRule (rule : BackwardRule) (opHead : Name) (numExcess : Nat) :
     let premiseType (listIdx : Nat) : MetaM Expr :=
       Meta.inferType xs[resultPos[listIdx]!]!
     let mut found := none
-    let mut framesIdx? := none
     -- Find the opApp `op F W` in the split VC that looks like `pre ⊑ (op F W) s`
     for i in [0:resultPos.size] do
-      let type ← premiseType i
-      if type.isAppOf ``Std.WP.WP.Frames then
-        framesIdx? := some i
-        continue
-      let_expr Lean.Order.PartialOrder.rel _ _ _ rhs := type | continue
+      let_expr Lean.Order.PartialOrder.rel _ _ _ rhs := (← premiseType i) | continue
       let opApp := rhs.stripArgsN numExcess
-      if found.isNone && opApp.isAppOf opHead then
+      if opApp.isAppOf opHead then
         found := some (i, opApp)
+        break
     let some (splitVCIdx, opApp) := found
       | throwError "frame: could not locate the split VC in the frame rule for `{opHead}`"
-    let some framesIdx := framesIdx?
-      | throwError "frame: could not locate the frame condition in the frame rule for `{opHead}`"
     let frameIdx := resultPos.idxOf (xs.idxOf opApp.appFn!.appArg!)
-    return { rule, splitVCIdx, frameIdx, framesIdx }
+    return { rule, splitVCIdx, frameIdx }
 
 /--
 The frame backward rule for a frame operator `op : R → Pred → Pred`, built from the frame rule
@@ -491,7 +484,9 @@ The rule concludes `pre ⊑ wp prog Q E s⃗` from the split VC `pre ⊑ (op F W
 condition `WP.Frames op prog F G`, with the frame `F` left schematic, the guard `G` the frame of
 `pre` for the excess state arguments `fun u⃗ => ⌜u⃗ = s⃗⌝ ⊓ pre`, and the weakest footprint
 `W = wp prog (fun a => upperAdjoint (op F) (Q a)) (upperAdjoint (opE F) E)` baked in, so a single
-rule serves every inferred frame. `analyzeFrameRule` records the positions of the schematic slots.
+rule serves every inferred frame. When `FrameProc.framesThm?` applies to the frame condition, the
+rule proves it, and the rule has no frame condition premise. `analyzeFrameRule` records the
+positions of the schematic slots.
 -/
 public def mkFrameBackwardRule (fp : FrameProc) (info : WPApp) :
     MetaM FrameBackwardRule := do
@@ -509,6 +504,11 @@ public def mkFrameBackwardRule (fp : FrameProc) (info : WPApp) :
     (userName := `vc)
   let ssFrame ← ExcessArgsFrameInfo.new pre ss
   guard.mvarId!.assign ssFrame.frame
+  if let some declName := fp.framesThm? then
+    let hframes := xs.back!.mvarId!
+    discard <| commitWhen do
+      try return (← hframes.apply (← mkConstWithFreshMVarLevels declName)).isEmpty
+      catch _ => return false
   let hop ← ssFrame.abstract opApp ss hsplit
   let G := ssFrame.frame
   let hmeet ← mkAppM ``le_meet

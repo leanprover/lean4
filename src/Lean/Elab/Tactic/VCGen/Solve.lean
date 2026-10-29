@@ -534,14 +534,8 @@ def applySpec (scope : Scope) (goal : MVarId) (info : WPApp) (thm : SpecTheorem)
       let split ← k fgoal
       trace[Elab.Tactic.Do.vcgen] "`@[frameproc]` framed {info.prog}"
       goals[frule.splitVCIdx]!.assign split.splitVCProof
-      -- A frame condition that `framesRule?` does not discharge stays among `goals`.
-      let framesGoals ← match frule.framesRule? with
-        | some rule => match ← rule.apply goals[frule.framesIdx]! with
-          | .goals gs => pure gs
-          | .failed => pure []
-        | none => pure []
       goal.assign copy
-      return some (.goals scope (goals.toList ++ framesGoals ++ fgoal.preVC :: sgs ++ split.subgoals))
+      return some (.goals scope (goals.toList ++ fgoal.preVC :: sgs ++ split.subgoals))
   trace[Elab.Tactic.Do.vcgen] "Applying spec {thm.proof} for {info.prog}. Excess args: {info.excessArgs}"
   let .goals goals ← specRule.applyChecked goal m!"spec rule for{indentExpr info.prog}"
     | return none

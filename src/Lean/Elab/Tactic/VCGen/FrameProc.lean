@@ -154,10 +154,6 @@ public structure FrameBackwardRule where
   splitVCIdx : Nat
   /-- Position of the schematic frame (of type `R`). -/
   frameIdx : Nat
-  /-- Position of the frame condition `WP.Frames op prog F G`. -/
-  framesIdx : Nat
-  /-- The backward rule of `FrameProc.framesThm?`. -/
-  framesRule? : Option Lean.Meta.Sym.BackwardRule := none
 
 /-- A frame inference procedure registered with `@[frameproc]`, together with its frame operator.
 `vcgen` selects the one whose `prog` matches the goal program's monad. -/

@@ -156,6 +156,7 @@ private inductive Recv
   | requestBody (chunk : Option Chunk)
   | bodyInterest (interested : Bool)
   | request (pending : Option PendingRequest)
+  | wrote (outcome : Option Error)
   | timeout
   | continueTimeout
   | shutdown
@@ -386,6 +387,17 @@ structure ConnectionState where
   -/
   requestDeadline : Option Timestamp := none
 
+  /--
+  The write in progress, which reports how it ended. The loop goes on reading while it runs, so a
+  response that arrives during a blocked upload is still seen.
+  -/
+  pendingWrite : Option (Std.Channel (Option Error)) := none
+
+  /--
+  Output produced while a write was in progress, written in order once it finishes.
+  -/
+  outbox : Array ByteArray := #[]
+
 namespace ConnectionState
 
 /--
@@ -506,7 +518,8 @@ waiting for an event that may never come.
 @[inline]
 def waitingOnIO (s : ConnectionState) : Bool :=
   !s.machine.hasPendingEvents &&
-    (s.requiresData || s.waitingForRequest || s.requestBody.isSome || s.machine.canPullBody)
+    (s.requiresData || s.waitingForRequest || s.requestBody.isSome || s.machine.canPullBody ||
+      s.pendingWrite.isSome)
 
 end ConnectionState
 
@@ -618,9 +631,14 @@ private def pollNextEvent
   if let some deadline := state.requestDeadline then
     selectables := selectables.push (timer (← Selector.sleep (remaining deadline)) .timeout)
 
+  -- While a write is in flight the outgoing body is not pulled further: it would only pile up here.
   if let some requestBody := state.requestBody then
-    selectables := selectables.push
-      (.case requestBody.recvSelector (pure <| Recv.requestBody ·))
+    if state.pendingWrite.isNone then
+      selectables := selectables.push
+        (.case requestBody.recvSelector (pure <| Recv.requestBody ·))
+
+  if let some write := state.pendingWrite then
+    selectables := selectables.push (.case write.recvSelector (pure <| .wrote ·))
 
   -- RFC 9110 §10.1.1: a server may ignore `Expect: 100-continue` entirely, so the wait for the
   -- interim response is bounded; on expiry the body is sent as if `100 Continue` had arrived.
@@ -825,31 +843,61 @@ private def deliverResponseChunk
   try Selectable.one selectables catch e => pure (some (.io e))
 
 /--
-Writes `data` to the transport, bounded by the exchange deadline and by the connection's
-cancellation, which is how `close` reaches a loop whose peer has stopped reading. The write runs in
-a task of its own; one that loses the race keeps running until the transport gives up on it, but the
-exchange no longer waits for it. Reports the failure that ended the wait, or `none` once the write
-finished.
+Starts writing `data` in a task of its own and returns the channel that reports how the write ended.
 -/
-private def writeOutput [Transport α] (socket : α) (data : Array ByteArray)
-    (connectionContext : CancellationContext) (deadline : Option Timestamp) : Async (Option Error) := do
+private def startWrite [Transport α] (socket : α) (data : Array ByteArray) :
+    Async (Std.Channel (Option Error)) := do
   let finished : Std.Channel (Option Error) ← Std.Channel.new
   background do
     let outcome ← try Transport.sendAll socket data; pure none
       catch _ => pure (some (.closed "connection write failed"))
     discard <| finished.send outcome
+  return finished
 
+/--
+Hands `data` to the transport: started at once when no write is in progress, queued behind the one
+that is otherwise.
+-/
+private def queueWrite [Transport α] (socket : α) (data : Array ByteArray) (state : ConnectionState) :
+    Async ConnectionState := do
+  if state.pendingWrite.isSome then
+    return { state with outbox := state.outbox ++ data }
+  return { state with pendingWrite := some (← startWrite socket data) }
+
+/--
+Records a finished write as progress on the exchange, which moves the deadline forward, and starts
+writing whatever was queued behind it.
+-/
+private def writeFinished [Transport α] (socket : α) (state : ConnectionState) :
+    Async ConnectionState := do
+  let mut state := { state with pendingWrite := none }
+  -- A completed write is progress on the exchange, so an upload, like the response body, is bounded
+  -- per pause rather than as a whole.
+  if state.requestDeadline.isSome then
+    state := { state with requestDeadline := some ((← Timestamp.now) + state.config.requestTimeout.val) }
+  if !state.outbox.isEmpty then
+    state := { state with pendingWrite := some (← startWrite socket state.outbox), outbox := #[] }
+  return state
+
+/--
+Waits for every write of the exchange to finish, bounded by its deadline and by the connection's
+cancellation. An exchange is complete only once everything it wrote has left: the connection cannot
+carry the next request while a write of this one is still in flight.
+-/
+private partial def finishWrites [Transport α] (socket : α) (connectionContext : CancellationContext)
+    (state : ConnectionState) : Async (Option Error × ConnectionState) := do
+  let some write := state.pendingWrite | return (none, state)
   let mut selectables : Array (Selectable (Option Error)) := #[
-    .case finished.recvSelector pure,
+    .case write.recvSelector pure,
     .case connectionContext.doneSelector (fun _ => pure (some (.closed "connection shutdown")))
   ]
-
-  if let some deadline := deadline then
+  if let some deadline := state.requestDeadline then
     let now ← Timestamp.now
     selectables := selectables.push
       (.case (← Selector.sleep (deadline - now).toMilliseconds) (fun _ => pure (some .timeout)))
-
-  try Selectable.one selectables catch e => pure (some (.io e))
+  match ← (try Selectable.one selectables catch e => pure (some (.io e))) with
+  | some err => return (some err, state)
+  | none => finishWrites socket connectionContext (← writeFinished socket state)
 
 /--
 Transition for a `.bodyInterest true` event: pulls the next chunk out of the H1 machine, enforces
@@ -882,8 +930,9 @@ private def pullResponseBody (connectionContext : CancellationContext) (state : 
 Processes a single async I/O event, returning the updated state and a `shouldClose` flag
 that tells the main loop to exit.
 -/
-private def handleRecvEvent (baseConfig : Config) (connectionContext : CancellationContext)
-    (state : ConnectionState) : Recv → Async (ConnectionState × Bool)
+private def handleRecvEvent [Transport α] (socket : α) (baseConfig : Config)
+    (connectionContext : CancellationContext) (state : ConnectionState) :
+    Recv → Async (ConnectionState × Bool)
   | .bytes (some bytes) =>
     -- An idle connection has no request for these bytes to answer: an unsolicited response, such as
     -- the `408` a server sends before closing an idle connection. Fed to the machine they would
@@ -925,6 +974,12 @@ private def handleRecvEvent (baseConfig : Config) (connectionContext : Cancellat
 
   | .request none | .close =>
     pure (state, true)
+
+  | .wrote (some err) => do
+    return (← abortState state err, true)
+
+  | .wrote none => do
+    return (← writeFinished socket state, false)
 
   | .timeout => do
     return (← abortState state .timeout, true)
@@ -1035,16 +1090,17 @@ private def run
       state := { state with machine := newMachine }
 
       if step.output.size > 0 then
-        if let some err ← writeOutput socket step.output.data connectionContext state.requestDeadline then
+        state ← queueWrite socket step.output.data state
+
+      -- Phase 3: process all events emitted by this step. One that completes the exchange waits for
+      -- the exchange's writes to finish first.
+
+      if step.events.any (· matches .next) then
+        let (err?, newState) ← finishWrites socket connectionContext state
+        state := newState
+        if let some err := err? then
           state ← abortState state err
           break
-
-        -- A completed write is progress on the exchange, so an upload, like the response body, is
-        -- bounded per pause rather than as a whole.
-        if state.requestDeadline.isSome then
-          state := { state with requestDeadline := some ((← Timestamp.now) + state.config.requestTimeout.val) }
-
-      -- Phase 3: process all events emitted by this step.
 
       let (newState, sawFailure) ← processH1Events config requestChannel step.events state
       state := newState
@@ -1058,7 +1114,7 @@ private def run
       if state.waitingOnIO then
         state := { state with requiresData := false }
         let event ← pollNextEvent socket requestChannel connectionContext state
-        let (newState, shouldClose) ← handleRecvEvent config connectionContext state event
+        let (newState, shouldClose) ← handleRecvEvent socket config connectionContext state event
         state := newState
         if shouldClose then break
 

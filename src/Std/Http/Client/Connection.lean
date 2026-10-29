@@ -246,6 +246,11 @@ structure InFlightState where
   -/
   finishedStream : Option Body.Stream := none
 
+  /--
+  The number of interim (`1xx`) responses received so far for this request.
+  -/
+  interimResponses : Nat := 0
+
 namespace InFlightState
 
 /--
@@ -655,6 +660,11 @@ private def responseBodySize (method : Method) (head : Response.Head) : Option B
   else H1.Message.Head.getSize (dir := .sending) head (allowEOFBody := false)
 
 /--
+The interim (`1xx`) responses a request may receive before its final response.
+-/
+private def maxInterimResponses : Nat := 16
+
+/--
 Processes all H1 events from a single machine step, executing side effects
 inline and returning the updated state together with a `sawFailure` flag
 that tells the main loop to exit. Handles keep-alive resets, body-size
@@ -678,7 +688,14 @@ private def processH1Events
 
     | .endHeaders head =>
       if head.status.isInterim then
-        if head.status == .continue && state.waitingForContinue then
+        state := state.mapInFlight fun flight => { flight with interimResponses := flight.interimResponses + 1 }
+        -- Interim responses cost the peer nothing and reset no deadline worth having, so a peer
+        -- could keep a request waiting with them forever; past a handful the response is malformed.
+        if state.inFlight.any (·.interimResponses > maxInterimResponses) then
+          stopAcceptingRequests requestChannel
+          state.inFlight.forM (·.reject (.protocol (.other "too many interim responses")))
+          sawFailure := true
+        else if head.status == .continue && state.waitingForContinue then
           state := state.mapInFlight (·.releasePendingBody)
       else
         if state.waitingForContinue then

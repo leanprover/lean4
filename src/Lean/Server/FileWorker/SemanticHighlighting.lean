@@ -642,6 +642,20 @@ where
       StateM (Array LeanSemanticToken) Unit :=
     modify (pushSyntaxToken · tk k (markupPriority k) modifiers)
 
+  /--
+  Emits a token for each real source line of the literal `lit`, which might possibly contain an
+  escaped newline.
+  -/
+  tokLines (lit : Syntax) (k : SemanticTokenType) (modifiers : SemanticTokenModifiers := {}) :
+      StateM (Array LeanSemanticToken) Unit := do
+    let .node _ _ #[.atom _ val] := lit | tok lit k modifiers
+    let some pos := lit.getPos? | return
+    if !val.contains '\n' then return (← tok lit k modifiers)
+    for line in val.split '\n' do
+      if !line.isEmpty then
+        let range := ⟨line.startInclusive.offset.offsetBy pos, line.endExclusive.offset.offsetBy pos⟩
+        tok (.ofRange range) k modifiers
+
   /-- Emits a delimiter as a `keyword` token with the `markupSyntax` modifier. -/
   delim (tk : Syntax) : StateM (Array LeanSemanticToken) Unit :=
     tok tk .keyword {.markupSyntax}
@@ -678,7 +692,7 @@ where
       delim tk2
     | .url _ tk1 url tk2 =>
       delim tk1
-      tok url.raw .markupUrl
+      tokLines url.raw .markupUrl
       delim tk2
 
   goCode (code : CodeView) : StateM (Array LeanSemanticToken) Unit := do
@@ -706,7 +720,7 @@ where
   go (a : MarkupAttrs) (stx : Syntax) : StateM (Array LeanSemanticToken) Unit := do
   if let some v := InlineView.of ⟨stx⟩ then
     match v with
-    | .text v => tok v.stx.raw a.tokenType a.modifiers
+    | .text v => tokLines v.content.raw a.tokenType a.modifiers
     | .linebreak .. => pure ()
     | .bold v => goDelimited a.withBold v.opener v.closer v.content
     | .emph v => goDelimited a.withItalic v.opener v.closer v.content
@@ -715,7 +729,7 @@ where
       goTarget v.target
     | .image v =>
       delim v.opener
-      tok v.alt.raw .string
+      tokLines v.alt.raw .string
       delim v.closer
       goTarget v.target
     | .footnote v =>

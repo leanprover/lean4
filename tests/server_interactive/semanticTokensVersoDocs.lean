@@ -11,7 +11,8 @@ at a time as well, and a continuation line's indentation up to the docstring's b
 part of any token. Empty content, such as an image without alternate text or a link reference
 without a URL, contributes no token. The final docstring exercises the remaining element kinds:
 roles with named arguments, flags, and brackets, inline link targets, footnotes, display math,
-description list terms, code blocks with arguments, directives, and block commands.
+description list terms, code blocks with arguments, directives, and block commands. Text, alternate
+text, and link URLs that contain an escaped newline get one token per actual source line.
 -/
 open Lean Doc Elab Term in
 /-- A directive whose content is its blocks, unchanged. -/
@@ -108,6 +109,19 @@ ends the paragraph. A *bolded {manual section "deriving-instances"}[role applied
 * Another item.
 -/
 def textExample : Nat := 0
+
+/--
+Some text\
+more text here
+
+*bold* more text\
+x
+
+![alt\
+text](https://example.com/x.png) and [a link](https://example.com/a\
+b)
+-/
+def escapedNewlines : Nat := 0
 
 --^ collectDiagnostics
 --^ textDocument/semanticTokens/full

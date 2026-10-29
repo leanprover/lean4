@@ -58,13 +58,24 @@ def Connector.tcp : Connector := fun origin config => do
     return .error (.connect
       s!"default TCP connector only supports http, got scheme {origin.scheme.val.quote}")
 
-  let (connectHost, connectPort) :=
+  let (connectHost, connectPort, literal) : String × UInt16 × Option Std.Net.IPAddr :=
     match config.proxySelector.select origin with
-    | .direct => (toString origin.host, origin.port)
-    | .http proxyHost proxyPort => (proxyHost, proxyPort)
-  let addrs ←
-    try DNS.getAddrInfo connectHost (toString connectPort)
-    catch err => return .error (.connect (toString err))
+    | .direct =>
+      let literal : Option Std.Net.IPAddr :=
+        match origin.host with
+        | .ipv4 ip => some (.v4 ip)
+        | .ipv6 ip => some (.v6 ip)
+        | .name _ => none
+      (toString origin.host, origin.port, literal)
+    | .http proxyHost proxyPort => (proxyHost, proxyPort, none)
+
+  -- An IP literal is dialled as it stands: the resolver rejects the bracketed form an IPv6 host
+  -- takes in a URI.
+  let addrs ← match literal with
+    | some ip => pure #[ip]
+    | none =>
+      try DNS.getAddrInfo connectHost (toString connectPort)
+      catch err => return .error (.connect (toString err))
 
   if addrs.isEmpty then
     return .error (.connect s!"could not resolve host: {connectHost.quote}")

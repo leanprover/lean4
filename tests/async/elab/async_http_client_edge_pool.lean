@@ -538,9 +538,11 @@ open Test.ClientHelpers
     | Except.ok s =>
       throw (IO.userError s!"expected request-timeout error on stalled body, read {s.quote}")
 
--- Incoming progress must not re-arm the whole-request timeout. A server can keep the idle timer
--- alive by dripping bytes, but the absolute request deadline must still end the exchange.
-#eval show IO _ from runWithTimeout "request deadline aborts a slow-drip response body" 4000 <|
+-- After the response head, `requestTimeout` bounds each pause in the body rather than the exchange
+-- as a whole, so a body that keeps moving streams past it. Five bytes 100 ms apart take twice the
+-- 250 ms bound.
+
+#eval show IO _ from runWithTimeout "a body that keeps moving outlives requestTimeout" 4000 <|
   Async.block do
   let (mockClient, mockServer) ← Mock.new
   let client ← mkClient mockServer (config := { requestTimeout := ⟨250, by decide⟩ })
@@ -558,15 +560,11 @@ open Test.ClientHelpers
       try mockClient.send byte.toUTF8 catch _ => pure ()
 
   match ← await resultPromise.result! with
-  | Except.error _ => pure ()
+  | Except.error e => throw (IO.userError s!"the request failed: {e}")
   | Except.ok resp =>
-    let result : Except String String ← try
-        pure (Except.ok (← resp.body.readAll (α := String)))
-      catch e => pure (Except.error (toString e))
-    match result with
-    | Except.error _ => pure ()
-    | Except.ok body =>
-      throw (IO.userError s!"slow-drip response escaped request deadline with {body.quote}")
+    let body ← resp.body.readAll (α := String)
+    unless body == "abcde" do
+      throw (IO.userError s!"the moving body was cut short: {body.quote}")
 
 -- `Connection.close` must abort an in-flight exchange promptly (via the connection's cancellation
 -- context), not leave the caller blocked until the request timeout. The request timeout below is

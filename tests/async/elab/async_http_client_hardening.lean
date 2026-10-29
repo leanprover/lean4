@@ -149,3 +149,20 @@ def redirectedThrough (middleware : Client.Middleware) : Async (String × String
     throw (IO.userError s!"the first hop lacked the credential: {first.quote}")
   if second.contains "Authorization" then
     throw (IO.userError s!"the credential followed the redirect: {second.quote}")
+
+-- A challenge whose body outgrows `intermediateBodyDrainLimit` ends the request at once instead of
+-- waiting for the connection to read a body that, here, never ends.
+#eval show IO _ from runWithTimeout "an oversized challenge body does not stall the request" 3000 <|
+  Async.block do
+  let (mock, server) ← Mock.new
+  let tc ← mkClient server
+    { authenticator := some (Client.Authenticator.const bearer), intermediateBodyDrainLimit := 16 }
+  let p ← sendInBackground tc (← getReq "/x")
+  discard <| drainRequest mock
+  let filler := String.ofList (List.replicate 64 'x')
+  mock.send (rawResp "401 Unauthorized"
+    #[("WWW-Authenticate", "Bearer"), ("Transfer-Encoding", "chunked")] s!"40\r\n{filler}\r\n")
+  match ← await p.result! with
+  | .error e =>
+    unless e.contains "exceeds" do throw (IO.userError s!"unexpected error {e}")
+  | .ok r => throw (IO.userError s!"expected a failure, got {r.line.status.toCode}")

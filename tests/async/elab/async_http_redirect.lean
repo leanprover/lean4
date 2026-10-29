@@ -219,6 +219,26 @@ info: "target: /a/b?a=2"
   | some p => s!"target: {toString p.target}"
   | none => "no plan"
 
+private def targetFor (requestTarget location : String) : String :=
+  let req : Request.Head := { method := .get, version := .v11, uri := RequestTarget.parse! requestTarget }
+  match plan? (decideRedirect origin req false .v11 .found (withLocation location)) with
+  | some p => toString p.target
+  | none => "no plan"
+
+-- #16036: `/` parses to an absolute path with no segments, but it is not the empty reference, so it
+-- resolves to `/` and drops the base query (RFC 3986 §5.2.2). The last case is the empty reference.
+
+/--
+info: ["/", "/", "/?y", "/", "/a/b?old=1"]
+-/
+#guard_msgs in
+#eval [
+  targetFor "/login?next=%2Fhome" "/",
+  targetFor "/a/b?old=1" "/",
+  targetFor "/a/b?old=1" "/?y",
+  targetFor "/a/b?old=1" "/#f",
+  targetFor "/a/b?old=1" ""]
+
 private def sameOriginHopHeaders : Headers :=
   Headers.empty.insert .transferEncoding (Header.Value.ofString! "chunked")
 

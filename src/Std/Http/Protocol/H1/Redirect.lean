@@ -313,16 +313,18 @@ private def rewriteTarget (ref : URIReference) (isCrossOrigin : Bool)
       .originForm path.normalize query
   | .relative { authority := none, path := refPath, query, .. } =>
 
-    -- RFC 3986 §5.2.2: merge base path with reference path, then normalize.
+    -- RFC 3986 §5.2.2: merge base path with reference path, then normalize. `/` has no segments, so
+    -- `absolute` must be tested before `isEmpty`: only a relative path with no segments is empty.
+    let isEmptyPath := !refPath.absolute && refPath.isEmpty
     let merged :=
-      if refPath.isEmpty then
-        basePath
-      else if refPath.absolute then
+      if refPath.absolute then
         refPath
+      else if isEmptyPath then
+        basePath
       else
         basePath.parent.join refPath
     let rewrittenQuery :=
-      if refPath.isEmpty && query.isNone then
+      if isEmptyPath && query.isNone then
         baseQuery
       else
         query

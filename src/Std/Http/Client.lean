@@ -446,7 +446,8 @@ private structure Exchange where
 private def buildRedirectRequest (plan : RedirectPlan)
     (request : Request Body.Any) : Async (Request Body.Any) := do
   let newBody : Body.Any ← match plan.bodyAction with
-    | .empty => pure (Body.Any.ofBody Body.Empty.mk)
+    -- Replayable, so that an authenticator can still answer a challenge on the next hop.
+    | .empty => pure (Body.Any.ofReplayableBody Body.Empty.mk)
     | .replay => do
       request.body.reset?.getD (pure ())
       pure request.body
@@ -469,8 +470,8 @@ exchange, whose connection goes back to the pool once that exchange ends. The ho
 exchange, recorded in a ref because middlewares only see the response, and the caller gives its
 connection back once it ends.
 -/
-private def dispatchHop (client : Client) (origin : URI.Origin) (request : Request Body.Any)
-    (overrides : RequestOverrides) (fresh : Bool := false) :
+private def dispatchHop (client : Client) (initialOrigin origin : URI.Origin)
+    (request : Request Body.Any) (overrides : RequestOverrides) (fresh : Bool := false) :
     Async (Except Error (Response Body.Stream × Option Exchange)) := do
   let exchangeRef ← IO.mkRef (none : Option Exchange)
   let inner : Request Body.Any → Async (Except Error (Response Body.Stream)) :=
@@ -482,7 +483,7 @@ private def dispatchHop (client : Client) (origin : URI.Origin) (request : Reque
     | .error e => return .error e
     | .ok connection =>
       let sent ←
-        try connection.sendTracked req overrides
+        try connection.sendTracked req overrides (some initialOrigin)
         catch err => do
           connection.close
           throw err
@@ -534,13 +535,13 @@ private def evaluateRedirect (origin : URI.Origin) (request : Request Body.Any)
   return some plan
 
 private partial def sendWithRedirects
-    (client : Client) (origin : URI.Origin) (request : Request Body.Any)
+    (client : Client) (initialOrigin origin : URI.Origin) (request : Request Body.Any)
     (remaining : Nat) (overrides : RequestOverrides)
     (history : Array (URI.Origin × String) := #[]) (fresh : Bool := false) :
     Async (Except Error (Response Body.Stream)) := do
   let history := history.push (origin, targetKey request.line.uri)
 
-  match ← dispatchHop client origin request overrides fresh with
+  match ← dispatchHop client initialOrigin origin request overrides fresh with
   | .error e => return .error e
   | .ok (response, exchange) =>
     match evaluateRedirect origin request response remaining history with
@@ -581,7 +582,8 @@ private partial def sendWithRedirects
         match newRequest with
         | .error err => return .error (.io err)
         | .ok newRequest =>
-          sendWithRedirects client plan.origin newRequest (remaining - 1) overrides history
+          sendWithRedirects client initialOrigin plan.origin newRequest (remaining - 1) overrides
+            history
 
 end Impl
 
@@ -623,7 +625,7 @@ def trySend {β : Type} [Coe β Body.Any] (client : Client) (origin : URI.Origin
       if let some reset := reset? then
         reset
 
-    match ← Impl.sendWithRedirects client origin request maxRedirects overrides
+    match ← Impl.sendWithRedirects client origin origin request maxRedirects overrides
         (fresh := attempt > 0) with
     | .ok response => return .ok response
     | .error e =>

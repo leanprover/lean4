@@ -220,3 +220,45 @@ instance : Transport StallingTransport where
   | .ok response =>
     unless response.line.status == .ok do throw (IO.userError "wrong status")
     unless (← response.body.readAll (α := String)) == "ok" do throw (IO.userError "wrong body")
+
+-- A request body that ends short of its declared `Content-Length` fails the request at once, rather
+-- than leaving the peer and the client waiting on each other until `readTimeout`.
+#eval show IO _ from runWithTimeout "a request body shorter than its Content-Length fails promptly" 3000 <|
+  Async.block do
+  let (_mock, server) ← Mock.new
+  let tc ← mkClient server
+  let body ← Body.mkStream
+  background do
+    body.send (Chunk.ofByteArray "12345".toUTF8)
+    body.close
+  let request := Request.new |>.method .put |>.uri! "/upload" |>.header! "Content-Length" "10" |>.body body
+  match ← tc.client.trySend tc.origin request with
+  | .error .timeout => throw (IO.userError "the short body was only noticed by the timeout")
+  | .error _ => pure ()
+  | .ok r => throw (IO.userError s!"a short body succeeded with {r.line.status.toCode}")
+
+-- A forbidden trailer field that does not frame the message is dropped, not a reason to fail a body
+-- that arrived whole; a framing field in a trailer still fails it.
+#eval show IO _ from runWithTimeout "a non-framing forbidden trailer does not fail the body" 3000 <|
+  Async.block do
+  let (mock, server) ← Mock.new
+  let tc ← mkClient server
+  let p ← sendInBackground tc (← getReq "/t")
+  discard <| drainRequest mock
+  mock.send (rawResp "200 OK" #[("Transfer-Encoding", "chunked")]
+    "2\r\nok\r\n0\r\nCache-Control: no-store\r\n\r\n")
+  unless (← expectBody "/t" p) == "ok" do throw (IO.userError "wrong body")
+
+#eval show IO _ from runWithTimeout "a framing field in a trailer still fails the body" 3000 <|
+  Async.block do
+  let (mock, server) ← Mock.new
+  let tc ← mkClient server
+  let p ← sendInBackground tc (← getReq "/t")
+  discard <| drainRequest mock
+  mock.send (rawResp "200 OK" #[("Transfer-Encoding", "chunked")]
+    "2\r\nok\r\n0\r\nContent-Length: 2\r\n\r\n")
+  match ← await p.result! with
+  | .error _ => pure ()
+  | .ok r =>
+    let read : Except String String ← try pure (.ok (← r.body.readAll (α := String))) catch e => pure (.error (toString e))
+    if let .ok _ := read then throw (IO.userError "a framing trailer was accepted")

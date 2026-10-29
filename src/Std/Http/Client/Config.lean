@@ -51,12 +51,6 @@ structure RequestOverrides where
   -/
   maxRedirects : Option Nat := none
 
-  /--
-  Overrides `Config.onlySafeRedirects` for this request. Set this to opt a single unsafe request
-  into (or out of) automatic redirect following without changing the client-wide policy.
-  -/
-  onlySafeRedirects : Option Bool := none
-
 /--
 Client connection configuration.
 -/

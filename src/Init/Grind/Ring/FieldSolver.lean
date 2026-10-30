@@ -556,7 +556,7 @@ theorem Poly.denote_substInvB_k [Field α] [IsCharP α 0] (ctx : Context α) (p 
     have h1 : ((c : Int) : α) * x.denote ctx = 1 := by
       rw [Ring.intCast_natCast, h, ← Semiring.ofNat_eq_natCast, Field.mul_inv_cancel]
       rw [Semiring.ofNat_eq_natCast]; exact hc'
-    have hpow : (c : α) ^ p.maxDegreeOf x ≠ 0 := fun h => hc' (Field.of_pow_eq_zero _ _ h)
+    have hpow : (c : α) ^ p.maxDegreeOf x ≠ 0 := fun h => hc' (Semifield.of_pow_eq_zero _ _ h)
     show ((p.mulConst_k (Int.ofNat (Nat.pow c (p.maxDegreeOf_k x)))).cancelVarB_k (Int.ofNat c) x).denote ctx
       * ((Nat.pow c (p.maxDegreeOf_k x) : Nat) : α)⁻¹ = _
     rw [Int.ofNat_eq_natCast, Poly.denote_cancelVarB_k ctx _ (c : Int) x (by omega) h1, Poly.maxDegreeOf_k_eq, Poly.mulConst_k_eq_mulConst,

@@ -35,6 +35,23 @@ inductive SolverMode where
   | default
 
 /--
+How much symmetry breaking for EPR problems `bv_decide` should attempt.
+-/
+inductive EprSymBreak where
+  /--
+  Perform no additional symmetry breaking beyond the sound problem encoding.
+  -/
+  | off
+  /--
+  Slightly improve the problem encoding to break the search space in half at little additional cost.
+  -/
+  | simple
+  /--
+  Introduce as much symmetry breaking as possible.
+  -/
+  | full
+
+/--
 The configuration options for `bv_decide`.
 -/
 structure BVDecideConfig where
@@ -109,6 +126,10 @@ structure BVDecideConfig where
   Note that this has to be always used together with `uf` if predicates occur in the problem.
   -/
   epr : Bool := false
+  /--
+  How much effort bv_decide should put into breaking symmetries of EPR problems.
+  -/
+  eprSymBreak : EprSymBreak := .simple
 
 /--
 Whether this configuration requires the solver to use incremental solving.

@@ -761,7 +761,7 @@ theorem count_eq (n : Nat) : Nat.popcount n = count n := by
 
 end popcount
 
-private theorem popcount_eq (n : Nat) : popcount n = popcount.count n :=
+theorem popcount_eq (n : Nat) : popcount n = popcount.count n :=
   popcount.count_eq n
 
 @[simp] public theorem popcount_zero : popcount 0 = 0 := by

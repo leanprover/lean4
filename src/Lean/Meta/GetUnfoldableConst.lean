@@ -76,7 +76,12 @@ This is part of the implementation of `whnf`.
 External users wanting to look up names should be using `Lean.getConstInfo`.
 -/
 def getUnfoldableConst? (constName : Name) : MetaM (Option ConstantInfo) := do
-  let some ainfo := (← getEnv).findAsync? constName | throwUnknownConstantAt (← getRef) constName
+  let env ← getEnv
+  if let some info := env.findImported? constName then
+    match info with
+    | .defnInfo _ => if (← canUnfold info) then return info else return none
+    | _ => return none
+  let some ainfo := env.findAsync? constName | throwUnknownConstantAt (← getRef) constName
   match ainfo.kind with
   | .thm => return none
   | .defn => if (← canUnfold ainfo.toConstantInfo) then return ainfo.toConstantInfo else return none

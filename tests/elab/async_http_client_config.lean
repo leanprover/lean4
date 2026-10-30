@@ -45,10 +45,10 @@ private def corpProxy : ProxySelector :=
 /-! ## `Challenge` -/
 
 private def serverChallenge : Challenge :=
-  { kind := .server, origin := example80, target, headers := Headers.empty }
+  { kind := .server, origin := example80, method := .get, target, headers := Headers.empty }
 
 private def proxyChallenge : Challenge :=
-  { kind := .proxy, origin := example80, target, headers := Headers.empty }
+  { kind := .proxy, origin := example80, method := .get, target, headers := Headers.empty }
 
 -- A challenge names the header it was read from and the header its answer is sent in.
 #guard serverChallenge.challengeHeader == Header.Name.wwwAuthenticate

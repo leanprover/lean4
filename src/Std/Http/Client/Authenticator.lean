@@ -58,6 +58,12 @@ structure Challenge where
   origin : URI.Origin
 
   /--
+  The method of the challenged request. Schemes whose response covers the request line, such as
+  `Digest`, need it.
+  -/
+  method : Method
+
+  /--
   The request target that was challenged.
   -/
   target : RequestTarget

@@ -419,7 +419,7 @@ Parses the size and extensions of a chunk.
 -/
 public def parseChunkSize (limits : H1.Config) : Parser (Nat × Array (Chunk.ExtensionName × Option Chunk.ExtensionValue)) := do
   let size ← hex
-  let ext ← manyItems (optionalItem (parseChunkExt limits)) limits.maxChunkExtensions
+  let ext ← manyItems (some <$> parseChunkExt limits) limits.maxChunkExtensions
   crlf
   return (size, ext)
 

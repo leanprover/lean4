@@ -193,7 +193,31 @@ def wellFormedTarget (target : String) : Bool :=
 
 def lower (s : Str) : Str := s.map Char.toLower
 
-/-- `(host, port)` of an authority, or `none` when it names no usable host (RFC 9110 §4.2.1). -/
+/-- §6.2.2.1–2: uppercase percent-encoding hex digits and decode unreserved characters. -/
+partial def normalizePercent : Str → Str
+  | '%' :: a :: b :: r =>
+    match hexVal? a, hexVal? b with
+    | some x, some y =>
+      let c := Char.ofNat (16 * x + y)
+      if isUnreserved c then c :: normalizePercent r
+      else '%' :: a.toUpper :: b.toUpper :: normalizePercent r
+    | _, _ => '%' :: normalizePercent (a :: b :: r)
+  | c :: r => c :: normalizePercent r
+  | [] => []
+
+/-- A registered name for DNS lookup (RFC 3986 §3.2.2, RFC 1034 §3.5): non-empty labels of at most 63
+alphanumerics and `-` that do not start or end with `-`, and an optional trailing `.`. `_` is also
+accepted, as the client does. -/
+def isDnsName (host : Str) : Bool :=
+  let labels := (String.ofList (if host.getLast? == some '.' then host.dropLast else host)).splitOn "."
+  host.length ≤ 255 && labels.all fun l =>
+    let cs := l.toList
+    !cs.isEmpty && cs.length ≤ 63 && cs.all (fun c => c.isAlphanum || c == '-' || c == '_')
+      && cs.head? != some '-' && cs.getLast? != some '-'
+
+/-- `(host, port)` of an authority, with the host normalized as in §6.2.2.1–2, or `none` when it names
+no usable host: it is empty (RFC 9110 §4.2.1), a registered name that is not a DNS name, or has an
+invalid port. -/
 def hostPort? (scheme authority : Str) : Option (Str × Nat) :=
   let hostPort := match authority.reverse.span (· != '@') with
     | (_, []) => authority
@@ -206,12 +230,13 @@ def hostPort? (scheme authority : Str) : Option (Str × Nat) :=
       match hostPort.reverse.span (· != ':') with
       | (_, []) => (hostPort, [])
       | (p, _ :: h) => (h.reverse, p.reverse)
+  let host := lower (normalizePercent host)
   let defaultPort := if scheme == "https".toList then 443 else 80
-  if host.isEmpty then none
-  else if port.isEmpty then some (lower host, defaultPort)
+  if host.isEmpty || (host.head? != some '[' && !isDnsName host) then none
+  else if port.isEmpty then some (host, defaultPort)
   else if port.all Char.isDigit then
     let n := port.foldl (fun n c => n * 10 + (c.toNat - '0'.toNat)) 0
-    if n < 65536 then some (lower host, n) else none
+    if n < 65536 then some (host, n) else none
   else none
 
 def notFollowed : String := "<not followed>"
@@ -251,18 +276,6 @@ def planned (baseTarget : String) (location : Header.Value) : String × String :
       | other => ("other-form", toString other)
     (s!"{form} {p.origin.scheme.val}://{p.origin.host}:{p.origin.port} {pathQuery}",
       toString p.target)
-
-/-- §6.2.2.1–2: uppercase percent-encoding hex digits and decode unreserved characters. -/
-partial def normalizePercent : Str → Str
-  | '%' :: a :: b :: r =>
-    match hexVal? a, hexVal? b with
-    | some x, some y =>
-      let c := Char.ofNat (16 * x + y)
-      if isUnreserved c then c :: normalizePercent r
-      else '%' :: a.toUpper :: b.toUpper :: normalizePercent r
-    | _, _ => '%' :: normalizePercent (a :: b :: r)
-  | c :: r => c :: normalizePercent r
-  | [] => []
 
 /-- Splits `form origin path?query`. -/
 def parts (s : String) : String × String × Str × Option Str :=

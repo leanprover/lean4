@@ -207,6 +207,7 @@ info: some " "
 #eval parseCheck "https://api.example.com:443/v1/users?limit=10"
 #eval parseCheck "http://[2001:db8::1]:8080/path"
 #eval parseCheck "https://xn--nxasmq6b.xn--o3cw4h/path"
+#eval parseCheck "http://exa_mple.com/path"
 #eval parseCheck "localhost:65535"
 #eval parseCheck "http:80"
 #eval parseCheck "https://user:pass@secure.example.com/private"
@@ -262,7 +263,7 @@ info: some " "
 #eval parseCheckFail ""
 #eval parseCheckFail "[::1"
 #eval parseCheckFail "[:::1]:80"
-#eval parseCheckFail "http://exa_mple.com/path"
+#eval parseCheckFail "http://-example.com/path"
 #eval parseCheckFail "http://[fe80::1%25eth0]/path"
 #eval parseCheckFail "#frag"
 #eval parseCheckFail "/path/\n"
@@ -975,10 +976,14 @@ info: Std.Http.RequestTarget.absoluteForm
   | .ok result => result.query.size == 2
   | .error _ => false
 
--- parseQuery uses `split '='` instead of `splitOn "="`.
--- A pair containing more than one unencoded `=` must be rejected because the
--- three-element split falls into the error branch.
-#eval parseCheckFail "/path?key=a=b"
+-- A value may contain an unencoded `=`: the name ends at the first `=` (#16021).
+/--
+info: some (some "a=b")
+-/
+#guard_msgs in
+#eval show IO _ from do
+  let result ← runParser parseRequestTarget "/path?key=a=b"
+  IO.println (repr (result.query.find? "key"))
 
 -- A percent-encoded `=` in the value is fine; `%3D` is preserved as-is in
 -- the EncodedQueryParam.

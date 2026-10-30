@@ -484,6 +484,26 @@ register_builtin_option backward.proofsInPublic : Bool := {
     its `warn` sub-option are enabled, additional warnings from private accesses."
 }
 
+/--
+Abstracts `proof`, a proof of `type` elaborated in the private scope, into an auxiliary theorem so
+that the public scope can use it without private information. Like `abstractProof`, but the theorem
+states `type` rather than the type of `proof`, which might not make sense outside the current module
+(#11672). A local hypothesis whose type is `type` also in the public scope is returned as is: one
+whose type matches `type` only by unfolding definitions not visible there is abstracted as well
+(#16110).
+-/
+def abstractPrivateProof (type proof : Expr) : MetaM Expr := do
+  let hypType? ← if proof.isFVar then some <$> instantiateMVars (← inferType proof) else pure none
+  -- Check syntactic equality first, as switching to the public scope resets caches.
+  if let some hypType := hypType? then
+    if hypType == (← instantiateMVars type) then
+      return proof
+  withExporting do
+    if let some hypType := hypType? then
+      if (← withNewMCtxDepth <| isDefEqGuarded hypType type) then
+        return proof
+    mkAuxTheorem (cache := !proof.hasSorry) type proof (zetaDelta := true)
+
 mutual
 
   /--
@@ -540,13 +560,8 @@ mutual
             else
               throwError "unsolved goals\n{goalsToMessageData remainingGoals}"
           if isNoLongerExporting then
-            let mut e ← instantiateExprMVars (.mvar mvarId')
-            if !e.isFVar then
-              e ← mvarId'.withContext do
-                withExporting (isExporting := wasExporting) do
-                  -- Like `abstractProof`, but use the expected and not given type here as
-                  -- the latter might not make sense outside the current module (#11672).
-                  mkAuxTheorem (cache := !e.hasSorry) (← mvarId.getType) e (zetaDelta := true)
+            let e ← instantiateExprMVars (.mvar mvarId')
+            let e ← mvarId'.withContext do abstractPrivateProof (← mvarId.getType) e
             mvarId.assign e)
       fun ex => do
         if report then

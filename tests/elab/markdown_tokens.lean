@@ -96,9 +96,9 @@ and `markupItalic` modifiers.
 #guard_msgs in #eval markupAt "* ***x***" 5
 
 /-!
-## Delimiters
+## Markup Syntax
 
-Every delimiter is a `keyword` token with the `markupSyntax` modifier.
+Markup syntax consists of `keyword` tokens with the `markupSyntax` modifier.
 -/
 
 /-- info: ["keyword markupSyntax", "keyword markupSyntax", "keyword markupSyntax", "keyword markupSyntax"] -/

@@ -428,8 +428,8 @@ structure CallHierarchyOutgoingCall where
 inductive SemanticTokenType where
   -- Used by Lean
   /--
-  A keyword. Delimiters of Verso and Markdown syntax in docstrings, such as `*`, `#`, `>`, fences,
-  and brackets, are keywords with the `markupSyntax` modifier.
+  A keyword. Verso and Markdown syntax in docstrings, such as bold/italic delimiters, list and
+  header markers, and thematic breaks, consists of keywords with the `markupSyntax` modifier.
   -/
   | keyword
   | variable
@@ -529,9 +529,9 @@ inductive SemanticTokenModifier where
   /-- Emphasized text, typically shown in italics, such as `_emph_` in Verso or Markdown. -/
   | markupItalic
   /--
-  A delimiter of Verso or Markdown syntax, such as `*`, `#`, a fence, or a bracket. Delimiters are
-  `keyword` tokens with this modifier, so that themes will style them like keywords by default but
-  can single them out when they want to.
+  Verso or Markdown syntax, such as a bold/italic delimiter, a list or header marker, a fence, or a
+  thematic break. Markup syntax consists of `keyword` tokens with this modifier, so that themes will
+  style it like keywords by default but can single it out when they want to.
   -/
   | markupSyntax
   deriving ToJson, FromJson, BEq, Hashable, Repr

@@ -416,10 +416,10 @@ private def pushLines (out : Array LeanSemanticToken) (lines : Markdown.Lines s)
     (tokenType : SemanticTokenType) : Array LeanSemanticToken :=
   lines.toArray.foldl (init := out) fun out line => pushTok out line tokenType
 
-/-- Pushes a delimiter, which is a `keyword` token with the `markupSyntax` modifier. -/
-@[inline] private def pushDelimiter (out : Array LeanSemanticToken) (delimiter : s.Subslice) :
+/-- Pushes markup syntax as a `keyword` token with the `markupSyntax` modifier. -/
+@[inline] private def pushMarkupSyntax (out : Array LeanSemanticToken) (syn : s.Subslice) :
     Array LeanSemanticToken :=
-  pushTok out delimiter .keyword (modifiers := {.markupSyntax})
+  pushTok out syn .keyword (modifiers := {.markupSyntax})
 
 /-- Pushes text with the type and modifiers of the attributes `a`. -/
 @[inline] private def pushText (out : Array LeanSemanticToken) (text : s.Subslice)
@@ -432,9 +432,9 @@ Pushes a link title, with delimiters on its opener and closer and `string` on ea
 private def pushTitle (out : Array LeanSemanticToken) (t : Markdown.LinkTitle s) :
     Array LeanSemanticToken := Id.run do
   let mut out := out
-  out := pushDelimiter out t.opener
+  out := pushMarkupSyntax out t.opener
   out := pushLines out t.content .string
-  out := pushDelimiter out t.closer
+  out := pushMarkupSyntax out t.closer
   return out
 
 /-- Emits a destination, with keyword on its angle brackets, if any, and URL on the URL. -/
@@ -442,8 +442,8 @@ private def emitDestination (out : Array LeanSemanticToken) (d : Markdown.LinkDe
     Array LeanSemanticToken := Id.run do
   let mut out := out
   if let some (o, c) := d.angles? then
-    out := pushDelimiter out o
-    out := pushDelimiter out c
+    out := pushMarkupSyntax out o
+    out := pushMarkupSyntax out c
   out := pushTok out d.url .markupUrl
   return out
 
@@ -463,31 +463,31 @@ where
       out := pushText out r a
     | .softBreak _ => pure ()
     | .escape backslash char =>
-      out := pushDelimiter out backslash
+      out := pushMarkupSyntax out backslash
       out := pushText out char a
     | .entity r _ =>
       out := pushText out r a
     | .code openTicks content closeTicks =>
-      out := pushDelimiter out openTicks
-      out := pushDelimiter out closeTicks
+      out := pushMarkupSyntax out openTicks
+      out := pushMarkupSyntax out closeTicks
       out := pushLines out content.lines .markupInlineCode
     | .italic openDelim content closeDelim =>
-      out := pushDelimiter out openDelim
-      out := pushDelimiter out closeDelim
+      out := pushMarkupSyntax out openDelim
+      out := pushMarkupSyntax out closeDelim
       out := emitInlines a.withItalic content out
     | .bold openDelim content closeDelim =>
-      out := pushDelimiter out openDelim
-      out := pushDelimiter out closeDelim
+      out := pushMarkupSyntax out openDelim
+      out := pushMarkupSyntax out closeDelim
       out := emitInlines a.withBold content out
     | .link openBracket inner closeBracket target =>
       out := emitBracketed none openBracket inner closeBracket target out
     | .image bang openBracket alt closeBracket target =>
       out := emitBracketed (some bang) openBracket alt closeBracket target out
     | .hardBreak marker _ =>
-      out := pushDelimiter out marker
+      out := pushMarkupSyntax out marker
     | .autolink openAngle url closeAngle _ =>
-      out := pushDelimiter out openAngle
-      out := pushDelimiter out closeAngle
+      out := pushMarkupSyntax out openAngle
+      out := pushMarkupSyntax out closeAngle
       out := pushTok out url .markupUrl
     | .math .. =>
       -- The server doesn't enable extensions
@@ -510,11 +510,11 @@ where
     match form with
     | .full openB closeB =>
       out := emitInlines a inner out
-      out := pushDelimiter out openB
-      out := pushDelimiter out closeB
+      out := pushMarkupSyntax out openB
+      out := pushMarkupSyntax out closeB
     | .collapsed openB closeB =>
-      out := pushDelimiter out openB
-      out := pushDelimiter out closeB
+      out := pushMarkupSyntax out openB
+      out := pushMarkupSyntax out closeB
     | .shortcut => pure ()
     out := pushLines out label .markupCrossReference
     return out
@@ -528,16 +528,16 @@ where
       (out : Array LeanSemanticToken) : Array LeanSemanticToken := Id.run do
     let mut out := out
     if let some bang := bang? then
-      out := pushDelimiter out bang
-    out := pushDelimiter out openBracket
-    out := pushDelimiter out closeBracket
+      out := pushMarkupSyntax out bang
+    out := pushMarkupSyntax out openBracket
+    out := pushMarkupSyntax out closeBracket
     match target with
     | .inline openParen destination closeParen title? =>
       out := emitInlines a inner out
-      out := pushDelimiter out openParen
+      out := pushMarkupSyntax out openParen
       out := emitDestination out destination
       if let some t := title? then out := pushTitle out t
-      out := pushDelimiter out closeParen
+      out := pushMarkupSyntax out closeParen
     | .reference _ label form =>
       out := emitReferenceForm a out inner label form
     return out
@@ -554,10 +554,10 @@ The label and the title get one token per source line.
 private def emitRefDef (out : Array LeanSemanticToken) (r : Markdown.RefDef s) :
     Array LeanSemanticToken := Id.run do
   let mut out := out
-  out := pushDelimiter out r.openBracket
+  out := pushMarkupSyntax out r.openBracket
   out := pushLines out r.label .markupCrossReference
-  out := pushDelimiter out r.closeBracket
-  out := pushDelimiter out r.colon
+  out := pushMarkupSyntax out r.closeBracket
+  out := pushMarkupSyntax out r.colon
   out := emitDestination out r.destination
   if let some t := r.title? then out := pushTitle out t
   return out
@@ -576,15 +576,15 @@ where
     | .paragraph content =>
       out := emitInlines a content out
     | .atxHeading _ hashes content closeHashes? =>
-      out := pushDelimiter out hashes
-      if let some c := closeHashes? then out := pushDelimiter out c
+      out := pushMarkupSyntax out hashes
+      if let some c := closeHashes? then out := pushMarkupSyntax out c
       out := emitInlines (a.withBlock .heading) content out
     | .setextHeading _ content underline =>
       out := emitInlines (a.withBlock .heading) content out
-      out := pushDelimiter out underline
+      out := pushMarkupSyntax out underline
     | .fencedCode info openFence closeFence? lines =>
-      out := pushDelimiter out openFence
-      if let some c := closeFence? then out := pushDelimiter out c
+      out := pushMarkupSyntax out openFence
+      if let some c := closeFence? then out := pushMarkupSyntax out c
       if let some tag := info.infoString? then
         out := pushTok out tag .function
       for line in lines do
@@ -594,26 +594,27 @@ where
         out := pushTok out line.source .markupCodeBlock
     | .blockquote markers children =>
       for m in markers do
-        out := pushDelimiter out m
+        out := pushMarkupSyntax out m
       out := emitBlocks (a.withBlock .quote) children out
     | .list _ _ items =>
       out := emitBlocks (a.withBlock .list) items out
     | .listItem marker children =>
-      out := pushDelimiter out marker
+      out := pushMarkupSyntax out marker
       out := emitBlocks (a.withBlock .list) children out
     | .linkRefDef m =>
       out := emitRefDef out m
     | .thematicBreak line =>
-      out := pushDelimiter out line
+      out := pushMarkupSyntax out line
     return out
 
 end MarkupTokens
 
 /--
-Collects semantic tokens for a Markdown docstring. Delimiters (`#`, `>`, list markers, fences,
-brackets) are `keyword` tokens with the `markupSyntax` modifier; URLs are `markupUrl`; code block
-contents are `markupCodeBlock`; and text is `markupDocText`, `markupHeading`, `markupQuote`, or
-`markupList` by its block context, with the `markupBold` and `markupItalic` modifiers for emphasis.
+Collects semantic tokens for a Markdown docstring. Markup syntax (bold/italic delimiters, `#`, `>`,
+list markers, fences) consists of `keyword` tokens with the `markupSyntax` modifier; URLs are
+`markupUrl`; code block contents are `markupCodeBlock`; and text is `markupDocText`,
+`markupHeading`, `markupQuote`, or `markupList` by its block context, with the `markupBold` and
+`markupItalic` modifiers for emphasis.
 -/
 def collectMarkdownTokens (text : FileMap) (startPos endPos : String.Pos.Raw) (indent : Nat := 0) :
     Array LeanSemanticToken :=
@@ -656,7 +657,7 @@ where
         let range := ⟨line.startInclusive.offset.offsetBy pos, line.endExclusive.offset.offsetBy pos⟩
         tok (.ofRange range) k modifiers
 
-  /-- Emits a delimiter as a `keyword` token with the `markupSyntax` modifier. -/
+  /-- Emits markup syntax as a `keyword` token with the `markupSyntax` modifier. -/
   delim (tk : Syntax) : StateM (Array LeanSemanticToken) Unit :=
     tok tk .keyword {.markupSyntax}
 

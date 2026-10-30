@@ -3672,7 +3672,7 @@ def String.utf8EncodeChar (c : Char) : List UInt8 :=
 implementation. Use `List.asString` instead. -/
 @[implicit_reducible]
 noncomputable def List.utf8Encode (l : List Char) : ByteArray :=
-  l.flatMap String.utf8EncodeChar |>.toByteArray
+  ⟨⟨l.flatMap String.utf8EncodeChar⟩⟩
 
 /-- A byte array is valid UTF-8 if it is of the form `List.utf8Encode m` for some `m`.
 

@@ -148,7 +148,7 @@ public theorem compare_toList_toList_eq_compare_toByteArray_toByteArray {s t : S
     compare s.toList t.toList = compare s.toByteArray t.toByteArray := by
   obtain ⟨c, rfl⟩ := s.exists_eq_ofList
   obtain ⟨d, rfl⟩ := t.exists_eq_ofList
-  simp only [toList_ofList, toByteArray_ofList, List.utf8Encode,
+  simp only [toList_ofList, toByteArray_ofList, List.utf8Encode_eq_toByteArray,
     List.compare_toByteArray_toByteArray]
   rw [List.compare_flatMap_flatMap _ (by simp) _ (by simp)]
   exact fun a b => String.eq_of_utf8EncodeChar_prefix

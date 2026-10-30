@@ -1234,7 +1234,7 @@ private def challengeAnswer (connection : Connection) (request : Request Body.An
   if ← connection.isClosed then return none
 
   let challenge : Challenge := {
-    kind, origin := connection.origin, target := request.line.uri, headers := head.headers
+    kind, origin := connection.origin, method := request.line.method, target := request.line.uri, headers := head.headers
     proxy := connection.proxy, initialOrigin }
 
   let some credential ← authenticator.authenticate challenge | return none

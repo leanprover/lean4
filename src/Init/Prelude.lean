@@ -4829,9 +4829,23 @@ class Hashable (α : Sort u) where
 
 export Hashable (hash)
 
-/-- An opaque hash mixing operation, used to implement hashing for products. -/
+/--
+An opaque hash mixing operation, used to implement hashing for products.
+
+It is the block step of `MurmurHash64A` from MurmurHash2 by Austin Appleby (public domain), except
+that the second `k *= m` is replaced with `k ^= m`.
+-/
 @[extern "lean_uint64_mix_hash"]
 opaque mixHash (u₁ u₂ : UInt64) : UInt64
+
+/--
+An opaque 32-bit hash mixing operation. With either argument fixed, it is a bijection in the other.
+
+It is the block step of `MurmurHash3_x86_32` from MurmurHash3 by Austin Appleby (public domain),
+except that `k = ROTL32(k, 15)` is replaced with `k ^= k >> 15`.
+-/
+@[extern "lean_uint32_mix_hash"]
+opaque mixHash32 (u₁ u₂ : UInt32) : UInt32
 
 instance [Hashable α] {p : α → Prop} : Hashable (Subtype p) where
   hash a := hash a.val

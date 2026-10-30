@@ -221,6 +221,15 @@ def ofOptions (opts : Options) : OptionFlags :=
 end OptionFlags
 
 /--
+A change of the global instances of a class: an instance added, with the priority and synthesis order
+it was added with, or erased. See `RecordedDeps.instClassChanges`.
+-/
+inductive InstanceChange where
+  | add (val : Expr) (priority : Nat) (synthOrder : Array Nat)
+  | erase (declName : Name)
+  deriving BEq
+
+/--
 The dependencies observed by a recording computation, accumulated in `Core.State.recordedDeps`.
 A result cached by the computation stays valid as long as they give the same answers. Currently used
 by type class resolution, see `Lean.Meta.SynthInstance`.
@@ -257,6 +266,12 @@ structure RecordedDeps where
   recorded computation cannot have observed them.
   -/
   baseConstGen : Nat := 0
+  /--
+  The changes since the import of the global instances of the consulted classes (and of the instances
+  not rooted at a class, under `Name.anonymous`), see `Lean.Meta.Instances.classChanges`. Type class
+  resolution depends on the global instances only through these.
+  -/
+  instClassChanges : Array (Name × List InstanceChange) := #[]
   deriving Inhabited
 
 namespace Core
@@ -981,6 +996,15 @@ private def recordOptionAccess (name : Name) (value : Option DataValue) : CoreM 
     let d := (← get).recordedDeps
     if !d.options.contains name && d.base.find? name == value then
       Core.modifyRecordedDeps fun deps => { deps with options := deps.options.push name }
+
+/-- Records the changes of the global instances of `className`; see `RecordedDeps.instClassChanges`. -/
+def recordInstClassChanges (className : Name) (changes : List InstanceChange) : CoreM Unit := do
+  if !(← read).isRecordingDeps then
+    return
+  -- Keep the first list read, as `recordExtGenAccess` keeps the first generation.
+  unless (← get).recordedDeps.instClassChanges.any (·.1 == className) do
+    Core.modifyRecordedDeps fun deps =>
+      { deps with instClassChanges := deps.instClassChanges.push (className, changes) }
 
 /--
 Inside a recording computation, records the current generation of the generation-tracked extension

@@ -59,9 +59,9 @@ def LeanSemanticToken.ofSyntax? (stx : Syntax) (tokenType : SemanticTokenType) (
     (modifiers : SemanticTokenModifiers := {}) : Option LeanSemanticToken :=
   stx.getRange?.map fun range => { range, type := tokenType, priority, modifiers }
 
-/-- Appends the semantic token for the source range of `stx`, if it has one. -/
-def pushSyntaxToken (toks : Array LeanSemanticToken) (stx : Syntax) (tokenType : SemanticTokenType)
-    (priority : Nat := 5) (modifiers : SemanticTokenModifiers := {}) :
+/-- Emits the semantic token for the source range of `stx`, if it has one. -/
+private def emitSyntaxToken (toks : Array LeanSemanticToken) (stx : Syntax)
+    (tokenType : SemanticTokenType) (priority : Nat := 5) (modifiers : SemanticTokenModifiers := {}) :
     Array LeanSemanticToken :=
   match LeanSemanticToken.ofSyntax? stx tokenType priority modifiers with
   | some tok => toks.push tok
@@ -396,10 +396,10 @@ private def markupPriority (k : SemanticTokenType) : Nat :=
   | _ => 5
 
 /--
-Pushes a `LeanSemanticToken` for `sub`, which is on a single source line. Does nothing when `sub` is
+Emits a `LeanSemanticToken` for `sub`, which is on a single source line. Does nothing when `sub` is
 empty.
 -/
-@[inline] private def pushTok (out : Array LeanSemanticToken) (sub : s.Subslice)
+@[inline] private def emitTok (out : Array LeanSemanticToken) (sub : s.Subslice)
     (tokenType : SemanticTokenType) (modifiers : SemanticTokenModifiers := {}) :
     Array LeanSemanticToken :=
   if sub.toSlice.isEmpty then out
@@ -411,30 +411,30 @@ empty.
       modifiers
     }
 
-/-- Pushes one `LeanSemanticToken` per line in `lines`. -/
-private def pushLines (out : Array LeanSemanticToken) (lines : Markdown.Lines s)
+/-- Emits one `LeanSemanticToken` per line in `lines`. -/
+private def emitLines (out : Array LeanSemanticToken) (lines : Markdown.Lines s)
     (tokenType : SemanticTokenType) : Array LeanSemanticToken :=
-  lines.toArray.foldl (init := out) fun out line => pushTok out line tokenType
+  lines.toArray.foldl (init := out) fun out line => emitTok out line tokenType
 
-/-- Pushes markup syntax as a `keyword` token with the `markupSyntax` modifier. -/
-@[inline] private def pushMarkupSyntax (out : Array LeanSemanticToken) (syn : s.Subslice) :
+/-- Emits markup syntax as a `keyword` token with the `markupSyntax` modifier. -/
+@[inline] private def emitMarkupSyntax (out : Array LeanSemanticToken) (syn : s.Subslice) :
     Array LeanSemanticToken :=
-  pushTok out syn .keyword (modifiers := {.markupSyntax})
+  emitTok out syn .keyword (modifiers := {.markupSyntax})
 
-/-- Pushes text with the type and modifiers of the attributes `a`. -/
-@[inline] private def pushText (out : Array LeanSemanticToken) (text : s.Subslice)
+/-- Emits text with the type and modifiers of the attributes `a`. -/
+@[inline] private def emitText (out : Array LeanSemanticToken) (text : s.Subslice)
     (a : MarkupAttrs) : Array LeanSemanticToken :=
-  pushTok out text a.tokenType (modifiers := a.modifiers)
+  emitTok out text a.tokenType (modifiers := a.modifiers)
 
 /--
-Pushes a link title, with delimiters on its opener and closer and `string` on each line of its text.
+Emits a link title, with delimiters on its opener and closer and `string` on each line of its text.
 -/
-private def pushTitle (out : Array LeanSemanticToken) (t : Markdown.LinkTitle s) :
+private def emitTitle (out : Array LeanSemanticToken) (t : Markdown.LinkTitle s) :
     Array LeanSemanticToken := Id.run do
   let mut out := out
-  out := pushMarkupSyntax out t.opener
-  out := pushLines out t.content .string
-  out := pushMarkupSyntax out t.closer
+  out := emitMarkupSyntax out t.opener
+  out := emitLines out t.content .string
+  out := emitMarkupSyntax out t.closer
   return out
 
 /-- Emits a destination, with keyword on its angle brackets, if any, and URL on the URL. -/
@@ -442,9 +442,9 @@ private def emitDestination (out : Array LeanSemanticToken) (d : Markdown.LinkDe
     Array LeanSemanticToken := Id.run do
   let mut out := out
   if let some (o, c) := d.angles? then
-    out := pushMarkupSyntax out o
-    out := pushMarkupSyntax out c
-  out := pushTok out d.url .markupUrl
+    out := emitMarkupSyntax out o
+    out := emitMarkupSyntax out c
+  out := emitTok out d.url .markupUrl
   return out
 
 private partial def emitInlines (a : MarkupAttrs)
@@ -460,40 +460,40 @@ where
     let mut out := out
     match i with
     | .text r =>
-      out := pushText out r a
+      out := emitText out r a
     | .softBreak _ => pure ()
     | .escape backslash char =>
-      out := pushMarkupSyntax out backslash
-      out := pushText out char a
+      out := emitMarkupSyntax out backslash
+      out := emitText out char a
     | .entity r _ =>
-      out := pushText out r a
+      out := emitText out r a
     | .code openTicks content closeTicks =>
-      out := pushMarkupSyntax out openTicks
-      out := pushMarkupSyntax out closeTicks
-      out := pushLines out content.lines .markupInlineCode
+      out := emitMarkupSyntax out openTicks
+      out := emitMarkupSyntax out closeTicks
+      out := emitLines out content.lines .markupInlineCode
     | .italic openDelim content closeDelim =>
-      out := pushMarkupSyntax out openDelim
-      out := pushMarkupSyntax out closeDelim
+      out := emitMarkupSyntax out openDelim
+      out := emitMarkupSyntax out closeDelim
       out := emitInlines a.withItalic content out
     | .bold openDelim content closeDelim =>
-      out := pushMarkupSyntax out openDelim
-      out := pushMarkupSyntax out closeDelim
+      out := emitMarkupSyntax out openDelim
+      out := emitMarkupSyntax out closeDelim
       out := emitInlines a.withBold content out
     | .link openBracket inner closeBracket target =>
       out := emitBracketed none openBracket inner closeBracket target out
     | .image bang openBracket alt closeBracket target =>
       out := emitBracketed (some bang) openBracket alt closeBracket target out
     | .hardBreak marker _ =>
-      out := pushMarkupSyntax out marker
+      out := emitMarkupSyntax out marker
     | .autolink openAngle url closeAngle _ =>
-      out := pushMarkupSyntax out openAngle
-      out := pushMarkupSyntax out closeAngle
-      out := pushTok out url .markupUrl
+      out := emitMarkupSyntax out openAngle
+      out := emitMarkupSyntax out closeAngle
+      out := emitTok out url .markupUrl
     | .math .. =>
       -- The server doesn't enable extensions
       pure ()
     | .html lines =>
-      out := pushLines out lines .markupInlineCode
+      out := emitLines out lines .markupInlineCode
     return out
 
   /--
@@ -510,13 +510,13 @@ where
     match form with
     | .full openB closeB =>
       out := emitInlines a inner out
-      out := pushMarkupSyntax out openB
-      out := pushMarkupSyntax out closeB
+      out := emitMarkupSyntax out openB
+      out := emitMarkupSyntax out closeB
     | .collapsed openB closeB =>
-      out := pushMarkupSyntax out openB
-      out := pushMarkupSyntax out closeB
+      out := emitMarkupSyntax out openB
+      out := emitMarkupSyntax out closeB
     | .shortcut => pure ()
-    out := pushLines out label .markupCrossReference
+    out := emitLines out label .markupCrossReference
     return out
 
   /--
@@ -528,16 +528,16 @@ where
       (out : Array LeanSemanticToken) : Array LeanSemanticToken := Id.run do
     let mut out := out
     if let some bang := bang? then
-      out := pushMarkupSyntax out bang
-    out := pushMarkupSyntax out openBracket
-    out := pushMarkupSyntax out closeBracket
+      out := emitMarkupSyntax out bang
+    out := emitMarkupSyntax out openBracket
+    out := emitMarkupSyntax out closeBracket
     match target with
     | .inline openParen destination closeParen title? =>
       out := emitInlines a inner out
-      out := pushMarkupSyntax out openParen
+      out := emitMarkupSyntax out openParen
       out := emitDestination out destination
-      if let some t := title? then out := pushTitle out t
-      out := pushMarkupSyntax out closeParen
+      if let some t := title? then out := emitTitle out t
+      out := emitMarkupSyntax out closeParen
     | .reference _ label form =>
       out := emitReferenceForm a out inner label form
     return out
@@ -554,12 +554,12 @@ The label and the title get one token per source line.
 private def emitRefDef (out : Array LeanSemanticToken) (r : Markdown.RefDef s) :
     Array LeanSemanticToken := Id.run do
   let mut out := out
-  out := pushMarkupSyntax out r.openBracket
-  out := pushLines out r.label .markupCrossReference
-  out := pushMarkupSyntax out r.closeBracket
-  out := pushMarkupSyntax out r.colon
+  out := emitMarkupSyntax out r.openBracket
+  out := emitLines out r.label .markupCrossReference
+  out := emitMarkupSyntax out r.closeBracket
+  out := emitMarkupSyntax out r.colon
   out := emitDestination out r.destination
-  if let some t := r.title? then out := pushTitle out t
+  if let some t := r.title? then out := emitTitle out t
   return out
 
 private partial def emitBlocks (a : MarkupAttrs) (blocks : Array (Markdown.Block s))
@@ -576,35 +576,35 @@ where
     | .paragraph content =>
       out := emitInlines a content out
     | .atxHeading _ hashes content closeHashes? =>
-      out := pushMarkupSyntax out hashes
-      if let some c := closeHashes? then out := pushMarkupSyntax out c
+      out := emitMarkupSyntax out hashes
+      if let some c := closeHashes? then out := emitMarkupSyntax out c
       out := emitInlines (a.withBlock .heading) content out
     | .setextHeading _ content underline =>
       out := emitInlines (a.withBlock .heading) content out
-      out := pushMarkupSyntax out underline
+      out := emitMarkupSyntax out underline
     | .fencedCode info openFence closeFence? lines =>
-      out := pushMarkupSyntax out openFence
-      if let some c := closeFence? then out := pushMarkupSyntax out c
+      out := emitMarkupSyntax out openFence
+      if let some c := closeFence? then out := emitMarkupSyntax out c
       if let some tag := info.infoString? then
-        out := pushTok out tag .function
+        out := emitTok out tag .function
       for line in lines do
-        out := pushTok out line.source .markupCodeBlock
+        out := emitTok out line.source .markupCodeBlock
     | .indentedCode lines | .html lines =>
       for line in lines do
-        out := pushTok out line.source .markupCodeBlock
+        out := emitTok out line.source .markupCodeBlock
     | .blockquote markers children =>
       for m in markers do
-        out := pushMarkupSyntax out m
+        out := emitMarkupSyntax out m
       out := emitBlocks (a.withBlock .quote) children out
     | .list _ _ items =>
       out := emitBlocks (a.withBlock .list) items out
     | .listItem marker children =>
-      out := pushMarkupSyntax out marker
+      out := emitMarkupSyntax out marker
       out := emitBlocks (a.withBlock .list) children out
     | .linkRefDef m =>
       out := emitRefDef out m
     | .thematicBreak line =>
-      out := pushMarkupSyntax out line
+      out := emitMarkupSyntax out line
     return out
 
 end MarkupTokens
@@ -641,7 +641,7 @@ private partial def collectVersoTokens
 where
   tok (tk : Syntax) (k : SemanticTokenType) (modifiers : SemanticTokenModifiers := {}) :
       StateM (Array LeanSemanticToken) Unit :=
-    modify (pushSyntaxToken · tk k (markupPriority k) modifiers)
+    modify (emitSyntaxToken · tk k (markupPriority k) modifiers)
 
   /--
   Emits a token for each real source line of the literal `lit`, which might possibly contain an
@@ -809,10 +809,10 @@ without elaboration information.
 partial def collectSyntaxBasedSemanticTokens (text : FileMap) : (stx : Syntax) → Array LeanSemanticToken
   | `($e.$id:ident)    =>
     let tokens := collectSyntaxBasedSemanticTokens text e
-    pushSyntaxToken tokens id .property
+    emitSyntaxToken tokens id .property
   | `($e |>.$field:ident) =>
     let tokens := collectSyntaxBasedSemanticTokens text e
-    pushSyntaxToken tokens field .property
+    emitSyntaxToken tokens field .property
   | stx => Id.run do
     if noHighlightKinds.contains stx.getKind then
       return #[]
@@ -847,7 +847,7 @@ partial def collectSyntaxBasedSemanticTokens (text : FileMap) : (stx : Syntax) �
     let isHashKeyword := ((val.dropPrefix? '#').bind (·.front?)).any isIdFirst
     if ! isRegularKeyword && ! isHashKeyword then
       return tokens
-    return pushSyntaxToken tokens stx (keywordSemanticTokenMap.getD val .keyword)
+    return emitSyntaxToken tokens stx (keywordSemanticTokenMap.getD val .keyword)
 
 /-- Collects all semantic tokens from the given `Elab.InfoTree`. -/
 def collectInfoBasedSemanticTokens (i : Elab.InfoTree) : Array LeanSemanticToken :=

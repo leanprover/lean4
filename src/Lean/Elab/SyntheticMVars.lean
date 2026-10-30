@@ -554,6 +554,9 @@ mutual
         if report && (← read).errToSorry then
           for mvarId in (← getMVars (mkMVar mvarId')) do
             mvarId.admit
+          -- When running in a fresh mvar `mvarId'`, `mvarId` itself is not yet assigned.
+          unless (← mvarId.isAssigned) do
+            mvarId.admit
           logException ex
         else
           throw ex

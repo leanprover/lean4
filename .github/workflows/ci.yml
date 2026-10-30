@@ -444,8 +444,9 @@ jobs:
                 "test": true,
                 "binary-check": "file",
                 "shell": "bash -euxo pipefail {0}",
-                // Just a few selected tests because wasm is slow
-                "CTEST_OPTIONS": "--no-tests=error -R '^(elab_fail/1007|elab/(Format|1037|ac_rfl|tempfile|libuv))\\.lean$'"
+                // Just a few selected tests because wasm is slow. A wasm `lean` process can need 10 GB,
+                // so they run one at a time (this `-j` overrides the step's `-j$NPROC`).
+                "CTEST_OPTIONS": "--no-tests=error -j1 -R '^(elab_fail/1007|elab/(Format|1037|ac_rfl|tempfile|libuv))\\.lean$'"
               }
             ];
             // Stage that is built, tested and packed. Shipped (stamped) release builds use stage2.

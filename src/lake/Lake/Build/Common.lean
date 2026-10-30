@@ -521,11 +521,16 @@ where @[inline] atomicWrite cacheFile check write := do
     try IO.FS.removeFile tmpFile catch _ => pure ()
   else
     h.rewind
+    -- A racing rename may leave us holding a handle to the cached artifact.
+    -- Thus, we must not write if the file already contains the expected contents.
     unless (← check h) do
       h.rewind
+      -- Nonatomic write under the lock.
       h.truncate
       write h
       h.flush
+    -- Atomic rename. Must not overwrite because the `tmpFile` could be
+    -- an empty temporary file created by a racing rename and then a racing write.
     try IO.FS.renameIfNew tmpFile cacheFile catch e =>
       unless (← cacheFile.pathExists) do
         throw e

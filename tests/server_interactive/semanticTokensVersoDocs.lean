@@ -123,5 +123,17 @@ b)
 -/
 def escapedNewlines : Nat := 0
 
+def indentedEscapedNewlines := helper where
+  /--
+  Some text\
+  more text here\
+      indented past the base column
+
+  ![alt\
+  text](https://example.com/x.png) and [a link](https://example.com/a\
+  b)
+  -/
+  helper : Nat := 0
+
 --^ collectDiagnostics
 --^ textDocument/semanticTokens/full

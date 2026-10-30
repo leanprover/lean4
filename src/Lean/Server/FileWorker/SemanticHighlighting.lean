@@ -632,11 +632,12 @@ Collects the semantic tokens of the Verso syntax `stx`.
 
 `text` is the default text token type, which is `markupDocText` in a documentation comment and
 `markupPlainText` elsewhere. `getTokens` collects the tokens of the Lean syntax contained in Verso
-metadata elements.
+metadata elements. `baseColumn` is the base column of the documentation comment, which is used to
+make tokens that include newline characters not emit tokens outside the docstring itself.
 -/
 private partial def collectVersoTokens
     (stx : Syntax) (getTokens : (stx : Syntax) → Array LeanSemanticToken)
-    (text : SemanticTokenType := .markupDocText) : Array LeanSemanticToken :=
+    (text : SemanticTokenType) (baseColumn : Nat) : Array LeanSemanticToken :=
   go { text } stx |>.run #[] |>.2
 where
   tok (tk : Syntax) (k : SemanticTokenType) (modifiers : SemanticTokenModifiers := {}) :
@@ -645,14 +646,21 @@ where
 
   /--
   Emits a token for each real source line of the literal `lit`, which might possibly contain an
-  escaped newline.
+  escaped newline. The indentation of each line after the first up to `baseColumn` is not part of
+  its token.
   -/
   tokLines (lit : Syntax) (k : SemanticTokenType) (modifiers : SemanticTokenModifiers := {}) :
       StateM (Array LeanSemanticToken) Unit := do
     let .node _ _ #[.atom _ val] := lit | tok lit k modifiers
     let some pos := lit.getPos? | return
     if !val.contains '\n' then return (← tok lit k modifiers)
+    let mut first := true
     for line in val.split '\n' do
+      let mut line := line
+      if !first then
+        for _ in 0...baseColumn do
+          line := line.dropPrefix ' '
+      first := false
       if !line.isEmpty then
         let range := ⟨line.startInclusive.offset.offsetBy pos, line.endExclusive.offset.offsetBy pos⟩
         tok (.ofRange range) k modifiers
@@ -816,9 +824,14 @@ partial def collectSyntaxBasedSemanticTokens (text : FileMap) : (stx : Syntax) �
   | stx => Id.run do
     if noHighlightKinds.contains stx.getKind then
       return #[]
+    let collect := collectSyntaxBasedSemanticTokens text
     if docKinds.contains stx.getKind then
       if stx[1].isOfKind ``Lean.Parser.Command.versoCommentBody then
-        return collectVersoTokens stx[1] (collectSyntaxBasedSemanticTokens text)
+        let baseColumn :=
+          if let .ok (openPos, startPos, endPos) := docStringRange ⟨stx⟩ then
+            Doc.Parser.docStringBaseColumn text openPos startPos endPos
+          else 0
+        return collectVersoTokens stx[1] collect .markupDocText baseColumn
       else if stx[1].isOfKind ``Lean.Parser.Command.commentBody then
         -- The text atom's range excludes the closing delimiter and the whitespace before it.
         let some ⟨startPos, endPos⟩ := stx[1][0].getRange?
@@ -835,12 +848,12 @@ partial def collectSyntaxBasedSemanticTokens (text : FileMap) : (stx : Syntax) �
     -- the `Lean.Doc.Parser` namespace. The namespace check removes unnecessary comparisons.
     if (`Lean.Doc.Parser).isPrefixOf stx.getKind then
       if (Doc.BlockView.of ⟨stx⟩).isSome || (Doc.InlineView.of ⟨stx⟩).isSome then
-        return collectVersoTokens stx (collectSyntaxBasedSemanticTokens text) .markupPlainText
+        return collectVersoTokens stx collect .markupPlainText 0
     let mut tokens :=
       if stx.isOfKind choiceKind then
         collectSyntaxBasedSemanticTokens text stx[0]
       else
-        stx.getArgs.map (collectSyntaxBasedSemanticTokens text) |>.flatten
+        stx.getArgs.map collect |>.flatten
     let Syntax.atom _ val := stx
       | return tokens
     let isRegularKeyword := val.front?.any isIdFirst

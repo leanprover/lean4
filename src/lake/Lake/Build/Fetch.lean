@@ -44,7 +44,7 @@ A recursive build of a Lake build store that may encounter a cycle.
 An internal monad. **Not intended for user use.**
 -/
 public abbrev RecBuildT (m : Type → Type) :=
-  ReaderT CurrPackage <| CallStackT BuildKey <| StateRefT' IO.RealWorld BuildStore <| BuildT m
+  ReaderT CurrPackage <| CallStackT BuildKey <| BuildStoreT <| BuildT m
 
 /-- Build cycle error message. -/
 public def buildCycleError (cycle : Cycle BuildKey) : String :=
@@ -62,13 +62,14 @@ public abbrev RecBuildM := RecBuildT LogIO
 
 /-- Run a recursive build. -/
 @[inline] public def RecBuildT.run
-  [Monad m] [MonadLiftT (ST IO.RealWorld) m]
+  [Monad m] [MonadLiftT BaseIO m]
   (stack : CallStack BuildKey) (store : BuildStore) (build : RecBuildT m α)
 : BuildT m (α × BuildStore) := build none stack |>.run store
 
 /-- Run a recursive build in a fresh build store. -/
 @[inline] public def RecBuildT.run'
-  [Monad m] [MonadLiftT (ST IO.RealWorld) m] (build : RecBuildT m α)
+  [Monad m] [MonadLiftT BaseIO m]
+  (build : RecBuildT m α)
 : BuildT m α := (·.1) <$> build.run {} {}
 
 /-- A build function for any element of the Lake build index. -/
@@ -88,14 +89,14 @@ public abbrev FetchM := FetchT LogIO
 /-- Construct a `FetchM` monad from its full functional representation. -/
 @[inline] public def FetchM.ofFn
   (f : IndexBuildFn RecBuildM → Option Package → CallStack BuildKey →
-    IO.Ref BuildStore → BuildContext → Log → BaseIO (EResult Log.Pos Log α))
+    BuildStoreRef → BuildContext → Log → BaseIO (EResult Log.Pos Log α))
 : FetchM α := .mk fun fetch => fun pkg? stack store ctx => .mk fun log =>
   f fetch pkg? stack store ctx log
 
 /-- Convert a `FetchM` monad to its full functional representation. -/
 @[inline] public def FetchM.toFn (self : FetchM α) :
   IndexBuildFn RecBuildM → Option Package → CallStack BuildKey →
-    IO.Ref BuildStore → BuildContext → Log → BaseIO (EResult Log.Pos Log α)
+    BuildStoreRef → BuildContext → Log → BaseIO (EResult Log.Pos Log α)
 := fun fetch pkg? stack store ctx log => self.run fetch pkg? stack store ctx |>.run log
 
 /-- Fetch the result associated with the info using the Lake build index. -/

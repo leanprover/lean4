@@ -825,7 +825,7 @@ partial def collectSyntaxBasedSemanticTokens (text : FileMap) : (stx : Syntax) â
           | return #[]
         -- The indentation is the least indentation of the non-blank lines after the first, which
         -- are stripped by `String.removeLeadingSpaces` while saving the docstring.
-        let indent := (Doc.Parser.minContentIndent text startPos endPos).getD 0
+        let indent := (Doc.Parser.minContentIndent? text startPos endPos).getD 0
         return collectMarkdownTokens text startPos endPos indent
       else
         return #[]

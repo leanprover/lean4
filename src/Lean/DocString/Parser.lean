@@ -1453,7 +1453,7 @@ Finds the minimum column of the first non-whitespace character on each non-empty
 
 The result is `none` if no such line exists.
 -/
-public def minContentIndent (text : FileMap) (startPos endPos : String.Pos.Raw) :
+public def minContentIndent? (text : FileMap) (startPos endPos : String.Pos.Raw) :
     Option Nat := Id.run do
   let mut result := none
   let mut thisLineCol := 0
@@ -1487,7 +1487,7 @@ public def docStringBaseColumn (text : FileMap) (openPos : String.Pos.Raw)
   let openCol := (text.toPosition openPos).column
   let closeCol := (text.toPosition endPos).column
   let delimCol := min openCol closeCol
-  if let some contentCol := minContentIndent text startPos endPos then
+  if let some contentCol := minContentIndent? text startPos endPos then
     min delimCol contentCol
   else
     delimCol

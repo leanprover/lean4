@@ -36,7 +36,7 @@ def push : String → Char → String
 where finally
   have ⟨m, hm⟩ := h
   cases hm
-  exact .intro (m ++ [c]) (by simp [List.utf8Encode, List.toByteArray_append'])
+  exact .intro (m ++ [c]) (by simp [List.utf8Encode_eq_toByteArray, List.toByteArray_append'])
 
 /--
 Returns a new string that contains only the character `c`.

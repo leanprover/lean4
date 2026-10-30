@@ -362,8 +362,9 @@ def transform
       let alt' ← forallAltTelescope' origAltType altInfo fun ys args => do
         assert! ys.size == splitterAltInfo.numFields
         let altType ← instantiateForall altType ys
-        -- Look past the thunking unit parameter, if present
-        let altType ← if altInfo.hasUnitThunk then
+        -- Look past the splitter's thunking unit parameter, if present. The splitter can have one
+        -- even if the matcher has none, e.g. when it eliminates the variables of `n@5`.
+        let altType ← if splitterAltInfo.hasUnitThunk then
             instantiateForall altType #[mkConst ``Unit.unit]
           else
             pure altType

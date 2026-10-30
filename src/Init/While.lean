@@ -30,14 +30,14 @@ in which case `r` is logically pinned to that fixed point applied to `a`. -/
 -- finite lists because `++` isn't idempotent. There this `Pred` collapses to `True`;
 -- a future per-point `Acc` / `MonadAttach` branch could pin `r` for the cases where
 -- execution from `a` is structurally well-founded.
-private abbrev repeatM.Pred (f : α → m (α ⊕ β)) (a : α) (r : m β) : Prop :=
+abbrev repeatM.Pred (f : α → m (α ⊕ β)) (a : α) (r : m β) : Prop :=
   open scoped Classical in
   if h : ∃ g, repeatM.body f g = g then
     r = h.choose a
   else
     True
 
-private instance [Nonempty β] {f : α → m (α ⊕ β)} {a : α} :
+instance [Nonempty β] {f : α → m (α ⊕ β)} {a : α} :
     Nonempty (Subtype (repeatM.Pred f a)) :=
   open scoped Classical in
   if h : ∃ g, repeatM.body f g = g then
@@ -47,7 +47,7 @@ private instance [Nonempty β] {f : α → m (α ⊕ β)} {a : α} :
 
 /-- Computational core of `repeatM`: returns the loop value paired with its
 `repeatM.Pred` proof. -/
-private partial def repeatM.impl [Nonempty β]
+partial def repeatM.impl [Nonempty β]
     (f : α → m (α ⊕ β)) (a : α) :
     Subtype (repeatM.Pred f a) :=
   ⟨repeatM.body f (repeatM.impl f · |>.val) a, by
@@ -62,7 +62,7 @@ private partial def repeatM.impl [Nonempty β]
 An erased version of `repeatM.impl` that eta-expands better in the compiler.
 Can be removed once `repeatM.impl` optimizes to the same code.
 -/
-@[specialize] private partial def repeatM.erased [Nonempty β] (f : α → m (α ⊕ β)) (a : α) : m β :=
+@[specialize] partial def repeatM.erased [Nonempty β] (f : α → m (α ⊕ β)) (a : α) : m β :=
   repeatM.body f (repeatM.erased f ·) a
 
 /-- `repeatM f a` iterates `f` at `a`, recursing on `.inl` and terminating on `.inr`. -/
@@ -72,7 +72,7 @@ public def repeatM [Nonempty β] (f : α → m (α ⊕ β)) (a : α) : m β :=
 
 -- Intentionally private: unfolding `repeatM` needs a `MonadTail m` instance and is done
 -- in `Init.Internal.Order.While`.
-private theorem repeatM_eq [Nonempty β] {f : α → m (α ⊕ β)} (a : α)
+theorem repeatM_eq [Nonempty β] {f : α → m (α ⊕ β)} (a : α)
     (h : ∃ g, repeatM.body f g = g) :
     repeatM f a = repeatM.body f (repeatM f) a := by
   have key : (fun x => (repeatM.impl f x).val) = h.choose := funext fun x => by

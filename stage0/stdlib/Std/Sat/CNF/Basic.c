@@ -1532,16 +1532,16 @@ if (v_pol_522_ == 0)
 {
 uint8_t v___x_528_; 
 v___x_528_ = 0;
-v___y_502_ = v___x_527_;
-v___y_503_ = v___x_526_;
+v___y_502_ = v___x_526_;
+v___y_503_ = v___x_527_;
 v___y_504_ = v_polarities_525_;
 v___y_505_ = v___x_528_;
 goto v___jp_501_;
 }
 else
 {
-v___y_502_ = v___x_527_;
-v___y_503_ = v___x_526_;
+v___y_502_ = v___x_526_;
+v___y_503_ = v___x_527_;
 v___y_504_ = v_polarities_525_;
 v___y_505_ = v___x_521_;
 goto v___jp_501_;
@@ -1553,9 +1553,9 @@ v___jp_501_:
 lean_object* v___x_506_; lean_object* v___x_507_; 
 v___x_506_ = lean_byte_array_push(v___y_504_, v___y_505_);
 v___x_507_ = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(v___x_507_, 0, v___y_502_);
+lean_ctor_set(v___x_507_, 0, v___y_503_);
 lean_ctor_set(v___x_507_, 1, v___x_506_);
-v_i_499_ = v___y_503_;
+v_i_499_ = v___y_502_;
 v_acc_500_ = v___x_507_;
 goto _start;
 }

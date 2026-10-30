@@ -8,10 +8,10 @@ module
 prelude
 public import Init.Data.String.Pattern.Char
 public import Init.Data.String.Lemmas.Pattern.Basic
-public import Init.Data.String.Slice
+public import Init.Data.String.Slice.Pattern
 public import Init.Data.String.Lemmas.Pattern.Pred
 public import Init.Data.String.Search
-import all Init.Data.String.Slice
+import all Init.Data.String.Slice.Pattern
 import all Init.Data.String.Pattern.Char
 import all Init.Data.String.Search
 import Init.Data.Option.Lemmas

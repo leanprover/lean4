@@ -13,7 +13,7 @@ trace: [grind.linarith.model] a := 0
 -/
 #guard_msgs (drop error, trace) in
 set_option trace.grind.linarith.model true in
-example (a b : R) (h : a < b) : -a < -b := by grind
+example (a b : R) (h : a < b) : -a < -b := by grind +verbose
 
 example (a b c : R) (h : a ≤ b) : a + c ≤ b + c := by grind
 example (a b c : R) (h : a ≤ b) : c + a ≤ c + b := by grind
@@ -25,7 +25,7 @@ trace: [grind.linarith.model] a := 0
 -/
 #guard_msgs (drop error, trace) in
 set_option trace.grind.linarith.model true in
-example (a b : R) (h : a ≤ b) : -a ≤ -b := by grind
+example (a b : R) (h : a ≤ b) : -a ≤ -b := by grind +verbose
 
 example (a : R) (h : 0 < a) : 0 ≤ a := by grind
 example (a : R) (h : 0 < a) : -2 • a < 0 := by grind

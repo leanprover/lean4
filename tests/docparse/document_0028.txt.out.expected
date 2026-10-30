@@ -1,0 +1,30 @@
+Input: "Text {r}[abc\n\nhello\n\nAfter\n"
+Failure: unexpected newline; expected ']'
+ --> 1:12
+  |
+1 | Text {r}[abc
+  |             ^
+  = consumed input prefix: 12 bytes
+Final stack:
+  (Lean.Doc.Parser.document
+   [(Lean.Doc.Parser.Block.para
+     [(Lean.Doc.Parser.Inline.text
+       (Lean.Doc.Parser.versoText "Text "))
+      (Lean.Doc.Parser.Inline.role
+       "{"
+       `r
+       []
+       "}"
+       ["["]
+       [(Lean.Doc.Parser.Inline.text
+         (Lean.Doc.Parser.versoText "abc"))]
+       [<missing>])])
+    (Lean.Doc.Parser.Block.para
+     [(Lean.Doc.Parser.Inline.text
+       (Lean.Doc.Parser.versoText "hello"))])
+    (Lean.Doc.Parser.Block.para
+     [(Lean.Doc.Parser.Inline.text
+       (Lean.Doc.Parser.versoText "After"))
+      (Lean.Doc.Parser.Inline.linebreak "\n")])])
+All input consumed.
+Round-trip not reproduced, as the parse reported errors: leaf without original source info: <missing>

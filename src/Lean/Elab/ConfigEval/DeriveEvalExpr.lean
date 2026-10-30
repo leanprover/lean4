@@ -10,14 +10,14 @@ public import Lean.Elab.ConfigEval.Basic
 import Lean.Elab.ConfigEval.Util
 public import Lean.Elab.Command
 import Lean.Elab.DeclNameGen
-import all Lean.Elab.ErrorUtils
+import Lean.Elab.ErrorUtils
 public import Lean.Meta.Eval
 
 public section
 
 namespace Lean.Elab.ConfigEval
 
-open Meta Term Command
+open Meta Term Command Internal.ErrorUtils
 
 namespace EvalExpr
 

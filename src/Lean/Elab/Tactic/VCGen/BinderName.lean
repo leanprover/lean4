@@ -37,7 +37,7 @@ introduced for `a` to `acc`, so the verification condition states `acc` rather t
 
 /-- The binder names of the matcher a state lambda applies to its own argument:
 `fun x => match x with | (lo, hi) => …` carries `lo` and `hi`. -/
-private def stateMatcherAltNames? (f : Expr) : VCGenM (Array Name) := do
+def stateMatcherAltNames? (f : Expr) : VCGenM (Array Name) := do
   let .lam _ _ body _ := f | return #[]
   let some app ← Meta.matchMatcherApp? body | return #[]
   unless app.discrs.size == 1 && app.discrs[0]!.cleanupAnnotations == .bvar 0 do return #[]
@@ -52,7 +52,7 @@ private def stateMatcherAltNames? (f : Expr) : VCGenM (Array Name) := do
 
 /-- The names a hint's binder argument carries: `fun acc => …` carries `acc`, and the state lambda
 of `inv pref suff` carries the names of the matcher it applies to its argument. -/
-private def hintNames (binder : Expr) : VCGenM (Array Name) := do
+def hintNames (binder : Expr) : VCGenM (Array Name) := do
   let mut binder := binder.cleanupAnnotations
   unless binder.isLambda do
     binder := (← instantiateMVarsIfMVarAppS binder).cleanupAnnotations.headBeta
@@ -61,7 +61,7 @@ private def hintNames (binder : Expr) : VCGenM (Array Name) := do
   stateMatcherAltNames? binder
 
 /-- The components of the right-nested tuple `e`: `(a, b, c)` has `#[a, b, c]`. -/
-private partial def tupleLeaves (e : Expr) (acc : Array Expr := #[]) : Array Expr :=
+partial def tupleLeaves (e : Expr) (acc : Array Expr := #[]) : Array Expr :=
   match_expr e with
   | Prod.mk _ _ a b => tupleLeaves b (acc.push a)
   | _ => acc.push e
@@ -70,7 +70,7 @@ private partial def tupleLeaves (e : Expr) (acc : Array Expr := #[]) : Array Exp
 they wrap. `Spec.bind`'s `binderNameHint a f …` names one variable; `Spec.forInPure` states a chain
 of four, and a hinted `(lo, hi)` names one variable per component. The first hint wins, so a
 variable that already carries an accessible name keeps it. -/
-private partial def consumeBinderNameHintExpr (goal : MVarId) (e : Expr) :
+partial def consumeBinderNameHintExpr (goal : MVarId) (e : Expr) :
     VCGenM (Option (MVarId × Expr)) := do
   unless e.getAppFn.isConstOf ``binderNameHint do return none
   let n := e.getAppNumArgs

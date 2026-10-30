@@ -25,7 +25,7 @@ SymM-level head-redex reducer used throughout VCGen.
 Like `Meta.reduceProj?` but also `Sym.unfoldReducible`s the projected field when whnf
 reduced the structure. Transparency is the caller's choice.
 -/
-private def reduceProjAndUnfold? (e : Expr) : MetaM (Option Expr) := do
+def reduceProjAndUnfold? (e : Expr) : MetaM (Option Expr) := do
   let .proj _ idx s := e | return none
   let s' ← Lean.Meta.whnf s
   let some f ← Lean.Meta.projectCore? s' idx | return none

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Internal.UV.TCP
-// Imports: public import Init.System.Promise public import Init.Data.SInt public import Std.Net
+// Imports: public import Init.System.Promise public import Init.Data.SInt.Basic public import Std.Net
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -218,7 +218,7 @@ return v_res_102_;
 }
 }
 lean_object* runtime_initialize_Init_System_Promise(uint8_t builtin);
-lean_object* runtime_initialize_Init_Data_SInt(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_SInt_Basic(uint8_t builtin);
 lean_object* runtime_initialize_Std_Net(uint8_t builtin);
 void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
@@ -230,7 +230,7 @@ lean_initialize_runtime_module();
 res = runtime_initialize_Init_System_Promise(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_SInt(builtin);
+res = runtime_initialize_Init_Data_SInt_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Std_Net(builtin);
@@ -247,7 +247,7 @@ _G_meta_initialized = true;
 return lean_io_result_mk_ok(lean_box(0));
 }
 lean_object* initialize_Init_System_Promise(uint8_t builtin);
-lean_object* initialize_Init_Data_SInt(uint8_t builtin);
+lean_object* initialize_Init_Data_SInt_Basic(uint8_t builtin);
 lean_object* initialize_Std_Net(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Std_Internal_UV_TCP(uint8_t builtin) {
@@ -257,7 +257,7 @@ _G_initialized = true;
 res = initialize_Init_System_Promise(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_SInt(builtin);
+res = initialize_Init_Data_SInt_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Std_Net(builtin);

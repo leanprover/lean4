@@ -10,9 +10,6 @@ This test ensures that syntax errors in Verso docs are appropriately reported.
 /--
 @ +2:40...41
 error: unexpected '`'; expected positional argument, named argument, flag, or '}' (use '\{' for a literal '{')
----
-@ +3:0...*
-error: unexpected end of input; expected '![', '$$', '$', '*', '[', '[^', '_', '`' or '{'
 -/
 #guard_msgs (positions := true) in
 /-!
@@ -570,7 +567,7 @@ def unterminatedCodeRun := 0
 -- Unterminated code block
 /--
 @ +2:0...3
-error: unterminated code block opened on line 577; expected '```'
+error: unterminated code block opened on line 574; expected '```'
 -/
 #guard_msgs (positions := true) in
 /--
@@ -582,7 +579,7 @@ def unterminatedCodeBlock := 0
 -- Unterminated code block, indented and with a longer fence
 /--
 @ +4:2...6
-error: unterminated code block opened on line 591; expected '````'
+error: unterminated code block opened on line 588; expected '````'
 -/
 #guard_msgs (positions := true) in
 /--
@@ -596,7 +593,7 @@ def unterminatedIndentedCodeBlock := 0
 -- Unterminated directive
 /--
 @ +2:0...3
-error: unterminated directive opened on line 603; expected ':::'
+error: unterminated directive opened on line 600; expected ':::'
 -/
 #guard_msgs (positions := true) in
 /--
@@ -608,7 +605,7 @@ def unterminatedDirective := 0
 -- Unterminated directive, indented
 /--
 @ +4:2...5
-error: unterminated directive opened on line 617; expected ':::'
+error: unterminated directive opened on line 614; expected ':::'
 -/
 #guard_msgs (positions := true) in
 /--
@@ -818,7 +815,7 @@ error: unexpected ']' (use '\]' to escape); expected '![', '$$', '$', '*', '[', 
 -- is reported as the stop
 /--
 @ +4:0...1
-error: expected closing '```' for the code block opened on line 828 at column 2
+error: expected closing '```' for the code block opened on line 825 at column 2
 ---
 @ +5:0...1
 error: unexpected ']' (use '\]' to escape); expected '![', '$$', '$', '*', '[', '[^', '_', '`', '{', block opener (at line start: '#', '>', ':', '*', '-', '+', '1.', '```', '%%%', '{…}'), newline or text
@@ -863,9 +860,6 @@ error: expected ')'
 ---
 @ +2:24...*
 error: unexpected newline; expected positional argument, named argument, flag, or '}' (use '\{' for a literal '{')
----
-@ +3:0...*
-error: unexpected end of input; expected '![', '$$', '$', '*', '[', '[^', '_', '`' or '{'
 -/
 #guard_msgs (positions := true) in
 /-!

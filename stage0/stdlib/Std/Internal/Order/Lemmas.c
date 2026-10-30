@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Internal.Order.Lemmas
-// Imports: public import Std.Internal.Order.Basic public import Std.Internal.Order.PropLattice public import Init.ByCases import Init.Classical import Init.TacticsExtra
+// Imports: public import Std.Internal.Order.Basic public import Init.ByCases import Init.Classical import Init.TacticsExtra
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -14,7 +14,6 @@
 extern "C" {
 #endif
 lean_object* runtime_initialize_Std_Internal_Order_Basic(uint8_t builtin);
-lean_object* runtime_initialize_Std_Internal_Order_PropLattice(uint8_t builtin);
 lean_object* runtime_initialize_Init_ByCases(uint8_t builtin);
 lean_object* runtime_initialize_Init_Classical(uint8_t builtin);
 lean_object* runtime_initialize_Init_TacticsExtra(uint8_t builtin);
@@ -26,9 +25,6 @@ if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
 lean_initialize_runtime_module();
 res = runtime_initialize_Std_Internal_Order_Basic(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = runtime_initialize_Std_Internal_Order_PropLattice(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Init_ByCases(builtin);
@@ -50,7 +46,6 @@ _G_meta_initialized = true;
 return lean_io_result_mk_ok(lean_box(0));
 }
 lean_object* initialize_Std_Internal_Order_Basic(uint8_t builtin);
-lean_object* initialize_Std_Internal_Order_PropLattice(uint8_t builtin);
 lean_object* initialize_Init_ByCases(uint8_t builtin);
 lean_object* initialize_Init_Classical(uint8_t builtin);
 lean_object* initialize_Init_TacticsExtra(uint8_t builtin);
@@ -60,9 +55,6 @@ lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
 res = initialize_Std_Internal_Order_Basic(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Std_Internal_Order_PropLattice(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_ByCases(builtin);

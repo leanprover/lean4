@@ -36,4 +36,4 @@ trace: [sym.issues] exponent 1024 exceeds threshold for exponentiation `(exp := 
 #guard_msgs in
 set_option trace.sym.issues true in
 example (x y : BitVec 1024) : x * y = y * x := by
-  grind (exp := 16)
+  grind +verbose (exp := 16)

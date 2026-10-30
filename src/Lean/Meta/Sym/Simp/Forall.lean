@@ -8,6 +8,9 @@ prelude
 public import Lean.Meta.Sym.Simp.SimpM
 import Lean.Meta.Sym.AlphaShareBuilder
 import Lean.Meta.Sym.Simp.Result
+import Lean.Meta.Sym.Util
+import Lean.Meta.Sym.InstantiateS
+import Lean.Meta.Sym.AbstractS
 namespace Lean.Meta.Sym.Simp
 
 /--
@@ -23,7 +26,7 @@ The theorem has three arguments `p`, `q`, and `h`.
 This auxiliary theorem is used by the simplifier when visiting forall expressions.
 The proof uses the approach used in `mkFunextFor` followed by an `Eq.ndrec`.
 -/
-def mkForallCongrFor (xs : Array Expr) : MetaM Expr := do
+public def mkForallCongrFor (xs : Array Expr) : MetaM Expr := do
   let prop := mkSort 0
   let type ← mkForallFVars xs prop
   let w ← Meta.getLevel type
@@ -205,32 +208,112 @@ public def simpArrow (e : Expr) : SimpM Result := do
     let e' ← e.updateForallS! p' q'
     return .step e' (mkApp6 (mkConst ``implies_congr [u, v]) p p' q q' h₁ h₂) (contextDependent := cd₁ || cd₂)
 
-public def simpForall' (simpArrow : Simproc) (simpBody : Simproc) (e : Expr) : SimpM Result := do
+/--
+Builds the cast `h.substr a : p₁` for `h : p₁ = p₂` and `a : p₂`. It replaces the bound variable of
+`∀ a : p₁, q a` (or `∃ a : p₁, q a`) when the domain is rewritten to `p₂`, see
+`forall_prop_congr_dom` and `exists_prop_congr_dom`.
+
+Remark: `h` is not a maximally shared term.
+-/
+def mkPropDomainCastS (p₁ p₂ h a : Expr) : SymM Expr := do
+  let prop ← mkSortS 0
+  let h ← shareCommon h
+  mkAppS₆ (← mkConstS ``Eq.substr [1]) prop (← mkLambdaS `x .default prop (← mkBVarS 0)) p₂ p₁ h a
+
+public partial def simpForall' (simpArrow : Simproc) (simpBody : Simproc) (e : Expr) : SimpM Result := do
   if e.isArrow then
     simpArrow e
   else if (← isProp e) then
-    let n := getForallTelescopeSize e.bindingBody! 1
-    forallBoundedTelescope e n fun xs b => withFreshTransientCache do
-      main xs (← shareCommon b)
+    go #[] e false
   else
     return .rfl
 where
-  main (xs : Array Expr) (b : Expr) : SimpM Result := do
+  /--
+  Collects the telescope of dependent binders whose domains are already in normal form, and
+  simplifies the body with a single congruence step (`mkForallCongrFor`). The telescope stops at
+  a non-dependent binder (then `simpBody` simplifies the arrow), and at a propositional domain
+  that simplifies (then `simpPropDomain` rewrites it).
+  `e` is open: its loose bound variables refer to `xs`. Only the domains are instantiated while
+  walking the telescope; the body is instantiated once, when the telescope stops.
+  `cd` accumulates the context dependency of the domains visited so far.
+  -/
+  go (xs : Array Expr) (e : Expr) (cd : Bool) : SimpM Result := do
+    if let .forallE n d b bi := e then
+      if b.hasLooseBVar 0 then
+        let d ← close xs d
+        let mut cd := cd
+        if (← isProp d) then
+          match (← under xs (simp d)) with
+          | .rfl _ cd' => cd := cd || cd'
+          | .step d' h _ cd' =>
+            let e ← close xs e
+            return (← mkCongr xs e (← simpPropDomain e d' h) (cd || cd'))
+        return (← withLocalDeclS n bi d fun x => go (xs.push x) b cd)
+    let b ← close xs e
+    mkCongr xs b (← under xs (simpBody b)) cd
+
+  /-- Runs `k`, which simplifies a term under the binders `xs`, with a fresh transient cache. -/
+  under {α} (xs : Array Expr) (k : SimpM α) : SimpM α :=
+    if xs.isEmpty then k else withFreshTransientCache k
+
+  /-- Instantiates the loose bound variables of `e` with `xs`. -/
+  close (xs : Array Expr) (e : Expr) : SimpM Expr :=
+    instantiateRevS e xs
+
+  /-- Converts the result `r` for the body `b` of the telescope `xs` into a result for `∀ xs, b`. -/
+  mkCongr (xs : Array Expr) (b : Expr) (r : Result) (cd₀ : Bool) : SimpM Result := do
     -- Propagate `cd` from the body: in another context the body might simplify differently.
-    match (← simpBody b) with
-    | .rfl _ cd => return mkRflResultCD cd
-    | .step b' h _ cd =>
+    match r with
+    | .rfl _ cd => return mkRflResultCD (cd₀ || cd)
+    | .step b' h done cd =>
+      if xs.isEmpty then
+        return .step b' h done (cd₀ || cd)
       let h ← mkLambdaFVars xs h
       let e' ← shareCommon (← mkForallFVars xs b')
       -- **Note**: consider caching the forall-congr theorems
       let hcongr ← mkForallCongrFor xs
-      return .step e' (mkApp3 hcongr (← mkLambdaFVars xs b) (← mkLambdaFVars xs b') h) (contextDependent := cd)
+      return .step e' (mkApp3 hcongr (← mkLambdaFVars xs b) (← mkLambdaFVars xs b') h) (contextDependent := cd₀ || cd)
 
-  -- **Note**: Optimize if this is quadratic in practice
-  getForallTelescopeSize (e : Expr) (n : Nat) : Nat :=
-    match e with
-    | .forallE _ _ b _ => if b.hasLooseBVar 0 then getForallTelescopeSize b (n+1) else n
-    | _ => n
+  /--
+  `e` is `∀ a : p₁, q a` with `p₁ : Prop`, and `h : p₁ = p₂` is the result of simplifying the
+  domain. The bound variable is replaced by the cast `h.substr a` in the body, which is then
+  simplified under `a : p₂`. The proof uses `forall_prop_congr_dom` when the body does not
+  change, and `forall_prop_domain_congr` otherwise.
+  -/
+  simpPropDomain (e p₂ h : Expr) : SimpM Result := do
+    let .forallE n p₁ body bi := e | unreachable!
+    let q₁ := mkLambda n bi p₁ body
+    withLocalDeclS n bi p₂ fun a => withFreshTransientCache do
+      let h' ← mkPropDomainCastS p₁ p₂ h a
+      let b ← instantiateS body #[h']
+      match (← simpBody b) with
+      | .rfl _ cd =>
+        let e' ← mkForallFVarsS #[a] b
+        return .step e' (mkApp4 (mkConst ``forall_prop_congr_dom) p₁ p₂ h q₁) (contextDependent := cd)
+      | .step b' h₂ _ cd =>
+        let h₂ ← mkLambdaFVars #[a] h₂
+        let q₂ ← mkLambdaFVars #[a] b'
+        let e' ← mkForallFVarsS #[a] b'
+        return .step e' (mkApp6 (mkConst ``forall_prop_domain_congr) p₁ p₂ q₁ q₂ h h₂) (contextDependent := cd)
+
+/--
+Simplifies the domain of `∃ a : p₁, q a` when `p₁ : Prop`. If `simp p₁` produces `p₂` with proof
+`h : p₁ = p₂`, the result is `∃ a : p₂, q (h.substr a)` (see `exists_prop_congr_dom`). The body
+is not simplified here: the result is not marked as done, so the simplifier visits it afterwards
+under `a : p₂`. Intended as a pre-method.
+-/
+public def simpExistsPropDomain : Simproc := fun e => do
+  let_expr ex@Exists _ fn := e | return .rfl
+  let .lam n p₁ body bi := fn | return .rfl
+  unless (← isProp p₁) do return .rfl
+  match (← simp p₁) with
+  | .rfl _ cd => return mkRflResultCD cd
+  | .step p₂ h _ cd =>
+    let fn' ← withLocalDeclS n bi p₂ fun a => do
+      let h' ← mkPropDomainCastS p₁ p₂ h a
+      mkLambdaFVarsS #[a] (← instantiateS body #[h'])
+    let e' ← mkAppS₂ ex p₂ fn'
+    return .step e' (mkApp4 (mkConst ``exists_prop_congr_dom) p₁ p₂ h fn) (contextDependent := cd)
 
 public def simpForall : Simproc :=
   simpForall' simpArrow simp

@@ -137,7 +137,6 @@ if (lean_obj_tag(v___x_19_) == 0)
 {
 lean_object* v___x_20_; 
 lean_dec_ref_known(v___x_19_, 1);
-lean_inc_ref(v_decls_13_);
 v___x_20_ = l_Lean_IR_checkDecls(v_decls_13_, v_a_14_, v_a_15_);
 if (lean_obj_tag(v___x_20_) == 0)
 {

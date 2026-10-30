@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.Cbv.BuiltinCbvSimprocs.String
-// Imports: import Lean.Meta.Sym.Simp.SimpM import Lean.Meta.Sym.LitValues import Init.CbvSimproc import Lean.Meta.Tactic.Cbv.CbvSimproc import Lean.Meta.Tactic.Cbv.Util
+// Imports: import Lean.Meta.Sym.Simp.SimpM import Lean.Meta.Sym.LitValues import Init.CbvSimproc import Lean.Meta.Tactic.Cbv.CbvSimproc import Lean.Meta.Tactic.Cbv.Util import Init.Data.String.Csimp
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -40,7 +40,7 @@ lean_object* l_Lean_mkRawNatLit(lean_object*);
 lean_object* l_Lean_Expr_app___override(lean_object*, lean_object*);
 lean_object* l_Lean_mkAppB(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr1(lean_object*);
-lean_object* lean_string_data(lean_object*);
+lean_object* l_String_toListImpl(lean_object*);
 static const lean_ctor_object l___private_Lean_Meta_Tactic_Cbv_BuiltinCbvSimprocs_String_0__Lean_Meta_Tactic_Cbv_simpStringAppend___redArg___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*0 + 8, .m_other = 0, .m_tag = 0}, .m_objs = {LEAN_SCALAR_PTR_LITERAL(0, 0, 0, 0, 0, 0, 0, 0)}};
 static const lean_object* l___private_Lean_Meta_Tactic_Cbv_BuiltinCbvSimprocs_String_0__Lean_Meta_Tactic_Cbv_simpStringAppend___redArg___closed__0 = (const lean_object*)&l___private_Lean_Meta_Tactic_Cbv_BuiltinCbvSimprocs_String_0__Lean_Meta_Tactic_Cbv_simpStringAppend___redArg___closed__0_value;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Cbv_BuiltinCbvSimprocs_String_0__Lean_Meta_Tactic_Cbv_simpStringAppend___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -572,6 +572,7 @@ v_resetjp_190_:
 lean_object* v___x_193_; lean_object* v___x_194_; 
 v___x_193_ = l_Lean_Expr_appArg_x21(v_e_178_);
 v___x_194_ = l_Lean_Meta_Sym_getCharValue_x3f(v___x_193_);
+lean_dec_ref(v___x_193_);
 if (lean_obj_tag(v___x_194_) == 1)
 {
 lean_object* v_val_195_; uint32_t v___x_196_; lean_object* v___x_197_; lean_object* v___x_198_; lean_object* v___x_199_; 
@@ -848,6 +849,7 @@ _start:
 lean_object* v___x_309_; lean_object* v___x_310_; 
 v___x_309_ = l_Lean_Expr_appArg_x21(v_e_301_);
 v___x_310_ = l_Lean_Meta_Sym_getCharValue_x3f(v___x_309_);
+lean_dec_ref(v___x_309_);
 if (lean_obj_tag(v___x_310_) == 1)
 {
 lean_object* v_val_311_; lean_object* v___x_312_; uint32_t v___x_313_; lean_object* v___x_314_; lean_object* v___x_315_; lean_object* v___x_316_; 
@@ -1128,7 +1130,6 @@ v_resetjp_421_:
 {
 lean_object* v_a_424_; lean_object* v___x_425_; 
 v_a_424_ = lean_array_uget_borrowed(v_as_413_, v_i_415_);
-lean_inc(v_a_424_);
 v___x_425_ = l_Lean_Meta_Sym_getCharValue_x3f(v_a_424_);
 if (lean_obj_tag(v___x_425_) == 1)
 {
@@ -1679,7 +1680,7 @@ lean_inc(v_val_664_);
 lean_dec_ref_known(v___x_663_, 1);
 v_nil_665_ = lean_obj_once(&l___private_Lean_Meta_Tactic_Cbv_BuiltinCbvSimprocs_String_0__Lean_Meta_Tactic_Cbv_simpStringToList___redArg___closed__7, &l___private_Lean_Meta_Tactic_Cbv_BuiltinCbvSimprocs_String_0__Lean_Meta_Tactic_Cbv_simpStringToList___redArg___closed__7_once, _init_l___private_Lean_Meta_Tactic_Cbv_BuiltinCbvSimprocs_String_0__Lean_Meta_Tactic_Cbv_simpStringToList___redArg___closed__7);
 v_cons_666_ = lean_obj_once(&l___private_Lean_Meta_Tactic_Cbv_BuiltinCbvSimprocs_String_0__Lean_Meta_Tactic_Cbv_simpStringToList___redArg___closed__11, &l___private_Lean_Meta_Tactic_Cbv_BuiltinCbvSimprocs_String_0__Lean_Meta_Tactic_Cbv_simpStringToList___redArg___closed__11_once, _init_l___private_Lean_Meta_Tactic_Cbv_BuiltinCbvSimprocs_String_0__Lean_Meta_Tactic_Cbv_simpStringToList___redArg___closed__11);
-v___x_667_ = lean_string_data(v_val_664_);
+v___x_667_ = l_String_toListImpl(v_val_664_);
 v___x_668_ = l___private_Lean_ToExpr_0__Lean_List_toExprAux___at___00__private_Lean_Meta_Tactic_Cbv_BuiltinCbvSimprocs_String_0__Lean_Meta_Tactic_Cbv_simpStringToList_spec__0(v_nil_665_, v_cons_666_, v___x_667_);
 lean_dec(v___x_667_);
 v___x_669_ = l_Lean_Meta_Sym_shareCommonInc(v___x_668_, v_a_655_, v_a_656_, v_a_657_, v_a_658_, v_a_659_, v_a_660_);
@@ -1918,6 +1919,7 @@ lean_object* runtime_initialize_Lean_Meta_Sym_LitValues(uint8_t builtin);
 lean_object* runtime_initialize_Init_CbvSimproc(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Meta_Tactic_Cbv_CbvSimproc(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Meta_Tactic_Cbv_Util(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_String_Csimp(uint8_t builtin);
 void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Meta_Tactic_Cbv_BuiltinCbvSimprocs_String(uint8_t builtin) {
@@ -1938,6 +1940,9 @@ res = runtime_initialize_Lean_Meta_Tactic_Cbv_CbvSimproc(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Lean_Meta_Tactic_Cbv_Util(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_String_Csimp(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = l___private_Lean_Meta_Tactic_Cbv_BuiltinCbvSimprocs_String_0____regBuiltin___private_Lean_Meta_Tactic_Cbv_BuiltinCbvSimprocs_String_0__Lean_Meta_Tactic_Cbv_simpStringAppend_declare__4_00___x40_Lean_Meta_Tactic_Cbv_BuiltinCbvSimprocs_String_3001824805____hygCtx___hyg_18_();
@@ -1984,6 +1989,7 @@ lean_object* initialize_Lean_Meta_Sym_LitValues(uint8_t builtin);
 lean_object* initialize_Init_CbvSimproc(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Tactic_Cbv_CbvSimproc(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Tactic_Cbv_Util(uint8_t builtin);
+lean_object* initialize_Init_Data_String_Csimp(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Meta_Tactic_Cbv_BuiltinCbvSimprocs_String(uint8_t builtin) {
 lean_object * res;
@@ -2002,6 +2008,9 @@ res = initialize_Lean_Meta_Tactic_Cbv_CbvSimproc(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_Tactic_Cbv_Util(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_String_Csimp(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Lean_Meta_Tactic_Cbv_BuiltinCbvSimprocs_String(builtin);

@@ -1,0 +1,6 @@
+name = "checkjsonbroken"
+version = "0.1.0"
+defaultTargets = ["Broken"]
+
+[[lean_lib]]
+name = "Broken"

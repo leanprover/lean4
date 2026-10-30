@@ -129,6 +129,28 @@ public def addEMatchTheorem (params : Grind.Params) (id : Ident) (declName : Nam
   | _ =>
     throwError "invalid `grind` parameter, `{.ofConstName declName}` is not a theorem, definition, or inductive type"
 
+/--
+Returns `true` if `declName` is a universe-monomorphic theorem, axiom, or constructor whose
+statement is a proposition that is not a `∀` and is not indexable, e.g., `theorem mkP : P` where
+`P` is a nullary inductive predicate. Only applications can be used as patterns, so such a
+statement cannot be E-matched, and `grind` asserts the parameter as a fact instead. A ground
+theorem whose statement is indexable, e.g., `pi_pos : 0 < π`, is still an E-matching theorem
+activated by its ground pattern.
+-/
+def isFactDecl (declName : Name) (symPrios : Grind.SymbolPriorities := {}) : MetaM Bool := do
+  let info ← getAsyncConstInfo declName
+  unless info.kind matches .thm | .axiom | .ctor do return false
+  let { type, levelParams, .. } := info.toConstantVal
+  unless levelParams.isEmpty do return false
+  -- `grind` unfolds reducible definitions, so a statement that reduces to a `∀` is not a fact.
+  unless (← (return !(← whnfR type).isForall) <&&> isProp type) do return false
+  return (← Grind.mkEMatchTheoremWithKind? (.decl declName) #[] (mkConst declName) (.default false) symPrios).isNone
+
+/-- Adds the global proposition `declName` as a fact. See `isFactDecl`. -/
+def addFact (params : Grind.Params) (declName : Name) (minIndexable : Bool) : MetaM Grind.Params := do
+  ensureNoMinIndexable minIndexable
+  return { params with extraFacts := params.extraFacts.push (mkConst declName) }
+
 def processAnchor (params : Grind.Params) (val : TSyntax `hexnum) : CoreM Grind.Params := do
   let anchorRefs := params.anchorRefs?.getD #[]
   let anchorRef ← Grind.elabAnchorRef val
@@ -138,6 +160,23 @@ def checkNoRevert (params : Grind.Params) : CoreM Unit := do
   if params.config.revert then
     throwError "invalid `grind` parameter, only global declarations are allowed when `+revert` is used"
 
+/--
+Processes a `grind` parameter given as a term, e.g. `grind [h _ _ pf]` or `grind [foo x]`.
+
+The term is elaborated as a proof, and its remaining holes become parameters of that proof.
+For example, `h _ _ pf : R (l'.head ⋯) (l'.getLast ⋯)` with the hole `?x : 1 < l'.length`
+becomes `fun x => h l' x pf : ∀ x, R (l'.head ⋯) (l'.getLast ⋯)`. The result is used in one of
+two ways:
+
+- As an E-matching theorem (`params.extra`), if some hole is not a proof, or if the user gave a
+  modifier (e.g. `grind [→ foo _]`). Such a hole is a pattern variable, to be assigned by
+  E-matching.
+
+- As a fact (`params.extraFacts`) otherwise, i.e., when the type is not a `∀`, or when every
+  hole is a proof. A proof hole `x : p` cannot be a pattern variable, since E-matching ignores
+  proofs. It is synthesized by `grind` itself: `∀ (x : p), q` is a dependent implication, and
+  `propagateForallPropUp` instantiates `q` once `grind` has established `p`.
+-/
 def processTermParam (params : Grind.Params)
     (p : TSyntax `Lean.Parser.Tactic.grindParam)
     (mod? : Option (TSyntax `Lean.Parser.Attr.grindMod))
@@ -160,14 +199,16 @@ def processTermParam (params : Grind.Params)
     let e := e.eta
     if e.hasMVar then
       let r ← abstractMVars e
-      return some (r.paramNames, r.expr)
+      -- See the docstring: a term whose holes are all proofs is a fact, not a theorem.
+      let proofHolesOnly ← r.mvars.allM fun mvar => isProof mvar
+      return some (r.paramNames, r.expr, proofHolesOnly)
     else
-      return some (#[], e)
-  let some (levelParams, proof) := thm? | return params
+      return some (#[], e, false)
+  let some (levelParams, proof, proofHolesOnly) := thm? | return params
   let type ← inferType proof
   unless (← isProp type) do
     throwError "invalid `grind` parameter, proof term expected"
-  if type.isForall then
+  if type.isForall && !(proofHolesOnly && levelParams.isEmpty && mod?.isNone) then
     let mkThm (kind : Grind.EMatchTheoremKind) (idx : Nat) : MetaM Grind.EMatchTheorem := do
       let id := ((`extra).appendIndexAfter idx)
       let some thm ← Grind.mkEMatchTheoremWithKind? (.stx id p) levelParams proof kind params.symPrios (minIndexable := minIndexable)
@@ -212,7 +253,7 @@ def processParam (params : Grind.Params)
       return (← processTermParam params p mod? id minIndexable)
     else
       throw err
-  Term.checkDeprecatedCore declName
+  withRef id <| Term.checkDeprecatedCore declName
   let kind ← if let some mod := mod? then Grind.getAttrKindCore mod else pure .infer
   match kind with
   | .ematch .user =>
@@ -255,6 +296,8 @@ def processParam (params : Grind.Params)
         for ctor in info.ctors do
           -- **Note**: We should not warn if `declName` is an inductive
           params ← withRef p <| addEMatchTheorem params id ctor (.default false) minIndexable (warn := False)
+    else if (← isFactDecl declName params.symPrios) then
+      params ← withRef p <| addFact params declName minIndexable
     else
       params ← withRef p <| addEMatchTheorem params id declName (.default false) minIndexable (suggest := true)
   | .symbol prio =>
@@ -283,7 +326,7 @@ public def elabGrindParams (params : Grind.Params) (ps : TSyntaxArray ``Parser.T
         if incremental then
           throwErrorAt p "invalid `-` occurrence, it can only be used at the `grind` tactic entry point"
         let declName ← realizeGlobalConstNoOverloadWithInfo id
-        Term.checkDeprecatedCore declName
+        withRef id <| Term.checkDeprecatedCore declName
         if let some declName ← Grind.isCasesAttrCandidate? declName false then
           Grind.ensureNotBuiltinCases declName
           params ← params.eraseCasesTypes declName
@@ -339,6 +382,69 @@ def filterThms (thms : PArray EMatchTheorem) : GrindM (PArray EMatchTheorem) := 
   for thm in thms do
     if (← shouldKeep thm) then
       result := result.push thm
+  return result
+
+/--
+Returns the parameters of a `grind?`/`finish?` call that the suggested tactic must carry
+verbatim.
+
+Parameters that produce E-matching theorems are recorded in the generated script as
+`use`/`instantiate` steps and are omitted. The remaining parameters have effects the script
+cannot represent, so dropping them produces suggestions that fail during replay:
+- modifiers that do not create E-matching theorems (`cases`, `inj`, `funCC`, `symbol`);
+- identifiers resolving to a type marked for case-splitting (e.g., `[EqvGen]` for an
+  inductive predicate);
+- identifiers resolving to a theorem whose statement is not a `∀` and is not indexable (see
+  `isFactDecl`), which is asserted as a fact rather than recorded as an E-matching theorem;
+- identifiers using local variable dot notation (e.g., `cs.getD_rightInvSeq` where `cs` is a
+  local variable), which produce anchors that need the original term during replay;
+- non-identifier terms (e.g., `show p by tac`).
+
+**TODO**: This syntactic filtering is a stopgap: it duplicates parameter-elaboration logic
+and silently depends on which side effects are representable in scripts. A more robust
+solution is to make the script self-contained, e.g., a script step that marks a type for
+case-splitting, and tracking which parameters were actually used.
+-/
+public def getPreservedParams (params : Array (TSyntax ``Parser.Tactic.grindParam)) :
+    TermElabM (Array (TSyntax ``Parser.Tactic.grindParam)) := do
+  let keepIdentParam (mod? : Option (TSyntax ``Parser.Attr.grindMod)) (id : Ident) : TermElabM Bool := do
+    if let some (_, _ :: _) := (← resolveLocalName id.getId) then
+      return true
+    let kind : Grind.AttrKind ← if let some mod := mod? then Grind.getAttrKindCore mod else pure .infer
+    match kind with
+    | .ematch _ | .intro => return false
+    | .infer =>
+      let declName? ← try pure (some (← realizeGlobalConstNoOverload id)) catch _ => pure none
+      if let some declName := declName? then
+        Grind.isCasesAttrCandidate declName false <||> isFactDecl declName
+      else
+        return false
+    | _ => return true
+  params.filterM fun p => do
+    match p with
+    | `(Parser.Tactic.grindParam| $[$mod?:grindMod]? $id:ident) => keepIdentParam mod? id
+    | `(Parser.Tactic.grindParam| ! $[$mod?:grindMod]? $id:ident) => keepIdentParam mod? id
+    | `(Parser.Tactic.grindParam| - $_:ident) => return false
+    | `(Parser.Tactic.grindParam| #$_:hexnum) => return false
+    | _ => return true
+
+/--
+Returns `inj` parameters for the `[grind inj]` theorems without hypotheses used in `proof`.
+These theorems are asserted directly instead of instantiated, so generated scripts do not
+mention them.
+-/
+public def getUsedInjParams (params : Grind.Params) (proof : Expr) :
+    MetaM (Array (TSyntax ``Parser.Tactic.grindParam)) := do
+  let used := proof.getUsedConstantsAsSet
+  let mut result := #[]
+  for ext in params.extensions do
+    for origin in ext.inj.getOrigins do
+      let .decl declName := origin | continue
+      if used.contains declName && !(← getConstInfo declName).type.isForall then
+        let decl := mkIdent (← unresolveNameGlobalAvoidingLocals declName)
+        let param ← `(Parser.Tactic.grindParam| inj $decl:ident)
+        unless result.contains param do
+          result := result.push param
   return result
 
 /--

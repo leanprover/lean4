@@ -57,6 +57,13 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 #include <dirent.h>
 #endif
 
+#ifndef LEAN_WINDOWS
+#ifndef __APPLE__
+#include <sys/syscall.h>
+#include <linux/fs.h> // RENAME_NOREPLACE
+#endif
+#endif
+
 namespace lean {
 
 extern "C" LEAN_EXPORT void lean_io_result_show_error(b_obj_arg r) {
@@ -256,8 +263,11 @@ static int lean_crt_to_uv_err(int err) {
 static obj_res decode_uv_error_impl(int errnum, int posix_errnum, b_lean_obj_arg fname) {
     object * details = mk_string(uv_strerror(errnum));
     switch (errnum) {
+    /* `interrupted` and `noFileOrDirectory` require a file name; callers without one get "". */
     case UV_EINTR:
-        lean_assert(fname != nullptr);
+        if (fname == nullptr) {
+            return lean_mk_io_error_interrupted(mk_string(""), posix_errnum, details);
+        }
         inc_ref(fname);
         return lean_mk_io_error_interrupted(fname, posix_errnum, details);
     /* LibUV does not map EDOM and ENOSTR as of version 1.52.1 */
@@ -274,7 +284,9 @@ static obj_res decode_uv_error_impl(int errnum, int posix_errnum, b_lean_obj_arg
             return lean_mk_io_error_invalid_argument_file(fname, posix_errnum, details);
         }
     case UV_ENOENT:
-        lean_assert(fname != nullptr);
+        if (fname == nullptr) {
+            return lean_mk_io_error_no_file_or_directory(mk_string(""), posix_errnum, details);
+        }
         inc_ref(fname);
         return lean_mk_io_error_no_file_or_directory(fname, posix_errnum, details);
     case UV_EACCES: case UV_EROFS: case UV_ECONNABORTED: case UV_EFBIG:
@@ -967,9 +979,20 @@ extern "C" LEAN_EXPORT obj_res lean_io_set_heartbeats(obj_arg count) {
     return box(0);
 }
 
+bool is_env_var_name(char const * name) {
+    if (name[0] == '\0') {
+        return false;
+    }
+#if defined(LEAN_WINDOWS)
+    // Windows keeps hidden variables whose names start with `=`, such as `=C:`.
+    name++;
+#endif
+    return strchr(name, '=') == nullptr;
+}
+
 extern "C" LEAN_EXPORT obj_res lean_io_getenv(b_obj_arg env_var) {
     const char* env_var_str = string_cstr(env_var);
-    if (strlen(env_var_str) != lean_string_size(env_var) - 1) {
+    if (strlen(env_var_str) != lean_string_size(env_var) - 1 || !is_env_var_name(env_var_str)) {
         return mk_option_none();
     }
 #if defined(LEAN_EMSCRIPTEN)
@@ -1231,6 +1254,39 @@ extern "C" LEAN_EXPORT obj_res lean_io_rename(b_obj_arg from, b_obj_arg to) {
     return io_result_mk_ok(box(0));
 }
 
+extern "C" LEAN_EXPORT obj_res lean_io_rename_if_new(b_obj_arg from, b_obj_arg to) {
+    const char* from_str = string_cstr(from);
+    if (strlen(from_str) != lean_string_size(from) - 1) {
+        return mk_embedded_nul_error(from);
+    }
+    const char* to_str = string_cstr(to);
+    if (strlen(to_str) != lean_string_size(to) - 1) {
+        return mk_embedded_nul_error(to);
+    }
+#ifdef LEAN_WINDOWS
+    bool ok = MoveFileEx(from_str, to_str, 0) != 0;
+    if (!ok) {
+        // TODO: actually produce the right type of IO error
+        return io_result_mk_error((sstream()
+            << "failed to rename '" << from_str << "' to '" << to_str << "': " << GetLastError()).str());
+    }
+#else
+#if defined(__APPLE__)
+    bool ok = renameatx_np(AT_FDCWD, from_str, AT_FDCWD, to_str, RENAME_EXCL) == 0;
+#else
+    // glibc 2.26 does not yet have `renameat2` (2.28+)
+    bool ok = syscall(SYS_renameat2, AT_FDCWD, from_str, AT_FDCWD, to_str, RENAME_NOREPLACE) == 0;
+#endif
+    if (!ok) {
+        std::ostringstream s;
+        s << from_str << " and/or " << to_str;
+        object_ref out{mk_string(s.str())};
+        return io_result_mk_error(decode_io_error(errno, out.raw()));
+    }
+#endif
+    return io_result_mk_ok(box(0));
+}
+
 /* hardLink (orig link : @& FilePath) : IO Unit */
 extern "C" LEAN_EXPORT obj_res lean_io_hard_link(b_obj_arg orig, b_obj_arg link) {
     const char* orig_str = string_cstr(orig);
@@ -1259,7 +1315,7 @@ extern "C" LEAN_EXPORT obj_res lean_io_create_tempfile(lean_object * /* w */) {
     if (ret < 0) {
         return io_result_mk_error(decode_uv_error(ret, nullptr));
     } else if (base_len == 0) {
-        return lean_io_result_mk_error(decode_uv_error(UV_ENOENT, mk_string("")));
+        return lean_io_result_mk_error(decode_uv_error(UV_ENOENT, nullptr));
     }
 
 #if defined(LEAN_WINDOWS)
@@ -1305,7 +1361,7 @@ extern "C" LEAN_EXPORT obj_res lean_io_create_tempdir(lean_object * /* w */) {
     if (ret < 0) {
         return io_result_mk_error(decode_uv_error(ret, nullptr));
     } else if (base_len == 0) {
-        return lean_io_result_mk_error(decode_uv_error(UV_ENOENT, mk_string("")));
+        return lean_io_result_mk_error(decode_uv_error(UV_ENOENT, nullptr));
     }
 
 #if defined(LEAN_WINDOWS)

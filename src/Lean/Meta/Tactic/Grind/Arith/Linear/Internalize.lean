@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Lean.Meta.Tactic.Grind.Arith.Linear.OfNatModule
+import Init.Grind.Module.Envelope
 import Lean.Meta.Tactic.Grind.Arith.Util
 import Lean.Meta.Tactic.Grind.Arith.Linear.StructId
 import Lean.Meta.Tactic.Grind.Arith.Linear.Var
@@ -41,6 +42,9 @@ private def isForbiddenParent (parent? : Option Expr) : Bool :=
       | LE.le _ _ _ _ => true
       | HDiv.hDiv _ _ _ _ _ _ => true
       | HMod.hMod _ _ _ _ _ _ => true
+      -- `toQ e` is built by `mkOfNatModuleVar` while processing `e`, which visits `e` again.
+      -- Internalizing `e` under it would rebuild `toQ e` while it is still being internalized.
+      | Grind.IntModule.OfNatModule.toQ _ _ _ => true
       | _ => false
   else
     true

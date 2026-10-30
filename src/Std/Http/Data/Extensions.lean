@@ -9,6 +9,7 @@ prelude
 public import Init.Dynamic
 public import Init.Data.String.Basic
 public import Std.Data.TreeMap
+import Init.Data.String.Compare
 
 open Lean
 
@@ -39,7 +40,7 @@ protected def Extensions.compareName : Name → Name → Ordering
   | _, .anonymous => .gt
   | .str p₁ s₁, .str p₂ s₂ =>
     match Extensions.compareName p₁ p₂ with
-    | .eq => compareOfLessAndEq s₁ s₂
+    | .eq => compare s₁ s₂
     | ord => ord
   | .str _ _, .num _ _ => .lt
   | .num _ _, .str _ _ => .gt

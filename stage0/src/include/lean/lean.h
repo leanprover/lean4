@@ -124,8 +124,9 @@ void lean_notify_assert(const char * fileName, int line, const char * condition)
 #define LeanExternal    254
 #define LeanReserved    255
 
-#define LEAN_MAX_CTOR_FIELDS 256
-#define LEAN_MAX_CTOR_SCALARS_SIZE 1024
+// The number of object fields must be storable in `m_other:8`.
+#define LEAN_MAX_CTOR_NUM_OBJS 255
+#define LEAN_MAX_CTOR_SCALARS_SIZE 1023
 
 static inline bool lean_is_big_object_tag(uint8_t tag) {
     return tag == LeanArray || tag == LeanStructArray || tag == LeanScalarArray || tag == LeanString;
@@ -781,7 +782,11 @@ static inline bool lean_is_exclusive(lean_object * o) {
 }
 
 static inline uint8_t lean_is_exclusive_obj(lean_object * o) {
-    return lean_is_exclusive(o);
+    if (lean_is_scalar(o)) {
+        return 1;
+    } else {
+        return lean_is_exclusive(o);
+    }
 }
 
 static inline bool lean_is_shared(lean_object * o) {
@@ -850,7 +855,7 @@ static inline uint8_t * lean_ctor_scalar_cptr(lean_object * o) {
 }
 
 static inline lean_object * lean_alloc_ctor(unsigned tag, unsigned num_objs, unsigned scalar_sz) {
-    assert(tag <= LeanMaxCtorTag && num_objs < LEAN_MAX_CTOR_FIELDS && scalar_sz < LEAN_MAX_CTOR_SCALARS_SIZE);
+    assert(tag <= LeanMaxCtorTag && num_objs <= LEAN_MAX_CTOR_NUM_OBJS && scalar_sz <= LEAN_MAX_CTOR_SCALARS_SIZE);
     lean_object * o = lean_alloc_ctor_memory(lean_usize_add_checked(lean_usize_add_checked(sizeof(lean_ctor_object), lean_usize_mul_checked(sizeof(void*), num_objs)), scalar_sz));
     lean_set_st_header(o, tag, num_objs);
     return o;
@@ -1425,7 +1430,6 @@ static inline lean_obj_res lean_alloc_string(size_t size, size_t capacity, size_
     o->m_length = len;
     return (lean_object*)o;
 }
-LEAN_EXPORT size_t lean_utf8_strlen(char const * str);
 LEAN_EXPORT size_t lean_utf8_n_strlen(char const * str, size_t n);
 static inline size_t lean_string_capacity(lean_object * o) { return lean_to_string(o)->m_capacity; }
 static inline size_t lean_string_byte_size(lean_object * o) { return sizeof(lean_string_object) + lean_string_capacity(o); }
@@ -1473,11 +1477,44 @@ static inline lean_obj_res lean_string_propagate_mark(b_lean_obj_arg src, lean_o
     return lean_string_mark_linear(dst);
 }
 
-LEAN_EXPORT lean_obj_res lean_string_push(lean_obj_arg s, uint32_t c);
+LEAN_EXPORT lean_obj_res lean_string_push_cold(lean_obj_arg s, uint32_t c);
+static inline lean_obj_res lean_string_push(lean_obj_arg s, uint32_t c) {
+    if (LEAN_LIKELY(lean_is_exclusive(s))) {
+        lean_string_object * o = lean_to_string(s);
+        size_t sz = o->m_size; /* includes the terminating NUL */
+        if (LEAN_LIKELY(sz + 4 <= o->m_capacity)) {
+            unsigned char * d = (unsigned char *)o->m_data + sz - 1;
+            unsigned n;
+            if (c < 0x80) {
+                d[0] = (unsigned char)c;
+                n = 1;
+            } else if (c < 0x800) {
+                d[0] = (unsigned char)(0xc0 | (c >> 6));
+                d[1] = (unsigned char)(0x80 | (c & 0x3f));
+                n = 2;
+            } else if (c < 0x10000) {
+                d[0] = (unsigned char)(0xe0 | (c >> 12));
+                d[1] = (unsigned char)(0x80 | ((c >> 6) & 0x3f));
+                d[2] = (unsigned char)(0x80 | (c & 0x3f));
+                n = 3;
+            } else {
+                d[0] = (unsigned char)(0xf0 | (c >> 18));
+                d[1] = (unsigned char)(0x80 | ((c >> 12) & 0x3f));
+                d[2] = (unsigned char)(0x80 | ((c >> 6) & 0x3f));
+                d[3] = (unsigned char)(0x80 | (c & 0x3f));
+                n = 4;
+            }
+            d[n] = 0;
+            o->m_size = sz + n;
+            o->m_length++;
+            return s;
+        }
+    }
+    return lean_string_push_cold(s, c);
+}
 LEAN_EXPORT lean_obj_res lean_string_append(lean_obj_arg s1, b_lean_obj_arg s2);
 static inline lean_obj_res lean_string_length(b_lean_obj_arg s) { return lean_box(lean_string_len(s)); }
 LEAN_EXPORT lean_obj_res lean_string_mk(lean_obj_arg cs);
-LEAN_EXPORT lean_obj_res lean_string_data(lean_obj_arg s);
 LEAN_EXPORT uint32_t  lean_string_utf8_get(b_lean_obj_arg s, b_lean_obj_arg i);
 LEAN_EXPORT uint32_t lean_string_utf8_get_fast_cold(char const * str, size_t i, size_t size, unsigned char c);
 static inline uint32_t lean_string_utf8_get_fast(b_lean_obj_arg s, b_lean_obj_arg i) {
@@ -1525,8 +1562,9 @@ static inline uint8_t lean_string_dec_lt(b_lean_obj_arg s1, b_lean_obj_arg s2) {
 LEAN_EXPORT uint64_t lean_string_hash(b_lean_obj_arg);
 LEAN_EXPORT lean_obj_res lean_string_of_usize(size_t);
 LEAN_EXPORT uint8_t lean_string_memcmp(b_lean_obj_arg s1, b_lean_obj_arg s2, b_lean_obj_arg lstart, b_lean_obj_arg rstart, b_lean_obj_arg len);
+LEAN_EXPORT uint8_t lean_string_memcmp_lt(b_lean_obj_arg s1, b_lean_obj_arg s2, b_lean_obj_arg lstart, b_lean_obj_arg rstart, b_lean_obj_arg len);
+LEAN_EXPORT uint8_t lean_string_memcmp_compare(b_lean_obj_arg s1, b_lean_obj_arg s2, b_lean_obj_arg lstart, b_lean_obj_arg rstart, b_lean_obj_arg len);
 LEAN_EXPORT uint64_t lean_slice_hash(b_lean_obj_arg);
-LEAN_EXPORT uint8_t lean_slice_dec_lt(b_lean_obj_arg s1, b_lean_obj_arg s2);
 
 /* Thunks */
 
@@ -2319,6 +2357,14 @@ static inline uint64_t lean_uint64_mix_hash(uint64_t h, uint64_t k) {
     h ^= k;
     h *= m;
     return h;
+}
+static inline uint32_t lean_uint32_mix_hash(uint32_t h, uint32_t k) {
+    k *= 0xcc9e2d51;
+    k ^= k >> 15;
+    k *= 0x1b873593;
+    h ^= k;
+    h = (h << 13) | (h >> 19);
+    return h * 5 + 0xe6546b64;
 }
 
 /* UInt64 -> other */
@@ -3622,8 +3668,8 @@ static inline uint64_t lean_expr_data(lean_obj_arg expr) {
 #pragma GCC diagnostic ignored "-Wunused-parameter"
 #endif
 
-static inline lean_obj_res lean_get_max_ctor_fields(lean_obj_arg _unit) {
-    return lean_box(LEAN_MAX_CTOR_FIELDS);
+static inline lean_obj_res lean_get_max_ctor_num_objs(lean_obj_arg _unit) {
+    return lean_box(LEAN_MAX_CTOR_NUM_OBJS);
 }
 
 static inline lean_obj_res lean_get_max_ctor_scalars_size(lean_obj_arg _unit) {
@@ -3686,7 +3732,9 @@ static inline lean_obj_res lean_runtime_hold(b_lean_obj_arg a) {
     return lean_box(0);
 }
 
-#ifdef LEAN_EMSCRIPTEN
+// The compiler writes the scalar fields of static constructor objects 8 bytes at a time with this
+// macro, as one `m_objs` slot where pointers have 8 bytes and as two where they have 4.
+#if UINTPTR_MAX == UINT32_MAX
 #define LEAN_SCALAR_PTR_LITERAL(b1, b2, b3, b4, b5, b6, b7, b8) (lean_object*)((uint32_t)b1 | ((uint32_t)b2 << 8) | ((uint32_t)b3 << 16) | ((uint32_t)b4 << 24)), (lean_object*)((uint32_t)b5 | ((uint32_t)b6 << 8) | ((uint32_t)b7 << 16) | ((uint32_t)b8 << 24))
 #else
 #define LEAN_SCALAR_PTR_LITERAL(b1, b2, b3, b4, b5, b6, b7, b8) (lean_object*)((uint64_t)b1 | ((uint64_t)b2 << 8) | ((uint64_t)b3 << 16) | ((uint64_t)b4 << 24) | ((uint64_t)b5 << 32) | ((uint64_t)b6 << 40) | ((uint64_t)b7 << 48) | ((uint64_t)b8 << 56))

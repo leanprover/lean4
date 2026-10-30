@@ -7,6 +7,8 @@ module
 
 prelude
 public import Init.System.IO
+import Init.Data.String.TakeDrop
+import Init.System.Platform
 
 open System
 
@@ -50,6 +52,15 @@ Like {lean}`IO.FS.removeDirAll`, but does not fail if {lean}`path` does not exis
 or if a file is first deleted by a racing process.
 -/
 public partial def removeDirAllIfExists (path : FilePath) : IO Unit := do
+  let path := if System.Platform.isWindows then path else
+    let trimmed := path.toString.dropEndWhile '/'
+    if trimmed.isEmpty then path else ⟨trimmed.copy⟩
+  let mdata ← try path.symlinkMetadata catch
+    | .noFileOrDirectory .. => return
+    | e => throw e
+  if mdata.type == .symlink then
+    removeFileIfExists path
+    return
   let ents ← try path.readDir catch
     | .noFileOrDirectory .. => return -- path did not exist or something else was faster
     | e => throw e

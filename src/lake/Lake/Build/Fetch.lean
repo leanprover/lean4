@@ -6,7 +6,6 @@ Authors: Mac Malone
 module
 
 prelude
-public import Std.Sync.Mutex
 public import Lake.Build.Info
 public import Lake.Build.Store
 public import Lake.Build.Context
@@ -40,36 +39,6 @@ public abbrev CurrPackage := Option Package
 @[inline] public def getCurrPackage? [MonadReaderOf CurrPackage m] : m (Option Package) := read
 
 /--
- A mutable build store referemce.
-**Not intended for user use.**
--/
-public abbrev BuildStoreRef := Std.Mutex BuildStore
-
-/--
-Transformer to equip a monad with a mutable build store.
-
-An internal transformer. **Not intended for user use.**
--/
-public abbrev BuildStoreT := ReaderT BuildStoreRef
-
-@[inline] public nonrec def BuildStoreT.run
-  [Monad m] [MonadFinally m] [MonadLiftT BaseIO m] [MonadLiftT (ST IO.RealWorld) m]
-  (x : BuildStoreT m α) (s : BuildStore)
-: m (α × BuildStore) := do
-  let mtx ← Std.Mutex.new s
-  let a ← x.run mtx
-  let s ← mtx.atomically (·.get)
-  return (a, s)
-
-public instance
-  [Monad m] [MonadLiftT BaseIO m]
-: MonadDStore BuildKey (Job <| BuildData ·) (BuildStoreT m) where
-  fetch? k := fun mtx => liftM (m := BaseIO) <| mtx.atomically fun ref =>
-    ref.modifyGet fun s => (s.get? k, s)
-  store k a := fun mtx => liftM (m := BaseIO) <| mtx.atomically fun ref =>
-    ref.modify (·.insert k a)
-
-/--
 A recursive build of a Lake build store that may encounter a cycle.
 
 An internal monad. **Not intended for user use.**
@@ -93,13 +62,13 @@ public abbrev RecBuildM := RecBuildT LogIO
 
 /-- Run a recursive build. -/
 @[inline] public def RecBuildT.run
-  [Monad m] [MonadFinally m] [MonadLiftT BaseIO m] [MonadLiftT (ST IO.RealWorld) m]
+  [Monad m] [MonadLiftT BaseIO m]
   (stack : CallStack BuildKey) (store : BuildStore) (build : RecBuildT m α)
-: BuildT m (α × BuildStore) := do build none stack |>.run store
+: BuildT m (α × BuildStore) := build none stack |>.run store
 
 /-- Run a recursive build in a fresh build store. -/
 @[inline] public def RecBuildT.run'
-  [Monad m] [MonadFinally m] [MonadLiftT BaseIO m] [MonadLiftT (ST IO.RealWorld) m]
+  [Monad m] [MonadLiftT BaseIO m]
   (build : RecBuildT m α)
 : BuildT m α := (·.1) <$> build.run {} {}
 

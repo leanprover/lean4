@@ -482,6 +482,6 @@ def run (count : Nat) (samplesPerCategory : Nat := 3) : IO Unit := do
       IO.println s!"{n} × {category}"
       for s in samples do IO.println s
 
-/-- info: 42280 redirects agree with RFC 3986 -/
+/-- info: 42700 redirects agree with RFC 3986 -/
 #guard_msgs in
 #eval run 3000

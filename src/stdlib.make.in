@@ -16,6 +16,10 @@ else
   export LEAN_CC=${CMAKE_C_COMPILER_LAUNCHER} ${CMAKE_C_COMPILER}
 endif
 export LEAN_ABORT_ON_PANIC=1
+ifeq "${CMAKE_SYSTEM_NAME}" "Emscripten"
+  # emcc's JavaScript passes over the large `lean.js` need more than Node's default heap of about 4 GB
+  export NODE_OPTIONS += --max-old-space-size=8192
+endif
 
 # Short aliases for verbose CMake variables
 OUTLIB   := ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}

@@ -184,9 +184,12 @@ public def writeFile
   (file : FilePath) (cache : CacheMap) (platformIndependent := false)
 : LogIO Unit := do
   createParentDirs file
-  match (← IO.FS.Handle.mk file .write |>.toBaseIO) with
+  -- Open the handle as `append` to avoid truncating outside the lock.
+  match (← IO.FS.Handle.mk file .append |>.toBaseIO) with
   | .ok h =>
     h.lock (exclusive := true)
+    h.rewind
+    h.truncate
     h.putStrLn (toJson schemaVersion).compress
     writeCacheEntries h cache platformIndependent
   | .error e =>

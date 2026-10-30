@@ -972,6 +972,32 @@ private def semiOk (B : Nat) (l r : RingExpr) : Bool :=
 private def linSemiOk (l r : RingExpr) : Bool :=
   exprLinS l ≤ 1 && exprLinS r ≤ 1
 
+/-- Clear numeral denominators, then check the polynomial identity at a Kronecker point. -/
+private def mkSemifieldKronProof? (type sfInst charInst ctx : Expr) (u : Level)
+    (invs : Array (Var × Nat)) (a b : RingExpr) : NormM (Option Expr) := do
+  let invsL := invs.toList
+  let (a', da) := a.clearDenoms invsL
+  let (b', db) := b.clearDenoms invsL
+  let l : RingExpr := .mul a' (.num db)
+  let r : RingExpr := .mul b' (.num da)
+  let csInst := (← getCommSemiring).commSemiringInst
+  let arcInst? ← getAddRightCancelInst?
+  let h ← if let (some arcInst, true, some K) := (arcInst?, linSemiOk l r, kronLinExponent? l r kronMaxBits) then
+      pure (mkAppN (mkConst ``Grind.CommRing.Expr.eq_of_kronLinS [u])
+        (#[type, csInst, arcInst, ctx] ++ kronLinProofArgs l r K))
+    else if let some (K, B) := (kronArgs? l r).filter (semiOk ·.2 l r) then
+      match arcInst? with
+      | some arcInst => pure (mkAppN (mkConst ``Grind.CommRing.Expr.eq_of_kronS [u])
+          (#[type, csInst, arcInst, ctx] ++ kronProofArgs l r K B))
+      | none => pure (mkAppN (mkConst ``Grind.CommRing.Expr.eq_of_kronSN [u])
+          (#[type, csInst, ctx] ++ kronProofArgs l r K B))
+    else return none
+  let invsE := toExpr invsL
+  return some (mkAppN (mkConst ``Grind.CommRing.Expr.eq_of_clearDenoms [u])
+    #[type, sfInst, charInst, ctx, invsE, mkInvVarsOk type u ctx invsE, eagerReflBoolTrue,
+      toExpr a, toExpr b, toExpr a', toExpr b', mkRawNatLit da, mkRawNatLit db,
+      ← mkEqRefl (toExpr (a', da)), ← mkEqRefl (toExpr (b', db)), h])
+
 /-- Memoized `toExpr` of the monomials of the stepwise certificates, which repeat each other. -/
 private abbrev StepM := StateM (Std.HashMap Mon Expr)
 
@@ -1219,8 +1245,12 @@ private def mkCertificate (e₁ : Expr) (re : RingExpr) (p : Poly) (vars : Array
     let (fieldInst, charInst) := fc?.get!
     let invsE := toExpr invs.toList
     if !kind.isRing then
-      let thm := mkApp3 (mkConst ``Grind.CommRing.Expr.eq_of_toPolyQS_eq [u]) type fieldInst charInst
-      let h := mkApp6 thm ctx invsE (mkInvVarsOk type u ctx invsE) (toExpr re) (toExpr re') eagerReflBoolTrue
+      let h ← match (← mkSemifieldKronProof? type fieldInst charInst ctx u invs re re') with
+        | some h => pure h
+        | none =>
+          let thm := mkApp3 (mkConst ``Grind.CommRing.Expr.eq_of_toPolyQS_eq [u]) type fieldInst charInst
+          pure (mkApp7 thm ctx (toExpr (useBalanced re p.length)) invsE
+            (mkInvVarsOk type u ctx invsE) (toExpr re) (toExpr re') eagerReflBoolTrue)
       return .step e' (mkExpectedPropHint h (← mkEq e₁ e'))
     if let (true, some (K, B)) := (ainvs.isEmpty, kronQArgs? re re' invs.toList kronMaxBits) then
       -- Both sides are evaluated at a point, with the inverses of numerals (Kronecker substitution).
@@ -2328,7 +2358,12 @@ private def normalizeRelCore (rel : RelKind) (relFn : Expr) (order? : Option Ord
             toExpr l, toExpr r, toExpr l', toExpr r', toExpr cX, eagerReflBoolTrue, eagerReflBoolTrue, reflI l,
             eagerReflBoolTrue, eagerReflBoolTrue, reflI r])
           return .step e' (mkExpectedPropHint h (mkPropEq e e'))
-    let mkTermStep (x xC : RingExpr) (px qx : Poly) (ex exC : Expr) : Expr :=
+    let (lC, rC) : RingExpr × RingExpr := if hasC then (.add l' c', .add r' c') else (l', r')
+    let (kronL?, kronR?) ← if invs.isEmpty then pure (none, none) else do
+      let (sfInst, charInst) := fc?.get!
+      pure (← mkSemifieldKronProof? sr.type sfInst charInst ctx u invs l lC,
+        ← mkSemifieldKronProof? sr.type sfInst charInst ctx u invs r rC)
+    let mkTermStep (x xC : RingExpr) (px qx : Poly) (ex exC : Expr) (kronProof? : Option Expr) : Expr :=
       let xE := toExpr x
       let xCE := toExpr xC
       -- Terms are evaluated at a point (Kronecker substitution), or large polynomials are checked
@@ -2336,7 +2371,8 @@ private def normalizeRelCore (rel : RelKind) (relFn : Expr) (order? : Option Ord
       if !invs.isEmpty then
         let (sfInst, charInst) := fc?.get!
         let thm := mkApp3 (mkConst ``Grind.CommRing.Expr.eq_of_toPolyQS_eq [u]) sr.type sfInst charInst
-        let h := mkApp6 thm ctx invsE (mkInvVarsOk sr.type u ctx invsE) xE xCE eagerReflBoolTrue
+        let h := kronProof?.getD (mkApp7 thm ctx (toExpr (useBalanced x px.length)) invsE
+          (mkInvVarsOk sr.type u ctx invsE) xE xCE eagerReflBoolTrue)
         mkExpectedPropHint h (mkApp3 (mkConst ``Eq [u.succ]) sr.type ex exC)
       else if let (some csInst, some arcInst, true, some K) := (csInst?, arcInst?, linSemiOk x xC, kronLinExponent? x xC kronMaxBits) then
         let h := mkAppN (mkConst ``Grind.CommRing.Expr.eq_of_kronLinS [u])
@@ -2377,11 +2413,10 @@ private def normalizeRelCore (rel : RelKind) (relFn : Expr) (order? : Option Ord
           let thm := mkApp2 (mkConst ``Grind.CommRing.Expr.eq_of_toPolyS_eq_toExpr [u]) sr.type inst
           mkApp7 thm ctx (toExpr (useBalanced x px.length)) xE xCE pxE (reflP pxE) (reflE xCE)
       mkExpectedPropHint h (mkApp3 (mkConst ``Eq [u.succ]) sr.type ex exC)
-    let (lC, rC) : RingExpr × RingExpr := if hasC then (.add l' c', .add r' c') else (l', r')
     let elC ← if hasC then share (← denoteSemiringExpr' vars lC) else pure el
     let erC ← if hasC then share (← denoteSemiringExpr' vars rC) else pure er
-    let r₁ : Result := if isSameExpr lhs elC then .rfl else .step elC (mkTermStep l lC pl lp lhs elC)
-    let r₂ : Result := if isSameExpr rhs erC then .rfl else .step erC (mkTermStep r rC pr rp rhs erC)
+    let r₁ : Result := if isSameExpr lhs elC then .rfl else .step elC (mkTermStep l lC pl lp lhs elC kronL?)
+    let r₂ : Result := if isSameExpr rhs erC then .rfl else .step erC (mkTermStep r rC pr rp rhs erC kronR?)
     let eR ← mkAppS₂ relFn lhs rhs
     let rel₁ ← match h : eR with
       | .app fa@h':(.app f a) b => congrBin eR fa f a b r₁ r₂ h h'

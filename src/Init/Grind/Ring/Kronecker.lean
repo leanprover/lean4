@@ -1787,7 +1787,7 @@ noncomputable def InvVars.lookup_k (invs : InvVars) (x : Var) : Option Nat :=
 noncomputable def InvVars.nonzero_k (invs : InvVars) : Bool :=
   List.rec true (fun p _ ih => Bool.rec false ih (Nat.blt 0 p.2)) invs
 
-theorem InvVars.lookup_k_spec {α} [Field α] (ctx : Context α) (invs : InvVars) (hok : invs.ok ctx)
+theorem InvVars.lookup_k_spec {α} [Semifield α] (ctx : Context α) (invs : InvVars) (hok : invs.ok ctx)
     (hnz : InvVars.nonzero_k invs = true) (x : Var) (c : Nat) (h : InvVars.lookup_k invs x = some c) :
     Var.denote ctx x = (c : α)⁻¹ ∧ c ≠ 0 := by
   induction invs with

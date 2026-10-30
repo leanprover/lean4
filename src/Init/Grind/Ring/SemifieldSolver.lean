@@ -6,9 +6,12 @@ Authors: Kim Morrison
 module
 prelude
 public import Init.Grind.Ring.FieldSolver
+public import Init.Grind.Ring.Kronecker
 public import Init.Grind.Ring.CommSemiringAdapter
 import Init.Data.Int.DivMod.Lemmas
 import Init.Omega
+import Init.ByCases
+import Init.Data.Nat.Lemmas
 
 /-!
 # Rational coefficients over semifields
@@ -180,16 +183,129 @@ theorem Poly.denoteS_toPolyQ [Semifield α] [IsCharP α 0] (ctx : Context α)
   simp [PolyQ.denoteS, Semiring.natCast_one, Semifield.inv_one, Semiring.mul_one]
 
 /-- Normalize a semiring expression, treating the recorded numeral inverses as coefficients. -/
-def Expr.toPolyQS (e : Expr) (invs : InvVars) : PolyQ := e.toPolyS.toPolyQ invs []
+noncomputable def Expr.toPolyQS_cert (bal : Bool) (invs : InvVars) (a b : Expr) : Bool :=
+  ((a.toPolySX_k bal).toPolyQ_k invs []).beq' ((b.toPolySX_k bal).toPolyQ_k invs [])
 
-theorem Expr.eq_of_toPolyQS_eq [Semifield α] [IsCharP α 0] (ctx : Context α)
+theorem Expr.eq_of_toPolyQS_eq [Semifield α] [IsCharP α 0] (ctx : Context α) (bal : Bool)
     (invs : InvVars) (hok : invs.ok ctx) (a b : Expr)
-    (h : a.toPolyQS invs == b.toPolyQS invs) : a.denoteS ctx = b.denoteS ctx := by
-  have h := congrArg (PolyQ.denoteS ctx) (eq_of_beq h)
-  rw [Expr.toPolyQS, Expr.toPolyQS,
-    Poly.denoteS_toPolyQ ctx a.toPolyS invs Expr.toPolyS_NonnegCoeffs hok,
-    Poly.denoteS_toPolyQ ctx b.toPolyS invs Expr.toPolyS_NonnegCoeffs hok,
-    Expr.denoteS_toPolyS, Expr.denoteS_toPolyS] at h
+    (h : toPolyQS_cert bal invs a b) : a.denoteS ctx = b.denoteS ctx := by
+  simp only [toPolyQS_cert, PolyQ.beq'_eq, Poly.toPolyQ_k_eq_toPolyQ] at h
+  have ha := Expr.toPolySX_k_nonneg ctx bal a
+  have hb := Expr.toPolySX_k_nonneg ctx bal b
+  have h := congrArg (PolyQ.denoteS ctx) h
+  rw [Poly.denoteS_toPolyQ ctx _ invs ha.1 hok,
+    Poly.denoteS_toPolyQ ctx _ invs hb.1 hok, ha.2, hb.2] at h
   exact h
+
+/-- Look up an inverse variable in the sorted certificate list. -/
+def InvVars.lookupSorted (invs : InvVars) (x : Var) : Option Nat :=
+  match invs with
+  | [] => none
+  | (y, c) :: invs => if x < y then none else if y == x then some c else lookupSorted invs x
+
+theorem InvVars.lookupSorted_eq (invs : InvVars) (x : Var) :
+    InvVars.lookupSorted invs x = invs.lookup_k x := by
+  induction invs with
+  | nil => rfl
+  | cons p invs ih =>
+    change (if x < p.1 then none else if p.1 == x then some p.2 else InvVars.lookupSorted invs x) =
+      Bool.rec (Bool.rec (InvVars.lookup_k invs x) (some p.2) (Nat.beq p.1 x)) none (Nat.blt x p.1)
+    rw [← ih]
+    by_cases h : x < p.1
+    · simp only [h, ite_true, Nat.blt_eq.mpr h]
+    · have hb : Nat.blt x p.1 = false := Bool.eq_false_iff.mpr (fun hb => h (Nat.blt_eq.mp hb))
+      simp only [h, ite_false, hb]
+      change (if Nat.beq p.1 x then some p.2 else InvVars.lookupSorted invs x) =
+        Bool.rec (InvVars.lookupSorted invs x) (some p.2) (Nat.beq p.1 x)
+      cases Nat.beq p.1 x <;> rfl
+
+/-- Clear inverse numerals without expanding polynomial products. -/
+def Expr.clearDenoms (invs : InvVars) : Expr → Expr × Nat
+  | .num k => (.num k, 1)
+  | .natCast n => (.natCast n, 1)
+  | .intCast _ | .neg _ | .sub _ _ => (.num 0, 1)
+  | .var x => match InvVars.lookupSorted invs x with
+    | some c => (.num 1, c)
+    | none => (.var x, 1)
+  | .add a b =>
+    let (a, da) := a.clearDenoms invs
+    let (b, db) := b.clearDenoms invs
+    (.add (.mul a (.num db)) (.mul b (.num da)), da * db)
+  | .mul a b =>
+    let (a, da) := a.clearDenoms invs
+    let (b, db) := b.clearDenoms invs
+    (.mul a b, da * db)
+  | .pow a n =>
+    let (a, d) := a.clearDenoms invs
+    (.pow a n, d ^ n)
+
+noncomputable def Expr.clearDenoms_k (invs : InvVars) (e : Expr) : Expr × Nat :=
+  Expr.rec
+    (fun k => (.num k, 1)) (fun n => (.natCast n, 1)) (fun _ => (.num 0, 1))
+    (fun x => Option.rec (.var x, 1) (fun c => (.num 1, c)) (invs.lookup_k x))
+    (fun _ _ => (.num 0, 1))
+    (fun _ _ a b => (.add (.mul a.1 (.num b.2)) (.mul b.1 (.num a.2)), Nat.mul a.2 b.2))
+    (fun _ _ _ _ => (.num 0, 1))
+    (fun _ _ a b => (.mul a.1 b.1, Nat.mul a.2 b.2))
+    (fun _ n a => (.pow a.1 n, Nat.pow a.2 n)) e
+
+theorem Expr.clearDenoms_k_eq (invs : InvVars) (e : Expr) :
+    e.clearDenoms_k invs = e.clearDenoms invs := by
+  induction e with
+  | var x =>
+    simp only [clearDenoms_k, clearDenoms, InvVars.lookupSorted_eq]
+    cases invs.lookup_k x <;> rfl
+  | _ => simp_all [clearDenoms_k, clearDenoms, Nat.pow_eq]
+
+theorem Expr.clearDenoms_spec {α} [Semifield α] [IsCharP α 0] (ctx : Context α)
+    (invs : InvVars) (hok : invs.ok ctx) (hnz : invs.nonzero_k = true) (e : Expr) :
+    (e.clearDenoms invs).1.denoteS ctx = ((e.clearDenoms invs).2 : α) * e.denoteS ctx ∧
+    (e.clearDenoms invs).2 ≠ 0 := by
+  induction e with
+  | num k => exact ⟨by simp [clearDenoms, Semiring.natCast_one, Semiring.one_mul], Nat.one_ne_zero⟩
+  | natCast n => exact ⟨by simp [clearDenoms, Semiring.natCast_one, Semiring.one_mul], Nat.one_ne_zero⟩
+  | intCast k | neg a _ | sub a b _ _ =>
+    refine ⟨?_, Nat.one_ne_zero⟩
+    change OfNat.ofNat (α := α) 0 = (NatCast.natCast 1 : α) * 0
+    rw [Semiring.ofNat_eq_natCast, Semiring.natCast_zero, Semiring.mul_zero]
+  | var x =>
+    cases h : InvVars.lookupSorted invs x with
+    | none => exact ⟨by simp [clearDenoms, h, Semiring.natCast_one, Semiring.one_mul], by simp [clearDenoms, h]⟩
+    | some c =>
+      have hc := InvVars.lookup_k_spec ctx invs hok hnz x c (by rwa [← InvVars.lookupSorted_eq])
+      refine ⟨?_, by simpa [clearDenoms, h] using hc.2⟩
+      simp only [clearDenoms, h, Expr.denoteS_num, Int.natAbs_one, Expr.denoteS_var]
+      rw [hc.1, Semifield.mul_inv_cancel (Semifield.natCast_ne_zero hc.2)]
+  | add a b iha ihb =>
+    refine ⟨?_, Nat.mul_ne_zero iha.2 ihb.2⟩
+    simp only [clearDenoms, Expr.denoteS_add, Expr.denoteS_mul, Expr.denoteS_num,
+      Int.natAbs_natCast, Semiring.ofNat_eq_natCast, iha.1, ihb.1, Semiring.natCast_mul,
+      Semiring.left_distrib]
+    simp only [Semiring.mul_assoc, CommSemiring.mul_left_comm, CommSemiring.mul_comm]
+  | mul a b iha ihb =>
+    refine ⟨?_, Nat.mul_ne_zero iha.2 ihb.2⟩
+    simp only [clearDenoms, Expr.denoteS_mul, iha.1, ihb.1, Semiring.natCast_mul]
+    simp only [Semiring.mul_assoc, CommSemiring.mul_left_comm]
+  | pow a n ih =>
+    refine ⟨?_, Nat.ne_of_gt (Nat.pow_pos (Nat.pos_of_ne_zero ih.2))⟩
+    simp only [clearDenoms, Expr.denoteS_pow, ih.1, CommSemiring.mul_pow, Semiring.natCast_pow]
+
+theorem Expr.eq_of_clearDenoms {α} [Semifield α] [IsCharP α 0] (ctx : Context α)
+    (invs : InvVars) (hok : invs.ok ctx) (hnz : invs.nonzero_k = true) (a b a' b' : Expr) (da db : Nat)
+    (ha : a.clearDenoms_k invs = (a', da)) (hb : b.clearDenoms_k invs = (b', db))
+    (h : (a'.mul (.num db)).denoteS ctx = (b'.mul (.num da)).denoteS ctx) :
+    a.denoteS ctx = b.denoteS ctx := by
+  have ha' := a.clearDenoms_spec ctx invs hok hnz
+  have hb' := b.clearDenoms_spec ctx invs hok hnz
+  rw [clearDenoms_k_eq] at ha hb
+  rw [ha] at ha'
+  rw [hb] at hb'
+  simp only [Expr.denoteS_mul, Expr.denoteS_num, Int.natAbs_natCast, Semiring.ofNat_eq_natCast] at h
+  rw [ha'.1, hb'.1] at h
+  have hd : ((da * db : Nat) : α) ≠ 0 := Semifield.natCast_ne_zero (Nat.mul_ne_zero ha'.2 hb'.2)
+  have h' : ((da * db : Nat) : α) * a.denoteS ctx = ((da * db : Nat) : α) * b.denoteS ctx := by
+    simpa only [Semiring.natCast_mul, Semiring.mul_assoc, CommSemiring.mul_left_comm, CommSemiring.mul_comm] using h
+  have h' := congrArg (fun x : α => ((da * db : Nat) : α)⁻¹ * x) h'
+  simpa only [← Semiring.mul_assoc, Semifield.inv_mul_cancel hd, Semiring.one_mul] using h'
 
 end Lean.Grind.CommRing

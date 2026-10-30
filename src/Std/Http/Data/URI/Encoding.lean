@@ -13,6 +13,7 @@ import Init.Data.UInt.Lemmas
 import Init.Data.UInt.Bitwise
 import Init.Data.Array.Lemmas
 public import Init.Data.String.Basic
+import Init.Data.String.Lossy
 public import Std.Http.Internal.Char
 
 public section
@@ -187,6 +188,15 @@ theorem all_of_all_of_imp {b : ByteArray} (h : b.data.all p) (imp : ∀ c, p c �
   intro i x
   exact (imp b.data[i]) (h i x)
 
+private theorem IsAllowedEncodedQueryChars.mono {bs : ByteArray} (h : IsAllowedEncodedQueryChars r bs)
+    (imp : ∀ c, r c → r' c) : IsAllowedEncodedQueryChars r' bs :=
+  all_of_all_of_imp h fun c hc => by
+    simp only [isEncodedQueryChar, isEncodedChar, Bool.or_eq_true, decide_eq_true_eq] at hc ⊢
+    rcases hc with ⟨ha, hr | hx⟩ | hp
+    · exact Or.inl ⟨ha, Or.inl (imp c hr)⟩
+    · exact Or.inl ⟨ha, Or.inr hx⟩
+    · exact Or.inr hp
+
 private theorem autf8EncodeChar_flatMap_ascii {a : List UInt8}
     (is_ascii_list : ∀ (x : UInt8), x ∈ a → x < 128) :
     List.flatMap (fun a => String.utf8EncodeChar (Char.ofUInt8 a)) a = a := by
@@ -342,10 +352,10 @@ instance : ToString (EncodedString r) where
   toString es := ⟨es.toByteArray, isValidUTF8_of_isAsciiByte es.toByteArray (all_of_all_of_imp es.valid (fun c h => by simp [isEncodedChar] at h; exact h.left))⟩
 
 /--
-Decodes an `EncodedString` back to a regular `String`. Converts percent-encoded sequences (e.g., "%20")
-back to their original characters. Returns `none` if the decoded bytes are not valid UTF-8.
+Decodes an `EncodedString` to the bytes it encodes, converting percent-encoded sequences (e.g., "%20")
+back to the bytes they stand for.
 -/
-def decode (es : EncodedString r) : Option String := Id.run do
+def decodeBytes (es : EncodedString r) : ByteArray := Id.run do
   let mut decoded : ByteArray := ByteArray.empty
   let rawBytes := es.toByteArray
   let len := rawBytes.size
@@ -368,7 +378,21 @@ def decode (es : EncodedString r) : Option String := Id.run do
         ((decoded.push c).push h1, i + 2)
     else
       (decoded.push c, i + 1)
-  return String.fromUTF8? decoded
+  return decoded
+
+/--
+Decodes an `EncodedString` back to a regular `String`. Converts percent-encoded sequences (e.g., "%20")
+back to their original characters. Returns `none` if the decoded bytes are not valid UTF-8.
+-/
+def decode (es : EncodedString r) : Option String :=
+  String.fromUTF8? es.decodeBytes
+
+/--
+Decodes an `EncodedString` like `decode`, but replaces each byte sequence that is not valid UTF-8
+with U+FFFD instead of failing.
+-/
+def decodeLossy (es : EncodedString r) : String :=
+  String.fromUTF8Lossy es.decodeBytes
 
 instance : Repr (EncodedString r) where
   reprPrec es n := reprPrec (toString es) n
@@ -646,17 +670,22 @@ def decode (userInfo : EncodedUserInfo) : Option String :=
 end EncodedUserInfo
 
 /--
-A percent-encoded URI query parameter. Valid characters are `pchar / "/" / "?"` with '+' for spaces.
+A percent-encoded URI query parameter name or value. Valid characters are `pchar / "/" / "?"` except
+`&`, with '+' for spaces.
 -/
 abbrev EncodedQueryParam := EncodedQueryString isQueryDataChar
 
 namespace EncodedQueryParam
 
 /--
-Encodes a raw string into an encoded query parameter.
+Encodes a raw string into an encoded query parameter. `=` is percent-encoded along with `&`, so the
+result can serve as a name as well as a value.
 -/
 def encode (s : String) : EncodedQueryParam :=
-  EncodedQueryString.encode (r := isQueryDataChar) s
+  let encoded := EncodedQueryString.encode (r := isQueryNameChar) s
+  ⟨encoded.toByteArray, IsAllowedEncodedQueryChars.mono encoded.valid fun _ h => by
+    simp only [isQueryNameChar, Bool.and_eq_true] at h
+    exact h.1⟩
 
 /--
 Attempts to create an encoded query parameter from raw bytes.

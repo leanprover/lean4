@@ -149,7 +149,11 @@ end UserInfo
 
 /--
 Checks whether a single domain label is valid. A label must be non-empty, contain only ASCII
-alphanumeric characters and `-`, cannot start or end with `-`, and must be at most 63 characters.
+alphanumeric characters, `-` and `_`, cannot start or end with `-`, and must be at most 63
+characters.
+
+`_` is outside the RFC 1123 host-name syntax but is an RFC 3986 reg-name character, and names such as
+container service names use it.
 
 References:
 * https://www.rfc-editor.org/rfc/rfc1034.html#section-3.5
@@ -158,21 +162,22 @@ References:
 def isValidDomainLabel (s : String) : Bool :=
   let chars := s.toList
   decide (chars.length ≤ 63) &&
-    chars.all (fun c => isAsciiAlphaNumChar c ∨ c = '-') &&
-    (chars.head?.map isAsciiAlphaNumChar |>.getD false) &&
-    (chars.getLast?.map isAsciiAlphaNumChar |>.getD false)
+    chars.all (fun c => isAsciiAlphaNumChar c ∨ c = '-' ∨ c = '_') &&
+    (chars.head?.map (· != '-') |>.getD false) &&
+    (chars.getLast?.map (· != '-') |>.getD false)
 
 /--
 Proposition that asserts `s` is a valid dot-separated domain name.
 Each label must satisfy `IsValidDomainLabel`, and the full name must be at most 255 characters.
+A single trailing `.` (a fully qualified name such as `example.com.`) adds no label.
 -/
 abbrev IsValidDomainName (s : String) : Prop :=
-  let labels := s.split '.'
+  let labels := ((s.dropSuffix? ".").map (·.copy) |>.getD s).split '.'
   ¬labels.isEmpty ∧ labels.all (fun s => isValidDomainLabel s.copy) ∧ s.length ≤ 255
 
 /--
 A domain name represented as a validated, lowercase-normalized string.
-Only ASCII alphanumeric characters, hyphens, and dots are allowed.
+Only ASCII alphanumeric characters, `-`, `_` and dots are allowed.
 Each label cannot start or end with `-` and is limited to 63 characters.
 Internationalized domain names must be converted to punycode before use.
 

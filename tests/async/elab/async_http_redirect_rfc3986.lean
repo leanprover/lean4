@@ -241,7 +241,7 @@ def current : URI.Origin :=
 def planned (baseTarget : String) (location : Header.Value) : String × String :=
   let request : Request.Head :=
     { method := .get, version := .v11, uri := RequestTarget.parse! baseTarget }
-  match decideRedirect current request false .v11 .found (Headers.empty.insert .location location) with
+  match decideRedirect current request false .found (Headers.empty.insert .location location) with
   | .done => (notFollowed, "")
   | .follow p =>
     let (form, pathQuery) := match p.target with

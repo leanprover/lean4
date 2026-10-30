@@ -346,3 +346,31 @@ private def getEndHeadersHead (events : Array (Event .receiving)) : Option Reque
     match parseChunkSize {} input.toUTF8.iter with
     | .error _ .eof => pure ()
     | _ => throw <| IO.userError s!"expected .eof for truncated chunk-size line {input.quote}"
+
+-- The trailer section is consumed one field at a time: after a read that ends inside the second
+-- field, only that field is still buffered, so the next read does not parse the first one again.
+#eval show IO Unit from do
+  let input := "5\r\nhello\r\n0\r\nX-A: 1\r\nX-B: 2"
+  let trace := runIncrementalReceiving #[mkChunkedRequest "/inc-trailer-fields" input.toUTF8]
+  let name := "Trailer fields consumed one at a time"
+  ensure name (!trace.machine.failed) s!"machine ended failed with events:\n{repr trace.events}"
+  ensure name (trace.machine.reader.state matches .readBody (.trailers _ 1))
+    s!"unexpected reader state {repr trace.machine.reader.state}"
+  ensure name (trace.machine.reader.input.remainingBytes == "X-B: 2".length)
+    s!"expected only the incomplete field buffered, got {trace.machine.reader.input.remainingBytes} bytes"
+
+-- The trailer count limit and the forbidden-field check still apply when the section arrives one
+-- byte per read.
+#eval show IO Unit from do
+  let config : Protocol.H1.Config := { maxTrailerHeaders := 2 }
+  let atLimit := mkChunkedRequest "/inc-trailer-limit" "5\r\nhello\r\n0\r\nA: 1\r\nB: 2\r\n\r\n".toUTF8
+  let trace := runIncrementalReceiving (splitEveryByte atLimit) config
+  assertIncrementalSuccess "Trailers at the count limit, one byte per read" trace "hello".toUTF8
+  let overLimit := mkChunkedRequest "/inc-trailer-limit" "5\r\nhello\r\n0\r\nA: 1\r\nB: 2\r\nC: 3\r\n\r\n".toUTF8
+  let trace := runIncrementalReceiving (splitEveryByte overLimit) config
+  ensure "Trailers over the count limit, one byte per read" (trace.machine.error == some .badMessage)
+    s!"expected badMessage, got {repr trace.machine.error}"
+  let forbidden := mkChunkedRequest "/inc-trailer-forbidden" "5\r\nhello\r\n0\r\nA: 1\r\nContent-Length: 5\r\n\r\n".toUTF8
+  let trace := runIncrementalReceiving (splitEveryByte forbidden)
+  ensure "Forbidden trailer field, one byte per read" (trace.machine.error == some .badMessage)
+    s!"expected badMessage, got {repr trace.machine.error}"

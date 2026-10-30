@@ -473,7 +473,7 @@ Parses a trailer header (used after a chunked body), rejecting forbidden field n
 or connection management (`connection`, `te`, `upgrade`) are rejected to prevent trailer injection
 attacks where a downstream proxy might re-interpret them.
 -/
-def parseTrailerHeader (limits : H1.Config) : Parser (Option (String × String)) := do
+public def parseTrailerHeader (limits : H1.Config) : Parser (Option (String × String)) := do
   let result ← parseSingleHeader limits
   if let some (name, _) := result then
     if isForbiddenTrailerField name then
@@ -484,7 +484,8 @@ def parseTrailerHeader (limits : H1.Config) : Parser (Option (String × String))
 Parses trailer headers after a chunked body and returns them as an array of name-value pairs.
 
 This is exposed for callers that need the trailer values directly (e.g. clients). The
-internal protocol machine uses `parseLastChunkBody` instead, which discards trailer values.
+internal protocol machine parses the section one field at a time with `parseTrailerHeader`, and
+discards trailer values.
 -/
 public def parseTrailers (limits : H1.Config) : Parser (Array (String × String)) := do
   let trailers ← manyItems (parseTrailerHeader limits) limits.maxTrailerHeaders

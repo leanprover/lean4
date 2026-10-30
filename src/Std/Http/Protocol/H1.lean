@@ -1359,14 +1359,22 @@ private def parseChunkSizeBody (machine : Machine dir) :
     bodyNoProgress machine
 
 /--
-Parses trailers after a zero-size chunk and finalizes chunked body processing.
+Parses one line of the trailer section after a zero-size chunk, `count` fields into it. A trailer
+field is consumed on its own, as `processNeedHeader` does for header lines, so a read that ends
+inside the section does not make the next read parse the earlier fields again. The empty line that
+ends the section finalizes chunked body processing.
 -/
-private def parseLastChunkBodyState (machine : Machine dir)
-    (ext : Array (Chunk.ExtensionName × Option Chunk.ExtensionValue)) :
+private def parseTrailerState (machine : Machine dir)
+    (ext : Array (Chunk.ExtensionName × Option Chunk.ExtensionValue)) (count : Nat) :
     Machine dir × Option PulledChunk × Bool :=
-  let (machine, result) := parseWith machine (parseLastChunkBody machine.config) (limit := none)
+  let (machine, result) := parseWith machine (parseTrailerHeader machine.config) (limit := none)
   match result with
-  | some _ => emitBodyChunk machine .complete true false ext .empty (closeBody := true)
+  | some (some _) =>
+    if count ≥ machine.config.maxTrailerHeaders then
+      (machine.setFailure .badMessage, none, false)
+    else
+      (machine.setReaderState (.readBody (.trailers ext (count + 1))), none, true)
+  | some none => emitBodyChunk machine .complete true false ext .empty (closeBody := true)
   | none => bodyNoProgress machine
 
 /--
@@ -1412,8 +1420,9 @@ private def parseBody (machine : Machine dir) : Reader.BodyState → Machine dir
   | .fixed 0 => parseFixedZeroBody machine
   | .fixed size => parseFixedBody machine size
   | .chunkedSize => parseChunkSizeBody machine
-  | .chunkedBody ext 0 => parseLastChunkBodyState machine ext
+  | .chunkedBody ext 0 => parseTrailerState machine ext 0
   | .chunkedBody ext size => parseChunkedBodyState machine ext size
+  | .trailers ext count => parseTrailerState machine ext count
   | .closeDelimited => parseCloseDelimitedBody machine
 
 /--

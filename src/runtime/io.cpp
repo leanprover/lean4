@@ -384,6 +384,12 @@ extern "C" LEAN_EXPORT obj_res lean_decode_uv_error(int errnum, b_lean_obj_arg f
     return decode_uv_error_impl(errnum, -errnum, fname);
 }
 
+#ifdef LEAN_WINDOWS
+obj_res decode_win32_error(unsigned long code, b_obj_arg fname) {
+    return decode_uv_error(uv_translate_sys_error(code), fname);
+}
+#endif
+
 // Used for when you try to convert a string with NUL bytes into a C string
 obj_res mk_embedded_nul_error(b_obj_arg str) {
     lean_inc(str);
@@ -460,7 +466,7 @@ extern "C" LEAN_EXPORT obj_res lean_io_prim_handle_lock(b_obj_arg h, uint8_t x) 
     if (LockFileEx(wh, flags, 0, MAXDWORD, MAXDWORD, &o)) {
         return io_result_mk_ok(box(0));
     } else {
-        return io_result_mk_error((sstream() << GetLastError()).str());
+        return io_result_mk_error(decode_win32_error(GetLastError(), nullptr));
     }
 }
 
@@ -475,7 +481,7 @@ extern "C" LEAN_EXPORT obj_res lean_io_prim_handle_try_lock(b_obj_arg h, uint8_t
         if (GetLastError() == ERROR_LOCK_VIOLATION) {
             return io_result_mk_ok(box(0));
         } else {
-            return io_result_mk_error((sstream() << GetLastError()).str());
+            return io_result_mk_error(decode_win32_error(GetLastError(), nullptr));
         }
     }
 }
@@ -491,7 +497,7 @@ extern "C" LEAN_EXPORT obj_res lean_io_prim_handle_unlock(b_obj_arg h) {
             // For consistency with Unix
             return io_result_mk_ok(box(0));
         } else {
-            return io_result_mk_error((sstream() << GetLastError()).str());
+            return io_result_mk_error(decode_win32_error(GetLastError(), nullptr));
         }
     }
 }
@@ -1223,6 +1229,13 @@ extern "C" LEAN_EXPORT obj_res lean_io_remove_dir(b_obj_arg p) {
     }
 }
 
+// The file name reported when `rename` or `renameIfNew` fails.
+static object_ref rename_error_name(const char * from_str, const char * to_str) {
+    std::ostringstream s;
+    s << from_str << " and/or " << to_str;
+    return object_ref(mk_string(s.str()));
+}
+
 extern "C" LEAN_EXPORT obj_res lean_io_rename(b_obj_arg from, b_obj_arg to) {
     const char* from_str = string_cstr(from);
     if (strlen(from_str) != lean_string_size(from) - 1) {
@@ -1238,17 +1251,16 @@ extern "C" LEAN_EXPORT obj_res lean_io_rename(b_obj_arg from, b_obj_arg to) {
     // with the unix-like OSs
     bool ok = MoveFileEx(from_str, to_str, MOVEFILE_REPLACE_EXISTING) != 0;
     if (!ok) {
-        // TODO: actually produce the right type of IO error
-        return io_result_mk_error((sstream()
-            << "failed to rename '" << from_str << "' to '" << to_str << "': " << GetLastError()).str());
+        DWORD err = GetLastError(); // before `rename_error_name` allocates, which may overwrite it
+        object_ref out = rename_error_name(from_str, to_str);
+        return io_result_mk_error(decode_win32_error(err, out.raw()));
     }
 #else
     bool ok = std::rename(from_str, to_str) == 0;
     if (!ok) {
-        std::ostringstream s;
-        s << from_str << " and/or " << to_str;
-        object_ref out{mk_string(s.str())};
-        return io_result_mk_error(decode_io_error(errno, out.raw()));
+        int err = errno; // before `rename_error_name` allocates, which may overwrite it
+        object_ref out = rename_error_name(from_str, to_str);
+        return io_result_mk_error(decode_io_error(err, out.raw()));
     }
 #endif
     return io_result_mk_ok(box(0));
@@ -1266,9 +1278,9 @@ extern "C" LEAN_EXPORT obj_res lean_io_rename_if_new(b_obj_arg from, b_obj_arg t
 #ifdef LEAN_WINDOWS
     bool ok = MoveFileEx(from_str, to_str, 0) != 0;
     if (!ok) {
-        // TODO: actually produce the right type of IO error
-        return io_result_mk_error((sstream()
-            << "failed to rename '" << from_str << "' to '" << to_str << "': " << GetLastError()).str());
+        DWORD err = GetLastError(); // before `rename_error_name` allocates, which may overwrite it
+        object_ref out = rename_error_name(from_str, to_str);
+        return io_result_mk_error(decode_win32_error(err, out.raw()));
     }
 #else
 #if defined(__APPLE__)
@@ -1278,10 +1290,9 @@ extern "C" LEAN_EXPORT obj_res lean_io_rename_if_new(b_obj_arg from, b_obj_arg t
     bool ok = syscall(SYS_renameat2, AT_FDCWD, from_str, AT_FDCWD, to_str, RENAME_NOREPLACE) == 0;
 #endif
     if (!ok) {
-        std::ostringstream s;
-        s << from_str << " and/or " << to_str;
-        object_ref out{mk_string(s.str())};
-        return io_result_mk_error(decode_io_error(errno, out.raw()));
+        int err = errno; // before `rename_error_name` allocates, which may overwrite it
+        object_ref out = rename_error_name(from_str, to_str);
+        return io_result_mk_error(decode_io_error(err, out.raw()));
     }
 #endif
     return io_result_mk_ok(box(0));

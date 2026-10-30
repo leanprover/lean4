@@ -68,7 +68,7 @@ extern "C" LEAN_EXPORT obj_res lean_io_process_get_current_dir() {
     if (sz != 0) {
         return io_result_mk_ok(lean_mk_string_from_bytes(path, sz));
     } else {
-        return io_result_mk_error((sstream() << GetLastError()).str());
+        return io_result_mk_error(decode_win32_error(GetLastError(), nullptr));
     }
 }
 
@@ -76,7 +76,7 @@ extern "C" LEAN_EXPORT obj_res lean_io_process_set_current_dir(b_obj_arg path) {
     if (SetCurrentDirectory(string_cstr(path))) {
         return io_result_mk_ok(box(0));
     } else {
-        return io_result_mk_error((sstream() << GetLastError()).str());
+        return io_result_mk_error(decode_win32_error(GetLastError(), path));
     }
 }
 
@@ -92,10 +92,10 @@ extern "C" LEAN_EXPORT obj_res lean_io_process_child_wait(b_obj_arg, b_obj_arg c
     HANDLE h = static_cast<HANDLE>(lean_get_external_data(cnstr_get(child, 3)));
     DWORD exit_code;
     if (WaitForSingleObject(h, INFINITE) == WAIT_FAILED) {
-        return io_result_mk_error((sstream() << GetLastError()).str());
+        return io_result_mk_error(decode_win32_error(GetLastError(), nullptr));
     }
     if (!GetExitCodeProcess(h, &exit_code)) {
-        return io_result_mk_error((sstream() << GetLastError()).str());
+        return io_result_mk_error(decode_win32_error(GetLastError(), nullptr));
     }
     return lean_io_result_mk_ok(box_uint32(exit_code));
 }
@@ -105,12 +105,12 @@ extern "C" LEAN_EXPORT obj_res lean_io_process_child_try_wait(b_obj_arg, b_obj_a
     DWORD exit_code;
     DWORD ret = WaitForSingleObject(h, 0);
     if (ret == WAIT_FAILED) {
-        return io_result_mk_error((sstream() << GetLastError()).str());
+        return io_result_mk_error(decode_win32_error(GetLastError(), nullptr));
     } else if (ret == WAIT_TIMEOUT) {
         return io_result_mk_ok(mk_option_none());
     } else {
         if (!GetExitCodeProcess(h, &exit_code)) {
-            return io_result_mk_error((sstream() << GetLastError()).str());
+            return io_result_mk_error(decode_win32_error(GetLastError(), nullptr));
         }
         return lean_io_result_mk_ok(mk_option_some(box_uint32(exit_code)));
     }
@@ -119,7 +119,7 @@ extern "C" LEAN_EXPORT obj_res lean_io_process_child_try_wait(b_obj_arg, b_obj_a
 extern "C" LEAN_EXPORT obj_res lean_io_process_child_kill(b_obj_arg, b_obj_arg child) {
     HANDLE h = static_cast<HANDLE>(lean_get_external_data(cnstr_get(child, 3)));
     if (!TerminateProcess(h, 1)) {
-        return io_result_mk_error((sstream() << GetLastError()).str());
+        return io_result_mk_error(decode_win32_error(GetLastError(), nullptr));
     }
     return lean_io_result_mk_ok(box(0));
 }
@@ -585,6 +585,12 @@ extern "C" LEAN_EXPORT obj_res lean_io_process_spawn(obj_arg args_) {
     } catch (int err) {
         return lean_io_result_mk_error(decode_io_error(err, nullptr));
     } catch (std::system_error const & err) {
+#ifdef LEAN_WINDOWS
+        // On Windows, the `system_error`s thrown by `spawn` carry Win32 error codes.
+        if (err.code().category() == std::system_category()) {
+            return lean_io_result_mk_error(decode_win32_error(err.code().value(), nullptr));
+        }
+#endif
         // TODO: decode
         return lean_io_result_mk_error(lean_mk_io_error_other_error(err.code().value(), mk_string(err.code().message())));
     }

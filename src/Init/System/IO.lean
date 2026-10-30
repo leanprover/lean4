@@ -910,7 +910,11 @@ function](https://pubs.opengroup.org/onlinepubs/9699919799/functions/rename.html
 
 /--
 Moves a file or directory `old` to the new location `new`.
-Errors if `new` already exists.
+Errors with `IO.Error.alreadyExists` if `new` already exists.
+
+The check and the move are one atomic file system operation.  There is no fallback for file systems
+that do not support this: there the operation fails even if `new` does not exist, with an error that
+depends on the platform.
 -/
 @[extern "lean_io_rename_if_new"] opaque renameIfNew (old new : @& FilePath) : IO Unit
 

@@ -17,6 +17,11 @@ LEAN_EXPORT lean_obj_res io_result_mk_error(char const * msg);
 LEAN_EXPORT lean_obj_res io_result_mk_error(std::string const & msg);
 inline lean_obj_res decode_io_error(int errnum, b_lean_obj_arg fname) { return lean_decode_io_error(errnum, fname); }
 inline lean_obj_res decode_uv_error(int errnum, b_lean_obj_arg fname) { return lean_decode_uv_error(errnum, fname); }
+#ifdef LEAN_WINDOWS
+// Turns a Win32 error code, as returned by `GetLastError`, into an `IO.Error` through libuv's
+// `uv_translate_sys_error`. `fname` may be `nullptr`.
+LEAN_EXPORT lean_obj_res decode_win32_error(unsigned long code, b_lean_obj_arg fname);
+#endif
 inline lean_obj_res io_result_mk_uv_error(int errnum) { return io_result_mk_error(decode_uv_error(errnum, nullptr)); }
 inline lean_obj_res io_result_mk_enomem() { return io_result_mk_error(decode_io_error(ENOMEM, nullptr)); }
 LEAN_EXPORT lean_obj_res mk_embedded_nul_error(b_lean_obj_arg str);

@@ -355,6 +355,15 @@ def isClosed (stream : Stream) : Async Bool :=
     return st.closed && st.pushed.isEmpty
 
 /--
+Checks whether the channel is closed, so that nothing more can be sent to it, even if pushed chunks
+are still unread.
+-/
+@[always_inline, inline]
+def isClosedForSend (stream : Stream) : Async Bool :=
+  stream.state.atomically do
+    return (← get).closed
+
+/--
 Gets the known size if available.
 -/
 @[always_inline, inline]

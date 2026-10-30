@@ -34,6 +34,8 @@ private structure State where
   fired : Bool := false
   /-- The deadline the watchdog's timer is set for, or `none` while it waits without a timer. -/
   scheduled : Option Nat := none
+  /-- How many waits have ended, so that `armAfter` can tell whether its wait is still in progress. -/
+  ended : Nat := 0
 
 private inductive Step where
   | stop
@@ -137,18 +139,35 @@ def new (ctx : CancellationContext) : IO Watchdog := do
   return wd
 
 /--
-Starts a wait that must end by `deadline`, a value of `IO.monoMsNow`. Arming again before `disarm`
-replaces the deadline. Does nothing once the watchdog has fired.
+Sets the deadline of the current wait, unless the watchdog has fired or `ended` is given and is no
+longer the number of waits that have ended.
 -/
-def armUntil (wd : Watchdog) (deadline : Nat) : BaseIO Unit := do
+private def armUntilIf (wd : Watchdog) (ended : Option Nat) (deadline : Nat) : BaseIO Unit := do
   let wake ← wd.state.modifyGet fun s =>
-    if s.fired then
+    if s.fired || ended.any (· != s.ended) then
       (false, s)
     else
       -- Only a watchdog without a timer, or with one set for a later deadline, has to re-read it.
       (s.scheduled.all (deadline < ·), { s with waiting := true, deadline })
   if wake then
     (← wd.wake.get).resolve ()
+
+/--
+Starts a wait that must end by `deadline`, a value of `IO.monoMsNow`. Arming again before `disarm`
+replaces the deadline. Does nothing once the watchdog has fired.
+-/
+def armUntil (wd : Watchdog) (deadline : Nat) : BaseIO Unit :=
+  wd.armUntilIf none deadline
+
+/--
+Starts a wait that must end within `timeout` of `task` finishing, and that does not time out before
+then. If the wait ends before `task` finishes, nothing is armed.
+-/
+def armAfter (wd : Watchdog) (task : Task α) (timeout : Std.Time.Millisecond.Offset) :
+    BaseIO Unit := do
+  let ended := (← wd.state.get).ended
+  BaseIO.chainTask (sync := true) task fun _ => do
+    wd.armUntilIf (some ended) ((← IO.monoMsNow) + timeout.toInt.toNat)
 
 /--
 Starts a wait that must end within `timeout`. Arming again before `disarm` replaces the deadline.
@@ -162,7 +181,8 @@ Ends the current wait. Returns `true` if a wait outlived its deadline, in which 
 cancels its context with `.deadline`.
 -/
 def disarm (wd : Watchdog) : BaseIO Bool :=
-  wd.state.modifyGet fun s => if s.fired then (true, s) else (false, { s with waiting := false })
+  wd.state.modifyGet fun s =>
+    if s.fired then (true, s) else (false, { s with waiting := false, ended := s.ended + 1 })
 
 /--
 Returns `true` if a wait outlived its deadline.

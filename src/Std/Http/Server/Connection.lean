@@ -354,33 +354,44 @@ At most this many request body bytes are pushed to the request stream before its
 private def prefillLimit : Nat := 65536
 
 /--
+Pulls body chunks from `machine` into `stream` until the body ends, a pull finds no complete chunk
+or fails, or `bytes` reaches `prefillLimit`. Returns the machine after the last successful pull and
+whether the body ended.
+
+This is a recursion rather than a `while` loop, since an `Async` loop always continues in a new task.
+-/
+private partial def prefillChunks [Handler σ] (handler : σ) (stream : Body.Stream)
+    (machine : H1.Machine .receiving) (bytes : Nat) : Async (H1.Machine .receiving × Bool) := do
+  if bytes ≥ prefillLimit then
+    return (machine, false)
+  let (next, pulled?) := machine.pullBody
+  if next.failed then
+    return (machine, false)
+  let some pulled := pulled?
+    | return (machine, false)
+  try stream.push pulled.chunk pulled.incomplete
+  catch e => Handler.onFailure handler e
+  if pulled.final then
+    Body.close stream
+    return (next, true)
+  prefillChunks handler stream next (bytes + pulled.chunk.data.size)
+
+/--
 Pushes the request body bytes the machine already holds to the request stream, so that a handler
-reading a body that arrived with its head does not have to suspend. A pull the machine rejects is
-undone, so the request fails only once its handler reads that far, as when the body is pulled on
-demand.
+reading a body that arrived with its head does not have to suspend. A pull that the machine rejects
+or that finds no complete chunk is undone, so the rest of the body is pulled on demand and the
+request fails only once its handler reads that far. Also returns whether the whole body is in the
+stream.
 -/
 private def prefillRequestBody [Handler σ] (handler : σ) (state : ConnectionState β) :
-    Async (ConnectionState β) := do
-  if !state.machine.canPullBody || (← Body.isClosed state.requestStream) then
-    return state
+    Async (ConnectionState β × Bool) := do
+  if !state.machine.canPullBody then
+    return (state, ← state.requestStream.isClosedForSend)
+  if ← state.requestStream.isClosedForSend then
+    return (state, true)
 
-  let mut machine := state.machine
-  let mut bytes := 0
-  while bytes < prefillLimit do
-    let (next, pulled?) := machine.pullBody
-    if next.failed then
-      break
-    machine := next
-    let some pulled := pulled?
-      | break
-    bytes := bytes + pulled.chunk.data.size
-    try state.requestStream.push pulled.chunk pulled.incomplete
-    catch e => Handler.onFailure handler e
-    if pulled.final then
-      Body.close state.requestStream
-      break
-
-  return { state with machine }
+  let (machine, complete) ← prefillChunks handler state.requestStream state.machine 0
+  return ({ state with machine }, complete)
 
 /--
 How the connection loop runs handlers, shared with the cancellation watcher of `handle`.
@@ -392,20 +403,19 @@ private inductive Dispatch
   | spawn
   | inline
   | running
-  | runningBehindOutput
   | cancelled
 
 /--
 Runs the handler for the request head `line`.
-The handler runs inline until it first suspends, unless `dispatch` says otherwise. A handler that
-finishes without suspending returns its result directly; otherwise its result is routed back
-through `state.response`. Returns `none` when the cancellation watcher finished the connection
-while the handler ran.
+The handler runs inline until it first suspends, if `mayInline` and unless `dispatch` says
+otherwise. A handler that finishes without suspending returns its result directly; otherwise its
+result is routed back through `state.response`. Returns `none` when the cancellation watcher
+finished the connection while the handler ran.
 -/
 private def startHandler
     {σ : Type} [Handler σ]
     (handler : σ) (extensions : Extensions) (connectionContext : CancellationContext)
-    (dispatch : IO.Ref Dispatch) (respond : Bool) (line : Request.Head)
+    (dispatch : IO.Ref Dispatch) (mayInline : Bool) (line : Request.Head)
     (state : ConnectionState (Handler.ResponseBody σ))
     : Async (Option (ConnectionState (Handler.ResponseBody σ) ×
         Option (Except IO.Error (Response (Handler.ResponseBody σ))))) := do
@@ -416,16 +426,20 @@ private def startHandler
   -- One `BaseIO` action, since every `Async` bind here allocates its continuation up front.
   let started? : Option (MaybeTask (Except IO.Error (Response (Handler.ResponseBody σ)))) ←
     liftM (m := BaseIO) do
-      let inline ← dispatch.modifyGet fun
-        | .inline => (true, if respond then .running else .runningBehindOutput)
-        | d => (false, d)
+      let inline ←
+        if mayInline then
+          dispatch.modifyGet fun
+            | .inline => (true, .running)
+            | d => (false, d)
+        else
+          pure false
 
       unless inline do
         return some (MaybeTask.ofTask (← BaseAsync.asTask action))
 
       let started ← BaseAsync.toRawBaseIO action
       let kept ← dispatch.modifyGet fun
-        | .running | .runningBehindOutput => (true, .inline)
+        | .running => (true, .inline)
         | d => (false, d)
 
       if kept then
@@ -456,7 +470,7 @@ already received to the request stream. See `startHandler`.
 private def dispatchPendingRequest
     {σ : Type} [Handler σ]
     (handler : σ) (extensions : Extensions) (connectionContext : CancellationContext)
-    (dispatch : IO.Ref Dispatch) (respond : Bool)
+    (dispatch : IO.Ref Dispatch)
     (state : ConnectionState (Handler.ResponseBody σ))
     : Async (Option (ConnectionState (Handler.ResponseBody σ) ×
         Option (Except IO.Error (Response (Handler.ResponseBody σ))))) := do
@@ -466,10 +480,12 @@ private def dispatchPendingRequest
   let state := { state with pendingHead := none }
   -- A request without a body skips the pre-fill, whose `Async` bind would allocate for it.
   if state.machine.reader.state matches .readBody (.fixed 0) then
-    startHandler handler extensions connectionContext dispatch respond line state
+    startHandler handler extensions connectionContext dispatch true line state
   else
-    startHandler handler extensions connectionContext dispatch respond line
-      (← prefillRequestBody handler state)
+    let (state, complete) ← prefillRequestBody handler state
+    -- Only the loop delivers the rest of a body, so a handler that blocks its thread waiting for it
+    -- must not run on the loop's thread.
+    startHandler handler extensions connectionContext dispatch complete line state
 
 /--
 Attempts a single non-blocking receive from the body and feeds any available chunk
@@ -600,8 +616,9 @@ private def buildPollSources
     {α β : Type} [Transport α]
     (socket : α) (connectionContext : CancellationContext) (state : ConnectionState β)
     : Async (PollSources α β) := do
+  -- A stream its reader closed is done even while pushed chunks are left unread in it.
   let requestBodyOpen ←
-    if state.machine.canPullBody then pure !(← Body.isClosed state.requestStream)
+    if state.machine.canPullBody then pure !(← state.requestStream.isClosedForSend)
     else pure false
 
   let requestBodyInterested ←
@@ -672,29 +689,111 @@ private def continueWith (task : ETask IO.Error α) (k : Except IO.Error α → 
   BaseAsync.ofTask (Task.map (sync := true) (fun result => (Except.ok (k result) : Except IO.Error β)) task)
 
 /--
-Waits for a write to complete; free when it already has.
+The state of an `Outbox`.
 -/
-@[inline]
-private def awaitWrite (write : ETask IO.Error Unit) : Async (Except IO.Error Unit) := do
-  if ← IO.hasFinished write then
-    return write.get
-  else
-    continueWith write id
+private structure OutboxState where
+  /-- Output handed over while a write was in flight, written together once it completes. -/
+  queued : Array ByteArray := #[]
+  queuedBytes : Nat := 0
+  writing : Bool := false
+  /-- A write failed, so later output is dropped. -/
+  failed : Bool := false
+  /-- The failure, until it is reported to the handler. -/
+  error : Option IO.Error := none
+  /-- Resolved once no write is in flight. -/
+  idle : Option (IO.Promise Unit) := none
 
 /--
-Output of the connection that is not written yet, and the last write. A write is awaited only
-before the next one starts and when the connection ends, so the connection never waits for its own
-output while it has other work.
+Writes a connection's output in order without the connection waiting for it: output handed over
+while a write is in flight goes out in a single write once that write completes. The responses to
+earlier requests thus keep going out while a handler blocks the connection's thread, and the
+cancellation watcher can answer after them.
+-/
+private abbrev Outbox := IO.Ref OutboxState
+
+namespace Outbox
+
+/--
+Starts writing `data`, then whatever was queued meanwhile once the write completes. The next write
+starts on the thread that completed the previous one, which for a socket is the event loop's own, so
+it does not have to wait for the event loop.
+-/
+private partial def write [Transport α] (outbox : Outbox) (socket : α) (data : Array ByteArray) :
+    BaseIO Unit := do
+  let task ← EAsync.toBaseIO (Transport.sendAll socket data)
+  BaseIO.chainTask (sync := true) task fun result => do
+    let (next, idle) ← outbox.modifyGet fun s =>
+      match result with
+      | .error err =>
+        ((#[], s.idle), { s with
+          queued := #[], queuedBytes := 0, writing := false, failed := true, error := some err
+          idle := none })
+      | .ok () =>
+        if s.queued.isEmpty then ((#[], s.idle), { s with writing := false, idle := none })
+        else ((s.queued, none), { s with queued := #[], queuedBytes := 0 })
+    if let some idle := idle then
+      idle.resolve ()
+    unless next.isEmpty do
+      outbox.write socket next
+
+/--
+Hands `data`, `size` bytes, to the outbox, which writes it after everything handed over before.
+-/
+private def send [Transport α] (outbox : Outbox) (socket : α) (data : Array ByteArray) (size : Nat) :
+    BaseIO Unit := do
+  if data.isEmpty then
+    return
+  let start ← outbox.modifyGet fun s =>
+    if s.failed then (false, s)
+    else if s.writing then
+      (false, { s with queued := s.queued ++ data, queuedBytes := s.queuedBytes + size })
+    else (true, { s with writing := true })
+  if start then
+    outbox.write socket data
+
+/--
+A task that finishes once no write is in flight, or `none` if none is.
+-/
+private def idle? (outbox : Outbox) : BaseIO (Option (Task (Option Unit))) := do
+  unless (← outbox.get).writing do
+    return none
+  let fresh ← IO.Promise.new
+  outbox.modifyGet fun s =>
+    if !s.writing then (none, s)
+    else match s.idle with
+      | some idle => (some idle.result?, s)
+      | none => (some fresh.result?, { s with idle := some fresh })
+
+/--
+Waits until no write is in flight.
+-/
+private def awaitIdle (outbox : Outbox) : Async Unit := do
+  if let some idle ← outbox.idle? then
+    BaseAsync.ofTask (Task.map (sync := true) (fun _ => (Except.ok () : Except IO.Error Unit)) idle)
+
+/--
+Reports a failed write to the handler, once. Returns `false` if a write failed.
+-/
+private def check [Handler σ] (handler : σ) (outbox : Outbox) : Async Bool := do
+  unless (← outbox.get).failed do
+    return true
+  if let some err ← outbox.modifyGet fun s => (s.error, { s with error := none }) then
+    Handler.onFailure handler err
+  return false
+
+end Outbox
+
+/--
+Output of the connection not handed to its outbox yet.
 -/
 private structure Output where
   pending : Array ByteArray := #[]
   pendingBytes : Nat := 0
-  inFlight : Option (ETask IO.Error Unit) := none
 
 namespace Output
 
 /--
-Output is buffered up to this many bytes while further pipelined requests are processed.
+The outbox queues up to this many bytes before the connection waits for its writes.
 -/
 private def limit : Nat := 65536
 
@@ -703,31 +802,41 @@ private def push (out : Output) (buffer : Internal.ChunkedBuffer) : Output :=
   else { out with pending := out.pending ++ buffer.data, pendingBytes := out.pendingBytes + buffer.size }
 
 /--
-Starts writing the pending output once the previous write completes, in a single write. Returns
-`none` after reporting a failed write to the handler.
+Hands the pending output to `outbox`, waiting for its writes once it queues more than `limit` bytes,
+so a peer that does not read holds up the connection instead of growing its memory. Returns `false`
+after reporting a failed write to the handler.
 -/
-private def flush [Transport α] [Handler σ] (handler : σ) (socket : α) (out : Output) :
-    Async (Option Output) := do
+private def flush [Transport α] [Handler σ] (handler : σ) (socket : α) (outbox : Outbox)
+    (out : Output) : Async Bool := do
   if out.pending.isEmpty then
-    return some out
-  if let some previous := out.inFlight then
-    if let .error err ← awaitWrite previous then
-      Handler.onFailure handler err
-      return none
-  return some { inFlight := some (← EAsync.toBaseIO (Transport.sendAll socket out.pending)) }
+    return true
+  outbox.send socket out.pending out.pendingBytes
+  if (← outbox.get).queuedBytes ≥ limit then
+    outbox.awaitIdle
+  outbox.check handler
 
 /--
-Writes the pending output and waits until every write has completed.
+Hands the pending output to `outbox` and waits until every write has completed.
 -/
-private def finish [Transport α] [Handler σ] (handler : σ) (socket : α) (out : Output) :
-    Async Unit := do
-  let some out ← out.flush handler socket
-    | return
-  if let some write := out.inFlight then
-    if let .error err ← awaitWrite write then
-      Handler.onFailure handler err
+private def finish [Transport α] [Handler σ] (handler : σ) (socket : α) (outbox : Outbox)
+    (out : Output) : Async Unit := do
+  outbox.send socket out.pending out.pendingBytes
+  outbox.awaitIdle
+  discard <| outbox.check handler
 
 end Output
+
+/--
+Times a wait on the socket with the watchdog. The keep-alive timeout of an idle connection starts
+only once its writes complete, since the peer may still be reading the response.
+-/
+private def armSocketWait (wd : Watchdog) (outbox : Outbox) (state : ConnectionState β) :
+    BaseIO Unit := do
+  if state.idle then
+    if let some idle ← outbox.idle? then
+      wd.armAfter idle state.currentTimeout
+      return
+  wd.armUntil (← socketDeadline state)
 
 private structure Loop (β : Type) where
   state : ConnectionState β
@@ -754,12 +863,12 @@ wait costs no task of its own; otherwise it selects over every active source.
 -/
 private def wait [Transport α] [Handler σ] [Body β] (socket : α) (config : Config) (handler : σ)
     (connectionContext : CancellationContext) (wd : Watchdog) (interrupt? : Option (α → IO Unit))
-    (state : ConnectionState β) (k : Input β → γ) : Async γ := do
+    (outbox : Outbox) (state : ConnectionState β) (k : Input β → γ) : Async γ := do
   let sources ← buildPollSources socket connectionContext state
   if sources.socket.isNone then
     selectNext config handler wd sources k
   else
-    wd.armUntil (← socketDeadline state)
+    armSocketWait wd outbox state
     match interrupt? with
     | some interrupt =>
       if sources.socketOnly then
@@ -781,7 +890,7 @@ private def iterate
     {σ : Type} [Transport α] [Handler σ] [Body (Handler.ResponseBody σ)]
     (socket : α) (config : Config) (handler : σ) (extensions : Extensions)
     (connectionContext : CancellationContext) (wd : Watchdog) (interrupt? : Option (α → IO Unit))
-    (dispatch : IO.Ref Dispatch)
+    (dispatch : IO.Ref Dispatch) (outbox : Outbox)
     (loop : Loop (Handler.ResponseBody σ)) : Async (ForInStep (Loop (Handler.ResponseBody σ))) := do
   let mut state := loop.state
   let mut output := loop.output
@@ -799,15 +908,22 @@ private def iterate
   state := { state with machine }
   output := output.push step.output
   if output.pendingBytes ≥ Output.limit then
-    let some flushed ← output.flush handler socket
-      | return .done { state }
-    output := flushed
+    unless ← output.flush handler socket outbox do
+      return .done { state }
+    output := {}
 
   state ← processH1Events handler config connectionContext step.events state
 
+  -- A handler that blocks its thread holds up the loop, so the responses to earlier pipelined
+  -- requests are handed over first.
+  if state.pendingHead.isSome && !output.pending.isEmpty then
+    unless ← output.flush handler socket outbox do
+      return .done { state }
+    output := {}
+
   -- A handler that finishes without suspending is answered within this iteration.
   let some (newState, result?) ← dispatchPendingRequest handler extensions connectionContext dispatch
-      output.pending.isEmpty state
+      state
     | return .done { state, output, abandoned := true }
 
   state := newState
@@ -820,13 +936,13 @@ private def iterate
   unless state.needsEvent do
     return .yield { state, output }
 
-  let some flushed ← output.flush handler socket
-    | return .done { state }
+  unless ← output.flush handler socket outbox do
+    return .done { state }
 
   state := { state with requiresData := false }
 
-  wait socket config handler connectionContext wd interrupt? state fun input =>
-    .yield { state, input, output := flushed }
+  wait socket config handler connectionContext wd interrupt? outbox state fun input =>
+    .yield { state, input }
 
 /--
 Runs the request/response processing loop for a single connection until it ends, then writes the
@@ -837,7 +953,7 @@ private def run
     {σ : Type} [Transport α] [h : Handler σ]
     (connection : Connection α) (config : Config) (handler : σ)
     (connectionContext : CancellationContext) (wd : Watchdog) (interrupt? : Option (α → IO Unit))
-    (dispatch : IO.Ref Dispatch) : Async Bool := do
+    (dispatch : IO.Ref Dispatch) (outbox : Outbox) : Async Bool := do
 
   let _ : Body (Handler.ResponseBody σ) := Handler.responseBodyInstance
 
@@ -855,7 +971,8 @@ private def run
   let final ←
     try
       EAsync.forIn init fun _ loop =>
-        iterate socket config handler connection.extensions connectionContext wd interrupt? dispatch loop
+        iterate socket config handler connection.extensions connectionContext wd interrupt? dispatch
+          outbox loop
     finally
       connectionContext.cancel .cancel
 
@@ -864,7 +981,7 @@ private def run
       Body.close final.state.requestStream
     return false
 
-  final.output.finish handler socket
+  final.output.finish handler socket outbox
 
   -- Close all open streams and the socket.
   let state := final.state
@@ -879,27 +996,27 @@ private def run
 
 /--
 Finishes a connection whose loop is held up by a handler running inline: answers the request as
-the loop would have, if `respond`, then closes the socket. The loop closes the request body once
-the handler returns.
+the loop would have, after the output the loop handed to `outbox`, then closes the socket. The loop
+closes the request body once the handler returns.
 -/
 private def abandon
     {σ : Type} [Transport α] [Handler σ]
     (connection : Connection α) (handler : σ) (wd : Watchdog) (ctx : CancellationContext)
-    (respond : Bool) : Async Unit := do
-  if respond then
-    let status ←
-      match ← cancelledEvent (β := Unit) wd ctx false with
-      | .timeout =>
-        Handler.onFailure handler "request header timeout"
-        pure Status.requestTimeout
-      | _ => pure Status.serviceUnavailable
+    (outbox : Outbox) : Async Unit := do
+  let status ←
+    match ← cancelledEvent (β := Unit) wd ctx false with
+    | .timeout =>
+      Handler.onFailure handler "request header timeout"
+      pure Status.requestTimeout
+    | _ => pure Status.serviceUnavailable
 
-    -- The writer of a fresh machine answers once it has seen a request.
-    let machine := connection.machine
-    let machine := { machine with writer := { machine.writer with state := .waitingHeaders } }
-    let (_, step) := (machine.closeWithError status).step
-    try Transport.sendAll connection.socket step.output.data
-    catch e => Handler.onFailure handler e
+  -- The writer of a fresh machine answers once it has seen a request.
+  let machine := connection.machine
+  let machine := { machine with writer := { machine.writer with state := .waitingHeaders } }
+  let (_, step) := (machine.closeWithError status).step
+  outbox.send connection.socket step.output.data step.output.size
+  outbox.awaitIdle
+  discard <| outbox.check handler
 
   Transport.close connection.socket
 
@@ -923,6 +1040,7 @@ private def handle
   let wd ← Watchdog.new connectionContext
   let interrupt? := Transport.interruptRecv? (α := α)
   let dispatch ← IO.mkRef Dispatch.spawn
+  let outbox : Outbox ← IO.mkRef {}
   let finished : IO.Promise (Except IO.Error Unit) ← IO.Promise.new
 
   BaseIO.chainTask (← connectionContext.done) fun _ => do
@@ -930,16 +1048,15 @@ private def handle
       discard <| (interrupt socket).toBaseIO
 
     let running ← dispatch.modifyGet fun
-      | .running => (some true, .cancelled)
-      | .runningBehindOutput => (some false, .cancelled)
-      | _ => (none, .cancelled)
+      | .running => (true, .cancelled)
+      | _ => (false, .cancelled)
 
-    if let some respond := running then
-      let task ← (abandon connection handler wd connectionContext respond).toBaseIO
+    if running then
+      let task ← (abandon connection handler wd connectionContext outbox).toBaseIO
       BaseIO.chainTask (sync := true) task finished.resolve
 
   -- Until this returns, the loop runs on this call's own stack, so handlers have to be spawned.
-  let task ← (run connection config handler connectionContext wd interrupt? dispatch).toBaseIO
+  let task ← (run connection config handler connectionContext wd interrupt? dispatch outbox).toBaseIO
   BaseIO.chainTask (sync := true) task fun
     | .ok true => finished.resolve (.ok ())
     | .ok false => pure ()

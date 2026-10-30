@@ -76,8 +76,19 @@ private def resumePostponed (savedContext : SavedContext) (stx : Syntax) (mvarId
 /--
   Similar to `synthesizeInstMVarCore`, but makes sure that `instMVar` local context and instances
   are used. It also logs any error message produced. -/
+register_builtin_option Elab.tcSkipUnchanged : Bool := {
+  defValue := false
+  descr := "skip re-attempting a pending typeclass metavariable whose instantiated goal     type is unchanged since its last failed attempt (the outcome is deterministic in the     goal, so re-attempting is wasted work; the resumption loop is otherwise quadratic in     the number of chained pending instances)"
+}
+
 private def synthesizePendingInstMVar (instMVar : MVarId) (extraErrorMsg? : Option MessageData := none): TermElabM Bool :=
   instMVar.withContext do
+    if Elab.tcSkipUnchanged.get (← getOptions) then
+      let type ← instantiateMVars (← instMVar.getType)
+      if let some prev := (← get).tcSynthAttempt.get? instMVar then
+        if prev == type then
+          return false
+      modify fun s => { s with tcSynthAttempt := s.tcSynthAttempt.insert instMVar type }
     try
       synthesizeInstMVarCore instMVar (extraErrorMsg? := extraErrorMsg?)
     catch

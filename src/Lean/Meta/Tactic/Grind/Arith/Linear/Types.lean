@@ -137,7 +137,11 @@ structure Struct where
   leInst?            : Option Expr
   /-- `LT` instance if available -/
   ltInst?            : Option Expr
-  /-- `LawfulOrderLT` instance if available -/
+  /--
+  `LawfulOrderLT` instance if available. Every `linarith` theorem about `<` assumes it, so `<`
+  facts, negated facts, disequality splits, and the `OrderedRing` facts `0 < 1`, `0 ≠ 1`, and
+  `0 ≤ ↑n` are only processed when it is available.
+  -/
   lawfulOrderLTInst? : Option Expr
   /-- `IsPreorder` instance if available -/
   isPreorderInst?    : Option Expr

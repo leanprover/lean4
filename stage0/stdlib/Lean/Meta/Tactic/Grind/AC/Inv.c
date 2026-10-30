@@ -18,7 +18,7 @@ lean_object* lean_obj_tag_nat(lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Grind_instInhabitedGoalM___redArg();
-lean_object* l_instInhabitedForall___redArg___lam__0___boxed(lean_object*, lean_object*);
+lean_object* l_instInhabitedReaderT___redArg___lam__0___boxed(lean_object*, lean_object*);
 lean_object* lean_panic_fn_borrowed(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Grind_AC_isIdempotent(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Grind_AC_Seq_noAdjacentDuplicates(lean_object*);
@@ -169,7 +169,7 @@ _start:
 {
 lean_object* v___x_15_; lean_object* v___f_16_; lean_object* v___x_4704__overap_17_; lean_object* v___x_18_; 
 v___x_15_ = lean_obj_once(&l_panic___at___00__private_Lean_Meta_Tactic_Grind_AC_Inv_0__Lean_Meta_Grind_AC_checkVars_spec__0___closed__0, &l_panic___at___00__private_Lean_Meta_Tactic_Grind_AC_Inv_0__Lean_Meta_Grind_AC_checkVars_spec__0___closed__0_once, _init_l_panic___at___00__private_Lean_Meta_Tactic_Grind_AC_Inv_0__Lean_Meta_Grind_AC_checkVars_spec__0___closed__0);
-v___f_16_ = lean_alloc_closure((void*)(l_instInhabitedForall___redArg___lam__0___boxed), 2, 1);
+v___f_16_ = lean_alloc_closure((void*)(l_instInhabitedReaderT___redArg___lam__0___boxed), 2, 1);
 lean_closure_set(v___f_16_, 0, v___x_15_);
 v___x_4704__overap_17_ = lean_panic_fn_borrowed(v___f_16_, v_msg_2_);
 lean_dec_ref(v___f_16_);
@@ -212,7 +212,7 @@ _start:
 {
 lean_object* v___x_46_; lean_object* v___f_47_; lean_object* v___x_4722__overap_48_; lean_object* v___x_49_; 
 v___x_46_ = lean_obj_once(&l_panic___at___00__private_Lean_Meta_Tactic_Grind_AC_Inv_0__Lean_Meta_Grind_AC_checkVars_spec__0___closed__0, &l_panic___at___00__private_Lean_Meta_Tactic_Grind_AC_Inv_0__Lean_Meta_Grind_AC_checkVars_spec__0___closed__0_once, _init_l_panic___at___00__private_Lean_Meta_Tactic_Grind_AC_Inv_0__Lean_Meta_Grind_AC_checkVars_spec__0___closed__0);
-v___f_47_ = lean_alloc_closure((void*)(l_instInhabitedForall___redArg___lam__0___boxed), 2, 1);
+v___f_47_ = lean_alloc_closure((void*)(l_instInhabitedReaderT___redArg___lam__0___boxed), 2, 1);
 lean_closure_set(v___f_47_, 0, v___x_46_);
 v___x_4722__overap_48_ = lean_panic_fn_borrowed(v___f_47_, v_msg_33_);
 lean_dec_ref(v___f_47_);
@@ -2020,7 +2020,7 @@ _start:
 {
 lean_object* v___x_901_; lean_object* v___f_902_; lean_object* v___x_3442__overap_903_; lean_object* v___x_904_; 
 v___x_901_ = lean_obj_once(&l_panic___at___00__private_Lean_Meta_Tactic_Grind_AC_Inv_0__Lean_Meta_Grind_AC_checkVars_spec__0___closed__0, &l_panic___at___00__private_Lean_Meta_Tactic_Grind_AC_Inv_0__Lean_Meta_Grind_AC_checkVars_spec__0___closed__0_once, _init_l_panic___at___00__private_Lean_Meta_Tactic_Grind_AC_Inv_0__Lean_Meta_Grind_AC_checkVars_spec__0___closed__0);
-v___f_902_ = lean_alloc_closure((void*)(l_instInhabitedForall___redArg___lam__0___boxed), 2, 1);
+v___f_902_ = lean_alloc_closure((void*)(l_instInhabitedReaderT___redArg___lam__0___boxed), 2, 1);
 lean_closure_set(v___f_902_, 0, v___x_901_);
 v___x_3442__overap_903_ = lean_panic_fn_borrowed(v___f_902_, v_msg_888_);
 lean_dec_ref(v___f_902_);
@@ -4071,7 +4071,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Grind_AC_checkInvariants(lean_object* v_a_1
 _start:
 {
 uint8_t v_debug_1754_; 
-v_debug_1754_ = lean_ctor_get_uint8(v_a_1745_, sizeof(void*)*10 + 2);
+v_debug_1754_ = lean_ctor_get_uint8(v_a_1745_, sizeof(void*)*12 + 3);
 if (v_debug_1754_ == 0)
 {
 lean_object* v___x_1755_; lean_object* v___x_1756_; 

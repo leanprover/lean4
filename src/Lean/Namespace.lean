@@ -20,7 +20,7 @@ abbrev State := SMap Name Environment.Visibility
 /--
 Environment extension for tracking all `namespace` declared by users.
 -/
-private builtin_initialize namespacesExt : PersistentEnvExtension Name Name State ←
+builtin_initialize namespacesExt : PersistentEnvExtension Name Name State ←
   registerPersistentEnvExtension {
     mkInitial       := pure {}
     addImportedFn   := fun as => do

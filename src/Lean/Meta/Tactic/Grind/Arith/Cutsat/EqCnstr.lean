@@ -17,6 +17,7 @@ import Lean.Meta.Tactic.Grind.Arith.Cutsat.CommRing
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Norm
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Util
 import Lean.Meta.Sym.Arith.EvalNum
+import Lean.Meta.Sym.Arith.Classify
 import Lean.Meta.NatInstTesters
 import Init.Omega
 public section
@@ -93,6 +94,7 @@ def DiseqCnstr.assert (c : DiseqCnstr) : GoalM Unit := do
   if (← c.findLe) then
     return ()
   let .add _ x _ := c.p | c.throwUnexpected
+  let c ← c.markStored
   c.p.updateOccs
   trace[grind.lia.assert.store] "{← c.pp}"
   modify' fun s => { s with diseqs := s.diseqs.modify x (·.push c) }
@@ -299,7 +301,7 @@ private def updateElimEqs (a : Int) (x : Var) (c : EqCnstr) (y : Var) : GoalM Un
   let some c₂ := (← get').elimEqs[y]! | return ()
   let b := c₂.p.coeff x
   if b == 0 then return ()
-  let c₂ := { p := c₂.p.mul a |>.combine (c.p.mul (-b)), h := .subst x c₂ c : EqCnstr }
+  let c₂ ← { p := c₂.p.mul a |>.combine (c.p.mul (-b)), h := .subst x c₂ c : EqCnstr }.markStored
   trace[grind.debug.lia.elimEq] "updated: {← getVar y}, {← c₂.pp}"
   modify' fun s => { s with elimEqs := s.elimEqs.set y (some c₂) }
   propagateNonlinearTerms y
@@ -340,9 +342,64 @@ partial def _root_.Int.Internal.Linear.Poly.updateOccsForElimEq (p : Poly) (x : 
     go p
   go p
 
+/-- Eliminates `x` using `c`, where `k` is the coefficient of `x` in `c.p` and `|k| = 1`. -/
+private def EqCnstr.elimVar (c : EqCnstr) (k : Int) (x : Var) : GoalM Unit := do
+  let c ← c.markStored
+  trace[grind.debug.lia.subst] ">> {← getVar x}, {← c.pp}"
+  trace[grind.lia.assert.store] "{← c.pp}"
+  trace[grind.debug.lia.elimEq] "{← getVar x}, {← c.pp}"
+  if (← c.satisfied) == .false then
+    resetAssignmentFrom x
+  modify' fun s => { s with
+    elimEqs := s.elimEqs.set x (some c)
+    elimStack := x :: s.elimStack
+  }
+  updateOccs k x c
+  c.p.updateOccsForElimEq x
+  if (← inconsistent) then return ()
+  propagateNonlinearTerms x
+
+private def _root_.Int.Internal.Linear.Poly.toLinearExpr : Poly → Int.Internal.Linear.Expr
+  | .num k => .num k
+  | .add k x p => .add (.mulL k (.var x)) (toLinearExpr p)
+
+/-- Builds the term denoted by `e`, mirroring `Int.Internal.Linear.Expr.denote`. -/
+private def denoteLinearExpr : Int.Internal.Linear.Expr → GoalM Expr
+  | .num k => return toExpr k
+  | .var x => getVar x
+  | .add a b => return mkIntAdd (← denoteLinearExpr a) (← denoteLinearExpr b)
+  | .mulL k a => return mkIntMul (toExpr k) (← denoteLinearExpr a)
+  | e => throwError "`grind` internal error, unexpected linear expression {repr e}"
+
+/--
+Eliminates `x`, whose coefficient `k` in `c.p` is the smallest in absolute value and not a unit,
+as in the Omega test. Let `m := |k| + 1` and `p̄` be `c.p` with its coefficients reduced modulo `m`
+using balanced residues. Since `c.p = 0`, `m ∣ p̄`, and the coefficient of `x` in `p̄` is `∓1`.
+The term `t := p̄ / m` is a new variable `σ` with `p̄ - m*σ = 0`, which eliminates `x` exactly.
+`c` is then reasserted with `x` substituted; its coefficients shrink by a factor of about `2/3` per
+round, so a unit coefficient appears after logarithmically many rounds. This keeps the coefficients
+of all other constraints small, whereas eliminating `x` by the scaled solved form `k*x = ...`
+multiplies them by `k`.
+-/
+private def EqCnstr.elimNonUnit (c : EqCnstr) (k : Int) (x : Var) : GoalM Unit := do
+  let m : Int := k.natAbs + 1
+  let dvd : DvdCnstr := { d := m, p := c.p.bmodCoeffs m.natAbs, h := .bmodCoeffs { d := m, p := c.p, h := .ofEqZero c } 1 }
+  let e := dvd.p.toLinearExpr
+  let a ← shareCommon (← denoteLinearExpr e)
+  let t ← shareCommon (mkIntDiv a (toExpr m))
+  -- `t` must be internalized in the core, but `expandDivMod` facts would be redundant with `c'`.
+  modify' fun s => { s with divMod := s.divMod.insert (a, m) }
+  internalize t (← getGeneration (← getVar x))
+  let σ ← mkVar t
+  let c' : EqCnstr := { p := .add (-m) σ dvd.p, h := .ofDvdDiv dvd e σ t }
+  trace[grind.debug.lia.elimEq] "omega step for {← getVar x}: {← c'.pp}"
+  c'.elimVar (c'.p.coeff x) x
+  if (← inconsistent) then return ()
+  c.assert
+
 set_option compiler.ignoreBorrowAnnotation true in
 @[export lean_grind_cutsat_assert_eq]
-def EqCnstr.assertImpl (c : EqCnstr) : GoalM Unit := do
+def EqCnstr.assertImpl (c : EqCnstr) : GoalM Unit := withIncRecDepth do
   if (← inconsistent) then return ()
   trace[grind.lia.assert] "{← c.pp}"
   let c ← c.norm.applySubsts
@@ -362,25 +419,10 @@ def EqCnstr.assertImpl (c : EqCnstr) : GoalM Unit := do
   else
     { p := c.p.div k, h := .divCoeffs c }
   let some (k, x) := c.p.pickVarToElim? | c.throwUnexpected
-  trace[grind.debug.lia.subst] ">> {← getVar x}, {← c.pp}"
-  trace[grind.lia.assert.store] "{← c.pp}"
-  trace[grind.debug.lia.elimEq] "{← getVar x}, {← c.pp}"
-  if (← c.satisfied) == .false then
-    resetAssignmentFrom x
-  modify' fun s => { s with
-    elimEqs := s.elimEqs.set x (some c)
-    elimStack := x :: s.elimStack
-  }
-  updateOccs k x c
-  c.p.updateOccsForElimEq x
-  if (← inconsistent) then return ()
-  -- assert a divisibility constraint IF `|k| != 1`
-  if k.natAbs != 1 then
-    let p := c.p.insert (-k) x
-    let d := Int.ofNat k.natAbs
-    { d, p, h := .ofEq x c : DvdCnstr }.assert
-  if (← inconsistent) then return ()
-  propagateNonlinearTerms x
+  if k.natAbs == 1 then
+    c.elimVar k x
+  else
+    c.elimNonUnit k x
 
 private def exprAsPoly (a : Expr) : GoalM Poly := do
   if let some k ← getIntValue? a then
@@ -480,12 +522,12 @@ private inductive SupportedTermKind where
 
 private def getKindAndType? (e : Expr) : GrindM (Option (SupportedTermKind × Expr)) :=
   match_expr e with
-  | HAdd.hAdd α _ _ _ _ _ => return some (.add, α)
-  | HSub.hSub α _ _ _ _ _ => return some (.sub, α)
-  | HMul.hMul α _ _ _ _ _ => return some (.mul, α)
-  | HDiv.hDiv α _ _ _ _ _ => return some (.div, α)
-  | HMod.hMod α _ _ _ _ _ => return some (.mod, α)
-  | HPow.hPow α _ _ _ _ _ => return some (.pow, α)
+  | HAdd.hAdd α β γ _ _ _ => return Sym.Arith.homoType? α β γ |>.map (.add, ·)
+  | HSub.hSub α β γ _ _ _ => return Sym.Arith.homoType? α β γ |>.map (.sub, ·)
+  | HMul.hMul α β γ _ _ _ => return Sym.Arith.homoType? α β γ |>.map (.mul, ·)
+  | HDiv.hDiv α β γ _ _ _ => return Sym.Arith.homoType? α β γ |>.map (.div, ·)
+  | HMod.hMod α β γ _ _ _ => return Sym.Arith.homoType? α β γ |>.map (.mod, ·)
+  | HPow.hPow α _ γ _ _ _ => return Sym.Arith.homoType? α α γ |>.map (.pow, ·)
   | OfNat.ofNat α _ _     => return some (.num, α)
   | Neg.neg α _ a =>
     let_expr OfNat.ofNat _ _ _ := a | return some (.neg, α)
@@ -518,38 +560,74 @@ private def isForbiddenParent (parent? : Option Expr) (k : SupportedTermKind) : 
 Internalizes the integer expression `e` by introducing a fresh cutsat variable `x` for `e`
 and asserting the equation `x = e` as an `EqCnstr`.
 
-The polynomial `p = toPoly e` represents `e` as a sum of monomials over cutsat variables.
-If `p` is just `1*x + 0` (e.g., `e` is opaque or a nonlinear term like `a*b`), the equation
-`x = x` is trivial and skipped.
+If `e` is in the normal form produced by the `grind` preprocessor, `toPoly? e` returns its
+polynomial `p` and `x = p` is proved by `Eq.refl` (`defn`). If `p` is just `1*x + 0` (e.g., `e` is
+opaque or a nonlinear term like `a*b`), the equation `x = x` is trivial and skipped.
 
-Otherwise, the assertion uses one of two paths:
-- `defnCommRing` when `p` contains nonlinear monomials and the comm-ring solver can simplify
-  it to a linear polynomial `p'`. The constraint becomes `x = p'`.
-- `defn` for purely linear polynomials, where the constraint is `x = p`.
+Otherwise, `e` is in a dependent position the preprocessor could not rewrite (e.g., the size of a
+`Fin` in a structure field), and we normalize it here: `p` is the normal form of `toLinearExpr e`,
+and the certificate checks `p` against `e` (`defnExpr`). See issue #15699.
 
-We also build the reflective representation `e' : Int.Internal.Linear.Expr` via `toLinearExpr`. It is
-passed to the constraint and used during proof construction: `eq_def_struct` (resp.
-`eq_def_struct_norm`) bridges `x.denote = e.denote` via `Expr.denote`, which faithfully
-preserves expression structure. This avoids a kernel type mismatch when `e` contains
-sub-structure that `Poly.denote'` collapses (e.g., a trailing `+ 0`, where `Poly.denote'`
-drops the `(.num 0)` but `e` still has the explicit `+ 0`). See issue #13572.
+In both cases, if `p` contains nonlinear monomials that the comm-ring solver simplifies to `p'`,
+the constraint becomes `x = p'`.
 -/
 private def internalizeInt (e : Expr) : GoalM Unit := do
   if (← hasVar e) then return ()
-  let p ← toPoly e
-  trace[grind.debug.lia.internalize] "{aquote e}:= {← p.pp}"
-  let x ← mkVar e
-  if p == .add 1 x (.num 0) then
-    -- It is pointless to assert `x = x`
-    -- This can happen if `e` is a nonlinear term (e.g., `e` is `a*b`)
-    return
-  let e' ← toLinearExpr e
-  if let some (re, rp, p') ← p.normCommRing? then
-    let c := { p := .add (-1) x p', h := .defnCommRing e e' p re rp p' : EqCnstr }
-    c.assert
+  if let some p ← toPoly? e then
+    trace[grind.debug.lia.internalize] "{aquote e}:= {← p.pp}"
+    let x ← mkVar e
+    if p == .add 1 x (.num 0) then
+      -- It is pointless to assert `x = x`
+      -- This can happen if `e` is a nonlinear term (e.g., `e` is `a*b`)
+      return
+    unless p matches .num _ do
+      trace[grind.debug.lia.norm] "normalized: {e}"
+    if let some (re, rp, p') ← p.normCommRing? then
+      let c := { p := .add (-1) x p', h := .defnCommRing e p re rp p' : EqCnstr }
+      c.assert
+    else
+      let c := { p := .add (-1) x p, h := .defn e p : EqCnstr }
+      c.assert
   else
-    let c := { p := .add (-1) x p, h := .defn e e' : EqCnstr }
+    let e' ← toLinearExpr e (← getGeneration e)
+    let p := e'.norm
+    trace[grind.debug.lia.internalize] "{aquote e}:= {← p.pp}"
+    trace[grind.debug.lia.norm] "not normalized: {e}"
+    let x ← mkVar e
+    let h ← mkEqRefl e
+    if let some (re, rp, p') ← p.normCommRing? then
+      let c := { p := .add (-1) x p', h := .defnExprCommRing h x e' p re rp p' : EqCnstr }
+      c.assert
+    else
+      let c := { p := .add (-1) x p, h := .defnExpr h x e' : EqCnstr }
+      c.assert
+
+/--
+Pushes a linear fact about `a / b` and `a % b`. The `simp`-based preprocessor is skipped: these facts
+are linear combinations that cutsat normalizes itself, and the preprocessor would only redistribute
+the coefficients.
+-/
+private def pushDivModFact (proof : Expr) (gen : Nat) : GoalM Unit := do
+  let prop ← preprocessLight (← inferType proof)
+  pushNewFactCore prop proof gen
+
+/--
+Asserts the fact `h : lhs = rhs` or `h : lhs ≤ rhs` over `Int` directly into cutsat, without adding it
+to the E-graph.
+-/
+private def assertLinearFact (h : Expr) (gen : Nat) : GoalM Unit := do
+  match_expr (← inferType h) with
+  | Eq _ l r =>
+    let lhs ← toLinearExpr l gen
+    let rhs ← toLinearExpr r gen
+    let c := { p := lhs.sub rhs |>.norm, h := .hyp h lhs rhs : EqCnstr }
+    c.assertCore
+  | LE.le _ _ l r =>
+    let lhs ← toLinearExpr l gen
+    let rhs ← toLinearExpr r gen
+    let c := { p := lhs.sub rhs |>.norm, h := .hyp h lhs rhs : LeCnstr }
     c.assert
+  | _ => throwError "internal `grind` error, unexpected linear fact{indentExpr (← inferType h)}"
 
 private def expandDivMod (a : Expr) (b : Int) : GoalM Unit := do
   if (← get').divMod.contains (a, b) then return ()
@@ -579,9 +657,20 @@ private def expandDivMod (a : Expr) (b : Int) : GoalM Unit := do
       pushEq ediv neg_a <| mkApp (mkConst ``Int.ediv_minus_one) a
   else
     let n : Int := 1 - b.natAbs
-    pushNewFact <| mkApp2 (mkConst ``Int.Internal.Linear.ediv_emod) a b'
-    pushNewFact <| mkApp3 (mkConst ``Int.Internal.Linear.emod_nonneg) a b' eagerReflBoolTrue
-    pushNewFact <| mkApp4 (mkConst ``Int.Internal.Linear.emod_le) a b' (toExpr n) eagerReflBoolTrue
+    let h₁ := mkApp2 (mkConst ``Int.Internal.Linear.ediv_emod) a b'
+    let h₂ := mkApp3 (mkConst ``Int.Internal.Linear.emod_nonneg) a b' eagerReflBoolTrue
+    let h₃ := mkApp4 (mkConst ``Int.Internal.Linear.emod_le) a b' (toExpr n) eagerReflBoolTrue
+    let gen ← getGeneration a
+    -- Cutsat is the only arithmetic solver in `lia`. Elsewhere, solvers such as the ring solver use
+    -- these facts through the E-graph.
+    if (← getIdentity) == `lia then
+      assertLinearFact h₁ gen
+      assertLinearFact h₂ gen
+      assertLinearFact h₃ gen
+    else
+      pushDivModFact h₁ gen
+      pushDivModFact h₂ gen
+      pushDivModFact h₃ gen
 
 private def propagateDiv (e : Expr) : GoalM Unit := do
   let_expr HDiv.hDiv _ _ _ inst a b ← e | return ()
@@ -654,10 +743,10 @@ private def internalizeNatTerm (e type : Expr) (parent? : Option Expr) (k : Supp
   let x ← mkVar natCast_e
   modify' fun s => { s with natDef := s.natDef.insert { expr := e } x }
   if let some (re, rp, p') ← p.normCommRing? then
-    let c := { p := .add (-1) x p', h := .defnNatCommRing e'h.2 x e'' p re rp p' : EqCnstr }
+    let c := { p := .add (-1) x p', h := .defnExprCommRing e'h.2 x e'' p re rp p' : EqCnstr }
     c.assert
   else
-    let c := { p := .add (-1) x p, h := .defnNat e'h.2 x e'' : EqCnstr }
+    let c := { p := .add (-1) x p, h := .defnExpr e'h.2 x e'' : EqCnstr }
     c.assert
 
 def isEmbeddingApp? (e : Expr) : Option Expr :=

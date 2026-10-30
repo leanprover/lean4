@@ -38,3 +38,10 @@ Note: This linter can be disabled with `set_option linter.deprecated.syntax fals
 deprecated_syntax.lean:107:21-107:32: warning: syntax 'depRec' has been deprecated: use `trivial` instead
 
 Note: This linter can be disabled with `set_option linter.deprecated.syntax false`
+deprecated_syntax.lean:116:7-116:19: warning: macro 'termWrapsOld_' (expanded from 'termUsesWrapsOld') produces deprecated syntax 'termOldThing': use `42` instead
+
+Note: This linter can be disabled with `set_option linter.deprecated.syntax false`
+42 : Nat
+deprecated_syntax.lean:120:40-120:48: warning: quotation uses deprecated syntax 'termOldThing': use `42` instead
+
+Note: This linter can be disabled with `set_option linter.deprecated.syntax false`

@@ -23,7 +23,7 @@ h : ¬a = 10
 -/
 #guard_msgs (error) in
 example : a = 5 + 5 := by
-  grind
+  grind +verbose
 
 section
 attribute [local grind] a
@@ -55,7 +55,7 @@ h : ¬f a = 11
 -/
 #guard_msgs (error) in
 example : f a = 10 + 1 := by
-  grind
+  grind +verbose
 
 attribute [grind] fa
 
@@ -79,4 +79,4 @@ h : ¬f x = 11
 -/
 #guard_msgs (error) in
 example : f x = 10 + 1 := by
-  grind
+  grind +verbose

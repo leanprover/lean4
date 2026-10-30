@@ -34,7 +34,7 @@ open Std.WP Lean.Order
 /-- Build the explicit pointwise implication premise used to weaken a concrete `post`.
     State binders are named positionally from `stateArgNames` (else `s`); their names ride
     on the premise and are later introduced with the right user-facing names. -/
-private def mkPostPointwisePremise (postSpec postTarget postTy : Expr) (ssTypes : Array Expr)
+def mkPostPointwisePremise (postSpec postTarget postTy : Expr) (ssTypes : Array Expr)
     (stateArgNames : Array Name := #[]) : MetaM Expr := do
   let .forallE _ α _ _ := postTy
     | throwError "expected a postcondition function, got {indentExpr postTy}"
@@ -47,7 +47,7 @@ private def mkPostPointwisePremise (postSpec postTarget postTy : Expr) (ssTypes 
 
 /-- Reduce a projection of a constructor application, e.g. `(⟨R⟩ : Thrown).onThrow` to `R`.
 Return any other term unchanged. -/
-private def reduceProjOfCtor (e : Expr) : MetaM Expr := do
+def reduceProjOfCtor (e : Expr) : MetaM Expr := do
   let .const fn _ := e.getAppFn | return e
   let some info ← getProjectionFnInfo? fn | return e
   let args := e.getAppArgs
@@ -63,7 +63,7 @@ private def reduceProjOfCtor (e : Expr) : MetaM Expr := do
     - Otherwise, if `EPosts` has a `ToEStack` instance, decompose the entailment between the
       stacks and reflect it via `ToEStack.le_of_toEStack_le`
     - Otherwise → single mvar for `epostsSpec ⊑ epostsAbstract` -/
-private partial def decomposeProdRel (EPosts epostsSpec epostsAbstract : Expr)
+partial def decomposeProdRel (EPosts epostsSpec epostsAbstract : Expr)
     (stateArgNames : Array Name := #[]) : MetaM Expr := do
   match_expr epostsSpec with
   | Prod.mk ehTy etTy head tail =>
@@ -217,7 +217,7 @@ prf : ∀ (pre : Prop) (α : Type) (x : StateT Nat Id α) (β : Type)
   pre ⊑ wp (x >>= f) post eposts s
 ```
 -/
-private def mkSpecBackwardProof (info : WPApp)
+def mkSpecBackwardProof (info : WPApp)
     (pre prog postSpec epostsSpec specProof : Expr) (ss ssTypes : Array Expr)
     (stateArgNames : Array Name := #[]) : MetaM AbstractMVarsResult := do
   /- we start with `pre ⊑ wp prog post eposts` where
@@ -322,7 +322,7 @@ applying the rule binds against the concrete goal program. Dictionary projection
 exposes in the premise program (e.g. for class projection unfold equations like
 `MonadState.modifyGet.eq_1`) are reduced by `wpHeadReduce?` before the next spec lookup.
 -/
-private def eqSpecToWp? (info : WPApp) (eqPrf eqType : Expr) :
+def eqSpecToWp? (info : WPApp) (eqPrf eqType : Expr) :
     OptionT MetaM (Expr × Expr) := do
   let_expr Eq eqα _lhs _rhs := eqType
     | throwError "simp spec is not an equation: {eqType}"
@@ -454,7 +454,7 @@ public def mkBackwardRuleForSplit
 
 /-- Locate the assignable subgoal positions of a frame backward rule: the split VC (the premise
 `pre ⊑ (op F W) s⃗`, found by `opHead`) and the frame `F` read off its right-hand side. -/
-private def analyzeFrameRule (rule : BackwardRule) (opHead : Name) (numExcess : Nat) :
+def analyzeFrameRule (rule : BackwardRule) (opHead : Name) (numExcess : Nat) :
     MetaM FrameBackwardRule := do
   -- The binder telescope of the rule type is the pattern telescope, so `xs` is indexed by the
   -- entries of `resultPos`, which reorders the subgoal binders (non-dependent first) into the
@@ -484,7 +484,9 @@ The rule concludes `pre ⊑ wp prog Q E s⃗` from the split VC `pre ⊑ (op F W
 condition `WP.Frames op prog F G`, with the frame `F` left schematic, the guard `G` the frame of
 `pre` for the excess state arguments `fun u⃗ => ⌜u⃗ = s⃗⌝ ⊓ pre`, and the weakest footprint
 `W = wp prog (fun a => upperAdjoint (op F) (Q a)) (upperAdjoint (opE F) E)` baked in, so a single
-rule serves every inferred frame. `analyzeFrameRule` records the positions of the schematic slots.
+rule serves every inferred frame. When `FrameProc.framesThm?` applies to the frame condition, the
+rule proves it, and the rule has no frame condition premise. `analyzeFrameRule` records the
+positions of the schematic slots.
 -/
 public def mkFrameBackwardRule (fp : FrameProc) (info : WPApp) :
     MetaM FrameBackwardRule := do
@@ -502,6 +504,11 @@ public def mkFrameBackwardRule (fp : FrameProc) (info : WPApp) :
     (userName := `vc)
   let ssFrame ← ExcessArgsFrameInfo.new pre ss
   guard.mvarId!.assign ssFrame.frame
+  if let some declName := fp.framesThm? then
+    let hframes := xs.back!.mvarId!
+    discard <| commitWhen do
+      try return (← hframes.apply (← mkConstWithFreshMVarLevels declName)).isEmpty
+      catch _ => return false
   let hop ← ssFrame.abstract opApp ss hsplit
   let G := ssFrame.frame
   let hmeet ← mkAppM ``le_meet

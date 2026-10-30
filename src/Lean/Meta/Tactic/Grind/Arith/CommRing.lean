@@ -44,6 +44,7 @@ builtin_initialize registerTraceClass `grind.debug.ring.rabinowitsch
 
 builtin_initialize
   ringExt.setMethods
+    (enabled     := (·.ring))
     (internalize := CommRing.internalize)
     (newEq       := CommRing.processNewEq)
     (newDiseq    := CommRing.processNewDiseq)

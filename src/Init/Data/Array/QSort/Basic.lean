@@ -9,6 +9,7 @@ prelude
 public import Init.Data.Vector.Basic
 public import Init.Data.Ord.Basic
 import Init.Omega
+import Init.WFTactics
 
 public section
 

@@ -137,7 +137,7 @@ structure Context where
   hypotheses : Array Normalize.Hyp
   config : Elab.Tactic.BVDecide.BVDecideConfig
 
-public def mkBoolAtomWrapper (e : Expr) : Sym.SymM Expr :=
+def mkBoolAtomWrapper (e : Expr) : Sym.SymM Expr :=
   Sym.share <| mkApp (mkConst ``BitVec.ofBool) e
 
 /--

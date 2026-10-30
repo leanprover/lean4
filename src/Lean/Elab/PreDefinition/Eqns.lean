@@ -63,7 +63,7 @@ partial def mkEqnProof (declName : Name) (type : Expr) : MetaM Expr := do
 
     -- Try rfl before deltaLHS to avoid `id` checkpoints in the proof, which would make
     -- the lemma ineligible for dsimp
-    if (← tryURefl mvarId) then
+    if (← tryURefl mvarId #[declName]) then
       trace[Elab.definition.eqns] "proved directly by rfl"
       return ← instantiateMVars main
 
@@ -341,16 +341,16 @@ where
         return (lctx.mkForall xsNew type, lctx.mkLambda xsNew value)
 
 
-private structure EqnTypesKey where
+structure EqnTypesKey where
   declName : Name
   declNames : Array Name
 deriving BEq, Hashable, TypeName
 
-private structure EqnTypes where
+structure EqnTypes where
   types : Array Expr
 deriving TypeName
 
-private def realizeEqnTypes (key : EqnTypesKey) : MetaM EqnTypes :=
+def realizeEqnTypes (key : EqnTypesKey) : MetaM EqnTypes :=
   withEqnOptions key.declName <| withOptions (tactic.hygienic.set · false) do
     let target ← unfoldThmType key.declName
     let types ← withNewMCtxDepth <|
@@ -360,7 +360,7 @@ private def realizeEqnTypes (key : EqnTypesKey) : MetaM EqnTypes :=
           mkEqnTypes key.declNames goal.mvarId!
     return { types }
 
-private def realizeEqn (declName name : Name) (type : Expr) : MetaM Unit :=
+def realizeEqn (declName name : Name) (type : Expr) : MetaM Unit :=
   withEqnOptions declName <| withOptions (tactic.hygienic.set · false) do
     let info ← getConstInfoDefn declName
     let value ← mkEqnProof declName type

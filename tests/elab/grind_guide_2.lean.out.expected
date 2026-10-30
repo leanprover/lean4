@@ -10,12 +10,16 @@
         let e_2 := Expr.zero;
         let e_3 := (Expr.intMul (-1) (Expr.var 1)).add (Expr.intMul 1 (Expr.var 0));
         let rctx := RArray.leaf (f 2);
-        let rp_1 := CommRing.Poly.add 1 (CommRing.Mon.mult { x := 0, k := 1 } CommRing.Mon.unit) (CommRing.Poly.num 0);
+        let rp_1 :=
+          CommRing.Poly.add (Int.ofNat 1) (CommRing.Mon.mult { x := 0, k := 1 } CommRing.Mon.unit)
+            (CommRing.Poly.num (Int.ofNat 0));
         let rp_2 :=
-          CommRing.Poly.add (-1) (CommRing.Mon.mult { x := 0, k := 1 } CommRing.Mon.unit) (CommRing.Poly.num 1);
+          CommRing.Poly.add (Int.negSucc 0) (CommRing.Mon.mult { x := 0, k := 1 } CommRing.Mon.unit)
+            (CommRing.Poly.num (Int.ofNat 1));
         let re_1 := CommRing.Expr.var 0;
-        let re_2 := CommRing.Expr.num 0;
-        let re_3 := ((CommRing.Expr.num 1).neg.mul (CommRing.Expr.var 0)).add (CommRing.Expr.num 1);
+        let re_2 := CommRing.Expr.num (Int.ofNat 0);
+        let re_3 :=
+          ((CommRing.Expr.num (Int.ofNat 1)).neg.mul (CommRing.Expr.var 0)).add (CommRing.Expr.num (Int.ofNat 1));
         lt_unsat ctx
           (le_lt_combine ctx p_3 p_5 p_1 (eagerReduce (Eq.refl true))
             (le_le_combine ctx p_4 p_2 p_3 (eagerReduce (Eq.refl true))

@@ -8,6 +8,7 @@ prelude
 public import Lean.Elab.Tactic.Basic
 public import Lean.Meta.Tactic.Grind.Main
 import Lean.Meta.Tactic.Grind.Intro
+import Lean.Elab.DeprecatedSyntax.Basic
 public import Lean.Meta.Sym.Apply
 public import Lean.Meta.Sym.Util
 public import Lean.Meta.Sym.Simp.SimpM
@@ -136,6 +137,17 @@ def mkInitialTacticInfo (stx : Syntax) : GrindTacticM (GrindTacticM Info) := do
 @[inline] def withTacticInfoContext (stx : Syntax) (x : GrindTacticM α) : GrindTacticM α := do
   withInfoContext x (← mkInitialTacticInfo stx)
 
+/--
+Warns if the kind of `stx` is deprecated and, in that case, runs `x` reporting deprecations only in
+user-written syntax, so that the expansion of a deprecated tactic is not reported as well. Must run
+inside the info tree context of the tactic, as the warning may come with a code action.
+-/
+private def withDeprecatedSyntaxCheck (stx : Syntax) (x : GrindTacticM α) : GrindTacticM α := do
+  unless isDeprecatedSyntax (← getEnv) stx.getKind do
+    return ← x
+  Term.reportDeprecatedSyntax stx
+  Term.withoutCheckDeprecatedSynthetic x
+
 structure EvalTacticFailure where
   exception : Exception
   state     : SavedState
@@ -152,7 +164,7 @@ partial def evalGrindTactic (stx : Syntax) : GrindTacticM Unit := do
         let evalFns := grindTacElabAttribute.getEntries (← getEnv) stx.getKind
         let macros  := macroAttribute.getEntries (← getEnv) stx.getKind
         if evalFns.isEmpty && macros.isEmpty then
-          throwErrorAt stx "Grind tactic `{stx.getKind}` has not been implemented"
+          throwNotAccepted m!"Grind tactic `{stx.getKind}` has not been implemented"
         let s ← Grind.saveState
         expandEval s macros evalFns #[]
     | .missing => pure ()
@@ -165,7 +177,18 @@ where
        fail.state.restore (restoreInfo := true)
        throw fail.exception
      else
-       throwErrorAt stx "Unexpected syntax{indentD stx}"
+       throwNotAccepted m!"Unexpected syntax{indentD stx}"
+
+    /--
+    Throws `msg` at `stx`, which no macro or elaborator accepted, after warning if `stx` is
+    deprecated, as `withDeprecatedSyntaxCheck` did not run or its warning was backtracked.
+    -/
+    throwNotAccepted (msg : MessageData) : GrindTacticM Unit := do
+      unless isDeprecatedSyntax (← getEnv) stx.getKind do
+        throwErrorAt stx msg
+      withTacticInfoContext stx do
+        Term.reportDeprecatedSyntax stx
+        throwErrorAt stx msg
 
     @[inline] handleEx (s : SavedState) (failures : Array EvalTacticFailure) (ex : Exception) (k : Array EvalTacticFailure → GrindTacticM Unit) := do
       match ex with
@@ -192,7 +215,7 @@ where
       | m :: ms =>
         try
           withReader ({ · with elaborator := m.declName }) do
-            withTacticInfoContext stx do
+            withTacticInfoContext stx <| withDeprecatedSyntaxCheck stx do
               let stx' ← adaptMacro m.value stx
               evalGrindTactic stx'
         catch ex => handleEx s failures ex (expandEval s ms evalFns)
@@ -204,7 +227,7 @@ where
         try
           Term.withoutTacticIncrementality true do
           withReader ({ · with elaborator := evalFn.declName }) do
-          withTacticInfoContext stx do
+          withTacticInfoContext stx <| withDeprecatedSyntaxCheck stx do
             evalFn.value stx
         catch ex => handleEx s failures ex (eval s evalFns)
 
@@ -452,7 +475,7 @@ def GrindTacticM.runAtGoal (mvarId : MVarId) (params : Params) (k : GrindTacticM
   **Note**: We don't want to close branches using `sorry` after applying `intros + assertAll`.
   Reconsider the option `useSorry`.
   -/
-  let params' := { params with config.useSorry := false }
+  let params' := { params with config.useSorry := false, interactive := true }
   let (methods, ctx, sctx, state) ← liftMetaM <| GrindM.runAtGoal mvarId params' (evalTactic? := some evalTactic) fun goal => do
       let goals ←
         if sym then

@@ -37,6 +37,7 @@ public def rewriteRulesPass : Pass where
     let cache ← ST.mkRef {}
     let simpMethods := {
       pre e := do
+        if e.isAppOfArity ``Std.Tactic.BVDecide.BitVec.ofProp 1 then return .rfl (done := true)
         let res ← Sym.Simp.simpControl e
         -- We invalidate `done` as we still want to rewrite in the arms, even if the discr cannot
         -- be resolved.

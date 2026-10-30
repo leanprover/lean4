@@ -98,7 +98,7 @@ public def LatticeOp.iSup : LatticeOp :=
 /-- Whether the `fst`/`snd` rewrites decompose the projected operand: a `⊥`/`⊤`, a
 companion application `FrameOp.prod`, or a wand `upperAdjoint (FrameOp.prod …)`, whose component
 wands the `upperAdjoint` rewrites decompose further. -/
-private def projectsRewritableOperand (rhs : Expr) : Bool :=
+def projectsRewritableOperand (rhs : Expr) : Bool :=
   rhs.getAppArgs[2]?.any fun eposts =>
     match eposts.getAppFn with
     | .const ``Lean.Order.bot _ | .const ``Lean.Order.top _
@@ -129,7 +129,7 @@ public def latticeOps : Std.HashMap Name LatticeOp :=
 
 /-- Index terminal lemmas by the head constant of their conclusion's RHS, recording the RHS argument
 count so a split can size the excess state arguments to frame. -/
-private def mkLatticeTerminals (names : Array Name) : MetaM (Std.HashMap Name (Name × Nat)) := do
+def mkLatticeTerminals (names : Array Name) : MetaM (Std.HashMap Name (Name × Nat)) := do
   let mut m : Std.HashMap Name (Name × Nat) := {}
   for n in names do
     let ty ← Meta.inferType (← mkConstWithFreshMVarLevels n)
@@ -147,7 +147,7 @@ until none applies. Returns the reduced expression and, when a rewrite fired, a 
 `Sym.Simp` pattern matching drives the rewriting, so schematic (metavariable) operands are supported.
 `fuel` bounds the rewrite chain, turning a non-terminating `@[frameproc]` rewrite set into an error.
 -/
-private def saturateLatticeOp (rewrites : Array Name) (e : Expr) (fuel : Nat := 256) :
+def saturateLatticeOp (rewrites : Array Name) (e : Expr) (fuel : Nat := 256) :
     SymM (Expr × Option Expr) := do
   let thms ← rewrites.foldlM (init := ({} : Simp.Theorems)) fun thms n =>
     return thms.insert (← Simp.mkTheoremFromDecl n)
@@ -172,7 +172,7 @@ Build a frame for the excess state arguments `ss` of a goal `pre ⊑ opAs s₁ �
 `ExcessArgsFrameInfo`), then apply the terminal `introThm` to the goal `frame ⊑ opAs`, leaving its
 operand subgoals as premises. Returns the proof of `pre ⊑ opAs s₁ … sₙ`.
 -/
-private def mkExcessArgsFrameApply (introThm : Name) (opAs pre : Expr) (ss : List Expr) :
+def mkExcessArgsFrameApply (introThm : Name) (opAs pre : Expr) (ss : List Expr) :
     MetaM Expr := do
   let ss := ss.toArray
   let info ← ExcessArgsFrameInfo.new pre ss

@@ -26,6 +26,16 @@ match Lean.Json.parse s with
 #eval test "1."
 #eval test "{foo: 1}"
 #eval test "   "
+
+/-! Objects with duplicate keys are rejected, also when nested. -/
+
+/-- info: "offset 12: duplicate object key \"a\"" -/
+#guard_msgs in #eval test "{\"a\": 1, \"a\": 1}"
+/-- info: "offset 19: duplicate object key \"b\"" -/
+#guard_msgs in #eval test "[{\"a\": {\"b\": 1, \"b\": 2}}]"
+/-- info: "{\"a\": {\"a\": 1}}" -/
+#guard_msgs in #eval test "{\"a\": {\"a\": 1}}"
+
 #eval toString (Lean.Json.num ⟨20, 1⟩)
 #eval toString (Lean.Json.num ⟨-20, 1⟩)
 #eval toString (Lean.Json.num 0.1)

@@ -521,6 +521,13 @@ extern "C" LEAN_EXPORT lean_obj_res lean_array_set_panic(lean_obj_arg a, lean_ob
 // =======================================
 // Thunks
 
+// Whether `o` is owned by one thread: its count is single-threaded or overflowed from one.
+// sync with tests/elab/rc_model.lean (`isUnshared`)
+static inline bool is_unshared(object * o) {
+    int rc = lean_internal_get_rc(o);
+    return rc > 0 || rc <= LEAN_RC_STUCK_ST;
+}
+
 extern "C" LEAN_EXPORT b_obj_res lean_thunk_get_core(b_obj_arg t) {
     object * c = lean_to_thunk(t)->m_closure.exchange(nullptr);
     if (c != nullptr) {
@@ -531,10 +538,19 @@ extern "C" LEAN_EXPORT b_obj_res lean_thunk_get_core(b_obj_arg t) {
            to be object stored in the constructor object.
 
            Recall that `apply_1` also consumes `c`'s RC. */
+        bool shared = !is_unshared(t);
+        // Which thread first forces a shared thunk depends on scheduling, so its evaluation must not
+        // count toward that thread's heartbeats.
+        uint64_t heartbeats = shared ? get_num_heartbeats() : 0;
         object * r = lean_apply_1(c, lean_box(0));
         lean_assert(r != nullptr); /* Closure must return a valid lean object */
         lean_assert(lean_to_thunk(t)->m_value == nullptr);
-        mark_mt(r);
+        // Marking `t` later also marks its value, so the value only needs marking now if `t` is
+        // shared already, possibly only since the start of the evaluation.
+        if (!is_unshared(t))
+            mark_mt(r);
+        if (shared)
+            set_heartbeats(heartbeats);
         lean_to_thunk(t)->m_value = r;
         return r;
     } else {
@@ -642,13 +658,6 @@ static obj_res mark_mt_fn(obj_arg o) {
     lean_mark_mt(o);
     lean_dec(o);
     return lean_box(0);
-}
-
-// Whether `o` is owned by one thread: its count is single-threaded or overflowed from one.
-// sync with tests/elab/rc_model.lean (`isUnshared`)
-static inline bool is_unshared(object * o) {
-    int rc = lean_internal_get_rc(o);
-    return rc > 0 || rc <= LEAN_RC_STUCK_ST;
 }
 
 extern "C" LEAN_EXPORT void lean_mark_mt(object * o) {
@@ -1390,6 +1399,8 @@ static inline obj_res mpz_to_nat(mpz const & m) {
         return mpz_to_nat_core(m);
 }
 
+static object * mpz_to_int(mpz const & m);
+
 extern "C" LEAN_EXPORT object * lean_cstr_to_nat(char const * n) {
     return mpz_to_nat(mpz(n));
 }
@@ -1654,6 +1665,32 @@ extern "C" LEAN_EXPORT lean_obj_res lean_nat_gcd(b_lean_obj_arg a1, b_lean_obj_a
     }
 }
 
+extern "C" LEAN_EXPORT lean_obj_res lean_nat_extended_gcd_fallback(lean_obj_arg a, lean_obj_arg b);
+
+extern "C" LEAN_EXPORT lean_obj_res lean_nat_extended_gcd(b_lean_obj_arg a, b_lean_obj_arg b) {
+#ifdef LEAN_USE_GMP
+    if (a != lean_box(0) && b != lean_box(0) && !lean_nat_dec_eq(a, b) &&
+        !(lean_is_scalar(a) && lean_is_scalar(b) && lean_unbox(a) <= UINT16_MAX && lean_unbox(b) <= UINT16_MAX)) {
+        mpz aa = lean_is_scalar(a) ? mpz::of_size_t(lean_unbox(a)) : mpz_value(a);
+        mpz bb = lean_is_scalar(b) ? mpz::of_size_t(lean_unbox(b)) : mpz_value(b);
+        mpz g, s, t;
+        // Outside the zero/equal cases, the final Euclidean quotient is at least two.
+        // The alternating-sign coefficient recurrence then gives GMP's half-size bounds;
+        // equality occurs only when a/g or b/g is two, with the corresponding coefficient +1.
+        mpz_gcdext(g.get_mpz_t(), s.get_mpz_t(), t.get_mpz_t(), aa.get_mpz_t(), bb.get_mpz_t());
+        // Match the field order of Nat.ExtendedGcdResult.
+        obj_res r = lean_alloc_ctor(0, 3, 0);
+        lean_ctor_set(r, 0, mpz_to_nat(g));
+        lean_ctor_set(r, 1, mpz_to_int(s));
+        lean_ctor_set(r, 2, mpz_to_int(t));
+        return r;
+    }
+#endif
+    lean_inc(a);
+    lean_inc(b);
+    return lean_nat_extended_gcd_fallback(a, b);
+}
+
 extern "C" LEAN_EXPORT lean_obj_res lean_nat_log2(b_lean_obj_arg a) {
     if (lean_is_scalar(a)) {
       unsigned res = 0;
@@ -1880,10 +1917,6 @@ extern "C" LEAN_EXPORT uint64 lean_uint64_of_big_nat(b_obj_arg a) {
     return mpz_value(a).mod64();
 }
 
-extern "C" LEAN_EXPORT uint64 lean_uint64_mix_hash(uint64 a1, uint64 a2) {
-  return hash(a1, a2);
-}
-
 extern "C" LEAN_EXPORT usize lean_usize_of_big_nat(b_obj_arg a) {
     return mpz_value(a).get_size_t();
 }
@@ -2095,10 +2128,6 @@ extern "C" LEAN_EXPORT object * lean_mk_ascii_string_unchecked(char const * s) {
     return lean_mk_string_unchecked(s, len, len);
 }
 
-extern "C" LEAN_EXPORT obj_res lean_decode_lossy_utf8(b_obj_arg a) {
-    return lean_mk_string_from_bytes(reinterpret_cast<char *>(lean_sarray_cptr(a)), lean_sarray_size(a));
-}
-
 extern "C" LEAN_EXPORT obj_res lean_string_from_utf8_unchecked(obj_arg a) {
     obj_res ret = lean_mk_string_from_bytes_unchecked(reinterpret_cast<char *>(lean_sarray_cptr(a)), lean_sarray_size(a));
     lean_dec(a);
@@ -2110,10 +2139,11 @@ extern "C" LEAN_EXPORT uint8 lean_string_validate_utf8(b_obj_arg a) {
     return validate_utf8(lean_sarray_cptr(a), lean_sarray_size(a), pos, i);
 }
 
-extern "C" LEAN_EXPORT obj_res lean_string_to_utf8(b_obj_arg s) {
+extern "C" LEAN_EXPORT obj_res lean_string_to_utf8(obj_arg s) {
     size_t sz = lean_string_size(s) - 1;
     obj_res r = lean_alloc_sarray(1, sz, sz);
     memcpy(lean_sarray_cptr(r), lean_string_cstr(s), sz);
+    lean_dec(s);
     return r;
 }
 
@@ -2156,7 +2186,7 @@ extern "C" LEAN_EXPORT obj_res lean_copy_string_nonlinear(obj_arg s, size_t cap)
     return lean_copy_string(s, cap);
 }
 
-extern "C" LEAN_EXPORT object * lean_string_push(object * s, unsigned c) {
+extern "C" LEAN_EXPORT object * lean_string_push_cold(object * s, unsigned c) {
     size_t sz  = lean_string_size(s);
     object * r;
     if (!lean_is_exclusive(s)) {
@@ -2164,11 +2194,7 @@ extern "C" LEAN_EXPORT object * lean_string_push(object * s, unsigned c) {
     } else {
         r = string_ensure_capacity(s, 5);
     }
-    unsigned consumed = push_unicode_scalar(w_string_cstr(r) + sz - 1, c);
-    lean_to_string(r)->m_size   = sz + consumed;
-    lean_to_string(r)->m_length++;
-    w_string_cstr(r)[sz + consumed - 1] = 0;
-    return r;
+    return lean_string_push(r, c);
 }
 
 extern "C" LEAN_EXPORT object * lean_string_append(object * s1, object * s2) {
@@ -2546,7 +2572,7 @@ extern "C" LEAN_EXPORT obj_res lean_string_of_usize(size_t n) {
     return mk_ascii_string_unchecked(std::to_string(n));
 }
 
-extern "C" LEAN_EXPORT uint8_t lean_string_memcmp(b_obj_arg s1, b_obj_arg s2, b_obj_arg lstart, b_obj_arg rstart, b_obj_arg len) {
+static int string_memcmp_core(b_obj_arg s1, b_obj_arg s2, b_obj_arg lstart, b_obj_arg rstart, b_obj_arg len) {
     // Thanks to the proof arguments we know that lstart, rstart and len are all scalars.
     lean_assert(lean_is_scalar(lstart));
     lean_assert(lean_is_scalar(rstart));
@@ -2554,7 +2580,23 @@ extern "C" LEAN_EXPORT uint8_t lean_string_memcmp(b_obj_arg s1, b_obj_arg s2, b_
 
     char const * lbase = lean_string_cstr(s1) + lean_unbox(lstart);
     char const * rbase = lean_string_cstr(s2) + lean_unbox(rstart);
-    return std::memcmp(lbase, rbase, lean_unbox(len)) == 0;
+    return std::memcmp(lbase, rbase, lean_unbox(len));
+}
+
+extern "C" LEAN_EXPORT uint8_t lean_string_memcmp(b_obj_arg s1, b_obj_arg s2, b_obj_arg lstart, b_obj_arg rstart, b_obj_arg len) {
+    return string_memcmp_core(s1, s2, lstart, rstart, len) == 0;
+}
+
+extern "C" LEAN_EXPORT uint8_t lean_string_memcmp_lt(b_obj_arg s1, b_obj_arg s2, b_obj_arg lstart, b_obj_arg rstart, b_obj_arg len) {
+    return string_memcmp_core(s1, s2, lstart, rstart, len) < 0;
+}
+
+// Constructor indices of `Ordering`: lt = 0, eq = 1, gt = 2.
+extern "C" LEAN_EXPORT uint8_t lean_string_memcmp_compare(b_obj_arg s1, b_obj_arg s2, b_obj_arg lstart, b_obj_arg rstart, b_obj_arg len) {
+    int r = string_memcmp_core(s1, s2, lstart, rstart, len);
+    if (r < 0) return 0;
+    if (r > 0) return 2;
+    return 1;
 }
 
 size_t lean_slice_size(b_obj_arg slice) {
@@ -2576,13 +2618,6 @@ extern "C" LEAN_EXPORT uint64_t lean_slice_hash(b_obj_arg s) {
     size_t sz = lean_slice_size(s);
     char const * str = lean_slice_base(s);
     return hash_str(sz, (unsigned char const *) str, 11);
-}
-
-extern "C" LEAN_EXPORT uint8_t lean_slice_dec_lt(object * s1, object * s2) {
-    size_t sz1 = lean_slice_size(s1);
-    size_t sz2 = lean_slice_size(s2);
-    int r = std::memcmp(lean_slice_base(s1), lean_slice_base(s2), std::min(sz1, sz2));
-    return r < 0 || (r == 0 && sz1 < sz2);
 }
 
 // =======================================

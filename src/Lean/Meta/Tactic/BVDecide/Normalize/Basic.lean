@@ -222,7 +222,7 @@ def PreProcessContext.new (mode : Mode) (config : BVDecideConfig) (keepCaches : 
     keepCaches := keepCaches
   }
 
-public def _root_.Lean.Meta.Tactic.BVDecide.TacticContext.preProcessContext (ctx : TacticContext) : Normalize.PreProcessContext :=
+def _root_.Lean.Meta.Tactic.BVDecide.TacticContext.preProcessContext (ctx : TacticContext) : Normalize.PreProcessContext :=
   .new (.solve ctx.restrictedTypes) ctx.config
 
 /--

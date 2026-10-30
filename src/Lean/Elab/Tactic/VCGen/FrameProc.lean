@@ -168,6 +168,9 @@ public structure FrameProc where
   mkResourceTy : WPApp → MetaM Expr
   /-- The frame inference metaprogram. -/
   proc : FrameInferenceProc
+  /-- A theorem `WP.Frames op x F P` for every program `x`, frame `F` and guard `P`. A `WP` built
+  as the `frameClosure` of a base `wp` has one. `vcgen` discharges every frame condition with it. -/
+  framesThm? : Option Name := none
 
 /-- The registered frame inference procedures, indexed by the program monad's head constant. -/
 public structure FrameProcs where
@@ -203,7 +206,7 @@ public def defaultFrameInferenceProc : FrameInferenceProc := fun i => do
   return .ofFrame i frame
 
 /-- The lattice meet operator over the goal's assertion type. -/
-private def meetOp (info : WPApp) : MetaM Expr :=
+def meetOp (info : WPApp) : MetaM Expr :=
   Meta.mkAppOptM ``Lean.Order.meet #[info.Pred, none]
 
 /-- The default frame operator: lattice meet `pre ⊓ frame`, the Hoare frame every complete lattice

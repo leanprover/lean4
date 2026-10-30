@@ -1,5 +1,4 @@
 import LeanExport.Parse
-import Lean.Data.Json.Printer
 
 /-!
 Tests that the `LeanExport` NDJSON reader rejects malformed lines: trailing bytes after the JSON
@@ -52,11 +51,6 @@ def parse (lines : List String) : IO Unit := do
 /-- error: Invalid JSON: offset 33: duplicate object key "pre" -/
 #guard_msgs in
 #eval parse ["{\"in\":1,\"str\":{\"pre\":0,\"\\u0070re\":1,\"str\":\"a\"}}"]
-
--- `Lean.Json.parse` itself is unchanged.
-/-- info: some "{\"a\": 2}" -/
-#guard_msgs in
-#eval toString <$> (Lean.Json.parse "{\"a\": 1, \"a\": 2}").toOption
 
 -- Indices bound twice
 

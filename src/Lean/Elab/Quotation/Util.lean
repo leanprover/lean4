@@ -49,4 +49,17 @@ def getAntiquotKindSpec? (antiquot : Syntax) : Option Syntax :=
   let name := antiquot[3][1]
   if name.isMissing then none else some name
 
+def resolveSectionVariable (sectionVars : NameMap Name) (id : Name) : List (Name × List String) :=
+  -- decode macro scopes from name before recursion
+  let extractionResult := extractMacroScopes id
+  let rec loop : Name → List String → List (Name × List String)
+    | id@(.str p s), projs =>
+      -- NOTE: we assume that macro scopes always belong to the projected constant, not the projections
+      let id := { extractionResult with name := id }.review
+      match sectionVars.find? id with
+      | some newId => [(newId, projs)]
+      | none       => loop p (s::projs)
+    | _, _ => []
+  loop extractionResult.name []
+
 end Lean.Elab.Term.Quotation

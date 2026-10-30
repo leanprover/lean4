@@ -506,21 +506,12 @@ return v_e_126_;
 }
 else
 {
-if (v___x_127_ == 0)
-{
 lean_object* v___f_129_; lean_object* v___x_130_; 
 v___f_129_ = lean_alloc_closure((void*)(l_Lean_Meta_FVarSubst_apply___lam__0___boxed), 2, 1);
 lean_closure_set(v___f_129_, 0, v_s_125_);
 v___x_130_ = lean_replace_expr(v___f_129_, v_e_126_);
 lean_dec_ref(v___f_129_);
 return v___x_130_;
-}
-else
-{
-lean_dec(v_s_125_);
-lean_inc_ref(v_e_126_);
-return v_e_126_;
-}
 }
 }
 else

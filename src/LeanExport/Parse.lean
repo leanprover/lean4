@@ -12,7 +12,7 @@ import Init.Data.Array.GetLit
 import Init.Data.String.Search
 import Init.System.IO
 import Std.Internal.Parsec.String
-import LeanExport.Json
+import Lean.Data.Json.Parser
 
 /-!
 # Reader for the Lean 4 NDJSON export format
@@ -108,7 +108,7 @@ def addConst (name : Lean.Name) (d : Lean.ConstantInfo) : M Unit := do
 
 @[inline]
 def parseJsonObj (line : String) : M (Std.TreeMap.Raw String Json) := do
-  match LeanExport.Json.parse line with
+  match Json.parse line with
   | .ok (.obj obj) => return obj
   | .ok _ => fail "Expected JSON object"
   | .error e => fail s!"Invalid JSON: {e}"

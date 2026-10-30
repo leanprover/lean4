@@ -24,3 +24,11 @@ example (a : α) (h : 1/2 + 1/3 ≠ a) : 6*a > 5 ∨ 6*a < 5 := by grind
 example (h : (1/4:α) ≠ (1/2)*(1/2)) : False := by grind
 example (h : (1/4:α) + 1/4 ≠ (1/2)) : False := by grind
 example (h : (1/2:α) + 1/3 ≠ (5/6)) : False := by grind
+
+-- The `Sym.simp` normalizer must not keep `a = 1 * 2⁻¹` as an equation between atoms: the inverse
+-- atom has to go through the field normalization, which its certificate checks.
+section sym
+set_option backward.grind.normalizer false
+example {α : Type} [Field α] [IsCharP α 0] (a : α) (h : a ≠ 1/2) : 2*a ≠ 1 := by grind
+example (a : Rat) (h : a ≠ 1/2) : 2*a ≠ 1 := by grind
+end sym

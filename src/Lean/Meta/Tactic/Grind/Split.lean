@@ -450,8 +450,10 @@ Remark: `numCases` and `isRec` are computed using `checkSplitStatus`.
 def splitCore (c : SplitInfo) (numCases : Nat) (isRec : Bool)
     (stopAtFirstFailure : Bool)
     (compress : Bool)
-    (candidates? : Option (List SplitInfo) := none) : Action := fun goal _ kp => do
+    (candidates? : Option (List SplitInfo) := none) : Action := fun goal _ kp => withHoistedDecls goal do
   let traceEnabled := (← getConfig).trace
+  let saved? ← saveStateIfTracing
+  let goal₀ := goal
   let mvarId ← goal.mkAuxMVar
   let cExpr := c.getExpr
   let ((mvarIds, anchorInfo?), goal) ← GoalM.run goal do
@@ -490,38 +492,71 @@ def splitCore (c : SplitInfo) (numCases : Nat) (isRec : Bool)
   For recursive types or subsequent cases (`i > 0`), we always increment the counter since
   these represent genuine branches in the proof search.
   -/
+  let goalStack := goal.goalStack.push (goal.mvarId, goal.toGoalState)
+  let anchor ← goal.withContext <| c.getAnchor
   let subgoals := mvarIds.mapIdx fun i mvarId =>
     let numSplits := goal.split.num
     let numSplits := if i > 0 || isRec then numSplits + 1 else numSplits
     { goal with
-      mvarId
+      mvarId, goalStack
       split.num := numSplits
       split.trace := { expr := cExpr, i, num := numSubgoals, source := c.source } :: goal.split.trace }
+    |>.setIntroBase (mixHash anchor (hash i))
+  /-
+  **Note**: Stuck goals are returned to the caller, and they may be processed after this split completes,
+  e.g., by the next tactic in `grind => ...` mode. By then, the declarations hoisted to `goal` have been
+  declared in its proof and erased (see `withHoistedDecls`). Thus, we truncate the goal stack of stuck
+  goals to the one of `goal`, and they can only hoist declarations to the case splits enclosing `goal`.
+  -/
+  let exitSplit (gs : List Goal) : List Goal :=
+    gs.map fun g => { g with goalStack := g.goalStack.extract 0 goal.goalStack.size }
   let mut seqNew : Array (List (TSyntax `grind)) := #[]
   let mut stuckNew : Array Goal := #[]
+  /-
+  The state for performing non-chronological backtracking (NCB) using the given proof and tactic
+  sequence, if the case-split was kept even though NCB applies.
+  -/
+  let mut ncb? : Option (SavedState × Expr × List (TSyntax `grind)) := none
   for subgoal in subgoals do
     match (← kp subgoal) with
     | .stuck gs =>
+      if let some (s, falseProof, seq) := ncb? then
+        -- Keeping the case-split failed, so we backtrack using the proof that does not need it.
+        s.restore
+        goal.mvarId.assignFalseProof (← mkHoistedDecls (← getHoistedDecls goal) falseProof)
+        return .closed seq
       if stopAtFirstFailure then
         /-
         **Note**: We don't need to assign `goal.mvarId` when `stopAtFirstFailure = true`
         because the caller will not be able to process the all failure/stuck goals anyway.
         -/
-        return .stuck gs
+        return .stuck (exitSplit gs)
       else
-        stuckNew := stuckNew ++ gs
+        stuckNew := stuckNew ++ exitSplit gs
     | .closed seq =>
       if let some falseProof ← getFalseProof? subgoal.mvarId then
-        goal.mvarId.assignFalseProof falseProof
-        return .closed seq
+        /-
+        **Note**: When tracing, NCB drops the case-split from the generated script only if `seq`
+        still closes the original goal. It may not, even though the proof does not use the
+        case-split: the case-split may have introduced terms used by E-matching, or changed the
+        candidates that `seq` references using anchors. Otherwise, we keep the case-split.
+        -/
+        if (← checkSeqAt saved? goal₀ seq) then
+          goal.mvarId.assignFalseProof (← mkHoistedDecls (← getHoistedDecls goal) falseProof)
+          return .closed seq
+        if ncb?.isNone then
+          ncb? := some (← saveState, falseProof, seq)
+        if !seq.isEmpty then
+          seqNew := seqNew.push seq
       else if !seq.isEmpty then
         /- **Note**: if the sequence is empty, it means the user will never see this goal. -/
         seqNew := seqNew.push seq
+  let proof ← mkHoistedDecls (← getHoistedDecls goal) (← instantiateMVars (mkMVar mvarId))
   if (← goal.mvarId.getType).isFalse then
     /- **Note**: We add the marker to assist `getFalseExpr?` -/
-    goal.mvarId.assign (mkExpectedPropHint (← instantiateMVars (mkMVar mvarId)) (mkConst ``False))
+    goal.mvarId.assign (mkExpectedPropHint proof (mkConst ``False))
   else
-    goal.mvarId.assign (← instantiateMVars (mkMVar mvarId))
+    goal.mvarId.assign proof
   if stuckNew.isEmpty then
     if let some anchorInfo := anchorInfo? then
       let cases ← anchorInfo.toSyntax

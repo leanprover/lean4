@@ -3009,8 +3009,8 @@ if (v___x_912_ == 2)
 uint8_t v___x_913_; 
 v___x_913_ = 0;
 v___y_880_ = v___x_913_;
-v___y_881_ = v___x_910_;
-v___y_882_ = v_a_907_;
+v___y_881_ = v_a_907_;
+v___y_882_ = v___x_910_;
 v___y_883_ = v_outLv_909_;
 goto v___jp_879_;
 }
@@ -3018,8 +3018,8 @@ else
 {
 uint8_t v___x_914_; 
 v___x_914_ = 1;
-v___y_900_ = v___x_910_;
-v___y_901_ = v_a_907_;
+v___y_900_ = v_a_907_;
+v___y_901_ = v___x_910_;
 v___y_902_ = v___x_914_;
 goto v___jp_899_;
 }
@@ -3032,8 +3032,8 @@ lean_inc(v_a_915_);
 lean_dec_ref_known(v___x_905_, 2);
 v___x_916_ = lean_box(0);
 v___x_917_ = 1;
-v___y_900_ = v___x_916_;
-v___y_901_ = v_a_915_;
+v___y_900_ = v_a_915_;
+v___y_901_ = v___x_916_;
 v___y_902_ = v___x_917_;
 goto v___jp_899_;
 }
@@ -3111,14 +3111,14 @@ v___x_886_ = l_Lake_OutStream_get(v_out_885_);
 lean_inc_ref(v___x_886_);
 v___x_887_ = l_Lake_AnsiMode_isEnabled(v___x_886_, v_ansiMode_884_);
 v___x_888_ = lean_unsigned_to_nat(0u);
-v___x_889_ = lean_array_get_size(v___y_882_);
+v___x_889_ = lean_array_get_size(v___y_881_);
 v___x_890_ = lean_nat_dec_lt(v___x_888_, v___x_889_);
 if (v___x_890_ == 0)
 {
 lean_dec_ref(v___x_886_);
-lean_dec_ref(v___y_882_);
+lean_dec_ref(v___y_881_);
 v___y_868_ = v___y_880_;
-v___y_869_ = v___y_881_;
+v___y_869_ = v___y_882_;
 goto v___jp_867_;
 }
 else
@@ -3133,10 +3133,10 @@ lean_closure_set(v___f_893_, 2, v___x_892_);
 v___x_894_ = lean_box(0);
 v___x_895_ = ((size_t)0ULL);
 v___x_896_ = lean_usize_of_nat(v___x_889_);
-v___x_130__overap_897_ = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold(lean_box(0), lean_box(0), lean_box(0), v___x_878_, v___f_893_, v___y_882_, v___x_895_, v___x_896_, v___x_894_);
+v___x_130__overap_897_ = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold(lean_box(0), lean_box(0), lean_box(0), v___x_878_, v___f_893_, v___y_881_, v___x_895_, v___x_896_, v___x_894_);
 v___x_898_ = lean_apply_1(v___x_130__overap_897_, lean_box(0));
 v___y_868_ = v___y_880_;
-v___y_869_ = v___y_881_;
+v___y_869_ = v___y_882_;
 goto v___jp_867_;
 }
 }
@@ -3187,8 +3187,8 @@ if (v___x_974_ == 2)
 uint8_t v___x_975_; 
 v___x_975_ = 0;
 v___y_942_ = v___x_975_;
-v___y_943_ = v___x_972_;
-v___y_944_ = v_a_969_;
+v___y_943_ = v_a_969_;
+v___y_944_ = v___x_972_;
 v___y_945_ = v_outLv_971_;
 goto v___jp_941_;
 }
@@ -3196,8 +3196,8 @@ else
 {
 uint8_t v___x_976_; 
 v___x_976_ = 1;
-v___y_962_ = v___x_972_;
-v___y_963_ = v_a_969_;
+v___y_962_ = v_a_969_;
+v___y_963_ = v___x_972_;
 v___y_964_ = v___x_976_;
 goto v___jp_961_;
 }
@@ -3210,8 +3210,8 @@ lean_inc(v_a_977_);
 lean_dec_ref_known(v___x_967_, 2);
 v___x_978_ = lean_box(0);
 v___x_979_ = 1;
-v___y_962_ = v___x_978_;
-v___y_963_ = v_a_977_;
+v___y_962_ = v_a_977_;
+v___y_963_ = v___x_978_;
 v___y_964_ = v___x_979_;
 goto v___jp_961_;
 }
@@ -3289,14 +3289,14 @@ v___x_948_ = l_Lake_OutStream_get(v_out_947_);
 lean_inc_ref(v___x_948_);
 v___x_949_ = l_Lake_AnsiMode_isEnabled(v___x_948_, v_ansiMode_946_);
 v___x_950_ = lean_unsigned_to_nat(0u);
-v___x_951_ = lean_array_get_size(v___y_944_);
+v___x_951_ = lean_array_get_size(v___y_943_);
 v___x_952_ = lean_nat_dec_lt(v___x_950_, v___x_951_);
 if (v___x_952_ == 0)
 {
 lean_dec_ref(v___x_948_);
-lean_dec_ref(v___y_944_);
+lean_dec_ref(v___y_943_);
 v___y_930_ = v___y_942_;
-v___y_931_ = v___y_943_;
+v___y_931_ = v___y_944_;
 goto v___jp_929_;
 }
 else
@@ -3311,10 +3311,10 @@ lean_closure_set(v___f_955_, 2, v___x_954_);
 v___x_956_ = lean_box(0);
 v___x_957_ = ((size_t)0ULL);
 v___x_958_ = lean_usize_of_nat(v___x_951_);
-v___x_308__overap_959_ = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold(lean_box(0), lean_box(0), lean_box(0), v___x_940_, v___f_955_, v___y_944_, v___x_957_, v___x_958_, v___x_956_);
+v___x_308__overap_959_ = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold(lean_box(0), lean_box(0), lean_box(0), v___x_940_, v___f_955_, v___y_943_, v___x_957_, v___x_958_, v___x_956_);
 v___x_960_ = lean_apply_1(v___x_308__overap_959_, lean_box(0));
 v___y_930_ = v___y_942_;
-v___y_931_ = v___y_943_;
+v___y_931_ = v___y_944_;
 goto v___jp_929_;
 }
 }

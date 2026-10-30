@@ -117,6 +117,16 @@ def nonzeroCharInst? [Monad m] [MonadRing m] : m (Option (Expr × Nat)) := do
       return some (inst, c)
   return none
 
+/--
+Returns the `IsCharP` instance if the current ring has characteristic `1`.
+Such a ring is trivial, and its polynomials violate the invariant that coefficients are nonzero
+modulo the characteristic, so the solver must not process them. See `IsCharP.eq_of_charOne`.
+-/
+def charOneInst? [Monad m] [MonadRing m] : m (Option Expr) := do
+  if let some (inst, 1) := (← getRing).charInst? then
+    return some inst
+  return none
+
 def noZeroDivisorsInst? : RingM (Option Expr) := do
   return (← getCommRing).noZeroDivInst?
 

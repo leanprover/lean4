@@ -16,7 +16,7 @@ namespace Lean.IR.Checker
 structure CheckerContext where
   localCtx : LocalContext := {}
   currentDecl : Decl
-  decls : Array Decl
+  decls : DeclMap
 
 structure CheckerState where
   foundVars : IndexSet := {}
@@ -40,7 +40,8 @@ def markJP (j : JoinPointId) : M Unit := do
 
 def getDecl (c : Name) : M Decl := do
   let ctx ← read
-  match findEnvDecl' (← getEnv) c ctx.decls with
+  let env ← getEnv
+  match ctx.decls.find? c <|> findEnvDecl env c with
   | none   => throwCheckerError s!"depends on declaration '{c}', which has no executable code; consider marking definition as 'noncomputable'"
   | some d => pure d
 
@@ -228,11 +229,19 @@ def checkDecl : Decl → M Unit
 
 end Checker
 
-def checkDecl (decls : Array Decl) (decl : Decl) : CompilerM Unit := do
+private def mkDeclMap (decls : Array Decl) : DeclMap :=
+  -- Earlier entries take precedence when a name occurs more than once.
+  decls.foldr (fun decl map => map.insert decl.name decl) {}
+
+private def checkDeclWithMap (decls : DeclMap) (decl : Decl) : CompilerM Unit := do
   Checker.checkDecl decl { decls, currentDecl := decl } |>.run' {}
 
+def checkDecl (decls : Array Decl) (decl : Decl) : CompilerM Unit :=
+  checkDeclWithMap (mkDeclMap decls) decl
+
 def checkDecls (decls : Array Decl) : CompilerM Unit :=
-  decls.forM (checkDecl decls)
+  let declMap := mkDeclMap decls
+  decls.forM (checkDeclWithMap declMap)
 
 end IR
 end Lean

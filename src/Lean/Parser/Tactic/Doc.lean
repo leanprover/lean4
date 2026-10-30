@@ -83,9 +83,7 @@ builtin_initialize
 
       if !(isTactic (← getEnv) tgtName) then throwErrorAt tgt "`{tgtName}` is not a tactic"
       -- If the target is a known syntax kind, ensure that it's a tactic
-      let mut cats := #[]
-      for (catName, cat) in parserExtension.getState (← getEnv) |>.categories do
-        if cat.kinds.contains decl then cats := cats.push catName
+      let cats := getSyntaxNodeKindCategories (← getEnv) decl
       if !cats.isEmpty && cats.all (· ≠ `tactic) then
         let catNames := cats.map fun c => m!"`{c}`"
         let s := if catNames.size > 1 then m!"ies" else m!"y"

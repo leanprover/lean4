@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Ord.Vector
-// Imports: public import Init.Data.Order.Ord public import Init.Data.Vector.Basic import Init.Data.Vector.Lemmas
+// Imports: public import Init.Data.Order.Ord public import Init.Data.Vector.Basic import Init.Data.Array.Bootstrap import Init.Data.Vector.Lemmas
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -13,7 +13,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-uint8_t l___private_Init_Data_Ord_Array_0__Array_compareLex_go(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l_Array_compareLex_go___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Vector_compareLex___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Vector_compareLex___redArg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Vector_compareLex(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -25,7 +25,7 @@ _start:
 {
 lean_object* v___x_4_; uint8_t v___x_5_; 
 v___x_4_ = lean_unsigned_to_nat(0u);
-v___x_5_ = l___private_Init_Data_Ord_Array_0__Array_compareLex_go(lean_box(0), v_cmp_1_, v_a_2_, v_b_3_, v___x_4_);
+v___x_5_ = l_Array_compareLex_go___redArg(v_cmp_1_, v_a_2_, v_b_3_, v___x_4_);
 return v___x_5_;
 }
 }
@@ -45,7 +45,7 @@ _start:
 {
 lean_object* v___x_16_; uint8_t v___x_17_; 
 v___x_16_ = lean_unsigned_to_nat(0u);
-v___x_17_ = l___private_Init_Data_Ord_Array_0__Array_compareLex_go(lean_box(0), v_cmp_13_, v_a_14_, v_b_15_, v___x_16_);
+v___x_17_ = l_Array_compareLex_go___redArg(v_cmp_13_, v_a_14_, v_b_15_, v___x_16_);
 return v___x_17_;
 }
 }
@@ -85,6 +85,7 @@ return v___x_31_;
 }
 lean_object* runtime_initialize_Init_Data_Order_Ord(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Vector_Basic(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Array_Bootstrap(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Vector_Lemmas(uint8_t builtin);
 void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
@@ -97,6 +98,9 @@ res = runtime_initialize_Init_Data_Order_Ord(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Init_Data_Vector_Basic(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_Array_Bootstrap(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Init_Data_Vector_Lemmas(builtin);
@@ -113,6 +117,7 @@ return lean_io_result_mk_ok(lean_box(0));
 }
 lean_object* initialize_Init_Data_Order_Ord(uint8_t builtin);
 lean_object* initialize_Init_Data_Vector_Basic(uint8_t builtin);
+lean_object* initialize_Init_Data_Array_Bootstrap(uint8_t builtin);
 lean_object* initialize_Init_Data_Vector_Lemmas(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_Ord_Vector(uint8_t builtin) {
@@ -123,6 +128,9 @@ res = initialize_Init_Data_Order_Ord(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Vector_Basic(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Array_Bootstrap(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Vector_Lemmas(builtin);

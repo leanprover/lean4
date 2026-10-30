@@ -60,11 +60,9 @@ private:
 
 extern event_loop global_ev;
 
-lean_obj_res recv_size_error(uint64_t size);
-lean_object * fit_read_buffer(lean_object * byte_array, size_t nread);
-
 // Holds the `global_ev` lock for its scope. Must be a named local: a temporary would unlock
-// immediately. Not for libuv callbacks, which already run under the lock.
+// immediately. libuv callbacks already run under the lock and do not take it, but a finalizer or an FFI
+// call from a continuation they run inline does; the lock is recursive, so this nests.
 class event_loop_guard {
 public:
     [[nodiscard]] event_loop_guard() { global_ev.lock(); }

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.String.Lemmas.TakeDrop
-// Imports: public import Init.Data.String.TakeDrop import all Init.Data.String.Slice import all Init.Data.String.TakeDrop import Init.Data.String.Lemmas.Splits
+// Imports: public import Init.Data.String.TakeDrop import all Init.Data.String.Slice.Basic import all Init.Data.String.TakeDrop import Init.Data.String.Lemmas.Splits
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -14,7 +14,7 @@
 extern "C" {
 #endif
 lean_object* runtime_initialize_Init_Data_String_TakeDrop(uint8_t builtin);
-lean_object* runtime_initialize_Init_Data_String_Slice(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_String_Slice_Basic(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_String_TakeDrop(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_String_Lemmas_Splits(uint8_t builtin);
 void lean_initialize_runtime_module();
@@ -27,7 +27,7 @@ lean_initialize_runtime_module();
 res = runtime_initialize_Init_Data_String_TakeDrop(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_String_Slice(builtin);
+res = runtime_initialize_Init_Data_String_Slice_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Init_Data_String_TakeDrop(builtin);
@@ -46,7 +46,7 @@ _G_meta_initialized = true;
 return lean_io_result_mk_ok(lean_box(0));
 }
 lean_object* initialize_Init_Data_String_TakeDrop(uint8_t builtin);
-lean_object* initialize_Init_Data_String_Slice(uint8_t builtin);
+lean_object* initialize_Init_Data_String_Slice_Basic(uint8_t builtin);
 lean_object* initialize_Init_Data_String_TakeDrop(uint8_t builtin);
 lean_object* initialize_Init_Data_String_Lemmas_Splits(uint8_t builtin);
 static bool _G_initialized = false;
@@ -57,7 +57,7 @@ _G_initialized = true;
 res = initialize_Init_Data_String_TakeDrop(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_String_Slice(builtin);
+res = initialize_Init_Data_String_Slice_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_String_TakeDrop(builtin);

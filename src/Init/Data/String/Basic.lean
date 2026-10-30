@@ -241,11 +241,11 @@ Examples:
 -/
 @[expose]
 noncomputable def String.toList (s : String) : List Char :=
-  (String.Internal.toArray s).toList
+  String.Internal.utf8DecodeList s.toByteArray.data.toList
 
 @[simp]
 theorem String.toList_empty : "".toList = [] := by
-  simp [toList]
+  simp [toList, Internal.utf8DecodeList]
 
 private theorem ByteArray.utf8Decode?go_eq_utf8Decode?go_extract {b : ByteArray} {hi : i ≤ b.size} {acc : Array Char} :
     utf8Decode?.go b i acc hi = (utf8Decode?.go (b.extract i b.size) 0 #[] (by simp)).map (acc ++ ·) := by
@@ -275,11 +275,11 @@ private theorem ByteArray.utf8Decode?go_eq_utf8Decode?go_extract {b : ByteArray}
       have : (fun x => acc ++ x) ∘ (fun x => #[c] ++ x) = fun x => acc.push c ++ x := by funext; simp
       simp [(by omega : i + (b.size - i) = b.size), this]
   | case3 =>
-      rw [utf8Decode?.go]
-      simp only [size_extract, Nat.le_refl, Nat.min_eq_left, Nat.zero_add, List.push_toArray,
-        List.nil_append]
-      rw [ite_eq_right (by omega)]
-      simp
+    rw [utf8Decode?.go]
+    simp only [size_extract, Nat.le_refl, Nat.min_eq_left, Nat.zero_add, List.push_toArray,
+      List.nil_append]
+    rw [ite_eq_right (by omega)]
+    simp
 termination_by b.size - i
 
 theorem ByteArray.utf8Decode?_utf8Encode_singleton_append {l : ByteArray} {c : Char} :
@@ -313,9 +313,21 @@ theorem ByteArray.utf8Encode_get_utf8Decode? {b : ByteArray} {h} :
   obtain ⟨l, rfl⟩ := isSome_utf8Decode?_iff.1 h
   simp
 
+theorem String.Internal.utf8DecodeList_utf8Encode {l : List Char} :
+    utf8DecodeList l.utf8Encode.data.toList = l := by
+  change utf8DecodeList (l.flatMap String.utf8EncodeChar) = l
+  induction l with
+  | nil => simp [utf8DecodeList]
+  | cons c l ih => rw [List.flatMap_cons, utf8DecodeList_utf8EncodeChar_append, ih]
+
 @[simp]
-theorem String.toList_ofList {l : List Char} : (String.ofList l).toList = l := by
-  simp [String.toList, String.Internal.toArray]
+theorem String.toList_ofList {l : List Char} : (String.ofList l).toList = l :=
+  String.Internal.utf8DecodeList_utf8Encode
+
+@[simp]
+theorem String.Internal.toList_toArray {s : String} : (String.Internal.toArray s).toList = s.toList := by
+  obtain ⟨l, rfl⟩ := s.exists_eq_ofList
+  simp [String.Internal.toArray]
 
 @[simp]
 theorem String.ofList_toList {s : String} : String.ofList s.toList = s := by
@@ -372,26 +384,6 @@ theorem List.asString_eq_empty_iff {l : List Char} : String.ofList l = "" ↔ l 
 end
 
 namespace String
-
-instance : LT String :=
-  ⟨fun s₁ s₂ => s₁.toList < s₂.toList⟩
-
-@[extern "lean_string_dec_lt"]
-instance decidableLT (s₁ s₂ : @& String) : Decidable (s₁ < s₂) :=
-  List.decidableLT s₁.toList s₂.toList
-
-/--
-Non-strict inequality on strings, typically used via the `≤` operator.
-
-`a ≤ b` is defined to mean `¬ b < a`.
--/
-@[expose, reducible] protected def le (a b : String) : Prop := ¬ b < a
-
-instance : LE String :=
-  ⟨String.le⟩
-
-instance decLE (s₁ s₂ : String) : Decidable (s₁ ≤ s₂) :=
-  inferInstanceAs (Decidable (Not _))
 
 theorem _root_.List.isPrefix_of_utf8Encode_append_eq_utf8Encode {l m : List Char} (b : ByteArray)
     (h : l.utf8Encode ++ b = m.utf8Encode) : l <+: m := by
@@ -3052,8 +3044,6 @@ theorem singleton_eq {c : Char} : String.singleton c = ofList [c] :=
 @[simp]
 theorem toList_push (c : Char) : (String.push s c).toList = s.toList ++ [c] := by
   simp [← append_singleton]
-
-theorem lt_iff {s t : String} : s < t ↔ s.toList < t.toList := .rfl
 
 namespace Pos.Raw
 

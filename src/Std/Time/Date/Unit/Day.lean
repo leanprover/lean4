@@ -61,6 +61,18 @@ instance : TransOrd Offset := inferInstanceAs <| TransOrd (UnitVal _)
 
 instance : LawfulEqOrd Offset := inferInstanceAs <| LawfulEqOrd (UnitVal _)
 
+instance : HMul Int Offset Offset := inferInstanceAs <| HMul Int (UnitVal _) (UnitVal _)
+
+instance : HMul Offset Int Offset := inferInstanceAs <| HMul (UnitVal _) Int (UnitVal _)
+
+instance : HMul Nat Offset Offset := inferInstanceAs <| HMul Nat (UnitVal _) (UnitVal _)
+
+instance : HMul Offset Nat Offset := inferInstanceAs <| HMul (UnitVal _) Nat (UnitVal _)
+
+instance : HDiv Offset Int Offset := inferInstanceAs <| HDiv (UnitVal _) Int (UnitVal _)
+
+instance : HDiv Offset Nat Offset := inferInstanceAs <| HDiv (UnitVal _) Nat (UnitVal _)
+
 namespace Ordinal
 
 /--

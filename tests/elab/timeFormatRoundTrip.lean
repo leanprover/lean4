@@ -4,7 +4,8 @@ open Std.Time
 /-!
 Checks that `GenericFormat.parse` reads back what `GenericFormat.format` writes with the same
 pattern: zone offsets with `O`/`OOOO` at UTC, `xxxxx` and `Z`–`ZZZ` (#16043), and the hour and
-year-of-era letters `k`, `K` and `y`+`G` (#16038).
+year-of-era letters `k`, `K` and `y`+`G` (#16038). Also checks that `PlainTime.toTime12Hour` writes
+the correct hour and that `PlainTime.fromTime12Hour` reads it back.
 -/
 
 def iso : GenericFormat .any := datespec("uuuu-MM-dd'T'HH:mm:ssXXXXX")
@@ -120,6 +121,37 @@ def hourDates : List DateTime :=
       let pat := s!"uuuu-MM-dd {pat}"
       unless exact pat d do
         failures := failures.push (pat, iso.format d)
+  return failures.toList
+
+/-! ## `PlainTime.toTime12Hour` -/
+
+/-- info: "12:30:00 AM" -/
+#guard_msgs in #eval PlainTime.toTime12Hour time("00:30:00")
+
+/-- info: "11:59:00 AM" -/
+#guard_msgs in #eval PlainTime.toTime12Hour time("11:59:00")
+
+/-- info: "12:00:00 PM" -/
+#guard_msgs in #eval PlainTime.toTime12Hour time("12:00:00")
+
+/-- info: "03:00:00 PM" -/
+#guard_msgs in #eval PlainTime.toTime12Hour time("15:00:00")
+
+/-- info: "11:00:00 PM" -/
+#guard_msgs in #eval PlainTime.toTime12Hour time("23:00:00")
+
+/-- info: [] -/
+#guard_msgs in
+#eval Id.run do
+  let mut failures := #[]
+  for h in List.range 24 do
+    let s := s!"{if h < 10 then "0" else ""}{h}:15:00"
+    match PlainTime.fromTime24Hour s with
+    | .error e => failures := failures.push (s, e)
+    | .ok t =>
+      match PlainTime.fromTime12Hour t.toTime12Hour with
+      | .ok t' => unless t'.toTime24Hour == s do failures := failures.push (s, t.toTime12Hour)
+      | .error e => failures := failures.push (s, e)
   return failures.toList
 
 /-! ## Year of era (#16038) -/

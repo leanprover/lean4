@@ -278,8 +278,10 @@ public configuration PackageConfig (p : Name) (n : Name) extends WorkspaceConfig
   `lake cache put --repo`. The repository is identified by its GitHub remote URL.
 
   No system cache service configuration is needed. Missing mappings or artifacts fall back
-  to building from source. `--no-cache` disables automatic downloads. Building the package
-  as the workspace root does not automatically fetch its mappings.
+  to building from source. Download messages include the remote URL. `--no-cache` or
+  `LAKE_NO_CACHE=true` disables automatic downloads even if the dependency enables its
+  artifact cache. Building the package as the workspace root does not automatically fetch
+  its mappings.
 
   Defaults to the empty string (no published cache).
   -/

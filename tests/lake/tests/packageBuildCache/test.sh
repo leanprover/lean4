@@ -93,11 +93,13 @@ reset_consumer() {
 
 reset_consumer
 # A downstream default build discovers mappings and downloads only its import.
-test_out 'downloaded artifact' -v build
+test_out 'downloaded artifact' build
+match_text "$URL/artifacts/" produced.out
 test_exp -f dep/.lake/build/lib/lean/Dep/Used.olean
 test_exp ! -e dep/.lake/build/lib/lean/Dep/Unused.olean
 test_cmd_eq 1 grep -c 'GET /ok/revisions/' "$SERVER_LOG"
 test_cmd_eq 1 grep -c 'GET /ok/artifacts/' "$SERVER_LOG"
+test_exp -z "$(find "$CACHE_DIR/revisions" -name '*.attempt' -print)"
 test_run -d dep build +Dep.Used --no-build
 
 # Repeated builds need neither network requests nor local compilation.
@@ -126,6 +128,20 @@ test_exp ! -s "$SERVER_LOG"
 reset_consumer
 LAKE_ARTIFACT_CACHE=false test_out 'Built Dep.Used' -v build
 test_exp ! -s "$SERVER_LOG"
+
+# The global download switches also work when the dependency enables its cache.
+cp dep/lakefile.toml dep-config.toml
+{ echo 'enableArtifactCache = true'; cat dep-config.toml; } > dep/lakefile.toml
+reset_consumer
+test_out 'downloaded artifact' build
+match_text "$URL/artifacts/" produced.out
+reset_consumer
+test_out 'Built Dep.Used' --no-cache build
+test_exp ! -s "$SERVER_LOG"
+reset_consumer
+LAKE_NO_CACHE=true test_out 'Built Dep.Used' build
+test_exp ! -s "$SERVER_LOG"
+cp dep-config.toml dep/lakefile.toml
 
 # Missing revision mappings are an optional cache miss, not a build failure.
 reset_consumer
@@ -165,6 +181,24 @@ match_text 'hash mismatch' produced.out
 mv "$STORE_DIR/artifacts" "$WORK_DIR/corrupt-artifacts"
 mv "$WORK_DIR/saved-artifacts" "$STORE_DIR/artifacts"
 
+# Untrusted artifact paths cannot overwrite files outside the cache.
+reset_consumer
+MAPPING="$STORE_DIR/revisions/leanprover/package-build-cache/$REV.jsonl"
+cp "$MAPPING" saved.jsonl
+"$PYTHON" - "$MAPPING" << 'PY'
+import pathlib, sys
+path = pathlib.Path(sys.argv[1])
+contents = path.read_text()
+assert '.ltar"' in contents
+path.write_text(contents.replace('.ltar"', '.ltar/../../../pwn/escaped.ltar"'))
+PY
+mkdir -p pwn
+echo untouched > pwn/escaped.ltar
+test_out 'Built Dep.Used' -v build
+test_cmd_eq untouched cat pwn/escaped.ltar
+no_match_text 'GET /ok/artifacts/' "$SERVER_LOG"
+cp saved.jsonl "$MAPPING"
+
 # Mapping retrieval must also work when the dependency build directory exists.
 reset_consumer
 mkdir -p dep/.lake/build
@@ -181,6 +215,17 @@ git -C dep checkout -- Dep/Used.lean
 reset_consumer
 git -C dep remote set-url origin git@github.com:leanprover/package-build-cache.git
 test_out 'downloaded artifact' -v build
+
+# Trailing slashes in GitHub remotes do not become part of the repository scope.
+for remote in \
+  https://github.com/leanprover/package-build-cache.git/ \
+  https://github.com/leanprover/package-build-cache/// \
+  ssh://git@github.com/leanprover/package-build-cache.git/; do
+  reset_consumer
+  git -C dep remote set-url origin "$remote"
+  test_out 'downloaded artifact' -v build
+  match_text "GET /ok/revisions/leanprover/package-build-cache/$REV.jsonl" "$SERVER_LOG"
+done
 
 # Revision metadata is separated by toolchain even in a shared LAKE_CACHE_DIR.
 # Keep the unqualified mapping installed so that an incorrect cache key hides the request.
@@ -209,6 +254,19 @@ cp -r "$STORE_DIR/revisions" "$STORE_DIR/artifacts" "$STORE_DIR/mirror/"
 sed_i "s|buildCache = \"$URL/\"|buildCache = \"$URL/mirror\"|" dep/lakefile.toml
 test_out 'downloaded artifact' -v build
 match_text 'GET /ok/mirror/artifacts/' "$SERVER_LOG"
+
+# Switching endpoints within the retry interval reuses both downloaded mappings.
+find "$CACHE_DIR/revisions" -name '*.jsonl' -exec sh -c 'touch "$1.attempt"' _ {} \;
+for endpoint in "$URL/" "$URL/mirror"; do
+  test_run -d dep clean
+  test_run clean
+  rm -f "$CACHE_DIR"/artifacts/*
+  : > "$SERVER_LOG"
+  sed_i "s|^buildCache = .*|buildCache = \"$endpoint\"|" dep/lakefile.toml
+  test_out 'downloaded artifact' build
+  match_text "${endpoint%/}/artifacts/" produced.out
+  no_match_text '/revisions/' "$SERVER_LOG"
+done
 
 # Once installed, revision mappings are not scanned again on a no-op build.
 find "$CACHE_DIR/revisions" -name '*.jsonl' -exec sh -c 'echo invalid > "$1"' _ {} \;

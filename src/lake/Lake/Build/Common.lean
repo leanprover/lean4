@@ -608,11 +608,9 @@ public def resolveArtifact
         let some scope := scope?
           | error s!"artifact with associated cache service but no scope"
         let url := service.artifactUrl descr.hash scope
-        logVerbose s!"\
-          downloaded artifact {descr.hash}\
-          \n  local path: {path}\
-          \n  remote URL: {url}"
         liftM <| downloadArtifactCore descr.hash url path
+        logInfo s!"downloaded artifact {descr.hash} from {url}"
+        logVerbose s!"local path: {path}"
         let r := {read := true, write := false, execution := exe}
         if let .error e ← IO.setAccessRights path ⟨r, r, r⟩ |>.toBaseIO then
           logWarning s!"could not mark downloaded artifact read-only: {e}"

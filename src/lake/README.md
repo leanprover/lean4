@@ -247,7 +247,10 @@ When a downstream build first uses the package, Lake downloads the pinned Git re
 input-to-output mappings from `<buildCache>/revisions`. It then downloads artifacts from
 `<buildCache>/artifacts` only as the build needs them. Downstream users do not need to run
 `lake cache get` or configure a system cache service. The `buildCache` URL is ignored when
-empty, and `--no-cache` disables automatic downloads.
+empty. Download messages include the remote URL. `--no-cache` or `LAKE_NO_CACHE=true`
+disables automatic downloads, including when a dependency sets `enableArtifactCache = true`.
+The package's `enableArtifactCache` setting takes precedence over the root package's setting
+and `LAKE_ARTIFACT_CACHE`.
 
 Successful mapping installations are reused without rescanning the revision map. Unavailable
 or malformed mappings are retried after five minutes; `lake cache clean` clears that delay.

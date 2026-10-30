@@ -521,7 +521,7 @@
                 "buildCache": {
                     "type": "string",
                     "default": "",
-                    "description": "The base URL of a published artifact cache. Downstream builds automatically fetch the current Git revision's mappings from <buildCache>/revisions and download needed artifacts from <buildCache>/artifacts. Uses the repository, toolchain, and platform layout of lake cache put --repo, identifying the repository from its GitHub remote. Missing mappings or artifacts fall back to local compilation. --no-cache disables automatic downloads."
+                    "description": "The base URL of a published artifact cache. Downstream builds automatically fetch the current Git revision's mappings from <buildCache>/revisions and download needed artifacts from <buildCache>/artifacts. Uses the repository, toolchain, and platform layout of lake cache put --repo, identifying the repository from its GitHub remote. Missing mappings or artifacts fall back to local compilation. Download messages include the remote URL. --no-cache or LAKE_NO_CACHE=true disables automatic downloads even if the dependency enables its artifact cache."
                 },
                 "enableArtifactCache": {
                     "type": "boolean",

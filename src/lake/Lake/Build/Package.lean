@@ -79,6 +79,7 @@ def Package.fetchArtifactCacheMappings (self : Package) : JobM Bool := do
   let url ← match self.remoteUrl? with
     | some url => pure url
     | none => pure <| (← repo.getRemoteUrl?).getD ""
+  let url := url.dropEndWhile '/' |>.copy
   let repoName? := url.dropPrefix? "https://github.com/"
     <|> url.dropPrefix? "git@github.com:"
     <|> url.dropPrefix? "ssh://git@github.com/"
@@ -108,13 +109,13 @@ def Package.fetchArtifactCacheMappings (self : Package) : JobM Bool := do
     if let .ok installed ← IO.FS.readFile readyFile |>.toBaseIO then
       if installed == path.toString then return true
     let attemptFile := path.addExtension "attempt"
-    let now := (← Std.Time.Timestamp.now).toSecondsSinceUnixEpoch.val
-    if let .ok previous ← attemptFile.metadata |>.toBaseIO then
-      if previous.modified.sec ≤ now && now - previous.modified.sec < 300 then return false
-    IO.FS.writeFile attemptFile ""
     let contents? ← if (← path.pathExists) then
       pure <| some (← IO.FS.readFile path)
     else
+      let now := (← Std.Time.Timestamp.now).toSecondsSinceUnixEpoch.val
+      if let .ok previous ← attemptFile.metadata |>.toBaseIO then
+        if previous.modified.sec ≤ now && now - previous.modified.sec < 300 then return false
+      IO.FS.writeFile attemptFile ""
       getUrl? (service.revisionUrl rev scope platform toolchain) #[]
         #["--retry", "0", "--connect-timeout", "3", "--max-time", "15"]
     let some contents := contents? | return false
@@ -136,6 +137,7 @@ def Package.fetchArtifactCacheMappings (self : Package) : JobM Bool := do
       cache.writeOutputs self.cacheScope input entry.out service.name? (some scope)
         (overwrite := replace)
     IO.FS.writeFile readyFile path.toString
+    removeFileIfExists attemptFile
     return true
   finally
     lock.unlock

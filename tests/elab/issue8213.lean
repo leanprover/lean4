@@ -11,21 +11,20 @@ def myTest {α}
 
 
 /--
-error: Failed to realize constant myTest.fun_cases:
-  Cannot derive functional cases principle (please report this issue)
-    failed to transform matcher, type error when constructing new pre-splitter motive:
-      myTest.match_1 (fun x => motive x h_1 h_2) x
-    failed with
-      Application type mismatch: The argument
-        h_1
-      has type
-        (a : α) → (dc : List α) → x = a :: dc → mmotive (a :: dc)
-      but is expected to have type
-        (a : α) → (dc : List α) → x✝ = a :: dc → mmotive (a :: dc)
-      in the application
-        motive x✝ h_1
----
-error: Unknown identifier `myTest.fun_cases`
+info: myTest.fun_cases.{v, u_1} {α : Type u_1} (mmotive : List α → Sort v)
+  (motive :
+    (x : List α) →
+      ((a : α) → (dc : List α) → x = a :: dc → mmotive (a :: dc)) → ((x' : List α) → x = x' → mmotive x') → Prop)
+  (case1 :
+    ∀ (a : α) (dc : List α) (h_1 : (a_1 : α) → (dc_1 : List α) → a :: dc = a_1 :: dc_1 → mmotive (a_1 :: dc_1))
+      (h_2 : (x' : List α) → a :: dc = x' → mmotive x'), motive (a :: dc) h_1 h_2)
+  (case2 :
+    ∀ (x' : List α),
+      (∀ (a : α) (dc : List α), x' = a :: dc → False) →
+        ∀ (h_1 : (a : α) → (dc : List α) → x' = a :: dc → mmotive (a :: dc))
+          (h_2 : (x'_1 : List α) → x' = x'_1 → mmotive x'_1), motive x' h_1 h_2)
+  (x : List α) (h_1 : (a : α) → (dc : List α) → x = a :: dc → mmotive (a :: dc))
+  (h_2 : (x' : List α) → x = x' → mmotive x') : motive x h_1 h_2
 -/
 #guard_msgs in
-def foo := @myTest.fun_cases
+#check myTest.fun_cases

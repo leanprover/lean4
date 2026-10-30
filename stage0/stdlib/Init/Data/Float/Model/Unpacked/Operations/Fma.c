@@ -709,18 +709,18 @@ goto v___jp_139_;
 v___jp_125_:
 {
 lean_object* v___x_130_; lean_object* v___x_131_; lean_object* v___x_132_; lean_object* v___x_133_; lean_object* v_mantissa_134_; uint8_t v___x_135_; lean_object* v___x_136_; 
-v___x_130_ = lean_nat_to_int(v___y_126_);
+v___x_130_ = lean_nat_to_int(v___y_128_);
 v___x_131_ = l_Float_Model_UnpackedFloat_Sign_apply(v___y_129_, v___x_130_);
 lean_dec(v___x_130_);
-v___x_132_ = lean_nat_to_int(v___y_127_);
+v___x_132_ = lean_nat_to_int(v___y_126_);
 v___x_133_ = l_Float_Model_UnpackedFloat_Sign_apply(v_sign_122_, v___x_132_);
 lean_dec(v___x_132_);
 v_mantissa_134_ = lean_int_add(v___x_131_, v___x_133_);
 lean_dec(v___x_133_);
 lean_dec(v___x_131_);
 v___x_135_ = 1;
-v___x_136_ = l_Float_Model_UnpackedFloat_normalize(v_spec_7_, v_mantissa_134_, v___y_128_, v___x_135_);
-lean_dec(v___y_128_);
+v___x_136_ = l_Float_Model_UnpackedFloat_normalize(v_spec_7_, v_mantissa_134_, v___y_127_, v___x_135_);
+lean_dec(v___y_127_);
 lean_dec(v_mantissa_134_);
 return v___x_136_;
 }
@@ -745,9 +745,9 @@ v_fst_144_ = lean_ctor_get(v___x_143_, 0);
 lean_inc(v_fst_144_);
 lean_dec_ref(v___x_143_);
 v___x_145_ = 1;
-v___y_126_ = v_fst_142_;
-v___y_127_ = v_fst_144_;
-v___y_128_ = v___y_140_;
+v___y_126_ = v_fst_144_;
+v___y_127_ = v___y_140_;
+v___y_128_ = v_fst_142_;
 v___y_129_ = v___x_145_;
 goto v___jp_125_;
 }
@@ -757,9 +757,9 @@ lean_object* v_fst_146_;
 v_fst_146_ = lean_ctor_get(v___x_143_, 0);
 lean_inc(v_fst_146_);
 lean_dec_ref(v___x_143_);
-v___y_126_ = v_fst_142_;
-v___y_127_ = v_fst_146_;
-v___y_128_ = v___y_140_;
+v___y_126_ = v_fst_146_;
+v___y_127_ = v___y_140_;
+v___y_128_ = v_fst_142_;
 v___y_129_ = v_sign_109_;
 goto v___jp_125_;
 }
@@ -770,9 +770,9 @@ lean_object* v_fst_147_;
 v_fst_147_ = lean_ctor_get(v___x_143_, 0);
 lean_inc(v_fst_147_);
 lean_dec_ref(v___x_143_);
-v___y_126_ = v_fst_142_;
-v___y_127_ = v_fst_147_;
-v___y_128_ = v___y_140_;
+v___y_126_ = v_fst_147_;
+v___y_127_ = v___y_140_;
+v___y_128_ = v_fst_142_;
 v___y_129_ = v_sign_112_;
 goto v___jp_125_;
 }

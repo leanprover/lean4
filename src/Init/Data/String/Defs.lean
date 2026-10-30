@@ -23,15 +23,15 @@ Note that this file, despite being called `Defs`, contains quite a few lemmas.
 public section
 
 @[simp]
-theorem List.utf8Encode_nil : List.utf8Encode [] = ByteArray.empty := by simp [utf8Encode]
+theorem List.utf8Encode_nil : List.utf8Encode [] = ByteArray.empty := by simp [utf8Encode_eq_toByteArray]
 
 theorem List.utf8Encode_singleton {c : Char} : [c].utf8Encode = (String.utf8EncodeChar c).toByteArray := by
-  simp [utf8Encode]
+  simp [utf8Encode_eq_toByteArray]
 
 @[simp]
 theorem List.utf8Encode_append {l l' : List Char} :
     (l ++ l').utf8Encode = l.utf8Encode ++ l'.utf8Encode := by
-  simp [utf8Encode]
+  simp [utf8Encode_eq_toByteArray]
 
 theorem List.utf8Encode_cons {c : Char} {l : List Char} : (c :: l).utf8Encode = [c].utf8Encode ++ l.utf8Encode := by
   rw [← singleton_append, List.utf8Encode_append]
@@ -42,7 +42,7 @@ theorem String.utf8EncodeChar_ne_nil {c : Char} : String.utf8EncodeChar c ≠ []
 
 @[simp]
 theorem List.utf8Encode_eq_empty {l : List Char} : l.utf8Encode = ByteArray.empty ↔ l = [] := by
-  simp [utf8Encode, ← List.eq_nil_iff_forall_not_mem]
+  simp [utf8Encode_eq_toByteArray, ← List.eq_nil_iff_forall_not_mem]
 
 theorem ByteArray.isValidUTF8_utf8Encode {l : List Char} : IsValidUTF8 l.utf8Encode :=
   .intro l rfl
@@ -66,14 +66,17 @@ Decodes an array of bytes that encode a string as [UTF-8](https://en.wikipedia.o
 the corresponding string.
 -/
 @[inline, expose]
-def String.fromUTF8 (a : @& ByteArray) (h : a.IsValidUTF8) : String :=
+def String.fromUTF8 (a : ByteArray) (h : a.IsValidUTF8) : String :=
   .ofByteArray a h
+
+@[simp] theorem String.fromUTF8_eq_ofByteArray {a : ByteArray} {h : a.IsValidUTF8} :
+    String.fromUTF8 a h = String.ofByteArray a h := rfl
 
 /--
 Encodes a string in UTF-8 as an array of bytes.
 -/
-@[extern "lean_string_to_utf8"]
-def String.toUTF8 (a : @& String) : ByteArray :=
+@[inline, expose]
+def String.toUTF8 (a : String) : ByteArray :=
   a.toByteArray
 
 @[simp] theorem String.toUTF8_eq_toByteArray {s : String} : s.toUTF8 = s.toByteArray := (rfl)

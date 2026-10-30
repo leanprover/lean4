@@ -57,10 +57,10 @@ error: - The prover used the following expressions as uninterpreted functions:
   - f x
   - f y
 The prover found a counterexample, consider the following assignment:
-f x = 127#8
-x = 255#8
-f y = 255#8
-y = 127#8
+f x = 0#8
+x = 128#8
+f y = 128#8
+y = 0#8
 -/
 #guard_msgs in
 example (f : BitVec 8 → BitVec 8) (x y : BitVec 8) :
@@ -73,9 +73,9 @@ error: - The prover used the following expressions as uninterpreted functions:
   - f y
 The prover found a counterexample, consider the following assignment:
 f x = false
-x = 255#8
+x = 128#8
 f y = true
-y = 127#8
+y = 0#8
 -/
 #guard_msgs in
 example (f : BitVec 8 → Bool) (x y : BitVec 8) :

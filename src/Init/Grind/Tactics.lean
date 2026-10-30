@@ -176,6 +176,8 @@ This *model-based* search is **complete for LIA**.
 * `grind -lia` disable the solver (useful for debugging)
 * `grind +qlia` accept rational models (shrinks the search space but is incomplete for ℤ)
 * `grind (liaSteps := n)` cap the number of steps performed by the model search (the solver becomes incomplete when the threshold is reached)
+* `grind (liaReorders := n)` cap the number of times the model search reorders its variables to avoid a large Cooper case split (`0` disables)
+* `grind (liaReorderCases := n)` request such a reordering only for Cooper splits with more than `n` cases
 
 #### Examples:
 

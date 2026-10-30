@@ -5,34 +5,11 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Sofia Rodrigues, Henrik Böving
 */
 #include "runtime/uv/event_loop.h"
-#include <cstring>
-
-
-/*
-This file builds a thread safe event loop on top of the thread unsafe libuv event loop.
-We achieve this by always having a `uv_async_t` associated with the libuv event loop.
-As `uv_async_t` are a thread safe primitive it is safe to send a notification to it from another
-thread. Once this notification arrives the event loop suspends its own execution and unlocks a mutex
-that protects it. This mutex can then be taken by another thread that wants to work with the event
-loop. After that work is done it signals a condition variable that the event loop is waiting on
-to continue its execution.
-*/
+#include "runtime/thread.h"
 
 namespace lean {
 #ifndef LEAN_EMSCRIPTEN
-using namespace std;
-
-event_loop_t global_ev;
-
-// Helpers
-
-void lean_promise_resolve_with_code(int status, obj_arg promise) {
-    obj_arg res = status == 0
-        ? mk_except_ok(lean_box(0))
-        : mk_except_err(lean_decode_uv_error(status, nullptr));
-
-    lean_promise_resolve(res, promise);
-}
+event_loop global_ev;
 
 // Utility function for error checking. This function is only used inside the
 // initializition of the event loop.
@@ -43,123 +20,102 @@ static void check_uv(int result, const char * msg) {
     }
 }
 
-// Interrupts the event loop and stops it so it can receive future requests.
-void event_loop_interrupt(event_loop_t * event_loop) {
-    int result = uv_async_send(&event_loop->async);
-    (void)result;
-    lean_assert(result == 0);
+void event_loop::start() {
+    m_loop = uv_default_loop();
+    check_uv(uv_mutex_init_recursive(&m_mutex), "Failed to initialize mutex");
+    check_uv(uv_cond_init(&m_cond), "Failed to initialize condition variable");
+    check_uv(uv_async_init(m_loop, &m_async, nullptr), "Failed to initialize async");
+    m_waiters = 0;
+
+    lthread([this]() { run(); });
 }
 
-// Initializes the event loop
-void event_loop_init(event_loop_t * event_loop) {
-    event_loop->loop = uv_default_loop();
-    check_uv(uv_mutex_init_recursive(&event_loop->mutex), "Failed to initialize mutex");
-    check_uv(uv_cond_init(&event_loop->cond_var), "Failed to initialize condition variable");
-    check_uv(uv_async_init(event_loop->loop, &event_loop->async, NULL), "Failed to initialize async");
-    event_loop->n_waiters = 0;
-}
-
-// Locks the event loop for the side of the requesters.
-void event_loop_lock(event_loop_t * event_loop) {
-    if (uv_mutex_trylock(&event_loop->mutex) != 0) {
-        event_loop->n_waiters++;
-        event_loop_interrupt(event_loop);
-        uv_mutex_lock(&event_loop->mutex);
-        event_loop->n_waiters--;
+void event_loop::lock() {
+    if (uv_mutex_trylock(&m_mutex) != 0) {
+        m_waiters++;
+        int result = uv_async_send(&m_async);
+        (void)result;
+        lean_assert(result == 0);
+        uv_mutex_lock(&m_mutex);
+        m_waiters--;
     }
 }
 
-// Unlock event loop
-void event_loop_unlock(event_loop_t * event_loop) {
-    if (event_loop->n_waiters == 0) {
-        uv_cond_signal(&event_loop->cond_var);
+void event_loop::unlock() {
+    if (m_waiters == 0) {
+        uv_cond_signal(&m_cond);
     }
-    uv_mutex_unlock(&event_loop->mutex);
+    uv_mutex_unlock(&m_mutex);
 }
 
-// `nullptr` if `size` is a valid receive buffer size. libuv reports an empty buffer as `UV_ENOBUFS`,
-// which would read as a resource shortage.
-lean_obj_res lean_uv_recv_size_error(uint64_t size) {
-    if (size != 0) {
-        return nullptr;
-    }
-    return lean_io_result_mk_error(lean_mk_io_error_invalid_argument(EINVAL, lean_mk_string("receive buffer size must be positive")));
+bool event_loop::alive(event_loop_guard const &) {
+    // `m_async` only wakes the loop for waiting threads and is always active, so it is left out.
+    uv_unref((uv_handle_t*)&m_async);
+    bool alive = uv_loop_alive(m_loop);
+    uv_ref((uv_handle_t*)&m_async);
+    return alive;
 }
 
-// Sets the size of a receive buffer to the `nread` bytes it received. A read that fills less than half
-// of it is moved to a buffer of its own size instead, so that many small reads do not each keep a
-// full-sized buffer alive.
-lean_object * lean_uv_fit_read_buffer(lean_object * byte_array, size_t nread) {
-    if (nread * 2 >= lean_sarray_capacity(byte_array)) {
-        lean_sarray_set_size(byte_array, nread);
-        return byte_array;
-    }
-    lean_object * fitted = lean_alloc_sarray(1, nread, nread);
-    memcpy(lean_sarray_cptr(fitted), lean_sarray_cptr(byte_array), nread);
-    lean_dec(byte_array);
-    return fitted;
-}
+// The loop thread's body.
+void event_loop::run() {
+    while (true) {
+        uv_mutex_lock(&m_mutex);
 
-// Runs the loop and stops when it needs to register new requests.
-void event_loop_run_loop(event_loop_t * event_loop) {
-    while (uv_loop_alive(event_loop->loop)) {
-        uv_mutex_lock(&event_loop->mutex);
-
-        while (event_loop->n_waiters != 0) {
-            uv_cond_wait(&event_loop->cond_var, &event_loop->mutex);
+        while (m_waiters != 0) {
+            uv_cond_wait(&m_cond, &m_mutex);
         }
 
-        uv_run(event_loop->loop, UV_RUN_ONCE);
-        /*
-         * There is always the `uv_async_t` so we can never run out of things to wait on.
-         * `event_loop_interrupt` sends on it when another thread wants to work with the event loop,
-         * which makes `uv_run` return so we can give up the mutex.
-         */
+        // Checked with the lock held, since `alive` unreferences `m_async` under it.
+        if (!uv_loop_alive(m_loop)) {
+            uv_mutex_unlock(&m_mutex);
+            break;
+        }
 
-        uv_mutex_unlock(&event_loop->mutex);
+        // `m_async` is always active, so the loop never runs out of things to wait on. A waiting thread
+        // sends on it to make `uv_run` return, so that the mutex is released.
+        uv_run(m_loop, UV_RUN_ONCE);
+
+        uv_mutex_unlock(&m_mutex);
     }
 }
 
-/* Std.Internal.UV.Loop.configure (options : Loop.Options) : BaseIO Unit */
+/* Std.Internal.UV.Loop.configure (options : @& Loop.Options) : IO Unit */
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_event_loop_configure(b_obj_arg options) {
     bool accum = lean_ctor_get_uint8(options, 0);
     bool block = lean_ctor_get_uint8(options, 1);
 
-    event_loop_lock(&global_ev);
+    int result = 0;
 
-    if (accum) {
-        int result = uv_loop_configure(global_ev.loop, UV_METRICS_IDLE_TIME);
-        if (result != 0) return lean_io_result_mk_error(lean_decode_uv_error(result, NULL));
+    {
+        event_loop_guard guard;
+
+        if (accum) {
+            result = uv_loop_configure(global_ev.m_loop, UV_METRICS_IDLE_TIME);
+        }
+
+        #if !defined(WIN32) && !defined(_WIN32)
+        if (result == 0 && block) {
+            result = uv_loop_configure(global_ev.m_loop, UV_LOOP_BLOCK_SIGNAL, SIGPROF);
+        }
+        #endif
     }
 
-    #if!defined(WIN32) && !defined(_WIN32)
-    if (block) {
-        int result = uv_loop_configure(global_ev.loop, UV_LOOP_BLOCK_SIGNAL, SIGPROF);
-        if (result != 0) return lean_io_result_mk_error(lean_decode_uv_error(result, NULL));
+    if (result != 0) {
+        return io_result_mk_uv_error(result);
     }
-    #endif
 
-    event_loop_unlock(&global_ev);
-
-    return lean_box(0);
+    return lean_io_result_mk_ok(lean_box(0));
 }
 
 /* Std.Internal.UV.Loop.alive : BaseIO Bool */
 extern "C" LEAN_EXPORT uint8_t lean_uv_event_loop_alive() {
-    event_loop_lock(&global_ev);
-    int is_alive = uv_loop_alive(global_ev.loop);
-    event_loop_unlock(&global_ev);
-
-    return is_alive;
-}
-
-void initialize_libuv_loop() {
-    event_loop_init(&global_ev);
+    event_loop_guard guard;
+    return global_ev.alive(guard);
 }
 
 #else
 
-/* Std.Internal.UV.Loop.configure (options : Loop.Options) : BaseIO Unit */
+/* Std.Internal.UV.Loop.configure (options : @& Loop.Options) : IO Unit */
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_event_loop_configure(b_obj_arg options) {
     return io_result_mk_error("lean_uv_event_loop_configure is not supported");
 }

@@ -4,7 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Markus Himmel, Sofia Rodrigues
  */
-#include <pthread.h>
 #include "runtime/libuv.h"
 #include "runtime/object.h"
 
@@ -21,9 +20,7 @@ extern "C" void initialize_libuv() {
     initialize_libuv_tcp_socket();
     initialize_libuv_udp_socket();
     initialize_libuv_signal();
-    initialize_libuv_loop();
-
-    lthread([]() { event_loop_run_loop(&global_ev); });
+    global_ev.start();
 }
 
 extern "C" LEAN_EXPORT char ** lean_setup_args(int argc, char ** argv) {

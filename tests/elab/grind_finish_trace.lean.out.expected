@@ -1,6 +1,6 @@
 Try these:
-  [apply] cases #b4ed <;>
-      instantiate only [= BitVec.getElem_and] <;> instantiate only [= BitVec.getElem_or] <;> cases #de0f
-  [apply] finish only [= BitVec.getElem_and, = BitVec.getElem_or, #b4ed, #de0f]
+  [apply] cases #0ca2 <;>
+      instantiate only [= BitVec.getElem_and] <;> instantiate only [= BitVec.getElem_or] <;> cases #0970
+  [apply] finish only [= BitVec.getElem_and, = BitVec.getElem_or, #0ca2, #0970]
 [grind.split] x = 0, generation: 0
 [grind.split] x = 1, generation: 0

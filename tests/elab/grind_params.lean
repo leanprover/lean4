@@ -51,7 +51,7 @@ h_1 : ¬R x
 -/
 #guard_msgs (error) in
 example : P x → R x := by
-  grind [← pq, → qr]
+  grind +verbose [← pq, → qr]
 
 example : P x → R x := by
   grind [← pq, ← qr]

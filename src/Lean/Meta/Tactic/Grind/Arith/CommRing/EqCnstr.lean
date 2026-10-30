@@ -80,11 +80,12 @@ private def toSemiringExpr? [Monad m] [MonadLiftT GrindM m] [MonadLiftT Sym.SymM
 
 /--
 Returns `some c`, where `c` is an equation from the basis whose leading monomial divides `m`.
-Remark: if the current ring does not satisfy the property
+Remark: if `checkCoeffDvd` is enabled and the current ring does not satisfy the property
 ```
 ∀ (k : Nat) (a : α), k ≠ 0 → OfNat.ofNat (α := α) k * a = 0 → a = 0
 ```
-then the leading coefficient of the equation must also divide `k`
+then the leading coefficient of the equation must also divide `k`. This ensures the rewrite
+is monic (i.e., `k₁ = 1` at `PolyDerivation.step`).
 -/
 def _root_.Lean.Grind.CommRing.Mon.findSimp? (k : Int) (m : Mon) : RingM (Option EqCnstr) := do
   let checkCoeff ← checkCoeffDvd
@@ -384,7 +385,9 @@ def DiseqCnstr.checkConstant (c : DiseqCnstr) : RingM Bool := do
 
 def DiseqCnstr.simplify (c : DiseqCnstr) : RingM DiseqCnstr :=
   withCheckCoeffDvd do
-    -- We must enable `checkCoeffDvd := true`. See comments at `PolyDerivation`.
+    -- `checkConstant` concludes `lhs = rhs` from `c.d.p = 0`. This is only sound if the
+    -- derivation's multiplier is `1` or the ring implements `NoNatZeroDivisors`, which
+    -- `checkCoeffDvd := true` guarantees. See comments at `PolyDerivation.step`.
     return { c with d := (← c.d.simplify) }
 
 def saveDiseq (c : DiseqCnstr) : RingM Unit := do
@@ -401,6 +404,8 @@ def addNewDiseq (c : DiseqCnstr) : RingM Unit := do
 def processNewEq (a b : Expr) : GoalM Unit := do
   if isSameExpr a b then return () -- TODO: check why this is needed
   if let some ringId ← inSameRing? a b then RingM.run ringId do
+    -- Equations carry no information in a ring of characteristic `1`.
+    if (← charOneInst?).isSome then return ()
     trace_goal[grind.ring.assert] "{← mkEq a b}"
     let some ra ← toRingExpr? a | return ()
     let some rb ← toRingExpr? b | return ()
@@ -410,11 +415,12 @@ def processNewEq (a b : Expr) : GoalM Unit := do
     trace_goal[grind.ring.assert] "{← mkEq a b}"
     let some sa ← toSemiringExpr? a | return ()
     let some sb ← toSemiringExpr? b | return ()
-    let lhs ← sa.denoteAsRingExpr
-    let rhs ← sb.denoteAsRingExpr
+    let lhs ← sa.denoteAsRingExpr (← getGeneration a)
+    let rhs ← sb.denoteAsRingExpr (← getGeneration b)
     RingM.run (← getCommSemiring).ringId do
-      let some ra ← reify? lhs (skipVar := false) (gen := (← getGeneration a)) | return ()
-      let some rb ← reify? rhs (skipVar := false) (gen := (← getGeneration b)) | return ()
+      if (← charOneInst?).isSome then return ()
+      let some ra ← reify? lhs (skipVar := false) | return ()
+      let some rb ← reify? rhs (skipVar := false) | return ()
       let some p ← (ra.sub rb).toPolyM? | return ()
       addNewEq (← mkEqCnstr p (.coreS a b sa sb ra rb))
 
@@ -450,6 +456,10 @@ private def diseqZeroToEq (a b : Expr) : RingM Unit := do
 
 private def processNewDiseqCommRing (a b : Expr) : RingM Unit := do
   trace_goal[grind.ring.assert] "{mkNot (← mkEq a b)}"
+  if let some charInst ← charOneInst? then
+    let ring ← getRing
+    setCharOneDiseqUnsat ring.u ring.type ring.semiringInst charInst a b
+    return ()
   let some ra ← toRingExpr? a | return ()
   let some rb ← toRingExpr? b | return ()
   let some p ← (ra.sub rb).toPolyM? | return ()
@@ -468,15 +478,21 @@ private def processNewDiseqCommRing (a b : Expr) : RingM Unit := do
   }
 
 private def processNewDiseqCommSemiring (a b : Expr) : SemiringM Unit := do
+  let semiring ← getCommSemiring
+  if let some qCharInst ← RingM.run semiring.ringId charOneInst? then
+    let_expr Grind.Ring.OfSemiring.instIsCharPQOfAddRightCancel _ _ semiringInst _ charInst := qCharInst
+      | throwError "`grind` internal error, unexpected `IsCharP` instance{indentExpr qCharInst}"
+    setCharOneDiseqUnsat semiring.u semiring.type semiringInst charInst a b
+    return ()
   if (← getAddRightCancelInst?).isSome then
     trace_goal[grind.ring.assert] "{mkNot (← mkEq a b)}"
     let some sa ← toSemiringExpr? a | return ()
     let some sb ← toSemiringExpr? b | return ()
-    let lhs ← sa.denoteAsRingExpr
-    let rhs ← sb.denoteAsRingExpr
+    let lhs ← sa.denoteAsRingExpr (← getGeneration a)
+    let rhs ← sb.denoteAsRingExpr (← getGeneration b)
     RingM.run (← getCommSemiring).ringId do
-      let some ra ← reify? lhs (skipVar := false) (gen := (← getGeneration a)) | return ()
-      let some rb ← reify? rhs (skipVar := false) (gen := (← getGeneration b)) | return ()
+      let some ra ← reify? lhs (skipVar := false) | return ()
+      let some rb ← reify? rhs (skipVar := false) | return ()
       let some p ← (ra.sub rb).toPolyM? | return ()
       addNewDiseq {
         lhs := a, rhs := b
@@ -493,6 +509,10 @@ private def processNewDiseqCommSemiring (a b : Expr) : SemiringM Unit := do
       setSemiringDiseqUnsat a b sa sb
 
 private def processNewDiseqNonCommRing (a b : Expr) : NonCommRingM Unit := do
+  if let some charInst ← charOneInst? then
+    let ring ← getRing
+    setCharOneDiseqUnsat ring.u ring.type ring.semiringInst charInst a b
+    return ()
   let some ra ← toRingExpr? a | return ()
   let some rb ← toRingExpr? b | return ()
   if let some (_, c) := (← getRing).charInst? then
@@ -503,6 +523,10 @@ private def processNewDiseqNonCommRing (a b : Expr) : NonCommRingM Unit := do
       setNonCommRingDiseqUnsat a b ra rb
 
 private def processNewDiseqNonCommSemiring (a b : Expr) : NonCommSemiringM Unit := do
+  let semiring ← getSemiring
+  if let some (charInst, 1) := semiring.charInst? then
+    setCharOneDiseqUnsat semiring.u semiring.type semiring.semiringInst charInst a b
+    return ()
   let some sa ← toSemiringExpr? a | return ()
   let some sb ← toSemiringExpr? b | return ()
   if sa.toPolyS_nc == sb.toPolyS_nc then
@@ -569,6 +593,13 @@ where
         let some p ← (ra.sub rb).toPolyM? | return ()
         let d : PolyDerivation := .input p
         let d ← d.simplify
+        unless d.p matches .num 0 do
+          -- `k*a` and `k*b` simplify to the same polynomial, but this does not imply `a = b`
+          -- when `k ≠ 1` and the ring does not implement `NoNatZeroDivisors`.
+          -- Example: in `BitVec 2` with `2*x = 0`, both `x` and `x + 2` simplify to `0`
+          -- with multiplier `2`, but `x + 2 - x = 2 ≠ 0`.
+          trace_goal[grind.ring.impEq] "skip: {← mkEq a b}, k: {k}, not zero: {← d.p.denoteExpr}"
+          return ()
         if d.getMultiplier != 1 then
           unless (← noZeroDivisors) do
             -- Given the multiplier `k' = d.getMultiplier`, we have that `k*(a - b) = 0`,

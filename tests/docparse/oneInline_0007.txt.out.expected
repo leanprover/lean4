@@ -4,7 +4,7 @@ Failure: unterminated inline code; expected '``'
   |
 1 | `` fo
   | ^^
-  = consumed input prefix: 6 bytes
+  = consumed input prefix: 5 bytes
 Final stack:
   (Lean.Doc.Parser.Inline.code
    (Lean.Doc.Parser.codeDelimiter "``")
@@ -12,5 +12,5 @@ Final stack:
     [(Lean.Doc.Parser.versoCodeLine " fo")])
    <missing>)
 Remaining:
-"o `"
+"\no `"
 Round-trip not reproduced, as the parse reported errors: leaf without original source info: <missing>

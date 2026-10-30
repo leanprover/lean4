@@ -28,7 +28,7 @@ Crucially this pass must be placed after `expandResetReuse` as that one relies o
 present in their original location for optimization purposes.
 -/
 
-private structure State where
+structure State where
   /-- Total inc count per variable in the current basic block (accumulated going forward). -/
   incTotal : Std.HashMap FVarId Nat := {}
   /-- Total dec count per variable in the current basic block (accumulated going forward). -/
@@ -44,7 +44,7 @@ private structure State where
   -/
   decPlaced : Std.HashSet FVarId := {}
 
-private abbrev M := StateRefT State CompilerM
+abbrev M := StateRefT State CompilerM
 
 /--
 Coalesce inc/dec operations within individual basic blocks.

@@ -1486,6 +1486,7 @@ lean_dec(v___y_389_);
 lean_dec_ref(v___y_388_);
 lean_dec(v___y_387_);
 lean_dec_ref(v___y_386_);
+lean_dec_ref(v_e_385_);
 return v_res_391_;
 }
 }
@@ -1493,7 +1494,6 @@ LEAN_EXPORT lean_object* l_Lean_Meta_matchFalse(lean_object* v_e_392_, lean_obje
 _start:
 {
 lean_object* v___x_398_; lean_object* v_a_399_; uint8_t v___x_400_; 
-lean_inc_ref(v_e_392_);
 v___x_398_ = l_Lean_Meta_matchFalse___lam__0(v_e_392_, v_a_393_, v_a_394_, v_a_395_, v_a_396_);
 v_a_399_ = lean_ctor_get(v___x_398_, 0);
 v___x_400_ = lean_unbox(v_a_399_);
@@ -1513,6 +1513,7 @@ v_a_402_ = lean_ctor_get(v___x_401_, 0);
 lean_inc(v_a_402_);
 lean_dec_ref_known(v___x_401_, 1);
 v___x_403_ = l_Lean_Meta_matchFalse___lam__0(v_a_402_, v_a_393_, v_a_394_, v_a_395_, v_a_396_);
+lean_dec(v_a_402_);
 return v___x_403_;
 }
 else

@@ -60,6 +60,8 @@ def getLiaExtensions : MetaM ExtensionStateArray := do
 
 structure Params where
   config      : Grind.Config
+  /-- See `Context.identity`. -/
+  identity    : Name := `grind
   extensions  : ExtensionStateArray := #[]
   extra       : PArray EMatchTheorem := {}
   extraInj    : PArray InjectiveTheorem := {}
@@ -68,6 +70,8 @@ structure Params where
   norm        : Simp.Context
   normProcs   : Array Simprocs
   anchorRefs? : Option (Array AnchorRef) := none
+  /-- `true` when running in interactive mode, e.g., `grind => ...`. See `Context.anchors`. -/
+  interactive : Bool := false
   -- TODO: inductives to split
 
 def mkParams (config : Grind.Config) (extensions : ExtensionStateArray) : MetaM Params := do
@@ -129,16 +133,19 @@ def GrindM.run (x : GrindM α) (params : Params) (evalTactic? : Option EvalTacti
   let (symSimpMethods, symDSimpMethods) ← if backward.grind.normalizer.get (← getOptions) then
       pure ({}, {})
     else
-      let thms ← mkNormSymTheorems
+      let thms ← getNormSymTheorems
       pure (mkNormSymMethods config thms, mkNormSymDSimpMethods config thms)
   let symPrios := params.symPrios
   let extensions := params.extensions
   let anchorRefs? := params.anchorRefs?
+  let anchors := config.trace || anchorRefs?.isSome || params.interactive
+  let identity := params.identity
+  let activeSolvers ← Solvers.activeIds config
   let debug := grind.debug.get (← getOptions)
   let ematchDiag := grind.ematch.diagnostics.get (← getOptions)
   Sym.Arith.setExpThreshold config.exp
   x (← mkMethods evalTactic?).toMethodsRef
-    { config, anchorRefs?, simpMethods, symSimpMethods, symDSimpMethods, simp, extensions, symPrios, debug, ematchDiag }
+    { config, identity, activeSolvers, anchorRefs?, anchors, simpMethods, symSimpMethods, symDSimpMethods, simp, extensions, symPrios, debug, ematchDiag }
     |>.run' {}
 
 private def mkCleanState (mvarId : MVarId) : GrindM Clean.State := mvarId.withContext do
@@ -167,7 +174,7 @@ private def initENodeCore (e : Expr) (interpreted ctor : Bool) : GoalM Unit := d
   mkENodeCore e interpreted ctor (generation := 0) (funCC := false)
 
 /-- Returns a new goal for the given metavariable. -/
-public def mkGoalCore (mvarId : MVarId) : GrindM Goal := do
+def mkGoalCore (mvarId : MVarId) : GrindM Goal := do
   let config ← getConfig
   let mvarId ← if config.clean then mvarId.exposeNames else pure mvarId
   let trueExpr ← getTrueExpr
@@ -182,6 +189,7 @@ public def mkGoalCore (mvarId : MVarId) : GrindM Goal := do
   let clean ← mkCleanState mvarId
   let sstates ← Solvers.mkInitialStates
   GoalM.run' { mvarId, ematch.thmMap := thmEMatch, inj.thms := thmInj, clean, sstates } do
+    registerInitialFVarAnchors
     initENodeCore falseExpr (interpreted := true) (ctor := false)
     initENodeCore trueExpr (interpreted := true) (ctor := false)
     initENodeCore btrueExpr (interpreted := false) (ctor := true)
@@ -190,6 +198,8 @@ public def mkGoalCore (mvarId : MVarId) : GrindM Goal := do
     initENodeCore ordEqExpr (interpreted := false) (ctor := true)
 
 structure Result where
+  /-- See `Context.identity`. -/
+  identity    : Name
   failure?    : Option Goal
   issues      : List MessageData
   config      : Grind.Config
@@ -263,7 +273,28 @@ def Result.toMessageData (result : Result) : MetaM MessageData := do
       msgs := msgs ++ [.trace { cls := `grind } "Issues" issues.reverse.toArray]
     if let some msg ← mkGlobalDiag result.counters result.simp result.splitDiags result.ematchDiags then
       msgs := msgs ++ [msg]
+  else
+    msgs := msgs ++ [m!"use `+verbose` to obtain diagnostic information"]
   return MessageData.joinSep msgs m!"\n"
+
+/--
+Error message for a failed run of `tacticName`. Without `+verbose`, the goal and diagnostics are
+omitted, and only the thresholds that were reached are listed.
+-/
+def Result.toErrorMessageData (result : Result) (tacticName : Name := result.identity) : MetaM MessageData := do
+  if result.config.verbose then
+    return m!"`{tacticName}` failed\n{← result.toMessageData}"
+  else
+    let ts ← match result.failure? with
+      | some goal => getThresholdsReached goal result.config
+      | none => pure #[]
+    let items := ts.map (·.toConfigItem)
+    let reached := match items.toList with
+      | [] => m!""
+      | [t] => m!" after reaching the threshold {t}"
+      | [t₁, t₂] => m!" after reaching the thresholds {t₁} and {t₂}"
+      | ts => m!" after reaching the thresholds {MessageData.joinSep ts.dropLast ", "}, and {ts.getLast!}"
+    return m!"`{tacticName}` has failed{reached}, use `+verbose` to obtain diagnostic information"
 
 /--
 Walks the proof term collecting `Origin`s of E-matching instances that appear,
@@ -351,6 +382,9 @@ private def initCore (mvarId : MVarId) : GrindM Goal := do
   let mvarId ← if config.revert then mvarId.revertAll else pure mvarId
   let mvarId ← mvarId.unfoldReducible
   let mvarId ← mvarId.betaReduce
+  -- `have` wraps the goal type in `mdata` (`noImplicitLambda`), which would hide an implication
+  -- or a universal quantifier from `introNext`.
+  let mvarId ← mvarId.eraseIrrelevantMData
   appendTagSuffix mvarId `grind
   let goal ← mkGoalCore mvarId
   if config.revert then
@@ -385,7 +419,7 @@ def mkResult (params : Params) (failure? : Option Goal) : GrindM Result := do
       if let some msg ← mkGlobalDiag counters simp splitDiags ematchDiags then
         logInfo msg
   let rings := (← Sym.Arith.getArithState).rings
-  return { failure?, issues, config := params.config, counters, simp, splitDiags, ematchDiags, rings }
+  return { identity := params.identity, failure?, issues, config := params.config, counters, simp, splitDiags, ematchDiags, rings }
 
 def GrindM.runAtGoal (mvarId : MVarId) (params : Params) (k : Goal → GrindM α) (evalTactic? : Option EvalTactic := none) : MetaM α := do
   let go : GrindM α := withGTransparency do
@@ -406,25 +440,16 @@ def main (mvarId : MVarId) (params : Params) : MetaM Result := do profileitM Exc
     return result
 
 /--
-Resolves delayed metavariable assignments created inside the current `withNewMCtxDepth` block.
-`instantiateMVars` only resolves a delayed assignment `?m #[xs] := ?pending` when `?pending`'s
-assignment is ground (no unassigned expression metavariables). This ground restriction exists
-because `val` may contain metavariables that have `fvars` in their scope. For example, if
-`fvars = #[x]` and `val = ?m + x` where `x` is in the scope of `?m`, then `mkLambda` creates
-`fun x => ?m + x`. If `?m` is later assigned to `f x`, the term becomes ill-formed with a
-dangling free variable.
-
-This scenario cannot occur here: metavariables created before `withNewMCtxDepth` cannot contain
-free variables created by `grind`, so the conversion is safe. Only metavariables at the current
-depth are processed; pre-existing delayed assignments are left untouched as they are meant to
-be resolved by other tactics.
+Resolves delayed metavariable assignments created inside the current `withNewMCtxDepth` block
+(see `instantiateMVarsResolvingDelayed`), and checks that no metavariable at the current depth
+remains.
 
 We do not need to erase the delayed assignments from `dAssignment` because they will be
 discarded when `withNewMCtxDepth` restores the metavariable context.
 -/
-private partial def resolveDelayedMVarAssignments (e : Expr) : MetaM Expr := do
+private def resolveDelayedMVarAssignments (e : Expr) : MetaM Expr := do
   if !e.hasMVar then return e
-  let e ← go e
+  let e ← instantiateMVarsResolvingDelayed e
   -- Ensure no metavariables at the current depth remain. They would become
   -- dangling references after `withNewMCtxDepth` restores the metavariable context.
   let mctx ← getMCtx
@@ -433,19 +458,6 @@ private partial def resolveDelayedMVarAssignments (e : Expr) : MetaM Expr := do
       if decl.depth == mctx.depth then
         throwError "`grind` failed, proof contains unresolved internal metavariable {Expr.mvar mvarId}"
   return e
-where
-  go (e : Expr) : MetaM Expr := do
-    let mctx ← getMCtx
-    let mvars := (e.collectMVars {}).result
-    for mvarId in mvars do
-      if let some decl := mctx.findDecl? mvarId then
-        if decl.depth == mctx.depth then
-          if let some { fvars, mvarIdPending } ← getDelayedMVarAssignment? mvarId then
-            if let some val ← getExprMVarAssignment? mvarIdPending then
-              let pendingDecl ← mvarIdPending.getDecl
-              let val ← go (← instantiateMVars val)
-              mvarId.assign (pendingDecl.lctx.mkLambda fvars val)
-    instantiateMVars e
 
 /--
 A helper combinator for executing a `grind`-based terminal tactic.

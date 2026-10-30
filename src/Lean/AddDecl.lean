@@ -98,6 +98,16 @@ def warnIfUsesSorry (decl : Declaration) : CoreM Unit := do
 builtin_initialize
   registerTraceClass `addDecl
 
+/--
+Records that `declName` is about to be added as a declaration of kind `kind` that is exported as a
+different kind; see `getOriginalConstKind?`. `addDecl` does this by itself, so this function is
+needed only where `addDecl` is run on a different environment branch, in order to make the
+information available on the current branch early.
+-/
+def recordOriginalConstKind (env : Environment) (declName : Name) (kind : ConstantKind) :
+    Environment :=
+  privateConstKindsExt.insert env declName kind
+
 private def addDeclCore (decl : Declaration) (forceExpose : Bool) : CoreM Unit :=
   withTraceNode `addDecl (fun _ => return m!"adding declarations {decl.getNames}") do
   -- register namespaces for newly added constants; this used to be done by the kernel itself
@@ -145,7 +155,9 @@ private def addDeclCore (decl : Declaration) (forceExpose : Bool) : CoreM Unit :
   else
     -- preserve original constant kind in extension if different from exported one
     if exportedInfo?.isSome then
-      modifyEnv (privateConstKindsExt.insert · name kind)
+      -- may already have been done by `recordOriginalConstKind`
+      if (privateConstKindsExt.find? (asyncMode := .local) (← getEnv) name).isNone then
+        modifyEnv (privateConstKindsExt.insert · name kind)
     else
       trace[addDecl] "no matching exporting rules, exporting as is"
       exportedInfo? := some info

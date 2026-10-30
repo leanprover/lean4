@@ -23,6 +23,8 @@ Author: Jared Roesch
 #include <unistd.h>
 #include <fcntl.h>
 #include <sys/wait.h>
+#include <spawn.h>
+#include <dlfcn.h>
 #include <signal.h>
 #include <limits.h> // NOLINT
 #endif
@@ -431,24 +433,153 @@ static optional<pipe> setup_stdio(stdio cfg) {
     lean_unreachable();
 }
 
-#ifdef __APPLE__
 extern "C" char **environ;
-#endif
 
-static obj_res spawn(string_ref const & proc_name, array_ref<string_ref> const & args, stdio stdin_mode, stdio stdout_mode,
-  stdio stderr_mode, option_ref<string_ref> const & cwd, array_ref<pair_ref<string_ref, option_ref<string_ref>>> const & env,
-  bool inherit_env, bool do_setsid) {
-    /* Setup stdio based on process configuration. */
+/* `posix_spawn_file_actions_addchdir_np` is glibc >= 2.29 / macOS >= 10.15; resolve it at run time so a binary
+   built against an older libc still runs (and falls back to `fork` when a `cwd` is requested). */
+typedef int (*addchdir_np_fn)(posix_spawn_file_actions_t *, char const *);
+static addchdir_np_fn get_posix_spawn_addchdir() {
+    static addchdir_np_fn fn = reinterpret_cast<addchdir_np_fn>(dlsym(RTLD_DEFAULT, "posix_spawn_file_actions_addchdir_np"));
+    return fn;
+}
+
+/* The environment of the child as a private array: the parent's (if `inherit_env`), then the `set`/`unset`
+   entries applied in order. */
+static void build_child_env(array_ref<pair_ref<string_ref, option_ref<string_ref>>> const & env, bool inherit_env,
+                            buffer<char *> & out) {
+    if (inherit_env && environ) {
+        for (char ** e = environ; *e; e++) out.push_back(strdup(*e));
+    }
+    for (auto & entry : env) {
+        char const * key = entry.fst().data();
+        size_t klen = strlen(key);
+        size_t j = 0;
+        for (size_t k = 0; k < out.size(); k++) {
+            if (strncmp(out[k], key, klen) == 0 && out[k][klen] == '=') free(out[k]);
+            else out[j++] = out[k];
+        }
+        out.shrink(j);
+        if (entry.snd()) {
+            char const * v = entry.snd().get()->data();
+            char * kv = static_cast<char *>(malloc(klen + 1 + strlen(v) + 1));
+            memcpy(kv, key, klen); kv[klen] = '='; strcpy(kv + klen + 1, v);
+            out.push_back(kv);
+        }
+    }
+    out.push_back(nullptr);
+}
+
+static void free_strv(buffer<char *> & v) {
+    for (char * p : v) if (p) free(p);
+}
+
+static obj_res mk_child(optional<pipe> const & stdin_pipe, optional<pipe> const & stdout_pipe,
+                        optional<pipe> const & stderr_pipe, pid_t pid, bool do_setsid) {
+    object * parent_stdin  = box(0);
+    object * parent_stdout = box(0);
+    object * parent_stderr = box(0);
+    if (stdin_pipe) {
+        close(stdin_pipe->m_read_fd);
+        parent_stdin = io_wrap_handle(fdopen(stdin_pipe->m_write_fd, "w"));
+    }
+    if (stdout_pipe) {
+        close(stdout_pipe->m_write_fd);
+        parent_stdout = io_wrap_handle(fdopen(stdout_pipe->m_read_fd, "r"));
+    }
+    if (stderr_pipe) {
+        close(stderr_pipe->m_write_fd);
+        parent_stderr = io_wrap_handle(fdopen(stderr_pipe->m_read_fd, "r"));
+    }
+    object_ref r = mk_cnstr(0, parent_stdin, parent_stdout, parent_stderr, sizeof(pid_t) + sizeof(uint8_t));
+    static_assert(sizeof(pid_t) == sizeof(uint32), "pid_t is expected to be a 32-bit type"); // NOLINT
+    cnstr_set_uint32(r.raw(), 3 * sizeof(object *), pid);
+    cnstr_set_uint8(r.raw(), 3 * sizeof(object *) + sizeof(pid_t), do_setsid);
+    return lean_io_result_mk_ok(r.steal());
+}
+
+/*
+Spawn with `posix_spawnp` (glibc: `clone(CLONE_VM|CLONE_VFORK)`) instead of `fork`.
+
+`fork` duplicates the page tables of the parent while holding its mm lock for writing, and every other thread
+of the parent that page-faults meanwhile waits for (or spins on) that lock. For a large, heavily threaded
+parent such as `lake`, which spawns one `lean` per module, that dominates the parent's own CPU time and stalls
+its other threads; `posix_spawn` copies nothing.
+
+Returns `false` (nothing spawned) when this path is unavailable, i.e. a `cwd` was requested but
+`posix_spawn_file_actions_addchdir_np` is not provided by the C library; the caller then forks.
+*/
+static bool spawn_posix(buffer<char *> & pargs, stdio stdin_mode, stdio stdout_mode, stdio stderr_mode,
+  option_ref<string_ref> const & cwd, array_ref<pair_ref<string_ref, option_ref<string_ref>>> const & env,
+  bool inherit_env, bool do_setsid, obj_res & result) {
+    if (cwd && !get_posix_spawn_addchdir()) return false;
+
     auto stdin_pipe  = setup_stdio(stdin_mode);
     auto stdout_pipe = setup_stdio(stdout_mode);
     auto stderr_pipe = setup_stdio(stderr_mode);
 
+    buffer<char *> penv;
+    build_child_env(env, inherit_env, penv);
+
+    posix_spawn_file_actions_t fa;
+    posix_spawn_file_actions_init(&fa);
+    if (stdin_pipe) posix_spawn_file_actions_adddup2(&fa, stdin_pipe->m_read_fd, STDIN_FILENO);
+    else if (stdin_mode == stdio::NUL) posix_spawn_file_actions_addopen(&fa, STDIN_FILENO, "/dev/null", O_RDONLY, 0);
+    if (stdout_pipe) posix_spawn_file_actions_adddup2(&fa, stdout_pipe->m_write_fd, STDOUT_FILENO);
+    else if (stdout_mode == stdio::NUL) posix_spawn_file_actions_addopen(&fa, STDOUT_FILENO, "/dev/null", O_WRONLY, 0);
+    if (stderr_pipe) posix_spawn_file_actions_adddup2(&fa, stderr_pipe->m_write_fd, STDERR_FILENO);
+    else if (stderr_mode == stdio::NUL) posix_spawn_file_actions_addopen(&fa, STDERR_FILENO, "/dev/null", O_WRONLY, 0);
+    // the pipe descriptors themselves are O_CLOEXEC (or FD_CLOEXEC): closed in the child by the exec
+    if (cwd) get_posix_spawn_addchdir()(&fa, cwd.get()->data());
+
+    posix_spawnattr_t attr;
+    posix_spawnattr_init(&attr);
+    if (do_setsid) posix_spawnattr_setflags(&attr, POSIX_SPAWN_SETSID);
+
+    pid_t pid = 0;
+    int rc = posix_spawnp(&pid, pargs[0], &fa, &attr, pargs.data(), penv.data());
+    posix_spawn_file_actions_destroy(&fa);
+    posix_spawnattr_destroy(&attr);
+    free_strv(penv);
+    if (rc != 0) {
+        // the command could not be executed: an `IO.Error` (the `fork` path printed to stderr and exited 255)
+        if (stdin_pipe)  { close(stdin_pipe->m_read_fd);  close(stdin_pipe->m_write_fd); }
+        if (stdout_pipe) { close(stdout_pipe->m_read_fd); close(stdout_pipe->m_write_fd); }
+        if (stderr_pipe) { close(stderr_pipe->m_read_fd); close(stderr_pipe->m_write_fd); }
+        throw rc;
+    }
+    result = mk_child(stdin_pipe, stdout_pipe, stderr_pipe, pid, do_setsid);
+    return true;
+}
+
+static obj_res spawn(string_ref const & proc_name, array_ref<string_ref> const & args, stdio stdin_mode, stdio stdout_mode,
+  stdio stderr_mode, option_ref<string_ref> const & cwd, array_ref<pair_ref<string_ref, option_ref<string_ref>>> const & env,
+  bool inherit_env, bool do_setsid) {
     // It is crucial to not allocate between `fork` and `execvp` for ASAN to work.
     buffer<char *> pargs;
     pargs.push_back(strdup(proc_name.data()));
     for (auto & arg : args)
         pargs.push_back(strdup(arg.data()));
     pargs.push_back(NULL);
+
+    {
+        obj_res result = nullptr;
+        bool spawned;
+        try {
+            spawned = spawn_posix(pargs, stdin_mode, stdout_mode, stderr_mode, cwd, env, inherit_env, do_setsid, result);
+        } catch (...) {
+            free_strv(pargs);
+            throw;
+        }
+        if (spawned) {
+            free_strv(pargs);
+            return result;
+        }
+    }
+
+    /* Setup stdio based on process configuration (the `fork` fallback). */
+    auto stdin_pipe  = setup_stdio(stdin_mode);
+    auto stdout_pipe = setup_stdio(stdout_mode);
+    auto stderr_pipe = setup_stdio(stderr_mode);
 
     int pid = fork();
 

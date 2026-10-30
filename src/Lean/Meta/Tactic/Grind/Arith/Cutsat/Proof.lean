@@ -219,11 +219,15 @@ hypothesis), it is returned without a declaration.
 Nothing is hoisted while a proof that abstracts a decision variable of the cutsat search is being
 constructed (see `underDecVar`), as the proof of `c` may contain the decision variable.
 
-Remark: `depth?` is at most the split depth of the goal whose state is used, as this goal can only use
-constraints stored in it or in the goals of enclosing case splits.
+Remark: `depth?` may exceed the split depth of the goal whose state is used. The goal stack of a stuck
+subgoal is truncated when its case split completes (see `Action.splitCore`), but the constraints stored
+in it keep their depth. As the goal can only use constraints stored in it or in the goals of enclosing
+case splits, we use its depth instead. Otherwise, the proof of `c` would be declared in a case split
+below the one of the proof being built.
 -/
 private def hoisting (c : α) (depth? : Option Nat) (p : Poly) (type : Expr → Expr) (k : ProofM Expr) : ProofM Expr := do
   let some depth := depth? | k
+  let depth := min depth (← read).depth
   unless depth < (← getGoalStackDepth) && !(← read).underDecVar do return ← k
   let key : HoistKey := .ptr (.of c)
   if let some fvarId ← findHoistedDecl? depth key then

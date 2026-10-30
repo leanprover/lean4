@@ -598,7 +598,7 @@ private def mkAtom (e₁ : Expr) (r : Result) (kept := false) : VisitM m Node :=
     let x ← mkVar e₁
     if (← read).charZero then
       if let .app invF c := e₁ then
-        if isSameExpr (← getInvFn) (← canonExpr invF) then
+        if isSameExpr (← getInvFnForKind) (← canonExpr invF) then
           if let some k := (Sym.getNatValue? c).run then
             if k > 0 then modify fun s => { s with invVars := s.invVars.insert x k }
     return x

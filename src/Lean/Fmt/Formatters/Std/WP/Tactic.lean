@@ -89,9 +89,8 @@ public def fmtVCGenLike
     (vcgenTk : Syntax) (cfg : TSyntax ``Parser.Tactic.optConfig) (lbTk? : Option Syntax)
     (args? : Option (Syntax.SepArray ",")) (rbTk? : Option Syntax) (untilTk? : Option Syntax)
     (untilProgram? : Option Syntax) (framesTk? : Option Syntax) (frameAlts : Array Syntax)
-    (invariantAlts? : Option Syntax) (assumptionsTk? : Option Syntax)
-    (assumptionsId? : Option Syntax) (assumptionsLbTk? : Option Syntax)
-    (assumptions? : Option (Syntax.SepArray ",")) (assumptionsRbTk? : Option Syntax)
+    (invariantAlts? : Option Syntax) (simpTk? : Option Syntax) (simpLbTk? : Option Syntax)
+    (simpArgs? : Option (Syntax.SepArray ",")) (simpRbTk? : Option Syntax)
     (withTk? : Option Syntax) (discharge? : Option Syntax)
     : FmtM TaggedDoc := do
   let head ← fmtVCGenHead vcgenTk cfg
@@ -101,18 +100,19 @@ public def fmtVCGenLike
   let framesTk? ← fmt? framesTk?
   let frameAlts ← frameAlts.mapM fmtFrameAlt
   let invariantAlts? ← fmt? invariantAlts?
-  let assumptionsTk? ← fmt? assumptionsTk?
-  let assumptionsId? ← fmt? assumptionsId?
-  let assumptions ← fmtVCGenSimpArgs assumptionsLbTk? assumptions? assumptionsRbTk?
+  let simpTk? ← fmt? simpTk?
+  let simpLbTk? ← fmt? simpLbTk?
+  let simpArgs ← fmtSepArray (simpArgs?.getD ⟨#[]⟩)
+  let simpRbTk? ← fmt? simpRbTk?
   let withTk? ← fmt? withTk?
   let discharge? ← fmt? discharge?
   let «until» := Layouts.keywordPrefixedTerm untilTk? untilProgram?
   let frames := Layouts.keywordPrefixedAlts framesTk? frameAlts
-  let assumptions := Layouts.pseudoApplication #[assumptionsTk?, assumptionsId?, assumptions]
+  let «simp» := Layouts.keywordPrefixedCollection simpTk? simpLbTk? simpArgs simpRbTk?
   let «with» := Layouts.keywordPrefixedTerm withTk? discharge?
   let framesBlock := { block := frames, hardNestedIfFirst := false }
   let invariantAltsBlock := { block := invariantAlts?, hardNestedIfFirst := false }
-  return Layouts.blocks #[head, args, «until», framesBlock, invariantAltsBlock, assumptions, «with»]
+  return Layouts.blocks #[head, args, «until», framesBlock, invariantAltsBlock, «simp», «with»]
 
 @[builtin_fmt Lean.Parser.Tactic.vcgen]
 public def fmtVCGen : Fmt := fun
@@ -120,12 +120,10 @@ public def fmtVCGen : Fmt := fun
       $[until%$untilTk? $untilProgram?:term]?
       $[frames%$framesTk? $[$frameAlts?]*]?
       $[$invariantAlts?:invariantAlts]?
-      $[simplifying_assumptions%$assumptionsTk? $[$assumptionsId?:ident]?
-        $[[%$assumptionsLbTk? $assumptions?,* ]%$assumptionsRbTk?]?]?
+      $[simp%$simpTk? [%$simpLbTk? $simpArgs?,* ]%$simpRbTk?]?
       $[with%$withTk? $discharge?:vcgenDischarge]?) =>
     fmtVCGenLike vcgenTk cfg lbTk? args? rbTk? untilTk? untilProgram? framesTk?
-      (frameAlts?.getD #[]) invariantAlts? assumptionsTk? assumptionsId?.join assumptionsLbTk?.join
-      assumptions?.join assumptionsRbTk?.join withTk? discharge?
+      (frameAlts?.getD #[]) invariantAlts? simpTk? simpLbTk? simpArgs? simpRbTk? withTk? discharge?
   | _ =>
     throw .partialFormatter
 
@@ -135,10 +133,8 @@ public def fmtGrindVCGen : Fmt := fun
       $[until%$untilTk? $untilProgram?:term]?
       $[frames%$framesTk? $[$frameAlts?]*]?
       $[$invariantAlts?:invariantAlts]?
-      $[simplifying_assumptions%$assumptionsTk? $[$assumptionsId?:ident]?
-        $[[%$assumptionsLbTk? $assumptions?,* ]%$assumptionsRbTk?]?]?) =>
+      $[simp%$simpTk? [%$simpLbTk? $simpArgs?,* ]%$simpRbTk?]?) =>
     fmtVCGenLike vcgenTk cfg lbTk? args? rbTk? untilTk? untilProgram? framesTk?
-      (frameAlts?.getD #[]) invariantAlts? assumptionsTk? assumptionsId?.join assumptionsLbTk?.join
-      assumptions?.join assumptionsRbTk?.join none none
+      (frameAlts?.getD #[]) invariantAlts? simpTk? simpLbTk? simpArgs? simpRbTk? none none
   | _ =>
     throw .partialFormatter

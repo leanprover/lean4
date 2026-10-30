@@ -315,3 +315,62 @@ private def getEndHeadersHead (events : Array (Event .receiving)) : Option Reque
   events.findSome? fun
     | .endHeaders head => some head
     | _ => none
+
+-- Regression: a read boundary inside a chunk extension must not fail a valid request.
+-- `parseChunkSize` used to wrap `parseChunkExt` in `optional (attempt …)`, which turned the
+-- extension parser's `.eof` into "no extension", so the following CRLF check failed on `;`.
+#eval show IO Unit from do
+  let body := "hello".toUTF8
+  let payloads := #[
+    "5;a=b\r\nhello\r\n0\r\n\r\n",
+    "5 ; a = b\r\nhello\r\n0\r\n\r\n",
+    "5;a=\"b c\"\r\nhello\r\n0\r\n\r\n",
+    "5\r\nhello\r\n0;a\r\n\r\n"
+  ]
+  for payload in payloads do
+    let request := mkChunkedRequest "/inc-chunk-ext" payload.toUTF8
+    let trace := runIncrementalReceiving (splitEveryByte request)
+    assertIncrementalSuccess s!"Chunk extension one-byte incremental parse {payload.quote}" trace body
+
+-- Regression: a read boundary inside a trailer field must not fail a valid request
+-- (`manyItems` had the same `optional (attempt …)` pattern).
+#eval show IO Unit from do
+  let body := "hello".toUTF8
+  let request := mkChunkedRequest "/inc-trailer" "5\r\nhello\r\n0\r\nX-T: a\r\nY: b\r\n\r\n".toUTF8
+  let trace := runIncrementalReceiving (splitEveryByte request)
+  assertIncrementalSuccess "Trailer one-byte incremental parse" trace body
+
+-- A chunk-size line cut inside an extension must report `.eof` so the machine waits for more data.
+#eval show IO Unit from do
+  for input in ["5;", "5 ", "5;a", "5;a=", "5;a=\"b"] do
+    match parseChunkSize {} input.toUTF8.iter with
+    | .error _ .eof => pure ()
+    | _ => throw <| IO.userError s!"expected .eof for truncated chunk-size line {input.quote}"
+
+-- The trailer section is consumed one field at a time: after a read that ends inside the second
+-- field, only that field is still buffered, so the next read does not parse the first one again.
+#eval show IO Unit from do
+  let input := "5\r\nhello\r\n0\r\nX-A: 1\r\nX-B: 2"
+  let trace := runIncrementalReceiving #[mkChunkedRequest "/inc-trailer-fields" input.toUTF8]
+  let name := "Trailer fields consumed one at a time"
+  ensure name (!trace.machine.failed) s!"machine ended failed with events:\n{repr trace.events}"
+  ensure name (trace.machine.reader.state matches .readBody (.trailers _ 1))
+    s!"unexpected reader state {repr trace.machine.reader.state}"
+  ensure name (trace.machine.reader.input.remainingBytes == "X-B: 2".length)
+    s!"expected only the incomplete field buffered, got {trace.machine.reader.input.remainingBytes} bytes"
+
+-- The trailer count limit and the forbidden-field check still apply when the section arrives one
+-- byte per read.
+#eval show IO Unit from do
+  let config : Protocol.H1.Config := { maxTrailerHeaders := 2 }
+  let atLimit := mkChunkedRequest "/inc-trailer-limit" "5\r\nhello\r\n0\r\nA: 1\r\nB: 2\r\n\r\n".toUTF8
+  let trace := runIncrementalReceiving (splitEveryByte atLimit) config
+  assertIncrementalSuccess "Trailers at the count limit, one byte per read" trace "hello".toUTF8
+  let overLimit := mkChunkedRequest "/inc-trailer-limit" "5\r\nhello\r\n0\r\nA: 1\r\nB: 2\r\nC: 3\r\n\r\n".toUTF8
+  let trace := runIncrementalReceiving (splitEveryByte overLimit) config
+  ensure "Trailers over the count limit, one byte per read" (trace.machine.error == some .badMessage)
+    s!"expected badMessage, got {repr trace.machine.error}"
+  let forbidden := mkChunkedRequest "/inc-trailer-forbidden" "5\r\nhello\r\n0\r\nA: 1\r\nContent-Length: 5\r\n\r\n".toUTF8
+  let trace := runIncrementalReceiving (splitEveryByte forbidden)
+  ensure "Forbidden trailer field, one byte per read" (trace.machine.error == some .badMessage)
+    s!"expected badMessage, got {repr trace.machine.error}"

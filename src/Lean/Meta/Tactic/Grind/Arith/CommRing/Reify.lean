@@ -14,16 +14,15 @@ open Sym.Arith
 
 /-!
 Reification is implemented by `Sym.Arith.reifyRing?` and `Sym.Arith.reifySemiring?`.
-The wrappers below only set the generation used to internalize the variables they create.
 -/
 
 /-- Reify ring expression. -/
-def reify? (e : Expr) (skipVar := true) (gen : Nat := 0) : RingM (Option RingExpr) :=
-  withReader (fun ctx => { ctx with gen }) do reifyRing? e skipVar
+def reify? (e : Expr) (skipVar := true) : RingM (Option RingExpr) :=
+  reifyRing? e skipVar
 
 /-- Reify non-commutative ring expression. -/
-def ncreify? (e : Expr) (skipVar := true) (gen : Nat := 0) : NonCommRingM (Option RingExpr) :=
-  withReader (fun ctx => { ctx with gen }) do reifyRing? e skipVar
+def ncreify? (e : Expr) (skipVar := true) : NonCommRingM (Option RingExpr) :=
+  reifyRing? e skipVar
 
 /-- Reify semiring expression. -/
 def sreify? (e : Expr) : SemiringM (Option SemiringExpr) :=

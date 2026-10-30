@@ -204,8 +204,6 @@ LEAN_EXPORT lean_object* l___private_Init_Data_List_Sort_Impl_0__List_MergeSort_
 LEAN_EXPORT lean_object* l___private_Init_Data_List_Sort_Impl_0__List_MergeSort_Internal_mergeSortTR_u2082_run_x27_match__1_splitter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_MergeSort_Internal_mergeSortTR_u2082___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_MergeSort_Internal_mergeSortTR_u2082(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_List_Sort_Impl_0__List_mergeSort_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_List_Sort_Impl_0__List_mergeSort_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_List_Sort_Impl_0__List_MergeSort_Internal_mergeTR_go___redArg(lean_object* v_le_1_, lean_object* v_a_2_, lean_object* v_a_3_, lean_object* v_a_4_){
 _start:
 {
@@ -1635,96 +1633,6 @@ _start:
 lean_object* v___x_578_; 
 v___x_578_ = l_List_MergeSort_Internal_mergeSortTR_u2082___redArg(v_l_576_, v_le_577_);
 return v___x_578_;
-}
-}
-LEAN_EXPORT lean_object* l___private_Init_Data_List_Sort_Impl_0__List_mergeSort_match__1_splitter___redArg(lean_object* v_x_579_, lean_object* v_x_580_, lean_object* v_h__1_581_, lean_object* v_h__2_582_, lean_object* v_h__3_583_){
-_start:
-{
-if (lean_obj_tag(v_x_579_) == 0)
-{
-lean_object* v___x_584_; 
-lean_dec(v_h__3_583_);
-lean_dec(v_h__2_582_);
-v___x_584_ = lean_apply_1(v_h__1_581_, v_x_580_);
-return v___x_584_;
-}
-else
-{
-lean_object* v_tail_585_; 
-lean_dec(v_h__1_581_);
-v_tail_585_ = lean_ctor_get(v_x_579_, 1);
-if (lean_obj_tag(v_tail_585_) == 0)
-{
-lean_object* v_head_586_; lean_object* v___x_587_; 
-lean_dec(v_h__3_583_);
-v_head_586_ = lean_ctor_get(v_x_579_, 0);
-lean_inc(v_head_586_);
-lean_dec_ref_known(v_x_579_, 2);
-v___x_587_ = lean_apply_2(v_h__2_582_, v_head_586_, v_x_580_);
-return v___x_587_;
-}
-else
-{
-lean_object* v_head_588_; lean_object* v_head_589_; lean_object* v_tail_590_; lean_object* v___x_591_; 
-lean_inc_ref(v_tail_585_);
-lean_dec(v_h__2_582_);
-v_head_588_ = lean_ctor_get(v_x_579_, 0);
-lean_inc(v_head_588_);
-lean_dec_ref_known(v_x_579_, 2);
-v_head_589_ = lean_ctor_get(v_tail_585_, 0);
-lean_inc(v_head_589_);
-v_tail_590_ = lean_ctor_get(v_tail_585_, 1);
-lean_inc(v_tail_590_);
-lean_dec_ref_known(v_tail_585_, 2);
-v___x_591_ = lean_apply_4(v_h__3_583_, v_head_588_, v_head_589_, v_tail_590_, v_x_580_);
-return v___x_591_;
-}
-}
-}
-}
-LEAN_EXPORT lean_object* l___private_Init_Data_List_Sort_Impl_0__List_mergeSort_match__1_splitter(lean_object* v_00_u03b1_592_, lean_object* v_motive_593_, lean_object* v_x_594_, lean_object* v_x_595_, lean_object* v_h__1_596_, lean_object* v_h__2_597_, lean_object* v_h__3_598_){
-_start:
-{
-if (lean_obj_tag(v_x_594_) == 0)
-{
-lean_object* v___x_599_; 
-lean_dec(v_h__3_598_);
-lean_dec(v_h__2_597_);
-v___x_599_ = lean_apply_1(v_h__1_596_, v_x_595_);
-return v___x_599_;
-}
-else
-{
-lean_object* v_tail_600_; 
-lean_dec(v_h__1_596_);
-v_tail_600_ = lean_ctor_get(v_x_594_, 1);
-if (lean_obj_tag(v_tail_600_) == 0)
-{
-lean_object* v_head_601_; lean_object* v___x_602_; 
-lean_dec(v_h__3_598_);
-v_head_601_ = lean_ctor_get(v_x_594_, 0);
-lean_inc(v_head_601_);
-lean_dec_ref_known(v_x_594_, 2);
-v___x_602_ = lean_apply_2(v_h__2_597_, v_head_601_, v_x_595_);
-return v___x_602_;
-}
-else
-{
-lean_object* v_head_603_; lean_object* v_head_604_; lean_object* v_tail_605_; lean_object* v___x_606_; 
-lean_inc_ref(v_tail_600_);
-lean_dec(v_h__2_597_);
-v_head_603_ = lean_ctor_get(v_x_594_, 0);
-lean_inc(v_head_603_);
-lean_dec_ref_known(v_x_594_, 2);
-v_head_604_ = lean_ctor_get(v_tail_600_, 0);
-lean_inc(v_head_604_);
-v_tail_605_ = lean_ctor_get(v_tail_600_, 1);
-lean_inc(v_tail_605_);
-lean_dec_ref_known(v_tail_600_, 2);
-v___x_606_ = lean_apply_4(v_h__3_598_, v_head_603_, v_head_604_, v_tail_605_, v_x_595_);
-return v___x_606_;
-}
-}
 }
 }
 lean_object* runtime_initialize_Init_Data_List_Sort_Basic(uint8_t builtin);

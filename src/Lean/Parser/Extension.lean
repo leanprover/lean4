@@ -359,6 +359,13 @@ def getParserCategory? (env : Environment) (catName : Name) : Option ParserCateg
 def isParserCategory (env : Environment) (catName : Name) : Bool :=
   getParserCategory? env catName |>.isSome
 
+/-- Returns the names of the parser categories containing a parser for the syntax node kind `kind`. -/
+def getSyntaxNodeKindCategories (env : Environment) (kind : SyntaxNodeKind) : Array Name := Id.run do
+  let mut cats := #[]
+  for (catName, cat) in (parserExtension.getState env).categories do
+    if cat.kinds.contains kind then cats := cats.push catName
+  return cats
+
 def addParserCategory (env : Environment) (catName declName : Name) (behavior : LeadingIdentBehavior) : Except String Environment := do
   if isParserCategory env catName then
     throwParserCategoryAlreadyDefined catName

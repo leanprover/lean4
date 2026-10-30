@@ -25,9 +25,36 @@ canonicalizes the result via `canonExpr`, and stores it.
 
 variable [MonadLiftT MetaM m] [MonadError m] [Monad m] [MonadCanon m]
 
+/--
+The pairs of instances that `checkInst` found definitionally equal, when both are closed and built
+from imported constants only. Each `grind` goal initializes the operators of its structures again.
+
+The state is a reference created with the environment of the imports, so every declaration of the
+file and all its environment branches share it, while other files, whose imports may differ, have
+their own.
+
+The gain is small: about 1.4% of the elaboration instructions of a `lia` benchmark with the
+`Sym.simp` normalizer, and nothing measurable on `grind`'s ring benchmarks. Reevaluate whether this
+cache pays for its complexity.
+-/
+builtin_initialize checkedInstsExt : EnvExtension (Option (IO.Ref (PHashSet (Expr × Expr)))) ←
+  registerEnvExtension (some <$> IO.mkRef {})
+
+private def isClosedImported (env : Environment) (e : Expr) : Bool :=
+  !e.hasFVar && !e.hasMVar && !e.hasLevelParam &&
+    (e.find? fun e => match e with
+      | .const c _ => !env.isImportedConst c
+      | _ => false).isNone
+
 private def checkInst (declName : Name) (inst inst' : Expr) : MetaM Unit := do
+  let env ← getEnv
+  let cacheable := isClosedImported env inst && isClosedImported env inst'
+  let checked? := checkedInstsExt.getState env
+  if let (true, some checked) := (cacheable, checked?) then
+    if (← checked.get).contains (inst, inst') then return
   unless (← withReducibleAndInstances <| isDefEq inst inst') do
     throwError "error while initializing arithmetic operators:\ninstance for `{declName}` {indentExpr inst}\nis not definitionally equal to the expected one {indentExpr inst'}\nwhen only reducible definitions and instances are reduced"
+  if let (true, some checked) := (cacheable, checked?) then checked.modify (·.insert (inst, inst'))
 
 private def mkUnaryFn (type : Expr) (u : Level) (instDeclName : Name) (declName : Name) (expectedInst : Expr) : m Expr := do
   let inst ← MonadCanon.synthInstance <| mkApp (mkConst instDeclName [u]) type

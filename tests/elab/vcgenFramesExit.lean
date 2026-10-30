@@ -102,10 +102,10 @@ postcondition. -/
 A lossy spec owns only `0 ↦ 1`. The `frames` clause pins `5 ↦ 7`, and `vcgen` carries it into the
 exception postcondition through the frame rule. -/
 
-/-- Every `Prog` frames every heap assertion `F` on both channels. -/
+/-- Every `Prog` frames every heap assertion `F` on both channels, under every guard `P`. -/
 @[grind .]
-theorem frames_exit (x : Prog) (F : HProp) :
-    WP.Frames sepConj x F :=
+theorem frames_exit (x : Prog) (F P : HProp) :
+    WP.Frames sepConj x F P :=
   WP.frames_of_frameClosure sepConj sepConj sepConj_assoc sepConj_assoc
     ⟨fun y => baseWP.trans y, fun _ => rfl⟩
 
@@ -169,14 +169,14 @@ abbrev MEx := ExceptT Unit (StateM AppState)
   unfold bumpOrThrow
   vcgen <;> simp_all
 
-/-- `bumpOrThrow` frames any `P` outside its `fst` footprint, on both channels: the derived
+/-- `bumpOrThrow` frames any `F` outside its `fst` footprint, on both channels: the derived
 companion is the pointwise meet on the exception layer and the ignoring companion on the empty
 tail. -/
 @[grind .]
-theorem frames_bumpOrThrow {P : AppState → Prop}
-    (h : ∀ s a, P { s with fst := a } = P s) :
-    WP.Frames meet (bumpOrThrow : MEx Nat) P := by
-  refine WP.frames_of_conjunctive ?_ ?_
+theorem frames_bumpOrThrow {F P : AppState → Prop}
+    (h : ∀ s a, F { s with fst := a } = F s) :
+    WP.Frames meet (bumpOrThrow : MEx Nat) F P := by
+  refine WP.frames_of_conjunctive (PartialOrder.rel_trans (meet_le_right _ _) ?_) ?_
   · vcgen [bumpOrThrow] with finish
   · intro E
     refine PartialOrder.rel_trans (PartialOrder.rel_of_eq (Prod.mk_meet _ _).symm) ?_

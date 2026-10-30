@@ -101,7 +101,7 @@ def getEmptyId : M Nat := do
   return ctx.addEmptyId
 
 @[inline]
-private def idIndex (id : Nat) : M Nat := do
+def idIndex (id : Nat) : M Nat := do
   return id - (← M.getInitialId)
 
 @[inline]

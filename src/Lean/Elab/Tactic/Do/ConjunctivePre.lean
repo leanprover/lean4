@@ -23,8 +23,8 @@ frameproc can recognize the same situations and decline to frame.
 
 Apply the spec `specPre Q ⊑ wp x Q` to the goal `P ⊑ wp x Q`. The direct application emits the
 single VC `(h₁) P ⊑ specPre Q`. A framed application with frame `F` needs `(h₂) P ⊑ F` and
-`(h₃) F ⊑ specPre (fun _ => F)`, the spec-level `WP.Frames` obligation. Its conclusion follows from
-`h₁`, `h₂` and `h₃`:
+`(h₃) P ⊓ F ⊑ specPre (fun _ => F)`, the spec-level `WP.Frames` obligation under the guard `P`. Its
+conclusion follows from `h₁`, `h₂` and `h₃`:
 
     P ⊑ specPre Q ⊓ specPre (fun _ => F)    -- h₁, and h₂ with h₃
       ⊑ specPre (fun v => Q v ⊓ F)          -- conjunctivity
@@ -59,7 +59,7 @@ inference measurably slow.
 
 A spec with a premise that mentions `Q`/`E` is not considered conjunctive, because its direct
 application does not auto-frame. `vcgen` applies a spec at the current state `s` of the goal, and
-this point frame `(· = s)` reaches the conclusion but not the premises. In
+the frame `(· = s)` for that state argument reaches the conclusion but not the premises. In
 
     (ht : P₁ ⊑ wp t Q) → (he : P₂ ⊑ wp e Q) → (if c then P₁ else P₂) ⊑ wp (ite c t e) Q
 
@@ -74,7 +74,7 @@ open Lean Meta Std.WP Lean.Order
 
 /-- The precondition, program, postcondition and exception postcondition of a `Triple` or
 `pre ⊑ wp …` conclusion. -/
-private def specComponents? (concl : Expr) : Option (Expr × Expr × Expr × Expr) :=
+def specComponents? (concl : Expr) : Option (Expr × Expr × Expr × Expr) :=
   match_expr concl with
   | PartialOrder.rel _ _ pre rhs =>
     match_expr rhs with
@@ -84,11 +84,11 @@ private def specComponents? (concl : Expr) : Option (Expr × Expr × Expr × Exp
   | _ => none
 
 /-- Whether any metavariable from `mvarIds` occurs in `e`. -/
-private def occursMVar (mvarIds : Array MVarId) (e : Expr) : Bool :=
+def occursMVar (mvarIds : Array MVarId) (e : Expr) : Bool :=
   Option.isSome <| e.find? fun s => match s with | .mvar m => mvarIds.contains m | _ => false
 
 /-- The arity of a conjunctive head and the positions of its conjunctive arguments. -/
-private def conjunctiveArgs? (env : Environment) : Name → Option (Nat × List Nat)
+def conjunctiveArgs? (env : Environment) : Name → Option (Nat × List Nat)
   | ``Lean.Order.meet => some (4, [2, 3])
   | ``And => some (2, [0, 1])
   | ``Lean.Order.iInf => some (4, [3])
@@ -104,7 +104,7 @@ private def conjunctiveArgs? (env : Environment) : Name → Option (Nat × List 
     (info.arity, List.range' info.getFirstAltPos info.numAlts)
 
 /-- Whether every occurrence of `qs` in `e` lies in a conjunctive context. -/
-private partial def isConjunctiveIn (env : Environment) (qs : Array MVarId) (e : Expr) : Bool :=
+partial def isConjunctiveIn (env : Environment) (qs : Array MVarId) (e : Expr) : Bool :=
   if !occursMVar qs e then true else
   match e with
   | .mdata _ b => isConjunctiveIn env qs b

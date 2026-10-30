@@ -9,6 +9,7 @@ prelude
 public import Lean.EnvExtension
 public import Lean.Message
 import Lean.Elab.Term
+import Lean.Linter.Deprecated
 
 public section
 
@@ -87,8 +88,9 @@ builtin_initialize registerBuiltinAttribute {
         throwError "`{oldArg}` is still a parameter of `{declName}`; \
           remove it before adding `@[deprecated_arg]`"
     if since?.isNone then
-      logWarning "`[deprecated_arg]` attribute should specify the date or library version \
-        at which the deprecation was introduced, using `(since := \"...\")`"
+      logWarning <| m!"`[deprecated_arg]` attribute should specify the date or library version \
+        at which the deprecation was introduced, using `(since := \"...\")`" ++
+        (← Linter.mkSinceHint stx)
     modifyEnv fun env => deprecatedArgExt.addEntry env {
       declName, oldArg, newArg?, text?, since?
     }

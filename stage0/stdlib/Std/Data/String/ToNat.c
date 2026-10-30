@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Data.String.ToNat
-// Imports: public import Init.Data.String.Slice public import Init.Data.String.Search public import Init.Data.Nat.ToString import all Init.Data.String.Slice import all Init.Data.String.Search import Init.Data.String.Lemmas.Iterate import Std.Tactic.Do import Init.Data.List.Sublist
+// Imports: public import Init.Data.String.Slice.Numeric public import Init.Data.String.Iterate public import Init.Data.String.Search public import Init.Data.Nat.ToString import all Init.Data.String.Slice.Numeric import Init.Data.Option.Lemmas import Init.Omega import all Init.Data.String.Search import Init.Data.String.Lemmas.Iterate import Std.Tactic.Do import Init.Data.List.Sublist
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -61,10 +61,13 @@ return v___x_16_;
 }
 }
 }
-lean_object* runtime_initialize_Init_Data_String_Slice(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_String_Slice_Numeric(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_String_Iterate(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_String_Search(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Nat_ToString(uint8_t builtin);
-lean_object* runtime_initialize_Init_Data_String_Slice(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_String_Slice_Numeric(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Option_Lemmas(uint8_t builtin);
+lean_object* runtime_initialize_Init_Omega(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_String_Search(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_String_Lemmas_Iterate(uint8_t builtin);
 lean_object* runtime_initialize_Std_Tactic_Do(uint8_t builtin);
@@ -76,7 +79,10 @@ lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
 lean_initialize_runtime_module();
-res = runtime_initialize_Init_Data_String_Slice(builtin);
+res = runtime_initialize_Init_Data_String_Slice_Numeric(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_String_Iterate(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Init_Data_String_Search(builtin);
@@ -85,7 +91,13 @@ lean_dec_ref(res);
 res = runtime_initialize_Init_Data_Nat_ToString(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_String_Slice(builtin);
+res = runtime_initialize_Init_Data_String_Slice_Numeric(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_Option_Lemmas(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Omega(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Init_Data_String_Search(builtin);
@@ -109,10 +121,13 @@ if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_meta_initialized = true;
 return lean_io_result_mk_ok(lean_box(0));
 }
-lean_object* initialize_Init_Data_String_Slice(uint8_t builtin);
+lean_object* initialize_Init_Data_String_Slice_Numeric(uint8_t builtin);
+lean_object* initialize_Init_Data_String_Iterate(uint8_t builtin);
 lean_object* initialize_Init_Data_String_Search(uint8_t builtin);
 lean_object* initialize_Init_Data_Nat_ToString(uint8_t builtin);
-lean_object* initialize_Init_Data_String_Slice(uint8_t builtin);
+lean_object* initialize_Init_Data_String_Slice_Numeric(uint8_t builtin);
+lean_object* initialize_Init_Data_Option_Lemmas(uint8_t builtin);
+lean_object* initialize_Init_Omega(uint8_t builtin);
 lean_object* initialize_Init_Data_String_Search(uint8_t builtin);
 lean_object* initialize_Init_Data_String_Lemmas_Iterate(uint8_t builtin);
 lean_object* initialize_Std_Tactic_Do(uint8_t builtin);
@@ -122,7 +137,10 @@ LEAN_EXPORT lean_object* initialize_Std_Data_String_ToNat(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_String_Slice(builtin);
+res = initialize_Init_Data_String_Slice_Numeric(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_String_Iterate(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_String_Search(builtin);
@@ -131,7 +149,13 @@ lean_dec_ref(res);
 res = initialize_Init_Data_Nat_ToString(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_String_Slice(builtin);
+res = initialize_Init_Data_String_Slice_Numeric(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Option_Lemmas(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Omega(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_String_Search(builtin);

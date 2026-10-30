@@ -26,6 +26,10 @@ structure Semiring where
   u              : Level
   /-- `Semiring` instance for `type` -/
   semiringInst   : Expr
+  /-- `IsCharP` instance for `type` if available, with its numeral characteristic. -/
+  charInst?      : Option (Expr × Nat) := none
+  /-- `true` if `type` has an `IsCharP` instance whose characteristic is not a numeral, e.g. `2 ^ w` for `BitVec w`. -/
+  symbolicChar   : Bool := false
   addFn?         : Option Expr := none
   mulFn?         : Option Expr := none
   powFn?         : Option Expr := none
@@ -43,8 +47,10 @@ structure Ring where
   ringInst       : Expr
   /-- `Semiring` instance for `type` -/
   semiringInst   : Expr
-  /-- `IsCharP` instance for `type` if available. -/
+  /-- `IsCharP` instance for `type` if available, with its numeral characteristic. -/
   charInst?      : Option (Expr × Nat)
+  /-- `true` if `type` has an `IsCharP` instance whose characteristic is not a numeral, e.g. `2 ^ w` for `BitVec w`. -/
+  symbolicChar   : Bool := false
   addFn?         : Option Expr := none
   mulFn?         : Option Expr := none
   subFn?         : Option Expr := none

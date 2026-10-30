@@ -439,14 +439,14 @@ return v___x_102_;
 v___jp_103_:
 {
 uint8_t v___x_108_; 
-v___x_108_ = lean_int_dec_lt(v___y_104_, v___y_105_);
+v___x_108_ = lean_int_dec_lt(v___y_104_, v___y_106_);
 if (v___x_108_ == 0)
 {
 lean_object* v___x_109_; 
 v___x_109_ = l_Int_repr(v___y_104_);
 lean_dec(v___y_104_);
 v___y_94_ = v___y_107_;
-v___y_95_ = v___y_106_;
+v___y_95_ = v___y_105_;
 v___y_96_ = v___x_109_;
 goto v___jp_93_;
 }
@@ -459,7 +459,7 @@ lean_dec(v___y_104_);
 v___x_112_ = lean_string_append(v___x_110_, v___x_111_);
 lean_dec_ref(v___x_111_);
 v___y_94_ = v___y_107_;
-v___y_95_ = v___y_106_;
+v___y_95_ = v___y_105_;
 v___y_96_ = v___x_112_;
 goto v___jp_93_;
 }
@@ -482,8 +482,8 @@ lean_object* v___x_123_;
 v___x_123_ = l_Int_repr(v_hour_117_);
 lean_dec(v_hour_117_);
 v___y_104_ = v_minute_120_;
-v___y_105_ = v___x_121_;
-v___y_106_ = v_fst_114_;
+v___y_105_ = v_fst_114_;
+v___y_106_ = v___x_121_;
 v___y_107_ = v___x_123_;
 goto v___jp_103_;
 }
@@ -496,8 +496,8 @@ lean_dec(v_hour_117_);
 v___x_126_ = lean_string_append(v___x_124_, v___x_125_);
 lean_dec_ref(v___x_125_);
 v___y_104_ = v_minute_120_;
-v___y_105_ = v___x_121_;
-v___y_106_ = v_fst_114_;
+v___y_105_ = v_fst_114_;
+v___y_106_ = v___x_121_;
 v___y_107_ = v___x_126_;
 goto v___jp_103_;
 }

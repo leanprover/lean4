@@ -33,7 +33,7 @@ section Functions
 
 /-- Pointwise characterization of indexed infimum on function lattices. -/
 theorem iInf_apply
-    {ι : Type vₗ} {σ : Type wₗ} {β : Type uₗ} [CompleteLattice β]
+    {ι : Sort vₗ} {σ : Type wₗ} {β : Type uₗ} [CompleteLattice β]
     (f : ι → σ → β) (s : σ) :
     (iInf f) s = iInf (fun i => f i s) := by
   apply PartialOrder.rel_antisymm
@@ -51,7 +51,7 @@ theorem iInf_apply
 
 /-- Pointwise characterization of indexed supremum on function lattices. -/
 theorem iSup_apply
-    {ι : Type vₗ} {σ : Type wₗ} {β : Type uₗ} [CompleteLattice β]
+    {ι : Sort vₗ} {σ : Type wₗ} {β : Type uₗ} [CompleteLattice β]
     (f : ι → σ → β) (s : σ) :
     (iSup f) s = iSup (fun i => f i s) := by
   apply PartialOrder.rel_antisymm

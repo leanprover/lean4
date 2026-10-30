@@ -60,7 +60,7 @@ builtin_initialize reducibilityCoreExt : PersistentEnvExtension (Name × Reducib
       r.qsort (fun a b => Name.quickLt a.1 b.1)
     statsFn         := fun s => "reducibility attribute core extension" ++ Format.line ++ "number of local entries: " ++ format s.size
     -- attribute is set by `addPreDefinitions`
-    asyncMode       := .async .asyncEnv
+    asyncMode       := .async .mainEnv
     replay? := some <| fun _oldState newState newItems otherState =>
       newItems.foldl (init := otherState) fun otherState k =>
         if let some v := newState.find? k then
@@ -85,7 +85,7 @@ def getReducibilityStatusCore (env : Environment) (declName : Name) : Reducibili
     status
   else match env.getModuleIdxFor? declName with
   | some modIdx =>
-    match (reducibilityCoreExt.getModuleEntries env modIdx).binSearch (declName, .semireducible) (fun a b => Name.quickLt a.1 b.1) with
+    match findSortedByName? (reducibilityCoreExt.getModuleEntries env modIdx) declName with
     | some (_, status) => status
     | none => .semireducible
   | none => (reducibilityCoreExt.getState (asyncDecl := declName) env).find? declName |>.getD .semireducible

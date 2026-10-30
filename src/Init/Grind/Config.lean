@@ -77,7 +77,7 @@ structure Config where
   /-- TODO -/
   lookahead : Bool := true
   /-- If `verbose` is `false`, additional diagnostics information is not collected. -/
-  verbose : Bool := true
+  verbose : Bool := false
   /-- If `clean` is `true`, `grind` uses `expose_names` and only generates accessible names. -/
   clean : Bool := true
   /--
@@ -109,6 +109,23 @@ structure Config where
   -/
   zeta := true
   /--
+  When `true`, the normalizer distributes multiplication over addition and expands powers of
+  sums: `x * (y + 1)` becomes `x * y + x`. When `false` (default: `false`), such products and
+  powers are kept as atoms, and only products with a constant factor are expanded. Linear
+  arithmetic procedures treat nonlinear terms as atoms, so keeping them unexpanded preserves
+  equalities such as `x * (y + 1) = x * z` after `y + 1 = z` is derived.
+  -/
+  distrib := false
+  /--
+  The normalizer puts arithmetic terms in normal form only over types whose characteristic is
+  unknown or at most `maxChar` (default: `0`, i.e., characteristic zero such as `Nat`, `Int`, and
+  `Rat`). Over a type with a larger characteristic, such as `UInt64` or `BitVec 64`, coefficients
+  are reduced modulo the characteristic, so `x - y` would become `x + 18446744073709551615 * y`,
+  which hides the subtraction from rewrite rules and from the translation of `BitVec`/`UIntN`
+  terms into `Nat`. Such terms are left as written.
+  -/
+  maxChar : Nat := 0
+  /--
   When `true` (default: `true`), uses procedure for handling equalities over commutative rings.
   This solver also support commutative semirings, fields, and normalizer non-commutative rings and
   semirings.
@@ -136,12 +153,25 @@ structure Config where
   /--
   Maximum number of steps performed by the `lia` solver while searching for an assignment
   satisfying the linear integer arithmetic constraints.
-  A step is counted for each variable processed during the search. This threshold prevents
-  case-split explosion in examples that require enumerating a huge number of cases
-  (e.g., Cooper conflict resolution with large coefficients).
+  A step is counted for each variable processed and each conflict resolved during the search.
+  This threshold prevents case-split explosion in examples that require enumerating a huge
+  number of cases (e.g., Cooper conflict resolution with large coefficients).
   When the threshold is reached, the search is interrupted, and the solver becomes incomplete.
   -/
   liaSteps : Nat := 10000
+  /--
+  Maximum number of times the `lia` solver reorders its variables during the search for an
+  assignment. Before opening a Cooper case split with more than `liaReorderCases` cases, the
+  solver orders the split variable first and restarts the search, so that the conflict surfaces
+  at a variable with a smaller coefficient. Set to `0` to disable.
+  -/
+  liaReorders : Nat := 8
+  /--
+  A Cooper case split in the `lia` solver triggers a variable reordering (see `liaReorders`)
+  only when it has more cases than this threshold. Enumerating a few cases is cheaper than
+  reordering and restarting the search.
+  -/
+  liaReorderCases : Nat := 16
   /--
   When `true` (default: `true`), applies the `[grind hom]` homomorphism rules and
   `[grind hom_pred]` predicates during internalization. Homomorphism rules translate

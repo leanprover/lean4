@@ -662,6 +662,8 @@ macro (name := rwaAtLegacyLocation) (priority := low) "rwa " rws:rwRuleSeq
 
 deprecated_syntax Lean.Parser.Tactic.rwaAtLegacyLocation
   "use `rw [...] at ... <;> assumption` instead" (since := "2026-08-27")
+  | `(tactic| rwa $rws:rwRuleSeq $loc:location) =>
+    `(tactic| rw $rws:rwRuleSeq $loc:location <;> assumption)
 
 /--
 The `injection` tactic is based on the fact that constructors of inductive data
@@ -2482,7 +2484,7 @@ vcgen [...] invariants
 | _ => I2
 ```
 
-`vcgen` has two further clauses.
+`vcgen` has three further clauses.
 
 ```
 vcgen until f a _ c
@@ -2508,6 +2510,18 @@ vcgen frames
 ```
 carries `s.2 = 7` past the call, and `vcgen` proves that `mkFreshNat` preserves it. The named binders
 are in scope in the frame, bound to the matched arguments.
+
+```
+vcgen simp [Nat.add_assoc, h]
+```
+adds theorems to the simp set of `vcgen`. `vcgen` rewrites the hypotheses it introduces, the state
+arguments of the program and the verification conditions with the theorems tagged
+`@[vcgen_simp]`, the theorems of the clause, and the evaluation of ground terms such as `41 + 1`
+and `"x" = "y"`. An argument is a theorem or definition name, a local hypothesis, a proof term, or
+`*` for every local hypothesis. A theorem with hypotheses, such as
+`wrap_of_lt (h : n < 2 ^ w) : wrap w n = n`, rewrites only if the same simplification proves each
+hypothesis.
+`vcgen -simp` turns this simplification off.
 
 ### Invariant suggestions
 

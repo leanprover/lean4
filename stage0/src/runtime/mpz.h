@@ -138,6 +138,7 @@ public:
 
     int get_int() const;
     unsigned int get_unsigned_int() const;
+    /** \brief Return the least significant `size_t` word of the absolute value. */
     size_t get_size_t() const;
 
     mpz & operator=(mpz const & v);

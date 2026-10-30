@@ -12,6 +12,7 @@ import Std.Internal.Order.FrameClosure
 import Lean.Meta.Sym.Simp.Rewrite
 import Lean.Meta.AppBuilder
 import Lean.Meta.AbstractMVars
+public import Lean.Elab.Tactic.VCGen.ExcessArgsFrame
 
 open Lean Meta Sym
 open Lean.Order
@@ -44,11 +45,10 @@ public structure LatticeOp where
 
 Backward rules that decompose a lattice operator on the RHS of an entailment `pre ⊑ op … s⃗`. The
 operator is saturated with distribution and unfolding rewrites, a terminal `⊑`-introduction rule
-fires on the reduced form, and any state arguments the terminal leaves over-applied are point-framed
-onto the precondition.
+fires on the reduced form, and a frame for the state arguments the terminal leaves over-applied
+moves them onto the precondition.
 
-The built-in splits cover the lattice connectives `⊓`/`⇨`/`⌜·⌝`/`⊤`/`iInf`, the `Prop` conjunction
-`∧`, and the magic-wand residual `upperAdjoint`.
+The built-in splits are the `LatticeOp` values in `builtinLatticeOps`.
 -/
 
 /-- The lattice meet `⊓`: distributes via `meet_apply`, closes with `le_meet`. -/
@@ -59,7 +59,8 @@ public def LatticeOp.himp : LatticeOp :=
   { head := ``Lean.Order.himp, rewrites := #[``himp_apply],
     terminal? := ``Lean.Order.le_himp_of_meet_le_left }
 /-- The pure assertion `⌜·⌝`: distributes via `ofProp_apply`, closes with the `⊤`-fixed
-`CompleteLattice.top_le_ofProp`. -/
+`CompleteLattice.top_le_ofProp`. It decomposes `pre ⊑ ⌜p⌝` only when `pre` is `⊤`: the subgoal `p`
+of any other `pre` would drop `pre`, and the terminal fails to apply. -/
 public def LatticeOp.ofProp : LatticeOp :=
   { head := ``Lean.Order.CompleteLattice.ofProp,
     rewrites := #[``Lean.Order.CompleteLattice.ofProp_apply],
@@ -70,7 +71,14 @@ public def LatticeOp.top : LatticeOp :=
 /-- The conjunction `∧` on the `Prop` lattice: closes with `le_and`. -/
 public def LatticeOp.and : LatticeOp :=
   { head := ``And, numConst := 0, terminal? := ``Lean.Order.le_and }
-/-- The magic-wand residual `upperAdjoint f b`: point-framed, closes with `le_upperAdjoint`. -/
+/-- The existential `∃ h : a, b h` over a proposition `a`: closes with `le_exists_prop`. -/
+public def LatticeOp.exists : LatticeOp :=
+  { head := ``Exists, numConst := 1, terminal? := ``Lean.Order.le_exists_prop,
+    applies? := fun rhs => match rhs.getAppFn with
+      | .const _ [u] => u.isZero
+      | _ => false }
+/-- The magic-wand residual `upperAdjoint f b`: framed for its excess state arguments, closes with
+`le_upperAdjoint`. -/
 public def LatticeOp.upperAdjoint : LatticeOp :=
   { head := ``Lean.Order.PreservesSup.upperAdjoint,
     rewrites := #[``Lean.Order.FrameOp.upperAdjoint_pointwise_apply, ``Lean.Order.FrameOp.upperAdjoint_ignore],
@@ -79,10 +87,18 @@ public def LatticeOp.upperAdjoint : LatticeOp :=
 public def LatticeOp.iInf : LatticeOp :=
   { head := ``Lean.Order.iInf, numConst := 3,
     rewrites := #[``Lean.Order.iInf_apply], terminal? := ``Lean.Order.le_iInf }
+/-- Indexed supremum `iSup`/`⨆` over a proposition: distributes via `iSup_apply`, closes with
+`le_iSup_prop`. -/
+public def LatticeOp.iSup : LatticeOp :=
+  { head := ``Lean.Order.iSup, numConst := 3,
+    rewrites := #[``Lean.Order.iSup_apply], terminal? := ``Lean.Order.le_iSup_prop,
+    applies? := fun rhs => match rhs.getAppFn with
+      | .const _ [_, v] => v.isZero
+      | _ => false }
 /-- Whether the `fst`/`snd` rewrites decompose the projected operand: a `⊥`/`⊤`, a
 companion application `FrameOp.prod`, or a wand `upperAdjoint (FrameOp.prod …)`, whose component
 wands the `upperAdjoint` rewrites decompose further. -/
-private def projectsRewritableOperand (rhs : Expr) : Bool :=
+def projectsRewritableOperand (rhs : Expr) : Bool :=
   rhs.getAppArgs[2]?.any fun eposts =>
     match eposts.getAppFn with
     | .const ``Lean.Order.bot _ | .const ``Lean.Order.top _
@@ -104,7 +120,7 @@ public def LatticeOp.snd : LatticeOp :=
 
 /-- The built-in connective splits, whose rewrites and terminals seed every saturation. -/
 public def builtinLatticeOps : Array LatticeOp :=
-  #[.meet, .himp, .ofProp, .top, .and, .upperAdjoint, .iInf, .fst, .snd]
+  #[.meet, .himp, .ofProp, .top, .and, .exists, .upperAdjoint, .iInf, .iSup, .fst, .snd]
 
 /-- Lattice splits of the built-in connectives, keyed by operator head. `splitLatticeOp?` looks a
 head up here. -/
@@ -112,8 +128,8 @@ public def latticeOps : Std.HashMap Name LatticeOp :=
   builtinLatticeOps.foldl (fun t s => t.insert s.head s) {}
 
 /-- Index terminal lemmas by the head constant of their conclusion's RHS, recording the RHS argument
-count so a split can size the excess state arguments to point-frame. -/
-private def mkLatticeTerminals (names : Array Name) : MetaM (Std.HashMap Name (Name × Nat)) := do
+count so a split can size the excess state arguments to frame. -/
+def mkLatticeTerminals (names : Array Name) : MetaM (Std.HashMap Name (Name × Nat)) := do
   let mut m : Std.HashMap Name (Name × Nat) := {}
   for n in names do
     let ty ← Meta.inferType (← mkConstWithFreshMVarLevels n)
@@ -131,7 +147,7 @@ until none applies. Returns the reduced expression and, when a rewrite fired, a 
 `Sym.Simp` pattern matching drives the rewriting, so schematic (metavariable) operands are supported.
 `fuel` bounds the rewrite chain, turning a non-terminating `@[frameproc]` rewrite set into an error.
 -/
-private def saturateLatticeOp (rewrites : Array Name) (e : Expr) (fuel : Nat := 256) :
+def saturateLatticeOp (rewrites : Array Name) (e : Expr) (fuel : Nat := 256) :
     SymM (Expr × Option Expr) := do
   let thms ← rewrites.foldlM (init := ({} : Simp.Theorems)) fun thms n =>
     return thms.insert (← Simp.mkTheoremFromDecl n)
@@ -152,37 +168,26 @@ where
         go step e₀ next (some proof) fuel
 
 /--
-Point-frame the state chain `ss` of a goal `pre ⊑ opAs s₁ … sₙ`: peel the innermost argument via
-`le_apply_of_point_meet_le`, gating the precondition to `fun u => ⌜u = sₙ⌝ ⊓ pre`, until the goal is
-the function-level `gate ⊑ opAs`, then apply the terminal `introThm`, leaving its operand subgoals as
-premises. An empty `ss` applies `introThm` directly. Returns the proof of `pre ⊑ opAs s₁ … sₙ`.
+Build a frame for the excess state arguments `ss` of a goal `pre ⊑ opAs s₁ … sₙ` (see
+`ExcessArgsFrameInfo`), then apply the terminal `introThm` to the goal `frame ⊑ opAs`, leaving its
+operand subgoals as premises. Returns the proof of `pre ⊑ opAs s₁ … sₙ`.
 -/
-private partial def mkPointFrameApply (introThm : Name) (opAs pre : Expr) (ss : List Expr) :
+def mkExcessArgsFrameApply (introThm : Name) (opAs pre : Expr) (ss : List Expr) :
     MetaM Expr := do
-  match ss with
-  | [] =>
-    let introRule ← mkConstWithFreshMVarLevels introThm
-    let (xs, _, body) ← forallMetaTelescope (← Meta.inferType introRule)
-    let target ← mkAppM ``PartialOrder.rel #[pre, opAs]
-    unless ← isDefEq body target do
-      throwError "lattice terminal {introThm} does not conclude {target}"
-    return mkAppN introRule xs
-  | _ =>
-    let s := ss.getLast!
-    let init := ss.dropLast
-    let Q := mkAppN opAs init.toArray
-    let preTy ← Meta.inferType pre
-    let gate ← withLocalDeclD `u (← Meta.inferType s) fun u => do
-      let ofp ← mkAppOptM ``Lean.Order.CompleteLattice.ofProp #[preTy, none, ← mkEq u s]
-      mkLambdaFVars #[u] (← mkAppM ``Lean.Order.meet #[ofp, pre])
-    let h ← mkPointFrameApply introThm opAs gate init
-    mkAppM ``Lean.Order.le_apply_of_point_meet_le #[s, pre, Q, h]
+  let ss := ss.toArray
+  let info ← ExcessArgsFrameInfo.new pre ss
+  let introRule ← mkConstWithFreshMVarLevels introThm
+  let (xs, _, body) ← forallMetaTelescope (← Meta.inferType introRule)
+  let target ← mkAppM ``PartialOrder.rel #[info.frame, opAs]
+  unless ← isDefEq body target do
+    throwError "lattice terminal {introThm} does not conclude {target}"
+  info.instantiate opAs ss (mkAppN introRule xs)
 
 /--
 Build a reusable backward rule decomposing `pre ⊑ op … s⃗` for a lattice operator. The operator's
 value arguments are made schematic; `rewrites` saturate the operator through its distribution and
 unfolding equalities, the terminal keyed by the reduced head fires, and any state arguments left
-over-applied by the terminal are point-framed onto the precondition. When the reduced head has no
+over-applied by the terminal move onto the precondition through a frame for them. When the reduced head has no
 registered terminal, the saturated `pre ⊑ reduced` is handed back as the sole subgoal. Throws when the
 operator neither reduces nor has a terminal, since its rule would be the identity; the operator's
 `applies?` filter keeps such shapes away from rule construction.
@@ -210,7 +215,7 @@ public def mkLatticeOpRule (rhs : Expr) (op : LatticeOp) : SymM BackwardRule := 
     let redHead := reduced.getAppFn.constName?.getD .anonymous
     let termProof? ← terminals[redHead]?.mapM fun (termLemma, rhsArgCount) => do
       let args := reduced.getAppArgs
-      mkPointFrameApply termLemma (mkAppN reduced.getAppFn (args.extract 0 rhsArgCount)) pre
+      mkExcessArgsFrameApply termLemma (mkAppN reduced.getAppFn (args.extract 0 rhsArgCount)) pre
         (args.extract rhsArgCount).toList
     let prf ←
       match (termProof?, eqProof?) with

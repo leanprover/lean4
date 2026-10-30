@@ -19,7 +19,7 @@ h : p c
 -/
 #guard_msgs in
 example : p c → False := by
-  grind
+  grind +verbose
 
 example : p c → False := by
   grind [p]
@@ -44,7 +44,7 @@ h : f fst
 -/
 #guard_msgs in
 example (n : Nat) (fst : PosFin n) (h : f fst) : False := by
-  grind
+  grind +verbose
 
 example (n : Nat) (fst : PosFin n) (h : f fst) : False := by
   grind [f]

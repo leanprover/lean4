@@ -23,7 +23,7 @@ syntax grindErase    := "-" ident
 The `!` modifier instructs `grind` to consider only minimal indexable subexpressions
 when selecting patterns.
 -/
-syntax grindParam    := grindErase <|> grindLemmaMin <|> grindLemma <|> anchor
+syntax grindParam    := grindErase <|> grindLemmaMin <|> atomic(anchor) <|> grindLemma
 
 namespace Grind
 declare_syntax_cat grind_filter (behavior := both)

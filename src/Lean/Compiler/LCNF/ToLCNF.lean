@@ -297,7 +297,7 @@ def withoutExpectedType (x : M α) : M α :=
 /--
 Return true iff `type` is `Sort _` or `As → Sort _`.
 -/
-private partial def isTypeFormerType (type : Expr) : M Bool := do
+partial def isTypeFormerType (type : Expr) : M Bool := do
   match quick (← getEnv) type with
   | .true => return true
   | .false => return false
@@ -436,7 +436,7 @@ def etaExpandN (e : Expr) (n : Nat) : M Expr := do
     Meta.forallBoundedTelescope (← Meta.inferType e) n fun xs _ =>
       Meta.mkLambdaFVars xs (mkAppN e xs)
 
-private def checkComputable (ref : Name) : M Unit := do
+def checkComputable (ref : Name) : M Unit := do
   if (← read).ignoreNoncomputable then
     return
   if ref matches ``Quot.mk | ``Quot.lift || isExtern (← getEnv) ref || (getImplementedBy? (← getEnv) ref).isSome then

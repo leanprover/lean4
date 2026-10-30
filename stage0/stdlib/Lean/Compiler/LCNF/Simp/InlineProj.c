@@ -1467,8 +1467,8 @@ if (lean_obj_tag(v_a_391_) == 0)
 {
 lean_object* v___x_395_; lean_object* v___x_397_; 
 lean_dec(v_struct_387_);
-lean_dec_ref_known(v_e_377_, 3);
 lean_dec(v_idx_386_);
+lean_dec_ref_known(v_e_377_, 3);
 v___x_395_ = lean_box(0);
 if (v_isShared_394_ == 0)
 {
@@ -1883,8 +1883,8 @@ else
 {
 lean_object* v_a_478_; lean_object* v___x_480_; uint8_t v_isShared_481_; uint8_t v_isSharedCheck_485_; 
 lean_dec(v_struct_387_);
-lean_dec_ref_known(v_e_377_, 3);
 lean_dec(v_idx_386_);
+lean_dec_ref_known(v_e_377_, 3);
 v_a_478_ = lean_ctor_get(v___x_390_, 0);
 v_isSharedCheck_485_ = !lean_is_exclusive(v___x_390_);
 if (v_isSharedCheck_485_ == 0)
@@ -1928,8 +1928,8 @@ else
 {
 lean_object* v_a_486_; lean_object* v___x_488_; uint8_t v_isShared_489_; uint8_t v_isSharedCheck_493_; 
 lean_dec(v_struct_387_);
-lean_dec_ref_known(v_e_377_, 3);
 lean_dec(v_idx_386_);
+lean_dec_ref_known(v_e_377_, 3);
 v_a_486_ = lean_ctor_get(v___x_388_, 0);
 v_isSharedCheck_493_ = !lean_is_exclusive(v___x_388_);
 if (v_isSharedCheck_493_ == 0)

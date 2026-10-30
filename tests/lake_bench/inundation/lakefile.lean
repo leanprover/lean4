@@ -73,6 +73,24 @@ lean_lib InundationY where
 
 end
 
+/--
+Fetch the setup of every module.
+Benchmarks computing transitive import trees.
+-/
+target setups : Unit := do
+  let mut jobs := #[]
+  for layer in *...layers do
+    let layerName := testName.str (num2letters layer)
+    let some mod ← findModule? layerName
+        | error s!"unknown module `{layerName}`"
+    jobs := jobs.push (← mod.setup.fetch)
+    for idx in *...width do
+      let modName := layerName.str s!"M{idx}"
+      let some mod ← findModule? modName
+        | error s!"unknown module `{modName}`"
+      jobs := jobs.push (← mod.setup.fetch)
+  return Job.mixArray jobs
+
 script nop :=
   return 0
 

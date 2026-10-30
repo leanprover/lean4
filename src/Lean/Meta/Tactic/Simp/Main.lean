@@ -375,6 +375,10 @@ def simpForall (e : Expr) : SimpM Result := withParent e do
       IF we can simplify the domain.
       -/
       let rd ← simp domain
+      -- A proof of `p₁ = p₁` is dropped. The cast `h₁.substr a` below would otherwise survive inside
+      -- proof arguments that `simp` does not visit, so the result would never be equal to the
+      -- input and `visitPostContinue` would loop.
+      let rd := if rd.expr == domain then { expr := domain } else rd
       if let some h₁ := rd.proof? then
         /- Using
         ```

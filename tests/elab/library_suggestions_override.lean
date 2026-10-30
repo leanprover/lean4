@@ -35,4 +35,4 @@ h : ¬x.roundDown prec ≤ x
 -/
 #guard_msgs in
 example {x : Dyadic} {prec : Int} : x.roundDown prec ≤ x := by
-  grind +suggestions
+  grind +verbose +suggestions

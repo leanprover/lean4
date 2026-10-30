@@ -44,7 +44,7 @@ The unfold theorem of each function is proved from `_fix_eq` by projection and u
 whole block, which the kernel would otherwise re-check for each of them. Both are added eagerly,
 as realized constants are re-checked by the kernel in every realization that uses them.
 -/
-private def mkFixEq (declNameNonRec : Name) : MetaM Name := do
+def mkFixEq (declNameNonRec : Name) : MetaM Name := do
   -- `_functional` is exported with its body along with `declNameNonRec`'s, so that `_fix_eq` can
   -- be used for the unfold theorems in importing modules.
   withExporting (isExporting := (← getEnv).hasExposedBody declNameNonRec) do
@@ -86,7 +86,7 @@ public def registerEqnsInfo (preDefs : Array PreDefinition) (declNameNonRec : Na
           eqnInfoExt.insert env preDef.declName { preDef with
             declNames, declNameNonRec, fixedParamPerms, fixpointType, fixEq? }
 
-private def deltaLHSUntilFix (declName declNameNonRec : Name) (mvarId : MVarId) : MetaM MVarId := mvarId.withContext do
+def deltaLHSUntilFix (declName declNameNonRec : Name) (mvarId : MVarId) : MetaM MVarId := mvarId.withContext do
   let target ← mvarId.getType'
   let some (_, lhs, rhs) := target.eq? | throwTacticEx `deltaLHSUntilFix mvarId "equality expected"
   let lhs' ← deltaExpand lhs fun n => n == declName || n == declNameNonRec

@@ -123,6 +123,9 @@ instance : Repr PId where
 
 /--
 Gets the title of the current process.
+
+On Linux and macOS, throws `IO.Error.resourceExhausted` in a process whose `main` is not a compiled
+Lean `main`, such as the `lean` executable, since only a compiled `main` sets up the title.
 -/
 @[inline]
 def getProcessTitle : IO String :=
@@ -130,6 +133,11 @@ def getProcessTitle : IO String :=
 
 /--
 Sets the title of the current process.
+
+On Linux and macOS the title is stored in the memory of the process's original command line, so a
+longer title is cut to fit it, possibly in the middle of a UTF-8 character. There it throws
+`IO.Error.resourceExhausted` in a process whose `main` is not a compiled Lean `main`, as
+`getProcessTitle` does.
 -/
 @[inline]
 def setProcessTitle (title : String) : IO Unit :=
@@ -165,6 +173,9 @@ def setCwd (path : System.FilePath) : IO Unit :=
 
 /--
 Gets the scheduling priority of a process.
+
+Throws `IO.Error.invalidArgument` for a process ID that does not fit the operating system's process
+ID type.
 -/
 @[inline]
 def getPriority (pid : PId) : IO Int64 :=
@@ -172,6 +183,9 @@ def getPriority (pid : PId) : IO Int64 :=
 
 /--
 Sets the scheduling priority of a process.
+
+Throws `IO.Error.invalidArgument` if the priority is outside the range from -20 (highest) to 19
+(lowest), or for a process ID that does not fit the operating system's process ID type.
 -/
 @[inline]
 def setPriority (pid : PId) (priority : Int64) : IO Unit :=

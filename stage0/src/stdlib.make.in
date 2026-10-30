@@ -143,9 +143,10 @@ ifeq "${CMAKE_SYSTEM_NAME}" "Windows"
 # can't use bundled llvm-ar before LLVM 16, https://github.com/llvm/llvm-project/issues/55023
 	ar dP ${LIB}/lean/diff.a @${LIB}/temp/diff.a.in
 	#"${CMAKE_AR}" tP ${LIB}/lean/diff.a
-# now again up to `Lean.Meta`
+# now again up to `Lean.Meta` and `Lean.Elab.Tactic.Conv`; the roots should be import-only modules
+# as they are not deleted from `diff.a` below and so end up in `leanshared` as well
 	$(LEANC_SH) -shared -o $(OUTLIB)/libleanshared_2$(SO) \
-	  ${LIB}/lean/../temp/Lean/Meta.*o.export ${LIB}/lean/diff.a -Wl,--no-whole-archive -lleanshared_1 -lInit_shared -Wl,--out-implib,${LIB}/lean/libleanshared_2.dll.a ${LEANSHARED_LINKER_FLAGS} ${TOOLCHAIN_SHARED_LINKER_FLAGS} ${LEANC_OPTS} -Wl,-Map=${LIB}/temp/libleanshared_2.map
+	  ${LIB}/lean/../temp/Lean/Meta.*o.export ${LIB}/lean/../temp/Lean/Elab/Tactic/Conv.*o.export ${LIB}/lean/diff.a -Wl,--no-whole-archive -lleanshared_1 -lInit_shared -Wl,--out-implib,${LIB}/lean/libleanshared_2.dll.a ${LEANSHARED_LINKER_FLAGS} ${TOOLCHAIN_SHARED_LINKER_FLAGS} ${LEANC_OPTS} -Wl,-Map=${LIB}/temp/libleanshared_2.map
 	echo -n "$(OUTLIB)/libleanshared_2$(SO) symbols: "
 	nm $(OUTLIB)/libleanshared_2$(SO) --extern-only | wc -l
 	sed -En 's/.*\s(\S*\.o\.export):.*/\1/p' ${LIB}/temp/libleanshared_2.map > ${LIB}/temp/diff.a.in
@@ -204,11 +205,14 @@ $(OUTBIN)/leanc$(EXE): $(OUTARC)/libLeanc.a
 
 leanc: $(OUTBIN)/leanc$(EXE)
 
-$(OUTBIN)/leanir$(EXE): $(OUTARC)/libLeanIR.a
+# `leanir` never elaborates Lean source and is started once per module, so it gets the minimal
+# `lean_initialize`, selected by a shim linked ahead of `libleanshared`; see `initialize_minimal_shim` in
+# `src/initialize/CMakeLists.txt`. `LeanIR.lean` imports what its own initializer must cover.
+$(OUTBIN)/leanir$(EXE): $(OUTARC)/libLeanIR.a $(OUTARC)/libinitialize_minimal_shim.a
 	@echo "[    ] Building $@"
 # on Windows, must remove file before writing a new one (since the old one may be in use)
 	@rm -f $@
-	"${CMAKE_BINARY_DIR}/leanc.sh" $< ${CMAKE_EXE_LINKER_FLAGS_MAKE} ${CMAKE_DYN_EXE_LINKER_FLAGS_MAKE} ${LEAN_EXE_LINKER_FLAGS} -o $@
+	"${CMAKE_BINARY_DIR}/leanc.sh" $< $(OUTARC)/libinitialize_minimal_shim.a ${CMAKE_EXE_LINKER_FLAGS_MAKE} ${CMAKE_DYN_EXE_LINKER_FLAGS_MAKE} ${LEAN_EXE_LINKER_FLAGS} -o $@
 
 leanir: $(OUTBIN)/leanir$(EXE)
 

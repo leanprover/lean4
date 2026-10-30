@@ -291,6 +291,13 @@ def parseLintersSpec (spec : String) : CliM PUnit := do
     { opts with runBuiltinLint := true, builtinLint.linterOverrides :=
         opts.builtinLint.linterOverrides ++ entries }
 
+def setShakeAddDownstream (opt : String) (isExported : Bool) : CliM PUnit := do
+  let mod ← takeOptArg opt "module to add"
+  if (← getThe LakeOptions).shake.addDownstream?.isSome then
+    error "at most one of `--add-downstream` and `--add-public-downstream` can be used, and only once"
+  modifyThe LakeOptions fun opts =>
+    {opts with shake.addDownstream? := some { module := mod.toName, isExported }}
+
 def lakeLongOption : (opt : String) → CliM PUnit
 | "--quiet"       => modifyThe LakeOptions ({· with verbosity := .quiet})
 | "--verbose"     => modifyThe LakeOptions ({· with verbosity := .verbose})
@@ -419,6 +426,8 @@ def lakeLongOption : (opt : String) → CliM PUnit
   let mod ← takeOptArg "--only" "minimize only this module"
   modifyThe LakeOptions fun opts =>
     {opts with shake.onlyMods := opts.shake.onlyMods.push mod.toName}
+| "--add-downstream" => setShakeAddDownstream "--add-downstream" (isExported := false)
+| "--add-public-downstream" => setShakeAddDownstream "--add-public-downstream" (isExported := true)
 -- Check and comparator options
 | "--config" => do
   let file ← takeOptArg "--config" "path"
@@ -651,7 +660,7 @@ where
       let descrs ← map.collectOutputDescrs
       service.downloadArtifacts descrs cache remoteScope opts.forceDownload
 
-private def computeUploadService
+def computeUploadService
   (service? : Option String) (lakeEnv : Env) (lakeCfg : LoadedLakeConfig)
 : CliStateM CacheService := do
   if let some service := service? then
@@ -681,7 +690,7 @@ where
     \n  LAKE_CACHE_REVISION_ENDPOINT={revisionEndpoint?.getD ""}\n\
     To upload, these environment variables must be set to non-empty strings."
 
-private def computePackageRev (pkgDir : FilePath) : CliStateM String := do
+def computePackageRev (pkgDir : FilePath) : CliStateM String := do
   let repo := GitRepo.mk pkgDir
   if (← repo.hasDiff) then
     logWarning s!"package has changes; \
@@ -690,7 +699,7 @@ private def computePackageRev (pkgDir : FilePath) : CliStateM String := do
       exit 1
   repo.getHeadRevision
 
-private def putCore
+def putCore
   (rev : GitRev)  (outputs : FilePath) (artDir : FilePath)
   (service : CacheService) (scope : CacheServiceScope)
   (platform := CachePlatform.none) (toolchain := CacheToolchain.none)
@@ -755,7 +764,7 @@ protected def add : CliM PUnit := do
   let overwrite := opts.overwrite?.getD true
   ws.lakeCache.writeMap localScope map service? opts.scope? overwrite
 
-private def stagingOutputsFile := "outputs.jsonl"
+def stagingOutputsFile := "outputs.jsonl"
 
 protected def stage : CliM PUnit := do
   processOptions lakeOption
@@ -1102,7 +1111,7 @@ protected def checkTest : CliM PUnit := do
   let pkg ← loadPackage (← mkLoadConfig (← getThe LakeOptions))
   noArgsRem do exit <| if pkg.testDriver.isEmpty then 1 else 0
 
-private def runBuiltinLint
+def runBuiltinLint
     (opts : LakeOptions) (ws : Workspace) (specifiedMods : Array Lean.Name)
     : CliM UInt32 := do
   let mods := if specifiedMods.isEmpty then ws.defaultTargetRoots else specifiedMods
@@ -1212,7 +1221,8 @@ protected def comparator : CliM PUnit := do
   let cfg ← mkLoadConfig opts
   exit <| ←
     Check.runComparator opts.comparatorConfig? opts.challengeFromExport? opts.solutionFromExport?
-      opts.paranoid opts.inadvisablyNoSandbox leanInstall lakeInstall cfg.wsDir
+      opts.paranoid opts.inadvisablyNoSandbox (opts.outFormat matches .json) leanInstall lakeInstall
+      cfg.wsDir
 
 /--
 The half of `lake check` that runs inside the sandbox, selected by `LAKE_CHECK_EXPORT`.
@@ -1244,7 +1254,7 @@ protected def check : CliM PUnit := do
     -- execution, and containing it is what the sandbox is for.
     let cfg ← mkLoadConfig opts
     exit <| ← Check.runCheck opts.checkFromExport? opts.paranoid opts.inadvisablyNoSandbox
-      leanInstall lakeInstall cfg.wsDir
+      (opts.outFormat matches .json) leanInstall lakeInstall cfg.wsDir
 
 protected def script : CliM PUnit := do
   if let some cmd ← takeArg? then

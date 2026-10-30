@@ -138,12 +138,13 @@ theorem fib_impl_vcs
   case inv1 h => exact I n h
   case vc1 h => subst h; apply_rules [ret]
   case vc2 h => apply_rules [loop_pre]
-  case vc3 => apply_rules [loop_step]
+  case vc3 h a b hinv => exact loop_post n h (a, b) hinv
   case vc4 h pref cur suff _hsplit a b _hinv =>
-    -- `cleanupVC` reduced the `ForInStep.yield` that the step's postcondition matches on, and the
-    -- loop's two mutable variables reach the verification condition as separate binders.
-    guard_target =ₛ I n h (pref ++ [cur]) suff ((a, b).snd, (a, b).fst + (a, b).snd)
-    apply_rules [loop_post]
+    -- The `ForInStep.yield` that the step's postcondition matches on and the projections of the
+    -- state pair are reduced, and the loop's two mutable variables reach the verification
+    -- condition as separate binders.
+    guard_target =ₛ I n h (pref ++ [cur]) suff (b, a + b)
+    exact loop_step n h (a, b) pref cur suff _hsplit _hinv
 
 @[spec]
 theorem mkFreshNat_spec [Monad m] [Assertion Pred] [Assertion EPosts] [WPMonad m Pred EPosts] :
@@ -297,6 +298,30 @@ example : ⦃ fun n => n = 2 ⦄ (do dec; dec) ⦃ fun _ n => n = 0 ⦄ := by
   vcgen <;> omega
 
 end AndSplit
+
+namespace ExistsSplit
+
+-- An `∃` over a proposition splits like `∧`, so the `wp` of the second `setAt` is stepped.
+def setAt (xs : Array Nat) (i : Nat) : StateM Nat Unit := set xs[i]!
+
+@[spec] theorem setAt_spec {xs : Array Nat} {i : Nat} {Q : Unit → Nat → Prop} :
+    ⦃ fun _ => ∃ h : i < xs.size, Q () xs[i] ⦄ setAt xs i ⦃ Q ⦄ := by
+  vcgen [setAt] with finish
+
+example : ⦃ fun _ => True ⦄ (do setAt #[1, 2, 3] 1; setAt #[4, 5] 0) ⦃ fun _ n => n = 4 ⦄ := by
+  vcgen with finish
+
+-- A `⨆` over a proposition splits like `∃`.
+def setAt' (xs : Array Nat) (i : Nat) : StateM Nat Unit := set xs[i]!
+
+@[spec] theorem setAt'_spec {xs : Array Nat} {i : Nat} {Q : Unit → Nat → Prop} :
+    ⦃ fun _ => ⨆ h : i < xs.size, Q () xs[i] ⦄ setAt' xs i ⦃ Q ⦄ := by
+  vcgen [setAt'] with finish
+
+example : ⦃ fun _ => True ⦄ (do setAt' #[1, 2, 3] 1; setAt' #[4, 5] 0) ⦃ fun _ n => n = 4 ⦄ := by
+  vcgen with finish
+
+end ExistsSplit
 
 namespace VSTTE2010
 
@@ -649,7 +674,7 @@ instance : MyShl UInt64 Int32 := {
 error: unsolved goals
 case vc1
 a : UInt64
-h✝ : (UInt64.toBitVec 0).uaddOverflow (a <<< UInt64.ofNat (Int32.toInt 32).toNat).toBitVec = true
+h✝ : (0#64).uaddOverflow (a <<< UInt64.ofNat (Int32.toInt 32).toNat).toBitVec = true
 ⊢ wp (Except.error "") (fun x => True) ⊥
 -/
 #guard_msgs in
@@ -806,10 +831,14 @@ decrease is lexicographic in `(i, j)`. -/
 def countdownLex (n : Nat) : StateT Nat Id Unit := do
   let mut i := n
   let mut j := 0
-  while 0 < i ∨ 0 < j do
-    if 0 < j then
-      j := j - 1
+  let mut k := 0
+  while 0 < i ∨ 0 < j ∨ 0 < k do
+    if 0 < k then
+      k := k - 1
       modify (· + 1)
+    else if 0 < j then
+      j := j - 1
+      k := n
     else
       i := i - 1
       j := n
@@ -819,10 +848,8 @@ theorem countdownLex_spec (n : Nat) :
     ⦃ fun _ => True ⦄ countdownLex n ⦃ fun _ _ => True ⦄ := by
   vcgen [countdownLex] invariants
   | inv1 => WhileInvariant.ofInvariantAndBreak (fun _ _ => True) (fun _ _ => True)
-  | inv2 => .ofMeasure fun (i, j) => (i, j)
-  all_goals simp_all [Variant.evalsBelow_ofMeasure]
-  all_goals subst_vars
-  all_goals decreasing_tactic
+  | inv2 => .ofMeasure fun (i, j, k) => (i, j, k)
+  with finish
 
 end WhileInvariantOfInvariantAndBreak
 namespace WithGrindError

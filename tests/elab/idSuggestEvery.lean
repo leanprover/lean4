@@ -101,7 +101,7 @@ Hint: Perhaps you meant `List.any` in place of `List.some`:
 @ +1:17...22
 error: Invalid field `every`: The environment does not contain `List.every`, so it is not possible to project the field `every` from an expression
   [1, 2, 3]
-of type `List ?m.10`
+of type `List ?m.7`
 
 Hint: Perhaps you meant `List.all` in place of `List.every`:
   .e̵v̵e̵r̵y̵a̲l̲l̲

@@ -32,6 +32,27 @@ It is opt-in via `compiler.postponeCompile` and only meaningful under the module
   Compiler.compiler.postponeCompile.get self.leanOptions.toOptions
 
 /--
+One snapshot of the build store (a single `ST.Ref.get`). A lookup-only pass over many memoized
+facets reads it instead of the shared cell, since each `get` of a multi-threaded ref is two atomic
+exchanges on that cell. The transitive import walk's facets are already in the store: a module's
+imports are built before it.
+-/
+@[inline] def getBuildStoreSnapshot : FetchM BuildStore :=
+  .ofFn fun _ _ _ store _ log => return .ok (← store.get) log
+
+/-- The job memoized for `info` in the snapshot `s`, if any. -/
+@[inline] def BuildStore.getInfo?
+  (s : BuildStore) (info : BuildInfo) [t : FamilyOut BuildData info.key α]
+: Option (Job α) :=
+  cast (by rw [t.fam_eq]) (s.get? info.key)
+
+/-- `info.fetch`, served from the snapshot `s` if already memoized there. -/
+@[inline] def fetchFrom
+  (s : BuildStore) (info : BuildInfo) [FamilyOut BuildData info.key α]
+: FetchM (Job α) := do
+  if let some job := s.getInfo? info then return job else info.fetch
+
+/--
 Fetches the information importers of the module need, including its IR.
 
 Importers need the IR because the language server imports at the `.server` level, where every
@@ -39,8 +60,12 @@ import's IR is loaded (see `Lean.importModulesCore`). When code generation is po
 `metaExportInfo` can report it.
 -/
 -- TODO: Do not always include IR
-@[inline] def Module.fetchExportInfo (self : Module) : FetchM (Job ModuleMetaExportInfo) :=
-  self.metaExportInfo.fetch
+@[inline] def Module.fetchExportInfo
+  (self : Module) (snap? : Option BuildStore := none)
+: FetchM (Job ModuleMetaExportInfo) :=
+  match snap? with
+  | some snap => fetchFrom snap self.metaExportInfo
+  | none => self.metaExportInfo.fetch
 
 /-! ## Facet Builds
 Build function definitions for a module's builtin facets.
@@ -266,14 +291,15 @@ structure TransImportEntry where
 partial def fetchTransImportArts
   (directImports : Array ModuleImport) (directArts : NameMap ImportArtifacts) (nonModule : Bool)
 : FetchM (NameMap ImportArtifacts) := do
+  let snap ← getBuildStoreSnapshot
   let q ← directImports.foldrM (init := #[]) fun imp q => do
     let some mod := imp.module? | return q
-    let input ← (← mod.input.fetch).await
+    let input ← (← fetchFrom snap mod.input).await
     let importAll := strictOr nonModule imp.importAll
     return enqueue importAll imp.isMeta input q
-  walk directArts {} {} q
+  walk snap directArts {} {} q
 where
-  walk s (allVisited metaVisited : NameSet) (q : Array TransImportEntry) := do
+  walk (snap : BuildStore) s (allVisited metaVisited : NameSet) (q : Array TransImportEntry) := do
     if h : 0 < q.size then
       let {mod, importAll, needsMeta} := q.back
       let q := q.pop
@@ -293,17 +319,17 @@ where
       -- newly-required dimension. Otherwise, leave it untouched (nothing new, or a non-module entry).
       if let some arts := existing? then
         unless arts.oleanServer?.isSome && (doAll || doMeta) do
-          return ← walk s allVisited metaVisited q
+          return ← walk snap s allVisited metaVisited q
       let allVisited := if importAll then allVisited.insert mod.name else allVisited
       let metaVisited := if needsMeta then metaVisited.insert mod.name else metaVisited
       -- Widest level seen so far, never below an existing entry's (no demotion).
       let wantAll := allVisited.contains mod.name || existing?.any (·.oleanPrivate?.isSome)
-      let info ← (← mod.fetchExportInfo).await
+      let info ← (← mod.fetchExportInfo snap).await
       let s := s.insert mod.name (if wantAll then info.allArts else info.arts)
-      let input ← (← mod.input.fetch).await
+      let input ← (← fetchFrom snap mod.input).await
       -- `import all`/`meta import` are transitive. Propagate both flags to children.
       let q := enqueue importAll needsMeta input q
-      walk s allVisited metaVisited q
+      walk snap s allVisited metaVisited q
     else
       return s
   enqueue importAll needsMeta input q :=

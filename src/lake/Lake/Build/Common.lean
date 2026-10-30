@@ -526,9 +526,9 @@ where @[inline] atomicWrite cacheFile check write := do
       h.truncate
       write h
       h.flush
-    try IO.FS.hardLink tmpFile cacheFile catch
-      | .noFileOrDirectory .. | .alreadyExists .. => pure ()
-      | e => throw e
+    try IO.FS.renameIfNew tmpFile cacheFile catch e =>
+      unless (← cacheFile.pathExists) do
+        throw e
     try IO.FS.removeFile tmpFile catch _ => pure ()
 
 @[inline, inherit_doc Cache.saveArtifact]

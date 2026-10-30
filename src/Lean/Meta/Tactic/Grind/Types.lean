@@ -724,6 +724,11 @@ inductive ToProcessElement where
   -/
   | propagateUp (e : Expr)
   /--
+  Internalize only `rhs` (`lhs` must already be internalized), and then add `lhs = rhs`. Internalization
+  queues this when `rhs` may contain an application whose arguments are still being internalized.
+  -/
+  | internalizeRhsAddEq (lhs rhs proof : Expr) (generation : Nat)
+  /--
   Run the `newEq` callback of the solver `solverId` on its terms `lhs` and `rhs`.
   `SolverExtension.markTerm` queues this instead of running the callback eagerly. `markTerm`
   runs inside the `internalize` hook of a solver, that is, while the enclosing applications of
@@ -1687,6 +1692,10 @@ def hasSameType (a b : Expr) : MetaM Bool := do
 /-- Queues the upward propagation of `e`. See `ToProcessElement.propagateUp`. -/
 def pushPropagateUp (e : Expr) : GoalM Unit :=
   modify fun s => { s with toProcess := s.toProcess.push <| .propagateUp e }
+
+/-- Queues the internalization of `rhs` and the equality `lhs = rhs`. See `ToProcessElement.internalizeRhsAddEq`. -/
+def pushInternalizeRhsAddEq (lhs rhs proof : Expr) (generation : Nat) : GoalM Unit :=
+  modify fun s => { s with toProcess := s.toProcess.push <| .internalizeRhsAddEq lhs rhs proof generation }
 
 /--
 Queues the fact `prop` with the given `proof`, without preprocessing it. `prop` is internalized

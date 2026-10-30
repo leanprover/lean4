@@ -176,20 +176,21 @@ private structure EvalAction where
   If `some`, the expression is what type to use for the type ascription when `pp.type` is true. -/
   printVal : Option Expr
 
-unsafe def elabEvalCoreUnsafe (bang : Bool) (tk term : Syntax) (expectedType? : Option Expr) : CommandElabM Unit := withRef tk do
+unsafe def elabEvalCoreUnsafe (bang : Bool) (tk term : Syntax) (expectedType? : Option Expr)
+    (mkMessage : Expr → MetaM Expr) (silenceUnit := true) : CommandElabM Unit := withRef tk do
   let declName := `_eval
   -- `t` is either `MessageData` or `Format`, and `mkT` is for synthesizing an expression that yields a `t`.
   -- The `toMessageData` function adapts `t` to `MessageData`.
   let mkAct {t : Type} [Inhabited t] (toMessageData : t → MessageData) (mkT : Expr → MetaM Expr) (e : Expr) : TermElabM EvalAction := do
     -- Create a monadic action given the name of the monad `mc`, the monad `m` itself,
     -- and an expression `e` to evaluate in this monad.
-    -- A trick here is that `mkMAct?` makes use of `MonadEval` instances are currently available in this stage,
+    -- A trick here is that `mkMAct?` makes use of `MonadEval` instances currently available in this stage,
     -- and we do not need them to be available in the target environment.
     let mkMAct? (mc : Name) (m : Type → Type) [Monad m] [MonadEvalT m CommandElabM] (e : Expr) : TermElabM (Option EvalAction) := do
       let some e ← observing? (mkAppOptM ``MonadEvalT.monadEval #[none, mkConst mc, none, none, e])
         | return none
       let eType := e.appFn!.appArg!
-      if ← isDefEq eType (mkConst ``Unit) then
+      if ← pure silenceUnit <&&> isDefEq eType (mkConst ``Unit) then
         let declName ← addAndCompileExprForEval declName e (allowSorry := bang)
         let mf : m Unit ← evalConst (m Unit) declName (checkMeta := !Elab.inServer.get (← getOptions))
         return some { eval := do MonadEvalT.monadEval mf; pure "", printVal := none }
@@ -241,7 +242,15 @@ unsafe def elabEvalCoreUnsafe (bang : Bool) (tk term : Syntax) (expectedType? : 
           -- We want `#eval` to work even in the core library, so if `ofFormat` isn't available,
           -- we fall back on a `Format`-based approach.
           if (← getEnv).contains ``Lean.MessageData.ofFormat then
-            mkAct id (mkMessageData ·) e
+            -- Safety: ensure that `mkMessage` yields a `MessageData`.
+            let mkCheckedMessage (x : Expr) : MetaM Expr := do
+              let msg ← mkMessage x
+              let expectedType := mkConst ``MessageData
+              let msgType ← inferType msg
+              unless ← isDefEq msgType expectedType do
+                Term.throwTypeMismatchError none expectedType msgType msg
+              return msg
+            mkAct id mkCheckedMessage e
           else
             mkAct Lean.MessageData.ofFormat (mkFormat ·) e
       let res ← act.eval
@@ -258,17 +267,36 @@ unsafe def elabEvalCoreUnsafe (bang : Bool) (tk term : Syntax) (expectedType? : 
     else
       logInfo res
 
+/--
+Implements an `#eval`-like command, as follows.
+
+The input `term` is elaborated to `e`,
+and `mkMessage`—which should produce a `MessageData`—is invoked to render `e`.
+When `e : m α` is a monadic action,
+and `m` lifts to one of `CommandElabM`, `TermElabM`, `MetaM`, `CoreM` or `IO` through `MonadEvalT`,
+`mkMessage` receives the return value of `e`; otherwise it receives `e`.
+The resulting message is evaluated and logged at `tk`.
+
+Evaluation is aborted if `e` depends on `sorryAx` and `bang` is not set.
+
+When `e` is a monadic action, `α ≡ Unit`, and `silenceUnit` is set,
+`mkMessage` is skipped and no message is shown.
+
+When the environment doesn't contain `MessageData.ofFormat` (e.g. in the prelude),
+`Repr/ToString` instances rather than `mkMessage` are used to render the value.
+-/
 @[implemented_by elabEvalCoreUnsafe]
-opaque elabEvalCore (bang : Bool) (tk term : Syntax) (expectedType? : Option Expr) : CommandElabM Unit
+opaque elabEvalCore (bang : Bool) (tk term : Syntax) (expectedType? : Option Expr)
+    (mkMessage : Expr → MetaM Expr) (silenceUnit := true) : CommandElabM Unit
 
 @[builtin_command_elab «eval»]
 def elabEval : CommandElab
-  | `(#eval%$tk $term) => elabEvalCore false tk term none
+  | `(#eval%$tk $term) => elabEvalCore false tk term none mkMessageData
   | _ => throwUnsupportedSyntax
 
 @[builtin_command_elab evalBang]
 def elabEvalBang : CommandElab
-  | `(#eval!%$tk $term) => elabEvalCore true tk term none
+  | `(#eval!%$tk $term) => elabEvalCore true tk term none mkMessageData
   | _ => throwUnsupportedSyntax
 
 @[builtin_command_elab runCmd]
@@ -277,6 +305,7 @@ def elabRunCmd : CommandElab
     unless (← getEnv).contains ``CommandElabM do
       throwError "to use this command, include `import Lean.Elab.Command`"
     elabEvalCore false tk (← `(discard do $elems)) (mkApp (mkConst ``CommandElabM) (mkConst ``Unit))
+      mkMessageData
   | _ => throwUnsupportedSyntax
 
 @[builtin_command_elab runElab]
@@ -285,6 +314,7 @@ def elabRunElab : CommandElab
     unless (← getEnv).contains ``TermElabM do
       throwError "to use this command, include `import Lean.Elab.Term`"
     elabEvalCore false tk (← `(discard do $elems)) (mkApp (mkConst ``TermElabM) (mkConst ``Unit))
+      mkMessageData
   | _ => throwUnsupportedSyntax
 
 @[builtin_command_elab runMeta]
@@ -294,6 +324,7 @@ def elabRunMeta : CommandElab := fun stx =>
     unless (← getEnv).contains ``MetaM do
       throwError "to use this command, include `import Lean.Meta.Basic`"
     elabEvalCore false tk (← `(discard do $elems)) (mkApp (mkConst ``MetaM) (mkConst ``Unit))
+      mkMessageData
   | _ => throwUnsupportedSyntax
 
 end Lean.Elab.Command

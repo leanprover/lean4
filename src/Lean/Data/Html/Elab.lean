@@ -9,11 +9,16 @@ prelude
 public meta import Init.Data.String.Modify
 public meta import Lean.Data.Html.Syntax
 public meta import Lean.Elab.Term
+public meta import Lean.Elab.Command
+public meta import Lean.Elab.BuiltinEvalCommand
 import Lean.Data.Html.Basic
+public import Lean.Data.Html.Widget
 
 set_option doc.verso true
 
 namespace Lean.Html.Syntax
+
+/-! # HTML Literals -/
 
 /-- Throws an informative error when the start and end tag names do not match (up to casing). -/
 public meta def Element.checkNamesMatch (stx : Element) : CoreM Unit := do
@@ -43,7 +48,7 @@ end Lean.Html.Syntax
 
 namespace Lean.Elab.Html
 
-open Lean Elab Term Meta
+open Lean Elab Term Meta Command
 open Html Syntax
 
 meta def elabAttrVal (stx : AttrVal) : TermElabM Expr := withRef stx do
@@ -121,5 +126,24 @@ meta partial def elabContent (stx : Content) : TermElabM Expr := withRef stx do
 
 elab_rules : term
   | `(term| html%{$h:content}) => elabContent h
+
+/-! # Display Command -/
+
+/-- {lit}`#html e` evaluates the {name}`Html` value {lit}`e` and renders it in the infoview.
+
+This command behaves similarly to {lit}`#eval`;
+{lit}`e` may also be a computation in any monad supported by {lit}`#eval`, e.g. {lean}`IO Html`. -/
+syntax (name := htmlCmd) "#html " term : command
+
+@[command_elab Lean.Elab.Html.htmlCmd]
+public meta def elabHtmlCmd : CommandElab
+  | `(#html%$tk $t:term) => elabEvalCore false tk t none mkMessageData (silenceUnit := false)
+  | _ => throwUnsupportedSyntax
+where
+  mkMessageData (h : Expr) : MetaM Expr := do
+    let ty ← inferType h
+    unless ← isDefEq ty (mkConst ``Html) do
+      throwError "Expected a value of type `{.ofConstName ``Html}`, but got{indentExpr ty}"
+    return mkApp (mkConst ``Html.toMessageData) h
 
 end Lean.Elab.Html

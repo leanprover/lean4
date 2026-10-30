@@ -426,20 +426,27 @@ jobs:
               //  "cross": true,
               //  "shell": "bash -euxo pipefail {0}"
               //}
-              // {
-              //   "name": "Web Assembly",
-              //   "os": "ubuntu-latest",
-              //   // Build a native 32bit binary in stage0 and use it to compile the oleans and the wasm build
-              //   "CMAKE_OPTIONS": "-DCMAKE_C_COMPILER_WORKS=1 -DSTAGE0_USE_GMP=OFF -DSTAGE0_LEAN_EXTRA_CXX_FLAGS='-m32' -DSTAGE0_LEANC_OPTS='-m32' -DSTAGE0_CMAKE_CXX_COMPILER=clang++ -DSTAGE0_CMAKE_C_COMPILER=clang -DSTAGE0_CMAKE_EXECUTABLE_SUFFIX=\"\" -DUSE_GMP=OFF -DMMAP=OFF -DSTAGE0_MMAP=OFF -DCMAKE_AR=../emsdk/emsdk-main/upstream/emscripten/emar -DCMAKE_TOOLCHAIN_FILE=../emsdk/emsdk-main/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake -DLEAN_INSTALL_SUFFIX=-linux_wasm32 -DSTAGE0_CMAKE_LIBRARY_PATH=/usr/lib/i386-linux-gnu/",
-              //   "wasm": true,
-              //   "cmultilib": true,
-              //   "release": true,
-              //   "enabled": level >= 2,
-              //   "cross": true,
-              //   "shell": "bash -euxo pipefail {0}",
-              //   // Just a few selected tests because wasm is slow
-              //   "CTEST_OPTIONS": "-R \"leantest_1007\\.lean|leantest_Format\\.lean|leanruntest\\_1037.lean|leanruntest_ac_rfl\\.lean|leanruntest_tempfile.lean\\.|leanruntest_libuv\\.lean\""
-              // }
+              {
+                "name": "Web Assembly",
+                // stage0 is built with this image's clang and i386 libraries (see "Install 32bit c libs")
+                "os": "ubuntu-24.04",
+                // Build a native 32bit binary in stage0 and use it to compile the oleans and the wasm build.
+                // The emsdk paths must be absolute: sub-builds such as libuv's resolve them from their own directories.
+                "CMAKE_OPTIONS": "-DCMAKE_C_COMPILER_WORKS=1 -DSTAGE0_USE_GMP=OFF -DSTAGE0_LEAN_EXTRA_CXX_FLAGS='-m32 -msse2 -mfpmath=sse -DLEAN_DEFAULT_THREAD_STACK_SIZE=33554432' -DSTAGE0_LEANC_OPTS='-m32 -msse2 -mfpmath=sse' -DSTAGE0_LEAN_EXTRA_LINKER_FLAGS=-m32 -DSTAGE0_CMAKE_C_FLAGS=-m32 -DSTAGE0_CMAKE_CXX_COMPILER=clang++ -DSTAGE0_CMAKE_C_COMPILER=clang -DSTAGE0_CMAKE_EXECUTABLE_SUFFIX=\"\" -DSTAGE0_PKG_CONFIG_EXECUTABLE=/usr/bin/i386-linux-gnu-pkg-config -DSTAGE0_CMAKE_LIBRARY_PATH=/usr/lib/i386-linux-gnu/ -DUSE_GMP=OFF -DMMAP=OFF -DSTAGE0_MMAP=OFF -DUSE_MIMALLOC=OFF -DCMAKE_AR=$GITHUB_WORKSPACE/emsdk/emsdk-main/upstream/emscripten/emar -DCMAKE_TOOLCHAIN_FILE=$GITHUB_WORKSPACE/emsdk/emsdk-main/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake -DLEAN_INSTALL_SUFFIX=-linux_wasm32",
+                "wasm": true,
+                "cmultilib": true,
+                "cross": true,
+                // not shipped: its oleans are built by stage0
+                "release": false,
+                // must not block nightlies
+                "secondary": true,
+                "enabled": level >= 2 && target_stage < 2,
+                "test": true,
+                "binary-check": "file",
+                "shell": "bash -euxo pipefail {0}",
+                // Just a few selected tests because wasm is slow
+                "CTEST_OPTIONS": "--no-tests=error -R '^(elab_fail/1007|elab/(Format|1037|ac_rfl|tempfile|libuv))\\.lean$'"
+              }
             ];
             // Stage that is built, tested and packed. Shipped (stamped) release builds use stage2.
             for (const job of matrix) {

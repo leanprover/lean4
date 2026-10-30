@@ -36,6 +36,33 @@ public structure CegarHyp where
   -/
   grindProof : MetaM (Option (TSyntax `Lean.Parser.Tactic.tacticSeq))
 
+namespace Cegar
+
+/--
+An entry for a particular function symbol in a model
+-/
+public structure FunModel.Entry where
+  /--
+  An entry is a map from inputs to the function symbol to values + the particular application of
+  that function symbol with that value.
+  -/
+  map : Std.HashMap (Array BVExpr.PackedBitVec) (BVExpr.PackedBitVec × Expr) := {}
+  deriving Inhabited
+
+/--
+A model for the UF component of the problem, derived from a SAT/BitVec model.
+-/
+public structure FunModel where
+  /--
+  A model is a map from function symbols (keep in mind that these are lambdas that potentially fix
+  some non-BitVec arguments like a dependent width) to the set of input/output pairs known for this
+  function.
+  -/
+  model : Std.HashMap Sym.ExprPtr FunModel.Entry := {}
+  deriving Inhabited
+
+end Cegar
+
 namespace CegarM
 
 public structure Context where
@@ -60,6 +87,10 @@ public structure FunState where
   Cache for congruence lemmas on UF theory atoms.
   -/
   congrCache : Std.HashMap Sym.ExprPtr Expr := {}
+  /--
+  The most recent model produced by the UF solver.
+  -/
+  currentModel : Cegar.FunModel := {}
 
 /--
 State of the BitVec theory solver.

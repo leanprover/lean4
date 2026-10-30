@@ -9,6 +9,7 @@ public import Lean.Meta.Tactic.BVDecide.Prover.Cegar.Basic
 public import Lean.Meta.Tactic.BVDecide.Prover.Cegar.BitVec
 public import Lean.Meta.Tactic.BVDecide.Prover.Cegar.Function
 public import Lean.Meta.Tactic.BVDecide.Prover.Cegar.Lemmas
+public import Lean.Meta.Tactic.BVDecide.Prover.Cegar.Subsolver
 import Lean.Meta.Tactic.BVDecide.Prover.Bitblast
 import Lean.Meta.Tactic.BVDecide.External
 

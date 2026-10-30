@@ -49,7 +49,7 @@ set_library_suggestions (fun _ _ => pure #[{ name := `p, score := 0.5 }])
 
 /--
 info: Library suggestions:
-  p (score: 0.500000)
+  p (score: 0.5)
 -/
 #guard_msgs in
 example : P 7 := by
@@ -76,8 +76,8 @@ set_library_suggestions (fun _ _ => pure #[
 
 /--
 info: Library suggestions:
-  p (score: 0.900000)
-  f (score: 0.700000)
+  p (score: 0.9)
+  f (score: 0.7)
 -/
 #guard_msgs in
 example : P 7 := by

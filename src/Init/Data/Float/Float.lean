@@ -186,7 +186,8 @@ This function does not reduce in the kernel. It is compiled to the C inequality 
   inferInstanceAs (Decidable (a.le b))
 
 /--
-Converts a floating-point number to a string.
+Converts a floating-point number to the shortest decimal that reads back to the same number,
+such as `0.1`, `1.0` or `1e-09`.
 
 This function does not reduce in the kernel.
 -/
@@ -328,7 +329,7 @@ instance : Inhabited Float where
   default := UInt64.toFloat 0
 
 protected def Float.repr (n : Float) (prec : Nat) : Std.Format :=
-  if n < UInt64.toFloat 0 then Repr.addAppParen (toString n) prec else toString n
+  if n.toBits >>> 63 == 1 then Repr.addAppParen (toString n) prec else toString n
 
 instance : Repr Float where
   reprPrec := Float.repr

@@ -464,27 +464,10 @@ def getSyntaxNodeKinds (env : Environment) : List SyntaxNodeKind :=
 def getTokenTable (env : Environment) : TokenTable :=
   (parserExtension.getState env).tokens
 
-set_option linter.unusedVariables.funArgs false in
 -- Note: `crlfToLf` preserves logical line and column numbers for each character.
-def mkInputContext (input : String) (fileName : String)
-    (normalizeLineEndings := true)
-    (endPos := input.rawEndPos)
-    (endPos_valid : endPos ≤ input.rawEndPos := by simp) :
+def mkInputContext (input : String) (fileName : String) (normalizeLineEndings := true) :
     InputContext :=
-  let text := FileMap.ofString input
-  let next := if normalizeLineEndings then
-    -- Convert the stop position to a line/column position so crlf translation doesn't invalidate it
-    let endPos' := text.toPosition endPos
-    let text := FileMap.ofString text.source.crlfToLf
-    (text, text.ofPosition endPos')
-  else
-    (text, endPos)
-  let text := next.1
-  let endPos' := next.2
-  if h : endPos' ≤ text.source.rawEndPos then
-    .mk text.source fileName (fileMap := text) (endPos := endPos') (endPos_valid := h)
-  else
-    .mk text.source fileName (fileMap := text)
+  .mk (if normalizeLineEndings then input.crlfToLf else input) fileName
 
 def mkParserState (input : String) : ParserState :=
   { cache := initCacheForInput input }

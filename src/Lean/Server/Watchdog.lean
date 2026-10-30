@@ -1582,6 +1582,7 @@ def mkLeanServerCapabilities : ServerCapabilities := {
   documentHighlightProvider := true
   documentSymbolProvider := true
   foldingRangeProvider := true
+  selectionRangeProvider := true
   semanticTokensProvider? := some {
     legend := {
       tokenTypes     := SemanticTokenType.names

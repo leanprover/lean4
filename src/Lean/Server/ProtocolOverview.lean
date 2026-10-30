@@ -236,6 +236,14 @@ def protocolOverview : Array MessageOverview := #[
     description := "Emitted in VS Code when a file is first opened or when it is changed. In addition to the standard folding range kinds, the language server uses the kind `proof` for the values of declarations whose types are propositions, for example the proofs of theorems."
   },
   .request {
+    method := "textDocument/selectionRange"
+    direction := .clientToServer
+    kinds := #[.standard]
+    parameterType := SelectionRangeParams
+    responseType := Array SelectionRange
+    description := "Emitted in VS Code when the user expands or shrinks the selection with Shift+Alt+Right or Shift+Alt+Left."
+  },
+  .request {
     method := "textDocument/documentColor"
     direction := .clientToServer
     kinds := #[.standard]

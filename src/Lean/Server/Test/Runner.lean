@@ -323,6 +323,7 @@ structure RunnerState where
   params : String
   versionNo : Nat
   requestNo : Nat
+  sourceLines : Array String.Slice := #[]
 
 abbrev RunnerM := StateT RunnerState Ipc.IpcM
 
@@ -666,6 +667,50 @@ def processInlayHints : RunnerM Unit := do
   }
   logResponse "textDocument/inlayHint" p
 
+/-- Extracts the source text covered by `r` from `lines`. Uses character counts (Unicode code
+    points), which matches UTF-16 LSP positions for all characters in the BMP. Newlines in
+    multi-line ranges are replaced with `↵`.
+    Source files with characters outside BMP are unsupported. -/
+private def extractRangeText (lines : Array String.Slice) (r : Lsp.Range) : String :=
+  let getLine i := (lines.getD i default).copy
+  if r.start.line == r.end.line then
+    let line := getLine r.start.line
+    ((line.drop r.start.character).take (r.end.character - r.start.character)).copy
+  else
+    let n := r.end.line + 1 - r.start.line
+    let parts := (Array.range n).map fun j =>
+      let i := r.start.line + j
+      let line := getLine i
+      if i == r.start.line then (line.drop r.start.character).copy
+      else if i == r.end.line then (line.take r.end.character).copy
+      else line
+    "↵".intercalate parts.toList
+
+/-- Flattens the `parent?`-linked `SelectionRange` chain into an array, innermost first. -/
+private partial def selectionRangeToChain : SelectionRange → Array Lsp.Range
+  | .mk { range, parent? := none } => #[range]
+  | .mk { range, parent? := some p } => #[range] ++ selectionRangeToChain p
+
+/-- Sends a `textDocument/selectionRange` request for the current cursor position and prints
+    each expansion level as `range line:col-line:col "text"`, one per line.
+    We don't use only the raw JSON to compare with the expected code because it is too hard
+    to verify whether it contains the right ranges. -/
+def processSelectionRange : RunnerM Unit := do
+  let s ← get
+  let p : SelectionRangeParams := {
+    textDocument := { uri := s.uri }
+    positions := #[s.pos]
+  }
+  let results ← request "textDocument/selectionRange" p (Array SelectionRange)
+  for i in [:results.size] do
+    let queryPos := p.positions[i]!
+    IO.eprintln s!"position {queryPos.line}:{queryPos.character}"
+    let chain := selectionRangeToChain results[i]!
+    for r in chain do
+      let text := extractRangeText s.sourceLines r
+      IO.eprintln s!"range {r.start.line}:{r.start.character}-{r.end.line}:{r.end.character} \"{text}\""
+    IO.eprintln ""
+
 def processGenericRequest : RunnerM Unit := do
   let s ← get
   let Except.ok params := Json.parse s.params
@@ -710,6 +755,7 @@ def processDirective (_ws directive : String) (directiveTargetLineNo : Nat)
   | "moduleHierarchyImports" => processModuleHierarchyImports
   | "moduleHierarchyImportedBy" => processModuleHierarchyImportedBy
   | "inlayHints" => processInlayHints
+  | "selectionRange" => processSelectionRange
   | _ => processGenericRequest
 
 def processLine (line : String) : RunnerM Unit := do
@@ -784,6 +830,7 @@ partial def main (args : List String) : IO Unit := do
         Ipc.writeNotification ⟨"textDocument/didOpen", {
           textDocument := { uri := uri, languageId := "lean", version := 1, text := text.copy } : DidOpenTextDocumentParams }⟩
         reset
+        modify fun s => { s with sourceLines := (text.split '\n').toArray }
         for line in text.split '\n' do
           processLine line.copy
         let _ ← Ipc.collectDiagnostics (← get).requestNo uri ((← get).versionNo - 1)

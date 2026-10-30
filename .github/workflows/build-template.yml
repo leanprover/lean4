@@ -51,8 +51,9 @@ jobs:
         uses: msys2/setup-msys2@66cd2cce69caa17b53920067426061ca1de3a884 # v2.32.0
         with:
           msystem: clang64
+          update: true
           # `:` means do not prefix with msystem
-          pacboy: "make: python: cmake clang ccache gmp libuv openssl: git: zip: unzip: diffutils: binutils: tree: zstd tar:"
+          pacboy: "make: python: cmake clang ccache gmp libuv openssl: git: jq: zip: unzip: diffutils: binutils: tree: zstd tar:"
         if: runner.os == 'Windows'
       - name: Install Brew Packages
         run: |
@@ -181,6 +182,14 @@ jobs:
         run: |
           ulimit -c unlimited  # coredumps
           time make -C build $TARGET_STAGE -j$NPROC
+      - name: Check Windows libuv
+        if: runner.os == 'Windows'
+        run: |
+          printf 'Native SDK libuv: '
+          pkg-config --modversion libuv
+          echo 'Lean runtime libuv (major, minor, patch):'
+          printf 'import Lean.Runtime\n#eval (Lean.libUVVersion >>> 16, (Lean.libUVVersion >>> 8) &&& 255, Lean.libUVVersion &&& 255)\n' | build/$TARGET_STAGE/bin/lean --stdin
+          build/$TARGET_STAGE/bin/lean --run tests/compile/libuv_version.lean
       # Should be done as early as possible, and the Lake cache upload below in particular *before*
       # "Check rebootstrap" which changes the state of stage1/
       - name: Save CCache

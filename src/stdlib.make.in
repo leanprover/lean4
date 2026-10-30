@@ -8,6 +8,10 @@ SHELL := $(LEAN_BASH) -eo pipefail
 export LEAN_PATH=
 ifeq "${USE_LAKE}" "ON"
   export LEAN_CC=${CMAKE_C_COMPILER}
+  ifeq "${CMAKE_SYSTEM_NAME}" "Emscripten"
+    # Lake's fallback, GNU `ar`, writes no symbol index for wasm objects
+    export LEAN_AR=${CMAKE_AR}
+  endif
 else
   export LEAN_CC=${CMAKE_C_COMPILER_LAUNCHER} ${CMAKE_C_COMPILER}
 endif
@@ -54,9 +58,14 @@ endif
 
 ifeq "${USE_LAKE}" "ON"
 
+ifeq "${CMAKE_SYSTEM_NAME}" "Emscripten"
+  # only what `lean.js` links; Lake and the other tools are not built for Emscripten
+  LAKE_TARGETS ?= Init Std Lean
+endif
+
 # build in parallel
 Init:
-	LEAN_GITHASH=${LAKE_LEAN_GITHASH} ${PREV_STAGE}/bin/lake build -f ${CMAKE_BINARY_DIR}/lakefile.toml ${LEAN_EXTRA_LAKE_OPTS} $(LAKE_EXTRA_ARGS)
+	LEAN_GITHASH=${LAKE_LEAN_GITHASH} ${PREV_STAGE}/bin/lake build -f ${CMAKE_BINARY_DIR}/lakefile.toml ${LEAN_EXTRA_LAKE_OPTS} $(LAKE_TARGETS) $(LAKE_EXTRA_ARGS)
 
 Std Lean LeanExport Lake Leanc LeanChecker LeanIR: Init
 

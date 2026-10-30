@@ -7,7 +7,9 @@ module
 
 prelude
 public import Lake.Config.Workspace
+import Init.While
 import Lake.Config.Module
+import Lake.Config.LeanExe
 import Lake.Util.IO
 import Lake.Build.Common
 
@@ -40,12 +42,12 @@ def planCacheUnpack
     let info ← IO.FS.readFile ilean.path
     let info ← liftExcept (Json.parse info)
     let name ← liftExcept (info.getObjValAs? Name "module")
-    if seen.contains name then throw s!"overlapping archives for module {name}"
-    seen := seen.insert name
     unless isModulePath name do throw "unsupported module path"
-    let some mod := pkg.findModule? name | continue
+    let some mod := pkg.findTargetModule? name | continue
     -- A deleted source must not become importable through its old archive.
     unless (← mod.leanFile.pathExists) do continue
+    if seen.contains name then throw s!"overlapping archives for module {name}"
+    seen := seen.insert name
     installed := installed.push (mod, descr)
     unless ilean.fileName == mod.fileName "ilean" do
       throw "archive basename disagrees with its module name"
@@ -72,8 +74,7 @@ public def Package.unpackCache
     let .ok descr := fromJson? (α := ArtifactDescr) entry.out | none
     if descr.ext == "ltar" then some (hash, descr) else none
   if entries.isEmpty then return
-  -- Claim a fresh build directory. Staging inside it keeps renames on the
-  -- same file system and lets `lake clean` reclaim an interrupted extraction.
+  -- Claim a fresh build directory so `lake clean` can reclaim interrupted staging.
   createParentDirs pkg.buildDir
   match (← IO.FS.createDir pkg.buildDir |>.toBaseIO) with
   | .ok _ => pure ()
@@ -103,17 +104,42 @@ public def Package.unpackCache
       | .error msg =>
         logInfo s!"{pkg.prettyName}: skipping bulk unpack: {msg}"
         return
-    let mut dirs : Std.HashSet FilePath := {}
-    for (src, dst) in moves do
-      if let some dir := dst.parent then
-        unless dirs.contains dir do
-          IO.FS.createDirAll dir
-          dirs := dirs.insert dir
-      IO.FS.rename src dst
-    for (mod, descr) in installed do
-      let path := cache.artifactDir / descr.relPath
-      discard <| restoreArtifact mod.ltarFile {descr, path, mtime := ← getMTime path}
-    logInfo s!"{pkg.prettyName}: bulk unpacked {installed.size} module archives"
+    let outputs := moves.map (·.2) ++ installed.flatMap fun (mod, _) =>
+      #[mod.ltarFile, FilePath.mk <| mod.ltarFile.toString ++ ".hash"]
+    let mut dirs := #[]
+    let mut seen : Std.HashSet FilePath := {}
+    for dst in outputs do
+      if (← dst.pathExists) then
+        logInfo s!"{pkg.prettyName}: skipping bulk unpack (output already exists: {dst})"
+        return
+      let mut parent? := dst.parent
+      let mut missing := #[]
+      while let some dir := parent? do
+        if seen.contains dir || (← dir.pathExists) then break
+        missing := missing.push dir
+        seen := seen.insert dir
+        parent? := dir.parent
+      dirs := dirs ++ missing.reverse
+    let moved ← IO.mkRef #[]
+    try
+      for dir in dirs do
+        IO.FS.createDirAll dir
+      for (src, dst) in moves do
+        IO.FS.rename src dst
+        moved.modify (·.push dst)
+      for (mod, descr) in installed do
+        let path := cache.artifactDir / descr.relPath
+        moved.modify (· ++ #[mod.ltarFile, FilePath.mk <| mod.ltarFile.toString ++ ".hash"])
+        discard <| restoreArtifact mod.ltarFile {descr, path, mtime := ← getMTime path}
+      logInfo s!"{pkg.prettyName}: bulk unpacked {installed.size} module archives"
+    catch e =>
+      let log ← takeLogFrom e
+      for dst in (← moved.get).reverse do
+        removeFileIfExists dst
+      for dir in dirs.reverse do
+        discard <| IO.FS.removeDir dir |>.toBaseIO
+      logInfo s!"{pkg.prettyName}: skipping bulk unpack:\n{log}"
+    pure ()
   finally
     removeDirAllIfExists stage
     -- Only remove an empty directory after a skipped batch, never other outputs.

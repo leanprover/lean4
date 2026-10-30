@@ -16,6 +16,7 @@ EOF
 
 # Duplicate basenames, Unicode module names, and custom source/output paths.
 test_run build -o outputs.jsonl
+test_cmd rm -f cache/artifacts/*.[!l]*
 test_cmd rm -rf out
 restore() { "$LAKE" cache get outputs.jsonl --scope=test --service=local --unpack "$@"; }
 test_cmd restore
@@ -31,6 +32,51 @@ test_not_out Packed build -o after.jsonl
 sort outputs.jsonl > before.sorted
 sort after.jsonl > after.sorted
 test_cmd cmp before.sorted after.sorted
+
+# Separately configured output directories may already contain user files.
+test_cmd rm -rf out
+sed "s|^leanLibDir = .*|leanLibDir = \"$PWD/existing-lib\"|" lakefile.toml > existing.toml
+mkdir -p existing-lib/Foo/A
+echo untouched > existing-lib/Foo/A/Basic.olean
+test_out 'output already exists' -f existing.toml cache get outputs.jsonl --scope=test --service=local --unpack
+test_cmd_eq untouched cat existing-lib/Foo/A/Basic.olean
+test_exp ! -e out
+
+# Executable roots are buildable modules even without a lean_lib target.
+cat > executable.toml <<'EOF'
+name = "bulkUnpackExe"
+enableArtifactCache = true
+buildDir = "exe-out"
+[[lean_exe]]
+name = "app"
+root = "Main"
+EOF
+printf 'module\n/-! An executable root for bulk cache restoration. -/\ndef main : IO Unit := pure ()\n' > Main.lean
+test_run -f executable.toml build +Main -o executable.jsonl
+test_cmd rm -f cache/artifacts/*.[!l]*
+test_cmd rm -rf exe-out
+test_out 'bulk unpacked 1 module archives' -f executable.toml cache get executable.jsonl --scope=test --service=local --unpack
+test_exp -f exe-out/lib/lean/Main.olean
+test_not_out Unpacked -f executable.toml build +Main --no-build
+
+# Cross-device installation must roll back even files moved before the failure.
+if [ "$UNAME" = Linux ] && [ -w /dev/shm ] && \
+    [ "$(stat -c %d .)" != "$(stat -c %d /dev/shm)" ]; then
+  CROSS_DIR="$(mktemp -d /dev/shm/lake-cache-bulk-unpack.XXXXXX)"
+  trap 'rm -rf "$CROSS_DIR"' EXIT
+  for field in leanLibDir irDir; do
+    sed "s|^$field = .*|$field = \"$CROSS_DIR/$field\"|" lakefile.toml > cross.toml
+    test_cmd rm -rf out
+    test_run -f cross.toml build -o cross.jsonl
+    test_cmd rm -rf out "$CROSS_DIR/$field"
+    test_cmd rm -f cache/artifacts/*.[!l]*
+    test_out 'skipping bulk unpack' -f cross.toml cache get cross.jsonl --scope=test --service=local --unpack
+    test_exp ! -e out
+    test_exp ! -e "$CROSS_DIR/$field"
+    test_out Unpacked -f cross.toml build --no-build
+    test_cmd rm -rf out "$CROSS_DIR/$field"
+  done
+fi
 
 # Default configuration reads the shared cache without writing to it. Cleaning
 # this checkout must not remove mappings needed here or in another checkout.
@@ -65,6 +111,14 @@ test_cmd rm -rf out
 { cat outputs.jsonl; tail -n +2 newer.jsonl; } > overlap.jsonl
 test_out 'overlapping archives' -v cache get overlap.jsonl --scope=test --service=local --unpack
 test_exp ! -e out
+
+# Historical archives for a deleted module do not prevent installing live modules.
+mv src/Foo/A/Basic.lean deleted.lean
+test_out 'bulk unpacked 4 module archives' -v cache get overlap.jsonl --scope=test --service=local --unpack
+test_exp ! -e out/lib/Foo/A/Basic.olean
+test_exp -f out/lib/Foo/B/Basic.olean
+mv deleted.lean src/Foo/A/Basic.lean
+test_cmd rm -rf out
 
 test_err '`--unpack` cannot be combined' cache get --unpack --mappings-only
 

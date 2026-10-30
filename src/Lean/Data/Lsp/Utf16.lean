@@ -18,34 +18,10 @@ to interact with Lean strings using UTF-16 indices. -/
 
 open Lean String
 
-namespace Lean.Char
-
-/-- Returns the number of bytes required to encode this `Char` in UTF-16. -/
-def utf16Size (c : Char) : UInt32 :=
-  if c.val ≤ 0xFFFF then 1 else 2
-
-end Lean.Char
-
 namespace Lean.String
 
 private def csize16 (c : Char) : Nat :=
   c.utf16Size.toNat
-
-def utf16Length (s : String) : Nat :=
-  s.foldr (fun c acc => csize16 c + acc) 0
-
-private def codepointPosToUtf16PosFromAux (s : String) : Nat → Pos.Raw → Nat → Nat
-  | 0,    _,       utf16pos => utf16pos
-  | cp+1, utf8pos, utf16pos => codepointPosToUtf16PosFromAux s cp (utf8pos.next s) (utf16pos + csize16 (utf8pos.get s))
-
-/-- Computes the UTF-16 offset of the `n`-th Unicode codepoint
-in the substring of `s` starting at UTF-8 offset `off`.
-Yes, this is actually useful.-/
-def codepointPosToUtf16PosFrom (s : String) (n : Nat) (off : Pos.Raw) : Nat :=
-  codepointPosToUtf16PosFromAux s n off 0
-
-def codepointPosToUtf16Pos (s : String) (pos : Nat) : Nat :=
-  codepointPosToUtf16PosFrom s pos 0
 
 private partial def utf16PosToCodepointPosFromAux (s : String) : Nat → Pos.Raw → Nat → Nat
   | 0,        _,       cp => cp
@@ -55,9 +31,6 @@ private partial def utf16PosToCodepointPosFromAux (s : String) : Nat → Pos.Raw
 `utf16pos` in the substring of `s` starting at UTF-8 offset `off`. -/
 def utf16PosToCodepointPosFrom (s : String) (utf16pos : Nat) (off : Pos.Raw) : Nat :=
   utf16PosToCodepointPosFromAux s utf16pos off 0
-
-def utf16PosToCodepointPos (s : String) (pos : Nat) : Nat :=
-  utf16PosToCodepointPosFrom s pos 0
 
 /-- Starting at `utf8pos`, finds the UTF-8 offset of the `p`-th codepoint. -/
 def codepointPosToUtf8PosFrom (s : String) : String.Pos.Raw → Nat → String.Pos.Raw
@@ -85,8 +58,7 @@ def lspPosToUtf8Pos (text : FileMap) (pos : Lsp.Position) : String.Pos.Raw :=
   text.source.codepointPosToUtf8PosFrom lineStartPos chr
 
 def leanPosToLspPos (text : FileMap) : Lean.Position → Lsp.Position
-  | ⟨line, col⟩ =>
-    ⟨line - 1, text.source.codepointPosToUtf16PosFrom col (lineStartPos text (line - 1))⟩
+  | ⟨line, col⟩ => ⟨line - 1, text.codepointPosToUtf16Pos line col⟩
 
 def utf8PosToLspPos (text : FileMap) (pos : String.Pos.Raw) : Lsp.Position :=
   text.leanPosToLspPos (text.toPosition pos)

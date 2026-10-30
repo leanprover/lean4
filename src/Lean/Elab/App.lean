@@ -10,7 +10,7 @@ public import Lean.Meta.Tactic.ElimInfo
 public import Lean.Elab.Binders
 public import Lean.Elab.RecAppSyntax
 public import Lean.IdentifierSuggestion
-import all Lean.Elab.ErrorUtils
+import Lean.Elab.ErrorUtils
 import Lean.Elab.DeprecatedArg
 import Init.Omega
 import Init.Data.List.MapIdx
@@ -18,7 +18,7 @@ import Init.Data.List.MapIdx
 public section
 
 namespace Lean.Elab.Term
-open Meta
+open Meta Internal.ErrorUtils
 
 /--
 Instructs the elaborator to elaborate applications of the given declaration without an expected

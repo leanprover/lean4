@@ -40,6 +40,7 @@ extern lean_object* l_instInhabitedError;
 lean_object* l_instInhabitedEIO___aux__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_cadical_solver_resources(lean_object*);
 uint8_t lean_cadical_solver_is_valid_configuration(lean_object*);
+lean_object* lean_obj_tag_nat(lean_object*);
 lean_object* l_Repr_addAppParen(lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 lean_object* lean_nat_to_int(lean_object*);
@@ -121,8 +122,8 @@ LEAN_EXPORT lean_object* l_Lean_Cadical_State_toString___boxed(lean_object*);
 static const lean_closure_object l_Lean_Cadical_State_instToString___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Lean_Cadical_State_toString___boxed, .m_arity = 1, .m_num_fixed = 0, .m_objs = {} };
 static const lean_object* l_Lean_Cadical_State_instToString___closed__0 = (const lean_object*)&l_Lean_Cadical_State_instToString___closed__0_value;
 LEAN_EXPORT const lean_object* l_Lean_Cadical_State_instToString = (const lean_object*)&l_Lean_Cadical_State_instToString___closed__0_value;
-LEAN_EXPORT lean_object* l_Lean_Cadical_Status_ctorIdx(uint8_t);
-LEAN_EXPORT lean_object* l_Lean_Cadical_Status_ctorIdx___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Cadical_Status_ctorIdx___impl(uint8_t);
+LEAN_EXPORT lean_object* l_Lean_Cadical_Status_ctorIdx___impl___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Cadical_Status_ctorElim___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Cadical_Status_ctorElim___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Cadical_Status_ctorElim(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*);
@@ -716,175 +717,167 @@ v_res_118_ = l_Lean_Cadical_State_toString(v_s_boxed_117_);
 return v_res_118_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Cadical_Status_ctorIdx(uint8_t v_x_121_){
+LEAN_EXPORT lean_object* l_Lean_Cadical_Status_ctorIdx___impl(uint8_t v_x_121_){
 _start:
 {
-switch(v_x_121_)
-{
-case 0:
-{
-lean_object* v___x_122_; 
-v___x_122_ = lean_unsigned_to_nat(0u);
-return v___x_122_;
-}
-case 1:
-{
-lean_object* v___x_123_; 
-v___x_123_ = lean_unsigned_to_nat(1u);
+lean_object* v___x_122_; lean_object* v___x_123_; 
+v___x_122_ = lean_box(v_x_121_);
+v___x_123_ = lean_obj_tag_nat(v___x_122_);
+lean_dec(v___x_122_);
 return v___x_123_;
 }
-default: 
-{
-lean_object* v___x_124_; 
-v___x_124_ = lean_unsigned_to_nat(2u);
-return v___x_124_;
 }
-}
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Cadical_Status_ctorIdx___boxed(lean_object* v_x_125_){
+LEAN_EXPORT lean_object* l_Lean_Cadical_Status_ctorIdx___impl___boxed(lean_object* v_x_124_){
 _start:
 {
-uint8_t v_x_boxed_126_; lean_object* v_res_127_; 
-v_x_boxed_126_ = lean_unbox(v_x_125_);
-v_res_127_ = l_Lean_Cadical_Status_ctorIdx(v_x_boxed_126_);
-return v_res_127_;
+uint8_t v_x_4__boxed_125_; lean_object* v_res_126_; 
+v_x_4__boxed_125_ = lean_unbox(v_x_124_);
+v_res_126_ = l_Lean_Cadical_Status_ctorIdx___impl(v_x_4__boxed_125_);
+return v_res_126_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Cadical_Status_ctorElim___redArg(lean_object* v_k_128_){
+LEAN_EXPORT lean_object* l_Lean_Cadical_Status_ctorElim___redArg(lean_object* v_k_127_){
 _start:
 {
-lean_inc(v_k_128_);
-return v_k_128_;
+lean_inc(v_k_127_);
+return v_k_127_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Cadical_Status_ctorElim___redArg___boxed(lean_object* v_k_129_){
+LEAN_EXPORT lean_object* l_Lean_Cadical_Status_ctorElim___redArg___boxed(lean_object* v_k_128_){
 _start:
 {
-lean_object* v_res_130_; 
-v_res_130_ = l_Lean_Cadical_Status_ctorElim___redArg(v_k_129_);
-lean_dec(v_k_129_);
-return v_res_130_;
+lean_object* v_res_129_; 
+v_res_129_ = l_Lean_Cadical_Status_ctorElim___redArg(v_k_128_);
+lean_dec(v_k_128_);
+return v_res_129_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Cadical_Status_ctorElim(lean_object* v_motive_131_, lean_object* v_ctorIdx_132_, uint8_t v_t_133_, lean_object* v_h_134_, lean_object* v_k_135_){
+LEAN_EXPORT lean_object* l_Lean_Cadical_Status_ctorElim(lean_object* v_motive_130_, lean_object* v_ctorIdx_131_, uint8_t v_t_132_, lean_object* v_h_133_, lean_object* v_k_134_){
 _start:
 {
-lean_inc(v_k_135_);
-return v_k_135_;
+lean_inc(v_k_134_);
+return v_k_134_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Cadical_Status_ctorElim___boxed(lean_object* v_motive_136_, lean_object* v_ctorIdx_137_, lean_object* v_t_138_, lean_object* v_h_139_, lean_object* v_k_140_){
+LEAN_EXPORT lean_object* l_Lean_Cadical_Status_ctorElim___boxed(lean_object* v_motive_135_, lean_object* v_ctorIdx_136_, lean_object* v_t_137_, lean_object* v_h_138_, lean_object* v_k_139_){
 _start:
 {
-uint8_t v_t_boxed_141_; lean_object* v_res_142_; 
-v_t_boxed_141_ = lean_unbox(v_t_138_);
-v_res_142_ = l_Lean_Cadical_Status_ctorElim(v_motive_136_, v_ctorIdx_137_, v_t_boxed_141_, v_h_139_, v_k_140_);
-lean_dec(v_k_140_);
-lean_dec(v_ctorIdx_137_);
-return v_res_142_;
+uint8_t v_t_boxed_140_; lean_object* v_res_141_; 
+v_t_boxed_140_ = lean_unbox(v_t_137_);
+v_res_141_ = l_Lean_Cadical_Status_ctorElim(v_motive_135_, v_ctorIdx_136_, v_t_boxed_140_, v_h_138_, v_k_139_);
+lean_dec(v_k_139_);
+lean_dec(v_ctorIdx_136_);
+return v_res_141_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Cadical_Status_satisfiable_elim___redArg(lean_object* v_satisfiable_143_){
+LEAN_EXPORT lean_object* l_Lean_Cadical_Status_satisfiable_elim___redArg(lean_object* v_satisfiable_142_){
 _start:
 {
-lean_inc(v_satisfiable_143_);
-return v_satisfiable_143_;
+lean_inc(v_satisfiable_142_);
+return v_satisfiable_142_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Cadical_Status_satisfiable_elim___redArg___boxed(lean_object* v_satisfiable_144_){
+LEAN_EXPORT lean_object* l_Lean_Cadical_Status_satisfiable_elim___redArg___boxed(lean_object* v_satisfiable_143_){
 _start:
 {
-lean_object* v_res_145_; 
-v_res_145_ = l_Lean_Cadical_Status_satisfiable_elim___redArg(v_satisfiable_144_);
-lean_dec(v_satisfiable_144_);
-return v_res_145_;
+lean_object* v_res_144_; 
+v_res_144_ = l_Lean_Cadical_Status_satisfiable_elim___redArg(v_satisfiable_143_);
+lean_dec(v_satisfiable_143_);
+return v_res_144_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Cadical_Status_satisfiable_elim(lean_object* v_motive_146_, uint8_t v_t_147_, lean_object* v_h_148_, lean_object* v_satisfiable_149_){
+LEAN_EXPORT lean_object* l_Lean_Cadical_Status_satisfiable_elim(lean_object* v_motive_145_, uint8_t v_t_146_, lean_object* v_h_147_, lean_object* v_satisfiable_148_){
 _start:
 {
-lean_inc(v_satisfiable_149_);
-return v_satisfiable_149_;
+lean_inc(v_satisfiable_148_);
+return v_satisfiable_148_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Cadical_Status_satisfiable_elim___boxed(lean_object* v_motive_150_, lean_object* v_t_151_, lean_object* v_h_152_, lean_object* v_satisfiable_153_){
+LEAN_EXPORT lean_object* l_Lean_Cadical_Status_satisfiable_elim___boxed(lean_object* v_motive_149_, lean_object* v_t_150_, lean_object* v_h_151_, lean_object* v_satisfiable_152_){
 _start:
 {
-uint8_t v_t_boxed_154_; lean_object* v_res_155_; 
-v_t_boxed_154_ = lean_unbox(v_t_151_);
-v_res_155_ = l_Lean_Cadical_Status_satisfiable_elim(v_motive_150_, v_t_boxed_154_, v_h_152_, v_satisfiable_153_);
-lean_dec(v_satisfiable_153_);
-return v_res_155_;
+uint8_t v_t_boxed_153_; lean_object* v_res_154_; 
+v_t_boxed_153_ = lean_unbox(v_t_150_);
+v_res_154_ = l_Lean_Cadical_Status_satisfiable_elim(v_motive_149_, v_t_boxed_153_, v_h_151_, v_satisfiable_152_);
+lean_dec(v_satisfiable_152_);
+return v_res_154_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Cadical_Status_unsatisfiable_elim___redArg(lean_object* v_unsatisfiable_156_){
+LEAN_EXPORT lean_object* l_Lean_Cadical_Status_unsatisfiable_elim___redArg(lean_object* v_unsatisfiable_155_){
 _start:
 {
-lean_inc(v_unsatisfiable_156_);
-return v_unsatisfiable_156_;
+lean_inc(v_unsatisfiable_155_);
+return v_unsatisfiable_155_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Cadical_Status_unsatisfiable_elim___redArg___boxed(lean_object* v_unsatisfiable_157_){
+LEAN_EXPORT lean_object* l_Lean_Cadical_Status_unsatisfiable_elim___redArg___boxed(lean_object* v_unsatisfiable_156_){
 _start:
 {
-lean_object* v_res_158_; 
-v_res_158_ = l_Lean_Cadical_Status_unsatisfiable_elim___redArg(v_unsatisfiable_157_);
-lean_dec(v_unsatisfiable_157_);
-return v_res_158_;
+lean_object* v_res_157_; 
+v_res_157_ = l_Lean_Cadical_Status_unsatisfiable_elim___redArg(v_unsatisfiable_156_);
+lean_dec(v_unsatisfiable_156_);
+return v_res_157_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Cadical_Status_unsatisfiable_elim(lean_object* v_motive_159_, uint8_t v_t_160_, lean_object* v_h_161_, lean_object* v_unsatisfiable_162_){
+LEAN_EXPORT lean_object* l_Lean_Cadical_Status_unsatisfiable_elim(lean_object* v_motive_158_, uint8_t v_t_159_, lean_object* v_h_160_, lean_object* v_unsatisfiable_161_){
 _start:
 {
-lean_inc(v_unsatisfiable_162_);
-return v_unsatisfiable_162_;
+lean_inc(v_unsatisfiable_161_);
+return v_unsatisfiable_161_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Cadical_Status_unsatisfiable_elim___boxed(lean_object* v_motive_163_, lean_object* v_t_164_, lean_object* v_h_165_, lean_object* v_unsatisfiable_166_){
+LEAN_EXPORT lean_object* l_Lean_Cadical_Status_unsatisfiable_elim___boxed(lean_object* v_motive_162_, lean_object* v_t_163_, lean_object* v_h_164_, lean_object* v_unsatisfiable_165_){
 _start:
 {
-uint8_t v_t_boxed_167_; lean_object* v_res_168_; 
-v_t_boxed_167_ = lean_unbox(v_t_164_);
-v_res_168_ = l_Lean_Cadical_Status_unsatisfiable_elim(v_motive_163_, v_t_boxed_167_, v_h_165_, v_unsatisfiable_166_);
-lean_dec(v_unsatisfiable_166_);
-return v_res_168_;
+uint8_t v_t_boxed_166_; lean_object* v_res_167_; 
+v_t_boxed_166_ = lean_unbox(v_t_163_);
+v_res_167_ = l_Lean_Cadical_Status_unsatisfiable_elim(v_motive_162_, v_t_boxed_166_, v_h_164_, v_unsatisfiable_165_);
+lean_dec(v_unsatisfiable_165_);
+return v_res_167_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Cadical_Status_unknown_elim___redArg(lean_object* v_unknown_169_){
+LEAN_EXPORT lean_object* l_Lean_Cadical_Status_unknown_elim___redArg(lean_object* v_unknown_168_){
 _start:
 {
-lean_inc(v_unknown_169_);
-return v_unknown_169_;
+lean_inc(v_unknown_168_);
+return v_unknown_168_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Cadical_Status_unknown_elim___redArg___boxed(lean_object* v_unknown_170_){
+LEAN_EXPORT lean_object* l_Lean_Cadical_Status_unknown_elim___redArg___boxed(lean_object* v_unknown_169_){
 _start:
 {
-lean_object* v_res_171_; 
-v_res_171_ = l_Lean_Cadical_Status_unknown_elim___redArg(v_unknown_170_);
-lean_dec(v_unknown_170_);
-return v_res_171_;
+lean_object* v_res_170_; 
+v_res_170_ = l_Lean_Cadical_Status_unknown_elim___redArg(v_unknown_169_);
+lean_dec(v_unknown_169_);
+return v_res_170_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Cadical_Status_unknown_elim(lean_object* v_motive_172_, uint8_t v_t_173_, lean_object* v_h_174_, lean_object* v_unknown_175_){
+LEAN_EXPORT lean_object* l_Lean_Cadical_Status_unknown_elim(lean_object* v_motive_171_, uint8_t v_t_172_, lean_object* v_h_173_, lean_object* v_unknown_174_){
 _start:
 {
-lean_inc(v_unknown_175_);
-return v_unknown_175_;
+lean_inc(v_unknown_174_);
+return v_unknown_174_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Cadical_Status_unknown_elim___boxed(lean_object* v_motive_176_, lean_object* v_t_177_, lean_object* v_h_178_, lean_object* v_unknown_179_){
+LEAN_EXPORT lean_object* l_Lean_Cadical_Status_unknown_elim___boxed(lean_object* v_motive_175_, lean_object* v_t_176_, lean_object* v_h_177_, lean_object* v_unknown_178_){
 _start:
 {
-uint8_t v_t_boxed_180_; lean_object* v_res_181_; 
-v_t_boxed_180_ = lean_unbox(v_t_177_);
-v_res_181_ = l_Lean_Cadical_Status_unknown_elim(v_motive_176_, v_t_boxed_180_, v_h_178_, v_unknown_179_);
-lean_dec(v_unknown_179_);
-return v_res_181_;
+uint8_t v_t_boxed_179_; lean_object* v_res_180_; 
+v_t_boxed_179_ = lean_unbox(v_t_176_);
+v_res_180_ = l_Lean_Cadical_Status_unknown_elim(v_motive_175_, v_t_boxed_179_, v_h_177_, v_unknown_178_);
+lean_dec(v_unknown_178_);
+return v_res_180_;
 }
 }
 static uint8_t _init_l_Lean_Cadical_instInhabitedStatus_default(void){
+_start:
+{
+uint8_t v___x_181_; 
+v___x_181_ = 0;
+return v___x_181_;
+}
+}
+static uint8_t _init_l_Lean_Cadical_instInhabitedStatus(void){
 _start:
 {
 uint8_t v___x_182_; 
@@ -892,1547 +885,1541 @@ v___x_182_ = 0;
 return v___x_182_;
 }
 }
-static uint8_t _init_l_Lean_Cadical_instInhabitedStatus(void){
+LEAN_EXPORT uint8_t l_Lean_Cadical_Status_ofNat(lean_object* v_n_183_){
 _start:
 {
-uint8_t v___x_183_; 
-v___x_183_ = 0;
-return v___x_183_;
-}
-}
-LEAN_EXPORT uint8_t l_Lean_Cadical_Status_ofNat(lean_object* v_n_184_){
-_start:
+lean_object* v___x_184_; uint8_t v___x_185_; 
+v___x_184_ = lean_unsigned_to_nat(0u);
+v___x_185_ = lean_nat_dec_le(v_n_183_, v___x_184_);
+if (v___x_185_ == 0)
 {
-lean_object* v___x_185_; uint8_t v___x_186_; 
-v___x_185_ = lean_unsigned_to_nat(0u);
-v___x_186_ = lean_nat_dec_le(v_n_184_, v___x_185_);
-if (v___x_186_ == 0)
+lean_object* v___x_186_; uint8_t v___x_187_; 
+v___x_186_ = lean_unsigned_to_nat(1u);
+v___x_187_ = lean_nat_dec_le(v_n_183_, v___x_186_);
+if (v___x_187_ == 0)
 {
-lean_object* v___x_187_; uint8_t v___x_188_; 
-v___x_187_ = lean_unsigned_to_nat(1u);
-v___x_188_ = lean_nat_dec_le(v_n_184_, v___x_187_);
-if (v___x_188_ == 0)
+uint8_t v___x_188_; 
+v___x_188_ = 2;
+return v___x_188_;
+}
+else
 {
 uint8_t v___x_189_; 
-v___x_189_ = 2;
+v___x_189_ = 1;
 return v___x_189_;
+}
 }
 else
 {
 uint8_t v___x_190_; 
-v___x_190_ = 1;
+v___x_190_ = 0;
 return v___x_190_;
 }
 }
-else
-{
-uint8_t v___x_191_; 
-v___x_191_ = 0;
-return v___x_191_;
 }
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Cadical_Status_ofNat___boxed(lean_object* v_n_192_){
+LEAN_EXPORT lean_object* l_Lean_Cadical_Status_ofNat___boxed(lean_object* v_n_191_){
 _start:
 {
-uint8_t v_res_193_; lean_object* v_r_194_; 
-v_res_193_ = l_Lean_Cadical_Status_ofNat(v_n_192_);
-lean_dec(v_n_192_);
-v_r_194_ = lean_box(v_res_193_);
-return v_r_194_;
+uint8_t v_res_192_; lean_object* v_r_193_; 
+v_res_192_ = l_Lean_Cadical_Status_ofNat(v_n_191_);
+lean_dec(v_n_191_);
+v_r_193_ = lean_box(v_res_192_);
+return v_r_193_;
 }
 }
-LEAN_EXPORT uint8_t l_Lean_Cadical_instDecidableEqStatus(uint8_t v_x_195_, uint8_t v_y_196_){
+LEAN_EXPORT uint8_t l_Lean_Cadical_instDecidableEqStatus(uint8_t v_x_194_, uint8_t v_y_195_){
 _start:
 {
-lean_object* v___x_197_; lean_object* v___x_198_; uint8_t v___x_199_; 
-v___x_197_ = l_Lean_Cadical_Status_ctorIdx(v_x_195_);
-v___x_198_ = l_Lean_Cadical_Status_ctorIdx(v_y_196_);
-v___x_199_ = lean_nat_dec_eq(v___x_197_, v___x_198_);
+lean_object* v___x_196_; lean_object* v___x_197_; lean_object* v___x_198_; lean_object* v___x_199_; uint8_t v___x_200_; 
+v___x_196_ = lean_box(v_x_194_);
+v___x_197_ = lean_obj_tag_nat(v___x_196_);
+lean_dec(v___x_196_);
+v___x_198_ = lean_box(v_y_195_);
+v___x_199_ = lean_obj_tag_nat(v___x_198_);
 lean_dec(v___x_198_);
-lean_dec(v___x_197_);
-return v___x_199_;
+v___x_200_ = lean_nat_dec_eq(v___x_197_, v___x_199_);
+return v___x_200_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Cadical_instDecidableEqStatus___boxed(lean_object* v_x_200_, lean_object* v_y_201_){
+LEAN_EXPORT lean_object* l_Lean_Cadical_instDecidableEqStatus___boxed(lean_object* v_x_201_, lean_object* v_y_202_){
 _start:
 {
-uint8_t v_x_20__boxed_202_; uint8_t v_y_21__boxed_203_; uint8_t v_res_204_; lean_object* v_r_205_; 
-v_x_20__boxed_202_ = lean_unbox(v_x_200_);
-v_y_21__boxed_203_ = lean_unbox(v_y_201_);
-v_res_204_ = l_Lean_Cadical_instDecidableEqStatus(v_x_20__boxed_202_, v_y_21__boxed_203_);
-v_r_205_ = lean_box(v_res_204_);
-return v_r_205_;
+uint8_t v_x_23__boxed_203_; uint8_t v_y_24__boxed_204_; uint8_t v_res_205_; lean_object* v_r_206_; 
+v_x_23__boxed_203_ = lean_unbox(v_x_201_);
+v_y_24__boxed_204_ = lean_unbox(v_y_202_);
+v_res_205_ = l_Lean_Cadical_instDecidableEqStatus(v_x_23__boxed_203_, v_y_24__boxed_204_);
+v_r_206_ = lean_box(v_res_205_);
+return v_r_206_;
 }
 }
-LEAN_EXPORT uint64_t l_Lean_Cadical_instHashableStatus_hash(uint8_t v_x_206_){
+LEAN_EXPORT uint64_t l_Lean_Cadical_instHashableStatus_hash(uint8_t v_x_207_){
 _start:
 {
-switch(v_x_206_)
+switch(v_x_207_)
 {
 case 0:
 {
-uint64_t v___x_207_; 
-v___x_207_ = 0ULL;
-return v___x_207_;
+uint64_t v___x_208_; 
+v___x_208_ = 0ULL;
+return v___x_208_;
 }
 case 1:
 {
-uint64_t v___x_208_; 
-v___x_208_ = 1ULL;
-return v___x_208_;
+uint64_t v___x_209_; 
+v___x_209_ = 1ULL;
+return v___x_209_;
 }
 default: 
 {
-uint64_t v___x_209_; 
-v___x_209_ = 2ULL;
-return v___x_209_;
+uint64_t v___x_210_; 
+v___x_210_ = 2ULL;
+return v___x_210_;
 }
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Cadical_instHashableStatus_hash___boxed(lean_object* v_x_210_){
+LEAN_EXPORT lean_object* l_Lean_Cadical_instHashableStatus_hash___boxed(lean_object* v_x_211_){
 _start:
 {
-uint8_t v_x_40__boxed_211_; uint64_t v_res_212_; lean_object* v_r_213_; 
-v_x_40__boxed_211_ = lean_unbox(v_x_210_);
-v_res_212_ = l_Lean_Cadical_instHashableStatus_hash(v_x_40__boxed_211_);
-v_r_213_ = lean_box_uint64(v_res_212_);
-return v_r_213_;
+uint8_t v_x_40__boxed_212_; uint64_t v_res_213_; lean_object* v_r_214_; 
+v_x_40__boxed_212_ = lean_unbox(v_x_211_);
+v_res_213_ = l_Lean_Cadical_instHashableStatus_hash(v_x_40__boxed_212_);
+v_r_214_ = lean_box_uint64(v_res_213_);
+return v_r_214_;
 }
 }
 static lean_object* _init_l_Lean_Cadical_instReprStatus_repr___closed__6(void){
 _start:
 {
-lean_object* v___x_225_; lean_object* v___x_226_; 
-v___x_225_ = lean_unsigned_to_nat(2u);
-v___x_226_ = lean_nat_to_int(v___x_225_);
-return v___x_226_;
+lean_object* v___x_226_; lean_object* v___x_227_; 
+v___x_226_ = lean_unsigned_to_nat(2u);
+v___x_227_ = lean_nat_to_int(v___x_226_);
+return v___x_227_;
 }
 }
 static lean_object* _init_l_Lean_Cadical_instReprStatus_repr___closed__7(void){
 _start:
 {
-lean_object* v___x_227_; lean_object* v___x_228_; 
-v___x_227_ = lean_unsigned_to_nat(1u);
-v___x_228_ = lean_nat_to_int(v___x_227_);
-return v___x_228_;
+lean_object* v___x_228_; lean_object* v___x_229_; 
+v___x_228_ = lean_unsigned_to_nat(1u);
+v___x_229_ = lean_nat_to_int(v___x_228_);
+return v___x_229_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Cadical_instReprStatus_repr(uint8_t v_x_229_, lean_object* v_prec_230_){
+LEAN_EXPORT lean_object* l_Lean_Cadical_instReprStatus_repr(uint8_t v_x_230_, lean_object* v_prec_231_){
 _start:
 {
-lean_object* v___y_232_; lean_object* v___y_239_; lean_object* v___y_246_; 
-switch(v_x_229_)
+lean_object* v___y_233_; lean_object* v___y_240_; lean_object* v___y_247_; 
+switch(v_x_230_)
 {
 case 0:
 {
-lean_object* v___x_252_; uint8_t v___x_253_; 
-v___x_252_ = lean_unsigned_to_nat(1024u);
-v___x_253_ = lean_nat_dec_le(v___x_252_, v_prec_230_);
-if (v___x_253_ == 0)
+lean_object* v___x_253_; uint8_t v___x_254_; 
+v___x_253_ = lean_unsigned_to_nat(1024u);
+v___x_254_ = lean_nat_dec_le(v___x_253_, v_prec_231_);
+if (v___x_254_ == 0)
 {
-lean_object* v___x_254_; 
-v___x_254_ = lean_obj_once(&l_Lean_Cadical_instReprStatus_repr___closed__6, &l_Lean_Cadical_instReprStatus_repr___closed__6_once, _init_l_Lean_Cadical_instReprStatus_repr___closed__6);
-v___y_232_ = v___x_254_;
-goto v___jp_231_;
+lean_object* v___x_255_; 
+v___x_255_ = lean_obj_once(&l_Lean_Cadical_instReprStatus_repr___closed__6, &l_Lean_Cadical_instReprStatus_repr___closed__6_once, _init_l_Lean_Cadical_instReprStatus_repr___closed__6);
+v___y_233_ = v___x_255_;
+goto v___jp_232_;
 }
 else
 {
-lean_object* v___x_255_; 
-v___x_255_ = lean_obj_once(&l_Lean_Cadical_instReprStatus_repr___closed__7, &l_Lean_Cadical_instReprStatus_repr___closed__7_once, _init_l_Lean_Cadical_instReprStatus_repr___closed__7);
-v___y_232_ = v___x_255_;
-goto v___jp_231_;
+lean_object* v___x_256_; 
+v___x_256_ = lean_obj_once(&l_Lean_Cadical_instReprStatus_repr___closed__7, &l_Lean_Cadical_instReprStatus_repr___closed__7_once, _init_l_Lean_Cadical_instReprStatus_repr___closed__7);
+v___y_233_ = v___x_256_;
+goto v___jp_232_;
 }
 }
 case 1:
 {
-lean_object* v___x_256_; uint8_t v___x_257_; 
-v___x_256_ = lean_unsigned_to_nat(1024u);
-v___x_257_ = lean_nat_dec_le(v___x_256_, v_prec_230_);
-if (v___x_257_ == 0)
+lean_object* v___x_257_; uint8_t v___x_258_; 
+v___x_257_ = lean_unsigned_to_nat(1024u);
+v___x_258_ = lean_nat_dec_le(v___x_257_, v_prec_231_);
+if (v___x_258_ == 0)
 {
-lean_object* v___x_258_; 
-v___x_258_ = lean_obj_once(&l_Lean_Cadical_instReprStatus_repr___closed__6, &l_Lean_Cadical_instReprStatus_repr___closed__6_once, _init_l_Lean_Cadical_instReprStatus_repr___closed__6);
-v___y_239_ = v___x_258_;
-goto v___jp_238_;
+lean_object* v___x_259_; 
+v___x_259_ = lean_obj_once(&l_Lean_Cadical_instReprStatus_repr___closed__6, &l_Lean_Cadical_instReprStatus_repr___closed__6_once, _init_l_Lean_Cadical_instReprStatus_repr___closed__6);
+v___y_240_ = v___x_259_;
+goto v___jp_239_;
 }
 else
 {
-lean_object* v___x_259_; 
-v___x_259_ = lean_obj_once(&l_Lean_Cadical_instReprStatus_repr___closed__7, &l_Lean_Cadical_instReprStatus_repr___closed__7_once, _init_l_Lean_Cadical_instReprStatus_repr___closed__7);
-v___y_239_ = v___x_259_;
-goto v___jp_238_;
+lean_object* v___x_260_; 
+v___x_260_ = lean_obj_once(&l_Lean_Cadical_instReprStatus_repr___closed__7, &l_Lean_Cadical_instReprStatus_repr___closed__7_once, _init_l_Lean_Cadical_instReprStatus_repr___closed__7);
+v___y_240_ = v___x_260_;
+goto v___jp_239_;
 }
 }
 default: 
 {
-lean_object* v___x_260_; uint8_t v___x_261_; 
-v___x_260_ = lean_unsigned_to_nat(1024u);
-v___x_261_ = lean_nat_dec_le(v___x_260_, v_prec_230_);
-if (v___x_261_ == 0)
+lean_object* v___x_261_; uint8_t v___x_262_; 
+v___x_261_ = lean_unsigned_to_nat(1024u);
+v___x_262_ = lean_nat_dec_le(v___x_261_, v_prec_231_);
+if (v___x_262_ == 0)
 {
-lean_object* v___x_262_; 
-v___x_262_ = lean_obj_once(&l_Lean_Cadical_instReprStatus_repr___closed__6, &l_Lean_Cadical_instReprStatus_repr___closed__6_once, _init_l_Lean_Cadical_instReprStatus_repr___closed__6);
-v___y_246_ = v___x_262_;
-goto v___jp_245_;
+lean_object* v___x_263_; 
+v___x_263_ = lean_obj_once(&l_Lean_Cadical_instReprStatus_repr___closed__6, &l_Lean_Cadical_instReprStatus_repr___closed__6_once, _init_l_Lean_Cadical_instReprStatus_repr___closed__6);
+v___y_247_ = v___x_263_;
+goto v___jp_246_;
 }
 else
 {
-lean_object* v___x_263_; 
-v___x_263_ = lean_obj_once(&l_Lean_Cadical_instReprStatus_repr___closed__7, &l_Lean_Cadical_instReprStatus_repr___closed__7_once, _init_l_Lean_Cadical_instReprStatus_repr___closed__7);
-v___y_246_ = v___x_263_;
-goto v___jp_245_;
+lean_object* v___x_264_; 
+v___x_264_ = lean_obj_once(&l_Lean_Cadical_instReprStatus_repr___closed__7, &l_Lean_Cadical_instReprStatus_repr___closed__7_once, _init_l_Lean_Cadical_instReprStatus_repr___closed__7);
+v___y_247_ = v___x_264_;
+goto v___jp_246_;
 }
 }
 }
-v___jp_231_:
+v___jp_232_:
 {
-lean_object* v___x_233_; lean_object* v___x_234_; uint8_t v___x_235_; lean_object* v___x_236_; lean_object* v___x_237_; 
-v___x_233_ = ((lean_object*)(l_Lean_Cadical_instReprStatus_repr___closed__1));
-lean_inc(v___y_232_);
-v___x_234_ = lean_alloc_ctor(4, 2, 0);
-lean_ctor_set(v___x_234_, 0, v___y_232_);
-lean_ctor_set(v___x_234_, 1, v___x_233_);
-v___x_235_ = 0;
-v___x_236_ = lean_alloc_ctor(6, 1, 1);
-lean_ctor_set(v___x_236_, 0, v___x_234_);
-lean_ctor_set_uint8(v___x_236_, sizeof(void*)*1, v___x_235_);
-v___x_237_ = l_Repr_addAppParen(v___x_236_, v_prec_230_);
-return v___x_237_;
+lean_object* v___x_234_; lean_object* v___x_235_; uint8_t v___x_236_; lean_object* v___x_237_; lean_object* v___x_238_; 
+v___x_234_ = ((lean_object*)(l_Lean_Cadical_instReprStatus_repr___closed__1));
+lean_inc(v___y_233_);
+v___x_235_ = lean_alloc_ctor(4, 2, 0);
+lean_ctor_set(v___x_235_, 0, v___y_233_);
+lean_ctor_set(v___x_235_, 1, v___x_234_);
+v___x_236_ = 0;
+v___x_237_ = lean_alloc_ctor(6, 1, 1);
+lean_ctor_set(v___x_237_, 0, v___x_235_);
+lean_ctor_set_uint8(v___x_237_, sizeof(void*)*1, v___x_236_);
+v___x_238_ = l_Repr_addAppParen(v___x_237_, v_prec_231_);
+return v___x_238_;
 }
-v___jp_238_:
+v___jp_239_:
 {
-lean_object* v___x_240_; lean_object* v___x_241_; uint8_t v___x_242_; lean_object* v___x_243_; lean_object* v___x_244_; 
-v___x_240_ = ((lean_object*)(l_Lean_Cadical_instReprStatus_repr___closed__3));
-lean_inc(v___y_239_);
-v___x_241_ = lean_alloc_ctor(4, 2, 0);
-lean_ctor_set(v___x_241_, 0, v___y_239_);
-lean_ctor_set(v___x_241_, 1, v___x_240_);
-v___x_242_ = 0;
-v___x_243_ = lean_alloc_ctor(6, 1, 1);
-lean_ctor_set(v___x_243_, 0, v___x_241_);
-lean_ctor_set_uint8(v___x_243_, sizeof(void*)*1, v___x_242_);
-v___x_244_ = l_Repr_addAppParen(v___x_243_, v_prec_230_);
-return v___x_244_;
+lean_object* v___x_241_; lean_object* v___x_242_; uint8_t v___x_243_; lean_object* v___x_244_; lean_object* v___x_245_; 
+v___x_241_ = ((lean_object*)(l_Lean_Cadical_instReprStatus_repr___closed__3));
+lean_inc(v___y_240_);
+v___x_242_ = lean_alloc_ctor(4, 2, 0);
+lean_ctor_set(v___x_242_, 0, v___y_240_);
+lean_ctor_set(v___x_242_, 1, v___x_241_);
+v___x_243_ = 0;
+v___x_244_ = lean_alloc_ctor(6, 1, 1);
+lean_ctor_set(v___x_244_, 0, v___x_242_);
+lean_ctor_set_uint8(v___x_244_, sizeof(void*)*1, v___x_243_);
+v___x_245_ = l_Repr_addAppParen(v___x_244_, v_prec_231_);
+return v___x_245_;
 }
-v___jp_245_:
+v___jp_246_:
 {
-lean_object* v___x_247_; lean_object* v___x_248_; uint8_t v___x_249_; lean_object* v___x_250_; lean_object* v___x_251_; 
-v___x_247_ = ((lean_object*)(l_Lean_Cadical_instReprStatus_repr___closed__5));
-lean_inc(v___y_246_);
-v___x_248_ = lean_alloc_ctor(4, 2, 0);
-lean_ctor_set(v___x_248_, 0, v___y_246_);
-lean_ctor_set(v___x_248_, 1, v___x_247_);
-v___x_249_ = 0;
-v___x_250_ = lean_alloc_ctor(6, 1, 1);
-lean_ctor_set(v___x_250_, 0, v___x_248_);
-lean_ctor_set_uint8(v___x_250_, sizeof(void*)*1, v___x_249_);
-v___x_251_ = l_Repr_addAppParen(v___x_250_, v_prec_230_);
-return v___x_251_;
+lean_object* v___x_248_; lean_object* v___x_249_; uint8_t v___x_250_; lean_object* v___x_251_; lean_object* v___x_252_; 
+v___x_248_ = ((lean_object*)(l_Lean_Cadical_instReprStatus_repr___closed__5));
+lean_inc(v___y_247_);
+v___x_249_ = lean_alloc_ctor(4, 2, 0);
+lean_ctor_set(v___x_249_, 0, v___y_247_);
+lean_ctor_set(v___x_249_, 1, v___x_248_);
+v___x_250_ = 0;
+v___x_251_ = lean_alloc_ctor(6, 1, 1);
+lean_ctor_set(v___x_251_, 0, v___x_249_);
+lean_ctor_set_uint8(v___x_251_, sizeof(void*)*1, v___x_250_);
+v___x_252_ = l_Repr_addAppParen(v___x_251_, v_prec_231_);
+return v___x_252_;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Cadical_instReprStatus_repr___boxed(lean_object* v_x_264_, lean_object* v_prec_265_){
+LEAN_EXPORT lean_object* l_Lean_Cadical_instReprStatus_repr___boxed(lean_object* v_x_265_, lean_object* v_prec_266_){
 _start:
 {
-uint8_t v_x_171__boxed_266_; lean_object* v_res_267_; 
-v_x_171__boxed_266_ = lean_unbox(v_x_264_);
-v_res_267_ = l_Lean_Cadical_instReprStatus_repr(v_x_171__boxed_266_, v_prec_265_);
-lean_dec(v_prec_265_);
-return v_res_267_;
+uint8_t v_x_171__boxed_267_; lean_object* v_res_268_; 
+v_x_171__boxed_267_ = lean_unbox(v_x_265_);
+v_res_268_ = l_Lean_Cadical_instReprStatus_repr(v_x_171__boxed_267_, v_prec_266_);
+lean_dec(v_prec_266_);
+return v_res_268_;
 }
 }
 static uint32_t _init_l_Lean_Cadical_Status_toInt32___closed__0(void){
 _start:
 {
-lean_object* v___x_270_; uint32_t v___x_271_; 
-v___x_270_ = lean_unsigned_to_nat(10u);
-v___x_271_ = lean_int32_of_nat(v___x_270_);
-return v___x_271_;
+lean_object* v___x_271_; uint32_t v___x_272_; 
+v___x_271_ = lean_unsigned_to_nat(10u);
+v___x_272_ = lean_int32_of_nat(v___x_271_);
+return v___x_272_;
 }
 }
 static uint32_t _init_l_Lean_Cadical_Status_toInt32___closed__1(void){
 _start:
 {
-lean_object* v___x_272_; uint32_t v___x_273_; 
-v___x_272_ = lean_unsigned_to_nat(20u);
-v___x_273_ = lean_int32_of_nat(v___x_272_);
-return v___x_273_;
+lean_object* v___x_273_; uint32_t v___x_274_; 
+v___x_273_ = lean_unsigned_to_nat(20u);
+v___x_274_ = lean_int32_of_nat(v___x_273_);
+return v___x_274_;
 }
 }
 static uint32_t _init_l_Lean_Cadical_Status_toInt32___closed__2(void){
 _start:
 {
-lean_object* v___x_274_; uint32_t v___x_275_; 
-v___x_274_ = lean_unsigned_to_nat(0u);
-v___x_275_ = lean_int32_of_nat(v___x_274_);
-return v___x_275_;
+lean_object* v___x_275_; uint32_t v___x_276_; 
+v___x_275_ = lean_unsigned_to_nat(0u);
+v___x_276_ = lean_int32_of_nat(v___x_275_);
+return v___x_276_;
 }
 }
-LEAN_EXPORT uint32_t l_Lean_Cadical_Status_toInt32(uint8_t v_x_276_){
+LEAN_EXPORT uint32_t l_Lean_Cadical_Status_toInt32(uint8_t v_x_277_){
 _start:
 {
-switch(v_x_276_)
+switch(v_x_277_)
 {
 case 0:
-{
-uint32_t v___x_277_; 
-v___x_277_ = lean_uint32_once(&l_Lean_Cadical_Status_toInt32___closed__0, &l_Lean_Cadical_Status_toInt32___closed__0_once, _init_l_Lean_Cadical_Status_toInt32___closed__0);
-return v___x_277_;
-}
-case 1:
 {
 uint32_t v___x_278_; 
-v___x_278_ = lean_uint32_once(&l_Lean_Cadical_Status_toInt32___closed__1, &l_Lean_Cadical_Status_toInt32___closed__1_once, _init_l_Lean_Cadical_Status_toInt32___closed__1);
+v___x_278_ = lean_uint32_once(&l_Lean_Cadical_Status_toInt32___closed__0, &l_Lean_Cadical_Status_toInt32___closed__0_once, _init_l_Lean_Cadical_Status_toInt32___closed__0);
 return v___x_278_;
 }
-default: 
+case 1:
 {
 uint32_t v___x_279_; 
-v___x_279_ = lean_uint32_once(&l_Lean_Cadical_Status_toInt32___closed__2, &l_Lean_Cadical_Status_toInt32___closed__2_once, _init_l_Lean_Cadical_Status_toInt32___closed__2);
+v___x_279_ = lean_uint32_once(&l_Lean_Cadical_Status_toInt32___closed__1, &l_Lean_Cadical_Status_toInt32___closed__1_once, _init_l_Lean_Cadical_Status_toInt32___closed__1);
 return v___x_279_;
 }
+default: 
+{
+uint32_t v___x_280_; 
+v___x_280_ = lean_uint32_once(&l_Lean_Cadical_Status_toInt32___closed__2, &l_Lean_Cadical_Status_toInt32___closed__2_once, _init_l_Lean_Cadical_Status_toInt32___closed__2);
+return v___x_280_;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Cadical_Status_toInt32___boxed(lean_object* v_x_280_){
+}
+LEAN_EXPORT lean_object* l_Lean_Cadical_Status_toInt32___boxed(lean_object* v_x_281_){
 _start:
 {
-uint8_t v_x_52__boxed_281_; uint32_t v_res_282_; lean_object* v_r_283_; 
-v_x_52__boxed_281_ = lean_unbox(v_x_280_);
-v_res_282_ = l_Lean_Cadical_Status_toInt32(v_x_52__boxed_281_);
-v_r_283_ = lean_box_uint32(v_res_282_);
-return v_r_283_;
+uint8_t v_x_52__boxed_282_; uint32_t v_res_283_; lean_object* v_r_284_; 
+v_x_52__boxed_282_ = lean_unbox(v_x_281_);
+v_res_283_ = l_Lean_Cadical_Status_toInt32(v_x_52__boxed_282_);
+v_r_284_ = lean_box_uint32(v_res_283_);
+return v_r_284_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Cadical_Status_toString(uint8_t v_x_287_){
+LEAN_EXPORT lean_object* l_Lean_Cadical_Status_toString(uint8_t v_x_288_){
 _start:
 {
-switch(v_x_287_)
+switch(v_x_288_)
 {
 case 0:
-{
-lean_object* v___x_288_; 
-v___x_288_ = ((lean_object*)(l_Lean_Cadical_Status_toString___closed__0));
-return v___x_288_;
-}
-case 1:
 {
 lean_object* v___x_289_; 
-v___x_289_ = ((lean_object*)(l_Lean_Cadical_Status_toString___closed__1));
+v___x_289_ = ((lean_object*)(l_Lean_Cadical_Status_toString___closed__0));
 return v___x_289_;
-}
-default: 
-{
-lean_object* v___x_290_; 
-v___x_290_ = ((lean_object*)(l_Lean_Cadical_Status_toString___closed__2));
-return v___x_290_;
-}
-}
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Cadical_Status_toString___boxed(lean_object* v_x_291_){
-_start:
-{
-uint8_t v_x_31__boxed_292_; lean_object* v_res_293_; 
-v_x_31__boxed_292_ = lean_unbox(v_x_291_);
-v_res_293_ = l_Lean_Cadical_Status_toString(v_x_31__boxed_292_);
-return v_res_293_;
-}
-}
-LEAN_EXPORT uint8_t l___private_Lean_Cadical_Basic_0__Lean_Cadical_Status_ofInternal(uint8_t v_s_296_){
-_start:
-{
-switch(v_s_296_)
-{
-case 0:
-{
-uint8_t v___x_297_; 
-v___x_297_ = 0;
-return v___x_297_;
 }
 case 1:
 {
-uint8_t v___x_298_; 
-v___x_298_ = 1;
-return v___x_298_;
+lean_object* v___x_290_; 
+v___x_290_ = ((lean_object*)(l_Lean_Cadical_Status_toString___closed__1));
+return v___x_290_;
 }
 default: 
 {
-uint8_t v___x_299_; 
-v___x_299_ = 2;
-return v___x_299_;
+lean_object* v___x_291_; 
+v___x_291_ = ((lean_object*)(l_Lean_Cadical_Status_toString___closed__2));
+return v___x_291_;
 }
 }
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Cadical_Basic_0__Lean_Cadical_Status_ofInternal___boxed(lean_object* v_s_300_){
+LEAN_EXPORT lean_object* l_Lean_Cadical_Status_toString___boxed(lean_object* v_x_292_){
 _start:
 {
-uint8_t v_s_boxed_301_; uint8_t v_res_302_; lean_object* v_r_303_; 
-v_s_boxed_301_ = lean_unbox(v_s_300_);
-v_res_302_ = l___private_Lean_Cadical_Basic_0__Lean_Cadical_Status_ofInternal(v_s_boxed_301_);
-v_r_303_ = lean_box(v_res_302_);
-return v_r_303_;
+uint8_t v_x_31__boxed_293_; lean_object* v_res_294_; 
+v_x_31__boxed_293_ = lean_unbox(v_x_292_);
+v_res_294_ = l_Lean_Cadical_Status_toString(v_x_31__boxed_293_);
+return v_res_294_;
+}
+}
+LEAN_EXPORT uint8_t l___private_Lean_Cadical_Basic_0__Lean_Cadical_Status_ofInternal(uint8_t v_s_297_){
+_start:
+{
+switch(v_s_297_)
+{
+case 0:
+{
+uint8_t v___x_298_; 
+v___x_298_ = 0;
+return v___x_298_;
+}
+case 1:
+{
+uint8_t v___x_299_; 
+v___x_299_ = 1;
+return v___x_299_;
+}
+default: 
+{
+uint8_t v___x_300_; 
+v___x_300_ = 2;
+return v___x_300_;
+}
+}
+}
+}
+LEAN_EXPORT lean_object* l___private_Lean_Cadical_Basic_0__Lean_Cadical_Status_ofInternal___boxed(lean_object* v_s_301_){
+_start:
+{
+uint8_t v_s_boxed_302_; uint8_t v_res_303_; lean_object* v_r_304_; 
+v_s_boxed_302_ = lean_unbox(v_s_301_);
+v_res_303_ = l___private_Lean_Cadical_Basic_0__Lean_Cadical_Status_ofInternal(v_s_boxed_302_);
+v_r_304_ = lean_box(v_res_303_);
+return v_r_304_;
 }
 }
 static uint32_t _init_l___private_Lean_Cadical_Basic_0__Lean_Cadical_Solver_toApiLit___closed__0(void){
 _start:
 {
-lean_object* v___x_304_; uint32_t v___x_305_; 
-v___x_304_ = lean_unsigned_to_nat(2147483647u);
-v___x_305_ = lean_int32_of_nat(v___x_304_);
-return v___x_305_;
+lean_object* v___x_305_; uint32_t v___x_306_; 
+v___x_305_ = lean_unsigned_to_nat(2147483647u);
+v___x_306_ = lean_int32_of_nat(v___x_305_);
+return v___x_306_;
 }
 }
 static lean_object* _init_l___private_Lean_Cadical_Basic_0__Lean_Cadical_Solver_toApiLit___closed__1(void){
 _start:
 {
-uint32_t v___x_306_; lean_object* v___x_307_; 
-v___x_306_ = lean_uint32_once(&l___private_Lean_Cadical_Basic_0__Lean_Cadical_Solver_toApiLit___closed__0, &l___private_Lean_Cadical_Basic_0__Lean_Cadical_Solver_toApiLit___closed__0_once, _init_l___private_Lean_Cadical_Basic_0__Lean_Cadical_Solver_toApiLit___closed__0);
-v___x_307_ = lean_int32_to_int(v___x_306_);
-return v___x_307_;
+uint32_t v___x_307_; lean_object* v___x_308_; 
+v___x_307_ = lean_uint32_once(&l___private_Lean_Cadical_Basic_0__Lean_Cadical_Solver_toApiLit___closed__0, &l___private_Lean_Cadical_Basic_0__Lean_Cadical_Solver_toApiLit___closed__0_once, _init_l___private_Lean_Cadical_Basic_0__Lean_Cadical_Solver_toApiLit___closed__0);
+v___x_308_ = lean_int32_to_int(v___x_307_);
+return v___x_308_;
 }
 }
 static lean_object* _init_l___private_Lean_Cadical_Basic_0__Lean_Cadical_Solver_toApiLit___closed__2(void){
 _start:
 {
-lean_object* v___x_308_; lean_object* v___x_309_; 
-v___x_308_ = lean_obj_once(&l___private_Lean_Cadical_Basic_0__Lean_Cadical_Solver_toApiLit___closed__1, &l___private_Lean_Cadical_Basic_0__Lean_Cadical_Solver_toApiLit___closed__1_once, _init_l___private_Lean_Cadical_Basic_0__Lean_Cadical_Solver_toApiLit___closed__1);
-v___x_309_ = l_Int_toNat(v___x_308_);
-return v___x_309_;
+lean_object* v___x_309_; lean_object* v___x_310_; 
+v___x_309_ = lean_obj_once(&l___private_Lean_Cadical_Basic_0__Lean_Cadical_Solver_toApiLit___closed__1, &l___private_Lean_Cadical_Basic_0__Lean_Cadical_Solver_toApiLit___closed__1_once, _init_l___private_Lean_Cadical_Basic_0__Lean_Cadical_Solver_toApiLit___closed__1);
+v___x_310_ = l_Int_toNat(v___x_309_);
+return v___x_310_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Cadical_Basic_0__Lean_Cadical_Solver_toApiLit(lean_object* v_lit_313_, uint8_t v_pol_314_){
+LEAN_EXPORT lean_object* l___private_Lean_Cadical_Basic_0__Lean_Cadical_Solver_toApiLit(lean_object* v_lit_314_, uint8_t v_pol_315_){
 _start:
 {
-lean_object* v___x_316_; lean_object* v_lit_317_; lean_object* v___x_318_; uint8_t v___x_319_; 
-v___x_316_ = lean_unsigned_to_nat(1u);
-v_lit_317_ = lean_nat_add(v_lit_313_, v___x_316_);
-v___x_318_ = lean_obj_once(&l___private_Lean_Cadical_Basic_0__Lean_Cadical_Solver_toApiLit___closed__2, &l___private_Lean_Cadical_Basic_0__Lean_Cadical_Solver_toApiLit___closed__2_once, _init_l___private_Lean_Cadical_Basic_0__Lean_Cadical_Solver_toApiLit___closed__2);
-v___x_319_ = lean_nat_dec_lt(v___x_318_, v_lit_317_);
-if (v___x_319_ == 0)
+lean_object* v___x_317_; lean_object* v_lit_318_; lean_object* v___x_319_; uint8_t v___x_320_; 
+v___x_317_ = lean_unsigned_to_nat(1u);
+v_lit_318_ = lean_nat_add(v_lit_314_, v___x_317_);
+v___x_319_ = lean_obj_once(&l___private_Lean_Cadical_Basic_0__Lean_Cadical_Solver_toApiLit___closed__2, &l___private_Lean_Cadical_Basic_0__Lean_Cadical_Solver_toApiLit___closed__2_once, _init_l___private_Lean_Cadical_Basic_0__Lean_Cadical_Solver_toApiLit___closed__2);
+v___x_320_ = lean_nat_dec_lt(v___x_319_, v_lit_318_);
+if (v___x_320_ == 0)
 {
-uint32_t v_lit_320_; 
-v_lit_320_ = lean_int32_of_nat(v_lit_317_);
-lean_dec(v_lit_317_);
-if (v_pol_314_ == 0)
+uint32_t v_lit_321_; 
+v_lit_321_ = lean_int32_of_nat(v_lit_318_);
+lean_dec(v_lit_318_);
+if (v_pol_315_ == 0)
 {
-uint32_t v___x_321_; lean_object* v___x_322_; lean_object* v___x_323_; 
-v___x_321_ = lean_int32_neg(v_lit_320_);
-v___x_322_ = lean_box_uint32(v___x_321_);
-v___x_323_ = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(v___x_323_, 0, v___x_322_);
-return v___x_323_;
+uint32_t v___x_322_; lean_object* v___x_323_; lean_object* v___x_324_; 
+v___x_322_ = lean_int32_neg(v_lit_321_);
+v___x_323_ = lean_box_uint32(v___x_322_);
+v___x_324_ = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(v___x_324_, 0, v___x_323_);
+return v___x_324_;
 }
 else
 {
-lean_object* v___x_324_; lean_object* v___x_325_; 
-v___x_324_ = lean_box_uint32(v_lit_320_);
-v___x_325_ = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(v___x_325_, 0, v___x_324_);
-return v___x_325_;
+lean_object* v___x_325_; lean_object* v___x_326_; 
+v___x_325_ = lean_box_uint32(v_lit_321_);
+v___x_326_ = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(v___x_326_, 0, v___x_325_);
+return v___x_326_;
 }
 }
 else
 {
-lean_object* v___x_326_; lean_object* v___x_327_; 
-lean_dec(v_lit_317_);
-v___x_326_ = ((lean_object*)(l___private_Lean_Cadical_Basic_0__Lean_Cadical_Solver_toApiLit___closed__4));
-v___x_327_ = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(v___x_327_, 0, v___x_326_);
-return v___x_327_;
+lean_object* v___x_327_; lean_object* v___x_328_; 
+lean_dec(v_lit_318_);
+v___x_327_ = ((lean_object*)(l___private_Lean_Cadical_Basic_0__Lean_Cadical_Solver_toApiLit___closed__4));
+v___x_328_ = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(v___x_328_, 0, v___x_327_);
+return v___x_328_;
 }
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Cadical_Basic_0__Lean_Cadical_Solver_toApiLit___boxed(lean_object* v_lit_328_, lean_object* v_pol_329_, lean_object* v_a_330_){
+LEAN_EXPORT lean_object* l___private_Lean_Cadical_Basic_0__Lean_Cadical_Solver_toApiLit___boxed(lean_object* v_lit_329_, lean_object* v_pol_330_, lean_object* v_a_331_){
 _start:
 {
-uint8_t v_pol_boxed_331_; lean_object* v_res_332_; 
-v_pol_boxed_331_ = lean_unbox(v_pol_329_);
-v_res_332_ = l___private_Lean_Cadical_Basic_0__Lean_Cadical_Solver_toApiLit(v_lit_328_, v_pol_boxed_331_);
-lean_dec(v_lit_328_);
-return v_res_332_;
+uint8_t v_pol_boxed_332_; lean_object* v_res_333_; 
+v_pol_boxed_332_ = lean_unbox(v_pol_330_);
+v_res_333_ = l___private_Lean_Cadical_Basic_0__Lean_Cadical_Solver_toApiLit(v_lit_329_, v_pol_boxed_332_);
+lean_dec(v_lit_329_);
+return v_res_333_;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Cadical_Solver_new(){
 _start:
 {
-lean_object* v___x_334_; lean_object* v___x_335_; 
-v___x_334_ = lean_cadical_solver_new();
-v___x_335_ = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(v___x_335_, 0, v___x_334_);
-return v___x_335_;
+lean_object* v___x_335_; lean_object* v___x_336_; 
+v___x_335_ = lean_cadical_solver_new();
+v___x_336_ = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(v___x_336_, 0, v___x_335_);
+return v___x_336_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Cadical_Solver_new___boxed(lean_object* v_a_336_){
+LEAN_EXPORT lean_object* l_Lean_Cadical_Solver_new___boxed(lean_object* v_a_337_){
 _start:
 {
-lean_object* v_res_337_; 
-v_res_337_ = l_Lean_Cadical_Solver_new();
-return v_res_337_;
+lean_object* v_res_338_; 
+v_res_338_ = l_Lean_Cadical_Solver_new();
+return v_res_338_;
 }
 }
-LEAN_EXPORT uint16_t l_Lean_Cadical_Solver_state(lean_object* v_s_338_){
+LEAN_EXPORT uint16_t l_Lean_Cadical_Solver_state(lean_object* v_s_339_){
 _start:
 {
-lean_object* v_solver_340_; uint16_t v___x_341_; 
-v_solver_340_ = lean_ctor_get(v_s_338_, 0);
-v___x_341_ = lean_cadical_solver_state(v_solver_340_);
-return v___x_341_;
+lean_object* v_solver_341_; uint16_t v___x_342_; 
+v_solver_341_ = lean_ctor_get(v_s_339_, 0);
+v___x_342_ = lean_cadical_solver_state(v_solver_341_);
+return v___x_342_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Cadical_Solver_state___boxed(lean_object* v_s_342_, lean_object* v_a_343_){
+LEAN_EXPORT lean_object* l_Lean_Cadical_Solver_state___boxed(lean_object* v_s_343_, lean_object* v_a_344_){
 _start:
 {
-uint16_t v_res_344_; lean_object* v_r_345_; 
-v_res_344_ = l_Lean_Cadical_Solver_state(v_s_342_);
-lean_dec_ref(v_s_342_);
-v_r_345_ = lean_box(v_res_344_);
-return v_r_345_;
+uint16_t v_res_345_; lean_object* v_r_346_; 
+v_res_345_ = l_Lean_Cadical_Solver_state(v_s_343_);
+lean_dec_ref(v_s_343_);
+v_r_346_ = lean_box(v_res_345_);
+return v_r_346_;
 }
 }
 static lean_object* _init_l_panic___at___00Lean_Cadical_Solver_clause_spec__1___closed__0(void){
 _start:
 {
-lean_object* v___x_346_; lean_object* v___x_347_; 
-v___x_346_ = l_instInhabitedError;
-v___x_347_ = lean_alloc_closure((void*)(l_instInhabitedEIO___aux__1___boxed), 4, 3);
-lean_closure_set(v___x_347_, 0, lean_box(0));
-lean_closure_set(v___x_347_, 1, lean_box(0));
-lean_closure_set(v___x_347_, 2, v___x_346_);
-return v___x_347_;
+lean_object* v___x_347_; lean_object* v___x_348_; 
+v___x_347_ = l_instInhabitedError;
+v___x_348_ = lean_alloc_closure((void*)(l_instInhabitedEIO___aux__1___boxed), 4, 3);
+lean_closure_set(v___x_348_, 0, lean_box(0));
+lean_closure_set(v___x_348_, 1, lean_box(0));
+lean_closure_set(v___x_348_, 2, v___x_347_);
+return v___x_348_;
 }
 }
-LEAN_EXPORT lean_object* l_panic___at___00Lean_Cadical_Solver_clause_spec__1(lean_object* v_msg_348_){
+LEAN_EXPORT lean_object* l_panic___at___00Lean_Cadical_Solver_clause_spec__1(lean_object* v_msg_349_){
 _start:
 {
-lean_object* v___x_350_; lean_object* v___x_806__overap_351_; lean_object* v___x_352_; 
-v___x_350_ = lean_obj_once(&l_panic___at___00Lean_Cadical_Solver_clause_spec__1___closed__0, &l_panic___at___00Lean_Cadical_Solver_clause_spec__1___closed__0_once, _init_l_panic___at___00Lean_Cadical_Solver_clause_spec__1___closed__0);
-v___x_806__overap_351_ = lean_panic_fn_borrowed(v___x_350_, v_msg_348_);
-v___x_352_ = lean_apply_1(v___x_806__overap_351_, lean_box(0));
-return v___x_352_;
+lean_object* v___x_351_; lean_object* v___x_806__overap_352_; lean_object* v___x_353_; 
+v___x_351_ = lean_obj_once(&l_panic___at___00Lean_Cadical_Solver_clause_spec__1___closed__0, &l_panic___at___00Lean_Cadical_Solver_clause_spec__1___closed__0_once, _init_l_panic___at___00Lean_Cadical_Solver_clause_spec__1___closed__0);
+v___x_806__overap_352_ = lean_panic_fn_borrowed(v___x_351_, v_msg_349_);
+v___x_353_ = lean_apply_1(v___x_806__overap_352_, lean_box(0));
+return v___x_353_;
 }
 }
-LEAN_EXPORT lean_object* l_panic___at___00Lean_Cadical_Solver_clause_spec__1___boxed(lean_object* v_msg_353_, lean_object* v___y_354_){
+LEAN_EXPORT lean_object* l_panic___at___00Lean_Cadical_Solver_clause_spec__1___boxed(lean_object* v_msg_354_, lean_object* v___y_355_){
 _start:
 {
-lean_object* v_res_355_; 
-v_res_355_ = l_panic___at___00Lean_Cadical_Solver_clause_spec__1(v_msg_353_);
-return v_res_355_;
+lean_object* v_res_356_; 
+v_res_356_ = l_panic___at___00Lean_Cadical_Solver_clause_spec__1(v_msg_354_);
+return v_res_356_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Std_Sat_CNF_Basic_0__Std_Sat_CNF_Clause_forIn_x27ImplUnsafe_loop___at___00Lean_Cadical_Solver_clause_spec__0(lean_object* v_s_356_, lean_object* v_c_357_, size_t v_sz_358_, size_t v_i_359_, lean_object* v_b_360_){
+LEAN_EXPORT lean_object* l___private_Std_Sat_CNF_Basic_0__Std_Sat_CNF_Clause_forIn_x27ImplUnsafe_loop___at___00Lean_Cadical_Solver_clause_spec__0(lean_object* v_s_357_, lean_object* v_c_358_, size_t v_sz_359_, size_t v_i_360_, lean_object* v_b_361_){
 _start:
 {
-uint8_t v___x_362_; 
-v___x_362_ = lean_usize_dec_lt(v_i_359_, v_sz_358_);
-if (v___x_362_ == 0)
+uint8_t v___x_363_; 
+v___x_363_ = lean_usize_dec_lt(v_i_360_, v_sz_359_);
+if (v___x_363_ == 0)
 {
-lean_object* v___x_363_; 
-v___x_363_ = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(v___x_363_, 0, v_b_360_);
-return v___x_363_;
+lean_object* v___x_364_; 
+v___x_364_ = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(v___x_364_, 0, v_b_361_);
+return v___x_364_;
 }
 else
 {
-lean_object* v_atoms_364_; lean_object* v_polarities_365_; lean_object* v___x_366_; lean_object* v___x_367_; lean_object* v_lit_368_; lean_object* v___x_369_; uint8_t v___x_370_; 
-v_atoms_364_ = lean_ctor_get(v_c_357_, 0);
-v_polarities_365_ = lean_ctor_get(v_c_357_, 1);
-v___x_366_ = lean_array_uget_borrowed(v_atoms_364_, v_i_359_);
-v___x_367_ = lean_unsigned_to_nat(1u);
-v_lit_368_ = lean_nat_add(v___x_366_, v___x_367_);
-v___x_369_ = lean_obj_once(&l___private_Lean_Cadical_Basic_0__Lean_Cadical_Solver_toApiLit___closed__2, &l___private_Lean_Cadical_Basic_0__Lean_Cadical_Solver_toApiLit___closed__2_once, _init_l___private_Lean_Cadical_Basic_0__Lean_Cadical_Solver_toApiLit___closed__2);
-v___x_370_ = lean_nat_dec_lt(v___x_369_, v_lit_368_);
-if (v___x_370_ == 0)
+lean_object* v_atoms_365_; lean_object* v_polarities_366_; lean_object* v___x_367_; lean_object* v___x_368_; lean_object* v_lit_369_; lean_object* v___x_370_; uint8_t v___x_371_; 
+v_atoms_365_ = lean_ctor_get(v_c_358_, 0);
+v_polarities_366_ = lean_ctor_get(v_c_358_, 1);
+v___x_367_ = lean_array_uget_borrowed(v_atoms_365_, v_i_360_);
+v___x_368_ = lean_unsigned_to_nat(1u);
+v_lit_369_ = lean_nat_add(v___x_367_, v___x_368_);
+v___x_370_ = lean_obj_once(&l___private_Lean_Cadical_Basic_0__Lean_Cadical_Solver_toApiLit___closed__2, &l___private_Lean_Cadical_Basic_0__Lean_Cadical_Solver_toApiLit___closed__2_once, _init_l___private_Lean_Cadical_Basic_0__Lean_Cadical_Solver_toApiLit___closed__2);
+v___x_371_ = lean_nat_dec_lt(v___x_370_, v_lit_369_);
+if (v___x_371_ == 0)
 {
-lean_object* v___x_371_; uint32_t v_a_373_; uint8_t v___x_379_; uint8_t v___x_380_; uint8_t v___x_381_; uint32_t v_lit_382_; 
-v___x_371_ = lean_box(0);
-v___x_379_ = lean_byte_array_uget(v_polarities_365_, v_i_359_);
-v___x_380_ = 1;
-v___x_381_ = lean_uint8_dec_eq(v___x_379_, v___x_380_);
-v_lit_382_ = lean_int32_of_nat(v_lit_368_);
-lean_dec(v_lit_368_);
-if (v___x_381_ == 0)
+lean_object* v___x_372_; uint32_t v_a_374_; uint8_t v___x_380_; uint8_t v___x_381_; uint8_t v___x_382_; uint32_t v_lit_383_; 
+v___x_372_ = lean_box(0);
+v___x_380_ = lean_byte_array_uget(v_polarities_366_, v_i_360_);
+v___x_381_ = 1;
+v___x_382_ = lean_uint8_dec_eq(v___x_380_, v___x_381_);
+v_lit_383_ = lean_int32_of_nat(v_lit_369_);
+lean_dec(v_lit_369_);
+if (v___x_382_ == 0)
 {
-uint32_t v___x_383_; 
-v___x_383_ = lean_int32_neg(v_lit_382_);
-v_a_373_ = v___x_383_;
-goto v___jp_372_;
+uint32_t v___x_384_; 
+v___x_384_ = lean_int32_neg(v_lit_383_);
+v_a_374_ = v___x_384_;
+goto v___jp_373_;
 }
 else
 {
-v_a_373_ = v_lit_382_;
-goto v___jp_372_;
+v_a_374_ = v_lit_383_;
+goto v___jp_373_;
 }
-v___jp_372_:
+v___jp_373_:
 {
-lean_object* v_solver_374_; lean_object* v___x_375_; size_t v___x_376_; size_t v___x_377_; 
-v_solver_374_ = lean_ctor_get(v_s_356_, 0);
-v___x_375_ = lean_cadical_solver_add(v_solver_374_, v_a_373_);
-v___x_376_ = ((size_t)1ULL);
-v___x_377_ = lean_usize_add(v_i_359_, v___x_376_);
-v_i_359_ = v___x_377_;
-v_b_360_ = v___x_371_;
+lean_object* v_solver_375_; lean_object* v___x_376_; size_t v___x_377_; size_t v___x_378_; 
+v_solver_375_ = lean_ctor_get(v_s_357_, 0);
+v___x_376_ = lean_cadical_solver_add(v_solver_375_, v_a_374_);
+v___x_377_ = ((size_t)1ULL);
+v___x_378_ = lean_usize_add(v_i_360_, v___x_377_);
+v_i_360_ = v___x_378_;
+v_b_361_ = v___x_372_;
 goto _start;
 }
 }
 else
 {
-lean_object* v___x_384_; lean_object* v___x_385_; 
-lean_dec(v_lit_368_);
-v___x_384_ = ((lean_object*)(l___private_Lean_Cadical_Basic_0__Lean_Cadical_Solver_toApiLit___closed__4));
-v___x_385_ = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(v___x_385_, 0, v___x_384_);
-return v___x_385_;
+lean_object* v___x_385_; lean_object* v___x_386_; 
+lean_dec(v_lit_369_);
+v___x_385_ = ((lean_object*)(l___private_Lean_Cadical_Basic_0__Lean_Cadical_Solver_toApiLit___closed__4));
+v___x_386_ = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(v___x_386_, 0, v___x_385_);
+return v___x_386_;
 }
 }
 }
 }
-LEAN_EXPORT lean_object* l___private_Std_Sat_CNF_Basic_0__Std_Sat_CNF_Clause_forIn_x27ImplUnsafe_loop___at___00Lean_Cadical_Solver_clause_spec__0___boxed(lean_object* v_s_386_, lean_object* v_c_387_, lean_object* v_sz_388_, lean_object* v_i_389_, lean_object* v_b_390_, lean_object* v___y_391_){
+LEAN_EXPORT lean_object* l___private_Std_Sat_CNF_Basic_0__Std_Sat_CNF_Clause_forIn_x27ImplUnsafe_loop___at___00Lean_Cadical_Solver_clause_spec__0___boxed(lean_object* v_s_387_, lean_object* v_c_388_, lean_object* v_sz_389_, lean_object* v_i_390_, lean_object* v_b_391_, lean_object* v___y_392_){
 _start:
 {
-size_t v_sz_boxed_392_; size_t v_i_boxed_393_; lean_object* v_res_394_; 
-v_sz_boxed_392_ = lean_unbox_usize(v_sz_388_);
-lean_dec(v_sz_388_);
-v_i_boxed_393_ = lean_unbox_usize(v_i_389_);
-lean_dec(v_i_389_);
-v_res_394_ = l___private_Std_Sat_CNF_Basic_0__Std_Sat_CNF_Clause_forIn_x27ImplUnsafe_loop___at___00Lean_Cadical_Solver_clause_spec__0(v_s_386_, v_c_387_, v_sz_boxed_392_, v_i_boxed_393_, v_b_390_);
-lean_dec_ref(v_c_387_);
-lean_dec_ref(v_s_386_);
-return v_res_394_;
+size_t v_sz_boxed_393_; size_t v_i_boxed_394_; lean_object* v_res_395_; 
+v_sz_boxed_393_ = lean_unbox_usize(v_sz_389_);
+lean_dec(v_sz_389_);
+v_i_boxed_394_ = lean_unbox_usize(v_i_390_);
+lean_dec(v_i_390_);
+v_res_395_ = l___private_Std_Sat_CNF_Basic_0__Std_Sat_CNF_Clause_forIn_x27ImplUnsafe_loop___at___00Lean_Cadical_Solver_clause_spec__0(v_s_387_, v_c_388_, v_sz_boxed_393_, v_i_boxed_394_, v_b_391_);
+lean_dec_ref(v_c_388_);
+lean_dec_ref(v_s_387_);
+return v_res_395_;
 }
 }
 static lean_object* _init_l_Lean_Cadical_Solver_clause___closed__3(void){
 _start:
 {
-lean_object* v___x_398_; lean_object* v___x_399_; lean_object* v___x_400_; lean_object* v___x_401_; lean_object* v___x_402_; lean_object* v___x_403_; 
-v___x_398_ = ((lean_object*)(l_Lean_Cadical_Solver_clause___closed__2));
-v___x_399_ = lean_unsigned_to_nat(2u);
-v___x_400_ = lean_unsigned_to_nat(176u);
-v___x_401_ = ((lean_object*)(l_Lean_Cadical_Solver_clause___closed__1));
-v___x_402_ = ((lean_object*)(l_Lean_Cadical_Solver_clause___closed__0));
-v___x_403_ = l_mkPanicMessageWithDecl(v___x_402_, v___x_401_, v___x_400_, v___x_399_, v___x_398_);
-return v___x_403_;
+lean_object* v___x_399_; lean_object* v___x_400_; lean_object* v___x_401_; lean_object* v___x_402_; lean_object* v___x_403_; lean_object* v___x_404_; 
+v___x_399_ = ((lean_object*)(l_Lean_Cadical_Solver_clause___closed__2));
+v___x_400_ = lean_unsigned_to_nat(2u);
+v___x_401_ = lean_unsigned_to_nat(176u);
+v___x_402_ = ((lean_object*)(l_Lean_Cadical_Solver_clause___closed__1));
+v___x_403_ = ((lean_object*)(l_Lean_Cadical_Solver_clause___closed__0));
+v___x_404_ = l_mkPanicMessageWithDecl(v___x_403_, v___x_402_, v___x_401_, v___x_400_, v___x_399_);
+return v___x_404_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Cadical_Solver_clause(lean_object* v_s_404_, lean_object* v_clause_405_){
+LEAN_EXPORT lean_object* l_Lean_Cadical_Solver_clause(lean_object* v_s_405_, lean_object* v_clause_406_){
 _start:
 {
-uint16_t v___x_407_; uint16_t v___x_408_; uint16_t v___x_409_; uint16_t v___x_410_; uint8_t v___x_411_; 
-v___x_407_ = l_Lean_Cadical_Solver_state(v_s_404_);
-v___x_408_ = 366;
-v___x_409_ = lean_uint16_land(v___x_407_, v___x_408_);
-v___x_410_ = lean_uint16_once(&l_Lean_Cadical_State_isReady___closed__1, &l_Lean_Cadical_State_isReady___closed__1_once, _init_l_Lean_Cadical_State_isReady___closed__1);
-v___x_411_ = lean_uint16_dec_eq(v___x_409_, v___x_410_);
-if (v___x_411_ == 0)
+uint16_t v___x_408_; uint16_t v___x_409_; uint16_t v___x_410_; uint16_t v___x_411_; uint8_t v___x_412_; 
+v___x_408_ = l_Lean_Cadical_Solver_state(v_s_405_);
+v___x_409_ = 366;
+v___x_410_ = lean_uint16_land(v___x_408_, v___x_409_);
+v___x_411_ = lean_uint16_once(&l_Lean_Cadical_State_isReady___closed__1, &l_Lean_Cadical_State_isReady___closed__1_once, _init_l_Lean_Cadical_State_isReady___closed__1);
+v___x_412_ = lean_uint16_dec_eq(v___x_410_, v___x_411_);
+if (v___x_412_ == 0)
 {
-lean_object* v_atoms_412_; lean_object* v___x_413_; size_t v_sz_414_; size_t v___x_415_; lean_object* v___x_416_; 
-v_atoms_412_ = lean_ctor_get(v_clause_405_, 0);
-v___x_413_ = lean_box(0);
-v_sz_414_ = lean_array_size(v_atoms_412_);
-v___x_415_ = ((size_t)0ULL);
-v___x_416_ = l___private_Std_Sat_CNF_Basic_0__Std_Sat_CNF_Clause_forIn_x27ImplUnsafe_loop___at___00Lean_Cadical_Solver_clause_spec__0(v_s_404_, v_clause_405_, v_sz_414_, v___x_415_, v___x_413_);
-if (lean_obj_tag(v___x_416_) == 0)
+lean_object* v_atoms_413_; lean_object* v___x_414_; size_t v_sz_415_; size_t v___x_416_; lean_object* v___x_417_; 
+v_atoms_413_ = lean_ctor_get(v_clause_406_, 0);
+v___x_414_ = lean_box(0);
+v_sz_415_ = lean_array_size(v_atoms_413_);
+v___x_416_ = ((size_t)0ULL);
+v___x_417_ = l___private_Std_Sat_CNF_Basic_0__Std_Sat_CNF_Clause_forIn_x27ImplUnsafe_loop___at___00Lean_Cadical_Solver_clause_spec__0(v_s_405_, v_clause_406_, v_sz_415_, v___x_416_, v___x_414_);
+if (lean_obj_tag(v___x_417_) == 0)
 {
-lean_object* v___x_418_; uint8_t v_isShared_419_; uint8_t v_isSharedCheck_426_; 
-v_isSharedCheck_426_ = !lean_is_exclusive(v___x_416_);
-if (v_isSharedCheck_426_ == 0)
+lean_object* v___x_419_; uint8_t v_isShared_420_; uint8_t v_isSharedCheck_427_; 
+v_isSharedCheck_427_ = !lean_is_exclusive(v___x_417_);
+if (v_isSharedCheck_427_ == 0)
 {
-lean_object* v_unused_427_; 
-v_unused_427_ = lean_ctor_get(v___x_416_, 0);
-lean_dec(v_unused_427_);
-v___x_418_ = v___x_416_;
-v_isShared_419_ = v_isSharedCheck_426_;
-goto v_resetjp_417_;
+lean_object* v_unused_428_; 
+v_unused_428_ = lean_ctor_get(v___x_417_, 0);
+lean_dec(v_unused_428_);
+v___x_419_ = v___x_417_;
+v_isShared_420_ = v_isSharedCheck_427_;
+goto v_resetjp_418_;
 }
 else
 {
-lean_dec(v___x_416_);
-v___x_418_ = lean_box(0);
-v_isShared_419_ = v_isSharedCheck_426_;
-goto v_resetjp_417_;
+lean_dec(v___x_417_);
+v___x_419_ = lean_box(0);
+v_isShared_420_ = v_isSharedCheck_427_;
+goto v_resetjp_418_;
 }
-v_resetjp_417_:
+v_resetjp_418_:
 {
-lean_object* v_solver_420_; uint32_t v___x_421_; lean_object* v___x_422_; lean_object* v___x_424_; 
-v_solver_420_ = lean_ctor_get(v_s_404_, 0);
-v___x_421_ = lean_uint32_once(&l_Lean_Cadical_Status_toInt32___closed__2, &l_Lean_Cadical_Status_toInt32___closed__2_once, _init_l_Lean_Cadical_Status_toInt32___closed__2);
-v___x_422_ = lean_cadical_solver_add(v_solver_420_, v___x_421_);
-if (v_isShared_419_ == 0)
+lean_object* v_solver_421_; uint32_t v___x_422_; lean_object* v___x_423_; lean_object* v___x_425_; 
+v_solver_421_ = lean_ctor_get(v_s_405_, 0);
+v___x_422_ = lean_uint32_once(&l_Lean_Cadical_Status_toInt32___closed__2, &l_Lean_Cadical_Status_toInt32___closed__2_once, _init_l_Lean_Cadical_Status_toInt32___closed__2);
+v___x_423_ = lean_cadical_solver_add(v_solver_421_, v___x_422_);
+if (v_isShared_420_ == 0)
 {
-lean_ctor_set(v___x_418_, 0, v___x_422_);
-v___x_424_ = v___x_418_;
-goto v_reusejp_423_;
+lean_ctor_set(v___x_419_, 0, v___x_423_);
+v___x_425_ = v___x_419_;
+goto v_reusejp_424_;
 }
 else
 {
-lean_object* v_reuseFailAlloc_425_; 
-v_reuseFailAlloc_425_ = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(v_reuseFailAlloc_425_, 0, v___x_422_);
-v___x_424_ = v_reuseFailAlloc_425_;
-goto v_reusejp_423_;
+lean_object* v_reuseFailAlloc_426_; 
+v_reuseFailAlloc_426_ = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(v_reuseFailAlloc_426_, 0, v___x_423_);
+v___x_425_ = v_reuseFailAlloc_426_;
+goto v_reusejp_424_;
 }
-v_reusejp_423_:
+v_reusejp_424_:
 {
-return v___x_424_;
+return v___x_425_;
 }
-}
-}
-else
-{
-return v___x_416_;
 }
 }
 else
 {
-lean_object* v___x_428_; lean_object* v___x_429_; 
-v___x_428_ = lean_obj_once(&l_Lean_Cadical_Solver_clause___closed__3, &l_Lean_Cadical_Solver_clause___closed__3_once, _init_l_Lean_Cadical_Solver_clause___closed__3);
-v___x_429_ = l_panic___at___00Lean_Cadical_Solver_clause_spec__1(v___x_428_);
-return v___x_429_;
+return v___x_417_;
+}
+}
+else
+{
+lean_object* v___x_429_; lean_object* v___x_430_; 
+v___x_429_ = lean_obj_once(&l_Lean_Cadical_Solver_clause___closed__3, &l_Lean_Cadical_Solver_clause___closed__3_once, _init_l_Lean_Cadical_Solver_clause___closed__3);
+v___x_430_ = l_panic___at___00Lean_Cadical_Solver_clause_spec__1(v___x_429_);
+return v___x_430_;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Cadical_Solver_clause___boxed(lean_object* v_s_430_, lean_object* v_clause_431_, lean_object* v_a_432_){
+LEAN_EXPORT lean_object* l_Lean_Cadical_Solver_clause___boxed(lean_object* v_s_431_, lean_object* v_clause_432_, lean_object* v_a_433_){
 _start:
 {
-lean_object* v_res_433_; 
-v_res_433_ = l_Lean_Cadical_Solver_clause(v_s_430_, v_clause_431_);
-lean_dec_ref(v_clause_431_);
-lean_dec_ref(v_s_430_);
-return v_res_433_;
+lean_object* v_res_434_; 
+v_res_434_ = l_Lean_Cadical_Solver_clause(v_s_431_, v_clause_432_);
+lean_dec_ref(v_clause_432_);
+lean_dec_ref(v_s_431_);
+return v_res_434_;
 }
 }
-LEAN_EXPORT uint8_t l_Lean_Cadical_Solver_inconsistent(lean_object* v_s_434_){
+LEAN_EXPORT uint8_t l_Lean_Cadical_Solver_inconsistent(lean_object* v_s_435_){
 _start:
 {
-lean_object* v_solver_436_; uint8_t v___x_437_; 
-v_solver_436_ = lean_ctor_get(v_s_434_, 0);
-v___x_437_ = lean_cadical_solver_inconsistent(v_solver_436_);
-return v___x_437_;
+lean_object* v_solver_437_; uint8_t v___x_438_; 
+v_solver_437_ = lean_ctor_get(v_s_435_, 0);
+v___x_438_ = lean_cadical_solver_inconsistent(v_solver_437_);
+return v___x_438_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Cadical_Solver_inconsistent___boxed(lean_object* v_s_438_, lean_object* v_a_439_){
+LEAN_EXPORT lean_object* l_Lean_Cadical_Solver_inconsistent___boxed(lean_object* v_s_439_, lean_object* v_a_440_){
 _start:
 {
-uint8_t v_res_440_; lean_object* v_r_441_; 
-v_res_440_ = l_Lean_Cadical_Solver_inconsistent(v_s_438_);
-lean_dec_ref(v_s_438_);
-v_r_441_ = lean_box(v_res_440_);
-return v_r_441_;
+uint8_t v_res_441_; lean_object* v_r_442_; 
+v_res_441_ = l_Lean_Cadical_Solver_inconsistent(v_s_439_);
+lean_dec_ref(v_s_439_);
+v_r_442_ = lean_box(v_res_441_);
+return v_r_442_;
 }
 }
 static lean_object* _init_l_Lean_Cadical_Solver_assume___closed__2(void){
 _start:
 {
-lean_object* v___x_444_; lean_object* v___x_445_; lean_object* v___x_446_; lean_object* v___x_447_; lean_object* v___x_448_; lean_object* v___x_449_; 
-v___x_444_ = ((lean_object*)(l_Lean_Cadical_Solver_assume___closed__1));
-v___x_445_ = lean_unsigned_to_nat(2u);
-v___x_446_ = lean_unsigned_to_nat(191u);
-v___x_447_ = ((lean_object*)(l_Lean_Cadical_Solver_assume___closed__0));
-v___x_448_ = ((lean_object*)(l_Lean_Cadical_Solver_clause___closed__0));
-v___x_449_ = l_mkPanicMessageWithDecl(v___x_448_, v___x_447_, v___x_446_, v___x_445_, v___x_444_);
-return v___x_449_;
+lean_object* v___x_445_; lean_object* v___x_446_; lean_object* v___x_447_; lean_object* v___x_448_; lean_object* v___x_449_; lean_object* v___x_450_; 
+v___x_445_ = ((lean_object*)(l_Lean_Cadical_Solver_assume___closed__1));
+v___x_446_ = lean_unsigned_to_nat(2u);
+v___x_447_ = lean_unsigned_to_nat(191u);
+v___x_448_ = ((lean_object*)(l_Lean_Cadical_Solver_assume___closed__0));
+v___x_449_ = ((lean_object*)(l_Lean_Cadical_Solver_clause___closed__0));
+v___x_450_ = l_mkPanicMessageWithDecl(v___x_449_, v___x_448_, v___x_447_, v___x_446_, v___x_445_);
+return v___x_450_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Cadical_Solver_assume(lean_object* v_s_450_, lean_object* v_lit_451_, uint8_t v_pol_452_){
+LEAN_EXPORT lean_object* l_Lean_Cadical_Solver_assume(lean_object* v_s_451_, lean_object* v_lit_452_, uint8_t v_pol_453_){
 _start:
 {
-uint32_t v_a_455_; uint16_t v___x_465_; uint16_t v___x_466_; uint16_t v___x_467_; uint16_t v___x_468_; uint8_t v___x_469_; 
-v___x_465_ = l_Lean_Cadical_Solver_state(v_s_450_);
-v___x_466_ = 358;
-v___x_467_ = lean_uint16_land(v___x_465_, v___x_466_);
-v___x_468_ = lean_uint16_once(&l_Lean_Cadical_State_isReady___closed__1, &l_Lean_Cadical_State_isReady___closed__1_once, _init_l_Lean_Cadical_State_isReady___closed__1);
-v___x_469_ = lean_uint16_dec_eq(v___x_467_, v___x_468_);
-if (v___x_469_ == 0)
+uint32_t v_a_456_; uint16_t v___x_466_; uint16_t v___x_467_; uint16_t v___x_468_; uint16_t v___x_469_; uint8_t v___x_470_; 
+v___x_466_ = l_Lean_Cadical_Solver_state(v_s_451_);
+v___x_467_ = 358;
+v___x_468_ = lean_uint16_land(v___x_466_, v___x_467_);
+v___x_469_ = lean_uint16_once(&l_Lean_Cadical_State_isReady___closed__1, &l_Lean_Cadical_State_isReady___closed__1_once, _init_l_Lean_Cadical_State_isReady___closed__1);
+v___x_470_ = lean_uint16_dec_eq(v___x_468_, v___x_469_);
+if (v___x_470_ == 0)
 {
-lean_object* v___x_470_; lean_object* v_lit_471_; lean_object* v___x_472_; uint8_t v___x_473_; 
-v___x_470_ = lean_unsigned_to_nat(1u);
-v_lit_471_ = lean_nat_add(v_lit_451_, v___x_470_);
-v___x_472_ = lean_obj_once(&l___private_Lean_Cadical_Basic_0__Lean_Cadical_Solver_toApiLit___closed__2, &l___private_Lean_Cadical_Basic_0__Lean_Cadical_Solver_toApiLit___closed__2_once, _init_l___private_Lean_Cadical_Basic_0__Lean_Cadical_Solver_toApiLit___closed__2);
-v___x_473_ = lean_nat_dec_lt(v___x_472_, v_lit_471_);
-if (v___x_473_ == 0)
+lean_object* v___x_471_; lean_object* v_lit_472_; lean_object* v___x_473_; uint8_t v___x_474_; 
+v___x_471_ = lean_unsigned_to_nat(1u);
+v_lit_472_ = lean_nat_add(v_lit_452_, v___x_471_);
+v___x_473_ = lean_obj_once(&l___private_Lean_Cadical_Basic_0__Lean_Cadical_Solver_toApiLit___closed__2, &l___private_Lean_Cadical_Basic_0__Lean_Cadical_Solver_toApiLit___closed__2_once, _init_l___private_Lean_Cadical_Basic_0__Lean_Cadical_Solver_toApiLit___closed__2);
+v___x_474_ = lean_nat_dec_lt(v___x_473_, v_lit_472_);
+if (v___x_474_ == 0)
 {
-uint32_t v_lit_474_; 
-v_lit_474_ = lean_int32_of_nat(v_lit_471_);
-lean_dec(v_lit_471_);
-if (v_pol_452_ == 0)
+uint32_t v_lit_475_; 
+v_lit_475_ = lean_int32_of_nat(v_lit_472_);
+lean_dec(v_lit_472_);
+if (v_pol_453_ == 0)
 {
-uint32_t v___x_475_; 
-v___x_475_ = lean_int32_neg(v_lit_474_);
-v_a_455_ = v___x_475_;
-goto v___jp_454_;
+uint32_t v___x_476_; 
+v___x_476_ = lean_int32_neg(v_lit_475_);
+v_a_456_ = v___x_476_;
+goto v___jp_455_;
 }
 else
 {
-v_a_455_ = v_lit_474_;
-goto v___jp_454_;
-}
-}
-else
-{
-lean_object* v___x_476_; lean_object* v___x_477_; 
-lean_dec(v_lit_471_);
-lean_dec_ref(v_s_450_);
-v___x_476_ = ((lean_object*)(l___private_Lean_Cadical_Basic_0__Lean_Cadical_Solver_toApiLit___closed__4));
-v___x_477_ = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(v___x_477_, 0, v___x_476_);
-return v___x_477_;
+v_a_456_ = v_lit_475_;
+goto v___jp_455_;
 }
 }
 else
 {
-lean_object* v___x_478_; lean_object* v___x_479_; 
-lean_dec_ref(v_s_450_);
-v___x_478_ = lean_obj_once(&l_Lean_Cadical_Solver_assume___closed__2, &l_Lean_Cadical_Solver_assume___closed__2_once, _init_l_Lean_Cadical_Solver_assume___closed__2);
-v___x_479_ = l_panic___at___00Lean_Cadical_Solver_clause_spec__1(v___x_478_);
-return v___x_479_;
+lean_object* v___x_477_; lean_object* v___x_478_; 
+lean_dec(v_lit_472_);
+lean_dec_ref(v_s_451_);
+v___x_477_ = ((lean_object*)(l___private_Lean_Cadical_Basic_0__Lean_Cadical_Solver_toApiLit___closed__4));
+v___x_478_ = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(v___x_478_, 0, v___x_477_);
+return v___x_478_;
 }
-v___jp_454_:
-{
-lean_object* v_solver_456_; lean_object* v___x_458_; uint8_t v_isShared_459_; uint8_t v_isSharedCheck_464_; 
-v_solver_456_ = lean_ctor_get(v_s_450_, 0);
-v_isSharedCheck_464_ = !lean_is_exclusive(v_s_450_);
-if (v_isSharedCheck_464_ == 0)
-{
-v___x_458_ = v_s_450_;
-v_isShared_459_ = v_isSharedCheck_464_;
-goto v_resetjp_457_;
 }
 else
 {
-lean_inc(v_solver_456_);
-lean_dec(v_s_450_);
-v___x_458_ = lean_box(0);
-v_isShared_459_ = v_isSharedCheck_464_;
-goto v_resetjp_457_;
+lean_object* v___x_479_; lean_object* v___x_480_; 
+lean_dec_ref(v_s_451_);
+v___x_479_ = lean_obj_once(&l_Lean_Cadical_Solver_assume___closed__2, &l_Lean_Cadical_Solver_assume___closed__2_once, _init_l_Lean_Cadical_Solver_assume___closed__2);
+v___x_480_ = l_panic___at___00Lean_Cadical_Solver_clause_spec__1(v___x_479_);
+return v___x_480_;
 }
-v_resetjp_457_:
+v___jp_455_:
 {
-lean_object* v___x_460_; lean_object* v___x_462_; 
-v___x_460_ = lean_cadical_solver_assume(v_solver_456_, v_a_455_);
-lean_dec(v_solver_456_);
-if (v_isShared_459_ == 0)
+lean_object* v_solver_457_; lean_object* v___x_459_; uint8_t v_isShared_460_; uint8_t v_isSharedCheck_465_; 
+v_solver_457_ = lean_ctor_get(v_s_451_, 0);
+v_isSharedCheck_465_ = !lean_is_exclusive(v_s_451_);
+if (v_isSharedCheck_465_ == 0)
 {
-lean_ctor_set(v___x_458_, 0, v___x_460_);
-v___x_462_ = v___x_458_;
-goto v_reusejp_461_;
+v___x_459_ = v_s_451_;
+v_isShared_460_ = v_isSharedCheck_465_;
+goto v_resetjp_458_;
 }
 else
 {
-lean_object* v_reuseFailAlloc_463_; 
-v_reuseFailAlloc_463_ = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(v_reuseFailAlloc_463_, 0, v___x_460_);
-v___x_462_ = v_reuseFailAlloc_463_;
-goto v_reusejp_461_;
+lean_inc(v_solver_457_);
+lean_dec(v_s_451_);
+v___x_459_ = lean_box(0);
+v_isShared_460_ = v_isSharedCheck_465_;
+goto v_resetjp_458_;
 }
-v_reusejp_461_:
+v_resetjp_458_:
 {
-return v___x_462_;
+lean_object* v___x_461_; lean_object* v___x_463_; 
+v___x_461_ = lean_cadical_solver_assume(v_solver_457_, v_a_456_);
+lean_dec(v_solver_457_);
+if (v_isShared_460_ == 0)
+{
+lean_ctor_set(v___x_459_, 0, v___x_461_);
+v___x_463_ = v___x_459_;
+goto v_reusejp_462_;
+}
+else
+{
+lean_object* v_reuseFailAlloc_464_; 
+v_reuseFailAlloc_464_ = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(v_reuseFailAlloc_464_, 0, v___x_461_);
+v___x_463_ = v_reuseFailAlloc_464_;
+goto v_reusejp_462_;
+}
+v_reusejp_462_:
+{
+return v___x_463_;
 }
 }
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Cadical_Solver_assume___boxed(lean_object* v_s_480_, lean_object* v_lit_481_, lean_object* v_pol_482_, lean_object* v_a_483_){
+LEAN_EXPORT lean_object* l_Lean_Cadical_Solver_assume___boxed(lean_object* v_s_481_, lean_object* v_lit_482_, lean_object* v_pol_483_, lean_object* v_a_484_){
 _start:
 {
-uint8_t v_pol_boxed_484_; lean_object* v_res_485_; 
-v_pol_boxed_484_ = lean_unbox(v_pol_482_);
-v_res_485_ = l_Lean_Cadical_Solver_assume(v_s_480_, v_lit_481_, v_pol_boxed_484_);
-lean_dec(v_lit_481_);
-return v_res_485_;
+uint8_t v_pol_boxed_485_; lean_object* v_res_486_; 
+v_pol_boxed_485_ = lean_unbox(v_pol_483_);
+v_res_486_ = l_Lean_Cadical_Solver_assume(v_s_481_, v_lit_482_, v_pol_boxed_485_);
+lean_dec(v_lit_482_);
+return v_res_486_;
 }
 }
 static lean_object* _init_l_panic___at___00Lean_Cadical_Solver_solve_spec__0___closed__0(void){
 _start:
 {
-uint8_t v___x_486_; lean_object* v___x_487_; lean_object* v___x_488_; lean_object* v___x_489_; 
-v___x_486_ = 0;
-v___x_487_ = l_instMonadBaseIO;
-v___x_488_ = lean_box(v___x_486_);
-v___x_489_ = l_instInhabitedOfMonad___redArg(v___x_487_, v___x_488_);
-return v___x_489_;
+uint8_t v___x_487_; lean_object* v___x_488_; lean_object* v___x_489_; lean_object* v___x_490_; 
+v___x_487_ = 0;
+v___x_488_ = l_instMonadBaseIO;
+v___x_489_ = lean_box(v___x_487_);
+v___x_490_ = l_instInhabitedOfMonad___redArg(v___x_488_, v___x_489_);
+return v___x_490_;
 }
 }
-LEAN_EXPORT uint8_t l_panic___at___00Lean_Cadical_Solver_solve_spec__0(lean_object* v_msg_490_){
+LEAN_EXPORT uint8_t l_panic___at___00Lean_Cadical_Solver_solve_spec__0(lean_object* v_msg_491_){
 _start:
 {
-lean_object* v___x_492_; lean_object* v___x_211__overap_493_; lean_object* v___x_494_; uint8_t v___x_495_; 
-v___x_492_ = lean_obj_once(&l_panic___at___00Lean_Cadical_Solver_solve_spec__0___closed__0, &l_panic___at___00Lean_Cadical_Solver_solve_spec__0___closed__0_once, _init_l_panic___at___00Lean_Cadical_Solver_solve_spec__0___closed__0);
-v___x_211__overap_493_ = lean_panic_fn_borrowed(v___x_492_, v_msg_490_);
-v___x_494_ = lean_apply_1(v___x_211__overap_493_, lean_box(0));
-v___x_495_ = lean_unbox(v___x_494_);
-return v___x_495_;
+lean_object* v___x_493_; lean_object* v___x_211__overap_494_; lean_object* v___x_495_; uint8_t v___x_496_; 
+v___x_493_ = lean_obj_once(&l_panic___at___00Lean_Cadical_Solver_solve_spec__0___closed__0, &l_panic___at___00Lean_Cadical_Solver_solve_spec__0___closed__0_once, _init_l_panic___at___00Lean_Cadical_Solver_solve_spec__0___closed__0);
+v___x_211__overap_494_ = lean_panic_fn_borrowed(v___x_493_, v_msg_491_);
+v___x_495_ = lean_apply_1(v___x_211__overap_494_, lean_box(0));
+v___x_496_ = lean_unbox(v___x_495_);
+return v___x_496_;
 }
 }
-LEAN_EXPORT lean_object* l_panic___at___00Lean_Cadical_Solver_solve_spec__0___boxed(lean_object* v_msg_496_, lean_object* v___y_497_){
+LEAN_EXPORT lean_object* l_panic___at___00Lean_Cadical_Solver_solve_spec__0___boxed(lean_object* v_msg_497_, lean_object* v___y_498_){
 _start:
 {
-uint8_t v_res_498_; lean_object* v_r_499_; 
-v_res_498_ = l_panic___at___00Lean_Cadical_Solver_solve_spec__0(v_msg_496_);
-v_r_499_ = lean_box(v_res_498_);
-return v_r_499_;
+uint8_t v_res_499_; lean_object* v_r_500_; 
+v_res_499_ = l_panic___at___00Lean_Cadical_Solver_solve_spec__0(v_msg_497_);
+v_r_500_ = lean_box(v_res_499_);
+return v_r_500_;
 }
 }
 static lean_object* _init_l_Lean_Cadical_Solver_solve___closed__2(void){
 _start:
 {
-lean_object* v___x_502_; lean_object* v___x_503_; lean_object* v___x_504_; lean_object* v___x_505_; lean_object* v___x_506_; lean_object* v___x_507_; 
-v___x_502_ = ((lean_object*)(l_Lean_Cadical_Solver_solve___closed__1));
-v___x_503_ = lean_unsigned_to_nat(2u);
-v___x_504_ = lean_unsigned_to_nat(198u);
-v___x_505_ = ((lean_object*)(l_Lean_Cadical_Solver_solve___closed__0));
-v___x_506_ = ((lean_object*)(l_Lean_Cadical_Solver_clause___closed__0));
-v___x_507_ = l_mkPanicMessageWithDecl(v___x_506_, v___x_505_, v___x_504_, v___x_503_, v___x_502_);
-return v___x_507_;
+lean_object* v___x_503_; lean_object* v___x_504_; lean_object* v___x_505_; lean_object* v___x_506_; lean_object* v___x_507_; lean_object* v___x_508_; 
+v___x_503_ = ((lean_object*)(l_Lean_Cadical_Solver_solve___closed__1));
+v___x_504_ = lean_unsigned_to_nat(2u);
+v___x_505_ = lean_unsigned_to_nat(198u);
+v___x_506_ = ((lean_object*)(l_Lean_Cadical_Solver_solve___closed__0));
+v___x_507_ = ((lean_object*)(l_Lean_Cadical_Solver_clause___closed__0));
+v___x_508_ = l_mkPanicMessageWithDecl(v___x_507_, v___x_506_, v___x_505_, v___x_504_, v___x_503_);
+return v___x_508_;
 }
 }
-LEAN_EXPORT uint8_t l_Lean_Cadical_Solver_solve(lean_object* v_s_508_){
+LEAN_EXPORT uint8_t l_Lean_Cadical_Solver_solve(lean_object* v_s_509_){
 _start:
 {
-uint16_t v___x_510_; uint16_t v___x_511_; uint16_t v___x_512_; uint16_t v___x_513_; uint8_t v___x_514_; 
-v___x_510_ = l_Lean_Cadical_Solver_state(v_s_508_);
-v___x_511_ = 358;
-v___x_512_ = lean_uint16_land(v___x_510_, v___x_511_);
-v___x_513_ = lean_uint16_once(&l_Lean_Cadical_State_isReady___closed__1, &l_Lean_Cadical_State_isReady___closed__1_once, _init_l_Lean_Cadical_State_isReady___closed__1);
-v___x_514_ = lean_uint16_dec_eq(v___x_512_, v___x_513_);
-if (v___x_514_ == 0)
+uint16_t v___x_511_; uint16_t v___x_512_; uint16_t v___x_513_; uint16_t v___x_514_; uint8_t v___x_515_; 
+v___x_511_ = l_Lean_Cadical_Solver_state(v_s_509_);
+v___x_512_ = 358;
+v___x_513_ = lean_uint16_land(v___x_511_, v___x_512_);
+v___x_514_ = lean_uint16_once(&l_Lean_Cadical_State_isReady___closed__1, &l_Lean_Cadical_State_isReady___closed__1_once, _init_l_Lean_Cadical_State_isReady___closed__1);
+v___x_515_ = lean_uint16_dec_eq(v___x_513_, v___x_514_);
+if (v___x_515_ == 0)
 {
-lean_object* v_solver_515_; uint8_t v___x_516_; 
-v_solver_515_ = lean_ctor_get(v_s_508_, 0);
-v___x_516_ = lean_cadical_solver_solve(v_solver_515_);
-switch(v___x_516_)
+lean_object* v_solver_516_; uint8_t v___x_517_; 
+v_solver_516_ = lean_ctor_get(v_s_509_, 0);
+v___x_517_ = lean_cadical_solver_solve(v_solver_516_);
+switch(v___x_517_)
 {
 case 0:
 {
-uint8_t v___x_517_; 
-v___x_517_ = 0;
-return v___x_517_;
+uint8_t v___x_518_; 
+v___x_518_ = 0;
+return v___x_518_;
 }
 case 1:
 {
-uint8_t v___x_518_; 
-v___x_518_ = 1;
-return v___x_518_;
+uint8_t v___x_519_; 
+v___x_519_ = 1;
+return v___x_519_;
 }
 default: 
 {
-uint8_t v___x_519_; 
-v___x_519_ = 2;
-return v___x_519_;
+uint8_t v___x_520_; 
+v___x_520_ = 2;
+return v___x_520_;
 }
 }
 }
 else
 {
-lean_object* v___x_520_; uint8_t v___x_521_; 
-v___x_520_ = lean_obj_once(&l_Lean_Cadical_Solver_solve___closed__2, &l_Lean_Cadical_Solver_solve___closed__2_once, _init_l_Lean_Cadical_Solver_solve___closed__2);
-v___x_521_ = l_panic___at___00Lean_Cadical_Solver_solve_spec__0(v___x_520_);
-return v___x_521_;
+lean_object* v___x_521_; uint8_t v___x_522_; 
+v___x_521_ = lean_obj_once(&l_Lean_Cadical_Solver_solve___closed__2, &l_Lean_Cadical_Solver_solve___closed__2_once, _init_l_Lean_Cadical_Solver_solve___closed__2);
+v___x_522_ = l_panic___at___00Lean_Cadical_Solver_solve_spec__0(v___x_521_);
+return v___x_522_;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Cadical_Solver_solve___boxed(lean_object* v_s_522_, lean_object* v_a_523_){
+LEAN_EXPORT lean_object* l_Lean_Cadical_Solver_solve___boxed(lean_object* v_s_523_, lean_object* v_a_524_){
 _start:
 {
-uint8_t v_res_524_; lean_object* v_r_525_; 
-v_res_524_ = l_Lean_Cadical_Solver_solve(v_s_522_);
-lean_dec_ref(v_s_522_);
-v_r_525_ = lean_box(v_res_524_);
-return v_r_525_;
+uint8_t v_res_525_; lean_object* v_r_526_; 
+v_res_525_ = l_Lean_Cadical_Solver_solve(v_s_523_);
+lean_dec_ref(v_s_523_);
+v_r_526_ = lean_box(v_res_525_);
+return v_r_526_;
 }
 }
 static lean_object* _init_l_Lean_Cadical_Solver_val___closed__1(void){
 _start:
 {
-uint16_t v___x_527_; lean_object* v___x_528_; 
-v___x_527_ = 32;
-v___x_528_ = l_Lean_Cadical_State_toString(v___x_527_);
-return v___x_528_;
+uint16_t v___x_528_; lean_object* v___x_529_; 
+v___x_528_ = 32;
+v___x_529_ = l_Lean_Cadical_State_toString(v___x_528_);
+return v___x_529_;
 }
 }
 static lean_object* _init_l_Lean_Cadical_Solver_val___closed__2(void){
 _start:
 {
-lean_object* v___x_529_; lean_object* v___x_530_; lean_object* v___x_531_; 
-v___x_529_ = lean_obj_once(&l_Lean_Cadical_Solver_val___closed__1, &l_Lean_Cadical_Solver_val___closed__1_once, _init_l_Lean_Cadical_Solver_val___closed__1);
-v___x_530_ = ((lean_object*)(l_Lean_Cadical_Solver_val___closed__0));
-v___x_531_ = lean_string_append(v___x_530_, v___x_529_);
-return v___x_531_;
+lean_object* v___x_530_; lean_object* v___x_531_; lean_object* v___x_532_; 
+v___x_530_ = lean_obj_once(&l_Lean_Cadical_Solver_val___closed__1, &l_Lean_Cadical_Solver_val___closed__1_once, _init_l_Lean_Cadical_Solver_val___closed__1);
+v___x_531_ = ((lean_object*)(l_Lean_Cadical_Solver_val___closed__0));
+v___x_532_ = lean_string_append(v___x_531_, v___x_530_);
+return v___x_532_;
 }
 }
 static lean_object* _init_l_Lean_Cadical_Solver_val___closed__4(void){
 _start:
 {
-lean_object* v___x_533_; lean_object* v___x_534_; lean_object* v___x_535_; 
-v___x_533_ = ((lean_object*)(l_Lean_Cadical_Solver_val___closed__3));
-v___x_534_ = lean_obj_once(&l_Lean_Cadical_Solver_val___closed__2, &l_Lean_Cadical_Solver_val___closed__2_once, _init_l_Lean_Cadical_Solver_val___closed__2);
-v___x_535_ = lean_string_append(v___x_534_, v___x_533_);
-return v___x_535_;
+lean_object* v___x_534_; lean_object* v___x_535_; lean_object* v___x_536_; 
+v___x_534_ = ((lean_object*)(l_Lean_Cadical_Solver_val___closed__3));
+v___x_535_ = lean_obj_once(&l_Lean_Cadical_Solver_val___closed__2, &l_Lean_Cadical_Solver_val___closed__2_once, _init_l_Lean_Cadical_Solver_val___closed__2);
+v___x_536_ = lean_string_append(v___x_535_, v___x_534_);
+return v___x_536_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Cadical_Solver_val(lean_object* v_s_536_, lean_object* v_lit_537_){
+LEAN_EXPORT lean_object* l_Lean_Cadical_Solver_val(lean_object* v_s_537_, lean_object* v_lit_538_){
 _start:
 {
-uint16_t v___x_539_; uint16_t v___x_540_; uint8_t v___x_541_; 
-v___x_539_ = l_Lean_Cadical_Solver_state(v_s_536_);
-v___x_540_ = 32;
-v___x_541_ = lean_uint16_dec_eq(v___x_539_, v___x_540_);
-if (v___x_541_ == 0)
+uint16_t v___x_540_; uint16_t v___x_541_; uint8_t v___x_542_; 
+v___x_540_ = l_Lean_Cadical_Solver_state(v_s_537_);
+v___x_541_ = 32;
+v___x_542_ = lean_uint16_dec_eq(v___x_540_, v___x_541_);
+if (v___x_542_ == 0)
 {
-lean_object* v___x_542_; lean_object* v___x_543_; lean_object* v___x_544_; lean_object* v___x_545_; lean_object* v___x_546_; 
-lean_dec_ref(v_s_536_);
-v___x_542_ = lean_obj_once(&l_Lean_Cadical_Solver_val___closed__4, &l_Lean_Cadical_Solver_val___closed__4_once, _init_l_Lean_Cadical_Solver_val___closed__4);
-v___x_543_ = l_Lean_Cadical_State_toString(v___x_539_);
-v___x_544_ = lean_string_append(v___x_542_, v___x_543_);
-lean_dec_ref(v___x_543_);
-v___x_545_ = lean_alloc_ctor(18, 1, 0);
-lean_ctor_set(v___x_545_, 0, v___x_544_);
-v___x_546_ = lean_alloc_ctor(1, 1, 0);
+lean_object* v___x_543_; lean_object* v___x_544_; lean_object* v___x_545_; lean_object* v___x_546_; lean_object* v___x_547_; 
+lean_dec_ref(v_s_537_);
+v___x_543_ = lean_obj_once(&l_Lean_Cadical_Solver_val___closed__4, &l_Lean_Cadical_Solver_val___closed__4_once, _init_l_Lean_Cadical_Solver_val___closed__4);
+v___x_544_ = l_Lean_Cadical_State_toString(v___x_540_);
+v___x_545_ = lean_string_append(v___x_543_, v___x_544_);
+lean_dec_ref(v___x_544_);
+v___x_546_ = lean_alloc_ctor(18, 1, 0);
 lean_ctor_set(v___x_546_, 0, v___x_545_);
-return v___x_546_;
+v___x_547_ = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(v___x_547_, 0, v___x_546_);
+return v___x_547_;
 }
 else
 {
-lean_object* v___x_547_; lean_object* v_lit_548_; lean_object* v___x_549_; uint8_t v___x_550_; 
-v___x_547_ = lean_unsigned_to_nat(1u);
-v_lit_548_ = lean_nat_add(v_lit_537_, v___x_547_);
-v___x_549_ = lean_obj_once(&l___private_Lean_Cadical_Basic_0__Lean_Cadical_Solver_toApiLit___closed__2, &l___private_Lean_Cadical_Basic_0__Lean_Cadical_Solver_toApiLit___closed__2_once, _init_l___private_Lean_Cadical_Basic_0__Lean_Cadical_Solver_toApiLit___closed__2);
-v___x_550_ = lean_nat_dec_lt(v___x_549_, v_lit_548_);
-if (v___x_550_ == 0)
+lean_object* v___x_548_; lean_object* v_lit_549_; lean_object* v___x_550_; uint8_t v___x_551_; 
+v___x_548_ = lean_unsigned_to_nat(1u);
+v_lit_549_ = lean_nat_add(v_lit_538_, v___x_548_);
+v___x_550_ = lean_obj_once(&l___private_Lean_Cadical_Basic_0__Lean_Cadical_Solver_toApiLit___closed__2, &l___private_Lean_Cadical_Basic_0__Lean_Cadical_Solver_toApiLit___closed__2_once, _init_l___private_Lean_Cadical_Basic_0__Lean_Cadical_Solver_toApiLit___closed__2);
+v___x_551_ = lean_nat_dec_lt(v___x_550_, v_lit_549_);
+if (v___x_551_ == 0)
 {
-lean_object* v_solver_551_; lean_object* v___x_553_; uint8_t v_isShared_554_; uint8_t v_isSharedCheck_562_; 
-v_solver_551_ = lean_ctor_get(v_s_536_, 0);
-v_isSharedCheck_562_ = !lean_is_exclusive(v_s_536_);
-if (v_isSharedCheck_562_ == 0)
+lean_object* v_solver_552_; lean_object* v___x_554_; uint8_t v_isShared_555_; uint8_t v_isSharedCheck_563_; 
+v_solver_552_ = lean_ctor_get(v_s_537_, 0);
+v_isSharedCheck_563_ = !lean_is_exclusive(v_s_537_);
+if (v_isSharedCheck_563_ == 0)
 {
-v___x_553_ = v_s_536_;
-v_isShared_554_ = v_isSharedCheck_562_;
-goto v_resetjp_552_;
+v___x_554_ = v_s_537_;
+v_isShared_555_ = v_isSharedCheck_563_;
+goto v_resetjp_553_;
 }
 else
 {
-lean_inc(v_solver_551_);
-lean_dec(v_s_536_);
-v___x_553_ = lean_box(0);
-v_isShared_554_ = v_isSharedCheck_562_;
-goto v_resetjp_552_;
+lean_inc(v_solver_552_);
+lean_dec(v_s_537_);
+v___x_554_ = lean_box(0);
+v_isShared_555_ = v_isSharedCheck_563_;
+goto v_resetjp_553_;
 }
-v_resetjp_552_:
+v_resetjp_553_:
 {
-uint32_t v_lit_555_; uint32_t v___x_556_; uint8_t v___x_557_; lean_object* v___x_558_; lean_object* v___x_560_; 
-v_lit_555_ = lean_int32_of_nat(v_lit_548_);
-lean_dec(v_lit_548_);
-v___x_556_ = lean_cadical_solver_val(v_solver_551_, v_lit_555_);
-lean_dec(v_solver_551_);
-v___x_557_ = lean_int32_dec_eq(v_lit_555_, v___x_556_);
-v___x_558_ = lean_box(v___x_557_);
-if (v_isShared_554_ == 0)
+uint32_t v_lit_556_; uint32_t v___x_557_; uint8_t v___x_558_; lean_object* v___x_559_; lean_object* v___x_561_; 
+v_lit_556_ = lean_int32_of_nat(v_lit_549_);
+lean_dec(v_lit_549_);
+v___x_557_ = lean_cadical_solver_val(v_solver_552_, v_lit_556_);
+lean_dec(v_solver_552_);
+v___x_558_ = lean_int32_dec_eq(v_lit_556_, v___x_557_);
+v___x_559_ = lean_box(v___x_558_);
+if (v_isShared_555_ == 0)
 {
-lean_ctor_set(v___x_553_, 0, v___x_558_);
-v___x_560_ = v___x_553_;
-goto v_reusejp_559_;
+lean_ctor_set(v___x_554_, 0, v___x_559_);
+v___x_561_ = v___x_554_;
+goto v_reusejp_560_;
 }
 else
 {
-lean_object* v_reuseFailAlloc_561_; 
-v_reuseFailAlloc_561_ = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(v_reuseFailAlloc_561_, 0, v___x_558_);
-v___x_560_ = v_reuseFailAlloc_561_;
-goto v_reusejp_559_;
+lean_object* v_reuseFailAlloc_562_; 
+v_reuseFailAlloc_562_ = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(v_reuseFailAlloc_562_, 0, v___x_559_);
+v___x_561_ = v_reuseFailAlloc_562_;
+goto v_reusejp_560_;
 }
-v_reusejp_559_:
+v_reusejp_560_:
 {
-return v___x_560_;
+return v___x_561_;
 }
 }
 }
 else
 {
-lean_object* v___x_563_; lean_object* v___x_564_; 
-lean_dec(v_lit_548_);
-lean_dec_ref(v_s_536_);
-v___x_563_ = ((lean_object*)(l___private_Lean_Cadical_Basic_0__Lean_Cadical_Solver_toApiLit___closed__4));
-v___x_564_ = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(v___x_564_, 0, v___x_563_);
-return v___x_564_;
+lean_object* v___x_564_; lean_object* v___x_565_; 
+lean_dec(v_lit_549_);
+lean_dec_ref(v_s_537_);
+v___x_564_ = ((lean_object*)(l___private_Lean_Cadical_Basic_0__Lean_Cadical_Solver_toApiLit___closed__4));
+v___x_565_ = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(v___x_565_, 0, v___x_564_);
+return v___x_565_;
 }
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Cadical_Solver_val___boxed(lean_object* v_s_565_, lean_object* v_lit_566_, lean_object* v_a_567_){
+LEAN_EXPORT lean_object* l_Lean_Cadical_Solver_val___boxed(lean_object* v_s_566_, lean_object* v_lit_567_, lean_object* v_a_568_){
 _start:
 {
-lean_object* v_res_568_; 
-v_res_568_ = l_Lean_Cadical_Solver_val(v_s_565_, v_lit_566_);
-lean_dec(v_lit_566_);
-return v_res_568_;
+lean_object* v_res_569_; 
+v_res_569_ = l_Lean_Cadical_Solver_val(v_s_566_, v_lit_567_);
+lean_dec(v_lit_567_);
+return v_res_569_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Cadical_Solver_resetAssumptions(lean_object* v_s_569_){
+LEAN_EXPORT lean_object* l_Lean_Cadical_Solver_resetAssumptions(lean_object* v_s_570_){
 _start:
 {
-lean_object* v_solver_571_; lean_object* v___x_572_; 
-v_solver_571_ = lean_ctor_get(v_s_569_, 0);
-v___x_572_ = lean_cadical_solver_reset_assumptions(v_solver_571_);
-return v___x_572_;
+lean_object* v_solver_572_; lean_object* v___x_573_; 
+v_solver_572_ = lean_ctor_get(v_s_570_, 0);
+v___x_573_ = lean_cadical_solver_reset_assumptions(v_solver_572_);
+return v___x_573_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Cadical_Solver_resetAssumptions___boxed(lean_object* v_s_573_, lean_object* v_a_574_){
+LEAN_EXPORT lean_object* l_Lean_Cadical_Solver_resetAssumptions___boxed(lean_object* v_s_574_, lean_object* v_a_575_){
 _start:
 {
-lean_object* v_res_575_; 
-v_res_575_ = l_Lean_Cadical_Solver_resetAssumptions(v_s_573_);
-lean_dec_ref(v_s_573_);
-return v_res_575_;
+lean_object* v_res_576_; 
+v_res_576_ = l_Lean_Cadical_Solver_resetAssumptions(v_s_574_);
+lean_dec_ref(v_s_574_);
+return v_res_576_;
 }
 }
-LEAN_EXPORT uint8_t l_Lean_Cadical_Solver_status(lean_object* v_s_576_){
+LEAN_EXPORT uint8_t l_Lean_Cadical_Solver_status(lean_object* v_s_577_){
 _start:
 {
-lean_object* v_solver_578_; uint8_t v___x_579_; 
-v_solver_578_ = lean_ctor_get(v_s_576_, 0);
-v___x_579_ = lean_cadical_solver_status(v_solver_578_);
-switch(v___x_579_)
+lean_object* v_solver_579_; uint8_t v___x_580_; 
+v_solver_579_ = lean_ctor_get(v_s_577_, 0);
+v___x_580_ = lean_cadical_solver_status(v_solver_579_);
+switch(v___x_580_)
 {
 case 0:
 {
-uint8_t v___x_580_; 
-v___x_580_ = 0;
-return v___x_580_;
+uint8_t v___x_581_; 
+v___x_581_ = 0;
+return v___x_581_;
 }
 case 1:
 {
-uint8_t v___x_581_; 
-v___x_581_ = 1;
-return v___x_581_;
+uint8_t v___x_582_; 
+v___x_582_ = 1;
+return v___x_582_;
 }
 default: 
 {
-uint8_t v___x_582_; 
-v___x_582_ = 2;
-return v___x_582_;
+uint8_t v___x_583_; 
+v___x_583_ = 2;
+return v___x_583_;
 }
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Cadical_Solver_status___boxed(lean_object* v_s_583_, lean_object* v_a_584_){
+LEAN_EXPORT lean_object* l_Lean_Cadical_Solver_status___boxed(lean_object* v_s_584_, lean_object* v_a_585_){
 _start:
 {
-uint8_t v_res_585_; lean_object* v_r_586_; 
-v_res_585_ = l_Lean_Cadical_Solver_status(v_s_583_);
-lean_dec_ref(v_s_583_);
-v_r_586_ = lean_box(v_res_585_);
-return v_r_586_;
+uint8_t v_res_586_; lean_object* v_r_587_; 
+v_res_586_ = l_Lean_Cadical_Solver_status(v_s_584_);
+lean_dec_ref(v_s_584_);
+v_r_587_ = lean_box(v_res_586_);
+return v_r_587_;
 }
 }
-LEAN_EXPORT uint8_t l_Lean_Cadical_Solver_isValidOption(lean_object* v_opt_587_){
+LEAN_EXPORT uint8_t l_Lean_Cadical_Solver_isValidOption(lean_object* v_opt_588_){
 _start:
 {
-uint8_t v___x_588_; 
-v___x_588_ = lean_cadical_solver_is_valid_option(v_opt_587_);
-return v___x_588_;
+uint8_t v___x_589_; 
+v___x_589_ = lean_cadical_solver_is_valid_option(v_opt_588_);
+return v___x_589_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Cadical_Solver_isValidOption___boxed(lean_object* v_opt_589_){
+LEAN_EXPORT lean_object* l_Lean_Cadical_Solver_isValidOption___boxed(lean_object* v_opt_590_){
 _start:
 {
-uint8_t v_res_590_; lean_object* v_r_591_; 
-v_res_590_ = l_Lean_Cadical_Solver_isValidOption(v_opt_589_);
-lean_dec_ref(v_opt_589_);
-v_r_591_ = lean_box(v_res_590_);
-return v_r_591_;
+uint8_t v_res_591_; lean_object* v_r_592_; 
+v_res_591_ = l_Lean_Cadical_Solver_isValidOption(v_opt_590_);
+lean_dec_ref(v_opt_590_);
+v_r_592_ = lean_box(v_res_591_);
+return v_r_592_;
 }
 }
-LEAN_EXPORT uint8_t l_Lean_Cadical_Solver_isPreprocessingOption(lean_object* v_opt_592_){
+LEAN_EXPORT uint8_t l_Lean_Cadical_Solver_isPreprocessingOption(lean_object* v_opt_593_){
 _start:
 {
-uint8_t v___x_593_; 
-v___x_593_ = lean_cadical_solver_is_preprocessing_option(v_opt_592_);
-return v___x_593_;
+uint8_t v___x_594_; 
+v___x_594_ = lean_cadical_solver_is_preprocessing_option(v_opt_593_);
+return v___x_594_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Cadical_Solver_isPreprocessingOption___boxed(lean_object* v_opt_594_){
+LEAN_EXPORT lean_object* l_Lean_Cadical_Solver_isPreprocessingOption___boxed(lean_object* v_opt_595_){
 _start:
 {
-uint8_t v_res_595_; lean_object* v_r_596_; 
-v_res_595_ = l_Lean_Cadical_Solver_isPreprocessingOption(v_opt_594_);
-lean_dec_ref(v_opt_594_);
-v_r_596_ = lean_box(v_res_595_);
-return v_r_596_;
+uint8_t v_res_596_; lean_object* v_r_597_; 
+v_res_596_ = l_Lean_Cadical_Solver_isPreprocessingOption(v_opt_595_);
+lean_dec_ref(v_opt_595_);
+v_r_597_ = lean_box(v_res_596_);
+return v_r_597_;
 }
 }
-LEAN_EXPORT uint8_t l_Lean_Cadical_Solver_isValidLongOption(lean_object* v_opt_597_){
+LEAN_EXPORT uint8_t l_Lean_Cadical_Solver_isValidLongOption(lean_object* v_opt_598_){
 _start:
 {
-uint8_t v___x_598_; 
-v___x_598_ = lean_cadical_solver_is_valid_long_option(v_opt_597_);
-return v___x_598_;
+uint8_t v___x_599_; 
+v___x_599_ = lean_cadical_solver_is_valid_long_option(v_opt_598_);
+return v___x_599_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Cadical_Solver_isValidLongOption___boxed(lean_object* v_opt_599_){
+LEAN_EXPORT lean_object* l_Lean_Cadical_Solver_isValidLongOption___boxed(lean_object* v_opt_600_){
 _start:
 {
-uint8_t v_res_600_; lean_object* v_r_601_; 
-v_res_600_ = l_Lean_Cadical_Solver_isValidLongOption(v_opt_599_);
-lean_dec_ref(v_opt_599_);
-v_r_601_ = lean_box(v_res_600_);
-return v_r_601_;
+uint8_t v_res_601_; lean_object* v_r_602_; 
+v_res_601_ = l_Lean_Cadical_Solver_isValidLongOption(v_opt_600_);
+lean_dec_ref(v_opt_600_);
+v_r_602_ = lean_box(v_res_601_);
+return v_r_602_;
 }
 }
-LEAN_EXPORT uint32_t l_Lean_Cadical_Solver_getOption(lean_object* v_s_602_, lean_object* v_opt_603_){
+LEAN_EXPORT uint32_t l_Lean_Cadical_Solver_getOption(lean_object* v_s_603_, lean_object* v_opt_604_){
 _start:
 {
-lean_object* v_solver_605_; uint32_t v___x_606_; 
-v_solver_605_ = lean_ctor_get(v_s_602_, 0);
-v___x_606_ = lean_cadical_solver_get(v_solver_605_, v_opt_603_);
-return v___x_606_;
+lean_object* v_solver_606_; uint32_t v___x_607_; 
+v_solver_606_ = lean_ctor_get(v_s_603_, 0);
+v___x_607_ = lean_cadical_solver_get(v_solver_606_, v_opt_604_);
+return v___x_607_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Cadical_Solver_getOption___boxed(lean_object* v_s_607_, lean_object* v_opt_608_, lean_object* v_a_609_){
+LEAN_EXPORT lean_object* l_Lean_Cadical_Solver_getOption___boxed(lean_object* v_s_608_, lean_object* v_opt_609_, lean_object* v_a_610_){
 _start:
 {
-uint32_t v_res_610_; lean_object* v_r_611_; 
-v_res_610_ = l_Lean_Cadical_Solver_getOption(v_s_607_, v_opt_608_);
-lean_dec_ref(v_opt_608_);
-lean_dec_ref(v_s_607_);
-v_r_611_ = lean_box_uint32(v_res_610_);
-return v_r_611_;
+uint32_t v_res_611_; lean_object* v_r_612_; 
+v_res_611_ = l_Lean_Cadical_Solver_getOption(v_s_608_, v_opt_609_);
+lean_dec_ref(v_opt_609_);
+lean_dec_ref(v_s_608_);
+v_r_612_ = lean_box_uint32(v_res_611_);
+return v_r_612_;
 }
 }
 static lean_object* _init_l_panic___at___00Lean_Cadical_Solver_setOption_spec__0___closed__0(void){
 _start:
 {
-uint8_t v___x_612_; lean_object* v___x_613_; lean_object* v___x_614_; lean_object* v___x_615_; 
-v___x_612_ = 0;
-v___x_613_ = l_instMonadBaseIO;
-v___x_614_ = lean_box(v___x_612_);
-v___x_615_ = l_instInhabitedOfMonad___redArg(v___x_613_, v___x_614_);
-return v___x_615_;
+uint8_t v___x_613_; lean_object* v___x_614_; lean_object* v___x_615_; lean_object* v___x_616_; 
+v___x_613_ = 0;
+v___x_614_ = l_instMonadBaseIO;
+v___x_615_ = lean_box(v___x_613_);
+v___x_616_ = l_instInhabitedOfMonad___redArg(v___x_614_, v___x_615_);
+return v___x_616_;
 }
 }
-LEAN_EXPORT uint8_t l_panic___at___00Lean_Cadical_Solver_setOption_spec__0(lean_object* v_msg_616_){
+LEAN_EXPORT uint8_t l_panic___at___00Lean_Cadical_Solver_setOption_spec__0(lean_object* v_msg_617_){
 _start:
 {
-lean_object* v___x_618_; lean_object* v___x_132__overap_619_; lean_object* v___x_620_; uint8_t v___x_621_; 
-v___x_618_ = lean_obj_once(&l_panic___at___00Lean_Cadical_Solver_setOption_spec__0___closed__0, &l_panic___at___00Lean_Cadical_Solver_setOption_spec__0___closed__0_once, _init_l_panic___at___00Lean_Cadical_Solver_setOption_spec__0___closed__0);
-v___x_132__overap_619_ = lean_panic_fn_borrowed(v___x_618_, v_msg_616_);
-v___x_620_ = lean_apply_1(v___x_132__overap_619_, lean_box(0));
-v___x_621_ = lean_unbox(v___x_620_);
-return v___x_621_;
+lean_object* v___x_619_; lean_object* v___x_132__overap_620_; lean_object* v___x_621_; uint8_t v___x_622_; 
+v___x_619_ = lean_obj_once(&l_panic___at___00Lean_Cadical_Solver_setOption_spec__0___closed__0, &l_panic___at___00Lean_Cadical_Solver_setOption_spec__0___closed__0_once, _init_l_panic___at___00Lean_Cadical_Solver_setOption_spec__0___closed__0);
+v___x_132__overap_620_ = lean_panic_fn_borrowed(v___x_619_, v_msg_617_);
+v___x_621_ = lean_apply_1(v___x_132__overap_620_, lean_box(0));
+v___x_622_ = lean_unbox(v___x_621_);
+return v___x_622_;
 }
 }
-LEAN_EXPORT lean_object* l_panic___at___00Lean_Cadical_Solver_setOption_spec__0___boxed(lean_object* v_msg_622_, lean_object* v___y_623_){
+LEAN_EXPORT lean_object* l_panic___at___00Lean_Cadical_Solver_setOption_spec__0___boxed(lean_object* v_msg_623_, lean_object* v___y_624_){
 _start:
 {
-uint8_t v_res_624_; lean_object* v_r_625_; 
-v_res_624_ = l_panic___at___00Lean_Cadical_Solver_setOption_spec__0(v_msg_622_);
-v_r_625_ = lean_box(v_res_624_);
-return v_r_625_;
+uint8_t v_res_625_; lean_object* v_r_626_; 
+v_res_625_ = l_panic___at___00Lean_Cadical_Solver_setOption_spec__0(v_msg_623_);
+v_r_626_ = lean_box(v_res_625_);
+return v_r_626_;
 }
 }
 static lean_object* _init_l_Lean_Cadical_Solver_setOption___closed__2(void){
 _start:
 {
-lean_object* v___x_628_; lean_object* v___x_629_; lean_object* v___x_630_; lean_object* v___x_631_; lean_object* v___x_632_; lean_object* v___x_633_; 
-v___x_628_ = ((lean_object*)(l_Lean_Cadical_Solver_setOption___closed__1));
-v___x_629_ = lean_unsigned_to_nat(2u);
-v___x_630_ = lean_unsigned_to_nat(235u);
-v___x_631_ = ((lean_object*)(l_Lean_Cadical_Solver_setOption___closed__0));
-v___x_632_ = ((lean_object*)(l_Lean_Cadical_Solver_clause___closed__0));
-v___x_633_ = l_mkPanicMessageWithDecl(v___x_632_, v___x_631_, v___x_630_, v___x_629_, v___x_628_);
-return v___x_633_;
+lean_object* v___x_629_; lean_object* v___x_630_; lean_object* v___x_631_; lean_object* v___x_632_; lean_object* v___x_633_; lean_object* v___x_634_; 
+v___x_629_ = ((lean_object*)(l_Lean_Cadical_Solver_setOption___closed__1));
+v___x_630_ = lean_unsigned_to_nat(2u);
+v___x_631_ = lean_unsigned_to_nat(235u);
+v___x_632_ = ((lean_object*)(l_Lean_Cadical_Solver_setOption___closed__0));
+v___x_633_ = ((lean_object*)(l_Lean_Cadical_Solver_clause___closed__0));
+v___x_634_ = l_mkPanicMessageWithDecl(v___x_633_, v___x_632_, v___x_631_, v___x_630_, v___x_629_);
+return v___x_634_;
 }
 }
-LEAN_EXPORT uint8_t l_Lean_Cadical_Solver_setOption(lean_object* v_s_634_, lean_object* v_opt_635_, uint32_t v_val_636_){
+LEAN_EXPORT uint8_t l_Lean_Cadical_Solver_setOption(lean_object* v_s_635_, lean_object* v_opt_636_, uint32_t v_val_637_){
 _start:
 {
-uint16_t v___x_638_; uint16_t v___x_639_; uint8_t v___x_640_; 
-v___x_638_ = l_Lean_Cadical_Solver_state(v_s_634_);
-v___x_639_ = 2;
-v___x_640_ = lean_uint16_dec_eq(v___x_638_, v___x_639_);
-if (v___x_640_ == 0)
+uint16_t v___x_639_; uint16_t v___x_640_; uint8_t v___x_641_; 
+v___x_639_ = l_Lean_Cadical_Solver_state(v_s_635_);
+v___x_640_ = 2;
+v___x_641_ = lean_uint16_dec_eq(v___x_639_, v___x_640_);
+if (v___x_641_ == 0)
 {
-lean_object* v___x_641_; uint8_t v___x_642_; 
-v___x_641_ = lean_obj_once(&l_Lean_Cadical_Solver_setOption___closed__2, &l_Lean_Cadical_Solver_setOption___closed__2_once, _init_l_Lean_Cadical_Solver_setOption___closed__2);
-v___x_642_ = l_panic___at___00Lean_Cadical_Solver_setOption_spec__0(v___x_641_);
-return v___x_642_;
+lean_object* v___x_642_; uint8_t v___x_643_; 
+v___x_642_ = lean_obj_once(&l_Lean_Cadical_Solver_setOption___closed__2, &l_Lean_Cadical_Solver_setOption___closed__2_once, _init_l_Lean_Cadical_Solver_setOption___closed__2);
+v___x_643_ = l_panic___at___00Lean_Cadical_Solver_setOption_spec__0(v___x_642_);
+return v___x_643_;
 }
 else
 {
-lean_object* v_solver_643_; uint8_t v___x_644_; 
-v_solver_643_ = lean_ctor_get(v_s_634_, 0);
-v___x_644_ = lean_cadical_solver_set(v_solver_643_, v_opt_635_, v_val_636_);
-return v___x_644_;
+lean_object* v_solver_644_; uint8_t v___x_645_; 
+v_solver_644_ = lean_ctor_get(v_s_635_, 0);
+v___x_645_ = lean_cadical_solver_set(v_solver_644_, v_opt_636_, v_val_637_);
+return v___x_645_;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Cadical_Solver_setOption___boxed(lean_object* v_s_645_, lean_object* v_opt_646_, lean_object* v_val_647_, lean_object* v_a_648_){
+LEAN_EXPORT lean_object* l_Lean_Cadical_Solver_setOption___boxed(lean_object* v_s_646_, lean_object* v_opt_647_, lean_object* v_val_648_, lean_object* v_a_649_){
 _start:
 {
-uint32_t v_val_boxed_649_; uint8_t v_res_650_; lean_object* v_r_651_; 
-v_val_boxed_649_ = lean_unbox_uint32(v_val_647_);
-lean_dec(v_val_647_);
-v_res_650_ = l_Lean_Cadical_Solver_setOption(v_s_645_, v_opt_646_, v_val_boxed_649_);
-lean_dec_ref(v_opt_646_);
-lean_dec_ref(v_s_645_);
-v_r_651_ = lean_box(v_res_650_);
-return v_r_651_;
+uint32_t v_val_boxed_650_; uint8_t v_res_651_; lean_object* v_r_652_; 
+v_val_boxed_650_ = lean_unbox_uint32(v_val_648_);
+lean_dec(v_val_648_);
+v_res_651_ = l_Lean_Cadical_Solver_setOption(v_s_646_, v_opt_647_, v_val_boxed_650_);
+lean_dec_ref(v_opt_647_);
+lean_dec_ref(v_s_646_);
+v_r_652_ = lean_box(v_res_651_);
+return v_r_652_;
 }
 }
 static lean_object* _init_l_Lean_Cadical_Solver_setLongOption___closed__2(void){
 _start:
 {
-lean_object* v___x_654_; lean_object* v___x_655_; lean_object* v___x_656_; lean_object* v___x_657_; lean_object* v___x_658_; lean_object* v___x_659_; 
-v___x_654_ = ((lean_object*)(l_Lean_Cadical_Solver_setLongOption___closed__1));
-v___x_655_ = lean_unsigned_to_nat(2u);
-v___x_656_ = lean_unsigned_to_nat(239u);
-v___x_657_ = ((lean_object*)(l_Lean_Cadical_Solver_setLongOption___closed__0));
-v___x_658_ = ((lean_object*)(l_Lean_Cadical_Solver_clause___closed__0));
-v___x_659_ = l_mkPanicMessageWithDecl(v___x_658_, v___x_657_, v___x_656_, v___x_655_, v___x_654_);
-return v___x_659_;
+lean_object* v___x_655_; lean_object* v___x_656_; lean_object* v___x_657_; lean_object* v___x_658_; lean_object* v___x_659_; lean_object* v___x_660_; 
+v___x_655_ = ((lean_object*)(l_Lean_Cadical_Solver_setLongOption___closed__1));
+v___x_656_ = lean_unsigned_to_nat(2u);
+v___x_657_ = lean_unsigned_to_nat(239u);
+v___x_658_ = ((lean_object*)(l_Lean_Cadical_Solver_setLongOption___closed__0));
+v___x_659_ = ((lean_object*)(l_Lean_Cadical_Solver_clause___closed__0));
+v___x_660_ = l_mkPanicMessageWithDecl(v___x_659_, v___x_658_, v___x_657_, v___x_656_, v___x_655_);
+return v___x_660_;
 }
 }
-LEAN_EXPORT uint8_t l_Lean_Cadical_Solver_setLongOption(lean_object* v_s_660_, lean_object* v_opt_661_){
+LEAN_EXPORT uint8_t l_Lean_Cadical_Solver_setLongOption(lean_object* v_s_661_, lean_object* v_opt_662_){
 _start:
 {
-uint16_t v___x_663_; uint16_t v___x_664_; uint8_t v___x_665_; 
-v___x_663_ = l_Lean_Cadical_Solver_state(v_s_660_);
-v___x_664_ = 2;
-v___x_665_ = lean_uint16_dec_eq(v___x_663_, v___x_664_);
-if (v___x_665_ == 0)
+uint16_t v___x_664_; uint16_t v___x_665_; uint8_t v___x_666_; 
+v___x_664_ = l_Lean_Cadical_Solver_state(v_s_661_);
+v___x_665_ = 2;
+v___x_666_ = lean_uint16_dec_eq(v___x_664_, v___x_665_);
+if (v___x_666_ == 0)
 {
-lean_object* v___x_666_; uint8_t v___x_667_; 
-v___x_666_ = lean_obj_once(&l_Lean_Cadical_Solver_setLongOption___closed__2, &l_Lean_Cadical_Solver_setLongOption___closed__2_once, _init_l_Lean_Cadical_Solver_setLongOption___closed__2);
-v___x_667_ = l_panic___at___00Lean_Cadical_Solver_setOption_spec__0(v___x_666_);
-return v___x_667_;
+lean_object* v___x_667_; uint8_t v___x_668_; 
+v___x_667_ = lean_obj_once(&l_Lean_Cadical_Solver_setLongOption___closed__2, &l_Lean_Cadical_Solver_setLongOption___closed__2_once, _init_l_Lean_Cadical_Solver_setLongOption___closed__2);
+v___x_668_ = l_panic___at___00Lean_Cadical_Solver_setOption_spec__0(v___x_667_);
+return v___x_668_;
 }
 else
 {
-lean_object* v_solver_668_; uint8_t v___x_669_; 
-v_solver_668_ = lean_ctor_get(v_s_660_, 0);
-v___x_669_ = lean_cadical_solver_set_long_option(v_solver_668_, v_opt_661_);
-return v___x_669_;
+lean_object* v_solver_669_; uint8_t v___x_670_; 
+v_solver_669_ = lean_ctor_get(v_s_661_, 0);
+v___x_670_ = lean_cadical_solver_set_long_option(v_solver_669_, v_opt_662_);
+return v___x_670_;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Cadical_Solver_setLongOption___boxed(lean_object* v_s_670_, lean_object* v_opt_671_, lean_object* v_a_672_){
+LEAN_EXPORT lean_object* l_Lean_Cadical_Solver_setLongOption___boxed(lean_object* v_s_671_, lean_object* v_opt_672_, lean_object* v_a_673_){
 _start:
 {
-uint8_t v_res_673_; lean_object* v_r_674_; 
-v_res_673_ = l_Lean_Cadical_Solver_setLongOption(v_s_670_, v_opt_671_);
-lean_dec_ref(v_opt_671_);
-lean_dec_ref(v_s_670_);
-v_r_674_ = lean_box(v_res_673_);
-return v_r_674_;
+uint8_t v_res_674_; lean_object* v_r_675_; 
+v_res_674_ = l_Lean_Cadical_Solver_setLongOption(v_s_671_, v_opt_672_);
+lean_dec_ref(v_opt_672_);
+lean_dec_ref(v_s_671_);
+v_r_675_ = lean_box(v_res_674_);
+return v_r_675_;
 }
 }
-LEAN_EXPORT uint8_t l_Lean_Cadical_Solver_isValidConfiguration(lean_object* v_opt_675_){
+LEAN_EXPORT uint8_t l_Lean_Cadical_Solver_isValidConfiguration(lean_object* v_opt_676_){
 _start:
 {
-uint8_t v___x_676_; 
-v___x_676_ = lean_cadical_solver_is_valid_configuration(v_opt_675_);
-return v___x_676_;
+uint8_t v___x_677_; 
+v___x_677_ = lean_cadical_solver_is_valid_configuration(v_opt_676_);
+return v___x_677_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Cadical_Solver_isValidConfiguration___boxed(lean_object* v_opt_677_){
+LEAN_EXPORT lean_object* l_Lean_Cadical_Solver_isValidConfiguration___boxed(lean_object* v_opt_678_){
 _start:
 {
-uint8_t v_res_678_; lean_object* v_r_679_; 
-v_res_678_ = l_Lean_Cadical_Solver_isValidConfiguration(v_opt_677_);
-lean_dec_ref(v_opt_677_);
-v_r_679_ = lean_box(v_res_678_);
-return v_r_679_;
+uint8_t v_res_679_; lean_object* v_r_680_; 
+v_res_679_ = l_Lean_Cadical_Solver_isValidConfiguration(v_opt_678_);
+lean_dec_ref(v_opt_678_);
+v_r_680_ = lean_box(v_res_679_);
+return v_r_680_;
 }
 }
 static lean_object* _init_l_Lean_Cadical_Solver_configure___closed__2(void){
 _start:
 {
-lean_object* v___x_682_; lean_object* v___x_683_; lean_object* v___x_684_; lean_object* v___x_685_; lean_object* v___x_686_; lean_object* v___x_687_; 
-v___x_682_ = ((lean_object*)(l_Lean_Cadical_Solver_configure___closed__1));
-v___x_683_ = lean_unsigned_to_nat(2u);
-v___x_684_ = lean_unsigned_to_nat(245u);
-v___x_685_ = ((lean_object*)(l_Lean_Cadical_Solver_configure___closed__0));
-v___x_686_ = ((lean_object*)(l_Lean_Cadical_Solver_clause___closed__0));
-v___x_687_ = l_mkPanicMessageWithDecl(v___x_686_, v___x_685_, v___x_684_, v___x_683_, v___x_682_);
-return v___x_687_;
+lean_object* v___x_683_; lean_object* v___x_684_; lean_object* v___x_685_; lean_object* v___x_686_; lean_object* v___x_687_; lean_object* v___x_688_; 
+v___x_683_ = ((lean_object*)(l_Lean_Cadical_Solver_configure___closed__1));
+v___x_684_ = lean_unsigned_to_nat(2u);
+v___x_685_ = lean_unsigned_to_nat(245u);
+v___x_686_ = ((lean_object*)(l_Lean_Cadical_Solver_configure___closed__0));
+v___x_687_ = ((lean_object*)(l_Lean_Cadical_Solver_clause___closed__0));
+v___x_688_ = l_mkPanicMessageWithDecl(v___x_687_, v___x_686_, v___x_685_, v___x_684_, v___x_683_);
+return v___x_688_;
 }
 }
-LEAN_EXPORT uint8_t l_Lean_Cadical_Solver_configure(lean_object* v_s_688_, lean_object* v_opt_689_){
+LEAN_EXPORT uint8_t l_Lean_Cadical_Solver_configure(lean_object* v_s_689_, lean_object* v_opt_690_){
 _start:
 {
-uint16_t v___x_691_; uint16_t v___x_692_; uint8_t v___x_693_; 
-v___x_691_ = l_Lean_Cadical_Solver_state(v_s_688_);
-v___x_692_ = 2;
-v___x_693_ = lean_uint16_dec_eq(v___x_691_, v___x_692_);
-if (v___x_693_ == 0)
+uint16_t v___x_692_; uint16_t v___x_693_; uint8_t v___x_694_; 
+v___x_692_ = l_Lean_Cadical_Solver_state(v_s_689_);
+v___x_693_ = 2;
+v___x_694_ = lean_uint16_dec_eq(v___x_692_, v___x_693_);
+if (v___x_694_ == 0)
 {
-lean_object* v___x_694_; uint8_t v___x_695_; 
-v___x_694_ = lean_obj_once(&l_Lean_Cadical_Solver_configure___closed__2, &l_Lean_Cadical_Solver_configure___closed__2_once, _init_l_Lean_Cadical_Solver_configure___closed__2);
-v___x_695_ = l_panic___at___00Lean_Cadical_Solver_setOption_spec__0(v___x_694_);
-return v___x_695_;
+lean_object* v___x_695_; uint8_t v___x_696_; 
+v___x_695_ = lean_obj_once(&l_Lean_Cadical_Solver_configure___closed__2, &l_Lean_Cadical_Solver_configure___closed__2_once, _init_l_Lean_Cadical_Solver_configure___closed__2);
+v___x_696_ = l_panic___at___00Lean_Cadical_Solver_setOption_spec__0(v___x_695_);
+return v___x_696_;
 }
 else
 {
-lean_object* v_solver_696_; uint8_t v___x_697_; 
-v_solver_696_ = lean_ctor_get(v_s_688_, 0);
-v___x_697_ = lean_cadical_solver_configure(v_solver_696_, v_opt_689_);
-return v___x_697_;
+lean_object* v_solver_697_; uint8_t v___x_698_; 
+v_solver_697_ = lean_ctor_get(v_s_689_, 0);
+v___x_698_ = lean_cadical_solver_configure(v_solver_697_, v_opt_690_);
+return v___x_698_;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Cadical_Solver_configure___boxed(lean_object* v_s_698_, lean_object* v_opt_699_, lean_object* v_a_700_){
+LEAN_EXPORT lean_object* l_Lean_Cadical_Solver_configure___boxed(lean_object* v_s_699_, lean_object* v_opt_700_, lean_object* v_a_701_){
 _start:
 {
-uint8_t v_res_701_; lean_object* v_r_702_; 
-v_res_701_ = l_Lean_Cadical_Solver_configure(v_s_698_, v_opt_699_);
-lean_dec_ref(v_opt_699_);
-lean_dec_ref(v_s_698_);
-v_r_702_ = lean_box(v_res_701_);
-return v_r_702_;
+uint8_t v_res_702_; lean_object* v_r_703_; 
+v_res_702_ = l_Lean_Cadical_Solver_configure(v_s_699_, v_opt_700_);
+lean_dec_ref(v_opt_700_);
+lean_dec_ref(v_s_699_);
+v_r_703_ = lean_box(v_res_702_);
+return v_r_703_;
 }
 }
 static lean_object* _init_l_panic___at___00Lean_Cadical_Solver_terminate_spec__0___closed__0(void){
 _start:
 {
-lean_object* v___x_703_; lean_object* v___x_704_; lean_object* v___x_705_; 
-v___x_703_ = lean_box(0);
-v___x_704_ = l_instMonadBaseIO;
-v___x_705_ = l_instInhabitedOfMonad___redArg(v___x_704_, v___x_703_);
-return v___x_705_;
+lean_object* v___x_704_; lean_object* v___x_705_; lean_object* v___x_706_; 
+v___x_704_ = lean_box(0);
+v___x_705_ = l_instMonadBaseIO;
+v___x_706_ = l_instInhabitedOfMonad___redArg(v___x_705_, v___x_704_);
+return v___x_706_;
 }
 }
-LEAN_EXPORT lean_object* l_panic___at___00Lean_Cadical_Solver_terminate_spec__0(lean_object* v_msg_706_){
+LEAN_EXPORT lean_object* l_panic___at___00Lean_Cadical_Solver_terminate_spec__0(lean_object* v_msg_707_){
 _start:
 {
-lean_object* v___x_708_; lean_object* v___x_246__overap_709_; lean_object* v___x_710_; 
-v___x_708_ = lean_obj_once(&l_panic___at___00Lean_Cadical_Solver_terminate_spec__0___closed__0, &l_panic___at___00Lean_Cadical_Solver_terminate_spec__0___closed__0_once, _init_l_panic___at___00Lean_Cadical_Solver_terminate_spec__0___closed__0);
-v___x_246__overap_709_ = lean_panic_fn_borrowed(v___x_708_, v_msg_706_);
-v___x_710_ = lean_apply_1(v___x_246__overap_709_, lean_box(0));
-return v___x_710_;
+lean_object* v___x_709_; lean_object* v___x_246__overap_710_; lean_object* v___x_711_; 
+v___x_709_ = lean_obj_once(&l_panic___at___00Lean_Cadical_Solver_terminate_spec__0___closed__0, &l_panic___at___00Lean_Cadical_Solver_terminate_spec__0___closed__0_once, _init_l_panic___at___00Lean_Cadical_Solver_terminate_spec__0___closed__0);
+v___x_246__overap_710_ = lean_panic_fn_borrowed(v___x_709_, v_msg_707_);
+v___x_711_ = lean_apply_1(v___x_246__overap_710_, lean_box(0));
+return v___x_711_;
 }
 }
-LEAN_EXPORT lean_object* l_panic___at___00Lean_Cadical_Solver_terminate_spec__0___boxed(lean_object* v_msg_711_, lean_object* v___y_712_){
+LEAN_EXPORT lean_object* l_panic___at___00Lean_Cadical_Solver_terminate_spec__0___boxed(lean_object* v_msg_712_, lean_object* v___y_713_){
 _start:
 {
-lean_object* v_res_713_; 
-v_res_713_ = l_panic___at___00Lean_Cadical_Solver_terminate_spec__0(v_msg_711_);
-return v_res_713_;
+lean_object* v_res_714_; 
+v_res_714_ = l_panic___at___00Lean_Cadical_Solver_terminate_spec__0(v_msg_712_);
+return v_res_714_;
 }
 }
 static lean_object* _init_l_Lean_Cadical_Solver_terminate___closed__2(void){
 _start:
 {
-lean_object* v___x_716_; lean_object* v___x_717_; lean_object* v___x_718_; lean_object* v___x_719_; lean_object* v___x_720_; lean_object* v___x_721_; 
-v___x_716_ = ((lean_object*)(l_Lean_Cadical_Solver_terminate___closed__1));
-v___x_717_ = lean_unsigned_to_nat(2u);
-v___x_718_ = lean_unsigned_to_nat(250u);
-v___x_719_ = ((lean_object*)(l_Lean_Cadical_Solver_terminate___closed__0));
-v___x_720_ = ((lean_object*)(l_Lean_Cadical_Solver_clause___closed__0));
-v___x_721_ = l_mkPanicMessageWithDecl(v___x_720_, v___x_719_, v___x_718_, v___x_717_, v___x_716_);
-return v___x_721_;
+lean_object* v___x_717_; lean_object* v___x_718_; lean_object* v___x_719_; lean_object* v___x_720_; lean_object* v___x_721_; lean_object* v___x_722_; 
+v___x_717_ = ((lean_object*)(l_Lean_Cadical_Solver_terminate___closed__1));
+v___x_718_ = lean_unsigned_to_nat(2u);
+v___x_719_ = lean_unsigned_to_nat(250u);
+v___x_720_ = ((lean_object*)(l_Lean_Cadical_Solver_terminate___closed__0));
+v___x_721_ = ((lean_object*)(l_Lean_Cadical_Solver_clause___closed__0));
+v___x_722_ = l_mkPanicMessageWithDecl(v___x_721_, v___x_720_, v___x_719_, v___x_718_, v___x_717_);
+return v___x_722_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Cadical_Solver_terminate(lean_object* v_s_722_){
+LEAN_EXPORT lean_object* l_Lean_Cadical_Solver_terminate(lean_object* v_s_723_){
 _start:
 {
-uint16_t v___x_724_; uint16_t v___x_728_; uint8_t v___x_729_; 
-v___x_724_ = l_Lean_Cadical_Solver_state(v_s_722_);
-v___x_728_ = 16;
-v___x_729_ = lean_uint16_dec_eq(v___x_724_, v___x_728_);
-if (v___x_729_ == 0)
+uint16_t v___x_725_; uint16_t v___x_729_; uint8_t v___x_730_; 
+v___x_725_ = l_Lean_Cadical_Solver_state(v_s_723_);
+v___x_729_ = 16;
+v___x_730_ = lean_uint16_dec_eq(v___x_725_, v___x_729_);
+if (v___x_730_ == 0)
 {
-uint16_t v___x_730_; uint16_t v___x_731_; uint16_t v___x_732_; uint8_t v___x_733_; 
-v___x_730_ = 358;
-v___x_731_ = lean_uint16_land(v___x_724_, v___x_730_);
-v___x_732_ = lean_uint16_once(&l_Lean_Cadical_State_isReady___closed__1, &l_Lean_Cadical_State_isReady___closed__1_once, _init_l_Lean_Cadical_State_isReady___closed__1);
-v___x_733_ = lean_uint16_dec_eq(v___x_731_, v___x_732_);
-if (v___x_733_ == 0)
+uint16_t v___x_731_; uint16_t v___x_732_; uint16_t v___x_733_; uint8_t v___x_734_; 
+v___x_731_ = 358;
+v___x_732_ = lean_uint16_land(v___x_725_, v___x_731_);
+v___x_733_ = lean_uint16_once(&l_Lean_Cadical_State_isReady___closed__1, &l_Lean_Cadical_State_isReady___closed__1_once, _init_l_Lean_Cadical_State_isReady___closed__1);
+v___x_734_ = lean_uint16_dec_eq(v___x_732_, v___x_733_);
+if (v___x_734_ == 0)
 {
-goto v___jp_725_;
+goto v___jp_726_;
 }
 else
 {
-lean_object* v___x_734_; lean_object* v___x_735_; 
-v___x_734_ = lean_obj_once(&l_Lean_Cadical_Solver_terminate___closed__2, &l_Lean_Cadical_Solver_terminate___closed__2_once, _init_l_Lean_Cadical_Solver_terminate___closed__2);
-v___x_735_ = l_panic___at___00Lean_Cadical_Solver_terminate_spec__0(v___x_734_);
-return v___x_735_;
+lean_object* v___x_735_; lean_object* v___x_736_; 
+v___x_735_ = lean_obj_once(&l_Lean_Cadical_Solver_terminate___closed__2, &l_Lean_Cadical_Solver_terminate___closed__2_once, _init_l_Lean_Cadical_Solver_terminate___closed__2);
+v___x_736_ = l_panic___at___00Lean_Cadical_Solver_terminate_spec__0(v___x_735_);
+return v___x_736_;
 }
 }
 else
 {
-goto v___jp_725_;
+goto v___jp_726_;
 }
-v___jp_725_:
+v___jp_726_:
 {
-lean_object* v_solver_726_; lean_object* v___x_727_; 
-v_solver_726_ = lean_ctor_get(v_s_722_, 0);
-v___x_727_ = lean_cadical_solver_terminate(v_solver_726_);
-return v___x_727_;
+lean_object* v_solver_727_; lean_object* v___x_728_; 
+v_solver_727_ = lean_ctor_get(v_s_723_, 0);
+v___x_728_ = lean_cadical_solver_terminate(v_solver_727_);
+return v___x_728_;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Cadical_Solver_terminate___boxed(lean_object* v_s_736_, lean_object* v_a_737_){
+LEAN_EXPORT lean_object* l_Lean_Cadical_Solver_terminate___boxed(lean_object* v_s_737_, lean_object* v_a_738_){
 _start:
 {
-lean_object* v_res_738_; 
-v_res_738_ = l_Lean_Cadical_Solver_terminate(v_s_736_);
-lean_dec_ref(v_s_736_);
-return v_res_738_;
+lean_object* v_res_739_; 
+v_res_739_ = l_Lean_Cadical_Solver_terminate(v_s_737_);
+lean_dec_ref(v_s_737_);
+return v_res_739_;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Cadical_Solver_printConfigurations(){
 _start:
 {
-lean_object* v___x_740_; 
-v___x_740_ = lean_cadical_solver_configurations();
-return v___x_740_;
+lean_object* v___x_741_; 
+v___x_741_ = lean_cadical_solver_configurations();
+return v___x_741_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Cadical_Solver_printConfigurations___boxed(lean_object* v_a_741_){
+LEAN_EXPORT lean_object* l_Lean_Cadical_Solver_printConfigurations___boxed(lean_object* v_a_742_){
 _start:
 {
-lean_object* v_res_742_; 
-v_res_742_ = l_Lean_Cadical_Solver_printConfigurations();
-return v_res_742_;
+lean_object* v_res_743_; 
+v_res_743_ = l_Lean_Cadical_Solver_printConfigurations();
+return v_res_743_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Cadical_Solver_printStatistics(lean_object* v_s_743_){
+LEAN_EXPORT lean_object* l_Lean_Cadical_Solver_printStatistics(lean_object* v_s_744_){
 _start:
 {
-lean_object* v_solver_745_; lean_object* v___x_746_; 
-v_solver_745_ = lean_ctor_get(v_s_743_, 0);
-v___x_746_ = lean_cadical_solver_statistics(v_solver_745_);
-return v___x_746_;
+lean_object* v_solver_746_; lean_object* v___x_747_; 
+v_solver_746_ = lean_ctor_get(v_s_744_, 0);
+v___x_747_ = lean_cadical_solver_statistics(v_solver_746_);
+return v___x_747_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Cadical_Solver_printStatistics___boxed(lean_object* v_s_747_, lean_object* v_a_748_){
+LEAN_EXPORT lean_object* l_Lean_Cadical_Solver_printStatistics___boxed(lean_object* v_s_748_, lean_object* v_a_749_){
 _start:
 {
-lean_object* v_res_749_; 
-v_res_749_ = l_Lean_Cadical_Solver_printStatistics(v_s_747_);
-lean_dec_ref(v_s_747_);
-return v_res_749_;
+lean_object* v_res_750_; 
+v_res_750_ = l_Lean_Cadical_Solver_printStatistics(v_s_748_);
+lean_dec_ref(v_s_748_);
+return v_res_750_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Cadical_Solver_printResources(lean_object* v_s_750_){
+LEAN_EXPORT lean_object* l_Lean_Cadical_Solver_printResources(lean_object* v_s_751_){
 _start:
 {
-lean_object* v_solver_752_; lean_object* v___x_753_; 
-v_solver_752_ = lean_ctor_get(v_s_750_, 0);
-v___x_753_ = lean_cadical_solver_resources(v_solver_752_);
-return v___x_753_;
+lean_object* v_solver_753_; lean_object* v___x_754_; 
+v_solver_753_ = lean_ctor_get(v_s_751_, 0);
+v___x_754_ = lean_cadical_solver_resources(v_solver_753_);
+return v___x_754_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Cadical_Solver_printResources___boxed(lean_object* v_s_754_, lean_object* v_a_755_){
+LEAN_EXPORT lean_object* l_Lean_Cadical_Solver_printResources___boxed(lean_object* v_s_755_, lean_object* v_a_756_){
 _start:
 {
-lean_object* v_res_756_; 
-v_res_756_ = l_Lean_Cadical_Solver_printResources(v_s_754_);
-lean_dec_ref(v_s_754_);
-return v_res_756_;
+lean_object* v_res_757_; 
+v_res_757_ = l_Lean_Cadical_Solver_printResources(v_s_755_);
+lean_dec_ref(v_s_755_);
+return v_res_757_;
 }
 }
 lean_object* runtime_initialize_Lean_Cadical_Internal(uint8_t builtin);

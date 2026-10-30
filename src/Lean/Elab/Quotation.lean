@@ -61,19 +61,6 @@ partial def mkTuple : Array Syntax → TermElabM Syntax
     let stx ← mkTuple (es.eraseIdxIfInBounds 0)
     `(Prod.mk $(es[0]!) $stx)
 
-def resolveSectionVariable (sectionVars : NameMap Name) (id : Name) : List (Name × List String) :=
-  -- decode macro scopes from name before recursion
-  let extractionResult := extractMacroScopes id
-  let rec loop : Name → List String → List (Name × List String)
-    | id@(.str p s), projs =>
-      -- NOTE: we assume that macro scopes always belong to the projected constant, not the projections
-      let id := { extractionResult with name := id }.review
-      match sectionVars.find? id with
-      | some newId => [(newId, projs)]
-      | none       => loop p (s::projs)
-    | _, _ => []
-  loop extractionResult.name []
-
 /-- Transform sequence of pushes and appends into acceptable code -/
 @[expose] def ArrayStxBuilder := Sum (Array Term) Term
 

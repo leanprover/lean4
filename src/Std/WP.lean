@@ -6,6 +6,7 @@ Authors: Vladimir Gladshtein, Sebastian Graf
 module
 
 prelude
+public import Std.WP.Automation
 public import Std.WP.Basic
 public import Std.WP.Conjunctive
 public import Std.WP.Frame
@@ -14,4 +15,5 @@ public import Std.WP.Monad
 public import Std.WP.Triple
 public import Std.WP.Gadget.Assert
 public import Std.WP.Gadget.ForIn
+public import Std.WP.SimpSet
 public import Std.WP.Tactic

@@ -7,7 +7,7 @@ module
 
 prelude
 public import Init.Data.String.Search
-import all Init.Data.String.Slice
+import all Init.Data.String.Slice.Pattern
 import all Init.Data.String.Pattern.String
 import Init.ByCases
 import Init.Data.String.Lemmas.Pattern.Find.Basic

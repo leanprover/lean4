@@ -162,7 +162,7 @@ def mkMutualBlock (ctx : Context) : TermElabM Syntax := do
      $auxDefs:command*
     end)
 
-private def mkOrdInstanceCmds (declName : Name) : TermElabM (Array Syntax) := do
+def mkOrdInstanceCmds (declName : Name) : TermElabM (Array Syntax) := do
   let ctx ← mkContext ``Ord "ord" declName (supportsRec := false)
   let mut cmds := #[← mkMutualBlock ctx] ++ (← mkInstanceCmds ctx `Ord #[declName])
   unless ctx.usePartial do
@@ -170,11 +170,11 @@ private def mkOrdInstanceCmds (declName : Name) : TermElabM (Array Syntax) := do
   trace[Elab.Deriving.ord] "\n{cmds}"
   return cmds
 
-private def mkOrdEnumFun (ctx : Context) (name : Name) : TermElabM Syntax := do
+def mkOrdEnumFun (ctx : Context) (name : Name) : TermElabM Syntax := do
   let auxFunName := ctx.auxFunNames[0]!
   `(def $(mkIdent auxFunName):ident (x y : $(mkCIdent name)) : Ordering := compare x.ctorIdx y.ctorIdx)
 
-private def mkOrdEnumCmd (name : Name): TermElabM (Array Syntax) := do
+def mkOrdEnumCmd (name : Name): TermElabM (Array Syntax) := do
   let ctx ← mkContext ``Ord "ord" name
   let cmds := #[← mkOrdEnumFun ctx name] ++ (← mkInstanceCmds ctx `Ord #[name])
   trace[Elab.Deriving.ord] "\n{cmds}"

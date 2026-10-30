@@ -68,9 +68,10 @@ private def tryCommRingQ? (type base semiringInst commSemiringInst : Expr) : Sym
   let addRightCancelInst? ← do
     let some addInst ← synthInstance? (mkApp (mkConst ``Add [u]) base) | pure none
     synthInstance? (mkApp2 (mkConst ``Grind.AddRightCancel [u]) base addInst)
+  let charInfo ← getCharInfo u base semiringInst
   let charInst? ← do
     let some addRightCancelInst := addRightCancelInst? | pure none
-    let some (baseCharInst, n) ← getIsCharInst? u base semiringInst | pure none
+    let some (baseCharInst, n) := charInfo.inst? | pure none
     let inst := mkApp5 (mkConst ``Grind.Ring.OfSemiring.instIsCharPQOfAddRightCancel [u])
       base (mkRawNatLit n) semiringInst addRightCancelInst baseCharInst
     pure (some (inst, n))
@@ -88,20 +89,21 @@ private def tryCommRingQ? (type base semiringInst commSemiringInst : Expr) : Sym
   let ring : CommRing := {
     id, semiringId? := none, type, u, semiringInst := semiringInstQ, ringInst,
     commSemiringInst := commSemiringInstQ,
-    commRingInst, charInst?, noZeroDivInst?, fieldInst? := none, powIdentityInst? := none,
+    commRingInst, charInst?, symbolicChar := charInfo.symbolic, noZeroDivInst?, fieldInst? := none,
+    powIdentityInst? := none,
   }
   modifyArithState fun s => { s with rings := s.rings.push ring }
   return some id
 
 private def tryCommRingCore? (type : Expr) : SymM (Option Nat) := do
-  let u ← getDecLevel type
+  let some u ← getDecLevel? type | return none
   let commRing := mkApp (mkConst ``Grind.CommRing [u]) type
   let some commRingInst ← Sym.synthInstance? commRing | return none
   let ringInst := mkApp2 (mkConst ``Grind.CommRing.toRing [u]) type commRingInst
   let semiringInst := mkApp2 (mkConst ``Grind.Ring.toSemiring [u]) type ringInst
   let commSemiringInst := mkApp2 (mkConst ``Grind.CommRing.toCommSemiring [u]) type semiringInst
   trace[grind.ring] "new ring: {type}"
-  let charInst? ← getIsCharInst? u type semiringInst
+  let charInfo ← getCharInfo u type semiringInst
   let noZeroDivInst? ← getNoZeroDivInst? u type
   trace[grind.ring] "NoNatZeroDivisors available: {noZeroDivInst?.isSome}"
   let fieldInst? ← Sym.synthInstance? <| mkApp (mkConst ``Grind.Field [u]) type
@@ -111,7 +113,8 @@ private def tryCommRingCore? (type : Expr) : SymM (Option Nat) := do
   let id := (← getArithState).rings.size
   let ring : CommRing := {
     id, semiringId?, type, u, semiringInst, ringInst, commSemiringInst,
-    commRingInst, charInst?, noZeroDivInst?, fieldInst?, powIdentityInst?,
+    commRingInst, charInst? := charInfo.inst?, symbolicChar := charInfo.symbolic,
+    noZeroDivInst?, fieldInst?, powIdentityInst?,
   }
   modifyArithState fun s => { s with rings := s.rings.push ring }
   return some id
@@ -126,15 +129,15 @@ private def tryCommRing? (type : Expr) : SymM (Option Nat) := do
 
 /-- Try to classify `type` as a non-commutative `Ring`. -/
 private def tryNonCommRing? (type : Expr) : SymM (Option Nat) := do
-  let u ← getDecLevel type
+  let some u ← getDecLevel? type | return none
   let ring := mkApp (mkConst ``Grind.Ring [u]) type
   let some ringInst ← Sym.synthInstance? ring | return none
   let semiringInst := mkApp2 (mkConst ``Grind.Ring.toSemiring [u]) type ringInst
   trace[grind.ring] "new ring: {type}"
-  let charInst? ← getIsCharInst? u type semiringInst
+  let charInfo ← getCharInfo u type semiringInst
   let id := (← getArithState).ncRings.size
   let ring : Ring := {
-    id, type, u, semiringInst, ringInst, charInst?
+    id, type, u, semiringInst, ringInst, charInst? := charInfo.inst?, symbolicChar := charInfo.symbolic
   }
   modifyArithState fun s => { s with ncRings := s.ncRings.push ring }
   return some id
@@ -153,7 +156,7 @@ private def tryCacheAndCommRing? (type : Expr) : SymM (Option Nat) := do
 
 /-- Try to classify `type` as a `CommSemiring`. Creates the `OfSemiring.Q` envelope ring. -/
 private def tryCommSemiring? (type : Expr) : SymM (Option Nat) := do
-  let u ← getDecLevel type
+  let some u ← getDecLevel? type | return none
   let commSemiring := mkApp (mkConst ``Grind.CommSemiring [u]) type
   let some commSemiringInst ← Sym.synthInstance? commSemiring | return none
   let semiringInst := mkApp2 (mkConst ``Grind.CommSemiring.toSemiring [u]) type commSemiringInst
@@ -174,13 +177,23 @@ private def tryCommSemiring? (type : Expr) : SymM (Option Nat) := do
 
 /-- Try to classify `type` as a non-commutative `Semiring`. -/
 private def tryNonCommSemiring? (type : Expr) : SymM (Option Nat) := do
-  let u ← getDecLevel type
+  let some u ← getDecLevel? type | return none
   let semiring := mkApp (mkConst ``Grind.Semiring [u]) type
   let some semiringInst ← Sym.synthInstance? semiring | return none
+  let charInfo ← getCharInfo u type semiringInst
   let id := (← getArithState).ncSemirings.size
-  let semiring : Semiring := { id, type, u, semiringInst }
+  let semiring : Semiring := { id, type, u, semiringInst, charInst? := charInfo.inst?, symbolicChar := charInfo.symbolic }
   modifyArithState fun s => { s with ncSemirings := s.ncSemirings.push semiring }
   return some id
+
+/--
+Returns `some α` if the operand types `α`, `β` and the result type `γ` of a binary operator
+are the same type. Heterogeneous applications, such as `c * xs` with `c : Nat` and
+`xs : Vector Nat n`, are not terms of `α`, and arithmetic modules must treat them as atoms.
+The types are compared with `isSameExpr`, which relies on the terms being maximally shared.
+-/
+def homoType? (α β γ : Expr) : Option Expr :=
+  if isSameExpr α β && isSameExpr α γ then some α else none
 
 /--
 Classify the algebraic structure of `type`, trying the strongest first:

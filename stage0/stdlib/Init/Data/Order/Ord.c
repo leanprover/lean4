@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Order.Ord
-// Imports: import Init.Data.List.Lemmas import Init.Data.Array.DecidableEq public import Init.Data.Ord.Array public import Init.Data.BEq public import Init.Data.Array.Basic import Init.ByCases import Init.Data.Bool import Init.Data.Int.Order import Init.Data.List.Nat.BEq import Init.Data.Option.Lemmas
+// Imports: import Init.Data.List.Lemmas import Init.Data.Array.Bootstrap import Init.Data.Array.DecidableEq import Init.Data.Array.Lemmas import Init.Data.List.Sublist public import Init.Data.Ord.Array public import Init.Data.BEq public import Init.Data.Array.Basic import Init.ByCases import Init.Data.Bool import Init.Data.Int.Order import Init.Data.List.Nat.BEq import Init.Data.Option.Lemmas
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -14,7 +14,10 @@
 extern "C" {
 #endif
 lean_object* runtime_initialize_Init_Data_List_Lemmas(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Array_Bootstrap(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Array_DecidableEq(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Array_Lemmas(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_List_Sublist(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Ord_Array(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_BEq(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Array_Basic(uint8_t builtin);
@@ -33,7 +36,16 @@ lean_initialize_runtime_module();
 res = runtime_initialize_Init_Data_List_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+res = runtime_initialize_Init_Data_Array_Bootstrap(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 res = runtime_initialize_Init_Data_Array_DecidableEq(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_Array_Lemmas(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_List_Sublist(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Init_Data_Ord_Array(builtin);
@@ -70,7 +82,10 @@ _G_meta_initialized = true;
 return lean_io_result_mk_ok(lean_box(0));
 }
 lean_object* initialize_Init_Data_List_Lemmas(uint8_t builtin);
+lean_object* initialize_Init_Data_Array_Bootstrap(uint8_t builtin);
 lean_object* initialize_Init_Data_Array_DecidableEq(uint8_t builtin);
+lean_object* initialize_Init_Data_Array_Lemmas(uint8_t builtin);
+lean_object* initialize_Init_Data_List_Sublist(uint8_t builtin);
 lean_object* initialize_Init_Data_Ord_Array(uint8_t builtin);
 lean_object* initialize_Init_Data_BEq(uint8_t builtin);
 lean_object* initialize_Init_Data_Array_Basic(uint8_t builtin);
@@ -87,7 +102,16 @@ _G_initialized = true;
 res = initialize_Init_Data_List_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+res = initialize_Init_Data_Array_Bootstrap(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 res = initialize_Init_Data_Array_DecidableEq(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Array_Lemmas(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_List_Sublist(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Ord_Array(builtin);

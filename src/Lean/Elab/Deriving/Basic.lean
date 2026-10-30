@@ -215,11 +215,7 @@ def processDefDeriving (view : DerivingClassView) (decl : Expr) (isNoncomputable
             -- since `wrapInstance` may inline noncomputable constants.
             let preNormClosure ← Closure.mkValueTypeClosure result.instType result.instVal (zetaDelta := true)
             -- Compute instance name early so `wrapInstance` can use it for aux def naming.
-            let env ← getEnv
-            let mut instName := (← getCurrNamespace) ++ (← NameGen.mkBaseNameWithSuffix "inst" preNormClosure.type)
-            instName ← liftMacroM <| mkUnusedBaseName instName
-            if isPrivateName declName then
-              instName := mkPrivateName env instName
+            let mut instName ← mkInstanceNameOfType preNormClosure.type
             let isMeta := (← read).isMetaSection || isMarkedMeta (← getEnv) declName
             let inst ← if backward.inferInstanceAs.wrap.get (← getOptions) then
               withDeclNameForAuxNaming instName <| withNewMCtxDepth <|

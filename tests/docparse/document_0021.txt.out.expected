@@ -1,0 +1,61 @@
+Input: "{b\n\n{c\n\n{d\n\nhello\n\nAfter\n"
+3 failures:
+Failure: unexpected newline; expected positional argument, named argument, flag, or '}' (use '\{' for a literal '{')
+ --> 1:2
+  |
+1 | {b
+  |   ^
+  = consumed input prefix: 2 bytes
+
+Failure: unexpected newline; expected positional argument, named argument, flag, or '}' (use '\{' for a literal '{')
+ --> 3:2
+  |
+3 | {c
+  |   ^
+  = consumed input prefix: 6 bytes
+
+Failure: unexpected newline; expected positional argument, named argument, flag, or '}' (use '\{' for a literal '{')
+ --> 5:2
+  |
+5 | {d
+  |   ^
+  = consumed input prefix: 10 bytes
+
+Final stack:
+  (Lean.Doc.Parser.document
+   [(Lean.Doc.Parser.Block.para
+     [(Lean.Doc.Parser.Inline.role
+       "{"
+       `b
+       []
+       <missing>
+       []
+       []
+       [])])
+    (Lean.Doc.Parser.Block.para
+     [(Lean.Doc.Parser.Inline.role
+       "{"
+       `c
+       []
+       <missing>
+       []
+       []
+       [])])
+    (Lean.Doc.Parser.Block.para
+     [(Lean.Doc.Parser.Inline.role
+       "{"
+       `d
+       []
+       <missing>
+       []
+       []
+       [])])
+    (Lean.Doc.Parser.Block.para
+     [(Lean.Doc.Parser.Inline.text
+       (Lean.Doc.Parser.versoText "hello"))])
+    (Lean.Doc.Parser.Block.para
+     [(Lean.Doc.Parser.Inline.text
+       (Lean.Doc.Parser.versoText "After"))
+      (Lean.Doc.Parser.Inline.linebreak "\n")])])
+All input consumed.
+Round-trip not reproduced, as the parse reported errors: leaf without original source info: <missing>

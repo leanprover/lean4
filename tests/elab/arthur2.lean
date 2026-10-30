@@ -85,7 +85,7 @@ def removeRightmostZeros (s : String) : String :=
       if a != '0'
         then aux [] (a :: (buff ++ res)) as
         else aux (a :: buff) res as
-  (aux [] [] s.data).asString
+  (aux [] [] s.toList).asString
 
 protected def Literal.toString : Literal → String
   | bool  b => toString b

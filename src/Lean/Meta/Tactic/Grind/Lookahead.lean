@@ -40,7 +40,7 @@ private def tryLookahead (e : Expr) : GoalM Bool :=
     let tag ← goal.mvarId.getTag
     let target ← mkArrow (mkNot e) (← getFalseExpr)
     let mvar ← mkFreshExprSyntheticOpaqueMVar target tag
-    let goalAux := { goal with mvarId := mvar.mvarId!, newFacts := {} }
+    let goalAux := { goal with mvarId := mvar.mvarId!, toProcess := {} }
     let gen ← getGeneration e
     if (← solve goalAux gen).isNone then
       return some (← instantiateMVars mvar)
@@ -49,7 +49,7 @@ private def tryLookahead (e : Expr) : GoalM Bool :=
   if let some proof := proof? then
     trace[grind.lookahead.assert] "{e}"
     pushEqTrue e <| mkApp2 (mkConst ``Grind.of_lookahead) e proof
-    processNewFacts
+    processToDo
     return true
   else
     return false

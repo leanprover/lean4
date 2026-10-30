@@ -1,9 +1,10 @@
 import Lean
 
 /-!
-Changes to the instances and unification hints in effect invalidate the type class resolution cache
-entries that depended on them. Note that `Meta.modifyEnv` always clears the cache, whereas
-operations at `CoreM` level and commands run through `liftCommandElabM` (tested here) do not.
+Changes to the instances, unification hints and reducibility statuses in effect invalidate the type
+class resolution cache entries that depended on them. Note that `Meta.modifyEnv` always clears the
+cache, whereas operations at `CoreM` level and commands run through `liftCommandElabM` (tested here)
+do not.
 -/
 
 open Lean Meta Elab Command
@@ -67,3 +68,28 @@ run_meta do
   liftCommandElabM <| elabCommand (← `(instance : K3 Nat := ⟨⟩))
   let after := (← synthInstance? q).isSome
   logInfo m!"{before} {after}"
+
+class KR (α : Type) where
+
+instance : KR Nat := ⟨⟩
+
+def T := Nat
+
+namespace Bar
+set_option allowUnsafeReducibility true in
+attribute [scoped reducible] T
+end Bar
+
+/-- Resolves `KR T` only while `T` is reducible. -/
+def reducibilityQuery : Expr := mkApp (mkConst ``KR) (mkConst ``T)
+
+/-- info: false true false -/
+#guard_msgs in
+run_meta do
+  let before := (← synthInstance? reducibilityQuery).isSome
+  (pushScope : CoreM Unit)
+  (activateScoped `Bar : CoreM Unit)
+  let active := (← synthInstance? reducibilityQuery).isSome
+  (popScope : CoreM Unit)
+  let after := (← synthInstance? reducibilityQuery).isSome
+  logInfo m!"{before} {active} {after}"

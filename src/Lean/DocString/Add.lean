@@ -131,7 +131,7 @@ open Lean.Parser Command in
 The source positions a docstring is read from: its opening delimiter, the start of its content, and
 its closing delimiter.
 -/
-private def docStringRange (docComment : TSyntax [``docComment, ``moduleDoc]) :
+def docStringRange (docComment : TSyntax [``docComment, ``moduleDoc]) :
     Except MessageData (String.Pos.Raw × String.Pos.Raw × String.Pos.Raw) := do
   let ⟨.node _ _ #[opener, .node _ _ #[content, closer]]⟩ := docComment
     | throw m!"This documentation comment has an unexpected structure, so it cannot be parsed."
@@ -215,7 +215,7 @@ open Lean.Doc in
 The result of elaborating a Verso docstring, which consists of the docstring contents paired with a
 set of deferred checks.
 -/
-public structure VersoDocResult extends VersoDocString where
+structure VersoDocResult extends VersoDocString where
   /--
   Checks that cannot be carried out during elaboration, typically because they require information
   that is not yet available.
@@ -359,7 +359,9 @@ def addMarkdownDocString
     throwError m!"invalid doc string, declaration `{.ofConstName declName}` is in an imported module"
   validateDocComment docComment
   let docString : String ← getDocStringText docComment
-  modifyEnv fun env => docStringExt.insert env declName docString.removeLeadingSpaces
+  -- replacing, as attributes applied before elaboration may already have written one
+  modifyEnv fun env =>
+    docStringExt.insert env declName docString.removeLeadingSpaces (allowOverwrite := true)
 
 /--
 Adds an elaborated Verso docstring to the environment, recording its `deferred` checks under this
@@ -374,7 +376,8 @@ def addVersoDocStringCore [Monad m] [MonadEnv m] [MonadLiftT BaseIO m] [MonadErr
   unless (← getEnv).getModuleIdxFor? declName |>.isNone do
     throwError s!"invalid doc string, declaration '{declName}' is in an imported module"
   modifyEnv fun env =>
-    let env := versoDocStringExt.insert env declName docs
+    -- replacing, as for `addMarkdownDocString`
+    let env := versoDocStringExt.insert env declName docs (allowOverwrite := true)
     deferred.foldl (init := env) fun env c =>
       Doc.deferredCheckExt.addEntry env { c with site := .decl declName }
 

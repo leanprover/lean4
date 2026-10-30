@@ -638,6 +638,10 @@ existing code. It may be removed in a future version of the library.
 * `@[deprecated myBetterDef +typeChanged]` indicates that the replacement intentionally has a
   different type. `(typeChanged := true)` is an equivalent syntax.
 * `@[deprecated (since := "2024-04-21")]` records when the deprecation was first applied.
+
+On a command that declares syntax, such as `syntax`, `macro`, `elab` or `notation`, the attribute
+deprecates the syntax, like `deprecated_syntax`. It cannot name a replacement declaration there;
+use `deprecated_syntax` to provide a replacement syntax.
 -/
 syntax (name := deprecated) "deprecated" (ppSpace ident)? (ppSpace str)?
     (deprecatedTypeChanged)? (" (" &"since" " := " str ")")? : attr

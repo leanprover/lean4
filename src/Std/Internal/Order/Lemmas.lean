@@ -7,7 +7,6 @@ module
 
 prelude
 public import Std.Internal.Order.Basic
-public import Std.Internal.Order.PropLattice
 public import Init.ByCases
 import Init.Classical
 import Init.TacticsExtra
@@ -17,8 +16,8 @@ import Init.TacticsExtra
 /-!
 # Complete lattice algebra
 
-The laws of `⊤`, `⊥`, `⊓`, `⊔`, `⨅` and `⨆`, their pointwise characterizations on function
-lattices, and the laws of the `Prop` lattice.
+The laws of `⊤`, `⊥`, `⊓`, `⊔`, `⨅` and `⨆` at an abstract carrier: the order laws, the units, the
+monoid laws of `⊓` and `⊔`, monotonicity, and the characterizations of `⊑` against the connectives.
 -/
 
 namespace Lean.Order
@@ -67,227 +66,27 @@ theorem join_le (x y z : α) : x ⊑ z → y ⊑ z → x ⊔ y ⊑ z := by
   | inl h => rw [h]; exact hxz
   | inr h => rw [h]; exact hyz
 
-theorem iInf_le {ι : Type vₗ} (f : ι → α) (i : ι) : iInf f ⊑ f i := by
+theorem iInf_le {ι : Sort vₗ} (f : ι → α) (i : ι) : iInf f ⊑ f i := by
   apply inf_le
   exact ⟨i, rfl⟩
 
-theorem le_iInf {ι : Type vₗ} (f : ι → α) (x : α) : (∀ i, x ⊑ f i) → x ⊑ iInf f := by
+theorem le_iInf {ι : Sort vₗ} (f : ι → α) (x : α) : (∀ i, x ⊑ f i) → x ⊑ iInf f := by
   intro h
   apply le_inf
   intro y ⟨i, hi⟩
   rw [← hi]
   exact h i
 
-/-- Pointwise characterization of indexed infimum on function lattices. -/
-theorem iInf_apply
-    {ι : Type vₗ} {σ : Type wₗ} {β : Type uₗ} [CompleteLattice β]
-    (f : ι → σ → β) (s : σ) :
-    (iInf f) s = iInf (fun i => f i s) := by
-  apply PartialOrder.rel_antisymm
-  ·
-    apply le_iInf
-    intro i
-    exact (iInf_le f i) s
-  ·
-    let g : σ → β := fun t => iInf (fun i => f i t)
-    have hg : g ⊑ iInf f := by
-      apply le_iInf
-      intro i t
-      exact iInf_le (fun j => f j t) i
-    simpa [g] using hg s
-
-theorem le_iSup {ι : Type vₗ} (f : ι → α) (i : ι) : f i ⊑ iSup f := by
+theorem le_iSup {ι : Sort vₗ} (f : ι → α) (i : ι) : f i ⊑ iSup f := by
   apply le_sup
   exact ⟨i, rfl⟩
 
-theorem iSup_le {ι : Type vₗ} (f : ι → α) (x : α) : (∀ i, f i ⊑ x) → iSup f ⊑ x := by
+theorem iSup_le {ι : Sort vₗ} (f : ι → α) (x : α) : (∀ i, f i ⊑ x) → iSup f ⊑ x := by
   intro h
   apply sup_le
   intro y ⟨i, hi⟩
   rw [← hi]
   exact h i
-
-/-- Pointwise characterization of indexed supremum on function lattices. -/
-theorem iSup_apply
-    {ι : Type vₗ} {σ : Type wₗ} {β : Type uₗ} [CompleteLattice β]
-    (f : ι → σ → β) (s : σ) :
-    (iSup f) s = iSup (fun i => f i s) := by
-  apply PartialOrder.rel_antisymm
-  · let g : σ → β := fun t => iSup (fun i => f i t)
-    have hg : iSup f ⊑ g := by
-      apply iSup_le
-      intro i t
-      exact le_iSup (fun j => f j t) i
-    exact hg s
-  · apply iSup_le
-    intro i
-    exact (le_iSup f i) s
-
-/-- Pointwise characterization of `CompleteLattice.sup` on function lattices:
-`(sup c) s = sup (fun y => ∃ f, c f ∧ f s = y)`. -/
-theorem sup_apply
-    {σ : Type vₗ} {β : σ → Type wₗ} [∀ s, CompleteLattice (β s)]
-    (c : (∀ s, β s) → Prop) (s : σ) :
-    CompleteLattice.sup c s = CompleteLattice.sup (fun y => ∃ f, c f ∧ f s = y) := by
-  apply PartialOrder.rel_antisymm
-  · -- sup c s ⊑ sup {y | ∃ f ∈ c, f s = y}
-    let g : ∀ t, β t := fun t => CompleteLattice.sup (fun y => ∃ f, c f ∧ f t = y)
-    have hg : CompleteLattice.sup c ⊑ g := by
-      apply sup_le
-      intro f hf t
-      apply le_sup
-      exact ⟨f, hf, rfl⟩
-    exact hg s
-  · -- sup {y | ∃ f ∈ c, f s = y} ⊑ sup c s
-    apply sup_le
-    intro y ⟨f, hf, hfs⟩
-    rw [← hfs]
-    exact (le_sup (c := c) hf) s
-
-/-- Pointwise characterization of binary meet on function lattices. -/
-theorem meet_apply
-    {σ : Type vₗ} {β : σ → Type wₗ} [∀ s, CompleteLattice (β s)]
-    (a b : ∀ s, β s) (s : σ) :
-    (a ⊓ b) s = a s ⊓ b s := by
-  apply PartialOrder.rel_antisymm
-  · apply le_meet
-    · exact (meet_le_left a b) s
-    · exact (meet_le_right a b) s
-  · classical
-    let f : ∀ t, β t := fun t => if t = s then a t ⊓ b t else ⊥
-    have hf_left : f ⊑ a := by
-      intro t
-      simp only [f]
-      split
-      · next h => subst h; exact meet_le_left ..
-      · exact bot_le _
-    have hf_right : f ⊑ b := by
-      intro t
-      simp only [f]
-      split
-      · next h => subst h; exact meet_le_right ..
-      · exact bot_le _
-    have hf_meet : f ⊑ a ⊓ b := le_meet f a b hf_left hf_right
-    have hs : f s = a s ⊓ b s := by simp [f]
-    exact hs ▸ hf_meet s
-
-/-- Pointwise characterization of binary join on function lattices. -/
-theorem join_apply
-    {σ : Type vₗ} {β : Type wₗ} [CompleteLattice β]
-    (a b : σ → β) (s : σ) :
-    (a ⊔ b) s = a s ⊔ b s := by
-  apply PartialOrder.rel_antisymm
-  ·
-    have hfun : a ⊔ b ⊑ fun t => a t ⊔ b t :=
-      join_le a b (fun t => a t ⊔ b t)
-        (fun t => left_le_join (a t) (b t))
-        (fun t => right_le_join (a t) (b t))
-    exact hfun s
-  ·
-    apply join_le
-    · exact (left_le_join a b) s
-    · exact (right_le_join a b) s
-
-/-- Pointwise characterization of `⊤` on a function lattice. -/
-theorem top_apply {σ : Type vₗ} {β : Type wₗ} [CompleteLattice β] (s : σ) :
-    (⊤ : σ → β) s = (⊤ : β) :=
-  PartialOrder.rel_antisymm (le_top _) ((le_top (fun _ : σ => (⊤ : β))) s)
-
-/-- Pointwise characterization of `⊥` on a function lattice. -/
-theorem bot_apply {σ : Type vₗ} {β : Type wₗ} [CCPO β] (s : σ) :
-    (⊥ : σ → β) s = (⊥ : β) :=
-  PartialOrder.rel_antisymm ((bot_le (fun _ : σ => (⊥ : β))) s) (bot_le _)
-
-theorem le_prop_eq_imp (p q : Prop) : (p ⊑ q) = (p → q) := rfl
-
-/-- Entailment on a function lattice is pointwise. -/
-theorem le_pi_eq_forall {σ : Type vₗ} {β : σ → Type wₗ} [∀ s, PartialOrder (β s)]
-    (a b : ∀ s, β s) : (a ⊑ b) = ∀ s, a s ⊑ b s := rfl
-
-/-- Entailment on a pair lattice is componentwise. -/
-theorem le_prod_eq_and {α : Type vₗ} {β : Type wₗ} [PartialOrder α] [PartialOrder β]
-    (a b : α × β) : (a ⊑ b) = (a.1 ⊑ b.1 ∧ a.2 ⊑ b.2) := rfl
-
-theorem le_of_imp_top_le (x y : Prop) : (x → (⊤ : Prop) ⊑ y) → x ⊑ y :=
-  fun h hx => h hx (le_top True trivial)
-
-theorem top_le_prop (x : Prop) : x → (⊤ : Prop) ⊑ x :=
-  fun hx _ => hx
-
-theorem le_prop_of_right (x y : Prop) : y → x ⊑ y :=
-  fun hy _ => hy
-
-theorem of_top_le_prop {x : Prop} : (⊤ : Prop) ⊑ x → x :=
-  fun h => h (le_top True trivial)
-
-theorem true_le_of_top_le (x : Prop) : ((⊤ : Prop) ⊑ x) → (True : Prop) ⊑ x :=
-  fun h => le_prop_of_right True x (of_top_le_prop h)
-
-theorem iInf_prop_eq_forall {ι : Type uₗ} (f : ι → Prop) :
-    (iInf f : Prop) = (∀ i, f i) := by
-  apply propext
-  constructor
-  · intro hf i
-    exact (iInf_le f i) hf
-  · intro hall
-    exact (le_iInf f (x := ∀ i, f i) (fun i h => h i)) hall
-
-/-- Introduction rule for a `∀` on the RHS of a `Prop` entailment. -/
-theorem le_forall {β : Sort uₗ} (p : Prop) (q : β → Prop)
-    (h : ∀ x, p ⊑ q x) : p ⊑ (∀ x, q x) :=
-  fun hp x => h x hp
-
-theorem iSup_prop_eq_exists {ι : Type uₗ} (f : ι → Prop) :
-    (iSup f : Prop) = (∃ i, f i) := by
-  apply propext
-  constructor
-  · intro hsup
-    exact (iSup_le f (x := ∃ i, f i) (fun i hi => ⟨i, hi⟩)) hsup
-  · intro ⟨i, hi⟩
-    exact (le_iSup f i) hi
-
-theorem meet_prop_eq_and (a b : Prop) : (a ⊓ b : Prop) = (a ∧ b) := by
-  apply propext
-  constructor
-  · intro hab
-    exact ⟨(meet_le_left a b) hab, (meet_le_right a b) hab⟩
-  · intro hab
-    exact (le_meet (a ∧ b) a b (fun h => h.left) (fun h => h.right)) hab
-
-theorem join_prop_eq_or (a b : Prop) : (a ⊔ b : Prop) = (a ∨ b) := by
-  apply propext
-  constructor
-  · intro hab
-    exact (join_le a b (a ∨ b) (fun ha => Or.inl ha) (fun hb => Or.inr hb)) hab
-  · intro hab
-    cases hab with
-    | inl ha => exact (left_le_join a b) ha
-    | inr hb => exact (right_le_join a b) hb
-
-/-- Entailment between functions follows from pointwise entailment. -/
-theorem le_of_forall_le {σ : Type uₗ} {β : Type vₗ} [PartialOrder β] {f g : σ → β} :
-    (∀ s, f s ⊑ g s) → f ⊑ g := Eq.mpr (le_pi_eq_forall f g)
-
-/-- `⊤ ⊑ g` for a function `g` follows from pointwise `⊤ ⊑ g s`. -/
-theorem top_le_of_forall_top_le {σ : Type uₗ} {β : Type vₗ} [CompleteLattice β] {g : σ → β} :
-    (∀ s, (⊤ : β) ⊑ g s) → (⊤ : σ → β) ⊑ g := by
-  intro h s
-  rw [top_apply]
-  exact h s
-
-/-- The top element of the `Prop` lattice is `True`. -/
-theorem top_prop_eq : (⊤ : Prop) = True :=
-  propext ⟨fun _ => trivial, fun _ => le_top True trivial⟩
-
-/-- The bottom element of the `Prop` lattice is `False`. -/
-theorem bot_prop_eq : (⊥ : Prop) = False :=
-  propext ⟨fun h => bot_le False h, fun h => h.elim⟩
-
-@[deprecated le_prop_of_right (since := "2026-09-24")]
-theorem le_of_right (x y : Prop) : y → x ⊑ y := le_prop_of_right x y
-@[deprecated le_pi_eq_forall +typeChanged (since := "2026-09-24")]
-theorem le_iff_forall_le {σ : Type uₗ} {β : Type vₗ} [PartialOrder β] {f g : σ → β} :
-    (f ⊑ g) ↔ (∀ s, f s ⊑ g s) := Iff.rfl
 
 end CompleteLattice
 
@@ -423,22 +222,6 @@ theorem le_iInf_iff {ι : Type _} {Φ : ι → l} : (P ⊑ iInf Φ) ↔ ∀ i, P
 
 @[deprecated le_of_le_of_meet_le (since := "2026-09-24")]
 theorem le_trans_meet (h₁ : P ⊑ Q) (h₂ : P ⊓ Q ⊑ R) : P ⊑ R := le_of_le_of_meet_le h₁ h₂
-
-@[deprecated le_pi_eq_forall +typeChanged (since := "2026-09-24")]
-theorem le_iff_forall_le_1 {σ : Type vₗ} {P Q : σ → l} :
-    P ⊑ Q ↔ ∀ s, P s ⊑ Q s := Iff.rfl
-@[deprecated le_pi_eq_forall +typeChanged (since := "2026-09-24")]
-theorem le_iff_forall_le_2 {σ₁ σ₂ : Type vₗ} {P Q : σ₁ → σ₂ → l} :
-    P ⊑ Q ↔ ∀ s₁ s₂, P s₁ s₂ ⊑ Q s₁ s₂ := Iff.rfl
-@[deprecated le_pi_eq_forall +typeChanged (since := "2026-09-24")]
-theorem le_iff_forall_le_3 {σ₁ σ₂ σ₃ : Type vₗ} {P Q : σ₁ → σ₂ → σ₃ → l} :
-    P ⊑ Q ↔ ∀ s₁ s₂ s₃, P s₁ s₂ s₃ ⊑ Q s₁ s₂ s₃ := Iff.rfl
-@[deprecated le_pi_eq_forall +typeChanged (since := "2026-09-24")]
-theorem le_iff_forall_le_4 {σ₁ σ₂ σ₃ σ₄ : Type vₗ} {P Q : σ₁ → σ₂ → σ₃ → σ₄ → l} :
-    P ⊑ Q ↔ ∀ s₁ s₂ s₃ s₄, P s₁ s₂ s₃ s₄ ⊑ Q s₁ s₂ s₃ s₄ := Iff.rfl
-@[deprecated le_pi_eq_forall +typeChanged (since := "2026-09-24")]
-theorem le_iff_forall_le_5 {σ₁ σ₂ σ₃ σ₄ σ₅ : Type vₗ} {P Q : σ₁ → σ₂ → σ₃ → σ₄ → σ₅ → l} :
-    P ⊑ Q ↔ ∀ s₁ s₂ s₃ s₄ s₅, P s₁ s₂ s₃ s₄ s₅ ⊑ Q s₁ s₂ s₃ s₄ s₅ := Iff.rfl
 
 end CompleteLatticeAlgebra
 

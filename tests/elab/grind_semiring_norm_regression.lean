@@ -75,3 +75,19 @@ example [Semiring α] (a b c : α) : b = 0 → a * b * c = 0 := by
 
 example [Semiring α] (a b c : α) : c = 1 → a = 1 → a * b * c = b := by
   grind only
+
+-- `Semiring.toGrindSemiring`'s `natCast` field is not reducibly defeq to the synthesized
+-- `NatCast R`. The normalizer must not initialize the `natCast` operator for these terms, which
+-- contain no casts.
+section
+set_option backward.grind.normalizer false
+
+theorem coeff_mul_X_pow_sym {R : Type} [Semiring R] (p : R) (n d : Nat) :
+    ∀ b, b.1 + b.2 = d + n → b ≠ (d, n) → p * (if n = b.2 then 1 else 0) = 0 := by
+  grind only [MulZeroClass.mul_zero]
+
+theorem coeff_mul_X_pow_sym' {R : Type} [Semiring R] (p : R) (n d : Nat) :
+    ∀ b, b.1 + b.2 = d + n → b ≠ (d, n) → p * (if n = b.2 then 1 else 0) = 0 := by
+  grind only
+
+end

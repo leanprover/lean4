@@ -59,6 +59,7 @@ def withConfigItems (items : Array Syntax)
   else
     let config := (← read).ctx.config
     let config ← elabConfigItems config items
-    withReader (fun c => { c with ctx.config := config }) do k
+    let activeSolvers ← Meta.Grind.Solvers.activeIds config
+    withReader (fun c => { c with ctx.config := config, ctx.activeSolvers := activeSolvers }) do k
 
 end Lean.Elab.Tactic.Grind

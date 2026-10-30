@@ -427,6 +427,10 @@ structure CallHierarchyOutgoingCall where
 
 inductive SemanticTokenType where
   -- Used by Lean
+  /--
+  A keyword. Verso and Markdown syntax in docstrings, such as bold/italic delimiters, list and
+  header markers, and thematic breaks, consists of keywords with the `markupSyntax` modifier.
+  -/
   | keyword
   | variable
   | property
@@ -454,6 +458,37 @@ inductive SemanticTokenType where
   | decorator
   -- Extensions
   | leanSorryLike
+  -- Markup in Verso and Markdown docstrings
+  /--
+  Text in a docstring or module docstring that is not in a heading, blockquote, or list item. May
+  have the `markupBold` and `markupItalic` modifiers.
+  -/
+  | markupDocText
+  /--
+  Text outside of a docstring, such as in a Verso document, that is not in a heading, blockquote, or
+  list item. May have the `markupBold` and `markupItalic` modifiers. This token exists for tools
+  that highlight Verso documents, so that themes can style their text as ordinary text rather than
+  as documentation.
+  -/
+  | markupPlainText
+  /-- Text in a heading. May have the `markupBold` and `markupItalic` modifiers. -/
+  | markupHeading
+  /-- Text in a blockquote. May have the `markupBold` and `markupItalic` modifiers. -/
+  | markupQuote
+  /-- Text in a list item. May have the `markupBold` and `markupItalic` modifiers. -/
+  | markupList
+  /-- The content of inline code or inline math. -/
+  | markupInlineCode
+  /-- A line of a code block. -/
+  | markupCodeBlock
+  /-- A URL in a link, image, autolink, or link reference definition. -/
+  | markupUrl
+  /--
+  A reference label.
+
+  The label is that of a link reference definition, of a reference-style link, or of a footnote.
+  -/
+  | markupCrossReference
   deriving ToJson, FromJson, BEq, Hashable
 
 -- must be in the same order as the constructors
@@ -461,7 +496,9 @@ def SemanticTokenType.names : Array String :=
   #["keyword", "variable", "property", "function", "namespace", "type", "class",
     "enum", "interface", "struct", "typeParameter", "parameter", "enumMember",
     "event", "method", "macro", "modifier", "comment", "string", "number",
-    "regexp", "operator", "decorator", "leanSorryLike"]
+    "regexp", "operator", "decorator", "leanSorryLike",
+    "markupDocText", "markupPlainText", "markupHeading", "markupQuote", "markupList",
+    "markupInlineCode", "markupCodeBlock", "markupUrl", "markupCrossReference"]
 
 def SemanticTokenType.toNat (tokenType : SemanticTokenType) : Nat :=
   tokenType.ctorIdx
@@ -472,9 +509,8 @@ example {v : SemanticTokenType} : open SemanticTokenType in
   cases v <;> native_decide
 
 /--
-The semantic token modifiers included by default in the LSP specification.
-Not used by the Lean core, but implementing them here allows them to be
-utilized by users extending the Lean server.
+The semantic token modifiers that the LSP specification includes by default, followed by Lean's own.
+The standard modifiers are available to users who extend the Lean server.
 -/
 inductive SemanticTokenModifier where
   | declaration
@@ -487,12 +523,24 @@ inductive SemanticTokenModifier where
   | modification
   | documentation
   | defaultLibrary
-  deriving ToJson, FromJson
+  -- Extensions
+  /-- Bold text, such as `*bold*` in Verso or `**bold**` in Markdown. -/
+  | markupBold
+  /-- Emphasized text, typically shown in italics, such as `_emph_` in Verso or Markdown. -/
+  | markupItalic
+  /--
+  Verso or Markdown syntax, such as a bold/italic delimiter, a list or header marker, a fence, or a
+  thematic break. Markup syntax consists of `keyword` tokens with this modifier, so that themes will
+  style it like keywords by default but can single it out when they want to.
+  -/
+  | markupSyntax
+  deriving ToJson, FromJson, BEq, Hashable, Repr
 
 -- must be in the same order as the constructors
 def SemanticTokenModifier.names : Array String :=
   #["declaration", "definition", "readonly", "static", "deprecated", "abstract",
-    "async", "modification", "documentation", "defaultLibrary"]
+    "async", "modification", "documentation", "defaultLibrary",
+    "markupBold", "markupItalic", "markupSyntax"]
 
 def SemanticTokenModifier.toNat (modifier : SemanticTokenModifier) : Nat :=
   modifier.ctorIdx
@@ -501,6 +549,85 @@ def SemanticTokenModifier.toNat (modifier : SemanticTokenModifier) : Nat :=
 example {v : SemanticTokenModifier} : open SemanticTokenModifier in
     names[v.toNat]?.map (toString <| toJson ·) = some (toString <| toJson v) := by
   cases v <;> native_decide
+
+/-- Every modifier, in the order of `names`. -/
+def SemanticTokenModifier.all : Array SemanticTokenModifier :=
+  #[.declaration, .definition, .readonly, .static, .deprecated, .abstract,
+    .async, .modification, .documentation, .defaultLibrary,
+    .markupBold, .markupItalic, .markupSyntax]
+
+-- sanity check
+example : SemanticTokenModifier.all.map (·.toNat) = Array.range SemanticTokenModifier.names.size := by
+  native_decide
+
+/--
+A set of semantic token modifiers.
+
+Use the standard set notation for them:
+* The empty set is `{}`
+* The set with the modifiers `a` and `b` is `{a, b}`
+* Union, intersection, and difference are invoked via the `Union`, `Inter`, and `SDiff` instances
+* `m ∈ s` is membership.
+-/
+structure SemanticTokenModifiers where
+  private mk ::
+  /-- The set as encoded in LSP. The bit `m.toNat` is set for each modifier `m` in the set. -/
+  toBits : Nat
+  deriving Inhabited, DecidableEq, Hashable
+
+namespace SemanticTokenModifiers
+
+/-- The empty set. -/
+def empty : SemanticTokenModifiers := ⟨0⟩
+
+/-- The set that contains only `m`. -/
+def singleton (m : SemanticTokenModifier) : SemanticTokenModifiers := ⟨1 <<< m.toNat⟩
+
+/-- The union of `s` and `t`. -/
+def union (s t : SemanticTokenModifiers) : SemanticTokenModifiers := ⟨s.toBits ||| t.toBits⟩
+
+/-- The intersection of `s` and `t`. -/
+def inter (s t : SemanticTokenModifiers) : SemanticTokenModifiers := ⟨s.toBits &&& t.toBits⟩
+
+/-- The modifiers of `s` that are not in `t`. -/
+def sdiff (s t : SemanticTokenModifiers) : SemanticTokenModifiers :=
+  ⟨s.toBits ^^^ (s.toBits &&& t.toBits)⟩
+
+/-- The set that LSP encodes as `bits`, for a client of the server that decodes its tokens. -/
+def ofBits (bits : Nat) : SemanticTokenModifiers := ⟨bits⟩
+
+instance : ToJson SemanticTokenModifiers := ⟨fun s => toJson s.toBits⟩
+
+instance : FromJson SemanticTokenModifiers := ⟨fun j => ofBits <$> fromJson? j⟩
+
+instance : EmptyCollection SemanticTokenModifiers := ⟨empty⟩
+
+instance : Singleton SemanticTokenModifier SemanticTokenModifiers := ⟨singleton⟩
+
+instance : Union SemanticTokenModifiers := ⟨union⟩
+
+instance : Inter SemanticTokenModifiers := ⟨inter⟩
+
+instance : SDiff SemanticTokenModifiers := ⟨sdiff⟩
+
+instance : Insert SemanticTokenModifier SemanticTokenModifiers := ⟨fun m s => s ∪ singleton m⟩
+
+instance : Membership SemanticTokenModifier SemanticTokenModifiers :=
+  ⟨fun s m => s.toBits.testBit m.toNat = true⟩
+
+instance (m : SemanticTokenModifier) (s : SemanticTokenModifiers) : Decidable (m ∈ s) :=
+  inferInstanceAs (Decidable (s.toBits.testBit m.toNat = true))
+
+/-- The modifiers in `s`, in the same order as in `SemanticTokenModifier.all`. -/
+def toArray (s : SemanticTokenModifiers) : Array SemanticTokenModifier :=
+  SemanticTokenModifier.all.filter (· ∈ s)
+
+/-- The set in set notation, such as `{}` or `{markupBold, markupItalic}`. -/
+instance : Repr SemanticTokenModifiers where
+  reprPrec s _ :=
+    .nestD <| .bracket "{" (.joinSep (s.toArray.toList.map repr) ("," ++ .line)) "}"
+
+end SemanticTokenModifiers
 
 structure SemanticTokensLegend where
   tokenTypes     : Array String
@@ -537,12 +664,18 @@ inductive FoldingRangeKind where
   | comment
   | imports
   | region
+  /--
+  The value of a declaration whose type is a proposition, for example the proof of a theorem. This
+  kind is a Lean-specific extension of LSP.
+  -/
+  | proof
 
 instance : ToJson FoldingRangeKind where
   toJson
     | FoldingRangeKind.comment => "comment"
     | FoldingRangeKind.imports => "imports"
     | FoldingRangeKind.region  => "region"
+    | FoldingRangeKind.proof   => "proof"
 
 structure FoldingRange where
   startLine : Nat

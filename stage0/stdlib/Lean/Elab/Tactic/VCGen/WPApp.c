@@ -15,13 +15,13 @@ extern "C" {
 #endif
 extern lean_object* l_Lean_instInhabitedExpr;
 lean_object* lean_array_get_borrowed(lean_object*, lean_object*, lean_object*);
-lean_object* l_Array_extract___redArg(lean_object*, lean_object*, lean_object*);
-lean_object* lean_array_get_size(lean_object*);
 lean_object* lean_array_set(lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Expr_isConstOf(lean_object*, lean_object*);
+lean_object* lean_array_get_size(lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
+lean_object* l_Array_extract___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_sort___override(lean_object*);
 lean_object* l_Lean_Expr_getAppNumArgs(lean_object*);
 lean_object* lean_mk_array(lean_object*, lean_object*);
@@ -38,6 +38,8 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_VCGen_WPApp_Pred(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_VCGen_WPApp_Pred___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_VCGen_WPApp_EPosts(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_VCGen_WPApp_EPosts___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_VCGen_WPApp_instAL(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_VCGen_WPApp_instAL___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_VCGen_WPApp_instWP(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_VCGen_WPApp_instWP___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_VCGen_WPApp_prog(lean_object*);
@@ -176,159 +178,176 @@ lean_dec_ref(v_info_36_);
 return v_res_37_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_VCGen_WPApp_instWP(lean_object* v_info_38_){
+LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_VCGen_WPApp_instAL(lean_object* v_info_38_){
 _start:
 {
 lean_object* v_args_39_; lean_object* v___x_40_; lean_object* v___x_41_; lean_object* v___x_42_; 
 v_args_39_ = lean_ctor_get(v_info_38_, 2);
 v___x_40_ = l_Lean_instInhabitedExpr;
-v___x_41_ = lean_unsigned_to_nat(6u);
+v___x_41_ = lean_unsigned_to_nat(4u);
 v___x_42_ = lean_array_get_borrowed(v___x_40_, v_args_39_, v___x_41_);
 lean_inc(v___x_42_);
 return v___x_42_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_VCGen_WPApp_instWP___boxed(lean_object* v_info_43_){
+LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_VCGen_WPApp_instAL___boxed(lean_object* v_info_43_){
 _start:
 {
 lean_object* v_res_44_; 
-v_res_44_ = l_Lean_Elab_Tactic_VCGen_WPApp_instWP(v_info_43_);
+v_res_44_ = l_Lean_Elab_Tactic_VCGen_WPApp_instAL(v_info_43_);
 lean_dec_ref(v_info_43_);
 return v_res_44_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_VCGen_WPApp_prog(lean_object* v_info_45_){
+LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_VCGen_WPApp_instWP(lean_object* v_info_45_){
 _start:
 {
 lean_object* v_args_46_; lean_object* v___x_47_; lean_object* v___x_48_; lean_object* v___x_49_; 
 v_args_46_ = lean_ctor_get(v_info_45_, 2);
 v___x_47_ = l_Lean_instInhabitedExpr;
-v___x_48_ = lean_unsigned_to_nat(7u);
+v___x_48_ = lean_unsigned_to_nat(6u);
 v___x_49_ = lean_array_get_borrowed(v___x_47_, v_args_46_, v___x_48_);
 lean_inc(v___x_49_);
 return v___x_49_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_VCGen_WPApp_prog___boxed(lean_object* v_info_50_){
+LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_VCGen_WPApp_instWP___boxed(lean_object* v_info_50_){
 _start:
 {
 lean_object* v_res_51_; 
-v_res_51_ = l_Lean_Elab_Tactic_VCGen_WPApp_prog(v_info_50_);
+v_res_51_ = l_Lean_Elab_Tactic_VCGen_WPApp_instWP(v_info_50_);
 lean_dec_ref(v_info_50_);
 return v_res_51_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_VCGen_WPApp_post(lean_object* v_info_52_){
+LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_VCGen_WPApp_prog(lean_object* v_info_52_){
 _start:
 {
 lean_object* v_args_53_; lean_object* v___x_54_; lean_object* v___x_55_; lean_object* v___x_56_; 
 v_args_53_ = lean_ctor_get(v_info_52_, 2);
 v___x_54_ = l_Lean_instInhabitedExpr;
-v___x_55_ = lean_unsigned_to_nat(8u);
+v___x_55_ = lean_unsigned_to_nat(7u);
 v___x_56_ = lean_array_get_borrowed(v___x_54_, v_args_53_, v___x_55_);
 lean_inc(v___x_56_);
 return v___x_56_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_VCGen_WPApp_post___boxed(lean_object* v_info_57_){
+LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_VCGen_WPApp_prog___boxed(lean_object* v_info_57_){
 _start:
 {
 lean_object* v_res_58_; 
-v_res_58_ = l_Lean_Elab_Tactic_VCGen_WPApp_post(v_info_57_);
+v_res_58_ = l_Lean_Elab_Tactic_VCGen_WPApp_prog(v_info_57_);
 lean_dec_ref(v_info_57_);
 return v_res_58_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_VCGen_WPApp_wp(lean_object* v_info_59_){
+LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_VCGen_WPApp_post(lean_object* v_info_59_){
 _start:
 {
-lean_object* v_expr_60_; lean_object* v_excessArgs_61_; lean_object* v___x_62_; lean_object* v___x_63_; 
-v_expr_60_ = lean_ctor_get(v_info_59_, 0);
-v_excessArgs_61_ = lean_ctor_get(v_info_59_, 3);
-v___x_62_ = lean_array_get_size(v_excessArgs_61_);
-v___x_63_ = l_Lean_Expr_stripArgsN(v_expr_60_, v___x_62_);
+lean_object* v_args_60_; lean_object* v___x_61_; lean_object* v___x_62_; lean_object* v___x_63_; 
+v_args_60_ = lean_ctor_get(v_info_59_, 2);
+v___x_61_ = l_Lean_instInhabitedExpr;
+v___x_62_ = lean_unsigned_to_nat(8u);
+v___x_63_ = lean_array_get_borrowed(v___x_61_, v_args_60_, v___x_62_);
+lean_inc(v___x_63_);
 return v___x_63_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_VCGen_WPApp_wp___boxed(lean_object* v_info_64_){
+LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_VCGen_WPApp_post___boxed(lean_object* v_info_64_){
 _start:
 {
 lean_object* v_res_65_; 
-v_res_65_ = l_Lean_Elab_Tactic_VCGen_WPApp_wp(v_info_64_);
+v_res_65_ = l_Lean_Elab_Tactic_VCGen_WPApp_post(v_info_64_);
 lean_dec_ref(v_info_64_);
 return v_res_65_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Expr_withAppAux___at___00Lean_Elab_Tactic_VCGen_isWPApp_x3f_spec__0(lean_object* v_rhs_73_, lean_object* v_x_74_, lean_object* v_x_75_, lean_object* v_x_76_){
+LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_VCGen_WPApp_wp(lean_object* v_info_66_){
 _start:
 {
-uint8_t v___y_78_; 
-if (lean_obj_tag(v_x_74_) == 5)
+lean_object* v_expr_67_; lean_object* v_excessArgs_68_; lean_object* v___x_69_; lean_object* v___x_70_; 
+v_expr_67_ = lean_ctor_get(v_info_66_, 0);
+v_excessArgs_68_ = lean_ctor_get(v_info_66_, 3);
+v___x_69_ = lean_array_get_size(v_excessArgs_68_);
+v___x_70_ = l_Lean_Expr_stripArgsN(v_expr_67_, v___x_69_);
+return v___x_70_;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_VCGen_WPApp_wp___boxed(lean_object* v_info_71_){
+_start:
 {
-lean_object* v_fn_87_; lean_object* v_arg_88_; lean_object* v___x_89_; lean_object* v___x_90_; lean_object* v___x_91_; 
-v_fn_87_ = lean_ctor_get(v_x_74_, 0);
-lean_inc_ref(v_fn_87_);
-v_arg_88_ = lean_ctor_get(v_x_74_, 1);
-lean_inc_ref(v_arg_88_);
-lean_dec_ref_known(v_x_74_, 2);
-v___x_89_ = lean_array_set(v_x_75_, v_x_76_, v_arg_88_);
-v___x_90_ = lean_unsigned_to_nat(1u);
-v___x_91_ = lean_nat_sub(v_x_76_, v___x_90_);
-lean_dec(v_x_76_);
-v_x_74_ = v_fn_87_;
-v_x_75_ = v___x_89_;
-v_x_76_ = v___x_91_;
+lean_object* v_res_72_; 
+v_res_72_ = l_Lean_Elab_Tactic_VCGen_WPApp_wp(v_info_71_);
+lean_dec_ref(v_info_71_);
+return v_res_72_;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Expr_withAppAux___at___00Lean_Elab_Tactic_VCGen_isWPApp_x3f_spec__0(lean_object* v_rhs_80_, lean_object* v_x_81_, lean_object* v_x_82_, lean_object* v_x_83_){
+_start:
+{
+if (lean_obj_tag(v_x_81_) == 5)
+{
+lean_object* v_fn_84_; lean_object* v_arg_85_; lean_object* v___x_86_; lean_object* v___x_87_; lean_object* v___x_88_; 
+v_fn_84_ = lean_ctor_get(v_x_81_, 0);
+lean_inc_ref(v_fn_84_);
+v_arg_85_ = lean_ctor_get(v_x_81_, 1);
+lean_inc_ref(v_arg_85_);
+lean_dec_ref_known(v_x_81_, 2);
+v___x_86_ = lean_array_set(v_x_82_, v_x_83_, v_arg_85_);
+v___x_87_ = lean_unsigned_to_nat(1u);
+v___x_88_ = lean_nat_sub(v_x_83_, v___x_87_);
+lean_dec(v_x_83_);
+v_x_81_ = v_fn_84_;
+v_x_82_ = v___x_86_;
+v_x_83_ = v___x_88_;
 goto _start;
 }
 else
 {
-lean_object* v___x_93_; uint8_t v___x_94_; 
-lean_dec(v_x_76_);
-v___x_93_ = ((lean_object*)(l_Lean_Expr_withAppAux___at___00Lean_Elab_Tactic_VCGen_isWPApp_x3f_spec__0___closed__3));
-v___x_94_ = l_Lean_Expr_isConstOf(v_x_74_, v___x_93_);
-if (v___x_94_ == 0)
+lean_object* v___x_90_; uint8_t v___x_91_; 
+lean_dec(v_x_83_);
+v___x_90_ = ((lean_object*)(l_Lean_Expr_withAppAux___at___00Lean_Elab_Tactic_VCGen_isWPApp_x3f_spec__0___closed__3));
+v___x_91_ = l_Lean_Expr_isConstOf(v_x_81_, v___x_90_);
+if (v___x_91_ == 0)
 {
-v___y_78_ = v___x_94_;
-goto v___jp_77_;
+lean_object* v___x_92_; 
+lean_dec_ref(v_x_82_);
+lean_dec_ref(v_x_81_);
+lean_dec_ref(v_rhs_80_);
+v___x_92_ = lean_box(0);
+return v___x_92_;
 }
 else
 {
-lean_object* v___x_95_; lean_object* v___x_96_; uint8_t v___x_97_; 
-v___x_95_ = lean_unsigned_to_nat(10u);
-v___x_96_ = lean_array_get_size(v_x_75_);
-v___x_97_ = lean_nat_dec_le(v___x_95_, v___x_96_);
-v___y_78_ = v___x_97_;
-goto v___jp_77_;
-}
-}
-v___jp_77_:
+lean_object* v___x_93_; lean_object* v___x_94_; uint8_t v___x_95_; 
+v___x_93_ = lean_unsigned_to_nat(10u);
+v___x_94_ = lean_array_get_size(v_x_82_);
+v___x_95_ = lean_nat_dec_le(v___x_93_, v___x_94_);
+if (v___x_95_ == 0)
 {
-if (v___y_78_ == 0)
-{
-lean_object* v___x_79_; 
-lean_dec_ref(v_x_75_);
-lean_dec_ref(v_x_74_);
-lean_dec_ref(v_rhs_73_);
-v___x_79_ = lean_box(0);
-return v___x_79_;
+lean_object* v___x_96_; 
+lean_dec_ref(v_x_82_);
+lean_dec_ref(v_x_81_);
+lean_dec_ref(v_rhs_80_);
+v___x_96_ = lean_box(0);
+return v___x_96_;
 }
 else
 {
-lean_object* v___x_80_; lean_object* v___x_81_; lean_object* v___x_82_; lean_object* v___x_83_; lean_object* v___x_84_; lean_object* v___x_85_; lean_object* v___x_86_; 
-v___x_80_ = lean_unsigned_to_nat(10u);
-v___x_81_ = lean_unsigned_to_nat(0u);
-v___x_82_ = l_Array_extract___redArg(v_x_75_, v___x_81_, v___x_80_);
-v___x_83_ = lean_array_get_size(v_x_75_);
-v___x_84_ = l_Array_extract___redArg(v_x_75_, v___x_80_, v___x_83_);
-lean_dec_ref(v_x_75_);
-v___x_85_ = lean_alloc_ctor(0, 4, 0);
-lean_ctor_set(v___x_85_, 0, v_rhs_73_);
-lean_ctor_set(v___x_85_, 1, v_x_74_);
-lean_ctor_set(v___x_85_, 2, v___x_82_);
-lean_ctor_set(v___x_85_, 3, v___x_84_);
-v___x_86_ = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(v___x_86_, 0, v___x_85_);
-return v___x_86_;
+lean_object* v___x_97_; lean_object* v___x_98_; lean_object* v___x_99_; lean_object* v___x_100_; lean_object* v___x_101_; 
+v___x_97_ = lean_unsigned_to_nat(0u);
+v___x_98_ = l_Array_extract___redArg(v_x_82_, v___x_97_, v___x_93_);
+v___x_99_ = l_Array_extract___redArg(v_x_82_, v___x_93_, v___x_94_);
+lean_dec_ref(v_x_82_);
+v___x_100_ = lean_alloc_ctor(0, 4, 0);
+lean_ctor_set(v___x_100_, 0, v_rhs_80_);
+lean_ctor_set(v___x_100_, 1, v_x_81_);
+lean_ctor_set(v___x_100_, 2, v___x_98_);
+lean_ctor_set(v___x_100_, 3, v___x_99_);
+v___x_101_ = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(v___x_101_, 0, v___x_100_);
+return v___x_101_;
+}
 }
 }
 }
@@ -336,26 +355,26 @@ return v___x_86_;
 static lean_object* _init_l_Lean_Elab_Tactic_VCGen_isWPApp_x3f___closed__0(void){
 _start:
 {
-lean_object* v___x_98_; lean_object* v_dummy_99_; 
-v___x_98_ = lean_box(0);
-v_dummy_99_ = l_Lean_Expr_sort___override(v___x_98_);
-return v_dummy_99_;
+lean_object* v___x_102_; lean_object* v_dummy_103_; 
+v___x_102_ = lean_box(0);
+v_dummy_103_ = l_Lean_Expr_sort___override(v___x_102_);
+return v_dummy_103_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_VCGen_isWPApp_x3f(lean_object* v_rhs_100_){
+LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_VCGen_isWPApp_x3f(lean_object* v_rhs_104_){
 _start:
 {
-lean_object* v_dummy_101_; lean_object* v_nargs_102_; lean_object* v___x_103_; lean_object* v___x_104_; lean_object* v___x_105_; lean_object* v___x_106_; 
-v_dummy_101_ = lean_obj_once(&l_Lean_Elab_Tactic_VCGen_isWPApp_x3f___closed__0, &l_Lean_Elab_Tactic_VCGen_isWPApp_x3f___closed__0_once, _init_l_Lean_Elab_Tactic_VCGen_isWPApp_x3f___closed__0);
-v_nargs_102_ = l_Lean_Expr_getAppNumArgs(v_rhs_100_);
-lean_inc(v_nargs_102_);
-v___x_103_ = lean_mk_array(v_nargs_102_, v_dummy_101_);
-v___x_104_ = lean_unsigned_to_nat(1u);
-v___x_105_ = lean_nat_sub(v_nargs_102_, v___x_104_);
-lean_dec(v_nargs_102_);
-lean_inc_ref(v_rhs_100_);
-v___x_106_ = l_Lean_Expr_withAppAux___at___00Lean_Elab_Tactic_VCGen_isWPApp_x3f_spec__0(v_rhs_100_, v_rhs_100_, v___x_103_, v___x_105_);
-return v___x_106_;
+lean_object* v_dummy_105_; lean_object* v_nargs_106_; lean_object* v___x_107_; lean_object* v___x_108_; lean_object* v___x_109_; lean_object* v___x_110_; 
+v_dummy_105_ = lean_obj_once(&l_Lean_Elab_Tactic_VCGen_isWPApp_x3f___closed__0, &l_Lean_Elab_Tactic_VCGen_isWPApp_x3f___closed__0_once, _init_l_Lean_Elab_Tactic_VCGen_isWPApp_x3f___closed__0);
+v_nargs_106_ = l_Lean_Expr_getAppNumArgs(v_rhs_104_);
+lean_inc(v_nargs_106_);
+v___x_107_ = lean_mk_array(v_nargs_106_, v_dummy_105_);
+v___x_108_ = lean_unsigned_to_nat(1u);
+v___x_109_ = lean_nat_sub(v_nargs_106_, v___x_108_);
+lean_dec(v_nargs_106_);
+lean_inc_ref(v_rhs_104_);
+v___x_110_ = l_Lean_Expr_withAppAux___at___00Lean_Elab_Tactic_VCGen_isWPApp_x3f_spec__0(v_rhs_104_, v_rhs_104_, v___x_107_, v___x_109_);
+return v___x_110_;
 }
 }
 lean_object* runtime_initialize_Lean_Meta_Sym_SymM(uint8_t builtin);

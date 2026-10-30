@@ -1,0 +1,1 @@
+the `lean` binary does not call `uv_setup_args`, so the process title has no room

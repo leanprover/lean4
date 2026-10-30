@@ -69,6 +69,7 @@ Type class environment extension
 -- TODO: add support for scoped instances
 builtin_initialize classExtension : SimplePersistentEnvExtension ClassEntry ClassState ←
   registerSimplePersistentEnvExtension {
+    logWrites     := true
     addEntryFn    := ClassState.addEntry
     addImportedFn := fun es => (mkStateFromImportedEntries ClassState.addEntry {} es).switch
   }
@@ -172,7 +173,9 @@ def addClass (env : Environment) (clsName : Name) : Except MessageData Environme
     throw m!"invalid 'class', declaration '{.ofConstName clsName}' must be inductive datatype, structure, or constant"
   let outParams ← checkOutParam 0 #[] #[] decl.type
   let outLevelParams := computeOutLevelParams decl.type outParams decl.levelParams
-  return classExtension.addEntry env { name := clsName, outParams, outLevelParams }
+  -- `log` necessary: `attribute [class]` may be applied to an existing declaration
+  return classExtension.addEntry (log := .decl clsName) env
+    { name := clsName, outParams, outLevelParams }
 
 /--
 Registers an inductive type or structure as a type class. Using `class` or `class inductive` is
@@ -214,7 +217,8 @@ builtin_initialize
           outLevelParams := outLevelParams.push i
         i := i + 1
       let outParams := getOutParamPositions? env decl |>.getD #[]
-      modifyEnv fun env => classExtension.addEntry env { name := decl, outParams, outLevelParams }
+      modifyEnv fun env =>
+        classExtension.addEntry (log := .decl decl) env { name := decl, outParams, outLevelParams }
   }
 
 end Lean

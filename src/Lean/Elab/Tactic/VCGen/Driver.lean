@@ -61,7 +61,7 @@ each in `State.invariants` (1-based stable index) and try to inline-elaborate
 its matching user alt. Returns the remaining non-invariant subgoals for `work`
 to enqueue. Eager handling here ensures dependent VCs see `?inv` assigned by
 the time they reach `emitVC`. -/
-private def handleInvariantSubgoals (subgoals : List MVarId) : VCGenM (Array MVarId) := do
+def handleInvariantSubgoals (subgoals : List MVarId) : VCGenM (Array MVarId) := do
   let env ← getEnv
   let mut others : Array MVarId := #[]
   for sg in subgoals do
@@ -76,20 +76,41 @@ private def handleInvariantSubgoals (subgoals : List MVarId) : VCGenM (Array MVa
       others := others.push sg
   return others
 
+/-- Simplify the target of a verification condition with `Context.simpMethods`. -/
+def simpVC (goal : MVarId) : VCGenM Sym.SimpGoalResult := goal.withContext do
+  let some methods := (← read).simpMethods | return .noProgress
+  let target ← goal.getType
+  let (result, simpState') ← Sym.Simp.SimpM.run (Sym.Simp.simp target) methods {} (← get).simpState
+  modify fun s => { s with simpState := simpState' }
+  result.toSimpGoalResult goal
+
 /--
 Called when decomposing the goal further did not succeed; in this case we emit a VC for the goal.
+`simp` rewrites the VC only when `reason` says that nothing is left to decompose, so a VC that
+`until`, a missing spec or the step limit leaves behind keeps its program as written.
 Invariant subgoals are handled separately by `handleInvariantSubgoals` directly inside `work`,
 so they never reach this path.
 -/
-public def emitVC (goal : Grind.Goal) : VCGenM Unit := do
+public def emitVC (goal : Grind.Goal) (reason : SolveResult.StopReason) : VCGenM Unit := do
   let mut goal := { goal with mvarId := ← elimTopPre goal.mvarId }
+  if reason matches .noEntailment .. | .noProgress .. then
+    -- An invariant from an `invariants` alternative is assigned while the target is built, as in
+    -- `?inv pref suff (a, b)`. Instantiating it lets `simp` reduce the body of the invariant.
+    let target ← goal.mvarId.getType
+    let target' ← instantiateMVarsS target
+    unless isSameExpr target target' do
+      goal := { goal with mvarId := ← goal.mvarId.replaceTargetDefEqFast target' }
+    match ← simpVC goal.mvarId with
+    | .closed => return
+    | .goal mvarId => goal := { goal with mvarId }
+    | .noProgress => pure ()
   goal ← processHypotheses goal
   if goal.inconsistent then return
   let some mvarId ← cleanupVC goal.mvarId | return
   mvarId.setKind .syntheticOpaque
   modify fun s => { s with vcs := s.vcs.push { goal with mvarId } }
 
-private structure WorkItem where
+structure WorkItem where
   goal : Grind.Goal
   scope : Scope
 
@@ -99,11 +120,14 @@ public def work (scope : Scope) (goal : Grind.Goal) : VCGenM Unit := do
   while let some s := worklist.back? do
     worklist := worklist.pop
     if ← s.goal.mvarId.isAssigned then continue
+    if let some (jp, jumps) := (← get).pendingJoinPoints[s.goal.mvarId]? then
+      modify fun st => { st with pendingJoinPoints := st.pendingJoinPoints.erase s.goal.mvarId }
+      finalizeJoinPoint jp jumps
     let goal ← processHypotheses s.goal
     if goal.inconsistent then continue
     match ← solve s.scope goal.mvarId with
-    | .stop _reason =>
-      emitVC goal
+    | .stop reason =>
+      emitVC goal reason
     | .goals scope subgoals =>
       -- Handle invariant subgoals eagerly here, so that VC subgoals popped
       -- from the worklist later see the invariant MVar already assigned.

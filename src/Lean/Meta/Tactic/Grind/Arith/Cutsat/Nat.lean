@@ -12,7 +12,11 @@ import Lean.Meta.NatInstTesters
 public section
 namespace Lean.Meta.Grind.Arith.Cutsat
 
-/-- Given `e`, returns `(NatCast.natCast e, rfl)` -/
+/--
+Given `e`, returns `(NatCast.natCast e, rfl)`.
+The new term `↑e` is internalized before `e` is marked as a solver term: marking replays pending
+equalities of `e` into `processNewEq`, which reifies `↑e`.
+-/
 def mkNatVar (e : Expr) : GoalM (Expr × Expr) := do
   if let some p := (← get').natToIntMap.find? { expr := e } then
     return p
@@ -22,15 +26,28 @@ def mkNatVar (e : Expr) : GoalM (Expr × Expr) := do
   modify' fun s => { s with
     natToIntMap := s.natToIntMap.insert { expr := e } r
   }
+  internalize e' (← getGeneration e)
   cutsatExt.markTerm e
   return r
 
 private def intIte : Expr := mkApp (mkConst ``ite [1]) Int.mkType
 
+/-- Internalizes the `Int` image `e'` of `e : Nat` built by `natToInt`. -/
+private def natImage (e e' : Expr) : GoalM Expr := do
+  let e' ← shareCommon e'
+  internalize e' (← getGeneration e)
+  return e'
+
 /-
 **Note**: It is safe to use (the more efficient) structural instances tests here because `grind` uses the canonicalizer.
 -/
 open Structural in
+/--
+Converts `e : Nat` into an `Int` expression `e'` with a proof of `↑e = e'`.
+The atoms of `e'` are new terms and are internalized where they are built: `↑a` for an opaque
+`a` in `mkNatVar`, and the images of `/`, `%`, and `^` here. The images of `+` and `*` are
+reified structurally by the consumers.
+-/
 private partial def natToInt' (e : Expr) : GoalM (Expr × Expr) := do
   match_expr e with
   | HAdd.hAdd _ _ _ inst a b =>
@@ -54,7 +71,7 @@ private partial def natToInt' (e : Expr) : GoalM (Expr × Expr) := do
       let (a', h₁) ← natToInt' a
       let (b', h₂) ← natToInt' b
       let h := mkApp6 (mkConst ``Nat.ToInt.div_congr) a b a' b' h₁ h₂
-      return (mkIntDiv a' b', h)
+      return (← natImage e (mkIntDiv a' b'), h)
     else
       mkNatVar e
   | HMod.hMod _ _ _ inst a b =>
@@ -62,7 +79,7 @@ private partial def natToInt' (e : Expr) : GoalM (Expr × Expr) := do
       let (a', h₁) ← natToInt' a
       let (b', h₂) ← natToInt' b
       let h := mkApp6 (mkConst ``Nat.ToInt.mod_congr) a b a' b' h₁ h₂
-      return (mkIntMod a' b', h)
+      return (← natImage e (mkIntMod a' b'), h)
     else
       mkNatVar e
   | OfNat.ofNat _ _ _ =>
@@ -75,7 +92,7 @@ private partial def natToInt' (e : Expr) : GoalM (Expr × Expr) := do
     if (← isInstHPowNat inst) then
       let (a', h₁) ← natToInt' a
       let h := mkApp4 (mkConst ``Nat.ToInt.pow_congr) a k a' h₁
-      return (mkIntPowNat a' k, h)
+      return (← natImage e (mkIntPowNat a' k), h)
     else
       mkNatVar e
   | Fin.val n a =>

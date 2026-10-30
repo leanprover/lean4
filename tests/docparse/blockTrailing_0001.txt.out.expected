@@ -1,0 +1,21 @@
+Input: "# Weekend {\n         abc\ndef\n\nWe went for a walk.\n"
+Failure: expected identifier
+ --> 1:11
+  |
+1 | # Weekend {
+  |            ^
+  = consumed input prefix: 11 bytes
+Final stack:
+  (Lean.Doc.Parser.Block.header
+   (Lean.Doc.Parser.headerMarker "#")
+   [(Lean.Doc.Parser.Inline.text
+     (Lean.Doc.Parser.versoText "Weekend "))
+    (Lean.Doc.Parser.Inline.role
+     "{"
+     <missing>
+     []
+     []
+     [])])
+Remaining:
+"abc\ndef\n\nWe went for a walk.\n"
+Round-trip not reproduced, as the parse reported errors: leaf without original source info: <missing>

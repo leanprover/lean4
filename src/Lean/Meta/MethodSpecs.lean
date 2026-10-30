@@ -112,12 +112,16 @@ overloaded `Cls.op` operation, and similarly `instClsT.op_spec_<n>` based on the
 `opImpl.eq_<n>`.
 -/
 @[builtin_doc]
-builtin_initialize methodSpecsAttr : ParametricAttribute MethodSpecsAttrData ←
-  registerParametricAttribute {
+builtin_initialize methodSpecsAttr : ParametricAttribute MethodSpecsAttrData ← do
+  let impl : ParametricAttributeImpl MethodSpecsAttrData := {
     name := `method_specs
     descr := "generate method specification theorems"
     getParam
   }
+  let ext ← registerParametricAttributeExt (α := MethodSpecsAttrData) impl.ref impl.preserveOrder
+    (logWrites := true)
+    impl.filterExport
+  registerParametricAttributeForExt impl ext
 
 builtin_initialize methodSpecsSimpExtension : SimpExtension ←
   registerSimpAttr `method_specs_simp
@@ -142,7 +146,9 @@ def isSpecThmNameFor (env : Environment) (name : Name) : Option Name := do
   let .str p s := name | none
   [p, privateToUserName p].firstM fun p => do
       let attrData ← methodSpecsAttr.getParam? env p
-      for fieldName in getStructureFields env attrData.clsName do
+      -- the class may not be visible, e.g. when checking a private name in the exported environment
+      let clsInfo ← getStructureInfo? env attrData.clsName
+      for fieldName in clsInfo.fieldNames do
         if isSpecThmLikeSuffix fieldName s then
           if name == mkSpecTheoremName env p attrData.privateSpecs s then
             return p

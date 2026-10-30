@@ -28,7 +28,7 @@ open Lean.Grind
 example {R : Type u} [CommRing R] (a b : R) : a * b = b * a := by
   fail_if_success (noncomm_norm; rfl)
   comm_norm
-  rfl
+  trivial
 
 example {R : Type u} [CommRing R] (a b c : R) :
     (a + b) * c = a * c + b * c := by noncomm_norm; rfl
@@ -44,7 +44,7 @@ example {R : Type u} [CommRing R] (a b c : R) (h : b * a = c) :
 example {R : Type u} [CommSemiring R] (a b : R) : a * b = b * a := by
   fail_if_success (noncomm_norm; rfl)
   comm_norm
-  rfl
+  trivial
 
 example {R : Type u} [CommSemiring R] (a b c : R) :
     (a + b) * c = a * c + b * c := by noncomm_norm; rfl

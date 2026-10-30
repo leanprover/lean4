@@ -55,7 +55,7 @@ private def locationHeaders (location : String) : Headers :=
 
 /-- The request target `decideRedirect` plans for a 302 to `location`, from `basePath`. -/
 private def plannedTarget (location : String) (basePath : String := "/start") : String :=
-  match decideRedirect (testOrigin "example.com") (requestHead .get basePath) true .v11 .found
+  match decideRedirect (testOrigin "example.com") (requestHead .get basePath) true .found
       (locationHeaders location) with
   | .done => "<not followed>"
   | .follow plan => toString plan.target

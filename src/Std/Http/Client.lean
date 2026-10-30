@@ -546,8 +546,8 @@ private def evaluateRedirect (origin : URI.Origin) (request : Request Body.Any)
   if ((response.line.headers.getAll? .location).map (·.size)).getD 0 > 1 then return none
 
   let .follow plan :=
-      decideRedirect origin request.line request.body.reset?.isSome
-        response.line.version response.line.status response.line.headers
+      decideRedirect origin request.line request.body.reset?.isSome response.line.status
+        response.line.headers
     | return none
 
   if history.contains (plan.origin, plan.method, targetKey plan.target) then return none

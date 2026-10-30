@@ -1889,10 +1889,6 @@ extern "C" LEAN_EXPORT uint64 lean_uint64_of_big_nat(b_obj_arg a) {
     return mpz_value(a).mod64();
 }
 
-extern "C" LEAN_EXPORT uint64 lean_uint64_mix_hash(uint64 a1, uint64 a2) {
-  return hash(a1, a2);
-}
-
 extern "C" LEAN_EXPORT usize lean_usize_of_big_nat(b_obj_arg a) {
     return mpz_value(a).get_size_t();
 }

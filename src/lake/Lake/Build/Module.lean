@@ -271,7 +271,7 @@ structure TransImportEntry where
 Returns the the target job from the build store snapshot `self` if present.
 Otherwise, fetches it through the main build store.
 -/
-@[inline] def BuildStore.getOrFetch
+@[inline] def BuildStore.fetch
   (self : BuildStore) (info : BuildInfo) [FamilyOut BuildData info.key α]
 : FetchM (Job α) := do
   if let some job := self.get? info.key then
@@ -284,7 +284,7 @@ partial def fetchTransImportArts
   let snap ← getBuildStore
   let q ← directImports.foldrM (init := #[]) fun imp q => do
     let some mod := imp.module? | return q
-    let input ← (← snap.getOrFetch mod.input).await
+    let input ← (← snap.fetch mod.input).await
     let importAll := strictOr nonModule imp.importAll
     return enqueue importAll imp.isMeta input q
   walk snap directArts {} {} q
@@ -314,9 +314,9 @@ where
       let metaVisited := if needsMeta then metaVisited.insert mod.name else metaVisited
       -- Widest level seen so far, never below an existing entry's (no demotion).
       let wantAll := allVisited.contains mod.name || existing?.any (·.oleanPrivate?.isSome)
-      let info ← (← snap.getOrFetch mod.metaExportInfo).await
+      let info ← (← snap.fetch mod.metaExportInfo).await
       let s := s.insert mod.name (if wantAll then info.allArts else info.arts)
-      let input ← (← snap.getOrFetch mod.input).await
+      let input ← (← snap.fetch mod.input).await
       -- `import all`/`meta import` are transitive. Propagate both flags to children.
       let q := enqueue importAll needsMeta input q
       walk snap s allVisited metaVisited q

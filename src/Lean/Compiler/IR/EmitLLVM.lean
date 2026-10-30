@@ -726,10 +726,14 @@ def emitPartialApp (builder : LLVM.Builder llvmctx) (z : VarId) (f : FunId) (ys 
 
 def emitApp (builder : LLVM.Builder llvmctx) (z : VarId) (f : VarId) (ys : Array Arg) : M llvmctx Unit := do
   if ys.size > closureMaxArgs then do
-    let aargs ← buildPrologueAlloca builder (← LLVM.arrayType (← LLVM.voidPtrType llvmctx) (UInt64.ofNat ys.size)) "aargs"
+    let ptrTy ← LLVM.voidPtrType llvmctx
+    -- `aargs` is an `[n x ptr]`, so a GEP into it must use the array type as source element type;
+    -- indexing with the element type or with the stored value's type is invalid under opaque pointers.
+    let arrTy ← LLVM.arrayType ptrTy (UInt64.ofNat ys.size)
+    let aargs ← buildPrologueAlloca builder arrTy "aargs"
     for i in List.range ys.size do
-      let (yty, yv) ← emitArgVal builder ys[i]!
-      let aslot ← LLVM.buildInBoundsGEP2 builder yty aargs #[← constIntUnsigned 0, ← constIntUnsigned i] s!"param_{i}_slot"
+      let (_yty, yv) ← emitArgVal builder ys[i]!
+      let aslot ← LLVM.buildInBoundsGEP2 builder arrTy aargs #[← constIntUnsigned 0, ← constIntUnsigned i] s!"param_{i}_slot"
       LLVM.buildStore builder yv aslot
     let fnName :=  s!"lean_apply_m"
     let retty ← LLVM.voidPtrType llvmctx

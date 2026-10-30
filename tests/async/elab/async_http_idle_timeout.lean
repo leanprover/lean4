@@ -59,6 +59,27 @@ private def checkIdleClose (name : String) (request : Option String) (handler : 
   finally
     client.close
 
+-- The header timeout of a pipelined request counts from when its own head started arriving, not
+-- from when the previous one did.
+#eval runGroup "pipelined request after a slow head" <| Async.block do
+  let (client, server) ← Mock.new
+  let config := { defaultConfig with keepAliveTimeout := ⟨5000, by decide⟩, headerTimeout := 400 }
+  try
+    let serve ← async (t := AsyncTask) (Std.Http.Server.serveConnection server okHandler config |>.run)
+    sleep 20
+    client.send "GET / HTTP/1.1\x0d\n".toUTF8
+    sleep 300
+    client.send "Host: example.com\x0d\n\x0d\nGET / HTTP/1.1\x0d\n".toUTF8
+    sleep 200
+    try client.send "Host: example.com\x0d\nConnection: close\x0d\n\x0d\n".toUTF8
+    catch _ => throw <| IO.userError "the second request timed out with the first one's deadline"
+    Async.race (await serve) (do
+      sleep 2000
+      throw <| IO.userError "the connection did not finish")
+    assertResponseCount ((← client.recv?).getD .empty) 2
+  finally
+    client.close
+
 #eval checkIdleClose "handler outlives the idle timeout" (some (mkGet))
     (fun _ => do
       sleep 300

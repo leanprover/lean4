@@ -9,6 +9,7 @@ prelude
 public import Std.Async.TCP
 public import Std.Async.ContextAsync
 public import Std.Http.Transport
+public import Std.Http.Transport.Outbox
 public import Std.Http.Protocol.H1
 public import Std.Http.Server.Config
 public import Std.Http.Server.Handler
@@ -21,6 +22,7 @@ namespace Http
 namespace Server
 
 open Std Async TCP Protocol
+open Internal (Outbox)
 open Time
 
 /-!
@@ -271,7 +273,7 @@ private def processH1Events
   for event in events do
     match event with
     | .endHeaders head =>
-      st := { st with pendingHead := some head }
+      st := { st with pendingHead := some head, headerDeadline := none }
 
       if let some length := head.getSize true then
         -- Sets the size of the body that is going out of the connection.
@@ -638,137 +640,18 @@ private def continueWith (task : ETask IO.Error α) (k : Except IO.Error α → 
   BaseAsync.ofTask (Task.map (sync := true) (fun result => (Except.ok (k result) : Except IO.Error β)) task)
 
 /--
-The state of an `Outbox`.
+Reports a failed write of `outbox` to the handler, once.
 -/
-private structure OutboxState where
-  /-- Output handed over while a write was in flight, written together once it completes. -/
-  queued : Array ByteArray := #[]
-  queuedBytes : Nat := 0
-  writing : Bool := false
-  /-- A write failed, so later output is dropped. -/
-  failed : Bool := false
-  /-- The failure, until it is reported to the handler. -/
-  error : Option IO.Error := none
-  /-- Resolved once no write is in flight. -/
-  idle : Option (IO.Promise Unit) := none
-
-/--
-Writes a connection's output in order without the connection waiting for it: output handed over
-while a write is in flight goes out in a single write once that write completes. The responses to
-earlier requests thus keep going out while a handler blocks the connection's thread, and the
-cancellation watcher can answer after them.
--/
-private abbrev Outbox := IO.Ref OutboxState
-
-namespace Outbox
-
-/--
-Starts writing `data`, then whatever was queued meanwhile once the write completes. The next write
-starts on the thread that completed the previous one, which for a socket is the event loop's own, so
-it does not have to wait for the event loop.
--/
-private partial def write [Transport α] (outbox : Outbox) (socket : α) (data : Array ByteArray) :
-    BaseIO Unit := do
-  let task ← EAsync.toBaseIO (Transport.sendAll socket data)
-  BaseIO.chainTask (sync := true) task fun result => do
-    let (next, idle) ← outbox.modifyGet fun s =>
-      match result with
-      | .error err =>
-        ((#[], s.idle), { s with
-          queued := #[], queuedBytes := 0, writing := false, failed := true, error := some err
-          idle := none })
-      | .ok () =>
-        if s.queued.isEmpty then ((#[], s.idle), { s with writing := false, idle := none })
-        else ((s.queued, none), { s with queued := #[], queuedBytes := 0 })
-    if let some idle := idle then
-      idle.resolve ()
-    unless next.isEmpty do
-      outbox.write socket next
-
-/--
-The outbox queues up to this many bytes before the connection waits for its writes.
--/
-private def limit : Nat := 65536
-
-/--
-Hands `data`, `size` bytes, to the outbox, which writes it after everything handed over before.
-Returns how many bytes now wait behind the write in flight, or `none` if a write failed and `data`
-was dropped.
--/
-private def send [Transport α] (outbox : Outbox) (socket : α) (data : Array ByteArray) (size : Nat) :
-    BaseIO (Option Nat) := do
-  let (start, queued?) ← outbox.modifyGet fun s =>
-    if s.failed then ((false, none), s)
-    else if s.writing then
-      let queuedBytes := s.queuedBytes + size
-      ((false, some queuedBytes), { s with queued := s.queued ++ data, queuedBytes })
-    else ((true, some 0), { s with writing := true })
-  if start then
-    outbox.write socket data
-  return queued?
-
-/--
-A task that finishes once no write is in flight, or `none` if none is.
--/
-private def idle? (outbox : Outbox) : BaseIO (Option (Task (Option Unit))) := do
-  unless (← outbox.get).writing do
-    return none
-  let fresh ← IO.Promise.new
-  outbox.modifyGet fun s =>
-    if !s.writing then (none, s)
-    else match s.idle with
-      | some idle => (some idle.result?, s)
-      | none => (some fresh.result?, { s with idle := some fresh })
-
-/--
-Waits until no write is in flight.
--/
-private def awaitIdle (outbox : Outbox) : Async Unit := do
-  if let some idle ← outbox.idle? then
-    BaseAsync.ofTask (Task.map (sync := true) (fun _ => (Except.ok () : Except IO.Error Unit)) idle)
-
-/--
-Reports a failed write to the handler, once. Returns `false` if a write failed.
--/
-private def check [Handler σ] (handler : σ) (outbox : Outbox) : Async Bool := do
-  unless (← outbox.get).failed do
-    return true
-  if let some err ← outbox.modifyGet fun s => (s.error, { s with error := none }) then
+private def reportWriteFailure [Handler σ] (handler : σ) (outbox : Outbox α) : Async Unit := do
+  if let some err ← outbox.takeError? then
     Handler.onFailure handler err
-  return false
-
-/--
-Hands `buffer` to the outbox, then waits for its writes if more than `limit` bytes are queued, so a
-peer that does not read holds up the connection instead of growing its memory. Returns `false` after
-reporting a failed write to the handler.
--/
-private def push [Transport α] [Handler σ] (handler : σ) (socket : α) (outbox : Outbox)
-    (buffer : Internal.ChunkedBuffer) : Async Bool := do
-  if buffer.size = 0 then
-    return true
-  match ← outbox.send socket buffer.data buffer.size with
-  | some queued =>
-    if queued < limit then
-      return true
-    outbox.awaitIdle
-    outbox.check handler
-  | none => outbox.check handler
-
-/--
-Waits until every write has completed, reporting a failed one to the handler.
--/
-private def finish [Handler σ] (handler : σ) (outbox : Outbox) : Async Unit := do
-  outbox.awaitIdle
-  discard <| outbox.check handler
-
-end Outbox
 
 /--
 Times a wait on the socket with the watchdog: the keep-alive timeout while the connection is idle,
 starting once its writes complete since the peer may still be reading the response; the header
 timeout while a request head arrives; and the lingering timeout otherwise.
 -/
-private def armSocketWait (config : Config) (wd : Watchdog) (outbox : Outbox)
+private def armSocketWait (config : Config) (wd : Watchdog) (outbox : Outbox α)
     (state : ConnectionState β) : BaseIO Unit := do
   if state.machine.isReaderIdle then
     if let some idle ← outbox.idle? then
@@ -804,7 +687,7 @@ wait costs no task of its own; otherwise it selects over every active source.
 -/
 private def wait [Transport α] [Handler σ] [Body β] (socket : α) (config : Config) (handler : σ)
     (connectionContext : CancellationContext) (wd : Watchdog) (interrupt? : Option (α → IO Unit))
-    (outbox : Outbox) (state : ConnectionState β) (k : Input β → γ) : Async γ := do
+    (outbox : Outbox α) (state : ConnectionState β) (k : Input β → γ) : Async γ := do
   let sources ← buildPollSources socket connectionContext state
   if sources.socket.isNone then
     selectNext config handler wd sources k
@@ -831,7 +714,7 @@ private def iterate
     {σ : Type} [Transport α] [Handler σ] [Body (Handler.ResponseBody σ)]
     (socket : α) (config : Config) (handler : σ) (extensions : Extensions)
     (connectionContext : CancellationContext) (wd : Watchdog) (interrupt? : Option (α → IO Unit))
-    (dispatch : IO.Ref Dispatch) (outbox : Outbox)
+    (dispatch : IO.Ref Dispatch) (outbox : Outbox α)
     (loop : Loop (Handler.ResponseBody σ)) : Async (ForInStep (Loop (Handler.ResponseBody σ))) := do
   let mut state := loop.state
 
@@ -847,7 +730,8 @@ private def iterate
   let (machine, step) := state.machine.step
   state := { state with machine }
   -- Handed over at once, so that a handler blocking its thread does not hold up earlier responses.
-  unless ← outbox.push handler socket step.output do
+  unless ← outbox.push step.output do
+    reportWriteFailure handler outbox
     return .done { state }
 
   state ← processH1Events handler config connectionContext step.events state
@@ -881,7 +765,7 @@ private def run
     {σ : Type} [Transport α] [h : Handler σ]
     (connection : Connection α) (config : Config) (handler : σ)
     (connectionContext : CancellationContext) (wd : Watchdog) (interrupt? : Option (α → IO Unit))
-    (dispatch : IO.Ref Dispatch) (outbox : Outbox) : Async Bool := do
+    (dispatch : IO.Ref Dispatch) (outbox : Outbox α) : Async Bool := do
 
   let _ : Body (Handler.ResponseBody σ) := Handler.responseBodyInstance
 
@@ -904,7 +788,8 @@ private def run
       Body.close final.state.requestStream
     return false
 
-  outbox.finish handler
+  outbox.awaitIdle
+  reportWriteFailure handler outbox
 
   -- Close all open streams and the socket.
   let state := final.state
@@ -925,7 +810,7 @@ closes the request body once the handler returns.
 private def abandon
     {σ : Type} [Transport α] [Handler σ]
     (connection : Connection α) (handler : σ) (wd : Watchdog) (ctx : CancellationContext)
-    (outbox : Outbox) : Async Unit := do
+    (outbox : Outbox α) : Async Unit := do
   let status ←
     match ← cancelledEvent (β := Unit) wd ctx false with
     | .timeout =>
@@ -934,8 +819,9 @@ private def abandon
     | _ => pure Status.serviceUnavailable
 
   let response := H1.Machine.errorResponse connection.machine.config status
-  discard <| outbox.send connection.socket response.data response.size
-  outbox.finish handler
+  discard <| outbox.send response
+  outbox.awaitIdle
+  reportWriteFailure handler outbox
 
   Transport.close connection.socket
 
@@ -959,7 +845,7 @@ private def handle
   let wd ← Watchdog.new connectionContext
   let interrupt? := Transport.interruptRecv? (α := α)
   let dispatch ← IO.mkRef Dispatch.spawn
-  let outbox : Outbox ← IO.mkRef {}
+  let outbox ← Outbox.new socket
   let finished : IO.Promise (Except IO.Error Unit) ← IO.Promise.new
 
   BaseIO.chainTask (← connectionContext.done) fun _ => do

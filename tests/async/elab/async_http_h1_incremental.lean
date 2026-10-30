@@ -315,3 +315,23 @@ private def getEndHeadersHead (events : Array (Event .receiving)) : Option Reque
   events.findSome? fun
     | .endHeaders head => some head
     | _ => none
+
+private def assertMethodAtEverySplit (name : String) (request : ByteArray) (method : Method) :
+    IO Unit := do
+  for k in [1:request.size] do
+    let trace := runIncrementalReceiving #[request.extract 0 k, request.extract k request.size]
+    let label := s!"{name} split at {k}"
+    assertIncrementalSuccess label trace .empty
+    ensure label ((getEndHeadersHead trace.events).map (·.method) == some method)
+      s!"expected method {repr method}, events:\n{repr trace.events}"
+  let trace := runIncrementalReceiving (splitEveryByte request)
+  assertIncrementalSuccess s!"{name} one byte per read" trace .empty
+  ensure s!"{name} one byte per read" ((getEndHeadersHead trace.events).map (·.method) == some method)
+    s!"expected method {repr method}, events:\n{repr trace.events}"
+
+-- Regression: a read that ends inside `UPDATEREDIRECTREF` must not let its prefix `UPDATE` match.
+#eval assertMethodAtEverySplit "UPDATEREDIRECTREF"
+  "UPDATEREDIRECTREF / HTTP/1.1\r\nHost: a\r\n\r\n".toUTF8 .updateredirectref
+
+#eval assertMethodAtEverySplit "UPDATE"
+  "UPDATE / HTTP/1.1\r\nHost: a\r\n\r\n".toUTF8 .update

@@ -732,6 +732,9 @@ extern "C" LEAN_EXPORT void lean_mark_mt(object * o) {
 // Tasks
 
 LEAN_THREAD_PTR(lean_task_object, g_current_task_object);
+/* Continuation that `task_bind_fn1` hands back to `run_task` when the task returned by the bind function has not
+   finished yet. Only `run_task` stores it into `m_closure`, while holding the task manager mutex. */
+LEAN_THREAD_PTR(lean_object, g_task_bind_continuation);
 
 static lean_task_imp * alloc_task_imp(obj_arg c, unsigned prio, bool keep_alive) {
     lean_task_imp * imp = (lean_task_imp*)lean_alloc_small_object(sizeof(lean_task_imp));
@@ -895,12 +898,18 @@ class task_manager {
         }
         reset_heartbeat();
         object * v = nullptr;
+        object * cont = nullptr;
         {
             scoped_current_task_object scope_cur_task(t);
             object * c = imp->m_closure;
             imp->m_closure = nullptr;
             lock.unlock();
             v = lean_apply_1(c, box(0));
+            if (v == nullptr) {
+                cont = g_task_bind_continuation;
+                g_task_bind_continuation = nullptr;
+                lean_assert(cont);
+            }
             // If deactivation was delayed by `m_keep_alive`, deactivate after the final execution (`v != nulltpr`)
             if (v != nullptr && imp->m_keep_alive) {
                 lean_dec_ref((lean_object*)t);
@@ -911,19 +920,23 @@ class task_manager {
         if (imp->m_deleted) {
             lock.unlock();
             if (v) lean_dec(v);
+            if (cont) lean_dec_ref(cont);
             free_task(t);
             lock.lock();
         } else if (v != nullptr) {
             lean_assert(imp->m_closure == nullptr);
             resolve_core(lock, t, v);
         } else {
-            // `bind` task has not finished yet, re-add as dependency of nested task
-            // NOTE: closure MUST be extracted before unlocking the mutex as otherwise
-            // another thread could deactivate the task and empty `m_clousure` in
-            // between.
-            object * c = imp->m_closure;
+            // `bind` task has not finished yet, store the continuation and re-add as dependency of nested task.
+            // NOTE: once we unlock the mutex, another thread could deactivate the task and release the
+            // continuation, so we keep our own reference to the nested task until `add_dep` is done.
+            lean_assert(imp->m_closure == nullptr);
+            imp->m_closure = cont;
+            object * nested = closure_arg_cptr(cont)[0];
+            lean_inc_ref(nested);
             lock.unlock();
-            add_dep(lean_to_task(closure_arg_cptr(c)[0]), t);
+            add_dep(lean_to_task(nested), t);
+            lean_dec_ref(nested);
             lock.lock();
         }
     }
@@ -1264,12 +1277,10 @@ static obj_res task_bind_fn1(obj_arg x, obj_arg f, obj_arg) {
         lean_dec_ref(new_task);
         return v;
     } else {
-        lean_task_imp* imp = g_current_task_object->m_imp.load(std::memory_order::relaxed);
-        lean_assert(imp);
-        lean_assert(imp->m_closure == nullptr);
+        lean_assert(g_task_bind_continuation == nullptr);
         obj_res c = mk_closure_2_1(task_bind_fn2, new_task);
         mark_mt(c);
-        imp->m_closure = c;
+        g_task_bind_continuation = c;
         return nullptr; /* notify queue that task did not finish yet. */
     }
 }

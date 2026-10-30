@@ -219,7 +219,7 @@ private theorem ByteArray.toList_toByteArray (ba : ByteArray) :
 
 theorem isValidUTF8_of_isAsciiByte (ba : ByteArray) (s : ba.data.all isAsciiByte) : ByteArray.IsValidUTF8 ba := by
   refine ⟨ba.data.toList.map Char.ofUInt8, ?_⟩
-  rw [List.utf8Encode]
+  rw [List.utf8Encode_eq_toByteArray]
   simp only [List.flatMap_map]
   have is_ascii : ∀ (x : UInt8), x ∈ ba.data.toList → x < 128 := by
     let is_ascii := Array.all_eq_true_iff_forall_mem.mp s

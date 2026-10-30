@@ -191,7 +191,7 @@ theorem all_of_all_of_imp {b : ByteArray} (h : b.data.all p) (imp : ∀ c, p c �
 private theorem IsAllowedEncodedQueryChars.mono {bs : ByteArray} (h : IsAllowedEncodedQueryChars r bs)
     (imp : ∀ c, r c → r' c) : IsAllowedEncodedQueryChars r' bs :=
   all_of_all_of_imp h fun c hc => by
-    simp only [isEncodedQueryChar, isEncodedChar, Bool.or_eq_true, decide_eq_true_eq] at hc ⊢
+    simp only [isEncodedQueryChar, isEncodedChar, decide_eq_true_eq] at hc ⊢
     rcases hc with ⟨ha, hr | hx⟩ | hp
     · exact Or.inl ⟨ha, Or.inl (imp c hr)⟩
     · exact Or.inl ⟨ha, Or.inr hx⟩

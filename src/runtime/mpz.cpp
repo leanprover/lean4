@@ -13,14 +13,13 @@ Author: Leonardo de Moura
 #include "runtime/alloc.h"
 #include "runtime/thread.h"
 #include "runtime/mpz.h"
-#include "runtime/popcount.h"
 #include "runtime/debug.h"
 
 namespace lean {
 // Accumulate into an arbitrary-precision result only when the machine counter
 // fills. This avoids narrowing on platforms where unsigned long is 32 bits.
 static void add_popcount(mpz & total, size_t & count, uint64 limb) {
-    unsigned bits = popcount_word(limb);
+    unsigned bits = std::popcount(limb);
     if (count > std::numeric_limits<size_t>::max() - bits) {
         total += mpz::of_size_t(count);
         count = 0;

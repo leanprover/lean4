@@ -13,7 +13,6 @@ Author: Leonardo de Moura
 #include <cmath>
 #include <lean/lean.h>
 #include "runtime/object.h"
-#include "runtime/popcount.h"
 #include "runtime/thread.h"
 #include "runtime/utf8.h"
 #include "runtime/alloc.h"
@@ -1695,7 +1694,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_nat_extended_gcd(b_lean_obj_arg a, b_le
 
 extern "C" LEAN_EXPORT lean_obj_res lean_nat_popcount(b_lean_obj_arg a) {
     if (lean_is_scalar(a)) {
-        return lean_box(popcount_word(lean_unbox(a)));
+        return lean_box(std::popcount(lean_unbox(a)));
     }
     return mpz_to_nat(mpz_value(a).popcount());
 }

@@ -18,7 +18,7 @@ fragment into `Int` via `BitVec.toInt`.
 -/
 
 attribute [grind hom]
-  BitVec.toNat_add BitVec.toNat_sub BitVec.toNat_mul BitVec.toNat_udiv BitVec.toNat_umod
+  BitVec.toNat_add BitVec.toNat_mul BitVec.toNat_udiv BitVec.toNat_umod
   BitVec.toNat_neg BitVec.toNat_and BitVec.toNat_or BitVec.toNat_xor
   BitVec.toNat_shiftLeft BitVec.toNat_ushiftRight BitVec.toNat_append_eq_mul_add
   BitVec.ofNat_toNat BitVec.toNat_setWidth BitVec.toNat_ofInt
@@ -42,6 +42,23 @@ this form for the structural `Sym.simp` retrieval to find it. -/
     (OfNat.ofNat a : BitVec n).toNat = a % 2 ^ n := by
   dsimp [OfNat.ofNat]
   exact BitVec.toNat_ofNat ..
+
+/-! `lia` treats `(x - y).toNat` as an atom. The following two rules relate it linearly to `x.toNat`
+and `y.toNat`, one rule for each case of the wraparound. -/
+
+theorem Lean.Grind.BitVec.toNat_sub_add_toNat_of_le {w : Nat} {x y : BitVec w}
+    (h : y.toNat ≤ x.toNat) : (x - y).toNat + y.toNat = x.toNat := by
+  rw [BitVec.toNat_sub_of_le (BitVec.le_def.mpr h), Nat.sub_add_cancel h]
+
+theorem Lean.Grind.BitVec.toNat_sub_add_toNat_of_lt {w : Nat} {x y : BitVec w}
+    (h : x.toNat < y.toNat) : (x - y).toNat + y.toNat = x.toNat + 2 ^ w := by
+  have hdy : y.toNat - x.toNat ≤ y.toNat := Nat.sub_le _ _
+  have hd : y.toNat - x.toNat ≤ 2 ^ w := Nat.le_trans hdy (Nat.le_of_lt y.isLt)
+  rw [BitVec.toNat_sub_of_lt (BitVec.lt_def.mpr h), ← Nat.sub_add_comm hd,
+    Nat.add_sub_assoc hdy, Nat.sub_sub_self (Nat.le_of_lt h), Nat.add_comm]
+
+grind_pattern Lean.Grind.BitVec.toNat_sub_add_toNat_of_le => (x - y).toNat
+grind_pattern Lean.Grind.BitVec.toNat_sub_add_toNat_of_lt => (x - y).toNat
 
 /-! Homomorphism predicates: range facts for the injection functions, instantiated by
 `grind` for the terms it internalizes. The `2 * toInt` bounds are restated with an

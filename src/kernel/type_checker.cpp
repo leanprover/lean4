@@ -921,41 +921,21 @@ lbool type_checker::is_def_eq_proof_irrel(expr const & t, expr const & s) {
 }
 
 bool type_checker::failed_before(expr const & t, expr const & s) const {
-    if (hash(t) < hash(s)) {
-        return m_st->m_failure.find(mk_pair(t, s)) != m_st->m_failure.end();
-    } else if (hash(t) > hash(s)) {
-        return m_st->m_failure.find(mk_pair(s, t)) != m_st->m_failure.end();
-    } else {
-        return
-            m_st->m_failure.find(mk_pair(t, s)) != m_st->m_failure.end() ||
-            m_st->m_failure.find(mk_pair(s, t)) != m_st->m_failure.end();
-    }
+    auto const & failure = m_st->m_failure[m_eager_reduce];
+    return failure.find(mk_pair(t, s)) != failure.end();
 }
 
 void type_checker::cache_failure(expr const & t, expr const & s) {
-    if (hash(t) <= hash(s))
-        m_st->m_failure.insert(mk_pair(t, s));
-    else
-        m_st->m_failure.insert(mk_pair(s, t));
+    m_st->m_failure[m_eager_reduce].insert(mk_pair(t, s));
 }
 
 bool type_checker::succeeded_before(expr const & t, expr const & s) const {
-    if (hash(t) < hash(s)) {
-        return m_st->m_success.find(mk_pair(t, s)) != m_st->m_success.end();
-    } else if (hash(t) > hash(s)) {
-        return m_st->m_success.find(mk_pair(s, t)) != m_st->m_success.end();
-    } else {
-        return
-            m_st->m_success.find(mk_pair(t, s)) != m_st->m_success.end() ||
-            m_st->m_success.find(mk_pair(s, t)) != m_st->m_success.end();
-    }
+    auto const & success = m_st->m_success[m_eager_reduce];
+    return success.find(mk_pair(t, s)) != success.end();
 }
 
 void type_checker::cache_success(expr const & t, expr const & s) {
-    if (hash(t) <= hash(s))
-        m_st->m_success.insert(mk_pair(t, s));
-    else
-        m_st->m_success.insert(mk_pair(s, t));
+    m_st->m_success[m_eager_reduce].insert(mk_pair(t, s));
 }
 
 /**
@@ -1072,10 +1052,13 @@ lbool type_checker::lazy_delta_reduction(expr & t_n, expr & s_n) {
         lbool r = is_def_eq_offset(t_n, s_n);
         if (r != l_undef) return r;
 
-        if ((!has_fvar(t_n) && !has_fvar(s_n)) || m_eager_reduce) {
+        if (!has_fvar(t_n) || m_eager_reduce) {
             if (auto t_v = reduce_nat(t_n)) {
                 return to_lbool(is_def_eq_core(*t_v, s_n));
-            } else if (auto s_v = reduce_nat(s_n)) {
+            }
+        }
+        if (!has_fvar(s_n) || m_eager_reduce) {
+            if (auto s_v = reduce_nat(s_n)) {
                 return to_lbool(is_def_eq_core(t_n, *s_v));
             }
         }
@@ -1195,6 +1178,11 @@ bool type_checker::is_def_eq_core(expr const & t, expr const & s) {
     // proof terms of the form `Eq.refl true : decide p = true`.
     if ((!has_fvar(t) || m_eager_reduce) && is_constant(s, *g_bool_true)) {
         if (is_constant(whnf(t), *g_bool_true)) {
+            return true;
+        }
+    }
+    if ((!has_fvar(s) || m_eager_reduce) && is_constant(t, *g_bool_true)) {
+        if (is_constant(whnf(s), *g_bool_true)) {
             return true;
         }
     }

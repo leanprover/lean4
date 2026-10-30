@@ -832,10 +832,13 @@ private def parseWith (config : FormatConfig) : (mod : Modifier) → Parser (Typ
   | .v format =>
     match format with
     | .short | .full => parseIdentifier
-  | .O format =>
-    match format with
-    | .short => pstring "GMT" *> parseOffset .optional .no true
-    | .full  => pstring "GMT" *> parseOffset .yes .optional true
+  | .O format => do
+    skipString "GMT"
+    let res ← optional <|
+      match format with
+      | .short => parseOffset .optional .no true
+      | .full  => parseOffset .yes .optional true
+    return res.getD Offset.zero
   | .X format =>
     let p : Parser Offset :=
       match format with
@@ -856,11 +859,11 @@ private def parseWith (config : FormatConfig) : (mod : Modifier) → Parser (Typ
     | .hourMinuteSecond =>
       parseOffset .yes .optional false
     | .hourMinuteSecondColon =>
-      parseOffset .yes .yes true
+      parseOffset .yes .optional true
   | .Z format =>
     match format with
     | .hourMinute =>
-      parseOffset .yes .no false
+      parseOffset .yes .optional false
     | .full => do
       skipString "GMT"
       let res ← optional (parseOffset .yes .no true)
@@ -970,7 +973,7 @@ private def insert (date : DateBuilder) (modifier : Modifier) (data : TypeFormat
 
 private def convertYearAndEra (year : Year.Offset) : Year.Era → Year.Offset
   | .ce => year
-  | .bce => -(year + 1)
+  | .bce => 1 - year
 
 /-- Infer an `HourMarker` from a `DayPeriod` parsed by `b`. -/
 private def markerOfDayPeriod : DayPeriod → HourMarker
@@ -1011,14 +1014,16 @@ private def build (builder : DateBuilder) (aw : Awareness) : Option DateTime :=
   let hour : Option (Bounded.LE 0 23) :=
     if let some marker := markerOpt then
       marker.toAbsolute <$> builder.h
-      <|> marker.toAbsolute <$> ((Bounded.LE.add · 1) <$> builder.K)
+      <|> (fun k => match marker with
+            | .am => k.expandTop (by decide)
+            | .pm => (k.add 12).expandBottom (by decide)) <$> builder.K
     else
       none
 
   let hour :=
     hour <|> (
       let one : Option (Bounded.LE 0 23) := builder.H
-      let other : Option (Bounded.LE 0 23) := (Bounded.LE.sub · 1) <$> builder.k
+      let other : Option (Bounded.LE 0 23) := (·.emod 24 (by decide)) <$> builder.k
       (one <|> other))
       |>.getD ⟨0, by decide⟩
 

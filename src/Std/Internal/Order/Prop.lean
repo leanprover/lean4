@@ -91,7 +91,7 @@ theorem join_prop_eq_or (a b : Prop) : (a ⊔ b : Prop) = (a ∨ b) := by
     | inr hb => exact (right_le_join a b) hb
 
 /-- The top element of the `Prop` lattice is `True`. -/
-@[vcgen_simp] theorem top_prop_eq : (⊤ : Prop) = True :=
+theorem top_prop_eq : (⊤ : Prop) = True :=
   propext ⟨fun _ => trivial, fun _ => le_top True trivial⟩
 
 /-- The bottom element of the `Prop` lattice is `False`. -/

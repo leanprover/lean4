@@ -22,10 +22,6 @@ monoid laws of `⊓` and `⊔`, monotonicity, and the characterizations of `⊑`
 
 namespace Lean.Order
 
-@[vcgen_simp] theorem PartialOrder.rel_self_eq {α : Sort _} [PartialOrder α] (x : α) :
-    (x ⊑ x) = True :=
-  eq_true PartialOrder.rel_refl
-
 section CompleteLattice
 
 open PartialOrder Std.Internal.Order
@@ -212,7 +208,6 @@ theorem meet_right_comm : (P ⊓ Q) ⊓ R = (P ⊓ R) ⊓ Q := by
 /-! ### Working with entailment -/
 
 theorem le_top_iff : (Q ⊑ (⊤ : l)) ↔ True := iff_true_intro (le_top _)
-@[vcgen_simp] theorem le_top_eq : (Q ⊑ (⊤ : l)) = True := eq_true (le_top _)
 theorem bot_le_iff : ((⊥ : l) ⊑ Q) ↔ True := iff_true_intro (bot_le _)
 theorem join_le_iff : (P ⊔ Q ⊑ R) ↔ (P ⊑ R ∧ Q ⊑ R) :=
   ⟨fun h => ⟨rel_trans (left_le_join _ _) h, rel_trans (right_le_join _ _) h⟩,

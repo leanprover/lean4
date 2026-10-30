@@ -5,8 +5,8 @@ open Std.WP Lean.Order
 
 set_option experimental.vcgen true
 
-/-! The one-point rules `⨆ x, ⌜x = t⌝ ⊓ Ψ x = Ψ t` and `⨆ x, ⌜t = x⌝ ⊓ Ψ x = Ψ t` remove a
-supremum whose index an equation determines. -/
+/-! The one-point rules remove a supremum whose index an equation determines, with the equation on
+either side of `⊓`. -/
 
 example : ⦃ fun s => s = 3 ⦄ (pure () : StateM Nat Unit) ⦃ fun _ s => ⨆ n : Nat, ⌜n = s⌝ ⊓ ⌜n < 5⌝ ⦄ := by
   vcgen
@@ -14,16 +14,34 @@ example : ⦃ fun s => s = 3 ⦄ (pure () : StateM Nat Unit) ⦃ fun _ s => ⨆ 
 example : ⦃ fun s => s = 3 ⦄ (pure () : StateM Nat Unit) ⦃ fun _ s => ⨆ n : Nat, ⌜s = n⌝ ⊓ ⌜n < 5⌝ ⦄ := by
   vcgen
 
+example : ⦃ fun s => s = 3 ⦄ (pure () : StateM Nat Unit) ⦃ fun _ s => ⨆ n : Nat, ⌜n < 5⌝ ⊓ ⌜n = s⌝ ⦄ := by
+  vcgen
+
+example : ⦃ fun s => s = 3 ⦄ (pure () : StateM Nat Unit) ⦃ fun _ s => ⨆ n : Nat, ⌜n < 5⌝ ⊓ ⌜s = n⌝ ⦄ := by
+  vcgen
+
 example : ⦃ fun s => s = 3 ⦄ (pure () : StateM Nat Unit)
     ⦃ fun _ => ⨆ n : Nat, ⌜n = 3⌝ ⊓ (fun s => s < n + 5) ⦄ := by
   vcgen
+
+example : ⦃ fun s => s = 3 ⦄ (pure () : StateM Nat Unit)
+    ⦃ fun _ => ⨆ n : Nat, (fun s => s < n + 5) ⊓ ⌜n = 3⌝ ⦄ := by
+  vcgen
+
+/-! At a carrier other than `Prop`, `simp` and `grind` rewrite with the lattice one-point rules. -/
+
+example {l : Type} [CompleteLattice l] (Ψ : Nat → l) : (⨆ n, (⌜n = 3⌝ : l) ⊓ Ψ n) = Ψ 3 := by simp
+example {l : Type} [CompleteLattice l] (Ψ : Nat → l) : (⨆ n, (⌜3 = n⌝ : l) ⊓ Ψ n) = Ψ 3 := by simp
+example {l : Type} [CompleteLattice l] (Ψ : Nat → l) : (⨆ n, Ψ n ⊓ (⌜n = 3⌝ : l)) = Ψ 3 := by simp
+example {l : Type} [CompleteLattice l] (Ψ : Nat → l) : (⨆ n, Ψ n ⊓ (⌜3 = n⌝ : l)) = Ψ 3 := by simp
+example {l : Type} [CompleteLattice l] (Ψ : Nat → l) : (⨆ n, Ψ n ⊓ (⌜n = 3⌝ : l)) = Ψ 3 := by grind
 
 /-! Without an equation on the index, the supremum stays. -/
 
 /--
 trace: case vc1
 s✝ : Nat
-⊢ iSup fun n => ⌜n < 5⌝
+⊢ ∃ n, n < 5
 ---
 warning: declaration uses `sorry`
 -/

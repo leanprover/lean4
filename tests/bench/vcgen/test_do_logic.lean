@@ -754,7 +754,7 @@ error: unsolved goals
 case vc1
 amounts : List Nat
 s✝ : Nat
-⊢ ⊥
+⊢ False
 -/
 #guard_msgs in
 theorem incr_id (amounts : List Nat) :

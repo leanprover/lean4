@@ -26,7 +26,7 @@ open Classical
 namespace Lean.Order
 
 open PartialOrder Std.Internal.Order
-@[vcgen_simp] theorem CompleteLattice.ofProp_true (l : Type v) [CompleteLattice l] : ⌜True⌝ = (⊤ : l) := by
+theorem CompleteLattice.ofProp_true (l : Type v) [CompleteLattice l] : ⌜True⌝ = (⊤ : l) := by
   simp [CompleteLattice.ofProp]
 
 theorem CompleteLattice.ofProp_false (l : Type v) [CompleteLattice l] : ⌜False⌝ = (⊥ : l) := by
@@ -245,17 +245,27 @@ theorem le_iSup_prop (p : l) (a : Prop) (b : a → l) (ha : p ⊑ ⌜a⌝) (hb :
   · rw [show a = False from propext ⟨h, False.elim⟩, CompleteLattice.ofProp_false] at ha
     exact rel_trans ha (bot_le _)
 
-@[vcgen_simp] theorem CompleteLattice.iSup_ofProp_eq_left {β : Sort v} (t : β) (Ψ : β → l) :
+theorem CompleteLattice.iSup_ofProp_eq_left {β : Sort v} (t : β) (Ψ : β → l) :
     (⨆ x, (⌜x = t⌝ : l) ⊓ Ψ x) = Ψ t :=
   rel_antisymm (iSup_le _ _ fun _ => CompleteLattice.ofProp_meet_le fun h => h ▸ rel_refl)
     (rel_trans (le_meet _ _ _ (CompleteLattice.le_ofProp _ _ rfl) rel_refl)
       (le_iSup (fun x => (⌜x = t⌝ : l) ⊓ Ψ x) t))
 
-@[vcgen_simp] theorem CompleteLattice.iSup_ofProp_eq_left' {β : Sort v} (t : β) (Ψ : β → l) :
+theorem CompleteLattice.iSup_ofProp_eq_left' {β : Sort v} (t : β) (Ψ : β → l) :
     (⨆ x, (⌜t = x⌝ : l) ⊓ Ψ x) = Ψ t :=
   rel_antisymm (iSup_le _ _ fun _ => CompleteLattice.ofProp_meet_le fun h => h ▸ rel_refl)
     (rel_trans (le_meet _ _ _ (CompleteLattice.le_ofProp _ _ rfl) rel_refl)
       (le_iSup (fun x => (⌜t = x⌝ : l) ⊓ Ψ x) t))
+
+theorem CompleteLattice.iSup_ofProp_eq_right {β : Sort v} (t : β) (Ψ : β → l) :
+    (⨆ x, Ψ x ⊓ (⌜x = t⌝ : l)) = Ψ t := by
+  simp only [meet_comm (P := Ψ _)]
+  exact CompleteLattice.iSup_ofProp_eq_left t Ψ
+
+theorem CompleteLattice.iSup_ofProp_eq_right' {β : Sort v} (t : β) (Ψ : β → l) :
+    (⨆ x, Ψ x ⊓ (⌜t = x⌝ : l)) = Ψ t := by
+  simp only [meet_comm (P := Ψ _)]
+  exact CompleteLattice.iSup_ofProp_eq_left' t Ψ
 
 end Lemmas
 

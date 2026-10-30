@@ -548,13 +548,13 @@ def parseStatusCode (limits : H1.Config) : Parser Status := do
 /--
 Parses a status line and returns a fully-typed `Response.Head`.
 `status-line = HTTP-version SP status-code SP [ reason-phrase ]`
-Accepts only HTTP/1.1. For parsing where the version may be unrecognized and must be
-mapped to an error event, use `parseStatusLineRawVersion`.
+Accepts only HTTP/1.x, read as HTTP/1.1 for any minor version above 1. For parsing where the version
+may be unrecognized and must be mapped to an error event, use `parseStatusLineRawVersion`.
 -/
 public def parseStatusLine (limits : H1.Config) : Parser Response.Head := do
   let (major, minor) ← parseHttpVersionNumber <* sp
   let status ← parseStatusCode limits
-  if major == 1 ∧ minor == 1 then
+  if major == 1 ∧ minor ≥ 1 then
     return { status, version := .v11, headers := .empty }
   else if major == 1 ∧ minor == 0 then
     return { status, version := .v10, headers := .empty }
@@ -565,12 +565,15 @@ public def parseStatusLine (limits : H1.Config) : Parser Response.Head := do
 Parses a status line and returns the status code plus recognized HTTP version when available.
 Consumes and discards the reason phrase.
 
+RFC 9110 §2.5: a response with a higher minor version than HTTP/1.1 (`HTTP/1.2`) is processed as
+HTTP/1.1, the highest minor version this client implements.
+
 status-line = HTTP-version SP status-code SP [ reason-phrase ] CRLF
 -/
 public def parseStatusLineRawVersion (limits : H1.Config) : Parser (Status × Option Version) := do
   let (major, minor) ← parseHttpVersionNumber <* sp
   let status ← parseStatusCode limits
-  return (status, Version.ofNumber? major minor)
+  return (status, Version.ofNumber? major (if major == 1 then min minor 1 else minor))
 
 /--
 Parses the trailer section that follows the last chunk size line (`0\r\n`). `strict` is passed on to

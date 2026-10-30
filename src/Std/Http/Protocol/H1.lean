@@ -334,33 +334,42 @@ private def hasFramingHeaders (message : Message.Head dir) : Bool :=
   message.headers.contains Header.Name.transferEncoding
 
 /--
-Validates an outgoing response head and selects body framing mode.
-
-For status codes that must not carry a response body, framing headers are still
-syntactically validated but the machine always uses `.fixed 0` framing.
+Returns `true` when a response's only transfer coding field ends in a coding other than `chunked`
+and no `Content-Length` competes with it. RFC 9112 §6.3 rule 4: such a body has no length of its own
+and runs until the server closes the connection.
 -/
-private def checkSendingMessageHead (message : Message.Head .sending) : Except H1.Error BodyMode :=
-  let framingInHeaders := hasFramingHeaders message
-
-  let parsedSize := message.getSize false
-
-  if responseMustNotHaveBody message.status then
-    match parsedSize with
-    | some _ => pure (.fixed 0)
-    | none => if framingInHeaders then throw .badMessage else pure (.fixed 0)
-  else
-    match parsedSize with
-    | some (.fixed n) => pure (.fixed n)
-    | some .chunked => pure .chunked
-    | none => if framingInHeaders then throw .badMessage else pure .eof
+private def hasCloseDelimitedCoding (message : Message.Head .sending) : Bool :=
+  message.version == .v11 && !message.headers.contains Header.Name.contentLength &&
+    match message.headers.getAll? Header.Name.transferEncoding with
+    | some #[value] => (Header.TransferEncoding.parse value).any (!·.isChunked)
+    | _ => false
 
 /--
-Direction-dispatched message-head validation.
+Validates an incoming response head, answering a request with `requestMethod`, and selects its body
+framing mode.
+
+RFC 9112 §6.3 rule 1: a response to `HEAD`, and every 1xx, 204 and 304 response, ends at the header
+block whatever its framing fields say, so those fields are not validated.
 -/
-private def checkMessageHead (message : Message.Head dir) : Except H1.Error BodyMode :=
+private def checkSendingMessageHead (requestMethod : Method) (message : Message.Head .sending) :
+    Except H1.Error BodyMode :=
+  if requestMethod == .head || responseMustNotHaveBody message.status then
+    pure (.fixed 0)
+  else
+    match message.getSize false with
+    | some (.fixed n) => pure (.fixed n)
+    | some .chunked => pure .chunked
+    | none =>
+      if !hasFramingHeaders message || hasCloseDelimitedCoding message then pure .eof
+      else throw .badMessage
+
+/--
+Direction-dispatched validation of the message head the reader just finished.
+-/
+private def checkMessageHead (machine : Machine dir) : Except H1.Error BodyMode :=
   match dir with
-  | .receiving => checkReceivingMessageHead message
-  | .sending => checkSendingMessageHead message
+  | .receiving => checkReceivingMessageHead machine.reader.messageHead
+  | .sending => checkSendingMessageHead machine.writer.messageHead.method machine.reader.messageHead
 
 /--
 Returns `true` when an `Expect` header includes `100-continue`.
@@ -380,13 +389,20 @@ private def hasExpectContinue (message : Message.Head dir) : Bool :=
 /--
 Builds canonical framing headers for a chosen transfer mode.
 The caller handles status/method exceptions that should skip normalization.
+
+For chunked framing, a caller's own `Transfer-Encoding` that ends in `chunked` (`gzip, chunked`) is
+kept: the body bytes were coded for it.
 -/
 @[inline]
 private def normalizeFramingHeaders (headers : Headers) (size : Body.Length) : Headers :=
+  let codings : Header.Value :=
+    match headers.getAll? Header.Name.transferEncoding with
+    | some #[value] => if (Header.TransferEncoding.parse value).any (·.isChunked) then value else .mk "chunked"
+    | _ => .mk "chunked"
   let headers := headers.erase Header.Name.contentLength |>.erase Header.Name.transferEncoding
   match size with
   | .fixed n => headers.insert Header.Name.contentLength (.ofString! <| toString n)
-  | .chunked => headers.insert Header.Name.transferEncoding (.mk "chunked")
+  | .chunked => headers.insert Header.Name.transferEncoding codings
 
 /--
 Returns `true` when response status forbids framing headers entirely
@@ -671,17 +687,6 @@ private def advanceAfterHeaders (machine : Machine dir) (state : Reader.State di
   | .sending, nextState, machine => machine.setReaderState nextState
 
 /--
-HEAD responses have no body, regardless of any framing headers. Override the
-framing mode to `.fixed 0` so the reader doesn't block waiting for body bytes.
--/
-@[inline]
-private def suppressIncomingBodyIfHead (machine : Machine dir) (mode : BodyMode) : BodyMode :=
-  match dir with
-  | .sending =>
-    if machine.writer.messageHead.method == .head then .fixed 0 else mode
-  | .receiving => mode
-
-/--
 Processes a finished header block:
 1. updates keep-alive policy from config and headers,
 2. validates semantic message framing,
@@ -692,10 +697,9 @@ private def processHeaders (machine : Machine dir) : Machine dir :=
   let machine := machine.updateKeepAlive (machine.reader.messageCount + 1 < machine.config.maxMessages)
   let machine := machine.updateKeepAlive machine.reader.messageHead.shouldKeepAlive
 
-  match checkMessageHead machine.reader.messageHead with
+  match checkMessageHead machine with
   | .error err => machine.setFailure err
   | .ok mode =>
-    let mode := suppressIncomingBodyIfHead machine mode
     if exceedsBodyLimitForMode machine mode then
       machine.setFailure .entityTooLarge
     else

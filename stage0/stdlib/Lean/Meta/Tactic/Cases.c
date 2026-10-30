@@ -8520,11 +8520,11 @@ lean_inc(v_ctors_2873_);
 lean_dec_ref(v_inductiveVal_2872_);
 v___x_2874_ = lean_array_mk(v_ctors_2873_);
 lean_inc(v_majorFVarId_2851_);
-v___x_2875_ = l_Lean_MVarId_induction(v_mvarId_2850_, v_majorFVarId_2851_, v___y_2871_, v_givenNames_2852_, v___y_2868_, v___y_2870_, v___y_2869_, v___y_2867_);
-lean_dec(v___y_2867_);
-lean_dec_ref(v___y_2869_);
-lean_dec(v___y_2870_);
-lean_dec_ref(v___y_2868_);
+v___x_2875_ = l_Lean_MVarId_induction(v_mvarId_2850_, v_majorFVarId_2851_, v___y_2871_, v_givenNames_2852_, v___y_2870_, v___y_2868_, v___y_2867_, v___y_2869_);
+lean_dec(v___y_2869_);
+lean_dec_ref(v___y_2867_);
+lean_dec(v___y_2868_);
+lean_dec_ref(v___y_2870_);
 if (lean_obj_tag(v___x_2875_) == 0)
 {
 lean_object* v_a_2876_; lean_object* v___x_2878_; uint8_t v_isShared_2879_; uint8_t v_isSharedCheck_2884_; 
@@ -8626,8 +8626,8 @@ lean_inc(v_name_2900_);
 v___x_2901_ = l_Lean_mkCasesOnName(v_name_2900_);
 v___y_2867_ = v___y_2894_;
 v___y_2868_ = v___y_2895_;
-v___y_2869_ = v___y_2897_;
-v___y_2870_ = v___y_2896_;
+v___y_2869_ = v___y_2896_;
+v___y_2870_ = v___y_2897_;
 v___y_2871_ = v___x_2901_;
 goto v___jp_2866_;
 }
@@ -8638,10 +8638,10 @@ v___x_2907_ = lean_st_ref_get(v___y_2906_);
 if (v_useNatCasesAuxOn_2853_ == 0)
 {
 lean_dec(v___x_2907_);
-v___y_2894_ = v___y_2906_;
-v___y_2895_ = v___y_2903_;
-v___y_2896_ = v___y_2904_;
-v___y_2897_ = v___y_2905_;
+v___y_2894_ = v___y_2905_;
+v___y_2895_ = v___y_2904_;
+v___y_2896_ = v___y_2906_;
+v___y_2897_ = v___y_2903_;
 goto v___jp_2893_;
 }
 else
@@ -8658,10 +8658,10 @@ v___x_2913_ = lean_name_eq(v_name_2911_, v___x_2912_);
 if (v___x_2913_ == 0)
 {
 lean_dec_ref(v_env_2910_);
-v___y_2894_ = v___y_2906_;
-v___y_2895_ = v___y_2903_;
-v___y_2896_ = v___y_2904_;
-v___y_2897_ = v___y_2905_;
+v___y_2894_ = v___y_2905_;
+v___y_2895_ = v___y_2904_;
+v___y_2896_ = v___y_2906_;
+v___y_2897_ = v___y_2903_;
 goto v___jp_2893_;
 }
 else
@@ -8671,18 +8671,18 @@ v___x_2914_ = ((lean_object*)(l___private_Lean_Meta_Tactic_Cases_0__Lean_Meta_Ca
 v___x_2915_ = l_Lean_Environment_contains(v_env_2910_, v___x_2914_, v___x_2913_);
 if (v___x_2915_ == 0)
 {
-v___y_2894_ = v___y_2906_;
-v___y_2895_ = v___y_2903_;
-v___y_2896_ = v___y_2904_;
-v___y_2897_ = v___y_2905_;
+v___y_2894_ = v___y_2905_;
+v___y_2895_ = v___y_2904_;
+v___y_2896_ = v___y_2906_;
+v___y_2897_ = v___y_2903_;
 goto v___jp_2893_;
 }
 else
 {
-v___y_2867_ = v___y_2906_;
-v___y_2868_ = v___y_2903_;
-v___y_2869_ = v___y_2905_;
-v___y_2870_ = v___y_2904_;
+v___y_2867_ = v___y_2905_;
+v___y_2868_ = v___y_2904_;
+v___y_2869_ = v___y_2906_;
+v___y_2870_ = v___y_2903_;
 v___y_2871_ = v___x_2914_;
 goto v___jp_2866_;
 }

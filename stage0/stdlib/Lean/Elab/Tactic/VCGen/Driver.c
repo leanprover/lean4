@@ -6607,9 +6607,9 @@ v___x_2375_ = lean_array_get_size(v_entries_2374_);
 v___x_2376_ = l_Array_filterMapM___at___00Lean_Elab_Tactic_VCGen_run_spec__2(v_entries_2374_, v___x_2368_, v___x_2375_);
 lean_dec_ref(v_entries_2374_);
 v___x_2377_ = lean_alloc_ctor(0, 4, 0);
-lean_ctor_set(v___x_2377_, 0, v___y_2371_);
+lean_ctor_set(v___x_2377_, 0, v___y_2372_);
 lean_ctor_set(v___x_2377_, 1, v_a_2373_);
-lean_ctor_set(v___x_2377_, 2, v___y_2372_);
+lean_ctor_set(v___x_2377_, 2, v___y_2371_);
 lean_ctor_set(v___x_2377_, 3, v___x_2376_);
 v___x_2378_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_2378_, 0, v___x_2377_);
@@ -6674,8 +6674,8 @@ if (v___x_2399_ == 0)
 {
 lean_dec_ref(v_vcs_2391_);
 v___y_2370_ = v_frameDB_2389_;
-v___y_2371_ = v_invariants_2390_;
-v___y_2372_ = v_inlineHandledInvariants_2392_;
+v___y_2371_ = v_inlineHandledInvariants_2392_;
+v___y_2372_ = v_invariants_2390_;
 v_a_2373_ = v___x_2380_;
 goto v___jp_2369_;
 }
@@ -6692,8 +6692,8 @@ v_a_2402_ = lean_ctor_get(v___x_2401_, 0);
 lean_inc(v_a_2402_);
 lean_dec_ref_known(v___x_2401_, 1);
 v___y_2370_ = v_frameDB_2389_;
-v___y_2371_ = v_invariants_2390_;
-v___y_2372_ = v_inlineHandledInvariants_2392_;
+v___y_2371_ = v_inlineHandledInvariants_2392_;
+v___y_2372_ = v_invariants_2390_;
 v_a_2373_ = v_a_2402_;
 goto v___jp_2369_;
 }

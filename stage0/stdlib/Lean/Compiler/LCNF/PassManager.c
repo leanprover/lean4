@@ -1908,8 +1908,8 @@ return v___x_652_;
 else
 {
 lean_del_object(v___x_645_);
-lean_dec(v_snd_643_);
 lean_dec_ref_known(v_fst_642_, 1);
+lean_dec(v_snd_643_);
 lean_del_object(v___x_640_);
 v___y_625_ = v_a_621_;
 v___y_626_ = v_a_622_;

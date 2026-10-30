@@ -2228,7 +2228,7 @@ lean_dec(v___y_671_);
 if (v___x_677_ == 0)
 {
 lean_dec(v___y_674_);
-return v___y_673_;
+return v___y_672_;
 }
 else
 {
@@ -2242,7 +2242,7 @@ return v___x_676_;
 }
 else
 {
-return v___y_673_;
+return v___y_672_;
 }
 }
 }
@@ -2250,7 +2250,7 @@ else
 {
 lean_dec(v___y_674_);
 lean_dec(v___y_671_);
-return v___y_672_;
+return v___y_673_;
 }
 }
 v___jp_680_:
@@ -2298,8 +2298,8 @@ v___x_697_ = ((lean_object*)(l_Std_Http_Header_TransferEncoding_Validate___close
 v___x_698_ = lean_nat_dec_lt(v___x_695_, v___x_696_);
 if (v___x_698_ == 0)
 {
-v___y_681_ = v___y_693_;
-v___y_682_ = v___x_694_;
+v___y_681_ = v___x_694_;
+v___y_682_ = v___y_693_;
 v___y_683_ = v___x_697_;
 goto v___jp_680_;
 }
@@ -2309,8 +2309,8 @@ size_t v___x_699_; size_t v___x_700_; lean_object* v___x_701_;
 v___x_699_ = ((size_t)0ULL);
 v___x_700_ = lean_usize_of_nat(v___x_696_);
 v___x_701_ = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Std_Http_Header_TransferEncoding_Validate_spec__1(v_codings_669_, v___x_699_, v___x_700_, v___x_697_);
-v___y_681_ = v___y_693_;
-v___y_682_ = v___x_694_;
+v___y_681_ = v___x_694_;
+v___y_682_ = v___y_693_;
 v___y_683_ = v___x_701_;
 goto v___jp_680_;
 }

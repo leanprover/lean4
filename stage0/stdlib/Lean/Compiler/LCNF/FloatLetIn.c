@@ -10942,11 +10942,11 @@ return v___x_3782_;
 v___jp_3720_:
 {
 lean_object* v___x_3727_; lean_object* v___x_3728_; lean_object* v___x_3729_; 
-v___x_3727_ = l_Lean_Compiler_LCNF_attachCodeDecls___redArg(v___y_3722_, v___y_3726_);
-lean_dec_ref(v___y_3722_);
+v___x_3727_ = l_Lean_Compiler_LCNF_attachCodeDecls___redArg(v___y_3724_, v___y_3726_);
+lean_dec_ref(v___y_3724_);
 v___x_3728_ = lean_alloc_closure((void*)(l___private_Lean_Compiler_LCNF_FloatLetIn_0__Lean_Compiler_LCNF_FloatLetIn_floatLetIn_go___boxed), 7, 1);
 lean_closure_set(v___x_3728_, 0, v___x_3727_);
-v___x_3729_ = l_Lean_Compiler_LCNF_FloatLetIn_withNewScope___redArg(v___x_3728_, v___y_3723_, v___y_3725_, v___y_3724_, v___y_3721_);
+v___x_3729_ = l_Lean_Compiler_LCNF_FloatLetIn_withNewScope___redArg(v___x_3728_, v___y_3725_, v___y_3721_, v___y_3723_, v___y_3722_);
 if (lean_obj_tag(v___x_3729_) == 0)
 {
 lean_object* v_a_3730_; lean_object* v___x_3731_; size_t v___x_3732_; size_t v___x_3733_; uint8_t v___x_3734_; 
@@ -11035,11 +11035,11 @@ case 0:
 lean_object* v_code_3758_; 
 v_code_3758_ = lean_ctor_get(v_a_3719_, 2);
 lean_inc_ref(v_code_3758_);
-v___y_3721_ = v___y_3756_;
-v___y_3722_ = v___x_3757_;
-v___y_3723_ = v___y_3753_;
-v___y_3724_ = v___y_3755_;
-v___y_3725_ = v___y_3754_;
+v___y_3721_ = v___y_3754_;
+v___y_3722_ = v___y_3756_;
+v___y_3723_ = v___y_3755_;
+v___y_3724_ = v___x_3757_;
+v___y_3725_ = v___y_3753_;
 v___y_3726_ = v_code_3758_;
 goto v___jp_3720_;
 }
@@ -11048,11 +11048,11 @@ case 1:
 lean_object* v_code_3759_; 
 v_code_3759_ = lean_ctor_get(v_a_3719_, 1);
 lean_inc_ref(v_code_3759_);
-v___y_3721_ = v___y_3756_;
-v___y_3722_ = v___x_3757_;
-v___y_3723_ = v___y_3753_;
-v___y_3724_ = v___y_3755_;
-v___y_3725_ = v___y_3754_;
+v___y_3721_ = v___y_3754_;
+v___y_3722_ = v___y_3756_;
+v___y_3723_ = v___y_3755_;
+v___y_3724_ = v___x_3757_;
+v___y_3725_ = v___y_3753_;
 v___y_3726_ = v_code_3759_;
 goto v___jp_3720_;
 }
@@ -11061,11 +11061,11 @@ default:
 lean_object* v_code_3760_; 
 v_code_3760_ = lean_ctor_get(v_a_3719_, 0);
 lean_inc_ref(v_code_3760_);
-v___y_3721_ = v___y_3756_;
-v___y_3722_ = v___x_3757_;
-v___y_3723_ = v___y_3753_;
-v___y_3724_ = v___y_3755_;
-v___y_3725_ = v___y_3754_;
+v___y_3721_ = v___y_3754_;
+v___y_3722_ = v___y_3756_;
+v___y_3723_ = v___y_3755_;
+v___y_3724_ = v___x_3757_;
+v___y_3725_ = v___y_3753_;
 v___y_3726_ = v_code_3760_;
 goto v___jp_3720_;
 }

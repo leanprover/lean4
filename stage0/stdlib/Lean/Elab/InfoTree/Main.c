@@ -2821,7 +2821,7 @@ lean_inc_ref(v___y_734_);
 v___x_735_ = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(v___x_735_, 0, v___y_734_);
 v___x_736_ = lean_alloc_ctor(5, 2, 0);
-lean_ctor_set(v___x_736_, 0, v___y_733_);
+lean_ctor_set(v___x_736_, 0, v___y_732_);
 lean_ctor_set(v___x_736_, 1, v___x_735_);
 v___x_737_ = ((lean_object*)(l_Lean_Elab_TermInfo_format___lam__0___closed__1));
 v___x_738_ = lean_alloc_ctor(5, 2, 0);
@@ -2829,7 +2829,7 @@ lean_ctor_set(v___x_738_, 0, v___x_736_);
 lean_ctor_set(v___x_738_, 1, v___x_737_);
 v___x_739_ = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(v___x_739_, 0, v___x_738_);
-lean_ctor_set(v___x_739_, 1, v___y_732_);
+lean_ctor_set(v___x_739_, 1, v___y_733_);
 v___x_740_ = ((lean_object*)(l___private_Lean_Elab_InfoTree_Main_0__Lean_Elab_formatElabInfo___closed__1));
 v___x_741_ = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(v___x_741_, 0, v___x_739_);
@@ -2868,8 +2868,8 @@ if (v_isBinder_725_ == 0)
 {
 lean_object* v___x_753_; 
 v___x_753_ = ((lean_object*)(l_Lean_Elab_TermInfo_format___lam__0___closed__6));
-v___y_732_ = v_a_746_;
-v___y_733_ = v___x_752_;
+v___y_732_ = v___x_752_;
+v___y_733_ = v_a_746_;
 v___y_734_ = v___x_753_;
 goto v___jp_731_;
 }
@@ -2877,8 +2877,8 @@ else
 {
 lean_object* v___x_754_; 
 v___x_754_ = ((lean_object*)(l_Lean_Elab_TermInfo_format___lam__0___closed__7));
-v___y_732_ = v_a_746_;
-v___y_733_ = v___x_752_;
+v___y_732_ = v___x_752_;
+v___y_733_ = v_a_746_;
 v___y_734_ = v___x_754_;
 goto v___jp_731_;
 }

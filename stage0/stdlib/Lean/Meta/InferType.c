@@ -1475,8 +1475,8 @@ else
 lean_object* v_val_300_; lean_object* v___x_301_; 
 lean_dec_ref_known(v___x_287_, 2);
 lean_dec_ref(v_arg_286_);
-lean_dec_ref_known(v_e_280_, 2);
 lean_dec_ref(v_fn_285_);
+lean_dec_ref_known(v_e_280_, 2);
 lean_dec(v_offset_281_);
 v_val_300_ = lean_ctor_get(v___x_288_, 0);
 lean_inc(v_val_300_);

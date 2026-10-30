@@ -2661,8 +2661,8 @@ return v___x_819_;
 default: 
 {
 uint8_t v___x_822_; lean_object* v___x_823_; lean_object* v___x_824_; 
-lean_dec_ref_known(v_e_730_, 2);
 lean_dec_ref(v___x_774_);
+lean_dec_ref_known(v_e_730_, 2);
 v___x_822_ = 3;
 v___x_823_ = lean_box(v___x_822_);
 v___x_824_ = lean_alloc_ctor(0, 1, 0);

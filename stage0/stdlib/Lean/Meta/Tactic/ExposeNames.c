@@ -3249,8 +3249,8 @@ v___x_945_ = lean_local_ctx_find(v_fst_924_, v_a_930_);
 if (lean_obj_tag(v___x_945_) == 0)
 {
 lean_dec(v_fst_938_);
-v___y_901_ = v___x_944_;
-v___y_902_ = v___x_943_;
+v___y_901_ = v___x_943_;
+v___y_902_ = v___x_944_;
 v___y_903_ = v_fst_924_;
 goto v___jp_900_;
 }
@@ -3271,12 +3271,12 @@ v_fvarId_949_ = lean_ctor_get(v___x_947_, 1);
 lean_inc_ref(v___x_947_);
 lean_inc(v_fvarId_949_);
 v___x_950_ = l_Lean_PersistentHashMap_insert___at___00__private_Lean_Meta_Tactic_ExposeNames_0__Lean_Meta_getLCtxWithExposedNames_spec__5___redArg(v_fvarIdToDecl_940_, v_fvarId_949_, v___x_947_);
-v___y_910_ = v___x_944_;
-v___y_911_ = v___x_950_;
-v___y_912_ = v___x_947_;
-v___y_913_ = v_auxDeclToFullName_942_;
-v___y_914_ = v_decls_941_;
-v___y_915_ = v___x_943_;
+v___y_910_ = v___x_947_;
+v___y_911_ = v___x_943_;
+v___y_912_ = v___x_944_;
+v___y_913_ = v_decls_941_;
+v___y_914_ = v_auxDeclToFullName_942_;
+v___y_915_ = v___x_950_;
 v___y_916_ = v_index_948_;
 goto v___jp_909_;
 }
@@ -3356,9 +3356,9 @@ v___jp_900_:
 lean_object* v___x_904_; lean_object* v___x_905_; size_t v___x_906_; size_t v___x_907_; 
 v___x_904_ = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(v___x_904_, 0, v___y_903_);
-lean_ctor_set(v___x_904_, 1, v___y_902_);
+lean_ctor_set(v___x_904_, 1, v___y_901_);
 v___x_905_ = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(v___x_905_, 0, v___y_901_);
+lean_ctor_set(v___x_905_, 0, v___y_902_);
 lean_ctor_set(v___x_905_, 1, v___x_904_);
 v___x_906_ = ((size_t)1ULL);
 v___x_907_ = lean_usize_add(v_i_893_, v___x_906_);
@@ -3370,15 +3370,15 @@ v___jp_909_:
 {
 lean_object* v___x_917_; lean_object* v___x_918_; lean_object* v___x_919_; 
 v___x_917_ = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(v___x_917_, 0, v___y_912_);
-v___x_918_ = l_Lean_PersistentArray_set___redArg(v___y_914_, v___y_916_, v___x_917_);
+lean_ctor_set(v___x_917_, 0, v___y_910_);
+v___x_918_ = l_Lean_PersistentArray_set___redArg(v___y_913_, v___y_916_, v___x_917_);
 lean_dec(v___y_916_);
 v___x_919_ = lean_alloc_ctor(0, 3, 0);
-lean_ctor_set(v___x_919_, 0, v___y_911_);
+lean_ctor_set(v___x_919_, 0, v___y_915_);
 lean_ctor_set(v___x_919_, 1, v___x_918_);
-lean_ctor_set(v___x_919_, 2, v___y_913_);
-v___y_901_ = v___y_910_;
-v___y_902_ = v___y_915_;
+lean_ctor_set(v___x_919_, 2, v___y_914_);
+v___y_901_ = v___y_911_;
+v___y_902_ = v___y_912_;
 v___y_903_ = v___x_919_;
 goto v___jp_900_;
 }

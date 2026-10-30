@@ -830,8 +830,8 @@ else
 {
 lean_object* v___x_278_; uint8_t v___x_279_; 
 lean_inc_ref(v_str_274_);
-lean_inc_ref(v_str_273_);
 lean_inc(v_pre_272_);
+lean_inc_ref(v_str_273_);
 lean_dec_ref_known(v_x_241_, 2);
 v___x_278_ = ((lean_object*)(l___private_Lean_Elab_Tactic_Do_ConjunctivePre_0__Lean_Elab_Tactic_VCGen_SpecAttr_specComponents_x3f___closed__1));
 v___x_279_ = lean_string_dec_eq(v_str_274_, v___x_278_);
@@ -1001,8 +1001,8 @@ goto v___jp_242_;
 else
 {
 lean_object* v___x_321_; uint8_t v___x_322_; 
-lean_inc(v_pre_271_);
 lean_inc_ref(v_str_317_);
+lean_inc(v_pre_271_);
 lean_dec_ref_known(v_x_241_, 2);
 v___x_321_ = ((lean_object*)(l___private_Lean_Elab_Tactic_Do_ConjunctivePre_0__Lean_Elab_Tactic_VCGen_SpecAttr_conjunctiveArgs_x3f___closed__21));
 v___x_322_ = lean_string_dec_eq(v_str_317_, v___x_321_);

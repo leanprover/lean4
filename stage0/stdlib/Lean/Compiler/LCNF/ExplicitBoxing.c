@@ -10218,8 +10218,8 @@ return v___x_2726_;
 else
 {
 lean_object* v_a_2729_; lean_object* v___x_2731_; uint8_t v_isShared_2732_; uint8_t v_isSharedCheck_2736_; 
-lean_dec_ref_known(v_code_2506_, 1);
 lean_dec(v_fvarId_2699_);
+lean_dec_ref_known(v_code_2506_, 1);
 v_a_2729_ = lean_ctor_get(v___x_2704_, 0);
 v_isSharedCheck_2736_ = !lean_is_exclusive(v___x_2704_);
 if (v_isSharedCheck_2736_ == 0)
@@ -10272,8 +10272,8 @@ return v___x_2737_;
 else
 {
 lean_object* v_a_2738_; lean_object* v___x_2740_; uint8_t v_isShared_2741_; uint8_t v_isSharedCheck_2745_; 
-lean_dec_ref_known(v_code_2506_, 1);
 lean_dec(v_fvarId_2699_);
+lean_dec_ref_known(v_code_2506_, 1);
 v_a_2738_ = lean_ctor_get(v___x_2701_, 0);
 v_isSharedCheck_2745_ = !lean_is_exclusive(v___x_2701_);
 if (v_isSharedCheck_2745_ == 0)
@@ -10487,8 +10487,8 @@ lean_dec(v_a_2766_);
 lean_dec_ref(v_k_2764_);
 lean_dec(v_y_2763_);
 lean_dec(v_i_2762_);
-lean_dec_ref_known(v_code_2506_, 4);
 lean_dec(v_fvarId_2761_);
+lean_dec_ref_known(v_code_2506_, 4);
 v_a_2788_ = lean_ctor_get(v___x_2775_, 0);
 v_isSharedCheck_2795_ = !lean_is_exclusive(v___x_2775_);
 if (v_isSharedCheck_2795_ == 0)
@@ -10535,8 +10535,8 @@ lean_dec(v_a_2766_);
 lean_dec_ref(v_k_2764_);
 lean_dec(v_y_2763_);
 lean_dec(v_i_2762_);
-lean_dec_ref_known(v_code_2506_, 4);
 lean_dec(v_fvarId_2761_);
+lean_dec_ref_known(v_code_2506_, 4);
 v_a_2796_ = lean_ctor_get(v___x_2771_, 0);
 v_isSharedCheck_2803_ = !lean_is_exclusive(v___x_2771_);
 if (v_isSharedCheck_2803_ == 0)
@@ -10594,8 +10594,8 @@ lean_dec(v_a_2766_);
 lean_dec_ref(v_k_2764_);
 lean_dec(v_y_2763_);
 lean_dec(v_i_2762_);
-lean_dec_ref_known(v_code_2506_, 4);
 lean_dec(v_fvarId_2761_);
+lean_dec_ref_known(v_code_2506_, 4);
 v_a_2805_ = lean_ctor_get(v___x_2768_, 0);
 v_isSharedCheck_2812_ = !lean_is_exclusive(v___x_2768_);
 if (v_isSharedCheck_2812_ == 0)
@@ -10640,8 +10640,8 @@ else
 lean_dec_ref(v_k_2764_);
 lean_dec(v_y_2763_);
 lean_dec(v_i_2762_);
-lean_dec_ref_known(v_code_2506_, 4);
 lean_dec(v_fvarId_2761_);
+lean_dec_ref_known(v_code_2506_, 4);
 return v___x_2765_;
 }
 }

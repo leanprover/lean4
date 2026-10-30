@@ -12391,7 +12391,7 @@ v___x_3911_ = lean_box(v___y_3910_);
 if (v_isShared_3905_ == 0)
 {
 lean_ctor_set(v___x_3904_, 1, v___x_3911_);
-lean_ctor_set(v___x_3904_, 0, v___y_3909_);
+lean_ctor_set(v___x_3904_, 0, v___y_3908_);
 v___x_3913_ = v___x_3904_;
 goto v_reusejp_3912_;
 }
@@ -12399,7 +12399,7 @@ else
 {
 lean_object* v_reuseFailAlloc_3924_; 
 v_reuseFailAlloc_3924_ = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(v_reuseFailAlloc_3924_, 0, v___y_3909_);
+lean_ctor_set(v_reuseFailAlloc_3924_, 0, v___y_3908_);
 lean_ctor_set(v_reuseFailAlloc_3924_, 1, v___x_3911_);
 v___x_3913_ = v_reuseFailAlloc_3924_;
 goto v_reusejp_3912_;
@@ -12410,7 +12410,7 @@ lean_object* v___x_3915_;
 if (v_isShared_3900_ == 0)
 {
 lean_ctor_set(v___x_3899_, 1, v___x_3913_);
-lean_ctor_set(v___x_3899_, 0, v___y_3908_);
+lean_ctor_set(v___x_3899_, 0, v___y_3909_);
 v___x_3915_ = v___x_3899_;
 goto v_reusejp_3914_;
 }
@@ -12418,7 +12418,7 @@ else
 {
 lean_object* v_reuseFailAlloc_3923_; 
 v_reuseFailAlloc_3923_ = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(v_reuseFailAlloc_3923_, 0, v___y_3908_);
+lean_ctor_set(v_reuseFailAlloc_3923_, 0, v___y_3909_);
 lean_ctor_set(v_reuseFailAlloc_3923_, 1, v___x_3913_);
 v___x_3915_ = v_reuseFailAlloc_3923_;
 goto v_reusejp_3914_;
@@ -12841,8 +12841,8 @@ lean_object* v_a_4005_;
 v_a_4005_ = lean_ctor_get(v___x_4003_, 0);
 lean_inc(v_a_4005_);
 lean_dec_ref_known(v___x_4003_, 1);
-v___y_3908_ = v_expr_4000_;
-v___y_3909_ = v_a_4005_;
+v___y_3908_ = v_a_4005_;
+v___y_3909_ = v_expr_4000_;
 v___y_3910_ = v_found_3925_;
 goto v___jp_3907_;
 }
@@ -12852,8 +12852,8 @@ lean_object* v_a_4006_;
 v_a_4006_ = lean_ctor_get(v___x_4003_, 0);
 lean_inc(v_a_4006_);
 lean_dec_ref_known(v___x_4003_, 1);
-v___y_3908_ = v_expr_4000_;
-v___y_3909_ = v_a_4006_;
+v___y_3908_ = v_a_4006_;
+v___y_3909_ = v_expr_4000_;
 v___y_3910_ = v_cache_4002_;
 goto v___jp_3907_;
 }
@@ -16220,8 +16220,8 @@ lean_object* v___x_5291_; uint8_t v___x_5292_;
 lean_inc_ref(v_str_5286_);
 lean_inc_ref(v_str_5285_);
 lean_inc_ref(v_str_5284_);
-lean_inc(v_us_5283_);
 lean_inc(v_pre_5282_);
+lean_inc(v_us_5283_);
 lean_dec_ref_known(v___x_5277_, 2);
 v___x_5291_ = ((lean_object*)(l___private_Lean_Meta_Tactic_Simp_Simproc_0__Lean_Meta_Simp_initFn___closed__6_00___x40_Lean_Meta_Tactic_Simp_Simproc_1881898657____hygCtx___hyg_2_));
 v___x_5292_ = lean_string_dec_eq(v_str_5286_, v___x_5291_);

@@ -2960,7 +2960,7 @@ goto v___jp_963_;
 v___jp_977_:
 {
 lean_object* v___x_990_; 
-v___x_990_ = l_Lean_PersistentArray_forIn___at___00__private_Lean_Meta_Tactic_Grind_Arith_Cutsat_ReorderVars_0__Lean_Meta_Grind_Arith_Cutsat_collectVarInfo_go_spec__0(v___y_989_, v___x_962_, v___y_988_, v___y_979_, v___y_981_, v___y_980_, v___y_987_, v___y_986_, v___y_982_, v___y_984_, v___y_985_, v___y_978_, v___y_983_);
+v___x_990_ = l_Lean_PersistentArray_forIn___at___00__private_Lean_Meta_Tactic_Grind_Arith_Cutsat_ReorderVars_0__Lean_Meta_Grind_Arith_Cutsat_collectVarInfo_go_spec__0(v___y_989_, v___x_962_, v___y_981_, v___y_978_, v___y_987_, v___y_984_, v___y_980_, v___y_988_, v___y_983_, v___y_985_, v___y_979_, v___y_982_, v___y_986_);
 lean_dec_ref(v___y_989_);
 if (lean_obj_tag(v___x_990_) == 0)
 {
@@ -2999,7 +2999,7 @@ return v___x_990_;
 v___jp_998_:
 {
 lean_object* v___x_1011_; 
-v___x_1011_ = l_Lean_PersistentArray_forIn___at___00__private_Lean_Meta_Tactic_Grind_Arith_Cutsat_ReorderVars_0__Lean_Meta_Grind_Arith_Cutsat_collectVarInfo_go_spec__0(v___y_1010_, v___x_962_, v___y_1005_, v___y_1000_, v___y_1002_, v___y_1001_, v___y_1009_, v___y_1008_, v___y_1003_, v___y_1006_, v___y_1007_, v___y_999_, v___y_1004_);
+v___x_1011_ = l_Lean_PersistentArray_forIn___at___00__private_Lean_Meta_Tactic_Grind_Arith_Cutsat_ReorderVars_0__Lean_Meta_Grind_Arith_Cutsat_collectVarInfo_go_spec__0(v___y_1010_, v___x_962_, v___y_1008_, v___y_999_, v___y_1007_, v___y_1004_, v___y_1001_, v___y_1009_, v___y_1003_, v___y_1005_, v___y_1000_, v___y_1002_, v___y_1006_);
 lean_dec_ref(v___y_1010_);
 if (lean_obj_tag(v___x_1011_) == 0)
 {
@@ -3018,14 +3018,14 @@ v___x_1015_ = l_outOfBounds___redArg(v___x_997_);
 v___y_978_ = v___y_999_;
 v___y_979_ = v___y_1000_;
 v___y_980_ = v___y_1001_;
-v___y_981_ = v___y_1002_;
-v___y_982_ = v___y_1003_;
-v___y_983_ = v___y_1004_;
-v___y_984_ = v___y_1006_;
-v___y_985_ = v___y_1007_;
-v___y_986_ = v___y_1008_;
-v___y_987_ = v___y_1009_;
-v___y_988_ = v_snd_1013_;
+v___y_981_ = v_snd_1013_;
+v___y_982_ = v___y_1002_;
+v___y_983_ = v___y_1003_;
+v___y_984_ = v___y_1004_;
+v___y_985_ = v___y_1005_;
+v___y_986_ = v___y_1006_;
+v___y_987_ = v___y_1007_;
+v___y_988_ = v___y_1009_;
 v___y_989_ = v___x_1015_;
 goto v___jp_977_;
 }
@@ -3036,14 +3036,14 @@ v___x_1016_ = l_Lean_PersistentArray_get_x21___redArg(v___x_997_, v_uppers_959_,
 v___y_978_ = v___y_999_;
 v___y_979_ = v___y_1000_;
 v___y_980_ = v___y_1001_;
-v___y_981_ = v___y_1002_;
-v___y_982_ = v___y_1003_;
-v___y_983_ = v___y_1004_;
-v___y_984_ = v___y_1006_;
-v___y_985_ = v___y_1007_;
-v___y_986_ = v___y_1008_;
-v___y_987_ = v___y_1009_;
-v___y_988_ = v_snd_1013_;
+v___y_981_ = v_snd_1013_;
+v___y_982_ = v___y_1002_;
+v___y_983_ = v___y_1003_;
+v___y_984_ = v___y_1004_;
+v___y_985_ = v___y_1005_;
+v___y_986_ = v___y_1006_;
+v___y_987_ = v___y_1007_;
+v___y_988_ = v___y_1009_;
 v___y_989_ = v___x_1016_;
 goto v___jp_977_;
 }
@@ -3074,17 +3074,17 @@ if (v___x_1032_ == 0)
 {
 lean_object* v___x_1033_; 
 v___x_1033_ = l_outOfBounds___redArg(v___x_997_);
-v___y_999_ = v___y_1027_;
-v___y_1000_ = v___y_1019_;
-v___y_1001_ = v___y_1021_;
-v___y_1002_ = v___y_1020_;
+v___y_999_ = v___y_1019_;
+v___y_1000_ = v___y_1026_;
+v___y_1001_ = v___y_1022_;
+v___y_1002_ = v___y_1027_;
 v___y_1003_ = v___y_1024_;
-v___y_1004_ = v___y_1028_;
-v___y_1005_ = v___y_1018_;
-v___y_1006_ = v___y_1025_;
-v___y_1007_ = v___y_1026_;
-v___y_1008_ = v___y_1023_;
-v___y_1009_ = v___y_1022_;
+v___y_1004_ = v___y_1021_;
+v___y_1005_ = v___y_1025_;
+v___y_1006_ = v___y_1028_;
+v___y_1007_ = v___y_1020_;
+v___y_1008_ = v___y_1018_;
+v___y_1009_ = v___y_1023_;
 v___y_1010_ = v___x_1033_;
 goto v___jp_998_;
 }
@@ -3092,17 +3092,17 @@ else
 {
 lean_object* v___x_1034_; 
 v___x_1034_ = l_Lean_PersistentArray_get_x21___redArg(v___x_997_, v_lowers_958_, v_i_939_);
-v___y_999_ = v___y_1027_;
-v___y_1000_ = v___y_1019_;
-v___y_1001_ = v___y_1021_;
-v___y_1002_ = v___y_1020_;
+v___y_999_ = v___y_1019_;
+v___y_1000_ = v___y_1026_;
+v___y_1001_ = v___y_1022_;
+v___y_1002_ = v___y_1027_;
 v___y_1003_ = v___y_1024_;
-v___y_1004_ = v___y_1028_;
-v___y_1005_ = v___y_1018_;
-v___y_1006_ = v___y_1025_;
-v___y_1007_ = v___y_1026_;
-v___y_1008_ = v___y_1023_;
-v___y_1009_ = v___y_1022_;
+v___y_1004_ = v___y_1021_;
+v___y_1005_ = v___y_1025_;
+v___y_1006_ = v___y_1028_;
+v___y_1007_ = v___y_1020_;
+v___y_1008_ = v___y_1018_;
+v___y_1009_ = v___y_1023_;
 v___y_1010_ = v___x_1034_;
 goto v___jp_998_;
 }

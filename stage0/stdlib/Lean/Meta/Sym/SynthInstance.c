@@ -4359,13 +4359,13 @@ return v___x_1114_;
 static lean_object* _init_l___private_Lean_Meta_Sym_SynthInstance_0__Lean_Meta_Sym_builtinAlgebraicInsts___closed__92(void){
 _start:
 {
-lean_object* v___x_1115_; lean_object* v___x_1116_; lean_object* v_y_1117_; 
+lean_object* v___x_1115_; lean_object* v___x_1116_; lean_object* v_x_1117_; 
 v___x_1115_ = lean_obj_once(&l___private_Lean_Meta_Sym_SynthInstance_0__Lean_Meta_Sym_builtinAlgebraicInsts___closed__91, &l___private_Lean_Meta_Sym_SynthInstance_0__Lean_Meta_Sym_builtinAlgebraicInsts___closed__91_once, _init_l___private_Lean_Meta_Sym_SynthInstance_0__Lean_Meta_Sym_builtinAlgebraicInsts___closed__91);
 v___x_1116_ = lean_obj_once(&l___private_Lean_Meta_Sym_SynthInstance_0__Lean_Meta_Sym_builtinAlgebraicInsts___closed__74, &l___private_Lean_Meta_Sym_SynthInstance_0__Lean_Meta_Sym_builtinAlgebraicInsts___closed__74_once, _init_l___private_Lean_Meta_Sym_SynthInstance_0__Lean_Meta_Sym_builtinAlgebraicInsts___closed__74);
-v_y_1117_ = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(v_y_1117_, 0, v___x_1116_);
-lean_ctor_set(v_y_1117_, 1, v___x_1115_);
-return v_y_1117_;
+v_x_1117_ = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(v_x_1117_, 0, v___x_1116_);
+lean_ctor_set(v_x_1117_, 1, v___x_1115_);
+return v_x_1117_;
 }
 }
 static lean_object* _init_l___private_Lean_Meta_Sym_SynthInstance_0__Lean_Meta_Sym_builtinAlgebraicInsts___closed__95(void){
@@ -4636,12 +4636,12 @@ return v___x_1235_;
 static lean_object* _init_l___private_Lean_Meta_Sym_SynthInstance_0__Lean_Meta_Sym_builtinAlgebraicInsts___closed__135(void){
 _start:
 {
-lean_object* v_y_1236_; lean_object* v___x_1237_; lean_object* v___x_1238_; 
-v_y_1236_ = lean_obj_once(&l___private_Lean_Meta_Sym_SynthInstance_0__Lean_Meta_Sym_builtinAlgebraicInsts___closed__92, &l___private_Lean_Meta_Sym_SynthInstance_0__Lean_Meta_Sym_builtinAlgebraicInsts___closed__92_once, _init_l___private_Lean_Meta_Sym_SynthInstance_0__Lean_Meta_Sym_builtinAlgebraicInsts___closed__92);
+lean_object* v_x_1236_; lean_object* v___x_1237_; lean_object* v___x_1238_; 
+v_x_1236_ = lean_obj_once(&l___private_Lean_Meta_Sym_SynthInstance_0__Lean_Meta_Sym_builtinAlgebraicInsts___closed__92, &l___private_Lean_Meta_Sym_SynthInstance_0__Lean_Meta_Sym_builtinAlgebraicInsts___closed__92_once, _init_l___private_Lean_Meta_Sym_SynthInstance_0__Lean_Meta_Sym_builtinAlgebraicInsts___closed__92);
 v___x_1237_ = lean_obj_once(&l___private_Lean_Meta_Sym_SynthInstance_0__Lean_Meta_Sym_builtinAlgebraicInsts___closed__134, &l___private_Lean_Meta_Sym_SynthInstance_0__Lean_Meta_Sym_builtinAlgebraicInsts___closed__134_once, _init_l___private_Lean_Meta_Sym_SynthInstance_0__Lean_Meta_Sym_builtinAlgebraicInsts___closed__134);
 v___x_1238_ = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(v___x_1238_, 0, v___x_1237_);
-lean_ctor_set(v___x_1238_, 1, v_y_1236_);
+lean_ctor_set(v___x_1238_, 1, v_x_1236_);
 return v___x_1238_;
 }
 }
@@ -4684,13 +4684,13 @@ return v___x_1247_;
 static lean_object* _init_l___private_Lean_Meta_Sym_SynthInstance_0__Lean_Meta_Sym_builtinAlgebraicInsts___closed__139(void){
 _start:
 {
-lean_object* v___x_1248_; lean_object* v___x_1249_; lean_object* v_y_1250_; 
+lean_object* v___x_1248_; lean_object* v___x_1249_; lean_object* v_x_1250_; 
 v___x_1248_ = lean_obj_once(&l___private_Lean_Meta_Sym_SynthInstance_0__Lean_Meta_Sym_builtinAlgebraicInsts___closed__138, &l___private_Lean_Meta_Sym_SynthInstance_0__Lean_Meta_Sym_builtinAlgebraicInsts___closed__138_once, _init_l___private_Lean_Meta_Sym_SynthInstance_0__Lean_Meta_Sym_builtinAlgebraicInsts___closed__138);
 v___x_1249_ = lean_obj_once(&l___private_Lean_Meta_Sym_SynthInstance_0__Lean_Meta_Sym_builtinAlgebraicInsts___closed__98, &l___private_Lean_Meta_Sym_SynthInstance_0__Lean_Meta_Sym_builtinAlgebraicInsts___closed__98_once, _init_l___private_Lean_Meta_Sym_SynthInstance_0__Lean_Meta_Sym_builtinAlgebraicInsts___closed__98);
-v_y_1250_ = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(v_y_1250_, 0, v___x_1249_);
-lean_ctor_set(v_y_1250_, 1, v___x_1248_);
-return v_y_1250_;
+v_x_1250_ = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(v_x_1250_, 0, v___x_1249_);
+lean_ctor_set(v_x_1250_, 1, v___x_1248_);
+return v_x_1250_;
 }
 }
 static lean_object* _init_l___private_Lean_Meta_Sym_SynthInstance_0__Lean_Meta_Sym_builtinAlgebraicInsts___closed__142(void){
@@ -4923,12 +4923,12 @@ return v___x_1352_;
 static lean_object* _init_l___private_Lean_Meta_Sym_SynthInstance_0__Lean_Meta_Sym_builtinAlgebraicInsts___closed__177(void){
 _start:
 {
-lean_object* v_y_1353_; lean_object* v___x_1354_; lean_object* v___x_1355_; 
-v_y_1353_ = lean_obj_once(&l___private_Lean_Meta_Sym_SynthInstance_0__Lean_Meta_Sym_builtinAlgebraicInsts___closed__139, &l___private_Lean_Meta_Sym_SynthInstance_0__Lean_Meta_Sym_builtinAlgebraicInsts___closed__139_once, _init_l___private_Lean_Meta_Sym_SynthInstance_0__Lean_Meta_Sym_builtinAlgebraicInsts___closed__139);
+lean_object* v_x_1353_; lean_object* v___x_1354_; lean_object* v___x_1355_; 
+v_x_1353_ = lean_obj_once(&l___private_Lean_Meta_Sym_SynthInstance_0__Lean_Meta_Sym_builtinAlgebraicInsts___closed__139, &l___private_Lean_Meta_Sym_SynthInstance_0__Lean_Meta_Sym_builtinAlgebraicInsts___closed__139_once, _init_l___private_Lean_Meta_Sym_SynthInstance_0__Lean_Meta_Sym_builtinAlgebraicInsts___closed__139);
 v___x_1354_ = lean_obj_once(&l___private_Lean_Meta_Sym_SynthInstance_0__Lean_Meta_Sym_builtinAlgebraicInsts___closed__176, &l___private_Lean_Meta_Sym_SynthInstance_0__Lean_Meta_Sym_builtinAlgebraicInsts___closed__176_once, _init_l___private_Lean_Meta_Sym_SynthInstance_0__Lean_Meta_Sym_builtinAlgebraicInsts___closed__176);
 v___x_1355_ = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(v___x_1355_, 0, v___x_1354_);
-lean_ctor_set(v___x_1355_, 1, v_y_1353_);
+lean_ctor_set(v___x_1355_, 1, v_x_1353_);
 return v___x_1355_;
 }
 }
@@ -4971,13 +4971,13 @@ return v___x_1364_;
 static lean_object* _init_l___private_Lean_Meta_Sym_SynthInstance_0__Lean_Meta_Sym_builtinAlgebraicInsts___closed__181(void){
 _start:
 {
-lean_object* v___x_1365_; lean_object* v___x_1366_; lean_object* v_y_1367_; 
+lean_object* v___x_1365_; lean_object* v___x_1366_; lean_object* v_x_1367_; 
 v___x_1365_ = lean_obj_once(&l___private_Lean_Meta_Sym_SynthInstance_0__Lean_Meta_Sym_builtinAlgebraicInsts___closed__180, &l___private_Lean_Meta_Sym_SynthInstance_0__Lean_Meta_Sym_builtinAlgebraicInsts___closed__180_once, _init_l___private_Lean_Meta_Sym_SynthInstance_0__Lean_Meta_Sym_builtinAlgebraicInsts___closed__180);
 v___x_1366_ = lean_obj_once(&l___private_Lean_Meta_Sym_SynthInstance_0__Lean_Meta_Sym_builtinAlgebraicInsts___closed__144, &l___private_Lean_Meta_Sym_SynthInstance_0__Lean_Meta_Sym_builtinAlgebraicInsts___closed__144_once, _init_l___private_Lean_Meta_Sym_SynthInstance_0__Lean_Meta_Sym_builtinAlgebraicInsts___closed__144);
-v_y_1367_ = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(v_y_1367_, 0, v___x_1366_);
-lean_ctor_set(v_y_1367_, 1, v___x_1365_);
-return v_y_1367_;
+v_x_1367_ = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(v_x_1367_, 0, v___x_1366_);
+lean_ctor_set(v_x_1367_, 1, v___x_1365_);
+return v_x_1367_;
 }
 }
 static lean_object* _init_l___private_Lean_Meta_Sym_SynthInstance_0__Lean_Meta_Sym_builtinAlgebraicInsts___closed__184(void){
@@ -5135,12 +5135,12 @@ return v___x_1428_;
 static lean_object* _init_l___private_Lean_Meta_Sym_SynthInstance_0__Lean_Meta_Sym_builtinAlgebraicInsts___closed__204(void){
 _start:
 {
-lean_object* v_y_1429_; lean_object* v___x_1430_; lean_object* v___x_1431_; 
-v_y_1429_ = lean_obj_once(&l___private_Lean_Meta_Sym_SynthInstance_0__Lean_Meta_Sym_builtinAlgebraicInsts___closed__181, &l___private_Lean_Meta_Sym_SynthInstance_0__Lean_Meta_Sym_builtinAlgebraicInsts___closed__181_once, _init_l___private_Lean_Meta_Sym_SynthInstance_0__Lean_Meta_Sym_builtinAlgebraicInsts___closed__181);
+lean_object* v_x_1429_; lean_object* v___x_1430_; lean_object* v___x_1431_; 
+v_x_1429_ = lean_obj_once(&l___private_Lean_Meta_Sym_SynthInstance_0__Lean_Meta_Sym_builtinAlgebraicInsts___closed__181, &l___private_Lean_Meta_Sym_SynthInstance_0__Lean_Meta_Sym_builtinAlgebraicInsts___closed__181_once, _init_l___private_Lean_Meta_Sym_SynthInstance_0__Lean_Meta_Sym_builtinAlgebraicInsts___closed__181);
 v___x_1430_ = lean_obj_once(&l___private_Lean_Meta_Sym_SynthInstance_0__Lean_Meta_Sym_builtinAlgebraicInsts___closed__203, &l___private_Lean_Meta_Sym_SynthInstance_0__Lean_Meta_Sym_builtinAlgebraicInsts___closed__203_once, _init_l___private_Lean_Meta_Sym_SynthInstance_0__Lean_Meta_Sym_builtinAlgebraicInsts___closed__203);
 v___x_1431_ = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(v___x_1431_, 0, v___x_1430_);
-lean_ctor_set(v___x_1431_, 1, v_y_1429_);
+lean_ctor_set(v___x_1431_, 1, v_x_1429_);
 return v___x_1431_;
 }
 }
@@ -5171,13 +5171,13 @@ return v___x_1437_;
 static lean_object* _init_l___private_Lean_Meta_Sym_SynthInstance_0__Lean_Meta_Sym_builtinAlgebraicInsts___closed__207(void){
 _start:
 {
-lean_object* v___x_1438_; lean_object* v___x_1439_; lean_object* v_y_1440_; 
+lean_object* v___x_1438_; lean_object* v___x_1439_; lean_object* v_x_1440_; 
 v___x_1438_ = lean_obj_once(&l___private_Lean_Meta_Sym_SynthInstance_0__Lean_Meta_Sym_builtinAlgebraicInsts___closed__206, &l___private_Lean_Meta_Sym_SynthInstance_0__Lean_Meta_Sym_builtinAlgebraicInsts___closed__206_once, _init_l___private_Lean_Meta_Sym_SynthInstance_0__Lean_Meta_Sym_builtinAlgebraicInsts___closed__206);
 v___x_1439_ = lean_obj_once(&l___private_Lean_Meta_Sym_SynthInstance_0__Lean_Meta_Sym_builtinAlgebraicInsts___closed__185, &l___private_Lean_Meta_Sym_SynthInstance_0__Lean_Meta_Sym_builtinAlgebraicInsts___closed__185_once, _init_l___private_Lean_Meta_Sym_SynthInstance_0__Lean_Meta_Sym_builtinAlgebraicInsts___closed__185);
-v_y_1440_ = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(v_y_1440_, 0, v___x_1439_);
-lean_ctor_set(v_y_1440_, 1, v___x_1438_);
-return v_y_1440_;
+v_x_1440_ = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(v_x_1440_, 0, v___x_1439_);
+lean_ctor_set(v_x_1440_, 1, v___x_1438_);
+return v_x_1440_;
 }
 }
 static lean_object* _init_l___private_Lean_Meta_Sym_SynthInstance_0__Lean_Meta_Sym_builtinAlgebraicInsts___closed__208(void){
@@ -5369,12 +5369,12 @@ return v___x_1503_;
 static lean_object* _init_l___private_Lean_Meta_Sym_SynthInstance_0__Lean_Meta_Sym_builtinAlgebraicInsts___closed__229(void){
 _start:
 {
-lean_object* v_y_1504_; lean_object* v___x_1505_; lean_object* v___x_1506_; 
-v_y_1504_ = lean_obj_once(&l___private_Lean_Meta_Sym_SynthInstance_0__Lean_Meta_Sym_builtinAlgebraicInsts___closed__207, &l___private_Lean_Meta_Sym_SynthInstance_0__Lean_Meta_Sym_builtinAlgebraicInsts___closed__207_once, _init_l___private_Lean_Meta_Sym_SynthInstance_0__Lean_Meta_Sym_builtinAlgebraicInsts___closed__207);
+lean_object* v_x_1504_; lean_object* v___x_1505_; lean_object* v___x_1506_; 
+v_x_1504_ = lean_obj_once(&l___private_Lean_Meta_Sym_SynthInstance_0__Lean_Meta_Sym_builtinAlgebraicInsts___closed__207, &l___private_Lean_Meta_Sym_SynthInstance_0__Lean_Meta_Sym_builtinAlgebraicInsts___closed__207_once, _init_l___private_Lean_Meta_Sym_SynthInstance_0__Lean_Meta_Sym_builtinAlgebraicInsts___closed__207);
 v___x_1505_ = lean_obj_once(&l___private_Lean_Meta_Sym_SynthInstance_0__Lean_Meta_Sym_builtinAlgebraicInsts___closed__228, &l___private_Lean_Meta_Sym_SynthInstance_0__Lean_Meta_Sym_builtinAlgebraicInsts___closed__228_once, _init_l___private_Lean_Meta_Sym_SynthInstance_0__Lean_Meta_Sym_builtinAlgebraicInsts___closed__228);
 v___x_1506_ = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(v___x_1506_, 0, v___x_1505_);
-lean_ctor_set(v___x_1506_, 1, v_y_1504_);
+lean_ctor_set(v___x_1506_, 1, v_x_1504_);
 return v___x_1506_;
 }
 }
@@ -5417,13 +5417,13 @@ return v___x_1515_;
 static lean_object* _init_l___private_Lean_Meta_Sym_SynthInstance_0__Lean_Meta_Sym_builtinAlgebraicInsts___closed__233(void){
 _start:
 {
-lean_object* v___x_1516_; lean_object* v___x_1517_; lean_object* v_y_1518_; 
+lean_object* v___x_1516_; lean_object* v___x_1517_; lean_object* v_x_1518_; 
 v___x_1516_ = lean_obj_once(&l___private_Lean_Meta_Sym_SynthInstance_0__Lean_Meta_Sym_builtinAlgebraicInsts___closed__232, &l___private_Lean_Meta_Sym_SynthInstance_0__Lean_Meta_Sym_builtinAlgebraicInsts___closed__232_once, _init_l___private_Lean_Meta_Sym_SynthInstance_0__Lean_Meta_Sym_builtinAlgebraicInsts___closed__232);
 v___x_1517_ = lean_obj_once(&l___private_Lean_Meta_Sym_SynthInstance_0__Lean_Meta_Sym_builtinAlgebraicInsts___closed__214, &l___private_Lean_Meta_Sym_SynthInstance_0__Lean_Meta_Sym_builtinAlgebraicInsts___closed__214_once, _init_l___private_Lean_Meta_Sym_SynthInstance_0__Lean_Meta_Sym_builtinAlgebraicInsts___closed__214);
-v_y_1518_ = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(v_y_1518_, 0, v___x_1517_);
-lean_ctor_set(v_y_1518_, 1, v___x_1516_);
-return v_y_1518_;
+v_x_1518_ = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(v_x_1518_, 0, v___x_1517_);
+lean_ctor_set(v_x_1518_, 1, v___x_1516_);
+return v_x_1518_;
 }
 }
 static lean_object* _init_l___private_Lean_Meta_Sym_SynthInstance_0__Lean_Meta_Sym_builtinAlgebraicInsts___closed__234(void){
@@ -5646,12 +5646,12 @@ return v___x_1609_;
 static lean_object* _init_l___private_Lean_Meta_Sym_SynthInstance_0__Lean_Meta_Sym_builtinAlgebraicInsts___closed__260(void){
 _start:
 {
-lean_object* v_y_1610_; lean_object* v___x_1611_; lean_object* v___x_1612_; 
-v_y_1610_ = lean_obj_once(&l___private_Lean_Meta_Sym_SynthInstance_0__Lean_Meta_Sym_builtinAlgebraicInsts___closed__233, &l___private_Lean_Meta_Sym_SynthInstance_0__Lean_Meta_Sym_builtinAlgebraicInsts___closed__233_once, _init_l___private_Lean_Meta_Sym_SynthInstance_0__Lean_Meta_Sym_builtinAlgebraicInsts___closed__233);
+lean_object* v_x_1610_; lean_object* v___x_1611_; lean_object* v___x_1612_; 
+v_x_1610_ = lean_obj_once(&l___private_Lean_Meta_Sym_SynthInstance_0__Lean_Meta_Sym_builtinAlgebraicInsts___closed__233, &l___private_Lean_Meta_Sym_SynthInstance_0__Lean_Meta_Sym_builtinAlgebraicInsts___closed__233_once, _init_l___private_Lean_Meta_Sym_SynthInstance_0__Lean_Meta_Sym_builtinAlgebraicInsts___closed__233);
 v___x_1611_ = lean_obj_once(&l___private_Lean_Meta_Sym_SynthInstance_0__Lean_Meta_Sym_builtinAlgebraicInsts___closed__259, &l___private_Lean_Meta_Sym_SynthInstance_0__Lean_Meta_Sym_builtinAlgebraicInsts___closed__259_once, _init_l___private_Lean_Meta_Sym_SynthInstance_0__Lean_Meta_Sym_builtinAlgebraicInsts___closed__259);
 v___x_1612_ = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(v___x_1612_, 0, v___x_1611_);
-lean_ctor_set(v___x_1612_, 1, v_y_1610_);
+lean_ctor_set(v___x_1612_, 1, v_x_1610_);
 return v___x_1612_;
 }
 }
@@ -5682,13 +5682,13 @@ return v___x_1618_;
 static lean_object* _init_l___private_Lean_Meta_Sym_SynthInstance_0__Lean_Meta_Sym_builtinAlgebraicInsts___closed__263(void){
 _start:
 {
-lean_object* v___x_1619_; lean_object* v___x_1620_; lean_object* v_y_1621_; 
+lean_object* v___x_1619_; lean_object* v___x_1620_; lean_object* v_x_1621_; 
 v___x_1619_ = lean_obj_once(&l___private_Lean_Meta_Sym_SynthInstance_0__Lean_Meta_Sym_builtinAlgebraicInsts___closed__262, &l___private_Lean_Meta_Sym_SynthInstance_0__Lean_Meta_Sym_builtinAlgebraicInsts___closed__262_once, _init_l___private_Lean_Meta_Sym_SynthInstance_0__Lean_Meta_Sym_builtinAlgebraicInsts___closed__262);
 v___x_1620_ = lean_obj_once(&l___private_Lean_Meta_Sym_SynthInstance_0__Lean_Meta_Sym_builtinAlgebraicInsts___closed__239, &l___private_Lean_Meta_Sym_SynthInstance_0__Lean_Meta_Sym_builtinAlgebraicInsts___closed__239_once, _init_l___private_Lean_Meta_Sym_SynthInstance_0__Lean_Meta_Sym_builtinAlgebraicInsts___closed__239);
-v_y_1621_ = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(v_y_1621_, 0, v___x_1620_);
-lean_ctor_set(v_y_1621_, 1, v___x_1619_);
-return v_y_1621_;
+v_x_1621_ = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(v_x_1621_, 0, v___x_1620_);
+lean_ctor_set(v_x_1621_, 1, v___x_1619_);
+return v_x_1621_;
 }
 }
 static lean_object* _init_l___private_Lean_Meta_Sym_SynthInstance_0__Lean_Meta_Sym_builtinAlgebraicInsts___closed__264(void){
@@ -5901,12 +5901,12 @@ return v___x_1696_;
 static lean_object* _init_l___private_Lean_Meta_Sym_SynthInstance_0__Lean_Meta_Sym_builtinAlgebraicInsts___closed__289(void){
 _start:
 {
-lean_object* v_y_1697_; lean_object* v___x_1698_; lean_object* v___x_1699_; 
-v_y_1697_ = lean_obj_once(&l___private_Lean_Meta_Sym_SynthInstance_0__Lean_Meta_Sym_builtinAlgebraicInsts___closed__263, &l___private_Lean_Meta_Sym_SynthInstance_0__Lean_Meta_Sym_builtinAlgebraicInsts___closed__263_once, _init_l___private_Lean_Meta_Sym_SynthInstance_0__Lean_Meta_Sym_builtinAlgebraicInsts___closed__263);
+lean_object* v_x_1697_; lean_object* v___x_1698_; lean_object* v___x_1699_; 
+v_x_1697_ = lean_obj_once(&l___private_Lean_Meta_Sym_SynthInstance_0__Lean_Meta_Sym_builtinAlgebraicInsts___closed__263, &l___private_Lean_Meta_Sym_SynthInstance_0__Lean_Meta_Sym_builtinAlgebraicInsts___closed__263_once, _init_l___private_Lean_Meta_Sym_SynthInstance_0__Lean_Meta_Sym_builtinAlgebraicInsts___closed__263);
 v___x_1698_ = lean_obj_once(&l___private_Lean_Meta_Sym_SynthInstance_0__Lean_Meta_Sym_builtinAlgebraicInsts___closed__288, &l___private_Lean_Meta_Sym_SynthInstance_0__Lean_Meta_Sym_builtinAlgebraicInsts___closed__288_once, _init_l___private_Lean_Meta_Sym_SynthInstance_0__Lean_Meta_Sym_builtinAlgebraicInsts___closed__288);
 v___x_1699_ = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(v___x_1699_, 0, v___x_1698_);
-lean_ctor_set(v___x_1699_, 1, v_y_1697_);
+lean_ctor_set(v___x_1699_, 1, v_x_1697_);
 return v___x_1699_;
 }
 }
@@ -5949,13 +5949,13 @@ return v___x_1708_;
 static lean_object* _init_l___private_Lean_Meta_Sym_SynthInstance_0__Lean_Meta_Sym_builtinAlgebraicInsts___closed__293(void){
 _start:
 {
-lean_object* v___x_1709_; lean_object* v___x_1710_; lean_object* v_y_1711_; 
+lean_object* v___x_1709_; lean_object* v___x_1710_; lean_object* v_x_1711_; 
 v___x_1709_ = lean_obj_once(&l___private_Lean_Meta_Sym_SynthInstance_0__Lean_Meta_Sym_builtinAlgebraicInsts___closed__292, &l___private_Lean_Meta_Sym_SynthInstance_0__Lean_Meta_Sym_builtinAlgebraicInsts___closed__292_once, _init_l___private_Lean_Meta_Sym_SynthInstance_0__Lean_Meta_Sym_builtinAlgebraicInsts___closed__292);
 v___x_1710_ = lean_obj_once(&l___private_Lean_Meta_Sym_SynthInstance_0__Lean_Meta_Sym_builtinAlgebraicInsts___closed__265, &l___private_Lean_Meta_Sym_SynthInstance_0__Lean_Meta_Sym_builtinAlgebraicInsts___closed__265_once, _init_l___private_Lean_Meta_Sym_SynthInstance_0__Lean_Meta_Sym_builtinAlgebraicInsts___closed__265);
-v_y_1711_ = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(v_y_1711_, 0, v___x_1710_);
-lean_ctor_set(v_y_1711_, 1, v___x_1709_);
-return v_y_1711_;
+v_x_1711_ = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(v_x_1711_, 0, v___x_1710_);
+lean_ctor_set(v_x_1711_, 1, v___x_1709_);
+return v_x_1711_;
 }
 }
 static lean_object* _init_l___private_Lean_Meta_Sym_SynthInstance_0__Lean_Meta_Sym_builtinAlgebraicInsts___closed__294(void){
@@ -6093,12 +6093,12 @@ return v___x_1747_;
 static lean_object* _init_l___private_Lean_Meta_Sym_SynthInstance_0__Lean_Meta_Sym_builtinAlgebraicInsts___closed__306(void){
 _start:
 {
-lean_object* v_y_1748_; lean_object* v___x_1749_; lean_object* v___x_1750_; 
-v_y_1748_ = lean_obj_once(&l___private_Lean_Meta_Sym_SynthInstance_0__Lean_Meta_Sym_builtinAlgebraicInsts___closed__293, &l___private_Lean_Meta_Sym_SynthInstance_0__Lean_Meta_Sym_builtinAlgebraicInsts___closed__293_once, _init_l___private_Lean_Meta_Sym_SynthInstance_0__Lean_Meta_Sym_builtinAlgebraicInsts___closed__293);
+lean_object* v_x_1748_; lean_object* v___x_1749_; lean_object* v___x_1750_; 
+v_x_1748_ = lean_obj_once(&l___private_Lean_Meta_Sym_SynthInstance_0__Lean_Meta_Sym_builtinAlgebraicInsts___closed__293, &l___private_Lean_Meta_Sym_SynthInstance_0__Lean_Meta_Sym_builtinAlgebraicInsts___closed__293_once, _init_l___private_Lean_Meta_Sym_SynthInstance_0__Lean_Meta_Sym_builtinAlgebraicInsts___closed__293);
 v___x_1749_ = lean_obj_once(&l___private_Lean_Meta_Sym_SynthInstance_0__Lean_Meta_Sym_builtinAlgebraicInsts___closed__305, &l___private_Lean_Meta_Sym_SynthInstance_0__Lean_Meta_Sym_builtinAlgebraicInsts___closed__305_once, _init_l___private_Lean_Meta_Sym_SynthInstance_0__Lean_Meta_Sym_builtinAlgebraicInsts___closed__305);
 v___x_1750_ = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(v___x_1750_, 0, v___x_1749_);
-lean_ctor_set(v___x_1750_, 1, v_y_1748_);
+lean_ctor_set(v___x_1750_, 1, v_x_1748_);
 return v___x_1750_;
 }
 }

@@ -3649,8 +3649,8 @@ lean_object* v___x_929_; lean_object* v___x_930_; lean_object* v___x_931_; lean_
 v___x_929_ = l_Lean_Option_toJson___at___00Lean_Widget_instRpcEncodableInfoPopup_enc_00___x40_Lean_Server_FileWorker_WidgetRequests_2734021171____hygCtx___hyg_1__spec__0(v_fst_927_);
 lean_dec(v_fst_927_);
 v___x_930_ = lean_alloc_ctor(0, 3, 0);
-lean_ctor_set(v___x_930_, 0, v___y_925_);
-lean_ctor_set(v___x_930_, 1, v___y_926_);
+lean_ctor_set(v___x_930_, 0, v___y_926_);
+lean_ctor_set(v___x_930_, 1, v___y_925_);
 lean_ctor_set(v___x_930_, 2, v___x_929_);
 v___x_931_ = l_Lean_Widget_instToJsonRpcEncodablePacket_toJson_00___x40_Lean_Server_FileWorker_WidgetRequests_1691946469____hygCtx___hyg_33_(v___x_930_);
 lean_dec_ref_known(v___x_930_, 3);
@@ -3668,8 +3668,8 @@ if (lean_obj_tag(v_doc_935_) == 0)
 {
 lean_object* v___x_941_; 
 v___x_941_ = lean_box(0);
-v___y_925_ = v___y_937_;
-v___y_926_ = v___x_940_;
+v___y_925_ = v___x_940_;
+v___y_926_ = v___y_937_;
 v_fst_927_ = v___x_941_;
 v_snd_928_ = v_snd_939_;
 goto v___jp_924_;
@@ -3714,8 +3714,8 @@ goto v_reusejp_947_;
 }
 v_reusejp_947_:
 {
-v___y_925_ = v___y_937_;
-v___y_926_ = v___x_940_;
+v___y_925_ = v___x_940_;
+v___y_926_ = v___y_937_;
 v_fst_927_ = v___x_948_;
 v_snd_928_ = v_snd_939_;
 goto v___jp_924_;

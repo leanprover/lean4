@@ -209,6 +209,9 @@ theorem toArray_mk {xs : Array α} (h : xs.size = n) : (Vector.mk xs h).toArray 
 @[simp] theorem set_mk {xs : Array α} (h : xs.size = n) {i x} (w) :
     (Vector.mk xs h).set i x w = Vector.mk (xs.set i x) (by simp [h]) := rfl
 
+@[simp] theorem modify_mk {xs : Array α} (h : xs.size = n) {i : Nat} {f : α → α} :
+    (Vector.mk xs h).modify i f = Vector.mk (xs.modify i f) (by simp [h]) := rfl
+
 @[simp] theorem set!_mk {xs : Array α} (h : xs.size = n) {i x} :
     (Vector.mk xs h).set! i x = Vector.mk (xs.set! i x) (by simp [h]) := rfl
 
@@ -384,6 +387,9 @@ private theorem toArray_mapM_go [Monad m] [LawfulMonad m] {f : α → m β} {xs 
 
 @[simp, grind =] theorem toArray_set {xs : Vector α n} {i x} (h : i < n) :
     (xs.set i x).toArray = xs.toArray.set i x (by simpa using h):= rfl
+
+@[simp, grind =] theorem toArray_modify {xs : Vector α n} {i : Nat} {f : α → α} :
+    (xs.modify i f).toArray = xs.toArray.modify i f := rfl
 
 @[simp, grind =] theorem toArray_set! {xs : Vector α n} {i x} :
     (xs.set! i x).toArray = xs.toArray.set! i x := rfl
@@ -1351,6 +1357,51 @@ theorem mem_or_eq_of_mem_set {xs : Vector α n} {i : Nat} {a b : α} {hi : i < n
   simpa using Array.mem_or_eq_of_mem_set (by simpa using h)
 
 grind_pattern mem_or_eq_of_mem_set => a ∈ xs.set i b
+
+/-! ### modify -/
+
+@[simp, grind =] theorem toList_modify {xs : Vector α n} {i : Nat} {f : α → α} :
+    (xs.modify i f).toList = xs.toList.modify i f := by
+  simp [toList]
+
+@[grind =] theorem getElem_modify {xs : Vector α n} {i : Nat} {f : α → α}
+    {j : Nat} (hj : j < n) :
+    (xs.modify i f)[j] = if i = j then f xs[j] else xs[j] := by
+  rcases xs with ⟨xs, rfl⟩
+  simp only [modify_mk, getElem_mk]
+  rw [Array.getElem_modify]
+
+@[simp] theorem getElem_modify_self {xs : Vector α n} {i : Nat} {f : α → α} (hi : i < n) :
+    (xs.modify i f)[i] = f xs[i] := by
+  simp [getElem_modify]
+
+@[simp] theorem getElem_modify_of_ne {xs : Vector α n} {i j : Nat} {f : α → α}
+    (hj : j < n) (h : i ≠ j) :
+    (xs.modify i f)[j] = xs[j] := by
+  simp [getElem_modify, h]
+
+@[grind =] theorem getElem?_modify {xs : Vector α n} {i : Nat} {f : α → α} {j : Nat} :
+    (xs.modify i f)[j]? = if i = j then xs[j]?.map f else xs[j]? := by
+  rcases xs with ⟨xs, rfl⟩
+  simp only [modify_mk, getElem?_mk, Array.getElem?_modify]
+
+theorem modify_eq_set {xs : Vector α n} {i : Nat} {f : α → α} (hi : i < n) :
+    xs.modify i f = xs.set i (f xs[i]) := by
+  apply Vector.ext
+  intro j hj
+  simp only [getElem_modify, getElem_set]
+  split <;> simp_all
+
+@[simp] theorem modify_eq_of_size_le {xs : Vector α n} {i : Nat} {f : α → α} (h : n ≤ i) :
+    xs.modify i f = xs := by
+  apply Vector.ext
+  intro j hj
+  simp [show i ≠ j by omega]
+
+@[simp] theorem modify_id {xs : Vector α n} {i : Nat} : xs.modify i id = xs := by
+  apply Vector.ext
+  intro j hj
+  simp [getElem_modify]
 
 /-! ### setIfInBounds -/
 

@@ -6,6 +6,7 @@ Authors: Henrik Böving
 module
 prelude
 public import Lean.Meta.Tactic.BVDecide.EPR.Basic
+public import Std.Tactic.BVDecide.Syntax
 import Std.Tactic.BVDecide.EPR.BitVec
 import Std.Tactic.BVDecide.Normalize.Prop
 import Lean.Meta.Sym.Simp.Rewrite
@@ -232,7 +233,8 @@ def translatePreds (preds : Std.HashMap Expr PredInfo) (sortInfos : Std.HashMap 
     newInfos := newInfos.insert pred { predInfo with bvPred, eqThm }
   return newInfos
 
-def translateSorts (sorts : Std.HashMap SortId SortInfo) :
+def translateSorts (sorts : Std.HashMap SortId SortInfo)
+    (symBreak : Elab.Tactic.BVDecide.EprSymBreak) :
     Sym.SymM (Std.HashMap SortId BvSortInfo × Array Normalize.Hyp) := do
   let mut bvSortInfo := Std.HashMap.emptyWithCapacity sorts.size
   let mut facts := #[]
@@ -242,39 +244,72 @@ def translateSorts (sorts : Std.HashMap SortId SortInfo) :
     let elemListLt ← mkDecideProof (← mkLt (← mkAppM ``List.length #[elemList]) (toExpr (2^width)))
     let toBv ← Sym.share <| mkApp4 (mkConst ``Std.Tactic.BVDecide.EPR.BitVec.toBvAux [sortInfo.level]) sortInfo.type (toExpr width) elemList elemListLt
     let toSort ← Sym.share <| mkApp4 (mkConst ``Std.Tactic.BVDecide.EPR.BitVec.toSortAux [sortInfo.level]) sortInfo.type (toExpr width) elemList sortInfo.default
+    let bvLit (n : Nat) : Expr := toExpr (BitVec.ofNat width n)
+    let mkFact (type value : Expr) : Normalize.Hyp :=
+      { name := .anonymous, type, value, source := .epr }
     let mut elemListMemProofs := {}
     for idx in 0...sortInfo.card do
       let element := sortInfo.elements[idx]!
+      let idxLt ← mkDecideProof (← mkLt (toExpr idx) sortInfo.cardExpr)
+      let getElemEq ← mkAppM ``eagerReduce #[← mkEqRefl element]
       let memProof :=
         mkApp6 (mkConst ``List.mem_of_getElem [sortInfo.level])
           sortInfo.type
           elemList
           (toExpr idx)
-          (← mkDecideProof (← mkLt (toExpr idx) sortInfo.cardExpr))
+          idxLt
           element
-          (← mkAppM ``eagerReduce #[← mkEqRefl element])
+          getElemEq
       elemListMemProofs := elemListMemProofs.insert element memProof
-      let type ← Sym.share <| ← mkLt (mkApp toBv element) (toExpr (BitVec.ofNat width sortInfo.elements.size))
-      let proof :=
-        mkApp6 (mkConst ``Std.Tactic.BVDecide.EPR.BitVec.toBvAux_lt_ofNat_length_of_mem [sortInfo.level])
-          sortInfo.type
-          (toExpr width)
-          elemList
-          elemListLt
-          element
-          memProof
-      facts := facts.push {
-        name := .anonymous
-        type := type
-        value := proof
-        source := .epr
-      }
+      match symBreak with
+      | .off =>
+        let type ← Sym.share <| ← mkLt (mkApp toBv element) (bvLit sortInfo.elements.size)
+        let proof :=
+          mkApp6 (mkConst ``Std.Tactic.BVDecide.EPR.BitVec.toBvAux_lt_ofNat_length_of_mem [sortInfo.level])
+            sortInfo.type
+            (toExpr width)
+            elemList
+            elemListLt
+            element
+            memProof
+        facts := facts.push <| mkFact type proof
+      | .simple | .full =>
+        let type ← Sym.share <| ← mkLE (mkApp toBv element) (bvLit idx)
+        let proof :=
+          mkApp8 (mkConst ``Std.Tactic.BVDecide.EPR.BitVec.toBvAux_le_ofNat_of_getElem_eq [sortInfo.level])
+            sortInfo.type
+            (toExpr width)
+            elemList
+            elemListLt
+            element
+            (toExpr idx)
+            idxLt
+            getElemEq
+        facts := facts.push <| mkFact type proof
+      if symBreak matches .full && idx != 0 then
+        let thm :=
+          mkApp8 (mkConst ``Std.Tactic.BVDecide.EPR.BitVec.toBvAux_ne_of_toBvAux_lt [sortInfo.level])
+            sortInfo.type
+            (toExpr width)
+            elemList
+            elemListLt
+            element
+            (toExpr idx)
+            idxLt
+            getElemEq
+        let premise ← mkLt (mkApp toBv element) (bvLit idx)
+        for k in (idx + 1)...sortInfo.card do
+          let later := sortInfo.elements[k]!
+          let conclusion := mkNot (mkApp3 (mkConst ``Eq [1]) (toTypeExpr (BitVec width)) (mkApp toBv later) (bvLit idx))
+          let type ← Sym.share <| ← mkArrow premise conclusion
+          facts := facts.push <| mkFact type (mkApp thm later)
     let sortInfo := { sortInfo with width, toBv, elemList, elemListLt, elemListMemProofs, toSort }
     bvSortInfo := bvSortInfo.insert sortId sortInfo
   return (bvSortInfo, facts)
 
-public def epr2BitVec (problem : EprProblem) (g : MVarId) : Sym.SymM EprBvProblem := g.withContext do
-  let (sortInfo, additionalFacts) ← translateSorts problem.sortInfo
+public def epr2BitVec (problem : EprProblem) (g : MVarId)
+    (symBreak : Elab.Tactic.BVDecide.EprSymBreak) : Sym.SymM EprBvProblem := g.withContext do
+  let (sortInfo, additionalFacts) ← translateSorts problem.sortInfo symBreak
   let predInfo ← translatePreds problem.predInfo sortInfo
   TranslateExprM.run { predInfo, sortInfo, sortMap := problem.sortMap } do
     let groundFacts ← problem.groundFacts.mapM translateGround

@@ -51,17 +51,15 @@ where
     val.x
 
 /--
-error: (deterministic) timeout at `«LCNF compiler»`, maximum number of heartbeats (70) has been reached
+error: (deterministic) timeout at `whnf`, maximum number of heartbeats (10) has been reached
 
 Note: Use `set_option maxHeartbeats <num>` to set the limit.
 
 Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
----
-error: failed to compile definition, consider marking it as 'noncomputable' because it depends on 'test'.go', which is 'noncomputable'
 -/
 #guard_msgs in
 set_option backward.isDefEq.lazyWhnfCore false in
-set_option maxHeartbeats 70 in
+set_option maxHeartbeats 10 in
 def test' (c1 : Cache) (key : Nat) : Nat :=
   go c1 key
 where

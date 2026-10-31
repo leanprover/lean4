@@ -877,10 +877,10 @@ def resetCache : MetaM Unit :=
   modifyCache fun ⟨c1, c2, c3, c4, c5, c6, defeqPerm, c7⟩ => ⟨c1, c2, c3, c4, c5, c6, f defeqPerm,c7⟩
 
 @[inline] def modifyWhnfTransientCache (f : WhnfCache → WhnfCache) : MetaM Unit :=
-  modifyCache fun ⟨c1, c2, c3, defeqTrans, c4, c5, c6, c7⟩ => ⟨c1, c2, c3, f defeqTrans, c4, c5, c6, c7⟩
+  modifyCache fun ⟨c1, c2, c3, whnfTrans, c4, c5, c6, c7⟩ => ⟨c1, c2, c3, f whnfTrans, c4, c5, c6, c7⟩
 
 @[inline] def modifyWhnfPermCache (f : WhnfCache → WhnfCache) : MetaM Unit :=
-  modifyCache fun ⟨c1, c2, c3, c4, defeqPerm, c5, c6, c7⟩ => ⟨c1, c2, c3, c4, f defeqPerm, c5, c6,c7⟩
+  modifyCache fun ⟨c1, c2, c3, c4, whnfPerm, c5, c6, c7⟩ => ⟨c1, c2, c3, c4, f whnfPerm, c5, c6,c7⟩
 
 def mkExprConfigCacheKey (expr : Expr) : MetaM ExprConfigCacheKey :=
   return { expr, configKey := (← read).configKey }

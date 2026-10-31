@@ -1056,7 +1056,7 @@ inductive CacheKind where
   | permanent -- problem does not have mvars and we are using standard config, we can use one persistent cache.
 
 private def getWhnfCacheKind (t : Expr) : MetaM CacheKind := do
-  if t.hasMVar || (← read).customCanUnfoldPredicate?.isSome then
+  if t.hasFVar || t.hasMVar || (← read).customCanUnfoldPredicate?.isSome then
     return .transient
   else
     return .permanent
@@ -1084,21 +1084,14 @@ private def getCachedResult (keyInfo : WhnfCacheKeyInfo) : MetaM (Option Expr) :
 private def cacheResult (keyInfo : WhnfCacheKeyInfo) (result : Expr) : MetaM Unit := do
   let key := keyInfo.key
   match keyInfo.kind with
-  | .permanent => modifyWhnfPermCache fun c => c.insert key result
-  | .transient =>
-    /-
-    We must ensure that all assigned metavariables in the key are replaced by their current assignments.
-    Otherwise, the key is invalid after the assignment is "backtracked".
-    See issue #1870 for an example.
-    -/
-    let key ← mkExprConfigCacheKey (← instantiateMVars key.expr)
-    modifyWhnfTransientCache fun c => c.insert key result
+  | .permanent => modifyWhnfPermCache      fun c => c.insert key result
+  | .transient => modifyWhnfTransientCache fun c => c.insert key result
 
 set_option compiler.ignoreBorrowAnnotation true in
 @[export lean_whnf]
 partial def whnfImp (e : Expr) : MetaM Expr :=
   withIncRecDepth <| whnfEasyCases e fun e => do
-      -- one key for the lookup and the insertion: the configuration does not change in between
+      let e ← instantiateExprMVars e
       let key ← mkCacheKey e
       match ← getCachedResult key with
       | some e' => pure e'

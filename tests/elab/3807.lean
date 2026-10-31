@@ -356,7 +356,6 @@ instance Pi.partialOrder [∀ i, PartialOrder (π i)] : PartialOrder (∀ i, π 
 instance Pi.sdiff {ι : Type u} {α : ι → Type v} [∀ i, SDiff (α i)] : SDiff (∀ i, α i) :=
   ⟨fun x y i ↦ x i \ y i⟩
 
-@[instance_reducible]
 def Preorder.lift {α β} [Preorder β] (f : α → β) : Preorder α where
   le x y := f x ≤ f y
   le_refl _ := sorry
@@ -364,7 +363,6 @@ def Preorder.lift {α β} [Preorder β] (f : α → β) : Preorder α where
   lt x y := f x < f y
   lt_iff_le_not_le _ _ := sorry
 
-@[instance_reducible]
 def PartialOrder.lift {α β} [PartialOrder β] (f : α → β) (inj : Injective f) : PartialOrder α :=
   { Preorder.lift f with
     le_antisymm := sorry }
@@ -407,7 +405,6 @@ class Lattice (α : Type u) extends SemilatticeSup α, SemilatticeInf α
 class DistribLattice (α) extends Lattice α where
   protected le_sup_inf : ∀ x y z : α, (x ⊔ y) ⊓ (x ⊔ z) ≤ x ⊔ y ⊓ z
 
-@[instance_reducible]
 def DistribLattice.ofInfSupLe [Lattice α] (inf_sup_le : ∀ a b c : α, a ⊓ (b ⊔ c) ≤ a ⊓ b ⊔ a ⊓ c) :
     DistribLattice α where
   le_sup_inf := sorry
@@ -644,7 +641,7 @@ instance (priority := 100) BooleanAlgebra.toBiheytingAlgebra : BiheytingAlgebra 
   top_sdiff a := sorry
 
 end BooleanAlgebra
-#exit -- TODO fix issue
+
 instance Prop.instBooleanAlgebra : BooleanAlgebra Prop where
   __ := Prop.instHeytingAlgebra
   __ := GeneralizedHeytingAlgebra.toDistribLattice

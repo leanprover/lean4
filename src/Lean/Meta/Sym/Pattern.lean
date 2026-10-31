@@ -458,11 +458,16 @@ where
     | .zero, .imax _ v => go .zero v
     | .imax _ u, .zero => go u .zero
     | .max u₁ u₂, .max v₁ v₂ =>
+      if (← tryPostponeMaxCnstr u v) then
+        return true
       -- tryApproxMaxMax: find a shared concrete arg between both sides
       if u₂ == v₁ then go u₁ v₂
       else if u₁ == v₂ then go u₂ v₁
       else go u₁ v₁ <&&> go u₂ v₂
-    | .imax u₁ u₂, .imax v₁ v₂ => go u₁ v₁ <&&> go u₂ v₂
+    | .imax u₁ u₂, .imax v₁ v₂ =>
+      if (← tryPostponeMaxCnstr u v) then
+        return true
+      go u₁ v₁ <&&> go u₂ v₂
     | .param uName, _ =>
       if let some uidx := isUVar? uName then
         assignLevel uidx v
@@ -1151,7 +1156,7 @@ def processPendingLevel : UnifyM Bool := do
   let pattern := (← read).pattern
   let us := (← get).us
   for (u, v) in uPending do
-    let u := u.instantiateParams pattern.levelParams us
+    let u := (u.instantiateParams pattern.levelParams us).normalize
     unless (← isLevelDefEqS u v) do
       return false
   return true

@@ -337,6 +337,13 @@ object_offset object_compactor::insert_thunk(object * o) {
 }
 
 object_offset object_compactor::insert_ref(object * o) {
+    if (!m_allow_closures) {
+        throw exception("`IO.Ref`s cannot be compacted (unless explicitly calling "
+                        "`CompactedRegion.save (allowClosures := true)`) as they are written to after "
+                        "loading, while other regions may be shared between loads of the same file. One "
+                        "possible cause of this error is trying to store an `IO.Ref` in a persistent "
+                        "environment extension.");
+    }
     object_offset c = to_offset(lean_to_ref(o)->m_value);
     size_t sz = sizeof(lean_ref_object);
     object * r = copy_object(o, sz);
@@ -380,6 +387,11 @@ object_offset object_compactor::insert_closure(object * o) {
 }
 
 object_offset object_compactor::insert_promise(object * o) {
+    if (!m_allow_closures) {
+        throw exception("`IO.Promise`s cannot be compacted (unless explicitly calling "
+                        "`CompactedRegion.save (allowClosures := true)`) as they may be resolved after "
+                        "loading, while other regions may be shared between loads of the same file.");
+    }
     object_offset c = to_offset((object *)lean_to_promise(o)->m_result);
     size_t sz = sizeof(lean_promise_object);
     object * r = copy_object(o, sz);

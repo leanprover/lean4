@@ -1799,8 +1799,23 @@ def pushEqCore (lhs rhs proof : Expr) (isHEq : Bool) : GoalM Unit := do
 def hasSameType (a b : Expr) : MetaM Bool := do
   isDefEqD (← inferType a) (← inferType b)
 
+/--
+Similar to `hasSameType`, but uses `instances` transparency. `hasSameType` may be exponential when
+the types are equal only modulo the E-graph, e.g., `Fin (a.set! i v).size` and `Fin a.size`. Use
+`hasSameTypeI` where a `false` answer is acceptable, e.g., using `HEq`, missing a congruence, or
+not propagating an equality to a solver.
+-/
+def hasSameTypeI (a b : Expr) : MetaM Bool := do
+  isDefEqI (← inferType a) (← inferType b)
+
+/--
+Pushes `lhs = rhs` if `hasSameTypeI lhs rhs`, and `lhs ≍ rhs` otherwise. If the types are
+definitionally equal only with `default` transparency, we push `lhs ≍ rhs`. This is valid, but
+marks the equivalence class with `heqProofs`: its proofs use `HEq`, E-matching visits all its terms,
+and solvers only receive equalities between its terms whose types pass `hasSameTypeI`.
+-/
 @[inline] def pushEqHEq (lhs rhs proof : Expr) : GoalM Unit := do
-  if (← hasSameType lhs rhs) then
+  if (← hasSameTypeI lhs rhs) then
     pushEqCore lhs rhs proof (isHEq := false)
   else
     pushEqCore lhs rhs proof (isHEq := true)
@@ -2537,13 +2552,16 @@ def Solvers.mkActionCore : IO Action := do
 Returns the representative of the solver `id` in `sTerms` whose type is the type of `e`.
 `checkType := false` if the equivalence class has no heterogeneous equalities. Then,
 all its terms have the same type, and the first representative of the solver is returned.
+The types are compared using `hasSameTypeI`. A representative whose type is definitionally equal
+only with `default` transparency is not found, and the solver does not receive the corresponding
+equality or disequality.
 -/
 private def findSolverTerm? (id : Nat) (e : Expr) (checkType : Bool) (sTerms : SolverTerms) : GoalM (Option Expr) := do
   match sTerms with
   | .nil => return none
   | .next id' e' sTerms =>
     if id == id' then
-      if (← pure !checkType <||> hasSameType e e') then
+      if (← pure !checkType <||> hasSameTypeI e e') then
         return some e'
       else
         findSolverTerm? id e checkType sTerms
@@ -2647,12 +2665,13 @@ private def pushSolverDiseqOf (id : Nat) (lhs rhs : Expr) : GoalM Unit :=
 Similar to `forEachDiseq`, but only for disequalities between terms of the type of `e`,
 where `e` is a new representative of a solver in an equivalence class containing terms
 of different types. The other disequalities were propagated when the other representatives
-were added.
+were added. The types are compared using `hasSameTypeI`, so the solver does not receive
+disequalities between terms whose types are definitionally equal only with `default` transparency.
 -/
 @[inline] private def forEachDiseqOfType (parents : ParentSet) (e : Expr)
     (k : Expr → Expr → GoalM Unit) : GoalM Unit :=
   forEachDiseq parents fun lhs rhs => do
-    if (← hasSameType e lhs) then
+    if (← hasSameTypeI e lhs) then
       k lhs rhs
 
 /-- Runs the queued `newEq` callback. See `ToProcessElement.solverEq`. -/
@@ -2688,10 +2707,14 @@ def SolverExtension.markTerm (ext : SolverExtension σ) (e : Expr) : GoalM Unit 
     | .nil => return .next id e .nil
     | .next id' e' sTerms' =>
       if id == id' then
-        if (← pure !root.heqProofs <||> hasSameType e e') then
+        if (← pure !root.heqProofs <||> hasSameTypeI e e') then
           modify fun s => { s with toProcess := s.toProcess.push <| .solverEq id e e' }
           return sTerms
-        -- `e` and `e'` have different types. Keep searching for a representative with the type of `e`.
+        /-
+        `e` and `e'` have different types. Keep searching for a representative with the type of `e`.
+        If the types are definitionally equal only with `default` transparency, `e` becomes another
+        representative, and the solver does not receive `e = e'`.
+        -/
       else if id < id' then
         return .next id e sTerms
       let sTermsNew ← go sTerms'

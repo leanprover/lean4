@@ -32,13 +32,18 @@ private def isCongruentCheck (e₁ e₂ : Expr) : GoalM Bool := do
     let f := e₁.getAppFn
     let g := e₂.getAppFn
     if isSameExpr f g then return true
-    hasSameType f g
+    -- Misses the congruence if the types are definitionally equal only with `default` transparency.
+    hasSameTypeI f g
 where
   go (e₁ e₂ : Expr) : GoalM Bool := do
     let .app f _ := e₁ | return false
     let .app g _ := e₂ | return false
     if isSameExpr f g then return true
-    if (← hasSameType f g) then return true
+    /-
+    If the types are definitionally equal only with `default` transparency, we try shorter prefixes,
+    and miss the congruence if none works. `mkCongrProofFunCC` must make the same choices.
+    -/
+    if (← hasSameTypeI f g) then return true
     go f g
 
 /-- Adds `e` to congruence table. -/

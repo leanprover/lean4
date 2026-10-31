@@ -73,6 +73,11 @@ mutual
 structure EqCnstr where
   p  : Poly
   h  : EqCnstrProof
+  /--
+  Split depth of the goal where the constraint was stored, if any (see `markStored`).
+  Its proof can be built in that goal, and is shared by all subgoals of the case splits below it.
+  -/
+  depth? : Option Nat := none
 
 inductive EqCnstrProof where
   | /-- An equality `a = 0` coming from the core. -/
@@ -83,6 +88,11 @@ inductive EqCnstrProof where
     -/
     core (a b : Expr) (p₁ p₂ : Poly)
   | coreToInt (a b : Expr) (toIntThm : Expr) (lhs rhs : Int.Internal.Linear.Expr)
+  | /--
+    An equality `lhs = rhs` with proof `h`, asserted directly instead of through the E-graph. `lhs` and
+    `rhs` represent the two sides as they occur in the type of `h`.
+    -/
+    hyp (h : Expr) (lhs rhs : Int.Internal.Linear.Expr)
   | /-- `x = e` where `x` is the variable for `e`, `e` is in normal form, and `p` is its polynomial. -/
     defn (e : Expr) (p : Poly)
   | /-- `x = e'` with proof `h : x.denote = e'.denote`. `e'` is normalized by `Expr.norm`. -/
@@ -122,6 +132,11 @@ structure DvdCnstr where
   d  : Int
   p  : Poly
   h  : DvdCnstrProof
+  /--
+  Split depth of the goal where the constraint was stored, if any (see `markStored`).
+  Its proof can be built in that goal, and is shared by all subgoals of the case splits below it.
+  -/
+  depth? : Option Nat := none
 
 /--
 The predicate of type `Nat → Prop`, which serves as the conclusion of the
@@ -189,6 +204,11 @@ inductive DvdCnstrProof where
 structure LeCnstr where
   p  : Poly
   h  : LeCnstrProof
+  /--
+  Split depth of the goal where the constraint was stored, if any (see `markStored`).
+  Its proof can be built in that goal, and is shared by all subgoals of the case splits below it.
+  -/
+  depth? : Option Nat := none
 
 inductive LeCnstrProof where
   | core (e : Expr)
@@ -200,6 +220,11 @@ inductive LeCnstrProof where
     -/
     coreExpr (e : Expr) (pos : Bool) (lhs rhs : Int.Internal.Linear.Expr)
   | ofNatNonneg (a : Expr)
+  | /--
+    An inequality `lhs ≤ rhs` with proof `h`, asserted directly instead of through the E-graph. `lhs`
+    and `rhs` represent the two sides as they occur in the type of `h`.
+    -/
+    hyp (h : Expr) (lhs rhs : Int.Internal.Linear.Expr)
   | bound (h : Expr)
   | dec (h : FVarId)
   | norm (c : LeCnstr)
@@ -222,6 +247,11 @@ inductive LeCnstrProof where
 structure DiseqCnstr where
   p  : Poly
   h  : DiseqCnstrProof
+  /--
+  Split depth of the goal where the constraint was stored, if any (see `markStored`).
+  Its proof can be built in that goal, and is shared by all subgoals of the case splits below it.
+  -/
+  depth? : Option Nat := none
 
 inductive DiseqCnstrProof where
   | /-- An disequality `a != 0` coming from the core. That is, `(a = 0) = False` in the core. -/

@@ -240,6 +240,26 @@ partial def mkUnusedBaseName (baseName : Name) : MacroM Name := do
   else
     return baseName
 
+/--
+Like `mkUnusedBaseName` but does not use the current namespace and accepts a custom predicate for
+which names to avoid.
+-/
+@[specialize]
+partial def findUnusedName [Monad m] [MonadEnv m] (name : Name)
+    (avoid : Environment → Name → Bool := fun env name => env.contains name) :
+    m Name := do
+  let env ← getEnv
+  if avoid env name then
+    let rec loop (idx : Nat) := do
+      let name := name.appendIndexAfter idx
+      if avoid env name then
+        loop (idx+1)
+      else
+        return name
+    loop 1
+  else
+    return name
+
 def logException [Monad m] [MonadLog m] [AddMessageContext m] [MonadOptions m] [MonadLiftT IO m] (ex : Exception) : m Unit := do
   match ex with
   | Exception.error ref msg => logErrorAt ref msg

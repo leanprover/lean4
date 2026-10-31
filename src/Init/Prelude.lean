@@ -884,18 +884,12 @@ infer the proof of `Nonempty α`.
 noncomputable def Classical.ofNonempty {α : Sort u} [Nonempty α] : α :=
   Classical.choice inferInstance
 
-instance {α : Sort u} {β : Sort v} [Nonempty β] : Nonempty (α → β) :=
-  Nonempty.intro fun _ => Classical.ofNonempty
-
 instance Pi.instNonempty {α : Sort u} {β : α → Sort v} [(a : α) → Nonempty (β a)] :
     Nonempty ((a : α) → β a) :=
   Nonempty.intro fun _ => Classical.ofNonempty
 
 instance : Inhabited (Sort u) where
   default := PUnit
-
-instance (α : Sort u) {β : Sort v} [Inhabited β] : Inhabited (α → β) where
-  default := fun _ => default
 
 instance Pi.instInhabited {α : Sort u} {β : α → Sort v} [(a : α) → Inhabited (β a)] :
     Inhabited ((a : α) → β a) where
@@ -3678,7 +3672,7 @@ def String.utf8EncodeChar (c : Char) : List UInt8 :=
 implementation. Use `List.asString` instead. -/
 @[implicit_reducible]
 noncomputable def List.utf8Encode (l : List Char) : ByteArray :=
-  l.flatMap String.utf8EncodeChar |>.toByteArray
+  ⟨⟨l.flatMap String.utf8EncodeChar⟩⟩
 
 /-- A byte array is valid UTF-8 if it is of the form `List.utf8Encode m` for some `m`.
 
@@ -4058,9 +4052,6 @@ class Monad (m : Type u → Type v) : Type (max (u+1) v) extends Applicative m, 
   seq      f x := bind f fun y => Functor.map y (x ())
   seqLeft  x y := bind x fun a => bind (y ()) (fun _ => pure a)
   seqRight x y := bind x fun _ => y ()
-
-instance {α : Type u} {m : Type u → Type v} [Monad m] : Inhabited (α → m α) where
-  default := pure
 
 instance {α : Type u} {m : Type u → Type v} [Monad m] [Inhabited α] : Inhabited (m α) where
   default := pure default
@@ -4838,9 +4829,23 @@ class Hashable (α : Sort u) where
 
 export Hashable (hash)
 
-/-- An opaque hash mixing operation, used to implement hashing for products. -/
+/--
+An opaque hash mixing operation, used to implement hashing for products.
+
+It is the block step of `MurmurHash64A` from MurmurHash2 by Austin Appleby (public domain), except
+that the second `k *= m` is replaced with `k ^= m`.
+-/
 @[extern "lean_uint64_mix_hash"]
 opaque mixHash (u₁ u₂ : UInt64) : UInt64
+
+/--
+An opaque 32-bit hash mixing operation. With either argument fixed, it is a bijection in the other.
+
+It is the block step of `MurmurHash3_x86_32` from MurmurHash3 by Austin Appleby (public domain),
+except that `k = ROTL32(k, 15)` is replaced with `k ^= k >> 15`.
+-/
+@[extern "lean_uint32_mix_hash"]
+opaque mixHash32 (u₁ u₂ : UInt32) : UInt32
 
 instance [Hashable α] {p : α → Prop} : Hashable (Subtype p) where
   hash a := hash a.val

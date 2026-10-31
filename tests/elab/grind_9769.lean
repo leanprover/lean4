@@ -14,14 +14,7 @@ structure Bar {n m : Nat} (f : Fin (n + 2) → Fin (m + 1)) : Prop where
   out : f 1 = 1
 
 /--
-error: `grind` failed
-case grind
-n : Nat
-f : Foo n
-this : Bar fun x => x
-h : Foo.EqId n f
-h_1 : ¬Bar (Foo.e n f)
-⊢ False
+error: `grind` has failed, use `+verbose` to obtain diagnostic information
 -/
 #guard_msgs in
 theorem EqIdToZero (f : Foo n) : f.EqId → Bar f.e := by

@@ -12,7 +12,7 @@ all: ../../cadical$(CMAKE_EXECUTABLE_SUFFIX) ../../libcadical.a
 	$(CXX) -std=c++11 -O3 -DNDEBUG -DNBUILD $(CXXFLAGS) -c $< -o $@
 
 %.o: src/%.c
-	$(CC) -O3 -DNDEBUG -DNBUILD $(CFLAGS) -c $< -o $@
+	$(CXX) -x c -O3 -DNDEBUG -DNBUILD $(CXXFLAGS) -c $< -o $@
 
 ../../cadical$(CMAKE_EXECUTABLE_SUFFIX): $(OBJS)
 	$(CXX) -o $@ $^ $(LDFLAGS)

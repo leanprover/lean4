@@ -909,6 +909,12 @@ function](https://pubs.opengroup.org/onlinepubs/9699919799/functions/rename.html
 @[extern "lean_io_rename"] opaque rename (old new : @& FilePath) : IO Unit
 
 /--
+Moves a file or directory `old` to the new location `new`.
+Errors if `new` already exists.
+-/
+@[extern "lean_io_rename_if_new"] opaque renameIfNew (old new : @& FilePath) : IO Unit
+
+/--
 Creates a new hard link.
 
 The `link` path will be a link pointing to the `orig` path.
@@ -1521,7 +1527,7 @@ standard input is exhausted.
     IO (cfg.stdin.toHandleType × Child { cfg with stdin := Stdio.null })
 
 /-- Returns the operating system process id of the child process. -/
-@[extern "lean_io_process_child_pid"] opaque Child.pid {cfg : @& StdioConfig} : Child cfg → UInt32
+@[extern "lean_io_process_child_pid"] opaque Child.pid {cfg : @& StdioConfig} : @& Child cfg → UInt32
 
 /--
 The result of running a process to completion.

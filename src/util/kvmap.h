@@ -10,7 +10,7 @@ Author: Leonardo de Moura
 #include "util/name.h"
 
 namespace lean {
-enum class data_value_kind { String, Bool, Name, Nat, /* Int, Syntax */ };
+enum class data_value_kind { String, Bool, Name, Nat, Int, Syntax };
 /*
 inductive DataValue
 | ofString (v : String)

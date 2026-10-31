@@ -14,7 +14,7 @@ export COMPARATOR_BWRAP=lake-check-no-such-sandbox
 
 test_status_out 0 'Lean default kernel accepts the solution' check --inadvisably-no-sandbox
 match_text 'WARNING: Sandbox disabled' produced.out
-match_text 'Uses axioms: propext, Quot.sound, Classical.choice' produced.out
+match_text 'Uses axioms: propext, Classical.choice, Quot.sound' produced.out
 
 if [ "$UNAME" = Linux ]; then
   test_status_out 2 'lake-check-no-such-sandbox' check

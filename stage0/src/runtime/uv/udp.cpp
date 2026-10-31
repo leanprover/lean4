@@ -15,6 +15,8 @@ namespace lean {
 
 #ifndef LEAN_EMSCRIPTEN
 
+namespace {
+
 // A send request. The callback deletes it, and so does a failed submit. It keeps `data` alive
 // because libuv sends from its bytes.
 struct udp_send_req_t {
@@ -23,6 +25,8 @@ struct udp_send_req_t {
     owned_ref     socket;
     owned_ref     promise;
 };
+
+}
 
 static void udp_socket_finalizer(void* ptr) {
     lean_uv_udp_socket_object* udp_socket = (lean_uv_udp_socket_object*)ptr;
@@ -189,7 +193,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_recv(b_obj_arg socket, uint64_t 
     };
 
     auto recv_cb = [](uv_udp_t *handle, ssize_t nread, const uv_buf_t *buf, const struct sockaddr *addr, unsigned flags) {
-        if (nread == 0 && addr == NULL) return;
+        if (nread == 0 && addr == nullptr) return;
 
         uv_udp_recv_stop(handle);
 
@@ -207,7 +211,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_recv(b_obj_arg socket, uint64_t 
 
             lean_object* addr_obj;
 
-            if (addr != NULL) {
+            if (addr != nullptr) {
                 addr_obj = lean::mk_option_some(lean_sockaddr_to_socketaddress(addr));
             } else {
                 addr_obj = lean::mk_option_none();
@@ -265,14 +269,14 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_wait_readable(b_obj_arg socket) 
     auto alloc_cb = [](uv_handle_t* handle, size_t suggested_size, uv_buf_t *buf) {
         // According to libuv documentation if we do this we do not lose data and a UV_ENOBUFS will
         // be triggered in the read cb.
-        buf->base = NULL;
+        buf->base = nullptr;
         buf->len = 0;
     };
 
     auto recv_cb = [](uv_udp_t* handle, ssize_t nread, const uv_buf_t *buf, const struct sockaddr *addr, unsigned flags) {
         // `nread == 0` without an address is libuv's equivalent of `EAGAIN`: the socket is not
         // actually readable, so keep waiting rather than resolving the promise.
-        if (nread == 0 && addr == NULL) return;
+        if (nread == 0 && addr == nullptr) return;
 
         uv_udp_recv_stop(handle);
 

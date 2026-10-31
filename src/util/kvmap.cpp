@@ -32,6 +32,8 @@ bool operator<(data_value const & a, data_value const & b) {
     case data_value_kind::Nat:      return a.get_nat() < b.get_nat();
     case data_value_kind::Bool:     return !a.get_bool() && b.get_bool();
     case data_value_kind::Name:     return a.get_name() < b.get_name();
+    case data_value_kind::Int: case data_value_kind::Syntax:
+        break;
     }
     /* TODO: compare Int and Syntax values */
     return false;

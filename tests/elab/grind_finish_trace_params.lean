@@ -59,7 +59,7 @@ example (f : Nat → Nat) (h : ∀ x, f x = x) : f 0 = 0 := by
 
 /--
 info: Try this:
-  [apply] finish only [#7d84, mkP]
+  [apply] finish only [#71c8, mkP]
 -/
 #guard_msgs in
 example (f : Nat → Nat) (h : ∀ x, f x = x) : f 0 = 0 := by
@@ -70,7 +70,7 @@ example (f : Nat → Nat) (h : ∀ x, f x = x) : f 0 = 0 := by
 
 /--
 info: Try this:
-  [apply] finish only [#7d84, (mkP)]
+  [apply] finish only [#71c8, (mkP)]
 -/
 #guard_msgs in
 example (f : Nat → Nat) (h : ∀ x, f x = x) : f 0 = 0 := by

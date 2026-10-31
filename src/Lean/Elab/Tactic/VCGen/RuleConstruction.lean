@@ -484,7 +484,9 @@ The rule concludes `pre ⊑ wp prog Q E s⃗` from the split VC `pre ⊑ (op F W
 condition `WP.Frames op prog F G`, with the frame `F` left schematic, the guard `G` the frame of
 `pre` for the excess state arguments `fun u⃗ => ⌜u⃗ = s⃗⌝ ⊓ pre`, and the weakest footprint
 `W = wp prog (fun a => upperAdjoint (op F) (Q a)) (upperAdjoint (opE F) E)` baked in, so a single
-rule serves every inferred frame. `analyzeFrameRule` records the positions of the schematic slots.
+rule serves every inferred frame. When `FrameProc.framesThm?` applies to the frame condition, the
+rule proves it, and the rule has no frame condition premise. `analyzeFrameRule` records the
+positions of the schematic slots.
 -/
 public def mkFrameBackwardRule (fp : FrameProc) (info : WPApp) :
     MetaM FrameBackwardRule := do
@@ -502,6 +504,11 @@ public def mkFrameBackwardRule (fp : FrameProc) (info : WPApp) :
     (userName := `vc)
   let ssFrame ← ExcessArgsFrameInfo.new pre ss
   guard.mvarId!.assign ssFrame.frame
+  if let some declName := fp.framesThm? then
+    let hframes := xs.back!.mvarId!
+    discard <| commitWhen do
+      try return (← hframes.apply (← mkConstWithFreshMVarLevels declName)).isEmpty
+      catch _ => return false
   let hop ← ssFrame.abstract opApp ss hsplit
   let G := ssFrame.frame
   let hmeet ← mkAppM ``le_meet

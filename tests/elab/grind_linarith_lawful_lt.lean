@@ -27,19 +27,7 @@ end
 
 -- Independent of the normalizer
 /--
-error: `grind` failed
-case grind
-α : Type u_1
-inst : IntModule α
-inst_1 : LE α
-inst_2 : LT α
-inst_3 : IsLinearOrder α
-inst_4 : OrderedAdd α
-a b c : α
-h : a < b
-h_1 : b < c
-h_2 : ¬a < c
-⊢ False
+error: `grind` has failed, use `+verbose` to obtain diagnostic information
 -/
 #guard_msgs in
 example [IntModule α] [LE α] [LT α] [IsLinearOrder α] [OrderedAdd α] (a b c : α)
@@ -48,19 +36,7 @@ example [IntModule α] [LE α] [LT α] [IsLinearOrder α] [OrderedAdd α] (a b c
 
 -- Disequality split on a type without `LT`
 /--
-error: `grind` failed
-case grind
-α : Type u_1
-inst : IntModule α
-inst_1 : LE α
-inst_2 : IsLinearOrder α
-inst_3 : OrderedAdd α
-a b c : α
-h : a ≤ c
-h_1 : c ≤ b
-h_2 : b ≤ a
-h_3 : ¬a + b = 2 • c
-⊢ False
+error: `grind` has failed, use `+verbose` to obtain diagnostic information
 -/
 #guard_msgs in
 example [IntModule α] [LE α] [IsLinearOrder α] [OrderedAdd α] (a b c : α)

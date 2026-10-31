@@ -744,10 +744,10 @@ return v___x_188_;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_containsAux___at___00Lean_PersistentHashMap_contains___at___00Lean_MVarId_isAssigned___at___00Lean_MVarId_rewrite_spec__0_spec__0_spec__4___redArg___boxed(lean_object* v_x_189_, lean_object* v_x_190_, lean_object* v_x_191_){
 _start:
 {
-size_t v_x_18247__boxed_192_; uint8_t v_res_193_; lean_object* v_r_194_; 
-v_x_18247__boxed_192_ = lean_unbox_usize(v_x_190_);
+size_t v_x_18249__boxed_192_; uint8_t v_res_193_; lean_object* v_r_194_; 
+v_x_18249__boxed_192_ = lean_unbox_usize(v_x_190_);
 lean_dec(v_x_190_);
-v_res_193_ = l_Lean_PersistentHashMap_containsAux___at___00Lean_PersistentHashMap_contains___at___00Lean_MVarId_isAssigned___at___00Lean_MVarId_rewrite_spec__0_spec__0_spec__4___redArg(v_x_189_, v_x_18247__boxed_192_, v_x_191_);
+v_res_193_ = l_Lean_PersistentHashMap_containsAux___at___00Lean_PersistentHashMap_contains___at___00Lean_MVarId_isAssigned___at___00Lean_MVarId_rewrite_spec__0_spec__0_spec__4___redArg(v_x_189_, v_x_18249__boxed_192_, v_x_191_);
 lean_dec(v_x_191_);
 lean_dec_ref(v_x_189_);
 v_r_194_ = lean_box(v_res_193_);
@@ -4102,10 +4102,10 @@ return v___x_1208_;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_containsAux___at___00Lean_PersistentHashMap_contains___at___00Lean_MVarId_isAssigned___at___00Lean_MVarId_rewrite_spec__0_spec__0_spec__4___boxed(lean_object* v_00_u03b2_1209_, lean_object* v_x_1210_, lean_object* v_x_1211_, lean_object* v_x_1212_){
 _start:
 {
-size_t v_x_19950__boxed_1213_; uint8_t v_res_1214_; lean_object* v_r_1215_; 
-v_x_19950__boxed_1213_ = lean_unbox_usize(v_x_1211_);
+size_t v_x_19952__boxed_1213_; uint8_t v_res_1214_; lean_object* v_r_1215_; 
+v_x_19952__boxed_1213_ = lean_unbox_usize(v_x_1211_);
 lean_dec(v_x_1211_);
-v_res_1214_ = l_Lean_PersistentHashMap_containsAux___at___00Lean_PersistentHashMap_contains___at___00Lean_MVarId_isAssigned___at___00Lean_MVarId_rewrite_spec__0_spec__0_spec__4(v_00_u03b2_1209_, v_x_1210_, v_x_19950__boxed_1213_, v_x_1212_);
+v_res_1214_ = l_Lean_PersistentHashMap_containsAux___at___00Lean_PersistentHashMap_contains___at___00Lean_MVarId_isAssigned___at___00Lean_MVarId_rewrite_spec__0_spec__0_spec__4(v_00_u03b2_1209_, v_x_1210_, v_x_19952__boxed_1213_, v_x_1212_);
 lean_dec(v_x_1212_);
 lean_dec_ref(v_x_1210_);
 v_r_1215_ = lean_box(v_res_1214_);

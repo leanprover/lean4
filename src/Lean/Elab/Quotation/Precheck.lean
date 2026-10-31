@@ -57,16 +57,7 @@ unsafe builtin_initialize precheckAttribute : KeyedDeclsAttribute Precheck ←
   }
 
 partial def precheck : Precheck := fun stx => do
-  -- Check for deprecated syntax kinds in quotations. Syntax produced by expanding macros in the
-  -- quotation is not part of it; elaborating the result of the quotation reports it.
-  if let some entry := (deprecatedSyntaxExt.getState (← getEnv)).find? stx.getKind then
-    unless stx.getHeadInfo matches .synthetic .. do
-      let extraMsg := match entry.text? with
-        | some text => m!": {text}"
-        | none => m!""
-      withRef stx do
-        Linter.logLintIf Linter.linter.deprecated.syntax stx
-          m!"quotation uses deprecated syntax '{stx.getKind}'{extraMsg}"
+  checkDeprecatedQuotedSyntax stx
   if let p::_ := precheckAttribute.getValues (← getEnv) stx.getKind then
     if ← catchInternalId unsupportedSyntaxExceptionId (do withRef stx <| p stx; pure true) (fun _ => pure false) then
       return

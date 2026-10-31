@@ -230,10 +230,10 @@ def protocolOverview : Array MessageOverview := #[
   .request {
     method := "textDocument/foldingRange"
     direction := .clientToServer
-    kinds := #[.standard]
+    kinds := #[.extendedResponseType #[``FoldingRange.kind?]]
     parameterType := FoldingRangeParams
     responseType := Array FoldingRange
-    description := "Emitted in VS Code when a file is first opened or when it is changed."
+    description := "Emitted in VS Code when a file is first opened or when it is changed. In addition to the standard folding range kinds, the language server uses the kind `proof` for the values of declarations whose types are propositions, for example the proofs of theorems."
   },
   .request {
     method := "textDocument/documentColor"
@@ -249,7 +249,7 @@ def protocolOverview : Array MessageOverview := #[
     kinds := #[.standard]
     parameterType := SemanticTokensRangeParams
     responseType := SemanticTokens
-    description := "Emitted in VS Code when a file is changed."
+    description := "Emitted in VS Code when a file is changed. The server returns additional semantic tokens and modifiers using the standard LSP mechanism of adding them to the semantic tokens legend."
   },
   .request {
     method := "textDocument/semanticTokens/full"
@@ -257,7 +257,7 @@ def protocolOverview : Array MessageOverview := #[
     kinds := #[.standardViolation "Instead of reporting the full semantic tokens for the full file as specified by LSP, the Lean language server will only report the semantic tokens for the part of the file that has been processed so far. If the response is incomplete, the language server periodically emits `workspace/semanticTokens/refresh` to request another `textDocument/semanticTokens/full` request from the client. This process is repeated until the file has been fully processed and all semantic tokens have been reported. We use this trick to stream semantic tokens to VS Code, despite the fact that VS Code does not support result streaming."]
     parameterType := SemanticTokensParams
     responseType := SemanticTokens
-    description := "Emitted in VS Code when a file is first opened, when it is changed or when VS Code receives a `workspace/semanticTokens/refresh` request from the server."
+    description := "Emitted in VS Code when a file is first opened, when it is changed or when VS Code receives a `workspace/semanticTokens/refresh` request from the server. The server returns additional semantic tokens and modifiers using the standard LSP mechanism of adding them to the semantic tokens legend."
   },
   .request {
     method := "workspace/semanticTokens/refresh"

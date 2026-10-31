@@ -10,10 +10,9 @@ public import Lean.Elab.Tactic.Do.VCGen
 public import Lean.Elab.Tactic.VCGen.Context
 public import Lean.Elab.Tactic.VCGen.Driver
 public import Lean.Elab.Tactic.VCGen.FrameProcAttr
-public import Lean.Meta.Sym.Simp.Attr
-public import Lean.Meta.Sym.Simp.ControlFlow
+public import Lean.Elab.Tactic.VCGen.SimpAttr
 public import Lean.Meta.Sym.Simp.EvalGround
-public import Lean.Meta.Sym.Simp.Forall
+public import Lean.Meta.Sym.Simp.Reduce
 public import Lean.Meta.Sym.Simp.Rewrite
 public import Lean.Meta.Sym.Simp.Simproc
 public import Lean.Elab.Tactic.Grind.Main
@@ -41,6 +40,25 @@ resulting invariants and VCs.
 def runTacticM (x : TacticM α) (goals : List MVarId := [])  : TermElabM α :=
   x.run { elaborator := `mvcgen } |>.run' { goals }
 
+
+/--
+Elaborate a term `t` of a `[...]` argument list once, as `simp` does: the result is the proof `t`
+with its metavariables abstracted, and the level parameters that the abstraction introduces. `none`
+when `t` elaborates to a `sorry`.
+-/
+def elabProofArg (term : Syntax) : TermElabM (Option (Array Name × Expr)) :=
+  Term.withoutModifyingElabMetaStateWithInfo <| withRef term do
+    let e ← Term.elabTerm term .none
+    Term.synthesizeSyntheticMVars (postpone := .no) (ignoreStuckTC := true)
+    let e ← instantiateMVars e
+    if e.hasSyntheticSorry then
+      return none
+    let e := e.eta
+    if e.hasMVar then
+      let r ← abstractMVars e
+      return some (r.paramNames, r.expr)
+    else
+      return some (#[], e)
 
 /--
 Parse the optional `[...]` argument list for `vcgen`, partitioning entries into
@@ -100,19 +118,7 @@ public def mkContext (lemmas : Syntax) (goal : MVarId) (ignoreStarArg := false) 
         -- A term that is not a bare identifier (e.g. `show l = r from h`, `foo x`, `@foo`).
         -- Mirror `simp`: elaborate once, register a spec proof as a spec, and any other proof as a
         -- simp lemma (which `addSimpSpecs` turns into an equational spec).
-        let thm? ← Term.withoutModifyingElabMetaStateWithInfo <| withRef term do
-          let e ← Term.elabTerm term .none
-          Term.synthesizeSyntheticMVars (postpone := .no) (ignoreStuckTC := true)
-          let e ← instantiateMVars e
-          if e.hasSyntheticSorry then
-            return none
-          let e := e.eta
-          if e.hasMVar then
-            let r ← abstractMVars e
-            return some (r.paramNames, r.expr)
-          else
-            return some (#[], e)
-        if let some (levelParams, proof) := thm? then
+        if let some (levelParams, proof) ← elabProofArg term then
           if let some thm ← mkSpecTheoremFromStx term proof explicitSpecPrio then
             specThms := specThms.insert thm
           else
@@ -193,50 +199,36 @@ def warnIgnoredConfig (config : Do.VCGen.Config) : MetaM Unit := do
     logWarning "vcgen: the `trivial` config option is currently ignored."
 
 /--
-Build `Sym.Simp.Methods` from a variant name and extra theorems.
-Supports the anonymous (default) variant. Named variants require a public
-`elabSimpMethods` API in `Lean.Elab.Tactic.Grind.Sym` (see TODO below).
+The theorems of `vcgen`'s simp set: the `@[vcgen_simp]` theorems and the arguments `args` of the
+`simp [...]` clause. An argument is a theorem or definition name, a local hypothesis, a proof term,
+or `*` for every local hypothesis that is a proposition.
 -/
-def elabSymSimpParts
-    (variantId? : Option (TSyntax `ident))
-    (extraIds? : Option (Array (TSyntax `ident)))
-    : MetaM Sym.Simp.Methods := do
-  let variantName := variantId?.map (·.getId) |>.getD .anonymous
-  if !variantName.isAnonymous then
-    -- TODO: `resolveExtraTheorems`, `elabVariant`, and `elabSymSimproc` in
-    -- `Lean.Elab.Tactic.Grind.Sym` are module-private (non-`public section`).
-    -- To support named variants here, we need a public API such as:
-    --   `public def elabSymSimp (syn : Syntax) : GrindTacticM (Sym.Simp.Methods × ...)`
-    -- exposed from that module, plus a lightweight `GrindTacticM` runner
-    -- (the simproc elaborators only use `CoreM`/`MetaM` capabilities).
-    throwError "named Sym.simp variants are not yet supported in `vcgen`; \
-      use `vcgen simplifying_assumptions [thm₁, thm₂, ...]` with the default variant instead"
-  -- Resolve extra theorems (local hypotheses first, then global constants)
-  let mut extraThms : Array Sym.Simp.Theorem := #[]
-  if let some ids := extraIds? then
-    let lctx ← getLCtx
-    for id in ids do
-      if let some decl := lctx.findFromUserName? id.getId then
-        extraThms := extraThms.push (← Sym.Simp.mkTheoremFromExpr decl.toExpr)
-      else
-        let declName ← realizeGlobalConstNoOverload id
-        extraThms := extraThms.push (← Sym.Simp.mkTheoremFromDecl declName)
-  -- Build default variant methods
-  let symThms ← Sym.Simp.getSymSimpTheorems
-  let pre := Sym.Simp.simpControl >> Sym.Simp.simpArrowTelescope
-  let mut post : Sym.Simp.Simproc := Sym.Simp.evalGround >> symThms.rewrite
-  if !extraThms.isEmpty then
-    let mut thms : Sym.Simp.Theorems := {}
-    for thm in extraThms do thms := thms.insert thm
-    post := post >> thms.rewrite
-  return { pre, post }
-
-def elabSimplifyingAssumptions (simpClause : Syntax) : MetaM (Option Sym.Simp.Methods) := do
-  if simpClause.getNumArgs == 0 then return none
-  let variantId? := if simpClause[1].getNumArgs != 0 then some ⟨simpClause[1][0]⟩ else none
-  let extraIds? := if simpClause[2].getNumArgs != 0
-    then some (simpClause[2][1].getSepArgs.map (⟨·⟩)) else none
-  pure (some (← elabSymSimpParts variantId? extraIds?))
+def elabSimpTheorems (args : Array Syntax) : TermElabM Sym.Simp.Theorems := do
+  let mut thms ← vcgenSimpExt.getTheorems
+  for arg in args do
+    if arg.getKind == ``simpErase then
+      throwErrorAt arg "`vcgen simp [...]` cannot erase a theorem"
+    else if arg.getKind == ``simpStar then
+      for fvar in ← getPropHyps do
+        thms := thms.insert (← Sym.Simp.mkTheoremFromExpr (mkFVar fvar))
+    else if arg.getKind == ``simpLemma then
+      unless arg[0].isNone && arg[1].isNone do
+        throwErrorAt arg "`vcgen simp [...]` takes no `←`, `↑` or `↓` modifier"
+      let term := arg[2]
+      match ← Term.resolveId? term (withInfo := true) <|> Term.elabCDotFunctionAlias? ⟨term⟩ with
+      | some (.const declName _) =>
+        for thm in ← Sym.Simp.mkTheoremsFromDecl declName do
+          thms := thms.insert thm
+      | some (.fvar fvar) =>
+        thms := thms.insert (← Sym.Simp.mkTheoremFromExpr (mkFVar fvar))
+      | _ =>
+        let some (levelParams, proof) ← elabProofArg term | continue
+        unless levelParams.isEmpty do
+          throwErrorAt term "`vcgen simp [...]` takes no universe-polymorphic proof term"
+        thms := thms.insert (← Sym.Simp.mkTheoremFromExpr proof)
+    else
+      throwUnsupportedSyntax
+  return thms
 
 /--
 Pre-parse the optional `invariantAlts` syntax into a map from invariant number
@@ -410,9 +402,17 @@ def parseArgs (stx : Syntax) (goal : MVarId) : TermElabM ParsedArgs := goal.with
   let frameDB ← if stx[4].isNone then pure ({} : FrameDB)
     else elabFrameDB progTy stx[4][1].getArgs
   let invariantAlts? ← parseInvariantMap stx[5]
-  let hypSimpMethods ← elabSimplifyingAssumptions stx[6]
+  let simpArgs := if stx[6].isNone then #[] else stx[6][2].getSepArgs
+  let simpMethods ← if config.simp then
+      let thms ← elabSimpTheorems simpArgs
+      pure (some { pre := Sym.Simp.beta >> Sym.Simp.reduceProj >> Sym.Simp.reduceMatcher
+                   post := Sym.Simp.evalGround >> thms.rewrite Sym.Simp.dischargeSimpSelf })
+    else if simpArgs.isEmpty then
+      pure none
+    else
+      throwErrorAt stx[6] "`vcgen simp [...]` conflicts with the config option `simp := false`"
   let ctx := { ctx with
-    hypSimpMethods,
+    simpMethods,
     frameProcs,
     useJP := config.jp,
     errorOnMissingSpec := config.errorOnMissingSpec,
@@ -464,7 +464,7 @@ grind step share an internalised E-graph with `vcgen`. -/
 @[builtin_tactic Lean.Parser.Tactic.vcgen]
 public def elabVCGen : Tactic := fun stx => withMainContext do
   let `(tactic| vcgen%$tk $cfg:optConfig $[[$lems,*]]? $[until $u:term]? $[frames $fas*]? $(invs)?
-        $[simplifying_assumptions $(sa)? $[[$thms,*]]?]? $[with $w:vcgenDischarge]?) := stx
+        $[simp [$simpArgs,*]]? $[with $w:vcgenDischarge]?) := stx
     | throwUnsupportedSyntax
   let g? ← elabVCGenDischarge w
   -- Without `with`, no downstream grind step will read the E-graph, so opt out of
@@ -475,7 +475,7 @@ public def elabVCGen : Tactic := fun stx => withMainContext do
         let off ← `(optConfig| -internalize)
         pure (Lean.Parser.Tactic.appendConfig off cfg)
   let core ← `(grind| vcgen%$tk $cfg:optConfig $[[$lems,*]]? $[until $u:term]? $[frames $fas*]? $(invs)?
-        $[simplifying_assumptions $(sa)? $[[$thms,*]]?]?)
+        $[simp [$simpArgs,*]]?)
   let step ← match g? with
     | some g => `(grind| $core <;> $g)
     | none   => pure core

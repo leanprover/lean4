@@ -10,6 +10,7 @@ meta import Init.Data.Erased
 public import Lean.Elab.Do.InferControlInfo
 public import Lean.Elab.Binders
 import Lean.Meta.ProdN
+import Lean.Elab.DeprecatedSyntax.Basic
 public import Lean.Parser
 meta import Lean.Parser.Do
 import Init.Omega
@@ -1012,6 +1013,19 @@ private def elabDoElemFns (stx : DoElem) (cont : DoElemCont)
             throw ex
         | _ => throw ex
 
+/--
+Runs `x cont`, which elaborates the `do` element `stx` or its macro expansion, followed by `cont`,
+like `Term.withDeprecationContextForSyntax stx`. The rest of the block `cont` is not part of `stx`,
+so it is elaborated with the current deprecation checks.
+-/
+private def withDeprecationContextForDoElem (stx : Syntax) (cont : DoElemCont)
+    (x : DoElemCont → DoElabM Expr) : DoElabM Expr := do
+  unless isDeprecatedSyntax (← getEnv) stx.getKind do
+    return ← x cont
+  let checkDeprecated := (← readThe Core.Context).checkDeprecated
+  Term.withoutCheckDeprecatedSynthetic <|
+    x { cont with k := withTheReader Core.Context ({ · with checkDeprecated }) cont.k }
+
 private def DoElemCont.mkUnit (k : DoElabM Expr) : DoElabM DoElemCont := do
   let unit ← mkPUnit
   let r ← mkFreshUserName `__r
@@ -1034,7 +1048,7 @@ partial def elabDoElem (stx : DoElem) (cont : DoElemCont) (catchExPostpone : Boo
   if let some (decl, stxNew) ← Term.expandMacroReportingDeprecated? stx then
     return ← withTermInfoContext' decl stx mγ <|
       Term.withMacroExpansion stx stxNew <|
-        withRef stxNew <| elabDoElem ⟨stxNew⟩ cont
+        withRef stxNew <| withDeprecationContextForDoElem stx cont (elabDoElem ⟨stxNew⟩ ·)
 
   let (doElems, stx) ← expandNestedActions stx
   if !doElems.isEmpty then
@@ -1044,7 +1058,8 @@ partial def elabDoElem (stx : DoElem) (cont : DoElemCont) (catchExPostpone : Boo
   Term.reportDeprecatedSyntax stx
   match doElemElabAttribute.getEntries (← getEnv) k with
   | []      => throwError "elaboration function for `{k}` has not been implemented{indentD stx}"
-  | elabFns => elabDoElemFns stx cont elabFns catchExPostpone
+  | elabFns =>
+    withDeprecationContextForDoElem stx cont (elabDoElemFns stx · elabFns catchExPostpone)
 
 partial def elabDoElems1 (doElems : Array DoElem) (cont : DoElemCont) (catchExPostpone : Bool := true) : DoElabM Expr := do
   if h : doElems.size = 0 then

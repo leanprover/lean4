@@ -9013,8 +9013,8 @@ goto v___jp_2080_;
 }
 else
 {
-lean_dec(v_head_2086_);
 lean_dec_ref_known(v_x_2076_, 2);
+lean_dec(v_head_2086_);
 lean_dec_ref(v___y_2078_);
 lean_dec(v_x_2077_);
 goto v___jp_2080_;

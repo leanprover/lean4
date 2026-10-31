@@ -24,7 +24,7 @@ lean_object* lean_nat_add(lean_object*, lean_object*);
 uint8_t l_Lean_Grind_CommRing_Poly_isSorted(lean_object*);
 lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Grind_instInhabitedGoalM___redArg();
-lean_object* l_instInhabitedForall___redArg___lam__0___boxed(lean_object*, lean_object*);
+lean_object* l_instInhabitedReaderT___redArg___lam__0___boxed(lean_object*, lean_object*);
 lean_object* lean_panic_fn_borrowed(lean_object*, lean_object*);
 uint8_t l_Lean_Grind_CommRing_Poly_checkCoeffs(lean_object*);
 uint8_t l_Lean_Grind_CommRing_Poly_checkNoUnitMon(lean_object*);
@@ -162,7 +162,7 @@ _start:
 {
 lean_object* v___x_15_; lean_object* v___f_16_; lean_object* v___x_6211__overap_17_; lean_object* v___x_18_; 
 v___x_15_ = lean_obj_once(&l_panic___at___00__private_Lean_Meta_Tactic_Grind_Arith_CommRing_Inv_0__Lean_Meta_Grind_Arith_CommRing_checkVars_spec__0___closed__0, &l_panic___at___00__private_Lean_Meta_Tactic_Grind_Arith_CommRing_Inv_0__Lean_Meta_Grind_Arith_CommRing_checkVars_spec__0___closed__0_once, _init_l_panic___at___00__private_Lean_Meta_Tactic_Grind_Arith_CommRing_Inv_0__Lean_Meta_Grind_Arith_CommRing_checkVars_spec__0___closed__0);
-v___f_16_ = lean_alloc_closure((void*)(l_instInhabitedForall___redArg___lam__0___boxed), 2, 1);
+v___f_16_ = lean_alloc_closure((void*)(l_instInhabitedReaderT___redArg___lam__0___boxed), 2, 1);
 lean_closure_set(v___f_16_, 0, v___x_15_);
 v___x_6211__overap_17_ = lean_panic_fn_borrowed(v___f_16_, v_msg_2_);
 lean_dec_ref(v___f_16_);
@@ -205,7 +205,7 @@ _start:
 {
 lean_object* v___x_46_; lean_object* v___f_47_; lean_object* v___x_6229__overap_48_; lean_object* v___x_49_; 
 v___x_46_ = lean_obj_once(&l_panic___at___00__private_Lean_Meta_Tactic_Grind_Arith_CommRing_Inv_0__Lean_Meta_Grind_Arith_CommRing_checkVars_spec__0___closed__0, &l_panic___at___00__private_Lean_Meta_Tactic_Grind_Arith_CommRing_Inv_0__Lean_Meta_Grind_Arith_CommRing_checkVars_spec__0___closed__0_once, _init_l_panic___at___00__private_Lean_Meta_Tactic_Grind_Arith_CommRing_Inv_0__Lean_Meta_Grind_Arith_CommRing_checkVars_spec__0___closed__0);
-v___f_47_ = lean_alloc_closure((void*)(l_instInhabitedForall___redArg___lam__0___boxed), 2, 1);
+v___f_47_ = lean_alloc_closure((void*)(l_instInhabitedReaderT___redArg___lam__0___boxed), 2, 1);
 lean_closure_set(v___f_47_, 0, v___x_46_);
 v___x_6229__overap_48_ = lean_panic_fn_borrowed(v___f_47_, v_msg_33_);
 lean_dec_ref(v___f_47_);
@@ -3681,7 +3681,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_CommRing_checkInvariants(lean_o
 _start:
 {
 uint8_t v_debug_1618_; 
-v_debug_1618_ = lean_ctor_get_uint8(v_a_1609_, sizeof(void*)*10 + 2);
+v_debug_1618_ = lean_ctor_get_uint8(v_a_1609_, sizeof(void*)*12 + 3);
 if (v_debug_1618_ == 0)
 {
 lean_object* v___x_1619_; lean_object* v___x_1620_; 

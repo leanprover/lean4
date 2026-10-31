@@ -151,8 +151,20 @@ inline bool has_fvar(expr const & e) {
     lean_assert(r == has_fvar_core(e)); // ensure the C++ implementation matches the Lean one.
     return r;
 }
-bool has_univ_param(expr const & e);
-unsigned get_loose_bvar_range(expr const & e);
+/* This is the implementation in Lean */
+bool has_univ_param_core(expr const & e);
+inline bool has_univ_param(expr const & e) {
+    bool r = ((get_data(e) >> 43) & 1) == 1;
+    lean_assert(r == has_univ_param_core(e)); // ensure the C++ implementation matches the Lean one.
+    return r;
+}
+/* This is the implementation in Lean */
+unsigned get_loose_bvar_range_core(expr const & e);
+inline unsigned get_loose_bvar_range(expr const & e) {
+    unsigned r = static_cast<unsigned>(get_data(e) >> 44);
+    lean_assert(r == get_loose_bvar_range_core(e)); // ensure the C++ implementation matches the Lean one.
+    return r;
+}
 
 struct expr_hash { unsigned operator()(expr const & e) const { return hash(e); } };
 struct expr_pair_hash {

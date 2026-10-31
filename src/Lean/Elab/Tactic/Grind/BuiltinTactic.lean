@@ -94,7 +94,7 @@ open Meta Lean.Meta.Grind
     if let some goal ← liftGrindM <| solve goal then
       let params := (← read).params
       let result ← liftGrindM do mkResult params (some goal)
-      throwError "`finish` failed\n{← result.toMessageData}"
+      throwError (← result.toErrorMessageData `finish)
     else
       replaceMainGoal []
 
@@ -247,7 +247,8 @@ where
       elabEMatchTheorem declName kind minIndexable
     | .infer =>
       let goal ← getMainGoal
-      let thms := goal.ematch.thmMap.find (.decl declName)
+      -- Registered theorems are reused only if they match the requested `!` modifier.
+      let thms := goal.ematch.thmMap.find (.decl declName) |>.filter (·.minIndexable == minIndexable)
       if thms.isEmpty then
         elabEMatchTheorem declName (.default false) minIndexable
       else

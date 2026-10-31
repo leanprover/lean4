@@ -606,14 +606,14 @@ lean_ctor_set(v___x_167_, 0, v_currNamespace_160_);
 lean_ctor_set(v___x_167_, 1, v_openDecls_166_);
 v___x_168_ = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(v___x_168_, 0, v___x_167_);
-lean_ctor_set(v___x_168_, 1, v___y_151_);
+lean_ctor_set(v___x_168_, 1, v___y_152_);
+lean_inc_ref(v___y_151_);
 lean_inc_ref(v___y_150_);
-lean_inc_ref(v___y_153_);
 v___x_169_ = lean_alloc_ctor(0, 5, 3);
-lean_ctor_set(v___x_169_, 0, v___y_153_);
+lean_ctor_set(v___x_169_, 0, v___y_150_);
 lean_ctor_set(v___x_169_, 1, v___y_156_);
-lean_ctor_set(v___x_169_, 2, v___y_152_);
-lean_ctor_set(v___x_169_, 3, v___y_150_);
+lean_ctor_set(v___x_169_, 2, v___y_153_);
+lean_ctor_set(v___x_169_, 3, v___y_151_);
 lean_ctor_set(v___x_169_, 4, v___x_168_);
 lean_ctor_set_uint8(v___x_169_, sizeof(void*)*5, v___y_155_);
 lean_ctor_set_uint8(v___x_169_, sizeof(void*)*5 + 1, v___y_154_);
@@ -721,8 +721,8 @@ else
 lean_object* v_a_198_; lean_object* v___x_200_; uint8_t v_isShared_201_; uint8_t v_isSharedCheck_205_; 
 lean_dec(v_currNamespace_160_);
 lean_dec_ref(v___y_156_);
-lean_dec(v___y_152_);
-lean_dec_ref(v___y_151_);
+lean_dec(v___y_153_);
+lean_dec_ref(v___y_152_);
 v_a_198_ = lean_ctor_get(v___x_161_, 0);
 v_isSharedCheck_205_ = !lean_is_exclusive(v___x_161_);
 if (v_isSharedCheck_205_ == 0)
@@ -766,8 +766,8 @@ else
 {
 lean_object* v_a_206_; lean_object* v___x_208_; uint8_t v_isShared_209_; uint8_t v_isSharedCheck_213_; 
 lean_dec_ref(v___y_156_);
-lean_dec(v___y_152_);
-lean_dec_ref(v___y_151_);
+lean_dec(v___y_153_);
+lean_dec_ref(v___y_152_);
 v_a_206_ = lean_ctor_get(v___x_158_, 0);
 v_isSharedCheck_213_ = !lean_is_exclusive(v___x_158_);
 if (v_isSharedCheck_213_ == 0)
@@ -849,10 +849,10 @@ if (v_suppressElabErrors_221_ == 0)
 {
 lean_del_object(v___x_228_);
 lean_dec_ref(v___f_223_);
-v___y_150_ = v___x_233_;
-v___y_151_ = v_a_226_;
-v___y_152_ = v___x_232_;
-v___y_153_ = v_fileName_219_;
+v___y_150_ = v_fileName_219_;
+v___y_151_ = v___x_233_;
+v___y_152_ = v_a_226_;
+v___y_153_ = v___x_232_;
 v___y_154_ = v___y_217_;
 v___y_155_ = v___y_216_;
 v___y_156_ = v___x_230_;
@@ -893,10 +893,10 @@ return v___x_237_;
 else
 {
 lean_del_object(v___x_228_);
-v___y_150_ = v___x_233_;
-v___y_151_ = v_a_226_;
-v___y_152_ = v___x_232_;
-v___y_153_ = v_fileName_219_;
+v___y_150_ = v_fileName_219_;
+v___y_151_ = v___x_233_;
+v___y_152_ = v_a_226_;
+v___y_153_ = v___x_232_;
 v___y_154_ = v___y_217_;
 v___y_155_ = v___y_216_;
 v___y_156_ = v___x_230_;

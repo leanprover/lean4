@@ -9,6 +9,8 @@ prelude
 public import LeanExport.Parse
 import Lake.Check.Util
 import Init.Data.ToString.Macro
+import Init.Data.Array.QSort
+import Lean.Data.Name
 import Std.Data.HashSet
 
 namespace Lake.Check
@@ -55,20 +57,21 @@ where
 end Axioms
 
 /--
-The axioms some other constant in `env` refers to, each paired with one constant that refers to it.
+The axioms some other constant in `env` refers to, sorted by name, each paired with the least
+constant (by name) that refers to it. Neither depends on the order of the export.
 -/
 public def usedAxioms (env : LeanExport.ExportedEnv) : Array (Lean.Name × Lean.Name) :=
-  -- `constOrder` is the export order, so the result is deterministic without needing an `Ord`.
-  let collect : StateM (Std.HashSet Lean.Name × Array (Lean.Name × Lean.Name)) Unit := do
+  let collect : StateM (Std.HashMap Lean.Name Lean.Name) Unit := do
     for name in env.constOrder do
       let some info := env.constMap[name]? | continue
       runForUsedConsts info fun ref => do
         -- `runForUsedConsts` reports the constant itself, which is not an incoming reference
         unless ref == name do
           if let some (.axiomInfo ..) := env.constMap[ref]? then
-            modify fun (seen, used) =>
-              if seen.contains ref then (seen, used) else (seen.insert ref, used.push (ref, name))
-  (collect.run ({}, #[])).2.2
+            modify fun used => used.alter ref fun
+              | some r => some (if name.lt r then name else r)
+              | none   => some name
+  (collect.run {}).2.toArray.qsort (·.1.lt ·.1)
 
 public def checkAxioms (solution : LeanExport.ExportedEnv) (theoremTargets : Array Lean.Name)
     (definitionTargets : Array Lean.Name) (legalAxioms : Array Lean.Name) : Except String Unit := do

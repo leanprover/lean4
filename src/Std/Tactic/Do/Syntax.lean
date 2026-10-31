@@ -69,6 +69,12 @@ structure Config where
   Ignored by `mvcgen`.
   -/
   internalize : Bool := true
+  /--
+  If `true` (the default), `vcgen` rewrites hypotheses, state arguments and verification
+  conditions with the `@[vcgen_simp]` theorems and those of its `simp [...]` clause.
+  Ignored by `mvcgen`.
+  -/
+  simp : Bool := true
 end Lean.Elab.Tactic.Do.VCGen
 
 namespace Lean.Parser

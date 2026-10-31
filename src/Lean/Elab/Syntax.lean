@@ -9,6 +9,7 @@ prelude
 public import Lean.Elab.Command
 public import Lean.Parser.Syntax
 public meta import Lean.Parser.Syntax
+import Lean.Elab.DeprecatedSyntax.Basic
 import Init.Data.String.Modify
 import Init.Omega
 
@@ -379,6 +380,20 @@ def resolveSyntaxKind (k : Name) : CommandElabM Name := do
   <|>
   throwError "invalid syntax node kind `{k}`"
 
+/--
+Like `adaptExpander`, for commands that define rules for a syntax kind, such as `macro_rules`: `exp`
+also returns that kind, if known. If it is deprecated, the expansion does not report deprecated
+constants and syntax: as with the body of a deprecated declaration, the references go away along
+with the rules.
+-/
+def adaptRulesExpander (exp : Syntax → CommandElabM (Option SyntaxNodeKind × Syntax)) :
+    CommandElab := fun stx => do
+  let (k?, stx') ← exp stx
+  let elabExpansion := withMacroExpansion stx stx' <| elabCommand stx'
+  unless k?.any (isDeprecatedSyntax (← getEnv)) do
+    return ← elabExpansion
+  withReader ({ · with checkDeprecated := .none }) elabExpansion
+
 def isLocalAttrKind (attrKind : Syntax) : Bool :=
   match attrKind with
   | `(Parser.Term.attrKind| local) => true
@@ -393,11 +408,26 @@ private def addMacroScopeIfLocal [MonadQuotation m] [Monad m] (name : Name) (att
   else
     return name
 
+/--
+Returns the deprecation message and `since` clause of the `@[deprecated]` attribute in `attrs`, if
+any, which deprecates the syntax declared with these attributes.
+-/
+private def getSyntaxDeprecation? (attrs : Array (TSyntax ``attrInstance)) :
+    CommandElabM (Option (Option String × Option String)) :=
+  attrs.findSomeM? fun attr => do
+    let `(attr| deprecated $[$id?]? $[$text?]? $[$_typeChanged?]? $[(since := $since?)]?) :=
+      attr.raw[1] | return none
+    if let some id := id? then
+      throwErrorAt id "`[deprecated]` on syntax cannot specify a replacement declaration; \
+        describe the replacement in the deprecation message instead"
+    return some (text?.map (·.getString), since?.map (·.getString))
+
 /-- Elaborates the given `syntax` command and returns the new node kind. -/
 def elabSyntax (stx : Syntax) : CommandElabM Name := do
   let `($[$doc?:docComment]? $[ @[ $attrInstances:attrInstance,* ] ]? $attrKind:attrKind
       syntax%$tk $[: $prec? ]? $[(name := $name?)]? $[(priority := $prio?)]? $[$ps:stx]* : $catStx) := stx
     | throwUnsupportedSyntax
+  let deprecation? ← getSyntaxDeprecation? (attrInstances.map (·.getElems) |>.getD #[])
   withExporting (isExporting := !isLocalAttrKind attrKind) do
   let catId := catStx.getId.eraseMacroScopes
   if let some cat := Parser.getParserCategory? (← getEnv) catId then
@@ -448,6 +478,8 @@ def elabSyntax (stx : Syntax) : CommandElabM Name := do
         ParserDescr.node $(quote stxNodeKind) $(quote prec) $val)
   trace `Elab fun _ => d
   withMacroExpansion stx d <| elabCommand d
+  if let some (text?, since?) := deprecation? then
+    modifyEnv (deprecatedSyntaxExt.addEntry · { kind := stxNodeKind, text?, since? })
   return stxNodeKind
 
 @[builtin_command_elab «syntax»] private def elabSyntaxAux : CommandElab := fun stx =>

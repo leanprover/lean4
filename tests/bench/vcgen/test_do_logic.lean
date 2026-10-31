@@ -138,12 +138,13 @@ theorem fib_impl_vcs
   case inv1 h => exact I n h
   case vc1 h => subst h; apply_rules [ret]
   case vc2 h => apply_rules [loop_pre]
-  case vc3 => apply_rules [loop_step]
+  case vc3 h a b hinv => exact loop_post n h (a, b) hinv
   case vc4 h pref cur suff _hsplit a b _hinv =>
-    -- `cleanupVC` reduced the `ForInStep.yield` that the step's postcondition matches on, and the
-    -- loop's two mutable variables reach the verification condition as separate binders.
-    guard_target =ₛ I n h (pref ++ [cur]) suff ((a, b).snd, (a, b).fst + (a, b).snd)
-    apply_rules [loop_post]
+    -- The `ForInStep.yield` that the step's postcondition matches on and the projections of the
+    -- state pair are reduced, and the loop's two mutable variables reach the verification
+    -- condition as separate binders.
+    guard_target =ₛ I n h (pref ++ [cur]) suff (b, a + b)
+    exact loop_step n h (a, b) pref cur suff _hsplit _hinv
 
 @[spec]
 theorem mkFreshNat_spec [Monad m] [Assertion Pred] [Assertion EPosts] [WPMonad m Pred EPosts] :
@@ -673,7 +674,7 @@ instance : MyShl UInt64 Int32 := {
 error: unsolved goals
 case vc1
 a : UInt64
-h✝ : (UInt64.toBitVec 0).uaddOverflow (a <<< UInt64.ofNat (Int32.toInt 32).toNat).toBitVec = true
+h✝ : (0#64).uaddOverflow (a <<< UInt64.ofNat (Int32.toInt 32).toNat).toBitVec = true
 ⊢ wp (Except.error "") (fun x => True) ⊥
 -/
 #guard_msgs in

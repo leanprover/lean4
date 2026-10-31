@@ -48,6 +48,7 @@ builtin_initialize registerTraceClass `grind.debug.lia.elimEq
 
 builtin_initialize
   cutsatExt.setMethods
+    (enabled     := (·.lia))
     (internalize := Cutsat.internalize)
     (newEq       := Cutsat.processNewEq)
     (newDiseq    := Cutsat.processNewDiseq)

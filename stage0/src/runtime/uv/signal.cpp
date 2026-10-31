@@ -10,8 +10,6 @@ Author: Sofia Rodrigues
 namespace lean {
 #ifndef LEAN_EMSCRIPTEN
 
-using namespace std;
-
 // The finalizer of the `Signal`.
 static void signal_finalizer(void* ptr) {
     lean_uv_signal_object * signal = (lean_uv_signal_object*) ptr;
@@ -45,7 +43,7 @@ static bool signal_promise_is_finished(lean_uv_signal_object * signal) {
     return signal->m_promise.get() == nullptr || promise_is_resolved(signal->m_promise.get());
 }
 
-void handle_signal_event(uv_signal_t* handle, int) {
+static void handle_signal_event(uv_signal_t* handle, int) {
     lean_object * obj = (lean_object*)handle->data;
     lean_uv_signal_object * signal = lean_to_uv_signal(obj);
     int const signum = signal->m_lean_signum;

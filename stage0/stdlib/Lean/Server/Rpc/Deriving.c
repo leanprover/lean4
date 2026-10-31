@@ -1808,9 +1808,9 @@ return v___x_278_;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00__private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveStructureInstance_spec__1___lam__1___boxed(lean_object* v___x_279_, lean_object* v___y_280_, lean_object* v___y_281_, lean_object* v___y_282_, lean_object* v___y_283_, lean_object* v___y_284_, lean_object* v___y_285_, lean_object* v___y_286_){
 _start:
 {
-uint8_t v___x_30034__boxed_287_; lean_object* v_res_288_; 
-v___x_30034__boxed_287_ = lean_unbox(v___x_279_);
-v_res_288_ = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00__private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveStructureInstance_spec__1___lam__1(v___x_30034__boxed_287_, v___y_280_, v___y_281_, v___y_282_, v___y_283_, v___y_284_, v___y_285_);
+uint8_t v___x_30041__boxed_287_; lean_object* v_res_288_; 
+v___x_30041__boxed_287_ = lean_unbox(v___x_279_);
+v_res_288_ = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00__private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveStructureInstance_spec__1___lam__1(v___x_30041__boxed_287_, v___y_280_, v___y_281_, v___y_282_, v___y_283_, v___y_284_, v___y_285_);
 lean_dec(v___y_285_);
 lean_dec_ref(v___y_284_);
 lean_dec(v___y_283_);
@@ -6287,10 +6287,10 @@ goto v_reusejp_2676_;
 }
 v_reusejp_2676_:
 {
-lean_object* v___x_2678_; lean_object* v___x_2679_; lean_object* v___x_39009__overap_2680_; lean_object* v___x_2681_; 
+lean_object* v___x_2678_; lean_object* v___x_2679_; lean_object* v___x_39013__overap_2680_; lean_object* v___x_2681_; 
 v___x_2678_ = lean_box(0);
 v___x_2679_ = l_instInhabitedOfMonad___redArg(v___x_2677_, v___x_2678_);
-v___x_39009__overap_2680_ = lean_panic_fn_borrowed(v___x_2679_, v_msg_2597_);
+v___x_39013__overap_2680_ = lean_panic_fn_borrowed(v___x_2679_, v_msg_2597_);
 lean_dec(v___x_2679_);
 lean_inc(v___y_2603_);
 lean_inc_ref(v___y_2602_);
@@ -6298,7 +6298,7 @@ lean_inc(v___y_2601_);
 lean_inc_ref(v___y_2600_);
 lean_inc(v___y_2599_);
 lean_inc_ref(v___y_2598_);
-v___x_2681_ = lean_apply_7(v___x_39009__overap_2680_, v___y_2598_, v___y_2599_, v___y_2600_, v___y_2601_, v___y_2602_, v___y_2603_, lean_box(0));
+v___x_2681_ = lean_apply_7(v___x_39013__overap_2680_, v___y_2598_, v___y_2599_, v___y_2600_, v___y_2601_, v___y_2602_, v___y_2603_, lean_box(0));
 return v___x_2681_;
 }
 }

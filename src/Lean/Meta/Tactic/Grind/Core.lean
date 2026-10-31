@@ -380,6 +380,9 @@ private def processToDoImpl : GoalM Unit := do
     | .eq lhs rhs proof isHEq => addEqStep lhs rhs proof isHEq
     | .fact prop proof gen => addFactStep prop proof gen
     | .propagateUp e => propagateUp e
+    | .internalizeRhsAddEq lhs rhs proof gen =>
+      internalize rhs gen
+      addEqStep lhs rhs proof false
     | .solverEq id lhs rhs => Solvers.newEq id lhs rhs
     | .solverDiseq id lhs rhs => Solvers.newDiseq id lhs rhs
 

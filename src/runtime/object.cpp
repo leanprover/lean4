@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <atomic>
+#include <bit>
 #include <string>
 #include <algorithm>
 #include <vector>
@@ -521,6 +522,13 @@ extern "C" LEAN_EXPORT lean_obj_res lean_array_set_panic(lean_obj_arg a, lean_ob
 // =======================================
 // Thunks
 
+// Whether `o` is owned by one thread: its count is single-threaded or overflowed from one.
+// sync with tests/elab/rc_model.lean (`isUnshared`)
+static inline bool is_unshared(object * o) {
+    int rc = lean_internal_get_rc(o);
+    return rc > 0 || rc <= LEAN_RC_STUCK_ST;
+}
+
 extern "C" LEAN_EXPORT b_obj_res lean_thunk_get_core(b_obj_arg t) {
     object * c = lean_to_thunk(t)->m_closure.exchange(nullptr);
     if (c != nullptr) {
@@ -531,10 +539,19 @@ extern "C" LEAN_EXPORT b_obj_res lean_thunk_get_core(b_obj_arg t) {
            to be object stored in the constructor object.
 
            Recall that `apply_1` also consumes `c`'s RC. */
+        bool shared = !is_unshared(t);
+        // Which thread first forces a shared thunk depends on scheduling, so its evaluation must not
+        // count toward that thread's heartbeats.
+        uint64_t heartbeats = shared ? get_num_heartbeats() : 0;
         object * r = lean_apply_1(c, lean_box(0));
         lean_assert(r != nullptr); /* Closure must return a valid lean object */
         lean_assert(lean_to_thunk(t)->m_value == nullptr);
-        mark_mt(r);
+        // Marking `t` later also marks its value, so the value only needs marking now if `t` is
+        // shared already, possibly only since the start of the evaluation.
+        if (!is_unshared(t))
+            mark_mt(r);
+        if (shared)
+            set_heartbeats(heartbeats);
         lean_to_thunk(t)->m_value = r;
         return r;
     } else {
@@ -642,13 +659,6 @@ static obj_res mark_mt_fn(obj_arg o) {
     lean_mark_mt(o);
     lean_dec(o);
     return lean_box(0);
-}
-
-// Whether `o` is owned by one thread: its count is single-threaded or overflowed from one.
-// sync with tests/elab/rc_model.lean (`isUnshared`)
-static inline bool is_unshared(object * o) {
-    int rc = lean_internal_get_rc(o);
-    return rc > 0 || rc <= LEAN_RC_STUCK_ST;
 }
 
 extern "C" LEAN_EXPORT void lean_mark_mt(object * o) {
@@ -1390,6 +1400,8 @@ static inline obj_res mpz_to_nat(mpz const & m) {
         return mpz_to_nat_core(m);
 }
 
+static object * mpz_to_int(mpz const & m);
+
 extern "C" LEAN_EXPORT object * lean_cstr_to_nat(char const * n) {
     return mpz_to_nat(mpz(n));
 }
@@ -1654,6 +1666,32 @@ extern "C" LEAN_EXPORT lean_obj_res lean_nat_gcd(b_lean_obj_arg a1, b_lean_obj_a
     }
 }
 
+extern "C" LEAN_EXPORT lean_obj_res lean_nat_extended_gcd_fallback(lean_obj_arg a, lean_obj_arg b);
+
+extern "C" LEAN_EXPORT lean_obj_res lean_nat_extended_gcd(b_lean_obj_arg a, b_lean_obj_arg b) {
+#ifdef LEAN_USE_GMP
+    if (a != lean_box(0) && b != lean_box(0) && !lean_nat_dec_eq(a, b) &&
+        !(lean_is_scalar(a) && lean_is_scalar(b) && lean_unbox(a) <= UINT16_MAX && lean_unbox(b) <= UINT16_MAX)) {
+        mpz aa = lean_is_scalar(a) ? mpz::of_size_t(lean_unbox(a)) : mpz_value(a);
+        mpz bb = lean_is_scalar(b) ? mpz::of_size_t(lean_unbox(b)) : mpz_value(b);
+        mpz g, s, t;
+        // Outside the zero/equal cases, the final Euclidean quotient is at least two.
+        // The alternating-sign coefficient recurrence then gives GMP's half-size bounds;
+        // equality occurs only when a/g or b/g is two, with the corresponding coefficient +1.
+        mpz_gcdext(g.get_mpz_t(), s.get_mpz_t(), t.get_mpz_t(), aa.get_mpz_t(), bb.get_mpz_t());
+        // Match the field order of Nat.ExtendedGcdResult.
+        obj_res r = lean_alloc_ctor(0, 3, 0);
+        lean_ctor_set(r, 0, mpz_to_nat(g));
+        lean_ctor_set(r, 1, mpz_to_int(s));
+        lean_ctor_set(r, 2, mpz_to_int(t));
+        return r;
+    }
+#endif
+    lean_inc(a);
+    lean_inc(b);
+    return lean_nat_extended_gcd_fallback(a, b);
+}
+
 extern "C" LEAN_EXPORT lean_obj_res lean_nat_log2(b_lean_obj_arg a) {
     if (lean_is_scalar(a)) {
       unsigned res = 0;
@@ -1672,6 +1710,21 @@ extern "C" LEAN_EXPORT size_t lean_nat_size_in_bytes(b_lean_obj_arg a) {
     if (lean_is_scalar(a))
         return sizeof(size_t); // a scalar occupies one machine word
     return mpz_value(a).size_in_bytes();
+}
+
+static size_t trailing_zeros(size_t n) {
+    return n == 0 ? 0 : std::countr_zero(n);
+}
+
+extern "C" LEAN_EXPORT lean_obj_res lean_nat_trailing_zeros(b_lean_obj_arg a) {
+    return lean_usize_to_nat(lean_is_scalar(a)
+        ? trailing_zeros(lean_unbox(a)) : mpz_value(a).trailing_zeros());
+}
+
+extern "C" LEAN_EXPORT lean_obj_res lean_int_trailing_zeros(b_lean_obj_arg a) {
+    // Conversion to unsigned preserves the trailing zeros of negative scalars.
+    return lean_usize_to_nat(lean_is_scalar(a)
+        ? trailing_zeros(static_cast<size_t>(lean_scalar_to_int(a))) : mpz_value(a).trailing_zeros());
 }
 
 // =======================================
@@ -1878,10 +1931,6 @@ extern "C" LEAN_EXPORT uint32 lean_uint32_of_big_nat(b_obj_arg a) {
 
 extern "C" LEAN_EXPORT uint64 lean_uint64_of_big_nat(b_obj_arg a) {
     return mpz_value(a).mod64();
-}
-
-extern "C" LEAN_EXPORT uint64 lean_uint64_mix_hash(uint64 a1, uint64 a2) {
-  return hash(a1, a2);
 }
 
 extern "C" LEAN_EXPORT usize lean_usize_of_big_nat(b_obj_arg a) {

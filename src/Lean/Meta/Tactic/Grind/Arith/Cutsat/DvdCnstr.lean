@@ -113,6 +113,7 @@ partial def DvdCnstr.assert (c : DvdCnstr) : GoalM Unit := withIncRecDepth do
     let elim := { d, p := a₂_p₁.combine a₁_p₂, h := .solveElim c c' : DvdCnstr }
     elim.assert
   else
+    let c ← c.markStored
     trace[grind.lia.assert.store] "{← c.pp}"
     c.p.updateOccs
     modify' fun s => { s with dvds := s.dvds.set x (some c) }
@@ -120,7 +121,7 @@ partial def DvdCnstr.assert (c : DvdCnstr) : GoalM Unit := withIncRecDepth do
 /-- Asserts a constraint coming from the core. -/
 private def DvdCnstr.assertCore (c : DvdCnstr) : GoalM Unit := do
   if let some (re, rp, p) ← c.p.normCommRing? then
-    let c := { c with p, h := .commRingNorm c re rp : DvdCnstr}
+    let c := { d := c.d, p, h := .commRingNorm c re rp : DvdCnstr }
     c.assert
   else
     c.assert

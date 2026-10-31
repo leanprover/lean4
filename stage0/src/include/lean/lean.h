@@ -782,7 +782,11 @@ static inline bool lean_is_exclusive(lean_object * o) {
 }
 
 static inline uint8_t lean_is_exclusive_obj(lean_object * o) {
-    return lean_is_exclusive(o);
+    if (lean_is_scalar(o)) {
+        return 1;
+    } else {
+        return lean_is_exclusive(o);
+    }
 }
 
 static inline bool lean_is_shared(lean_object * o) {
@@ -1426,7 +1430,6 @@ static inline lean_obj_res lean_alloc_string(size_t size, size_t capacity, size_
     o->m_length = len;
     return (lean_object*)o;
 }
-LEAN_EXPORT size_t lean_utf8_strlen(char const * str);
 LEAN_EXPORT size_t lean_utf8_n_strlen(char const * str, size_t n);
 static inline size_t lean_string_capacity(lean_object * o) { return lean_to_string(o)->m_capacity; }
 static inline size_t lean_string_byte_size(lean_object * o) { return sizeof(lean_string_object) + lean_string_capacity(o); }
@@ -1512,7 +1515,6 @@ static inline lean_obj_res lean_string_push(lean_obj_arg s, uint32_t c) {
 LEAN_EXPORT lean_obj_res lean_string_append(lean_obj_arg s1, b_lean_obj_arg s2);
 static inline lean_obj_res lean_string_length(b_lean_obj_arg s) { return lean_box(lean_string_len(s)); }
 LEAN_EXPORT lean_obj_res lean_string_mk(lean_obj_arg cs);
-LEAN_EXPORT lean_obj_res lean_string_data(lean_obj_arg s);
 LEAN_EXPORT uint32_t  lean_string_utf8_get(b_lean_obj_arg s, b_lean_obj_arg i);
 LEAN_EXPORT uint32_t lean_string_utf8_get_fast_cold(char const * str, size_t i, size_t size, unsigned char c);
 static inline uint32_t lean_string_utf8_get_fast(b_lean_obj_arg s, b_lean_obj_arg i) {
@@ -2355,6 +2357,14 @@ static inline uint64_t lean_uint64_mix_hash(uint64_t h, uint64_t k) {
     h ^= k;
     h *= m;
     return h;
+}
+static inline uint32_t lean_uint32_mix_hash(uint32_t h, uint32_t k) {
+    k *= 0xcc9e2d51;
+    k ^= k >> 15;
+    k *= 0x1b873593;
+    h ^= k;
+    h = (h << 13) | (h >> 19);
+    return h * 5 + 0xe6546b64;
 }
 
 /* UInt64 -> other */
@@ -3722,7 +3732,9 @@ static inline lean_obj_res lean_runtime_hold(b_lean_obj_arg a) {
     return lean_box(0);
 }
 
-#ifdef LEAN_EMSCRIPTEN
+// The compiler writes the scalar fields of static constructor objects 8 bytes at a time with this
+// macro, as one `m_objs` slot where pointers have 8 bytes and as two where they have 4.
+#if UINTPTR_MAX == UINT32_MAX
 #define LEAN_SCALAR_PTR_LITERAL(b1, b2, b3, b4, b5, b6, b7, b8) (lean_object*)((uint32_t)b1 | ((uint32_t)b2 << 8) | ((uint32_t)b3 << 16) | ((uint32_t)b4 << 24)), (lean_object*)((uint32_t)b5 | ((uint32_t)b6 << 8) | ((uint32_t)b7 << 16) | ((uint32_t)b8 << 24))
 #else
 #define LEAN_SCALAR_PTR_LITERAL(b1, b2, b3, b4, b5, b6, b7, b8) (lean_object*)((uint64_t)b1 | ((uint64_t)b2 << 8) | ((uint64_t)b3 << 16) | ((uint64_t)b4 << 24) | ((uint64_t)b5 << 32) | ((uint64_t)b6 << 40) | ((uint64_t)b7 << 48) | ((uint64_t)b8 << 56))

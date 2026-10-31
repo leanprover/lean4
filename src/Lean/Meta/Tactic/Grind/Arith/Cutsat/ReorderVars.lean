@@ -117,8 +117,9 @@ def _root_.Int.Internal.Linear.Poly.reorder (p : Poly) (old2new : Array Var) : P
   | .num k => .num k
   | .add a x p => .add a old2new[x]! (p.reorder old2new)
 
+-- Remark: `{ c with ... }` would copy `c.depth?`, see `reorderVars`.
 def DvdCnstr.reorder (c : DvdCnstr) (old2new : Array Var) : DvdCnstr :=
-  { c with p := c.p.reorder old2new, h := .reorder c : DvdCnstr }.norm
+  { d := c.d, p := c.p.reorder old2new, h := .reorder c : DvdCnstr }.norm
 
 def EqCnstr.reorder (c : EqCnstr) (old2new : Array Var) : EqCnstr :=
   { p := c.p.reorder old2new, h := .reorder c : EqCnstr }.norm
@@ -173,6 +174,14 @@ def reorderVars (force := false) : GoalM Unit := do
   let ineqs := ineqs.map (·.reorder old2new)
   let diseqs := s.diseqs.foldl (init := #[]) (·.append ·.toArray)
   let diseqs := diseqs.map (·.reorder old2new)
+  /-
+  The reordered constraints use the new variable order, which does not exist in the goals of the
+  enclosing case splits. Thus, they must not inherit the split depth of the original constraints (see
+  `markStored`), as they would be hoisted to a goal that uses a different variable order. The `dvds`,
+  `ineqs`, and `diseqs` are stored again by `assert`, which records the current depth. The eliminated
+  equations are stored directly, so we record the current depth here.
+  -/
+  let depth ← getGoalStackDepth
   modify' fun s => { s with
     vars        := reorderVarMap s.vars new2old
     varMap      := s.varMap.map fun x => old2new[x]!
@@ -182,7 +191,8 @@ def reorderVars (force := false) : GoalM Unit := do
     lowers      := s.lowers.map fun _ => {}
     uppers      := s.uppers.map fun _ => {}
     diseqs      := s.diseqs.map fun _ => {}
-    elimEqs     := reorderVarMap s.elimEqs new2old |>.map fun c? => (·.reorder old2new) <$> c?
+    elimEqs     := reorderVarMap s.elimEqs new2old |>.map fun c? =>
+      c?.map fun c => { c.reorder old2new with depth? := some depth }
     elimStack   := s.elimStack.map fun x => old2new[x]!
     occurs      := s.occurs.map fun _ => {}
     diseqSplits := {}

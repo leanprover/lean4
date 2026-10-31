@@ -63,7 +63,8 @@ BASIC OPTIONS:
   --fail-fast           stop scheduling new build jobs after the first required failure
   --no-cache            build packages locally; do not download build caches
   --try-cache           attempt to download build caches for supported packages
-  --json, -J            output JSON-formatted results (in `lake query`)
+  --json, -J            output JSON-formatted results (in `lake query`,
+                        `lake check` and `lake comparator`)
   --text                output results as plain text (in `lake query`)
 
 OUTPUT OPTIONS:
@@ -419,20 +420,36 @@ def helpComparator :=
 USAGE:
   lake comparator [--config <FILE>] [--challenge-from-export <FILE>]
                   [--solution-from-export <FILE>] [--paranoid]
-                  [--inadvisably-no-sandbox]
+                  [--inadvisably-no-sandbox] [--json]
 
-Establishes that every named theorem in the solution proves the same statement
-as the challenge, uses no axiom outside the permitted list, and is accepted by
-the kernel.
+Establishes that every named theorem in a solution Lean file proves the same
+statement as in a challenge Lean file, uses no axiom outside the permitted
+list, and is accepted by the kernel.
 
-The project is untrusted input: its configuration is evaluated, and its code
-built and exported, inside a `bwrap` sandbox, and none of its `.olean` files
-is ever loaded into Lake's own address space. `bubblewrap` is required, and
-needs either unprivileged user namespaces or to be installed setuid root.
+Note, that comparator has no way to figure out whether the statements in
+the challenge file properly correspond to the meaning intended by their author.
+It can only establish that the statements as written down are correct with
+a very high degree of certainty.
 
-The project has to carry a `lake-manifest.json`, because dependencies are
-resolved inside the sandbox and it cannot write to the project directory.
-Building the project once, before distributing it, is enough to write one.
+REQUIREMENTS:
+  Comparator is only able to provide these guarantees under the following
+  assumptions:
+  1. Everything (transitively) imported by the challenge file is trusted.
+  2. `lakefile.toml`/`lakefile.lean` and `lake-manifest.json` as well as
+     all the dependencies they require are trusted.
+  3. The project operates from a clean build, that is, there is no
+     pre-existing `.lake` directory.
+  4. You have `bubblewrap` installed for sandboxing the, potentially
+     dangerous, build of the solution. `bubblewrap` is currently only
+     available on Linux systems so comparator can only be safely
+     used on Linux.
+  5. You are not running `lake comparator` as a privileged user.
+  6. The lean default kernel, or with `--paranoid` at least one of
+     the used kernels, does not have a soundness issue that causes
+     it to accept an incorrect proof.
+  7. The solution file does not make use of unknown exploits against
+     other software or hardware on the machine you are running this on.
+
 
 OPTIONS:
   --config=<file>            JSON file describing the challenge (see below)
@@ -450,6 +467,8 @@ OPTIONS:
   --inadvisably-no-sandbox   disable the built-in sandbox. This can compromise
                              the result fully and is only advised for expert
                              users.
+  --json                     print a JSON report of every step instead of
+                             progress
 
 CONFIGURATION:
   The challenge author writes the file and distributes it with the project, so
@@ -486,6 +505,43 @@ EXIT CODES:
                         or the configuration is missing, unreadable or
                         malformed
 
+JSON REPORT:
+  With `--json` comparator only prints one final JSON report to stdout
+  instead of continous progress. An example output looks as follows:
+
+  {\"version\": \"0.1.0\",
+   \"sandboxed\": true,
+   \"report\":
+   {\"resolve_dependencies\":
+    {\"output\": {\"proc\": {\"stdout\": \"\", \"stderr\": \"\"}}, \"judgement\": \"success\"},
+    \"kernel_reports\":
+    {\"Lean default\":
+     {\"output\": {\"proc\": {\"stdout\": \"\", \"stderr\": \"\"}}, \"judgement\": \"success\"}},
+    \"export_solution\":
+    {\"output\": {\"proc\": {\"stdout\": \"\", \"stderr\": \"\"}}, \"judgement\": \"success\"},
+    \"export_challenge\":
+    {\"output\": {\"proc\": {\"stdout\": \"\", \"stderr\": \"\"}}, \"judgement\": \"success\"},
+    \"config\":
+    {\"theorem_names\": [\"comm\"],
+     \"solution_module\": \"Solution\",
+     \"permitted_axioms\": [\"propext\", \"Quot.sound\", \"Classical.choice\"],
+     \"definition_names\": null,
+     \"challenge_module\": \"Challenge\"},
+    \"compare_statements\":
+    {\"output\": {\"str\": {\"string\": \"\"}}, \"judgement\": \"success\"},
+    \"check_axioms\": {\"output\": {\"str\": {\"string\": \"\"}}, \"judgement\": \"success\"},
+    \"build_solution\":
+    {\"output\":
+     {\"proc\":
+      {\"stdout\": \"Build completed successfully (4 jobs).\\n\", \"stderr\": \"\"}},
+     \"judgement\": \"success\"},
+    \"build_challenge\":
+    {\"output\":
+     {\"proc\":
+      {\"stdout\": \"Build completed successfully (4 jobs).\\n\", \"stderr\": \"\"}},
+     \"judgement\": \"success\"}},
+   \"judgement\": \"accepted\"}
+
 EXPORTS:
   The `--*-from-export` options take an NDJSON export as generated by
   `leanexport` instead of building and exporting either the challenge or the
@@ -517,6 +573,7 @@ def helpCheck :=
 
 USAGE:
   lake check [--from-export <FILE>] [--paranoid] [--inadvisably-no-sandbox]
+             [--json]
 
 Builds the default build targets, exports them, and replays the result through
 the kernel, erroring on any use of non-standard axioms.
@@ -539,6 +596,8 @@ OPTIONS:
   --inadvisably-no-sandbox   disable the built-in sandbox. This can compromise
                              the result fully and is only advised for expert
                              users.
+  --json                     print a JSON report of every step instead of
+                             progress
 
 EXPORTS:
   The `--from-export` option takes an NDJSON export as generated by
@@ -559,6 +618,27 @@ EXIT CODES:
                         build did not succeed
   2                     could not start: `bwrap` is missing, the project has
                         no `lake-manifest.json`, or it has no default targets
+
+JSON REPORT:
+  With `--json` check only prints one final JSON report to stdout
+  instead of continous progress. An example output looks as follows:
+
+
+  {\"version\": \"0.1.0\",
+   \"sandboxed\": true,
+   \"report\":
+   {\"resolve_dependencies\":
+    {\"output\": {\"proc\": {\"stdout\": \"\", \"stderr\": \"\"}}, \"judgement\": \"success\"},
+    \"kernel_reports\":
+    {\"Lean default\":
+     {\"output\": {\"proc\": {\"stdout\": \"\", \"stderr\": \"\"}}, \"judgement\": \"success\"}},
+    \"check_axioms\":
+    {\"output\":
+     {\"str\": {\"string\": \"Uses axioms: propext, Classical.choice, Quot.sound\"}},
+     \"judgement\": \"success\"},
+    \"build_report\":
+    {\"output\": {\"proc\": {\"stdout\": \"\", \"stderr\": \"\"}}, \"judgement\": \"success\"}},
+   \"judgement\": \"accepted\"}
 
 ENVIRONMENT:
   COMPARATOR_BWRAP      sandbox executable (default: `bwrap` on PATH)

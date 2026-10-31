@@ -182,6 +182,17 @@ We marked these places with a `(*)` in these methods.
 -/
 
 /--
+Warns if the kind of `stx` is deprecated and, in that case, runs `x` reporting deprecations only in
+user-written syntax, so that the expansion of a deprecated tactic is not reported as well. Must run
+inside the info tree context of the tactic, as the warning may come with a code action.
+-/
+private def withDeprecatedSyntaxCheck (stx : Syntax) (x : TacticM α) : TacticM α := do
+  unless isDeprecatedSyntax (← getEnv) stx.getKind do
+    return ← x
+  Term.reportDeprecatedSyntax stx
+  Term.withoutCheckDeprecatedSynthetic x
+
+/--
   Auxiliary datastructure for capturing exceptions at `evalTactic`.
 -/
 structure EvalTacticFailure where
@@ -202,16 +213,12 @@ partial def evalTactic (stx : Syntax) : TacticM Unit := do
         Term.withoutTacticIncrementality true <| withTacticInfoContext stx do
           stx.getArgs.forM evalTactic
       else withTraceNode `Elab.step (fun _ => return stx) (tag := stx.getKind.toString) do
-        Term.reportDeprecatedSyntax stx
         let evalFns := tacticElabAttribute.getEntries (← getEnv) stx.getKind
         let macros  := macroAttribute.getEntries (← getEnv) stx.getKind
         if evalFns.isEmpty && macros.isEmpty then
-          throwErrorAt stx "Tactic `{stx.getKind}` has not been implemented"
+          throwNotAccepted m!"Tactic `{stx.getKind}` has not been implemented"
         let s ← Tactic.saveState
-        if isDeprecatedSyntax (← getEnv) stx.getKind then
-          Term.withoutCheckDeprecatedSynthetic <| expandEval s macros evalFns #[]
-        else
-          expandEval s macros evalFns #[]
+        expandEval s macros evalFns #[]
     | .missing => pure ()
     | _ => throwError m!"Unexpected tactic{indentD stx}"
 where
@@ -222,7 +229,18 @@ where
        fail.state.restore (restoreInfo := true)
        throw fail.exception -- (*)
      else
-       throwErrorAt stx "Unexpected syntax{indentD stx}"
+       throwNotAccepted m!"Unexpected syntax{indentD stx}"
+
+    /--
+    Throws `msg` at `stx`, which no macro or elaborator accepted, after warning if `stx` is
+    deprecated, as `withDeprecatedSyntaxCheck` did not run or its warning was backtracked.
+    -/
+    throwNotAccepted (msg : MessageData) : TacticM Unit := do
+      unless isDeprecatedSyntax (← getEnv) stx.getKind do
+        throwErrorAt stx msg
+      withTacticInfoContext stx do
+        Term.reportDeprecatedSyntax stx
+        throwErrorAt stx msg
 
     @[inline] handleEx (declName : Name) (s : SavedState) (failures : Array EvalTacticFailure) (ex : Exception) (k : Array EvalTacticFailure → TacticM Unit) := do
       let noFallback := noFallbackAttr.hasTag (← getEnv) declName
@@ -253,7 +271,7 @@ where
       | m :: ms =>
         try
           withReader ({ · with elaborator := m.declName }) do
-            withTacticInfoContext stx do
+            withTacticInfoContext stx <| withDeprecatedSyntaxCheck stx do
               let stx' ← adaptMacro m.value stx
               recordExtraModUseFromDecl (isMeta := true) m.declName
               -- Support incrementality; see also Note [Incremental Macros]
@@ -312,7 +330,7 @@ where
           -- prevent unsupported tactics from accidentally accessing `Term.Context.tacSnap?`
           Term.withoutTacticIncrementality (!(← isIncrementalElab evalFn.declName)) do
           withReader ({ · with elaborator := evalFn.declName }) do
-          withTacticInfoContext stx do
+          withTacticInfoContext stx <| withDeprecatedSyntaxCheck stx do
             evalFn.value stx
             if !evalFn.isBuiltin then
               recordExtraModUseFromDecl (isMeta := true) evalFn.declName

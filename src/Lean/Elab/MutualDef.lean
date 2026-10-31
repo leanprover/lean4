@@ -1224,6 +1224,9 @@ where
     withSaveInfoContext do  -- save adjusted env in info tree
     let headers ← elabHeaders views expandedDeclIds bodyPromises tacPromises
     let headers ← levelMVarToParamHeaders views headers
+    for header in headers do
+      let info : DeclValueInfo := { header with isProof := (← isProp header.type) }
+      pushInfoLeaf <| .ofCustomInfo { stx := header.value, value := .mk info }
 
     -- Now that we have elaborated types, default data instances to `[instance_reducible]`. This
     -- should happen before attribute application as `[instance]` will check for it.

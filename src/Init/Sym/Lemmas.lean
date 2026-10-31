@@ -16,7 +16,6 @@ import Init.Data.UInt.Lemmas
 public section
 namespace Lean.Sym
 
-theorem ne_self (a : α) : (a ≠ a) = False := by simp
 theorem not_true_eq : (¬ True) = False := by simp
 theorem not_false_eq : (¬ False) = True := by simp
 
@@ -162,7 +161,6 @@ theorem UInt32.eq_eq_true (a b : UInt32) (h : decide (a = b) = true) : (a = b) =
 theorem UInt64.eq_eq_true (a b : UInt64) (h : decide (a = b) = true) : (a = b) = True := by simp_all
 theorem Fin.eq_eq_true (a b : Fin n) (h : decide (a = b) = true) : (a = b) = True := by simp_all
 theorem BitVec.eq_eq_true (a b : BitVec n) (h : decide (a = b) = true) : (a = b) = True := by simp_all
-theorem String.eq_eq_true (a b : String) (h : decide (a = b) = true) : (a = b) = True := by simp_all
 theorem Char.eq_eq_true (a b : Char) (h : decide (a = b) = true) : (a = b) = True := by simp_all
 
 theorem Bool.eq_eq_false (a b : Bool) (h : decide (a = b) = false) : (a = b) = False := by simp_all
@@ -179,7 +177,6 @@ theorem UInt32.eq_eq_false (a b : UInt32) (h : decide (a = b) = false) : (a = b)
 theorem UInt64.eq_eq_false (a b : UInt64) (h : decide (a = b) = false) : (a = b) = False := by simp_all
 theorem Fin.eq_eq_false (a b : Fin n) (h : decide (a = b) = false) : (a = b) = False := by simp_all
 theorem BitVec.eq_eq_false (a b : BitVec n) (h : decide (a = b) = false) : (a = b) = False := by simp_all
-theorem String.eq_eq_false (a b : String) (h : decide (a = b) = false) : (a = b) = False := by simp_all
 theorem Char.eq_eq_false (a b : Char) (h : decide (a = b) = false) : (a = b) = False := by simp_all
 
 theorem Nat.dvd_eq_true (a b : Nat) (h : decide (a ∣ b) = true) : (a ∣ b) = True := by simp_all

@@ -47,7 +47,7 @@ h_2 : ¬f x = g x x
 -/
 #guard_msgs (error) in
 example [Inhabited α] [Add α] [One α] (x z y : α) : g y z = z → g z y = g y x → f x = g x x := by
-  grind (gen := 3) [= feq, = geq]
+  grind +verbose (gen := 3) [= feq, = geq]
 
 /--
 error: `grind` failed
@@ -107,4 +107,4 @@ h_2 : ¬f (f x) = g x x
 -/
 #guard_msgs (error) in
 example (x z y : Int) : g y z = z → g z y = g y x → f (f x) = g x x := by
-  grind (gen := 2) -ring [= feq, = geq]
+  grind +verbose (gen := 2) -ring [= feq, = geq]

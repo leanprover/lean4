@@ -17,7 +17,7 @@ namespace lean {
 LEAN_THREAD_VALUE(size_t, g_max_heartbeat, 0);
 LEAN_THREAD_VALUE(size_t, g_heartbeat, 0);
 
-extern "C" LEAN_EXPORT obj_res lean_internal_get_default_max_heartbeat() {
+extern "C" LEAN_EXPORT obj_res lean_internal_get_default_max_heartbeat(obj_arg) {
 #ifdef LEAN_DEFAULT_MAX_HEARTBEAT
     return lean_box(LEAN_DEFAULT_MAX_HEARTBEAT);
 #else

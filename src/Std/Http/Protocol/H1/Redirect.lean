@@ -38,14 +38,15 @@ What the caller must do with the body of the original request when following a r
 inductive RedirectBodyAction where
 
   /--
-  Send an empty body on the redirected request. Chosen when the method changes (303 See Other, or
-  301/302 on `POST`) or when the original body cannot be replayed.
+  Send an empty body on the redirected request. Chosen when the redirected request is a `GET` or
+  `HEAD`: the method changed (303 See Other, or 301/302 on `POST`), or it already was one.
   -/
   | empty
 
   /--
-  Reset the original body and resend it on the redirected request. Chosen for method-preserving
-  redirects (307/308) when the body is marked replayable.
+  Reset the original body and resend it on the redirected request. Chosen when the redirect keeps a
+  method other than `GET` or `HEAD` (307/308, and 301/302 on methods other than `POST`); such a
+  redirect is only followed when the body is marked replayable.
   -/
   | replay
 deriving DecidableEq, Repr, Inhabited
@@ -142,17 +143,12 @@ private def resolveOrigin (current : URI.Origin) : URIReference → Option URI.O
     some current
 
 /--
-Computes the method for the redirected request.
-
-HTTP/1.1+ (RFC 9110 §15.4): 303 becomes GET (but HEAD is preserved, since a 303 may be retrieved
-with GET or HEAD per RFC 9110 §15.4.4); 301/302 downgrade POST to GET (prevailing practice,
-explicitly permitted by RFC 9110); 307/308 preserve the original method.
-
-HTTP/1.0 (RFC 2616 §10.3 / RFC 9110 note): 301/302 were originally defined as
-method-preserving at CERN, so POST stays POST. The POST→GET downgrade is an
-HTTP/1.1 adjustment that does not apply to HTTP/1.0 responses.
+Computes the method for the redirected request (RFC 9110 §15.4): 303 becomes GET (but HEAD is
+preserved, since a 303 may be retrieved with GET or HEAD per RFC 9110 §15.4.4); 301/302 downgrade
+POST to GET (prevailing practice, explicitly permitted by RFC 9110); 307/308 preserve the original
+method.
 -/
-private def chooseMethod (originalMethod : Method) (responseVersion : Version) : Status → Method
+private def chooseMethod (originalMethod : Method) : Status → Method
   | .seeOther =>
 
     -- https://httpwg.org/specs/rfc9110.html#status.303
@@ -163,11 +159,9 @@ private def chooseMethod (originalMethod : Method) (responseVersion : Version) :
     -- https://httpwg.org/specs/rfc9110.html#status.301
     -- https://httpwg.org/specs/rfc9110.html#status.302
 
-    -- Note: In HTTP/1.0, the status codes 301 (Moved Permanently) and 302 (Found) were originally
-    -- defined as method-preserving ([HTTP/1.0], Section 9.3).
-
-    -- Only downgrade POST→GET for HTTP/1.1+; HTTP/1.0 preserves the method.
-    if originalMethod == .post && responseVersion != .v10 then .get
+    -- The downgrade does not depend on the response's version: a version says what the server
+    -- speaks, not what its redirect means, and keeping POST would replay the body to the target.
+    if originalMethod == .post then .get
     else originalMethod
 
   | _ => originalMethod
@@ -285,6 +279,18 @@ private def requestTargetQuery? : RequestTarget → Option URI.Query
   | _ => none
 
 /--
+The wire form of a resolved reference path.
+
+RFC 3986 §5.2.2 applies `remove_dot_segments` in every branch of reference resolution — when the
+reference carries a scheme, when it carries an authority, and when it is a bare path — so the
+normalization belongs here rather than in one branch of `rewriteTarget`. RFC 9112 §3.2.1 then
+requires a client to send `/` when the resolved path is empty, which is what an absolute path with
+no segments renders as.
+-/
+private def resolvedPath (path : URI.Path) : URI.Path :=
+  { path.normalize with absolute := true }
+
+/--
 Rewrites the target actually placed on the wire.
 -/
 private def rewriteTarget (ref : URIReference) (isCrossOrigin : Bool)
@@ -296,6 +302,7 @@ private def rewriteTarget (ref : URIReference) (isCrossOrigin : Bool)
     -- alongside any `userinfo` in the authority.
     let stripped :=
       { af with
+        path := resolvedPath af.path,
         authority := af.authority.map (fun auth => { auth with userInfo := none }),
         fragment := none }
     if isCrossOrigin then
@@ -305,44 +312,44 @@ private def rewriteTarget (ref : URIReference) (isCrossOrigin : Bool)
   | .relative { authority := some auth, path, query, .. } =>
 
     -- Protocol-relative: authority present, scheme inherited from current.
+    let path := resolvedPath path
     let stripped := { auth with userInfo := none }
     let af := { scheme := currentScheme, authority := some stripped, path, query, fragment := none }
     if isCrossOrigin then
       .absoluteForm af
     else
-      .originForm path.normalize query
+      .originForm path query
   | .relative { authority := none, path := refPath, query, .. } =>
 
-    -- RFC 3986 §5.2.2: merge base path with reference path, then normalize.
+    -- RFC 3986 §5.2.2: merge base path with reference path, then normalize. `/` has no segments, so
+    -- `absolute` must be tested before `isEmpty`: only a relative path with no segments is empty.
+    let isEmptyPath := !refPath.absolute && refPath.isEmpty
     let merged :=
-      if refPath.isEmpty then
-        basePath
-      else if refPath.absolute then
+      if refPath.absolute then
         refPath
+      else if isEmptyPath then
+        basePath
       else
         basePath.parent.join refPath
     let rewrittenQuery :=
-      if refPath.isEmpty && query.isNone then
+      if isEmptyPath && query.isNone then
         baseQuery
       else
         query
-    .originForm merged.normalize rewrittenQuery
+    .originForm (resolvedPath merged) rewrittenQuery
 
 end RedirectPlan
 
 /--
-Decides whether to follow a redirect given the server's response-line status, version, and headers,
-the pending request, and whether the request body is replayable.
+Decides whether to follow a redirect given the server's response-line status and headers, the
+pending request, and whether the request body is replayable.
 
 Returns `.done` when:
 * the status is not a 3xx redirection,
-* the response is HTTP/1.0 and the status code is not 301 or 302 (the only
-  redirect codes defined by RFC 2616),
 * no `Location` header is present,
 * the `Location` value does not parse as a URI-reference (RFC 9110 §10.2.2),
-* the target resolves to a non-`http(s)` scheme (SSRF guard), or
-* `onlySafeRedirects` is `true` and the original method is not safe
-  (RFC 9110 §9.2.1: GET, HEAD, OPTIONS, TRACE).
+* the target names no host, or resolves to a non-`http(s)` scheme (SSRF guard),
+* the redirect keeps a method other than `GET`/`HEAD` but the body cannot be replayed.
 
 Returns `.follow plan` otherwise. The caller is expected to drain the redirect response body and,
 when `plan.bodyAction == .replay`, reset the original body before dispatching the rewritten request.
@@ -361,19 +368,10 @@ def decideRedirect
     (current : URI.Origin)
     (request : Request.Head)
     (bodyReplayable : Bool)
-    (onlySafeRedirects : Bool)
-    (responseVersion : Version)
     (status : Status)
     (responseHeaders : Headers)
     : RedirectOutcome := Id.run do
   if !status.isRedirection then
-    return .done
-
-  -- RFC 2616 §10.3: only 301 Moved Permanently and 302 Found are defined for
-  -- HTTP/1.0. Codes introduced in HTTP/1.1 (303, 307, 308, …) must not be
-  -- followed automatically when the server spoke HTTP/1.0, since the client
-  -- cannot know whether the server intended the HTTP/1.1 semantics.
-  if responseVersion == .v10 && status != .movedPermanently && status != .found then
     return .done
 
   -- 305 Use Proxy is deprecated (RFC 9110 §15.4.6) and carries a proxy URI in
@@ -387,11 +385,6 @@ def decideRedirect
   if status == .useProxy || status == .unused || status == .notModified || status == .multipleChoices then
     return .done
 
-  -- RFC 2616 §10.3: automatic redirection needs to be done with care for methods not known to be
-  -- safe, as defined in Section 9.2.1, since the user might not wish to redirect an unsafe request.
-  if onlySafeRedirects && !request.method.isSafe then
-    return .done
-
   let some locationValue := responseHeaders.get? .location
     | return .done
 
@@ -399,7 +392,7 @@ def decideRedirect
   let some location := URIReference.parse? locationValue.value
     | return .done
 
-  let newMethod := RedirectPlan.chooseMethod request.method responseVersion status
+  let newMethod := RedirectPlan.chooseMethod request.method status
 
   -- An absolute `Location` with no authority (RFC 3986 §5.2.2) names no host to connect to.
   let some newOrigin := RedirectPlan.resolveOrigin current location
@@ -413,28 +406,14 @@ def decideRedirect
   let isCrossOrigin := newOrigin != current
   let methodChanged := newMethod != request.method
 
-  -- RFC 9110 §15.4.8/§15.4.9: the same MUST NOT applies to 307/308 — method is preserved, so
-  -- a non-GET/HEAD method with a body requires user confirmation unless the body is replayable.
-  let isGetOrHead := request.method == .get || request.method == .head
-  let isPost := request.method == .post
-
-  match status with
-  | .movedPermanently | .found => if !isGetOrHead && !isPost then return .done
-  | .temporaryRedirect | .permanentRedirect =>
-    -- Method is preserved. Only safe methods and replayable-body requests may follow.
-    if !isGetOrHead && !bodyReplayable then return .done
-  | _ => pure ()
-
   let scrubbed := RedirectPlan.scrubHeaders request.headers isCrossOrigin methodChanged
   let newHeaders :=
     if isCrossOrigin then
       RedirectPlan.rewriteHostHeader scrubbed newOrigin
     else scrubbed
 
-  -- RFC 9110 §15.4.8: for any method-preserving redirect, if the body cannot be replayed the user
-  -- agent MUST NOT automatically redirect. This covers 307/308 (always method-preserving) *and* the
-  -- HTTP/1.0 301/302 case, where `chooseMethod` keeps POST (so the `.movedPermanently | .found` arm
-  -- above, which only checks the method, lets it through without a replay check).
+  -- A redirect that keeps the method resends the original request (RFC 9110 §15.4), body included:
+  -- 307/308 always, and 301/302 for every method but POST.
   if !methodChanged && newMethod != Method.get && newMethod != Method.head && !bodyReplayable then
     return .done
 

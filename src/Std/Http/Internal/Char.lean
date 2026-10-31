@@ -132,12 +132,15 @@ theorem not_quotedStringChar_of_not_qdtext_not_dquote_backslash :
       c.toNat hlt (by simpa [Char.ofNat_toNat] using hq))
 
 /--
-field-vchar = VCHAR
-; ASCII-only variant (no obs-text).
+field-vchar = VCHAR / obs-text
+
+obs-text (bytes `%x80-FF`) is accepted, as RFC 9110 §5.5 asks of recipients: servers routinely send
+raw UTF-8 in fields such as `Location` and `Content-Disposition`. In a `String` it appears as the
+characters from U+0080 up. Control characters, including CR, LF, and NUL, are never field content.
 -/
 @[inline]
 def fieldVchar (c : Char) : Bool :=
-  vchar c
+  vchar c || c.val ≥ 0x80
 
 /--
 field-content character class:
@@ -197,14 +200,13 @@ def obsText (c : Char) : Bool :=
 
 /--
 reason-phrase character class:
-HTAB / SP / VCHAR
-; ASCII-only variant (no obs-text).
+HTAB / SP / VCHAR / obs-text
 
 Reference: https://httpwg.org/specs/rfc9110.html#reason.phrase
 -/
 @[inline]
 def reasonPhraseChar (c : Char) : Bool :=
-  (c matches '\t' | ' ') || vchar c
+  (c matches '\t' | ' ') || vchar c || c.val ≥ 0x80
 
 /--
 Checks if a character is a hexadecimal digit (0-9, a-f, or A-F).
@@ -313,14 +315,21 @@ def isUserInfoChar (c : UInt8) : Bool :=
   isUnreserved c || isSubDelims c || c = ':'.toUInt8
 
 /--
-Checks if a byte is a valid character in a URI query component,
-excluding the typical key/value separators `&` and `=`.
+Checks if a byte is a valid character in a URI query parameter, excluding the pair separator `&`.
 
-Inspired by `query = *( pchar / "/" / "?" )` from RFC 3986,
-but disallows `&` and `=` so they can be treated as structural separators.
+Inspired by `query = *( pchar / "/" / "?" )` from RFC 3986. `=` is allowed because a value may
+contain it (`?a=b=c`); a parameter name ends at its first `=`, so a parsed name never contains one.
 -/
 @[inline]
 def isQueryDataChar (c : UInt8) : Bool :=
-  isQueryChar c && c ≠ '&'.toUInt8 && c ≠ '='.toUInt8
+  isQueryChar c && c ≠ '&'.toUInt8
+
+/--
+Checks if a byte may appear unescaped in a query parameter name: `isQueryDataChar` without `=`,
+which would end the name.
+-/
+@[inline]
+def isQueryNameChar (c : UInt8) : Bool :=
+  isQueryDataChar c && c ≠ '='.toUInt8
 
 end Std.Http.Internal.Char

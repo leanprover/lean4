@@ -48,12 +48,19 @@ inductive Error where
   | closed (message : String)
 
   /--
+  The connection closed before the request was written to it: nothing reached the peer, so the
+  request can be sent again whatever its method.
+  -/
+  | notSent (message : String)
+
+  /--
   The peer violated the HTTP protocol.
   -/
   | protocol (error : Protocol.H1.Error)
 
   /--
-  The response body exceeded `Config.maxResponseBodySize`.
+  The response body exceeded `Config.maxResponseBodySize`, or the body of a challenge the client
+  answers itself exceeded `Config.intermediateBodyDrainLimit`.
   -/
   | bodyLimitExceeded
 
@@ -75,6 +82,7 @@ instance : ToString Error where
     | .connect msg => "connect: " ++ msg
     | .timeout => "request timeout"
     | .closed msg => msg
+    | .notSent msg => msg
     | .protocol e => toString e
     | .bodyLimitExceeded => "response body exceeds maximum allowed size"
     | .invalidRequest msg => msg
@@ -95,15 +103,24 @@ def throwOrPure {α : Type} : Except Error α → Async α
   | .error e => throw e.toIOError
 
 /--
-`true` for connection-level failures that are safe to retry on a fresh connection (the request
-provably produced no application-level effect, or the method is idempotent).
-`Protocol.H1.Error.connectionClosed` is retryable: it is the stale keep-alive race, where the
-server closed a pooled connection just as it was reused.
+`true` for connection-level failures that a fresh connection may not repeat. Whether a request may
+be sent again also depends on whether it could have reached the peer: see `isNeverSent`; anything
+else is only safe to resend for an idempotent method. `Protocol.H1.Error.connectionClosed` is
+retryable: it is the stale keep-alive race, where the server closed a pooled connection just as it
+was reused.
 -/
 def isRetryable : Error → Bool
-  | .connect _ | .closed _ => true
+  | .connect _ | .closed _ | .notSent _ => true
   | .protocol e => e == Protocol.H1.Error.connectionClosed
   | .timeout | .bodyLimitExceeded | .invalidRequest _ | .io _ => false
+
+/--
+`true` for failures that prove the request never reached the peer: no connection could be opened, or
+the one it was queued on closed before writing it.
+-/
+def isNeverSent : Error → Bool
+  | .connect _ | .notSent _ => true
+  | _ => false
 
 end Error
 

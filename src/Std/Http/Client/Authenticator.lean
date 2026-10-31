@@ -8,6 +8,7 @@ module
 prelude
 public import Std.Async
 public import Std.Http.Data
+public import Std.Http.Client.Proxy
 
 public section
 
@@ -73,6 +74,18 @@ structure Challenge where
   may appear more than once when the peer offers a choice of schemes.
   -/
   headers : Headers
+
+  /--
+  The proxy the challenged request went through, `.direct` when it went straight to `origin`. A
+  proxy challenge always comes with a proxy here.
+  -/
+  proxy : Proxy := .direct
+
+  /--
+  The origin the caller addressed, before any redirect. It differs from `origin` when a redirect
+  took the request to another origin, which the caller's credentials may not be meant for.
+  -/
+  initialOrigin : URI.Origin := origin
 deriving Repr
 
 namespace Challenge
@@ -118,10 +131,35 @@ structure Authenticator where
 namespace Authenticator
 
 /--
-Answers every challenge with the same credential.
+Answers with the same credential every server challenge from the origin the caller addressed. A
+challenge from an origin a redirect led to is declined, so the credential does not follow the request
+to another host, and so is every proxy challenge, which `proxy` answers.
 -/
 def const (credential : Header.Value) : Authenticator where
-  authenticate _ := pure (some credential)
+  authenticate challenge :=
+    if challenge.kind == .server ∧ challenge.origin == challenge.initialOrigin then
+      pure (some credential)
+    else
+      pure none
+
+/--
+Answers with the same credential every proxy challenge, from any proxy or, given `only`, from that
+proxy alone. Server challenges are declined: origins never see a proxy credential.
+-/
+def proxy (credential : Header.Value) (only : Option Proxy := none) : Authenticator where
+  authenticate challenge :=
+    if challenge.kind == .proxy ∧ (only.all (· == challenge.proxy)) then pure (some credential)
+    else pure none
+
+/--
+Asks `first`, and `second` when `first` declines: for instance a server credential and a proxy
+credential, `(const server).orElse (proxy proxyCredential)`.
+-/
+def orElse (first second : Authenticator) : Authenticator where
+  authenticate challenge := do
+    match ← first.authenticate challenge with
+    | some credential => pure (some credential)
+    | none => second.authenticate challenge
 
 /--
 Declines the challenges rejected by `accepts`, deferring to `authenticator` for the rest. Use it to

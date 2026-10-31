@@ -210,29 +210,6 @@ theorem Iterator.isSome_next_of_isPlausibleIndirectOutput
     obtain ⟨a, ha, _⟩ := h
     simp [ha]
 
-
-private theorem List.Sublist.filter_mono {l : List α} {P Q : α → Bool} (h : ∀ a, P a → Q a) :
-    List.Sublist (l.filter P) (l.filter Q) := by
-  apply List.Sublist.trans (l₂ := (l.filter Q).filter P)
-  · simp [Bool.and_eq_left_iff_imp.mpr (h _)]
-  · apply List.filter_sublist
-
-private theorem List.length_filter_strict_mono {l : List α} {P Q : α → Bool} {a : α}
-    (h : ∀ a, P a → Q a) (ha : a ∈ l) (hPa : ¬ P a) (hQa : Q a) :
-    (l.filter P).length < (l.filter Q).length := by
-  have hsl : List.Sublist (l.filter P) (l.filter Q) := by
-    apply List.Sublist.filter_mono
-    exact h
-  apply Nat.lt_of_le_of_ne
-  · apply List.Sublist.length_le
-    exact hsl
-  · intro h
-    apply hPa
-    have heq := List.Sublist.eq_of_length hsl h
-    have : a ∈ List.filter Q l := List.mem_filter.mpr ⟨ha, hQa⟩
-    rw [← heq, List.mem_filter] at this
-    exact this.2
-
 private def Iterator.instFinitenessRelation [UpwardEnumerable α] [LE α] [DecidableLE α]
     [LawfulUpwardEnumerable α] [Rxc.IsAlwaysFinite α] :
     FinitenessRelation (Rxc.Iterator α) Id where
@@ -790,28 +767,6 @@ theorem Iterator.isSome_next_of_isPlausibleIndirectOutput
     rw [isPlausibleSuccessorOf_iff] at h
     obtain ⟨a, ha, _⟩ := h
     simp [ha]
-
-private theorem List.Sublist.filter_mono {l : List α} {P Q : α → Bool} (h : ∀ a, P a → Q a) :
-    List.Sublist (l.filter P) (l.filter Q) := by
-  apply List.Sublist.trans (l₂ := (l.filter Q).filter P)
-  · simp [Bool.and_eq_left_iff_imp.mpr (h _)]
-  · apply List.filter_sublist
-
-private theorem List.length_filter_strict_mono {l : List α} {P Q : α → Bool} {a : α}
-    (h : ∀ a, P a → Q a) (ha : a ∈ l) (hPa : ¬ P a) (hQa : Q a) :
-    (l.filter P).length < (l.filter Q).length := by
-  have hsl : List.Sublist (l.filter P) (l.filter Q) := by
-    apply List.Sublist.filter_mono
-    exact h
-  apply Nat.lt_of_le_of_ne
-  · apply List.Sublist.length_le
-    exact hsl
-  · intro h
-    apply hPa
-    have heq := List.Sublist.eq_of_length hsl h
-    have : a ∈ List.filter Q l := List.mem_filter.mpr ⟨ha, hQa⟩
-    rw [← heq, List.mem_filter] at this
-    exact this.2
 
 private def Iterator.instFinitenessRelation [UpwardEnumerable α] [LT α] [DecidableLT α]
     [LawfulUpwardEnumerable α] [Rxo.IsAlwaysFinite α] :

@@ -74,3 +74,14 @@ theorem hold_thm (n : Nat) : Hold (match tree n 0 with | true => 1 | false => 0)
 theorem simpProp : Hold (viaMatch 100) := by
   sym => simp [viaMatch.eq_1, hold_thm]
 
+-- 5. `mkBackwardRuleFromDecl` and `mkBackwardRuleFromExpr` via `sym => apply`
+theorem applyDecl : Hold (viaMatch 100) := by
+  sym =>
+    simp [viaMatch.eq_1]
+    apply Hold.mk
+
+theorem applyExpr (h : ∀ n, Hold (match tree n 0 with | true => 1 | false => 0)) :
+    Hold (viaMatch 100) := by
+  sym =>
+    simp [viaMatch.eq_1]
+    apply h

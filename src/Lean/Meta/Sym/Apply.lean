@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Lean.Meta.Sym.Pattern
+import Lean.Meta.AppBuilder
 import Lean.Util.CollectFVars
 import Init.Data.Range.Polymorphic.Iterators
 namespace Lean.Meta.Sym
@@ -84,9 +85,14 @@ The `num?` parameter optionally limits how many arguments are included in the pa
 (useful for partially applying theorems).
 -/
 public def mkBackwardRuleFromDecl (declName : Name) (num? : Option Nat := none) : MetaM BackwardRule := do
-  let pattern ← mkPatternFromDecl declName num?
+  let (levelParams, type, modified) ← preprocessDeclPattern declName
+  let pattern ← mkPatternFromType levelParams type num?
   let resultPos := mkResultPos pattern
-  return { expr := mkConst declName, pattern, resultPos }
+  let expr ← if modified then
+    mkExpectedTypeHint (mkConst declName (levelParams.map mkLevelParam)) type
+  else
+    pure (mkConst declName)
+  return { expr, pattern, resultPos }
 
 /--
 Creates a `BackwardRule` from an expression.
@@ -98,10 +104,14 @@ The `num?` parameter optionally limits how many arguments are included in the pa
 (useful for partially applying theorems).
 -/
 public def mkBackwardRuleFromExpr (e : Expr) (levelParams : List Name := []) (num? : Option Nat := none) : MetaM BackwardRule := do
-  let pattern ← mkPatternFromExpr e levelParams num?
+  let (levelParams', type, modified) ← preprocessExprPattern e levelParams
+  let pattern ← mkPatternFromType levelParams' type num?
   let resultPos := mkResultPos pattern
-  let e := e.instantiateLevelParams levelParams (pattern.levelParams.map mkLevelParam)
-  return { expr := e, pattern, resultPos }
+  let e := e.instantiateLevelParams levelParams (levelParams'.map mkLevelParam)
+  -- When `e` contains free variables, `preprocessLCtx` may have already unfolded reducible
+  -- constants in their local declarations even though the outer goal retains the original types.
+  let expr ← if modified || e.hasFVar then mkExpectedTypeHint e type else pure e
+  return { expr, pattern, resultPos }
 
 /--
 Creates a value to assign to input goal metavariable using unification result.

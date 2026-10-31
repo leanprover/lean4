@@ -164,12 +164,12 @@ if(CMAKE_SYSTEM_NAME MATCHES "Emscripten")
   # - system libraries such as OpenGL are included in the JS but shouldn't be
   # - we need EMSCRIPTEN_KEEPALIVE annotations on exports to run meta-dce (-s MAIN_MODULE=2)
 
-  # From https://emscripten.org/docs/compiling/WebAssembly.html#backends:
-  # > The simple and safe thing is to pass all -s flags at both compile and link time.
-  set(EMSCRIPTEN_SETTINGS "-s ALLOW_MEMORY_GROWTH=1 -fwasm-exceptions -pthread -flto")
+  # `-s` settings only take effect when linking; emcc warns when they are passed to a compilation
+  set(EMSCRIPTEN_FLAGS "-fwasm-exceptions -pthread -flto")
+  set(EMSCRIPTEN_LINK_SETTINGS "-sALLOW_MEMORY_GROWTH=1")
   string(APPEND LEANC_EXTRA_CC_FLAGS " -pthread")
-  string(APPEND LEAN_EXTRA_CXX_FLAGS " -D LEAN_EMSCRIPTEN ${EMSCRIPTEN_SETTINGS}")
-  string(APPEND LEAN_EXTRA_LINKER_FLAGS " ${EMSCRIPTEN_SETTINGS}")
+  string(APPEND LEAN_EXTRA_CXX_FLAGS " -D LEAN_EMSCRIPTEN ${EMSCRIPTEN_FLAGS}")
+  string(APPEND LEAN_EXTRA_LINKER_FLAGS " ${EMSCRIPTEN_FLAGS} ${EMSCRIPTEN_LINK_SETTINGS}")
 endif()
 
 # Added for CTest
@@ -347,7 +347,7 @@ endif()
 # LibUV
 if(CMAKE_SYSTEM_NAME MATCHES "Emscripten")
   # Only on WebAssembly we compile LibUV ourselves
-  set(LIBUV_EMSCRIPTEN_FLAGS "${EMSCRIPTEN_SETTINGS}")
+  set(LIBUV_EMSCRIPTEN_FLAGS "${EMSCRIPTEN_FLAGS}")
 
   # LibUV does not compile on WebAssembly without modifications because
   # building LibUV on a platform requires including stub implementations
@@ -920,10 +920,11 @@ if(CMAKE_SYSTEM_NAME MATCHES "Emscripten")
   # SIDE_MODULE=2 on `lean`, and set CMAKE_SHARED_LIBRARY_SUFFIX to ".js".
   # We set `ERROR_ON_UNDEFINED_SYMBOLS=0` because our build of LibUV does not
   # define all symbols, see the comment about LibUV on WebAssembly further up
-  # in this file.
+  # in this file. `leanc.sh` adds `LEAN_EXTRA_LINKER_FLAGS`, which carries the Emscripten
+  # flags and settings, to every link.
   string(
     APPEND LEAN_EXE_LINKER_FLAGS
-    " ${LIB}/temp/libleanshell.a ${TOOLCHAIN_STATIC_LINKER_FLAGS} ${EMSCRIPTEN_SETTINGS} -lnodefs.js -s EXIT_RUNTIME=1 -s MAIN_MODULE=1 -s LINKABLE=1 -s EXPORT_ALL=1 -s ERROR_ON_UNDEFINED_SYMBOLS=0"
+    " ${LIB}/temp/libleanshell.a ${TOOLCHAIN_STATIC_LINKER_FLAGS} -lnodefs.js -sEXIT_RUNTIME=1 -sMAIN_MODULE=1 -sEXPORT_ALL=1 -sERROR_ON_UNDEFINED_SYMBOLS=0"
   )
 endif()
 

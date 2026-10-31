@@ -487,6 +487,10 @@ def alter (t : Raw α β cmp) (a : α) (f : Option β → Option β) : Raw α β
 def mergeWith (mergeFn : α → β → β → β) (t₁ t₂ : Raw α β cmp) : Raw α β cmp :=
   ⟨DTreeMap.Raw.Const.mergeWith mergeFn t₁.inner t₂.inner⟩
 
+@[inline, inherit_doc DTreeMap.Raw.mergeWith?]
+def mergeWith? (mergeFn : α → β → β → Option β) (t₁ t₂ : Raw α β cmp) : Raw α β cmp :=
+  ⟨DTreeMap.Raw.Const.mergeWith? mergeFn t₁.inner t₂.inner⟩
+
 @[inline, inherit_doc DTreeMap.Raw.Const.insertMany]
 def insertMany {ρ} [ForIn Id ρ (α × β)] (t : Raw α β cmp) (l : ρ) : Raw α β cmp :=
   ⟨DTreeMap.Raw.Const.insertMany t.inner l⟩

@@ -517,6 +517,10 @@ def alter [TransCmp cmp] (t : ExtTreeMap α β cmp) (a : α) (f : Option β → 
 def mergeWith [TransCmp cmp] (mergeFn : α → β → β → β) (t₁ t₂ : ExtTreeMap α β cmp) : ExtTreeMap α β cmp :=
   ⟨ExtDTreeMap.Const.mergeWith mergeFn t₁.inner t₂.inner⟩
 
+@[inline, inherit_doc ExtDTreeMap.Const.mergeWith?]
+def mergeWith? [TransCmp cmp] (mergeFn : α → β → β → Option β) (t₁ t₂ : ExtTreeMap α β cmp) : ExtTreeMap α β cmp :=
+  ⟨ExtDTreeMap.Const.mergeWith? mergeFn t₁.inner t₂.inner⟩
+
 @[inline, inherit_doc ExtDTreeMap.Const.insertMany]
 def insertMany [TransCmp cmp] {ρ} [ForIn Id ρ (α × β)] (t : ExtTreeMap α β cmp) (l : ρ) : ExtTreeMap α β cmp :=
   ⟨ExtDTreeMap.Const.insertMany t.inner l⟩

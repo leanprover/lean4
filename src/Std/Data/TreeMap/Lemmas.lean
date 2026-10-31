@@ -4307,6 +4307,10 @@ theorem mergeWith [TransCmp cmp] [LawfulEqCmp cmp] (f : α → β → β → β)
     (h : t₁ ~m t₂) (h' : t₃ ~m t₄) : t₁.mergeWith f t₃ ~m t₂.mergeWith f t₄ :=
   ⟨h.1.constMergeWith f h'.1⟩
 
+theorem mergeWith? [TransCmp cmp] (f : α → β → β → Option β)
+    (h : t₁ ~m t₂) (h' : t₃ ~m t₄) : t₁.mergeWith? f t₃ ~m t₂.mergeWith? f t₄ :=
+  ⟨h.1.constMergeWith? f h'.1⟩
+
 theorem values_eq [TransCmp cmp] (h : t₁ ~m t₂) : t₁.values = t₂.values :=
   h.1.values_eq
 
@@ -4979,5 +4983,69 @@ theorem toArray_keys : t.keys.toArray = t.keysArray :=
 
 theorem toList_keysArray : t.keysArray.toList = t.keys :=
   DTreeMap.toList_keysArray
+
+
+/-! ### Deletion-capable merging -/
+
+theorem getElem?_mergeWith? [TransCmp cmp]
+    {f : α → β → β → Option β} {t₁ t₂ : TreeMap α β cmp} {k : α} :
+    (t₁.mergeWith? f t₂)[k]? =
+      match t₂.getKey? k, t₂[k]? with
+      | some a, some b₂ => match t₁[k]? with
+        | none => some b₂
+        | some b₁ => f a b₁ b₂
+      | _, _ => t₁[k]? :=
+  DTreeMap.Const.get?_mergeWith?
+
+theorem contains_mergeWith? [TransCmp cmp]
+    {f : α → β → β → Option β} {t₁ t₂ : TreeMap α β cmp} {k : α} :
+    (t₁.mergeWith? f t₂).contains k =
+      (match t₂.getKey? k, t₂[k]? with
+      | some a, some b₂ => match t₁[k]? with
+        | none => some b₂
+        | some b₁ => f a b₁ b₂
+      | _, _ => t₁[k]?).isSome := by
+  rw [contains_eq_isSome_getElem?, getElem?_mergeWith?]
+
+theorem getKey?_mergeWith? [TransCmp cmp]
+    {f : α → β → β → Option β} {t₁ t₂ : TreeMap α β cmp} {k : α} :
+    (t₁.mergeWith? f t₂).getKey? k =
+      match t₂.getKey? k, t₂[k]? with
+      | some a, some b₂ =>
+        if (match t₁[k]? with | none => some b₂ | some b₁ => f a b₁ b₂).isSome then
+          some a
+        else none
+      | _, _ => t₁.getKey? k :=
+  DTreeMap.Const.getKey?_mergeWith?
+
+@[simp]
+theorem mergeWith?_empty_right {f : α → β → β → Option β} {t : TreeMap α β cmp} :
+    t.mergeWith? f ∅ = t :=
+  ext DTreeMap.Const.mergeWith?_empty_right
+
+@[simp]
+theorem mergeWith?_some {f : α → β → β → β} {t₁ t₂ : TreeMap α β cmp} :
+    t₁.mergeWith? (fun a b₁ b₂ => some (f a b₁ b₂)) t₂ = t₁.mergeWith f t₂ := by
+  rfl
+
+theorem size_mergeWith?_le [TransCmp cmp]
+    {f : α → β → β → Option β} {t₁ t₂ : TreeMap α β cmp} :
+    (t₁.mergeWith? f t₂).size ≤ t₁.size + t₂.size :=
+  DTreeMap.Const.size_mergeWith?_le
+
+theorem mergeWith?_empty_left [TransCmp cmp]
+    {f : α → β → β → Option β} {t : TreeMap α β cmp} :
+    (∅ : TreeMap α β cmp).mergeWith? f t ~m t :=
+  ⟨DTreeMap.Const.mergeWith?_empty_left⟩
+
+@[simp]
+theorem minEntry?_empty :
+    (∅ : TreeMap α β cmp).minEntry? = none := by
+  exact DTreeMap.Const.minEntry?_empty
+
+@[simp]
+theorem maxEntry?_empty :
+    (∅ : TreeMap α β cmp).maxEntry? = none := by
+  exact DTreeMap.Const.maxEntry?_empty
 
 end Std.TreeMap

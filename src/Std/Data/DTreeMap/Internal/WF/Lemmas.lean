@@ -1235,6 +1235,13 @@ theorem ordered_mergeWith [Ord α] [TransOrd α] [LawfulEqOrd α] {t₁ t₂ : I
   | leaf => exact hto
   | inner sz k v l r ihl ihr => exact ihr _ (ordered_alter _ (ihl htb hto))
 
+theorem ordered_mergeWith? [Ord α] [TransOrd α] [LawfulEqOrd α] {t₁ t₂ : Impl α β} {f}
+    (htb : t₁.Balanced) (hto : t₁.Ordered) :
+    (t₁.mergeWith? f t₂ htb).impl.Ordered := by
+  induction t₂ generalizing t₁ with
+  | leaf => exact hto
+  | inner sz k v l r ihl ihr => exact ihr _ (ordered_alter _ (ihl htb hto))
+
 /-!
 ### foldlM
 -/
@@ -1509,6 +1516,13 @@ theorem ordered_mergeWith [Ord α] [TransOrd α] {t₁ t₂ : Impl α β} {f}
   | leaf => exact hto
   | inner sz k v l r ihl ihr => exact ihr _ (ordered_alter _ (ihl htb hto))
 
+theorem ordered_mergeWith? [Ord α] [TransOrd α] {t₁ t₂ : Impl α β} {f}
+    (htb : t₁.Balanced) (hto : t₁.Ordered) :
+    (mergeWith? f t₁ t₂ htb).impl.Ordered := by
+  induction t₂ generalizing t₁ with
+  | leaf => exact hto
+  | inner sz k v l r ihl ihr => exact ihr _ (ordered_alter _ (ihl htb hto))
+
 /-!
 ### toList
 -/
@@ -1581,6 +1595,8 @@ theorem WF.ordered [Ord α] [TransOrd α] {l : Impl α β} (h : WF l) : l.Ordere
   · exact ordered_filter ‹_›
   · exact ordered_mergeWith ‹_› ‹_›
   · exact Const.ordered_mergeWith ‹_› ‹_›
+  · exact ordered_mergeWith? ‹_› ‹_›
+  · exact Const.ordered_mergeWith? ‹_› ‹_›
   · exact ordered_inter ‹_› ‹_›
 
 /-!
@@ -2048,10 +2064,31 @@ theorem mergeWith_eq_mergeWith! {_ : Ord α} [LawfulEqOrd α] {mergeFn} {t₁ t�
     congr
     exact ihl h
 
+theorem mergeWith?_eq_mergeWith?! {_ : Ord α} [LawfulEqOrd α] {mergeFn} {t₁ t₂ : Impl α β}
+    (h : t₁.Balanced) :
+    (mergeWith? mergeFn t₁ t₂ h).impl = mergeWith?! mergeFn t₁ t₂ := by
+  rw [mergeWith?, mergeWith?!]
+  induction t₂ generalizing t₁ with
+  | leaf => rfl
+  | inner sz k v l r ihl ihr =>
+    simp only [foldl, foldlM, pure_bind, Id.run_bind]
+    simp only [foldl] at ihl ihr
+    rw [ihr]
+    congr
+    simp only [SizedBalancedTree.toBalancedTree]
+    rw [alter_eq_alter!]
+    congr
+    exact ihl h
+
 theorem WF.mergeWith! {_ : Ord α} [LawfulEqOrd α] {mergeFn} {t₁ t₂ : Impl α β} (h : t₁.WF) :
     (Impl.mergeWith! mergeFn t₁ t₂).WF := by
   rw [← mergeWith_eq_mergeWith! h.balanced]
   exact h.mergeWith
+
+theorem WF.mergeWith?! {_ : Ord α} [LawfulEqOrd α] {mergeFn} {t₁ t₂ : Impl α β} (h : t₁.WF) :
+    (Impl.mergeWith?! mergeFn t₁ t₂).WF := by
+  rw [← mergeWith?_eq_mergeWith?! h.balanced]
+  exact h.mergeWith?
 
 theorem Const.mergeWith_eq_mergeWith! {β : Type v} {_ : Ord α} {mergeFn} {t₁ t₂ : Impl α β}
     (h : t₁.Balanced) :
@@ -2069,10 +2106,31 @@ theorem Const.mergeWith_eq_mergeWith! {β : Type v} {_ : Ord α} {mergeFn} {t₁
     congr
     exact ihl h
 
+theorem Const.mergeWith?_eq_mergeWith?! {β : Type v} {_ : Ord α} {mergeFn} {t₁ t₂ : Impl α β}
+    (h : t₁.Balanced) :
+    (mergeWith? mergeFn t₁ t₂ h).impl = mergeWith?! mergeFn t₁ t₂ := by
+  rw [mergeWith?, mergeWith?!]
+  induction t₂ generalizing t₁ with
+  | leaf => rfl
+  | inner sz k v l r ihl ihr =>
+    simp only [foldl, foldlM, Id.run_bind, pure_bind]
+    simp only [foldl] at ihl ihr
+    rw [ihr]
+    congr
+    simp only [SizedBalancedTree.toBalancedTree]
+    rw [alter_eq_alter!]
+    congr
+    exact ihl h
+
 theorem WF.constMergeWith! {β : Type v} {_ : Ord α} {mergeFn} {t₁ t₂ : Impl α β} (h : t₁.WF) :
     (Impl.Const.mergeWith! mergeFn t₁ t₂).WF := by
   rw [← Const.mergeWith_eq_mergeWith! h.balanced]
   exact h.constMergeWith
+
+theorem WF.constMergeWith?! {β : Type v} {_ : Ord α} {mergeFn} {t₁ t₂ : Impl α β} (h : t₁.WF) :
+    (Impl.Const.mergeWith?! mergeFn t₁ t₂).WF := by
+  rw [← Const.mergeWith?_eq_mergeWith?! h.balanced]
+  exact h.constMergeWith?
 
 /-!
 ### filterMap

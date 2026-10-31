@@ -10,6 +10,7 @@ public import Init.Data.Char
 public import Init.Data.String.Basic
 public import Init.Data.Int.Basic
 public import Init.Grind
+import Init.Data.UInt.Decidable
 
 @[expose]
 public section
@@ -48,6 +49,13 @@ def isDigitByte (c : UInt8) : Bool :=
   c >= '0'.toUInt8 && c <= '9'.toUInt8
 
 /--
+Returns the value of a decimal digit byte.
+-/
+@[inline]
+def digitToNat (c : UInt8) : Nat :=
+  (c - '0'.toUInt8).toNat
+
+/--
 Checks if a byte is an alphabetic character (a-z or A-Z).
 -/
 @[inline]
@@ -65,6 +73,22 @@ def tchar (c : Char) : Bool :=
   (c matches '!' | '#' | '$' | '%' | '&' | '\'' | '*' | '+' | '-' | '.' | '^' | '_' | '`' | '|' | '~') ||
   Char.isDigit c ||
   Char.isAlpha c
+
+/--
+Byte form of `tchar`: bit `b` of the mask for `b`'s half of the ASCII range is set when `b` is a
+`tchar` (see `tcharByte_eq_tchar`).
+-/
+@[inline]
+def tcharByte (b : UInt8) : Bool :=
+  if b < 64 then
+    (0x03ff6cfa00000000 >>> b.toUInt64) &&& 1 == (1 : UInt64)
+  else if b < 128 then
+    (0x57ffffffc7fffffe >>> (b - 64).toUInt64) &&& 1 == (1 : UInt64)
+  else
+    false
+
+theorem tcharByte_eq_tchar : ∀ b : UInt8, tcharByte b = tchar (Char.ofUInt8 b) := by
+  decide
 
 /--
 vchar = %x21-7E

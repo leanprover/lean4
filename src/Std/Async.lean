@@ -9,6 +9,7 @@ prelude
 public import Std.Async.Basic
 public import Std.Async.ContextAsync
 public import Std.Async.Timer
+public import Std.Async.Watchdog
 public import Std.Async.TCP
 public import Std.Async.UDP
 public import Std.Async.DNS

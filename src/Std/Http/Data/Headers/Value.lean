@@ -8,6 +8,9 @@ module
 prelude
 public import Init.Data.ToString
 public import Std.Http.Internal
+public import Init.Data.String.Search
+import Init.Data.String.Lemmas.Pattern.TakeDrop.Pred
+import Init.Data.String.Lemmas.Search
 
 public section
 
@@ -67,18 +70,55 @@ instance : Inhabited Value where
 namespace Value
 
 /--
+Compiled implementation of `isValid`. Field-value characters are ASCII, and neither the first nor the
+last byte of a non-ASCII character is a `field-vchar`, so the check can run on UTF-8 bytes.
+-/
+def isValidImpl (s : String) : Bool :=
+  if h : 0 < s.utf8ByteSize then
+    Char.fieldVchar (Char.ofUInt8 (s.getUTF8Byte ⟨0⟩ h)) &&
+    Char.fieldVchar (Char.ofUInt8 (s.getUTF8Byte ⟨s.utf8ByteSize - 1⟩ (by
+      show s.utf8ByteSize - 1 < s.utf8ByteSize
+      omega))) &&
+    go 0
+  else
+    true
+where
+  /-- Checks the bytes from index `i` on. -/
+  go (i : Nat) : Bool :=
+    if h : i < s.utf8ByteSize then
+      Char.fieldContent (Char.ofUInt8 (s.getUTF8Byte ⟨i⟩ h)) && go (i + 1)
+    else
+      true
+  termination_by s.utf8ByteSize - i
+
+/--
+Decides `IsValidHeaderValue`.
+-/
+@[implemented_by isValidImpl]
+def isValid (s : String) : Bool :=
+  decide (IsValidHeaderValue s)
+
+theorem of_isValid {s : String} (h : isValid s = true) : IsValidHeaderValue s :=
+  of_decide_eq_true h
+
+/--
+Creates a `Value` from a string that has no leading or trailing whitespace, returning `none` if it
+contains invalid characters.
+-/
+@[inline]
+def ofTrimmed? (s : String) : Option Value :=
+  if h : isValid s then
+    some ⟨s, of_decide_eq_true h⟩
+  else
+    none
+
+/--
 Attempts to create a `Value` from a `String`, returning `none` if the string contains invalid characters
 for HTTP header values.
 -/
 @[expose]
 def ofString? (s : String) : Option Value :=
-  -- A field value does not include leading or trailing whitespace.
-  let val := s.trimAscii.toString
-
-  if h : IsValidHeaderValue val then
-    some ⟨val, h⟩
-  else
-    none
+  ofTrimmed? (if isAsciiTrimmed s then s else s.trimAscii.toString)
 
 /--
 Creates a `Value` from a string, panicking with an error message if the string contains invalid

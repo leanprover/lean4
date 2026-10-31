@@ -609,6 +609,29 @@ private def minimalGetRequest : Request.Head :=
     |>.send { status := .ok } |>.setKnownSize (.fixed 0) |>.userClosedBody |>.step
     |>.assertOutputContains "Connection: close" "expected Connection: close in response" |>.run
 
+  -- §9.6: a `Connection: close` response header set by the handler ends a keep-alive connection
+  MachineTester.receiving "§9.6: handler Connection:close on keep-alive request → connection closed"
+    |>.feed (mkGet "/first" ++ mkGet "/second") |>.step |>.assertHasEndHeaders |>.assertKeepAlive
+    |>.send { status := .ok, headers := Headers.empty.insert .connection (.mk "close") }
+    |>.setKnownSize (.fixed 0) |>.userClosedBody |>.step
+    |>.assertNotKeepAlive
+    |>.assertOutputContains "Connection: close" "expected Connection: close in response"
+    |>.assertHasEvent (fun | .close => true | _ => false) "expected .close after the response"
+    |>.assertNoEvent (fun | .next => true | _ => false) "expected the pipelined request to be dropped"
+    |>.step |>.assertHalted |>.run
+
+  -- §9.6: the error responses of `closeWithError` end a keep-alive connection
+  for status in #[Status.internalServerError, .requestTimeout, .serviceUnavailable] do
+    MachineTester.receiving s!"§9.6: closeWithError {status.toCode} on keep-alive request → connection closed"
+      |>.feed (mkGet "/first" ++ mkGet "/second") |>.step |>.assertHasEndHeaders |>.assertKeepAlive
+      |>.closeWithError status |>.step
+      |>.assertNotKeepAlive
+      |>.assertOutputStartsWith s!"HTTP/1.1 {status.toCode} " "expected the error status line"
+      |>.assertOutputContains "Connection: close" "expected Connection: close in the error response"
+      |>.assertHasEvent (fun | .close => true | _ => false) "expected .close after the error response"
+      |>.assertNoEvent (fun | .next => true | _ => false) "expected the pipelined request to be dropped"
+      |>.run
+
   -- §9.6: HTTP/1.1 response with Connection: close → keep-alive disabled
   MachineTester.sending "§9.6: HTTP/1.1 response Connection:close → keep-alive = false"
     |>.send minimalGetRequest |>.step

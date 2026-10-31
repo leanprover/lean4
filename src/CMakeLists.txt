@@ -971,11 +971,11 @@ if(CMAKE_SYSTEM_NAME MATCHES "Emscripten")
     DEPENDS make_stdlib leanrt_initial-exec
     COMMAND touch ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libInit_shared${CMAKE_SHARED_LIBRARY_SUFFIX}
   )
-  # `leanshell` because `lean.js` links `libleanshell.a` directly (`LEAN_EXE_LINKER_FLAGS`)
+  # `leanrt` and `leanshell` because `lean.js` links `libleanrt.a` and `libleanshell.a` directly (`LEAN_EXE_LINKER_FLAGS`)
   add_custom_target(
     leanshared
     ALL
-    DEPENDS Init_shared leancpp leanshell
+    DEPENDS Init_shared leancpp leanrt leanshell
     COMMAND touch ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libleanshared_2${CMAKE_SHARED_LIBRARY_SUFFIX}
     COMMAND touch ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libleanshared_1${CMAKE_SHARED_LIBRARY_SUFFIX}
     COMMAND touch ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libleanshared${CMAKE_SHARED_LIBRARY_SUFFIX}

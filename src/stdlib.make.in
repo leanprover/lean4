@@ -124,6 +124,9 @@ $(OUTBIN)/leanir$(EXE): $(OUTARC)/libLeanIR.a.trace
 $(OUTBIN)/leanchecker$(EXE): $(OUTARC)/libLeanChecker.a.trace
 $(OUTBIN)/leanchecker-paranoid$(EXE): $(OUTARC)/libLeanChecker.a.trace ${LIB}/lean/libInit.a.trace ${LIB}/lean/libStd.a.trace ${LIB}/lean/libLean.a.trace ${LIB}/lean/libLake.a.trace
 $(OUTBIN)/leanexport$(EXE): $(OUTARC)/libLeanExport.a.trace
+ifeq "${CMAKE_SYSTEM_NAME}" "Emscripten"
+$(OUTBIN)/lean$(EXE): ${LIB}/lean/libInit.a.trace ${LIB}/lean/libStd.a.trace ${LIB}/lean/libLean.a.trace
+endif
 endif
 
 # we specify the precise file names here to avoid rebuilds
@@ -206,7 +209,13 @@ $(OUTBIN)/lake$(EXE): ${LIB}/temp/LakeMain.*o.export $(OUTLIB)/libLake_shared$(S
 
 lake: $(OUTBIN)/lake$(EXE)
 
-$(OUTBIN)/lean$(EXE): $(OUTLIB)/libInit_shared$(SO) $(OUTLIB)/libleanshared_2$(SO) $(OUTLIB)/libleanshared_1$(SO) $(OUTLIB)/libleanshared$(SO) ${LIB}/temp/libleanmain.a
+ifeq "${CMAKE_SYSTEM_NAME}" "Emscripten"
+# the shared libraries are dummies (see `src/CMakeLists.txt`); `lean.js` links these archives (`LEAN_EXE_LINKER_FLAGS`)
+$(OUTBIN)/lean$(EXE): ${LIB}/lean/libInit.a ${LIB}/lean/libStd.a ${LIB}/lean/libLean.a ${LIB}/lean/libleancpp.a ${LIB}/lean/libleanrt.a ${LIB}/temp/libleanshell.a
+else
+$(OUTBIN)/lean$(EXE): $(OUTLIB)/libInit_shared$(SO) $(OUTLIB)/libleanshared_2$(SO) $(OUTLIB)/libleanshared_1$(SO) $(OUTLIB)/libleanshared$(SO)
+endif
+$(OUTBIN)/lean$(EXE): ${LIB}/temp/libleanmain.a
 	$(link-preamble)
 	$(LEANC_SH) ${LIB}/temp/libleanmain.a ${CMAKE_EXE_LINKER_FLAGS_MAKE} ${CMAKE_DYN_EXE_LINKER_FLAGS_MAKE} ${LEAN_EXE_LINKER_FLAGS} ${LEANC_OPTS} -o $@
 

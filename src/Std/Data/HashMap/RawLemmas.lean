@@ -3626,6 +3626,114 @@ theorem getD_map_of_getKey?_eq_some [EquivBEq α] [LawfulHashable α]
 
 end map
 attribute [simp] contains_eq_false_iff_not_mem
+
+/-! ### Merging with a collision function -/
+
+theorem getElem?_mergeWith? [EquivBEq α] [LawfulHashable α]
+    {f : α → β → β → Option β} {t₁ t₂ : Raw α β} (h₁ : t₁.WF) (h₂ : t₂.WF) {k : α} :
+    (t₁.mergeWith? f t₂)[k]? =
+      match t₂.getKey? k, t₂[k]? with
+      | some a, some b₂ => match t₁[k]? with
+        | none => some b₂
+        | some b₁ => f a b₁ b₂
+      | _, _ => t₁[k]? :=
+  DHashMap.Raw.Const.get?_mergeWith? h₁.out h₂.out
+
+theorem contains_mergeWith? [EquivBEq α] [LawfulHashable α]
+    {f : α → β → β → Option β} {t₁ t₂ : Raw α β} (h₁ : t₁.WF) (h₂ : t₂.WF) {k : α} :
+    (t₁.mergeWith? f t₂).contains k =
+      (match t₂.getKey? k, t₂[k]? with
+      | some a, some b₂ => match t₁[k]? with
+        | none => some b₂
+        | some b₁ => f a b₁ b₂
+      | _, _ => t₁[k]?).isSome := by
+  rw [contains_eq_isSome_getElem? (WF.mergeWith? h₁ h₂), getElem?_mergeWith? h₁ h₂]
+
+theorem getElem?_mergeWith [EquivBEq α] [LawfulHashable α]
+    {f : α → β → β → β} {t₁ t₂ : Raw α β} (h₁ : t₁.WF) (h₂ : t₂.WF) {k : α} :
+    (t₁.mergeWith f t₂)[k]? =
+      match t₂.getKey? k, t₂[k]? with
+      | some a, some b₂ => match t₁[k]? with
+        | none => some b₂
+        | some b₁ => some (f a b₁ b₂)
+      | _, _ => t₁[k]? :=
+  DHashMap.Raw.Const.get?_mergeWith h₁.out h₂.out
+
+theorem getKey?_mergeWith? [EquivBEq α] [LawfulHashable α]
+    {f : α → β → β → Option β} {t₁ t₂ : Raw α β} (h₁ : t₁.WF) (h₂ : t₂.WF) {k : α} :
+    (mergeWith? f t₁ t₂).getKey? k =
+      match t₂.getKey? k, t₂[k]? with
+      | some a, some b₂ =>
+        if (match t₁[k]? with | none => some b₂ | some b₁ => f a b₁ b₂).isSome then
+          some a
+        else none
+      | _, _ => t₁.getKey? k :=
+  DHashMap.Raw.Const.getKey?_mergeWith? h₁.out h₂.out
+
+theorem size_mergeWith?_le [EquivBEq α] [LawfulHashable α]
+    {f : α → β → β → Option β} {t₁ t₂ : Raw α β} (h₁ : t₁.WF) (h₂ : t₂.WF) :
+    (t₁.mergeWith? f t₂).size ≤ t₁.size + t₂.size :=
+  DHashMap.Raw.Const.size_mergeWith?_le h₁.out h₂.out
+
+theorem size_mergeWith_le [EquivBEq α] [LawfulHashable α]
+    {f : α → β → β → β} {t₁ t₂ : Raw α β} (h₁ : t₁.WF) (h₂ : t₂.WF) :
+    (t₁.mergeWith f t₂).size ≤ t₁.size + t₂.size :=
+  size_mergeWith?_le (f := fun a b₁ b₂ => some (f a b₁ b₂)) h₁ h₂
+
+@[simp]
+theorem mergeWith?_some {f : α → β → β → β} {t₁ t₂ : Raw α β} :
+    t₁.mergeWith? (fun a b₁ b₂ => some (f a b₁ b₂)) t₂ = t₁.mergeWith f t₂ := by
+  rfl
+
+
+theorem Equiv.mergeWith? [EquivBEq α] [LawfulHashable α]
+    (f : α → β → β → Option β) {m₁ m₂ m₃ m₄ : Raw α β}
+    (h₁ : m₁.WF) (h₂ : m₂.WF) (h₃ : m₃.WF) (h₄ : m₄.WF)
+    (hl : m₁ ~m m₂) (hr : m₃ ~m m₄) :
+    m₁.mergeWith? f m₃ ~m m₂.mergeWith? f m₄ :=
+  ⟨DHashMap.Raw.Equiv.constMergeWith? f h₁.out h₂.out h₃.out h₄.out hl.inner hr.inner⟩
+
+theorem Equiv.mergeWith [EquivBEq α] [LawfulHashable α]
+    (f : α → β → β → β) {m₁ m₂ m₃ m₄ : Raw α β}
+    (h₁ : m₁.WF) (h₂ : m₂.WF) (h₃ : m₃.WF) (h₄ : m₄.WF)
+    (hl : m₁ ~m m₂) (hr : m₃ ~m m₄) :
+    m₁.mergeWith f m₃ ~m m₂.mergeWith f m₄ :=
+  ⟨DHashMap.Raw.Equiv.constMergeWith f h₁.out h₂.out h₃.out h₄.out hl.inner hr.inner⟩
+
+@[simp]
+theorem mergeWith?_empty_right {f : α → β → β → Option β} {m : Raw α β} (h : m.WF) :
+    m.mergeWith? f ∅ = m :=
+  ext (DHashMap.Raw.Const.mergeWith?_empty_right h.out)
+
+@[simp]
+theorem mergeWith_empty_right {f : α → β → β → β} {m : Raw α β} (h : m.WF) :
+    m.mergeWith f ∅ = m :=
+  mergeWith?_empty_right (f := fun a b₁ b₂ => some (f a b₁ b₂)) h
+
+theorem mergeWith?_empty_left [EquivBEq α] [LawfulHashable α]
+    {f : α → β → β → Option β} {m : Raw α β} (h : m.WF) :
+    (∅ : Raw α β).mergeWith? f m ~m m :=
+  ⟨DHashMap.Raw.Const.mergeWith?_empty_left h.out⟩
+
+@[simp]
+theorem mergeWith_empty_left [EquivBEq α] [LawfulHashable α]
+    {f : α → β → β → β} {m : Raw α β} (h : m.WF) :
+    (∅ : Raw α β).mergeWith f m ~m m :=
+  mergeWith?_empty_left (f := fun a b₁ b₂ => some (f a b₁ b₂)) h
+
+
+theorem contains_mergeWith [EquivBEq α] [LawfulHashable α]
+    {f : α → β → β → β} {m₁ m₂ : Raw α β} (h₁ : m₁.WF) (h₂ : m₂.WF) {k : α} :
+    (m₁.mergeWith f m₂).contains k = (m₁.contains k || m₂.contains k) :=
+  DHashMap.Raw.Const.contains_mergeWith h₁.out h₂.out
+
+@[simp]
+theorem mem_mergeWith [EquivBEq α] [LawfulHashable α]
+    {f : α → β → β → β} {m₁ m₂ : Raw α β} (h₁ : m₁.WF) (h₂ : m₂.WF) {k : α} :
+    k ∈ m₁.mergeWith f m₂ ↔ k ∈ m₁ ∨ k ∈ m₂ := by
+  simp only [mem_iff_contains, contains_mergeWith h₁ h₂, Bool.or_eq_true]
+
+
 end Raw
 
 end Std.HashMap

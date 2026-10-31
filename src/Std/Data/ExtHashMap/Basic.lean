@@ -280,4 +280,14 @@ def unitOfArray [BEq α] [Hashable α] (l : Array α) :
     ExtHashMap α Unit :=
   ⟨ExtDHashMap.Const.unitOfArray l⟩
 
+@[inline, inherit_doc ExtDHashMap.Const.mergeWith?]
+def mergeWith? [EquivBEq α] [LawfulHashable α]
+    (f : α → β → β → Option β) (m₁ m₂ : ExtHashMap α β) : ExtHashMap α β :=
+  ⟨ExtDHashMap.Const.mergeWith? f m₁.inner m₂.inner⟩
+
+@[inline, inherit_doc ExtDHashMap.Const.mergeWith]
+def mergeWith [EquivBEq α] [LawfulHashable α]
+    (f : α → β → β → β) (m₁ m₂ : ExtHashMap α β) : ExtHashMap α β :=
+  ⟨ExtDHashMap.Const.mergeWith f m₁.inner m₂.inner⟩
+
 end Std.ExtHashMap

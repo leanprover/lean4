@@ -303,6 +303,17 @@ def insert [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) (b : β a) : Raw�
       let buckets' := buckets.uset i (.cons a b bkt) h
       expandIfNecessary ⟨⟨size', buckets'⟩, by simpa [buckets']⟩
 
+/-- Merge into the first map, deleting collisions when the callback returns `none`. -/
+@[inline] def mergeWith? [BEq α] [Hashable α] [LawfulBEq α]
+    (f : (a : α) → β a → β a → Option (β a)) (m₁ m₂ : Raw₀ α β) : Raw₀ α β :=
+  m₂.1.fold (fun out a b₂ => out.alter a (fun old => old.elim (some b₂) (fun b₁ => f a b₁ b₂))) m₁
+
+/-- Nondependent merge into the first map, allowing collisions to delete keys. -/
+@[inline] def Const.mergeWith? [BEq α] [Hashable α] {β : Type v}
+    (f : α → β → β → Option β) (m₁ m₂ : Raw₀ α (fun _ => β)) : Raw₀ α (fun _ => β) :=
+  m₂.1.fold (fun out a b₂ => Const.alter out a (fun old => old.elim (some b₂) (fun b₁ => f a b₁ b₂))) m₁
+
+
 /-- Internal implementation detail of the hash map -/
 @[inline] def containsThenInsert [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) (b : β a) :
     Bool × Raw₀ α β :=

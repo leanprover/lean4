@@ -297,6 +297,25 @@ This function ensures that the value is used linearly.
     (m : DHashMap α (fun _ => β)) (a : α) (f : Option β → Option β) : DHashMap α (fun _ => β) :=
   ⟨Raw₀.Const.alter ⟨m.1, m.2.size_buckets_pos⟩ a f, Raw.WF.constAlter₀ m.2⟩
 
+@[inline, inherit_doc Raw.mergeWith?] def mergeWith? [LawfulBEq α]
+    (f : (a : α) → β a → β a → Option (β a)) (m₁ m₂ : DHashMap α β) : DHashMap α β :=
+  ⟨Raw₀.mergeWith? f ⟨m₁.1, m₁.2.size_buckets_pos⟩ ⟨m₂.1, m₂.2.size_buckets_pos⟩,
+    Raw.WF.mergeWith?₀ m₁.2⟩
+
+@[inline, inherit_doc Raw.mergeWith] def mergeWith [LawfulBEq α]
+    (f : (a : α) → β a → β a → β a) (m₁ m₂ : DHashMap α β) : DHashMap α β :=
+  mergeWith? (fun a b₁ b₂ => some (f a b₁ b₂)) m₁ m₂
+
+@[inline, inherit_doc Raw.mergeWith?] def Const.mergeWith? {β : Type v}
+    (f : α → β → β → Option β) (m₁ m₂ : DHashMap α (fun _ => β)) : DHashMap α (fun _ => β) :=
+  ⟨Raw₀.Const.mergeWith? f ⟨m₁.1, m₁.2.size_buckets_pos⟩ ⟨m₂.1, m₂.2.size_buckets_pos⟩,
+    Raw.WF.constMergeWith?₀ m₁.2⟩
+
+@[inline, inherit_doc Raw.mergeWith] def Const.mergeWith {β : Type v}
+    (f : α → β → β → β) (m₁ m₂ : DHashMap α (fun _ => β)) : DHashMap α (fun _ => β) :=
+  Const.mergeWith? (fun a b₁ b₂ => some (f a b₁ b₂)) m₁ m₂
+
+
 @[inline, inherit_doc Raw.insertMany] def insertMany {ρ : Type w}
     [ForIn Id ρ ((a : α) × β a)] (m : DHashMap α β) (l : ρ) : DHashMap α β :=
   ⟨(Raw₀.insertMany ⟨m.1, m.2.size_buckets_pos⟩ l).1,

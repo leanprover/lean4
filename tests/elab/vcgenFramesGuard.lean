@@ -81,10 +81,9 @@ theorem guard_frames_poke :
   case vc1 => trace_state; grind [poke_frames]
   all_goals grind
 
-open Lean.Elab.Tactic.VCGen in
-section
 @[reducible] def aliasMeet : (St → Prop) → (St → Prop) → (St → Prop) := meet
 
+open Lean.Elab.Tactic.VCGen in
 @[frameproc] def instrAliasFrameProc : FrameProc where
   prog := ``Instr
   opHead := ``aliasMeet
@@ -104,4 +103,3 @@ theorem guard_frames_poke_alias :
   vcgen frames | Instr.poke _ => fun s => s.mem 5 = 7
   case vc1 => trace_state; grind [poke_frames]
   all_goals grind
-end

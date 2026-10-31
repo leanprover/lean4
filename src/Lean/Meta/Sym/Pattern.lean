@@ -107,7 +107,11 @@ def isUVar? (n : Name) : Option Nat := Id.run do
   unless p == uvarPrefix do return none
   return some idx
 
-/-- Helper function for implementing `mkPatternFromDecl` and `mkEqPatternFromDecl` -/
+/--
+Preprocesses the type of `declName` for use as a pattern, with its universe parameters renamed to
+`_uvar`s. Returns those parameters, the type, and whether preprocessing changed the statement
+beyond normalizing universe levels.
+-/
 public def preprocessDeclPattern (declName : Name) (zetaReduceLHSOnly := false) (num? : Option Nat := none) :
     MetaM (List Name × Expr × Bool) := do
   let info ← getConstInfo declName
@@ -119,6 +123,7 @@ public def preprocessDeclPattern (declName : Name) (zetaReduceLHSOnly := false) 
   let type ← normalizeLevels type
   return (levelParams, type, modified)
 
+/-- Like `preprocessDeclPattern`, for the type of `e` with universe parameters `levelParams₀`. -/
 public def preprocessExprPattern (e : Expr) (levelParams₀ : List Name) (zetaReduceLHSOnly := false)
     (num? : Option Nat := none) : MetaM (List Name × Expr × Bool) := do
   let origType ← inferType e

@@ -170,6 +170,7 @@ which use extra pointer bits which do not fit (https://github.com/leanprover/lea
 The field `m_other` is used to store the number of fields in a constructor object and the element size in a scalar array.
 For arrays, scalar arrays and strings its uppermost bit (`LEAN_LINEAR_MARK_MASK`) holds the linearity marker set by
 `markLinear`; read the element size of a scalar array with `lean_sarray_elem_size`, which masks it out.
+For tasks, it holds `LEAN_TASK_PURE_MARKER` if the task was created with a value, and zero otherwise.
 */
 typedef struct {
     int      m_rc;
@@ -278,8 +279,16 @@ typedef struct {
     uint8_t              m_deleted;
 } lean_task_imp;
 
+/* `m_other` value of tasks created by `lean_task_pure`; see `lean_task_object`. */
+#define LEAN_TASK_PURE_MARKER 1u
+
 /* Object of type `Task _`. The lifetime of a `lean_task` object can be represented as a state machine with atomic
    state transitions.
+
+   Tasks created by `lean_task_pure` carry `LEAN_TASK_PURE_MARKER` in `m_header.m_other`, and all other tasks carry
+   zero, even after they finish. A marked task is Finished from creation and never has an `m_imp`, so
+   `deactivate_task` frees it without the lock. A non-null `m_value` alone does not allow this, because `resolve_core`
+   sets `m_value` before it detaches `m_imp`. The compactor clears the marker.
 
    In the following, `condition` describes a predicate uniquely identifying a state.
 
@@ -328,7 +337,7 @@ typedef struct {
    * Finished
      * condition: m_value != nullptr
      * invariant: m_imp == nullptr
-     * transition: RC becomes 0 ==> freed (`deactivate_task` lock) */
+     * transition: RC becomes 0 ==> freed (`deactivate_task` lock, except for marked pure tasks) */
 typedef struct lean_task {
     lean_object              m_header;
     _Atomic(lean_object *)   m_value;

@@ -1155,6 +1155,13 @@ scoped_task_manager::~scoped_task_manager() {
 }
 
 void deactivate_task(lean_task_object * t) {
+    if (t->m_header.m_other == LEAN_TASK_PURE_MARKER) {
+        lean_assert(t->m_value != nullptr);
+        lean_assert(t->m_imp.load(std::memory_order_relaxed) == nullptr);
+        lean_dec(t->m_value);
+        free_task(t);
+        return;
+    }
     if (g_task_manager) {
         g_task_manager->deactivate_task(t);
     } else {
@@ -1184,7 +1191,7 @@ static lean_task_object * alloc_task(obj_arg c, unsigned prio, bool keep_alive) 
 
 static lean_task_object * alloc_task(obj_arg v) {
     lean_task_object * o = (lean_task_object*)lean_alloc_small_object(sizeof(lean_task_object));
-    lean_set_st_header((lean_object*)o, LeanTask, 0);
+    lean_set_st_header((lean_object*)o, LeanTask, LEAN_TASK_PURE_MARKER);
     o->m_value = v;
     o->m_imp   = nullptr;
     return o;

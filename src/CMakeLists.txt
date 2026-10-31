@@ -528,6 +528,9 @@ set(LEAN_CXX_STDLIB "-lstdc++" CACHE STRING "C++ stdlib linker flags")
 
 if(CMAKE_SYSTEM_NAME MATCHES "Darwin")
   set(LEAN_CXX_STDLIB "-lc++")
+elseif(CMAKE_SYSTEM_NAME MATCHES "Emscripten")
+  # `emcc` ignores `-lstdc++`; since Emscripten 6.0.6 it links libc++ only when told to link as C++
+  set(LEAN_CXX_STDLIB "-sDEFAULT_TO_CXX=1")
 endif()
 
 if(CADICAL_LIB)

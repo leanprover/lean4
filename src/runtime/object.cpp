@@ -1692,6 +1692,13 @@ extern "C" LEAN_EXPORT lean_obj_res lean_nat_extended_gcd(b_lean_obj_arg a, b_le
     return lean_nat_extended_gcd_fallback(a, b);
 }
 
+extern "C" LEAN_EXPORT lean_obj_res lean_nat_popcount(b_lean_obj_arg a) {
+    if (lean_is_scalar(a)) {
+        return lean_box(std::popcount(lean_unbox(a)));
+    }
+    return mpz_to_nat(mpz_value(a).popcount());
+}
+
 extern "C" LEAN_EXPORT lean_obj_res lean_nat_log2(b_lean_obj_arg a) {
     if (lean_is_scalar(a)) {
       unsigned res = 0;

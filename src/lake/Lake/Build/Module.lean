@@ -662,8 +662,8 @@ def Module.recFetchPreSetup (mod : Module) : FetchM (Job ModulePreSetup) := ensu
 
   let externLibsJob ← Job.collectArray (traceCaption := "package external libraries") <$>
     if mod.shouldPrecompileImports then mod.pkg.externLibs.mapM (·.dynlib.fetch) else pure #[]
-  let dynlibsJob ← mod.dynlibs.fetchIn mod.pkg "module dynlibs"
-  let pluginsJob ← mod.plugins.fetchIn mod.pkg "module plugins"
+  let dynlibsJob ← mod.dynlibs.fetchInBlocking mod.pkg "module dynlibs"
+  let pluginsJob ← mod.plugins.fetchInBlocking mod.pkg "module plugins"
 
   inputJob.bindM (sync := true) fun input => do
   impInfoJob.bindM (sync := true) fun info => do
@@ -1511,15 +1511,15 @@ def recComputeModuleLinkInfo
     for facet in mod.nativeFacets shouldExport do
       objJobs := objJobs.push <| ← facet.fetch mod
   for link in root.lib.moreLinkObjs do
-    objJobs := objJobs.push <| ← link.fetchIn root.pkg
+    objJobs := objJobs.push <| ← link.fetchInBlocking root.pkg
   let libs := imports.foldl (·.insert ·.lib) OrdHashSet.empty |>.toArray
   for lib in libs do
     for link in lib.moreLinkObjs do
-      objJobs := objJobs.push <| ← link.fetchIn lib.pkg
+      objJobs := objJobs.push <| ← link.fetchInBlocking lib.pkg
     for link in lib.moreLinkLibs do
-      libJobs := libJobs.push <| ← link.fetchIn lib.pkg
+      libJobs := libJobs.push <| ← link.fetchInBlocking lib.pkg
   for link in root.lib.moreLinkLibs do
-    libJobs := libJobs.push <| ← link.fetchIn root.pkg
+    libJobs := libJobs.push <| ← link.fetchInBlocking root.pkg
   let deps := (← (← root.pkg.transDeps.fetch).await).push root.pkg
   for dep in deps do
     for lib in dep.externLibs do
@@ -1561,7 +1561,7 @@ def Module.recBuildDynlib (mod : Module) : FetchM (Job Dynlib) :=
     let imps ← (← mod.imports.fetch).await
     let libJobs ← mod.fetchImportLibs imps true true
     let libJobs ← mod.lib.moreLinkLibs.foldlM
-      (·.push <$> ·.fetchIn mod.pkg) libJobs
+      (·.push <$> ·.fetchInBlocking mod.pkg) libJobs
     let libJobs ← mod.pkg.externLibs.foldlM
       (·.push <$> ·.dynlib.fetch) libJobs
     return libJobs
@@ -1649,8 +1649,8 @@ def setupEditedModule
     mod.fetchImportLibs precompileImports mod.shouldPrecompile mod.shouldPrecompileImports
   let externLibsJob ← Job.collectArray (traceCaption := "package external libraries") <$>
     if mod.shouldPrecompileImports then mod.pkg.externLibs.mapM (·.dynlib.fetch) else pure #[]
-  let dynlibsJob ← mod.dynlibs.fetchIn mod.pkg "module dynlibs"
-  let pluginsJob ← mod.plugins.fetchIn mod.pkg "module plugins"
+  let dynlibsJob ← mod.dynlibs.fetchInBlocking mod.pkg "module dynlibs"
+  let pluginsJob ← mod.plugins.fetchInBlocking mod.pkg "module plugins"
   extraDepJob.bindM (sync := true) fun _ => do
   impInfoJob.bindM (sync := true) fun info => do
   impLibsJob.bindM (sync := true) fun impLibs => do
@@ -1692,8 +1692,8 @@ def setupExternalModule
   let impLibsJob ← fetchImportLibs precompileImports
   let externLibsJob ← Job.collectArray <$>
     if root.precompileModules then root.externLibs.mapM (·.dynlib.fetch) else pure #[]
-  let dynlibsJob ← root.dynlibs.fetchIn root
-  let pluginsJob ← root.plugins.fetchIn root
+  let dynlibsJob ← root.dynlibs.fetchInBlocking root
+  let pluginsJob ← root.plugins.fetchInBlocking root
   extraDepJob.bindM (sync := true) fun _ =>
   impInfoJob.bindM (sync := true) fun info =>
   impLibsJob.bindM (sync := true) fun impLibs =>

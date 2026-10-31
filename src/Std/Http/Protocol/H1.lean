@@ -1438,22 +1438,29 @@ Parses one request start-line in server mode and initializes `reader.messageHead
 for header parsing.
 -/
 private partial def processReceivingStartLine (machine : Machine .receiving) : Machine .receiving :=
-  let (machine, result) := parseWith machine
+  -- `maxStartLineLength` is checked on the complete line only: on an incomplete line it fires before
+  -- the parser's `maxUriLength` check, so the status would depend on where a read ends. The parser's
+  -- own limits (leading empty lines, method, `maxUriLength`) bound an incomplete line.
+  let remaining := machine.reader.input.remainingBytes
+  let (parsed, result) := parseWith machine
     (parseRequestLineRawVersion machine.config)
-    (limit := some machine.config.maxStartLineLength)
+    (limit := none)
     (onHardError := classifyStartLineHardError)
 
   match result with
   | some (method, uri, version) =>
-    match version with
-    | some (v@Version.v11) | some (v@Version.v10) =>
-      machine
-      |>.modifyReader (.setMessageHead { method, version := v, uri, headers := .empty })
-      |>.setReaderState (.needHeader 0)
-      |> processRead
-    | _ => machine.setFailure .unsupportedVersion
+    if remaining - parsed.reader.input.remainingBytes > machine.config.maxStartLineLength then
+      machine.setFailure .badMessage
+    else
+      match version with
+      | some (v@Version.v11) | some (v@Version.v10) =>
+        parsed
+        |>.modifyReader (.setMessageHead { method, version := v, uri, headers := .empty })
+        |>.setReaderState (.needHeader 0)
+        |> processRead
+      | _ => parsed.setFailure .unsupportedVersion
   | none =>
-    machine
+    parsed
 
 /--
 Parses one response start-line in client mode and initializes

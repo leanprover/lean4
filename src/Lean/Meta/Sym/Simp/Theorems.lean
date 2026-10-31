@@ -25,7 +25,11 @@ Contains both the theorem expression and a precomputed pattern for efficient uni
 during rewriting.
 -/
 structure Theorem where
-  /-- The theorem expression, typically `Expr.const declName` for a named theorem. -/
+  /--
+  The theorem expression, typically `Expr.const declName` for a named theorem. If preprocessing
+  changed the statement, it carries an expected type hint, so that the kernel checks the change once
+  on the theorem rather than at each instantiation, where it can re-evaluate `match` discriminants.
+  -/
   expr    : Expr
   /-- Precomputed pattern extracted from the theorem's type for efficient matching. -/
   pattern : Pattern
@@ -49,6 +53,16 @@ structure Theorem where
 
 instance : BEq Theorem where
   beq thm₁ thm₂ := thm₁.expr == thm₂.expr
+
+/--
+Returns the declaration name when the stored proof is a constant,
+optionally wrapped in an expected-type hint.
+-/
+def Theorem.declName? (thm : Theorem) : Option Name :=
+  let e := match_expr thm.expr with | id _ e => e | _ => thm.expr
+  match e with
+  | .const declName _ => some declName
+  | _ => none
 
 /-- Collection of simplification theorems available to the simplifier. -/
 structure Theorems where
@@ -209,8 +223,13 @@ private def ensurePropType (type : Expr) (declName? : Option Name := none) : Met
 def mkTheoremFromDecl (declName : Name) : MetaM Theorem := do
   let info ← getConstInfo declName
   ensurePropType info.type declName
-  let (pattern, (rhs, adaptation)) ← mkPatternFromDeclWithKey declName selectEqKey (zetaReduceLHSOnly := true)
-  let expr ← wrapProof pattern (mkConst declName) adaptation
+  let (levelParams, type, modified) ← preprocessDeclPattern declName (zetaReduceLHSOnly := true)
+  let (pattern, (rhs, adaptation)) ← mkPatternFromTypeWithKey levelParams type selectEqKey
+  let expr := if modified then
+    mkExpectedPropHint (mkConst declName (levelParams.map mkLevelParam)) type
+  else
+    mkConst declName
+  let expr ← wrapProof pattern expr adaptation
   let perm := isPerm pattern.varTypes.size pattern.pattern rhs
   let rhsVarMask := mkRhsVarMask pattern.varTypes.size rhs
   return { expr, pattern, rhs, perm, rhsVarMask }
@@ -218,8 +237,12 @@ def mkTheoremFromDecl (declName : Name) : MetaM Theorem := do
 /-- Create a `Theorem` from a proof expression. Handles equalities, `¬`, `↔`, and propositions. -/
 def mkTheoremFromExpr (e : Expr) : MetaM Theorem := do
   ensurePropType (← inferType e)
-  let (pattern, (rhs, adaptation)) ← mkPatternFromExprWithKey e [] selectEqKey (zetaReduceLHSOnly := true)
-  let expr ← wrapProof pattern e adaptation
+  let (levelParams, type, modified) ← preprocessExprPattern e [] (zetaReduceLHSOnly := true)
+  let (pattern, (rhs, adaptation)) ← mkPatternFromTypeWithKey levelParams type selectEqKey
+  -- When `e` contains free variables, `preprocessLCtx` may have already unfolded reducible
+  -- constants in their local declarations even though the outer goal retains the original types.
+  let expr := if modified || e.hasFVar then mkExpectedPropHint e type else e
+  let expr ← wrapProof pattern expr adaptation
   let perm := isPerm pattern.varTypes.size pattern.pattern rhs
   let rhsVarMask := mkRhsVarMask pattern.varTypes.size rhs
   return { expr, pattern, rhs, perm, rhsVarMask }
@@ -298,11 +321,11 @@ def mkSymSimpExt (name : Name := by exact decl_name%) : IO SymSimpExtension :=
     initial  := {}
     addEntry := fun thms thm => thms.insert thm
     exportEntry? := fun _ thm =>
-      match thm.expr with
-      | .const declName _ =>
+      match thm.declName? with
+      | some declName =>
         if isPrivateName declName then ⟨none, none, some thm⟩
         else .uniform (some thm)
-      | _ => .uniform (some thm)
+      | none => .uniform (some thm)
   }
 
 abbrev SymSimpExtensionMap := Std.HashMap Name SymSimpExtension

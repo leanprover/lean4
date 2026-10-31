@@ -38,3 +38,20 @@ example (n : Nat) : n + 0 = n := by sym_simp_set [my_sym_simp]
 
 -- Test: equation theorems from definition
 example : myAdd 3 2 = 5 := by sym_simp_set [my_sym_simp]
+
+-- Private `@[sym_simp]` and `@[grind norm]` theorems whose types are modified by
+-- `Sym.preprocessType` must not be exported across a `module` boundary.
+/--
+error: `Sym.simp` made no progress
+-/
+#guard_msgs in
+example (x : Nat) : privTarget x = x + 1 := by
+  sym => simp
+
+set_option backward.grind.normalizer false in
+/--
+error: `grind` has failed, use `+verbose` to obtain diagnostic information
+-/
+#guard_msgs in
+example (x : Nat) : privTarget x = x + 1 := by
+  grind

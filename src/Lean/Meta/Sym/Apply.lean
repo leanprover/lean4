@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Lean.Meta.Sym.Pattern
+import Lean.Meta.AppBuilder
 import Lean.Util.CollectFVars
 import Init.Data.Range.Polymorphic.Iterators
 namespace Lean.Meta.Sym
@@ -18,7 +19,11 @@ will unify `T` with `P`, assign the goal to the theorem application,
 and return new goals for the unassigned arguments in `xs`.
 -/
 public structure BackwardRule where
-  /-- The theorem used to create the rule. It is often of the form `Expr.const declName`. -/
+  /--
+  The theorem used to create the rule. It is often of the form `Expr.const declName`. If
+  preprocessing changed the statement of a proof, it carries an expected type hint, see
+  `Simp.Theorem.expr`.
+  -/
   expr      : Expr
   /-- Precomputed pattern for efficient unification. -/
   pattern   : Pattern
@@ -84,9 +89,15 @@ The `num?` parameter optionally limits how many arguments are included in the pa
 (useful for partially applying theorems).
 -/
 public def mkBackwardRuleFromDecl (declName : Name) (num? : Option Nat := none) : MetaM BackwardRule := do
-  let pattern ← mkPatternFromDecl declName num?
+  let (levelParams, type, modified) ← preprocessDeclPattern declName
+  let pattern ← mkPatternFromType levelParams type num?
   let resultPos := mkResultPos pattern
-  return { expr := mkConst declName, pattern, resultPos }
+  -- Proofs only: the value of a data rule can occur in later goals, where `id` blocks matching.
+  let expr := if modified && (← isProp type) then
+    mkExpectedPropHint (mkConst declName (levelParams.map mkLevelParam)) type
+  else
+    mkConst declName
+  return { expr, pattern, resultPos }
 
 /--
 Creates a `BackwardRule` from an expression.
@@ -98,10 +109,14 @@ The `num?` parameter optionally limits how many arguments are included in the pa
 (useful for partially applying theorems).
 -/
 public def mkBackwardRuleFromExpr (e : Expr) (levelParams : List Name := []) (num? : Option Nat := none) : MetaM BackwardRule := do
-  let pattern ← mkPatternFromExpr e levelParams num?
+  let (levelParams', type, modified) ← preprocessExprPattern e levelParams
+  let pattern ← mkPatternFromType levelParams' type num?
   let resultPos := mkResultPos pattern
-  let e := e.instantiateLevelParams levelParams (pattern.levelParams.map mkLevelParam)
-  return { expr := e, pattern, resultPos }
+  let e := e.instantiateLevelParams levelParams (levelParams'.map mkLevelParam)
+  -- When `e` contains free variables, `preprocessLCtx` may have already unfolded reducible
+  -- constants in their local declarations even though the outer goal retains the original types.
+  let expr := if (modified || e.hasFVar) && (← isProp type) then mkExpectedPropHint e type else e
+  return { expr, pattern, resultPos }
 
 /--
 Creates a value to assign to input goal metavariable using unification result.

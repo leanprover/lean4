@@ -46,7 +46,7 @@ namespace ArtifactDescr
 public instance : ToString ArtifactDescr := ⟨(·.relPath.toString)⟩
 public instance : ToJson ArtifactDescr := ⟨(toJson ·.relPath)⟩
 
-/-- Parse an output's relative file path into an `ArtifactDescr`. -/
+/-- Parse an output's file name into an `ArtifactDescr`, rejecting path separators and `..`. -/
 public def ofFilePath? (path : FilePath) : Except String ArtifactDescr := do
   let s := path.toString
   let pos := s.find '.'
@@ -58,6 +58,8 @@ public def ofFilePath? (path : FilePath) : Except String ArtifactDescr := do
     let some hash := Hash.ofString? <| s.extract s.startPos pos
       | throw "expected artifact file name to be a content hash"
     let ext := s.extract (pos.next h) s.endPos
+    if ext.contains '/' || ext.contains '\\' || ext.contains ".." then
+      throw "artifact file extension must not contain path separators or '..'"
     return {hash, ext}
 
 public protected def fromJson? (data : Json) : Except String ArtifactDescr := do

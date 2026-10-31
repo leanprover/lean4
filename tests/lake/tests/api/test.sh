@@ -7,4 +7,5 @@ source ../common.sh
 test_run -f keys.lean resolve-deps
 
 # Run Lean tests
+test_run env lean artifact.lean
 test_run env lean vers.lean

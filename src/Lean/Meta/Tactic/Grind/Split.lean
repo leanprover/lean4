@@ -357,7 +357,7 @@ For example: suppose the subgoal is of the form `p → q → False` where `p` an
 hypotheses introduced during case analysis. If the proof is of the form `fun _ _ => h`, returns
 `some h`.
 -/
-private def getFalseProof? (mvarId : MVarId) : MetaM (Option Expr) := mvarId.withContext do
+private def getFalseProofEager? (mvarId : MVarId) : MetaM (Option Expr) := mvarId.withContext do
   let proof ← instantiateMVars (mkMVar mvarId)
   if proof.hasSyntheticSorry then
     /- **Note**: We do not perform non-chronological backtracking if the proof
@@ -382,6 +382,49 @@ where
       let .lam _ _ b _ := proof | return none
       if b.hasLooseBVars then return none
       go b
+
+/--
+Similar to `getFalseProofEager?`, but without instantiating the proof, which would cost time
+proportional to the size of the proof at every enclosing case split. The proof of a subgoal that
+introduces hypotheses `xs` is usually of the form `fun xs => ?d xs`, where `?d` is delayed-assigned to
+`?p` abstracting `xs`. The body does not depend on `xs` if the summary of `?p` does not contain `xs`,
+see `getProofInfo`. The returned proof is not instantiated either.
+-/
+private partial def getFalseProof? (mvarId : MVarId) : GrindM (Option Expr) := mvarId.withContext do
+  let info ← getProofInfo (mkMVar mvarId)
+  if info.hasSorry || info.hasUnassigned then
+    /- **Note**: We do not perform non-chronological backtracking if the proof
+    contains synthetic `sorry`, or if it is not complete and may still depend on `xs`. -/
+    return none
+  go (mkMVar mvarId)
+where
+  go (proof : Expr) : GrindM (Option Expr) := do
+    let proof := proof.headBeta
+    if let .mvar m := proof.getAppFn then
+      if let some val ← getExprMVarAssignment? m then
+        return (← go (val.beta proof.getAppArgs))
+    match_expr proof with
+    | False.elim _ p => return some p
+    | False.casesOn _ p => return some p
+    | id α p => if α.isFalse then return some p else return none
+    | _ =>
+      let .lam .. := proof | return none
+      let n := proof.getNumHeadLambdas
+      let b := lambdaBody n proof
+      if !b.hasLooseBVars then return (← go b)
+      let .mvar d := b.getAppFn | fallback
+      let args := b.getAppArgs
+      unless args.size == n && args.toList.zipIdx.all (fun (a, i) => a == mkBVar (n - 1 - i)) do
+        return (← fallback)
+      let some { fvars, mvarIdPending } ← getDelayedMVarAssignment? d | fallback
+      unless fvars.size == n do return (← fallback)
+      let info ← getProofInfo (mkMVar mvarIdPending)
+      if fvars.any fun x => info.fvars.contains x.fvarId! then return none
+      go (mkMVar mvarIdPending)
+  fallback : GrindM (Option Expr) := getFalseProofEager? mvarId
+  lambdaBody : Nat → Expr → Expr
+    | n+1, .lam _ _ b _ => lambdaBody n b
+    | _, e => e
 
 /-- Returns `true` if the given list can be compressed using `<;>` at `splitCore` -/
 private def isCompressibleSeq (seq : List (TSyntax `grind)) : Bool :=
@@ -523,7 +566,7 @@ def splitCore (c : SplitInfo) (numCases : Nat) (isRec : Bool)
       if let some (s, falseProof, seq) := ncb? then
         -- Keeping the case-split failed, so we backtrack using the proof that does not need it.
         s.restore
-        goal.mvarId.assignFalseProof (← mkHoistedDecls (← getHoistedDecls goal) falseProof)
+        goal.mvarId.assignFalseProof (← goal.withContext <| mkHoistedDecls (← getHoistedDecls goal) falseProof (mkConst ``False))
         return .closed seq
       if stopAtFirstFailure then
         /-
@@ -542,7 +585,7 @@ def splitCore (c : SplitInfo) (numCases : Nat) (isRec : Bool)
         candidates that `seq` references using anchors. Otherwise, we keep the case-split.
         -/
         if (← checkSeqAt saved? goal₀ seq) then
-          goal.mvarId.assignFalseProof (← mkHoistedDecls (← getHoistedDecls goal) falseProof)
+          goal.mvarId.assignFalseProof (← goal.withContext <| mkHoistedDecls (← getHoistedDecls goal) falseProof (mkConst ``False))
           return .closed seq
         if ncb?.isNone then
           ncb? := some (← saveState, falseProof, seq)
@@ -551,7 +594,7 @@ def splitCore (c : SplitInfo) (numCases : Nat) (isRec : Bool)
       else if !seq.isEmpty then
         /- **Note**: if the sequence is empty, it means the user will never see this goal. -/
         seqNew := seqNew.push seq
-  let proof ← mkHoistedDecls (← getHoistedDecls goal) (← instantiateMVars (mkMVar mvarId))
+  let proof ← goal.withContext do mkHoistedDecls (← getHoistedDecls goal) (mkMVar mvarId) (← mvarId.getType)
   if (← goal.mvarId.getType).isFalse then
     /- **Note**: We add the marker to assist `getFalseExpr?` -/
     goal.mvarId.assign (mkExpectedPropHint proof (mkConst ``False))

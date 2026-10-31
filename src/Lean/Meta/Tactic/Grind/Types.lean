@@ -389,6 +389,20 @@ structure HoistedDecls where
   /-- Maps each key to the free variable of its declaration in `front` or `decls`. -/
   keys  : Std.HashMap HoistKey FVarId := {}
 
+/--
+Summary of the instantiation of a proof, see `getProofInfo`: its free variables, and whether it
+contains a synthetic `sorry`.
+-/
+structure ProofInfo where
+  fvars    : FVarIdSet := {}
+  hasSorry : Bool := false
+  /--
+  Whether the proof contains an unassigned metavariable of `grind`'s depth, e.g., the goal of a
+  subgoal that is still open. Assigning it may change the summary.
+  -/
+  hasUnassigned : Bool := false
+  deriving Inhabited
+
 /-- State for the `GrindM` monad. -/
 structure State where
   /--
@@ -437,6 +451,11 @@ structure State where
   instanceMap : Std.HashMap Name EMatchTheorem := {}
   /-- Declarations hoisted to the case splits in progress, indexed by the metavariable of the goal being split. -/
   hoistedDecls : Std.HashMap MVarId HoistedDecls := {}
+  /--
+  Cache for `getProofInfo`: maps a metavariable to its assignment and the summary of the assignment's
+  instantiation. An entry is only valid while the metavariable is assigned to the same expression.
+  -/
+  proofInfos : Std.HashMap MVarId (Expr × ProofInfo) := {}
 
 instance : Nonempty State :=
   .intro {}
@@ -1384,30 +1403,131 @@ partial def instantiateMVarsResolvingDelayed (e : Expr) : MetaM Expr := do
             mvarId.assign (pendingDecl.lctx.mkLambda fvars val)
   instantiateMVars e
 
+private def ProofInfo.union (a b : ProofInfo) : ProofInfo :=
+  { fvars := b.fvars.union a.fvars
+    hasSorry := a.hasSorry || b.hasSorry
+    hasUnassigned := a.hasUnassigned || b.hasUnassigned }
+
+private structure ProofInfoState where
+  info    : ProofInfo := {}
+  visited : Std.HashSet ExprPtr := {}
+
 /--
-Wraps `e` with each declaration in `decls` that `e` uses, directly or through other declarations.
+Returns a `ProofInfo` summary of `e` by following metavariable assignments without constructing
+the instantiated expression. Collects free variables and synthetic `sorry` occurrences, and
+reports whether the traversal encounters an unassigned metavariable at the current depth.
+
+For an ordinary metavariable application `?m as`, combines the summary of `?m`'s assignment,
+if any, with the summaries of all arguments `as`, including arguments the assignment ignores.
+For a delayed assignment `?d #[xs] := ?p`, summarizes `?p`'s assignment, removes `xs` from its
+free variables, and combines the result with the summaries of all arguments to `?d`.
+The local declarations of `xs` are not traversed, so dependencies in binder types that would
+remain after resolving a partially applied delayed assignment are not included.
+
+Unassigned metavariables contribute no free variables or synthetic `sorry` occurrences.
+Only those at the current depth set `hasUnassigned`. During `grind`'s protected
+`withNewMCtxDepth` block, outer-depth metavariables cannot be assigned, and their local contexts
+cannot contain free variables introduced by `grind`. Their eventual assignments may change
+the summary after the protected computation ends.
+
+Summaries of assigned metavariables with `hasUnassigned = false` are cached in `State.proofInfos`.
+A cached summary is reused only while the metavariable's assignment is the same expression.
+This avoids repeatedly traversing shared assignments, such as proofs used by nested case splits.
 -/
-def mkHoistedDecls (decls : HoistedDecls) (e : Expr) : MetaM Expr := do
+partial def getProofInfo (e : Expr) : GrindM ProofInfo := do
+  let (_, s) ← (go e).run {}
+  return s.info
+where
+  add (info : ProofInfo) : StateT ProofInfoState GrindM Unit :=
+    modify fun s => { s with info := s.info.union info }
+  mvarInfo (mvarId : MVarId) : GrindM ProofInfo := do
+    let some val ← getExprMVarAssignment? mvarId
+      | return { hasUnassigned := (← mvarId.isAssignable) }
+    if let some (val', info) := (← get).proofInfos[mvarId]? then
+      if isSameExpr val val' then return info
+    let info ← getProofInfo val
+    unless info.hasUnassigned do
+      modify fun s => { s with proofInfos := s.proofInfos.insert mvarId (val, info) }
+    return info
+  goMVarApp (mvarId : MVarId) (args : Array Expr) : StateT ProofInfoState GrindM Unit := do
+    if let some { fvars, mvarIdPending } ← getDelayedMVarAssignment? mvarId then
+      let info ← mvarInfo mvarIdPending
+      add { info with fvars := fvars.foldl (init := info.fvars) fun s x => s.erase x.fvarId! }
+    else
+      add (← mvarInfo mvarId)
+    args.forM go
+  go (e : Expr) : StateT ProofInfoState GrindM Unit := do
+    if (← get).visited.contains { expr := e } then return
+    modify fun s => { s with visited := s.visited.insert { expr := e } }
+    if !e.hasFVar && !e.hasMVar then
+      if e.hasSyntheticSorry then modify fun s => { s with info.hasSorry := true }
+      return
+    match e with
+    | .fvar fvarId => modify fun s => { s with info.fvars := s.info.fvars.insert fvarId }
+    | .mvar mvarId => goMVarApp mvarId #[]
+    | .app .. => e.withApp fun f args => do
+      match f with
+      | .mvar mvarId => goMVarApp mvarId args
+      | .const ``sorryAx _ =>
+        if e.isSyntheticSorry then modify fun s => { s with info.hasSorry := true }
+        args.forM go
+      | _ => go f; args.forM go
+    | .lam _ d b _ | .forallE _ d b _ => go d; go b
+    | .letE _ t v b _ => go t; go v; go b
+    | .mdata _ b | .proj _ _ b => go b
+    | _ => return
+
+/--
+Wraps `e : type` in `let` bindings for selected hoisted declarations. The proof may refer to
+hoisted free variables, directly or through metavariable assignments, even when those variables
+are absent from the current local context.
+
+Declarations are ordered as `decls.front.reverse ++ decls.decls`. Using `getProofInfo`, selects
+declarations referenced by `e` and recursively by the values of selected declarations. Each value
+may depend only on earlier declarations in this order. If the summary of `e` has `hasUnassigned`,
+keeps all declarations; if the summary of a selected value has `hasUnassigned`, keeps all earlier
+declarations, since later assignments may introduce dependencies on them.
+
+Dependency selection does not inspect `type` or declaration types. Declaration types are copied
+unchanged into the `let` bindings, so they must not refer to the hoisted free variables being bound.
+Every selected declaration must have a value; otherwise, throws an internal error.
+
+The body of the `let` bindings is an application of a fresh delayed-assigned metavariable whose
+pending metavariable is assigned `e`. This postpones abstraction of the selected free variables
+in `e` until the delayed assignment is resolved, without instantiating `e` here.
+Returns `e` unchanged if no declarations are selected.
+-/
+def mkHoistedDecls (decls : HoistedDecls) (e type : Expr) : GrindM Expr := do
   let all := decls.front.reverse ++ decls.decls
   if all.isEmpty then return e
   /-
-  The declarations may occur in subterms that `instantiateMVars` leaves behind delayed assignments,
-  e.g., when the goal contains metavariables created before `grind`.
+  A declaration only uses the ones before it, so a reverse scan finds the used declarations. If a proof
+  is incomplete, e.g., it contains the goal of a subgoal that is still open, we keep all declarations
+  before it.
   -/
-  let e ← instantiateMVarsResolvingDelayed e
-  -- A declaration only uses the ones before it, so a reverse scan finds the used declarations.
-  let mut used := collectFVars {} e
+  let info ← getProofInfo e
+  let mut used := info.fvars
+  let mut keepAll := info.hasUnassigned
   let mut kept := #[]
   for decl in all.reverse do
-    if used.fvarSet.contains decl.fvarId then
+    if keepAll || used.contains decl.fvarId then
       let some value := decl.value?
         | throwError "`grind` internal error, hoisted declaration has no value"
-      used := collectFVars used value
+      let valueInfo ← getProofInfo value
+      used := valueInfo.fvars.union used
+      keepAll := keepAll || valueInfo.hasUnassigned
       kept := kept.push (decl, value)
+  if kept.isEmpty then return e
   kept := kept.reverse
-  -- Abstract all declarations in a single pass, as `mkLetFVars` does.
   let xs := kept.map fun (decl, _) => mkFVar decl.fvarId
-  let mut e := e.abstract xs
+  -- As in `intro`, `?pending` is declared in a context containing `xs` as local hypotheses.
+  let lctx := kept.foldl (init := ← getLCtx) fun lctx (decl, _) =>
+    lctx.mkLocalDecl decl.fvarId decl.name decl.type
+  let pending ← mkFreshExprMVarAt lctx (← getLocalInstances) type .syntheticOpaque
+  pending.mvarId!.assign e
+  let d ← mkFreshExprMVar (lctx.mkForall xs type) .syntheticOpaque
+  assignDelayedMVar d.mvarId! xs pending.mvarId!
+  let mut e := mkAppN d ((List.range kept.size).reverse.toArray.map mkBVar)
   let mut i := kept.size
   for (decl, value) in kept.reverse do
     i := i - 1

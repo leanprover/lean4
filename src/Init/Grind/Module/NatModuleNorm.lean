@@ -177,12 +177,31 @@ theorem Expr.denoteN_toPolyN {α} [NatModule α] (ctx : Context α) (e : Expr) :
   next => rw [Poly.denoteN_combine]; simp [*]; apply toPolyN_Nonneg; apply toPolyN_Nonneg
   next => rw [Poly.denoteN_mul]; simp [*]; apply toPolyN_Nonneg
 
-def eq_normN_cert (lhs rhs : Expr) : Bool :=
-  lhs.toPolyN == rhs.toPolyN
+/-- The denotation used when matching natural-module certificates against user terms. -/
+noncomputable def Expr.denoteN_k {α} [NatModule α] (ctx : Context α) (e : Expr) : α :=
+  Expr.rec 0 (fun v => v.denote ctx) (fun _ _ a b => a + b) (fun _ _ _ _ => 0)
+    (fun _ _ => 0) (fun k _ a => k • a) (fun _ _ _ => 0) e
+
+@[simp] theorem Expr.denoteN_k_eq {α} [NatModule α] (ctx : Context α) (e : Expr) :
+    e.denoteN_k ctx = e.denoteN ctx := by
+  induction e <;> simp_all [denoteN_k, denoteN]
+
+/-- Natural-module polynomial normalization using the kernel arithmetic operations. -/
+noncomputable def Expr.toPolyN_k (e : Expr) : Poly :=
+  Expr.rec .nil (fun v => .add 1 v .nil) (fun _ _ a b => a.combine_k b)
+    (fun _ _ _ _ => .nil) (fun _ _ => .nil)
+    (fun k _ a => a.mul_k (Int.ofNat k)) (fun _ _ _ => .nil) e
+
+@[simp] theorem Expr.toPolyN_k_eq (e : Expr) : e.toPolyN_k = e.toPolyN := by
+  induction e <;> simp_all [toPolyN_k, toPolyN, Poly.mul_k_eq]
+
+noncomputable def eq_normN_cert (lhs rhs : Expr) : Bool :=
+  lhs.toPolyN_k.beq' rhs.toPolyN_k
 
 theorem eq_normN {α} [NatModule α] (ctx : Context α) (lhs rhs : Expr)
-    : eq_normN_cert lhs rhs → lhs.denoteN ctx = rhs.denoteN ctx := by
-  simp [eq_normN_cert]; intro h
+    : eq_normN_cert lhs rhs → lhs.denoteN_k ctx = rhs.denoteN_k ctx := by
+  simp only [eq_normN_cert, Poly.beq'_eq, Expr.toPolyN_k_eq, Expr.denoteN_k_eq]
+  intro h
   replace h := congrArg (Poly.denoteN ctx) h
   simp [Expr.denoteN_toPolyN, *] at h
   assumption

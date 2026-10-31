@@ -339,6 +339,31 @@ info: Std.Http.RequestTarget.authorityForm
   let result ← runParser parseRequestTarget "192.168.1.1:3000"
   IO.println (repr result)
 
+-- A host that begins with an IPv4 address and goes on is a name.
+/--
+info: Std.Http.RequestTarget.authorityForm
+  { userInfo := none, host := Std.Http.URI.Host.name "1.2.3.4-x.example", port := Std.Http.URI.Port.value 443 }
+-/
+#guard_msgs in
+#eval show IO _ from do
+  let result ← runParser parseRequestTarget "1.2.3.4-x.example:443"
+  IO.println (repr result)
+
+#guard
+  match (parseRequestTarget <* Std.Internal.Parsec.eof).run "http://1.2.3.4x.example/".toUTF8 with
+  | .ok (.absoluteForm uri) => uri.authority.any fun a => toString a.host == "1.2.3.4x.example"
+  | _ => false
+
+#guard
+  match (parseHostHeader <* Std.Internal.Parsec.eof).run "1.2.3.4-x.example:8080".toUTF8 with
+  | .ok (host, port) => toString host == "1.2.3.4-x.example" && port == .value 8080
+  | .error _ => false
+
+#guard
+  match (parseHostHeader <* Std.Internal.Parsec.eof).run "1.2.3.4".toUTF8 with
+  | .ok (.ipv4 _, .omitted) => true
+  | _ => false
+
 /--
 info: Std.Http.RequestTarget.authorityForm
   { userInfo := none, host := Std.Http.URI.Host.ipv6 ::1, port := Std.Http.URI.Port.value 8080 }

@@ -4,13 +4,13 @@ trace: [grind.debug.proof] fun h h_1 h_2 h_3 h_4 h_5 h_6 h_7 h_8 =>
       id
         (let ctx := RArray.branch 1 (RArray.leaf One.one) (RArray.leaf (f 2));
         let p_1 := Poly.nil;
-        let p_2 := Poly.add 1 1 Poly.nil;
-        let p_3 := Poly.add 1 0 Poly.nil;
-        let p_4 := Poly.add (-1) 1 (Poly.add 1 0 Poly.nil);
-        let p_5 := Poly.add (-1) 0 Poly.nil;
-        let e_1 := (Expr.intMul 1 (Expr.var 1)).add (Expr.intMul 0 (Expr.var 0));
+        let p_2 := Poly.add (Int.ofNat 1) 1 Poly.nil;
+        let p_3 := Poly.add (Int.ofNat 1) 0 Poly.nil;
+        let p_4 := Poly.add (Int.negSucc 0) 1 (Poly.add (Int.ofNat 1) 0 Poly.nil);
+        let p_5 := Poly.add (Int.negSucc 0) 0 Poly.nil;
+        let e_1 := (Expr.intMul (Int.ofNat 1) (Expr.var 1)).add (Expr.intMul (Int.ofNat 0) (Expr.var 0));
         let e_2 := Expr.zero;
-        let e_3 := (Expr.intMul (-1) (Expr.var 1)).add (Expr.intMul 1 (Expr.var 0));
+        let e_3 := (Expr.intMul (Int.negSucc 0) (Expr.var 1)).add (Expr.intMul (Int.ofNat 1) (Expr.var 0));
         let rctx := RArray.leaf (f 2);
         let rp_1 :=
           CommRing.Poly.add (Int.ofNat 1) (CommRing.Mon.mult { x := 0, k := 1 } CommRing.Mon.unit)

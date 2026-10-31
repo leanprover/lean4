@@ -11,13 +11,19 @@ public section
 namespace Lean.Meta.Grind.Arith.Linear
 open Grind.Linarith
 /-!
-`ToExpr` instances for `Linarith.Poly` types.
+`ToExpr` instances for linear expressions and polynomials. Coefficients and indices use raw
+literals and integer constructors so that certificate checking avoids overloaded numerals.
 -/
+
+private def ofInt (k : Int) : Expr :=
+  match k with
+  | .ofNat n => mkApp (mkConst ``Int.ofNat) (mkRawNatLit n)
+  | .negSucc n => mkApp (mkConst ``Int.negSucc) (mkRawNatLit n)
 
 def ofPoly (p : Poly) : Expr :=
   match p with
   | .nil => mkConst ``Poly.nil
-  | .add k x p => mkApp3 (mkConst ``Poly.add) (toExpr k) (toExpr x) (ofPoly p)
+  | .add k x p => mkApp3 (mkConst ``Poly.add) (ofInt k) (mkRawNatLit x) (ofPoly p)
 
 instance : ToExpr Poly where
   toExpr := ofPoly
@@ -28,12 +34,12 @@ open Lean.Grind
 def ofLinExpr (e : Linarith.Expr) : Expr :=
   match e with
   | .zero => mkConst ``Linarith.Expr.zero
-  | .var x => mkApp (mkConst ``Linarith.Expr.var) (toExpr x)
+  | .var x => mkApp (mkConst ``Linarith.Expr.var) (mkRawNatLit x)
   | .add a b => mkApp2 (mkConst ``Linarith.Expr.add) (ofLinExpr a) (ofLinExpr b)
   | .sub a b => mkApp2 (mkConst ``Linarith.Expr.sub) (ofLinExpr a) (ofLinExpr b)
   | .neg a => mkApp (mkConst ``Linarith.Expr.neg) (ofLinExpr a)
-  | .natMul k a => mkApp2 (mkConst ``Linarith.Expr.natMul) (toExpr k) (ofLinExpr a)
-  | .intMul k a => mkApp2 (mkConst ``Linarith.Expr.intMul) (toExpr k) (ofLinExpr a)
+  | .natMul k a => mkApp2 (mkConst ``Linarith.Expr.natMul) (mkRawNatLit k) (ofLinExpr a)
+  | .intMul k a => mkApp2 (mkConst ``Linarith.Expr.intMul) (ofInt k) (ofLinExpr a)
 
 instance : ToExpr Linarith.Expr where
   toExpr := ofLinExpr

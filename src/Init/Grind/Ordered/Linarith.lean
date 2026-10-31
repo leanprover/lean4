@@ -255,15 +255,6 @@ theorem Expr.denote_norm {α} [IntModule α] (ctx : Context α) (e : Expr) : e.n
 attribute [local simp] Expr.denote_norm
 attribute [local simp] Poly.denote'_eq_denote
 
-def eq_norm_cert (lhs rhs : Expr) : Bool :=
-  lhs.norm == rhs.norm
-
-theorem eq_of_norm_eq {α} [IntModule α] (ctx : Context α) (lhs rhs : Expr)
-    : eq_norm_cert lhs rhs → lhs.denote ctx = rhs.denote ctx := by
-  simp [eq_norm_cert]; intro h
-  replace h := congrArg (Poly.denote ctx) h
-  simpa only [Expr.denote_norm] using h
-
 /-!
 Kernel-reduction variants of the polynomial functions used by the certificates, written with
 recursors, `Bool.rec`, and the operations of `Init.Data.Int.Kernel`.
@@ -319,6 +310,22 @@ theorem Poly.combine_k_add_add (a₁ : Int) (x₁ : Var) (p₁ : Poly) (a₂ : I
         (Bool.rec (.add a₂ x₂ ((Poly.add a₁ x₁ p₁).combine_k p₂)) (.add a₁ x₁ (p₁.combine_k (.add a₂ x₂ p₂))) (Nat.blt x₂ x₁))
         (Bool.rec (.add (Int.add_k a₁ a₂) x₁ (p₁.combine_k p₂)) (p₁.combine_k p₂) (Int.beqZero_k (Int.add_k a₁ a₂)))
         (Nat.beq x₁ x₂) := rfl
+
+@[simp] theorem Poly.combine_k_eq (p₁ p₂ : Poly) : p₁.combine_k p₂ = p₁.combine p₂ := by
+  induction p₁ generalizing p₂ with
+  | nil => simp [combine_k, combine]
+  | add a₁ x₁ p₁ ih₁ =>
+    induction p₂ with
+    | nil => simp [combine_k, combine]
+    | add a₂ x₂ p₂ ih₂ =>
+      rw [combine_k_add_add, combine]
+      change _ = (bif Nat.beq x₁ x₂ then
+        bif (a₁ + a₂ == 0) then p₁.combine p₂ else .add (a₁ + a₂) x₁ (p₁.combine p₂)
+        else bif Nat.blt x₂ x₁ then .add a₁ x₁ (p₁.combine (.add a₂ x₂ p₂))
+        else .add a₂ x₂ ((Poly.add a₁ x₁ p₁).combine p₂))
+      rw [Int.beqZero_k_eq, Int.add_k_eq, Int.add_def]
+      cases Nat.beq x₁ x₂ <;> cases Nat.blt x₂ x₁ <;> cases (a₁ + a₂ == 0) <;>
+        simp_all
 
 @[simp] theorem Poly.denote_combine_k {α} [IntModule α] (ctx : Context α) (p₁ p₂ : Poly) :
     (p₁.combine_k p₂).denote ctx = p₁.denote ctx + p₂.denote ctx := by
@@ -435,6 +442,16 @@ noncomputable def Expr.norm_k (e : Expr) : Poly :=
 
 @[simp] theorem Expr.norm_k_eq (e : Expr) : e.norm_k = e.norm := by
   unfold norm_k norm toPoly'_k toPoly'; rw [Poly.norm_k_eq, Expr.toPoly'_k_go]
+
+noncomputable def eq_norm_cert (lhs rhs : Expr) : Bool :=
+  lhs.norm_k.beq' rhs.norm_k
+
+theorem eq_of_norm_eq {α} [IntModule α] (ctx : Context α) (lhs rhs : Expr)
+    : eq_norm_cert lhs rhs → lhs.denote_k ctx = rhs.denote_k ctx := by
+  simp only [eq_norm_cert, Poly.beq'_eq, Expr.norm_k_eq, Expr.denote_k_eq_denote]
+  intro h
+  have h := congrArg (Poly.denote ctx) h
+  simpa only [Expr.denote_norm] using h
 
 def Poly.leadCoeff (p : Poly) : Int :=
   match p with

@@ -105,6 +105,14 @@ syntax (name := «showState») "show_state" ppSpace grindFilter : grind
 /-- Show active local theorems and their anchors for heuristic instantiation. -/
 syntax (name := showLocalThms) "show_local_thms" : grind
 /--
+Shows active E-matching theorems and their patterns, including local theorems.
+`show_patterns [thm₁, ...]` instead shows the patterns of the specified theorems, using the same
+theorem references and modifiers as `instantiate`. This also supports theorems supplied only to
+`use` or `instantiate`, which need not be active in the goal.
+Neither form instantiates or activates theorems. Pattern variables are displayed as de Bruijn indices.
+-/
+syntax (name := showPatterns) "show_patterns" (" [" withoutPosition(thm,*,?) "]")? : grind
+/--
 `show_term tac` runs `tac`, then displays the generated proof in the InfoView.
 -/
 syntax (name := showTerm) "show_term " grindSeq : grind

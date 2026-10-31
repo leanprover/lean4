@@ -19,7 +19,11 @@ will unify `T` with `P`, assign the goal to the theorem application,
 and return new goals for the unassigned arguments in `xs`.
 -/
 public structure BackwardRule where
-  /-- The theorem used to create the rule. It is often of the form `Expr.const declName`. -/
+  /--
+  The theorem used to create the rule. It is often of the form `Expr.const declName`. If
+  preprocessing changed the statement of a proof, it carries an expected type hint, see
+  `Simp.Theorem.expr`.
+  -/
   expr      : Expr
   /-- Precomputed pattern for efficient unification. -/
   pattern   : Pattern
@@ -88,10 +92,11 @@ public def mkBackwardRuleFromDecl (declName : Name) (num? : Option Nat := none) 
   let (levelParams, type, modified) ← preprocessDeclPattern declName
   let pattern ← mkPatternFromType levelParams type num?
   let resultPos := mkResultPos pattern
-  let expr ← if modified then
-    mkExpectedTypeHint (mkConst declName (levelParams.map mkLevelParam)) type
+  -- Proofs only: the value of a data rule can occur in later goals, where `id` blocks matching.
+  let expr := if modified && (← isProp type) then
+    mkExpectedPropHint (mkConst declName (levelParams.map mkLevelParam)) type
   else
-    pure (mkConst declName)
+    mkConst declName
   return { expr, pattern, resultPos }
 
 /--
@@ -110,7 +115,7 @@ public def mkBackwardRuleFromExpr (e : Expr) (levelParams : List Name := []) (nu
   let e := e.instantiateLevelParams levelParams (levelParams'.map mkLevelParam)
   -- When `e` contains free variables, `preprocessLCtx` may have already unfolded reducible
   -- constants in their local declarations even though the outer goal retains the original types.
-  let expr ← if modified || e.hasFVar then mkExpectedTypeHint e type else pure e
+  let expr := if (modified || e.hasFVar) && (← isProp type) then mkExpectedPropHint e type else e
   return { expr, pattern, resultPos }
 
 /--

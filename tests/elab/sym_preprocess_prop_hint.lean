@@ -6,7 +6,11 @@ Regression test for `Sym` rewrite and backward rules whose statements are modifi
 Without an expected type hint (`@id`) on the polymorphic rule before instantiating its parameters,
 the kernel has to check definitional equality between the un-preprocessed and preprocessed rule
 types at the instantiated arguments, which can trigger expensive reduction of `match` discriminants.
+Here that reduction takes 2^100 steps, so the heartbeat limit turns a regression into a kernel
+timeout rather than an out-of-memory failure.
 -/
+
+set_option maxHeartbeats 20000
 
 def tree : Nat → Nat → Bool
   | 0, _ => true
@@ -27,7 +31,7 @@ def viaRed (n : Nat) : Nat :=
   | true => myId 1
   | false => 0
 
-@[sym_simp, cbv_eval] private theorem viaRed_eq (n : Nat) :
+@[sym_simp, cbv_eval] theorem viaRed_eq (n : Nat) :
     viaRed n = match tree n 0 with | true => myId 1 | false => 0 := by
   rfl
 
@@ -38,7 +42,7 @@ def viaEta (n : Nat) : Nat :=
   | true => applyFun (fun x => Nat.succ x) 0
   | false => 0
 
--- 1. `mkTheoremFromDecl` via `Sym.simp` (`Unit` in match equation, reducible unfolding, eta, private `@[sym_simp]`)
+-- 1. `mkTheoremFromDecl` via `Sym.simp` (`Unit` in match equation, reducible unfolding, eta)
 theorem matchSym : viaMatch 100 = 1 := by
   sym => simp [viaMatch.eq_1, tree_eq_true]
 
@@ -48,7 +52,7 @@ theorem redSym : viaRed 100 = 1 := by
 theorem etaSym : viaEta 100 = 1 := by
   sym => simp [viaEta.eq_1, applyFun.eq_1, tree_eq_true]
 
--- 2. `mkTheoremFromDecl` via `cbv` (including `private @[cbv_eval]`)
+-- 2. `mkTheoremFromDecl` via `cbv`
 theorem matchCbv : viaMatch 100 = 1 := by
   cbv
 
@@ -84,4 +88,24 @@ theorem applyExpr (h : ∀ n, Hold (match tree n 0 with | true => 1 | false => 0
     Hold (viaMatch 100) := by
   sym =>
     simp [viaMatch.eq_1]
+    apply h
+
+-- 6. Data rules stay unhinted: their values occur in later goals, where `id` would block matching.
+opaque IsGood : Nat → Prop
+abbrev MyNat := Nat
+def dataRule (x : MyNat) : Nat := x + 1
+axiom isGood_dataRule (x : Nat) : IsGood (dataRule x)
+
+example : ∃ x, IsGood x := by
+  sym =>
+    apply Exists.intro
+    any_goals apply dataRule
+    any_goals apply Nat.zero
+    apply isGood_dataRule
+
+example (f : Nat → Nat) (h : ∀ x, IsGood (f x)) : ∃ x, IsGood x := by
+  sym =>
+    apply Exists.intro
+    any_goals apply f
+    any_goals apply Nat.zero
     apply h

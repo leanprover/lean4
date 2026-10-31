@@ -460,6 +460,7 @@ def analyzeFrameRule (rule : BackwardRule) (opHead : Name) (numExcess : Nat) :
   -- entries of `resultPos`, which reorders the subgoal binders (non-dependent first) into the
   -- applied rule's goal list.
   let resultPos := rule.resultPos.toArray
+  -- Look through the expected type hint: `opHead` may be unfolded in the preprocessed statement.
   let e := match_expr rule.expr with | id _ e => e | _ => rule.expr
   forallTelescope (← Meta.inferType e) fun xs _ => do
     let premiseType (listIdx : Nat) : MetaM Expr :=

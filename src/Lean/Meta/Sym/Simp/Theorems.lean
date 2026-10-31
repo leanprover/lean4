@@ -25,7 +25,11 @@ Contains both the theorem expression and a precomputed pattern for efficient uni
 during rewriting.
 -/
 structure Theorem where
-  /-- The theorem expression, typically `Expr.const declName` for a named theorem. -/
+  /--
+  The theorem expression, typically `Expr.const declName` for a named theorem. If preprocessing
+  changed the statement, it carries an expected type hint, so that the kernel checks the change once
+  on the theorem rather than at each instantiation, where it can re-evaluate `match` discriminants.
+  -/
   expr    : Expr
   /-- Precomputed pattern extracted from the theorem's type for efficient matching. -/
   pattern : Pattern

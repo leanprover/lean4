@@ -594,3 +594,17 @@ public instance instHMulNatCustom : HMul Nat CustomMulT CustomMulT where
 
 structure PrivStruct where
   x : Nat
+
+/-! Structures whose fields have private types, for the unit-like check of `isDefEq`. -/
+
+def HiddenType : Type := Nat
+
+public structure StructWithPrivateFieldType where
+  private mk ::
+  private x : HiddenType
+
+def HiddenUnitType : Type := Unit
+
+public structure UnitLikeWithPrivateFieldType where
+  private mk ::
+  private x : HiddenUnitType

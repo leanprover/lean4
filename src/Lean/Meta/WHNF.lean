@@ -1051,59 +1051,61 @@ def reduceNat? (e : Expr) : MetaM (Option Expr) :=
   | _ =>
     return none
 
-/-- Given a whnf `e`, returns true if the reduction is stuck on an mvar, i.e if `e` is either an mvar, an app whose head function is stuck on an mvar, a projection whose struct is stuck on an mvar, or a recursor whose major is either stuck on an mvar or, in the case the recursor is of a K-like type, if the type of its major contains mvars.
-TODO hangle reduction configurations regarding zeta/iota correctly
--/
-partial def isStuckOnMVar : Expr → MetaM Bool
-  | .bvar _ => unreachable!
-  | .fvar _ | .const .. | .sort _ | .lam .. | .forallE .. |.lit _ => return false
-  | .letE .. => return false --TODO probably wrong
-  | .mvar _  => return true
-  | .mdata _ e | .proj _ _ e => isStuckOnMVar e
-  | e@(.app _ _) => isStuckOnMVarApp e
-where
-  isStuckOnMVarApp (e : Expr) : MetaM Bool :=
-    e.withApp fun hd args => do
-      unless hd.isConst do
-        return (← isStuckOnMVar hd)
-      let constName := hd.constName!
-      if let some info ← getMatcherInfo? constName then
-        let prefixSz := info.numParams + 1 + info.numDiscrs
-        if args.size < prefixSz + info.numAlts then
-          return false
-        let discr := args[info.getDiscrRange.lower:info.getDiscrRange.upper]
-        return discr.any Expr.hasExprMVar -- overapproximation
-      else
-        let some recVal ← isRec? constName | return false
-        let some major := args[recVal.getMajorIdx]? | return false
-        if recVal.k then
-          return (← inferType major).hasMVar
-        else
-          isStuckOnMVar major
+inductive CacheKind where
+  | transient -- problem has mvars or is using nonstandard configuration, we should use transient cache
+  | permanent -- problem does not have mvars and we are using standard config, we can use one persistent cache.
 
-@[inline] private def useWHNFCache : MetaM Bool := do
-  -- We cache only closed terms without expr metavars.
-  -- Potential refinement: cache if `e` is not stuck at a metavariable
-  if (← read).customCanUnfoldPredicate?.isSome then
-    return false
+private def getWhnfCacheKind (t : Expr) : MetaM CacheKind := do
+  if t.hasMVar || (← read).customCanUnfoldPredicate?.isSome then
+    return .transient
   else
-    return true
+    return .permanent
+
+/--
+Structure for storing defeq cache key information.
+-/
+structure WhnfCacheKeyInfo where
+  kind : CacheKind
+  key  : ExprConfigCacheKey
+
+private def mkCacheKey (t : Expr) : MetaM WhnfCacheKeyInfo := do
+  let kind ← getWhnfCacheKind t
+  let key ← mkExprConfigCacheKey t
+  return { key, kind }
+
+private def getCachedResult (keyInfo : WhnfCacheKeyInfo) : MetaM (Option Expr) := do
+  let cache ← match keyInfo.kind with
+    | .transient => pure (← get).cache.whnfTrans
+    | .permanent => pure (← get).cache.whnfPerm
+  match cache.find? keyInfo.key with
+  | some val => return val
+  | none => return none
+
+private def cacheResult (keyInfo : WhnfCacheKeyInfo) (result : Expr) : MetaM Unit := do
+  let key := keyInfo.key
+  match keyInfo.kind with
+  | .permanent => modifyWhnfPermCache fun c => c.insert key result
+  | .transient =>
+    /-
+    We must ensure that all assigned metavariables in the key are replaced by their current assignments.
+    Otherwise, the key is invalid after the assignment is "backtracked".
+    See issue #1870 for an example.
+    -/
+    let key ← mkExprConfigCacheKey (← instantiateMVars key.expr)
+    modifyWhnfTransientCache fun c => c.insert key result
 
 set_option compiler.ignoreBorrowAnnotation true in
 @[export lean_whnf]
 partial def whnfImp (e : Expr) : MetaM Expr :=
   withIncRecDepth <| whnfEasyCases e fun e => do
-    if (← useWHNFCache e) then
       -- one key for the lookup and the insertion: the configuration does not change in between
-      let key ← mkExprConfigCacheKey e
-      match (← get).cache.whnf.find? key with
+      let key ← mkCacheKey e
+      match ← getCachedResult key with
       | some e' => pure e'
       | none    =>
         let r ← whnfUncached e
-        modify fun s => { s with cache.whnf := s.cache.whnf.insert key r }
+        cacheResult key r
         return r
-    else
-      whnfUncached e
 where
   whnfUncached (e : Expr) : MetaM Expr :=
     withTraceNode `Meta.whnf (fun _ => return m!"Non-easy whnf: {e}") do

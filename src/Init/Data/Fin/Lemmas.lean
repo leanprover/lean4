@@ -418,8 +418,10 @@ grind_pattern val_succ => j.succ
 theorem succ_ne_zero {n} : ∀ k : Fin n, Fin.succ k ≠ 0
   | ⟨k, _⟩, heq => Nat.succ_ne_zero k <| congrArg Fin.val heq
 
+@[simp] theorem succ_zero_eq_one' : Fin.succ (0 : Fin (n + 1)) = 1 := rfl
+
 @[simp] theorem succ_zero_eq_one [hn : NeZero n] : Fin.succ (0 : Fin n) = 1 :=
-  n.casesOn (fun hn => (hn.out rfl).elim) (fun _ _ => rfl) hn
+  n.casesOn (fun hn => (hn.out rfl).elim) (fun _ _ => succ_zero_eq_one') hn
 
 /-- Version of `succ_one_eq_two` to be used by `dsimp` -/
 @[simp] theorem succ_one_eq_two : Fin.succ (1 : Fin (n + 2)) = 2 := rfl

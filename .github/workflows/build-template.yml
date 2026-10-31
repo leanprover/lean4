@@ -82,7 +82,7 @@ jobs:
       - name: Setup emsdk
         uses: emscripten-core/setup-emsdk@4528d102f7230f0e7b276855c01ea1159be0e984 # v16
         with:
-          version: 3.1.44
+          version: 6.0.13
           actions-cache-folder: emsdk
         if: matrix.wasm
       - name: Setup Node.js

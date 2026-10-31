@@ -70,6 +70,26 @@ test_err "unknown lint driver package" -f dep-unknown.toml lint
 test_err "invalid lint driver" -f dep-invalid.lean lint
 test_err "invalid lint driver" -f dep-invalid.toml lint
 
+# Multiple test drivers
+echo "# TEST: Multiple test drivers"
+rm -f .lake/build/lib/lean/Lib1.olean .lake/build/lib/lean/Lib2.olean
+test_out "Built Lib1
+Built Lib2" -f multiple.lean test
+rm -f .lake/build/lib/lean/Lib1.olean .lake/build/lib/lean/Lib2.olean
+test_out "Built Lib1
+Built Lib2" -f multiple.toml test
+
+# Mixed drivers (testDriver + testDrivers)
+echo "# TEST: Mixed test drivers (testDriver + testDrivers)"
+rm -f .lake/build/lib/lean/Test.olean .lake/build/lib/lean/Lib1.olean
+test_out "Built Test
+Built Lib1
+exe1: []" -f mixed.lean test
+rm -f .lake/build/lib/lean/Test.olean .lake/build/lib/lean/Lib1.olean
+test_out "Built Test
+Built Lib1
+exe1: []" -f mixed.toml test
+
 # Driver checker
 echo "# TEST: Check driver"
 test_run -f exe.lean check-test

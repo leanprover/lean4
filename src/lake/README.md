@@ -219,11 +219,41 @@ These options configure how code is built and run in the package. Libraries, exe
 The CLI commands `lake test` and `lake lint` use definitions configured by the workspace's root package to perform testing and linting (this referred to as the test or lint *driver*). In Lean configuration files, these can be specified by applying the `@[test_driver]` or `@[lint_driver]` to a `script`, `lean_exe`, or `lean_lb`. They can also be configured (in Lean or TOML format) via the following options on the package.
 
 * `testDriver`: The name of the script, executable, or library to drive `lake test`.
+* `testDrivers`: An `Array` of test drivers to run by `lake test`. Each driver in the array will be run in sequence. If both `testDriver` and `testDrivers` are specified, `testDriver` will be run first, followed by all drivers in `testDrivers`.
 * `testDriverArgs`: An `Array` of arguments to pass to the package's test driver.
 * `lintDriver`: The name of the script or executable used by `lake lint`. Libraries cannot be lint drivers.
 * `lintDriverArgs`: An `Array` of arguments to pass to the package's lint driver.
 
 You can specify definition from a dependency as a package's test or lint driver by using the syntax `<pkg>/<name>`. An executable driver will be built and then run, a script driver will just be run, and a library driver will just be built. A script or executable driver is run with any arguments configured by package (e.g., via `testDriverArgs`) followed by any specified on the CLI (e.g., via `lake lint -- <args>...`).
+
+#### Multiple Test Drivers Example
+
+You can configure multiple test drivers to handle complex testing scenarios. Here's an example that runs both a library build and an executable:
+
+**TOML configuration:**
+```toml
+name = "my_package"
+testDrivers = ["LibraryTests", "IntegrationTests"]
+
+[[lean_lib]]
+name = "LibraryTests"
+
+[[lean_exe]]
+name = "IntegrationTests"
+```
+
+**Lean configuration:**
+```lean
+package my_package where
+  testDrivers := #["LibraryTests", "IntegrationTests"]
+
+lean_lib LibraryTests
+
+lean_exe IntegrationTests where
+  root := `Main
+```
+
+When you run `lake test`, both `LibraryTests` will be built and `IntegrationTests` will be built and executed in sequence.
 
 ### Cloud Releases
 

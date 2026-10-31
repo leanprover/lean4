@@ -3597,4 +3597,110 @@ theorem getKeyD_map [EquivBEq α] [LawfulHashable α]
 
 end map
 attribute [simp] contains_eq_false_iff_not_mem
+
+/-! ### Merging with a collision function -/
+
+theorem getElem?_mergeWith? [EquivBEq α] [LawfulHashable α]
+    {f : α → β → β → Option β} {t₁ t₂ : HashMap α β} {k : α} :
+    (t₁.mergeWith? f t₂)[k]? =
+      match t₂.getKey? k, t₂[k]? with
+      | some a, some b₂ => match t₁[k]? with
+        | none => some b₂
+        | some b₁ => f a b₁ b₂
+      | _, _ => t₁[k]? :=
+  DHashMap.Const.get?_mergeWith?
+
+theorem contains_mergeWith? [EquivBEq α] [LawfulHashable α]
+    {f : α → β → β → Option β} {t₁ t₂ : HashMap α β} {k : α} :
+    (t₁.mergeWith? f t₂).contains k =
+      (match t₂.getKey? k, t₂[k]? with
+      | some a, some b₂ => match t₁[k]? with
+        | none => some b₂
+        | some b₁ => f a b₁ b₂
+      | _, _ => t₁[k]?).isSome := by
+  rw [contains_eq_isSome_getElem?, getElem?_mergeWith?]
+
+theorem getElem?_mergeWith [EquivBEq α] [LawfulHashable α]
+    {f : α → β → β → β} {t₁ t₂ : HashMap α β} {k : α} :
+    (t₁.mergeWith f t₂)[k]? =
+      match t₂.getKey? k, t₂[k]? with
+      | some a, some b₂ => match t₁[k]? with
+        | none => some b₂
+        | some b₁ => some (f a b₁ b₂)
+      | _, _ => t₁[k]? :=
+  DHashMap.Const.get?_mergeWith
+
+theorem getKey?_mergeWith? [EquivBEq α] [LawfulHashable α]
+    {f : α → β → β → Option β} {t₁ t₂ : HashMap α β} {k : α} :
+    (mergeWith? f t₁ t₂).getKey? k =
+      match t₂.getKey? k, t₂[k]? with
+      | some a, some b₂ =>
+        if (match t₁[k]? with | none => some b₂ | some b₁ => f a b₁ b₂).isSome then
+          some a
+        else none
+      | _, _ => t₁.getKey? k :=
+  DHashMap.Const.getKey?_mergeWith?
+
+theorem size_mergeWith?_le [EquivBEq α] [LawfulHashable α]
+    {f : α → β → β → Option β} {t₁ t₂ : HashMap α β} :
+    (t₁.mergeWith? f t₂).size ≤ t₁.size + t₂.size :=
+  DHashMap.Const.size_mergeWith?_le
+
+theorem size_mergeWith_le [EquivBEq α] [LawfulHashable α]
+    {f : α → β → β → β} {t₁ t₂ : HashMap α β} :
+    (t₁.mergeWith f t₂).size ≤ t₁.size + t₂.size :=
+  size_mergeWith?_le (f := fun a b₁ b₂ => some (f a b₁ b₂))
+
+@[simp]
+theorem mergeWith?_empty_right {f : α → β → β → Option β} {t : HashMap α β} :
+    t.mergeWith? f ∅ = t :=
+  ext DHashMap.Const.mergeWith?_empty_right
+
+@[simp]
+theorem mergeWith_empty_right {f : α → β → β → β} {t : HashMap α β} :
+    t.mergeWith f ∅ = t :=
+  mergeWith?_empty_right (f := fun a b₁ b₂ => some (f a b₁ b₂))
+
+theorem mergeWith?_empty_left [EquivBEq α] [LawfulHashable α]
+    {f : α → β → β → Option β} {t : HashMap α β} :
+    (∅ : HashMap α β).mergeWith? f t ~m t :=
+  ⟨DHashMap.Const.mergeWith?_empty_left⟩
+
+@[simp]
+theorem mergeWith_empty_left [EquivBEq α] [LawfulHashable α]
+    {f : α → β → β → β} {t : HashMap α β} :
+    (∅ : HashMap α β).mergeWith f t ~m t :=
+  mergeWith?_empty_left (f := fun a b₁ b₂ => some (f a b₁ b₂))
+
+@[simp]
+theorem mergeWith?_some {f : α → β → β → β} {t₁ t₂ : HashMap α β} :
+    t₁.mergeWith? (fun a b₁ b₂ => some (f a b₁ b₂)) t₂ = t₁.mergeWith f t₂ := by
+  rfl
+
+
+theorem Equiv.mergeWith? [EquivBEq α] [LawfulHashable α]
+    (f : α → β → β → Option β) {m₁ m₂ m₃ m₄ : HashMap α β}
+    (hl : m₁ ~m m₂) (hr : m₃ ~m m₄) :
+    m₁.mergeWith? f m₃ ~m m₂.mergeWith? f m₄ :=
+  ⟨DHashMap.Equiv.constMergeWith? f hl.inner hr.inner⟩
+
+theorem Equiv.mergeWith [EquivBEq α] [LawfulHashable α]
+    (f : α → β → β → β) {m₁ m₂ m₃ m₄ : HashMap α β}
+    (hl : m₁ ~m m₂) (hr : m₃ ~m m₄) :
+    m₁.mergeWith f m₃ ~m m₂.mergeWith f m₄ :=
+  ⟨DHashMap.Equiv.constMergeWith f hl.inner hr.inner⟩
+
+
+theorem contains_mergeWith [EquivBEq α] [LawfulHashable α]
+    {f : α → β → β → β} {m₁ m₂ : HashMap α β} {k : α} :
+    (m₁.mergeWith f m₂).contains k = (m₁.contains k || m₂.contains k) :=
+  DHashMap.Const.contains_mergeWith
+
+@[simp]
+theorem mem_mergeWith [EquivBEq α] [LawfulHashable α]
+    {f : α → β → β → β} {m₁ m₂ : HashMap α β} {k : α} :
+    k ∈ m₁.mergeWith f m₂ ↔ k ∈ m₁ ∨ k ∈ m₂ := by
+  simp only [mem_iff_contains, contains_mergeWith, Bool.or_eq_true]
+
+
 end Std.HashMap

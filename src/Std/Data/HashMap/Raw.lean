@@ -382,6 +382,23 @@ theorem WF.inter [BEq α] [Hashable α] {m₁ m₂ : Raw α β} (h₁ : m₁.WF)
 theorem WF.diff [BEq α] [Hashable α] {m₁ m₂ : Raw α β} (h₁ : m₁.WF) (h₂ : m₂.WF) : (m₁ \ m₂).WF :=
   ⟨DHashMap.Raw.WF.diff h₁.out h₂.out⟩
 
+@[inline, inherit_doc DHashMap.Raw.Const.mergeWith?]
+def mergeWith? [BEq α] [Hashable α] (f : α → β → β → Option β) (m₁ m₂ : Raw α β) : Raw α β :=
+  ⟨DHashMap.Raw.Const.mergeWith? f m₁.inner m₂.inner⟩
+
+@[inline, inherit_doc DHashMap.Raw.Const.mergeWith]
+def mergeWith [BEq α] [Hashable α] (f : α → β → β → β) (m₁ m₂ : Raw α β) : Raw α β :=
+  ⟨DHashMap.Raw.Const.mergeWith f m₁.inner m₂.inner⟩
+
+
+theorem WF.mergeWith? [BEq α] [Hashable α] {f} {m₁ m₂ : Raw α β}
+    (h₁ : m₁.WF) (h₂ : m₂.WF) : (m₁.mergeWith? f m₂).WF :=
+  ⟨DHashMap.Raw.WF.Const.mergeWith? h₁.out h₂.out⟩
+
+theorem WF.mergeWith [BEq α] [Hashable α] {f} {m₁ m₂ : Raw α β}
+    (h₁ : m₁.WF) (h₂ : m₂.WF) : (m₁.mergeWith f m₂).WF :=
+  ⟨DHashMap.Raw.WF.Const.mergeWith h₁.out h₂.out⟩
+
 end Raw
 
 end HashMap

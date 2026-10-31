@@ -323,6 +323,14 @@ instance [BEq α] [Hashable α] [Repr α] [Repr β] : Repr (HashMap α β) where
 
 end Unverified
 
+@[inline, inherit_doc DHashMap.Const.mergeWith?]
+def mergeWith? (f : α → β → β → Option β) (m₁ m₂ : HashMap α β) : HashMap α β :=
+  ⟨DHashMap.Const.mergeWith? f m₁.inner m₂.inner⟩
+
+@[inline, inherit_doc DHashMap.Const.mergeWith]
+def mergeWith (f : α → β → β → β) (m₁ m₂ : HashMap α β) : HashMap α β :=
+  ⟨DHashMap.Const.mergeWith f m₁.inner m₂.inner⟩
+
 end Std.HashMap
 
 /--

@@ -1866,7 +1866,7 @@ private def normalizeRelCore (rel : RelKind) (relFn : Expr) (order? : Option Ord
     -- `(q, k, c)` for the certificate (`IntSolver.lean`).
     let mut p := p
     let mut tight? : Option (Poly × Int × Int) := none
-    if ring.type.isConstOf ``Int && invs.isEmpty && ainvs.isEmpty && char?.isNone && rel != .lt && !numOrAtom then
+    if kind.isComm && ring.type.isConstOf ``Int && invs.isEmpty && ainvs.isEmpty && char?.isNone && rel != .lt && !numOrAtom then
       let k := gcdMonCoeffs p
       if k > 1 then
         let c := polyConst p
@@ -2385,8 +2385,8 @@ private def charAboveLimit (kind : Kind) (maxChar? : Option Nat) : m Bool := do
   return c > maxChar
 
 /-- The kind of the structure of `α`, if the normalizer supports it. -/
-private def classifyKind? (α : Expr) : m (Option Kind) := do
-  return match (← classify? α) with
+private def classifyKind? (α : Expr) (commutative : Bool := true) : m (Option Kind) := do
+  return match (← classify? α (commutative := commutative)) with
     | .commRing id => some (.commRing id)
     | .commSemiring id => some (.commSemiring id)
     | .nonCommRing id => some (.ring id)
@@ -2394,8 +2394,8 @@ private def classifyKind? (α : Expr) : m (Option Kind) := do
     | .none => none
 
 /-- The `normalize?` path for relations; `e` is `rel lhs rhs` with carrier `α`. -/
-private def normalizeRel? (v : Visitor m) (rel : RelKind) (α e lhs rhs : Expr) (lhsOnly distrib : Bool) (maxChar? : Option Nat) : m Result := do
-  let some kind ← classifyKind? α | return .rfl
+private def normalizeRel? (v : Visitor m) (rel : RelKind) (α e lhs rhs : Expr) (lhsOnly distrib : Bool) (maxChar? : Option Nat) (commutative : Bool) : m Result := do
+  let some kind ← classifyKind? α commutative | return .rfl
   if (← charAboveLimit kind maxChar?) then return .rfl
   let order? ← match rel with
     | .eq => pure none
@@ -2460,9 +2460,9 @@ The result distinguishes three cases:
 `discharge?` proves the side conditions `x ≠ 0` that cancel `x * x⁻¹` in a field; a result
 that asked for one is `contextDependent`. `distrib` is described at `normalize?`.
 -/
-private def normalizeTerm? (v : Visitor m) (e : Expr) (distrib : Bool) (maxChar? : Option Nat) : m Result := do
+private def normalizeTerm? (v : Visitor m) (e : Expr) (distrib : Bool) (maxChar? : Option Nat) (commutative : Bool) : m Result := do
   let some α := getArithType? e | return .rfl
-  let some kind ← classifyKind? α | return .rfl
+  let some kind ← classifyKind? α commutative | return .rfl
   if (← charAboveLimit kind maxChar?) then
     -- A cast of a numeral still becomes the numeral of the carrier, so that a numeral has one
     -- representation; everything else is left as written.
@@ -2591,6 +2591,10 @@ exceptions follow `simp +arith`: equations between atoms and numerals (`x = y`, 
 `x + k = 0` are written `x = y` and `x = -k`. This is the normal form of the `grind`
 normalizer. Semirings have no subtraction and are unaffected.
 
+With `commutative := false`, multiplication keeps the order of its factors even when the
+carrier has a commutative ring or semiring instance. The noncommutative certificates are used,
+and field normalization and integer gcd/divisibility normalization are disabled.
+
 With `distrib := false`, multiplication is not distributed over addition: a product is
 expanded only when one factor is a scalar (a constant, or a numeral inverse in a field of
 characteristic zero) or both are monomials, a power only when its base is a monomial, and in a
@@ -2609,18 +2613,18 @@ without a known characteristic no coefficient is reduced.
 -/
 def normalize? [Monad m] [MonadLiftT SymM m] [MonadLiftT MetaM m] (e : Expr) (simpAtom : Expr → m Result)
     (discharge? : Expr → m (Option Expr) := fun _ => pure none) (lhsOnly : Bool := false) (distrib : Bool := true)
-    (maxChar? : Option Nat := none) : m Result := do
+    (maxChar? : Option Nat := none) (commutative : Bool := true) : m Result := do
   let v : Visitor m := { simpAtom, discharge? }
   match_expr e with
-  | Eq α lhs rhs => normalizeRel? v .eq α e lhs rhs lhsOnly distrib maxChar?
-  | LE.le α _ lhs rhs => normalizeRel? v .le α e lhs rhs lhsOnly distrib maxChar?
-  | LT.lt α _ lhs rhs => normalizeRel? v .lt α e lhs rhs lhsOnly distrib maxChar?
+  | Eq α lhs rhs => normalizeRel? v .eq α e lhs rhs lhsOnly distrib maxChar? commutative
+  | LE.le α _ lhs rhs => normalizeRel? v .le α e lhs rhs lhsOnly distrib maxChar? commutative
+  | LT.lt α _ lhs rhs => normalizeRel? v .lt α e lhs rhs lhsOnly distrib maxChar? commutative
   | Dvd.dvd α _ k arg =>
-    if α.isConstOf ``Int then
+    if commutative && α.isConstOf ``Int then
       if let some kv := (Sym.getIntValue? k).run then
         if kv != 0 then
           return ← normalizeDvd? v e e.appFn!.appFn! arg kv distrib maxChar?
-    normalizeTerm? v e distrib maxChar?
-  | _ => normalizeTerm? v e distrib maxChar?
+    normalizeTerm? v e distrib maxChar? commutative
+  | _ => normalizeTerm? v e distrib maxChar? commutative
 
 end Lean.Meta.Sym.Arith

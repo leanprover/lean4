@@ -60,9 +60,11 @@ field. With `lhsOnly := true`, relations over rings are normalized to `p = 0`, `
 instead of being split by sign, and with `distrib := false` products of non-constant polynomials
 are kept as atoms; with `maxChar? := some c`, terms over a structure whose characteristic is a
 numeral above `c`, or not a numeral, are left as written. See `Arith.normalize?`.
+With `commutative := false`, multiplication order is preserved even on commutative carriers.
 -/
-def simpArith (d : Discharger := dischargeNone) (lhsOnly : Bool := false) (distrib : Bool := true) (maxChar? : Option Nat := none) : Simproc := fun e => do
-  let r ← Arith.normalize? e simp (lhsOnly := lhsOnly) (distrib := distrib) (maxChar? := maxChar?) fun p => do
+def simpArith (d : Discharger := dischargeNone) (lhsOnly : Bool := false) (distrib : Bool := true) (maxChar? : Option Nat := none)
+    (commutative : Bool := true) : Simproc := fun e => do
+  let r ← Arith.normalize? e simp (lhsOnly := lhsOnly) (distrib := distrib) (maxChar? := maxChar?) (commutative := commutative) fun p => do
     match (← d p) with
     | .solved h _ => return some h
     | .failed _ => return none

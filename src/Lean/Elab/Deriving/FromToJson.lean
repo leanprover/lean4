@@ -104,9 +104,10 @@ def mkFromJsonBodyForStruct (indName : Name) : TermElabM Term := do
     return getter
   )
   let fields := fields.map mkIdent
+  -- Decoding deprecated fields does not constitute an explicit use of them.
   `(do
     $[let $fields:ident ← $getters]*
-    return { $[$fields:ident := $(id fields)],* })
+    return (set_option linter.deprecated false in { $[$fields:ident := $(id fields)],* }))
 
 def mkFromJsonBodyForInduct (ctx : Context) (indName : Name) : TermElabM Term := do
   let indVal ← getConstInfoInduct indName

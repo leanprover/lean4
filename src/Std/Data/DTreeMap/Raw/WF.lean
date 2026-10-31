@@ -112,6 +112,10 @@ theorem mergeWith [LawfulEqCmp cmp] {mergeFn} {t₁ t₂ : Raw α β cmp} (h : t
     (t₁.mergeWith mergeFn t₂).WF :=
   ⟨h.out.mergeWith!⟩
 
+theorem mergeWith? [LawfulEqCmp cmp] {mergeFn} {t₁ t₂ : Raw α β cmp} (h : t₁.WF) :
+    (t₁.mergeWith? mergeFn t₂).WF :=
+  ⟨h.out.mergeWith?!⟩
+
 section Const
 
 variable {β : Type v} {t : Raw α β cmp}
@@ -155,6 +159,10 @@ theorem constModify {a f} {t : Raw α β cmp} (h : t.WF) :
 theorem constMergeWith {mergeFn} {t₁ t₂ : Raw α β cmp} (h : t₁.WF) :
     (Const.mergeWith mergeFn t₁ t₂).WF :=
   ⟨h.out.constMergeWith!⟩
+
+theorem constMergeWith? {mergeFn} {t₁ t₂ : Raw α β cmp} (h : t₁.WF) :
+    (Const.mergeWith? mergeFn t₁ t₂).WF :=
+  ⟨h.out.constMergeWith?!⟩
 
 theorem union [TransCmp cmp] {t₁ t₂ : Raw α β cmp} (h₁ : t₁.WF) (h₂ : t₂.WF):
     (t₁ ∪ t₂).WF :=

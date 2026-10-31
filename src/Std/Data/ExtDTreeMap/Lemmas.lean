@@ -6222,4 +6222,144 @@ end Const
 
 end map
 
+
+/-! ### Deletion-capable merging -/
+
+theorem get?_mergeWith? [TransCmp cmp] [LawfulEqCmp cmp]
+    {f : (a : α) → β a → β a → Option (β a)} {t₁ t₂ : ExtDTreeMap α β cmp} {k : α} :
+    (t₁.mergeWith? f t₂).get? k =
+      match t₂.get? k with
+      | none => t₁.get? k
+      | some b₂ => match t₁.get? k with
+        | none => some b₂
+        | some b₁ => f k b₁ b₂ :=
+  t₁.inductionOn₂ t₂ (fun _ _ => DTreeMap.get?_mergeWith?)
+
+theorem contains_mergeWith? [TransCmp cmp] [LawfulEqCmp cmp]
+    {f : (a : α) → β a → β a → Option (β a)} {t₁ t₂ : ExtDTreeMap α β cmp} {k : α} :
+    (t₁.mergeWith? f t₂).contains k =
+      (match t₂.get? k with
+      | none => t₁.get? k
+      | some b₂ => match t₁.get? k with
+        | none => some b₂
+        | some b₁ => f k b₁ b₂).isSome := by
+  rw [contains_eq_isSome_get?, get?_mergeWith?]
+
+@[simp]
+theorem mergeWith?_empty_right [TransCmp cmp] [LawfulEqCmp cmp]
+    {f : (a : α) → β a → β a → Option (β a)} {t : ExtDTreeMap α β cmp} :
+    t.mergeWith? f ∅ = t :=
+  t.inductionOn (fun _ => congrArg mk DTreeMap.mergeWith?_empty_right)
+
+namespace Const
+
+variable {β : Type v}
+
+theorem get?_mergeWith? [TransCmp cmp]
+    {f : α → β → β → Option β} {t₁ t₂ : ExtDTreeMap α β cmp} {k : α} :
+    get? (mergeWith? f t₁ t₂) k =
+      match t₂.getKey? k, get? t₂ k with
+      | some a, some b₂ => match get? t₁ k with
+        | none => some b₂
+        | some b₁ => f a b₁ b₂
+      | _, _ => get? t₁ k :=
+  t₁.inductionOn₂ t₂ (fun _ _ => DTreeMap.Const.get?_mergeWith?)
+
+theorem contains_mergeWith? [TransCmp cmp]
+    {f : α → β → β → Option β} {t₁ t₂ : ExtDTreeMap α β cmp} {k : α} :
+    (mergeWith? f t₁ t₂).contains k =
+      (match t₂.getKey? k, get? t₂ k with
+      | some a, some b₂ => match get? t₁ k with
+        | none => some b₂
+        | some b₁ => f a b₁ b₂
+      | _, _ => get? t₁ k).isSome := by
+  rw [contains_eq_isSome_get?, get?_mergeWith?]
+
+theorem getKey?_mergeWith? [TransCmp cmp]
+    {f : α → β → β → Option β} {t₁ t₂ : ExtDTreeMap α β cmp} {k : α} :
+    (mergeWith? f t₁ t₂).getKey? k =
+      match t₂.getKey? k, get? t₂ k with
+      | some a, some b₂ =>
+        if (match get? t₁ k with | none => some b₂ | some b₁ => f a b₁ b₂).isSome then
+          some a
+        else none
+      | _, _ => t₁.getKey? k :=
+  t₁.inductionOn₂ t₂ (fun _ _ => DTreeMap.Const.getKey?_mergeWith?)
+
+@[simp]
+theorem mergeWith?_empty_right [TransCmp cmp]
+    {f : α → β → β → Option β} {t : ExtDTreeMap α β cmp} :
+    mergeWith? f t ∅ = t :=
+  t.inductionOn (fun _ => congrArg mk DTreeMap.Const.mergeWith?_empty_right)
+
+end Const
+
+@[simp]
+theorem mergeWith?_some [TransCmp cmp] [LawfulEqCmp cmp] {f : (a : α) → β a → β a → β a} {t₁ t₂ : ExtDTreeMap α β cmp} :
+    t₁.mergeWith? (fun a b₁ b₂ => some (f a b₁ b₂)) t₂ = t₁.mergeWith f t₂ := by
+  rfl
+
+namespace Const
+
+variable {β : Type v}
+
+@[simp]
+theorem mergeWith?_some [TransCmp cmp] {f : α → β → β → β} {t₁ t₂ : ExtDTreeMap α β cmp} :
+    mergeWith? (fun a b₁ b₂ => some (f a b₁ b₂)) t₁ t₂ = mergeWith f t₁ t₂ := by
+  rfl
+
+end Const
+
+theorem size_mergeWith?_le [TransCmp cmp] [LawfulEqCmp cmp]
+    {f : (a : α) → β a → β a → Option (β a)} {t₁ t₂ : ExtDTreeMap α β cmp} :
+    (t₁.mergeWith? f t₂).size ≤ t₁.size + t₂.size :=
+  t₁.inductionOn₂ t₂ (fun _ _ => DTreeMap.size_mergeWith?_le)
+
+@[simp]
+theorem mergeWith?_empty_left [TransCmp cmp] [LawfulEqCmp cmp]
+    {f : (a : α) → β a → β a → Option (β a)} {t : ExtDTreeMap α β cmp} :
+    (∅ : ExtDTreeMap α β cmp).mergeWith? f t = t :=
+  t.inductionOn (fun _ => sound DTreeMap.mergeWith?_empty_left)
+
+namespace Const
+
+variable {β : Type v}
+
+theorem size_mergeWith?_le [TransCmp cmp]
+    {f : α → β → β → Option β} {t₁ t₂ : ExtDTreeMap α β cmp} :
+    (mergeWith? f t₁ t₂).size ≤ t₁.size + t₂.size :=
+  t₁.inductionOn₂ t₂ (fun _ _ => DTreeMap.Const.size_mergeWith?_le)
+
+@[simp]
+theorem mergeWith?_empty_left [TransCmp cmp]
+    {f : α → β → β → Option β} {t : ExtDTreeMap α β cmp} :
+    mergeWith? f ∅ t = t :=
+  t.inductionOn (fun _ => sound DTreeMap.Const.mergeWith?_empty_left)
+
+end Const
+
+@[simp]
+theorem minEntry?_empty [TransCmp cmp] :
+    (∅ : ExtDTreeMap α β cmp).minEntry? = none := by
+  exact DTreeMap.minEntry?_empty
+
+@[simp]
+theorem maxEntry?_empty [TransCmp cmp] :
+    (∅ : ExtDTreeMap α β cmp).maxEntry? = none := by
+  exact DTreeMap.maxEntry?_empty
+
+namespace Const
+
+variable {β : Type v}
+
+@[simp]
+theorem minEntry?_empty [TransCmp cmp] : minEntry? (∅ : ExtDTreeMap α β cmp) = none := by
+  exact DTreeMap.Const.minEntry?_empty
+
+@[simp]
+theorem maxEntry?_empty [TransCmp cmp] : maxEntry? (∅ : ExtDTreeMap α β cmp) = none := by
+  exact DTreeMap.Const.maxEntry?_empty
+
+end Const
+
 end Std.ExtDTreeMap

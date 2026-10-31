@@ -54,14 +54,14 @@ structure PolyQ where
 def InvVars.denoteVars (ctx : Context α) (invs : InvVars) : List α :=
   invs.map fun p => p.1.denote ctx
 
-def InvVars.denoteInvs [Field α] (invs : InvVars) : List α :=
+def InvVars.denoteInvs [Semifield α] (invs : InvVars) : List α :=
   invs.map fun p => (OfNat.ofNat (α := α) p.2)⁻¹
 
 /-- Each variable recorded in `invs` denotes the inverse of its numeral. -/
-def InvVars.ok [Field α] (ctx : Context α) (invs : InvVars) : Prop :=
+def InvVars.ok [Semifield α] (ctx : Context α) (invs : InvVars) : Prop :=
   invs.denoteVars ctx = invs.denoteInvs
 
-theorem InvVars.ok_cons [Field α] (ctx : Context α) (x : Var) (c : Nat) (invs : InvVars) :
+theorem InvVars.ok_cons [Semifield α] (ctx : Context α) (x : Var) (c : Nat) (invs : InvVars) :
     InvVars.ok ctx ((x, c) :: invs) ↔ x.denote ctx = (OfNat.ofNat (α := α) c)⁻¹ ∧ InvVars.ok ctx invs := by
   simp [ok, denoteVars, denoteInvs]
 
@@ -397,14 +397,14 @@ theorem Poly.denote_substInv [Field α] [IsCharP α 0] (ctx : Context α) (p : P
   split
   next hc =>
     simp at hc; subst hc
-    simp [Semiring.natCast_one, Field.inv_one, Semiring.mul_one]
+    simp [Semiring.natCast_one, Semifield.inv_one, Semiring.mul_one]
   next hc =>
     simp at hc
-    have hc' : (c : α) ≠ 0 := Field.natCast_ne_zero hc
+    have hc' : (c : α) ≠ 0 := Semifield.natCast_ne_zero hc
     have h1 : ((c : Int) : α) * x.denote ctx = 1 := by
       rw [Ring.intCast_natCast, h, ← Semiring.ofNat_eq_natCast, Field.mul_inv_cancel]
       rw [Semiring.ofNat_eq_natCast]; exact hc'
-    have hpow : (c : α) ^ p.maxDegreeOf x ≠ 0 := fun h => hc' (Field.of_pow_eq_zero _ _ h)
+    have hpow : (c : α) ^ p.maxDegreeOf x ≠ 0 := fun h => hc' (Semifield.of_pow_eq_zero _ _ h)
     simp only
     rw [Poly.denote_cancelVar ctx _ (c : Int) x (by omega) h1, Poly.denote_mulConst, Ring.intCast_natCast,
       Semiring.natCast_pow, CommSemiring.mul_comm _ (p.denote ctx), Semiring.mul_assoc,
@@ -414,11 +414,7 @@ theorem PolyQ.denote_substInv [Field α] [IsCharP α 0] (ctx : Context α) (q : 
     (h : x.denote ctx = (OfNat.ofNat (α := α) c)⁻¹) : (q.substInv x c).denote ctx = q.denote ctx := by
   have := Poly.denote_substInv ctx q.num x c h
   simp only [PolyQ.substInv, PolyQ.denote] at this ⊢
-  rw [Semiring.natCast_mul, Field.inv_mul, ← this, Semiring.mul_assoc, CommSemiring.mul_comm ((q.den : α)⁻¹)]
-
-private theorem mul_inv_cancel_aux [Field α] {g a b : α} (hg : g ≠ 0) : g * a * (b⁻¹ * g⁻¹) = a * b⁻¹ := by
-  rw [CommSemiring.mul_comm b⁻¹, ← Semiring.mul_assoc, Semiring.mul_assoc g a, CommSemiring.mul_comm a,
-    ← Semiring.mul_assoc, Field.mul_inv_cancel hg, Semiring.one_mul]
+  rw [Semiring.natCast_mul, Semifield.inv_mul, ← this, Semiring.mul_assoc, CommSemiring.mul_comm ((q.den : α)⁻¹)]
 
 theorem PolyQ.denote_reduce [Field α] [IsCharP α 0] (ctx : Context α) (q : PolyQ) :
     q.reduce.denote ctx = q.denote ctx := by
@@ -435,17 +431,16 @@ theorem PolyQ.denote_reduce [Field α] [IsCharP α 0] (ctx : Context α) (q : Po
       generalize Nat.gcd q.num.gcdCoeffs q.den = g at *
       generalize q.num.divConst g = num at *
       generalize q.den / g = den at *
-      have hg' : (g : α) ≠ 0 := Field.natCast_ne_zero (by omega)
+      have hg' : (g : α) ≠ 0 := Semifield.natCast_ne_zero (by omega)
       simp only [PolyQ.denote]
-      rw [← h₁, ← h₂, Poly.denote_mulConst, Ring.intCast_natCast, Semiring.natCast_mul, Field.inv_mul,
-        mul_inv_cancel_aux hg']
+      rw [← h₁, ← h₂, Poly.denote_mulConst, Ring.intCast_natCast, Semiring.natCast_mul, Semifield.mul_mul_inv_cancel hg']
     next => rfl
 
 theorem Poly.denote_toPolyQ [Field α] [IsCharP α 0] (ctx : Context α) (p : Poly) (invs : InvVars)
     (ainvs : InvAtoms) (h : invs.ok ctx) (h' : ainvs.ok ctx) : (p.toPolyQ invs ainvs).denote ctx = p.denote ctx := by
   unfold toPolyQ; rw [PolyQ.denote_reduce]
   suffices ∀ q : PolyQ, (invs.foldl (fun q xc => q.substInv xc.1 xc.2) q).denote ctx = q.denote ctx by
-    rw [this]; simp [PolyQ.denote, Semiring.natCast_one, Field.inv_one, Semiring.mul_one, Poly.denote_cancelInvs _ _ _ h']
+    rw [this]; simp [PolyQ.denote, Semiring.natCast_one, Semifield.inv_one, Semiring.mul_one, Poly.denote_cancelInvs _ _ _ h']
   induction invs with
   | nil => intro q; rfl
   | cons xc invs ih =>
@@ -557,11 +552,11 @@ theorem Poly.denote_substInvB_k [Field α] [IsCharP α 0] (ctx : Context α) (p 
   unfold substInvB_k
   cases hb : Nat.beq c 0
   · have hc : c ≠ 0 := Nat.ne_of_beq_eq_false hb
-    have hc' : (c : α) ≠ 0 := Field.natCast_ne_zero hc
+    have hc' : (c : α) ≠ 0 := Semifield.natCast_ne_zero hc
     have h1 : ((c : Int) : α) * x.denote ctx = 1 := by
       rw [Ring.intCast_natCast, h, ← Semiring.ofNat_eq_natCast, Field.mul_inv_cancel]
       rw [Semiring.ofNat_eq_natCast]; exact hc'
-    have hpow : (c : α) ^ p.maxDegreeOf x ≠ 0 := fun h => hc' (Field.of_pow_eq_zero _ _ h)
+    have hpow : (c : α) ^ p.maxDegreeOf x ≠ 0 := fun h => hc' (Semifield.of_pow_eq_zero _ _ h)
     show ((p.mulConst_k (Int.ofNat (Nat.pow c (p.maxDegreeOf_k x)))).cancelVarB_k (Int.ofNat c) x).denote ctx
       * ((Nat.pow c (p.maxDegreeOf_k x) : Nat) : α)⁻¹ = _
     rw [Int.ofNat_eq_natCast, Poly.denote_cancelVarB_k ctx _ (c : Int) x (by omega) h1, Poly.maxDegreeOf_k_eq, Poly.mulConst_k_eq_mulConst,
@@ -569,13 +564,13 @@ theorem Poly.denote_substInvB_k [Field α] [IsCharP α 0] (ctx : Context α) (p 
       Semiring.natCast_pow, CommSemiring.mul_comm _ (p.denote ctx), Semiring.mul_assoc,
       Field.mul_inv_cancel hpow, Semiring.mul_one]
   · show p.denote ctx * ((1 : Nat) : α)⁻¹ = _
-    rw [Semiring.natCast_one, Field.inv_one, Semiring.mul_one]
+    rw [Semiring.natCast_one, Semifield.inv_one, Semiring.mul_one]
 
 theorem PolyQ.denote_substInvB_k [Field α] [IsCharP α 0] (ctx : Context α) (q : PolyQ) (x : Var) (c : Nat)
     (h : x.denote ctx = (OfNat.ofNat (α := α) c)⁻¹) : (q.substInvB_k x c).denote ctx = q.denote ctx := by
   have := Poly.denote_substInvB_k ctx q.num x c h
   simp only [PolyQ.substInvB_k, PolyQ.denote] at this ⊢
-  rw [Nat.mul_eq, Semiring.natCast_mul, Field.inv_mul, ← this, Semiring.mul_assoc, CommSemiring.mul_comm ((q.den : α)⁻¹)]
+  rw [Nat.mul_eq, Semiring.natCast_mul, Semifield.inv_mul, ← this, Semiring.mul_assoc, CommSemiring.mul_comm ((q.den : α)⁻¹)]
 
 theorem Poly.denote_toPolyQX_k [Field α] [IsCharP α 0] (ctx : Context α) (bal : Bool) (p : Poly) (invs : InvVars)
     (ainvs : InvAtoms) (h : invs.ok ctx) (h' : ainvs.ok ctx) : (p.toPolyQX_k bal invs ainvs).denote ctx = p.denote ctx := by
@@ -584,7 +579,7 @@ theorem Poly.denote_toPolyQX_k [Field α] [IsCharP α 0] (ctx : Context α) (bal
   · show (PolyQ.reduce_k _).denote ctx = _
     rw [PolyQ.reduce_k_eq, PolyQ.denote_reduce]
     suffices ∀ q : PolyQ, (invs.foldl (fun q xc => q.substInvB_k xc.1 xc.2) q).denote ctx = q.denote ctx by
-      rw [this]; simp [PolyQ.denote, Semiring.natCast_one, Field.inv_one, Semiring.mul_one, cancelInvs_k_eq_cancelInvs,
+      rw [this]; simp [PolyQ.denote, Semiring.natCast_one, Semifield.inv_one, Semiring.mul_one, cancelInvs_k_eq_cancelInvs,
         Poly.denote_cancelInvs _ _ _ h']
     induction invs with
     | nil => intro q; rfl
@@ -699,12 +694,12 @@ theorem eq_normQ_expr [Field α] [IsCharP α 0] (ctx : Context α) (bal : Bool) 
     normQ_cert bal invs ainvs lhs rhs lhs' rhs' → (lhs.denote ctx = rhs.denote ctx) = (lhs'.denote ctx = rhs'.denote ctx) := by
   intro h
   obtain ⟨d, hd, h⟩ := denote_sub_of_normQ_cert ctx bal invs hok ainvs hoka lhs rhs lhs' rhs' h
-  have hd' : (d : α)⁻¹ ≠ 0 := by rw [Ne, Field.inv_eq_zero_iff]; exact Field.natCast_ne_zero hd
+  have hd' : (d : α)⁻¹ ≠ 0 := by rw [Ne, Field.inv_eq_zero_iff]; exact Semifield.natCast_ne_zero hd
   rw [← AddCommGroup.sub_eq_zero_iff (a := lhs.denote ctx) (b := rhs.denote ctx),
     ← AddCommGroup.sub_eq_zero_iff (a := lhs'.denote ctx) (b := rhs'.denote ctx), h]
   apply propext; constructor
   · intro h0
-    rcases Field.of_mul_eq_zero h0 with h0 | h0
+    rcases Semifield.of_mul_eq_zero h0 with h0 | h0
     · exact h0
     · exact absurd h0 hd'
   · intro h0; rw [h0, Semiring.zero_mul]

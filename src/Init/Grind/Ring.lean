@@ -11,6 +11,7 @@ public import Init.Grind.Ring.OfScientific
 public import Init.Grind.Ring.Envelope
 public import Init.Grind.Ring.CommSolver
 public import Init.Grind.Ring.FieldSolver
+public import Init.Grind.Ring.SemifieldSolver
 public import Init.Grind.Ring.IntSolver
 public import Init.Grind.Ring.CommSemiringAdapter
 public import Init.Grind.Ring.Packed

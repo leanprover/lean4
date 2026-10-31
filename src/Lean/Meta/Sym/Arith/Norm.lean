@@ -22,6 +22,7 @@ public import Lean.Meta.Sym.AlphaShareBuilder
 import Lean.Data.RArray
 import Init.Grind.Norm
 import Init.Grind.Ring.FieldSolver
+import Init.Grind.Ring.SemifieldSolver
 import Init.Grind.Ring.IntSolver
 import Init.Grind.Ring.Packed
 import Init.Grind.Ring.Kronecker
@@ -42,10 +43,12 @@ the `Init` polynomial of the input with the polynomial of the output (`Expr.eq_o
 `Expr.eq_of_toPolyC_eq`, `eq_normS`, and their `_nc` variants for the non-commutative
 structures, where monomials keep the order of their factors).
 
-In a field of characteristic zero, the inverses of numerals are not atoms: the normal form is
-`p * d⁻¹` with `p` an integer polynomial and `d` a numeral, in lowest terms, and a relation
-becomes denominator-free (`a / 2 = b / 3` is `3 * a = 2 * b`). The certificate reifies `c⁻¹` as a
-variable and eliminates it (`Expr.eq_of_toPolyQ_eq`, `Init/Grind/Ring/FieldSolver.lean`).
+In a field or semifield of characteristic zero, the inverses of numerals are not atoms: the
+normal form is `p * d⁻¹` with `p` an integer polynomial (nonnegative coefficients in a
+semifield) and `d` a numeral, in lowest terms. A field relation becomes denominator-free
+(`a / 2 = b / 3` is `3 * a = 2 * b`); semifield relations normalize both sides as terms.
+The certificate reifies `c⁻¹` as a variable and eliminates it (`Expr.eq_of_toPolyQ_eq` and
+`Expr.eq_of_toPolyQS_eq` in `FieldSolver.lean` and `SemifieldSolver.lean`).
 In any field, `x * x⁻¹` for an atom `x` is cancelled when the `discharge?` callback proves
 `x ≠ 0` (`Expr.eq_of_cancelInvs_eq`); this is the only step whose result depends on the local
 context, and it is marked `contextDependent`.
@@ -206,6 +209,27 @@ private def isFieldKind (kind : Kind) : SymM Bool := do
   let .commRing id := kind | return false
   return (← getArithState).rings[id]!.fieldInst?.isSome
 
+/-- `true` if inverse and division normalization is available. -/
+private def isSemifieldKind (kind : Kind) : SymM Bool := do
+  match kind with
+  | .commRing _ => isFieldKind kind
+  | .commSemiring id => return (← getArithState).semirings[id]!.semifieldInst?.isSome
+  | _ => return false
+
+private def getSemifieldInst : NormM Expr := do
+  match (← getKind) with
+  | .commRing _ =>
+    let ring ← getCommRing
+    return mkApp2 (mkConst ``Grind.Field.toSemifield [ring.u]) ring.type ring.fieldInst?.get!
+  | .commSemiring _ => return (← getCommSemiring).semifieldInst?.get!
+  | _ => throwError "internal error: type is not a semifield"
+
+private def getInvFnForKind : NormM Expr := do
+  if (← getKind).isRing then getInvFn else getInvFn'
+
+private def getDivFnForKind : NormM Expr := do
+  if (← getKind).isRing then getDivFn else getDivFn'
+
 /-!
 ## Rewrite steps
 
@@ -283,50 +307,61 @@ Field rewrites applied by the walk, all without side conditions (`Init/Grind/Rin
 `a / b ↦ a * b⁻¹`, `(a * b)⁻¹ ↦ a⁻¹ * b⁻¹`, `(a ^ n)⁻¹ ↦ a⁻¹ ^ n`, `(-a)⁻¹ ↦ -a⁻¹`, `a⁻¹⁻¹ ↦ a`,
 `0⁻¹ ↦ 0`, `1⁻¹ ↦ 1`. After them, `x⁻¹` for an atom or numeral `x` is an atom of the
 polynomial; the certificate eliminates numeral inverses in characteristic zero (`getInvVars`)
-and cancels `x * x⁻¹` under a discharged `x ≠ 0` (`decideInvAtoms`).
+and, for fields, cancels `x * x⁻¹` under a discharged `x ≠ 0` (`decideInvAtoms`).
 -/
 
-private def mkFieldStep (thm : Expr) (e₁ e₂ : Expr) : NormM (Expr × Expr) := do
-  let ring ← getCommRing
+private def mkSemifieldStep (thm : Expr) (e₁ e₂ : Expr) : NormM (Expr × Expr) := do
+  let type ← inferType e₁
+  let u ← getDecLevel type
   let e₂ ← share e₂
-  return (e₂, mkExpectedPropHint thm (mkApp3 (mkConst ``Eq [ring.u.succ]) ring.type e₁ e₂))
+  return (e₂, mkExpectedPropHint thm (mkApp3 (mkConst ``Eq [u.succ]) type e₁ e₂))
 
 /-- `a / b = a * b⁻¹` -/
 private def mkDivStep (e a b : Expr) : NormM (Expr × Expr) := do
-  let ring ← getCommRing
-  let thm := mkApp4 (mkConst ``Grind.Field.div_eq_mul_inv [ring.u]) ring.type ring.fieldInst?.get! a b
-  mkFieldStep thm e (mkApp2 (← getMulFn) a (mkApp (← getInvFn) b))
+  let type ← inferType e
+  let u ← getDecLevel type
+  let thm := mkApp4 (mkConst ``Grind.Semifield.div_eq_mul_inv [u]) type (← getSemifieldInst) a b
+  let mulFn ← if (← getKind).isRing then getMulFn else getMulFn'
+  mkSemifieldStep thm e (mkApp2 mulFn a (mkApp (← getInvFnForKind) b))
 
 /--
-The inverse rewrites, for `e := x⁻¹` with the field's `Inv` instance. `(a * b)⁻¹` and `(a ^ n)⁻¹`
+The inverse rewrites, for `e := x⁻¹` with the structure's `Inv` instance. `(a * b)⁻¹` and `(a ^ n)⁻¹`
 are only rewritten with `distrib`; otherwise they are atoms, like the products they invert.
 -/
 private def mkInvStep? (e x : Expr) : NormM (Option (Expr × Expr)) := do
-  let ring ← getCommRing
-  let fieldInst := ring.fieldInst?.get!
-  let invFn ← getInvFn
+  let type ← inferType e
+  let u ← getDecLevel type
+  let inst ← getSemifieldInst
+  let invFn ← getInvFnForKind
+  let isRing := (← getKind).isRing
   let distrib := (← read).distrib
-  let thm (name : Name) : Expr := mkApp2 (mkConst name [ring.u]) ring.type fieldInst
+  let thm (name : Name) : Expr := mkApp2 (mkConst name [u]) type inst
   match_expr x with
   | HMul.hMul _ _ _ _ a b =>
     unless distrib do return none
-    unless isSameExpr (← getMulFn) (← canonExpr x.appFn!.appFn!) do return none
-    return some (← mkFieldStep (mkApp2 (thm ``Grind.Field.inv_mul) a b) e (mkApp2 (← getMulFn) (mkApp invFn a) (mkApp invFn b)))
+    let mulFn ← if isRing then getMulFn else getMulFn'
+    unless isSameExpr mulFn (← canonExpr x.appFn!.appFn!) do return none
+    return some (← mkSemifieldStep (mkApp2 (thm ``Grind.Semifield.inv_mul) a b) e (mkApp2 mulFn (mkApp invFn a) (mkApp invFn b)))
   | HPow.hPow _ _ _ _ a k =>
     unless distrib do return none
     unless (Sym.getNatValue? k).run.isSome do return none
-    unless isSameExpr (← getPowFn) (← canonExpr x.appFn!.appFn!) do return none
-    return some (← mkFieldStep (mkApp2 (thm ``Grind.Field.inv_pow) a k) e (mkApp2 (← getPowFn) (mkApp invFn a) k))
+    let powFn ← if isRing then getPowFn else getPowFn'
+    unless isSameExpr powFn (← canonExpr x.appFn!.appFn!) do return none
+    return some (← mkSemifieldStep (mkApp2 (thm ``Grind.Semifield.inv_pow) a k) e (mkApp2 powFn (mkApp invFn a) k))
   | Neg.neg _ _ a =>
+    unless isRing do return none
     unless isSameExpr (← getNegFn) (← canonExpr x.appFn!) do return none
-    return some (← mkFieldStep (mkApp (thm ``Grind.Field.inv_neg) a) e (mkApp (← getNegFn) (mkApp invFn a)))
+    let ring ← getCommRing
+    let h := mkApp3 (mkConst ``Grind.Field.inv_neg [u]) type ring.fieldInst?.get! a
+    return some (← mkSemifieldStep h e (mkApp (← getNegFn) (mkApp invFn a)))
   | Inv.inv _ _ a =>
     unless isSameExpr invFn (← canonExpr x.appFn!) do return none
-    return some (← mkFieldStep (mkApp (thm ``Grind.Field.inv_inv) a) e a)
+    return some (← mkSemifieldStep (mkApp (thm ``Grind.Semifield.inv_inv) a) e a)
   | OfNat.ofNat _ _ _ =>
+    let denote (n : Nat) : NormM Expr := if isRing then denoteNum n else denoteNatNum n
     match (Sym.getNatValue? x).run with
-    | some 0 => return some (← mkFieldStep (thm ``Grind.Field.inv_zero) e (← denoteNum 0))
-    | some 1 => return some (← mkFieldStep (thm ``Grind.Field.inv_one) e (← denoteNum 1))
+    | some 0 => return some (← mkSemifieldStep (thm ``Grind.Semifield.inv_zero) e (← denote 0))
+    | some 1 => return some (← mkSemifieldStep (thm ``Grind.Semifield.inv_one) e (← denote 1))
     | _ => return none
   | _ => return none
 
@@ -335,23 +370,30 @@ end Visit
 /-! ## Certificate helpers -/
 
 /--
-The `Field` and `IsCharP _ 0` instances when the structure is a field of characteristic zero,
-where numeral inverses become rational coefficients (`Init/Grind/Ring/FieldSolver.lean`).
+The inverse structure (`Field` on the ring path, `Semifield` on the semiring path) and
+`IsCharP _ 0` instances used by the rational-coefficient certificate.
 -/
-private def fieldChar0? : NormM (Option (Expr × Expr)) := do
-  let .commRing _ ← getKind | return none
-  let ring ← getCommRing
-  let some fieldInst := ring.fieldInst? | return none
-  let some (charInst, 0) := ring.charInst? | return none
-  return some (fieldInst, charInst)
+private def inverseChar0? : NormM (Option (Expr × Expr)) := do
+  match (← getKind) with
+  | .commRing _ =>
+    let ring ← getCommRing
+    let some fieldInst := ring.fieldInst? | return none
+    let some (charInst, 0) := ring.charInst? | return none
+    return some (fieldInst, charInst)
+  | .commSemiring _ =>
+    let sr ← getCommSemiring
+    let some inst := sr.semifieldInst? | return none
+    let some (charInst, 0) := sr.charInst? | return none
+    return some (inst, charInst)
+  | _ => return none
 
 /--
-The numeral-inverse atoms among `vars`: `(x, c)` for `vars[x] = c⁻¹` with the field's `Inv`
+The numeral-inverse atoms among `vars`: `(x, c)` for `vars[x] = c⁻¹` with the structure's `Inv`
 instance and a numeral `c ≥ 1`. As for the numerals of the polynomial, the `OfNat` instance is
 not checked; the kernel closes the gap while checking the expected type.
 -/
 private def getInvVars (vars : Array Expr) : NormM (Array (Var × Nat)) := do
-  let invFn ← getInvFn
+  let invFn ← getInvFnForKind
   let mut invs := #[]
   for (e, x) in vars.zipIdx do
     let_expr Inv.inv _ _ n := e | continue
@@ -410,7 +452,8 @@ The reified normal form of `q = num / den`: `num * d⁻¹`, where the atom `d⁻
 private def mkPolyQExpr (q : PolyQ) (vars : Array Expr) (invs : Array (Var × Nat)) :
     NormM (RingExpr × Array Expr × Array (Var × Nat)) := do
   if q.den == 1 then return (q.num.toExpr, vars, invs)
-  let invD ← share (mkApp (← getInvFn) (← denoteNum q.den))
+  let den ← if (← getKind).isRing then denoteNum q.den else denoteNatNum q.den
+  let invD ← share (mkApp (← getInvFnForKind) den)
   let x := (vars.findIdx? (isSameExpr · invD)).getD vars.size
   let vars := if x == vars.size then vars.push invD else vars
   let invs := if invs.any (·.1 == x) then invs else invs.push (x, q.den)
@@ -555,7 +598,7 @@ private def mkAtom (e₁ : Expr) (r : Result) (kept := false) : VisitM m Node :=
     let x ← mkVar e₁
     if (← read).charZero then
       if let .app invF c := e₁ then
-        if isSameExpr (← getInvFn) (← canonExpr invF) then
+        if isSameExpr (← getInvFnForKind) (← canonExpr invF) then
           if let some k := (Sym.getNatValue? c).run then
             if k > 0 then modify fun s => { s with invVars := s.invVars.insert x k }
     return x
@@ -929,6 +972,32 @@ private def semiOk (B : Nat) (l r : RingExpr) : Bool :=
 private def linSemiOk (l r : RingExpr) : Bool :=
   exprLinS l ≤ 1 && exprLinS r ≤ 1
 
+/-- Clear numeral denominators, then check the polynomial identity at a Kronecker point. -/
+private def mkSemifieldKronProof? (type sfInst charInst ctx : Expr) (u : Level)
+    (invs : Array (Var × Nat)) (a b : RingExpr) : NormM (Option Expr) := do
+  let invsL := invs.toList
+  let (a', da) := a.clearDenoms invsL
+  let (b', db) := b.clearDenoms invsL
+  let l : RingExpr := .mul a' (.num db)
+  let r : RingExpr := .mul b' (.num da)
+  let csInst := (← getCommSemiring).commSemiringInst
+  let arcInst? ← getAddRightCancelInst?
+  let h ← if let (some arcInst, true, some K) := (arcInst?, linSemiOk l r, kronLinExponent? l r kronMaxBits) then
+      pure (mkAppN (mkConst ``Grind.CommRing.Expr.eq_of_kronLinS [u])
+        (#[type, csInst, arcInst, ctx] ++ kronLinProofArgs l r K))
+    else if let some (K, B) := (kronArgs? l r).filter (semiOk ·.2 l r) then
+      match arcInst? with
+      | some arcInst => pure (mkAppN (mkConst ``Grind.CommRing.Expr.eq_of_kronS [u])
+          (#[type, csInst, arcInst, ctx] ++ kronProofArgs l r K B))
+      | none => pure (mkAppN (mkConst ``Grind.CommRing.Expr.eq_of_kronSN [u])
+          (#[type, csInst, ctx] ++ kronProofArgs l r K B))
+    else return none
+  let invsE := toExpr invsL
+  return some (mkAppN (mkConst ``Grind.CommRing.Expr.eq_of_clearDenoms [u])
+    #[type, sfInst, charInst, ctx, invsE, mkInvVarsOk type u ctx invsE, eagerReflBoolTrue,
+      toExpr a, toExpr b, toExpr a', toExpr b', mkRawNatLit da, mkRawNatLit db,
+      ← mkEqRefl (toExpr (a', da)), ← mkEqRefl (toExpr (b', db)), h])
+
 /-- Memoized `toExpr` of the monomials of the stepwise certificates, which repeat each other. -/
 private abbrev StepM := StateM (Std.HashMap Mon Expr)
 
@@ -1159,7 +1228,7 @@ private def mkCertificate (e₁ : Expr) (re : RingExpr) (p : Poly) (vars : Array
       pure (sr.type, sr.u, sr.semiringInst, none)
   -- Fields: inverse atoms with a discharged side condition are cancelled, and in
   -- characteristic zero the numeral inverses become rational coefficients.
-  let fc? ← fieldChar0?
+  let fc? ← inverseChar0?
   let invs ← if fc?.isSome then getInvVars vars else pure #[]
   let ainvsL := invAtomsList ainvs
   let (re', vars, invs) ←
@@ -1175,6 +1244,14 @@ private def mkCertificate (e₁ : Expr) (re : RingExpr) (p : Poly) (vars : Array
   let h ← if !invs.isEmpty then
     let (fieldInst, charInst) := fc?.get!
     let invsE := toExpr invs.toList
+    if !kind.isRing then
+      let h ← match (← mkSemifieldKronProof? type fieldInst charInst ctx u invs re re') with
+        | some h => pure h
+        | none =>
+          let thm := mkApp3 (mkConst ``Grind.CommRing.Expr.eq_of_toPolyQS_eq [u]) type fieldInst charInst
+          pure (mkApp7 thm ctx (toExpr (useBalanced re p.length)) invsE
+            (mkInvVarsOk type u ctx invsE) (toExpr re) (toExpr re') eagerReflBoolTrue)
+      return .step e' (mkExpectedPropHint h (← mkEq e₁ e'))
     if let (true, some (K, B)) := (ainvs.isEmpty, kronQArgs? re re' invs.toList kronMaxBits) then
       -- Both sides are evaluated at a point, with the inverses of numerals (Kronecker substitution).
       return .step e' (mkExpectedPropHint (mkAppN (mkConst ``Grind.CommRing.Expr.eq_of_kronQ [u]) #[type, fieldInst, charInst, ctx,
@@ -1442,13 +1519,13 @@ private partial def visit (v : Visitor m) (e : Expr) : VisitM m Node := do
       chainNode e e₂ r₁ (← visit v e₂)
     | _ => unreachable!
   | HDiv.hDiv _ _ _ _ a b =>
-    unless (← liftNorm (isFieldKind kind)) do return (← atom)
-    unless (← isInst (← liftNorm getDivFn) e.appFn!.appFn!) do return (← atom)
+    unless (← liftNorm (isSemifieldKind kind)) do return (← atom)
+    unless (← isInst (← liftNorm getDivFnForKind) e.appFn!.appFn!) do return (← atom)
     let (e₂, h) ← liftNorm (mkDivStep e a b)
     chainNode e e₂ (.step e₂ h) (← visit v e₂)
   | Inv.inv _ _ _ =>
-    unless (← liftNorm (isFieldKind kind)) do return (← atom)
-    unless (← isInst (← liftNorm getInvFn) e.appFn!) do return (← atom)
+    unless (← liftNorm (isSemifieldKind kind)) do return (← atom)
+    unless (← isInst (← liftNorm getInvFnForKind) e.appFn!) do return (← atom)
     -- Simplify `x` (a proper subterm, so `simp` normalizes it without re-entering `e`),
     -- then rewrite `x'⁻¹`.
     match h : e with
@@ -1843,7 +1920,7 @@ private def normalizeRelCore (rel : RelKind) (relFn : Expr) (order? : Option Ord
     let some p ← (do SafePoly.combine pl (← SafePoly.mulConst (-1) pr) : PolyM Poly).run budget | return .notApplicable
     -- Fields: cancel the discharged inverse atoms; in characteristic zero, split the numerator
     -- of `lhs - rhs`, whose denominator's sign needs `IsLinearOrder` for `≤`/`<`.
-    let fc? ← fieldChar0?
+    let fc? ← inverseChar0?
     let mut invs ← if fc?.isSome then getInvVars vars else pure #[]
     let ainvsL := invAtomsList ainvs
     let linInst? ← if invs.isEmpty || rel == .eq then pure none else
@@ -2126,6 +2203,8 @@ private def normalizeRelCore (rel : RelKind) (relFn : Expr) (order? : Option Ord
   else
     let sr ← getSemiring
     let u := sr.u
+    let fc? ← inverseChar0?
+    let invs ← if fc?.isSome then getInvVars vars else pure #[]
     -- Both sides have the same polynomial: `=` and `≤` are `True`, `<` is `False`.
     let sameSides? : Option (Name × Array Expr × Bool) := match rel, order? with
       | .eq, _ => some (``Grind.CommRing.eq_true_of_toPolyS, #[], true)
@@ -2216,16 +2295,27 @@ private def normalizeRelCore (rel : RelKind) (relFn : Expr) (order? : Option Ord
           pure <| some fun a b c =>
             let iff := mkApp10 (mkConst ``Grind.OrderedAdd.add_lt_left_iff [u]) sr.type o.leInst o.isPreorderInst acm ordAdd o.ltInst?.get! o.lawfulOrderLTInst?.get! a b c
             mkIffSymm (mkApp2 ltFn a b) (mkApp2 ltFn (mkApp2 addFn a c) (mkApp2 addFn b c)) iff
+    -- Combine rational coefficients before finding the terms to cancel.
+    let (pl, pr, den) := if invs.isEmpty then (pl, pr, 1) else
+      let ql := pl.toPolyQ invs.toList []
+      let qr := pr.toPolyQ invs.toList []
+      let den := Nat.lcm ql.den qr.den
+      (ql.num.mulConst (den / ql.den), qr.num.mulConst (den / qr.den), den)
     let c := commonPart pl pr
     let hasC := cancel?.isSome && !c.isZero
     let (lp, rp) := if hasC then (pl.combine (c.mulConst (-1)), pr.combine (c.mulConst (-1))) else (pl, pr)
-    let l' := lp.toExpr
-    let r' := rp.toExpr
+    let mkExpr (p : Poly) (vars : Array Expr) (invs : Array (Var × Nat)) :=
+      if den == 1 then pure (p.toExpr, vars, invs)
+      else mkPolyQExpr ((⟨p, den⟩ : PolyQ).reduce) vars invs
+    let (l', vars, invs) ← mkExpr lp vars invs
+    let (r', vars, invs) ← mkExpr rp vars invs
+    let (c', vars, invs) ← mkExpr c vars invs
     let el ← share (← denoteSemiringExpr' vars l')
     let er ← share (← denoteSemiringExpr' vars r')
     let e' ← share (mkApp2 relFn el er)
     if isSameExpr e' e then return .normal
     let ctx ← mkContext sr.type vars
+    let invsE := toExpr invs.toList
     -- Term steps `lhs = lhs' + c` and `rhs = rhs' + c` (without `+ c` when nothing is cancelled).
     -- `px` is the polynomial of `x` and `qx` the one of the rendered `x'`. In a commutative
     -- semiring the polynomials are checked by definitional equality and only `x` is normalized.
@@ -2236,7 +2326,7 @@ private def normalizeRelCore (rel : RelKind) (relFn : Expr) (order? : Option Ord
     let arcInst? ← if kind.isComm then getAddRightCancelInst? else pure none
     -- With a common part `c`, `lhs = lhs' + c` and `rhs = rhs' + c` are checked at a point and `c`
     -- is cancelled in the certificate (`eq_cancel_of_kronS`), so `c` is not written as a term.
-    if let (true, some csInst, some arcInst) := (hasC, csInst?, arcInst?) then
+    if let (true, some csInst, some arcInst) := (hasC && invs.isEmpty, csInst?, arcInst?) then
       -- When a side is all common part, its input term stands for `c`, smaller than the expansion.
       let cX : RingExpr := if lp matches .num 0 then l else if rp matches .num 0 then r else c.toExpr
       let lC : RingExpr := .add l' cX
@@ -2268,12 +2358,23 @@ private def normalizeRelCore (rel : RelKind) (relFn : Expr) (order? : Option Ord
             toExpr l, toExpr r, toExpr l', toExpr r', toExpr cX, eagerReflBoolTrue, eagerReflBoolTrue, reflI l,
             eagerReflBoolTrue, eagerReflBoolTrue, reflI r])
           return .step e' (mkExpectedPropHint h (mkPropEq e e'))
-    let mkTermStep (x xC : RingExpr) (px qx : Poly) (ex exC : Expr) : Expr :=
+    let (lC, rC) : RingExpr × RingExpr := if hasC then (.add l' c', .add r' c') else (l', r')
+    let (kronL?, kronR?) ← if invs.isEmpty then pure (none, none) else do
+      let (sfInst, charInst) := fc?.get!
+      pure (← mkSemifieldKronProof? sr.type sfInst charInst ctx u invs l lC,
+        ← mkSemifieldKronProof? sr.type sfInst charInst ctx u invs r rC)
+    let mkTermStep (x xC : RingExpr) (px qx : Poly) (ex exC : Expr) (kronProof? : Option Expr) : Expr :=
       let xE := toExpr x
       let xCE := toExpr xC
       -- Terms are evaluated at a point (Kronecker substitution), or large polynomials are checked
       -- with packed monomials, in the ring envelope.
-      if let (some csInst, some arcInst, true, some K) := (csInst?, arcInst?, linSemiOk x xC, kronLinExponent? x xC kronMaxBits) then
+      if !invs.isEmpty then
+        let (sfInst, charInst) := fc?.get!
+        let thm := mkApp3 (mkConst ``Grind.CommRing.Expr.eq_of_toPolyQS_eq [u]) sr.type sfInst charInst
+        let h := kronProof?.getD (mkApp7 thm ctx (toExpr (useBalanced x px.length)) invsE
+          (mkInvVarsOk sr.type u ctx invsE) xE xCE eagerReflBoolTrue)
+        mkExpectedPropHint h (mkApp3 (mkConst ``Eq [u.succ]) sr.type ex exC)
+      else if let (some csInst, some arcInst, true, some K) := (csInst?, arcInst?, linSemiOk x xC, kronLinExponent? x xC kronMaxBits) then
         let h := mkAppN (mkConst ``Grind.CommRing.Expr.eq_of_kronLinS [u])
           (#[sr.type, csInst, arcInst, ctx] ++ kronLinProofArgs x xC K)
         mkExpectedPropHint h (mkApp3 (mkConst ``Eq [u.succ]) sr.type ex exC)
@@ -2312,11 +2413,10 @@ private def normalizeRelCore (rel : RelKind) (relFn : Expr) (order? : Option Ord
           let thm := mkApp2 (mkConst ``Grind.CommRing.Expr.eq_of_toPolyS_eq_toExpr [u]) sr.type inst
           mkApp7 thm ctx (toExpr (useBalanced x px.length)) xE xCE pxE (reflP pxE) (reflE xCE)
       mkExpectedPropHint h (mkApp3 (mkConst ``Eq [u.succ]) sr.type ex exC)
-    let (lC, rC) : RingExpr × RingExpr := if hasC then (.add l' c.toExpr, .add r' c.toExpr) else (l', r')
     let elC ← if hasC then share (← denoteSemiringExpr' vars lC) else pure el
     let erC ← if hasC then share (← denoteSemiringExpr' vars rC) else pure er
-    let r₁ : Result := if isSameExpr lhs elC then .rfl else .step elC (mkTermStep l lC pl lp lhs elC)
-    let r₂ : Result := if isSameExpr rhs erC then .rfl else .step erC (mkTermStep r rC pr rp rhs erC)
+    let r₁ : Result := if isSameExpr lhs elC then .rfl else .step elC (mkTermStep l lC pl lp lhs elC kronL?)
+    let r₂ : Result := if isSameExpr rhs erC then .rfl else .step erC (mkTermStep r rC pr rp rhs erC kronR?)
     let eR ← mkAppS₂ relFn lhs rhs
     let rel₁ ← match h : eR with
       | .app fa@h':(.app f a) b => congrBin eR fa f a b r₁ r₂ h h'
@@ -2327,7 +2427,7 @@ private def normalizeRelCore (rel : RelKind) (relFn : Expr) (order? : Option Ord
       | .rfl .. => return .normal
       | .step _ h .. => return .step e' h
     let some mkIff := cancel? | throwError "internal error: `Sym.Arith` relation normalizer has no cancellation lemma"
-    let ec ← share (← denoteSemiringExpr' vars c.toExpr)
+    let ec ← share (← denoteSemiringExpr' vars c')
     let hCancel := mkExpectedPropHint (mkPropExt eC e' (mkIff el er ec)) (mkPropEq eC e')
     match rel₁ with
     | .rfl .. => return .step e' hCancel
@@ -2365,7 +2465,7 @@ private def runNormM (kind : Kind) (x : NormM α) : m α :=
 
 /-- Runs the visit `k` for the structure `kind` with a fresh variable array. -/
 private def runNorm (kind : Kind) (distrib : Bool) (k : VisitM m α) : m α := do
-  let (polyCfg, charZero) ← runNormM kind do pure (← polyConfig, (← fieldChar0?).isSome)
+  let (polyCfg, charZero) ← runNormM kind do pure (← polyConfig, (← inverseChar0?).isSome)
   (k.run { kind, distrib, polyCfg, charZero }).run' {}
 
 /--
@@ -2445,7 +2545,7 @@ private def normalizeRel? (v : Visitor m) (rel : RelKind) (α e lhs rhs : Expr) 
 
 /--
 Normalizes the arithmetic term `e` (an application of `+`, `-`, `*`, `^`, `•`, negation, or,
-in a field, `/` and `⁻¹`, whose carrier type is a ring or semiring) into polynomial normal
+in a field or semifield, `/` and `⁻¹`, whose carrier type is a ring or semiring) into polynomial normal
 form, after simplifying its atoms with `simpAtom`. `e` must be maximally shared.
 
 The result distinguishes three cases:
@@ -2469,14 +2569,14 @@ private def normalizeTerm? (v : Visitor m) (e : Expr) (distrib : Bool) (maxChar?
     let some (e₂, h) ← runNormM kind (mkCastLitStep? kind e) | return .rfl
     return .step e₂ h (done := true)
   let isRing := kind.isRing
-  let isField ← isFieldKind kind
+  let isSemifield ← isSemifieldKind kind
   -- Roots that the structure does not interpret are atoms.
   match_expr e with
   | HPow.hPow _ _ _ _ _ k => unless (Sym.getNatValue? k).run.isSome do return .rfl
   | HSub.hSub _ _ _ _ _ _ => unless isRing do return .rfl
   | Neg.neg _ _ _ => unless isRing do return .rfl
-  | HDiv.hDiv _ _ _ _ _ _ => unless isField do return .rfl
-  | Inv.inv _ _ _ => unless isField do return .rfl
+  | HDiv.hDiv _ _ _ _ _ _ => unless isSemifield do return .rfl
+  | Inv.inv _ _ _ => unless isSemifield do return .rfl
   | IntCast.intCast _ _ _ => unless isRing do return .rfl
   | _ => pure ()
   runNorm kind distrib do

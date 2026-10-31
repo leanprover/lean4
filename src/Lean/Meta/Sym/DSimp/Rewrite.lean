@@ -50,8 +50,9 @@ public def rewriteWith (thm : Theorem) (e : Expr) : DSimpM Result :=
   let e' ← instantiateRevBetaS rhs args.toArray
   if isSameExpr e e' then
     return .rfl
-  if thm.perm && !(← acLt e' e) then
-    return .rfl
+  if thm.perm then
+    if !(← acLt e' e) then
+      return .rfl
   return .step e'
 
 /-- Rewrites the prefix of `e` obtained by removing its last `numExtra` arguments. -/

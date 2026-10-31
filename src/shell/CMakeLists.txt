@@ -42,3 +42,8 @@ add_custom_target(
   COMMAND $(MAKE) -f ${CMAKE_BINARY_DIR}/stdlib.make lean
   COMMAND_EXPAND_LISTS
 )
+
+# `lean.js` needs a launcher so that tests and users can run `lean`
+if(CMAKE_SYSTEM_NAME MATCHES "Emscripten")
+  configure_file("${LEAN_SOURCE_DIR}/bin/lean.in" "${CMAKE_BINARY_DIR}/bin/lean" COPYONLY)
+endif()

@@ -64,5 +64,24 @@ def removeUnused (vars : Array Expr) (used : CollectFVars.State) : MetaM (LocalC
     (lctx, localInsts, #[], used)
   pure (lctx, localInsts, newVars.reverse)
 
+/--
+Creates a new metavariable in the local context `lctx`, reverting any free variables in `ty` that
+do not occur in `lctx`. The return value will be an application of the metavariable with the
+reverted variables, i.e. a metavariable application of type `ty`.
+
+Note: This function assumes that the `lctx` is a subprefix of the current local context.
+-/
+def mkFreshRevertedMVarAt (lctx : LocalContext) (linsts : LocalInstances) (ty : Expr)
+    (kind : MetavarKind := .syntheticOpaque) (userName : Name := Name.anonymous) : MetaM Expr := do
+  let ty ← instantiateMVars ty
+  let curLCtx ← getLCtx
+  let state ← (collectFVars {} ty).addDependencies
+  let toRevert := curLCtx.getFVarIds.filter (fun f => state.fvarSet.contains f && !lctx.contains f)
+  let toRevert := toRevert.map Expr.fvar
+  let ty' ← mkForallFVars toRevert ty
+  let revertArgs := toRevert.filter (fun fvar => !(curLCtx.getFVar! fvar).isLet)
+  let mvar ← mkFreshExprMVarAt lctx linsts ty' kind userName (numScopeArgs := revertArgs.size)
+  return mkAppN mvar revertArgs
+
 end Meta
 end Lean

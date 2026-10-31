@@ -22,7 +22,7 @@ structure SigmaIterator (γ : Type w) (α : γ → Type w) where
   parameter : γ
   inner : α parameter
 
-@[always_inline, inline]
+@[always_inline]
 def SigmaIterator.Monadic.modifyStep {β γ : Type w} {α : γ → Type w} {m : Type w → Type w'}
     [∀ x : γ, Iterator (α := α x) m β]
     (it : IterM (α := SigmaIterator γ α) m β)
@@ -122,7 +122,7 @@ dependency at the cost of storing the parameter in a structure field at runtime.
 * `Finite` instance: only if the base iterator is finite
 * `Productive` instance: only if the base iterator is productive
 -/
-@[always_inline, inline, expose]
+@[always_inline, expose]
 def IterM.sigma {γ : Type w} {α : γ → Type w}
     [∀ x : γ, Iterator (α x) m β] {param : γ} (it : IterM (α := α param) m β) :
     IterM (α := Types.SigmaIterator γ α) m β :=
@@ -132,7 +132,7 @@ end Std.Iterators
 
 open Std Std.Iterators Std.Iterators.Types
 
-@[always_inline, inline, expose]
+@[always_inline, expose]
 def Std.Iter.sigma {γ : Type w} {α : γ → Type w}
     [∀ x : γ, Iterator (α x) Id β] {param : γ} (it : Iter (α := α param) β):
     Iter (α := SigmaIterator γ α) β :=

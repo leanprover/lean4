@@ -264,7 +264,7 @@ theorem IterStep.successor_done : (IterStep.done (α := α) (β := β)).successo
 If present, applies `f` to the iterator of an `IterStep` and replaces the iterator
 with the result of the application of `f`.
 -/
-@[always_inline, inline, expose]
+@[always_inline, expose]
 def IterStep.mapIterator {α' : Type u'} (f : α → α') : IterStep α β → IterStep α' β
   | .yield it out => .yield (f it) out
   | .skip it => .skip (f it)
@@ -434,7 +434,7 @@ Makes a single step with the given iterator `it`, potentially emitting a value a
 succeeding iterator. If this function is used recursively, termination can sometimes be proved with
 the termination measures `it.finitelyManySteps` and `it.finitelyManySkips`.
 -/
-@[always_inline, inline, expose]
+@[always_inline, expose]
 def IterM.step {α : Type w} {m : Type w → Type w'} {β : Type w} [Iterator α m β]
     (it : IterM (α := α) m β) : m (Shrink it.Step) :=
   Iterator.step it
@@ -544,7 +544,7 @@ abbrev Iter.Step {α : Type w} {β : Type w} [Iterator α Id β] (it : Iter (α 
 /--
 Converts an `Iter.Step` into an `IterM.Step`.
 -/
-@[always_inline, inline, expose]
+@[always_inline, expose]
 def Iter.Step.toMonadic {α : Type w} {β : Type w} [Iterator α Id β] {it : Iter (α := α) β}
     (step : it.Step) : it.toIterM.Step :=
   ⟨step.val.mapIterator Iter.toIterM, step.property⟩
@@ -552,7 +552,7 @@ def Iter.Step.toMonadic {α : Type w} {β : Type w} [Iterator α Id β] {it : It
 /--
 Converts an `IterM.Step` into an `Iter.Step`.
 -/
-@[always_inline, inline, expose]
+@[always_inline, expose]
 def IterM.Step.toPure {α : Type w} {β : Type w} [Iterator α Id β] {it : IterM (α := α) Id β}
     (step : it.Step) : it.toIter.Step :=
   ⟨step.val.mapIterator IterM.toIter, (by simp [Iter.IsPlausibleStep, step.property])⟩
@@ -720,7 +720,7 @@ Makes a single step with the given iterator `it`, potentially emitting a value a
 succeeding iterator. If this function is used recursively, termination can sometimes be proved with
 the termination measures `it.finitelyManySteps` and `it.finitelyManySkips`.
 -/
-@[always_inline, inline, expose]
+@[always_inline, expose]
 def Iter.step {α β : Type w} [Iterator α Id β] (it : Iter (α := α) β) : it.Step :=
   it.toIterM.step.run.inflate.toPure
 

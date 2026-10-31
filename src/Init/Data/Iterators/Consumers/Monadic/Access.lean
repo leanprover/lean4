@@ -90,7 +90,7 @@ is guaranteed to plausible in the sense of `IterM.IsPlausibleNthOutputStep`.
 This function is only available for iterators that explicitly support it by implementing
 the `IteratorAccess` typeclass.
 -/
-@[always_inline, inline]
+@[always_inline]
 def IterM.nextAtIdx? [Iterator α m β] [IteratorAccess α m] (it : IterM (α := α) m β)
     (n : Nat) : m (PlausibleIterStep (it.IsPlausibleNthOutputStep n)) :=
   IteratorAccess.nextAtIdx? it n
@@ -105,7 +105,7 @@ is guaranteed to plausible in the sense of `IterM.IsPlausibleNthOutputStep`.
 This function is only available for iterators that explicitly support it by implementing
 the `IteratorAccess` typeclass.
 -/
-@[always_inline, inline]
+@[always_inline]
 def IterM.atIdx? [Iterator α m β] [IteratorAccess α m] [Monad m] (it : IterM (α := α) m β)
     (n : Nat) : m (Option β) := do
   match (← IteratorAccess.nextAtIdx? it n).val with

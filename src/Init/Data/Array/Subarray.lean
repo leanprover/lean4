@@ -54,25 +54,25 @@ abbrev Subarray (α : Type u) := Std.Slice (Internal.SubarrayData α)
 
 instance {α : Type u} : Self (Std.Slice (Internal.SubarrayData α)) (Subarray α) where
 
-@[always_inline, inline, expose, inherit_doc Internal.SubarrayData.array]
+@[always_inline, expose, inherit_doc Internal.SubarrayData.array]
 def Subarray.array (xs : Subarray α) : Array α :=
   xs.internalRepresentation.array
 
-@[always_inline, inline, expose, inherit_doc Internal.SubarrayData.start]
+@[always_inline, expose, inherit_doc Internal.SubarrayData.start]
 def Subarray.start (xs : Subarray α) : Nat :=
   xs.internalRepresentation.start
 
-@[always_inline, inline, expose, inherit_doc Internal.SubarrayData.stop]
+@[always_inline, expose, inherit_doc Internal.SubarrayData.stop]
 def Subarray.stop (xs : Subarray α) : Nat :=
   xs.internalRepresentation.stop
 
 set_option linter.defProp false in
-@[always_inline, inline, expose, inherit_doc Internal.SubarrayData.start_le_stop]
+@[always_inline, expose, inherit_doc Internal.SubarrayData.start_le_stop]
 def Subarray.start_le_stop (xs : Subarray α) : xs.start ≤ xs.stop :=
   xs.internalRepresentation.start_le_stop
 
 set_option linter.defProp false in
-@[always_inline, inline, expose, inherit_doc Internal.SubarrayData.stop_le_array_size]
+@[always_inline, expose, inherit_doc Internal.SubarrayData.stop_le_array_size]
 def Subarray.stop_le_array_size (xs : Subarray α) : xs.stop ≤ xs.array.size :=
   xs.internalRepresentation.stop_le_array_size
 

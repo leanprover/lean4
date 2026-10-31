@@ -66,7 +66,7 @@ This combinator incurs an additional O(1) cost with each step taken by `left` or
 Right now, the compiler does not unbox the internal state, leading to worse performance than
 possible.
 -/
-@[always_inline, inline]
+@[always_inline]
 def IterM.zip (left : IterM (α := α₁) m β₁) (right : IterM (α := α₂) m β₂) :
     IterM (α := Types.Zip α₁ m α₂ β₂) m (β₁ × β₂) :=
   ⟨⟨left, none, right⟩⟩

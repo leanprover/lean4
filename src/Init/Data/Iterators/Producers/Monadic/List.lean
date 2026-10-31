@@ -46,14 +46,14 @@ The non-monadic version of this iterator is `List.iter`.
 * `Finite` instance: always
 * `Productive` instance: always
 -/
-@[cbv_opaque, always_inline, inline]
+@[cbv_opaque, always_inline]
 def _root_.List.iterM {α : Type w} (l : List α) (m : Type w → Type w') [Pure m] :
     IterM (α := ListIterator α) m α :=
   ⟨{ list := l }⟩
 
 namespace Iterators.Types
 
-@[always_inline, inline]
+@[always_inline]
 instance ListIterator.instIterator {α : Type w} [Pure m] : Iterator (ListIterator α) m α where
   IsPlausibleStep it
     | .yield it' out => it.internalState.list = out :: it'.internalState.list
@@ -75,7 +75,7 @@ private def ListIterator.instFinitenessRelation [Pure m] :
 instance ListIterator.instFinite [Pure m] : Finite (ListIterator α) m :=
   by exact Finite.of_finitenessRelation ListIterator.instFinitenessRelation
 
-@[always_inline, inline]
+@[always_inline]
 instance ListIterator.instIteratorLoop {α : Type w} [Monad m] {n : Type x → Type x'} [Monad n] :
     IteratorLoop (ListIterator α) m n :=
   .defaultImplementation

@@ -43,3 +43,16 @@ info: pattern match succeeded
   match r with
   | some _ => logInfo "pattern match succeeded"
   | none   => logInfo "pattern match FAILED"
+
+/-! ## Postpone `max` when pattern uvars first appear inside `max` (#16070) -/
+
+theorem id_prod {α : Type u} {β : Type v} (p : α × β) : @id (α × β) p = p := rfl
+
+example {α : Type u} {β : Type (max v w)} (p : α × β) : @id (α × β) p = p := by
+  sym => simp [id_prod]
+
+example {α : Type u} {β : Type v} (p : β × α) : @id (β × α) p = p := by
+  sym => simp [id_prod]
+
+example {α : Type (max u v)} {β : Type u} (p : α × β) : @id (α × β) p = p := by
+  sym => simp [id_prod]

@@ -569,7 +569,8 @@ structure Cache where
   inferType      : InferTypeCache := {}
   funInfo        : FunInfoCache := {}
   synthInstance  : SynthInstanceCache := {}
-  whnf           : WhnfCache := {}
+  whnfTrans      : WhnfCache := {}
+  whnfPerm       : WhnfCache := {}
   defEqTrans     : DefEqCache := {} -- transient cache for terms containing mvars or using nonstandard configuration options, it is frequently reset.
   defEqPerm      : DefEqCache := {} -- permanent cache for terms not containing mvars and using standard configuration options
   isUnitLike     : IsUnitLikeCache := {}
@@ -867,13 +868,19 @@ def resetCache : MetaM Unit :=
   modifyCache fun _ => {}
 
 @[inline] def modifyInferTypeCache (f : InferTypeCache → InferTypeCache) : MetaM Unit :=
-  modifyCache fun ⟨ic, c1, c2, c3, c4, c5, c6⟩ => ⟨f ic, c1, c2, c3, c4, c5, c6⟩
+  modifyCache fun ⟨ic, c1, c2, c3, c4, c5, c6, c7⟩ => ⟨f ic, c1, c2, c3, c4, c5, c6, c7⟩
 
 @[inline] def modifyDefEqTransientCache (f : DefEqCache → DefEqCache) : MetaM Unit :=
-  modifyCache fun ⟨c1, c2, c3, c4, defeqTrans, c5, c6⟩ => ⟨c1, c2, c3, c4, f defeqTrans, c5, c6⟩
+  modifyCache fun ⟨c1, c2, c3, c4, c5, defeqTrans, c6, c7⟩ => ⟨c1, c2, c3, c4, c5, f defeqTrans, c6, c7⟩
 
 @[inline] def modifyDefEqPermCache (f : DefEqCache → DefEqCache) : MetaM Unit :=
-  modifyCache fun ⟨c1, c2, c3, c4, c5, defeqPerm, c6⟩ => ⟨c1, c2, c3, c4, c5, f defeqPerm, c6⟩
+  modifyCache fun ⟨c1, c2, c3, c4, c5, c6, defeqPerm, c7⟩ => ⟨c1, c2, c3, c4, c5, c6, f defeqPerm,c7⟩
+
+@[inline] def modifyWhnfTransientCache (f : WhnfCache → WhnfCache) : MetaM Unit :=
+  modifyCache fun ⟨c1, c2, c3, whnfTrans, c4, c5, c6, c7⟩ => ⟨c1, c2, c3, f whnfTrans, c4, c5, c6, c7⟩
+
+@[inline] def modifyWhnfPermCache (f : WhnfCache → WhnfCache) : MetaM Unit :=
+  modifyCache fun ⟨c1, c2, c3, c4, whnfPerm, c5, c6, c7⟩ => ⟨c1, c2, c3, c4, f whnfPerm, c5, c6,c7⟩
 
 def mkExprConfigCacheKey (expr : Expr) : MetaM ExprConfigCacheKey :=
   return { expr, configKey := (← read).configKey }
@@ -2668,6 +2675,7 @@ partial def processPostponed (mayPostpone : Bool := true) (exceptionOnFailure :=
     aggressive form of caching.
   -/
   modifyDefEqTransientCache fun _ => {}
+  modifyWhnfTransientCache fun _ => {}
   let postponed ← getResetPostponed
   try
     if (← x) then

@@ -1051,30 +1051,54 @@ def reduceNat? (e : Expr) : MetaM (Option Expr) :=
   | _ =>
     return none
 
+inductive CacheKind where
+  | transient -- problem has mvars or is using nonstandard configuration, we should use transient cache
+  | permanent -- problem does not have mvars and we are using standard config, we can use one persistent cache.
 
-@[inline] private def useWHNFCache (e : Expr) : MetaM Bool := do
-  -- We cache only closed terms without expr metavars.
-  -- Potential refinement: cache if `e` is not stuck at a metavariable
-  if e.hasFVar || e.hasExprMVar || (← read).customCanUnfoldPredicate?.isSome then
-    return false
+private def getWhnfCacheKind (t : Expr) : MetaM CacheKind := do
+  if t.hasFVar || t.hasMVar || (← read).customCanUnfoldPredicate?.isSome then
+    return .transient
   else
-    return true
+    return .permanent
+
+/--
+Structure for storing defeq cache key information.
+-/
+structure WhnfCacheKeyInfo where
+  kind : CacheKind
+  key  : ExprConfigCacheKey
+
+private def mkCacheKey (t : Expr) : MetaM WhnfCacheKeyInfo := do
+  let kind ← getWhnfCacheKind t
+  let key ← mkExprConfigCacheKey t
+  return { key, kind }
+
+private def getCachedResult (keyInfo : WhnfCacheKeyInfo) : MetaM (Option Expr) := do
+  let cache ← match keyInfo.kind with
+    | .transient => pure (← get).cache.whnfTrans
+    | .permanent => pure (← get).cache.whnfPerm
+  match cache.find? keyInfo.key with
+  | some val => return val
+  | none => return none
+
+private def cacheResult (keyInfo : WhnfCacheKeyInfo) (result : Expr) : MetaM Unit := do
+  let key := keyInfo.key
+  match keyInfo.kind with
+  | .permanent => modifyWhnfPermCache      fun c => c.insert key result
+  | .transient => modifyWhnfTransientCache fun c => c.insert key result
 
 set_option compiler.ignoreBorrowAnnotation true in
 @[export lean_whnf]
 partial def whnfImp (e : Expr) : MetaM Expr :=
   withIncRecDepth <| whnfEasyCases e fun e => do
-    if (← useWHNFCache e) then
-      -- one key for the lookup and the insertion: the configuration does not change in between
-      let key ← mkExprConfigCacheKey e
-      match (← get).cache.whnf.find? key with
+      let e ← instantiateExprMVars e
+      let key ← mkCacheKey e
+      match ← getCachedResult key with
       | some e' => pure e'
       | none    =>
         let r ← whnfUncached e
-        modify fun s => { s with cache.whnf := s.cache.whnf.insert key r }
+        cacheResult key r
         return r
-    else
-      whnfUncached e
 where
   whnfUncached (e : Expr) : MetaM Expr :=
     withTraceNode `Meta.whnf (fun _ => return m!"Non-easy whnf: {e}") do

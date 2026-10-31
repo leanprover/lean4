@@ -7,7 +7,7 @@ module
 prelude
 public import Lean.Meta.UnificationHint
 public import Lean.Util.OccursCheck
-import Lean.Meta.WHNF
+public import Lean.Meta.WHNF
 public section
 namespace Lean.Meta
 
@@ -2349,27 +2349,45 @@ private def isDefEqApp (t s : Expr) : MetaM Bool := do
 @[inline] private def cachedUnitLike? (key : ExprConfigCacheKey) : MetaM (Option Bool) := do
   return (← get).cache.isUnitLike.find? key
 
-private def cacheUnitLike (key : ExprConfigCacheKey) (b : Bool) : MetaM Bool := do
+-- Only cache results that didn't get stuck on an mvar after reduction
+private def cacheUnitLike (key : ExprConfigCacheKey) (lb : LBool) : MetaM Unit := do
+  if let .undef := lb then return
+  let b := match lb with | .true => true | .false => false |.undef => unreachable!
   modify fun s => { s with cache.isUnitLike := s.cache.isUnitLike.insert key b }
-  return b
+
+mutual
+private partial def isUnitLikeType (e : Expr) : MetaM LBool := do
+  let key ← mkExprConfigCacheKey e
+  match (← cachedUnitLike? key) with
+    | some b => pure b.toLBool
+    | none   =>
+      let isUnit ← isUnitLikeTypeCore e
+      cacheUnitLike key isUnit
+      return isUnit
 
 /-- Takes a type of the form `A1 -> ... -> An-> I As`, checks that `I` is a (non-recursive) structure, and that each (instantiated) fields is itself either a proposition or a unit-like type-/
-private partial def isUnitLikeType (e : Expr) : MetaM Bool :=
+private partial def isUnitLikeTypeCore (e : Expr) : MetaM LBool :=
   forallTelescopeReducing (whnfType := true) e fun _ tType => do
+    let e ← instantiateMVars e
+    if let some _ ← getStuckMVar? e then return .undef
     let hd := tType.getAppFn
-    matchConstNonRecStructure hd (fun _ => pure false) fun _ _ ctorVal => do
+    matchConstNonRecStructure hd (fun _ => pure .false) fun _ _ ctorVal => do
       unless ← useEtaStruct ctorVal.induct do
-        return false
+        return .false
       let ctorType := ctorVal.type
           |>.instantiateLevelParams ctorVal.levelParams hd.constLevels!
           -- `tType` is a structure, and in particular has no indices. Furthermore, it is a type, so `tType.getAppNumArgs = (← getConstInfoInduct ctorVal.induct).numParams`
           |>.getForallBodyMaxDepth tType.getAppNumArgs
           |>.instantiateRev tType.getAppArgs
-      forallTelescope ctorType fun xs _ =>
-        xs.allM fun e => do
+      forallTelescope ctorType fun xs _ => do
+        for e in xs do
           let ty ← e.fvarId!.getType
-          isProp ty <||> isUnitLikeType ty
-
+          if ← isProp ty then continue
+          let isUnit ← isUnitLikeType ty
+          if isUnit matches .true then continue
+          return isUnit
+        return .true
+end
 /--
   Return `true` if the types of the given expressions is a non-recursive, non-indexed inductive datatype
   with a single constructor for which all fields are unit-like or Prop types,
@@ -2377,16 +2395,8 @@ private partial def isUnitLikeType (e : Expr) : MetaM Bool :=
 -/
 private def isDefEqUnitLike (t : Expr) (s : Expr) : MetaM Bool := do
   let tType ← inferType t
-  let useCache := !tType.hasFVar && !tType.hasExprMVar && (← read).customCanUnfoldPredicate?.isNone
-  let isUnit ←
-    if useCache then do
-      let key ← mkExprConfigCacheKey tType
-      match (← cachedUnitLike? key) with
-      | some b => pure b
-      | none => cacheUnitLike key (← isUnitLikeType tType)
-    else
-      isUnitLikeType tType
-  if !isUnit then return false
+  let isUnit ← isUnitLikeType tType
+  if isUnit matches .false | .undef then return false
   Meta.isExprDefEqAux tType (← inferType s)
 
 /--
@@ -2475,11 +2485,7 @@ private def isExprDefEqExpensive (t : Expr) (s : Expr) : MetaM Bool := do
       whenUndefDo (isDefEqLateSpecialCases t s) do
       isDefEqOnFailure t s
 
-inductive DefEqCacheKind where
-  | transient -- problem has mvars or is using nonstandard configuration, we should use transient cache
-  | permanent -- problem does not have mvars and we are using standard config, we can use one persistent cache.
-
-private def getDefEqCacheKind (t s : Expr) : MetaM DefEqCacheKind := do
+private def getDefEqCacheKind (t s : Expr) : MetaM CacheKind := do
   if t.hasMVar || s.hasMVar || (← read).customCanUnfoldPredicate?.isSome then
     return .transient
   else
@@ -2489,7 +2495,7 @@ private def getDefEqCacheKind (t s : Expr) : MetaM DefEqCacheKind := do
 Structure for storing defeq cache key information.
 -/
 structure DefEqCacheKeyInfo where
-  kind : DefEqCacheKind
+  kind : CacheKind
   key  : DefEqCacheKey
 
 private def mkCacheKey (t s : Expr) : MetaM DefEqCacheKeyInfo := do

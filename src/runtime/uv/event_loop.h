@@ -8,10 +8,12 @@ Author: Sofia Rodrigues
 #include <lean/lean.h>
 #include "runtime/io.h"
 #include "runtime/object.h"
+#include "runtime/uv/util.h"
 
 #ifndef LEAN_EMSCRIPTEN
 #include <uv.h>
 #include <atomic>
+#include <vector>
 #endif
 
 namespace lean {
@@ -19,6 +21,7 @@ namespace lean {
 #ifndef LEAN_EMSCRIPTEN
 
 class event_loop_guard;
+class lthread;
 
 // The libuv loop, shared by all threads. libuv is not thread-safe, so the loop thread and every other
 // thread take turns holding `m_mutex`, and every libuv call and handle field is accessed under it:
@@ -35,21 +38,47 @@ class event_loop_guard;
 // - The mutex is recursive, since callbacks call back into the bindings. The loop thread waits on
 //   `m_cond` only between iterations, at depth 1, where waiting fully releases the mutex.
 //
+// When the task manager shuts down, `stop` ends the loop thread and tears the loop down: it closes every
+// handle and runs the loop until everything has finished. No Lean code runs during the teardown.
+// Everything the loop held is released once the loop is closed, except promises that are still pending,
+// which the next teardown releases. Releasing one discards its continuations, since no worker is left by
+// then, and work that only such a continuation could have finished, such as a select waiting on a
+// channel, stays behind as a reference cycle. Kept, it is still reachable when the process exits. When
+// the task manager restarts, `start` starts a fresh loop, and a handle the teardown closed stays closed.
 class event_loop {
 public:
-    uv_loop_t * m_loop;
+    uv_loop_t * m_loop = nullptr;
 
-    // Initializes the loop and starts the loop thread.
+    // Starts a fresh loop and the loop thread, at startup and again after each `stop`.
     void start();
+
+    // Tears the loop down. Called after the task manager's workers have finished.
+    void stop();
 
     // Whether the loop has work other than `m_async`.
     bool alive(event_loop_guard const &);
 
+    // Whether the loop is still running, as opposed to torn down by `stop`. Call with the lock held.
+    bool running() const { return m_running; }
+
+    // Hands a reference to the loop during the teardown: a pending promise is kept until the next
+    // teardown, anything else is released once the loop is closed. Call with the lock held.
+    void exit_drop(owned_ref ref);
+
 private:
+    uv_loop_t        m_loop_storage;
     uv_mutex_t       m_mutex;
     uv_cond_t        m_cond;
     uv_async_t       m_async;   // Interrupts `uv_run` for a waiting thread.
     std::atomic<int> m_waiters; // Threads waiting for `m_mutex`.
+    // Orders every send on `m_async` before `stop` closes it.
+    uv_mutex_t       m_async_mutex;
+    bool             m_running = false;
+    lthread *        m_thread = nullptr;
+    // What the teardown releases once the loop is closed.
+    std::vector<owned_ref> m_released;
+    // The pending promises of the last teardown. Never freed, so that they are reachable at exit.
+    std::vector<owned_ref> * m_kept = nullptr;
 
     void lock();
     void unlock();
@@ -69,7 +98,27 @@ public:
     ~event_loop_guard() { global_ev.unlock(); }
     event_loop_guard(event_loop_guard const &) = delete;
     event_loop_guard & operator=(event_loop_guard const &) = delete;
+
+    // Whether the loop is torn down, between a `stop` and the next `start`. An FFI entry point then fails
+    // with `UV_ECANCELED` instead of calling libuv.
+    bool stopped() const { return !global_ev.running(); }
+
+    // Whether `handle` can no longer be used: the loop is torn down, or a teardown closed the handle before
+    // the loop was started again. A finalizer closes only handles that Lean code can no longer reach.
+    template<class H>
+    bool closed(H * handle) const { return stopped() || uv_is_closing((uv_handle_t*)handle); }
 };
+
+// The first thing a request callback does: during the teardown at exit it hands the request's
+// references to the loop and returns `true`, so the callback must not resolve anything.
+template<class... Refs>
+bool uv_dropped_at_exit(Refs &... refs) {
+    if (global_ev.running()) {
+        return false;
+    }
+    (global_ev.exit_drop(std::move(refs)), ...);
+    return true;
+}
 
 #endif
 

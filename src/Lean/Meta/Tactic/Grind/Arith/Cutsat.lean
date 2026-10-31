@@ -26,6 +26,7 @@ namespace Lean.Meta.Grind.Arith.Cutsat
 builtin_initialize registerTraceClass `grind.lia
 builtin_initialize registerTraceClass `grind.lia.nonlinear
 builtin_initialize registerTraceClass `grind.lia.model
+builtin_initialize registerTraceClass `grind.lia.reorder
 builtin_initialize registerTraceClass `grind.lia.assert
 builtin_initialize registerTraceClass `grind.lia.assert.trivial
 builtin_initialize registerTraceClass `grind.lia.assert.unsat
@@ -39,6 +40,7 @@ builtin_initialize registerTraceClass `grind.debug.lia.search.assign (inherited 
 builtin_initialize registerTraceClass `grind.debug.lia.search.conflict (inherited := true)
 builtin_initialize registerTraceClass `grind.debug.lia.search.backtrack (inherited := true)
 builtin_initialize registerTraceClass `grind.debug.lia.internalize
+builtin_initialize registerTraceClass `grind.debug.lia.norm
 builtin_initialize registerTraceClass `grind.debug.lia.toInt
 builtin_initialize registerTraceClass `grind.debug.lia.search.cnstrs
 builtin_initialize registerTraceClass `grind.debug.lia.search.reorder
@@ -46,6 +48,7 @@ builtin_initialize registerTraceClass `grind.debug.lia.elimEq
 
 builtin_initialize
   cutsatExt.setMethods
+    (enabled     := (·.lia))
     (internalize := Cutsat.internalize)
     (newEq       := Cutsat.processNewEq)
     (newDiseq    := Cutsat.processNewDiseq)

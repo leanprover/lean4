@@ -11,6 +11,18 @@ Author: Leonardo de Moura
 #include <limits.h>
 #include <float.h>
 
+#ifndef __has_builtin
+#  define __has_builtin(x) 0
+#endif
+
+// The bundled toolchain omits math.h; only the fallback implementations need it.
+#if !__has_builtin(__builtin_elementwise_minimum) || \
+    !__has_builtin(__builtin_elementwise_minimumnum) || \
+    !__has_builtin(__builtin_elementwise_maximum) || \
+    !__has_builtin(__builtin_elementwise_maximumnum)
+#include <math.h>
+#endif
+
 #include <lean/config.h>
 
 #ifdef LEAN_MIMALLOC
@@ -112,8 +124,9 @@ void lean_notify_assert(const char * fileName, int line, const char * condition)
 #define LeanExternal    254
 #define LeanReserved    255
 
-#define LEAN_MAX_CTOR_FIELDS 256
-#define LEAN_MAX_CTOR_SCALARS_SIZE 1024
+// The number of object fields must be storable in `m_other:8`.
+#define LEAN_MAX_CTOR_NUM_OBJS 255
+#define LEAN_MAX_CTOR_SCALARS_SIZE 1023
 
 static inline bool lean_is_big_object_tag(uint8_t tag) {
     return tag == LeanArray || tag == LeanStructArray || tag == LeanScalarArray || tag == LeanString;
@@ -647,9 +660,26 @@ static inline _Atomic(int) * lean_get_rc_mt_addr(lean_object* o) {
    the band, and the room between `LEAN_RC_STICKY` and INT_MIN, are what bound how far such adjustments can
    move a frozen count: it takes more of them in flight at once than the band is wide to lift the count back
    out or to wrap it past INT_MIN. `LEAN_RC_INC_MAX` bounds what a single one of them contributes. */
-// sync with tests/elab/rc_sticky_thresholds.lean (`LEAN_RC_STICKY`, `LEAN_RC_STICKY_DROP`)
+// sync with tests/elab/rc_model.lean (`LEAN_RC_STICKY`, `LEAN_RC_STICKY_DROP`)
 #define LEAN_RC_STICKY      (INT_MIN + 0x10000000)
 #define LEAN_RC_STICKY_DROP (INT_MIN + 0x20000000)
+
+/* Whether the count of `o` is thread-shared and not stuck, that is, one that increments still
+   adjust. Read as unsigned, a persistent count (0), a single-threaded count and a stuck count all
+   fall below every such count, so one comparison rejects them all. */
+// sync with tests/elab/rc_model.lean (`isUnstuckMt_unsigned`)
+static inline bool lean_is_unstuck_mt(lean_object * o) {
+    return (unsigned)lean_internal_get_rc(o) > (unsigned)LEAN_RC_STICKY;
+}
+
+/* Whether the count of `o` is one no drop will ever free: persistent, or at or below the drop
+   threshold. Read as unsigned, both fall below every unstuck thread-shared count, so one comparison
+   catches both; so would a single-threaded count, which callers must have excluded first. */
+// sync with tests/elab/rc_model.lean (`isNeverFreed_unsigned`)
+static inline bool lean_is_never_freed(lean_object * o) {
+    assert(!lean_is_st(o));
+    return (unsigned)lean_internal_get_rc(o) <= (unsigned)LEAN_RC_STICKY_DROP;
+}
 
 /* Largest `n` that `lean_inc_ref_n` adjusts the count by inline; above this it defers to
    `lean_inc_ref_huge_n`, which either applies the whole `n` or leaves the object frozen. Overflow
@@ -658,13 +688,22 @@ static inline _Atomic(int) * lean_get_rc_mt_addr(lean_object* o) {
    of the room below `LEAN_RC_STICKY` one increment can consume, leaving the rest as margin against
    adjustments in flight on other threads. Code generation only ever emits `n` in the low thousands,
    so a constant `n` folds this test away and never reaches the bound. */
-// sync with tests/elab/rc_sticky_thresholds.lean (`LEAN_RC_INC_MAX`)
+// sync with tests/elab/rc_model.lean (`LEAN_RC_INC_MAX`)
 #define LEAN_RC_INC_MAX ((size_t)0x10000)
+
+/* An overflowing single-threaded count lands at or below this: the inline increment wraps it into
+   `[INT_MIN, INT_MIN + LEAN_RC_INC_MAX)`, and `lean_inc_ref_huge_n` freezes it here, so
+   `lean_mark_mt` can still tell an object only one thread owns. A frozen thread-shared count stays
+   above it while at most 4094 maximal increments are in flight at once, two fewer than the sticky
+   range already allows before a frozen count wraps into the single-threaded range (i.e. about
+   equally safe to assume not to happen in practice). */
+// sync with tests/elab/rc_model.lean (`LEAN_RC_STUCK_ST`)
+#define LEAN_RC_STUCK_ST (INT_MIN + (int)LEAN_RC_INC_MAX)
 
 /* Cold path of `lean_inc_ref_n` for increments above `LEAN_RC_INC_MAX`. */
 LEAN_EXPORT void lean_inc_ref_huge_n(lean_object * o, size_t n);
 
-// sync with tests/elab/rc_sticky_thresholds.lean (`incRefN`)
+// sync with tests/elab/rc_model.lean (`incRefN`)
 static inline void lean_inc_ref_n(lean_object * o, size_t n) {
     // A count above this could wrap clean past the sticky range, on either the single-threaded or
     // the thread-shared path, so both are handed to the cold helper. The test is on `n` alone, so a
@@ -676,9 +715,7 @@ static inline void lean_inc_ref_n(lean_object * o, size_t n) {
     }
     if (LEAN_LIKELY(lean_is_st(o))) {
         lean_internal_add_rc(o, n);
-    } else if ((unsigned)lean_internal_get_rc(o) > (unsigned)LEAN_RC_STICKY) {
-        // Read as unsigned, a persistent count (0) and a sticky count both fall below every live
-        // thread-shared count, so one comparison rejects both.
+    } else if (lean_is_unstuck_mt(o)) {
 #ifdef __cplusplus
         std::atomic_fetch_sub_explicit(lean_get_rc_mt_addr(o), n, std::memory_order_relaxed);
 #else
@@ -693,7 +730,7 @@ static inline void lean_inc_ref(lean_object * o) {
 
 LEAN_EXPORT void lean_dec_ref_cold(lean_object * o);
 
-// sync with tests/elab/rc_sticky_thresholds.lean (`decRef`)
+// sync with tests/elab/rc_model.lean (`decRef`)
 static inline LEAN_ALWAYS_INLINE void lean_dec_ref(lean_object * o) {
     if (LEAN_LIKELY(lean_internal_get_rc(o) > 1)) {
         lean_internal_sub_rc(o, 1);
@@ -721,6 +758,10 @@ static inline unsigned lean_obj_tag(lean_object * o) {
     if (lean_is_scalar(o)) return lean_unbox(o); else return lean_ptr_tag(o);
 }
 
+static inline lean_object* lean_obj_tag_nat(b_lean_obj_arg o) {
+    return lean_box(lean_obj_tag(o));
+}
+
 static inline lean_ctor_object * lean_to_ctor(lean_object * o) { assert(lean_is_ctor(o)); return (lean_ctor_object*)(o); }
 static inline lean_closure_object * lean_to_closure(lean_object * o) { assert(lean_is_closure(o)); return (lean_closure_object*)(o); }
 static inline lean_array_object * lean_to_array(lean_object * o) { assert(lean_is_array(o)); return (lean_array_object*)(o); }
@@ -741,7 +782,11 @@ static inline bool lean_is_exclusive(lean_object * o) {
 }
 
 static inline uint8_t lean_is_exclusive_obj(lean_object * o) {
-    return lean_is_exclusive(o);
+    if (lean_is_scalar(o)) {
+        return 1;
+    } else {
+        return lean_is_exclusive(o);
+    }
 }
 
 static inline bool lean_is_shared(lean_object * o) {
@@ -810,7 +855,7 @@ static inline uint8_t * lean_ctor_scalar_cptr(lean_object * o) {
 }
 
 static inline lean_object * lean_alloc_ctor(unsigned tag, unsigned num_objs, unsigned scalar_sz) {
-    assert(tag <= LeanMaxCtorTag && num_objs < LEAN_MAX_CTOR_FIELDS && scalar_sz < LEAN_MAX_CTOR_SCALARS_SIZE);
+    assert(tag <= LeanMaxCtorTag && num_objs <= LEAN_MAX_CTOR_NUM_OBJS && scalar_sz <= LEAN_MAX_CTOR_SCALARS_SIZE);
     lean_object * o = lean_alloc_ctor_memory(lean_usize_add_checked(lean_usize_add_checked(sizeof(lean_ctor_object), lean_usize_mul_checked(sizeof(void*), num_objs)), scalar_sz));
     lean_set_st_header(o, tag, num_objs);
     return o;
@@ -1309,6 +1354,10 @@ static inline lean_obj_res lean_byte_array_fset(lean_obj_arg a, b_lean_obj_arg i
     return lean_byte_array_uset(a, lean_unbox(i), b);
 }
 
+LEAN_EXPORT bool lean_byte_array_lt(b_lean_obj_arg s1, b_lean_obj_arg s2);
+LEAN_EXPORT uint8_t lean_byte_array_compare(b_lean_obj_arg s1, b_lean_obj_arg s2);
+static inline uint8_t lean_byte_array_dec_lt(b_lean_obj_arg s1, b_lean_obj_arg s2) { return lean_byte_array_lt(s1, s2); }
+
 /* FloatArray (special case of Array of Scalars) */
 
 LEAN_EXPORT lean_obj_res lean_float_array_mk(lean_obj_arg a);
@@ -1381,7 +1430,6 @@ static inline lean_obj_res lean_alloc_string(size_t size, size_t capacity, size_
     o->m_length = len;
     return (lean_object*)o;
 }
-LEAN_EXPORT size_t lean_utf8_strlen(char const * str);
 LEAN_EXPORT size_t lean_utf8_n_strlen(char const * str, size_t n);
 static inline size_t lean_string_capacity(lean_object * o) { return lean_to_string(o)->m_capacity; }
 static inline size_t lean_string_byte_size(lean_object * o) { return sizeof(lean_string_object) + lean_string_capacity(o); }
@@ -1429,11 +1477,44 @@ static inline lean_obj_res lean_string_propagate_mark(b_lean_obj_arg src, lean_o
     return lean_string_mark_linear(dst);
 }
 
-LEAN_EXPORT lean_obj_res lean_string_push(lean_obj_arg s, uint32_t c);
+LEAN_EXPORT lean_obj_res lean_string_push_cold(lean_obj_arg s, uint32_t c);
+static inline lean_obj_res lean_string_push(lean_obj_arg s, uint32_t c) {
+    if (LEAN_LIKELY(lean_is_exclusive(s))) {
+        lean_string_object * o = lean_to_string(s);
+        size_t sz = o->m_size; /* includes the terminating NUL */
+        if (LEAN_LIKELY(sz + 4 <= o->m_capacity)) {
+            unsigned char * d = (unsigned char *)o->m_data + sz - 1;
+            unsigned n;
+            if (c < 0x80) {
+                d[0] = (unsigned char)c;
+                n = 1;
+            } else if (c < 0x800) {
+                d[0] = (unsigned char)(0xc0 | (c >> 6));
+                d[1] = (unsigned char)(0x80 | (c & 0x3f));
+                n = 2;
+            } else if (c < 0x10000) {
+                d[0] = (unsigned char)(0xe0 | (c >> 12));
+                d[1] = (unsigned char)(0x80 | ((c >> 6) & 0x3f));
+                d[2] = (unsigned char)(0x80 | (c & 0x3f));
+                n = 3;
+            } else {
+                d[0] = (unsigned char)(0xf0 | (c >> 18));
+                d[1] = (unsigned char)(0x80 | ((c >> 12) & 0x3f));
+                d[2] = (unsigned char)(0x80 | ((c >> 6) & 0x3f));
+                d[3] = (unsigned char)(0x80 | (c & 0x3f));
+                n = 4;
+            }
+            d[n] = 0;
+            o->m_size = sz + n;
+            o->m_length++;
+            return s;
+        }
+    }
+    return lean_string_push_cold(s, c);
+}
 LEAN_EXPORT lean_obj_res lean_string_append(lean_obj_arg s1, b_lean_obj_arg s2);
 static inline lean_obj_res lean_string_length(b_lean_obj_arg s) { return lean_box(lean_string_len(s)); }
 LEAN_EXPORT lean_obj_res lean_string_mk(lean_obj_arg cs);
-LEAN_EXPORT lean_obj_res lean_string_data(lean_obj_arg s);
 LEAN_EXPORT uint32_t  lean_string_utf8_get(b_lean_obj_arg s, b_lean_obj_arg i);
 LEAN_EXPORT uint32_t lean_string_utf8_get_fast_cold(char const * str, size_t i, size_t size, unsigned char c);
 static inline uint32_t lean_string_utf8_get_fast(b_lean_obj_arg s, b_lean_obj_arg i) {
@@ -1481,8 +1562,9 @@ static inline uint8_t lean_string_dec_lt(b_lean_obj_arg s1, b_lean_obj_arg s2) {
 LEAN_EXPORT uint64_t lean_string_hash(b_lean_obj_arg);
 LEAN_EXPORT lean_obj_res lean_string_of_usize(size_t);
 LEAN_EXPORT uint8_t lean_string_memcmp(b_lean_obj_arg s1, b_lean_obj_arg s2, b_lean_obj_arg lstart, b_lean_obj_arg rstart, b_lean_obj_arg len);
+LEAN_EXPORT uint8_t lean_string_memcmp_lt(b_lean_obj_arg s1, b_lean_obj_arg s2, b_lean_obj_arg lstart, b_lean_obj_arg rstart, b_lean_obj_arg len);
+LEAN_EXPORT uint8_t lean_string_memcmp_compare(b_lean_obj_arg s1, b_lean_obj_arg s2, b_lean_obj_arg lstart, b_lean_obj_arg rstart, b_lean_obj_arg len);
 LEAN_EXPORT uint64_t lean_slice_hash(b_lean_obj_arg);
-LEAN_EXPORT uint8_t lean_slice_dec_lt(b_lean_obj_arg s1, b_lean_obj_arg s2);
 
 /* Thunks */
 
@@ -2275,6 +2357,14 @@ static inline uint64_t lean_uint64_mix_hash(uint64_t h, uint64_t k) {
     h ^= k;
     h *= m;
     return h;
+}
+static inline uint32_t lean_uint32_mix_hash(uint32_t h, uint32_t k) {
+    k *= 0xcc9e2d51;
+    k ^= k >> 15;
+    k *= 0x1b873593;
+    h ^= k;
+    h = (h << 13) | (h >> 19);
+    return h * 5 + 0xe6546b64;
 }
 
 /* UInt64 -> other */
@@ -3310,6 +3400,90 @@ static inline double lean_int32_to_float(uint32_t a) { return (double)(int32_t) 
 static inline double lean_int64_to_float(uint64_t a) { return (double)(int64_t) a; }
 static inline double lean_isize_to_float(size_t a) { return (double)(ptrdiff_t) a; }
 
+static inline double lean_float_minimum(double a, double b) {
+#if __has_builtin(__builtin_elementwise_minimum)
+    // This path is taken when building Lean with our bundled LLVM toolchain, so you get this in
+    // all nightlies and release builds.
+    //
+    // This function is also part of the C23 standard as `fminimum`, but it will be a while until
+    // we can assume that this is available
+    return __builtin_elementwise_minimum(a, b);
+#else
+    // This is a fallback path taken if you build Lean using your system compiler and it does not
+    // have the intrinsic above (i.e. your compiler is an older Clang or a different C compiler)
+    if (isnan(a) || isnan(b))
+        return a + b;
+    if (a == b)
+        return signbit(a) ? a : b;
+    return a < b ? a : b;
+#endif
+}
+
+static inline double lean_float_minimum_number(double a, double b) {
+#if __has_builtin(__builtin_elementwise_minimumnum)
+    // This path is taken when building Lean with our bundled LLVM toolchain, so you get this in
+    // all nightlies and release builds.
+    //
+    // This function is also part of the C23 standard as `fminimum_num`, but it will be a while
+    // until we can assume that this is available
+    return __builtin_elementwise_minimumnum(a, b);
+#else
+    // This is a fallback path taken if you build Lean using your system compiler and it does not
+    // have the intrinsic above (i.e. your compiler is an older Clang or a different C compiler)
+    if (isnan(a) || isnan(b)) {
+        if (isnan(a) && isnan(b))
+            return a + b;
+        (void)(a == b);
+        return isnan(a) ? b : a;
+    }
+    if (a == b)
+        return signbit(a) ? a : b;
+    return a < b ? a : b;
+#endif
+}
+
+static inline double lean_float_maximum(double a, double b) {
+#if __has_builtin(__builtin_elementwise_maximum)
+    // This path is taken when building Lean with our bundled LLVM toolchain, so you get this in
+    // all nightlies and release builds.
+    //
+    // This function is also part of the C23 standard as `fmaximum`, but it will be a while until
+    // we can assume that this is available
+    return __builtin_elementwise_maximum(a, b);
+#else
+    // This is a fallback path taken if you build Lean using your system compiler and it does not
+    // have the intrinsic above (i.e. your compiler is an older Clang or a different C compiler)
+    if (isnan(a) || isnan(b))
+        return a + b;
+    if (a == b)
+        return signbit(a) ? b : a;
+    return a > b ? a : b;
+#endif
+}
+
+static inline double lean_float_maximum_number(double a, double b) {
+#if __has_builtin(__builtin_elementwise_maximumnum)
+    // This path is taken when building Lean with our bundled LLVM toolchain, so you get this in
+    // all nightlies and release builds.
+    //
+    // This function is also part of the C23 standard as `fmaximum_num`, but it will be a while
+    // until we can assume that this is available
+    return __builtin_elementwise_maximumnum(a, b);
+#else
+    // This is a fallback path taken if you build Lean using your system compiler and it does not
+    // have the intrinsic above (i.e. your compiler is an older Clang or a different C compiler)
+    if (isnan(a) || isnan(b)) {
+        if (isnan(a) && isnan(b))
+            return a + b;
+        (void)(a == b);
+        return isnan(a) ? b : a;
+    }
+    if (a == b)
+        return signbit(a) ? b : a;
+    return a > b ? a : b;
+#endif
+}
+
 /* float32 primitives */
 static inline uint8_t lean_float32_to_uint8(float a) {
     return 0. <= a ? (a < 256. ? (uint8_t)a : UINT8_MAX) : 0;
@@ -3390,6 +3564,90 @@ static inline float lean_isize_to_float32(size_t a) { return (float)(ptrdiff_t) 
 static inline float lean_float_to_float32(double a) { return (float)a; }
 static inline double lean_float32_to_float(float a) { return (double)a; }
 
+static inline float lean_float32_minimum(float a, float b) {
+#if __has_builtin(__builtin_elementwise_minimum)
+    // This path is taken when building Lean with our bundled LLVM toolchain, so you get this in
+    // all nightlies and release builds.
+    //
+    // This function is also part of the C23 standard as `fminimum`, but it will be a while until
+    // we can assume that this is available
+    return __builtin_elementwise_minimum(a, b);
+#else
+    // This is a fallback path taken if you build Lean using your system compiler and it does not
+    // have the intrinsic above (i.e. your compiler is an older Clang or a different C compiler)
+    if (isnan(a) || isnan(b))
+        return a + b;
+    if (a == b)
+        return signbit(a) ? a : b;
+    return a < b ? a : b;
+#endif
+}
+
+static inline float lean_float32_minimum_number(float a, float b) {
+#if __has_builtin(__builtin_elementwise_minimumnum)
+    // This path is taken when building Lean with our bundled LLVM toolchain, so you get this in
+    // all nightlies and release builds.
+    //
+    // This function is also part of the C23 standard as `fminimum_num`, but it will be a while
+    // until we can assume that this is available
+    return __builtin_elementwise_minimumnum(a, b);
+#else
+    // This is a fallback path taken if you build Lean using your system compiler and it does not
+    // have the intrinsic above (i.e. your compiler is an older Clang or a different C compiler)
+    if (isnan(a) || isnan(b)) {
+        if (isnan(a) && isnan(b))
+            return a + b;
+        (void)(a == b);
+        return isnan(a) ? b : a;
+    }
+    if (a == b)
+        return signbit(a) ? a : b;
+    return a < b ? a : b;
+#endif
+}
+
+static inline float lean_float32_maximum(float a, float b) {
+#if __has_builtin(__builtin_elementwise_maximum)
+    // This path is taken when building Lean with our bundled LLVM toolchain, so you get this in
+    // all nightlies and release builds.
+    //
+    // This function is also part of the C23 standard as `fmaximum`, but it will be a while until
+    // we can assume that this is available
+    return __builtin_elementwise_maximum(a, b);
+#else
+    // This is a fallback path taken if you build Lean using your system compiler and it does not
+    // have the intrinsic above (i.e. your compiler is an older Clang or a different C compiler)
+    if (isnan(a) || isnan(b))
+        return a + b;
+    if (a == b)
+        return signbit(a) ? b : a;
+    return a > b ? a : b;
+#endif
+}
+
+static inline float lean_float32_maximum_number(float a, float b) {
+#if __has_builtin(__builtin_elementwise_maximumnum)
+    // This path is taken when building Lean with our bundled LLVM toolchain, so you get this in
+    // all nightlies and release builds.
+    //
+    // This function is also part of the C23 standard as `fmaximum_num`, but it will be a while
+    // until we can assume that this is available
+    return __builtin_elementwise_maximumnum(a, b);
+#else
+    // This is a fallback path taken if you build Lean using your system compiler and it does not
+    // have the intrinsic above (i.e. your compiler is an older Clang or a different C compiler)
+    if (isnan(a) || isnan(b)) {
+        if (isnan(a) && isnan(b))
+            return a + b;
+        (void)(a == b);
+        return isnan(a) ? b : a;
+    }
+    if (a == b)
+        return signbit(a) ? b : a;
+    return a > b ? a : b;
+#endif
+}
+
 /* Efficient C implementations of defns used by the compiler */
 static inline size_t lean_hashmap_mk_idx(lean_obj_arg sz, uint64_t hash) {
     return (size_t)(hash & (lean_unbox(sz) - 1));
@@ -3410,8 +3668,8 @@ static inline uint64_t lean_expr_data(lean_obj_arg expr) {
 #pragma GCC diagnostic ignored "-Wunused-parameter"
 #endif
 
-static inline lean_obj_res lean_get_max_ctor_fields(lean_obj_arg _unit) {
-    return lean_box(LEAN_MAX_CTOR_FIELDS);
+static inline lean_obj_res lean_get_max_ctor_num_objs(lean_obj_arg _unit) {
+    return lean_box(LEAN_MAX_CTOR_NUM_OBJS);
 }
 
 static inline lean_obj_res lean_get_max_ctor_scalars_size(lean_obj_arg _unit) {
@@ -3474,7 +3732,9 @@ static inline lean_obj_res lean_runtime_hold(b_lean_obj_arg a) {
     return lean_box(0);
 }
 
-#ifdef LEAN_EMSCRIPTEN
+// The compiler writes the scalar fields of static constructor objects 8 bytes at a time with this
+// macro, as one `m_objs` slot where pointers have 8 bytes and as two where they have 4.
+#if UINTPTR_MAX == UINT32_MAX
 #define LEAN_SCALAR_PTR_LITERAL(b1, b2, b3, b4, b5, b6, b7, b8) (lean_object*)((uint32_t)b1 | ((uint32_t)b2 << 8) | ((uint32_t)b3 << 16) | ((uint32_t)b4 << 24)), (lean_object*)((uint32_t)b5 | ((uint32_t)b6 << 8) | ((uint32_t)b7 << 16) | ((uint32_t)b8 << 24))
 #else
 #define LEAN_SCALAR_PTR_LITERAL(b1, b2, b3, b4, b5, b6, b7, b8) (lean_object*)((uint64_t)b1 | ((uint64_t)b2 << 8) | ((uint64_t)b3 << 16) | ((uint64_t)b4 << 24) | ((uint64_t)b5 << 32) | ((uint64_t)b6 << 40) | ((uint64_t)b7 << 48) | ((uint64_t)b8 << 56))

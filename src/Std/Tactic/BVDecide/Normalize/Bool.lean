@@ -7,6 +7,7 @@ module
 
 prelude
 public import Init.Data.BitVec.Lemmas
+public import Init.Data.BitVec.Package
 public import Init.Data.BitVec.Decidable
 import Init.Data.BEq
 

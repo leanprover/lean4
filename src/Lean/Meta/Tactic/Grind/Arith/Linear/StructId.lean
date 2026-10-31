@@ -6,7 +6,6 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Lean.Meta.Tactic.Grind.Types
-import Lean.Meta.Tactic.Grind.OrderInsts
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Util
 import Lean.Meta.Tactic.Grind.Arith.CommRing.RingId
 import Lean.Meta.Tactic.Grind.Arith.Linear.Var
@@ -14,7 +13,7 @@ import Lean.Meta.Sym.Arith.Insts
 import Init.Grind.Module.Envelope
 public section
 namespace Lean.Meta.Grind.Arith.Linear
-open Sym.Arith (getIsCharInst?)
+open Sym.Arith (getIsCharInst? mkIsPreorderInst? mkIsPartialOrderInst? mkIsLinearOrderInst? mkLawfulOrderLTInst?)
 
 private def preprocess (e : Expr) : GoalM Expr := do
   shareCommon (← canon e)
@@ -58,16 +57,9 @@ private def isNonTrivialIsCharInst (isCharInst? : Option (Expr × Nat)) : Bool :
   | some (_, c) => c != 1
   | none => false
 
-private def isCutsatType (type : Expr) : GoalM Bool := do
-  if (← getConfig).lia then
-    if (← Cutsat.isSupportedType type) then
-      -- If `type` is supported by cutsat, let it handle
-      return true
-  return false
-
 private def getCommRingInst? (ringId? : Option Nat) : GoalM (Option Expr) := do
   let some ringId := ringId? | return none
-  return some (← CommRing.RingM.run ringId do return (← CommRing.getCommRing).commRingInst)
+  return some (← CommRing.RingM.run ringId do return (← Sym.Arith.getCommRing).commRingInst)
 
 private def mkRingInst? (u : Level) (type : Expr) (commRingInst? : Option Expr) : GoalM (Option Expr) := do
   if let some commRingInst := commRingInst? then
@@ -161,7 +153,7 @@ private def getHSMulNatFn? (u : Level) (type : Expr) : GoalM (Option Expr) := do
 
 def getStructId? (type : Expr) : GoalM (Option Nat) := do
   unless (← getConfig).linarith do return none
-  if (← isCutsatType type) then return none
+  if (← Cutsat.isCutsatType type) then return none
   if let some id? := (← get').typeIdOf.find? { expr := type } then
     return id?
   else
@@ -359,7 +351,7 @@ where
     modify' fun s => { s with structs := s.structs.push struct }
     if let some one := one? then
       if ringInst?.isSome then LinearM.run id do
-        if orderedRingInst?.isSome then
+        if orderedRingInst?.isSome && lawfulOrderLTInst?.isSome then
           -- Create `1` variable, and assert strict lower bound `0 < 1` and `0 ≠ 1`
           let x ← mkVar one (mark := false)
           addZeroLtOne x
@@ -376,7 +368,7 @@ private def mkNatModuleInst? (u : Level) (type : Expr) : GoalM (Option Expr) := 
 def getNatStructId? (type : Expr) : GoalM (Option Nat) := do
   unless (← getConfig).linarith do return none
   if (← get').forbiddenNatModules.contains { expr := type } then return none
-  if (← isCutsatType type) then return none
+  if (← Cutsat.isCutsatType type) then return none
   if let some id? := (← get').natTypeIdOf.find? { expr := type } then
     return id?
   else

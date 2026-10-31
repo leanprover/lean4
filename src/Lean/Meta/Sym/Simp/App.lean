@@ -66,6 +66,18 @@ public def mkCongr (e : Expr) (f a : Expr) (fr : Result) (ar : Result) (_ : e = 
     let h := mkApp6 (← mkCongrPrefix ``congr) f f' a a' hf ha
     return .step e' h (contextDependent := cd₁ || cd₂)
 
+/-- `mkCongr` for an unchanged function `f`: `.rfl` if `ar` is, otherwise a `congrArg` proof. -/
+public def mkCongrArg (e : Expr) (f a : Expr) (ar : Result) (_ : e = .app f a) : SymM Result := do
+  match ar with
+  | .rfl _ cd => return mkRflResultCD cd
+  | .step a' ha _ cd =>
+    let α ← inferType a
+    let u ← getLevel α
+    let β ← inferType e
+    let v ← getLevel β
+    let e' ← mkAppS f a'
+    return .step e' (mkApp6 (mkConst ``congrArg [u, v]) α β a a' f ha) (contextDependent := cd)
+
 /--
 Returns a proof using `congrFun`
 ```
@@ -367,39 +379,52 @@ def simpUsingCongrThm (e : Expr) (thm : CongrTheorem) : SimpM Result := do
   Constructs the non-`rfl` result. `argResults` contains the result for arguments with kind `.eq`.
   There is at least one non-`rfl` result in `argResults`.
   -/
-  let mkNonRflResult (argResults : Array Result) : SimpM Result := do
+  let mkNonRflResult (argResults : Array Result) (hasInst : Bool) : SimpM Result := do
     let mut proof := thm.proof
     let mut type  := thm.type
     let mut j := 0 -- index at argResults
     let mut subst := #[]
+    -- `subst` with the original arguments in place of the simplified ones, maintained only if
+    -- there is a `.subsingletonInst` argument: its class changed exactly when it differs between
+    -- the two instantiations.
+    let mut substOld := #[]
     let args := e.getAppArgs
     for arg in args, kind in argKinds do
       proof := mkApp proof arg
       type := type.bindingBody!
       match kind with
-      | .fixed => subst := subst.push arg
-      | .cast  => subst := subst.push arg
+      | .fixed | .cast =>
+        subst := subst.push arg
+        if hasInst then substOld := substOld.push arg
       | .subsingletonInst =>
         subst := subst.push arg
+        substOld := substOld.push arg
         let clsNew := type.bindingDomain!.instantiateRev subst
-        let instNew ← if (← isDefEqI (← inferType arg) clsNew) then
+        -- The old instance is reused only if its class is unchanged. A definitional comparison
+        -- of the classes would unify the old and new arguments, and the congruence theorem
+        -- accepts any instance of the new class.
+        let instNew ← if clsNew == type.bindingDomain!.instantiateRev substOld then
           pure arg
         else
           let .some val ← trySynthInstance clsNew | return .rfl
           pure val
         proof := mkApp proof instNew
         subst := subst.push instNew
+        substOld := substOld.push instNew
         type := type.bindingBody!
       | .eq =>
         subst := subst.push arg
+        if hasInst then substOld := substOld.push arg
         match argResults[j]! with
         | .rfl _ _ =>
           let h ← mkEqRefl arg
           proof := mkApp2 proof arg h
           subst := subst.push arg |>.push h
+          if hasInst then substOld := substOld.push arg |>.push h
         | .step arg' h _ _ =>
           proof := mkApp2 proof arg' h
           subst := subst.push arg' |>.push h
+          if hasInst then substOld := substOld.push arg |>.push h
         type := type.bindingBody!.bindingBody!
         j := j + 1
       | _ => unreachable!
@@ -420,26 +445,25 @@ def simpUsingCongrThm (e : Expr) (thm : CongrTheorem) : SimpM Result := do
   -- (due to lazy initialization of `argResults`). Without this, cd from `.rfl`
   -- sub-results would be silently dropped.
   let rec simpEqArgs (e : Expr) (i : Nat) (numEqs : Nat) (argResults : Array Result)
-      (anyCD : Bool) : SimpM Result := do
+      (anyCD : Bool) (hasInst : Bool) : SimpM Result := do
     match e with
     | .app f a =>
       match argKinds[i]! with
-      | .subsingletonInst
-      | .fixed => simpEqArgs f (i-1) numEqs argResults anyCD
-      | .cast => simpEqArgs f (i-1) numEqs argResults anyCD
+      | .subsingletonInst => simpEqArgs f (i-1) numEqs argResults anyCD true
+      | .fixed | .cast => simpEqArgs f (i-1) numEqs argResults anyCD hasInst
       | .eq =>
         let r ← simp a
-        simpEqArgs f (i-1) (numEqs+1) (pushResult argResults numEqs r) (anyCD || r.isContextDependent)
+        simpEqArgs f (i-1) (numEqs+1) (pushResult argResults numEqs r) (anyCD || r.isContextDependent) hasInst
       | _ => unreachable!
     | _ =>
       if argResults.isEmpty then
         return mkRflResultCD anyCD
       else
-        let r ← mkNonRflResult argResults.reverse
+        let r ← mkNonRflResult argResults.reverse hasInst
         return if anyCD && !r.isContextDependent then r.withContextDependent else r
   let numArgs := e.getAppNumArgs
   if numArgs > argKinds.size then
-    simpOverApplied e (numArgs - argKinds.size) (simpEqArgs · (argKinds.size - 1) 0 #[] false)
+    simpOverApplied e (numArgs - argKinds.size) (simpEqArgs · (argKinds.size - 1) 0 #[] false false)
   else if numArgs < argKinds.size then
     /-
     **Note**: under-applied case. This can be optimized, but this case is so
@@ -447,7 +471,7 @@ def simpUsingCongrThm (e : Expr) (thm : CongrTheorem) : SimpM Result := do
     -/
     simpOverApplied e e.getAppNumArgs (fun _ => return .rfl)
   else
-    simpEqArgs e (argKinds.size - 1) 0 #[] false
+    simpEqArgs e (argKinds.size - 1) 0 #[] false false
 
 /--
 Main entry point for simplifying function application arguments.

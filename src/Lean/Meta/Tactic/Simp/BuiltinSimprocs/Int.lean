@@ -57,10 +57,16 @@ If they do, they must disable the following `simprocs`.
 set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
 builtin_dsimproc [simp, seval] reduceNeg ((- _ : Int)) := fun e => do
   let_expr Neg.neg _ _ arg ← e | return .continue
-  if arg.isAppOfArity ``OfNat.ofNat 3 then
-    -- We return .done to ensure `Neg.neg` is not unfolded even when `ground := true`.
-    return .done e
-  else
+  match_expr arg with
+  | OfNat.ofNat _ val _ =>
+    match val with
+    | .lit (.natVal 0) =>
+      -- `-0` denotes the same value as `0` and is not a normal form.
+      return .done arg
+    | _ =>
+      -- We return .done to ensure `Neg.neg` is not unfolded even when `ground := true`.
+      return .done e
+  | _ =>
     let some v ← fromExpr? arg | return .continue
     return .done <| toExpr (- v)
 

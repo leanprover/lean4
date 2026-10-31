@@ -68,9 +68,27 @@ public def getProofInstInfo? (declName : Name) : SymM (Option ProofInstInfo) := 
     modify fun s => { s with proofInstInfo := s.proofInstInfo.insert declName r }
     return r
 
+/--
+Returns information about the type of the local declaration `fvarId`. It contains information about
+which arguments are proofs or instances. Returns `none` if no arguments are proofs or instances.
+-/
+public def getProofInstInfoOfFVar? (fvarId : FVarId) : SymM (Option ProofInstInfo) := do
+  if let some r := (← get).proofInstInfoFVar.find? fvarId then
+    return r
+  else
+    let r ← forallTelescopeReducing (← fvarId.getType) fun xs _ => mkProofInstArgInfo? xs
+    modify fun s => { s with proofInstInfoFVar := s.proofInstInfoFVar.insert fvarId r }
+    return r
+
+/--
+Returns information about which arguments of the function `e` are proofs or instances, see
+`getProofInstInfo?` and `getProofInstInfoOfFVar?`. Returns `none` if `e` is neither a constant
+nor a local declaration.
+-/
 public def getProofInstInfoOfExpr? (e : Expr) : SymM (Option ProofInstInfo) := do
   match e with
   | .const declName _ => getProofInstInfo? declName
+  | .fvar fvarId => getProofInstInfoOfFVar? fvarId
   | _ => return none -- TODO: if needed
 
 end Lean.Meta.Sym

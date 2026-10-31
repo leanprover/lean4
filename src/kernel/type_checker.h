@@ -102,6 +102,7 @@ private:
     lbool try_string_lit_expansion(expr const & t, expr const & s);
     bool is_def_eq_app(expr const & t, expr const & s);
     lbool is_def_eq_proof_irrel(expr const & t, expr const & s);
+    bool is_unit_like(expr const & t);
     bool is_def_eq_unit_like(expr const & t, expr const & s);
     bool failed_before(expr const & t, expr const & s) const;
     void cache_failure(expr const & t, expr const & s);
@@ -121,12 +122,8 @@ private:
     optional<expr> reduce_shiftLeft(expr const & e);
     optional<expr> reduce_nat(expr const & e);
 public:
-    // The following two constructor are used only by the old compiler and should be deleted with it
-    type_checker(state & st, local_ctx const & lctx, definition_safety ds = definition_safety::safe);
-    type_checker(state & st, definition_safety ds = definition_safety::safe):type_checker(st, local_ctx(), ds) {}
     type_checker(environment const & env, local_ctx const & lctx, diagnostics * diag = nullptr, definition_safety ds = definition_safety::safe);
     type_checker(environment const & env, diagnostics * diag = nullptr, definition_safety ds = definition_safety::safe):type_checker(env, local_ctx(), diag, ds) {}
-    type_checker(type_checker &&) noexcept;
     type_checker(type_checker const &) = delete;
     ~type_checker();
 
@@ -151,12 +148,6 @@ public:
     bool is_prop(expr const & t);
     /** \brief Return the weak head normal form of \c t. */
     expr whnf(expr const & t);
-    /** \brief Return a Pi if \c t is convertible to a Pi type. Throw an exception otherwise.
-        The argument \c s is used when reporting errors */
-    expr ensure_pi(expr const & t, expr const & s);
-    expr ensure_pi(expr const & t) { return ensure_pi(t, t); }
-    /** \brief Mare sure type of \c e is a Pi, and return it. Throw an exception otherwise. */
-    expr ensure_fun(expr const & e) { return ensure_pi(infer(e), e); }
     /** \brief Return a Sort if \c t is convertible to Sort. Throw an exception otherwise.
         The argument \c s is used when reporting errors. */
     expr ensure_sort(expr const & t, expr const & s);
@@ -164,7 +155,6 @@ public:
     expr ensure_sort(expr const & t) { return ensure_sort(t, t); }
     /** \brief Mare sure type of \c e is a sort, and return it. Throw an exception otherwise. */
     expr ensure_type(expr const & e) { return ensure_sort(infer(e), e); }
-    expr eta_expand(expr const & e);
 
     /**
        \brief Helper function for computing the weak head normal form.

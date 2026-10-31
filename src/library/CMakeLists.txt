@@ -2,11 +2,9 @@ add_library(
   library
   OBJECT
   expr_lt.cpp
-  bin_app.cpp
   constants.cpp
   module.cpp
   dynlib.cpp
-  num.cpp
   util.cpp
   print.cpp
   init_module.cpp
@@ -15,6 +13,7 @@ add_library(
   formatter.cpp
   elab_environment.cpp
   init_attribute.cpp
+  const_cache.cpp
   llvm.cpp
   ir_interpreter.cpp
   instantiate_mvars.cpp

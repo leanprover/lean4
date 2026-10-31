@@ -32,13 +32,24 @@ structure MatchEqnsExtState where
 builtin_initialize matchEqnsExt : EnvExtension MatchEqnsExtState ←
   -- Using `local` allows us to use the extension in `realizeConst` without specifying `replay?`.
   -- The resulting state can still be accessed on the generated declarations using `.asyncEnv`;
-  -- see below
-  registerEnvExtension (pure {}) (asyncMode := .local)
+  -- see below.
+  registerEnvExtension (pure {}) (asyncMode := .local) (logWrites := true)
 
 def registerMatchEqns (matchDeclName : Name) (matchEqns : MatchEqns) : CoreM Unit := do
-  modifyEnv fun env => matchEqnsExt.modifyState env fun { map, eqns } => {
+  -- unlogged: as for `registerEqnThms`
+  modifyEnv fun env => matchEqnsExt.modifyState (log := .unlogged) env fun { map, eqns } => {
     eqns := matchEqns.eqnNames.foldl (init := eqns) fun eqns eqn => eqns.insert eqn
-    map := map.insert matchDeclName matchEqns
+    -- Write-once, as for `MapDeclarationExtension.insert`. Re-registration with the same equations
+    -- is idempotent.
+    map :=
+      have : Inhabited _ := ⟨map⟩
+      match map.find? matchDeclName with
+      | some prev =>
+        if prev.eqnNames != matchEqns.eqnNames then
+          panic! s!"match equations for `{matchDeclName}` are already registered"
+        else
+          map
+      | none => map.insert matchDeclName matchEqns
   }
 
 /-

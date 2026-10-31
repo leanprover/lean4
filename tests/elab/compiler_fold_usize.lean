@@ -151,16 +151,14 @@ public def testAddPos : USize :=
   x1 + x2
 
 /--
-trace: [Compiler.saveMono] size: 3
-    def testAddNoAction : USize :=
-      let x1 := 1;
-      let x2 := 4294967296;
-      let _x.1 := USize.add x1 x2;
+trace: [Compiler.saveMono] size: 1
+    def testAddLarge : USize :=
+      let _x.1 := 4294967297;
       return _x.1
 -/
 #guard_msgs in
 set_option trace.Compiler.saveMono true in
-public def testAddNoAction : USize :=
+public def testAddLarge : USize :=
   let x1 : USize := 1
   let x2 : USize := 4294967296
   x1 + x2
@@ -179,16 +177,14 @@ public def testSubPos : USize :=
   x1 - x2
 
 /--
-trace: [Compiler.saveMono] size: 3
-    def testSubNoAction : USize :=
-      let x1 := 11;
-      let x2 := 53;
-      let _x.1 := USize.sub x1 x2;
+trace: [Compiler.saveMono] size: 1
+    def testSubLarge : USize :=
+      let _x.1 := 18446744073709551574;
       return _x.1
 -/
 #guard_msgs in
 set_option trace.Compiler.saveMono true in
-public def testSubNoAction : USize :=
+public def testSubLarge : USize :=
   let x1 : USize := 11
   let x2 : USize := 53
   x1 - x2
@@ -207,16 +203,14 @@ public def testMulPos : USize :=
   x1 * x2
 
 /--
-trace: [Compiler.saveMono] size: 3
-    def testMulNoAction : USize :=
-      let x1 := 3;
-      let x2 := 4294967296;
-      let _x.1 := USize.mul x1 x2;
+trace: [Compiler.saveMono] size: 1
+    def testMulLarge : USize :=
+      let _x.1 := 12884901888;
       return _x.1
 -/
 #guard_msgs in
 set_option trace.Compiler.saveMono true in
-public def testMulNoAction : USize :=
+public def testMulLarge : USize :=
   let x1 : USize := 3
   let x2 : USize := 4294967296
   x1 * x2
@@ -284,16 +278,14 @@ public def testLandPos : USize :=
   x1 &&& x2
 
 /--
-trace: [Compiler.saveMono] size: 3
-    def testLandNoOp : USize :=
-      let x1 := 4294967297;
-      let x2 := 4294967296;
-      let _x.1 := USize.land x1 x2;
+trace: [Compiler.saveMono] size: 1
+    def testLandLarge : USize :=
+      let _x.1 := 4294967296;
       return _x.1
 -/
 #guard_msgs in
 set_option trace.Compiler.saveMono true in
-public def testLandNoOp : USize :=
+public def testLandLarge : USize :=
   let x1 : USize := 4294967297
   let x2 : USize := 4294967296
   x1 &&& x2
@@ -312,16 +304,14 @@ public def testLorPos : USize :=
   x1 ||| x2
 
 /--
-trace: [Compiler.saveMono] size: 3
-    def testLorNoOp : USize :=
-      let x1 := 4294967297;
-      let x2 := 4294967296;
-      let _x.1 := USize.lor x1 x2;
+trace: [Compiler.saveMono] size: 1
+    def testLorLarge : USize :=
+      let _x.1 := 4294967297;
       return _x.1
 -/
 #guard_msgs in
 set_option trace.Compiler.saveMono true in
-public def testLorNoOp : USize :=
+public def testLorLarge : USize :=
   let x1 : USize := 4294967297
   let x2 : USize := 4294967296
   x1 ||| x2
@@ -340,16 +330,14 @@ public def testXorPos : USize :=
   x1 ^^^ x2
 
 /--
-trace: [Compiler.saveMono] size: 3
-    def testXorNoOp : USize :=
-      let x1 := 18446497783090249727;
-      let x2 := 1311784886829608959;
-      let _x.1 := USize.xor x1 x2;
+trace: [Compiler.saveMono] size: 1
+    def testXorLarge : USize :=
+      let _x.1 := 17134924002497368064;
       return _x.1
 -/
 #guard_msgs in
 set_option trace.Compiler.saveMono true in
-public def testXorNoOp : USize :=
+public def testXorLarge : USize :=
   let x1 : USize := 0xffff1fffff1fffff
   let x2 : USize := 0x1234656789346fff
   x1 ^^^ x2

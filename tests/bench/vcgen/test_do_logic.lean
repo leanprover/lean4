@@ -5,7 +5,6 @@ Authors: Vladimir Gladshtein, Sebastian Graf
 -/
 import Lean
 import Std.WP
-import Std.Tactic.Do
 
 set_option experimental.vcgen true
 
@@ -139,12 +138,13 @@ theorem fib_impl_vcs
   case inv1 h => exact I n h
   case vc1 h => subst h; apply_rules [ret]
   case vc2 h => apply_rules [loop_pre]
-  case vc3 => apply_rules [loop_step]
+  case vc3 h a b hinv => exact loop_post n h (a, b) hinv
   case vc4 h pref cur suff _hsplit a b _hinv =>
-    -- `cleanupVC` reduced the `ForInStep.yield` that the step's postcondition matches on, and the
-    -- loop's two mutable variables reach the verification condition as separate binders.
-    guard_target =ₛ I n h (pref ++ [cur]) suff ((a, b).snd, (a, b).fst + (a, b).snd)
-    apply_rules [loop_post]
+    -- The `ForInStep.yield` that the step's postcondition matches on and the projections of the
+    -- state pair are reduced, and the loop's two mutable variables reach the verification
+    -- condition as separate binders.
+    guard_target =ₛ I n h (pref ++ [cur]) suff (b, a + b)
+    exact loop_step n h (a, b) pref cur suff _hsplit _hinv
 
 @[spec]
 theorem mkFreshNat_spec [Monad m] [Assertion Pred] [Assertion EPosts] [WPMonad m Pred EPosts] :
@@ -253,6 +253,24 @@ example (p : Nat → Prop) [DecidablePred p] (n : Nat) :
       (onContinue := fun pref _ _ => ⌜∀ i, i ∈ pref → p i⌝)
   all_goals simp_all [-Classical.not_forall]; try grind
 
+def nodup (l : List Int) : Bool := Id.run do
+  let mut seen : Std.HashSet Int := ∅
+  for x in l do
+    if x ∈ seen then
+      return false
+    seen := seen.insert x
+  return true
+
+theorem nodup_correct (l : List Int) : nodup l ↔ l.Nodup := by
+  generalize h : nodup l = r
+  apply Id.of_run_eq_wp h
+  vcgen invariants
+  · Invariant.withEarlyReturnNewDo
+      (onReturn := fun ret seen => ret = false ∧ ¬l.Nodup)
+      (onContinue := fun pref suff seen =>
+        (∀ x, x ∈ seen ↔ x ∈ pref) ∧ pref.Nodup)
+  with finish
+
 end Automated
 
 namespace HimpSplit
@@ -266,6 +284,44 @@ theorem himp_post {m} [Monad m] [Assertion Pred] [Assertion EPosts] [WPMonad m P
   all_goals grind
 
 end HimpSplit
+
+namespace AndSplit
+
+-- A pointwise `∧` precondition splits like `⊓`, so the `wp` of the second `dec` is stepped.
+def dec : StateM Nat Unit := modify (· - 1)
+
+@[spec] theorem dec_spec {Q : Unit → Nat → Prop} :
+    ⦃ fun n => 0 < n ∧ Q () (n - 1) ⦄ dec ⦃ Q ⦄ := by
+  vcgen [dec] <;> simp_all
+
+example : ⦃ fun n => n = 2 ⦄ (do dec; dec) ⦃ fun _ n => n = 0 ⦄ := by
+  vcgen <;> omega
+
+end AndSplit
+
+namespace ExistsSplit
+
+-- An `∃` over a proposition splits like `∧`, so the `wp` of the second `setAt` is stepped.
+def setAt (xs : Array Nat) (i : Nat) : StateM Nat Unit := set xs[i]!
+
+@[spec] theorem setAt_spec {xs : Array Nat} {i : Nat} {Q : Unit → Nat → Prop} :
+    ⦃ fun _ => ∃ h : i < xs.size, Q () xs[i] ⦄ setAt xs i ⦃ Q ⦄ := by
+  vcgen [setAt] with finish
+
+example : ⦃ fun _ => True ⦄ (do setAt #[1, 2, 3] 1; setAt #[4, 5] 0) ⦃ fun _ n => n = 4 ⦄ := by
+  vcgen with finish
+
+-- A `⨆` over a proposition splits like `∃`.
+def setAt' (xs : Array Nat) (i : Nat) : StateM Nat Unit := set xs[i]!
+
+@[spec] theorem setAt'_spec {xs : Array Nat} {i : Nat} {Q : Unit → Nat → Prop} :
+    ⦃ fun _ => ⨆ h : i < xs.size, Q () xs[i] ⦄ setAt' xs i ⦃ Q ⦄ := by
+  vcgen [setAt'] with finish
+
+example : ⦃ fun _ => True ⦄ (do setAt' #[1, 2, 3] 1; setAt' #[4, 5] 0) ⦃ fun _ n => n = 4 ⦄ := by
+  vcgen with finish
+
+end ExistsSplit
 
 namespace VSTTE2010
 
@@ -618,7 +674,7 @@ instance : MyShl UInt64 Int32 := {
 error: unsolved goals
 case vc1
 a : UInt64
-h✝ : (UInt64.toBitVec 0).uaddOverflow (a <<< UInt64.ofNat (Int32.toInt 32).toNat).toBitVec = true
+h✝ : (0#64).uaddOverflow (a <<< UInt64.ofNat (Int32.toInt 32).toNat).toBitVec = true
 ⊢ wp (Except.error "") (fun x => True) ⊥
 -/
 #guard_msgs in
@@ -775,10 +831,14 @@ decrease is lexicographic in `(i, j)`. -/
 def countdownLex (n : Nat) : StateT Nat Id Unit := do
   let mut i := n
   let mut j := 0
-  while 0 < i ∨ 0 < j do
-    if 0 < j then
-      j := j - 1
+  let mut k := 0
+  while 0 < i ∨ 0 < j ∨ 0 < k do
+    if 0 < k then
+      k := k - 1
       modify (· + 1)
+    else if 0 < j then
+      j := j - 1
+      k := n
     else
       i := i - 1
       j := n
@@ -788,10 +848,8 @@ theorem countdownLex_spec (n : Nat) :
     ⦃ fun _ => True ⦄ countdownLex n ⦃ fun _ _ => True ⦄ := by
   vcgen [countdownLex] invariants
   | inv1 => WhileInvariant.ofInvariantAndBreak (fun _ _ => True) (fun _ _ => True)
-  | inv2 => .ofMeasure fun (i, j) => (i, j)
-  all_goals simp_all [Variant.evalsBelow_ofMeasure]
-  all_goals subst_vars
-  all_goals decreasing_tactic
+  | inv2 => .ofMeasure fun (i, j, k) => (i, j, k)
+  with finish
 
 end WhileInvariantOfInvariantAndBreak
 namespace WithGrindError
@@ -812,3 +870,73 @@ example : ⦃ True ⦄ trivial_test 0 ⦃fun r => r = 0⦄ := by
   vcgen [trivial_test] with grind
 
 end WithGrindError
+
+namespace ConjunctivePre
+
+/-! Each spec below has a precondition conjunctive in `Q`, so `vcgen` applies it directly and forms
+no frame. The preconditions use `∀`/`→` (`bump_spec`), a `wp` applied to the state (`bump2_spec`),
+`if` (`bumpSat_spec`), `match` (`dec_spec`), `Prod.snd` (`bumpE_spec`) and a pair (`retryE_spec`).
+The frame `fun s => s = 3` fails to hold across each program: a framed application leaves an
+unprovable goal such as `WP.Frames meet bump (fun s => s = 3)`. -/
+
+@[irreducible] def bump : StateT Nat Id Unit := modify (· + 1)
+
+@[spec]
+theorem bump_spec (Q : Unit → Nat → Prop) :
+    ⦃ fun s => ∀ s', s' = s + 1 → Q () s' ⦄ bump ⦃ Q ⦄ := by
+  unfold bump; vcgen with finish
+
+example : ⦃ fun s => s = 3 ⦄ bump ⦃ fun _ s => s = 4 ⦄ := by
+  vcgen frames | bump => fun s => s = 3 with finish
+
+@[irreducible] def bump2 : StateT Nat Id Unit := do bump; bump
+
+@[spec]
+theorem bump2_spec (Q : Unit → Nat → Prop) (E : EStack⟨⟩) :
+    ⦃ fun s => wp bump (fun _ => wp bump Q E) E s ⦄ bump2 ⦃ Q; E ⦄ := by
+  unfold bump2; exact ⟨WPMonad.bind_le_wp_bind bump (fun _ => bump) Q E⟩
+
+example : ⦃ fun s => s = 3 ⦄ bump2 ⦃ fun _ s => s = 5 ⦄ := by
+  vcgen frames | bump2 => fun s => s = 3 with finish
+
+@[irreducible] def bumpSat : StateT Nat Id Unit := modify fun s => if s < 10 then s + 1 else s
+
+@[spec]
+theorem bumpSat_spec (Q : Unit → Nat → Prop) :
+    ⦃ fun s => if s < 10 then Q () (s + 1) else Q () s ⦄ bumpSat ⦃ Q ⦄ := by
+  unfold bumpSat; vcgen with finish
+
+example : ⦃ fun s => s = 3 ⦄ bumpSat ⦃ fun _ s => s = 4 ⦄ := by
+  vcgen frames | bumpSat => fun s => s = 3 with finish
+
+@[irreducible] def dec : StateT Nat Id Unit := modify fun | 0 => 0 | n + 1 => n
+
+@[spec]
+theorem dec_spec (Q : Unit → Nat → Prop) :
+    ⦃ fun s => match s with | 0 => Q () 0 | n + 1 => Q () n ⦄ dec ⦃ Q ⦄ := by
+  unfold dec; vcgen; rename_i s _; cases s <;> simp_all
+
+example : ⦃ fun s => s = 3 ⦄ dec ⦃ fun _ s => s = 2 ⦄ := by
+  vcgen frames | dec => fun s => s = 3 with finish
+
+@[irreducible] def bumpE : ExceptT String (StateT Nat Id) Unit := monadLift bump
+
+@[spec]
+theorem bumpE_spec (Q : Unit → Nat → Prop) (E : (String → Nat → Prop) × EStack⟨⟩) :
+    ⦃ wp bump Q E.snd ⦄ bumpE ⦃ Q; E ⦄ := by
+  unfold bumpE; exact Spec.monadLift_ExceptT bump Q E
+
+example : ⦃ fun s => s = 3 ⦄ bumpE ⦃ fun _ s => s = 4 ⦄ := by
+  vcgen frames | bumpE => fun s => s = 3 with finish
+
+@[irreducible] def retryE : ExceptT String (StateT Nat Id) Unit := tryCatch bumpE fun _ => bumpE
+
+@[spec]
+theorem retryE_spec (Q : Unit → Nat → Prop) (E : (String → Nat → Prop) × EStack⟨⟩) :
+    ⦃ wp bumpE Q (fun _ => wp bumpE Q E, E.snd) ⦄ retryE ⦃ Q; E ⦄ := by
+  unfold retryE; exact Spec.tryCatch_ExceptT bumpE (fun _ => bumpE) Q E
+
+example : ⦃ fun s => s = 3 ⦄ retryE ⦃ fun _ s => s = 4 ⦄ := by
+  vcgen frames | retryE => fun s => s = 3 with finish
+
+end ConjunctivePre

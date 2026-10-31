@@ -73,6 +73,11 @@ mutual
 structure EqCnstr where
   p  : Poly
   h  : EqCnstrProof
+  /--
+  Split depth of the goal where the constraint was stored, if any (see `markStored`).
+  Its proof can be built in that goal, and is shared by all subgoals of the case splits below it.
+  -/
+  depth? : Option Nat := none
 
 inductive EqCnstrProof where
   | /-- An equality `a = 0` coming from the core. -/
@@ -83,19 +88,30 @@ inductive EqCnstrProof where
     -/
     core (a b : Expr) (p₁ p₂ : Poly)
   | coreToInt (a b : Expr) (toIntThm : Expr) (lhs rhs : Int.Internal.Linear.Expr)
-  | /-- `e` is `e'` -/
-    defn (e : Expr) (e' : Int.Internal.Linear.Expr)
-  | defnNat (h : Expr) (x : Var) (e' : Int.Internal.Linear.Expr)
+  | /--
+    An equality `lhs = rhs` with proof `h`, asserted directly instead of through the E-graph. `lhs` and
+    `rhs` represent the two sides as they occur in the type of `h`.
+    -/
+    hyp (h : Expr) (lhs rhs : Int.Internal.Linear.Expr)
+  | /-- `x = e` where `x` is the variable for `e`, `e` is in normal form, and `p` is its polynomial. -/
+    defn (e : Expr) (p : Poly)
+  | /-- `x = e'` with proof `h : x.denote = e'.denote`. `e'` is normalized by `Expr.norm`. -/
+    defnExpr (h : Expr) (x : Var) (e' : Int.Internal.Linear.Expr)
   | norm (c : EqCnstr)
   | divCoeffs (c : EqCnstr)
   | subst (x : Var) (c₁ : EqCnstr) (c₂ : EqCnstr)
   | ofLeGe (c₁ : LeCnstr) (c₂ : LeCnstr)
   | /-- `p = 0` derived from the divisibility constraint `c` of the form `0 ∣ p`. -/
     ofZeroDvd (c : DvdCnstr)
+  | /--
+    `p - d*x = 0` where `c : d ∣ p`, `e` is `p` as an expression, and `x` is the variable for the
+    term `t := e / d`. See `EqCnstr.elimNonUnit`.
+    -/
+    ofDvdDiv (c : DvdCnstr) (e : Int.Internal.Linear.Expr) (x : Var) (t : Expr)
   | reorder (c : EqCnstr)
   | commRingNorm (c : EqCnstr) (e : CommRing.RingExpr) (p : CommRing.Poly)
-  | defnCommRing (e : Expr) (e' : Int.Internal.Linear.Expr) (p : Poly) (re : CommRing.RingExpr) (rp : CommRing.Poly) (p' : Poly)
-  | defnNatCommRing (h : Expr) (x : Var) (e' : Int.Internal.Linear.Expr) (p : Poly) (re : CommRing.RingExpr) (rp : CommRing.Poly) (p' : Poly)
+  | defnCommRing (e : Expr) (p : Poly) (re : CommRing.RingExpr) (rp : CommRing.Poly) (p' : Poly)
+  | defnExprCommRing (h : Expr) (x : Var) (e' : Int.Internal.Linear.Expr) (p : Poly) (re : CommRing.RingExpr) (rp : CommRing.Poly) (p' : Poly)
   | mul (a? : Option Expr) (cs : Array (Expr × Int × EqCnstr))
   | /--
     Linearization proof for `/`
@@ -116,6 +132,11 @@ structure DvdCnstr where
   d  : Int
   p  : Poly
   h  : DvdCnstrProof
+  /--
+  Split depth of the goal where the constraint was stored, if any (see `markStored`).
+  Its proof can be built in that goal, and is shared by all subgoals of the case splits below it.
+  -/
+  depth? : Option Nat := none
 
 /--
 The predicate of type `Nat → Prop`, which serves as the conclusion of the
@@ -162,10 +183,16 @@ inductive DvdCnstrProof where
   | coreOfNat (e : Expr) (thm : Expr) (d : Nat) (a : Int.Internal.Linear.Expr)
   | norm (c : DvdCnstr)
   | divCoeffs (c : DvdCnstr)
+  | /--
+    The coefficients of `c.p` multiplied by `a` were reduced modulo `c.d` using balanced residues.
+    `a` is `1` or the inverse of the leading coefficient of `c.p` modulo `c.d`.
+    -/
+    bmodCoeffs (c : DvdCnstr) (a : Int)
   | solveCombine (c₁ c₂ : DvdCnstr)
   | solveElim (c₁ c₂ : DvdCnstr)
   | elim (c : DvdCnstr)
-  | ofEq (x : Var) (c : EqCnstr)
+  | /-- `d ∣ p` for any `d`, given `c : p = 0`. -/
+    ofEqZero (c : EqCnstr)
   | subst (x : Var) (c₁ : EqCnstr) (c₂ : DvdCnstr)
   | cooper₁ (c : CooperSplit)
   /-- `c.c₃?` must be `some` -/
@@ -177,12 +204,27 @@ inductive DvdCnstrProof where
 structure LeCnstr where
   p  : Poly
   h  : LeCnstrProof
+  /--
+  Split depth of the goal where the constraint was stored, if any (see `markStored`).
+  Its proof can be built in that goal, and is shared by all subgoals of the case splits below it.
+  -/
+  depth? : Option Nat := none
 
 inductive LeCnstrProof where
   | core (e : Expr)
   | coreNeg (e : Expr) (p : Poly)
   | coreToInt (e : Expr) (pos : Bool) (toIntThm : Expr) (lhs rhs : Int.Internal.Linear.Expr)
+  | /--
+    An inequality `e := a ≤ b` (if `pos`) or `¬ e` coming from the core, where `a ≤ b` is not
+    in normal form, and `lhs` and `rhs` represent `a` and `b`.
+    -/
+    coreExpr (e : Expr) (pos : Bool) (lhs rhs : Int.Internal.Linear.Expr)
   | ofNatNonneg (a : Expr)
+  | /--
+    An inequality `lhs ≤ rhs` with proof `h`, asserted directly instead of through the E-graph. `lhs`
+    and `rhs` represent the two sides as they occur in the type of `h`.
+    -/
+    hyp (h : Expr) (lhs rhs : Int.Internal.Linear.Expr)
   | bound (h : Expr)
   | dec (h : FVarId)
   | norm (c : LeCnstr)
@@ -193,8 +235,11 @@ inductive LeCnstrProof where
   | ofLeDiseq (c₁ : LeCnstr) (c₂ : DiseqCnstr)
   | ofDiseqSplit (c₁ : DiseqCnstr) (decVar : FVarId) (h : UnsatProof) (decVars : Array FVarId)
   | cooper (c : CooperSplit)
-  | dvdTight (c₁ : DvdCnstr) (c₂ : LeCnstr)
-  | negDvdTight (c₁ : DvdCnstr) (c₂ : LeCnstr)
+  | /--
+    `c₂.p ≤ 0` tightened using `c₁ : d ∣ p`: `c₂.p - t*p` has all variable coefficients divisible
+    by `g`, a divisor of `d`, so the value of `c₂.p` is known modulo `g`. See `dvd_le_tight_mod`.
+    -/
+    dvdTightMod (c₁ : DvdCnstr) (c₂ : LeCnstr) (t g : Int)
   | reorder (c : LeCnstr)
   | commRingNorm (c : LeCnstr) (e : CommRing.RingExpr) (p : CommRing.Poly)
 
@@ -202,6 +247,11 @@ inductive LeCnstrProof where
 structure DiseqCnstr where
   p  : Poly
   h  : DiseqCnstrProof
+  /--
+  Split depth of the goal where the constraint was stored, if any (see `markStored`).
+  Its proof can be built in that goal, and is shared by all subgoals of the case splits below it.
+  -/
+  depth? : Option Nat := none
 
 inductive DiseqCnstrProof where
   | /-- An disequality `a != 0` coming from the core. That is, `(a = 0) = False` in the core. -/
@@ -253,14 +303,12 @@ structure State where
   /-- Mapping from `Expr` to a variable representing it. -/
   varMap  : PHashMap ExprPtr Var := {}
   /--
-  `vars` before they were reordered.
-  This array is empty if the variables were not reordered.
-  We need them to generate the proof term because some
-  justification objects contain terms using variables before the reordering.
+  Variable orders superseded by `reorderVars`, oldest first: entry `i` is the pair
+  `(vars, varMap)` of epoch `i`, and the current order is epoch `varsHistory.size`.
+  Justification objects created before a reordering contain polynomials in the order
+  of their epoch, so proof generation needs every superseded order.
   -/
-  vars' : PArray Expr := {}
-  /-- `varMap` before variables were reordered. -/
-  varMap' : PHashMap ExprPtr Var := {}
+  varsHistory : PArray (PArray Expr × PHashMap ExprPtr Var) := {}
   /--
   The field `natToIntMap` contains a mapping
   from a `Nat`-term `e` to the pair `(e', he)`, where
@@ -324,6 +372,17 @@ structure State where
   configuration threshold, and the solver becomes incomplete.
   -/
   steps : Nat := 0
+  /--
+  Maps the term of a variable to the number of times the model search was about to open a Cooper
+  split on it and requested a reordering instead (see `requestReorder`). `reorderVars` uses the
+  count as the primary sort key, so that these variables are assigned first and become parameters
+  of the bounds they conflicted in. The map is keyed by the term rather than by the variable index
+  because `reorderVars` renumbers the variables; the term is the identity that survives.
+  It stays empty unless a reordering is requested.
+  -/
+  penalties : PHashMap ExprPtr Nat := {}
+  /-- Number of reorderings requested by the model search, bounded by `liaReorders`. -/
+  numReorderRequests : Nat := 0
   /--
   `conflict?` is `some ..` if a contradictory constraint was derived.
   This field is only set when `caseSplits` is `true`. Otherwise, we

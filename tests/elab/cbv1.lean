@@ -345,3 +345,19 @@ of_eq_true
 -/
 #guard_msgs in
 #print and_or
+
+/-!
+`cbv` behaves correctly if the input is syntactically `True` or `False` (#15182)
+-/
+
+example : (if True then some 2 else none) = some 2 := by
+  cbv
+
+example : (if False then some 2 else none) = none := by
+  cbv
+
+example : (if h : True then some 2 else none) = some 2 := by
+  cbv
+
+example : (if h : False then some 2 else none) = none := by
+  cbv

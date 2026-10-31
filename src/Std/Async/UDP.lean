@@ -61,6 +61,7 @@ def connect (s : Socket) (addr : SocketAddress) : IO Unit :=
 /--
 Sends multiple data buffers through an UDP socket. The `addr` parameter specifies the destination
 address. If `addr` is `none`, the data is sent to the default peer address set by `connect`.
+Throws an `IO.Error.invalidArgument` if a buffer is 4 GiB or larger.
 -/
 @[inline]
 def sendAll (s : Socket) (data : Array ByteArray) (addr : Option SocketAddress := none) : Async Unit :=
@@ -68,7 +69,8 @@ def sendAll (s : Socket) (data : Array ByteArray) (addr : Option SocketAddress :
 
 /--
 Sends data through an UDP socket. The `addr` parameter specifies the destination address. If `addr`
-is `none`, the data is sent to the default peer address set by `connect`.
+is `none`, the data is sent to the default peer address set by `connect`. Throws an
+`IO.Error.invalidArgument` if `data` is 4 GiB or larger.
 -/
 @[inline]
 def send (s : Socket) (data : ByteArray) (addr : Option SocketAddress := none) : Async Unit :=
@@ -79,9 +81,13 @@ Receives data from an UDP socket. `size` is for the maximum bytes to receive.
 The promise resolves when some data is available or an error occurs. If the socket
 has not been previously bound with `bind`, it is automatically bound to `0.0.0.0`
 (all interfaces) with a random port.
-If a datagram larger than `size` arrives, it is discarded in its entirety and an
-`IO.Error.resourceExhausted` error is thrown.
 Furthermore calling this function in parallel with `recvSelector` is not supported.
+
+A datagram larger than `size` is discarded in its entirety, and this throws an
+`IO.Error.resourceExhausted` instead of returning a truncated prefix. The socket stays usable, so a
+receive loop should catch the error per datagram.
+
+Throws an `IO.Error.invalidArgument` if `size` is 0 or at least 4 GiB.
 -/
 @[inline]
 def recv (s : Socket) (size : UInt64) : Async (ByteArray × Option SocketAddress) :=
@@ -93,6 +99,9 @@ and provides that data. If the socket has not been previously bound with `bind`,
 automatically bound to `0.0.0.0` (all interfaces) with a random port.
 Calling this function does starts the data wait, only when it's used with `Selectable.one` or `combine`.
 It must not be called in parallel with `recv`.
+
+Fails with an `IO.Error.resourceExhausted` if the datagram is larger than `size`, and with an
+`IO.Error.invalidArgument` if `size` is 0 or at least 4 GiB, like `recv`.
 -/
 def recvSelector (s : Socket) (size : UInt64) : Selector (ByteArray × Option SocketAddress) :=
  {
@@ -100,8 +109,7 @@ def recvSelector (s : Socket) (size : UInt64) : Selector (ByteArray × Option So
       let readableWaiter ← s.native.waitReadable
 
       if ← readableWaiter.isResolved then
-        -- We know that this read should not block
-        let res ← (s.recv size).block
+        let res ← s.recv size
         return some res
       else
         s.native.cancelRecv
@@ -118,9 +126,8 @@ def recvSelector (s : Socket) (size : UInt64) : Selector (ByteArray × Option So
           let win promise := do
             try
               discard <| IO.ofExcept res
-              -- We know that this read should not block
-              let res ← (s.recv size).block
-              promise.resolve (.ok res)
+              let readPromise ← s.native.recv size
+              discard <| BaseIO.mapTask (t := AsyncTask.ofPromise readPromise) promise.resolve
             catch e =>
               promise.resolve (.error e)
           waiter.race lose win

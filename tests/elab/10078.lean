@@ -1,6 +1,6 @@
 @[macro_inline] def rhs (_ : @Eq α x y) := y
 
-def String.data' : type_of% data := fun self => rhs (data.eq_def self)
+def String.data' : type_of% toList := fun self => rhs (toList.eq_def self)
 def ByteArray.data' : type_of% data := fun self => rhs (data.eq_def self)
 def FloatArray.data' : type_of% data := fun self => rhs (data.eq_def self)
 def Array.toList' : type_of% @toList := fun {α} self => rhs (toList.eq_def α self)

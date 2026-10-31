@@ -542,6 +542,22 @@ instance forall_prop_decidable {p} (P : p → Prop)
       | isFalse h2 => fun al => absurd (al h) h2
     | isFalse h => fun h2 => absurd h2 h
 
+@[inline]
+instance forall_forall_prop_decidable {p} {α : Sort u} (P : (p → α) → Prop)
+    [hp : Decidable p] [hP : ∀ f, Decidable (P f)]
+    [hα : ∀ Q : α → Bool, Decidable (∀ x, Q x = true)] : Decidable (∀ f, P f) where
+  decide := if h : p then decide (∀ a, decide <| P fun _ => a) else decide (P h.elim)
+  reflects_decide :=
+    match hp with
+    | isTrue h =>
+      match hα (fun a => decide <| P fun _ => a) with
+      | isTrue h2 => fun f => of_decide_eq_true (h2 (f h))
+      | isFalse h2 => fun h' => h2 fun _ => decide_eq_true (h' _)
+    | isFalse h => show (decide (P h.elim)).Reflects (∀ h, P h) from
+      match hP h.elim with
+      | isTrue h2 => fun f => (funext (fun h' => absurd h' h) : f = h.elim) ▸ h2
+      | isFalse h2 => fun h' => absurd (h' _) h2
+
 @[bool_to_prop] theorem decide_eq_true_iff {p : Prop} [Decidable p] : (decide p = true) ↔ p := by simp
 
 @[simp, bool_to_prop] theorem decide_eq_decide {p q : Prop} {_ : Decidable p} {_ : Decidable q} :
@@ -942,4 +958,3 @@ theorem Bool.dite_else_true {p : Prop} [Decidable p] {x : p → Bool} : (if h : 
 
 @[deprecated Bool.dite_false_right_eq_false (since := "2026-07-21")]
 theorem Bool.dite_else_false_eq_false {p : Prop} [Decidable p] {x : p → Bool} : (if h : p then x h else Bool.false) = Bool.false ↔ ∀ (h : p), x h = Bool.false := Bool.dite_false_right_eq_false
-

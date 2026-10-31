@@ -7,17 +7,11 @@ if(NOT DEFINED STAGE)
 endif()
 include(ExternalProject)
 project(LEAN CXX C)
-set(LEAN_VERSION_MAJOR 4 CACHE STRING "")
-set(LEAN_VERSION_MINOR 36 CACHE STRING "")
-set(LEAN_VERSION_PATCH 0 CACHE STRING "")
+set(LEAN_VERSION_MAJOR 4)
+set(LEAN_VERSION_MINOR 37)
+set(LEAN_VERSION_PATCH 0)
 set(LEAN_VERSION_IS_RELEASE 0 CACHE STRING "") # This number is 1 in the release revision, and 0 otherwise.
 set(LEAN_SPECIAL_VERSION_DESC "" CACHE STRING "Additional version description like 'nightly-2018-03-11'")
-# project(LEAN) above implicitly creates empty LEAN_VERSION_{MAJOR,MINOR,PATCH}
-# normal variables (CMake sets <PROJECT>_VERSION_* for the project name). These
-# shadow the cache values. Remove them so ${VAR} falls through to the cache.
-unset(LEAN_VERSION_MAJOR)
-unset(LEAN_VERSION_MINOR)
-unset(LEAN_VERSION_PATCH)
 set(LEAN_VERSION_STRING "${LEAN_VERSION_MAJOR}.${LEAN_VERSION_MINOR}.${LEAN_VERSION_PATCH}")
 if(LEAN_SPECIAL_VERSION_DESC)
   string(APPEND LEAN_VERSION_STRING "-${LEAN_SPECIAL_VERSION_DESC}")
@@ -536,6 +530,11 @@ if(CMAKE_SYSTEM_NAME MATCHES "Darwin")
   set(LEAN_CXX_STDLIB "-lc++")
 endif()
 
+if(CADICAL_LIB)
+  string(APPEND TOOLCHAIN_STATIC_LINKER_FLAGS " -lcadical")
+  string(APPEND TOOLCHAIN_SHARED_LINKER_FLAGS " -lcadical")
+endif()
+
 string(APPEND TOOLCHAIN_STATIC_LINKER_FLAGS " ${LEAN_CXX_STDLIB}")
 string(APPEND TOOLCHAIN_SHARED_LINKER_FLAGS " ${LEAN_CXX_STDLIB}")
 
@@ -885,6 +884,17 @@ if(STAGE GREATER 0 AND CADICAL AND INSTALL_CADICAL)
   add_dependencies(leancpp copy-cadical)
 endif()
 
+if(CADICAL_LIB)
+  set(CADICAL_LIB_DEP "${CMAKE_BINARY_DIR}/lib/lean/libcadical.a")
+  add_custom_target(
+    copy-cadical-lib
+    COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_BINARY_DIR}/lib/lean"
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CADICAL_LIB}" "${CADICAL_LIB_DEP}"
+  )
+  add_dependencies(leanrt copy-cadical-lib)
+  add_dependencies(leanrt_initial-exec copy-cadical-lib)
+endif()
+
 if(LEANTAR AND INSTALL_LEANTAR)
   add_custom_target(
     copy-leantar
@@ -1090,6 +1100,28 @@ if(NOT CMAKE_SYSTEM_NAME MATCHES "Emscripten")
       ${CMAKE_BINARY_DIR}/bin
   )
 
+  # Windows distribution support is deferred pending runtime validation.
+  if(STAGE GREATER 0 AND NOT WIN32)
+    # Beam's plugin must be built with the toolchain that will load it.
+    ExternalProject_Add(
+      lean-beam
+      PREFIX lean-beam-native
+      EXCLUDE_FROM_ALL ON
+      GIT_REPOSITORY https://github.com/leanprover/lean-beam
+      GIT_TAG a9645d2033815fea9a91ce67f7e5f5c8b9eacc85
+      CONFIGURE_COMMAND ""
+      BUILD_COMMAND ${CMAKE_COMMAND}
+        -DLEAN_PREFIX=${CMAKE_BINARY_DIR}
+        -P <SOURCE_DIR>/scripts/build-toolchain.cmake
+      BUILD_IN_SOURCE ON
+      BUILD_ALWAYS ON
+      INSTALL_COMMAND ${CMAKE_COMMAND}
+        -DLEAN_PREFIX=${CMAKE_BINARY_DIR}
+        -DPREFIX=${CMAKE_BINARY_DIR}
+        -P <SOURCE_DIR>/scripts/install-toolchain.cmake
+    )
+  endif()
+
   # Not in `ALL` as it's expensive; release CI builds it explicitly. Its only submodule is the
   # Aeneas verifier, which the binary does not need.
   ExternalProject_Add(
@@ -1134,7 +1166,7 @@ if(PREV_STAGE)
 endif()
 
 if(NOT CMAKE_SYSTEM_NAME MATCHES "Emscripten")
-  add_custom_target(leanir ALL DEPENDS leanshared COMMAND $(MAKE) -f ${CMAKE_BINARY_DIR}/stdlib.make leanir VERBATIM)
+  add_custom_target(leanir ALL DEPENDS leanshared initialize_minimal_shim COMMAND $(MAKE) -f ${CMAKE_BINARY_DIR}/stdlib.make leanir VERBATIM)
   add_custom_target(leanexport ALL DEPENDS leanshared COMMAND $(MAKE) -f ${CMAKE_BINARY_DIR}/stdlib.make leanexport VERBATIM)
 endif()
 
@@ -1150,6 +1182,9 @@ if(STAGE GREATER 0 AND NOT CMAKE_SYSTEM_NAME MATCHES "Emscripten")
     COMMAND $(MAKE) -f ${CMAKE_BINARY_DIR}/stdlib.make leanc
     VERBATIM
   )
+  if(TARGET lean-beam)
+    add_dependencies(lean-beam lake leanc)
+  endif()
 endif()
 
 file(COPY ${LEAN_SOURCE_DIR}/bin/leanmake DESTINATION ${CMAKE_BINARY_DIR}/bin)

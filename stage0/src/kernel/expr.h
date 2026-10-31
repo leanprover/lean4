@@ -44,9 +44,7 @@ enum class literal_kind { Nat, String };
 class literal : public object_ref {
     explicit literal(b_obj_arg o, bool b):object_ref(o, b) {}
 public:
-    explicit literal(char const * v);
     explicit literal(unsigned v);
-    explicit literal(mpz const & v);
     explicit literal(nat const & v);
     literal():literal(0u) {}
     literal(literal const & other):object_ref(other) {}
@@ -89,7 +87,6 @@ class expr : public object_ref {
     friend expr mk_mdata(kvmap const & d, expr const & e);
     friend expr mk_proj(name const & s, nat const & idx, expr const & e);
     friend expr mk_bvar(nat const & idx);
-    friend expr mk_mvar(name const & n);
     friend expr mk_fvar(name const & n);
     friend expr mk_const(name const & n, levels const & ls);
     friend expr mk_app(expr const & f, expr const & a);
@@ -154,8 +151,20 @@ inline bool has_fvar(expr const & e) {
     lean_assert(r == has_fvar_core(e)); // ensure the C++ implementation matches the Lean one.
     return r;
 }
-bool has_univ_param(expr const & e);
-unsigned get_loose_bvar_range(expr const & e);
+/* This is the implementation in Lean */
+bool has_univ_param_core(expr const & e);
+inline bool has_univ_param(expr const & e) {
+    bool r = ((get_data(e) >> 43) & 1) == 1;
+    lean_assert(r == has_univ_param_core(e)); // ensure the C++ implementation matches the Lean one.
+    return r;
+}
+/* This is the implementation in Lean */
+unsigned get_loose_bvar_range_core(expr const & e);
+inline unsigned get_loose_bvar_range(expr const & e) {
+    unsigned r = static_cast<unsigned>(get_data(e) >> 44);
+    lean_assert(r == get_loose_bvar_range_core(e)); // ensure the C++ implementation matches the Lean one.
+    return r;
+}
 
 struct expr_hash { unsigned operator()(expr const & e) const { return hash(e); } };
 struct expr_pair_hash {
@@ -186,7 +195,6 @@ inline bool is_binding(expr const & e)     { return is_lambda(e) || is_pi(e); }
 
 bool is_atomic(expr const & e);
 bool is_arrow(expr const & t);
-bool is_default_var_name(name const & n);
 // =======================================
 
 // =======================================
@@ -200,20 +208,16 @@ inline expr mk_bvar(unsigned idx) { return mk_bvar(nat(idx)); }
 expr mk_fvar(name const & n);
 expr mk_const(name const & n, levels const & ls);
 inline expr mk_const(name const & n) { return mk_const(n, levels()); }
-expr mk_mvar(name const & n);
 expr mk_app(expr const & f, expr const & a);
 expr mk_app(expr const & f, unsigned num_args, expr const * args);
 expr mk_app(unsigned num_args, expr const * args);
 inline expr mk_app(std::initializer_list<expr> const & l) { return mk_app(l.size(), l.begin()); }
 inline expr mk_app(buffer<expr> const & args) { return mk_app(args.size(), args.data()); }
 inline expr mk_app(expr const & f, buffer<expr> const & args) { return mk_app(f, args.size(), args.data()); }
-expr mk_app(expr const & f, list<expr> const & args);
 inline expr mk_app(expr const & e1, expr const & e2, expr const & e3) { return mk_app({e1, e2, e3}); }
 inline expr mk_app(expr const & e1, expr const & e2, expr const & e3, expr const & e4) { return mk_app({e1, e2, e3, e4}); }
 inline expr mk_app(expr const & e1, expr const & e2, expr const & e3, expr const & e4, expr const & e5) { return mk_app({e1, e2, e3, e4, e5}); }
 expr mk_rev_app(expr const & f, unsigned num_args, expr const * args);
-expr mk_rev_app(unsigned num_args, expr const * args);
-inline expr mk_rev_app(buffer<expr> const & args) { return mk_rev_app(args.size(), args.data()); }
 inline expr mk_rev_app(expr const & f, buffer<expr> const & args) { return mk_rev_app(f, args.size(), args.data()); }
 expr mk_lambda(name const & n, expr const & t, expr const & e, binder_info bi = mk_binder_info());
 expr mk_pi(name const & n, expr const & t, expr const & e, binder_info bi = mk_binder_info());
@@ -225,7 +229,6 @@ expr mk_let(name const & n, expr const & t, expr const & v, expr const & b, bool
 inline expr mk_let(name const & n, expr const & t, expr const & v, expr const & b) { return mk_let(n, t, v, b, false); };
 expr mk_sort(level const & l);
 expr mk_Prop();
-expr mk_Type();
 // =======================================
 
 // =======================================
@@ -287,14 +290,6 @@ expr update_proj(expr const & e, expr const & new_e);
 
     It returns the f. */
 expr const & get_app_args(expr const & e, buffer<expr> & args);
-/** \brief Similar to \c get_app_args, but stores at most num args.
-    Examples:
-    1) get_app_args_at_most(f a b c, 2, args);
-    stores {b, c} in args and returns (f a)
-
-    2) get_app_args_at_most(f a b c, 4, args);
-    stores {a, b, c} in args and returns f */
-expr const & get_app_args_at_most(expr const & e, unsigned num, buffer<expr> & args);
 
 /** \brief Similar to \c get_app_args, but arguments are stored in reverse order in \c args.
     If e is of the form <tt>(...(f a1) ... an)</tt>, then the procedure stores [an, ..., a1] in \c args. */
@@ -303,9 +298,6 @@ expr const & get_app_rev_args(expr const & e, buffer<expr> & args);
 expr const & get_app_fn(expr const & e);
 /** \brief Given \c e of the form <tt>(...(f a_1) ... a_n)</tt>, return \c n. If \c e is not an application, then return 0. */
 unsigned get_app_num_args(expr const & e);
-
-/** \brief Return true iff \c e is a metavariable or an application of a metavariable */
-inline bool is_mvar_app(expr const & e) { return is_mvar(get_app_fn(e)); }
 
 expr consume_type_annotations(expr const & e);
 
@@ -359,15 +351,10 @@ inline bool has_param_univ(expr const & e) { return has_univ_param(e); }
 inline bool is_var(expr const & e) { return is_bvar(e); }
 inline bool is_var(expr const & e, unsigned idx) { return is_bvar(e, idx); }
 inline bool is_metavar(expr const & e) { return is_mvar(e); }
-inline bool is_metavar_app(expr const & e) { return is_mvar_app(e); }
-inline expr mk_metavar(name const & n) { return mk_mvar(n); }
 inline expr mk_constant(name const & n, levels const & ls) { return mk_const(n, ls); }
 inline expr mk_constant(name const & n) { return mk_constant(n, levels()); }
 inline bool is_constant(expr const & e) { return is_const(e); }
 inline expr update_constant(expr const & e, levels const & new_levels) { return update_const(e, new_levels); }
-/** \brief Similar to \c has_expr_metavar, but ignores metavariables occurring in local constant types.
-    It also returns the meta-variable application found in \c e. */
-optional<expr> has_expr_metavar_strict(expr const & e);
 inline bool is_constant(expr const & e, name const & n) { return is_const(e, n); }
 
 /* Like `is_exclusive`, but also consider unique MT references as unshared, which ensures we get

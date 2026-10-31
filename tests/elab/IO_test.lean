@@ -44,7 +44,7 @@ pure ()
 #eval test
 
 def test2 : IO Unit := do
-let fn1 := "bar2.txt";
+let fn1 := "IO_test.lean.dir/bar2.txt";
 let fn2 := "IO_test.lean.dir/foo2.txt";
 let xs₀ : String := "⟨[₂,α]⟩";
 let xs₁ := "⟨[6,8,@]⟩";
@@ -61,6 +61,8 @@ withFile fn1 Mode.write $ fun h => do
   h.putStrLn xs₂
   h.putStrLn xs₁
 withFile fn2 Mode.write $ fun h => h.putStr "overwritten"
+if (← (renameIfNew fn1 fn2).toBaseIO).isOk then
+  throw $ IO.userError "expected error on renameIfNew"
 rename fn1 fn2
 let ys ← withFile fn2 Mode.read $ fun h => h.getLine;
 IO.println ys;
@@ -80,6 +82,9 @@ IO.println ys;
 let rs := [xs₀ ++ xs₀ ++ "\n", xs₂ ++ "\n", xs₁ ++ "\n", xs₁ ++ "\n"];
 check_eq "2" rs ys;
 let ys ← readFile fn2;
+check_eq "3" (String.join rs) ys;
+renameIfNew fn2 fn1;
+let ys ← readFile fn1;
 check_eq "3" (String.join rs) ys;
 pure ()
 

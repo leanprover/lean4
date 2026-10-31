@@ -9,7 +9,9 @@ public import Lean.Meta.Sym.Simp.SimpM
 import Lean.Meta.Sym.AlphaShareBuilder
 import Lean.Meta.Sym.InferType
 import Lean.Meta.Sym.Simp.App
+import Lean.Meta.Sym.Simp.Result
 import Lean.Meta.Sym.Util
+import Lean.Meta.Sym.Reduce
 import Lean.Meta.WHNF
 import Lean.Meta.AppBuilder
 import Init.Sym.Lemmas
@@ -121,12 +123,8 @@ public def simpCond : Simproc := fun e => do
 Simplifies a `match`-expression.
 -/
 def simpMatch (declName : Name) : Simproc := fun e => do
-  if let some e' ← reduceRecMatcher? e then
-    -- Iota-reduction may expose kernel `Expr.proj` terms via struct-eta,
-    -- which the structural simplifier cannot consume directly.
-    let e'' ← Sym.foldProjs e'
-    let e'' ← share e''
-    return .step e'' (← mkEqRefl e'')
+  if let some e' ← reduceMatcherApp? e then
+    return .step e' (← mkEqRefl e')
   let some info ← getMatcherInfo? declName
     | return .rfl
   -- **Note**: Simplify only the discriminants
@@ -152,5 +150,12 @@ public def simpControl : Simproc := fun e => do
     simpDIte e
   else
     simpMatch declName e
+
+/--
+Like `simpControl`, but does not block the simplifier: when the condition or the discriminants
+are not decided, the branches are visited too.
+-/
+public def reduceControl : Simproc := fun e =>
+  return (← simpControl e).markAsNotDone
 
 end Lean.Meta.Sym.Simp

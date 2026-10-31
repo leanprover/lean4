@@ -71,14 +71,14 @@ def toolchain :=
       String.Internal.append
         (String.Internal.append
           (String.Internal.append
-            (String.Internal.append origin ":")
+            (String.Internal.append origin ":v")
             versionStringCore)
           "-")
         version.specialDesc
     else
       String.Internal.append (String.Internal.append origin ":") version.specialDesc
   else if version.isRelease then
-    String.Internal.append (String.Internal.append origin ":") versionStringCore
+    String.Internal.append (String.Internal.append origin ":v") versionStringCore
   else
     ""
 
@@ -267,7 +267,8 @@ private def Internal.Meta.toString (n : Name) (escape := true) : String :=
 
 end ToString
 
-private def hasNum : Name → Bool
+/-- Returns true if the name has any numeric components. -/
+def hasNum : Name → Bool
   | anonymous => false
   | num ..    => true
   | str p ..  => hasNum p
@@ -324,7 +325,6 @@ def appendIndexAfter (n : Name) (idx : Nat) : Name :=
     | str p s => Name.mkStr p (String.Internal.append (String.Internal.append s "_") (toString idx))
     | n       => Name.mkStr n (String.Internal.append "_" (toString idx))
 
-@[export lean_name_append_before]
 def appendBefore (n : Name) (pre : String) : Name :=
   n.modifyBase fun
     | anonymous => Name.mkStr anonymous pre
@@ -674,6 +674,9 @@ end Syntax
 /--
   Expand macros in the given syntax.
   A node with kind `k` is visited only if `p k` is true.
+
+  To elaborate the expansion in `TermElabM`, use `Lean.Elab.Term.expandMacrosReportingDeprecated`
+  instead, which also reports deprecated syntax.
 
   Note that the default value for `p` returns false for `by ...` nodes.
   This is a "hack". The tactic framework abuses the macro system to implement extensible tactics.

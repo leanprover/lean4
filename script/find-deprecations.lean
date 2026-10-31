@@ -64,7 +64,7 @@ def main (args : List String) : IO UInt32 := do
   let defaultTargets ← getTargetModules
   initSearchPath <| ← findSysroot
 
-  let decls ← getOptionDeclsArray
+  let decls : NameMap OptionDecl ← getOptionDecls
   let mut deprecatedOptions : Array (Name × String):= #[]
   for (_, decl) in decls do
     let some dep := decl.deprecation? | continue

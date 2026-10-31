@@ -50,6 +50,26 @@ def checkChild (e : Expr) (child : Expr) : GoalM Bool := do
   let some childRoot ← getRoot? child | return false
   return isSameExpr childRoot e
 
+/--
+Returns `true` if `e` is the root of a field of a constructor application in the equivalence class
+of `lhs` that the pattern `pat` constrains, or recursively of such a field.
+These are the parents registered by `isMatchCondFalseHyp` (see `MatchCond.lean`). Since equivalence classes only grow,
+we consider all constructor applications in the class, not only the root.
+-/
+partial def checkMatchCondNestedChild (e : Expr) (lhs pat : Expr) : GoalM Bool := do
+  let some patInfo ← isConstructorApp? pat | return false
+  let patArgs := pat.getAppArgs
+  for c in (← getEqc lhs) do
+    let some ctorInfo ← isConstructorApp? c | continue
+    let numArgs := ctorInfo.numParams + ctorInfo.numFields
+    unless ctorInfo.name == patInfo.name && pat.getAppNumArgs == numArgs do continue
+    let args := c.getAppArgs
+    for i in ctorInfo.numParams...numArgs do
+      if patArgs[i]!.getAppFn.isBVar then continue
+      if (← checkChild e args[i]! <||> checkMatchCondNestedChild e args[i]! patArgs[i]!) then
+        return true
+  return false
+
 def checkMatchCondParent (e : Expr) (parent : Expr) : GoalM Bool := do
   let_expr Grind.MatchCond parent ← parent | return false
   let mut curr := parent
@@ -57,8 +77,12 @@ def checkMatchCondParent (e : Expr) (parent : Expr) : GoalM Bool := do
     let .forallE _ d b _ := curr
       | return false
     match_expr d with
-    | Eq _ lhs _ => if (← checkChild e lhs) then return true -- found it
-    | HEq α lhs _ _ => if (← checkChild e α <||> checkChild e lhs) then return true -- found it
+    | Eq _ lhs rhs =>
+      if (← checkChild e lhs) then return true -- found it
+      if !lhs.hasLooseBVars && (← checkMatchCondNestedChild e lhs rhs) then return true
+    | HEq α lhs _ rhs =>
+      if (← checkChild e α <||> checkChild e lhs) then return true -- found it
+      if !lhs.hasLooseBVars && (← checkMatchCondNestedChild e lhs rhs) then return true
     | _ => pure ()
     curr := b
   return false
@@ -118,9 +142,25 @@ def checkProofs : GoalM Unit := do
           check p
           trace_goal[grind.debug.proofs] "checked: {← inferType p}"
 
+/--
+Every entry of the congruence table must be a congruence root, and must be found by a lookup
+with its own key. The hash of a key depends on the roots of the children, so an entry that was
+not reinserted after a merge of a child's class sits in a stale bucket: a lookup for a congruent
+term finds it only when the old and new hashes collide. The per-class check in `checkEqc` is
+therefore nondeterministic for such entries; this one is not.
+-/
+def checkCongrTable : GoalM Unit := do
+  let table := (← get).congrTable
+  for { e } in table.toList do
+    assert! (← isCongrRoot e)
+    let some { e := e' } := table.find? { e }
+      | throwError "`grind` internal error, stale congruence table entry{indentExpr e}"
+    assert! isSameExpr e e'
+
 /-- Checks invariants if `grind.debug` is enabled. -/
 public def checkInvariants (expensive := false) : GoalM Unit := do
   if (← isDebugEnabled) then
+    checkCongrTable
     for e in (← getExprs) do
       let node ← getENode e
       checkParents node.self

@@ -8,7 +8,7 @@
       "state": {
         "assertionId": "all-covered",
         "description": "All operations should be covered",
-        "message": "There were 19697 operations that were not covered.",
+        "message": "There were 23437 operations that were not covered.",
         "passed": false
       },
       "metadata": {

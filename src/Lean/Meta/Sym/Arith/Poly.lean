@@ -174,22 +174,6 @@ def Poly.checkNoUnitMon : Poly → Bool
   | .add _ .unit _ => false
   | .add _ _ p => p.checkNoUnitMon
 
-def Poly.gcdCoeffs : Poly → Nat
-  | .num k => k.natAbs
-  | .add k _ p => go p k.natAbs
-where
-  go (p : Poly) (acc : Nat) : Nat :=
-    if acc == 1 then
-      acc
-    else match p with
-      | .num k => Nat.gcd acc k.natAbs
-      | .add k _ p => go p (Nat.gcd acc k.natAbs)
-
-def Poly.divConst (p : Poly) (a : Int) : Poly :=
-  match p with
-  | .num k => .num (k / a)
-  | .add k m p => .add (k / a) m (divConst p a)
-
 def Mon.size : Mon → Nat
   | .unit => 0
   | .mult _ m => m.size + 1
@@ -197,50 +181,5 @@ def Mon.size : Mon → Nat
 def Poly.size : Poly → Nat
   | .num _ => 1
   | .add _ m p => m.size + 1 + p.size
-
-def Poly.length : Poly → Nat
-  | .num _ => 0
-  | .add _ _ p => 1 + p.length
-
-def Power.toExpr (pw : Power) : Expr :=
-  if pw.k == 1 then
-    .var pw.x
-  else
-    .pow (.var pw.x) pw.k
-
-def Mon.toExpr (m : Mon) : Expr :=
-  match m with
-  | .unit => .num 1
-  | .mult pw m => go m pw.toExpr
-where
-  go (m : Mon) (acc : Expr) : Expr :=
-    match m with
-    | .unit => acc
-    | .mult pw m => go m (.mul acc pw.toExpr)
-
-def Poly.toExpr (p : Poly) : Expr :=
-  match p with
-  | .num k => .num k
-  | .add k m p => go p (goTerm k m)
-where
-  goTerm (k : Int) (m : Mon) : Expr :=
-    if k == 1 then
-      m.toExpr
-    else
-      .mul (.num k) m.toExpr
-
-  go (p : Poly) (acc : Expr) : Expr :=
-    match p with
-    | .num 0 => acc
-    | .num k => .add acc (.num k)
-    | .add k m p => go p (.add acc (goTerm k m))
-
-def Poly.maxDegreeOf (p : Poly) (x : Var) : Nat :=
-  go p 0
-where
-  go (p : Poly) (max : Nat) : Nat :=
-    match p with
-    | .num _ => max
-    | .add _ m p => go p (Nat.max max (m.degreeOf x))
 
 end Lean.Grind.CommRing

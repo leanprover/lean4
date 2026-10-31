@@ -9,7 +9,7 @@ public import Lean.Meta.Tactic.Grind.Arith.Linear.Types
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.RingM
 public section
 namespace Lean.Meta.Grind.Arith.Linear
-open Sym.Arith (MonadCanon)
+open Sym.Arith (MonadCanon MonadRing MonadGetVar)
 
 def get' : GoalM State := do
   linearExt.getState
@@ -51,9 +51,9 @@ instance : MonadGetStruct LinearM where
 
 open CommRing
 
-def getRingCore? (ringId? : Option Nat) : GoalM (Option Ring) := do
+def getRingCore? (ringId? : Option Nat) : GoalM (Option Sym.Arith.Ring) := do
   let some ringId := ringId? | return none
-  RingM.run ringId do return some (← getRing)
+  RingM.run ringId do return some (← Sym.Arith.getRing)
 
 def throwNotRing : LinearM α :=
   throwError "`grind linarith` internal error, structure is not a ring"
@@ -61,28 +61,33 @@ def throwNotRing : LinearM α :=
 def throwNotCommRing : LinearM α :=
   throwError "`grind linarith` internal error, structure is not a commutative ring"
 
-def getRing? : LinearM (Option Ring) := do
+def getRing? : LinearM (Option Sym.Arith.Ring) := do
   getRingCore? (← getStruct).ringId?
 
 instance : MonadCanon LinearM where
   canonExpr e := do shareCommon (← canon e)
   synthInstance? e := Grind.synthInstance? e
 
-def LinearM.getRing : LinearM Ring := do
+def LinearM.getRing : LinearM Sym.Arith.Ring := do
   let some ring ← getRing?
     | throwNotCommRing
   return ring
-
-instance : MonadRing LinearM where
-  getRing := LinearM.getRing
-  modifyRing f := do
-    let some ringId := (← getStruct).ringId? | throwNotCommRing
-    RingM.run ringId do modifyRing f
 
 def withRingM (x : RingM α) : LinearM α := do
   let some ringId := (← getStruct).ringId?
     | throwNotCommRing
   RingM.run ringId x
+
+instance : MonadRing LinearM where
+  getRing := LinearM.getRing
+  modifyRing f := withRingM do Sym.Arith.modifyRing f
+
+instance : MonadRingState LinearM where
+  getRingState := withRingM getRingState
+  modifyRingState f := withRingM do modifyRingState f
+
+instance : MonadGetVar LinearM where
+  getVar x := return (← getRingState).vars[x]!
 
 @[inline] def modifyStruct (f : Struct → Struct) : LinearM Unit := do
   let structId ← getStructId

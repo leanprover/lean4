@@ -51,7 +51,7 @@ public partial def of (hyp : Normalize.Hyp) : LemmaM (Option SatAtBVLogical) := 
 /--
 Logical conjunction of two `ReifiedBVLogical`.
 -/
-public def and (x y : SatAtBVLogical) : M SatAtBVLogical := do
+public def and (x y : SatAtBVLogical) : ReifyM SatAtBVLogical := do
   let bvExpr := .gate .and x.bvExpr y.bvExpr
   let expr ← Sym.share <| mkApp4 (mkConst ``BoolExpr.gate) (mkConst ``BVPred) (mkConst ``Gate.and) x.expr y.expr
   let proof := do
@@ -59,17 +59,17 @@ public def and (x y : SatAtBVLogical) : M SatAtBVLogical := do
       (mkConst ``BVLogicalExpr.sat_and)
       x.expr
       y.expr
-      (← M.atomsAssignment)
+      (← ReifyM.atomsAssignmentExpr)
       (← x.satAtAtoms)
       (← y.satAtAtoms)
   return ⟨bvExpr, proof, expr⟩
 
 /-- Given a proof that `x.expr.Unsat`, produce a proof of `False`. -/
-public def proveFalse (x : SatAtBVLogical) (h : Expr) : M Expr := do
+public def proveFalse (x : SatAtBVLogical) (h : Expr) : ReifyM Expr := do
   if (← get).atoms.isEmpty then
     throwError "Unable to identify any relevant atoms."
   else
-    let atomsList ← M.atomsAssignment
+    let atomsList ← ReifyM.atomsAssignmentExpr
     let evalExpr ← Sym.share <| mkApp2 (mkConst ``BVLogicalExpr.eval) atomsList x.expr
     return mkApp3
       (mkConst ``Std.Tactic.BVDecide.Reflect.Bool.false_of_eq_true_of_eq_false)

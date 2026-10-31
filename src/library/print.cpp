@@ -225,6 +225,7 @@ struct print_expr_fn {
                 case data_value_kind::Name: out() << v.get_name(); break;
                 case data_value_kind::Nat: out() << v.get_nat(); break;
                 case data_value_kind::String: out() << escaped(v.get_string().data()); break;
+                case data_value_kind::Int: case data_value_kind::Syntax: break;
             }
             out() << " ";
             k = tail(k);

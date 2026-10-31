@@ -4,13 +4,13 @@ private theorem ex₂ : ∀ (a b : Int), 2 ∣ a + 1 → 2 ∣ b + a → 2 ∣ b
 fun a b h₀ h₁ h₂ => ex₂._proof_1_1 a b h₀ h₁ h₂
 private theorem ex₃ : ∀ (a b : Int),
   2 ∣ a + 1 → 3 ∣ a + 3 * b + a → 2 ∣ 3 * b + a + 3 - b → 3 ∣ 3 * b + 2 * a + 1 → False :=
-fun a b x h₁ h₂ h₃ => ex₃._proof_1_1 a b h₁ h₂ h₃
+fun a b x h₁ h₂ h₃ => ex₃._proof_1_1 a b x h₁ h₂ h₃
 private theorem ex₄ : ∀ (f : Int → Int) (a b : Int),
   2 ∣ f (f a) + 1 → 3 ∣ f (f a) + 3 * b + f (f a) → 2 ∣ 3 * b + f (f a) + 3 - b → 3 ∣ 3 * b + 2 * f (f a) + 1 → False :=
-fun f a b x h₁ h₂ h₃ => ex₄._proof_1_1 f a b h₁ h₂ h₃
+fun f a b x h₁ h₂ h₃ => ex₄._proof_1_1 f a b x h₁ h₂ h₃
 grind_cutsat_div_1.lean:29:0-29:7: warning: declaration uses `sorry`
-grind_cutsat_div_1.lean:42:0-42:7: warning: declaration uses `sorry`
-grind_cutsat_div_1.lean:52:0-52:7: warning: declaration uses `sorry`
-grind_cutsat_div_1.lean:62:0-62:7: warning: declaration uses `sorry`
-grind_cutsat_div_1.lean:74:0-74:7: warning: declaration uses `sorry`
-grind_cutsat_div_1.lean:84:0-84:7: warning: declaration uses `sorry`
+grind_cutsat_div_1.lean:44:0-44:7: warning: declaration uses `sorry`
+grind_cutsat_div_1.lean:54:0-54:7: warning: declaration uses `sorry`
+grind_cutsat_div_1.lean:64:0-64:7: warning: declaration uses `sorry`
+grind_cutsat_div_1.lean:76:0-76:7: warning: declaration uses `sorry`
+grind_cutsat_div_1.lean:86:0-86:7: warning: declaration uses `sorry`

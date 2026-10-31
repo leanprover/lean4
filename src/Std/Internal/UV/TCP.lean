@@ -7,7 +7,7 @@ module
 
 prelude
 public import Init.System.Promise
-public import Init.Data.SInt
+public import Init.Data.SInt.Basic
 public import Std.Net
 
 public section
@@ -43,7 +43,8 @@ Connects a TCP socket to the specified address.
 opaque connect (socket : @& Socket) (addr : @& SocketAddress) : IO (IO.Promise (Except IO.Error Unit))
 
 /--
-Sends data through a TCP socket.
+Sends data through a TCP socket. Throws an `IO.Error.invalidArgument` if a buffer is 4 GiB or
+larger.
 -/
 @[extern "lean_uv_tcp_send"]
 opaque send (socket : @& Socket) (data : Array ByteArray) : IO (IO.Promise (Except IO.Error Unit))
@@ -54,6 +55,8 @@ available or an error occurs. If data is received, it’s wrapped in .some. If E
 result is .none, indicating no more data is available. Receiving data in parallel on the same
 socket is not supported. Instead, we recommend binding multiple sockets to the same address.
 Furthermore calling this function in parallel with `waitReadable` is not supported.
+
+Throws an `IO.Error.invalidArgument` if `size` is 0 or at least 4 GiB.
 -/
 @[extern "lean_uv_tcp_recv"]
 opaque recv? (socket : @& Socket) (size : UInt64) : IO (IO.Promise (Except IO.Error (Option ByteArray)))
@@ -102,6 +105,14 @@ Tries to accept an incoming connection on a listening TCP socket.
 opaque tryAccept (socket : @& Socket) : IO (Except IO.Error (Option Socket))
 
 /--
+Returns an `IO.Promise` that resolves once `socket` has a connection that `tryAccept` returns
+without waiting. The connection stays queued until it is accepted. Calling this function in
+parallel with `accept` is not supported; `cancelAccept` cancels the wait.
+-/
+@[extern "lean_uv_tcp_wait_acceptable"]
+opaque waitAcceptable (socket : @& Socket) : IO (IO.Promise (Except IO.Error Unit))
+
+/--
 Cancels the accept request of a socket.
 -/
 @[extern "lean_uv_tcp_cancel_accept"]
@@ -134,7 +145,7 @@ Enables the Nagle algorithm for a TCP socket.
 opaque noDelay (socket : @& Socket) : IO Unit
 
 /--
-Enables TCP keep-alive for a socket. If delay is less than 1 then UV_EINVAL is returned.
+Enables TCP keep-alive for a socket. If delay is less than 1 then an `IO.Error.invalidArgument` is returned.
 -/
 @[extern "lean_uv_tcp_keepalive"]
 opaque keepAlive (socket : @& Socket) (enable : Int8) (delay : UInt32) : IO Unit

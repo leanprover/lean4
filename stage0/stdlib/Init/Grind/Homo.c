@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Grind.Homo
-// Imports: public import Init.Grind.Homo.BitVec public import Init.Grind.Homo.Fin public import Init.Grind.Homo.Extra public import Init.Grind.Homo.UInt8 public import Init.Grind.Homo.UInt16 public import Init.Grind.Homo.UInt32 public import Init.Grind.Homo.UInt64 public import Init.Grind.Homo.USize public import Init.Grind.Homo.Int8 public import Init.Grind.Homo.Int16 public import Init.Grind.Homo.Int32 public import Init.Grind.Homo.Int64 public import Init.Grind.Homo.ISize
+// Imports: public import Init.Sym.Lemmas public import Init.Grind.Homo.BitVec public import Init.Grind.Homo.Fin public import Init.Grind.Homo.Extra public import Init.Grind.Homo.UInt8 public import Init.Grind.Homo.UInt16 public import Init.Grind.Homo.UInt32 public import Init.Grind.Homo.UInt64 public import Init.Grind.Homo.USize public import Init.Grind.Homo.Int8 public import Init.Grind.Homo.Int16 public import Init.Grind.Homo.Int32 public import Init.Grind.Homo.Int64 public import Init.Grind.Homo.ISize
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -13,6 +13,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+lean_object* runtime_initialize_Init_Sym_Lemmas(uint8_t builtin);
 lean_object* runtime_initialize_Init_Grind_Homo_BitVec(uint8_t builtin);
 lean_object* runtime_initialize_Init_Grind_Homo_Fin(uint8_t builtin);
 lean_object* runtime_initialize_Init_Grind_Homo_Extra(uint8_t builtin);
@@ -33,6 +34,9 @@ lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
 lean_initialize_runtime_module();
+res = runtime_initialize_Init_Sym_Lemmas(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 res = runtime_initialize_Init_Grind_Homo_BitVec(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
@@ -81,6 +85,7 @@ if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_meta_initialized = true;
 return lean_io_result_mk_ok(lean_box(0));
 }
+lean_object* initialize_Init_Sym_Lemmas(uint8_t builtin);
 lean_object* initialize_Init_Grind_Homo_BitVec(uint8_t builtin);
 lean_object* initialize_Init_Grind_Homo_Fin(uint8_t builtin);
 lean_object* initialize_Init_Grind_Homo_Extra(uint8_t builtin);
@@ -99,6 +104,9 @@ LEAN_EXPORT lean_object* initialize_Init_Grind_Homo(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
+res = initialize_Init_Sym_Lemmas(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 res = initialize_Init_Grind_Homo_BitVec(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

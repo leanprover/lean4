@@ -8,7 +8,23 @@ prelude
 public import Lean.Meta.Sym.SymM
 public import Lean.Meta.Transform
 import Lean.Util.ForEachExpr
+public import Lean.Meta.Sym.AlphaShareBuilder
 namespace Lean.Meta.Sym
+open Lean.Meta.Sym.Internal
+
+/--
+Similar to `withLocalDecl`, but the free variable passed to `k` is registered in the
+`SymM` share set. Use it when the free variable is substituted into maximally shared
+terms, e.g. via `instantiateRevS`.
+-/
+public def withLocalDeclS [Monad n] [MonadControlT MetaM n] [MonadLiftT SymM n]
+    (name : Name) (bi : BinderInfo) (type : Expr) (k : Expr → n α) : n α :=
+  withLocalDecl name bi type fun x => do k (← (mkFVarS x.fvarId! : SymM Expr))
+
+/-- `withLetDecl` variant that registers the free variable in the share set. See `withLocalDeclS`. -/
+public def withLetDeclS [Monad n] [MonadControlT MetaM n] [MonadLiftT SymM n]
+    (name : Name) (type val : Expr) (k : Expr → n α) (nondep := false) : n α :=
+  withLetDecl name type val (nondep := nondep) fun x => do k (← (mkFVarS x.fvarId! : SymM Expr))
 
 /--
 Instantiates metavariables and applies `shareCommon`, which maintains the `SymM`

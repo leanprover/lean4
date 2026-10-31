@@ -17,14 +17,25 @@ Helpers for synthesizing the optional instances attached to a classified ring:
 `IsCharP`, `PowIdentity`, and `NoNatZeroDivisors`.
 -/
 
-/-- Returns the `IsCharP type semiringInst n` instance together with the evaluated `n`. -/
-def getIsCharInst? (u : Level) (type : Expr) (semiringInst : Expr) : SymM (Option (Expr × Nat)) := withNewMCtxDepth do
+/-- The `IsCharP` instance of a semiring, if any, and its characteristic when it is a numeral. -/
+structure CharInfo where
+  /-- The `IsCharP type semiringInst n` instance together with the evaluated `n`, if `n` is a numeral. -/
+  inst? : Option (Expr × Nat) := none
+  /-- `true` if an `IsCharP` instance exists but its characteristic is not a numeral, e.g. `2 ^ w` for `BitVec w`. -/
+  symbolic : Bool := false
+
+/-- Returns the `IsCharP type semiringInst n` instance together with the evaluated `n`. See `CharInfo`. -/
+def getCharInfo (u : Level) (type : Expr) (semiringInst : Expr) : SymM CharInfo := withNewMCtxDepth do
   let n ← mkFreshExprMVar (mkConst ``Nat)
   let charType := mkApp3 (mkConst ``Grind.IsCharP [u]) type semiringInst n
-  let some charInst ← synthInstance? charType | return none
+  let some charInst ← synthInstance? charType | return {}
   let n ← instantiateMVars n
-  let some n ← evalNat? n | return none
-  return some (charInst, n)
+  let some n ← evalNat? n | return { symbolic := true }
+  return { inst? := some (charInst, n) }
+
+/-- Returns the `IsCharP type semiringInst n` instance together with the evaluated `n`, if `n` is a numeral. -/
+def getIsCharInst? (u : Level) (type : Expr) (semiringInst : Expr) : SymM (Option (Expr × Nat)) :=
+  return (← getCharInfo u type semiringInst).inst?
 
 /--
 Returns the `PowIdentity` instance, the `CommSemiring` instance it was synthesized against,
@@ -50,5 +61,48 @@ def getNoZeroDivInst? (u : Level) (type : Expr) : SymM (Option Expr) := do
   let some natModuleInst ← synthInstance? natModuleType | return none
   let noZeroDivType := mkApp2 (mkConst ``Grind.NoNatZeroDivisors [u]) type natModuleInst
   synthInstance? noZeroDivType
+
+/-! Order instances. Each returns `none` (with a debug issue) when `synthInstance?` fails. -/
+
+def mkLawfulOrderLTInst? (u : Level) (type : Expr) (ltInst? leInst? : Option Expr) : SymM (Option Expr) := do
+  let some ltInst := ltInst? | return none
+  let some leInst := leInst? | return none
+  let lawfulOrderLTType := mkApp3 (mkConst ``Std.LawfulOrderLT [u]) type ltInst leInst
+  let some inst ← synthInstance? lawfulOrderLTType
+    | reportDbgIssue! "type has `LE` and `LT`, but the `LT` instance is not lawful, failed to synthesize{indentExpr lawfulOrderLTType}"
+      return none
+  return some inst
+
+def mkIsPreorderInst? (u : Level) (type : Expr) (leInst? : Option Expr) : SymM (Option Expr) := do
+  let some leInst := leInst? | return none
+  let isPreorderType := mkApp2 (mkConst ``Std.IsPreorder [u]) type leInst
+  let some inst ← synthInstance? isPreorderType
+    | reportDbgIssue! "type has `LE`, but is not a preorder, failed to synthesize{indentExpr isPreorderType}"
+      return none
+  return some inst
+
+def mkIsPartialOrderInst? (u : Level) (type : Expr) (leInst? : Option Expr) : SymM (Option Expr) := do
+  let some leInst := leInst? | return none
+  let isPartialOrderType := mkApp2 (mkConst ``Std.IsPartialOrder [u]) type leInst
+  let some inst ← synthInstance? isPartialOrderType
+    | reportDbgIssue! "type has `LE`, but is not a partial order, failed to synthesize{indentExpr isPartialOrderType}"
+      return none
+  return some inst
+
+def mkIsLinearOrderInst? (u : Level) (type : Expr) (leInst?  : Option Expr) : SymM (Option Expr) := do
+  let some leInst := leInst? | return none
+  let isLinearOrderType := mkApp2 (mkConst ``Std.IsLinearOrder [u]) type leInst
+  let some inst ← synthInstance? isLinearOrderType
+    | reportDbgIssue! "type has `LE`, but is not a linear order, failed to synthesize{indentExpr isLinearOrderType}"
+      return none
+  return some inst
+
+def mkIsLinearPreorderInst? (u : Level) (type : Expr) (leInst?  : Option Expr) : SymM (Option Expr) := do
+  let some leInst := leInst? | return none
+  let isLinearOrderType := mkApp2 (mkConst ``Std.IsLinearPreorder [u]) type leInst
+  let some inst ← synthInstance? isLinearOrderType
+    | reportDbgIssue! "type has `LE`, but is not a linear preorder, failed to synthesize{indentExpr isLinearOrderType}"
+      return none
+  return some inst
 
 end Lean.Meta.Sym.Arith

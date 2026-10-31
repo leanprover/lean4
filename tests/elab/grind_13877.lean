@@ -40,23 +40,8 @@ abbrev Normal (r : α → α → Prop) (x : α) : Prop := ¬ Reducible r x
 -- close the goal because the destructuring uses inaccessible names.
 /--
 info: Try these:
-  [apply] grind only [= reflTransGen_iff_eq, EqvGen.rel, #9242, #14e8, #d806, #f38a, #e48b, #5525, #3442, #ae98, EqvGen]
-  [apply] grind only [= reflTransGen_iff_eq, EqvGen.rel, EqvGen]
-  [apply] grind [EqvGen] =>
-    instantiate only [= reflTransGen_iff_eq, EqvGen.rel]
-    instantiate only [#9242]
-    cases #14e8
-    · cases #d806 <;> cases #f38a <;> cases #e48b <;> instantiate only [#9242]
-    · instantiate only [= reflTransGen_iff_eq]
-      cases #d806
-      · cases #f38a <;> cases #5525 <;> instantiate only [#3442]
-      · cases #f38a
-        · cases #ae98/2
-          · instantiate only [#3442]
-          · cases #e48b <;> instantiate only [#9242]
-        · cases #ae98/2
-          · instantiate only [#3442]
-          · cases #e48b <;> instantiate only [#9242]
+  [apply] grind only [= reflTransGen_iff_eq, EqvGen]
+  [apply] grind [EqvGen] => instantiate only [= reflTransGen_iff_eq]
 -/
 #guard_msgs in
 example (cr : ChurchRosser r) (nx : Normal r x) (ny : Normal r y) (xy : EqvGen r x y) : x = y := by
@@ -65,21 +50,7 @@ example (cr : ChurchRosser r) (nx : Normal r x) (ny : Normal r y) (xy : EqvGen r
 
 example (cr : ChurchRosser r) (nx : Normal r x) (ny : Normal r y) (xy : EqvGen r x y) : x = y := by
   have ⟨_, _, _⟩ := cr xy
-  grind [EqvGen] =>
-    instantiate only [= reflTransGen_iff_eq, EqvGen.rel]
-    instantiate only [#9242]
-    cases #14e8
-    · cases #d806 <;> cases #f38a <;> cases #e48b <;> instantiate only [#9242]
-    · instantiate only [= reflTransGen_iff_eq]
-      cases #d806
-      · cases #f38a <;> cases #5525 <;> instantiate only [#3442]
-      · cases #f38a
-        · cases #ae98/2
-          · instantiate only [#3442]
-          · cases #e48b <;> instantiate only [#9242]
-        · cases #ae98/2
-          · instantiate only [#3442]
-          · cases #e48b <;> instantiate only [#9242]
+  grind [EqvGen] => instantiate only [= reflTransGen_iff_eq]
 
 -- Same example with an accessible name.
 example (cr : ChurchRosser r) (nx : Normal r x) (ny : Normal r y) (xy : EqvGen r x y) : x = y := by

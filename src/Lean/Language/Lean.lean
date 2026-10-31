@@ -422,7 +422,7 @@ where
                   let prom ← IO.Promise.new
                   let cancelTk ← IO.CancelToken.new
                   parseCmd oldCmd newParserState oldProcSuccess.cmdState prom (sync := true)
-                    cancelTk {} ctx
+                    cancelTk [] ctx
                   return .finished none {
                     diagnostics := .empty
                     metaSnap := .finished newStx {
@@ -542,7 +542,7 @@ where
       }
       let prom ← IO.Promise.new
       let cancelTk ← IO.CancelToken.new
-      parseCmd none parserState cmdState prom (sync := true) cancelTk {} ctx
+      parseCmd none parserState cmdState prom (sync := true) cancelTk [] ctx
       return {
         diagnostics := .empty
         metaSnap := .finished stx {
@@ -555,15 +555,9 @@ where
         }
       }
 
-  /-
-  `cmds` accumulates the commands parsed so far for the module linters, which run on the terminal
-  command. It is a `PersistentArray` because it is captured by closures handed to tasks (e.g. the
-  linter task of every command), so an `Array` would be shared at the time of the next push and
-  copied in full, making the cost of each command linear in its position in the file.
-  -/
   parseCmd (old? : Option CommandParsedSnapshot) (parserState : Parser.ModuleParserState)
       (cmdState : Command.State) (prom : IO.Promise CommandParsedSnapshot) (sync : Bool)
-      (parseCancelTk : IO.CancelToken) (cmds : PersistentArray Syntax) : LeanProcessingM Unit := do
+      (parseCancelTk : IO.CancelToken) (revCmds : List Syntax) : LeanProcessingM Unit := do
     let ctx ← read
 
     let unchanged old newParserState : BaseIO Unit :=
@@ -580,7 +574,7 @@ where
           -- elaboration reuse
           BaseIO.chainTask (sync := true) oldNext.task fun oldNext => do
             parseCmd oldNext newParserState oldResult.cmdState newProm sync cancelTk
-              (cmds.push old.stx) ctx
+              (old.stx :: revCmds) ctx
         prom.resolve <| { old with nextCmdSnap? := some {
           stx? := none
           reportingRange := .some ⟨newParserState.pos, ctx.endPos⟩
@@ -685,7 +679,7 @@ where
           reportSnap := { stx? := none, reportingRange := initRange?, task := reportPromise.result!, cancelTk? := none }
         }
       }
-      let cmdState ← doElab stx cmds cmdState beginPos
+      let cmdState ← doElab stx revCmds cmdState beginPos
         { old? := old?.map fun old => ⟨old.stx, old.elabSnap.elabSnap⟩, new := elabPromise }
         elabCmdCancelTk ctx
 
@@ -698,6 +692,7 @@ where
         diagnostics := (← Snapshot.Diagnostics.ofMessageLog cmdState.messages)
         traces := cmdState.traceState
         cmdState := reportedCmdState
+        codeQualityEntryTasks := cmdState.codeQualityEntryTasks
       }
 
       -- report info tree when relevant tasks are finished
@@ -755,27 +750,30 @@ where
           }
       if let some next := next? then
         -- We're definitely off the fast-forwarding path now
-        parseCmd none parserState cmdState next (sync := false) elabCmdCancelTk (cmds.push stx) ctx
+        parseCmd none parserState cmdState next (sync := false) elabCmdCancelTk (stx :: revCmds) ctx
 
-  doElab (stx : Syntax) (cmds : PersistentArray Syntax) (cmdState : Command.State) (beginPos : String.Pos.Raw)
+  doElab (stx : Syntax) (revCmds : List Syntax) (cmdState : Command.State) (beginPos : String.Pos.Raw)
       (snap : SnapshotBundle DynamicSnapshot) (cancelTk : IO.CancelToken) :
       LeanProcessingM Command.State := do
     let ctx ← read
     let scope := cmdState.scopes.head!
     -- reset per-command state
     let cmdStateRef ← IO.mkRef { cmdState with
-      messages := .empty, traceState := {}, snapshotTasks := #[] }
+      messages := .empty, traceState := {}, snapshotTasks := #[], codeQualityEntryTasks := #[] }
     let cmdCtx : Elab.Command.Context := { ctx with
       cmdPos       := beginPos
       snap?        := if internal.cmdlineSnapshots.get scope.opts then none else snap
       cancelTk?    := some cancelTk
     }
+    let act : Elab.Command.CommandElabM Unit := do
+      let _ ← getResetInfoTrees
+      Elab.Command.elabCommandTopLevel stx
+      if Parser.isTerminalCommand stx then
+        Elab.Command.runModuleLintersAsync revCmds.reverse.toArray
     let (output, _) ←
       IO.FS.withIsolatedStreams (isolateStderr := Core.stderrAsMessages.get scope.opts) do
         EIO.toBaseIO do
-          withLoggingExceptions
-            (getResetInfoTrees *> Elab.Command.elabCommandTopLevel stx cmds)
-            cmdCtx cmdStateRef
+          withLoggingExceptions act cmdCtx cmdStateRef
     let cmdState ← cmdStateRef.get
     let mut messages := cmdState.messages
     if !output.isEmpty then
@@ -802,7 +800,7 @@ def processCommands (inputCtx : Parser.InputContext) (parserState : Parser.Modul
     BaseIO (Task CommandParsedSnapshot) := do
   let prom ← IO.Promise.new
   let cancelTk ← IO.CancelToken.new
-  process.parseCmd (old?.map (·.2)) parserState commandState prom (sync := true) cancelTk {}
+  process.parseCmd (old?.map (·.2)) parserState commandState prom (sync := true) cancelTk []
     |>.run (old?.map (·.1))
     |>.run { inputCtx with }
   return prom.result!
@@ -817,6 +815,20 @@ where goCmd snap :=
     goCmd next.get
   else
     snap.elabSnap.resultSnap.get.cmdState
+
+/--
+Folds `f` over the command snapshots of `snap` in order, waiting for each command to be parsed.
+Returns `none` if the header could not be processed.
+-/
+partial def foldCmdSnaps? (snap : InitialSnapshot) (init : α)
+    (f : α → CommandParsedSnapshot → α) : Option α := do
+  let snap ← snap.result?
+  let snap ← snap.processedSnap.get.result?
+  go snap.firstCmdSnap.get init
+where
+  go (snap : CommandParsedSnapshot) (acc : α) : α :=
+    let acc := f acc snap
+    if let some next := snap.nextCmdSnap? then go next.get acc else acc
 
 /--
 Returns `snap` with all elaborated command data discarded, retaining only the imported

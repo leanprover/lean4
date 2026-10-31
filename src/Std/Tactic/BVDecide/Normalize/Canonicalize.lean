@@ -7,6 +7,7 @@ module
 
 prelude
 public import Init.Data.BitVec.Lemmas
+public import Init.Data.BitVec.Package
 public import Std.Tactic.BVDecide.Syntax
 public import Init.Data.BitVec.Bootstrap
 import Init.PropLemmas

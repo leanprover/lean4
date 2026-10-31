@@ -14,6 +14,8 @@ import Lean.Meta.Tactic.Grind.Simp
 import Lean.Meta.Tactic.Grind.MarkNestedSubsingletons
 import Lean.Meta.Tactic.Grind.PropagateInj
 import Lean.Util.CollectLevelParams
+import Lean.Util.ForEachExpr
+import Lean.Meta.Tactic.Grind.EMatchTheorem
 import Init.Grind.Util
 public section
 namespace Lean.Meta.Grind
@@ -163,6 +165,9 @@ private def checkAndAddSplitCandidate (e : Expr) : GoalM Unit := do
       -- We used to add the `split` only if `lookahead := false`, but it was counterintuitive
       -- to make `grind` "stronger" by disabling a feature.
       addSplitCandidate (.imp e (h ▸ rfl) currSplitSource)
+    else if d.isForall && d.bindingBody!.hasLooseBVars && (← isProp d) then
+      -- `grind` has few propagation rules for assigning `True` to a universal quantifier.
+      addSplitCandidate (.imp e (h ▸ rfl) currSplitSource)
   | _ => pure ()
 
 /--
@@ -180,6 +185,23 @@ private def pushCastHEqs (e : Expr) : GoalM Unit := do
 
 private def mkENode' (e : Expr) (generation : Nat) (funCC := false) : GoalM Unit :=
   mkENodeCore e (ctor := false) (interpreted := false) (generation := generation) (funCC := funCC)
+
+/--
+If `e` is a term `⟨v, h⟩ : {x // p x}`, asserts `p v`.
+
+The proposition `grind` learns from the nested proof `h` is its inferred type, which may be only
+definitionally equal to `p v`. For example, the instance of `∀ x : {x // p x}, q x` for `⟨v, h⟩`
+is `p v → q ⟨v, h⟩` after `Subtype.forall`, and it is only usable if `p v` is known to be true.
+
+This function must run once per internalized `Subtype.mk` application, like `mkInjEq`. It is not
+an upward propagator because those rerun whenever the class of an argument is merged, and the fact
+would be preprocessed and asserted again each time. We may want a general mechanism for
+propagators that run only once. A solver extension would also work, but it is too heavy for this.
+-/
+private def propagateSubtypeMk (e : Expr) : GoalM Unit := do
+  let_expr Subtype.mk _ p v h := e | return ()
+  let prop := p.beta #[v]
+  pushNewFact' prop (mkExpectedPropHint h prop) (← getGeneration e)
 
 /-- Internalizes the nested ground terms in the given pattern. -/
 private partial def internalizePattern (pattern : Expr) (generation : Nat) (origin : Origin) : GoalM Expr := do
@@ -218,7 +240,7 @@ private def internalizeMatchCond (matchCond : Expr) (generation : Nat) : GoalM U
   mkENode' matchCond generation (funCC := false)
   let (lhss, e') ← collectMatchCondLhssAndAbstract matchCond
   lhss.forM fun lhs => do internalize lhs generation; registerParent matchCond lhs
-  propagateUp matchCond
+  pushPropagateUp matchCond
   internalize e' generation
   trace_goal[grind.debug.matchCond.lambda] "(idx := {(← getENode e'.getAppFn).idx}) {e'.getAppFn}"
   trace_goal[grind.debug.matchCond.lambda] "auxiliary application{indentExpr e'}"
@@ -333,6 +355,26 @@ private def activateTheorems (declName : Name) (generation : Nat) : GoalM Unit :
   activateInjectiveTheorems declName generation
 
 /--
+Marks the constants occurring in `e` as found and activates their theorems.
+The internalizer does not descend into binders (lambdas, `let`s, and dependent codomains of
+`forall`s) nor into nonparametric literals, but pattern symbol
+collection does (see `saveSymbolsAt`). Thus, a theorem whose ground pattern is `myPred (fun _ => True)`
+is also indexed by `True`, and one whose ground pattern is `f 'a'` is also indexed by `Char.ofNat`.
+They would never be activated if these symbols were not marked as found.
+-/
+private def activateTheoremsForConstsIn (e : Expr) (generation : Nat) : GoalM Unit := do
+  e.forEach' fun e => do
+    match e with
+    | .const declName _ =>
+      updateIndicesFound (.const declName)
+      activateTheorems declName generation
+      return false
+    | .app .. =>
+      let .const declName _ := e.getAppFn | return true
+      return !isOpaqueForIndexing declName
+    | _ => return true
+
+/--
 If type of `a` is a structure and is tagged with `[grind ext]` attribute,
 propagate `a = ⟨a.1, ..., a.n⟩`
 
@@ -360,10 +402,20 @@ private def propagateEtaStruct (a : Expr) (generation : Nat) : GoalM Unit := do
             proj ← markProof proj
           ctorApp := mkApp ctorApp proj
         ctorApp ← preprocessLight ctorApp
-        internalize ctorApp generation
         let u ← getLevel aType
         let expectedProp := mkApp3 (mkConst ``Eq [u]) aType a ctorApp
-        pushEq a ctorApp <| mkExpectedPropHint (mkApp2 (mkConst ``Eq.refl [u]) aType a) expectedProp
+        let proof := mkExpectedPropHint (mkApp2 (mkConst ``Eq.refl [u]) aType a) expectedProp
+        /-
+        **Note**: We must not internalize `ctorApp` here. Suppose `g : Nat → {x : Int // p x}`, and
+        we are internalizing `(g y).val`. Its `ENode` is created before its arguments are visited, so
+        `(g y).val` is in progress when we internalize its argument `g y` and reach this point with
+        `a := g y`. Then `ctorApp` is `⟨(g y).val, (g y).property⟩`, which contains the in-progress
+        application `(g y).val`. Internalizing it now would treat `(g y).val` as complete and hand it to
+        the solver hooks with missing arguments (e.g., `lia` fails with "term has not been internalized").
+        Thus, we queue `ctorApp` and the equality `a = ctorApp`; they are processed by `processToDo`
+        when no application is in progress. See the section on re-entrant internalization below and #16101.
+        -/
+        pushInternalizeRhsAddEq a ctorApp proof generation
 
 /-- Returns `true` if we can ignore `ext` for functions occurring as arguments of a `declName`-application. -/
 private def extParentsToIgnore (declName : Name) : Bool :=
@@ -406,8 +458,10 @@ private def addSplitCandidatesForExt (arg : Expr) (generation : Nat) (parent? : 
     it := it.appFn!
 where
   found (f : Expr) (i : Nat) (type : Expr) (parent : Expr) : GoalM Unit := do
-    trace_goal[grind.debug.ext] "{f}, {i}, {arg}"
     let others := (← get).split.argsAt.find? (f, i) |>.getD []
+    -- `arg` is recorded once per `(f, i)`. Its candidates were created when it was first found there.
+    if others.any fun other => isSameExpr arg other.arg then return ()
+    trace_goal[grind.debug.ext] "{f}, {i}, {arg}"
     for other in others do
       if (← isDefEqD type other.type) then
         let eq := mkApp3 (mkConst ``Eq [← getLevel type]) type arg other.arg
@@ -468,23 +522,44 @@ private def useFunCongrAtFn (f : Expr) : GrindM Bool := do
   let .const declName _ := f | return true
   useFunCongrAtDecl declName
 
-/--
-Returns true if `e` is a nonparametric literal.
-For example, `BitVec` and `Fin` are parametric literals, but `Nat` is not.
--/
-private def isNonParametricLitValue (e : Expr) : MetaM Bool := do
-  if (← getNatValue? e).isSome then return true
-  if (← getIntValue? e).isSome then return true
-  if (getStringValue? e).isSome then return true
-  if (← getCharValue? e).isSome then return true
-  if (← getUInt8Value? e).isSome then return true
-  if (← getUInt16Value? e).isSome then return true
-  if (← getUInt32Value? e).isSome then return true
-  if (← getUInt64Value? e).isSome then return true
-  return false
+/-- Literal applications that `internalize` handles specially. -/
+private inductive LitKind where
+  | notLit
+  /-- A `Nat`, `Int`, `Char`, `UInt8`, `UInt16`, `UInt32`, `UInt64`, `Int8`, `Int16`, `Int32`, or `Int64` literal. -/
+  | nonParametric
+  /-- An `OfNat.ofNat` literal of type `BitVec _` or `Fin _`. -/
+  | ofNatFinBitVec
 
 /--
-Internalizer for nonparametric literals (see `isNonParametricLitValue`).
+Classifies the application `e`. For example, `BitVec` and `Fin` are parametric literals, but `Nat` is not.
+The types of nonparametric literals are reduced using `whnfD`, but `BitVec` and `Fin` must occur syntactically.
+-/
+private def getLitKind (e : Expr) : MetaM LitKind := do
+  match_expr e with
+  | OfNat.ofNat type n _ =>
+    unless n.consumeMData.isRawNatLit do return .notLit
+    match_expr type with
+    | BitVec w => return if (← isNatValue (← whnfD w)) then .ofNatFinBitVec else .notLit
+    | Fin k => return if (← isNonZeroNatValue (← whnfD k)) then .ofNatFinBitVec else .notLit
+    | _ =>
+      let .const declName _ := (← whnfD type).getAppFn | return .notLit
+      if declName == ``Nat || declName == ``Int
+          || declName == ``UInt8 || declName == ``UInt16 || declName == ``UInt32 || declName == ``UInt64
+          || declName == ``Int8 || declName == ``Int16 || declName == ``Int32 || declName == ``Int64 then
+        return .nonParametric
+      return .notLit
+  | Neg.neg _ _ a =>
+    let_expr OfNat.ofNat type n _ ← a | return .notLit
+    unless n.consumeMData.isRawNatLit do return .notLit
+    let .const declName _ := (← whnfD type).getAppFn | return .notLit
+    if declName == ``Int || declName == ``Int8 || declName == ``Int16 || declName == ``Int32 || declName == ``Int64 then
+      return .nonParametric
+    return .notLit
+  | Char.ofNat n => return if (← isNatValue n) then .nonParametric else .notLit
+  | _ => return .notLit
+
+/--
+Internalizer for nonparametric literals (see `getLitKind`).
 For this kind of literal, we do **not** internalize its children nor
 we activate theorems associated with their function symbol.
 This is relevant because we do not want to internalize, for example,
@@ -500,20 +575,11 @@ want to internalize the raw natural value there. See `internalizeOfNatFinBitVecL
 -/
 private def internalizeNonParametricLiteral (e : Expr) (generation : Nat) (parent? : Option Expr) : GoalM Unit := do
   mkENode e generation
+  activateTheoremsForConstsIn e generation
   Solvers.internalize e parent?
 
 /--
-Returns `true` if `e` is a `OfNat.ofNat` literal of type `BitVec _` or `Fin _`.
--/
-private def isOfNatFinBitVecLiteral (e : Expr) : MetaM Bool := do
-  let_expr OfNat.ofNat α _ _ := e | return false
-  match_expr α with
-  | BitVec _ => return (← getBitVecValue? e).isSome
-  | Fin _ => return (← getFinValue? e).isSome
-  | _ => return false
-
-/--
-Internalizer for parametric `OfNat.ofNat` literals (see `isOfNatFinBitVecLiteral`).
+Internalizer for parametric `OfNat.ofNat` literals (see `getLitKind`).
 For this kind of literal, we do **not** internalize its nested raw literal, but
 we do internalize the type and instance to address issue #11545.
 For example, we can have patterns of the form ``[P #0 (@OfNat.ofNat (Fin _) `[0] _)]``.
@@ -537,11 +603,52 @@ private def internalizeOfNatFinBitVecLiteral (e : Expr) (generation : Nat) (pare
   updateIndicesFound (.const ``OfNat.ofNat)
   activateTheorems ``OfNat.ofNat generation
 
+/-!
+## Re-entrant internalization
+
+`internalizeImpl` creates the `ENode` of an application before visiting its arguments, because
+`registerParent` and the congruence table need the node of the parent. Until the argument loop
+finishes, the application is *in progress*: `alreadyInternalized` holds for it, but some of its
+arguments may have no `ENode` yet.
+
+We say `u` is a *strict ancestor* of `t` if `u` is an in-progress application and `t` is one of
+its proper subterms. The in-progress applications are exactly the strict ancestors of the term
+currently being internalized.
+
+**Invariant.** While `t` is being internalized, solver code must not call `internalize` on a term
+that is, or contains, a strict ancestor of `t`.
+
+**Why it matters.** The `alreadyInternalized` branch of `internalizeImpl` treats its argument as
+complete: it does not visit the arguments again, and it hands the term to the solver hooks so that
+they can register it under a new parent. If the term is a strict ancestor, the hooks see a term
+with missing arguments. The ring solver, for example, reifies it and asks for a variable for an
+argument that has no `ENode`. The branch is also what keeps the descent finite: without it,
+re-internalizing an ancestor would visit the current term again.
+
+**How it is maintained.** The solver hooks run synchronously at the end of a term's
+internalization, so they run while the strict ancestors of that term are in progress. They are the
+only solver code that runs in this position. The `newEq`/`newDiseq` callbacks triggered by
+`SolverExtension.markTerm` are queued (`ToProcessElement.solverEq`), and so are the propagators
+(`ToProcessElement.propagateUp`); both run from `processToDo`, when no application is in progress.
+A hook therefore only has to avoid internalizing a term that contains one of its own strict
+ancestors. A hook that must state a fact about such a term queues it with `pushNewFactCore`; the
+term is internalized when the fact is processed. Structure eta is handled the same way:
+`a = ⟨a.1, ..., a.n⟩` is queued (`ToProcessElement.internalizeRhsAddEq`) because the projections
+`a.i` may be strict ancestors of `a`.
+
+**Checking.** When `isDebugEnabled` holds, `GoalState.internalizing` holds the in-progress
+applications, and the `alreadyInternalized` branch throws an internal error if it reaches one of
+them.
+-/
+
 set_option compiler.ignoreBorrowAnnotation true in
 @[export lean_grind_internalize]
 private partial def internalizeImpl (e : Expr) (generation : Nat) (parent? : Option Expr := none) : GoalM Unit := withIncRecDepth do
   if (← alreadyInternalized e) then
     trace_goal[grind.debug.internalize] "already internalized: {e}"
+    if (← isDebugEnabled) then
+      if (← get).internalizing.any (isSameExpr · e) then
+        throwError "`grind` internal error, `internalize` reached an application whose arguments are still being internalized{indentExpr e}"
     /-
     Even if `e` has already been internalized, we must check whether it has also been internalized in
     the satellite solvers. For example, suppose we have already internalized the term `f (a + 1)`.
@@ -551,6 +658,14 @@ private partial def internalizeImpl (e : Expr) (generation : Nat) (parent? : Opt
     Otherwise, it will not be able to propagate that `a + 1 = 1` when `a = 0`
     -/
     Solvers.internalize e parent?
+    /-
+    Function extensionality candidates are indexed by the parent function symbol and argument
+    position. A lambda that occurs as the argument of a second application must also be
+    recorded under that application. Otherwise, the candidate for the lambdas at that position
+    would never be created.
+    -/
+    if e.isLambda then
+      addSplitCandidatesForFunext e generation parent?
   else
     go
     propagateEtaStruct e generation
@@ -573,22 +688,26 @@ where
       Solvers.internalize e parent?
     | .letE .. =>
       mkENode' e generation
+      activateTheoremsForConstsIn e generation
       Solvers.internalize e parent?
     | .lam .. =>
       addSplitCandidatesForFunext e generation parent?
       mkENode' e generation
+      activateTheoremsForConstsIn e generation
       tryEta e generation
       Solvers.internalize e parent?
     | .forallE _ d b _ =>
       mkENode' e generation
       internalizeImpl d generation e
       registerParent e d
-      unless b.hasLooseBVars do
+      if b.hasLooseBVars then
+        activateTheoremsForConstsIn b generation
+      else
         internalizeImpl b generation e
         registerParent e b
         addCongrTable e
       if (← isProp d <&&> isProp e) then
-        propagateUp e
+        pushPropagateUp e
         checkAndAddSplitCandidate e
       Solvers.internalize e parent?
     | .lit .. =>
@@ -611,67 +730,82 @@ where
       mkENode' e generation
       Solvers.internalize e parent?
     | .app .. =>
-      if (← isNonParametricLitValue e) then
-        internalizeNonParametricLiteral e generation parent?
-      else if (← isOfNatFinBitVecLiteral e) then
-        internalizeOfNatFinBitVecLiteral e generation parent?
-      else if e.isAppOfArity ``Grind.MatchCond 1 then
-        internalizeMatchCond e generation
-      else e.withApp fun f args => do
-        let funCC ← useFunCongrAtFn f
-        mkENode e generation (funCC := funCC)
-        updateAppMap e
-        checkAndAddSplitCandidate e
-        addMatchEqns f generation
-        if args.size == 2 && f.isConstOf ``Grind.nestedProof then
-          -- We only internalize the proposition. We can skip the proof because of
-          -- proof irrelevance
-          let c := args[0]!
-          internalizeImpl c generation e
-          registerParent e c
-          pushEqTrue c <| mkApp2 (mkConst ``eq_true) c args[1]!
-        else if args.size == 2 && f.isConstOf ``Grind.nestedDecidable then
-          -- We only internalize the proposition. We can skip the instance because it is
-          -- a subsingleton
-          let c := args[0]!
-          internalizeImpl c generation e
-          registerParent e c
-        else if f.isConstOf ``ite && args.size == 5 then
-          let c := args[1]!
-          internalizeImpl c generation e
-          registerParent e c
-        else
-          if let .const fName _ := f then
-            activateTheorems fName generation
-            if funCC then
-              internalizeImpl f generation e
+      match (← getLitKind e) with
+      | .nonParametric => internalizeNonParametricLiteral e generation parent?
+      | .ofNatFinBitVec => internalizeOfNatFinBitVecLiteral e generation parent?
+      | .notLit =>
+        if e.isAppOfArity ``Grind.MatchCond 1 then
+          internalizeMatchCond e generation
+        else e.withApp fun f args => do
+          let funCC ← useFunCongrAtFn f
+          mkENode e generation (funCC := funCC)
+          updateAppMap e
+          checkAndAddSplitCandidate e
+          addMatchEqns f generation
+          if (← isDebugEnabled) then
+            modify fun s => { s with internalizing := s.internalizing.push e }
+            try internalizeArgs f args funCC
+            finally modify fun s => { s with internalizing := s.internalizing.pop }
           else
-            internalizeImpl f generation e
-          registerParent e f
-          if funCC then
-            let rec traverse (curr : Expr) : GoalM Unit := do
-              let .app f a := curr | return ()
-              mkENode curr generation (funCC := true)
-              internalizeImpl a generation e
-              traverse f
-              registerParent curr a
-              registerParent curr f
-              addCongrTable curr
-            let .app curr a := e | unreachable!
-            internalizeImpl a generation e
-            traverse curr
-            registerParent e a
-            registerParent e curr
-          else
-            for h : i in *...args.size do
-              let arg := args[i]
-              internalizeImpl arg generation e
-              registerParent e arg
-        pushCastHEqs e
-        addCongrTable e
-        Solvers.internalize e parent?
-        propagateUp e
-        propagateBetaForNewApp e
-        mkInjEq e
+            internalizeArgs f args funCC
+          pushCastHEqs e
+          addCongrTable e
+          Solvers.internalize e parent?
+          pushPropagateUp e
+          propagateBetaForNewApp e
+          mkInjEq e
+          propagateSubtypeMk e
+
+  /-- Visits the arguments of `e` and registers `e` as their parent. -/
+  internalizeArgs (f : Expr) (args : Array Expr) (funCC : Bool) : GoalM Unit := do
+    if args.size == 2 && f.isConstOf ``Grind.nestedProof then
+      -- We only internalize the proposition. We can skip the proof because of
+      -- proof irrelevance
+      let c := args[0]!
+      internalizeImpl c generation e
+      registerParent e c
+      pushEqTrue c <| mkApp2 (mkConst ``eq_true) c args[1]!
+    else if args.size == 2 && f.isConstOf ``Grind.nestedDecidable then
+      -- We only internalize the proposition. We can skip the instance because it is
+      -- a subsingleton
+      let c := args[0]!
+      internalizeImpl c generation e
+      registerParent e c
+    else if f.isConstOf ``ite && args.size == 5 then
+      -- Only the condition is internalized; the branches are internalized by `propagateIte`
+      -- once the condition is decided. The congruence hash of `e` covers every argument,
+      -- so `e` is registered as a parent of all of them: if a branch or the instance is
+      -- internalized through another term and merged, `e` must be rehashed.
+      let c := args[1]!
+      internalizeImpl c generation e
+      for arg in args do
+        registerParent e arg
+    else
+      if let .const fName _ := f then
+        activateTheorems fName generation
+        if funCC then
+          internalizeImpl f generation e
+      else
+        internalizeImpl f generation e
+      registerParent e f
+      if funCC then
+        let rec traverse (curr : Expr) : GoalM Unit := do
+          let .app f a := curr | return ()
+          mkENode curr generation (funCC := true)
+          internalizeImpl a generation e
+          traverse f
+          registerParent curr a
+          registerParent curr f
+          addCongrTable curr
+        let .app curr a := e | unreachable!
+        internalizeImpl a generation e
+        traverse curr
+        registerParent e a
+        registerParent e curr
+      else
+        for h : i in *...args.size do
+          let arg := args[i]
+          internalizeImpl arg generation e
+          registerParent e arg
 
 end Lean.Meta.Grind

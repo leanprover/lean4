@@ -1,0 +1,1 @@
+Spawns `IO.appPath` as the client, which is the `lean` binary when interpreted.

@@ -35,7 +35,6 @@ theorem val_mul (a b : Fin n) : (a * b).val = (a.val * b.val) % n := rfl
 
 theorem sub_def (a b : Fin n) : a - b = Fin.mk (((n - b.val) + a.val) % n) (Nat.mod_lt _ a.pos) := rfl
 
-@[grind =]
 theorem val_sub (a b : Fin n) : (a - b).val = ((n - b.val) + a.val) % n := rfl
 
 @[grind →]

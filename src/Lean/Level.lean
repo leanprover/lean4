@@ -155,7 +155,6 @@ abbrev levelOne := Level.one
 
 @[export lean_level_mk_zero] def mkLevelZeroEx : Unit → Level := fun _ => .zero
 @[export lean_level_mk_succ] def mkLevelSuccEx : Level → Level := mkLevelSucc
-@[export lean_level_mk_mvar] def mkLevelMVarEx : LMVarId → Level := mkLevelMVar
 @[export lean_level_mk_param] def mkLevelParamEx : Name → Level := mkLevelParam
 @[export lean_level_mk_max] def mkLevelMaxEx : Level → Level → Level := mkLevelMax
 @[export lean_level_mk_imax] def mkLevelIMaxEx : Level → Level → Level := mkLevelIMax
@@ -619,6 +618,10 @@ def getParamSubst : List Name → List Level → Name → Option Level
 
 def instantiateParams (u : Level) (paramNames : List Name) (vs : List Level) : Level :=
   u.substParams (getParamSubst paramNames vs)
+
+@[export lean_level_instantiate_params]
+private def instantiateParamsEx (u : Level) (paramNames : List Name) (vs : List Level) : Level :=
+  u.instantiateParams paramNames vs
 
 def geq (u v : Level) : Bool :=
   go u.normalize v.normalize

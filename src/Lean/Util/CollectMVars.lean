@@ -7,6 +7,7 @@ module
 
 prelude
 public import Lean.Expr
+public import Lean.Meta.Sym.ExprPtr
 
 public section
 
@@ -14,18 +15,28 @@ namespace Lean
 
 namespace CollectMVars
 
+/--
+State of `Expr.collectMVars`. It can be threaded through several calls: subterms visited by
+earlier calls are not visited again. Use `{}` for an empty state.
+-/
 structure State where
-  visitedExpr  : ExprSet      := {}
+  /-- Visited subterms, compared by pointer. -/
+  private visited : Std.HashSet Meta.Sym.ExprPtr := {}
+  /-- Metavariables in `result`. -/
+  private mvarSet : MVarIdSet := {}
   result       : Array MVarId := #[]
 
+def State.empty : State := {}
+
+instance : EmptyCollection State := ⟨State.empty⟩
 instance : Inhabited State := ⟨{}⟩
 
 abbrev Visitor := State → State
 
 mutual
   partial def visit (e : Expr) : Visitor := fun s =>
-    if !e.hasExprMVar || s.visitedExpr.contains e then s
-    else main e { s with visitedExpr := s.visitedExpr.insert e }
+    if !e.hasExprMVar || s.visited.contains { expr := e } then s
+    else main e { s with visited := s.visited.insert { expr := e } }
 
   partial def main : Expr → Visitor
     | Expr.proj _ _ e      => visit e
@@ -34,7 +45,10 @@ mutual
     | Expr.letE _ t v b _  => visit b ∘ visit v ∘ visit t
     | Expr.app f a         => visit a ∘ visit f
     | Expr.mdata _ b       => visit b
-    | Expr.mvar mvarId     => fun s => { s with result := s.result.push mvarId }
+    -- Equal metavariables may be different objects.
+    | Expr.mvar mvarId     => fun s =>
+      if s.mvarSet.contains mvarId then s
+      else { s with mvarSet := s.mvarSet.insert mvarId, result := s.result.push mvarId }
     | _                    => id
 end
 

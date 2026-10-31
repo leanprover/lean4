@@ -1,0 +1,4 @@
+exhaustive: 12090 lt, 156 eq, 12090 gt, 0 failures
+boundaries: 3341 lt, 50 eq, 3341 gt, 0 failures
+capacities: 37 lt, 26 eq, 37 gt, 0 failures
+random: 7518 lt, 6944 eq, 5538 gt, 0 failures

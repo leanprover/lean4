@@ -1043,7 +1043,6 @@ def createTreeCtx (ctx : Core.Context) : Core.Context := {
     maxRecDepth := ctx.maxRecDepth
     maxHeartbeats := 0
     ref := ctx.ref
-    diag := getDiag ctx.options
   }
 
 def findImportMatches

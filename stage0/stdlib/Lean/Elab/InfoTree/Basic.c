@@ -6796,7 +6796,6 @@ v_sz_1803_ = lean_array_size(v_cs_1800_);
 v___x_1804_ = ((size_t)0ULL);
 v___x_1805_ = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_PersistentArray_forInAux___at___00Lean_PersistentArray_forIn___at___00Lean_Elab_InfoTree_addTrailing_x3f_spec__0_spec__0_spec__1(v_init_1796_, v_trailing_1797_, v_cs_1800_, v_sz_1803_, v___x_1804_, v___x_1802_);
 v_fst_1806_ = lean_ctor_get(v___x_1805_, 0);
-lean_inc(v_fst_1806_);
 if (lean_obj_tag(v_fst_1806_) == 0)
 {
 lean_object* v_snd_1807_; lean_object* v___x_1808_; 
@@ -6810,6 +6809,7 @@ return v___x_1808_;
 else
 {
 lean_object* v_val_1809_; 
+lean_inc_ref(v_fst_1806_);
 lean_dec_ref(v___x_1805_);
 v_val_1809_ = lean_ctor_get(v_fst_1806_, 0);
 lean_inc(v_val_1809_);
@@ -6829,7 +6829,6 @@ v_sz_1813_ = lean_array_size(v_vs_1810_);
 v___x_1814_ = ((size_t)0ULL);
 v___x_1815_ = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_PersistentArray_forInAux___at___00Lean_PersistentArray_forIn___at___00Lean_Elab_InfoTree_addTrailing_x3f_spec__0_spec__0_spec__2(v_trailing_1797_, v_vs_1810_, v_sz_1813_, v___x_1814_, v___x_1812_);
 v_fst_1816_ = lean_ctor_get(v___x_1815_, 0);
-lean_inc(v_fst_1816_);
 if (lean_obj_tag(v_fst_1816_) == 0)
 {
 lean_object* v_snd_1817_; lean_object* v___x_1818_; 
@@ -6843,6 +6842,7 @@ return v___x_1818_;
 else
 {
 lean_object* v_val_1819_; 
+lean_inc_ref(v_fst_1816_);
 lean_dec_ref(v___x_1815_);
 v_val_1819_ = lean_ctor_get(v_fst_1816_, 0);
 lean_inc(v_val_1819_);
@@ -7564,7 +7564,6 @@ v_sz_1984_ = lean_array_size(v_tail_1978_);
 v___x_1985_ = ((size_t)0ULL);
 v___x_1986_ = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_PersistentArray_forIn___at___00Lean_Elab_InfoTree_addTrailing_x3f_spec__0_spec__1(v_trailing_1974_, v_tail_1978_, v_sz_1984_, v___x_1985_, v___x_1983_);
 v_fst_1987_ = lean_ctor_get(v___x_1986_, 0);
-lean_inc(v_fst_1987_);
 if (lean_obj_tag(v_fst_1987_) == 0)
 {
 lean_object* v_snd_1988_; 
@@ -7576,6 +7575,7 @@ return v_snd_1988_;
 else
 {
 lean_object* v_val_1989_; 
+lean_inc_ref(v_fst_1987_);
 lean_dec_ref(v___x_1986_);
 v_val_1989_ = lean_ctor_get(v_fst_1987_, 0);
 lean_inc(v_val_1989_);

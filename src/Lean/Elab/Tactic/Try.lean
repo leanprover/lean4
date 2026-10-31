@@ -305,7 +305,7 @@ builtin_initialize registerBuiltinAttribute {
     let prio ← match stx with
       | `(attr| try_suggestion $n:num) => pure n.getNat
       | `(attr| try_suggestion) => pure 1000  -- Default priority
-      | _ => throwError "invalid 'try_suggestion' attribute syntax"
+      | _ => throwError "invalid `try_suggestion` attribute syntax"
     let attrKind := if kind == AttributeKind.local then AttributeKind.local else AttributeKind.global
     trySuggestionExtension.add {
       name := declName,
@@ -404,19 +404,20 @@ def observing (x : TryTacticM α) : TryTacticM (TacticResult α) := do
       return .error ex sNew
 
 /--
-Executes a tactic with heartbeat management:
+Executes a candidate tactic with its own resource limits:
 - Restores the original maxHeartbeats limit (recorded at try? start)
 - Gives the tactic a fresh heartbeat budget via withCurrHeartbeats
-- Catches heartbeat exceptions and converts them to regular errors
+- Converts runtime exceptions (heartbeats, maximum recursion depth) into regular errors, so that
+  `try?` moves on to the next candidate
 -/
-def withOriginalHeartbeats (x : TryTacticM α) : TryTacticM α := do
+def withCandidateLimits (x : TryTacticM α) : TryTacticM α := do
   let originalMaxHeartbeats := (← read).originalMaxHeartbeats
   tryCatchRuntimeEx
     (withTheReader Core.Context (fun c => { c with maxHeartbeats := originalMaxHeartbeats }) do
       withCurrHeartbeats x)
     (fun ex => do
-      if Exception.isMaxHeartbeat ex then
-        throwError "tactic exceeded heartbeat limit"
+      if ex.isRuntime then
+        throwError "tactic exceeded a resource limit:{indentD ex.toMessageData}"
       else
         throw ex)
 
@@ -560,8 +561,10 @@ where
 
 @[builtin_try_tactic Lean.Parser.Tactic.grindTrace]
 private def evalSuggestGrindTrace : TryTactic := fun tac => do
-  withOriginalHeartbeats do
+  withCandidateLimits do
     let `(tactic| grind? $configStx:optConfig $[only%$only]?  $[ [$params:grindParam,*] ]?) := tac | throwUnsupportedSyntax
+    let mvarId ← getMainGoal
+    let saved ← saveState
     let tacs ← evalGrindTraceCore tac (trace := (← read).config.only) (verbose := false) (useSorry := false)
     let tac ← grindTraceToGrind tac
     trace[try.debug] "`grind` succeeded"
@@ -569,8 +572,9 @@ private def evalSuggestGrindTrace : TryTactic := fun tac => do
     for tac1 in tacs do
       trace[try.debug] ">> {tac1}"
     if (← read).config.only then
+      let tacs ← filterClosingTactics saved mvarId tacs (warn := false)
       -- If config has +suggestions, only return the 'only' version, not the original
-      if configHasSuggestionsOrLocals configStx then
+      if configHasSuggestionsOrLocals configStx && !tacs.isEmpty then
         mkTrySuggestions tacs
       else
         mkTrySuggestions (#[tac] ++ tacs)
@@ -581,7 +585,7 @@ private def evalSuggestGrindTrace : TryTactic := fun tac => do
 private def evalSuggestSimpTrace : TryTactic := fun tac => do (← getMainGoal).withContext do
   match tac with
   | `(tactic| simp? $configStx:optConfig $[only%$only]? $[[$args,*]]? $(loc)?) =>
-    withOriginalHeartbeats do
+    withCandidateLimits do
       let tac ← simpTraceToSimp tac
       let { ctx, simprocs, .. } ← mkSimpContext tac (eraseLocal := false)
       let stats ← simpLocation ctx (simprocs := simprocs) none <| (loc.map expandLocation).getD (.targets #[] true)
@@ -603,7 +607,7 @@ private def evalSuggestSimpAllTrace : TryTactic := fun tac => do
   match tac with
   | `(tactic| simp_all? $[!%$_bang]? $configStx:optConfig $(_discharger)? $[only%$_only]? $[[$_args,*]]?) =>
     (← getMainGoal).withContext do
-      withOriginalHeartbeats do
+      withCandidateLimits do
         let hasSuggestionsOrLocals := configHasSuggestionsOrLocals configStx
 
         -- Get library suggestions if +suggestions is present
@@ -752,7 +756,7 @@ private partial def evalSuggestAttemptAllPar (tacs : Array (TSyntax ``Parser.Tac
 
   -- Create jobs that each try one tactic and return the suggestion
   let jobs : List (TacticM (TSyntax `tactic)) := tacs.toList.map fun tacSeq =>
-    withOriginalHeartbeats (evalSuggestTacticSeq tacSeq) ctx
+    withCandidateLimits (evalSuggestTacticSeq tacSeq) ctx
 
   -- Run all jobs in parallel - par returns (result, SavedState) for each
   let results ← TacticM.par jobs
@@ -782,7 +786,7 @@ private partial def evalSuggestFirstPar (tacs : Array (TSyntax ``Parser.Tactic.t
     throwError "invalid occurrence of `first_par` in non-terminal position for `try?` script{indentD (← read).root}"
   let ctx ← read
   let jobs : List (TacticM (TSyntax `tactic)) := tacs.toList.map fun tacSeq =>
-    withOriginalHeartbeats (evalSuggestTacticSeq tacSeq) ctx
+    withCandidateLimits (evalSuggestTacticSeq tacSeq) ctx
   TacticM.parFirst jobs
 
 /-! `@[builtin_try_tactic]` registrations for the built-in combinators and trace wrappers. -/
@@ -828,7 +832,7 @@ private def evalSuggestSeq1Tac : TryTactic := fun tac =>
 
 @[builtin_try_tactic Lean.Parser.Tactic.exact?]
 private def evalSuggestExactTac : TryTactic := fun _ =>
-  withOriginalHeartbeats evalSuggestExact
+  withCandidateLimits evalSuggestExact
 
 /-! `evalSuggest` dispatcher. -/
 
@@ -843,7 +847,7 @@ where
     | [] =>
       -- No registered handler: run atomically. Atomic execution may leave goals open, so
       -- enforce the terminal-mode invariant here.
-      let r ← withOriginalHeartbeats (evalSuggestAtomic tac)
+      let r ← withCandidateLimits (evalSuggestAtomic tac)
       checkTerminalGoals
       return r
     | evalFns => eval tac (← Tactic.saveState) evalFns #[]

@@ -30,6 +30,10 @@ def isOrderedCommRing : LinearM Bool := do
 def isLinearOrder : LinearM Bool :=
   return (← getStruct).isLinearInst?.isSome
 
+/-- Returns `true` if the structure has a `LawfulOrderLT` instance. See `Struct.lawfulOrderLTInst?`. -/
+def hasLawfulLT : LinearM Bool :=
+  return (← getStruct).lawfulOrderLTInst?.isSome
+
 def hasNoNatZeroDivisors : LinearM Bool :=
   return (← getStruct).noNatDivInst?.isSome
 

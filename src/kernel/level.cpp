@@ -25,7 +25,6 @@ extern "C" uint8 lean_level_has_param(obj_arg l);
 
 extern "C" object * lean_level_mk_zero(object*);
 extern "C" object * lean_level_mk_succ(obj_arg);
-extern "C" object * lean_level_mk_mvar(obj_arg);
 extern "C" object * lean_level_mk_param(obj_arg);
 extern "C" object * lean_level_mk_max(obj_arg, obj_arg);
 extern "C" object * lean_level_mk_imax(obj_arg, obj_arg);
@@ -34,7 +33,6 @@ level mk_succ(level const & l) { return level(lean_level_mk_succ(l.to_obj_arg())
 level mk_max_core(level const & l1, level const & l2) { return level(lean_level_mk_max(l1.to_obj_arg(), l2.to_obj_arg())); }
 level mk_imax_core(level const & l1, level const & l2) { return level(lean_level_mk_imax(l1.to_obj_arg(), l2.to_obj_arg())); }
 level mk_univ_param(name const & n) { return level(lean_level_mk_param(n.to_obj_arg())); }
-level mk_univ_mvar(name const & n) { return level(lean_level_mk_mvar(n.to_obj_arg())); }
 
 unsigned level::hash() const { return lean_level_hash(to_obj_arg()); }
 unsigned get_depth(level const & l) { return lean_level_depth(l.to_obj_arg()); }
@@ -71,11 +69,6 @@ pair<level, unsigned> to_offset(level l) {
         k++;
     }
     return mk_pair(l, k);
-}
-
-unsigned to_explicit(level const & l) {
-    lean_assert(is_explicit(l));
-    return to_offset(l).second;
 }
 
 level mk_max(level const & l1, level const & l2)  {
@@ -147,10 +140,6 @@ bool operator==(level const & l1, level const & l2) {
         return succ_of(l1) == succ_of(l2);
     }
     lean_unreachable(); // LCOV_EXCL_LINE
-}
-
-extern "C" LEAN_EXPORT uint8 lean_level_eqv(object * l1, object * l2) {
-    return is_equivalent(TO_REF(level, l1), TO_REF(level, l2));
 }
 
 extern "C" LEAN_EXPORT uint8 lean_level_eq(object * l1, object * l2) {
@@ -225,25 +214,6 @@ bool is_lt(levels const & as, levels const & bs, bool use_hash) {
         return is_lt(car(as), car(bs), use_hash);
 }
 
-bool levels_has_param(b_obj_arg ls) {
-    while (!is_scalar(ls)) {
-        if (lean_level_has_param(cnstr_get(ls, 0))) return true;
-        ls = cnstr_get(ls, 1);
-    }
-    return false;
-}
-
-bool levels_has_mvar(b_obj_arg ls) {
-    while (!is_scalar(ls)) {
-        if (lean_level_has_mvar(cnstr_get(ls, 0))) return true;
-        ls = cnstr_get(ls, 1);
-    }
-    return false;
-}
-
-bool has_param(levels const & ls) { return levels_has_param(ls.raw()); }
-bool has_mvar(levels const & ls) { return levels_has_mvar(ls.raw()); }
-
 void for_each_level_fn::apply(level const & l) {
     if (!m_f(l))
         return;
@@ -274,16 +244,6 @@ level replace_level_fn::apply(level const & l) {
         return l;
     }
     lean_unreachable(); // LCOV_EXCL_LINE
-}
-
-bool occurs(level const & u, level const & l) {
-    bool found = false;
-    for_each(l, [&](level const & l) {
-            if (found) return false;
-            if (l == u) { found = true; return false; }
-            return true;
-        });
-    return found;
 }
 
 optional<name> get_undef_param(level const & l, names const & ps) {

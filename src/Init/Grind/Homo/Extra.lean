@@ -15,6 +15,7 @@ public import Init.Data.Int.Pow
 public import Init.Data.Int.Bitwise.Lemmas
 public import Init.Data.Int.DivMod.Bootstrap
 public import Init.Data.Int.DivMod.Lemmas
+import Init.Omega
 public section
 
 /-!
@@ -24,7 +25,7 @@ builtin support for both in its `cutsat` solver, including the `Nat` to `Int` ca
 so there is no injection out of `Nat` or `Int` and none should be added. The rules here
 support the source types (`BitVec`, `Fin`, the fixed-width integer types), applied to the
 `Nat` and `Int` images their injections produce: shifts are normalized to arithmetic,
-`testBit` decomposes bitwise operations, and the `%`-cleanup rules remove the redundant
+`testBit` decomposes bitwise operations, and the `%`/`bmod`-cleanup rules remove the redundant
 modular wrappers introduced by the injections.
 -/
 
@@ -45,14 +46,90 @@ registered for E-matching instead.
 -/
 
 attribute [grind hom]
-  Int.shiftLeft_eq Int.shiftRight_eq_div_pow
+  Int.shiftLeft_eq Int.shiftRight_eq_div_pow Int.not_eq_neg_sub_one
   Int.ofNat_toNat Int.toNat_sub'
   Int.emod_add_emod Int.add_emod_emod
   Int.emod_sub_emod Int.sub_emod_emod
   Int.emod_emod
+
+attribute [grind hom]
+  Int.bmod_add_bmod Int.add_bmod_bmod Int.bmod_sub_bmod Int.sub_bmod_bmod
+  Int.bmod_mul_bmod Int.mul_bmod_bmod Int.bmod_neg_bmod Int.bmod_bmod
+  Int.emod_bmod Int.bmod_emod
 
 @[grind hom] theorem Lean.Grind.Int.emod_mul_emod (m n k : Int) : m % n * k % n = m * k % n := by
   rw [Int.mul_emod, Int.emod_emod, ← Int.mul_emod]
 
 @[grind hom] theorem Lean.Grind.Int.mul_emod_emod (m n k : Int) : m * (n % k) % k = m * n % k := by
   rw [Int.mul_emod, Int.emod_emod, ← Int.mul_emod]
+
+/-!
+Support theorems for the builtin `[grind hom]` simproc that rewrites `&&&` with a
+literal mask of the form `1…10…0` over `Nat`. The simproc instantiates `n` and `k`
+from the mask, and the hypotheses are discharged by `rfl` (the kernel evaluates the
+powers). The results use `%`, `/`, and `*` by literals, which `cutsat` supports.
+-/
+
+theorem Lean.Grind.Nat.and_eq_mod (x c m n : Nat) (h₁ : c = 2^n - 1) (h₂ : m = 2^n) :
+    x &&& c = x % m := by
+  subst h₁ h₂; exact Nat.and_two_pow_sub_one_eq_mod x n
+
+theorem Lean.Grind.Nat.ones_and_eq_mod (x c m n : Nat) (h₁ : c = 2^n - 1) (h₂ : m = 2^n) :
+    c &&& x = x % m := by
+  rw [Nat.and_comm]; exact and_eq_mod x c m n h₁ h₂
+
+theorem Lean.Grind.Nat.and_eq_div_mod_mul (x c p q k n : Nat)
+    (h₁ : c = (2^n - 1) * 2^k) (h₂ : p = 2^k) (h₃ : q = 2^n) :
+    x &&& c = x / p % q * p := by
+  subst h₁ h₂ h₃
+  apply Nat.eq_of_testBit_eq
+  intro i
+  simp only [Nat.testBit_and, Nat.testBit_mul_two_pow, Nat.testBit_two_pow_sub_one,
+    Nat.testBit_mod_two_pow, Nat.testBit_div_two_pow]
+  cases Nat.lt_or_ge i k with
+  | inl h => simp [Nat.not_le_of_lt h]
+  | inr h => simp [h, Nat.sub_add_cancel h, Bool.and_comm]
+
+theorem Lean.Grind.Nat.ones_zeros_and_eq_div_mod_mul (x c p q k n : Nat)
+    (h₁ : c = (2^n - 1) * 2^k) (h₂ : p = 2^k) (h₃ : q = 2^n) :
+    c &&& x = x / p % q * p := by
+  rw [Nat.and_comm]; exact and_eq_div_mod_mul x c p q k n h₁ h₂ h₃
+
+/-!
+Support theorem for the builtin `[grind hom]` simproc that rewrites `c * x % m` with
+literals `c`, `m`, `m / 2 < c < m` into `(m - c' * x % m) % m` with `c' = m - c`, so that
+`-k * a` and `-(k * a)` over `UIntN`/`BitVec` get the same image. `cutsat` splits on the
+coefficient of a variable when it has to eliminate it exactly, so a coefficient close to the
+modulus is replaced by its small complement. The hypothesis is a ground equality between
+literals, discharged by `rfl`.
+-/
+
+theorem Lean.Grind.Nat.mul_mod_eq_sub_mul_mod (x c c' m : Nat) (h : c + c' = m) :
+    c * x % m = (m - c' * x % m) % m := by
+  subst h
+  have h₁ : (c * x + c' * x) % (c + c') = 0 := by rw [← Nat.add_mul, Nat.mul_mod_right]
+  rw [Nat.add_mod] at h₁
+  cases Nat.eq_zero_or_pos (c + c') with
+  | inl h₀ =>
+    have ⟨hc, hc'⟩ := Nat.add_eq_zero_iff.mp h₀
+    subst hc hc'; simp
+  | inr hpos =>
+    have ha := Nat.mod_lt (c * x) hpos
+    have hb := Nat.mod_lt (c' * x) hpos
+    generalize c * x % (c + c') = a at *
+    generalize c' * x % (c + c') = b at *
+    generalize c + c' = n at *
+    cases Nat.lt_or_ge (a + b) n with
+    | inl hlt =>
+      rw [Nat.mod_eq_of_lt hlt] at h₁
+      have : a = 0 := by omega
+      have : b = 0 := by omega
+      subst a b; simp
+    | inr hge =>
+      rw [Nat.mod_eq_sub_mod hge, Nat.mod_eq_of_lt (by omega)] at h₁
+      have : n - b = a := by omega
+      rw [this, Nat.mod_eq_of_lt ha]
+
+theorem Lean.Grind.Nat.mul_mod_eq_sub_mul_mod' (x c c' m : Nat) (h : c + c' = m) :
+    x * c % m = (m - c' * x % m) % m := by
+  rw [Nat.mul_comm]; exact mul_mod_eq_sub_mul_mod x c c' m h

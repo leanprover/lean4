@@ -10,83 +10,75 @@ a b c : Bool
 p q : Prop
 h : (f a && (b || f (f c))) = true
 h' : p ∧ q
-h_1 : (b && a) = false
+h_1 : b = false ∨ a = false
 ⊢ False
 [grind] Goal diagnostics
   [facts] Asserted facts
     [prop] a = true ∧ (b = true ∨ c = true)
     [prop] p ∧ q
-    [prop] (b && a) = false
+    [prop] b = false ∨ a = false
   [eqc] True propositions
     [prop] p
     [prop] q
     [prop] p ∧ q
     [prop] a = true ∧ (b = true ∨ c = true)
+    [prop] b = false ∨ a = false
     [prop] b = true ∨ c = true
     [prop] a = true
+    [prop] b = false
     [prop] c = true
   [eqc] False propositions
+    [prop] a = false
     [prop] b = true
   [eqc] Equivalence classes
     [eqc] {a, c, true}
-    [eqc] {b, false, b && a}
-  [assoc] Operator `and`
-    [basis] Basis
-      [_] a = true
-    [diseqs] Disequalities
-      [_] b ≠ true
-    [properties] Properties
-      [_] commutative
-      [_] idempotent
-      [_] identity: `true`
+    [eqc] {b, false}
 -/
 #guard_msgs (error) in
 theorem ex (h : (f a && (b || f (f c))) = true) (h' : p ∧ q) : b && a := by
-  grind
+  grind +verbose
 
 section
 attribute [local grind cases eager] Or
 
 /--
 error: `grind` failed
-case grind
+case grind.1
 a b c : Bool
 p q : Prop
 h : (f a && (b || f (f c))) = true
 h' : p ∧ q
-h_1 : (b && a) = false
+h_2 : b = false
 ⊢ False
 [grind] Goal diagnostics
   [facts] Asserted facts
     [prop] a = true ∧ (b = true ∨ c = true)
     [prop] p ∧ q
-    [prop] (b && a) = false
+    [prop] b = false ∨ a = false
+    [prop] b = false
   [eqc] True propositions
     [prop] p
     [prop] q
     [prop] p ∧ q
     [prop] a = true ∧ (b = true ∨ c = true)
+    [prop] b = false ∨ a = false
     [prop] b = true ∨ c = true
     [prop] a = true
+    [prop] b = false
     [prop] c = true
   [eqc] False propositions
+    [prop] a = false
     [prop] b = true
   [eqc] Equivalence classes
     [eqc] {a, c, true}
-    [eqc] {b, false, b && a}
-  [assoc] Operator `and`
-    [basis] Basis
-      [_] a = true
-    [diseqs] Disequalities
-      [_] b ≠ true
-    [properties] Properties
-      [_] commutative
-      [_] idempotent
-      [_] identity: `true`
+    [eqc] {b, false}
+[grind] Diagnostics
+  [cases] Cases instances
+    [cases] Or ↦ 1
 -/
 #guard_msgs (error) in
 theorem ex2 (h : (f a && (b || f (f c))) = true) (h' : p ∧ q) : b && a := by
-  grind
+  grind +verbose
 
 end
 
@@ -123,7 +115,7 @@ h : a₁ :: { x := a₂, y := a₃ } :: as = b₁ :: { x := b₂, y := b₃ } ::
 -/
 #guard_msgs (error) in
 theorem ex3 (h : a₁ :: { x := a₂, y := a₃ : Point } :: as = b₁ :: { x := b₂, y := b₃} :: bs) : False := by
-  grind
+  grind +verbose
 
 def h (a : α) := a
 
@@ -162,7 +154,7 @@ right : r
 -/
 #guard_msgs (error) in
 example (a : α) (p q r : Prop) : (h₁ : p ≍ a) → (h₂ : q ≍ a) → (h₃ : p = r) → False := by
-  grind
+  grind +verbose
 
 example (a b : Nat) (f : Nat → Nat) : (h₁ : a = b) → (h₂ : f a ≠ f b) → False := by
   grind
@@ -181,7 +173,7 @@ trace: [sym.issues] found congruence between
 set_option trace.sym.issues true in
 set_option trace.grind.debug.proof false in
 example (f : Nat → Bool) (g : Int → Bool) (a : Nat) (b : Int) : f ≍ g → a ≍ b → f a = g b := by
-  fail_if_success grind
+  fail_if_success grind +verbose
   sorry
 
 /--
@@ -214,4 +206,4 @@ h_2 : ¬f a = g b
 -/
 #guard_msgs (error) in
 example (f : Nat → Bool) (g : Int → Bool) (a : Nat) (b : Int) : f ≍ g → a ≍ b → f a = g b := by
-  grind
+  grind +verbose

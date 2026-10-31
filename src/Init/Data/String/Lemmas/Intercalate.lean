@@ -8,8 +8,8 @@ module
 prelude
 public import Init.Data.String.Defs
 import all Init.Data.String.Defs
-public import Init.Data.String.Slice
-import all Init.Data.String.Slice
+public import Init.Data.String.Slice.Basic
+import all Init.Data.String.Slice.Basic
 import Init.ByCases
 
 public section

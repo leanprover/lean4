@@ -5,7 +5,6 @@ Authors: Sebastian Graf
 -/
 module
 public import Lean
-public import Std.Tactic.Do
 public import Std.WP
 public import Std.WP.Triple.SpecLemmas
 open Lean Parser Meta Elab Tactic Sym

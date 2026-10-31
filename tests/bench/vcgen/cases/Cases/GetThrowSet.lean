@@ -1,5 +1,5 @@
 import Lean
-import Std.Tactic.Do
+import Std.WP
 
 /-!
 Exception handling with `ExceptT String <| StateM Nat`: each `step` conditionally throws and
@@ -39,6 +39,6 @@ def loop (n : Nat) : M Unit := do
   | 0 => pure ()
   | n+1 => loop n; step n
 
-def Goal (n : Nat) : Prop := ⦃fun s => s = 0⦄ loop n ⦃fun _ s => s = n⦄
+def Goal (n : Nat) : Prop := ⦃fun s => s ≤ 0⦄ loop n ⦃fun _ s => s = n⦄
 
 end GetThrowSet

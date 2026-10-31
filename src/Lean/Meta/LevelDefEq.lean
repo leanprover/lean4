@@ -146,7 +146,7 @@ mutual
     | Level.succ lhs, Level.succ rhs => isLevelDefEqAux lhs rhs
     | lhs, rhs => do
       withTraceNodeBefore `Meta.isLevelDefEq (fun _ =>
-          withOptions (·.set `pp.instantiateMVars false) do addMessageContext m!"{lhs} =?= {rhs}") do
+          withSetOptionByName `pp.instantiateMVars false do addMessageContext m!"{lhs} =?= {rhs}") do
       if lhs.getLevelOffset == rhs.getLevelOffset then
         return lhs.getOffset == rhs.getOffset
       else

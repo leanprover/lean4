@@ -5,7 +5,6 @@ Authors: Sebastian Graf
 -/
 import Lean
 import Std.WP
-import Std.Tactic.Do
 
 set_option experimental.vcgen true
 set_option grind.warning false
@@ -52,7 +51,7 @@ theorem ofProp_meet_sup (p : Prop) (X : L → Prop) :
       apply sup_le
       intro x hx
       refine PartialOrder.rel_trans ?_ (le_sup _ (y := ⌜p⌝ ⊓ x) ⟨x, hx, rfl⟩)
-      exact le_meet _ _ _ (le_ofProp x p hp) PartialOrder.rel_refl
+      exact le_meet _ _ _ (CompleteLattice.le_ofProp x p hp) PartialOrder.rel_refl
     · refine PartialOrder.rel_trans (meet_le_left _ _) ?_
       simp only [CompleteLattice.ofProp, hp, ↓reduceIte]
       exact bot_le _
@@ -91,12 +90,13 @@ theorem costConj_imp (shift : Nat) (b : Nat → L) :
     intro x hx ticks
     have := hx (ticks + shift)
     simp only [costConj, show ticks + shift - shift = ticks by omega] at this
-    exact PartialOrder.rel_trans (le_meet _ _ _ (le_ofProp _ _ (by omega)) PartialOrder.rel_refl) this
+    exact PartialOrder.rel_trans
+      (le_meet _ _ _ (CompleteLattice.le_ofProp _ _ (by omega)) PartialOrder.rel_refl) this
   · refine PreservesSup.le_upperAdjoint (costConj shift) (b := b)
       (x := fun ticks => b (ticks + shift)) ?_
     intro ticks
     show (⌜shift ≤ ticks⌝ ⊓ b (ticks - shift + shift)) ⊑ b ticks
-    rw [CompleteLattice.ofProp_intro_r]
+    rw [CompleteLattice.ofProp_meet_le_eq_imp]
     intro hle
     rw [show ticks - shift + shift = ticks by omega]
 
@@ -107,7 +107,7 @@ theorem costConj_add (shift shift' : Nat) (a : Nat → L) :
   funext ticks
   show ⌜shift + shift' ≤ ticks⌝ ⊓ a (ticks - (shift + shift'))
     = ⌜shift ≤ ticks⌝ ⊓ (⌜shift' ≤ ticks - shift⌝ ⊓ a (ticks - shift - shift'))
-  rw [Nat.sub_sub, ← meet_assoc, ofProp_and,
+  rw [Nat.sub_sub, ← meet_assoc, CompleteLattice.ofProp_meet_ofProp,
     show (shift ≤ ticks ∧ shift' ≤ ticks - shift) = (shift + shift' ≤ ticks) from
       propext ⟨fun ⟨_, _⟩ => by omega, fun h => ⟨by omega, by omega⟩⟩]
 
@@ -116,7 +116,7 @@ theorem costConj_zero (a : Nat → L) : costConj 0 a = a := by
   funext ticks
   rw [costConj_apply, Nat.sub_zero,
     show (⌜0 ≤ ticks⌝ : L) = ⊤ from
-      PartialOrder.rel_antisymm (le_top _) (top_le_ofProp _ (Nat.zero_le ticks)),
+      PartialOrder.rel_antisymm (le_top _) (CompleteLattice.top_le_ofProp _ (Nat.zero_le ticks)),
     top_meet]
 
 /-! ## The cost transformer `TickT` and its weakest precondition -/
@@ -172,7 +172,7 @@ example (Q : Unit → Nat → Prop) (E : EStack⟨⟩) (n : Nat) : TickT.wp drop
   refine propext ⟨fun h => ?_, False.elim⟩
   -- `h 1` is the `r = 1` conjunct, which reduces to `⌜1 ≤ 0⌝ ⊓ Q () 0`.
   have h1 : (⌜(1 : Nat) ≤ 0⌝ ⊓ Q () 0 : Prop) := h 1
-  rw [meet_prop_eq_and, ofProp_prop_eq] at h1
+  rw [meet_prop_eq_and, CompleteLattice.ofProp_prop_eq] at h1
   exact absurd h1.1 (by omega)
 
 /-! ## The internalized frame rule -/
@@ -186,11 +186,12 @@ noncomputable instance TickT.instWPMonad [Assertion Pred] [Assertion EPosts] [WP
   WPMonad.withFrameClosure (m := StateT Nat m) costConj
     costConj_add (fun _ _ _ => rfl) costConj_zero (fun _ => rfl) StateT.instWPMonad
 
-/-- The internalized frame rule: every program frames every shift `F` with respect to `costConj`. -/
+/-- The internalized frame rule: every program frames every shift `F` with respect to `costConj`,
+under every guard `P`. -/
 @[grind .]
 theorem frames_costConj [Assertion Pred] [Assertion EPosts] [WPMonad m Pred EPosts]
-    {α : Type} (x : TickT m α) (F : Nat) :
-    WP.Frames costConj x F :=
+    {α : Type} (x : TickT m α) (F : Nat) (P : Nat → Pred) :
+    WP.Frames costConj x F P :=
   WP.frames_of_frameClosure costConj (· + ·) costConj_add (fun _ _ _ => rfl)
     ⟨fun y => WP.trans y.run, fun _ => rfl⟩
 
@@ -198,7 +199,8 @@ theorem frames_costConj [Assertion Pred] [Assertion EPosts] [WPMonad m Pred EPos
 theorem tickFrames [Assertion Pred] [Assertion EPosts] [WPMonad m Pred EPosts]
     {α : Type} (x : TickT m α) (F : Nat) (Q : α → Nat → Pred) (E : EPosts) :
     F ⋆ TickT.wp x Q E ⊑ TickT.wp x (fun a => F ⋆ Q a) E :=
-  (frames_costConj (Pred := Pred) (EPosts := EPosts) x F).op_wp_le_wp_op Q E
+  PartialOrder.rel_trans (le_meet _ _ _ (le_top _) PartialOrder.rel_refl)
+    ((frames_costConj (Pred := Pred) (EPosts := EPosts) x F ⊤).op_wp_le_wp_op Q E)
 
 /-- The sharp cost spec for `tick`: it costs exactly one unit. Threads the shift `r` through the
 base `tick` spec. -/
@@ -210,7 +212,7 @@ theorem TickT.le_wp_tick' [Assertion Pred] [Assertion EPosts] [WPMonad m Pred EP
   intro r
   refine PartialOrder.rel_trans ?_ (TickT.le_wp_tick (fun a k => ⌜r ≤ k⌝ ⊓ Q a (k - r)) E (n + r))
   show Q () (n + 1) ⊑ ⌜r ≤ n + r + 1⌝ ⊓ Q () (n + r + 1 - r)
-  exact le_meet _ _ _ (le_ofProp _ _ (by omega))
+  exact le_meet _ _ _ (CompleteLattice.le_ofProp _ _ (by omega))
     (PartialOrder.rel_of_eq (by rw [show n + r + 1 - r = n + 1 by omega]))
 
 /-! ## End-to-end `vcgen` via a registered `@[frameproc]`
@@ -229,7 +231,7 @@ open Lean.Elab.Tactic.VCGen
 
 /-- Assert a pure fact alongside a resource that is kept. -/
 theorem le_ofProp_meet_self {φ : Prop} (x : L) (h : φ) : x ⊑ ⌜φ⌝ ⊓ x :=
-  le_meet _ _ _ (le_ofProp _ _ h) PartialOrder.rel_refl
+  le_meet _ _ _ (CompleteLattice.le_ofProp _ _ h) PartialOrder.rel_refl
 
 /-- The frame inference procedure: shift by the pinned frame's amount, or by the whole current tick
 count (`i.excessArgs[0]`, the first excess state argument of the `Nat → L` cost assertion). It
@@ -278,6 +280,7 @@ frames the cost over any base monad. `costConj_apply` unfolds `costConj r b n` t
   mkResourceTy := fun _ => pure (mkConst ``Nat)
   opHead := ``costConj
   proc := tickFrameProc
+  framesThm? := ``frames_costConj
 
 /-- End-to-end: plain `vcgen` infers the shift, applies the `costConj` gadget, fires the registered
 `costSplit`, and the meet machinery closes the residual. -/
@@ -361,7 +364,7 @@ cost `n` held fixed. -/
     ((WPMonad.le_wp_monadLift_StateT_apply x (fun a m => ⌜r ≤ m⌝ ⊓ Q a (m - r))) (n + r))
   refine WP.wp_monotone_post (fun a => ?_)
   rw [show n + r - r = n by omega]
-  exact le_meet _ _ _ (le_ofProp _ _ (by omega)) PartialOrder.rel_refl
+  exact le_meet _ _ _ (CompleteLattice.le_ofProp _ _ (by omega)) PartialOrder.rel_refl
 
 /-- A base-state effect lifted into `TickT`: it bumps the `StateM Nat` state and never ticks. -/
 def bumpBase : TickT (StateM Nat) Unit := modify (fun x => x + 1)

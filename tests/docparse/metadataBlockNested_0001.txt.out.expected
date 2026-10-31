@@ -1,12 +1,19 @@
 Input: "%%%\nx := 1\n%%%\n"
-Failure: metadata blocks may only appear at the document's top level
- --> 1:0-1:1
-  |
-1 | %%%
-  | ^
-  = consumed input prefix: 0 bytes
-Final stack:
-  (Lean.Doc.Parser.Block.metadata_block <missing>)
-Remaining:
-"%%%\nx := 1\n%%%\n"
-Round-trip not reproduced, as the parse reported errors: leaf without original source info: <missing>
+Success! Final stack:
+  (Lean.Doc.Parser.Block.metadata_block
+   "%%%"
+   (Term.structInstFields
+    [(Term.structInstField
+      (Term.structInstLVal `x [])
+      [[]
+       []
+       (Term.structInstFieldDef
+        ":="
+        []
+        (num "1"))])
+     []])
+   "%%%")
+All input consumed.
+Round-trip OK
+Decoded views:
+  metadata (opener := "%%%") (fields := 1) (closer := "%%%")

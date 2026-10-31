@@ -86,12 +86,12 @@ private def isUnsupportedSemiring? (type : Expr) : GoalM (Option Expr) := do
     -- does not propagate `0 * a = 0` back to original terms.
     -- In the future, we want to add support for propagating equalities when the
     -- `CommSemiring` implements `AddRightCancel`.
-    return some (← SemiringM.run id (return (← getSemiring).semiringInst))
+    return some (← SemiringM.run id (return (← Sym.Arith.getSemiring).semiringInst))
   if let some id ← getNonCommRingId? type then
-    let inst ← NonCommRingM.run id do return (← getRing).semiringInst
+    let inst ← NonCommRingM.run id do return (← Sym.Arith.getRing).semiringInst
     return some inst
   if let some id ← getNonCommSemiringId? type then
-    let inst ← NonCommSemiringM.run id do return (← getSemiring).semiringInst
+    let inst ← NonCommSemiringM.run id do return (← Sym.Arith.getSemiring).semiringInst
     return some inst
   return none
 

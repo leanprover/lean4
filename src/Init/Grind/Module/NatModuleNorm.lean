@@ -146,10 +146,6 @@ theorem Poly.mul_Nonneg (p : Poly) (k : Nat) : p.NonnegCoeffs → (p.mul k).Nonn
   next => constructor
   next => simp [Poly.mul'_Nonneg, *]
 
-theorem Poly.append_Nonneg (p₁ p₂ : Poly) : p₁.NonnegCoeffs → p₂.NonnegCoeffs → (p₁.append p₂).NonnegCoeffs := by
-  fun_induction append <;> intro h₁ h₂; simp [*]
-  next ih => cases h₁; constructor; assumption; apply ih <;> assumption
-
 theorem Poly.combine_Nonneg (p₁ p₂ : Poly) : p₁.NonnegCoeffs → p₂.NonnegCoeffs → (p₁.combine p₂).NonnegCoeffs := by
   fun_induction Poly.combine
   next => intros; assumption

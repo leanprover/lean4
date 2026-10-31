@@ -32,7 +32,7 @@ h_1 : ⋯ ≍ ⋯
 -/
 #guard_msgs (error) in
 example {c : Nat} (q : X c 0) : False := by
-  grind -mbtc [cases X]
+  grind +verbose -mbtc [cases X]
 
 example {c : Nat} (q : X c 0) : False := by
   fail_if_success grind [cases X]

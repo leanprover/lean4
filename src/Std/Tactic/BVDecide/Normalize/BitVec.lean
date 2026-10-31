@@ -67,6 +67,11 @@ theorem BitVec.ofNatLT_reduce (n : Nat) (h) : BitVec.ofNatLT n h = BitVec.ofNat 
   simp [BitVec.ofNatLT, BitVec.ofNat, Fin.ofNat, Nat.mod_eq_of_lt h]
 
 @[bv_normalize]
+theorem BitVec.ofNat_toNat' (w : Nat) (b : Bool) :
+    BitVec.ofNat w b.toNat = (BitVec.ofBool b).zeroExtend w := by
+  cases b <;> simp [BitVec.setWidth_ofNat_one_eq_ofNat_one_of_lt]
+
+@[bv_normalize]
 theorem BitVec.ofBool_eq_ite (b : Bool) : BitVec.ofBool b = bif b then 1#1 else 0#1 := by
   revert b
   decide
@@ -147,6 +152,19 @@ theorem BitVec.abs_eq (x : BitVec w) : x.abs = bif x.getLsbD (w - 1) then -x els
 attribute [bv_normalize] BitVec.twoPow_eq
 
 @[bv_normalize]
+theorem BitVec.carry_eq_ite_le_lt (i : Nat) (x y : BitVec w) (c : Bool) :
+    BitVec.carry i x y c =
+      bif c then
+        (~~~(x.setWidth i)).ule (y.setWidth i)
+      else
+        (~~~(x.setWidth i)).ult (y.setWidth i) := by
+  have : 0 < 2 ^ i := Nat.two_pow_pos i
+  cases c
+  all_goals
+    simp [BitVec.carry, BitVec.ult_eq_decide, BitVec.ule_eq_decide]
+    omega
+
+@[bv_normalize]
 theorem BitVec.getElem_eq_getLsbD (a : BitVec w) (i : Nat) (h : i < w) :
     a[i]'h = a.getLsbD i := by
   simp [h]
@@ -159,6 +177,7 @@ end Reduce
 
 section Constant
 
+attribute [bv_normalize] BitVec.zero_eq
 attribute [bv_normalize] BitVec.add_zero
 attribute [bv_normalize] BitVec.zero_add
 attribute [bv_normalize] BitVec.mul_one
@@ -367,7 +386,7 @@ attribute [bv_normalize] BitVec.smulOverflow_eq
 attribute [bv_normalize] BitVec.usubOverflow_eq
 attribute [bv_normalize] BitVec.ssubOverflow_eq
 attribute [bv_normalize] BitVec.sdivOverflow_eq
-attribute [bv_normalize] BitVec.ctz
+attribute [bv_normalize] BitVec.ctz_eq_reverse_clz
 
 /-- `x / (BitVec.ofNat n)` where `n = 2^k` is the same as shifting `x` right by `k`. -/
 theorem BitVec.udiv_ofNat_eq_of_lt (w : Nat) (x : BitVec w) (n : Nat) (k : Nat) (hk : 2 ^ k = n) (hlt : k < w) :

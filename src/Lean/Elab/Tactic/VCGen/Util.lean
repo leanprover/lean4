@@ -10,6 +10,7 @@ public import Lean.Meta.Tactic.Grind.Main
 public import Lean.Elab.Tactic.VCGen.Context
 public import Lean.Elab.Tactic.VCGen.Reduce
 public import Lean.Meta.Sym.AlphaShareBuilder
+public import Lean.Meta.Sym.InstantiateMVarsS
 public import Lean.Meta.Sym.Intro
 public import Lean.Meta.Sym.Simp.Goal
 public import Lean.Meta.Sym.Simp.Telescope
@@ -24,6 +25,26 @@ hygienic binder introduction, hypothesis-internalization for grind, and the emis
 -/
 
 namespace Lean.Elab.Tactic.VCGen
+
+/-- Completes the class application `@cls x₁ … xₙ` to an instance. The array `xs` works as in
+`mkAppOptM`: `some x` fixes an argument and `none` leaves it to instance search. The result holds
+all arguments of `cls` in order and the instance. Example: for `cls := ToEStack` and
+`xs := #[some E]`, the result is `(#[E, T, instE, instT], inst)`. -/
+public def synthInstanceOpt? (cls : Name) (xs : Array (Option Expr)) :
+    MetaM (Option (Array Expr × Expr)) :=
+  withNewMCtxDepth do
+    let c ← mkConstWithFreshMVarLevels cls
+    let (args, _, _) ← forallMetaTelescopeReducing (← inferType c)
+    if xs.size > args.size then
+      throwError "synthInstanceOpt?: too many arguments for `{cls}`"
+    for arg in args, x? in xs do
+      if let some x := x? then
+        unless ← isDefEq arg x do return none
+    let some inst ← synthInstance? (mkAppN c args) | return none
+    let args ← args.mapM instantiateMVars
+    let inst ← instantiateMVars inst
+    if inst.hasExprMVar || args.any (·.hasExprMVar) then return none
+    return some (args, inst)
 
 /-- Change `goal`'s `Prop`-typed target to the definitionally-equal `targetNew`, assigning `goal` a
 fresh synthetic-opaque goal for `targetNew`, so the kernel checks the two types against each other.
@@ -124,15 +145,15 @@ public def introsHygienic (goal : MVarId) : VCGenM MVarId := do
   introsHygienicN goal (numBindersToIntro (← goal.getType))
 
 /--
-Simplify the goal's target with the configured hypothesis simp methods (a no-op without
-`Context.hypSimpMethods`), threading the persistent simp cache through `VCGenM`'s state.
-`.noProgress` is forwarded to the caller.
+Simplify the hypotheses of the goal's target `h₁ → … → hₙ → G` with `Context.simpMethods`, leaving
+`G` untouched, and thread the persistent simp cache through `VCGenM`'s state. `.noProgress` is
+forwarded to the caller.
 -/
 public def simpGoalTelescope (goal : MVarId) : VCGenM Sym.SimpGoalResult := do
-  let some methods := (← read).hypSimpMethods | return .noProgress
-  let methods := { methods with pre := Sym.Simp.simpTelescope }
+  let some methods := (← read).simpMethods | return .noProgress
   let target ← goal.getType
-  let (result, simpState') ← Sym.Simp.SimpM.run (Sym.Simp.simp target) methods {} (← get).simpState
+  let (result, simpState') ←
+    Sym.Simp.SimpM.run (Sym.Simp.simpTelescope target) methods {} (← get).simpState
   modify fun s => { s with simpState := simpState' }
   result.toSimpGoalResult goal
 
@@ -165,7 +186,7 @@ This procedure may assign metavariables in `e₁`/`e₂`, for example for `e = ?
 public partial def cleanupVC (goal : MVarId) : VCGenM (Option MVarId) :=
     goal.withContext do
   let ctx ← read
-  let ty ← instantiateMVars (← goal.getType)
+  let ty ← instantiateMVarsIfMVarAppS (← goal.getType)
   let (goal, ty) ← match ← reduceHead? ty with
     | some ty' => pure (← goal.replaceTargetDefEqFast ty', ty')
     | none => pure (goal, ty)

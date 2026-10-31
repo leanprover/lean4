@@ -138,7 +138,7 @@ instance : MonadLift TermElabM DocM where
   monadLift act := private DocM.mk fun _ _ st' => do
     let {openDecls, lctx, options, localInstances, ..} := (← st'.get)
     let v ←
-      withTheReader Core.Context (fun ρ => { ρ with openDecls, options }) <|
+      withTheReader Core.Context (fun ρ => { ρ.setOptions options with openDecls }) <|
       withTheReader Meta.Context (fun ρ => { ρ with lctx, localInstances }) <|
       act
     return v
@@ -174,34 +174,6 @@ def addDeferredCheck (check : Dynamic) (imports : Array Name) (ref : Syntax) : D
   modifyThe InternalState fun s => { s with deferred := s.deferred.push entry }
   return index
 
-private structure ModuleDocstringState extends Lean.Doc.State where
-  scopedExts : Array (ScopedEnvExtension EnvExtensionEntry EnvExtensionEntry EnvExtensionState)
-
-private builtin_initialize modDocstringStateExt : EnvExtension (Option ModuleDocstringState) ←
-  registerEnvExtension (pure none)
-
-private def getModState
-    [Monad m] [MonadEnv m] [MonadLiftT IO m] [MonadLiftT MetaM m] [MonadLCtx m]
-    [MonadResolveName m] [MonadOptions m] : m ModuleDocstringState := do
-  if let some st := modDocstringStateExt.getState (← getEnv) then
-    return st
-  else
-    let scopes := [{header := "", isPublic := true}]
-    let openDecls ← getOpenDecls
-    let lctx ← getLCtx
-    let localInstances ← Meta.getLocalInstances
-    let options ← getOptions
-    let scopedExts := #[]
-    let st : ModuleDocstringState :=
-      { scopes, openDecls, lctx, localInstances, options, scopedExts }
-    modifyEnv fun env =>
-      modDocstringStateExt.setState env st
-    return st
-
-private def setModState [Monad m] [MonadEnv m] (state : ModuleDocstringState) : m Unit := do
-  modifyEnv fun env =>
-    modDocstringStateExt.setState env state
-
 /--
 Reports errors registered via `Term.registerMVarErrorInfo` for any metavariable still appearing in
 the types or values of fresh local declarations introduced during docstring elaboration. This
@@ -233,21 +205,23 @@ private def withSaveRestoreTermState (act : TermElabM α) : TermElabM α := do
     Core.setMessageLog ((← Core.getMessageLog) ++ msgs)
 
 /--
-Runs a documentation elaborator in the module docstring context.
+Runs a documentation elaborator in a suitable context for module docstrings. Terms in the docstring
+are elaborated with the `open` declarations, local context, local instances, and options of the
+current scope, while Lean commands in code blocks run in a fresh top-level scope. Changes made to
+the environment are discarded.
 -/
 def DocM.execForModule (act : DocM α) (suggestionMode : SuggestionMode := .interactive) :
     TermElabM (α × Array DeferredCheck) := withoutModifyingEnv do
-  let sc ← scopedEnvExtensionsRef.get
-  let st ← getModState
   withSaveRestoreTermState do
-    try
-      scopedEnvExtensionsRef.set st.scopedExts
-      let ((v, internalSt), docState) ←
-        act.run { suggestionMode } |>.run {} |>.run st.toState
-      checkUnsolvedDocMVars st.toState.lctx docState
-      pure (v, internalSt.deferred)
-    finally
-      scopedEnvExtensionsRef.set sc
+    let scopes := [{header := "", isPublic := true}]
+    let openDecls ← getOpenDecls
+    let lctx ← getLCtx
+    let localInstances ← Meta.getLocalInstances
+    let options ← getOptions
+    let ((v, internalSt), docState) ←
+      act.run { suggestionMode } |>.run {} |>.run { scopes, openDecls, lctx, localInstances, options }
+    checkUnsolvedDocMVars lctx docState
+    pure (v, internalSt.deferred)
 
 open Lean.Parser.Term in
 /--
@@ -261,17 +235,13 @@ def DocM.exec (declName : Name) (binders : Syntax) (act : DocM α)
     | throwError "Unknown constant {declName} when building docstring"
   withSaveRestoreTermState do
     let (lctx, localInstances) ← buildContext ci.type binders
-    let sc ← scopedEnvExtensionsRef.get
-    try
-      let openDecls ← getOpenDecls
-      let options ← getOptions
-      let scopes := [{header := "", isPublic := true}]
-      let ((v, internalSt), docState) ← withTheReader Meta.Context (fun ρ => { ρ with localInstances }) <|
-        act.run { suggestionMode } |>.run {} |>.run { scopes, openDecls, lctx, localInstances, options }
-      checkUnsolvedDocMVars lctx docState
-      pure (v, internalSt.deferred)
-    finally
-      scopedEnvExtensionsRef.set sc
+    let openDecls ← getOpenDecls
+    let options ← getOptions
+    let scopes := [{header := "", isPublic := true}]
+    let ((v, internalSt), docState) ← withTheReader Meta.Context (fun ρ => { ρ with localInstances }) <|
+      act.run { suggestionMode } |>.run {} |>.run { scopes, openDecls, lctx, localInstances, options }
+    checkUnsolvedDocMVars lctx docState
+    pure (v, internalSt.deferred)
 where
   buildContext (type : Expr) (binders : Syntax) : TermElabM (LocalContext × LocalInstances) := do
     -- Create a local context with all binders. The type will be updated as we introduce parameters.
@@ -289,7 +259,7 @@ where
         if sectionFVars.any (· == decl.fvarId) then break
         else
           lctx := lctx.pop
-          localInstances := localInstances.filter (·.fvar != .fvar decl.fvarId)
+          localInstances := localInstances.erase decl.fvarId
       else break
 
     let names ← binders.getArgs.flatMapM binderNames
@@ -1621,7 +1591,7 @@ def throwUnknownDocElem {α β : Type}
 /--
 Returns the name of a footnote or link reference.
 -/
-private def refName (name : VersoRefName) : DocM String := do
+def refName (name : VersoRefName) : DocM String := do
   -- The parser reads a name with `refNameFn`, which allows the same set of characters as these. If
   -- this exception is thrown, it's due to metaprograms behaving badly.
   let str := name.getVersoRefName
@@ -2046,7 +2016,7 @@ that bare name (e.g. `` {given}`x` ``, rather than `` {Lean.Doc.given}`x` ``), r
 namespaces are open. Non-builtin elements use `MessageData.ofConstName` so they appear in their
 shortest unambiguous form.
 -/
-private def docElementMessage (extension : Name) : BaseIO MessageData := do
+def docElementMessage (extension : Name) : BaseIO MessageData := do
   if (← isBuiltin) then
     match extension with
     | .str _ s => return s

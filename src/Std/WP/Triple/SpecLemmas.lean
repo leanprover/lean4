@@ -1962,65 +1962,69 @@ the lexicographic order for products.
     [WellFoundedRelation γ] (f : α → Fun) :
     (ofMeasure (Pred := Pred) f).γ = γ := rfl
 
-@[simp, grind =] theorem evalsTo_ofMeasure {γ : Type uγ} {Fun : Type v'} [NondetFun Pred Fun γ]
+theorem evalsTo_ofMeasure {γ : Type uγ} {Fun : Type v'} [NondetFun Pred Fun γ]
     [WellFoundedRelation γ] (f : α → Fun) (a : α) (n : γ) :
     (ofMeasure (Pred := Pred) f).EvalsTo a n = NondetFun.EvalsTo (f a) n := rfl
 
-/-! Fixed-arity specializations of `evalsTo_ofMeasure` at a lattice tower ending in `Prop`, in the
-manner of `CompleteLattice.ofProp_apply_1` and its siblings: the ground instances leave every
-parameter recoverable from the trigger, so these are usable `@[grind =]` lemmas where the general
-`NondetFun.evalsTo_apply` is not. The `pure` family is for a measure whose value depends on the
-cursor alone, as in `ofMeasure fun i => n - i`, which `NondetFun` interprets as that value. -/
-
-@[grind =] theorem evalsTo_ofMeasure_apply_1 {α : Type} {σ₁ : Type} {γ : Type}
+@[deprecated evalsTo_ofMeasure +typeChanged (since := "2026-10-15")]
+theorem evalsTo_ofMeasure_apply_1 {α : Type} {σ₁ : Type} {γ : Type}
     [WellFoundedRelation γ] (f : α → σ₁ → γ) (a : α) (n : γ) (s₁ : σ₁) :
     (ofMeasure (Pred := σ₁ → Prop) f).EvalsTo a n s₁ = (f a s₁ = n) := by
-  simp
+  simp [evalsTo_ofMeasure, NondetFun.evalsTo_apply, NondetFun.evalsTo_pure]
 
-@[grind =] theorem evalsTo_ofMeasure_apply_2 {α : Type} {σ₁ σ₂ : Type} {γ : Type}
+@[deprecated evalsTo_ofMeasure +typeChanged (since := "2026-10-15")]
+theorem evalsTo_ofMeasure_apply_2 {α : Type} {σ₁ σ₂ : Type} {γ : Type}
     [WellFoundedRelation γ] (f : α → σ₁ → σ₂ → γ) (a : α) (n : γ) (s₁ : σ₁) (s₂ : σ₂) :
     (ofMeasure (Pred := σ₁ → σ₂ → Prop) f).EvalsTo a n s₁ s₂ = (f a s₁ s₂ = n) := by
-  simp
+  simp [evalsTo_ofMeasure, NondetFun.evalsTo_apply, NondetFun.evalsTo_pure]
 
-@[grind =] theorem evalsTo_ofMeasure_apply_3 {α : Type} {σ₁ σ₂ σ₃ : Type} {γ : Type}
+@[deprecated evalsTo_ofMeasure +typeChanged (since := "2026-10-15")]
+theorem evalsTo_ofMeasure_apply_3 {α : Type} {σ₁ σ₂ σ₃ : Type} {γ : Type}
     [WellFoundedRelation γ] (f : α → σ₁ → σ₂ → σ₃ → γ) (a : α) (n : γ) (s₁ : σ₁) (s₂ : σ₂) (s₃ : σ₃) :
     (ofMeasure (Pred := σ₁ → σ₂ → σ₃ → Prop) f).EvalsTo a n s₁ s₂ s₃ = (f a s₁ s₂ s₃ = n) := by
-  simp
+  simp [evalsTo_ofMeasure, NondetFun.evalsTo_apply, NondetFun.evalsTo_pure]
 
-@[grind =] theorem evalsTo_ofMeasure_apply_4 {α : Type} {σ₁ σ₂ σ₃ σ₄ : Type} {γ : Type}
+@[deprecated evalsTo_ofMeasure +typeChanged (since := "2026-10-15")]
+theorem evalsTo_ofMeasure_apply_4 {α : Type} {σ₁ σ₂ σ₃ σ₄ : Type} {γ : Type}
     [WellFoundedRelation γ] (f : α → σ₁ → σ₂ → σ₃ → σ₄ → γ) (a : α) (n : γ) (s₁ : σ₁) (s₂ : σ₂) (s₃ : σ₃) (s₄ : σ₄) :
     (ofMeasure (Pred := σ₁ → σ₂ → σ₃ → σ₄ → Prop) f).EvalsTo a n s₁ s₂ s₃ s₄ = (f a s₁ s₂ s₃ s₄ = n) := by
-  simp
+  simp [evalsTo_ofMeasure, NondetFun.evalsTo_apply, NondetFun.evalsTo_pure]
 
-@[grind =] theorem evalsTo_ofMeasure_apply_5 {α : Type} {σ₁ σ₂ σ₃ σ₄ σ₅ : Type} {γ : Type}
+@[deprecated evalsTo_ofMeasure +typeChanged (since := "2026-10-15")]
+theorem evalsTo_ofMeasure_apply_5 {α : Type} {σ₁ σ₂ σ₃ σ₄ σ₅ : Type} {γ : Type}
     [WellFoundedRelation γ] (f : α → σ₁ → σ₂ → σ₃ → σ₄ → σ₅ → γ) (a : α) (n : γ) (s₁ : σ₁) (s₂ : σ₂) (s₃ : σ₃) (s₄ : σ₄) (s₅ : σ₅) :
     (ofMeasure (Pred := σ₁ → σ₂ → σ₃ → σ₄ → σ₅ → Prop) f).EvalsTo a n s₁ s₂ s₃ s₄ s₅ = (f a s₁ s₂ s₃ s₄ s₅ = n) := by
-  simp
+  simp [evalsTo_ofMeasure, NondetFun.evalsTo_apply, NondetFun.evalsTo_pure]
 
-@[grind =] theorem evalsTo_ofMeasure_pure_apply_1 {α : Type} {σ₁ : Type} {γ : Type}
+@[deprecated evalsTo_ofMeasure +typeChanged (since := "2026-10-15")]
+theorem evalsTo_ofMeasure_pure_apply_1 {α : Type} {σ₁ : Type} {γ : Type}
     [WellFoundedRelation γ] (f : α → γ) (a : α) (n : γ) (s₁ : σ₁) :
     (ofMeasure (Pred := σ₁ → Prop) f).EvalsTo a n s₁ = (f a = n) := by
-  simp
+  simp [evalsTo_ofMeasure, NondetFun.evalsTo_pure]
 
-@[grind =] theorem evalsTo_ofMeasure_pure_apply_2 {α : Type} {σ₁ σ₂ : Type} {γ : Type}
+@[deprecated evalsTo_ofMeasure +typeChanged (since := "2026-10-15")]
+theorem evalsTo_ofMeasure_pure_apply_2 {α : Type} {σ₁ σ₂ : Type} {γ : Type}
     [WellFoundedRelation γ] (f : α → γ) (a : α) (n : γ) (s₁ : σ₁) (s₂ : σ₂) :
     (ofMeasure (Pred := σ₁ → σ₂ → Prop) f).EvalsTo a n s₁ s₂ = (f a = n) := by
-  simp
+  simp [evalsTo_ofMeasure, NondetFun.evalsTo_pure]
 
-@[grind =] theorem evalsTo_ofMeasure_pure_apply_3 {α : Type} {σ₁ σ₂ σ₃ : Type} {γ : Type}
+@[deprecated evalsTo_ofMeasure +typeChanged (since := "2026-10-15")]
+theorem evalsTo_ofMeasure_pure_apply_3 {α : Type} {σ₁ σ₂ σ₃ : Type} {γ : Type}
     [WellFoundedRelation γ] (f : α → γ) (a : α) (n : γ) (s₁ : σ₁) (s₂ : σ₂) (s₃ : σ₃) :
     (ofMeasure (Pred := σ₁ → σ₂ → σ₃ → Prop) f).EvalsTo a n s₁ s₂ s₃ = (f a = n) := by
-  simp
+  simp [evalsTo_ofMeasure, NondetFun.evalsTo_pure]
 
-@[grind =] theorem evalsTo_ofMeasure_pure_apply_4 {α : Type} {σ₁ σ₂ σ₃ σ₄ : Type} {γ : Type}
+@[deprecated evalsTo_ofMeasure +typeChanged (since := "2026-10-15")]
+theorem evalsTo_ofMeasure_pure_apply_4 {α : Type} {σ₁ σ₂ σ₃ σ₄ : Type} {γ : Type}
     [WellFoundedRelation γ] (f : α → γ) (a : α) (n : γ) (s₁ : σ₁) (s₂ : σ₂) (s₃ : σ₃) (s₄ : σ₄) :
     (ofMeasure (Pred := σ₁ → σ₂ → σ₃ → σ₄ → Prop) f).EvalsTo a n s₁ s₂ s₃ s₄ = (f a = n) := by
-  simp
+  simp [evalsTo_ofMeasure, NondetFun.evalsTo_pure]
 
-@[grind =] theorem evalsTo_ofMeasure_pure_apply_5 {α : Type} {σ₁ σ₂ σ₃ σ₄ σ₅ : Type} {γ : Type}
+@[deprecated evalsTo_ofMeasure +typeChanged (since := "2026-10-15")]
+theorem evalsTo_ofMeasure_pure_apply_5 {α : Type} {σ₁ σ₂ σ₃ σ₄ σ₅ : Type} {γ : Type}
     [WellFoundedRelation γ] (f : α → γ) (a : α) (n : γ) (s₁ : σ₁) (s₂ : σ₂) (s₃ : σ₃) (s₄ : σ₄) (s₅ : σ₅) :
     (ofMeasure (Pred := σ₁ → σ₂ → σ₃ → σ₄ → σ₅ → Prop) f).EvalsTo a n s₁ s₂ s₃ s₄ s₅ = (f a = n) := by
-  simp
+  simp [evalsTo_ofMeasure, NondetFun.evalsTo_pure]
 
 /-- Decrease along `ofMeasure` is decrease of measure values along the well-founded relation of
 `γ`. Rewriting with this lemma brings a decrease proof obligation into the shape produced by
@@ -2045,23 +2049,34 @@ theorem evalsBelow_ofMeasure {γ : Type uγ} [WellFoundedRelation γ]
     (f : α → γ) (a' : α) (ma : γ) :
     (ofMeasure (Pred := Pred) f).EvalsBelow a' ma = ⌜WellFoundedRelation.rel (f a') ma⌝ := by
   refine PartialOrder.rel_antisymm (iSup_le _ _ fun ma' => ?_) (le_iSup_of_le (f a') ?_)
-  · refine ofProp_meet_le_left fun h => ?_
+  · refine CompleteLattice.ofProp_meet_le fun h => ?_
     subst h
     exact PartialOrder.rel_refl
   · refine le_meet _ _ _ ?_ PartialOrder.rel_refl
     simp only [evalsTo_ofMeasure, NondetFun.evalsTo_pure]
-    rw [ofProp_eq_top trivial]
+    rw [CompleteLattice.ofProp_eq_top trivial]
     exact le_top _
 
 open Lean.Order in
-@[simp, grind =] theorem evalsBelow_ofMeasure_nat {α : Type} {Pred : Type} [Assertion Pred]
+theorem evalsBelow_ofMeasure_nat {α : Type} {Pred : Type} [Assertion Pred]
     (f : α → Nat) (a' : α) (ma : Nat) :
     (ofMeasure (Pred := Pred) f).EvalsBelow a' ma = ⌜f a' < ma⌝ :=
   evalsBelow_ofMeasure f a' ma
 
+open Lean.Order in
+theorem evalsBelow_ofMeasure_lex {α : Type} {Pred : Type} [Assertion Pred]
+    {β γ : Type} [WellFoundedRelation β] [WellFoundedRelation γ]
+    (f : α → β × γ) (a' : α) (ma : β × γ) :
+    (ofMeasure (Pred := Pred) f).EvalsBelow a' ma =
+      ((ofMeasure (Pred := Pred) fun a => (f a).1).EvalsBelow a' ma.1 ⊔
+        (⌜(f a').1 = ma.1⌝ ⊓ (ofMeasure (Pred := Pred) fun a => (f a).2).EvalsBelow a' ma.2)) := by
+  simp only [evalsBelow_ofMeasure]
+  rw [CompleteLattice.ofProp_meet_ofProp, CompleteLattice.ofProp_join_ofProp]
+  exact congrArg _ (propext Prod.lex_def)
+
 /-- Pointwise characterization of `EvalsBelow` on a function lattice, for `ofMeasure`
 measures. -/
-@[simp] theorem evalsBelow_ofMeasure_apply {σ : Type s} {Pred : Type u} [Assertion Pred]
+theorem evalsBelow_ofMeasure_apply {σ : Type s} {Pred : Type u} [Assertion Pred]
     {γ : Type uγ} {Fun : Type v'} [NondetFun Pred Fun γ] [WellFoundedRelation γ]
     (f : α → σ → Fun) (a' : α) (ma : γ) (s : σ) :
     (ofMeasure (Pred := σ → Pred) f).EvalsBelow a' ma s
@@ -2069,67 +2084,70 @@ measures. -/
   simp only [EvalsBelow, iSup_apply, meet_apply, CompleteLattice.ofProp_apply]
   rfl
 
-/-! Fixed-arity specializations of `evalsBelow_ofMeasure_apply` for `Nat`-valued measures at a
-lattice tower ending in `Prop`, in the manner of `CompleteLattice.ofProp_apply_1` and its
-siblings: the ground instances leave every parameter recoverable from the trigger, so these are
-usable `@[grind =]` lemmas where the general `evalsBelow_ofMeasure_apply` is not. -/
-
-@[grind =] theorem evalsBelow_ofMeasure_apply_1 {α : Type} {σ₁ : Type}
+@[deprecated evalsBelow_ofMeasure_apply +typeChanged (since := "2026-10-15")]
+theorem evalsBelow_ofMeasure_apply_1 {α : Type} {σ₁ : Type}
     (f : α → σ₁ → Nat) (a' : α) (ma : Nat) (s₁ : σ₁) :
     (ofMeasure (Pred := σ₁ → Prop) f).EvalsBelow a' ma s₁ = (f a' s₁ < ma) := by
-  simp
+  simp [evalsBelow_ofMeasure_apply, evalsBelow_ofMeasure_nat]
 
-@[grind =] theorem evalsBelow_ofMeasure_apply_2 {α : Type} {σ₁ σ₂ : Type}
+@[deprecated evalsBelow_ofMeasure_apply +typeChanged (since := "2026-10-15")]
+theorem evalsBelow_ofMeasure_apply_2 {α : Type} {σ₁ σ₂ : Type}
     (f : α → σ₁ → σ₂ → Nat) (a' : α) (ma : Nat) (s₁ : σ₁) (s₂ : σ₂) :
     (ofMeasure (Pred := σ₁ → σ₂ → Prop) f).EvalsBelow a' ma s₁ s₂ = (f a' s₁ s₂ < ma) := by
-  simp
+  simp [evalsBelow_ofMeasure_apply, evalsBelow_ofMeasure_nat]
 
-@[grind =] theorem evalsBelow_ofMeasure_apply_3 {α : Type} {σ₁ σ₂ σ₃ : Type}
+@[deprecated evalsBelow_ofMeasure_apply +typeChanged (since := "2026-10-15")]
+theorem evalsBelow_ofMeasure_apply_3 {α : Type} {σ₁ σ₂ σ₃ : Type}
     (f : α → σ₁ → σ₂ → σ₃ → Nat) (a' : α) (ma : Nat) (s₁ : σ₁) (s₂ : σ₂) (s₃ : σ₃) :
     (ofMeasure (Pred := σ₁ → σ₂ → σ₃ → Prop) f).EvalsBelow a' ma s₁ s₂ s₃
       = (f a' s₁ s₂ s₃ < ma) := by
-  simp
+  simp [evalsBelow_ofMeasure_apply, evalsBelow_ofMeasure_nat]
 
-@[grind =] theorem evalsBelow_ofMeasure_apply_4 {α : Type} {σ₁ σ₂ σ₃ σ₄ : Type}
+@[deprecated evalsBelow_ofMeasure_apply +typeChanged (since := "2026-10-15")]
+theorem evalsBelow_ofMeasure_apply_4 {α : Type} {σ₁ σ₂ σ₃ σ₄ : Type}
     (f : α → σ₁ → σ₂ → σ₃ → σ₄ → Nat) (a' : α) (ma : Nat) (s₁ : σ₁) (s₂ : σ₂) (s₃ : σ₃)
     (s₄ : σ₄) :
     (ofMeasure (Pred := σ₁ → σ₂ → σ₃ → σ₄ → Prop) f).EvalsBelow a' ma s₁ s₂ s₃ s₄
       = (f a' s₁ s₂ s₃ s₄ < ma) := by
-  simp
+  simp [evalsBelow_ofMeasure_apply, evalsBelow_ofMeasure_nat]
 
-@[grind =] theorem evalsBelow_ofMeasure_apply_5 {α : Type} {σ₁ σ₂ σ₃ σ₄ σ₅ : Type}
+@[deprecated evalsBelow_ofMeasure_apply +typeChanged (since := "2026-10-15")]
+theorem evalsBelow_ofMeasure_apply_5 {α : Type} {σ₁ σ₂ σ₃ σ₄ σ₅ : Type}
     (f : α → σ₁ → σ₂ → σ₃ → σ₄ → σ₅ → Nat) (a' : α) (ma : Nat) (s₁ : σ₁) (s₂ : σ₂)
     (s₃ : σ₃) (s₄ : σ₄) (s₅ : σ₅) :
     (ofMeasure (Pred := σ₁ → σ₂ → σ₃ → σ₄ → σ₅ → Prop) f).EvalsBelow a' ma s₁ s₂ s₃ s₄ s₅
       = (f a' s₁ s₂ s₃ s₄ s₅ < ma) := by
-  simp
+  simp [evalsBelow_ofMeasure_apply, evalsBelow_ofMeasure_nat]
 
-/-! The same specializations for a measure whose value depends on the cursor alone. -/
-
-@[grind =] theorem evalsBelow_ofMeasure_pure_apply_1 {α : Type} {σ₁ : Type}
+@[deprecated evalsBelow_ofMeasure_apply +typeChanged (since := "2026-10-15")]
+theorem evalsBelow_ofMeasure_pure_apply_1 {α : Type} {σ₁ : Type}
     (f : α → Nat) (a' : α) (ma : Nat) (s₁ : σ₁) :
     (ofMeasure (Pred := σ₁ → Prop) f).EvalsBelow a' ma s₁ = (f a' < ma) := by
-  simp
+  simp [evalsBelow_ofMeasure_nat]
 
-@[grind =] theorem evalsBelow_ofMeasure_pure_apply_2 {α : Type} {σ₁ σ₂ : Type}
+@[deprecated evalsBelow_ofMeasure_apply +typeChanged (since := "2026-10-15")]
+theorem evalsBelow_ofMeasure_pure_apply_2 {α : Type} {σ₁ σ₂ : Type}
     (f : α → Nat) (a' : α) (ma : Nat) (s₁ : σ₁) (s₂ : σ₂) :
     (ofMeasure (Pred := σ₁ → σ₂ → Prop) f).EvalsBelow a' ma s₁ s₂ = (f a' < ma) := by
-  simp
+  simp [evalsBelow_ofMeasure_nat]
 
-@[grind =] theorem evalsBelow_ofMeasure_pure_apply_3 {α : Type} {σ₁ σ₂ σ₃ : Type}
+@[deprecated evalsBelow_ofMeasure_apply +typeChanged (since := "2026-10-15")]
+theorem evalsBelow_ofMeasure_pure_apply_3 {α : Type} {σ₁ σ₂ σ₃ : Type}
     (f : α → Nat) (a' : α) (ma : Nat) (s₁ : σ₁) (s₂ : σ₂) (s₃ : σ₃) :
     (ofMeasure (Pred := σ₁ → σ₂ → σ₃ → Prop) f).EvalsBelow a' ma s₁ s₂ s₃ = (f a' < ma) := by
-  simp
+  simp [evalsBelow_ofMeasure_nat]
 
-@[grind =] theorem evalsBelow_ofMeasure_pure_apply_4 {α : Type} {σ₁ σ₂ σ₃ σ₄ : Type}
+@[deprecated evalsBelow_ofMeasure_apply +typeChanged (since := "2026-10-15")]
+theorem evalsBelow_ofMeasure_pure_apply_4 {α : Type} {σ₁ σ₂ σ₃ σ₄ : Type}
     (f : α → Nat) (a' : α) (ma : Nat) (s₁ : σ₁) (s₂ : σ₂) (s₃ : σ₃) (s₄ : σ₄) :
     (ofMeasure (Pred := σ₁ → σ₂ → σ₃ → σ₄ → Prop) f).EvalsBelow a' ma s₁ s₂ s₃ s₄ = (f a' < ma) := by
-  simp
+  simp [evalsBelow_ofMeasure_nat]
 
-@[grind =] theorem evalsBelow_ofMeasure_pure_apply_5 {α : Type} {σ₁ σ₂ σ₃ σ₄ σ₅ : Type}
+@[deprecated evalsBelow_ofMeasure_apply +typeChanged (since := "2026-10-15")]
+theorem evalsBelow_ofMeasure_pure_apply_5 {α : Type} {σ₁ σ₂ σ₃ σ₄ σ₅ : Type}
     (f : α → Nat) (a' : α) (ma : Nat) (s₁ : σ₁) (s₂ : σ₂) (s₃ : σ₃) (s₄ : σ₄) (s₅ : σ₅) :
     (ofMeasure (Pred := σ₁ → σ₂ → σ₃ → σ₄ → σ₅ → Prop) f).EvalsBelow a' ma s₁ s₂ s₃ s₄ s₅ = (f a' < ma) := by
-  simp
+  simp [evalsBelow_ofMeasure_nat]
 
 end Variant
 
@@ -2184,7 +2202,7 @@ theorem Spec.repeatM
     · refine Triple.intro ?_
       refine iSup_meet_le fun ma' => ?_
       rw [meet_comm (P := measure.EvalsTo a' ma'), meet_assoc]
-      exact ofProp_meet_le_left fun hlt => (ih ma' hlt a').le_wp
+      exact CompleteLattice.ofProp_meet_le fun hlt => (ih ma' hlt a').le_wp
     · exact Triple.pure b Lean.Order.PartialOrder.rel_refl
 
 /--

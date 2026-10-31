@@ -54,17 +54,22 @@ compiler passes in order to ease debugging.
 The trace can be viewed with `set_option trace.Compiler.step true`.
 -/
 def checkpoint (stepName : Name) (decls : Array (Decl pu)) (shouldCheck : Bool) : CompilerM Unit := do
-  for decl in decls do
-    trace[Compiler.stat] "{decl.name} : {decl.size}"
-    withOptions (fun opts => opts.set `pp.motives.pi false) do
-      let clsName := `Compiler ++ stepName
-      if (← Lean.isTracingEnabledFor clsName) then
+  let clsName := `Compiler ++ stepName
+  let shouldTrace ← Lean.isTracingEnabledFor clsName
+  let go : CompilerM Unit := do
+    for decl in decls do
+      trace[Compiler.stat] "{decl.name} : {decl.size}"
+      if shouldTrace then
         if compiler.traceUnnormalized.get (← getOptions) then
           Lean.addTrace clsName m!"size: {decl.size}\n{← ppDecl decl}"
         else
           Lean.addTrace clsName m!"size: {decl.size}\n{← ppDecl' decl (← getPhase)}"
       if shouldCheck then
         decl.check
+  if shouldTrace || shouldCheck then
+    withOptions (fun opts => opts.set `pp.motives.pi false) go
+  else
+    go
 
 def isValidMainType (type : Expr) : Bool :=
   let isValidResultName (name : Name) : Bool :=

@@ -25,9 +25,9 @@ end RecClass
 
 namespace Core64Repro
 
-private def a : Name := .num (.num `Native64TwoHashA 0) 572478232
+private def a : Name := .num (.num `Native64TwoHashA 0) 133149
 private def b : Name := .num (.num `Native64TwoHashB 0) 2525080234
-private def c : Name := .num (.num `Native64TwoHashC 0) 3119207123
+private def c : Name := .num (.num `Native64TwoHashC 0) 4458
 private def gate : Name := `Native64TwoHashGate
 private def owner : Name := `Native64TwoHashOwner
 private def bool := mkConst ``Bool
@@ -43,8 +43,8 @@ private def pad (salt : Nat) (e : Expr) : Expr :=
   mkApp (mkLambda `salt .default (mkConst ``Nat) (e.liftLooseBVars 0 1)) (mkNatLit salt)
 
 private def values (x : Expr) : Array Expr :=
-  let px := pad 101831 x
-  let qx := pad 47770 (mkApp (mkLambda `z .default bool (.bvar 0)) x)
+  let px := pad 238539 x
+  let qx := pad 914 (mkApp (mkLambda `z .default bool (.bvar 0)) x)
   #[mkApp (mkConst a) px, mkApp (mkConst b) px, mkApp (mkConst c) qx]
 
 private def canonical (v : Array Expr) : Array Expr := #[v[2]!, v[1]!, v[0]!, v[2]!]

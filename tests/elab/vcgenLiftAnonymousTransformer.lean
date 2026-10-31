@@ -1,4 +1,3 @@
-import Std.Tactic.Do
 import Std.WP
 
 /-!

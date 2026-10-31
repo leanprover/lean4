@@ -1,5 +1,4 @@
 import Std.WP
-import Std.Tactic.Do
 
 /-!
 Tests that `vcgen [...]` accepts arbitrary term arguments, mirroring `simp [...]`.

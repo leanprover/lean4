@@ -18,7 +18,8 @@ Implementation
 
 The interpreter mainly consists of a homogeneous stack of `value`s, which are either unboxed values or pointers to boxed
 objects. The IR type system tells us which union member is active at any time. IR variables are mapped to stack
-slots by adding the current base pointer to the variable index. Further stacks are used for storing join points and call
+slots by adding the current base pointer to the variable index. Frame sizes are taken from the `DeclInfo` the IR
+lowering computes for each declaration. Further stacks are used for storing join points and call
 stack metadata. The interpreted IR is taken directly from the elab_environment. Whenever possible, we try to switch to native
 code by checking for the mangled symbol via dlsym/GetProcAddress, which is also how we can call external functions
 (which only works if the file declaring them has already been compiled). We always call the "boxed" versions of native
@@ -76,7 +77,6 @@ lit_val_kind lit_val_tag(lit_val const & l) { return static_cast<lit_val_kind>(c
 nat const & lit_val_num(lit_val const & l) { lean_assert(lit_val_tag(l) == lit_val_kind::Num); return cnstr_get_ref_t<nat>(l, 0); }
 string_ref const & lit_val_str(lit_val const & l) { lean_assert(lit_val_tag(l) == lit_val_kind::Str); return cnstr_get_ref_t<string_ref>(l, 0); }
 
-name const & ctor_info_name(ctor_info const & c) { return cnstr_get_ref_t<name>(c, 0); }
 nat const & ctor_info_tag(ctor_info const & c) { return cnstr_get_ref_t<nat>(c, 1); }
 nat const & ctor_info_size(ctor_info const & c) { return cnstr_get_ref_t<nat>(c, 2); }
 nat const & ctor_info_usize(ctor_info const & c) { return cnstr_get_ref_t<nat>(c, 3); }
@@ -158,15 +158,12 @@ type fn_body_sset_type(fn_body const & b) { lean_assert(fn_body_tag(b) == fn_bod
 fn_body const & fn_body_sset_cont(fn_body const & b) { lean_assert(fn_body_tag(b) == fn_body_kind::SSet); return cnstr_get_ref_t<fn_body>(b, 5); }
 var_id const & fn_body_inc_var(fn_body const & b) { lean_assert(fn_body_tag(b) == fn_body_kind::Inc); return cnstr_get_ref_t<var_id>(b, 0); }
 nat const & fn_body_inc_val(fn_body const & b) { lean_assert(fn_body_tag(b) == fn_body_kind::Inc); return cnstr_get_ref_t<nat>(b, 1); }
-bool fn_body_inc_maybe_scalar(fn_body const & b) { lean_assert(fn_body_tag(b) == fn_body_kind::Inc); return get_bool_field(b.raw(), 3); }
 fn_body const & fn_body_inc_cont(fn_body const & b) { lean_assert(fn_body_tag(b) == fn_body_kind::Inc); return cnstr_get_ref_t<fn_body>(b, 2); }
 var_id const & fn_body_dec_var(fn_body const & b) { lean_assert(fn_body_tag(b) == fn_body_kind::Dec); return cnstr_get_ref_t<var_id>(b, 0); }
 nat const & fn_body_dec_val(fn_body const & b) { lean_assert(fn_body_tag(b) == fn_body_kind::Dec); return cnstr_get_ref_t<nat>(b, 1); }
-bool fn_body_dec_maybe_scalar(fn_body const & b) { lean_assert(fn_body_tag(b) == fn_body_kind::Dec); return get_bool_field(b.raw(), 3); }
 fn_body const & fn_body_dec_cont(fn_body const & b) { lean_assert(fn_body_tag(b) == fn_body_kind::Dec); return cnstr_get_ref_t<fn_body>(b, 2); }
 var_id const & fn_body_del_var(fn_body const & b) { lean_assert(fn_body_tag(b) == fn_body_kind::Del); return cnstr_get_ref_t<var_id>(b, 0); }
 fn_body const & fn_body_del_cont(fn_body const & b) { lean_assert(fn_body_tag(b) == fn_body_kind::Del); return cnstr_get_ref_t<fn_body>(b, 1); }
-name const & fn_body_case_tid(fn_body const & b) { lean_assert(fn_body_tag(b) == fn_body_kind::Case); return cnstr_get_ref_t<name>(b, 0); }
 var_id const & fn_body_case_var(fn_body const & b) { lean_assert(fn_body_tag(b) == fn_body_kind::Case); return cnstr_get_ref_t<var_id>(b, 1); }
 type fn_body_case_var_type(fn_body const & b) { lean_assert(fn_body_tag(b) == fn_body_kind::Case); return cnstr_get_type(b, 2); }
 array_ref<alt_core> const & fn_body_case_alts(fn_body const & b) { lean_assert(fn_body_tag(b) == fn_body_kind::Case); return cnstr_get_ref_t<array_ref<alt_core>>(b, 3); }
@@ -186,6 +183,9 @@ fn_body const & decl_fun_body(decl const & b) {
     }
     return cnstr_get_ref_t<fn_body>(b, 3);
 }
+object_ref const & decl_info(decl const & b) { lean_assert(decl_tag(b) == decl_kind::Fun); return cnstr_get_ref_t<object_ref>(b, 4); }
+nat const & decl_max_jp(decl const & b) { return cnstr_get_ref_t<nat>(decl_info(b), 1); }
+nat const & decl_max_var(decl const & b) { return cnstr_get_ref_t<nat>(decl_info(b), 2); }
 
 extern "C" object * lean_ir_find_env_decl(object * env, object * n);
 option_ref<decl> find_ir_decl(elab_environment const & env, name const & n) {
@@ -419,11 +419,16 @@ class interpreter {
     inline value & var(var_id const & v) {
         // variables are 1-indexed
         size_t i = get_frame().m_arg_bp + v.get_small_value() - 1;
-        // we don't know the frame size (unless we do an additional IR pass), so we extend it dynamically
-        if (i >= m_arg_stack.size()) {
-            m_arg_stack.resize(i + 1);
-        }
+        lean_assert(i < m_arg_stack.size());
         return m_arg_stack[i];
+    }
+
+    /** \brief Get reference to stack slot of a join point */
+    inline fn_body const * & get_jp(jp_id const & j) {
+        // join points are 1-indexed
+        size_t i = get_frame().m_jp_bp + j.get_small_value() - 1;
+        lean_assert(i < m_jp_stack.size());
+        return m_jp_stack[i];
     }
 
 public:
@@ -551,7 +556,7 @@ private:
                 }
             }
             case expr_kind::PAp: { // unsatured (partial) application of top-level function
-                symbol_cache_entry sym = lookup_symbol(expr_pap_fun(e));
+                const symbol_cache_entry& sym = lookup_symbol(expr_pap_fun(e));
                 if (sym.m_native.m_addr) {
                     // point closure directly at native symbol
                     object * cls = alloc_closure(sym.m_native.m_addr, decl_params(sym.m_decl).size(), expr_pap_args(e).size());
@@ -665,7 +670,7 @@ private:
                         for (size_t i = 0; i < args.size(); i++) {
                             m_arg_stack[get_frame().m_arg_bp + i] = m_arg_stack[old_size + i];
                         }
-                        m_arg_stack.resize(get_frame().m_arg_bp + args.size());
+                        m_arg_stack.resize(old_size);
                         b = b0;
                         check_system();
                         break;
@@ -683,11 +688,7 @@ private:
                     break;
                 }
                 case fn_body_kind::JDecl: { // join-point declaration; store in stack slot just like variables
-                    size_t i = get_frame().m_jp_bp + fn_body_jdecl_id(b).get_small_value();
-                    if (i >= m_jp_stack.size()) {
-                        m_jp_stack.resize(i + 1);
-                    }
-                    m_jp_stack[i] = &b.get();
+                    get_jp(fn_body_jdecl_id(b)) = &b.get();
                     b = fn_body_jdecl_cont(b);
                     break;
                 }
@@ -782,7 +783,7 @@ private:
                 case fn_body_kind::Ret:
                     return eval_arg(fn_body_ret_arg(b));
                 case fn_body_kind::Jmp: { // jump to join-point
-                    fn_body const & jp = *m_jp_stack[get_frame().m_jp_bp + fn_body_jmp_jp(b).get_small_value()];
+                    fn_body const & jp = *get_jp(fn_body_jmp_jp(b));
                     lean_assert(fn_body_jdecl_params(jp).size() == fn_body_jmp_args(b).size());
                     for (size_t i = 0; i < fn_body_jdecl_params(jp).size(); i++) {
                         var(param_var(fn_body_jdecl_params(jp)[i])) = eval_arg(fn_body_jmp_args(b)[i]);
@@ -794,6 +795,14 @@ private:
                     throw exception("unreachable code");
             }
         }
+    }
+
+    /** \brief Call the body of `d`, assuming that its arguments have already been pushed */
+    value eval_decl_body(decl const & d) {
+        fn_body const & b = decl_fun_body(d);
+        m_arg_stack.resize(get_frame().m_arg_bp + decl_max_var(d).get_small_value());
+        m_jp_stack.resize(get_frame().m_jp_bp + decl_max_jp(d).get_small_value());
+        return eval_body(b);
     }
 
     // specify argument base pointer explicitly because we've usually already pushed some function arguments
@@ -824,7 +833,7 @@ private:
     }
 
     /** \brief Return cached lookup result for given unmangled function name in the current binary. */
-    symbol_cache_entry lookup_symbol(name const & fn) {
+    const symbol_cache_entry& lookup_symbol(name const & fn) {
         auto e = m_symbol_cache.find(fn);
         if (e != m_symbol_cache.end()) {
             return e->second;
@@ -833,16 +842,14 @@ private:
         auto ne = g_native_symbol_cache->find(fn);
         if (ne != g_native_symbol_cache->end()) {
             symbol_cache_entry e_new { get_decl(fn), ne->second };
-            m_symbol_cache.insert({ fn, e_new });
-            return e_new;
+            return m_symbol_cache.emplace(fn, std::move(e_new)).first->second;
         }
         lock.unlock();
         std::unique_lock<std::shared_mutex> unique_lock(*g_native_symbol_cache_mutex);
         ne = g_native_symbol_cache->find(fn);
         if (ne != g_native_symbol_cache->end()) {
             symbol_cache_entry e_new { get_decl(fn), ne->second };
-            m_symbol_cache.insert({ fn, e_new });
-            return e_new;
+            return m_symbol_cache.emplace(fn, std::move(e_new)).first->second;
         }
         symbol_cache_entry e_new { get_decl(fn), {nullptr, false} };
         if (m_prefer_native || decl_tag(e_new.m_decl) == decl_kind::Extern || has_init_attribute(m_env, fn)) {
@@ -864,8 +871,7 @@ private:
             }
         }
         g_native_symbol_cache->insert({ fn, e_new.m_native });
-        m_symbol_cache.insert({ fn, e_new });
-        return e_new;
+        return m_symbol_cache.emplace(fn, std::move(e_new)).first->second;
     }
 
     /** \brief Retrieve Lean declaration from elab_environment. */
@@ -891,7 +897,7 @@ private:
             return type_is_scalar(t) ? unbox_t(o, t) : o;
         }
 
-        symbol_cache_entry e = lookup_symbol(fn);
+        const symbol_cache_entry& e = lookup_symbol(fn);
         if (e.m_native.m_addr) {
             // we can assume that all native code has been initialized (see e.g. `evalConst`)
 
@@ -921,13 +927,15 @@ private:
             // We don't know whether `[init]` decls can be re-executed, so let's not.
             throw exception(sstream() << "cannot evaluate `[init]` declaration '" << fn << "' in the same module");
         }
-        push_frame(e.m_decl, m_arg_stack.size());
         // `Unreachable` can be from `mkDummyExternDecl`, which may mean that we failed to run the
         // initializer, suggesting some incorrect `meta` phase setup. Let's make sure we give a
         // better signal than a segfault in that case.
-        lean_always_assert(fn_body_tag(decl_fun_body(e.m_decl)) != fn_body_kind::Unreachable);
-        value r = eval_body(decl_fun_body(e.m_decl));
-        pop_frame(r, decl_type(e.m_decl));
+        if (fn_body_tag(decl_fun_body(e.m_decl)) == fn_body_kind::Unreachable)
+            throw exception(sstream() << "interpreter: cannot evaluate '" << fn
+                << "', its IR body is unreachable (likely a dummy extern from incorrect `meta` phase setup)");
+        push_frame(e.m_decl, m_arg_stack.size());
+        value r = eval_decl_body(e.m_decl);
+        pop_frame(r, t);
         m_constant_cache.insert({ fn, constant_cache_entry { type_is_scalar(t), r } });
         return r;
     }
@@ -935,7 +943,8 @@ private:
     value call(name const & fn, array_ref<arg> const & args) {
         size_t old_size = m_arg_stack.size();
         value r;
-        symbol_cache_entry e = lookup_symbol(fn);
+        const symbol_cache_entry& e = lookup_symbol(fn);
+        type t = decl_type(e.m_decl);
         if (e.m_native.m_addr) {
             object ** args2 = static_cast<object **>(LEAN_ALLOCA(args.size() * sizeof(object *))); // NOLINT
             for (size_t i = 0; i < args.size(); i++) {
@@ -953,10 +962,9 @@ private:
                 }
             }
             push_frame(e.m_decl, old_size);
+            lean_assert(!type_is_scalar(t) || e.m_native.m_boxed);
             object * o = curry(e.m_native.m_addr, args.size(), args2);
-            type t = decl_type(e.m_decl);
             if (type_is_scalar(t)) {
-                lean_assert(e.m_native.m_boxed);
                 // NOTE: this unboxing does not exist in the IR, so we should manually consume `o`
                 r = unbox_t(o, t);
                 lean_dec(o);
@@ -977,9 +985,9 @@ private:
                 m_arg_stack.push_back(eval_arg(arg));
             }
             push_frame(e.m_decl, old_size);
-            r = eval_body(decl_fun_body(e.m_decl));
+            r = eval_decl_body(e.m_decl);
         }
-        pop_frame(r, decl_type(e.m_decl));
+        pop_frame(r, t);
         return r;
     }
 
@@ -991,7 +999,7 @@ private:
             m_arg_stack.push_back(args[3 + i]);
         }
         push_frame(d, old_size);
-        object * r = eval_body(decl_fun_body(d)).m_obj;
+        object * r = eval_decl_body(d).m_obj;
         pop_frame(r, type::TObject);
         return r;
     }
@@ -1066,7 +1074,7 @@ public:
      *  * supports under- and over-application.
      *  * supports "calling" (evaluating) nullary constants. */
     object * call_boxed(name const & fn, unsigned n, object ** args) {
-        symbol_cache_entry e = lookup_symbol(fn);
+        const symbol_cache_entry& e = lookup_symbol(fn);
         unsigned arity = decl_params(e.m_decl).size();
         object * r;
         if (arity == 0) {
@@ -1135,7 +1143,7 @@ public:
                 object * o = io_result_get_value(r);
                 mark_persistent(o);
                 dec_ref(r);
-                symbol_cache_entry e = lookup_symbol(decl);
+                const symbol_cache_entry& e = lookup_symbol(decl);
                 if (e.m_native.m_addr) {
                     *((object **)e.m_native.m_addr) = o;
                 } else {
@@ -1209,12 +1217,15 @@ extern "C" LEAN_EXPORT object * lean_run_init(object * env, object * opts, objec
 
 void initialize_ir_interpreter() {
     ir::g_interpreter_prefer_native = new name({"interpreter", "prefer_native"});
+    mark_persistent(ir::g_interpreter_prefer_native->raw());
     ir::g_init_globals = new name_hash_map<object *>();
     register_bool_option(*ir::g_interpreter_prefer_native, LEAN_DEFAULT_INTERPRETER_PREFER_NATIVE, "(interpreter) whether to use precompiled code where available");
     DEBUG_CODE({
         ir::g_interpreter_call = new name({"interpreter", "call"});
+        mark_persistent(ir::g_interpreter_call->raw());
         register_trace_class(*ir::g_interpreter_call);
         ir::g_interpreter_step = new name({"interpreter", "step"});
+        mark_persistent(ir::g_interpreter_step->raw());
         register_trace_class(*ir::g_interpreter_step);
     });
     ir::g_native_symbol_cache = new name_hash_map<ir::native_symbol_cache_entry>();

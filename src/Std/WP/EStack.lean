@@ -23,6 +23,9 @@ and `()`, so the unexpanders can recognize a stack while every `Unit` instance s
 
 A base monad has one exception postcondition and no stack, so it does not use the notation:
 `Except ε` carries a bare `ε → Prop`.
+
+Any other type of exception postconditions can declare a `ToEStack` instance, and `vcgen` then
+weakens its values one stack component at a time.
 -/
 
 namespace Std.WP
@@ -79,5 +82,14 @@ macro_rules
 open Lean.Order in
 /-- `⊥` at the end of an exception postcondition stack is the empty stack value. -/
 theorem EStackEnd.bot_eq [CCPO EStackEnd] : (⊥ : EStackEnd) = estack⟨⟩ := rfl
+
+open Lean.Order in
+/-- `toEStack` exposes the exception postconditions `E` as a stack. Example: `Thrown` with the field
+`onThrow : String → Prop` has `toEStack t = estack⟨t.onThrow⟩`, and `vcgen` weakens `onThrow`. -/
+class ToEStack (E : Type u) (T : outParam (Type u)) [Assertion E] [Assertion T] where
+  /-- The stack that `E` converts to. -/
+  toEStack : E → T
+  /-- An entailment between the stacks is an entailment between the originals. -/
+  le_of_toEStack_le {x y : E} : toEStack x ⊑ toEStack y → x ⊑ y
 
 end Std.WP

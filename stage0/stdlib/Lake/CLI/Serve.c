@@ -133,10 +133,10 @@ return v___x_6_;
 LEAN_EXPORT lean_object* l_panic___at___00__private_Lake_CLI_Serve_0__Lake_setupFile_print_x21_spec__1(lean_object* v_msg_7_){
 _start:
 {
-lean_object* v___x_9_; lean_object* v___x_284__overap_10_; lean_object* v___x_11_; 
+lean_object* v___x_9_; lean_object* v___x_286__overap_10_; lean_object* v___x_11_; 
 v___x_9_ = lean_obj_once(&l_panic___at___00__private_Lake_CLI_Serve_0__Lake_setupFile_print_x21_spec__1___closed__0, &l_panic___at___00__private_Lake_CLI_Serve_0__Lake_setupFile_print_x21_spec__1___closed__0_once, _init_l_panic___at___00__private_Lake_CLI_Serve_0__Lake_setupFile_print_x21_spec__1___closed__0);
-v___x_284__overap_10_ = lean_panic_fn_borrowed(v___x_9_, v_msg_7_);
-v___x_11_ = lean_apply_1(v___x_284__overap_10_, lean_box(0));
+v___x_286__overap_10_ = lean_panic_fn_borrowed(v___x_9_, v_msg_7_);
+v___x_11_ = lean_apply_1(v___x_286__overap_10_, lean_box(0));
 return v___x_11_;
 }
 }

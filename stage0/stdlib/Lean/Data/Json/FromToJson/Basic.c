@@ -3201,9 +3201,7 @@ else
 {
 lean_object* v_a_910_; lean_object* v___x_911_; uint8_t v___x_912_; 
 v_a_910_ = lean_ctor_get(v___x_909_, 0);
-lean_inc(v_a_910_);
 v___x_911_ = lean_array_get_size(v_a_910_);
-lean_dec(v_a_910_);
 v___x_912_ = lean_nat_dec_eq(v___x_911_, v_nFields_890_);
 if (v___x_912_ == 0)
 {
@@ -3611,9 +3609,7 @@ else
 {
 lean_object* v_a_1020_; lean_object* v___x_1021_; uint8_t v___x_1022_; 
 v_a_1020_ = lean_ctor_get(v___x_1019_, 0);
-lean_inc(v_a_1020_);
 v___x_1021_ = lean_array_get_size(v_a_1020_);
-lean_dec(v_a_1020_);
 v___x_1022_ = lean_nat_dec_eq(v___x_1021_, v_nFields_1002_);
 if (v___x_1022_ == 0)
 {

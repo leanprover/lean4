@@ -32,21 +32,9 @@ bool is_non_rec_structure(environment const & env, name const & decl_name) {
     return I_val.get_ncnstrs() == 1 && I_val.get_nindices() == 0 && !I_val.is_rec();
 }
 
-bool is_inductive(environment const & env, name const & n) {
-    if (optional<constant_info> info = env.find(n))
-        return info->is_inductive();
-    return false;
-}
-
 bool is_constructor(environment const & env, name const & n) {
     if (optional<constant_info> info = env.find(n))
         return info->is_constructor();
-    return false;
-}
-
-bool is_recursor(environment const & env, name const & n) {
-    if (optional<constant_info> info = env.find(n))
-        return info->is_recursor();
     return false;
 }
 

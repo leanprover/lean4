@@ -176,6 +176,8 @@ This *model-based* search is **complete for LIA**.
 * `grind -lia` disable the solver (useful for debugging)
 * `grind +qlia` accept rational models (shrinks the search space but is incomplete for ℤ)
 * `grind (liaSteps := n)` cap the number of steps performed by the model search (the solver becomes incomplete when the threshold is reached)
+* `grind (liaReorders := n)` cap the number of times the model search reorders its variables to avoid a large Cooper case split (`0` disables)
+* `grind (liaReorderCases := n)` request such a reordering only for Cooper splits with more than `n` cases
 
 #### Examples:
 
@@ -313,6 +315,20 @@ syntax (name := sym)
   "sym" optConfig (&" only")?
   (" [" withoutPosition(grindParam,*) "]")?
   " => " grindSeq : tactic
+
+/--
+`grind_norm` applies the `grind` normalizer to the goal target and replaces the goal with the
+result.
+
+**This tactic exists for debugging purposes only and will be deleted.** It is a temporary aid
+for the migration of the `grind` normalizer from `simp` to `Sym.simp`: it isolates the
+normalization step so that the two implementations can be compared. Do not use it in
+libraries or proofs.
+- `grind_norm` uses the legacy `simp`-based normalizer.
+- `grind_norm sym` uses the `Sym.simp`-based normalizer.
+- `grind_norm check` runs both and fails if the results differ.
+-/
+syntax (name := grindNorm) "grind_norm" optConfig (colGt (&" sym" <|> &" check"))? : tactic
 
 /--
 `cutsat` solves linear integer arithmetic goals.

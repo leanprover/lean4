@@ -34,35 +34,10 @@ public:
     name next();
 
     /**
-       \brief Similar to \c next, but the base prefix is replaced with the given one.
-
-       \pre \c base_prefix must have been registered using \c register_name_generator_prefix.
-
-       Example: suppose `_cfresh` and `_ffresh` have been registered using \c register_name_generator_prefix,
-       and the current state is `m_prefix == _ffresh.2` and `m_next_idx = 10`. Then, the name
-       returned by `next_with(_cfresh)` is `_cfresh.2.10`, and
-       the current state of this object is updated to `m_next_idx = 11` */
-    name next_with(name const & base_prefix);
-
-    /**
         \brief Create a child name_generator, each child name_generator is guaranteed to produce
         names different from this name_generator and any other name_generator created with this generator. */
     name_generator mk_child() { return name_generator(next()); }
-
-    /**
-       \brief Similar to \c mk_child, but the base prefix is replaced with the given one.
-
-       \pre \c base_prefix must have been registered using \c register_name_generator_prefix.
-
-       Example: suppose `_cfresh` and `_ffresh` have been registered using \c register_name_generator_prefix,
-       and the current state is `m_prefix == _ffresh.2` and `m_next_idx = 10`. Then, the name_generator
-       returned by `mk_child_with(_cfresh)` is `{m_prefix = _cfresh.2.10, m_next_idx = 0}`, and
-       the current state of this object is updated to `m_next_idx = 11` */
-    name_generator mk_child_with(name const & base_prefix) { return name_generator(next_with(base_prefix)); }
-
-    friend void swap(name_generator & a, name_generator & b) noexcept;
 };
-void swap(name_generator & a, name_generator & b) noexcept;
 
 /* This procedure is invoked during initialization time to register
    internal prefixes used to create name_generator objects.
@@ -71,17 +46,12 @@ void swap(name_generator & a, name_generator & b) noexcept;
    1- Make sure two different modules do not use the same prefix.
       We get an assertion violation if more than one module uses the same prefix.
 
-   2- The registered names are used to implement `uses_name_generator_prefix` and `sanitize_name_generator_name`
+   2- The registered names are used to implement `uses_name_generator_prefix`
 */
 void register_name_generator_prefix(name const & n);
 
 /* Return true if \c n was generated using a prefix registered using \c register_name_generator_prefix */
 bool uses_name_generator_prefix(name const & n);
-
-/* If \c n was generated using a name_generator with a registered prefix, then
-   make sure the result is a valid Lean name (i.e., it does not have numeric parts).
-   Example: `sanitize_name_generator_name(_fresh.1.4)` returns `_fresh_1_4`. */
-name sanitize_name_generator_name(name const & n);
 
 void initialize_name_generator();
 void finalize_name_generator();

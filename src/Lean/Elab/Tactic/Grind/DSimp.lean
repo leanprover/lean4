@@ -10,6 +10,7 @@ import Lean.Elab.Tactic.Grind.DSimprocDSL
 import Lean.Meta.Sym.DSimp.Variant
 import Lean.Meta.Sym.DSimp.Reduce
 import Lean.Meta.Sym.DSimp.DSimproc
+import Lean.Meta.Sym.DSimp.Rewrite
 namespace Lean.Elab.Tactic.Grind
 open Meta
 open Sym.DSimp
@@ -18,33 +19,39 @@ def elabDSimpArgs (args? : Option (Array (TSyntax [`token.«*», `ident]))) : Gr
   let some args := args? | return {}
   let mut fvarIds := #[]
   let mut zetaDeltaAll := false
+  let mut declNames := #[]
   let lctx ← getLCtx
   for arg in args do
     if arg.raw.getKind == `ident then
       if let some decl := lctx.findFromUserName? arg.raw.getId then
         fvarIds := fvarIds.push decl.fvarId
       else
-        -- TODO: add support for rfl-theorems and unfolding definitions
-        throwError "unknown identifier `{arg.raw.getId}`"
+        declNames := declNames.push (← realizeGlobalConstNoOverload arg.raw)
     else
       zetaDeltaAll := true
   if !fvarIds.isEmpty && zetaDeltaAll then
     throwError "invalid `dsimp` arguments, local declarations and `*` have been provided"
-  return { fvarIds, zetaDeltaAll }
+  return { fvarIds, zetaDeltaAll, declNames }
 
-def addDSimpArgs (pre : DSimproc) (args : DSimpArgs) : DSimproc := Id.run do
-  let mut pre := pre
+/--
+Adds the `dsimp` arguments to `methods`: local declarations are unfolded in `pre`, and the
+global declarations (definitions to unfold and `rfl`-theorems) are handled in `post`.
+-/
+def addDSimpArgs (methods : Sym.DSimp.Methods) (args : DSimpArgs) : GrindTacticM Sym.DSimp.Methods := do
+  let mut pre := methods.pre
   if args.zetaDeltaAll then
     pre := pre >> zetaDeltaAll
   unless args.fvarIds.isEmpty do
     pre := pre >> zetaDelta (FVarIdSet.ofArray args.fvarIds)
-  return pre
+  let mut post := methods.post
+  unless args.declNames.isEmpty do
+    post := post >> (← Decls.ofNames args.declNames).toDSimproc
+  return { pre, post }
 
 def mkDSimpDefaultMethods (args : DSimpArgs) : GrindTacticM Sym.DSimp.Methods := do
   let pre  := beta >> dsimpProj >> dsimpMatch
-  let pre  := addDSimpArgs pre args
   let post := evalGround
-  return { pre, post }
+  addDSimpArgs { pre, post } args
 
 def trivialDSimproc : DSimproc := fun _ =>
   return .rfl
@@ -58,9 +65,9 @@ def elabDSimpVariant (variantName : Name) (args : DSimpArgs) : GrindTacticM (Sym
     return (← mkDSimpDefaultMethods args, {})
   let some v := Sym.DSimp.getSymDSimpVariant? (← getEnv) variantName
     | throwError "unknown Sym.dsimp variant `{variantName}`"
-  let pre := addDSimpArgs (← elabOptDSimproc v.pre?) args
+  let pre ← elabOptDSimproc v.pre?
   let post ← elabOptDSimproc v.post?
-  return ({ pre, post}, v.config)
+  return (← addDSimpArgs { pre, post } args, v.config)
 
 @[builtin_grind_tactic Parser.Tactic.Grind.symDSimp] def evalSymDSimp : GrindTactic := fun stx => withMainContext do
   ensureSym

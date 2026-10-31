@@ -59,3 +59,69 @@ example (h : 10 + a = b) : let x := 10; let y := a; x + y = (b, c).1 := by
     dsimp myDSimp -- projections are not reduced
     show_goals
     exact h
+
+/-!
+`zeta_delta` must also unfold a let-bound variable in the head position of an application,
+since `dsimp` does not visit application heads. See Zulip discussion on
+`Sym.DSimp.zetaDelta` leaving `foo a b` untouched.
+-/
+
+/--
+trace: case grind
+a b : Nat
+foo : Nat → Nat → Nat := fun x y => x + y
+⊢ a + b = b + a
+-/
+#guard_msgs in
+example (a b : Nat) : let foo := fun (x y : Nat) => x + y; foo a b = foo b a := by
+  sym =>
+    intro foo
+    dsimp [*]
+    show_goals
+    exact Nat.add_comm a b
+
+/--
+trace: case grind
+a b : Nat
+foo : Nat → Nat → Nat := fun x y => x + y
+⊢ a + b = b + a
+-/
+#guard_msgs in
+example (a b : Nat) : let foo := fun (x y : Nat) => x + y; foo a b = foo b a := by
+  sym =>
+    intro foo
+    dsimp [foo]
+    show_goals
+    exact Nat.add_comm a b
+
+/--
+trace: case grind
+a b : Nat
+h : ∀ (bar : Nat → Nat → Nat), a + b = bar b a
+foo : Nat → Nat → Nat := fun x y => x + y
+bar : Nat → Nat → Nat := fun x y => x * y
+⊢ a + b = bar b a
+-/
+#guard_msgs in
+example (a b : Nat) (h : ∀ bar : Nat → Nat → Nat, a + b = bar b a) :
+    let foo := fun (x y : Nat) => x + y; let bar := fun (x y : Nat) => x * y; foo a b = bar b a := by
+  sym =>
+    intro foo bar
+    dsimp [foo]
+    show_goals
+    exact h bar
+
+-- Partial application: the exposed lambda is beta-reduced as far as the arguments allow.
+/--
+trace: case grind
+a : Nat
+foo : Nat → Nat → Nat := fun x y => x + y
+⊢ (fun y => a + y) = fun y => a + y
+-/
+#guard_msgs in
+example (a : Nat) : let foo := fun (x y : Nat) => x + y; foo a = fun y => a + y := by
+  sym =>
+    intro foo
+    dsimp [*]
+    show_goals
+    exact rfl

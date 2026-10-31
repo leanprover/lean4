@@ -32,6 +32,14 @@ register_sym_simp testVariant5 where
 register_sym_simp testVariant6 where
   post := ground >> rewrite [Nat.zero_add] <|> rewrite [Nat.add_zero]
 
+-- Variant with a discharger for the extra theorems
+register_sym_simp testVariant7 where
+  post := ground
+  discharger := grind
+
+register_sym_simp testVariant8 where
+  discharger := (self)
+
 -- Empty variant (no fields)
 register_sym_simp testVariantEmpty where
 
@@ -50,6 +58,11 @@ register_sym_simp testVariantEmpty where
   let some v4 := getSymSimpVariant? env `testVariant4 | throwError "testVariant4 not found"
   guard (v4.config.maxSteps == 50000)
   guard (v4.config.maxDischargeDepth == 3)
+  guard v4.discharger?.isNone
+  let some v7 := getSymSimpVariant? env `testVariant7 | throwError "testVariant7 not found"
+  guard v7.discharger?.isSome
+  let some v8 := getSymSimpVariant? env `testVariant8 | throwError "testVariant8 not found"
+  guard v8.discharger?.isSome
   let some _ := getSymSimpVariant? env `testVariantEmpty | throwError "testVariantEmpty not found"
   guard (getSymSimpVariant? env `nonExistent |>.isNone)
 
@@ -61,3 +74,11 @@ error: duplicate `pre` field
 register_sym_simp testBadDuplicate where
   pre := ground
   pre := telescope
+
+/--
+error: duplicate `discharger` field
+-/
+#guard_msgs in
+register_sym_simp testBadDuplicateDischarger where
+  discharger := grind
+  discharger := none

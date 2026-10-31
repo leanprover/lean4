@@ -122,8 +122,8 @@ builtin_initialize registerBuiltinAttribute {
 /-- Re-enters the elaboration scope captured at a reference site. -/
 private def withScope (c : DeferredCheck) (act : CoreM α) : CoreM α :=
   withTheReader Core.Context
-    (fun ctx => { ctx with
-      currNamespace := c.currNamespace, openDecls := c.openDecls, options := c.options })
+    (fun ctx => { ctx.setOptions c.options with
+      currNamespace := c.currNamespace, openDecls := c.openDecls })
     act
 
 /--

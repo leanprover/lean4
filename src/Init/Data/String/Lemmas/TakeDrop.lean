@@ -7,7 +7,7 @@ module
 
 prelude
 public import Init.Data.String.TakeDrop
-import all Init.Data.String.Slice
+import all Init.Data.String.Slice.Basic
 import all Init.Data.String.TakeDrop
 import Init.Data.String.Lemmas.Splits
 

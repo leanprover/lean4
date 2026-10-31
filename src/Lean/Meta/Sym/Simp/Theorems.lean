@@ -11,6 +11,7 @@ import Lean.Meta.Sym.Simp.DiscrTree
 import Lean.Meta.AppBuilder
 import Lean.Meta.Tactic.Simp.SimpTheorems -- for `ignoreEquations`
 import Lean.Meta.Eqns -- for `getEqnsFor?`
+import Lean.Meta.RecExt -- for `isRecursiveDefinition`
 import Lean.ExtraModUses
 import Init.Omega
 import Init.Data.Range.Polymorphic.Iterators
@@ -38,6 +39,12 @@ structure Theorem where
   variable `i` occurs in `rhs`. `Theorem.rewrite` uses it to detect hypothesis proofs that
   become part of the resulting term and must consequently be maximally shared. -/
   rhsVarMask : Nat
+  /--
+  If `true`, the theorem is tried only when no other theorem rewrites the term.
+  Used for the unfolding theorem `f.eq_def` of a definition `f` provided as a `Sym.simp`
+  parameter: the equational theorems of `f` take precedence. See `Theorems.rewrite`.
+  -/
+  fallback : Bool := false
   deriving Inhabited
 
 instance : BEq Theorem where
@@ -46,16 +53,30 @@ instance : BEq Theorem where
 /-- Collection of simplification theorems available to the simplifier. -/
 structure Theorems where
   thms : DiscrTree Theorem := {}
+  /-- The theorems with `Theorem.fallback := true`. See `Theorems.rewrite`. -/
+  fallback : DiscrTree Theorem := {}
   deriving Inhabited
 
-def Theorems.insert (thms : Theorems) (thm : Theorem) : Theorems :=
-  { thms with thms := insertPattern thms.thms thm.pattern thm }
+def Theorems.isEmpty (thms : Theorems) : Bool :=
+  thms.thms.root.isEmpty && thms.fallback.root.isEmpty
 
+def Theorems.insert (thms : Theorems) (thm : Theorem) : Theorems :=
+  if thm.fallback then
+    { thms with fallback := insertPattern thms.fallback thm.pattern thm }
+  else
+    { thms with thms := insertPattern thms.thms thm.pattern thm }
+
+/-- Returns the theorems matching `e`, excluding the fallback ones. -/
 def Theorems.getMatch (thms : Theorems) (mctx : MetavarContext) (e : Expr) : Array Theorem :=
   Sym.getMatch mctx thms.thms e
 
+/-- Returns the theorems matching a prefix of `e`, excluding the fallback ones. -/
 def Theorems.getMatchWithExtra (thms : Theorems) (mctx : MetavarContext) (e : Expr) : Array (Theorem × Nat) :=
   Sym.getMatchWithExtra mctx thms.thms e
+
+/-- Returns the fallback theorems matching a prefix of `e`. -/
+def Theorems.getFallbackMatchWithExtra (thms : Theorems) (mctx : MetavarContext) (e : Expr) : Array (Theorem × Nat) :=
+  Sym.getMatchWithExtra mctx thms.fallback e
 
 /--
 Check whether `lhs` and `rhs` (with `numVars` pattern variables represented as `.bvar` indices
@@ -203,29 +224,64 @@ def mkTheoremFromExpr (e : Expr) : MetaM Theorem := do
   let rhsVarMask := mkRhsVarMask pattern.varTypes.size rhs
   return { expr, pattern, rhs, perm, rhsVarMask }
 
+/-- The names of the theorems contributed by a declaration used as a `Sym.simp` theorem. -/
+structure DeclTheoremNames where
+  /--
+  The declaration itself when it is a proposition, or the equational theorems of a definition.
+  Empty for a reducible definition, which the `Sym` preprocessing unfolds.
+  -/
+  thms : Array Name
+  /--
+  The unfolding theorem `f.eq_def` of a non-recursive definition `f`, unless `thms` already
+  unfolds every `f` application. It is a fallback (see `Theorem.fallback`), so that `simp [f]`
+  unfolds the `f` applications not covered by the equational theorems, like `Meta.simp` does.
+  -/
+  unfold? : Option Name := none
+
+/-- Returns `true` if the equational theorem `eqn` has the form `∀ xs, f xs = body`. -/
+private def isUnfoldEqn (declName : Name) (eqn : Name) : MetaM Bool := do
+  forallTelescope (← getConstInfo eqn).type fun xs type => do
+    let some (_, lhs, _) := type.eq? | return false
+    return lhs.getAppFn.isConstOf declName && lhs.getAppArgs == xs
+
 /--
 Returns the names of the theorems contributed by `declName` when it is used as a `Sym.simp`
-theorem. A proposition contributes itself. A definition contributes its equational theorems,
-so that `simp [f]` unfolds `f` applications.
+theorem. A proposition contributes itself. A definition contributes its equational theorems
+and, when it is not recursive, its unfolding theorem, so that `simp [f]` unfolds `f`
+applications.
 -/
-def getSimpTheoremNames (declName : Name) : MetaM (Array Name) := do
+def getSimpTheoremNames (declName : Name) : MetaM DeclTheoremNames := do
   let info ← getAsyncConstInfo declName
   if (← isProp info.sig.get.type) then
-    return #[declName]
+    return { thms := #[declName] }
   unless info.kind matches .defn do
     throwError "cannot use `{.ofConstName declName}` as a simp theorem, it is not a proposition nor a definition with equational theorems"
+  if isUnfoldReducibleCandidate (← getEnv) declName then
+    -- The `Sym` preprocessing has already unfolded every application of `declName`.
+    logWarning m!"`{.ofConstName declName}` is a reducible definition, `Sym.simp` unfolds it during preprocessing"
+    return { thms := #[] }
   if (← Simp.ignoreEquations declName) then
-    throwError "cannot use `{.ofConstName declName}` as a simp theorem, it is a reducible definition or a projection, and `Sym.simp` does not support unfolding them"
+    throwError "cannot use `{.ofConstName declName}` as a simp theorem, it is a projection, and `Sym.simp` does not support unfolding projections"
   let some eqns ← getEqnsFor? declName
     | throwError "cannot use `{.ofConstName declName}` as a simp theorem, it does not have equational theorems"
-  return eqns
+  -- Recursive definitions are unfolded by their equational theorems only.
+  if (← isRecursiveDefinition declName) then
+    return { thms := eqns }
+  if h : eqns.size = 1 then
+    if (← isUnfoldEqn declName eqns[0]) then
+      return { thms := eqns }
+  return { thms := eqns, unfold? := (← getUnfoldEqnFor? declName (nonRec := true)) }
 
 /--
 Creates the `Theorem`s contributed by `declName` when it is used as a `Sym.simp` theorem.
 See `getSimpTheoremNames`.
 -/
 def mkTheoremsFromDecl (declName : Name) : MetaM (Array Theorem) := do
-  (← getSimpTheoremNames declName).mapM mkTheoremFromDecl
+  let names ← getSimpTheoremNames declName
+  let mut thms ← names.thms.mapM mkTheoremFromDecl
+  if let some unfold := names.unfold? then
+    thms := thms.push { (← mkTheoremFromDecl unfold) with fallback := true }
+  return thms
 
 /--
 Environment extension storing a set of `Sym.Simp` theorems.

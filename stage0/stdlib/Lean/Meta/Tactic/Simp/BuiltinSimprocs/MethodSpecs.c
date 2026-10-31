@@ -19,9 +19,10 @@ extern lean_object* l_Lean_instInhabitedExpr;
 lean_object* l_Lean_Expr_sort___override(lean_object*);
 lean_object* lean_mk_array(lean_object*, lean_object*);
 lean_object* l___private_Lean_Expr_0__Lean_Expr_getAppArgsN_loop(lean_object*, lean_object*, lean_object*);
-lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
+lean_object* lean_array_get_borrowed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_getAppFn(lean_object*);
 uint8_t l_Lean_Expr_isConst(lean_object*);
+lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_isConstructorApp_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_constName_x21(lean_object*);
 lean_object* l_Lean_getMethodSpecTheorems(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -544,9 +545,8 @@ v___x_164_ = lean_obj_once(&l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_Me
 lean_inc_ref(v_e_153_);
 v_xs_165_ = l___private_Lean_Expr_0__Lean_Expr_getAppArgsN_loop(v___x_163_, v_e_153_, v___x_164_);
 v___x_166_ = lean_unsigned_to_nat(0u);
-v_inst_167_ = lean_array_get(v___x_162_, v_xs_165_, v___x_166_);
+v_inst_167_ = lean_array_get_borrowed(v___x_162_, v_xs_165_, v___x_166_);
 v___x_168_ = l_Lean_Expr_getAppFn(v_inst_167_);
-lean_dec(v_inst_167_);
 v___x_169_ = l_Lean_Expr_isConst(v___x_168_);
 if (v___x_169_ == 0)
 {

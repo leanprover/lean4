@@ -54,6 +54,7 @@ greater than the surrogate code points by the number of surrogate code points.
 
 The inverse of this function is called {name (scope := "Init.Data.Char.Ordinal")}`Char.ofOrdinal`.
 -/
+@[expose]
 def ordinal (c : Char) : Fin Char.numCodePoints :=
   if h : c.val < 0xd800 then
     ⟨c.val.toNat, by grind [UInt32.lt_iff_toNat_lt]⟩
@@ -66,6 +67,7 @@ greater than the surrogate code points by the number of surrogate code points.
 
 The inverse of this function is called {name}`Char.ordinal`.
 -/
+@[expose]
 def ofOrdinal (f : Fin Char.numCodePoints) : Char :=
   if h : (f : Nat) < 0xd800 then
     ⟨UInt32.ofNatLT f (by grind), by grind [UInt32.toNat_ofNatLT]⟩
@@ -79,6 +81,7 @@ Computes the next {name}`Char`, skipping over surrogate code points (which are n
 This function is specified by its interaction with {name}`Char.ordinal`, see
 {name (scope := "Init.Data.Char.Ordinal")}`Char.succ?_eq`.
 -/
+@[expose]
 def succ? (c : Char) : Option Char :=
   if h₀ : c.val < 0xd7ff then
     some ⟨c.val + 1, by grind [UInt32.lt_iff_toNat_lt, UInt32.toNat_add]⟩
@@ -98,6 +101,7 @@ valid {name}`Char`s) as necessary.
 This function is specified by its interaction with {name}`Char.ordinal`, see
 {name (scope := "Init.Data.Char.Ordinal")}`Char.succMany?_eq`.
 -/
+@[expose]
 def succMany? (m : Nat) (c : Char) : Option Char :=
   c.ordinal.addNat? m |>.map Char.ofOrdinal
 

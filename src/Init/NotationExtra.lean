@@ -283,18 +283,6 @@ macro_rules
   | `(tactic|funext $x) => `(tactic| apply funext; intro $x:term)
   | `(tactic|funext $x $xs*) => `(tactic| apply funext; intro $x:term; funext $xs*)
 
-macro_rules
-  | `(%[ $[$x],* | $k ]) =>
-    if x.size < 8 then
-      x.foldrM (β := Term) (init := k) fun x k =>
-        `(List.cons $x $k)
-    else
-      let m := x.size / 2
-      let y := x.drop m
-      let z := x.take m
-      `(let y := %[ $[$y],* | $k ]
-        %[ $[$z],* | y ])
-
 /--
   Expands
   ```

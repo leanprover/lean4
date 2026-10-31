@@ -29,32 +29,51 @@ axiom alloc_aligned (n : Nat) : alloc n &&& 0xfff#64 = 0#64
 
 grind_pattern alloc_aligned => alloc n
 
+/- The `grind => bv_decide` and `sym => … bv_decide` examples disable `[grind hom]`: with it,
+the `&&&`-by-mask goals are rewritten into `%` and `/` arithmetic and closed before `bv_decide`
+runs. Each `grind` example is followed by a variant where `grind` closes the goal on its own. -/
 example (n m : Nat) (x : BitVec 64) (h : m = n + 1) (hx : x = alloc m) :
     (x + alloc (n + 1)) &&& 0x1fff#64 = 0#64 := by
-  grind =>
+  grind -hom =>
     instantiate [alloc_aligned]
     bv_decide
 
 example (n m : Nat) (x : BitVec 64) (h : m = n + 1) (hx : x = alloc m) :
     (x + alloc (n + 1)) &&& 0x1fff#64 = 0#64 := by
-  sym =>
+  grind => instantiate [alloc_aligned]
+
+example (n m : Nat) (x : BitVec 64) (h : m = n + 1) (hx : x = alloc m) :
+    (x + alloc (n + 1)) &&& 0x1fff#64 = 0#64 := by
+  sym -hom =>
     instantiate [alloc_aligned]
     by_contra
     bv_decide
 
 example (n m : Nat) (x : BitVec 64) (h : m = n + 1) (hx : x = alloc m) :
     (x + alloc (n + 1)) &&& 0x1fff#64 = 0#64 := by
-  sym =>
+  sym => instantiate [alloc_aligned]
+
+example (n m : Nat) (x : BitVec 64) (h : m = n + 1) (hx : x = alloc m) :
+    (x + alloc (n + 1)) &&& 0x1fff#64 = 0#64 := by
+  sym -hom =>
     instantiate [alloc_aligned]
     bv_decide_push
     by_contra
     bv_decide
 
+example (n m : Nat) (x : BitVec 64) (h : m = n + 1) (hx : x = alloc m) :
+    (x + alloc (n + 1)) &&& 0x1fff#64 = 0#64 := by
+  sym => instantiate [alloc_aligned]
+
 example (n : Nat) (h1 : 0 < n) (h2 : n < 2) (h3 : x = alloc 1) :
     (x + alloc n) &&& 0x1fff#64 = 0#64 := by
-  grind =>
+  grind -hom =>
     instantiate [alloc_aligned]
     bv_decide
+
+example (n : Nat) (h1 : 0 < n) (h2 : n < 2) (h3 : x = alloc 1) :
+    (x + alloc n) &&& 0x1fff#64 = 0#64 := by
+  grind => instantiate [alloc_aligned]
 
 end Alloc
 
@@ -84,8 +103,13 @@ opaque g : UInt8 → UInt8
 example (a b d : UInt8) (h0 : d = a ||| b)
     (h1 : g d &&& 0xC0 = 0) :
     g (a ||| b) &&& 0x40 = 0 := by
-  grind =>
+  grind -hom =>
     bv_decide
+
+example (a b d : UInt8) (h0 : d = a ||| b)
+    (h1 : g d &&& 0xC0 = 0) :
+    g (a ||| b) &&& 0x40 = 0 := by
+  grind => done
 
 end U8
 
@@ -96,8 +120,13 @@ opaque g : UInt16 → UInt16
 example (a b d : UInt16) (h0 : d = a ||| b)
     (h1 : g d &&& 0xC0 = 0) :
     g (a ||| b) &&& 0x40 = 0 := by
-  grind =>
+  grind -hom =>
     bv_decide
+
+example (a b d : UInt16) (h0 : d = a ||| b)
+    (h1 : g d &&& 0xC0 = 0) :
+    g (a ||| b) &&& 0x40 = 0 := by
+  grind => done
 
 end U16
 
@@ -108,8 +137,13 @@ opaque g : UInt32 → UInt32
 example (a b d : UInt32) (h0 : d = a ||| b)
     (h1 : g d &&& 0xC0 = 0) :
     g (a ||| b) &&& 0x40 = 0 := by
-  grind =>
+  grind -hom =>
     bv_decide
+
+example (a b d : UInt32) (h0 : d = a ||| b)
+    (h1 : g d &&& 0xC0 = 0) :
+    g (a ||| b) &&& 0x40 = 0 := by
+  grind => done
 
 end U32
 
@@ -120,8 +154,13 @@ opaque g : UInt64 → UInt64
 example (a b d : UInt64) (h0 : d = a ||| b)
     (h1 : g d &&& 0xC0 = 0) :
     g (a ||| b) &&& 0x40 = 0 := by
-  grind =>
+  grind -hom =>
     bv_decide
+
+example (a b d : UInt64) (h0 : d = a ||| b)
+    (h1 : g d &&& 0xC0 = 0) :
+    g (a ||| b) &&& 0x40 = 0 := by
+  grind => done
 
 end U64
 
@@ -144,8 +183,13 @@ opaque g : Int8 → Int8
 example (a b d : Int8) (h0 : d = a ||| b)
     (h1 : g d &&& 0xC0 = 0) :
     g (a ||| b) &&& 0x40 = 0 := by
-  grind =>
+  grind -hom =>
     bv_decide
+
+example (a b d : Int8) (h0 : d = a ||| b)
+    (h1 : g d &&& 0xC0 = 0) :
+    g (a ||| b) &&& 0x40 = 0 := by
+  grind => done
 
 end I8
 
@@ -156,8 +200,13 @@ opaque g : Int16 → Int16
 example (a b d : Int16) (h0 : d = a ||| b)
     (h1 : g d &&& 0xC0 = 0) :
     g (a ||| b) &&& 0x40 = 0 := by
-  grind =>
+  grind -hom =>
     bv_decide
+
+example (a b d : Int16) (h0 : d = a ||| b)
+    (h1 : g d &&& 0xC0 = 0) :
+    g (a ||| b) &&& 0x40 = 0 := by
+  grind => done
 
 end I16
 
@@ -168,8 +217,13 @@ opaque g : Int32 → Int32
 example (a b d : Int32) (h0 : d = a ||| b)
     (h1 : g d &&& 0xC0 = 0) :
     g (a ||| b) &&& 0x40 = 0 := by
-  grind =>
+  grind -hom =>
     bv_decide
+
+example (a b d : Int32) (h0 : d = a ||| b)
+    (h1 : g d &&& 0xC0 = 0) :
+    g (a ||| b) &&& 0x40 = 0 := by
+  grind => done
 
 end I32
 
@@ -180,8 +234,13 @@ opaque g : Int64 → Int64
 example (a b d : Int64) (h0 : d = a ||| b)
     (h1 : g d &&& 0xC0 = 0) :
     g (a ||| b) &&& 0x40 = 0 := by
-  grind =>
+  grind -hom =>
     bv_decide
+
+example (a b d : Int64) (h0 : d = a ||| b)
+    (h1 : g d &&& 0xC0 = 0) :
+    g (a ||| b) &&& 0x40 = 0 := by
+  grind => done
 
 end I64
 

@@ -142,7 +142,7 @@ def roundtrip (n : Name) : TestM Unit := do
   let orig ← canonExpr (← getDefValue n)
   let some re ← reifyRing? orig (skipVar := false) | throwError "reify failed"
   let vars := (← get).vars
-  let denoted ← denoteRingExpr vars re
+  let denoted ← denoteRingExpr' vars re
   let denoted ← canonExpr denoted
   unless (← isDefEq orig denoted) do
     logInfo m!"MISMATCH for {n}:\n  orig:    {orig}\n  denoted: {denoted}"

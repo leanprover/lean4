@@ -375,10 +375,6 @@ expr type_checker::ensure_sort(expr const & e, expr const & s) {
     return ensure_sort_core(e, s);
 }
 
-expr type_checker::ensure_pi(expr const & e, expr const & s) {
-    return ensure_pi_core(e, s);
-}
-
 /** \brief Return true iff \c e is a proposition */
 bool type_checker::is_prop(expr const & e) {
     expr s = ensure_sort(infer_type(e));
@@ -853,19 +849,38 @@ bool type_checker::try_eta_expansion_core(expr const & t, expr const & s) {
 }
 
 /** \brief check whether \c s is of the form <tt>mk t.1 ... t.n</tt> */
-bool type_checker::try_eta_struct_core(expr const & t, expr const & s) {
-    expr f = get_app_fn(s);
-    if (!is_constant(f)) return false;
-    constant_info f_info = env().get(const_name(f));
-    if (!f_info.is_constructor()) return false;
-    constructor_val f_val = f_info.to_constructor_val();
-    if (get_app_num_args(s) != f_val.get_nparams() + f_val.get_nfields()) return false;
-    if (!is_non_rec_structure(env(), f_val.get_induct())) return false;
-    if (!is_def_eq(infer_type(t), infer_type(s))) return false;
+bool type_checker::try_eta_struct_core(expr const & t_, expr const & s_) {
+    expr t = t_;
+    expr s = s_;
+    expr sf = get_app_fn(s);
+    if (!is_constant(sf)) return false;
+    constant_info sf_info = env().get(const_name(sf));
+    if (!sf_info.is_constructor()) return false;
+    constructor_val sf_val = sf_info.to_constructor_val();
+    if (!is_non_rec_structure(env(), sf_val.get_induct())) return false;
+    expr t_type = infer_type(t);
+    expr s_type = infer_type(s);
+    if (!is_def_eq(t_type,s_type)) return false;
+    flet<local_ctx> save_lctx(m_lctx, m_lctx);
+    unsigned num_ctor_args = sf_val.get_nparams() + sf_val.get_nfields();
+    lean_assert(get_app_num_args(s) <= num_ctor_args);
+    if (get_app_num_args(s) < num_ctor_args) {
+        buffer<expr> fvars;
+        /* note: `s` is a ctor application, its head's type must be of the form `As -> fields -> I As` where `As` are the structure's params, ad `fields` the constructor's fields. As such, no need to whnf its type here. If we were running the loop on `t_type` instead, whnfs would be necessary. */
+        while (is_pi(s_type)) {
+            expr hd = binding_domain(s_type);
+            expr x  = m_lctx.mk_local_decl(m_st->m_ngen, binding_name(s_type), hd, binding_info(s_type));
+            fvars.push_back(x);
+            s_type = instantiate(binding_body(s_type), x);
+        };
+        t = mk_app(t, fvars);
+        s = mk_app(s, fvars);
+    };
+    lean_assert(get_app_num_args(s) == num_ctor_args);
     buffer<expr> s_args;
     get_app_args(s, s_args);
-    for (unsigned i = f_val.get_nparams(); i < s_args.size(); i++) {
-        expr proj = mk_proj(f_val.get_induct(), i - f_val.get_nparams(), t);
+    for (unsigned i = sf_val.get_nparams(); i < s_args.size(); i++) {
+        expr proj = mk_proj(sf_val.get_induct(), i - sf_val.get_nparams(), t);
         if (!is_def_eq(proj, s_args[i])) return false;
     }
     return true;
@@ -1116,15 +1131,54 @@ lbool type_checker::try_string_lit_expansion(expr const & t, expr const & s) {
     return try_string_lit_expansion_core(s, t);
 }
 
-/* Return `true` if the types of the given expressions is an inductive datatype with an inductive datatype with a single constructor with no fields. */
+/** Takes a type of the form `A1 -> ... -> An-> I As`, checks that `I` is a (non-recursive) structure, and that each (instantiated) fields is itself either a proposition or a unit-like type*/
+bool type_checker::is_unit_like(expr const & t) {
+    buffer<expr> args;
+    buffer<expr> fvars;
+    flet<local_ctx> save_lctx(m_lctx, m_lctx);
+
+    expr I = whnf(t);
+    // If type is an arrow-type, we check if the final codomain is unit-like
+    while (is_pi(I)) {
+        expr hd = binding_domain(I);
+        expr x  = m_lctx.mk_local_decl(m_st->m_ngen, binding_name(I), hd, binding_info(I));
+        fvars.push_back(x);
+        I       = whnf(instantiate(binding_body(I), x));
+    }
+    I = get_app_args(I, args);
+    if (!is_constant(I))
+        return false;
+    name I_name = const_name(I);
+    // same check as in try_eta_struct_core
+    if (!is_non_rec_structure(env(), I_name))
+        return false;
+    name ctor_name = head(env().get(I_name).to_inductive_val().get_cnstrs());
+    constant_val ctor_val = env().get(ctor_name).to_constructor_val().to_constant_val();
+    expr ctor_ty = ctor_val.get_type();
+    ctor_ty = instantiate_lparams(ctor_ty, ctor_val.get_lparams(), const_levels(I));
+    // `I` is a structure, and in particular has no indices. Furthermore, it is a type, so `args.size() = I_val.nparams()`
+    for (unsigned i = 0; i < args.size(); i++)
+        ctor_ty = binding_body(ctor_ty);
+    ctor_ty = instantiate_rev(ctor_ty, args.size(), args.data());
+    // Check that every field (read, every domain) of the constructor are themselves unit-like
+    while (is_pi(ctor_ty)) {
+        expr hd = binding_domain(ctor_ty);
+        if (!is_prop(hd) && !is_unit_like(hd))
+            return false;
+        expr x  = m_lctx.mk_local_decl(m_st->m_ngen, binding_name(ctor_ty), hd, binding_info(ctor_ty));
+        fvars.push_back(x);
+        ctor_ty = whnf(instantiate(binding_body(ctor_ty), x));
+    }
+    return true;
+}
+
+/*
+  Return `true` if the types of the given expressions is a structure-like inductive datatype
+  with a single constructor for which all fields are unit-like or Prop types,
+  or a dependent arrow for which the final codomain is unit-like. */
 bool type_checker::is_def_eq_unit_like(expr const & t, expr const & s) {
     expr t_type = whnf(infer_type(t));
-    expr I = get_app_fn(t_type);
-    if (!is_constant(I) || !is_non_rec_structure(env(), const_name(I)))
-        return false;
-    name ctor_name = head(env().get(const_name(I)).to_inductive_val().get_cnstrs());
-    constructor_val ctor_val = env().get(ctor_name).to_constructor_val();
-    if (ctor_val.get_nfields() != 0)
+    if (!is_unit_like(t_type))
         return false;
     return is_def_eq_core(t_type, infer_type(s));
 }
@@ -1145,6 +1199,9 @@ bool type_checker::is_def_eq_core(expr const & t, expr const & s) {
         }
     }
 
+    r = is_def_eq_proof_irrel(t, s);
+    if (r != l_undef) return r == l_true;
+
     /*
       Apply whnf (without using delta-reduction or normalizer extensions), *and*
       without using `whnf` when reducing projections.
@@ -1159,9 +1216,6 @@ bool type_checker::is_def_eq_core(expr const & t, expr const & s) {
         r = quick_is_def_eq(t_n, s_n);
         if (r != l_undef) return r == l_true;
     }
-
-    r = is_def_eq_proof_irrel(t_n, s_n);
-    if (r != l_undef) return r == l_true;
 
     /* NB: `lazy_delta_reduction` updates `t_n` and `s_n` even when returning `l_undef`. */
     r = lazy_delta_reduction(t_n, s_n);
@@ -1213,43 +1267,9 @@ bool type_checker::is_def_eq(expr const & t, expr const & s) {
     return r;
 }
 
-expr type_checker::eta_expand(expr const & e) {
-    buffer<expr> fvars;
-    flet<local_ctx> save_lctx(m_lctx, m_lctx);
-    expr it = e;
-    while (is_lambda(it)) {
-        expr d = instantiate_rev(binding_domain(it), fvars.size(), fvars.data());
-        fvars.push_back(m_lctx.mk_local_decl(m_st->m_ngen, binding_name(it), d, binding_info(it)));
-        it     = binding_body(it);
-    }
-    it = instantiate_rev(it, fvars.size(), fvars.data());
-    expr it_type = whnf(infer(it));
-    if (!is_pi(it_type)) return e;
-    buffer<expr> args;
-    while (is_pi(it_type)) {
-        expr arg = m_lctx.mk_local_decl(m_st->m_ngen, binding_name(it_type), binding_domain(it_type), binding_info(it_type));
-        args.push_back(arg);
-        fvars.push_back(arg);
-        it_type  = whnf(instantiate(binding_body(it_type), arg));
-    }
-    expr r = mk_app(it, args);
-    return m_lctx.mk_lambda(fvars, r);
-}
-
 type_checker::type_checker(environment const & env, local_ctx const & lctx, diagnostics * diag, definition_safety ds):
     m_st_owner(true), m_st(new state(env)), m_diag(diag),
     m_lctx(lctx), m_definition_safety(ds), m_lparams(nullptr) {
-}
-
-type_checker::type_checker(state & st, local_ctx const & lctx, definition_safety ds):
-    m_st_owner(false), m_st(&st), m_diag(nullptr), m_lctx(lctx),
-    m_definition_safety(ds), m_lparams(nullptr) {
-}
-
-type_checker::type_checker(type_checker && src) noexcept:
-    m_st_owner(src.m_st_owner), m_st(src.m_st), m_diag(src.m_diag), m_lctx(std::move(src.m_lctx)),
-    m_definition_safety(src.m_definition_safety), m_lparams(src.m_lparams) {
-    src.m_st_owner = false;
 }
 
 type_checker::~type_checker() {

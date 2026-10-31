@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.WP.Gadget.Assert
-// Imports: public import Std.WP.Triple.Monad public import Std.Internal.Order.Heyting
+// Imports: public import Std.WP.Triple.Monad public import Std.Internal.Order.Heyting public import Std.Internal.Order.Automation
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -31,7 +31,7 @@ v___x_5_ = lean_apply_2(v_toPure_3_, lean_box(0), v___x_4_);
 return v___x_5_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_WP_Gadget_assertGadget(lean_object* v_m_6_, lean_object* v_Pred_7_, lean_object* v_EPred_8_, lean_object* v_inst_9_, lean_object* v_inst_10_, lean_object* v_inst_11_, lean_object* v_inst_12_, lean_object* v_as_13_){
+LEAN_EXPORT lean_object* l_Std_WP_Gadget_assertGadget(lean_object* v_m_6_, lean_object* v_Pred_7_, lean_object* v_EPosts_8_, lean_object* v_inst_9_, lean_object* v_inst_10_, lean_object* v_inst_11_, lean_object* v_inst_12_, lean_object* v_as_13_){
 _start:
 {
 lean_object* v___x_14_; 
@@ -39,18 +39,19 @@ v___x_14_ = l_Std_WP_Gadget_assertGadget___redArg(v_inst_9_);
 return v___x_14_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_WP_Gadget_assertGadget___boxed(lean_object* v_m_15_, lean_object* v_Pred_16_, lean_object* v_EPred_17_, lean_object* v_inst_18_, lean_object* v_inst_19_, lean_object* v_inst_20_, lean_object* v_inst_21_, lean_object* v_as_22_){
+LEAN_EXPORT lean_object* l_Std_WP_Gadget_assertGadget___boxed(lean_object* v_m_15_, lean_object* v_Pred_16_, lean_object* v_EPosts_17_, lean_object* v_inst_18_, lean_object* v_inst_19_, lean_object* v_inst_20_, lean_object* v_inst_21_, lean_object* v_as_22_){
 _start:
 {
 lean_object* v_res_23_; 
-v_res_23_ = l_Std_WP_Gadget_assertGadget(v_m_15_, v_Pred_16_, v_EPred_17_, v_inst_18_, v_inst_19_, v_inst_20_, v_inst_21_, v_as_22_);
+v_res_23_ = l_Std_WP_Gadget_assertGadget(v_m_15_, v_Pred_16_, v_EPosts_17_, v_inst_18_, v_inst_19_, v_inst_20_, v_inst_21_, v_as_22_);
 lean_dec(v_as_22_);
-lean_dec(v_inst_21_);
+lean_dec_ref(v_inst_21_);
 return v_res_23_;
 }
 }
 lean_object* runtime_initialize_Std_WP_Triple_Monad(uint8_t builtin);
 lean_object* runtime_initialize_Std_Internal_Order_Heyting(uint8_t builtin);
+lean_object* runtime_initialize_Std_Internal_Order_Automation(uint8_t builtin);
 void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Std_WP_Gadget_Assert(uint8_t builtin) {
@@ -64,6 +65,9 @@ lean_dec_ref(res);
 res = runtime_initialize_Std_Internal_Order_Heyting(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+res = runtime_initialize_Std_Internal_Order_Automation(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
 }
 static bool _G_meta_initialized = false;
@@ -75,6 +79,7 @@ return lean_io_result_mk_ok(lean_box(0));
 }
 lean_object* initialize_Std_WP_Triple_Monad(uint8_t builtin);
 lean_object* initialize_Std_Internal_Order_Heyting(uint8_t builtin);
+lean_object* initialize_Std_Internal_Order_Automation(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Std_WP_Gadget_Assert(uint8_t builtin) {
 lean_object * res;
@@ -84,6 +89,9 @@ res = initialize_Std_WP_Triple_Monad(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Std_Internal_Order_Heyting(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Std_Internal_Order_Automation(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Std_WP_Gadget_Assert(builtin);

@@ -10,12 +10,108 @@ public import Lean.Meta.Tactic.Grind.Cases
 public import Lean.Meta.Tactic.Grind.ExtAttr
 public import Lean.Meta.Tactic.Simp.Attr
 public import Lean.Meta.Tactic.Grind.Homo
+public import Lean.Meta.Sym.DSimp.Rewrite
 import Lean.Meta.Sym.Simp.Attr
 import Lean.ExtraModUses
 public section
 namespace Lean.Meta.Grind
 
 builtin_initialize normExt : SimpExtension ← mkSimpExt
+
+builtin_initialize registerTraceClass `grind.norm.sym
+
+/--
+The `grind` normalization theorems as `Sym.simp` theorem sets, the state of `normSymExt`. The
+`[grind norm]`/`[grind unfold]` attributes populate it together with `normExt`, so both
+normalizers see the same declarations.
+-/
+structure NormSymTheorems where
+  /-- Theorems applied before visiting subterms (`[grind norm ↓]`). -/
+  pre  : Sym.Simp.Theorems := {}
+  /-- Theorems applied after visiting subterms (`[grind norm]`), and the equational theorems
+  of the declarations to unfold (`[grind unfold]`). -/
+  post : Sym.Simp.Theorems := {}
+  /-- The `rfl`-theorems of `post` and the declarations to unfold, for `Sym.dsimp`. `grind` needs
+  `dsimp` in one place: the right-hand side of a generalized pattern (`mkGeneralizedPatternEqProof`)
+  must stay definitionally equal to the term it replaces, e.g. `Nat.succ x` becomes `x + 1`. -/
+  dsimp : Sym.DSimp.Decls := {}
+  deriving Inhabited
+
+/-- An entry of `normSymExt`. -/
+inductive NormSymEntry where
+  | pre (thm : Sym.Simp.Theorem)
+  | post (thm : Sym.Simp.Theorem)
+  | dsimp (entry : Sym.DSimp.Decls.Entry)
+  deriving Inhabited
+
+def NormSymTheorems.addEntry (s : NormSymTheorems) : NormSymEntry → NormSymTheorems
+  | .pre thm => { s with pre := s.pre.insert thm }
+  | .post thm => { s with post := s.post.insert thm }
+  | .dsimp e => { s with dsimp := s.dsimp.addEntry e }
+
+/-- The declaration an entry refers to; entries on private declarations are not exported. -/
+private def NormSymEntry.declName? : NormSymEntry → Option Name
+  | .pre thm | .post thm | .dsimp (.thm thm) => match thm.expr with
+    | .const declName _ => some declName
+    | _ => none
+  | .dsimp (.unfold declName) => some declName
+
+builtin_initialize normSymExt : SimpleScopedEnvExtension NormSymEntry NormSymTheorems ←
+  registerSimpleScopedEnvExtension {
+    initial  := {}
+    addEntry := NormSymTheorems.addEntry
+    exportEntry? := fun _ e =>
+      if let some declName := e.declName? then
+        if isPrivateName declName then ⟨none, none, some e⟩ else .uniform (some e)
+      else .uniform (some e)
+  }
+
+/-- The `Sym.simp` theorem of a `[grind norm]` theorem, or `none` if it cannot be converted. -/
+private def mkNormSymTheorem? (thm : SimpTheorem) : MetaM (Option Sym.Simp.Theorem) := do
+  -- Global simp theorems, including the reversed ones (`[grind norm ←]`), are stored as
+  -- constants: `mkSimpTheoremFromConst` creates an auxiliary lemma when it has to adapt the
+  -- statement.
+  let .const declName _ := thm.proof
+    | trace[grind.norm.sym] "skipping `{thm.origin.key}`, not a global declaration"
+      return none
+  try
+    return some (← Sym.Simp.mkTheoremFromDecl declName)
+  catch ex =>
+    trace[grind.norm.sym] "skipping `{.ofConstName declName}`: {ex.toMessageData}"
+    return none
+
+/-- Adds the `[grind norm]` theorem `declName` to `normExt` and `normSymExt`. -/
+def addNormTheorem (declName : Name) (post inv : Bool) (attrKind : AttributeKind) (prio : Nat := eval_prio default) : MetaM Unit := do
+  let simpThms ← withExporting (isExporting := attrKind != .local && !isPrivateName declName) do
+    mkSimpTheoremFromConst declName post inv prio (checkLhs := true)
+  for simpThm in simpThms do
+    normExt.add (.thm simpThm) attrKind
+    let some thm ← mkNormSymTheorem? simpThm | continue
+    normSymExt.add (if post then .post thm else .pre thm) attrKind
+    if post && simpThm.rfl then
+      normSymExt.add (.dsimp (.thm thm)) attrKind
+
+/-- Adds the `[grind unfold]` declaration `declName` to `normSymExt`. -/
+def addNormSymDeclToUnfold (declName : Name) (attrKind : AttributeKind) : MetaM Unit := do
+  -- `Sym` preprocessing unfolds reducible declarations (e.g., `GE.ge`, `Ne`) eagerly.
+  if (← isReducible declName) then return
+  try
+    for thm in (← Sym.Simp.mkTheoremsFromDecl declName) do
+      normSymExt.add (.post thm) attrKind
+    for e in (← Sym.DSimp.Decls.mkEntries declName) do
+      normSymExt.add (.dsimp e) attrKind
+  catch ex =>
+    trace[grind.norm.sym] "skipping unfold `{.ofConstName declName}`: {ex.toMessageData}"
+
+/--
+Adds the `[grind unfold]` declaration `declName` to `normExt` and `normSymExt`. Returns `false`
+if the declaration cannot be unfolded.
+-/
+def addNormDeclToUnfold (declName : Name) (attrKind : AttributeKind) : MetaM Bool := do
+  unless (← addDeclToUnfold normExt declName (post := false) (inv := false) (prio := eval_prio default) (attrKind := attrKind)) do
+    return false
+  addNormSymDeclToUnfold declName attrKind
+  return true
 
 inductive AttrKind where
   | ematch (k : EMatchTheoremKind)
@@ -28,7 +124,7 @@ inductive AttrKind where
   | funCC
   | norm (post : Bool) (inv : Bool)
   | unfold
-  | homo
+  | homo (fallback : Bool)
   | homoPred
 
 /-- Return theorem kind for `stx` of the form `Attr.grindThmMod` -/
@@ -63,7 +159,8 @@ def getAttrKindCore (stx : Syntax) : CoreM AttrKind := do
   | `(Parser.Attr.grindMod|norm ↑ ←) => return .norm true true
   | `(Parser.Attr.grindMod|norm ↓ ←) => return .norm (post := false) true
   | `(Parser.Attr.grindMod|unfold) => return .unfold
-  | `(Parser.Attr.grindMod|hom) => return .homo
+  | `(Parser.Attr.grindMod|hom) => return .homo (fallback := false)
+  | `(Parser.Attr.grindMod|hom fallback) => return .homo (fallback := true)
   | `(Parser.Attr.grindMod|hom_pred) => return .homoPred
   | `(Parser.Attr.grindMod|symbol $prio:prio) =>
     let some prio := prio.raw.isNatLit? | throwErrorAt prio "priority expected"
@@ -179,16 +276,16 @@ private def mkGrindAttr (attrName : Name) (minIndexable : Bool) (showInfo : Bool
       | .norm post inv =>
         unless attrName == `grind do
           throwError "normalizer must be set using the default `[grind]` attribute"
-        addSimpTheorem normExt declName (post := post) (inv := inv) attrKind (eval_prio default)
+        addNormTheorem declName post inv attrKind
       | .unfold =>
         unless attrName == `grind do
           throwError "declaration to unfold must be set using the default `[grind]` attribute"
-        unless (← addDeclToUnfold normExt declName (post := false) (inv := false) (prio := eval_prio default) (attrKind := attrKind)) do
+        unless (← addNormDeclToUnfold declName attrKind) do
           throwError "cannot mark declaration to be unfolded by `grind`"
-      | .homo =>
+      | .homo fallback =>
         unless attrName == `grind do
           throwError "homomorphism rules must be set using the default `[grind]` attribute"
-        addHomoAttr declName attrKind
+        addHomoAttr declName attrKind fallback
       | .homoPred =>
         unless attrName == `grind do
           throwError "homomorphism predicates must be set using the default `[grind]` attribute"

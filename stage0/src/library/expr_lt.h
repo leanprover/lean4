@@ -19,8 +19,6 @@ namespace lean {
     \remark If lctx is not nullptr, then we use the local_decl index to compare local constants.
 */
 bool is_lt(expr const & a, expr const & b, bool use_hash, local_ctx const * lctx = nullptr);
-/** \brief Similar to is_lt, but universe level parameter names are ignored. */
-bool is_lt_no_level_params(expr const & a, expr const & b);
 inline bool is_hash_lt(expr const & a, expr const & b) { return is_lt(a, b, true); }
 inline bool operator<(expr const & a, expr const & b)  { return is_lt(a, b, true); }
 inline bool operator>(expr const & a, expr const & b)  { return is_lt(b, a, true); }
@@ -30,7 +28,6 @@ struct expr_quick_cmp {
     typedef expr type;
     int operator()(expr const & e1, expr const & e2) const { return is_lt(e1, e2, true) ? -1 : (e1 == e2 ? 0 : 1); }
 };
-struct expr_cmp_no_level_params { int operator()(expr const & e1, expr const & e2) const; };
 
 template<typename T>
 using rb_expr_map = rb_map<expr, T, expr_quick_cmp>;

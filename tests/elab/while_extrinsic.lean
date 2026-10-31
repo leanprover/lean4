@@ -34,7 +34,7 @@ theorem sqrt_correct :
   with (try grind)
   | vc2 r _ hsqr _ _ =>
     have : r ≤ n := Nat.le_trans (Nat.le_mul_self r) hsqr
-    grind
+    grind [→ Nat.mul_self_le_mul_self]
   | vc5 res h =>
     have : res - 1 < res := by grind
     grind
@@ -68,7 +68,7 @@ theorem sqrtState_correct :
   with (try grind)
   | vc1 r _ hsqr _ =>
     have : r ≤ n := Nat.le_trans (Nat.le_mul_self r) hsqr
-    grind
+    grind [→ Nat.mul_self_le_mul_self]
   | vc4 res h =>
     have : res - 1 < res := by grind
     grind

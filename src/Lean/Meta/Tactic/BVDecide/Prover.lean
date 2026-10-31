@@ -8,3 +8,4 @@ prelude
 
 public import Lean.Meta.Tactic.BVDecide.Prover.Basic
 public import Lean.Meta.Tactic.BVDecide.Prover.Bitblast
+public import Lean.Meta.Tactic.BVDecide.Prover.Cegar

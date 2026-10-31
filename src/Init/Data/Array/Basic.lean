@@ -506,7 +506,14 @@ Examples:
 -/
 abbrev drop (xs : Array α) (i : Nat) : Array α := extract xs i xs.size
 
-@[simp, grind =] theorem drop_eq_extract {xs : Array α} {i : Nat} : xs.drop i = xs.extract i xs.size := rfl
+@[simp] theorem drop_eq_extract {xs : Array α} {i : Nat} : xs.drop i = xs.extract i xs.size := rfl
+
+/-
+`drop` is currently an abbrev, if this should ever change we might be interested in the following
+pattern:
+
+grind_pattern drop_eq_extract => xs.drop i, xs.extract i xs.size
+-/
 
 @[inline]
 unsafe def modifyMUnsafe [Monad m] (xs : Array α) (i : Nat) (f : α → m α) : m (Array α) := do

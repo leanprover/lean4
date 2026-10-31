@@ -274,8 +274,19 @@ namespace BVExpr
 instance : Hashable (BVExpr w) where
   hash expr := expr.hashCode _
 
+@[inline]
+private unsafe def withPtrEqUnsafe (a b : BVExpr w) (k : Unit → Bool)
+    (h : a = b → k () = true) : Bool :=
+  _root_.withPtrEqUnsafe a b k h
+
+-- Safety: `BVExpr` contains no non-subsingleton erased data
+@[implemented_by withPtrEqUnsafe]
+private def withPtrEq (a b : BVExpr w) (k : Unit → Bool) (_h : a = b → k () = true) : Bool :=
+  k ()
+
+@[no_expose]
 instance decEq : DecidableEq (BVExpr w) := fun l r =>
-  withPtrEqDecEq l r fun _ =>
+  withPtrEqDecEq withPtrEq (fun _ _ _ _ => rfl) l r fun _ =>
     if h : hash l ≠ hash r then
       .isFalse (ne_of_apply_ne hash h)
     else
@@ -408,6 +419,7 @@ Pack a `BitVec` with its width into a single parameter-less structure.
 structure PackedBitVec where
   {w : Nat}
   bv: BitVec w
+  deriving Inhabited, Hashable, DecidableEq
 
 /--
 The notion of variable assignments for `BVExpr`.
@@ -503,6 +515,7 @@ inductive BVBinPred where
   Unsigned Less Than
   -/
   | ult
+  deriving DecidableEq, Hashable
 
 namespace BVBinPred
 
@@ -536,6 +549,7 @@ inductive BVPred where
   Getting a constant LSB from a `BitVec`.
   -/
   | getLsbD (expr : BVExpr w) (idx : Nat)
+  deriving DecidableEq, Hashable
 
 namespace BVPred
 

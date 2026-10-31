@@ -38,7 +38,7 @@ public def addCondLemmas (discr : ReifiedBVLogical) (atom lhs rhs : ReifiedBVExp
   LemmaM.addLemma falseLemma
 where
   mkCondTrueLemma (discr : ReifiedBVLogical) (atom lhs : ReifiedBVExpr)
-      (discrExpr atomExpr lhsExpr rhsExpr : Expr) : M (Option SatAtBVLogical) := do
+      (discrExpr atomExpr lhsExpr rhsExpr : Expr) : ReifyM (Option SatAtBVLogical) := do
     let resExpr := lhsExpr
     let resValExpr := lhs
     let lemmaName := ``Std.Tactic.BVDecide.Reflect.BitVec.cond_true
@@ -71,7 +71,7 @@ where
     return some ⟨imp.bvExpr, proof, imp.expr⟩
 
   mkCondFalseLemma (discr : ReifiedBVLogical) (atom rhs : ReifiedBVExpr)
-      (discrExpr atomExpr lhsExpr rhsExpr : Expr) : M (Option SatAtBVLogical) := do
+      (discrExpr atomExpr lhsExpr rhsExpr : Expr) : ReifyM (Option SatAtBVLogical) := do
     let resExpr := rhsExpr
     let resValExpr := rhs
     let lemmaName := ``Std.Tactic.BVDecide.Reflect.BitVec.cond_false

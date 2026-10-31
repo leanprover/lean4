@@ -267,6 +267,12 @@ this information, since typeclasses are entirely eliminated during elaboration.
 -/
 structure LocalInstance where
   className : Name
+  /--
+  The concrete typeclass instance, usually just a free variable. However, in some situations this
+  may also be any other term, in which case this local instance will simply never be erased.
+  Because of this, you should not pass such "exotic" local instances to functions that may clear
+  or revert variables that this value depends on.
+  -/
   fvar      : Expr
   deriving Inhabited
 
@@ -280,7 +286,14 @@ instance : Hashable LocalInstance where
 
 /-- Remove local instance with the given `fvarId`. Do nothing if `localInsts` does not contain any free variable with id `fvarId`. -/
 def LocalInstances.erase (localInsts : LocalInstances) (fvarId : FVarId) : LocalInstances :=
-  localInsts.eraseP (fun inst => inst.fvar.fvarId! == fvarId)
+  localInsts.eraseP (fun inst => inst.fvar.isFVarOf fvarId)
+
+@[inline]
+def LocalInstances.eraseAll (localInsts : LocalInstances) (p : FVarId → Bool) : LocalInstances :=
+  localInsts.filter fun inst =>
+    match inst.fvar with
+    | .fvar f => !p f
+    | _ => true
 
 /-- A kind for the metavariable that determines its unification behaviour.
 For more information see the large comment at the beginning of this file. -/
@@ -344,6 +357,14 @@ structure DelayedMetavarAssignment where
   fvars         : Array Expr
   mvarIdPending : MVarId
 
+/--
+Holds a `Lean.Meta.SynthNormClosureMemo`, whose type is defined later; see
+`MetavarContext.synthNormMemo?`.
+-/
+structure SynthNormMemoSlot where
+  private raw? : Option NonScalar := none
+  deriving Inhabited
+
 /-- The metavariable context is a set of metavariable declarations and their assignments.
 
 For more information on specifics see the comment in the file that `MetavarContext` is defined in.
@@ -381,6 +402,12 @@ structure MetavarContext where
   instance for a type that is different at instance-resolution time. See issue #9077.
   -/
   instanceTypedMVars : PersistentHashMap MVarId Unit := {}
+  /--
+  The memoized free-variable normalization of the local instances for the type class resolution
+  cache key. It depends on the assignments, so it is stored with them: whatever reverts the
+  assignments also reverts the memo.
+  -/
+  synthNormMemo : SynthNormMemoSlot := default
 
 instance : Inhabited MetavarContext := ⟨{}⟩
 

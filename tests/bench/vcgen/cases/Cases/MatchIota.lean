@@ -1,5 +1,5 @@
 import Lean
-import Std.Tactic.Do
+import Std.WP
 
 /-!
 Pattern matching with a concrete discriminant (the literal argument `v` of `step`). Each
@@ -11,8 +11,6 @@ is left unconstrained.
 open Lean Meta Order Std.WP
 
 namespace MatchIota
-
-set_option mvcgen.warning false
 
 abbrev M := ExceptT String <| StateM Nat
 

@@ -69,6 +69,29 @@ theorem Char.toNat_le {c : Char} : c.toNat ≤ 0x10ffff := by
   simp [UInt32.isValidChar, Nat.isValidChar] at this
   omega
 
+theorem Char.toBitVec_val_of_utf8Size_eq_one {c : Char} (hc : c.utf8Size = 1) :
+    c.val.toBitVec = BitVec.setWidth 32 (BitVec.extractLsb' 0 7 c.val.toBitVec) := by
+  rw [← BitVec.setWidth_eq_extractLsb' (by simp), BitVec.setWidth_setWidth_eq_self]
+  simpa [BitVec.lt_def, UInt32.le_iff_toNat_le] using Nat.lt_succ_iff.2 (Char.utf8Size_eq_one_iff.1 hc)
+
+theorem Char.toBitVec_val_of_utf8Size_eq_two {c : Char} (hc : c.utf8Size = 2) :
+    c.val.toBitVec = BitVec.setWidth 32 (BitVec.extractLsb' 0 11 c.val.toBitVec) := by
+  rw [← BitVec.setWidth_eq_extractLsb' (by simp), BitVec.setWidth_setWidth_eq_self]
+  simpa [BitVec.lt_def, UInt32.le_iff_toNat_le] using Nat.lt_succ_iff.2 (Char.utf8Size_eq_two_iff.1 hc).2
+
+theorem Char.toBitVec_val_of_utf8Size_eq_three {c : Char} (hc : c.utf8Size = 3) :
+    c.val.toBitVec = BitVec.setWidth 32 (BitVec.extractLsb' 0 16 c.val.toBitVec) := by
+  rw [← BitVec.setWidth_eq_extractLsb' (by simp), BitVec.setWidth_setWidth_eq_self]
+  simpa [BitVec.lt_def, UInt32.le_iff_toNat_le] using Nat.lt_succ_iff.2 (Char.utf8Size_eq_three_iff.1 hc).2
+
+theorem Char.toBitVec_val_of_utf8Size_eq_four {c : Char} (_hc : c.utf8Size = 4) :
+    c.val.toBitVec = BitVec.setWidth 32 (BitVec.extractLsb' 0 21 c.val.toBitVec) := by
+  rw [← BitVec.setWidth_eq_extractLsb' (by simp), BitVec.setWidth_setWidth_eq_self]
+  have := c.toNat_le
+  simp only [BitVec.lt_def, UInt32.toNat_toBitVec, BitVec.toNat_twoPow,
+    Nat.reducePow, Nat.reduceMod, gt_iff_lt, Char.toNat_val]
+  omega
+
 /-! # `utf8EncodeChar` -/
 
 /-! ## `utf8EncodeChar` low-level API -/
@@ -190,7 +213,6 @@ theorem helper₄ (s : Nat) (c : BitVec w₀) (v : BitVec w') (w : Nat) :
 
 /-! ### Size one -/
 
--- TODO: possibly it makes sense to factor out this proof
 theorem String.toBitVec_getElem_utf8EncodeChar_zero_of_utf8Size_eq_one {c : Char} (h : c.utf8Size = 1) :
     ((String.utf8EncodeChar c)[0]'(by simp [h])).toBitVec = 0#1 ++ c.val.toBitVec.extractLsb' 0 7 := by
   have h₀ : c.toNat < 128 := by
@@ -199,6 +221,11 @@ theorem String.toBitVec_getElem_utf8EncodeChar_zero_of_utf8Size_eq_one {c : Char
   have h₁ : c.toNat < 256 := by omega
   rw [← BitVec.toNat_inj, BitVec.toNat_append]
   simp [-Char.toUInt8_val, utf8EncodeChar_eq_singleton h, Nat.mod_eq_of_lt h₀, Nat.mod_eq_of_lt h₁]
+
+theorem String.map_toBitVec_utf8EncodeChar_of_utf8Size_eq_one {c : Char} (h : c.utf8Size = 1) :
+    (String.utf8EncodeChar c).map UInt8.toBitVec = [0#1 ++ c.val.toBitVec.extractLsb' 0 7] := by
+  rw [List.eq_getElem_of_length_eq_one (String.utf8EncodeChar c) (length_utf8EncodeChar _ ▸ h),
+    List.map_cons, List.map_nil, String.toBitVec_getElem_utf8EncodeChar_zero_of_utf8Size_eq_one h]
 
 /-! ### Size two -/
 
@@ -209,6 +236,15 @@ theorem String.toBitVec_getElem_utf8EncodeChar_zero_of_utf8Size_eq_two {c : Char
 theorem String.toBitVec_getElem_utf8EncodeChar_one_of_utf8Size_eq_two {c : Char} (h : c.utf8Size = 2) :
     ((String.utf8EncodeChar c)[1]'(by simp [h])).toBitVec = 0b10#2 ++ c.val.toBitVec.extractLsb' 0 6 := by
   simpa [String.utf8EncodeChar_eq_cons_cons h] using! helper₄ 0 c.val.toBitVec 2#2 6
+
+theorem String.map_toBitVec_utf8EncodeChar_of_utf8Size_eq_two {c : Char} (h : c.utf8Size = 2) :
+    (String.utf8EncodeChar c).map UInt8.toBitVec =
+    [0b110#3 ++ c.val.toBitVec.extractLsb' 6 5,
+     0b10#2 ++ c.val.toBitVec.extractLsb' 0 6] := by
+  rw [List.eq_getElem_of_length_eq_two (String.utf8EncodeChar c) (length_utf8EncodeChar _ ▸ h),
+    List.map_cons, List.map_cons, List.map_nil,
+    String.toBitVec_getElem_utf8EncodeChar_zero_of_utf8Size_eq_two h,
+    String.toBitVec_getElem_utf8EncodeChar_one_of_utf8Size_eq_two h]
 
 /-! ### Size three -/
 
@@ -223,6 +259,17 @@ theorem String.toBitVec_getElem_utf8EncodeChar_one_of_utf8Size_eq_three {c : Cha
 theorem String.toBitVec_getElem_utf8EncodeChar_two_of_utf8Size_eq_three {c : Char} (h : c.utf8Size = 3) :
     ((String.utf8EncodeChar c)[2]'(by simp [h])).toBitVec = 0b10#2 ++ c.val.toBitVec.extractLsb' 0 6 := by
   simpa [String.utf8EncodeChar_eq_cons_cons_cons h] using! helper₄ 0 c.val.toBitVec 0b10#2 6
+
+theorem String.map_toBitVec_utf8EncodeChar_of_utf8Size_eq_three {c : Char} (h : c.utf8Size = 3) :
+    (String.utf8EncodeChar c).map UInt8.toBitVec =
+    [0b1110#4 ++ c.val.toBitVec.extractLsb' 12 4,
+     0b10#2 ++ c.val.toBitVec.extractLsb' 6 6,
+     0b10#2 ++ c.val.toBitVec.extractLsb' 0 6] := by
+  rw [List.eq_getElem_of_length_eq_three (String.utf8EncodeChar c) (length_utf8EncodeChar _ ▸ h),
+    List.map_cons, List.map_cons, List.map_cons, List.map_nil,
+    String.toBitVec_getElem_utf8EncodeChar_zero_of_utf8Size_eq_three h,
+    String.toBitVec_getElem_utf8EncodeChar_one_of_utf8Size_eq_three h,
+    String.toBitVec_getElem_utf8EncodeChar_two_of_utf8Size_eq_three h]
 
 /-! ### Size four -/
 
@@ -241,6 +288,19 @@ theorem String.toBitVec_getElem_utf8EncodeChar_two_of_utf8Size_eq_four {c : Char
 theorem String.toBitVec_getElem_utf8EncodeChar_three_of_utf8Size_eq_four {c : Char} (h : c.utf8Size = 4) :
     ((String.utf8EncodeChar c)[3]'(by simp [h])).toBitVec = 0b10#2 ++ c.val.toBitVec.extractLsb' 0 6 := by
   simpa [String.utf8EncodeChar_eq_cons_cons_cons_cons h] using! helper₄ 0 c.val.toBitVec 0b10#2 6
+
+theorem String.map_toBitVec_utf8EncodeChar_of_utf8Size_eq_four {c : Char} (h : c.utf8Size = 4) :
+    (String.utf8EncodeChar c).map UInt8.toBitVec =
+    [0b11110#5 ++ c.val.toBitVec.extractLsb' 18 3,
+     0b10#2 ++ c.val.toBitVec.extractLsb' 12 6,
+     0b10#2 ++ c.val.toBitVec.extractLsb' 6 6,
+     0b10#2 ++ c.val.toBitVec.extractLsb' 0 6] := by
+  rw [List.eq_getElem_of_length_eq_four (String.utf8EncodeChar c) (length_utf8EncodeChar _ ▸ h),
+    List.map_cons, List.map_cons, List.map_cons, List.map_cons, List.map_nil,
+    String.toBitVec_getElem_utf8EncodeChar_zero_of_utf8Size_eq_four h,
+    String.toBitVec_getElem_utf8EncodeChar_one_of_utf8Size_eq_four h,
+    String.toBitVec_getElem_utf8EncodeChar_two_of_utf8Size_eq_four h,
+    String.toBitVec_getElem_utf8EncodeChar_three_of_utf8Size_eq_four h]
 
 namespace ByteArray.utf8DecodeChar?
 
@@ -357,57 +417,65 @@ theorem toBitVec_eq_of_parseFirstByte_eq_threeMore {b : UInt8} (h : parseFirstBy
     b.toBitVec = 0b11110#5 ++ b.toBitVec.setWidth 3 := by
   exact helper₂ 3 b.toBitVec (parseFirstByte_eq_threeMore_iff_toBitVec.1 h)
 
-/-! # `isInvalidContinuationByte` definition & API -/
+/-! # `UInt8.isUTF8ContinuationByte` definition & API -/
 
+/--
+Checks whether a byte is a UTF-8 continuation byte, that is, whether it has the form `0b10xxxxxx`.
+-/
 @[inline, expose]
-public def isInvalidContinuationByte (b : UInt8) : Bool :=
-  b &&& 0xc0 != 0x80
+public def _root_.UInt8.isUTF8ContinuationByte (b : UInt8) : Bool :=
+  b &&& 0xc0 == 0x80
 
-theorem isInvalidContinuationByte_eq_false_iff {b : UInt8} :
-    isInvalidContinuationByte b = false ↔ b &&& 0xc0 = 0x80 := by
-  simp [isInvalidContinuationByte]
+public theorem _root_.UInt8.isUTF8ContinuationByte_iff {b : UInt8} :
+    b.isUTF8ContinuationByte ↔ b &&& 0xc0 = 0x80 := by
+  simp [UInt8.isUTF8ContinuationByte]
 
-theorem isInvalidContinuationByte_eq_false_iff_toBitVec {b : UInt8} :
-    isInvalidContinuationByte b = false ↔ b.toBitVec.extractLsb' 6 2 = 0b10#2 := by
-  simp only [isInvalidContinuationByte, bne_eq_false_iff_eq, ← UInt8.toBitVec_inj,
+public theorem _root_.UInt8.isUTF8ContinuationByte_iff_toBitVec {b : UInt8} :
+    b.isUTF8ContinuationByte ↔ b.toBitVec.extractLsb' 6 2 = 0b10#2 := by
+  simp only [UInt8.isUTF8ContinuationByte, beq_iff_eq, ← UInt8.toBitVec_inj,
     UInt8.toBitVec_and, UInt8.toBitVec_ofNat]
   exact helper 6 b.toBitVec 0b10#2
 
-theorem toBitVec_eq_of_isInvalidContinuationByte_eq_false {b : UInt8} (hb : isInvalidContinuationByte b = false) :
+public theorem _root_.UInt8.toBitVec_eq_of_isUTF8ContinuationByte {b : UInt8} (hb : b.isUTF8ContinuationByte) :
     b.toBitVec = 0b10#2 ++ b.toBitVec.setWidth 6 := by
-  exact helper₂ 6 b.toBitVec (isInvalidContinuationByte_eq_false_iff_toBitVec.1 hb)
+  exact helper₂ 6 b.toBitVec (UInt8.isUTF8ContinuationByte_iff_toBitVec.1 hb)
 
-theorem parseFirstByte_eq_invalid_of_isInvalidContinuationByte_eq_false {b : UInt8}
-    (hb : isInvalidContinuationByte b = false) : parseFirstByte b = .invalid := by
-  replace hb := toBitVec_eq_of_isInvalidContinuationByte_eq_false hb
+public theorem _root_.UInt8.isUTF8ContinuationByte_iff_le_and_lt {b : UInt8} :
+    b.isUTF8ContinuationByte ↔ 0x80 ≤ b ∧ b < 0xc0 := by
+  rw [UInt8.isUTF8ContinuationByte_iff_toBitVec, ← BitVec.toNat_inj,
+    BitVec.extractLsb'_toNat, UInt8.le_iff_toNat_le, UInt8.lt_iff_toNat_lt]
+  have := b.toNat_lt
+  simp only [UInt8.toNat_toBitVec, Nat.shiftRight_eq_div_pow, BitVec.toNat_ofNat,
+    UInt8.reduceToNat]
+  omega
+
+theorem parseFirstByte_eq_invalid_of_isUTF8ContinuationByte {b : UInt8}
+    (hb : b.isUTF8ContinuationByte) : parseFirstByte b = .invalid := by
+  replace hb := UInt8.toBitVec_eq_of_isUTF8ContinuationByte hb
   match h : parseFirstByte b with
   | .done =>
     rw [toBitVec_eq_of_parseFirstByte_eq_done h] at hb
     have := congrArg (·[7]) hb
-    try simp only at this -- TODO(kmill) remove after stage0 update
     rw [BitVec.getElem_append, BitVec.getElem_append] at this
     simp at this
   | .oneMore =>
     rw [toBitVec_eq_of_parseFirstByte_eq_oneMore h] at hb
     have := congrArg (·[6]) hb
-    try simp only at this -- TODO(kmill) remove after stage0 update
     rw [BitVec.getElem_append, BitVec.getElem_append] at this
     simp at this
   | .twoMore =>
     rw [toBitVec_eq_of_parseFirstByte_eq_twoMore h] at hb
     have := congrArg (·[6]) hb
-    try simp only at this -- TODO(kmill) remove after stage0 update
     rw [BitVec.getElem_append, BitVec.getElem_append] at this
     simp at this
   | .threeMore =>
     rw [toBitVec_eq_of_parseFirstByte_eq_threeMore h] at hb
     have := congrArg (·[6]) hb
-    try simp only at this -- TODO(kmill) remove after stage0 update
     rw [BitVec.getElem_append, BitVec.getElem_append] at this
     simp at this
   | .invalid => rfl
 
-/-! # `parseFirstByte`, `isInvalidContinuationByte` and `utf8EncodeChar` -/
+/-! # `parseFirstByte`, `isUTF8ContinuationByte` and `utf8EncodeChar` -/
 
 theorem parseFirstByte_utf8EncodeChar_eq_done {c : Char} (hc : c.utf8Size = 1) :
     parseFirstByte ((String.utf8EncodeChar c)[0]'(by simp [Char.utf8Size_pos])) = .done := by
@@ -419,9 +487,9 @@ theorem parseFirstByte_utf8EncodeChar_eq_oneMore {c : Char} (hc : c.utf8Size = 2
   rw [parseFirstByte_eq_oneMore_iff_toBitVec, String.toBitVec_getElem_utf8EncodeChar_zero_of_utf8Size_eq_two hc,
     BitVec.extractLsb'_append_eq_left]
 
-theorem isInvalidContinuationByte_getElem_utf8EncodeChar_one_of_utf8Size_eq_two {c : Char} (hc : c.utf8Size = 2) :
-    isInvalidContinuationByte ((String.utf8EncodeChar c)[1]'(by simp [String.length_utf8EncodeChar, hc])) = false := by
-  rw [isInvalidContinuationByte_eq_false_iff_toBitVec, String.toBitVec_getElem_utf8EncodeChar_one_of_utf8Size_eq_two hc,
+theorem isUTF8ContinuationByte_getElem_utf8EncodeChar_one_of_utf8Size_eq_two {c : Char} (hc : c.utf8Size = 2) :
+    ((String.utf8EncodeChar c)[1]'(by simp [String.length_utf8EncodeChar, hc])).isUTF8ContinuationByte := by
+  rw [UInt8.isUTF8ContinuationByte_iff_toBitVec, String.toBitVec_getElem_utf8EncodeChar_one_of_utf8Size_eq_two hc,
     BitVec.extractLsb'_append_eq_left]
 
 theorem parseFirstByte_utf8EncodeChar_eq_twoMore {c : Char} (hc : c.utf8Size = 3) :
@@ -429,14 +497,14 @@ theorem parseFirstByte_utf8EncodeChar_eq_twoMore {c : Char} (hc : c.utf8Size = 3
   rw [parseFirstByte_eq_twoMore_iff_toBitVec, String.toBitVec_getElem_utf8EncodeChar_zero_of_utf8Size_eq_three hc,
     BitVec.extractLsb'_append_eq_left]
 
-theorem isInvalidContinuationByte_getElem_utf8EncodeChar_one_of_utf8Size_eq_three {c : Char} (hc : c.utf8Size = 3) :
-    isInvalidContinuationByte ((String.utf8EncodeChar c)[1]'(by simp [String.length_utf8EncodeChar, hc])) = false := by
-  rw [isInvalidContinuationByte_eq_false_iff_toBitVec, String.toBitVec_getElem_utf8EncodeChar_one_of_utf8Size_eq_three hc,
+theorem isUTF8ContinuationByte_getElem_utf8EncodeChar_one_of_utf8Size_eq_three {c : Char} (hc : c.utf8Size = 3) :
+    ((String.utf8EncodeChar c)[1]'(by simp [String.length_utf8EncodeChar, hc])).isUTF8ContinuationByte := by
+  rw [UInt8.isUTF8ContinuationByte_iff_toBitVec, String.toBitVec_getElem_utf8EncodeChar_one_of_utf8Size_eq_three hc,
     BitVec.extractLsb'_append_eq_left]
 
-theorem isInvalidContinuationByte_getElem_utf8EncodeChar_two_of_utf8Size_eq_three {c : Char} (hc : c.utf8Size = 3) :
-    isInvalidContinuationByte ((String.utf8EncodeChar c)[2]'(by simp [String.length_utf8EncodeChar, hc])) = false := by
-  rw [isInvalidContinuationByte_eq_false_iff_toBitVec, String.toBitVec_getElem_utf8EncodeChar_two_of_utf8Size_eq_three hc,
+theorem isUTF8ContinuationByte_getElem_utf8EncodeChar_two_of_utf8Size_eq_three {c : Char} (hc : c.utf8Size = 3) :
+    ((String.utf8EncodeChar c)[2]'(by simp [String.length_utf8EncodeChar, hc])).isUTF8ContinuationByte := by
+  rw [UInt8.isUTF8ContinuationByte_iff_toBitVec, String.toBitVec_getElem_utf8EncodeChar_two_of_utf8Size_eq_three hc,
     BitVec.extractLsb'_append_eq_left]
 
 theorem parseFirstByte_utf8EncodeChar_eq_threeMore {c : Char} (hc : c.utf8Size = 4) :
@@ -444,19 +512,19 @@ theorem parseFirstByte_utf8EncodeChar_eq_threeMore {c : Char} (hc : c.utf8Size =
   rw [parseFirstByte_eq_threeMore_iff_toBitVec, String.toBitVec_getElem_utf8EncodeChar_zero_of_utf8Size_eq_four hc,
     BitVec.extractLsb'_append_eq_left]
 
-theorem isInvalidContinuationByte_getElem_utf8EncodeChar_one_of_utf8Size_eq_four {c : Char} (hc : c.utf8Size = 4) :
-    isInvalidContinuationByte ((String.utf8EncodeChar c)[1]'(by simp [String.length_utf8EncodeChar, hc])) = false := by
-  rw [isInvalidContinuationByte_eq_false_iff_toBitVec, String.toBitVec_getElem_utf8EncodeChar_one_of_utf8Size_eq_four hc,
+theorem isUTF8ContinuationByte_getElem_utf8EncodeChar_one_of_utf8Size_eq_four {c : Char} (hc : c.utf8Size = 4) :
+    ((String.utf8EncodeChar c)[1]'(by simp [String.length_utf8EncodeChar, hc])).isUTF8ContinuationByte := by
+  rw [UInt8.isUTF8ContinuationByte_iff_toBitVec, String.toBitVec_getElem_utf8EncodeChar_one_of_utf8Size_eq_four hc,
     BitVec.extractLsb'_append_eq_left]
 
-theorem isInvalidContinuationByte_getElem_utf8EncodeChar_two_of_utf8Size_eq_four {c : Char} (hc : c.utf8Size = 4) :
-    isInvalidContinuationByte ((String.utf8EncodeChar c)[2]'(by simp [String.length_utf8EncodeChar, hc])) = false := by
-  rw [isInvalidContinuationByte_eq_false_iff_toBitVec, String.toBitVec_getElem_utf8EncodeChar_two_of_utf8Size_eq_four hc,
+theorem isUTF8ContinuationByte_getElem_utf8EncodeChar_two_of_utf8Size_eq_four {c : Char} (hc : c.utf8Size = 4) :
+    ((String.utf8EncodeChar c)[2]'(by simp [String.length_utf8EncodeChar, hc])).isUTF8ContinuationByte := by
+  rw [UInt8.isUTF8ContinuationByte_iff_toBitVec, String.toBitVec_getElem_utf8EncodeChar_two_of_utf8Size_eq_four hc,
     BitVec.extractLsb'_append_eq_left]
 
-theorem isInvalidContinuationByte_getElem_utf8EncodeChar_three_of_utf8Size_eq_four {c : Char} (hc : c.utf8Size = 4) :
-    isInvalidContinuationByte ((String.utf8EncodeChar c)[3]'(by simp [String.length_utf8EncodeChar, hc])) = false := by
-  rw [isInvalidContinuationByte_eq_false_iff_toBitVec, String.toBitVec_getElem_utf8EncodeChar_three_of_utf8Size_eq_four hc,
+theorem isUTF8ContinuationByte_getElem_utf8EncodeChar_three_of_utf8Size_eq_four {c : Char} (hc : c.utf8Size = 4) :
+    ((String.utf8EncodeChar c)[3]'(by simp [String.length_utf8EncodeChar, hc])).isUTF8ContinuationByte := by
+  rw [UInt8.isUTF8ContinuationByte_iff_toBitVec, String.toBitVec_getElem_utf8EncodeChar_three_of_utf8Size_eq_four hc,
     BitVec.extractLsb'_append_eq_left]
 
 /-! # `assemble₁` -/
@@ -532,7 +600,7 @@ public def assemble₂Unchecked (w x : UInt8) : UInt32 :=
 
 @[inline, expose]
 public def assemble₂ (w x : UInt8) : Option Char :=
-  if isInvalidContinuationByte x then
+  if !x.isUTF8ContinuationByte then
     none
   else
     let r := assemble₂Unchecked w x
@@ -556,7 +624,7 @@ where finally
 
 @[inline, expose]
 public def verify₂ (w x : UInt8) : Bool :=
-  if isInvalidContinuationByte x then
+  if !x.isUTF8ContinuationByte then
     false
   else
     let r := assemble₂Unchecked w x
@@ -613,7 +681,7 @@ theorem helper₆ {c : Char} {o : Option Char} {b : BitVec 32} (hc : c.val.toBit
     rw [hc, h' (o.get hi) (by simp)]
   simp
 
-theorem assemble₂_eq_some_of_toBitVec {w x : UInt8} (hx : isInvalidContinuationByte x = false) {c : Char} (hc₀ : 128 ≤ c.val)
+theorem assemble₂_eq_some_of_toBitVec {w x : UInt8} (hx : x.isUTF8ContinuationByte) {c : Char} (hc₀ : 128 ≤ c.val)
     (hc : c.val.toBitVec = (w.toBitVec.setWidth 5 ++ x.toBitVec.setWidth 6).setWidth 32) : assemble₂ w x = some c := by
   apply helper₆ hc toBitVec_val_assemble₂
   fun_cases assemble₂ with
@@ -623,7 +691,7 @@ theorem assemble₂_eq_some_of_toBitVec {w x : UInt8} (hx : isInvalidContinuatio
     simp_all [← toBitVec_assemble₂Unchecked, r, UInt32.le_iff_toBitVec_le, UInt32.lt_iff_toBitVec_lt, BitVec.le_def, BitVec.lt_def]
   | case3 hx r hr => simp
 
-theorem isInvalidContinuationByte_eq_false_of_assemble₂_eq_some {w x : UInt8} {c : Char} : assemble₂ w x = some c → isInvalidContinuationByte x = false := by
+theorem isUTF8ContinuationByte_of_assemble₂_eq_some {w x : UInt8} {c : Char} : assemble₂ w x = some c → x.isUTF8ContinuationByte := by
   fun_cases assemble₂ with simp_all
 
 theorem assemble₂_eq_some_iff_utf8EncodeChar_eq {x y : UInt8} {c : Char} :
@@ -640,7 +708,7 @@ theorem assemble₂_eq_some_iff_utf8EncodeChar_eq {x y : UInt8} {c : Char} :
     · rw [String.toBitVec_getElem_utf8EncodeChar_one_of_utf8Size_eq_two hc,
         toBitVec_val_assemble₂ _ h₂]
       rw [BitVec.extractLsb'_setWidth_of_le (by decide)]
-      conv => rhs; rw [toBitVec_eq_of_isInvalidContinuationByte_eq_false (isInvalidContinuationByte_eq_false_of_assemble₂_eq_some h₂)]
+      conv => rhs; rw [UInt8.toBitVec_eq_of_isUTF8ContinuationByte (isUTF8ContinuationByte_of_assemble₂_eq_some h₂)]
       rw [BitVec.extractLsb'_append_eq_right]
   · intro h
     have hc : c.utf8Size = 2 := String.length_utf8EncodeChar _ ▸ congrArg List.length h
@@ -648,7 +716,7 @@ theorem assemble₂_eq_some_iff_utf8EncodeChar_eq {x y : UInt8} {c : Char} :
     obtain ⟨rfl, rfl⟩ : x = (String.utf8EncodeChar c)[0] ∧ y = (String.utf8EncodeChar c)[1] := by simp [h]
     refine ⟨parseFirstByte_utf8EncodeChar_eq_oneMore hc, ?_⟩
     apply assemble₂_eq_some_of_toBitVec
-    · apply isInvalidContinuationByte_getElem_utf8EncodeChar_one_of_utf8Size_eq_two hc
+    · apply isUTF8ContinuationByte_getElem_utf8EncodeChar_one_of_utf8Size_eq_two hc
     · rw [Char.utf8Size_eq_two_iff] at hc
       exact hc.1
     · rw [String.toBitVec_getElem_utf8EncodeChar_zero_of_utf8Size_eq_two hc,
@@ -676,7 +744,7 @@ public def assemble₃Unchecked (w x y : UInt8) : UInt32 :=
 
 @[inline, expose]
 public def assemble₃ (w x y : UInt8) : Option Char :=
-  if isInvalidContinuationByte x || isInvalidContinuationByte y then
+  if !x.isUTF8ContinuationByte || !y.isUTF8ContinuationByte then
     none
   else
     let r := assemble₃Unchecked w x y
@@ -710,7 +778,7 @@ where finally
 
 @[inline, expose]
 public def verify₃ (w x y : UInt8) : Bool :=
-  if isInvalidContinuationByte x || isInvalidContinuationByte y then
+  if !x.isUTF8ContinuationByte || !y.isUTF8ContinuationByte then
     false
   else
     let r := assemble₃Unchecked w x y
@@ -755,8 +823,8 @@ theorem val_assemble₃_le {w x y : UInt8} {c : Char} (h : assemble₃ w x y = s
 theorem utf8Size_assemble₃ {w x y : UInt8} {c : Char} (h : assemble₃ w x y = some c) : c.utf8Size = 3 :=
   Char.utf8Size_eq_three_iff.2 ⟨le_val_assemble₃ h, val_assemble₃_le h⟩
 
-theorem assemble₃_eq_some_of_toBitVec {w x y : UInt8} (hx : isInvalidContinuationByte x = false)
-    (hy : isInvalidContinuationByte y = false) {c : Char} (hc₀ : 0x800 ≤ c.val)
+theorem assemble₃_eq_some_of_toBitVec {w x y : UInt8} (hx : x.isUTF8ContinuationByte)
+    (hy : y.isUTF8ContinuationByte) {c : Char} (hc₀ : 0x800 ≤ c.val)
     (hc : c.val.toBitVec = (w.toBitVec.setWidth 4 ++ x.toBitVec.setWidth 6 ++ y.toBitVec.setWidth 6).setWidth 32) :
     assemble₃ w x y = some c := by
   apply helper₆ hc toBitVec_val_assemble₃
@@ -772,10 +840,10 @@ theorem assemble₃_eq_some_of_toBitVec {w x y : UInt8} (hx : isInvalidContinuat
       BitVec.le_def, BitVec.lt_def, ← BitVec.toNat_inj]
   | case4 => simp
 
-theorem isInvalidContinuationByte_eq_false_of_assemble₃_eq_some_left {w x y : UInt8} {c : Char} : assemble₃ w x y = some c → isInvalidContinuationByte x = false := by
+theorem isUTF8ContinuationByte_of_assemble₃_eq_some_left {w x y : UInt8} {c : Char} : assemble₃ w x y = some c → x.isUTF8ContinuationByte := by
   fun_cases assemble₃ with simp_all
 
-theorem isInvalidContinuationByte_eq_false_of_assemble₃_eq_some_right {w x y : UInt8} {c : Char} : assemble₃ w x y = some c → isInvalidContinuationByte y = false := by
+theorem isUTF8ContinuationByte_of_assemble₃_eq_some_right {w x y : UInt8} {c : Char} : assemble₃ w x y = some c → y.isUTF8ContinuationByte := by
   fun_cases assemble₃ with simp_all
 
 theorem assemble₃_eq_some_iff_utf8EncodeChar_eq {w x y : UInt8} {c : Char} :
@@ -792,11 +860,11 @@ theorem assemble₃_eq_some_iff_utf8EncodeChar_eq {w x y : UInt8} {c : Char} :
     · rw [String.toBitVec_getElem_utf8EncodeChar_one_of_utf8Size_eq_three hc,
         toBitVec_val_assemble₃ _ h₂, BitVec.extractLsb'_setWidth_of_le (by decide),
         BitVec.extractLsb'_append_eq_of_le (by decide), BitVec.extractLsb'_append_eq_right,
-        ← toBitVec_eq_of_isInvalidContinuationByte_eq_false (isInvalidContinuationByte_eq_false_of_assemble₃_eq_some_left h₂)]
+        ← UInt8.toBitVec_eq_of_isUTF8ContinuationByte (isUTF8ContinuationByte_of_assemble₃_eq_some_left h₂)]
     · rw [String.toBitVec_getElem_utf8EncodeChar_two_of_utf8Size_eq_three hc,
         toBitVec_val_assemble₃ _ h₂, BitVec.extractLsb'_setWidth_of_le (by decide),
         BitVec.extractLsb'_append_eq_right,
-        ← toBitVec_eq_of_isInvalidContinuationByte_eq_false (isInvalidContinuationByte_eq_false_of_assemble₃_eq_some_right h₂)]
+        ← UInt8.toBitVec_eq_of_isUTF8ContinuationByte (isUTF8ContinuationByte_of_assemble₃_eq_some_right h₂)]
   · intro h
     have h₀ : (String.utf8EncodeChar c).length = 3 := congrArg List.length h
     have hc : c.utf8Size = 3 := String.length_utf8EncodeChar _ ▸ h₀
@@ -804,8 +872,8 @@ theorem assemble₃_eq_some_iff_utf8EncodeChar_eq {w x y : UInt8} {c : Char} :
       y = (String.utf8EncodeChar c)[2] := by simp [h]
     refine ⟨parseFirstByte_utf8EncodeChar_eq_twoMore hc, ?_⟩
     apply assemble₃_eq_some_of_toBitVec
-    · apply isInvalidContinuationByte_getElem_utf8EncodeChar_one_of_utf8Size_eq_three hc
-    · apply isInvalidContinuationByte_getElem_utf8EncodeChar_two_of_utf8Size_eq_three hc
+    · apply isUTF8ContinuationByte_getElem_utf8EncodeChar_one_of_utf8Size_eq_three hc
+    · apply isUTF8ContinuationByte_getElem_utf8EncodeChar_two_of_utf8Size_eq_three hc
     · simp [Char.utf8Size_eq_three_iff, UInt32.lt_iff_toNat_lt] at hc
       exact UInt32.le_iff_toNat_le.2 (by simp; omega)
     · rw [String.toBitVec_getElem_utf8EncodeChar_zero_of_utf8Size_eq_three hc,
@@ -841,7 +909,7 @@ public def assemble₄Unchecked (w x y z : UInt8) : UInt32 :=
 
 @[inline, expose]
 public def assemble₄ (w x y z : UInt8) : Option Char :=
-  if isInvalidContinuationByte x || isInvalidContinuationByte y || isInvalidContinuationByte z then
+  if !x.isUTF8ContinuationByte || !y.isUTF8ContinuationByte || !z.isUTF8ContinuationByte then
     none
   else
     let r := assemble₄Unchecked w x y z
@@ -858,7 +926,7 @@ where finally
 
 @[inline, expose]
 public def verify₄ (w x y z : UInt8) : Bool :=
-  if isInvalidContinuationByte x || isInvalidContinuationByte y || isInvalidContinuationByte z then
+  if !x.isUTF8ContinuationByte || !y.isUTF8ContinuationByte || !z.isUTF8ContinuationByte then
     false
   else
     let r := assemble₄Unchecked w x y z
@@ -903,8 +971,8 @@ theorem le_val_assemble₄ {w x y z : UInt8} {c : Char} : assemble₄ w x y z = 
 theorem utf8Size_assemble₄ {w x y z : UInt8} {c : Char} (h : assemble₄ w x y z = some c) : c.utf8Size = 4 :=
   Char.utf8Size_eq_four_iff.2 (le_val_assemble₄ h)
 
-theorem assemble₄_eq_some_of_toBitVec {w x y z : UInt8} (hx : isInvalidContinuationByte x = false)
-    (hy : isInvalidContinuationByte y = false) (hz : isInvalidContinuationByte z = false) {c : Char} (hc₀ : 0x10000 ≤ c.val)
+theorem assemble₄_eq_some_of_toBitVec {w x y z : UInt8} (hx : x.isUTF8ContinuationByte)
+    (hy : y.isUTF8ContinuationByte) (hz : z.isUTF8ContinuationByte) {c : Char} (hc₀ : 0x10000 ≤ c.val)
     (hc : c.val.toBitVec = (w.toBitVec.setWidth 3 ++ x.toBitVec.setWidth 6 ++ y.toBitVec.setWidth 6 ++ z.toBitVec.setWidth 6).setWidth 32) :
     assemble₄ w x y z = some c := by
   apply helper₆ hc toBitVec_val_assemble₄
@@ -920,13 +988,13 @@ theorem assemble₄_eq_some_of_toBitVec {w x y z : UInt8} (hx : isInvalidContinu
       BitVec.le_def, BitVec.lt_def, ← BitVec.toNat_inj]
   | case4 => simp
 
-theorem isInvalidContinuationByte_eq_false_of_assemble₄_eq_some_left {w x y z : UInt8} {c : Char} : assemble₄ w x y z = some c → isInvalidContinuationByte x = false := by
+theorem isUTF8ContinuationByte_of_assemble₄_eq_some_left {w x y z : UInt8} {c : Char} : assemble₄ w x y z = some c → x.isUTF8ContinuationByte := by
   fun_cases assemble₄ with simp_all
 
-theorem isInvalidContinuationByte_eq_false_of_assemble₄_eq_some_middle {w x y z : UInt8} {c : Char} : assemble₄ w x y z = some c → isInvalidContinuationByte y = false := by
+theorem isUTF8ContinuationByte_of_assemble₄_eq_some_middle {w x y z : UInt8} {c : Char} : assemble₄ w x y z = some c → y.isUTF8ContinuationByte := by
   fun_cases assemble₄ with simp_all
 
-theorem isInvalidContinuationByte_eq_false_of_assemble₄_eq_some_right {w x y z : UInt8} {c : Char} : assemble₄ w x y z = some c → isInvalidContinuationByte z = false := by
+theorem isUTF8ContinuationByte_of_assemble₄_eq_some_right {w x y z : UInt8} {c : Char} : assemble₄ w x y z = some c → z.isUTF8ContinuationByte := by
   fun_cases assemble₄ with simp_all
 
 theorem assemble₄_eq_some_iff_utf8EncodeChar_eq {w x y z : UInt8} {c : Char} :
@@ -945,15 +1013,15 @@ theorem assemble₄_eq_some_iff_utf8EncodeChar_eq {w x y z : UInt8} {c : Char} :
         toBitVec_val_assemble₄ _ h₂, BitVec.extractLsb'_setWidth_of_le (by decide),
         BitVec.extractLsb'_append_eq_of_le (by decide), BitVec.extractLsb'_append_eq_of_le (by decide),
         BitVec.extractLsb'_append_eq_right,
-        ← toBitVec_eq_of_isInvalidContinuationByte_eq_false (isInvalidContinuationByte_eq_false_of_assemble₄_eq_some_left h₂)]
+        ← UInt8.toBitVec_eq_of_isUTF8ContinuationByte (isUTF8ContinuationByte_of_assemble₄_eq_some_left h₂)]
     · rw [String.toBitVec_getElem_utf8EncodeChar_two_of_utf8Size_eq_four hc,
         toBitVec_val_assemble₄ _ h₂, BitVec.extractLsb'_setWidth_of_le (by decide),
         BitVec.extractLsb'_append_eq_of_le (by decide), BitVec.extractLsb'_append_eq_right,
-        ← toBitVec_eq_of_isInvalidContinuationByte_eq_false (isInvalidContinuationByte_eq_false_of_assemble₄_eq_some_middle h₂)]
+        ← UInt8.toBitVec_eq_of_isUTF8ContinuationByte (isUTF8ContinuationByte_of_assemble₄_eq_some_middle h₂)]
     · rw [String.toBitVec_getElem_utf8EncodeChar_three_of_utf8Size_eq_four hc,
         toBitVec_val_assemble₄ _ h₂, BitVec.extractLsb'_setWidth_of_le (by decide),
         BitVec.extractLsb'_append_eq_right,
-        ← toBitVec_eq_of_isInvalidContinuationByte_eq_false (isInvalidContinuationByte_eq_false_of_assemble₄_eq_some_right h₂)]
+        ← UInt8.toBitVec_eq_of_isUTF8ContinuationByte (isUTF8ContinuationByte_of_assemble₄_eq_some_right h₂)]
   · intro h
     have h₀ : (String.utf8EncodeChar c).length = 4 := congrArg List.length h
     have hc : c.utf8Size = 4 :=  String.length_utf8EncodeChar _ ▸ h₀
@@ -962,9 +1030,9 @@ theorem assemble₄_eq_some_iff_utf8EncodeChar_eq {w x y z : UInt8} {c : Char} :
         ∧ z = (String.utf8EncodeChar c)[3] := by simp [h]
     refine ⟨parseFirstByte_utf8EncodeChar_eq_threeMore hc, ?_⟩
     apply assemble₄_eq_some_of_toBitVec
-    · apply isInvalidContinuationByte_getElem_utf8EncodeChar_one_of_utf8Size_eq_four hc
-    · apply isInvalidContinuationByte_getElem_utf8EncodeChar_two_of_utf8Size_eq_four hc
-    · apply isInvalidContinuationByte_getElem_utf8EncodeChar_three_of_utf8Size_eq_four hc
+    · apply isUTF8ContinuationByte_getElem_utf8EncodeChar_one_of_utf8Size_eq_four hc
+    · apply isUTF8ContinuationByte_getElem_utf8EncodeChar_two_of_utf8Size_eq_four hc
+    · apply isUTF8ContinuationByte_getElem_utf8EncodeChar_three_of_utf8Size_eq_four hc
     · simp [Char.utf8Size_eq_four_iff, UInt32.lt_iff_toNat_lt] at hc
       exact UInt32.le_iff_toNat_le.2 (by simp; omega)
     · rw [String.toBitVec_getElem_utf8EncodeChar_zero_of_utf8Size_eq_four hc,
@@ -1024,6 +1092,45 @@ public def ByteArray.utf8DecodeChar? (bytes : ByteArray) (i : Nat) : Option Char
         assemble₄ bytes[i] bytes[i + 1] bytes[i + 2] bytes[i + 3]
       else none
   else none
+
+/--
+Decodes a list of bytes as UTF-8, stopping at the first invalid sequence.
+
+This is the model used by `String.toList`. It is structurally recursive on the list, so the kernel
+reduces it in time linear in the number of bytes, unlike `ByteArray.utf8Decode?`, which indexes into
+an array.
+-/
+@[expose, implicit_reducible]
+public def String.Internal.utf8DecodeList : List UInt8 → List Char
+  | [] => []
+  | w :: ws =>
+    match h : parseFirstByte w with
+    | .invalid => []
+    | .done =>
+      match assemble₁ w h with
+      | some c => c :: utf8DecodeList ws
+      | none => []
+    | .oneMore =>
+      match ws with
+      | x :: ws =>
+        match assemble₂ w x with
+        | some c => c :: utf8DecodeList ws
+        | none => []
+      | _ => []
+    | .twoMore =>
+      match ws with
+      | x :: y :: ws =>
+        match assemble₃ w x y with
+        | some c => c :: utf8DecodeList ws
+        | none => []
+      | _ => []
+    | .threeMore =>
+      match ws with
+      | x :: y :: z :: ws =>
+        match assemble₄ w x y z with
+        | some c => c :: utf8DecodeList ws
+        | none => []
+      | _ => []
 
 @[inline, expose]
 public def ByteArray.validateUTF8At (bytes : ByteArray) (i : Nat) : Bool :=
@@ -1204,6 +1311,38 @@ public theorem ByteArray.utf8DecodeChar?_utf8EncodeChar_append {b : ByteArray} {
     rw [utf8DecodeChar?_append_eq_assemble₄ hc' (parseFirstByte_utf8EncodeChar_eq_threeMore hc)]
     exact (assemble₄_eq_some_iff_utf8EncodeChar_eq.2 (List.eq_getElem_of_length_eq_four _ hc')).2
 
+public theorem String.Internal.utf8DecodeList_utf8EncodeChar_append {c : Char} {l : List UInt8} :
+    utf8DecodeList (String.utf8EncodeChar c ++ l) = c :: utf8DecodeList l := by
+  match hc : c.utf8Size, c.utf8Size_pos, c.utf8Size_le_four with
+  | 1, _, _ =>
+    obtain ⟨w, he⟩ : ∃ w, String.utf8EncodeChar c = [w] :=
+      ⟨_, List.eq_getElem_of_length_eq_one _ (String.length_utf8EncodeChar c ▸ hc)⟩
+    obtain ⟨h₁, h₂⟩ := assemble₁_eq_some_iff_utf8EncodeChar_eq.2 he
+    rw [he, utf8DecodeList.eq_def]
+    dsimp only [List.cons_append, List.nil_append]
+    split <;> simp_all
+  | 2, _, _ =>
+    obtain ⟨w, x, he⟩ : ∃ w x, String.utf8EncodeChar c = [w, x] :=
+      ⟨_, _, List.eq_getElem_of_length_eq_two _ (String.length_utf8EncodeChar c ▸ hc)⟩
+    obtain ⟨h₁, h₂⟩ := assemble₂_eq_some_iff_utf8EncodeChar_eq.2 he
+    rw [he, utf8DecodeList.eq_def]
+    dsimp only [List.cons_append, List.nil_append]
+    split <;> simp_all
+  | 3, _, _ =>
+    obtain ⟨w, x, y, he⟩ : ∃ w x y, String.utf8EncodeChar c = [w, x, y] :=
+      ⟨_, _, _, List.eq_getElem_of_length_eq_three _ (String.length_utf8EncodeChar c ▸ hc)⟩
+    obtain ⟨h₁, h₂⟩ := assemble₃_eq_some_iff_utf8EncodeChar_eq.2 he
+    rw [he, utf8DecodeList.eq_def]
+    dsimp only [List.cons_append, List.nil_append]
+    split <;> simp_all
+  | 4, _, _ =>
+    obtain ⟨w, x, y, z, he⟩ : ∃ w x y z, String.utf8EncodeChar c = [w, x, y, z] :=
+      ⟨_, _, _, _, List.eq_getElem_of_length_eq_four _ (String.length_utf8EncodeChar c ▸ hc)⟩
+    obtain ⟨h₁, h₂⟩ := assemble₄_eq_some_iff_utf8EncodeChar_eq.2 he
+    rw [he, utf8DecodeList.eq_def]
+    dsimp only [List.cons_append, List.nil_append]
+    split <;> simp_all
+
 public theorem String.toByteArray_utf8EncodeChar_of_utf8DecodeChar?_eq_some {b : ByteArray} {c : Char} (h : b.utf8DecodeChar? 0 = some c) :
     (String.utf8EncodeChar c).toByteArray = b.extract 0 c.utf8Size := by
   have := utf8Size_le_of_utf8DecodeChar?_eq_some h
@@ -1377,7 +1516,7 @@ public theorem ByteArray.utf8EncodeChar_utf8DecodeChar {b : ByteArray} {i : Nat}
 @[simp]
 public theorem List.utf8DecodeChar?_utf8Encode_singleton_append {b : ByteArray} {c : Char} :
     ByteArray.utf8DecodeChar? ([c].utf8Encode ++ b) 0 = some c := by
-  rw [List.utf8Encode, List.flatMap_cons, List.toByteArray_append,
+  rw [List.utf8Encode_eq_toByteArray, List.flatMap_cons, List.toByteArray_append,
     List.flatMap_nil, List.toByteArray_nil, ByteArray.append_empty,
     ByteArray.utf8DecodeChar?_utf8EncodeChar_append]
 
@@ -1389,7 +1528,7 @@ public theorem List.utf8DecodeChar?_utf8Encode_singleton {c : Char} :
 @[simp]
 public theorem List.utf8DecodeChar?_utf8Encode_cons {l : List Char} {c : Char} :
     ByteArray.utf8DecodeChar? (c::l).utf8Encode 0 = some c := by
-  rw [List.utf8Encode, List.flatMap_cons, List.toByteArray_append,
+  rw [List.utf8Encode_eq_toByteArray, List.flatMap_cons, List.toByteArray_append,
     ByteArray.utf8DecodeChar?_utf8EncodeChar_append]
 
 @[simp]
@@ -1429,16 +1568,16 @@ public theorem isUTF8FirstByte_getElem_utf8EncodeChar {c : Char} {i : Nat} {hi :
     | 4, _, _ => simp [parseFirstByte_utf8EncodeChar_eq_threeMore h]
   · simp only [isUTF8FirstByte_iff_parseFirstByte_ne_invalid, ne_eq, Nat.ne_of_lt' hi₀, iff_false,
       Classical.not_not]
-    apply parseFirstByte_eq_invalid_of_isInvalidContinuationByte_eq_false
+    apply parseFirstByte_eq_invalid_of_isUTF8ContinuationByte
     simp only [String.length_utf8EncodeChar] at hi
     match h : c.utf8Size, c.utf8Size_pos, c.utf8Size_le_four, i, hi₀, hi with
     | 1, _, _, 1, _, _ => contradiction
-    | 2, _, _, 1, _, _ => simp [isInvalidContinuationByte_getElem_utf8EncodeChar_one_of_utf8Size_eq_two h]
-    | 3, _, _, 1, _, _ => simp [isInvalidContinuationByte_getElem_utf8EncodeChar_one_of_utf8Size_eq_three h]
-    | 3, _, _, 2, _, _ => simp [isInvalidContinuationByte_getElem_utf8EncodeChar_two_of_utf8Size_eq_three h]
-    | 4, _, _, 1, _, _ => simp [isInvalidContinuationByte_getElem_utf8EncodeChar_one_of_utf8Size_eq_four h]
-    | 4, _, _, 2, _, _ => simp [isInvalidContinuationByte_getElem_utf8EncodeChar_two_of_utf8Size_eq_four h]
-    | 4, _, _, 3, _, _ => simp [isInvalidContinuationByte_getElem_utf8EncodeChar_three_of_utf8Size_eq_four h]
+    | 2, _, _, 1, _, _ => simp [isUTF8ContinuationByte_getElem_utf8EncodeChar_one_of_utf8Size_eq_two h]
+    | 3, _, _, 1, _, _ => simp [isUTF8ContinuationByte_getElem_utf8EncodeChar_one_of_utf8Size_eq_three h]
+    | 3, _, _, 2, _, _ => simp [isUTF8ContinuationByte_getElem_utf8EncodeChar_two_of_utf8Size_eq_three h]
+    | 4, _, _, 1, _, _ => simp [isUTF8ContinuationByte_getElem_utf8EncodeChar_one_of_utf8Size_eq_four h]
+    | 4, _, _, 2, _, _ => simp [isUTF8ContinuationByte_getElem_utf8EncodeChar_two_of_utf8Size_eq_four h]
+    | 4, _, _, 3, _, _ => simp [isUTF8ContinuationByte_getElem_utf8EncodeChar_three_of_utf8Size_eq_four h]
 
 public theorem isUTF8FirstByte_getElem_zero_utf8EncodeChar {c : Char} :
     ((String.utf8EncodeChar c)[0]'(by simp [c.utf8Size_pos])).IsUTF8FirstByte := by
@@ -1518,3 +1657,10 @@ public theorem ByteArray.utf8Size_utf8DecodeChar {b : ByteArray} {i} {h} :
   rw [← Char.utf8ByteSize_getElem_utf8EncodeChar]
   simp only [List.getElem_eq_getElem_toByteArray, utf8EncodeChar_utf8DecodeChar]
   simp [ByteArray.getElem_extract]
+
+/-! # Further corollaries -/
+
+public theorem String.utf8EncodeChar_inj {c d : Char}
+    (h : String.utf8EncodeChar c = String.utf8EncodeChar d) : c = d := by
+  rw [← Option.some_inj, ← ByteArray.utf8DecodeChar?_utf8EncodeChar_append (b := ByteArray.empty),
+    h, ByteArray.utf8DecodeChar?_utf8EncodeChar_append]

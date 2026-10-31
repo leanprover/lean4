@@ -94,7 +94,7 @@ open Meta Lean.Meta.Grind
     if let some goal ← liftGrindM <| solve goal then
       let params := (← read).params
       let result ← liftGrindM do mkResult params (some goal)
-      throwError "`finish` failed\n{← result.toMessageData}"
+      throwError (← result.toErrorMessageData `finish)
     else
       replaceMainGoal []
 
@@ -105,7 +105,7 @@ If the goal is not inconsistent and progress has been made,
 `pp?` is executed to produce an info message.
 -/
 def evalCheck (tacticName : Name) (k : GoalM Bool)
-    (pp? : Goal → MetaM (Option MessageData)) : GrindTacticM Unit := do
+    (pp? : Goal → Sym.SymM (Option MessageData)) : GrindTacticM Unit := do
   /- In sym mode, introduce remaining binders + by-contradiction + internalize
      so that satellite solvers (lia, ring, linarith) see all hypotheses.
      This matches the behavior of these tactics in default tactic mode
@@ -119,7 +119,7 @@ def evalCheck (tacticName : Name) (k : GoalM Bool)
     let progress ← k
     unless progress do
       throwError "`{tacticName}` failed"
-    processNewFacts
+    processToDo
     unless (← Grind.getConfig).verbose do return ()
     unless recover do return ()
     if (← get).inconsistent then return ()
@@ -127,16 +127,16 @@ def evalCheck (tacticName : Name) (k : GoalM Bool)
     logInfo msg
 
 @[builtin_grind_tactic lia] def evalLIA : GrindTactic := fun _ =>
-  evalCheck `lia Arith.Cutsat.check Arith.Cutsat.pp?
+  evalCheck `lia Arith.Cutsat.check fun goal => Arith.Cutsat.pp? goal
 
 @[builtin_grind_tactic linarith] def evalLinarith : GrindTactic := fun _ => do
-  evalCheck `linarith Arith.Linear.check Arith.Linear.pp?
+  evalCheck `linarith Arith.Linear.check fun goal => Arith.Linear.pp? goal
 
 @[builtin_grind_tactic ring] def evalRing : GrindTactic := fun _ => do
-  evalCheck `ring Arith.CommRing.check' Arith.CommRing.pp?
+  evalCheck `ring Arith.CommRing.check' fun goal => do Arith.CommRing.pp? goal (← Sym.Arith.getArithState).rings
 
 @[builtin_grind_tactic ac] def evalAC : GrindTactic := fun _ => do
-  evalCheck `ac AC.check' AC.pp?
+  evalCheck `ac AC.check' fun goal => AC.pp? goal
 
 def logTheoremAnchor (proof : Expr) : TermElabM Unit := do
   let stx ← getRef
@@ -247,12 +247,13 @@ where
       elabEMatchTheorem declName kind minIndexable
     | .infer =>
       let goal ← getMainGoal
-      let thms := goal.ematch.thmMap.find (.decl declName)
+      -- Registered theorems are reused only if they match the requested `!` modifier.
+      let thms := goal.ematch.thmMap.find (.decl declName) |>.filter (·.minIndexable == minIndexable)
       if thms.isEmpty then
         elabEMatchTheorem declName (.default false) minIndexable
       else
         return thms.toArray
-    | .cases _ | .intro | .inj | .ext | .symbol _ | .funCC | .norm .. | .unfold | .homo | .homoPred =>
+    | .cases _ | .intro | .inj | .ext | .symbol _ | .funCC | .norm .. | .unfold | .homo .. | .homoPred =>
       throwError "invalid modifier"
 
 def logAnchor (c : SplitInfo) : TermElabM Unit := do
@@ -454,7 +455,7 @@ public def renameInaccessibles (mvarId : MVarId) (hs : TSyntaxArray ``binderIden
 Searches `goals` for one whose case tag matches `tag`, using the same heuristic as the
 standard `case` tactic: prefer an exact match, then a suffix match, then a prefix match.
 -/
-private def findGrindTag? (goals : List Goal) (tag : Name) : GrindTacticM (Option Goal) := do
+def findGrindTag? (goals : List Goal) (tag : Name) : GrindTacticM (Option Goal) := do
   let byName (p : Name → Name → Bool) : GrindTacticM (Option Goal) :=
     goals.findM? fun g => return p tag (← g.mvarId.getDecl).userName.eraseMacroScopes
   if let some g ← byName (· == ·) then return some g
@@ -465,7 +466,7 @@ private def findGrindTag? (goals : List Goal) (tag : Name) : GrindTacticM (Optio
 Returns the goal selected by the case tag `tag` together with the remaining goals.
 If `tag` is a hole (`_`), the main goal is selected.
 -/
-private def getCaseGoal (tag : TSyntax ``binderIdent) : GrindTacticM (Goal × List Goal) := do
+def getCaseGoal (tag : TSyntax ``binderIdent) : GrindTacticM (Goal × List Goal) := do
   let gs ← getUnsolvedGoals
   if let `(binderIdent| $tagId:ident) := tag then
     let tagId := tagId.getId.eraseMacroScopes

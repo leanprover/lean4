@@ -8,6 +8,7 @@ module
 prelude
 public import Std.WP.Triple.Monad
 public import Std.Internal.Order.Heyting
+public import Std.Internal.Order.Automation
 
 @[expose] public section
 

@@ -1006,8 +1006,9 @@ We use them to implement `macro_rules` and `elab_rules`
   "no_error_if_unused% " >> termParser
 
 /--
-`contract_eposts% e` rewrites the `EPostSlot.set` applications and `⊥` in `e` to an `estack⟨...⟩`
-expression. Used in the expansion of `throws` clauses of a `def` contract to yield simpler specs.
+`contract_eposts% e` unfolds the `EPostSlot.set` applications and `⊥` in `e`, e.g. to an
+`estack⟨...⟩` expression. Used in the expansion of `throws` clauses of a `def` contract to yield
+simpler specs.
 -/
 @[builtin_term_parser] def contractEPosts := leading_parser
   "contract_eposts% " >> termParser

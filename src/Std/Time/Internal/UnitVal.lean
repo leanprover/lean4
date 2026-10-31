@@ -134,8 +134,6 @@ instance : OfNat (UnitVal α) n where ofNat := ⟨Int.ofNat n⟩
 
 instance : Repr (UnitVal α) where reprPrec x p := reprPrec x.val p
 
-instance : LE (UnitVal α) where le x y := x.val ≤ y.val
-
 instance : LT (UnitVal α) where lt x y := x.val < y.val
 
 instance : Add (UnitVal α) where add := UnitVal.add
@@ -143,6 +141,20 @@ instance : Add (UnitVal α) where add := UnitVal.add
 instance : Sub (UnitVal α) where sub := UnitVal.sub
 
 instance : Neg (UnitVal α) where neg x := ⟨-x.val⟩
+
+instance : HMul Int (UnitVal α) (UnitVal α) where hMul n x := ⟨n * x.val⟩
+
+instance : HMul (UnitVal α) Int (UnitVal α) where hMul x n := ⟨x.val * n⟩
+
+instance : HMul Nat (UnitVal α) (UnitVal α) where hMul n x := ⟨n * x.val⟩
+
+instance : HMul (UnitVal α) Nat (UnitVal α) where hMul x n := ⟨x.val * n⟩
+
+/-- Divides by an integer, rounding toward zero like the unit conversions do. -/
+instance : HDiv (UnitVal α) Int (UnitVal α) where hDiv x n := ⟨x.val.tdiv n⟩
+
+/-- Divides by a natural number, rounding toward zero like the unit conversions do. -/
+instance : HDiv (UnitVal α) Nat (UnitVal α) where hDiv x n := ⟨x.val.tdiv n⟩
 
 instance : ToString (UnitVal n) where toString n := toString n.val
 

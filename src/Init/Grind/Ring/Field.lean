@@ -128,6 +128,11 @@ theorem inv_mul (a b : α) : (a*b)⁻¹ = a⁻¹*b⁻¹ := by
       ← Semiring.mul_assoc, h₂, Semiring.one_mul, Semiring.mul_one, CommRing.mul_comm (b⁻¹)] at h₃
     assumption
 
+theorem inv_pow (a : α) (n : Nat) : (a ^ n)⁻¹ = a⁻¹ ^ n := by
+  induction n with
+  | zero => rw [Semiring.pow_zero, Semiring.pow_zero, inv_one]
+  | succ n ih => rw [Semiring.pow_succ, Semiring.pow_succ, inv_mul, ih]
+
 theorem of_pow_eq_zero (a : α) (n : Nat) : a^n = 0 → a = 0 := by
   induction n
   next => simp [Semiring.pow_zero]; intro h; have := zero_ne_one (α := α); exfalso; exact this h.symm

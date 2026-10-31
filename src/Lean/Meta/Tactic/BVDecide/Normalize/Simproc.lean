@@ -8,6 +8,7 @@ module
 prelude
 public import Std.Tactic.BVDecide.Normalize
 public import Lean.Meta.Tactic.BVDecide.Attr
+import Init.Data.BitVec.Package
 import Init.Omega
 public import Lean.Meta.Sym.Simp.SimpM
 import Lean.Meta.Sym.LitValues
@@ -195,10 +196,12 @@ def mkSetWidth (oldWidthExpr newWidthExpr target : Expr) : Sym.SymM Expr :=
   Sym.share <| mkApp3 (mkConst ``BitVec.setWidth) oldWidthExpr newWidthExpr target
 
 def mkBEq (lhs rhs : Expr) (wExpr : Expr) : SimprocM Expr :=
-  withCachedBinOp wExpr ``instDecidableEqBitVec lhs rhs fun wExpr => do
+  withCachedBinOp wExpr ``BitVec.instLinearOrderPackage lhs rhs fun wExpr => do
     let ty := mkBitVecTy wExpr
-    let instDec := mkApp (mkConst ``instDecidableEqBitVec) wExpr
-    let inst := mkApp2 (mkConst ``instBEqOfDecidableEq [0]) ty instDec
+    let inst := mkApp (mkConst ``BitVec.instLinearOrderPackage) wExpr
+    let inst := mkApp2 (mkConst ``Std.LinearOrderPackage.toLinearPreorderPackage [0]) ty inst
+    let inst := mkApp2 (mkConst ``Std.LinearPreorderPackage.toPreorderPackage [0]) ty inst
+    let inst := mkApp2 (mkConst ``Std.PreorderPackage.toBEq [0]) ty inst
     Sym.share <| mkApp2 (mkConst ``BEq.beq [0]) ty inst
 
 def mkExtractLsb' (wExpr startExpr lenExpr target : Expr) : SimprocM Expr :=
@@ -1161,6 +1164,17 @@ def boolEqToBeq (lhs rhs : Expr) : SimprocM (Sym.Simp.Result) := do
     countRule `boolEqToBeq
     return .step (← Sym.share expr) proof
 
+/--
+Encode a propositional atom `p` as `BitVec.ofProp p = 1#1`, turning it into a `BitVec` atom.
+-/
+def propAtom (e : Expr) : SimprocM (Sym.Simp.Result) := do
+  unless (← e.fvarId!.getType).isProp do return .rfl
+  let ofProp := mkApp (mkConst ``Std.Tactic.BVDecide.BitVec.ofProp) e
+  let expr := mkApp3 (mkConst ``Eq [1]) (toTypeExpr (BitVec 1)) ofProp (← mkLit 1#1)
+  let proof := mkApp (mkConst ``Std.Tactic.BVDecide.BitVec.eq_ofProp_eq_one) e
+  countRule `propAtom
+  return .step (← Sym.share expr) proof
+
 -- A specialised version of BitVec.neg_eq_not_add so it doesn't trigger on -constant
 def bvNeg (α val : Expr) : SimprocM (Sym.Simp.Result) := do
   let_expr BitVec wExpr := α | return .rfl
@@ -1574,7 +1588,7 @@ where
       match_expr α with
       | Bool => boolEqToBeq lhs rhs
       | _ => return .rfl
-    | _ => return .rfl
+    | _ => if e.isFVar then propAtom e else return .rfl
 
 public def rewriteDsimproc : Sym.DSimp.DSimproc := fun e => do
   match_expr e with

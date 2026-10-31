@@ -74,9 +74,9 @@ def updateSorryDep (decls : Array Decl) : CompilerM (Array Decl) := do
   let (_, s) ← Sorry.collect decls |>.run {}
   return decls.map fun decl =>
     match decl with
-    | Decl.fdecl f xs t b _    =>
+    | Decl.fdecl f xs t b info    =>
       match s.localSorryMap.find? f with
-      | some g => Decl.fdecl f xs t b { sorryDep? := some g }
+      | some g => Decl.fdecl f xs t b { info with sorryDep? := some g }
       | _ => decl
     | _ => decl
 

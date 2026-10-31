@@ -26,7 +26,7 @@ via `mkAuxLemma`.
 public section
 namespace Lean.Meta.Sym.Simp
 
-def Theorem.declName (thm : Theorem) : Option Name := thm.expr.getAppFn.constName?
+def Theorem.declName (thm : Theorem) : Option Name := thm.declName?
 
 end Lean.Meta.Sym.Simp
 

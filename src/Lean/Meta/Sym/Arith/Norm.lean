@@ -527,8 +527,9 @@ private def chainResults (e e₁ : Expr) (r₁ r₂ : Result) : SymM Result := d
   | .step _ h₁ _ cd₁ => mkEqTransResult e e₁ h₁ r₂ cd₁
 
 /--
-`e = e'` by `Eq.refl e'`, for a cast `e` and the same cast `e'` with the canonical instance. The
-kernel closes the gap while checking the expected type, as it does for the instances of the output.
+`e = e'` by `Eq.refl e'`, for a cast `e` and the same cast `e'` with the canonical instance, or a
+ground term `e` and its value `e'`. The kernel closes the gap while checking the expected type, as
+it does for the instances of the output.
 -/
 private def mkDefEqStep (e e' : Expr) : NormM Result := do
   let (type, u) ← if (← getKind).isRing then
@@ -1318,11 +1319,43 @@ private def numNode (e₁ : Expr) (r : Result) (k : Int) : VisitM m Node := do
   let some p ← runPoly (SafePoly.numNode k) | mkAtom e₁ r
   return { r, re := .num k, p }
 
+/--
+`true` if `re` applies an operator to numerals. `visit` folds ground nodes bottom-up, so the
+children of a ground node are already numerals when it is reached, and this local check decides
+that a node is ground.
+-/
+private def isGroundOp : RingExpr → Bool
+  | .add (.num _) (.num _) | .sub (.num _) (.num _) | .mul (.num _) (.num _)
+  | .neg (.num _) | .pow (.num _) _ => true
+  | _ => false
+
+/--
+For `Nat`, `Int` and `Rat`, evaluates the ground node `n` of `e` (`isGroundOp`) to a numeral, proved by
+`Eq.refl`: the kernel evaluates their arithmetic cheaply, so a ground subterm needs no
+certificate. A constant polynomial is not enough to be ground: `x - x` is `0` only by a
+certificate.
+-/
+private def foldGround (e : Expr) (n : Node) : VisitM m Node := do
+  let .num k := n.p | return n
+  unless isGroundOp n.re do return n
+  let isRing := (← read).kind.isRing
+  let type ← liftNorm do if isRing then pure (← getRing).type else pure (← getSemiring).type
+  unless type.isConstOf ``Nat || type.isConstOf ``Int || type.isConstOf ``Rat do return n
+  let e₁ := n.r.getResultExpr e
+  let e₂ ← liftNorm do
+    share (← if isRing then denoteRingExpr' #[] (.num k) else denoteSemiringExpr' #[] (.num k))
+  numNode e₂ (← chainResults e e₁ n.r (← liftNorm (mkDefEqStep e₁ e₂))) k
+
 /-- `true` if `visit` interprets the head of `e`: an arithmetic operator, a cast of a numeral, or a numeral. -/
 private def isInterpreted (e : Expr) : Bool :=
   (getArithType? e).isSome || e.isAppOfArity ``OfNat.ofNat 3 || e.isAppOfArity ``BitVec.ofNat 2
 
+mutual
+/-- Visits `e`, evaluating it to a numeral when it is ground (`foldGround`). -/
 private partial def visit (v : Visitor m) (e : Expr) : VisitM m Node := do
+  foldGround e (← visitCore v e)
+
+private partial def visitCore (v : Visitor m) (e : Expr) : VisitM m Node := do
   let kind := (← read).kind
   let isRing := kind.isRing
   -- An atom: simplified by `simpAtom`; its result is visited when it is a term the structure
@@ -1481,6 +1514,7 @@ private partial def visit (v : Visitor m) (e : Expr) : VisitM m Node := do
     let .lit (.natVal k) := n | atom
     numNode e .rfl k
   | _ => atom
+end
 
 end Visit
 

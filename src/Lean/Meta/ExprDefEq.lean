@@ -2356,29 +2356,27 @@ private def cacheUnitLike (key : ExprConfigCacheKey) (lb : LBool) : MetaM Unit :
   modify fun s => { s with cache.isUnitLike := s.cache.isUnitLike.insert key b }
 
 mutual
-private partial def isUnitLikeType (e : Expr) : MetaM LBool := do
-  let key ← mkExprConfigCacheKey e
-  match (← cachedUnitLike? key) with
-    | some b => pure b.toLBool
-    | none   =>
-      let isUnit ← isUnitLikeTypeCore e
-      cacheUnitLike key isUnit
-      return isUnit
+private partial def isUnitLikeType (e : Expr) : MetaM LBool :=
+  forallTelescopeReducing (whnfType := true) e fun _ e => do
+    let key ← mkExprConfigCacheKey e
+    match (← cachedUnitLike? key) with
+      | some b => pure b.toLBool
+      | none   =>
+        let isUnit ← isUnitLikeTypeCore e
+        cacheUnitLike key isUnit
+        return isUnit
 
 /-- Takes a type of the form `A1 -> ... -> An-> I As`, checks that `I` is a (non-recursive) structure, and that each (instantiated) fields is itself either a proposition or a unit-like type-/
-private partial def isUnitLikeTypeCore (e : Expr) : MetaM LBool :=
-  forallTelescopeReducing (whnfType := true) e fun _ tType => do
-    let e ← instantiateMVars e
+private partial def isUnitLikeTypeCore (e : Expr) : MetaM LBool := do
     if let some _ ← getStuckMVar? e then return .undef
-    let hd := tType.getAppFn
+    let hd := e.getAppFn
     matchConstNonRecStructure hd (fun _ => pure .false) fun _ _ ctorVal => do
       unless ← useEtaStruct ctorVal.induct do
         return .false
-      let ctorType := ctorVal.type
-          |>.instantiateLevelParams ctorVal.levelParams hd.constLevels!
+      let ctorType := (← instantiateTypeLevelParams ctorVal.toConstantVal hd.constLevels!)
           -- `tType` is a structure, and in particular has no indices. Furthermore, it is a type, so `tType.getAppNumArgs = (← getConstInfoInduct ctorVal.induct).numParams`
-          |>.getForallBodyMaxDepth tType.getAppNumArgs
-          |>.instantiateRev tType.getAppArgs
+          |>.getForallBodyMaxDepth e.getAppNumArgs
+          |>.instantiateRev e.getAppArgs
       forallTelescope ctorType fun xs _ => do
         for e in xs do
           let ty ← e.fvarId!.getType

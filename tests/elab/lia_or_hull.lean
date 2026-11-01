@@ -3,7 +3,7 @@ Tests for the hulls of disjunctions in `lia` (#16122): a disjunction whose disju
 the same linear term implies the weakest of these bounds, which `lia` asserts instead of splitting.
 -/
 
--- `n` diamonds produce `2ⁿ` cases without the hulls. The default limit is 9 case splits.
+-- `n` diamonds produce `2ⁿ` cases without the hulls. The default limit is 1024 branches.
 example (b : Nat → Bool) (s₀ s₁ s₂ s₃ s₄ s₅ s₆ s₇ s₈ s₉ s₁₀ s₁₁ s₁₂ : Nat)
     (h₀ : b 0 = true ∧ s₁ = s₀ + 1 ∨ b 0 = false ∧ s₁ = s₀ + 2)
     (h₁ : b 1 = true ∧ s₂ = s₁ + 1 ∨ b 1 = false ∧ s₂ = s₁ + 2)

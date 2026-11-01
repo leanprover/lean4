@@ -57,7 +57,7 @@ example : (match x with
 example : (match x with
            | 0 => 1
            | _ + 1 => 2) > 0 := by
-  fail_if_success grind (splits := 0) -- `grind` fails if we don't allow it case-split.
+  fail_if_success grind (branches := 0) -- `grind` fails if we don't allow it case-split.
   sorry
 
 /-

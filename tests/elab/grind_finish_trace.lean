@@ -16,11 +16,8 @@ example {α : Type} [CommRing α] (a b c d e : α) :
 
 /--
 info: Try these:
-  [apply] ⏎
-    cases #8675
-    · cases #7abc
-    · cases #7abc <;> lia
-  [apply] finish only [#8675, #7abc]
+  [apply] cases #8675 <;> lia
+  [apply] finish only [#8675]
 -/
 #guard_msgs in
 example (p : Nat → Prop) (x y z w : Int) :

@@ -69,7 +69,7 @@ partial def markVars (e : Expr) : LinearM Unit := do
       if (← getIntValue? a).isSome then
         return (← markVar b)
     if isSMulNatInst (← getStruct) i then
-      if (← getNatValue? a).isSome then
+      if (← isNatValue a) then
         return (← markVar b)
     markVar e
   | Neg.neg _ _ a => markVars a

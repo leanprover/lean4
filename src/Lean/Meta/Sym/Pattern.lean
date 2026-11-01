@@ -293,6 +293,8 @@ structure UnifyM.State where
   matches the type of the value assigned to it.
   -/
   tPending     : Array Nat             := #[]
+  /-- `max` level constraints delayed until the end of phase 1. See `processLevel`. -/
+  uDelayed     : Array (Level × Level) := #[]
   us           : List Level            := []
   args         : Array Expr            := #[]
 
@@ -354,6 +356,21 @@ where
     | .param name =>
       let some uidx := isUVar? name | return false
       if h : uidx < assignment.size then return assignment[uidx].isSome
+      return false
+    | _ => false
+
+/-- Returns `true` if `u` has unassigned uvars. -/
+def hasUnassignedUVars (assignment : Array (Option Level)) (u : Level) : Bool :=
+  go u
+where
+  go (u : Level) : Bool := Id.run do
+    unless u.hasParam do return false
+    match u with
+    | .succ u₁ => go u₁
+    | .max u₁ u₂ | .imax u₁ u₂ => go u₁ || go u₂
+    | .param name =>
+      let some uidx := isUVar? name | return false
+      if h : uidx < assignment.size then return assignment[uidx].isNone
       return false
     | _ => false
 
@@ -436,7 +453,8 @@ def tryPostponeMaxCnstr (u : Level) (v : Level) : UnifyM Bool := do
     return false
   | _ => return false
 
-partial def processLevel (u : Level) (v : Level) : UnifyM Bool := do
+/-- Solves `u =?= v`. `v` must be normalized. -/
+partial def processLevelCore (u : Level) (v : Level) : UnifyM Bool := do
   /-
   **Note**: If new uvars in `u` have been assigned, we continue replace them, and
   continue the search. The motivation for using `substAssignedUVarsAndNormalize` is
@@ -445,7 +463,7 @@ partial def processLevel (u : Level) (v : Level) : UnifyM Bool := do
   `processLevel (max _uvar.0 _uvar.1) u_1`
   -/
   let u ← substAssignedUVarsAndNormalize u
-  go u v.normalize
+  go u v
 where
   go (u : Level) (v : Level) : UnifyM Bool := do
     match u, v with
@@ -458,6 +476,10 @@ where
     | .zero, .imax _ v => go .zero v
     | .imax _ u, .zero => go u .zero
     | .max u₁ u₂, .max v₁ v₂ =>
+      -- Decomposing guesses the values of unassigned uvars. We postpone the constraint until the
+      -- types of the pattern variables have been checked at `mkPreResult`, which may assign them.
+      if (← tryPostponeMaxCnstr u v) then
+        return true
       -- tryApproxMaxMax: find a shared concrete arg between both sides
       if u₂ == v₁ then go u₁ v₂
       else if u₁ == v₂ then go u₂ v₁
@@ -492,12 +514,36 @@ where
         return true
       return false
 
+def processLevel (u : Level) (v : Level) : UnifyM Bool := do
+  let v := v.normalize
+  /-
+  **Note**: A `max` constraint with unassigned uvars is underdetermined. For example,
+  `max (_uvar.0+1) (_uvar.1+1) =?= max (max (u+1) (v+1)) (w+1)` is satisfied by `_uvar.0 := max u v`,
+  but a later `Prod.{_uvar.0, _uvar.1} =?= Prod.{u, max v w}` requires `_uvar.0 := u`. Thus, we delay
+  these constraints until the end of phase 1 (see `processDelayedLevels`).
+  -/
+  if u.isMax && v.isMax && hasUnassignedUVars (← get).uAssignment u then
+    modify fun s => { s with uDelayed := s.uDelayed.push (u, v) }
+    return true
+  processLevelCore u v
+
 def processLevels (us : List Level) (vs : List Level) : UnifyM Bool := do
   match us, vs with
   | [],    []    => return true
   | [],    _::_  => return false
   | _::_,  []    => return false
   | u::us, v::vs => processLevel u v <&&> processLevels us vs
+
+/--
+Solves the `max` constraints delayed by `processLevel`. A constraint whose uvars are still unassigned
+is postponed to phase 2 (see `processLevelCore`).
+-/
+def processDelayedLevels : UnifyM Bool := do
+  let uDelayed := (← get).uDelayed
+  if uDelayed.isEmpty then return true
+  for (u, v) in uDelayed do
+    unless (← processLevelCore u v) do return false
+  return true
 
 /--
 Returns `true` if `e` is an assigned metavariable.
@@ -702,7 +748,15 @@ partial def isLevelDefEqS (u : Level) (v : Level) : MetaM Bool := do
     if (← tryAssignLevelMVar u v <||> tryAssignLevelMVar v u) then
       return true
     else
-      tryNormalizeFirst (return false)
+      tryNormalizeFirst do
+        -- `?u+1 =?= max (a+1) (b+1)` arises from `max` constraints postponed by `processLevelCore`.
+        if let .succ u := u then
+          if let some v := decLevel? v then
+            return (← isLevelDefEqS u v)
+        if let .succ v := v then
+          if let some u := decLevel? u then
+            return (← isLevelDefEqS u v)
+        return false
 
 /--
 Structural definitional equality for lists of universe levels.
@@ -1229,7 +1283,7 @@ def mkResult (unresolvedInsts : Array MVarId) : UnifyM MatchUnifyResult := do
 
 def main (p : Pattern) (e : Expr) (unify : Bool) (zetaDelta : Bool) : SymM (Option (MatchUnifyResult)) :=
   UnifyM.run p unify zetaDelta do
-    unless (← process p.pattern e) do return none
+    unless (← process p.pattern e <&&> processDelayedLevels) do return none
     match (← mkPreResult) with
     | .failed => return none
     | .success mvarsToCheckType instMVars =>

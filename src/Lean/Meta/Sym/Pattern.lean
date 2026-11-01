@@ -652,11 +652,13 @@ where
 /--
 Attempts to assign a level metavariable `u` to value `v`.
 Returns `true` if `u` is an assignable level metavariable and the assignment succeeds.
-Returns `false` if `u` is not a metavariable or is not assignable.
+Returns `false` if `u` is not a metavariable, is not assignable, is already assigned, or occurs in `v`.
 -/
 def tryAssignLevelMVar (u : Level) (v : Level) : MetaM Bool := do
   let .mvar mvarId := u | return false
   unless (← isLevelMVarAssignable mvarId) do return false
+  if (← isLevelMVarAssigned mvarId) then return false
+  if v.hasMVar && u.occurs v then return false
   assignLevelMVar mvarId v
   return true
 
@@ -680,9 +682,10 @@ partial def isLevelDefEqS (u : Level) (v : Level) : MetaM Bool := do
     let v' ← substAssignedMVarsAndNormalize v
     if u' != u || v' != v then isLevelDefEqS u' v'
     else k
+  if u == v then return true
   match u, v with
-  | .param u, .param v => return u == v
-  | .zero, .zero => return true
+  | .param _, .param _ => return false
+  | .zero, .zero => unreachable!
   | .succ u, .succ v => isLevelDefEqS u v
   | .zero, .succ _ => return false
   | .succ _, .zero => return false

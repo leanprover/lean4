@@ -106,10 +106,13 @@ expensive version of `mbtc`.
 
 private def isNonlinearTerm (e : Expr) : GoalM Bool :=
   match_expr e with
-  | HMul.hMul _ _ _ _ a b => return (← getIntValue? a <|> getIntValue? b).isNone
-  | HDiv.hDiv _ _ _ _ _ b => notM (isIntValue b)
-  | HMod.hMod _ _ _ _ _ b => notM (isIntValue b)
+  | HMul.hMul _ _ _ _ a b => notM (isNumeral a) <&&> notM (isNumeral b)
+  | HDiv.hDiv _ _ _ _ _ b => notM (isNumeral b)
+  | HMod.hMod _ _ _ _ _ b => notM (isNumeral b)
   | _ => return false
+where
+  isNumeral (e : Expr) : MetaM Bool :=
+    isIntValue e <||> isNatValue e
 
 private def isInterpreted (e : Expr) : GoalM Bool := do
   if isInterpretedTerm e then

@@ -23,11 +23,11 @@ open Structural
 private def isNonlinearTerm (e : Expr) : MetaM Bool := do
   match_expr e with
   | HMul.hMul _ _ _ i _ _ => isInstHMulInt i
-  | HDiv.hDiv _ _ _ i _ b => pure (← getIntValue? b).isNone <&&> isInstHDivInt i
-  | HMod.hMod _ _ _ i _ b => pure (← getIntValue? b).isNone <&&> isInstHModInt i
+  | HDiv.hDiv _ _ _ i _ b => notM (isIntValue b) <&&> isInstHDivInt i
+  | HMod.hMod _ _ _ i _ b => notM (isIntValue b) <&&> isInstHModInt i
   | HPow.hPow _ _ _ i a b =>
     unless (← isInstHPowInt i) do return false
-    return (← getIntValue? a).isNone || (← getIntValue? b).isNone
+    notM (isIntValue a) <||> notM (isIntValue b)
   | _ => return false
 
 private def registerNonlinearOcc (arg : Expr) (x : Var) : GoalM Unit := do
@@ -45,9 +45,9 @@ private partial def registerNonlinearOccsAt (e : Expr) (x : Var) : GoalM Unit :=
   | HDiv.hDiv _ _ _ _ _ b => registerNonlinearOcc b x
   | HMod.hMod _ _ _ _ _ b => registerNonlinearOcc b x
   | HPow.hPow _ _ _ _ a b =>
-    if (← getIntValue? a).isNone then
+    if !(← isIntValue a) then
       registerNonlinearOcc a x
-    if (← getIntValue? b).isNone && !(← isNatValue b) then
+    if (← notM (isIntValue b) <&&> notM (isNatValue b)) then
       -- Recall that `b : Nat`, we must create `NatCast.natCast b` and watch it.
       let (b', _) ← mkNatVar b
       internalize b' (← getGeneration b)
@@ -143,13 +143,13 @@ Returns `true` if `toLinearExpr` decomposes `e`: `e` is a numeral, `-a`, `a + b`
 -/
 private def isLinearArith (e : Expr) : GoalM Bool := do
   match_expr e with
-  | OfNat.ofNat _ _ _ => return (← getIntValue? e).isSome
+  | OfNat.ofNat _ _ _ => isIntValue e
   | Neg.neg _ i _ => isInstNegInt i
   | HAdd.hAdd _ _ _ i _ _ => isInstHAddInt i
   | HSub.hSub _ _ _ i _ _ => isInstHSubInt i
   | HMul.hMul _ _ _ i a b =>
     unless (← isInstHMulInt i) do return false
-    return (← getIntValue? a).isSome || (← getIntValue? b).isSome
+    isIntValue a <||> isIntValue b
   | _ => return false
 
 /--

@@ -166,7 +166,9 @@ if(CMAKE_SYSTEM_NAME MATCHES "Emscripten")
 
   # `-s` settings only take effect when linking; emcc warns when they are passed to a compilation
   set(EMSCRIPTEN_FLAGS "-fwasm-exceptions -pthread -flto")
-  set(EMSCRIPTEN_LINK_SETTINGS "-sALLOW_MEMORY_GROWTH=1")
+  # the interpreter's symbol table (`lib/temp/lean_symbols.c`, see `stdlib.make.in`) is about 30 MB of static
+  # data, more than Emscripten's default initial memory of 16 MB
+  set(EMSCRIPTEN_LINK_SETTINGS "-sALLOW_MEMORY_GROWTH=1 -sINITIAL_MEMORY=64MB")
   string(APPEND LEANC_EXTRA_CC_FLAGS " -pthread")
   string(APPEND LEAN_EXTRA_CXX_FLAGS " -D LEAN_EMSCRIPTEN ${EMSCRIPTEN_FLAGS}")
   string(APPEND LEAN_EXTRA_LINKER_FLAGS " ${EMSCRIPTEN_FLAGS} ${EMSCRIPTEN_LINK_SETTINGS}")

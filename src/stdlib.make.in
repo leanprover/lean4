@@ -125,7 +125,7 @@ $(OUTBIN)/leanchecker$(EXE): $(OUTARC)/libLeanChecker.a.trace
 $(OUTBIN)/leanchecker-paranoid$(EXE): $(OUTARC)/libLeanChecker.a.trace ${LIB}/lean/libInit.a.trace ${LIB}/lean/libStd.a.trace ${LIB}/lean/libLean.a.trace ${LIB}/lean/libLake.a.trace
 $(OUTBIN)/leanexport$(EXE): $(OUTARC)/libLeanExport.a.trace
 ifeq "${CMAKE_SYSTEM_NAME}" "Emscripten"
-$(OUTBIN)/lean$(EXE): ${LIB}/lean/libInit.a.trace ${LIB}/lean/libStd.a.trace ${LIB}/lean/libLean.a.trace
+$(OUTBIN)/lean$(EXE) ${LIB}/temp/lean_symbols.stamp: ${LIB}/lean/libInit.a.trace ${LIB}/lean/libStd.a.trace ${LIB}/lean/libLean.a.trace
 endif
 endif
 
@@ -211,13 +211,25 @@ lake: $(OUTBIN)/lake$(EXE)
 
 ifeq "${CMAKE_SYSTEM_NAME}" "Emscripten"
 # the shared libraries are dummies (see `src/CMakeLists.txt`); `lean.js` links these archives (`LEAN_EXE_LINKER_FLAGS`)
-$(OUTBIN)/lean$(EXE): ${LIB}/lean/libInit.a ${LIB}/lean/libStd.a ${LIB}/lean/libLean.a ${LIB}/lean/libleancpp.a ${LIB}/lean/libleanrt.a ${LIB}/temp/libleanshell.a
+WASM_LEAN_ARCHIVES := ${LIB}/lean/libInit.a ${LIB}/lean/libStd.a ${LIB}/lean/libLean.a
+WASM_RUNTIME_ARCHIVES := ${LIB}/temp/libleanmain.a ${LIB}/temp/libleanshell.a ${LIB}/lean/libleancpp.a ${LIB}/lean/libleanrt.a
+WASM_SYMBOLS_PY := ${LEAN_SOURCE_DIR}/../script/wasm_symbols.py
+# the interpreter's symbol table and the export list of `lean.js` (see `script/wasm_symbols.py`); the script rewrites
+# its outputs only when their content changes, so a stamp records the run
+${LIB}/temp/lean_symbols.stamp: $(WASM_LEAN_ARCHIVES) $(WASM_RUNTIME_ARCHIVES) $(WASM_SYMBOLS_PY)
+	python3 $(WASM_SYMBOLS_PY) --nm "${CMAKE_NM}" --registry ${LIB}/temp/lean_symbols.c --exports ${LIB}/temp/lean_exports.json --lean $(WASM_LEAN_ARCHIVES) --runtime $(WASM_RUNTIME_ARCHIVES) && touch $@
+${LIB}/temp/lean_symbols.c ${LIB}/temp/lean_exports.json: ${LIB}/temp/lean_symbols.stamp ;
+${LIB}/temp/lean_symbols.o: ${LIB}/temp/lean_symbols.c
+	@echo "[    ] Building $@"
+	$(LEANC_SH) -c ${LEANC_OPTS} $< -o $@
+WASM_LINK_INPUTS := ${LIB}/temp/lean_symbols.o
+$(OUTBIN)/lean$(EXE): $(WASM_LEAN_ARCHIVES) $(WASM_RUNTIME_ARCHIVES) $(WASM_LINK_INPUTS) ${LIB}/temp/lean_exports.json
 else
 $(OUTBIN)/lean$(EXE): $(OUTLIB)/libInit_shared$(SO) $(OUTLIB)/libleanshared_2$(SO) $(OUTLIB)/libleanshared_1$(SO) $(OUTLIB)/libleanshared$(SO)
 endif
 $(OUTBIN)/lean$(EXE): ${LIB}/temp/libleanmain.a
 	$(link-preamble)
-	$(LEANC_SH) ${LIB}/temp/libleanmain.a ${CMAKE_EXE_LINKER_FLAGS_MAKE} ${CMAKE_DYN_EXE_LINKER_FLAGS_MAKE} ${LEAN_EXE_LINKER_FLAGS} ${LEANC_OPTS} -o $@
+	$(LEANC_SH) ${LIB}/temp/libleanmain.a $(WASM_LINK_INPUTS) ${CMAKE_EXE_LINKER_FLAGS_MAKE} ${CMAKE_DYN_EXE_LINKER_FLAGS_MAKE} ${LEAN_EXE_LINKER_FLAGS} ${LEANC_OPTS} -o $@
 
 lean: $(OUTBIN)/lean$(EXE)
 

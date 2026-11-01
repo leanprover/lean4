@@ -67,6 +67,18 @@ def getIntValue? (e : Expr) : MetaM (Option Int) := do
   let some (n, _) ← getOfNatValue? a ``Int | return none
   return some (-↑n)
 
+/-- Returns `true` if `e` is an `OfNat.ofNat`-application encoding a numeral of the type `typeDeclName`. -/
+private def isOfNatValue (e : Expr) (typeDeclName : Name) : MetaM Bool := do
+  let_expr OfNat.ofNat type n _ ← e | return false
+  unless n.consumeMData.isRawNatLit do return false
+  return (← whnfD type).getAppFn.isConstOf typeDeclName
+
+/-- Returns `true` if `getIntValue? e` is `some _`. -/
+def isIntValue (e : Expr) : MetaM Bool := do
+  if (← isOfNatValue e ``Int) then return true
+  let_expr Neg.neg _ _ a ← e | return false
+  isOfNatValue a ``Int
+
 /-- Return `some b` if `e` is the boolean literal `true` or `false`. -/
 private def getBoolLit? (e : Expr) : Option Bool :=
   match e.consumeMData with

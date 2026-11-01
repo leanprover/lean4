@@ -273,6 +273,68 @@ jobs:
             const isPr = "${{ github.event_name }}" == "pull_request";
             const isPushToMaster = "${{ github.event_name }}" == "push" && "${{ github.ref_name }}" == "master";
             const chonk = ${{ steps.runner-fallback.outputs.use-runner }};
+            // Tests the Web Assembly job runs (see its `CTEST_OPTIONS` below). A `lean.js` process spends about 10 s
+            // of CPU initializing Lean, so the job cannot afford a whole pile. It runs the `elab` and `elab_fail` tests
+            // that execute code whose behaviour depends on the platform: word size, floating point, byte arrays, bignums
+            // (the wasm build has no GMP), the file system, tasks, hashing and other platform APIs. Those are the files
+            // in tests/elab and tests/elab_fail matched by both of these patterns (the first one is wrapped here)
+            //   grep -lE '\b(USize|ISize|UInt(8|16|32|64)|Int(8|16|32|64)|Float(32|Array)?|ByteArray|toUSize
+            //     |toUInt(8|16|32|64)|IO\.(FS|getEnv|getRandomBytes|asTask|wait|waitAny|mapTask|bindTask|sleep)
+            //     |IO\.(monoMsNow|monoNanosNow|appPath|currentDir)|IO\.Process\.getCurrentDir|readDir|Thunk
+            //     |Task\.(spawn|get|map|bind)|System\.Platform|Std\.Time|ptrAddr\w*|withPtrAddr|unsafeCast
+            //     |isExclusiveUnsafe|dbgTraceIfShared|ptrEq|toUTF8|fromUTF8|utf8ByteSize|hash|mixHash|panic
+            //     |Nat\.(shiftLeft|shiftRight|land|lor|xor|testBit|log2|sqrt))\b|\b[0-9]{10,}\b'
+            //   grep -lE '#eval|#guard\b|native_decide|decide \+native|run_cmd|run_meta|run_elab|run_tac'
+            // except for 15 that cannot work in `lean.js`: `IO_test`, `Process`, `docstringRewrites`,
+            // `getenv_name_with_equals` and `importStructure` spawn processes, `bv_enums` and `rc_model` run CaDiCaL,
+            // `leanExportParse` and `newdo` import LeanExport and Lake, `nat_size_limit` sets `LEAN_NAT_MAX_SIZE` in
+            // its `.init.sh` (environment variables do not reach `lean.js`), `file_not_found` and `handleLocking`
+            // expect Linux behaviour (`EBADF`, `flock`), and `sint_div_overflow`, `float_conversions` and
+            // `interp_prims` expect a 64-bit `ISize` or `USize`.
+            // Plus the `misc` scripts that test the command line (all but `uint64_mul_mod_portable`, which needs
+            // `leanc`) and `markdown_conformance`, a `lean --run` program.
+            const wasmTests = {
+              elab: [
+                "10078", "11773", "11778", "1311", "13921", "13982", "14838", "15994", "1921", "2291", "303", "307",
+                "3546", "4306", "4573", "4677", "5818", "9806", "KyleAlg", "Ord", "Reformat", "Uri", "bigmul",
+                "bitwise", "bool2int", "bytearray", "bytearray_eq", "bytearray_order", "byteslice", "cancel_token",
+                "cleanupAnnotations", "closure_16_unique", "compiler_bug_neutral", "computedFields", "congrThm3",
+                "crashDiv0", "csimpCore", "currentDir", "dateTimeOrd", "dbgMacros", "decideNative",
+                "decideNativePanic", "derivingHashable", "elimDeadBranchesUInt64Literal", "envExtensionNameSearch",
+                "errorExplanationElab", "filePath", "float1", "float32", "floatBits", "floatEquality", "floatFma",
+                "floatMinMax", "float_model_tobits", "floatarray", "getline_crash", "grind_9825", "grind_hom_lemmas",
+                "grind_lia_split_facts", "guard_msgs", "hashMapIteratorLoop", "hashmap", "hlistOverload", "idbg_e2e",
+                "inlineWithNestedRecIssue", "instantiateMVarsCrossScope", "instantiateMVarsSharing", "intModBug",
+                "intNegSucc", "int_to_nat_bug", "ioNulBytes", "ioRandomBytes", "json", "json2", "kernel2",
+                "kernelInterrupt", "kernelProjIdx", "kernel_is_def_eq_equiv_manager_1",
+                "kernel_is_def_eq_equiv_manager_2", "lcnfInferProjTypeIssue", "lean_nat_gcd", "lean_nat_powmod",
+                "library_suggestions_shared_cache", "libuv", "lit_value_classify", "lit_values", "lrat_roundtrip",
+                "markdown_case_folding", "markdown_character_classes", "match_float", "meta6", "name_eq_bug",
+                "ofIntClamp", "openssl", "optionGetD", "patbug", "postprocess_traces", "ptrAddr",
+                "pullInstancesDecidable", "rangePolymorphic", "rangeSyntaxPrecedence", "ranges_infer", "readDir",
+                "realPath", "reduce1", "reduce3", "runtime_bignum_edge_cases", "sarray", "sharecommon",
+                "sharecommon_mpz", "sint-abs", "sint_basic", "sint_conversions", "st_test", "stdio", "string",
+                "string_cases", "string_fromUTF8Lossy", "string_slice", "sym_arith_classify", "sym_arith_ground",
+                "sym_arith_norm", "taskState", "task_iterators", "task_test", "task_test2", "task_test_io",
+                "tc_cache_check_hits", "tc_cache_check_hits_stale", "tempfile", "thunk", "thunkHeartbeats",
+                "thunkTaskCasesOn", "timeAPI", "timeCanonFormats", "timeClassOperations", "timeFormatRoundTrip",
+                "timeFormats", "timeHttpDate", "timeLimits", "timeLocalDateTime", "timeNegative", "timeOperations",
+                "timeOperationsOffset", "timeParse", "timePosixTzFooter", "timeSet", "timeSub", "timeTzifParse",
+                "timeUnitScalar", "toExpr", "trivial_uint", "try_panic", "ugetBorrowed", "uint64_modular",
+                "uintCtors", "uintMatch", "uint_sint_decidable_quantifiers", "unifHintAndTC", "unsafeTerm",
+                "updateExprIssue", "updateLevelIssues", "utf8英語", "versoDocBlockquoteErrors", "versoDocModuleScoped",
+                "versoDocRegionReprint", "withSetOptionIn",
+              ],
+              elab_fail: [
+                "1825", "277a", "277b", "phashmap_inst_coherence",
+              ],
+              misc: [
+                "lean_ghash", "lean_help", "lean_unknown_file", "lean_unknown_option", "lean_version",
+              ],
+            };
+            const wasmTestsRegex = "^(" +
+              ["elab", "elab_fail"].map((p) => p + "/(" + wasmTests[p].join("|") + ")\\.lean").join("|") +
+              "|misc/(" + wasmTests.misc.join("|") + ")\\.sh|markdown_conformance)$";
             let matrix = [
               /* TODO: to be updated to new LLVM
               {
@@ -444,9 +506,12 @@ jobs:
                 "test": true,
                 "binary-check": "file",
                 "shell": "bash -euxo pipefail {0}",
-                // Just a few selected tests because wasm is slow. A wasm `lean` process can need 10 GB,
-                // so they run one at a time (this `-j` overrides the step's `-j$NPROC`).
-                "CTEST_OPTIONS": "--no-tests=error -j1 -R '^(elab_fail/1007|elab/(Format|1037|ac_rfl|tempfile|libuv))\\.lean$'"
+                // `wasmTests` (above), with the step's `-j$NPROC`: a `lean.js` process needs up to about 3 GB (a 2 GB wasm
+                // heap plus V8), so the 15 GiB of the 4-core `ubuntu-24.04` runner hold four. Every failed test is rerun once
+                // (`until-pass` retries any failure; a rerun that passes shows only in the step's log) because of two rare
+                // failures of `lean.js` itself: a hang under load, which `--timeout` turns into a failure, and a trap at
+                // exit, after the complete output, of a `lean --run` process.
+                "CTEST_OPTIONS": "--no-tests=error --timeout 300 --repeat until-pass:2 -R '" + wasmTestsRegex + "'"
               }
             ];
             // Stage that is built, tested and packed. Shipped (stamped) release builds use stage2.

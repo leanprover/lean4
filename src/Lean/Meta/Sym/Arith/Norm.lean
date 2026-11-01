@@ -192,7 +192,8 @@ def getArithType? (e : Expr) : Option Expr :=
   | HAdd.hAdd α β γ _ _ _ => homoType? α β γ
   | HSub.hSub α β γ _ _ _ => homoType? α β γ
   | HMul.hMul α β γ _ _ _ => homoType? α β γ
-  | HPow.hPow α β γ _ _ _ => if β.isConstOf ``Nat then homoType? α α γ else none
+  | HPow.hPow α β γ _ _ k =>
+    if β.isConstOf ``Nat || (β.isConstOf ``Int && (Sym.getIntValue? k).run.isSome) then homoType? α α γ else none
   | HSMul.hSMul σ α γ _ _ _ => if σ.isConstOf ``Nat || σ.isConstOf ``Int then homoType? α α γ else none
   | Neg.neg α _ _ => some α
   | HDiv.hDiv α β γ _ _ _ => homoType? α β γ
@@ -303,6 +304,17 @@ private def mkDivStep? (kind : Kind) (e : Expr) : NormM (Option (Expr × Expr)) 
   unless (← isFieldKind kind) do return none
   unless isSameExpr (← getDivFn) (← canonExpr e.appFn!.appFn!) do return none
   return some (← mkDivStep e a b)
+
+/-- `e := a ^ (k : Int)` for a literal `k` is `a ^ k` for `k ≥ 0` and `(a ^ (-k))⁻¹` otherwise. -/
+private def mkZPowStep (e a : Expr) (k : Int) : NormM (Expr × Expr) := do
+  let ring ← getCommRing
+  let n := mkNatLit k.natAbs
+  let thm (name : Name) : Expr := mkApp4 (mkConst name [ring.u]) ring.type ring.fieldInst?.get! a n
+  let an := mkApp2 (← getPowFn) a n
+  if k ≥ 0 then
+    mkFieldStep (thm ``Grind.Field.zpow_natCast) e an
+  else
+    mkFieldStep (thm ``Grind.Field.zpow_neg_natCast) e (mkApp (← getInvFn) an)
 
 /--
 The inverse rewrites, for `e := x⁻¹` with the field's `Inv` instance. `(a * b)⁻¹` and `(a ^ n)⁻¹`
@@ -1448,8 +1460,20 @@ private partial def visitCore (v : Visitor m) (e : Expr) : VisitM m Node := do
         let r ← Simp.mkCongrArg e f a (← normalizeNode v a na) h
         mkAtom (r.getResultExpr e) r (kept := true)
     | _ => unreachable!
-  | HPow.hPow _ _ _ _ _ k =>
+  | HPow.hPow _ β _ _ _ k =>
     -- Only literal exponents are interpreted; the exponent is not simplified.
+    if β.isConstOf ``Int then
+      -- `zpow`: rewritten to a `Nat` power, inverted for a negative exponent.
+      unless (← liftNorm (isFieldKind kind)) do return (← atom)
+      let some kv := (Sym.getIntValue? k).run | return (← atom)
+      match h : e with
+      | .app fa@h':(.app f a) k =>
+        unless (← isInst (← liftNorm getZPowFn) f) do
+          unexpected
+          return (← keep fa f a k (← normalizeNode v a (← visit v a)) .rfl h h')
+        let (e₂, h₂) ← liftNorm (mkZPowStep e a kv)
+        return (← chainNode e e₂ (.step e₂ h₂) (← visit v e₂))
+      | _ => unreachable!
     let some kv := (Sym.getNatValue? k).run | atom
     match h : e with
     | .app fa@h':(.app f a) k =>
@@ -2516,7 +2540,11 @@ private def normalizeTerm? (v : Visitor m) (e : Expr) (distrib : Bool) (maxChar?
   let isField ← isFieldKind kind
   -- Roots that the structure does not interpret are atoms.
   match_expr e with
-  | HPow.hPow _ _ _ _ _ k => unless (Sym.getNatValue? k).run.isSome do return .rfl
+  | HPow.hPow _ β _ _ _ k =>
+    if β.isConstOf ``Int then
+      unless isField do return .rfl
+    else
+      unless (Sym.getNatValue? k).run.isSome do return .rfl
   | HSub.hSub _ _ _ _ _ _ => unless isRing do return .rfl
   | Neg.neg _ _ _ => unless isRing do return .rfl
   | HDiv.hDiv _ _ _ _ _ _ => unless isField do return .rfl

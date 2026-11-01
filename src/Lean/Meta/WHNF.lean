@@ -1081,10 +1081,10 @@ where
         else
           isStuckOnMVar major
 
-@[inline] private def useWHNFCache : MetaM Bool := do
+@[inline] private def useWHNFCache (e : Expr) : MetaM Bool := do
   -- We cache only closed terms without expr metavars.
   -- Potential refinement: cache if `e` is not stuck at a metavariable
-  if (← read).customCanUnfoldPredicate?.isSome then
+  if e.hasFVar || e.hasExprMVar || (← read).customCanUnfoldPredicate?.isSome then
     return false
   else
     return true

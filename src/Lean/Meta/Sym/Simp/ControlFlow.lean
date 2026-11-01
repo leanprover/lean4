@@ -12,6 +12,10 @@ import Lean.Meta.Sym.Simp.App
 import Lean.Meta.Sym.Simp.Result
 import Lean.Meta.Sym.Util
 import Lean.Meta.Sym.Reduce
+import Lean.Meta.LitValues
+import Lean.Meta.Sym.Simp.Rewrite
+import Lean.Meta.Sym.Simp.Discharger
+import Lean.Meta.Tactic.Cbv.TheoremsLookup
 import Lean.Meta.WHNF
 import Lean.Meta.AppBuilder
 import Init.Sym.Lemmas
@@ -133,13 +137,26 @@ def simpMatch (declName : Name) : Simproc := fun e => do
   let r ← simpAppArgRange e start stop
   match r with
   | .step .. => return r
-  | .rfl _ cd => return mkRflResult (done := true) (contextDependent := cd)
+  | .rfl _ cd =>
+    /-
+    The match compiler decides literal patterns with `decEq` (e.g. `String.decEq`), and
+    `reduceMatcherApp?` cannot evaluate these at reducible transparency. For a literal
+    discriminant, we rewrite with the match equations. `simp` discharges their overlap
+    hypotheses, e.g. `"c" = "a" → False`.
+    -/
+    unless (← e.getAppArgs.anyM (isLitValue ·) start stop) do
+      return mkRflResult (done := true) (contextDependent := cd)
+    match (← (← Tactic.Cbv.getMatchTheorems declName).rewrite dischargeSimpSelf e) with
+    | .step e' h done cd' => return .step e' h done (contextDependent := cd || cd')
+    | .rfl _ cd' => return mkRflResult (done := true) (contextDependent := cd || cd')
 
 /--
 Simplifies control-flow expressions such as `if-then-else` and `match` expressions.
 It visits only the conditions and discriminants.
 -/
 public def simpControl : Simproc := fun e => do
+  -- The elaborator wraps a `match` on a non-variable discriminant in a `save_info` annotation.
+  let e := (annotation? `save_info e).getD e
   if !e.isApp then return .rfl
   let .const declName _ := e.getAppFn | return .rfl
   if declName == ``ite then

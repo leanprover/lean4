@@ -645,7 +645,7 @@ def evalBitVecToNat (a : Expr) : SimpM Result := do
 def evalBitVecOfNat (n a : Expr) : EvalM Result := do
   let some a ← getNatValue? a |>.run | return .rfl
   -- `BitVec.ofNat` with a literal width is the normal form only when `bitVecOfNat := true`
-  if (← getNatValue? n |>.run).isSome && (← read).bitVecOfNat then return .rfl
+  if Sym.isNatValue n && (← read).bitVecOfNat then return .rfl
   if let some nv ← evalNat n |>.run then -- TODO: consider using dsimp
     let r ← mkBitVecLit (BitVec.ofNat nv a)
     return .step r (mkRflBitVec r nv) (done := true)
@@ -821,7 +821,7 @@ so every spelling must become the same term. The instance is left to `Sym.canon`
 -/
 def evalFinLit (e α v : Expr) : SimpM Result := do
   let_expr Fin nExpr := α | return .rfl
-  let isCanonical := v.isRawNatLit && (getNatValue? nExpr).isSome
+  let isCanonical := v.isRawNatLit && Sym.isNatValue nExpr
   let some v := (match v with | .lit (.natVal v) => some v | _ => getNatValue? v) | return .rfl
   let some n ← evalNat nExpr |>.run | return .rfl
   if isCanonical && v < n then return .rfl

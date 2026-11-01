@@ -8,6 +8,8 @@ module
 prelude
 public import Lean.Elab.PreDefinition
 public import Lean.Elab.Deriving.Basic
+public import Lean.Meta.Constructions.CtorIdx
+public import Lean.Meta.Constructions.CtorElim
 
 public section
 
@@ -853,6 +855,20 @@ inductive FieldHelperInfo (α : Type) where
   -/
   | usingHelper (mkValue : (instances : Array Expr) → α → DerivingM Expr)
 
+structure FieldProviderInput where
+  classLParams : List Level
+  typeApp : Expr
+  fieldInfo : ConstantVal
+  expectedType : Expr
+
+@[inline]
+def FieldProviderInput.induct (x : FieldProviderInput) : Name :=
+  x.typeApp.getAppFn.constName!
+
+@[inline]
+def FieldProviderInput.fieldName (x : FieldProviderInput) : Name :=
+  x.fieldInfo.name
+
 /--
 A field helper provider provides information on how a field of a type class should be filled given
 level parameters for the class, an application of the inductive type to derive an instance for, a
@@ -861,16 +877,16 @@ of the field.
 -/
 @[expose]
 def FieldHelperProvider (α : Type) :=
-  (classLParams : List Level) → (typeApp : Expr) → (fieldInfo : ConstantVal) →
-    (expectedType : Expr) → DerivingM (FieldHelperInfo α)
+  (input : FieldProviderInput) → DerivingM (FieldHelperInfo α)
 
 /--
-Throws an error explaining that the given field was unhandled. Meant to be used as a catch-all
-branch of `InstanceInfo.usingCtor`. See `InstanceInfo.usingCtor` for more information.
+Throws an error explaining that the current field was unhandled. Meant to be used as a catch-all
+branch of `makeInstancesUsingCtor` and `InstanceInfo.usingCtor`. See `makeInstancesUsingCtor` for
+more information.
 -/
-def FieldHelperProvider.unhandled (fieldName : Name) : FieldHelperProvider α := fun _ _ _ _ => do
+def FieldHelperProvider.unhandled : FieldHelperProvider α := fun input => do
   throwError "Internal error in deriving handler for `{.ofConstName <| (← read).className}`:\n\
-    Unhandled field `{.ofConstName fieldName}`"
+    Unhandled field `{.ofConstName input.fieldName}`"
 
 /--
 Creates a helper that matches on the first argument, calling `perCtor` for each constructor with
@@ -882,35 +898,187 @@ parameter.
 -/
 def FieldHelperProvider.cases
     (perCtor : InductiveVal → ConstructorVal → Array Expr → Expr → α → DerivingM Expr) :
-    FieldHelperProvider α := fun _ typeApp fieldInfo expectedType =>
+    FieldHelperProvider α := fun input =>
   return .usingHelper fun _ val => do
-    let .forallE _ t tgt _ := expectedType
+    let .forallE _ t tgt _ := input.expectedType
       | throwError "Invalid use of `{.ofConstName decl_name%}`, \
-          expected field `{.ofConstName fieldInfo.name}` to have the shape \
+          expected field `{.ofConstName input.fieldName}` to have the shape \
           `α → β` where `α` is the type parameter"
-    if t != typeApp then
+    if t != input.typeApp then
       throwError "Invalid use of `{.ofConstName decl_name%}`, the argument to \
-        `{.ofConstName fieldInfo.name}` is not the type parameter"
-    withLocalDeclD `t typeApp fun discr => do
+        `{.ofConstName input.fieldName}` is not the type parameter"
+    withLocalDeclD `t input.typeApp fun discr => do
       let tgt := tgt.instantiate1 discr
-      mkLambdaFVars #[discr] <| ← mkDepCases discr tgt fun ival cval fields ctorApp => do
+      mkLambdaFVars #[discr] <| ← mkDepCases discr tgt fun ival cval fields ctorApp _tgt => do
         prependError m!"Error while processing constructor {.ofConstName cval.name}:" do
           perCtor ival cval fields ctorApp val
 
+/--
+The input of alternatives for `FieldHelperProvider.doubleCases` and
+`FieldHelperProvider.doubleCasesSlow` where both sides use the same constructor.
+-/
+structure SameCtorAlt (α : Type) where
+  inductInfo : InductiveVal
+  ctorInfo : ConstructorVal
+  leftFields : Array Expr
+  rightFields : Array Expr
+  leftCtorApp : Expr
+  rightCtorApp : Expr
+  /-- The value returned by the `preHelpers` computation or `()` if none was provided -/
+  val : α
+
+/--
+The input of alternatives for `FieldHelperProvider.doubleCasesSlow` where both sides use different
+constructors.
+-/
+structure DifferentCtorAlt (α : Type) where
+  inductInfo : InductiveVal
+  leftCtor : ConstructorVal
+  rightCtor : ConstructorVal
+  leftFields : Array Expr
+  rightFields : Array Expr
+  leftCtorApp : Expr
+  rightCtorApp : Expr
+  /-- The value returned by the `preHelpers` computation or `()` if none was provided -/
+  val : α
+
+/--
+A fallback alternative for `FieldHelperProvider.doubleCases` where both sides have provably
+different constructor indices.
+-/
+structure DifferentCtorFallbackAlt (α : Type) where
+  inductInfo : InductiveVal
+  lhs : Expr
+  rhs : Expr
+  /-- A proof that `lhs.ctorIdx ≠ rhs.ctorIdx` -/
+  cidxNeProof : Expr
+  /-- The value returned by the `preHelpers` computation or `()` if none was provided -/
+  val : α
+
+/--
+Creates a helper that matches on the first two arguments, calling `sameCtor` for alternatives where
+both sides use the same constructor, and `differentCtor` for alternatives where both sides use
+different constructors.
+
+The additional `α` argument receives the result of the `preHelpers` computation provided to
+`makeInstancesUsingMutualBlock`. If you don't use `preHelpers`, you can simply ignore this
+parameter.
+
+This helper has quadratic complexity due to visiting every pair of constructors. If you don't need
+to handle every pair case separately, consider using `FieldHelperProvider.doubleCases` instead.
+-/
+def FieldHelperProvider.doubleCasesSlow
+    (differentCtor : DifferentCtorAlt α → DerivingM Expr)
+    (sameCtor : SameCtorAlt α → DerivingM Expr) :
+    FieldHelperProvider α := fun input =>
+  return .usingHelper fun _ val => do
+    let fail := throwError "Invalid use of `{.ofConstName decl_name%}`, \
+      expected field `{.ofConstName input.fieldName}` to have the shape \
+      `α → α → β` where `α` is the type parameter"
+    let .forallE _ t tgt _ := input.expectedType | fail
+    if t != input.typeApp then
+      throwError "Invalid use of `{.ofConstName decl_name%}`, the first argument to \
+        `{.ofConstName input.fieldName}` is not the type parameter"
+    withLocalDeclD `t input.typeApp fun discr => do
+      mkLambdaFVars #[discr] <| ← mkDepCases discr tgt fun ival cval fields ctorApp tgt => do
+      let .forallE _ t' tgt' _ := tgt | fail
+      if t' != input.typeApp then
+        throwError "Invalid use of `{.ofConstName decl_name%}`, the second argument to \
+          `{.ofConstName input.fieldName}` is not the type parameter"
+      mkLambdaFVars #[discr] <| ← mkNondepCases discr tgt' fun _ival cval' fields' ctorApp' => do
+        prependError m!"Error while processing constructor pair \
+            {.ofConstName cval.name}, {.ofConstName cval'.name}:" do
+          if cval.cidx = cval'.cidx then
+            sameCtor {
+              inductInfo := ival
+              ctorInfo := cval
+              leftFields := fields
+              rightFields := fields'
+              leftCtorApp := ctorApp
+              rightCtorApp := ctorApp'
+              val
+            }
+          else
+            differentCtor {
+              inductInfo := ival
+              leftCtor := cval
+              rightCtor := cval'
+              leftFields := fields
+              rightFields := fields'
+              leftCtorApp := ctorApp
+              rightCtorApp := ctorApp'
+              val
+            }
+
+/--
+Creates a helper that matches on the first two arguments, calling `sameCtor` for alternatives where
+both sides use the same constructor, and `differentCtor` once for a fallback alternative where both
+sides have provably different constructor indices.
+
+The additional `α` argument receives the result of the `preHelpers` computation provided to
+`makeInstancesUsingMutualBlock`. If you don't use `preHelpers`, you can simply ignore this
+parameter.
+
+For a slower variant that however allows you to handle every constructor pair separately,
+use `FieldHelperProvider.doubleCasesSlow`.
+-/
+def FieldHelperProvider.doubleCases
+    (differentCtor : DifferentCtorFallbackAlt α → DerivingM Expr)
+    (sameCtor : SameCtorAlt α → DerivingM Expr) :
+    FieldHelperProvider α := fun input =>
+  return .usingHelper fun _ val => do
+    let fail := throwError "Invalid use of `{.ofConstName decl_name%}`, \
+      expected field `{.ofConstName input.fieldName}` to have the shape \
+      `α → α → β` where `α` is the type parameter"
+    let .forallE _ t (.forallE _ t' tgt _) _ := input.expectedType | fail
+    if t != input.typeApp then
+      throwError "Invalid use of `{.ofConstName decl_name%}`, the first argument to \
+        `{.ofConstName input.fieldName}` is not the type parameter"
+    if t' != input.typeApp then
+      throwError "Invalid use of `{.ofConstName decl_name%}`, the second argument to \
+        `{.ofConstName input.fieldName}` is not the type parameter"
+    let inductInfo ← getConstInfoInduct input.induct
+    withLocalDeclD `lhs input.typeApp fun lhs => do
+    withLocalDeclD `rhs input.typeApp fun rhs => do
+      let fallbackBranch (cidxNeProof : Expr) :=
+        differentCtor { inductInfo, lhs, rhs, cidxNeProof, val }
+      let res ← matchCtorIdxEq rhs (← mkCtorIdxApp lhs) tgt (fallbackBranch := fallbackBranch) fun hcidx => do
+        -- it is not be a free variable if the inductive has <= 1 constructor
+        -- in which case `hcidx == (rfl : 0 = 0)`
+        let toRevert := if hcidx.isFVar then #[rhs, hcidx] else #[rhs]
+        let tgt ← mkForallFVars toRevert tgt
+        let res ← mkDepCases lhs tgt fun ival cval fields ctorApp tgt => do
+          forallBoundedTelescope tgt toRevert.size fun newVars tgt => do
+            let rhs := newVars[0]!
+            let hcidx := newVars[1]?.getD hcidx
+            let res ← mkNondepCtorElim rhs tgt cval.name hcidx fun _ival _cval fields' ctorApp' => do
+              prependError m!"Error while processing constructor {.ofConstName cval.name}:" do
+                sameCtor {
+                  inductInfo := ival
+                  ctorInfo := cval
+                  leftFields := fields
+                  rightFields := fields'
+                  leftCtorApp := ctorApp
+                  rightCtorApp := ctorApp'
+                  val
+                }
+            mkLambdaFVars newVars res
+        return mkAppN res toRevert
+      mkLambdaFVars #[lhs, rhs] res
+
 private def reduceInstanceProjsOnCtor (e : Expr) : MetaM Expr := do
-  let env ← getEnv
-  return e.replace fun e => do
-    let .const projFn _ := e.getAppFn | failure
-    let info ← env.getProjectionFnInfo? projFn
-    unless info.fromClass do failure
-    if e.getAppNumArgs ≤ info.numParams then failure
+  Meta.transform (skipConstInApp := true) e fun e => do
+    let .const projFn _ := e.getAppFn | return .continue
+    let some info ← getProjectionFnInfo? projFn | return .continue
+    unless info.fromClass do return .continue
+    if e.getAppNumArgs ≤ info.numParams then return .continue
     let numOverargs := e.getAppNumArgs - info.numParams - 1
     let major := e.getArg! info.numParams
-    let .const c _ := major.getAppFn | failure
-    unless c == info.ctorName do failure
+    let .const c _ := major.getAppFn | return .continue
+    unless c == info.ctorName do return .continue
     let argIdx := info.numParams + info.i
-    if major.getAppNumArgs ≤ argIdx then failure
-    return mkAppN (major.getArg! argIdx) (e.getAppArgsN numOverargs)
+    if major.getAppNumArgs ≤ argIdx then return .continue
+    return .visit <| mkAppN (major.getArg! argIdx) (e.getAppArgsN numOverargs)
 
 /--
 Post-process function for `InstanceInfo.usingCtor`: reduces instance projections on constructors
@@ -925,8 +1093,16 @@ def postprocessUsingCtor (usePartial : Bool) (predef : PreDefinition) : MetaM Pr
   }
 
 /--
-Constructs an instance of the class using its constructor, running `perField` on every field given
-the name of the projection function of the field.
+The building block for `makeInstancesUsingCtor`: `InstanceInfo.usingCtor` creates an `InstanceInfo`
+for use in `makeInstancesUsingMutualBlock` that constructs an instance of the class using its
+constructor and runs `perField` on every field given the name of the projection function of the
+field.
+
+In most cases, the convenience function `makeInstancesUsingCtor` should be preferred over this one.
+In some cases you might however want more control over which inductives to generate helpers for to
+make sure we don't generate unused helpers. For example, if the type class is inherently
+non-recursive, you may want to only generate helpers for the names provided to the deriving handler
+(instead of all inductives in the mutual block).
 
 For `supportsRec := true` (the default), it tries to make the helpers non-partial if the inductive
 is not nested or reflexive. If the helpers are possibly recursive but don't have structural
@@ -934,15 +1110,15 @@ termination, you should consider using `supportsRec := false`.
 
 Example:
 ```
+open Lean Meta Elab Deriving
+
 class TypeInfo (α : Type u) where
   ctorName : α → Name
   inductName : Name
 
-open Lean Meta Elab Deriving
-
 meta def deriveTypeInfo : DerivingHandler :=
   mkInductiveDerivingHandler ``TypeInfo do
-    makeInstancesUsingMutualBlock <| ← (← read).indInfo.all.toArray.mapM <|
+    makeInstancesUsingMutualBlock <| ← (← read).names.mapM <|
       InstanceInfo.usingCtor fun
         | ``TypeInfo.ctorName =>
           -- using the `FieldHelperProvider.cases` helper
@@ -950,11 +1126,10 @@ meta def deriveTypeInfo : DerivingHandler :=
             return toExpr ctorVal.name
         | ``TypeInfo.inductName =>
           -- or directly using the definition of `FieldHelperProvider`
-          fun _classLParams typeApp _fieldInfo _expectedType =>
-            return .inline <| toExpr typeApp.getAppFn.constName!
+          fun input => return .inline <| toExpr input.induct
         -- throws an error if we add a new field to `TypeInfo`
         -- without adding a new branch here
-        | name => .unhandled name
+        | name => .unhandled
     return true
 
 meta initialize registerDerivingHandler ``TypeInfo deriveTypeInfo
@@ -1002,15 +1177,15 @@ def InstanceInfo.usingCtor (perField : Name → FieldHelperProvider α)
     let indexDecls := (← indices.mapM (·.fvarId!.getDecl)).toList
     for h : i in 0...structInfo.fieldNames.size do
       let some projFn := structInfo.getProjFn? i | unreachable!
-      let fieldCVal ← getConstVal projFn
-      let expectedType ← Core.instantiateTypeLevelParams fieldCVal classLParams
+      let fieldInfo ← getConstVal projFn
+      let expectedType ← Core.instantiateTypeLevelParams fieldInfo classLParams
       let expectedType ← instantiateForall expectedType #[typeApp]
       let .forallE _ _ expectedType _ := expectedType | unreachable!
       if expectedType.hasLooseBVars then
         throwError "Invalid use of `{.ofConstName decl_name%}`: This function can currently only \
           be used for non-dependent fields but `{.ofConstName projFn}` \
           depends on previous fields."
-      let fieldHelperInfo ← perField projFn classLParams typeApp fieldCVal expectedType
+      let fieldHelperInfo ← perField projFn { classLParams, typeApp, fieldInfo, expectedType }
       fieldHelperInfos := fieldHelperInfos.push fieldHelperInfo
       if let .usingHelper mkValue := fieldHelperInfo then
         helpers := helpers.push {
@@ -1036,6 +1211,67 @@ def InstanceInfo.usingCtor (perField : Name → FieldHelperProvider α)
               helperIdx := helperIdx + 1
           mkLambdaFVars indices ctorApp
     }
+
+/--
+Constructs instances of the class using its constructor, running `perField` on every field given
+the name of the projection function of the field.
+
+For `supportsRec := true` (the default), it tries to make the helpers non-partial if the inductive
+is not nested or reflexive. If the helpers are possibly recursive but don't have structural
+termination, you should consider using `supportsRec := false`.
+
+You can also specify a one time computation at `preHelpers` which will be run before any of the
+helpers with all helpers in scope. The result of this computation is provided as an additional `α`
+argument to all `FieldHelperProvider` APIs.
+
+Example:
+```
+open Lean Meta Elab Deriving
+
+class TypeInfo (α : Type u) where
+  nestedTypes : α → (acc : NameSet := {}) → NameSet
+  inductName : Name
+
+meta def deriveTypeInfo : DerivingHandler :=
+  mkInductiveDerivingHandler ``TypeInfo do
+    makeInstancesUsingCtor fun
+      | ``TypeInfo.nestedTypes =>
+        -- using the `FieldHelperProvider.cases` helper
+        .cases fun inductVal _ctorVal fields _ctorApp _ => do
+          withLocalDeclD `set (mkConst ``NameSet) fun accVar => do
+            let mut acc := accVar
+            acc := mkApp2 (.const ``NameSet.insert []) acc (toExpr inductVal.name)
+            for field in fields do
+              let type ← inferType field
+              -- Proofs live in `Prop`, not in `Type u`, so we skip them.
+              let some u ← getDecLevel? type | continue
+              let inst ← synthInstanceDeriving (.app (.const ``TypeInfo [u]) type)
+              let nm := mkApp2 (.const ``TypeInfo.inductName [u]) type inst
+              acc := mkApp2 (.const ``NameSet.insert []) acc (toExpr inductVal.name)
+              acc := mkApp4 (.const ``TypeInfo.nestedTypes [u]) type inst field acc
+            mkLambdaFVars #[accVar] acc
+      | ``TypeInfo.inductName =>
+        -- or directly using the definition of `FieldHelperProvider`
+        fun input => return .inline <| toExpr input.induct
+      -- throws an error if we add a new field to `TypeInfo`
+      -- without adding a new branch here
+      | _ => .unhandled
+    return true
+
+meta initialize registerDerivingHandler ``TypeInfo deriveTypeInfo
+```
+
+This function is a short-hand for running `makeInstanceUsingMutualHelper` where an `InstanceInfo`
+is generated using `InstanceInfo.usingCtor` for every inductive in the mutual block. If you need
+more control over which inductives to generate helpers for (e.g. only the ones that are actually
+provided to `deriving` for inherently non-recursive instances), you can use
+`InstanceInfo.usingCtor` directly.
+-/
+def makeInstancesUsingCtor (perField : Name → FieldHelperProvider α)
+    (supportsRec : Bool := true) (preHelpers : DerivingM α := by exact pure ()) :
+    DerivingM Unit := do
+  makeInstancesUsingMutualBlock (preHelpers := preHelpers) <|
+    ← (← read).indInfo.all.toArray.mapM (InstanceInfo.usingCtor perField supportsRec)
 
 /--
 Derive an instance for a transformation type class by applying `perCtor` for each constructor

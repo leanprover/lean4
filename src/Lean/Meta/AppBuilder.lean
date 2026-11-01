@@ -486,7 +486,7 @@ def mkNoConfusion (target : Expr) (h : Expr) : MetaM Expr := do
             let ctorIdx := mkAppN (mkConst ctorIdxName us) α.getAppArgs
             let v ← getLevel α
             return mkApp2 (mkConst ``False.elim [u]) target <|
-              mkAppN (mkConst `noConfusion_of_Nat [v]) #[α, ctorIdx, a, b, h]
+              mkAppN (mkConst ``noConfusion_of_Nat [v]) #[α, ctorIdx, a, b, h]
           else
             throwError "mkNoConfusion: Missing {ctorIdxName} or {`noConfusion_of_Nat}"
         else
@@ -529,47 +529,48 @@ def mkNoConfusion (target : Expr) (h : Expr) : MetaM Expr := do
 /--
 Constructs a `casesOn` application of type `resultType`, computing the motive using `computeMotive`
 applied to the expected type of the motive and the indices of `discr` and computing the alternatives
-by calling `alt` with the inductive info, constructor info, the fields, and the constructor
-application.
+by calling `alt` with the inductive info, constructor info, the fields, the constructor
+application, and the new type.
 
 `computeMotive _ indices` is expected to return `motive` such that `motive` applied to `indices`
 and `discr` is definitionally equal to `resultType`.
 -/
 def mkCasesOnAppAux [Monad m] [MonadEnv m] [MonadError m]
     [MonadControlT MetaM m] [MonadLiftT MetaM m] (discr : Expr) (resultType : Expr)
-    (alt : InductiveVal → ConstructorVal → (fields : Array Expr) → (ctorApp : Expr) → m Expr)
+    (alt : InductiveVal → ConstructorVal → (fields : Array Expr) → (ctorApp : Expr) →
+      (newType : Expr) → m Expr)
     (computeMotive : (motiveType : Expr) → (indices : Array Expr) → m Expr) :
     m Expr := do
-  let discrType ← whnf (← inferType discr)
+  let discrType ← whnfD (← inferType discr)
   discrType.withApp fun fn args => do
-  let .const induct us := fn
-    | throwError "Unexpected `discr` argument to `{.ofConstName decl_name%}`, \
-        expected the type to be an inductive application{indentExpr discrType}"
-  let indInfo ← getConstInfoInduct induct
-  let params := args.take indInfo.numParams
-  let indices := args.drop indInfo.numParams
-  let resultSort ← getLevel resultType
-  let casesOnVal ← getConstVal (mkCasesOnName induct)
-  unless casesOnVal.levelParams.length = indInfo.levelParams.length + 1 do
-    throwError "Error in `{.ofConstName decl_name%}`: \
-      The inductive `{.ofConstName induct}` does not have large elimination"
-  let casesOnApp := mkAppN (.const (mkCasesOnName induct) (resultSort :: us)) params
-  let casesOnType ← inferType casesOnApp
-  let .forallE _ motiveType body _ := casesOnType | unreachable!
-  let motive ← computeMotive motiveType indices
-  let body := body.instantiate1 motive
-  let vars := indices.push discr
-  let mut body ← instantiateForall body vars
-  let mut casesOnApp := mkAppN (casesOnApp.app motive) vars
-  for ctor in indInfo.ctors do
-    let .forallE _ altType body' _ := body | unreachable!
-    let ctorInfo ← getConstInfoCtor ctor
-    let minor ← forallBoundedTelescope altType ctorInfo.numFields fun fields _ => do
-      let ctorApp := mkAppN (mkAppN (.const ctor us) params) fields
-      mkLambdaFVars fields <| ← alt indInfo ctorInfo fields ctorApp
-    casesOnApp := casesOnApp.app minor
-    body := body'
-  return casesOnApp
+  matchConstInduct fn
+      (fun _ => throwAppBuilderException `casesOn m!"inductive type expected{indentExpr discrType}")
+      fun indInfo us => do
+    let induct := indInfo.name
+    let params := args.take indInfo.numParams
+    let indices := args.drop indInfo.numParams
+    let resultSort ← getLevel resultType
+    let casesOnVal ← getConstVal (mkCasesOnName induct)
+    unless casesOnVal.levelParams.length = indInfo.levelParams.length + 1 do
+      throwError "Error in `{.ofConstName decl_name%}`: \
+        The inductive `{.ofConstName induct}` does not have large elimination"
+    let casesOnApp := mkAppN (.const (mkCasesOnName induct) (resultSort :: us)) params
+    let casesOnType ← inferType casesOnApp
+    let .forallE _ motiveType body _ := casesOnType | unreachable!
+    let motive ← computeMotive motiveType indices
+    let body := body.instantiate1 motive
+    let vars := indices.push discr
+    let mut body ← instantiateForall body vars
+    let mut casesOnApp := mkAppN (casesOnApp.app motive) vars
+    for ctor in indInfo.ctors do
+      let .forallE _ altType body' _ := body | unreachable!
+      let ctorInfo ← getConstInfoCtor ctor
+      let minor ← forallBoundedTelescope altType ctorInfo.numFields fun fields tgt => do
+        let ctorApp := mkAppN (mkAppN (.const ctor us) params) fields
+        mkLambdaFVars fields <| ← alt indInfo ctorInfo fields ctorApp tgt.headBeta
+      casesOnApp := casesOnApp.app minor
+      body := body'
+    return casesOnApp
 
 /--
 Constructs a non-dependent `casesOn` application of type `resultType` that matches on `discr`,
@@ -579,18 +580,19 @@ and the constructor application.
 def mkNondepCases [Monad m] [MonadEnv m] [MonadError m]
     [MonadControlT MetaM m] [MonadLiftT MetaM m] (discr : Expr) (resultType : Expr)
     (alt : InductiveVal → ConstructorVal → Array Expr → Expr → m Expr) : m Expr := do
-  mkCasesOnAppAux discr resultType alt
+  mkCasesOnAppAux discr resultType
+    (fun ival cval fields ctorApp _ => alt ival cval fields ctorApp) -- ignore new result type
     (fun motiveType _ => forallTelescope motiveType (fun xs _ => mkLambdaFVars xs resultType))
 
 /--
 Given a free variable `discr` whose type is an inductive application with free variable indices,
 creates a dependent `casesOn` application of type `resultType`, computing the alternatives
-by calling `alt` with the inductive info, constructor info, the fields, and the constructor
-application.
+by calling `alt` with the inductive info, constructor info, the fields, the constructor
+application and the new result type.
 -/
 def mkDepCases [Monad m] [MonadEnv m] [MonadError m]
     [MonadControlT MetaM m] [MonadLiftT MetaM m] (discr : Expr) (resultType : Expr)
-    (alt : InductiveVal → ConstructorVal → Array Expr → Expr → m Expr) : m Expr := do
+    (alt : InductiveVal → ConstructorVal → Array Expr → Expr → Expr → m Expr) : m Expr := do
   mkCasesOnAppAux discr resultType alt
     (fun _ indices => mkLambdaFVars (indices.push discr) resultType)
 

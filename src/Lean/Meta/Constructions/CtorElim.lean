@@ -8,8 +8,9 @@ module
 
 prelude
 public import Lean.Meta.Basic
+public import Lean.Meta.InferType
+public import Lean.Meta.Constructions.CtorIdx
 import Lean.Meta.CompletionName
-import Lean.Meta.Constructions.CtorIdx
 import Lean.Meta.NatTable
 import Lean.Elab.App
 
@@ -241,3 +242,120 @@ builtin_initialize registerBuiltinAttribute {
     mkCtorIdx decl
     mkCtorElim decl
 }
+
+/--
+Given `discr` whose type is an inductive type, create a dependent if-then-else expression of type
+`resultType` that checks for `discr.ctorIdx = rhs`, calling `ctorEqBranch` with a proof of
+`discr.ctorIdx = rhs` and `fallbackBranch` with a proof of `¬ discr.ctorIdx = rhs`.
+
+If the inductive only has one constructor, this function assumes that the `rhs` is definitionally
+equal to zero (e.g. a `mkCtorIdxApp` for the same inductive or just the constant `0`) and
+only calls `ctorEqBranch` with a proof that `0 = 0`.
+-/
+public def Meta.matchCtorIdxEq [Monad m] [MonadEnv m] [MonadError m]
+    [MonadControlT MetaM m] [MonadLiftT MetaM m] (discr : Expr) (rhs : Expr) (resultType : Expr)
+    (ctorEqBranch : Expr → m Expr) (fallbackBranch : Expr → m Expr) :
+    m Expr := do
+  let cidx ← mkCtorIdxApp discr
+  if cidx == mkRawNatLit 0 then
+    return ← ctorEqBranch (mkApp2 (.const ``rfl [1]) Nat.mkType (mkRawNatLit 0))
+  let natEq := mkApp3 (.const ``Eq [1]) Nat.mkType cidx rhs
+  let natDecEq := mkApp2 (.const ``Nat.decEq []) cidx rhs
+  let trueBranch ← withLocalDeclD `ctorIdx_eq natEq fun hcidx => do
+    mkLambdaFVars #[hcidx] <| ← ctorEqBranch hcidx
+  let falseBranch ← withLocalDeclD `ctorIdx_ne (mkNot natEq) fun hcidx => do
+    mkLambdaFVars #[hcidx] <| ← fallbackBranch hcidx
+  return mkApp5 (.const ``dite [← getLevel resultType])
+    resultType natEq natDecEq trueBranch falseBranch
+
+/--
+Given `discr` whose type is an inductive type and
+`ctorIdxEq : discr.ctorIdx = <constructor index of targetCtor>`, constructs a constructor
+eliminator application of type `resultType`, computing the motive using `computeMotive` applied to
+the expected type of the motive and the indices of `discr` and computing the alternative by calling
+`alt` with the inductive info, constructor info, the fields, the constructor application, and the
+new type.
+
+`computeMotive _ indices` is expected to return `motive` such that `motive` applied to `indices`
+and `discr` is definitionally equal to `resultType`.
+-/
+public def Meta.mkCtorElimAppAux [Monad m] [MonadEnv m] [MonadError m]
+    [MonadControlT MetaM m] [MonadLiftT MetaM m]
+    (discr : Expr) (resultType : Expr) (targetCtor : Name) (ctorIdxEq : Expr)
+    (alt : InductiveVal → ConstructorVal → (fields : Array Expr) → (ctorApp : Expr) →
+      (newType : Expr) → m Expr)
+    (computeMotive : (motiveType : Expr) → (indices : Array Expr) → m Expr) : m Expr := do
+  let ctorInfo ← getConstInfoCtor targetCtor
+  let indInfo ← getConstInfoInduct ctorInfo.induct
+  let type ← whnfD (← inferType discr)
+  type.withApp fun fn args => do
+    let .const nm us := fn |
+      throwError "Invalid input to `{.ofConstName decl_name%}`; \
+        expected inductive type at{indentExpr type}"
+    unless nm = indInfo.name do
+      throwError "Invalid input to `{.ofConstName decl_name%}`; \
+        expected `{.ofConstName targetCtor}` to be a constructor of `{.ofConstName nm}`"
+    assert! args.size = indInfo.numParams + indInfo.numIndices
+    let resultSort ← getLevel resultType
+    let induct := indInfo.name
+    let params := args.take indInfo.numParams
+    let indices := args.drop indInfo.numParams
+    let useCasesOn := indInfo.ctors matches [_]
+    let elimName :=
+      if useCasesOn then
+        mkCasesOnName induct
+      else
+        mkConstructorElimName induct targetCtor
+    let elimVal ← getConstVal elimName
+    unless elimVal.levelParams.length = indInfo.levelParams.length + 1 do
+      throwError "Error in `{.ofConstName decl_name%}`: \
+        The inductive `{.ofConstName induct}` does not have large elimination"
+    let mut elimApp := mkAppN (.const elimName (resultSort :: us)) params
+    let elimType ← inferType elimApp
+    let .forallE _ motiveType body _ := elimType | unreachable!
+    let motive ← computeMotive motiveType indices
+    let body := body.instantiate1 motive
+    let vars := indices.push discr
+    let mut body ← instantiateForall body vars
+    elimApp := mkAppN (elimApp.app motive) vars
+    unless useCasesOn do
+      -- equality argument
+      let .forallE _ _eqType body' _ := body | unreachable!
+      body := body'
+      elimApp := elimApp.app ctorIdxEq
+    let .forallE _ altType _ _ := body | unreachable!
+    let minor ← forallBoundedTelescope altType ctorInfo.numFields fun fields tgt => do
+      let ctorApp := mkAppN (mkAppN (.const targetCtor us) params) fields
+      mkLambdaFVars fields <| ← alt indInfo ctorInfo fields ctorApp tgt.headBeta
+    elimApp := elimApp.app minor
+    return elimApp
+
+/--
+Constructs a non-dependent constructor eliminator application of type `resultType` that matches on
+`discr` with a proof `ctorIdxEq : discr.ctorIdx = <constructor index of targetCtor>`.
+
+The alternative is computed by calling `alt` with the inductive info, constructor info, the fields,
+and the constructor application.
+-/
+public def Meta.mkNondepCtorElim [Monad m] [MonadEnv m] [MonadError m]
+    [MonadControlT MetaM m] [MonadLiftT MetaM m]
+    (discr : Expr) (resultType : Expr) (targetCtor : Name) (ctorIdxEq : Expr)
+    (alt : InductiveVal → ConstructorVal → Array Expr → Expr → m Expr) : m Expr := do
+  mkCtorElimAppAux discr resultType targetCtor ctorIdxEq
+    (fun ival cval fields ctorApp _ => alt ival cval fields ctorApp) -- ignore new result type
+    (fun motiveType _ => forallTelescope motiveType (fun xs _ => mkLambdaFVars xs resultType))
+
+/--
+Given a free variable `discr` whose type is an inductive application with free variable indices
+and a proof `ctorIdxEq : discr.ctorIdx = <constructor index of targetCtor>`, creates a dependent
+constructor eliminator application of type `resultType`.
+
+The alternatives are computed by calling `alt` with the inductive info, constructor info, the
+fields, the constructor application and the new result type.
+-/
+public def Meta.mkDepCtorElim [Monad m] [MonadEnv m] [MonadError m]
+    [MonadControlT MetaM m] [MonadLiftT MetaM m]
+    (discr : Expr) (resultType : Expr) (targetCtor : Name) (ctorIdxEq : Expr)
+    (alt : InductiveVal → ConstructorVal → Array Expr → Expr → Expr → m Expr) : m Expr := do
+  mkCtorElimAppAux discr resultType targetCtor ctorIdxEq alt
+    (fun _ indices => mkLambdaFVars (indices.push discr) resultType)

@@ -525,24 +525,25 @@ def splitCore (c : SplitInfo) (numCases : Nat) (isRec : Bool)
     return (mvarIds, anchorInfo?)
   let numSubgoals := mvarIds.length
   /-
-  **Split counter heuristic**: We do not increment `numSplits` for the first case (`i = 0`)
-  of a non-recursive split. This leverages non-chronological backtracking: if the first case
-  is solved using a proof that doesn't depend on the case hypothesis, we backtrack and close
-  the original goal directly. In this scenario, the case-split was "free", it didn't contribute
-  to the proof. By not counting it, we allow deeper exploration when case-splits turn out to be
-  irrelevant.
+  **Branch counter heuristic**: The first case (`i = 0`) of a non-recursive split does not create
+  a new branch. This leverages non-chronological backtracking (NCB): if the first case is solved
+  using a proof that doesn't depend on the case hypothesis, we backtrack and close the original
+  goal directly. In this scenario, the case-split was "free", it didn't contribute to the proof.
+  By not counting it, we allow deeper exploration when case-splits turn out to be irrelevant.
 
-  For recursive types or subsequent cases (`i > 0`), we always increment the counter since
+  For recursive types or subsequent cases (`i > 0`), we always create a new branch since
   these represent genuine branches in the proof search.
+
+  The branches are created when the case-split is performed, so that `numBranches` bounds the
+  size of the search tree, including the cases that have not been explored yet. The cases skipped
+  by NCB are removed again, see `closeByNCB`.
   -/
+  modifyThe State fun s => { s with numBranches := s.numBranches + if isRec then numSubgoals else numSubgoals - 1 }
   let goalStack := goal.goalStack.push (goal.mvarId, goal.toGoalState)
   let anchor ← goal.withContext <| c.getAnchor
   let subgoals := mvarIds.mapIdx fun i mvarId =>
-    let numSplits := goal.split.num
-    let numSplits := if i > 0 || isRec then numSplits + 1 else numSplits
     { goal with
       mvarId, goalStack
-      split.num := numSplits
       split.trace := { expr := cExpr, i, num := numSubgoals, source := c.source } :: goal.split.trace }
     |>.setIntroBase (mixHash anchor (hash i))
   /-
@@ -559,15 +560,19 @@ def splitCore (c : SplitInfo) (numCases : Nat) (isRec : Bool)
   The state for performing non-chronological backtracking (NCB) using the given proof and tactic
   sequence, if the case-split was kept even though NCB applies.
   -/
-  let mut ncb? : Option (SavedState × Expr × List (TSyntax `grind)) := none
-  for subgoal in subgoals do
+  let mut ncb? : Option (SavedState × Nat × Expr × List (TSyntax `grind)) := none
+  /- Closes `goal` using the proof `falseProof` of the `i`-th case, skipping the cases after it. -/
+  let closeByNCB (i : Nat) (falseProof : Expr) (seq : List (TSyntax `grind)) : GrindM ActionResult := do
+    modifyThe State fun s => { s with numBranches := s.numBranches - (numSubgoals - 1 - i) }
+    goal.mvarId.assignFalseProof (← goal.withContext <| mkHoistedDecls (← getHoistedDecls goal) falseProof (mkConst ``False))
+    return .closed seq
+  for subgoal in subgoals, i in [:numSubgoals] do
     match (← kp subgoal) with
     | .stuck gs =>
-      if let some (s, falseProof, seq) := ncb? then
+      if let some (s, j, falseProof, seq) := ncb? then
         -- Keeping the case-split failed, so we backtrack using the proof that does not need it.
         s.restore
-        goal.mvarId.assignFalseProof (← goal.withContext <| mkHoistedDecls (← getHoistedDecls goal) falseProof (mkConst ``False))
-        return .closed seq
+        return (← closeByNCB j falseProof seq)
       if stopAtFirstFailure then
         /-
         **Note**: We don't need to assign `goal.mvarId` when `stopAtFirstFailure = true`
@@ -585,10 +590,9 @@ def splitCore (c : SplitInfo) (numCases : Nat) (isRec : Bool)
         candidates that `seq` references using anchors. Otherwise, we keep the case-split.
         -/
         if (← checkSeqAt saved? goal₀ seq) then
-          goal.mvarId.assignFalseProof (← goal.withContext <| mkHoistedDecls (← getHoistedDecls goal) falseProof (mkConst ``False))
-          return .closed seq
+          return (← closeByNCB i falseProof seq)
         if ncb?.isNone then
-          ncb? := some (← saveState, falseProof, seq)
+          ncb? := some (← saveState, i, falseProof, seq)
         if !seq.isEmpty then
           seqNew := seqNew.push seq
       else if !seq.isEmpty then

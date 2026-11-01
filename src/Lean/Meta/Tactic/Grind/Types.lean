@@ -456,6 +456,12 @@ structure State where
   instantiation. An entry is only valid while the metavariable is assigned to the same expression.
   -/
   proofInfos : Std.HashMap MVarId (Expr × ProofInfo) := {}
+  /--
+  Number of branches created by the case-splits performed so far, including the cases that have not
+  been explored yet, but not the ones skipped by non-chronological backtracking.
+  See `Grind.Config.branches` and `Action.splitCore`.
+  -/
+  numBranches : Nat := 0
 
 instance : Nonempty State :=
   .intro {}
@@ -1117,19 +1123,13 @@ structure SplitArg where
 
 /-- Case splitting related fields for the `grind` goal. -/
 structure Split.State where
-  /-- Number of splits performed to get to this goal. -/
-  num          : Nat := 0
   /-- Case-split candidates. -/
   candidates   : List SplitInfo := []
   /-- Case-splits that have been inserted at `candidates` at some point. -/
   added        : Std.HashSet SplitInfo := {}
   /-- Case-splits that have already been performed, or that do not have to be performed anymore. -/
   resolved     : PHashSet ExprPtr := {}
-  /--
-  Sequence of cases steps that generated this goal. We only use this information for diagnostics.
-  Remark: `casesTrace.length ≥ numSplits` because we don't increase the counter for `cases`
-  applications that generated only 1 subgoal.
-  -/
+  /-- Sequence of cases steps that generated this goal. We only use this information for diagnostics. -/
   trace        : List CaseTrace := []
   /-- Lookahead "case-splits". -/
   lookaheads   : List SplitInfo := []
@@ -1637,9 +1637,9 @@ def getNumTheoremInstances : GoalM Nat := do
 def checkMaxInstancesExceeded : GoalM Bool := do
   return (← get).ematch.numInstances >= (← getConfig).instances
 
-/-- Returns `true` if the maximum number of case-splits has been reached. -/
+/-- Returns `true` if the maximum number of branches has been reached. -/
 def checkMaxCaseSplit : GoalM Bool := do
-  return (← get).split.num >= (← getConfig).splits
+  return (← getThe State).numBranches >= (← getConfig).branches
 
 /-- Returns `true` if the maximum number of E-matching rounds has been reached. -/
 def checkMaxEmatchExceeded : GoalM Bool := do

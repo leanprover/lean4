@@ -366,11 +366,74 @@ void * lookup_symbol_in_cur_exe(char const * sym) {
 class interpreter;
 LEAN_THREAD_PTR(interpreter, g_interpreter);
 
+/* `extern` scalar and array primitives that `call` evaluates in place, with the `lean.h` function
+   that implements them natively, instead of calling their boxed wrappers, which box scalar
+   arguments and results on the heap. */
+enum class prim_kind : uint8_t {
+    none,
+    usize_add, usize_sub, usize_mul, usize_div, usize_mod, usize_land, usize_lor, usize_xor,
+    usize_shift_left, usize_shift_right, usize_dec_eq, usize_dec_lt, usize_dec_le,
+    usize_of_nat, usize_to_nat, usize_to_uint64,
+    uint64_add, uint64_sub, uint64_mul, uint64_div, uint64_mod, uint64_land, uint64_lor, uint64_xor,
+    uint64_shift_left, uint64_shift_right, uint64_dec_eq, uint64_dec_lt, uint64_dec_le,
+    uint64_to_usize,
+    array_uget, array_uget_borrowed, array_uset, array_usize
+};
+
+static constexpr struct { char const * m_prefix; char const * m_fn; prim_kind m_kind; } g_prims[] = {
+    {"USize", "add", prim_kind::usize_add},
+    {"USize", "sub", prim_kind::usize_sub},
+    {"USize", "mul", prim_kind::usize_mul},
+    {"USize", "div", prim_kind::usize_div},
+    {"USize", "mod", prim_kind::usize_mod},
+    {"USize", "land", prim_kind::usize_land},
+    {"USize", "lor", prim_kind::usize_lor},
+    {"USize", "xor", prim_kind::usize_xor},
+    {"USize", "shiftLeft", prim_kind::usize_shift_left},
+    {"USize", "shiftRight", prim_kind::usize_shift_right},
+    {"USize", "decEq", prim_kind::usize_dec_eq},
+    {"USize", "decLt", prim_kind::usize_dec_lt},
+    {"USize", "decLe", prim_kind::usize_dec_le},
+    {"USize", "ofNat", prim_kind::usize_of_nat},
+    {"USize", "toNat", prim_kind::usize_to_nat},
+    {"USize", "toUInt64", prim_kind::usize_to_uint64},
+    {"UInt64", "add", prim_kind::uint64_add},
+    {"UInt64", "sub", prim_kind::uint64_sub},
+    {"UInt64", "mul", prim_kind::uint64_mul},
+    {"UInt64", "div", prim_kind::uint64_div},
+    {"UInt64", "mod", prim_kind::uint64_mod},
+    {"UInt64", "land", prim_kind::uint64_land},
+    {"UInt64", "lor", prim_kind::uint64_lor},
+    {"UInt64", "xor", prim_kind::uint64_xor},
+    {"UInt64", "shiftLeft", prim_kind::uint64_shift_left},
+    {"UInt64", "shiftRight", prim_kind::uint64_shift_right},
+    {"UInt64", "decEq", prim_kind::uint64_dec_eq},
+    {"UInt64", "decLt", prim_kind::uint64_dec_lt},
+    {"UInt64", "decLe", prim_kind::uint64_dec_le},
+    {"UInt64", "toUSize", prim_kind::uint64_to_usize},
+    {"Array", "uget", prim_kind::array_uget},
+    {"Array", "ugetBorrowed", prim_kind::array_uget_borrowed},
+    {"Array", "uset", prim_kind::array_uset},
+    {"Array", "usize", prim_kind::array_usize}
+};
+
+static prim_kind find_prim(name const & fn) {
+    if (!fn.is_string() || !fn.get_prefix().is_string() || !fn.get_prefix().is_atomic())
+        return prim_kind::none;
+    char const * prefix = fn.get_prefix().get_string().data();
+    char const * s = fn.get_string().data();
+    for (auto const & p : g_prims)
+        if (strcmp(p.m_prefix, prefix) == 0 && strcmp(p.m_fn, s) == 0)
+            return p.m_kind;
+    return prim_kind::none;
+}
+
 struct native_symbol_cache_entry {
     // symbol address; `nullptr` if function does not have native code
     void * m_addr;
     // true iff we chose the boxed version of a function where the IR uses the unboxed version
     bool m_boxed;
+    prim_kind m_prim = prim_kind::none;
 };
 
 // Caches native symbol lookup successes _and_ failures; we assume no native code is loaded or
@@ -879,6 +942,8 @@ private:
             return m_symbol_cache.emplace(fn, std::move(e_new)).first->second;
         }
         symbol_cache_entry e_new { get_decl(fn), {nullptr, false} };
+        if (decl_tag(e_new.m_decl) == decl_kind::Extern)
+            e_new.m_native.m_prim = find_prim(fn);
         if (m_prefer_native || decl_tag(e_new.m_decl) == decl_kind::Extern || has_init_attribute(m_env, fn)) {
             string_ref mangled = get_symbol_stem(m_env, fn);
             string_ref boxed_mangled = mk_mangled_boxed_name(mangled);
@@ -967,10 +1032,57 @@ private:
         return r;
     }
 
+    /* Evaluates primitive `k` as its native implementation does, respecting the IR borrow flags of
+       its parameters: see `Array.uget [◾, &obj, usize, ◾] tobj` etc. */
+    value eval_prim(prim_kind k, array_ref<arg> const & args) {
+        auto n = [&](size_t i) { return eval_arg(args[i]).m_num; };
+        switch (k) {
+        case prim_kind::usize_add: return lean_usize_add(n(0), n(1));
+        case prim_kind::usize_sub: return lean_usize_sub(n(0), n(1));
+        case prim_kind::usize_mul: return lean_usize_mul(n(0), n(1));
+        case prim_kind::usize_div: return lean_usize_div(n(0), n(1));
+        case prim_kind::usize_mod: return lean_usize_mod(n(0), n(1));
+        case prim_kind::usize_land: return lean_usize_land(n(0), n(1));
+        case prim_kind::usize_lor: return lean_usize_lor(n(0), n(1));
+        case prim_kind::usize_xor: return lean_usize_xor(n(0), n(1));
+        case prim_kind::usize_shift_left: return lean_usize_shift_left(n(0), n(1));
+        case prim_kind::usize_shift_right: return lean_usize_shift_right(n(0), n(1));
+        case prim_kind::usize_dec_eq: return lean_usize_dec_eq(n(0), n(1));
+        case prim_kind::usize_dec_lt: return lean_usize_dec_lt(n(0), n(1));
+        case prim_kind::usize_dec_le: return lean_usize_dec_le(n(0), n(1));
+        case prim_kind::usize_of_nat: return lean_usize_of_nat(eval_arg(args[0]).m_obj);
+        case prim_kind::usize_to_nat: return lean_usize_to_nat(n(0));
+        case prim_kind::usize_to_uint64: return lean_usize_to_uint64(n(0));
+        case prim_kind::uint64_add: return lean_uint64_add(n(0), n(1));
+        case prim_kind::uint64_sub: return lean_uint64_sub(n(0), n(1));
+        case prim_kind::uint64_mul: return lean_uint64_mul(n(0), n(1));
+        case prim_kind::uint64_div: return lean_uint64_div(n(0), n(1));
+        case prim_kind::uint64_mod: return lean_uint64_mod(n(0), n(1));
+        case prim_kind::uint64_land: return lean_uint64_land(n(0), n(1));
+        case prim_kind::uint64_lor: return lean_uint64_lor(n(0), n(1));
+        case prim_kind::uint64_xor: return lean_uint64_xor(n(0), n(1));
+        case prim_kind::uint64_shift_left: return lean_uint64_shift_left(n(0), n(1));
+        case prim_kind::uint64_shift_right: return lean_uint64_shift_right(n(0), n(1));
+        case prim_kind::uint64_dec_eq: return lean_uint64_dec_eq(n(0), n(1));
+        case prim_kind::uint64_dec_lt: return lean_uint64_dec_lt(n(0), n(1));
+        case prim_kind::uint64_dec_le: return lean_uint64_dec_le(n(0), n(1));
+        case prim_kind::uint64_to_usize: return lean_uint64_to_usize(n(0));
+        case prim_kind::array_uget: return lean_array_uget(eval_arg(args[1]).m_obj, n(2));
+        case prim_kind::array_uget_borrowed:
+            return const_cast<object *>(lean_array_uget_borrowed(eval_arg(args[1]).m_obj, n(2)));
+        case prim_kind::array_uset: return lean_array_uset(eval_arg(args[1]).m_obj, n(2), eval_arg(args[3]).m_obj);
+        case prim_kind::array_usize: return lean_array_size(eval_arg(args[1]).m_obj);
+        case prim_kind::none: break;
+        }
+        lean_unreachable();
+    }
+
     value call(name const & fn, array_ref<arg> const & args) {
         size_t old_size = m_arg_stack.size();
         value r;
         const symbol_cache_entry& e = lookup_symbol(fn);
+        if (e.m_native.m_prim != prim_kind::none)
+            return eval_prim(e.m_native.m_prim, args);
         type t = decl_type(e.m_decl);
         if (e.m_native.m_addr) {
             object ** args2 = static_cast<object **>(LEAN_ALLOCA(args.size() * sizeof(object *))); // NOLINT

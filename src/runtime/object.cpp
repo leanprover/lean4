@@ -1712,6 +1712,10 @@ extern "C" LEAN_EXPORT size_t lean_nat_size_in_bytes(b_lean_obj_arg a) {
     return mpz_value(a).size_in_bytes();
 }
 
+extern "C" LEAN_EXPORT uint64_t lean_nat_big_hash(b_lean_obj_arg a) {
+    return mpz_value(a).hash64();
+}
+
 static size_t trailing_zeros(size_t n) {
     return n == 0 ? 0 : std::countr_zero(n);
 }

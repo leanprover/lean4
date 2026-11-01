@@ -161,8 +161,6 @@ if(CMAKE_SYSTEM_NAME MATCHES "Emscripten")
   # TODO(WN): code size/performance tradeoffs
   # - we're using -O3; it's /okay/
   # - -Oz produces quite slow code
-  # - system libraries such as OpenGL are included in the JS but shouldn't be
-  # - we need EMSCRIPTEN_KEEPALIVE annotations on exports to run meta-dce (-s MAIN_MODULE=2)
 
   # `-s` settings only take effect when linking; emcc warns when they are passed to a compilation
   set(EMSCRIPTEN_FLAGS "-fwasm-exceptions -pthread -flto")
@@ -917,16 +915,21 @@ file(RELATIVE_PATH LIB ${LEAN_SOURCE_DIR} ${CMAKE_BINARY_DIR}/lib)
 
 if(CMAKE_SYSTEM_NAME MATCHES "Emscripten")
   # We do not use dynamic linking via leanshared for Emscripten to keep things
-  # simple. (And we are not interested in `Lake` anyway.) To use dynamic
-  # linking, we would probably have to set MAIN_MODULE=2 on `leanshared`,
-  # SIDE_MODULE=2 on `lean`, and set CMAKE_SHARED_LIBRARY_SUFFIX to ".js".
+  # simple. (And we are not interested in `Lake` anyway.) `lean.js` is still a main
+  # module so that the interpreter can look up the runtime's symbols with `dlsym`; the
+  # compiled Lean code it looks up is in the table that `script/wasm_symbols.py`
+  # generates (see `stdlib.make.in`), which also writes the list of exported symbols.
+  # `MAIN_MODULE=2` removes unused code and exports only that list; such a module
+  # includes only the JavaScript library functions the linked code references, so the
+  # helpers that the `EM_ASM` blocks in `src/util/shell.cpp` and `src/runtime/io.cpp`
+  # use are requested explicitly.
   # We set `ERROR_ON_UNDEFINED_SYMBOLS=0` because our build of LibUV does not
   # define all symbols, see the comment about LibUV on WebAssembly further up
   # in this file. `leanc.sh` adds `LEAN_EXTRA_LINKER_FLAGS`, which carries the Emscripten
   # flags and settings, to every link.
   string(
     APPEND LEAN_EXE_LINKER_FLAGS
-    " ${LIB}/temp/libleanshell.a ${TOOLCHAIN_STATIC_LINKER_FLAGS} -lnodefs.js -sEXIT_RUNTIME=1 -sMAIN_MODULE=1 -sEXPORT_ALL=1 -sERROR_ON_UNDEFINED_SYMBOLS=0"
+    " ${LIB}/temp/libleanshell.a ${TOOLCHAIN_STATIC_LINKER_FLAGS} -lnodefs.js -sEXIT_RUNTIME=1 -sMAIN_MODULE=2 -sEXPORTED_FUNCTIONS=@${LIB}/temp/lean_exports.json -sEXPORTED_RUNTIME_METHODS=FS,ENV,UTF8ToString,lengthBytesUTF8,stringToUTF8 -sERROR_ON_UNDEFINED_SYMBOLS=0"
   )
 endif()
 

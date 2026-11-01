@@ -29,6 +29,7 @@ functions, which have a (relatively) homogeneous ABI that we can use without run
 */
 #include <string>
 #include <vector>
+#include <memory>
 #include <shared_mutex>
 #ifdef LEAN_WINDOWS
 #include <windows.h>
@@ -409,6 +410,17 @@ class interpreter {
     };
     // caches symbol lookup successes _and_ failures
     name_hash_map<symbol_cache_entry> m_symbol_cache;
+    /* Direct-mapped cache in front of `m_symbol_cache`, keyed by the address of persistent names
+       (e.g. those in IR loaded from .oleans). They outlive the interpreter, so an address cannot
+       be reused by another name while it runs. Entries point into the node-based `m_symbol_cache`,
+       which is never erased from. */
+    struct symbol_ptr_cache_entry {
+        lean_object * m_key = nullptr;
+        symbol_cache_entry const * m_val = nullptr;
+    };
+    static constexpr size_t symbol_ptr_cache_size = 1024;
+    // allocated on the first persistent lookup
+    std::unique_ptr<symbol_ptr_cache_entry[]> m_symbol_ptr_cache;
 
     /** \brief Get current stack frame */
     inline frame & get_frame() {
@@ -834,6 +846,21 @@ private:
 
     /** \brief Return cached lookup result for given unmangled function name in the current binary. */
     const symbol_cache_entry& lookup_symbol(name const & fn) {
+        lean_object * k = fn.raw();
+        if (lean_is_scalar(k) || !lean_is_persistent(k))
+            return lookup_symbol_core(fn);
+        if (!m_symbol_ptr_cache)
+            m_symbol_ptr_cache = std::make_unique<symbol_ptr_cache_entry[]>(symbol_ptr_cache_size);
+        symbol_ptr_cache_entry & c = m_symbol_ptr_cache[(reinterpret_cast<size_t>(k) >> 4) & (symbol_ptr_cache_size - 1)];
+        if (c.m_key == k)
+            return *c.m_val;
+        symbol_cache_entry const & e = lookup_symbol_core(fn);
+        c.m_key = k;
+        c.m_val = &e;
+        return e;
+    }
+
+    const symbol_cache_entry& lookup_symbol_core(name const & fn) {
         auto e = m_symbol_cache.find(fn);
         if (e != m_symbol_cache.end()) {
             return e->second;

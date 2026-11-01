@@ -198,7 +198,7 @@ def getArithType? (e : Expr) : Option Expr :=
   | Neg.neg α _ _ => some α
   | HDiv.hDiv α β γ _ _ _ => homoType? α β γ
   | Inv.inv α _ _ => some α
-  | NatCast.natCast α _ a => if (Sym.getNatValue? a).run.isSome then some α else none
+  | NatCast.natCast α _ a => if Sym.isNatValue a then some α else none
   | IntCast.intCast α _ a => if (Sym.getIntValue? a).run.isSome then some α else none
   | _ => none
 
@@ -333,7 +333,7 @@ private def mkInvStep? (e x : Expr) : NormM (Option (Expr × Expr)) := do
     return some (← mkFieldStep (mkApp2 (thm ``Grind.Field.inv_mul) a b) e (mkApp2 (← getMulFn) (mkApp invFn a) (mkApp invFn b)))
   | HPow.hPow _ _ _ _ a k =>
     unless distrib do return none
-    unless (Sym.getNatValue? k).run.isSome do return none
+    unless Sym.isNatValue k do return none
     unless isSameExpr (← getPowFn) (← canonExpr x.appFn!.appFn!) do return none
     return some (← mkFieldStep (mkApp2 (thm ``Grind.Field.inv_pow) a k) e (mkApp2 (← getPowFn) (mkApp invFn a) k))
   | Neg.neg _ _ a =>
@@ -2547,7 +2547,7 @@ private def normalizeTerm? (v : Visitor m) (e : Expr) (distrib : Bool) (maxChar?
     if β.isConstOf ``Int then
       unless isField do return .rfl
     else
-      unless (Sym.getNatValue? k).run.isSome do return .rfl
+      unless Sym.isNatValue k do return .rfl
   | HSub.hSub _ _ _ _ _ _ => unless isRing do return .rfl
   | Neg.neg _ _ _ => unless isRing do return .rfl
   | HDiv.hDiv _ _ _ _ _ _ => unless isField do return .rfl

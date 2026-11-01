@@ -477,7 +477,11 @@ private:
     /** \brief Return closure pointing to interpreter stub taking interpreter data, declaration to be called, and partially
         applied arguments. */
     object * mk_stub_closure(decl const & d, unsigned n, object ** args) {
-        unsigned cls_size = 3 + decl_params(d).size();
+        size_t num_params = decl_params(d).size();
+        if (num_params > UINT16_MAX - 3)
+            throw exception(sstream() << "cannot create interpreter closure for '" << decl_fun_id(d)
+                << "': " << num_params << " parameters exceed the maximum of " << UINT16_MAX - 3);
+        unsigned cls_size = 3 + num_params;
         object * cls = alloc_closure(get_stub(cls_size), cls_size, 3 + n);
         closure_set(cls, 0, m_env.to_obj_arg());
         closure_set(cls, 1, m_opts.to_obj_arg());

@@ -297,6 +297,13 @@ private def mkDivStep (e a b : Expr) : NormM (Expr × Expr) := do
   let thm := mkApp4 (mkConst ``Grind.Field.div_eq_mul_inv [ring.u]) ring.type ring.fieldInst?.get! a b
   mkFieldStep thm e (mkApp2 (← getMulFn) a (mkApp (← getInvFn) b))
 
+/-- `mkDivStep` for `e := a / b` with the field's `HDiv` instance; `none` for any other `e`. -/
+private def mkDivStep? (kind : Kind) (e : Expr) : NormM (Option (Expr × Expr)) := do
+  let_expr HDiv.hDiv _ _ _ _ a b := e | return none
+  unless (← isFieldKind kind) do return none
+  unless isSameExpr (← getDivFn) (← canonExpr e.appFn!.appFn!) do return none
+  return some (← mkDivStep e a b)
+
 /--
 The inverse rewrites, for `e := x⁻¹` with the field's `Inv` instance. `(a * b)⁻¹` and `(a ^ n)⁻¹`
 are only rewritten with `distrib`; otherwise they are atoms, like the products they invert.
@@ -2499,9 +2506,12 @@ private def normalizeTerm? (v : Visitor m) (e : Expr) (distrib : Bool) (maxChar?
   let some kind ← classifyKind? α | return .rfl
   if (← charAboveLimit kind maxChar?) then
     -- A cast of a numeral still becomes the numeral of the carrier, so that a numeral has one
-    -- representation; everything else is left as written.
-    let some (e₂, h) ← runNormM kind (mkCastLitStep? kind e) | return .rfl
-    return .step e₂ h (done := true)
+    -- representation, and `a / b` becomes `a * b⁻¹`, since the ring module does not interpret
+    -- `/`; everything else is left as written.
+    if let some (e₂, h) ← runNormM kind (mkCastLitStep? kind e) then
+      return .step e₂ h (done := true)
+    let some (e₂, h) ← runNormM kind (mkDivStep? kind e) | return .rfl
+    return .step e₂ h
   let isRing := kind.isRing
   let isField ← isFieldKind kind
   -- Roots that the structure does not interpret are atoms.
@@ -2635,7 +2645,7 @@ linear arithmetic see, as a simplifier that only linearizes would.
 
 With `maxChar? := some c`, terms over a structure whose characteristic is a numeral above `c`,
 or is not a numeral (`BitVec w`, `Fin n`), are left as written; only casts of numerals are still
-rewritten to the numeral of the carrier. In such a structure the normal form reduces
+rewritten to the numeral of the carrier, and field division `a / b` to `a * b⁻¹`. In such a structure the normal form reduces
 coefficients modulo the characteristic, so `x - y` over `BitVec 64` would become
 `x + 18446744073709551615 * y`, which hides the subtraction from rewrite rules and from
 `grind`'s `[grind hom]` translation. Structures with no `IsCharP` instance are normalized:

@@ -1,7 +1,4 @@
 #!/usr/bin/env python3
-# Copyright (c) 2026 Bas van Dijk. All rights reserved.
-# Released under Apache 2.0 license as described in the file LICENSE.
-# Author: Bas van Dijk
 """
 Generate the native symbol table and the export list of `lean.js`.
 

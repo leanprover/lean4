@@ -88,7 +88,7 @@ def forallIntro? (oldGoal : MVarId) (target : Expr) : VCGenM (Option (List MVarI
     | .noProgress => pure oldGoal
   let mut target ← goal.getType
   while target.isForall do
-    let n := numBindersToIntro target
+    let n ← numBindersToIntro target
     let goal' ← if n == 0 then splitProdBinder goal target else introsHygienicN goal n
     if goal' == goal then break
     goal := goal'

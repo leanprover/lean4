@@ -53,7 +53,7 @@ theorem mkFreshNat_spec_lossy [Monad m] [Assertion Pred] [Assertion EPosts] [WPM
 theorem frames_mkFreshNat [Monad m] [Assertion Pred] [Assertion EPosts]
     [WPMonad m Pred EPosts] [∀ β (y : m β), WPConjunctive y]
     [∀ a : Pred, PreservesSup (meet a)] {F P : AppState → Pred}
-    (h : ∀ s a, F { s with fst := a } = F s) :
+    (h : ∀ a b, F (a, b) = F (0, b)) :
     WP.Frames meet (mkFreshNat : StateT AppState m Nat) F P := by
   refine WP.frames_of_conjunctive (PartialOrder.rel_trans (meet_le_right _ _) ?_)
     (fun _ => meet_le_right _ _)
@@ -63,7 +63,7 @@ theorem frames_mkFreshNat [Monad m] [Assertion Pred] [Assertion EPosts]
 usable pattern, so registering it lets `finish` discharge the preservation VC. -/
 @[grind .]
 theorem frames_mkFreshNat_Id {F P : AppState → Prop}
-    (h : ∀ s a, F { s with fst := a } = F s) :
+    (h : ∀ a b, F (a, b) = F (0, b)) :
     WP.Frames meet (mkFreshNat : StateT AppState Id Nat) F P :=
   frames_mkFreshNat h
 
@@ -103,7 +103,7 @@ theorem mkFreshSnd_spec_lossy [Monad m] [Assertion Pred] [Assertion EPosts] [WPM
 theorem frames_mkFreshSnd [Monad m] [Assertion Pred] [Assertion EPosts]
     [WPMonad m Pred EPosts] [∀ β (y : m β), WPConjunctive y]
     [∀ a : Pred, PreservesSup (meet a)] {F P : AppState → Pred}
-    (h : ∀ s a, F { s with snd := a } = F s) :
+    (h : ∀ a b, F (a, b) = F (a, 0)) :
     WP.Frames meet (mkFreshSnd : StateT AppState m Nat) F P := by
   refine WP.frames_of_conjunctive (PartialOrder.rel_trans (meet_le_right _ _) ?_)
     (fun _ => meet_le_right _ _)
@@ -112,7 +112,7 @@ theorem frames_mkFreshSnd [Monad m] [Assertion Pred] [Assertion EPosts]
 /-- `Id`-specialized `frames_mkFreshSnd`, registered so `finish` discharges the preservation VC. -/
 @[grind .]
 theorem frames_mkFreshSnd_Id {F P : AppState → Prop}
-    (h : ∀ s a, F { s with snd := a } = F s) :
+    (h : ∀ a b, F (a, b) = F (a, 0)) :
     WP.Frames meet (mkFreshSnd : StateT AppState Id Nat) F P :=
   frames_mkFreshSnd h
 
@@ -160,7 +160,7 @@ theorem addFst_spec_lossy [Monad m] [Assertion Pred] [Assertion EPosts] [WPMonad
 theorem frames_addFst [Monad m] [Assertion Pred] [Assertion EPosts]
     [WPMonad m Pred EPosts] [∀ β (y : m β), WPConjunctive y]
     [∀ a : Pred, PreservesSup (meet a)] {F P : AppState → Pred} {k : Nat}
-    (h : ∀ s a, F { s with fst := a } = F s) :
+    (h : ∀ a b, F (a, b) = F (0, b)) :
     WP.Frames meet (addFst k : StateT AppState m Nat) F P := by
   refine WP.frames_of_conjunctive (PartialOrder.rel_trans (meet_le_right _ _) ?_)
     (fun _ => meet_le_right _ _)
@@ -169,7 +169,7 @@ theorem frames_addFst [Monad m] [Assertion Pred] [Assertion EPosts]
 /-- `Id`-specialized `frames_addFst`, registered so `finish` discharges the preservation VC. -/
 @[grind .]
 theorem frames_addFst_Id {F P : AppState → Prop} {k : Nat}
-    (h : ∀ s a, F { s with fst := a } = F s) :
+    (h : ∀ a b, F (a, b) = F (0, b)) :
     WP.Frames meet (addFst k : StateT AppState Id Nat) F P :=
   frames_addFst h
 
@@ -202,7 +202,7 @@ theorem bumpSnd_spec_lossy {σ : Type} [Monad m] [Assertion Pred] [Assertion EPo
 theorem frames_bumpSnd {σ : Type} [Monad m] [Assertion Pred] [Assertion EPosts]
     [WPMonad m Pred EPosts] [∀ β (y : m β), WPConjunctive y]
     [∀ a : Pred, PreservesSup (meet a)] {F P : σ × Nat → Pred}
-    (h : ∀ s a, F { s with snd := a } = F s) :
+    (h : ∀ a b, F (a, b) = F (a, 0)) :
     WP.Frames meet (bumpSnd : StateT (σ × Nat) m Nat) F P := by
   refine WP.frames_of_conjunctive (PartialOrder.rel_trans (meet_le_right _ _) ?_)
     (fun _ => meet_le_right _ _)
@@ -212,7 +212,7 @@ theorem frames_bumpSnd {σ : Type} [Monad m] [Assertion Pred] [Assertion EPosts]
 discharges the preservation VC. -/
 @[grind .]
 theorem frames_bumpSnd_Id {σ : Type} {F P : σ × Nat → Prop}
-    (h : ∀ s a, F { s with snd := a } = F s) :
+    (h : ∀ a b, F (a, b) = F (a, 0)) :
     WP.Frames meet (bumpSnd : StateT (σ × Nat) Id Nat) F P :=
   frames_bumpSnd h
 

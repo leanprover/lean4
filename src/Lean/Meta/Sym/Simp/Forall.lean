@@ -10,6 +10,7 @@ import Lean.Meta.Sym.AlphaShareBuilder
 import Lean.Meta.Sym.Simp.Result
 import Lean.Meta.Sym.Util
 import Lean.Meta.Sym.InstantiateS
+import Lean.Meta.Sym.InstantiateMVarsS
 import Lean.Meta.Sym.AbstractS
 namespace Lean.Meta.Sym.Simp
 
@@ -72,6 +73,7 @@ def toArrow (e : Expr) : SymM ToArrowResult := do
   if let .forallE n α β bi := e then
     if !β.hasLooseBVars then
       let { arrow, infos, v } ← toArrow β
+      let α ← instantiateMVarsIfMVarAppS α
       let u ← getLevel α
       let arrow ← mkAppS₂ (← mkConstS ``Arrow [u, v]) α arrow
       let info := { binderName := n, binderInfo := bi, u, v }
@@ -185,7 +187,7 @@ public def simpArrowTelescope (simpBody : Simproc := simp) : Simproc := fun e =>
   return .step e' h (done := true) (contextDependent := cd)
 
 public def simpArrow (e : Expr) : SimpM Result := do
-  let p := e.bindingDomain!
+  let p ← instantiateMVarsIfMVarAppS e.bindingDomain!
   let q := e.bindingBody!
   -- Propagate `cd` from both domain and codomain: if either sub-simplification
   -- was context-dependent, `simp` might take a different path in another context.
@@ -240,7 +242,7 @@ where
   go (xs : Array Expr) (e : Expr) (cd : Bool) : SimpM Result := do
     if let .forallE n d b bi := e then
       if b.hasLooseBVar 0 then
-        let d ← close xs d
+        let d ← instantiateMVarsIfMVarAppS (← close xs d)
         let mut cd := cd
         if (← isProp d) then
           match (← under xs (simp d)) with

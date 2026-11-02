@@ -78,3 +78,26 @@ theorem guard_frames_poke :
   vcgen frames | Instr.poke _ => fun s => s.mem 5 = 7
   case vc1 => trace_state; grind [poke_frames]
   all_goals grind
+
+@[reducible] def aliasMeet : (St → Prop) → (St → Prop) → (St → Prop) := meet
+
+open Lean.Elab.Tactic.VCGen in
+@[frameproc] def instrAliasFrameProc : FrameProc where
+  prog := ``Instr
+  opHead := ``aliasMeet
+  mkOpAppM _ := pure (mkConst ``aliasMeet)
+  mkResourceTy info := pure info.Pred
+  proc := defaultFrameInferenceProc
+
+/--
+trace: s✝ : St
+a✝ : s✝.mem 5 = 7
+⊢ WP.Frames meet (Instr.poke 1) (fun s => s.mem 5 = 7) fun u => ⌜u = { ptr := 3, mem := s✝.mem }⌝ ⊓ ⊤
+-/
+#guard_msgs (trace) in
+theorem guard_frames_poke_alias :
+    ⦃ fun s => s.mem 5 = 7 ⦄ [Instr.setPtr 3, Instr.poke 1]
+    ⦃ fun _ s => s.mem 5 = 7 ∧ s.mem 3 = 1 ⦄ := by
+  vcgen frames | Instr.poke _ => fun s => s.mem 5 = 7
+  case vc1 => trace_state; grind [poke_frames]
+  all_goals grind

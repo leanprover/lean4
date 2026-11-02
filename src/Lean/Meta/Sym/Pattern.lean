@@ -107,24 +107,31 @@ def isUVar? (n : Name) : Option Nat := Id.run do
   unless p == uvarPrefix do return none
   return some idx
 
-/-- Helper function for implementing `mkPatternFromDecl` and `mkEqPatternFromDecl` -/
-def preprocessDeclPattern (declName : Name) (zetaReduceLHSOnly := false) : MetaM (List Name × Expr) := do
+/--
+Preprocesses the type of `declName` for use as a pattern, with its universe parameters renamed to
+`_uvar`s. Returns those parameters, the type, and whether preprocessing changed the statement
+beyond normalizing universe levels.
+-/
+public def preprocessDeclPattern (declName : Name) (zetaReduceLHSOnly := false) : MetaM (List Name × Expr × Bool) := do
   let info ← getConstInfo declName
   let levelParams := info.levelParams.mapIdx fun i _ => Name.num uvarPrefix i
   let us := levelParams.map mkLevelParam
-  let type ← instantiateTypeLevelParams info.toConstantVal us
-  let type ← preprocessType type (zetaReduceLHSOnly := zetaReduceLHSOnly)
+  let origType ← instantiateTypeLevelParams info.toConstantVal us
+  let type ← preprocessType origType (zetaReduceLHSOnly := zetaReduceLHSOnly)
+  let modified := type != origType
   let type ← normalizeLevels type
-  return (levelParams, type)
+  return (levelParams, type, modified)
 
-def preprocessExprPattern (e : Expr) (levelParams₀ : List Name) (zetaReduceLHSOnly := false) : MetaM (List Name × Expr) := do
-  let type ← inferType e
+/-- Like `preprocessDeclPattern`, for the type of `e` with universe parameters `levelParams₀`. -/
+public def preprocessExprPattern (e : Expr) (levelParams₀ : List Name) (zetaReduceLHSOnly := false) : MetaM (List Name × Expr × Bool) := do
+  let origType ← inferType e
   let levelParams := levelParams₀.mapIdx fun i _ => Name.num uvarPrefix i
   let us := levelParams.map mkLevelParam
-  let type := type.instantiateLevelParams levelParams₀ us
-  let type ← preprocessType type (zetaReduceLHSOnly := zetaReduceLHSOnly)
+  let origType := origType.instantiateLevelParams levelParams₀ us
+  let type ← preprocessType origType (zetaReduceLHSOnly := zetaReduceLHSOnly)
+  let modified := type != origType
   let type ← normalizeLevels type
-  return (levelParams, type)
+  return (levelParams, type, modified)
 
 /--
 Creates a mask indicating which pattern variables require type checking during matching.
@@ -186,7 +193,7 @@ def mkPatternCore (type : Expr) (levelParams : List Name) (varTypes : Array Expr
     mkProofInstArgInfo? xs
   return { levelParams, varTypes, pattern, fnInfos, varInfos?, checkTypeMask? }
 
-def mkPatternFromType (levelParams : List Name) (type : Expr) (num? : Option Nat) : MetaM Pattern := do
+public def mkPatternFromType (levelParams : List Name) (type : Expr) (num? : Option Nat) : MetaM Pattern := do
   let hugeNumber := 10000000
   let num := num?.getD hugeNumber
   let rec go (i : Nat) (pattern : Expr) (varTypes : Array Expr) : MetaM Pattern := do
@@ -210,15 +217,15 @@ If `num?` is `some n`, at most `n` leading quantifiers are stripped.
 If `num?` is `none`, all leading quantifiers are stripped.
 -/
 public def mkPatternFromDecl (declName : Name) (num? : Option Nat := none) : MetaM Pattern := do
-  let (levelParams, type) ← preprocessDeclPattern declName
+  let (levelParams, type, _) ← preprocessDeclPattern declName
   mkPatternFromType levelParams type num?
 
 public def mkPatternFromExpr (e : Expr) (levelParams : List Name := []) (num? : Option Nat := none) : MetaM Pattern := do
-  let (levelParams, type) ← preprocessExprPattern e levelParams
+  let (levelParams, type, _) ← preprocessExprPattern e levelParams
   mkPatternFromType levelParams type num?
 
 @[inline]
-def mkPatternFromTypeWithKey (levelParams : List Name) (type : Expr) (selectKey : Expr → MetaM (Expr × α)) : MetaM (Pattern × α) := do
+public def mkPatternFromTypeWithKey (levelParams : List Name) (type : Expr) (selectKey : Expr → MetaM (Expr × α)) : MetaM (Pattern × α) := do
   let rec go (pattern : Expr) (varTypes : Array Expr) : MetaM (Pattern × α) := do
     if let .forallE _ d b _ := pattern then
       return (← go b (varTypes.push d))
@@ -242,7 +249,7 @@ with `n` pattern variables.
 -/
 @[inline]
 public def mkPatternFromDeclWithKey (declName : Name) (selectKey : Expr → MetaM (Expr × α)) (zetaReduceLHSOnly := false) : MetaM (Pattern × α) := do
-  let (levelParams, type) ← preprocessDeclPattern declName zetaReduceLHSOnly
+  let (levelParams, type, _) ← preprocessDeclPattern declName zetaReduceLHSOnly
   mkPatternFromTypeWithKey levelParams type selectKey
 
 /--
@@ -251,7 +258,7 @@ theorem.
 -/
 @[inline]
 public def mkPatternFromExprWithKey (e : Expr) (levelParams : List Name := []) (selectKey : Expr → MetaM (Expr × α)) (zetaReduceLHSOnly := false) : MetaM (Pattern × α) := do
-  let (levelParams, type) ← preprocessExprPattern e levelParams zetaReduceLHSOnly
+  let (levelParams, type, _) ← preprocessExprPattern e levelParams zetaReduceLHSOnly
   mkPatternFromTypeWithKey levelParams type selectKey
 
 /--

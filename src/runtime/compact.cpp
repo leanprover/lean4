@@ -134,6 +134,12 @@ std::vector<lib_info> object_compactor::used_libs() const {
     return result;
 }
 
+static void * alloc_compactor_buffer(size_t size) {
+    void * buffer = malloc(size);
+    if (buffer == nullptr) lean_internal_panic_out_of_memory();
+    return buffer;
+}
+
 object_compactor::object_compactor(void * base_addr, std::vector<region_view> dep_regions,
                                    bool allow_closures):
     m_max_sharing_table(new max_sharing_table(this)),
@@ -141,7 +147,7 @@ object_compactor::object_compactor(void * base_addr, std::vector<region_view> de
     m_libs(get_loaded_libs()),
     m_allow_closures(allow_closures),
     m_base_addr(base_addr),
-    m_begin(malloc(LEAN_COMPACTOR_INIT_SZ)),
+    m_begin(alloc_compactor_buffer(LEAN_COMPACTOR_INIT_SZ)),
     m_end(m_begin),
     m_capacity(static_cast<char*>(m_begin) + LEAN_COMPACTOR_INIT_SZ) {
     // Sort dep regions by `begin` address for binary search in `to_offset`.
@@ -166,7 +172,7 @@ void * object_compactor::alloc(size_t sz) {
         sz = sz + sizeof(void*) - rem;
     while (static_cast<char*>(m_end) + sz > m_capacity) {
         size_t new_capacity = capacity()*2;
-        void * new_begin = malloc(new_capacity);
+        void * new_begin = alloc_compactor_buffer(new_capacity);
         memcpy(new_begin, m_begin, size());
         m_end      = static_cast<char*>(new_begin) + size();
         m_capacity = static_cast<char*>(new_begin) + new_capacity;

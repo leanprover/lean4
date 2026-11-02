@@ -139,12 +139,12 @@ theorem fib_impl_vcs
   case vc1 h => subst h; apply_rules [ret]
   case vc2 h => apply_rules [loop_pre]
   case vc3 h a b hinv => exact loop_post n h (a, b) hinv
-  case vc4 h pref cur suff _hsplit a b _hinv =>
+  case vc4 h pref cur suff _hsplit a b₀ _hinv =>
     -- The `ForInStep.yield` that the step's postcondition matches on and the projections of the
     -- state pair are reduced, and the loop's two mutable variables reach the verification
-    -- condition as separate binders.
-    guard_target =ₛ I n h (pref ++ [cur]) suff (b, a + b)
-    exact loop_step n h (a, b) pref cur suff _hsplit _hinv
+    -- condition as separate binders. The new value of `b` is the let-variable `b := a + b₀`.
+    guard_target =ₛ I n h (pref ++ [cur]) suff (b₀, b)
+    exact loop_step n h (a, b₀) pref cur suff _hsplit _hinv
 
 @[spec]
 theorem mkFreshNat_spec [Monad m] [Assertion Pred] [Assertion EPosts] [WPMonad m Pred EPosts] :

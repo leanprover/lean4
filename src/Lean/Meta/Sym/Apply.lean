@@ -97,8 +97,9 @@ universe polymorphic.
 The `num?` parameter optionally limits how many arguments are included in the pattern
 (useful for partially applying theorems).
 -/
-public def mkBackwardRuleFromExpr (e : Expr) (levelParams : List Name := []) (num? : Option Nat := none) : MetaM BackwardRule := do
-  let pattern ← mkPatternFromExpr e levelParams num?
+public def mkBackwardRuleFromExpr (e : Expr) (levelParams : List Name := []) (num? : Option Nat := none)
+    (zetaHave := true) : MetaM BackwardRule := do
+  let pattern ← mkPatternFromExpr e levelParams num? zetaHave
   let resultPos := mkResultPos pattern
   let e := e.instantiateLevelParams levelParams (pattern.levelParams.map mkLevelParam)
   return { expr := e, pattern, resultPos }

@@ -470,7 +470,7 @@ a non-spec shape reaching here is a logic error and throws.
 -/
 def mkSpecPatternFromExpr (expr : Expr)
     (levelParams : List Name := []) : MetaM Sym.Pattern := do
-  let (pattern, _) ← Sym.mkPatternFromExprWithKey expr levelParams fun type => do
+  let (pattern, _) ← Sym.mkPatternFromExprWithKey expr levelParams (zetaHave := false) fun type => do
     let some prog ← selectProg type
       | throwError "unexpected kind of spec theorem; expected `Triple` or `⊑ wp`{indentExpr type}"
     return (prog, ())
@@ -541,7 +541,7 @@ discrimination-tree key includes all arguments. Returns `none` for no-op equatio
 syntactically the RHS.
 -/
 def mkSpecTheoremFromSimpDecl? (declName : Name) (prio : Nat) : MetaM (Option SpecTheorem) := do
-  let (pattern, (eqTy, rhs)) ← Sym.mkPatternFromDeclWithKey declName fun body => do
+  let (pattern, (eqTy, rhs)) ← Sym.mkPatternFromDeclWithKey declName (zetaHave := false) fun body => do
     let_expr Eq eqTy lhs rhs := body | throwError "conclusion is not an equality{indentExpr body}"
     return (lhs, (eqTy, rhs))
   -- Skip no-op equations whose preprocessed LHS key is syntactically the RHS, so rewriting makes no
@@ -558,7 +558,7 @@ names. Returns `none` for a no-op equation whose LHS key equals its RHS.
 -/
 def mkSpecTheoremFromSimpExpr? (ref : Syntax) (proof : Expr) (levelParams : List Name := [])
     (prio : Nat := eval_prio default) : MetaM (Option SpecTheorem) := do
-  let (pattern, (eqTy, rhs)) ← Sym.mkPatternFromExprWithKey proof levelParams fun body => do
+  let (pattern, (eqTy, rhs)) ← Sym.mkPatternFromExprWithKey proof levelParams (zetaHave := false) fun body => do
     let_expr Eq eqTy lhs rhs := body | throwError "conclusion is not an equality{indentExpr body}"
     return (lhs, (eqTy, rhs))
   if pattern.pattern == rhs then return none
@@ -576,11 +576,43 @@ def unfoldSpecEqn? (declName : Name) : MetaM (Option Name) := do
   getUnfoldEqnFor? declName (nonRec := true)
 
 /--
+Whether the right-hand side `e` of `f.eq_def` has a `have` where the equation lemmas `f.eq_n`
+zeta-reduce it: at the root, or at the root of a `match` alternative, recursively.
+-/
+partial def hasEqnRootHave (e : Expr) : MetaM Bool := do
+  match e with
+  | .mdata _ b => hasEqnRootHave b
+  | .letE .. => return true
+  | _ =>
+    let some info := isMatcherAppCore? (← getEnv) e | return false
+    let args := e.getAppArgs
+    for i in *...info.numAlts do
+      let alt := args[info.getFirstAltPos + i]!
+      let body := info.altNumParams[i]!.fold (init := alt) fun _ _ e =>
+        if e.isLambda then e.bindingBody! else e
+      if ← hasEqnRootHave body then return true
+    return false
+
+/--
+`f.eq_def` in place of the equation lemma `declName := f.eq_n` of a non-recursive `f` whose
+`f.eq_n` zeta-reduce a `have`, such as a join point of `vcgen +jp`.
+-/
+def eqnHaveFallback? (declName : Name) : MetaM (Option Name) := do
+  let some f ← isEqnThm? declName | return none
+  let some eqDef ← unfoldSpecEqn? f | return none
+  let rhs ← forallTelescope (← getConstInfo eqDef).type fun _ body => do
+    let_expr Eq _ _ rhs := body | return none
+    return some rhs
+  let some rhs := rhs | return none
+  return if ← hasEqnRootHave rhs then some eqDef else none
+
+/--
 The spec theorems the simp entries `entries` contribute, the single place a `vcgen [...]` argument or
 an `attribute [spec] f` definition (through `mkSimpEntryOfDeclToUnfold`) turns into specs:
 - each `.thm` entry, keyed on its left-hand side at `prio`, skipping wildcard-row equations guarded
   by an overlap hypothesis (as a spec such an equation matches any call and strands the hypothesis as
-  a verification condition). A declaration equation is keyed via `mkSpecTheoremFromSimpDecl?`; an
+  a verification condition). A declaration equation is keyed via `mkSpecTheoremFromSimpDecl?`, with
+  `f.eq_def` in place of the equations `f.eq_n` that `eqnHaveFallback?` rejects; an
   equation supplied as a `vcgen [...]` term carries its proof directly (`mkSpecTheoremFromSimpExpr?`),
 - each `.toUnfold` definition through its unfold theorem `f.eq_def` (`unfoldSpecEqn?`) at priority
   `0`, below every equation, so a call with an opaque discriminant still rewrites to the underlying
@@ -589,13 +621,19 @@ A single malformed entry is traced and skipped rather than aborting the set.
 -/
 def simpSpecTheorems (entries : Array SimpEntry) (prio : Nat) : MetaM (Array SpecTheorem) := do
   let mut result := #[]
+  let mut eqDefs : NameSet := {}
   for entry in entries do
     match entry with
     | .thm thm =>
       match thm.origin with
       | .decl declName .. =>
         try
-          if hasOverlapHypothesis (← getAsyncConstInfo declName).toConstantVal.type then
+          if let some eqDef ← eqnHaveFallback? declName then
+            unless eqDefs.contains eqDef do
+              eqDefs := eqDefs.insert eqDef
+              if let some spec ← mkSpecTheoremFromSimpDecl? eqDef prio then
+                result := result.push spec
+          else if hasOverlapHypothesis (← getAsyncConstInfo declName).toConstantVal.type then
             trace[Elab.Tactic.Do.specAttr] "Skipping overlap-hypothesis equation {declName}"
           else if let some spec ← mkSpecTheoremFromSimpDecl? declName prio then
             result := result.push spec

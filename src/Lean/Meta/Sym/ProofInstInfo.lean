@@ -9,22 +9,28 @@ public import Lean.Meta.Sym.SymM
 import Lean.Meta.Sym.IsClass
 import Lean.Meta.Sym.Util
 import Lean.Meta.Sym.Eta
+import Lean.Meta.LetToHave
 namespace Lean.Meta.Sym
 
 /--
 Preprocesses types that used for pattern matching and unification.
+If `zetaHave := false`, nondependent `let`s become `have`s and stay, and only dependent `let`s are
+zeta-reduced.
 -/
-public def preprocessType (type : Expr) (zetaReduceLHSOnly := false) (zetaDelta := false) : MetaM Expr := do
+public def preprocessType (type : Expr) (zetaReduceLHSOnly := false) (zetaDelta := false)
+    (zetaHave := true) : MetaM Expr := do
   let type ← Sym.unfoldReducible type
   let type ← Core.betaReduce type
+  let type ← if zetaHave then pure type else letToHave type
+  let zeta (e : Expr) := zetaReduce e (zetaDelta := zetaDelta) (zetaHave := zetaHave)
   let type ← if zetaReduceLHSOnly then
     forallTelescope type fun xs body => do
       match_expr body with
-      | f@Eq α lhs rhs => mkForallFVars xs <| mkApp3 f α (← zetaReduce lhs (zetaDelta := zetaDelta)) rhs
-      | f@Iff lhs rhs => mkForallFVars xs <| mkApp2 f (← zetaReduce lhs (zetaDelta := zetaDelta)) rhs
-      | _ => zetaReduce type (zetaDelta := zetaDelta)
+      | f@Eq α lhs rhs => mkForallFVars xs <| mkApp3 f α (← zeta lhs) rhs
+      | f@Iff lhs rhs => mkForallFVars xs <| mkApp2 f (← zeta lhs) rhs
+      | _ => zeta type
   else
-    zetaReduce type (zetaDelta := zetaDelta)
+    zeta type
   etaReduceAll type
 
 /--

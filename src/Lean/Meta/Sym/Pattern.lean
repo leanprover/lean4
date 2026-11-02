@@ -108,21 +108,23 @@ def isUVar? (n : Name) : Option Nat := Id.run do
   return some idx
 
 /-- Helper function for implementing `mkPatternFromDecl` and `mkEqPatternFromDecl` -/
-def preprocessDeclPattern (declName : Name) (zetaReduceLHSOnly := false) : MetaM (List Name × Expr) := do
+def preprocessDeclPattern (declName : Name) (zetaReduceLHSOnly := false) (zetaHave := true) :
+    MetaM (List Name × Expr) := do
   let info ← getConstInfo declName
   let levelParams := info.levelParams.mapIdx fun i _ => Name.num uvarPrefix i
   let us := levelParams.map mkLevelParam
   let type ← instantiateTypeLevelParams info.toConstantVal us
-  let type ← preprocessType type (zetaReduceLHSOnly := zetaReduceLHSOnly)
+  let type ← preprocessType type (zetaReduceLHSOnly := zetaReduceLHSOnly) (zetaHave := zetaHave)
   let type ← normalizeLevels type
   return (levelParams, type)
 
-def preprocessExprPattern (e : Expr) (levelParams₀ : List Name) (zetaReduceLHSOnly := false) : MetaM (List Name × Expr) := do
+def preprocessExprPattern (e : Expr) (levelParams₀ : List Name) (zetaReduceLHSOnly := false)
+    (zetaHave := true) : MetaM (List Name × Expr) := do
   let type ← inferType e
   let levelParams := levelParams₀.mapIdx fun i _ => Name.num uvarPrefix i
   let us := levelParams.map mkLevelParam
   let type := type.instantiateLevelParams levelParams₀ us
-  let type ← preprocessType type (zetaReduceLHSOnly := zetaReduceLHSOnly)
+  let type ← preprocessType type (zetaReduceLHSOnly := zetaReduceLHSOnly) (zetaHave := zetaHave)
   let type ← normalizeLevels type
   return (levelParams, type)
 
@@ -165,7 +167,7 @@ where
   go (e : Expr) (offset : Nat) (isArg : Bool) : Array Bool → Array Bool :=
     match e with
     | .app f a => go f offset isArg ∘ go a offset true
-    | .letE .. => unreachable! -- We zeta-reduce at `preprocessType`
+    | .letE _ t v b _ => go t offset false ∘ go v offset true ∘ go b (offset+1) false
     | .const .. | .fvar _ | .sort _ | .mvar _ | .lit _ => id
     | .mdata _ b => go b offset isArg
     | .proj .. => id -- Should not occur in patterns
@@ -213,8 +215,9 @@ public def mkPatternFromDecl (declName : Name) (num? : Option Nat := none) : Met
   let (levelParams, type) ← preprocessDeclPattern declName
   mkPatternFromType levelParams type num?
 
-public def mkPatternFromExpr (e : Expr) (levelParams : List Name := []) (num? : Option Nat := none) : MetaM Pattern := do
-  let (levelParams, type) ← preprocessExprPattern e levelParams
+public def mkPatternFromExpr (e : Expr) (levelParams : List Name := []) (num? : Option Nat := none)
+    (zetaHave := true) : MetaM Pattern := do
+  let (levelParams, type) ← preprocessExprPattern e levelParams (zetaHave := zetaHave)
   mkPatternFromType levelParams type num?
 
 @[inline]
@@ -241,8 +244,9 @@ For a theorem `∀ x₁ ... xₙ, type`, returns a pattern matching the first co
 with `n` pattern variables.
 -/
 @[inline]
-public def mkPatternFromDeclWithKey (declName : Name) (selectKey : Expr → MetaM (Expr × α)) (zetaReduceLHSOnly := false) : MetaM (Pattern × α) := do
-  let (levelParams, type) ← preprocessDeclPattern declName zetaReduceLHSOnly
+public def mkPatternFromDeclWithKey (declName : Name) (selectKey : Expr → MetaM (Expr × α)) (zetaReduceLHSOnly := false)
+    (zetaHave := true) : MetaM (Pattern × α) := do
+  let (levelParams, type) ← preprocessDeclPattern declName zetaReduceLHSOnly zetaHave
   mkPatternFromTypeWithKey levelParams type selectKey
 
 /--
@@ -250,8 +254,9 @@ Like `mkPatternFromDeclWithKey`, but for a complex proof expression instead of t
 theorem.
 -/
 @[inline]
-public def mkPatternFromExprWithKey (e : Expr) (levelParams : List Name := []) (selectKey : Expr → MetaM (Expr × α)) (zetaReduceLHSOnly := false) : MetaM (Pattern × α) := do
-  let (levelParams, type) ← preprocessExprPattern e levelParams zetaReduceLHSOnly
+public def mkPatternFromExprWithKey (e : Expr) (levelParams : List Name := []) (selectKey : Expr → MetaM (Expr × α)) (zetaReduceLHSOnly := false)
+    (zetaHave := true) : MetaM (Pattern × α) := do
+  let (levelParams, type) ← preprocessExprPattern e levelParams zetaReduceLHSOnly zetaHave
   mkPatternFromTypeWithKey levelParams type selectKey
 
 /--
@@ -601,7 +606,9 @@ partial def process (p : Expr) (e : Expr) : UnifyM Bool := do
     return true
   | .mvar _ | .lit _ =>
     pure (p == e) <||> checkLetVar p e <||> checkMVar p e
-  | .letE .. => unreachable!
+  | .letE .. =>
+    pushPending p e
+    return true
 where
   checkMVar (p : Expr) (e : Expr) : UnifyM Bool := do
     if (← isAssignedMVar e) then
@@ -1095,7 +1102,10 @@ def isDefEqMainImpl (t : Expr) (s : Expr) : DefEqM Bool := do
   | .proj .., _ | _, .proj .. =>
     throwError "unexpected kernel projection term during structural definitional equality{indentExpr t}\nand{indentExpr s}\npre-process and fold them as projection applications"
     return false
-  | .letE .., _ | _, .letE .. =>
+  | .letE n t₁ v₁ b₁ true, .letE _ t₂ v₂ b₂ true =>
+    -- `have x : t := v; b` is compared as the redex `(fun x : t => b) v`
+    isDefEqMain v₁ v₂ <&&> isDefEqBindingS (.lam n t₁ b₁ .default) (.lam n t₂ b₂ .default)
+  | .letE _ _ _ _ false, _ | _, .letE _ _ _ _ false =>
     throwError "unexpected let-declaration term during structural definitional equality{indentExpr t}\nand{indentExpr s}\npre-process and zeta-reduce them"
     return false
   | _, _ =>

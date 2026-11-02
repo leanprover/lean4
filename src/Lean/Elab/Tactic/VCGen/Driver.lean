@@ -10,6 +10,7 @@ public import Lean.Elab.Tactic.Meta
 public import Lean.Elab.Tactic.VCGen.Context
 public import Lean.Elab.Tactic.VCGen.Solve
 public import Lean.Meta.Sym.Grind
+import Lean.Meta.Sym.LetToHave
 
 open Lean Meta Elab Tactic Sym Sym.Internal Lean.Order
 open Lean.Elab.Tactic.Do.SpecAttr
@@ -49,7 +50,7 @@ public def elabInvariant (invariantAlts : Std.HashMap Nat Syntax) (n : Nat) (mv 
       -- Preprocess the assignment to `mv` because it will interact with the `SymM` world
       if let some val ← getExprMVarAssignment? mv then
         let val ← unfoldReducible val
-        let val ← shareCommon val
+        let val ← Sym.letToHave (← shareCommon val)
         mv.assign val
       return true
     else
@@ -116,6 +117,7 @@ structure WorkItem where
 
 public def work (scope : Scope) (goal : Grind.Goal) : VCGenM Unit := do
   let mvarId ← preprocessMVar goal.mvarId
+  let mvarId ← mvarId.replaceTargetDefEqFast (← Sym.letToHave (← mvarId.getType))
   let mut worklist : Array WorkItem := #[{ goal := { goal with mvarId }, scope }]
   while let some s := worklist.back? do
     worklist := worklist.pop

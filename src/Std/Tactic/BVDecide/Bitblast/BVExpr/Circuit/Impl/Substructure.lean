@@ -107,7 +107,7 @@ where
         ⟨⟨ret, this⟩, cache⟩
 
 /--
-Turn a `BoolExpr` into an `Entrypoint`.
+Turn a `BVLogicalExpr` into an `Entrypoint`.
 -/
 def bitblast (expr : BVLogicalExpr) : Entrypoint BVBit :=
   bitblastWithCache expr AIG.empty .empty |>.result.val

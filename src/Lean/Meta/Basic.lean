@@ -478,13 +478,8 @@ Persistent tier of the type class resolution cache, which survives the current c
 only context-free entries (see `Lean.Meta.SynthInstance`), and as it is part of the environment, it
 rolls back together with the counters its entries are validated against. A change of the instances
 in effect only invalidates the entries whose search consulted the class it affects
-(`RecordedDeps.instClassChanges`).
-
-In the past, every entry depended on the generation of the whole instance table, so declaring any
-instance invalidated almost every entry, and the tier was dropped as a whole whenever the instances
-or unification hints in effect changed. Entries now depend only on the instances of the classes
-their search consulted, so most of them survive such a change and are kept: an invalidated entry is
-rejected when it is looked up (see `RecordedDeps`), and replaced when its query is stored again.
+(`RecordedDeps.instClassChanges`): an invalidated entry is rejected when it is looked up (see
+`RecordedDeps`), and replaced when its query is stored again.
 -/
 def _root_.Lean.Environment.synthCache (env : Environment) : SynthInstanceCache :=
   match env.synthCacheRaw? with

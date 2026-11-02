@@ -84,10 +84,7 @@ structure Instances where
   only compared within the module that recorded them, i.e. against states with the same imported
   instances, so equal changes mean equal instances of the class. Restoring an earlier state (e.g. at
   the end of a section) restores the changes with it. Instances whose key is not rooted at a class
-  are under `Name.anonymous`, on which every query depends.
-
-  **Note**: In practice, all instances are rooted at a class. The `Name.anonyous` case is used just
-  to avoid abnormal cases.
+  (in practice, there are none) are under `Name.anonymous`, on which every query depends.
   -/
   classChanges : PHashMap Name (List InstanceChange) := {}
   /--

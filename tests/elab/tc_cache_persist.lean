@@ -1,7 +1,8 @@
 /-!
 Tests that the type class resolution cache persists across commands, that adding, erasing or
 changing the scoped instances of a class invalidates the entries whose search consulted the class,
-and only those, and that entries computed with local instances do not persist.
+and only those, and that entries computed under `attribute [local instance]` do not outlive its
+scope.
 
 New persistent entries are environment modifications, so they are rolled back together with the
 environment; in particular `example`s (which are elaborated inside `withoutModifyingEnv`) can

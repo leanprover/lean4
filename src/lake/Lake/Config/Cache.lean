@@ -42,17 +42,26 @@ public abbrev CacheMap := Std.HashMap Hash CacheMap.Entry
 namespace CacheMap
 
 /-- The current version of the input-to-output mappings file format. -/
-public def schemaVersion : Date := {year := 2026, month := 3, day := 17}
+public def schemaVersion : Date := {year := 2026, month := 11, day := 2}
 
-def checkSchemaVersion (inputName : String) (line : String) : LogIO Unit := do
+/-- The first schema version with SHA-256 hashes. Older mappings are ignored. -/
+def sha256SchemaVersion : Date := {year := 2026, month := 11, day := 2}
+
+/-- Checks the header of a mappings file. Returns whether its mappings should be read. -/
+def checkSchemaVersion (inputName : String) (line : String) : LogIO Bool := do
   if line.isEmpty then
     error s!"{inputName}: expected schema version on line 1"
   match Json.parse line >>= fromJson? with
   | .ok (ver : Date) =>
-    if ver < schemaVersion then
+    if ver < sha256SchemaVersion then
+      logWarning s!"{inputName}: ignoring mappings of outdated schema version '{ver}'"
+      return false
+    if schemaVersion < ver then
       logWarning s!"{inputName}: unknown schema version '{ver}'; may not parse correctly"
+    return true
   | .error e =>
     logWarning s!"{inputName}: invalid header on line 1: {e}"
+    return true
 
 def parseCacheEntry [Monad m] [MonadLog m]
   (inputName : String) (lineNo : Nat) (cache : CacheMap) (line : String)
@@ -92,7 +101,8 @@ public partial def parse
       loop (i+1) cache (lfPos.next h)
   let lfPos := contents.find '\n'
   let line := contents.sliceTo lfPos
-  checkSchemaVersion inputName line.trimAscii.copy
+  unless (← checkSchemaVersion inputName line.trimAscii.copy) do
+    return {}
   if h : lfPos.IsAtEnd then
     return {}
   else
@@ -108,7 +118,8 @@ public partial def parse
     let cache ← parseCacheEntry fileName i cache line platformIndependent
     loop (i+1) cache
   let line ← h.getLine
-  checkSchemaVersion fileName line
+  unless (← checkSchemaVersion fileName line) do
+    return {}
   loop 2 {}
 
 /--
@@ -336,7 +347,7 @@ end CacheServiceScope
 /-! ## Cache Output -/
 
 /-- The current version of the output file format. -/
-public def CacheOutput.schemaVersion : String := "2026-02-25"
+public def CacheOutput.schemaVersion : String := "2026-11-02"
 
 public structure CacheOutput where
   private mk ::

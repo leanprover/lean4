@@ -82,7 +82,9 @@ echo "# TEST: Automatic cloud release unpacking"
 mkdir -p .lake/packages/dep/.lake/build
 test_out "packing" -d .lake/packages/dep pack
 test_exp -f .lake/packages/dep/.lake/release.tgz
-echo 4225503363911572621 > .lake/packages/dep/.lake/release.tgz.trace
+# SHA-256 of the release URL
+echo '{"schemaVersion": "2026-11-02", "depHash": "78d78f3a7997381cee239d407b04a5f53252dc46802e07a2f226057e727fa95d"}' \
+  > .lake/packages/dep/.lake/release.tgz.trace
 rm -rf .lake/packages/dep/.lake/build
 test_out "tar" build dep:release -v
 test_exp -d .lake/packages/dep/.lake/build

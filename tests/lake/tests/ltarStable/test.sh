@@ -18,7 +18,7 @@ public def a : Nat := 1
 EOF
 
 # The set of bundle (`.ltar`) content hashes referenced by a mapping file.
-bundles() { grep -oE '[0-9a-f]{16}\.ltar' "$1" | sort -u; }
+bundles() { grep -oE '[0-9a-f]{64}\.ltar' "$1" | sort -u; }
 
 # A build populates the cache and emits a mapping referencing bundles.
 test_run build -o .lake/out1.jsonl

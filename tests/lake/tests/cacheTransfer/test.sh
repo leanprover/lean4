@@ -23,7 +23,7 @@ if ! curl --help all 2> /dev/null | grep -q -- '--aws-sigv4'; then
 fi
 
 # The cache map schema version (see `Lake.CacheMap.schemaVersion`)
-SCHEMA_VER=2026-03-17
+SCHEMA_VER=2026-11-02
 
 TEST_DIR="$(norm_path "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &> /dev/null && pwd)")"
 WORK_DIR="$TEST_DIR/work"
@@ -246,8 +246,8 @@ test_cmd rm -rf .lake/build "$CACHE_DIR"
 ART="$(ls -1 "$STORE_DIR/a0/test" | head -1)"
 cat > empty-outputs.jsonl << EOF
 "$SCHEMA_VER"
-["aaaaaaaaaaaaaaaa","${ART%.art}.ltar"]
-["bbbbbbbbbbbbbbbb","0123456789abcdef.ltar"]
+["aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","${ART%.art}.ltar"]
+["bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb","0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef.ltar"]
 EOF
 test_err 'failed to download some artifacts' cache get empty-outputs.jsonl \
   --scope=test --service=empty
@@ -329,8 +329,8 @@ ART="$(ls -1 "$STORE_DIR/a0/test" | head -1)"
 HASH="${ART%.art}"
 cat > dup-outputs.jsonl << EOF
 "$SCHEMA_VER"
-["aaaaaaaaaaaaaaaa","$HASH.o"]
-["bbbbbbbbbbbbbbbb","$HASH.dup"]
+["aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","$HASH.o"]
+["bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb","$HASH.dup"]
 EOF
 : > "$SERVER_LOG"
 test_run cache get dup-outputs.jsonl --scope=test --service=ok

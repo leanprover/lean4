@@ -50,3 +50,4 @@ public import Init.MethodSpecsSimp
 public import Init.LawfulBEqTactics
 public import Init.LetFun
 public import Init.KernelVM
+public import Init.KernelVM.Lemmas

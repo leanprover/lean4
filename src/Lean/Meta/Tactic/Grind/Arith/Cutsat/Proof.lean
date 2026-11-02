@@ -18,6 +18,7 @@ import Lean.Meta.Sym.Arith.VarRename
 import Lean.Meta.Sym.Arith.ToExpr
 import Init.Data.Nat.Order
 import Init.Data.Order.Lemmas
+import Init.Data.Int.LinearVM
 public section
 namespace Lean.Meta.Grind.Arith.Cutsat
 deriving instance Hashable for Int.Internal.Linear.Expr
@@ -87,6 +88,15 @@ private structure HoistedFact where
   /-- Its proof, which uses auxiliary free variables. -/
   proof : Expr
 
+/-- The constraints of a `linCheckProg` certificate, see `mkLinVMProof?`. -/
+private structure VMCnstrsDecl where
+  /-- Auxiliary free variable for their encoding. -/
+  fvar   : Expr
+  /-- Epoch of the variables of the constraints. -/
+  epoch  : Nat
+  /-- The constraints, `true` for `≤`. -/
+  cnstrs : Array (Bool × Poly)
+
 private structure ProofM.State where
   /-- Cache for visited cutsat proof terms. The key is the pointer address. -/
   cache         : Std.HashMap UInt64 CachedProof := {}
@@ -102,6 +112,8 @@ private structure ProofM.State where
   ringCtxs      : Std.HashMap Nat CtxVar := {}
   /-- Facts hoisted to enclosing case splits. -/
   facts         : Array HoistedFact := #[]
+  /-- Constraints of `linCheckProg` certificates, encoded after the variables are renamed. -/
+  vmCnstrs      : Array VMCnstrsDecl := #[]
 
 private structure ProofM.Context where
   /-- Epoch of the justification being processed. Each `.reorder c` steps into the previous one. -/
@@ -443,6 +455,158 @@ private def mkPowEqProof (ka : Int) (ca? : Option EqCnstr) (kb : Nat) (cb? : Opt
   let h := mkApp8 (mkConst ``Int.Internal.Linear.pow_eq) a b (toExpr ka) (toExpr kbInt) (toExpr k) h₁ h₂ eagerReflBoolTrue
   return mkApp6 (mkConst ``Int.Internal.Linear.of_var_eq) (← getContext) (← mkVarDecl x) (toExpr k) (← mkPolyDecl c'.p) eagerReflBoolTrue h
 
+register_builtin_option grind.lia.vm : Bool := {
+  defValue := false
+  descr    := "check linear `lia` refutations with a single run of the kernel VM (experimental)"
+}
+
+/-- A constraint in a `linCheckProg` certificate. -/
+private inductive VMNode where
+  | le (c : LeCnstr)
+  | eq (c : EqCnstr)
+
+private def VMNode.poly : VMNode → Poly
+  | .le c => c.p
+  | .eq c => c.p
+
+private def VMNode.isLe : VMNode → Bool
+  | .le _ => true
+  | .eq _ => false
+
+private def VMNode.addr : VMNode → UInt64
+  | .le c => unsafe (ptrAddrUnsafe c).toUInt64
+  | .eq c => unsafe (ptrAddrUnsafe c).toUInt64
+
+/-- A row of a `linCheckProg` certificate: a leaf constraint, or a step. -/
+private inductive VMRow where
+  | leaf (i : Nat)
+  | step (i : Nat)
+  deriving Inhabited
+
+/-- The value of a row: its coefficients, its constant, and whether it is a `≤` constraint. -/
+private structure VMVal where
+  coeffs : Std.HashMap Var Int := {}
+  const  : Int := 0
+  isLe   : Bool
+  deriving Inhabited
+
+private def VMVal.ofPoly (p : Poly) (isLe : Bool) : VMVal := go p {} where
+  go : Poly → Std.HashMap Var Int → VMVal
+    | .num k, m => { coeffs := m.filter fun _ a => a != 0, const := k, isLe }
+    | .add k v p, m => go p (m.insert v (m.getD v 0 + k))
+
+private def VMVal.sameAs (a b : VMVal) : Bool :=
+  a.const == b.const && a.coeffs.size == b.coeffs.size && a.coeffs.all fun v k => b.coeffs.get? v == some k
+
+private structure VMCertState where
+  leaves   : Array VMNode := #[]
+  leafVals : Array VMVal := #[]
+  steps    : Array (Array (Int × VMRow) × Int) := #[]
+  stepVals : Array VMVal := #[]
+  visited  : Std.HashMap UInt64 VMRow := {}
+
+private abbrev VMCertM := StateM VMCertState
+
+private def VMRow.val (r : VMRow) : VMCertM VMVal := do
+  match r with
+  | .leaf i => return (← get).leafVals[i]!
+  | .step i => return (← get).stepVals[i]!
+
+private def inInt64 (x : Int) : Bool := -9223372036854775808 ≤ x && x < 9223372036854775808
+
+/--
+The value of the step that adds up `terms` and divides by `d`, as computed by `linCheckProg`, or
+`none` if `linCheckProg` would fail on it.
+-/
+private def VMCertM.stepVal (terms : Array (Int × VMRow)) (d : Int) : VMCertM (Option VMVal) := do
+  let mut coeffs : Std.HashMap Var Int := {}
+  let mut const : Int := 0
+  let mut isLe := false
+  for (c, r) in terms do
+    let v ← r.val
+    if v.isLe then
+      if c < 0 then return none
+      isLe := true
+    for (x, a) in v.coeffs do
+      let p := c * a
+      let s := coeffs.getD x 0 + p
+      unless inInt64 p && inInt64 s do return none
+      coeffs := coeffs.insert x s
+    let p := c * v.const
+    let s := const + p
+    unless inInt64 p && inInt64 s do return none
+    const := s
+  if d > 1 then
+    for (x, a) in coeffs do
+      if a % d != 0 then return none
+      coeffs := coeffs.insert x (a / d)
+    if isLe then
+      unless inInt64 (-const) do return none
+      const := -((-const) / d)
+    else
+      if const % d != 0 then return none
+      const := const / d
+  return some { coeffs := coeffs.filter fun _ a => a != 0, const, isLe }
+
+private def VMCertM.leaf (n : VMNode) : VMCertM VMRow := do
+  let s ← get
+  let r := VMRow.leaf s.leaves.size
+  set { s with leaves := s.leaves.push n, leafVals := s.leafVals.push (VMVal.ofPoly n.poly n.isLe) }
+  return r
+
+/-- A step for `n`, or a leaf if the step does not compute the polynomial of `n`. -/
+private def VMCertM.step (n : VMNode) (terms : Array (Int × VMRow)) (d : Int) : VMCertM VMRow := do
+  let some v ← VMCertM.stepVal terms d | VMCertM.leaf n
+  unless v.sameAs (VMVal.ofPoly n.poly n.isLe) do return ← VMCertM.leaf n
+  let s ← get
+  let r := VMRow.step s.steps.size
+  set { s with steps := s.steps.push (terms, d), stepVals := s.stepVals.push v }
+  return r
+
+/--
+Translates the derivation of `n` into steps of a `linCheckProg` certificate. Constraints whose
+justification is not a linear combination of other constraints become leaves.
+-/
+private partial def VMNode.visit (n : VMNode) : VMCertM VMRow := do
+  if let some r := (← get).visited[n.addr]? then return r
+  let r ← match n with
+    | .le c =>
+      match c.h with
+      | .norm c₁ => VMCertM.step n #[(1, ← VMNode.visit (.le c₁))] 1
+      | .divCoeffs c₁ => VMCertM.step n #[(1, ← VMNode.visit (.le c₁))] c₁.p.gcdCoeffs'
+      | .combine c₁ c₂ =>
+        VMCertM.step n #[(c₂.p.leadCoeff.natAbs, ← VMNode.visit (.le c₁)),
+          (c₁.p.leadCoeff.natAbs, ← VMNode.visit (.le c₂))] 1
+      | .combineDivCoeffs c₁ c₂ k =>
+        VMCertM.step n #[(c₂.p.leadCoeff.natAbs, ← VMNode.visit (.le c₁)),
+          (c₁.p.leadCoeff.natAbs, ← VMNode.visit (.le c₂))] k
+      | .subst x c₁ c₂ =>
+        let a := c₁.p.coeff x
+        let b := c₂.p.coeff x
+        if a ≥ 0 then
+          VMCertM.step n #[(a, ← VMNode.visit (.le c₂)), (-b, ← VMNode.visit (.eq c₁))] 1
+        else
+          VMCertM.step n #[(-a, ← VMNode.visit (.le c₂)), (b, ← VMNode.visit (.eq c₁))] 1
+      | _ => VMCertM.leaf n
+    | .eq c =>
+      match c.h with
+      | .norm c₁ => VMCertM.step n #[(1, ← VMNode.visit (.eq c₁))] 1
+      | .divCoeffs c₁ => VMCertM.step n #[(1, ← VMNode.visit (.eq c₁))] (c₁.p.gcdCoeffs c₁.p.getConst)
+      | .subst x c₁ c₂ =>
+        let a := c₁.p.coeff x
+        let b := c₂.p.coeff x
+        VMCertM.step n #[(b, ← VMNode.visit (.eq c₁)), (-a, ← VMNode.visit (.eq c₂))] 1
+      | _ => VMCertM.leaf n
+  modify fun s => { s with visited := s.visited.insert n.addr r }
+  return r
+
+/-- Whether a row with value `v` is contradictory for `linCheckProg` with final divisor `g`. -/
+private def VMVal.isContradiction (v : VMVal) (g : Int) : Bool :=
+  if g > 1 then
+    !v.isLe && v.coeffs.all (fun _ a => a % g == 0) && v.const % g != 0
+  else
+    v.coeffs.isEmpty && (if v.isLe then v.const > 0 else v.const != 0)
+
 set_option compiler.ignoreBorrowAnnotation true in
 mutual
 
@@ -725,13 +889,69 @@ private partial def CooperSplit.toExprProof (s : CooperSplit) : ProofM Expr := c
     -- `result` is now a proof of `p 0`
     return result
 
+
+/--
+Proves `False` from `n` by a single run of `linCheckProg`, if the derivation of `n` has at least one
+linear combination step. `g` is the final divisor of the certificate.
+-/
+private partial def mkLinVMProof? (n : VMNode) (g : Int) : ProofM (Option Expr) := do
+  let (r, cert) := (VMNode.visit n).run {}
+  let (r, cert) := (do
+      let v ← VMCertM.stepVal #[(1, r)] 1
+      let s ← get
+      set { s with steps := s.steps.push (#[(1, r)], 1), stepVals := s.stepVals.push (v.getD { isLe := true }) }
+      return v).run cert
+  let some v := r | return none
+  unless v.isContradiction g do return none
+  unless cert.leafVals.all (fun v => inInt64 v.const && v.coeffs.all fun _ a => inInt64 a) do return none
+  if cert.steps.size ≤ 1 then return none
+  let numLeaves := cert.leaves.size
+  let rowIdx : VMRow → Nat
+    | .leaf i => i
+    | .step i => numLeaves + i
+  let steps := cert.steps.map fun (terms, d) =>
+    ({ terms := terms.map fun (c, r) => (c, rowIdx r), div := d } : Int.Internal.Linear.LinCertStep)
+  let certNat := Int.Internal.Linear.encodeLinCert steps g
+  let ctx ← getContext
+  let cnstrType := mkConst ``Int.Internal.Linear.VMCnstr
+  let mut cs := #[]
+  let mut hs := #[]
+  for leaf in cert.leaves do
+    let p ← mkPolyDecl leaf.poly
+    match leaf with
+    | .le c =>
+      cs := cs.push (mkApp (mkConst ``Int.Internal.Linear.VMCnstr.le) p)
+      hs := hs.push (← c.toExprProof)
+    | .eq c =>
+      cs := cs.push (mkApp (mkConst ``Int.Internal.Linear.VMCnstr.eq) p)
+      hs := hs.push (← c.toExprProof)
+  -- `⟨h₁, ⟨h₂, … ⟨hₙ, trivial⟩⟩⟩ : VMCnstr.allHold ctx [c₁, …, cₙ]`
+  let mut csList := mkApp (mkConst ``List.nil [0]) cnstrType
+  let mut allHold := mkConst ``True.intro
+  for i in [0:cs.size] do
+    let i := cs.size - 1 - i
+    let a := mkApp2 (mkConst ``Int.Internal.Linear.VMCnstr.holds) ctx cs[i]!
+    let b := mkApp2 (mkConst ``Int.Internal.Linear.VMCnstr.allHold) ctx csList
+    allHold := mkApp4 (mkConst ``And.intro) a b hs[i]! allHold
+    csList := mkApp3 (mkConst ``List.cons [0]) cnstrType cs[i]! csList
+  let sVar := mkFVar (← mkFreshFVarId)
+  let epoch := (← read).epoch
+  modify fun s => { s with vmCnstrs := s.vmCnstrs.push { fvar := sVar, epoch, cnstrs := cert.leaves.map fun l => (l.isLe, l.poly) } }
+  return some <| mkAppN (mkConst ``Int.Internal.Linear.unsat_of_linCheck)
+    #[ctx, csList, sVar, mkRawNatLit certNat, eagerReflBoolTrue, eagerReflBoolTrue, allHold]
+
 private partial def UnsatProof.toExprProofCore (h : UnsatProof) : ProofM Expr := do
   match h with
   | .le c =>
+    if grind.lia.vm.get (← getOptions) then
+      if let some h ← mkLinVMProof? (.le c) 0 then return h
     return mkApp4 (mkConst ``Int.Internal.Linear.le_unsat) (← getContext) (← mkPolyDecl c.p) eagerReflBoolTrue (← c.toExprProof)
   | .dvd c =>
     return mkApp5 (mkConst ``Int.Internal.Linear.dvd_unsat) (← getContext) (toExpr c.d) (← mkPolyDecl c.p) eagerReflBoolTrue (← c.toExprProof)
   | .eq c =>
+    if grind.lia.vm.get (← getOptions) then
+      let g := if c.p.isUnsatEq then 0 else Int.ofNat c.p.gcdCoeffs'
+      if let some h ← mkLinVMProof? (.eq c) g then return h
     if c.p.isUnsatEq then
       return mkApp4 (mkConst ``Int.Internal.Linear.eq_unsat) (← getContext) (← mkPolyDecl c.p) eagerReflBoolTrue (← c.toExprProof)
     else
@@ -764,10 +984,17 @@ private def mkProof (h : Expr) (s : ProofM.State) : GoalM Expr := do
   let mut xs := #[]
   let mut vs := #[]
   let mut epochVars := #[]
-  for { varDecls, polyDecls, exprDecls } in s.decls do
+  for h : epoch in [0:s.decls.size] do
+    let { varDecls, polyDecls, exprDecls } := s.decls[epoch]
     let usedVars  := collectMapVars varDecls collectVar >> collectMapVars polyDecls (·.collectVars) >> collectMapVars exprDecls (·.collectVars) <| {}
     let vars'     := usedVars.toArray
     let varRename := mkVarRename vars'
+    for { fvar, epoch := e, cnstrs } in s.vmCnstrs do
+      if e == epoch then
+        let cs := cnstrs.toList.map fun (isLe, p) =>
+          let p := p.renameVars varRename
+          if isLe then Int.Internal.Linear.VMCnstr.le p else .eq p
+        xs := xs.push fvar; vs := vs.push (mkRawNatLit (Int.Internal.Linear.VMCnstr.encode vars'.size cs))
     for (x, fvar) in varDecls do
       xs := xs.push fvar; vs := vs.push (toExpr (varRename x))
     for (e, fvar) in exprDecls do

@@ -148,4 +148,6 @@ def diffTest (n : Nat) : MetaM Unit := do
     | .error ex => throwError "kernel error: {← ex.toMessageData {} |>.toString}"
   logInfo m!"agreed on {n} programs: {results[1]!} succeeded, {results[0]!} failed"
 
+/-- info: agreed on 3000 programs: 2385 succeeded, 615 failed -/
+#guard_msgs in
 #eval diffTest 3000

@@ -13,13 +13,15 @@ mkdir -p "$compactor_test_dir"
 # re-enable mimalloc after the override.
 printf '#include <lean/config.h>\n#undef LEAN_MIMALLOC\n' \
     > "$compactor_test_dir/config.h"
+# Release builds bundle the C++ runtime in the stage's lib directory.
 $CXX -std=c++20 -O2 -DNDEBUG -DLEAN_MULTI_THREAD \
     -ffunction-sections -fdata-sections \
     -include "$compactor_test_dir/config.h" \
     -I "$SRC_DIR" -I "$SRC_DIR/include" -I "$BUILD_DIR/include" \
     "$TEST_DIR/misc/compactor_oom.cpp" "$SRC_DIR/runtime/compact.cpp" \
     "$SRC_DIR/runtime/hash.cpp" "$SRC_DIR/runtime/object.cpp" \
-    -Wl,--gc-sections -Wl,--wrap=malloc -o "$compactor_test_dir/test"
+    -Wl,--gc-sections -Wl,--wrap=malloc -Wl,-rpath,"$BUILD_DIR/lib" \
+    -o "$compactor_test_dir/test"
 
 "$compactor_test_dir/test" control
 printf 'INTERNAL PANIC: out of memory\n' > "$compactor_test_dir/expected"

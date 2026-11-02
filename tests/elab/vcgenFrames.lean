@@ -242,6 +242,34 @@ example [Monad m] [Assertion Pred] [Assertion EPosts] [WPMonad m Pred EPosts]
 example : ⦃ fun s => ⌜s.1 = 0 ∧ s.2 = 7⌝ ⦄ (mkFreshNat : StateM AppState Nat)
     ⦃ fun r s => ⌜r = 0 ∧ s.2 = 7⌝ ⦄ := recovers_snd
 
+/-! ## The state binder of a frame goal is split into its components -/
+
+@[irreducible] def bumpFst : StateM (Nat × Nat) Unit := modify fun s => (s.1 + 1, s.2)
+
+-- `vcgen` reads the assigned type of the state binder, so the verification condition names the
+-- components of the pair state.
+/--
+trace: case vc1
+F P : Nat × Nat → Prop
+a✝¹ b✝ : Nat
+a✝ : F (a✝¹, b✝)
+⊢ F (a✝¹ + 1, b✝)
+---
+warning: declaration uses `sorry`
+-/
+#guard_msgs in
+example {F P : Nat × Nat → Prop} : WP.Frames meet bumpFst F P := by
+  refine WP.frames_of_conjunctive (PartialOrder.rel_trans (meet_le_right _ _) ?_)
+    (fun _ => meet_le_right _ _)
+  vcgen [bumpFst]
+  trace_state
+  all_goals sorry
+
+example {F P : Nat × Nat → Prop} (h : ∀ a b, F (a, b) = F (0, b)) : WP.Frames meet bumpFst F P := by
+  refine WP.frames_of_conjunctive (PartialOrder.rel_trans (meet_le_right _ _) ?_)
+    (fun _ => meet_le_right _ _)
+  vcgen [bumpFst] with finish
+
 /-! ## Assertion universe independent of the value universe
 
 `Pred` and `EPosts` are quantified at their own universes `w`/`w'`, independent of the value type

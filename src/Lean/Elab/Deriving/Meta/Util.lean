@@ -1196,7 +1196,7 @@ def FieldHelperProvider.doubleCases
       expected field `{.ofConstName input.fieldName}` to have the shape \
       `α → α → β` where `α` is the type parameter"
     -- we currently only support type classes that take a single type parameter
-    let .forallE _ _sort (.forallE _ (.bvar 0) (.forallE _ (.bvar 1) tgt _) _) _ :=
+    let .forallE _ _sort (.forallE _ _inst (.forallE _ (.bvar 1) (.forallE _ (.bvar 2) tgt _) _) _) _ :=
       input.fieldInfo.type | fail
     if tgt.hasLooseBVars then
       throwError "Invalid use of `{.ofConstName decl_name%}`, the target type for \

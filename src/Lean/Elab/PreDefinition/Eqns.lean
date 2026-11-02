@@ -406,6 +406,9 @@ def realizeEqnTypes (key : EqnTypesKey) : MetaM EqnTypes :=
           mkEqnTypes key.declNames goal.mvarId! key.keepHave
     return { types }
 
+def getEqnTypes (key : EqnTypesKey) : MetaM (Array Expr) :=
+  return (← realizeValue key.declName key (realizeEqnTypes key)).types
+
 def realizeEqn (declName name : Name) (type : Expr) : MetaM Unit :=
   withEqnOptions declName <| withOptions (tactic.hygienic.set · false) do
     let info ← getConstInfoDefn declName
@@ -429,8 +432,7 @@ def mkEqns (declName : Name) (declNames : Array Name) (keepHave := false)
   trace[Elab.definition.eqns] "mkEqns: {.ofConstName declName}"
   -- The caller's options (e.g. `backward.isDefEq.respectTransparency`) can change how
   -- `mkEqnTypes` splits, so the types must not be computed in the caller's context.
-  let key := { declName, declNames, keepHave : EqnTypesKey }
-  let { types := eqnTypes } ← realizeValue declName key (realizeEqnTypes key)
+  let eqnTypes ← getEqnTypes { declName, declNames, keepHave }
   let mut thmNames := #[]
   for h : i in *...eqnTypes.size do
     let type := eqnTypes[i]
@@ -459,16 +461,19 @@ def getEqnsFor? (declName : Name) : MetaM (Option (Array Name)) := do
     return none
 
 /--
-The equations of `declName` like `getEqnsFor?`, but keeping the `have`s that `getEqnsFor?`
-zeta-reduces. The equations are named `declName.{suffixBase}<i>`.
+The equations `declName.{suffixBase}<i>`, which keep the `have`s that the equations of `getEqnsFor?`
+zeta-reduce. `none` if both sets of equations have equal types or differ in number.
 -/
 public def getHaveEqnsFor? (declName : Name) (suffixBase : String) : MetaM (Option (Array Name)) := do
-  if (← isRecursiveDefinition declName) then
-    let some (.defnInfo info) := (← getEnv).find? declName | return none
-    return some (← mkEqns declName info.all.toArray (keepHave := true) suffixBase)
-  if (← getEnv).contains declName then
-    return some (← mkEqns declName #[] (keepHave := true) suffixBase)
-  return none
+  unless (← getEnv).contains declName do return none
+  let declNames ← if (← isRecursiveDefinition declName) then
+    pure (← getConstInfoDefn declName).all.toArray
+  else
+    pure #[]
+  let types ← getEqnTypes { declName, declNames }
+  let haveTypes ← getEqnTypes { declName, declNames, keepHave := true }
+  if haveTypes.size != types.size || haveTypes == types then return none
+  mkEqns declName declNames (keepHave := true) suffixBase
 
 builtin_initialize
   registerGetEqnsFn getEqnsFor?

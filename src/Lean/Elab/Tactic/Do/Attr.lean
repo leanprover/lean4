@@ -577,41 +577,14 @@ def unfoldSpecEqn? (declName : Name) : MetaM (Option Name) := do
   getUnfoldEqnFor? declName (nonRec := true)
 
 /--
-Whether the right-hand side `e` of `f.eq_def` has a `have` where the equation lemmas `f.eq_n`
-zeta-reduce it: at the root, or at the root of a `match` alternative, recursively.
--/
-partial def hasEqnRootHave (e : Expr) : MetaM Bool := do
-  match e with
-  | .mdata _ b => hasEqnRootHave b
-  | .letE .. => return true
-  | _ =>
-    let some info := isMatcherAppCore? (← getEnv) e | return false
-    let args := e.getAppArgs
-    for i in *...info.numAlts do
-      let alt := args[info.getFirstAltPos + i]!
-      let body := info.altNumParams[i]!.fold (init := alt) fun _ _ e =>
-        if e.isLambda then e.bindingBody! else e
-      if ← hasEqnRootHave body then return true
-    return false
-
-/--
-`f._vcgen_eq_i` in place of the equation lemma `declName := f.eq_i`, if `f.eq_i` zeta-reduces a
-`have`, such as a join point of `vcgen +jp`. `f._vcgen_eq_i` keeps the `have`s.
+`f._vcgen_eq_i` in place of the equation `declName := f.eq_i`, if `f.eq_i` zeta-reduces a `have`,
+such as a join point of `vcgen +jp`.
 -/
 def haveEqn (declName : Name) : MetaM Name := do
   let some f ← isEqnThm? declName | return declName
-  let some eqDef ← getUnfoldEqnFor? f (nonRec := true) | return declName
-  let rhs? ← forallTelescope (← getConstInfo eqDef).type fun _ body => do
-    let_expr Eq _ _ rhs := body | return none
-    return some rhs
-  let some rhs := rhs? | return declName
-  unless ← hasEqnRootHave rhs do return declName
   let some eqns ← getEqnsFor? f | return declName
-  let some i := eqns.findIdx? (· == declName) | return declName
   let some haveEqns ← Elab.Eqns.getHaveEqnsFor? f "_vcgen_eq_" | return declName
-  -- A `match` under a `have` can split differently from `f.eq_n`.
-  if haveEqns.size != eqns.size then return declName
-  return haveEqns[i]!
+  return (eqns.findIdx? (· == declName) >>= (haveEqns[·]?)).getD declName
 
 /--
 The spec theorems the simp entries `entries` contribute, the single place a `vcgen [...]` argument or

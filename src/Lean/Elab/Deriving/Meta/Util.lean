@@ -914,6 +914,165 @@ def FieldHelperProvider.cases
           perCtor ival cval fields ctorApp val
 
 /--
+A pair of expression provided by `foldParallel`, annotated with information about dependencies.
+Note that the types of both expressions may not be equal if `hasBackwardDeps` is true.
+-/
+structure ExprPair where
+  /-- The universe both sides live in -/
+  lvl : Level
+  /--
+  The type of the left-hand side. As long as `hasBackwardDeps` is false this is also the type of
+  the right-hand side.
+  -/
+  type : Expr
+  /--
+  The left-hand side. This is guaranteed to be a variable from `leftVars` but may have a different
+  type as `rhs`.
+  -/
+  lhs : Expr
+  /--
+  The right-hand side. This is not guaranteed to be a variable from `rightVars` because of
+  substitution and may also be new variable. It may have a different type as `lhs` if
+  `hasBackwardDeps` is true.
+  -/
+  rhs : Expr
+  /--
+  Indicates whether the expression pair has backward dependencies that were not resolved by
+  providing an equality proof. As long as all pairs with `hasForwardDeps` provided an equality
+  proof this will only be true for variables where `ignoreDep` evaluates to `true`.
+  -/
+  hasBackwardDeps : Bool
+  /--
+  Whether this pair has any forward dependencies. If this flag is false then providing an equality
+  proof to the continuation has no effect. You should usually prefer using `hasRelevantForwardDeps`
+  to check whether to provide an equality proof to the continuation.
+  -/
+  hasForwardDeps : Bool
+  /--
+  Whether this pair has any forward dependencies that are not ignored because `ignoreDep` evaluated
+  to true for them. If this flag is true, you should try to provide an equality proof to the
+  continuation. If you choose to not provide an equality proof to the continuation even if this
+  flag is true, `hasBackwardDeps` may end up being true even for variables where `ignoreDep`
+  evaluates to false and you should be prepared to handle this case.
+  -/
+  hasRelevantForwardDeps : Bool
+
+private def mkVarIndexMap (vars : Array Expr) : FVarIdMap Nat := Id.run do
+  let mut res := {}
+  for h : i in 0...vars.size do
+    res := res.insert vars[i].fvarId! i
+  return res
+
+/--
+Returns `fwdDeps` with `fwdDeps.size = vars.size` such that `fwdDeps[i]` is sorted, has no
+duplicates, and `j ∈ fwdDeps[i]` iff `vars[j]` transitively depends on `vars[i]`. This function
+assumes that the variables are provided in dependency order, so `j < i` for `j ∈ fwdDeps[i]`.
+-/
+private partial def computeForwardDeps (vars : Array Expr) :
+    MetaM (Array (Array Nat)) := do
+  let mut fwdDeps : Array (Array Nat) := Array.emptyWithCapacity vars.size
+  let idxOfVar : FVarIdMap Nat := mkVarIndexMap vars
+  for h : j in 0...vars.size do
+    let var := vars[j]
+    let type ← inferType var
+    let state := collectFVars {} type
+    -- record that `j` depends on `i`
+    let rec recordDep (i : Nat) (fwdDeps : Array (Array Nat)) : MetaM (Array (Array Nat)) := do
+      if fwdDeps[i]!.back?.isEqSome j then
+        -- already noted down, nothing to do
+        return fwdDeps
+      let mut fwdDeps := fwdDeps
+      -- `j` depends on `i` depends on `i'`
+      -- so record that `j` depend on `i'` (transitively)
+      -- we maintain the invariant that `i' < i` for `i' ∈ fwdDeps[i]`
+      -- so this doesn't touch `i` or break linearity (or termination)
+      for i' in fwdDeps[i]! do
+        fwdDeps ← recordDep i' fwdDeps
+      return fwdDeps.modify i (·.push j)
+    fwdDeps := fwdDeps.push #[]
+    for var in state.fvarIds do
+      if let some i := idxOfVar.get? var then
+        unless i < j do
+          let fst := indentD m!"vars[{j}] = {vars[j]} : {← inferType vars[j]}"
+          let snd := indentD m!"vars[{i}] = {Expr.fvar var} : {← var.getType}"
+          throwError "Expected the inputs of `{.ofConstName decl_name%}` to be provided \
+            in dependency order but{fst}\ndepends on{snd}"
+        fwdDeps ← recordDep i fwdDeps
+  return fwdDeps
+
+/--
+Given free variables `leftVars` and `rightVars` such that `mkForallFVars leftVars x` and
+`mkForallFVars rightVars x` are syntactically equal for any `x` without free variables, performs a
+continuation fold over `leftVars` and `rightVars` in parallel.
+
+The function `f` receives an expression pair, the current state, and a continuation that receives
+an optional proof of equality and the new state. You should usually only provide a proof of
+
+Note however that the two expressions provided to `f` may not have the same type although they will
+always live in the same universe. Still, it is guaranteed that the types end up the same if all
+backward dependencies produced a proof of equality. The best way to ensure that is to always
+pass along a proof of equality if `hasRelevantForwardDeps` is true for the pair.
+
+In some cases (commonly, for proofs) you may not even need both expressions to have the same type.
+You should note down these cases in `ignoreDep` which takes in the left-hand side variable and its
+index in the `leftVars` array. `ignoreDep` affects which pairs have `hasRelevantForwardDeps` true:
+A pair has relevant forward dependencies if it has forward dependencies where `ignoreDep` evaluates
+to false. If you then always pass along a proof of equality if `hasRelevantForwardDeps` is true,
+you guarantee that both sides have the same type unless `ignoreDep` evaluated to false for them.
+If you however don't always provide such a proof of equality, you need to prepared to handle the
+case where `hasBackwardDeps` is true (i.e. both sides have potentially different types).
+
+At the end of iteration, `finish` should provide a final value of type `resultType`. The result
+type should not depend on any of the variables in `leftVars` and `rightVars`.
+-/
+def foldSimilarVarsParallel [Monad m] [MonadEnv m] [MonadError m]
+    [MonadControlT MetaM m] [MonadLiftT MetaM m]
+    (leftVars rightVars : Array Expr) (resultType : Expr)
+    (init : σ) (f : ExprPair → σ → (Option Expr → σ → m Expr) → m Expr)
+    (finish : σ → m Expr) (ignoreDep : Expr → Nat → m Bool := fun _ _ => pure false) :
+    m Expr := do
+  let allFwdDeps ← computeForwardDeps leftVars
+  let rec go (i : Nat) (rightVars : Array Expr) (s : σ) : m Expr := do
+    if h : i < leftVars.size then
+      let lhs := leftVars[i]
+      let rhs := rightVars[i]!
+      let fwdDeps := allFwdDeps[i]!
+      let lhsType ← inferType lhs
+      let rhsType ← inferType rhs
+      let hasBackwardDeps := lhsType != rhsType
+      let hasForwardDeps := !fwdDeps.isEmpty
+      let hasRelevantForwardDeps ←
+        pure hasForwardDeps <&&> fwdDeps.anyM fun j => notM <| ignoreDep leftVars[j]! j
+      let pair : ExprPair := {
+        lvl := ← getLevel lhsType
+        type := lhsType
+        lhs, rhs, hasBackwardDeps, hasForwardDeps, hasRelevantForwardDeps
+      }
+      f pair s fun proof? s => do
+        if proof?.isNone || !hasForwardDeps then
+          return ← go (i + 1) rightVars s
+        let proof := proof?.get!
+        -- Construct an Eq.ndrec term
+        let fwdDepVars := fwdDeps.map (rightVars[·]!)
+        let motive ← mkForallFVars fwdDepVars resultType
+        let motiveSort ← getLevel motive
+        let motive ← mkLambdaFVars #[rhs] motive
+        forallBoundedTelescope (motive.beta #[lhs]) fwdDeps.size fun newFwdDepVars _ => do
+          let mut rightVars := rightVars
+          for dep in fwdDeps, newVar in newFwdDepVars do
+            rightVars := rightVars.set! dep newVar
+          rightVars := rightVars.set! i lhs
+          let more ← go (i + 1) rightVars s
+          let refl ← mkLambdaFVars newFwdDepVars more
+          let ndrecApp := mkApp6 (.const ``Eq.ndrec [motiveSort, pair.lvl])
+            lhsType lhs motive refl rhs proof
+          let ndrecApp := mkAppN ndrecApp fwdDepVars
+          return ndrecApp
+    else
+      finish s
+  go 0 rightVars init
+
+/--
 The input of alternatives for `FieldHelperProvider.doubleCases` and
 `FieldHelperProvider.doubleCasesSlow` where both sides use the same constructor.
 -/
@@ -963,6 +1122,9 @@ different constructors.
 The additional `α` argument receives the result of the `preHelpers` computation provided to
 `makeInstancesUsingMutualBlock`. If you don't use `preHelpers`, you can simply ignore this
 parameter.
+
+Often, the right thing to do for the `sameCtor` branch is to use `foldSimilarVarsParallel` on the
+`leftFields` and `rightFields` of the `SameCtorAlt`.
 
 This helper has quadratic complexity due to visiting every pair of constructors. If you don't need
 to handle every pair case separately, consider using `FieldHelperProvider.doubleCases` instead.
@@ -1019,6 +1181,9 @@ The additional `α` argument receives the result of the `preHelpers` computation
 `makeInstancesUsingMutualBlock`. If you don't use `preHelpers`, you can simply ignore this
 parameter.
 
+Often, the right thing to do for the `sameCtor` branch is to use `foldSimilarVarsParallel` on the
+`leftFields` and `rightFields` of the `SameCtorAlt`.
+
 For a slower variant that however allows you to handle every constructor pair separately,
 use `FieldHelperProvider.doubleCasesSlow`.
 -/
@@ -1030,13 +1195,12 @@ def FieldHelperProvider.doubleCases
     let fail := throwError "Invalid use of `{.ofConstName decl_name%}`, \
       expected field `{.ofConstName input.fieldName}` to have the shape \
       `α → α → β` where `α` is the type parameter"
-    let .forallE _ t (.forallE _ t' tgt _) _ := input.expectedType | fail
-    if t != input.typeApp then
-      throwError "Invalid use of `{.ofConstName decl_name%}`, the first argument to \
-        `{.ofConstName input.fieldName}` is not the type parameter"
-    if t' != input.typeApp then
-      throwError "Invalid use of `{.ofConstName decl_name%}`, the second argument to \
-        `{.ofConstName input.fieldName}` is not the type parameter"
+    -- we currently only support type classes that take a single type parameter
+    let .forallE _ _sort (.forallE _ (.bvar 0) (.forallE _ (.bvar 1) tgt _) _) _ :=
+      input.fieldInfo.type | fail
+    if tgt.hasLooseBVars then
+      throwError "Invalid use of `{.ofConstName decl_name%}`, the target type for \
+        `{.ofConstName input.fieldName}` is dependent"
     let inductInfo ← getConstInfoInduct input.induct
     withLocalDeclD `lhs input.typeApp fun lhs => do
     withLocalDeclD `rhs input.typeApp fun rhs => do

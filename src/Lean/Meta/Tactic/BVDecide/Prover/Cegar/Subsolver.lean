@@ -114,6 +114,23 @@ def liftPreProcessM (x : Normalize.PreProcessM α) : SubsolverT m α := do
   return a
 
 /--
+Push a new level of hypotheses `hyps` that are already in `bv_decide` normal form onto the solver
+stack, skipping the pre-processor.
+-/
+public def pushNormalized (hyps : Array Normalize.Hyp) : SubsolverT m Unit := do
+  let bvExprs ← liftReifyM do
+    let (sats, lemmas) ← LemmaM.run do
+      -- TODO: share with lemma file?
+      hyps.filterMapM fun hyp => do
+        checkSystem "bv_decide"
+        if hyp.type.isConstOf ``True then return none
+        let some reflected ← SatAtBVLogical.of hyp
+          | throwError m!"Failed to reify subsolver hypothesis {hyp.type}"
+        return some reflected
+    return (lemmas ++ sats).map (·.bvExpr)
+  liftBvSolverM <| BvSolverM.push bvExprs
+
+/--
 Push a new level of hypotheses `hyps` onto the solver stack. This already triggers pre-processing.
 -/
 public def push (hyps : Array Normalize.Hyp) : SubsolverT m Unit := do
@@ -124,18 +141,7 @@ public def push (hyps : Array Normalize.Hyp) : SubsolverT m Unit := do
         return some (← Normalize.PreProcessM.getHyps)
 
   match preprocessResult with
-  | some hyps =>
-    let bvExprs ← liftReifyM do
-      let (sats, lemmas) ← LemmaM.run do
-        -- TODO: share with lemma file?
-        hyps.filterMapM fun hyp => do
-          checkSystem "bv_decide"
-          if hyp.type.isConstOf ``True then return none
-          let some reflected ← SatAtBVLogical.of hyp
-            | throwError m!"Failed to reify subsolver hypothesis {hyp.type}"
-          return some reflected
-      return (lemmas ++ sats).map (·.bvExpr)
-    liftBvSolverM <| BvSolverM.push bvExprs
+  | some hyps => pushNormalized hyps
   | none => liftBvSolverM <| BvSolverM.push #[.const false]
 
 /--

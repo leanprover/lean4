@@ -35,6 +35,10 @@ public structure CegarHyp where
   and let `grind` modes' automation figure it out.
   -/
   grindProof : MetaM (Option (TSyntax `Lean.Parser.Tactic.tacticSeq))
+  /--
+  Whether the hypothesis is already in `bv_decide` normal form and can skip the pre-processor.
+  -/
+  isNormalized : Bool := false
 
 namespace Cegar
 

@@ -84,21 +84,22 @@ def getAssignment : BvSolverM (Array (Bool × Nat)) := do
 
 def runSatSolver : BvSolverM Cadical.Status := do
   let solver := (← get).satSolver
-  let solveTask ← BaseIO.asTask solver.solve .dedicated
-  let mut sleepMs := 1
-  let maxSleepMs := 64
-  while (← IO.getTaskState solveTask) != .finished do
-    if (← getSolverTime) == 0 then
-      solver.terminate
-      break
-    if let some tk := (← readThe Core.Context).cancelTk? then
+  let budgetMs ← getSolverTime
+  let cancelTk? := (← readThe Core.Context).cancelTk?
+  let startMs ← IO.monoMsNow
+  let status ← solver.solveWithTerminator (mkTerminator cancelTk? startMs budgetMs)
+  consumeSolverTime ((← IO.monoMsNow) - startMs)
+  if status == .unknown then
+    if let some tk := cancelTk? then
       if ← tk.isSet then
-        solver.terminate
         throwInterruptException
-    IO.sleep sleepMs.toUInt32
-    consumeSolverTime sleepMs
-    sleepMs := if sleepMs ≥ maxSleepMs then sleepMs else sleepMs * 2
-  return solveTask.get
+  return status
+where
+  mkTerminator (cancelTk? : Option IO.CancelToken) (startMs budgetMs : Nat) : BaseIO Bool := do
+    if let some tk := cancelTk? then
+      if ← tk.isSet then
+        return true
+    return (← IO.monoMsNow) - startMs ≥ budgetMs
 
 public def push (bvExprs : Array BVLogicalExpr) : BvSolverM Unit := do
   let level ← bvExprs.mapM addExpr

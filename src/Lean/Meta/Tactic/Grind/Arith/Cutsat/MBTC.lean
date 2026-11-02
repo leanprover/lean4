@@ -115,6 +115,12 @@ where
     isIntValue e <||> isNatValue e
 
 private def isInterpreted (e : Expr) : GoalM Bool := do
+  /-
+  cutsat interprets `NatCast.natCast` only into the types it supports (e.g., not into `ZMod n`),
+  and never interprets `IntCast.intCast`, which is not in `isInterpretedTerm`.
+  -/
+  if e.isAppOfArity ``NatCast.natCast 3 then
+    return (← isSupportedType (e.getArg! 0))
   if isInterpretedTerm e then
     return !(← isNonlinearTerm e)
   let f := e.getAppFn

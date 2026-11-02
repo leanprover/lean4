@@ -43,7 +43,7 @@ jobs:
               echo "should-run=false" >> "$GITHUB_OUTPUT"
             fi
           else
-            if echo "$PR_LABELS" | grep -q '"grove"'; then
+            if jq -e 'any(. == "grove")' <<< "$PR_LABELS" > /dev/null; then
               echo "PR with grove label detected. Running Grove."
               echo "should-run=true" >> "$GITHUB_OUTPUT"
             else

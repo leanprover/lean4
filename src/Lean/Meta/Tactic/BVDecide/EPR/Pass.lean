@@ -10,6 +10,7 @@ public import Lean.Meta.Tactic.BVDecide.Normalize.Basic
 public import Lean.Meta.Tactic.BVDecide.EPR.BitVec
 import Lean.Meta.Sym.InstantiateMVarsS
 import Lean.Meta.Sym.InferType
+import Lean.Meta.Tactic.BVDecide.EPR.SortInference
 
 /-!
 This module implements the EPR detection pass which encodes a many-sorted EPR problem in the hypotheses into
@@ -324,8 +325,8 @@ def detectAndEncode (g : MVarId) (hyps : Array Hyp) (symBreak : Elab.Tactic.BVDe
     Sym.SymM (Option (Array Hyp × EprBvProblem)) := g.withContext do
   let { problem, remainingHyps } ← detectEprProblem hyps
   if problem.groundFacts.isEmpty && problem.quantifiedFacts.isEmpty then return none
+  let problem ← problem.inferSorts
   traceProblem problem
-  -- TODO: Pre-Processing here.
   let bvProblem ← epr2BitVec problem g symBreak
   return some (remainingHyps, bvProblem)
 

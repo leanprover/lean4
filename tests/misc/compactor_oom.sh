@@ -5,16 +5,18 @@ case "$($CXX -dumpmachine)" in
     *) return ;;
 esac
 
-compactor_test_dir=$(mktemp -d)
-trap 'rm -rf "$compactor_test_dir"' EXIT
-mkdir -p "$compactor_test_dir/lean"
+compactor_test_dir="$TMP_DIR/compactor_oom"
+mkdir -p "$compactor_test_dir"
 # The compactor always uses libc malloc. Build its allocation path directly,
 # independent of the configured allocator for small Lean objects.
-sed '/^#define LEAN_MIMALLOC/d' "$BUILD_DIR/include/lean/config.h" \
-    > "$compactor_test_dir/lean/config.h"
+# Preinclude the build's config so CXX's existing include flags cannot
+# re-enable mimalloc after the override.
+printf '#include <lean/config.h>\n#undef LEAN_MIMALLOC\n' \
+    > "$compactor_test_dir/config.h"
 $CXX -std=c++20 -O2 -DNDEBUG -DLEAN_MULTI_THREAD \
     -ffunction-sections -fdata-sections \
-    -I "$compactor_test_dir" -I "$SRC_DIR" -I "$SRC_DIR/include" -I "$BUILD_DIR/include" \
+    -include "$compactor_test_dir/config.h" \
+    -I "$SRC_DIR" -I "$SRC_DIR/include" -I "$BUILD_DIR/include" \
     "$TEST_DIR/misc/compactor_oom.cpp" "$SRC_DIR/runtime/compact.cpp" \
     "$SRC_DIR/runtime/hash.cpp" "$SRC_DIR/runtime/object.cpp" \
     -Wl,--gc-sections -Wl,--wrap=malloc -o "$compactor_test_dir/test"

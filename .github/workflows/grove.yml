@@ -27,8 +27,6 @@ jobs:
 
       - name: Check if should run
         id: should-run
-        # Untrusted values (e.g. fork branch names) must go through `env`, never `${{ }}` in the script.
-        # A fork branch may also be named `master`, so check the event and head repository too.
         env:
           PR_NUMBER: ${{ steps.workflow-info.outputs.pullRequestNumber }}
           PR_LABELS: ${{ steps.workflow-info.outputs.pullRequestLabels }}

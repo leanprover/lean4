@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Joachim Breitner
 */
 #include <vector>
+#include <cstring>
 #include <limits>
 #include "runtime/interrupt.h"
 #include "runtime/sstream.h"
@@ -17,6 +18,7 @@ Author: Joachim Breitner
 
 namespace lean {
 static name * g_kvm_prog_mk = nullptr;
+static name * g_stmt_seq    = nullptr;
 static name * g_list_nil    = nullptr;
 static name * g_list_cons   = nullptr;
 static name * g_nat_zero_n  = nullptr;
@@ -80,6 +82,17 @@ uint64 nat_get_uint64(nat const & n, nat const & i) {
     return i.is_small() ? nat_get_uint64_at(n, i.get_small_value()) : 0;
 }
 
+/* The little-endian bytes of `n`, followed by 8 zero bytes. Assumes a little-endian host. */
+static std::vector<unsigned char> nat_bytes(nat const & n) {
+    size_t num_words = n.is_small() ? 1 : (n.get_big_value().size_in_bytes() + 7) / 8;
+    std::vector<unsigned char> r(8 * num_words + 8, 0);
+    for (size_t i = 0; i < num_words; i++) {
+        uint64 w = nat_get_uint64_at(n, 8 * i);
+        memcpy(r.data() + 8 * i, &w, 8);
+    }
+    return r;
+}
+
 /* Thrown when the program term is not of the expected shape. */
 struct vm_decode_failure {};
 
@@ -88,9 +101,12 @@ class kernel_vm {
     std::function<expr(expr const &)> const &   m_whnf;
     std::vector<vm_exp>                          m_exps;
     std::vector<vm_stmt>                         m_stmts;
+    /* The statements of the blocks, see `stmt_kind::seq`. */
+    std::vector<unsigned>                        m_blocks;
     expr_map<unsigned>                           m_exp_cache;
     expr_map<unsigned>                           m_stmt_cache;
-    std::vector<nat>                             m_inputs;
+    /* The bytes of each input, followed by 8 zero bytes so that word reads need no bounds check. */
+    std::vector<std::vector<unsigned char>>      m_inputs;
     std::vector<uint64>                          m_regs;
     std::vector<uint64>                          m_mem;
     size_t                                       m_num_regs = 0;
@@ -189,11 +205,29 @@ class kernel_vm {
             r.m_e1 = decode_exp(args[0]);
             r.m_e2 = decode_exp(args[1]);
             break;
-        case stmt_kind::seq:
+        case stmt_kind::seq: {
+            // A right-nested chain `seq s₁ (seq s₂ … sₙ)` becomes the block `s₁, …, sₙ`.
             if (args.size() != 2) throw vm_decode_failure();
-            r.m_s1 = decode_stmt(args[0]);
-            r.m_s2 = decode_stmt(args[1]);
+            std::vector<unsigned> elems;
+            elems.push_back(decode_stmt(args[0]));
+            expr rest = args[1];
+            while (true) {
+                buffer<expr> rargs;
+                expr rv = m_whnf(rest);
+                expr const & fn = get_app_args(rv, rargs);
+                if (is_constant(fn) && const_name(fn) == *g_stmt_seq && rargs.size() == 2) {
+                    elems.push_back(decode_stmt(rargs[0]));
+                    rest = rargs[1];
+                } else {
+                    elems.push_back(decode_stmt(rest));
+                    break;
+                }
+            }
+            r.m_s1 = m_blocks.size();
+            r.m_s2 = elems.size();
+            m_blocks.insert(m_blocks.end(), elems.begin(), elems.end());
             break;
+        }
         case stmt_kind::ite:
             if (args.size() != 3) throw vm_decode_failure();
             r.m_e1 = decode_exp(args[0]);
@@ -230,7 +264,7 @@ class kernel_vm {
         return r;
     }
 
-    static bool eval_binop(binop op, uint64 a, uint64 b, uint64 & r) {
+    static inline __attribute__((always_inline)) bool eval_binop(binop op, uint64 a, uint64 b, uint64 & r) {
         int64 sa = static_cast<int64>(a), sb = static_cast<int64>(b), sr;
         switch (op) {
         case binop::add:  r = a + b; return true;
@@ -264,6 +298,14 @@ class kernel_vm {
         lean_unreachable();
     }
 
+    /* `eval`, with registers and constants handled without a call. */
+    inline bool operand(unsigned ei, uint64 & r) {
+        vm_exp const & e = m_exps[ei];
+        if (e.m_kind == exp_kind::reg)  { r = m_regs[e.m_val]; return true; }
+        if (e.m_kind == exp_kind::cnst) { r = e.m_val; return true; }
+        return eval(ei, r);
+    }
+
     bool eval(unsigned ei, uint64 & r) {
         vm_exp const & e = m_exps[ei];
         switch (e.m_kind) {
@@ -271,7 +313,7 @@ class kernel_vm {
         case exp_kind::reg:  r = m_regs[e.m_val]; return true;
         case exp_kind::bin: {
             uint64 a, b;
-            if (!eval(e.m_a, a) || !eval(e.m_b, b)) return false;
+            if (!operand(e.m_a, a) || !operand(e.m_b, b)) return false;
             return eval_binop(e.m_op, a, b, r);
         }
         case exp_kind::load: {
@@ -283,7 +325,11 @@ class kernel_vm {
         case exp_kind::input: {
             uint64 off;
             if (!eval(e.m_a, off)) return false;
-            r = e.m_val < m_inputs.size() ? nat_get_uint64_at(m_inputs[e.m_val], off) : 0;
+            r = 0;
+            if (e.m_val < m_inputs.size()) {
+                std::vector<unsigned char> const & in = m_inputs[e.m_val];
+                if (off < in.size() - 8) memcpy(&r, in.data() + off, 8);
+            }
             return true;
         }
         }
@@ -319,8 +365,19 @@ class kernel_vm {
             store(a, v);
             return true;
         }
-        case stmt_kind::seq:
-            return exec(fuel - 1, s.m_s1) && exec(fuel - 1, s.m_s2);
+        case stmt_kind::seq: {
+            // In the nested chain, `sᵢ` (from `0`) runs with fuel `fuel - i - 1` and the last one
+            // with fuel `fuel - (n - 1)`; each `seq` node fails if its fuel is `0`.
+            unsigned n = s.m_s2;
+            unsigned const * xs = m_blocks.data() + s.m_s1;
+            uint64 g = fuel;
+            for (unsigned i = 0; i + 1 < n; i++) {
+                if (g == 0) return false;
+                if (!exec(g - 1, xs[i])) return false;
+                g--;
+            }
+            return exec(g, xs[n - 1]);
+        }
         case stmt_kind::ite: {
             uint64 c;
             if (!eval(s.m_e1, c)) return false;
@@ -366,7 +423,7 @@ public:
                 if (!is_constant(lfn)) return optional<bool>();
                 if (const_name(lfn) == *g_list_nil && largs.size() == 1) break;
                 if (const_name(lfn) != *g_list_cons || largs.size() != 3) return optional<bool>();
-                m_inputs.push_back(decode_nat(largs[1]));
+                m_inputs.push_back(nat_bytes(decode_nat(largs[1])));
                 l = m_whnf(largs[2]);
             }
             nat f = decode_nat(fuel);
@@ -397,6 +454,7 @@ static void register_ctors(name_map<unsigned> & m, name const & prefix,
 
 void initialize_kernel_vm() {
     g_kvm_prog_mk = new name{"Lean", "KernelVM", "Prog", "mk"};
+    g_stmt_seq    = new name{"Lean", "KernelVM", "Stmt", "seq"};
     g_list_nil    = new name{"List", "nil"};
     g_list_cons   = new name{"List", "cons"};
     g_nat_zero_n  = new name{"Nat", "zero"};
@@ -413,6 +471,7 @@ void initialize_kernel_vm() {
 
 void finalize_kernel_vm() {
     delete g_kvm_prog_mk;
+    delete g_stmt_seq;
     delete g_list_nil;
     delete g_list_cons;
     delete g_nat_zero_n;

@@ -245,4 +245,50 @@ is a closed term and `inputs` and `fuel` reduce to numerals.
 def run (p : Prog) (inputs : List Nat) (fuel : Nat) : Bool :=
   (p.body.exec inputs fuel {}).isSome
 
+/-!
+## Notation for writing programs
+
+`open Lean.KernelVM.DSL` provides short names and infix operators for building expressions and
+statements.
+-/
+
+namespace DSL
+
+/-- Register `i`. -/
+abbrev R (i : Nat) : Exp := .reg i
+/-- The constant `n`. -/
+abbrev K (n : Nat) : Exp := .const n
+/-- The word at byte offset `off` of input `k`. -/
+abbrev In (k : Nat) (off : Exp) : Exp := .input k off
+/-- The 32-bit word with index `i` of input `k`. -/
+abbrev In32 (k : Nat) (i : Exp) : Exp := .bin .and (.input k (.bin .mul i (.const 4))) (.const 4294967295)
+/-- The memory word at `a`. -/
+abbrev Ld (a : Exp) : Exp := .load a
+/-- `1` if `e` is zero, `0` otherwise. -/
+abbrev Not' (e : Exp) : Exp := .bin .eq e (.const 0)
+
+scoped infixl:65 " +ᵤ " => Exp.bin BinOp.add
+scoped infixl:65 " -ᵤ " => Exp.bin BinOp.sub
+scoped infixl:70 " *ᵤ " => Exp.bin BinOp.mul
+scoped infixl:65 " +ₛ " => Exp.bin BinOp.sadd
+scoped infixl:65 " -ₛ " => Exp.bin BinOp.ssub
+scoped infixl:70 " *ₛ " => Exp.bin BinOp.smul
+scoped infixl:70 " /ₛ " => Exp.bin BinOp.sdiv
+scoped infixl:70 " %ₛ " => Exp.bin BinOp.smod
+scoped infixl:60 " &&ᵥ " => Exp.bin BinOp.and
+scoped infixl:58 " ^^ᵥ " => Exp.bin BinOp.xor
+scoped infix:50 " ==ᵥ " => Exp.bin BinOp.eq
+scoped infix:50 " <ᵤ " => Exp.bin BinOp.ult
+scoped infix:50 " ≤ᵤ " => Exp.bin BinOp.ule
+scoped infix:50 " <ₛ " => Exp.bin BinOp.slt
+scoped infix:50 " ≤ₛ " => Exp.bin BinOp.sle
+
+/-- Runs the statements in order. -/
+def seqs : List Stmt → Stmt
+  | [] => .skip
+  | [s] => s
+  | s :: ss => .seq s (seqs ss)
+
+end DSL
+
 end Lean.KernelVM

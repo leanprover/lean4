@@ -10,6 +10,7 @@ public import Std.Tactic.BVDecide.LRAT.Actions
 public import Std.Tactic.BVDecide.LRAT.Checker
 public import Std.Tactic.BVDecide.LRAT.Internal
 public import Std.Tactic.BVDecide.LRAT.Parser
+public import Std.Tactic.BVDecide.LRAT.KernelVM
 
 @[expose] public section
 

@@ -81,24 +81,27 @@ noncomputable def VMCnstr.encOk_k (s : Nat) (cs : List VMCnstr) : Nat → Bool :
         c)
     cs
 
-/-- Combines adjacent words `x, y` of `ws` into `x + y * 2^shift`. -/
-def wordsToNat.pairUp (shift : Nat) : List Nat → List Nat
-  | x :: y :: ws => (x + (y <<< shift)) :: pairUp shift ws
-  | ws => ws
+/-- Combines the adjacent entries `x, y` of `a` from index `i` on into `x + y * 2^shift`. -/
+def wordsToNat.round (a : Array Nat) (shift : Nat) : Nat → Nat → Array Nat → Array Nat
+  | 0, _, acc => acc
+  | fuel + 1, i, acc =>
+    if i + 1 < a.size then round a shift fuel (i + 2) (acc.push (a[i]! + (a[i + 1]! <<< shift)))
+    else if i < a.size then acc.push a[i]!
+    else acc
 
-/-- Combines the words `ws` in `fuel` rounds of `wordsToNat.pairUp`. -/
-def wordsToNat.go : Nat → Nat → List Nat → Nat
-  | _, _, [] => 0
-  | _, _, [x] => x
-  | 0, _, x :: _ => x
-  | fuel + 1, shift, ws => go fuel (2 * shift) (pairUp shift ws)
+/-- Combines `a` in at most `fuel` rounds of `wordsToNat.round`. -/
+def wordsToNat.go : Nat → Nat → Array Nat → Nat
+  | 0, _, a => a[0]?.getD 0
+  | fuel + 1, shift, a =>
+    if a.size ≤ 1 then a[0]?.getD 0
+    else go fuel (2 * shift) (round a shift a.size 0 (Array.mkEmpty ((a.size + 1) / 2)))
 
 /--
-The numeral whose 64-bit words, from the least significant one on, are `ws` (modulo `2^64`). The
-words are combined in a balanced way, so that this takes quasi-linear time.
+The numeral whose `bits`-bit words, from the least significant one on, are `ws` (each modulo
+`2^bits`). The words are combined pairwise in rounds, so that this takes quasi-linear time.
 -/
-def wordsToNat (ws : List Nat) : Nat :=
-  wordsToNat.go ws.length 64 (ws.map (· % 18446744073709551616))
+def wordsToNat (ws : Array Nat) (bits : Nat := 64) : Nat :=
+  wordsToNat.go ws.size bits (ws.map (· % 2 ^ bits))
 
 /-- The two's complement word of `k`. -/
 def intToWord (k : Int) : Nat := (k % 18446744073709551616).toNat
@@ -116,7 +119,7 @@ def VMCnstr.encodeWords : List VMCnstr → List Nat
 
 /-- The encoding of the constraints `cs` over `nv` variables, see `VMCnstr.encOk_k`. -/
 def VMCnstr.encode (nv : Nat) (cs : List VMCnstr) : Nat :=
-  wordsToNat (nv :: VMCnstr.encodeWords cs)
+  wordsToNat (nv :: VMCnstr.encodeWords cs).toArray
 
 /-- A step of a certificate: the multipliers and rows of its terms, and the divisor. -/
 structure LinCertStep where
@@ -131,35 +134,14 @@ def LinCertStep.encodeWords (st : LinCertStep) (rest : List Nat) : List Nat :=
 
 /-- The encoding of a certificate with the steps `steps` and the final divisor `g`. -/
 def encodeLinCert (steps : Array LinCertStep) (g : Int) : Nat :=
-  wordsToNat (steps.size :: steps.toList.foldr LinCertStep.encodeWords [intToWord g])
+  wordsToNat (steps.size :: steps.toList.foldr LinCertStep.encodeWords [intToWord g]).toArray
 
 namespace LinCheck
-open Lean.KernelVM
+open Lean.KernelVM Lean.KernelVM.DSL
 
-abbrev R (i : Nat) : Exp := .reg i
-abbrev K (n : Nat) : Exp := .const n
 abbrev In0 (off : Exp) : Exp := .input 0 off
 abbrev In1 (off : Exp) : Exp := .input 1 off
-abbrev Ld (a : Exp) : Exp := .load a
-local infixl:65 " +ᵤ " => Exp.bin BinOp.add
-local infixl:65 " -ᵤ " => Exp.bin BinOp.sub
-local infixl:65 " +ₛ " => Exp.bin BinOp.sadd
-local infixl:65 " -ₛ " => Exp.bin BinOp.ssub
-local infixl:70 " *ₛ " => Exp.bin BinOp.smul
-local infixl:70 " /ₛ " => Exp.bin BinOp.sdiv
-local infixl:70 " %ₛ " => Exp.bin BinOp.smod
-local infix:50 " ==ᵥ " => Exp.bin BinOp.eq
-local infix:50 " <ᵤ " => Exp.bin BinOp.ult
-local infix:50 " ≤ᵤ " => Exp.bin BinOp.ule
-local infix:50 " <ₛ " => Exp.bin BinOp.slt
-local infix:50 " ≤ₛ " => Exp.bin BinOp.sle
-abbrev Not' (e : Exp) : Exp := e ==ᵥ K 0
 
-/-- Runs the statements in order. -/
-def seqs : List Stmt → Stmt
-  | [] => .skip
-  | [s] => s
-  | s :: ss => .seq s (seqs ss)
 
 -- Registers
 abbrev pos0 := 0

@@ -134,14 +134,16 @@ def pushBytes (bytes : ByteArray) (self : Hash) : ByteArray :=
   pushWord (pushWord (pushWord (pushWord bytes self.w0) self.w1) self.w2) self.w3
 
 /-- Constructs a hash with with the value `n`. This is not equivalent to the hash of `n`. -/
-@[inline] public def ofNat (n : Nat) : Hash :=
+@[deprecated "Deprecated without replacement." (since := "2026-11-02")]
+public def ofNat (n : Nat) : Hash :=
   mk 0 0 0 n.toUInt64
 
 /-- Parse a legacy 64-bit hash from a JSON number. -/
+@[deprecated "Deprecated without replacement." (since := "2026-11-02")]
 public def ofJsonNumber? (n : JsonNumber) : Except String Hash :=
   if n.exponent = 0 && 0 ≤ n.mantissa then
     if n.mantissa.toNat < UInt64.size then
-      return ofNat n.mantissa.toNat
+      return mk 0 0 0 n.mantissa.toNat.toUInt64
     else
       throw "number too big"
   else
@@ -170,8 +172,9 @@ public def hex (self : Hash) : String :=
     lowerHexUInt64 self.w2 ++ lowerHexUInt64 self.w3
 
 /-- Parse a legacy 64-bit hash from a string of decimal digits. -/
+@[deprecated "Deprecated without replacement." (since := "2026-11-02")]
 public def ofDecimal? (s : String) : Option Hash :=
-  s.toNat?.map ofNat
+  s.toNat?.map (mk 0 0 0 ·.toUInt64)
 
 @[inline] public def ofString? (s : String) : Option Hash :=
   ofHex? s
@@ -196,7 +199,7 @@ Hash of a value using its `Hashable` instance.
 This is only as collision-resistant as the 64-bit `Hashable` instance.
 -/
 @[inline] public def ofHashable [Hashable α] (a : α) : Hash :=
-  mix nil <| ofNat (hash a).toNat
+  mix nil <| mk 0 0 0 (hash a)
 
 /-- Hash of a string (without line-ending normalization). -/
 public def ofString (str : String) : Hash :=
@@ -227,8 +230,7 @@ public protected def fromJson? (json : Json) : Except String Hash := do
     unless s.utf8ByteSize = 64 do
       throw "invalid hash: expected hexadecimal string of length 64"
     return ofHex s
-  | .num n => ofJsonNumber? n |>.mapError (s!"invalid hash: {·}")
-  | _ => throw "invalid hash: expected string or number"
+  | _ => throw "invalid hash: expected string"
 
 public instance : FromJson Hash := ⟨Hash.fromJson?⟩
 

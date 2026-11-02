@@ -15,13 +15,17 @@ test_exp -f .lake/build/lib/lean/Foo.trace
 # Tests that a proper trace prevents a rebuild
 test_run build --no-build
 
-# Tests that traces with legacy 64-bit hashes cause a rebuild without a warning
-# (pure numerical traces and the `2025-09-10` schema)
+# Tests that traces of other schema versions (e.g., written by another Lake version)
+# cause a rebuild without a warning
 echo 1234 > .lake/build/lib/lean/Foo.trace
 test_out "Built Foo" build
 no_match_text "warning" produced.out
 test_run build --no-build
 echo '{"schemaVersion":"2025-09-10","depHash":"0123456789abcdef"}' > .lake/build/lib/lean/Foo.trace
+test_out "Built Foo" build
+no_match_text "warning" produced.out
+test_run build --no-build
+echo '{"schemaVersion":"9999-01-01","depHash":null}' > .lake/build/lib/lean/Foo.trace
 test_out "Built Foo" build
 no_match_text "warning" produced.out
 test_run build --no-build

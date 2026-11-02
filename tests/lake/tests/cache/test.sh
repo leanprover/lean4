@@ -309,25 +309,33 @@ test_exp ! -d "$CACHE_DIR"
 # (and thus that artifacts are deduplicated by hash)
 rm -rf "$CACHE_DIR"
 mkdir -p "$CACHE_DIR/artifacts"
-hsh=0123456789abcdef
-schema_ver=2026-03-17 # cache map schema version
+hsh=0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef
+schema_ver=2026-11-02 # cache map schema version
 echo "arbitrary artifact contents" > "$CACHE_DIR/artifacts/$hsh.o"
 # An already-cached artifact is not re-downloaded
 cat <<EOF > .lake/dummy-outputs.jsonl
 "$schema_ver"
-["aaaaaaaaaaaaaaaa","$hsh.o"]
+["aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","$hsh.o"]
 EOF
 test_run cache get .lake/dummy-outputs.jsonl --scope=test
 # A shared content hash restores each extension by local copy
 test_exp ! -f "$CACHE_DIR/artifacts/$hsh.dup"
 cat <<EOF > .lake/dummy-outputs.jsonl
 "$schema_ver"
-["aaaaaaaaaaaaaaaa","$hsh.o"]
-["bbbbbbbbbbbbbbbb","$hsh.dup"]
+["aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","$hsh.o"]
+["bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb","$hsh.dup"]
 EOF
 test_run cache get .lake/dummy-outputs.jsonl --scope=test
 test_exp -f "$CACHE_DIR/artifacts/$hsh.dup"
 test_cmd cmp -s "$CACHE_DIR/artifacts/$hsh.o" "$CACHE_DIR/artifacts/$hsh.dup"
+
+# Verify mappings from before the switch to SHA-256 are ignored
+cat <<EOF > .lake/old-outputs.jsonl
+"2026-03-17"
+["aaaaaaaaaaaaaaaa","0123456789abcdef.o"]
+EOF
+test_out "ignoring mappings of outdated schema version" \
+  cache get .lake/old-outputs.jsonl --scope=test
 
 # Verify all artifacts restore from the cache and
 # use the build directory with `restoreAllArtifacts`

@@ -63,7 +63,7 @@ public structure BuildMetadata where
   synthetic : Bool
 
 /-- The current version of the trace file format. -/
-def BuildMetadata.schemaVersion : String := "2025-09-10"
+def BuildMetadata.schemaVersion : String := "2026-11-02"
 
 public protected def BuildMetadata.toJson (self : BuildMetadata) : Json :=
   ({} : JsonObject)
@@ -112,6 +112,9 @@ public protected def BuildMetadata.fromJson? (json : Json) : Except String Build
       if let some (.str ver) := o.getJson? "schemaVersion" then
         if ver == BuildMetadata.schemaVersion then
           error s!"invalid trace: {e}"
+        -- Older traces use 64-bit hashes and are thus out of date.
+        if ver < BuildMetadata.schemaVersion then
+          return .ofStub .nil
       error s!"unknown trace format: {e}"
   | _ =>
     error s!"unknown trace format: expected JSON number or object"

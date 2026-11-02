@@ -1281,6 +1281,35 @@ def mkResult (unresolvedInsts : Array MVarId) : UnifyM MatchUnifyResult := do
   let s ← get
   return { s with unresolvedInsts }
 
+/--
+Replaces every binder domain on the forall spine of `type` whose head is an assigned
+metavariable by the beta-reduced assignment of that head.
+-/
+partial def instantiateSpineDomains (type : Expr) : SymM Expr := do
+  match type with
+  | .forallE _ d b _ => type.updateForallS! (← instantiateHead d) (← instantiateSpineDomains b)
+  | .mdata _ t => type.updateMDataS! (← instantiateSpineDomains t)
+  | _ => return type
+where
+  instantiateHead (d : Expr) : SymM Expr := do
+    let .mvar mvarId := d.getAppFn | return d
+    let some val ← getExprMVarAssignment? mvarId | return d
+    instantiateHead (← betaS (← shareCommon val) d.getAppArgs)
+
+/--
+Updates the stored type of every unassigned metavariable minted for a pattern variable so that
+the binder domains on its forall spine carry the assignments made by the pending constraints.
+-/
+def canonicalizeMVarTypes : UnifyM Unit := do
+  let mvarCounterSaved := (← read).mvarCounterSaved
+  for arg in (← get).args do
+    let .mvar mvarId := arg | continue
+    let some decl := (← getMCtx).findDecl? mvarId | continue
+    if decl.index ≥ mvarCounterSaved && decl.type.hasMVar && !(← mvarId.isAssigned) then
+      let type ← instantiateSpineDomains decl.type
+      unless isSameExpr type decl.type do
+        mvarId.setType type
+
 def main (p : Pattern) (e : Expr) (unify : Bool) (zetaDelta : Bool) : SymM (Option (MatchUnifyResult)) :=
   UnifyM.run p unify zetaDelta do
     unless (← process p.pattern e <&&> processDelayedLevels) do return none
@@ -1288,6 +1317,7 @@ def main (p : Pattern) (e : Expr) (unify : Bool) (zetaDelta : Bool) : SymM (Opti
     | .failed => return none
     | .success mvarsToCheckType instMVars =>
       unless (← processPending mvarsToCheckType) do return none
+      canonicalizeMVarTypes
       -- An instance may still be assigned while processing pending constraints; report only those
       -- that remain unresolved so the caller decides whether that is fatal.
       let unresolvedInsts ← instMVars.filterM fun m => return !(← m.isAssigned)
@@ -1323,6 +1353,9 @@ Returns `some result` if unification succeeds, where `result` contains:
 Unlike `match?`, this handles terms containing metavariables by deferring
 constraints to Phase 2 unification. Use this when matching against goal
 expressions that may contain unsolved metavariables.
+
+The binder domains in the types of the fresh metavariables in `args` carry the assignments
+made during this call.
 
 Instance arguments are synthesized (or assigned by unification). Any that cannot be resolved are
 reported in `MatchUnifyResult.unresolvedInsts` rather than silently left as loose metavariables in

@@ -772,7 +772,7 @@ class task_manager {
     condition_variable                            m_queue_cv;
     condition_variable                            m_task_finished_cv;
     condition_variable                            m_dedicated_finished_cv;
-    bool                                          m_shutting_down{false};
+    std::atomic<bool>                             m_shutting_down{false};
 
     lean_task_object * dequeue() {
         lean_assert(m_queues_size != 0);
@@ -1084,7 +1084,7 @@ public:
     }
 
     bool shutting_down() const {
-        return m_shutting_down;
+        return m_shutting_down.load(std::memory_order_relaxed);
     }
 
     uint8_t get_task_state(lean_task_object * t) {

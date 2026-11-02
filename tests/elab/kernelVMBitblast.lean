@@ -2,9 +2,10 @@ import Lean
 import Std.Tactic.BVDecide
 
 /-!
-Tests `Std.Tactic.BVDecide.KernelVM.bvVMProg` against `BVLogicalExpr.eval`: random expressions are
-bitblasted by the kernel VM (mode `1`), and the resulting AIG, read from the memory, is evaluated
-under random assignments.
+Tests `Std.Tactic.BVDecide.KernelVM.bvVMProg`: random expressions are bitblasted by the kernel VM
+(mode `1`). The resulting AIG, read from the memory, is evaluated under random assignments and
+compared with `BVLogicalExpr.eval`, and the AIG and its CNF must be the same as those of
+`BVLogicalExpr.bitblast` and `Std.Sat.AIG.toCNF`.
 -/
 
 open Lean Std.Tactic.BVDecide Std.Tactic.BVDecide.KernelVM Lean.KernelVM
@@ -109,6 +110,33 @@ def evalAIG (mem : ByteArray) (numNodes numAtoms : Nat) (assign : BVExpr.Assignm
   let root := word mem (B + 4 * rootOff + 2)
   return val[root / 2]! != (root % 2 == 1)
 
+/-- The AIG nodes in `mem`, as strings. -/
+def vmDecls (mem : ByteArray) (numNodes numAtoms : Nat) : Array String := Id.run do
+  let numAig := word mem 0
+  let atomT := 8 + 2 * numNodes
+  let B := atomT + 2 * numAtoms
+  let mut atomOf : Std.HashMap Nat (Nat × Nat) := {}
+  for a in 0...numAtoms do
+    let o := word mem (atomT + 2 * a)
+    if o != 0 then
+      for b in 0...(word mem (atomT + 2 * a + 1)) do
+        atomOf := atomOf.insert (word mem (B + 4 * (o - 1 + b) + 2) / 2) (a, b)
+  let mut out := #["false"]
+  for n in 1...numAig do
+    let l := word mem (B + 4 * n)
+    if l == 18446744073709551615 then
+      let (a, b) := atomOf.getD n (0, 0)
+      out := out.push s!"atom {a}.{b}"
+    else
+      out := out.push s!"gate {l} {word mem (B + 4 * n + 1)}"
+  return out
+
+def nativeDecls (aig : Std.Sat.AIG BVBit) : Array String :=
+  aig.decls.map fun
+    | .false => "false"
+    | .atom a => s!"atom {a.var}.{a.idx}"
+    | .gate l r => s!"gate {l.val} {r.val}"
+
 def bitblastTest (n : Nat) : IO Unit := do
   let mut g : Rng := ⟨7⟩
   let mut gates := 0
@@ -121,6 +149,11 @@ def bitblastTest (n : Nat) : IO Unit := do
     let some mem := runMem bvVMProg [.nat enc, .nat 0, .nat 1] 10000000000
       | throw <| IO.userError s!"bitblasting failed for {e}"
     gates := gates + word mem 1
+    let entry := e.bitblast
+    unless nativeDecls entry.aig == vmDecls mem numNodes numAtoms do
+      throw <| IO.userError s!"different AIG for {e}"
+    unless (Std.Sat.AIG.toCNF entry).clauses.map (·.literals) == (readCNF mem).clauses.map (·.literals) do
+      throw <| IO.userError s!"different CNF for {e}"
     for _ in 0...5 do
       let (assign, g') := genAssign.run g
       g := g'
@@ -128,6 +161,6 @@ def bitblastTest (n : Nat) : IO Unit := do
         throw <| IO.userError s!"mismatch for {e}"
   IO.println s!"agreed on {n} expressions ({gates} clauses)"
 
-/-- info: agreed on 500 expressions (103129 clauses) -/
+/-- info: agreed on 500 expressions (84867 clauses) -/
 #guard_msgs in
 #eval bitblastTest 500

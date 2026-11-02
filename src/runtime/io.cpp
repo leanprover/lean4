@@ -1672,6 +1672,11 @@ extern "C" LEAN_EXPORT obj_res lean_runtime_mark_persistent(obj_arg a) {
 
 /* def Runtime.deepCopy : {α : Type} → α → IO α := fun {α} a => pure a */
 extern "C" LEAN_EXPORT obj_res lean_runtime_deep_copy(b_obj_arg o) {
+    // We point at atomic and non-atomic slots from `todo`.
+    // The object we create is only used from this thread,
+    // but we also need atomic and ordinary pointer sizes to match.
+    static_assert(sizeof(std::atomic<object *>) == sizeof(object *));
+
     object * root = lean_box(0);
     // maps source objects to their copies so that sharing in the input graph is preserved
     lean::unordered_map<object *, object *> copies;
@@ -1754,6 +1759,16 @@ extern "C" LEAN_EXPORT obj_res lean_runtime_deep_copy(b_obj_arg o) {
             case LeanExternal:
                 lean_dec(root);
                 return io_result_mk_error("external objects cannot be copied");
+            case LeanThunk: {
+                object * v = lean_to_thunk(src)->m_value.load(std::memory_order_acquire);
+                if (!v) {
+                    lean_dec(root);
+                    return io_result_mk_error("Thunks must be evaluated before being copied");
+                }
+                new_o = lean_thunk_pure(lean_box(0));
+                todo.push_back({v, reinterpret_cast<object **>(&lean_to_thunk(new_o)->m_value)});
+                break;
+            }
             case LeanTask:
                 lean_dec(root);
                 return io_result_mk_error("Tasks cannot be copied");

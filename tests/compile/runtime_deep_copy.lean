@@ -15,15 +15,32 @@ structure S where
   big  : Nat
   deriving BEq
 
+/-- Checks that `a` is deep-copied to a `BEq`-equal value. -/
 def check [BEq α] (tag : String) (a : α) : IO Unit := do
   let b ← Runtime.deepCopy a
   unless a == b do throw <| IO.userError s!"{tag}: copy differs from original"
+  IO.println s!"{tag}: ok"
+
+/-- Checks that `b` is `BEq`-equal to `a`, but distinct in memory.
+`a` and `b` must be non-scalar. -/
+unsafe def checkFresh [BEq α] (tag : String) (a b : α) : IO Unit := do
+  unless a == b do throw <| IO.userError s!"{tag}: copy differs from original"
+  if ptrEq a b then throw <| IO.userError s!"{tag}: copy shares allocation with input"
+
+/-- Checks that `t` is deep-copied correctly.
+`t` must already be evaluated. -/
+unsafe def checkThunk [BEq α] (tag : String) (t : Thunk α) : IO Unit := do
+  let t' ← Runtime.deepCopy t
+  if ptrEq t t' then throw <| IO.userError s!"{tag}: copy shares allocation with input"
+  checkFresh tag t.get t'.get
   IO.println s!"{tag}: ok"
 
 def expectError (tag : String) (act : IO Unit) : IO Unit := do
   match ← act.toBaseIO with
   | .ok _    => IO.println s!"{tag}: no error!"
   | .error e => IO.println s!"{tag}: {e}"
+
+@[noinline] def mkThunk (s : String) : Thunk String := Thunk.mk fun _ => s ++ "!"
 
 set_option compiler.extract_closed false in
 unsafe def main : IO UInt32 := do
@@ -61,8 +78,14 @@ unsafe def main : IO UInt32 := do
   if ptrEq p'.1 s then throw <| IO.userError "sharing: copy shares allocation with input"
   unless ptrEq p'.1 p'.2 do throw <| IO.userError "sharing: not preserved"
   IO.println "sharing: ok"
+  -- evaluated thunks
+  checkThunk "Thunk.pure" (Thunk.pure "pure")
+  let th := mkThunk "lazy"
+  -- evaluate before checking
+  if th.get.isEmpty then throw <| IO.userError "forced Thunk: unexpected value"
+  checkThunk "forced Thunk" th
   -- non-copyable objects
-  expectError "thunk" do discard <| Runtime.deepCopy (Thunk.mk fun _ => 1)
+  expectError "unevaluated thunk" do discard <| Runtime.deepCopy (mkThunk "never")
   expectError "task" do discard <| Runtime.deepCopy (Task.spawn fun _ => 1)
   expectError "ref" do discard <| Runtime.deepCopy (← IO.mkRef 0)
   expectError "promise" do discard <| Runtime.deepCopy (← IO.Promise.new (α := Nat))

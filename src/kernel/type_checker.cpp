@@ -22,6 +22,7 @@ Author: Leonardo de Moura
 #include "kernel/for_each_fn.h"
 #include "kernel/quot.h"
 #include "kernel/inductive.h"
+#include "kernel/kernel_vm.h"
 
 namespace lean {
 static name * g_kernel_fresh = nullptr;
@@ -50,6 +51,9 @@ static expr * g_nat_lor      = nullptr;
 static expr * g_nat_xor      = nullptr;
 static expr * g_nat_shiftLeft  = nullptr;
 static expr * g_nat_shiftRight = nullptr;
+static expr * g_nat_getByte    = nullptr;
+static expr * g_nat_getUInt64  = nullptr;
+static expr * g_kvm_run        = nullptr;
 
 type_checker::state::state(environment const & env):
     m_env(env), m_ngen(*g_kernel_fresh) {}
@@ -665,6 +669,22 @@ template<typename F> optional<expr> type_checker::reduce_bin_nat_pred(F const & 
     return f(v1.raw(), v2.raw()) ? some_expr(mk_bool_true()) : some_expr(mk_bool_false());
 }
 
+optional<expr> type_checker::reduce_nat_get(expr const & e, unsigned bytes) {
+    expr arg1 = whnf(app_arg(app_fn(e)));
+    if (!is_nat_lit_ext(arg1)) return none_expr();
+    expr arg2 = whnf(app_arg(e));
+    if (!is_nat_lit_ext(arg2)) return none_expr();
+    uint64 w = nat_get_uint64(get_nat_val(arg1), get_nat_val(arg2));
+    if (bytes == 1) w &= 0xff;
+    return some_expr(mk_lit(literal(nat(static_cast<unsigned long>(w)))));
+}
+
+optional<expr> type_checker::reduce_kernel_vm(expr const & e) {
+    if (auto r = kernel_vm_run(env(), e, [&](expr const & t) { return whnf(t); }))
+        return some_expr(*r ? mk_bool_true() : mk_bool_false());
+    return none_expr();
+}
+
 optional<expr> type_checker::reduce_nat(expr const & e) {
     unsigned nargs = get_app_num_args(e);
     if (nargs == 1) {
@@ -694,6 +714,10 @@ optional<expr> type_checker::reduce_nat(expr const & e) {
         if (f == *g_nat_xor)  return reduce_bin_nat_op(nat_lxor, e);
         if (f == *g_nat_shiftLeft) return reduce_shiftLeft(e);
         if (f == *g_nat_shiftRight) return reduce_bin_nat_op(lean_nat_shiftr, e);
+        if (f == *g_nat_getByte) return reduce_nat_get(e, /* bytes */ 1);
+        if (f == *g_nat_getUInt64) return reduce_nat_get(e, /* bytes */ 8);
+    } else if (nargs == 3) {
+        if (get_app_fn(e) == *g_kvm_run) return reduce_kernel_vm(e);
     }
     return none_expr();
 }
@@ -1320,6 +1344,9 @@ void initialize_type_checker() {
     g_nat_xor      = new_persistent_expr_const({"Nat", "xor"});
     g_nat_shiftLeft  = new_persistent_expr_const({"Nat", "shiftLeft"});
     g_nat_shiftRight = new_persistent_expr_const({"Nat", "shiftRight"});
+    g_nat_getByte    = new_persistent_expr_const({"Nat", "getByte"});
+    g_nat_getUInt64  = new_persistent_expr_const({"Nat", "getUInt64"});
+    g_kvm_run        = new_persistent_expr_const({"Lean", "KernelVM", "run"});
     g_string_mk    = new_persistent_expr_const({"String", "ofList"});
     register_name_generator_prefix(*g_kernel_fresh);
 }
@@ -1345,6 +1372,9 @@ void finalize_type_checker() {
     delete g_nat_xor;
     delete g_nat_shiftLeft;
     delete g_nat_shiftRight;
+    delete g_nat_getByte;
+    delete g_nat_getUInt64;
+    delete g_kvm_run;
     delete g_string_mk;
 }
 }

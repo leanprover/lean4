@@ -298,6 +298,9 @@ public:
     */
     size_t size_in_bytes() const;
 
+    /** Return bits `bit_offset` to `bit_offset + 63` of the absolute value. */
+    uint64 extract_bits64(size_t bit_offset) const;
+
     friend void power(mpz & a, mpz const & b, unsigned k);
     friend void _power(mpz & a, mpz const & b, unsigned k) { power(a, b, k); }
     friend mpz pow(mpz a, unsigned k) { power(a, a, k); return a; }

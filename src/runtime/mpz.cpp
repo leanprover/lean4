@@ -16,6 +16,22 @@ Author: Leonardo de Moura
 #include "runtime/debug.h"
 
 namespace lean {
+template<typename Limb>
+static uint64 extract_limb_bits64(Limb const * limbs, size_t num_limbs, size_t bit_offset) {
+    constexpr size_t limb_bits = sizeof(Limb) * 8;
+    size_t i = bit_offset / limb_bits;
+    size_t shift = bit_offset % limb_bits;
+    uint64 r = 0;
+    size_t got = 0;
+    while (got < 64 && i < num_limbs) {
+        r |= static_cast<uint64>(limbs[i] >> shift) << got;
+        got += limb_bits - shift;
+        shift = 0;
+        i++;
+    }
+    return r;
+}
+
 /***** GMP VERSION ******/
 #ifdef LEAN_USE_GMP
 mpz::mpz() {
@@ -232,6 +248,10 @@ size_t mpz::log2() const {
 
 size_t mpz::size_in_bytes() const {
     return mpz_size(m_val) * sizeof(mp_limb_t);
+}
+
+uint64 mpz::extract_bits64(size_t bit_offset) const {
+    return extract_limb_bits64(mpz_limbs_read(m_val), mpz_size(m_val), bit_offset);
 }
 
 size_t mpz::trailing_zeros() const {
@@ -902,6 +922,10 @@ size_t mpz::trailing_zeros() const {
 
 size_t mpz::size_in_bytes() const {
     return m_size * sizeof(mpn_digit);
+}
+
+uint64 mpz::extract_bits64(size_t bit_offset) const {
+    return extract_limb_bits64(m_digits, m_size, bit_offset);
 }
 
 mpz & mpz::operator&=(mpz const & o) {

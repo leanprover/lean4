@@ -15,19 +15,18 @@ public section
 /-!
 # Automation for the lattice theory
 
-This module registers the automation lemmas of the lattice theory with `simp` and `grind`.
-A lemma gets `simp` and `grind norm` if and only if it is an unconditional equation (or `Iff`)
-whose right side removes lattice vocabulary, moves it to a smaller carrier (pointwise application,
-pair components), or moves it into the `Prop` argument of `⌜·⌝`. Such an equation holds in every
-context, including under binders, and rewriting with the whole set terminates.
+This module registers the automation lemmas of the lattice theory with `simp`, `grind` and `vcgen`.
+A lemma gets `simp`, `grind norm` and `vcgen_simp` if and only if it is an unconditional equation
+(or `Iff`) whose right side removes lattice vocabulary, moves it to a smaller carrier (pointwise
+application, pair components), or moves it into the `Prop` argument of `⌜·⌝`. Such an equation
+holds in every context, including under binders, and rewriting with the whole set terminates.
+`grind` and `vcgen` differ from this rule in a few places.
 
 `grind` has theories for the vocabulary of `Prop` and none for complete lattices. So `grind` also
 unfolds `⊑` at function and pair carriers into `Prop`, although the unfolded term is larger:
 `le_pi_eq_forall` is a `grind norm` lemma, and `le_prod_eq_and` is a `grind =` lemma. Neither is a
-`simp` lemma.
-
-`grind` rewrites with `grind norm` lemmas while it preprocesses the goal, before E-matching, and it
-rewrites under binders. For example, at carrier `Prop` the hypothesis
+`simp` lemma. `grind` rewrites with `grind norm` lemmas while it preprocesses the goal, before
+E-matching, and it rewrites under binders. For example, at carrier `Prop` the hypothesis
 ```
 h : ¬ ⨆ r, ⌜some false = some r⌝ ⊓ (r = false ∧ q)
 ```
@@ -36,10 +35,10 @@ vocabulary of `grind`, so E-matching instantiates `r := false` from the ground t
 and `h` yields `¬ q`.
 
 `vcgen` rewrites hypotheses, state arguments and verification conditions with the `@[vcgen_simp]`
-theorems. The set contains the lattice lemmas that are `simp` and `grind norm` lemmas, and a few
-theorems about the logical connectives, `decide`, `Bool` literals, `⊑` and `∃`. It excludes the
-computation rules of predicate transformers. The theorems `exists_eq_left`, `exists_eq_right` and
-their primed variants complete the one-point rules: simp rewrites inner terms first, so
+theorems. The set leaves out the computation rules of predicate transformers. It adds a few
+theorems about the logical connectives, `decide`, `Bool` literals and `⊑`, and the one-point rules
+`exists_eq_left`, `exists_eq_right` and their primed variants. Simp rewrites inner terms first, so
+the `∃` rules complete the lattice one-point rules:
 ```
 ⨆ x, ⌜x = t⌝ ⊓ ⌜q x⌝ ⇝ ⨆ x, ⌜x = t ∧ q x⌝ ⇝ ⌜∃ x, x = t ∧ q x⌝ ⇝ ⌜q t⌝
 ```

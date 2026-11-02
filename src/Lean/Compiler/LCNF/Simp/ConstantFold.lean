@@ -548,6 +548,14 @@ def Folder.charOfNat (args : Array (Arg .pure)) : FolderM (Option (LetValue .pur
   if (← getPhase) < .mono then return none
   Folder.ofNat (fun v => .uint32 (Char.ofNat v).val) args
 
+/--
+Folder for `ofNat` operations on the signed fixed-width integer types. They are represented by the
+unsigned type of the same width only from the mono phase on, so this does not apply before.
+-/
+def Folder.sintOfNat (f : Nat → LitValue) (args : Array (Arg .pure)) : FolderM (Option (LetValue .pure)) := do
+  if (← getPhase) < .mono then return none
+  Folder.ofNat f args
+
 def Folder.toNat (args : Array (Arg .pure)) : FolderM (Option (LetValue .pure)) := do
   let #[.fvar fvarId] := args | return none
   let some (.lit lit) ← findLetValue? (pu := .pure) fvarId | return none
@@ -700,10 +708,16 @@ def conversionFolders : List (Name × Folder) := [
   (``UInt64.ofNat, Folder.ofNat (fun v => .uint64 (UInt64.ofNat v))),
   (``USize.ofNat, Folder.ofNat (fun v => .usize (UInt64.ofNat v))),
   (``Char.ofNat, Folder.charOfNat),
+  (``Int8.ofNat, Folder.sintOfNat (fun v => .uint8 (Int8.ofNat v).toUInt8)),
+  (``Int16.ofNat, Folder.sintOfNat (fun v => .uint16 (Int16.ofNat v).toUInt16)),
+  (``Int32.ofNat, Folder.sintOfNat (fun v => .uint32 (Int32.ofNat v).toUInt32)),
+  (``Int64.ofNat, Folder.sintOfNat (fun v => .uint64 (Int64.ofNat v).toUInt64)),
+  (``ISize.ofNat, Folder.sintOfNat (fun v => .usize (UInt64.ofNat v))),
   (``UInt8.ofNatLT, Folder.ofNatLT (fun v => .uint8 (UInt8.ofNat v))),
   (``UInt16.ofNatLT, Folder.ofNatLT (fun v => .uint16 (UInt16.ofNat v))),
   (``UInt32.ofNatLT, Folder.ofNatLT (fun v => .uint32 (UInt32.ofNat v))),
   (``UInt64.ofNatLT, Folder.ofNatLT (fun v => .uint64 (UInt64.ofNat v))),
+  (``USize.ofNatLT, Folder.ofNatLT (fun v => .usize (UInt64.ofNat v))),
   (``UInt8.toNat, Folder.toNat),
   (``UInt16.toNat, Folder.toNat),
   (``UInt32.toNat, Folder.toNat),

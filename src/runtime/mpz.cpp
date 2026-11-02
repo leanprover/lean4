@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #include <bit>
 #include <memory>
+#include <vector>
 #include <string>
 #include <cstring>
 #include "runtime/sstream.h"
@@ -252,6 +253,12 @@ size_t mpz::size_in_bytes() const {
 
 uint64 mpz::extract_bits64(size_t bit_offset) const {
     return extract_limb_bits64(mpz_limbs_read(m_val), mpz_size(m_val), bit_offset);
+}
+
+mpz mpz::of_le_bytes(unsigned char const * data, size_t size) {
+    mpz r;
+    mpz_import(r.m_val, size, -1, 1, 0, 0, data);
+    return r;
 }
 
 size_t mpz::trailing_zeros() const {
@@ -926,6 +933,17 @@ size_t mpz::size_in_bytes() const {
 
 uint64 mpz::extract_bits64(size_t bit_offset) const {
     return extract_limb_bits64(m_digits, m_size, bit_offset);
+}
+
+mpz mpz::of_le_bytes(unsigned char const * data, size_t size) {
+    size_t num_digits = (size + sizeof(mpn_digit) - 1) / sizeof(mpn_digit);
+    if (num_digits == 0) return mpz();
+    std::vector<mpn_digit> digits(num_digits, 0);
+    for (size_t i = 0; i < size; i++)
+        digits[i / sizeof(mpn_digit)] |= static_cast<mpn_digit>(data[i]) << (8 * (i % sizeof(mpn_digit)));
+    mpz r;
+    r.set(num_digits, digits.data());
+    return r;
 }
 
 mpz & mpz::operator&=(mpz const & o) {

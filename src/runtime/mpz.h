@@ -298,6 +298,9 @@ public:
     */
     size_t size_in_bytes() const;
 
+    /** The natural number with the little-endian bytes `data[0..size)`. */
+    static mpz of_le_bytes(unsigned char const * data, size_t size);
+
     /** Return bits `bit_offset` to `bit_offset + 63` of the absolute value. */
     uint64 extract_bits64(size_t bit_offset) const;
 

@@ -17,12 +17,12 @@ def proof : Array LRAT.IntAction := #[.addRup 5 #[2] #[1, 2], .del #[1, 2], .add
 def cnfNat := encodeCNF cnf (maxActionId proof)
 def proofNat := (encodeProof proof).get!
 
-example : run lratVMProg [cnfNat, proofNat] lratVMFuel = true := by decide +kernel
+example : run lratVMProg [.nat cnfNat, .nat proofNat] lratVMFuel = true := by decide +kernel
 
 -- A hint that is neither unit nor conflicting fails.
-example : run lratVMProg [cnfNat, (encodeProof #[.addRup 5 #[2] #[1, 3]]).get!] lratVMFuel = false := by
+example : run lratVMProg [.nat cnfNat, .nat (encodeProof #[.addRup 5 #[2] #[1, 3]]).get!] lratVMFuel = false := by
   decide +kernel
 
 -- A proof that does not derive the empty clause fails.
-example : run lratVMProg [cnfNat, (encodeProof #[.addRup 5 #[2] #[1, 2]]).get!] lratVMFuel = false := by
+example : run lratVMProg [.nat cnfNat, .nat (encodeProof #[.addRup 5 #[2] #[1, 2]]).get!] lratVMFuel = false := by
   decide +kernel

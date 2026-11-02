@@ -1582,6 +1582,18 @@ extern "C" LEAN_EXPORT object * lean_nat_big_xor(object * a1, object * a2) {
         return mpz_to_nat(mpz_value(a1) ^ mpz_value(a2));
 }
 
+extern "C" LEAN_EXPORT lean_obj_res lean_byte_array_to_nat_le(b_lean_obj_arg a) {
+    size_t sz = lean_sarray_size(a);
+    uint8 const * d = lean_sarray_cptr(a);
+    while (sz > 0 && d[sz - 1] == 0) sz--;
+    if (sz < sizeof(size_t)) {
+        size_t v = 0;
+        for (size_t i = 0; i < sz; i++) v |= static_cast<size_t>(d[i]) << (8 * i);
+        return lean_usize_to_nat(v);
+    }
+    return mk_nat_obj(mpz::of_le_bytes(d, sz));
+}
+
 extern "C" LEAN_EXPORT lean_obj_res lean_nat_shiftl(b_lean_obj_arg a1, b_lean_obj_arg a2) {
     // Special case for shifted value is 0.
     if (lean_is_scalar(a1) && lean_unbox(a1) == 0) {

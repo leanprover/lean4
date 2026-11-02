@@ -53,4 +53,12 @@ def libUVVersion : Nat :=
 def openSSLVersion : Nat :=
   openSSLVersionFn ()
 
+/-- Returns the 32-byte SHA-256 digest of `bytes`. -/
+@[extern "lean_sha256"]
+opaque Internal.sha256 (bytes : @& ByteArray) : ByteArray := .empty
+
+/-- Returns the 32-byte SHA-256 digest of the UTF-8 encoding of `s`. -/
+@[extern "lean_sha256_string"]
+opaque Internal.sha256String (s : @& String) : ByteArray := .empty
+
 end Lean

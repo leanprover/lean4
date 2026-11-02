@@ -1866,8 +1866,10 @@ in the program. At runtime, this will be a no-op as the C compiler will optimize
 def Runtime.hold (a : @& α) : BaseIO Unit := return
 
 /-- Copy the entire object graph into new memory.
-Only scalar types, inductives, arrays, strings, and closures can be copied.
-External objects, `Task`s, `Promise`s, `Thunk`s, and `ST.Ref`s are not supported.
+Scalar values, inductives, arrays, strings, and closures can always be copied.
+External objects and `ST.Ref`s are not supported.
+`Thunk`s, `Task`s, and `Promise`s can only be copied after becoming immutable:
+already-evaluated `Thunk`s, finished `Task`s, and resolved `Promise`s.
 
 The result:
 - has no allocation in common with the input

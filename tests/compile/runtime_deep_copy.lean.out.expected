@@ -17,9 +17,17 @@ Option: ok
 structure: ok
 long list: ok
 sharing: ok
-thunk: Thunks cannot be copied
-task: Tasks cannot be copied
-ref: Refs cannot be copied
-promise: Promises cannot be copied
+Task.pure: ok
+finished Task: ok
+Thunk.pure: ok
+evaluated Thunk: ok
+Task value sharing: ok
+Thunk value sharing: ok
+Promise: ok
+Promise sharing: ok
+unevaluated Thunk: only evaluated Thunks can be copied
+unfinished Task: only finished Tasks can be copied
+unresolved Promise: only resolved Promises can be copied
+Ref: Refs cannot be copied
 external: external objects cannot be copied
-nested task: Tasks cannot be copied
+nested unfinished Task: only finished Tasks can be copied

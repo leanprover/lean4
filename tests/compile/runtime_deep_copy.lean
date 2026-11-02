@@ -1,9 +1,10 @@
 /-!
 Tests for `Runtime.deepCopy`. Copies of scalars, constructors (including scalar fields),
-arrays, scalar arrays, strings, and big numbers must compare equal to the originals;
-the copy must not share allocations with the input but must preserve sharing within
-the copied graph; thunks, tasks, refs, promises, and external objects are
-rejected, including when nested inside otherwise copyable data.
+arrays, scalar arrays, strings, big numbers, evaluated thunks, finished tasks, and resolved
+promises must compare equal to the originals; the copy must not share allocations with the input
+but must preserve sharing within the copied graph; unevaluated thunks, unfinished tasks,
+unresolved promises, refs, and external objects are rejected, including when nested inside
+otherwise copyable data.
 -/
 
 structure S where
@@ -32,6 +33,15 @@ unsafe def checkFresh [BEq α] (tag : String) (a b : α) : IO Unit := do
 unsafe def checkThunk [BEq α] (tag : String) (t : Thunk α) : IO Unit := do
   let t' ← Runtime.deepCopy t
   if ptrEq t t' then throw <| IO.userError s!"{tag}: copy shares allocation with input"
+  checkFresh tag t.get t'.get
+  IO.println s!"{tag}: ok"
+
+/-- Checks that `t` is deep-copied correctly.
+`t` must already have finished. -/
+unsafe def checkTask [BEq α] (tag : String) (t : Task α) : IO Unit := do
+  let t' ← Runtime.deepCopy t
+  if ptrEq t t' then throw <| IO.userError s!"{tag}: copy shares allocation with input"
+  unless ← IO.hasFinished t' do throw <| IO.userError s!"{tag}: copied task has not finished"
   checkFresh tag t.get t'.get
   IO.println s!"{tag}: ok"
 
@@ -78,19 +88,50 @@ unsafe def main : IO UInt32 := do
   if ptrEq p'.1 s then throw <| IO.userError "sharing: copy shares allocation with input"
   unless ptrEq p'.1 p'.2 do throw <| IO.userError "sharing: not preserved"
   IO.println "sharing: ok"
+  -- finished tasks
+  checkTask "Task.pure" (Task.pure "pure")
+  let t := Task.spawn fun _ => "spawned"
+  discard <| IO.wait t
+  checkTask "finished Task" t
   -- evaluated thunks
   checkThunk "Thunk.pure" (Thunk.pure "pure")
   let th := mkThunk "lazy"
   -- evaluate before checking
-  if th.get.isEmpty then throw <| IO.userError "forced Thunk: unexpected value"
-  checkThunk "forced Thunk" th
+  if th.get.isEmpty then throw <| IO.userError "evaluated Thunk: unexpected value"
+  checkThunk "evaluated Thunk" th
+  -- the value of a task or thunk may be directly reachable, so ensure sharing
+  let (t', v') ← Runtime.deepCopy (t, t.get)
+  unless ptrEq t'.get v' do throw <| IO.userError "Task value sharing: not preserved"
+  IO.println "Task value sharing: ok"
+  let (th', v') ← Runtime.deepCopy (th, th.get)
+  unless ptrEq th'.get v' do throw <| IO.userError "Thunk value sharing: not preserved"
+  IO.println "Thunk value sharing: ok"
+  -- resolved promises
+  let p ← IO.Promise.new (α := String)
+  p.resolve "resolved"
+  let p' ← Runtime.deepCopy p
+  if ptrEq p p' then throw <| IO.userError "Promise: copy shares allocation with input"
+  if ptrEq p.result? p'.result? then throw <| IO.userError "Promise: copy shares result with input"
+  unless ← p'.isResolved do throw <| IO.userError "Promise: copy is not resolved"
+  checkFresh "Promise" p.result!.get p'.result!.get
+  IO.println "Promise: ok"
+  -- the result task of a promise may also be directly reachable (test either traversal order)
+  let (p', r') ← Runtime.deepCopy (p, p.result?)
+  unless ptrEq p'.result? r' do throw <| IO.userError "Promise sharing: not preserved"
+  let (r', p') ← Runtime.deepCopy (p.result?, p)
+  unless ptrEq p'.result? r' do throw <| IO.userError "Promise sharing: not preserved"
+  IO.println "Promise sharing: ok"
   -- non-copyable objects
-  expectError "unevaluated thunk" do discard <| Runtime.deepCopy (mkThunk "never")
-  expectError "task" do discard <| Runtime.deepCopy (Task.spawn fun _ => 1)
-  expectError "ref" do discard <| Runtime.deepCopy (← IO.mkRef 0)
-  expectError "promise" do discard <| Runtime.deepCopy (← IO.Promise.new (α := Nat))
+  expectError "unevaluated Thunk" do discard <| Runtime.deepCopy (mkThunk "never")
+  -- create a forever-unfinished task via an unresolved promise
+  let pending ← IO.Promise.new (α := Nat)
+  expectError "unfinished Task" do discard <| Runtime.deepCopy pending.result?
+  expectError "unresolved Promise" do discard <| Runtime.deepCopy pending
+  expectError "Ref" do discard <| Runtime.deepCopy (← IO.mkRef 0)
   expectError "external" do
     discard <| Runtime.deepCopy (← IO.FS.Handle.mk "runtime_deep_copy.lean" .read)
-  expectError "nested task" do
-    discard <| Runtime.deepCopy ("abc", #[1, 2, 3], Task.spawn fun _ => 1)
+  expectError "nested unfinished Task" do
+    discard <| Runtime.deepCopy ("abc", #[1, 2, 3], pending.result?)
+  -- ensure the Promise isn't dropped
+  Runtime.hold pending
   return 0

@@ -1683,6 +1683,15 @@ extern "C" LEAN_EXPORT obj_res lean_runtime_deep_copy(b_obj_arg o) {
     // pairs of source object and destination slot to store its copy in
     buffer<std::pair<object *, object **>> todo;
     todo.push_back({o, &root});
+    // Returns a partial copy of `src` if `src` has finished, scheduling the value in `todo`.
+    // Returns `nullptr` if `src` has not finished.
+    auto copy_finished_task = [&](lean_task_object * src) -> object * {
+        object * v = src->m_value.load(std::memory_order_acquire);
+        if (!v) return nullptr;
+        object * new_t = lean_task_pure(lean_box(0));
+        todo.push_back({v, reinterpret_cast<object **>(&lean_to_task(new_t)->m_value)});
+        return new_t;
+    };
     while (!todo.empty()) {
         auto [src, slot] = todo.back();
         todo.pop_back();
@@ -1763,21 +1772,44 @@ extern "C" LEAN_EXPORT obj_res lean_runtime_deep_copy(b_obj_arg o) {
                 object * v = lean_to_thunk(src)->m_value.load(std::memory_order_acquire);
                 if (!v) {
                     lean_dec(root);
-                    return io_result_mk_error("Thunks must be evaluated before being copied");
+                    return io_result_mk_error("only evaluated Thunks can be copied");
                 }
                 new_o = lean_thunk_pure(lean_box(0));
                 todo.push_back({v, reinterpret_cast<object **>(&lean_to_thunk(new_o)->m_value)});
                 break;
             }
             case LeanTask:
-                lean_dec(root);
-                return io_result_mk_error("Tasks cannot be copied");
-            case LeanPromise:
-                lean_dec(root);
-                return io_result_mk_error("Promises cannot be copied");
-            case LeanThunk:
-                lean_dec(root);
-                return io_result_mk_error("Thunks cannot be copied");
+                new_o = copy_finished_task(lean_to_task(src));
+                if (!new_o) {
+                    lean_dec(root);
+                    return io_result_mk_error("only finished Tasks can be copied");
+                }
+                break;
+            case LeanPromise: {
+                // We must copy the nested task eagerly rather than leaving it to the next iteration,
+                // since a Promise object cannot have a lean_box(0) "hole" in the task slot
+                // (deallocation would crash if it did).
+                object * src_t = reinterpret_cast<object *>(lean_to_promise(src)->m_result);
+                object * new_t;
+                // The nested task may be shared in the object graph.
+                auto it_t = copies.find(src_t);
+                if (it_t != copies.end()) {
+                    new_t = it_t->second;
+                    lean_inc(new_t);
+                } else {
+                    new_t = copy_finished_task(lean_to_task(src_t));
+                    if (!new_t) {
+                        lean_dec(root);
+                        return io_result_mk_error("only resolved Promises can be copied");
+                    }
+                    copies.insert({src_t, new_t});
+                }
+
+                new_o = lean_alloc_small_object(sizeof(lean_promise_object));
+                lean_set_st_header(new_o, LeanPromise, 0);
+                lean_to_promise(new_o)->m_result = lean_to_task(new_t);
+                break;
+            }
             case LeanRef:
                 lean_dec(root);
                 return io_result_mk_error("Refs cannot be copied");

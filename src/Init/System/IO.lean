@@ -1871,7 +1871,7 @@ External objects, `Task`s, `Promise`s, `Thunk`s, and `ST.Ref`s are not supported
 
 The result:
 - has no allocation in common with the input
-- is reference-counted even when the input wasn't
+- is reference-counted (single-threaded) even when the input wasn't
 - does not contribute to the input's reference count
 - has the same sharing as the input
 - has array and string capacities shrunken to their size

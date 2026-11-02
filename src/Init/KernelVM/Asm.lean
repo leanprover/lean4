@@ -170,6 +170,14 @@ def Stmt.compile (s : Stmt) : Nat :=
     (List.range 8).foldl (init := b) fun b j => b.push (UInt8.ofNat (w >>> (8 * j)))
   bytes.toNatLE
 
+/--
+Runs `p` like `Lean.KernelVM.run`, and returns the final memory, as little-endian 64-bit words, if
+it succeeds. This uses the kernel's implementation, for running programs at elaboration time. It
+also fails if the program exceeds the kernel's memory limit.
+-/
+@[extern "lean_kernel_vm_run_mem"]
+opaque runMem (p : @& Nat) (inputs : @& List Input) (fuel : @& Nat) : Option ByteArray
+
 /-!
 ## Notation for writing programs
 

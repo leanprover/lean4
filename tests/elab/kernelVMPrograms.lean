@@ -7,3 +7,4 @@ their structured programs.
 
 #guard Int.Internal.Linear.linCheckProg = Int.Internal.Linear.LinCheck.linCheckStmt.compile
 #guard Std.Tactic.BVDecide.LRAT.KernelVM.lratVMProg = Std.Tactic.BVDecide.LRAT.KernelVM.lratVMStmt.compile
+#guard Std.Tactic.BVDecide.KernelVM.bvVMProg = Std.Tactic.BVDecide.KernelVM.bvVMStmt.compile

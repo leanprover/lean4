@@ -79,9 +79,13 @@ struct vm_input {
     uint64                     m_size;
 };
 
+/* Thrown by `store` when the memory limit is exceeded outside the kernel. */
+struct vm_out_of_memory {};
+
 class kernel_vm {
-    environment const &                         m_env;
-    std::function<expr(expr const &)> const &   m_whnf;
+    /* `nullptr` when running outside the kernel, see `lean_kernel_vm_run_mem`. */
+    environment const *                         m_env;
+    std::function<expr(expr const &)> const *   m_whnf;
     std::vector<vm_instr>                        m_code;
     /* The number of instructions, which may exceed `m_code.size()`: the missing ones are zero, that
        is, `halt`. */
@@ -91,7 +95,7 @@ class kernel_vm {
     std::vector<uint64>                          m_mem;
 
     nat decode_nat(expr const & e) {
-        expr v = m_whnf(e);
+        expr v = (*m_whnf)(e);
         if (is_constant(v) && const_name(v) == *g_nat_zero_n) return nat(0u);
         if (!is_nat_lit(v)) throw vm_decode_failure();
         return lit_value(v).get_nat();
@@ -113,7 +117,7 @@ class kernel_vm {
 
     vm_input decode_input(expr const & e) {
         buffer<expr> args;
-        expr v = m_whnf(e);
+        expr v = (*m_whnf)(e);
         expr const & fn = get_app_args(v, args);
         if (!is_constant(fn) || args.size() != 1) throw vm_decode_failure();
         if (const_name(fn) == *g_input_nat) {
@@ -126,7 +130,7 @@ class kernel_vm {
             }
             return r;
         } else if (const_name(fn) == *g_input_str) {
-            expr s = m_whnf(args[0]);
+            expr s = (*m_whnf)(args[0]);
             if (!is_string_lit(s)) throw vm_decode_failure();
             string_ref const & str = lit_value(s).get_string();
             vm_input r { std::vector<unsigned char>(str.data(), str.data() + str.num_bytes()), str.num_bytes() };
@@ -184,10 +188,12 @@ class kernel_vm {
 
     void store(uint64 addr, uint64 v) {
         if (addr >= m_mem.size()) {
-            if (addr >= KVM_MAX_MEM_WORDS)
-                throw kernel_exception(m_env, sstream() << "the kernel VM ran out of memory: "
+            if (addr >= KVM_MAX_MEM_WORDS) {
+                if (!m_env) throw vm_out_of_memory();
+                throw kernel_exception(*m_env, sstream() << "the kernel VM ran out of memory: "
                                        "address " << addr << " exceeds the limit of "
                                        << KVM_MAX_MEM_WORDS << " words");
+            }
             m_mem.resize(std::max<size_t>(addr + 1, 2 * m_mem.size()), 0);
         }
         m_mem[addr] = v;
@@ -244,13 +250,48 @@ class kernel_vm {
 
 public:
     kernel_vm(environment const & env, std::function<expr(expr const &)> const & whnf):
-        m_env(env), m_whnf(whnf) {}
+        m_env(&env), m_whnf(&whnf) {}
+    kernel_vm(): m_env(nullptr), m_whnf(nullptr) {}
+
+    /* Runs the program `p` on the inputs `inputs`, given as runtime objects of type `Nat` and
+       `List Lean.KernelVM.Input`, and returns the memory if it succeeds. */
+    optional<std::vector<uint64>> run_mem(b_obj_arg p, b_obj_arg inputs, b_obj_arg fuel) {
+        decode_program(nat(p, true));
+        for (b_obj_arg l = inputs; !lean_is_scalar(l); l = lean_ctor_get(l, 1)) {
+            b_obj_arg x = lean_ctor_get(l, 0);
+            b_obj_arg v = lean_ctor_get(x, 0);
+            if (lean_ptr_tag(x) == 0) {
+                nat n(v, true);
+                vm_input r { nat_bytes(n), 0 };
+                if (!n.is_zero()) {
+                    size_t sz = r.m_bytes.size() - 8;
+                    while (sz > 0 && r.m_bytes[sz - 1] == 0) sz--;
+                    r.m_size = sz;
+                }
+                m_inputs.push_back(std::move(r));
+            } else {
+                char const * d = lean_string_cstr(v);
+                size_t sz = lean_string_size(v) - 1;
+                vm_input r { std::vector<unsigned char>(d, d + sz), sz };
+                r.m_bytes.resize(sz + 8, 0);
+                m_inputs.push_back(std::move(r));
+            }
+        }
+        uint64 fuel_v = lean_is_scalar(fuel) ? lean_unbox(fuel) : std::numeric_limits<uint64>::max();
+        m_regs.assign(KVM_NUM_REGS, 0);
+        try {
+            if (!exec(fuel_v)) return optional<std::vector<uint64>>();
+        } catch (vm_out_of_memory &) {
+            return optional<std::vector<uint64>>();
+        }
+        return optional<std::vector<uint64>>(std::move(m_mem));
+    }
 
     optional<bool> run(expr const & prog, expr const & inputs, expr const & fuel) {
         uint64 fuel_v;
         try {
             decode_program(decode_nat(prog));
-            expr l = m_whnf(inputs);
+            expr l = (*m_whnf)(inputs);
             while (true) {
                 buffer<expr> largs;
                 expr const & lfn = get_app_args(l, largs);
@@ -258,7 +299,7 @@ public:
                 if (const_name(lfn) == *g_list_nil && largs.size() == 1) break;
                 if (const_name(lfn) != *g_list_cons || largs.size() != 3) return optional<bool>();
                 m_inputs.push_back(decode_input(largs[1]));
-                l = m_whnf(largs[2]);
+                l = (*m_whnf)(largs[2]);
             }
             nat f = decode_nat(fuel);
             // Fuel beyond `2^64 - 1` cannot run out in practice.
@@ -278,6 +319,18 @@ optional<bool> kernel_vm_run(environment const & env, expr const & e,
     expr const & prog   = app_arg(app_fn(app_fn(e)));
     kernel_vm vm(env, whnf);
     return vm.run(prog, inputs, fuel);
+}
+
+extern "C" LEAN_EXPORT lean_obj_res lean_kernel_vm_run_mem(b_obj_arg p, b_obj_arg inputs, b_obj_arg fuel) {
+    kernel_vm vm;
+    optional<std::vector<uint64>> mem = vm.run_mem(p, inputs, fuel);
+    if (!mem) return lean_box(0);
+    size_t sz = 8 * mem->size();
+    lean_object * b = lean_alloc_sarray(1, sz, sz);
+    if (sz > 0) memcpy(lean_sarray_cptr(b), mem->data(), sz);
+    lean_object * r = lean_alloc_ctor(1, 1, 0);
+    lean_ctor_set(r, 0, b);
+    return r;
 }
 
 void initialize_kernel_vm() {

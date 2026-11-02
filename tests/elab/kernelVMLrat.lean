@@ -26,3 +26,8 @@ example : run lratVMProg [.nat cnfNat, .nat (encodeProof #[.addRup 5 #[2] #[1, 3
 -- A proof that does not derive the empty clause fails.
 example : run lratVMProg [.nat cnfNat, .nat (encodeProof #[.addRup 5 #[2] #[1, 2]]).get!] lratVMFuel = false := by
   decide +kernel
+
+-- A satisfied hint (clause 3 under `¬y`) is skipped.
+example : run lratVMProg [.nat cnfNat,
+    .nat (encodeProof #[.addRup 5 #[2] #[3, 1, 2], .addEmpty 6 #[5, 3, 4]]).get!] lratVMFuel = true := by
+  decide +kernel

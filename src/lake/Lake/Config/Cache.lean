@@ -46,16 +46,13 @@ namespace CacheMap
 /-- The current version of the input-to-output mappings file format. -/
 public def schemaVersion : Date := {year := 2026, month := 11, day := 2}
 
-/-- The first schema version with SHA-256 hashes. Older mappings are ignored. -/
-def sha256SchemaVersion : Date := {year := 2026, month := 11, day := 2}
-
 /-- Checks the header of a mappings file. Returns whether its mappings should be read. -/
 def checkSchemaVersion (inputName : String) (line : String) : LogIO Bool := do
   if line.isEmpty then
     error s!"{inputName}: expected schema version on line 1"
   match Json.parse line >>= fromJson? with
   | .ok (ver : Date) =>
-    if ver < sha256SchemaVersion then
+    if ver < schemaVersion then
       logWarning s!"{inputName}: ignoring mappings of outdated schema version '{ver}'"
       return false
     if schemaVersion < ver then
@@ -234,12 +231,8 @@ where go as o := do
   | .bool _ => -- boolean metadata is allowed (as of 2025-03-13)
     return as
   | .num o =>
-    match Hash.ofJsonNumber? o with
-    | .ok hash =>
-      return as.push {hash}
-    | .error reason =>
-      logError s!"unsupported output; {reason}: {o}"
-      return as
+    logError s!"unsupported output: {o}"
+    return as
   | .str o =>
     match ArtifactDescr.ofFilePath? o with
     | .ok a => return as.push a

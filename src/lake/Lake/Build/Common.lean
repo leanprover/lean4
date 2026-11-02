@@ -80,44 +80,29 @@ public instance : ToJson BuildMetadata := ⟨BuildMetadata.toJson⟩
 Construct build metadata from a trace stub.
 That is, the very old version of the trace file format that just contained a hash.
 -/
+@[deprecated "Deprecated without replacement." (since := "2026-11-02")]
 public def BuildMetadata.ofStub (hash : Hash) : BuildMetadata :=
   {depHash := hash,  inputs := #[], outputs? := none, log := {}, synthetic := false}
 
 public def BuildMetadata.fromJsonObject? (obj : JsonObject) : Except String BuildMetadata := do
-  let depHash ←
-    if obj.getJson? "schemaVersion" |>.isNone then
-      Hash.ofDecimal? (← obj.get "depHash") |>.getDM do
-        error "invalid trace: expected string 'depHash' of decimal digits"
-    else
-      obj.get "depHash"
+  let depHash ← obj.get "depHash"
   let inputs ← obj.getD "inputs" {}
   let outputs? ← obj.getD "outputs" none
   let log ← obj.getD "log" {}
   let synthetic ← obj.getD "synthetic" false
   return {depHash, inputs, outputs?, log, synthetic}
 
+/-- Returns whether `json` is a trace of the current schema version. -/
+def BuildMetadata.hasCurrentSchema (json : Json) : Bool :=
+  match json.getObjVal? "schemaVersion" with
+  | .ok (.str ver) => ver == schemaVersion
+  | _ => false
+
 public protected def BuildMetadata.fromJson? (json : Json) : Except String BuildMetadata := do
-  match json with
-  | .num n =>
-    match Hash.ofJsonNumber? n with
-    | .ok hash =>
-      return .ofStub hash
-    | .error reason =>
-      error s!"invalid trace stub: {reason}"
-  | .obj (o : JsonObject) =>
-    match BuildMetadata.fromJsonObject? o with
-    | .ok data =>
-      return data
-    | .error e =>
-      if let some (.str ver) := o.getJson? "schemaVersion" then
-        if ver == BuildMetadata.schemaVersion then
-          error s!"invalid trace: {e}"
-        -- Older traces use 64-bit hashes and are thus out of date.
-        if ver < BuildMetadata.schemaVersion then
-          return .ofStub .nil
-      error s!"unknown trace format: {e}"
-  | _ =>
-    error s!"unknown trace format: expected JSON number or object"
+  if let .obj (o : JsonObject) := json then
+    if hasCurrentSchema json then
+      return ← fromJsonObject? o |>.mapError (s!"invalid trace: {·}")
+  error s!"unknown trace format: expected an object with schema version '{schemaVersion}'"
 
 public instance : FromJson BuildMetadata := ⟨BuildMetadata.fromJson?⟩
 
@@ -165,9 +150,17 @@ Logs if the read failed or the contents where invalid.
 public def readTraceFile (path : FilePath) : LogIO SavedTrace := do
   match (← IO.FS.readFile path |>.toBaseIO) with
   | .ok contents =>
-    match Json.parse contents >>= BuildMetadata.fromJson? with
-    | .ok data =>
-      return .ok data
+    match Json.parse contents with
+    | .ok json =>
+      -- Traces of other schema versions were written by another Lake version and are out of date.
+      unless BuildMetadata.hasCurrentSchema json do
+        return .invalid
+      match BuildMetadata.fromJson? json with
+      | .ok data =>
+        return .ok data
+      | .error e =>
+        logWarning s!"{path}: {e}"
+        return .invalid
     | .error e =>
       logWarning s!"{path}: {e}"
       return .invalid

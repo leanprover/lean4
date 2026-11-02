@@ -15,6 +15,7 @@ import Init.While
 import Init.Syntax
 import Lean.Meta.Sym.Simp.DiscrTree
 import Lean.Meta.DiscrTree.Util
+import Lean.Elab.PreDefinition.Eqns
 
 public section
 
@@ -594,25 +595,31 @@ partial def hasEqnRootHave (e : Expr) : MetaM Bool := do
     return false
 
 /--
-`f.eq_def` in place of the equation lemma `declName := f.eq_n` of a non-recursive `f` whose
-`f.eq_n` zeta-reduce a `have`, such as a join point of `vcgen +jp`.
+`f._vcgen_eq_i` in place of the equation lemma `declName := f.eq_i`, if `f.eq_i` zeta-reduces a
+`have`, such as a join point of `vcgen +jp`. `f._vcgen_eq_i` keeps the `have`s.
 -/
-def eqnHaveFallback? (declName : Name) : MetaM (Option Name) := do
-  let some f ← isEqnThm? declName | return none
-  let some eqDef ← unfoldSpecEqn? f | return none
-  let rhs ← forallTelescope (← getConstInfo eqDef).type fun _ body => do
+def haveEqn (declName : Name) : MetaM Name := do
+  let some f ← isEqnThm? declName | return declName
+  let some eqDef ← getUnfoldEqnFor? f (nonRec := true) | return declName
+  let rhs? ← forallTelescope (← getConstInfo eqDef).type fun _ body => do
     let_expr Eq _ _ rhs := body | return none
     return some rhs
-  let some rhs := rhs | return none
-  return if ← hasEqnRootHave rhs then some eqDef else none
+  let some rhs := rhs? | return declName
+  unless ← hasEqnRootHave rhs do return declName
+  let some eqns ← getEqnsFor? f | return declName
+  let some i := eqns.findIdx? (· == declName) | return declName
+  let some haveEqns ← Elab.Eqns.getHaveEqnsFor? f "_vcgen_eq_" | return declName
+  -- A `match` under a `have` can split differently from `f.eq_n`.
+  if haveEqns.size != eqns.size then return declName
+  return haveEqns[i]!
 
 /--
 The spec theorems the simp entries `entries` contribute, the single place a `vcgen [...]` argument or
 an `attribute [spec] f` definition (through `mkSimpEntryOfDeclToUnfold`) turns into specs:
 - each `.thm` entry, keyed on its left-hand side at `prio`, skipping wildcard-row equations guarded
   by an overlap hypothesis (as a spec such an equation matches any call and strands the hypothesis as
-  a verification condition). A declaration equation is keyed via `mkSpecTheoremFromSimpDecl?`, with
-  `f.eq_def` in place of the equations `f.eq_n` that `eqnHaveFallback?` rejects; an
+  a verification condition). A declaration equation `f.eq_i` is keyed via `mkSpecTheoremFromSimpDecl?`
+  and replaced by `haveEqn`; an
   equation supplied as a `vcgen [...]` term carries its proof directly (`mkSpecTheoremFromSimpExpr?`),
 - each `.toUnfold` definition through its unfold theorem `f.eq_def` (`unfoldSpecEqn?`) at priority
   `0`, below every equation, so a call with an opaque discriminant still rewrites to the underlying
@@ -621,19 +628,14 @@ A single malformed entry is traced and skipped rather than aborting the set.
 -/
 def simpSpecTheorems (entries : Array SimpEntry) (prio : Nat) : MetaM (Array SpecTheorem) := do
   let mut result := #[]
-  let mut eqDefs : NameSet := {}
   for entry in entries do
     match entry with
     | .thm thm =>
       match thm.origin with
       | .decl declName .. =>
         try
-          if let some eqDef ← eqnHaveFallback? declName then
-            unless eqDefs.contains eqDef do
-              eqDefs := eqDefs.insert eqDef
-              if let some spec ← mkSpecTheoremFromSimpDecl? eqDef prio then
-                result := result.push spec
-          else if hasOverlapHypothesis (← getAsyncConstInfo declName).toConstantVal.type then
+          let declName ← haveEqn declName
+          if hasOverlapHypothesis (← getAsyncConstInfo declName).toConstantVal.type then
             trace[Elab.Tactic.Do.specAttr] "Skipping overlap-hypothesis equation {declName}"
           else if let some spec ← mkSpecTheoremFromSimpDecl? declName prio then
             result := result.push spec

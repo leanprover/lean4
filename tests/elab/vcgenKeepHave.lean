@@ -5,7 +5,7 @@ set_option experimental.vcgen true
 
 /-!
 `vcgen` keeps the `have`s of a program, and `isDefEqS` compares them structurally. `vcgen +jp [f]`
-uses `f.eq_def` for a non-recursive `f` whose `f.eq_n` zeta-reduce a join point (#16122).
+uses equations of `f` that keep the join points that `f.eq_n` zeta-reduce (#16122).
 -/
 
 elab "goal_count" : tactic => do
@@ -47,6 +47,21 @@ example (x : Nat) (b : Bool) : ⦃fun _ => True⦄ rootMatch x b ⦃fun r _ => r
   vcgen +jp [rootMatch]
   goal_count
   all_goals grind
+
+-- The join point is at the root of the alternative `n + 1`, so `steps.eq_2` would zeta-reduce it.
+def steps (b : Nat → Bool) : Nat → StateM Nat Unit
+  | 0 => pure ()
+  | n + 1 => do
+    if b n then modify (· + 1) else modify (· + 2)
+    steps b n
+
+/-- info: 2 goals -/
+#guard_msgs in
+example (b : Nat → Bool) (s₀ : Nat) :
+    ⦃fun s => s = s₀⦄ steps b 4 ⦃fun _ s => s₀ + 4 ≤ s ∧ s ≤ s₀ + 8⦄ := by
+  vcgen +jp [steps]
+  goal_count
+  all_goals lia
 
 structure M where
   x : Nat

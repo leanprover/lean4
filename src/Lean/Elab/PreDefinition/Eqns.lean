@@ -7,6 +7,7 @@ module
 
 prelude
 
+public import Lean.Meta.Basic
 import Lean.Elab.PreDefinition.EqnsUtils
 import Lean.Meta.Match.NamedPatterns
 import Lean.Meta.Tactic.Simp.Main
@@ -152,12 +153,15 @@ where
     runST (go e)
 
 
-partial def saveEqn (mvarId : MVarId) : StateRefT (Array Expr) MetaM Unit := mvarId.withContext do
+partial def saveEqn (mvarId : MVarId) (keepHave := false) : StateRefT (Array Expr) MetaM Unit := mvarId.withContext do
   let target ← mvarId.getType'
   let fvarState := collectFVars {} target
   let fvarState ← (← getLCtx).foldrM (init := fvarState) fun decl fvarState => do
     if fvarState.fvarSet.contains decl.fvarId then
-      return collectFVars fvarState (← instantiateMVars decl.type)
+      let fvarState := collectFVars fvarState (← instantiateMVars decl.type)
+      if keepHave && decl.isLet then
+        return collectFVars fvarState (← instantiateMVars decl.value)
+      return fvarState
     else
       return fvarState
   let mut fvarIdSet := fvarState.fvarSet
@@ -174,10 +178,29 @@ partial def saveEqn (mvarId : MVarId) : StateRefT (Array Expr) MetaM Unit := mva
             modified := true
             (fvarIdSet, fvarIds) ← pushDecl fvarIdSet fvarIds decl
   until !modified
-  let type ← mkForallFVars (fvarIds.map mkFVar) target
+  let type ← if keepHave then mkHaveEqnType fvarIds target else mkForallFVars (fvarIds.map mkFVar) target
   let type ← simpEqnType type
   modify (·.push type)
 where
+  /--
+  `∀ xs, lhs = have ls := vs; rhs` for the let-declarations `ls` among `fvarIds`, which `introRHSHave?`
+  introduced. Zeta-reduces the `ls` if the `lhs` or some `x` depends on them.
+  -/
+  mkHaveEqnType (fvarIds : Array FVarId) (target : Expr) : MetaM Expr := do
+    let ls ← fvarIds.filterM fun fvarId => return (← fvarId.getDecl).isLet
+    let xs := fvarIds.filter (!ls.contains ·)
+    let isL (fvarId : FVarId) := ls.contains fvarId
+    let some (_, lhs, rhs) := target.eq? | return ← mkForallFVars (fvarIds.map mkFVar) target
+    let dependsOnL ← xs.anyM fun x => return (← instantiateMVars (← x.getType)).hasAnyFVar isL
+    if dependsOnL || lhs.hasAnyFVar isL then
+      return ← zetaReduce (← mkForallFVars (fvarIds.map mkFVar) target)
+    let mut rhs := rhs
+    for l in ls.reverse do
+      let decl ← l.getDecl
+      rhs := .letE decl.userName (← instantiateMVars decl.type) (← instantiateMVars decl.value)
+        (rhs.abstract #[mkFVar l]) true
+    mkForallFVars (xs.map mkFVar) (mkApp3 target.getAppFn target.appFn!.appFn!.appArg! lhs rhs)
+
   /--
     We say the type/proposition is "irrelevant" if
     1- It does not contain any variable in `fvarIdSet` OR
@@ -222,6 +245,21 @@ def expandRHS? (mvarId : MVarId) : MetaM (Option MVarId) := do
   let (true, rhs') := expand false rhs | return none
   return some (← mvarId.replaceTargetDefEq (← mkEq lhs rhs'))
 
+
+/--
+Introduces the `have` at the root of the right-hand side as a let-declaration, and zeta-reduces a
+dependent `let` there. Consumes metadata.
+-/
+def introRHSHave? (mvarId : MVarId) : MetaM (Option MVarId) := do
+  let target ← mvarId.getType'
+  let some (α, lhs, rhs) := target.eq? | return none
+  match rhs with
+  | .letE n t v b true =>
+    let mvarId ← mvarId.replaceTargetDefEq (.letE n t v (mkApp3 target.getAppFn α lhs b) true)
+    return some (← mvarId.intro1P).2
+  | .letE _ _ v b false => return some (← mvarId.replaceTargetDefEq (← mkEq lhs (b.instantiate1 v)))
+  | .mdata _ b => return some (← mvarId.replaceTargetDefEq (← mkEq lhs b))
+  | _ => return none
 
 /--
   Quick filter for deciding whether to use `simpMatch?` at `mkEqnTypes`.
@@ -290,14 +328,21 @@ partial def splitMatch? (mvarId : MVarId) (declNames : Array Name) : MetaM (Opti
       return none
   go {}
 
-partial def mkEqnTypes (declNames : Array Name) (mvarId : MVarId) : MetaM (Array Expr) := do
+/--
+If `keepHave`, the equations keep the `have`s at the root of the right-hand side and of each split
+`match` alternative, and zeta-reduce them otherwise.
+-/
+partial def mkEqnTypes (declNames : Array Name) (mvarId : MVarId) (keepHave := false) : MetaM (Array Expr) := do
   let (_, eqnTypes) ← go mvarId |>.run #[]
   return eqnTypes
 where
   go (mvarId : MVarId) : StateRefT (Array Expr) MetaM Unit := do
     trace[Elab.definition.eqns] "mkEqnTypes step\n{MessageData.ofGoal mvarId}"
 
-    if let some mvarId ← expandRHS? mvarId then
+    if keepHave then
+      if let some mvarId ← introRHSHave? mvarId then
+        return (← go mvarId)
+    else if let some mvarId ← expandRHS? mvarId then
       return (← go mvarId)
 
     if (← shouldUseSimpMatch (← mvarId.getType')) then
@@ -307,7 +352,7 @@ where
     if let some mvarIds ← splitMatch? mvarId declNames then
       return (← mvarIds.forM go)
 
-    saveEqn mvarId
+    saveEqn mvarId keepHave
 
 /--
   Some of the hypotheses added by `mkEqnTypes` may not be used by the actual proof (i.e., `value` argument).
@@ -344,6 +389,7 @@ where
 structure EqnTypesKey where
   declName : Name
   declNames : Array Name
+  keepHave : Bool := false
 deriving BEq, Hashable, TypeName
 
 structure EqnTypes where
@@ -357,7 +403,7 @@ def realizeEqnTypes (key : EqnTypesKey) : MetaM EqnTypes :=
       forallTelescope (cleanupAnnotations := true) target fun _ target => do
         let goal ← mkFreshExprSyntheticOpaqueMVar target
         withReducible do
-          mkEqnTypes key.declNames goal.mvarId!
+          mkEqnTypes key.declNames goal.mvarId! key.keepHave
     return { types }
 
 def realizeEqn (declName name : Name) (type : Expr) : MetaM Unit :=
@@ -378,17 +424,18 @@ This unfolds the function application on the LHS (using an unfold theorem, if pr
 delta-reduction), calculates the types for the equational theorems using `mkEqnTypes`, and then
 proves them using `mkEqnProof`.
 -/
-def mkEqns (declName : Name) (declNames : Array Name) : MetaM (Array Name) := do
+def mkEqns (declName : Name) (declNames : Array Name) (keepHave := false)
+    (suffixBase := eqnThmSuffixBasePrefix) : MetaM (Array Name) := do
   trace[Elab.definition.eqns] "mkEqns: {.ofConstName declName}"
   -- The caller's options (e.g. `backward.isDefEq.respectTransparency`) can change how
   -- `mkEqnTypes` splits, so the types must not be computed in the caller's context.
-  let key := { declName, declNames : EqnTypesKey }
+  let key := { declName, declNames, keepHave : EqnTypesKey }
   let { types := eqnTypes } ← realizeValue declName key (realizeEqnTypes key)
   let mut thmNames := #[]
   for h : i in *...eqnTypes.size do
     let type := eqnTypes[i]
     trace[Elab.definition.eqns] "eqnType[{i}]: {eqnTypes[i]}"
-    let name := mkEqLikeNameFor (← getEnv) declName s!"{eqnThmSuffixBasePrefix}{i+1}"
+    let name := mkEqLikeNameFor (← getEnv) declName s!"{suffixBase}{i+1}"
     thmNames := thmNames.push name
     -- determinism: `type` comes from `realizeValue`, so it is independent of the environment
     -- changes since `declName` was added
@@ -410,6 +457,18 @@ def getEqnsFor? (declName : Name) : MetaM (Option (Array Name)) := do
       return o.map (#[·])
   else
     return none
+
+/--
+The equations of `declName` like `getEqnsFor?`, but keeping the `have`s that `getEqnsFor?`
+zeta-reduces. The equations are named `declName.{suffixBase}<i>`.
+-/
+public def getHaveEqnsFor? (declName : Name) (suffixBase : String) : MetaM (Option (Array Name)) := do
+  if (← isRecursiveDefinition declName) then
+    let some (.defnInfo info) := (← getEnv).find? declName | return none
+    return some (← mkEqns declName info.all.toArray (keepHave := true) suffixBase)
+  if (← getEnv).contains declName then
+    return some (← mkEqns declName #[] (keepHave := true) suffixBase)
+  return none
 
 builtin_initialize
   registerGetEqnsFn getEqnsFor?

@@ -97,3 +97,11 @@ test_cmd rm .lake/build/lib/lean/Test.olean .lake/build/lib/lean/Test.trace
 test_fails build +Test --no-build --old -v
 test_not_out "leantar" build +Test --old -v
 test_exp -f .lake/build/lib/lean/Test.olean
+
+# Test that the module's log survives the archive: Lake writes the restored trace
+# from the log stored in the archive, so a later up-to-date build replays it
+rm -rf .lake/cache .lake/build
+test_out "declaration uses \`sorry\`" build +Warn:ltar -v
+test_cmd rm .lake/build/lib/lean/Warn.olean
+test_out "leantar" build +Warn --no-build -v
+test_out "declaration uses \`sorry\`" build +Warn --no-build

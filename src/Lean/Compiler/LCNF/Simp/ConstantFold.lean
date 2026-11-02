@@ -669,6 +669,13 @@ def arithmeticFolders : List (Name × Folder) := [
   (``UInt32.neg, Folder.mkUnary UInt32.neg),
   (``UInt64.neg, Folder.mkUnary UInt64.neg),
   (``USize.neg, Folder.mkUnaryUSize UInt64.neg UInt32.neg),
+  -- Signed literals only exist from the mono phase on, as literals of the unsigned type of the same
+  -- width (see `Folder.sintOfNat`), on which signed and unsigned negation agree.
+  (``Int8.neg, Folder.mkUnary UInt8.neg),
+  (``Int16.neg, Folder.mkUnary UInt16.neg),
+  (``Int32.neg, Folder.mkUnary UInt32.neg),
+  (``Int64.neg, Folder.mkUnary UInt64.neg),
+  (``ISize.neg, Folder.mkUnaryUSize UInt64.neg UInt32.neg),
 
   (``Nat.pow, Folder.first #[foldNatPow, Folder.rightNeutral 1 (· ^ ·) Nat.pow_one, Folder.rightAnnihilator 0 1 (· ^ ·) Nat.pow_zero, Folder.leftAnnihilator 1 1 (· ^ ·) Nat.one_pow]),
   (``Nat.nextPowerOfTwo, Folder.mkUnary Nat.nextPowerOfTwo),

@@ -470,7 +470,7 @@ a non-spec shape reaching here is a logic error and throws.
 -/
 def mkSpecPatternFromExpr (expr : Expr)
     (levelParams : List Name := []) : MetaM Sym.Pattern := do
-  let (pattern, _) ← Sym.mkPatternFromExprWithKey expr levelParams (zetaHave := false) fun type => do
+  let (pattern, _) ← Sym.mkPatternFromExprWithKey expr levelParams fun type => do
     let some prog ← selectProg type
       | throwError "unexpected kind of spec theorem; expected `Triple` or `⊑ wp`{indentExpr type}"
     return (prog, ())
@@ -541,7 +541,7 @@ discrimination-tree key includes all arguments. Returns `none` for no-op equatio
 syntactically the RHS.
 -/
 def mkSpecTheoremFromSimpDecl? (declName : Name) (prio : Nat) : MetaM (Option SpecTheorem) := do
-  let (pattern, (eqTy, rhs)) ← Sym.mkPatternFromDeclWithKey declName (zetaHave := false) fun body => do
+  let (pattern, (eqTy, rhs)) ← Sym.mkPatternFromDeclWithKey declName fun body => do
     let_expr Eq eqTy lhs rhs := body | throwError "conclusion is not an equality{indentExpr body}"
     return (lhs, (eqTy, rhs))
   -- Skip no-op equations whose preprocessed LHS key is syntactically the RHS, so rewriting makes no
@@ -558,7 +558,7 @@ names. Returns `none` for a no-op equation whose LHS key equals its RHS.
 -/
 def mkSpecTheoremFromSimpExpr? (ref : Syntax) (proof : Expr) (levelParams : List Name := [])
     (prio : Nat := eval_prio default) : MetaM (Option SpecTheorem) := do
-  let (pattern, (eqTy, rhs)) ← Sym.mkPatternFromExprWithKey proof levelParams (zetaHave := false) fun body => do
+  let (pattern, (eqTy, rhs)) ← Sym.mkPatternFromExprWithKey proof levelParams fun body => do
     let_expr Eq eqTy lhs rhs := body | throwError "conclusion is not an equality{indentExpr body}"
     return (lhs, (eqTy, rhs))
   if pattern.pattern == rhs then return none

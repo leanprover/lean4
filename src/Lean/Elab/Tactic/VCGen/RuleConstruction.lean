@@ -380,7 +380,7 @@ public def tryMkBackwardRuleFromSpec (specThm : SpecTheorem) (info : WPApp)
     ssTypes := ssTypes.push ty
     ss := ss.push <| ← mkFreshExprMVar (userName := stateArgNames[i]?.getD `s) ty
   let res ← mkSpecBackwardProof info pre prog postSpec epostsSpec specProof ss ssTypes stateArgNames
-  mkBackwardRuleFromExpr res.expr res.paramNames.toList (zetaHave := false)
+  mkBackwardRuleFromExpr res.expr res.paramNames.toList
 
 /-! ## Split rules -/
 
@@ -448,7 +448,7 @@ public def mkBackwardRuleForSplit
     mkLambdaFVars (splitFVars ++ ss ++ #[post, eposts, pre] ++ subgoalHyps) prf
   let prf ← instantiateMVars prf
   let res ← abstractMVars prf
-  mkBackwardRuleFromExpr res.expr res.paramNames.toList (zetaHave := false)
+  mkBackwardRuleFromExpr res.expr res.paramNames.toList
 
 /-! ## Frame rules -/
 
@@ -515,7 +515,7 @@ public def mkFrameBackwardRule (fp : FrameProc) (info : WPApp) :
     #[G, G, opApp, ← mkAppOptM ``PartialOrder.rel_refl #[none, none, G], hop]
   let prf ← ssFrame.instantiate wp ss (← mkAppM ``PartialOrder.rel_trans #[hmeet, mkAppN thm xs])
   let res ← abstractMVars (← instantiateMVars prf)
-  let rule ← mkBackwardRuleFromExpr res.expr res.paramNames.toList (zetaHave := false)
+  let rule ← mkBackwardRuleFromExpr res.expr res.paramNames.toList
   analyzeFrameRule rule fp.opHead info.excessArgs.size
 
 end Lean.Elab.Tactic.VCGen

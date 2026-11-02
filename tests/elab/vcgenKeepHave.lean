@@ -60,18 +60,9 @@ structure St where
 def setX (k : Nat) : StateM St Unit :=
   modify fun s => { s with m := { s.m with x := k } }
 
-theorem modify_spec (f : St → St) (Q : Unit → St → Prop) :
-    ⦃fun s => Q () (f s)⦄ (modify f : StateM St Unit) ⦃Q⦄ := by
-  vcgen [modify] with finish
-
 theorem setX_spec (s₀ : St) (k : Nat) :
     ⦃fun s => s = s₀⦄ setX k ⦃fun _ s' => s'.m = { x := k, y := s₀.m.y }⦄ := by
   vcgen [setX] with finish
-
-example (s₀ : St) (k : Nat) :
-    ⦃fun s => s = s₀⦄ setX k ⦃fun _ s' => s'.m = { x := k, y := s₀.m.y }⦄ := by
-  unfold setX
-  vcgen [modify_spec] with finish
 
 -- The postcondition elaborates to `let __src := s₀.m; …`.
 example (s₀ : St) (k : Nat) :

@@ -231,6 +231,6 @@ public def mkLatticeOpRule (rhs : Expr) (op : LatticeOp) : SymM BackwardRule := 
         let eqMp ← mkAppM ``Eq.mp #[← mkEqSymm (← mkCongrArg relPre eqProof)]
         pure (mkApp eqMp termProof)
     let res ← abstractMVars prf
-    mkBackwardRuleFromExpr res.expr res.paramNames.toList (zetaHave := false)
+    mkBackwardRuleFromExpr res.expr res.paramNames.toList
 
 end Lean.Elab.Tactic.VCGen

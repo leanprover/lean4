@@ -14,15 +14,14 @@ namespace Lean.Meta.Sym
 
 /--
 Preprocesses types that used for pattern matching and unification.
-If `zetaHave := false`, nondependent `let`s become `have`s and stay, and only dependent `let`s are
-zeta-reduced.
+Nondependent `let`s become `have`s and stay, and dependent `let`s are zeta-reduced.
 -/
-public def preprocessType (type : Expr) (zetaReduceLHSOnly := false) (zetaDelta := false)
-    (zetaHave := true) : MetaM Expr := do
+public def preprocessType (type : Expr) (zetaReduceLHSOnly := false) (zetaDelta := false) :
+    MetaM Expr := do
   let type ← Sym.unfoldReducible type
   let type ← Core.betaReduce type
-  let type ← if zetaHave then pure type else letToHave type
-  let zeta (e : Expr) := zetaReduce e (zetaDelta := zetaDelta) (zetaHave := zetaHave)
+  let type ← letToHave type
+  let zeta (e : Expr) := zetaReduce e (zetaDelta := zetaDelta) (zetaHave := false)
   let type ← if zetaReduceLHSOnly then
     forallTelescope type fun xs body => do
       match_expr body with

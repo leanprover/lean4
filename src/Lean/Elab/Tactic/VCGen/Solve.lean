@@ -82,13 +82,14 @@ def splitProdBinder (goal : MVarId) (target : Expr) : VCGenM MVarId :=
 /-- Strategy 1: simp the target, then introduce binders if the target is a `∀`. -/
 def forallIntro? (oldGoal : MVarId) (target : Expr) : VCGenM (Option (List MVarId)) := do
   unless target.isForall do return none
+  let oldGoal ← instantiateBinderDomains oldGoal
   let mut goal ← match ← simpGoalTelescope oldGoal with
     | .closed => return some []
     | .goal goal => pure goal
     | .noProgress => pure oldGoal
   let mut target ← goal.getType
   while target.isForall do
-    let n ← numBindersToIntro target
+    let n := numBindersToIntro target
     let goal' ← if n == 0 then splitProdBinder goal target else introsHygienicN goal n
     if goal' == goal then break
     goal := goal'

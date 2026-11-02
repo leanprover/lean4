@@ -118,12 +118,10 @@ public def isProgramName (n : Name) : Bool :=
 
 /-- The leading binders of `type`, stopping at a binder over a product: `∀ (n : Nat) (p : α × β)`
 counts one, because `solve` splits `p` into one binder per component first. -/
-public def numBindersToIntro : Expr → SymM Nat
-  | .forallE _ d b _ => do
-    if (← instantiateMVarsIfMVarAppS d).isAppOf ``Prod then return 0
-    return (← numBindersToIntro b) + 1
-  | .letE _ _ _ b _ => return (← numBindersToIntro b) + 1
-  | _ => return 0
+public def numBindersToIntro : Expr → Nat
+  | .forallE _ d b _ => if d.isAppOf ``Prod then 0 else numBindersToIntro b + 1
+  | .letE _ _ _ b _ => numBindersToIntro b + 1
+  | _ => 0
 
 /-- Introduce the first `n` binders of `goal`, named by `mkFreshBinderNameForTactic`, which
 `tactic.hygienic` makes inaccessible: `∀ acc, acc % 2 = 0` introduces `acc✝`. -/
@@ -142,9 +140,21 @@ public def introsHygienicN (goal : MVarId) (n : Nat) : VCGenM MVarId :=
     let .goal _ goal ← Sym.intros goal names | return goal
     return goal
 
+/-- `goal` with the head of every binder domain on the spine of its target instantiated. -/
+public def instantiateBinderDomains (goal : MVarId) : VCGenM MVarId := do
+  let target ← goal.getType
+  let target' ← go target
+  if isSameExpr target' target then return goal else goal.replaceTargetDefEqFast target'
+where
+  go : Expr → SymM Expr
+  | e@(.forallE _ d b _) => do e.updateForallS! (← instantiateMVarsIfMVarAppS d) (← go b)
+  | e@(.letE _ t v b _) => do e.updateLetS! (← instantiateMVarsIfMVarAppS t) v (← go b)
+  | e => return e
+
 /-- `introsHygienicN` for every non-`Prod` binder the goal leads with. -/
 public def introsHygienic (goal : MVarId) : VCGenM MVarId := do
-  introsHygienicN goal (← numBindersToIntro (← goal.getType))
+  let goal ← instantiateBinderDomains goal
+  introsHygienicN goal (numBindersToIntro (← goal.getType))
 
 /--
 Simplify the hypotheses of the goal's target `h₁ → … → hₙ → G` with `Context.simpMethods`, leaving

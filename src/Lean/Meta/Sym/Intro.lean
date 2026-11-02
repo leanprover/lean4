@@ -8,7 +8,6 @@ prelude
 public import Lean.Meta.Sym.SymM
 import Lean.Meta.Tactic.Intro
 import Lean.Meta.Sym.InstantiateS
-import Lean.Meta.Sym.InstantiateMVarsS
 import Lean.Meta.Sym.IsClass
 import Lean.Meta.Sym.AlphaShareBuilder
 namespace Lean.Meta.Sym
@@ -77,7 +76,7 @@ def introCore (mvarId : MVarId) (max : Nat) (names : Array Name) (hygienic : Boo
     else match type with
     | .mdata _ type => visit i lctx localInsts fvars type
     | .forallE n type body bi =>
-      let type       ← instantiateMVarsIfMVarAppS (← instantiateRevS type fvars)
+      let type       ← instantiateRevS type fvars
       let fvarId     ← mkFreshFVarId
       let userName   ← mkName lctx n i
       let lctx       := lctx.mkLocalDecl fvarId userName type bi (.ofBinderName userName)
@@ -86,7 +85,7 @@ def introCore (mvarId : MVarId) (max : Nat) (names : Array Name) (hygienic : Boo
       let localInsts := updateLocalInsts localInsts fvar type
       visit (i+1) lctx localInsts fvars body
     | .letE n type value body nondep =>
-      let type       ← instantiateMVarsIfMVarAppS (← instantiateRevS type fvars)
+      let type       ← instantiateRevS type fvars
       let value      ← instantiateRevS value fvars
       let fvarId     ← mkFreshFVarId
       /-

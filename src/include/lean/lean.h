@@ -85,6 +85,15 @@ extern "C" {
 #define LEAN_ALWAYS_INLINE
 #endif
 
+/* Tells the optimizer that `x` holds; `x` must not contain function calls. */
+#if defined(__clang__)
+#define LEAN_ASSUME(x) __builtin_assume(x)
+#elif defined(__GNUC__)
+#define LEAN_ASSUME(x) do { if (!(x)) __builtin_unreachable(); } while (0)
+#else
+#define LEAN_ASSUME(x) ((void)0)
+#endif
+
 #ifndef assert
 #ifdef NDEBUG
 #define assert(expr)
@@ -1281,7 +1290,10 @@ LEAN_EXPORT lean_obj_res lean_copy_sarray_nonlinear(lean_obj_arg a, size_t cap);
 
 static inline lean_obj_res lean_sarray_ensure_exclusive(lean_obj_arg a) {
     if (lean_is_exclusive(a)) return a;
-    return lean_copy_sarray_nonlinear(a, lean_sarray_capacity(a));
+    lean_object * r = lean_copy_sarray_nonlinear(a, lean_sarray_capacity(a));
+    /* Lets compilers hoist the exclusivity check of a loop's updates out of the loop. */
+    LEAN_ASSUME(r->m_rc == 1);
+    return r;
 }
 
 static inline lean_obj_res lean_sarray_mark_linear(lean_obj_arg a) {

@@ -8,12 +8,13 @@ kernel checking of the resulting certificates. `TEST_BENCH` increases the number
 open Lean Meta Elab Tactic Sym
 
 set_option maxRecDepth 10000
+set_option sym.arith.maxTerms 1024
 
 elab "module_bench_eq" : tactic => do
   let g ← getMainGoal
   g.withContext do
     let target ← instantiateMVars (← g.getType)
-    let some h ← SymM.run (Arith.proveAddEq? target) | throwError "normal forms differ"
+    let some h ← SymM.run do Arith.proveAddEq? (← shareCommon target) | throwError "normal forms differ"
     g.assign h
     replaceMainGoal []
 
@@ -22,7 +23,7 @@ elab "module_bench_nf" : tactic => do
   g.withContext do
     let target ← instantiateMVars (← g.getType)
     let r ← SymM.run do
-      Simp.SimpM.run' (Simp.simp (← shareCommon target)) { post := fun e => Arith.normalizeAdd? e }
+      Simp.SimpM.run' (Simp.simp (← shareCommon target)) { pre := fun e => Arith.normalizeAdd? e Simp.simp }
     let .step target h .. := r | throwError "normalization made no progress"
     replaceMainGoal [← g.replaceTargetEq target h]
 

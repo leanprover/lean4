@@ -14,7 +14,7 @@ elab "module_nf" : tactic => do
     let target ← instantiateMVars (← g.getType)
     let r ← SymM.run do
       let target ← shareCommon target
-      Simp.SimpM.run' (Simp.simp target) { post := fun e => Arith.normalizeAdd? e }
+      Simp.SimpM.run' (Simp.simp target) { pre := fun e => Arith.normalizeAdd? e Simp.simp }
     match r with
     | .rfl .. => throwError "no additive expression changed"
     | .step target proof .. => replaceMainGoal [← g.replaceTargetEq target proof]
@@ -23,7 +23,7 @@ elab "module_eq" : tactic => do
   let g ← getMainGoal
   g.withContext do
     let target ← instantiateMVars (← g.getType)
-    let some proof ← SymM.run (Arith.proveAddEq? target)
+    let some proof ← SymM.run do Arith.proveAddEq? (← shareCommon target)
       | throwError "the additive normal forms differ"
     unless ← isDefEq (← inferType proof) target do
       throwError "unexpected certificate type"
@@ -134,19 +134,19 @@ run_meta do
       unless r matches .rfl .. do
         throwError "already-normal addition changed its operator instance"
       let reversed ← mkAppM ``HAdd.hAdd #[vars[1]!, vars[0]!]
-      let r ← SymM.run (Arith.normalizeAdd? reversed)
+      let r ← SymM.run do Arith.normalizeAdd? (← shareCommon reversed)
       unless (r.getResultExpr reversed) == e do
         throwError "additive normalization did not emit atoms in Expr.lt order"
-      let r ← SymM.run (Arith.normalize? reversed fun _ => pure .rfl)
+      let r ← SymM.run do Arith.normalize? (← shareCommon reversed) fun _ => pure .rfl
       unless (r.getResultExpr reversed) == e do
         throwError "ring and additive normalization disagree on atom order"
       let e ← mkAppM ``HAdd.hAdd #[a, a]
-      let r ← SymM.run (Arith.normalizeAdd? e)
+      let r ← SymM.run do Arith.normalizeAdd? (← shareCommon e)
       let .step e' proof .. := r | throwError "repeated atom was not collected"
       unless (← inferType proof) == (← mkEq e e') do
         throwError "normalization proof does not expose the input and output terms"
       let target ← mkEq e e'
-      let some proof ← SymM.run (Arith.proveAddEq? target)
+      let some proof ← SymM.run do Arith.proveAddEq? (← shareCommon target)
         | throwError "normalized terms were not equal"
       unless (← inferType proof) == target do
         throwError "equality proof does not expose the input proposition"
@@ -159,10 +159,10 @@ run_meta do
       let x ← mkFreshExprMVar type
       let lhs ← mkAppM ``HAdd.hAdd #[x, a]
       let rhs ← mkAppM ``HAdd.hAdd #[c, b]
-      let result ← SymM.run (Arith.proveAddEq? (← mkEq lhs rhs))
+      let result ← SymM.run do Arith.proveAddEq? (← shareCommon (← mkEq lhs rhs))
       unless result.isNone do throwError "unexpected additive equality"
       if ← x.mvarId!.isAssigned then throwError "normalization assigned a metavariable"
-      let _ ← SymM.run (Arith.normalizeAdd? lhs)
+      let _ ← SymM.run do Arith.normalizeAdd? (← shareCommon lhs)
       if ← x.mvarId!.isAssigned then throwError "normalization assigned a metavariable"
 
 -- The atom callback can use the surrounding simplifier to normalize inside applications.
@@ -172,7 +172,7 @@ elab "module_eq_atoms" : tactic => do
     let target ← instantiateMVars (← g.getType)
     let some proof ← SymM.run do
       Simp.SimpM.run' (Arith.proveAddEq? (← shareCommon target) Simp.simp)
-        { post := fun e => Arith.normalizeAdd? e Simp.simp }
+        { pre := fun e => Arith.normalizeAdd? e Simp.simp }
       | throwError "the additive normal forms differ"
     g.assign proof
     replaceMainGoal []
@@ -183,7 +183,7 @@ elab "module_nf_atoms" : tactic => do
     let target ← instantiateMVars (← g.getType)
     let r ← SymM.run do
       Simp.SimpM.run' (Simp.simp (← shareCommon target))
-        { post := fun e => Arith.normalizeAdd? e Simp.simp }
+        { pre := fun e => Arith.normalizeAdd? e Simp.simp }
     let .step target proof .. := r | throwError "no additive expression changed"
     replaceMainGoal [← g.replaceTargetEq target proof]
 
@@ -217,7 +217,7 @@ run_meta do
         if isSameExpr e a then return .step b h (contextDependent := true)
         return .rfl
       let e ← mkAppM ``HAdd.hAdd #[a, a]
-      let .step e' proof _ cd ← SymM.run (Arith.normalizeAdd? e simpAtom)
+      let .step e' proof _ cd ← SymM.run do Arith.normalizeAdd? (← shareCommon e) simpAtom
         | throwError "callback was not used"
       unless cd do throwError "lost the callback's context dependency"
       unless ← isDefEq (← inferType proof) (← mkEq e e') do
@@ -228,8 +228,8 @@ elab "module_eq_coeffs" : tactic => do
   let g ← getMainGoal
   g.withContext do
     let target ← instantiateMVars (← g.getType)
-    let some proof ← SymM.run (Arith.proveAddEq? target fun e =>
-      Arith.normalize? e (fun _ => pure .rfl))
+    let simpAtom (e : Expr) : SymM Sym.Simp.Result := Arith.normalize? e (fun _ => pure .rfl)
+    let some proof ← SymM.run do Arith.proveAddEq? (← shareCommon target) simpAtom
       | throwError "the additive normal forms differ"
     g.assign proof
     replaceMainGoal []
@@ -240,22 +240,18 @@ example {M : Type u} [NatModule M] (a : M) :
 example {M : Type u} [IntModule M] (a : M) :
     ((2 + 3 : Int) * (-2)) • a = -(5 • a + 5 • a) := by module_eq_coeffs
 
--- Semireducible aliases of module operations remain valid operations.
+-- Operations are checked against the module's instances at instances transparency, so an
+-- instance built from a semireducible alias is not the module's operation.
 private def subAlias {M : Type u} [IntModule M] (a b : M) : M := a - b
-private def zeroAlias {M : Type u} [NatModule M] : M := 0
 section
 variable {M : Type u} [IntModule M]
 local instance : Sub M := ⟨subAlias⟩
-example (a b : M) : a - b = a + -b := by module_eq
-example (a b : M) : a - b + b = a := by module_eq
-end
-section
-variable {M : Type u} [NatModule M]
-local instance : Zero M := ⟨zeroAlias⟩
-example (a : M) : a + 0 = a := by module_eq
+example (a b : M) (h : a - b = a + -b) : a - b = a + -b := by
+  fail_if_success module_eq
+  exact h
 end
 
--- Default transparency for operations does not unfold semireducible atoms.
+-- Semireducible atoms are not unfolded.
 private def atomAlias {M : Type u} (a : M) : M := a
 example {M : Type u} [NatModule M] (a b : M) :
     atomAlias a + b = a + b := by
@@ -271,14 +267,25 @@ run_meta do
     let smul ← mkAppM ``HSMul.hSMul #[toExpr (3 : Int), a]
     for e in [add, sub, neg, smul] do
       let annotated := mkMData {} e
-      let some proof ← SymM.run (Arith.proveAddEq? (← mkEq annotated e))
+      let some proof ← SymM.run do Arith.proveAddEq? (← shareCommon (← mkEq annotated e))
         | throwError "metadata prevented additive equality normalization"
       checkWithKernel proof
       for input in [annotated, ← mkAppM ``HAdd.hAdd #[annotated, a]] do
-        let .step output proof .. ← SymM.run (Arith.normalizeAdd? input)
+        let .step output proof .. ← SymM.run do Arith.normalizeAdd? (← shareCommon input)
           | throwError "metadata prevented additive term normalization"
         if (output.find? (· matches .mdata ..)).isSome then
           throwError "normalization retained metadata"
         unless ← isDefEq (← inferType proof) (← mkEq input output) do
           throwError "unexpected metadata certificate type"
         checkWithKernel proof
+
+-- Over `sym.arith.maxTerms`, a sum is an atom whose summands are normalized.
+section
+variable {M : Type u} [NatModule M]
+set_option sym.arith.maxTerms 2 in
+example (a b c : M) (h : a + b + c = c + b + a) : a + b + c = c + b + a := by
+  fail_if_success module_eq
+  exact h
+set_option sym.arith.maxTerms 2 in
+example (a b c : M) : (b + a) + c = (a + b) + c := by module_eq
+end

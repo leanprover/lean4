@@ -195,15 +195,25 @@ noncomputable def Expr.toPolyN_k (e : Expr) : Poly :=
 @[simp] theorem Expr.toPolyN_k_eq (e : Expr) : e.toPolyN_k = e.toPolyN := by
   induction e <;> simp_all [toPolyN_k, toPolyN, Poly.mul_k_eq]
 
-noncomputable def eq_normN_cert (lhs rhs : Expr) : Bool :=
-  lhs.toPolyN_k.beq' rhs.toPolyN_k
+def eq_normN_cert (lhs rhs : Expr) : Bool :=
+  lhs.toPolyN == rhs.toPolyN
 
 theorem eq_normN {α} [NatModule α] (ctx : Context α) (lhs rhs : Expr)
-    : eq_normN_cert lhs rhs → lhs.denoteN_k ctx = rhs.denoteN_k ctx := by
-  simp only [eq_normN_cert, Poly.beq'_eq, Expr.toPolyN_k_eq, Expr.denoteN_k_eq]
-  intro h
+    : eq_normN_cert lhs rhs → lhs.denoteN ctx = rhs.denoteN ctx := by
+  simp [eq_normN_cert]; intro h
   replace h := congrArg (Poly.denoteN ctx) h
   simp [Expr.denoteN_toPolyN, *] at h
   assumption
+
+/-- `eq_normN_cert` with the kernel-optimized operations of `Expr.toPolyN_k` and `Poly.beq'`. -/
+noncomputable def eq_normN_k_cert (lhs rhs : Expr) : Bool :=
+  lhs.toPolyN_k.beq' rhs.toPolyN_k
+
+/-- `eq_normN` stated with `Expr.denoteN_k` and checked with `eq_normN_k_cert`. -/
+theorem eq_normN_k {α} [NatModule α] (ctx : Context α) (lhs rhs : Expr)
+    : eq_normN_k_cert lhs rhs → lhs.denoteN_k ctx = rhs.denoteN_k ctx := by
+  simp only [eq_normN_k_cert, Poly.beq'_eq, Expr.toPolyN_k_eq, Expr.denoteN_k_eq]
+  intro h
+  exact eq_normN ctx lhs rhs (by simp [eq_normN_cert, h])
 
 end Lean.Grind.Linarith

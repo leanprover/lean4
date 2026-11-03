@@ -146,7 +146,7 @@ example {M : Type u} [IntModule M] (ctx : Context M) :
 set_option maxHeartbeats 1000 in
 example {M : Type u} [NatModule M] (ctx : Context M) :
     forward.denoteN_k ctx = backward.denoteN_k ctx :=
-  eq_normN ctx forward backward (by rfl)
+  eq_normN_k ctx forward backward (by rfl)
 
 example {M : Type u} [IntModule M] (ctx : Context M) :
     (Expr.add (.intMul (-7) (.var 0)) (.natMul 3 (.add (.var 1) (.var 0)))).denote_k ctx =
@@ -157,4 +157,4 @@ example {M : Type u} [NatModule M] (ctx : Context M) :
     (Expr.add (.natMul 0 (.var 0))
       (.add (.neg (.var 1)) (.add (.sub (.var 2) (.var 3)) (.intMul 4 (.var 4))))).denoteN_k ctx =
       Expr.zero.denoteN_k ctx :=
-  eq_normN ctx _ _ (by rfl)
+  eq_normN_k ctx _ _ (by rfl)

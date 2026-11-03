@@ -19,6 +19,9 @@ def abcHex := "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad"
 -- line endings are normalized for text
 #guard (Hash.ofText "a\r\nb\r\n").hex == "911169ddaaf146aff539f58c26c489af3b892dff0fe283c1c264c65ae5aa59a2"
 #guard Hash.ofText "a\r\nb\r\n" == Hash.ofString "a\nb\n"
+-- `ofText` agrees with `crlfToLf` on edge cases
+#guard ["", "\r", "\n", "\r\n", "\r\r\n", "a\rb", "a\r", "\r\n\r\n", "ü\r\nß\r"].all fun s =>
+  Hash.ofText s == Hash.ofString s.crlfToLf
 
 -- `mix` is SHA-256 of the two concatenated digests
 #guard (Hash.mix (.ofString "") (.ofString "abc")).hex ==

@@ -68,6 +68,10 @@ opaque Internal.sha256 (bytes : @& ByteArray) : Internal.Sha256Digest := ⟨defa
 @[extern "lean_sha256_string"]
 opaque Internal.sha256String (s : @& String) : Internal.Sha256Digest := ⟨default, default, default, default⟩
 
+/-- Returns the SHA-256 digest of the UTF-8 encoding of `s.crlfToLf`, without constructing it. -/
+@[extern "lean_sha256_text"]
+opaque Internal.sha256Text (s : @& String) : Internal.Sha256Digest := ⟨default, default, default, default⟩
+
 /-- Returns the SHA-256 digest of the concatenation of the digests `a` and `b`. -/
 @[extern "lean_sha256_mix"]
 opaque Internal.sha256Mix (a b : @& Internal.Sha256Digest) : Internal.Sha256Digest := ⟨default, default, default, default⟩

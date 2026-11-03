@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Sofia Rodrigues
 */
 #include "runtime/openssl.h"
+#include <cstring>
 
 #ifndef LEAN_EMSCRIPTEN
 #include <openssl/opensslv.h>
@@ -100,6 +101,21 @@ extern "C" LEAN_EXPORT lean_obj_res lean_sha256_string(b_lean_obj_arg s) {
     return sha256(lean_string_cstr(s), lean_string_size(s) - 1);
 }
 
+/* Returns the SHA-256 digest of the UTF-8 encoding of a `String` with each `\r\n` replaced by
+   `\n`, like `String.crlfToLf`. Byte `\r` never occurs inside a multi-byte UTF-8 sequence. */
+extern "C" LEAN_EXPORT lean_obj_res lean_sha256_text(b_lean_obj_arg s) {
+    char const * p = lean_string_cstr(s);
+    char const * end = p + lean_string_size(s) - 1;
+    EVP_MD_CTX * ctx = sha256_init();
+    while (char const * cr = static_cast<char const *>(memchr(p, '\r', end - p))) {
+        bool crlf = cr + 1 < end && cr[1] == '\n';
+        sha256_update(ctx, p, crlf ? cr - p : cr + 1 - p);
+        p = cr + 1;
+    }
+    sha256_update(ctx, p, end - p);
+    return sha256_final(ctx);
+}
+
 /* Returns the SHA-256 digest of the concatenation of two digests. */
 extern "C" LEAN_EXPORT lean_obj_res lean_sha256_mix(b_lean_obj_arg a, b_lean_obj_arg b) {
     unsigned char buf[64];
@@ -128,6 +144,10 @@ extern "C" LEAN_EXPORT lean_obj_res lean_sha256(b_lean_obj_arg) {
 }
 
 extern "C" LEAN_EXPORT lean_obj_res lean_sha256_string(b_lean_obj_arg) {
+    lean_internal_panic("SHA-256 is not supported on this platform");
+}
+
+extern "C" LEAN_EXPORT lean_obj_res lean_sha256_text(b_lean_obj_arg) {
     lean_internal_panic("SHA-256 is not supported on this platform");
 }
 

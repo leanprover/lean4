@@ -1444,14 +1444,6 @@ extern "C" LEAN_EXPORT lean_obj_res lean_nat_powmod(b_lean_obj_arg b, b_lean_obj
     return lean_bignum_nat_powmod(b, e, m);
 }
 
-extern "C" LEAN_EXPORT lean_obj_res lean_nat_extended_gcd_fallback(lean_obj_arg a, lean_obj_arg b);
-
-extern "C" LEAN_EXPORT lean_obj_res lean_nat_extended_gcd(b_lean_obj_arg a, b_lean_obj_arg b) {
-    lean_inc(a);
-    lean_inc(b);
-    return lean_nat_extended_gcd_fallback(a, b);
-}
-
 extern "C" LEAN_EXPORT lean_obj_res lean_big_int_to_nat(lean_obj_arg a) {
     return lean_bignum_big_int_to_nat(a);
 }

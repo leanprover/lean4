@@ -133,24 +133,25 @@ partial def transformWithCache {m} [Monad m] [MonadLiftT MetaM m] [MonadControlT
           withLetDecl n (← visit (t.instantiateRev fvars)) (← visit (v.instantiateRev fvars)) (nondep := nondep) fun x =>
             visitLet (fvars.push x) b
         | e => visitPost (← mkLetFVars (usedLetOnly := usedLetOnly) (generalizeNondepLet := false) fvars (← visit (e.instantiateRev fvars)))
-      let visitApp (e : Expr) : MonadCacheT ExprStructEq Expr m Expr :=
-        e.withApp fun f args => do
-        let f ← if skipConstInApp && f.isConst then pure f else visit f
-        if skipInstances then
-          let infos := (← getFunInfoNArgs f args.size).paramInfo
-          let mut args := args.toVector
-          for h : i in *...args.size do
-            let arg := args[i]
-            if h : i < infos.size then
-              let info := infos[i]
-              if skipInstances && info.isInstance then
-                continue
-              args := args.set i (← visit arg)
-            else
-              args := args.set i (← visit arg)
-          visitPost (mkAppN f args.toArray)
-        else
-          visitPost (mkAppN f (← args.mapM visit))
+      let visitApp (e : Expr) : MonadCacheT ExprStructEq Expr m Expr := do
+        let e ← e.mapAppN fun f args => do
+          let f ← if skipConstInApp && f.isConst then pure f else visit f
+          if skipInstances then
+            let infos := (← getFunInfoNArgs f args.size).paramInfo
+            let mut args := args.toVector
+            for h : i in *...args.size do
+              let arg := args[i]
+              if h : i < infos.size then
+                let info := infos[i]
+                if skipInstances && info.isInstance then
+                  continue
+                args := args.set i (← visit arg)
+              else
+                args := args.set i (← visit arg)
+            return (f, args.toArray)
+          else
+            return (f, ← args.mapM visit)
+        visitPost e
       match (← pre e) with
       | .done e  => pure e
       | .visit e => visit e

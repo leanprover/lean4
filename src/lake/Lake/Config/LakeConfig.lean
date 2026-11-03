@@ -33,6 +33,7 @@ public configuration CacheServiceConfig where
   apiEndpoint : String := ""
   artifactEndpoint : String := ""
   revisionEndpoint : String := ""
+  revDiscovery : RevDiscovery := .nearest
   deriving Inhabited
 
 public configuration CacheConfig where

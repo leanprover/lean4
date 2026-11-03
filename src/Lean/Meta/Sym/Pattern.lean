@@ -108,21 +108,23 @@ def isUVar? (n : Name) : Option Nat := Id.run do
   return some idx
 
 /-- Helper function for implementing `mkPatternFromDecl` and `mkEqPatternFromDecl` -/
-def preprocessDeclPattern (declName : Name) (zetaReduceLHSOnly := false) : MetaM (List Name × Expr) := do
+def preprocessDeclPattern (declName : Name) (zetaReduceLHSOnly := false) (num? : Option Nat := none) :
+    MetaM (List Name × Expr) := do
   let info ← getConstInfo declName
   let levelParams := info.levelParams.mapIdx fun i _ => Name.num uvarPrefix i
   let us := levelParams.map mkLevelParam
   let type ← instantiateTypeLevelParams info.toConstantVal us
-  let type ← preprocessType type (zetaReduceLHSOnly := zetaReduceLHSOnly)
+  let type ← preprocessType type (zetaReduceLHSOnly := zetaReduceLHSOnly) (num? := num?)
   let type ← normalizeLevels type
   return (levelParams, type)
 
-def preprocessExprPattern (e : Expr) (levelParams₀ : List Name) (zetaReduceLHSOnly := false) : MetaM (List Name × Expr) := do
+def preprocessExprPattern (e : Expr) (levelParams₀ : List Name) (zetaReduceLHSOnly := false)
+    (num? : Option Nat := none) : MetaM (List Name × Expr) := do
   let type ← inferType e
   let levelParams := levelParams₀.mapIdx fun i _ => Name.num uvarPrefix i
   let us := levelParams.map mkLevelParam
   let type := type.instantiateLevelParams levelParams₀ us
-  let type ← preprocessType type (zetaReduceLHSOnly := zetaReduceLHSOnly)
+  let type ← preprocessType type (zetaReduceLHSOnly := zetaReduceLHSOnly) (num? := num?)
   let type ← normalizeLevels type
   return (levelParams, type)
 
@@ -210,11 +212,11 @@ If `num?` is `some n`, at most `n` leading quantifiers are stripped.
 If `num?` is `none`, all leading quantifiers are stripped.
 -/
 public def mkPatternFromDecl (declName : Name) (num? : Option Nat := none) : MetaM Pattern := do
-  let (levelParams, type) ← preprocessDeclPattern declName
+  let (levelParams, type) ← preprocessDeclPattern declName (num? := num?)
   mkPatternFromType levelParams type num?
 
 public def mkPatternFromExpr (e : Expr) (levelParams : List Name := []) (num? : Option Nat := none) : MetaM Pattern := do
-  let (levelParams, type) ← preprocessExprPattern e levelParams
+  let (levelParams, type) ← preprocessExprPattern e levelParams (num? := num?)
   mkPatternFromType levelParams type num?
 
 @[inline]

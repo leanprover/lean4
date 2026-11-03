@@ -3598,3 +3598,136 @@ theorem getKeyD_map [EquivBEq α] [LawfulHashable α]
 end map
 attribute [simp] contains_eq_false_iff_not_mem
 end Std.HashMap
+
+/-!
+## `List.groupByKey` and `Array.groupByKey`
+-/
+
+section groupByKey
+
+variable {key : β → α} {k : α}
+
+@[simp]
+theorem List.groupByKey_nil : ([] : List β).groupByKey key = ∅ :=
+  rfl
+
+theorem List.groupByKey_cons {x : β} {xs : List β} :
+    (x :: xs).groupByKey key =
+      (xs.groupByKey key).alter (key x) (fun v => some <| x :: v.getD []) :=
+  rfl
+
+@[simp, grind =]
+theorem List.getD_groupByKey [EquivBEq α] [LawfulHashable α] {xs : List β} :
+    (xs.groupByKey key).getD k [] = xs.filter (key · == k) := by
+  induction xs with
+  | nil => simp
+  | cons x xs ih =>
+    cases h : key x == k <;> simp [List.groupByKey_cons, Std.HashMap.getD_alter, h, ih,
+      ← Std.HashMap.getD_eq_getD_getElem?, Std.HashMap.getD_congr (a := key x) (b := k)]
+
+@[simp, grind =]
+theorem List.mem_groupByKey [EquivBEq α] [LawfulHashable α] {xs : List β} :
+    k ∈ xs.groupByKey key ↔ xs.any (key · == k) := by
+  induction xs with
+  | nil => simp
+  | cons x xs ih => rw [List.groupByKey_cons, Std.HashMap.mem_alter]; split <;> simp_all
+
+@[simp, grind =]
+theorem List.contains_groupByKey [EquivBEq α] [LawfulHashable α] {xs : List β} :
+    (xs.groupByKey key).contains k = xs.any (key · == k) := by
+  rw [Bool.eq_iff_iff, Std.HashMap.contains_iff_mem, List.mem_groupByKey]
+
+@[simp, grind =]
+theorem List.isEmpty_groupByKey [EquivBEq α] [LawfulHashable α] {xs : List β} :
+    (xs.groupByKey key).isEmpty = xs.isEmpty := by
+  cases xs with
+  | nil => simp
+  | cons x xs => exact Std.HashMap.isEmpty_eq_false_iff_exists_mem.mpr ⟨key x, by simp⟩
+
+@[simp, grind =]
+theorem List.getElem_groupByKey [EquivBEq α] [LawfulHashable α] {xs : List β}
+    {h : k ∈ xs.groupByKey key} :
+    (xs.groupByKey key)[k] = xs.filter (key · == k) := by
+  rw [Std.HashMap.getElem_eq_getD (fallback := []), List.getD_groupByKey]
+
+@[grind =]
+theorem List.getElem?_groupByKey [EquivBEq α] [LawfulHashable α] {xs : List β} :
+    (xs.groupByKey key)[k]? =
+      if xs.any (key · == k) then some (xs.filter (key · == k)) else none := by
+  split
+  · rw [Std.HashMap.getElem?_eq_some_getD (fallback := []) (List.mem_groupByKey.mpr ‹_›),
+      List.getD_groupByKey]
+  · exact Std.HashMap.getElem?_eq_none (mt List.mem_groupByKey.mp ‹_›)
+
+@[simp, grind =]
+theorem List.getElem!_groupByKey [EquivBEq α] [LawfulHashable α] {xs : List β} :
+    (xs.groupByKey key)[k]! = xs.filter (key · == k) := by
+  rw [Std.HashMap.getElem!_eq_getD_default]; exact List.getD_groupByKey
+
+theorem Array.groupByKey_eq_foldl {xs : Array β} :
+    xs.groupByKey key =
+      xs.foldl (init := ∅) fun acc x => acc.alter (key x) (some <| ·.getD #[] |>.push x) := by
+  rcases xs with ⟨l⟩
+  simp [Array.groupByKey]
+
+@[simp, grind =]
+theorem Array.getD_groupByKey [EquivBEq α] [LawfulHashable α] {xs : Array β} :
+    (xs.groupByKey key).getD k #[] = xs.filter (key · == k) := by
+  rw [Array.groupByKey_eq_foldl,
+    ← Array.foldl_hom (fun m : Std.HashMap α (Array β) => m.getD k #[])
+      (g₂ := fun acc x => if key x == k then acc.push x else acc)]
+  · simp only [Std.HashMap.getD_empty]
+    rfl
+  · intro m x
+    cases h : key x == k <;> simp [Std.HashMap.getD_alter, h,
+      ← Std.HashMap.getD_eq_getD_getElem?, Std.HashMap.getD_congr (a := key x) (b := k)]
+
+@[simp, grind =]
+theorem Array.mem_groupByKey [EquivBEq α] [LawfulHashable α] {xs : Array β} :
+    k ∈ xs.groupByKey key ↔ xs.any (key · == k) := by
+  rcases xs with ⟨l⟩
+  rw [Array.groupByKey_eq_foldl]
+  simp only [List.foldl_toArray', List.any_toArray]
+  suffices h : ∀ m : Std.HashMap α (Array β),
+      k ∈ l.foldl (fun acc x => acc.alter (key x) (some <| ·.getD #[] |>.push x)) m ↔
+        k ∈ m ∨ l.any (key · == k) by simp [h]
+  induction l with
+  | nil => simp
+  | cons x l ih =>
+    intro m
+    rw [List.foldl_cons, ih, Std.HashMap.mem_alter]
+    split <;> simp_all [or_comm]
+
+@[simp, grind =]
+theorem Array.contains_groupByKey [EquivBEq α] [LawfulHashable α] {xs : Array β} :
+    (xs.groupByKey key).contains k = xs.any (key · == k) := by
+  rw [Bool.eq_iff_iff, Std.HashMap.contains_iff_mem, Array.mem_groupByKey]
+
+@[simp, grind =]
+theorem Array.isEmpty_groupByKey [EquivBEq α] [LawfulHashable α] {xs : Array β} :
+    (xs.groupByKey key).isEmpty = xs.isEmpty := by
+  rcases xs with ⟨_ | ⟨x, l⟩⟩
+  · simp [Array.groupByKey_eq_foldl]
+  · exact Std.HashMap.isEmpty_eq_false_iff_exists_mem.mpr ⟨key x, by simp⟩
+
+@[simp, grind =]
+theorem Array.getElem_groupByKey [EquivBEq α] [LawfulHashable α] {xs : Array β}
+    {h : k ∈ xs.groupByKey key} :
+    (xs.groupByKey key)[k] = xs.filter (key · == k) := by
+  rw [Std.HashMap.getElem_eq_getD (fallback := #[]), Array.getD_groupByKey]
+
+@[grind =]
+theorem Array.getElem?_groupByKey [EquivBEq α] [LawfulHashable α] {xs : Array β} :
+    (xs.groupByKey key)[k]? =
+      if xs.any (key · == k) then some (xs.filter (key · == k)) else none := by
+  split
+  · rw [Std.HashMap.getElem?_eq_some_getD (fallback := #[]) (Array.mem_groupByKey.mpr ‹_›),
+      Array.getD_groupByKey]
+  · exact Std.HashMap.getElem?_eq_none (mt Array.mem_groupByKey.mp ‹_›)
+
+@[simp, grind =]
+theorem Array.getElem!_groupByKey [EquivBEq α] [LawfulHashable α] {xs : Array β} :
+    (xs.groupByKey key)[k]! = xs.filter (key · == k) := by
+  rw [Std.HashMap.getElem!_eq_getD_default]; exact Array.getD_groupByKey
+
+end groupByKey

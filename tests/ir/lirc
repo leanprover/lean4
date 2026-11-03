@@ -25,4 +25,4 @@ fi
 
 exe="${1%%.*}"
 
-$leandir/bin/lean --run lirc.lean $1 && g++ -o $exe -I../../src -L../../bin -std=c++11 $1.cpp -lleanruntime -lgmp -ldl -ljemalloc
+$leandir/bin/lean --run lirc.lean $1 && g++ -o $exe -I../../src -L../../bin -std=c++11 $1.cpp -lleanruntime -ldl -ljemalloc

@@ -112,10 +112,10 @@ struct olean_header {
     // v3: new format used for `CompactedRegion.save (allowClosures := true)`; see below for changes
     uint8_t version;
     // 1 byte of flags:
-    // * bit 0: formerly whether persisted bignums used GMP or the `mpz` encoding
-    // * bit 1: persisted bignums use the `ByteArray` encoding of `Init.Data.Nat.BigRuntime`
-    // * bit 2-7: reserved
-    uint8_t flags = 0b10;
+    // * bit 0: whether persisted bignums use the GMP encoding of earlier versions; now always unset as
+    //   bignums are ordinary scalar arrays (see `Init.Data.Nat.BigRuntime`)
+    // * bit 1-7: reserved
+    uint8_t flags = 0b0;
     // 33 bytes: Lean version string, padded with '\0' to the right
     // e.g. "4.12.0-nightly-2024-10-18". Other suffixes after the version
     // triple currently in use are `-rcN` for some `N` and `-pre` for any

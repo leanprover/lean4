@@ -1588,3 +1588,12 @@ example (a b : Nat) (Q C : Prop) (hXC : ((a, b).fst = 0 → (a, b).fst = 0) → 
     intros
     rename_i x
     exact x
+
+-- misc/lets_no_progress: instantiating the target `?a` alone is not progress
+example (a b : Nat) (P Pk : Prop) (h : (a, b).fst = 0 → P) (k : ((a, b).fst = 0 → P) → Pk) : Pk := by
+  sym =>
+    apply use_imp
+    exact k
+    fail_if_success let_to_have
+    fail_if_success lift_lets
+    exact h

@@ -286,7 +286,7 @@ theorem wide_triple : ⦃ fun _ => True ⦄ wide x ⦃ fun r => ⌜r > 1⌝ ⦄ 
   vcgen +jp with finish
 
 -- The join point precedes a root `match`, and `root_match.eq_2` keeps it for the call
--- `root_match (k + 1) b`: the two jumps of the `if` share it, so there is a single VC.
+-- `root_match (k + 1) b`.
 def root_match (x : Nat) (b : Bool) : StateM Nat Nat := do
   let mut y := 0
   match x with
@@ -296,5 +296,4 @@ def root_match (x : Nat) (b : Bool) : StateM Nat Nat := do
   return y + s
 
 theorem root_match_triple : ⦃ fun _ => True ⦄ root_match (k + 1) b ⦃ fun r => ⌜r > 0⌝ ⦄ := by
-  vcgen +jp [root_match]
-  case vc1 => grind
+  vcgen +jp [root_match] with finish

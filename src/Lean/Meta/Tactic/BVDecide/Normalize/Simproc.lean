@@ -1459,7 +1459,13 @@ def bvAppend (α β lhs rhs : Expr) : SimprocM (Sym.Simp.Result) := do
   let zeroWidthAppend : SimprocM (Option Sym.Simp.Result) := tryRule `bvAppend.zeroWidthAppend do
     let some 0 := Sym.getNatValue? wlhs | return none
     let some _ := Sym.getNatValue? wrhs | return none
+    -- `zero_width_append` ends in `rhs.cast _`, but we continue with `rhs`. Close the gap with
+    -- `cast_eq`: left to the kernel, `rhs.cast _ ≡ rhs` is decided by evaluating `rhs`, which
+    -- is exponential for symbolic terms such as `(x + c).sshiftRight k * d`.
     let proof := mkApp3 (mkConst ``BitVec.zero_width_append) wrhs lhs rhs
+    let some (ty, appendExpr, castRhs) := (← inferType proof).eq? | return none
+    let castEq := mkApp3 (mkConst ``BitVec.cast_eq) wrhs (← mkEqRefl wrhs) rhs
+    let proof := mkApp6 (mkConst ``Eq.trans [1]) ty appendExpr castRhs rhs proof castEq
     return some <| .step rhs proof
 
   if let some step ← concatExtract then return step

@@ -7,7 +7,7 @@ Requirements
 
 - C++14 compatible compiler
 - [CMake](http://www.cmake.org)
-- [GMP (GNU multiprecision library)](http://gmplib.org/)
+- [GMP (GNU multiprecision library)](http://gmplib.org/), only for building stage 0
 - [LibUV](https://libuv.org/)
 - [OpenSSL](https://www.openssl.org/)
 
@@ -59,18 +59,10 @@ There are also two alternative presets that combine some of these options you ca
   Select the C/C++ compilers to use. Official Lean releases currently use Clang;
   see also `.github/workflows/ci.yml` for the CI config.
 
-* `-DUSE_GMP=`\
-  Use GMP for arbitrary-precision integers (default `ON`). Lean requires GMP
-  6.3.0 or newer, because earlier versions contain bugs that can make Lean
-  produce unsound results. Set `-DUSE_GMP=OFF` to use Lean's built-in bignum
-  implementation instead, which needs no external GMP (safest; some performance
-  cost).
-
-* `-DFORCE_GMP=`\
-  Build against the GMP found on the system even if it is older than 6.3.0
-  (default `OFF`). Not recommended: Lean may produce unsound results in corner
-  cases. Independent kernels that do not depend on GMP will catch the
-  unsoundness.
+* `-DUSE_GMP=`, `-DFORCE_GMP=`\
+  Only affect stage 0, which may still use GMP (version 6.3.0 or newer) for
+  arbitrary-precision integers. Later stages implement them in Lean
+  (`Init.Data.Nat.Big`).
 
 Lean will automatically use [CCache](https://ccache.dev/) if available to avoid
 redundant builds, especially after stage 0 has been updated.

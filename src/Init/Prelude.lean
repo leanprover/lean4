@@ -1358,8 +1358,8 @@ set_option genCtorIdx false in
 The natural numbers, starting at zero.
 
 This type is special-cased by both the kernel and the compiler, and overridden with an efficient
-implementation. Both use a fast arbitrary-precision arithmetic library (usually
-[GMP](https://gmplib.org/)); at runtime, `Nat` values that are sufficiently small are unboxed.
+implementation. Both use an arbitrary-precision arithmetic implementation written in Lean
+(`Init.Data.Nat.Big`); at runtime, `Nat` values that are sufficiently small are unboxed.
 -/
 @[suggest_for ℕ]
 inductive Nat where

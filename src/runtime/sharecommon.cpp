@@ -20,14 +20,10 @@ extern "C" LEAN_EXPORT uint8 lean_sharecommon_eq(b_obj_arg o1, b_obj_arg o2) {
     uint8_t tag = lean_ptr_tag(o1);
     if (tag != lean_ptr_tag(o2)) return false;
     if (lean_ptr_other(o1) != lean_ptr_other(o2)) return false;
-    if (tag == LeanMPZ) {
-        return mpz_value(o1) == mpz_value(o2);
-    } else {
-        size_t header_sz = sizeof(lean_object);
-        lean_assert(sz1 >= header_sz);
-        // compare objects' bodies
-        return memcmp(reinterpret_cast<char*>(o1) + header_sz, reinterpret_cast<char*>(o2) + header_sz, sz1 - header_sz) == 0;
-    }
+    size_t header_sz = sizeof(lean_object);
+    lean_assert(sz1 >= header_sz);
+    // compare objects' bodies
+    return memcmp(reinterpret_cast<char*>(o1) + header_sz, reinterpret_cast<char*>(o2) + header_sz, sz1 - header_sz) == 0;
 }
 
 extern "C" LEAN_EXPORT uint64_t lean_sharecommon_hash(b_obj_arg o) {
@@ -35,14 +31,10 @@ extern "C" LEAN_EXPORT uint64_t lean_sharecommon_hash(b_obj_arg o) {
     size_t sz = lean_object_data_byte_size(o);
     size_t header_sz = sizeof(lean_object);
     uint8_t tag = lean_ptr_tag(o);
-    if (tag == LeanMPZ) {
-        return hash(tag, mpz_value(o).hash());
-    } else {
-        // hash relevant parts of the header
-        unsigned init = hash(tag, lean_ptr_other(o));
-        // hash body
-        return hash_str(sz - header_sz, reinterpret_cast<unsigned char const *>(o) + header_sz, init);
-    }
+    // hash relevant parts of the header
+    unsigned init = hash(tag, lean_ptr_other(o));
+    // hash body
+    return hash_str(sz - header_sz, reinterpret_cast<unsigned char const *>(o) + header_sz, init);
 }
 
 static obj_res mk_pair(obj_arg a, obj_arg b) {
@@ -211,11 +203,6 @@ class sharecommon_fn {
         save(a, (lean_object*)new_a);
     }
 
-    void visit_mpz(b_obj_arg a) {
-        object * new_a = alloc_mpz(mpz_value(a));
-        save(a, new_a);
-    }
-
     void visit_ctor(b_obj_arg a) {
         clear_children();
         unsigned num_objs  = lean_ctor_num_objs(a);
@@ -262,7 +249,6 @@ public:
             case LeanArray:           visit_array(curr); break;
             case LeanScalarArray:     visit_sarray(curr); break;
             case LeanString:          visit_string(curr); break;
-            case LeanMPZ:             visit_mpz(curr); break;
             case LeanThunk:           lean_unreachable();
             case LeanTask:            lean_unreachable();
             case LeanPromise:         lean_unreachable();
@@ -453,7 +439,6 @@ lean_object * sharecommon_quick_fn::visit(lean_object * a) {
     case LeanRef:             lean_inc_ref(a); return a;
     case LeanExternal:        lean_inc_ref(a); return a;
     case LeanReserved:        lean_inc_ref(a); return a;
-    case LeanMPZ:             return visit_terminal(a);
     case LeanScalarArray:     return visit_terminal(a);
     case LeanString:          return visit_terminal(a);
     case LeanArray:           return visit_array(a);

@@ -274,7 +274,6 @@ extern "C" LEAN_EXPORT void lean_free_object(lean_object * o) {
     case LeanScalarArray: return lean_dealloc(o, lean_sarray_byte_size(o));
     case LeanString:      return lean_dealloc(o, lean_string_byte_size(o));
     case LeanClosure:     return lean_dealloc(o, lean_closure_byte_size(o));
-    case LeanMPZ:         to_mpz(o)->m_value.~mpz(); return lean_free_small_object(o);
     default:              return lean_free_small_object(o);
     }
 }
@@ -399,10 +398,6 @@ static object * lean_del_core_other(object * o, uint8 tag, object * todo) {
         break;
     case LeanString:
         lean_dealloc(o, lean_string_byte_size(o));
-        break;
-    case LeanMPZ:
-        to_mpz(o)->m_value.~mpz();
-        lean_free_small_object(o);
         break;
     case LeanThunk:
         if (object * c = lean_to_thunk(o)->m_closure) dec(c, todo);
@@ -620,7 +615,6 @@ extern "C" LEAN_EXPORT void lean_mark_persistent(object * o) {
                 switch (tag) {
                 case LeanScalarArray:
                 case LeanString:
-                case LeanMPZ:
                     break;
                 case LeanExternal: {
                     object * fn = lean_alloc_closure((void*)mark_persistent_fn, 1, 0);
@@ -699,7 +693,6 @@ extern "C" LEAN_EXPORT void lean_mark_mt(object * o) {
                 switch (tag) {
                 case LeanScalarArray:
                 case LeanString:
-                case LeanMPZ:
                     break;
                 case LeanExternal: {
                     object * fn = lean_alloc_closure((void*)mark_mt_fn, 1, 0);
@@ -1374,607 +1367,158 @@ void deactivate_promise(lean_promise_object * promise) {
 }
 
 // =======================================
-// Natural numbers
+// Natural numbers and integers
 
-object * alloc_mpz(mpz const & m) {
-    void * mem = lean_alloc_small_object(sizeof(mpz_object));
-#ifdef LEAN_MIMALLOC
-    // placement new is not guaranteed to preserve this field so store and restore it
-    unsigned sz = ((lean_object *)mem)->m_cs_sz;
-#endif
-    mpz_object * o = new (mem) mpz_object(m);
-#ifdef LEAN_MIMALLOC
-    o->m_header.m_cs_sz = sz;
-#endif
-    lean_set_st_header((lean_object*)o, LeanMPZ, 0);
-    return (lean_object*)o;
+/* Big numbers are implemented in Lean (`Init.Data.Nat.BigRuntime`), exported as `lean_bignum_*`. Those
+   functions take ownership of their arguments, whereas the primitives below borrow them. */
+
+#define LEAN_BIGNUM_UNARY(ret, name) \
+    extern "C" LEAN_EXPORT ret lean_bignum_##name(obj_arg a); \
+    extern "C" LEAN_EXPORT ret lean_##name(b_obj_arg a) { lean_inc(a); return lean_bignum_##name(a); }
+#define LEAN_BIGNUM_BINARY(ret, name) \
+    extern "C" LEAN_EXPORT ret lean_bignum_##name(obj_arg a1, obj_arg a2); \
+    extern "C" LEAN_EXPORT ret lean_##name(b_obj_arg a1, b_obj_arg a2) { \
+        lean_inc(a1); lean_inc(a2); return lean_bignum_##name(a1, a2); \
+    }
+
+extern "C" LEAN_EXPORT obj_res lean_bignum_nat_of_decimal(obj_arg s);
+extern "C" LEAN_EXPORT obj_res lean_bignum_int_of_decimal(obj_arg s);
+extern "C" LEAN_EXPORT obj_res lean_bignum_big_usize_to_nat(size_t n);
+extern "C" LEAN_EXPORT obj_res lean_bignum_big_uint64_to_nat(uint64_t n);
+extern "C" LEAN_EXPORT obj_res lean_bignum_nat_overflow_mul(size_t a1, size_t a2);
+extern "C" LEAN_EXPORT obj_res lean_bignum_big_int_to_nat(obj_arg a);
+extern "C" LEAN_EXPORT obj_res lean_bignum_big_int_to_int(uint32_t n);
+extern "C" LEAN_EXPORT obj_res lean_bignum_big_size_t_to_int(size_t n);
+extern "C" LEAN_EXPORT obj_res lean_bignum_big_int64_to_int(uint64_t n);
+extern "C" LEAN_EXPORT obj_res lean_bignum_nat_powmod(obj_arg b, obj_arg e, obj_arg m);
+
+extern "C" LEAN_EXPORT LEAN_NORETURN lean_object * lean_internal_panic_string(b_obj_arg msg) {
+    lean_internal_panic(lean_string_cstr(msg));
 }
-
-#ifdef LEAN_USE_GMP
-extern "C" LEAN_EXPORT lean_object * lean_alloc_mpz(mpz_t v) {
-    return alloc_mpz(mpz(v));
-}
-
-extern "C" LEAN_EXPORT void lean_extract_mpz_value(lean_object * o, mpz_t v) {
-    return to_mpz(o)->m_value.set(v);
-}
-#endif
-
-object * mpz_to_nat_core(mpz const & m) {
-    lean_assert(!m.is_size_t() || m.get_size_t() > LEAN_MAX_SMALL_NAT);
-    return alloc_mpz(m);
-}
-
-static inline obj_res mpz_to_nat(mpz const & m) {
-    if (m.is_size_t() && m.get_size_t() <= LEAN_MAX_SMALL_NAT)
-        return lean_box(m.get_size_t());
-    else
-        return mpz_to_nat_core(m);
-}
-
-static object * mpz_to_int(mpz const & m);
 
 extern "C" LEAN_EXPORT object * lean_cstr_to_nat(char const * n) {
-    return mpz_to_nat(mpz(n));
+    return lean_bignum_nat_of_decimal(lean_mk_string(n));
 }
 
 extern "C" LEAN_EXPORT object * lean_big_usize_to_nat(size_t n) {
-    if (n <= LEAN_MAX_SMALL_NAT) {
-        return lean_box(n);
-    } else {
-        return mpz_to_nat_core(mpz::of_size_t(n));
-    }
+    return lean_bignum_big_usize_to_nat(n);
 }
 
 extern "C" LEAN_EXPORT object * lean_big_uint64_to_nat(uint64_t n) {
-    if (LEAN_LIKELY(n <= LEAN_MAX_SMALL_NAT)) {
-        return lean_box(n);
-    } else {
-        return mpz_to_nat_core(mpz(n));
-    }
-}
-
-extern "C" LEAN_EXPORT object * lean_nat_big_succ(object * a) {
-    return mpz_to_nat_core(mpz_value(a) + 1);
-}
-
-extern "C" LEAN_EXPORT object * lean_nat_big_add(object * a1, object * a2) {
-    lean_assert(!lean_is_scalar(a1) || !lean_is_scalar(a2));
-    if (lean_is_scalar(a1))
-        return mpz_to_nat_core(mpz::of_size_t(lean_unbox(a1)) + mpz_value(a2));
-    else if (lean_is_scalar(a2))
-        return mpz_to_nat_core(mpz_value(a1) + mpz::of_size_t(lean_unbox(a2)));
-    else
-        return mpz_to_nat_core(mpz_value(a1) + mpz_value(a2));
-}
-
-extern "C" LEAN_EXPORT object * lean_nat_big_sub(object * a1, object * a2) {
-    lean_assert(!lean_is_scalar(a1) || !lean_is_scalar(a2));
-    if (lean_is_scalar(a1)) {
-        lean_assert(mpz::of_size_t(lean_unbox(a1)) < mpz_value(a2));
-        return lean_box(0);
-    } else if (lean_is_scalar(a2)) {
-        lean_assert(mpz_value(a1) > mpz::of_size_t(lean_unbox(a2)));
-        return mpz_to_nat(mpz_value(a1) - mpz::of_size_t(lean_unbox(a2)));
-    } else {
-        if (mpz_value(a1) < mpz_value(a2))
-            return lean_box(0);
-        else
-            return mpz_to_nat(mpz_value(a1) - mpz_value(a2));
-    }
-}
-
-extern "C" LEAN_EXPORT object * lean_nat_big_mul(object * a1, object * a2) {
-    lean_assert(!lean_is_scalar(a1) || !lean_is_scalar(a2));
-    if (lean_is_scalar(a1))
-        return mpz_to_nat(mpz::of_size_t(lean_unbox(a1)) * mpz_value(a2));
-    else if (lean_is_scalar(a2))
-        return mpz_to_nat(mpz_value(a1) * mpz::of_size_t(lean_unbox(a2)));
-    else
-        return mpz_to_nat_core(mpz_value(a1) * mpz_value(a2));
+    return lean_bignum_big_uint64_to_nat(n);
 }
 
 extern "C" LEAN_EXPORT object * lean_nat_overflow_mul(size_t a1, size_t a2) {
-    return mpz_to_nat(mpz::of_size_t(a1) * mpz::of_size_t(a2));
+    return lean_bignum_nat_overflow_mul(a1, a2);
 }
 
-extern "C" LEAN_EXPORT object * lean_nat_big_div(object * a1, object * a2) {
-    lean_assert(!lean_is_scalar(a1) || !lean_is_scalar(a2));
-    if (lean_is_scalar(a1)) {
-        lean_assert(mpz_value(a2) != 0);
-        lean_assert(mpz::of_size_t(lean_unbox(a1)) / mpz_value(a2) == 0);
-        return lean_box(0);
-    } else if (lean_is_scalar(a2)) {
-        usize n2 = lean_unbox(a2);
-        return n2 == 0 ? a2 : mpz_to_nat(mpz_value(a1) / mpz::of_size_t(n2));
-    } else {
-        lean_assert(mpz_value(a2) != 0);
-        return mpz_to_nat(mpz_value(a1) / mpz_value(a2));
-    }
-}
-
-extern "C" LEAN_EXPORT object * lean_nat_big_div_exact(object * a1, object * a2) {
-    lean_assert(!lean_is_scalar(a1) || !lean_is_scalar(a2));
-    if (lean_is_scalar(a1)) {
-        lean_assert(a1 == lean_box(0));
-        lean_assert(mpz_value(a2) != 0);
-        return lean_box(0);
-    } else if (lean_is_scalar(a2)) {
-        usize n2 = lean_unbox(a2);
-        lean_assert(n2 != 0);
-        return mpz_to_nat(mpz::divexact(mpz_value(a1), mpz::of_size_t(n2)));
-    } else {
-        lean_assert(mpz_value(a2) != 0);
-        return mpz_to_nat(mpz::divexact(mpz_value(a1), mpz_value(a2)));
-    }
-}
-
-extern "C" LEAN_EXPORT object * lean_nat_big_mod(object * a1, object * a2) {
-    lean_assert(!lean_is_scalar(a1) || !lean_is_scalar(a2));
-    if (lean_is_scalar(a1)) {
-        lean_assert(mpz_value(a2) != 0);
-        return a1;
-    } else if (lean_is_scalar(a2)) {
-        usize n2 = lean_unbox(a2);
-        if (n2 == 0) {
-            lean_inc(a1);
-            return a1;
-        } else {
-            return mpz_to_nat(mpz_value(a1) % mpz::of_size_t(n2));
-        }
-    } else {
-        lean_assert(mpz_value(a2) != 0);
-        return mpz_to_nat(mpz_value(a1) % mpz_value(a2));
-    }
-}
-
-extern "C" LEAN_EXPORT bool lean_nat_big_eq(object * a1, object * a2) {
-    if (lean_is_scalar(a1)) {
-        lean_assert(mpz::of_size_t(lean_unbox(a1)) != mpz_value(a2));
-        return false;
-    } else if (lean_is_scalar(a2)) {
-        lean_assert(mpz_value(a1) != mpz::of_size_t(lean_unbox(a2)));
-        return false;
-    } else {
-        return mpz_value(a1) == mpz_value(a2);
-    }
-}
-
-extern "C" LEAN_EXPORT bool lean_nat_big_le(object * a1, object * a2) {
-    if (lean_is_scalar(a1)) {
-        lean_assert(mpz::of_size_t(lean_unbox(a1)) < mpz_value(a2))
-        return true;
-    } else if (lean_is_scalar(a2)) {
-        lean_assert(mpz_value(a1) > mpz::of_size_t(lean_unbox(a2)));
-        return false;
-    } else {
-        return mpz_value(a1) <= mpz_value(a2);
-    }
-}
-
-extern "C" LEAN_EXPORT bool lean_nat_big_lt(object * a1, object * a2) {
-    if (lean_is_scalar(a1)) {
-        lean_assert(mpz::of_size_t(lean_unbox(a1)) < mpz_value(a2));
-        return true;
-    } else if (lean_is_scalar(a2)) {
-        lean_assert(mpz_value(a1) > mpz::of_size_t(lean_unbox(a2)));
-        return false;
-    } else {
-        return mpz_value(a1) < mpz_value(a2);
-    }
-}
-
-extern "C" LEAN_EXPORT object * lean_nat_big_land(object * a1, object * a2) {
-    lean_assert(!lean_is_scalar(a1) || !lean_is_scalar(a2));
-    if (lean_is_scalar(a1))
-        return mpz_to_nat(mpz::of_size_t(lean_unbox(a1)) & mpz_value(a2));
-    else if (lean_is_scalar(a2))
-        return mpz_to_nat(mpz_value(a1) & mpz::of_size_t(lean_unbox(a2)));
-    else
-        return mpz_to_nat(mpz_value(a1) & mpz_value(a2));
-}
-
-extern "C" LEAN_EXPORT object * lean_nat_big_lor(object * a1, object * a2) {
-    lean_assert(!lean_is_scalar(a1) || !lean_is_scalar(a2));
-    if (lean_is_scalar(a1))
-        return mpz_to_nat(mpz::of_size_t(lean_unbox(a1)) | mpz_value(a2));
-    else if (lean_is_scalar(a2))
-        return mpz_to_nat(mpz_value(a1) | mpz::of_size_t(lean_unbox(a2)));
-    else
-        return mpz_to_nat(mpz_value(a1) | mpz_value(a2));
-}
-
-extern "C" LEAN_EXPORT object * lean_nat_big_xor(object * a1, object * a2) {
-    lean_assert(!lean_is_scalar(a1) || !lean_is_scalar(a2));
-    if (lean_is_scalar(a1))
-        return mpz_to_nat(mpz::of_size_t(lean_unbox(a1)) ^ mpz_value(a2));
-    else if (lean_is_scalar(a2))
-        return mpz_to_nat(mpz_value(a1) ^ mpz::of_size_t(lean_unbox(a2)));
-    else
-        return mpz_to_nat(mpz_value(a1) ^ mpz_value(a2));
-}
-
-extern "C" LEAN_EXPORT lean_obj_res lean_nat_shiftl(b_lean_obj_arg a1, b_lean_obj_arg a2) {
-    // Special case for shifted value is 0.
-    if (lean_is_scalar(a1) && lean_unbox(a1) == 0) {
-        return lean_box(0);
-    }
-    auto a = lean_is_scalar(a1)
-           ? mpz::of_size_t(lean_unbox(a1))
-           : mpz_value(a1);
-    if (!lean_is_scalar(a2) || lean_unbox(a2) > UINT_MAX) {
-        lean_internal_panic("Nat.shiftl exponent is too big");
-    }
-    mpz r;
-    mul2k(r, a, lean_unbox(a2));
-    return mpz_to_nat(r);
-}
-
-extern "C" LEAN_EXPORT lean_obj_res lean_nat_big_shiftr(b_lean_obj_arg a1, b_lean_obj_arg a2) {
-    if (!lean_is_scalar(a2)) {
-        return lean_box(0); // This large of an exponent must be 0.
-    }
-    auto a = lean_is_scalar(a1)
-           ? mpz::of_size_t(lean_unbox(a1))
-           : mpz_value(a1);
-    size_t s = lean_unbox(a2);
-    // If the shift amount is large, then we fail if it is not large
-    // enough to zero out all the bits.
-    if (s > UINT_MAX) {
-        if (a.log2() >= s) {
-            lean_internal_panic("Nat.shiftr exponent is too big");
-        } else {
-            return lean_box(0);
-        }
-    }
-    mpz r;
-    div2k(r, a, s);
-    return mpz_to_nat(r);
-}
-
-extern "C" LEAN_EXPORT lean_obj_res lean_nat_pow(b_lean_obj_arg a1, b_lean_obj_arg a2) {
-    if (!lean_is_scalar(a2) || lean_unbox(a2) > UINT_MAX) {
-        // The exponent does not fit in a machine word, so the result would
-        // overflow memory for any base `≥ 2`. The exponent is positive here, so
-        // `0 ^ e = 0` and `1 ^ e = 1` are still cheap and total; otherwise panic.
-        if (lean_is_scalar(a1)) {
-            size_t b = lean_unbox(a1);
-            if (b == 0) return lean_box(0);
-            if (b == 1) return lean_box(1);
-        }
-        lean_internal_panic("Nat.pow exponent is too big");
-    }
-    if (lean_is_scalar(a1))
-        return mpz_to_nat(mpz::of_size_t(lean_unbox(a1)).pow(lean_unbox(a2)));
-    else
-        return mpz_to_nat(mpz_value(a1).pow(lean_unbox(a2)));
-}
+LEAN_BIGNUM_UNARY(object *, nat_big_succ)
+LEAN_BIGNUM_BINARY(object *, nat_big_add)
+LEAN_BIGNUM_BINARY(object *, nat_big_sub)
+LEAN_BIGNUM_BINARY(object *, nat_big_mul)
+LEAN_BIGNUM_BINARY(object *, nat_big_div)
+LEAN_BIGNUM_BINARY(object *, nat_big_div_exact)
+LEAN_BIGNUM_BINARY(object *, nat_big_mod)
+LEAN_BIGNUM_BINARY(uint8_t, nat_big_eq)
+LEAN_BIGNUM_BINARY(uint8_t, nat_big_le)
+LEAN_BIGNUM_BINARY(uint8_t, nat_big_lt)
+LEAN_BIGNUM_BINARY(object *, nat_big_land)
+LEAN_BIGNUM_BINARY(object *, nat_big_lor)
+LEAN_BIGNUM_BINARY(object *, nat_big_xor)
+LEAN_BIGNUM_BINARY(lean_obj_res, nat_shiftl)
+LEAN_BIGNUM_BINARY(lean_obj_res, nat_big_shiftr)
+LEAN_BIGNUM_BINARY(lean_obj_res, nat_pow)
+LEAN_BIGNUM_BINARY(lean_obj_res, nat_gcd)
+LEAN_BIGNUM_UNARY(lean_obj_res, nat_log2)
+LEAN_BIGNUM_UNARY(size_t, nat_size_in_bytes)
+LEAN_BIGNUM_UNARY(lean_obj_res, nat_trailing_zeros)
+LEAN_BIGNUM_UNARY(lean_obj_res, int_trailing_zeros)
+LEAN_BIGNUM_UNARY(obj_res, nat_big_to_decimal)
 
 extern "C" LEAN_EXPORT lean_obj_res lean_nat_powmod(b_lean_obj_arg b, b_lean_obj_arg e, b_lean_obj_arg m) {
-    if (lean_is_scalar(m) && lean_unbox(m) == 0) {
-        // Lean convention: `_ % 0 = _`, so `Nat.powMod b e 0 = b ^ e`.
-        // Defer to `lean_nat_pow`, which (like `Nat.pow`) panics on an exponent
-        // that does not fit in a machine word rather than attempting a hopeless
-        // computation.
-        return lean_nat_pow(b, e);
-    }
-    mpz mb = lean_is_scalar(b) ? mpz::of_size_t(lean_unbox(b)) : mpz_value(b);
-    mpz me = lean_is_scalar(e) ? mpz::of_size_t(lean_unbox(e)) : mpz_value(e);
-    mpz mm = lean_is_scalar(m) ? mpz::of_size_t(lean_unbox(m)) : mpz_value(m);
-    return mpz_to_nat(mb.powm(me, mm));
-}
-
-extern "C" LEAN_EXPORT lean_obj_res lean_nat_gcd(b_lean_obj_arg a1, b_lean_obj_arg a2) {
-    if (lean_is_scalar(a1)) {
-      if (lean_is_scalar(a2))
-        return mpz_to_nat(gcd(mpz::of_size_t(lean_unbox(a1)), mpz::of_size_t(lean_unbox(a2))));
-      else
-        return mpz_to_nat(gcd(mpz::of_size_t(lean_unbox(a1)), mpz_value(a2)));
-    } else {
-      if (lean_is_scalar(a2))
-        return mpz_to_nat(gcd(mpz_value(a1), mpz::of_size_t(lean_unbox(a2))));
-      else
-        return mpz_to_nat(gcd(mpz_value(a1), mpz_value(a2)));
-    }
+    lean_inc(b); lean_inc(e); lean_inc(m);
+    return lean_bignum_nat_powmod(b, e, m);
 }
 
 extern "C" LEAN_EXPORT lean_obj_res lean_nat_extended_gcd_fallback(lean_obj_arg a, lean_obj_arg b);
 
 extern "C" LEAN_EXPORT lean_obj_res lean_nat_extended_gcd(b_lean_obj_arg a, b_lean_obj_arg b) {
-#ifdef LEAN_USE_GMP
-    if (a != lean_box(0) && b != lean_box(0) && !lean_nat_dec_eq(a, b) &&
-        !(lean_is_scalar(a) && lean_is_scalar(b) && lean_unbox(a) <= UINT16_MAX && lean_unbox(b) <= UINT16_MAX)) {
-        mpz aa = lean_is_scalar(a) ? mpz::of_size_t(lean_unbox(a)) : mpz_value(a);
-        mpz bb = lean_is_scalar(b) ? mpz::of_size_t(lean_unbox(b)) : mpz_value(b);
-        mpz g, s, t;
-        // Outside the zero/equal cases, the final Euclidean quotient is at least two.
-        // The alternating-sign coefficient recurrence then gives GMP's half-size bounds;
-        // equality occurs only when a/g or b/g is two, with the corresponding coefficient +1.
-        mpz_gcdext(g.get_mpz_t(), s.get_mpz_t(), t.get_mpz_t(), aa.get_mpz_t(), bb.get_mpz_t());
-        // Match the field order of Nat.ExtendedGcdResult.
-        obj_res r = lean_alloc_ctor(0, 3, 0);
-        lean_ctor_set(r, 0, mpz_to_nat(g));
-        lean_ctor_set(r, 1, mpz_to_int(s));
-        lean_ctor_set(r, 2, mpz_to_int(t));
-        return r;
-    }
-#endif
     lean_inc(a);
     lean_inc(b);
     return lean_nat_extended_gcd_fallback(a, b);
 }
 
-extern "C" LEAN_EXPORT lean_obj_res lean_nat_log2(b_lean_obj_arg a) {
-    if (lean_is_scalar(a)) {
-      unsigned res = 0;
-      size_t n = lean_unbox(a);
-      while (n >= 2) {
-        res++;
-        n /= 2;
-      }
-      return lean_box(res);
-    } else {
-      return lean_box(mpz_value(a).log2());
-    }
-}
-
-extern "C" LEAN_EXPORT size_t lean_nat_size_in_bytes(b_lean_obj_arg a) {
-    if (lean_is_scalar(a))
-        return sizeof(size_t); // a scalar occupies one machine word
-    return mpz_value(a).size_in_bytes();
-}
-
-static size_t trailing_zeros(size_t n) {
-    return n == 0 ? 0 : std::countr_zero(n);
-}
-
-extern "C" LEAN_EXPORT lean_obj_res lean_nat_trailing_zeros(b_lean_obj_arg a) {
-    return lean_usize_to_nat(lean_is_scalar(a)
-        ? trailing_zeros(lean_unbox(a)) : mpz_value(a).trailing_zeros());
-}
-
-extern "C" LEAN_EXPORT lean_obj_res lean_int_trailing_zeros(b_lean_obj_arg a) {
-    // Conversion to unsigned preserves the trailing zeros of negative scalars.
-    return lean_usize_to_nat(lean_is_scalar(a)
-        ? trailing_zeros(static_cast<size_t>(lean_scalar_to_int(a))) : mpz_value(a).trailing_zeros());
-}
-
-// =======================================
-// Integers
-
-inline object * mpz_to_int_core(mpz const & m) {
-    lean_assert(m < LEAN_MIN_SMALL_INT || m > LEAN_MAX_SMALL_INT);
-    return alloc_mpz(m);
-}
-
-static object * mpz_to_int(mpz const & m) {
-    if (m < LEAN_MIN_SMALL_INT || m > LEAN_MAX_SMALL_INT)
-        return mpz_to_int_core(m);
-    else
-        return lean_box(static_cast<unsigned>(m.get_int()));
-}
-
 extern "C" LEAN_EXPORT lean_obj_res lean_big_int_to_nat(lean_obj_arg a) {
-    lean_assert(!lean_is_scalar(a));
-    mpz m = mpz_value(a);
-    lean_dec(a);
-    return mpz_to_nat(m);
+    return lean_bignum_big_int_to_nat(a);
 }
 
 extern "C" LEAN_EXPORT object * lean_cstr_to_int(char const * n) {
-    return mpz_to_int(mpz(n));
+    return lean_bignum_int_of_decimal(lean_mk_string(n));
 }
 
 extern "C" LEAN_EXPORT object * lean_big_int_to_int(int n) {
-    return alloc_mpz(mpz(n));
+    return lean_bignum_big_int_to_int(static_cast<uint32_t>(n));
 }
 
 extern "C" LEAN_EXPORT object * lean_big_size_t_to_int(size_t n) {
-    return alloc_mpz(mpz::of_size_t(n));
+    return lean_bignum_big_size_t_to_int(n);
 }
 
 extern "C" LEAN_EXPORT object * lean_big_int64_to_int(int64_t n) {
-    if (LEAN_LIKELY(LEAN_MIN_SMALL_INT <= n && n <= LEAN_MAX_SMALL_INT)) {
-        return lean_box(static_cast<unsigned>(static_cast<int>(n)));
-    } else {
-        return mpz_to_int_core(mpz(n));
-    }
+    return lean_bignum_big_int64_to_int(static_cast<uint64_t>(n));
 }
 
-extern "C" LEAN_EXPORT object * lean_int_big_neg(object * a) {
-    return mpz_to_int(neg(mpz_value(a)));
-}
-
-extern "C" LEAN_EXPORT object * lean_int_big_add(object * a1, object * a2) {
-    if (lean_is_scalar(a1))
-        return mpz_to_int(lean_scalar_to_int(a1) + mpz_value(a2));
-    else if (lean_is_scalar(a2))
-        return mpz_to_int(mpz_value(a1) + lean_scalar_to_int(a2));
-    else
-        return mpz_to_int(mpz_value(a1) + mpz_value(a2));
-}
-
-extern "C" LEAN_EXPORT object * lean_int_big_sub(object * a1, object * a2) {
-    if (lean_is_scalar(a1))
-        return mpz_to_int(lean_scalar_to_int(a1) - mpz_value(a2));
-    else if (lean_is_scalar(a2))
-        return mpz_to_int(mpz_value(a1) - lean_scalar_to_int(a2));
-    else
-        return mpz_to_int(mpz_value(a1) - mpz_value(a2));
-}
-
-extern "C" LEAN_EXPORT object * lean_int_big_mul(object * a1, object * a2) {
-    if (lean_is_scalar(a1))
-        return mpz_to_int(lean_scalar_to_int(a1) * mpz_value(a2));
-    else if (lean_is_scalar(a2))
-        return mpz_to_int(mpz_value(a1) * lean_scalar_to_int(a2));
-    else
-        return mpz_to_int(mpz_value(a1) * mpz_value(a2));
-}
-
-extern "C" LEAN_EXPORT object * lean_int_big_div(object * a1, object * a2) {
-    if (lean_is_scalar(a1)) {
-        return mpz_to_int(lean_scalar_to_int(a1) / mpz_value(a2));
-    } else if (lean_is_scalar(a2)) {
-        int d = lean_scalar_to_int(a2);
-        if (d == 0)
-            return a2;
-        else
-            return mpz_to_int(mpz_value(a1) / d);
-    } else {
-        return mpz_to_int(mpz_value(a1) / mpz_value(a2));
-    }
-}
-
-extern "C" LEAN_EXPORT object * lean_int_big_div_exact(object * a1, object * a2) {
-    lean_assert(!lean_is_scalar(a1) || !lean_is_scalar(a2));
-    if (lean_is_scalar(a1)) {
-        // a1 is scalar, a2 isn't but a2 divides a1
-        // two possibilities:
-        // 1. a1 = 0 -> return 0 or
-        // 2. a1 = LEAN_MIN_SMALL_INT and a2 = LEAN_MAX_SMALL_INT + 1 = -a1 -> return -1
-        int n = lean_scalar_to_int(a1);
-        return n == 0 ? a1 : lean_box(static_cast<unsigned>(-1));
-    } else if (lean_is_scalar(a2)) {
-        int d = lean_scalar_to_int(a2);
-        lean_assert(d != 0);
-        return mpz_to_int(mpz::divexact(mpz_value(a1), mpz(d)));
-    } else {
-        return mpz_to_int(mpz::divexact(mpz_value(a1), mpz_value(a2)));
-    }
-}
-
-extern "C" LEAN_EXPORT object * lean_int_big_mod(object * a1, object * a2) {
-    if (lean_is_scalar(a1)) {
-        return mpz_to_int(mpz(lean_scalar_to_int(a1)) % mpz_value(a2));
-    } else if (lean_is_scalar(a2)) {
-        int i2 = lean_scalar_to_int(a2);
-        if (i2 == 0) {
-            lean_inc(a1);
-            return a1;
-        } else {
-            return mpz_to_int(mpz_value(a1) % mpz(i2));
-        }
-    } else {
-        return mpz_to_int(mpz_value(a1) % mpz_value(a2));
-    }
-}
-
-extern "C" LEAN_EXPORT object * lean_int_big_ediv(object * a1, object * a2) {
-    if (lean_is_scalar(a1)) {
-        return mpz_to_int(mpz::ediv(lean_scalar_to_int(a1), mpz_value(a2)));
-    } else if (lean_is_scalar(a2)) {
-        int d = lean_scalar_to_int(a2);
-        if (d == 0)
-            return a2;
-        else
-            return mpz_to_int(mpz::ediv(mpz_value(a1), d));
-    } else {
-        return mpz_to_int(mpz::ediv(mpz_value(a1), mpz_value(a2)));
-    }
-}
-
-extern "C" LEAN_EXPORT object * lean_int_big_emod(object * a1, object * a2) {
-    if (lean_is_scalar(a1)) {
-        return mpz_to_int(mpz::emod(lean_scalar_to_int(a1), mpz_value(a2)));
-    } else if (lean_is_scalar(a2)) {
-        int i2 = lean_scalar_to_int(a2);
-        if (i2 == 0) {
-            lean_inc(a1);
-            return a1;
-        } else {
-            return mpz_to_int(mpz::emod(mpz_value(a1), i2));
-        }
-    } else {
-        return mpz_to_int(mpz::emod(mpz_value(a1), mpz_value(a2)));
-    }
-}
-
-extern "C" LEAN_EXPORT bool lean_int_big_eq(object * a1, object * a2) {
-    if (lean_is_scalar(a1)) {
-        lean_assert(lean_scalar_to_int(a1) != mpz_value(a2))
-        return false;
-    } else if (lean_is_scalar(a2)) {
-        lean_assert(mpz_value(a1) != lean_scalar_to_int(a2))
-        return false;
-    } else {
-        return mpz_value(a1) == mpz_value(a2);
-    }
-}
-
-extern "C" LEAN_EXPORT bool lean_int_big_le(object * a1, object * a2) {
-    if (lean_is_scalar(a1)) {
-        return lean_scalar_to_int(a1) <= mpz_value(a2);
-    } else if (lean_is_scalar(a2)) {
-        return mpz_value(a1) <= lean_scalar_to_int(a2);
-    } else {
-        return mpz_value(a1) <= mpz_value(a2);
-    }
-}
-
-extern "C" LEAN_EXPORT bool lean_int_big_lt(object * a1, object * a2) {
-    if (lean_is_scalar(a1)) {
-        return lean_scalar_to_int(a1) < mpz_value(a2);
-    } else if (lean_is_scalar(a2)) {
-        return mpz_value(a1) < lean_scalar_to_int(a2);
-    } else {
-        return mpz_value(a1) < mpz_value(a2);
-    }
-}
-
-extern "C" LEAN_EXPORT bool lean_int_big_nonneg(object * a) {
-    return mpz_value(a) >= 0;
-}
+LEAN_BIGNUM_UNARY(object *, int_big_neg)
+LEAN_BIGNUM_BINARY(object *, int_big_add)
+LEAN_BIGNUM_BINARY(object *, int_big_sub)
+LEAN_BIGNUM_BINARY(object *, int_big_mul)
+LEAN_BIGNUM_BINARY(object *, int_big_div)
+LEAN_BIGNUM_BINARY(object *, int_big_div_exact)
+LEAN_BIGNUM_BINARY(object *, int_big_mod)
+LEAN_BIGNUM_BINARY(object *, int_big_ediv)
+LEAN_BIGNUM_BINARY(object *, int_big_emod)
+LEAN_BIGNUM_BINARY(uint8_t, int_big_eq)
+LEAN_BIGNUM_BINARY(uint8_t, int_big_le)
+LEAN_BIGNUM_BINARY(uint8_t, int_big_lt)
+LEAN_BIGNUM_UNARY(uint8_t, int_big_nonneg)
 
 // =======================================
 // UInt
 
-extern "C" LEAN_EXPORT uint8 lean_uint8_of_big_nat(b_obj_arg a) {
-    return mpz_value(a).mod8();
-}
-
-extern "C" LEAN_EXPORT uint16 lean_uint16_of_big_nat(b_obj_arg a) {
-    return mpz_value(a).mod16();
-}
-
-extern "C" LEAN_EXPORT uint32 lean_uint32_of_big_nat(b_obj_arg a) {
-    return mpz_value(a).mod32();
-}
-
-extern "C" LEAN_EXPORT uint64 lean_uint64_of_big_nat(b_obj_arg a) {
-    return mpz_value(a).mod64();
-}
-
-extern "C" LEAN_EXPORT usize lean_usize_of_big_nat(b_obj_arg a) {
-    return mpz_value(a).get_size_t();
-}
+LEAN_BIGNUM_UNARY(uint8, uint8_of_big_nat)
+LEAN_BIGNUM_UNARY(uint16, uint16_of_big_nat)
+LEAN_BIGNUM_UNARY(uint32, uint32_of_big_nat)
+LEAN_BIGNUM_UNARY(uint64, uint64_of_big_nat)
+LEAN_BIGNUM_UNARY(usize, usize_of_big_nat)
 
 // =======================================
 // IntX
 
+// The Lean exports return the two's complement bits as unsigned integers.
+extern "C" LEAN_EXPORT uint8 lean_bignum_int8_of_big_int(obj_arg a);
+extern "C" LEAN_EXPORT uint16 lean_bignum_int16_of_big_int(obj_arg a);
+extern "C" LEAN_EXPORT uint32 lean_bignum_int32_of_big_int(obj_arg a);
+extern "C" LEAN_EXPORT uint64 lean_bignum_int64_of_big_int(obj_arg a);
+extern "C" LEAN_EXPORT usize lean_bignum_isize_of_big_int(obj_arg a);
+
 extern "C" LEAN_EXPORT int8 lean_int8_of_big_int(b_obj_arg a) {
-    return mpz_value(a).smod8();
+    lean_inc(a); return static_cast<int8>(lean_bignum_int8_of_big_int(a));
 }
 
 extern "C" LEAN_EXPORT int16 lean_int16_of_big_int(b_obj_arg a) {
-    return mpz_value(a).smod16();
+    lean_inc(a); return static_cast<int16>(lean_bignum_int16_of_big_int(a));
 }
 
 extern "C" LEAN_EXPORT int32 lean_int32_of_big_int(b_obj_arg a) {
-    return mpz_value(a).smod32();
+    lean_inc(a); return static_cast<int32>(lean_bignum_int32_of_big_int(a));
 }
 
 extern "C" LEAN_EXPORT int64 lean_int64_of_big_int(b_obj_arg a) {
-    return mpz_value(a).smod64();
+    lean_inc(a); return static_cast<int64>(lean_bignum_int64_of_big_int(a));
 }
 
 extern "C" LEAN_EXPORT isize lean_isize_of_big_int(b_obj_arg a) {
-    if (sizeof(ptrdiff_t) == 8) {
-        return static_cast<isize>(mpz_value(a).smod64());
-    } else {
-        // We assert in int.h that the size of ptrdiff_t is 8 or 4.
-        return static_cast<isize>(mpz_value(a).smod32());
-    }
+    lean_inc(a); return static_cast<isize>(lean_bignum_isize_of_big_int(a));
 }
 
 // =======================================
@@ -1992,7 +1536,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_float_to_string(double a) {
 extern "C" LEAN_EXPORT double lean_float_scaleb(double a, b_lean_obj_arg b) {
    if (lean_is_scalar(b)) {
      return scalbn(a, lean_scalar_to_int(b));
-   } else if (a == 0 || mpz_value(b).is_neg()) {
+   } else if (a == 0 || !lean_int_big_nonneg(b)) {
      return 0;
    } else {
      return a * (1.0 / 0.0);
@@ -2044,7 +1588,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_float32_to_string(float a) {
 extern "C" LEAN_EXPORT float lean_float32_scaleb(float a, b_lean_obj_arg b) {
    if (lean_is_scalar(b)) {
      return scalbn(a, lean_scalar_to_int(b));
-   } else if (a == 0 || mpz_value(b).is_neg()) {
+   } else if (a == 0 || !lean_int_big_nonneg(b)) {
      return 0;
    } else {
      return a * (1.0 / 0.0);
@@ -2651,13 +2195,21 @@ extern "C" LEAN_EXPORT uint64_t lean_slice_hash(b_obj_arg s) {
 // =======================================
 // ByteArray & FloatArray
 
+/* The value of a big `Nat` (see `Init.Data.Nat.BigRuntime`), which must fit in a `size_t`. */
+static size_t big_nat_to_size_t(b_obj_arg n) {
+    size_t nbytes = lean_sarray_size(n);
+    if (nbytes > sizeof(size_t)) lean_internal_panic_out_of_memory();
+    // The digits are little-endian, as are all supported platforms.
+    size_t v = 0;
+    memcpy(&v, lean_sarray_cptr(n), nbytes);
+    return v;
+}
+
 size_t lean_nat_to_size_t(obj_arg n) {
     if (lean_is_scalar(n)) {
         return lean_unbox(n);
     } else {
-        mpz const & v = mpz_value(n);
-        if (!v.is_size_t()) lean_internal_panic_out_of_memory();
-        size_t sz = v.get_size_t();
+        size_t sz = big_nat_to_size_t(n);
         lean_dec(n);
         return sz;
     }
@@ -2807,9 +2359,7 @@ extern "C" LEAN_EXPORT object * lean_mk_array(obj_arg n, obj_arg v) {
     if (lean_is_scalar(n)) {
         sz = lean_unbox(n);
     } else {
-        mpz const & v = mpz_value(n);
-        if (!v.is_size_t()) lean_internal_panic_out_of_memory();
-        sz = v.get_size_t();
+        sz = big_nat_to_size_t(n);
         lean_dec(n);
     }
     object * r    = lean_alloc_array(sz, sz);

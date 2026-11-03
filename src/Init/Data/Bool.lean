@@ -713,6 +713,10 @@ section
 theorem Bool.rec_eq {α : Sort _} (b : Bool) {x y : α} : Bool.rec y x b = if b then x else y := by
   cases b <;> simp
 
+theorem Bool.rec_dep_eq {α : Sort u} (b : Bool) (t : b = true → α) (e : b = false → α) :
+    @Bool.rec (fun a => b = a → α) e t b rfl = if h : b then t h else e (by simpa using h) := by
+  cases b <;> simp
+
 /-! ### Deprecations -/
 
 @[deprecated Bool.eq_false_of_ne_true (since := "2026-07-24")]

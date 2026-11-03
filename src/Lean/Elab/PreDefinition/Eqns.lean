@@ -12,6 +12,7 @@ import Lean.Meta.Match.NamedPatterns
 import Lean.Meta.Tactic.Simp.Main
 import Lean.Meta.Tactic.Split
 import Lean.Meta.Tactic.CasesOnStuckLHS
+import Lean.Meta.LetToHave
 
 /-!
 This module implements the generation of equational theorems, given unfolding theorems.
@@ -157,7 +158,9 @@ partial def saveEqn (mvarId : MVarId) : StateRefT (Array Expr) MetaM Unit := mva
   let fvarState := collectFVars {} target
   let fvarState ← (← getLCtx).foldrM (init := fvarState) fun decl fvarState => do
     if fvarState.fvarSet.contains decl.fvarId then
-      return collectFVars fvarState (← instantiateMVars decl.type)
+      let fvarState := collectFVars fvarState (← instantiateMVars decl.type)
+      let some value := decl.value? | return fvarState
+      return collectFVars fvarState (← instantiateMVars value)
     else
       return fvarState
   let mut fvarIdSet := fvarState.fvarSet
@@ -174,10 +177,28 @@ partial def saveEqn (mvarId : MVarId) : StateRefT (Array Expr) MetaM Unit := mva
             modified := true
             (fvarIdSet, fvarIds) ← pushDecl fvarIdSet fvarIds decl
   until !modified
-  let type ← mkForallFVars (fvarIds.map mkFVar) target
+  let type ← mkEqnType fvarIds target
   let type ← simpEqnType type
   modify (·.push type)
 where
+  /--
+  `∀ xs, lhs = let ls := vs; rhs` for the let-declarations `ls` among `fvarIds`, which
+  `introRHSLet?` introduced, with `have` for the nondependent ones. Zeta-reduces the `ls` if `lhs`
+  or some `x` depends on them.
+  -/
+  mkEqnType (fvarIds : Array FVarId) (target : Expr) : MetaM Expr := do
+    let ls ← fvarIds.filterM fun fvarId => return (← fvarId.getDecl).isLet
+    let type ← mkForallFVars (fvarIds.map mkFVar) target
+    if ls.isEmpty then return type
+    let xs := fvarIds.filter (!ls.contains ·)
+    let some (_, lhs, rhs) := target.eq? | zetaReduce type
+    let isL (fvarId : FVarId) := ls.contains fvarId
+    if lhs.hasAnyFVar isL then return ← zetaReduce type
+    if ← xs.anyM fun x => return (← instantiateMVars (← x.getType)).hasAnyFVar isL then
+      return ← zetaReduce type
+    let rhs ← letToHave (← mkLetFVars (ls.map mkFVar) rhs (usedLetOnly := false))
+    mkForallFVars (xs.map mkFVar) (← mkEq lhs rhs)
+
   /--
     We say the type/proposition is "irrelevant" if
     1- It does not contain any variable in `fvarIdSet` OR
@@ -206,22 +227,6 @@ where
         (fvarIdSet, fvarIds) ← pushDecl fvarIdSet fvarIds (← fvarId.getDecl)
     return (fvarIdSet, fvarIds)
 
-/--
-Zeta reduces `let` and `have` while consuming metadata.
-Returns true if progress is made.
--/
-partial def expand (progress : Bool) (e : Expr) : Bool × Expr :=
-  match e with
-  | Expr.letE _ _ v b _ => expand true (b.instantiate1 v)
-  | Expr.mdata _ b      => expand true b
-  | e                   => (progress, e)
-
-def expandRHS? (mvarId : MVarId) : MetaM (Option MVarId) := do
-  let target ← mvarId.getType'
-  let some (_, lhs, rhs) := target.eq? | return none
-  let (true, rhs') := expand false rhs | return none
-  return some (← mvarId.replaceTargetDefEq (← mkEq lhs rhs'))
-
 
 /--
   Quick filter for deciding whether to use `simpMatch?` at `mkEqnTypes`.
@@ -239,17 +244,19 @@ def shouldUseSimpMatch (e : Expr) : MetaM Bool := do
   return (← (find e).run) matches .error _
 
 def findMatchToSplit? (deepRecursiveSplit : Bool) (env : Environment) (e : Expr)
-    (declNames : Array Name) (exceptionSet : ExprSet) : Option Expr :=
+    (declNames : Array Name) (exceptionSet : ExprSet) (isLetVar : FVarId → Bool := fun _ => false) :
+    Option Expr :=
   e.findExt? fun e => Id.run do
     if e.hasLooseBVars || exceptionSet.contains e then
       return Expr.FindStep.visit
     else if let some info := isMatcherAppCore? env e then
       let args := e.getAppArgs
-      -- If none of the discriminants is a free variable, then it is not worth splitting the match
+      -- If none of the discriminants is a free variable, then it is not worth splitting the match.
+      -- A `let`-variable from `introRHSLet?` stands for its value, which is no free variable.
       let mut hasFVarDiscr := false
       for i in info.getFirstDiscrPos...(info.getFirstDiscrPos + info.numDiscrs) do
         let discr := args[i]!
-        if discr.isFVar then
+        if discr.isFVar && !isLetVar discr.fvarId! then
           hasFVarDiscr := true
           break
       unless hasFVarDiscr do
@@ -277,9 +284,11 @@ def findMatchToSplit? (deepRecursiveSplit : Bool) (env : Environment) (e : Expr)
 
 partial def splitMatch? (mvarId : MVarId) (declNames : Array Name) : MetaM (Option (List MVarId)) := commitWhenSome? do
   let target ← mvarId.getType'
+  let lctx ← mvarId.withContext getLCtx
+  let isLetVar (fvarId : FVarId) := (lctx.find? fvarId).any (·.isLet)
   let rec go (badCases : ExprSet) : MetaM (Option (List MVarId)) := do
     if let some e := findMatchToSplit? (backward.eqns.deepRecursiveSplit.get (← getOptions)) (← getEnv)
-                                       target declNames badCases then
+                                       target declNames badCases isLetVar then
       try
         Meta.Split.splitMatch mvarId e
       catch ex =>
@@ -290,6 +299,24 @@ partial def splitMatch? (mvarId : MVarId) (declNames : Array Name) : MetaM (Opti
       return none
   go {}
 
+/--
+Introduces the `let` or `have` at the root of the right-hand side as a let-declaration, so that a
+`match` below it can be split, and consumes metadata there. Zeta-reduces the declaration if its
+value has a `match` that `splitMatch?` splits.
+-/
+def introRHSLet? (mvarId : MVarId) (declNames : Array Name) : MetaM (Option MVarId) := do
+  let target ← mvarId.getType'
+  let some (α, lhs, rhs) := target.eq? | return none
+  match rhs with
+  | .mdata _ b => return some (← mvarId.replaceTargetDefEq (← mkEq lhs b))
+  | .letE n t v b nondep =>
+    let deep := backward.eqns.deepRecursiveSplit.get (← getOptions)
+    if (findMatchToSplit? deep (← getEnv) v declNames {}).isSome then
+      return some (← mvarId.replaceTargetDefEq (← mkEq lhs (b.instantiate1 v)))
+    let mvarId ← mvarId.replaceTargetDefEq (.letE n t v (mkApp3 target.getAppFn α lhs b) nondep)
+    return some (← mvarId.intro1P).2
+  | _ => return none
+
 partial def mkEqnTypes (declNames : Array Name) (mvarId : MVarId) : MetaM (Array Expr) := do
   let (_, eqnTypes) ← go mvarId |>.run #[]
   return eqnTypes
@@ -297,14 +324,14 @@ where
   go (mvarId : MVarId) : StateRefT (Array Expr) MetaM Unit := do
     trace[Elab.definition.eqns] "mkEqnTypes step\n{MessageData.ofGoal mvarId}"
 
-    -- The `let`s and `have`s at the root of the RHS are zeta-reduced only to expose a `match`.
-    let mvarId' := (← expandRHS? mvarId).getD mvarId
+    if let some mvarId ← introRHSLet? mvarId declNames then
+      return (← go mvarId)
 
-    if (← shouldUseSimpMatch (← mvarId'.getType')) then
-      if let some mvarId ← simpMatch? mvarId' then
+    if (← shouldUseSimpMatch (← mvarId.getType')) then
+      if let some mvarId ← simpMatch? mvarId then
         return (← go mvarId)
 
-    if let some mvarIds ← splitMatch? mvarId' declNames then
+    if let some mvarIds ← splitMatch? mvarId declNames then
       return (← mvarIds.forM go)
 
     saveEqn mvarId

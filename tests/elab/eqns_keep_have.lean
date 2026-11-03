@@ -1,6 +1,6 @@
 /-!
-Tests that equation lemmas zeta-reduce the `have`s at the root of the right-hand side only when
-this exposes a `match` to split, so that `vcgen +jp [f]` sees the join points of `f` (#16122).
+Tests that equation lemmas keep the `have`s at the root of the right-hand side, also above a split
+`match`, so that `vcgen +jp [f]` sees the join points of `f` (#16122).
 -/
 
 def f (x : Nat) : Nat :=
@@ -33,15 +33,45 @@ info: prog2.eq_1 (b : Nat → Bool) :
 -/
 #guard_msgs in #check prog2.eq_1
 
--- The `have` is zeta-reduced to split the `match`.
+-- The `have` stays above the split `match`.
 def h (x : Option Nat) : Nat :=
   have y := 1
   match x with
   | some a => a + y
   | none => y
 
-/-- info: h.eq_1 (a : Nat) : h (some a) = a + 1 -/
+/--
+info: h.eq_1 (a : Nat) :
+  h (some a) =
+    have y := 1;
+    a + y
+-/
 #guard_msgs in #check h.eq_1
+
+-- The join point of `do` stays above the split `match`, so `vcgen +jp [rootMatch]` shares it for a
+-- call `rootMatch (k + 1) b`.
+def rootMatch (x : Nat) (b : Bool) : StateM Nat Nat := do
+  let mut y := 0
+  match x with
+  | 0 => y := 1
+  | _ + 1 => if b then y := 2 else y := 3
+  let s ← get
+  return y + s
+
+/--
+info: rootMatch.eq_2 (b : Bool) (n : Nat) :
+  rootMatch n.succ b =
+    have __do_jp := fun __r y => do
+      let s ← get
+      pure (y + s);
+    if b = true then
+      have y := 2;
+      __do_jp () y
+    else
+      have y := 3;
+      __do_jp () y
+-/
+#guard_msgs in #check rootMatch.eq_2
 
 -- A `have` in a `match` alternative.
 def k (x : Option Nat) : Nat :=
@@ -83,3 +113,13 @@ info: w.eq_1 (n : Nat) :
       y + y
 -/
 #guard_msgs in #check w.eq_1
+
+-- The `have` is zeta-reduced because its value has the `match` to split.
+def m (x : Option Nat) : Nat :=
+  have y := match x with
+    | some a => a
+    | none => 0
+  y + 1
+
+/-- info: m.eq_1 (a : Nat) : m (some a) = a + 1 -/
+#guard_msgs in #check m.eq_1

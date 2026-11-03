@@ -40,18 +40,25 @@ def Decl.uniqueIds (d : Decl) : Bool :=
 
 namespace NormalizeIds
 
-abbrev M := ReaderT IndexRenaming Id
+/-- Renamings for variables and join points. The two maps must be kept apart: `VarId`s and
+`JoinPointId`s share a single index space, so the same index may denote both a variable and a
+join point within one declaration. Sharing one map lets a join point overwrite the renaming of
+a variable with the same index, which produces dangling variable references. -/
+structure Renaming where
+  vars : IndexRenaming := {}
+  jps  : IndexRenaming := {}
 
-def normIndex (x : Index) : M Index := fun m =>
-  match m.get? x with
-  | some y => y
-  | none   => x
+abbrev M := ReaderT Renaming Id
 
-def normVar (x : VarId) : M VarId :=
-  VarId.mk <$> normIndex x.idx
+def normVar (x : VarId) : M VarId := fun r =>
+  VarId.mk <| match r.vars.get? x.idx with
+    | some y => y
+    | none   => x.idx
 
-def normJP (x : JoinPointId) : M JoinPointId :=
-  JoinPointId.mk <$> normIndex x.idx
+def normJP (x : JoinPointId) : M JoinPointId := fun r =>
+  JoinPointId.mk <| match r.jps.get? x.idx with
+    | some y => y
+    | none   => x.idx
 
 def normArg : Arg → M Arg
   | .var x => .var <$> normVar x
@@ -75,31 +82,33 @@ def normExpr : Expr → M Expr
   | Expr.isShared x,     m => Expr.isShared (normVar x m)
   | e@(Expr.lit _),      _ =>  e
 
-abbrev N := ReaderT IndexRenaming (StateM Nat)
+abbrev N := ReaderT Renaming (StateM Nat)
 
-@[inline] def withVar {α : Type} (x : VarId) (k : VarId → N α) : N α := fun m => do
+@[inline] def withVar {α : Type} (x : VarId) (k : VarId → N α) : N α := fun r => do
   let n ← getModify (fun n => n + 1)
-  k { idx := n } (m.insert x.idx n)
+  k { idx := n } { r with vars := r.vars.insert x.idx n }
 
-@[inline] def withJP {α : Type} (x : JoinPointId) (k : JoinPointId → N α) : N α := fun m => do
+@[inline] def withJP {α : Type} (x : JoinPointId) (k : JoinPointId → N α) : N α := fun r => do
   let n ← getModify (fun n => n + 1)
-  k { idx := n } (m.insert x.idx n)
+  k { idx := n } { r with jps := r.jps.insert x.idx n }
 
-@[inline] def withParams {α : Type} (ps : Array Param) (k : Array Param → N α) : N α := fun m => do
-  let m ← ps.foldlM (init := m) fun m p => do
+@[inline] def withParams {α : Type} (ps : Array Param) (k : Array Param → N α) : N α := fun r => do
+  let r ← ps.foldlM (init := r) fun r p => do
     let n ← getModify fun n => n + 1
-    return m.insert p.x.idx n
-  let ps := ps.map fun p => { p with x := normVar p.x m }
-  k ps m
+    return { r with vars := r.vars.insert p.x.idx n }
+  let ps := ps.map fun p => { p with x := normVar p.x r }
+  k ps r
 
 instance : MonadLift M N :=
   ⟨fun x m => return x m⟩
 
 partial def normFnBody : FnBody → N FnBody
   | FnBody.vdecl x t v b    => do let v ← normExpr v; withVar x fun x => return FnBody.vdecl x t v (← normFnBody b)
-  | FnBody.jdecl j ys v b   => do
+  | FnBody.jdecl j ys v b   => withJP j fun j => do
+    -- the join point id is renamed before its body so that a recursive `jmp` is renamed too
     let (ys, v) ← withParams ys fun ys => do let v ← normFnBody v; pure (ys, v)
-    withJP j fun j => return FnBody.jdecl j ys v (← normFnBody b)
+    -- the parameters are not in scope in the continuation, so it is normalized outside `withParams`
+    return FnBody.jdecl j ys v (← normFnBody b)
   | FnBody.set x i y b      => return FnBody.set (← normVar x) i (← normArg y) (← normFnBody b)
   | FnBody.uset x i y b     => return FnBody.uset (← normVar x) i (← normVar y) (← normFnBody b)
   | FnBody.sset x i o y t b => return FnBody.sset (← normVar x) i o (← normVar y) t (← normFnBody b)
@@ -117,14 +126,17 @@ partial def normFnBody : FnBody → N FnBody
 
 def normDecl (d : Decl) : N Decl :=
   match d with
-  | Decl.fdecl (xs := xs) (body := b) .. => withParams xs fun _ => return d.updateBody! (← normFnBody b)
+  | Decl.fdecl f xs t b info =>
+    -- the renamed parameters must be installed in the declaration, otherwise the body refers to
+    -- indices that no longer match the ones the parameters are declared with
+    withParams xs fun xs => return Decl.fdecl f xs t (← normFnBody b) info
   | other => pure other
 
 end NormalizeIds
 
 /-- Create a declaration equivalent to `d` s.t. `d.normalizeIds.uniqueIds == true` -/
 def Decl.normalizeIds (d : Decl) : Decl :=
-  (NormalizeIds.normDecl d {}).run' 1
+  (NormalizeIds.normDecl d ⟨{}, {}⟩).run' 1
 
 /-! Apply a function `f : VarId → VarId` to variable occurrences.
    The following functions assume the IR code does not have variable shadowing. -/

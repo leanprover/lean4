@@ -86,6 +86,8 @@ def processNextEq : M Bool := do
           let mvarId ← s.mvarId.clear eq
           modify fun s => { s with mvarId }
           return true
+        if (← s.mvarId.closeIfDistinctFloatLits (mkFVar eq) lhs rhs) then
+          return false
         if rhs.isFVar && s.xs.contains rhs.fvarId! then
           substRHS eq rhs.fvarId!
           return true

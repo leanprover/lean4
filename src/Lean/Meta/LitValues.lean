@@ -273,6 +273,17 @@ def getFloat32Value? (e : Expr) : MetaM (Option Float32) := do
   let some v ← getFloat32Lit? a | return none
   return some (-v)
 
+/--
+If `a` and `b` are both `Float` or both `Float32` literals, returns whether they denote the same
+value. Values are compared by bit pattern, consistent with the `DecidableEq` instances.
+-/
+def floatLitValuesEq? (a b : Expr) : MetaM (Option Bool) := do
+  if let some x ← getFloatValue? a then
+    if let some y ← getFloatValue? b then return some (x.toBits == y.toBits)
+  if let some x ← getFloat32Value? a then
+    if let some y ← getFloat32Value? b then return some (x.toBits == y.toBits)
+  return none
+
 -- TODO: extensibility
 
 /--

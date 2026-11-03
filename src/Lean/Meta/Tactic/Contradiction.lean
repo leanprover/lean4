@@ -11,6 +11,7 @@ public import Lean.Meta.Tactic.Cases
 public import Lean.Meta.Tactic.Apply
 import Lean.Meta.HasNotBit
 import Lean.Meta.Tactic.Simp.Rewrite
+import Lean.Meta.LitValues
 
 public section
 
@@ -150,6 +151,18 @@ private def processGenDiseq (mvarId : MVarId) (localDecl : LocalDecl) : MetaM Bo
     return true
   else
     return false
+
+/--
+Closes `mvarId` if `h : lhs = rhs` equates two distinct `Float`/`Float32` literals, and returns
+`true` in that case. Tactics such as `injection` would instead unfold the float model on both sides,
+which is very slow.
+-/
+def _root_.Lean.MVarId.closeIfDistinctFloatLits (mvarId : MVarId) (h lhs rhs : Expr) :
+    MetaM Bool := mvarId.withContext do
+  unless (← floatLitValuesEq? lhs rhs) == some false do return false
+  let hne ← mkDecideProof (mkNot (← mkEq lhs rhs))
+  mvarId.assign (← mkAbsurd (← mvarId.getType) h hne)
+  return true
 
 /--
 Return `true` if goal `mvarId` has contradictory hypotheses.

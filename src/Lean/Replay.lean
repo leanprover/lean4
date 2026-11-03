@@ -109,8 +109,9 @@ partial def replayConstant (name : Name) : M Unit := do
           let ctorInfo ← all.mapM fun ci => do
             pure (ci, ← ci.inductiveVal!.ctors.mapM fun n => do
               pure ((← read).newConstants[n]!))
-          -- Make sure we are really finished with the constructors.
-          for (_, ctors) in ctorInfo do
+          -- Make sure we are really finished with the other types and the constructors.
+          for (ci, ctors) in ctorInfo do
+            replayConstants ci.getUsedConstantsAsSet
             for ctor in ctors do
               replayConstants ctor.getUsedConstantsAsSet
           let types : List InductiveType := ctorInfo.map fun ⟨ci, ctors⟩ =>

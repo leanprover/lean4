@@ -31,7 +31,7 @@ If the option `trace.grind.*` is enabled, additional details are printed.
 
 By default, `#grind_lint` uses the following `grind` configuration:
 ```
-  splits       := 0
+  branches     := 0
   lookahead    := false
   mbtc         := false
   ematch       := 20

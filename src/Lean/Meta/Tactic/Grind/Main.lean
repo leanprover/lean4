@@ -212,6 +212,8 @@ structure Result where
   records are needed to print it after the `SymM` run is over.
   -/
   rings       : Array Sym.Arith.CommRing
+  /-- See `Grind.State.numBranches`. -/
+  numBranches : Nat
 
 private def countersToMessageData (header : String) (cls : Name) (data : Array (Name × Nat)) : MetaM MessageData := do
   let data := data.qsort fun (d₁, c₁) (d₂, c₂) => if c₁ == c₂ then Name.lt d₁ d₂ else c₁ > c₂
@@ -260,7 +262,7 @@ def Result.hasFailed (r : Result) : Bool :=
   r.failure?.isSome
 
 def Result.toMessageData (result : Result) : MetaM MessageData := do
-  let mut msgs ← result.failure?.toList.mapM (goalToMessageData · result.config result.rings)
+  let mut msgs ← result.failure?.toList.mapM (goalToMessageData · result.config result.rings result.numBranches)
   if result.config.verbose then
     let mut issues := result.issues
     -- We did not find the following very useful in practice.
@@ -286,7 +288,7 @@ def Result.toErrorMessageData (result : Result) (tacticName : Name := result.ide
     return m!"`{tacticName}` failed\n{← result.toMessageData}"
   else
     let ts ← match result.failure? with
-      | some goal => getThresholdsReached goal result.config
+      | some goal => getThresholdsReached goal result.config result.numBranches
       | none => pure #[]
     let items := ts.map (·.toConfigItem)
     let reached := match items.toList with
@@ -419,7 +421,8 @@ def mkResult (params : Params) (failure? : Option Goal) : GrindM Result := do
       if let some msg ← mkGlobalDiag counters simp splitDiags ematchDiags then
         logInfo msg
   let rings := (← Sym.Arith.getArithState).rings
-  return { identity := params.identity, failure?, issues, config := params.config, counters, simp, splitDiags, ematchDiags, rings }
+  let numBranches := (← get).numBranches
+  return { identity := params.identity, failure?, issues, config := params.config, counters, simp, splitDiags, ematchDiags, rings, numBranches }
 
 def GrindM.runAtGoal (mvarId : MVarId) (params : Params) (k : Goal → GrindM α) (evalTactic? : Option EvalTactic := none) : MetaM α := do
   let go : GrindM α := withGTransparency do

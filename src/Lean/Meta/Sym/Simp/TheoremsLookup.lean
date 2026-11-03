@@ -25,23 +25,18 @@ namespace Lean.Meta.Sym.Simp
 def Theorems.insertMany (thms : Theorems) (toInsert : Array Theorem) : Theorems :=
   Array.foldl Theorems.insert thms toInsert
 
-end Lean.Meta.Sym.Simp
-
-namespace Lean.Meta.Tactic.Cbv
-open Lean.Meta.Sym.Simp
-
-public structure CbvTheoremsLookupState where
+public structure TheoremsLookupState where
   eqnTheorems : PHashMap Name Theorems := {}
   unfoldTheorems : PHashMap Name Theorem := {}
   matchTheorems : PHashMap Name Theorems := {}
   deriving Inhabited
 
-builtin_initialize cbvTheoremsLookup : EnvExtension CbvTheoremsLookupState ←
+builtin_initialize theoremsLookup : EnvExtension TheoremsLookupState ←
   registerEnvExtension (pure {}) (asyncMode := .local)
 
 public def getEqnTheorems (fnName : Name) : MetaM Theorems := do
   let env ← getEnv
-  let cache := cbvTheoremsLookup.getState env
+  let cache := theoremsLookup.getState env
   if let some thms := cache.eqnTheorems.find? fnName then
     return thms
   else
@@ -50,13 +45,13 @@ public def getEqnTheorems (fnName : Name) : MetaM Theorems := do
     let thms := Theorems.insertMany {} <| ← eqnNames.mapM mkTheoremFromDecl
     -- Store in cache
     modifyEnv fun env =>
-      cbvTheoremsLookup.modifyState env fun cache =>
+      theoremsLookup.modifyState env fun cache =>
         { cache with eqnTheorems := cache.eqnTheorems.insert fnName thms }
     return thms
 
 public def getUnfoldTheorem (fnName : Name) : MetaM (Option Theorem) := do
   let env ← getEnv
-  let cache := cbvTheoremsLookup.getState env
+  let cache := theoremsLookup.getState env
   if let some thm := cache.unfoldTheorems.find? fnName then
     return some thm
   else
@@ -64,13 +59,13 @@ public def getUnfoldTheorem (fnName : Name) : MetaM (Option Theorem) := do
     let thm ← mkTheoremFromDecl unfoldEqn
 
     modifyEnv fun env =>
-      cbvTheoremsLookup.modifyState env fun cache =>
+      theoremsLookup.modifyState env fun cache =>
         { cache with unfoldTheorems := cache.unfoldTheorems.insert fnName thm }
     return some thm
 
 public def getMatchTheorems (matcherName : Name) : MetaM Theorems := do
   let env ← getEnv
-  let cache := cbvTheoremsLookup.getState env
+  let cache := theoremsLookup.getState env
   if let some thms := cache.matchTheorems.find? matcherName then
     return thms
   else
@@ -78,8 +73,8 @@ public def getMatchTheorems (matcherName : Name) : MetaM Theorems := do
     let thms := Theorems.insertMany {} <| ← eqns.eqnNames.mapM mkTheoremFromDecl
 
     modifyEnv fun env =>
-      cbvTheoremsLookup.modifyState env fun cache =>
+      theoremsLookup.modifyState env fun cache =>
         { cache with matchTheorems := cache.matchTheorems.insert matcherName thms }
     return thms
 
-end Lean.Meta.Tactic.Cbv
+end Lean.Meta.Sym.Simp

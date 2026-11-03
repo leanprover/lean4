@@ -19,6 +19,12 @@ def getNatValue? (e : Expr) : OptionT Id Nat := do
   let .lit (.natVal n) := n | failure
   return n
 
+/-- Returns `true` if `e` is a `Nat` literal (`OfNat.ofNat _ n _` with a raw literal `n`). -/
+def isNatValue (e : Expr) : Bool :=
+  match_expr e with
+  | OfNat.ofNat _ n _ => n.isRawNatLit
+  | _ => false
+
 def getIntValue? (e : Expr) : OptionT Id Int := do
   let_expr Neg.neg _ _ a := e | getNatValue? e
   let v : Int ← getNatValue? a

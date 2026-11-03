@@ -20,6 +20,10 @@ extern "C" LEAN_EXPORT uint8 lean_sharecommon_eq(b_obj_arg o1, b_obj_arg o2) {
     uint8_t tag = lean_ptr_tag(o1);
     if (tag != lean_ptr_tag(o2)) return false;
     if (lean_ptr_other(o1) != lean_ptr_other(o2)) return false;
+    if (tag == LeanScalarArray) {
+        // Ignore the capacity, which differs e.g. between equal big numbers.
+        return memcmp(lean_sarray_cptr(o1), lean_sarray_cptr(o2), sz1 - sizeof(lean_sarray_object)) == 0;
+    }
     size_t header_sz = sizeof(lean_object);
     lean_assert(sz1 >= header_sz);
     // compare objects' bodies
@@ -33,6 +37,10 @@ extern "C" LEAN_EXPORT uint64_t lean_sharecommon_hash(b_obj_arg o) {
     uint8_t tag = lean_ptr_tag(o);
     // hash relevant parts of the header
     unsigned init = hash(tag, lean_ptr_other(o));
+    if (tag == LeanScalarArray) {
+        // Ignore the capacity, as in `lean_sharecommon_eq`.
+        return hash_str(sz - sizeof(lean_sarray_object), lean_sarray_cptr(o), init);
+    }
     // hash body
     return hash_str(sz - header_sz, reinterpret_cast<unsigned char const *>(o) + header_sz, init);
 }

@@ -60,7 +60,14 @@ def elabAttr [Monad m] [MonadEnv m] [MonadResolveName m] [MonadError m] [MonadMa
       | .str _ s => pure <| Name.mkSimple s
       | _ => throwErrorAt attr  "Unknown attribute"
     let .ok _impl := getAttributeImpl (← getEnv) attrName
-      | throwError "Unknown attribute `[{attrName}]`"
+      | if attr.getKind == ``Parser.Attr.simple then
+          throwError "Unknown attribute `[{attrName}]`"
+        else
+          -- The attribute has dedicated syntax (e.g. from `register_label_attr`), but nothing has
+          -- registered its implementation yet.
+          throwError "Unknown attribute `[{attrName}]`: its syntax is declared, but its implementation is \
+            not available yet. Attributes registered with `initialize` or `register_label_attr` can only \
+            be used in modules that import the file declaring them."
     if let .ok impl := getAttributeImpl (← getEnv) attrName then
       if regularInitAttr.getParam? (← getEnv) impl.ref |>.isSome then  -- skip `builtin_initialize` attributes
         -- Reject attribute uses where the implementation's module has been loaded for IR only as

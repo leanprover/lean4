@@ -134,8 +134,7 @@ info: Try these:
   [apply] ·
     induction k
     · grind => instantiate only [hyperoperation, = add_zero]
-    ·
-      grind =>
+    · grind =>
         instantiate only [hyperoperation, = add_succ]
         instantiate only [hyperoperation]
 -/

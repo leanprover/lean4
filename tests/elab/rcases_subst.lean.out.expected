@@ -1,0 +1,73 @@
+a b : Nat
+h : (a, b).fst = (a, b).snd
+⊢ True
+case zero
+v : Fin (0 + 1)
+h : ↑v = 0
+⊢ True
+case succ
+m : Nat
+v : Fin (m + 1 + 1)
+h : ↑v = 0
+⊢ True
+c d : Nat
+⊢ True
+c d : Nat
+⊢ True
+a : Nat
+⊢ True
+⊢ True
+k : 3 < 5
+m : Nat
+hm : m = 3
+⊢ True
+i : Fin 3
+j : Nat
+⊢ True
+case inl
+z a : Nat
+ha : a = 0
+⊢ True
+case inr
+z b : Nat
+hb : b = 1
+c : Nat
+hc : c = b
+⊢ True
+case mk
+x : Quot fun x x_1 => True
+z : Nat
+h : Quot.mk (fun x x_1 => True) z = Quot.mk (fun x x_1 => True) z
+u v : Nat
+⊢ True
+p : Nat × Nat × Nat
+a b c : Nat
+hp : p = (a, b, c)
+⊢ True
+case zero
+n : Nat
+p : Fin n × Nat
+hn : n = 0
+i : Fin 0
+j : Nat
+hp : p ≍ (i, j)
+⊢ True
+case succ
+n : Nat
+p : Fin n × Nat
+m : Nat
+hn : n = m + 1
+i : Fin (m + 1)
+j : Nat
+hp : p ≍ (i, j)
+⊢ True
+a : Nat
+ha : a = 1
+b : Nat
+hb : b = a + 1
+c : Nat
+hc : c = b + 1
+⊢ True
+n : Nat
+hn : n = 0
+⊢ True

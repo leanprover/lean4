@@ -25,7 +25,7 @@ example : Nat.powMod 2 10 0   = 1024 := rfl
 #guard Nat.powMod 0 (2 ^ 32) 0 = 0
 
 /-! Kernel reduction (`decide`) and the compiled extern (`native_decide`) must
-agree, cross-validating the square-and-multiply model against `mpz_powm`. A
+agree, cross-validating the square-and-multiply model against the runtime's `lean_nat_powmod`. A
 divergence here would make `native_decide` unsound. -/
 -- Fermat's little theorem on a small prime: `3 ^ 100 ≡ 1 (mod 101)`.
 example : Nat.powMod 3 100 101 = 1 := by decide

@@ -239,6 +239,23 @@ private def cleanupNatOffsetMajor (e : Expr) : MetaM Expr := do
   else
     return mkNatSucc (mkNatAdd e (toExpr (k - 1)))
 
+/-- Checks whether a recursor major is a proof. If `isProofQuick` fails, rather than run `isProp (← inferType major)`, we infer the sort of the major using the recursor's info. -/
+private def isMajorProof (recVal : RecursorVal) (recLvls : List Level) (major : Expr) : MetaM Bool := do
+  match ← isProofQuick major with
+    | .true => pure true
+    | .false => pure false
+    | .undef => do
+      let indInfo ← getConstInfo recVal.getMajorInduct
+      -- TODO once the large elimination field exists in `inductiveVal`s, use that to short-circuit here.
+      let lvls := if indInfo.levelParams.length != recLvls.length then recLvls.tail! else recLvls
+      let u := (inductSort indInfo.type).instantiateParams indInfo.levelParams lvls
+      return u.isAlwaysZero
+where
+  inductSort : Expr → Level
+    | .forallE _ _ cd _ => inductSort cd
+    | .sort u => u
+    | _ => unreachable!
+
 /-- Auxiliary function for reducing recursor applications. -/
 private def reduceRec (recVal : RecursorVal) (recLvls : List Level) (recArgs : Array Expr) (failK : Unit → MetaM α) (successK : Expr → MetaM α) : MetaM α :=
   let majorIdx := recVal.getMajorIdx
@@ -250,7 +267,7 @@ private def reduceRec (recVal : RecursorVal) (recLvls : List Level) (recArgs : A
       -- We use this trick because we abstract nested proofs occurring in definitions.
       -- Alternative design: do not abstract nested proofs used to justify well-founded recursion.
       withTransparency .all <| whnf major
-    else if !(← isProof major) then
+    else if !(← isMajorProof recVal recLvls major) then
       whnf major
     else
       pure major

@@ -143,10 +143,11 @@ structure TextDocumentIdentifier where
   deriving ToJson, FromJson
 
 /--
-Identifies a version of a text document. Used both for LSP's `VersionedTextDocumentIdentifier`, whose
-`version` is always present, and for its `OptionalVersionedTextDocumentIdentifier` (e.g. in
-`TextDocumentEdit`), whose `version` is `null` when it is not known, for instance because the
-document is not open in the editor.
+Identifies a text document, and optionally specifies a specific version of the document. Used both
+for LSP's `VersionedTextDocumentIdentifier`, whose `version` is always present, and for its
+`OptionalVersionedTextDocumentIdentifier` (e.g. in `TextDocumentEdit`), whose `version` is `null`
+when it is not known (for instance, because the document is not open in the editor or does not yet
+exist).
 
 [reference](https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#optionalVersionedTextDocumentIdentifier)
 -/
@@ -155,14 +156,12 @@ structure VersionedTextDocumentIdentifier where
   version? : Option Nat := none
   deriving FromJson
 
-/-- Serializes `version? := none` as `"version": null`, since `OptionalVersionedTextDocumentIdentifier`
-requires the `version` field. -/
+/-- Serializes `version? := none` as `"version": null`, since
+`OptionalVersionedTextDocumentIdentifier` requires the `version` field. -/
 instance : ToJson VersionedTextDocumentIdentifier where
   toJson i := mkObj [("uri", toJson i.uri), ("version", toJson i.version?)]
 
-/-- A batch of `TextEdit`s to perform on a text document. If `textDocument.version?` is `some v`,
-the edits apply to version `v` of the document; if it is `none`, the version is unknown, e.g.
-because the document is not open in the editor or is being created.
+/-- A batch of `TextEdit`s to perform on an optionally versioned text document.
 
 [reference](https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#textDocumentEdit) -/
 structure TextDocumentEdit where

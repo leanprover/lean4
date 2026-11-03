@@ -35,3 +35,22 @@ info: {"documentChanges":
 #guard_msgs in
 #eval [r#"{"uri": "u"}"#, r#"{"uri": "u", "version": null}"#, r#"{"uri": "u", "version": 3}"#].map
   fun s => (Json.parse s >>= fromJson? (α := VersionedTextDocumentIdentifier)).map (·.version?)
+
+/-! `fromJson?` inverts `toJson`, also inside a `WorkspaceEdit`. -/
+
+/-- info: [true, true] -/
+#guard_msgs in
+#eval ([{ uri := "file:///a.lean" }, { uri := "file:///a.lean", version? := some 3 }] :
+    List VersionedTextDocumentIdentifier).map fun i =>
+  match fromJson? (α := VersionedTextDocumentIdentifier) (toJson i) with
+  | .ok j => j.uri == i.uri && j.version? == i.version?
+  | .error _ => false
+
+/-- info: true -/
+#guard_msgs in
+#eval
+  let e := WorkspaceEdit.ofTextEdit { uri := "file:///a.lean" }
+    { range := ⟨⟨0, 0⟩, ⟨0, 0⟩⟩, newText := "x" }
+  match fromJson? (α := WorkspaceEdit) (toJson e) with
+  | .ok e' => toJson e' == toJson e
+  | .error _ => false

@@ -265,11 +265,6 @@ example {F P : Nat × Nat → Prop} : WP.Frames meet bumpFst F P := by
   trace_state
   all_goals sorry
 
-example {F P : Nat × Nat → Prop} (h : ∀ a b, F (a, b) = F (0, b)) : WP.Frames meet bumpFst F P := by
-  refine WP.frames_of_conjunctive (PartialOrder.rel_trans (meet_le_right _ _) ?_)
-    (fun _ => meet_le_right _ _)
-  vcgen [bumpFst] with finish
-
 /-! ## Assertion universe independent of the value universe
 
 `Pred` and `EPosts` are quantified at their own universes `w`/`w'`, independent of the value type

@@ -103,13 +103,21 @@ public:
     operator bool() const { return m_fd != -1; }
 };
 
+// Header versions. Bump both when the meaning of the stored data changes (e.g. the `Expr` hash
+// function), not only its layout, as external tools such as `leantar` reconstruct that data.
+// v4: plain format
+// v5: format used for `CompactedRegion.save (allowClosures := true)`
+static constexpr uint8_t OLEAN_VERSION_PLAIN = 4;
+static constexpr uint8_t OLEAN_VERSION_CLOSURES = 5;
+// Versions written by the stage0 compiler. TODO: remove after the next stage0 update.
+static constexpr uint8_t OLEAN_VERSION_PLAIN_STAGE0 = 2;
+static constexpr uint8_t OLEAN_VERSION_CLOSURES_STAGE0 = 3;
+
 /** On-disk format of a .olean file. */
 struct olean_header {
     // 5 bytes: magic number
     char marker[5] = {'o', 'l', 'e', 'a', 'n'};
-    // 1 byte: version, incremented on structural changes to header
-    // v2: current `.olean` format
-    // v3: new format used for `CompactedRegion.save (allowClosures := true)`; see below for changes
+    // 1 byte: version, `OLEAN_VERSION_PLAIN` or `OLEAN_VERSION_CLOSURES`
     uint8_t version;
     // 1 byte of flags:
     // * bit 0: whether persisted bignums use GMP or Lean-native encoding
@@ -130,14 +138,14 @@ struct olean_header {
     char githash[40];
     // address at which the beginning of the file (including header) is attempted to be mmapped
     size_t base_addr;
-    // In v3, the fixed header is followed by these length-prefixed sections:
+    // In the closures format, the fixed header is followed by these length-prefixed sections:
     //   size_t   data_size                                // byte length of the compacted data
     //   compacted data                                    // `data_size` bytes
     //   uint32_t num_closure_offsets
     //   num_closure_offsets × uint64_t                    // data-relative closure `m_fun` offsets
     //   uint32_t num_libs                                 // closure fn-pointer relocation table
     //   num_libs × (size_t base_addr, uint32_t id_len, char id[id_len])  // used libs
-    // In v2, the compacted data starts immediately after the header (no `data_size`, no sections).
+    // In the plain format, the compacted data starts immediately after the header (no `data_size`, no sections).
     size_t data[];
 };
 // make sure we don't have any padding bytes, which also ensures `data` is properly aligned
@@ -314,7 +322,7 @@ extern "C" LEAN_EXPORT object * lean_compacted_region_save(b_obj_arg ofname, b_o
         std::ofstream out(olean_tmp_fn, std::ios_base::binary);
 
         if (!allow_closures) {
-            // v2 path: just `[header][data]`, no extension, no trailer.
+            // plain format: just `[header][data]`, no extension, no trailer.
             // Compactor errors on closures.
             if (compactor.size() % ALIGN != 0) {
                 compactor.alloc(ALIGN - (compactor.size() % ALIGN));
@@ -325,7 +333,7 @@ extern "C" LEAN_EXPORT object * lean_compacted_region_save(b_obj_arg ofname, b_o
             // to `out` below; these reserved bytes are never read back.
             compactor.alloc(sizeof(olean_header));
             olean_header header = {};
-            header.version = 2;
+            header.version = OLEAN_VERSION_PLAIN;
             header.base_addr = reinterpret_cast<size_t>(compactor.base_addr()) + file_offset;
             strncpy(header.lean_version, get_short_version_string().c_str(), sizeof(header.lean_version));
             strncpy(header.githash, LEAN_GITHASH, sizeof(header.githash));
@@ -335,7 +343,7 @@ extern "C" LEAN_EXPORT object * lean_compacted_region_save(b_obj_arg ofname, b_o
             out.write(static_cast<char const *>(compactor.data()) + file_offset + sizeof(olean_header),
                       compactor.size() - file_offset - sizeof(olean_header));
         } else {
-            // v3 format
+            // closures format
             // NOTE: each section's data MUST be reserved in the compactor buffer, even when
             // trailing the actual compactor data, so that any follow-up compaction stays in sync
             // instead of attempting to map on top of the trailing data
@@ -346,7 +354,7 @@ extern "C" LEAN_EXPORT object * lean_compacted_region_save(b_obj_arg ofname, b_o
 
             compactor.alloc(sizeof(olean_header));
             olean_header header = {};
-            header.version = 3;
+            header.version = OLEAN_VERSION_CLOSURES;
             header.base_addr = reinterpret_cast<size_t>(compactor.base_addr()) + file_offset;
             strncpy(header.lean_version, get_short_version_string().c_str(), sizeof(header.lean_version));
             strncpy(header.githash, LEAN_GITHASH, sizeof(header.githash));
@@ -448,7 +456,7 @@ static object * mk_compacted_region(b_obj_arg ofname, object * root,
 // in this file. Returns `(α × CompactedRegion)`, where `α` is the type the Lean caller asks the
 // root to be interpreted as — the C side does no type checking and the caller is responsible for
 // using a type compatible with what was saved (see `CompactedRegion.read`).
-// Supports both `v2` and `v3` formats.
+// Supports both the plain and the closures format.
 extern "C" LEAN_EXPORT object * lean_compacted_region_read(b_obj_arg ofname, b_obj_arg odep_regions) {
     std::string olean_fn(lean_string_cstr(ofname));
     try {
@@ -487,7 +495,9 @@ extern "C" LEAN_EXPORT object * lean_compacted_region_read(b_obj_arg ofname, b_o
             || memcmp(header.marker, default_header.marker, sizeof(header.marker)) != 0) {
             return io_result_mk_error((sstream() << "failed to read file '" << olean_fn << "', invalid header").str());
         }
-        if ((header.version != 2 && header.version != 3) || header.flags != default_header.flags
+        bool is_closures_format = header.version == OLEAN_VERSION_CLOSURES || header.version == OLEAN_VERSION_CLOSURES_STAGE0;
+        bool is_plain_format = header.version == OLEAN_VERSION_PLAIN || header.version == OLEAN_VERSION_PLAIN_STAGE0;
+        if ((!is_plain_format && !is_closures_format) || header.flags != default_header.flags
 #ifdef LEAN_CHECK_OLEAN_VERSION
             || strncmp(header.githash, LEAN_GITHASH, sizeof(header.githash)) != 0
 #endif
@@ -501,7 +511,7 @@ extern "C" LEAN_EXPORT object * lean_compacted_region_read(b_obj_arg ofname, b_o
 
         // Map file COW-writable. The fallback walk in `region_reader::read()` writes
         // fixed pointers back into the region's memory when any dep region didn't land at its
-        // saved `base_addr`, so the mapping must be writable. `v3` files additionally patch
+        // saved `base_addr`, so the mapping must be writable. Closures-format files additionally patch
         // closure fn pointers in place. Unwritten pages remain shared with the page cache under
         // `MAP_PRIVATE` regardless of protection, so `PROT_WRITE` is free when no fixup happens.
 #ifdef LEAN_MMAP
@@ -574,12 +584,12 @@ extern "C" LEAN_EXPORT object * lean_compacted_region_read(b_obj_arg ofname, b_o
 #endif
         }
 
-        // v3 format, default data otherwise
+        // closures format, default data otherwise
         std::vector<std::pair<size_t, ptrdiff_t>> lib_relocs;
         std::vector<size_t> closure_offsets;
         size_t data_section_off = sizeof(olean_header);
         size_t data_section_sz = size - sizeof(olean_header);
-        if (header.version == 3) {
+        if (is_closures_format) {
             size_t data_size;
             memcpy(&data_size, buffer + sizeof(olean_header), sizeof(data_size));
             data_section_off = sizeof(olean_header) + sizeof(size_t);

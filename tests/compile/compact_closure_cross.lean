@@ -4,7 +4,7 @@ open Lean
 
 /-!
 Tests that a closure saved via `CompactedRegion.save` with `allowClosures := true` in one process
-loads and runs correctly in a *separate* process: the `v3` lib relocation table must re-point the
+loads and runs correctly in a *separate* process: the closures-format lib relocation table must re-point the
 closure's fn pointer to the loader process's address space.
 -/
 unsafe def main (args : List String) : IO UInt32 := do

@@ -14,9 +14,6 @@ public instance (priority := low) [Monad m] [MonadExceptOf PUnit m] : Alternativ
   failure := throw ()
   orElse := tryCatch
 
-/-- Ensure direct lifts are preferred over indirect ones. -/
-public instance (priority := high) [MonadLift α β] : MonadLiftT α β := ⟨MonadLift.monadLift⟩
-
 public instance (priority := low) [Pure m] : MonadLiftT Id m where
   monadLift act := pure act.run
 

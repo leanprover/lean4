@@ -5,12 +5,16 @@ instance : Inhabited Tree := ⟨.nil⟩
 
 -- This function has an extra argument to suppress the
 -- common sub-expression elimination optimization
-partial def make' (n d : UInt32) : Tree :=
-  if d = 0 then .node .nil .nil
-  else .node (make' n (d - 1)) (make' (n + 1) (d - 1))
+partial def make' (a b : Int) (d : UInt32) : Tree :=
+  if d = 0 then
+    .node .nil .nil
+  else
+    -- invariant: a + b = 0
+    let factor := (a + b).toInt32.toUInt32
+    .node (make' (a + 1) (b - 1) (d - 1 + factor)) (make' (a - 1) (b + 1) (d - 1 + factor))
 
 -- build a tree
-def make (d : UInt32) := make' d d
+def make (d : UInt32) := make' 0 0 d
 
 def check : Tree → UInt32
   | .nil => 0

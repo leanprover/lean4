@@ -571,6 +571,30 @@ def isQuasiOffsetCnstr (p : Expr) (e : Expr) : Bool :=
     k.hasLooseBVars && ((isNatValue? e).isSome || (isOffset? e).isSome)
   | _ => false
 
+/--
+Zeta-reduces the `let` telescope `e` in one pass: `let x₁ := v₁; …; let xₙ := vₙ; b` becomes
+`b[v₁, …, vₙ]`. It assumes `e` is maximally shared, and ensures the result is too.
+-/
+def instantiateLetsS (e : Expr) : SymM Expr := do
+  goS e #[]
+where
+  goS (e : Expr) (subst : Array Expr) : SymM Expr := do
+    match e with
+    | .letE _ _ v b _ => goS b (subst.push (← instantiateRevBetaS v subst))
+    | _ => instantiateRevBetaS e subst
+
+/--
+Like `instantiateLetsS`, but `e` does not need to be maximally shared. The result is maximally
+shared if `e` is.
+-/
+def instantiateLets (e : Expr) : SymM Expr := do
+  if (← isMaxShared e) then instantiateLetsS e else return go e #[]
+where
+  go (e : Expr) (subst : Array Expr) : Expr :=
+    match e with
+    | .letE _ _ v b _ => go b (subst.push (v.instantiateBetaRevRange 0 subst.size subst))
+    | _ => e.instantiateBetaRevRange 0 subst.size subst
+
 partial def process (p : Expr) (e : Expr) : UnifyM Bool := do
   -- A pattern subterm internalized into the same table as the target shares its pointer, so a
   -- pointer match is a closed term equal to the target with no variables left to bind.
@@ -583,9 +607,9 @@ partial def process (p : Expr) (e : Expr) : UnifyM Bool := do
   | .bvar bidx => assignExpr bidx e
   | .mdata _ p => process p e
   | .const declName us =>
-    processConst declName us e <||> checkLetVar p e <||> checkMVar p e
+    processConst declName us e <||> checkLet p e <||> checkLetVar p e <||> checkMVar p e
   | .sort u =>
-    processSort u e <||> checkLetVar p e <||> checkMVar p e
+    processSort u e <||> checkLet p e <||> checkLetVar p e <||> checkMVar p e
   | .app .. =>
     processApp p e <||> checkMVar p e
   | .forallE .. | .lam .. =>
@@ -602,7 +626,7 @@ partial def process (p : Expr) (e : Expr) : UnifyM Bool := do
     pushPending p e
     return true
   | .mvar _ | .lit _ =>
-    pure (p == e) <||> checkLetVar p e <||> checkMVar p e
+    pure (p == e) <||> checkLet p e <||> checkLetVar p e <||> checkMVar p e
   | .letE .. => unreachable!
 where
   checkMVar (p : Expr) (e : Expr) : UnifyM Bool := do
@@ -613,6 +637,11 @@ where
       return true
     else
       return false
+
+  checkLet (p : Expr) (e : Expr) : UnifyM Bool := do
+    let e := e.consumeMData
+    unless e.isLet do return false
+    process p (← instantiateLetsS e)
 
   checkLetVar (p : Expr) (e : Expr) : UnifyM Bool := do
     unless (← read).zetaDelta do return false
@@ -663,7 +692,7 @@ where
 
   processAppWithInfo (p : Expr) (e : Expr) (i : Nat) (info : ProofInstInfo) : UnifyM Bool := do
     let .app fp ap := p | if e.isApp then return false else process p e
-    let .app fe ae := e.consumeMData | checkLetVar p e
+    let .app fe ae := e.consumeMData | checkLet p e <||> checkLetVar p e
     unless (← processAppWithInfo fp fe (i - 1) info) do return false
     if h : i < info.argsInfo.size then
       let argInfo := info.argsInfo[i]
@@ -684,7 +713,7 @@ where
 
   processAppDefault (p : Expr) (e : Expr) : UnifyM Bool := do
     let .app fp ap := p | if e.isApp then return false else process p e
-    let .app fe ae := e.consumeMData | checkLetVar p e
+    let .app fe ae := e.consumeMData | checkLet p e <||> checkLetVar p e
     unless (← processAppDefault fp fe) do return false
     process ap ae
 
@@ -1097,9 +1126,6 @@ def isDefEqMainImpl (t : Expr) (s : Expr) : DefEqM Bool := do
   | .proj .., _ | _, .proj .. =>
     throwError "unexpected kernel projection term during structural definitional equality{indentExpr t}\nand{indentExpr s}\npre-process and fold them as projection applications"
     return false
-  | .letE .., _ | _, .letE .. =>
-    throwError "unexpected let-declaration term during structural definitional equality{indentExpr t}\nand{indentExpr s}\npre-process and zeta-reduce them"
-    return false
   | _, _ =>
     let tFn := t.getAppFn
     let sFn := s.getAppFn
@@ -1110,6 +1136,12 @@ def isDefEqMainImpl (t : Expr) (s : Expr) : DefEqM Bool := do
     else
     whenUndefDo (tryAssignMillerPattern tFn t s rfl) do
     whenUndefDo (tryAssignMillerPattern sFn s t rfl) do
+    -- Zeta-reduce only after the assignments above, so that `?m =?= let x := v; b` assigns the `let`.
+    if t.isLet then
+      isDefEqMain (← instantiateLets t) s
+    else if s.isLet then
+      isDefEqMain t (← instantiateLets s)
+    else
     whenUndefDo (isDefEqOffset t s) do
     if let .fvar fvarId₁ := t then
       unless (← read).zetaDelta do return false

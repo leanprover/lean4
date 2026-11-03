@@ -74,6 +74,8 @@ h :
 example (x : Nat) (h : (have y := g x; P y ∧ P y) → Q x) : Q x := by
   sym => apply h; show_goals; sorry
 
+axiom a7 (x : Nat) (h : P x) : Q x
+
 -- A nondependent `let` becomes a `have`.
 axiom c0 (x : Nat) (h : let y := g x; P y ∧ P y) : Q x
 /--
@@ -84,6 +86,23 @@ trace: x : Nat
 #guard_msgs (trace, drop warning) in
 example (x : Nat) : Q x := by
   sym => apply c0; show_goals; sorry
+
+-- A `have` in the domain of a pattern variable that matching assigns, so the type is checked.
+axiom th (f : have n := Nat; n → Nat) : Q (f 0)
+example : Q (g 0) := by
+  sym => apply th
+
+-- A universe-polymorphic rule.
+universe u
+opaque PU : {α : Sort u} → α → Prop
+axiom up {α : Sort u} (a : α) (h : have b := a; b = b) : PU a
+/--
+trace: ⊢ have b := 0;
+  b = b
+-/
+#guard_msgs (trace, drop warning) in
+example : PU (0 : Nat) := by
+  sym => apply up; show_goals; sorry
 
 /-! ## Zeta-reduced -/
 
@@ -122,6 +141,119 @@ open Lean Meta Sym in
 #eval show MetaM Bool from do
   let p ← mkPatternFromDecl ``c4 (some 1)
   return (p.pattern.find? (·.isLet)).isSome
+
+/-! ## `isDefEqS` zeta-reduces `let`s and `have`s in terms -/
+
+example (n : Nat) : (have t := n; t) = n := by
+  sym => apply Eq.refl
+
+example (n : Nat) : (let t := n; t) = n := by
+  sym => apply Eq.refl
+
+-- A chain, where a later value applies an earlier one.
+example (n : Nat) : (have a := n; have f := fun x => x + a; have y := f 0; y) = 0 + n := by
+  sym => apply Eq.refl
+
+-- `let`s on both sides that are equal only after zeta-reduction.
+example (n : Nat) : (have a := n; a + 1) = (have b := n; have c := b; c + 1) := by
+  sym => apply Eq.refl
+
+-- A `have` under a binder.
+example : (fun x : Nat => have y := x; y + 1) = (fun x => x + 1) := by
+  sym => apply Eq.refl
+
+-- A term that is not maximally shared.
+open Lean Meta Sym in
+/-- info: true, false -/
+#guard_msgs in
+run_meta SymM.run do
+  let g0 := mkApp (mkConst ``g) (mkNatLit 0)
+  let e : Expr := .letE `y (mkConst ``Nat) g0 (mkNatAdd (.bvar 0) (.bvar 0)) true
+  logInfo m!"{← isDefEqS e (mkNatAdd g0 g0)}, {← isMaxShared e}"
+
+-- `isDefEqS` assigns a metavariable the `let`/`have` itself, not its zeta-reduction, in both
+-- directions.
+open Lean Meta Sym in
+/--
+info: true: let y := g 0;
+y + y
+---
+info: true: let y := g 0;
+y + y
+---
+info: true: have y := g 0;
+y + y
+---
+info: true: have y := g 0;
+y + y
+-/
+#guard_msgs in
+run_meta SymM.run do
+  for nondep in [false, true] do
+    let e ← shareCommon <| .letE `y (mkConst ``Nat) (mkApp (mkConst ``g) (mkNatLit 0))
+      (mkNatAdd (.bvar 0) (.bvar 0)) nondep
+    for swap in [false, true] do
+      let m ← mkFreshExprMVar (mkConst ``Nat)
+      let r ← if swap then isDefEqS e m else isDefEqS m e
+      logInfo m!"{r}: {← instantiateMVars m}"
+
+-- Matching a pattern against a term zeta-reduces the `let`s and `have`s of the term.
+axiom pAll (x : Nat) : P x
+example (x : Nat) : have y := g x; P y := by
+  sym => apply pAll
+
+axiom pg (x : Nat) : P (g x)
+example (x : Nat) : P (have y := g x; y) := by
+  sym => apply pg
+
+axiom qgg (x y : Nat) : Q (g x + g y)
+example (x : Nat) : Q (g x + have f := g; f (x + 1)) := by
+  sym => apply qgg
+
+-- A `have` at the head of an application.
+example (x : Nat) : P ((have f := g; f) x) := by
+  sym => apply pg
+
+-- A literal pattern.
+opaque S : String → Prop
+axiom sa : S "a"
+example : S (have s := "a"; s) := by
+  sym => apply sa
+
+-- An offset pattern.
+axiom psucc (x : Nat) : P (x + 1)
+example (n : Nat) : P (have y := n; y + 1) := by
+  sym => apply psucc
+example (n : Nat) : P (have y := n + 1; y + 1) := by
+  sym => apply psucc
+
+-- An instance argument (checked by `isDefEqI`).
+opaque R2 : (α : Type) → [Inhabited α] → α → Prop
+axiom ri (x : Nat) : R2 Nat x
+example : @R2 Nat (have i := instInhabitedNat; i) 0 := by
+  sym => apply ri
+
+-- A `have` under metadata.
+open Lean Meta Sym in
+/-- info: [g 0] -/
+#guard_msgs in
+run_meta SymM.run do
+  let p ← mkPatternFromDecl ``pAll
+  let e ← shareCommon <| .mdata {} <| .letE `y (mkConst ``Nat) (mkApp (mkConst ``g) (mkNatLit 0))
+    (mkApp (mkConst ``P) (.bvar 0)) true
+  let some r ← p.match? e | throwError "no match"
+  logInfo m!"{r.args}"
+
+-- A pattern variable is assigned the `have`, not its zeta-reduction.
+/--
+trace: x : Nat
+⊢ P
+    (have y := g x;
+    y)
+-/
+#guard_msgs (trace, drop warning) in
+example (x : Nat) : Q (have y := g x; y) := by
+  sym => apply a7; show_goals; sorry
 
 /-! ## `vcgen +jp` shares the join points of an unfolded definition -/
 
@@ -172,21 +304,39 @@ example (b : Nat → Bool) (s₀ : Nat) :
   goal_count
   all_goals lia
 
--- TODO: the `have` of the precondition reaches the VC, and `isDefEqS` throws on it.
+-- The `have` of the precondition reaches the VC.
 axiom modify_spec' (f : Nat → Nat) (Q : Unit → Nat → Prop) :
     ⦃fun s => have s' := f s; Q () s' ∨ R s'⦄ (modify f : StateM Nat Unit) ⦃Q⦄
 
 /--
-error: unexpected let-declaration term during structural definitional equality
-  Lean.Order.top
-and
-  have s' := g s₀;
+trace: case vc1
+s₀ s✝ : Nat
+⊢ have s' := g s₀;
   R s' ∨ R s'
-pre-process and zeta-reduce them
 -/
-#guard_msgs (error, drop warning) in
+#guard_msgs (trace, drop warning) in
 example (s₀ : Nat) :
     ⦃fun s => s = s₀⦄ (modify g : StateM Nat Unit) ⦃fun _ s => R s⦄ := by
   vcgen [modify_spec']
   trace_state
   all_goals sorry
+
+-- A struct update elaborates to `have __src := s.m; …`, which reaches `isDefEqS` in `cleanupVC`.
+structure M where
+  x : Nat
+  y : Nat
+
+structure St where
+  m : M
+  b : Nat
+
+def setX (k : Nat) : StateM St Unit :=
+  modify fun s => { s with m := { s.m with x := k } }
+
+theorem modify_spec (f : St → St) (Q : Unit → St → Prop) :
+    ⦃fun s => Q () (f s)⦄ (modify f : StateM St Unit) ⦃Q⦄ := by
+  vcgen [modify] with finish
+
+example (s₀ : St) (k : Nat) :
+    ⦃fun s => s = s₀⦄ setX k ⦃fun _ s' => s'.m = { x := k, y := s₀.m.y }⦄ := by
+  vcgen [setX, modify_spec]

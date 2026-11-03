@@ -2079,6 +2079,105 @@ end Const
 
 end monadic
 
+theorem any_toList {p : (a : α) → β a → Bool} :
+    t.toList.any (fun x => p x.1 x.2) = t.any p := by
+  rw [any_eq_any_toListModel, toList_eq_toListModel]
+
+theorem any_eq_true [TransOrd α] [LawfulEqOrd α] {p : (a : α) → β a → Bool} (h : t.WF) :
+    t.any p = true ↔ ∃ (a : α) (h : a ∈ t), p a (t.get a h) := by
+  simp only [← any_toList, List.any_eq_true, mem_toList_iff_get?_eq_some h, get?_eq_some_iff h]
+  constructor
+  · rintro ⟨⟨a, b⟩, ⟨h', hb⟩, hp⟩
+    exact ⟨a, h', by simpa [hb] using hp⟩
+  · rintro ⟨a, h', hp⟩
+    exact ⟨⟨a, t.get a h'⟩, ⟨h', rfl⟩, hp⟩
+
+theorem any_eq_false [TransOrd α] [LawfulEqOrd α] {p : (a : α) → β a → Bool} (h : t.WF) :
+    t.any p = false ↔ ∀ (a : α) (h : a ∈ t), p a (t.get a h) = false := by
+  rw [← Bool.not_eq_true, any_eq_true h]
+  simp
+
+theorem all_toList {p : (a : α) → β a → Bool} :
+    t.toList.all (fun x => p x.1 x.2) = t.all p := by
+  rw [all_eq_all_toListModel, toList_eq_toListModel]
+
+theorem all_eq_not_any_not {p : (a : α) → β a → Bool} :
+    t.all p = ! t.any (fun a b => ! p a b) := by
+  rw [← all_toList, ← any_toList, List.all_eq_not_any_not]
+
+theorem any_eq_not_all_not {p : (a : α) → β a → Bool} :
+    t.any p = ! t.all (fun a b => ! p a b) := by
+  rw [← all_toList, ← any_toList, List.any_eq_not_all_not]
+
+theorem all_eq_true [TransOrd α] [LawfulEqOrd α] {p : (a : α) → β a → Bool} (h : t.WF) :
+    t.all p = true ↔ ∀ (a : α) (h : a ∈ t), p a (t.get a h) := by
+  simp [all_eq_not_any_not, any_eq_false h]
+
+theorem all_eq_false [TransOrd α] [LawfulEqOrd α] {p : (a : α) → β a → Bool} (h : t.WF) :
+    t.all p = false ↔ ∃ (a : α) (h : a ∈ t), p a (t.get a h) = false := by
+  simp [all_eq_not_any_not, any_eq_true h]
+
+theorem any_keys {p : α → Bool} : t.keys.any p = t.any (fun a _ => p a) := by
+  simp only [← map_fst_toList_eq_keys, List.any_map, ← any_toList, Function.comp_def]
+
+theorem all_keys {p : α → Bool} : t.keys.all p = t.all (fun a _ => p a) := by
+  simp only [← map_fst_toList_eq_keys, List.all_map, ← all_toList, Function.comp_def]
+
+namespace Const
+
+variable {β : Type v} {t : Impl α β}
+
+theorem any_toList {p : α → β → Bool} :
+    (toList t).any (fun x => p x.1 x.2) = t.any p := by
+  simp only [toList_eq_toListModel_map, List.any_map, any_eq_any_toListModel, Function.comp_def]
+
+theorem any_eq_true [TransOrd α] {p : α → β → Bool} (h : t.WF) :
+    t.any p = true ↔ ∃ (a : α) (h : a ∈ t), p (t.getKey a h) (get t a h) := by
+  simp only [← any_toList, List.any_eq_true, Prod.exists,
+    mem_toList_iff_getKey?_eq_some_and_get?_eq_some h, get?_eq_some_iff h, getKey?_eq_some_iff h]
+  constructor
+  · rintro ⟨a, b, ⟨⟨h₁, ha⟩, h₂, hb⟩, hp⟩
+    exact ⟨a, h₁, by simpa [ha, hb] using hp⟩
+  · rintro ⟨a, h', hp⟩
+    have hk := compare_getKey_self h h'
+    have hm := (mem_congr h hk).mpr h'
+    exact ⟨t.getKey a h', get t a h', ⟨⟨hm, getKey_congr h hk hm⟩, hm, get_congr h hk⟩, hp⟩
+
+theorem any_eq_true' [TransOrd α] [LawfulEqOrd α] {p : α → β → Bool} (h : t.WF) :
+    t.any p = true ↔ ∃ (a : α) (h : a ∈ t), p a (get t a h) := by
+  simp [any_eq_true h, getKey_eq h]
+
+theorem any_eq_false [TransOrd α] {p : α → β → Bool} (h : t.WF) :
+    t.any p = false ↔ ∀ (a : α) (h : a ∈ t), p (t.getKey a h) (get t a h) = false := by
+  rw [← Bool.not_eq_true, any_eq_true h]
+  simp
+
+theorem any_eq_false' [TransOrd α] [LawfulEqOrd α] {p : α → β → Bool} (h : t.WF) :
+    t.any p = false ↔ ∀ (a : α) (h : a ∈ t), p a (get t a h) = false := by
+  simp [any_eq_false h, getKey_eq h]
+
+theorem all_toList {p : α → β → Bool} :
+    (toList t).all (fun x => p x.1 x.2) = t.all p := by
+  simp only [toList_eq_toListModel_map, List.all_map, all_eq_all_toListModel, Function.comp_def]
+
+theorem all_eq_true [TransOrd α] {p : α → β → Bool} (h : t.WF) :
+    t.all p = true ↔ ∀ (a : α) (h : a ∈ t), p (t.getKey a h) (get t a h) := by
+  simp [all_eq_not_any_not, any_eq_false h]
+
+theorem all_eq_true' [TransOrd α] [LawfulEqOrd α] {p : α → β → Bool} (h : t.WF) :
+    t.all p = true ↔ ∀ (a : α) (h : a ∈ t), p a (get t a h) := by
+  simp [all_eq_true h, getKey_eq h]
+
+theorem all_eq_false [TransOrd α] {p : α → β → Bool} (h : t.WF) :
+    t.all p = false ↔ ∃ (a : α) (h : a ∈ t), p (t.getKey a h) (get t a h) = false := by
+  simp [all_eq_not_any_not, any_eq_true h]
+
+theorem all_eq_false' [TransOrd α] [LawfulEqOrd α] {p : α → β → Bool} (h : t.WF) :
+    t.all p = false ↔ ∃ (a : α) (h : a ∈ t), p a (get t a h) = false := by
+  simp [all_eq_false h, getKey_eq h]
+
+end Const
+
 theorem insertMany_cons (h : t.WF) {l : List ((a : α) × β a)} {k : α} {v : β k} :
     (t.insertMany (⟨k, v⟩ :: l) h.balanced).1 =
       ((t.insert k v h.balanced).impl.insertMany l h.insert.balanced).1 := by

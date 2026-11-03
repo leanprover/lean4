@@ -1082,6 +1082,66 @@ theorem forIn_eq_forIn_keysArray [Monad m] [LawfulMonad m]
 
 end monadic
 
+theorem all_eq_not_any_not {p : α → β → Bool} :
+    t.all p = ! t.any (fun a b => ! p a b) :=
+  DTreeMap.Raw.all_eq_not_any_not
+
+theorem any_eq_not_all_not {p : α → β → Bool} :
+    t.any p = ! t.all (fun a b => ! p a b) :=
+  DTreeMap.Raw.any_eq_not_all_not
+
+@[simp]
+theorem any_toList {p : α → β → Bool} :
+    t.toList.any (fun x => p x.1 x.2) = t.any p :=
+  DTreeMap.Raw.Const.any_toList
+
+theorem any_eq_true_iff_exists_mem_getKey_getElem [TransCmp cmp] (h : t.WF) {p : α → β → Bool} :
+    t.any p = true ↔ ∃ (a : α) (h : a ∈ t), p (t.getKey a h) (t[a]'h) :=
+  DTreeMap.Raw.Const.any_eq_true_iff_exists_mem_getKey_get h
+
+theorem any_eq_true_iff_exists_mem_getElem [TransCmp cmp] [LawfulEqCmp cmp] (h : t.WF)
+    {p : α → β → Bool} :
+    t.any p = true ↔ ∃ (a : α) (h : a ∈ t), p a (t[a]'h) :=
+  DTreeMap.Raw.Const.any_eq_true_iff_exists_mem_get h
+
+theorem any_eq_false_iff_forall_mem_getKey_getElem [TransCmp cmp] (h : t.WF) {p : α → β → Bool} :
+    t.any p = false ↔ ∀ (a : α) (h : a ∈ t), p (t.getKey a h) (t[a]'h) = false :=
+  DTreeMap.Raw.Const.any_eq_false_iff_forall_mem_getKey_get h
+
+theorem any_eq_false_iff_forall_mem_getElem [TransCmp cmp] [LawfulEqCmp cmp] (h : t.WF)
+    {p : α → β → Bool} :
+    t.any p = false ↔ ∀ (a : α) (h : a ∈ t), p a (t[a]'h) = false :=
+  DTreeMap.Raw.Const.any_eq_false_iff_forall_mem_get h
+
+@[simp]
+theorem all_toList {p : α → β → Bool} :
+    t.toList.all (fun x => p x.1 x.2) = t.all p :=
+  DTreeMap.Raw.Const.all_toList
+
+theorem all_eq_true_iff_forall_mem_getKey_getElem [TransCmp cmp] (h : t.WF) {p : α → β → Bool} :
+    t.all p = true ↔ ∀ (a : α) (h : a ∈ t), p (t.getKey a h) (t[a]'h) :=
+  DTreeMap.Raw.Const.all_eq_true_iff_forall_mem_getKey_get h
+
+theorem all_eq_true_iff_forall_mem_getElem [TransCmp cmp] [LawfulEqCmp cmp] (h : t.WF)
+    {p : α → β → Bool} :
+    t.all p = true ↔ ∀ (a : α) (h : a ∈ t), p a (t[a]'h) :=
+  DTreeMap.Raw.Const.all_eq_true_iff_forall_mem_get h
+
+theorem all_eq_false_iff_exists_mem_getKey_getElem [TransCmp cmp] (h : t.WF) {p : α → β → Bool} :
+    t.all p = false ↔ ∃ (a : α) (h : a ∈ t), p (t.getKey a h) (t[a]'h) = false :=
+  DTreeMap.Raw.Const.all_eq_false_iff_exists_mem_getKey_get h
+
+theorem all_eq_false_iff_exists_mem_getElem [TransCmp cmp] [LawfulEqCmp cmp] (h : t.WF)
+    {p : α → β → Bool} :
+    t.all p = false ↔ ∃ (a : α) (h : a ∈ t), p a (t[a]'h) = false :=
+  DTreeMap.Raw.Const.all_eq_false_iff_exists_mem_get h
+
+theorem any_keys {p : α → Bool} : t.keys.any p = t.any (fun a _ => p a) :=
+  DTreeMap.Raw.any_keys
+
+theorem all_keys {p : α → Bool} : t.keys.all p = t.all (fun a _ => p a) :=
+  DTreeMap.Raw.all_keys
+
 @[simp, grind =]
 theorem insertMany_nil :
     t.insertMany [] = t :=

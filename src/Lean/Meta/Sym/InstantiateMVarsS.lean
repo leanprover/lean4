@@ -6,7 +6,6 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Lean.Meta.Sym.SymM
-import Lean.Meta.Sym.InstantiateS
 namespace Lean.Meta.Sym
 
 /--
@@ -20,12 +19,13 @@ public def instantiateMVarsS (e : Expr) : SymM Expr := do
     return e
 
 /--
-Instantiates the assigned metavariable at the head of `e` and beta-reduces. The arguments keep
-their metavariables.
+Head-only variant of `instantiateMVarsS`: instantiates and reshares only when the head of `e` is a
+metavariable, otherwise returns `e` unchanged.
 -/
-public partial def instantiateMVarsIfMVarAppS (e : Expr) : SymM Expr := do
-  let .mvar mvarId := e.getAppFn | return e
-  let some v ← getExprMVarAssignment? mvarId | return e
-  instantiateMVarsIfMVarAppS (← betaS (← shareCommon v) e.getAppArgs)
+public def instantiateMVarsIfMVarAppS (e : Expr) : SymM Expr := do
+  if e.getAppFn.isMVar then
+    instantiateMVarsS e
+  else
+    return e
 
 end Lean.Meta.Sym

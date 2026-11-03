@@ -140,7 +140,6 @@ public def introsHygienicN (goal : MVarId) (n : Nat) : VCGenM MVarId :=
     let .goal _ goal ← Sym.intros goal names | return goal
     return goal
 
-/-- `goal` with every binder domain on the spine of its target instantiated. -/
 public def instantiateBinderDomains (goal : MVarId) : VCGenM MVarId := do
   let target ← goal.getType
   let target' ← go target

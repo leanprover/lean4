@@ -246,8 +246,7 @@ example : ⦃ fun s => ⌜s.1 = 0 ∧ s.2 = 7⌝ ⦄ (mkFreshNat : StateM AppSta
 
 @[irreducible] def bumpFst : StateM (Nat × Nat) Unit := modify fun s => (s.1 + 1, s.2)
 
--- `vcgen` reads the assigned type of the state binder, so the verification condition names the
--- components of the pair state.
+-- The verification condition names the components of the pair state.
 /--
 trace: case vc1
 F P : Nat × Nat → Prop

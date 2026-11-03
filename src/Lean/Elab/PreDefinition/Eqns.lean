@@ -297,14 +297,14 @@ where
   go (mvarId : MVarId) : StateRefT (Array Expr) MetaM Unit := do
     trace[Elab.definition.eqns] "mkEqnTypes step\n{MessageData.ofGoal mvarId}"
 
-    if let some mvarId ← expandRHS? mvarId then
-      return (← go mvarId)
+    -- The `let`s and `have`s at the root of the RHS are zeta-reduced only to expose a `match`.
+    let mvarId' := (← expandRHS? mvarId).getD mvarId
 
-    if (← shouldUseSimpMatch (← mvarId.getType')) then
-      if let some mvarId ← simpMatch? mvarId then
+    if (← shouldUseSimpMatch (← mvarId'.getType')) then
+      if let some mvarId ← simpMatch? mvarId' then
         return (← go mvarId)
 
-    if let some mvarIds ← splitMatch? mvarId declNames then
+    if let some mvarIds ← splitMatch? mvarId' declNames then
       return (← mvarIds.forM go)
 
     saveEqn mvarId

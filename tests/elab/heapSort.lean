@@ -181,6 +181,7 @@ info: Array.heapSort.loop.eq_1 fun a b =>
     (a <
       b) : ∀ (a : BinaryHeap Nat fun y x => decide (x < y)) (out : Array Nat),
   Array.heapSort.loop (fun a b => decide (a < b)) a out =
+    let gt := fun y x => decide (x < y);
     match e : a.max with
     | none => out
     | some x =>

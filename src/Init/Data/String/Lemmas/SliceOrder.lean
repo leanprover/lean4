@@ -50,8 +50,9 @@ public theorem compare_eq {s t : Slice} : Slice.compare s t = compare s t := rfl
 @[simp]
 public theorem compare_eq_compare_copy_copy {s t : Slice} :
     compare s t = compare s.copy t.copy := by
-  rw [← compare_eq, Slice.compare,
-    Pattern.Internal.memcmpSliceCompare_eq_compare, ← String.compare_toByteArray_toByteArray,
+  rw [← compare_eq]
+  simp only [Slice.compare]
+  rw [Pattern.Internal.memcmpSliceCompare_eq_compare, ← String.compare_toByteArray_toByteArray,
     ByteArray.compare_eq_compare_extract_min_then (a := s.copy.toByteArray)]
   simp only [offset_startPos, Pos.Raw.byteIdx_zero, Nat.zero_add,
     utf8ByteSize_eq_size_toByteArray_copy]

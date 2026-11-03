@@ -59,10 +59,11 @@ The discharger `d` proves the side conditions `x ≠ 0` under which `x * x⁻¹`
 field. With `lhsOnly := true`, relations over rings are normalized to `p = 0`, `p ≤ 0`, `p < 0`
 instead of being split by sign, and with `distrib := false` products of non-constant polynomials
 are kept as atoms; with `maxChar? := some c`, terms over a structure whose characteristic is a
-numeral above `c`, or not a numeral, are left as written. See `Arith.normalize?`.
+numeral above `c`, or not a numeral, are left as written; with `symbolicPow := true`, powers with
+symbolic `Nat` exponents are normalized. See `Arith.normalize?`.
 -/
-def simpArith (d : Discharger := dischargeNone) (lhsOnly : Bool := false) (distrib : Bool := true) (maxChar? : Option Nat := none) : Simproc := fun e => do
-  let r ← Arith.normalize? e simp (lhsOnly := lhsOnly) (distrib := distrib) (maxChar? := maxChar?) fun p => do
+def simpArith (d : Discharger := dischargeNone) (lhsOnly : Bool := false) (distrib : Bool := true) (maxChar? : Option Nat := none) (symbolicPow : Bool := false) : Simproc := fun e => do
+  let r ← Arith.normalize? e simp (lhsOnly := lhsOnly) (distrib := distrib) (maxChar? := maxChar?) (symbolicPow := symbolicPow) fun p => do
     match (← d p) with
     | .solved h _ => return some h
     | .failed _ => return none

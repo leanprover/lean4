@@ -646,7 +646,7 @@ where
   checkLetVar (p : Expr) (e : Expr) : UnifyM Bool := do
     unless (← read).zetaDelta do return false
     let .fvar fvarId := e | return false
-    let some value ← fvarId.getValue? | return false
+    let some value ← getLetValueS? fvarId | return false
     process p value
 
   processOffset (p : Offset) (e : Offset) : UnifyM Bool := do
@@ -1109,11 +1109,11 @@ def isDefEqMainImpl (t : Expr) (s : Expr) : DefEqM Bool := do
         return false
       else if decl₁.index < decl₂.index then
         -- If `s` occurs after `t` and it is a let-decl, unfold and recurse
-        let some val₂ := decl₂.value? | return false
+        let some val₂ ← getLetValueS? fvarId₂ | return false
         isDefEqMain t val₂
       else
         -- If `t` occurs after `s`, and it is a let-decl, unfold and recurse
-        let some val₁ := decl₁.value? | return false
+        let some val₁ ← getLetValueS? fvarId₁ | return false
         isDefEqMain val₁ s
     else
       return fvarId₁ == fvarId₂
@@ -1145,11 +1145,11 @@ def isDefEqMainImpl (t : Expr) (s : Expr) : DefEqM Bool := do
     whenUndefDo (isDefEqOffset t s) do
     if let .fvar fvarId₁ := t then
       unless (← read).zetaDelta do return false
-      let some val₁ ← fvarId₁.getValue? | return false
+      let some val₁ ← getLetValueS? fvarId₁ | return false
       isDefEqMain val₁ s
     else if let .fvar fvarId₂ := s then
       unless (← read).zetaDelta do return false
-      let some val₂ ← fvarId₂.getValue? | return false
+      let some val₂ ← getLetValueS? fvarId₂ | return false
       isDefEqMain t val₂
     else
       isDefEqApp tFn t s rfl

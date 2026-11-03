@@ -130,12 +130,46 @@ unsafe def mulOuter (a b : @& ByteArray) (la lb j : USize) (c : ByteArray) : Byt
     mulOuter a b la lb (j+1) (if v == 0 then c else mulInner a la j v.toUInt64 0 0 c)
   else c
 
+/-- Schoolbook multiplication. -/
+unsafe def mulBasecase (a b : @& ByteArray) : ByteArray :=
+  let la := size a
+  let lb := size b
+  if la < lb then mulBasecase b a
+  else if lb == 0 then zeros 0
+  else normalize (mulOuter a b la lb 0 (zeros (la + lb)))
+
+/-- Digits `[lo, min hi (size a))` of `a`, normalized. -/
+unsafe def slice (a : @& ByteArray) (lo hi : USize) : ByteArray :=
+  let hi := min hi (size a)
+  if hi ≤ lo then zeros 0 else normalize (copyDigits a lo (zeros 0) 0 (hi - lo))
+
+/-- `a * 2^(32 k)`. -/
+@[inline] unsafe def shiftDigits (a : @& ByteArray) (k : USize) : ByteArray :=
+  if size a == 0 then a else copyDigits a 0 (zeros (size a + k)) k (size a)
+
+/--
+Karatsuba multiplication, falling back to `mulBasecase` below 48 digits (the measured break-even
+point).
+-/
 public unsafe def mul (a b : @& ByteArray) : ByteArray :=
   let la := size a
   let lb := size b
   if la < lb then mul b a
-  else if lb == 0 then zeros 0
-  else normalize (mulOuter a b la lb 0 (zeros (la + lb)))
+  else if lb < 48 then mulBasecase a b
+  else
+    let m := la >>> 1
+    let a0 := slice a 0 m
+    let a1 := slice a m la
+    if lb ≤ m then
+      -- `b` fits into the low half, so there is no product of high halves
+      add (shiftDigits (mul a1 b) m) (mul a0 b)
+    else
+      let b0 := slice b 0 m
+      let b1 := slice b m lb
+      let z0 := mul a0 b0
+      let z2 := mul a1 b1
+      let z1 := sub (sub (mul (add a0 a1) (add b0 b1)) z0) z2
+      add (add (shiftDigits z2 (m <<< 1)) (shiftDigits z1 m)) z0
 
 unsafe def mulAddSmallLoop (a : @& ByteArray) (la : USize) (m : UInt64) (i : USize) (k : UInt64)
     (c : ByteArray) : ByteArray :=

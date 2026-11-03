@@ -1,5 +1,5 @@
 /-!
-Tests for `Nat.powMod` (GMP-backed modular exponentiation from
+Tests for `Nat.powMod` (modular exponentiation from
 `Init.Data.Nat.PowMod`): the square-and-multiply kernel model (`decide`/`rfl`),
 the `lean_nat_powmod` extern (`#guard`/`native_decide`), the `Nat.reducePowMod`
 simproc, edge cases, and the 1024-bit ZMod case from Mathlib that motivated the

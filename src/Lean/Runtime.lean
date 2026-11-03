@@ -53,12 +53,23 @@ def libUVVersion : Nat :=
 def openSSLVersion : Nat :=
   openSSLVersionFn ()
 
-/-- Returns the 32-byte SHA-256 digest of `bytes`. -/
-@[extern "lean_sha256"]
-opaque Internal.sha256 (bytes : @& ByteArray) : ByteArray := .empty
+/-- A SHA-256 digest as its big-endian 64-bit words (i.e., `w0` holds its first eight bytes). -/
+structure Internal.Sha256Digest where
+  w0 : UInt64
+  w1 : UInt64
+  w2 : UInt64
+  w3 : UInt64
 
-/-- Returns the 32-byte SHA-256 digest of the UTF-8 encoding of `s`. -/
+/-- Returns the SHA-256 digest of `bytes`. -/
+@[extern "lean_sha256"]
+opaque Internal.sha256 (bytes : @& ByteArray) : Internal.Sha256Digest := ⟨default, default, default, default⟩
+
+/-- Returns the SHA-256 digest of the UTF-8 encoding of `s`. -/
 @[extern "lean_sha256_string"]
-opaque Internal.sha256String (s : @& String) : ByteArray := .empty
+opaque Internal.sha256String (s : @& String) : Internal.Sha256Digest := ⟨default, default, default, default⟩
+
+/-- Returns the SHA-256 digest of the concatenation of the digests `a` and `b`. -/
+@[extern "lean_sha256_mix"]
+opaque Internal.sha256Mix (a b : @& Internal.Sha256Digest) : Internal.Sha256Digest := ⟨default, default, default, default⟩
 
 end Lean

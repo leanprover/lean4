@@ -185,8 +185,12 @@ where
     | .forallE .. => visitForall type #[]
     | .app ..  => type.withApp visitApp
     | .fvar .. => visitApp type #[]
-    | .proj ``Subtype 0 (.app (.const ``Void.nonemptyType []) _) =>
-      return mkConst ``lcVoid
+    -- TODO: drop `Void.nonemptyType` after the next stage0 update
+    | .proj ``Subtype 0 (.app (.const n []) _) =>
+      if n == ``Void.nonemptyType || n == `ST.Internal.Void.nonemptyType then
+        return mkConst ``lcVoid
+      else
+        return mkConst ``lcAny
     | _        => return mkConst ``lcAny
 
   whnfEta (type : Expr) : MetaM Expr := do

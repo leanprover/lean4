@@ -47,7 +47,11 @@ earliest at the conversion from mono to impure.
 def impureIrrelevantType (type : Expr) : MetaM Bool := do
   let isVoidType type := do
     let type ← Meta.whnfD type
-    return type matches .proj ``Subtype 0 (.app (.const ``Void.nonemptyType []) _)
+    -- TODO: drop `Void.nonemptyType` after the next stage0 update
+    return match type with
+      | .proj ``Subtype 0 (.app (.const n []) _) =>
+        n == ``Void.nonemptyType || n == `ST.Internal.Void.nonemptyType
+      | _ => false
   Meta.isProp type <||> Meta.isTypeFormerType type <||> isVoidType type
 
 /-- Eagerly computes and persists the impure trivial-structure info of `declName`; see `compileDecls`. -/

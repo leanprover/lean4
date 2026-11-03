@@ -555,17 +555,18 @@ partial def splitMatch? (mvarId : MVarId) (declNames : Array Name) : MetaM (Opti
       catch ex =>
         saved.restore
         trace[Elab.definition.eqns] "cannot split {e}\n{ex.toMessageData}"
+        -- Splitting another `match` first may make `e` splittable, as for a `match` whose
+        -- discriminants include let-variables that depend on a variable split by the other one.
+        if let some mvarIds ← go (badCases.insert e) then
+          return some mvarIds
+        -- Otherwise, we zeta-reduce, which is the last resort since it copies values.
         if let some fvarId := fvarId? then
-          -- We zeta-reduce `fvarId` to move `e` toward the target.
           return some [← mvarId.replaceTargetDefEq (← zetaDeltaFVars target #[fvarId])]
-        -- Splitting may fail on a let-variable discriminant. We zeta-reduce these and retry.
         let fvarIds := letVarDiscrs (← getEnv) letValue? e
-        unless fvarIds.isEmpty do
-          let target' ← mvarId.withContext <| zetaDeltaFVars target fvarIds
-          if let some mvarIds ← commitWhenSome? do
-              splitMatch? (← mvarId.replaceTargetDefEq target') declNames then
-            return some mvarIds
-        go (badCases.insert e)
+        if fvarIds.isEmpty then
+          return none
+        let target' ← mvarId.withContext <| zetaDeltaFVars target fvarIds
+        commitWhenSome? do splitMatch? (← mvarId.replaceTargetDefEq target') declNames
     else
       trace[Elab.definition.eqns] "did not find term to split\n{MessageData.ofGoal mvarId}"
       return none

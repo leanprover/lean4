@@ -353,8 +353,9 @@ info: unusedBranch.eq_1 (x a : Nat) :
 -/
 #guard_msgs in #check unusedBranch.eq_1
 
--- Splitting `x` exposes a `match` in the value of `c`, which must then be split too. The `match`
--- generalizes the `have`s, whose values depend on `x`, so they are zeta-reduced to split it.
+-- Splitting `x` exposes a `match` in the value of `c`, which must then be split too. The outer
+-- `match` generalizes the `have`s, whose values depend on `x`, so the `match x` in the value of `a`
+-- is split first, and the outer `match` then reduces.
 def nestedValueCases (x : Nat) : Nat :=
   have a :=
     have b := x + 1
@@ -370,21 +371,18 @@ def nestedValueCases (x : Nat) : Nat :=
 /--
 info: nestedValueCases.eq_1 :
   nestedValueCases 0 =
-    (have b := 0 + 1;
-      b) +
-      have b := 0 + 1;
-      b
+    have a := 0 + 1;
+    have c := a + a;
+    c
 -/
 #guard_msgs in #check nestedValueCases.eq_1
 
 /--
 info: nestedValueCases.eq_3 (n_1 : Nat) :
   nestedValueCases n_1.succ.succ =
-    ((have b := n_1.succ.succ + 1;
-        b + n_1) +
-        have b := n_1.succ.succ + 1;
-        b + n_1) +
-      n_1.succ
+    have a := n_1.succ.succ + 1 + n_1;
+    have c := a + a;
+    c + n_1.succ
 -/
 #guard_msgs in #check nestedValueCases.eq_3
 
@@ -404,15 +402,10 @@ def nestedValueChain (x : Nat) : Nat :=
 /--
 info: nestedValueChain.eq_3 (n_1 : Nat) :
   nestedValueChain n_1.succ.succ =
-    ((have b := n_1.succ.succ + 1;
-          b + n_1) +
-          have b := n_1.succ.succ + 1;
-          b + n_1) +
-        ((have b := n_1.succ.succ + 1;
-          b + n_1) +
-          have b := n_1.succ.succ + 1;
-          b + n_1) +
-      n_1.succ
+    have a := n_1.succ.succ + 1 + n_1;
+    have c := a + a;
+    have d := c + c;
+    d + n_1.succ
 -/
 #guard_msgs in #check nestedValueChain.eq_3
 

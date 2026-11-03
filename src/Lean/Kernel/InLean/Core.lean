@@ -395,7 +395,9 @@ partial def reduceNat (μ : CheckMode) (d : Nat) (e : Expr) : M (Option Expr) :=
         | some n₁ =>
           let w₂ ← whnf μ d b
           match rawNatLit? w₂ with
-          | some n₂ => return natOpResult cn n₁ n₂
+          | some n₂ =>
+            if let some msg := natOpRefusal cn n₁ n₂ then throwDeclined msg
+            return natOpResult cn n₁ n₂
           | none => return none
         | none => return none
       else if natDivModNames.contains cn && natLitSupported env then

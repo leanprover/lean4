@@ -308,7 +308,7 @@ def stopgapUncertified (x : M Unit) : M Unit := do
 
 /-- A definition's check (official `add_definition`; con-leche's
 `checkDeclC` `defnDecl` arm, the pinned Nat operations included).
-`addConst` is core's kernel-internal `Kernel.Environment.add`. -/
+`addConst` is core's private `Kernel.Environment.add`. -/
 def checkDefn (μ : CheckMode) (addConst : Kernel.Environment → ConstantInfo → Kernel.Environment)
     (v : DefinitionVal) : M Added := do
   let ci := ConstantInfo.defnInfo v

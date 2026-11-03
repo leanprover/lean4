@@ -525,6 +525,30 @@ def strLitToConstructor (s : String) : Expr :=
         .app (.app (.app (.const listConsName [.zero]) (.const charName []))
           (.app (.const charOfNatName []) (.lit (.natVal c.toNat)))) e
 
+/-- The official kernel's default bound on a computed numeral (`LEAN_NAT_MAX_SIZE`, 128 MB;
+the environment variable is not read). -/
+def natMaxBytes : Nat := 128 * 1024 * 1024
+
+/-- The official kernel's guards on a literal computation (`reduce_pow`, `reduce_bin_nat_op`):
+a refusal message where the official kernel throws.  Without them a huge exponent or shift
+falls through to unfolding the operation structurally and exhausts the native stack. -/
+def natOpRefusal (c : Name) (a b : Nat) : Option String :=
+  let tooBig := "the kernel refused a `Nat` numeral because its size exceeds the maximum"
+  if c == natPowName then
+    if b ≥ 2 ^ 32 then
+      some "the kernel refused to evaluate `Nat.pow` because its second argument does not fit in a 32-bit unsigned integer"
+    else if a > 1 && (a.log2 + 1) * b > natMaxBytes * 8 then
+      some "the kernel refused to evaluate `Nat.pow` because the result would exceed the maximum numeral size"
+    else none
+  else if c == natShiftLeftName then
+    if b ≥ 2 ^ 32 then
+      some "the kernel refused to evaluate `Nat.shiftLeft` because its second argument does not fit in a 32-bit unsigned integer"
+    else if a != 0 && a.log2 + 1 + b > natMaxBytes * 8 then some tooBig
+    else none
+  else if c == natMulName then
+    if a.log2 + b.log2 + 2 > natMaxBytes * 8 then some tooBig else none
+  else none
+
 /-- Twin of `natOpResult`. -/
 def natOpResult (c : Name) (a b : Nat) : Option Expr :=
   if c == natPredName then some (.lit (.natVal (a - 1)))
@@ -532,7 +556,9 @@ def natOpResult (c : Name) (a b : Nat) : Option Expr :=
   else if c == natSubName then some (.lit (.natVal (a - b)))
   else if c == natMulName then some (.lit (.natVal (a * b)))
   else if c == natPowName then
-    if b > 16777216 then none else some (.lit (.natVal (a ^ b)))
+    if b > 16777216 then
+      if a ≤ 1 then some (.lit (.natVal (if a == 0 && b != 0 then 0 else 1))) else none
+    else some (.lit (.natVal (a ^ b)))
   else if c == natDivName then some (.lit (.natVal (a / b)))
   else if c == natModName then some (.lit (.natVal (a % b)))
   else if c == natGcdName then some (.lit (.natVal (Nat.gcd a b)))

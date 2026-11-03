@@ -8,6 +8,10 @@ module
 prelude
 
 public import Lean.Kernel.InLean.Inductive
+/- The kernel adds checked constants with `Kernel.Environment.add`, `markQuotInit` and
+`Environment.updateBaseAfterKernelAdd`, which are private to `Lean.Environment` so that nothing
+else bypasses the kernel. -/
+import all Lean.Environment
 
 /-!
 # InLean: the entry points
@@ -28,8 +32,7 @@ namespace Lean.Kernel.InLean
 
 open Lean
 
-/-- Add a constant to a kernel environment, unchecked (core's kernel-internal
-`Kernel.Environment.add`). -/
+/-- Add a constant to a kernel environment, unchecked (`Kernel.Environment.add`). -/
 def addConst (env : Kernel.Environment) (ci : ConstantInfo) : Kernel.Environment :=
   env.add ci
 
@@ -182,7 +185,8 @@ def withLCtx (env : Lean.Environment) (lctx : LocalContext) (es : Array Expr)
     (k : Nat → Array Expr → M α) : Except Kernel.Exception α :=
   match runM env.toKernelEnv (do
       let (origs, news, _, _, d) ← openLCtx lctx
-      k d (es.map (·.replaceFVars origs news))) "" true with
+      k d (es.map (·.replaceFVars origs news))) ""
+      coreConfig.coreAxioms coreConfig.uncertifiedNatOps with
   | .ok r => .ok r
   | .error err => .error (.other err.toString)
 

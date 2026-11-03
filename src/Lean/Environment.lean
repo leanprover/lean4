@@ -284,10 +284,8 @@ def find? (env : Environment) (n : Name) : Option ConstantInfo :=
   /- It is safe to use `find'` because we never overwrite imported declarations. -/
   env.constants.find?' n
 
-/-- Kernel-internal: record that the quotient declarations have been added (the kernel's
-`quotDecl` step, `Lean.Kernel.InLean`). -/
 @[export lean_environment_mark_quot_init]
-def markQuotInit (env : Environment) : Environment :=
+private def markQuotInit (env : Environment) : Environment :=
   { env with quotInit := true }
 
 @[export lean_environment_quot_init]
@@ -309,10 +307,8 @@ and the kernel will not catch it if the new option is set to true.
 @[extern "lean_add_decl_without_checking"]
 opaque addDeclWithoutChecking (env : Environment) (decl : Declaration) : Except Exception Environment
 
-/-- Kernel-internal: add a constant without checking it. The kernel (`Lean.Kernel.InLean`) calls
-it for the constants of a declaration it has checked; everyone else goes through `addDeclCore`. -/
 @[export lean_environment_add]
-def add (env : Environment) (cinfo : ConstantInfo) : Environment :=
+private def add (env : Environment) (cinfo : ConstantInfo) : Environment :=
   { env with constants := env.constants.insert cinfo.name cinfo }
 
 @[export lean_kernel_diag_is_enabled]
@@ -2482,10 +2478,8 @@ def Kernel.setDiagnostics (env : Lean.Environment) (diag : Diagnostics) : Lean.E
 
 namespace Environment
 
-/-- Kernel-internal: updates an elab environment with the kernel environment the kernel returned
-for `decl`. -/
 @[export lean_elab_environment_update_base_after_kernel_add]
-def updateBaseAfterKernelAdd (env : Environment) (kenv : Kernel.Environment) (decl : Declaration) : Environment := {
+private def updateBaseAfterKernelAdd (env : Environment) (kenv : Kernel.Environment) (decl : Declaration) : Environment := {
     env with
     checked := .pure kenv
     -- HACK: the old codegen adds some helper constants directly to the kernel environment, we need

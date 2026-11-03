@@ -130,8 +130,11 @@ structure ModuleData where
   compacted region as the rest of the module data, so importing it is free; see `ConstTrie`.
   -/
   constTrie?      : Option (ConstTrie ConstantInfo) := none
-  /-- Prefix tree over `extraConstNames`, set like `constTrie?`. -/
-  extraConstTrie? : Option (ConstTrie Unit) := none
+  /--
+  Prefix tree over the roots of `extraConstNames`, each mapped to `extraConstNames` itself, set like
+  `constTrie?`; see `ModuleData.setupTries`.
+  -/
+  extraConstTrie? : Option (ConstTrie (Array Name)) := none
   deriving Inhabited
 
 /-- Import including information resulting from processing of the entire import DAG. -/
@@ -242,7 +245,7 @@ structure Environment where
   the code generator, that are **not** in the field `constants`. These auxiliary constants are
   invisible to the Lean kernel and elaborator. Only the code generator uses them.
   -/
-  importedExtraConsts     : ImportedConsts Unit := .empty
+  importedExtraConsts     : ImportedConsts (Array Name) := .empty
   /--
   Environment extensions. It also includes user-defined extensions.
   -/
@@ -2133,12 +2136,25 @@ opaque registerPersistentEnvExtension {α β σ : Type} [Inhabited σ] (descr : 
 
 /--
 Fills the `ModuleData` prefix tree fields from the corresponding arrays. Done by the module writers
-just before saving so that no `ModuleData` producer can leave them inconsistent.
+just before saving so that no `ModuleData` producer can leave them inconsistent. The extra constant
+names are sorted for binary search, and their tree only contains their roots, mapped to the sorted
+names: names without a proper prefix among them, with all private names of `mainModule` covered by
+its private prefix. Lookups search the sorted names of every module with a root on the way.
 -/
-private def ModuleData.setupTries (data : ModuleData) : ModuleData :=
+private def ModuleData.setupTries (data : ModuleData) (mainModule : Name) : ModuleData :=
+  let extras := data.extraConstNames.qsort Name.quickLt
+  let own : Std.HashSet Name := extras.foldl (·.insert ·) {}
+  let ownPrivate := mkPrivateNameCore mainModule .anonymous
+  let rec hasOwnPrefix (n : Name) : Bool :=
+    match n with
+    | .anonymous => false
+    | .str p _ | .num p _ => own.contains p || hasOwnPrefix p
+  let roots := extras.filter fun n => privatePrefix? n != some ownPrivate && !hasOwnPrefix n
+  let roots := if extras.any (privatePrefix? · == some ownPrivate) then roots.push ownPrivate else roots
   { data with
     constTrie?      := some (.ofArrays data.constNames data.constants)
-    extraConstTrie? := some (.ofNames data.extraConstNames) }
+    extraConstNames := extras
+    extraConstTrie? := some (.ofArrays roots (.replicate roots.size extras)) }
 
 /--
 Stores each given module data in the respective file name. Objects shared with prior parts are not
@@ -2146,11 +2162,12 @@ duplicated. Thus the data cannot be loaded with individual `readModuleData` call
 passing (a prefix of) the file names to `readModuleDataParts`. `mod` is used to determine an
 arbitrary but deterministic base address for `mmap`.
 -/
-def saveModuleDataParts (mod : Name) (parts : Array (System.FilePath × ModuleData)) : IO Unit := do
+def saveModuleDataParts (mod : Name) (parts : Array (System.FilePath × ModuleData))
+    (mainModule := mod) : IO Unit := do
   /- The tries must be added to all parts before the first save: the chained compactor tracks
      already-compacted objects by address, so objects reachable from earlier parts must stay alive
      until the last save lest reused addresses alias stale compactor entries. -/
-  let parts := parts.map fun (fname, data) => (fname, data.setupTries)
+  let parts := parts.map fun (fname, data) => (fname, data.setupTries mainModule)
   let mut cs : Option Compactor := none
   for h : i in [:parts.size] do
     let (fname, data) := parts[i]
@@ -2288,11 +2305,11 @@ def writeModule (env : Environment) (fname : System.FilePath) (writeIR := true) 
     if writeIR then
       let irData := mkIRData env
       -- Make sure to change the module name so we derive a different base address
-      saveModuleDataParts (env.mainModule ++ `ir) #[
+      saveModuleDataParts (env.mainModule ++ `ir) (mainModule := env.mainModule) #[
         (fname.withExtension "ir.sig", default),  -- to be filled by leanir instead
         (fname.withExtension "ir", irData)]
   else
-    saveModuleData fname env.mainModule (← mkModuleData env).setupTries
+    saveModuleData fname env.mainModule ((← mkModuleData env).setupTries env.mainModule)
 
 /--
 Construct a mapping from persistent extension name to extension index at the array of persistent extensions.

@@ -1571,3 +1571,20 @@ example (a b : Nat) (P : Prop) (ha : a = 0) (h : (a, b).fst = 0 → P) : P ∧ a
     dsimp [fst_mk]
     exact Or.inl ha
     exact h y
+
+-- misc/intro_body_binder: `intro q x` on `Q → ?b` with `?b := X → X`
+example (a b : Nat) (Q C : Prop) (hXC : ((a, b).fst = 0 → (a, b).fst = 0) → C) : W (Q → C) := by
+  sym =>
+    apply body_rule
+    exact hXC
+    intro q x
+    exact x
+
+-- misc/intros_body_binder: same with `intros`
+example (a b : Nat) (Q C : Prop) (hXC : ((a, b).fst = 0 → (a, b).fst = 0) → C) : W (Q → C) := by
+  sym =>
+    apply body_rule
+    exact hXC
+    intros
+    rename_i x
+    exact x

@@ -10,6 +10,7 @@ import Lean.Meta.Tactic.Intro
 import Lean.Meta.Sym.InstantiateS
 import Lean.Meta.Sym.IsClass
 import Lean.Meta.Sym.AlphaShareBuilder
+import Lean.Meta.Sym.InstantiateMVarsS
 namespace Lean.Meta.Sym
 open Lean.Meta.Sym.Internal
 /--
@@ -18,8 +19,11 @@ Efficient `intro` for symbolic simulation.
 Binders without a name in `names` are named after their binder name. If `hygienic` is `true`, those
 names are made inaccessible (fresh macro scopes); otherwise they are accessible names unused in the
 (incrementally built) local context.
+
+If the binders end at an assigned metavariable, e.g., `⊢ ?a` with `?a := p → q`, the binders of its
+value are introduced too.
 -/
-def introCore (mvarId : MVarId) (max : Nat) (names : Array Name) (hygienic : Bool) : SymM (Array FVarId × MVarId) := do
+partial def introCore (mvarId : MVarId) (max : Nat) (names : Array Name) (hygienic : Bool) : SymM (Array FVarId × MVarId) := do
   if max == 0 then return (#[], mvarId)
   let env ← getEnv
   let mvarDecl ← mvarId.getDecl
@@ -99,7 +103,19 @@ def introCore (mvarId : MVarId) (max : Nat) (names : Array Name) (hygienic : Boo
       let fvars      := fvars.push fvar
       let localInsts := updateLocalInsts localInsts fvar type
       visit (i+1) lctx localInsts fvars body
-    | _ => finalize lctx localInsts fvars type
+    | _ =>
+      if type.getAppFn.isMVar then
+        let type ← instantiateRevS type fvars
+        if let some type ← instantiateAssignedMVarHeadS? type then
+          -- Introduces the remaining binders from the value of the metavariable.
+          let mvarId ← if fvars.isEmpty then
+            mvarId.setType type
+            pure mvarId
+          else
+            pure (← finalize lctx localInsts fvars type).2
+          let (fvars', mvarId) ← introCore mvarId (max - i) (names.extract i names.size) hygienic
+          return (fvars ++ fvars'.map mkFVar, mvarId)
+      finalize lctx localInsts fvars type
   let (fvars, mvarId') ← visit 0 mvarDecl.lctx mvarDecl.localInstances #[] mvarDecl.type
   return (fvars.map (·.fvarId!), mvarId')
 

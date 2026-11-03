@@ -25,6 +25,10 @@ theorem trans_and (a b c : Prop) (h₁ : a ⊑ b) (h₂ : b ∧ True → c) : a 
   fun h => h₂ ⟨h₁ h, trivial⟩
 theorem use_imp (a b : Prop) (h₁ : a → b) (h₂ : a) : b := h₁ h₂
 theorem body_rule (a b c : Prop) (h₁ : b → c) (h₂ : a → b) : W (a → c) := fun x => h₁ (h₂ x)
+theorem let_dom (a c : Prop) (v : Nat) (h₁ : a ⊑ (v = 0)) (h₂ : (let y := v; y = 0) → c) : a ⊑ c :=
+  fun h => h₂ (h₁ h)
+theorem let_dom' (a c : Prop) (v : Nat) (h₂ : (let y := v; y = 0) → c) (h₁ : a ⊑ (v = 0)) : a ⊑ c :=
+  fun h => h₂ (h₁ h)
 theorem let_sib (a c : Prop) (v : Nat) (h₁ : a ⊑ (v = 0)) (h₂ : let y := v; y = 0 → c) : a ⊑ c :=
   fun h => h₂ (h₁ h)
 
@@ -1479,5 +1483,25 @@ example (a b : Nat) (P : Prop) (h : (a, b).fst = 0 → P) (h₁ : (True : Prop) 
     apply let_sib
     apply h₁
     intro y x
+    apply h
+    apply x
+
+-- misc/let_domain_value_apply: `x : let y := ?v; y = 0`, and zeta-reducing its type exposes `?v`
+example (a b : Nat) (P : Prop) (h : (a, b).fst = 0 → P) (h₁ : (True : Prop) ⊑ ((a, b).fst = 0)) :
+    (True : Prop) ⊑ P := by
+  sym =>
+    apply let_dom
+    apply h₁
+    intro x
+    apply h
+    apply x
+
+-- misc/let_domain_value_late_apply: same, but `?v` is assigned after `intro x`
+example (a b : Nat) (P : Prop) (h : (a, b).fst = 0 → P) (h₁ : (True : Prop) ⊑ ((a, b).fst = 0)) :
+    (True : Prop) ⊑ P := by
+  sym =>
+    apply let_dom'
+    intro x
+    any_goals apply h₁
     apply h
     apply x

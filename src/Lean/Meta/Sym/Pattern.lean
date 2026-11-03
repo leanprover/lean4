@@ -1190,8 +1190,10 @@ inductive MkPreResultResult where
   `instMVars` are the metavariables created for instance arguments that `trySynthInstance` could
   not discharge. They may still be assigned while processing pending constraints; any that remain
   unassigned mean the pattern was not fully instantiated (see `main`).
+  `newMVars` are all the metavariables created for unassigned pattern variables, including
+  `instMVars`.
   -/
-  | success (mvarsToCheckType : Array MVarId) (instMVars : Array MVarId)
+  | success (mvarsToCheckType : Array MVarId) (instMVars : Array MVarId) (newMVars : Array MVarId)
 
 def mkPreResult : UnifyM MkPreResultResult := do
   let us ← (← get).uAssignment.toList.mapM fun
@@ -1204,6 +1206,7 @@ def mkPreResult : UnifyM MkPreResultResult := do
   let mut args := #[]
   let mut mvarsToCheckType := #[]
   let mut instMVars := #[]
+  let mut newMVars := #[]
   for h : i in *...eAssignment.size do
     if let .some val := eAssignment[i] then
       if tPending.contains i then
@@ -1226,6 +1229,7 @@ def mkPreResult : UnifyM MkPreResultResult := do
           continue
       let mvar ← mkFreshExprMVar type
       let mvar ← shareCommon mvar
+      newMVars := newMVars.push mvar.mvarId!
       if pattern.isInstance i then
         -- Synthesis failed above; record the placeholder so `main` can verify it gets resolved.
         instMVars := instMVars.push mvar.mvarId!
@@ -1234,7 +1238,7 @@ def mkPreResult : UnifyM MkPreResultResult := do
           mvarsToCheckType := mvarsToCheckType.push mvar.mvarId!
       args := args.push mvar
   modify fun s => { s with args, us }
-  return .success mvarsToCheckType instMVars
+  return .success mvarsToCheckType instMVars newMVars
 
 def processPendingLevel : UnifyM Bool := do
   let uPending := (← get).uPending
@@ -1302,6 +1306,10 @@ abbrev UnifyM.run (pattern : Pattern) (unify : Bool) (zetaDelta : Bool) (k : Uni
 
 public structure MatchUnifyResult where
   us : List Level
+  /--
+  Values of the pattern variables. A pattern variable left unassigned is a fresh metavariable whose
+  type contains no assigned metavariables (see `instantiateNewMVarTypes`).
+  -/
   args : Array Expr
   /--
   Instance arguments that could not be synthesized, nor assigned while processing pending
@@ -1315,16 +1323,32 @@ def mkResult (unresolvedInsts : Array MVarId) : UnifyM MatchUnifyResult := do
   let s ← get
   return { s with unresolvedInsts }
 
+/--
+Instantiates the types of the metavariables in `newMVars` (see `mkPreResult`) that are still
+unassigned, e.g., the new goals of `BackwardRule.apply`. `mkPreResult` builds their types before the
+pending constraints are processed, and processing them may assign the metavariables these types
+mention. Example: `le_forall` has pattern `p ⊑ ∀ x : β, q x`, and the `∀` is a pending constraint.
+Thus, the goal `?h : ∀ x : ?β, p ⊑ ?q x` is created before `?β` and `?q` are assigned.
+-/
+def instantiateNewMVarTypes (newMVars : Array MVarId) : SymM Unit := do
+  for mvarId in newMVars do
+    if (← notM mvarId.isAssigned) then
+      let type := (← mvarId.getDecl).type
+      let type' ← instantiateMVarsS type
+      unless isSameExpr type type' do
+        mvarId.setType type'
+
 def main (p : Pattern) (e : Expr) (unify : Bool) (zetaDelta : Bool) : SymM (Option (MatchUnifyResult)) :=
   UnifyM.run p unify zetaDelta do
     unless (← process p.pattern e <&&> processDelayedLevels) do return none
     match (← mkPreResult) with
     | .failed => return none
-    | .success mvarsToCheckType instMVars =>
+    | .success mvarsToCheckType instMVars newMVars =>
       unless (← processPending mvarsToCheckType) do return none
       -- An instance may still be assigned while processing pending constraints; report only those
       -- that remain unresolved so the caller decides whether that is fatal.
       let unresolvedInsts ← instMVars.filterM fun m => return !(← m.isAssigned)
+      instantiateNewMVarTypes newMVars
       return some (← mkResult unresolvedInsts)
 
 /--

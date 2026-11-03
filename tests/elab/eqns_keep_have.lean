@@ -309,6 +309,10 @@ def ctorAlias (x : Nat) : Nat :=
     | 0 => 0
     | m + 1 => m
 
+/-- info: ctorAlias.eq_1 : ctorAlias 0 = 0 -/
+#guard_msgs in #check ctorAlias.eq_1
+
+
 /-- info: ctorAlias.eq_2 (n : Nat) : ctorAlias n.succ = n -/
 #guard_msgs in #check ctorAlias.eq_2
 
@@ -362,6 +366,17 @@ def nestedValueCases (x : Nat) : Nat :=
   | 0 => c
   | n + 1 => c + n
 
+
+/--
+info: nestedValueCases.eq_1 :
+  nestedValueCases 0 =
+    (have b := 0 + 1;
+      b) +
+      have b := 0 + 1;
+      b
+-/
+#guard_msgs in #check nestedValueCases.eq_1
+
 /--
 info: nestedValueCases.eq_3 (n_1 : Nat) :
   nestedValueCases n_1.succ.succ =
@@ -401,7 +416,7 @@ info: nestedValueChain.eq_3 (n_1 : Nat) :
 -/
 #guard_msgs in #check nestedValueChain.eq_3
 
--- Literal patterns overlap, so the `have` is zeta-reduced to split the `match` in its value.
+-- Literal patterns overlap: the `match` in the value is simplified with the hypotheses of the split.
 def valNatLit (x : Nat) : Nat :=
   have y := match x with
     | 5 => 1
@@ -410,9 +425,18 @@ def valNatLit (x : Nat) : Nat :=
   y + y
 /--
 info: equations:
-@[backward_defeq] theorem valNatLit.eq_1 : valNatLit 5 = 1 + 1
-@[backward_defeq] theorem valNatLit.eq_2 : valNatLit 7 = 3 + 3
-theorem valNatLit.eq_3 : ∀ (x : Nat), (x = 5 → False) → (x = 7 → False) → valNatLit x = 2 + 2
+@[backward_defeq] theorem valNatLit.eq_1 : valNatLit 5 =
+  have y := 1;
+  y + y
+@[backward_defeq] theorem valNatLit.eq_2 : valNatLit 7 =
+  have y := 3;
+  y + y
+theorem valNatLit.eq_3 : ∀ (x : Nat),
+  (x = 5 → False) →
+    (x = 7 → False) →
+      valNatLit x =
+        have y := 2;
+        y + y
 -/
 #guard_msgs in #print equations valNatLit
 
@@ -429,19 +453,23 @@ def twoVals (x z : Nat) : Nat :=
 info: equations:
 @[backward_defeq] theorem twoVals.eq_1 : twoVals 0 0 =
   have a := 1;
-  a + a
+  have b := a;
+  b + b
 @[backward_defeq] theorem twoVals.eq_2 : ∀ (n : Nat),
   twoVals n.succ 0 =
     have a := 2;
-    a + a
+    have b := a;
+    b + b
 @[backward_defeq] theorem twoVals.eq_3 : ∀ (n : Nat),
   twoVals 0 n.succ =
     have a := 1;
-    a + 1 + (a + 1)
+    have b := a + 1;
+    b + b
 @[backward_defeq] theorem twoVals.eq_4 : ∀ (n n_1 : Nat),
   twoVals n_1.succ n.succ =
     have a := 2;
-    a + 1 + (a + 1)
+    have b := a + 1;
+    b + b
 -/
 #guard_msgs in #print equations twoVals
 
@@ -454,9 +482,19 @@ def valOverlap (x y : Nat) : Nat :=
   r + r
 /--
 info: equations:
-@[backward_defeq] theorem valOverlap.eq_1 : ∀ (y : Nat), valOverlap 0 y = 1 + 1
-theorem valOverlap.eq_2 : ∀ (x : Nat), (x = 0 → False) → valOverlap x 0 = 2 + 2
-@[backward_defeq] theorem valOverlap.eq_3 : ∀ (n m : Nat), valOverlap n.succ m.succ = n + m + (n + m)
+@[backward_defeq] theorem valOverlap.eq_1 : ∀ (y : Nat),
+  valOverlap 0 y =
+    have r := 1;
+    r + r
+theorem valOverlap.eq_2 : ∀ (x : Nat),
+  (x = 0 → False) →
+    valOverlap x 0 =
+      have r := 2;
+      r + r
+@[backward_defeq] theorem valOverlap.eq_3 : ∀ (n m : Nat),
+  valOverlap n.succ m.succ =
+    have r := n + m;
+    r + r
 -/
 #guard_msgs in #print equations valOverlap
 
@@ -468,8 +506,13 @@ def valMixedDiscr (x : Nat) : Nat :=
   y + y
 /--
 info: equations:
-@[backward_defeq] theorem valMixedDiscr.eq_1 : valMixedDiscr 0 = 1 + 1
-@[backward_defeq] theorem valMixedDiscr.eq_2 : ∀ (n : Nat), valMixedDiscr n.succ = n + (n.succ + 1) + (n + (n.succ + 1))
+@[backward_defeq] theorem valMixedDiscr.eq_1 : valMixedDiscr 0 =
+  have y := 1;
+  y + y
+@[backward_defeq] theorem valMixedDiscr.eq_2 : ∀ (n : Nat),
+  valMixedDiscr n.succ =
+    have y := n + (n.succ + 1);
+    y + y
 -/
 #guard_msgs in #print equations valMixedDiscr
 
@@ -530,7 +573,7 @@ inductive Vec (α : Type) : Nat → Type
   | nil : Vec α 0
   | cons : α → Vec α n → Vec α (n + 1)
 
--- Indexed discriminants in a value: the reduction of the `match` gets stuck, so the `have` is zeta-reduced.
+-- Indexed discriminants in a value.
 def vecTwo (n : Nat) (v w : Vec Nat n) : Nat :=
   have r := match v, w with
     | .nil, .nil => 0
@@ -544,9 +587,13 @@ info: equations:
   have r := 0;
   r + r
 @[backward_defeq] theorem vecTwo.eq_2 : ∀ (n_2 : Nat) (a_1 : Vec Nat n_2) (b : Nat) (a_2 : Vec Nat n_2),
-  vecTwo (n_2 + 1) (Vec.cons 0 a_1) (Vec.cons b a_2) = b + b
+  vecTwo (n_2 + 1) (Vec.cons 0 a_1) (Vec.cons b a_2) =
+    have r := b;
+    r + r
 @[backward_defeq] theorem vecTwo.eq_3 : ∀ (n_2 : Nat) (a_1 : Vec Nat n_2) (b : Nat) (a_2 : Vec Nat n_2) (n : Nat),
-  vecTwo (n_2 + 1) (Vec.cons n.succ a_1) (Vec.cons b a_2) = n + b + (n + b)
+  vecTwo (n_2 + 1) (Vec.cons n.succ a_1) (Vec.cons b a_2) =
+    have r := n + b;
+    r + r
 -/
 #guard_msgs in #print equations vecTwo
 
@@ -626,3 +673,25 @@ info: haveNested.eq_2 (x y : Nat) (x_3 : x = 0 → False) :
 -/
 #guard_msgs in
 #check haveNested.eq_2
+
+def bigHave (x : Nat) (y : Nat) : Nat :=
+  have r := match x with
+    | 0 => y + y * y + y^3
+    | _ => y^4 + y^5 + y
+  r + r + r
+
+/--
+info: bigHave.eq_1 (y : Nat) :
+  bigHave 0 y =
+    have r := y + y * y + y ^ 3;
+    r + r + r
+-/
+#guard_msgs in #check bigHave.eq_1
+
+/--
+info: bigHave.eq_2 (x y : Nat) (x_3 : x = 0 → False) :
+  bigHave x y =
+    have r := y ^ 4 + y ^ 5 + y;
+    r + r + r
+-/
+#guard_msgs in #check bigHave.eq_2

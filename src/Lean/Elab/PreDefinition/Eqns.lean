@@ -469,7 +469,8 @@ on the value. The other arguments are passed to `findMatchToSplit?`.
 let-declarations before `x`: if the value of `x` mentions `y`, and the value of `y` has a `match`
 to split, then `x` is mapped to that `match`.
 
-For example, given
+Each `x` is also mapped to the let-declaration whose value has the `match`, which `splitMatch?`
+moves back into the right-hand side to split it. For example, given
 ```
 x : Nat
 a : Nat := match x with
@@ -477,36 +478,58 @@ a : Nat := match x with
   | _ + 1 => 2
 c : Nat := a + a
 ```
-both `a` and `c` are mapped to the `match` in the value of `a`.
+both `a` and `c` are mapped to the `match` in the value of `a`, and to `a`.
 -/
 def mkLetMatches (deep : Bool) (env : Environment) (declNames : Array Name) (exceptionSet : ExprSet)
-    (letValue? : FVarId → Option Expr) (decls : Array LocalDecl) : MetaM (FVarIdMap Expr) := do
-  let mut letMatches : FVarIdMap Expr := {}
+    (letValue? : FVarId → Option Expr) (decls : Array LocalDecl) :
+    MetaM (FVarIdMap (Expr × FVarId)) := do
+  let mut letMatches : FVarIdMap (Expr × FVarId) := {}
   for decl in decls do
     -- The `match` may be below `let`s at the root of the value.
     let v := expand (← instantiateMVars decl.value)
-    if let some (e, _) := findMatchToSplit? deep env v declNames exceptionSet letValue? letMatches.get? then
-      letMatches := letMatches.insert decl.fvarId e
+    let letMatch? := fun fvarId => (letMatches.get? fvarId).map (·.1)
+    if let some (e, y?) := findMatchToSplit? deep env v declNames exceptionSet letValue? letMatch? then
+      let owner := match y? with
+        | some y => (letMatches.get? y).get!.2
+        | none => decl.fvarId
+      letMatches := letMatches.insert decl.fvarId (e, owner)
   return letMatches
 
 /--
-Splits the `match` application `e`, which is in the value of the let-declaration `fvarId`, keeping
-the declaration. A split substitutes constructors for the discriminants, and `reduceLetValues?`
-then reduces `e`. If the discriminants are not all variables, or the patterns overlap, so that
-reducing `e` needs the hypotheses of the split, zeta-reduces `fvarId` in the target instead, to
-move `e` toward the target.
+Moves the let-declarations `fvarIds`, and the let-declarations that depend on them, from the local
+context back into the right-hand side: the target `lhs = rhs` becomes `lhs = let xs := vs; rhs`.
+There, `Split.splitMatch` and `simpMatch?` rewrite the values `vs`, using the hypotheses of a split.
+A moved value `v` becomes `expand v`, so that a `match` below the `let`s at the root of `v` has no
+loose bound variables. Returns `none` if `lhs` or a declaration that is not a let-declaration
+depends on them.
 -/
-def splitLetValueMatch (mvarId : MVarId) (fvarId : FVarId) (e : Expr) : MetaM (List MVarId) :=
+def moveLetsToRHS? (mvarId : MVarId) (fvarIds : Array FVarId) : MetaM (Option MVarId) :=
   mvarId.withContext do
-    let some app ← matchMatcherApp? e | throwError "unexpected `match` application{indentExpr e}"
-    let letValue? ← mvarId.letValueIn
-    let discrs := app.discrs.map (resolveLetVar letValue?)
-    let matchEqns ← Match.getEquationsFor app.matcherName
-    if discrs.all (·.isFVar) && matchEqns.splitterMatchInfo.altInfos.all (·.numOverlaps == 0) then
-      Split.applyMatchSplitter mvarId app.matcherName app.matcherLevels app.params discrs
-    else
-      let target ← mvarId.getType'
-      return [← mvarId.replaceTargetDefEq (← zetaDeltaFVars target #[fvarId])]
+    let target ← mvarId.getType'
+    let some (_, lhs, rhs) := target.eq? | return none
+    let mut lctx ← getLCtx
+    let mut moved : FVarIdSet := {}
+    let mut xs := #[]
+    for decl in (← getLCtx) do
+      let mut dep := fvarIds.contains decl.fvarId
+      unless dep do
+        dep := (← instantiateMVars decl.type).hasAnyFVar moved.contains
+        if let some v := decl.value? (allowNondep := true) then
+          dep := dep || (← instantiateMVars v).hasAnyFVar moved.contains
+      unless dep do continue
+      let some v := decl.value? (allowNondep := true) | return none
+      moved := moved.insert decl.fvarId
+      xs := xs.push (mkFVar decl.fvarId)
+      lctx := lctx.modifyLocalDecl decl.fvarId (·.setValue (expand (← instantiateMVars v)))
+    if xs.isEmpty || (← instantiateMVars lhs).hasAnyFVar moved.contains then return none
+    let rhs ← withLCtx lctx (← getLocalInstances) do
+      mkLetFVars xs rhs (generalizeNondepLet := false)
+    let target ← mkEq lhs rhs
+    let lctxNew := xs.foldr (init := lctx) fun x lctx => lctx.erase x.fvarId!
+    let mvarNew ← mkFreshExprMVarAt lctxNew (← getLocalInstances) target .syntheticOpaque
+      (← mvarId.getTag)
+    mvarId.assign mvarNew
+    return some mvarNew.mvarId!
 
 partial def splitMatch? (mvarId : MVarId) (declNames : Array Name) : MetaM (Option (List MVarId)) := commitWhenSome? do
   let target ← mvarId.getType'
@@ -517,16 +540,24 @@ partial def splitMatch? (mvarId : MVarId) (declNames : Array Name) : MetaM (Opti
   let rec go (badCases : ExprSet) : MetaM (Option (List MVarId)) := do
     let letMatches ← mkLetMatches deep env declNames badCases letValue? decls
     if let some (e, fvarId?) := findMatchToSplit? deep env target declNames badCases letValue?
-        letMatches.get? then
+        (fun fvarId => (letMatches.get? fvarId).map (·.1)) then
       -- `splitMatch` may assign `mvarId` before failing.
       let saved ← saveState
       try
         match fvarId? with
-        | some fvarId => splitLetValueMatch mvarId fvarId e
+        | some fvarId =>
+          -- `e` is in the value of `owner`, which we move back into the right-hand side.
+          let some (_, owner) := letMatches.get? fvarId | unreachable!
+          let some mvarId' ← moveLetsToRHS? mvarId #[owner]
+            | throwError "cannot move let-declaration to the right-hand side"
+          Meta.Split.splitMatch mvarId' e
         | none => Meta.Split.splitMatch mvarId e
       catch ex =>
         saved.restore
         trace[Elab.definition.eqns] "cannot split {e}\n{ex.toMessageData}"
+        if let some fvarId := fvarId? then
+          -- We zeta-reduce `fvarId` to move `e` toward the target.
+          return some [← mvarId.replaceTargetDefEq (← zetaDeltaFVars target #[fvarId])]
         -- Splitting may fail on a let-variable discriminant. We zeta-reduce these and retry.
         let fvarIds := letVarDiscrs (← getEnv) letValue? e
         unless fvarIds.isEmpty do
@@ -624,88 +655,39 @@ def introRootLets (mvarId : MVarId) : MetaM MVarId := mvarId.withContext do
   return newMVar.mvarId!
 
 /--
-Reduces the `match`es with constructor discriminants in `e`, where a discriminant may also be a
-let-variable whose value is a constructor application, including one bound in `e`.
--/
-def reduceCtorMatches (e : Expr) : MetaM Expr := do
-  let env ← getEnv
-  -- `usedLetOnly` drops the `let`s that only a reduced discriminant used.
-  Meta.transform e (usedLetOnly := true) (post := fun e => do
-    let some info := isMatcherAppCore? env e | return .done e
-    let letValue? := letValueIn (← getLCtx)
-    let mut args := e.getAppArgs
-    for i in info.getFirstDiscrPos...(info.getFirstDiscrPos + info.numDiscrs) do
-      let discr := resolveLetVar letValue? args[i]!
-      if (← isConstructorApp discr) then
-        args := args.set! i discr
-    match (← reduceMatcher? (mkAppN e.getAppFn args)) with
-    | .reduced e => return .visit e.headBeta
-    | _ => return .done e)
-
-/--
-Reduces the `match`es with constructor discriminants in the values of the let-declarations that the
-target depends on, keeping the declarations. A split creates such `match`es by substituting a
-constructor for a variable in a value.
-
-For example, splitting `x` in
-```
-x : Nat
-y : Nat := match x with
-  | 0 => 1
-  | n + 1 => n
-⊢ f x = y + y
-```
-produces the goal
+Simplifies the `match`es with constructor discriminants in the values of the let-declarations that
+the target depends on. A split creates such `match`es by substituting a constructor for a variable
+in a value. The declarations are moved back into the right-hand side, where `simpMatch?` rewrites
+them, as for the declaration `y` in
 ```
 n : Nat
 y : Nat := match n + 1 with
   | 0 => 1
-  | n + 1 => n
+  | m + 1 => m
 ⊢ f (n + 1) = y + y
 ```
-and this function replaces the value of `y` with `n`.
-
-If a `match` does not reduce, as for an inaccessible pattern of an indexed family, the
-let-declaration and the ones that depend on it are zeta-reduced in the target instead, so that
-`simpMatch?` can reduce the `match` there.
+which becomes
+```
+n : Nat
+⊢ f (n + 1) = have y := n; y + y
+```
 -/
-def reduceLetValues? (mvarId : MVarId) : MetaM (Option MVarId) := mvarId.withContext do
-  let decls ← usedLetDecls mvarId
-  if decls.isEmpty then return none
-  let letValue? ← mvarId.letValueIn
-  let mut lctx ← getLCtx
-  let mut modified := false
-  -- The declarations whose values still have such a `match`, and the ones that depend on them.
-  let mut stuck : Array FVarId := #[]
-  let mut stuckSet : FVarIdSet := {}
-  for decl in decls do
-    let v ← instantiateMVars decl.value
-    if v.hasAnyFVar stuckSet.contains then
-      stuck := stuck.push decl.fvarId
-      stuckSet := stuckSet.insert decl.fvarId
-    else if (← shouldUseSimpMatch (expand v) letValue?) then
-      let v' ← reduceCtorMatches v
-      if v' != v then
-        lctx := lctx.modifyLocalDecl decl.fvarId (·.setValue v')
-        modified := true
-      if (← shouldUseSimpMatch (expand v') letValue?) then
-        stuck := stuck.push decl.fvarId
-        stuckSet := stuckSet.insert decl.fvarId
-  if !modified && stuck.isEmpty then
-    return none
-  let mut target ← mvarId.getType
-  -- `reduceCtorMatches` may get stuck where `simpMatch?` succeeds, as for an inaccessible pattern
-  -- of an indexed family, so we zeta-reduce these declarations to move the `match` to the target.
-  unless stuck.isEmpty do
-    target ← withLCtx lctx (← getLocalInstances) <| zetaDeltaFVars target stuck
-  let mvarNew ← mkFreshExprMVarAt lctx (← getLocalInstances) target .syntheticOpaque (← mvarId.getTag)
-  mvarId.assign mvarNew
-  return some mvarNew.mvarId!
+def simpLetValues? (mvarId : MVarId) : MetaM (Option MVarId) := commitWhenSome? do
+  mvarId.withContext do
+    let decls ← usedLetDecls mvarId
+    if decls.isEmpty then return none
+    let letValue? ← mvarId.letValueIn
+    let fvarIds ← decls.filterMapM fun decl => do
+      let v := expand (← instantiateMVars decl.value)
+      return if ← shouldUseSimpMatch v letValue? then some decl.fvarId else none
+    if fvarIds.isEmpty then return none
+    let some mvarId ← moveLetsToRHS? mvarId fvarIds | return none
+    simpMatch? mvarId
 
 /-- Simplifies or splits a `match` of the right-hand side. Commits only if this makes progress. -/
 def tryStep? (mvarId : MVarId) (declNames : Array Name) : MetaM (Option (List MVarId)) :=
   commitWhenSome? do
-    if let some mvarId ← reduceLetValues? mvarId then
+    if let some mvarId ← simpLetValues? mvarId then
       return some [mvarId]
     if let some mvarId ← simpCtorLetDiscrs? mvarId then
       return some [mvarId]

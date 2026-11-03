@@ -14,11 +14,13 @@ structWithAlgTCSynth.lean:600:4-600:10: warning: declaration uses `sorry`
 structWithAlgTCSynth.lean:619:9-619:12: warning: declaration uses `sorry`
 structWithAlgTCSynth.lean:624:9-624:21: warning: declaration uses `sorry`
 structWithAlgTCSynth.lean:627:9-627:22: warning: declaration uses `sorry`
+structWithAlgTCSynth.lean:627:9-627:22: warning: declaration uses `sorry`
 structWithAlgTCSynth.lean:633:9-633:12: warning: declaration uses `sorry`
 structWithAlgTCSynth.lean:636:9-636:12: warning: declaration uses `sorry`
 structWithAlgTCSynth.lean:639:9-639:21: warning: declaration uses `sorry`
 structWithAlgTCSynth.lean:642:9-642:21: warning: declaration uses `sorry`
 structWithAlgTCSynth.lean:666:9-666:22: warning: declaration uses `sorry`
+structWithAlgTCSynth.lean:745:9-745:34: warning: declaration uses `sorry`
 structWithAlgTCSynth.lean:745:9-745:34: warning: declaration uses `sorry`
 structWithAlgTCSynth.lean:769:9-769:26: warning: declaration uses `sorry`
 structWithAlgTCSynth.lean:776:9-776:25: warning: declaration uses `sorry`

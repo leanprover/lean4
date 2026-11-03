@@ -87,6 +87,13 @@ NUM_REPLAY_ARTS=8
 NUM_DEP_ARTS=1
 NUM_DEP_REPLAY_ARTS=4
 
+# With the LLVM backend every module also produces a bitcode artifact, which a replay unpacks
+# alongside the other outputs.
+if "$LAKE" env lean --features 2> /dev/null | grep -q LLVM; then
+  NUM_REPLAY_ARTS=$((NUM_REPLAY_ARTS + 2))
+  NUM_DEP_REPLAY_ARTS=$((NUM_DEP_REPLAY_ARTS + 1))
+fi
+
 # Runs a command with the cache endpoints set through the environment,
 # which is the deprecated alternative to a configured service
 with_endpoints() {

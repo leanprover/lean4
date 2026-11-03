@@ -19,12 +19,8 @@ public:
     explicit nat(unsigned v):object_ref(mk_nat_obj(v)) {}
     explicit nat(unsigned long v):object_ref(usize_to_nat(v)) {}
     explicit nat(unsigned long long v):object_ref(lean_uint64_to_nat(v)) {}
-    explicit nat(mpz const & v):object_ref(mk_nat_obj(v)) {}
-    explicit nat(char const * v):object_ref(box(0)) {
-        mpz m(v);
-        if (m > 0)
-            *this = nat(mk_nat_obj(m));
-    }
+    /* Parses the decimal digits of `v`. */
+    explicit nat(char const * v):object_ref(lean_cstr_to_nat(v)) {}
 
     nat(nat const & other):object_ref(other) {}
     nat(nat && other) noexcept:object_ref(std::move(other)) {}
@@ -34,10 +30,14 @@ public:
     bool is_small() const { return is_scalar(raw()); }
     size_t get_small_value() const { lean_assert(is_small()); return unbox(raw()); }
     bool is_zero() const { return is_small() && get_small_value() == 0; }
-    mpz const & get_big_value() const { lean_assert(!is_small()); return mpz_value(raw()); }
-    mpz to_mpz() const { return is_small() ? mpz(mpz::of_size_t(unbox(raw()))) : mpz_value(raw()); }
-    std::string to_std_string() const { return to_mpz().to_string(); }
-    static unsigned hash(object * o) { return is_scalar(o) ? static_cast<unsigned>(unbox(o)) : mpz_value(o).hash(); }
+    std::string to_std_string() const {
+        if (is_small()) return std::to_string(get_small_value());
+        object_ref s(lean_nat_big_to_decimal(raw()));
+        return std::string(lean_string_cstr(s.raw()));
+    }
+    static unsigned hash(object * o) {
+        return is_scalar(o) ? static_cast<unsigned>(unbox(o)) : static_cast<unsigned>(lean_uint64_of_big_nat(o));
+    }
     unsigned hash() const { return hash(raw()); }
     friend bool operator==(nat const & a, nat const & b) { return nat_eq(a.raw(), b.raw()); }
     friend bool operator!=(nat const & a, nat const & b) { return !(a == b); }
@@ -77,5 +77,5 @@ inline optional<nat> to_optional_nat(obj_arg o) {
     return r;
 }
 
-inline std::ostream & operator<<(std::ostream & out, nat const & n) { out << n.to_mpz(); return out; }
+inline std::ostream & operator<<(std::ostream & out, nat const & n) { out << n.to_std_string(); return out; }
 };

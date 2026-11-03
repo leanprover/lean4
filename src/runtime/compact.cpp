@@ -243,7 +243,6 @@ object_offset object_compactor::compact(object * o) {
     case LeanArray:           return insert_array(o);
     case LeanScalarArray:     return insert_sarray(o);
     case LeanString:          return insert_string(o);
-    case LeanMPZ:             return insert_mpz(o);
     case LeanThunk:           return insert_thunk(o);
     case LeanTask:            return insert_task(o);
     case LeanPromise:         return insert_promise(o);
@@ -389,39 +388,6 @@ object_offset object_compactor::insert_promise(object * o) {
     return save_max_sharing(o, r, sz);
 }
 
-object_offset object_compactor::insert_mpz(object * o) {
-#ifdef LEAN_USE_GMP
-    size_t nlimbs = mpz_size(to_mpz(o)->m_value.m_val);
-    size_t data_sz = lean_usize_mul_checked(sizeof(mp_limb_t), nlimbs);
-    size_t sz = lean_usize_add_checked(sizeof(mpz_object), data_sz);
-    mpz_object * new_o = (mpz_object *)alloc(sz);
-    memcpy((void*)new_o, to_mpz(o), sizeof(mpz_object));
-    lean_set_non_heap_header((lean_object*)new_o, sz, LeanMPZ, 0);
-    __mpz_struct & m = new_o->m_value.m_val[0];
-    // we assume the limb array is the only indirection in an `__mpz_struct` and everything else can be bitcopied
-    void * data = reinterpret_cast<char*>(new_o) + sizeof(mpz_object);
-    memcpy(data, m._mp_d, data_sz);
-    m._mp_d = reinterpret_cast<mp_limb_t *>(reinterpret_cast<char *>(data) - reinterpret_cast<char *>(m_begin) + reinterpret_cast<ptrdiff_t>(m_base_addr));
-    m._mp_alloc = nlimbs;
-    return save(o, (lean_object*)new_o);
-#else
-    size_t data_sz = lean_usize_mul_checked(sizeof(mpn_digit), to_mpz(o)->m_value.m_size);
-    size_t sz      = lean_usize_add_checked(sizeof(mpz_object), data_sz);
-    mpz_object * new_o = (mpz_object *)alloc(sz);
-    // Manually copy the `mpz_object` to ensure `mpz` struct padding is left as
-    // zero as prepared by `object_compactor::alloc`. `memcpy` would copy the
-    // padding and lead to non-deterministic outputs.
-    new_o->m_header = to_mpz(o)->m_header;
-    new_o->m_value.m_sign = to_mpz(o)->m_value.m_sign;
-    new_o->m_value.m_size = to_mpz(o)->m_value.m_size;
-    lean_set_non_heap_header((lean_object*)new_o, sz, LeanMPZ, 0);
-    void * data = reinterpret_cast<char*>(new_o) + sizeof(mpz_object);
-    memcpy(data, to_mpz(o)->m_value.m_digits, data_sz);
-    new_o->m_value.m_digits = reinterpret_cast<mpn_digit *>(reinterpret_cast<char *>(data) - reinterpret_cast<char *>(m_begin) + reinterpret_cast<ptrdiff_t>(m_base_addr));
-    return save(o, (lean_object*)new_o);
-#endif
-}
-
 #ifdef LEAN_TAG_COUNTERS
 
 static size_t g_tag_counters[256];
@@ -442,7 +408,6 @@ struct tag_counter_manager {
         display_kind("#sarray:   ", LeanStructArray);
         display_kind("#scarray:  ", LeanScalarArray);
         display_kind("#string:   ", LeanString);
-        display_kind("#mpz:      ", LeanMPZ);
         display_kind("#thunk:    ", LeanThunk);
         display_kind("#task:     ", LeanTask);
         display_kind("#promise:  ", LeanPromise);
@@ -593,17 +558,6 @@ inline void region_reader::fix_promise(object * o) {
     move(sizeof(lean_promise_object));
 }
 
-void region_reader::fix_mpz(object * o) {
-#ifdef LEAN_USE_GMP
-    __mpz_struct & m = to_mpz(o)->m_value.m_val[0];
-    m._mp_d = reinterpret_cast<mp_limb_t *>(static_cast<char *>(m_begin) + reinterpret_cast<size_t>(m._mp_d) - reinterpret_cast<size_t>(m_base_addr));
-    move(sizeof(mpz_object) + sizeof(mp_limb_t) * mpz_size(to_mpz(o)->m_value.m_val));
-#else
-    to_mpz(o)->m_value.m_digits = reinterpret_cast<mpn_digit*>(reinterpret_cast<char*>(o) + sizeof(mpz_object));
-    move(sizeof(mpz_object) + sizeof(mpn_digit) * to_mpz(o)->m_value.m_size);
-#endif
-}
-
 void region_reader::fix_closure(object * o) {
     // Fix captured object pointers. The closure's `m_fun` is relocated separately
     // via `m_closure_offsets` before the walk runs.
@@ -674,7 +628,6 @@ object * region_reader::read() {
             case LeanArray:           fix_array(curr); break;
             case LeanScalarArray:     move(lean_sarray_byte_size(curr)); break;
             case LeanString:          move(lean_string_byte_size(curr)); break;
-            case LeanMPZ:             fix_mpz(curr); break;
             case LeanThunk:           fix_thunk(curr); break;
             case LeanRef:             fix_ref(curr); break;
             case LeanTask:            fix_task(curr); break;

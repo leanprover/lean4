@@ -168,7 +168,7 @@ public unsafe def natLor (a b : Nat) : Nat := ofMag (lor (mag a) (mag b))
 @[export lean_bignum_nat_big_xor]
 public unsafe def natXor (a b : Nat) : Nat := ofMag (xor (mag a) (mag b))
 
-@[export lean_bignum_nat_shiftl]
+@[export lean_bignum_nat_big_shiftl]
 public unsafe def natShiftLeft (a b : Nat) : Nat :=
   if isZero a then box 0
   else if !isScalar b || unbox b > uintMax then internalPanic "Nat.shiftl exponent is too big"

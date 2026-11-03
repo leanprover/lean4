@@ -247,7 +247,7 @@ struct print_expr_fn {
             break;
         case expr_kind::Proj:
             print_child(proj_expr(a));
-            out() << "." << proj_idx(a).to_mpz() + 1;
+            out() << "." << proj_idx(a) + nat(1u);
             break;
         case expr_kind::BVar:
             out() << "#" << bvar_idx(a);
@@ -278,7 +278,7 @@ struct print_expr_fn {
             break;
         case expr_kind::Lit:
             switch (lit_value(a).kind()) {
-            case literal_kind::Nat: out() << lit_value(a).get_nat().to_mpz(); break;
+            case literal_kind::Nat: out() << lit_value(a).get_nat(); break;
             case literal_kind::String: {
                 std::string val(lit_value(a).get_string().to_std_string());
                 out() << "\"" << escaped(val.c_str()) << "\""; break; // HACK Lean string as C string

@@ -336,8 +336,10 @@ public def compileInductives (typeNames : Array Name) : CoreM Unit := do
     setImpureType typeName
   for typeName in inductiveNames do  -- reads the type-level info above
     let .inductInfo iv ← getConstInfo typeName | unreachable!
+    let isPred ← Meta.MetaM.run' <| Meta.isPropFormerType iv.type
     for ctorName in iv.ctors do
       setOtherDeclMonoType ctorName
-      setCtorLayout ctorName
+      unless isPred do
+        setCtorLayout ctorName
 
 end Lean.Compiler.LCNF

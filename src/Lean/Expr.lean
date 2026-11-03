@@ -2027,6 +2027,28 @@ def updateFn : Expr → Expr → Expr
   | _,           g => g
 
 /--
+N-ary version of `updateApp!`. The result equal to `mkAppN newFn newArgs`, but application
+nodes of `e` are reused when their function and argument are pointer-equal to the new ones.
+-/
+def updateAppN (e : Expr) (newFn : Expr) (newArgs : Array Expr) : Expr :=
+  go e newArgs.size
+where
+  go : Expr → Nat → Expr
+    | e@(app f _), i + 1 => e.updateApp! (go f i) newArgs[i]!
+    | _,           i     => mkAppRange newFn 0 i newArgs
+
+/--
+Given `e = f a₁ ... aₙ`, runs `k f #[a₁, ..., aₙ]` to obtain a new function and arguments.
+If the function and arguments are pointer equal to the input to `k`, the result is pointer equal
+to `e`.
+-/
+@[inline] def mapAppN {m : Type → Type} [Monad m] (e : Expr)
+    (k : Expr → Array Expr → m (Expr × Array Expr)) : m Expr :=
+  e.withApp fun f args => do
+    let (newF, newArgs) ← k f args
+    return e.updateAppN newF newArgs
+
+/--
 Eta reduction. If `e` is of the form `(fun x => f x)`, then return `f`.
 -/
 def eta (e : Expr) : Expr :=

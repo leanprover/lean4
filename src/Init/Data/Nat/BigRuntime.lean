@@ -51,13 +51,16 @@ open Nat.Big
 @[inline] public def smallIntBound : UInt64 := if is64 then 0x80000000 else 0x40000000
 @[inline] public def uintMax : USize := 0xFFFFFFFF
 
+/-- The magnitude `1`, as a function so that it is not a module-level constant. -/
+@[inline] public def one (_ : Unit) : Mag := ofUInt64 1
+
 /-- The magnitude of a `Nat`. -/
-@[inline] public unsafe def mag (n : @& Nat) : ByteArray :=
+@[inline] public unsafe def mag (n : @& Nat) : Mag :=
   if isScalar n then ofUInt64 (unbox n).toUInt64 else unsafeCast n
 
 /-- The `Nat` with the normalized magnitude `m`. -/
-@[inline] public unsafe def ofMag (m : ByteArray) : Nat :=
-  if size m ≤ 2 then
+@[inline] public unsafe def ofMag (m : Mag) : Nat :=
+  if m.usize ≤ 2 then
     let v := low64 m
     if v ≤ maxSmallNat.toUInt64 then box v.toUSize else unsafeCast m
   else unsafeCast m
@@ -66,22 +69,21 @@ open Nat.Big
 @[inline] public def isNegBig (b : @& ByteArray) : Bool := b.usize &&& 3 == 1
 
 /-- Whether an `Int` is negative, and its magnitude. -/
-@[inline] public unsafe def intMag (i : @& Int) : Bool × ByteArray :=
+@[inline] public unsafe def intMag (i : @& Int) : Bool × Mag :=
   if isScalarInt i then
     let v := scalarToInt64 i
     if v < 0 then (true, ofUInt64 (0 - v.toUInt64)) else (false, ofUInt64 v.toUInt64)
   else
-    let b : ByteArray := unsafeCast i
-    (isNegBig b, b)
+    (isNegBig (unsafeCast i), unsafeCast i)
 
 /-- The `Int` with sign `neg` and the normalized magnitude `m`, which may end in a sign byte. -/
-public unsafe def ofIntMag (neg : Bool) (m : ByteArray) : Int :=
-  let n := size m
+public unsafe def ofIntMag (neg : Bool) (m : Mag) : Int :=
+  let n := m.usize
   let v := low64 m
   if n ≤ 2 && (if neg then v ≤ smallIntBound else v < smallIntBound) then
     ofSmallInt64 (if neg then (0 - v).toInt64 else v.toInt64)
   else
-    let m := if m.usize &&& 3 == 0 then m else m.shrink (n <<< 2).toNat
+    let m := if m.bytes.usize &&& 3 == 0 then m.bytes else m.bytes.shrink (n <<< 2).toNat
     if neg then unsafeCast (m.push 1) else unsafeCast m
 
 /-! ## Construction -/
@@ -180,7 +182,7 @@ public unsafe def natShiftRight (a b : Nat) : Nat :=
     let s := unbox b
     let ma := mag a
     if s > uintMax then
-      if size ma != 0 && log2 ma ≥ s then internalPanic "Nat.shiftr exponent is too big" else box 0
+      if ma.usize != 0 && log2 ma ≥ s then internalPanic "Nat.shiftr exponent is too big" else box 0
     else ofMag (shiftRight ma s)
 
 @[export lean_bignum_nat_pow]
@@ -212,7 +214,7 @@ public unsafe def natLog2 (a : Nat) : Nat :=
 /-- The size of `a`'s representation in bytes; used for the kernel's size limits. -/
 @[export lean_bignum_nat_size_in_bytes]
 public unsafe def natSizeInBytes (a : Nat) : USize :=
-  if isScalar a then (if is64 then 8 else 4) else (mag a).usize
+  if isScalar a then (if is64 then 8 else 4) else (mag a).bytes.usize
 
 @[inline] public unsafe def trailingZerosUSize (n : USize) : USize :=
   if n == 0 then 0 else trailingZeros (ofUInt64 n.toUInt64)
@@ -225,7 +227,7 @@ public unsafe def natTrailingZeros (a : Nat) : Nat :=
 public unsafe def intTrailingZeros (a : Int) : Nat :=
   -- the magnitude has the same trailing zeros as the two's complement representation
   let (_, m) := intMag a
-  if size m == 0 then box 0 else box (trailingZeros m)
+  if m.usize == 0 then box 0 else box (trailingZeros m)
 
 /-! ## `Int` arithmetic -/
 
@@ -237,7 +239,7 @@ public unsafe def intNeg (a : Int) : Int :=
   let (n, m) := intMag a
   ofIntMag (!n) m
 
-@[inline] public unsafe def signedAdd (na : Bool) (ma : ByteArray) (nb : Bool) (mb : ByteArray) : Int :=
+@[inline] public unsafe def signedAdd (na : Bool) (ma : Mag) (nb : Bool) (mb : Mag) : Int :=
   if na == nb then ofIntMag na (add ma mb)
   else if cmp ma mb == .lt then ofIntMag nb (sub mb ma)
   else ofIntMag na (sub ma mb)
@@ -288,7 +290,7 @@ public unsafe def intEDiv (a b : Int) : Int :=
     let (na, ma) := intMag a
     let (nb, mb) := intMag b
     let (q, r) := divMod ma mb
-    if na && size r != 0 then ofIntMag (!nb) (add q (one ())) else ofIntMag (na != nb) q
+    if na && r.usize != 0 then ofIntMag (!nb) (add q (one ())) else ofIntMag (na != nb) q
 
 @[export lean_bignum_int_big_emod]
 public unsafe def intEMod (a b : Int) : Int :=
@@ -296,7 +298,7 @@ public unsafe def intEMod (a b : Int) : Int :=
     let (na, ma) := intMag a
     let (_, mb) := intMag b
     let r := (divMod ma mb).2
-    if na && size r != 0 then ofIntMag false (sub mb r) else ofIntMag false r
+    if na && r.usize != 0 then ofIntMag false (sub mb r) else ofIntMag false r
 
 @[inline] public unsafe def intCmp (a b : @& Int) : Ordering :=
   let (na, ma) := intMag a

@@ -826,6 +826,21 @@ register_builtin_option backward.whnf.reducibleClassField : Bool := {
 }
 
 /--
+`deltaBetaDefinition` for the application `e` of `fInfo` at universe levels `us`, cached in
+`Cache.unfold`: most applications get unfolded repeatedly, e.g. while `isDefEq` backtracks.
+-/
+private def deltaBetaCached (fInfo : ConstantInfo) (us : List Level) (e : Expr) : MetaM Expr := do
+  let key : ExprStructEq := e
+  let c := (← get).cache.unfold
+  if let some r := c.new.find? key then
+    return r
+  let r ← match c.old.find? key with
+    | some r => pure r
+    | none => pure <| (← instantiateValueLevelParams fInfo us).betaRev e.getAppRevArgs
+  modifyUnfoldCache (·.insert key r)
+  return r
+
+/--
 Default unfolding function. `e` is of the form `f.{us} a₁ ... aₙ`, and `fInfo` is the `ConstantInfo` for `f`.
 This function has special support for unfolding class fields.
 The support is particularly important when the user marks a class field as `[reducible]` and
@@ -838,16 +853,18 @@ a `[reducible]` class field, we also unfold the associated projection `instLENat
 private def unfoldDefault (fInfo : ConstantInfo) (us : List Level) (e : Expr) : MetaM (Option Expr) := do
   if fInfo.hasValue then
     recordUnfold fInfo.name
-    deltaBetaDefinition fInfo us e.getAppRevArgs (fun _ => pure none) fun e => do
-      if !(← getOptionFlags).reducibleClassField then
-        return some e
-      else if !(← getTransparency) matches .reducible then
-        return some e
-      else if (← isProjInst fInfo.name) then
-        let some r ← withReducibleAndInstances <| reduceProj? e.getAppFn | return some e
-        return mkAppN r e.getAppArgs |>.headBeta
-      else
-        return some e
+    if fInfo.levelParams.length != us.length then
+      return none
+    let e ← deltaBetaCached fInfo us e
+    if !(← getOptionFlags).reducibleClassField then
+      return some e
+    else if !(← getTransparency) matches .reducible then
+      return some e
+    else if (← isProjInst fInfo.name) then
+      let some r ← withReducibleAndInstances <| reduceProj? e.getAppFn | return some e
+      return mkAppN r e.getAppArgs |>.headBeta
+    else
+      return some e
   else
     if fInfo.isAxiom then
       recordUnfoldAxiom fInfo.name

@@ -24,7 +24,7 @@ namespace Lean.Meta.Tactic.Cbv
 
 open Lean.Meta.Sym.Simp
 
-abbrev isNatValue (e : Expr) : Bool := (Sym.getNatValue? e).isSome
+abbrev isNatValue (e : Expr) : Bool := Sym.isNatValue e
 abbrev isStringValue (e : Expr) : Bool := (Sym.getStringValue? e).isSome
 abbrev isIntValue (e : Expr) : Bool := (Sym.getIntValue? e).isSome
 abbrev isBitVecValue (e : Expr) : Bool := (Sym.getBitVecValue? e).isSome

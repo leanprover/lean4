@@ -62,7 +62,7 @@ example (_p i j count : BitVec 32) (l : List Nat) (n : Nat)
    List.take (j - (i + count)).toNat (List.drop (i + count).toNat l) ++
    List.take count.toNat (List.drop i.toNat l) ++
    List.drop (count.toNat + j.toNat) l) := by
-  grind (splits := 32)
+  grind
 
 example (_p i j count : BitVec 32) (l : List Nat) (n : Nat)
   (h1 : i.unsigned + count.unsigned ≤ j.unsigned)
@@ -79,7 +79,7 @@ example (_p i j count : BitVec 32) (l : List Nat) (n : Nat)
    List.take (j - (i + count)).toNat (List.drop (i + count).toNat l) ++
    List.take count.toNat (List.drop i.toNat l) ++
    List.drop (count.toNat + j.toNat) l) := by
-  grind (splits := 32)
+  grind
 
 example (A : Type) (s1 : List A) :
   ((s1.drop 1).length : Int) + 1 ≤ (s1.length : Int) + 1 := by

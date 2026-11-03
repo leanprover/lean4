@@ -29,4 +29,4 @@ theorem ex
       p7 ∨ q7 →
       p8 ∨ q8 →
       False := by
-  grind (splits := 10)
+  grind

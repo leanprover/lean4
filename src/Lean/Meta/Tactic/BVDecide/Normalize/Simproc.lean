@@ -463,8 +463,8 @@ def extractLsb' (wExpr startExpr lenExpr targetExpr : Expr) : SimprocM (Sym.Simp
   -- For a symbolic start with known widths, we reduce to shift by the symbolic start + setWidth
   -- by the known widths. This is sensible as we can perform a limited degree of reasoning on
   -- symbolic shifts.
-  if (Sym.getNatValue? startExpr).isNone then
-    unless (Sym.getNatValue? wExpr).isSome && (Sym.getNatValue? lenExpr).isSome do return .rfl
+  if !Sym.isNatValue startExpr then
+    unless Sym.isNatValue wExpr && Sym.isNatValue lenExpr do return .rfl
     let shifted ← BitVec.mkNatShiftRight targetExpr startExpr wExpr
     let expr ← BitVec.mkSetWidth wExpr lenExpr shifted
     let proof := mkApp4
@@ -1350,7 +1350,7 @@ def bvShiftLeftNat (α lhsExpr rhsExpr : Expr) : SimprocM (Sym.Simp.Result) := d
 
 def bvSshiftRightNat (wExpr lhsExpr rhsExpr : Expr) : SimprocM (Sym.Simp.Result) := do
   -- Literal amounts are bitblasted directly via `BVUnOp.arithShiftRightConst`.
-  if (Sym.getNatValue? rhsExpr).isSome then return .rfl
+  if Sym.isNatValue rhsExpr then return .rfl
   -- Handled by other rewrite rules
   if isBitVecToNat rhsExpr then return .rfl
   let some w := Sym.getNatValue? wExpr | return .rfl

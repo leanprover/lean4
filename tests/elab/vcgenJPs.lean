@@ -284,3 +284,17 @@ def wide (x : Nat) : StateM Nat Nat := do
 theorem wide_triple : ⦃ fun _ => True ⦄ wide x ⦃ fun r => ⌜r > 1⌝ ⦄ := by
   unfold wide
   vcgen +jp with finish
+
+-- The join point precedes a root `match`, and `root_match.eq_2` keeps it for the call
+-- `root_match (k + 1) b`: the two jumps of the `if` share it, so there is a single VC.
+def root_match (x : Nat) (b : Bool) : StateM Nat Nat := do
+  let mut y := 0
+  match x with
+  | 0 => y := 1
+  | _ + 1 => if b then y := 2 else y := 3
+  let s ← get
+  return y + s
+
+theorem root_match_triple : ⦃ fun _ => True ⦄ root_match (k + 1) b ⦃ fun r => ⌜r > 0⌝ ⦄ := by
+  vcgen +jp [root_match]
+  case vc1 => grind

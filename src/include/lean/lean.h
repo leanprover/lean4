@@ -1343,6 +1343,14 @@ static inline uint8_t lean_byte_array_fget(b_lean_obj_arg a, b_lean_obj_arg i) {
 }
 
 LEAN_EXPORT lean_obj_res lean_byte_array_push(lean_obj_arg a, uint8_t b);
+LEAN_EXPORT lean_obj_res lean_byte_array_replicate(b_lean_obj_arg n, uint8_t v);
+
+static inline lean_obj_res lean_byte_array_shrink(lean_obj_arg a, b_lean_obj_arg n) {
+    if (!lean_is_scalar(n) || lean_unbox(n) >= lean_sarray_size(a)) return a;
+    lean_obj_res r = lean_sarray_ensure_exclusive(a);
+    lean_sarray_set_size(r, lean_unbox(n));
+    return r;
+}
 
 static inline lean_object * lean_byte_array_uset(lean_obj_arg a, size_t i, uint8_t v) {
     lean_obj_res r = lean_sarray_ensure_exclusive(a);

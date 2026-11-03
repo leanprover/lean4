@@ -69,3 +69,20 @@ public def ByteArray.usetUInt32LE (a : ByteArray) (i : USize) (v : UInt32)
     (_h : i.toNat + 4 ≤ a.size := by get_elem_tactic) : ByteArray :=
   a.set! i.toNat v.toUInt8 |>.set! (i.toNat + 1) (v >>> 8).toUInt8
     |>.set! (i.toNat + 2) (v >>> 16).toUInt8 |>.set! (i.toNat + 3) (v >>> 24).toUInt8
+
+/--
+Returns an array of {name}`n` bytes, each equal to {name}`v`.
+-/
+@[extern "lean_byte_array_replicate"]
+public def ByteArray.replicate (n : @& Nat) (v : UInt8) : ByteArray :=
+  ⟨Array.replicate n v⟩
+
+/--
+Returns the first {name}`n` bytes of {name}`a`, or {name}`a` itself if it has at most {name}`n`
+bytes.
+
+If there are no other references to the array, it is shrunk in-place without copying.
+-/
+@[extern "lean_byte_array_shrink"]
+public def ByteArray.shrink (a : ByteArray) (n : @& Nat) : ByteArray :=
+  a.extract 0 n

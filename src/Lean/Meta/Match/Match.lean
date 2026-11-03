@@ -651,11 +651,25 @@ private def processNonVariable (p : Problem) : MetaM Problem := withGoalOf p do
     | _      => unreachable!
   return { p with alts := alts, vars := xs }
 
-private def collectValues (p : Problem) : MetaM (Array Expr) :=
-  p.alts.foldlM (init := #[]) fun values alt => do
-    match alt.patterns with
-    | .val v :: _ => if (← values.anyM (matchValuesEq v)) then return values else return values.push v
-    | _           => return values
+/--
+Returns, for each alternative, the `normMatchValue` of its first pattern if that is a value.
+Normalization is skipped unless the discriminant has type `Float`/`Float32`, as it is costly in
+matches with many values.
+-/
+private def getValueKeys (x : Expr) (p : Problem) : MetaM (List (Option Expr)) := withGoalOf p do
+  let type ← whnfD (← inferType x)
+  let norm := type.isConstOf ``Float || type.isConstOf ``Float32
+  p.alts.mapM fun alt => match alt.patterns with
+    | .val v :: _ => if norm then some <$> normMatchValue v else pure (some v)
+    | _           => pure none
+
+/-- Returns the distinct values of the first column and their keys (see `getValueKeys`). -/
+private def collectValues (p : Problem) (keys : List (Option Expr)) : Array Expr × Array Expr :=
+  (p.alts.zip keys).foldl (init := (#[], #[])) fun (values, valueKeys) (alt, key?) =>
+    match alt.patterns, key? with
+    | .val v :: _, some key =>
+      if valueKeys.contains key then (values, valueKeys) else (values.push v, valueKeys.push key)
+    | _, _ => (values, valueKeys)
 
 private def isFirstPatternInaccessible (alt : Alt) : Bool :=
   match alt.patterns with
@@ -676,21 +690,23 @@ private def triviallyComplete (p : Problem) : Bool :=
 private def processValue (p : Problem) : MetaM (Array Problem) := do
   trace[Meta.Match.match] "value step"
   let x :: xs := p.vars | unreachable!
-  let values ← collectValues p
+  let keys ← getValueKeys x p
+  let (values, valueKeys) := collectValues p keys
   let needHyps := !triviallyComplete p || p.alts.any (!·.notAltIdxs.isEmpty)
   let subgoals ← caseValues p.mvarId x.fvarId! values (needHyps := needHyps)
   subgoals.mapIdxM fun i subgoal => do
     trace[Meta.Match.match] "processValue subgoal\n{MessageData.ofGoal subgoal.mvarId}"
     if h : i < values.size then
       let value := values[i]
+      let valueKey := valueKeys[i]!
       -- (x = value) branch
       let subst := subgoal.subst
       trace[Meta.Match.match] "processValue subst: {subst.map.toList.map fun p => mkFVar p.1}, {subst.map.toList.map fun p => p.2}"
         let examples := p.examples.map <| Example.replaceFVarId x.fvarId! (Example.val value)
       let examples := examples.map <| Example.applyFVarSubst subst
-      let newAlts  ← p.alts.filterM fun alt => match alt.patterns with
-        | .val v          :: _ => matchValuesEq v value
-        | .inaccessible _ :: _ => return true
+      let newAlts  := (p.alts.zip keys).filterMap fun (alt, key?) => match alt.patterns with
+        | .val _          :: _ => if key? == some valueKey then some alt else none
+        | .inaccessible _ :: _ => some alt
         | _                    => unreachable!
       let newAlts := newAlts.map fun alt => alt.applyFVarSubst subst
       let newAlts := newAlts.map fun alt => match alt.patterns with

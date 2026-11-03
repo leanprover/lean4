@@ -140,8 +140,19 @@ public def introsHygienicN (goal : MVarId) (n : Nat) : VCGenM MVarId :=
     let .goal _ goal ← Sym.intros goal names | return goal
     return goal
 
+public def instantiateBinderDomains (goal : MVarId) : VCGenM MVarId := do
+  let target ← goal.getType
+  let target' ← go target
+  if isSameExpr target' target then return goal else goal.replaceTargetDefEqFast target'
+where
+  go : Expr → SymM Expr
+  | e@(.forallE _ d b _) => do e.updateForallS! (← instantiateMVarsS d) (← go b)
+  | e@(.letE _ t v b _) => do e.updateLetS! (← instantiateMVarsS t) v (← go b)
+  | e => return e
+
 /-- `introsHygienicN` for every non-`Prod` binder the goal leads with. -/
 public def introsHygienic (goal : MVarId) : VCGenM MVarId := do
+  let goal ← instantiateBinderDomains goal
   introsHygienicN goal (numBindersToIntro (← goal.getType))
 
 /--

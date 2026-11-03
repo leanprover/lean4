@@ -651,11 +651,34 @@ private def processNonVariable (p : Problem) : MetaM Problem := withGoalOf p do
     | _      => unreachable!
   return { p with alts := alts, vars := xs }
 
-private def collectValues (p : Problem) : MetaM (Array Expr) :=
-  p.alts.foldlM (init := #[]) fun values alt => do
+/--
+Replaces each value pattern in the first column by the first value pattern of that column that
+denotes the same value (see `normMatchValue`), so that values can be compared syntactically.
+Only needed if the discriminant has type `Float`/`Float32`; skipped otherwise, as normalization is
+costly in matches with many values.
+-/
+private def unifyFloatValues (x : Expr) (p : Problem) : MetaM Problem := withGoalOf p do
+  let type ← whnfD (← inferType x)
+  unless type.isConstOf ``Float || type.isConstOf ``Float32 do return p
+  let mut reps : Array (Expr × Expr) := #[]
+  let mut alts := #[]
+  for alt in p.alts do
     match alt.patterns with
-    | .val v :: _ => if (← values.anyM (matchValuesEq v)) then return values else return values.push v
-    | _           => return values
+    | .val v :: ps =>
+      let key ← normMatchValue v
+      if let some (_, rep) := reps.find? (·.1 == key) then
+        alts := alts.push { alt with patterns := .val rep :: ps }
+      else
+        reps := reps.push (key, v)
+        alts := alts.push alt
+    | _ => alts := alts.push alt
+  return { p with alts := alts.toList }
+
+private def collectValues (p : Problem) : Array Expr :=
+  p.alts.foldl (init := #[]) fun values alt =>
+    match alt.patterns with
+    | .val v :: _ => if values.contains v then values else values.push v
+    | _           => values
 
 private def isFirstPatternInaccessible (alt : Alt) : Bool :=
   match alt.patterns with
@@ -676,7 +699,8 @@ private def triviallyComplete (p : Problem) : Bool :=
 private def processValue (p : Problem) : MetaM (Array Problem) := do
   trace[Meta.Match.match] "value step"
   let x :: xs := p.vars | unreachable!
-  let values ← collectValues p
+  let p ← unifyFloatValues x p
+  let values := collectValues p
   let needHyps := !triviallyComplete p || p.alts.any (!·.notAltIdxs.isEmpty)
   let subgoals ← caseValues p.mvarId x.fvarId! values (needHyps := needHyps)
   subgoals.mapIdxM fun i subgoal => do
@@ -688,9 +712,9 @@ private def processValue (p : Problem) : MetaM (Array Problem) := do
       trace[Meta.Match.match] "processValue subst: {subst.map.toList.map fun p => mkFVar p.1}, {subst.map.toList.map fun p => p.2}"
         let examples := p.examples.map <| Example.replaceFVarId x.fvarId! (Example.val value)
       let examples := examples.map <| Example.applyFVarSubst subst
-      let newAlts  ← p.alts.filterM fun alt => match alt.patterns with
-        | .val v          :: _ => matchValuesEq v value
-        | .inaccessible _ :: _ => return true
+      let newAlts  := p.alts.filter fun alt => match alt.patterns with
+        | .val v          :: _ => v == value
+        | .inaccessible _ :: _ => true
         | _                    => unreachable!
       let newAlts := newAlts.map fun alt => alt.applyFVarSubst subst
       let newAlts := newAlts.map fun alt => match alt.patterns with

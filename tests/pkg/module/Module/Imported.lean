@@ -213,3 +213,17 @@ public meta def metaUsingNonMeta : Nat :=
 
 -- #11672
 example : instA = { instA with b := 0 } := rfl
+
+/-! The unit-like check must not fail on constructors mentioning private types that are not imported. -/
+
+public structure WrapsStructWithPrivateFieldType where
+  s : StructWithPrivateFieldType
+
+public structure WrapsUnitLikeWithPrivateFieldType where
+  u : UnitLikeWithPrivateFieldType
+
+def constOnStructWithPrivateFieldType (_ : StructWithPrivateFieldType) : Nat := 0
+
+-- The kernel first tries `a =?= b`, whose unit-like check must decline rather than fail.
+example (a b : StructWithPrivateFieldType) :
+    constOnStructWithPrivateFieldType a = constOnStructWithPrivateFieldType b := rfl

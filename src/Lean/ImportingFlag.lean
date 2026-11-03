@@ -38,6 +38,7 @@ def isInitializerExecutionEnabled : BaseIO Bool :=
 We say Lean is "initializing" when it is executing `builtin_initialize` declarations or importing modules.
 Recall that Lean executes `initialize` declarations while importing modules.
 -/
+@[export lean_initializing] -- for downstream FFI
 def initializing : BaseIO Bool :=
   IO.initializing <||> importingRef.get
 

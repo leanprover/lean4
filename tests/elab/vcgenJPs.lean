@@ -284,3 +284,48 @@ def wide (x : Nat) : StateM Nat Nat := do
 theorem wide_triple : ⦃ fun _ => True ⦄ wide x ⦃ fun r => ⌜r > 1⌝ ⦄ := by
   unfold wide
   vcgen +jp with finish
+
+-- The jump arguments are reduced, and `?H` equates only the join parameters that the join RHS uses:
+-- the unused `__r : PUnit` gets no equation.
+/--
+trace: case vc1
+b : Nat → Bool
+s₀ s✝¹ : Nat
+x✝ : PUnit
+s✝ : Nat
+h✝¹ : b 0 = true ∧ s✝ = s₀ + 1 ∨ ¬b 0 = true ∧ s✝ = s₀ + 2
+h✝ : b 1 = true
+⊢ s₀ + 2 ≤ s✝ + 1
+
+case vc2
+b : Nat → Bool
+s₀ s✝¹ : Nat
+x✝ : PUnit
+s✝ : Nat
+h✝¹ : b 0 = true ∧ s✝ = s₀ + 1 ∨ ¬b 0 = true ∧ s✝ = s₀ + 2
+h✝ : ¬b 1 = true
+⊢ s₀ + 2 ≤ s✝ + 2
+-/
+#guard_msgs in
+example (b : Nat → Bool) (s₀ : Nat) :
+    ⦃fun s => s = s₀⦄ (do
+      if b 0 then modify (· + 1) else modify (· + 2)
+      if b 1 then modify (· + 1) else modify (· + 2) : StateM Nat Unit)
+    ⦃fun _ s => s₀ + 2 ≤ s⦄ := by
+  vcgen +jp
+  trace_state
+  all_goals grind
+
+-- A join point nested in a branch of another one: the inner `__do_jp` and `__do_jp_spec` are
+-- `let`s in the context of the jumps to the outer join point.
+def nested (b c : Bool) : Id Nat := do
+  let mut y := 0
+  if b then
+    if c then y := 1 else y := 2
+    y := y + 1
+  else y := 5
+  return y
+
+theorem nested_triple : ⦃ True ⦄ nested b c ⦃ fun r => r > 0 ⦄ := by
+  unfold nested
+  vcgen +jp with finish

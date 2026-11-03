@@ -563,6 +563,29 @@ We should also investigate the impact on memory consumption.
 abbrev DefEqCache := PersistentHashMap DefEqCacheKey Bool
 
 /--
+Maximum number of entries in each generation of `UnfoldCache`. On Mathlib, larger limits barely
+reduce the instruction count further but keep many more unfolded values alive.
+-/
+def unfoldCacheLimit : Nat := 1024
+
+/--
+Two-generation cache: entries are inserted into `new`; when it reaches `unfoldCacheLimit` entries,
+it becomes `old` and the previous `old` is dropped. A hit in `old` is copied back into `new`. This
+keeps recently used entries while bounding the cache to `2 * unfoldCacheLimit` entries.
+-/
+structure UnfoldCache where
+  new     : PersistentExprStructMap Expr := {}
+  old     : PersistentExprStructMap Expr := {}
+  newSize : Nat := 0
+  deriving Inhabited
+
+def UnfoldCache.insert (c : UnfoldCache) (k : ExprStructEq) (v : Expr) : UnfoldCache :=
+  if c.newSize < unfoldCacheLimit then
+    { c with new := c.new.insert k v, newSize := c.newSize + 1 }
+  else
+    { new := ({} : PersistentExprStructMap Expr).insert k v, old := c.new, newSize := 1 }
+
+/--
 Cache datastructures for type inference, type class resolution, whnf, and definitional equality.
 -/
 structure Cache where
@@ -573,6 +596,12 @@ structure Cache where
   defEqTrans     : DefEqCache := {} -- transient cache for terms containing mvars or using nonstandard configuration options, it is frequently reset.
   defEqPerm      : DefEqCache := {} -- permanent cache for terms not containing mvars and using standard configuration options
   isUnitLike     : IsUnitLikeCache := {}
+  /--
+  Default unfoldings of applications of definitions (see `unfoldDefinition?`): the value of the head
+  constant at its universe levels, beta-reduced with the arguments. This only depends on the
+  application and the environment, whose existing constants never change.
+  -/
+  unfold         : UnfoldCache := {}
   deriving Inhabited
 
 /--
@@ -867,13 +896,16 @@ def resetCache : MetaM Unit :=
   modifyCache fun _ => {}
 
 @[inline] def modifyInferTypeCache (f : InferTypeCache → InferTypeCache) : MetaM Unit :=
-  modifyCache fun ⟨ic, c1, c2, c3, c4, c5, c6⟩ => ⟨f ic, c1, c2, c3, c4, c5, c6⟩
+  modifyCache fun ⟨ic, c1, c2, c3, c4, c5, c6, c7⟩ => ⟨f ic, c1, c2, c3, c4, c5, c6, c7⟩
 
 @[inline] def modifyDefEqTransientCache (f : DefEqCache → DefEqCache) : MetaM Unit :=
-  modifyCache fun ⟨c1, c2, c3, c4, defeqTrans, c5, c6⟩ => ⟨c1, c2, c3, c4, f defeqTrans, c5, c6⟩
+  modifyCache fun ⟨c1, c2, c3, c4, defeqTrans, c5, c6, c7⟩ => ⟨c1, c2, c3, c4, f defeqTrans, c5, c6, c7⟩
 
 @[inline] def modifyDefEqPermCache (f : DefEqCache → DefEqCache) : MetaM Unit :=
-  modifyCache fun ⟨c1, c2, c3, c4, c5, defeqPerm, c6⟩ => ⟨c1, c2, c3, c4, c5, f defeqPerm, c6⟩
+  modifyCache fun ⟨c1, c2, c3, c4, c5, defeqPerm, c6, c7⟩ => ⟨c1, c2, c3, c4, c5, f defeqPerm, c6, c7⟩
+
+@[inline] def modifyUnfoldCache (f : UnfoldCache → UnfoldCache) : MetaM Unit :=
+  modifyCache fun ⟨c1, c2, c3, c4, c5, c6, c7, unfold⟩ => ⟨c1, c2, c3, c4, c5, c6, c7, f unfold⟩
 
 def mkExprConfigCacheKey (expr : Expr) : MetaM ExprConfigCacheKey :=
   return { expr, configKey := (← read).configKey }

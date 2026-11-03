@@ -94,6 +94,9 @@ theorem zpow_one (a : α) : a ^ (1 : Int) = a := by
 theorem zpow_neg_one (a : α) : a ^ (-1) = a⁻¹ := by
   rw [zpow_neg, zpow_one]
 
+theorem zpow_neg_natCast (a : α) (n : Nat) : a ^ (-(n : Int)) = (a ^ n)⁻¹ := by
+  rw [zpow_neg, zpow_natCast]
+
 theorem zpow_add_one {a : α} (h : a ≠ 0) (n : Int) : a ^ (n + 1) = a ^ n * a := by
   match n with
   | (n : Nat) => rw [zpow_succ, zpow_natCast]

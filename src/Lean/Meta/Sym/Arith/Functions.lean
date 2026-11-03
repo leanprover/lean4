@@ -194,6 +194,18 @@ def getDivFn : m Expr := do
   modifyCommRing fun s => { s with divFn? := some divFn }
   return divFn
 
+def getZPowFn : m Expr := do
+  let ring ← getCommRing
+  let some fieldInst := ring.fieldInst?
+    | throwError "internal error: type is not a field{indentExpr ring.type}"
+  if let some zpowFn := ring.zpowFn? then return zpowFn
+  let u := ring.u
+  let inst ← MonadCanon.synthInstance <| mkApp3 (mkConst ``HPow [u, 0, u]) ring.type Int.mkType ring.type
+  checkInst ``HPow.hPow inst (mkApp2 (mkConst ``Grind.Field.zpow [u]) ring.type fieldInst)
+  let zpowFn ← canonExpr <| mkApp4 (mkConst ``HPow.hPow [u, 0, u]) ring.type Int.mkType ring.type inst
+  modifyCommRing fun s => { s with zpowFn? := some zpowFn }
+  return zpowFn
+
 end CommRingFns
 
 section SemiringFns

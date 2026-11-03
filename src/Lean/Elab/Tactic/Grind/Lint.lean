@@ -70,7 +70,7 @@ def elabGrindLintMute : CommandElab := fun stx => do
 Default configuration for `#grind_lint`.
 -/
 def defaultConfig : Grind.Config := {
-  splits       := 0
+  branches     := 0
   lookahead    := false
   mbtc         := false
   ematch       := 20

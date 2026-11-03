@@ -309,6 +309,39 @@ private def _root_.Int.Internal.Linear.Poly.denoteExprUsingCurrVars (p : Poly) :
   let vars ← getCurrVars
   return (← p.denoteExpr (vars[·]!))
 
+/-- Returns a proof of `q.denote' ctx ≤ 0` given `h : d`, where `q` is the declaration of an `.orHull` constraint. -/
+private def mkOrHullAltProof (q : Expr) (d h : Expr) (alt : OrHullAlt) : ProofM Expr := do
+  let mut d := d
+  let mut h := h
+  for right in alt.path do
+    let_expr And a b := d | throwError "`grind` internal error, conjunction expected{indentExpr d}"
+    (d, h) := if right then (b, mkApp3 (mkConst ``And.right) a b h) else (a, mkApp3 (mkConst ``And.left) a b h)
+  if let some thm := alt.toIntThm? then
+    h := mkApp thm h
+  let p := alt.lhs.sub alt.rhs |>.norm
+  let ctx ← getContext
+  let lhs ← mkExprDecl alt.lhs
+  let rhs ← mkExprDecl alt.rhs
+  let pDecl ← mkPolyDecl p
+  match alt.kind with
+  | .le =>
+    let hp := mkApp6 (mkConst ``Int.Internal.Linear.le_norm_expr_rfl) ctx lhs rhs pDecl (← mkPolyRefl p) h
+    return mkApp6 (mkConst ``Int.Internal.Linear.le_weaken) ctx pDecl q (toExpr alt.k) eagerReflBoolTrue hp
+  | .eq | .eqNeg =>
+    let hp := mkApp6 (mkConst ``Int.Internal.Linear.eq_norm_expr_rfl) ctx lhs rhs pDecl (← mkPolyRefl p) h
+    let thm := if alt.kind matches .eq then ``Int.Internal.Linear.eq_le_weaken else ``Int.Internal.Linear.eq_le_weaken_neg
+    return mkApp6 (mkConst thm) ctx pDecl q (toExpr alt.k) eagerReflBoolTrue hp
+
+/-- Returns a proof of `motive := q.denote' ctx ≤ 0` given `h : e`, by cases on the disjunction `e`. -/
+private def mkOrHullProof (q motive : Expr) (e h : Expr) : List OrHullAlt → ProofM Expr
+  | [] => throwError "`grind` internal error, empty disjunction"
+  | [alt] => mkOrHullAltProof q e h alt
+  | alt :: alts => do
+    let_expr Or a b := e | throwError "`grind` internal error, disjunction expected{indentExpr e}"
+    let f ← mkOrHullAltProof q a (mkBVar 0) alt
+    let g ← mkOrHullProof q motive b (mkBVar 0) alts
+    return mkApp6 (mkConst ``Or.elim) a b motive h (mkLambda `h .default a f) (mkLambda `h .default b g)
+
 private inductive MulEqProof where
   | const (k : Int) (h : Expr)
   | mulVar (k : Int) (a : Expr) (h : Expr)
@@ -618,6 +651,10 @@ private partial def LeCnstr.toExprProof (c' : LeCnstr) : ProofM Expr := caching 
       let thmName := if left then ``Int.Internal.Linear.cooper_dvd_left_split_ineq else ``Int.Internal.Linear.cooper_dvd_right_split_ineq
       return mkApp10 (mkConst thmName)
         (← getContext) (← mkPolyDecl p₁) (← mkPolyDecl p₂) (← mkPolyDecl c₃.p) (toExpr c₃.d) (toExpr s.k) (toExpr coeff) (← mkPolyDecl c'.p) (← s.toExprProof) eagerReflBoolTrue
+  | .orHull e alts =>
+    let q ← mkPolyDecl c'.p
+    let motive := mkIntLE (mkApp2 (mkConst ``Int.Internal.Linear.Poly.denote') (← getContext) q) (mkIntLit 0)
+    mkOrHullProof q motive e (← mkOfEqTrue (← mkEqTrueProof e)) alts.toList
   | .reorder c => withPrevEpoch <| c.toExprProof
   | .commRingNorm c e p =>
     let h := mkApp4 (mkConst ``Grind.CommRing.norm_int_k) (← getRingContext) (← mkRingExprDecl e) (← mkRingPolyDecl p) eagerReflBoolTrue
@@ -834,7 +871,7 @@ partial def DvdCnstr.collectDecVars (c' : DvdCnstr) : CollectDecVarsM Unit := do
 
 partial def LeCnstr.collectDecVars (c' : LeCnstr) : CollectDecVarsM Unit := do unless (← alreadyVisited c') do
   match c'.h with
-  | .core .. | .coreNeg .. | .coreToInt .. | .coreExpr .. | .ofNatNonneg .. | .hyp .. | .bound .. => return ()
+  | .core .. | .coreNeg .. | .coreToInt .. | .coreExpr .. | .ofNatNonneg .. | .hyp .. | .bound .. | .orHull .. => return ()
   | .dec h => markAsFound h
   | .commRingNorm c .. | .reorder c | .cooper c
   | .norm c | .divCoeffs c => c.collectDecVars

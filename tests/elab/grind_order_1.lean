@@ -22,11 +22,11 @@ example [LE α] [LT α] [Std.LawfulOrderLT α] [Std.IsPreorder α] [Ring α] [Or
 
 example [LE α] [LT α] [Std.LawfulOrderLT α] [Std.IsPreorder α] [Ring α] [OrderedRing α]
     (a b : α) : a ≤ 5 → b ≤ 8 → a > 6 ∨ b > 10 → False := by
-  grind -linarith (splits := 0)
+  grind -linarith (branches := 0)
 
 example [LE α] [LT α] [Std.LawfulOrderLT α] [Std.IsPreorder α] [CommRing α] [OrderedRing α]
     (a b c : α) : a + b*c + 2*c ≤ 5 → a + c > 5 - c - c*b → False := by
-  grind -linarith (splits := 0)
+  grind -linarith (branches := 0)
 
 example [LE α] [LT α] [Std.LawfulOrderLT α] [Std.IsPreorder α] [Ring α] [OrderedRing α]
     (a b c : α) : a - b ≤ 5 → -c + b ≤ -3 → c < a - 2 → False := by
@@ -48,4 +48,4 @@ example (a b c : Int) : a - b ≤ 5 → -c + b ≤ -3 → c < a - 2 → False :=
   grind -linarith -lia
 
 example (a b : Int) (h : a + b > 5) : (if a + b ≤ 0 then b else a) = a := by
-  grind -linarith -lia (splits := 0)
+  grind -linarith -lia (branches := 0)

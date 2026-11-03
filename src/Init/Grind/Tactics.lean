@@ -262,8 +262,8 @@ example [Field α] [NoNatZeroDivisors α] (a : α) :
 
 ### Other options
 
-- `grind (splits := <num>)` caps the *depth* of the search tree.  Once a branch performs `num` splits
-  `grind` stops splitting further in that branch.
+- `grind (branches := <num>)` caps the *size* of the search tree. A case-split with `n` cases creates
+  `n - 1` new branches. Once `num` branches have been created, `grind` stops splitting.
 - `grind -splitIte` disables case splitting on if-then-else expressions.
 - `grind -splitMatch` disables case splitting on `match` expressions.
 - `grind +splitImp` instructs `grind` to split on any hypothesis `A → B` whose antecedent `A` is **propositional**.

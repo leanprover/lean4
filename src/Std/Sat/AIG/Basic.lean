@@ -88,6 +88,19 @@ private theorem invert_eq_testBit (f : Fanin) : f.invert = f.val.testBit 0 := by
 theorem invert_flip (f : Fanin) : (f.flip v).invert = (f.invert ^^ v) := by
   cases v <;> simp [flip, invert_eq_testBit, -Nat.mod_two_not_eq_one]
 
+@[simp]
+theorem mk_gate_invert (f : Fanin) : Fanin.mk f.gate f.invert = f := by
+  rcases f with ⟨v⟩
+  simp only [mk, gate, invert_eq_testBit, ofRaw.injEq, Nat.toNat_testBit, Nat.pow_zero, Nat.div_one]
+  apply Nat.eq_of_testBit_eq
+  intro i
+  cases i with
+  | zero => simp [Nat.mod_mod]
+  | succ i =>
+    have h1 : v / 2 * 2 / 2 = v / 2 := by omega
+    have h2 : v % 2 / 2 = 0 := by omega
+    simp [Nat.testBit_succ, Nat.or_div_two, h1, h2]
+
 end Fanin
 
 /--

@@ -23,5 +23,5 @@ trace: [grind.beta] f 0 = f 0, using fun b => f b
 set_option trace.grind.beta true in
 protected theorem Multipliable.tprod_eq_zero_mul' {f : Nat → Nat} (h : (fun b => f (b + 1)) = fun b => f b) (a : Nat)
     (R : Nat → Nat → Prop) : R a (f 0) := by
-  fail_if_success grind -ring -linarith -order -lia -ac (splits := 0) -verbose
+  fail_if_success grind -ring -linarith -order -lia -ac (branches := 0) -verbose
   sorry

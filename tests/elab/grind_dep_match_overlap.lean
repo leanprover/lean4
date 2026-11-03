@@ -17,4 +17,4 @@ example (a b : Vec α 2) : h a b = 20 := by
   grind [h.eq_def, Vec]
 
 example (a b : Vec α 2) : h a b = 20 := by
-  grind (splits := 4) [h.eq_def, Vec]
+  grind (branches := 8) [h.eq_def, Vec]

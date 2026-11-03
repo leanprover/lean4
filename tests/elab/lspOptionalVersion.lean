@@ -3,8 +3,8 @@ import Lean.Data.Lsp.Basic
 open Lean Lsp
 
 /-!
-`VersionedTextDocumentIdentifier` serializes `version? := none` as `"version": null` rather than
-omitting `version`, since LSP's `OptionalVersionedTextDocumentIdentifier` requires the field.
+`VersionedTextDocumentIdentifier` serializes `version := none` as `"version": null`, since LSP's
+`OptionalVersionedTextDocumentIdentifier` requires the field.
 -/
 
 /-- info: {"version": null, "uri": "file:///a.lean"} -/
@@ -13,7 +13,7 @@ omitting `version`, since LSP's `OptionalVersionedTextDocumentIdentifier` requir
 
 /-- info: {"version": 3, "uri": "file:///a.lean"} -/
 #guard_msgs in
-#eval toJson ({ uri := "file:///a.lean", version? := some 3 } : VersionedTextDocumentIdentifier)
+#eval toJson ({ uri := "file:///a.lean", version := some 3 } : VersionedTextDocumentIdentifier)
 
 /-! A `TextDocumentEdit` for a document whose version is unknown, e.g. one being created. -/
 
@@ -34,16 +34,16 @@ info: {"documentChanges":
 /-- info: [Except.ok none, Except.ok none, Except.ok (some 3)] -/
 #guard_msgs in
 #eval [r#"{"uri": "u"}"#, r#"{"uri": "u", "version": null}"#, r#"{"uri": "u", "version": 3}"#].map
-  fun s => (Json.parse s >>= fromJson? (α := VersionedTextDocumentIdentifier)).map (·.version?)
+  fun s => (Json.parse s >>= fromJson? (α := VersionedTextDocumentIdentifier)).map (·.version)
 
 /-! `fromJson?` inverts `toJson`, also inside a `WorkspaceEdit`. -/
 
 /-- info: [true, true] -/
 #guard_msgs in
-#eval ([{ uri := "file:///a.lean" }, { uri := "file:///a.lean", version? := some 3 }] :
+#eval ([{ uri := "file:///a.lean" }, { uri := "file:///a.lean", version := some 3 }] :
     List VersionedTextDocumentIdentifier).map fun i =>
   match fromJson? (α := VersionedTextDocumentIdentifier) (toJson i) with
-  | .ok j => j.uri == i.uri && j.version? == i.version?
+  | .ok j => j.uri == i.uri && j.version == i.version
   | .error _ => false
 
 /-- info: true -/

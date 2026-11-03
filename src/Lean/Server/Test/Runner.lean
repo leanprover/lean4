@@ -450,7 +450,7 @@ def processEdit : RunnerM Unit := do
   let params : DidChangeTextDocumentParams := {
     textDocument := {
       uri      := s.uri
-      version? := s.versionNo
+      version  := s.versionNo
     }
     contentChanges := #[
       TextDocumentContentChangeEvent.rangeChange {

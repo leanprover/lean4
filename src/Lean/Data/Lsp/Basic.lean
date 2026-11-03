@@ -153,13 +153,10 @@ exist).
 -/
 structure VersionedTextDocumentIdentifier where
   uri : DocumentUri
-  version? : Option Nat := none
-  deriving FromJson
-
-/-- Serializes `version? := none` as `"version": null`, since
-`OptionalVersionedTextDocumentIdentifier` requires the `version` field. -/
-instance : ToJson VersionedTextDocumentIdentifier where
-  toJson i := mkObj [("uri", toJson i.uri), ("version", toJson i.version?)]
+  /-- The version of the document, if known. Serialized as `"version": null` when `none` (hence no
+  `?` in the field name), since `OptionalVersionedTextDocumentIdentifier` requires the field. -/
+  version : Option Nat := none
+  deriving ToJson, FromJson
 
 /-- A batch of `TextEdit`s to perform on an optionally versioned text document.
 

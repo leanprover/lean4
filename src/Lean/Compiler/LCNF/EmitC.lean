@@ -703,6 +703,11 @@ where
       | .nat v =>
         if v < UInt32.size then
           emit "lean_unsigned_to_nat("; emit v; emit "u)"
+        else if v < UInt64.size then
+          -- Inline in `lean.h`: a constant on 64-bit targets below `2^63`, a bignum otherwise.
+          -- `ExtractClosed` hoists only literals from `2^63` on, so a literal emitted here may be
+          -- evaluated at every use.
+          emit "lean_uint64_to_nat("; emit v; emit "ULL)"
         else
           emit "lean_cstr_to_nat(\""; emit v; emit "\")"
       | .str v =>

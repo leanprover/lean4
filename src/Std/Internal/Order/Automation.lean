@@ -36,9 +36,9 @@ and `h` yields `¬ q`.
 
 `vcgen` rewrites hypotheses, state arguments and verification conditions with the `@[vcgen_simp]`
 theorems. The set leaves out the computation rules of predicate transformers. It adds a few
-theorems about the logical connectives, `decide`, `Bool` literals and `⊑`, and the one-point rules
-`exists_eq_left`, `exists_eq_right` and their primed variants. Simp rewrites inner terms first, so
-the `∃` rules complete the lattice one-point rules:
+theorems about the logical connectives, `decide`, `Bool` literals and `⊑`, and the index
+elimination rules `exists_eq_left`, `exists_eq_right` and their primed variants for `∃`. Simp
+rewrites inner terms first, so the `∃` rules complete the index elimination rules for `⨆`:
 ```
 ⨆ x, ⌜x = t⌝ ⊓ ⌜q x⌝ ⇝ ⨆ x, ⌜x = t ∧ q x⌝ ⇝ ⌜∃ x, x = t ∧ q x⌝ ⇝ ⌜q t⌝
 ```

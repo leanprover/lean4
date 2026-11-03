@@ -46,7 +46,7 @@ example : ⦃ fun _ => True ⦄ (if decide (1 < 2) then pure 3 else pure 4 : M N
 example (P : Nat → Prop) : ⦃ P ⦄ (pure () : M Unit) ⦃ fun _ => P ⦄ := by
   vcgen
 
-/-! The one-point rules remove a supremum whose index an equation determines, with the equation on
+/-! Index elimination removes a supremum whose index an equation determines, with the equation on
 either side of `⊓`. -/
 
 example : ⦃ fun s => s = 3 ⦄ (pure () : M Unit) ⦃ fun _ s => ⨆ n : Nat, ⌜n = s⌝ ⊓ ⌜n < 5⌝ ⦄ := by

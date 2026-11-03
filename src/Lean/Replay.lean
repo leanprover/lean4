@@ -74,6 +74,16 @@ and add it to the environment.
 partial def replayConstant (name : Name) : M Unit := do
   if ← isTodo name then
     let some ci := (← read).newConstants[name]? | unreachable!
+    -- A literal's typing reads `Nat`/`String` and their constructors, which it records no
+    -- dependency on; the kernel requires them to be present, so replay them first.
+    let hasLit (k : Literal → Bool) (e : Expr) : Bool :=
+      (e.find? fun | .lit l => k l | _ => false).isSome
+    let vals := ci.type :: (match ci.value? (allowOpaque := true) with | some v => [v] | none => [])
+    if vals.any (hasLit fun | .natVal _ => true | _ => false) then
+      replayConstants (NameSet.ofList [`Nat, `Nat.zero, `Nat.succ])
+    if vals.any (hasLit fun | .strVal _ => true | _ => false) then
+      replayConstants (NameSet.ofList [`Nat, `Nat.zero, `Nat.succ, `String, `String.ofList,
+        `List, `List.nil, `List.cons, `Char, `Char.ofNat])
     replayConstants ci.getUsedConstantsAsSet
     -- Check that this name is still pending: a mutual block may have taken care of it.
     if (← get).pending.contains name then

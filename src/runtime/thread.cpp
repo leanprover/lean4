@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #include <utility>
 #include <vector>
 #include <iostream>
+#include <cstdint>
 #include <cstring>
 #ifdef LEAN_WINDOWS
 #include <windows.h>
@@ -22,7 +23,7 @@ Author: Leonardo de Moura
 #include "runtime/sstream.h"
 
 #ifndef LEAN_DEFAULT_THREAD_STACK_SIZE
-#ifdef LEAN_EMSCRIPTEN
+#if defined(LEAN_EMSCRIPTEN) || UINTPTR_MAX == UINT32_MAX
 #define LEAN_DEFAULT_THREAD_STACK_SIZE 8*1024*1024 // 8MB for 32-bit
 #else
 #define LEAN_DEFAULT_THREAD_STACK_SIZE 1024*1024*1024 // 1GB for 64-bit

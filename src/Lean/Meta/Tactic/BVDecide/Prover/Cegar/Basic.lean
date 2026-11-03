@@ -72,7 +72,7 @@ public structure BitVecState where
   /--
   The bitblasting cached used so far, incrementally extended every CEGAR step.
   -/
-  blastCache : BVExpr.Cache aig := .empty
+  blastCache : BVLogicalExpr.Cache aig := .empty
   /--
   Both the CNF cache and CNF formula built up so far, incrementally extended every CEGAR step.
   -/

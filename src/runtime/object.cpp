@@ -260,7 +260,7 @@ extern "C" LEAN_EXPORT size_t lean_object_data_byte_size(lean_object * o) {
     }
 }
 
-static inline void lean_dealloc(lean_object * o, size_t sz) {
+extern "C" LEAN_EXPORT void lean_dealloc(void * o, size_t sz) {
 #ifdef LEAN_MIMALLOC
     mi_free_size(o, sz);
 #else
@@ -344,6 +344,18 @@ static inline void dec(lean_object * o, lean_object* & todo) {
     } else if (std::atomic_fetch_add_explicit(lean_get_rc_mt_addr(o), 1, std::memory_order_acq_rel) == -1) {
         push_back(todo, o);
     }
+}
+
+extern "C" LEAN_EXPORT void * lean_alloc_memory(size_t sz) {
+#ifdef LEAN_MIMALLOC
+    void * r = mi_malloc(sz);
+    if (r == nullptr) lean_internal_panic_out_of_memory();
+    return r;
+#else
+    void * r = malloc(sz);
+    if (r == nullptr) lean_internal_panic_out_of_memory();
+    return r;
+#endif
 }
 
 extern "C" LEAN_EXPORT lean_object * lean_alloc_object(size_t sz) {

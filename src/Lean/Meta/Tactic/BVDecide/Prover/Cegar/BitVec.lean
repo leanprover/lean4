@@ -69,7 +69,7 @@ public def Cegar.checkBitVec :
     let bvExpr := (← get).satExpr.bvExpr
     let ⟨aig, bbCache, cnfCache⟩ ← takeBVState
     let prevAigSize := aig.decls.size
-    let blastResult : { ret : Return aig // AIG.IsPrefix aig.decls ret.result.1.aig.decls } ←
+    let blastResult : { ret : BVLogicalExpr.Return aig // AIG.IsPrefix aig.decls ret.result.1.aig.decls } ←
       withTraceNode `Meta.Tactic.bv (fun _ => return "Bitblasting BVLogicalExpr to AIG") do
         -- lazyPure to prevent compiler lifting
         IO.lazyPure (fun _ =>

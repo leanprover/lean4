@@ -59,27 +59,9 @@ bool has_eq_decls(environment const & env);
 bool has_heq_decls(environment const & env);
 bool has_and_decls(environment const & env);
 
-/** \brief Return true iff \c n is an inductive predicate, i.e., an inductive datatype that is in Prop.
-
-    \remark If \c env does not have Prop (i.e., Type.{0} is not impredicative), then this method always return false. */
-bool is_inductive_predicate(environment const & env, name const & n);
-
-/** \brief Return true iff \c n is an inductive type with a recursor with an extra level parameter. */
-bool can_elim_to_type(environment const & env, name const & n);
-
 /** \brief Store in `result` the constructors of the given inductive datatype.
     \remark this procedure does nothing if `n` is not an inductive datatype. */
 void get_constructor_names(environment const & env, name const & n, buffer<name> & result);
-
-/** \brief If \c e is a constructor application, or a definition that wraps a
-    constructor application, then return the name of the constructor.
-    Otherwise, return none. */
-optional<name> is_constructor_app_ext(environment const & env, expr const & e);
-
-/** \brief Store in \c result a bit-vector indicating which fields of the constructor \c n are
-    (computationally) relevant.
-    \pre inductive::is_intro_rule(env, n) */
-void get_constructor_relevant_fields(environment const & env, name const & n, buffer<bool> & result);
 
 /** Return the number of constructors of the given inductive datatype */
 unsigned get_num_constructors(environment const & env, name const & n);
@@ -93,18 +75,14 @@ unsigned get_constructor_idx(environment const & env, name const & n);
     \pre inductive::is_intro_rule(env, ctor_name) */
 name get_constructor_inductive_type(environment const & env, name const & ctor_name);
 
-/** \brief Return the universe where inductive datatype resides
-    \pre \c ind_type is of the form <tt>Pi (a_1 : A_1) (a_2 : A_2[a_1]) ..., Type.{lvl}</tt> */
-level get_datatype_level(environment const & env, expr const & ind_type);
-
 /** \brief "Consume" Pi-type `type`. This procedure creates free variables based on the domain of `type` using `lctx`,
     and store them in telescope and updates  . If `binfo` is provided, then the free variables are annotated with
     the given `binder_info`, otherwise the procedure uses the one attached in the domain.
     The procedure returns the "body" of type. */
 expr to_telescope(local_ctx & lctx, name_generator & ngen, expr const & type, buffer<expr> & telescope, optional<binder_info> const & binfo = optional<binder_info>());
 
-/** \brief Similar to previous procedure, but uses whnf to check whether `type` reduces to `Pi` or not. */
-expr to_telescope(environment const & env, local_ctx & lctx, name_generator & ngen, expr type, buffer<expr> & telescope, optional<binder_info> const & binfo = optional<binder_info>());
+/** \brief Return recursor name for the given inductive datatype name */
+name mk_rec_name(name const & I);
 
 /** \brief Update the result sort of the given type */
 expr update_result_sort(expr t, level const & l);

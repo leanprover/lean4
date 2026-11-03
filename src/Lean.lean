@@ -40,6 +40,7 @@ public import Lean.LabelAttribute
 public import Lean.AutoDecl
 public import Lean.AddDecl
 public import Lean.Replay
+public import Lean.Kernel.InLean.AddDecl
 public import Lean.PrivateName
 public import Lean.LibrarySuggestions
 public import Lean.Namespace

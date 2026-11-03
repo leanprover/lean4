@@ -284,8 +284,10 @@ def find? (env : Environment) (n : Name) : Option ConstantInfo :=
   /- It is safe to use `find'` because we never overwrite imported declarations. -/
   env.constants.find?' n
 
+/-- Kernel-internal: record that the quotient declarations have been added (the kernel's
+`quotDecl` step, `Lean.Kernel.InLean`). -/
 @[export lean_environment_mark_quot_init]
-private def markQuotInit (env : Environment) : Environment :=
+def markQuotInit (env : Environment) : Environment :=
   { env with quotInit := true }
 
 @[export lean_environment_quot_init]
@@ -295,7 +297,7 @@ private def isQuotInit (env : Environment) : Bool :=
 /-- Type check given declaration and add it to the environment -/
 @[extern "lean_add_decl"]
 opaque addDeclCore (env : Environment) (maxHeartbeats : USize) (maxRecDepth : USize)
-  (decl : @& Declaration) (cancelTk? : @& Option IO.CancelToken) : Except Exception Environment
+  (decl : Declaration) (cancelTk? : Option IO.CancelToken) : Except Exception Environment
 
 /--
 Add declaration to kernel without type checking it.
@@ -305,10 +307,12 @@ It compromises soundness because, for example, a buggy tactic may produce an inv
 and the kernel will not catch it if the new option is set to true.
 -/
 @[extern "lean_add_decl_without_checking"]
-opaque addDeclWithoutChecking (env : Environment) (decl : @& Declaration) : Except Exception Environment
+opaque addDeclWithoutChecking (env : Environment) (decl : Declaration) : Except Exception Environment
 
+/-- Kernel-internal: add a constant without checking it. The kernel (`Lean.Kernel.InLean`) calls
+it for the constants of a declaration it has checked; everyone else goes through `addDeclCore`. -/
 @[export lean_environment_add]
-private def add (env : Environment) (cinfo : ConstantInfo) : Environment :=
+def add (env : Environment) (cinfo : ConstantInfo) : Environment :=
   { env with constants := env.constants.insert cinfo.name cinfo }
 
 @[export lean_kernel_diag_is_enabled]
@@ -684,10 +688,10 @@ def unlockAsync (env : Environment) : Environment :=
 
 @[extern "lean_elab_add_decl"]
 private opaque addDeclCheck (env : Environment) (maxHeartbeats : USize) (maxRecDepth : USize)
-  (decl : @& Declaration) (cancelTk? : @& Option IO.CancelToken) : Except Kernel.Exception Environment
+  (decl : Declaration) (cancelTk? : Option IO.CancelToken) : Except Kernel.Exception Environment
 
 @[extern "lean_elab_add_decl_without_checking"]
-private opaque addDeclWithoutChecking (env : Environment) (decl : @& Declaration) :
+private opaque addDeclWithoutChecking (env : Environment) (decl : Declaration) :
   Except Kernel.Exception Environment
 
 /--
@@ -2478,8 +2482,10 @@ def Kernel.setDiagnostics (env : Lean.Environment) (diag : Diagnostics) : Lean.E
 
 namespace Environment
 
+/-- Kernel-internal: updates an elab environment with the kernel environment the kernel returned
+for `decl`. -/
 @[export lean_elab_environment_update_base_after_kernel_add]
-private def updateBaseAfterKernelAdd (env : Environment) (kenv : Kernel.Environment) (decl : Declaration) : Environment := {
+def updateBaseAfterKernelAdd (env : Environment) (kenv : Kernel.Environment) (decl : Declaration) : Environment := {
     env with
     checked := .pure kenv
     -- HACK: the old codegen adds some helper constants directly to the kernel environment, we need

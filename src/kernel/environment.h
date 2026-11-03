@@ -57,21 +57,6 @@ public:
 
 /* Wrapper for `Lean.Kernel.Environment` */
 class LEAN_EXPORT environment : public object_ref {
-    friend class add_inductive_fn;
-
-    void check_name(name const & n) const;
-    void check_duplicated_univ_params(names ls) const;
-
-    void add_core(constant_info const & info);
-    void mark_quot_initialized();
-    environment add(constant_info const & info) const;
-    environment add_axiom(declaration const & d, bool check) const;
-    environment add_definition(declaration const & d, bool check) const;
-    environment add_theorem(declaration const & d, bool check) const;
-    environment add_opaque(declaration const & d, bool check) const;
-    environment add_mutual(declaration const & d, bool check) const;
-    environment add_quot() const;
-    environment add_inductive(declaration const & d) const;
 public:
     environment(environment const & other):object_ref(other) {}
     environment(environment && other) noexcept:object_ref(std::move(other)) {}
@@ -93,9 +78,6 @@ public:
     /** \brief Return information for the constant with name \c n. Throws and exception if constant declaration does not exist in this environment. */
     constant_info get(name const & n) const;
 
-    /** \brief Extends the current environment with the given declaration */
-    environment add(declaration const & d, bool check = true) const;
-
     /** \brief Apply the function \c f to each constant */
     void for_each_constant(std::function<void(constant_info const & d)> const & f) const;
 
@@ -105,7 +87,6 @@ public:
     }
 };
 
-void check_no_metavar_no_fvar(environment const & env, name const & n, expr const & e);
 
 void initialize_environment();
 void finalize_environment();

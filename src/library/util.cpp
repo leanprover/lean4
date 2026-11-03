@@ -10,9 +10,7 @@ Author: Leonardo de Moura
 #include "runtime/option_ref.h"
 #include "kernel/find_fn.h"
 #include "kernel/instantiate.h"
-#include "kernel/type_checker.h"
 #include "kernel/abstract.h"
-#include "kernel/inductive.h"
 #include "library/util.h"
 #include "library/suffixes.h"
 #include "library/constants.h"
@@ -180,19 +178,8 @@ bool has_and_decls(environment const & env) {
 
 static name * g_util_fresh = nullptr;
 
-level get_datatype_level(environment const & env, expr const & ind_type) {
-    local_ctx lctx;
-    name_generator ngen(*g_util_fresh);
-    expr it = type_checker(env, lctx).whnf(ind_type);
-    while (is_pi(it)) {
-        expr local = lctx.mk_local_decl(ngen, binding_name(it), binding_domain(it), binding_info(it));
-        it = type_checker(env, lctx).whnf(instantiate(binding_body(it), local));
-    }
-    if (is_sort(it)) {
-        return sort_level(it);
-    } else {
-        throw exception("invalid inductive datatype type");
-    }
+name mk_rec_name(name const & I) {
+    return I + name("rec");
 }
 
 expr update_result_sort(expr t, level const & l) {
@@ -205,64 +192,10 @@ expr update_result_sort(expr t, level const & l) {
     }
 }
 
-bool is_inductive_predicate(environment const & env, name const & n) {
-    constant_info info = env.get(n);
-    if (!info.is_inductive())
-        return false;
-    return is_zero(get_datatype_level(env, env.get(n).get_type()));
-}
-
-bool can_elim_to_type(environment const & env, name const & n) {
-    constant_info ind_info = env.get(n);
-    if (!ind_info.is_inductive()) return false;
-    constant_info rec_info = env.get(mk_rec_name(n));
-    return rec_info.get_num_lparams() > ind_info.get_num_lparams();
-}
-
 void get_constructor_names(environment const & env, name const & n, buffer<name> & result) {
     constant_info info = env.get(n);
     if (!info.is_inductive()) return;
     to_buffer(info.to_inductive_val().get_cnstrs(), result);
-}
-
-optional<name> is_constructor_app_ext(environment const & env, expr const & e) {
-    if (auto r = is_constructor_app(env, e))
-        return r;
-    expr const & f = get_app_fn(e);
-    if (!is_constant(f))
-        return optional<name>();
-    optional<constant_info> info = env.find(const_name(f));
-    if (!info || !info->has_value())
-        return optional<name>();
-    expr val = info->get_value();
-    expr const * it = &val;
-    while (is_lambda(*it))
-        it = &binding_body(*it);
-    return is_constructor_app_ext(env, *it);
-}
-
-void get_constructor_relevant_fields(environment const & env, name const & n, buffer<bool> & result) {
-    constant_info info  = env.get(n);
-    lean_assert(info.is_constructor());
-    constructor_val val = info.to_constructor_val();
-    expr type           = info.get_type();
-    name I_name         = val.get_induct();
-    unsigned nparams    = val.get_nparams();
-    local_ctx lctx;
-    name_generator ngen(*g_util_fresh);
-    buffer<expr> telescope;
-    to_telescope(env, lctx, ngen, type, telescope);
-    lean_assert(telescope.size() >= nparams);
-    for (unsigned i = nparams; i < telescope.size(); i++) {
-        expr ftype = lctx.get_type(telescope[i]);
-        if (type_checker(env, lctx).is_prop(ftype)) {
-            result.push_back(false);
-        } else {
-            buffer<expr> tmp;
-            expr n_ftype = to_telescope(env, lctx, ngen, ftype, tmp);
-            result.push_back(!is_sort(n_ftype) && !type_checker(env, lctx).is_prop(n_ftype));
-        }
-    }
 }
 
 unsigned get_num_constructors(environment const & env, name const & n) {
@@ -313,22 +246,6 @@ expr to_telescope(bool pi, local_ctx & lctx, name_generator & ngen, expr e, buff
 
 expr to_telescope(local_ctx & lctx, name_generator & ngen, expr const & type, buffer<expr> & telescope, optional<binder_info> const & binfo) {
     return to_telescope(true, lctx, ngen, type, telescope, binfo);
-}
-
-expr to_telescope(environment const & env, local_ctx & lctx, name_generator & ngen, expr type, buffer<expr> & telescope, optional<binder_info> const & binfo) {
-    expr new_type = type_checker(env, lctx).whnf(type);
-    while (is_pi(new_type)) {
-        type = new_type;
-        expr local;
-        if (binfo)
-            local = lctx.mk_local_decl(ngen, binding_name(type), binding_domain(type), *binfo);
-        else
-            local = lctx.mk_local_decl(ngen, binding_name(type), binding_domain(type), binding_info(type));
-        telescope.push_back(local);
-        type     = instantiate(binding_body(type), local);
-        new_type = type_checker(env, lctx).whnf(type);
-    }
-    return type;
 }
 
 /* ----------------------------------------------

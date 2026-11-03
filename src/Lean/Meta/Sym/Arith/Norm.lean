@@ -115,6 +115,8 @@ structure NormM.Context where
   polyCfg : PolyConfig := {}
   /-- `true` for a field of characteristic zero, where numeral inverses are rational coefficients. -/
   charZero : Bool := false
+  /-- See `normalize?`. -/
+  symbolicPow : Bool := false
 
 structure NormM.State where
   vars   : Array Expr := #[]
@@ -588,8 +590,6 @@ private structure Node where
 private structure Visitor (m : Type → Type) where
   simpAtom : Expr → m Result
   discharge? : Expr → m (Option Expr)
-  /-- See `normalize?`. -/
-  symbolicPow : Bool := false
 
 /--
 The visitor's monad: `NormM` over the caller's monad `m`, so that the atoms are simplified and
@@ -617,16 +617,20 @@ private def chainResults (e e₁ : Expr) (r₁ r₂ : Result) : SymM Result := d
     | .step e' h done cd₂ => return .step e' h done (cd₁ || cd₂)
   | .step _ h₁ _ cd₁ => mkEqTransResult e e₁ h₁ r₂ cd₁
 
+/-- The carrier, its universe level, and its `Semiring` instance. -/
+private def getSemiringArgs : NormM (Expr × Level × Expr) := do
+  if (← getKind).isRing then
+    let r ← getRing; return (r.type, r.u, r.semiringInst)
+  else
+    let s ← getSemiring; return (s.type, s.u, s.semiringInst)
+
 /--
 `e = e'` by `Eq.refl e'`, for a cast `e` and the same cast `e'` with the canonical instance, or a
 ground term `e` and its value `e'`. The kernel closes the gap while checking the expected type, as
 it does for the instances of the output.
 -/
 private def mkDefEqStep (e e' : Expr) : NormM Result := do
-  let (type, u) ← if (← getKind).isRing then
-      let ring ← getRing; pure (ring.type, ring.u)
-    else
-      let sr ← getSemiring; pure (sr.type, sr.u)
+  let (type, u, _) ← getSemiringArgs
   return .step e' (mkExpectedPropHint (mkApp2 (mkConst ``Eq.refl [u.succ]) type e') (mkApp3 (mkConst ``Eq [u.succ]) type e e'))
 
 /--
@@ -1447,16 +1451,9 @@ private def runNormM (kind : Kind) (x : NormM α) : m α :=
   (x.run { kind }).run' {}
 
 /-- Runs the visit `k` for the structure `kind` with a fresh variable array. -/
-private def runNorm (kind : Kind) (distrib : Bool) (k : VisitM m α) : m α := do
+private def runNorm (kind : Kind) (distrib : Bool) (k : VisitM m α) (symbolicPow := false) : m α := do
   let (polyCfg, charZero) ← runNormM kind do pure (← polyConfig, (← fieldChar0?).isSome)
-  (k.run { kind, distrib, polyCfg, charZero }).run' {}
-
-/-- The carrier, its universe level, and its `Semiring` instance. -/
-private def getSemiringArgs : NormM (Expr × Level × Expr) := do
-  if (← getKind).isRing then
-    let r ← getRing; return (r.type, r.u, r.semiringInst)
-  else
-    let s ← getSemiring; return (s.type, s.u, s.semiringInst)
+  (k.run { kind, distrib, polyCfg, charZero, symbolicPow }).run' {}
 
 private def getCommSemiringInst : NormM Expr := do
   match (← getKind) with
@@ -1466,10 +1463,9 @@ private def getCommSemiringInst : NormM Expr := do
   | .commSemiring _ => return (← getCommSemiring).commSemiringInst
   | _ => throwError "internal error: `Sym.Arith` normalizer is not in a commutative structure"
 
-/-- The step `e = e₂` proved by `thm`; the kernel closes the gap between the instances. -/
-private def mkThmStep (thm e e₂ : Expr) : NormM Result := do
-  let (type, u, _) ← getSemiringArgs
-  return .step e₂ (mkExpectedPropHint thm (mkApp3 (mkConst ``Eq [u.succ]) type e e₂))
+/-- The step `e = e₂ : type` proved by `thm`; the kernel closes the gap between the instances. -/
+private def mkThmStep (type : Expr) (u : Level) (thm e e₂ : Expr) : Result :=
+  .step e₂ (mkExpectedPropHint thm (mkApp3 (mkConst ``Eq [u.succ]) type e e₂))
 
 /-- `a ^ k` with the structure's canonical power. -/
 private def mkPow (a k : Expr) : VisitM m Expr := do
@@ -1483,8 +1479,8 @@ private def mkMul (a b : Expr) : VisitM m Expr := do
 private def litPowNode (v : Visitor m) (x : Expr) (nb : Node) (c : Nat) : VisitM m Node := do
   match h : x with
   | .app fa@h':(.app f b) k =>
-    -- With `distrib := false`, only a monomial is raised to a power. Over the budget, the power
-    -- is kept with its base normalized.
+    -- With `distrib := false`, only a monomial is raised to a power. The exponent is not a node
+    -- of the structure, so the power is kept directly when it is over the budget.
     let expand := (← read).distrib || isMonomial nb.p
     match (← if expand then runPoly (SafePoly.powNode nb.re nb.p c) else pure none) with
     | some p => return { r := ← congrBin x fa f b k nb.r .rfl h h', re := .pow nb.re c, p }
@@ -1504,16 +1500,17 @@ private def mulNode (v : Visitor m) (x : Expr) (nu nw : Node) : VisitM m Node :=
     mkAtom (r.getResultExpr x) r (kept := true)
   | _ => unreachable!
 
-/-- `some (a, b)` if `e` is `a + b` (`isAdd`) or `a * b` in `Nat` with the standard instances. -/
-private def natBinOp? (isAdd : Bool) (e : Expr) : MetaM (Option (Expr × Expr)) := do
-  if isAdd then
-    let_expr HAdd.hAdd α _ _ i a b := e | return none
-    unless α.isConstOf ``Nat && (← Structural.isInstHAddNat i) do return none
-    return some (a, b)
-  else
-    let_expr HMul.hMul α _ _ i a b := e | return none
-    unless α.isConstOf ``Nat && (← Structural.isInstHMulNat i) do return none
-    return some (a, b)
+/-- `some (a, b)` if `e` is `a + b` in `Nat` with the standard instance. -/
+private def natAdd? (e : Expr) : MetaM (Option (Expr × Expr)) := do
+  let_expr HAdd.hAdd α _ _ i a b := e | return none
+  unless α.isConstOf ``Nat && (← Structural.isInstHAddNat i) do return none
+  return some (a, b)
+
+/-- `some (a, b)` if `e` is `a * b` in `Nat` with the standard instance. -/
+private def natMul? (e : Expr) : MetaM (Option (Expr × Expr)) := do
+  let_expr HMul.hMul α _ _ i a b := e | return none
+  unless α.isConstOf ``Nat && (← Structural.isInstHMulNat i) do return none
+  return some (a, b)
 
 mutual
 /-- Visits `e`, evaluating it to a numeral when it is ground (`foldGround`). -/
@@ -1552,13 +1549,26 @@ private partial def visitCore (v : Visitor m) (e : Expr) : VisitM m Node := do
       let r ← if comm then Simp.mkCongrArg e f a (← v.simpAtom a) h else pure r
       mkAtom (r.getResultExpr e) r
     | _ => unreachable!
+  -- A product or power kept as an atom: its factors are normalized where they are.
+  let keep (fa f a b : Expr) (ra rb : Result) (h₁ : e = .app (.app f a) b) (h₂ : fa = .app f a) : VisitM m Node := do
+    let r ← congrBin e fa f a b ra rb h₁ h₂
+    mkAtom (r.getResultExpr e) r (kept := true)
+  -- An interpreted operator with another instance is an atom; its arguments are still normalized.
+  -- `simpAtom` must not visit `e` itself: `simp` would re-enter `e` through `normalizeTerm?`.
+  let unexpected : VisitM m Unit := do
+    reportIssue! "ring term with unexpected instance{indentExpr e}"
+  let unexpectedBin (fa f a b : Expr) (na nb : Node) (h₁ : e = .app (.app f a) b) (h₂ : fa = .app f a) : VisitM m Node := do
+    unexpected
+    keep fa f a b (← normalizeNode v a na) (← normalizeNode v b nb) h₁ h₂
   -- A power with a symbolic `Nat` exponent (`symPowNode`): the exponent is normalized in `Nat`.
   let symPow : VisitM m Node := do
     match h : e with
     | .app fa@h':(.app f a) k =>
-      unless (← isInst (← opFn getPowFn getPowFn') f) do return (← atom)
       let rk ← visitExponent v k
       let na ← visit v a
+      unless (← isInst (← opFn getPowFn getPowFn') f) do
+        unexpected
+        return (← keep fa f a k (← normalizeNode v a na) rk h h')
       let k₁ := rk.getResultExpr k
       if let some c := (Sym.getNatValue? k₁).run then
         let r ← congrBin e fa f a k na.r rk h h'
@@ -1571,19 +1581,10 @@ private partial def visitCore (v : Visitor m) (e : Expr) : VisitM m Node := do
       let a₁ := ra.getResultExpr a
       let x ← mkPow a₁ k₁
       let r ← if isSameExpr x e₁ then pure r else chainResults e e₁ r (← liftNorm (mkDefEqStep e₁ x))
-      chainNode e x r (← symPowNode v a₁ none k₁)
+      -- When `a` is already normal, its node is the node of `a₁`.
+      let na₁? := if ra matches .rfl .. then some na else none
+      chainNode e x r (← symPowNode v a₁ na₁? k₁)
     | _ => unreachable!
-  -- A product or power kept as an atom: its factors are normalized where they are.
-  let keep (fa f a b : Expr) (ra rb : Result) (h₁ : e = .app (.app f a) b) (h₂ : fa = .app f a) : VisitM m Node := do
-    let r ← congrBin e fa f a b ra rb h₁ h₂
-    mkAtom (r.getResultExpr e) r (kept := true)
-  -- An interpreted operator with another instance is an atom; its arguments are still normalized.
-  -- `simpAtom` must not visit `e` itself: `simp` would re-enter `e` through `normalizeTerm?`.
-  let unexpected : VisitM m Unit := do
-    reportIssue! "ring term with unexpected instance{indentExpr e}"
-  let unexpectedBin (fa f a b : Expr) (na nb : Node) (h₁ : e = .app (.app f a) b) (h₂ : fa = .app f a) : VisitM m Node := do
-    unexpected
-    keep fa f a b (← normalizeNode v a na) (← normalizeNode v b nb) h₁ h₂
   -- A binary node with the visited children `na`, `nb`, reified as `re` with polynomial `p`.
   -- Over the budget, the node is an atom whose children are normalized, like a kept product.
   let binNode (fa f a b : Expr) (na nb : Node) (re : RingExpr) (p : PolyM Poly)
@@ -1619,10 +1620,7 @@ private partial def visitCore (v : Visitor m) (e : Expr) : VisitM m Node := do
       let na ← visit v a
       let nb ← visit v b
       unless (← isInst (← opFn getMulFn getMulFn') f) do return (← unexpectedBin fa f a b na nb h h')
-      if (← expandMul na.p nb.p) then
-        binNode fa f a b na nb (.mul na.re nb.re) (SafePoly.mul na.p nb.p) h h'
-      else
-        keep fa f a b (← normalizeNode v a na) (← normalizeNode v b nb) h h'
+      mulNode v e na nb
     | _ => unreachable!
   | HSub.hSub _ _ _ _ _ _ =>
     unless isRing do return (← atom)
@@ -1661,18 +1659,14 @@ private partial def visitCore (v : Visitor m) (e : Expr) : VisitM m Node := do
         let (e₂, h₂) ← liftNorm (mkZPowStep e a kv)
         return (← chainNode e e₂ (.step e₂ h₂) (← visit v e₂))
       | _ => unreachable!
-    let some kv := (Sym.getNatValue? k).run | if v.symbolicPow then symPow else atom
+    let some kv := (Sym.getNatValue? k).run | if (← read).symbolicPow && β.isConstOf ``Nat then symPow else atom
     match h : e with
     | .app fa@h':(.app f a) k =>
       let na ← visit v a
-      let ok ← isInst (← opFn getPowFn getPowFn') f
-      unless ok do unexpected
-      -- With `distrib := false`, only a monomial is raised to a power. The exponent is not a
-      -- node of the structure, so the power is kept directly when it is over the budget.
-      let expand := ok && ((← read).distrib || isMonomial na.p)
-      match (← if expand then runPoly (SafePoly.powNode na.re na.p kv) else pure none) with
-      | some p => return { r := ← congrBin e fa f a k na.r .rfl h h', re := .pow na.re kv, p }
-      | none => keep fa f a k (← normalizeNode v a na) .rfl h h'
+      unless (← isInst (← opFn getPowFn getPowFn') f) do
+        unexpected
+        return (← keep fa f a k (← normalizeNode v a na) .rfl h h')
+      litPowNode v e na kv
     | _ => unreachable!
   | HSMul.hSMul σ _ _ _ _ _ =>
     let isNat := σ.isConstOf ``Nat
@@ -1733,23 +1727,30 @@ private partial def visitCore (v : Visitor m) (e : Expr) : VisitM m Node := do
     numNode e .rfl k
   | _ => atom
 
-/-- Normalizes the `Nat` exponent `k` in a run of its own. -/
+/--
+Normalizes the `Nat` exponent `k` in a run of its own. An exponent that is not an arithmetic term
+is only simplified by `simpAtom`.
+-/
 private partial def visitExponent (v : Visitor m) (k : Expr) : VisitM m Result := do
-  let .commSemiring id ← (classify? Nat.mkType : SymM _) | return .rfl
-  (runNorm (.commSemiring id) true do normalizeNode v k (← visit v k) : m Result)
+  let r ← if isInterpreted k then pure .rfl else v.simpAtom k
+  let k₁ := r.getResultExpr k
+  unless isInterpreted k₁ do return r
+  let .commSemiring id ← (classify? Nat.mkType : SymM _) | return r
+  let symbolicPow := (← read).symbolicPow
+  let r₁ ← (runNorm (.commSemiring id) true (symbolicPow := symbolicPow) do
+    normalizeNode v k₁ (← visit v k₁) : m Result)
+  chainResults k k₁ r r₁
 
 /--
-The node of `x := a ^ k` (with the canonical power), for a base `a` and an exponent `k` in normal
-form, where `k` is not a numeral. `na?` is the node of `a` when it is known. `(u ^ t) ^ k` is
-`u ^ (t * k)`, `1 ^ k` is `1`, and in a commutative structure `(u * w) ^ k` is `u ^ k * w ^ k`. The
-exponent is then split: `a ^ (k₁ + k₂)` is `a ^ k₁ * a ^ k₂` and `a ^ (c * t)` is `(a ^ t) ^ c` for a
-numeral `c`. What remains, `a ^ t` for a monomial `t`, is an atom.
+The node of `x := a ^ k` with the canonical power, for a normalized base `a` and a non-numeral
+exponent `k` in `Nat` normal form (a sum of monomials with leading numeral coefficients). `na?` is
+the node of `a`, if known.
 -/
 private partial def symPowNode (v : Visitor m) (a : Expr) (na? : Option Node) (k : Expr) : VisitM m Node := do
   let x ← mkPow a k
   let (type, u, sInst) ← liftNorm getSemiringArgs
   let step (thm e₂ : Expr) (n : Node) : VisitM m Node := do
-    chainNode x e₂ (← liftNorm (mkThmStep thm x e₂)) n
+    chainNode x e₂ (mkThmStep type u thm x e₂) n
   let baseNode : VisitM m Node := do
     match na? with
     | some na => pure na
@@ -1759,9 +1760,9 @@ private partial def symPowNode (v : Visitor m) (a : Expr) (na? : Option Node) (k
     match (Sym.getNatValue? k').run with
     | some c => litPowNode v (← mkPow a k') na c
     | none => symPowNode v a (some na) k'
-  if (Sym.getNatValue? a).run matches some 1 && a.isAppOfArity ``OfNat.ofNat 3 then
+  if (Sym.getNatValue? a).run matches some 1 then
     let thm := mkApp3 (mkConst ``Grind.Semiring.one_pow [u]) type sInst k
-    return ← numNode a (← liftNorm (mkThmStep thm x a)) 1
+    return ← numNode a (mkThmStep type u thm x a) 1
   match_expr a with
   | HMul.hMul _ _ _ _ b c =>
     if (← read).polyCfg.commutative then
@@ -1788,12 +1789,12 @@ private partial def symPowNode (v : Visitor m) (a : Expr) (na? : Option Node) (k
           | none => symPowNode v b none k₂
         return ← step thm e₂ (← chainNode e₂ e₃ r n)
   | _ => pure ()
-  if let some (k₁, k₂) ← natBinOp? true k then
+  if let some (k₁, k₂) ← natAdd? k then
     let na ← baseNode
     let e₂ ← mkMul (← mkPow a k₁) (← mkPow a k₂)
     let thm := mkApp5 (mkConst ``Grind.Semiring.pow_add [u]) type sInst a k₁ k₂
     return ← step thm e₂ (← mulNode v e₂ (← piece k₁ na) (← piece k₂ na))
-  if let some (c, t) ← natBinOp? false k then
+  if let some (c, t) ← natMul? k then
     if let some cv := (Sym.getNatValue? c).run then
       let e₂ ← mkPow (← mkPow a t) c
       let thm := mkApp5 (mkConst ``Grind.Semiring.pow_mul' [u]) type sInst a c t
@@ -2706,7 +2707,7 @@ private def classifyKind? (α : Expr) : m (Option Kind) := do
     | .none => none
 
 /-- The `normalize?` path for relations; `e` is `rel lhs rhs` with carrier `α`. -/
-private def normalizeRel? (v : Visitor m) (rel : RelKind) (α e lhs rhs : Expr) (lhsOnly distrib : Bool) (maxChar? : Option Nat) : m Result := do
+private def normalizeRel? (v : Visitor m) (rel : RelKind) (α e lhs rhs : Expr) (lhsOnly distrib : Bool) (maxChar? : Option Nat) (symbolicPow : Bool) : m Result := do
   let some kind ← classifyKind? α | return .rfl
   if (← charAboveLimit kind maxChar?) then return .rfl
   let order? ← match rel with
@@ -2721,7 +2722,7 @@ private def normalizeRel? (v : Visitor m) (rel : RelKind) (α e lhs rhs : Expr) 
       let ok ← runNormM kind do return isSameExpr fn (← canonExpr e.appFn!.appFn!)
       unless ok do return .rfl
       pure (some o)
-  runNorm kind distrib do
+  runNorm kind distrib (symbolicPow := symbolicPow) do
     let nl ← visit v lhs
     let nr ← visit v rhs
     let r₀ ← match h : e with
@@ -2772,7 +2773,7 @@ The result distinguishes three cases:
 `discharge?` proves the side conditions `x ≠ 0` that cancel `x * x⁻¹` in a field; a result
 that asked for one is `contextDependent`. `distrib` is described at `normalize?`.
 -/
-private def normalizeTerm? (v : Visitor m) (e : Expr) (distrib : Bool) (maxChar? : Option Nat) : m Result := do
+private def normalizeTerm? (v : Visitor m) (e : Expr) (distrib : Bool) (maxChar? : Option Nat) (symbolicPow : Bool) : m Result := do
   let some α := getArithType? e | return .rfl
   let some kind ← classifyKind? α | return .rfl
   if (← charAboveLimit kind maxChar?) then
@@ -2791,14 +2792,14 @@ private def normalizeTerm? (v : Visitor m) (e : Expr) (distrib : Bool) (maxChar?
     if β.isConstOf ``Int then
       unless isField do return .rfl
     else
-      unless Sym.isNatValue k || v.symbolicPow do return .rfl
+      unless Sym.isNatValue k || (symbolicPow && β.isConstOf ``Nat) do return .rfl
   | HSub.hSub _ _ _ _ _ _ => unless isRing do return .rfl
   | Neg.neg _ _ _ => unless isRing do return .rfl
   | HDiv.hDiv _ _ _ _ _ _ => unless isField do return .rfl
   | Inv.inv _ _ _ => unless isField do return .rfl
   | IntCast.intCast _ _ _ => unless isRing do return .rfl
   | _ => pure ()
-  runNorm kind distrib do
+  runNorm kind distrib (symbolicPow := symbolicPow) do
     let n ← visit v e
     normalizeNode v e n
 
@@ -2808,10 +2809,10 @@ The `normalize?` path for `k ∣ arg` over `Int` with a numeral `k ≠ 0`; `dvdF
 the coefficients of `arg`: `k ∣ g * q + c` becomes `False` when `g ∤ c`, and `k / g ∣ q + c / g`
 otherwise (`IntSolver.lean`).
 -/
-private def normalizeDvd? (v : Visitor m) (e dvdFn arg : Expr) (k : Int) (distrib : Bool) (maxChar? : Option Nat) : m Result := do
+private def normalizeDvd? (v : Visitor m) (e dvdFn arg : Expr) (k : Int) (distrib : Bool) (maxChar? : Option Nat) (symbolicPow : Bool) : m Result := do
   let some kind@(.commRing _) ← classifyKind? dvdFn.appFn!.appArg! | return .rfl
   if (← charAboveLimit kind maxChar?) then return .rfl
-  runNorm kind distrib do
+  runNorm kind distrib (symbolicPow := symbolicPow) do
     let n ← visit v arg
     let r₀ ← match h : e with
       | .app f a => Simp.mkCongrArg e f a n.r h
@@ -2926,28 +2927,25 @@ coefficients modulo the characteristic, so `x - y` over `BitVec 64` would become
 `grind`'s `[grind hom]` translation. Structures with no `IsCharP` instance are normalized:
 without a known characteristic no coefficient is reduced.
 
-With `symbolicPow := true`, a power `a ^ k` whose `Nat` exponent `k` is not a numeral is
-interpreted too: `k` is normalized in `Nat`, a sum in the exponent becomes a product
-(`a ^ (m + 1) = a ^ m * a`), a numeral coefficient a power (`a ^ (2 * m) = (a ^ m) ^ 2`), a power of a
-power is merged (`(a ^ m) ^ n = a ^ (m * n)`), and in a commutative structure a power of a product
-is distributed (`(x * y) ^ m = x ^ m * y ^ m`). The powers `a ^ t` that remain, for the normal form
-`a` of the base and a monomial `t` of the exponent, are atoms. This is the treatment of exponents
-of Mathlib's `ring`.
+With `symbolicPow := true`, powers with a non-numeral `Nat` exponent are normalized too:
+`x ^ (2 * m + 1) = (x ^ m) ^ 2 * x`, `(x ^ m) ^ n = x ^ (m * n)`, and, if commutative,
+`(x * y) ^ m = x ^ m * y ^ m`. The remaining powers `a ^ t`, for a normalized base `a` and a
+monomial `t`, are atoms.
 -/
 def normalize? [Monad m] [MonadLiftT SymM m] [MonadLiftT MetaM m] (e : Expr) (simpAtom : Expr → m Result)
     (discharge? : Expr → m (Option Expr) := fun _ => pure none) (lhsOnly : Bool := false) (distrib : Bool := true)
     (maxChar? : Option Nat := none) (symbolicPow : Bool := false) : m Result := do
-  let v : Visitor m := { simpAtom, discharge?, symbolicPow }
+  let v : Visitor m := { simpAtom, discharge? }
   match_expr e with
-  | Eq α lhs rhs => normalizeRel? v .eq α e lhs rhs lhsOnly distrib maxChar?
-  | LE.le α _ lhs rhs => normalizeRel? v .le α e lhs rhs lhsOnly distrib maxChar?
-  | LT.lt α _ lhs rhs => normalizeRel? v .lt α e lhs rhs lhsOnly distrib maxChar?
+  | Eq α lhs rhs => normalizeRel? v .eq α e lhs rhs lhsOnly distrib maxChar? symbolicPow
+  | LE.le α _ lhs rhs => normalizeRel? v .le α e lhs rhs lhsOnly distrib maxChar? symbolicPow
+  | LT.lt α _ lhs rhs => normalizeRel? v .lt α e lhs rhs lhsOnly distrib maxChar? symbolicPow
   | Dvd.dvd α _ k arg =>
     if α.isConstOf ``Int then
       if let some kv := (Sym.getIntValue? k).run then
         if kv != 0 then
-          return ← normalizeDvd? v e e.appFn!.appFn! arg kv distrib maxChar?
-    normalizeTerm? v e distrib maxChar?
-  | _ => normalizeTerm? v e distrib maxChar?
+          return ← normalizeDvd? v e e.appFn!.appFn! arg kv distrib maxChar? symbolicPow
+    normalizeTerm? v e distrib maxChar? symbolicPow
+  | _ => normalizeTerm? v e distrib maxChar? symbolicPow
 
 end Lean.Meta.Sym.Arith

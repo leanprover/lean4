@@ -172,3 +172,49 @@ example : True := by
 -- Symbolic powers inside other terms.
 example (f : Int → Int) (x : Int) (n : Nat) : f (x^(n+1) - x * x^n) = f 0 := by
   power_nf
+
+-- A power with another instance is not interpreted.
+example (x : Int) (n : Nat) :
+    letI : HPow Int Nat Int := ⟨fun x _ => x⟩
+    x ^ (n + 1) = x → x ^ (n + 1) = x := by
+  intro h
+  fail_if_success power_nf
+  exact h
+
+-- A numeral coefficient anywhere in an exponent monomial.
+example (x : Int) (m n : Nat) : x^(m*2*n) = (x^(m*n))^2 := by
+  power_nf
+
+-- Exponents of other types are atoms (no loop through `simp`).
+instance : HPow Int Bool Int := ⟨fun x b => if b then x else 1⟩
+example (x : Int) (b : Bool) : x ^ b + x ^ b = 2 * x ^ b := by
+  power_nf
+
+-- Powers of the same base are not commuted in a noncommutative ring.
+example : True := by
+  fail_if_success have : ∀ {R : Type} [Ring R] (x : R) (n : Nat), x * x^n = x^n * x := by intros; power_nf
+  trivial
+
+-- Over `sym.arith.maxDegree`, a power is an atom with its base normalized.
+set_option sym.arith.maxDegree 2 in
+example (x : Int) (n : Nat) : x^(n+3) = x^(n+3) := by
+  power_nf
+
+elab "power_nf_nodistrib" : tactic => do
+  let g ← getMainGoal
+  g.withContext do
+    let target ← instantiateMVars (← g.getType)
+    let r ← SymM.run do
+      Simp.SimpM.run' (Simp.simp (← shareCommon target))
+        { pre := Simp.simpArith (distrib := false) (symbolicPow := true), post := Simp.evalGround }
+    let .step t h .. := r | throwError "no progress"
+    unless t.isTrue do throwError "unequal normal forms:{indentExpr t}"
+    g.assign (← mkOfEqTrue h)
+    replaceMainGoal []
+
+-- With `distrib := false`, a power of a sum is not expanded, but its exponent is still split.
+example (x y : Int) (n : Nat) : (x+y)^(n+2) = (y+x)^n * (x+y)^2 := by
+  power_nf_nodistrib
+
+example (x y : Int) (n : Nat) : (x*y)^(2*n) = (x^n)^2 * (y^n)^2 := by
+  power_nf_nodistrib

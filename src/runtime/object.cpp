@@ -2738,6 +2738,14 @@ extern "C" LEAN_EXPORT obj_res lean_byte_array_push(obj_arg a, uint8 b) {
     return r;
 }
 
+extern "C" LEAN_EXPORT obj_res lean_byte_array_replicate(b_obj_arg n, uint8 v) {
+    if (!lean_is_scalar(n)) lean_internal_panic_out_of_memory();
+    size_t sz = lean_unbox(n);
+    object * r = lean_alloc_sarray(1, sz, sz);
+    memset(lean_sarray_cptr(r), v, sz);
+    return r;
+}
+
 extern "C" LEAN_EXPORT obj_res lean_byte_array_copy_slice(b_obj_arg src, obj_arg o_src_off, obj_arg dest, obj_arg o_dest_off, obj_arg o_len, bool exact) {
     size_t ssz = lean_sarray_size(src);
     size_t dsz = lean_sarray_size(dest);

@@ -767,7 +767,9 @@ def makeInstancesUsingMutualBlock (infos : Array (InstanceInfo α))
     infos ← infos.mapM fun info => do
       let extendedHelpers ← info.extendedHelpers.mapM fun helper => do
         let value ← helper.mkValue recInsts globalCompute
-        return { helper with value := some <| value.replaceFVars recInsts instanceValues }
+        let value := (← value.abstractM recInsts).instantiateBetaRevRange
+          0 instanceValues.size instanceValues
+        return { helper with value }
       return { info with extendedHelpers }
     let instHyps ← produceInstanceHyps
     -- 4. compute instance types and names
@@ -1137,17 +1139,15 @@ def FieldHelperProvider.doubleCasesSlow
     let fail := throwError "Invalid use of `{.ofConstName decl_name%}`, \
       expected field `{.ofConstName input.fieldName}` to have the shape \
       `α → α → β` where `α` is the type parameter"
-    let .forallE _ t tgt _ := input.expectedType | fail
-    if t != input.typeApp then
-      throwError "Invalid use of `{.ofConstName decl_name%}`, the first argument to \
-        `{.ofConstName input.fieldName}` is not the type parameter"
+    -- we currently only support type classes that take a single type parameter
+    let .forallE _ _sort (.forallE _ _inst (.forallE _ (.bvar 1) (.forallE _ (.bvar 2) tgt _) _) _) _ ←
+      instantiateTypeLevelParams input.fieldInfo input.classLParams | fail
+    if tgt.hasLooseBVars then
+      throwError "Invalid use of `{.ofConstName decl_name%}`, the target type for \
+        `{.ofConstName input.fieldName}` depends on the type parameter or the field arguments"
     withLocalDeclD `t input.typeApp fun discr => do
-      mkLambdaFVars #[discr] <| ← mkDepCases discr tgt fun ival cval fields ctorApp tgt => do
-      let .forallE _ t' tgt' _ := tgt | fail
-      if t' != input.typeApp then
-        throwError "Invalid use of `{.ofConstName decl_name%}`, the second argument to \
-          `{.ofConstName input.fieldName}` is not the type parameter"
-      mkLambdaFVars #[discr] <| ← mkNondepCases discr tgt' fun _ival cval' fields' ctorApp' => do
+      mkLambdaFVars #[discr] <| ← mkNondepCases discr tgt fun ival cval fields ctorApp => do
+      mkLambdaFVars #[discr] <| ← mkNondepCases discr tgt fun _ival cval' fields' ctorApp' => do
         prependError m!"Error while processing constructor pair \
             {.ofConstName cval.name}, {.ofConstName cval'.name}:" do
           if cval.cidx = cval'.cidx then
@@ -1196,11 +1196,11 @@ def FieldHelperProvider.doubleCases
       expected field `{.ofConstName input.fieldName}` to have the shape \
       `α → α → β` where `α` is the type parameter"
     -- we currently only support type classes that take a single type parameter
-    let .forallE _ _sort (.forallE _ _inst (.forallE _ (.bvar 1) (.forallE _ (.bvar 2) tgt _) _) _) _ :=
-      input.fieldInfo.type | fail
+    let .forallE _ _sort (.forallE _ _inst (.forallE _ (.bvar 1) (.forallE _ (.bvar 2) tgt _) _) _) _ ←
+      instantiateTypeLevelParams input.fieldInfo input.classLParams | fail
     if tgt.hasLooseBVars then
       throwError "Invalid use of `{.ofConstName decl_name%}`, the target type for \
-        `{.ofConstName input.fieldName}` is dependent"
+        `{.ofConstName input.fieldName}` depends on the type parameter or the field arguments"
     let inductInfo ← getConstInfoInduct input.induct
     withLocalDeclD `lhs input.typeApp fun lhs => do
     withLocalDeclD `rhs input.typeApp fun rhs => do

@@ -295,8 +295,7 @@ example (b : Nat → Bool) (s₀ : Nat) :
   goal_count
   all_goals lia
 
--- TODO: `prog3.eq_1` zeta-reduces the root `have __do_jp`, so only the inner join points are shared.
-/-- info: 4 goals -/
+/-- info: 2 goals -/
 #guard_msgs in
 example (b : Nat → Bool) (s₀ : Nat) :
     ⦃fun s => s = s₀⦄ prog3 b ⦃fun _ s => s₀ + 3 ≤ s ∧ s ≤ s₀ + 6⦄ := by

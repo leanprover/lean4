@@ -502,9 +502,12 @@ def strLitSupported (env : Kernel.Environment) : Bool :=
     charOfNatTyOk (env.find? charOfNatName)
 
 /-- Twin of `natOpStoredF`. -/
-def natOpStored (env : Kernel.Environment) (c : Name) : Bool :=
+def natOpStored (env : Kernel.Environment) (c : Name) (uncertified : Bool := false) : Bool :=
   match env.find? c with
   | some (.defnInfo _) => true
+  -- STOPGAP (`Ctx.uncertifiedNatOps`): a `module` importer sees a non-exposed pinned operation
+  -- (`Nat.land`/`lor`/`xor`/`gcd`) as an axiom; its certificate was checked in its home module
+  | some (.axiomInfo _) | some (.opaqueInfo _) => uncertified
   | _ => false
 
 /-- Twin of `natLitToConstructor`. -/

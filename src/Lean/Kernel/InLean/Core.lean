@@ -389,7 +389,7 @@ partial def reduceNat (μ : CheckMode) (d : Nat) (e : Expr) : M (Option Expr) :=
     | .app (.const cn []) a =>
       let env := (← read).env
       if (natOpNames.contains cn || natDivModNames.contains cn) && cn != natPredName &&
-          natOpStored env cn then
+          natOpStored env cn (← read).uncertifiedNatOps then
         let w₁ ← whnf μ d a
         match rawNatLit? w₁ with
         | some n₁ =>

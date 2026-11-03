@@ -650,7 +650,7 @@ inductive Modifier
   | v (presentation : ZoneName)
 
   /--
-  `O`: Localized zone offset using the `GMT` prefix (e.g., `GMT+8`, `GMT+08:00`).
+  `O`: Localized zone offset using the `GMT` prefix, with a bare `GMT` for UTC (e.g., `GMT`, `GMT+8`, `GMT+08:00`).
   -/
   | O (presentation : OffsetO)
 
@@ -666,7 +666,7 @@ inductive Modifier
 
   /--
   `Z`: Zone offset.
-  - `Z`, `ZZ`, `ZZZ`: output `±HHMMss` (no colon); parse `±HHMM[ss]`. Does **not** accept the literal `Z` character for UTC — use `ZZZZZ` or `XXX` for that.
+  - `Z`, `ZZ`, `ZZZ`: output/parse `±HHMM[ss]` (no colon; seconds only when non-zero). Does **not** accept the literal `Z` character for UTC — use `ZZZZZ` or `XXX` for that.
   - `ZZZZ`: outputs/parses localized GMT form (e.g., `GMT+08:00`).
   - `ZZZZZ`: outputs `±HH:mm[:ss]` and uses `Z` for UTC (e.g., `Z`, `+01:30`).
   -/

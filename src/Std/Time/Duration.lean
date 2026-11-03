@@ -381,6 +381,20 @@ instance : HMul Int Duration Duration where
 instance : HMul Duration Int Duration where
   hMul d i := Duration.ofNanoseconds <| Nanosecond.Offset.ofInt (d.toNanoseconds.val * i)
 
+instance : HMul Nat Duration Duration where
+  hMul i d := Duration.ofNanoseconds <| Nanosecond.Offset.ofInt (d.toNanoseconds.val * i)
+
+instance : HMul Duration Nat Duration where
+  hMul d i := Duration.ofNanoseconds <| Nanosecond.Offset.ofInt (d.toNanoseconds.val * i)
+
+/-- Divides by an integer, rounding toward zero to whole nanoseconds. -/
+instance : HDiv Duration Int Duration where
+  hDiv d i := Duration.ofNanoseconds <| Nanosecond.Offset.ofInt (d.toNanoseconds.val.tdiv i)
+
+/-- Divides by a natural number, rounding toward zero to whole nanoseconds. -/
+instance : HDiv Duration Nat Duration where
+  hDiv d i := Duration.ofNanoseconds <| Nanosecond.Offset.ofInt (d.toNanoseconds.val.tdiv i)
+
 instance : HAdd PlainTime Duration PlainTime where
    hAdd pt d := PlainTime.ofNanoseconds (d.toNanoseconds + pt.toNanoseconds)
 

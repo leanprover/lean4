@@ -61,4 +61,4 @@ example {a b c d e f a' b' c' d' e' f' : Int}
             f = 2 ∧ f' = 1 ∨
               f = -1 ∧ f' = -2 ∨
                 f = -2 ∧ f' = -1 ∨ f = 1 ∧ f' = 3 ∨ f = 3 ∧ f' = 1 ∨ f = -1 ∧ f' = -3 ∨ f = -3 ∧ f' = -1) :
-  a = 0 ∧ b = 0 := by grind (splits := 40)
+  a = 0 ∧ b = 0 := by grind

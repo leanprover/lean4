@@ -1864,7 +1864,9 @@ LEAN_EXPORT lean_obj_res lean_nat_big_shiftr(b_lean_obj_arg a1, b_lean_obj_arg a
 LEAN_EXPORT lean_obj_res lean_nat_pow(b_lean_obj_arg a1, b_lean_obj_arg a2);
 LEAN_EXPORT lean_obj_res lean_nat_powmod(b_lean_obj_arg b, b_lean_obj_arg e, b_lean_obj_arg m);
 LEAN_EXPORT lean_obj_res lean_nat_gcd(b_lean_obj_arg a1, b_lean_obj_arg a2);
+LEAN_EXPORT lean_obj_res lean_nat_extended_gcd(b_lean_obj_arg a1, b_lean_obj_arg a2);
 LEAN_EXPORT lean_obj_res lean_nat_log2(b_lean_obj_arg a);
+LEAN_EXPORT lean_obj_res lean_nat_trailing_zeros(b_lean_obj_arg a);
 /* Upper bound on the size in bytes of the representation of `a` (one word for scalars). Returns a raw `size_t`, not a boxed `Nat`. */
 LEAN_EXPORT size_t lean_nat_size_in_bytes(b_lean_obj_arg a);
 
@@ -1892,6 +1894,7 @@ LEAN_EXPORT lean_object * lean_int_big_div_exact(lean_object * a1, lean_object *
 LEAN_EXPORT lean_object * lean_int_big_mod(lean_object * a1, lean_object * a2);
 LEAN_EXPORT lean_object * lean_int_big_ediv(lean_object * a1, lean_object * a2);
 LEAN_EXPORT lean_object * lean_int_big_emod(lean_object * a1, lean_object * a2);
+LEAN_EXPORT lean_obj_res lean_int_trailing_zeros(b_lean_obj_arg a);
 LEAN_EXPORT bool lean_int_big_eq(lean_object * a1, lean_object * a2);
 LEAN_EXPORT bool lean_int_big_le(lean_object * a1, lean_object * a2);
 LEAN_EXPORT bool lean_int_big_lt(lean_object * a1, lean_object * a2);
@@ -2328,6 +2331,30 @@ static inline uint64_t lean_uint64_of_nat_mk(lean_obj_arg a) { uint64_t r = lean
 static inline uint64_t lean_uint64_add(uint64_t a1, uint64_t a2) { return a1+a2; }
 static inline uint64_t lean_uint64_sub(uint64_t a1, uint64_t a2) { return a1-a2; }
 static inline uint64_t lean_uint64_mul(uint64_t a1, uint64_t a2) { return 1U*a1*a2; }
+#if !defined(__SIZEOF_INT128__)
+static inline uint64_t lean_uint64_add_mod(uint64_t a, uint64_t b, uint64_t modulus) {
+    return a >= modulus - b ? a - (modulus - b) : a + b;
+}
+#endif
+static inline uint64_t lean_uint64_mul_mod(uint64_t a, uint64_t b, uint64_t modulus) {
+    if (modulus == 0) return a * b;
+    if (modulus == 1) return 0;
+#if defined(__SIZEOF_INT128__)
+    __uint128_t product = (__uint128_t)a * (__uint128_t)b;
+    if (product <= UINT64_MAX) return (uint64_t)product % modulus;
+    return (uint64_t)(product % modulus);
+#else
+    /* Double and add keeps every intermediate below modulus without requiring 128-bit words. */
+    a %= modulus;
+    uint64_t result = 0;
+    while (b != 0) {
+        if (b & 1) result = lean_uint64_add_mod(result, a, modulus);
+        b >>= 1;
+        if (b != 0) a = lean_uint64_add_mod(a, a, modulus);
+    }
+    return result;
+#endif
+}
 static inline uint64_t lean_uint64_div(uint64_t a1, uint64_t a2) { return a2 == 0 ? 0  : a1/a2; }
 static inline uint64_t lean_uint64_mod(uint64_t a1, uint64_t a2) { return a2 == 0 ? a1 : a1%a2; }
 static inline uint64_t lean_uint64_land(uint64_t a, uint64_t b) { return a & b; }

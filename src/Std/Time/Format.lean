@@ -347,7 +347,7 @@ def fromTime12Hour (input : String) : Except String PlainTime := do
 Formats a `PlainTime` value into a 12-hour format string (`hh:mm:ss aa`).
 -/
 def toTime12Hour (input : PlainTime) : String :=
-  Formats.time12Hour.formatBuilder (input.hour.emod 12 (by decide) |>.add 1) input.minute input.second (if input.hour.val ≥ 12 then HourMarker.pm else HourMarker.am)
+  Formats.time12Hour.formatBuilder input.hour.toRelative input.minute input.second (if input.hour.val ≥ 12 then HourMarker.pm else HourMarker.am)
 
 /--
 Parses a `String` in the `Time12Hour` or `Time24Hour` format and returns a `PlainTime`.

@@ -7,6 +7,10 @@ module
 
 prelude
 public import Init.SimpLemmas
+public import Init.Classical
+public import Init.Data.BitVec.Basic
+import Init.ByCases
+import Init.Data.BitVec.Lemmas
 
 @[expose] public section
 
@@ -38,4 +42,15 @@ attribute [bv_normalize] not_false_iff
 attribute [bv_normalize] eq_iff_iff
 
 end Frontend.Normalize
+
+open Classical in
+/--
+Encode `a` as a `BitVec 1`. This is used by bv_decide to treat propositional variables.
+-/
+noncomputable def BitVec.ofProp (a : Prop) : BitVec 1 :=
+  if a then 1#1 else 0#1
+
+theorem BitVec.eq_ofProp_eq_one (a : Prop) : a = (BitVec.ofProp a = 1#1) := by
+  by_cases h : a <;> simp [BitVec.ofProp, h]
+
 end Std.Tactic.BVDecide

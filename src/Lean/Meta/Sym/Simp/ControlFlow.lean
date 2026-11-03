@@ -10,9 +10,13 @@ import Lean.Meta.Sym.AlphaShareBuilder
 import Lean.Meta.Sym.InferType
 import Lean.Meta.Sym.Simp.App
 import Lean.Meta.Sym.Simp.Result
+import Lean.Meta.Sym.Simp.Rewrite
+import Lean.Meta.Sym.Simp.Discharger
+import Lean.Meta.Sym.Simp.TheoremsLookup
 import Lean.Meta.Sym.Util
 import Lean.Meta.Sym.Reduce
 import Lean.Meta.WHNF
+import Lean.Meta.Match.Value
 import Lean.Meta.AppBuilder
 import Init.Sym.Lemmas
 namespace Lean.Meta.Sym.Simp
@@ -121,6 +125,11 @@ public def simpCond : Simproc := fun e => do
 
 /--
 Simplifies a `match`-expression.
+
+The `match` compiler decides value patterns, e.g. `"a"` or `5`, with `DecidableEq` instances
+that `reduceMatcherApp?` does not unfold at reducible transparency. When a discriminant is a
+value, the `match` is rewritten with its equations instead, and the simplifier discharges their
+overlap hypotheses, e.g. `"c" = "a" → False`.
 -/
 def simpMatch (declName : Name) : Simproc := fun e => do
   if let some e' ← reduceMatcherApp? e then
@@ -133,7 +142,14 @@ def simpMatch (declName : Name) : Simproc := fun e => do
   let r ← simpAppArgRange e start stop
   match r with
   | .step .. => return r
-  | .rfl _ cd => return mkRflResult (done := true) (contextDependent := cd)
+  | .rfl _ cd =>
+    if (← e.getAppArgs.anyM (isMatchValue ·) start stop) then
+      let thms ← getMatchTheorems declName
+      match (← thms.rewrite dischargeSimpSelf e) with
+      | .step e' h done cd' => return .step e' h done (contextDependent := cd || cd')
+      | .rfl _ cd' => return mkRflResult (done := true) (contextDependent := cd || cd')
+    else
+      return mkRflResult (done := true) (contextDependent := cd)
 
 /--
 Simplifies control-flow expressions such as `if-then-else` and `match` expressions.

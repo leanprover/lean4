@@ -151,11 +151,11 @@ example [LE α] [IsPreorder α]
   grind
 
 example (a b : Int) (h : a + b > 5) : (if a + b ≤ 0 then b else a) = a := by
-  grind -linarith -lia (splits := 0)
+  grind -linarith -lia (branches := 0)
 
 example [LE α] [LT α] [LawfulOrderLT α] [IsPreorder α] [Ring α] [OrderedRing α]
     (a b : α) : a ≤ 5 → b ≤ 8 → a > 6 ∨ b > 10 → False := by
-  grind -linarith (splits := 0)
+  grind -linarith (branches := 0)
 
 example [LE α] [IsPartialOrder α]
     (a b c : α) : a ≤ b → b ≤ c → c ≤ a → a = c := by
@@ -163,7 +163,7 @@ example [LE α] [IsPartialOrder α]
 
 example [LE α] [Std.IsLinearPreorder α]
     (a b c d : α) : a ≤ b → ¬ (c ≤ b) → ¬ (d ≤ c) → ¬ (a ≤ d) → False := by
-  grind -linarith (splits := 0)
+  grind -linarith (branches := 0)
 
 /-!
 Implemented support injective functions. (**Extra**)

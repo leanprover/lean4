@@ -45,7 +45,20 @@ def getMaxHeartbeats (opts : Options) : Nat :=
 structure Instance where
   val : Expr
   synthOrder : Array Nat
+  /--
+  If `true`, `val` is a constant whose universe levels must be replaced with fresh universe
+  metavariables before it is used. We instantiate them lazily because goals such as
+  `DFunLike ?F ?α ?β` match thousands of instances, and resolution usually tries only a few.
+  -/
+  freshLevels : Bool := false
   deriving Inhabited
+
+/-- Returns `inst.val`, instantiating its universe levels with fresh metavariables if needed. -/
+def Instance.getVal (inst : Instance) : MetaM Expr := do
+  if inst.freshLevels then
+    if let .const declName us := inst.val then
+      return .const declName (← us.mapM fun _ => mkFreshLevelMVar)
+  return inst.val
 
 structure GeneratorNode where
   mvar            : Expr
@@ -203,8 +216,11 @@ def checkSystem : SynthM Unit := do
 instance : Inhabited (SynthM α) where
   default := fun _ _ => default
 
-/-- Return globals and locals instances that may unify with `type` -/
-def getInstances (type : Expr) : MetaM (Array Instance) := do
+/--
+Return globals and locals instances that may unify with `type`.
+The universe levels of global instances are not instantiated, see `Instance.freshLevels`.
+-/
+def getInstancesLazy (type : Expr) : MetaM (Array Instance) := do
   -- We must retrieve `localInstances` before we use `forallTelescopeReducing` because it will update the set of local instances
   let localInstances ← getLocalInstances
   forallTelescopeReducing type fun _ type => do
@@ -227,10 +243,7 @@ def getInstances (type : Expr) : MetaM (Array Instance) := do
             -- private instances must not leak into public scope
             return none
           else
-            return some {
-              val := e.val.updateConst! (← us.mapM (fun _ => mkFreshLevelMVar))
-              synthOrder := e.synthOrder
-            }
+            return some { val := e.val, synthOrder := e.synthOrder, freshLevels := !us.isEmpty }
         | _ => panic! "global instance is not a constant"
       for linst in localInstances do
         if linst.className == className then
@@ -245,10 +258,14 @@ def getInstances (type : Expr) : MetaM (Array Instance) := do
       trace[Meta.synthInstance.instances] result.map (·.val)
       return result
 
+/-- Return globals and locals instances that may unify with `type` -/
+def getInstances (type : Expr) : MetaM (Array Instance) := do
+  (← getInstancesLazy type).mapM fun inst => return { inst with val := (← inst.getVal), freshLevels := false }
+
 def mkGeneratorNode? (key mvar : Expr) : MetaM (Option GeneratorNode) := do
   let mvarType  ← inferType mvar
   let mvarType  ← instantiateMVars mvarType
-  let instances ← getInstances mvarType
+  let instances ← getInstancesLazy mvarType
   if instances.isEmpty then
     return none
   else
@@ -320,7 +337,7 @@ structure SubgoalsResult where
     - `inst (?m_1 xs) ... (?m_n xs)` (aka `instVal`)
     - `B (?m_1 xs) ... (?m_n xs)` -/
 def getSubgoals (lctx : LocalContext) (localInsts : LocalInstances) (xs : Array Expr) (inst : Instance) : MetaM SubgoalsResult := do
-  let mut instVal := inst.val
+  let mut instVal ← inst.getVal
   let mut instType ← inferType instVal
   let mut mvars := #[]
   let mut subst := #[]

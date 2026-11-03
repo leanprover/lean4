@@ -406,7 +406,7 @@ def parseArgs (stx : Syntax) (goal : MVarId) : TermElabM ParsedArgs := goal.with
   let simpMethods ← if config.simp then
       let thms ← elabSimpTheorems simpArgs
       pure (some { pre := Sym.Simp.beta >> Sym.Simp.reduceProj >> Sym.Simp.reduceMatcher
-                   post := Sym.Simp.evalGround >> thms.rewrite })
+                   post := Sym.Simp.evalGround >> thms.rewrite Sym.Simp.dischargeSimpSelf })
     else if simpArgs.isEmpty then
       pure none
     else

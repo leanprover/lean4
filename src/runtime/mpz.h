@@ -67,6 +67,8 @@ public:
 
 #ifdef LEAN_USE_GMP
     void set(mpz_t r) const;
+    mpz_srcptr get_mpz_t() const { return m_val; }
+    mpz_ptr get_mpz_t() { return m_val; }
 #endif
 
     friend void swap(mpz & a, mpz & b) noexcept;
@@ -286,6 +288,9 @@ public:
        Return 0 if the number is negative
     */
     size_t log2() const;
+
+    /** Return the number of trailing zero bits of the absolute value, or zero for zero. */
+    size_t trailing_zeros() const;
 
     /**
        \brief Return an upper bound on the size in bytes of the representation,

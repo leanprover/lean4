@@ -463,8 +463,8 @@ def extractLsb' (wExpr startExpr lenExpr targetExpr : Expr) : SimprocM (Sym.Simp
   -- For a symbolic start with known widths, we reduce to shift by the symbolic start + setWidth
   -- by the known widths. This is sensible as we can perform a limited degree of reasoning on
   -- symbolic shifts.
-  if (Sym.getNatValue? startExpr).isNone then
-    unless (Sym.getNatValue? wExpr).isSome && (Sym.getNatValue? lenExpr).isSome do return .rfl
+  if !Sym.isNatValue startExpr then
+    unless Sym.isNatValue wExpr && Sym.isNatValue lenExpr do return .rfl
     let shifted ← BitVec.mkNatShiftRight targetExpr startExpr wExpr
     let expr ← BitVec.mkSetWidth wExpr lenExpr shifted
     let proof := mkApp4
@@ -1164,6 +1164,17 @@ def boolEqToBeq (lhs rhs : Expr) : SimprocM (Sym.Simp.Result) := do
     countRule `boolEqToBeq
     return .step (← Sym.share expr) proof
 
+/--
+Encode a propositional atom `p` as `BitVec.ofProp p = 1#1`, turning it into a `BitVec` atom.
+-/
+def propAtom (e : Expr) : SimprocM (Sym.Simp.Result) := do
+  unless (← e.fvarId!.getType).isProp do return .rfl
+  let ofProp := mkApp (mkConst ``Std.Tactic.BVDecide.BitVec.ofProp) e
+  let expr := mkApp3 (mkConst ``Eq [1]) (toTypeExpr (BitVec 1)) ofProp (← mkLit 1#1)
+  let proof := mkApp (mkConst ``Std.Tactic.BVDecide.BitVec.eq_ofProp_eq_one) e
+  countRule `propAtom
+  return .step (← Sym.share expr) proof
+
 -- A specialised version of BitVec.neg_eq_not_add so it doesn't trigger on -constant
 def bvNeg (α val : Expr) : SimprocM (Sym.Simp.Result) := do
   let_expr BitVec wExpr := α | return .rfl
@@ -1339,7 +1350,7 @@ def bvShiftLeftNat (α lhsExpr rhsExpr : Expr) : SimprocM (Sym.Simp.Result) := d
 
 def bvSshiftRightNat (wExpr lhsExpr rhsExpr : Expr) : SimprocM (Sym.Simp.Result) := do
   -- Literal amounts are bitblasted directly via `BVUnOp.arithShiftRightConst`.
-  if (Sym.getNatValue? rhsExpr).isSome then return .rfl
+  if Sym.isNatValue rhsExpr then return .rfl
   -- Handled by other rewrite rules
   if isBitVecToNat rhsExpr then return .rfl
   let some w := Sym.getNatValue? wExpr | return .rfl
@@ -1577,7 +1588,7 @@ where
       match_expr α with
       | Bool => boolEqToBeq lhs rhs
       | _ => return .rfl
-    | _ => return .rfl
+    | _ => if e.isFVar then propAtom e else return .rfl
 
 public def rewriteDsimproc : Sym.DSimp.DSimproc := fun e => do
   match_expr e with

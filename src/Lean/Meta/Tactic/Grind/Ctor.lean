@@ -103,7 +103,11 @@ and close goal if they are different.
 def propagateCtor (a b : Expr) : GoalM Unit := do
   let aType ← whnfD (← inferType a)
   let bType ← whnfD (← inferType b)
-  if (← isDefEqD aType bType) then
+  /-
+  If the types are definitionally equal only with `default` transparency, we use the heterogeneous
+  case, whose facts only apply after `grind` proves that the parameters and indices are equal.
+  -/
+  if (← isDefEqI aType bType) then
     propagateCtorHomo aType a b
   else
     propagateCtorHetero a b

@@ -10022,3 +10022,36 @@ example
     (h4 : ((A' + ((rd_cap st) * 2)) ≤ A ∨ (A + (rd_cap st)) ≤ A')) :
     (Int.toNat (((length DATA) : Nat) : Int)) = (length DATA) := by
   lia
+
+-- yajl-ruby/json_fuzzer: lib/B/BI_pcommon.v (assert)
+example
+    {list_Z : Type}
+    (q : Int)
+    (lo : Int)
+    (A : Int)
+    (AQ : Int)
+    (SB : Int)
+    (c : Int)
+    (NF : Nat)
+    (SA : Int)
+    (zs : list_Z)
+    (NA : Nat)
+    (zlength : list_Z → Int)
+    (fmt : list_Z)
+    (shw_hi : Int → Int → Int → Int)
+    (shw_lo : Int → Int → Int)
+    (alloc_ceiling : Int)
+    (h1 : (c = 115 ∨ (c = 100 ∨ c = 117)))
+    (h2 : (zlength fmt) ≤ 63)
+    (h3 : (65536 ≤ A ∧ (A + 64) ≤ 200704))
+    (h4 : ((NF : Nat) : Int) = ((shw_hi SB A ((zlength fmt) + 1)) - (shw_lo SB A)))
+    (h5 : alloc_ceiling ≤ lo)
+    (h6 : lo ≤ (q - 2320))
+    (h7 : q < (2 ^ (47 : Nat)))
+    (h8 : ((AQ + 8) ≤ lo ∨ q ≤ AQ))
+    (h9 : (0 < AQ ∧ (AQ + 8) < (2 ^ (47 : Nat))))
+    (h10 : ((SB + 17592186044416) ≤ SA ∧ (((SA + (zlength zs)) + 1) < (2 ^ (47 : Nat)) ∧ ((zlength zs) + 1) < (2 ^ (40 : Nat)))))
+    (h11 : (((SA + (zlength zs)) + 1) ≤ lo ∨ q ≤ SA))
+    (h12 : ((NA : Nat) : Int) = ((shw_hi SB SA ((zlength zs) + 1)) - (shw_lo SB SA))) :
+    ((0 < c ∧ c < 256) ∧ (c ≠ 37 ∧ (c ≠ 42 ∧ (c ≠ 46 ∧ (c ≠ 108 ∧ (c ≠ 104 ∧ (c ≠ 109 ∧ (c ≠ 110 ∧ 9 < (c - 48))))))))) := by
+  lia

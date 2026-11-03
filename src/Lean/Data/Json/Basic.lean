@@ -102,6 +102,8 @@ instance : Ord JsonNumber where
     else Ordering.eq
 
 protected def toString : JsonNumber → String
+  -- the exponent branch below would leave no digit after the point for a zero mantissa
+  | ⟨0, _⟩ => "0"
   | ⟨m, 0⟩ => m.repr
   | ⟨m, e⟩ =>
     let sign := if m ≥ 0 then "" else "-"

@@ -241,11 +241,11 @@ Examples:
 -/
 @[expose]
 noncomputable def String.toList (s : String) : List Char :=
-  (String.Internal.toArray s).toList
+  String.Internal.utf8DecodeList s.toByteArray.data.toList
 
 @[simp]
 theorem String.toList_empty : "".toList = [] := by
-  simp [toList]
+  simp [toList, Internal.utf8DecodeList]
 
 private theorem ByteArray.utf8Decode?go_eq_utf8Decode?go_extract {b : ByteArray} {hi : i ≤ b.size} {acc : Array Char} :
     utf8Decode?.go b i acc hi = (utf8Decode?.go (b.extract i b.size) 0 #[] (by simp)).map (acc ++ ·) := by
@@ -313,9 +313,21 @@ theorem ByteArray.utf8Encode_get_utf8Decode? {b : ByteArray} {h} :
   obtain ⟨l, rfl⟩ := isSome_utf8Decode?_iff.1 h
   simp
 
+theorem String.Internal.utf8DecodeList_utf8Encode {l : List Char} :
+    utf8DecodeList l.utf8Encode.data.toList = l := by
+  change utf8DecodeList (l.flatMap String.utf8EncodeChar) = l
+  induction l with
+  | nil => simp [utf8DecodeList]
+  | cons c l ih => rw [List.flatMap_cons, utf8DecodeList_utf8EncodeChar_append, ih]
+
 @[simp]
-theorem String.toList_ofList {l : List Char} : (String.ofList l).toList = l := by
-  simp [String.toList, String.Internal.toArray]
+theorem String.toList_ofList {l : List Char} : (String.ofList l).toList = l :=
+  String.Internal.utf8DecodeList_utf8Encode
+
+@[simp]
+theorem String.Internal.toList_toArray {s : String} : (String.Internal.toArray s).toList = s.toList := by
+  obtain ⟨l, rfl⟩ := s.exists_eq_ofList
+  simp [String.Internal.toArray]
 
 @[simp]
 theorem String.ofList_toList {s : String} : String.ofList s.toList = s := by

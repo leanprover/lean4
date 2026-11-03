@@ -1233,6 +1233,24 @@ theorem le_neg (ctx : Context) (p₁ p₂ : Poly) : le_neg_cert p₁ p₂ → ¬
   simp at h
   exact h
 
+/-- `p₁` is `p₂ + k` with `0 ≤ k`, and hence `p₂ ≤ p₁`. -/
+@[expose]
+noncomputable def le_weaken_cert (p₁ p₂ : Poly) (k : Int) : Bool :=
+  Int.ble' 0 k |>.and (p₁.beq' (p₂.addConst_k k))
+
+theorem le_weaken (ctx : Context) (p₁ p₂ : Poly) (k : Int) : le_weaken_cert p₁ p₂ k → p₁.denote' ctx ≤ 0 → p₂.denote' ctx ≤ 0 := by
+  simp [le_weaken_cert]
+  intro h₁ h₂; subst p₁; simp [Poly.denote_addConst]; omega
+
+theorem eq_le_weaken (ctx : Context) (p₁ p₂ : Poly) (k : Int) : le_weaken_cert p₁ p₂ k → p₁.denote' ctx = 0 → p₂.denote' ctx ≤ 0 := by
+  intro h₁ h₂
+  exact le_weaken ctx p₁ p₂ k h₁ (Int.le_of_eq h₂)
+
+theorem eq_le_weaken_neg (ctx : Context) (p₁ p₂ : Poly) (k : Int) : le_weaken_cert (p₁.mul_k (-1)) p₂ k → p₁.denote' ctx = 0 → p₂.denote' ctx ≤ 0 := by
+  intro h₁ h₂
+  apply le_weaken ctx _ p₂ k h₁
+  simp [Poly.denote'_eq_denote] at h₂ ⊢; omega
+
 @[expose]
 def Poly.leadCoeff (p : Poly) : Int :=
   match p with

@@ -57,3 +57,7 @@ theorem List.toByteArray_append' {l l' : List UInt8} :
 where
   ext : {x y : Array UInt8} → x.toList = y.toList → x = y
   | ⟨_⟩, ⟨_⟩, rfl => rfl
+
+theorem List.utf8Encode_eq_toByteArray {l : List Char} :
+    l.utf8Encode = (l.flatMap String.utf8EncodeChar).toByteArray :=
+  ByteArray.ext (List.toByteArray_append'.ext (by simp [List.utf8Encode]))

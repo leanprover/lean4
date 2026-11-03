@@ -285,6 +285,37 @@ theorem wide_triple : ⦃ fun _ => True ⦄ wide x ⦃ fun r => ⌜r > 1⌝ ⦄ 
   unfold wide
   vcgen +jp with finish
 
+-- The jump arguments are reduced, and the `__r : PUnit` parameter of the join point gets no
+-- equation.
+/--
+trace: case vc1
+b : Nat → Bool
+s₀ s✝¹ : Nat
+x✝ : PUnit
+s✝ : Nat
+h✝¹ : b 0 = true ∧ s✝ = s₀ + 1 ∨ ¬b 0 = true ∧ s✝ = s₀ + 2
+h✝ : b 1 = true
+⊢ s₀ + 2 ≤ s✝ + 1
+
+case vc2
+b : Nat → Bool
+s₀ s✝¹ : Nat
+x✝ : PUnit
+s✝ : Nat
+h✝¹ : b 0 = true ∧ s✝ = s₀ + 1 ∨ ¬b 0 = true ∧ s✝ = s₀ + 2
+h✝ : ¬b 1 = true
+⊢ s₀ + 2 ≤ s✝ + 2
+-/
+#guard_msgs in
+example (b : Nat → Bool) (s₀ : Nat) :
+    ⦃fun s => s = s₀⦄ (do
+      if b 0 then modify (· + 1) else modify (· + 2)
+      if b 1 then modify (· + 1) else modify (· + 2) : StateM Nat Unit)
+    ⦃fun _ s => s₀ + 2 ≤ s⦄ := by
+  vcgen +jp
+  trace_state
+  all_goals grind
+
 -- The join point precedes a root `match`, and `root_match.eq_2` keeps it for the call
 -- `root_match (k + 1) b`.
 def root_match (x : Nat) (b : Bool) : StateM Nat Nat := do

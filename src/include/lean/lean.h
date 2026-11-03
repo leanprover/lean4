@@ -597,6 +597,8 @@ static inline void lean_free_small_object(lean_object * o) {
 #endif
 }
 
+LEAN_EXPORT void lean_dealloc(void * o, size_t sz);
+LEAN_EXPORT void * lean_alloc_memory(size_t sz);
 LEAN_EXPORT lean_object * lean_alloc_object(size_t sz);
 LEAN_EXPORT void lean_free_object(lean_object * o);
 

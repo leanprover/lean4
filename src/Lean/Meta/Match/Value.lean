@@ -30,16 +30,16 @@ def isMatchValue (e : Expr) : MetaM Bool := do
   return false
 
 /--
-Returns `true` if the match values `a` and `b` denote the same value. Distinct `Float`/`Float32`
-literals can denote the same value (e.g. `5` and `5.0`), so these are compared by bit pattern,
-consistent with their `DecidableEq` instances.
+Returns a normal form of the match value `e`, such that two match values denote the same value iff
+their normal forms are structurally equal. Distinct `Float`/`Float32` literals can denote the same
+value (e.g. `5` and `5.0`), so these are normalized to their bit patterns, consistent with their
+`DecidableEq` instances. Other values are returned unchanged.
 -/
-def matchValuesEq (a b : Expr) : MetaM Bool := do
-  if a == b then return true
-  if let some x ← getFloatValue? a then
-    if let some y ← getFloatValue? b then return x.toBits == y.toBits
-  if let some x ← getFloat32Value? a then
-    if let some y ← getFloat32Value? b then return x.toBits == y.toBits
-  return false
+def normMatchValue (e : Expr) : MetaM Expr := do
+  if let some x ← getFloatValue? e then
+    return mkApp (mkConst ``Float.ofBits) (mkRawNatLit x.toBits.toNat)
+  if let some x ← getFloat32Value? e then
+    return mkApp (mkConst ``Float32.ofBits) (mkRawNatLit x.toBits.toNat)
+  return e
 
 end Lean.Meta

@@ -409,3 +409,249 @@ termination_by t
 decreasing_by cases t; decreasing_tactic
 
 end ArrayTree
+
+section OptionTree
+
+structure OptionTree (α : Type u) where
+  val : α
+  c : Option (OptionTree α)
+
+/--
+trace: α : Type u_1
+t t' : OptionTree α
+h✝ : t.c = some t'
+⊢ sizeOf t' < sizeOf t
+-/
+#guard_msgs(trace) in
+def OptionTree.map (f : α → β) (t : OptionTree α) : OptionTree β :=
+  ⟨f t.val, t.c.map (fun t' => t'.map f)⟩
+termination_by t
+decreasing_by trace_state; cases t; decreasing_tactic
+
+/--
+info: equations:
+theorem OptionTree.map.eq_1.{u_1, u_2} : ∀ {α : Type u_1} {β : Type u_2} (f : α → β) (t : OptionTree α),
+  OptionTree.map f t = { val := f t.val, c := Option.map (fun t' => OptionTree.map f t') t.c }
+-/
+#guard_msgs in
+#print equations OptionTree.map
+
+/--
+info: OptionTree.map.induct.{u_1} {α : Type u_1} (motive : OptionTree α → Prop)
+  (case1 : ∀ (x : OptionTree α), (∀ (t' : OptionTree α), x.c = some t' → motive t') → motive x) (t : OptionTree α) :
+  motive t
+-/
+#guard_msgs in
+#check OptionTree.map.induct
+
+-- With pattern matching, the default `decreasing_tactic` proves termination.
+#guard_msgs in
+def OptionTree.map' (f : α → β) : OptionTree α → OptionTree β
+  | ⟨v, c⟩ => ⟨f v, c.map (·.map' f)⟩
+
+/--
+info: equations:
+theorem OptionTree.map'.eq_1.{u_1, u_2} : ∀ {α : Type u_1} {β : Type u_2} (f : α → β) (v : α)
+  (c : Option (OptionTree α)),
+  OptionTree.map' f { val := v, c := c } = { val := f v, c := Option.map (fun x => OptionTree.map' f x) c }
+-/
+#guard_msgs in
+#print equations OptionTree.map'
+
+-- Nested inside `List.map`: the `wfParam` on the `List` element activates the `Option.map` rule.
+structure ListOptionTree (α : Type u) where
+  val : α
+  cs : List (Option (ListOptionTree α))
+
+/--
+trace: α : Type u_1
+t : ListOptionTree α
+x✝ : Option (ListOptionTree α)
+h✝¹ : x✝ ∈ t.cs
+x : ListOptionTree α
+h✝ : x✝ = some x
+⊢ sizeOf x < sizeOf t
+-/
+#guard_msgs(trace) in
+def ListOptionTree.map (f : α → β) (t : ListOptionTree α) : ListOptionTree β :=
+  ⟨f t.val, t.cs.map (·.map fun x => x.map f)⟩
+termination_by t
+decreasing_by
+  trace_state
+  cases t
+  subst_vars
+  have := List.sizeOf_lt_of_mem ‹_ ∈ _›
+  simp only [mk.sizeOf_spec, Option.some.sizeOf_spec] at *
+  omega
+
+/-!
+The other higher-order `Option` functions. Each definition is accepted by the default
+`decreasing_tactic` thanks to the `c = some x` hypothesis.
+-/
+
+/--
+trace: α : Type u_1
+v : Option α
+c : Option (OptionTree (Option α))
+x✝ : OptionTree (Option α)
+h✝ : c = some x✝
+⊢ sizeOf x✝ < sizeOf { val := v, c := c }
+-/
+#guard_msgs(trace) in
+def OptionTree.lastSome : OptionTree (Option α) → Option α
+  | ⟨v, c⟩ => (c.bind (·.lastSome)).or v
+termination_by t => t
+decreasing_by trace_state; decreasing_tactic
+
+/--
+trace: α : Type u_1
+v : α
+c : Option (OptionTree α)
+x✝ : OptionTree α
+h✝ : c = some x✝
+⊢ sizeOf x✝ < sizeOf { val := v, c := c }
+-/
+#guard_msgs(trace) in
+def OptionTree.any (p : α → Bool) : OptionTree α → Bool
+  | ⟨v, c⟩ => p v || c.any (·.any p)
+termination_by t => t
+decreasing_by trace_state; decreasing_tactic
+
+/--
+trace: α : Type u_1
+v : α
+c : Option (OptionTree α)
+x✝ : OptionTree α
+h✝ : c = some x✝
+⊢ sizeOf x✝ < sizeOf { val := v, c := c }
+-/
+#guard_msgs(trace) in
+def OptionTree.all (p : α → Bool) : OptionTree α → Bool
+  | ⟨v, c⟩ => p v && c.all (·.all p)
+termination_by t => t
+decreasing_by trace_state; decreasing_tactic
+
+-- `Option.filter`, with recursive calls both in the predicate and in a subsequent `Option.map`.
+/--
+trace: α : Type u_1
+v : α
+c : Option (OptionTree α)
+x✝ : OptionTree α
+h✝ : c = some x✝
+⊢ sizeOf x✝ < sizeOf { val := v, c := c }
+α : Type u_1
+v : α
+c✝ : Option (OptionTree α)
+c : OptionTree α
+h✝ : c✝ = some c
+⊢ sizeOf c < sizeOf { val := v, c := c✝ }
+-/
+#guard_msgs(trace) in
+def OptionTree.prune (p : α → Bool) : OptionTree α → OptionTree α
+  | ⟨v, c⟩ => ⟨v, (c.filter fun c => !(c.prune p).any p).map (·.prune p)⟩
+termination_by t => t
+decreasing_by all_goals trace_state; decreasing_tactic
+
+/--
+info: equations:
+theorem OptionTree.prune.eq_1.{u_1} : ∀ {α : Type u_1} (p : α → Bool) (v : α) (c : Option (OptionTree α)),
+  OptionTree.prune p { val := v, c := c } =
+    { val := v,
+      c :=
+        Option.map (fun x => OptionTree.prune p x)
+          (Option.filter (fun c => !OptionTree.any p (OptionTree.prune p c)) c) }
+-/
+#guard_msgs in
+#print equations OptionTree.prune
+
+/--
+trace: α : Type u_1
+val✝ : α
+c : Option (OptionTree α)
+x✝ : OptionTree α
+h✝ : c = some x✝
+⊢ sizeOf x✝ < sizeOf { val := val✝, c := c }
+-/
+#guard_msgs(trace) in
+def OptionTree.depth : OptionTree α → Nat
+  | ⟨_, c⟩ => c.elim 0 (·.depth + 1)
+termination_by t => t
+decreasing_by trace_state; decreasing_tactic
+
+/--
+trace: α : Type u_3
+v : α
+c : Option (OptionTree α)
+x✝ : OptionTree α
+h✝ : c = some x✝
+⊢ sizeOf x✝ < sizeOf { val := v, c := c }
+-/
+#guard_msgs(trace) in
+def OptionTree.mapM [Monad m] (f : α → m β) : OptionTree α → m (OptionTree β)
+  | ⟨v, c⟩ => return ⟨← f v, ← c.mapM (·.mapM f)⟩
+termination_by t => t
+decreasing_by trace_state; decreasing_tactic
+
+/--
+trace: α : Type u_3
+v : α
+c : Option (OptionTree α)
+x✝ : OptionTree α
+h✝ : c = some x✝
+⊢ sizeOf x✝ < sizeOf { val := v, c := c }
+-/
+#guard_msgs(trace) in
+def OptionTree.lastSomeM [Monad m] (f : α → m (Option β)) : OptionTree α → m (Option β)
+  | ⟨v, c⟩ => return (← c.bindM (·.lastSomeM f)).or (← f v)
+termination_by t => t
+decreasing_by trace_state; decreasing_tactic
+
+-- `Option.filterM_unattach` needs a `LawfulApplicative` instance, which is not found for a monad
+-- that is a parameter of the function, so this uses a concrete monad.
+/--
+trace: α : Type
+v : α
+c : Option (OptionTree α)
+x✝ : OptionTree α
+h✝ : c = some x✝
+⊢ sizeOf x✝ < sizeOf { val := v, c := c }
+-/
+#guard_msgs(trace) in
+def OptionTree.anyM (p : α → StateM Nat Bool) : OptionTree α → StateM Nat Bool
+  | ⟨v, c⟩ => return (← p v) || (← c.filterM (·.anyM p)).isSome
+termination_by t => t
+decreasing_by trace_state; decreasing_tactic
+
+/--
+trace: α : Type u_3
+v : α
+c : Option (OptionTree α)
+x✝ : OptionTree α
+h✝ : c = some x✝
+⊢ sizeOf x✝ < sizeOf { val := v, c := c }
+-/
+#guard_msgs(trace) in
+def OptionTree.forM [Monad m] (f : α → m PUnit) : OptionTree α → m PUnit
+  | ⟨v, c⟩ => do f v; c.forM (·.forM f)
+termination_by t => t
+decreasing_by trace_state; decreasing_tactic
+
+namespace WithOptionOff
+
+set_option wf.preprocess false
+
+/--
+error: Failed: `fail` tactic was invoked
+α : Type u_1
+t t' : OptionTree α
+⊢ sizeOf t' < sizeOf t
+-/
+#guard_msgs in
+def OptionTree.map (f : α → β) (t : OptionTree α) : OptionTree β :=
+    ⟨f t.val, t.c.map (fun t' => OptionTree.map f t')⟩
+termination_by t
+decreasing_by fail
+
+end WithOptionOff
+
+end OptionTree

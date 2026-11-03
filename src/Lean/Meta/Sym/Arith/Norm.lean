@@ -1457,9 +1457,7 @@ private def runNorm (kind : Kind) (distrib : Bool) (k : VisitM m α) (symbolicPo
 
 private def getCommSemiringInst : NormM Expr := do
   match (← getKind) with
-  | .commRing _ =>
-    let r ← getCommRing
-    return mkApp2 (mkConst ``Grind.CommRing.toCommSemiring [r.u]) r.type r.commRingInst
+  | .commRing _ => return (← getCommRing).commSemiringInst
   | .commSemiring _ => return (← getCommSemiring).commSemiringInst
   | _ => throwError "internal error: `Sym.Arith` normalizer is not in a commutative structure"
 

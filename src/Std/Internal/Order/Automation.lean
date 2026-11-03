@@ -16,10 +16,10 @@ public section
 # Automation for the lattice theory
 
 This module registers the automation lemmas of the lattice theory with `simp`, `grind` and `vcgen`.
-A lemma gets `simp`, `grind norm` and `vcgen_simp` if and only if it is an unconditional equation
-(or `Iff`) whose right side removes lattice vocabulary, moves it to a smaller carrier (pointwise
-application, pair components), or moves it into the `Prop` argument of `⌜·⌝`. Such an equation
-holds in every context, including under binders, and rewriting with the whole set terminates.
+A lemma gets `simp`, `grind norm` and `vcgen_simp` if it is an unconditional equation (or `Iff`)
+whose right side removes lattice vocabulary, moves it to a smaller carrier (pointwise application,
+pair components), or moves it into the `Prop` argument of `⌜·⌝`. Such an equation holds in every
+context, including under binders, and rewriting with the whole set terminates.
 `grind` and `vcgen` differ from this rule in a few places.
 
 `grind` has theories for the vocabulary of `Prop` and none for complete lattices. So `grind` also

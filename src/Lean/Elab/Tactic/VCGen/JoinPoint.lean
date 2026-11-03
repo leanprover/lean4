@@ -239,21 +239,24 @@ partial def mkEqsProof (φ : Expr) : MetaM Expr := do
   | _ => throwError "vcgen +jp: unexpected equations{indentExpr φ}"
 
 /-- A proof of `φ`, a trie of `mkTrie` at the arguments of a jump, along the `path` of the jump,
-from the witnesses `ws` of its `∃`s and its conjuncts. -/
-partial def mkTrieProof (φ : Expr) (path : List (Nat × Nat)) (ws : List Expr) :
+whose `locals` witness its `∃`s and its conjuncts. -/
+partial def mkTrieProof (φ : Expr) (path : List (Nat × Nat)) (locals : List LocalDecl) :
     MetaM Expr := do
   let (g, n) :: path := path | throwError "vcgen +jp: empty path into{indentExpr φ}"
   mkOrIntro φ g 0 n fun φ => do
     if path.isEmpty then
       return ← mkEqsProof φ
-    if let .letE _ _ v b _ := φ then
-      return ← mkTrieProof (b.instantiate1 v) path ws
-    let w :: ws := ws | throwError "vcgen +jp: missing witness for{indentExpr φ}"
+    let d :: locals := locals | throwError "vcgen +jp: missing local for{indentExpr φ}"
+    if d.value?.isSome then
+      -- `bindLocal` drops a `let` that the rest of `φ` does not use.
+      let .letE _ _ v b _ := φ | return ← mkTrieProof φ path locals
+      return ← mkTrieProof (b.instantiate1 v) path locals
+    let w := d.toExpr
     match_expr φ with
     | Exists α p =>
       return mkApp4 (mkConst ``Exists.intro φ.getAppFn.constLevels!) α p w
-        (← mkTrieProof (p.beta #[w]) path ws)
-    | And a b => return mkApp4 (mkConst ``And.intro) a b w (← mkTrieProof b path ws)
+        (← mkTrieProof (p.beta #[w]) path locals)
+    | And a b => return mkApp4 (mkConst ``And.intro) a b w (← mkTrieProof b path locals)
     | _ => throwError "vcgen +jp: unexpected binder{indentExpr φ}"
 
 /-- Assign `?H` of `jp` the trie of its `jumps`, `False` if no jump reaches `jp`, and each jump's
@@ -267,8 +270,7 @@ public def finalizeJoinPoint (jp : JoinPoint) (jumps : Array Jump) : VCGenM Unit
     return paths
   for ((jump, locals), path) in jumps.zip paths do
     jump.proof.withContext do
-      let witnesses := (locals.filter (·.value?.isNone)).map (·.toExpr)
       let φ ← instantiateMVars (← jump.proof.getType)
-      jump.proof.assign (← mkTrieProof φ path witnesses.toList)
+      jump.proof.assign (← mkTrieProof φ path locals.toList)
 
 end Lean.Elab.Tactic.VCGen

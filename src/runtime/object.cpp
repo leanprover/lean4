@@ -1463,14 +1463,6 @@ extern "C" LEAN_EXPORT lean_obj_res lean_nat_powmod(b_lean_obj_arg b, b_lean_obj
     return lean_bignum_nat_powmod(b, e, m);
 }
 
-extern "C" LEAN_EXPORT lean_obj_res lean_nat_extended_gcd_fallback(lean_obj_arg a, lean_obj_arg b);
-
-extern "C" LEAN_EXPORT lean_obj_res lean_nat_extended_gcd(b_lean_obj_arg a, b_lean_obj_arg b) {
-    lean_inc(a);
-    lean_inc(b);
-    return lean_nat_extended_gcd_fallback(a, b);
-}
-
 /* Splits the magnitude into 64-bit words `w₀, …, wₖ` with `wₖ ≠ 0`, and returns `w₀` if `k = 0`,
    and `mix(… mix(mix(w₀, w₁), w₂) …, wₖ)` otherwise. */
 extern "C" LEAN_EXPORT uint64_t lean_nat_big_hash(b_lean_obj_arg a) {

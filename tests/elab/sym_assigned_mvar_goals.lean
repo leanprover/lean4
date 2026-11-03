@@ -29,6 +29,10 @@ theorem let_dom (a c : Prop) (v : Nat) (h₁ : a ⊑ (v = 0)) (h₂ : (let y := 
   fun h => h₂ (h₁ h)
 theorem let_dom' (a c : Prop) (v : Nat) (h₂ : (let y := v; y = 0) → c) (h₁ : a ⊑ (v = 0)) : a ⊑ c :=
   fun h => h₂ (h₁ h)
+theorem app_sib (x : Nat) (c : Prop) (q : Nat → Prop) (h₁ : ∀ y, q y) (h₂ : q x → c) :
+    c ∧ x = x := ⟨h₂ (h₁ x), rfl⟩
+theorem app_or (x : Nat) (c : Prop) (q : Nat → Prop) (h₂ : q x ∨ c) (h₁ : q x → c) :
+    c ∧ x = x := ⟨h₂.elim h₁ id, rfl⟩
 theorem let_sib (a c : Prop) (v : Nat) (h₁ : a ⊑ (v = 0)) (h₂ : let y := v; y = 0 → c) : a ⊑ c :=
   fun h => h₂ (h₁ h)
 
@@ -1505,3 +1509,34 @@ example (a b : Nat) (P : Prop) (h : (a, b).fst = 0 → P) (h₁ : (True : Prop) 
     any_goals apply h₁
     apply h
     apply x
+
+-- misc/simp_stale_cache: `simp` first runs while `?b` is unassigned
+example (a b : Nat) (P : Prop) (h : a = 0 → a = 0 → P)
+    (h₁ : (True : Prop) ⊑ ((a, b).fst = 0)) :
+    (True : Prop) ⊑ ((a, b).fst = 0 → P) := by
+  sym =>
+    apply trans_imp'
+    simp [fst_mk]
+    any_goals apply h₁
+    simp [fst_mk]
+    exact h
+
+-- misc/simp_app_head: `?q a` with `?q := fun y => (y, b).fst = 0`
+example (a b : Nat) (P : Prop) (hq : ∀ y, (y, b).fst = 0) (h : a = 0 → P) : P ∧ a = a := by
+  sym =>
+    apply app_sib
+    exact hq
+    simp [fst_mk]
+    exact h
+
+-- misc/simp_delayed_head: the first `simp` turns `?q a` into `?aux a`, where `?aux` is delayed
+-- assigned by `intro y`, and the second `simp` runs after its pending goal is solved
+example (a b : Nat) (P : Prop) (ha : a = 0) (h : (a, b).fst = 0 → P) : P ∧ a = a := by
+  sym =>
+    apply app_or
+    any_goals intro y
+    simp [fst_mk]
+    any_goals apply ((y, b).fst = 0)
+    simp [fst_mk]
+    exact Or.inl ha
+    exact h y

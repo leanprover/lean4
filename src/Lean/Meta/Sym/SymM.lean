@@ -399,6 +399,14 @@ def shareCommonWithoutChecks (e : Expr) (cache : AlphaShareCommon.Cache := {}) :
   | .error _ => unreachable!
 
 /--
+Returns `true` if `e` is in the table of maximally shared terms. Only the root is looked up: a term
+enters the table only after its subterms.
+-/
+def isMaxShared (e : Expr) : SymM Bool := do
+  let some prev := (← get).share.set.find? { expr := e } | return false
+  return isSameExpr prev.expr e
+
+/--
 Fallback used by `shareCommon` and `shareCommonInc` after a check violation:
 repairs the term and re-runs the full hash-consing pass with checks disabled, so
 this second pass always succeeds. In the exotic case where the repair does not

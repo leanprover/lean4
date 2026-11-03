@@ -195,7 +195,8 @@ def mkAuxFunction (ctx : Context) (i : Nat) : TermElabM Command := do
   if ctx.usePartial then
     `(partial def $(mkIdent auxFunName):ident $binders:bracketedBinder* : Bool := $body:term)
   else
-    `(def $(mkIdent auxFunName):ident $binders:bracketedBinder* : Bool := $body:term)
+    let attrs? ← mkAuxFunctionAttributes? ctx
+    `($[$attrs?:attributes]? def $(mkIdent auxFunName):ident $binders:bracketedBinder* : Bool := $body:term)
 
 def mkMutualBlock (ctx : Context) : TermElabM Syntax := do
   let mut auxDefs := #[]

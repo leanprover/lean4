@@ -72,7 +72,8 @@ def mkAuxFunction (ctx : Context) (i : Nat) : TermElabM Command := do
     -- TODO(Dany): Get rid of this code branch altogether once we have well-founded recursion
     `(partial def $(mkIdent auxFunName):ident $binders:bracketedBinder* : UInt64 := $body:term)
   else
-    `(@[no_expose] def $(mkIdent auxFunName):ident $binders:bracketedBinder* : UInt64 := $body:term)
+    let attrs? ← mkAuxFunctionAttributes? ctx #[← `(Parser.Term.attrInstance| no_expose)]
+    `($[$attrs?:attributes]? def $(mkIdent auxFunName):ident $binders:bracketedBinder* : UInt64 := $body:term)
 
 def mkHashFuncs (ctx : Context) : TermElabM Syntax := do
   let mut auxDefs := #[]

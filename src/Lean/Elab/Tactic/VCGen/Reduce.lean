@@ -85,9 +85,4 @@ public partial def reduceHead? (e : Expr) : SymM (Option Expr) :=
 public def reduceHead (e : Expr) : SymM Expr :=
   return (← reduceHead? e).getD e
 
-public partial def instantiateHeadMVar (e : Expr) : SymM Expr := do
-  let .mvar mvarId := e.getAppFn | return e
-  let some v ← getExprMVarAssignment? mvarId | return e
-  instantiateHeadMVar (← betaRevS (← Sym.shareCommon v) e.getAppRevArgs)
-
 end Lean.Elab.Tactic.VCGen

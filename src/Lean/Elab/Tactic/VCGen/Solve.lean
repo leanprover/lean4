@@ -183,9 +183,9 @@ def instantiateWPProg? (rhs : Expr) : VCGenM (Option Expr) := do
 following steps see the assigned form. -/
 def instantiateGoal? (goal : MVarId) (target : Expr) : VCGenM (Option MVarId) := do
   let_expr c@PartialOrder.rel α inst pre rhs := target | return none
-  let α' ← instantiateHeadMVar α
-  let pre' ← instantiateHeadMVar pre
-  let rhs' ← instantiateHeadMVar rhs
+  let α' ← reduceHead α
+  let pre' ← reduceHead pre
+  let rhs' ← reduceHead rhs
   let rhs' := (← instantiateWPProg? rhs').getD rhs'
   if isSameExpr α α' && isSameExpr pre pre' && isSameExpr rhs rhs' then return none
   return some (← goal.replaceTargetDefEqFast (← mkAppNS c #[α', inst, pre', rhs']))

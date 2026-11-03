@@ -314,7 +314,7 @@ def ctorAlias (x : Nat) : Nat :=
 
 def g (n : Nat) : Option Nat := if n = 0 then none else some n
 
--- An unused `have` above a `match` that is not split is kept.
+-- An unused `have` is dropped, also above a `match` that is not split.
 def unusedRoot (x : Nat) : Nat :=
   have k := x + 1
   match g x with
@@ -324,7 +324,6 @@ def unusedRoot (x : Nat) : Nat :=
 /--
 info: unusedRoot.eq_1 (x : Nat) :
   unusedRoot x =
-    have k := x + 1;
     match g x with
     | some a => a
     | none => 0
@@ -344,7 +343,6 @@ def unusedBranch (x : Nat) (y : Option Nat) : Nat :=
 /--
 info: unusedBranch.eq_1 (x a : Nat) :
   unusedBranch x (some a) =
-    have k := a + 1;
     match g x with
     | some a => a
     | none => 0
@@ -594,3 +592,37 @@ info: equations:
 @[backward_defeq] theorem ctorDiscrIndexed.eq_1 : ∀ (n a : Nat) (v w : Vec Nat n), ctorDiscrIndexed n a v w = a + a
 -/
 #guard_msgs in #print equations ctorDiscrIndexed
+
+
+def haveNested (x y : Nat) :=
+  have a := y + y + y
+  have a' := a + 1
+  match x with
+  | 0 =>
+    have b := a + a
+    b + b
+  | _ =>
+    have c := a' + a'
+    have d := c
+    c + c
+
+/--
+info: haveNested.eq_1 (y : Nat) :
+  haveNested 0 y =
+    have a := y + y + y;
+    have b := a + a;
+    b + b
+-/
+#guard_msgs in
+#check haveNested.eq_1
+
+/--
+info: haveNested.eq_2 (x y : Nat) (x_3 : x = 0 → False) :
+  haveNested x y =
+    have a := y + y + y;
+    have a' := a + 1;
+    have c := a' + a';
+    c + c
+-/
+#guard_msgs in
+#check haveNested.eq_2

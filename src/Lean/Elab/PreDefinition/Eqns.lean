@@ -702,14 +702,9 @@ def reduceLetValues? (mvarId : MVarId) : MetaM (Option MVarId) := mvarId.withCon
   mvarId.assign mvarNew
   return some mvarNew.mvarId!
 
-/--
-Simplifies or splits a `match` of the right-hand side, after introducing its root `let`s with
-`introRootLets`. Commits only if this makes progress, so that a goal without a `match` to split
-keeps its root `let`s and `have`s.
--/
+/-- Simplifies or splits a `match` of the right-hand side. Commits only if this makes progress. -/
 def tryStep? (mvarId : MVarId) (declNames : Array Name) : MetaM (Option (List MVarId)) :=
   commitWhenSome? do
-    let mvarId ← introRootLets mvarId
     if let some mvarId ← reduceLetValues? mvarId then
       return some [mvarId]
     if let some mvarId ← simpCtorLetDiscrs? mvarId then
@@ -725,6 +720,9 @@ partial def mkEqnTypes (declNames : Array Name) (mvarId : MVarId) : MetaM (Array
 where
   go (mvarId : MVarId) : StateRefT (Array Expr) MetaM Unit := do
     trace[Elab.definition.eqns] "mkEqnTypes step\n{MessageData.ofGoal mvarId}"
+    -- `saveEqn` only puts back the let-declarations that the equation uses, so the unused root
+    -- `let`s and `have`s are dropped.
+    let mvarId ← introRootLets mvarId
     if let some mvarIds ← tryStep? mvarId declNames then
       mvarIds.forM go
     else

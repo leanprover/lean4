@@ -8,4 +8,4 @@ heapSort.lean:58:4-58:13: warning: declaration uses `sorry`
 heapSort.lean:56:0-69:24: warning: declaration uses `sorry`
 heapSort.lean:56:0-69:24: warning: declaration uses `sorry`
 heapSort.lean:102:4-102:13: warning: declaration uses `sorry`
-heapSort.lean:193:11-193:15: warning: declaration uses `sorry`
+heapSort.lean:194:11-194:15: warning: declaration uses `sorry`

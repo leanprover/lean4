@@ -581,11 +581,10 @@ The function performs the following steps in order:
    `σ₁ → ... → σₙ → Base`, introduce all excess state arguments.
 7. **Bare pure precondition introduction**: on the `Prop` lattice, replace a `True`
    precondition by `⊤` and lift any other precondition into the local context.
-8. **Component projection reduction**: reduce a `Prod.fst` RHS to the projected component.
-9. **Lattice decomposition**: decompose a lattice connective on the RHS with `splitLatticeOp?`.
-10. **Lifted-hypothesis discharge**: close a residual `pre ⊑ ⌜φ⌝` entailment against the most
+8. **Lattice decomposition**: decompose a lattice connective on the RHS with `splitLatticeOp?`.
+9. **Lifted-hypothesis discharge**: close a residual `pre ⊑ ⌜φ⌝` entailment against the most
     recently lifted precondition `h : φ` in the local context, cached in `Scope.lastLiftedPre?`.
-11. **WP decomposition**: when the RHS is `wp e post eposts s₁ ... sₙ`, in order:
+10. **WP decomposition**: when the RHS is `wp e post eposts s₁ ... sₙ`, in order:
     hoist/zeta program-head lets, split `ite`/`dite`/match, zeta-unfold fvar program heads,
     reduce projection heads, and finally apply a registered `@[spec]` theorem.
 -/
@@ -604,7 +603,7 @@ public def solve (scope : Scope) (goal : MVarId) : VCGenM SolveResult := goal.wi
   if let some gs ← liftedHypBare? scope goal target then return .goals scope gs
   if let some g ← instantiateGoal? goal target then return .goals scope [g]
 
-  let_expr PartialOrder.rel α inst pre rhs := target
+  let_expr PartialOrder.rel α _ pre rhs := target
     | return .stop (.noEntailment target)
 
   -- Phase 2: close reflexive goals, then drive `pre` toward `⊤`, lifting any pure content so a
@@ -616,9 +615,8 @@ public def solve (scope : Scope) (goal : MVarId) : VCGenM SolveResult := goal.wi
   -- (`wpMatch?`, `splitLatticeOp?`) or apply a registered spec (`applySpec`).
   let scope ← scope.collectLocalSpecs goal
 
-  -- Phase 3: shape the `rhs` (reduce a component projection, decompose a lattice connective or a
-  -- forall, then discharge a residual entailment against the lifted hypothesis).
-  if let some g ← headReduceFstRhs? goal target α inst pre rhs then return .goals scope [g]
+  -- Phase 3: shape the `rhs` (decompose a lattice connective or a forall, then discharge a
+  -- residual entailment against the lifted hypothesis).
   if let some gs ← splitLatticeOp? goal rhs then return .goals scope gs
   if let some gs ← splitForallLe? goal rhs then return .goals scope gs
   if let some gs ← liftedHyp? scope goal α pre rhs then return .goals scope gs

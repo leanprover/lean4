@@ -13,7 +13,7 @@ public import Lake.Util.String
 public import Init.Data.String.Search
 public import Init.Data.String.Extra
 import Init.Data.Option.Coe
-import Lean.Runtime
+public import Lean.Runtime
 
 /-! # Lake Traces
 
@@ -96,54 +96,38 @@ end
 /-! ## Hash Trace -/
 --------------------------------------------------------------------------------
 
-/--
-A SHA-256 content hash, stored as the big-endian 64-bit words of the digest
-(i.e., `w0` holds its first eight bytes).
--/
+deriving instance DecidableEq, Repr for Internal.Sha256Digest
+
+/-- A SHA-256 content hash. -/
 public structure Hash where
-  w0 : UInt64
-  w1 : UInt64
-  w2 : UInt64
-  w3 : UInt64
+  digest : Internal.Sha256Digest
   deriving Repr, DecidableEq
 
 namespace Hash
 
+/-- Constructs a hash from the big-endian 64-bit words of its digest. -/
+@[inline] def ofWords (w0 w1 w2 w3 : UInt64) : Hash :=
+  ⟨⟨w0, w1, w2, w3⟩⟩
+
 /-- The first word of a uniformly distributed digest is a fine 64-bit hash. -/
-public instance : Hashable Hash := ⟨Hash.w0⟩
+public instance : Hashable Hash := ⟨(·.digest.w0)⟩
 
 public def nil : Hash :=
-  mk 0 0 0 0
+  ofWords 0 0 0 0
 
 public instance : NilTrace Hash := ⟨nil⟩
-
-/-- Reads the big-endian word at byte offset `i`. -/
-def wordAt (bytes : ByteArray) (i : Nat) : UInt64 :=
-  (8 : Nat).fold (init := 0) fun j _ w => (w <<< 8) ||| bytes[i + j]!.toUInt64
-
-/-- Constructs a hash from a 32-byte digest. -/
-def ofDigest (digest : ByteArray) : Hash :=
-  mk (wordAt digest 0) (wordAt digest 8) (wordAt digest 16) (wordAt digest 24)
-
-/-- Appends the big-endian bytes of `w`. -/
-def pushWord (bytes : ByteArray) (w : UInt64) : ByteArray :=
-  (8 : Nat).fold (init := bytes) fun j _ bytes => bytes.push (w >>> (56 - 8 * j.toUInt64)).toUInt8
-
-/-- Appends the 32 bytes of the digest. -/
-def pushBytes (bytes : ByteArray) (self : Hash) : ByteArray :=
-  pushWord (pushWord (pushWord (pushWord bytes self.w0) self.w1) self.w2) self.w3
 
 /-- Constructs a hash with with the value `n`. This is not equivalent to the hash of `n`. -/
 @[deprecated "Deprecated without replacement." (since := "2026-11-02")]
 public def ofNat (n : Nat) : Hash :=
-  mk 0 0 0 n.toUInt64
+  ofWords 0 0 0 n.toUInt64
 
 /-- Parse a legacy 64-bit hash from a JSON number. -/
 @[deprecated "Deprecated without replacement." (since := "2026-11-02")]
 public def ofJsonNumber? (n : JsonNumber) : Except String Hash :=
   if n.exponent = 0 && 0 ≤ n.mantissa then
     if n.mantissa.toNat < UInt64.size then
-      return mk 0 0 0 n.mantissa.toNat.toUInt64
+      return ofWords 0 0 0 n.mantissa.toNat.toUInt64
     else
       throw "number too big"
   else
@@ -160,7 +144,7 @@ def hexWordAt (s : ByteArray) (i : Nat) : UInt64 :=
 /-- Parse a hash from a string of 64 hexadecimal digits. Does no validation. -/
 public def ofHex (s : String) : Hash :=
   let s := s.toUTF8
-  mk (hexWordAt s 0) (hexWordAt s 16) (hexWordAt s 32) (hexWordAt s 48)
+  ofWords (hexWordAt s 0) (hexWordAt s 16) (hexWordAt s 32) (hexWordAt s 48)
 
 /-- Parse a hash from a 64-digit string of hexadecimal digits. -/
 public def ofHex? (s : String) : Option Hash :=
@@ -168,13 +152,13 @@ public def ofHex? (s : String) : Option Hash :=
 
 /-- Returns the hash as 64-digit lowercase hex string. -/
 public def hex (self : Hash) : String :=
-  lowerHexUInt64 self.w0 ++ lowerHexUInt64 self.w1 ++
-    lowerHexUInt64 self.w2 ++ lowerHexUInt64 self.w3
+  let ⟨w0, w1, w2, w3⟩ := self.digest
+  lowerHexUInt64 w0 ++ lowerHexUInt64 w1 ++ lowerHexUInt64 w2 ++ lowerHexUInt64 w3
 
 /-- Parse a legacy 64-bit hash from a string of decimal digits. -/
 @[deprecated "Deprecated without replacement." (since := "2026-11-02")]
 public def ofDecimal? (s : String) : Option Hash :=
-  s.toNat?.map (mk 0 0 0 ·.toUInt64)
+  s.toNat?.map (ofWords 0 0 0 ·.toUInt64)
 
 @[inline] public def ofString? (s : String) : Option Hash :=
   ofHex? s
@@ -184,8 +168,8 @@ public def load? (hashFile : FilePath) : BaseIO (Option Hash) :=
   ofString? <$> IO.FS.readFile hashFile |>.catchExceptions fun _ => pure none
 
 /-- Combines two hashes by hashing their concatenated digests. -/
-public def mix (h1 h2 : Hash) : Hash :=
-  ofDigest <| Internal.sha256 <| pushBytes (pushBytes (.emptyWithCapacity 64) h1) h2
+@[inline] public def mix (h1 h2 : Hash) : Hash :=
+  ⟨Internal.sha256Mix h1.digest h2.digest⟩
 
 public instance : MixTrace Hash := ⟨mix⟩
 
@@ -199,19 +183,19 @@ Hash of a value using its `Hashable` instance.
 This is only as collision-resistant as the 64-bit `Hashable` instance.
 -/
 @[inline] public def ofHashable [Hashable α] (a : α) : Hash :=
-  mix nil <| mk 0 0 0 (hash a)
+  mix nil <| ofWords 0 0 0 (hash a)
 
 /-- Hash of a string (without line-ending normalization). -/
-public def ofString (str : String) : Hash :=
-  ofDigest (Internal.sha256String str)
+@[inline] public def ofString (str : String) : Hash :=
+  ⟨Internal.sha256String str⟩
 
 /-- Hash of a line-ending normalized string. -/
 @[inline] public def ofText (str : String) : Hash :=
   ofString str.crlfToLf
 
 /-- Hash of a sequence of bytes. -/
-public def ofByteArray (bytes : ByteArray) : Hash :=
-  ofDigest (Internal.sha256 bytes)
+@[inline] public def ofByteArray (bytes : ByteArray) : Hash :=
+  ⟨Internal.sha256 bytes⟩
 
 @[inline, deprecated ofHashable +typeChanged (since := "2026-02-06")]
 public def ofBool (b : Bool) : Hash  :=

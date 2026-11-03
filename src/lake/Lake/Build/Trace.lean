@@ -191,7 +191,7 @@ This is only as collision-resistant as the 64-bit `Hashable` instance.
 
 /-- Hash of a line-ending normalized string. -/
 @[inline] public def ofText (str : String) : Hash :=
-  ofString str.crlfToLf
+  ⟨Internal.sha256Text str⟩
 
 /-- Hash of a sequence of bytes. -/
 @[inline] public def ofByteArray (bytes : ByteArray) : Hash :=

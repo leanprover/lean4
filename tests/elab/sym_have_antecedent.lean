@@ -1,0 +1,192 @@
+import Lean
+import Std.Tactic.Do
+open Std.WP
+set_option experimental.vcgen true
+
+/-!
+Tests that `Sym` backward rules keep the `have`s of their antecedents, which become new goals,
+and zeta-reduce `have`s in patterns and on the binder spine (#16122).
+-/
+
+opaque P : Nat → Prop
+opaque Q : Nat → Prop
+opaque R : Nat → Prop
+opaque g : Nat → Nat
+
+/-! ## `sym => apply`: `have`s in antecedents are kept -/
+
+axiom a1 (x : Nat) (h : have y := x + 1; P y ∧ P y) : P (x + 1)
+/--
+trace: x : Nat
+⊢ have y := x + 1;
+  P y ∧ P y
+-/
+#guard_msgs (trace, drop warning) in
+example (x : Nat) : P (x + 1) := by
+  sym => apply a1; show_goals; sorry
+
+-- Nested `have`s.
+axiom a2 (x : Nat) (h : have a := x + 1; have b := a * a; P b ∧ P b) : Q x
+/--
+trace: x : Nat
+⊢ have a := x + 1;
+  have b := a * a;
+  P b ∧ P b
+-/
+#guard_msgs (trace, drop warning) in
+example (x : Nat) : Q x := by
+  sym => apply a2; show_goals; sorry
+
+-- A `have` under a binder.
+axiom a3 (x : Nat) (h : ∀ z, have y := g (z + x); P y ∧ P y) : Q x
+/--
+trace: x : Nat
+⊢ ∀ (z : Nat),
+    have y := g (z + x);
+    P y ∧ P y
+-/
+#guard_msgs (trace, drop warning) in
+example (x : Nat) : Q x := by
+  sym => apply a3; show_goals; sorry
+
+-- The value is instantiated from the goal once, not copied to each use.
+axiom a4 (x : Nat) (h : have y := x; P y ∧ P y ∧ P y) : Q x
+/--
+trace: x : Nat
+⊢ have y := g (g (g x));
+  P y ∧ P y ∧ P y
+-/
+#guard_msgs (trace, drop warning) in
+example (x : Nat) : Q (g (g (g x))) := by
+  sym => apply a4; show_goals; sorry
+
+-- A rule from a local hypothesis (`mkBackwardRuleFromExpr`).
+/--
+trace: x : Nat
+h :
+  (have y := g x;
+    P y ∧ P y) →
+    Q x
+⊢ have y := g x;
+  P y ∧ P y
+-/
+#guard_msgs (trace, drop warning) in
+example (x : Nat) (h : (have y := g x; P y ∧ P y) → Q x) : Q x := by
+  sym => apply h; show_goals; sorry
+
+-- A nondependent `let` becomes a `have`.
+axiom c0 (x : Nat) (h : let y := g x; P y ∧ P y) : Q x
+/--
+trace: x : Nat
+⊢ have y := g x;
+  P y ∧ P y
+-/
+#guard_msgs (trace, drop warning) in
+example (x : Nat) : Q x := by
+  sym => apply c0; show_goals; sorry
+
+/-! ## Zeta-reduced -/
+
+-- A dependent `let` in an antecedent.
+axiom c1 (h : let α := Nat; ∀ a : α, a + 0 = a) : Q 0
+/-- trace: ⊢ ∀ (a : Nat), a + 0 = a -/
+#guard_msgs (trace, drop warning) in
+example : Q 0 := by
+  sym => apply c1; show_goals; sorry
+
+-- A `have` on the binder spine.
+axiom c2 (x : Nat) : have y := g x; P y → Q y
+/--
+trace: x : Nat
+⊢ P (g x)
+-/
+#guard_msgs (trace, drop warning) in
+example (x : Nat) : Q (g x) := by
+  sym => apply c2; show_goals; sorry
+
+-- A `have` in the conclusion.
+axiom c3 (x : Nat) (h : P x) : have y := g x; Q y
+/--
+trace: x : Nat
+⊢ P x
+-/
+#guard_msgs (trace, drop warning) in
+example (x : Nat) : Q (g x) := by
+  sym => apply c3; show_goals; sorry
+
+-- With `num? := some 1`, the second binder is part of the pattern.
+axiom c4 (x : Nat) (h : have y := g x; P y) : Q x
+open Lean Meta Sym in
+/-- info: false -/
+#guard_msgs in
+#eval show MetaM Bool from do
+  let p ← mkPatternFromDecl ``c4 (some 1)
+  return (p.pattern.find? (·.isLet)).isSome
+
+/-! ## `vcgen +jp` shares the join points of an unfolded definition -/
+
+elab "goal_count" : tactic => do
+  Lean.logInfo m!"{(← Lean.Elab.Tactic.getGoals).length} goals"
+
+/-- `n` sequential `if`s (#16122). -/
+syntax "diamonds% " num term:max : term
+macro_rules
+  | `(diamonds% $n $b) => do
+    let rec go (i k : Nat) : Lean.MacroM (Lean.TSyntax `term) := do
+      match k with
+      | 0 => `(pure ())
+      | k + 1 =>
+        let idx := Lean.Syntax.mkNumLit (toString i)
+        let rest ← go (i + 1) k
+        `(do
+            if $b $idx then modify (· + 1) else modify (· + 2)
+            $rest:term)
+    go 0 n.getNat
+
+def prog3 (b : Nat → Bool) : StateM Nat Unit := diamonds% 3 b
+
+/-- info: 2 goals -/
+#guard_msgs in
+example (b : Nat → Bool) (s₀ : Nat) :
+    ⦃fun s => s = s₀⦄ prog3 b ⦃fun _ s => s₀ + 3 ≤ s ∧ s ≤ s₀ + 6⦄ := by
+  unfold prog3
+  vcgen +jp
+  goal_count
+  all_goals lia
+
+-- The antecedent `wp rhs …` of the unfold rule keeps `have __do_jp`.
+/-- info: 2 goals -/
+#guard_msgs in
+example (b : Nat → Bool) (s₀ : Nat) :
+    ⦃fun s => s = s₀⦄ prog3 b ⦃fun _ s => s₀ + 3 ≤ s ∧ s ≤ s₀ + 6⦄ := by
+  vcgen +jp [prog3.eq_def]
+  goal_count
+  all_goals lia
+
+-- TODO: `prog3.eq_1` zeta-reduces the root `have __do_jp`, so only the inner join points are shared.
+/-- info: 4 goals -/
+#guard_msgs in
+example (b : Nat → Bool) (s₀ : Nat) :
+    ⦃fun s => s = s₀⦄ prog3 b ⦃fun _ s => s₀ + 3 ≤ s ∧ s ≤ s₀ + 6⦄ := by
+  vcgen +jp [prog3]
+  goal_count
+  all_goals lia
+
+-- TODO: the `have` of the precondition reaches the VC, and `isDefEqS` throws on it.
+axiom modify_spec' (f : Nat → Nat) (Q : Unit → Nat → Prop) :
+    ⦃fun s => have s' := f s; Q () s' ∨ R s'⦄ (modify f : StateM Nat Unit) ⦃Q⦄
+
+/--
+error: unexpected let-declaration term during structural definitional equality
+  Lean.Order.top
+and
+  have s' := g s₀;
+  R s' ∨ R s'
+pre-process and zeta-reduce them
+-/
+#guard_msgs (error, drop warning) in
+example (s₀ : Nat) :
+    ⦃fun s => s = s₀⦄ (modify g : StateM Nat Unit) ⦃fun _ s => R s⦄ := by
+  vcgen [modify_spec']
+  trace_state
+  all_goals sorry

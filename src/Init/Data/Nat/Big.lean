@@ -60,6 +60,9 @@ unsafe def topNonzero (a : @& ByteArray) (n : USize) : USize :=
 public unsafe def ofUInt64 (x : UInt64) : ByteArray :=
   normalize (set (set (zeros 2) 0 x.toUInt32) 1 (x >>> 32).toUInt32)
 
+-- A function rather than a constant: magnitudes are needed before this module is initialized.
+@[inline] public unsafe def one (_ : Unit) : ByteArray := ofUInt64 1
+
 /-- The value modulo `2^64`. -/
 public unsafe def low64 (a : @& ByteArray) : UInt64 :=
   let n := size a
@@ -286,8 +289,8 @@ unsafe def divNLoop (v : @& ByteArray) (n : USize) (vtop vsec : UInt64) (j1 : US
     else
       divNLoop v n vtop vsec j (set q j qh.toUInt32) u ms
 
-/-- Quotient and remainder by a nonzero `b`. -/
-public unsafe def divMod (a b : @& ByteArray) : ByteArray × ByteArray :=
+/-- Quotient and remainder by a nonzero `b`, by long division. -/
+unsafe def divModBasecase (a b : @& ByteArray) : ByteArray × ByteArray :=
   let la := size a
   let lb := size b
   if cmp a b == .lt then (zeros 0, a)
@@ -303,6 +306,63 @@ public unsafe def divMod (a b : @& ByteArray) : ByteArray × ByteArray :=
       (zeros (la - lb + 1)) u (zeros (lb + 1))
     let r := if s == 0 then copyDigits u 0 (zeros lb) 0 lb else shrDigits u s (lb + 1) 0 lb 0 (zeros lb)
     (normalize q, normalize r)
+
+@[inline] unsafe def bitLen (a : @& ByteArray) : USize :=
+  let n := size a
+  if n == 0 then 0 else ((n - 1) <<< 5) + (get a (n - 1)).log2.toUSize + 1
+
+@[inline] unsafe def pow2 (k : USize) : ByteArray := shiftLeft (one ()) k
+
+/--
+Approximates `2^(m + L) / b`, where `m` is the bit length of `b`, to within a small relative error by
+Newton iteration, using only the top `L + 64` bits of `b`.
+-/
+unsafe def recip (b : @& ByteArray) (L : USize) : ByteArray :=
+  let m := bitLen b
+  if m > L + 64 then recip (shiftRight b (m - (L + 64))) L
+  else if L < 2048 then (divModBasecase (pow2 (m + L)) b).1
+  else
+    let h := (L >>> 1) + 1
+    -- `y ≈ 2^(m + h) / b`
+    let y := recip b h
+    -- one Newton step: `x = y 2^(L-h) + y (2^(m+h) - b y) / 2^(m + 2h - L)`
+    let t := pow2 (m + h)
+    let p := mul b y
+    let sh := m + 2 * h - L
+    let base := shiftLeft y (L - h)
+    if cmp p t != .gt then add base (shiftRight (mul y (sub t p)) sh)
+    else
+      let d := shiftRight (mul y (sub p t)) sh
+      if cmp d base == .gt then zeros 0 else sub base d
+
+unsafe def divModNewtonDown (a b : @& ByteArray) (q qb : ByteArray) : ByteArray × ByteArray :=
+  let q := sub q (one ())
+  let qb := sub qb b
+  if cmp qb a == .gt then divModNewtonDown a b q qb else (q, sub a qb)
+
+unsafe def divModNewtonUp (a b : @& ByteArray) (q r : ByteArray) : ByteArray × ByteArray :=
+  if cmp r b != .lt then divModNewtonUp a b (add q (one ())) (sub r b) else (q, r)
+
+/-- Quotient and remainder by `b ≠ 0` via a Newton reciprocal, for `b ≤ a`. -/
+unsafe def divModNewton (a b : @& ByteArray) : ByteArray × ByteArray :=
+  let m := bitLen b
+  let n := bitLen a
+  let L := n - m + 1
+  let x := recip b L
+  -- only the top `L + 64` bits of `a` affect the quotient beyond the final correction
+  let s := if n > L + 64 then n - (L + 64) else 0
+  let q := shiftRight (mul (shiftRight a s) x) (m + L - s)
+  let qb := mul q b
+  if cmp qb a == .gt then divModNewtonDown a b q qb else divModNewtonUp a b q (sub a qb)
+
+/--
+Quotient and remainder by a nonzero `b`. Uses Newton division if both `b` and the quotient have at
+least 24576 bits (above the measured break-even point), and long division otherwise.
+-/
+public unsafe def divMod (a b : @& ByteArray) : ByteArray × ByteArray :=
+  let m := bitLen b
+  let n := bitLen a
+  if m ≥ 24576 && n ≥ m + 24576 then divModNewton a b else divModBasecase a b
 
 /-! ## Bitwise operations -/
 
@@ -345,8 +405,6 @@ public unsafe def trailingZeros (a : @& ByteArray) : USize := trailingZerosLoop 
 
 /-! ## Powers and gcd -/
 
--- A function rather than a constant: magnitudes are needed before this module is initialized.
-@[inline] public unsafe def one (_ : Unit) : ByteArray := ofUInt64 1
 
 unsafe def powLoop (base : ByteArray) (e : USize) (acc : ByteArray) : ByteArray :=
   if e == 0 then acc else

@@ -14,7 +14,6 @@ import Lean.Meta.Sym.InstantiateS
 import Lean.Meta.Sym.AbstractS
 import Lean.Meta.Sym.Intro
 import Lean.Elab.Tactic.VCGen.Util
-import Lean.Elab.Tactic.VCGen.Reduce
 
 open Lean Meta Sym Sym.Internal
 open Lean.Order
@@ -53,14 +52,14 @@ jumps to it. Without `+jp`, `vcgen` unfolds `__do_jp` at each jump, so `k` conse
    records the jump `__do_jp () 2` under `h₂ : ¬n > 0` with `?pf₂`.
 3. `vcgen` reaches the RHS goal after all goals of the join body, so both jumps are known by then.
    `finalizeJoinPoint` sets `?H` to the disjunction of the jumps, each over the locals of its
-   branch and the arguments that the join RHS uses, `fun r x => (n > 0 ∧ x = 1) ∨ (¬n > 0 ∧ x = 2)`.
-   It proves `?pf₁ := Or.inl ⟨h₁, rfl⟩` and `?pf₂ := Or.inr ⟨h₂, rfl⟩`. Jumps under a
+   branch and its arguments, `fun r x => (n > 0 ∧ r = () ∧ x = 1) ∨ (¬n > 0 ∧ r = () ∧ x = 2)`.
+   It proves `?pf₁ := Or.inl ⟨h₁, rfl, rfl⟩` and `?pf₂ := Or.inr ⟨h₂, rfl, rfl⟩`. Jumps under a
    common local share its binder: the jumps of an `else if` chain share the conditions above them.
 
 The RHS goal of step 1 thus receives the hypothesis
 
 ```
-(n > 0 ∧ x = 1) ∨ (¬n > 0 ∧ x = 2)
+(n > 0 ∧ r = () ∧ x = 1) ∨ (¬n > 0 ∧ r = () ∧ x = 2)
 ```
 
 This `?H` is the strongest postcondition of the join body at its jumps to `__do_jp`, over the join
@@ -68,7 +67,7 @@ parameters `r` and `x`.
 
 For a stateful program, `?H` also takes the states, and each disjunct equates them with the states
 at its jump. In `StateM Nat`, the disjunct of `__do_jp () 1` in state `t` is
-`n > 0 ∧ x = 1 ∧ s = t`.
+`n > 0 ∧ r = () ∧ x = 1 ∧ s = t`.
 -/
 
 /-- The lattice instance of `B`, for `Pred = ∀ s₁ … sₙ, B` and the states `ss = #[s₁, …, sₙ]`,
@@ -106,7 +105,7 @@ public def registerJoinPoint (scope : Scope) (goal : MVarId) (jp : FVarId) (val 
       mkAppNS (mkConst ``Std.WP.Assertion.toCompleteLattice lvls) #[info.Pred, info.instAL]
   let lctx ← getLCtx
   let localInsts ← getLocalInstances
-  let some (hyp, top, specTy, rhsTy, usedParams) ← forallBoundedTelescope jpTy numParams fun xs _ => do
+  let some (hyp, top, specTy, rhsTy) ← forallBoundedTelescope jpTy numParams fun xs _ => do
       forallBoundedTelescope info.Pred info.excessArgs.size fun ss B => do
     let some instB ← baseInstance? instCL ss | return none
     let some u := (← Sym.getLevel B).dec | throwError "vcgen +jp: `{B}` is not a type"
@@ -118,17 +117,14 @@ public def registerJoinPoint (scope : Scope) (goal : MVarId) (jp : FVarId) (val 
       let rel ← mkAppNS (mkConst ``PartialOrder.rel goalTy.getAppFn.constLevels!)
         #[α, inst, top, wp]
       mkForallFVarsS (xs ++ ss) (← mkForallS `h .default (← mkAppNS hyp (xs ++ ss)) rel)
-    let body ← betaS val xs
-    let usedParams := xs.map (body.containsFVar ·.fvarId!)
-    return some (hyp.mvarId!, top, ← entails (← mkAppNS (.fvar jp) xs), ← entails body, usedParams)
+    return some (hyp.mvarId!, top, ← entails (← mkAppNS (.fvar jp) xs), ← entails (← betaS val xs))
     | return none
   let rhs ← mkFreshExprSyntheticOpaqueMVar rhsTy (← goal.getTag)
   let goal ← goal.replaceTargetDefEqFast (← mkLetS `__do_jp_spec specTy rhs goalTy)
   let .goal decls goal ← Sym.introN goal 1
     | throwError "vcgen +jp: failed to introduce the proof of{indentExpr specTy}"
   let joinPoint : JoinPoint :=
-    { spec := .fvar decls[0]!, top, hyp, rhsGoal := rhs.mvarId!, numStates := info.excessArgs.size,
-      usedParams }
+    { spec := .fvar decls[0]!, top, hyp, rhsGoal := rhs.mvarId!, numStates := info.excessArgs.size }
   modify fun s => { s with
     pendingJoinPoints := s.pendingJoinPoints.insert joinPoint.rhsGoal (joinPoint, #[]) }
   let scope := { scope with joinPoints := scope.joinPoints.insert jp joinPoint }
@@ -146,7 +142,7 @@ public def wpJump? (scope : Scope) (goal : MVarId) (info : WPApp) :
   unless pre == jp.top do return none
   unless info.excessArgs.size == jp.numStates do
     throwError "vcgen +jp: the jump{indentExpr info.prog}\ndoes not have {jp.numStates} states"
-  let args ← (info.prog.getAppArgs ++ info.excessArgs).mapM (reduceHead ·)
+  let args := info.prog.getAppArgs ++ info.excessArgs
   let pf ← mkFreshExprSyntheticOpaqueMVar (← mkAppNS (.mvar jp.hyp) args)
   goal.assign (← mkAppNS jp.spec (args.push pf))
   modify fun s => { s with
@@ -196,9 +192,9 @@ partial def mkOrIntro (φ : Expr) (i lo hi : Nat) (k : Expr → MetaM Expr) : Me
 
 /-- The trie of the `jumps` from local `i` on, over the parameters `xs` of `?H`. Its disjuncts bind
 each distinct local `i` of the jumps above the trie of the jumps that share it, and give the
-equations `xs = args` of each jump without local `i`, for the `xs` that `used` marks or that are
-states. Returns the path of each jump, the index and number of the disjuncts it passes. -/
-partial def mkTrie (xs : Array Expr) (used : Array Bool) (jumps : Array (Jump × Array LocalDecl)) (i : Nat) :
+equations `xs = args` of each jump without local `i`. Returns the path of each jump, the index and
+number of the disjuncts it passes. -/
+partial def mkTrie (xs : Array Expr) (jumps : Array (Jump × Array LocalDecl)) (i : Nat) :
     VCGenM (Expr × Array (List (Nat × Nat))) := do
   let mut groups : Array (Array Nat) := #[]
   let mut byLocal : Std.HashMap FVarId Nat := {}
@@ -216,16 +212,13 @@ partial def mkTrie (xs : Array Expr) (used : Array Bool) (jumps : Array (Jump ×
     let (jump, locals) := jumps[ks[0]!]!
     let (disjunct, subPaths) ← match locals[i]? with
       | some d =>
-        let (φ, subPaths) ← mkTrie xs used (ks.map (jumps[·]!)) (i + 1)
+        let (φ, subPaths) ← mkTrie xs (ks.map (jumps[·]!)) (i + 1)
         let decl ← jump.proof.getDecl
         pure (← withLCtx decl.lctx decl.localInstances (bindLocal d φ), subPaths)
       | none =>
-        let mut eqs := #[]
-        for h : j in [:xs.size] do
-          if used.getD j true then
-            let x := xs[j]
-            let α ← Sym.inferType x
-            eqs := eqs.push (mkApp3 (mkConst ``Eq [← Sym.getLevel α]) α x jump.args[j]!)
+        let eqs ← xs.mapIdxM fun j x => do
+          let α ← Sym.inferType x
+          return mkApp3 (mkConst ``Eq [← Sym.getLevel α]) α x jump.args[j]!
         pure (mkAndN eqs.toList, #[[]])
     disjuncts := disjuncts.push disjunct
     for (k, path) in ks.zip subPaths do
@@ -267,7 +260,7 @@ registration, so every jump is known by then. -/
 public def finalizeJoinPoint (jp : JoinPoint) (jumps : Array Jump) : VCGenM Unit := do
   let jumps ← jumps.mapM fun jump => return (jump, ← jumpLocals jp jump)
   let paths ← forallTelescope (← jp.hyp.getType) fun xs _ => do
-    let (φ, paths) ← mkTrie xs jp.usedParams jumps 0
+    let (φ, paths) ← mkTrie xs jumps 0
     jp.hyp.assign (← mkLambdaFVars xs φ)
     return paths
   for ((jump, locals), path) in jumps.zip paths do

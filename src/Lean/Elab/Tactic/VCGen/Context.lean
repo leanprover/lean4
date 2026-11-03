@@ -149,8 +149,6 @@ public structure JoinPoint where
   rhsGoal : MVarId
   /-- The number of states that `?H` takes after the join parameters. -/
   numStates : Nat
-  /-- Whether the join RHS uses each join parameter. `?H` equates only the used ones. -/
-  usedParams : Array Bool
   deriving Inhabited
 
 /-- A jump to a join point with the arguments `args`, which include the states, and the proof

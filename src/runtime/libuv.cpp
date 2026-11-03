@@ -6,6 +6,7 @@ Author: Markus Himmel, Sofia Rodrigues
  */
 #include "runtime/libuv.h"
 #include "runtime/object.h"
+#include "runtime/io.h"
 
 #ifndef LEAN_EMSCRIPTEN
 #include <uv.h>
@@ -24,7 +25,11 @@ extern "C" void initialize_libuv() {
 }
 
 extern "C" LEAN_EXPORT char ** lean_setup_args(int argc, char ** argv) {
-    return uv_setup_args(argc, argv);
+    argv = uv_setup_args(argc, argv);
+    if (argc > 0) {
+        set_program_name(argv[0]);
+    }
+    return argv;
 }
 
 /* Lean.libUVVersionFn : Unit → Nat */
@@ -41,6 +46,9 @@ extern "C" LEAN_EXPORT lean_obj_res lean_libuv_version(lean_obj_arg o) {
 }
 
 extern "C" LEAN_EXPORT char ** lean_setup_args(int argc, char ** argv) {
+    if (argc > 0) {
+        set_program_name(argv[0]);
+    }
     return argv;
 }
 

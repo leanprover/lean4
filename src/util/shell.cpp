@@ -15,6 +15,7 @@ Author: Leonardo de Moura
 #include <set>
 #include "runtime/stackinfo.h"
 #include "runtime/interrupt.h"
+#include "runtime/io.h"
 #include "runtime/memory.h"
 #include "runtime/thread.h"
 #include "runtime/debug.h"
@@ -307,6 +308,10 @@ extern "C" LEAN_EXPORT int lean_main(int argc, char ** argv) {
     // see https://github.com/leanprover/lean4/issues/4291
     SetConsoleOutputCP(CP_UTF8);
 #endif
+    // `lean --run` replaces this name with that of the file it runs.
+    if (argc > 0) {
+        lean::set_program_name(argv[0]);
+    }
     auto init_start = std::chrono::steady_clock::now();
     lean::initializer init;
     second_duration init_time = std::chrono::steady_clock::now() - init_start;

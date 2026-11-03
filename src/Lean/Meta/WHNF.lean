@@ -248,13 +248,9 @@ private def isMajorProof (recVal : RecursorVal) (recLvls : List Level) (major : 
       let indInfo ← getConstInfo recVal.getMajorInduct
       -- TODO once the large elimination field exists in `inductiveVal`s, use that to short-circuit here.
       let lvls := if indInfo.levelParams.length != recLvls.length then recLvls.tail! else recLvls
-      let u := (inductSort indInfo.type).instantiateParams indInfo.levelParams lvls
+      -- Panics if the head is a def which doesn't unfold at this transparency level, or worse, if it's a non-exposed one ! this is just for testing TODO fix if needed
+      let u ← forallTelescopeReducing indInfo.type fun _ e => return e.sortLevel!.instantiateParams indInfo.levelParams lvls
       return u.isAlwaysZero
-where
-  inductSort : Expr → Level
-    | .forallE _ _ cd _ => inductSort cd
-    | .sort u => u
-    | _ => unreachable!
 
 /-- Auxiliary function for reducing recursor applications. -/
 private def reduceRec (recVal : RecursorVal) (recLvls : List Level) (recArgs : Array Expr) (failK : Unit → MetaM α) (successK : Expr → MetaM α) : MetaM α :=

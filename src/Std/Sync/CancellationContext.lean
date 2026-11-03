@@ -19,7 +19,7 @@ automatically cancels all child contexts.
 namespace Std
 open Std.Async
 
-structure CancellationContext.State where
+private structure CancellationContext.State where
   /--
   Map of token IDs to optional tokens and their children.
   -/
@@ -35,7 +35,7 @@ A cancellation context that allows multiple consumers to wait until cancellation
 a tree structure where cancelling a parent cancels all children.
 -/
 structure CancellationContext where
-  state : Std.Mutex CancellationContext.State
+  private state : Std.Mutex CancellationContext.State
   token : CancellationToken
   id : UInt64
   /-- The ID of the context this one was forked from. -/

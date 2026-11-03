@@ -831,7 +831,7 @@ goto v_resetjp_252_;
 v_resetjp_252_:
 {
 lean_object* v_liaSteps_255_; lean_object* v_steps_256_; lean_object* v_steps_257_; lean_object* v___x_258_; uint8_t v___x_259_; lean_object* v___x_260_; lean_object* v___x_262_; 
-v_liaSteps_255_ = lean_ctor_get(v_a_251_, 9);
+v_liaSteps_255_ = lean_ctor_get(v_a_251_, 10);
 lean_inc(v_liaSteps_255_);
 lean_dec(v_a_251_);
 v_steps_256_ = lean_ctor_get(v_a_248_, 14);
@@ -1461,7 +1461,7 @@ goto v_resetjp_524_;
 v_resetjp_524_:
 {
 lean_object* v_liaReorders_527_; lean_object* v_numReorderRequests_528_; uint8_t v___x_529_; 
-v_liaReorders_527_ = lean_ctor_get(v_a_523_, 10);
+v_liaReorders_527_ = lean_ctor_get(v_a_523_, 11);
 lean_inc(v_liaReorders_527_);
 lean_dec(v_a_523_);
 v_numReorderRequests_528_ = lean_ctor_get(v_a_521_, 16);
@@ -1844,9 +1844,9 @@ return v___x_638_;
 LEAN_EXPORT lean_object* l_Lean_addTrace___at___00Lean_Meta_Grind_Arith_Cutsat_requestReorder_spec__0___boxed(lean_object* v_cls_639_, lean_object* v_msg_640_, lean_object* v___y_641_, lean_object* v___y_642_, lean_object* v___y_643_, lean_object* v___y_644_, lean_object* v___y_645_, lean_object* v___y_646_, lean_object* v___y_647_, lean_object* v___y_648_, lean_object* v___y_649_, lean_object* v___y_650_, lean_object* v___y_651_, lean_object* v___y_652_, lean_object* v___y_653_){
 _start:
 {
-uint8_t v___y_24224__boxed_654_; lean_object* v_res_655_; 
-v___y_24224__boxed_654_ = lean_unbox(v___y_641_);
-v_res_655_ = l_Lean_addTrace___at___00Lean_Meta_Grind_Arith_Cutsat_requestReorder_spec__0(v_cls_639_, v_msg_640_, v___y_24224__boxed_654_, v___y_642_, v___y_643_, v___y_644_, v___y_645_, v___y_646_, v___y_647_, v___y_648_, v___y_649_, v___y_650_, v___y_651_, v___y_652_);
+uint8_t v___y_24231__boxed_654_; lean_object* v_res_655_; 
+v___y_24231__boxed_654_ = lean_unbox(v___y_641_);
+v_res_655_ = l_Lean_addTrace___at___00Lean_Meta_Grind_Arith_Cutsat_requestReorder_spec__0(v_cls_639_, v_msg_640_, v___y_24231__boxed_654_, v___y_642_, v___y_643_, v___y_644_, v___y_645_, v___y_646_, v___y_647_, v___y_648_, v___y_649_, v___y_650_, v___y_651_, v___y_652_);
 lean_dec(v___y_652_);
 lean_dec_ref(v___y_651_);
 lean_dec(v___y_650_);

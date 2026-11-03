@@ -995,16 +995,16 @@ goto v_reusejp_228_;
 }
 v_reusejp_228_:
 {
-lean_object* v___x_230_; lean_object* v___x_231_; lean_object* v___x_10573__overap_232_; lean_object* v___x_233_; 
+lean_object* v___x_230_; lean_object* v___x_231_; lean_object* v___x_10580__overap_232_; lean_object* v___x_233_; 
 v___x_230_ = lean_box(0);
 v___x_231_ = l_instInhabitedOfMonad___redArg(v___x_229_, v___x_230_);
-v___x_10573__overap_232_ = lean_panic_fn_borrowed(v___x_231_, v_msg_175_);
+v___x_10580__overap_232_ = lean_panic_fn_borrowed(v___x_231_, v_msg_175_);
 lean_dec(v___x_231_);
 lean_inc(v___y_179_);
 lean_inc_ref(v___y_178_);
 lean_inc(v___y_177_);
 lean_inc_ref(v___y_176_);
-v___x_233_ = lean_apply_5(v___x_10573__overap_232_, v___y_176_, v___y_177_, v___y_178_, v___y_179_, lean_box(0));
+v___x_233_ = lean_apply_5(v___x_10580__overap_232_, v___y_176_, v___y_177_, v___y_178_, v___y_179_, lean_box(0));
 return v___x_233_;
 }
 }
@@ -2042,9 +2042,9 @@ return v___x_572_;
 LEAN_EXPORT lean_object* l_Lean_Expr_withAppAux___at___00Lean_Meta_reduceSparseCasesOn_spec__7___lam__2___boxed(lean_object* v___x_575_, lean_object* v___f_576_, lean_object* v___y_577_, lean_object* v___y_578_, lean_object* v___y_579_, lean_object* v___y_580_, lean_object* v___y_581_){
 _start:
 {
-uint8_t v___x_14366__boxed_582_; lean_object* v_res_583_; 
-v___x_14366__boxed_582_ = lean_unbox(v___x_575_);
-v_res_583_ = l_Lean_Expr_withAppAux___at___00Lean_Meta_reduceSparseCasesOn_spec__7___lam__2(v___x_14366__boxed_582_, v___f_576_, v___y_577_, v___y_578_, v___y_579_, v___y_580_);
+uint8_t v___x_14380__boxed_582_; lean_object* v_res_583_; 
+v___x_14380__boxed_582_ = lean_unbox(v___x_575_);
+v_res_583_ = l_Lean_Expr_withAppAux___at___00Lean_Meta_reduceSparseCasesOn_spec__7___lam__2(v___x_14380__boxed_582_, v___f_576_, v___y_577_, v___y_578_, v___y_579_, v___y_580_);
 lean_dec(v___y_580_);
 lean_dec_ref(v___y_579_);
 lean_dec(v___y_578_);

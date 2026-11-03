@@ -9204,7 +9204,7 @@ return v_res_2081_;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_mkNormSymMethods___lam__21(lean_object* v___f_2082_, lean_object* v___y_2083_, lean_object* v___y_2084_, lean_object* v___y_2085_, lean_object* v___y_2086_, lean_object* v___y_2087_, lean_object* v___y_2088_, lean_object* v___y_2089_, lean_object* v___y_2090_, lean_object* v___y_2091_, lean_object* v___y_2092_){
 _start:
 {
-lean_object* v___y_2095_; lean_object* v___y_2096_; uint8_t v___y_2097_; lean_object* v___y_2101_; lean_object* v___y_2102_; uint8_t v___y_2103_; uint8_t v___y_2104_; lean_object* v___y_2108_; uint8_t v___y_2109_; lean_object* v___y_2110_; uint8_t v___y_2111_; lean_object* v___y_2115_; lean_object* v_e_x27_2116_; lean_object* v_proof_2117_; uint8_t v_done_2118_; uint8_t v_contextDependent_2119_; lean_object* v___y_2141_; lean_object* v_a_2142_; lean_object* v___x_2153_; lean_object* v___x_2154_; 
+lean_object* v___y_2095_; lean_object* v___y_2096_; uint8_t v___y_2097_; uint8_t v___y_2101_; lean_object* v___y_2102_; lean_object* v___y_2103_; uint8_t v___y_2104_; uint8_t v___y_2108_; lean_object* v___y_2109_; lean_object* v___y_2110_; uint8_t v___y_2111_; lean_object* v___y_2115_; lean_object* v_e_x27_2116_; lean_object* v_proof_2117_; uint8_t v_done_2118_; uint8_t v_contextDependent_2119_; lean_object* v___y_2141_; lean_object* v_a_2142_; lean_object* v___x_2153_; lean_object* v___x_2154_; 
 v___x_2153_ = lean_box(0);
 lean_inc_ref(v___y_2083_);
 v___x_2154_ = l_Lean_Meta_Grind_NormSym_eraseMData___redArg(v___y_2083_, v___y_2087_, v___y_2088_, v___y_2089_, v___y_2090_, v___y_2091_, v___y_2092_);
@@ -9709,9 +9709,9 @@ v___jp_2100_:
 {
 lean_object* v___x_2105_; lean_object* v___x_2106_; 
 v___x_2105_ = lean_alloc_ctor(1, 2, 2);
-lean_ctor_set(v___x_2105_, 0, v___y_2102_);
-lean_ctor_set(v___x_2105_, 1, v___y_2101_);
-lean_ctor_set_uint8(v___x_2105_, sizeof(void*)*2, v___y_2103_);
+lean_ctor_set(v___x_2105_, 0, v___y_2103_);
+lean_ctor_set(v___x_2105_, 1, v___y_2102_);
+lean_ctor_set_uint8(v___x_2105_, sizeof(void*)*2, v___y_2101_);
 lean_ctor_set_uint8(v___x_2105_, sizeof(void*)*2 + 1, v___y_2104_);
 v___x_2106_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_2106_, 0, v___x_2105_);
@@ -9721,9 +9721,9 @@ v___jp_2107_:
 {
 lean_object* v___x_2112_; lean_object* v___x_2113_; 
 v___x_2112_ = lean_alloc_ctor(1, 2, 2);
-lean_ctor_set(v___x_2112_, 0, v___y_2108_);
+lean_ctor_set(v___x_2112_, 0, v___y_2109_);
 lean_ctor_set(v___x_2112_, 1, v___y_2110_);
-lean_ctor_set_uint8(v___x_2112_, sizeof(void*)*2, v___y_2109_);
+lean_ctor_set_uint8(v___x_2112_, sizeof(void*)*2, v___y_2108_);
 lean_ctor_set_uint8(v___x_2112_, sizeof(void*)*2 + 1, v___y_2111_);
 v___x_2113_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_2113_, 0, v___x_2112_);
@@ -9758,8 +9758,8 @@ uint8_t v_done_2122_; uint8_t v_contextDependent_2123_;
 v_done_2122_ = lean_ctor_get_uint8(v_a_2121_, 0);
 v_contextDependent_2123_ = lean_ctor_get_uint8(v_a_2121_, 1);
 lean_dec_ref_known(v_a_2121_, 0);
-v___y_2108_ = v_e_x27_2116_;
-v___y_2109_ = v_done_2122_;
+v___y_2108_ = v_done_2122_;
+v___y_2109_ = v_e_x27_2116_;
 v___y_2110_ = v_proof_2117_;
 v___y_2111_ = v_contextDependent_2123_;
 goto v___jp_2107_;
@@ -9769,8 +9769,8 @@ else
 uint8_t v_done_2124_; 
 v_done_2124_ = lean_ctor_get_uint8(v_a_2121_, 0);
 lean_dec_ref_known(v_a_2121_, 0);
-v___y_2108_ = v_e_x27_2116_;
-v___y_2109_ = v_done_2124_;
+v___y_2108_ = v_done_2124_;
+v___y_2109_ = v_e_x27_2116_;
 v___y_2110_ = v_proof_2117_;
 v___y_2111_ = v_contextDependent_2119_;
 goto v___jp_2107_;
@@ -9801,9 +9801,9 @@ lean_object* v_a_2130_;
 v_a_2130_ = lean_ctor_get(v___x_2129_, 0);
 lean_inc(v_a_2130_);
 lean_dec_ref_known(v___x_2129_, 1);
-v___y_2101_ = v_a_2130_;
-v___y_2102_ = v_e_x27_2125_;
-v___y_2103_ = v_done_2127_;
+v___y_2101_ = v_done_2127_;
+v___y_2102_ = v_a_2130_;
+v___y_2103_ = v_e_x27_2125_;
 v___y_2104_ = v_contextDependent_2128_;
 goto v___jp_2100_;
 }
@@ -9813,9 +9813,9 @@ lean_object* v_a_2131_;
 v_a_2131_ = lean_ctor_get(v___x_2129_, 0);
 lean_inc(v_a_2131_);
 lean_dec_ref_known(v___x_2129_, 1);
-v___y_2101_ = v_a_2131_;
-v___y_2102_ = v_e_x27_2125_;
-v___y_2103_ = v_done_2127_;
+v___y_2101_ = v_done_2127_;
+v___y_2102_ = v_a_2131_;
+v___y_2103_ = v_e_x27_2125_;
 v___y_2104_ = v_contextDependent_2119_;
 goto v___jp_2100_;
 }
@@ -9992,10 +9992,10 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Grind_mkNormSymMethods(lean_object* v_confi
 _start:
 {
 uint8_t v_zetaDelta_2267_; uint8_t v_zeta_2268_; uint8_t v_distrib_2269_; lean_object* v_maxChar_2270_; lean_object* v___f_2271_; lean_object* v___x_2272_; lean_object* v___f_2273_; lean_object* v___f_2274_; lean_object* v___f_2275_; lean_object* v_d_2276_; lean_object* v___f_2277_; lean_object* v___x_2278_; lean_object* v___f_2279_; lean_object* v___f_2280_; lean_object* v_pre_2282_; lean_object* v_pre_2288_; 
-v_zetaDelta_2267_ = lean_ctor_get_uint8(v_config_2265_, sizeof(void*)*17 + 19);
-v_zeta_2268_ = lean_ctor_get_uint8(v_config_2265_, sizeof(void*)*17 + 20);
-v_distrib_2269_ = lean_ctor_get_uint8(v_config_2265_, sizeof(void*)*17 + 21);
-v_maxChar_2270_ = lean_ctor_get(v_config_2265_, 6);
+v_zetaDelta_2267_ = lean_ctor_get_uint8(v_config_2265_, sizeof(void*)*18 + 19);
+v_zeta_2268_ = lean_ctor_get_uint8(v_config_2265_, sizeof(void*)*18 + 20);
+v_distrib_2269_ = lean_ctor_get_uint8(v_config_2265_, sizeof(void*)*18 + 21);
+v_maxChar_2270_ = lean_ctor_get(v_config_2265_, 7);
 lean_inc(v_maxChar_2270_);
 lean_dec_ref(v_config_2265_);
 v___f_2271_ = ((lean_object*)(l_Lean_Meta_Grind_mkNormSymMethods___closed__10));
@@ -11245,8 +11245,8 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Grind_mkNormSymDSimpMethods(lean_object* v_
 _start:
 {
 uint8_t v_zetaDelta_2600_; uint8_t v_zeta_2601_; lean_object* v___f_2602_; lean_object* v_pre_2604_; lean_object* v_pre_2609_; 
-v_zetaDelta_2600_ = lean_ctor_get_uint8(v_config_2598_, sizeof(void*)*17 + 19);
-v_zeta_2601_ = lean_ctor_get_uint8(v_config_2598_, sizeof(void*)*17 + 20);
+v_zetaDelta_2600_ = lean_ctor_get_uint8(v_config_2598_, sizeof(void*)*18 + 19);
+v_zeta_2601_ = lean_ctor_get_uint8(v_config_2598_, sizeof(void*)*18 + 20);
 v___f_2602_ = ((lean_object*)(l_Lean_Meta_Grind_mkNormSymDSimpMethods___closed__1));
 if (v_zeta_2601_ == 0)
 {

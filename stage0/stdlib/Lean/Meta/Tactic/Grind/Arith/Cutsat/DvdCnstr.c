@@ -4941,7 +4941,7 @@ goto v_resetjp_1344_;
 v_resetjp_1344_:
 {
 uint8_t v_lia_1347_; 
-v_lia_1347_ = lean_ctor_get_uint8(v_a_1343_, sizeof(void*)*17 + 24);
+v_lia_1347_ = lean_ctor_get_uint8(v_a_1343_, sizeof(void*)*18 + 24);
 lean_dec(v_a_1343_);
 if (v_lia_1347_ == 0)
 {

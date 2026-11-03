@@ -15060,7 +15060,7 @@ lean_object* v_a_4633_; lean_object* v_liaReorderCases_4634_; uint8_t v___x_4635
 v_a_4633_ = lean_ctor_get(v___x_4632_, 0);
 lean_inc(v_a_4633_);
 lean_dec_ref_known(v___x_4632_, 1);
-v_liaReorderCases_4634_ = lean_ctor_get(v_a_4633_, 11);
+v_liaReorderCases_4634_ = lean_ctor_get(v_a_4633_, 12);
 lean_inc(v_liaReorderCases_4634_);
 lean_dec(v_a_4633_);
 v___x_4635_ = lean_nat_dec_lt(v_liaReorderCases_4634_, v___x_4631_);
@@ -34507,7 +34507,7 @@ lean_object* v_a_10822_; uint8_t v_qlia_10823_;
 v_a_10822_ = lean_ctor_get(v___x_10821_, 0);
 lean_inc(v_a_10822_);
 lean_dec_ref_known(v___x_10821_, 1);
-v_qlia_10823_ = lean_ctor_get_uint8(v_a_10822_, sizeof(void*)*17 + 17);
+v_qlia_10823_ = lean_ctor_get_uint8(v_a_10822_, sizeof(void*)*18 + 17);
 lean_dec(v_a_10822_);
 if (v_qlia_10823_ == 0)
 {
@@ -35315,7 +35315,7 @@ goto v_resetjp_11015_;
 v_resetjp_11015_:
 {
 lean_object* v_liaSteps_11018_; lean_object* v_steps_11019_; uint8_t v___x_11020_; 
-v_liaSteps_11018_ = lean_ctor_get(v_a_11014_, 9);
+v_liaSteps_11018_ = lean_ctor_get(v_a_11014_, 10);
 lean_inc(v_liaSteps_11018_);
 lean_dec(v_a_11014_);
 v_steps_11019_ = lean_ctor_get(v_a_11012_, 14);

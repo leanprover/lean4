@@ -1240,7 +1240,7 @@ case 0:
 {
 lean_object* v_a_412_; uint8_t v___x_413_; 
 v_a_412_ = lean_ctor_get(v_expr_408_, 0);
-lean_inc(v_a_412_);
+lean_inc_ref(v_a_412_);
 lean_dec_ref_known(v_expr_408_, 1);
 v___x_413_ = l___private_Std_Tactic_BVDecide_Bitblast_EfficientEval_0__Std_Tactic_BVDecide_EfficientEval_BVPred_evalEfficientM___redArg(v_a_412_, v_a_409_, v_a_410_);
 return v___x_413_;
@@ -1248,7 +1248,7 @@ return v___x_413_;
 case 1:
 {
 uint8_t v_a_414_; 
-v_a_414_ = lean_ctor_get_uint8(v_expr_408_, 0);
+v_a_414_ = lean_ctor_get_uint8(v_expr_408_, 8);
 lean_dec_ref_known(v_expr_408_, 0);
 return v_a_414_;
 }
@@ -1275,7 +1275,7 @@ return v___x_418_;
 case 3:
 {
 uint8_t v_a_419_; lean_object* v_a_420_; lean_object* v_a_421_; uint8_t v___x_422_; uint8_t v___x_423_; uint8_t v___x_424_; 
-v_a_419_ = lean_ctor_get_uint8(v_expr_408_, sizeof(void*)*2);
+v_a_419_ = lean_ctor_get_uint8(v_expr_408_, sizeof(void*)*2 + 8);
 v_a_420_ = lean_ctor_get(v_expr_408_, 0);
 lean_inc_ref(v_a_420_);
 v_a_421_ = lean_ctor_get(v_expr_408_, 1);

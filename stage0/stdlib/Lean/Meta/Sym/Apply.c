@@ -856,7 +856,6 @@ lean_dec(v_a_315_);
 lean_dec_ref(v_a_314_);
 lean_dec(v_a_313_);
 lean_dec_ref(v_a_312_);
-lean_dec(v_num_x3f_311_);
 return v_res_317_;
 }
 }
@@ -1034,7 +1033,6 @@ lean_dec(v_a_369_);
 lean_dec_ref(v_a_368_);
 lean_dec(v_a_367_);
 lean_dec_ref(v_a_366_);
-lean_dec(v_num_x3f_365_);
 lean_dec(v_levelParams_364_);
 return v_res_371_;
 }

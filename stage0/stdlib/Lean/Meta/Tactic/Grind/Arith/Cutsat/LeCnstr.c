@@ -10313,7 +10313,7 @@ lean_inc(v_fst_3268_);
 v_snd_3269_ = lean_ctor_get(v_snd_3266_, 1);
 lean_inc(v_snd_3269_);
 lean_dec(v_snd_3266_);
-v___x_3270_ = lean_alloc_ctor(18, 3, 0);
+v___x_3270_ = lean_alloc_ctor(19, 3, 0);
 lean_ctor_set(v___x_3270_, 0, v_c_3250_);
 lean_ctor_set(v___x_3270_, 1, v_fst_3267_);
 lean_ctor_set(v___x_3270_, 2, v_fst_3268_);
@@ -11909,7 +11909,7 @@ goto v_resetjp_3722_;
 v_resetjp_3722_:
 {
 uint8_t v_lia_3725_; 
-v_lia_3725_ = lean_ctor_get_uint8(v_a_3721_, sizeof(void*)*17 + 24);
+v_lia_3725_ = lean_ctor_get_uint8(v_a_3721_, sizeof(void*)*18 + 24);
 lean_dec(v_a_3721_);
 if (v_lia_3725_ == 0)
 {

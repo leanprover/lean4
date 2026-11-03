@@ -6018,7 +6018,7 @@ goto v_resetjp_1878_;
 v_resetjp_1878_:
 {
 uint8_t v_hom_1881_; 
-v_hom_1881_ = lean_ctor_get_uint8(v_a_1877_, sizeof(void*)*17 + 25);
+v_hom_1881_ = lean_ctor_get_uint8(v_a_1877_, sizeof(void*)*18 + 25);
 lean_dec(v_a_1877_);
 if (v_hom_1881_ == 0)
 {
@@ -6886,7 +6886,7 @@ goto v_resetjp_2124_;
 v_resetjp_2124_:
 {
 uint8_t v_hom_2127_; 
-v_hom_2127_ = lean_ctor_get_uint8(v_a_2123_, sizeof(void*)*17 + 25);
+v_hom_2127_ = lean_ctor_get_uint8(v_a_2123_, sizeof(void*)*18 + 25);
 lean_dec(v_a_2123_);
 if (v_hom_2127_ == 0)
 {
@@ -7611,7 +7611,7 @@ goto v_resetjp_2291_;
 v_resetjp_2291_:
 {
 uint8_t v_hom_2294_; 
-v_hom_2294_ = lean_ctor_get_uint8(v_a_2290_, sizeof(void*)*17 + 25);
+v_hom_2294_ = lean_ctor_get_uint8(v_a_2290_, sizeof(void*)*18 + 25);
 lean_dec(v_a_2290_);
 if (v_hom_2294_ == 0)
 {
@@ -8351,7 +8351,7 @@ LEAN_EXPORT uint8_t l___private_Lean_Meta_Tactic_Grind_Homomorphism_0__Lean_Meta
 _start:
 {
 uint8_t v_hom_2451_; 
-v_hom_2451_ = lean_ctor_get_uint8(v_x_2450_, sizeof(void*)*17 + 25);
+v_hom_2451_ = lean_ctor_get_uint8(v_x_2450_, sizeof(void*)*18 + 25);
 return v_hom_2451_;
 }
 }

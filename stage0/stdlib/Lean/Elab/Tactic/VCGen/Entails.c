@@ -2316,7 +2316,7 @@ _start:
 {
 lean_object* v___y_666_; lean_object* v___x_669_; uint8_t v_debug_670_; 
 v___x_669_ = lean_st_ref_get(v___y_659_);
-v_debug_670_ = lean_ctor_get_uint8(v___x_669_, sizeof(void*)*12);
+v_debug_670_ = lean_ctor_get_uint8(v___x_669_, sizeof(void*)*13);
 lean_dec(v___x_669_);
 if (v_debug_670_ == 0)
 {
@@ -3656,7 +3656,7 @@ _start:
 {
 lean_object* v___y_1149_; lean_object* v___x_1152_; uint8_t v_debug_1153_; 
 v___x_1152_ = lean_st_ref_get(v___y_1142_);
-v_debug_1153_ = lean_ctor_get_uint8(v___x_1152_, sizeof(void*)*12);
+v_debug_1153_ = lean_ctor_get_uint8(v___x_1152_, sizeof(void*)*13);
 lean_dec(v___x_1152_);
 if (v_debug_1153_ == 0)
 {
@@ -6610,7 +6610,7 @@ _start:
 {
 lean_object* v___y_2092_; lean_object* v___x_2095_; uint8_t v_debug_2096_; 
 v___x_2095_ = lean_st_ref_get(v___y_2085_);
-v_debug_2096_ = lean_ctor_get_uint8(v___x_2095_, sizeof(void*)*12);
+v_debug_2096_ = lean_ctor_get_uint8(v___x_2095_, sizeof(void*)*13);
 lean_dec(v___x_2095_);
 if (v_debug_2096_ == 0)
 {

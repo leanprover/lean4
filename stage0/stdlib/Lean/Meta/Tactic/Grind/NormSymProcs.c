@@ -671,7 +671,7 @@ _start:
 {
 lean_object* v___y_48_; lean_object* v___x_51_; uint8_t v_debug_52_; 
 v___x_51_ = lean_st_ref_get(v___y_41_);
-v_debug_52_ = lean_ctor_get_uint8(v___x_51_, sizeof(void*)*12);
+v_debug_52_ = lean_ctor_get_uint8(v___x_51_, sizeof(void*)*13);
 lean_dec(v___x_51_);
 if (v_debug_52_ == 0)
 {
@@ -1784,8 +1784,8 @@ if (v___x_655_ == 0)
 {
 lean_dec_ref(v___x_654_);
 lean_dec_ref(v_arg_653_);
-lean_dec_ref_known(v_e_638_, 2);
 lean_dec_ref(v_fn_652_);
+lean_dec_ref_known(v_e_638_, 2);
 goto v___jp_649_;
 }
 else
@@ -1813,8 +1813,8 @@ lean_dec_ref(v___x_658_);
 if (v___x_660_ == 0)
 {
 lean_dec_ref(v_arg_653_);
-lean_dec_ref_known(v_e_638_, 2);
 lean_dec_ref(v_fn_652_);
+lean_dec_ref_known(v_e_638_, 2);
 goto v___jp_649_;
 }
 else
@@ -3753,7 +3753,7 @@ _start:
 {
 lean_object* v___y_1317_; lean_object* v___x_1320_; uint8_t v_debug_1321_; 
 v___x_1320_ = lean_st_ref_get(v___y_1310_);
-v_debug_1321_ = lean_ctor_get_uint8(v___x_1320_, sizeof(void*)*12);
+v_debug_1321_ = lean_ctor_get_uint8(v___x_1320_, sizeof(void*)*13);
 lean_dec(v___x_1320_);
 if (v_debug_1321_ == 0)
 {
@@ -3963,7 +3963,7 @@ _start:
 {
 lean_object* v___y_1429_; lean_object* v___x_1432_; uint8_t v_debug_1433_; 
 v___x_1432_ = lean_st_ref_get(v___y_1422_);
-v_debug_1433_ = lean_ctor_get_uint8(v___x_1432_, sizeof(void*)*12);
+v_debug_1433_ = lean_ctor_get_uint8(v___x_1432_, sizeof(void*)*13);
 lean_dec(v___x_1432_);
 if (v_debug_1433_ == 0)
 {

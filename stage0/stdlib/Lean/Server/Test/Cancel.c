@@ -1069,7 +1069,7 @@ return v_r_209_;
 LEAN_EXPORT lean_object* l_Lean_logAt___at___00Lean_log___at___00Lean_Server_Test_Cancel___aux__Lean__Server__Test__Cancel______elabRules__Lean__Server__Test__Cancel__tacticWait__for__cancel__once__1_spec__1_spec__1___redArg(lean_object* v_ref_211_, lean_object* v_msgData_212_, uint8_t v_severity_213_, uint8_t v_isSilent_214_, lean_object* v___y_215_, lean_object* v___y_216_, lean_object* v___y_217_, lean_object* v___y_218_){
 _start:
 {
-lean_object* v___y_221_; lean_object* v___y_222_; lean_object* v___y_223_; lean_object* v___y_224_; uint8_t v___y_225_; uint8_t v___y_226_; lean_object* v___y_227_; lean_object* v_toCold_228_; lean_object* v___y_229_; lean_object* v___y_258_; lean_object* v___y_259_; lean_object* v___y_260_; uint8_t v___y_261_; uint8_t v___y_262_; lean_object* v___y_263_; uint8_t v___y_264_; lean_object* v___y_265_; uint8_t v___y_285_; lean_object* v___y_286_; lean_object* v___y_287_; uint8_t v___y_288_; lean_object* v___y_289_; uint8_t v___y_290_; lean_object* v___y_291_; uint8_t v___y_295_; uint8_t v___y_296_; uint8_t v___x_306_; uint8_t v___y_308_; uint8_t v___x_314_; 
+lean_object* v___y_221_; lean_object* v___y_222_; lean_object* v___y_223_; lean_object* v___y_224_; uint8_t v___y_225_; uint8_t v___y_226_; lean_object* v___y_227_; lean_object* v_toCold_228_; lean_object* v___y_229_; lean_object* v___y_258_; lean_object* v___y_259_; lean_object* v___y_260_; lean_object* v___y_261_; uint8_t v___y_262_; uint8_t v___y_263_; uint8_t v___y_264_; lean_object* v___y_265_; lean_object* v___y_285_; lean_object* v___y_286_; uint8_t v___y_287_; uint8_t v___y_288_; lean_object* v___y_289_; uint8_t v___y_290_; lean_object* v___y_291_; uint8_t v___y_295_; uint8_t v___y_296_; uint8_t v___x_306_; uint8_t v___y_308_; uint8_t v___x_314_; 
 v___x_306_ = 2;
 v___x_314_ = l_Lean_instBEqMessageSeverity_beq(v_severity_213_, v___x_306_);
 if (v___x_314_ == 0)
@@ -1110,13 +1110,13 @@ lean_ctor_set(v___x_232_, 1, v_openDecls_231_);
 v___x_233_ = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(v___x_233_, 0, v___x_232_);
 lean_ctor_set(v___x_233_, 1, v___y_222_);
-lean_inc_ref(v___y_224_);
 lean_inc_ref(v___y_223_);
+lean_inc_ref(v___y_224_);
 v___x_234_ = lean_alloc_ctor(0, 5, 3);
-lean_ctor_set(v___x_234_, 0, v___y_223_);
+lean_ctor_set(v___x_234_, 0, v___y_224_);
 lean_ctor_set(v___x_234_, 1, v___y_227_);
 lean_ctor_set(v___x_234_, 2, v___y_221_);
-lean_ctor_set(v___x_234_, 3, v___y_224_);
+lean_ctor_set(v___x_234_, 3, v___y_223_);
 lean_ctor_set(v___x_234_, 4, v___x_233_);
 lean_ctor_set_uint8(v___x_234_, sizeof(void*)*5, v___y_225_);
 lean_ctor_set_uint8(v___x_234_, sizeof(void*)*5 + 1, v___y_226_);
@@ -1197,8 +1197,8 @@ return v___x_254_;
 v___jp_257_:
 {
 lean_object* v_fileName_266_; lean_object* v_fileMap_267_; lean_object* v___x_268_; lean_object* v___x_269_; lean_object* v_a_270_; lean_object* v___x_272_; uint8_t v_isShared_273_; uint8_t v_isSharedCheck_283_; 
-v_fileName_266_ = lean_ctor_get(v___y_263_, 0);
-v_fileMap_267_ = lean_ctor_get(v___y_263_, 1);
+v_fileName_266_ = lean_ctor_get(v___y_260_, 0);
+v_fileMap_267_ = lean_ctor_get(v___y_260_, 1);
 v___x_268_ = l___private_Lean_Log_0__Lean_MessageData_appendDescriptionWidgetIfNamed(v_msgData_212_);
 v___x_269_ = l_Lean_addMessageContextFull___at___00Lean_logAt___at___00Lean_log___at___00Lean_Server_Test_Cancel___aux__Lean__Server__Test__Cancel______elabRules__Lean__Server__Test__Cancel__tacticWait__for__cancel__once__1_spec__1_spec__1_spec__4(v___x_268_, v___y_215_, v___y_216_, v___y_217_, v___y_218_);
 v_a_270_ = lean_ctor_get(v___x_269_, 0);
@@ -1221,25 +1221,25 @@ v_resetjp_271_:
 {
 lean_object* v___x_274_; lean_object* v___x_275_; lean_object* v___x_276_; lean_object* v___x_277_; 
 lean_inc_ref_n(v_fileMap_267_, 2);
-v___x_274_ = l_Lean_FileMap_toPosition(v_fileMap_267_, v___y_260_);
-lean_dec(v___y_260_);
+v___x_274_ = l_Lean_FileMap_toPosition(v_fileMap_267_, v___y_261_);
+lean_dec(v___y_261_);
 v___x_275_ = l_Lean_FileMap_toPosition(v_fileMap_267_, v___y_265_);
 lean_dec(v___y_265_);
 v___x_276_ = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(v___x_276_, 0, v___x_275_);
 v___x_277_ = ((lean_object*)(l_Lean_logAt___at___00Lean_log___at___00Lean_Server_Test_Cancel___aux__Lean__Server__Test__Cancel______elabRules__Lean__Server__Test__Cancel__tacticWait__for__cancel__once__1_spec__1_spec__1___redArg___closed__0));
-if (v___y_261_ == 0)
+if (v___y_264_ == 0)
 {
 lean_del_object(v___x_272_);
-lean_dec_ref(v___y_258_);
+lean_dec_ref(v___y_259_);
 v___y_221_ = v___x_276_;
 v___y_222_ = v_a_270_;
-v___y_223_ = v_fileName_266_;
-v___y_224_ = v___x_277_;
+v___y_223_ = v___x_277_;
+v___y_224_ = v_fileName_266_;
 v___y_225_ = v___y_262_;
-v___y_226_ = v___y_264_;
+v___y_226_ = v___y_263_;
 v___y_227_ = v___x_274_;
-v_toCold_228_ = v___y_259_;
+v_toCold_228_ = v___y_258_;
 v___y_229_ = v___y_218_;
 goto v___jp_220_;
 }
@@ -1247,7 +1247,7 @@ else
 {
 uint8_t v___x_278_; 
 lean_inc(v_a_270_);
-v___x_278_ = l_Lean_MessageData_hasTag(v___y_258_, v_a_270_);
+v___x_278_ = l_Lean_MessageData_hasTag(v___y_259_, v_a_270_);
 if (v___x_278_ == 0)
 {
 lean_object* v___x_279_; lean_object* v___x_281_; 
@@ -1279,12 +1279,12 @@ else
 lean_del_object(v___x_272_);
 v___y_221_ = v___x_276_;
 v___y_222_ = v_a_270_;
-v___y_223_ = v_fileName_266_;
-v___y_224_ = v___x_277_;
+v___y_223_ = v___x_277_;
+v___y_224_ = v_fileName_266_;
 v___y_225_ = v___y_262_;
-v___y_226_ = v___y_264_;
+v___y_226_ = v___y_263_;
 v___y_227_ = v___x_274_;
-v_toCold_228_ = v___y_259_;
+v_toCold_228_ = v___y_258_;
 v___y_229_ = v___y_218_;
 goto v___jp_220_;
 }
@@ -1299,13 +1299,13 @@ lean_dec(v___y_289_);
 if (lean_obj_tag(v___x_292_) == 0)
 {
 lean_inc(v___y_291_);
-v___y_258_ = v___y_286_;
-v___y_259_ = v___y_287_;
-v___y_260_ = v___y_291_;
-v___y_261_ = v___y_285_;
+v___y_258_ = v___y_285_;
+v___y_259_ = v___y_286_;
+v___y_260_ = v___y_285_;
+v___y_261_ = v___y_291_;
 v___y_262_ = v___y_288_;
-v___y_263_ = v___y_287_;
-v___y_264_ = v___y_290_;
+v___y_263_ = v___y_290_;
+v___y_264_ = v___y_287_;
 v___y_265_ = v___y_291_;
 goto v___jp_257_;
 }
@@ -1315,13 +1315,13 @@ lean_object* v_val_293_;
 v_val_293_ = lean_ctor_get(v___x_292_, 0);
 lean_inc(v_val_293_);
 lean_dec_ref_known(v___x_292_, 1);
-v___y_258_ = v___y_286_;
-v___y_259_ = v___y_287_;
-v___y_260_ = v___y_291_;
-v___y_261_ = v___y_285_;
+v___y_258_ = v___y_285_;
+v___y_259_ = v___y_286_;
+v___y_260_ = v___y_285_;
+v___y_261_ = v___y_291_;
 v___y_262_ = v___y_288_;
-v___y_263_ = v___y_287_;
-v___y_264_ = v___y_290_;
+v___y_263_ = v___y_290_;
+v___y_264_ = v___y_287_;
 v___y_265_ = v_val_293_;
 goto v___jp_257_;
 }
@@ -1341,9 +1341,9 @@ if (lean_obj_tag(v___x_303_) == 0)
 {
 lean_object* v___x_304_; 
 v___x_304_ = lean_unsigned_to_nat(0u);
-v___y_285_ = v_suppressElabErrors_299_;
+v___y_285_ = v_toCold_297_;
 v___y_286_ = v___f_301_;
-v___y_287_ = v_toCold_297_;
+v___y_287_ = v_suppressElabErrors_299_;
 v___y_288_ = v___y_295_;
 v___y_289_ = v_ref_302_;
 v___y_290_ = v___y_296_;
@@ -1356,9 +1356,9 @@ lean_object* v_val_305_;
 v_val_305_ = lean_ctor_get(v___x_303_, 0);
 lean_inc(v_val_305_);
 lean_dec_ref_known(v___x_303_, 1);
-v___y_285_ = v_suppressElabErrors_299_;
+v___y_285_ = v_toCold_297_;
 v___y_286_ = v___f_301_;
-v___y_287_ = v_toCold_297_;
+v___y_287_ = v_suppressElabErrors_299_;
 v___y_288_ = v___y_295_;
 v___y_289_ = v_ref_302_;
 v___y_290_ = v___y_296_;
@@ -1844,9 +1844,9 @@ lean_object* v___y_505_ = _args[16];
 lean_object* v___y_506_ = _args[17];
 _start:
 {
-uint8_t v___x_14739__boxed_507_; lean_object* v_res_508_; 
-v___x_14739__boxed_507_ = lean_unbox(v___x_494_);
-v_res_508_ = l_Lean_Server_Test_Cancel___aux__Lean__Server__Test__Cancel______elabRules__Lean__Server__Test__Cancel__tacticWait__for__cancel__once__1___lam__0(v___x_489_, v___x_490_, v___x_491_, v___x_492_, v___x_493_, v___x_14739__boxed_507_, v___x_495_, v_val_496_, v_x_497_, v___y_498_, v___y_499_, v___y_500_, v___y_501_, v___y_502_, v___y_503_, v___y_504_, v___y_505_);
+uint8_t v___x_14746__boxed_507_; lean_object* v_res_508_; 
+v___x_14746__boxed_507_ = lean_unbox(v___x_494_);
+v_res_508_ = l_Lean_Server_Test_Cancel___aux__Lean__Server__Test__Cancel______elabRules__Lean__Server__Test__Cancel__tacticWait__for__cancel__once__1___lam__0(v___x_489_, v___x_490_, v___x_491_, v___x_492_, v___x_493_, v___x_14746__boxed_507_, v___x_495_, v_val_496_, v_x_497_, v___y_498_, v___y_499_, v___y_500_, v___y_501_, v___y_502_, v___y_503_, v___y_504_, v___y_505_);
 lean_dec(v___y_505_);
 lean_dec_ref(v___y_504_);
 lean_dec(v___y_503_);

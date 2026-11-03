@@ -2718,8 +2718,8 @@ return v___x_860_;
 }
 default: 
 {
-lean_dec(v_val_813_);
 lean_dec_ref_known(v___x_812_, 1);
+lean_dec(v_val_813_);
 lean_dec(v_constName_800_);
 goto v___jp_806_;
 }

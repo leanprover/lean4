@@ -61,7 +61,7 @@ uint8_t l_Lean_Environment_containsOnBranch(lean_object*, lean_object*);
 lean_object* l_Lean_executeReservedNameAction(lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_whnfD(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_isDefEqD(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_isDefEqI(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_indentExpr(lean_object*);
 lean_object* l_Lean_Meta_Sym_getConfig___redArg(lean_object*);
 lean_object* l_Lean_Meta_Sym_reportIssue(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -4330,7 +4330,7 @@ v_a_1392_ = lean_ctor_get(v___x_1391_, 0);
 lean_inc(v_a_1392_);
 lean_dec_ref_known(v___x_1391_, 1);
 lean_inc(v_a_1388_);
-v___x_1393_ = l_Lean_Meta_isDefEqD(v_a_1388_, v_a_1392_, v_a_1380_, v_a_1381_, v_a_1382_, v_a_1383_);
+v___x_1393_ = l_Lean_Meta_isDefEqI(v_a_1388_, v_a_1392_, v_a_1380_, v_a_1381_, v_a_1382_, v_a_1383_);
 if (lean_obj_tag(v___x_1393_) == 0)
 {
 lean_object* v_a_1394_; uint8_t v___x_1395_; 

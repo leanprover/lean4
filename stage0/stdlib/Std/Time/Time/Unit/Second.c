@@ -17,12 +17,14 @@ lean_object* lean_nat_to_int(lean_object*);
 uint8_t lean_int_dec_le(lean_object*, lean_object*);
 uint8_t lean_int_dec_lt(lean_object*, lean_object*);
 uint8_t lean_int_dec_eq(lean_object*, lean_object*);
+lean_object* lean_int_div(lean_object*, lean_object*);
 lean_object* l_Int_neg___boxed(lean_object*);
 lean_object* l_Int_sub___boxed(lean_object*, lean_object*);
 lean_object* lean_int_add(lean_object*, lean_object*);
 lean_object* l_Int_repr(lean_object*);
 lean_object* l_Repr_addAppParen(lean_object*, lean_object*);
 lean_object* l_Int_repr___boxed(lean_object*);
+lean_object* lean_int_mul(lean_object*, lean_object*);
 lean_object* lean_int_sub(lean_object*, lean_object*);
 lean_object* l_Std_Time_Internal_instInhabitedUnitVal_default___redArg();
 lean_object* lean_int_neg(lean_object*);
@@ -139,6 +141,36 @@ LEAN_EXPORT lean_object* l_Std_Time_Second_instOrdOffset___aux__1___boxed(lean_o
 static const lean_closure_object l_Std_Time_Second_instOrdOffset___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Std_Time_Second_instOrdOffset___aux__1___boxed, .m_arity = 2, .m_num_fixed = 0, .m_objs = {} };
 static const lean_object* l_Std_Time_Second_instOrdOffset___closed__0 = (const lean_object*)&l_Std_Time_Second_instOrdOffset___closed__0_value;
 LEAN_EXPORT const lean_object* l_Std_Time_Second_instOrdOffset = (const lean_object*)&l_Std_Time_Second_instOrdOffset___closed__0_value;
+LEAN_EXPORT lean_object* l_Std_Time_Second_instHMulIntOffset___aux__1(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Time_Second_instHMulIntOffset___aux__1___boxed(lean_object*, lean_object*);
+static const lean_closure_object l_Std_Time_Second_instHMulIntOffset___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Std_Time_Second_instHMulIntOffset___aux__1___boxed, .m_arity = 2, .m_num_fixed = 0, .m_objs = {} };
+static const lean_object* l_Std_Time_Second_instHMulIntOffset___closed__0 = (const lean_object*)&l_Std_Time_Second_instHMulIntOffset___closed__0_value;
+LEAN_EXPORT const lean_object* l_Std_Time_Second_instHMulIntOffset = (const lean_object*)&l_Std_Time_Second_instHMulIntOffset___closed__0_value;
+LEAN_EXPORT lean_object* l_Std_Time_Second_instHMulOffsetInt___aux__1(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Time_Second_instHMulOffsetInt___aux__1___boxed(lean_object*, lean_object*);
+static const lean_closure_object l_Std_Time_Second_instHMulOffsetInt___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Std_Time_Second_instHMulOffsetInt___aux__1___boxed, .m_arity = 2, .m_num_fixed = 0, .m_objs = {} };
+static const lean_object* l_Std_Time_Second_instHMulOffsetInt___closed__0 = (const lean_object*)&l_Std_Time_Second_instHMulOffsetInt___closed__0_value;
+LEAN_EXPORT const lean_object* l_Std_Time_Second_instHMulOffsetInt = (const lean_object*)&l_Std_Time_Second_instHMulOffsetInt___closed__0_value;
+LEAN_EXPORT lean_object* l_Std_Time_Second_instHMulNatOffset___aux__1(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Time_Second_instHMulNatOffset___aux__1___boxed(lean_object*, lean_object*);
+static const lean_closure_object l_Std_Time_Second_instHMulNatOffset___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Std_Time_Second_instHMulNatOffset___aux__1___boxed, .m_arity = 2, .m_num_fixed = 0, .m_objs = {} };
+static const lean_object* l_Std_Time_Second_instHMulNatOffset___closed__0 = (const lean_object*)&l_Std_Time_Second_instHMulNatOffset___closed__0_value;
+LEAN_EXPORT const lean_object* l_Std_Time_Second_instHMulNatOffset = (const lean_object*)&l_Std_Time_Second_instHMulNatOffset___closed__0_value;
+LEAN_EXPORT lean_object* l_Std_Time_Second_instHMulOffsetNat___aux__1(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Time_Second_instHMulOffsetNat___aux__1___boxed(lean_object*, lean_object*);
+static const lean_closure_object l_Std_Time_Second_instHMulOffsetNat___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Std_Time_Second_instHMulOffsetNat___aux__1___boxed, .m_arity = 2, .m_num_fixed = 0, .m_objs = {} };
+static const lean_object* l_Std_Time_Second_instHMulOffsetNat___closed__0 = (const lean_object*)&l_Std_Time_Second_instHMulOffsetNat___closed__0_value;
+LEAN_EXPORT const lean_object* l_Std_Time_Second_instHMulOffsetNat = (const lean_object*)&l_Std_Time_Second_instHMulOffsetNat___closed__0_value;
+LEAN_EXPORT lean_object* l_Std_Time_Second_instHDivOffsetInt___aux__1(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Time_Second_instHDivOffsetInt___aux__1___boxed(lean_object*, lean_object*);
+static const lean_closure_object l_Std_Time_Second_instHDivOffsetInt___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Std_Time_Second_instHDivOffsetInt___aux__1___boxed, .m_arity = 2, .m_num_fixed = 0, .m_objs = {} };
+static const lean_object* l_Std_Time_Second_instHDivOffsetInt___closed__0 = (const lean_object*)&l_Std_Time_Second_instHDivOffsetInt___closed__0_value;
+LEAN_EXPORT const lean_object* l_Std_Time_Second_instHDivOffsetInt = (const lean_object*)&l_Std_Time_Second_instHDivOffsetInt___closed__0_value;
+LEAN_EXPORT lean_object* l_Std_Time_Second_instHDivOffsetNat___aux__1(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Time_Second_instHDivOffsetNat___aux__1___boxed(lean_object*, lean_object*);
+static const lean_closure_object l_Std_Time_Second_instHDivOffsetNat___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Std_Time_Second_instHDivOffsetNat___aux__1___boxed, .m_arity = 2, .m_num_fixed = 0, .m_objs = {} };
+static const lean_object* l_Std_Time_Second_instHDivOffsetNat___closed__0 = (const lean_object*)&l_Std_Time_Second_instHDivOffsetNat___closed__0_value;
+LEAN_EXPORT const lean_object* l_Std_Time_Second_instHDivOffsetNat = (const lean_object*)&l_Std_Time_Second_instHDivOffsetNat___closed__0_value;
 LEAN_EXPORT lean_object* l_Std_Time_Second_Offset_ofNat(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Second_Offset_ofInt(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Second_Offset_ofInt___boxed(lean_object*);
@@ -1038,144 +1070,255 @@ v_r_298_ = lean_box(v_res_297_);
 return v_r_298_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Time_Second_Offset_ofNat(lean_object* v_data_301_){
+LEAN_EXPORT lean_object* l_Std_Time_Second_instHMulIntOffset___aux__1(lean_object* v_n_301_, lean_object* v_x_302_){
 _start:
 {
-lean_object* v___x_302_; 
-v___x_302_ = lean_nat_to_int(v_data_301_);
-return v___x_302_;
+lean_object* v___x_303_; 
+v___x_303_ = lean_int_mul(v_n_301_, v_x_302_);
+return v___x_303_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Time_Second_Offset_ofInt(lean_object* v_data_303_){
+LEAN_EXPORT lean_object* l_Std_Time_Second_instHMulIntOffset___aux__1___boxed(lean_object* v_n_304_, lean_object* v_x_305_){
 _start:
 {
-lean_inc(v_data_303_);
-return v_data_303_;
+lean_object* v_res_306_; 
+v_res_306_ = l_Std_Time_Second_instHMulIntOffset___aux__1(v_n_304_, v_x_305_);
+lean_dec(v_x_305_);
+lean_dec(v_n_304_);
+return v_res_306_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Time_Second_Offset_ofInt___boxed(lean_object* v_data_304_){
+LEAN_EXPORT lean_object* l_Std_Time_Second_instHMulOffsetInt___aux__1(lean_object* v_x_309_, lean_object* v_n_310_){
 _start:
 {
-lean_object* v_res_305_; 
-v_res_305_ = l_Std_Time_Second_Offset_ofInt(v_data_304_);
-lean_dec(v_data_304_);
-return v_res_305_;
+lean_object* v___x_311_; 
+v___x_311_ = lean_int_mul(v_x_309_, v_n_310_);
+return v___x_311_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Time_Second_Ordinal_ofInt___redArg(lean_object* v_data_306_){
+LEAN_EXPORT lean_object* l_Std_Time_Second_instHMulOffsetInt___aux__1___boxed(lean_object* v_x_312_, lean_object* v_n_313_){
 _start:
 {
-lean_inc(v_data_306_);
-return v_data_306_;
+lean_object* v_res_314_; 
+v_res_314_ = l_Std_Time_Second_instHMulOffsetInt___aux__1(v_x_312_, v_n_313_);
+lean_dec(v_n_313_);
+lean_dec(v_x_312_);
+return v_res_314_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Time_Second_Ordinal_ofInt___redArg___boxed(lean_object* v_data_307_){
+LEAN_EXPORT lean_object* l_Std_Time_Second_instHMulNatOffset___aux__1(lean_object* v_n_317_, lean_object* v_x_318_){
 _start:
 {
-lean_object* v_res_308_; 
-v_res_308_ = l_Std_Time_Second_Ordinal_ofInt___redArg(v_data_307_);
-lean_dec(v_data_307_);
-return v_res_308_;
+lean_object* v___x_319_; lean_object* v___x_320_; 
+v___x_319_ = lean_nat_to_int(v_n_317_);
+v___x_320_ = lean_int_mul(v___x_319_, v_x_318_);
+lean_dec(v___x_319_);
+return v___x_320_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Time_Second_Ordinal_ofInt(uint8_t v_leap_309_, lean_object* v_data_310_, lean_object* v_h_311_){
+LEAN_EXPORT lean_object* l_Std_Time_Second_instHMulNatOffset___aux__1___boxed(lean_object* v_n_321_, lean_object* v_x_322_){
 _start:
 {
-lean_inc(v_data_310_);
-return v_data_310_;
+lean_object* v_res_323_; 
+v_res_323_ = l_Std_Time_Second_instHMulNatOffset___aux__1(v_n_321_, v_x_322_);
+lean_dec(v_x_322_);
+return v_res_323_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Time_Second_Ordinal_ofInt___boxed(lean_object* v_leap_312_, lean_object* v_data_313_, lean_object* v_h_314_){
+LEAN_EXPORT lean_object* l_Std_Time_Second_instHMulOffsetNat___aux__1(lean_object* v_x_326_, lean_object* v_n_327_){
 _start:
 {
-uint8_t v_leap_boxed_315_; lean_object* v_res_316_; 
-v_leap_boxed_315_ = lean_unbox(v_leap_312_);
-v_res_316_ = l_Std_Time_Second_Ordinal_ofInt(v_leap_boxed_315_, v_data_313_, v_h_314_);
-lean_dec(v_data_313_);
-return v_res_316_;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Time_Second_Ordinal_ofNat___redArg(lean_object* v_data_317_){
-_start:
-{
-lean_object* v___x_318_; 
-v___x_318_ = lean_nat_to_int(v_data_317_);
-return v___x_318_;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Time_Second_Ordinal_ofNat(uint8_t v_leap_319_, lean_object* v_data_320_, lean_object* v_h_321_){
-_start:
-{
-lean_object* v___x_322_; 
-v___x_322_ = lean_nat_to_int(v_data_320_);
-return v___x_322_;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Time_Second_Ordinal_ofNat___boxed(lean_object* v_leap_323_, lean_object* v_data_324_, lean_object* v_h_325_){
-_start:
-{
-uint8_t v_leap_boxed_326_; lean_object* v_res_327_; 
-v_leap_boxed_326_ = lean_unbox(v_leap_323_);
-v_res_327_ = l_Std_Time_Second_Ordinal_ofNat(v_leap_boxed_326_, v_data_324_, v_h_325_);
-return v_res_327_;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Time_Second_Ordinal_ofFin___redArg(lean_object* v_data_328_){
-_start:
-{
-lean_object* v___x_329_; 
-v___x_329_ = lean_nat_to_int(v_data_328_);
+lean_object* v___x_328_; lean_object* v___x_329_; 
+v___x_328_ = lean_nat_to_int(v_n_327_);
+v___x_329_ = lean_int_mul(v_x_326_, v___x_328_);
+lean_dec(v___x_328_);
 return v___x_329_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Time_Second_Ordinal_ofFin(uint8_t v_leap_330_, lean_object* v_data_331_){
+LEAN_EXPORT lean_object* l_Std_Time_Second_instHMulOffsetNat___aux__1___boxed(lean_object* v_x_330_, lean_object* v_n_331_){
 _start:
 {
-lean_object* v___x_332_; 
-v___x_332_ = lean_nat_to_int(v_data_331_);
-return v___x_332_;
+lean_object* v_res_332_; 
+v_res_332_ = l_Std_Time_Second_instHMulOffsetNat___aux__1(v_x_330_, v_n_331_);
+lean_dec(v_x_330_);
+return v_res_332_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Time_Second_Ordinal_ofFin___boxed(lean_object* v_leap_333_, lean_object* v_data_334_){
+LEAN_EXPORT lean_object* l_Std_Time_Second_instHDivOffsetInt___aux__1(lean_object* v_x_335_, lean_object* v_n_336_){
 _start:
 {
-uint8_t v_leap_boxed_335_; lean_object* v_res_336_; 
-v_leap_boxed_335_ = lean_unbox(v_leap_333_);
-v_res_336_ = l_Std_Time_Second_Ordinal_ofFin(v_leap_boxed_335_, v_data_334_);
-return v_res_336_;
+lean_object* v___x_337_; 
+v___x_337_ = lean_int_div(v_x_335_, v_n_336_);
+return v___x_337_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Time_Second_Ordinal_toOffset___redArg(lean_object* v_ordinal_337_){
+LEAN_EXPORT lean_object* l_Std_Time_Second_instHDivOffsetInt___aux__1___boxed(lean_object* v_x_338_, lean_object* v_n_339_){
 _start:
 {
-lean_inc(v_ordinal_337_);
-return v_ordinal_337_;
+lean_object* v_res_340_; 
+v_res_340_ = l_Std_Time_Second_instHDivOffsetInt___aux__1(v_x_338_, v_n_339_);
+lean_dec(v_n_339_);
+lean_dec(v_x_338_);
+return v_res_340_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Time_Second_Ordinal_toOffset___redArg___boxed(lean_object* v_ordinal_338_){
+LEAN_EXPORT lean_object* l_Std_Time_Second_instHDivOffsetNat___aux__1(lean_object* v_x_343_, lean_object* v_n_344_){
 _start:
 {
-lean_object* v_res_339_; 
-v_res_339_ = l_Std_Time_Second_Ordinal_toOffset___redArg(v_ordinal_338_);
-lean_dec(v_ordinal_338_);
-return v_res_339_;
+lean_object* v___x_345_; lean_object* v___x_346_; 
+v___x_345_ = lean_nat_to_int(v_n_344_);
+v___x_346_ = lean_int_div(v_x_343_, v___x_345_);
+lean_dec(v___x_345_);
+return v___x_346_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Time_Second_Ordinal_toOffset(uint8_t v_leap_340_, lean_object* v_ordinal_341_){
+LEAN_EXPORT lean_object* l_Std_Time_Second_instHDivOffsetNat___aux__1___boxed(lean_object* v_x_347_, lean_object* v_n_348_){
 _start:
 {
-lean_inc(v_ordinal_341_);
-return v_ordinal_341_;
+lean_object* v_res_349_; 
+v_res_349_ = l_Std_Time_Second_instHDivOffsetNat___aux__1(v_x_347_, v_n_348_);
+lean_dec(v_x_347_);
+return v_res_349_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Time_Second_Ordinal_toOffset___boxed(lean_object* v_leap_342_, lean_object* v_ordinal_343_){
+LEAN_EXPORT lean_object* l_Std_Time_Second_Offset_ofNat(lean_object* v_data_352_){
 _start:
 {
-uint8_t v_leap_boxed_344_; lean_object* v_res_345_; 
-v_leap_boxed_344_ = lean_unbox(v_leap_342_);
-v_res_345_ = l_Std_Time_Second_Ordinal_toOffset(v_leap_boxed_344_, v_ordinal_343_);
-lean_dec(v_ordinal_343_);
-return v_res_345_;
+lean_object* v___x_353_; 
+v___x_353_ = lean_nat_to_int(v_data_352_);
+return v___x_353_;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Time_Second_Offset_ofInt(lean_object* v_data_354_){
+_start:
+{
+lean_inc(v_data_354_);
+return v_data_354_;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Time_Second_Offset_ofInt___boxed(lean_object* v_data_355_){
+_start:
+{
+lean_object* v_res_356_; 
+v_res_356_ = l_Std_Time_Second_Offset_ofInt(v_data_355_);
+lean_dec(v_data_355_);
+return v_res_356_;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Time_Second_Ordinal_ofInt___redArg(lean_object* v_data_357_){
+_start:
+{
+lean_inc(v_data_357_);
+return v_data_357_;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Time_Second_Ordinal_ofInt___redArg___boxed(lean_object* v_data_358_){
+_start:
+{
+lean_object* v_res_359_; 
+v_res_359_ = l_Std_Time_Second_Ordinal_ofInt___redArg(v_data_358_);
+lean_dec(v_data_358_);
+return v_res_359_;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Time_Second_Ordinal_ofInt(uint8_t v_leap_360_, lean_object* v_data_361_, lean_object* v_h_362_){
+_start:
+{
+lean_inc(v_data_361_);
+return v_data_361_;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Time_Second_Ordinal_ofInt___boxed(lean_object* v_leap_363_, lean_object* v_data_364_, lean_object* v_h_365_){
+_start:
+{
+uint8_t v_leap_boxed_366_; lean_object* v_res_367_; 
+v_leap_boxed_366_ = lean_unbox(v_leap_363_);
+v_res_367_ = l_Std_Time_Second_Ordinal_ofInt(v_leap_boxed_366_, v_data_364_, v_h_365_);
+lean_dec(v_data_364_);
+return v_res_367_;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Time_Second_Ordinal_ofNat___redArg(lean_object* v_data_368_){
+_start:
+{
+lean_object* v___x_369_; 
+v___x_369_ = lean_nat_to_int(v_data_368_);
+return v___x_369_;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Time_Second_Ordinal_ofNat(uint8_t v_leap_370_, lean_object* v_data_371_, lean_object* v_h_372_){
+_start:
+{
+lean_object* v___x_373_; 
+v___x_373_ = lean_nat_to_int(v_data_371_);
+return v___x_373_;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Time_Second_Ordinal_ofNat___boxed(lean_object* v_leap_374_, lean_object* v_data_375_, lean_object* v_h_376_){
+_start:
+{
+uint8_t v_leap_boxed_377_; lean_object* v_res_378_; 
+v_leap_boxed_377_ = lean_unbox(v_leap_374_);
+v_res_378_ = l_Std_Time_Second_Ordinal_ofNat(v_leap_boxed_377_, v_data_375_, v_h_376_);
+return v_res_378_;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Time_Second_Ordinal_ofFin___redArg(lean_object* v_data_379_){
+_start:
+{
+lean_object* v___x_380_; 
+v___x_380_ = lean_nat_to_int(v_data_379_);
+return v___x_380_;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Time_Second_Ordinal_ofFin(uint8_t v_leap_381_, lean_object* v_data_382_){
+_start:
+{
+lean_object* v___x_383_; 
+v___x_383_ = lean_nat_to_int(v_data_382_);
+return v___x_383_;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Time_Second_Ordinal_ofFin___boxed(lean_object* v_leap_384_, lean_object* v_data_385_){
+_start:
+{
+uint8_t v_leap_boxed_386_; lean_object* v_res_387_; 
+v_leap_boxed_386_ = lean_unbox(v_leap_384_);
+v_res_387_ = l_Std_Time_Second_Ordinal_ofFin(v_leap_boxed_386_, v_data_385_);
+return v_res_387_;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Time_Second_Ordinal_toOffset___redArg(lean_object* v_ordinal_388_){
+_start:
+{
+lean_inc(v_ordinal_388_);
+return v_ordinal_388_;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Time_Second_Ordinal_toOffset___redArg___boxed(lean_object* v_ordinal_389_){
+_start:
+{
+lean_object* v_res_390_; 
+v_res_390_ = l_Std_Time_Second_Ordinal_toOffset___redArg(v_ordinal_389_);
+lean_dec(v_ordinal_389_);
+return v_res_390_;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Time_Second_Ordinal_toOffset(uint8_t v_leap_391_, lean_object* v_ordinal_392_){
+_start:
+{
+lean_inc(v_ordinal_392_);
+return v_ordinal_392_;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Time_Second_Ordinal_toOffset___boxed(lean_object* v_leap_393_, lean_object* v_ordinal_394_){
+_start:
+{
+uint8_t v_leap_boxed_395_; lean_object* v_res_396_; 
+v_leap_boxed_395_ = lean_unbox(v_leap_393_);
+v_res_396_ = l_Std_Time_Second_Ordinal_toOffset(v_leap_boxed_395_, v_ordinal_394_);
+lean_dec(v_ordinal_394_);
+return v_res_396_;
 }
 }
 lean_object* runtime_initialize_Std_Time_Time_Unit_Nanosecond(uint8_t builtin);

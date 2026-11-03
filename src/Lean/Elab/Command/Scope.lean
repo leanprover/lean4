@@ -45,6 +45,8 @@ structure Scope where
   This is managed by the `variable` command.
   Each binder is represented in `Syntax` form, and it is re-elaborated
   within each command that uses this information.
+  `Lean.Elab.Command.runTermElabM` caches the elaboration and reuses it for the commands of a
+  scope. The reuse gives the same binders as an elaboration.
 
   This is also used by commands, such as `#check`, to create an initial local context,
   even if they do not work with binders per se.

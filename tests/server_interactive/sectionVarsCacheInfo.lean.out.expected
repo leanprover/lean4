@@ -1,0 +1,53 @@
+{"textDocument": {"uri": "file:///sectionVarsCacheInfo.lean"},
+ "position": {"line": 14, "character": 13}}
+[{"targetUri": "file:///sectionVarsCacheInfo.lean",
+  "targetSelectionRange":
+  {"start": {"line": 8, "character": 10}, "end": {"line": 8, "character": 11}},
+  "targetRange":
+  {"start": {"line": 8, "character": 10}, "end": {"line": 8, "character": 11}},
+  "originSelectionRange":
+  {"start": {"line": 14, "character": 13},
+   "end": {"line": 14, "character": 14}}}]
+{"textDocument": {"uri": "file:///sectionVarsCacheInfo.lean"},
+ "position": {"line": 14, "character": 13}}
+[{"range":
+  {"start": {"line": 8, "character": 10}, "end": {"line": 8, "character": 11}},
+  "kind": 1},
+ {"range":
+  {"start": {"line": 10, "character": 13},
+   "end": {"line": 10, "character": 14}},
+  "kind": 1},
+ {"range":
+  {"start": {"line": 10, "character": 17},
+   "end": {"line": 10, "character": 18}},
+  "kind": 1},
+ {"range":
+  {"start": {"line": 12, "character": 13},
+   "end": {"line": 12, "character": 14}},
+  "kind": 1},
+ {"range":
+  {"start": {"line": 12, "character": 17},
+   "end": {"line": 12, "character": 18}},
+  "kind": 1},
+ {"range":
+  {"start": {"line": 14, "character": 13},
+   "end": {"line": 14, "character": 14}},
+  "kind": 1},
+ {"range":
+  {"start": {"line": 14, "character": 17},
+   "end": {"line": 14, "character": 18}},
+  "kind": 1},
+ {"range":
+  {"start": {"line": 18, "character": 16},
+   "end": {"line": 18, "character": 17}},
+  "kind": 1}]
+{"textDocument": {"uri": "file:///sectionVarsCacheInfo.lean"},
+ "position": {"line": 18, "character": 16}}
+[{"targetUri": "file:///sectionVarsCacheInfo.lean",
+  "targetSelectionRange":
+  {"start": {"line": 8, "character": 10}, "end": {"line": 8, "character": 11}},
+  "targetRange":
+  {"start": {"line": 8, "character": 10}, "end": {"line": 8, "character": 11}},
+  "originSelectionRange":
+  {"start": {"line": 18, "character": 16},
+   "end": {"line": 18, "character": 17}}}]

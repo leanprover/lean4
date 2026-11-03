@@ -1356,6 +1356,46 @@ static inline lean_object * lean_byte_array_uset(lean_obj_arg a, size_t i, uint8
     return r;
 }
 
+#if defined(__GNUC__) || defined(__clang__)
+/* Unlike byte-wise or `memcpy` stores, stores through this type cannot alias an object header's
+   `m_rc` under type-based alias analysis, which lets compilers hoist the exclusivity check of
+   `lean_byte_array_uset_uint32_le` out of loops. */
+typedef struct __attribute__((packed)) { uint32_t m_val; } lean_unaligned_uint32;
+#endif
+
+static inline uint32_t lean_byte_array_uget_uint32_le(b_lean_obj_arg a, size_t i) {
+    assert(i + 4 <= lean_sarray_size(a));
+    uint8_t const * p = lean_sarray_cptr(a) + i;
+#if defined(__GNUC__) || defined(__clang__)
+    uint32_t v;
+    __builtin_memcpy(&v, p, sizeof(v));
+#if __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
+    v = __builtin_bswap32(v);
+#endif
+    return v;
+#else
+    return (uint32_t)p[0] | ((uint32_t)p[1] << 8) | ((uint32_t)p[2] << 16) | ((uint32_t)p[3] << 24);
+#endif
+}
+
+static inline lean_obj_res lean_byte_array_uset_uint32_le(lean_obj_arg a, size_t i, uint32_t v) {
+    assert(i + 4 <= lean_sarray_size(a));
+    lean_obj_res r = lean_sarray_ensure_exclusive(a);
+    uint8_t * p = lean_sarray_cptr(r) + i;
+#if defined(__GNUC__) || defined(__clang__)
+#if __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
+    v = __builtin_bswap32(v);
+#endif
+    ((lean_unaligned_uint32 *)p)->m_val = v;
+#else
+    p[0] = (uint8_t)v;
+    p[1] = (uint8_t)(v >> 8);
+    p[2] = (uint8_t)(v >> 16);
+    p[3] = (uint8_t)(v >> 24);
+#endif
+    return r;
+}
+
 static inline lean_obj_res lean_byte_array_set(lean_obj_arg a, b_lean_obj_arg i, uint8_t b) {
     if (!lean_is_scalar(i)) {
         return a;

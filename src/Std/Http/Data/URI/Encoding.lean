@@ -37,6 +37,7 @@ open Http.Internal Char
 Checks if a byte is a valid character in a percent-encoded URI component. Valid characters are
 unreserved characters or the percent sign (for escape sequences).
 -/
+@[inline]
 def isEncodedChar (rule : UInt8 → Bool) (c : UInt8) : Bool :=
   isAsciiByte c ∧ (rule c ∨ isHexDigitByte c ∨ c = '%'.toUInt8)
 
@@ -44,6 +45,7 @@ def isEncodedChar (rule : UInt8 → Bool) (c : UInt8) : Bool :=
 Checks if a byte is valid in a percent-encoded query string component. Extends `isEncodedChar` to also
 allow '+' which represents space in application/x-www-form-urlencoded format.
 -/
+@[inline]
 def isEncodedQueryChar (rule : UInt8 → Bool) (c : UInt8) : Bool :=
   isEncodedChar rule c ∨ c = '+'.toUInt8
 
@@ -55,8 +57,44 @@ that only verifies the character set, not full encoding validity.
 abbrev IsAllowedEncodedChars (rule : UInt8 → Bool) (s : ByteArray) : Prop :=
   s.data.all (isEncodedChar rule)
 
+/--
+Checks that every byte of `s` from index `i` on satisfies `p`, without copying `s.data`.
+-/
+@[specialize]
+def allBytesFrom (p : UInt8 → Bool) (s : ByteArray) (i : Nat) : Bool :=
+  if h : i < s.size then p s[i] && allBytesFrom p s (i + 1) else true
+termination_by s.size - i
+
+theorem allBytesFrom_iff {p : UInt8 → Bool} {s : ByteArray} {i : Nat} :
+    allBytesFrom p s i = true ↔ ∀ j (h : j < s.size), i ≤ j → p s[j] = true := by
+  fun_induction allBytesFrom p s i with
+  | case1 i h ih =>
+    simp only [Bool.and_eq_true, ih]
+    constructor
+    · rintro ⟨h1, h2⟩ j hj hij
+      rcases Nat.eq_or_lt_of_le hij with rfl | hlt
+      · exact h1
+      · exact h2 j hj hlt
+    · intro H
+      exact ⟨H i h (Nat.le_refl _), fun j hj hij => H j hj (Nat.le_of_lt hij)⟩
+  | case2 i h =>
+    simp only [true_iff]
+    intro j hj hij
+    omega
+
+theorem allBytesFrom_zero_iff {p : UInt8 → Bool} {s : ByteArray} :
+    allBytesFrom p s 0 = true ↔ s.data.all p = true := by
+  rw [allBytesFrom_iff, Array.all_eq_true]
+  constructor
+  · intro H j hj
+    have := H j hj (Nat.zero_le _)
+    rwa [ByteArray.getElem_eq_getElem_data] at this
+  · intro H j hj _
+    rw [ByteArray.getElem_eq_getElem_data]
+    exact H j hj
+
 instance : Decidable (IsAllowedEncodedChars r s) :=
-  inferInstanceAs (Decidable (s.data.all (isEncodedChar r) = true))
+  decidable_of_iff (allBytesFrom (isEncodedChar r) s 0 = true) allBytesFrom_zero_iff
 
 /--
 Checks if all characters in a `ByteArray` are allowed in an encoded query parameter. Allows '+' as an
@@ -67,7 +105,7 @@ abbrev IsAllowedEncodedQueryChars (rule : UInt8 → Bool) (s : ByteArray) : Prop
   s.data.all (isEncodedQueryChar rule)
 
 instance : Decidable (IsAllowedEncodedQueryChars r s) :=
-  inferInstanceAs (Decidable (s.data.all (isEncodedQueryChar r) = true))
+  decidable_of_iff (allBytesFrom (isEncodedQueryChar r) s 0 = true) allBytesFrom_zero_iff
 
 /--
 Validates that all percent signs in a byte array are followed by exactly two hexadecimal digits.
@@ -305,6 +343,7 @@ def encode (s : String) : EncodedString r :=
 Attempts to create an `EncodedString` from a `ByteArray`. Returns `some` if the byte array contains only
 valid encoded characters and all percent signs are followed by exactly two hex digits, `none` otherwise.
 -/
+@[inline]
 def ofByteArray? (ba : ByteArray) : Option (EncodedString r) :=
   if h : IsAllowedEncodedChars r ba then
     if isValidPercentEncoding ba then some ⟨ba, h⟩ else none
@@ -423,6 +462,7 @@ private def push (s : EncodedQueryString r) (c : UInt8) (h : isEncodedQueryChar 
 Attempts to create an `EncodedQueryString` from a `ByteArray`. Returns `some` if the byte array contains
 only valid encoded query characters and all percent signs are followed by exactly two hex digits, `none` otherwise.
 -/
+@[inline]
 def ofByteArray? (ba : ByteArray) (r : UInt8 → Bool := isQueryChar) : Option (EncodedQueryString r) :=
   if h : IsAllowedEncodedQueryChars r ba then
     if isValidPercentEncoding ba then some ⟨ba, h⟩ else none
@@ -440,6 +480,7 @@ def ofByteArray! (ba : ByteArray) (r : UInt8 → Bool := isQueryChar) : EncodedQ
 Creates an `EncodedQueryString` from a `String` by checking if it's already a valid percent-encoded string.
 Returns `some` if valid, `none` otherwise.
 -/
+@[inline]
 def ofString? (s : String) (r : UInt8 → Bool := isQueryChar) : Option (EncodedQueryString r) :=
   ofByteArray? s.toUTF8 r
 

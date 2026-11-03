@@ -179,7 +179,7 @@ def parseHttpVersionNumber : Parser (Nat × Nat) := do
   let major ← digit
   skipByte '.'.toUInt8
   let minor ← digit
-  pure ((major.toNat - 48), (minor.toNat - 48))
+  pure (major.toNat - '0'.toNat, minor.toNat - '0'.toNat)
 
 /--
 Parses an HTTP version string and returns the corresponding `Version` value.
@@ -324,6 +324,217 @@ public def parseSingleHeader (limits : H1.Config) : Parser (Option (String × St
     pure none
   else
     some <$> (parseFieldLine limits <* crlf)
+
+/-!
+Fast paths for the common shape of a request line and of a header line. They scan the input
+buffer directly and return `fallback` whenever the input is outside the subset they handle
+(including incomplete input and every error), in which case the caller runs the general parser from
+the same position. Any other result is the one the general parser would produce.
+-/
+
+/--
+Returns the byte at `i`, or `0` past the end.
+-/
+@[inline]
+def byteAt (arr : ByteArray) (i : Nat) : UInt8 :=
+  if h : i < arr.size then arr[i] else 0
+
+/--
+Returns the index of the first byte at or after `i` that does not satisfy `p`, stopping at `stop` or
+at the end of `arr`.
+-/
+@[specialize]
+def scanFrom (p : UInt8 → Bool) (arr : ByteArray) (stop : Nat) (i : Nat) : Nat :=
+  if h : i < stop ∧ i < arr.size then
+    if p arr[i] then scanFrom p arr stop (i + 1) else i
+  else
+    i
+termination_by stop - i
+
+/--
+Checks whether `arr` holds the bytes `b0 b1 b2` at `i`.
+-/
+@[inline]
+def bytes3At (arr : ByteArray) (i : Nat) (b0 b1 b2 : Char) : Bool :=
+  byteAt arr i == b0.toUInt8 && byteAt arr (i + 1) == b1.toUInt8 && byteAt arr (i + 2) == b2.toUInt8
+
+/--
+Recognizes the common methods spelled exactly by `arr[start, stop)`. For a method token followed by
+`SP` this is the result of `parseMethod`.
+-/
+def fastMethod? (arr : ByteArray) (start stop : Nat) : Option Method :=
+  match stop - start with
+  | 3 =>
+    if bytes3At arr start 'G' 'E' 'T' then some .get
+    else if bytes3At arr start 'P' 'U' 'T' then some .put
+    else none
+  | 4 =>
+    if bytes3At arr start 'P' 'O' 'S' && byteAt arr (start + 3) == 'T'.toUInt8 then some .post
+    else if bytes3At arr start 'H' 'E' 'A' && byteAt arr (start + 3) == 'D'.toUInt8 then some .head
+    else none
+  | 5 =>
+    if bytes3At arr start 'P' 'A' 'T' && bytes3At arr (start + 2) 'T' 'C' 'H' then some .patch
+    else if bytes3At arr start 'T' 'R' 'A' && bytes3At arr (start + 2) 'A' 'C' 'E' then some .trace
+    else none
+  | 6 =>
+    if bytes3At arr start 'D' 'E' 'L' && bytes3At arr (start + 3) 'E' 'T' 'E' then some .delete
+    else none
+  | 7 =>
+    if bytes3At arr start 'O' 'P' 'T' && bytes3At arr (start + 3) 'I' 'O' 'N' &&
+        byteAt arr (start + 6) == 'S'.toUInt8 then some .options
+    else if bytes3At arr start 'C' 'O' 'N' && bytes3At arr (start + 3) 'N' 'E' 'C' &&
+        byteAt arr (start + 6) == 'T'.toUInt8 then some .connect
+    else none
+  | _ => none
+
+/--
+Collects the segments of an absolute path from `i` (just after a `/`) to `stop`.
+-/
+partial def fastSegments (arr : ByteArray) (stop : Nat) (config : URI.Config) (i : Nat)
+    (segments : Array URI.EncodedSegment) : Option URI.Path :=
+  let segEnd := scanFrom (fun c => isPChar c || c == '%'.toUInt8) arr stop i
+  if segEnd - i > config.maxSegmentLength then
+    none
+  else
+    match URI.EncodedSegment.ofByteArray? (arr.extract i segEnd) with
+    | none => none
+    | some seg =>
+      let segments := segments.push seg
+      if segments.size > config.maxPathSegments then
+        none
+      else if segEnd ≥ stop then
+        some { segments, absolute := true }
+      else if byteAt arr segEnd == '/'.toUInt8 then
+        if segEnd + 1 ≥ stop then
+          let segments := segments.push .empty
+          if segments.size > config.maxPathSegments then none
+          else some { segments, absolute := true }
+        else
+          fastSegments arr stop config (segEnd + 1) segments
+      else
+        none
+
+/--
+Splits the absolute path `arr[start, stop)` (which starts with `/`) into segments exactly as
+`URI.Parser.parsePath config true true` does, under the default `URI.Config` limits.
+-/
+def fastPath? (arr : ByteArray) (start stop : Nat) : Option URI.Path :=
+  let config : URI.Config := {}
+  if stop - start > config.maxTotalPathLength then
+    none
+  else if start + 1 == stop then
+    some { segments := #[], absolute := true }
+  else
+    fastSegments arr stop config (start + 1) (.emptyWithCapacity 4)
+
+/--
+Result of `parseRequestLineFast`.
+-/
+public inductive FastRequestLine where
+  /--
+  The input is outside the fast path's subset; run the general parser.
+  -/
+  | fallback
+  /--
+  A request line ending just before `stop`.
+  -/
+  | line (method : Method) (target : RequestTarget) (version : Version) (stop : Nat)
+
+/--
+Fast path for `parseRequestLineRawVersion` on a request line with a common method, an origin-form
+target and `HTTP/1.1` or `HTTP/1.0`. Returns the method, target, version and the index just past the
+line's CRLF. Requires the line to fit in `limits.maxStartLineLength`.
+-/
+public def parseRequestLineFast (limits : H1.Config) (arr : ByteArray) (start : Nat) :
+    FastRequestLine :=
+  let size := arr.size
+  let methodEnd := scanFrom (fun b => b ≥ 'A'.toUInt8 && b ≤ 'Z'.toUInt8) arr size start
+  let uriStart := methodEnd + 1
+  if byteAt arr methodEnd != ' '.toUInt8 || byteAt arr uriStart != '/'.toUInt8 then
+    .fallback
+  else
+  match fastMethod? arr start methodEnd with
+  | none => .fallback
+  | some method =>
+  let uriEnd := scanFrom (· != ' '.toUInt8) arr (uriStart + limits.maxUriLength) uriStart
+  let v := uriEnd + 1
+  let stop := v + 10
+  let minor := byteAt arr (v + 7)
+  if !(byteAt arr uriEnd == ' '.toUInt8 && bytes3At arr v 'H' 'T' 'T' &&
+      bytes3At arr (v + 3) 'P' '/' '1' && byteAt arr (v + 6) == '.'.toUInt8 &&
+      (minor == '1'.toUInt8 || minor == '0'.toUInt8) &&
+      byteAt arr (v + 8) == '\r'.toUInt8 && byteAt arr (v + 9) == '\n'.toUInt8 &&
+      stop ≤ size && stop - start ≤ limits.maxStartLineLength) then
+    .fallback
+  else
+  let version := if minor == '1'.toUInt8 then Version.v11 else Version.v10
+  let queryStart := scanFrom (· != '?'.toUInt8) arr uriEnd uriStart
+  match fastPath? arr uriStart queryStart with
+  | none => .fallback
+  | some path =>
+  if queryStart < uriEnd then
+    match URI.Parser.parseQueryRange? arr (queryStart + 1) uriEnd with
+    | none => .fallback
+    | some query => .line method (.originForm path (some query)) version stop
+  else
+    .line method (.originForm path none) version stop
+
+/--
+Result of `parseHeaderLineFast`.
+-/
+public inductive FastHeaderLine where
+  /--
+  The input is outside the fast path's subset; run the general parser.
+  -/
+  | fallback
+  /--
+  The blank line ending the header section, ending just before `stop`.
+  -/
+  | endOfHeaders (stop : Nat)
+  /--
+  A header field line ending just before `stop`.
+  -/
+  | field (name : Header.Name) (value : Header.Value) (stop : Nat)
+
+/--
+Fast path for `parseSingleHeader`. Returns the typed header (or the end of the header section) and the
+index just past the line's CRLF. The typed header is what `Header.Name.ofString?` and
+`Header.Value.ofString?` give for the strings `parseSingleHeader` returns.
+-/
+public def parseHeaderLineFast (limits : H1.Config) (arr : ByteArray) (start : Nat) :
+    FastHeaderLine :=
+  let size := arr.size
+  if byteAt arr start == '\r'.toUInt8 then
+    if start + 1 < size && byteAt arr (start + 1) == '\n'.toUInt8 then .endOfHeaders (start + 2)
+    else .fallback
+  else
+  let nameEnd := scanFrom tcharByte arr size start
+  let valueStart := scanFrom isOwsByte arr size (nameEnd + 1)
+  let valueEnd := scanFrom isFieldVChar arr size valueStart
+  if !(nameEnd > start && nameEnd - start ≤ limits.maxHeaderNameLength &&
+      byteAt arr nameEnd == ':'.toUInt8 &&
+      valueStart - (nameEnd + 1) ≤ limits.maxSpaceSequence &&
+      valueEnd + 1 < size && byteAt arr valueEnd == '\r'.toUInt8 &&
+      byteAt arr (valueEnd + 1) == '\n'.toUInt8 &&
+      valueEnd - valueStart ≤ limits.maxHeaderValueLength) then
+    .fallback
+  else
+  match Header.Name.ofBytes? arr start nameEnd with
+  | none => .fallback
+  | some name =>
+  let bytes := arr.extract valueStart (trimEnd valueStart valueEnd)
+  if h : bytes.IsValidUTF8 then
+    let value := String.fromUTF8 bytes h
+    if hv : Header.Value.isValid value then
+      .field name ⟨value, Header.Value.of_isValid hv⟩ (valueEnd + 2)
+    else
+      .fallback
+  else
+    .fallback
+where
+  trimEnd (lo hi : Nat) : Nat :=
+    if lo < hi ∧ isOwsByte (byteAt arr (hi - 1)) then trimEnd lo (hi - 1) else hi
+  termination_by hi - lo
 
 /--
 Parses a backslash-escaped character inside a quoted-string.
@@ -501,7 +712,7 @@ def parseStatusCode (limits : H1.Config) : Parser Status := do
   let d1 ← digit
   let d2 ← digit
   let d3 ← digit
-  let code := (d1.toNat - 48) * 100 + (d2.toNat - 48) * 10 + (d3.toNat - 48)
+  let code := (d1.toNat - '0'.toNat) * 100 + (d2.toNat - '0'.toNat) * 10 + (d3.toNat - '0'.toNat)
   sp
   let phrase ← parseReasonPhrase limits <* crlf
 

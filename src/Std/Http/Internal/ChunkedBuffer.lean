@@ -50,11 +50,26 @@ def empty : ChunkedBuffer :=
   { data := #[], size := 0 }
 
 /--
-Append a single `ByteArray` to the `ChunkedBuffer`.
+Pieces are copied into the previous piece while both together stay within this many bytes, so that
+small writes (heads, chunk framing, short bodies) end up in one contiguous `ByteArray`.
+-/
+def mergeLimit : Nat := 4096
+
+/--
+Append a single `ByteArray` to the `ChunkedBuffer`. Small pieces are copied into the last piece
+instead of being kept separately.
 -/
 @[inline]
 def push (c : ChunkedBuffer) (b : ByteArray) : ChunkedBuffer :=
-  { data := c.data.push b, size := c.size + b.size }
+  if b.size == 0 then
+    c
+  else if h : 0 < c.data.size then
+    if (c.data[c.data.size - 1]'(Nat.sub_lt h Nat.one_pos)).size + b.size ≤ mergeLimit then
+      { data := c.data.modify (c.data.size - 1) (· ++ b), size := c.size + b.size }
+    else
+      { data := c.data.push b, size := c.size + b.size }
+  else
+    { data := c.data.push b, size := c.size + b.size }
 
 /--
 Writes a `ByteArray` to the `ChunkedBuffer`.
@@ -68,7 +83,7 @@ Writes a `ChunkedBuffer` to the `ChunkedBuffer`.
 -/
 @[inline]
 def append (buffer : ChunkedBuffer) (data : ChunkedBuffer) : ChunkedBuffer :=
-  { data := buffer.data ++ data.data, size := buffer.size + data.size }
+  data.data.foldl push buffer
 
 /--
 Writes a `Char` to the `ChunkedBuffer`. Only the low byte is written (`Char.toUInt8`),
@@ -76,7 +91,13 @@ so this is only correct for ASCII characters.
 -/
 @[inline]
 def writeChar (buffer : ChunkedBuffer) (data : Char) : ChunkedBuffer :=
-  buffer.push (ByteArray.mk #[data.toUInt8])
+  if h : 0 < buffer.data.size then
+    if (buffer.data[buffer.data.size - 1]'(Nat.sub_lt h Nat.one_pos)).size < mergeLimit then
+      { data := buffer.data.modify (buffer.data.size - 1) (·.push data.toUInt8), size := buffer.size + 1 }
+    else
+      { data := buffer.data.push (ByteArray.mk #[data.toUInt8]), size := buffer.size + 1 }
+  else
+    { data := buffer.data.push (ByteArray.mk #[data.toUInt8]), size := buffer.size + 1 }
 
 /--
 Writes a `String` to the `ChunkedBuffer`.

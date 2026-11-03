@@ -44,9 +44,32 @@ private theorem String.toLower_eq_self_iff {s : String} : s.toLower = s ↔ s.to
   rw [List.map_eq_map_iff]
   simp [Char.toLower_eq_self_iff]
 
+/--
+Compiled implementation of `hasNoUpper`. Uppercase characters are ASCII, so it suffices to check
+that no UTF-8 byte is in `'A'..'Z'`.
+-/
+def hasNoUpperImpl (s : String) : Bool :=
+  go 0
+where
+  /-- Checks the bytes from index `i` on. -/
+  go (i : Nat) : Bool :=
+    if h : i < s.utf8ByteSize then
+      let b := s.getUTF8Byte ⟨i⟩ h
+      !(b ≥ 'A'.toUInt8 && b ≤ 'Z'.toUInt8) && go (i + 1)
+    else
+      true
+  termination_by s.utf8ByteSize - i
+
+/--
+Returns `true` if `s` contains no uppercase character.
+-/
+@[implemented_by hasNoUpperImpl]
+def hasNoUpper (s : String) : Bool :=
+  !s.toList.any Char.isUpper
+
 instance : Decidable (IsLowerCase s) :=
-  decidable_of_decidable_of_iff (p := s.toList.any Char.isUpper = false)
-    (by exact String.toLower_eq_self_iff.symm)
+  decidable_of_iff (hasNoUpper s = true)
+    (by simp [hasNoUpper, IsLowerCase, String.toLower_eq_self_iff])
 
 namespace IsLowerCase
 

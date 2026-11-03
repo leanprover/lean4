@@ -45,14 +45,25 @@ class Transport (α : Type) where
   /--
   Close the transport connection.
   The default implementation is a no-op; override this for transports that require explicit teardown.
-  For `Socket.Client`, the runtime closes the file descriptor when the object is finalized.
+  For `Socket.Client`, this shuts down the sending side, and the runtime closes the file descriptor
+  when the object is finalized.
   -/
   close : α → IO Unit := fun _ => pure ()
+
+  /--
+  Makes a pending `recv` return promptly, with `none` or an error. The connection calls it once,
+  when it is cancelled, and does not receive afterwards. When this is `none`, the connection waits
+  on `recvSelector` together with its cancellation instead of calling `recv` directly.
+  -/
+  interruptRecv? : Option (α → IO Unit) := none
 
 instance : Transport Socket.Client where
   recv client expect := client.recv? expect
   sendAll client data := client.sendAll data
   recvSelector client expect := client.recvSelector expect
+  -- A handler still blocked after a shutdown can keep the socket alive, so the peer needs the FIN.
+  close client := discard <| EAsync.toBaseIO client.shutdown
+  interruptRecv? := some fun client => client.native.cancelRecv
 
 namespace Internal
 
@@ -133,6 +144,12 @@ Creates a selector for receiving from a channel.
 def recvSelector (recvChan : Std.CloseableChannel ByteArray) : Selector (Option ByteArray) :=
   recvChan.recvSelector
 
+/--
+Closes a channel, ignoring that a concurrent close may have won.
+-/
+def closeQuietly (chan : Std.CloseableChannel ByteArray) : BaseIO Unit := do
+  discard <| (chan.close).toBaseIO
+
 end Mock
 
 namespace Mock.Client
@@ -177,11 +194,11 @@ def tryRecv? (client : Mock.Client) (_expect : UInt64 := 0) : BaseIO (Option Byt
     return some result
 
 /--
-Closes the mock server and client.
+Closes the mock server and client. Closing twice is a no-op.
 -/
 def close (client : Mock.Client) : IO Unit := do
-  if !(← client.shared.clientToServer.isClosed) then client.shared.clientToServer.close
-  if !(← client.shared.serverToClient.isClosed) then client.shared.serverToClient.close
+  closeQuietly client.shared.clientToServer
+  closeQuietly client.shared.serverToClient
 
 end Mock.Client
 
@@ -227,11 +244,11 @@ def tryRecv? (server : Mock.Server) (_expect : UInt64 := 0) : BaseIO (Option Byt
     return some result
 
 /--
-Closes the mock server and client.
+Closes the mock server and client. Closing twice is a no-op.
 -/
 def close (server : Mock.Server) : IO Unit := do
-  if !(← server.shared.clientToServer.isClosed) then server.shared.clientToServer.close
-  if !(← server.shared.serverToClient.isClosed) then server.shared.serverToClient.close
+  closeQuietly server.shared.clientToServer
+  closeQuietly server.shared.serverToClient
 
 
 end Mock.Server
@@ -241,12 +258,14 @@ instance : Transport Mock.Client where
   sendAll client data := Mock.sendAll (Mock.Client.getSendChan client) data
   recvSelector client _ := Mock.recvSelector (Mock.Client.getRecvChan client)
   close client := client.close
+  interruptRecv? := some fun client => Mock.closeQuietly (Mock.Client.getRecvChan client)
 
 instance : Transport Mock.Server where
   recv server expect := Mock.recvJoined (Mock.Server.getRecvChan server) (some expect)
   sendAll server data := Mock.sendAll (Mock.Server.getSendChan server) data
   recvSelector server _ := Mock.recvSelector (Mock.Server.getRecvChan server)
   close server := server.close
+  interruptRecv? := some fun server => Mock.closeQuietly (Mock.Server.getRecvChan server)
 
 end Internal
 

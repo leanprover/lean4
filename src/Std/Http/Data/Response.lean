@@ -89,17 +89,88 @@ instance : ToString Head where
     toString r.headers ++
     "\r\n"
 
+end Response
+
+namespace Internal
+
+/--
+Appends `name` in canonical form, the same bytes as `Header.Name.toCanonical`: the first letter of
+each `-`-separated part is upper-cased.
+-/
+def appendHeaderName (out : ByteArray) (name : Header.Name) : ByteArray :=
+  go 0 true out
+where
+  go (i : Nat) (upper : Bool) (out : ByteArray) : ByteArray :=
+    if h : i < name.value.utf8ByteSize then
+      let b := name.value.getUTF8Byte ⟨i⟩ h
+      go (i + 1) (b == '-'.toUInt8) (out.push (if upper then b.toAsciiUpper else b))
+    else
+      out
+  termination_by name.value.utf8ByteSize - i
+
+/--
+Appends `\r\n`.
+-/
+@[inline]
+def appendCrlf (out : ByteArray) : ByteArray :=
+  (out.push '\r'.toUInt8).push '\n'.toUInt8
+
+/--
+Appends the header line `Name: value\r\n`.
+-/
+@[inline]
+def appendHeaderLine (out : ByteArray) (name : Header.Name) (value : Header.Value) : ByteArray :=
+  let out := appendHeaderName out name
+  let out := (out.push ':'.toUInt8).push ' '.toUInt8
+  appendCrlf (out ++ value.value.toUTF8)
+
+/--
+Appends every header line of `headers` for which `keep` holds, in order.
+-/
+@[inline]
+def appendHeaderLines (out : ByteArray) (headers : Headers) (keep : Header.Name → Bool := fun _ => true) :
+    ByteArray :=
+  headers.map.entries.foldl (init := out) fun out (name, value) =>
+    if keep name then appendHeaderLine out name value else out
+
+/--
+Appends the decimal digits of `n`.
+-/
+def appendNat (out : ByteArray) (n : Nat) : ByteArray :=
+  if n < 10 then out.push ('0'.toUInt8 + n.toUInt8)
+  else (appendNat out (n / 10)).push ('0'.toUInt8 + (n % 10).toUInt8)
+
+private def versionPrefix : Version → ByteArray
+  | .v10 => "HTTP/1.0 ".toUTF8
+  | .v11 => "HTTP/1.1 ".toUTF8
+  | .v20 => "HTTP/2.0 ".toUTF8
+  | .v30 => "HTTP/3.0 ".toUTF8
+
+/--
+Appends the status line `HTTP/x.y CODE Reason\r\n`.
+-/
+def appendStatusLine (out : ByteArray) (version : Version) (status : Status) : ByteArray :=
+  let out := out ++ versionPrefix version
+  match status with
+  | .ok => out ++ "200 OK\r\n".toUTF8
+  | status =>
+    let out := (appendNat out status.toCode.toNat).push ' '.toUInt8
+    appendCrlf (out ++ status.reasonPhrase.toUTF8)
+
+/--
+Encodes a response head (status line, headers and the empty line) into one `ByteArray`.
+-/
+def encodeResponseHead (r : Response.Head) : ByteArray :=
+  let out := appendStatusLine (.emptyWithCapacity 256) r.version r.status
+  appendCrlf (appendHeaderLines out r.headers)
+
+end Internal
+
+namespace Response
+
 open Std.Http.Internal in
 instance : Encode .v11 Head where
-  encode buffer r :=
-    let buffer := Encode.encode (v := .v11) buffer r.version
-    let buffer := buffer.writeChar ' '
-    let buffer := buffer.writeString (toString r.status.toCode)
-    let buffer := buffer.writeChar ' '
-    let buffer := buffer.writeString r.status.reasonPhrase
-    let buffer := buffer.writeString "\r\n"
-    let buffer := Encode.encode (v := .v11) buffer r.headers
-    buffer.writeString "\r\n"
+  encode buffer r := buffer.push (encodeResponseHead r)
 
 /--
 Creates a new HTTP Response builder with default head (status: 200 OK, version: HTTP/1.1).

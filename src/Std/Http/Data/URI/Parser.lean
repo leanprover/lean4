@@ -301,6 +301,69 @@ private def parseQuery (config : URI.Config) : Parser URI.Query := do
   else
     fail "invalid query string"
 
+/--
+Returns the index of the first byte of `arr` at or after `i` and before `stop` not satisfying `p`.
+-/
+@[specialize]
+private def scanRange (p : UInt8 → Bool) (arr : ByteArray) (stop : Nat) (i : Nat) : Nat :=
+  if h : i < stop ∧ i < arr.size then
+    if p arr[i] then scanRange p arr stop (i + 1) else i
+  else
+    i
+termination_by stop - i
+
+/--
+Splits `arr[start, stop)` (query bytes, no `&`) at its first `=` into an encoded key and optional
+value, as `parseQuery` does for one `&`-separated pair.
+-/
+private def queryPairRange? (arr : ByteArray) (start stop : Nat) :
+    Option (URI.EncodedQueryParam × Option URI.EncodedQueryParam) :=
+  let eq := scanRange (· != '='.toUInt8) arr stop start
+  match URI.EncodedQueryParam.ofByteArray? (arr.extract start eq) with
+  | none => none
+  | some key =>
+    if eq < stop then
+      match URI.EncodedQueryParam.ofByteArray? (arr.extract (eq + 1) stop) with
+      | none => none
+      | some value => some (key, some value)
+    else
+      some (key, none)
+
+/--
+Collects the `&`-separated pairs of `arr[i, stop)` into `query`.
+-/
+private partial def queryPairsRange? (arr : ByteArray) (stop : Nat) (i : Nat) (query : URI.Query) :
+    Option URI.Query :=
+  let amp := scanRange (· != '&'.toUInt8) arr stop i
+  match queryPairRange? arr i amp with
+  | none => none
+  | some (key, value) =>
+    let query := query.insertEncoded key value
+    if amp < stop then queryPairsRange? arr stop (amp + 1) query else some query
+
+/--
+Parses the query component occupying exactly `arr[start, stop)` (the bytes after `?`). Returns `none`
+if it is not a valid query under `config`; otherwise returns what the query parser returns on those
+bytes.
+-/
+def parseQueryRange? (arr : ByteArray) (start stop : Nat) (config : URI.Config := {}) : Option URI.Query :=
+  let valid := scanRange (fun c => isQueryChar c ∨ c = '%'.toUInt8) arr stop start
+  if valid != stop || stop - start > config.maxQueryLength then
+    none
+  else if start == stop then
+    some URI.Query.empty
+  else
+    let pairs := countAmp start 1
+    if pairs > config.maxQueryParams then none
+    else queryPairsRange? arr stop start URI.Query.empty
+where
+  countAmp (i : Nat) (acc : Nat) : Nat :=
+    if h : i < stop ∧ i < arr.size then
+      countAmp (i + 1) (if arr[i] == '&'.toUInt8 then acc + 1 else acc)
+    else
+      acc
+  termination_by stop - i
+
 --  fragment = *( pchar / "/" / "?" )
 private def parseFragment (config : URI.Config) : Parser URI.EncodedFragment := do
   let fragmentBytes ←

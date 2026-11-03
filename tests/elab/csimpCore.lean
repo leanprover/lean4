@@ -53,6 +53,7 @@ info: (Acc.rec, Acc.recC)
 (UInt64.invMod?, UInt64.invModImpl)
 (UInt64.powMod, UInt64.powModImpl)
 (Vector.pmap, Vector.pmapImpl)
+(Std.Http.Internal.isToken, Std.Http.Internal.isTokenImpl)
 (String.Slice.Pos.next, String.Slice.Pos.nextFast)
 -/
 #guard_msgs in

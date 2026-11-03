@@ -50,7 +50,30 @@ instance [h : Header α] : Encode .v11 α where
 
 namespace Header
 
+/--
+Returns the byte of `s` at `i`, or `0` past the end.
+-/
+@[inline]
+private def byteAt (s : String) (i : Nat) : UInt8 :=
+  if h : i < s.utf8ByteSize then s.getUTF8Byte ⟨i⟩ h else 0
+
+/--
+Returns the index of the first byte of `s` at or after `i` and before `stop` that does not satisfy
+`p`.
+-/
+@[specialize]
+private def scanFrom (p : UInt8 → Bool) (s : String) (stop : Nat) (i : Nat) : Nat :=
+  if i < stop ∧ i < s.utf8ByteSize then
+    if p (byteAt s i) then scanFrom p s stop (i + 1) else i
+  else
+    i
+termination_by stop - i
+
 private def parseTokenList (v : Value) : Option (Array String) := do
+  -- A value without commas is a single part; header values have no surrounding whitespace.
+  if scanFrom (· != ','.toUInt8) v.value v.value.utf8ByteSize 0 == v.value.utf8ByteSize then
+    guard (!v.value.isEmpty)
+    return #[if hasNoUpper v.value then v.value else v.value.toLower]
   let rawParts := v.value.split (· == ',')
   let parts := rawParts.map (·.trimAscii)
 
@@ -250,6 +273,84 @@ def parse (v : Value) : Option Host :=
   match parsed with
   | .ok ⟨host, port⟩ => some ⟨host, port⟩
   | .error _ => none
+
+
+/--
+Checks that `s[i, stop)` is the rest of a dotted-quad IPv4 address in the strict form accepted by
+`Net.IPv4Addr.ofString`: decimal octets of at most 255 without leading zeros, `octets` of which are
+already consumed.
+-/
+private partial def isDottedQuad (s : String) (stop : Nat) (i : Nat) (octets : Nat) : Bool :=
+  let e := scanFrom Internal.Char.isDigitByte s stop i
+  let len := e - i
+  let d0 := Internal.Char.digitToNat (byteAt s i)
+  let d1 := Internal.Char.digitToNat (byteAt s (i + 1))
+  let value :=
+    if len == 1 then d0
+    else if len == 2 then d0 * 10 + d1
+    else d0 * 100 + d1 * 10 + Internal.Char.digitToNat (byteAt s (i + 2))
+  if len == 0 || len > 3 || (len > 1 && d0 == 0) || value > 255 then
+    false
+  else if octets == 3 then
+    e == stop
+  else if e < stop && byteAt s e == '.'.toUInt8 then
+    isDottedQuad s stop (e + 1) (octets + 1)
+  else
+    false
+
+/--
+Checks that `s[i, stop)` (letters, digits, `-` and `.`) is the rest of a valid domain name per
+`URI.IsValidDomainName`: dot-separated labels of 1 to 63 alphanumerics and hyphens that start and end
+with an alphanumeric.
+-/
+private partial def isDomainName (s : String) (stop : Nat) (i : Nat) : Bool :=
+  let e := scanFrom (fun b => Internal.Char.isAlphaNum b || b == '-'.toUInt8) s stop i
+  let len := e - i
+  if len == 0 || len > 63 || !Internal.Char.isAlphaNum (byteAt s i) ||
+      !Internal.Char.isAlphaNum (byteAt s (e - 1)) then
+    false
+  else if e == stop then
+    true
+  else if e < stop && byteAt s e == '.'.toUInt8 then
+    isDomainName s stop (e + 1)
+  else
+    false
+
+/--
+Decides the common shapes of a `Host` value without running the parser: a dotted-quad IPv4 address
+or a domain name starting with a letter, optionally followed by `:` and a port. Returns `true` only if
+`parse` succeeds on the value; `false` means undecided.
+-/
+private def surelyValid (s : String) : Bool :=
+  let n := s.utf8ByteSize
+  let hostEnd := scanFrom (fun b => Internal.Char.isAlphaNum b || b == '-'.toUInt8 || b == '.'.toUInt8) s n 0
+  let first := byteAt s 0
+  let hostOk :=
+    if Internal.Char.isDigitByte first then
+      -- Four octets covering the host part are also the IPv4 parser's maximal digit/dot run.
+      isDottedQuad s hostEnd 0 0
+    else
+      Internal.Char.isAlphaByte first && hostEnd ≤ 253 && isDomainName s hostEnd 0
+  let portOk :=
+    if hostEnd == n then
+      true
+    else if byteAt s hostEnd == ':'.toUInt8 then
+      let digitsEnd := scanFrom Internal.Char.isDigitByte s n (hostEnd + 1)
+      digitsEnd == n && n - (hostEnd + 1) ≤ 5 &&
+        (go (hostEnd + 1) 0 ≤ 65535)
+    else
+      false
+  hostOk && portOk
+where
+  go (i : Nat) (acc : Nat) : Nat :=
+    if i < s.utf8ByteSize then go (i + 1) (acc * 10 + Internal.Char.digitToNat (byteAt s i)) else acc
+  termination_by s.utf8ByteSize - i
+
+/--
+Returns `true` if `parse v` succeeds, deciding the common shapes without running the parser.
+-/
+def isValid (v : Value) : Bool :=
+  surelyValid v.value || (parse v).isSome
 
 /--
 Serializes a `Host` header back to a name and a value.

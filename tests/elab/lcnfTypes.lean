@@ -79,6 +79,8 @@ def Term.constFold : Term ctx ty → Term ctx ty
     | const n, const m => const (n+m)
     | a',      b'      => plus a' b'
 
+def mkQuot (x : Nat) : Squash UInt8 := .mk x.toUInt8
+
 #eval test ``Term.constFold
 #eval test ``Term.denote
 #eval test ``HList.get
@@ -92,6 +94,7 @@ def Term.constFold : Term ctx ty → Term ctx ty
 #eval test ``Lean.Meta.inferType
 #eval test ``Elab.Term.elabTerm
 #eval test ``Nat.add
+#eval test ``mkQuot
 
 structure Magma where
   carrier : Type
@@ -134,3 +137,4 @@ set_option pp.explicit true
 #eval testMono ``Elab.Term.elabTerm
 #eval testMono ``Nat.add
 #eval testMono ``Fin.add
+#eval testMono ``mkQuot

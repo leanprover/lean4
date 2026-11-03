@@ -70,7 +70,9 @@ where
     | .const ``lcErased _ => return erasedExpr
     | .const ``lcAny _ => return anyExpr
     | .const declName us =>
-      if let some info ← hasTrivialStructure? declName then
+      if declName == ``Quot then
+        toMonoType (args[0]?.getD anyExpr)
+      else if let some info ← hasTrivialStructure? declName then
         let ctorType ← getOtherDeclBaseType info.ctorName []
         toMonoType (getParamTypes (← instantiateForall ctorType args[*...info.numParams]))[info.fieldIdx]!
       else

@@ -29,7 +29,7 @@ unsafe axiom lcErased : Type
 /-- Marker for type dependency that has been erased by the code generator. -/
 unsafe axiom lcAny : Type
 
-/-- Internal representation of `Void` in the compiler. -/
+/-- Internal representation of `ST.Internal.Void` in the compiler. -/
 unsafe axiom lcVoid : Type
 
 set_option bootstrap.inductiveCheckResultingUniverse false in

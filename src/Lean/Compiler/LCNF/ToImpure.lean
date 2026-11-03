@@ -26,12 +26,12 @@ builtin_initialize taggedReturnAttr : TagAttribute ←
 structure BuilderState where
   /--
   We keep around a substitution here because we run a second trivial structure elimination when
-  converting to impure. This elimination is aware of the fact that `Void` is irrelevant while the first
-  one in isn't because we are still pure. However, impure does not allow us to have bindings of
-  the form `let x := y` which might occur when for example projecting out of a trivial structure
-  where previously a binding would've been `let x := proj y i` and now becomes `let x := y`.
-  For this reason we carry around these kinds of bindings in this substitution and apply it whenever
-  we access an fvar in the conversion.
+  converting to impure. This elimination is aware of the fact that `ST.Internal.Void` is irrelevant
+  while the first one in isn't because we are still pure. However, impure does not allow us to have
+  bindings of the form `let x := y` which might occur when for example projecting out of a trivial
+  structure where previously a binding would've been `let x := proj y i` and now becomes
+  `let x := y`. For this reason we carry around these kinds of bindings in this substitution and
+  apply it whenever we access an fvar in the conversion.
   -/
   subst : LCNF.FVarSubst .pure := {}
   /--

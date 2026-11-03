@@ -18,6 +18,7 @@ public import Std.Data.ExtHashSet
 public import Std.Data.ExtDTreeMap
 public import Std.Data.ExtTreeMap
 public import Std.Data.ExtTreeSet
+public import Std.Data.Nat.Big
 
 -- The imports above only import the modules needed to work with the version which bundles
 -- the well-formedness invariant, so we need to additionally import the files that deal with the

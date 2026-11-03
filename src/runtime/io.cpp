@@ -1747,9 +1747,6 @@ extern "C" LEAN_EXPORT obj_res lean_runtime_deep_copy(b_obj_arg o) {
                 memcpy(lean_to_string(new_o)->m_data, lean_to_string(src)->m_data, sz);
                 break;
             }
-            case LeanMPZ:
-                new_o = alloc_mpz(mpz_value(src));
-                break;
             case LeanClosure: {
                 unsigned num_fixed = lean_closure_num_fixed(src);
                 // the code pointer `m_fun` is shared with the input; only captured values are copied

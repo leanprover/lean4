@@ -7,7 +7,8 @@ Author: Leonardo de Moura
 #pragma once
 #include <string>
 #include <lean/lean.h>
-#include "runtime/mpz.h"
+#include "runtime/int.h"
+#include "runtime/debug.h"
 
 namespace lean {
 
@@ -17,13 +18,6 @@ typedef object * b_obj_arg;
 typedef object * u_obj_arg;
 typedef object * obj_res;
 typedef object * b_obj_res;
-
-struct mpz_object {
-    lean_object m_header;
-    mpz         m_value;
-    mpz_object() {}
-    explicit mpz_object(mpz const & m):m_value(m) {}
-};
 
 typedef lean_external_class         external_object_class;
 typedef lean_external_finalize_proc external_object_finalize_proc;
@@ -56,7 +50,6 @@ inline bool is_closure(object * o) { return lean_is_closure(o); }
 inline bool is_array(object * o) { return lean_is_array(o); }
 inline bool is_sarray(object * o) { return lean_is_sarray(o); }
 inline bool is_string(object * o) { return lean_is_string(o); }
-inline bool is_mpz(object * o) { return lean_is_mpz(o); }
 inline bool is_thunk(object * o) { return lean_is_thunk(o); }
 inline bool is_task(object * o) { return lean_is_task(o); }
 inline bool is_external(object * o) { return lean_is_external(o); }
@@ -170,12 +163,6 @@ inline object* apply_16(object* f, object* a1, object* a2, object* a3, object* a
 inline object* apply_n(object* f, unsigned n, object** args) { return lean_apply_n(f, n, args); }
 // pre: n > 16
 inline object* apply_m(object* f, unsigned n, object** args) { return lean_apply_m(f, n, args); }
-
-// =======================================
-// MPZ
-
-LEAN_EXPORT object * alloc_mpz(mpz const &);
-inline mpz_object * to_mpz(object * o) { lean_assert(is_mpz(o)); return (mpz_object*)o; }
 
 // =======================================
 // Array of objects
@@ -313,15 +300,6 @@ inline obj_res mk_except_err(obj_arg v) { obj_res r = alloc_cnstr(0, 1, 0); cnst
 // =======================================
 // Natural numbers
 
-inline mpz const & mpz_value(b_obj_arg o) { return to_mpz(o)->m_value; }
-LEAN_EXPORT object * mpz_to_nat_core(mpz const & m);
-inline object * mk_nat_obj_core(mpz const & m) { return mpz_to_nat_core(m); }
-inline obj_res mk_nat_obj(mpz const & m) {
-    if (m.is_size_t() && m.get_size_t() <= LEAN_MAX_SMALL_NAT)
-        return box(m.get_size_t());
-    else
-        return mk_nat_obj_core(m);
-}
 inline obj_res usize_to_nat(usize n) { return lean_usize_to_nat(n); }
 inline obj_res mk_nat_obj(unsigned n) { return lean_unsigned_to_nat(n); }
 inline obj_res uint64_to_nat(uint64 n) { return lean_uint64_to_nat(n); }
@@ -346,13 +324,6 @@ inline obj_res nat_lxor(b_obj_arg a1, b_obj_arg a2) { return lean_nat_lxor(a1, a
 
 // =======================================
 // Integers
-LEAN_EXPORT object * mk_int_obj_core(mpz const & m);
-inline obj_res mk_int_obj(mpz const & m) {
-    if (m < LEAN_MIN_SMALL_INT || m > LEAN_MAX_SMALL_INT)
-        return mk_int_obj_core(m);
-    else
-        return box(static_cast<unsigned>(m.get_int()));
-}
 inline obj_res mk_int_obj(int n) { return lean_int_to_int(n); }
 inline obj_res mk_int_obj(int64 n) { return lean_int64_to_int(n); }
 inline obj_res nat2int(obj_arg a) { return lean_nat_to_int(a); }

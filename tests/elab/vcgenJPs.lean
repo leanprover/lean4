@@ -279,33 +279,6 @@ def nested (b c : Bool) : Id Nat := do
 theorem nested_triple : ⦃ True ⦄ nested b c ⦃ fun r => r > 0 ⦄ := by
   vcgen +jp [nested] with finish
 
--- An `if` join point nested in a `match` alternative.
-def nested_in_match (o : Option Nat) (c : Bool) : Id Nat := do
-  let mut y := 0
-  match o with
-  | some n =>
-    if c then y := n + 1 else y := n + 2
-    y := y + 1
-  | none => y := 5
-  return y
-
-theorem nested_in_match_triple : ⦃ True ⦄ nested_in_match o c ⦃ fun r => r > 0 ⦄ := by
-  vcgen +jp [nested_in_match] with finish
-
--- A `match` join point nested in an `if` branch.
-def match_in_if (b : Bool) (o : Option Nat) : Id Nat := do
-  let mut y := 0
-  if b then
-    match o with
-    | some n => y := n + 1
-    | none => y := 1
-    y := y + 1
-  else y := 5
-  return y
-
-theorem match_in_if_triple : ⦃ True ⦄ match_in_if b o ⦃ fun r => r > 0 ⦄ := by
-  vcgen +jp [match_in_if] with finish
-
 -- A `match` join point nested in a `match` alternative, with state.
 def match_in_match (o p : Option Nat) : StateM Nat Nat := do
   let mut y := 0

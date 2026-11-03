@@ -1540,3 +1540,34 @@ example (a b : Nat) (P : Prop) (ha : a = 0) (h : (a, b).fst = 0 → P) : P ∧ a
     simp [fst_mk]
     exact Or.inl ha
     exact h y
+
+-- misc/dsimp_stale_cache: `dsimp` first runs while `?b` is unassigned
+example (a b : Nat) (P : Prop) (h : a = 0 → a = 0 → P)
+    (h₁ : (True : Prop) ⊑ ((a, b).fst = 0)) :
+    (True : Prop) ⊑ ((a, b).fst = 0 → P) := by
+  sym =>
+    apply trans_imp'
+    dsimp [fst_mk]
+    any_goals apply h₁
+    dsimp [fst_mk]
+    exact h
+
+-- misc/dsimp_app_head: `?q a` with `?q := fun y => (y, b).fst = 0`
+example (a b : Nat) (P : Prop) (hq : ∀ y, (y, b).fst = 0) (h : a = 0 → P) : P ∧ a = a := by
+  sym =>
+    apply app_sib
+    exact hq
+    dsimp [fst_mk]
+    exact h
+
+-- misc/dsimp_delayed_head: the first `dsimp` turns `?q a` into `?aux a`, where `?aux` is delayed
+-- assigned by `intro y`, and the second `dsimp` runs after its pending goal is solved
+example (a b : Nat) (P : Prop) (ha : a = 0) (h : (a, b).fst = 0 → P) : P ∧ a = a := by
+  sym =>
+    apply app_or
+    any_goals intro y
+    dsimp [fst_mk]
+    any_goals apply ((y, b).fst = 0)
+    dsimp [fst_mk]
+    exact Or.inl ha
+    exact h y

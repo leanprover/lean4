@@ -1044,6 +1044,15 @@ def emitInitFn (phases : IRPhases) : EmitM Unit := do
     withErrRet do
       emit s!"{fn}(builtin)"
     emitLn "lean_dec_ref(res);"
+  if phases == .comptime then
+    -- The `comptime` initializer runs this module's `initialize` blocks, whose code may reference
+    -- closed-term globals of this module's *runtime* declarations; those are assigned by
+    -- `runtime_initialize_<M>`, which is not guaranteed to have run first (`runInitAttrForMod`
+    -- skips it when the module's IR is needed at runtime only). Run it here; it guards on its own
+    -- `_G_runtime_initialized` flag, so this is idempotent.
+    withErrRet do
+      emit s!"{← getModInitFn (phases := .runtime)}(builtin)"
+    emitLn "lean_dec_ref(res);"
   for decl in (← getLocalDecls) do
     if phases == .all || (phases == .comptime) == isMarkedMeta env decl.name then
       emitDeclInit decl (isBuiltin := phases != .comptime)

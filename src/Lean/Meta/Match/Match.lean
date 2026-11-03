@@ -19,6 +19,7 @@ import Lean.Meta.HasNotBit
 import Lean.Meta.Match.CaseArraySizes
 import Lean.Meta.Match.CaseValues
 import Lean.Meta.Match.NamedPatterns
+import Lean.Meta.Match.Value
 
 /-!
 This module implements the backend of match compilation. The elaborator has already elaborated
@@ -650,11 +651,11 @@ private def processNonVariable (p : Problem) : MetaM Problem := withGoalOf p do
     | _      => unreachable!
   return { p with alts := alts, vars := xs }
 
-private def collectValues (p : Problem) : Array Expr :=
-  p.alts.foldl (init := #[]) fun values alt =>
+private def collectValues (p : Problem) : MetaM (Array Expr) :=
+  p.alts.foldlM (init := #[]) fun values alt => do
     match alt.patterns with
-    | .val v :: _ => if values.contains v then values else values.push v
-    | _           => values
+    | .val v :: _ => if (← values.anyM (matchValuesEq v)) then return values else return values.push v
+    | _           => return values
 
 private def isFirstPatternInaccessible (alt : Alt) : Bool :=
   match alt.patterns with
@@ -675,7 +676,7 @@ private def triviallyComplete (p : Problem) : Bool :=
 private def processValue (p : Problem) : MetaM (Array Problem) := do
   trace[Meta.Match.match] "value step"
   let x :: xs := p.vars | unreachable!
-  let values := collectValues p
+  let values ← collectValues p
   let needHyps := !triviallyComplete p || p.alts.any (!·.notAltIdxs.isEmpty)
   let subgoals ← caseValues p.mvarId x.fvarId! values (needHyps := needHyps)
   subgoals.mapIdxM fun i subgoal => do
@@ -687,9 +688,9 @@ private def processValue (p : Problem) : MetaM (Array Problem) := do
       trace[Meta.Match.match] "processValue subst: {subst.map.toList.map fun p => mkFVar p.1}, {subst.map.toList.map fun p => p.2}"
         let examples := p.examples.map <| Example.replaceFVarId x.fvarId! (Example.val value)
       let examples := examples.map <| Example.applyFVarSubst subst
-      let newAlts  := p.alts.filter fun alt => match alt.patterns with
-        | .val v          :: _ => v == value
-        | .inaccessible _ :: _ => true
+      let newAlts  ← p.alts.filterM fun alt => match alt.patterns with
+        | .val v          :: _ => matchValuesEq v value
+        | .inaccessible _ :: _ => return true
         | _                    => unreachable!
       let newAlts := newAlts.map fun alt => alt.applyFVarSubst subst
       let newAlts := newAlts.map fun alt => match alt.patterns with

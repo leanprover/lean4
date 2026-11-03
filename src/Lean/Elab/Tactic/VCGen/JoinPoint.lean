@@ -14,6 +14,7 @@ import Lean.Meta.Sym.InstantiateS
 import Lean.Meta.Sym.AbstractS
 import Lean.Meta.Sym.Intro
 import Lean.Elab.Tactic.VCGen.Util
+import Lean.Elab.Tactic.VCGen.Reduce
 
 open Lean Meta Sym Sym.Internal
 open Lean.Order
@@ -52,14 +53,14 @@ jumps to it. Without `+jp`, `vcgen` unfolds `__do_jp` at each jump, so `k` conse
    records the jump `__do_jp () 2` under `h₂ : ¬n > 0` with `?pf₂`.
 3. `vcgen` reaches the RHS goal after all goals of the join body, so both jumps are known by then.
    `finalizeJoinPoint` sets `?H` to the disjunction of the jumps, each over the locals of its
-   branch and its arguments, `fun r x => (n > 0 ∧ r = () ∧ x = 1) ∨ (¬n > 0 ∧ r = () ∧ x = 2)`.
-   It proves `?pf₁ := Or.inl ⟨h₁, rfl, rfl⟩` and `?pf₂ := Or.inr ⟨h₂, rfl, rfl⟩`. Jumps under a
+   branch and its arguments other than `r : Unit`, `fun r x => (n > 0 ∧ x = 1) ∨ (¬n > 0 ∧ x = 2)`.
+   It proves `?pf₁ := Or.inl ⟨h₁, rfl⟩` and `?pf₂ := Or.inr ⟨h₂, rfl⟩`. Jumps under a
    common local share its binder: the jumps of an `else if` chain share the conditions above them.
 
 The RHS goal of step 1 thus receives the hypothesis
 
 ```
-(n > 0 ∧ r = () ∧ x = 1) ∨ (¬n > 0 ∧ r = () ∧ x = 2)
+(n > 0 ∧ x = 1) ∨ (¬n > 0 ∧ x = 2)
 ```
 
 This `?H` is the strongest postcondition of the join body at its jumps to `__do_jp`, over the join
@@ -67,7 +68,7 @@ parameters `r` and `x`.
 
 For a stateful program, `?H` also takes the states, and each disjunct equates them with the states
 at its jump. In `StateM Nat`, the disjunct of `__do_jp () 1` in state `t` is
-`n > 0 ∧ r = () ∧ x = 1 ∧ s = t`.
+`n > 0 ∧ x = 1 ∧ s = t`.
 -/
 
 /-- The lattice instance of `B`, for `Pred = ∀ s₁ … sₙ, B` and the states `ss = #[s₁, …, sₙ]`,
@@ -142,7 +143,7 @@ public def wpJump? (scope : Scope) (goal : MVarId) (info : WPApp) :
   unless pre == jp.top do return none
   unless info.excessArgs.size == jp.numStates do
     throwError "vcgen +jp: the jump{indentExpr info.prog}\ndoes not have {jp.numStates} states"
-  let args := info.prog.getAppArgs ++ info.excessArgs
+  let args ← (info.prog.getAppArgs ++ info.excessArgs).mapM (reduceHead ·)
   let pf ← mkFreshExprSyntheticOpaqueMVar (← mkAppNS (.mvar jp.hyp) args)
   goal.assign (← mkAppNS jp.spec (args.push pf))
   modify fun s => { s with
@@ -192,8 +193,8 @@ partial def mkOrIntro (φ : Expr) (i lo hi : Nat) (k : Expr → MetaM Expr) : Me
 
 /-- The trie of the `jumps` from local `i` on, over the parameters `xs` of `?H`. Its disjuncts bind
 each distinct local `i` of the jumps above the trie of the jumps that share it, and give the
-equations `xs = args` of each jump without local `i`. Returns the path of each jump, the index and
-number of the disjuncts it passes. -/
+equations `xs = args` of each jump without local `i`, except for the `xs` of type `PUnit`. Returns
+the path of each jump, the index and number of the disjuncts it passes. -/
 partial def mkTrie (xs : Array Expr) (jumps : Array (Jump × Array LocalDecl)) (i : Nat) :
     VCGenM (Expr × Array (List (Nat × Nat))) := do
   let mut groups : Array (Array Nat) := #[]
@@ -216,9 +217,13 @@ partial def mkTrie (xs : Array Expr) (jumps : Array (Jump × Array LocalDecl)) (
         let decl ← jump.proof.getDecl
         pure (← withLCtx decl.lctx decl.localInstances (bindLocal d φ), subPaths)
       | none =>
-        let eqs ← xs.mapIdxM fun j x => do
+        let mut eqs := #[]
+        for h : j in [:xs.size] do
+          let x := xs[j]
           let α ← Sym.inferType x
-          return mkApp3 (mkConst ``Eq [← Sym.getLevel α]) α x jump.args[j]!
+          -- A `PUnit` parameter, such as the result `__r` of a `Unit` statement, is irrelevant.
+          unless α.isConstOf ``PUnit do
+            eqs := eqs.push (mkApp3 (mkConst ``Eq [← Sym.getLevel α]) α x jump.args[j]!)
         pure (mkAndN eqs.toList, #[[]])
     disjuncts := disjuncts.push disjunct
     for (k, path) in ks.zip subPaths do

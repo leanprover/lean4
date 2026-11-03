@@ -196,6 +196,8 @@ structure State where
   proofInstInfo : PHashMap Name (Option ProofInstInfo) := {}
   /-- `ProofInstInfo` of local declarations, see `getProofInstInfoOfExpr?`. -/
   proofInstInfoFVar : PHashMap FVarId (Option ProofInstInfo) := {}
+  /-- Maximally shared values of let-variables whose value in the local context is not, see `getLetValueS?`. -/
+  letValue : PHashMap FVarId Expr := {}
   /--
   Cache for `inferType` results, keyed by pointer equality.
   `SymM` uses a fixed configuration, so we can use a simpler key than `MetaM`.
@@ -465,6 +467,18 @@ def shareCommonInc (e : Expr) : SymM Expr := do
     -- variant, so we fall back to the full `shareCommonAlpha` pass. The incremental
     -- variant does not use a cache, so there is nothing to reuse here.
     repairAndShare e {}
+
+/--
+Returns the value of the let-variable `fvarId`, maximally shared. A local context that `SymM` did
+not preprocess, e.g., the one of a `grind` goal, may contain values that are not.
+-/
+def getLetValueS? (fvarId : FVarId) : SymM (Option Expr) := do
+  let some v ← fvarId.getValue? | return none
+  if (← isMaxShared v) then return some v
+  if let some v := (← get).letValue.find? fvarId then return some v
+  let v ← shareCommon v
+  modify fun s => { s with letValue := s.letValue.insert fvarId v }
+  return some v
 
 @[inherit_doc shareCommonInc]
 abbrev share (e : Expr) : SymM Expr :=

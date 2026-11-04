@@ -190,7 +190,15 @@ public unsafe def natPow (a b : Nat) : Nat :=
   if !isScalar b || unbox b > uintMax then
     -- The result would exhaust memory for any base `≥ 2`.
     if isScalar a && unbox a ≤ 1 then a else internalPanic "Nat.pow exponent is too big"
-  else ofMag (pow (mag a) (unbox b))
+  else
+    let ma := mag a
+    let e := unbox b
+    if ma.usize != 0 && trailingZeros ma == log2 ma then
+      -- a power of two: shift instead of repeated squaring
+      let k := log2 ma
+      if k != 0 && e > ((0 : USize) - 1) / k then internalPanic "Nat.pow exponent is too big"
+      else ofMag (shiftLeft (one ()) (k * e))
+    else ofMag (pow ma e)
 
 @[export lean_bignum_nat_powmod]
 public unsafe def natPowMod (b e m : Nat) : Nat :=

@@ -11,6 +11,7 @@ public import Std.Http.Protocol.H1
 public import Std.Http.Client.Authenticator
 public import Std.Http.Client.CookieHandler
 public import Std.Http.Client.Proxy
+public import Std.Http.Client.Error
 
 public section
 
@@ -35,6 +36,8 @@ abbrev Timeout := { x : Time.Millisecond.Offset // 0 < x }
 /--
 Per-request overrides for settings that otherwise come from the client-wide `Config`.
 A `none` field defers to the configured value.
+
+Every field must be handled in `apply`; one added here and forgotten there silently has no effect.
 -/
 structure RequestOverrides where
 
@@ -87,8 +90,11 @@ structure Config where
   keepAliveTimeout : Timeout := ⟨4000, by decide⟩
 
   /--
-  Timeout for the request lifecycle (send + receive) per connection.
-  DNS resolution and TCP connect are not covered by this timeout; see `connectTimeout`.
+  Bounds each pause in an exchange on a connection: in sending the request, in waiting for the response
+  head, and in the response body, whether the peer stops or the caller stops reading. An upload or a
+  download of any length goes through for as long as it keeps moving.
+  Each redirect hop and authentication retry is a new exchange with a bound of its own. DNS
+  resolution and the transport connect are covered by `connectTimeout` instead.
   -/
   requestTimeout : Timeout := ⟨120000, by decide⟩
 
@@ -97,6 +103,13 @@ structure Config where
   connect. Complements `requestTimeout`, which starts only once a connection exists.
   -/
   connectTimeout : Timeout := ⟨30000, by decide⟩
+
+  /--
+  How long a request carrying `Expect: 100-continue` waits for the interim response before sending
+  its body anyway. RFC 9110 §10.1.1 requires a client not to wait indefinitely, since a server is
+  free to ignore the expectation entirely.
+  -/
+  expectContinueTimeout : Timeout := ⟨1000, by decide⟩
 
   /--
   Whether to enable keep-alive connections.
@@ -152,19 +165,45 @@ structure Config where
   maxResponseBodySize : Option Nat := none
 
   /--
-  Maximum number of bytes drained from an intermediate redirect response body
-  before the redirected request is sent.
+  Maximum number of response bytes the connection holds that the caller has not yet read. The
+  connection stops reading from the socket well before this, while the caller has body bytes in hand,
+  so the limit is only reached by a peer that sends more than one read asks for; past it the response
+  fails as too large.
   -/
-  redirectBodyDrainLimit : Nat := 1024 * 1024
+  maxBufferedBodyBytes : Nat := 64 * 1024 * 1024
+
+  /--
+  Maximum number of bytes read from the body of an intermediate response the client answers
+  itself — a redirect it follows, or a challenge it authenticates — before the follow-up
+  request is sent. A body larger than this is abandoned rather than read to its end.
+
+  The bytes are held until the follow-up is known to have reached the peer, so an intermediate
+  response the client turns out to be unable to answer can still be delivered whole. One abandoned
+  for exceeding this limit cannot be, and the failure is reported instead.
+  -/
+  intermediateBodyDrainLimit : Nat := 1024 * 1024
+
+namespace RequestOverrides
+
+/--
+Applies these overrides on top of `config`, producing the effective configuration for a single
+request. Fields left `none` keep their configured value.
+-/
+def apply (overrides : RequestOverrides) (config : Config) : Config :=
+  { config with
+    requestTimeout := overrides.requestTimeout.getD config.requestTimeout
+    maxRedirects := overrides.maxRedirects.getD config.maxRedirects }
+
+end RequestOverrides
 
 namespace Config
 
 /--
 Total header-block allowance implied by the client's own limits: `maxResponseHeaders` field lines,
 each as long as `maxHeaderNameSize` and `maxHeaderValueSize` permit, plus the four bytes `": "` and
-`CRLF` contribute per line. Deriving it keeps those three settings jointly reachable — the machine's
-own aggregate default is smaller than they describe, so a response well inside all of them would
-otherwise be rejected.
+`CRLF` contribute per line. Deriving it keeps those three settings jointly reachable — the
+machine's own aggregate default is smaller than they describe, so a response well inside all of
+them would otherwise be rejected.
 -/
 def headerBlockSize (config : Config) : Nat :=
   config.maxResponseHeaders * (config.maxHeaderNameSize + config.maxHeaderValueSize + 4)
@@ -182,6 +221,6 @@ def toH1Config (config : Config) : Std.Http.Protocol.H1.Config where
   agentName := config.userAgent
   maxBodySize := 2 ^ 64
   maxChunkSize := 2 ^ 64
-  maxBufferedBodyBytes := some (64 * 1024 * 1024)
+  maxBufferedBodyBytes := some config.maxBufferedBodyBytes
 
 end Std.Http.Client.Config

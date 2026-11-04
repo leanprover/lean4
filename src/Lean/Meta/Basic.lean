@@ -2970,7 +2970,10 @@ def realizeConst (forConst : Name) (constName : Name) (realize : MetaM Unit) :
       -- heartbeat limits inside `realizeAndReport` should be measured from this point on
       initHeartbeats := (← IO.getNumHeartbeats)
     }
+    -- `realize` itself runs with the options of `forConst`, but whether this branch's kernel
+    -- environment checks the realized constants is decided by this branch's options
     let (env, exTask, dyn) ← env.realizeConst forConst constName (realizeAndReport coreCtx)
+      (skipKernelTC := debug.skipKernelTC.get (← getOptions))
     -- Realizations cannot be cancelled as their result is shared across elaboration runs
     let exAct ← Core.wrapAsyncAsSnapshot (cancelTk? := none) fun
       | none => return

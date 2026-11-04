@@ -3042,9 +3042,15 @@ def replayConsts (dest : Environment) (oldEnv newEnv : Environment) (skipExistin
         allRealizations.insert c.constInfo.name c
   }
 where
+  /--
+  Adds `consts` to `kenv`, after replaying the extension state changes between `oldEnv` and
+  `newEnv`. If `check` is false, the declarations are added without kernel type checking, as with
+  `debug.skipKernelTC`.
+  -/
   replayKernel (oldEnv newEnv : Kernel.Environment)
       (exts : Array (EnvExtension EnvExtensionState)) (consts : List AsyncConst)
-      (kenv : Kernel.Environment) : Except Kernel.Exception Kernel.Environment := do
+      (kenv : Kernel.Environment) (check := true) :
+      Except Kernel.Exception Kernel.Environment := do
     let mut kenv := kenv
     -- replay extensions first in case kernel checking needs them (`IR.declMapExt`)
     for ext in exts do
@@ -3075,6 +3081,9 @@ where
         | .axiomInfo ax  => pure <| .axiomDecl ax
         | _              =>
           return panic! s!"{c.constInfo.name} must be definition/theorem"
+      if !check then
+        kenv ← ofExcept <| kenv.addDeclWithoutChecking decl
+        continue
       -- realized kernel additions cannot be interrupted - which would be bad anyway as they can be
       -- reused between snapshots
       kenv ← ofExcept <| kenv.addDeclCore 0 0 decl none
@@ -3172,13 +3181,21 @@ deriving BEq, Hashable, TypeName
 /-- Realization results, to be replayed onto other branches. -/
 private structure RealizeConstResult where
   newConsts : VisibilityMap (List AsyncConst)
-  replayKernel : Kernel.Environment → Task (Except Kernel.Exception Kernel.Environment)
+  /--
+  Adds the realized constants to the given kernel environment, type checking them unless the
+  argument `check` is false.
+  -/
+  replayKernel (check : Bool) : Kernel.Environment → Task (Except Kernel.Exception Kernel.Environment)
   dyn : Dynamic
 deriving Nonempty, TypeName
 
-/-- Plumbing function for `Lean.Meta.realizeConst`; see documentation there. -/
+/--
+Plumbing function for `Lean.Meta.realizeConst`; see documentation there. If `skipKernelTC` is true,
+the realized constants are added to this branch's kernel environment without type checking, as for
+`debug.skipKernelTC`.
+-/
 def realizeConst (env : Environment) (forConst : Name) (constName : Name)
-    (realize : Environment → Options → BaseIO (Environment × Dynamic)) :
+    (realize : Environment → Options → BaseIO (Environment × Dynamic)) (skipKernelTC := false) :
     IO (Environment × Task (Option Kernel.Exception) × Dynamic) := do
   -- `realizeValue` checks this as well but can only name the key type in its error message
   unless env.areRealizationsEnabledForConst forConst do
@@ -3218,10 +3235,11 @@ def realizeConst (env : Environment) (forConst : Name) (constName : Name)
     -- CI build.
     let oldChecked := realizeEnv.checked
     let newChecked := realizeEnv'.checked
-    let replayKernel := fun kenv =>
+    let replayKernel := fun check kenv =>
       oldChecked.bind (sync := true) fun oldKEnv =>
         newChecked.map fun newKEnv =>
           replayConsts.replayKernel (skipExisting := true) oldKEnv newKEnv exts newPrivateConsts kenv
+            check
     let res : RealizeConstResult := {
       newConsts.private := newPrivateConsts
       newConsts.public := newPublicConsts
@@ -3252,7 +3270,7 @@ def realizeConst (env : Environment) (forConst : Name) (constName : Name)
           consts.add c
     }
     checked := (← BaseIO.bindTask (t := env.checked) (sync := true) fun kenv =>
-      BaseIO.mapTask (t := res.replayKernel kenv) fun
+      BaseIO.mapTask (t := res.replayKernel (!skipKernelTC) kenv) fun
         | .ok kenv' => return kenv'
         | .error e => do
           exPromise.resolve e

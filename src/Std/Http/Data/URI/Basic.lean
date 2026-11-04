@@ -1030,6 +1030,6 @@ instance : ToString RequestTarget where
     | .asteriskForm => "*"
 
 instance : Encode .v11 RequestTarget where
-  encode buffer target := buffer.writeString (toString target)
+  encode out target := out ++ toString target
 
 end Std.Http.RequestTarget

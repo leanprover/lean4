@@ -714,9 +714,9 @@ instance : ToString Status where
   toString := reasonPhrase
 
 instance : Encode .v11 Status where
-  encode buffer status := buffer
-    |>.writeString (toString <| toCode status)
-    |>.writeChar ' '
-    |>.writeString status.reasonPhrase
+  encode out
+    -- Most responses are `200 OK`; one constant skips the digits and the reason phrase copy.
+    | .ok => out ++ "200 OK"
+    | status => out ++ status.toCode.toNat ++ ' ' ++ status.reasonPhrase
 
 end Std.Http.Status

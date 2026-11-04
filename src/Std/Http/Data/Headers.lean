@@ -256,9 +256,7 @@ instance : ToString Headers where
     String.intercalate "\r\n" pairs.toList
 
 instance : Encode .v11 Headers where
-  encode buffer headers :=
-    headers.fold buffer (fun buf name value =>
-      buf.writeString s!"{name}: {value}\r\n")
+  encode out headers := headers.fold out appendFieldLine
 
 instance : EmptyCollection Headers :=
   ⟨Headers.empty⟩

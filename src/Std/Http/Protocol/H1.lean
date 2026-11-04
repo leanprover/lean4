@@ -326,12 +326,13 @@ private def checkReceivingMessageHead (message : Message.Head .receiving) : Exce
   | none => throw .badMessage
 
 /--
-Returns `true` when user-provided headers include body framing fields.
+Returns `true` when user-provided headers include body framing fields. Scanning the few entries is
+cheaper than two map lookups.
 -/
 @[inline]
 private def hasFramingHeaders (message : Message.Head dir) : Bool :=
-  message.headers.contains Header.Name.contentLength ∨
-  message.headers.contains Header.Name.transferEncoding
+  message.headers.map.entries.any fun (name, _) =>
+    name == Header.Name.contentLength || name == Header.Name.transferEncoding
 
 /--
 Validates an outgoing response head and selects body framing mode.
@@ -702,6 +703,46 @@ private def processHeaders (machine : Machine dir) : Machine dir :=
       advanceAfterHeaders machine state
 
 /--
+Encodes a server response head. The handler's fields are written in order without `Connection`,
+`Content-Length` and `Transfer-Encoding`, then `Server` unless the handler set one, then the
+`Connection` and framing fields the machine chose.
+-/
+private def encodeServerHead (head : Response.Head) (version : Version) (keepAlive : Bool)
+    (agentName : Option Header.Value) (size : Body.Length) : ByteArray :=
+  let status := head.status
+  let out : ByteArray := ByteArray.empty ++ version ++ ' ' ++ status ++ "\r\n"
+  let out : ByteArray := head.headers.fold out fun out name value =>
+    if name == Header.Name.connection || name == Header.Name.contentLength ||
+        name == Header.Name.transferEncoding then
+      out
+    else
+      appendFieldLine out name value
+  let out : ByteArray :=
+    match agentName with
+    | some server =>
+      if head.headers.contains Header.Name.server then out
+      else appendFieldLine out Header.Name.server server
+    | none => out
+  let out : ByteArray :=
+    if !keepAlive then
+      out ++ "Connection: close\r\n"
+    else if version == .v10 then
+      -- RFC 2616 §19.7.1: HTTP/1.0 keep-alive responses must echo Connection: keep-alive
+      out ++ "Connection: keep-alive\r\n"
+    else
+      out
+  -- Framing fields are omitted for bodyless status codes (RFC 9110 §8.6, §15.4.5) and for
+  -- HTTP/1.0 connection-close framing (RFC 7230 §3.3.1).
+  let out : ByteArray :=
+    if responseForbidsFramingHeaders status ∨ status == .notModified then
+      out
+    else
+      match size with
+      | .fixed n => out ++ "Content-Length: " ++ n ++ "\r\n"
+      | .chunked => if version == .v10 then out else out ++ "Transfer-Encoding: chunked\r\n"
+  out ++ "\r\n"
+
+/--
 Finalizes and serializes the outgoing start-line + headers.
 
 This applies connection/identity defaults, enforces framing-header
@@ -711,8 +752,7 @@ writer output and enters `.writingBody`.
 private def writeHead (messageHead : Message.Head dir.swap) (machine : Machine dir) : Machine dir :=
   let machine := machine.updateKeepAlive (machine.reader.messageCount + 1 < machine.config.maxMessages)
 
-  let shouldKeepAlive := messageHead.shouldKeepAlive
-  let machine := machine.updateKeepAlive shouldKeepAlive
+  let machine := machine.updateKeepAlive messageHead.shouldKeepAlive
   let size := Writer.determineTransferMode machine.writer
 
   -- RFC 7230 §3.3.1: HTTP/1.0 does not support Transfer-Encoding.  When the
@@ -723,54 +763,6 @@ private def writeHead (messageHead : Message.Head dir.swap) (machine : Machine d
     | .receiving, Version.v10, .chunked => machine.disableKeepAlive
     | _, _, _ => machine
 
-  let headers := messageHead.headers
-
-  -- Add identity header based on direction. handler wins if it already set one.
-  let headers :=
-    let identityOpt := machine.config.agentName
-    match dir, identityOpt with
-    | .receiving, some server =>
-      if headers.contains Header.Name.server then headers
-      else headers.insert Header.Name.server server
-    | .sending, some userAgent =>
-      if headers.contains Header.Name.userAgent then headers
-      else headers.insert Header.Name.userAgent userAgent
-    | _, none => headers
-
-  -- Add Connection header based on keep-alive state and protocol version.
-  -- Erase any handler-supplied value first to avoid  duplicate or conflicting
-  -- Connection headers on the wire.
-  let headers := headers.erase Header.Name.connection
-
-  let headers :=
-    if !machine.keepAlive then
-      headers.insert Header.Name.connection (.mk "close")
-    else if machine.reader.messageHead.version == .v10 then
-      -- RFC 2616 §19.7.1: HTTP/1.0 keep-alive responses must echo Connection: keep-alive
-      headers.insert Header.Name.connection (.mk "keep-alive")
-    else
-      headers
-
-  -- Normalize framing headers, except for bodyless status codes where framing
-  -- metadata is constrained by RFC semantics.
-  let headers :=
-    match dir, messageHead with
-    | .receiving, messageHead =>
-      if responseForbidsFramingHeaders messageHead.status ∨ messageHead.status == .notModified then
-        headers
-          |>.erase Header.Name.contentLength
-          |>.erase Header.Name.transferEncoding
-      else if machine.reader.messageHead.version == .v10 && size == .chunked then
-        -- RFC 7230 §3.3.1: connection-close framing for HTTP/1.0 — strip all framing
-        -- headers so neither Content-Length nor Transfer-Encoding appears on the wire.
-        headers
-          |>.erase Header.Name.contentLength
-          |>.erase Header.Name.transferEncoding
-      else
-        normalizeFramingHeaders headers size
-    | .sending, _ =>
-      normalizeFramingHeaders headers size
-
   let state : Writer.State :=
     match size with
     | .fixed n => .writingBodyFixed n
@@ -780,16 +772,39 @@ private def writeHead (messageHead : Message.Head dir.swap) (machine : Machine d
       | .receiving, .v10 => .writingBodyClosingFrame
       | _, _ => .writingBodyChunked
 
-  machine.modifyWriter (fun writer => {
-    writer with
+  -- Matching on `dir` below generalizes `machine`, so everything needed from it is read here.
+  let keepAlive := machine.keepAlive
+  let agentName := machine.config.agentName
+  let version := machine.reader.messageHead.version
+  let outputData := machine.writer.outputData
 
-    outputData :=
-      match dir, messageHead with
-      | .receiving, messageHead => Encode.encode (v := .v11) writer.outputData { messageHead with headers, version := machine.reader.messageHead.version }
-      | .sending, messageHead => Encode.encode (v := .v11) writer.outputData { messageHead with headers },
+  let outputData :=
+    match dir, messageHead with
+    | .receiving, messageHead =>
+      outputData.push (encodeServerHead messageHead version keepAlive agentName size)
+    | .sending, messageHead =>
+      let headers := messageHead.headers
 
-    state
-  })
+      let headers :=
+        match agentName with
+        | some userAgent =>
+          if headers.contains Header.Name.userAgent then headers
+          else headers.insert Header.Name.userAgent userAgent
+        | none => headers
+
+      -- Erase any user-supplied Connection value to avoid duplicate or conflicting headers.
+      let headers := headers.erase Header.Name.connection
+      let headers :=
+        if !keepAlive then
+          headers.insert Header.Name.connection (.mk "close")
+        else if version == .v10 then
+          headers.insert Header.Name.connection (.mk "keep-alive")
+        else
+          headers
+      let headers := normalizeFramingHeaders headers size
+      outputData.push (ByteArray.empty ++ ({ messageHead with headers } : Request.Head))
+
+  machine.modifyWriter (fun writer => { writer with outputData, state })
 
 /--
 Feeds input bytes into the reader side of the machine.
@@ -937,13 +952,13 @@ def send (machine : Machine dir) (message : Message.Head dir.swap) : Machine dir
         |>.erase Header.Name.transferEncoding
 
       machine.modifyWriter (fun w => {
-        w with outputData := Encode.encode (v := .v11) w.outputData message
+        w with outputData := w.outputData.push (ByteArray.empty ++ message)
       })
   else
     let hadFailure := machine.failed
     let machine := machine.modifyWriter ({ · with messageHead := message, sentMessage := true })
     let framingInHeaders := hasFramingHeaders message
-    let headerSize := message.getSize false
+    let headerSize := if framingInHeaders then message.getSize false else none
 
     let machine := reconcileOutgoingFraming machine headerSize framingInHeaders
     let machine := maybeSuppressOutgoingBody machine message
@@ -968,7 +983,7 @@ def canContinue (machine : Machine dir) (status : Status) : Machine dir :=
   | .receiving, Reader.State.«continue» nextState =>
     if status == .«continue» then
       let machine := machine.modifyWriter (fun writer => {
-        writer with outputData := Encode.encode (v := .v11) writer.outputData ({ status := .«continue» } : Response.Head)
+        writer with outputData := writer.outputData.push (ByteArray.empty ++ ({ status := .«continue» } : Response.Head))
       })
       machine.setReaderState nextState
     else

@@ -283,6 +283,10 @@ def wpConsumeMData? (goal : MVarId) (info : WPApp) : VCGenM (Option MVarId) := d
   let .mdata .. := info.prog | return none
   return some (← replaceProgDefEq goal info info.prog.consumeMData)
 
+def wpReduceHead? (goal : MVarId) (info : WPApp) : VCGenM (Option MVarId) := do
+  let some prog ← reduceHead? info.prog | return none
+  return some (← replaceProgDefEq goal info prog)
+
 /-- Strategy 11a: hoist or zeta-substitute a `let` from the program head. Under `+jp`, a hoisted
 join point is registered, which adds the goal for its RHS. -/
 def wpLet? (scope : Scope) (goal : MVarId) (info : WPApp) :
@@ -342,9 +346,6 @@ concrete discriminant. -/
 def wpMatch? (goal : MVarId) (info : WPApp) :
     VCGenM (Option (List MVarId)) := do
   let some splitInfo ← liftMetaM <| Lean.Elab.Tactic.Do.getSplitInfo? info.prog | return none
-  if splitInfo matches .matcher .. then
-    if let some prog ← liftMetaM <| withReducible <| reduceRecMatcher? info.prog then
-      return some [← replaceProgDefEq goal info (← shareCommonInc prog)]
   let rule ← mkBackwardRuleForSplitCached splitInfo info
   let .goals goals ← rule.applyChecked goal m!"split rule for{indentExpr info.prog}"
     | throwError "Failed to apply split rule for {indentExpr info.prog}"
@@ -364,16 +365,6 @@ def wpFVarZeta? (goal : MVarId) (info : WPApp) :
   let some val ← fvarId.getValue? | return none
   trace[Elab.Tactic.Do.vcgen] "fvar-zeta: {(← fvarId.getUserName)}"
   let prog ← shareCommonInc (val.betaRev info.prog.getAppRevArgs)
-  return some (← replaceProgDefEq goal info prog)
-
-/-- Strategy 11d: reduce a projection head in the program. -/
-def wpHeadReduce? (goal : MVarId) (info : WPApp) :
-    VCGenM (Option MVarId) := do
-  let f := info.prog.getAppFn
-  unless f matches .proj .. do return none
-  let some f' ← withReducibleAndInstances (reduceProj? f) | return none
-  let f' ← shareCommon (← liftMetaM <| unfoldReducible f')
-  let prog ← betaRevS f' info.prog.getAppRevArgs
   return some (← replaceProgDefEq goal info prog)
 
 /-- Stop or raise on a program with no applicable spec. With `errorOnMissingSpec` (default), raise a
@@ -630,6 +621,9 @@ public def solve (scope : Scope) (goal : MVarId) : VCGenM SolveResult := goal.wi
       return .stop (.untilPatternMatched info.M)
     if let some g ← wpConsumeMData? goal info then
       return .goals scope [g]
+    if let some g ← wpReduceHead? goal info then
+      burnOne
+      return .goals scope [g]
     if let some (scope, gs) ← wpLet? scope goal info then
       burnOne
       return .goals scope gs
@@ -642,9 +636,6 @@ public def solve (scope : Scope) (goal : MVarId) : VCGenM SolveResult := goal.wi
       burnOne
       return .goals scope gs
     if let some g ← wpFVarZeta? goal info then
-      burnOne
-      return .goals scope [g]
-    if let some g ← wpHeadReduce? goal info then
       burnOne
       return .goals scope [g]
     let f := info.prog.getAppFn

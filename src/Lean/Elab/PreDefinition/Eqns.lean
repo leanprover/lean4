@@ -380,15 +380,10 @@ proves them using `mkEqnProof`.
 -/
 def mkEqns (declName : Name) (declNames : Array Name) : MetaM (Array Name) := do
   trace[Elab.definition.eqns] "mkEqns: {.ofConstName declName}"
-  let eqName (i : Nat) := do
-    return mkEqLikeNameFor (← getEnv) declName s!"{eqnThmSuffixBasePrefix}{i+1}"
-  realizeConst declName (← eqName 0) (realizeEqns declName declNames)
-  let mut thmNames := #[]
-  repeat
-    let name ← eqName thmNames.size
-    unless (← getEnv).containsOnBranch name do
-      break
-    thmNames := thmNames.push name
+  let eq1 := mkEqLikeNameFor (← getEnv) declName eqn1ThmSuffix
+  realizeConst declName eq1 (realizeEqns declName declNames)
+  let some thmNames ← alreadyGenerated? declName |
+    throwError "internal error: failed to generate equations for `{.ofConstName declName}`"
   return thmNames
 
 def getEqnsFor? (declName : Name) : MetaM (Option (Array Name)) := do

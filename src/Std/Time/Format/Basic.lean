@@ -67,11 +67,6 @@ namespace Awareness
 instance : Coe TimeZone Awareness where
   coe := .only
 
-private def getD (x : Awareness) (default : TimeZone) : TimeZone :=
-  match x with
-  | .any => default
-  | .only tz => tz
-
 end Awareness
 
 /--
@@ -117,9 +112,6 @@ private def parseFormatPart : Parser FormatPart
 private def specParser : Parser FormatString :=
   (Array.toList <$> many parseFormatPart) <* eof
 
-private def specParse (s : String) : Except String FormatString :=
-  specParser.run s
-
 -- Pretty printer
 
 private def leftPadAscii (n : Nat) (a : Char) (s : String) : String :=
@@ -143,15 +135,6 @@ the parser to read past four digits.
 -/
 private def padFourDigitYear (n : Int) : String :=
   if n > 9999 then "+" ++ toString n else pad 4 n
-
-private def rightTruncate (size : Nat)  (n : Int) (cut : Bool := false) : String :=
-  let (sign, n) := if n < 0 then ("-", -n) else ("", n)
-
-  let numStr := toString n
-  if numStr.length > size then
-    sign ++ if cut then numStr.take size |>.copy else numStr
-  else
-    sign ++ rightPadAscii size '0' numStr
 
 private def eraIndex : Year.Era → Fin 2
   | .bce => 0
@@ -234,9 +217,6 @@ private def extendedDayPeriodIndex : ExtendedDayPeriod → Fin 6
 
 private def formatExtendedDayPeriod (arr : Vector String 6) (period : ExtendedDayPeriod) : String :=
   arr.get (extendedDayPeriodIndex period)
-
-private def toSigned (data : Int) : String :=
-  if data < 0 then toString data else "+" ++ toString data
 
 private inductive Reason
   | yes
@@ -549,15 +529,6 @@ private def parseFromSymbols {α : Type} (pairs : Array (String × α)) : Parser
 private def monthPairs (arr : Vector String 12) : Array (String × Month.Ordinal) :=
   arr.mapFinIdx (fun idx val n => (val, Bounded.LE.ofFin ⟨idx, n⟩ |>.add 1)) |>.toArray
 
-private def weekdayOfIndex : Nat → Weekday
-  | 0 => .sunday
-  | 1 => .monday
-  | 2 => .tuesday
-  | 3 => .wednesday
-  | 4 => .thursday
-  | 5 => .friday
-  | _ => .saturday
-
 private def weekdayPairs (arr : Vector String 7) : Array (String × Weekday) :=
   arr.mapFinIdx (fun idx val n => (val, .ofOrdinal <| Bounded.LE.ofFin ⟨idx, n⟩ |>.add 1)) |>.toArray
 
@@ -640,17 +611,6 @@ private def parseExtendedDayPeriodFrom (arr : Vector String 6) : Parser Extended
     (arr.get 3, .noon),     (arr.get 4, .afternoon),  (arr.get 5, .evening)
   ]
   parseFromSymbols pairs
-
-private def exactly (parse : Parser α) (size : Nat) : Parser (Array α) :=
-  let rec go (acc : Array α) (count : Nat) : Parser (Array α) :=
-    if count ≥ size then
-      pure acc
-    else do
-      let res ← parse
-      go (acc.push res) count.succ
-  termination_by size - count
-
-  go #[] 12
 
 private def exactlyChars (parse : Parser Char) (size : Nat) : Parser String :=
   let rec go (acc : String) (count : Nat) : Parser String :=
@@ -1273,23 +1233,5 @@ def formatBuilder (format : GenericFormat aw) : FormatType String format.string 
   go "" format.string
 
 end GenericFormat
-
-/--
-Typeclass for formatting and parsing values with the given format type.
--/
-class Format (f : Type) (typ : Type → f → Type) where
-  /--
-  Converts a format `f` into a string.
-  -/
-  format : (fmt : f) → typ String fmt
-
-  /--
-  Parses a string into a format using the provided format type `f`.
-  -/
-  parse : (fmt : f) → typ (Option α) fmt → String → Except String α
-
-instance : Format (GenericFormat aw) (FormatType · ·.string) where
-  format := GenericFormat.formatBuilder
-  parse := GenericFormat.parseBuilder
 
 end Time

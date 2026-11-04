@@ -33,11 +33,13 @@ where
     mkForallFVars xs (← zetaReduce (type.instantiateRev subst) (zetaDelta := zetaDelta))
 
 /--
-Preprocesses types that used for pattern matching and unification.
+Preprocesses types used for pattern matching and unification. It instantiates assigned
+metavariables first, since a metavariable in a pattern is an opaque constant.
 `num?` is the number of binders that become pattern variables (all if `none`).
 -/
 public def preprocessType (type : Expr) (zetaReduceLHSOnly := false) (zetaDelta := false)
     (num? : Option Nat := none) : MetaM Expr := do
+  let type ← instantiateMVars type
   let type ← Sym.unfoldReducible type
   let type ← Core.betaReduce type
   let type ← if zetaReduceLHSOnly then
@@ -55,12 +57,11 @@ Analyzes whether the given free variables (aka arguments) are proofs or instance
 Returns `none` if no arguments are proofs or instances.
 -/
 public def mkProofInstArgInfo? (xs : Array Expr) : MetaM (Option ProofInstInfo) := do
-  let env ← getEnv
   let mut argsInfo := #[]
   let mut found := false
   for x in xs do
     let type ← Meta.inferType x
-    let isInstance := isClass? env type |>.isSome
+    let isInstance := (← isClass? type).isSome
     let isProof ← isProp type
     if isInstance || isProof then
       found := true

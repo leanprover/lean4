@@ -137,6 +137,13 @@ private def pad (size : Nat) (n : Int) (cut : Bool := false) : String :=
   else
     sign ++ leftPadAscii size '0' numStr
 
+/--
+A four-letter year field. A year that needs more than four digits gets an explicit sign, which tells
+the parser to read past four digits.
+-/
+private def padFourDigitYear (n : Int) : String :=
+  if n > 9999 then "+" ++ toString n else pad 4 n
+
 private def rightTruncate (size : Nat)  (n : Int) (cut : Bool := false) : String :=
   let (sign, n) := if n < 0 then ("-", -n) else ("", n)
 
@@ -330,22 +337,14 @@ private def formatWith (dateformat : DateFormat) (modifier : Modifier) (data : T
     match format with
     | .any      => pad 0 info
     | .twoDigit => pad 2 (info % 100)
-    | .fourDigit => pad 4 info
+    | .fourDigit => padFourDigitYear info
     | .extended n => pad n info
-  | .u format =>
+  | .u format | .Y format =>
     match format with
     | .any      => pad 0 (data.toInt)
     | .twoDigit => pad 2 (data.toInt % 100)
-    | .fourDigit => pad 4 data.toInt
+    | .fourDigit => padFourDigitYear data.toInt
     | .extended n => pad n data.toInt
-  | .Y format =>
-    let info := data.toInt
-    let info := if info ≤ 0 then -info + 1 else info
-    match format with
-    | .any      => pad 0 info
-    | .twoDigit => pad 2 (info % 100)
-    | .fourDigit => pad 4 info
-    | .extended n => pad n info
   | .D format =>
     pad format.padding data.snd.val
   | .M format | .L format =>
@@ -389,7 +388,7 @@ private def formatWith (dateformat : DateFormat) (modifier : Modifier) (data : T
   | .a format =>
     match format with
     | .short => formatMarkerShort dateformat.symbols data
-    | .full => formatMarkerShort dateformat.symbols data
+    | .full => formatMarkerLong dateformat.symbols data
     | .narrow => formatMarkerNarrow dateformat.symbols data
     | .twoLetterShort => formatMarkerShort dateformat.symbols data
   | .b format =>
@@ -444,11 +443,11 @@ private def formatWith (dateformat : DateFormat) (modifier : Modifier) (data : T
         let (sign, time) := if data.second.val ≥ 0 then ("+", data.second) else ("-", -data.second)
         let t := PlainTime.ofSeconds time
         let pad := leftPadAscii 2 '0' ∘ toString
-        if t.minute.val == 0
-          then s!"GMT{sign}{t.hour.val}"
-          else s!"GMT{sign}{t.hour.val}:{pad t.minute.val}"
+        if t.second.val != 0 then s!"GMT{sign}{t.hour.val}:{pad t.minute.val}:{pad t.second.val}"
+        else if t.minute.val == 0 then s!"GMT{sign}{t.hour.val}"
+        else s!"GMT{sign}{t.hour.val}:{pad t.minute.val}"
     | .full  =>
-      if data.second == 0 then "GMT" else s!"GMT{toIsoString data .yes .no true}"
+      if data.second == 0 then "GMT" else s!"GMT{toIsoString data .yes .optional true}"
   | .X format =>
     if data.second == 0 then
       "Z"
@@ -478,7 +477,7 @@ private def formatWith (dateformat : DateFormat) (modifier : Modifier) (data : T
     | .full =>
       if data.second.val = 0
         then "GMT"
-        else s!"GMT{toIsoString data .yes .no true}"
+        else s!"GMT{toIsoString data .yes .optional true}"
     | .hourMinuteSecondColon =>
       if data.second == 0
         then "Z"
@@ -681,11 +680,39 @@ private def parseAtLeastNum (size : Nat) : Parser Nat :=
 private def parseFlexibleNum (size : Nat) : Parser Nat :=
   if size = 1 then parseAtLeastNum 1 else parseNum size
 
+/-- The length of the run of digits at the current position, without consuming it. -/
+private def digitRunLength : Parser Nat := fun it =>
+  match manyChars (satisfy Char.isDigit) it with
+  | .success _ run => .success it run.length
+  | .error _ err => .error it err
+
+/--
+A number of at least `width` digits. `reserve` is the count of digits that the numeric fields right
+after it need, and it reads the run of digits except those, so that patterns such as `uMMdd` can
+split the digits. With `reserve = none` those fields vary in width, and it reads exactly `width`
+digits, or every digit when `width` is 1.
+-/
+private def parseVarWidthNum (width : Nat) (reserve : Option Nat) : Parser Nat :=
+  match reserve with
+  | none => parseFlexibleNum width
+  | some r => do parseNum (max width ((← digitRunLength) - r))
+
+/-- A four-letter year field: four digits, or more after the sign that `padFourDigitYear` writes. -/
+private def parseFourDigitYear (negative : Bool) (reserve : Option Nat) : Parser Int := do
+  let minus : Parser Int := if negative then pchar '-' *> pure (-1) else fail "expected: +"
+  let sign ← optional ((pchar '+' *> pure 1) <|> minus)
+  let digits ← if sign.isSome then parseVarWidthNum 4 reserve else parseNum 4
+  return sign.getD 1 * digits
+
 private def parseFractionNum (size : Nat) (pad : Nat) : Parser Nat :=
   String.toNat! <$> rightPadAscii pad '0' <$> exactlyChars (satisfy Char.isDigit) size
 
 private def parseIdentifier : Parser String :=
-  many1Chars (satisfy (fun x => x.isAlpha ∨ x.isDigit ∨ x = '_' ∨ x = '-' ∨ x = '/'))
+  many1Chars (satisfy (fun x => x.isAlpha ∨ x.isDigit ∨ x = '_' ∨ x = '-' ∨ x = '+' ∨ x = '/' ∨ x = ':'))
+
+/-- A zone id or name. `TimeZone.GMT`'s name has spaces, so it is matched whole. -/
+private def parseZoneId : Parser String :=
+  pstring TimeZone.GMT.name <|> parseIdentifier
 
 private def parseNatToBounded { n m : Nat } (parser : Parser Nat) : Parser (Bounded.LE n m) := do
   let res ← parser
@@ -731,7 +758,50 @@ private def parseOffset (withMinutes : Reason) (withSeconds : Reason) (withColon
 
   return Offset.ofSeconds ⟨hours.val * sign⟩
 
-private def parseWith (config : FormatConfig) : (mod : Modifier) → Parser (TypeFormat mod)
+/-- Whether a field is written as digits, which a number right before it must leave to it. -/
+private def isNumericModifier : Modifier → Bool
+  | .y _ | .u _ | .Y _ | .D _ | .d _ | .w _ | .W _ | .F _ | .h _ | .K _ | .k _ | .H _ | .m _ | .s _
+  | .S _ | .A _ | .n _ | .N _ => true
+  | .M (.inl _) | .L (.inl _) | .Q (.inl _) | .q (.inl _) | .e (.inl _) | .c (.inl _) => true
+  | _ => false
+
+/--
+The digits a numeric field always takes: its letter count, once that covers the field's largest
+value. A field that can take more digits has no fixed width.
+-/
+private def fixedDigits : Modifier → Option Nat
+  | .y .twoDigit | .u .twoDigit | .Y .twoDigit => some 2
+  | .y .fourDigit | .u .fourDigit | .Y .fourDigit => some 4
+  | .S .nano => some 9
+  | .S (.truncated n) => some n
+  | .Q (.inl p) | .q (.inl p) | .e (.inl p) | .c (.inl p) | .W p | .F p => covering 1 p
+  | .d p | .w p | .h p | .K p | .k p | .H p | .m p | .s p | .M (.inl p) | .L (.inl p) => covering 2 p
+  | .D p => covering 3 p
+  | .A p => covering 8 p
+  | .n p => covering 9 p
+  | .N p => covering 14 p
+  | _ => none
+where
+  covering (digits : Nat) (p : Number) : Option Nat :=
+    if p.padding ≥ digits then some p.padding else none
+
+/-- A numeric field: exactly its fixed width, or else at least `width` digits (see `parseVarWidthNum`). -/
+private def parseField (m : Modifier) (width : Nat) (reserve : Option Nat) : Parser Nat :=
+  match fixedDigits m with
+  | some fixed => parseNum fixed
+  | none => parseVarWidthNum width reserve
+
+/--
+The digits that the numeric fields at the start of `rest` need: `some 0` when `rest` does not start
+with a numeric field, and `none` when one of those fields varies in width.
+-/
+private def reservedDigits : FormatString → Option Nat
+  | .modifier m :: rest =>
+    if isNumericModifier m then (· + ·) <$> fixedDigits m <*> reservedDigits rest else some 0
+  | _ => some 0
+
+/-- `reserve`: the `reservedDigits` of the rest of the format. -/
+private def parseWith (config : FormatConfig) (reserve : Option Nat) : (mod : Modifier) → Parser (TypeFormat mod)
   | .G format =>
     match format with
     | .short | .twoLetterShort => parseEraShort config.dateformat.symbols
@@ -739,47 +809,42 @@ private def parseWith (config : FormatConfig) : (mod : Modifier) → Parser (Typ
     | .narrow => parseEraNarrow config.dateformat.symbols
   | .y format =>
     match format with
-    | .any => Int.ofNat <$> parseAtLeastNum 1
+    | .any => Int.ofNat <$> parseVarWidthNum 1 reserve
     | .twoDigit => (2000 + ·) <$> Int.ofNat <$> parseNum 2
-    | .fourDigit => Int.ofNat <$> parseNum 4
-    | .extended n => Int.ofNat <$> parseNum n
-  | .u format =>
+    | .fourDigit => parseFourDigitYear false reserve
+    | .extended n => Int.ofNat <$> parseVarWidthNum n reserve
+  | .u format | .Y format =>
     match format with
-    | .any => parseSigned <| parseAtLeastNum 1
+    | .any => parseSigned <| parseVarWidthNum 1 reserve
     | .twoDigit => (2000 + ·) <$> Int.ofNat <$> parseNum 2
-    | .fourDigit => parseSigned <| parseNum 4
-    | .extended n => parseSigned <| parseNum n
-  | .Y format =>
-    match format with
-    | .any => parseSigned <| parseAtLeastNum 1
-    | .twoDigit => (2000 + ·) <$> Int.ofNat <$> parseNum 2
-    | .fourDigit => parseSigned <| parseNum 4
-    | .extended n => parseSigned <| parseNum n
-  | .D format => Sigma.mk true <$> parseNatToBounded (parseFlexibleNum format.padding)
+    | .fourDigit => parseFourDigitYear true reserve
+    | .extended n => parseSigned <| parseVarWidthNum n reserve
+  | .D format => Sigma.mk true <$> parseNatToBounded (parseField (.D format) format.padding reserve)
   | .M format | .L format =>
     match format with
-    | .inl fmt  => parseNatToBounded (parseFlexibleNum fmt.padding)
+    | .inl fmt  => parseNatToBounded (parseField (.M (.inl fmt)) fmt.padding reserve)
     | .inr .short | .inr .twoLetterShort => parseMonthShort config.dateformat.symbols
     | .inr .full   => parseMonthLong config.dateformat.symbols
     | .inr .narrow => parseMonthNarrow config.dateformat.symbols
-  | .d format => parseNatToBounded (parseFlexibleNum format.padding)
+  | .d format => parseNatToBounded (parseField (.d format) format.padding reserve)
   | .Q format | .q format =>
     match format with
-    | .inl fmt  => parseNatToBounded (parseFlexibleNum fmt.padding)
+    | .inl fmt  => parseNatToBounded (parseField (.Q (.inl fmt)) fmt.padding reserve)
     | .inr .short => parseQuarterShort config.dateformat.symbols
     | .inr .full  => parseQuarterLong config.dateformat.symbols
     | .inr .narrow | .inr .twoLetterShort => parseQuarterNarrow config.dateformat.symbols
-  | .w format => parseNatToBounded (parseFlexibleNum format.padding)
-  | .W format => parseNatToBounded (parseFlexibleNum format.padding)
+  | .w format => parseNatToBounded (parseField (.w format) format.padding reserve)
+  | .W format => parseNatToBounded (parseField (.W format) format.padding reserve)
   | .E format =>
     match format with
-    | .short | .twoLetterShort => parseWeekdayShort config.dateformat.symbols
+    | .short => parseWeekdayShort config.dateformat.symbols
     | .full => parseWeekdayLong config.dateformat.symbols
     | .narrow => parseWeekdayNarrow config.dateformat.symbols
+    | .twoLetterShort => parseWeekdayTwoLetter config.dateformat.symbols
   | .e format | .c format =>
     match format with
     | .inl fmt => do
-      let n ← parseFlexibleNum fmt.padding
+      let n ← parseField (.e (.inl fmt)) fmt.padding reserve
       if ¬ (1 ≤ n ∧ n ≤ 7) then fail "need a natural number in the interval of 1 to 7"
       let firstOrd : Int := config.dateformat.firstDayOfWeek.toOrdinal.val
       let absOrd : Int := ((n : Int) - 1 + firstOrd - 1) % 7 + 1
@@ -788,7 +853,7 @@ private def parseWith (config : FormatConfig) : (mod : Modifier) → Parser (Typ
     | .inr .full  => parseWeekdayLong config.dateformat.symbols
     | .inr .narrow => parseWeekdayNarrow config.dateformat.symbols
     | .inr .twoLetterShort => parseWeekdayTwoLetter config.dateformat.symbols
-  | .F format => parseNatToBounded (parseFlexibleNum format.padding)
+  | .F format => parseNatToBounded (parseField (.F format) format.padding reserve)
   | .a format =>
     match format with
     | .short | .twoLetterShort => parseMarkerShort config.dateformat.symbols
@@ -804,39 +869,39 @@ private def parseWith (config : FormatConfig) : (mod : Modifier) → Parser (Typ
     | .short | .twoLetterShort => parseExtendedDayPeriodFrom config.dateformat.symbols.extendedDayPeriodShort
     | .full => parseExtendedDayPeriodFrom config.dateformat.symbols.extendedDayPeriodLong
     | .narrow => parseExtendedDayPeriodFrom config.dateformat.symbols.extendedDayPeriodNarrow
-  | .h format => parseNatToBounded (parseFlexibleNum format.padding)
-  | .K format => parseNatToBounded (parseFlexibleNum format.padding)
-  | .k format => parseNatToBounded (parseFlexibleNum format.padding)
-  | .H format => parseNatToBounded (parseFlexibleNum format.padding)
-  | .m format => parseNatToBounded (parseFlexibleNum format.padding)
+  | .h format => parseNatToBounded (parseField (.h format) format.padding reserve)
+  | .K format => parseNatToBounded (parseField (.K format) format.padding reserve)
+  | .k format => parseNatToBounded (parseField (.k format) format.padding reserve)
+  | .H format => parseNatToBounded (parseField (.H format) format.padding reserve)
+  | .m format => parseNatToBounded (parseField (.m format) format.padding reserve)
   | .s format =>
     if config.allowLeapSeconds then
-      parseNatToBounded (parseFlexibleNum format.padding)
+      parseNatToBounded (parseField (.s format) format.padding reserve)
     else do
-      let res : Bounded.LE 0 59 ← parseNatToBounded (parseFlexibleNum format.padding)
+      let res : Bounded.LE 0 59 ← parseNatToBounded (parseField (.s format) format.padding reserve)
       return res.expandTop (by decide)
   | .S format =>
     match format with
     | .nano => parseNatToBounded (parseFlexibleNum 9)
     | .truncated n => parseNatToBounded (parseFractionNum n 9)
-  | .A format => Millisecond.Offset.ofNat <$> (parseFlexibleNum format.padding)
-  | .n format => parseNatToBounded (parseFlexibleNum format.padding)
-  | .N format => Nanosecond.Offset.ofNat <$> (parseFlexibleNum format.padding)
+  | .A format => Millisecond.Offset.ofNat <$> parseField (.A format) format.padding reserve
+  | .n format => parseNatToBounded (parseField (.n format) format.padding reserve)
+  | .N format => Nanosecond.Offset.ofNat <$> parseField (.N format) format.padding reserve
   | .V format =>
     match format with
     | .unknown => pstring "unk" *> pure "unk"
-    | .short | .full => parseIdentifier
+    | .short | .full => parseZoneId
   | .z format =>
     match format with
-    | .short | .full => parseIdentifier
+    | .short | .full => parseZoneId
   | .v format =>
     match format with
-    | .short | .full => parseIdentifier
+    | .short | .full => parseZoneId
   | .O format => do
     skipString "GMT"
     let res ← optional <|
       match format with
-      | .short => parseOffset .optional .no true
+      | .short => parseOffset .optional .optional true
       | .full  => parseOffset .yes .optional true
     return res.getD Offset.zero
   | .X format =>
@@ -866,7 +931,7 @@ private def parseWith (config : FormatConfig) : (mod : Modifier) → Parser (Typ
       parseOffset .yes .optional false
     | .full => do
       skipString "GMT"
-      let res ← optional (parseOffset .yes .no true)
+      let res ← optional (parseOffset .yes .optional true)
       return res.getD Offset.zero
     | .hourMinuteSecondColon =>
       (skipString "Z" *> pure Offset.zero)
@@ -965,7 +1030,7 @@ private def insert (date : DateBuilder) (modifier : Modifier) (data : TypeFormat
   | .z .full => { date with z := some data }
   | .z .short => { date with zabbrev := some data }
   | .v .full => { date with v := some data }
-  | .v .short => { date with v := some data }
+  | .v .short => { date with zabbrev := some data }
   | .O _  => { date with O := some data }
   | .X _  => { date with X := some data }
   | .x _  => { date with x := some data }
@@ -980,13 +1045,49 @@ private def markerOfDayPeriod : DayPeriod → HourMarker
   | .am | .midnight => .am
   | .pm | .noon     => .pm
 
-/-- Infer an `HourMarker` from an `ExtendedDayPeriod` parsed by `B`. -/
-private def markerOfExtendedDayPeriod : ExtendedDayPeriod → HourMarker
-  | .midnight | .night | .morning => .am
+/--
+Infer an `HourMarker` from an `ExtendedDayPeriod` parsed by `B` and the hour on the 0–11 clock.
+`.night` spans midnight (21:00–05:59), so the hour decides its marker.
+-/
+private def markerOfExtendedDayPeriod (hour : Int) : ExtendedDayPeriod → HourMarker
+  | .midnight | .morning => .am
   | .noon | .afternoon | .evening => .pm
+  | .night => if hour < 6 then .am else .pm
 
-private def build (builder : DateBuilder) (aw : Awareness) : Option DateTime :=
-  let offset := builder.O <|> builder.X <|> builder.x <|> builder.Z |>.getD Offset.zero
+/--
+The offset of a `±hh:mm[:ss]` or `GMT±hh:mm[:ss]` zone id: the name of an offset-only zone and the
+form `V`, `z` and `v` write for it.
+-/
+private def offsetOfZoneId? (id : String) : Option Offset :=
+  (optional (skipString "GMT") *> parseOffset .yes .optional true <* eof).run id |>.toOption
+
+/--
+The date in week `week` of the week-based year `year`, on `weekday`. Fails when that week does not
+belong to `year`, such as week 53 of a year with 52 weeks.
+-/
+private def ofWeekDate (dateformat : DateFormat) (year : Year.Offset) (week : Week.OfYear.Ordinal) (weekday : Weekday) : Option PlainDate :=
+  let firstDay := dateformat.firstDayOfWeek
+  let minDays := dateformat.minimalDaysInFirstWeek
+  let start := PlainDate.startOfWeekBasedYear year firstDay minDays
+  let dayOfWeek := (weekday.toOrdinal.val - firstDay.toOrdinal.val) % 7
+  let date := start.addDays (Day.Offset.ofInt ((week.val - 1) * 7 + dayOfWeek))
+  if date.weekYear firstDay minDays == year then some date else none
+
+/--
+The date with `month` and `day` whose week-based year is `year`. Near January 1st two dates can
+qualify, and the one in calendar year `year` wins.
+-/
+private def ofWeekYearMonthDay (dateformat : DateFormat) (year : Year.Offset) (month : Month.Ordinal) (day : Day.Ordinal) : Option PlainDate :=
+  [year, year - 1, year + 1].findSome? fun calendarYear => do
+    let date ← PlainDate.ofYearMonthDay? calendarYear month day
+    guard (date.weekYear dateformat.firstDayOfWeek dateformat.minimalDaysInFirstWeek == year)
+    return date
+
+private def build (builder : DateBuilder) (aw : Awareness) (dateformat : DateFormat) : Option DateTime :=
+  let offset :=
+    builder.O <|> builder.X <|> builder.x <|> builder.Z
+    <|> ((builder.V <|> builder.v <|> builder.z <|> builder.zabbrev) >>= offsetOfZoneId?)
+    |>.getD Offset.zero
 
   let tz : TimeZone := {
     offset,
@@ -995,37 +1096,49 @@ private def build (builder : DateBuilder) (aw : Awareness) : Option DateTime :=
     isDST := false,
   }
 
-  let month := builder.M <|> builder.L |>.getD 0
-  let day := builder.d |>.getD 0
-  let era := (builder.G.getD .ce)
+  let calendarYear := builder.u <|> ((convertYearAndEra · (builder.G.getD .ce)) <$> builder.y)
+  let month? := builder.M <|> builder.L
 
-  let year
-    := builder.u
-    <|> ((convertYearAndEra · era) <$> builder.y)
-    <|> builder.Y
-    |>.getD 0
+  -- Without `u` or `y`, a week-based year `Y` places a month and day, or else the week fields.
+  let date : Option PlainDate :=
+    if month?.isSome ∨ builder.d.isSome then
+      let month := month?.getD 1
+      let day := builder.d.getD 1
+      match calendarYear, builder.Y with
+      | none, some basedYear => ofWeekYearMonthDay dateformat basedYear month day
+      | year?, _ => PlainDate.ofYearMonthDay? (year?.getD 0) month day
+    else if let some ⟨_, ordinal⟩ := builder.D then
+      let year := calendarYear.getD 0
+      PlainDate.ofYearOrdinal year <$> Bounded.ofInt? ordinal.val
+    else
+      match calendarYear, builder.Y with
+      | none, some basedYear =>
+        let weekday := builder.e <|> builder.c <|> builder.E |>.getD dateformat.firstDayOfWeek
+        ofWeekDate dateformat basedYear (builder.w.getD 1) weekday
+      | year?, _ => PlainDate.ofYearMonthDay? (year?.getD 0) 1 1
+
+  let halfDayHour : Option Int := ((·.val % 12) <$> builder.h) <|> ((·.val) <$> builder.K)
 
   -- Derive hour marker from `a`, then fall back to `b` and `B`.
   let markerOpt : Option HourMarker :=
     builder.a
     <|> (markerOfDayPeriod <$> builder.b)
-    <|> (markerOfExtendedDayPeriod <$> builder.B)
+    <|> (markerOfExtendedDayPeriod (halfDayHour.getD 0) <$> builder.B)
 
-  let hour : Option (Bounded.LE 0 23) :=
-    if let some marker := markerOpt then
-      marker.toAbsolute <$> builder.h
-      <|> (fun k => match marker with
-            | .am => k.expandTop (by decide)
-            | .pm => (k.add 12).expandBottom (by decide)) <$> builder.K
-    else
-      none
+  let ofHalfDay (marker : HourMarker) : Option (Bounded.LE 0 23) :=
+    let ofK (k : Bounded.LE 0 11) : Bounded.LE 0 23 :=
+      match marker with
+      | .am => k.expandTop (by decide)
+      | .pm => (k.add 12).expandBottom (by decide)
+    let ofh : Option (Bounded.LE 0 23) := marker.toAbsolute <$> builder.h
+    ofh <|> ofK <$> builder.K
 
-  let hour :=
-    hour <|> (
-      let one : Option (Bounded.LE 0 23) := builder.H
-      let other : Option (Bounded.LE 0 23) := (·.emod 24 (by decide)) <$> builder.k
-      (one <|> other))
-      |>.getD ⟨0, by decide⟩
+  let ofH : Option (Bounded.LE 0 23) := builder.H
+  let ofk : Option (Bounded.LE 0 23) := (·.emod 24 (by decide)) <$> builder.k
+  let ofDay := ofH <|> ofk
+
+  -- Without a marker, `h` and `K` are read as AM hours.
+  let hour := markerOpt.bind ofHalfDay <|> ofDay <|> ofHalfDay .am |>.getD ⟨0, by decide⟩
 
   let minute := builder.m |>.getD 0
   let second := builder.s |>.getD 0
@@ -1036,12 +1149,7 @@ private def build (builder : DateBuilder) (aw : Awareness) : Option DateTime :=
     <|> PlainTime.ofMilliseconds <$> builder.A
     |>.getD (PlainTime.mk hour minute second nano)
 
-  let datetime : Option PlainDateTime :=
-    if valid : year.Valid month day then
-      let date : PlainDate := { year, month, day, valid }
-      some { date, time }
-    else
-      none
+  let datetime : Option PlainDateTime := date.map ({ date := ·, time })
 
   let zoneTz :=
     match aw with
@@ -1052,10 +1160,10 @@ private def build (builder : DateBuilder) (aw : Awareness) : Option DateTime :=
 
 end DateBuilder
 
-private def parseWithDate (date : DateBuilder) (config : FormatConfig) (mod : FormatPart) : Parser DateBuilder := do
+private def parseWithDate (date : DateBuilder) (config : FormatConfig) (mod : FormatPart) (rest : FormatString) : Parser DateBuilder := do
   match mod with
   | .modifier s => do
-    let res ← parseWith config s
+    let res ← parseWith config (reservedDigits rest) s
     return date.insert s res
   | .string s => pstring s *> pure date
 
@@ -1091,9 +1199,9 @@ def format (format : GenericFormat aw) (date : DateTime) : String :=
 private def parser (format : FormatString) (config : FormatConfig) (aw : Awareness) : Parser DateTime :=
   let rec go (builder : DateBuilder) (x : FormatString) : Parser DateTime :=
     match x with
-    | x :: xs => parseWithDate builder config x >>= (go · xs)
+    | x :: xs => parseWithDate builder config x xs >>= (go · xs)
     | [] =>
-      match builder.build aw with
+      match builder.build aw config.dateformat with
       | some res => pure res
       | none => fail "could not parse the date"
   go {} format
@@ -1105,7 +1213,7 @@ def builderParser (format: FormatString) (config : FormatConfig) (func: FormatTy
   let rec go (format : FormatString) (func: FormatType (Option α) format) : Parser α :=
     match format with
     | .modifier x :: xs => do
-      let res ← parseWith config x
+      let res ← parseWith config (reservedDigits xs) x
       go xs (func res)
     | .string s :: xs => skipString s *> (go xs func)
     | [] =>

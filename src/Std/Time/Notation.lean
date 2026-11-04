@@ -8,6 +8,7 @@ module
 prelude
 public import Std.Time.Format
 public meta import Std.Time.Format
+meta import Init.Data.String.TakeDrop
 
 public section
 
@@ -152,6 +153,14 @@ private meta def convertDateTime (d : Std.Time.DateTime) (identifier := false) :
     `(Std.Time.DateTime.ofPlainDateTime $plain (Std.Time.TimeZone.ZoneRules.ofTimeZone $(← convertTimezone d.timezone)))
 
 /--
+Whether a bracketed zone id names a fixed zone rather than a database entry: an offset such as
+`+01:00` or `GMT+01:00`, or `TimeZone.GMT`'s name.
+-/
+private meta def isFixedZoneId (name : String) : Bool :=
+  let offset := if name.startsWith "GMT" then (name.drop 3).copy else name
+  name == TimeZone.GMT.name || (TimeZone.Offset.fromOffset offset).isOk
+
+/--
 Defines a syntax for zoned datetime values. It expects a string representing a datetime with
 timezone information.
 
@@ -219,7 +228,7 @@ macro_rules
       | .ok res => do return ← convertDateTime res
       | .error _ =>
         match DateTime.fromLeanDateTimeWithIdentifierString date.getString with
-        | .ok res => do return ← convertDateTime res (identifier := true)
+        | .ok res => do return ← convertDateTime res (identifier := !isFixedZoneId res.timezone.name)
         | .error res => Macro.throwErrorAt date s!"error: {res}"
 
   | `(zoned( $date:str, $timezone )) => do

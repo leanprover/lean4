@@ -350,11 +350,12 @@ def toTime12Hour (input : PlainTime) : String :=
   Formats.time12Hour.formatBuilder input.hour.toRelative input.minute input.second (if input.hour.val ≥ 12 then HourMarker.pm else HourMarker.am)
 
 /--
-Parses a `String` in the `Time12Hour` or `Time24Hour` format and returns a `PlainTime`.
+Parses a `String` in the `Time12Hour` or `Time24Hour` format, the latter with optional nanoseconds
+(`HH:mm:ss.SSSSSSSSS`), and returns a `PlainTime`.
 -/
 def parse (input : String) : Except String PlainTime :=
   fromTime12Hour input
-  <|> fromTime24Hour input
+  <|> fromLeanTime24Hour input
 
 instance : ToString PlainTime where
   toString := toLeanTime24Hour

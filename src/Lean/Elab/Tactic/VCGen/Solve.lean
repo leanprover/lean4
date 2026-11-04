@@ -277,11 +277,14 @@ def replaceProgDefEq (goal : MVarId) (info : WPApp) (prog : Expr) :
   let newTarget ← mkAppNS target.getAppFn (relArgs.set! (relArgs.size - 1) rhs)
   goal.replaceTargetDefEqFast newTarget
 
-/-- Strip an `mdata` wrapper from the program in `goal`'s target and reduce its head. -/
+/-- Strip an `mdata` wrapper (such as the `save_info` annotation left by spec elaboration)
+from the program in `goal`'s target, so the remaining strategies see the bare term. -/
+def wpConsumeMData? (goal : MVarId) (info : WPApp) : VCGenM (Option MVarId) := do
+  let .mdata .. := info.prog | return none
+  return some (← replaceProgDefEq goal info info.prog.consumeMData)
+
 def wpReduceHead? (goal : MVarId) (info : WPApp) : VCGenM (Option MVarId) := do
-  let prog := info.prog.consumeMData
-  let prog := (← reduceHead? prog).getD prog
-  if isSameExpr prog info.prog then return none
+  let some prog ← reduceHead? info.prog | return none
   return some (← replaceProgDefEq goal info prog)
 
 /-- Strategy 11a: hoist or zeta-substitute a `let` from the program head. Under `+jp`, a hoisted
@@ -616,6 +619,8 @@ public def solve (scope : Scope) (goal : MVarId) : VCGenM SolveResult := goal.wi
     -- Stop if the program matches the `until` pattern.
     if ← matchesUntilPattern info.prog then
       return .stop (.untilPatternMatched info.M)
+    if let some g ← wpConsumeMData? goal info then
+      return .goals scope [g]
     if let some g ← wpReduceHead? goal info then
       burnOne
       return .goals scope [g]

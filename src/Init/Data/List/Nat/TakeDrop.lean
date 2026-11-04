@@ -186,7 +186,8 @@ theorem take_add {l : List α} {i j : Nat} : l.take (i + j) = l.take i ++ (l.dro
   · apply Nat.le_add_right
 
 grind_pattern take_add => (l.drop i).take j where
-  l =/= []
+  check l ≠ []
+  check i ≠ 0
 
 theorem take_one {l : List α} : l.take 1 = l.head?.toList := by
   induction l <;> simp

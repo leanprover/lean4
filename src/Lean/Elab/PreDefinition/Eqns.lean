@@ -62,6 +62,25 @@ def unfoldLHS (declName : Name) (mvarId : MVarId) : MetaM MVarId := mvarId.withC
     deltaLHS mvarId
 
 /--
+Rewrites a matcher application on the left-hand side of an equality goal with the congruence
+equation of the first alternative that applies. Equation statements are computed with the same
+rewrite, so it proves equations whose discriminants are not constructor applications.
+-/
+def rwMatcherLHS? (mvarId : MVarId) : MetaM (Option MVarId) := mvarId.withContext do
+  let target ← mvarId.getType'
+  let some (_, lhs, rhs) := target.eq? | return none
+  let some app ← matchMatcherApp? lhs | return none
+  for i in *...app.numAlts do
+    let r ← rwMatcher i lhs
+    if r.expr != lhs then
+      let targetNew ← mkEq r.expr rhs
+      let some proof := r.proof? | return some (← mvarId.replaceTargetDefEq targetNew)
+      let mvarNew ← mkFreshExprSyntheticOpaqueMVar targetNew
+      mvarId.assign (← mkEqTrans proof mvarNew)
+      return some mvarNew.mvarId!
+  return none
+
+/--
 Proves a generated equation type for `declName`. After introducing its parameters and hypotheses,
 tries reflexivity, then unfolds the definition and reduces or splits the remaining cases.
 -/
@@ -109,6 +128,8 @@ partial def mkEqnProof (declName : Name) (type : Expr) : MetaM Expr := do
           mvarIds.forM go
         else if let some mvarIds ← splitTarget? mvarId (useNewSemantics := true) then
           mvarIds.forM go
+        else if let some mvarId ← rwMatcherLHS? mvarId then
+          go mvarId
         else
           throwError "failed to generate equational theorem for `{.ofConstName declName}`\n{MessageData.ofGoal mvarId}"
 

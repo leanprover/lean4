@@ -52,6 +52,8 @@ info: (Acc.rec, Acc.recC)
 (Thunk.fn, Thunk.fnImpl)
 (Vector.pmap, Vector.pmapImpl)
 (String.Slice.Pos.next, String.Slice.Pos.nextFast)
+(Lean.Kernel.InLean.Expr.beqI, Lean.Kernel.InLean.Expr.beqMemo)
+(Lean.Kernel.InLean.Level.beqI, Lean.Kernel.InLean.Level.beqPtrI)
 -/
 #guard_msgs in
 run_elab do

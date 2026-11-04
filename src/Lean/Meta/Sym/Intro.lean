@@ -79,7 +79,7 @@ partial def introCore (mvarId : MVarId) (max : Nat) (names : Array Name) (hygien
     else match type with
     | .mdata _ type => visit i lctx localInsts fvars type
     | .forallE n type body bi =>
-      let type       ← instantiateRevS type fvars
+      let type       ← instantiateMVarsS (← instantiateRevS type fvars)
       let fvarId     ← mkFreshFVarId
       let userName   ← mkName lctx n i
       let lctx       := lctx.mkLocalDecl fvarId userName type bi (.ofBinderName userName)
@@ -88,7 +88,7 @@ partial def introCore (mvarId : MVarId) (max : Nat) (names : Array Name) (hygien
       let localInsts ← updateLocalInsts localInsts fvar type
       visit (i+1) lctx localInsts fvars body
     | .letE n type value body nondep =>
-      let type       ← instantiateRevS type fvars
+      let type       ← instantiateMVarsS (← instantiateRevS type fvars)
       let value      ← instantiateRevS value fvars
       let fvarId     ← mkFreshFVarId
       /-

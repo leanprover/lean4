@@ -1,3 +1,5 @@
+/-! Equation generation for a well-founded monadic byte-slice loop. -/
+
 def Nat.Up (ub a i : Nat) := i < a ∧ i < ub
 
 theorem Nat.Up.next {ub i} (h : i < ub) : Up ub (i+1) i := ⟨Nat.lt_succ_self _, h⟩

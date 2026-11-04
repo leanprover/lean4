@@ -1,7 +1,11 @@
+module
+
 /-!
 Tests that equation lemmas keep the `have`s at the root of the right-hand side, also above a split
 `match`, so that `vcgen +jp [f]` sees the join points of `f` (#16122).
 -/
+@[expose] public section
+
 set_option linter.unusedVariables false
 
 def f (x : Nat) : Nat :=
@@ -178,7 +182,12 @@ def discr2 (x : Nat) : Nat :=
   | 0, _ => 1
   | n + 1, m => n + m
 
-/-- info: discr2.eq_2 (n : Nat) : discr2 n.succ = n + (n.succ + 2) -/
+/--
+info: discr2.eq_2 (n : Nat) :
+  discr2 n.succ =
+    have k := n.succ + 2;
+    n + k
+-/
 #guard_msgs in #check discr2.eq_2
 
 -- The `match` in the value of the `have` is split, and the `have` is kept.
@@ -353,9 +362,7 @@ info: unusedBranch.eq_1 (x a : Nat) :
 -/
 #guard_msgs in #check unusedBranch.eq_1
 
--- Splitting `x` exposes a `match` in the value of `c`, which must then be split too. The outer
--- `match` generalizes the `have`s, whose values depend on `x`, so the `match x` in the value of `a`
--- is split first, and the outer `match` then reduces.
+-- Nested matches in a binding value are split while its sharing and scope are preserved.
 def nestedValueCases (x : Nat) : Nat :=
   have a :=
     have b := x + 1
@@ -371,7 +378,9 @@ def nestedValueCases (x : Nat) : Nat :=
 /--
 info: nestedValueCases.eq_1 :
   nestedValueCases 0 =
-    have a := 0 + 1;
+    have a :=
+      have b := 0 + 1;
+      b;
     have c := a + a;
     c
 -/
@@ -380,13 +389,15 @@ info: nestedValueCases.eq_1 :
 /--
 info: nestedValueCases.eq_3 (n_1 : Nat) :
   nestedValueCases n_1.succ.succ =
-    have a := n_1.succ.succ + 1 + n_1;
+    have a :=
+      have b := n_1.succ.succ + 1;
+      b + n_1;
     have c := a + a;
     c + n_1.succ
 -/
 #guard_msgs in #check nestedValueCases.eq_3
 
--- The target reaches the `match` in the value of `c` only through `d`.
+-- Shared dependencies reach the nested match without expanding intermediate values.
 def nestedValueChain (x : Nat) : Nat :=
   have a :=
     have b := x + 1
@@ -402,7 +413,9 @@ def nestedValueChain (x : Nat) : Nat :=
 /--
 info: nestedValueChain.eq_3 (n_1 : Nat) :
   nestedValueChain n_1.succ.succ =
-    have a := n_1.succ.succ + 1 + n_1;
+    have a :=
+      have b := n_1.succ.succ + 1;
+      b + n_1;
     have c := a + a;
     have d := c + c;
     d + n_1.succ
@@ -449,17 +462,17 @@ info: equations:
   have b := a;
   b + b
 @[backward_defeq] theorem twoVals.eq_2 : ∀ (n : Nat),
-  twoVals n.succ 0 =
-    have a := 2;
-    have b := a;
-    b + b
-@[backward_defeq] theorem twoVals.eq_3 : ∀ (n : Nat),
   twoVals 0 n.succ =
     have a := 1;
     have b := a + 1;
     b + b
+@[backward_defeq] theorem twoVals.eq_3 : ∀ (n : Nat),
+  twoVals n.succ 0 =
+    have a := 2;
+    have b := a;
+    b + b
 @[backward_defeq] theorem twoVals.eq_4 : ∀ (n n_1 : Nat),
-  twoVals n_1.succ n.succ =
+  twoVals n.succ n_1.succ =
     have a := 2;
     have b := a + 1;
     b + b
@@ -519,8 +532,13 @@ def valAndTarget (x : Nat) : Nat :=
   | n + 1 => y + n
 /--
 info: equations:
-@[backward_defeq] theorem valAndTarget.eq_1 : valAndTarget 0 = 1 + 1
-@[backward_defeq] theorem valAndTarget.eq_2 : ∀ (n : Nat), valAndTarget n.succ = 2 + n
+@[backward_defeq] theorem valAndTarget.eq_1 : valAndTarget 0 =
+  have y := 1;
+  y + y
+@[backward_defeq] theorem valAndTarget.eq_2 : ∀ (n : Nat),
+  valAndTarget n.succ =
+    have y := 2;
+    y + n
 -/
 #guard_msgs in #print equations valAndTarget
 

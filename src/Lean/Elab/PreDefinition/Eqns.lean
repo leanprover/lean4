@@ -373,19 +373,31 @@ partial def simpEqnTelescope (info : HaveTelescopeInfo) (fixed used : Array Bool
     (e : Expr) (i : Nat) (xs : Array Expr) : Simp.SimpM EqnTelescopeResult := do
   if h : i < info.haveInfo.size then
     let hi := info.haveInfo[i]
+    /-
+    **Note**: `hi.decl` has no loose de-Bruijn indices, but `t`, `v`, and `b` might have.
+    We extract them from `e` to avoid unnecessary `abstract` steps.
+    -/
     let .letE n t v b nondep := e | unreachable!
     let x := hi.decl.toExpr
     let val := hi.decl.value (allowNondep := true)
-    let rv ← if !used[i]! then pure { expr := val : Simp.Result }
-      else if fixed[i]! then pure { expr := ← Simp.dsimp val : Simp.Result }
+    let rv ← if !used[i]! then pure { expr := val }
+      else if fixed[i]! then pure { expr := (← Simp.dsimp val) }
       else Simp.simp val
     let v' := if rv.expr == val then v else rv.expr.abstract xs
     let hv? := rv.proof?.map (·.abstract xs)
+    /-
+    Given `have a := 0; ... match a with | 0 => ... | _ => ...`,
+    we want to make sure `a` is transparent when reducing the `match`.
+    -/
     let decl := (hi.decl.setValue rv.expr).setNondep false
     let rb ← withExistingLocalDecls [decl] <| Simp.withNewLemmas #[x] do
       simpEqnTelescope info fixed used b (i + 1) (xs.push x)
-    let type := if fixed[i]! then mkLet n t v' rb.type false
-      else rb.type.lowerLooseBVars 1 1
+    let type := if fixed[i]! then
+      /- A fixed binding may occur in the result type, so close the type with the binding. -/
+      mkLet n t v' rb.type false
+    else
+      /- The type does not depend on this binding; remove its unused bound-variable slot. -/
+      rb.type.lowerLooseBVars 1 1
     let expr := mkLet n t v' rb.expr nondep
     let hb? := rb.proof?.map fun h => mkLet n t v' h false
     let hv? := hv?.map fun h => mkApp6 (mkConst ``congrArg [hi.level, info.level])
@@ -397,9 +409,10 @@ partial def simpEqnTelescope (info : HaveTelescopeInfo) (fixed used : Array Bool
           (mkLet n t v' b nondep) expr hv hb
     return { expr, type, proof? }
   else
+    /- Simplify the body. -/
     let rb ← Simp.simp info.body
     return {
-      expr := rb.expr.abstract xs
+      expr := if rb.expr == info.body then e else rb.expr.abstract xs
       type := info.bodyType.abstract xs
       proof? := rb.proof?.map (·.abstract xs)
     }
@@ -462,7 +475,10 @@ partial def simpEqn : Simp.Simproc := fun e => do
     let r ← simpEqnTelescope info fixed used e 0 #[]
     let r := { expr := ← zetaUnused r.expr, proof? := r.proof? : Simp.Result }
     if r.expr == e then return .done r
-    return .visit { r with expr := ← zetaUnused (← zetaDependentHaves r.expr) }
+    let mut r' ← zetaDependentHaves r.expr
+    if r' != r.expr then
+      r' ← zetaUnused r'
+    return .visit { r with expr := r' }
   if let some app ← matchMatcherApp? e then
     if let some e' ← reduceRecMatcher? e then
       return .visit { expr := e' }
@@ -488,7 +504,10 @@ partial def dsimpEqn : Simp.DSimproc := fun e => do
     let r ← Simp.withFreshCache <| visit info used e 0 #[]
     let r ← zetaUnused r
     if r == e then return .done r
-    return .visit (← zetaUnused (← zetaDependentHaves r))
+    let r' ← zetaDependentHaves r
+    if r == r' then return .visit r'
+    /- If some `have`-decls were inlined, some of the remaining declarations may be unused now. -/
+    return .visit (← zetaUnused r')
   if ← isMatcherApp e then
     if let some e' ← reduceRecMatcher? e then return .visit e'
   return .continue
@@ -497,10 +516,19 @@ where
       (xs : Array Expr) : Simp.SimpM Expr := do
     if h : i < info.haveInfo.size then
       let decl := info.haveInfo[i].decl
+      /-
+      **Note**: `decl` has no loose de-Bruijn indices, but `t`, `v`, and `b` might have.
+      We extract them from `e` to avoid unnecessary `abstract` steps.
+      -/
       let .letE n t v b nondep := e | unreachable!
+      /- Recall that the original `decl` may be a `have`, and without `allowNondep := true`, `value` will fail. -/
       let value := decl.value (allowNondep := true)
       let value' ← if used[i]! then Simp.dsimp value else pure value
       let v' := if value' == value then v else value'.abstract xs
+      /-
+      Given `have a := 0; ... match a with | 0 => ... | _ => ...`,
+      we want to make sure `a` is transparent when reducing the `match`.
+      -/
       let decl := (decl.setValue value').setNondep false
       let b ← withExistingLocalDecls [decl] <| visit info used b (i+1) (xs.push decl.toExpr)
       return mkLet n t v' b nondep

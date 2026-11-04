@@ -4,7 +4,7 @@ import Lean
 
 /-!
 Tests parsing module headers and subsequent commands in bounded regions of a larger source string,
-including leading trivia, UTF-8 byte positions, and absolute diagnostic positions.
+including leading whitespace and comments, UTF-8 byte positions, and absolute diagnostic positions.
 -/
 
 open Lean Parser
@@ -25,7 +25,7 @@ private def fixture (content : String) : InputContext × String.Pos.Raw × Strin
 private def checkLeading (stx : Syntax) (start : String.Pos.Raw) (content : String) : IO Unit := do
   let some (.original leading ..) := stx.getHeadInfo?
     | throw <| IO.userError "missing original source information"
-  check (leading.startPos == start && leading.toString == content) "incorrect leading trivia"
+  check (leading.startPos == start && leading.toString == content) "incorrect leading whitespace"
 
 #eval do
   let ctx := mkInputContext "-- file comment\nimport Init\n#check Nat\n" "ordinary"
@@ -40,13 +40,13 @@ private def checkLeading (stx : Syntax) (start : String.Pos.Raw) (content : Stri
 -- Each first header token must retain the region's comments, including the `module` token.
 #eval do
   for content in ["import Init\n", "prelude\n", "module\npublic import Init\n"] do
-    let trivia := "  /- embedded λ -/\n"
-    let (ctx, start, stop) := fixture (trivia ++ content)
+    let leadingWhitespace := "  /- embedded λ -/\n"
+    let (ctx, start, stop) := fixture (leadingWhitespace ++ content)
     let (header, state, messages) ← parseHeader ctx start
     check (!messages.hasErrors && state.pos == stop && state.leadingStartPos?.isNone)
       "header did not stop at the region boundary"
-    checkLeading header start trivia
-    check (header.raw.getPos? == some (start + trivia))
+    checkLeading header start leadingWhitespace
+    check (header.raw.getPos? == some (start + leadingWhitespace))
       "header token lost its absolute byte position"
 
 -- Adjacent import tokens outside the region must not become part of the header.
@@ -59,27 +59,27 @@ private def checkLeading (stx : Syntax) (start : String.Pos.Raw) (content : Stri
   check (!messages.hasErrors && header.raw[2].getArgs.size == 1 && state.pos == stop)
     "parsed an import beyond the region boundary"
 
--- An empty header defers its leading trivia to the first command, but not the second.
+-- An empty header defers its leading whitespace to the first command, but not the second.
 #eval do
-  let trivia := "  -- embedded λ\n  "
-  let (ctx, start, stop) := fixture (trivia ++ "def α := 1\ndef β := 2\n")
+  let leadingWhitespace := "  -- embedded λ\n  "
+  let (ctx, start, stop) := fixture (leadingWhitespace ++ "def α := 1\ndef β := 2\n")
   let (_, state, messages) ← parseHeader ctx start
   check (!messages.hasErrors && state.leadingStartPos? == some start)
     "empty header lost the region start"
   let env ← mkEmptyEnvironment
   let (first, state, messages) := parseCommand ctx { env, options := {} } state messages
   check (!messages.hasErrors && state.leadingStartPos?.isNone)
-    "first command did not consume initial trivia"
-  checkLeading first start trivia
-  check (first.getPos? == some (start + trivia)) "command position is not absolute"
+    "first command did not consume initial whitespace"
+  checkLeading first start leadingWhitespace
+  check (first.getPos? == some (start + leadingWhitespace)) "command position is not absolute"
   let (second, state, messages) := parseCommand ctx { env, options := {} } state messages
   check (!messages.hasErrors && state.pos == stop) "second command did not reach the region end"
-  checkLeading second (start + trivia + "def α := 1\n") ""
+  checkLeading second (start + leadingWhitespace + "def α := 1\n") ""
   let (eoi, state, messages) := parseCommand ctx { env, options := {} } state messages
   check (!messages.hasErrors && eoi.isOfKind ``Command.eoi && state.pos == stop)
     "command parser escaped the region"
 
--- Empty and trivia-only regions transfer their leading trivia to the end-of-input token.
+-- Initial whitespace and comments in otherwise empty regions belong to the end-of-input token.
 #eval do
   let env ← mkEmptyEnvironment
   for content in ["", " \n", "-- comment λ\n", "/- comment λ -/"] do
@@ -132,23 +132,23 @@ private def checkLeading (stx : Syntax) (start : String.Pos.Raw) (content : Stri
     "header position did not use the normalized source"
   check (header.raw.reprint == some "import Init\n") "normalized header did not round-trip"
 
--- Direct command parsing can retain or explicitly discard initial trivia.
+-- Direct command parsing can retain or explicitly discard initial whitespace.
 #eval do
-  let trivia := "  -- direct command λ\n"
-  let (ctx, start, stop) := fixture (trivia ++ "def α := 1\n")
+  let leadingWhitespace := "  -- direct command λ\n"
+  let (ctx, start, stop) := fixture (leadingWhitespace ++ "def α := 1\n")
   let env ← mkEmptyEnvironment
-  let wholeFile := mkInputContext (trivia ++ "def α := 1\n") "direct"
+  let wholeFile := mkInputContext (leadingWhitespace ++ "def α := 1\n") "direct"
   let (command, state, messages) := parseCommand wholeFile { env, options := {} } {} {}
   check (!messages.hasErrors && state.pos == wholeFile.endPos && state.leadingStartPos?.isNone)
-    "default command state did not consume its pending leading trivia"
-  checkLeading command 0 trivia
+    "default command state did not consume its pending leading whitespace"
+  checkLeading command 0 leadingWhitespace
   let (command, state, messages) := parseCommand ctx { env, options := {} }
     { pos := start, leadingStartPos? := some start } {}
   check (!messages.hasErrors && state.pos == stop && state.leadingStartPos?.isNone)
-    "direct command did not consume its pending leading trivia"
-  checkLeading command start trivia
+    "direct command did not consume its pending leading whitespace"
+  checkLeading command start leadingWhitespace
   let (command, state, messages) := parseCommand ctx { env, options := {} }
     { pos := start, leadingStartPos? := none } {}
   check (!messages.hasErrors && state.pos == stop && state.leadingStartPos?.isNone)
-    "direct command unexpectedly enabled leading trivia"
-  checkLeading command (start + trivia) ""
+    "direct command unexpectedly enabled leading whitespace"
+  checkLeading command (start + leadingWhitespace) ""

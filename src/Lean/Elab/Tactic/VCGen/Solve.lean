@@ -277,11 +277,12 @@ def replaceProgDefEq (goal : MVarId) (info : WPApp) (prog : Expr) :
   let newTarget ← mkAppNS target.getAppFn (relArgs.set! (relArgs.size - 1) rhs)
   goal.replaceTargetDefEqFast newTarget
 
-/-- Strip an `mdata` wrapper (such as the `save_info` annotation left by spec elaboration)
-from the program in `goal`'s target, so the remaining strategies see the bare term. -/
-def wpConsumeMData? (goal : MVarId) (info : WPApp) : VCGenM (Option MVarId) := do
-  let .mdata .. := info.prog | return none
-  return some (← replaceProgDefEq goal info info.prog.consumeMData)
+/-- Strip an `mdata` wrapper from the program in `goal`'s target and reduce its head. -/
+def wpReduceHead? (goal : MVarId) (info : WPApp) : VCGenM (Option MVarId) := do
+  let prog := info.prog.consumeMData
+  let prog := (← reduceHead? prog).getD prog
+  if isSameExpr prog info.prog then return none
+  return some (← replaceProgDefEq goal info prog)
 
 /-- Strategy 11a: hoist or zeta-substitute a `let` from the program head. Under `+jp`, a hoisted
 join point is registered, which adds the goal for its RHS. -/
@@ -342,9 +343,6 @@ concrete discriminant. -/
 def wpMatch? (goal : MVarId) (info : WPApp) :
     VCGenM (Option (List MVarId)) := do
   let some splitInfo ← liftMetaM <| Lean.Elab.Tactic.Do.getSplitInfo? info.prog | return none
-  if splitInfo matches .matcher .. then
-    if let some prog ← liftMetaM <| withReducible <| reduceRecMatcher? info.prog then
-      return some [← replaceProgDefEq goal info (← shareCommonInc prog)]
   let rule ← mkBackwardRuleForSplitCached splitInfo info
   let .goals goals ← rule.applyChecked goal m!"split rule for{indentExpr info.prog}"
     | throwError "Failed to apply split rule for {indentExpr info.prog}"
@@ -364,16 +362,6 @@ def wpFVarZeta? (goal : MVarId) (info : WPApp) :
   let some val ← fvarId.getValue? | return none
   trace[Elab.Tactic.Do.vcgen] "fvar-zeta: {(← fvarId.getUserName)}"
   let prog ← shareCommonInc (val.betaRev info.prog.getAppRevArgs)
-  return some (← replaceProgDefEq goal info prog)
-
-/-- Strategy 11d: reduce a projection head in the program. -/
-def wpHeadReduce? (goal : MVarId) (info : WPApp) :
-    VCGenM (Option MVarId) := do
-  let f := info.prog.getAppFn
-  unless f matches .proj .. do return none
-  let some f' ← withReducibleAndInstances (reduceProj? f) | return none
-  let f' ← shareCommon (← liftMetaM <| unfoldReducible f')
-  let prog ← betaRevS f' info.prog.getAppRevArgs
   return some (← replaceProgDefEq goal info prog)
 
 /-- Stop or raise on a program with no applicable spec. With `errorOnMissingSpec` (default), raise a
@@ -628,7 +616,8 @@ public def solve (scope : Scope) (goal : MVarId) : VCGenM SolveResult := goal.wi
     -- Stop if the program matches the `until` pattern.
     if ← matchesUntilPattern info.prog then
       return .stop (.untilPatternMatched info.M)
-    if let some g ← wpConsumeMData? goal info then
+    if let some g ← wpReduceHead? goal info then
+      burnOne
       return .goals scope [g]
     if let some (scope, gs) ← wpLet? scope goal info then
       burnOne
@@ -642,9 +631,6 @@ public def solve (scope : Scope) (goal : MVarId) : VCGenM SolveResult := goal.wi
       burnOne
       return .goals scope gs
     if let some g ← wpFVarZeta? goal info then
-      burnOne
-      return .goals scope [g]
-    if let some g ← wpHeadReduce? goal info then
       burnOne
       return .goals scope [g]
     let f := info.prog.getAppFn

@@ -174,7 +174,6 @@ theorem take_eq_take_iff :
 theorem take_eq_take_min {l : List α} {i : Nat} : l.take i = l.take (min i l.length) := by
   simp
 
-@[grind =]
 theorem take_add {l : List α} {i j : Nat} : l.take (i + j) = l.take i ++ (l.drop i).take j := by
   suffices take (i + j) (take i l ++ drop i l) = take i l ++ take j (drop i l) by
     rw [take_append_drop] at this
@@ -185,6 +184,9 @@ theorem take_add {l : List α} {i j : Nat} : l.take (i + j) = l.take i ++ (l.dro
   apply Nat.le_trans (m := i)
   · apply length_take_le
   · apply Nat.le_add_right
+
+grind_pattern take_add => (l.drop i).take j where
+  l =/= []
 
 theorem take_one {l : List α} : l.take 1 = l.head?.toList := by
   induction l <;> simp

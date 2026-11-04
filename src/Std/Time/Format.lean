@@ -206,7 +206,7 @@ namespace PlainDate
 Formats a `PlainDate` using a specific format and locale.
 -/
 def format (date : PlainDate) (format : String) (locale : DateFormat := .enUS) : String :=
-  let format : Except String (GenericFormat .any) := GenericFormat.spec format
+  let format : Except String (GenericFormat .any) := GenericFormat.spec format { dateformat := locale }
   match format with
   | .error err => s!"error: {err}"
   | .ok res =>
@@ -492,7 +492,7 @@ namespace PlainDateTime
 Formats a `PlainDateTime` using a specific format and locale.
 -/
 def format (date : PlainDateTime) (format : String) (locale : DateFormat := .enUS) : String :=
-  let format : Except String (GenericFormat .any) := GenericFormat.spec format
+  let format : Except String (GenericFormat .any) := GenericFormat.spec format { dateformat := locale }
   match format with
   | .error err => s!"error: {err}"
   | .ok res =>

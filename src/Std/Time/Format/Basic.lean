@@ -120,14 +120,11 @@ private def leftPadAscii (n : Nat) (a : Char) (s : String) : String :=
 private def rightPadAscii (n : Nat) (a : Char) (s : String) : String :=
   s ++ "".pushn a (n - s.positions.length)
 
-private def pad (size : Nat) (n : Int) (cut : Bool := false) : String :=
-  let (sign, n) := if n < 0 then ("-", -n) else ("", n)
-
-  let numStr := toString n
-  if numStr.utf8ByteSize > size then
-    sign ++ if cut then numStr.drop (numStr.utf8ByteSize - size) |>.copy else numStr
-  else
-    sign ++ leftPadAscii size '0' numStr
+/-- `n` with at least `size` digits, zero-padded on the left. -/
+private def pad (size : Nat) (n : Int) : String :=
+  let digits := toString n.natAbs
+  let padded := "".pushn '0' (size - digits.length) ++ digits
+  if n < 0 then "-" ++ padded else padded
 
 /--
 A four-letter year field. A year that needs more than four digits gets an explicit sign, which tells
@@ -463,8 +460,15 @@ private def parseSigned (parser : Parser Nat) : Parser Int := do
   let res ← parser
   return if signed.isSome then -res else res
 
+/-- Exactly `size` digits, as a number. -/
 private def parseNum (size : Nat) : Parser Nat :=
-  String.toNat! <$> exactlyChars (satisfy Char.isDigit) size
+  go size 0
+where
+  go : Nat → Nat → Parser Nat
+    | 0, acc => pure acc
+    | k + 1, acc => do
+      let c ← satisfy Char.isDigit
+      go k (10 * acc + (c.toNat - '0'.toNat))
 
 private def parseAtLeastNum (size : Nat) : Parser Nat :=
   String.toNat! <$> do

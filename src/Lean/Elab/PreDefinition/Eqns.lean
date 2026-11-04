@@ -521,14 +521,16 @@ where
 /--
 Normalizes the RHS of an equality goal using `simpEqn` and `dsimpEqn`, preserving shared bindings.
 The neutral configuration disables general reductions, including zeta expansion, while `simp`
-provides traversal and congruence. Propositional RHS rewrites are lifted to the whole target;
+provides traversal and congruence. Congruence proofs are built in place, so normalization adds no
+`congr_simp` theorems to the environment. Propositional RHS rewrites are lifted to the whole target;
 definitional rewrites directly replace the target.
 Returns the original goal when unchanged, which lets `splitMatch?` detect normalization progress.
 -/
 def normalizeEqn (mvarId : MVarId) : MetaM MVarId := mvarId.withContext do
   let target ← mvarId.getType'
   let some (_, lhs, rhs) := target.eq? | return mvarId
-  let ctx ← Simp.mkContext (config := { Simp.neutralConfig with dsimp := true, etaStruct := .none })
+  let ctx ← Simp.mkContext
+    (config := { Simp.neutralConfig with dsimp := true, etaStruct := .none, congrConsts := false })
   let methods : Simp.Methods := {
     pre := simpEqn
     dpre := dsimpEqn

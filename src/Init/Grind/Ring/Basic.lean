@@ -215,6 +215,14 @@ theorem pow_add (a : α) (k₁ k₂ : Nat) : a ^ (k₁ + k₂) = a^k₁ * a^k₂
   next => simp [pow_zero, mul_one]
   next k₂ ih => rw [Nat.add_succ, pow_succ, pow_succ, ih, mul_assoc]
 
+theorem pow_mul (a : α) (m n : Nat) : a ^ (m * n) = (a ^ m) ^ n := by
+  induction n
+  next => simp [Nat.mul_zero, pow_zero]
+  next n ih => rw [Nat.mul_succ, pow_add, ih, pow_succ]
+
+theorem pow_mul' (a : α) (m n : Nat) : a ^ (m * n) = (a ^ n) ^ m := by
+  rw [Nat.mul_comm, pow_mul]
+
 theorem pow_add_congr (a r : α) (k k₁ k₂ : Nat) : k = k₁ + k₂ → a^k₁ * a^k₂ = r → a ^ k = r := by
   intros; subst k r; rw [pow_add]
 

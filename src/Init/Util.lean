@@ -128,42 +128,46 @@ Returns `true` if `a` and `b` are represented by the same pointer at runtime, or
 If `k` is a function that performs an equality check on `a` and `b`, then this operation can be
 used to short-circuit the equality check for pointer-equal input.
 
-This cannot be wrapped into a safe operation with logical value `k ()` because that would be
-unsound if `α` includes computationally irrelevant data like types. Consider the example
-`α := Prop`, `a := True`, `b := False`, `k := fun _ => false`. In this case, `a = b → k () = true`
-is true, but `a` and `b` have the same runtime representation of an erased type, so `ptrEq a b` is
-true and this function returns `true`, even though `k ()` is `false`.
+This function is unsafe because its result is not equal to `k ()` if `α` includes computationally
+irrelevant data like types. Consider the example `α := Prop`, `a := True`, `b := False`,
+`k := fun _ => false`. In this case, `a = b → k () = true` is true, but `a` and `b` have the same
+runtime representation of an erased type, so `ptrEq a b` is true and this function returns `true`,
+even though `k ()` is `false`.
 
-Users who require a safe version of this function whose logical model is equal to `k ()` must
-manually check that for their type pointer-equality implies logical equality and then create a
-specialized version of this function using `implemented_by`:
-
-```lean
-namespace MyType
-
-@[inline]
-unsafe def withPtrEqUnsafe (a b : MyType) (k : Unit → Bool) (h : a = b → k () = true) : Bool :=
-  _root_.withPtrEqUnsafe a b k h
-
--- Safety: `MyType` contains no non-subsingleton erased data
-@[implemented_by withPtrEqUnsafe]
-def withPtrEq (a b : MyType) (k : Unit → Bool) (_h : a = b → k () = true) : Bool :=
-  k ()
-
-end MyType
-```
+`withPtrEq` is a safe version of this function, for which the compiler checks that `α` does not
+include such data.
 -/
 @[inline] unsafe def withPtrEqUnsafe {α : Type u} (a b : α) (k : Unit → Bool) (_h : a = b → k () = true) : Bool :=
   if ptrEq a b then true else k ()
 
-@[deprecated "See the docstring of `withPtrEqUnsafe`" (since := "2026-09-21")]
-unsafe def withPtrEq {α : Type u} (a b : α) (k : Unit → Bool) (h : a = b → k () = true) : Bool :=
-  withPtrEqUnsafe a b k h
+/--
+Returns `k ()`, but skips evaluating `k ()` and returns `true` if `a` and `b` are represented by the
+same pointer at runtime.
+
+If `k` is a function that performs an equality check on `a` and `b`, then this operation can be
+used to short-circuit the equality check for pointer-equal input.
+
+This is only correct if pointer-equal values of `α` are equal. This is not the case if values of `α`
+can contain types or type formers, because these are erased at runtime. For example, `True` and
+`False` have the same runtime representation, but `withPtrEq True False (fun _ => false) _` must
+return `false`. Therefore, the compiler refuses to compile a definition that uses `withPtrEq` unless
+it can check that values of `α` cannot contain types or type formers. In particular, `withPtrEq`
+cannot be used polymorphically: it can be used at types such as `List Nat` or `Fin n`, but not at
+`List β` if `β` is a type variable.
+
+Use `withPtrEqUnsafe` to bypass this check.
+-/
+-- `noncomputable` so that every use goes through the compiler's type check instead of falling
+-- back to this definition.
+@[expose] noncomputable def withPtrEq {α : Type u} (a b : α) (k : Unit → Bool) (_h : a = b → k () = true) : Bool :=
+  k ()
 
 /--
-Build a `DecidableEq` instance that short-circuits using `withPtrEq` where possible.
-Since the general-purpose `withPtrEqUnsafe` is unsafe, users need to provide their own `withPtrEq`
-function; see the comment on `withPtrEqUnsafe`.
+Build a `DecidableEq` instance that short-circuits using a pointer equality check where possible.
+
+Usually, `withPtrEq` is passed as the first argument, as in
+`withPtrEqDecEq withPtrEq (fun _ _ _ _ => rfl) a b k`. Since `withPtrEqDecEq` is polymorphic, it
+cannot use `withPtrEq` directly; see the docstring of `withPtrEq`.
 -/
 @[inline] def withPtrEqDecEq {α : Type u}
     (withPtrEq : (a b : α) → (k : Unit → Bool) → (h : a = b → k () = true) → Bool)

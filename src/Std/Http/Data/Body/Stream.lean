@@ -458,7 +458,7 @@ context is cancelled).
 -/
 partial def readAll
     [FromByteArray α]
-    [Monad m] [MonadExceptOf IO.Error m] [NextChunk m]
+    [Monad m] [MonadExceptOf IO.Error m] [MonadLiftT Async m] [NextChunk m]
     (stream : Stream)
     (maximumSize : Option UInt64 := none) :
     m α := do
@@ -470,6 +470,9 @@ partial def readAll
       let result := result ++ chunk.data
       if let some max := maximumSize then
         if result.size.toUInt64 > max then
+          -- The caller gets no body to close, so the rest is given up here; left open, it would keep
+          -- its producer (a client connection, say) waiting on a reader that is gone.
+          (stream.close : Async Unit)
           throw (.userError s!"body exceeded maximum size of {max} bytes")
       loop result
 
@@ -750,3 +753,24 @@ def stream
   return Response.Builder.body builder s
 
 end Response.Builder
+
+namespace Response
+open Async
+
+/--
+Reads the entire response body and decodes it as a UTF-8 string.
+When `maximumSize` is given, reading more than that many bytes throws an error.
+-/
+def text (response : Response Body.Stream)
+    (maximumSize : Option UInt64 := none) : Async String :=
+  response.body.readAll maximumSize
+
+/--
+Reads the entire response body as raw bytes.
+When `maximumSize` is given, reading more than that many bytes throws an error.
+-/
+def bytes (response : Response Body.Stream)
+    (maximumSize : Option UInt64 := none) : Async ByteArray :=
+  response.body.readAll maximumSize
+
+end Response

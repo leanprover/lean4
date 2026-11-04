@@ -121,6 +121,15 @@ structure Config where
   maxBodySize : Nat := 64 * 1024 * 1024
 
   /--
+  Upper bound on unread body input the reader retains in memory at once, on top of its header and
+  chunk-line allowances. `none` derives the bound from `maxBodySize`, which is what a peer whose
+  body limit is also its memory limit wants. Set it explicitly when `maxBodySize` is deliberately
+  large — an HTTP client streaming an arbitrarily long download, say — but buffering against a slow
+  consumer must still be bounded.
+  -/
+  maxBufferedBodyBytes : Option Nat := none
+
+  /--
   Maximum length of reason phrase (default: 512 bytes).
   -/
   maxReasonPhraseLength : Nat := 512

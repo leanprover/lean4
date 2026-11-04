@@ -205,6 +205,16 @@ Standard Proxy-Authorization header name
 def proxyAuthorization : Header.Name := .mk "proxy-authorization"
 
 /--
+Standard WWW-Authenticate header name
+-/
+def wwwAuthenticate : Header.Name := .mk "www-authenticate"
+
+/--
+Standard Proxy-Authenticate header name
+-/
+def proxyAuthenticate : Header.Name := .mk "proxy-authenticate"
+
+/--
 Standard Content-Encoding header name
 -/
 def contentEncoding : Header.Name := .mk "content-encoding"

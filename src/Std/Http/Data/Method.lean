@@ -355,6 +355,19 @@ Reference: https://httpwg.org/specs/rfc9110.html#safe.methods
 def isSafe (m : Method) : Bool :=
   m == .get || m == .head || m == .options || m == .trace
 
+/--
+Returns `false` for HTTP methods whose semantics do not anticipate request content, i.e. the ones
+RFC 9110 §8.6 tells a user agent not to send a `Content-Length` for when the request carries none.
+For requests the absence of both `Content-Length` and `Transfer-Encoding` already means "no
+content", so the field would carry no information.
+
+A request that does carry content is still framed regardless of its method.
+
+Reference: https://httpwg.org/specs/rfc9110.html#field.content-length
+-/
+def anticipatesContent (m : Method) : Bool :=
+  !(m == .get || m == .head || m == .delete || m == .options || m == .trace || m == .connect)
+
 instance : ToString Method where
   toString
     | .acl => "ACL"

@@ -10,6 +10,7 @@ public import Std.Internal.Parsec
 public import Std.Http.Data
 public import Std.Internal.Parsec.ByteArray
 public import Std.Http.Protocol.H1.Config
+import Init.Data.String.Lossy
 
 /-!
 This module defines parsers for HTTP/1.1 request and response lines, headers, and body framing. The
@@ -25,8 +26,7 @@ set_option linter.all true
 /--
 Checks if a byte may appear inside a field value.
 
-This parser enforces strict ASCII-only field values and allows only `field-content`
-(`HTAB / SP / VCHAR`).
+Allows `field-content`: `HTAB / SP / VCHAR / obs-text`.
 -/
 @[inline]
 def isFieldVChar (c : UInt8) : Bool :=
@@ -51,12 +51,30 @@ def isOwsByte (c : UInt8) : Bool :=
 -- Parser blocks
 
 /--
+Like `optional (attempt parser)`, except that an `eof` failure is re-raised rather than reported as
+"no item".
+
+Running out of input means the parser has not yet decided whether an item is there. The incremental
+readers turn `eof` into a request for more bytes and retry the parse from the same position, so
+reporting it as the end of the list would let a half-received item be mistaken for the end of one.
+-/
+@[inline]
+def optionalItem {α : Type} (parser : Parser α) : Parser (Option α) := fun it =>
+  match parser it with
+  | .success rem res => .success rem (some res)
+  | .error _ .eof => .error it .eof
+  | .error _ _ => .success it none
+
+/--
 Repeatedly applies `parser` until it returns `none` or the `maxCount` limit is
 exceeded. Returns the collected results as an array.
+
+A `parser` that fails on exhausted input propagates that failure, so an item split across two reads
+is re-parsed once the rest arrives instead of ending the list early.
 -/
 partial def manyItems {α : Type} (parser : Parser (Option α)) (maxCount : Nat) : Parser (Array α) := do
   let rec go (acc : Array α) : Parser (Array α) := do
-    let step ← optional <| attempt do
+    let step ← optionalItem do
       match ← parser with
       | none => fail "end of items"
       | some x => return x
@@ -304,7 +322,8 @@ def parseFieldLine (limits : H1.Config) : Parser (String × String) := do
   let value ← skipByte ':'.toUInt8 *> ows limits *> optional (takeWhileUpTo isFieldVChar limits.maxHeaderValueLength) <* ows limits
 
   let name ← liftOption <| String.fromUTF8? name.toByteArray
-  let value ← liftOption <| String.fromUTF8? <| value.map (·.toByteArray) |>.getD .empty
+  -- obs-text need not be UTF-8; it is kept as opaque data, with any invalid sequence replaced.
+  let value := String.fromUTF8Lossy <| value.map (·.toByteArray) |>.getD .empty
   let value := value.trimAsciiEnd.toString
 
   return (name, value)
@@ -400,7 +419,7 @@ Parses the size and extensions of a chunk.
 -/
 public def parseChunkSize (limits : H1.Config) : Parser (Nat × Array (Chunk.ExtensionName × Option Chunk.ExtensionValue)) := do
   let size ← hex
-  let ext ← manyItems (optional (attempt (parseChunkExt limits))) limits.maxChunkExtensions
+  let ext ← manyItems (some <$> parseChunkExt limits) limits.maxChunkExtensions
   crlf
   return (size, ext)
 
@@ -442,43 +461,56 @@ public def parseChunkSizedData (size : Nat) : Parser TakeResult := do
   | .incomplete data res => return .incomplete data res
 
 /--
+Returns `true` if `name` (compared case-insensitively) frames or routes a message
+(`content-length`, `transfer-encoding`, `host`, `connection`, `te`, `upgrade`, `trailer`). In a
+trailer section such a field is an attempt to reframe the message after the fact, which a downstream
+proxy might act on, so the message is rejected.
+-/
+def isFramingTrailerField (name : String) : Bool :=
+  let n := name.toLower
+  n == "content-length" || n == "transfer-encoding" || n == "host" ||
+  n == "connection" || n == "te" || n == "upgrade" || n == "trailer"
+
+/--
 Returns `true` if `name` (compared case-insensitively) is a field that MUST NOT appear in HTTP/1.1
-trailer sections per RFC 9112 §6.5. Forbidden fields are those required for message framing
-(`content-length`, `transfer-encoding`), routing (`host`), or connection management (`connection`).
+trailer sections per RFC 9112 §6.5: the framing and routing fields of `isFramingTrailerField`, and
+fields that control how the message is processed (`expect`, `authorization`, `max-forwards`,
+`cache-control`, `content-encoding`).
 -/
 def isForbiddenTrailerField (name : String) : Bool :=
   let n := name.toLower
-  n == "content-length" || n == "transfer-encoding" || n == "host" ||
-  n == "connection" || n == "expect" || n == "te" ||
-  n == "authorization" || n == "max-forwards" || n == "cache-control" ||
-  n == "content-encoding" || n == "upgrade" || n == "trailer"
+  isFramingTrailerField name || n == "expect" ||
+  n == "authorization" || n == "max-forwards" || n == "cache-control" || n == "content-encoding"
 
 /--
-Parses a trailer header (used after a chunked body), rejecting forbidden field names per RFC 9112
-§6.5. Fields used for message framing (`content-length`, `transfer-encoding`), routing (`host`),
-or connection management (`connection`, `te`, `upgrade`) are rejected to prevent trailer injection
-attacks where a downstream proxy might re-interpret them.
+Parses a trailer header (used after a chunked body). Framing and routing fields
+(`isFramingTrailerField`) are always rejected, to prevent trailer injection attacks where a downstream
+proxy might re-interpret them. With `strict`, every field forbidden in trailers is rejected; without
+it, the others are parsed and left for the caller to drop, since RFC 9110 §6.5.1 asks recipients not to
+merge them rather than to reject a message that is otherwise complete.
 -/
-def parseTrailerHeader (limits : H1.Config) : Parser (Option (String × String)) := do
+def parseTrailerHeader (limits : H1.Config) (strict : Bool := true) :
+    Parser (Option (String × String)) := do
   let result ← parseSingleHeader limits
   if let some (name, _) := result then
-    if isForbiddenTrailerField name then
+    if isFramingTrailerField name || (strict && isForbiddenTrailerField name) then
       fail s!"forbidden trailer field: {name}"
   return result
 
 /--
-Parses trailer headers after a chunked body and returns them as an array of name-value pairs.
+Parses trailer headers after a chunked body and returns them as an array of name-value pairs, without
+the fields RFC 9112 §6.5 forbids in trailers.
 
 This is exposed for callers that need the trailer values directly (e.g. clients). The
 internal protocol machine uses `parseLastChunkBody` instead, which discards trailer values.
 -/
 public def parseTrailers (limits : H1.Config) : Parser (Array (String × String)) := do
-  let trailers ← manyItems (parseTrailerHeader limits) limits.maxTrailerHeaders
+  let trailers ← manyItems (parseTrailerHeader limits (strict := false)) limits.maxTrailerHeaders
   crlf
-  return trailers
+  return trailers.filter (!isForbiddenTrailerField ·.1)
 
 /--
-Returns `true` if `c` is a valid reason-phrase byte (`HTAB / SP / VCHAR`, strict ASCII-only).
+Returns `true` if `c` is a valid reason-phrase byte (`HTAB / SP / VCHAR / obs-text`).
 -/
 @[inline]
 def isReasonPhraseByte (c : UInt8) : Bool :=
@@ -487,11 +519,12 @@ def isReasonPhraseByte (c : UInt8) : Bool :=
 /--
 Parses a reason phrase (text after status code).
 
-Allows only `HTAB / SP / VCHAR` bytes (strict ASCII-only).
+Allows `HTAB / SP / VCHAR / obs-text` bytes. A client ignores the phrase (RFC 9112 §4), so bytes that
+are not UTF-8 are replaced rather than rejected.
 -/
 def parseReasonPhrase (limits : H1.Config) : Parser String := do
   let bytes ← takeWhileUpTo isReasonPhraseByte limits.maxReasonPhraseLength
-  liftOption <| String.fromUTF8? bytes.toByteArray
+  return String.fromUTF8Lossy bytes.toByteArray
 
 /--
 Parses a status-code (3 decimal digits), the following reason phrase, and the
@@ -502,8 +535,9 @@ def parseStatusCode (limits : H1.Config) : Parser Status := do
   let d2 ← digit
   let d3 ← digit
   let code := (d1.toNat - 48) * 100 + (d2.toNat - 48) * 10 + (d3.toNat - 48)
-  sp
-  let phrase ← parseReasonPhrase limits <* crlf
+  -- Servers that send no reason phrase often leave out the space before it too.
+  let phrase := (← optional (sp *> parseReasonPhrase limits)).getD ""
+  crlf
 
   if h : IsValidReasonPhrase phrase then
     if let some status := Status.ofCode (some ⟨phrase, h⟩) code.toUInt16 then
@@ -514,13 +548,13 @@ def parseStatusCode (limits : H1.Config) : Parser Status := do
 /--
 Parses a status line and returns a fully-typed `Response.Head`.
 `status-line = HTTP-version SP status-code SP [ reason-phrase ]`
-Accepts only HTTP/1.1. For parsing where the version may be unrecognized and must be
-mapped to an error event, use `parseStatusLineRawVersion`.
+Accepts only HTTP/1.x, read as HTTP/1.1 for any minor version above 1. For parsing where the version
+may be unrecognized and must be mapped to an error event, use `parseStatusLineRawVersion`.
 -/
 public def parseStatusLine (limits : H1.Config) : Parser Response.Head := do
   let (major, minor) ← parseHttpVersionNumber <* sp
   let status ← parseStatusCode limits
-  if major == 1 ∧ minor == 1 then
+  if major == 1 ∧ minor ≥ 1 then
     return { status, version := .v11, headers := .empty }
   else if major == 1 ∧ minor == 0 then
     return { status, version := .v10, headers := .empty }
@@ -531,18 +565,22 @@ public def parseStatusLine (limits : H1.Config) : Parser Response.Head := do
 Parses a status line and returns the status code plus recognized HTTP version when available.
 Consumes and discards the reason phrase.
 
+RFC 9110 §2.5: a response with a higher minor version than HTTP/1.1 (`HTTP/1.2`) is processed as
+HTTP/1.1, the highest minor version this client implements.
+
 status-line = HTTP-version SP status-code SP [ reason-phrase ] CRLF
 -/
 public def parseStatusLineRawVersion (limits : H1.Config) : Parser (Status × Option Version) := do
   let (major, minor) ← parseHttpVersionNumber <* sp
   let status ← parseStatusCode limits
-  return (status, Version.ofNumber? major minor)
+  return (status, Version.ofNumber? major (if major == 1 then min minor 1 else minor))
 
 /--
-Parses the trailer section that follows the last chunk size line (`0\r\n`).
+Parses the trailer section that follows the last chunk size line (`0\r\n`). `strict` is passed on to
+`parseTrailerHeader`.
 -/
-public def parseLastChunkBody (limits : H1.Config) : Parser Unit := do
-  discard <| manyItems (parseTrailerHeader limits) limits.maxTrailerHeaders
+public def parseLastChunkBody (limits : H1.Config) (strict : Bool := true) : Parser Unit := do
+  discard <| manyItems (parseTrailerHeader limits strict) limits.maxTrailerHeaders
   crlf
 
 end Std.Http.Protocol.H1

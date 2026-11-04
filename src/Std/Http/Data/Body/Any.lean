@@ -100,6 +100,11 @@ def ofReplayableBody [Http.Body α] [Replayable α] (body : α) : Any where
 
 end Any
 
+/--
+A `Body.Any` is already one, so a `Request Body.Any` can go wherever a body that coerces to it can.
+-/
+instance : Coe Any Any := ⟨id⟩
+
 instance : Http.Body Any where
   recv := Any.recv
   close := Any.close

@@ -47,7 +47,9 @@ def Level.Data.hasParam (c : Level.Data) : Bool :=
   ((c.shiftRight 33).land 1) == 1
 
 @[extern "lean_level_mk_data"]
-opaque Level.mkData (h : UInt64) (depth : Nat := 0) (hasMVar hasParam : Bool := false) : Level.Data
+def Level.mkData (h : UInt64) (depth : Nat := 0) (hasMVar hasParam : Bool := false) : Level.Data :=
+  -- The C implementation panics above `depth = 16777215`; this body computes the same formula there.
+  UInt64.ofNat (h.toUInt32.toNat + hasMVar.toNat * 2 ^ 32 + hasParam.toNat * 2 ^ 33 + depth * 2 ^ 40)
 
 instance : Repr Level.Data where
   reprPrec v prec := Id.run do

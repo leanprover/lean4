@@ -168,12 +168,21 @@ def BinderInfo.toUInt64 : BinderInfo → UInt64
   | .instImplicit   => 3
 
 @[extern "lean_expr_mk_data"]
-opaque Expr.mkData (h : UInt64) (looseBVarRange : Nat := 0) (approxDepth : UInt32 := 0)
-    (hasFVar hasExprMVar hasLevelMVar hasLevelParam : Bool := false) : Expr.Data
+def Expr.mkData (h : UInt64) (looseBVarRange : Nat := 0) (approxDepth : UInt32 := 0)
+    (hasFVar hasExprMVar hasLevelMVar hasLevelParam : Bool := false) : Expr.Data :=
+  -- The C implementation panics above `looseBVarRange = 1048575`; this body computes the same
+  -- formula there.
+  UInt64.ofNat (h.toUInt32.toNat + min 255 approxDepth.toNat * 2 ^ 32 + hasFVar.toNat * 2 ^ 40 +
+    hasExprMVar.toNat * 2 ^ 41 + hasLevelMVar.toNat * 2 ^ 42 + hasLevelParam.toNat * 2 ^ 43 +
+    looseBVarRange * 2 ^ 44)
 
 /-- Optimized version of `Expr.mkData` for applications. -/
 @[extern "lean_expr_mk_app_data"]
-opaque Expr.mkAppData (fData : Data) (aData : Data) : Data
+def Expr.mkAppData (fData : Data) (aData : Data) : Data :=
+  Expr.mkData (mixHash fData aData) (max fData.looseBVarRange.toNat aData.looseBVarRange.toNat)
+    (max fData.approxDepth.toNat aData.approxDepth.toNat + 1).toUInt32
+    (fData.hasFVar || aData.hasFVar) (fData.hasExprMVar || aData.hasExprMVar)
+    (fData.hasLevelMVar || aData.hasLevelMVar) (fData.hasLevelParam || aData.hasLevelParam)
 
 @[inline] def Expr.mkDataForBinder (h : UInt64) (looseBVarRange : Nat) (approxDepth : UInt32) (hasFVar hasExprMVar hasLevelMVar hasLevelParam : Bool) : Expr.Data :=
   Expr.mkData h looseBVarRange approxDepth hasFVar hasExprMVar hasLevelMVar hasLevelParam

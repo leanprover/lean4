@@ -1,4 +1,6 @@
-import Std.Sync
+module
+
+import all Std.Sync.CancellationContext
 
 /-!
 Cancelling a child `CancellationContext` must remove it from its parent's children, so that a

@@ -2920,10 +2920,11 @@ of `forConst`, trace options must be set prior to that (or, for imported constan
 in order to be active. The environment extension state at the end of `realize` is available to each
 caller via `EnvExtension.getState (asyncDecl := constName)`. If `realize` throws an exception or
 fails to add `constName` to the environment, an appropriate diagnostic is reported to all callers
-but no constants are added to the environment.
+but no constants are added to the environment. If `mayOmitConst` is set, `realize` may also return
+without adding `constName`, for when the constants to add are not known up front and can be none.
 -/
-def realizeConst (forConst : Name) (constName : Name) (realize : MetaM Unit) :
-    MetaM Unit := do
+def realizeConst (forConst : Name) (constName : Name) (realize : MetaM Unit)
+    (mayOmitConst := false) : MetaM Unit := do
   let env ← getEnv
   -- If `constName` is already known on this branch, avoid the trace node. We should not use
   -- `contains` as it could block as well as find realizations on other branches, which would lack
@@ -2987,7 +2988,7 @@ where
           -- Meta code working on a non-exported declaration should usually do so inside
           -- `withoutExporting` but we're lenient here in case this call is the only one that needs
           -- the setting.
-          if !((← getEnv).setExporting false).contains constName then
+          if !mayOmitConst && !((← getEnv).setExporting false).contains constName then
             throwError "Lean.Meta.realizeConst: {constName} was not added to the environment")
         <* addTraceAsMessages
     let res? ← act |>.run' |>.run coreCtx { env } |>.toBaseIO

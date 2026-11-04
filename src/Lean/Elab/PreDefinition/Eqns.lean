@@ -341,35 +341,33 @@ where
         return (lctx.mkForall xsNew type, lctx.mkLambda xsNew value)
 
 
-structure EqnTypesKey where
-  declName : Name
-  declNames : Array Name
-deriving BEq, Hashable, TypeName
-
-structure EqnTypes where
-  types : Array Expr
-deriving TypeName
-
-def realizeEqnTypes (key : EqnTypesKey) : MetaM EqnTypes :=
-  withEqnOptions key.declName <| withOptions (tactic.hygienic.set · false) do
-    let target ← unfoldThmType key.declName
+/--
+Adds all equations for `declName`. The types are computed here so that they do not depend on the
+caller's options (e.g. `backward.isDefEq.respectTransparency` can change how `mkEqnTypes` splits).
+They can also mention constants realized during that computation, such as match equations in cast
+proofs, so the theorems must be added in the same realization.
+-/
+def realizeEqns (declName : Name) (declNames : Array Name) : MetaM Unit :=
+  withEqnOptions declName <| withOptions (tactic.hygienic.set · false) do
+    let info ← getConstInfoDefn declName
+    let target ← unfoldThmType declName
     let types ← withNewMCtxDepth <|
       forallTelescope (cleanupAnnotations := true) target fun _ target => do
         let goal ← mkFreshExprSyntheticOpaqueMVar target
         withReducible do
-          mkEqnTypes key.declNames goal.mvarId!
-    return { types }
-
-def realizeEqn (declName name : Name) (type : Expr) : MetaM Unit :=
-  withEqnOptions declName <| withOptions (tactic.hygienic.set · false) do
-    let info ← getConstInfoDefn declName
-    let value ← mkEqnProof declName type
-    let (type, value) ← removeUnusedEqnHypotheses type value
-    addDecl <| (←mkThmOrUnsafeDef {
-      name, type, value
-      levelParams := info.levelParams
-    })
-    inferDefEqAttr name
+          mkEqnTypes declNames goal.mvarId!
+    for h : i in *...types.size do
+      let type := types[i]
+      trace[Elab.definition.eqns] "eqnType[{i}]: {type}"
+      let name := mkEqLikeNameFor (← getEnv) declName s!"{eqnThmSuffixBasePrefix}{i+1}"
+      withDeclNameForAuxNaming name do
+        let value ← mkEqnProof declName type
+        let (type, value) ← removeUnusedEqnHypotheses type value
+        addDecl <| (←mkThmOrUnsafeDef {
+          name, type, value
+          levelParams := info.levelParams
+        })
+        inferDefEqAttr name
 
 /--
 Generate equations for `declName`.
@@ -380,19 +378,16 @@ proves them using `mkEqnProof`.
 -/
 def mkEqns (declName : Name) (declNames : Array Name) : MetaM (Array Name) := do
   trace[Elab.definition.eqns] "mkEqns: {.ofConstName declName}"
-  -- The caller's options (e.g. `backward.isDefEq.respectTransparency`) can change how
-  -- `mkEqnTypes` splits, so the types must not be computed in the caller's context.
-  let key := { declName, declNames : EqnTypesKey }
-  let { types := eqnTypes } ← realizeValue declName key (realizeEqnTypes key)
+  let eqName (i : Nat) := do
+    return mkEqLikeNameFor (← getEnv) declName s!"{eqnThmSuffixBasePrefix}{i+1}"
+  -- A definition eliminating an empty type has no equations, not even `eq_1`.
+  realizeConst declName (← eqName 0) (realizeEqns declName declNames) (mayOmitConst := true)
   let mut thmNames := #[]
-  for h : i in *...eqnTypes.size do
-    let type := eqnTypes[i]
-    trace[Elab.definition.eqns] "eqnType[{i}]: {eqnTypes[i]}"
-    let name := mkEqLikeNameFor (← getEnv) declName s!"{eqnThmSuffixBasePrefix}{i+1}"
+  repeat
+    let name ← eqName thmNames.size
+    unless (← getEnv).containsOnBranch name do
+      break
     thmNames := thmNames.push name
-    -- determinism: `type` comes from `realizeValue`, so it is independent of the environment
-    -- changes since `declName` was added
-    realizeConst declName name (realizeEqn declName name type)
   return thmNames
 
 def getEqnsFor? (declName : Name) : MetaM (Option (Array Name)) := do

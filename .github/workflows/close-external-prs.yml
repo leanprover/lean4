@@ -1,0 +1,53 @@
+name: Close PRs from outside contributors
+
+on:
+  pull_request_target:
+    types: [opened]
+
+permissions:
+  pull-requests: write
+
+jobs:
+  close-external-pr:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Close PR unless author is allowed
+        uses: actions/github-script@v9
+        env:
+          # Comma-separated logins allowed in addition to org members and collaborators.
+          ALLOWLIST: ${{ secrets.PR_AUTHOR_ALLOWLIST }}
+        with:
+          # Safety note: this uses pull_request_target, so the workflow has elevated privileges.
+          # It does not check out or run any code from the PR.
+          script: |
+            const pr = context.payload.pull_request;
+            if (['OWNER', 'MEMBER', 'COLLABORATOR'].includes(pr.author_association)) {
+              return;
+            }
+            const allowlist = (process.env.ALLOWLIST || '').split(',').map(s => s.trim().toLowerCase()).filter(s => s);
+            if (allowlist.length === 0) {
+              core.warning('PR_AUTHOR_ALLOWLIST is empty or unset; not closing anything.');
+              return;
+            }
+            if (allowlist.includes(pr.user.login.toLowerCase())) {
+              return;
+            }
+            const body = [
+              'Thank you for your interest in contributing to Lean!',
+              '',
+              'This repository currently only accepts pull requests from regular contributors, primarly from the Lean FRO, so this PR has been closed automatically.',
+              '',
+              'If you have found a bug or want to propose a change, please [open an issue](https://github.com/leanprover/lean4/issues/new/choose) describing it instead; see also our [contribution guidelines](https://github.com/leanprover/lean4/blob/master/CONTRIBUTING.md). A maintainer may reopen this PR if appropriate.',
+            ].join('\n');
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: pr.number,
+              body,
+            });
+            await github.rest.pulls.update({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: pr.number,
+              state: 'closed',
+            });

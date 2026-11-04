@@ -1423,9 +1423,27 @@ LEAN_BIGNUM_BINARY(object *, nat_big_mul)
 LEAN_BIGNUM_BINARY(object *, nat_big_div)
 LEAN_BIGNUM_BINARY(object *, nat_big_div_exact)
 LEAN_BIGNUM_BINARY(object *, nat_big_mod)
-LEAN_BIGNUM_BINARY(uint8_t, nat_big_eq)
-LEAN_BIGNUM_BINARY(uint8_t, nat_big_le)
-LEAN_BIGNUM_BINARY(uint8_t, nat_big_lt)
+extern "C" LEAN_EXPORT uint8_t lean_bignum_nat_big_eq(obj_arg a1, obj_arg a2);
+extern "C" LEAN_EXPORT uint8_t lean_bignum_nat_big_le(obj_arg a1, obj_arg a2);
+extern "C" LEAN_EXPORT uint8_t lean_bignum_nat_big_lt(obj_arg a1, obj_arg a2);
+
+// A big `Nat` is larger than every scalar, so comparisons with one scalar side need no magnitudes.
+extern "C" LEAN_EXPORT uint8_t lean_nat_big_eq(b_obj_arg a1, b_obj_arg a2) {
+    if (lean_is_scalar(a1) || lean_is_scalar(a2)) return false;
+    lean_inc(a1); lean_inc(a2); return lean_bignum_nat_big_eq(a1, a2);
+}
+
+extern "C" LEAN_EXPORT uint8_t lean_nat_big_le(b_obj_arg a1, b_obj_arg a2) {
+    if (lean_is_scalar(a1)) return true;
+    if (lean_is_scalar(a2)) return false;
+    lean_inc(a1); lean_inc(a2); return lean_bignum_nat_big_le(a1, a2);
+}
+
+extern "C" LEAN_EXPORT uint8_t lean_nat_big_lt(b_obj_arg a1, b_obj_arg a2) {
+    if (lean_is_scalar(a1)) return true;
+    if (lean_is_scalar(a2)) return false;
+    lean_inc(a1); lean_inc(a2); return lean_bignum_nat_big_lt(a1, a2);
+}
 LEAN_BIGNUM_BINARY(object *, nat_big_land)
 LEAN_BIGNUM_BINARY(object *, nat_big_lor)
 LEAN_BIGNUM_BINARY(object *, nat_big_xor)

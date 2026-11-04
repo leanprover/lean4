@@ -317,6 +317,43 @@ structure EqnTelescopeResult where
   proof? : Option Expr := none
 
 /--
+Unfolds `have`s whose values are needed to typecheck the normalized telescope.
+The dependency check excludes the normalization proof: that proof may use a binding's value
+even when the resulting body is well typed with the binding abstract.
+-/
+def zetaDependentHaves (e : Expr) : MetaM Expr := do
+  if !e.isLet then return e
+  /- Values must be available during checking so that we can record which ones it unfolds.
+  The original binding flags in `e` determine which declarations are retained afterward. -/
+  letTelescope e (preserveNondepLet := false) fun xs body => do
+    let deps ← withTrackingZetaDelta <| withInferTypeConfig do
+      for x in xs do
+        let decl ← x.fvarId!.getDecl
+        check decl.type
+        let value := decl.value (allowNondep := true)
+        /- `inferType` alone would miss ill-typed arguments inside the value.
+        The separate comparison also checks that its type still agrees with the declaration. -/
+        check value
+        if !(← isDefEq decl.type (← inferType value)) then
+          throwLetTypeMismatchMessage decl.fvarId
+      check body
+      getZetaDeltaFVarIds
+    return rebuild xs deps e 0
+where
+  rebuild (xs : Array Expr) (deps : FVarIdSet) (e : Expr) (i : Nat) : Expr :=
+    match e with
+    | .letE n t v b nondep =>
+      let b := rebuild xs deps b (i + 1)
+      if nondep && deps.contains xs[i]!.fvarId! then
+        /- Substitute throughout the scope, including types and implicit arguments.
+        For `have a := 0; have q : {n // n = a} := ⟨0, rfl⟩; q.val`,
+        changing only `q`'s type would leave the predicate argument of `q.val` unchanged. -/
+        b.instantiate1 v
+      else
+        mkLet n t v b nondep
+    | _ => e
+
+/--
 Simplifies the suffix `e` beginning at binding `i` of the telescope described by `info`.
 The preceding bindings are represented by free variables in `xs` and the cached expressions in
 `info`, but by loose bound variables in `e` and the result. Abstraction is batched so that closing
@@ -409,7 +446,8 @@ def getEqnTelescopeInfo (e : Expr) : MetaM HaveTelescopeInfo := do
 /--
 The `simp` callback for equation normalization. It handles complete binding telescopes before the
 default traversal, using `simpEqnTelescope` to preserve their nesting and sharing. Unused bindings
-are removed afterward. A changed telescope is revisited: removing dependent uses can make a
+are removed afterward, and `zetaDependentHaves` unfolds bindings needed to typecheck the result.
+A changed telescope is revisited: removing dependent uses can make a
 previously fixed value eligible for propositional rewriting. A stable telescope returns `.done`.
 
 For a matcher, first try definitional reduction, then its congruence equations using local
@@ -423,7 +461,8 @@ partial def simpEqn : Simp.Simproc := fun e => do
     let (fixed, used) ← info.computeFixedUsed false
     let r ← simpEqnTelescope info fixed used e 0 #[]
     let r := { expr := ← zetaUnused r.expr, proof? := r.proof? : Simp.Result }
-    return if r.expr == e then .done r else .visit r
+    if r.expr == e then return .done r
+    return .visit { r with expr := ← zetaUnused (← zetaDependentHaves r.expr) }
   if let some app ← matchMatcherApp? e then
     if let some e' ← reduceRecMatcher? e then
       return .visit { expr := e' }
@@ -436,7 +475,8 @@ partial def simpEqn : Simp.Simproc := fun e => do
 The definitional counterpart of `simpEqn`, used for fixed binding values and dependent arguments
 that `simp` cannot rewrite propositionally. It opens a whole binding telescope, skips unused
 values, and definitionally simplifies the other values and body with preceding values available
-as local definitions. Rebuilding preserves binding flags and removes unused bindings.
+as local definitions. `zetaDependentHaves` unfolds bindings needed to typecheck the result;
+remaining bindings keep their original flags, and unused bindings are removed.
 
 Matchers are reduced only definitionally; no congruence-equation proofs are used. Changed results
 are revisited, and the returned expression is definitionally equal to the input.
@@ -447,7 +487,8 @@ partial def dsimpEqn : Simp.DSimproc := fun e => do
     let (_, used) ← info.computeFixedUsed false
     let r ← Simp.withFreshCache <| visit info used e 0 #[]
     let r ← zetaUnused r
-    return if r == e then .done r else .visit r
+    if r == e then return .done r
+    return .visit (← zetaUnused (← zetaDependentHaves r))
   if ← isMatcherApp e then
     if let some e' ← reduceRecMatcher? e then return .visit e'
   return .continue

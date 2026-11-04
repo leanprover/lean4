@@ -98,6 +98,7 @@ private def checkDefaultSplitStatus (e : Expr) : GoalM SplitStatus := do
       checkIffStatus e a b
     else
       return .ready 2
+  | Not a => checkIteCondStatus a
   | _ =>
     if isIte e || isDIte e then
       return (← checkIteCondStatus (e.getArg! 1))

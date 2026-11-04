@@ -10,6 +10,7 @@ public import Lean.Meta.Match.MatcherApp.Basic
 public import Lean.Meta.Tactic.Apply
 public import Lean.Meta.Tactic.Generalize
 public import Lean.Meta.Tactic.Simp.Types
+import Lean.Meta.Tactic.Contradiction
 import Lean.Meta.Tactic.Simp.Main
 import Lean.Meta.Tactic.SplitIf
 
@@ -316,12 +317,12 @@ matcher occurrences in the target. The arguments must be well-typed in the goal'
 the matcher application need not occur in the target.
 
 Computed discriminants are linked to fresh variables by equalities. After splitting, these
-equalities specialize the goal where possible; unresolved conditions remain as hypotheses.
-The target is not simplified.
+equalities specialize the goal where possible. Contradictory branches are closed; unresolved
+conditions remain as hypotheses. The target is not simplified.
 -/
 def refineMatch (mvarId : MVarId) (matcherDeclName : Name) (us : Array Level)
     (params : Array Expr) (discrs : Array Expr) : MetaM (List MVarId) := mvarId.withContext do
-  applyMatchSplitterCore mvarId matcherDeclName us params discrs fun mvarId motiveType discrs =>
+  let mvarIds ← applyMatchSplitterCore mvarId matcherDeclName us params discrs fun mvarId motiveType discrs =>
     mvarId.withContext do
       if ← discrs.allM fun discr => do
         unless discr.isFVar do return false
@@ -332,6 +333,11 @@ def refineMatch (mvarId : MVarId) (matcherDeclName : Name) (us : Array Level)
       let (discrFVarIds, mvarId) ← mvarId.introN discrs.size
       let (discrEqs, mvarId) ← mvarId.introN discrs.size
       return (discrFVarIds, discrEqs, mvarId)
+  /- Substitution can expose contradictions in the generalized discriminant equalities
+     (e.g. `0 = n.succ`) or overlap exclusions (e.g. `0 = 0 → False`). These hypotheses
+     are already in the local context, so `Cases.unifyEqs?` does not process them. -/
+  mvarIds.filterM fun mvarId => do
+    return !(← mvarId.contradictionCore { useDecide := false, emptyType := false, genDiseq := true })
 
 def mkDiscrGenErrorMsg (e : Expr) : MessageData :=
   m!"`split` tactic failed to generalize discriminant(s) at{indentExpr e}\nresulting expression was not type correct\npossible solution: generalize discriminant(s) manually before using `split`"

@@ -97,7 +97,7 @@ void mpn_mul(mpn_digit const * a, size_t const lnga,
 #define DIGIT_BITS (sizeof(mpn_digit)*8)
 #define HALF_BITS (sizeof(mpn_digit)*4)
 
-    for (unsigned i = 0; i < lnga; i++)
+    for (size_t i = 0; i < lnga; i++)
         c[i] = 0;
 
     for (size_t j = 0; j < lngb; j++) {
@@ -136,15 +136,15 @@ public:
     }
 
     void resize(size_t nsz, const mpn_digit & elem = 0) {
-        buffer<mpn_digit>::resize(static_cast<unsigned>(nsz), elem);
+        buffer<mpn_digit>::resize(nsz, elem);
     }
 
     mpn_digit & operator[](size_t idx) {
-        return buffer<mpn_digit>::operator[](static_cast<unsigned>(idx));
+        return buffer<mpn_digit>::operator[](idx);
     }
 
     const mpn_digit & operator[](size_t idx) const {
-        return buffer<mpn_digit>::operator[](static_cast<unsigned>(idx));
+        return buffer<mpn_digit>::operator[](idx);
     }
 };
 
@@ -330,7 +330,7 @@ char * mpn_to_string(mpn_digit const * a, size_t const lng, char * buf, size_t c
     }
     else {
         mpn_buffer temp(lng, 0), t_numer(lng+1, 0), t_denom(1, 0);
-        for (unsigned i = 0; i < lng; i++)
+        for (size_t i = 0; i < lng; i++)
             temp[i] = a[i];
 
         size_t j = 0;

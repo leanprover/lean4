@@ -13,9 +13,7 @@ public import Lean.Kernel.InLean.Basic
 /-!
 # InLean: the Nat-operation pin variants
 
-Task #451.  The route chosen for the pins (the lane brief's open point):
-InLean may not import ConLeche, so it embeds the **same committed dumps**
-con-leche splices (`pins/<toolchain>.json`, `ConLeche/Kernel/NatOpPins.lean`,
+InLean embeds the **same dumps** con-leche splices (`pins/<toolchain>.json`, `ConLeche/Kernel/NatOpPins.lean`,
 in the same order) with `include_str`, and decodes their share tables
 (`ConLeche/PinGen/Dump.lean`'s encoding) into `Lean.Expr` when a
 pin-certified operation is declared — eight times per run, so the decode

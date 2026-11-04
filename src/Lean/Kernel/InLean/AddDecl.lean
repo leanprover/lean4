@@ -7,7 +7,7 @@ module
 
 prelude
 
-public import Lean.Kernel.InLean.Inductive
+public import Lean.Kernel.InLean.IndCheck.Block
 /- The kernel adds checked constants with `Kernel.Environment.add`, `markQuotInit` and
 `Environment.updateBaseAfterKernelAdd`, which are private to `Lean.Environment` so that nothing
 else bypasses the kernel. -/
@@ -16,14 +16,16 @@ import all Lean.Environment
 /-!
 # InLean: the entry points
 
-Task #451.  `addDecl`, the twin of `Lean.Kernel.Environment.addDeclCore`:
-check a `Lean.Declaration` with con-leche's checker (`InLean/Decl.lean`)
+`addDecl`, the twin of `Lean.Kernel.Environment.addDeclCore`:
+check a `Lean.Declaration` with con-leche's checker (`Lean/Kernel/InLean/Decl.lean`)
 and add the constants it declares.  `kernelWhnf` and `kernelIsDefEq` are the twins
 of `Kernel.whnf`/`Kernel.isDefEq`.
 
-Every declaration kind is InLean's own: inductive declarations go to
-`InLean/Inductive.lean` (lane B), which produces the inductive types',
-constructors' and recursors' constants itself.
+Every declaration kind is InLean's own.  An inductive declaration goes to
+`IC.checkInductiveDecl` (`Lean/Kernel/InLean/IndCheck/Block.lean`): the unverified
+generator (`Lean/Kernel/InLean/IndGen.lean`) produces the inductive types',
+constructors' and recursors' constants, and con-leche's installer and
+checked job (`Lean/Kernel/InLean/IndCheck/*`) decide on them.
 -/
 
 public section
@@ -43,12 +45,12 @@ structure Config where
   probeNoMemo : String := ""
   /-- the axiom policy, see `Ctx.coreAxioms` -/
   coreAxioms : Bool := false
-  /-- STOPGAP, see `Ctx.uncertifiedNatOps` -/
-  uncertifiedNatOps : Bool := false
+  /-- the Nat-operation stopgap, see `Ctx.uncertifiedNatOps` -/
+  uncertifiedNatOps : Bool := true
 
 /-- Run a check in a fresh per-declaration state. -/
 def runM (env : Kernel.Environment) (x : M α) (probe : String := "")
-    (coreAxioms : Bool := false) (uncertifiedNatOps : Bool := false) : Except Err α :=
+    (coreAxioms : Bool := false) (uncertifiedNatOps : Bool := true) : Except Err α :=
   match (x.run { env, probeNoMemo := probe, coreAxioms, uncertifiedNatOps }).run {} with
   | .ok a _ => .ok a
   | .error e _ => .error e
@@ -66,12 +68,12 @@ def checkDecl (cfg : Config) (env : Kernel.Environment) (decl : Declaration) :
     | .mutualDefnDecl vs => checkMutual μ addConst vs
     | .quotDecl => checkQuot
     | .inductDecl lps nparams types isUnsafe =>
-      Ind.checkInductive μ addConst lps nparams types isUnsafe)
+      IC.checkInductiveDecl μ addConst lps nparams types isUnsafe)
     cfg.probeNoMemo cfg.coreAxioms cfg.uncertifiedNatOps
 
 /-- **Check `decl` and add the constants it declares** — the twin of
 `Lean.Kernel.Environment.addDeclCore`.  A reject, a decline and an
-internal error are all `Kernel.Exception.other` (ruling 7), the message
+internal error are all `Kernel.Exception.other`, the message
 prefixed `(InLean)` and, for a decline, `declined:`. -/
 def addDecl (env : Kernel.Environment) (decl : Declaration) (cfg : Config := {}) :
     Except Kernel.Exception Kernel.Environment :=
@@ -96,18 +98,17 @@ def kernelIsDefEq (env : Kernel.Environment) (a b : Expr) (cfg : Config := {}) :
 
 /-! ## The kernel's entry points in core
 
-The C++ kernel's `extern "C"` functions, implemented here by `@[export]` with
-the same signatures as their `@[extern]` declarations in `Lean.Environment`
-(the `@&` borrow annotations were dropped from those declarations: an `@[export]` function takes owned arguments).  In core the axiom policy is the official
-kernel's (`Config.coreAxioms := true`): every axiom is accepted and `sorryAx`
-may be used.
+The kernel's entry points, by `@[export]` with the signatures of their `@[extern]` declarations
+in `Lean.Environment`; those take owned arguments, as an `@[export]` function must.  Every axiom is
+accepted and `sorryAx` may be used (`Config.coreAxioms`); the prelude is assumed good
+(`Config.uncertifiedNatOps`).
 
 Not honoured: `maxHeartbeats`, `maxRecDepth` and the cancellation token are
 accepted and ignored (InLean has no heartbeat counter, no recursion-depth
 guard beyond the native stack, and no interruption check). -/
 
 /-- The configuration InLean runs with inside core. -/
-def coreConfig : Config := { coreAxioms := true, uncertifiedNatOps := true }  -- STOPGAP flag
+def coreConfig : Config := { coreAxioms := true, uncertifiedNatOps := true }
 
 /-- `Kernel.Environment.addDeclCore` (`lean_add_decl`). -/
 @[export lean_add_decl]

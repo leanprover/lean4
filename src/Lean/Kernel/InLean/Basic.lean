@@ -7,13 +7,13 @@ module
 
 prelude
 
-public import Init
 public import Lean.Environment
+public import Lean.Kernel.InLean.ExprOps
 
 /-!
 # InLean: modes, errors, names, levels
 
-Task #451.  The fuel-free basics of con-leche's checker, ported onto
+The fuel-free basics of con-leche's checker, ported onto
 `Lean.Level`/`Lean.Name`: the mode (`ConLeche/Kernel/Env.lean`'s
 `CheckMode`), the error kinds (`CheckError`), the zero-ness datum
 (`ConLeche/Kernel/PropWhen.lean`) and the level operations
@@ -117,21 +117,6 @@ end PropWhen
 /-! ## Levels (twin of `ConLeche/Kernel/Level.lean`) -/
 
 namespace Lvl
-
-/-- Twin of `Level.subst.go`. -/
-def substGo : List Name → List Level → Name → Level
-  | k :: ks, v :: vs, n => if k == n then v else substGo ks vs n
-  | _, _, n => .param n
-
-/-- Twin of `Level.subst` (no simplification, unlike Lean's
-`Level.instantiateParams`). -/
-def subst (ks : List Name) (vs : List Level) : Level → Level
-  | .zero => .zero
-  | .succ l => .succ (subst ks vs l)
-  | .max l r => .max (subst ks vs l) (subst ks vs r)
-  | .imax l r => .imax (subst ks vs l) (subst ks vs r)
-  | .param n => substGo ks vs n
-  | .mvar m => .mvar m
 
 def allParamsDefined (params : List Name) : Level → Bool
   | .zero => true

@@ -8,18 +8,17 @@ module
 prelude
 
 public import Lean.Kernel.InLean.Basic
-public import Lean.Util.CollectFVars
+
 
 /-!
 # InLean: the per-declaration state and the data con-leche stores at install
 
-Task #451.  Twin of `ConLeche/Cached/StateC.lean`: the monad, the memo
+Twin of `ConLeche/Cached/StateC.lean`: the monad, the memo
 maps of the six core entry points (with the eager tower's set swapped in
-and out, task #361), the level memos, the persistent bulk-instantiation
+and out), the level memos, the persistent bulk-instantiation
 memo, the lazy `(name, levels)` caches of stored constants.
 
-Two things are new, both forced by Lean's data (rulings 2 and 3 of the
-#451 DESIGN record):
+Two things are new, both forced by Lean's data:
 
 * **Free variables.**  `Lean.Expr.fvar` carries an id only.  con-leche's
   free variable is a de Bruijn level *with* its type (nanoda's
@@ -140,19 +139,19 @@ structure St where
   eqvC : Std.HashMap (Level × Level) Bool := {}
   instC : Std.HashMap (Expr × List Expr) Expr := {}
   eagerMemos : ModeMemos := {}
-  /-- `(depth, type)` ↦ free-variable number (ruling 3). -/
+  /-- `(depth, type)` ↦ free-variable number. -/
   fvTab : Std.HashMap (Nat × Expr) Nat := {}
   /-- per free-variable number: its type -/
   fvTys : Array Expr := #[]
   /-- per free-variable number: its depth -/
   fvDeps : Array Nat := #[]
-  /-- install-derived data, per declaration (ruling 2) -/
+  /-- install-derived data, per declaration -/
   caps : Std.HashMap Name (Option IndCaps) := {}
   recs : Std.HashMap Name (Option RecX) := {}
   tabs : Std.HashMap Name (Option ProjTable) := {}
   /-- a Prop structure's guard levels, per structure -/
   guards : Std.HashMap Name (Array Level) := {}
-  /-- the inductive generator's local context (lane B): per free-variable
+  /-- the inductive generator's local context: per free-variable
   number, the binder name and info its local was declared with -/
   fvNames : Std.HashMap Nat (Name × BinderInfo) := {}
   /-- the generator's context depth: the number of locals declared so far
@@ -172,17 +171,19 @@ structure Ctx where
   (`""`: none; `"caps"`, `"recs"`, `"tabs"`, `"all"`).  Results are the
   same either way; only the cost differs. -/
   probeNoMemo : String := ""
-  /-- **The axiom policy** (task #451 lane D).  `false`, con-leche's: only
+  /-- **The axiom policy**.  `false`, con-leche's: only
   the standard and compiler-trust axioms are accepted, any other axiom and
   any use of `sorryAx` declines.  `true`, the official kernel's: every
   axiom is accepted and `sorryAx` may be used (what Lean needs for
   ordinary use; the pinned axioms' shapes are still checked). -/
   coreAxioms : Bool := false
-  /-- **STOPGAP (task #451 lane D, open design question).**  Core elaborates Init in source
-  order, where a pinned Nat operation is declared before the Init lemmas its certificates
-  mention.  When set, a pinned operation whose pin or certificate check declines is accepted
-  anyway, and the literal fast path fires on it uncertified, as in the official kernel. -/
-  uncertifiedNatOps : Bool := false
+  /-- **The prelude is assumed good**: a pinned Nat operation whose
+  recurrence, pin or certificate check declines is accepted (its definition
+  is type-checked as any other), and the literal fast path fires on it by
+  name, also where it is stored as an axiom or opaque: a `module` importer
+  sees the non-exposed `Nat.land`, `Nat.lor`, `Nat.xor` and `Nat.gcd` that
+  way.  `false` is con-leche's policy. -/
+  uncertifiedNatOps : Bool := true
 
 /-- The checker's monad (twin of `CheckCM`). -/
 abbrev M := ReaderT Ctx (EStateM Err St)
@@ -231,7 +232,7 @@ def fvarInfo? (id : FVarId) : M (Option (Expr × Nat)) := do
 /-- The free variables occurring in `e` (a memoised DAG walk,
 `Lean.CollectFVars`). -/
 def fvarsOf (e : Expr) : Array FVarId :=
-  (Lean.collectFVars {} e).fvarIds
+  EO.fvarIds e
 
 /-- Twin of `Expr.wscopedBC depth e`: every free variable of `e` lies
 below `depth` (the types of interned variables are scoped by
@@ -251,17 +252,25 @@ types (twin of `fvarLeavesC`: a nanoda free variable carries its type,
 so con-leche's leaves include the variables of the annotations). -/
 def fvarClosure (e : Expr) : M (Std.HashSet FVarId) := do
   let s ← get
-  let mut seen : Std.HashSet FVarId := {}
-  let mut todo := fvarsOf e
-  while !todo.isEmpty do
-    let id := todo.back!
-    todo := todo.pop
-    unless seen.contains id do
-      seen := seen.insert id
-      if let some n := fvNum? id then
-        if let some ty := s.fvTys[n]? then
-          todo := todo ++ fvarsOf ty
-  return seen
+  return go s (2 ^ 62) (fvarsOf e).toList {}
+where
+  /-- The worklist, structural on a fuel of one step per item (no
+  `while`, whose `repeatM` is opaque to proofs).  Exhaustion returns the
+  set found so far: the guard then fails, a missed rescue, never a wrong
+  acceptance. -/
+  go (s : St) : Nat → List FVarId → Std.HashSet FVarId → Std.HashSet FVarId
+    | 0, _, seen => seen
+    | _, [], seen => seen
+    | fuel + 1, id :: todo, seen =>
+      if seen.contains id then go s fuel todo seen
+      else
+        let seen := seen.insert id
+        let more : List FVarId := match fvNum? id with
+          | some n => match s.fvTys[n]? with
+            | some ty => (fvarsOf ty).toList
+            | none => []
+          | none => []
+        go s fuel (more ++ todo) seen
 
 /-- Twin of `Expr.leafGuard fab base`: the free variables of `fab` are
 among `base`'s, hereditarily (`leavesSubC (fvarLeavesC base) fab`). -/
@@ -271,6 +280,18 @@ def leafGuard (fab base : Expr) : M Bool := do
   return (fvarsOf fab).all bs.contains
 
 /-! ## Syntactic operations (the `*M` wrappers) -/
+
+/-- `EO.abstract` with its range check: an index past
+`EO.maxBVarIdx` is an error, where C's `Expr.mkData` would abort (checker
+terms have no metavariable, so `hasExprMVar` reads `EO.rangePoison`). -/
+def abstractChecked (e : Expr) (xs : Array Expr) : M Expr := do
+  let r := e.abstractI xs
+  if r.hasExprMVar then throwInternal "too many bound variables"
+  return r
+
+/-- `abstractChecked` of the first `n` variables (Lean's `abstractRange`). -/
+@[inline] def abstractRangeChecked (e : Expr) (n : Nat) (xs : Array Expr) : M Expr :=
+  abstractChecked e (xs.extract 0 n)
 
 /-- Twin of `instListM`: bulk instantiation (innermost first) under the
 persistent result memo. -/
@@ -282,7 +303,7 @@ def instListM (e : Expr) (vs : List Expr) : M Expr :=
     | none =>
       let mp := s.instC
       let s := { s with instC := {} }
-      let r := e.instantiate vs.toArray
+      let r := e.instI vs.toArray
       (r, { s with instC := mp.insert (e, vs) r })
 
 /-! ## Level operations -/
@@ -423,10 +444,7 @@ def hintSameRegular : ReducibilityHints → ReducibilityHints → Bool
 
 /-- `e` without `mdata` (the literal guards compare stored types
 syntactically, as con-leche's do on its mdata-free terms). -/
-partial def stripMDataS (e : Expr) : Expr :=
-  e.replace fun
-    | .mdata _ b => some (stripMDataS b)
-    | _ => none
+def stripMDataS (e : Expr) : Expr := EO.stripMData e
 
 /-- A guard on a stored type, raw first and `mdata`-stripped only on a
 mismatch (the guards run on the hot path; Lean's stored types rarely
@@ -505,8 +523,6 @@ def strLitSupported (env : Kernel.Environment) : Bool :=
 def natOpStored (env : Kernel.Environment) (c : Name) (uncertified : Bool := false) : Bool :=
   match env.find? c with
   | some (.defnInfo _) => true
-  -- STOPGAP (`Ctx.uncertifiedNatOps`): a `module` importer sees a non-exposed pinned operation
-  -- (`Nat.land`/`lor`/`xor`/`gcd`) as an axiom; its certificate was checked in its home module
   | some (.axiomInfo _) | some (.opaqueInfo _) => uncertified
   | _ => false
 
@@ -620,15 +636,20 @@ def teleArityOk (ty : Expr) (n : Nat) : Bool := (peelPis n ty).isSome
 
 /-- Twin of `piResidual`: instantiate a ∀ telescope along `args` (bulk,
 with a raw `bvar` residual flushed and re-entered). -/
-partial def piResidualGo (args : Array Expr) (acc : Array Expr) (e : Expr) (i : Nat) :
+def piResidualGo (args : Array Expr) (acc : Array Expr) (e : Expr) (i : Nat) :
     Option Expr :=
   if h : i < args.size then
     match e with
     | .forallE _ _ b _ => piResidualGo args (acc.push args[i]) b (i + 1)
     | .bvar .. =>
-      if acc.isEmpty then none else piResidualGo args #[] (e.instantiateRev acc) i
+      if acc.isEmpty then none else piResidualGo args #[] (e.instRevI acc) i
     | _ => none
-  else some (e.instantiateRev acc)
+  else some (e.instRevI acc)
+termination_by (args.size - i, acc.size)
+decreasing_by
+  all_goals first
+    | (apply Prod.Lex.left; omega)
+    | (apply Prod.Lex.right' <;> simp_all [Nat.pos_iff_ne_zero, Array.size_eq_zero_iff])
 
 def piResidual (e : Expr) (args : Array Expr) : Option Expr := piResidualGo args #[] e 0
 

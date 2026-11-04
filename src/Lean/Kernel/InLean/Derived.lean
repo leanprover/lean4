@@ -13,8 +13,8 @@ public import Lean.Kernel.InLean.Pins
 /-!
 # InLean: the install-derived data, read on use
 
-Task #451, ruling 2.  What con-leche's installer stores beside the
-constants (OVERVIEW §13: `IndCaps`, the rule bits `k`/`eta`, the rule's
+What con-leche's installer stores beside the
+constants (con-leche's OVERVIEW §13: `IndCaps`, the rule bits `k`/`eta`, the rule's
 `ctorParams` and firing mode, `majorIdx`/`rulePrefix`, the projection
 tables' bodies) is computed here from Lean's own constants, by the
 installer's own formulas:
@@ -33,7 +33,7 @@ installer's own formulas:
 * `projTableOf` — twin of `structProjBodiesC` (`Cached/CheckerC.lean`):
   the projection bodies by substitution, at every index-free
   one-constructor inductive (`storedTables`).  The guards need inference
-  and live in the core (`InLean/Core.lean`, `projGuards`).
+  and live in the core (`Lean/Kernel/InLean/Core.lean`, `projGuards`).
 
 Each is memoised per declaration (`St.caps`, `St.recs`, `St.tabs`).
 -/
@@ -57,7 +57,7 @@ def readResSort (env : Kernel.Environment) : Nat → Nat → Expr → Option Lev
       match env.find? c with
       | some (.defnInfo v) =>
         if us.length == v.levelParams.length then
-          readResSort env fuel n ((v.value.instantiateLevelParams v.levelParams us).beta e.getAppArgs)
+          readResSort env fuel n ((v.value.instLvlParamsI v.levelParams us).betaI e.getAppArgs)
         else none
       | _ => none
     | _ => none
@@ -177,7 +177,7 @@ def recOfRecursor (rv : RecursorVal) : M (Option RecX) := do
         match env.find? I with
         | some (.inductInfo iv) =>
           let ds := (dom.getAppArgs.extract 0 iv.numParams).map fun d =>
-            d.lowerLooseBVars (mI - rP) (mI - rP)
+            d.lowerLooseBVarsI (mI - rP) (mI - rP)
           .nested us ds
         | _ => .plain
       | _ => .plain
@@ -231,14 +231,14 @@ def structProjBodies (T : Name) (nP nF : Nat) (cty : Expr) : Option (Array Expr)
   let mut e := cty
   for k in [0:nP] do
     match e with
-    | .forallE _ _ b _ => e := b.instantiate1 (.bvar (nP - k))
+    | .forallE _ _ b _ => e := b.inst1I (.bvar (nP - k))
     | _ => none
   let mut bodies : Array Expr := #[]
   for i in [0:nF] do
     match e with
     | .forallE _ d b _ =>
       bodies := bodies.push d
-      e := b.instantiate1 (.proj T i (.bvar 0))
+      e := b.inst1I (.proj T i (.bvar 0))
     | _ => none
   return bodies
 
@@ -275,7 +275,7 @@ def projTableOf (T : Name) : M (Option ProjTable) := do
 arguments and the subject. -/
 def ProjEntry.typeAt (entry : ProjEntry) (us : List Level) (targs : Array Expr)
     (pe : Expr) : Expr :=
-  (entry.body.instantiateLevelParams entry.levelParams us).instantiate (#[pe] ++ targs.reverse)
+  (entry.body.instLvlParamsI entry.levelParams us).instI (#[pe] ++ targs.reverse)
 
 /-! ## The head-symbol readers (twin of `ConLeche/Kernel/PropRead.lean`) -/
 

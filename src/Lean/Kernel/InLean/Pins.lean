@@ -12,7 +12,7 @@ public import Lean.Kernel.InLean.Basic
 /-!
 # InLean: the pinned shapes
 
-Task #451.  Twins of con-leche's hand-written pins, spelled with the
+Twins of con-leche's hand-written pins, spelled with the
 same builder (`ConLeche/Kernel/Basis/Builder.lean`), now producing
 `Lean.Expr`: the quotient block (`Basis/Quot.lean`), the pinned `Eq`
 and `Nat` types (`Basis/Eq.lean`, `Basis/Nat.lean`), the standard axioms
@@ -66,27 +66,24 @@ structure Pin where
 nesting; pins and the types compared with them are small).  con-leche's
 frontend drops `mdata` at parse; Lean's stored types carry it (the
 `borrowed` annotations of `Nat.add`'s domains). -/
-partial def stripMData (e : Expr) : Expr :=
-  e.replace fun
-    | .mdata _ b => some (stripMData b)
-    | _ => none
+def stripMData (e : Expr) : Expr := EO.stripMData e
 
 /-- A type at the pin's level-parameter names (positionally), `mdata`
 stripped: con-leche's `ConstantVal.canon` comparison (the pinned basis
 blocks are matched up to level-parameter renaming). -/
 def canonAt (lps pinLps : List Name) (ty : Expr) : Expr :=
-  stripMData (if lps == pinLps then ty else ty.instantiateLevelParams lps (pinLps.map .param))
+  stripMData (if lps == pinLps then ty else ty.instLvlParamsI lps (pinLps.map .param))
 
 /-- Twin of `ConstantVal.matchesPin` up to `canon`. -/
 def Pin.matches (p : Pin) (ci : ConstantInfo) : Bool :=
   ci.name == p.name && ci.levelParams.length == p.lps.length &&
-    canonAt ci.levelParams p.lps ci.type == p.type
+    EO.alphaEq (canonAt ci.levelParams p.lps ci.type) p.type
 
 /-- `Pin.matches` on a declaration's own name, levels and type. -/
 def Pin.matchesDecl (p : Pin) (n : Name) (lps : List Name) (ty : Expr) : Bool :=
-  n == p.name && lps.length == p.lps.length && canonAt lps p.lps ty == p.type
+  n == p.name && lps.length == p.lps.length && EO.alphaEq (canonAt lps p.lps ty) p.type
 
-/-! ## The pinned `Eq` and `Nat` (types only: the blocks are lane B's) -/
+/-! ## The pinned `Eq` and `Nat` (types only) -/
 
 def eqPin : Pin := ⟨eqName, [uN], piI "α" (srt u) <| pi "a" (bv 0) <| pi "b" (bv 1) prop⟩
 def natPin : Pin := ⟨natName, [], type1⟩
@@ -343,7 +340,7 @@ def substConst0 (n : Name) (r : Expr) : Expr → Expr
 /-- Twin of `Expr.substConstAll`: replace the level-free constant `n` by
 the closed `r` everywhere (a memoised DAG walk, `Expr.replace`). -/
 def substConstAll (n : Name) (r : Expr) (e : Expr) : Expr :=
-  e.replace fun
+  e.replaceI fun
     | .const c [] => if c == n then some r else none
     | _ => none
 

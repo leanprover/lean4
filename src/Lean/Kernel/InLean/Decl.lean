@@ -15,7 +15,7 @@ public import Lean.Util.FoldConsts
 /-!
 # InLean: declaration checking
 
-Task #451.  Twin of `ConLeche/Cached/ParsedC.lean`'s `checkDeclC` and
+Twin of `ConLeche/Cached/ParsedC.lean`'s `checkDeclC` and
 `ConLeche/Kernel/CheckDecl.lean`'s `checkDecl` over `Lean.Declaration`:
 the constant checks (`checkConstantValC`), the value checks
 (`checkDefnValCI`, `checkThmVal`, `checkOpaqueValCI`), the pinned axioms
@@ -24,14 +24,14 @@ structural Nat operations' recurrence certificates (`certifyNatEqs`), the
 pin-certified ones' variants (`checkDivModPinF`) and the compiler-trust
 opaques' pins (`checkReducePinF`).
 
-Beyond con-leche (ruling 5), as the official kernel does
+Beyond con-leche, as the official kernel does
 (`environment.cpp`): `unsafe` axioms, definitions and opaques, `partial`
 definitions and `mutualDefnDecl`.  Each runs the core at the
 declaration's safety (`Ctx.safety`); none of them is covered by any
 proof.
 
 What is returned is the list of constants to add, in order; the caller
-(`InLean/AddDecl.lean`) adds them.  A recursive `unsafe` definition and a
+(`Lean/Kernel/InLean/AddDecl.lean`) adds them.  A recursive `unsafe` definition and a
 mutual block need their own constants in the environment their values are
 checked in: `addConst` is passed in for that.
 
@@ -49,7 +49,7 @@ open Lean
 
 /-- The level parameters `e` mentions (a memoised DAG walk). -/
 def levelParamsOf (e : Expr) : Array Name :=
-  (Lean.CollectLevelParams.main e {}).params
+  EO.levelParams e
 
 /-- Twin of the syntactic half of `checkConstantValC` /
 `checkDefnValCI` on one expression: closed, no metavariable, level
@@ -63,7 +63,7 @@ def checkExprWF (what : String) (lps : List Name) (e : Expr) : M Unit := do
       throwInvalid s!"undeclared universe parameter in {what}"
   let env := (← read).env
   let coreAxioms := (← read).coreAxioms
-  for c in e.getUsedConstants do
+  for c in EO.usedConstants e do
     if c == sorryAxName && !coreAxioms then throwDeclined "use of the sorryAx axiom"
     unless (env.find? c).isSome do
       throwInvalid s!"unknown constant {c} in {what}"
@@ -156,7 +156,7 @@ def divModEnvGuard (env2 : Kernel.Environment) (c : Name) : Bool :=
 
 /-- Every constant of `e` resolves in `env`. -/
 def constsResolve (env : Kernel.Environment) (e : Expr) : Bool :=
-  e.getUsedConstants.all fun c => (env.find? c).isSome
+  (EO.usedConstants e).all fun c => (env.find? c).isSome
 
 /-- Twin of `divModPinGuardF`. -/
 def divModPinGuard (env : Kernel.Environment) (op : PinOp) : Bool :=
@@ -299,13 +299,6 @@ structure Added where
   consts : Array ConstantInfo := #[]
   quot : Bool := false
 
-/-- **STOPGAP** (see `Ctx.uncertifiedNatOps`): under the flag, a declined pin or certificate
-check of a pinned Nat operation is dropped; a reject or an internal error still propagates. -/
-def stopgapUncertified (x : M Unit) : M Unit := do
-  if (← read).uncertifiedNatOps then
-    try x catch e => if e.isDecline then pure () else throw e
-  else x
-
 /-- A definition's check (official `add_definition`; con-leche's
 `checkDeclC` `defnDecl` arm, the pinned Nat operations included).
 `addConst` is core's private `Kernel.Environment.add`. -/
@@ -324,8 +317,8 @@ def checkDefn (μ : CheckMode) (addConst : Kernel.Environment → ConstantInfo �
   checkValue μ "definition" v.name v.levelParams v.type v.value
   if natOpNames.contains v.name || natDivModNames.contains v.name then
     let env2 := addConst (← read).env ci
-    if natOpNames.contains v.name then
-      stopgapUncertified do
+    let certify : M Unit := do
+      if natOpNames.contains v.name then
         unless natOpGuard env2 v.name && (natOpDeps v.name).all (natOpStoredOk env2) do
           throwDeclined s!"nonstandard structural Nat operation environment ({v.name})"
         let (x, y) ← natVars
@@ -333,8 +326,12 @@ def checkDefn (μ : CheckMode) (addConst : Kernel.Environment → ConstantInfo �
           (substConst0 v.name v.value l, substConst0 v.name v.value r)
         unless ← certifyNatEqs μ eqs do
           throwDeclined s!"nonstandard structural Nat operation ({v.name})"
-    if natDivModNames.contains v.name then
-      stopgapUncertified (checkDivModPin μ env2 v.name v.value)
+      if natDivModNames.contains v.name then
+        checkDivModPin μ env2 v.name v.value
+    if (← read).uncertifiedNatOps then
+      -- the stopgap (`Ctx.uncertifiedNatOps`): a declined certification accepts
+      tryCatch certify fun e => if e.isDecline then pure () else throw e
+    else certify
   return { consts := #[ci] }
 
 /-- A theorem's check (twin of `checkThmVal`; official `add_theorem`).
@@ -360,7 +357,7 @@ def checkOpaque (μ : CheckMode) (addConst : Kernel.Environment → ConstantInfo
 /-- An axiom's check (twin of `checkDeclC`'s `axiomDecl` arm).  The
 pinned axioms are accepted; `sorryAx` is added (Lean's elaborator needs
 it; a use declines, `checkExprWF`, `inferBody`); an unsafe axiom is
-accepted as the official kernel does (ruling 5); any other axiom
+accepted as the official kernel does; any other axiom
 declines, as con-leche's. -/
 def checkAxiom (μ : CheckMode) (v : AxiomVal) : M Added := do
   let ci := ConstantInfo.axiomInfo v

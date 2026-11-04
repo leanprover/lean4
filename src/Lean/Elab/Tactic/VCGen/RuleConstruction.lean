@@ -518,4 +518,27 @@ public def mkFrameBackwardRule (fp : FrameProc) (info : WPApp) :
   let rule ← mkBackwardRuleFromExpr res.expr res.paramNames.toList
   analyzeFrameRule rule fp.opHead info.excessArgs.size
 
+/--
+The backward rule that eliminates a supremum or a pure guard under the frame operator
+`op : R → Pred → Pred` of `fp` on the left of an entailment. With `thm` the lemma
+`PreservesSup.map_iSup_le`, the rule concludes `op F (⨆ i, P i) ⊑ R'` from `∀ i, op F (P i) ⊑ R'`.
+With `thm` the lemma `PreservesSup.map_ofProp_meet_le`, it concludes `op F (⌜φ⌝ ⊓ P) ⊑ R'` from
+`φ → op F P ⊑ R'`. The frame `F` stays schematic. `none` when `op F` has no `PreservesSup`
+instance for a frame `F`.
+-/
+public def mkOpPreIntroRule (fp : FrameProc) (info : WPApp) (thm : Name) :
+    MetaM (Option BackwardRule) := do
+  let op ← fp.mkOpAppM info
+  withLocalDeclD `F (← fp.mkResourceTy info) fun F => do
+    let f := mkApp op F
+    let instTy ← mkAppM ``Lean.Order.PreservesSup #[f]
+    let some inst ← synthInstance? instTy | return none
+    let_expr Lean.Order.PreservesSup α instCL _ := instTy
+      | throwError "unexpected `PreservesSup` instance type{indentExpr instTy}"
+    let app := mkAppN (← mkConstWithFreshMVarLevels thm) #[α, instCL, f, inst]
+    unless ← isTypeCorrect app do return none
+    let prf ← mkLambdaFVars #[F] app
+    let res ← abstractMVars (← instantiateMVars prf)
+    return some (← mkBackwardRuleFromExpr res.expr res.paramNames.toList)
+
 end Lean.Elab.Tactic.VCGen

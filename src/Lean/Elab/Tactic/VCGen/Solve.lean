@@ -222,6 +222,31 @@ def iSupPreIntro? (goal : MVarId) (pre : Expr) : VCGenM (Option MVarId) := do
     | throwError "Failed to eliminate the `iSup` precondition of {goal}"
   return some g
 
+/-- Strategy 5: eliminate a supremum or lift a pure guard under the frame operator `op` of the
+goal's monad, for a precondition `op F (⨆ i, P i)` or `op F (⌜φ⌝ ⊓ P)`. The operator must preserve
+suprema in its second argument. For the separating conjunction of a separation logic, the
+precondition `F ∗ ⨆ i, P i` becomes the pointwise entailment `∀ i, F ∗ P i ⊑ rhs`. Returns the new
+goal and the lifted hypothesis, if any. -/
+def opPreIntro? (goal : MVarId) (pre rhs : Expr) :
+    VCGenM (Option (MVarId × Option FVarId)) := do
+  let some info := isWPApp? rhs | return none
+  unless info.excessArgs.isEmpty do return none
+  let procs := (← read).frameProcs.byProg
+  let fp := info.M.getAppFn.constName?.bind (procs[·]?) |>.getD meetFrameProc
+  unless pre.isAppOf fp.opHead do return none
+  let operand := pre.appArg!
+  if operand.isAppOfArity ``Lean.Order.iSup 4 then
+    let some rule ← mkOpPreIntroRuleCached fp info ``Lean.Order.PreservesSup.map_iSup_le
+      | return none
+    let .goals [g] ← rule.applyChecked goal
+      | throwError "Failed to eliminate the `iSup` under the frame operator in {goal}"
+    return some (g, none)
+  let_expr Lean.Order.meet _ _ guard _ := operand | return none
+  unless guard.isAppOf ``Lean.Order.CompleteLattice.ofProp do return none
+  let some rule ← mkOpPreIntroRuleCached fp info ``Lean.Order.PreservesSup.map_ofProp_meet_le
+    | return none
+  return some (← introPre rule goal)
+
 /-- Strategy 7: move a bare `Prop` precondition `φ ⊑ rhs` into the local context via
 `le_of_imp_top_le`, leaving `⊤ ⊑ rhs`. Runs after `True` and `⊤` preconditions are handled, so
 `φ` carries information worth keeping. Returns the new goal and the introduced hypothesis, if any. -/
@@ -248,7 +273,7 @@ def normalizePreToTop? (goal : MVarId) (pre target : Expr) : VCGenM (Option (Lis
 local context so a later spec application sees a `⊤` precondition. In order: cancel a redundant
 `⊓ ⊤`; lift an embedded `⌜φ⌝` (before state-argument introduction, which would otherwise leave
 `⌜φ⌝` applied to the introduced state); lift the guard of a `⌜φ⌝ ⊓ P`; eliminate an `iSup`;
-introduce excess state arguments; drop a `True` precondition; lift a bare `Prop` precondition.
+eliminate an `iSup` or lift a guard under the frame operator; introduce excess state arguments; drop a `True` precondition; lift a bare `Prop` precondition.
 Returns the updated scope, recording any lifted hypothesis. -/
 def normalizePre? (scope : Scope) (goal : MVarId) (α pre target : Expr) :
     VCGenM (Option (Scope × List MVarId)) := do
@@ -260,6 +285,8 @@ def normalizePre? (scope : Scope) (goal : MVarId) (α pre target : Expr) :
     return some ({ scope with lastLiftedPre? := h <|> scope.lastLiftedPre? }, [g])
   if let some g ← iSupPreIntro? goal pre then
     return some (scope, [g])
+  if let some (g, h) ← opPreIntro? goal pre target.appArg! then
+    return some ({ scope with lastLiftedPre? := h <|> scope.lastLiftedPre? }, [g])
   if let some goal' ← introsExcessArgs goal then return some (scope, [goal'])
   if let some gs ← normalizePreToTop? goal pre target then
     return some (scope, gs)

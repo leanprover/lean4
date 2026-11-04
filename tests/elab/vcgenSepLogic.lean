@@ -1035,6 +1035,20 @@ example (l1 l2 : Addr) (a b : Nat) :
     ⦃ l1 ↦ a ∗ l2 ↦ b ⦄ (load l1) ⦃ fun r => l2 ↦ b ∗ sepPure (r = a) ∗ l1 ↦ a ⦄ := by
   vcgen [load_spec] with finish
 
+/-! ## A supremum or a guard under `∗` in the precondition
+
+`vcgen` introduces the index of `l2 ↦ b ∗ ⨆ v, l1 ↦ v` as a variable `v` and the guard of
+`l2 ↦ b ∗ (⌜a = b⌝ ⊓ (l1 ↦ a))` as a hypothesis `a = b`, because `l2 ↦ b ∗ ·` preserves suprema. The
+frameproc then matches the bare `l1 ↦ v` and `l1 ↦ a`. -/
+
+example (l1 l2 : Addr) (b x : Nat) :
+    ⦃ l2 ↦ b ∗ ⨆ v, l1 ↦ v ⦄ (store l1 x) ⦃ fun _ => l1 ↦ x ∗ l2 ↦ b ⦄ := by
+  vcgen with finish
+
+example (l1 l2 : Addr) (a b : Nat) :
+    ⦃ l2 ↦ b ∗ (⌜a = b⌝ ⊓ (l1 ↦ a)) ⦄ (load l1) ⦃ fun r => sepPure (r = b) ∗ l2 ↦ b ∗ l1 ↦ b ⦄ := by
+  vcgen with finish
+
 /-- A probe program with its own spec, used only to exercise `FrameInferenceInfo.spec`. -/
 def probe (l : Addr) : HeapM Unit := store l 0
 

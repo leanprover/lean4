@@ -33,6 +33,8 @@ theorem app_sib (x : Nat) (c : Prop) (q : Nat → Prop) (h₁ : ∀ y, q y) (h�
     c ∧ x = x := ⟨h₂ (h₁ x), rfl⟩
 theorem app_or (x : Nat) (c : Prop) (q : Nat → Prop) (h₂ : q x ∨ c) (h₁ : q x → c) :
     c ∧ x = x := ⟨h₂.elim h₁ id, rfl⟩
+theorem trans_inst (a b c : Prop) (h₁ : a ⊑ b) (h₂ : (∀ [Inhabited Nat], b) → c) : a ⊑ c :=
+  fun h => h₂ (h₁ h)
 theorem let_sib (a c : Prop) (v : Nat) (h₁ : a ⊑ (v = 0)) (h₂ : let y := v; y = 0 → c) : a ⊑ c :=
   fun h => h₂ (h₁ h)
 
@@ -1597,3 +1599,11 @@ example (a b : Nat) (P Pk : Prop) (h : (a, b).fst = 0 → P) (k : ((a, b).fst = 
     fail_if_success let_to_have
     fail_if_success lift_lets
     exact h
+
+-- misc/intro_inst_nested: `x : ∀ [Inhabited Nat], ?b` with `?b := MyC c` is a local instance
+example (c : Prop) (h₁ : (True : Prop) ⊑ (MyC c)) : (True : Prop) ⊑ c := by
+  sym =>
+    apply trans_inst
+    apply h₁
+    intro x
+    exact MyC.out

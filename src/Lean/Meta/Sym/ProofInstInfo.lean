@@ -57,12 +57,11 @@ Analyzes whether the given free variables (aka arguments) are proofs or instance
 Returns `none` if no arguments are proofs or instances.
 -/
 public def mkProofInstArgInfo? (xs : Array Expr) : MetaM (Option ProofInstInfo) := do
-  let env ← getEnv
   let mut argsInfo := #[]
   let mut found := false
   for x in xs do
     let type ← Meta.inferType x
-    let isInstance := isClass? env type |>.isSome
+    let isInstance := (← isClass? type).isSome
     let isProof ← isProp type
     if isInstance || isProof then
       found := true

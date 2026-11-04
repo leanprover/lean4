@@ -861,10 +861,9 @@ where
       let fvarId ← mkFreshFVarId
       let fvar   ← mkFVarS fvarId
       let lctx   := lctx.mkLocalDecl fvarId n d₁
-      let localInsts := if let some className := isClass? (← getEnv) d₁ then
-        localInsts.push { className, fvar }
-      else
-        localInsts
+      let localInsts := match (← isClass? d₁) with
+        | some className => localInsts.push { className, fvar }
+        | none => localInsts
       go lctx localInsts (fvars.push fvar) b₁ b₂ (ds₂.push d₂)
     | _, _ => withLCtx lctx localInsts do
       unless (← checkDomains fvars ds₂) do return false

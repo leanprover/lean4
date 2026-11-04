@@ -25,7 +25,6 @@ value are introduced too.
 -/
 partial def introCore (mvarId : MVarId) (max : Nat) (names : Array Name) (hygienic : Bool) : SymM (Array FVarId × MVarId) := do
   if max == 0 then return (#[], mvarId)
-  let env ← getEnv
   let mvarDecl ← mvarId.getDecl
   /-
   Helper function for constructing a value to assign to `mvarId`. We don't need max sharing here.
@@ -69,11 +68,11 @@ partial def introCore (mvarId : MVarId) (max : Nat) (names : Array Name) (hygien
       return names[i]
     else
       mkFreshBinderNameForTacticCore lctx binderName hygienic
-  let updateLocalInsts (localInsts : LocalInstances) (fvar : Expr) (type : Expr) : LocalInstances :=
-    if let some className := isClass? env type then
-      localInsts.push { fvar, className }
+  let updateLocalInsts (localInsts : LocalInstances) (fvar : Expr) (type : Expr) : MetaM LocalInstances := do
+    if let some className ← isClass? type then
+      return localInsts.push { fvar, className }
     else
-      localInsts
+      return localInsts
   let rec visit (i : Nat) (lctx : LocalContext) (localInsts : LocalInstances) (fvars : Array Expr) (type : Expr) : SymM (Array Expr × MVarId) := do
     if i >= max then
       finalize lctx localInsts fvars type
@@ -86,7 +85,7 @@ partial def introCore (mvarId : MVarId) (max : Nat) (names : Array Name) (hygien
       let lctx       := lctx.mkLocalDecl fvarId userName type bi (.ofBinderName userName)
       let fvar       ← mkFVarS fvarId
       let fvars      := fvars.push fvar
-      let localInsts := updateLocalInsts localInsts fvar type
+      let localInsts ← updateLocalInsts localInsts fvar type
       visit (i+1) lctx localInsts fvars body
     | .letE n type value body nondep =>
       let type       ← instantiateRevS type fvars
@@ -101,7 +100,7 @@ partial def introCore (mvarId : MVarId) (max : Nat) (names : Array Name) (hygien
       let lctx       := lctx.mkLetDecl fvarId userName type value (kind := .ofBinderName userName)
       let fvar       ← mkFVarS fvarId
       let fvars      := fvars.push fvar
-      let localInsts := updateLocalInsts localInsts fvar type
+      let localInsts ← updateLocalInsts localInsts fvar type
       visit (i+1) lctx localInsts fvars body
     | _ =>
       if type.getAppFn.isMVar then

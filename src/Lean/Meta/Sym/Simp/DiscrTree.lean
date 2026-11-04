@@ -142,9 +142,9 @@ def getKey (e : Expr) : Key :=
 /--
 If its head is an assigned metavariable, replaces it with its value,
 beta-reducing any applied arguments. Goal types may mention metavariables assigned after the
-goal was created (e.g. by `Pattern.unify?` or by solving a sibling subgoal), so retrieval must
-see through assignments; unassigned metavariables remain opaque atoms (`Key.other`). The result
-is used only for key computation and need not be maximally shared.
+goal was created (e.g. by solving a sibling subgoal), so retrieval must see through assignments;
+unassigned metavariables remain opaque atoms (`Key.other`). The result is used only for key
+computation and need not be maximally shared.
 -/
 partial def resolveAssignedMVars (mctx : MetavarContext) (e : Expr) : Expr :=
   if e.hasExprMVar then

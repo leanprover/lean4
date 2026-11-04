@@ -3,8 +3,8 @@ module
 import Lean
 
 /-!
-Regression tests for equation lemmas preserving shared values, nested binding scopes, and binding
-kinds while splitting matches (#16122).
+Regression tests for equation lemmas preserving shared values and valid nested binding scopes
+while splitting matches (#16122).
 -/
 @[expose] public section
 
@@ -100,7 +100,7 @@ info: noCleanup.eq_1 (x : Nat) :
 -/
 #guard_msgs in #check noCleanup.eq_1
 
--- A dependent binding and a nondependent `let` retain their binding kinds too.
+-- An unchanged telescope does not need another `letToHave` pass.
 set_option cleanup.letToHave false in
 def noCleanupLet (x : Nat) : Nat :=
   let y := x + 1
@@ -114,6 +114,23 @@ info: noCleanupLet.eq_1 (x : Nat) :
 -/
 #guard_msgs in #check noCleanupLet.eq_1
 
+-- When normalization changes the body, an original nondependent `let` becomes a `have`.
+set_option cleanup.letToHave false in
+def noCleanupLetMatch (x : Nat) : Nat :=
+  let y := x + 1
+  match x with
+  | 0 => y + y
+  | n + 1 => y + y + n
+
+/--
+info: noCleanupLetMatch.eq_1 :
+  noCleanupLetMatch 0 =
+    have y := 0 + 1;
+    y + y
+-/
+#guard_msgs in #check noCleanupLetMatch.eq_1
+
+-- A binding whose body needs its value remains a `let`.
 set_option cleanup.letToHave false in
 def noCleanupDependent (x : Nat) : Fin 5 :=
   let n := 4
@@ -221,8 +238,8 @@ run_meta do
   let some eqns ← getEqnsFor? ``fixedValue | throwError "missing equations"
   unless eqns.size == 1 do throwError "expected one equation, got {eqns.size}"
   forallTelescope (← getConstInfo eqns[0]!).type fun xs body => do
-    let some (_, _, .letE _ _ value _ false) := body.eq?
-      | throwError "dependent binding was lost"
+    let some (_, _, .letE _ _ value _ true) := body.eq?
+      | throwError "expected a nondependent binding"
     unless value == xs[0]! do throwError "constructor aliases in the fixed value did not reduce"
 
 example (x : Nat) : (fixedValue x).val = 0 := by

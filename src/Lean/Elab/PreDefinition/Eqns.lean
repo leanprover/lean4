@@ -7,6 +7,7 @@ module
 prelude
 import Lean.Elab.PreDefinition.EqnsUtils
 import Lean.Meta.HaveTelescope
+import Lean.Meta.LetToHave
 import Lean.Meta.Match.NamedPatterns
 import Lean.Meta.Match.Rewrite
 import Lean.Meta.Tactic.Simp.Main
@@ -317,43 +318,6 @@ structure EqnTelescopeResult where
   proof? : Option Expr := none
 
 /--
-Unfolds `have`s whose values are needed to typecheck the normalized telescope.
-The dependency check excludes the normalization proof: that proof may use a binding's value
-even when the resulting body is well typed with the binding abstract.
--/
-def zetaDependentHaves (e : Expr) : MetaM Expr := do
-  if !e.isLet then return e
-  /- Values must be available during checking so that we can record which ones it unfolds.
-  The original binding flags in `e` determine which declarations are retained afterward. -/
-  letTelescope e (preserveNondepLet := false) fun xs body => do
-    let deps ← withTrackingZetaDelta <| withInferTypeConfig do
-      for x in xs do
-        let decl ← x.fvarId!.getDecl
-        check decl.type
-        let value := decl.value (allowNondep := true)
-        /- `inferType` alone would miss ill-typed arguments inside the value.
-        The separate comparison also checks that its type still agrees with the declaration. -/
-        check value
-        if !(← isDefEq decl.type (← inferType value)) then
-          throwLetTypeMismatchMessage decl.fvarId
-      check body
-      getZetaDeltaFVarIds
-    return rebuild xs deps e 0
-where
-  rebuild (xs : Array Expr) (deps : FVarIdSet) (e : Expr) (i : Nat) : Expr :=
-    match e with
-    | .letE n t v b nondep =>
-      let b := rebuild xs deps b (i + 1)
-      if nondep && deps.contains xs[i]!.fvarId! then
-        /- Substitute throughout the scope, including types and implicit arguments.
-        For `have a := 0; have q : {n // n = a} := ⟨0, rfl⟩; q.val`,
-        changing only `q`'s type would leave the predicate argument of `q.val` unchanged. -/
-        b.instantiate1 v
-      else
-        mkLet n t v b nondep
-    | _ => e
-
-/--
 Simplifies the suffix `e` beginning at binding `i` of the telescope described by `info`.
 The preceding bindings are represented by free variables in `xs` and the cached expressions in
 `info`, but by loose bound variables in `e` and the result. Abstraction is batched so that closing
@@ -362,7 +326,8 @@ each binder does not repeatedly traverse the entire remaining body and proof.
 Unused values are skipped. Fixed values admit only `dsimp`; other values admit propositional
 rewrites. Each updated value is entered as a dependent local definition so that matcher reduction
 can use its value while simplifying the remainder. The simplifier cache is isolated for that
-scope, and the rebuilt expression retains the original `let`/`have` flags.
+scope. A changed body is rebuilt with `let`; `simpEqn` then uses `letToHave` to recover `have`
+bindings where their bodies remain well typed with the variable abstract.
 
 A value rewrite is lifted with `congrArg (fun x => originalBody)`. The body proof is closed with
 `let x := updatedValue`, since it may rely on that value; the two proofs compose by transitivity.
@@ -398,7 +363,9 @@ partial def simpEqnTelescope (info : HaveTelescopeInfo) (fixed used : Array Bool
     else
       /- The type does not depend on this binding; remove its unused bound-variable slot. -/
       rb.type.lowerLooseBVars 1 1
-    let expr := mkLet n t v' rb.expr nondep
+    /- A changed body may need the value of `x` to typecheck. Use `let` until `letToHave`
+    checks whether the body can still be abstracted over `x`. -/
+    let expr := mkLet n t v' rb.expr (nondep && rb.expr == b)
     let hb? := rb.proof?.map fun h => mkLet n t v' h false
     let hv? := hv?.map fun h => mkApp6 (mkConst ``congrArg [hi.level, info.level])
       t type v v' (mkLambda n .default t b) h
@@ -459,8 +426,8 @@ def getEqnTelescopeInfo (e : Expr) : MetaM HaveTelescopeInfo := do
 /--
 The `simp` callback for equation normalization. It handles complete binding telescopes before the
 default traversal, using `simpEqnTelescope` to preserve their nesting and sharing. Unused bindings
-are removed afterward, and `zetaDependentHaves` unfolds bindings needed to typecheck the result.
-A changed telescope is revisited: removing dependent uses can make a
+are removed afterward, and `letToHave` determines which bindings can be nondependent.
+A changed telescope is revisited: removing dependent uses or restoring a `have` can make a
 previously fixed value eligible for propositional rewriting. A stable telescope returns `.done`.
 
 For a matcher, first try definitional reduction, then its congruence equations using local
@@ -475,10 +442,7 @@ partial def simpEqn : Simp.Simproc := fun e => do
     let r ← simpEqnTelescope info fixed used e 0 #[]
     let r := { expr := ← zetaUnused r.expr, proof? := r.proof? : Simp.Result }
     if r.expr == e then return .done r
-    let mut r' ← zetaDependentHaves r.expr
-    if r' != r.expr then
-      r' ← zetaUnused r'
-    return .visit { r with expr := r' }
+    return .visit { r with expr := (← letToHave r.expr) }
   if let some app ← matchMatcherApp? e then
     if let some e' ← reduceRecMatcher? e then
       return .visit { expr := e' }
@@ -491,8 +455,8 @@ partial def simpEqn : Simp.Simproc := fun e => do
 The definitional counterpart of `simpEqn`, used for fixed binding values and dependent arguments
 that `simp` cannot rewrite propositionally. It opens a whole binding telescope, skips unused
 values, and definitionally simplifies the other values and body with preceding values available
-as local definitions. `zetaDependentHaves` unfolds bindings needed to typecheck the result;
-remaining bindings keep their original flags, and unused bindings are removed.
+as local definitions. Changed bodies are rebuilt with `let`, and `letToHave` recovers `have`
+bindings where possible. Unused bindings are removed.
 
 Matchers are reduced only definitionally; no congruence-equation proofs are used. Changed results
 are revisited, and the returned expression is definitionally equal to the input.
@@ -504,10 +468,7 @@ partial def dsimpEqn : Simp.DSimproc := fun e => do
     let r ← Simp.withFreshCache <| visit info used e 0 #[]
     let r ← zetaUnused r
     if r == e then return .done r
-    let r' ← zetaDependentHaves r
-    if r == r' then return .visit r'
-    /- If some `have`-decls were inlined, some of the remaining declarations may be unused now. -/
-    return .visit (← zetaUnused r')
+    return .visit (← letToHave r)
   if ← isMatcherApp e then
     if let some e' ← reduceRecMatcher? e then return .visit e'
   return .continue
@@ -530,8 +491,9 @@ where
       we want to make sure `a` is transparent when reducing the `match`.
       -/
       let decl := (decl.setValue value').setNondep false
-      let b ← withExistingLocalDecls [decl] <| visit info used b (i+1) (xs.push decl.toExpr)
-      return mkLet n t v' b nondep
+      let b' ← withExistingLocalDecls [decl] <| visit info used b (i+1) (xs.push decl.toExpr)
+      /- As in `simpEqnTelescope`, a changed body must be checked before retaining `have`. -/
+      return mkLet n t v' b' (nondep && b' == b)
     else
       return (← Simp.dsimp info.body).abstract xs
 

@@ -138,6 +138,14 @@ structure Config where
   maxRedirects : Nat := 10
 
   /--
+  Maximum number of connections a client keeps open to one origin at a time, counting those still
+  being opened. HTTP/1.1 carries one exchange per connection at a time, so this is also how many
+  requests to one origin run concurrently; a request that finds them all busy waits for the next one
+  to come free.
+  -/
+  maxConnectionsPerOrigin : { n : Nat // 0 < n } := ⟨8, by decide⟩
+
+  /--
   Chooses the proxy for each origin. When a request is routed through an HTTP proxy its URI is
   rewritten to absolute-form (`GET http://host/path HTTP/1.1`).
   Defaults to connecting every origin directly.
@@ -192,7 +200,8 @@ request. Fields left `none` keep their configured value.
 def apply (overrides : RequestOverrides) (config : Config) : Config :=
   { config with
     requestTimeout := overrides.requestTimeout.getD config.requestTimeout
-    maxRedirects := overrides.maxRedirects.getD config.maxRedirects }
+    maxRedirects := overrides.maxRedirects.getD config.maxRedirects
+  }
 
 end RequestOverrides
 

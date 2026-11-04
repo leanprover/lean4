@@ -131,6 +131,13 @@ def host? (uri : URI) : Option URI.Host :=
   uri.authority.map (·.host)
 
 /--
+The origin this URI addresses: its scheme, its host, and its port, which defaults to the scheme's
+when the authority omits it. `none` when the URI has no authority.
+-/
+def origin? (uri : URI) : Option URI.Origin :=
+  uri.host?.map fun host => { scheme := uri.scheme, host, port := uri.port }
+
+/--
 Returns the origin-form request target corresponding to this URI, dropping the scheme, authority,
 user-info, and fragment while preserving the query component.
 

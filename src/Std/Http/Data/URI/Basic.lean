@@ -895,6 +895,9 @@ def hostHeader (o : URI.Origin) : String :=
   if o.port == defaultPort then toString o.host
   else s!"{o.host}:{o.port}"
 
+instance : ToString URI.Origin where
+  toString o := s!"{o.scheme.val}://{o.hostHeader}"
+
 end URI.Origin
 
 /--

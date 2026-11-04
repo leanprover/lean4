@@ -16,9 +16,9 @@ public section
 /-!
 # HTTP Library
 
-A low-level HTTP/1.1 server implementation for Lean. This library provides a pure,
-sans-I/O protocol implementation that can be used with the `Async` library or with
-custom connection handlers.
+An HTTP/1.1 server and client for Lean, built on a pure, sans-I/O protocol implementation that can
+be used with the `Async` library or with custom connection handlers. The client is described in the
+"Client" section below.
 
 ## Overview
 
@@ -69,13 +69,13 @@ small and large payloads efficiently.
 ### Reading Headers
 
 ```lean
-def handler (req : Request Body.Stream) : ContextAsync (Response Body.Stream) := do
+def handler (req : Request Body.Stream) : ContextAsync (Response Body.Any) := do
   -- Access request method and URI
-  let method := req.head.method      -- Method.get, Method.post, etc.
-  let uri := req.head.uri            -- RequestTarget
+  let method := req.line.method      -- Method.get, Method.post, etc.
+  let uri := req.line.uri            -- RequestTarget
 
   -- Read a specific header
-  if let some contentType := req.head.headers.get? (.mk "content-type") then
+  if let some contentType := req.line.headers.get? (.mk "content-type") then
     IO.println s!"Content-Type: {contentType}"
 
   Response.ok |>.text "OK"
@@ -85,7 +85,7 @@ def handler (req : Request Body.Stream) : ContextAsync (Response Body.Stream) :=
 
 `RequestTarget.query` is parsed using form-style key/value conventions (`k=v&...`), and `+` is decoded as a
 space in query components. If you need RFC 3986 opaque query handling, use the raw request target string
-(`toString req.head.uri`) and parse it with custom logic.
+(`toString req.line.uri`) and parse it with custom logic.
 
 ### Reading the Request Body
 
@@ -94,7 +94,7 @@ collected into memory. The `readAll` method reads the entire body, with an optio
 limit to protect against unbounded payloads.
 
 ```lean
-def handler (req : Request Body.Stream) : ContextAsync (Response Body.Stream) := do
+def handler (req : Request Body.Stream) : ContextAsync (Response Body.Any) := do
   -- Collect entire body as a String
   let bodyStr : String ← req.body.readAll
 
@@ -110,7 +110,8 @@ Responses are constructed using a builder API that starts from a status code and
 headers and a body. Common helpers exist for text, HTML, JSON, and binary responses, while
 still allowing full control over status codes and header values.
 
-Response builders produce `Async (Response Body.Stream)`.
+Response builders produce `Async (Response Body.Full)`, which converts to the `Response Body.Any` a
+handler returns.
 
 ```lean
 -- Text response
@@ -140,7 +141,7 @@ Response.ok
 For large responses or server-sent events, use streaming:
 
 ```lean
-def handler (req : Request Body.Stream) : ContextAsync (Response Body.Stream) := do
+def handler (req : Request Body.Stream) : ContextAsync (Response Body.Any) := do
   Response.ok
     |>.header! "Content-Type" "text/plain"
     |>.stream fun stream => do
@@ -193,4 +194,60 @@ The handler methods operate in the following monads:
     context is cancelled, allowing your handler to detect this and stop work early
 - `onFailure` uses `Async`
 - `onContinue` uses `Async`
+
+## Client
+
+`Client` sends HTTP/1.1 requests over a pool of keep-alive connections per origin, following
+redirects and retrying requests that a fresh connection may succeed with. Create one client and share
+it: it is safe to use from many tasks at once, and concurrent requests to one origin run on separate
+connections, up to `Client.Config.maxConnectionsPerOrigin`.
+
+```lean
+import Std.Http
+open Std Async Http
+
+def main : IO Unit := Async.block do
+  let client ← Client.new
+
+  -- A GET from a URL.
+  let response ← client.get "http://example.com/"
+  IO.println s!"status {response.line.status.toCode}"
+  IO.println (← response.body.readAll (α := String))
+
+  -- A request with a body, sent to the origin its URL names, with failures as typed values.
+  let request ← Request.new |>.method .post |>.uri! "http://example.com/items"
+    |>.json "{\"name\": \"lean\"}"
+  match ← client.tryExecute request with
+  | .ok response => discard <| response.body.readAll (α := ByteArray)
+  | .error (.connect message) => IO.eprintln s!"could not connect: {message}"
+  | .error .timeout => IO.eprintln "timed out"
+  | .error e => IO.eprintln s!"request failed: {e}"
+```
+
+`get`, `execute`, and `send` throw on failure; `tryGet`, `tryExecute`, and `trySend` return a
+`Client.Error`. `send` and `trySend` take the origin separately, for a request built with an
+origin-form target.
+
+**Read or close every body.** A response's connection stays with it until its body has been read to
+the end or closed. Until then that connection carries no other request; a body that is neither read
+nor closed is released only when `requestTimeout` runs out.
+
+**Timeouts** (`Client.Config`): `connectTimeout` bounds DNS resolution and the connect;
+`requestTimeout` bounds sending a request and receiving its response head, then each pause in the
+body, so a body of any length streams as long as it keeps moving; `readTimeout` bounds the wait for
+the next bytes from the peer.
+
+**Redirects** are followed up to `maxRedirects`; a chain that runs out of hops returns its last
+redirect response. Credentials and cookies are not carried to another origin.
+
+**Retries**: a request with an idempotent method and a replayable body is sent again, up to
+`maxRetries` times on fresh connections, after a connection-level failure; any request is sent again
+after a failure that proves it never reached the server.
+
+**Hooks**: a `Client.Middleware` sees every request and response, redirect hops included, together
+with the origin each hop goes to (`Client.Middleware.forOrigin` keeps one to a single origin). An
+`Authenticator` answers `401` and `407` challenges, a `CookieHandler` stores and supplies cookies, a
+`ProxySelector` routes origins through an HTTP proxy, and a `Connector` opens connections.
+
+The default connector speaks plain HTTP over TCP; `https` URLs need a connector that provides TLS.
 -/

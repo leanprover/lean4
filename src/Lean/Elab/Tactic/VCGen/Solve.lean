@@ -183,9 +183,9 @@ def instantiateWPProg? (rhs : Expr) : VCGenM (Option Expr) := do
 following steps see the assigned form. -/
 def instantiateGoal? (goal : MVarId) (target : Expr) : VCGenM (Option MVarId) := do
   let_expr c@PartialOrder.rel α inst pre rhs := target | return none
-  let α' ← instantiateMVarsIfMVarAppS α
-  let pre' ← instantiateMVarsIfMVarAppS pre
-  let rhs' ← instantiateMVarsIfMVarAppS rhs
+  let α' ← reduceHead α
+  let pre' ← reduceHead pre
+  let rhs' ← reduceHead rhs
   let rhs' := (← instantiateWPProg? rhs').getD rhs'
   if isSameExpr α α' && isSameExpr pre pre' && isSameExpr rhs rhs' then return none
   return some (← goal.replaceTargetDefEqFast (← mkAppNS c #[α', inst, pre', rhs']))
@@ -283,6 +283,10 @@ def wpConsumeMData? (goal : MVarId) (info : WPApp) : VCGenM (Option MVarId) := d
   let .mdata .. := info.prog | return none
   return some (← replaceProgDefEq goal info info.prog.consumeMData)
 
+def wpReduceHead? (goal : MVarId) (info : WPApp) : VCGenM (Option MVarId) := do
+  let some prog ← reduceHead? info.prog | return none
+  return some (← replaceProgDefEq goal info prog)
+
 /-- Strategy 11a: hoist or zeta-substitute a `let` from the program head. Under `+jp`, a hoisted
 join point is registered, which adds the goal for its RHS. -/
 def wpLet? (scope : Scope) (goal : MVarId) (info : WPApp) :
@@ -342,9 +346,6 @@ concrete discriminant. -/
 def wpMatch? (goal : MVarId) (info : WPApp) :
     VCGenM (Option (List MVarId)) := do
   let some splitInfo ← liftMetaM <| Lean.Elab.Tactic.Do.getSplitInfo? info.prog | return none
-  if splitInfo matches .matcher .. then
-    if let some prog ← liftMetaM <| withReducible <| reduceRecMatcher? info.prog then
-      return some [← replaceProgDefEq goal info (← shareCommonInc prog)]
   let rule ← mkBackwardRuleForSplitCached splitInfo info
   let .goals goals ← rule.applyChecked goal m!"split rule for{indentExpr info.prog}"
     | throwError "Failed to apply split rule for {indentExpr info.prog}"
@@ -364,16 +365,6 @@ def wpFVarZeta? (goal : MVarId) (info : WPApp) :
   let some val ← fvarId.getValue? | return none
   trace[Elab.Tactic.Do.vcgen] "fvar-zeta: {(← fvarId.getUserName)}"
   let prog ← shareCommonInc (val.betaRev info.prog.getAppRevArgs)
-  return some (← replaceProgDefEq goal info prog)
-
-/-- Strategy 11d: reduce a projection head in the program. -/
-def wpHeadReduce? (goal : MVarId) (info : WPApp) :
-    VCGenM (Option MVarId) := do
-  let f := info.prog.getAppFn
-  unless f matches .proj .. do return none
-  let some f' ← withReducibleAndInstances (reduceProj? f) | return none
-  let f' ← shareCommon (← liftMetaM <| unfoldReducible f')
-  let prog ← betaRevS f' info.prog.getAppRevArgs
   return some (← replaceProgDefEq goal info prog)
 
 /-- Stop or raise on a program with no applicable spec. With `errorOnMissingSpec` (default), raise a
@@ -581,11 +572,10 @@ The function performs the following steps in order:
    `σ₁ → ... → σₙ → Base`, introduce all excess state arguments.
 7. **Bare pure precondition introduction**: on the `Prop` lattice, replace a `True`
    precondition by `⊤` and lift any other precondition into the local context.
-8. **Component projection reduction**: reduce a `Prod.fst` RHS to the projected component.
-9. **Lattice decomposition**: decompose a lattice connective on the RHS with `splitLatticeOp?`.
-10. **Lifted-hypothesis discharge**: close a residual `pre ⊑ ⌜φ⌝` entailment against the most
+8. **Lattice decomposition**: decompose a lattice connective on the RHS with `splitLatticeOp?`.
+9. **Lifted-hypothesis discharge**: close a residual `pre ⊑ ⌜φ⌝` entailment against the most
     recently lifted precondition `h : φ` in the local context, cached in `Scope.lastLiftedPre?`.
-11. **WP decomposition**: when the RHS is `wp e post eposts s₁ ... sₙ`, in order:
+10. **WP decomposition**: when the RHS is `wp e post eposts s₁ ... sₙ`, in order:
     hoist/zeta program-head lets, split `ite`/`dite`/match, zeta-unfold fvar program heads,
     reduce projection heads, and finally apply a registered `@[spec]` theorem.
 -/
@@ -604,7 +594,7 @@ public def solve (scope : Scope) (goal : MVarId) : VCGenM SolveResult := goal.wi
   if let some gs ← liftedHypBare? scope goal target then return .goals scope gs
   if let some g ← instantiateGoal? goal target then return .goals scope [g]
 
-  let_expr PartialOrder.rel α inst pre rhs := target
+  let_expr PartialOrder.rel α _ pre rhs := target
     | return .stop (.noEntailment target)
 
   -- Phase 2: close reflexive goals, then drive `pre` toward `⊤`, lifting any pure content so a
@@ -616,9 +606,8 @@ public def solve (scope : Scope) (goal : MVarId) : VCGenM SolveResult := goal.wi
   -- (`wpMatch?`, `splitLatticeOp?`) or apply a registered spec (`applySpec`).
   let scope ← scope.collectLocalSpecs goal
 
-  -- Phase 3: shape the `rhs` (reduce a component projection, decompose a lattice connective or a
-  -- forall, then discharge a residual entailment against the lifted hypothesis).
-  if let some g ← headReduceFstRhs? goal target α inst pre rhs then return .goals scope [g]
+  -- Phase 3: shape the `rhs` (decompose a lattice connective or a forall, then discharge a
+  -- residual entailment against the lifted hypothesis).
   if let some gs ← splitLatticeOp? goal rhs then return .goals scope gs
   if let some gs ← splitForallLe? goal rhs then return .goals scope gs
   if let some gs ← liftedHyp? scope goal α pre rhs then return .goals scope gs
@@ -632,6 +621,9 @@ public def solve (scope : Scope) (goal : MVarId) : VCGenM SolveResult := goal.wi
       return .stop (.untilPatternMatched info.M)
     if let some g ← wpConsumeMData? goal info then
       return .goals scope [g]
+    if let some g ← wpReduceHead? goal info then
+      burnOne
+      return .goals scope [g]
     if let some (scope, gs) ← wpLet? scope goal info then
       burnOne
       return .goals scope gs
@@ -644,9 +636,6 @@ public def solve (scope : Scope) (goal : MVarId) : VCGenM SolveResult := goal.wi
       burnOne
       return .goals scope gs
     if let some g ← wpFVarZeta? goal info then
-      burnOne
-      return .goals scope [g]
-    if let some g ← wpHeadReduce? goal info then
       burnOne
       return .goals scope [g]
     let f := info.prog.getAppFn

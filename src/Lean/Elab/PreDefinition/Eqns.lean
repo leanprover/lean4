@@ -604,7 +604,6 @@ structure EqnTypes where
   types : Array Expr
 deriving TypeName
 
-/-- Computes equation statements under the definition's saved options and a fresh metavariable depth. -/
 def realizeEqnTypes (key : EqnTypesKey) : MetaM EqnTypes :=
   withEqnOptions key.declName <| withOptions (tactic.hygienic.set · false) do
     let target ← unfoldThmType key.declName
@@ -615,10 +614,6 @@ def realizeEqnTypes (key : EqnTypesKey) : MetaM EqnTypes :=
           mkEqnTypes key.declNames goal.mvarId!
     return { types }
 
-/--
-Proves and registers one equation, removes unused parameters, and infers its definitional-equality
-attribute.
--/
 def realizeEqn (declName name : Name) (type : Expr) : MetaM Unit :=
   withEqnOptions declName <| withOptions (tactic.hygienic.set · false) do
     let info ← getConstInfoDefn declName

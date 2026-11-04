@@ -65,6 +65,8 @@ In the `onAlt` handler of a `MatcherApp.transform`, you can use this function on
 substituted matcher application with the alternative `altIdx`.
 
 If it fails, it returns a rewrite with `proof? := none` and the unchanged expression.
+If the matcher is applied to more arguments than its arity, the rewrite applies to the matcher
+application and carries the extra arguments along.
 
 "Properly substituted" here means that the discriminants have been substituted according to the
 alternative; otherwise, the rewrite might fail because some hypothesis of the congruence
@@ -72,7 +74,7 @@ equation theorem cannot be discharged by assumption or reflixivity.
 See `Lean.Meta.Tactic.FunInd.buildInductionBody` and `Lean.Elab.Tactic.Do.VCGen.Split` for examples
 of how to coerce `MatherApp.transform` into doing the substitution on the motive for you.
 -/
-def rwMatcher (altIdx : Nat) (e : Expr) : MetaM Simp.Result := do
+partial def rwMatcher (altIdx : Nat) (e : Expr) : MetaM Simp.Result := do
   if e.isAppOf ``PSum.casesOn || e.isAppOf ``PSigma.casesOn then
     let mut e := e
     while true do
@@ -90,6 +92,11 @@ def rwMatcher (altIdx : Nat) (e : Expr) : MetaM Simp.Result := do
       trace[Meta.Match.debug] "Not a matcher application:{indentExpr e}"
       return { expr := e }
     let matcherDeclName := e.getAppFn.constName!
+    let some info ← getMatcherInfo? matcherDeclName | return { expr := e }
+    let args := e.getAppArgs
+    if info.arity < args.size then
+      let r ← rwMatcher altIdx (mkAppN e.getAppFn (args.extract 0 info.arity))
+      return ← r.addExtraArgs (args.extract info.arity)
     let eqns ← Match.genMatchCongrEqns matcherDeclName
     unless altIdx < eqns.size do
       trace[Meta.Match.debug] "When trying to reduce arm {altIdx}, only {eqns.size} equations for {.ofConstName matcherDeclName}"

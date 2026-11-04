@@ -356,6 +356,8 @@ def realizeEqns (declName : Name) (declNames : Array Name) : MetaM Unit :=
         let goal ← mkFreshExprSyntheticOpaqueMVar target
         withReducible do
           mkEqnTypes declNames goal.mvarId!
+    -- Splitting leaves no goals if the body eliminates an empty type.
+    let types := if types.isEmpty then #[target] else types
     for h : i in *...types.size do
       let type := types[i]
       trace[Elab.definition.eqns] "eqnType[{i}]: {type}"
@@ -380,8 +382,7 @@ def mkEqns (declName : Name) (declNames : Array Name) : MetaM (Array Name) := do
   trace[Elab.definition.eqns] "mkEqns: {.ofConstName declName}"
   let eqName (i : Nat) := do
     return mkEqLikeNameFor (← getEnv) declName s!"{eqnThmSuffixBasePrefix}{i+1}"
-  -- A definition eliminating an empty type has no equations, not even `eq_1`.
-  realizeConst declName (← eqName 0) (realizeEqns declName declNames) (mayOmitConst := true)
+  realizeConst declName (← eqName 0) (realizeEqns declName declNames)
   let mut thmNames := #[]
   repeat
     let name ← eqName thmNames.size

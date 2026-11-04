@@ -707,9 +707,10 @@ resolver, but is also invoked during resolution by `Doc.free` nodes.
 
 Maintains two separate memoization caches:
 - `setCache`, which memoizes sets of measures that are produced during resolution per `SetCacheKey`.
-  This is the main memoization cache of the formatter. It memoizes all resolution results for
-  resolution contexts that do not exceed the optimality cutoff width and ensures that the time
-  complexity of resolution remains reasonable.
+  This is the main memoization cache of the formatter. It memoizes the resolution results of all
+  documents that are not cheap to resolve (`Doc.isCheapToResolve`), for resolution contexts that do
+  not exceed the optimality cutoff width, and ensures that the time complexity of resolution
+  remains reasonable.
   The `setCache` is re-used in resolutions performed by the resolution of tainted measures, which
   usually runs after resolution, but is also invoked during resolution by `Doc.free` nodes.
   Notably, in the resolution of tainted measures, it is not used for resolving the
@@ -792,9 +793,29 @@ def TaintedResolver (σ τ : Type) [BEq τ] [Hashable τ] :=
   (tm : TaintedMeasure τ) → ResolverM σ τ (Option (Measure τ))
 
 /--
+Whether resolving `d` again is cheaper than memoizing its resolution. `text` and `newline` are
+resolved in constant time. Each of the other kinds requests its only child once and maps over the
+measures of the child, so without memoization, a request only passes through to the child.
+
+`final` and `initial` are not cheap: each requests its child twice, so nested `final` nodes without
+memoization would double the work per level.
+-/
+def Doc.isCheapToResolve : Doc τ → Bool
+  | .text .. | .newline .. | .tagged .. | .indented .. | .aligned .. | .unindented .. | .free ..
+  | .guarded .. | .costing .. =>
+    true
+  | .final .. | .initial .. | .either .. | .append .. =>
+    false
+  -- `Resolver.memoize` never resolves `failure`, because it fails in every fullness state.
+  -- `flattened` and `unflattenable` are eliminated during preprocessing.
+  | .failure | .flattened .. | .unflattenable .. =>
+    false
+
+/--
 Checks whether we have a memoized result for a given resolution context and if so, uses that.
-Otherwise, `f` is evaluated and the result is memoized, unless the column position or the level of
-indentation exceeds the optimality cutoff width.
+Otherwise, `f` is evaluated and the result is memoized, unless `d` is cheap to resolve
+(`Doc.isCheapToResolve`) or the column position or the level of indentation exceeds the optimality
+cutoff width.
 
 The resolution of a preprocessed document without `newline` and `guarded` nodes does not depend on
 the level of indentation. It only depends on whether the level of non-cumulative indentation is
@@ -812,7 +833,8 @@ def Resolver.memoize (f : Resolver σ τ)
       (0, min nonCumulativeIndentation 1)
     else
       (indentation, nonCumulativeIndentation)
-  if columnPos > Cost.optimalityCutoffWidth τ || indentation > Cost.optimalityCutoffWidth τ then
+  if d.isCheapToResolve || columnPos > Cost.optimalityCutoffWidth τ
+      || indentation > Cost.optimalityCutoffWidth τ then
     return ← f d columnPos indentation nonCumulativeIndentation fullness
   if let some cachedSet ←
       getCachedSet? d columnPos indentation nonCumulativeIndentation fullness then

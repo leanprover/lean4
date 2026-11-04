@@ -2527,20 +2527,21 @@ private def runNorm (kind : Kind) (distrib : Bool) (k : VisitM m α) : m α := d
   (k.run { kind, distrib, polyCfg, charZero }).run' {}
 
 /--
-`true` if the structure `kind` has a characteristic the normalizer must leave alone: a numeral
-above `maxChar?`, or one that is not a numeral (`BitVec w`, `Fin n`). See `normalize?`.
+`true` if the structure `kind` has a characteristic the normalizer must leave alone: `1`, a
+numeral above `maxChar?`, or, with `maxChar?`, one that is not a numeral (`BitVec w`, `Fin n`).
+See `normalize?`.
 -/
-private def charAboveLimit (kind : Kind) (maxChar? : Option Nat) : m Bool := do
-  let some maxChar := maxChar? | return false
+private def skipChar (kind : Kind) (maxChar? : Option Nat) : m Bool := do
   let s ← (getArithState : SymM _)
   let (charInst?, symbolicChar) := match kind with
     | .commRing id => let r := s.rings[id]!; (r.charInst?, r.symbolicChar)
     | .commSemiring id => let r := s.rings[s.semirings[id]!.ringId]!; (r.charInst?, r.symbolicChar)
     | .ring id => let r := s.ncRings[id]!; (r.charInst?, r.symbolicChar)
     | .semiring id => let r := s.ncSemirings[id]!; (r.charInst?, r.symbolicChar)
-  if symbolicChar then return true
+  if symbolicChar then return maxChar?.isSome
   let some (_, c) := charInst? | return false
-  return c > maxChar
+  -- Polynomials are not canonical in characteristic `1`: `Poly.ofVar x` keeps the coefficient `1`.
+  return c == 1 || maxChar?.any (c > ·)
 
 /-- The kind of the structure of `α`, if the normalizer supports it. -/
 private def classifyKind? (α : Expr) : m (Option Kind) := do
@@ -2554,7 +2555,7 @@ private def classifyKind? (α : Expr) : m (Option Kind) := do
 /-- The `normalize?` path for relations; `e` is `rel lhs rhs` with carrier `α`. -/
 private def normalizeRel? (v : Visitor m) (rel : RelKind) (α e lhs rhs : Expr) (lhsOnly distrib : Bool) (maxChar? : Option Nat) : m Result := do
   let some kind ← classifyKind? α | return .rfl
-  if (← charAboveLimit kind maxChar?) then return .rfl
+  if (← skipChar kind maxChar?) then return .rfl
   let order? ← match rel with
     | .eq => pure none
     | .le | .lt =>
@@ -2621,7 +2622,7 @@ that asked for one is `contextDependent`. `distrib` is described at `normalize?`
 private def normalizeTerm? (v : Visitor m) (e : Expr) (distrib : Bool) (maxChar? : Option Nat) : m Result := do
   let some α := getArithType? e | return .rfl
   let some kind ← classifyKind? α | return .rfl
-  if (← charAboveLimit kind maxChar?) then
+  if (← skipChar kind maxChar?) then
     -- A cast of a numeral still becomes the numeral of the carrier, so that a numeral has one
     -- representation, and `a / b` becomes `a * b⁻¹`, since the ring module does not interpret
     -- `/`; everything else is left as written.
@@ -2656,7 +2657,7 @@ otherwise (`IntSolver.lean`).
 -/
 private def normalizeDvd? (v : Visitor m) (e dvdFn arg : Expr) (k : Int) (distrib : Bool) (maxChar? : Option Nat) : m Result := do
   let some kind@(.commRing _) ← classifyKind? dvdFn.appFn!.appArg! | return .rfl
-  if (← charAboveLimit kind maxChar?) then return .rfl
+  if (← skipChar kind maxChar?) then return .rfl
   runNorm kind distrib do
     let n ← visit v arg
     let r₀ ← match h : e with
@@ -2770,7 +2771,8 @@ rewritten to the numeral of the carrier, and field division `a / b` to `a * b⁻
 coefficients modulo the characteristic, so `x - y` over `BitVec 64` would become
 `x + 18446744073709551615 * y`, which hides the subtraction from rewrite rules and from
 `grind`'s `[grind hom]` translation. Structures with no `IsCharP` instance are normalized:
-without a known characteristic no coefficient is reduced.
+without a known characteristic no coefficient is reduced. Structures of characteristic `1`, where
+all elements are equal, are always left as written in the same way.
 -/
 def normalize? [Monad m] [MonadLiftT SymM m] [MonadLiftT MetaM m] (e : Expr) (simpAtom : Expr → m Result)
     (discharge? : Expr → m (Option Expr) := fun _ => pure none) (lhsOnly : Bool := false) (distrib : Bool := true)

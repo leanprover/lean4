@@ -516,27 +516,27 @@ private def dateFromModifier (dateformat : DateFormat) (date : DateTime) : TypeF
   | .V .unknown => "unk"
   | .V .short =>
     if tz.name.startsWith "+" || tz.name.startsWith "-"
-      then s!"GMT{toIsoString tz.offset .yes .no true}"
+      then s!"GMT{toIsoString tz.offset .yes .optional true}"
       else tz.name
   | .V .full =>
     if tz.name.startsWith "+" || tz.name.startsWith "-"
-      then s!"GMT{toIsoString tz.offset .yes .no true}"
+      then s!"GMT{toIsoString tz.offset .yes .optional true}"
       else tz.name
   | .z .short =>
     if tz.abbreviation.startsWith "+" || tz.abbreviation.startsWith "-"
-      then s!"GMT{toIsoString tz.offset .yes .no true}"
+      then s!"GMT{toIsoString tz.offset .yes .optional true}"
       else tz.abbreviation
   | .z .full =>
     if tz.name.startsWith "+" || tz.name.startsWith "-"
-      then s!"GMT{toIsoString tz.offset .yes .no true}"
+      then s!"GMT{toIsoString tz.offset .yes .optional true}"
       else tz.name
   | .v .short =>
     if tz.abbreviation.startsWith "+" || tz.abbreviation.startsWith "-"
-      then s!"GMT{toIsoString tz.offset .yes .no true}"
+      then s!"GMT{toIsoString tz.offset .yes .optional true}"
       else tz.abbreviation
   | .v .full =>
     if tz.name.startsWith "+" || tz.name.startsWith "-"
-      then s!"GMT{toIsoString tz.offset .yes .no true}"
+      then s!"GMT{toIsoString tz.offset .yes .optional true}"
       else tz.name
   | .O _ => tz.offset
   | .X _ => tz.offset

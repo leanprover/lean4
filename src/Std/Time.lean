@@ -224,14 +224,14 @@ The supported formats include:
 - `N`: Represents the nanosecond of the day (e.g., "1234000000"). This is a Lean/Java extension, not a TR35 field.
   - One or more repetitions of the character sets a minimum width via zero-padding; the value is not truncated.
 - `V`: Time zone ID.
-  - `VV`: Displays the zone identifier/name. Zones without a named identifier display as `GMT±hh:mm`, which parsing reads back as that offset when the pattern has no offset field.
+  - `VV`: Displays the zone identifier/name. Zones without a named identifier display as `GMT±hh:mm[:ss]`, which parsing reads back as that offset when the pattern has no offset field.
   - Other counts are unsupported, matching Java.
 - `z`: Represents the time zone name.
-  - `z`, `zz`, `zzz`: Shows a short zone name; for offset-only zones this is the numeric offset (e.g., "+09:00"), for UTC this is "UTC", otherwise the abbreviation (e.g., "PST").
-  - `zzzz`: Displays the full zone name; for offset-only zones this is the numeric offset (e.g., "+09:00"), for UTC this is "Coordinated Universal Time", otherwise the full zone name (e.g., "Pacific Standard Time").
+  - `z`, `zz`, `zzz`: Shows a short zone name; for offset-only zones this is the offset after `GMT` (e.g., "GMT+09:00"), for UTC this is "UTC", otherwise the abbreviation (e.g., "PST").
+  - `zzzz`: Displays the full zone name; for offset-only zones this is the offset after `GMT` (e.g., "GMT+09:00"), for UTC this is "Coordinated Universal Time", otherwise the full zone name (e.g., "Pacific Standard Time").
 - `v`: Generic time zone name.
-  - `v`: In the current Lean timezone data this displays the stored abbreviation; for offset-only zones this is the numeric offset (e.g., "+09:00"), and for UTC it is normalized to "UTC".
-  - `vvvv`: In the current Lean timezone data this displays the stored zone name/ID; for offset-only zones this is the numeric offset (e.g., "+09:00"), and for UTC it is normalized to "Coordinated Universal Time".
+  - `v`: In the current Lean timezone data this displays the stored abbreviation; for offset-only zones this is the offset after `GMT` (e.g., "GMT+09:00"), and for UTC it is normalized to "UTC".
+  - `vvvv`: In the current Lean timezone data this displays the stored zone name/ID; for offset-only zones this is the offset after `GMT` (e.g., "GMT+09:00"), and for UTC it is normalized to "Coordinated Universal Time".
 - `O`: Represents the localized zone offset in the format "GMT" followed by the time difference from UTC.
   - `O`: Displays the GMT offset in a short format (e.g., "GMT+8"), or "GMT" for UTC.
   - `OOOO`: Displays the full GMT offset with padded hour and minutes (e.g., "GMT+08:00"), or "GMT" for UTC.

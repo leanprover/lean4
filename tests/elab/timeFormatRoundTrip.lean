@@ -11,7 +11,8 @@ Further checks: `aaaa` (#16247) and `B` at night (#16248), widths that the forma
 (`EEEEEE`, `uuu`, `uuuuu`, `DD`, `n`, `N`, `A`), zone ids with `+` and `:` and offset seconds in
 `O`/`OOOO`/`ZZZZ`, `h`/`K` without a marker, absent month and day, and the `toString`/`parse` pairs.
 Also years beyond four digits, the week-based year `Y` with a month and day, week dates
-(`YYYY-'W'ww-e`), ordinal dates (`uuuu-DDD`), the `TimeZone.GMT` name and `v` abbreviations. Last,
+(`YYYY-'W'ww-e`), ordinal dates (`uuuu-DDD`), the `TimeZone.GMT` name, `v` abbreviations and
+offsets with seconds in `TimeZone.Offset.toIsoString`, zone names and `toString`. Last,
 every pattern letter at every width, alone and in every pair, reads back its own output, and a parsed
 value formats and parses back to itself.
 -/
@@ -448,6 +449,38 @@ def gmt : DateTime := DateTime.fromHTTPDateString "Sun, 06 Nov 1994 08:49:37 GMT
 #eval
   let f : GenericFormat .any := GenericFormat.spec! "uuuu-MM-dd HH:mm v XXX"
   f.format (f.parse! (f.format (zoneOf "America/Sao_Paulo" "BRT" (-10800))))
+
+/-! ## Offsets with seconds -/
+
+/-- info: ("+01:30:15", "-00:00:59", "+0130", "-03:00", "+013015") -/
+#guard_msgs in
+#eval ((TimeZone.Offset.ofSeconds 5415).toIsoString true, (TimeZone.Offset.ofSeconds (-59)).toIsoString true,
+  (TimeZone.Offset.ofSeconds 5400).toIsoString false, (TimeZone.Offset.ofSeconds (-10800)).toIsoString true,
+  (TimeZone.Offset.ofSeconds 5415).toIsoString false)
+
+/-- An offset-only zone with seconds, as `ZZZZZ` parses it. -/
+def secondsZone : DateTime :=
+  DateTime.fromLeanDateTimeWithZoneString "2024-01-01T13:00:00.000000000+01:30:15" |>.toOption.get!
+
+/-- info: "2024-01-01T13:00:00.000000000[+01:30:15]" -/
+#guard_msgs in #eval toString secondsZone
+
+/-- info: Except.ok (zoned("2024-01-01T13:00:00.000000000+01:30:15")) -/
+#guard_msgs in #eval DateTime.parse (toString secondsZone)
+
+/-- info: "\"2024-01-01 13:00 GMT+01:30:15\" -> 2024-01-01T13:00:00+01:30:15" -/
+#guard_msgs in #eval roundTrip "uuuu-MM-dd HH:mm VV" secondsZone
+
+/-- info: "\"2024-01-01 13:00 GMT+01:30:15\" -> 2024-01-01T13:00:00+01:30:15" -/
+#guard_msgs in #eval roundTrip "uuuu-MM-dd HH:mm z" secondsZone
+
+/-- info: "\"2024-01-01 13:00 GMT-00:00:59\" -> 2024-01-01T13:00:00-00:00:59" -/
+#guard_msgs in
+#eval roundTrip "uuuu-MM-dd HH:mm vvvv"
+  (DateTime.fromLeanDateTimeWithZoneString "2024-01-01T13:00:00-00:00:59" |>.toOption.get!)
+
+/-- info: zoned("2024-01-01T13:00:00.000000000+01:30:15") -/
+#guard_msgs in #eval zoned("2024-01-01T13:00:00.000000000[+01:30:15]")
 
 /-! ## Every pattern letter at every width, alone and in pairs -/
 

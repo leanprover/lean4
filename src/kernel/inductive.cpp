@@ -570,7 +570,7 @@ public:
             m_elim_level = mk_level_zero();
         } else {
             name u("u");
-            int i = 1;
+            size_t i = 1;
             while (std::find(m_lparams.begin(), m_lparams.end(), u) != m_lparams.end()) {
                 u = name("u").append_after(i);
                 i++;

@@ -62,12 +62,19 @@ LEAN_THREAD_VALUE(size_t, g_rec_depth, 0);
    within `maxRecDepth` during elaboration is not rejected by the kernel. */
 static constexpr size_t g_kernel_rec_depth_factor = 16;
 
+/* Scales `max` by `g_kernel_rec_depth_factor`; a limit too large to scale is as good as unlimited. */
+static size_t kernel_rec_depth_limit(size_t max) {
+    if (max > std::numeric_limits<size_t>::max() / g_kernel_rec_depth_factor)
+        return 0;
+    return max * g_kernel_rec_depth_factor;
+}
+
 LEAN_EXPORT scope_max_rec_depth::scope_max_rec_depth(size_t max) :
-    m_max(g_max_rec_depth, max), m_curr(g_rec_depth, 0) {}
+    m_max(g_max_rec_depth, kernel_rec_depth_limit(max)), m_curr(g_rec_depth, 0) {}
 
 LEAN_EXPORT scope_rec_depth::scope_rec_depth() {
     g_rec_depth++;
-    if (g_max_rec_depth > 0 && g_rec_depth > g_max_rec_depth * g_kernel_rec_depth_factor) {
+    if (g_max_rec_depth > 0 && g_rec_depth > g_max_rec_depth) {
         g_rec_depth--;
         throw stack_space_exception("type checker");
     }

@@ -1601,7 +1601,7 @@ static obj_res lean_io_as_task_fn(obj_arg act, obj_arg) {
 extern "C" LEAN_EXPORT obj_res lean_io_as_task(obj_arg act, obj_arg prio) {
     object * c = lean_alloc_closure((void*)lean_io_as_task_fn, 2, 1);
     lean_closure_set(c, 0, act);
-    object * t = lean_task_spawn_core(c, lean_unbox(prio), /* keep_alive */ true);
+    object * t = lean_task_spawn_core(c, lean_task_prio_of_nat(prio), /* keep_alive */ true);
     return t;
 }
 
@@ -1615,7 +1615,7 @@ static obj_res lean_io_bind_task_fn(obj_arg f, obj_arg a) {
 extern "C" LEAN_EXPORT obj_res lean_io_map_task(obj_arg f, obj_arg t, obj_arg prio, uint8 sync) {
     object * c = lean_alloc_closure((void*)lean_io_bind_task_fn, 2, 1);
     lean_closure_set(c, 0, f);
-    object * t2 = lean_task_map_core(c, t, lean_unbox(prio), sync, /* keep_alive */ true);
+    object * t2 = lean_task_map_core(c, t, lean_task_prio_of_nat(prio), sync, /* keep_alive */ true);
     return t2;
 }
 
@@ -1623,7 +1623,7 @@ extern "C" LEAN_EXPORT obj_res lean_io_map_task(obj_arg f, obj_arg t, obj_arg pr
 extern "C" LEAN_EXPORT obj_res lean_io_bind_task(obj_arg t, obj_arg f, obj_arg prio, uint8 sync) {
     object * c = lean_alloc_closure((void*)lean_io_bind_task_fn, 2, 1);
     lean_closure_set(c, 0, f);
-    object * t2 = lean_task_bind_core(t, c, lean_unbox(prio), sync, /* keep_alive */ true);
+    object * t2 = lean_task_bind_core(t, c, lean_task_prio_of_nat(prio), sync, /* keep_alive */ true);
     return t2;
 }
 

@@ -371,6 +371,12 @@ structure State where
   -/
   elimEqs : PArray (Option EqCnstr) := {}
   /--
+  `active[x]` is `false` if `x` was created in a case of the model search that has been backtracked.
+  Backtracking keeps `x` because the proofs of refuted cases may use it, but rolls back the constraints
+  asserted when `x` was created. `mkVar` reactivates `x` by asserting them again.
+  -/
+  active : PArray Bool := {}
+  /--
   Elimination stack. For every variable in `elimStack`. If `x` in `elimStack`, then `elimEqs[x]` is not `none`.
   -/
   elimStack : List Var := []

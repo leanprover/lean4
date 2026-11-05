@@ -13,12 +13,12 @@ extern "C" object * lean_mk_local_decl(object * index, object * fvarid, object *
 extern "C" object * lean_mk_let_decl(object * index, object * fvarid, object * user_name, object * type, object * val);
 extern "C" uint8 lean_local_decl_binder_info(object * d);
 
-local_decl::local_decl(unsigned idx, name const & n, name const & un, expr const & t, expr const & v):
-    object_ref(lean_mk_let_decl(nat(idx).to_obj_arg(), n.to_obj_arg(), un.to_obj_arg(), t.to_obj_arg(), v.to_obj_arg())) {
+local_decl::local_decl(size_t idx, name const & n, name const & un, expr const & t, expr const & v):
+    object_ref(lean_mk_let_decl(nat::of_size_t(idx).to_obj_arg(), n.to_obj_arg(), un.to_obj_arg(), t.to_obj_arg(), v.to_obj_arg())) {
 }
 
-local_decl::local_decl(unsigned idx, name const & n, name const & un, expr const & t, binder_info bi):
-    object_ref(lean_mk_local_decl(nat(idx).to_obj_arg(), n.to_obj_arg(), un.to_obj_arg(), t.to_obj_arg(), static_cast<uint8>(bi))) {
+local_decl::local_decl(size_t idx, name const & n, name const & un, expr const & t, binder_info bi):
+    object_ref(lean_mk_local_decl(nat::of_size_t(idx).to_obj_arg(), n.to_obj_arg(), un.to_obj_arg(), t.to_obj_arg(), static_cast<uint8>(bi))) {
 }
 
 binder_info local_decl::get_info() const {
@@ -39,13 +39,13 @@ local_ctx::local_ctx():object_ref(lean_mk_empty_local_ctx(box(0))) {
 }
 
 local_decl local_ctx::mk_local_decl(name const & n, name const & un, expr const & type, expr const & value) {
-    unsigned idx = unbox(lean_local_ctx_num_indices(to_obj_arg()));
+    size_t idx = unbox(lean_local_ctx_num_indices(to_obj_arg()));
     m_obj = lean_local_ctx_mk_let_decl(raw(), n.to_obj_arg(), un.to_obj_arg(), type.to_obj_arg(), value.to_obj_arg(), false);
     return local_decl(idx, n, un, type, value);
 }
 
 local_decl local_ctx::mk_local_decl(name const & n, name const & un, expr const & type, binder_info bi) {
-    unsigned idx = unbox(lean_local_ctx_num_indices(to_obj_arg()));
+    size_t idx = unbox(lean_local_ctx_num_indices(to_obj_arg()));
     m_obj = lean_local_ctx_mk_local_decl(raw(), n.to_obj_arg(), un.to_obj_arg(), type.to_obj_arg(), static_cast<uint8>(bi));
     return local_decl(idx, n, un, type, bi);
 }
@@ -64,9 +64,9 @@ local_decl local_ctx::get_local_decl(name const & n) const {
 }
 
 template<bool is_lambda>
-expr local_ctx::mk_binding(unsigned num, expr const * fvars, expr const & b, bool remove_dead_let) const {
+expr local_ctx::mk_binding(size_t num, expr const * fvars, expr const & b, bool remove_dead_let) const {
     expr r     = abstract(b, num, fvars);
-    unsigned i = num;
+    size_t i = num;
     while (i > 0) {
         --i;
         local_decl const & decl = get_local_decl(fvar_name(fvars[i]));
@@ -89,11 +89,11 @@ expr local_ctx::mk_binding(unsigned num, expr const * fvars, expr const & b, boo
     return r;
 }
 
-expr local_ctx::mk_lambda(unsigned num, expr const * fvars, expr const & e, bool remove_dead_let) const {
+expr local_ctx::mk_lambda(size_t num, expr const * fvars, expr const & e, bool remove_dead_let) const {
     return mk_binding<true>(num, fvars, e, remove_dead_let);
 }
 
-expr local_ctx::mk_pi(unsigned num, expr const * fvars, expr const & e, bool remove_dead_let) const {
+expr local_ctx::mk_pi(size_t num, expr const * fvars, expr const & e, bool remove_dead_let) const {
     return mk_binding<false>(num, fvars, e, remove_dead_let);
 }
 

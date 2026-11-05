@@ -108,7 +108,7 @@ public:
            If a_k is a string,  return a_1.a_2. ... .a_k', where a_k' is the string a_k concatenated with _i.
            Otherwise add _i as the last component.
     */
-    name append_after(unsigned i) const;
+    name append_after(size_t i) const;
 
     /**
         \brief If prefix is a prefix of this name, then return a new name where the prefix is replaced with new_prefix.
@@ -125,8 +125,8 @@ public:
     friend int quick_cmp(name const & a, name const & b) {
         if (a.raw() == b.raw())
             return 0;
-        unsigned h1 = a.hash();
-        unsigned h2 = b.hash();
+        unsigned h1 = static_cast<unsigned>(a.hash());
+        unsigned h2 = static_cast<unsigned>(b.hash());
         if (h1 != h2) {
             return h1 < h2 ? -1 : 1;
         } else if (a == b) {
@@ -137,7 +137,7 @@ public:
     }
 };
 
-struct name_hash_fn { unsigned operator()(name const & n) const { return n.hash(); } };
+struct name_hash_fn { unsigned operator()(name const & n) const { return static_cast<unsigned>(n.hash()); } };
 struct name_eq_fn { bool operator()(name const & n1, name const & n2) const { return n1 == n2; } };
 struct name_cmp {
     typedef name type;

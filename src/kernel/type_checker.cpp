@@ -157,7 +157,7 @@ expr type_checker::infer_pi(expr const & _e, bool infer_only) {
     e = instantiate_rev(e, fvars.size(), fvars.data());
     expr s  = ensure_sort_core(infer_type_core(e, infer_only), e);
     level r = sort_level(s);
-    unsigned i = fvars.size();
+    size_t i = fvars.size();
     while (i > 0) {
         --i;
         r = mk_imax(us[i], r);
@@ -189,9 +189,9 @@ expr type_checker::infer_app(expr const & e, bool infer_only) {
         buffer<expr> args;
         expr const & f = get_app_args(e, args);
         expr f_type    = infer_type_core(f, true);
-        unsigned j        = 0;
-        unsigned nargs    = args.size();
-        for (unsigned i = 0; i < nargs; i++) {
+        size_t j        = 0;
+        size_t nargs    = args.size();
+        for (size_t i = 0; i < nargs; i++) {
             if (is_pi(f_type)) {
                 f_type = binding_body(f_type);
             } else {
@@ -229,24 +229,17 @@ expr type_checker::infer_let(expr const & _e, bool infer_only) {
     return m_lctx.mk_pi(fvars, r, true);
 }
 
-/*
-Store the projection index in `result`, and return `false` if it does not fit.
-`nat::is_small` admits up to 63 bits, but projection indices are consumed as `unsigned`, so
-without the upper bound `.proj S 2^32 c` would be silently truncated into `.proj S 0 c`.
-*/
-static bool to_proj_idx(nat const & idx, unsigned & result) {
+/* Store the projection index in `result`, and return `false` if it does not fit. */
+static bool to_proj_idx(nat const & idx, size_t & result) {
     if (!idx.is_small())
         return false;
-    size_t v = idx.get_small_value();
-    if (v > std::numeric_limits<unsigned>::max())
-        return false;
-    result = static_cast<unsigned>(v);
+    result = idx.get_small_value();
     return true;
 }
 
 expr type_checker::infer_proj(expr const & e, bool infer_only) {
     expr type = whnf(infer_type_core(proj_expr(e), infer_only));
-    unsigned idx;
+    size_t idx;
     if (!to_proj_idx(proj_idx(e), idx))
         throw invalid_proj_exception(env(), m_lctx, e);
     buffer<expr> args;
@@ -265,14 +258,14 @@ expr type_checker::infer_proj(expr const & e, bool infer_only) {
 
     constant_info c_info = env().get(head(I_val.get_cnstrs()));
     expr r = instantiate_type_lparams(c_info, const_levels(I));
-    for (unsigned i = 0; i < I_val.get_nparams(); i++) {
+    for (size_t i = 0; i < I_val.get_nparams(); i++) {
         lean_assert(i < args.size());
         r = whnf(r);
         if (!is_pi(r)) throw invalid_proj_exception(env(), m_lctx, e);
         r = instantiate(binding_body(r), args[i]);
     }
     bool is_prop_type = is_prop(type);
-    for (unsigned i = 0; i < idx; i++) {
+    for (size_t i = 0; i < idx; i++) {
         r = whnf(r);
         if (!is_pi(r)) throw invalid_proj_exception(env(), m_lctx, e);
         if (has_loose_bvars(binding_body(r))) {
@@ -413,7 +406,7 @@ expr type_checker::whnf_fvar(expr const & e, bool cheap_rec, bool cheap_proj) {
 }
 
 /* Auxiliary method for `reduce_proj` */
-optional<expr> type_checker::reduce_proj_core(expr c, name const & sname, unsigned idx) {
+optional<expr> type_checker::reduce_proj_core(expr c, name const & sname, size_t idx) {
     if (is_string_lit(c))
         c = whnf(string_lit_to_constructor(c));
     buffer<expr> args;
@@ -429,7 +422,7 @@ optional<expr> type_checker::reduce_proj_core(expr c, name const & sname, unsign
        `infer_proj` rejects a `sname` that disagrees with the projected expression's type. */
     if (mk_val.get_induct() != sname)
         return none_expr();
-    unsigned nparams = mk_val.get_nparams();
+    size_t nparams = mk_val.get_nparams();
     if (nparams + idx < args.size())
         return some_expr(args[nparams + idx]);
     else
@@ -438,7 +431,7 @@ optional<expr> type_checker::reduce_proj_core(expr c, name const & sname, unsign
 
 /* If `cheap == true`, then we don't perform delta-reduction when reducing major premise. */
 optional<expr> type_checker::reduce_proj(expr const & e, bool cheap_rec, bool cheap_proj) {
-    unsigned idx;
+    size_t idx;
     if (!to_proj_idx(proj_idx(e), idx))
         return none_expr();
     expr c;
@@ -509,8 +502,8 @@ expr type_checker::whnf_core(expr const & e, bool cheap_rec, bool cheap_proj) {
         expr f0 = get_app_rev_args(e, args);
         expr f = whnf_core(f0, cheap_rec, cheap_proj);
         if (is_lambda(f)) {
-            unsigned m = 1;
-            unsigned num_args = args.size();
+            size_t m = 1;
+            size_t num_args = args.size();
             while (is_lambda(binding_body(f)) && m < num_args) {
                 f = binding_body(f);
                 m++;
@@ -562,7 +555,7 @@ optional<expr> type_checker::unfold_definition_core(expr const & e) {
     if (is_constant(e)) {
         if (auto d = is_delta(e)) {
             levels const & us = const_levels(e);
-            unsigned len = length(us);
+            size_t len = length(us);
             if (m_diag) {
                 m_diag->record_unfold(d->get_name());
             }
@@ -666,7 +659,7 @@ template<typename F> optional<expr> type_checker::reduce_bin_nat_pred(F const & 
 }
 
 optional<expr> type_checker::reduce_nat(expr const & e) {
-    unsigned nargs = get_app_num_args(e);
+    size_t nargs = get_app_num_args(e);
     if (nargs == 1) {
         expr const & f = app_fn(e);
         if (f == *g_nat_succ) {
@@ -862,7 +855,7 @@ bool type_checker::try_eta_struct_core(expr const & t_, expr const & s_) {
     expr s_type = infer_type(s);
     if (!is_def_eq(t_type,s_type)) return false;
     flet<local_ctx> save_lctx(m_lctx, m_lctx);
-    unsigned num_ctor_args = sf_val.get_nparams() + sf_val.get_nfields();
+    size_t num_ctor_args = sf_val.get_nparams() + sf_val.get_nfields();
     lean_assert(get_app_num_args(s) <= num_ctor_args);
     if (get_app_num_args(s) < num_ctor_args) {
         buffer<expr> fvars;
@@ -879,7 +872,7 @@ bool type_checker::try_eta_struct_core(expr const & t_, expr const & s_) {
     lean_assert(get_app_num_args(s) == num_ctor_args);
     buffer<expr> s_args;
     get_app_args(s, s_args);
-    for (unsigned i = sf_val.get_nparams(); i < s_args.size(); i++) {
+    for (size_t i = sf_val.get_nparams(); i < s_args.size(); i++) {
         expr proj = mk_proj(sf_val.get_induct(), i - sf_val.get_nparams(), t);
         if (!is_def_eq(proj, s_args[i])) return false;
     }
@@ -897,7 +890,7 @@ bool type_checker::is_def_eq_app(expr const & t, expr const & s) {
         expr t_fn = get_app_args(t, t_args);
         expr s_fn = get_app_args(s, s_args);
         if (is_def_eq(t_fn, s_fn) && t_args.size() == s_args.size()) {
-            unsigned i = 0;
+            size_t i = 0;
             for (; i < t_args.size(); i++) {
                 if (!is_def_eq(t_args[i], s_args[i]))
                     break;
@@ -1103,7 +1096,7 @@ bool type_checker::lazy_delta_proj_reduction(expr & t_n, expr & s_n, name const 
         case reduction_status::DefEqual:   return true;
         case reduction_status::DefUnknown:
         case reduction_status::DefDiff:
-            unsigned i;
+            size_t i;
             if (to_proj_idx(idx, i)) {
                 if (auto t = reduce_proj_core(t_n, sname, i)) {
                 if (auto s = reduce_proj_core(s_n, sname, i)) {
@@ -1157,7 +1150,7 @@ bool type_checker::is_unit_like(expr const & t) {
     expr ctor_ty = ctor_val.get_type();
     ctor_ty = instantiate_lparams(ctor_ty, ctor_val.get_lparams(), const_levels(I));
     // `I` is a structure, and in particular has no indices. Furthermore, it is a type, so `args.size() = I_val.nparams()`
-    for (unsigned i = 0; i < args.size(); i++)
+    for (size_t i = 0; i < args.size(); i++)
         ctor_ty = binding_body(ctor_ty);
     ctor_ty = instantiate_rev(ctor_ty, args.size(), args.data());
     // Check that every field (read, every domain) of the constructor are themselves unit-like

@@ -67,8 +67,8 @@ quot_val::quot_val(name const & n, names const & lparams, expr const & type, quo
     object_ref(lean_mk_quot_val(n.to_obj_arg(), lparams.to_obj_arg(), type.to_obj_arg(), static_cast<uint8>(k))) {
 }
 
-recursor_rule::recursor_rule(name const & cnstr, unsigned nfields, expr const & rhs):
-    object_ref(mk_cnstr(0, cnstr, nat(nfields), rhs)) {
+recursor_rule::recursor_rule(name const & cnstr, size_t nfields, expr const & rhs):
+    object_ref(mk_cnstr(0, cnstr, nat::of_size_t(nfields), rhs)) {
 }
 
 extern "C" object * lean_mk_inductive_val(object * n, object * lparams, object * type, object * nparams, object * nindices,
@@ -77,12 +77,12 @@ extern "C" uint8 lean_inductive_val_is_rec(object * v);
 extern "C" uint8 lean_inductive_val_is_unsafe(object * v);
 extern "C" uint8 lean_inductive_val_is_reflexive(object * v);
 
-inductive_val::inductive_val(name const & n, names const & lparams, expr const & type, unsigned nparams,
-                             unsigned nindices, names const & all, names const & cnstrs, unsigned nnested,
+inductive_val::inductive_val(name const & n, names const & lparams, expr const & type, size_t nparams,
+                             size_t nindices, names const & all, names const & cnstrs, size_t nnested,
                              bool rec, bool unsafe, bool is_refl):
-    object_ref(lean_mk_inductive_val(n.to_obj_arg(), lparams.to_obj_arg(), type.to_obj_arg(), nat(nparams).to_obj_arg(),
-                                     nat(nindices).to_obj_arg(), all.to_obj_arg(), cnstrs.to_obj_arg(),
-                                     nat(nnested).to_obj_arg(), rec, unsafe, is_refl)) {
+    object_ref(lean_mk_inductive_val(n.to_obj_arg(), lparams.to_obj_arg(), type.to_obj_arg(), nat::of_size_t(nparams).to_obj_arg(),
+                                     nat::of_size_t(nindices).to_obj_arg(), all.to_obj_arg(), cnstrs.to_obj_arg(),
+                                     nat::of_size_t(nnested).to_obj_arg(), rec, unsafe, is_refl)) {
 }
 
 bool inductive_val::is_rec() const { return lean_inductive_val_is_rec(to_obj_arg()); }
@@ -93,10 +93,10 @@ extern "C" object * lean_mk_constructor_val(object * n, object * lparams, object
                                             object * cidx, object * nparams, object * nfields, uint8 unsafe);
 extern "C" uint8 lean_constructor_val_is_unsafe(object * v);
 
-constructor_val::constructor_val(name const & n, names const & lparams, expr const & type, name const & induct, unsigned cidx, unsigned nparams, unsigned
+constructor_val::constructor_val(name const & n, names const & lparams, expr const & type, name const & induct, size_t cidx, size_t nparams, size_t
                                  nfields, bool is_unsafe):
     object_ref(lean_mk_constructor_val(n.to_obj_arg(), lparams.to_obj_arg(), type.to_obj_arg(), induct.to_obj_arg(),
-                                       nat(cidx).to_obj_arg(), nat(nparams).to_obj_arg(), nat(nfields).to_obj_arg(), is_unsafe)) {
+                                       nat::of_size_t(cidx).to_obj_arg(), nat::of_size_t(nparams).to_obj_arg(), nat::of_size_t(nfields).to_obj_arg(), is_unsafe)) {
 }
 bool constructor_val::is_unsafe() const { return lean_constructor_val_is_unsafe(to_obj_arg()); }
 
@@ -107,17 +107,17 @@ extern "C" uint8 lean_recursor_k(object * v);
 extern "C" uint8 lean_recursor_is_unsafe(object * v);
 
 recursor_val::recursor_val(name const & n, names const & lparams, expr const & type,
-                           names const & all, unsigned nparams, unsigned nindices, unsigned nmotives,
-                           unsigned nminors, recursor_rules const & rules, bool k, bool is_unsafe):
+                           names const & all, size_t nparams, size_t nindices, size_t nmotives,
+                           size_t nminors, recursor_rules const & rules, bool k, bool is_unsafe):
     object_ref(lean_mk_recursor_val(n.to_obj_arg(), lparams.to_obj_arg(), type.to_obj_arg(), all.to_obj_arg(),
-                                    nat(nparams).to_obj_arg(), nat(nindices).to_obj_arg(), nat(nmotives).to_obj_arg(),
-                                    nat(nminors).to_obj_arg(), rules.to_obj_arg(), k, is_unsafe)) {
+                                    nat::of_size_t(nparams).to_obj_arg(), nat::of_size_t(nindices).to_obj_arg(), nat::of_size_t(nmotives).to_obj_arg(),
+                                    nat::of_size_t(nminors).to_obj_arg(), rules.to_obj_arg(), k, is_unsafe)) {
 }
 
 name const & recursor_val::get_major_induct() const {
-    unsigned int n = get_major_idx();
+    size_t n = get_major_idx();
     expr const * t = &(to_constant_val().get_type());
-    for (unsigned int i = 0; i < n; i++) {
+    for (size_t i = 0; i < n; i++) {
         t = &(binding_body(*t));
     }
     t = &(binding_domain(*t));

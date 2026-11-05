@@ -239,6 +239,11 @@ section FileWorker
     id        : Nat
     doc       : DocumentMeta
     proc      : Process.Child workerCfg
+    /--
+    Set when the process is reaped. Hold the mutex while reaping or killing the process, so that
+    the process is only reaped once and never killed after its process ID may have been reused.
+    Never hold it while blocking.
+    -/
     exitCode  : Std.Mutex (Option UInt32)
     commTask? : Option (ServerTask WorkerEvent)
     state     : Std.Mutex WorkerState
@@ -251,27 +256,28 @@ section FileWorker
   def stdout (fw : FileWorker) : FS.Stream :=
     FS.Stream.ofHandle fw.proc.stdout
 
-  def waitForProc (fw : FileWorker) : IO UInt32 :=
+  /-- Reaps the process if it has exited. Does not block. -/
+  def tryReapProc (fw : FileWorker) : IO (Option UInt32) :=
     fw.exitCode.atomically do
-      match ← get with
-      | none =>
-        let exitCode ← fw.proc.wait
+      if let some exitCode ← get then
+        return some exitCode
+      let exitCode? ← fw.proc.tryWait
+      if let some exitCode := exitCode? then
         set <| some exitCode
-        return exitCode
-      | some exitCode =>
-        return exitCode
+      return exitCode?
 
-  def killProcAndWait (fw : FileWorker) : IO UInt32 :=
+  /-- Waits until the process has exited. Polls so that `killProcAndWait` can kill it meanwhile. -/
+  partial def waitForProc (fw : FileWorker) : IO UInt32 := do
+    if let some exitCode ← fw.tryReapProc then
+      return exitCode
+    IO.sleep 50
+    fw.waitForProc
+
+  def killProcAndWait (fw : FileWorker) : IO UInt32 := do
     fw.exitCode.atomically do
-      match ← get with
-      | none =>
+      if (← get).isNone then
         fw.proc.kill
-        let exitCode ← fw.proc.wait
-        set <| some exitCode
-        return exitCode
-      | some exitCode =>
-        -- Process is already dead
-        return exitCode
+    fw.waitForProc
 
   end FileWorker
 end FileWorker

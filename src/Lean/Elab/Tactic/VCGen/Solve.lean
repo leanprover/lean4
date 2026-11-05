@@ -295,7 +295,7 @@ def simpLetValue (goal : MVarId) (name : Name) (type val body : Expr) (nondep : 
   let some methods := (← read).simpMethods | return (goal, val)
   let .step val' h .. ← runSimp methods (Sym.Simp.simp val) | return (goal, val)
   let u ← Sym.getLevel type
-  let h := mkApp6 (mkConst ``congrArg [u, 1]) type (mkSort 0) val val' (.lam name type body .default) h
+  let h := mkApp6 (mkConst ``have_val_congr' [u, 1]) type (mkSort 0) val val' (.lam name type body .default) h
   match ← (Sym.Simp.Result.step (.letE name type val' body nondep) h).toSimpGoalResult goal with
   | .goal goal => return (goal, val')
   | _ => return (goal, val)

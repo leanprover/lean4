@@ -48,6 +48,12 @@ inductive Reader.BodyState where
   | chunkedBody (ext : Array (Chunk.ExtensionName × Option Chunk.ExtensionValue)) (remaining : Nat)
 
   /--
+  Parse the trailer section after the last chunk one field at a time, tracking the number of
+  trailer fields parsed.
+  -/
+  | trailers (ext : Array (Chunk.ExtensionName × Option Chunk.ExtensionValue)) (count : Nat)
+
+  /--
   Parse body bytes until EOF (connection close).
   -/
   | closeDelimited

@@ -326,8 +326,7 @@ private def checkReceivingMessageHead (message : Message.Head .receiving) : Exce
   | none => throw .badMessage
 
 /--
-Returns `true` when user-provided headers include body framing fields. Scanning the few entries is
-cheaper than two map lookups.
+Returns `true` when user-provided headers include body framing fields.
 -/
 @[inline]
 private def hasFramingHeaders (message : Message.Head dir) : Bool :=

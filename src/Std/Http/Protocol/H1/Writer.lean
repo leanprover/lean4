@@ -228,10 +228,8 @@ def writeFixedBody (writer : Writer dir) (limitSize : Nat) : Writer dir × Nat :
       else
         let remaining := limitSize - size
         let takeSize := min chunk.data.size remaining
-        let acc :=
-          if takeSize = 0 then acc
-          else if takeSize = chunk.data.size then acc.push chunk.data
-          else acc.push (chunk.data.extract 0 takeSize)
+        let dataPart := chunk.data.extract 0 takeSize
+        let acc := if takeSize = 0 then acc else acc.push dataPart
         let size := size + takeSize
         if takeSize < chunk.data.size then
           let pendingChunk : Chunk := { chunk with data := chunk.data.extract takeSize chunk.data.size }

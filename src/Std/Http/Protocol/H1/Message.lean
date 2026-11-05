@@ -111,7 +111,7 @@ def Message.Head.getSize (message : Message.Head dir) (allowEOFBody : Bool) : Op
 Checks whether the message indicates that the connection should be kept alive.
 -/
 def Message.Head.shouldKeepAlive (message : Message.Head dir) : Bool :=
-  -- Most messages have no `Connection` field; scanning the few entries is cheaper than a lookup.
+  -- Most messages have no `Connection` field.
   if !message.headers.map.entries.any (·.1 == Header.Name.connection) then
     message.version == .v11
   else

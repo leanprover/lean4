@@ -3,7 +3,8 @@ import Lean
 /-!
 The kernel bounds its recursion depth by the `maxRecDepth` option. Checking a sufficiently
 deeply nested declaration fails deterministically with `(kernel) deep recursion detected` when
-`maxRecDepth` is small, and succeeds once the limit is raised.
+`maxRecDepth` is small, and succeeds once the limit is raised. Large limits must not wrap when
+converted to `USize` or multiplied by the kernel's scaling factor (#15973).
 -/
 
 open Lean
@@ -28,3 +29,43 @@ run_meta addDeepDef `tooDeep
 
 set_option maxRecDepth 100000 in
 run_meta addDeepDef `deepEnough
+
+/-! Check the largest representable scaled limit and saturation beyond it. -/
+private def addShallowDef (name : Name) : MetaM Unit :=
+  Lean.addDecl <| .defnDecl {
+    name, levelParams := [], type := .const ``Nat [],
+    value := mkNatLit 0, hints := .opaque, safety := .safe
+  }
+
+run_meta
+  withOptions (maxRecDepth.set · ((USize.size - 1) / 16)) do
+    addShallowDef `largestRecDepth
+
+run_meta
+  withOptions (maxRecDepth.set · ((USize.size - 1) / 16 + 1)) do
+    addDeepDef `overflowRecDepth
+
+run_meta
+  withOptions (maxRecDepth.set · ((USize.size - 1) / 16 + 2)) do
+    addDeepDef `wrappedRecDepth
+
+run_meta
+  withOptions (maxRecDepth.set · (USize.size - 1)) do
+    addDeepDef `maxUSizeRecDepth
+
+run_meta
+  withOptions (maxRecDepth.set · (USize.size + 1)) do
+    addDeepDef `aboveUSizeRecDepth
+
+-- Exercise the public kernel-environment entry point as well as `Lean.addDecl`.
+run_meta
+  let env := (← getEnv).toKernelEnv
+  let opts := maxRecDepth.set (← getOptions) (USize.size + 1)
+  discard <| ofExceptKernelException <| env.addDecl opts <| .defnDecl {
+    name := `aboveUSizeKernelRecDepth, levelParams := [], type := .const ``Nat [],
+    value := mkDeepNat 8000, hints := .opaque, safety := .safe
+  }
+
+run_meta
+  withOptions (maxRecDepth.set · 0) do
+    addDeepDef `unlimitedRecDepth

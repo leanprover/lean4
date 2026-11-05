@@ -59,15 +59,18 @@ LEAN_THREAD_VALUE(size_t, g_rec_depth, 0);
    result the kernel recurses substantially deeper than the elaborator did for the same term (stdlib
    `grind`/`simp` proofs check several thousand levels deep). We therefore let the kernel reach a
    generous multiple of the configured `maxRecDepth` before bailing out, so that code which fits
-   within `maxRecDepth` during elaboration is not rejected by the kernel. */
+   within `maxRecDepth` during elaboration is not rejected by the kernel. Limits whose scaled
+   values overflow are treated as unlimited. */
 static constexpr size_t g_kernel_rec_depth_factor = 16;
 
 LEAN_EXPORT scope_max_rec_depth::scope_max_rec_depth(size_t max) :
-    m_max(g_max_rec_depth, max), m_curr(g_rec_depth, 0) {}
+    m_max(g_max_rec_depth, max > std::numeric_limits<size_t>::max() / g_kernel_rec_depth_factor
+          ? 0 : max * g_kernel_rec_depth_factor),
+    m_curr(g_rec_depth, 0) {}
 
 LEAN_EXPORT scope_rec_depth::scope_rec_depth() {
     g_rec_depth++;
-    if (g_max_rec_depth > 0 && g_rec_depth > g_max_rec_depth * g_kernel_rec_depth_factor) {
+    if (g_max_rec_depth > 0 && g_rec_depth > g_max_rec_depth) {
         g_rec_depth--;
         throw stack_space_exception("type checker");
     }

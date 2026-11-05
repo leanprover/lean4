@@ -9,57 +9,12 @@ public import Lean.Meta.DiscrTree.Basic
 public section
 namespace Lean.Meta.DiscrTree
 namespace Trie
-/--
-Monadically fold the keys and values stored in a `Trie`.
--/
-@[specialize]
-partial def foldM [Monad m] (initialKeys : Array Key)
-    (f : σ → Array Key → α → m σ) : (init : σ) → Trie α → m σ
-  | init, Trie.chain k c =>
-    c.foldM (initialKeys.push k) f init
-  | init, Trie.node vs children => do
-    let s ← vs.foldlM (init := init) fun s v => f s initialKeys v
-    children.foldlM (init := s) fun s (k, t) =>
-      t.foldM (initialKeys.push k) f s
-  | init, Trie.lazy t => t.get.foldM initialKeys f init
-  | init, Trie.suffix ks i v => f init (initialKeys ++ ks.extract i ks.size) v
 
-/--
-Fold the keys and values stored in a `Trie`.
+/-!
+Accessors for traversals. They view `t` through `Trie.force`, which is free for `chain`, `node` and
+`lazy`, but allocates when unfolding a `suffix`; traversals that need to be fast handle `suffix`
+separately.
 -/
-@[inline]
-def fold (initialKeys : Array Key) (f : σ → Array Key → α → σ) (init : σ) (t : Trie α) : σ :=
-  Id.run <| t.foldM initialKeys (init := init) fun s k a => return f s k a
-
-/--
-Monadically fold the values stored in a `Trie`.
--/
-@[specialize]
-partial def foldValuesM [Monad m] (f : σ → α → m σ) : (init : σ) → Trie α → m σ
-  | init, chain _ c =>
-    c.foldValuesM (init := init) f
-  | init, node vs children => do
-    let s ← vs.foldlM (init := init) f
-    children.foldlM (init := s) fun s (_, c) => c.foldValuesM (init := s) f
-  | init, lazy t => t.get.foldValuesM (init := init) f
-  | init, suffix _ _ v => f init v
-
-/--
-Fold the values stored in a `Trie`.
--/
-@[inline]
-def foldValues (f : σ → α → σ) (init : σ) (t : Trie α) : σ :=
-  Id.run <| t.foldValuesM (init := init) (pure <| f · ·)
-
-/--
-The number of values stored in a `Trie`.
--/
-partial def size : Trie α → Nat
-  | Trie.chain _ c => size c
-  | Trie.node vs children =>
-    children.foldl (init := vs.size) fun n (_, c) => n + size c
-  | Trie.lazy t => size t.get
-  | Trie.suffix .. => 1
 
 /--
 Generate a trie node from values and an array of children.
@@ -103,6 +58,38 @@ def nodeChildren (t : Trie α) : Array (Key × Trie α) :=
   | .node _ cs => cs
   | .lazy _ | .suffix .. => unreachable!
 
+/-- Whether the current trie node has children. -/
+@[inline]
+def hasChildren (t : Trie α) : Bool :=
+  match t.force with
+  | .chain .. => true
+  | .node _ cs => !cs.isEmpty
+  | .lazy _ | .suffix .. => unreachable!
+
+/-- Returns the child of the current trie node for `Key.star`, the minimal key. -/
+@[inline]
+def starChild? (t : Trie α) : Option (Trie α) :=
+  match t.force with
+  | .chain k c => if k == .star then some c else none
+  | .node _ cs => if h : 0 < cs.size then (if cs[0].1 == .star then some cs[0].2 else none) else none
+  | .lazy _ | .suffix .. => unreachable!
+
+/-- Returns the child of the current trie node for `k`. -/
+@[inline]
+def findChild? (t : Trie α) (k : Key) : Option (Trie α) :=
+  match t.force with
+  | .chain k' c => if k' == k then some c else none
+  | .node _ cs => (cs.binSearch (k, default) (fun a b => a.1 < b.1)).map (·.2)
+  | .lazy _ | .suffix .. => unreachable!
+
+/-- Monadically folds over the children of the current trie node. -/
+@[inline]
+def foldChildrenM [Monad m] (f : σ → Key → Trie α → m σ) (init : σ) (t : Trie α) : m σ :=
+  match t.force with
+  | .chain k c => f init k c
+  | .node _ cs => cs.foldlM (init := init) fun s (k, c) => f s k c
+  | .lazy _ | .suffix .. => pure init  -- unreachable
+
 /--
 Checks whether a trie node is empty (no values and no children).
 
@@ -115,6 +102,48 @@ def isEmptyNode (t : Trie α) : Bool :=
   | .chain _ _ => false
   | .node vs children => vs.isEmpty && children.isEmpty
   | .lazy _ | .suffix .. => unreachable!
+
+/--
+Monadically fold the keys and values stored in a `Trie`.
+-/
+@[specialize]
+partial def foldM [Monad m] (initialKeys : Array Key)
+    (f : σ → Array Key → α → m σ) (init : σ) (t : Trie α) : m σ := do
+  if let .suffix ks i v := t then
+    return (← f init (initialKeys ++ ks.extract i ks.size) v)
+  let s ← t.nodeValues.foldlM (init := init) fun s v => f s initialKeys v
+  t.foldChildrenM (init := s) fun s k c => c.foldM (initialKeys.push k) f s
+
+/--
+Fold the keys and values stored in a `Trie`.
+-/
+@[inline]
+def fold (initialKeys : Array Key) (f : σ → Array Key → α → σ) (init : σ) (t : Trie α) : σ :=
+  Id.run <| t.foldM initialKeys (init := init) fun s k a => return f s k a
+
+/--
+Monadically fold the values stored in a `Trie`.
+-/
+@[specialize]
+partial def foldValuesM [Monad m] (f : σ → α → m σ) (init : σ) (t : Trie α) : m σ := do
+  if let .suffix _ _ v := t then
+    return (← f init v)
+  let s ← t.nodeValues.foldlM (init := init) f
+  t.foldChildrenM (init := s) fun s _ c => c.foldValuesM (init := s) f
+
+/--
+Fold the values stored in a `Trie`.
+-/
+@[inline]
+def foldValues (f : σ → α → σ) (init : σ) (t : Trie α) : σ :=
+  Id.run <| t.foldValuesM (init := init) (pure <| f · ·)
+
+/--
+The number of values stored in a `Trie`.
+-/
+partial def size (t : Trie α) : Nat :=
+  if let .suffix .. := t then 1
+  else Id.run <| t.foldChildrenM (init := t.nodeValues.size) fun n _ c => n + size c
 
 end Trie
 

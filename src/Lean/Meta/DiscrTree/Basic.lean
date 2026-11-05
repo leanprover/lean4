@@ -33,8 +33,13 @@ The node `t` stands for as a `chain` or `node`: merges a `lazy` node and unfolds
 -/
 @[inline] def Trie.force : Trie α → Trie α
   | .lazy t => t.get
-  | .suffix ks i v => if h : i < ks.size then .chain ks[i] (.suffix ks (i + 1) v) else .node #[v] #[]
+  | t@(.suffix ..) => unfoldSuffix t
   | t => t
+where
+  -- out of line, as traversals that need to be fast handle suffixes before forcing
+  @[noinline] unfoldSuffix : Trie α → Trie α
+    | .suffix ks i v => if h : i < ks.size then .chain ks[i] (.suffix ks (i + 1) v) else .node #[v] #[]
+    | t => t
 
 instance : ToExpr Key where
   toTypeExpr := mkConst ``Key

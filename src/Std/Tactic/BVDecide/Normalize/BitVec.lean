@@ -381,7 +381,12 @@ attribute [bv_normalize] BitVec.umod_eq_and
 attribute [bv_normalize] BitVec.saddOverflow_eq
 attribute [bv_normalize] BitVec.uaddOverflow_eq
 attribute [bv_normalize] BitVec.negOverflow_eq
-attribute [bv_normalize] BitVec.fastUmulOverflow
+attribute [bv_normalize] BitVec.fastUmulOverflow_eq
+attribute [bv_normalize] BitVec.resRec_zero_eq
+attribute [bv_normalize] BitVec.resRec
+attribute [bv_normalize] BitVec.aandRec_eq
+attribute [bv_normalize] BitVec.uppcRec_zero_eq
+attribute [bv_normalize] BitVec.uppcRec
 attribute [bv_normalize] BitVec.smulOverflow_eq
 attribute [bv_normalize] BitVec.usubOverflow_eq
 attribute [bv_normalize] BitVec.ssubOverflow_eq

@@ -286,38 +286,41 @@ def replaceProgDefEq (goal : MVarId) (info : WPApp) (prog : Expr) :
 the local definition `fvarId`. -/
 inductive LetStep where
   | zeta (goal : MVarId)
-  | hoist (fvarId : FVarId) (goal : MVarId)
+  | intro (fvarId : FVarId) (goal : MVarId)
 
-/-- Simplify the value `val` of the `let` in `goal`'s target `let name : type := val; body` with
-`Context.simpMethods`. Returns the new goal and the simplified value. -/
-def simpLetValue (goal : MVarId) (name : Name) (type val body : Expr) (nondep : Bool) :
+/-- Simplify the value `val` of `goal`'s target `have name : type := val; body` with
+`Context.simpMethods`. Returns the new goal and the simplified value. The value of a dependent `let`
+(`nondep = false`) stays as written, since `body` can depend on it definitionally. -/
+def simpHaveValue (goal : MVarId) (name : Name) (type val body : Expr) (nondep : Bool) :
     VCGenM (MVarId × Expr) := do
+  unless nondep do return (goal, val)
   let some methods := (← read).simpMethods | return (goal, val)
   let .step val' h .. ← runSimp methods (Sym.Simp.simp val) | return (goal, val)
   let u ← Sym.getLevel type
   let h := mkApp6 (mkConst ``have_val_congr' [u, 1]) type (mkSort 0) val val' (.lam name type body .default) h
-  match ← (Sym.Simp.Result.step (.letE name type val' body nondep) h).toSimpGoalResult goal with
+  match ← (Sym.Simp.Result.step (.letE name type val' body true) h).toSimpGoalResult goal with
   | .goal goal => return (goal, val')
   | _ => return (goal, val)
 
 /-- Substitute or introduce `let name : type := val; body`, where `mkRhs body` is the right-hand
 side of the entailment in `goal`'s target. The value of a `have` is simplified first. A duplicable
-value is substituted. Otherwise the `let` is hoisted over the entailment and introduced. -/
+value is substituted. Otherwise the `let` is put in front of the entailment and introduced as a
+local definition. -/
 def letStep (goal : MVarId) (name : Name) (type val body : Expr) (nondep : Bool)
     (mkRhs : Expr → VCGenM Expr) : VCGenM LetStep := do
   let target ← goal.getType
   let relArgs := target.getAppArgs
   let target ← mkAppNS target.getAppFn (relArgs.set! (relArgs.size - 1) (← mkRhs body))
   let goal ← goal.replaceTargetDefEqFast (.letE name type val target nondep)
-  let (goal, val) ← if nondep then simpLetValue goal name type val target nondep else pure (goal, val)
+  let (goal, val) ← simpHaveValue goal name type val target nondep
   if isDuplicable val then
     trace[Elab.Tactic.Do.vcgen] "let-zeta-dup: {name}"
     return .zeta (← goal.replaceTargetDefEqFast (← Sym.instantiateRevBetaS target #[val]))
-  trace[Elab.Tactic.Do.vcgen] "let-hoist: {name}"
+  trace[Elab.Tactic.Do.vcgen] "let-intro: {name}"
   let name ← if isProgramName name then pure name else Meta.mkFreshBinderNameForTactic name
   let .goal decls goal' ← Sym.intros goal #[name]
     | throwError "Failed to intro the `let` {name}"
-  return .hoist decls[0]! goal'
+  return .intro decls[0]! goal'
 
 /-- Strip an `mdata` wrapper (such as the `save_info` annotation left by spec elaboration)
 from the program in `goal`'s target, so the remaining strategies see the bare term. -/
@@ -329,8 +332,8 @@ def wpReduceHead? (goal : MVarId) (info : WPApp) : VCGenM (Option MVarId) := do
   let some prog ← reduceHead? info.prog | return none
   return some (← replaceProgDefEq goal info prog)
 
-/-- Strategy 11a: hoist or zeta-substitute a `let` from the program head. Under `+jp`, a hoisted
-join point is registered, which adds the goal for its RHS. -/
+/-- Strategy 11a: introduce or zeta-substitute a `let` from the program head. Under `+jp`, an
+introduced join point is registered, which adds the goal for its RHS. -/
 def wpLet? (scope : Scope) (goal : MVarId) (info : WPApp) :
     VCGenM (Option (Scope × List MVarId)) := do
   let .letE name type val body nondep := info.prog.getAppFn | return none
@@ -341,7 +344,7 @@ def wpLet? (scope : Scope) (goal : MVarId) (info : WPApp) :
     mkAppNS wp info.excessArgs
   match ← letStep goal name type val body nondep mkRhs with
   | .zeta goal => return some (scope, [goal])
-  | .hoist jp goal =>
+  | .intro jp goal =>
     if appArgs.isEmpty then
       if let some r ← registerJoinPoint scope goal jp val info then
         return some r
@@ -353,7 +356,7 @@ gives such a right-hand side. -/
 def rhsLet? (goal : MVarId) (rhs : Expr) : VCGenM (Option MVarId) := do
   let .letE name type val body nondep := rhs | return none
   match ← letStep goal name type (← reduceHead val) body nondep pure with
-  | .zeta goal | .hoist _ goal => return some goal
+  | .zeta goal | .intro _ goal => return some goal
 
 /-- Strategy 11b: fold the state arguments of the program's `wp` application, so the symbolic
 state a spec application threads through the goal is normalized as it is produced rather than left
@@ -611,7 +614,7 @@ The function performs the following steps in order:
 9. **Lifted-hypothesis discharge**: close a residual `pre ⊑ ⌜φ⌝` entailment against the most
     recently lifted precondition `h : φ` in the local context, cached in `Scope.lastLiftedPre?`.
 10. **WP decomposition**: when the RHS is `wp e post eposts s₁ ... sₙ`, in order:
-    hoist/zeta program-head lets, split `ite`/`dite`/match, zeta-unfold fvar program heads,
+    introduce/zeta program-head lets, split `ite`/`dite`/match, zeta-unfold fvar program heads,
     reduce projection heads, and finally apply a registered `@[spec]` theorem.
 -/
 public def solve (scope : Scope) (goal : MVarId) : VCGenM SolveResult := goal.withContext do

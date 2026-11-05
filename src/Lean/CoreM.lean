@@ -273,9 +273,9 @@ structure RecordedDeps where
   -/
   localInstClasses : Array Name := #[]
   /--
-  The changes since the import of the global instances of the consulted classes (and of the instances
-  not rooted at a class, under `Name.anonymous`), see `Lean.Meta.Instances.classChanges`. Type class
-  resolution depends on the global instances only through these.
+  The changes since the import of the global instances of the consulted classes, see
+  `Lean.Meta.Instances.classChanges`. Type class resolution depends on the global instances only
+  through these.
   -/
   instClassChanges : Array (Name × List InstanceChange) := #[]
   deriving Inhabited

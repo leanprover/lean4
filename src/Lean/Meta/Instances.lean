@@ -83,8 +83,7 @@ structure Instances where
   instead of the generation of the whole table (`RecordedDeps.instClassChanges`). Recorded changes are
   only compared within the module that recorded them, i.e. against states with the same imported
   instances, so equal changes mean equal instances of the class. Restoring an earlier state (e.g. at
-  the end of a section) restores the changes with it. Instances whose key is not rooted at a class
-  (in practice, there are none) are under `Name.anonymous`, on which every query depends.
+  the end of a section) restores the changes with it.
   -/
   classChanges : PHashMap Name (List InstanceChange) := {}
   /--
@@ -95,11 +94,11 @@ structure Instances where
   logChanges : Bool := false
   deriving Inhabited
 
-/-- The class an instance's key is rooted at, or `Name.anonymous`; see `Instances.classChanges`. -/
+/-- The class an instance's key is rooted at; see `Instances.classChanges`. -/
 def InstanceEntry.keyClass (e : InstanceEntry) : Name :=
   match e.keys[0]? with
   | some (DiscrTree.Key.const c _) => c
-  | _ => .anonymous
+  | _ => panic! "instance key not rooted at a constant, which `addInstance` rejects"
 
 /-- The changes of the instances of `className` since the import; see `Instances.classChanges`. -/
 def Instances.getClassChanges (d : Instances) (className : Name) : List InstanceChange :=
@@ -341,6 +340,10 @@ this warning can be disabled with `set_option warn.classDefReducibility false`."
       logWarning m!"instance `{declName}` must be marked with `@[expose]`"
   let projInfo? ← getProjectionFnInfo? declName
   let synthOrder ← computeSynthOrder c projInfo?
+  -- Instance changes are tracked per class (`Instances.classChanges`), by the key's root constant.
+  unless keys[0]? matches some (DiscrTree.Key.const ..) do
+    throwError "invalid instance `{declName}`, its type does not reduce to an application of a \
+      constant at reducible transparency{indentExpr cinfo.type}"
   instanceExtension.add { keys, val := c, priority := prio, globalName? := declName, attrKind, synthOrder } attrKind
 
 /-

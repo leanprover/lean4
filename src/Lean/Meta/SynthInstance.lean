@@ -232,7 +232,6 @@ def getInstancesLazy (type : Expr) : MetaM (Array Instance) := do
       let env ← getEnv
       if instanceChangesLogged env then
         recordInstClassChanges className (getInstanceClassChanges env className)
-        recordInstClassChanges .anonymous (getInstanceClassChanges env .anonymous)
       let globalInstances ← getGlobalInstancesIndex
       let result ← globalInstances.getUnify type
       -- Using insertion sort because it is stable and the array `result` should be mostly sorted.

@@ -534,7 +534,7 @@ jobs:
 
   # This job creates nightly releases during the cron job.
   # It is responsible for creating the tag, and automatically generating a changelog.
-  # Only `Linux release` has to succeed; artifacts of other failed build jobs are left out.
+  # Only `Linux release`, `macOS aarch64` and `Windows` have to succeed; artifacts of other failed build jobs are left out.
   release-nightly:
     needs: [configure, build]
     if: ${{ !cancelled() && needs.configure.outputs.nightly }}
@@ -562,8 +562,11 @@ jobs:
             const jobs = await github.paginate(github.rest.actions.listJobsForWorkflowRun,
               { ...context.repo, run_id: context.runId });
             const builds = jobs.filter(j => j.name.startsWith('build / '));
-            if (!builds.some(j => j.name === 'build / Linux release' && j.conclusion === 'success')) {
-              core.setFailed('Linux release did not succeed, not releasing nightly');
+            const required = ['Linux release', 'macOS aarch64', 'Windows'];
+            const missing = required.filter(n =>
+              !builds.some(j => j.name === `build / ${n}` && j.conclusion === 'success'));
+            if (missing.length > 0) {
+              core.setFailed(`Not releasing nightly, required jobs did not succeed: ${missing.join(', ')}`);
               return;
             }
             // Artifacts are uploaded before tests run, so failed jobs may have left some behind

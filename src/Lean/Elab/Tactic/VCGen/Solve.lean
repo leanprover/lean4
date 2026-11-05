@@ -15,7 +15,6 @@ public import Lean.Meta.Sym.InstantiateS
 public import Lean.Meta.Sym.Simp.App
 import Lean.Meta.Sym.InferType
 import Lean.Meta.Sym.InstantiateMVarsS
-import Init.Data.Prod
 
 open Lean Meta Elab Tactic Sym Sym.Internal
 open Lean.Elab.Tactic.VCGen.SpecAttr
@@ -64,22 +63,39 @@ def consumeMData? (goal : MVarId) (target : Expr) : VCGenM (Option MVarId) := do
   unless target.isMData do return none
   return some (← goal.replaceTargetDefEqFast target.consumeMData)
 
-/-- Split `∀ p : Nat × Nat, P p` into `∀ a b, P (a, b)`. -/
-def splitProdBinder (goal : MVarId) (target : Expr) : VCGenM MVarId :=
-  goal.withContext do
-  let .forallE _ dom body _ := target | return goal
-  let dom ← instantiateMVarsIfMVarAppS dom
-  let_expr c@Prod α β := dom | return goal
-  let us := c.constLevels!
-  let mk ← mkAppNS (← mkConstS ``Prod.mk us) #[α, β, .bvar 1, .bvar 0]
-  let newTarget := Expr.forallE `a α (.forallE `b β (body.instantiate1 mk) .default) .default
-  let g ← liftMetaM <| mkFreshExprSyntheticOpaqueMVar (← shareCommon newTarget)
-  let motive := Expr.lam `p dom body .default
-  let prodForall ← mkAppNS (← mkConstS ``Prod.forall us) #[α, β, motive]
-  goal.assign <| mkApp4 (.const ``Iff.mpr []) target newTarget prodForall g
-  return g.mvarId!
+/-- Apply the backward rule `rule` of a `@[vcgen_rintro]` rule to `goal`. The types of the new goals
+are instantiated, so that the rule parameter `G` is beta-reduced at its arguments. -/
+def applyRIntroRule (goal : MVarId) (rule : BackwardRule) : VCGenM (Option (List MVarId)) := do
+  let .goals gs ← rule.apply goal | return none
+  some <$> gs.mapM fun g => do
+    let ty ← g.getType
+    let ty' ← instantiateMVarsS ty
+    if isSameExpr ty ty' then return g
+    g.replaceTargetDefEqFast ty'
 
-/-- Strategy 1: simp the target, then introduce binders if the target is a `∀`. -/
+/-- Strategy 1a: apply the first `@[vcgen_rintro]` rule, in priority order, whose conclusion matches
+the target `∀ y, …`. -/
+def forallRIntro? (goal : MVarId) (target : Expr) : VCGenM (Option (List MVarId)) := do
+  let entries := Sym.getMatch (← getMCtx) (← read).rintros target
+  if entries.isEmpty then return none
+  for entry in entries.insertionSort (·.prio > ·.prio) do
+    if let some gs ← applyRIntroRule goal (← mkBackwardRuleForRIntroCached entry) then
+      trace[Elab.Tactic.Do.vcgen] "Applied rintro rule {entry.declName}"
+      return some gs
+  return none
+
+/-- The number of binders `forallIntro?` introduces at once from `type`: one `∀` binder and the
+`let` binders that follow it. -/
+def numBindersToIntroOne : Expr → Nat
+  | .forallE _ _ b _ => go b 1
+  | _ => 0
+where
+  go : Expr → Nat → Nat
+  | .letE _ _ _ b _, n => go b (n + 1)
+  | _, n => n
+
+/-- Strategy 1: simp the target, then introduce its binders. At each `∀` binder, a matching
+`@[vcgen_rintro]` rule destructures the binder instead. -/
 def forallIntro? (oldGoal : MVarId) (target : Expr) : VCGenM (Option (List MVarId)) := do
   unless target.isForall do return none
   let oldGoal ← instantiateBinderDomains oldGoal
@@ -89,8 +105,8 @@ def forallIntro? (oldGoal : MVarId) (target : Expr) : VCGenM (Option (List MVarI
     | .noProgress => pure oldGoal
   let mut target ← goal.getType
   while target.isForall do
-    let n := numBindersToIntro target
-    let goal' ← if n == 0 then splitProdBinder goal target else introsHygienicN goal n
+    if let some gs ← forallRIntro? goal target then return some gs
+    let goal' ← introsHygienicN goal (numBindersToIntroOne target)
     if goal' == goal then break
     goal := goal'
     target ← goal.getType

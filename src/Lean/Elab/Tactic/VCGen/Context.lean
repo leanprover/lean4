@@ -11,6 +11,7 @@ public import Lean.Elab.Tactic.VCGen.SpecDB
 public import Lean.Elab.Tactic.VCGen.FrameProc
 public import Lean.Meta.Sym.Apply
 public import Lean.Meta.Sym.Simp.DiscrTree
+public import Lean.Elab.Tactic.VCGen.RIntroAttr
 public import Lean.Meta.Sym.Simp.SimpM
 public import Lean.Meta.Tactic.Grind.Types
 
@@ -106,6 +107,8 @@ public structure Context where
   /-- The `@[frameproc]` registry snapshot taken at frontend init. `solve` selects a procedure per
   program node by the node's monad. -/
   frameProcs : FrameProcs := {}
+  /-- The `@[vcgen_rintro]` rules, keyed by their conclusion. -/
+  rintros : DiscrTree RIntroEntry := .empty
   /-- The `Sym.simp` methods that rewrite hypotheses, state arguments and verification conditions
   with the `@[vcgen_simp]` theorems and those of the `simp [...]` clause. `none` when the `simp`
   config option is `false`. -/
@@ -201,6 +204,8 @@ public structure State where
   /-- Caches the frame rule (`meet_op_wp_upperAdjoint_le_wp`), keyed by the `WPMonad` instance
   and the number of excess state arguments. -/
   frameBackwardRuleCache : Std.HashMap (ExprPtr × Nat) FrameBackwardRule := {}
+  /-- Caches the backward rules of the `@[vcgen_rintro]` rules, keyed by declaration name. -/
+  rintroBackwardRuleCache : Std.HashMap Name BackwardRule := {}
   /-- The frame database from the `frames` clause. -/
   frameDB : FrameDB := {}
   /--

@@ -293,9 +293,7 @@ inductive LetStep where
 def simpLetValue (goal : MVarId) (name : Name) (type val body : Expr) (nondep : Bool) :
     VCGenM (MVarId × Expr) := do
   let some methods := (← read).simpMethods | return (goal, val)
-  let (r, st) ← Sym.Simp.SimpM.run (Sym.Simp.simp val) methods {} (← get).simpState
-  modify fun s => { s with simpState := st }
-  let .step val' h .. := r | return (goal, val)
+  let .step val' h .. ← runSimp methods (Sym.Simp.simp val) | return (goal, val)
   let u ← Sym.getLevel type
   let h := mkApp6 (mkConst ``congrArg [u, 1]) type (mkSort 0) val val' (.lam name type body .default) h
   match ← (Sym.Simp.Result.step (.letE name type val' body nondep) h).toSimpGoalResult goal with
@@ -369,12 +367,9 @@ def wpSimpStateArgs? (goal : MVarId) (info : WPApp) :
   let target ← goal.getType
   match h : target with
   | .app f rhs =>
-    let (result, simpState') ← Sym.Simp.SimpM.run
-      (do
-        let ar ← Sym.Simp.simpAppArgRange rhs start (start + info.excessArgs.size)
-        Sym.Simp.mkCongr target f rhs .rfl ar h)
-      methods {} (← get).simpState
-    modify fun st => { st with simpState := simpState' }
+    let result ← runSimp methods do
+      let ar ← Sym.Simp.simpAppArgRange rhs start (start + info.excessArgs.size)
+      Sym.Simp.mkCongr target f rhs .rfl ar h
     match ← result.toSimpGoalResult goal with
     | .closed => return some []
     | .goal g => return some [g]

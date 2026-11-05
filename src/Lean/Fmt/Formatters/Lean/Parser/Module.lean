@@ -16,27 +16,30 @@ import Init.While
 
 namespace Lean.Fmt
 
+def fmtImport : Fmt := fun
+  | `(Parser.Module.import| $[public%$publicTk?]? $[meta%$metaTk?]? import%$importTk $[all%$allTk?]? $mod) => do
+    let publicTk? ← fmt? publicTk?
+    let metaTk? ← fmt? metaTk?
+    let importTk ← fmt importTk
+    let allTk? ← fmt? allTk?
+    let mod ← fmt mod
+    let tks := Layouts.spacedAtomic #[publicTk?, metaTk?, importTk, allTk?]
+    return Layouts.pseudoApplication #[tks, mod]
+  | _ =>
+    throw .partialFormatter
+
 @[builtin_fmt Lean.Parser.Module.header]
 public def fmtHeader : Fmt := fun
   | `(Parser.Module.header| $[module%$moduleTk?]? $[prelude%$preludeTk?]? $importsStx*) => do
     let moduleTk? ← fmt? moduleTk?
     let preludeTk? ← fmt? preludeTk?
+    -- Retains at most one empty line between two imports.
     let imports ←
-      importsStx.mapM fun
-        | `(Parser.Module.import| $[public%$publicTk?]? $[meta%$metaTk?]? import%$importTk $[all%$allTk?]? $mod) =>
-          do
-            let publicTk? ← fmt? publicTk?
-            let metaTk? ← fmt? metaTk?
-            let importTk ← fmt importTk
-            let allTk? ← fmt? allTk?
-            let tks := Layouts.spacedAtomic #[publicTk?, metaTk?, importTk, allTk?]
-            let mod ← fmt mod
-            return Layouts.pseudoApplication #[tks, mod]
-        | _ =>
-          throw .partialFormatter
+      fmtArrayWithRetainedIntermediateNewlinesAndCommentsWith (fmtWith fmtImport ``fmtImport)
+        importsStx
     return Layouts.spacedLines #[
       moduleTk?,
-      Layouts.lines <| #[preludeTk?] ++ imports
+      Layouts.lines #[preludeTk?, imports]
     ]
   | _ =>
     throw .partialFormatter

@@ -237,6 +237,8 @@ end Utils
 section FileWorker
 
   structure FileWorker where
+    /-- Unique among all file worker processes that the watchdog starts. -/
+    id        : Nat
     doc       : DocumentMeta
     proc      : Process.Child workerCfg
     exitCode  : Std.Mutex (Option UInt32)
@@ -323,6 +325,8 @@ section ServerM
 
   structure RequestIDTranslation where
     sourceUri : DocumentUri
+    /-- `FileWorker.id` of the worker that sent the request. -/
+    workerID  : Nat
     localID   : RequestID
 
   abbrev PendingServerRequestMap := Std.TreeMap RequestID RequestIDTranslation
@@ -334,14 +338,21 @@ section ServerM
   def ServerRequestData.trackOutboundRequest
       (data      : ServerRequestData)
       (sourceUri : DocumentUri)
+      (workerID  : Nat)
       (localID   : RequestID)
       : RequestID × ServerRequestData :=
     let globalID := data.freshServerRequestID
     let data := {
-      pendingServerRequests := data.pendingServerRequests.insert globalID ⟨sourceUri, localID⟩
+      pendingServerRequests := data.pendingServerRequests.insert globalID ⟨sourceUri, workerID, localID⟩
       freshServerRequestID  := globalID + 1
     }
     (globalID, data)
+
+  /-- Erases the translations for the requests of the file worker with the ID `workerID`. -/
+  def ServerRequestData.eraseWorkerRequests (data : ServerRequestData) (workerID : Nat)
+      : ServerRequestData :=
+    { data with
+      pendingServerRequests := data.pendingServerRequests.filter fun _ t => t.workerID != workerID }
 
   def ServerRequestData.translateInboundResponse
       (data     : ServerRequestData)
@@ -402,6 +413,8 @@ section ServerM
     /-- Command line arguments. -/
     args              : List String
     fileWorkersRef    : IO.Ref (Std.TreeMap DocumentUri FileWorker)
+    /-- `FileWorker.id` for the next file worker. -/
+    freshWorkerID     : IO.Ref Nat
     /-- We store these to pass them to workers. -/
     initParams        : InitializeParams
     workerPath        : System.FilePath
@@ -765,6 +778,8 @@ section ServerM
           try
             fw.stdout.readLspMessageAsString
           catch _ =>
+            -- The worker sends no further requests, and replies to its earlier requests are obsolete.
+            (← read).serverRequestData.modify (·.eraseWorkerRequests fw.id)
             let exitCode ← fw.waitForProc
             -- Remove surviving descendant processes, if any, such as from nested builds.
             -- On Windows, we instead rely on elan doing this.
@@ -828,7 +843,7 @@ section ServerM
           else
             if let .ok params? := parseRequestParams? (Option Json.Structured) msg then
               let globalID ← (← read).serverRequestData.modifyGet
-                (·.trackOutboundRequest fw.doc.uri id)
+                (·.trackOutboundRequest fw.doc.uri fw.id id)
               writeMessage (Message.request globalID method params?)
         | .notification "$/lean/ileanHeaderSetupInfo" =>
           if let .ok params := parseNotificationParams? LeanILeanHeaderSetupInfoParams msg then
@@ -866,6 +881,7 @@ section ServerM
         initialDependencyBuildMode
     -- The task will never access itself, so this is fine
     let fw : FileWorker := {
+      id := ← st.freshWorkerID.modifyGet fun id => (id, id + 1)
       doc := { m with dependencyBuildMode := updatedDependencyBuildMode}
       proc := workerProc
       exitCode
@@ -1477,20 +1493,28 @@ section MessageHandling
     | _ =>
       pure ()
 
-  def handleResponse (id : RequestID) (result : Json) : ServerM Unit := do
-    let some translation ← (← read).serverRequestData.modifyGet (·.translateInboundResponse id)
+  /-- Forwards a client reply to the file worker that sent the request, if it is still current. -/
+  def forwardReplyToWorker (globalID : RequestID) (mkReply : RequestID → JsonRpc.Message)
+      : ServerM Unit := do
+    let some translation ← (← read).serverRequestData.modifyGet (·.translateInboundResponse globalID)
       | return
-    tryWriteMessage translation.sourceUri (Response.mk translation.localID result)
+    let some fw ← getFileWorker? translation.sourceUri
+      | return
+    -- A new worker for the same file reuses the request IDs of the old worker.
+    if fw.id != translation.workerID then
+      return
+    tryWriteMessage translation.sourceUri (mkReply translation.localID)
+
+  def handleResponse (id : RequestID) (result : Json) : ServerM Unit :=
+    forwardReplyToWorker id fun localID => Response.mk localID result
 
   def handleResponseError
       (id      : RequestID)
       (code    : ErrorCode)
       (message : String)
       (data?   : Option Json)
-      : ServerM Unit := do
-    let some translation ← (← read).serverRequestData.modifyGet (·.translateInboundResponse id)
-      | return
-    tryWriteMessage translation.sourceUri (ResponseError.mk translation.localID code message data?)
+      : ServerM Unit :=
+    forwardReplyToWorker id fun localID => ResponseError.mk localID code message data?
 end MessageHandling
 
 section MainLoop
@@ -1808,6 +1832,7 @@ def initAndRunWatchdog (args : List String) (i o : FS.Stream) : IO Unit := do
     logData
     args           := args
     fileWorkersRef := fileWorkersRef
+    freshWorkerID  := ← IO.mkRef 0
     initParams     := initRequest.param
     referenceData
     workerPath

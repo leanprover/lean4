@@ -212,38 +212,6 @@ def ofFin (data : Fin 13) : Ordinal :=
   Bounded.LE.ofFin' data (by decide)
 
 /--
-Transforms `Month.Ordinal` into `Second.Offset`.
--/
-def toSeconds (leap : Bool) (month : Ordinal) : Second.Offset :=
-  let daysAcc := #[0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334]
-  let days : Day.Offset := daysAcc[month.toNat]!
-  let time := days.toSeconds
-  if leap && month.toNat ≥ 2
-    then time + 86400
-    else time
-
-/--
-Transforms `Month.Ordinal` into `Minute.Offset`.
--/
-@[inline]
-def toMinutes (leap : Bool) (month : Ordinal) : Minute.Offset :=
-  toSeconds leap month |>.toMinutes
-
-/--
-Transforms `Month.Ordinal` into `Hour.Offset`.
--/
-@[inline]
-def toHours (leap : Bool) (month : Ordinal) : Hour.Offset :=
-  toMinutes leap month |>.toHours
-
-/--
-Transforms `Month.Ordinal` into `Day.Offset`.
--/
-@[inline]
-def toDays (leap : Bool) (month : Ordinal) : Day.Offset :=
-  toSeconds leap month |>.convert
-
-/--
 Size in days of each month if the year is not a leap year.
 -/
 @[inline]
@@ -288,6 +256,38 @@ def cumulativeDays (leap : Bool) (month : Ordinal) : Day.Offset := by
   rw [← p] at index
   let res := months[index]
   exact res + (if leap ∧ month.val > 2 then 1 else 0)
+
+/--
+The days from the start of a year to the start of `month`, where `leap` says whether the year is a
+leap year.
+-/
+@[inline]
+def toDays (leap : Bool) (month : Ordinal) : Day.Offset :=
+  cumulativeDays leap month
+
+/--
+The hours from the start of a year to the start of `month`, where `leap` says whether the year is a
+leap year.
+-/
+@[inline]
+def toHours (leap : Bool) (month : Ordinal) : Hour.Offset :=
+  (toDays leap month).toHours
+
+/--
+The minutes from the start of a year to the start of `month`, where `leap` says whether the year is
+a leap year.
+-/
+@[inline]
+def toMinutes (leap : Bool) (month : Ordinal) : Minute.Offset :=
+  (toDays leap month).toMinutes
+
+/--
+The seconds from the start of a year to the start of `month`, where `leap` says whether the year is
+a leap year.
+-/
+@[inline]
+def toSeconds (leap : Bool) (month : Ordinal) : Second.Offset :=
+  (toDays leap month).toSeconds
 
 theorem cumulativeDays_le (leap : Bool) (month : Month.Ordinal) : cumulativeDays leap month ≥ 0 ∧ cumulativeDays leap month ≤ 334 + (if leap then 1 else 0) := by
   match month with

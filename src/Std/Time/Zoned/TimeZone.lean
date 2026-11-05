@@ -55,17 +55,16 @@ instance : LawfulEqOrd Offset where
 namespace Offset
 
 /--
-Converts an `Offset` to a string in ISO 8601 format. The `colon` parameter determines if the hour
-and minute components are separated by a colon (e.g., "+01:00" or "+0100").
+Converts an `Offset` to a string in ISO 8601 format, with seconds only when they are non-zero. The
+`colon` parameter determines if the components are separated by colons (e.g., "+01:00", "+0100" or
+"+01:30:15").
 -/
 def toIsoString (offset : Offset) (colon : Bool) : String :=
-  let (sign, time) := if offset.second.val ≥ 0 then ("+", offset.second) else ("-", -offset.second)
-  let hour : Hour.Offset := time.toHours
-  let minute := Int.ediv (Int.tmod time.val 3600) 60
-  let hourStr := if hour.val < 10 then s!"0{hour.val}" else toString hour.val
-  let minuteStr := if minute < 10 then s!"0{minute}" else toString minute
-    if colon then s!"{sign}{hourStr}:{minuteStr}"
-    else s!"{sign}{hourStr}{minuteStr}"
+  let (sign, time) := if offset.second.val ≥ 0 then ("+", offset.second.val) else ("-", -offset.second.val)
+  let pad (n : Int) := if n < 10 then s!"0{n}" else toString n
+  let sep := if colon then ":" else ""
+  let hourMinute := s!"{sign}{pad (time / 3600)}{sep}{pad (time % 3600 / 60)}"
+  if time % 60 = 0 then hourMinute else s!"{hourMinute}{sep}{pad (time % 60)}"
 
 /--
 A zero `Offset` representing UTC (no offset).

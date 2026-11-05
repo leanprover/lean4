@@ -19,17 +19,22 @@ public section
 
 namespace Lean
 
+/-- Converts `maxRecDepth` for the kernel, mapping values that do not fit in `USize` to `0` (unlimited). -/
+private def kernelMaxRecDepth (opts : Options) : USize :=
+  let max := maxRecDepth.get opts
+  if max < USize.size then max.toUSize else 0
+
 /-- Adds given declaration to the environment, respecting `debug.skipKernelTC`. -/
 def Kernel.Environment.addDecl (env : Environment) (opts : Options) (decl : Declaration)
     (cancelTk? : Option IO.CancelToken := none) : Except Exception Environment :=
   if debug.skipKernelTC.get opts then
     addDeclWithoutChecking env decl
   else
-    addDeclCore env (Core.getMaxHeartbeats opts).toUSize (maxRecDepth.get opts).toUSize decl cancelTk?
+    addDeclCore env (Core.getMaxHeartbeats opts).toUSize (kernelMaxRecDepth opts) decl cancelTk?
 
 private def Environment.addDeclAux (env : Environment) (opts : Options) (decl : Declaration)
     (cancelTk? : Option IO.CancelToken := none) : Except Kernel.Exception Environment :=
-  env.addDeclCore (Core.getMaxHeartbeats opts).toUSize (maxRecDepth.get opts).toUSize decl cancelTk?
+  env.addDeclCore (Core.getMaxHeartbeats opts).toUSize (kernelMaxRecDepth opts) decl cancelTk?
     (!debug.skipKernelTC.get opts)
 
 open Linter in

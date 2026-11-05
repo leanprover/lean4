@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
 # ONLY FOR WEB ASSEMBLY BUILD
-node --stack-size=8192 ${CMAKE_BINARY_DIR}/bin/lean.js $@
+exec node --stack-size=8192 "$(dirname "$(readlink -f "$0")")/lean.js" "$@"
 

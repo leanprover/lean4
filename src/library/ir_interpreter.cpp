@@ -27,6 +27,7 @@ functions, which have a (relatively) homogeneous ABI that we can use without run
 `call/lookup_symbol` below.
 
 */
+#include <cstring>
 #include <string>
 #include <vector>
 #include <memory>
@@ -339,7 +340,26 @@ void print_value(tout const & ios, value const & v, type t) {
   return print_value(const_cast<tout &>(ios), v, t);
 }
 
+#ifdef LEAN_EMSCRIPTEN
+// `lean.js` keeps the interpreter's symbol table inside the module (see `script/wasm_symbols.py`): Emscripten's
+// `dlsym` enumerates the export list on every call, and exporting all of Lean costs JavaScript per symbol in every
+// pthread. Weak so that other Emscripten programs can link `libleancpp.a` without the table.
+extern "C" void * lean_lookup_native_symbol(char const * sym) __attribute__((weak));
+#endif
+
 void * lookup_symbol_in_cur_exe(char const * sym) {
+#ifdef LEAN_EMSCRIPTEN
+    if (lean_lookup_native_symbol) {
+        if (void * addr = lean_lookup_native_symbol(sym)) {
+            return addr;
+        }
+        // the table holds every symbol of the Lean archives, so a compiled declaration that is not in it is not in
+        // `lean.js` at all; only the runtime's symbols are left to `dlsym`
+        if (strncmp(sym, "l_", 2) == 0 || strncmp(sym, "lp_", 3) == 0) {
+            return nullptr;
+        }
+    }
+#endif
 #ifdef LEAN_WINDOWS
     std::vector<HMODULE> hmods(128);
     DWORD bytes_needed;

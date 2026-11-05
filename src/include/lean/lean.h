@@ -3703,6 +3703,10 @@ static inline uint64_t lean_expr_data(lean_obj_arg expr) {
     return lean_ctor_get_uint64(expr, lean_ctor_num_objs(expr)*sizeof(void*));
 }
 
+#ifdef __clang__
+#pragma clang diagnostic pop
+#endif
+
 // eliding unused parameter names is C23+, so ignore warning instead in the following
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -3865,8 +3869,4 @@ LEAN_EXPORT lean_object * lean_run_main(lean_object * (*main_fn)(int, char **), 
 
 #ifdef __cplusplus
 }
-#endif
-
-#ifdef __clang__
-#pragma clang diagnostic pop
 #endif

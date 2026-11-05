@@ -62,23 +62,32 @@ def unfoldLHS (declName : Name) (mvarId : MVarId) : MetaM MVarId := mvarId.withC
     deltaLHS mvarId
 
 /--
-Rewrites a matcher application on the left-hand side of an equality goal with the congruence
-equation of the first alternative that applies. Equation statements are computed with the same
-rewrite, so it proves equations whose discriminants are not constructor applications.
+Rewrites the matcher application `e` with the congruence equation of the first alternative that
+applies. Arguments of `e` beyond the arity of the matcher are applied to the result.
+-/
+def rwMatcherApp? (e : Expr) : MetaM (Option Simp.Result) := do
+  let some app ← matchMatcherApp? e | return none
+  let f := { app with remaining := #[] }.toExpr
+  for i in *...app.numAlts do
+    let r ← rwMatcher i f
+    if r.expr != f then
+      return some (← r.addExtraArgs app.remaining)
+  return none
+
+/--
+Rewrites a matcher application on the left-hand side of an equality goal with `rwMatcherApp?`.
+Equation statements are computed with the same rewrite, so it proves equations whose
+discriminants are not constructor applications.
 -/
 def rwMatcherLHS? (mvarId : MVarId) : MetaM (Option MVarId) := mvarId.withContext do
   let target ← mvarId.getType'
   let some (_, lhs, rhs) := target.eq? | return none
-  let some app ← matchMatcherApp? lhs | return none
-  for i in *...app.numAlts do
-    let r ← rwMatcher i lhs
-    if r.expr != lhs then
-      let targetNew ← mkEq r.expr rhs
-      let some proof := r.proof? | return some (← mvarId.replaceTargetDefEq targetNew)
-      let mvarNew ← mkFreshExprSyntheticOpaqueMVar targetNew
-      mvarId.assign (← mkEqTrans proof mvarNew)
-      return some mvarNew.mvarId!
-  return none
+  let some r ← rwMatcherApp? lhs | return none
+  let targetNew ← mkEq r.expr rhs
+  let some proof := r.proof? | return some (← mvarId.replaceTargetDefEq targetNew)
+  let mvarNew ← mkFreshExprSyntheticOpaqueMVar targetNew
+  mvarId.assign (← mkEqTrans proof mvarNew)
+  return some mvarNew.mvarId!
 
 /--
 Proves a generated equation type for `declName`. After introducing its parameters and hypotheses,
@@ -464,12 +473,11 @@ partial def simpEqn : Simp.Simproc := fun e => do
     let r := { expr := ← zetaUnused r.expr, proof? := r.proof? : Simp.Result }
     if r.expr == e then return .done r
     return .visit { r with expr := (← letToHave r.expr) }
-  if let some app ← matchMatcherApp? e then
+  if ← isMatcherApp e then
     if let some e' ← reduceRecMatcher? e then
       return .visit { expr := e' }
-    for i in *...app.numAlts do
-      let r ← rwMatcher i e
-      if r.expr != e then return .visit r
+    if let some r ← rwMatcherApp? e then
+      return .visit r
   return .continue
 
 /--

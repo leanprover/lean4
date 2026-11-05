@@ -117,7 +117,7 @@ where resultTypeForArity (type : Lean.Expr) (arity : Nat) : Expr :=
 def litValueImpureType (v : LCNF.LitValue) : Expr :=
   match v with
   | .nat n =>
-    if n < UInt32.size then ImpureType.tagged else ImpureType.tobject
+    if Nat.isPossibleRef n then ImpureType.tobject else ImpureType.tagged
   | .str .. => ImpureType.object
   | .uint8 .. => ImpureType.uint8
   | .uint16 .. => ImpureType.uint16

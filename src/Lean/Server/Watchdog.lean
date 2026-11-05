@@ -466,19 +466,9 @@ section ServerM
     let some mod := mod?
       | return
     s.referenceData.atomically do
-      let pendingWaitForILeanRequests ← modifyGet fun rd =>
+      modify fun rd =>
         let rd := rd.modifyReferences (·.removeWorkerRefs mod)
-        let (pending, rest) := rd.pendingWaitForILeanRequests.partition (·.uri == uri)
-        let rd := { rd with pendingWaitForILeanRequests := rest }
-        let rd := rd.modifyFinalizedWorkerILeanVersions (·.erase uri)
-        (pending, rd)
-      for pendingWaitForILeanRequest in pendingWaitForILeanRequests do
-        writeMessage {
-          id := pendingWaitForILeanRequest.id,
-          code := ErrorCode.contentModified,
-          message := s!"The file worker for {uri} has been terminated."
-          : ResponseError Unit
-        }
+        rd.modifyFinalizedWorkerILeanVersions (·.erase uri)
 
 
   def setWorkerState (fw : FileWorker) (s : WorkerState) : ServerM Unit := do
@@ -487,6 +477,9 @@ section ServerM
   def getWorkerState (fw : FileWorker) : ServerM WorkerState := do
     fw.state.atomically get
 
+  /--
+  Answers all pending requests for `uri` with an error, including `$/lean/waitForILeans` requests.
+  -/
   def errorPendingRequests (uri : DocumentUri) (code : ErrorCode) (msg : String)
       : ServerM Unit := do
     let ctx ← read
@@ -495,8 +488,13 @@ section ServerM
       let pendingRequests := d.getRequestQueue uri
       set <| d.clearWorkerRequestData uri
       return pendingRequests
+    let pendingWaitForILeanRequests ← ctx.referenceData.atomically <| modifyGet fun rd =>
+      let (pending, rest) := rd.pendingWaitForILeanRequests.partition (·.uri == uri)
+      (pending, { rd with pendingWaitForILeanRequests := rest })
     for (id, _) in pendingRequests do
       writeMessage { id := id, code := code, message := msg : ResponseError Unit }
+    for pendingWaitForILeanRequest in pendingWaitForILeanRequests do
+      writeMessage { id := pendingWaitForILeanRequest.id, code, message := msg : ResponseError Unit }
 
   def eraseGetPendingRequest (uri : DocumentUri) (id : RequestID) : ServerM (Option (JsonRpc.Request Json)) := do
     let ctx ← read
@@ -527,18 +525,19 @@ section ServerM
     s.referenceData.atomically do
       let rd ← get
       let rd ← rd.modifyReferencesM (·.finalizeWorkerRefs module uri params.version params.references params.decls)
-      let (pendingWaitForILeanRequests, rest) := rd.pendingWaitForILeanRequests.partition (·.uri == uri)
+      -- Like `finalizeWorkerRefs`, ignore late final notifications for older versions.
+      let finalizedVersion := max params.version (rd.finalizedWorkerILeanVersions[uri]?.getD 0)
+      let (satisfied, rest) := rd.pendingWaitForILeanRequests.partition fun r =>
+        r.uri == uri && r.version ≤ finalizedVersion
       let rd := { rd with pendingWaitForILeanRequests := rest }
-      let rd := rd.modifyFinalizedWorkerILeanVersions (·.insert uri params.version)
+      let rd := rd.modifyFinalizedWorkerILeanVersions (·.insert uri finalizedVersion)
       set rd
-      for pendingWaitForILeanRequest in pendingWaitForILeanRequests do
-        if pendingWaitForILeanRequest.uri == uri
-            && pendingWaitForILeanRequest.version <= params.version then
-          writeMessage {
-            id := pendingWaitForILeanRequest.id
-            result := ⟨⟩
-            : Response WaitForILeans
-          }
+      for pendingWaitForILeanRequest in satisfied do
+        writeMessage {
+          id := pendingWaitForILeanRequest.id
+          result := ⟨⟩
+          : Response WaitForILeans
+        }
 
   def emitServerRequestResponse [ToJson α] (fw : FileWorker) (r : Response α) : IO Unit := do
     if ! ((← fw.state.atomically get) matches .running) then
@@ -1424,33 +1423,34 @@ section MessageHandling
             : Response WaitForILeans
           }
           return
-      if let none ← getFileWorker? uri then
-        writeMessage {
-          id
-          code    := ErrorCode.contentModified
-          message := s!"Cannot process '$/lean/waitForILeans' request to closed file '{uri}'"
-          : ResponseError Unit
-        }
-        return
-      ctx.referenceData.atomically do
-        let deferResponse := modify fun rd =>
-          rd.modifyPendingWaitForILeanRequests fun pending =>
-            pending.push {
-              id
-              uri := uri
-              version := version
-            }
-        let some lastFinalizedVersion := (← get).finalizedWorkerILeanVersions[uri]?
-          | deferResponse
-            return
-        if lastFinalizedVersion < version then
-          deferResponse
+      let some fw ← getFileWorker? uri
+        | writeMessage {
+            id
+            code    := ErrorCode.contentModified
+            message := s!"Cannot process '$/lean/waitForILeans' request to closed file '{uri}'"
+            : ResponseError Unit
+          }
           return
-        writeMessage {
-          id
-          result := ⟨⟩
-          : Response WaitForILeans
-        }
+      let state ← getWorkerState fw
+      ctx.referenceData.atomically do
+        if (← get).finalizedWorkerILeanVersions[uri]?.any (version ≤ ·) then
+          writeMessage {
+            id
+            result := ⟨⟩
+            : Response WaitForILeans
+          }
+          return
+        if let .crashed exitCode := state then
+          -- A crashed worker never finalizes `version`.
+          writeMessage {
+            id
+            code    := ErrorCode.workerCrashed
+            message := workerCrashedMessage uri exitCode
+            : ResponseError Unit
+          }
+          return
+        modify fun rd =>
+          rd.modifyPendingWaitForILeanRequests (·.push { id, uri, version })
     | _ =>
       forwardRequestToWorker id method params
 

@@ -111,23 +111,27 @@ def Message.Head.getSize (message : Message.Head dir) (allowEOFBody : Bool) : Op
 Checks whether the message indicates that the connection should be kept alive.
 -/
 def Message.Head.shouldKeepAlive (message : Message.Head dir) : Bool :=
-  let tokens? : Option (Array String) :=
-    match message.headers.getAll? .connection with
-    | none => some #[]
-    | some values =>
-        values.foldl (fun acc raw => do
-          let acc ← acc
-          let parsed ← Header.Connection.parse raw
-          pure (acc ++ parsed.tokens)
-        ) (some #[])
+  -- Most messages have no `Connection` field.
+  if !message.headers.map.entries.any (·.1 == Header.Name.connection) then
+    message.version == .v11
+  else
+    let tokens? : Option (Array String) :=
+      match message.headers.getAll? .connection with
+      | none => some #[]
+      | some values =>
+          values.foldl (fun acc raw => do
+            let acc ← acc
+            let parsed ← Header.Connection.parse raw
+            pure (acc ++ parsed.tokens)
+          ) (some #[])
 
-  match tokens? with
-  | none => false
-  | some tokens =>
-      if message.version == .v11 then
-        !tokens.any (· == "close")
-      else
-        tokens.any (· == "keep-alive")
+    match tokens? with
+    | none => false
+    | some tokens =>
+        if message.version == .v11 then
+          !tokens.any (· == "close")
+        else
+          tokens.any (· == "keep-alive")
 
 instance : Repr (Message.Head dir) :=
   match dir with

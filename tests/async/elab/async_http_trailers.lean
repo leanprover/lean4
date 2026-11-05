@@ -170,7 +170,7 @@ def bad400 : String :=
   let trailer := Trailer.empty
     |>.insert (.mk "checksum") (.mk "abc123")
     |>.insert (.mk "expires") (.mk "Thu, 01 Dec 1994")
-  let encoded := (Encode.encode (v := .v11) ChunkedBuffer.empty trailer).toByteArray
+  let encoded := Encode.encode (v := .v11) ByteArray.empty trailer
   let text := String.fromUTF8! encoded
   assert! text.contains "0\x0d\n"
   assert! text.contains "Checksum: abc123\x0d\n"
@@ -178,7 +178,7 @@ def bad400 : String :=
 
 -- Empty trailer encoding is exactly terminal chunk CRLF CRLF.
 #eval show IO _ from Async.block do
-  let encoded := (Encode.encode (v := .v11) ChunkedBuffer.empty Trailer.empty).toByteArray
+  let encoded := Encode.encode (v := .v11) ByteArray.empty Trailer.empty
   let text := String.fromUTF8! encoded
   assert! text == "0\x0d\n\x0d\n"
 

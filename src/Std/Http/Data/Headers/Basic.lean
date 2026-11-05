@@ -43,10 +43,16 @@ class Header (α : Type) where
   -/
   serialize : α → Header.Name × Header.Value
 
+/--
+Appends the field line `Name: value\r\n`.
+-/
+def Internal.appendFieldLine (out : ByteArray) (name : Header.Name) (value : Header.Value) : ByteArray :=
+  out ++ name ++ ": " ++ value ++ "\r\n"
+
 instance [h : Header α] : Encode .v11 α where
-  encode buffer a :=
+  encode out a :=
     let (name, value) := h.serialize a
-    buffer.writeString s!"{name}: {value}\r\n"
+    appendFieldLine out name value
 
 namespace Header
 

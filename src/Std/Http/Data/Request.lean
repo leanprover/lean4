@@ -106,15 +106,8 @@ instance : ToString Head where
 
 open Std.Http.Internal in
 instance : Encode .v11 Head where
-  encode buffer req :=
-    let buffer := Encode.encode (v := .v11) buffer req.method
-    let buffer := buffer.writeChar ' '
-    let buffer := Encode.encode (v := .v11) buffer req.uri
-    let buffer := buffer.writeChar ' '
-    let buffer := Encode.encode (v := .v11) buffer req.version
-    let buffer := buffer.writeString "\r\n"
-    let buffer := Encode.encode (v := .v11) buffer req.headers
-    buffer.writeString "\r\n"
+  encode out req :=
+    out ++ req.method ++ ' ' ++ req.uri ++ ' ' ++ req.version ++ "\r\n" ++ req.headers ++ "\r\n"
 
 /--
 Creates a new HTTP request builder with the default head

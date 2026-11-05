@@ -130,6 +130,9 @@ invalidates the cache.
 `findOLean` is not called concurrently by Lean itself. If a client does so, calls may overwrite
 each other's entries, so some packages are probed again; every stored root was resolved against
 the search path stored next to it, so results are unaffected.
+
+The keys are deep copies of the package names: a name read from an import list lives in that
+`.olean`'s region, which `withImportModules` frees after use.
 -/
 private builtin_initialize oleanRootCacheRef : IO.Ref (SearchPath × List (Name × FilePath)) ←
   IO.mkRef ([], [])
@@ -143,7 +146,7 @@ partial def findOLean (mod : Name) : IO FilePath := do
   if let some root := cache.lookup pkg then
     return modToFilePath root mod "olean"
   if let some root ← sp.findRootWithExt "olean" mod then
-    oleanRootCacheRef.set (sp, (pkg, root) :: cache)
+    oleanRootCacheRef.set (sp, (← Runtime.deepCopy pkg, root) :: cache)
     return modToFilePath root mod "olean"
   else
     let pkg := FilePath.mk <| mod.getRoot.toString (escape := false)

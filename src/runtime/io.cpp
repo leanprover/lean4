@@ -57,11 +57,9 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 #include <dirent.h>
 #endif
 
-#ifndef LEAN_WINDOWS
-#ifndef __APPLE__
+#if !defined(LEAN_WINDOWS) && !defined(__APPLE__) && !defined(LEAN_EMSCRIPTEN)
 #include <sys/syscall.h>
 #include <linux/fs.h> // RENAME_NOREPLACE
-#endif
 #endif
 
 namespace lean {
@@ -1273,6 +1271,16 @@ extern "C" LEAN_EXPORT obj_res lean_io_rename_if_new(b_obj_arg from, b_obj_arg t
 #else
 #if defined(__APPLE__)
     bool ok = renameatx_np(AT_FDCWD, from_str, AT_FDCWD, to_str, RENAME_EXCL) == 0;
+#elif defined(LEAN_EMSCRIPTEN)
+    // Emscripten has no `renameat2`. Unlike the other branches, this check is not atomic. As with
+    // `renameat2`, a missing `from` is reported even when `to` exists.
+    struct stat st;
+    bool ok = false;
+    if (lstat(to_str, &st) != 0) {
+        ok = rename(from_str, to_str) == 0;
+    } else if (lstat(from_str, &st) == 0) {
+        errno = EEXIST;
+    }
 #else
     // glibc 2.26 does not yet have `renameat2` (2.28+)
     bool ok = syscall(SYS_renameat2, AT_FDCWD, from_str, AT_FDCWD, to_str, RENAME_NOREPLACE) == 0;

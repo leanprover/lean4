@@ -453,7 +453,9 @@ panics.
 
 A result is stored in `raw` under its raw key, with the query type and all local instances, and in
 `shared` under the query type alone with its free variables normalized, for contexts whose local
-instances of the consulted classes agree (`SynthInstanceSharedEntry.relevant`).
+instances of the consulted classes agree (`SynthInstanceSharedEntry.relevant`). `shared` keeps only
+the `maxSharedEntries` most recent entries per key, bounding the scan on a lookup and the growth of
+the persistent tier.
 
 The cache has two tiers. The transient tier, `Meta.Cache.synthInstance`, lives as long as the
 current `Meta.State`. Context-free entries are also stored in the persistent tier,

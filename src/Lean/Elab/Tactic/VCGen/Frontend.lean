@@ -13,6 +13,7 @@ public import Lean.Elab.Tactic.VCGen.FrameProcAttr
 public import Lean.Elab.Tactic.VCGen.SimpAttr
 public import Lean.Meta.Sym.Simp.EvalGround
 public import Lean.Meta.Sym.Simp.Reduce
+public import Lean.Meta.Sym.Simp.ControlFlow
 public import Lean.Meta.Sym.Simp.Rewrite
 public import Lean.Meta.Sym.Simp.Simproc
 public import Lean.Elab.Tactic.Grind.Main
@@ -405,7 +406,7 @@ def parseArgs (stx : Syntax) (goal : MVarId) : TermElabM ParsedArgs := goal.with
   let simpArgs := if stx[6].isNone then #[] else stx[6][2].getSepArgs
   let simpMethods ← if config.simp then
       let thms ← elabSimpTheorems simpArgs
-      pure (some { pre := Sym.Simp.beta >> Sym.Simp.reduceProj >> Sym.Simp.reduceMatcher
+      pure (some { pre := Sym.Simp.beta >> Sym.Simp.reduceProj >> Sym.Simp.reduceControl
                    post := Sym.Simp.evalGround >> thms.rewrite Sym.Simp.dischargeSimpSelf })
     else if simpArgs.isEmpty then
       pure none

@@ -164,6 +164,16 @@ example (n : Nat) : ⦃ fun _ => True ⦄ (pure (0 + n) : M Nat) ⦃ fun r _ => 
   vcgen
   simp
 
+/-! `vcgen` decides a `match` on a literal discriminant in a verification condition. -/
+
+example : ⦃ fun _ => True ⦄ (pure "done" : M String)
+    ⦃ fun r _ => match r with | "start" => False | "done" => True | _ => False ⦄ := by
+  vcgen
+
+example : ⦃ fun _ => True ⦄ (pure 2 : M Nat)
+    ⦃ fun r _ => (match r with | 1 => "a" | 2 => "b" | _ => "c") = "b" ⦄ := by
+  vcgen
+
 /-! Errors. -/
 
 /-- error: `vcgen simp [...]` conflicts with the config option `simp := false` -/

@@ -51,6 +51,21 @@ def isOwsByte (c : UInt8) : Bool :=
 -- Parser blocks
 
 /--
+Like `attempt p`, but an `.eof` failure of `p` keeps the input that `p` consumed, so that `<|>`
+propagates it instead of trying the next alternative.
+
+The protocol machine treats `.eof` as "need more data". If the buffered input ends inside an
+alternative, backtracking would let a shorter alternative match a prefix of it and the parser after
+it fail on the unfinished bytes, turning a valid message into a hard parse error.
+-/
+@[inline]
+def attemptUnlessEof (p : Parser α) : Parser α := fun it =>
+  match p it with
+  | .success rem res => .success rem res
+  | .error rem .eof => .error rem .eof
+  | .error _ err => .error it err
+
+/--
 Repeatedly applies `parser` until it returns `none` or the `maxCount` limit is
 exceeded. Returns the collected results as an array.
 -/
@@ -192,53 +207,58 @@ def parseHttpVersion : Parser Version := do
 /-
 method         = token
 
-Every branch is wrapped in `attempt` so that `<|>` always backtracks on
-failure, even after consuming bytes. This is strictly necessary only for the
-P-group (POST / PUT / PATCH) which share a common first byte, but wrapping
-all alternatives keeps the parser defensively correct if new methods are
-added in the future.
+Every branch is wrapped in `attemptUnlessEof` so that `<|>` backtracks when
+a branch fails on a mismatching byte, even after consuming bytes. This is
+strictly necessary only for methods that share a prefix (POST / PUT / PATCH,
+MKCOL / MKREDIRECTREF and others), but wrapping all alternatives keeps the
+parser correct if new methods are added in the future.
+
+When the input ends inside a branch, its `.eof` is propagated so that the
+caller waits for more data. Backtracking there would be wrong for
+`UPDATEREDIRECTREF`: with only `UPDATER` buffered, `UPDATE` would match and
+the following `sp` would fail on `R`.
 -/
 def parseMethod : Parser Method :=
-  (attempt <| skipBytes "GET".toUTF8 <&> fun _ => Method.get)
-  <|> (attempt <| skipBytes "HEAD".toUTF8 <&> fun _ => Method.head)
-  <|> (attempt <| skipBytes "DELETE".toUTF8 <&> fun _ => Method.delete)
-  <|> (attempt <| skipBytes "TRACE".toUTF8 <&> fun _ => Method.trace)
-  <|> (attempt <| skipBytes "ACL".toUTF8 <&> fun _ => Method.acl)
-  <|> (attempt <| skipBytes "QUERY".toUTF8 <&> fun _ => Method.query)
-  <|> (attempt <| skipBytes "SEARCH".toUTF8 <&> fun _ => Method.search)
-  <|> (attempt <| skipBytes "BASELINE-CONTROL".toUTF8 <&> fun _ => Method.baselineControl)
-  <|> (attempt <| skipBytes "BIND".toUTF8 <&> fun _ => Method.bind)
-  <|> (attempt <| skipBytes "CONNECT".toUTF8 <&> fun _ => Method.connect)
-  <|> (attempt <| skipBytes "CHECKIN".toUTF8 <&> fun _ => Method.checkin)
-  <|> (attempt <| skipBytes "CHECKOUT".toUTF8 <&> fun _ => Method.checkout)
-  <|> (attempt <| skipBytes "COPY".toUTF8 <&> fun _ => Method.copy)
-  <|> (attempt <| skipBytes "LABEL".toUTF8 <&> fun _ => Method.label)
-  <|> (attempt <| skipBytes "LINK".toUTF8 <&> fun _ => Method.link)
-  <|> (attempt <| skipBytes "LOCK".toUTF8 <&> fun _ => Method.lock)
-  <|> (attempt <| skipBytes "MERGE".toUTF8 <&> fun _ => Method.merge)
-  <|> (attempt <| skipBytes "MKACTIVITY".toUTF8 <&> fun _ => Method.mkactivity)
-  <|> (attempt <| skipBytes "MKCALENDAR".toUTF8 <&> fun _ => Method.mkcalendar)
-  <|> (attempt <| skipBytes "MKCOL".toUTF8 <&> fun _ => Method.mkcol)
-  <|> (attempt <| skipBytes "MKREDIRECTREF".toUTF8 <&> fun _ => Method.mkredirectref)
-  <|> (attempt <| skipBytes "MKWORKSPACE".toUTF8 <&> fun _ => Method.mkworkspace)
-  <|> (attempt <| skipBytes "MOVE".toUTF8 <&> fun _ => Method.move)
-  <|> (attempt <| skipBytes "OPTIONS".toUTF8 <&> fun _ => Method.options)
-  <|> (attempt <| skipBytes "ORDERPATCH".toUTF8 <&> fun _ => Method.orderpatch)
-  <|> (attempt <| skipBytes "POST".toUTF8 <&> fun _ => Method.post)
-  <|> (attempt <| skipBytes "PUT".toUTF8 <&> fun _ => Method.put)
-  <|> (attempt <| skipBytes "PATCH".toUTF8 <&> fun _ => Method.patch)
-  <|> (attempt <| skipBytes "PRI".toUTF8 <&> fun _ => Method.pri)
-  <|> (attempt <| skipBytes "PROPFIND".toUTF8 <&> fun _ => Method.propfind)
-  <|> (attempt <| skipBytes "PROPPATCH".toUTF8 <&> fun _ => Method.proppatch)
-  <|> (attempt <| skipBytes "REBIND".toUTF8 <&> fun _ => Method.rebind)
-  <|> (attempt <| skipBytes "REPORT".toUTF8 <&> fun _ => Method.report)
-  <|> (attempt <| skipBytes "UNBIND".toUTF8 <&> fun _ => Method.unbind)
-  <|> (attempt <| skipBytes "UNCHECKOUT".toUTF8 <&> fun _ => Method.uncheckout)
-  <|> (attempt <| skipBytes "UNLINK".toUTF8 <&> fun _ => Method.unlink)
-  <|> (attempt <| skipBytes "UNLOCK".toUTF8 <&> fun _ => Method.unlock)
-  <|> (attempt <| skipBytes "UPDATEREDIRECTREF".toUTF8 <&> fun _ => Method.updateredirectref)
-  <|> (attempt <| skipBytes "UPDATE".toUTF8 <&> fun _ => Method.update)
-  <|> (attempt <| skipBytes "VERSION-CONTROL".toUTF8 <&> fun _ => Method.versionControl)
+  (attemptUnlessEof <| skipBytes "GET".toUTF8 <&> fun _ => Method.get)
+  <|> (attemptUnlessEof <| skipBytes "HEAD".toUTF8 <&> fun _ => Method.head)
+  <|> (attemptUnlessEof <| skipBytes "DELETE".toUTF8 <&> fun _ => Method.delete)
+  <|> (attemptUnlessEof <| skipBytes "TRACE".toUTF8 <&> fun _ => Method.trace)
+  <|> (attemptUnlessEof <| skipBytes "ACL".toUTF8 <&> fun _ => Method.acl)
+  <|> (attemptUnlessEof <| skipBytes "QUERY".toUTF8 <&> fun _ => Method.query)
+  <|> (attemptUnlessEof <| skipBytes "SEARCH".toUTF8 <&> fun _ => Method.search)
+  <|> (attemptUnlessEof <| skipBytes "BASELINE-CONTROL".toUTF8 <&> fun _ => Method.baselineControl)
+  <|> (attemptUnlessEof <| skipBytes "BIND".toUTF8 <&> fun _ => Method.bind)
+  <|> (attemptUnlessEof <| skipBytes "CONNECT".toUTF8 <&> fun _ => Method.connect)
+  <|> (attemptUnlessEof <| skipBytes "CHECKIN".toUTF8 <&> fun _ => Method.checkin)
+  <|> (attemptUnlessEof <| skipBytes "CHECKOUT".toUTF8 <&> fun _ => Method.checkout)
+  <|> (attemptUnlessEof <| skipBytes "COPY".toUTF8 <&> fun _ => Method.copy)
+  <|> (attemptUnlessEof <| skipBytes "LABEL".toUTF8 <&> fun _ => Method.label)
+  <|> (attemptUnlessEof <| skipBytes "LINK".toUTF8 <&> fun _ => Method.link)
+  <|> (attemptUnlessEof <| skipBytes "LOCK".toUTF8 <&> fun _ => Method.lock)
+  <|> (attemptUnlessEof <| skipBytes "MERGE".toUTF8 <&> fun _ => Method.merge)
+  <|> (attemptUnlessEof <| skipBytes "MKACTIVITY".toUTF8 <&> fun _ => Method.mkactivity)
+  <|> (attemptUnlessEof <| skipBytes "MKCALENDAR".toUTF8 <&> fun _ => Method.mkcalendar)
+  <|> (attemptUnlessEof <| skipBytes "MKCOL".toUTF8 <&> fun _ => Method.mkcol)
+  <|> (attemptUnlessEof <| skipBytes "MKREDIRECTREF".toUTF8 <&> fun _ => Method.mkredirectref)
+  <|> (attemptUnlessEof <| skipBytes "MKWORKSPACE".toUTF8 <&> fun _ => Method.mkworkspace)
+  <|> (attemptUnlessEof <| skipBytes "MOVE".toUTF8 <&> fun _ => Method.move)
+  <|> (attemptUnlessEof <| skipBytes "OPTIONS".toUTF8 <&> fun _ => Method.options)
+  <|> (attemptUnlessEof <| skipBytes "ORDERPATCH".toUTF8 <&> fun _ => Method.orderpatch)
+  <|> (attemptUnlessEof <| skipBytes "POST".toUTF8 <&> fun _ => Method.post)
+  <|> (attemptUnlessEof <| skipBytes "PUT".toUTF8 <&> fun _ => Method.put)
+  <|> (attemptUnlessEof <| skipBytes "PATCH".toUTF8 <&> fun _ => Method.patch)
+  <|> (attemptUnlessEof <| skipBytes "PRI".toUTF8 <&> fun _ => Method.pri)
+  <|> (attemptUnlessEof <| skipBytes "PROPFIND".toUTF8 <&> fun _ => Method.propfind)
+  <|> (attemptUnlessEof <| skipBytes "PROPPATCH".toUTF8 <&> fun _ => Method.proppatch)
+  <|> (attemptUnlessEof <| skipBytes "REBIND".toUTF8 <&> fun _ => Method.rebind)
+  <|> (attemptUnlessEof <| skipBytes "REPORT".toUTF8 <&> fun _ => Method.report)
+  <|> (attemptUnlessEof <| skipBytes "UNBIND".toUTF8 <&> fun _ => Method.unbind)
+  <|> (attemptUnlessEof <| skipBytes "UNCHECKOUT".toUTF8 <&> fun _ => Method.uncheckout)
+  <|> (attemptUnlessEof <| skipBytes "UNLINK".toUTF8 <&> fun _ => Method.unlink)
+  <|> (attemptUnlessEof <| skipBytes "UNLOCK".toUTF8 <&> fun _ => Method.unlock)
+  <|> (attemptUnlessEof <| skipBytes "UPDATEREDIRECTREF".toUTF8 <&> fun _ => Method.updateredirectref)
+  <|> (attemptUnlessEof <| skipBytes "UPDATE".toUTF8 <&> fun _ => Method.update)
+  <|> (attemptUnlessEof <| skipBytes "VERSION-CONTROL".toUTF8 <&> fun _ => Method.versionControl)
   <|> (parseToken 64 *> fail "unrecognized method")
 
 /--

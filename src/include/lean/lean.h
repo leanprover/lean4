@@ -3703,6 +3703,7 @@ static inline uint64_t lean_expr_data(lean_obj_arg expr) {
     return lean_ctor_get_uint64(expr, lean_ctor_num_objs(expr)*sizeof(void*));
 }
 
+/* Ends the `-Wconversion` exemption from the top of this file. This must precede the pragma below, which would be undone by a later `pop`. */
 #ifdef __clang__
 #pragma clang diagnostic pop
 #endif

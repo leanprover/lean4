@@ -306,6 +306,10 @@ structure GroundState where
 
 abbrev GroundM := StateRefT GroundState EmitM
 
+def checkClosureArity (fn : Name) (arity : Nat) : EmitM Unit := do
+  if arity >= UInt16.size then
+    throwError "cannot create closure for '{fn}': arity {arity} exceeds the maximum of {UInt16.size - 1}"
+
 partial def emitGroundDecl (decl : Decl .impure) (cppBaseName : String) : EmitM Unit := do
   let some ground := getSimpleGroundExpr (← getEnv) decl.name | unreachable!
   discard <| compileGround ground |>.run {}
@@ -335,6 +339,7 @@ where
       let header := mkHeader s!"sizeof(lean_closure_object) + sizeof(void*)*{numFixed}" 0 leanClosureTag
       let funPtr := s!"(void*){← toCName func}"
       let arity := (← getImpureSignature? func).get!.params.size
+      checkClosureArity func arity
       let args ← args.mapM groundArgToCLit
       let argArray := String.intercalate "," args.toList
       mkValueCLit
@@ -665,6 +670,7 @@ where
   emitPap (fn : Name) (args : Array (Arg .impure)) : EmitM Unit := do
     let some sig ← getImpureSignature? fn | unreachable!
     let arity := sig.params.size
+    checkClosureArity fn arity
     withEmitAssignment do
       emitCApp3 "lean_alloc_closure" s!"(void*)({← toCName fn})" arity args.size
     for h : i in 0...args.size do

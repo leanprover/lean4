@@ -1,0 +1,4 @@
+empty closure: ok
+scalar closure: ok
+closure using Task: ok
+nested ref: Refs cannot be copied

@@ -303,15 +303,15 @@ example (b : Nat → Bool) (s₀ : Nat) :
   goal_count
   all_goals lia
 
--- The `have` of the precondition reaches the VC.
+-- `vcgen` introduces the `have` of the precondition.
 axiom modify_spec' (f : Nat → Nat) (Q : Unit → Nat → Prop) :
     ⦃fun s => have s' := f s; Q () s' ∨ R s'⦄ (modify f : StateM Nat Unit) ⦃Q⦄
 
 /--
 trace: case vc1
 s₀ s✝ : Nat
-⊢ have s' := g s₀;
-  R s' ∨ R s'
+s' : Nat := g s₀
+⊢ R s' ∨ R s'
 -/
 #guard_msgs (trace, drop warning) in
 example (s₀ : Nat) :
@@ -319,6 +319,57 @@ example (s₀ : Nat) :
   vcgen [modify_spec']
   trace_state
   all_goals sorry
+
+-- `vcgen` continues with the program after the `have` of a precondition. It simplifies the value
+-- and substitutes a literal value.
+def bump : StateM Nat Unit := modify (· * 2)
+
+def keep : StateM Nat Unit := modify id
+
+axiom bump_spec {Q : Unit → Nat → Prop} :
+    ⦃fun s => have v := s * 2; ∀ b : Bool, Q () (if b then v else v)⦄ bump ⦃Q⦄
+
+axiom keep_spec {Q : Unit → Nat → Prop} :
+    ⦃fun s => have v := s; ∀ b : Bool, Q () (if b then v else v)⦄ keep ⦃Q⦄
+
+example : ⦃fun _ => True⦄ (do bump; bump : StateM Nat Unit) ⦃fun _ s => s = s⦄ := by
+  vcgen [bump_spec]
+
+-- The first value `1 * 2` simplifies to the literal `2`, which `vcgen` substitutes. The second
+-- value `(if b then 2 else 2) * 2` is introduced.
+/--
+trace: case vc1
+s✝ : Nat
+x✝¹ : Bool
+v : Nat := (if x✝¹ = true then 2 else 2) * 2
+x✝ : Bool
+⊢ 0 < if x✝ = true then v else v
+-/
+#guard_msgs (trace, drop warning) in
+example : ⦃fun s => s = 1⦄ (do bump; bump : StateM Nat Unit) ⦃fun _ s => 0 < s⦄ := by
+  vcgen [bump_spec]
+  trace_state
+  all_goals sorry
+
+-- The value `s` becomes the literal `1`, which `vcgen` substitutes.
+/--
+trace: case vc1
+s✝ : Nat
+x✝ : Bool
+⊢ 0 < if x✝ = true then 1 else 1
+-/
+#guard_msgs (trace, drop warning) in
+example : ⦃fun s => s = 1⦄ (keep : StateM Nat Unit) ⦃fun _ s => 0 < s⦄ := by
+  vcgen [keep_spec]
+  trace_state
+  all_goals sorry
+
+-- The type of the program depends on the value of the `let`, so `vcgen` keeps the value
+-- `0 + (k + 3)` as written and introduces `n`.
+example (k : Nat) : ⦃fun _ => True⦄
+    (let n := 0 + (k + 3); (pure (⟨0, Nat.zero_lt_succ _⟩ : Fin n) : StateM Nat (Fin n)))
+    ⦃fun r _ => r.val = 0⦄ := by
+  vcgen simp [Nat.zero_add]
 
 -- A struct update elaborates to `have __src := s.m; …`, which reaches `isDefEqS` in `cleanupVC`.
 structure M where

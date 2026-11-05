@@ -784,7 +784,7 @@ def differenceMinMax (a : Array Int) : Id Int
     i := i + 1
   return mx - mn
 where finally
-  | spec => case vc2 => exact ⟨mn, mx, by grind, by grind, by grind⟩
+  | spec => case vc6 => exact ⟨mn, mx, by grind, by grind, by grind⟩
 
 #guard_msgs (drop info) in
 #check @differenceMinMax.spec

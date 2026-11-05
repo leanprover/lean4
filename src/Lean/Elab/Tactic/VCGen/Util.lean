@@ -163,10 +163,7 @@ forwarded to the caller.
 public def simpGoalTelescope (goal : MVarId) : VCGenM Sym.SimpGoalResult := do
   let some methods := (← read).simpMethods | return .noProgress
   let target ← goal.getType
-  let (result, simpState') ←
-    Sym.Simp.SimpM.run (Sym.Simp.simpTelescope target) methods {} (← get).simpState
-  modify fun s => { s with simpState := simpState' }
-  result.toSimpGoalResult goal
+  (← runSimp methods (Sym.Simp.simpTelescope target)).toSimpGoalResult goal
 
 /--
 Introduce the excess state arguments of an entailment goal `pre ⊑ rhs` whose lattice type is a

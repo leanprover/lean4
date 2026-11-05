@@ -1,7 +1,6 @@
 /-!
-Boundary cases of the runtime's arbitrary-precision `Nat` and `Int` primitives. They target code
-paths of the built-in bignum implementation (`src/runtime/mpz.cpp`) that Lean uses when built with
-`-DUSE_GMP=OFF`; GMP builds run the same checks through the GMP-backed implementation.
+Boundary cases of the runtime's arbitrary-precision `Nat` and `Int` primitives
+(`Init.Data.Nat.BigRuntime`).
 
 The wrappers are `@[noinline]` so that each primitive is applied to runtime values.
 -/

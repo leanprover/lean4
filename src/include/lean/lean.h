@@ -80,6 +80,15 @@ extern "C" {
 #define LEAN_ALWAYS_INLINE
 #endif
 
+/* Tells the optimizer that `x` holds; `x` must not contain function calls. */
+#if defined(__clang__)
+#define LEAN_ASSUME(x) __builtin_assume(x)
+#elif defined(__GNUC__)
+#define LEAN_ASSUME(x) do { if (!(x)) __builtin_unreachable(); } while (0)
+#else
+#define LEAN_ASSUME(x) ((void)0)
+#endif
+
 #ifndef assert
 #ifdef NDEBUG
 #define assert(expr)
@@ -117,7 +126,6 @@ void lean_notify_assert(const char * fileName, int line, const char * condition)
 #define LeanStructArray 247
 #define LeanScalarArray 248
 #define LeanString      249
-#define LeanMPZ         250
 #define LeanThunk       251
 #define LeanTask        252
 #define LeanRef         253
@@ -441,6 +449,7 @@ LEAN_EXPORT LEAN_NORETURN void lean_internal_panic_out_of_memory(void);
 LEAN_EXPORT LEAN_NORETURN void lean_internal_panic_unreachable(void);
 LEAN_EXPORT LEAN_NORETURN void lean_internal_panic_rc_overflow(void);
 LEAN_EXPORT LEAN_NORETURN void lean_internal_panic_overflow(void);
+LEAN_EXPORT LEAN_NORETURN lean_object * lean_internal_panic_string(b_lean_obj_arg msg);
 
 static inline bool lean_usize_mul_would_overflow(size_t a, size_t b) {
 #if defined(__GNUC__) || defined(__clang__)
@@ -749,7 +758,6 @@ static inline bool lean_is_closure(lean_object * o) { return lean_ptr_tag(o) == 
 static inline bool lean_is_array(lean_object * o) { return lean_ptr_tag(o) == LeanArray; }
 static inline bool lean_is_sarray(lean_object * o) { return lean_ptr_tag(o) == LeanScalarArray; }
 static inline bool lean_is_string(lean_object * o) { return lean_ptr_tag(o) == LeanString; }
-static inline bool lean_is_mpz(lean_object * o) { return lean_ptr_tag(o) == LeanMPZ; }
 static inline bool lean_is_thunk(lean_object * o) { return lean_ptr_tag(o) == LeanThunk; }
 static inline bool lean_is_task(lean_object * o) { return lean_ptr_tag(o) == LeanTask; }
 static inline bool lean_is_promise(lean_object * o) { return lean_ptr_tag(o) == LeanPromise; }
@@ -1276,7 +1284,10 @@ LEAN_EXPORT lean_obj_res lean_copy_sarray_nonlinear(lean_obj_arg a, size_t cap);
 
 static inline lean_obj_res lean_sarray_ensure_exclusive(lean_obj_arg a) {
     if (lean_is_exclusive(a)) return a;
-    return lean_copy_sarray_nonlinear(a, lean_sarray_capacity(a));
+    lean_object * r = lean_copy_sarray_nonlinear(a, lean_sarray_capacity(a));
+    /* Lets compilers hoist the exclusivity check of a loop's updates out of the loop. */
+    LEAN_ASSUME(r->m_rc == 1);
+    return r;
 }
 
 static inline lean_obj_res lean_sarray_mark_linear(lean_obj_arg a) {
@@ -1331,11 +1342,59 @@ static inline uint8_t lean_byte_array_fget(b_lean_obj_arg a, b_lean_obj_arg i) {
 }
 
 LEAN_EXPORT lean_obj_res lean_byte_array_push(lean_obj_arg a, uint8_t b);
+LEAN_EXPORT lean_obj_res lean_byte_array_replicate(b_lean_obj_arg n, uint8_t v);
+
+static inline lean_obj_res lean_byte_array_shrink(lean_obj_arg a, b_lean_obj_arg n) {
+    if (!lean_is_scalar(n) || lean_unbox(n) >= lean_sarray_size(a)) return a;
+    lean_obj_res r = lean_sarray_ensure_exclusive(a);
+    lean_sarray_set_size(r, lean_unbox(n));
+    return r;
+}
 
 static inline lean_object * lean_byte_array_uset(lean_obj_arg a, size_t i, uint8_t v) {
     lean_obj_res r = lean_sarray_ensure_exclusive(a);
     uint8_t * it = lean_sarray_cptr(r) + i;
     *it = v;
+    return r;
+}
+
+#if defined(__GNUC__) || defined(__clang__)
+/* Unlike byte-wise or `memcpy` stores, stores through this type cannot alias an object header's
+   `m_rc` under type-based alias analysis, which lets compilers hoist the exclusivity check of
+   `lean_byte_array_uset_uint32_le` out of loops. */
+typedef struct __attribute__((packed)) { uint32_t m_val; } lean_unaligned_uint32;
+#endif
+
+static inline uint32_t lean_byte_array_uget_uint32_le(b_lean_obj_arg a, size_t i) {
+    assert(i + 4 <= lean_sarray_size(a));
+    uint8_t const * p = lean_sarray_cptr(a) + i;
+#if defined(__GNUC__) || defined(__clang__)
+    uint32_t v;
+    __builtin_memcpy(&v, p, sizeof(v));
+#if __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
+    v = __builtin_bswap32(v);
+#endif
+    return v;
+#else
+    return (uint32_t)p[0] | ((uint32_t)p[1] << 8) | ((uint32_t)p[2] << 16) | ((uint32_t)p[3] << 24);
+#endif
+}
+
+static inline lean_obj_res lean_byte_array_uset_uint32_le(lean_obj_arg a, size_t i, uint32_t v) {
+    assert(i + 4 <= lean_sarray_size(a));
+    lean_obj_res r = lean_sarray_ensure_exclusive(a);
+    uint8_t * p = lean_sarray_cptr(r) + i;
+#if defined(__GNUC__) || defined(__clang__)
+#if __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
+    v = __builtin_bswap32(v);
+#endif
+    ((lean_unaligned_uint32 *)p)->m_val = v;
+#else
+    p[0] = (uint8_t)v;
+    p[1] = (uint8_t)(v >> 8);
+    p[2] = (uint8_t)(v >> 16);
+    p[3] = (uint8_t)(v >> 24);
+#endif
     return r;
 }
 
@@ -1682,14 +1741,16 @@ LEAN_EXPORT lean_object * lean_nat_overflow_mul(size_t a1, size_t a2);
 LEAN_EXPORT lean_object * lean_nat_big_div(lean_object * a1, lean_object * a2);
 LEAN_EXPORT lean_object * lean_nat_big_div_exact(lean_object * a1, lean_object * a2);
 LEAN_EXPORT lean_object * lean_nat_big_mod(lean_object * a1, lean_object * a2);
-LEAN_EXPORT bool lean_nat_big_eq(lean_object * a1, lean_object * a2);
-LEAN_EXPORT bool lean_nat_big_le(lean_object * a1, lean_object * a2);
-LEAN_EXPORT bool lean_nat_big_lt(lean_object * a1, lean_object * a2);
+LEAN_EXPORT uint8_t lean_nat_big_eq(lean_object * a1, lean_object * a2);
+LEAN_EXPORT uint8_t lean_nat_big_le(lean_object * a1, lean_object * a2);
+LEAN_EXPORT uint8_t lean_nat_big_lt(lean_object * a1, lean_object * a2);
 LEAN_EXPORT lean_object * lean_nat_big_land(lean_object * a1, lean_object * a2);
 LEAN_EXPORT lean_object * lean_nat_big_lor(lean_object * a1, lean_object * a2);
 LEAN_EXPORT lean_object * lean_nat_big_xor(lean_object * a1, lean_object * a2);
 
 LEAN_EXPORT lean_obj_res lean_cstr_to_nat(char const * n);
+/* The decimal representation of a big `Nat`. */
+LEAN_EXPORT lean_obj_res lean_nat_big_to_decimal(b_lean_obj_arg a);
 LEAN_EXPORT lean_obj_res lean_big_usize_to_nat(size_t n);
 LEAN_EXPORT lean_obj_res lean_big_uint64_to_nat(uint64_t n);
 static inline lean_obj_res lean_usize_to_nat(size_t n) {
@@ -1866,7 +1927,6 @@ LEAN_EXPORT lean_obj_res lean_nat_big_shiftr(b_lean_obj_arg a1, b_lean_obj_arg a
 LEAN_EXPORT lean_obj_res lean_nat_pow(b_lean_obj_arg a1, b_lean_obj_arg a2);
 LEAN_EXPORT lean_obj_res lean_nat_powmod(b_lean_obj_arg b, b_lean_obj_arg e, b_lean_obj_arg m);
 LEAN_EXPORT lean_obj_res lean_nat_gcd(b_lean_obj_arg a1, b_lean_obj_arg a2);
-LEAN_EXPORT lean_obj_res lean_nat_extended_gcd(b_lean_obj_arg a1, b_lean_obj_arg a2);
 LEAN_EXPORT lean_obj_res lean_nat_log2(b_lean_obj_arg a);
 LEAN_EXPORT lean_obj_res lean_nat_trailing_zeros(b_lean_obj_arg a);
 /* Upper bound on the size in bytes of the representation of `a` (one word for scalars). Returns a raw `size_t`, not a boxed `Nat`. */
@@ -1897,10 +1957,10 @@ LEAN_EXPORT lean_object * lean_int_big_mod(lean_object * a1, lean_object * a2);
 LEAN_EXPORT lean_object * lean_int_big_ediv(lean_object * a1, lean_object * a2);
 LEAN_EXPORT lean_object * lean_int_big_emod(lean_object * a1, lean_object * a2);
 LEAN_EXPORT lean_obj_res lean_int_trailing_zeros(b_lean_obj_arg a);
-LEAN_EXPORT bool lean_int_big_eq(lean_object * a1, lean_object * a2);
-LEAN_EXPORT bool lean_int_big_le(lean_object * a1, lean_object * a2);
-LEAN_EXPORT bool lean_int_big_lt(lean_object * a1, lean_object * a2);
-LEAN_EXPORT bool lean_int_big_nonneg(lean_object * a);
+LEAN_EXPORT uint8_t lean_int_big_eq(lean_object * a1, lean_object * a2);
+LEAN_EXPORT uint8_t lean_int_big_le(lean_object * a1, lean_object * a2);
+LEAN_EXPORT uint8_t lean_int_big_lt(lean_object * a1, lean_object * a2);
+LEAN_EXPORT uint8_t lean_int_big_nonneg(lean_object * a);
 
 LEAN_EXPORT lean_object * lean_cstr_to_int(char const * n);
 LEAN_EXPORT lean_object * lean_big_int_to_int(int n);

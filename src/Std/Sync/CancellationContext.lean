@@ -7,6 +7,7 @@ module
 
 prelude
 public import Std.Sync.CancellationToken
+public import Std.Data.TreeMap
 public import Init.Data.Ord.UInt
 
 public section

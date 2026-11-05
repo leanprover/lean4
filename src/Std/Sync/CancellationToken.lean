@@ -6,7 +6,6 @@ Authors: Sofia Rodrigues
 module
 
 prelude
-public import Std.Data
 public import Init.Data.Queue
 public import Std.Sync.Mutex
 public import Std.Async.Select

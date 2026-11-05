@@ -37,8 +37,8 @@ The integers.
 
 This type is special-cased by the compiler and overridden with an efficient implementation. The
 runtime has a special representation for `Int` that stores “small” signed numbers directly, while
-larger numbers use a fast arbitrary-precision arithmetic library (usually
-[GMP](https://gmplib.org/)). A “small number” is an integer that can be encoded with one fewer bits
+larger numbers use an arbitrary-precision arithmetic implementation written in Lean
+(`Init.Data.Nat.Big`). A “small number” is an integer that can be encoded with one fewer bits
 than the platform's pointer size (i.e. 63 bits on 64-bit architectures and 31 bits on 32-bit
 architectures).
 -/

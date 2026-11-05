@@ -17,10 +17,17 @@ import Lean.Fmt.Util.Basic
 
 namespace Lean.Fmt
 
-public def fmtProjLike (lhs : TaggedDoc) (dotTk : Syntax) (field : Syntax) : FmtM TaggedDoc := do
-  let dotTk ← fmt dotTk
-  let field ← fmt field
-  let mut doc := propagateStickyness lhs fun lhs => mkSelfDelimited <| Layouts.atomic #[lhs, dotTk, field]
+public def fmtProjLike (lhs : TaggedDoc) (dotTk : TaggedDoc) (field : TaggedDoc) : FmtM TaggedDoc := do
+  let mut doc :=
+    if field.isAtomic then
+      propagateStickyness lhs fun lhs =>
+        mkSelfDelimited <| Layouts.atomic #[lhs, dotTk, field]
+    else
+      fallbackOnOverflow (Layouts.atomic #[flattened lhs, dotTk, field]) <|
+        oneOf #[
+          (Layouts.atomic #[lhs, dotTk, flattened field]),
+          (Layouts.atomic #[hardNested lhs, dotTk, field])
+        ]
   let isLhsAligned := Layouts.isAligned lhs.doc
   if isLhsAligned then
     doc := pseudoAligned doc (mustBeRespected := true)
@@ -70,10 +77,34 @@ public def fmtAppLike (terms : Array Syntax) : FmtM TaggedDoc := do
     return empty
   let fStx := terms[0]!
   let args := terms[1...*].toArray
+  match fStx with
+  | `($lhs:term.%$dotTk$field) =>
+    let lhs ← fmt lhs
+    let dotTk ← fmt dotTk
+    let field ← fmt field
+    let (app, _) ← fmtFixedApp' field args { parenthesize := true, respectPseudoAlignment := true, sparse := lhs.isBracketed || isAppArgsSparse args }
+    fmtProjLike lhs dotTk app
+  | _ =>
+    let f ← fmt fStx
+    let (app, args') ← fmtFixedApp' f args { parenthesize := true, respectPseudoAlignment := true, sparse := isAppArgsSparse args }
+    if args'.size = 1 then
+      let arg := args'[0]!
+      if let some stickyArg := getSticky? arg then
+        if propagatesRhsStickiness (← read).env ⟨fStx⟩ then
+          return sticky app app stickyArg.kind
+    return app
+
+public def fmtAppLike' (terms : Array Syntax) : FmtM TaggedDoc := do
+  if terms.isEmpty then
+    return empty
+  let fStx := terms[0]!
+  let args := terms[1...*].toArray
   let mut (f, format) ← do
     match fStx with
     | `($lhs:term.%$dotTk$field) =>
       let lhs ← fmt lhs
+      let dotTk ← fmt dotTk
+      let field ← fmt field
       let format : Layouts.Types.ApplicationFormat := {
         sparse := lhs.isBracketed || isAppArgsSparse args
         parenthesize := true

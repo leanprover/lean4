@@ -386,6 +386,8 @@ public def fmtEllipsis : Fmt := fmtAtomic
 public def fmtProj : Fmt := fun
   | `($lhs:term.%$dotTk$field) => do
     let lhs ← fmt lhs
+    let dotTk ← fmt dotTk
+    let field ← fmt field
     fmtProjLike lhs dotTk field
   | _ =>
     throw .partialFormatter

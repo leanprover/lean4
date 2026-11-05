@@ -962,7 +962,10 @@ private def validEnvDeps (env : Environment) (deps : RecordedDeps) : Bool :=
   -- dependency can have changed.
   deps.baseTrackedGen == env.trackedGen && deps.baseChangeLogPos == env.declChangeLog.size ||
     deps.extGens.all (fun (idx, gen) => EnvExtension.getGenAt env idx == gen) &&
-    deps.instClassChanges.all (fun (c, l) => getInstanceClassChanges env c == l) &&
+    deps.instClassChanges.all (fun (c, l) =>
+      -- An unchanged class usually still has the very list that was recorded.
+      let l' := getInstanceClassChanges env c
+      (unsafe ptrEq l' l) || l' == l) &&
     env.checkDeclChangeLog deps.baseChangeLogPos deps.baseConstGen
 
 /-- Adds the dependencies of a nested query or a used cache entry to those of the enclosing query. -/

@@ -162,9 +162,8 @@ where
     if containsHoverPos cmdParsed then
       return .pure (some cmdParsed)
     if isAfterHoverPos cmdParsed then
-      -- This should never happen in principle
-      -- (commands + trailing ws are consecutive and there is no unassigned space between them),
-      -- but it's always good to eliminate one additional assumption.
+      -- `hoverPos` is in input skipped after a parse error, which belongs to no command (see
+      -- `findCmdParsedSnapOrSkipped`)
       return .pure none
     match cmdParsed.nextCmdSnap? with
     | some next =>
@@ -180,6 +179,41 @@ where
     let some startPos := cmdParsed.stx.getPos? (canonicalOnly := true)
       | return false
     return hoverPos < startPos
+
+/--
+Like `findCmdParsedSnap`, but also finds the command after which `hoverPos` lies in input that the
+parser skipped. After a parse error, the parser skips ahead to the next command it can parse, and
+the skipped input belongs to no command's syntax. In that case, the range of the skipped input is
+returned with the command: it starts where the command's trailing whitespace ends and stops where
+the next command starts.
+-/
+public partial def findCmdParsedSnapOrSkipped (initSnap : InitialSnapshot) (text : FileMap)
+    (hoverPos : String.Pos.Raw) : Task (Option (CommandParsedSnapshot × Option Syntax.Range)) :=
+  Id.run do
+  let some headerParsed := initSnap.result?
+    | .pure none
+  headerParsed.processedSnap.task.bind (sync := true) fun headerProcessed => Id.run do
+    let some headerSuccess := headerProcessed.result?
+      | return .pure none
+    headerSuccess.firstCmdSnap.task.bind (sync := true) go
+where
+  go (cmdParsed : CommandParsedSnapshot) :
+      Task (Option (CommandParsedSnapshot × Option Syntax.Range)) := Id.run do
+    let range? := cmdParsed.stx.getRangeWithTrailing? (canonicalOnly := true)
+    if let some range := range? then
+      if text.rangeContainsHoverPos range hoverPos then
+        return .pure (some (cmdParsed, none))
+      if hoverPos < range.start then
+        return .pure none
+    let some next := cmdParsed.nextCmdSnap?
+      | return .pure none
+    next.task.bind (sync := true) fun nextParsed => Id.run do
+      if let (some range, some nextStart) := (range?, nextParsed.stx.getPos? (canonicalOnly := true)) then
+        let skipped : Syntax.Range := ⟨range.stop, nextStart⟩
+        -- at the end of the file, this includes the position after the skipped input
+        if range.stop < nextStart && text.rangeContainsHoverPos skipped hoverPos then
+          return .pure (some (cmdParsed, some skipped))
+      go nextParsed
 
 /--
 Finds the command syntax and info tree of the first snapshot task containing `pos`, asynchronously.

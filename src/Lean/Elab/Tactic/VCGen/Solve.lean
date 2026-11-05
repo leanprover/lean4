@@ -14,6 +14,7 @@ public import Lean.Elab.Tactic.VCGen.BinderName
 public import Lean.Meta.Sym.InstantiateS
 public import Lean.Meta.Sym.Simp.App
 import Lean.Meta.Sym.InferType
+import Lean.Meta.Sym.LitValues
 import Lean.Meta.Sym.InstantiateMVarsS
 import Init.Data.Prod
 
@@ -56,7 +57,8 @@ def isDuplicable (e : Expr) : Bool := match e with
   | .bvar .. | .mvar .. | .fvar .. | .const .. | .lit .. | .sort .. => true
   | .mdata _ e | .proj _ _ e => isDuplicable e
   | .lam .. | .forallE .. | .letE .. => false
-  | .app .. => e.isAppOf ``OfNat.ofNat
+  | .app .. => e.isAppOf ``OfNat.ofNat || (Sym.getBitVecValue? e).run.isSome
+    || (Sym.getCharValue? e).run.isSome
 
 /-- Strip an annotation, such as the `noImplicitLambda` metadata a tactic `have`/`let`/`suffices`
 leaves on the goal, so later strategies and the backward rules they invoke see the bare target. -/
@@ -286,19 +288,34 @@ inductive LetStep where
   | zeta (goal : MVarId)
   | hoist (fvarId : FVarId) (goal : MVarId)
 
+/-- Simplify the value `val` of the `let` in `goal`'s target `let name : type := val; body` with
+`Context.simpMethods`. Returns the new goal and the simplified value. -/
+def simpLetValue (goal : MVarId) (name : Name) (type val body : Expr) (nondep : Bool) :
+    VCGenM (MVarId × Expr) := do
+  let some methods := (← read).simpMethods | return (goal, val)
+  let (r, st) ← Sym.Simp.SimpM.run (Sym.Simp.simp val) methods {} (← get).simpState
+  modify fun s => { s with simpState := st }
+  let .step val' h .. := r | return (goal, val)
+  let u ← Sym.getLevel type
+  let h := mkApp6 (mkConst ``congrArg [u, 1]) type (mkSort 0) val val' (.lam name type body .default) h
+  match ← (Sym.Simp.Result.step (.letE name type val' body nondep) h).toSimpGoalResult goal with
+  | .goal goal => return (goal, val')
+  | _ => return (goal, val)
+
 /-- Substitute or introduce `let name : type := val; body`, where `mkRhs body` is the right-hand
-side of the entailment in `goal`'s target. A duplicable `val` is substituted. Otherwise the `let`
-is hoisted over the entailment and introduced. -/
+side of the entailment in `goal`'s target. The value is simplified first. A duplicable value is
+substituted. Otherwise the `let` is hoisted over the entailment and introduced. -/
 def letStep (goal : MVarId) (name : Name) (type val body : Expr) (nondep : Bool)
     (mkRhs : Expr → VCGenM Expr) : VCGenM LetStep := do
-  if isDuplicable val then
-    trace[Elab.Tactic.Do.vcgen] "let-zeta-dup: {name}"
-    return .zeta (← replaceRhsDefEq goal (← mkRhs (← Sym.instantiateRevBetaS body #[val])))
-  trace[Elab.Tactic.Do.vcgen] "let-hoist: {name}"
   let target ← goal.getType
   let relArgs := target.getAppArgs
   let target ← mkAppNS target.getAppFn (relArgs.set! (relArgs.size - 1) (← mkRhs body))
   let goal ← goal.replaceTargetDefEqFast (.letE name type val target nondep)
+  let (goal, val) ← simpLetValue goal name type val target nondep
+  if isDuplicable val then
+    trace[Elab.Tactic.Do.vcgen] "let-zeta-dup: {name}"
+    return .zeta (← goal.replaceTargetDefEqFast (← Sym.instantiateRevBetaS target #[val]))
+  trace[Elab.Tactic.Do.vcgen] "let-hoist: {name}"
   let name ← if isProgramName name then pure name else Meta.mkFreshBinderNameForTactic name
   let .goal decls goal' ← Sym.intros goal #[name]
     | throwError "Failed to intro the `let` {name}"

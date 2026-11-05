@@ -3,8 +3,8 @@ import Std.WP
 /-!
 A spec precondition `fun s => have v := e; P v` leaves the entailment `⊤ ⊑ have v := e; P v` after
 the spec applies. `vcgen` handles the `have` as `wpLet?` handles a `let` in the program: it
-substitutes a duplicable value and introduces any other value as a local definition, then
-continues with the program.
+simplifies the value, substitutes a duplicable value such as a literal, and introduces any other
+value as a local definition, then continues with the program.
 -/
 
 set_option experimental.vcgen true
@@ -27,14 +27,14 @@ attribute [spec] bump_spec keep_spec
 example : ⦃ fun _ => True ⦄ (do bump; bump : M Unit) ⦃ fun _ s => s = s ⦄ := by
   vcgen
 
-/-! The value `s * 2` is not duplicable, so `vcgen` introduces it. -/
+/-! The first value `1 * 2` simplifies to the literal `2`, so `vcgen` substitutes it. The second
+value `(if b then 2 else 2) * 2` is not duplicable, so `vcgen` introduces it. -/
 
 /--
 trace: case vc1
 s✝ : Nat
-v✝ : Nat := 1 * 2
 x✝¹ : Bool
-v : Nat := (if x✝¹ = true then v✝ else v✝) * 2
+v : Nat := (if x✝¹ = true then 2 else 2) * 2
 x✝ : Bool
 ⊢ 0 < if x✝ = true then v else v
 ---

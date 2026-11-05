@@ -134,7 +134,7 @@ def differenceMinMax (a : Array Int) : Id Int
     i := i + 1
   return (mx - mn)
 where finally
-  | spec => case vc2 => sorry
+  | spec => case vc6 => sorry
 
 end E_differenceMinMax
 

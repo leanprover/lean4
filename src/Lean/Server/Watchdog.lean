@@ -93,10 +93,19 @@ section Utils
     | ioError (e : IO.Error)
 
   inductive WorkerState where
-    | crashed
+    | crashed (exitCode : UInt32)
     | cannotWrite
     | terminating
     | running
+
+  /-- Error message for requests to the worker for `uri` that crashed with `exitCode`. -/
+  def workerCrashedMessage (uri : DocumentUri) (exitCode : UInt32) : String :=
+    let cause :=
+      if exitCode = 1 then
+        "see stderr for exception"
+      else
+        "likely due to a stack overflow or a bug"
+    s!"Server process for {uri} crashed, {cause}."
 
   def parseParams (paramType : Type) [FromJson paramType] (params : Json) : IO paramType :=
     match fromJson? params with
@@ -919,15 +928,25 @@ section ServerM
       : ServerM Unit := do
     let some fw ← getFileWorker? uri
       | return
+    let state ← getWorkerState fw
+    -- If we cannot write a notification to the file worker, it is nonetheless safe to discard
+    -- the notification here because all non-discardable notifications are handled by the watchdog
+    -- itself.
     if let some req := JsonRpc.Request.ofMessage? msg then
-      -- If we cannot write a notification to the file worker, it is nonetheless safe to discard
-      -- the notification here because all non-discardable notifications are handled by the watchdog
-      -- itself.
+      if let .crashed exitCode := state then
+        -- Nothing answers the request until the next `didChange` restarts the worker.
+        writeMessage {
+          id      := req.id
+          code    := ErrorCode.workerCrashed
+          message := workerCrashedMessage uri exitCode
+          : ResponseError Unit
+        }
+        return
       (← read).requestData.enqueue uri req
-    match ← getWorkerState fw with
+    match state with
     | WorkerState.cannotWrite | WorkerState.terminating =>
       return
-    | WorkerState.crashed =>
+    | WorkerState.crashed _ =>
       if ! (msg matches .notification "textDocument/didChange" ..) then
         -- Only restart crashed FileWorkers on `didChange`.
         return
@@ -1506,7 +1525,7 @@ section MainLoop
     for (_, fw) in workers do
       let some commTask := fw.commTask?
         | continue
-      if (← getWorkerState fw) matches WorkerState.crashed then
+      if (← getWorkerState fw) matches WorkerState.crashed _ then
         continue
       workerTasks := workerTasks.push <| commTask.mapCheap (ServerEvent.workerEvent fw)
 
@@ -1538,15 +1557,9 @@ section MainLoop
       | WorkerEvent.ioError e =>
         throwServerError s!"IO error while processing events for {uri}: {e}"
       | WorkerEvent.crashed exitCode =>
-        let (errorCode, errorCausePointer) :=
-          if exitCode = 1 then
-            (ErrorCode.workerExited, "see stderr for exception")
-          else
-            (ErrorCode.workerCrashed, "likely due to a stack overflow or a bug")
-        errorPendingRequests uri errorCode
-          s!"Server process for {uri} crashed, {errorCausePointer}."
+        errorPendingRequests uri ErrorCode.workerCrashed (workerCrashedMessage uri exitCode)
         writeMessage <| mkFileProgressAtPosNotification doc 0 (kind := LeanFileProgressKind.fatalError)
-        setWorkerState fw .crashed
+        setWorkerState fw (.crashed exitCode)
         mainLoop clientTask
       | WorkerEvent.terminated =>
         throwServerError

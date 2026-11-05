@@ -94,7 +94,7 @@ expr expand_eta_struct(environment const & env, expr const & e_type, expr const 
     args.shrink(ctor_val.get_nparams());
     expr result = mk_app(mk_constant(*ctor_name, const_levels(I)), args);
     for (size_t i = 0; i < ctor_val.get_nfields(); i++) {
-        result = mk_app(result, mk_proj(const_name(I), nat::of_size_t(i), e));
+        result = mk_app(result, mk_proj(const_name(I), nat(i), e));
     }
     return result;
 }

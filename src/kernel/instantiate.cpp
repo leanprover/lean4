@@ -26,7 +26,7 @@ expr instantiate(expr const & a, size_t start, size_t n, expr const * subst) {
                     if (h < s1 /* overflow, h is bigger than any vidx */ || (vidx.is_small() && vidx.get_small_value() < h)) {
                         return some_expr(lift_loose_bvars(subst[vidx.get_small_value() - s1], offset));
                     } else {
-                        return some_expr(mk_bvar(vidx - nat::of_size_t(n)));
+                        return some_expr(mk_bvar(vidx - nat(n)));
                     }
                 }
             }
@@ -67,7 +67,7 @@ static object * lean_expr_instantiate_core(b_obj_arg a0, size_t n, object** subs
                         object * v = subst[vidx.get_small_value() - offset];
                         return some_expr(lift_loose_bvars(TO_REF(expr, v), offset));
                     } else {
-                        return some_expr(mk_bvar(vidx - nat::of_size_t(n)));
+                        return some_expr(mk_bvar(vidx - nat(n)));
                     }
                 }
             }
@@ -105,7 +105,7 @@ expr instantiate_rev(expr const & a, size_t n, expr const * subst) {
                     if (h < offset /* overflow, h is bigger than any vidx */ || (vidx.is_small() && vidx.get_small_value() < h)) {
                         return some_expr(lift_loose_bvars(subst[n - (vidx.get_small_value() - offset) - 1], offset));
                     } else {
-                        return some_expr(mk_bvar(vidx - nat::of_size_t(n)));
+                        return some_expr(mk_bvar(vidx - nat(n)));
                     }
                 }
             }
@@ -128,7 +128,7 @@ static object * lean_expr_instantiate_rev_core(object * a0, size_t n, object ** 
                         object * v = subst[n - (vidx.get_small_value() - offset) - 1];
                         return some_expr(lift_loose_bvars(TO_REF(expr, v), offset));
                     } else {
-                        return some_expr(mk_bvar(vidx - nat::of_size_t(n)));
+                        return some_expr(mk_bvar(vidx - nat(n)));
                     }
                 }
             }
@@ -201,7 +201,7 @@ expr cheap_beta_reduce(expr const & e) {
     if (!has_loose_bvars(fn)) {
         return mk_app(fn, args.size() - i, args.data() + i);
     } else if (is_bvar(fn)) {
-        lean_assert(bvar_idx(fn) < nat::of_size_t(i));
+        lean_assert(bvar_idx(fn) < i);
         return mk_app(args[i - bvar_idx(fn).get_small_value() - 1], args.size() - i, args.data() + i);
     } else {
         return e;

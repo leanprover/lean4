@@ -380,8 +380,8 @@ expr lower_loose_bvars(expr const & e, size_t start, size_t d) {
     return replace_tpl(e, [=](expr const & e, unsigned offset) -> optional<expr> {
             unsigned s1 = s + offset;
             if (is_bvar(e) && bvar_idx(e) >= s1) {
-                lean_assert(bvar_idx(e) >= nat::of_size_t(offset + d));
-                return some_expr(mk_bvar(bvar_idx(e) - nat::of_size_t(d)));
+                lean_assert(bvar_idx(e) >= offset + d);
+                return some_expr(mk_bvar(bvar_idx(e) - nat(d)));
             } else {
                 return none_expr();
             }
@@ -410,7 +410,7 @@ expr lift_loose_bvars(expr const & e, size_t start, size_t d) {
     unsigned s = static_cast<unsigned>(start);
     return replace_tpl(e, [=](expr const & e, unsigned offset) -> optional<expr> {
             if (is_var(e) && bvar_idx(e) >= s + offset) {
-                return some_expr(mk_bvar(bvar_idx(e) + nat::of_size_t(d)));
+                return some_expr(mk_bvar(bvar_idx(e) + nat(d)));
             } else {
                 return none_expr();
             }

@@ -202,9 +202,9 @@ bool is_arrow(expr const & t);
 expr mk_lit(literal const & lit);
 expr mk_mdata(kvmap const & d, expr const & e);
 expr mk_proj(name const & s, nat const & idx, expr const & e);
-inline expr mk_proj(name const & s, size_t idx, expr const & e) { return mk_proj(s, nat::of_size_t(idx), e); }
+inline expr mk_proj(name const & s, size_t idx, expr const & e) { return mk_proj(s, nat(idx), e); }
 expr mk_bvar(nat const & idx);
-inline expr mk_bvar(size_t idx) { return mk_bvar(nat::of_size_t(idx)); }
+inline expr mk_bvar(size_t idx) { return mk_bvar(nat(idx)); }
 expr mk_fvar(name const & n);
 expr mk_const(name const & n, levels const & ls);
 inline expr mk_const(name const & n) { return mk_const(n, levels()); }
@@ -243,7 +243,7 @@ inline name const &    proj_sname(expr const & e)            { lean_assert(is_pr
 inline nat const &     proj_idx(expr const & e)              { lean_assert(is_proj(e)); return static_cast<nat const &>(cnstr_get_ref(e, 1)); }
 inline expr const &    proj_expr(expr const & e)             { lean_assert(is_proj(e)); return static_cast<expr const &>(cnstr_get_ref(e, 2)); }
 inline nat const &     bvar_idx(expr const & e)              { lean_assert(is_bvar(e)); return static_cast<nat const &>(cnstr_get_ref(e, 0)); }
-inline bool            is_bvar(expr const & e, size_t i)     { return is_bvar(e) && bvar_idx(e) == nat::of_size_t(i); }
+inline bool            is_bvar(expr const & e, size_t i)     { return is_bvar(e) && bvar_idx(e) == i; }
 inline name const &    fvar_name_core(object * o)            { lean_assert(is_fvar_core(o)); return static_cast<name const &>(cnstr_get_ref(o, 0)); }
 inline name const &    fvar_name(expr const & e)             { lean_assert(is_fvar(e)); return static_cast<name const &>(cnstr_get_ref(e, 0)); }
 inline level const &   sort_level(expr const & e)            { lean_assert(is_sort(e)); return static_cast<level const &>(cnstr_get_ref(e, 0)); }

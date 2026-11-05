@@ -14,11 +14,11 @@ extern "C" object * lean_mk_let_decl(object * index, object * fvarid, object * u
 extern "C" uint8 lean_local_decl_binder_info(object * d);
 
 local_decl::local_decl(size_t idx, name const & n, name const & un, expr const & t, expr const & v):
-    object_ref(lean_mk_let_decl(nat::of_size_t(idx).to_obj_arg(), n.to_obj_arg(), un.to_obj_arg(), t.to_obj_arg(), v.to_obj_arg())) {
+    object_ref(lean_mk_let_decl(nat(idx).to_obj_arg(), n.to_obj_arg(), un.to_obj_arg(), t.to_obj_arg(), v.to_obj_arg())) {
 }
 
 local_decl::local_decl(size_t idx, name const & n, name const & un, expr const & t, binder_info bi):
-    object_ref(lean_mk_local_decl(nat::of_size_t(idx).to_obj_arg(), n.to_obj_arg(), un.to_obj_arg(), t.to_obj_arg(), static_cast<uint8>(bi))) {
+    object_ref(lean_mk_local_decl(nat(idx).to_obj_arg(), n.to_obj_arg(), un.to_obj_arg(), t.to_obj_arg(), static_cast<uint8>(bi))) {
 }
 
 binder_info local_decl::get_info() const {

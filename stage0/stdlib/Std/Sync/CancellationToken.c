@@ -13,6 +13,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+lean_object* lean_obj_tag_nat(lean_object*);
 lean_object* lean_st_ref_get(lean_object*);
 lean_object* lean_io_basemutex_unlock(lean_object*);
 lean_object* lean_io_basemutex_lock(lean_object*);
@@ -38,7 +39,6 @@ lean_object* lean_nat_to_int(lean_object*);
 lean_object* l_Repr_addAppParen(lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 lean_object* l_String_quote(lean_object*);
-lean_object* lean_obj_tag_nat(lean_object*);
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 lean_object* l_Std_Mutex_new___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_CancellationReason_ctorIdx___impl(lean_object*);
@@ -101,25 +101,25 @@ LEAN_EXPORT lean_object* l_Std_instToStringCancellationReason___lam__0___boxed(l
 static const lean_closure_object l_Std_instToStringCancellationReason___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Std_instToStringCancellationReason___lam__0___boxed, .m_arity = 1, .m_num_fixed = 0, .m_objs = {} };
 static const lean_object* l_Std_instToStringCancellationReason___closed__0 = (const lean_object*)&l_Std_instToStringCancellationReason___closed__0_value;
 LEAN_EXPORT const lean_object* l_Std_instToStringCancellationReason = (const lean_object*)&l_Std_instToStringCancellationReason___closed__0_value;
-LEAN_EXPORT lean_object* l_Std_CancellationToken_Consumer_ctorIdx___impl(lean_object*);
-LEAN_EXPORT lean_object* l_Std_CancellationToken_Consumer_ctorIdx___impl___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Std_CancellationToken_Consumer_ctorElim___redArg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_CancellationToken_Consumer_ctorElim(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_CancellationToken_Consumer_ctorElim___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_CancellationToken_Consumer_normal_elim___redArg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_CancellationToken_Consumer_normal_elim(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_CancellationToken_Consumer_select_elim___redArg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_CancellationToken_Consumer_select_elim(lean_object*, lean_object*, lean_object*, lean_object*);
-static const lean_ctor_object l_Std_Async_Waiter_race___at___00Std_CancellationToken_Consumer_resolve_spec__0___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*1 + 0, .m_other = 1, .m_tag = 1}, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1))}};
-static const lean_object* l_Std_Async_Waiter_race___at___00Std_CancellationToken_Consumer_resolve_spec__0___closed__0 = (const lean_object*)&l_Std_Async_Waiter_race___at___00Std_CancellationToken_Consumer_resolve_spec__0___closed__0_value;
-LEAN_EXPORT uint8_t l_Std_Async_Waiter_race___at___00Std_CancellationToken_Consumer_resolve_spec__0(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Async_Waiter_race___at___00Std_CancellationToken_Consumer_resolve_spec__0___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_Std_CancellationToken_Consumer_resolve___lam__0(uint8_t);
-LEAN_EXPORT lean_object* l_Std_CancellationToken_Consumer_resolve___lam__0___boxed(lean_object*, lean_object*);
-static const lean_closure_object l_Std_CancellationToken_Consumer_resolve___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*1, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Std_CancellationToken_Consumer_resolve___lam__0___boxed, .m_arity = 2, .m_num_fixed = 1, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1))} };
-static const lean_object* l_Std_CancellationToken_Consumer_resolve___closed__0 = (const lean_object*)&l_Std_CancellationToken_Consumer_resolve___closed__0_value;
-LEAN_EXPORT uint8_t l_Std_CancellationToken_Consumer_resolve(lean_object*);
-LEAN_EXPORT lean_object* l_Std_CancellationToken_Consumer_resolve___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Std_Sync_CancellationToken_0__Std_CancellationToken_Consumer_ctorIdx___impl(lean_object*);
+LEAN_EXPORT lean_object* l___private_Std_Sync_CancellationToken_0__Std_CancellationToken_Consumer_ctorIdx___impl___boxed(lean_object*);
+LEAN_EXPORT lean_object* l___private_Std_Sync_CancellationToken_0__Std_CancellationToken_Consumer_ctorElim___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Std_Sync_CancellationToken_0__Std_CancellationToken_Consumer_ctorElim(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Std_Sync_CancellationToken_0__Std_CancellationToken_Consumer_ctorElim___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Std_Sync_CancellationToken_0__Std_CancellationToken_Consumer_normal_elim___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Std_Sync_CancellationToken_0__Std_CancellationToken_Consumer_normal_elim(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Std_Sync_CancellationToken_0__Std_CancellationToken_Consumer_select_elim___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Std_Sync_CancellationToken_0__Std_CancellationToken_Consumer_select_elim(lean_object*, lean_object*, lean_object*, lean_object*);
+static const lean_ctor_object l_Std_Async_Waiter_race___at___00__private_Std_Sync_CancellationToken_0__Std_CancellationToken_Consumer_resolve_spec__0___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*1 + 0, .m_other = 1, .m_tag = 1}, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1))}};
+static const lean_object* l_Std_Async_Waiter_race___at___00__private_Std_Sync_CancellationToken_0__Std_CancellationToken_Consumer_resolve_spec__0___closed__0 = (const lean_object*)&l_Std_Async_Waiter_race___at___00__private_Std_Sync_CancellationToken_0__Std_CancellationToken_Consumer_resolve_spec__0___closed__0_value;
+LEAN_EXPORT uint8_t l_Std_Async_Waiter_race___at___00__private_Std_Sync_CancellationToken_0__Std_CancellationToken_Consumer_resolve_spec__0(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Async_Waiter_race___at___00__private_Std_Sync_CancellationToken_0__Std_CancellationToken_Consumer_resolve_spec__0___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l___private_Std_Sync_CancellationToken_0__Std_CancellationToken_Consumer_resolve___lam__0(uint8_t);
+LEAN_EXPORT lean_object* l___private_Std_Sync_CancellationToken_0__Std_CancellationToken_Consumer_resolve___lam__0___boxed(lean_object*, lean_object*);
+static const lean_closure_object l___private_Std_Sync_CancellationToken_0__Std_CancellationToken_Consumer_resolve___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*1, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l___private_Std_Sync_CancellationToken_0__Std_CancellationToken_Consumer_resolve___lam__0___boxed, .m_arity = 2, .m_num_fixed = 1, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1))} };
+static const lean_object* l___private_Std_Sync_CancellationToken_0__Std_CancellationToken_Consumer_resolve___closed__0 = (const lean_object*)&l___private_Std_Sync_CancellationToken_0__Std_CancellationToken_Consumer_resolve___closed__0_value;
+LEAN_EXPORT uint8_t l___private_Std_Sync_CancellationToken_0__Std_CancellationToken_Consumer_resolve(lean_object*);
+LEAN_EXPORT lean_object* l___private_Std_Sync_CancellationToken_0__Std_CancellationToken_Consumer_resolve___boxed(lean_object*, lean_object*);
 static lean_once_cell_t l_Std_CancellationToken_new___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Std_CancellationToken_new___closed__0;
 static lean_once_cell_t l_Std_CancellationToken_new___closed__1_once = LEAN_ONCE_CELL_INITIALIZER;
@@ -198,7 +198,7 @@ LEAN_EXPORT lean_object* l_Std_Mutex_atomically___at___00Std_CancellationToken_s
 LEAN_EXPORT lean_object* l_Std_CancellationToken_selector___lam__0(uint8_t, lean_object*);
 LEAN_EXPORT lean_object* l_Std_CancellationToken_selector___lam__0___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_CancellationToken_selector___lam__1(lean_object*, lean_object*);
-static const lean_ctor_object l_Std_CancellationToken_selector___lam__2___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*1 + 0, .m_other = 1, .m_tag = 0}, .m_objs = {((lean_object*)&l_Std_Async_Waiter_race___at___00Std_CancellationToken_Consumer_resolve_spec__0___closed__0_value)}};
+static const lean_ctor_object l_Std_CancellationToken_selector___lam__2___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*1 + 0, .m_other = 1, .m_tag = 0}, .m_objs = {((lean_object*)&l_Std_Async_Waiter_race___at___00__private_Std_Sync_CancellationToken_0__Std_CancellationToken_Consumer_resolve_spec__0___closed__0_value)}};
 static const lean_object* l_Std_CancellationToken_selector___lam__2___closed__0 = (const lean_object*)&l_Std_CancellationToken_selector___lam__2___closed__0_value;
 static const lean_closure_object l_Std_CancellationToken_selector___lam__2___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*1, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Std_CancellationToken_selector___lam__0___boxed, .m_arity = 3, .m_num_fixed = 1, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1))} };
 static const lean_object* l_Std_CancellationToken_selector___lam__2___closed__1 = (const lean_object*)&l_Std_CancellationToken_selector___lam__2___closed__1_value;
@@ -720,7 +720,7 @@ lean_dec(v_x_165_);
 return v_res_166_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_CancellationToken_Consumer_ctorIdx___impl(lean_object* v_x_169_){
+LEAN_EXPORT lean_object* l___private_Std_Sync_CancellationToken_0__Std_CancellationToken_Consumer_ctorIdx___impl(lean_object* v_x_169_){
 _start:
 {
 lean_object* v___x_170_; 
@@ -728,16 +728,16 @@ v___x_170_ = lean_obj_tag_nat(v_x_169_);
 return v___x_170_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_CancellationToken_Consumer_ctorIdx___impl___boxed(lean_object* v_x_171_){
+LEAN_EXPORT lean_object* l___private_Std_Sync_CancellationToken_0__Std_CancellationToken_Consumer_ctorIdx___impl___boxed(lean_object* v_x_171_){
 _start:
 {
 lean_object* v_res_172_; 
-v_res_172_ = l_Std_CancellationToken_Consumer_ctorIdx___impl(v_x_171_);
+v_res_172_ = l___private_Std_Sync_CancellationToken_0__Std_CancellationToken_Consumer_ctorIdx___impl(v_x_171_);
 lean_dec_ref(v_x_171_);
 return v_res_172_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_CancellationToken_Consumer_ctorElim___redArg(lean_object* v_t_173_, lean_object* v_k_174_){
+LEAN_EXPORT lean_object* l___private_Std_Sync_CancellationToken_0__Std_CancellationToken_Consumer_ctorElim___redArg(lean_object* v_t_173_, lean_object* v_k_174_){
 _start:
 {
 if (lean_obj_tag(v_t_173_) == 0)
@@ -760,56 +760,56 @@ return v___x_178_;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Std_CancellationToken_Consumer_ctorElim(lean_object* v_motive_179_, lean_object* v_ctorIdx_180_, lean_object* v_t_181_, lean_object* v_h_182_, lean_object* v_k_183_){
+LEAN_EXPORT lean_object* l___private_Std_Sync_CancellationToken_0__Std_CancellationToken_Consumer_ctorElim(lean_object* v_motive_179_, lean_object* v_ctorIdx_180_, lean_object* v_t_181_, lean_object* v_h_182_, lean_object* v_k_183_){
 _start:
 {
 lean_object* v___x_184_; 
-v___x_184_ = l_Std_CancellationToken_Consumer_ctorElim___redArg(v_t_181_, v_k_183_);
+v___x_184_ = l___private_Std_Sync_CancellationToken_0__Std_CancellationToken_Consumer_ctorElim___redArg(v_t_181_, v_k_183_);
 return v___x_184_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_CancellationToken_Consumer_ctorElim___boxed(lean_object* v_motive_185_, lean_object* v_ctorIdx_186_, lean_object* v_t_187_, lean_object* v_h_188_, lean_object* v_k_189_){
+LEAN_EXPORT lean_object* l___private_Std_Sync_CancellationToken_0__Std_CancellationToken_Consumer_ctorElim___boxed(lean_object* v_motive_185_, lean_object* v_ctorIdx_186_, lean_object* v_t_187_, lean_object* v_h_188_, lean_object* v_k_189_){
 _start:
 {
 lean_object* v_res_190_; 
-v_res_190_ = l_Std_CancellationToken_Consumer_ctorElim(v_motive_185_, v_ctorIdx_186_, v_t_187_, v_h_188_, v_k_189_);
+v_res_190_ = l___private_Std_Sync_CancellationToken_0__Std_CancellationToken_Consumer_ctorElim(v_motive_185_, v_ctorIdx_186_, v_t_187_, v_h_188_, v_k_189_);
 lean_dec(v_ctorIdx_186_);
 return v_res_190_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_CancellationToken_Consumer_normal_elim___redArg(lean_object* v_t_191_, lean_object* v_normal_192_){
+LEAN_EXPORT lean_object* l___private_Std_Sync_CancellationToken_0__Std_CancellationToken_Consumer_normal_elim___redArg(lean_object* v_t_191_, lean_object* v_normal_192_){
 _start:
 {
 lean_object* v___x_193_; 
-v___x_193_ = l_Std_CancellationToken_Consumer_ctorElim___redArg(v_t_191_, v_normal_192_);
+v___x_193_ = l___private_Std_Sync_CancellationToken_0__Std_CancellationToken_Consumer_ctorElim___redArg(v_t_191_, v_normal_192_);
 return v___x_193_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_CancellationToken_Consumer_normal_elim(lean_object* v_motive_194_, lean_object* v_t_195_, lean_object* v_h_196_, lean_object* v_normal_197_){
+LEAN_EXPORT lean_object* l___private_Std_Sync_CancellationToken_0__Std_CancellationToken_Consumer_normal_elim(lean_object* v_motive_194_, lean_object* v_t_195_, lean_object* v_h_196_, lean_object* v_normal_197_){
 _start:
 {
 lean_object* v___x_198_; 
-v___x_198_ = l_Std_CancellationToken_Consumer_ctorElim___redArg(v_t_195_, v_normal_197_);
+v___x_198_ = l___private_Std_Sync_CancellationToken_0__Std_CancellationToken_Consumer_ctorElim___redArg(v_t_195_, v_normal_197_);
 return v___x_198_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_CancellationToken_Consumer_select_elim___redArg(lean_object* v_t_199_, lean_object* v_select_200_){
+LEAN_EXPORT lean_object* l___private_Std_Sync_CancellationToken_0__Std_CancellationToken_Consumer_select_elim___redArg(lean_object* v_t_199_, lean_object* v_select_200_){
 _start:
 {
 lean_object* v___x_201_; 
-v___x_201_ = l_Std_CancellationToken_Consumer_ctorElim___redArg(v_t_199_, v_select_200_);
+v___x_201_ = l___private_Std_Sync_CancellationToken_0__Std_CancellationToken_Consumer_ctorElim___redArg(v_t_199_, v_select_200_);
 return v___x_201_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_CancellationToken_Consumer_select_elim(lean_object* v_motive_202_, lean_object* v_t_203_, lean_object* v_h_204_, lean_object* v_select_205_){
+LEAN_EXPORT lean_object* l___private_Std_Sync_CancellationToken_0__Std_CancellationToken_Consumer_select_elim(lean_object* v_motive_202_, lean_object* v_t_203_, lean_object* v_h_204_, lean_object* v_select_205_){
 _start:
 {
 lean_object* v___x_206_; 
-v___x_206_ = l_Std_CancellationToken_Consumer_ctorElim___redArg(v_t_203_, v_select_205_);
+v___x_206_ = l___private_Std_Sync_CancellationToken_0__Std_CancellationToken_Consumer_ctorElim___redArg(v_t_203_, v_select_205_);
 return v___x_206_;
 }
 }
-LEAN_EXPORT uint8_t l_Std_Async_Waiter_race___at___00Std_CancellationToken_Consumer_resolve_spec__0(lean_object* v_w_209_, lean_object* v_lose_210_){
+LEAN_EXPORT uint8_t l_Std_Async_Waiter_race___at___00__private_Std_Sync_CancellationToken_0__Std_CancellationToken_Consumer_resolve_spec__0(lean_object* v_w_209_, lean_object* v_lose_210_){
 _start:
 {
 lean_object* v_finished_212_; lean_object* v_promise_213_; lean_object* v___x_214_; uint8_t v___y_216_; uint8_t v___x_224_; 
@@ -849,40 +849,40 @@ else
 {
 lean_object* v___x_222_; lean_object* v___x_223_; 
 lean_dec_ref(v_lose_210_);
-v___x_222_ = ((lean_object*)(l_Std_Async_Waiter_race___at___00Std_CancellationToken_Consumer_resolve_spec__0___closed__0));
+v___x_222_ = ((lean_object*)(l_Std_Async_Waiter_race___at___00__private_Std_Sync_CancellationToken_0__Std_CancellationToken_Consumer_resolve_spec__0___closed__0));
 v___x_223_ = lean_io_promise_resolve(v___x_222_, v_promise_213_);
 return v___y_216_;
 }
 }
 }
 }
-LEAN_EXPORT lean_object* l_Std_Async_Waiter_race___at___00Std_CancellationToken_Consumer_resolve_spec__0___boxed(lean_object* v_w_227_, lean_object* v_lose_228_, lean_object* v___y_229_){
+LEAN_EXPORT lean_object* l_Std_Async_Waiter_race___at___00__private_Std_Sync_CancellationToken_0__Std_CancellationToken_Consumer_resolve_spec__0___boxed(lean_object* v_w_227_, lean_object* v_lose_228_, lean_object* v___y_229_){
 _start:
 {
 uint8_t v_res_230_; lean_object* v_r_231_; 
-v_res_230_ = l_Std_Async_Waiter_race___at___00Std_CancellationToken_Consumer_resolve_spec__0(v_w_227_, v_lose_228_);
+v_res_230_ = l_Std_Async_Waiter_race___at___00__private_Std_Sync_CancellationToken_0__Std_CancellationToken_Consumer_resolve_spec__0(v_w_227_, v_lose_228_);
 lean_dec_ref(v_w_227_);
 v_r_231_ = lean_box(v_res_230_);
 return v_r_231_;
 }
 }
-LEAN_EXPORT uint8_t l_Std_CancellationToken_Consumer_resolve___lam__0(uint8_t v___x_232_){
+LEAN_EXPORT uint8_t l___private_Std_Sync_CancellationToken_0__Std_CancellationToken_Consumer_resolve___lam__0(uint8_t v___x_232_){
 _start:
 {
 return v___x_232_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_CancellationToken_Consumer_resolve___lam__0___boxed(lean_object* v___x_234_, lean_object* v___y_235_){
+LEAN_EXPORT lean_object* l___private_Std_Sync_CancellationToken_0__Std_CancellationToken_Consumer_resolve___lam__0___boxed(lean_object* v___x_234_, lean_object* v___y_235_){
 _start:
 {
 uint8_t v___x_380__boxed_236_; uint8_t v_res_237_; lean_object* v_r_238_; 
 v___x_380__boxed_236_ = lean_unbox(v___x_234_);
-v_res_237_ = l_Std_CancellationToken_Consumer_resolve___lam__0(v___x_380__boxed_236_);
+v_res_237_ = l___private_Std_Sync_CancellationToken_0__Std_CancellationToken_Consumer_resolve___lam__0(v___x_380__boxed_236_);
 v_r_238_ = lean_box(v_res_237_);
 return v_r_238_;
 }
 }
-LEAN_EXPORT uint8_t l_Std_CancellationToken_Consumer_resolve(lean_object* v_c_242_){
+LEAN_EXPORT uint8_t l___private_Std_Sync_CancellationToken_0__Std_CancellationToken_Consumer_resolve(lean_object* v_c_242_){
 _start:
 {
 if (lean_obj_tag(v_c_242_) == 0)
@@ -898,17 +898,17 @@ else
 {
 lean_object* v_finished_248_; lean_object* v_lose_249_; uint8_t v___x_250_; 
 v_finished_248_ = lean_ctor_get(v_c_242_, 0);
-v_lose_249_ = ((lean_object*)(l_Std_CancellationToken_Consumer_resolve___closed__0));
-v___x_250_ = l_Std_Async_Waiter_race___at___00Std_CancellationToken_Consumer_resolve_spec__0(v_finished_248_, v_lose_249_);
+v_lose_249_ = ((lean_object*)(l___private_Std_Sync_CancellationToken_0__Std_CancellationToken_Consumer_resolve___closed__0));
+v___x_250_ = l_Std_Async_Waiter_race___at___00__private_Std_Sync_CancellationToken_0__Std_CancellationToken_Consumer_resolve_spec__0(v_finished_248_, v_lose_249_);
 return v___x_250_;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Std_CancellationToken_Consumer_resolve___boxed(lean_object* v_c_251_, lean_object* v_a_252_){
+LEAN_EXPORT lean_object* l___private_Std_Sync_CancellationToken_0__Std_CancellationToken_Consumer_resolve___boxed(lean_object* v_c_251_, lean_object* v_a_252_){
 _start:
 {
 uint8_t v_res_253_; lean_object* v_r_254_; 
-v_res_253_ = l_Std_CancellationToken_Consumer_resolve(v_c_251_);
+v_res_253_ = l___private_Std_Sync_CancellationToken_0__Std_CancellationToken_Consumer_resolve(v_c_251_);
 lean_dec_ref(v_c_251_);
 v_r_254_ = lean_box(v_res_253_);
 return v_r_254_;
@@ -1009,7 +1009,7 @@ lean_inc(v_fst_292_);
 v_snd_293_ = lean_ctor_get(v_val_291_, 1);
 lean_inc(v_snd_293_);
 lean_dec(v_val_291_);
-v___x_294_ = l_Std_CancellationToken_Consumer_resolve(v_fst_292_);
+v___x_294_ = l___private_Std_Sync_CancellationToken_0__Std_CancellationToken_Consumer_resolve(v_fst_292_);
 lean_dec(v_fst_292_);
 v_a_288_ = v_snd_293_;
 goto _start;
@@ -1390,7 +1390,7 @@ static lean_object* _init_l_Std_CancellationToken_wait___lam__0___closed__4(void
 _start:
 {
 lean_object* v___x_425_; lean_object* v___x_426_; 
-v___x_425_ = ((lean_object*)(l_Std_Async_Waiter_race___at___00Std_CancellationToken_Consumer_resolve_spec__0___closed__0));
+v___x_425_ = ((lean_object*)(l_Std_Async_Waiter_race___at___00__private_Std_Sync_CancellationToken_0__Std_CancellationToken_Consumer_resolve_spec__0___closed__0));
 v___x_426_ = lean_task_pure(v___x_425_);
 return v___x_426_;
 }
@@ -1717,7 +1717,7 @@ else
 {
 lean_object* v___x_521_; lean_object* v___x_522_; uint8_t v___x_523_; lean_object* v___x_524_; lean_object* v___x_526_; 
 lean_dec_ref(v_lose_508_);
-v___x_521_ = ((lean_object*)(l_Std_Async_Waiter_race___at___00Std_CancellationToken_Consumer_resolve_spec__0___closed__0));
+v___x_521_ = ((lean_object*)(l_Std_Async_Waiter_race___at___00__private_Std_Sync_CancellationToken_0__Std_CancellationToken_Consumer_resolve_spec__0___closed__0));
 v___x_522_ = lean_unsigned_to_nat(0u);
 v___x_523_ = 0;
 v___x_524_ = lean_io_promise_resolve(v___x_521_, v_promise_510_);
@@ -2510,7 +2510,7 @@ else
 {
 lean_object* v___x_773_; 
 lean_dec_ref_known(v_a_764_, 1);
-v___x_773_ = ((lean_object*)(l_Std_Async_Waiter_race___at___00Std_CancellationToken_Consumer_resolve_spec__0___closed__0));
+v___x_773_ = ((lean_object*)(l_Std_Async_Waiter_race___at___00__private_Std_Sync_CancellationToken_0__Std_CancellationToken_Consumer_resolve_spec__0___closed__0));
 v___y_760_ = v___x_773_;
 goto v___jp_759_;
 }

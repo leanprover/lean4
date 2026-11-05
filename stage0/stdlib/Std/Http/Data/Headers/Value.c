@@ -24,6 +24,9 @@ uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr1(lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* l_Lean_mkAtom(lean_object*);
+lean_object* lean_string_to_utf8(lean_object*);
+lean_object* lean_byte_array_size(lean_object*);
+lean_object* lean_byte_array_copy_slice(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
 lean_object* lean_string_utf8_byte_size(lean_object*);
 lean_object* l_String_Slice_trimAscii(lean_object*);
 lean_object* l_String_Slice_toString(lean_object*);
@@ -192,6 +195,10 @@ LEAN_EXPORT lean_object* l_Std_Http_Header_Value_instToString___lam__0___boxed(l
 static const lean_closure_object l_Std_Http_Header_Value_instToString___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Std_Http_Header_Value_instToString___lam__0___boxed, .m_arity = 1, .m_num_fixed = 0, .m_objs = {} };
 static const lean_object* l_Std_Http_Header_Value_instToString___closed__0 = (const lean_object*)&l_Std_Http_Header_Value_instToString___closed__0_value;
 LEAN_EXPORT const lean_object* l_Std_Http_Header_Value_instToString = (const lean_object*)&l_Std_Http_Header_Value_instToString___closed__0_value;
+LEAN_EXPORT lean_object* l_Std_Http_Header_Value_instEncodeV11___lam__0(lean_object*, lean_object*);
+static const lean_closure_object l_Std_Http_Header_Value_instEncodeV11___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Std_Http_Header_Value_instEncodeV11___lam__0, .m_arity = 2, .m_num_fixed = 0, .m_objs = {} };
+static const lean_object* l_Std_Http_Header_Value_instEncodeV11___closed__0 = (const lean_object*)&l_Std_Http_Header_Value_instEncodeV11___closed__0_value;
+LEAN_EXPORT const lean_object* l_Std_Http_Header_Value_instEncodeV11 = (const lean_object*)&l_Std_Http_Header_Value_instEncodeV11___closed__0_value;
 static lean_object* _init_l_Std_Http_Header_Value_isValidHeaderValue___autoParam___closed__12(void){
 _start:
 {
@@ -944,6 +951,20 @@ lean_object* v_res_302_;
 v_res_302_ = l_Std_Http_Header_Value_instToString___lam__0(v_v_301_);
 lean_dec_ref(v_v_301_);
 return v_res_302_;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Http_Header_Value_instEncodeV11___lam__0(lean_object* v_out_305_, lean_object* v_v_306_){
+_start:
+{
+lean_object* v___x_307_; lean_object* v___x_308_; lean_object* v___x_309_; lean_object* v___x_310_; uint8_t v___x_311_; lean_object* v___x_312_; 
+v___x_307_ = lean_string_to_utf8(v_v_306_);
+v___x_308_ = lean_unsigned_to_nat(0u);
+v___x_309_ = lean_byte_array_size(v_out_305_);
+v___x_310_ = lean_byte_array_size(v___x_307_);
+v___x_311_ = 0;
+v___x_312_ = lean_byte_array_copy_slice(v___x_307_, v___x_308_, v_out_305_, v___x_309_, v___x_310_, v___x_311_);
+lean_dec_ref(v___x_307_);
+return v___x_312_;
 }
 }
 lean_object* runtime_initialize_Init_Data_ToString(uint8_t builtin);

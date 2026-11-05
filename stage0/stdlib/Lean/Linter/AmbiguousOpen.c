@@ -718,7 +718,7 @@ lean_ctor_set(v___x_206_, 0, v___x_204_);
 lean_ctor_set(v___x_206_, 1, v___x_205_);
 v___x_207_ = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(v___x_207_, 0, v___x_206_);
-lean_ctor_set(v___x_207_, 1, v___y_196_);
+lean_ctor_set(v___x_207_, 1, v___y_197_);
 v___x_208_ = lean_obj_once(&l_Lean_Linter_checkAmbiguousOpen___redArg___lam__5___closed__7, &l_Lean_Linter_checkAmbiguousOpen___redArg___lam__5___closed__7_once, _init_l_Lean_Linter_checkAmbiguousOpen___redArg___lam__5___closed__7);
 v___x_209_ = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(v___x_209_, 0, v___x_207_);
@@ -733,7 +733,7 @@ lean_ctor_set(v___x_213_, 0, v___x_211_);
 lean_ctor_set(v___x_213_, 1, v___x_212_);
 v___x_214_ = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(v___x_214_, 0, v___x_213_);
-lean_ctor_set(v___x_214_, 1, v___y_197_);
+lean_ctor_set(v___x_214_, 1, v___y_196_);
 v___x_215_ = l_Lean_Linter_logLint___redArg(v_inst_185_, v_inst_186_, v_inst_187_, v_inst_188_, v___x_189_, v_nsStx_190_, v___x_214_);
 return v___x_215_;
 }
@@ -842,16 +842,16 @@ return v___x_249_;
 else
 {
 lean_dec_ref(v_display_192_);
-v___y_196_ = v___y_217_;
-v___y_197_ = v_hint_225_;
+v___y_196_ = v_hint_225_;
+v___y_197_ = v___y_217_;
 goto v___jp_195_;
 }
 }
 else
 {
 lean_dec_ref(v_display_192_);
-v___y_196_ = v___y_217_;
-v___y_197_ = v_hint_225_;
+v___y_196_ = v_hint_225_;
+v___y_197_ = v___y_217_;
 goto v___jp_195_;
 }
 }

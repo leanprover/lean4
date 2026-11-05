@@ -4197,7 +4197,7 @@ _start:
 lean_object* v___x_1691_; lean_object* v___x_1692_; lean_object* v___x_1693_; lean_object* v___x_1694_; lean_object* v___x_1695_; lean_object* v___x_1696_; 
 v___x_1691_ = ((lean_object*)(l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Meta_Tactic_BVDecide_CegarM_CounterExample_ofArray_spec__3___closed__2));
 v___x_1692_ = lean_unsigned_to_nat(48u);
-v___x_1693_ = lean_unsigned_to_nat(270u);
+v___x_1693_ = lean_unsigned_to_nat(274u);
 v___x_1694_ = ((lean_object*)(l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Meta_Tactic_BVDecide_CegarM_CounterExample_ofArray_spec__3___closed__1));
 v___x_1695_ = ((lean_object*)(l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Meta_Tactic_BVDecide_CegarM_CounterExample_ofArray_spec__3___closed__0));
 v___x_1696_ = l_mkPanicMessageWithDecl(v___x_1695_, v___x_1694_, v___x_1693_, v___x_1692_, v___x_1691_);

@@ -80,11 +80,9 @@ align save and load sites. Mismatched types between save and load yield undefine
 not be re-serialized. `prev`, when present, likewise allows for reuse of objects from prior saves
 in the same session.
 
-If `allowClosures` is `true`, closures in the compacted data are tolerated and the file is written
-in the extended olean format (which may become the default in the future). This is an
-EXPERIMENTAL option. The saving and loading process must be using identical executables, including
-dependent libraries. When `false`, encountering a closure is an error and the file is written in the
-plain olean format.
+If `allowClosures` is `true`, closures in the compacted data are tolerated. This is an EXPERIMENTAL
+option. The saving and loading process must be using identical executables, including dependent
+libraries. When `false`, encountering a closure is an error.
 
 Returns a `Compactor` that may be passed as `prev` to subsequent saves. Unsafe because the
 returned `Compactor` carries thread-safety and `depRegions` lifetime contracts the type system

@@ -407,7 +407,7 @@ where
     | .fvar x args =>
       ownFVar z (.functionCallResult z); ownFVar x (.fvarCall z); ownArgs (.fvarCall z) args
     | .pap _ args => ownFVar z (.functionCallResult z); ownArgs (.partialApplication z) args
-    | .lit .. => if decl.type.isPossibleRef then ownFVar z (.literalResult z)
+    | .lit val => if val.isPossibleRef then ownFVar z (.literalResult z)
     | _ => return ()
 
   preserveTailCall (x : FVarId) (v : LetValue .impure) (k : Code .impure) : InferM Unit := do

@@ -84,6 +84,11 @@ inductive LitValue where
   -- TODO: add constructors for `Int`, `Float`, ...
   deriving Inhabited, BEq, Hashable
 
+def LitValue.isPossibleRef : LitValue → Bool
+  | .str .. => true
+  | .nat val => val ≥ maxSmallNat
+  | _ => false
+
 def LitValue.toExpr : LitValue → Expr
   | .nat v => .lit (.natVal v)
   | .str v => .lit (.strVal v)

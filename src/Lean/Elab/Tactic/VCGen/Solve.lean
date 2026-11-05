@@ -302,15 +302,15 @@ def simpHaveValue (goal : MVarId) (name : Name) (type val body : Expr) (nondep :
   | .goal goal => return (goal, val')
   | _ => return (goal, val)
 
-/-- Substitute or introduce `let name : type := val; body`, where `mkRhs body` is the right-hand
+/-- Substitute or introduce `let name : type := val; body`, where `mkBody body` is the right-hand
 side of the entailment in `goal`'s target. The value of a `have` is simplified first. A duplicable
 value is substituted. Otherwise the `let` is put in front of the entailment and introduced as a
 local definition. -/
 def letStep (goal : MVarId) (name : Name) (type val body : Expr) (nondep : Bool)
-    (mkRhs : Expr → VCGenM Expr) : VCGenM LetStep := do
+    (mkBody : Expr → VCGenM Expr) : VCGenM LetStep := do
   let target ← goal.getType
   let relArgs := target.getAppArgs
-  let target ← mkAppNS target.getAppFn (relArgs.set! (relArgs.size - 1) (← mkRhs body))
+  let target ← mkAppNS target.getAppFn (relArgs.set! (relArgs.size - 1) (← mkBody body))
   let goal ← goal.replaceTargetDefEqFast (.letE name type val target nondep)
   let (goal, val) ← simpHaveValue goal name type val target nondep
   if isDuplicable val then
@@ -339,10 +339,10 @@ def wpLet? (scope : Scope) (goal : MVarId) (info : WPApp) :
   let .letE name type val body nondep := info.prog.getAppFn | return none
   let appArgs := info.prog.getAppRevArgs
   let val ← reduceHead val
-  let mkRhs body := do
+  let mkBody body := do
     let wp ← mkAppNS info.head <| info.args.set! 7 (← mkAppRevS body appArgs)
     mkAppNS wp info.excessArgs
-  match ← letStep goal name type val body nondep mkRhs with
+  match ← letStep goal name type val body nondep mkBody with
   | .zeta goal => return some (scope, [goal])
   | .intro jp goal =>
     if appArgs.isEmpty then

@@ -66,7 +66,8 @@ structure PulledChunk where
   incomplete : Bool
 
   /--
-  The pulled body chunk.
+  The pulled body chunk. Chunked framing is removed; other transfer codings, such as the `gzip` of
+  `Transfer-Encoding: gzip`, are not decoded.
   -/
   chunk : Chunk
 
@@ -801,9 +802,11 @@ private def writeHead (messageHead : Message.Head dir.swap) (machine : Machine d
   -- RFC 7230 §3.3.1: HTTP/1.0 does not support Transfer-Encoding.  When the
   -- response body length is unknown (chunked mode), fall back to connection-close
   -- framing: disable keep-alive and write raw bytes (no chunk encoding, no TE header).
+  -- An omitted body (a HEAD response) has nothing to delimit, so the connection stays open.
   let machine :=
     match dir, machine.reader.messageHead.version, size with
-    | .receiving, Version.v10, .chunked => machine.disableKeepAlive
+    | .receiving, Version.v10, .chunked =>
+      if machine.writer.omitBody then machine else machine.disableKeepAlive
     | _, _, _ => machine
 
   let state : Writer.State :=

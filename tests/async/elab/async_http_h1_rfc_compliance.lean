@@ -958,6 +958,19 @@ private def minimalGetRequest : Request.Head :=
     |>.assertOutputNotContains "103" "a 1xx response must not reach an HTTP/1.0 client"
     |>.assertOutputStartsWith "HTTP/1.0 200" "expected the final response first" |>.run
 
+  -- RFC 9112 §6.3: a HEAD response ends at its header block, so a length the server does not know
+  -- does not cost an HTTP/1.0 client its keep-alive connection
+  MachineTester.receiving "§6.3: HTTP/1.0 HEAD of unknown length keeps the connection alive"
+    |>.feed ("HEAD / HTTP/1.0\r\nConnection: keep-alive\r\n\r\n" ++
+      "GET /second HTTP/1.0\r\nConnection: keep-alive\r\n\r\n")
+    |>.step |>.assertIsWaitingMessage
+    |>.send { status := .ok } |>.userClosedBody |>.step
+    |>.assertOutputContains "Connection: keep-alive\r\n" "expected the HTTP/1.0 keep-alive echo"
+    |>.assertOutputNotContains "Content-Length" "unknown length must not be sent as Content-Length: 0"
+    |>.assertOutputNotContains "close" "a HEAD response has no body to delimit by closing"
+    |>.assertHasNext
+    |>.step |>.assertHasEndHeaders |>.assertKeepAlive |>.run
+
 #eval runGroup "RFC 9110 §8.6 / §6.3: client-side bodyless response framing" do
   -- §8.6: a HEAD response has no body regardless of framing headers. The client reader must treat
   -- it as zero-length and finish without blocking, even though Content-Length advertises bytes that

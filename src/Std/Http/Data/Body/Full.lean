@@ -178,15 +178,18 @@ instance : Coe (Async (Response Full)) (ContextAsync (Response Any)) where
 
 end Body
 
+/--
+Adds `Content-Type: value` unless `headers` already has a `Content-Type`, so a type the caller chose
+is not followed by a second, default one.
+-/
+private def Headers.withDefaultContentType (headers : Headers) (value : String) : Headers :=
+  if headers.contains Header.Name.contentType then headers
+  else headers.insert Header.Name.contentType (Header.Value.ofString! value)
+
 namespace Request.Builder
 
-/--
-Sets `Content-Type` to `value` unless the message being built already has one, so a type the caller
-chose is not followed by a second, default one.
--/
 private def defaultContentType (builder : Builder) (value : String) : Builder :=
-  if builder.line.headers.contains Header.Name.contentType then builder
-  else builder.header Header.Name.contentType (Header.Value.ofString! value)
+  { builder with line.headers := builder.line.headers.withDefaultContentType value }
 
 open Async
 
@@ -230,13 +233,8 @@ end Request.Builder
 
 namespace Response.Builder
 
-/--
-Sets `Content-Type` to `value` unless the message being built already has one, so a type the caller
-chose is not followed by a second, default one.
--/
 private def defaultContentType (builder : Builder) (value : String) : Builder :=
-  if builder.line.headers.contains Header.Name.contentType then builder
-  else builder.header Header.Name.contentType (Header.Value.ofString! value)
+  { builder with line.headers := builder.line.headers.withDefaultContentType value }
 
 open Async
 

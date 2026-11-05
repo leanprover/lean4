@@ -68,8 +68,8 @@ def optionalUnlessEof (p : Parser α) : Parser (Option α) := fun it =>
 Repeatedly applies `parser` until it returns `none` or the `maxCount` limit is
 exceeded. Returns the collected results as an array.
 
-A `parser` that fails on exhausted input propagates that failure, so an item split across two reads
-is re-parsed once the rest arrives instead of ending the list early.
+An item cut off by the end of the input fails with `.eof` instead of ending the list, so it is
+re-parsed once the rest arrives.
 -/
 def manyItems {α : Type} (parser : Parser (Option α)) (maxCount : Nat) : Parser (Array α) :=
   go #[]

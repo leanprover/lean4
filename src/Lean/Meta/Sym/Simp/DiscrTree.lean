@@ -165,6 +165,25 @@ def pushArgsTodo (todo : Array Expr) (e : Expr) : Array Expr :=
   | .mdata _ e => pushArgsTodo todo e
   | _ => todo
 
+/-- `getMatchLoop` on `.suffix ks i v`, without allocating its unfolding. -/
+partial def getMatchSuffix (mctx : MetavarContext) (todo : Array Expr) (ks : Array Key) (i : Nat)
+    (v : α) (result : Array α) : Array α :=
+  if h : i < ks.size then
+    if todo.isEmpty then
+      result
+    else
+      let e     := resolveAssignedMVars mctx <| etaReduce todo.back!
+      let todo  := todo.pop
+      let key := ks[i]
+      if key == .star then
+        getMatchSuffix mctx todo ks (i + 1) v result
+      else if key == getKey e then
+        getMatchSuffix mctx (pushArgsTodo todo e) ks (i + 1) v result
+      else
+        result
+  else
+    if todo.isEmpty then result.push v else result
+
 partial def getMatchLoop (mctx : MetavarContext) (todo : Array Expr) (c : Trie α) (result : Array α) : Array α :=
   match c with
   | .chain key child =>
@@ -200,6 +219,8 @@ partial def getMatchLoop (mctx : MetavarContext) (todo : Array Expr) (c : Trie �
       match findKey? cs (getKey e) with
       | none   => result
       | some c => getMatchLoop mctx (pushArgsTodo todo e) c.2 result
+  | .lazy t => getMatchLoop mctx todo t.get result
+  | .suffix ks i v => getMatchSuffix mctx todo ks i v result
 
 /--
 Retrieves all values whose patterns match the expression `e`.

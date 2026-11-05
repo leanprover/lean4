@@ -1,3 +1,7 @@
-request pending during the crash: error -32902: Server process for file:///crash.lean crashed, see stderr for exception.
-request after the crash: error -32902: Server process for file:///crash.lean crashed, see stderr for exception.
-request after the restart: result
+exit code 1, request pending during the crash: error -32902: Server process for file:///crash1.lean crashed, see stderr for exception.
+exit code 1, request after the crash: error -32902: Server process for file:///crash1.lean crashed, see stderr for exception.
+exit code 1, request after the restart: result
+exit code 0, request pending during the crash: error -32902: Server process for file:///crash0.lean exited unexpectedly.
+exit code 0, request after the crash: error -32902: Server process for file:///crash0.lean exited unexpectedly.
+exit code 0, request after the restart: result
+request to another file: result

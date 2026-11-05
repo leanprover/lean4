@@ -7,6 +7,7 @@ module
 
 prelude
 public import Init.Data.ToString
+public import Init.Data.LawfulHashable
 public import Std.Http.Internal
 import Init.Data.String.Search
 import Init.Data.String.Iter

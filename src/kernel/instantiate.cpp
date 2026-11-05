@@ -12,16 +12,18 @@ Author: Leonardo de Moura
 #include "kernel/instantiate.h"
 
 namespace lean {
-expr instantiate(expr const & a, size_t s, size_t n, expr const * subst) {
-    if (s >= get_loose_bvar_range(a) || n == 0)
+expr instantiate(expr const & a, size_t start, size_t n, expr const * subst) {
+    if (start >= get_loose_bvar_range(a) || n == 0)
         return a;
+    // The loose bvar range has 20 bits. Narrowing keeps the arithmetic of this hot traversal at 32 bits.
+    unsigned s = static_cast<unsigned>(start);
     return replace_tpl(a, [=](expr const & m, unsigned offset) -> optional<expr> {
-            size_t s1 = s + offset;
+            unsigned s1 = s + offset;
             if (is_bvar(m)) {
                 nat const & vidx = bvar_idx(m);
-                if (vidx >= nat::of_size_t(s1)) {
+                if (vidx >= s1) {
                     size_t h = s1 + n;
-                    if (h < s1 /* overflow, h is bigger than any vidx */ || vidx < nat::of_size_t(h)) {
+                    if (h < s1 /* overflow, h is bigger than any vidx */ || (vidx.is_small() && vidx.get_small_value() < h)) {
                         return some_expr(lift_loose_bvars(subst[vidx.get_small_value() - s1], offset));
                     } else {
                         return some_expr(mk_bvar(vidx - nat::of_size_t(n)));
@@ -30,7 +32,7 @@ expr instantiate(expr const & a, size_t s, size_t n, expr const * subst) {
             }
             return none_expr();
         }, true, [=](expr const & m, unsigned offset) {
-            size_t s1 = s + offset;
+            unsigned s1 = s + offset;
             return s1 < s || s1 >= get_loose_bvar_range(m);
         });
 }

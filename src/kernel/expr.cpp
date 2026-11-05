@@ -341,21 +341,23 @@ static bool has_loose_bvars_in_domain(expr const & b, unsigned vidx, bool strict
     }
 }
 
-bool has_loose_bvar(expr const & e, size_t i) {
-    if (!has_loose_bvars(e))
+bool has_loose_bvar(expr const & e, size_t idx) {
+    if (idx >= get_loose_bvar_range(e))
         return false;
+    // The loose bvar range has 20 bits. Narrowing keeps the arithmetic of this hot traversal at 32 bits.
+    unsigned i = static_cast<unsigned>(idx);
     bool found = false;
     for_each(e, [&](expr const & e, unsigned offset) {
             if (found)
                 return false; // already found
-            size_t n_i = i + offset;
+            unsigned n_i = i + offset;
             if (n_i < i)
                 return false; // overflow, vidx cannot be this large
             if (n_i >= get_loose_bvar_range(e))
                 return false; // expression e does not contain bound variables with idx >= n_i
             if (is_var(e)) {
                 nat const & vidx = bvar_idx(e);
-                if (vidx == nat::of_size_t(n_i))
+                if (vidx == n_i)
                     found = true;
             }
             return true; // continue search
@@ -369,20 +371,22 @@ extern "C" LEAN_EXPORT uint8 lean_expr_has_loose_bvar(b_obj_arg e, b_obj_arg i) 
     return has_loose_bvar(TO_REF(expr, e), lean_unbox(i));
 }
 
-expr lower_loose_bvars(expr const & e, size_t s, size_t d) {
-    if (d == 0 || s >= get_loose_bvar_range(e))
+expr lower_loose_bvars(expr const & e, size_t start, size_t d) {
+    if (d == 0 || start >= get_loose_bvar_range(e))
         return e;
-    lean_assert(s >= d);
+    lean_assert(start >= d);
+    // The loose bvar range has 20 bits. Narrowing keeps the arithmetic of this hot traversal at 32 bits.
+    unsigned s = static_cast<unsigned>(start);
     return replace_tpl(e, [=](expr const & e, unsigned offset) -> optional<expr> {
-            size_t s1 = s + offset;
-            if (is_bvar(e) && bvar_idx(e) >= nat::of_size_t(s1)) {
+            unsigned s1 = s + offset;
+            if (is_bvar(e) && bvar_idx(e) >= s1) {
                 lean_assert(bvar_idx(e) >= nat::of_size_t(offset + d));
                 return some_expr(mk_bvar(bvar_idx(e) - nat::of_size_t(d)));
             } else {
                 return none_expr();
             }
         }, true, [=](expr const & e, unsigned offset) {
-            size_t s1 = s + offset;
+            unsigned s1 = s + offset;
             return s1 < s || s1 >= get_loose_bvar_range(e);
         });
 }
@@ -399,17 +403,19 @@ extern "C" LEAN_EXPORT object * lean_expr_lower_loose_bvars(b_obj_arg e, b_obj_a
     return lower_loose_bvars(TO_REF(expr, e), lean_unbox(s), lean_unbox(d)).steal();
 }
 
-expr lift_loose_bvars(expr const & e, size_t s, size_t d) {
-    if (d == 0 || s >= get_loose_bvar_range(e))
+expr lift_loose_bvars(expr const & e, size_t start, size_t d) {
+    if (d == 0 || start >= get_loose_bvar_range(e))
         return e;
+    // The loose bvar range has 20 bits. Narrowing keeps the arithmetic of this hot traversal at 32 bits.
+    unsigned s = static_cast<unsigned>(start);
     return replace_tpl(e, [=](expr const & e, unsigned offset) -> optional<expr> {
-            if (is_var(e) && bvar_idx(e) >= nat::of_size_t(s + offset)) {
+            if (is_var(e) && bvar_idx(e) >= s + offset) {
                 return some_expr(mk_bvar(bvar_idx(e) + nat::of_size_t(d)));
             } else {
                 return none_expr();
             }
         }, true, [=](expr const & e, unsigned offset) {
-            size_t s1 = s + offset;
+            unsigned s1 = s + offset;
             return s1 < s || s1 >= get_loose_bvar_range(e);
         });
 }

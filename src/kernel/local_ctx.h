@@ -19,8 +19,8 @@ inductive LocalDecl
 class local_decl : public object_ref {
     friend class local_ctx;
     friend class local_context;
-    local_decl(unsigned idx, name const & n, name const & un, expr const & t, expr const & v);
-    local_decl(unsigned idx, name const & n, name const & un, expr const & t, binder_info bi);
+    local_decl(size_t idx, name const & n, name const & un, expr const & t, expr const & v);
+    local_decl(size_t idx, name const & n, name const & un, expr const & t, binder_info bi);
 public:
     local_decl(local_decl const & other):object_ref(other) {}
     local_decl(local_decl && other) noexcept:object_ref(std::move(other)) {}
@@ -29,7 +29,7 @@ public:
     local_decl & operator=(local_decl const & other) { object_ref::operator=(other); return *this; }
     local_decl & operator=(local_decl && other) noexcept { object_ref::operator=(std::move(other)); return *this; }
     friend bool is_eqp(local_decl const & d1, local_decl const & d2) { return d1.raw() == d2.raw(); }
-    unsigned get_idx() const { return static_cast<nat const &>(cnstr_get_ref(raw(), 0)).get_small_value(); }
+    size_t get_idx() const { return static_cast<nat const &>(cnstr_get_ref(raw(), 0)).get_small_value(); }
     name const & get_name() const { return static_cast<name const &>(cnstr_get_ref(raw(), 1)); }
     name const & get_user_name() const { return static_cast<name const &>(cnstr_get_ref(raw(), 2)); }
     expr const & get_type() const { return static_cast<expr const &>(cnstr_get_ref(raw(), 3)); }
@@ -44,7 +44,7 @@ public:
 /* Plain local context object used by the kernel type checker. */
 class local_ctx : public object_ref {
 protected:
-    template<bool is_lambda> expr mk_binding(unsigned num, expr const * fvars, expr const & b, bool remove_dead_let = false) const;
+    template<bool is_lambda> expr mk_binding(size_t num, expr const * fvars, expr const & b, bool remove_dead_let = false) const;
 public:
     local_ctx();
     explicit local_ctx(obj_arg o):object_ref(o) {}
@@ -78,8 +78,8 @@ public:
        \pre is_fvar(e) */
     expr get_type(expr const & e) const { return get_local_decl(e).get_type(); }
 
-    expr mk_lambda(unsigned num, expr const * fvars, expr const & e, bool remove_dead_let = false) const;
-    expr mk_pi(unsigned num, expr const * fvars, expr const & e, bool remove_dead_let = false) const;
+    expr mk_lambda(size_t num, expr const * fvars, expr const & e, bool remove_dead_let = false) const;
+    expr mk_pi(size_t num, expr const * fvars, expr const & e, bool remove_dead_let = false) const;
     expr mk_lambda(buffer<expr> const & fvars, expr const & e, bool remove_dead_let = false) const { return mk_lambda(fvars.size(), fvars.data(), e, remove_dead_let); }
     expr mk_pi(buffer<expr> const & fvars, expr const & e, bool remove_dead_let = false) const { return mk_pi(fvars.size(), fvars.data(), e, remove_dead_let); }
     expr mk_lambda(expr const & fvar, expr const & e) { return mk_lambda(1, &fvar, e); }

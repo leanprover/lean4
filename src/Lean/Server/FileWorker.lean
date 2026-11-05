@@ -1075,10 +1075,30 @@ where
       severity? := DiagnosticSeverity.error
       message := err.toString }]
 
+/--
+Sets the stdin and stdout streams that threads start with. A thread that has already used its stdin
+or stdout stream keeps its current stream.
+-/
+@[extern "lean_set_default_stdin_stdout"]
+private opaque setDefaultStdinStdout (stdin stdout : IO.FS.Stream) : BaseIO Unit
+
+/-- A stream that is always at its end and discards everything that is written to it. -/
+private def closedStream : IO.FS.Stream where
+  flush     := pure ()
+  read _    := pure .empty
+  write _   := pure ()
+  getLine   := pure ""
+  putStr _  := pure ()
+  isTty     := pure false
+
 def workerMain (opts : Options) : IO UInt32 := do
   let i ← IO.getStdin
   let o ← IO.getStdout
   let e ← IO.getStderr
+  -- `i` and `o` carry the LSP messages, so other code, e.g. user code in tasks, must not use them.
+  setDefaultStdinStdout closedStream e
+  discard <| IO.setStdin closedStream
+  discard <| IO.setStdout e
   try
     initAndRunWorker i o e opts
     IO.Process.forceExit 0 -- Terminate all tasks of this process

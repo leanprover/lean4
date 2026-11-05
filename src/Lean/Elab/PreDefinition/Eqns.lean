@@ -577,10 +577,13 @@ partial def splitMatch? (mvarId : MVarId) (declNames : Array Name) :
 Calculates equation statements by normalizing the initial goal, recursively splitting eligible
 matches, and saving terminal goals. Each recursive call receives an already-normalized RHS.
 The resulting statements are proved separately by `mkEqnProof`.
+The body of a definition can mention private auxiliary proofs even if the equations are public,
+so the statements are computed with private declarations visible.
 -/
-partial def mkEqnTypes (declNames : Array Name) (mvarId : MVarId) : MetaM (Array Expr) := do
-  let (_, eqnTypes) ← go (← normalizeEqn mvarId) |>.run #[]
-  return eqnTypes
+partial def mkEqnTypes (declNames : Array Name) (mvarId : MVarId) : MetaM (Array Expr) :=
+  withoutExporting do
+    let (_, eqnTypes) ← go (← normalizeEqn mvarId) |>.run #[]
+    return eqnTypes
 where
   go (mvarId : MVarId) : StateRefT (Array Expr) MetaM Unit := do
     trace[Elab.definition.eqns] "mkEqnTypes step\n{MessageData.ofGoal mvarId}"

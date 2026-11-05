@@ -86,12 +86,6 @@ structure Instances where
   the end of a section) restores the changes with it.
   -/
   classChanges : PHashMap Name (List InstanceChange) := {}
-  /--
-  Whether changes are logged in `classChanges`: set once the imported instances are added
-  (`finalizeImport`). In an environment that was not imported, resolution records the generation of
-  the whole table instead.
-  -/
-  logChanges : Bool := false
   deriving Inhabited
 
 /-- The class an instance's key is rooted at; see `Instances.classChanges`. -/
@@ -107,21 +101,19 @@ def Instances.getClassChanges (d : Instances) (className : Name) : List Instance
 private def Instances.logChange (d : Instances) (className : Name) (c : InstanceChange) : Instances :=
   { d with classChanges := d.classChanges.insert className (c :: d.getClassChanges className) }
 
-def addInstanceEntry (d : Instances) (e : InstanceEntry) : Instances :=
-  -- Checked before building the change, as the imported instances are added with `logChanges` unset.
-  let d := if d.logChanges then d.logChange e.keyClass (.add e.val e.priority e.synthOrder) else d
+/-- Adds an imported instance, which is not a change; see `Instances.classChanges`. -/
+def addImportedInstanceEntry (d : Instances) (e : InstanceEntry) : Instances :=
   match e.globalName? with
   | some n => { d with discrTree := d.discrTree.insertKeyValue e.keys e, instanceNames := d.instanceNames.insert n e, erased := d.erased.erase n }
   | none   => { d with discrTree := d.discrTree.insertKeyValue e.keys e }
 
+def addInstanceEntry (d : Instances) (e : InstanceEntry) : Instances :=
+  addImportedInstanceEntry (d.logChange e.keyClass (.add e.val e.priority e.synthOrder)) e
+
 def Instances.eraseCore (d : Instances) (declName : Name) : Instances :=
-  let d :=
-    if d.logChanges then
-      match d.instanceNames.find? declName with
-      | some e => d.logChange e.keyClass (.erase declName)
-      | none => d
-    else
-      d
+  let d := match d.instanceNames.find? declName with
+    | some e => d.logChange e.keyClass (.erase declName)
+    | none => d
   { d with erased := d.erased.insert declName, instanceNames := d.instanceNames.erase declName }
 
 def Instances.erase [Monad m] [MonadError m] (d : Instances) (declName : Name) : m Instances := do
@@ -133,7 +125,7 @@ builtin_initialize instanceExtension : SimpleScopedEnvExtension InstanceEntry In
   registerSimpleScopedEnvExtension {
     initial  := {}
     addEntry := addInstanceEntry
-    finalizeImport := fun d => { d with logChanges := true }
+    addImportedEntry := addImportedInstanceEntry
     exportEntry? := fun _ e =>
       if e.globalName?.any (!isPrivateName ·) then .uniform (some e)
       else ⟨none, none, some e⟩
@@ -398,16 +390,12 @@ builtin_initialize
 
 /-
 `genRecorded := true` below: resolution records the changes of the classes whose instances it
-reads (`Lean.recordInstClassChanges` in `SynthInstance.getInstances`), or the table's generation in
-an environment that was not imported; the other readers below are not called during resolution.
+reads (`Lean.recordInstClassChanges` in `SynthInstance.getInstances`); the other readers below are
+not called during resolution.
 -/
 
 def getGlobalInstancesIndex : CoreM (DiscrTree InstanceEntry) :=
   return Meta.instanceExtension.getState (genRecorded := true) (← getEnv) |>.discrTree
-
-/-- Whether instance changes are logged per class; see `Instances.logChanges`. -/
-def instanceChangesLogged (env : Environment) : Bool :=
-  Meta.instanceExtension.getState (genRecorded := true) env |>.logChanges
 
 /-- The changes of the global instances of `className`; see `Instances.classChanges`. -/
 def getInstanceClassChanges (env : Environment) (className : Name) : List InstanceChange :=

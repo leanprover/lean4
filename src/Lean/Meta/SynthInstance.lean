@@ -229,9 +229,7 @@ def getInstancesLazy (type : Expr) : MetaM (Array Instance) := do
     | none   => throwError "type class instance expected{indentExpr type}"
     | some className =>
       recordLocalInstClass className
-      let env ← getEnv
-      if instanceChangesLogged env then
-        recordInstClassChanges className (getInstanceClassChanges env className)
+      recordInstClassChanges className (getInstanceClassChanges (← getEnv) className)
       let globalInstances ← getGlobalInstancesIndex
       let result ← globalInstances.getUnify type
       -- Using insertion sort because it is stable and the array `result` should be mostly sorted.
@@ -1290,11 +1288,6 @@ def synthInstanceCore? (type : Expr) (maxResultSize? : Option Nat := none) : Met
     let localInsts ← getLocalInstances
     let type ← instantiateMVars type
     let { type, cacheKeyType, kind } ← preprocess type
-    -- The instance table is read only by `getInstances`, which records the changes of the consulted
-    -- classes (`RecordedDeps.instClassChanges`) instead of the generation of the whole table, except
-    -- in an environment that was not imported (`Instances.logChanges`).
-    unless instanceChangesLogged (← getEnv) do
-      recordExtGenAccess instanceExtension.ext.toEnvExtension
     let rawKey : SynthInstanceCacheKey :=
       { localInsts, type := cacheKeyType, synthPendingDepth := (← read).synthPendingDepth,
         maxResultSize, optionFlags := (← getOptionFlags),

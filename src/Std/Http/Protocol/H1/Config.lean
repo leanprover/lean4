@@ -114,9 +114,10 @@ structure Config where
 
   /--
   Maximum allowed total body size per message in bytes (default: 64 MiB).
-  This limit applies across all body framing modes. For chunked transfer encoding,
-  chunk-size lines (including extensions) and the trailer section also count toward
-  this limit, so the total wire bytes consumed by the body cannot exceed this value.
+  This limit applies across all body framing modes and counts content bytes only. For chunked
+  transfer encoding, chunk-size lines and the trailer section do not count toward it: each
+  chunk-size line is bounded by `maxChunkLineLength`, and the trailer section by
+  `maxTrailerHeaders` fields of at most `maxHeaderNameLength` and `maxHeaderValueLength` bytes.
   -/
   maxBodySize : Nat := 64 * 1024 * 1024
 

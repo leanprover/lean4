@@ -163,6 +163,16 @@ def parse (v : Value) : Option TransferEncoding := do
     none
 
 /--
+Parses a comma-separated list of transfer codings without the chunked placement rules. A response's
+framing depends only on whether its final coding is `chunked` (RFC 9112 §6.3 rule 4), whatever the
+other codings are.
+-/
+def parseCodings? (v : Value) : Option (Array String) := do
+  let codings ← parseTokenList v
+  guard (codings.all isToken)
+  return codings
+
+/--
 Serializes a transfer encoding back to a comma-separated header value.
 -/
 def serialize (te : TransferEncoding) : Header.Name × Header.Value :=

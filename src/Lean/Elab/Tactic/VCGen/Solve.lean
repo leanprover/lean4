@@ -303,15 +303,15 @@ def simpLetValue (goal : MVarId) (name : Name) (type val body : Expr) (nondep : 
   | _ => return (goal, val)
 
 /-- Substitute or introduce `let name : type := val; body`, where `mkRhs body` is the right-hand
-side of the entailment in `goal`'s target. The value is simplified first. A duplicable value is
-substituted. Otherwise the `let` is hoisted over the entailment and introduced. -/
+side of the entailment in `goal`'s target. The value of a `have` is simplified first. A duplicable
+value is substituted. Otherwise the `let` is hoisted over the entailment and introduced. -/
 def letStep (goal : MVarId) (name : Name) (type val body : Expr) (nondep : Bool)
     (mkRhs : Expr → VCGenM Expr) : VCGenM LetStep := do
   let target ← goal.getType
   let relArgs := target.getAppArgs
   let target ← mkAppNS target.getAppFn (relArgs.set! (relArgs.size - 1) (← mkRhs body))
   let goal ← goal.replaceTargetDefEqFast (.letE name type val target nondep)
-  let (goal, val) ← simpLetValue goal name type val target nondep
+  let (goal, val) ← if nondep then simpLetValue goal name type val target nondep else pure (goal, val)
   if isDuplicable val then
     trace[Elab.Tactic.Do.vcgen] "let-zeta-dup: {name}"
     return .zeta (← goal.replaceTargetDefEqFast (← Sym.instantiateRevBetaS target #[val]))

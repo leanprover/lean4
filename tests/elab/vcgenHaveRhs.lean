@@ -61,3 +61,11 @@ example : ⦃ fun s => s = 1 ⦄ (keep : M Unit) ⦃ fun _ s => 0 < s ⦄ := by
   vcgen
   trace_state
   all_goals sorry
+
+/-! The type of the program depends on the value of the `let`, so `vcgen` keeps the value
+`0 + (k + 3)` as written and introduces `n`. -/
+
+example (k : Nat) : ⦃ fun _ => True ⦄
+    (let n := 0 + (k + 3); (pure (⟨0, Nat.zero_lt_succ _⟩ : Fin n) : M (Fin n)))
+    ⦃ fun r _ => r.val = 0 ⦄ := by
+  vcgen simp [Nat.zero_add]

@@ -655,13 +655,9 @@ public def fmtDeclWithAttributes
     (attributes? : Option (TSyntax ``Parser.Term.attributes)) (decl : TaggedDoc)
     (compact : Bool := false)
     : FmtM TaggedDoc := do
-  let isAttributesSimple := attributes?.any (isAttributesSimple? · |>.getD false)
   let attributes? ← fmt? attributes?
-  if isAttributesSimple then
-    if compact then
-      return Layouts.softSpacedAtomic #[attributes?, decl]
-    else
-      return Layouts.horizontalOrVertical #[attributes?, decl]
+  if compact then
+    return Layouts.softSpacedAtomic #[attributes?, decl]
   else
     return Layouts.lines #[attributes?, decl]
 

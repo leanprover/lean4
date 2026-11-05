@@ -5,6 +5,11 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #pragma once
+/* The kernel is built with `-Werror=conversion`, which this header does not satisfy. */
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wconversion"
+#endif
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdint.h>
@@ -3852,4 +3857,8 @@ LEAN_EXPORT lean_object * lean_run_main(lean_object * (*main_fn)(int, char **), 
 
 #ifdef __cplusplus
 }
+#endif
+
+#ifdef __clang__
+#pragma clang diagnostic pop
 #endif

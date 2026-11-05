@@ -7,7 +7,15 @@ Author: Leonardo de Moura
 #pragma once
 #include <cstddef>
 #ifdef LEAN_USE_GMP
+/* Some installations of GMP are not on a system include path, and the kernel is built with `-Werror=conversion`. */
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wconversion"
+#endif
 #include <gmp.h>
+#ifdef __clang__
+#pragma clang diagnostic pop
+#endif
 #else
 #include "runtime/mpn.h"
 #endif

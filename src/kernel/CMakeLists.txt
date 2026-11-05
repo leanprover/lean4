@@ -19,7 +19,7 @@ add_library(
 )
 
 # Counts and indices in the kernel are `size_t`: a lossy implicit conversion can alias distinct values.
-# The exempted headers are not kernel code. Clang only, as GCC's `-Wconversion` also reports safe arithmetic.
+# Clang only, as GCC's `-Wconversion` also reports safe arithmetic.
 if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-  target_compile_options(kernel PRIVATE -Werror=conversion --system-header-prefix=lean/ --system-header-prefix=gmp.h)
+  target_compile_options(kernel PRIVATE -Werror=conversion)
 endif()

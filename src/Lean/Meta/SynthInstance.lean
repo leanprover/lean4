@@ -983,40 +983,41 @@ private def _root_.Lean.RecordedDeps.mergeInto (child parent : RecordedDeps) : R
     if l.any (·.1 == d.1) then l else l.push d
   { parent with options, extGens, localInstClasses, instClassChanges }
 
-/-- The maximum number of entries for different local instances (`relevant?`) kept under one key. -/
-private def maxRelevantEntries : Nat := 64
+/-- The maximum number of shared entries, i.e. for different local instances, kept under one key. -/
+private def maxSharedEntries : Nat := 64
 
-/-- Whether two entries are for the same local instances (see `SynthInstanceCacheEntry.relevant?`). -/
-private def sameRelevant : Option SynthInstanceRelevantLocalInsts → Option SynthInstanceRelevantLocalInsts → Bool
-  | none, none => true
-  | some a, some b => a.classes == b.classes && a.canonLocalInsts == b.canonLocalInsts && a.fvarTypes == b.fvarTypes
-  | _, _ => false
+/-- Whether `a` and `b` recorded the same option lookups with the same answers. -/
+private def sameOptionAccesses (a b : SynthInstanceCacheEntry) : Bool :=
+  a.deps.options == b.deps.options && a.deps.base == b.deps.base
 
 /--
-Adds `entry` to `c`, replacing the entries for `key` that recorded the same option lookups with the
-same answers: those did not hold in the current environment, or were superseded by `entry`.
+Adds `entry` to `c.raw`, replacing the entries for `key` that recorded the same option lookups with
+the same answers: those did not hold in the current environment, or were superseded by `entry`.
 -/
-private def SynthInstanceCache.insertEntry (c : SynthInstanceCache) (key : SynthInstanceCacheKey)
+private def SynthInstanceCache.insertRaw (c : SynthInstanceCache) (key : SynthInstanceCacheKey)
     (entry : SynthInstanceCacheEntry) : SynthInstanceCache :=
-  c.alter key fun entries? =>
-    let rest := entries?.getD [] |>.filter fun e =>
-      e.deps.options != entry.deps.options || e.deps.base != entry.deps.base ||
-      !sameRelevant e.relevant? entry.relevant?
-    -- Bound the entries a key accumulates for different local instances, keeping the newest.
-    let rest := if entry.relevant?.isNone then rest else
-      (rest.foldl (init := ([], 0)) fun (acc, n) e =>
-        if e.relevant?.isNone then (e :: acc, n)
-        else if n < maxRelevantEntries - 1 then (e :: acc, n + 1) else (acc, n)).1.reverse
-    some (entry :: rest)
+  { c with raw := c.raw.alter key fun entries? =>
+      some <| entry :: (entries?.getD [] |>.filter (!sameOptionAccesses · entry)) }
 
-/-- Adds `entry` to the transient tier, and to the persistent tier if `persist` is set. -/
-private def insertCacheEntry (key : SynthInstanceCacheKey) (entry : SynthInstanceCacheEntry)
-    (persist : Bool) : MetaM Unit := do
+/--
+Adds `entry` to `c.shared` like `insertRaw`, replacing only the entries for the same local
+instances, and keeping at most `maxSharedEntries` under `key`, the newest.
+-/
+private def SynthInstanceCache.insertShared (c : SynthInstanceCache) (key : SynthInstanceCacheKey)
+    (entry : SynthInstanceSharedEntry) : SynthInstanceCache :=
+  { c with shared := c.shared.alter key fun entries? =>
+      let rest := entries?.getD [] |>.filter fun e =>
+        !sameOptionAccesses e.toSynthInstanceCacheEntry entry.toSynthInstanceCacheEntry ||
+        e.relevant != entry.relevant
+      some <| entry :: rest.take (maxSharedEntries - 1) }
+
+/-- Applies `f` to the transient tier, and to the persistent tier if `persist` is set. -/
+private def modifySynthCache (f : SynthInstanceCache → SynthInstanceCache) (persist : Bool) :
+    MetaM Unit := do
   if persist then
     -- not `Meta.modifyEnv`, which would clear `Meta.Cache`
-    modifyThe Core.State fun s =>
-      { s with env := s.env.setSynthCache (s.env.synthCache.insertEntry key entry) }
-  modifyCache fun c => { c with synthInstance := c.synthInstance.insertEntry key entry }
+    modifyThe Core.State fun s => { s with env := s.env.setSynthCache (f s.env.synthCache) }
+  modifyCache fun c => { c with synthInstance := f c.synthInstance }
 
 /--
 Returns the entry for `key` whose recorded dependencies hold in the current context, if any, from the
@@ -1026,8 +1027,8 @@ private def findCachedResult? (key : SynthInstanceCacheKey) : MetaM (Option Synt
   -- unrestricted: compared against the recorded lookups
   let opts ← getOptionsUnrestricted
   let env ← getEnv
-  let find? (c : SynthInstanceCache) := c.find? key |>.bind fun entries =>
-    entries.find? fun e => e.relevant?.isNone && validOptionAccesses opts e.deps && validEnvDeps env e.deps
+  let find? (c : SynthInstanceCache) := c.raw.find? key |>.bind fun entries =>
+    entries.find? fun e => validOptionAccesses opts e.deps && validEnvDeps env e.deps
   let (entry, persistent) ← if let some entry := find? (← get).cache.synthInstance then
       pure (entry, false)
     else if let some entry := find? env.synthCache then
@@ -1041,9 +1042,9 @@ private def findCachedResult? (key : SynthInstanceCacheKey) : MetaM (Option Synt
       baseTrackedGen := env.trackedGen, baseChangeLogPos := env.declChangeLog.size } }
     if persistent then
       modifyThe Core.State fun s =>
-        { s with env := s.env.setSynthCache (s.env.synthCache.insertEntry key entry) }
+        { s with env := s.env.setSynthCache (s.env.synthCache.insertRaw key entry) }
     else
-      modifyCache fun c => { c with synthInstance := c.synthInstance.insertEntry key entry }
+      modifyCache fun c => { c with synthInstance := c.synthInstance.insertRaw key entry }
   return entry
 
 /--
@@ -1068,7 +1069,7 @@ private def applyCachedAbstractResult? (type : Expr) (abstResult? : Option Abstr
 Free-variable normalization of the cache key and result. Queries that are structurally identical up
 to the identities of their free variables (e.g. `Foo α` under `[Foo α]` vs. `Foo β` under
 `[Foo β]`) share a cache entry: every free variable reachable from the query type and the local
-instances of the consulted classes (`SynthInstanceCacheEntry.relevant?`) is abstracted to a loose
+instances of the consulted classes (`SynthInstanceSharedEntry.relevant`) is abstracted to a loose
 bound variable by its canonical position, and the result is stored abstracted in the same way and
 re-instantiated with the current context's free variables on a hit.
 
@@ -1159,19 +1160,21 @@ end SynthNorm
 
 /--
 Looks up an entry for `baseKey` (the query keyed by its type alone) whose relevant local instances
-match those of the current context, see `SynthInstanceCacheEntry.relevant?`. Returns the entry and
+match those of the current context, see `SynthInstanceSharedEntry`. Returns the entry and
 the joint normalization of the current context, against which its result is abstracted.
 -/
 private def findRelevantResult? (baseKey : SynthInstanceCacheKey) (typeSt : SynthNorm.State) (type : Expr)
     (localInsts : LocalInstances) :
-    MetaM (Option (SynthInstanceCacheEntry × SynthNorm.Context)) := do
+    MetaM (Option (SynthInstanceSharedEntry × SynthNorm.Context)) := do
   let opts ← getOptionsUnrestricted
   let env ← getEnv
-  let candidates := ((← get).cache.synthInstance.find? baseKey).getD [] ++ (env.synthCache.find? baseKey).getD []
+  let candidates :=
+    ((← get).cache.synthInstance.shared.find? baseKey).getD [] ++
+      (env.synthCache.shared.find? baseKey).getD []
   -- Entries for different contexts mostly share their classes: normalize once per class set.
   let mut ctxs : Array (Array Name × Option SynthNorm.Context) := #[]
   for e in candidates do
-    let some rel := e.relevant? | continue
+    let rel := e.relevant
     unless validOptionAccesses opts e.deps && validEnvDeps env e.deps do continue
     let ctx? ← match ctxs.find? (·.1 == rel.classes) with
       | some (_, ctx?) => pure ctx?
@@ -1222,12 +1225,12 @@ private def cacheResult (cacheKey : SynthInstanceCacheKey) (log : RecordedDeps) 
   -- not determined by the key are resolved by ambient constraints).
   let persist := kind matches .noMVars && cacheKey.localInsts.isEmpty && !cacheKey.type.hasFVar &&
     value?.all fun r => r.numMVars == 0 && r.paramNames.isEmpty && !r.expr.hasFVar
-  insertCacheEntry cacheKey { deps := entryDeps log, result? := value? } persist
+  modifySynthCache (·.insertRaw cacheKey { deps := entryDeps log, result? := value? }) persist
 
 /--
 Stores the result of a search under `baseKey`, the query keyed by its type alone, for contexts whose
 local instances of the classes the search consulted agree with the current ones; see
-`SynthInstanceCacheEntry.relevant?`.
+`SynthInstanceSharedEntry`.
 -/
 private def cacheRelevantResult (baseKey : SynthInstanceCacheKey) (typeSt : SynthNorm.State) (type : Expr)
     (localInsts : LocalInstances)
@@ -1242,7 +1245,8 @@ private def cacheRelevantResult (baseKey : SynthInstanceCacheKey) (typeSt : Synt
   let closed := value?.all fun r => r.numMVars == 0 && r.paramNames.isEmpty
   let relevant : SynthInstanceRelevantLocalInsts :=
     { classes := classes, canonLocalInsts := ctx.canonLocalInsts, fvarTypes := ctx.fvarTypes }
-  insertCacheEntry baseKey { deps := entryDeps log, result? := value?, relevant? := some relevant } closed
+  modifySynthCache (·.insertShared baseKey { deps := entryDeps log, result? := value?, relevant })
+    closed
 
 /--
 Panics with `msg` without throwing, which a `panic!` of type `MetaM Unit` would do.
@@ -1384,10 +1388,10 @@ def synthInstanceCore? (type : Expr) (maxResultSize? : Option Nat := none) : Met
         -- Stored under the raw key as well: repeated queries in one context must return the same
         -- result object, which re-instantiating the entry on every hit would not, and consumers
         -- relying on pointer identity for sharing would pay deep structural work for every copy.
-        let entry := { entry with
-          result? := entry.result?.map fun r => { r with expr := r.expr.instantiateRev ctx.idx2fvar }
-          relevant? := none }
-        insertCacheEntry rawKey entry (persist := false)
+        let result? := entry.result?.map fun r =>
+          { r with expr := r.expr.instantiateRev ctx.idx2fvar }
+        let entry : SynthInstanceCacheEntry := { entry.toSynthInstanceCacheEntry with result? }
+        modifySynthCache (·.insertRaw rawKey entry) (persist := false)
         return (← serve entry)
     trace[Meta.synthInstance.cache] "new: {type}"
     let abstResult? ← runSearch

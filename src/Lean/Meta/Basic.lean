@@ -425,16 +425,19 @@ structure SynthInstanceRelevantLocalInsts where
   agree up to renaming of free variables.
   -/
   fvarTypes       : Array Expr
+  deriving BEq
 
 /-- A type class resolution result together with the dependencies it was computed under. -/
 structure SynthInstanceCacheEntry where
   deps    : RecordedDeps
   result? : Option AbstractMVarsResult
-  /--
-  Set for entries keyed by the query type alone (normalized over its own free variables): the entry
-  is valid in a context whose local instances of `classes` normalize to `canonLocalInsts`.
-  -/
-  relevant? : Option SynthInstanceRelevantLocalInsts := none
+
+/--
+An entry keyed by the query type alone (normalized over its own free variables): it is valid in a
+context whose local instances of `relevant.classes` normalize to `relevant.canonLocalInsts`.
+-/
+structure SynthInstanceSharedEntry extends SynthInstanceCacheEntry where
+  relevant : SynthInstanceRelevantLocalInsts
 
 /--
 Type class resolution cache. Each key holds one entry per observed set of dependencies: the search
@@ -448,9 +451,9 @@ against whose later changes of declaration-keyed state the entry is validated. T
 `Core.Context.isRecordingDeps` set, so an unrecorded read of an option or an environment extension
 panics.
 
-A result is stored under its raw key, with the query type and all local instances, and under the
-query type alone with its free variables normalized, for contexts whose local instances of the
-consulted classes agree (`SynthInstanceCacheEntry.relevant?`).
+A result is stored in `raw` under its raw key, with the query type and all local instances, and in
+`shared` under the query type alone with its free variables normalized, for contexts whose local
+instances of the consulted classes agree (`SynthInstanceSharedEntry.relevant`).
 
 The cache has two tiers. The transient tier, `Meta.Cache.synthInstance`, lives as long as the
 current `Meta.State`. Context-free entries are also stored in the persistent tier,
@@ -470,8 +473,10 @@ As the cache survives rollbacks, custom metaprograms that roll back the environm
 without clearing the cache (e.g. through `liftCommandElabM`) should call `resetSynthInstanceCache`,
 as otherwise a stale entry can be revalidated.
 -/
-abbrev SynthInstanceCache :=
-  PersistentHashMap SynthInstanceCacheKey (List SynthInstanceCacheEntry)
+structure SynthInstanceCache where
+  raw    : PersistentHashMap SynthInstanceCacheKey (List SynthInstanceCacheEntry) := {}
+  shared : PersistentHashMap SynthInstanceCacheKey (List SynthInstanceSharedEntry) := {}
+  deriving Inhabited
 
 /--
 Persistent tier of the type class resolution cache, which survives the current command. It holds
@@ -782,13 +787,17 @@ branch both only grow), and those recorded after constants it removes, as a cons
 name added later would count as unobserved (`Environment.checkDeclChangeLog`).
 -/
 def SynthInstanceCache.rollBack (c : SynthInstanceCache) (env : Environment) : SynthInstanceCache :=
-  c.foldl (init := c) fun c key entries =>
-    match entries.filter fun e =>
-        e.deps.baseTrackedGen ≤ env.trackedGen &&
-        e.deps.baseChangeLogPos ≤ env.declChangeLog.size &&
-        e.deps.baseConstGen ≤ env.constGen with
-    | []       => c.erase key
-    | entries' => if entries'.length == entries.length then c else c.insert key entries'
+  { raw := rollBackEntries (·.deps) c.raw, shared := rollBackEntries (·.deps) c.shared }
+where
+  rollBackEntries {α} (deps : α → RecordedDeps)
+      (m : PersistentHashMap SynthInstanceCacheKey (List α)) :=
+    m.foldl (init := m) fun m key entries =>
+      match entries.filter fun e =>
+          (deps e).baseTrackedGen ≤ env.trackedGen &&
+          (deps e).baseChangeLogPos ≤ env.declChangeLog.size &&
+          (deps e).baseConstGen ≤ env.constGen with
+      | []       => m.erase key
+      | entries' => if entries'.length == entries.length then m else m.insert key entries'
 
 /-- Restore backtrackable parts of the state. -/
 def SavedState.restore (b : SavedState) : MetaM Unit := do

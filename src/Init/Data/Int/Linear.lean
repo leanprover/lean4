@@ -1183,7 +1183,7 @@ theorem dvd_of_eq_zero (ctx : Context) (d : Int) (p : Poly) : p.denote' ctx = 0 
 
 @[expose]
 noncomputable def eq_of_dvd_ediv_cert (d : Int) (e : Expr) (p p' : Poly) (x : Var) : Bool :=
-  e.norm_k.beq' p |>.and (p'.beq' (Poly.add (-d) x p))
+  e.norm_k.beq' p |>.and (p'.beq' (p.insert (-d) x))
 
 /--
 Omega-style elimination step: given `d ∣ p` and a variable `x` denoting `e / d` where `e` normalizes
@@ -1197,8 +1197,9 @@ theorem eq_of_dvd_ediv (ctx : Context) (d : Int) (e : Expr) (p p' : Poly) (x : V
   intro h₁ h₂ hd; subst p' p
   have he : Expr.denote ctx e = Poly.denote ctx e.norm := by
     rw [← Poly.denote'_eq_denote]; exact Expr.eq_of_norm_eq ctx e e.norm (by simp)
-  rw [Poly.denote'_add, hx, he, Poly.denote'_eq_denote] at *
-  rw [Int.neg_mul, Int.mul_ediv_cancel' hd]; omega
+  rw [Poly.denote'_eq_denote] at hd ⊢
+  rw [← he] at hd
+  rw [Poly.denote_insert, hx, ← he, Int.neg_mul, Int.mul_ediv_cancel' hd]; omega
 
 theorem eq_of_zero_dvd (ctx : Context) (p : Poly) : 0 ∣ p.denote' ctx → p.denote' ctx = 0 := by
   intro ⟨k, h⟩

@@ -391,7 +391,11 @@ private def EqCnstr.elimNonUnit (c : EqCnstr) (k : Int) (x : Var) : GoalM Unit :
   modify' fun s => { s with divMod := s.divMod.insert (a, m) }
   internalize t (← getGeneration (← getVar x))
   let σ ← mkVar t
-  let c' : EqCnstr := { p := .add (-m) σ dvd.p, h := .ofDvdDiv dvd e σ t }
+  /-
+  `σ` may not be fresh: it may have been created in a backtracked case and renumbered by
+  `reorderVars`. Thus, it is not necessarily the maximal variable.
+  -/
+  let c' : EqCnstr := { p := dvd.p.insert (-m) σ, h := .ofDvdDiv dvd e σ t }
   trace[grind.debug.lia.elimEq] "omega step for {← getVar x}: {← c'.pp}"
   c'.elimVar (c'.p.coeff x) x
   if (← inconsistent) then return ()
@@ -427,8 +431,8 @@ def EqCnstr.assertImpl (c : EqCnstr) : GoalM Unit := withIncRecDepth do
 private def exprAsPoly (a : Expr) : GoalM Poly := do
   if let some k ← getIntValue? a then
     return .num k
-  else if let some var := (← get').varMap.find? { expr := a } then
-    return .add 1 var (.num 0)
+  else if (← hasVar a) then
+    return .add 1 (← mkVar a) (.num 0)
   else
     throwError "internal `grind` error, expression is not relevant to cutsat{indentExpr a}"
 
@@ -571,8 +575,7 @@ and the certificate checks `p` against `e` (`defnExpr`). See issue #15699.
 In both cases, if `p` contains nonlinear monomials that the comm-ring solver simplifies to `p'`,
 the constraint becomes `x = p'`.
 -/
-private def internalizeInt (e : Expr) : GoalM Unit := do
-  if (← hasVar e) then return ()
+private def internalizeIntCore (e : Expr) : GoalM Unit := do
   if let some p ← toPoly? e then
     trace[grind.debug.lia.internalize] "{aquote e}:= {← p.pp}"
     let x ← mkVar e
@@ -601,6 +604,13 @@ private def internalizeInt (e : Expr) : GoalM Unit := do
     else
       let c := { p := .add (-1) x p, h := .defnExpr h x e' : EqCnstr }
       c.assert
+
+private def internalizeInt (e : Expr) : GoalM Unit := do
+  if (← hasVar e) then
+    -- `mkVar` reactivates the variable of `e` if needed.
+    discard <| mkVar e
+  else
+    internalizeIntCore e
 
 /--
 Pushes a linear fact about `a / b` and `a % b`. The `simp`-based preprocessor is skipped: these facts
@@ -712,6 +722,19 @@ private def propagateNatSub (e : Expr) : GoalM Unit := do
   discard <| mkNatVar b
   pushNewFact <| mkApp2 (mkConst ``Int.Internal.Linear.natCast_sub) a b
 
+/--
+Asserts `x = e''`, where `x` is the variable of `NatCast.natCast e`, `h : NatCast.natCast e = e'`,
+and `e''` is the linear expression of `e'`.
+-/
+private def assertNatDefn (h : Expr) (e'' : Int.Internal.Linear.Expr) (x : Var) : GoalM Unit := do
+  let p := e''.norm
+  if let some (re, rp, p') ← p.normCommRing? then
+    let c := { p := .add (-1) x p', h := .defnExprCommRing h x e'' p re rp p' : EqCnstr }
+    c.assert
+  else
+    let c := { p := .add (-1) x p, h := .defnExpr h x e'' : EqCnstr }
+    c.assert
+
 private def internalizeNatTerm (e type : Expr) (parent? : Option Expr) (k : SupportedTermKind) : GoalM Unit := do
   if (← isNatTerm e) then return () -- already internalized
   match k with
@@ -736,18 +759,46 @@ private def internalizeNatTerm (e type : Expr) (parent? : Option Expr) (k : Supp
   | NatCast.natCast _ _ a => if e == a then return ()
   | _ => pure ()
   let e'' ← toLinearExpr e'h.1
-  let p := e''.norm
   let natCast_e ← shareCommon (mkIntNatCast e)
   let gen ← getGeneration e
   internalize natCast_e gen
   let x ← mkVar natCast_e
   modify' fun s => { s with natDef := s.natDef.insert { expr := e } x }
-  if let some (re, rp, p') ← p.normCommRing? then
-    let c := { p := .add (-1) x p', h := .defnExprCommRing e'h.2 x e'' p re rp p' : EqCnstr }
-    c.assert
-  else
-    let c := { p := .add (-1) x p, h := .defnExpr e'h.2 x e'' : EqCnstr }
-    c.assert
+  assertNatDefn e'h.2 e'' x
+
+set_option compiler.ignoreBorrowAnnotation true in
+/--
+Reactivates the inactive variable `x` (see `State.active`).
+
+The model search may create variables inside a case split, e.g., `EqCnstr.elimNonUnit` creates `σ` for
+`p / m`, and nonlinear propagation creates variables for `a / k` and `a % k`. When the case is refuted,
+its refutation proof may use these variables, so backtracking keeps them to keep their indices stable.
+However, backtracking rolls back the constraints asserted when they were created: their definitions
+(e.g., `x = p` for a linear term), `x ≥ 0` for nonnegative terms, the `div`/`mod` facts, and the
+nonlinear occurrences. Since `x` still exists, `mkVar` and `internalizeInt` would not assert them again.
+Thus, if `x` is used again, e.g., `elimNonUnit` creates the same `σ`, or the core propagates an equality
+containing its term, `x` would be missing constraints, and its value in the model would be meaningless
+(model-based theory combination uses these values).
+
+Reactivation asserts these constraints again in the current state. It is triggered by `mkVar`.
+-/
+@[export lean_grind_cutsat_reactivate_var]
+def reactivateVarImpl (x : Var) : GoalM Unit := do
+  modify' fun s => { s with active := s.active.set x true }
+  let e ← getVar x
+  trace[grind.debug.lia.reactivate] "{quoteIfArithTerm e} ↦ #{x}"
+  assertVarFacts e x
+  let some (k, type) ← getKindAndType? e | return ()
+  unless type.isConstOf ``Int do return ()
+  match k with
+  | .div => propagateDiv e
+  | .mod => propagateMod e
+  | _ => internalizeIntCore e
+  let_expr NatCast.natCast _ _ a := e | return ()
+  let some y := (← get').natDef.find? { expr := a } | return ()
+  unless y == x do return ()
+  let some (e', h) := (← get').natToIntMap.find? { expr := a } | return ()
+  assertNatDefn h (← toLinearExpr e') x
 
 def isEmbeddingApp? (e : Expr) : Option Expr :=
   match_expr e with

@@ -109,6 +109,16 @@ def targetLetIntro? (goal : MVarId) (target : Expr) : VCGenM (Option MVarId) := 
     trace[Elab.Tactic.Do.vcgen] "let-intro: {name}"
     return some (← introsHygienic goal)
 
+/-- Strategy 6: substitute the value of a `let` or `have` at the head of the right-hand side of
+`pre ⊑ rhs`. A spec precondition `fun s => have v := e s; P v s` gives such a right-hand side. -/
+def rhsLetZeta? (goal : MVarId) (target rhs : Expr) : VCGenM (Option MVarId) := do
+  let .letE name _ val body _ := rhs | return none
+  trace[Elab.Tactic.Do.vcgen] "rhs-let-zeta: {name}"
+  let relArgs := target.getAppArgs
+  let body ← Sym.instantiateRevBetaS body #[val]
+  let target ← mkAppNS target.getAppFn (relArgs.set! (relArgs.size - 1) body)
+  return some (← goal.replaceTargetDefEqFast target)
+
 /-- Strategy 3: unfold a `Triple` target into the underlying lattice entailment. -/
 def tripleUnfold? (goal : MVarId) (target : Expr) : VCGenM (Option MVarId) := do
   unless target.isAppOf ``Triple do return none
@@ -608,6 +618,7 @@ public def solve (scope : Scope) (goal : MVarId) : VCGenM SolveResult := goal.wi
 
   -- Phase 3: shape the `rhs` (decompose a lattice connective or a forall, then discharge a
   -- residual entailment against the lifted hypothesis).
+  if let some g ← rhsLetZeta? goal target rhs then return .goals scope [g]
   if let some gs ← splitLatticeOp? goal rhs then return .goals scope gs
   if let some gs ← splitForallLe? goal rhs then return .goals scope gs
   if let some gs ← liftedHyp? scope goal α pre rhs then return .goals scope gs

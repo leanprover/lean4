@@ -303,15 +303,14 @@ example (b : Nat → Bool) (s₀ : Nat) :
   goal_count
   all_goals lia
 
--- The `have` of the precondition reaches the VC.
+-- `vcgen` substitutes the value of the `have` of the precondition.
 axiom modify_spec' (f : Nat → Nat) (Q : Unit → Nat → Prop) :
     ⦃fun s => have s' := f s; Q () s' ∨ R s'⦄ (modify f : StateM Nat Unit) ⦃Q⦄
 
 /--
 trace: case vc1
 s₀ s✝ : Nat
-⊢ have s' := g s₀;
-  R s' ∨ R s'
+⊢ R (g s₀) ∨ R (g s₀)
 -/
 #guard_msgs (trace, drop warning) in
 example (s₀ : Nat) :

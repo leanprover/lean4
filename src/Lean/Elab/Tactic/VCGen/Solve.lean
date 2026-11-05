@@ -109,16 +109,6 @@ def targetLetIntro? (goal : MVarId) (target : Expr) : VCGenM (Option MVarId) := 
     trace[Elab.Tactic.Do.vcgen] "let-intro: {name}"
     return some (← introsHygienic goal)
 
-/-- Strategy 6: substitute the value of a `let` or `have` at the head of the right-hand side of
-`pre ⊑ rhs`. A spec precondition `fun s => have v := e s; P v s` gives such a right-hand side. -/
-def rhsLetZeta? (goal : MVarId) (target rhs : Expr) : VCGenM (Option MVarId) := do
-  let .letE name _ val body _ := rhs | return none
-  trace[Elab.Tactic.Do.vcgen] "rhs-let-zeta: {name}"
-  let relArgs := target.getAppArgs
-  let body ← Sym.instantiateRevBetaS body #[val]
-  let target ← mkAppNS target.getAppFn (relArgs.set! (relArgs.size - 1) body)
-  return some (← goal.replaceTargetDefEqFast target)
-
 /-- Strategy 3: unfold a `Triple` target into the underlying lattice entailment. -/
 def tripleUnfold? (goal : MVarId) (target : Expr) : VCGenM (Option MVarId) := do
   unless target.isAppOf ``Triple do return none
@@ -277,15 +267,42 @@ def normalizePre? (scope : Scope) (goal : MVarId) (α pre target : Expr) :
     return some ({ scope with lastLiftedPre? := h <|> scope.lastLiftedPre? }, [g])
   return none
 
+/-- Replace the right-hand side of the entailment in `goal`'s target with `rhs` (which must be
+definitionally equal). -/
+def replaceRhsDefEq (goal : MVarId) (rhs : Expr) : VCGenM MVarId := do
+  let target ← goal.getType
+  let relArgs := target.getAppArgs
+  goal.replaceTargetDefEqFast (← mkAppNS target.getAppFn (relArgs.set! (relArgs.size - 1) rhs))
+
 /-- Replace the program in `goal`'s target with `prog` (which must be definitionally equal). -/
 def replaceProgDefEq (goal : MVarId) (info : WPApp) (prog : Expr) :
     VCGenM MVarId := do
   let wp ← mkAppNS info.head <| info.args.set! 7 prog
-  let rhs ← mkAppNS wp info.excessArgs
+  replaceRhsDefEq goal (← mkAppNS wp info.excessArgs)
+
+/-- The result of `letStep`: the value of the `let` was substituted, or the `let` was introduced as
+the local definition `fvarId`. -/
+inductive LetStep where
+  | zeta (goal : MVarId)
+  | hoist (fvarId : FVarId) (goal : MVarId)
+
+/-- Substitute or introduce `let name : type := val; body`, where `mkRhs body` is the right-hand
+side of the entailment in `goal`'s target. A duplicable `val` is substituted. Otherwise the `let`
+is hoisted over the entailment and introduced. -/
+def letStep (goal : MVarId) (name : Name) (type val body : Expr) (nondep : Bool)
+    (mkRhs : Expr → VCGenM Expr) : VCGenM LetStep := do
+  if isDuplicable val then
+    trace[Elab.Tactic.Do.vcgen] "let-zeta-dup: {name}"
+    return .zeta (← replaceRhsDefEq goal (← mkRhs (← Sym.instantiateRevBetaS body #[val])))
+  trace[Elab.Tactic.Do.vcgen] "let-hoist: {name}"
   let target ← goal.getType
   let relArgs := target.getAppArgs
-  let newTarget ← mkAppNS target.getAppFn (relArgs.set! (relArgs.size - 1) rhs)
-  goal.replaceTargetDefEqFast newTarget
+  let target ← mkAppNS target.getAppFn (relArgs.set! (relArgs.size - 1) (← mkRhs body))
+  let goal ← goal.replaceTargetDefEqFast (.letE name type val target nondep)
+  let name ← if isProgramName name then pure name else Meta.mkFreshBinderNameForTactic name
+  let .goal decls goal' ← Sym.intros goal #[name]
+    | throwError "Failed to intro the `let` {name}"
+  return .hoist decls[0]! goal'
 
 /-- Strip an `mdata` wrapper (such as the `save_info` annotation left by spec elaboration)
 from the program in `goal`'s target, so the remaining strategies see the bare term. -/
@@ -304,28 +321,24 @@ def wpLet? (scope : Scope) (goal : MVarId) (info : WPApp) :
   let .letE name type val body nondep := info.prog.getAppFn | return none
   let appArgs := info.prog.getAppRevArgs
   let val ← reduceHead val
-  if isDuplicable val then
-    trace[Elab.Tactic.Do.vcgen] "let-zeta-dup: {name}"
-    let body' ← Sym.instantiateRevBetaS body #[val]
-    let prog ← mkAppRevS body' appArgs
-    return some (scope, [← replaceProgDefEq goal info prog])
-  else
-    trace[Elab.Tactic.Do.vcgen] "let-hoist: {name}"
-    let prog ← mkAppRevS body appArgs
-    let wp ← mkAppNS info.head <| info.args.set! 7 prog
-    let rhs ← mkAppNS wp info.excessArgs
-    let target ← goal.getType
-    let relArgs := target.getAppArgs
-    let target ← mkAppNS target.getAppFn (relArgs.set! (relArgs.size - 1) rhs)
-    let target := Expr.letE name type val target nondep
-    let goal ← goal.replaceTargetDefEqFast target
-    let name ← if isProgramName name then pure name else Meta.mkFreshBinderNameForTactic name
-    let .goal decls goal' ← Sym.intros goal #[name]
-      | throwError "Failed to intro the `let` of{indentExpr info.prog}"
+  let mkRhs body := do
+    let wp ← mkAppNS info.head <| info.args.set! 7 (← mkAppRevS body appArgs)
+    mkAppNS wp info.excessArgs
+  match ← letStep goal name type val body nondep mkRhs with
+  | .zeta goal => return some (scope, [goal])
+  | .hoist jp goal =>
     if appArgs.isEmpty then
-      if let some r ← registerJoinPoint scope goal' decls[0]! val info then
+      if let some r ← registerJoinPoint scope goal jp val info then
         return some r
-    return some (scope, [goal'])
+    return some (scope, [goal])
+
+/-- Strategy 6: substitute or introduce a `let` or `have` at the head of the right-hand side of
+`pre ⊑ rhs`, as `wpLet?` does for the program. A spec precondition `fun s => have v := e s; P v s`
+gives such a right-hand side. -/
+def rhsLet? (goal : MVarId) (rhs : Expr) : VCGenM (Option MVarId) := do
+  let .letE name type val body nondep := rhs | return none
+  match ← letStep goal name type (← reduceHead val) body nondep pure with
+  | .zeta goal | .hoist _ goal => return some goal
 
 /-- Strategy 11b: fold the state arguments of the program's `wp` application, so the symbolic
 state a spec application threads through the goal is normalized as it is produced rather than left
@@ -618,7 +631,7 @@ public def solve (scope : Scope) (goal : MVarId) : VCGenM SolveResult := goal.wi
 
   -- Phase 3: shape the `rhs` (decompose a lattice connective or a forall, then discharge a
   -- residual entailment against the lifted hypothesis).
-  if let some g ← rhsLetZeta? goal target rhs then return .goals scope [g]
+  if let some g ← rhsLet? goal rhs then return .goals scope [g]
   if let some gs ← splitLatticeOp? goal rhs then return .goals scope gs
   if let some gs ← splitForallLe? goal rhs then return .goals scope gs
   if let some gs ← liftedHyp? scope goal α pre rhs then return .goals scope gs

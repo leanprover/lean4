@@ -100,12 +100,10 @@ section Utils
 
   /-- Error message for requests to the worker for `uri` that crashed with `exitCode`. -/
   def workerCrashedMessage (uri : DocumentUri) (exitCode : UInt32) : String :=
-    let cause :=
-      if exitCode = 1 then
-        "see stderr for exception"
-      else
-        "likely due to a stack overflow or a bug"
-    s!"Server process for {uri} crashed, {cause}."
+    match exitCode with
+    | 0 => s!"Server process for {uri} exited unexpectedly."
+    | 1 => s!"Server process for {uri} crashed, see stderr for exception."
+    | _ => s!"Server process for {uri} crashed, likely due to a stack overflow or a bug."
 
   def parseParams (paramType : Type) [FromJson paramType] (params : Json) : IO paramType :=
     match fromJson? params with
@@ -785,8 +783,9 @@ section ServerM
             -- On Windows, we instead rely on elan doing this.
             try fw.proc.kill catch _ => pure ()
             -- TODO: Wait for process group to finish
+            -- Exit code 0 also counts as a crash: the watchdog stops listening to a worker before it
+            -- sends `exit`, so a worker that exits with code 0 here did so on its own.
             match exitCode with
-              | 0 => return .terminated
               | 2 => return .importsChanged
               | _ => return .crashed exitCode
         let .ok metaData := parseMessageMetaData msg
@@ -894,21 +893,27 @@ section ServerM
     updateFileWorkers fw
     let commTask ← forwardMessages fw
     let fw : FileWorker := { fw with commTask? := some commTask }
-    fw.stdin.writeLspRequest ⟨0, "initialize", st.initParams⟩
-    fw.stdin.writeLspNotification {
-      method := "textDocument/didOpen"
-      param  := {
-        textDocument := {
-          uri        := m.uri
-          languageId := "lean"
-          version    := m.version
-          text       := m.text.source
-        }
-        dependencyBuildMode? := initialDependencyBuildMode
-        : LeanDidOpenTextDocumentParams
-      }
-    }
+    -- The main loop only notices that the worker exits if `commTask?` is set.
     updateFileWorkers fw
+    try
+      fw.stdin.writeLspRequest ⟨0, "initialize", st.initParams⟩
+      fw.stdin.writeLspNotification {
+        method := "textDocument/didOpen"
+        param  := {
+          textDocument := {
+            uri        := m.uri
+            languageId := "lean"
+            version    := m.version
+            text       := m.text.source
+          }
+          dependencyBuildMode? := initialDependencyBuildMode
+          : LeanDidOpenTextDocumentParams
+        }
+      }
+    catch _ =>
+      -- Writing fails when the worker has exited. `commTask` then reports the exit to the main loop.
+      setWorkerState fw .cannotWrite
+      return
     let reqQueue ← st.requestData.getRequestQueue m.uri
     for (_, msg) in reqQueue do
       try

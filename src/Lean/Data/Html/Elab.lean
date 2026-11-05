@@ -129,7 +129,9 @@ elab_rules : term
 
 /-! # Display Command -/
 
-/-- {lit}`#html e` evaluates the {name}`Html` value {lit}`e` and renders it in the infoview.
+/-- {lit}`#html e` evaluates the HTML value {lit}`e` and renders it in the infoview.
+{lit}`e` must have a type supported by some `#html` elaborator:
+core Lean supports {name}`Lean.Html`, whereas other packages may support custom HTML types.
 
 This command behaves similarly to {lit}`#eval`;
 {lit}`e` may also be a computation in any monad supported by {lit}`#eval`, e.g. {lean}`IO Html`. -/
@@ -143,7 +145,10 @@ where
   mkMessageData (h : Expr) : MetaM Expr := do
     let ty ← inferType h
     unless ← isDefEq ty (mkConst ``Html) do
-      throwError "Expected a value of type `{.ofConstName ``Html}`, but got{indentExpr ty}"
+      -- Downstream code can register custom elaborators for `#html`.
+      -- This elaborator is tried last, so here we know that no other elaborator matched.
+      throwError "`#html` does not support values of type{indentExpr ty}\n\
+      Expected `{.ofConstName ``Html}`, or a type supported by another `#html` elaborator."
     return mkApp (mkConst ``Html.toMessageData) h
 
 end Lean.Elab.Html

@@ -227,32 +227,38 @@ unsafe def elabEvalCoreUnsafe (bang : Bool) (tk term : Syntax) (expectedType? : 
       let r ← toMessageData <$> evalConst t declName (checkMeta := !Elab.inServer.get (← getOptions))
       return { eval := pure r, printVal := some (← inferType e) }
   let (output, exOrRes) ← IO.FS.withIsolatedStreams (isolateStderr := Core.stderrAsMessages.get (← getOptions)) do
+    -- Generate an action without executing it. We use `withoutModifyingEnv` to ensure
+    -- we don't pollute the environment with auxiliary declarations.
+    let act : EvalAction ← try
+      withoutModifyingEnv <| runTermElabM fun _ => do
+      Term.withDeclName (mkPrivateName (← getEnv) declName) do
+      withSaveInfoContext do -- save the environment post-elaboration (for matchers, let rec, etc.)
+        let e ← elabTermForEval term expectedType?
+        -- If there is an elaboration error, don't evaluate!
+        if e.hasSyntheticSorry then throwAbortTerm
+        if e.hasFVar then
+          let fvarIds := (Lean.collectFVars {} e).fvarIds
+          let fvarMsg := MessageData.andList (fvarIds.map fun fvarId => m!"`{Expr.fvar fvarId}`").toList
+          throwError m!"Cannot evaluate, contains free variable{fvarIds.size.plural} {fvarMsg}"
+        -- We want `#eval` to work even in the core library, so if `ofFormat` isn't available,
+        -- we fall back on a `Format`-based approach.
+        if (← getEnv).contains ``Lean.MessageData.ofFormat then
+          -- Safety: ensure that `mkMessage` yields a `MessageData`.
+          let mkCheckedMessage (x : Expr) : MetaM Expr := do
+            let msg ← mkMessage x
+            let expectedType := mkConst ``MessageData
+            let msgType ← inferType msg
+            unless ← isDefEq msgType expectedType do
+              Term.throwTypeMismatchError none expectedType msgType msg
+            return msg
+          mkAct id mkCheckedMessage e
+        else
+          mkAct Lean.MessageData.ofFormat (mkFormat ·) e
+      catch ex =>
+        if let .internal id _ := ex then
+          if id == unsupportedSyntaxExceptionId then throw ex
+        return Sum.inl ex
     try
-      -- Generate an action without executing it. We use `withoutModifyingEnv` to ensure
-      -- we don't pollute the environment with auxiliary declarations.
-      let act : EvalAction ← withoutModifyingEnv <| runTermElabM fun _ => do Term.withDeclName (mkPrivateName (← getEnv) declName) do
-        withSaveInfoContext do -- save the environment post-elaboration (for matchers, let rec, etc.)
-          let e ← elabTermForEval term expectedType?
-          -- If there is an elaboration error, don't evaluate!
-          if e.hasSyntheticSorry then throwAbortTerm
-          if e.hasFVar then
-            let fvarIds := (Lean.collectFVars {} e).fvarIds
-            let fvarMsg := MessageData.andList (fvarIds.map fun fvarId => m!"`{Expr.fvar fvarId}`").toList
-            throwError m!"Cannot evaluate, contains free variable{fvarIds.size.plural} {fvarMsg}"
-          -- We want `#eval` to work even in the core library, so if `ofFormat` isn't available,
-          -- we fall back on a `Format`-based approach.
-          if (← getEnv).contains ``Lean.MessageData.ofFormat then
-            -- Safety: ensure that `mkMessage` yields a `MessageData`.
-            let mkCheckedMessage (x : Expr) : MetaM Expr := do
-              let msg ← mkMessage x
-              let expectedType := mkConst ``MessageData
-              let msgType ← inferType msg
-              unless ← isDefEq msgType expectedType do
-                Term.throwTypeMismatchError none expectedType msgType msg
-              return msg
-            mkAct id mkCheckedMessage e
-          else
-            mkAct Lean.MessageData.ofFormat (mkFormat ·) e
       let res ← act.eval
       return Sum.inr (res, act.printVal)
     catch ex =>
@@ -278,6 +284,8 @@ and `m` lifts to one of `CommandElabM`, `TermElabM`, `MetaM`, `CoreM` or `IO` th
 The resulting message is evaluated and logged at `tk`.
 
 Evaluation is aborted if `e` depends on `sorryAx` and `bang` is not set.
+
+`mkMessage` may `throwUnsupportedSyntax` to signal that other elaborators should be attempted.
 
 When `e` is a monadic action, `α ≡ Unit`, and `silenceUnit` is set,
 `mkMessage` is skipped and no message is shown.

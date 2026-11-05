@@ -35,15 +35,17 @@ instance : MonadEval M IO where
 /-! # Errors -/
 
 /--
-error: Expected a value of type `Html`, but got
+error: `#html` does not support values of type
   String
+Expected `Html`, or a type supported by another `#html` elaborator.
 -/
 #guard_msgs in
 #html "not html"
 
 /--
-error: Expected a value of type `Html`, but got
+error: `#html` does not support values of type
   Unit
+Expected `Html`, or a type supported by another `#html` elaborator.
 -/
 #guard_msgs in
 #html (pure () : IO Unit)

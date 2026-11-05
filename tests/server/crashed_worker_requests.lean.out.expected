@@ -1,0 +1,3 @@
+request pending during the crash: error -32902: Server process for file:///crash.lean crashed, see stderr for exception.
+request after the crash: error -32902: Server process for file:///crash.lean crashed, see stderr for exception.
+request after the restart: result

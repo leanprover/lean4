@@ -6069,9 +6069,10 @@ scope is fresh.
 /-- Run `x` with an incremented recursion depth counter. -/
 @[inline] def withIncRecDepth {α} (ref : Syntax) (x : MacroM α) : MacroM α :=
   bind read fun ctx =>
-  match beq ctx.currRecDepth ctx.maxRecDepth with
-  | true  => throw (Exception.error ref maxRecDepthErrorMessage)
-  | false => withReader (fun ctx => { ctx with currRecDepth := hAdd ctx.currRecDepth 1 }) x
+  -- `maxRecDepth = 0` means no limit
+  match beq ctx.maxRecDepth 0, beq ctx.currRecDepth ctx.maxRecDepth with
+  | false, true => throw (Exception.error ref maxRecDepthErrorMessage)
+  | _,     _    => withReader (fun ctx => { ctx with currRecDepth := hAdd ctx.currRecDepth 1 }) x
 
 instance : MonadQuotation MacroM where
   getCurrMacroScope ctx := pure ctx.currMacroScope

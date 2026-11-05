@@ -837,8 +837,10 @@ end Core
 
 export Core (CoreM mkFreshUserName checkSystem withCurrHeartbeats)
 
+/-- Runs a computation with `maxRecDepth` raised to at least `max`, keeping `0` (unlimited) unchanged. -/
 @[inline] def withAtLeastMaxRecDepth [MonadFunctorT CoreM m] (max : Nat) : m α → m α :=
-  monadMap (m := CoreM) <| withReader (fun ctx => { ctx with maxRecDepth := Nat.max max ctx.maxRecDepth })
+  monadMap (m := CoreM) <| withReader fun ctx =>
+    if ctx.maxRecDepth == 0 || max ≤ ctx.maxRecDepth then ctx else { ctx with maxRecDepth := max }
 
 /--
 Runs the given computation with the option `name` set to `v`. Unlike `withOptions`, this is allowed

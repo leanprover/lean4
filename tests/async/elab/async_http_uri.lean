@@ -207,6 +207,7 @@ info: some " "
 #eval parseCheck "https://api.example.com:443/v1/users?limit=10"
 #eval parseCheck "http://[2001:db8::1]:8080/path"
 #eval parseCheck "https://xn--nxasmq6b.xn--o3cw4h/path"
+#eval parseCheck "http://exa_mple.com/path"
 #eval parseCheck "localhost:65535"
 #eval parseCheck "http:80"
 #eval parseCheck "https://user:pass@secure.example.com/private"
@@ -262,7 +263,7 @@ info: some " "
 #eval parseCheckFail ""
 #eval parseCheckFail "[::1"
 #eval parseCheckFail "[:::1]:80"
-#eval parseCheckFail "http://exa_mple.com/path"
+#eval parseCheckFail "http://-example.com/path"
 #eval parseCheckFail "http://[fe80::1%25eth0]/path"
 #eval parseCheckFail "#frag"
 #eval parseCheckFail "/path/\n"
@@ -506,8 +507,10 @@ info: /a/b
 #guard_msgs in
 #eval IO.println <| toString (URI.parse! "http://example.com/a/./b").path.normalize
 
+-- RFC 3986 §5.2.4 step 2B replaces a trailing `/..` with `/`, so the result still names a
+-- collection.
 /--
-info: /a
+info: /a/
 -/
 #guard_msgs in
 #eval IO.println (URI.parse! "http://example.com/a/b/..").path.normalize
@@ -548,8 +551,9 @@ info: /
 #guard_msgs in
 #eval IO.println (URI.parse! "http://example.com/../../../").path.normalize
 
+-- Likewise for a trailing `/.` (RFC 3986 §5.2.4 step 2C).
 /--
-info: /a/b/c
+info: /a/b/c/
 -/
 #guard_msgs in
 #eval IO.println (URI.parse! "http://example.com/./a/./b/./c/.").path.normalize
@@ -1017,10 +1021,14 @@ info: Std.Http.RequestTarget.absoluteForm
   | .ok result => result.query.size == 2
   | .error _ => false
 
--- parseQuery uses `split '='` instead of `splitOn "="`.
--- A pair containing more than one unencoded `=` must be rejected because the
--- three-element split falls into the error branch.
-#eval parseCheckFail "/path?key=a=b"
+-- A value may contain an unencoded `=`: the name ends at the first `=` (#16021).
+/--
+info: some (some "a=b")
+-/
+#guard_msgs in
+#eval show IO _ from do
+  let result ← runParser parseRequestTarget "/path?key=a=b"
+  IO.println (repr (result.query.find? "key"))
 
 -- A percent-encoded `=` in the value is fine; `%3D` is preserved as-is in
 -- the EncodedQueryParam.
@@ -1073,4 +1081,98 @@ info: some (some "a%3Db")
 #guard
   match URIReference.parse? "#frag" with
   | some (.relative ref) => ref.query.isNone && toString (URIReference.parse! "#frag") == "#frag"
+  | _ => false
+
+-- ============================================================================
+-- Hosts
+-- ============================================================================
+
+private def hostOf (s : String) : Option URI.Host :=
+  (URI.parse? s).bind (·.host?)
+
+-- A percent-encoded registered name is decoded (RFC 3986 §3.2.2, §6.2.2.2).
+#guard (hostOf "http://ex%41mple.com/").map toString == some "example.com"
+
+-- The host is an IPv4 address only when the whole decoded host is one, so a percent-encoded address
+-- is that address, and printing it and parsing it again gives the same host.
+#guard
+  match hostOf "http://127.0.0.%31/" with
+  | some (.ipv4 addr) => toString addr == "127.0.0.1"
+  | _ => false
+
+#guard
+  match URI.parse? "http://%31%32%37.0.0.1/" with
+  | some u => (URI.parse? (toString u)).bind (·.host?) == u.host?
+  | none => false
+
+-- `_` is a reg-name character; container service names use it. A dotted quad followed by `_svc` is
+-- a name, not an address with trailing bytes.
+#guard (hostOf "http://_svc.local/").map toString == some "_svc.local"
+#guard
+  match hostOf "http://10.0.0.1_svc/" with
+  | some (.name n) => toString n == "10.0.0.1_svc"
+  | _ => false
+
+-- A fully qualified name ends in a single `.`, which adds no label.
+#guard (URI.DomainName.ofString? "example.com.").isSome
+#guard (hostOf "http://example.com./").map toString == some "example.com."
+#guard (URI.DomainName.ofString? "example.com..").isNone
+
+-- The system resolver reads a name whose last label is a number as an IPv4 address in shorthand
+-- (`127.1` is `127.0.0.1`), so such a name is not a domain name.
+#eval show IO Unit from do
+  for host in ["127.1", "2130706433", "0x7f.0.0.1", "1.2.3", "example.0x1F", "127.1."] do
+    if let some u := URI.parse? s!"http://{host}/" then
+      throw <| IO.userError s!"http://{host}/ parsed with host {repr u.host?}"
+    if (URI.DomainName.ofString? host).isSome then
+      throw <| IO.userError s!"{host} is accepted as a domain name"
+  for host in ["1.example", "example.com1", "a.b1c", "0x1g"] do
+    unless hostOf s!"http://{host}/" matches some (.name _) do
+      throw <| IO.userError s!"http://{host}/ does not parse with a domain name host"
+
+-- ============================================================================
+-- Request targets and references
+-- ============================================================================
+
+-- RFC 9112 §3.2.1: an origin-form target is never empty, even for a URI with no path.
+#guard toString (URI.parse! "http://example.com").originTarget == "/"
+#guard toString (URI.parse! "http://example.com?q=1").originTarget == "/?q=1"
+
+-- A name containing `=` is percent-encoded, so it still reads back as the name.
+#guard toString (URI.EncodedQueryParam.encode "a=b") == "a%3Db"
+#guard
+  let uri := URI.Builder.empty
+    |>.setScheme! "http" |>.setHost! "example.com" |>.addQueryParam "k=1" "v=2" |>.build
+  ((URI.parse? (toString uri)).bind (·.query)).bind (·.get "k=1") == some "v=2"
+
+-- Without an authority a path cannot begin with `//` (RFC 3986 §3.3); `http:////evil.com/x` would
+-- otherwise print as `http://evil.com/x`, naming another host.
+#guard (URI.parse? "http:////evil.com/x").isNone
+
+-- RFC 9110 §4.2.1: an http(s) request target with an empty host is rejected.
+#eval parseCheckFail "http:///x"
+#eval parseCheckFail "https:///x?q"
+#eval parseCheckFail "http:////evil.com/x"
+#guard (RequestTarget.parse? "file:///etc/passwd").isSome
+
+-- A reference that starts with `//` has an authority; it is never read as a path when the
+-- authority does not parse.
+#guard (URIReference.parse? "//a:b/x").isNone
+#guard (URIReference.parse? "//a:1/x").isSome
+
+-- RFC 3986 §4.2: the first segment of a relative path cannot contain `:`, or it would read as a
+-- scheme.
+#guard (URIReference.parse? "1:b").isNone
+#guard (URIReference.parse? "./1:b").isSome
+#guard (URIReference.parse? "a/1:b").isSome
+
+-- A fragment whose decoded bytes are not UTF-8 is kept, with U+FFFD for the invalid bytes.
+#guard (URI.parse? "http://example.com/#caf%E9").bind (·.fragment) == some "caf�"
+#guard
+  match URIReference.parse? "/x#caf%E9" with
+  | some (.relative ref) => ref.fragment == some "caf�"
+  | _ => false
+#guard
+  match URIReference.parse? "http://example.com/#caf%E9" with
+  | some (.absolute uri) => uri.fragment == some "caf�"
   | _ => false

@@ -149,7 +149,11 @@ end UserInfo
 
 /--
 Checks whether a single domain label is valid. A label must be non-empty, contain only ASCII
-alphanumeric characters and `-`, cannot start or end with `-`, and must be at most 63 characters.
+alphanumeric characters, `-` and `_`, cannot start or end with `-`, and must be at most 63
+characters.
+
+`_` is outside the RFC 1123 host-name syntax but is an RFC 3986 reg-name character, and names such as
+container service names use it.
 
 References:
 * https://www.rfc-editor.org/rfc/rfc1034.html#section-3.5
@@ -158,22 +162,39 @@ References:
 def isValidDomainLabel (s : String) : Bool :=
   let chars := s.toList
   decide (chars.length ≤ 63) &&
-    chars.all (fun c => isAsciiAlphaNumChar c ∨ c = '-') &&
-    (chars.head?.map isAsciiAlphaNumChar |>.getD false) &&
-    (chars.getLast?.map isAsciiAlphaNumChar |>.getD false)
+    chars.all (fun c => isAsciiAlphaNumChar c ∨ c = '-' ∨ c = '_') &&
+    (chars.head?.map (· != '-') |>.getD false) &&
+    (chars.getLast?.map (· != '-') |>.getD false)
+
+/--
+Checks whether the last label of a dot-separated name is a number: decimal digits, or `0x` followed
+by hex digits. The system resolver reads such a name as an IPv4 address in shorthand (`127.1`,
+`2130706433`, `0x7f.0.0.1`), so it cannot be a domain name.
+
+Reference: https://url.spec.whatwg.org/#ends-in-a-number-checker
+-/
+def endsInNumber (s : String) : Bool :=
+  let last := (((s.dropSuffix? ".").map (·.copy) |>.getD s).toList.reverse.takeWhile (· != '.')).reverse
+  match last with
+  | '0' :: x :: hex => (x == 'x' || x == 'X') && hex.all Char.isHexDigit || (x :: hex).all Char.isDigit
+  | digits => !digits.isEmpty && digits.all Char.isDigit
 
 /--
 Proposition that asserts `s` is a valid dot-separated domain name.
-Each label must satisfy `IsValidDomainLabel`, and the full name must be at most 255 characters.
+Each label must satisfy `IsValidDomainLabel`, the last label must not be a number (see
+`endsInNumber`), and the full name must be at most 255 characters.
+A single trailing `.` (a fully qualified name such as `example.com.`) adds no label.
 -/
 abbrev IsValidDomainName (s : String) : Prop :=
-  let labels := s.split '.'
-  ¬labels.isEmpty ∧ labels.all (fun s => isValidDomainLabel s.copy) ∧ s.length ≤ 255
+  let labels := ((s.dropSuffix? ".").map (·.copy) |>.getD s).split '.'
+  ¬labels.isEmpty ∧ labels.all (fun s => isValidDomainLabel s.copy) ∧ ¬endsInNumber s ∧
+    s.length ≤ 255
 
 /--
 A domain name represented as a validated, lowercase-normalized string.
-Only ASCII alphanumeric characters, hyphens, and dots are allowed.
-Each label cannot start or end with `-` and is limited to 63 characters.
+Only ASCII alphanumeric characters, `-`, `_` and dots are allowed.
+Each label cannot start or end with `-` and is limited to 63 characters, and the last label cannot be
+a number.
 Internationalized domain names must be converted to punycode before use.
 
 Reference: https://www.rfc-editor.org/rfc/rfc3986.html#section-3.2.2
@@ -184,8 +205,8 @@ namespace DomainName
 
 /--
 Attempts to create a normalized domain name from a string.
-Returns `none` if the name is empty, longer than 255 characters, or any label violates DNS label
-constraints.
+Returns `none` if the name is empty, longer than 255 characters, ends in a numeric label, or any label
+violates DNS label constraints.
 -/
 def ofString? (s : String) : Option DomainName :=
   let lower := s.toLower
@@ -360,17 +381,21 @@ Removes dot segments from the path according to RFC 3986 Section 5.2.4. This han
 (current directory) and ".." (parent directory) segments.
 -/
 def normalize (p : Path) : Path :=
+  -- A final "." or ".." leaves an empty segment behind (RFC 3986 §5.2.4, steps 2B and 2C), so the
+  -- path still ends in "/": `/a/b/..` is `/a/`, not `/a`.
   let rec loop (input : List (EncodedSegment)) (output : List (EncodedSegment)) : List (EncodedSegment) :=
     match input with
     | [] =>
       output.reverse
     | segStr :: rest =>
+      let keepTrailingSlash (output : List EncodedSegment) : List EncodedSegment :=
+        if rest.isEmpty then EncodedSegment.encode "" :: output else output
       if toString segStr == "." then
-        loop rest output
+        loop rest (keepTrailingSlash output)
       else if toString segStr == ".." then
         match output with
-        | [] => loop rest []
-        | _ :: tail => loop rest tail
+        | [] => loop rest (keepTrailingSlash [])
+        | _ :: tail => loop rest (keepTrailingSlash tail)
       else
         loop rest (segStr :: output)
 
@@ -703,8 +728,9 @@ def setUserInfo (b : Builder) (username : String) (password : Option String := n
 /--
 Sets the host as a domain name, returning `none` if the name contains invalid characters.
 The domain name will be automatically lowercased.
-Only ASCII alphanumeric characters, hyphens, and dots are allowed.
-Each label cannot start or end with `-` and is limited to 63 characters.
+Only ASCII alphanumeric characters, `-`, `_` and dots are allowed.
+Each label cannot start or end with `-` and is limited to 63 characters, and the last label cannot be
+a number (`127.1` is refused; use `setHostIPv4` for an address).
 Internationalized domain names must be converted to punycode before use.
 -/
 def setHost? (b : Builder) (name : String) : Option Builder :=
@@ -713,8 +739,9 @@ def setHost? (b : Builder) (name : String) : Option Builder :=
 /--
 Sets the host as a domain name, panicking if the name contains invalid characters.
 The domain name will be automatically lowercased.
-Only ASCII alphanumeric characters, hyphens, and dots are allowed.
-Each label cannot start or end with `-` and is limited to 63 characters.
+Only ASCII alphanumeric characters, `-`, `_` and dots are allowed.
+Each label cannot start or end with `-` and is limited to 63 characters, and the last label cannot be
+a number (`127.1` is refused; use `setHostIPv4` for an address).
 Internationalized domain names must be converted to punycode before use.
 -/
 def setHost! (b : Builder) (name : String) : Builder :=
@@ -1029,7 +1056,10 @@ def authority? : RequestTarget → Option URI.Authority
 instance : ToString RequestTarget where
   toString
     | .originForm path query =>
+        -- RFC 9112 §3.2.1: a client sends `/` when the target URI's path is empty, as in the target
+        -- of `http://example.com`.
         let pathStr := toString path
+        let pathStr := if pathStr.isEmpty then "/" else pathStr
         let queryStr := URI.Query.formatOption query
         s!"{pathStr}{queryStr}"
     | .absoluteForm uri => toString uri

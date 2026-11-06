@@ -55,7 +55,8 @@ reserved name. Constants with reserved names, such as equational theorems, may b
 modules.
 -/
 public def isOwned (env : Environment) (n : Name) : Bool :=
-  (env.getModuleIdxFor? n).isNone && !isReservedName env n
+  -- consult the private view, which `ImportedDeclMap.ofModules` looks names up in
+  ((env.setExporting false).getModuleIdxFor? n).isNone && !isReservedName env n
 
 /--
 Sorts the entries a module owns by key, keeping the last entry of each key, and returns their keys

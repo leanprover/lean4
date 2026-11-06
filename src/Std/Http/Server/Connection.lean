@@ -9,6 +9,7 @@ prelude
 public import Std.Async.TCP
 public import Std.Async.ContextAsync
 public import Std.Http.Transport
+public import Std.Http.Transport.Outbox
 public import Std.Http.Protocol.H1
 public import Std.Http.Server.Config
 public import Std.Http.Server.Handler
@@ -21,6 +22,7 @@ namespace Server
 
 open Std Async TCP Protocol
 open Time
+open Internal (Outbox)
 
 /-!
 # Connection
@@ -75,6 +77,7 @@ private inductive Recv (β : Type)
   | bodyInterest (x : Bool)
   | response (x : (Except IO.Error (Response β)))
   | timeout
+  | keepAliveTimeout
   | shutdown
   | close
 
@@ -125,7 +128,7 @@ private def pollNextEvent
       else
         selectables := selectables.push (.case (← Selector.sleep sources.timeout) (fun _ => pure .timeout))
     else
-      selectables := selectables.push (.case (← Selector.sleep sources.timeout) (fun _ => pure .close))
+      selectables := selectables.push (.case (← Selector.sleep sources.timeout) (fun _ => pure .keepAliveTimeout))
 
   if let some responseBody := sources.responseBody then
     selectables := selectables.push (.case (Body.recvSelector responseBody) (Recv.responseBody · |> pure))
@@ -398,7 +401,7 @@ private def handleRecvEvent
     else
       return (state, false)
 
-  | .close => return (state, true)
+  | .close | .keepAliveTimeout => return (state, true)
 
   | .timeout =>
     Handler.onFailure handler "request header timeout"
@@ -470,9 +473,26 @@ private def buildPollSources
   }
 
 /--
+Whether processing `event` may run handler code that must not run after an earlier write failed:
+the handler of a request with an unsafe method, or `Handler.onContinue`. Pipelined requests with
+safe methods may be processed before the earlier responses are written (RFC 9112 §9.3.2).
+-/
+private def needsWrittenOutput : H1.Event .receiving → Bool
+  | .endHeaders head => !head.method.isSafe
+  | .«continue» => true
+  | _ => false
+
+/--
+Reports a failed write of `outbox` to the handler, once.
+-/
+private def reportWriteFailure [Handler σ] (handler : σ) (outbox : Outbox α) : Async Unit := do
+  if let some err ← outbox.takeError? then
+    Handler.onFailure handler err
+
+/--
 Runs the main request/response processing loop for a single connection.
 Drives the HTTP/1.1 state machine through four phases each iteration:
-send buffered output, process H1 events, dispatch pending requests, poll for I/O.
+hand output to the outbox, process H1 events, dispatch pending requests, poll for I/O.
 -/
 private def handle
     {σ : Type} [Transport α] [h : Handler σ]
@@ -500,16 +520,21 @@ private def handle
     pendingHead := none
   }
 
+  let outbox ← Outbox.new socket
+
   while ¬state.machine.halted do
 
-    -- Phase 1: advance the state machine and flush any output.
+    -- Phase 1: advance the state machine and hand its output to the outbox.
     let (newMachine, step) := state.machine.step
     state := { state with machine := newMachine }
 
-    if step.output.size > 0 then
-      try Transport.sendAll socket step.output.data
-      catch e =>
-        Handler.onFailure handler e
+    unless ← outbox.push step.output do
+      reportWriteFailure handler outbox
+      break
+
+    if step.events.any needsWrittenOutput then
+      unless ← outbox.awaitWritten do
+        reportWriteFailure handler outbox
         break
 
     -- Phase 2: process all events emitted by this step.
@@ -523,17 +548,25 @@ private def handle
       state := { state with requiresData := false }
       let sources ← buildPollSources socket connectionContext state
       let event ← pollNextEvent config handler sources
+      -- The connection is not idle while the peer still reads the response, so the keep-alive
+      -- timeout starts over once the response is written.
+      if event matches .keepAliveTimeout then
+        if ← outbox.writing then
+          outbox.awaitIdle
+          continue
       let (newState, shouldClose) ← handleRecvEvent handler config event state
       state := newState
       if shouldClose then break
 
-  -- Clean up: close all open streams and the socket.
+  -- Clean up: close all open streams, finish writing, and close the socket.
   if ¬(← Body.isClosed state.requestStream) then
     Body.close state.requestStream
 
   if let some res := state.respStream then
     if ¬(← Body.isClosed res) then Body.close res
 
+  outbox.awaitIdle
+  reportWriteFailure handler outbox
   Transport.close socket
 
 end Connection

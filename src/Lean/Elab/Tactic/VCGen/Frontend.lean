@@ -152,7 +152,7 @@ public def mkContext (lemmas : Syntax) (goal : MVarId) (ignoreStarArg := false) 
         catch _ => continue
   let backwardRules ← mkBackwardRules
   let allSpecThms ← addSimpSpecs specThms simpThms
-  let ctx : Context := { backwardRules }
+  let ctx : Context := { backwardRules, rintros := ← getRIntros }
   return (ctx, { specs := allSpecThms })
 
 /-- True iff `m` carries a `WPMonad m _ _` instance, i.e. it is a genuine weakest-precondition monad

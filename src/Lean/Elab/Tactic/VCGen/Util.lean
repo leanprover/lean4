@@ -116,10 +116,9 @@ public def processHypotheses (goal : Grind.Goal) : VCGenM Grind.Goal := do
 public def isProgramName (n : Name) : Bool :=
   !n.hasMacroScopes && !n.isImplementationDetail
 
-/-- The leading binders of `type`, stopping at a binder over a product: `∀ (n : Nat) (p : α × β)`
-counts one, because `solve` splits `p` into one binder per component first. -/
+/-- The number of leading `∀` and `let` binders of `type`. -/
 public def numBindersToIntro : Expr → Nat
-  | .forallE _ d b _ => if d.isAppOf ``Prod then 0 else numBindersToIntro b + 1
+  | .forallE _ _ b _ => numBindersToIntro b + 1
   | .letE _ _ _ b _ => numBindersToIntro b + 1
   | _ => 0
 
@@ -169,9 +168,10 @@ public def simpGoalTelescope (goal : MVarId) : VCGenM Sym.SimpGoalResult := do
 Introduce the excess state arguments of an entailment goal `pre ⊑ rhs` whose lattice type is a
 function type `σ₁ → … → σₙ → α`: repeatedly apply `stateArgIntro` (a backward rule for
 `Lean.Order.le_of_forall_le`) and introduce the new state binder, until the lattice type is
-no longer a function type. Returns `none` when the carrier is not a function type (nothing to
-introduce); throws when the carrier is a function type that `le_of_forall_le` cannot peel, such as a
-dependent function lattice `(a : α) → β a → …`.
+no longer a function type. A state binder that a `@[vcgen_rintro]` rule matches stays in the
+target for `solve` to destructure. Returns `none` when the carrier is not a function type (nothing
+to introduce); throws when the carrier is a function type that `le_of_forall_le` cannot peel, such
+as a dependent function lattice `(a : α) → β a → …`.
 -/
 public partial def introsExcessArgs (goal : MVarId) :
     VCGenM (Option MVarId) := goal.withContext do
@@ -180,6 +180,7 @@ public partial def introsExcessArgs (goal : MVarId) :
   unless α.isForall do return none
   let .goals [goal] ← (← read).backwardRules.stateArgIntro.applyChecked goal
     | throwError "failed to apply {.ofConstName ``Lean.Order.le_of_forall_le} to goal{indentExpr type}"
+  unless (Sym.getMatch (← getMCtx) (← read).rintros (← goal.getType)).isEmpty do return some goal
   let goal ← introsHygienic goal
   return (← introsExcessArgs goal) <|> some goal
 

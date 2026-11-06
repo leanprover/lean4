@@ -96,5 +96,17 @@ public def mkFrameBackwardRuleCached (fp : FrameProc) (info : WPApp) :
   modify fun st => { st with frameBackwardRuleCache := st.frameBackwardRuleCache.insert key frule }
   return frule
 
+/--
+Cached construction of the backward rule of the `@[vcgen_rintro]` rule `e`. The rule abstracts
+the `e.numPremises` premises and matches the conclusion of `e`.
+
+Cache key: the declaration name of `e`.
+-/
+public def mkBackwardRuleForRIntroCached (e : RIntroEntry) : VCGenM BackwardRule := do
+  if let some rule := (← get).rintroBackwardRuleCache[e.declName]? then return rule
+  let rule ← (← liftMetaM <| mkBackwardRuleFromDecl e.declName (some e.numPremises)).shareCommon
+  modify fun st => { st with rintroBackwardRuleCache := st.rintroBackwardRuleCache.insert e.declName rule }
+  return rule
+
 
 end Lean.Elab.Tactic.VCGen

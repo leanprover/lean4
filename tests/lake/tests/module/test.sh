@@ -192,5 +192,72 @@ test_out "Built Test.NonModule.Import" build Test.NonModule.Import -v
 # should trigger a rebuild for a non-module transitive import
 test_out "Built Test.NonModule.ImportModuleImport" build Test.NonModule.ImportModuleImport -v
 
+# Tests whether multiple imports of the same module result in duplicate code.
+echo "# TEST: Duplicate C initialisation deduplication"
+check_no_duplicate_decls() {
+  local pattern=$1
+  local desc=$2
+  local file=$3
+  local dups=$(awk "$pattern" "$file" | sort | uniq -d)
+  if [ -n "$dups" ]; then
+    echo "FAILURE: Found duplicate $desc in$file:"
+    echo "$dups"
+    return 1
+  fi
+}
+check_no_duplicate_calls_in_body() {
+  local file=$1
+  # Use an awk state machine to check for duplicates ONLY within the same function body.
+  local dups
+  dups=$(awk '
+    # When entering an initialization function, enable tracking and clear the seen array
+    /^LEAN_EXPORT lean_object\*/ {
+      in_fn = 1
+      fn_name = $3
+      sub(/\(.*/, "", fn_name) # Strip the `(uint8_t` parameter list
+      split("", seen_calls)
+      printed_fn = 0
+      next
+    }
+
+    # When exiting the function, disable tracking
+    /^}/ {
+      in_fn = 0
+      next
+    }
+
+    # If inside a function and we hit a `res = ...` assignment
+    in_fn && /^[[:space:]]*res = [A-Za-z0-9_]+\(builtin\);/ {
+      # Strip leading whitespace for clean matching
+      call = $0
+      sub(/^[[:space:]]+/, "", call)
+
+      # If we have seen this exact call in this function body before, print it
+      if (seen_calls[call]++) {
+        if (!printed_fn) {
+          print ""
+          print "  In function `" fn_name "`:"
+          printed_fn = 1
+        }
+        print "    " call
+      }
+    }
+  ' "$file")
+
+  if [ -n "$dups" ]; then
+    echo "FAILURE: Found duplicate initialization calls within the same function in $file:"
+    echo "$dups"
+    return 1
+  fi
+}
+for mod in "PromoteImport" "PromoteMetaImport"; do
+    CFILE=$(find .lake/build/ir/Test/Module -name "${mod}.c" | head -n1)
+    test_cmd [ -n "$CFILE" ]
+    test_cmd check_no_duplicate_decls '/^lean_object\* [A-Za-z0-9_]+\(uint8_t builtin\);/{print}' "\`lean_object*\` declarations" "$CFILE"
+    test_cmd check_no_duplicate_decls '/^void [A-Za-z0-9_]+\(\);/{print}' "\`void\` declarations" "$CFILE"
+    test_cmd check_no_duplicate_decls '/^LEAN_EXPORT lean_object\* [A-Za-z0-9_]+\(uint8_t builtin\) \{/{print}' "initialization definitions" "$CFILE"
+    test_cmd check_no_duplicate_calls_in_body "$CFILE"
+done
+
 # Cleanup
 rm -f produced*

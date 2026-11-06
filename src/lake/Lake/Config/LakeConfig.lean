@@ -14,42 +14,29 @@ open System Lean
 
 namespace Lake
 
-public inductive CacheServiceKind
-| undef
-| reservoir
-| s3
-deriving Inhabited
-
-@[inline]
-public def CacheServiceKind.ofString? (s : String) : Option CacheServiceKind :=
-  match s with
-  | "reservoir" => some .reservoir
-  | "s3" => some .s3
-  | _ => none
-
-public configuration CacheServiceConfig where
-  name : String := ""
+set_option linter.unusedVariables false in
+public configuration CacheServiceConfig (name : String) where
   kind, type : CacheServiceKind := .undef
   apiEndpoint : String := ""
   artifactEndpoint : String := ""
   revisionEndpoint : String := ""
   deriving Inhabited
 
+public abbrev CacheServiceMap :=  NameMap CacheService
+
 public configuration CacheConfig where
   defaultService : String := ""
   defaultUploadService : String := ""
-  services @ service : Array CacheServiceConfig := #[]
+  services @ service : CacheServiceMap := {}
   deriving Inhabited
 
 public configuration LakeConfig where
   cache : CacheConfig := ∅
   deriving Inhabited
 
-public abbrev CacheServiceMap := NameMap CacheService
-
 public structure LoadedLakeConfig where
-  config : LakeConfig
+  config : LakeConfig := ∅
   defaultCacheService : CacheService
-  defaultCacheUploadService? : Option CacheService
+  defaultCacheUploadService? : Option CacheService := none
   cacheServices : CacheServiceMap
   deriving Nonempty

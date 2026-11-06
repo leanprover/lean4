@@ -133,7 +133,7 @@ Reference: https://www.rfc-editor.org/rfc/rfc9112#section-6.1
 structure TransferEncoding where
 
   /--
-  The ordered list of transfer codings.
+  The ordered list of transfer coding names, lowercased and without their parameters.
   -/
   codings : Array String
 
@@ -151,16 +151,6 @@ Returns `true` if the transfer encoding ends with chunked.
 -/
 def isChunked (te : TransferEncoding) : Bool :=
   te.codings.back? == some "chunked"
-
-/--
-Parses a comma-separated list of transfer codings from a header value, validating chunked placement.
--/
-def parse (v : Value) : Option TransferEncoding := do
-  let codings ← parseTokenList v
-  if h : TransferEncoding.Validate codings then
-    some ⟨codings, h⟩
-  else
-    none
 
 /--
 Checks a transfer parameter: `token BWS "=" BWS ( token / quoted-string )` (RFC 9112 §7).
@@ -187,6 +177,17 @@ def parseCodings? (v : Value) : Option (Array String) :=
     guard (isToken name && params.all isTransferParameter)
     guard (params.isEmpty || name != "chunked")
     return name
+
+/--
+Parses a comma-separated list of transfer codings from a header value (`parseCodings?`), validating
+chunked placement. Transfer parameters are accepted and dropped.
+-/
+def parse (v : Value) : Option TransferEncoding := do
+  let codings ← parseCodings? v
+  if h : TransferEncoding.Validate codings then
+    some ⟨codings, h⟩
+  else
+    none
 
 /--
 Classifies a `Transfer-Encoding` value by its final coding, which decides how the message is framed

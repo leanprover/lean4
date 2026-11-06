@@ -917,30 +917,36 @@ def suppressOutgoingBody (machine : Machine dir) (forceZero : Bool := false) : M
     { w with omitBody := true, userClosedBody := true, knownSize, userData := #[], userDataBytes := 0 }
 
 /--
-Rejects user-provided framing headers when framing must come from machine state.
--/
-@[inline]
-private def failOnFramingHeaders (machine : Machine dir) (framingInHeaders : Bool) : Machine dir :=
-  if framingInHeaders then
-    failBadMessage machine
-  else
-    machine
-
-/--
-Reconciles explicit machine framing (`knownSize`) with user-provided framing
-headers from `send` and rejects contradictory inputs.
+Reconciles the body length the caller set (`knownSize`) with the framing fields of the message head
+passed to `send`, adopting the fields' length when none was set. Returns `none` when the two
+contradict, or when the fields describe no length.
 -/
 private def reconcileOutgoingFraming (machine : Machine dir)
-    (headerSize : Option Body.Length) (framingInHeaders : Bool) : Machine dir :=
+    (headerSize : Option Body.Length) (framingInHeaders : Bool) : Option (Machine dir) :=
   match machine.writer.knownSize, headerSize with
-  | some explicit, some parsed =>
-    if explicit == parsed then machine else failBadMessage machine
-  | some _, none =>
-    failOnFramingHeaders machine framingInHeaders
-  | none, some parsed =>
-    machine.setKnownSize parsed
-  | none, none =>
-    failOnFramingHeaders machine framingInHeaders
+  | some explicit, some parsed => if explicit == parsed then some machine else none
+  | none, some parsed => some (machine.setKnownSize parsed)
+  | _, none => if framingInHeaders then none else some machine
+
+/--
+Handles a message head that `reconcileOutgoingFraming` rejected. None of that message is written:
+a server answers `500 Internal Server Error` without a body and closes the connection, and a client
+ends the exchange. Both report `.failed .badMessage`, and the machine halts once its output is taken.
+-/
+private def rejectOutgoingFraming (machine : Machine dir) : Machine dir :=
+  let machine := machine
+    |>.addEvent (.failed .badMessage)
+    |>.setError .badMessage
+    |>.disableKeepAlive
+    |>.closeReader
+    |>.setReaderState .closed
+  match dir, machine with
+  | .receiving, machine =>
+    -- `omitBody` makes the connection drop the handler's body instead of draining it.
+    machine.modifyWriter (fun w => { w with
+      messageHead := { status := .internalServerError }, sentMessage := true, state := .waitingForFlush })
+    |>.suppressOutgoingBody (forceZero := true)
+  | .sending, machine => machine.closeWriter
 
 /--
 Marks outgoing bodies as omitted when response semantics (or HEAD method) require
@@ -970,6 +976,17 @@ private def isWriterClosed (machine : Machine dir) : Bool :=
   | _ => false
 
 /--
+Returns `true` when the outgoing message is a response that carries no body: one to a `HEAD`
+request, or one whose status forbids a body.
+-/
+@[inline]
+private def omitsResponseBody (machine : Machine dir) (message : Message.Head dir.swap) : Bool :=
+  match dir with
+  | .receiving =>
+    responseMustNotHaveBody message.status ∨ machine.reader.messageHead.method == .head
+  | .sending => false
+
+/--
 Send the head of a message to the machine.
 
 Must only be called when `machine.isWaitingMessage` is true. If called in any
@@ -979,6 +996,12 @@ Informational (1xx) responses are written directly to the output buffer, or drop
 request is HTTP/1.0; the writer stays in `waitingHeaders` so the application can send additional
 interim responses or the final response. The reader state is not affected — use `canContinue` to
 resolve an `Expect: 100-continue` decision separately.
+
+A head whose `Content-Length` or `Transfer-Encoding` contradicts the length set with
+`setKnownSize`, or describes no length, is not written: a server answers `500 Internal Server
+Error` and closes the connection, and a client ends the exchange, both reporting
+`.failed .badMessage`. A response without a body (to `HEAD`, or a 204 or 304) cannot contradict
+it, and a HEAD response advertises the `Content-Length` of its head.
 -/
 @[inline]
 def send (machine : Machine dir) (message : Message.Head dir.swap) : Machine dir :=
@@ -1007,17 +1030,21 @@ def send (machine : Machine dir) (message : Message.Head dir.swap) : Machine dir
         w with outputData := w.outputData.push (ByteArray.empty ++ message)
       })
   else
-    let hadFailure := machine.failed
-    let machine := machine.modifyWriter ({ · with messageHead := message, sentMessage := true })
     let framingInHeaders := hasFramingHeaders message
     let headerSize := if framingInHeaders then message.getSize false else none
+    let reconciled :=
+      if omitsResponseBody machine message then
+        -- No body goes out, so none can contradict the fields. RFC 9110 §8.6: `Content-Length` on
+        -- a HEAD response is the length a GET would have, which only the handler knows.
+        some (headerSize.elim machine machine.setKnownSize)
+      else
+        reconcileOutgoingFraming machine headerSize framingInHeaders
 
-    let machine := reconcileOutgoingFraming machine headerSize framingInHeaders
-    let machine := maybeSuppressOutgoingBody machine message
-
-    if machine.failed && !hadFailure then
-      machine
-    else
+    match reconciled with
+    | none => rejectOutgoingFraming machine
+    | some machine =>
+      let machine := machine.modifyWriter ({ · with messageHead := message, sentMessage := true })
+      let machine := maybeSuppressOutgoingBody machine message
       match dir, machine with
       | .sending, machine => machine.setWriterState .waitingForFlush |>.setReaderState .needStartLine
       | .receiving, machine => machine.setWriterState .waitingForFlush

@@ -553,15 +553,32 @@ end CacheToolchain
 
 /-! ## Remote Cache Service -/
 
+partial def createArtifactDownloadDir (path : FilePath) : IO FilePath := do
+  let pid ← IO.Process.getPID
+  let nonce ← IO.monoNanosNow
+  let dir := path.addExtension s!"{pid}-{nonce}.tmp"
+  try
+    IO.FS.createDir dir
+    return dir
+  catch
+    | .alreadyExists .. => createArtifactDownloadDir path
+    | e => throw e
+
 /-- **For internal use only.** -/
 public def downloadArtifactCore (hash : Hash) (url : String) (path : FilePath) : LogIO Unit := do
-  download url path
-  let actualHash ← computeFileHash path
-  if actualHash != hash then
-    let errPos ← getLogPos
-    logError s!"{path}: downloaded artifact hash mismatch, got {actualHash}"
-    IO.FS.removeFile path
-    throw errPos
+  createParentDirs path
+  -- `download` removes its destination, so reserve a directory rather than a file.
+  let tmpDir ← createArtifactDownloadDir path
+  let tmp := tmpDir / "artifact"
+  try
+    download url tmp
+    let actualHash ← computeFileHash tmp
+    if actualHash != hash then
+      error s!"{path}: downloaded artifact hash mismatch, got {actualHash}"
+    IO.FS.rename tmp path
+  finally
+    removeFileIfExists tmp
+    IO.FS.removeDir tmpDir
 
 /-- Uploads a file to an online bucket using the Amazon S3 protocol. -/
 def uploadS3

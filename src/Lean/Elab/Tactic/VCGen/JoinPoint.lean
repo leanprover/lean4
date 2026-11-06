@@ -159,13 +159,19 @@ def jumpLocals (jp : JoinPoint) (jump : Jump) : MetaM (Array LocalDecl) := do
   return lctx.foldl (start := start) (init := #[]) fun ds d =>
     if d.isImplementationDetail && d.value?.isNone then ds else ds.push d
 
-/-- `φ` under the local `d`: a `let` for a `let` local, a conjunct `d.type ∧ φ` for a hypothesis
-that `φ` does not depend on, and `∃ d, φ` otherwise. -/
+/-- `φ` under the local `d`: `φ` with the value of `d` in place of `d` for an implementation-detail
+`let` local, a `let` for any other `let` local, a conjunct `d.type ∧ φ` for a hypothesis that `φ`
+does not depend on, and `∃ d, φ` otherwise. -/
 def bindLocal (d : LocalDecl) (φ : Expr) : VCGenM Expr := do
   -- `mkLambdaFVars`/`mkLetFVars` re-scope a metavariable whose local context contains `d`, such as
   -- the invariant of a loop in the branch.
   if d.value?.isSome then
-    return ← mkLetFVars #[d.toExpr] φ (generalizeNondepLet := false)
+    let e ← mkLetFVars #[d.toExpr] φ (usedLetOnly := !d.isImplementationDetail)
+      (generalizeNondepLet := false)
+    if d.isImplementationDetail then
+      let .letE _ _ v b _ := e | throwError "vcgen +jp: expected a `let`{indentExpr e}"
+      return b.instantiate1 v
+    return e
   let lam ← mkLambdaFVars #[d.toExpr] φ
   -- A conjunct needs no instantiation in its proof, where each `∃` copies the rest.
   if (← Sym.inferType d.type).isProp && !lam.bindingBody!.hasLooseBVars then
@@ -248,7 +254,9 @@ partial def mkTrieProof (φ : Expr) (path : List (Nat × Nat)) (locals : List Lo
       return ← mkEqsProof φ
     let d :: locals := locals | throwError "vcgen +jp: missing local for{indentExpr φ}"
     if d.value?.isSome then
-      -- `bindLocal` drops a `let` that the rest of `φ` does not use.
+      -- `bindLocal` substitutes an implementation-detail `let`, and drops a `let` that the rest of
+      -- `φ` does not use.
+      if d.isImplementationDetail then return ← mkTrieProof φ path locals
       let .letE _ _ v b _ := φ | return ← mkTrieProof φ path locals
       return ← mkTrieProof (b.instantiate1 v) path locals
     let w := d.toExpr

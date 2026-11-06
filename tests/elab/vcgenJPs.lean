@@ -351,3 +351,35 @@ example : ⦃fun _ => True⦄ root_match (k + 1) b ⦃fun r => ⌜r > 0⌝⦄ :=
   vcgen +jp [root_match]
   trace_state
   all_goals grind
+
+/-! An implementation-detail `let` such as `__v` stays out of the join point's precondition: the
+jump argument mentions the value of `__v`. -/
+
+def implLet (b : Bool) (n : Nat) : StateM Nat Nat := do
+  let mut x := 0
+  if b then
+    let __v := n + 1
+    x := __v
+  else
+    x := 2
+  return x
+
+/--
+trace: case vc1
+b : Bool
+n s✝ : Nat
+x✝² : PUnit
+x✝¹ x✝ : Nat
+h✝ : b = true ∧ x✝¹ = n + 1 ∧ x✝ = s✝ ∨ ¬b = true ∧ x✝¹ = 2 ∧ x✝ = s✝
+⊢ 0 < x✝¹
+---
+warning: declaration uses `sorry`
+-/
+#guard_msgs in
+example : ⦃ fun _ => True ⦄ implLet b n ⦃ fun r _ => r > 0 ⦄ := by
+  vcgen +jp [implLet]
+  trace_state
+  all_goals sorry
+
+example : ⦃ fun _ => True ⦄ implLet b n ⦃ fun r _ => r > 0 ⦄ := by
+  vcgen +jp [implLet] with finish

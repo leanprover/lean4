@@ -106,9 +106,6 @@ public:
 // Bump when the layout or the meaning of the stored data changes (e.g. the `Expr` hash function),
 // as external tools such as `leantar` reconstruct that data.
 static constexpr uint8_t OLEAN_VERSION = 4;
-// Written by the stage0 compiler: no `data_size` and no sections after the compacted data.
-// TODO: remove after the next stage0 update.
-static constexpr uint8_t OLEAN_VERSION_STAGE0 = 2;
 
 /** On-disk format of a .olean file. */
 struct olean_header {
@@ -467,7 +464,7 @@ extern "C" LEAN_EXPORT object * lean_compacted_region_read(b_obj_arg ofname, b_o
             || memcmp(header.marker, default_header.marker, sizeof(header.marker)) != 0) {
             return io_result_mk_error((sstream() << "failed to read file '" << olean_fn << "', invalid header").str());
         }
-        if ((header.version != OLEAN_VERSION && header.version != OLEAN_VERSION_STAGE0) || header.flags != default_header.flags
+        if (header.version != OLEAN_VERSION || header.flags != default_header.flags
 #ifdef LEAN_CHECK_OLEAN_VERSION
             || strncmp(header.githash, LEAN_GITHASH, sizeof(header.githash)) != 0
 #endif
@@ -556,27 +553,23 @@ extern "C" LEAN_EXPORT object * lean_compacted_region_read(b_obj_arg ofname, b_o
 
         std::vector<std::pair<size_t, ptrdiff_t>> lib_relocs;
         std::vector<size_t> closure_offsets;
-        size_t data_section_off = sizeof(olean_header);
-        size_t data_section_sz = size - sizeof(olean_header);
-        if (header.version != OLEAN_VERSION_STAGE0) {
-            size_t data_size;
-            memcpy(&data_size, buffer + sizeof(olean_header), sizeof(data_size));
-            data_section_off = sizeof(olean_header) + sizeof(size_t);
-            data_section_sz = data_size;
-            char const * p = buffer + data_section_off + data_size;
-            uint32_t num_closure_offsets;
-            memcpy(&num_closure_offsets, p, sizeof(num_closure_offsets));
-            p += sizeof(num_closure_offsets);
-            if (num_closure_offsets > 0) {
-                closure_offsets.reserve(num_closure_offsets);
-                for (uint32_t i = 0; i < num_closure_offsets; i++) {
-                    uint64_t off;
-                    memcpy(&off, p, sizeof(off));
-                    p += sizeof(off);
-                    closure_offsets.push_back(static_cast<size_t>(off));
-                }
-                lib_relocs = read_lib_table_from_buffer(p);
+        size_t data_size;
+        memcpy(&data_size, buffer + sizeof(olean_header), sizeof(data_size));
+        size_t data_section_off = sizeof(olean_header) + sizeof(size_t);
+        size_t data_section_sz = data_size;
+        char const * p = buffer + data_section_off + data_size;
+        uint32_t num_closure_offsets;
+        memcpy(&num_closure_offsets, p, sizeof(num_closure_offsets));
+        p += sizeof(num_closure_offsets);
+        if (num_closure_offsets > 0) {
+            closure_offsets.reserve(num_closure_offsets);
+            for (uint32_t i = 0; i < num_closure_offsets; i++) {
+                uint64_t off;
+                memcpy(&off, p, sizeof(off));
+                p += sizeof(off);
+                closure_offsets.push_back(static_cast<size_t>(off));
             }
+            lib_relocs = read_lib_table_from_buffer(p);
         }
 
         region_reader reader(

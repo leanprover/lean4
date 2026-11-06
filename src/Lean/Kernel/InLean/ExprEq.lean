@@ -6,8 +6,8 @@ Authors: Joachim Breitner
 module
 
 prelude
-
 public import Init
+
 public import Lean.Expr
 /- `withPtrEq`/`withPtrAddr`/`withPtrEqDecEq` are public but not exposed;
 `Expr.beq_eq_beqMemo` needs their bodies (`k ()`, `k 0`), as con-leche's
@@ -17,8 +17,8 @@ import all Init.Util
 /-!
 # InLean: decidable equality of `Lean.Expr`, executed pointer-first
 
-InLean is to be provable by a simulation onto con-leche's cached checker, so
-it does not use core's opaque externs.
+InLean is to be provable by a simulation onto con-leche's cached checker, so it
+does not use core's opaque externs.
 Core's `BEq Expr` is `Expr.eqv`, an `@[extern] opaque` (alpha-equivalence
 in C++).  InLean's executed equality is con-leche's design
 (`ConLeche/Kernel/Expr.lean`, `Expr.beq`/`beqMemo`): **the specification

@@ -34,52 +34,37 @@ open Lean
 /-! ## Mode -/
 
 /-- Twin of `ConLeche.CheckMode`: verified (the certificate families
-run), trusted (they do not), and the two eager variants (the official
-kernel's `m_eager_reduce`). -/
+run) or trusted (they do not).  The official kernel's `eagerReduce` flag
+is a separate `Bool`, as in con-leche. -/
 inductive CheckMode where
   | verified
   | trusted
-  | verifiedEager
-  | trustedEager
   deriving Inhabited, BEq, Repr
 
 /-- Twin of `CheckMode.verifiedChecks`. -/
 @[inline] def CheckMode.verifiedChecks : CheckMode → Bool
+  | .verified => true
   | .trusted => false
-  | .trustedEager => false
-  | _ => true
-
-/-- Twin of `CheckMode.eager`. -/
-@[inline] def CheckMode.eager : CheckMode → Bool
-  | .verifiedEager => true
-  | .trustedEager => true
-  | _ => false
-
-/-- Twin of `CheckMode.toEager`. -/
-@[inline] def CheckMode.toEager : CheckMode → CheckMode
-  | .verified => .verifiedEager
-  | .trusted => .trustedEager
-  | m => m
 
 /-! ## Errors -/
 
-/-- Twin of `ConLeche.CheckError`: `invalid` is a reject (official
-rejects too), `declined` a positively detected unsupported feature
-(con-leche's `notImplemented`), `internal` an invariant violation. -/
-inductive Err where
+/-- Twin of `ConLeche.CheckError`: `invalid` is a reject (the official
+kernel rejects too), `notImplemented` a positively detected unsupported
+feature (a decline), `internal` an error of unclear cause. -/
+inductive CheckError where
+  | notImplemented (what : String)
   | invalid (msg : String)
-  | declined (msg : String)
   | internal (msg : String)
   deriving Inhabited
 
-def Err.toString : Err → String
+/-- The message `addDecl` reports, prefixed `(InLean)`. -/
+def CheckError.toString : CheckError → String
   | .invalid m => s!"(InLean) {m}"
-  | .declined m => s!"(InLean) declined: {m}"
+  | .notImplemented m => s!"(InLean) declined: {m}"
   | .internal m => s!"(InLean) internal error: {m}"
 
-def Err.isDecline : Err → Bool
-  | .declined _ => true
-  | _ => false
+/-- Twin of `ConLeche.CheckM`. -/
+abbrev CheckM := Except CheckError
 
 /-! ## The zero-ness datum (twin of `ConLeche.PropWhen`) -/
 
@@ -222,6 +207,19 @@ def substPW (ks : List Name) (vs : List Level) (pw : PropWhen) : PropWhen :=
 
 /-- `isEquiv u 0 = some true`. -/
 @[inline] def isZero (u : Level) : Bool := isEquiv u .zero == some true
+
+/-- Twin of `Level.isAlwaysZero`. -/
+def isAlwaysZero (s : Level) : Bool :=
+  match zeronessOf s with
+  | .ifAllZero [] => true
+  | _ => false
+
+/-- Twin of `Level.zeroWhereZero`. -/
+def zeroWhereZero (s u : Level) : Bool :=
+  match zeronessOf s, zeronessOf u with
+  | .never, _ => true
+  | .ifAllZero _, .never => false
+  | .ifAllZero ps, .ifAllZero qs => qs.all ps.contains
 
 end Lvl
 

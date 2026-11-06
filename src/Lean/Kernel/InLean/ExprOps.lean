@@ -33,7 +33,7 @@ by the node and the binder offset under the lawful pointer-first equality
 **The cutoffs** read Lean's cached fields (`looseBVarRange`, `hasFVar`,
 `hasLevelParam`), as con-leche's read its computed `data` word.  Lean
 computes them in C; the Lean bodies of `Expr.mkData`, `Expr.mkAppData` and
-`Level.mkData` state what C computes on terms in range.  Lean does not
+`Level.mkData` state what C computes.  Lean does not
 saturate the range: a node above `2^20 - 1` loose variables aborts the
 process ("too many bound variables").  So the one walk here that can grow
 indices past a term's own, `abstract`, writes `rangePoison` instead of an
@@ -209,6 +209,37 @@ def abstract (e : Expr) (xs : Array Expr) : Expr :=
 /-- Lean's `abstractRange e n xs`. -/
 @[inline] def abstractRange (e : Expr) (n : Nat) (xs : Array Expr) : Expr :=
   abstract e (xs.extract 0 n)
+
+/-- The root of an interned free variable's name (`Lean/Kernel/InLean/StateC.lean`):
+the variable at depth `d` numbered `n` is named `fvRoot.d.n`. -/
+def fvRoot : Name := `_inlean_fv
+
+/-- An interned free variable's depth, read off its id. -/
+@[inline] def fvDepth? (id : FVarId) : Option Nat :=
+  match id.name with
+  | .num (.num p d) _ => if p == fvRoot then some d else none
+  | _ => none
+
+/-- Twin of `abstractRangeC e d k`: every free variable at a depth `idx`
+with `d ≤ idx < d + k` to `bvar (c + (d + k - 1 - idx))` at binder offset
+`c` (`rangePoison` if that is out of range), whatever its type. -/
+def abstractDepthsFrom (e : Expr) (d k c₀ : Nat) : Expr :=
+  if k == 0 || !e.hasFVar then e else
+  (mapOff (fun x c =>
+    if !x.hasFVar then some x else
+    match x with
+    | .fvar id =>
+      match fvDepth? id with
+      | some idx =>
+        if d ≤ idx ∧ idx < d + k then
+          let i := c + (d + k - 1 - idx)
+          some (if i ≤ maxBVarIdx then .bvar i else rangePoison)
+        else some x
+      | none => some x
+    | _ => none) e c₀ {}).1
+
+/-- `abstractDepthsFrom` at binder offset `0` (con-leche's `abstractRangeC e d k`). -/
+@[inline] def abstractDepths (e : Expr) (d k : Nat) : Expr := abstractDepthsFrom e d k 0
 
 /-- Twin of `instLevelParams`: the level parameters `ps` to `us` in every
 `sort` and `const`, by con-leche's non-simplifying `Lvl.subst` (core's

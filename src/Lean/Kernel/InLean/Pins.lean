@@ -14,8 +14,8 @@ public import Lean.Kernel.InLean.Basic
 
 Twins of con-leche's hand-written pins, spelled with the
 same builder (`ConLeche/Kernel/Basis/Builder.lean`), now producing
-`Lean.Expr`: the quotient block (`Basis/Quot.lean`), the pinned `Eq`
-and `Nat` types (`Basis/Eq.lean`, `Basis/Nat.lean`), the standard axioms
+`Lean.Expr`: the quotient block (`Basis/Quot.lean`), the `Nat` and `Bool`
+types (`Basis/Nat.lean`), the standard axioms
 (`StdAxioms.lean`), the compiler-trust family (`TrustAxioms.lean`,
 `TrustPins.lean`) and the Nat operations' certificate statements
 (`natOpEquations`, `divModCertStmts`, `Checker.lean`).  A pin is compared
@@ -83,22 +83,11 @@ def Pin.matches (p : Pin) (ci : ConstantInfo) : Bool :=
 def Pin.matchesDecl (p : Pin) (n : Name) (lps : List Name) (ty : Expr) : Bool :=
   n == p.name && lps.length == p.lps.length && EO.alphaEq (canonAt lps p.lps ty) p.type
 
-/-! ## The pinned `Eq` and `Nat` (types only) -/
+/-! ## The `Nat` and `Bool` types the guards look up (the basis blocks are
+`Lean/Kernel/InLean/Inductives/Basis.lean`'s) -/
 
-def eqPin : Pin := ⟨eqName, [uN], piI "α" (srt u) <| pi "a" (bv 0) <| pi "b" (bv 1) prop⟩
 def natPin : Pin := ⟨natName, [], type1⟩
 def boolPin : Pin := ⟨boolName, [], type1⟩
-
-/-- The pinned basis blocks' constants (twin of `Basis/{Eq,Nat,Empty,False}.lean`,
-types only: the recursors are generated from them). -/
-def basisBlockPins : List Pin :=
-  [eqPin,
-   ⟨eqReflName, [uN], piI "α" (srt u) <| pi "a" (bv 0) <| ap3 (cnst eqName [u]) (bv 1) (bv 0) (bv 0)⟩,
-   natPin,
-   ⟨natZeroName, [], cnst natName⟩,
-   ⟨natSuccName, [], pi "n" (cnst natName) (cnst natName)⟩,
-   ⟨`Empty, [], type1⟩,
-   ⟨`False, [], prop⟩]
 
 /-! ## The quotient block (twin of `Basis/Quot.lean`) -/
 

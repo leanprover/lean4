@@ -7,25 +7,20 @@ module
 
 prelude
 
-public import Lean.Kernel.InLean.IndCheck.Block
-/- The kernel adds checked constants with `Kernel.Environment.add`, `markQuotInit` and
-`Environment.updateBaseAfterKernelAdd`, which are private to `Lean.Environment` so that nothing
-else bypasses the kernel. -/
+public import Lean.Kernel.InLean.Inductives.Decl
+/- The core entry points update the elaborator's environment with the private
+`Environment.updateBaseAfterKernelAdd`. -/
 import all Lean.Environment
 
 /-!
 # InLean: the entry points
 
-`addDecl`, the twin of `Lean.Kernel.Environment.addDeclCore`:
-check a `Lean.Declaration` with con-leche's checker (`Lean/Kernel/InLean/Decl.lean`)
-and add the constants it declares.  `kernelWhnf` and `kernelIsDefEq` are the twins
-of `Kernel.whnf`/`Kernel.isDefEq`.
-
-Every declaration kind is InLean's own.  An inductive declaration goes to
-`IC.checkInductiveDecl` (`Lean/Kernel/InLean/IndCheck/Block.lean`): the unverified
-generator (`Lean/Kernel/InLean/IndGen.lean`) produces the inductive types',
-constructors' and recursors' constants, and con-leche's installer and
-checked job (`Lean/Kernel/InLean/IndCheck/*`) decide on them.
+`addDecl`, the twin of `Lean.Kernel.Environment.addDeclCore`: check a
+`Lean.Declaration` with con-leche's checker (`Lean/Kernel/InLean/CheckerC.lean`) and add
+the constants it declares, as con-leche's fold step checks a record at the
+view below it and then pushes what the record declares
+(`ConLeche/Cached/Decls.lean`, `declStep`).  `kernelWhnf` and
+`kernelIsDefEq` are the twins of `Kernel.whnf`/`Kernel.isDefEq`.
 -/
 
 public section
@@ -34,65 +29,52 @@ namespace Lean.Kernel.InLean
 
 open Lean
 
-/-- Add a constant to a kernel environment, unchecked (`Kernel.Environment.add`). -/
-def addConst (env : Kernel.Environment) (ci : ConstantInfo) : Kernel.Environment :=
-  env.add ci
+/-- Run a check from a fresh per-declaration state. -/
+def runC (x : CheckCM α) : Except CheckError α :=
+  match x.run {} with
+  | .ok (a, _) => .ok a
+  | .error e => .error e
 
-/-- The InLean configuration: the mode (verified by default). -/
-structure Config where
-  mode : CheckMode := .verified
-  /-- measurement probe, see `Ctx.probeNoMemo` -/
-  probeNoMemo : String := ""
-  /-- the axiom policy, see `Ctx.coreAxioms` -/
-  coreAxioms : Bool := false
-  /-- the Nat-operation stopgap, see `Ctx.uncertifiedNatOps` -/
-  uncertifiedNatOps : Bool := true
-
-/-- Run a check in a fresh per-declaration state. -/
-def runM (env : Kernel.Environment) (x : M α) (probe : String := "")
-    (coreAxioms : Bool := false) (uncertifiedNatOps : Bool := true) : Except Err α :=
-  match (x.run { env, probeNoMemo := probe, coreAxioms, uncertifiedNatOps }).run {} with
-  | .ok a _ => .ok a
-  | .error e _ => .error e
-
-/-- Check `decl`, returning what it adds. -/
+/-- Check `decl` (twin of `declStep`: the `And` pin, then `checkDeclStepC`),
+returning what it adds. -/
 def checkDecl (cfg : Config) (env : Kernel.Environment) (decl : Declaration) :
-    Except Err Added :=
+    Except CheckError Added :=
   let μ := cfg.mode
-  runM env (do
+  let fe : FEnv := { env, coreAxioms := cfg.coreAxioms }
+  if !andPinOk decl then .error (.invalid "`And` must be the standard `And`") else
+  runC do
     match decl with
-    | .axiomDecl v => checkAxiom μ v
-    | .defnDecl v => checkDefn μ addConst v
-    | .thmDecl v => checkThm μ v
-    | .opaqueDecl v => checkOpaque μ addConst v
-    | .mutualDefnDecl vs => checkMutual μ addConst vs
-    | .quotDecl => checkQuot
-    | .inductDecl lps nparams types isUnsafe =>
-      IC.checkInductiveDecl μ addConst lps nparams types isUnsafe)
-    cfg.probeNoMemo cfg.coreAxioms cfg.uncertifiedNatOps
+    | .axiomDecl v => checkAxiomC μ cfg fe v
+    | .defnDecl v => checkDefnC μ cfg fe v
+    | .thmDecl v => checkThmC μ fe v
+    | .opaqueDecl v => checkOpaqueC μ fe v
+    | .mutualDefnDecl vs => checkMutualC μ fe vs
+    | .quotDecl => checkQuotC fe
+    | .inductDecl lps nparams types isUnsafe => checkInductiveC μ fe lps nparams types isUnsafe
 
 /-- **Check `decl` and add the constants it declares** — the twin of
-`Lean.Kernel.Environment.addDeclCore`.  A reject, a decline and an
-internal error are all `Kernel.Exception.other`, the message
-prefixed `(InLean)` and, for a decline, `declined:`. -/
+`Lean.Kernel.Environment.addDeclCore`.  A reject, a decline and an error
+are each `Kernel.Exception.other`, the message prefixed `(InLean)` and, for a
+decline, `declined:`. -/
 def addDecl (env : Kernel.Environment) (decl : Declaration) (cfg : Config := {}) :
     Except Kernel.Exception Kernel.Environment :=
   match checkDecl cfg env decl with
   | .ok a =>
     let env := a.consts.foldl addConst env
-    .ok (if a.quot then env.markQuotInit else env)
+    .ok (if a.quot then markQuot env else env)
   | .error e => .error (.other e.toString)
 
 /-- The twin of `Kernel.whnf` (a closed term; full reduction). -/
-def kernelWhnf (env : Kernel.Environment) (e : Expr) (cfg : Config := {}) : Except Kernel.Exception Expr :=
-  match runM env (InLean.whnf cfg.mode 0 e) with
+def kernelWhnf (env : Kernel.Environment) (e : Expr) (cfg : Config := {}) :
+    Except Kernel.Exception Expr :=
+  match runC (opWhnf cfg.mode { env, coreAxioms := cfg.coreAxioms } 0 e) with
   | .ok r => .ok r
   | .error err => .error (.other err.toString)
 
 /-- The twin of `Kernel.isDefEq` (closed terms). -/
 def kernelIsDefEq (env : Kernel.Environment) (a b : Expr) (cfg : Config := {}) :
     Except Kernel.Exception Bool :=
-  match runM env (InLean.defeq cfg.mode 0 a b) with
+  match runC (opDefeq cfg.mode { env, coreAxioms := cfg.coreAxioms } 0 a b) with
   | .ok r => .ok r
   | .error err => .error (.other err.toString)
 
@@ -103,11 +85,9 @@ in `Lean.Environment`; those take owned arguments, as an `@[export]` function mu
 accepted and `sorryAx` may be used (`Config.coreAxioms`); the prelude is assumed good
 (`Config.uncertifiedNatOps`).
 
-Not honoured: `maxHeartbeats`, `maxRecDepth` and the cancellation token are
-accepted and ignored (InLean has no heartbeat counter, no recursion-depth
-guard beyond the native stack, and no interruption check). -/
+Not honoured: `maxHeartbeats`, `maxRecDepth` and the cancellation token are accepted and ignored. -/
 
-/-- The configuration InLean runs with inside core. -/
+/-- The configuration the kernel runs with inside core. -/
 def coreConfig : Config := { coreAxioms := true, uncertifiedNatOps := true }
 
 /-- `Kernel.Environment.addDeclCore` (`lean_add_decl`). -/
@@ -126,9 +106,9 @@ def declConsts : Declaration → Option (List ConstantInfo)
   | .mutualDefnDecl vs => some (vs.map .defnInfo)
   | .quotDecl | .inductDecl .. => none
 
-/-- `Kernel.Environment.addDeclWithoutChecking` (`lean_add_decl_without_checking`):
-the declaration's constants unchecked; a quotient or inductive declaration still
-runs the checker, which is what generates its constants. -/
+/-- `Kernel.Environment.addDeclWithoutChecking` (`lean_add_decl_without_checking`): the
+declaration's constants unchecked; a quotient or inductive declaration still runs the checker,
+which is what generates its constants. -/
 @[export lean_add_decl_without_checking]
 def addDeclWithoutCheckingExport (env : Kernel.Environment) (decl : Declaration) :
     Except Kernel.Exception Kernel.Environment :=
@@ -136,8 +116,7 @@ def addDeclWithoutCheckingExport (env : Kernel.Environment) (decl : Declaration)
   | some cs => .ok (cs.foldl addConst env)
   | none => addDecl env decl coreConfig
 
-/-- `Environment.addDeclCheck` (`lean_elab_add_decl`): the kernel step on the elab
-environment's kernel environment, then the elab environment updated. -/
+/-- `Environment.addDeclCheck` (`lean_elab_add_decl`). -/
 @[export lean_elab_add_decl]
 def elabAddDeclExport (env : Lean.Environment) (maxHeartbeats : USize) (maxRecDepth : USize)
     (decl : Declaration) (cancelTk? : Option IO.CancelToken) :
@@ -152,13 +131,11 @@ def elabAddDeclWithoutCheckingExport (env : Lean.Environment) (decl : Declaratio
   let kenv ← addDeclWithoutCheckingExport env.toKernelEnv decl
   return env.updateBaseAfterKernelAdd kenv decl
 
-/-- Open a local context for InLean: each local declaration in order becomes an
-interned free variable at its depth (a `let` local is replaced by its value, as the
-official kernel's `whnf_fvar` would unfold it).  Returns the substitution
-(original fvars ↦ InLean terms), the interned fvars with their originals (to map
-results back), and the depth reached. -/
+/-- Open a local context: each local declaration in order becomes an interned free variable at its
+depth, a `let` local is replaced by its value.  Returns the substitution (original free variables
+to the kernel's terms), the interned variables with their originals, and the depth reached. -/
 def openLCtx (lctx : LocalContext) :
-    M (Array Expr × Array Expr × Array Expr × Array Expr × Nat) := do
+    CheckCM (Array Expr × Array Expr × Array Expr × Array Expr × Nat) := do
   let mut origs : Array Expr := #[]
   let mut news : Array Expr := #[]
   let mut backFrom : Array Expr := #[]
@@ -170,10 +147,10 @@ def openLCtx (lctx : LocalContext) :
     let ty := decl.type.replaceFVars origs news
     match decl.value? with
     | some v =>
+      news := news.push (v.replaceFVars origs news)
       origs := origs.push decl.toExpr
-      news := news.push (v.replaceFVars origs.pop news)
     | none =>
-      let fv ← mkFVar d ty
+      let fv ← mkFVarM d ty
       origs := origs.push decl.toExpr
       news := news.push fv
       backFrom := backFrom.push fv
@@ -181,39 +158,38 @@ def openLCtx (lctx : LocalContext) :
       d := d + 1
   return (origs, news, backFrom, backTo, d)
 
-/-- Run `k` on `e`'s InLean form in the opened `lctx`, mapping the result back. -/
+/-- Run `k` on the terms opened in `lctx`; `back` maps an expression result to `lctx`'s free
+variables. -/
 def withLCtx (env : Lean.Environment) (lctx : LocalContext) (es : Array Expr)
-    (k : Nat → Array Expr → M α) : Except Kernel.Exception α :=
-  match runM env.toKernelEnv (do
-      let (origs, news, _, _, d) ← openLCtx lctx
-      k d (es.map (·.replaceFVars origs news))) ""
-      coreConfig.coreAxioms coreConfig.uncertifiedNatOps with
+    (k : FEnv → Nat → Array Expr → CheckCM α) (back : Array Expr → Array Expr → α → α) :
+    Except Kernel.Exception α :=
+  let fe : FEnv := { env := env.toKernelEnv, coreAxioms := coreConfig.coreAxioms }
+  match runC (do
+      let (origs, news, backFrom, backTo, d) ← openLCtx lctx
+      let r ← k fe d (es.map (·.replaceFVars origs news))
+      return back backFrom backTo r) with
   | .ok r => .ok r
   | .error err => .error (.other err.toString)
-
-/-- Map an InLean result back to `lctx`'s free variables. -/
-def closeLCtx (lctx : LocalContext) (k : Nat → Array Expr → M Expr) :
-    Nat → Array Expr → M Expr := fun d es => do
-  let r ← k d es
-  let (_, _, backFrom, backTo, _) ← openLCtx lctx
-  return r.replaceFVars backFrom backTo
 
 /-- `Kernel.isDefEq` (`lean_kernel_is_def_eq`). -/
 @[export lean_kernel_is_def_eq]
 def kernelIsDefEqExport (env : Lean.Environment) (lctx : LocalContext) (a b : Expr) :
     Except Kernel.Exception Bool :=
-  withLCtx env lctx #[a, b] fun d es => defeq coreConfig.mode d es[0]! es[1]!
+  withLCtx env lctx #[a, b] (fun fe d es => opDefeq coreConfig.mode fe d es[0]! es[1]!)
+    (fun _ _ r => r)
 
 /-- `Kernel.whnf` (`lean_kernel_whnf`). -/
 @[export lean_kernel_whnf]
 def kernelWhnfExport (env : Lean.Environment) (lctx : LocalContext) (a : Expr) :
     Except Kernel.Exception Expr :=
-  withLCtx env lctx #[a] (closeLCtx lctx fun d es => whnf coreConfig.mode d es[0]!)
+  withLCtx env lctx #[a] (fun fe d es => opWhnf coreConfig.mode fe d es[0]!)
+    (fun f t r => r.replaceFVars f t)
 
-/-- `Kernel.check` (`lean_kernel_check`): the full-grade type of `a`. -/
+/-- `Kernel.check` (`lean_kernel_check`): the type of `a` at the full grade. -/
 @[export lean_kernel_check]
 def kernelCheckExport (env : Lean.Environment) (lctx : LocalContext) (a : Expr) :
     Except Kernel.Exception Expr :=
-  withLCtx env lctx #[a] (closeLCtx lctx fun d es => infer coreConfig.mode d es[0]!)
+  withLCtx env lctx #[a] (fun fe d es => opInfer coreConfig.mode fe d es[0]!)
+    (fun f t r => r.replaceFVars f t)
 
 end Lean.Kernel.InLean

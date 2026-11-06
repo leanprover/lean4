@@ -73,11 +73,10 @@ def applyRIntroRule (goal : MVarId) (rule : BackwardRule) : VCGenM (Option (List
     if isSameExpr ty ty' then return g
     g.replaceTargetDefEqFast ty'
 
-/-- Strategy 1a: apply the first `@[vcgen_rintro]` rule, in priority order, whose conclusion matches
-the target `∀ y, …`. -/
-def forallRIntro? (goal : MVarId) (target : Expr) : VCGenM (Option (List MVarId)) := do
-  let entries := Sym.getMatch (← getMCtx) (← read).rintros target
-  if entries.isEmpty then return none
+/-- Strategy 1a: apply the first of the `@[vcgen_rintro]` rules `entries`, in priority order, that
+applies to the target of `goal`. -/
+def applyRIntroRules (goal : MVarId) (entries : Array RIntroEntry) :
+    VCGenM (Option (List MVarId)) := do
   for entry in entries.insertionSort (·.prio > ·.prio) do
     if let some gs ← applyRIntroRule goal (← mkBackwardRuleForRIntroCached entry) then
       trace[Elab.Tactic.Do.vcgen] "Applied rintro rule {entry.declName}"
@@ -85,29 +84,9 @@ def forallRIntro? (goal : MVarId) (target : Expr) : VCGenM (Option (List MVarId)
     trace[Elab.Tactic.Do.vcgen] "Rintro rule {entry.declName} does not apply"
   return none
 
-/-- The number of binders `forallIntro?` introduces at once from `type`: one `∀` binder and the
-`let` binders that follow it. -/
-def numBindersToIntroOne : Expr → Nat
-  | .forallE _ _ b _ => go b 1
-  | _ => 0
-where
-  go : Expr → Nat → Nat
-  | .letE _ _ _ b _, n => go b (n + 1)
-  | _, n => n
-
-/-- The number of leading `∀` and `let` binders of `type` before the first `∀` that a
-`@[vcgen_rintro]` rule matches. -/
-def numBindersBeforeRIntro (type : Expr) : VCGenM Nat := do
-  let mctx ← getMCtx
-  let rintros := (← read).rintros
-  let rec go : Expr → Nat → Nat
-    | e@(.forallE _ _ b _), n => if (Sym.getMatch mctx rintros e).isEmpty then go b (n + 1) else n
-    | .letE _ _ _ b _, n => go b (n + 1)
-    | _, n => n
-  return go type 0
-
-/-- Strategy 1: simp the target, then introduce its binders. At each `∀` binder, a matching
-`@[vcgen_rintro]` rule destructures the binder instead. -/
+/-- Strategy 1: simp the target, then introduce its binders. One pass over the binders matches each
+`∀` binder against the `@[vcgen_rintro]` rules once. A matching rule destructures the binder, and
+the binders between two matches are introduced at once. -/
 def forallIntro? (oldGoal : MVarId) (target : Expr) : VCGenM (Option (List MVarId)) := do
   unless target.isForall do return none
   let oldGoal ← instantiateBinderDomains oldGoal
@@ -115,16 +94,24 @@ def forallIntro? (oldGoal : MVarId) (target : Expr) : VCGenM (Option (List MVarI
     | .closed => return some []
     | .goal goal => pure goal
     | .noProgress => pure oldGoal
-  let mut target ← goal.getType
-  while target.isForall do
-    let mut n ← numBindersBeforeRIntro target
-    if n == 0 then
-      if let some gs ← forallRIntro? goal target then return some gs
-      n := numBindersToIntroOne target
-    let goal' ← introsHygienicN goal n
-    if goal' == goal then break
-    goal := goal'
-    target ← goal.getType
+  let rintros := (← read).rintros
+  let mut e ← goal.getType
+  let mut n := 0
+  repeat
+    match e with
+    | .forallE _ _ b _ =>
+      let entries := Sym.getMatch (← getMCtx) rintros e
+      unless entries.isEmpty do
+        goal ← introsHygienicN goal n
+        n := 0
+        if let some gs ← applyRIntroRules goal entries then return some gs
+      n := n + 1
+      e := b
+    | .letE _ _ _ b _ =>
+      n := n + 1
+      e := b
+    | _ => break
+  goal ← introsHygienicN goal n
   if goal == oldGoal then
     throwError "Failed to intro forall target {goal}"
   return some [goal]

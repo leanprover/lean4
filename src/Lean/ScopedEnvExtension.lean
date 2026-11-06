@@ -46,6 +46,19 @@ structure StateStack (α : Type) (β : Type) (σ : Type) where
   newEntries    : List (Entry α) := []
   deriving Inhabited
 
+/--
+Adds the global entries of the imported modules, given in module order, one by one to `mkInitial`;
+the default of `Descr.importGlobals`.
+-/
+def addImportedGlobals (mkInitial : IO σ) (ofOLeanEntry : σ → α → ImportM β)
+    (addImportedEntry : σ → β → σ) (as : Array (Array (Entry α))) : ImportM σ := do
+  let mut s ← mkInitial
+  for a in as do
+    for e in a do
+      if let .global a := e then
+        s := addImportedEntry s (← ofOLeanEntry s a)
+  return s
+
 structure Descr (α : Type) (β : Type) (σ : Type) where
   name           : Name := by exact decl_name%
   mkInitial      : IO σ
@@ -66,11 +79,12 @@ structure Descr (α : Type) (β : Type) (σ : Type) where
   -/
   entryDecl? : Option (β → Name) := none
   /--
-  Adds all imported global entries to the initial state in place of `ofOLeanEntry` and `addImportedEntry`,
-  e.g. using per-module data stored by another extension, or returns `none` to have them added one
-  by one. Receives the entries of each imported module, in module order.
+  Creates the initial state at import from the global entries of all imported modules, which are
+  given in module order. The default adds them one by one to `mkInitial` using `ofOLeanEntry` and
+  `addImportedEntry`. Environments without imports start from `mkInitial`.
   -/
-  addImportedGlobals? : Option (σ → Array (Array (Entry α)) → ImportM (Option σ)) := none
+  importGlobals : Array (Array (Entry α)) → ImportM σ :=
+    addImportedGlobals mkInitial ofOLeanEntry addImportedEntry
 
 /--
 Whether scope operations that change the effective state must be recorded like content changes;
@@ -108,21 +122,11 @@ def ScopedEntries.insert (scopedEntries : ScopedEntries β) (ns : Name) (b : β)
   | some bs => { map := scopedEntries.map.insert ns <| bs.push b }
 
 def addImportedFn (descr : Descr α β σ) (as : Array (Array (Entry α))) : ImportM (StateStack α β σ) := do
-  let mut s ← descr.mkInitial
-  let mut addGlobals := true
-  if let some f := descr.addImportedGlobals? then
-    if let some s' ← f s as then
-      s := s'
-      addGlobals := false
+  let mut s ← descr.importGlobals as
   let mut scopedEntries : ScopedEntries β := {}
   for a in as do
     for e in a do
-      match e with
-      | Entry.global a =>
-        if addGlobals then
-          let b ← descr.ofOLeanEntry s a
-          s := descr.addImportedEntry s b
-      | Entry.scoped ns a =>
+      if let Entry.scoped ns a := e then
         let b ← descr.ofOLeanEntry s a
         scopedEntries := scopedEntries.insert ns b
   s := descr.finalizeImport s
@@ -360,8 +364,9 @@ structure SimpleScopedEnvExtension.Descr (α : Type) (σ : Type) where
   logWrites : Bool := false
   /-- See `ScopedEnvExtension.Descr.entryDecl?`. -/
   entryDecl? : Option (α → Name) := none
-  /-- See `ScopedEnvExtension.Descr.addImportedGlobals?`. -/
-  addImportedGlobals? : Option (σ → Array (Array (Entry α)) → ImportM (Option σ)) := none
+  /-- See `ScopedEnvExtension.Descr.importGlobals`. -/
+  importGlobals : Array (Array (Entry α)) → ImportM σ :=
+    addImportedGlobals (pure initial) (fun _ a => pure a) addImportedEntry
 
 def registerSimpleScopedEnvExtension (descr : SimpleScopedEnvExtension.Descr α σ) : IO (SimpleScopedEnvExtension α σ) := do
   registerScopedEnvExtension {
@@ -376,7 +381,7 @@ def registerSimpleScopedEnvExtension (descr : SimpleScopedEnvExtension.Descr α 
     trackGen       := descr.trackGen
     logWrites      := descr.logWrites
     entryDecl?     := descr.entryDecl?
-    addImportedGlobals? := descr.addImportedGlobals?
+    importGlobals  := descr.importGlobals
   }
 
 end Lean

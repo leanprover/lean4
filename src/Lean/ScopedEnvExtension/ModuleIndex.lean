@@ -20,8 +20,9 @@ When a module is exported, `build` summarizes the global entries it exports at e
 summaries are stored by a separate persistent extension. On import, `addImported` adds the global
 entries of all imported modules to the initial state, given in module order with their summaries if
 they have global entries. If some imported module with global entries has no summary, e.g. because
-an older stage exported it during bootstrapping, the entries are added one by one instead: building
-missing summaries would be more expensive, and mixing both would change the order of entries.
+an older stage exported it during bootstrapping, the entries are imported by `descr.importGlobals`
+instead: building missing summaries would be more expensive, and mixing both would change the order
+of entries.
 -/
 public def registerSimpleScopedEnvExtensionWithIndex {ι : Type}
     (descr : SimpleScopedEnvExtension.Descr α σ) (build : Environment → Array α → ι)
@@ -30,14 +31,14 @@ public def registerSimpleScopedEnvExtensionWithIndex {ι : Type}
   -- the summary extension needs the main extension and vice versa
   let indexRef : IO.Ref (Option (PersistentEnvExtension ι Unit Unit)) ← IO.mkRef none
   let ext ← registerSimpleScopedEnvExtension { descr with
-    addImportedGlobals? := some fun s as => do
-      let some indexExt ← indexRef.get | return none
+    importGlobals := fun as => do
+      let some indexExt ← indexRef.get | descr.importGlobals as
       let env := (← read).env
       let mods := as.mapIdx fun i a => ((indexExt.getModuleEntries env (i : ModuleIdx))[0]?, a)
       if mods.all fun (summary?, a) => summary?.isSome || !a.any (· matches .global _) then
-        return some (← addImported s mods)
+        addImported descr.initial mods
       else
-        return none }
+        descr.importGlobals as }
   let indexExt : PersistentEnvExtension ι Unit Unit ← registerPersistentEnvExtension {
     name := descr.name ++ `moduleIndex
     mkInitial := pure ()

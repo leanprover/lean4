@@ -282,49 +282,36 @@ def replaceProgDefEq (goal : MVarId) (info : WPApp) (prog : Expr) :
   let wp ← mkAppNS info.head <| info.args.set! 7 prog
   replaceRhsDefEq goal (← mkAppNS wp info.excessArgs)
 
-/-- The result of `letStep`: the value of the `let` was substituted, or the `let` was introduced as
-the local definition `fvarId`. -/
-inductive LetStep where
-  | zeta (goal : MVarId)
-  | intro (fvarId : FVarId) (goal : MVarId)
-
-/-- Simplify the value `val` of a `have` (`nondep = true`) with `Context.simpMethods`. Returns the
-simplified value and a proof of `val = val'`. The value of a dependent `let` stays as written, since
-the body can depend on it definitionally. -/
-def simpHaveValue (val : Expr) (nondep : Bool) : VCGenM (Option (Expr × Expr)) := do
-  unless nondep do return none
-  let some methods := (← read).simpMethods | return none
-  let .step val' h .. ← runSimp methods (Sym.Simp.simp val) | return none
-  return some (val', h)
-
-/-- Substitute or introduce `let name : type := val; body`, where `mkBody body` is the right-hand
-side of the entailment in `goal`'s target. If `simpValue` is set, the value of a `have` is simplified
-first. A duplicable value is substituted. Otherwise the `let` is put in front of the entailment and
-introduced as a local definition. -/
-def letStep (goal : MVarId) (name : Name) (type val body : Expr) (nondep simpValue : Bool)
-    (mkBody : Expr → VCGenM Expr) : VCGenM LetStep := do
+/-- Put `let name : type := val; body` in front of the entailment in `goal`'s target, where `body` is
+the new right-hand side of the entailment, and introduce it as a local definition. -/
+def introLet (goal : MVarId) (name : Name) (type val body : Expr) (nondep : Bool) :
+    VCGenM (FVarId × MVarId) := do
+  trace[Elab.Tactic.Do.vcgen] "let-intro: {name}"
   let target ← goal.getType
   let relArgs := target.getAppArgs
-  let target ← mkAppNS target.getAppFn (relArgs.set! (relArgs.size - 1) (← mkBody body))
-  let simp? ← if simpValue then simpHaveValue val nondep else pure none
-  let val' := simp?.elim val (·.1)
-  let replaceTarget (target' : Expr) : VCGenM MVarId := do
-    let some (_, h) := simp? | goal.replaceTargetDefEqFast target'
-    let u ← Sym.getLevel type
-    let h := mkApp6 (mkConst ``have_val_congr' [u, 1]) type (mkSort 0) val val'
-      (.lam name type target .default) h
-    let .goal goal ← (Sym.Simp.Result.step target' h).toSimpGoalResult goal
-      | throwError "Failed to simplify the value of the `let` {name}"
-    return goal
-  if isDuplicable val' then
-    trace[Elab.Tactic.Do.vcgen] "let-zeta-dup: {name}"
-    return .zeta (← replaceTarget (← Sym.instantiateRevBetaS target #[val']))
-  trace[Elab.Tactic.Do.vcgen] "let-intro: {name}"
-  let goal ← replaceTarget (.letE name type val' target nondep)
+  let target ← mkAppNS target.getAppFn (relArgs.set! (relArgs.size - 1) body)
+  let goal ← goal.replaceTargetDefEqFast (.letE name type val target nondep)
   let name ← if isProgramName name then pure name else Meta.mkFreshBinderNameForTactic name
   let .goal decls goal' ← Sym.intros goal #[name]
     | throwError "Failed to intro the `let` {name}"
-  return .intro decls[0]! goal'
+  return (decls[0]!, goal')
+
+/-- Simplify the value `val` of `goal`'s target `pre ⊑ have name : type := val; body` with
+`Context.simpMethods`. Returns the new goal and the simplified value. The value of a dependent `let`
+(`nondep = false`) stays as written, since `body` can depend on it definitionally. -/
+def simpHaveValue (goal : MVarId) (name : Name) (type val body : Expr) (nondep : Bool) :
+    VCGenM (MVarId × Expr) := do
+  unless nondep do return (goal, val)
+  let some methods := (← read).simpMethods | return (goal, val)
+  let .step val' h .. ← runSimp methods (Sym.Simp.simp val) | return (goal, val)
+  let target ← goal.getType
+  let relArgs := target.getAppArgs
+  let rel ← mkAppNS target.getAppFn (relArgs.set! (relArgs.size - 1) body)
+  let target' ← mkAppNS target.getAppFn (relArgs.set! (relArgs.size - 1) (.letE name type val' body true))
+  let u ← Sym.getLevel type
+  let h := mkApp6 (mkConst ``have_val_congr' [u, 1]) type (mkSort 0) val val' (.lam name type rel .default) h
+  let .goal goal ← (Sym.Simp.Result.step target' h).toSimpGoalResult goal | return (goal, val)
+  return (goal, val')
 
 /-- Strip an `mdata` wrapper (such as the `save_info` annotation left by spec elaboration)
 from the program in `goal`'s target, so the remaining strategies see the bare term. -/
@@ -343,24 +330,27 @@ def wpLet? (scope : Scope) (goal : MVarId) (info : WPApp) :
   let .letE name type val body nondep := info.prog.getAppFn | return none
   let appArgs := info.prog.getAppRevArgs
   let val ← reduceHead val
-  let mkBody body := do
-    let wp ← mkAppNS info.head <| info.args.set! 7 (← mkAppRevS body appArgs)
-    mkAppNS wp info.excessArgs
-  match ← letStep goal name type val body nondep false mkBody with
-  | .zeta goal => return some (scope, [goal])
-  | .intro jp goal =>
-    if appArgs.isEmpty then
-      if let some r ← registerJoinPoint scope goal jp val info then
-        return some r
-    return some (scope, [goal])
+  if isDuplicable val then
+    trace[Elab.Tactic.Do.vcgen] "let-zeta-dup: {name}"
+    let body' ← Sym.instantiateRevBetaS body #[val]
+    return some (scope, [← replaceProgDefEq goal info (← mkAppRevS body' appArgs)])
+  let wp ← mkAppNS info.head <| info.args.set! 7 (← mkAppRevS body appArgs)
+  let (jp, goal) ← introLet goal name type val (← mkAppNS wp info.excessArgs) nondep
+  if appArgs.isEmpty then
+    if let some r ← registerJoinPoint scope goal jp val info then
+      return some r
+  return some (scope, [goal])
 
 /-- Strategy 6: substitute or introduce a `let` or `have` at the head of the right-hand side of
-`pre ⊑ rhs`, as `wpLet?` does for the program. A spec precondition `fun s => have v := e s; P v s`
-gives such a right-hand side. -/
+`pre ⊑ rhs`. A spec precondition `fun s => have v := e s; P v s` gives such a right-hand side. The
+value of a `have` is simplified first. -/
 def rhsLet? (goal : MVarId) (rhs : Expr) : VCGenM (Option MVarId) := do
   let .letE name type val body nondep := rhs | return none
-  match ← letStep goal name type (← reduceHead val) body nondep true pure with
-  | .zeta goal | .intro _ goal => return some goal
+  let (goal, val) ← simpHaveValue goal name type (← reduceHead val) body nondep
+  if isDuplicable val then
+    trace[Elab.Tactic.Do.vcgen] "let-zeta-dup: {name}"
+    return some (← replaceRhsDefEq goal (← Sym.instantiateRevBetaS body #[val]))
+  return some (← introLet goal name type val body nondep).2
 
 /-- Strategy 11b: fold the state arguments of the program's `wp` application, so the symbolic
 state a spec application threads through the goal is normalized as it is produced rather than left

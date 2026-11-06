@@ -1,5 +1,7 @@
 import Std.WP
 
+set_option sym.debug true
+
 /-!
 `vcgen` must split a raw `∀`/`→` on the RHS of a `Prop` entailment (`le_forall`) and an `iInf` on
 any `Pi` assertion lattice (`iInf_apply` + `le_iInf`), including when the `iInf` is applied to excess

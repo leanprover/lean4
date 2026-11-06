@@ -1,5 +1,7 @@
 import Std.WP
 
+set_option sym.debug true
+
 /-! Tests that `vcgen` names a loop's verification-condition binders after the program's own `for`
 element, mutable variable, and `invariant` clause binders rather than after the spec lemma's
 binders. The program's variables are accessible in the verification condition; the spec lemma's

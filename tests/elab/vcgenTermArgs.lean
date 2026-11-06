@@ -1,5 +1,7 @@
 import Std.WP
 
+set_option sym.debug true
+
 /-!
 Tests that `vcgen [...]` accepts arbitrary term arguments, mirroring `simp [...]`.
 A term proving a Hoare triple / `⊑ wp` spec is registered as a spec; any other proof is

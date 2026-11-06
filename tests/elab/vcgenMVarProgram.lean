@@ -1,5 +1,7 @@
 import Std.WP
 
+set_option sym.debug true
+
 /-!
 A spec whose program applies a continuation variable under a binder, as in
 `Lang.bnd (fun x => Lang.add (k x) (Lang.nat 0))`. First-order matching leaves `k` open, so

@@ -1,6 +1,8 @@
 import Std.WP
 import Std.WP.Triple.SpecLemmas
 
+set_option sym.debug true
+
 /-!
 # `vcgen` on a program that is not of the type of its `WP` instance
 

@@ -1,6 +1,8 @@
 import Std.Tactic.Do
 import Std.WP
 
+set_option sym.debug true
+
 /-!
 Regression test for `mvcgen`/`vcgen` splitting a `match` whose discriminant telescope is
 dependent: a later discriminant's type mentions an earlier discriminant. Abstracting the matcher

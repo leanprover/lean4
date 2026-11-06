@@ -1,5 +1,7 @@
 import Std.WP
 
+set_option sym.debug true
+
 /-!
 Regression test for `vcgen`'s spec backward-rule cache. The rule built from an equality spec must
 stay generic in the spec's value variables: the cache reuses the rule for every program matching

@@ -8,6 +8,8 @@ import Std
 import Lean.Elab.Tactic.Do.VCGen
 import Lean
 
+set_option sym.debug true
+
 open Std.Do
 
 set_option grind.warning false

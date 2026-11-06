@@ -1,6 +1,8 @@
 import Std.WP
 import Std.Tactic.Do
 
+set_option sym.debug true
+
 /-!
 Tests that `mvcgen` and `vcgen` apply a `@[spec]` theorem whose *type* is a
 reducible abbreviation wrapping a Hoare triple, e.g. `abbrev foo.spec := ⦃P⦄ foo ⦃Q⦄`.

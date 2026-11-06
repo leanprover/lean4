@@ -7,6 +7,7 @@ module
 
 prelude
 public import Std.Internal.Order.Product
+public import Std.Internal.Order.OfProp
 import all Std.Internal.Order.Product
 
 @[expose] public section
@@ -16,7 +17,9 @@ import all Std.Internal.Order.Product
 
 The supremum-preserving maps of the lattice theory (the identity, pointwise lifts, the lattice meet
 on `Prop`, functions, pairs, `PProd` and `Unit`, and `Prod.map`), and the laws of their upper
-adjoints.
+adjoints. A supremum-preserving `f` eliminates a supremum in its argument on the left of an
+entailment: `f (⨆ i, P i) ⊑ R` follows from `∀ i, f (P i) ⊑ R`, and `f (⌜φ⌝ ⊓ P) ⊑ R` follows
+from `φ → f P ⊑ R`.
 -/
 
 namespace Lean.Order
@@ -192,6 +195,20 @@ theorem map_mono (f : α → α) [PreservesSup f] {b b' : α} (h : b ⊑ b') : f
   calc f b ⊑ f (CompleteLattice.sup (fun y => y ⊑ b')) := by
             rw [PreservesSup.map_sup (f := f)]; exact le_sup _ ⟨b, h, rfl⟩
     _ = f b' := by rw [hsup]
+
+theorem map_iSup_le (f : α → α) [PreservesSup f] {ι : Sort v} {P : ι → α} {R : α}
+    (h : ∀ i, f (P i) ⊑ R) : f (iSup P) ⊑ R := by
+  unfold iSup
+  rw [PreservesSup.map_sup (f := f)]
+  apply sup_le
+  rintro y ⟨x, ⟨i, rfl⟩, rfl⟩
+  exact h i
+
+theorem map_ofProp_meet_le (f : α → α) [PreservesSup f] {φ : Prop} {P R : α}
+    (h : φ → f P ⊑ R) : f (⌜φ⌝ ⊓ P) ⊑ R :=
+  PartialOrder.rel_trans
+    (map_mono f (CompleteLattice.ofProp_meet_le fun hφ => le_iSup (fun _ : φ => P) hφ))
+    (map_iSup_le f h)
 
 /-- A right adjoint is monotone. -/
 theorem upperAdjoint_mono (f : α → α) [PreservesSup f] {b b' : α} (h : b ⊑ b') :

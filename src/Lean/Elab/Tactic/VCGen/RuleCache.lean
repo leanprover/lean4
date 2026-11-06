@@ -97,4 +97,17 @@ public def mkFrameBackwardRuleCached (fp : FrameProc) (info : WPApp) :
   return frule
 
 
+/--
+Cached version of `mkOpPreIntroRule`.
+
+Cache key: `(instWP, thm)` (the operator is determined by the monad).
+-/
+public def mkOpPreIntroRuleCached (fp : FrameProc) (info : WPApp) (thm : Name) :
+    VCGenM (Option BackwardRule) := do
+  let key := (ExprPtr.mk info.instWP, thm)
+  if let some rule? := (← get).opPreIntroRuleCache[key]? then return rule?
+  let rule? ← (← mkOpPreIntroRule fp info thm).mapM (·.shareCommon)
+  modify fun st => { st with opPreIntroRuleCache := st.opPreIntroRuleCache.insert key rule? }
+  return rule?
+
 end Lean.Elab.Tactic.VCGen

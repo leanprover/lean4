@@ -201,6 +201,10 @@ public structure State where
   /-- Caches the frame rule (`meet_op_wp_upperAdjoint_le_wp`), keyed by the `WPMonad` instance
   and the number of excess state arguments. -/
   frameBackwardRuleCache : Std.HashMap (ExprPtr × Nat) FrameBackwardRule := {}
+  /-- Caches the rules that eliminate a supremum or a pure guard under a frame operator on the left
+  of an entailment, keyed by the `WPMonad` instance and the lemma. `none` records an operator
+  without a `PreservesSup` instance. -/
+  opPreIntroRuleCache : Std.HashMap (ExprPtr × Name) (Option BackwardRule) := {}
   /-- The frame database from the `frames` clause. -/
   frameDB : FrameDB := {}
   /--

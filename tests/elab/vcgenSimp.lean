@@ -1,5 +1,7 @@
 import Std.WP
 
+set_option sym.debug true
+
 /-!
 `vcgen` rewrites hypotheses, state arguments and verification conditions with its simp set: the
 `@[vcgen_simp]` theorems, the theorems of the `simp [...]` clause, and the evaluation of ground

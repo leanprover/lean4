@@ -1,6 +1,8 @@
 import Std.Tactic.BVDecide
 import Std.Tactic.Do
 
+set_option sym.debug true
+
 open Std Do
 
 set_option doc.verso true

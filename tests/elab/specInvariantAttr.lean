@@ -1,6 +1,8 @@
 import Std.Tactic.Do
 import Std
 
+set_option sym.debug true
+
 open Std Do
 
 set_option grind.warning false

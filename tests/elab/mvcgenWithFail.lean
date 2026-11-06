@@ -1,5 +1,7 @@
 import Std
 
+set_option sym.debug true
+
 /-!
   `mvcgen with grind` should behave like `induction ... with grind` and fail if `grind` fails on
   one of the goals.

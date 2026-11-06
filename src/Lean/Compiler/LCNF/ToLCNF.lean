@@ -588,6 +588,33 @@ where
           Meta.mkLambdaFVars (xs ++ ys) (mkAppN e ys)
 
 /--
+Returns `true` if `alt` is `fun y₁ … yₙ => cidx` for `n = numFields` and the raw natural number
+literal `cidx`, the shape of the alternatives of `T.ctorIdx` (see `mkCtorIdx`).
+-/
+def isCtorIdxAlt (alt : Expr) (numFields cidx : Nat) : Bool :=
+  match numFields, alt with
+  | 0, .lit (.natVal n) => n == cidx
+  | n + 1, .lam _ _ body _ => isCtorIdxAlt body n cidx
+  | _, _ => false
+
+/--
+Returns `true` if the `casesOn` application with arguments `args` returns the index of the
+constructor in every alternative. Its value is then the tag of the major premise, unless the
+inductive type has a single constructor, which may be represented by one of its fields, or is a
+builtin type such as `Nat`.
+-/
+def isCtorIdxCases (casesInfo : CasesInfo) (indVal : InductiveVal) (args : Array Expr) :
+    CoreM Bool := do
+  if args.size != casesInfo.arity || indVal.numCtors < 2 || isRuntimeBuiltinType indVal.name ||
+      casesInfo.numAlts != indVal.numCtors then
+    return false
+  for i in casesInfo.altsRange, altInfo in casesInfo.altNumParams do
+    let .ctor ctorName numFields := altInfo | return false
+    unless isCtorIdxAlt args[i]! numFields (← getConstInfoCtor ctorName).cidx do
+      return false
+  return true
+
+/--
 Put the given expression in `LCNF`.
 
 - Nested proofs are replaced with `lcProof`-applications.
@@ -770,6 +797,11 @@ where
           withoutExpectedType do
             let result ← visit (← liftMetaM <| mkProofOverApp (mkAppN f fieldArgs) nproofs)
             mkOverApplication result args arity
+      else if ← isCtorIdxCases casesInfo indVal args then
+        let discr := args[casesInfo.discrPos]!
+        let discrType ← liftMetaM <| Meta.inferType discr
+        let u ← liftMetaM <| Meta.getLevel discrType
+        visitCore (mkApp2 (.const ``getObjTagNat [u]) discrType discr)
       else
         let mut alts := #[]
         let discr ← withoutExpectedType do

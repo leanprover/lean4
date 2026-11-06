@@ -1,9 +1,9 @@
 [Compiler.IR] [result]
-    def Exp.ctorIdx._impl (x_1 : @& tobj) : tobj :=
+    def Exp.ctorIdx (x_1 : @& tobj) : tobj :=
       let x_2 : tagged := getObjTagNat ◾ x_1;
       ret x_2
-    def Exp.ctorIdx._impl._boxed (x_1 : tobj) : tobj :=
-      let x_2 : tobj := Exp.ctorIdx._impl x_1;
+    def Exp.ctorIdx._boxed (x_1 : tobj) : tobj :=
+      let x_2 : tobj := Exp.ctorIdx x_1;
       dec x_1;
       ret x_2
 [Compiler.IR] [result]

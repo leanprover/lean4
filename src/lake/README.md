@@ -575,6 +575,26 @@ USAGE:
 Greet the entity with the given name. Otherwise, greet the whole world.
 ```
 
+## Sharing a local artifact store
+
+`LAKE_SHARED_CACHE_ROOT` opts a compatible Lake executable into a local store
+under `toolchains/<identity>`. It requires restored artifacts, a recognized
+release toolchain, and working hard links between the store and workspace.
+Forwarding sysroots can use the same namespace when their Lean libraries resolve
+to the installed release's libraries. Compiler command wrappers remain in use.
+Otherwise the ordinary `LAKE_CACHE_DIR` remains in use. The native store publishes
+complete artifacts and mappings atomically and treats eviction during restoration
+as a cache miss.
+
+Keep `LAKE_CACHE_DIR` pointing to a private fallback when older Lake executables
+may run in the same environment: they ignore the shared-cache opt-in. Setting
+`LAKE_SHARED_CACHE_FALLBACK` to that private path lets an explicit command-local
+`LAKE_CACHE_DIR` override disable shared selection. Children retain the private
+`LAKE_CACHE_DIR`; each compatible executable selects its own shared store.
+`lake --shared-cache-dir` reports the initial selection without loading project
+configuration. Package overrides requiring non-restored paths keep the workspace
+private. Retention policy belongs to the caller; no age or size cap is implied.
+
 ## Building and Running Lake from the Source
 
 If you already have a Lean installation with `lake` packaged with it, you can build a new `lake` by just running `lake build`.

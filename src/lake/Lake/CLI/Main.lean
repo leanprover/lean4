@@ -528,19 +528,23 @@ def serviceNotFound (service : String) (configuredServices : Array CacheServiceC
 def endpointDeprecation : String :=
    "configuring the cache service via environment variables is deprecated; use --service instead"
 
-protected def get : CliM PUnit := do
-  processOptions lakeOption
-  let opts ← getThe LakeOptions
-  let mappings? ← takeArg?
-  noArgsRem do
-  let cfg ← mkLoadConfig opts
-  let ws ← loadWorkspace cfg
-  let cache := ws.lakeCache
+def withPrivateCacheFallback (ws : Workspace) (action : Cache → LoggerIO α) : LoggerIO α := do
+  if ws.lakeEnv.sharedLakeCache?.any (·.dir == ws.lakeCache.dir) then
+    if let some fallback := ws.lakeEnv.privateLakeCache? then
+      let (value?, log) ← (action ws.lakeCache).captureLog
+      if let some value := value? then
+        log.replay
+        return value
+      for entry in log.entries do
+        logEntry {entry with level := min entry.level .warning}
+      logWarning "shared local cache unavailable; using the private cache"
+      return ← action fallback
+  action ws.lakeCache
+
+def getCore (cache : Cache) (ws : Workspace) (opts : LakeOptions)
+  (pkg? : Option Package) (mappings? : Option String)
+: LoggerIO Unit := do
   let overwrite := opts.overwrite?.getD true
-  unless overwrite do
-    -- artifacts of skipped mappings with `--no-overwrite` cannot be cleanly handled
-    error "`--no-overwrite` is not supported for `cache get`"
-  let pkg? ← opts.package?.bindM (liftM <| parsePackageSpec ws ·)
   if let some file := mappings? then liftM (m := LoggerIO) do
     if opts.mappingsOnly then
       error "`--mappings-only` is not supported with a mappings file; use `lake cache add` instead"
@@ -660,6 +664,19 @@ where
       service.downloadArtifacts descrs cache remoteScope opts.forceDownload
     cache.writeMap pkg.cacheScope map service.name? (some remoteScope) overwrite
 
+protected def get : CliM PUnit := do
+  processOptions lakeOption
+  let opts ← getThe LakeOptions
+  let mappings? ← takeArg?
+  noArgsRem do
+  let cfg ← mkLoadConfig opts
+  let ws ← loadWorkspace cfg
+  unless opts.overwrite?.getD true do
+    error "`--no-overwrite` is not supported for `cache get`"
+  let pkg? ← opts.package?.bindM (liftM <| parsePackageSpec ws ·)
+  liftM (m := LoggerIO) <| withPrivateCacheFallback ws fun cache =>
+    getCore cache ws opts pkg? mappings?
+
 def computeUploadService
   (service? : Option String) (lakeEnv : Env) (lakeCfg : LoadedLakeConfig)
 : CliStateM CacheService := do
@@ -762,7 +779,8 @@ protected def add : CliM PUnit := do
     return some (.ofString service)
   let map ← CacheMap.load file
   let overwrite := opts.overwrite?.getD true
-  ws.lakeCache.writeMap localScope map service? opts.scope? overwrite
+  liftM (m := LoggerIO) <| withPrivateCacheFallback ws fun cache =>
+    liftM <| cache.writeMap localScope map service? opts.scope? overwrite
 
 def stagingOutputsFile := "outputs.jsonl"
 
@@ -825,29 +843,28 @@ protected def unstage : CliM PUnit := do
     return some (.ofString service)
   let map ← CacheMap.load (stagingDir / stagingOutputsFile)
   let descrs ← map.collectOutputDescrs
-  let artDir := ws.lakeCache.artifactDir
-  IO.FS.createDirAll artDir
-  let overwrite := opts.overwrite?.getD false
-  let ok ← descrs.foldlM (init := true) fun ok descr => do
-    let cachePath := artDir/ descr.relPath
-    let stagingPath := stagingDir / descr.relPath
-    if (← cachePath.pathExists) && !overwrite then return ok
-    let publish := do
-      let contents ← IO.FS.readBinFile stagingPath
-      writeBinFileAtomic cachePath contents overwrite (readOnly := true)
-    match (← publish |>.toBaseIO) with
-    | .ok _ =>
-      return ok
-    | .error (.noFileOrDirectory ..) =>
-      logError s!"output artifact not found in staging directory: {stagingPath}"
-      return false
-    | .error e =>
-      logError s!"failed to copy artifact: {e}"
-      return false
-  unless ok do
-    logError "failed to copy all outputs to the staging directory"
-    exit 1
-  ws.lakeCache.writeMap localScope map service? opts.scope? overwrite
+  liftM (m := LoggerIO) <| withPrivateCacheFallback ws fun cache => do
+    IO.FS.createDirAll cache.artifactDir
+    let overwrite := opts.overwrite?.getD false
+    let ok ← descrs.foldlM (init := true) fun ok descr => do
+      let cachePath := cache.artifactDir / descr.relPath
+      let stagingPath := stagingDir / descr.relPath
+      if (← cachePath.pathExists) && !overwrite then return ok
+      let publish := do
+        let contents ← IO.FS.readBinFile stagingPath
+        if ws.lakeEnv.sharedLakeCache?.any (fun (shared : Cache) => shared.dir == cache.dir) && Hash.ofByteArray contents != descr.hash then
+          throw <| IO.userError s!"{stagingPath}: staged artifact hash mismatch"
+        writeBinFileAtomic cachePath contents overwrite (readOnly := true)
+      match (← publish |>.toBaseIO) with
+      | .ok _ => return ok
+      | .error (.noFileOrDirectory ..) =>
+        logError s!"output artifact not found in staging directory: {stagingPath}"
+        return false
+      | .error e =>
+        logError s!"failed to copy artifact: {e}"
+        return false
+    unless ok do error "failed to copy all outputs to the staging directory"
+    cache.writeMap localScope map service? opts.scope? overwrite
 
 protected def putStaged : CliM PUnit := do
   processOptions lakeOption
@@ -1445,6 +1462,9 @@ def lake : CliM PUnit := do
   match (← getArgs) with
   | [] => IO.println usage
   | ["--version"] => IO.println uiVersionString
+  | ["--shared-cache-dir"] =>
+    let env ← (← getThe LakeOptions).computeEnv
+    if let some cache := env.sharedLakeCache? then IO.println cache.dir else IO.println ""
   | _ => -- normal CLI
     processLeadingOptions lakeOption -- between `lake` and command
     if let some cmd ← takeArg? then

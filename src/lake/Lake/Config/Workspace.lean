@@ -29,7 +29,9 @@ namespace Lake
 Computes the cache to use for the package based on the environment.
 -/
 public def computeLakeCache (pkg : Package) (lakeEnv : Lake.Env) : Cache :=
-  if pkg.bootstrap then
+  if lakeEnv.sharedLakeCache?.isSome && pkg.restoreAllArtifacts? == some false then
+    lakeEnv.privateLakeCache?.getD ⟨pkg.lakeDir / "cache"⟩
+  else if pkg.bootstrap then
     lakeEnv.lakeSystemCache?.getD ⟨pkg.lakeDir / "cache"⟩
   else
     lakeEnv.lakeCache?.getD ⟨pkg.lakeDir / "cache"⟩
@@ -416,7 +418,8 @@ to run executables.
 -/
 public def augmentedEnvVars (self : Workspace) : Array (String × Option String) :=
   let vars := self.lakeEnv.baseVars ++ #[
-    ("LAKE_CACHE_DIR", some self.lakeCache.dir.toString),
+    ("LAKE_CACHE_DIR", some <| if self.lakeEnv.sharedLakeCache?.isSome then
+      self.lakeEnv.privateLakeCache?.map (·.dir.toString) |>.getD "" else self.lakeCache.dir.toString),
     ("LAKE_ARTIFACT_CACHE", if let some b := self.enableArtifactCache? then toString b else ""),
     ("LAKE_RESTORE_ARTIFACTS", if let some b := self.restoreAllArtifacts? then toString b else ""),
     ("LEAN_PATH", some self.augmentedLeanPath.toString),

@@ -8,6 +8,7 @@ module
 prelude
 public import Lake.Config.Cache
 public import Lake.Config.InstallPath
+import Lake.Util.IO
 import Init.System.Platform
 
 open System
@@ -158,6 +159,52 @@ public def computeCache? (elan? : Option ElanInstall) (toolchain : String) : Bas
   else
     return none
 
+/-- Recognize the native shared namespace while preserving the public environment layout. -/
+public def sharedLakeCache? (env : Env) : Option Cache := do
+  let active ← env.lakeCache?
+  let fallback ← env.lakeSystemCache?
+  guard (active.dir != fallback.dir)
+  guard (active.dir.parent.bind FilePath.fileName == some "toolchains")
+  return active
+
+/-- The unchanged system-cache field retains the explicitly configured private fallback. -/
+public def privateLakeCache? (env : Env) : Option Cache :=
+  if env.sharedLakeCache?.isSome then env.lakeSystemCache? else none
+
+/-- Select shared storage only for supported release toolchains with restored artifacts. -/
+def sharedCache? (env : Env) : IO (Option Cache) := do
+  let some root ← IO.getEnv "LAKE_SHARED_CACHE_ROOT" | return none
+  unless env.lakeCache?.isSome && env.lakeCache?.map (·.dir) == env.lakeSystemCache?.map (·.dir) do
+    return none
+  if let some fallback ← IO.getEnv "LAKE_SHARED_CACHE_FALLBACK" then
+    unless (← IO.getEnv "LAKE_CACHE_DIR") == some fallback do return none
+  if root.isEmpty || env.noSystemCache || env.restoreAllArtifacts? != some true ||
+      env.enableArtifactCache? == some false ||
+      (!env.githashOverride.isEmpty && env.githashOverride != env.lean.githash) then
+    return none
+  unless env.toolchain.startsWith "leanprover/lean4:v" ||
+      env.toolchain.startsWith "leanprover/lean4-nightly:nightly-" do
+    return none
+  let some elan := env.elan? | return none
+  let install := elan.toolchainDir env.toolchain
+  if (← install.symlinkMetadata).type == .symlink then return none
+  let sysroot ← IO.FS.realPath install
+  unless (← IO.FS.realPath env.lean.leanLibDir) == (← IO.FS.realPath (sysroot / "lib" / "lean")) do
+    return none
+  let actual ← env.lean.sharedDynlibs.mapM fun lib => IO.FS.realPath lib.path
+  let expected ← (leanSharedDynlibs sysroot).mapM fun lib => IO.FS.realPath lib.path
+  unless actual == expected do return none
+  let identity := Hash.ofString (sysroot.toString ++ env.lean.githash)
+  let cache : Cache := ⟨FilePath.mk root / "toolchains" / identity.toString⟩
+  for name in #["artifacts", "outputs", "revisions"] do
+    withTempFileFor (cache.dir / name / "probe") fun _ => pure ()
+  let cwd ← IO.currentDir
+  withTempFileFor (cwd / ".lake" / "probe") fun source =>
+    withTempFileFor (cache.artifactDir / "probe") fun target => do
+      IO.FS.removeFile target
+      IO.FS.hardLink source target
+  return some cache
+
 /--
 Compute a `Lake.Env` object from the given installs
 and the set environment variables.
@@ -169,7 +216,7 @@ public def compute
   let reservoirBaseUrl ← getUrlD "RESERVOIR_API_BASE_URL" "https://reservoir.lean-lang.org/api"
   let toolchain ← computeToolchain
   let userHome? ← getUserHome?
-  addCacheDirs userHome? toolchain {
+  let env : Env ← addCacheDirs userHome? toolchain {
     lake, lean, elan?,
     pkgUrlMap := ← computePkgUrlMap
     reservoirApiUrl := ← getUrlD "RESERVOIR_API_URL" s!"{reservoirBaseUrl}/v1"
@@ -188,6 +235,10 @@ public def compute
     initSharedLibPath := ← getSearchPath sharedLibPathEnvVar,
     initPath := ← getSearchPath "PATH"
   }
+  match (← sharedCache? env |>.toBaseIO) with
+  | .ok (some cache) =>
+    return {env with lakeCache? := some cache}
+  | _ => return env
 where
   addCacheDirs userHome? toolchain env := do
     if let some dir ← IO.getEnv "LAKE_CACHE_DIR" then
@@ -307,7 +358,8 @@ public def baseVars (env : Env) : Array (String × Option String)  :=
 /-- Environment variable settings for the `Lake.Env`. -/
 public def vars (env : Env) : Array (String × Option String)  :=
   let vars := env.baseVars ++ #[
-    ("LAKE_CACHE_DIR", if let some cache := env.lakeCache? then cache.dir.toString else ""),
+    ("LAKE_CACHE_DIR", if let some cache :=
+      (if env.sharedLakeCache?.isSome then env.privateLakeCache? else env.lakeCache?) then cache.dir.toString else ""),
     ("LAKE_ARTIFACT_CACHE", if let some b := env.enableArtifactCache? then toString b else ""),
     ("LAKE_RESTORE_ARTIFACTS", if let some b := env.restoreAllArtifacts? then toString b else ""),
     ("LEAN_PATH", some env.leanPath.toString),

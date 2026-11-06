@@ -48,6 +48,7 @@ COMMANDS:
 
 BASIC OPTIONS:
   --version             print version and exit
+  --shared-cache-dir    print the compatible native shared cache, or an empty line
   --help, -h            print help of the program or a command and exit
   --dir, -d=file        use the package configuration in a specific directory
   --file, -f=file       use a specific file for the package configuration

@@ -454,6 +454,16 @@ public def buildFileUnlessUpToDate'
     clearFileHash file
   setTrace (← fetchFileTrace file text)
 
+def sharePrivateArtifact (cached file : FilePath) : IO Unit := do
+  try
+    if (← file.metadata).numLinks == 1 then
+      withTempFileFor file fun tmp => do
+        IO.FS.removeFile tmp
+        IO.FS.hardLink cached tmp
+        IO.FS.rename tmp file
+  catch _ => pure ()
+
+
 /--
 Copies `file` to the Lake cache with the file extension `ext`, and
 saves its hash in its `.hash` file.
@@ -482,6 +492,7 @@ public def Cache.saveArtifact
         createParentDirs cacheFile
         writeFileAtomic cacheFile normalized (overwrite := false) (readOnly := true)
       IO.setAccessRights cacheFile ⟨r, r, r⟩
+      if useLocalFile then sharePrivateArtifact cacheFile file
       writeFileHash file hash
       let mtime ← getMTime cacheFile
       let path := if useLocalFile then file else cacheFile
@@ -502,6 +513,7 @@ public def Cache.saveArtifact
           unless e matches .alreadyExists .. do
             writeBinFileAtomic cacheFile contents (overwrite := false) (readOnly := true) (exe := exe)
       IO.setAccessRights cacheFile ⟨r, r, r⟩
+      if useLocalFile then sharePrivateArtifact cacheFile file
       writeFileHash file hash
       let mtime ← getMTime cacheFile
       let path := if useLocalFile then file else cacheFile
@@ -656,7 +668,12 @@ drives and/or file systems), falls back to copying the artifact to the new path.
 **For internal use.**
 -/
 public def restoreArtifact (file : FilePath) (art : Artifact) (exe := false) : LogIO Artifact := do
-  unless (← file.pathExists) do
+  if (← file.pathExists) then
+    sharePrivateArtifact art.path file
+    if exe then
+      let rights := {read := true, write := false, execution := true}
+      IO.setAccessRights file ⟨rights, rights, rights⟩
+  else
     logVerbose s!"found artifact in cache: {art.path}"
     createParentDirs file
     if let .error e ← (IO.FS.hardLink art.path file).toBaseIO then

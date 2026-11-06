@@ -13,6 +13,7 @@ import Lake.Load.Package
 import Lake.Load.Lean.Eval
 import Lake.Load.Toml
 import Lake.Build.InitFacets
+import Lake.Util.IO
 
 /-! # Workspace Loader
 
@@ -61,12 +62,25 @@ If `updateDeps` is true, updates the manifest before resolving dependencies.
 public def loadWorkspace (config : LoadConfig) : LoggerIO Workspace := do
   let {reconfigure, leanOpts, updateDeps, updateToolchain, packageOverrides, ..} := config
   let ws ← loadWorkspaceRoot config
-  if updateDeps then
+  let ws ← if updateDeps then
     ws.updateAndMaterialize {} leanOpts updateToolchain
   else if let some manifest ← Manifest.load? ws.manifestFile then
     ws.materializeDeps manifest leanOpts reconfigure packageOverrides
   else
     ws.updateAndMaterialize {} leanOpts updateToolchain
+  if ws.lakeEnv.sharedLakeCache?.isSome && ws.packages.any (·.restoreAllArtifacts? == some false) then
+    return {ws with lakeCache := ws.lakeEnv.privateLakeCache?.getD ⟨ws.root.lakeDir / "cache"⟩}
+  else if ws.lakeEnv.sharedLakeCache?.isSome then
+    let probe : IO Unit := do
+      for pkg in ws.packages do
+        withTempFileFor (ws.lakeCache.outputsFile pkg.cacheScope .nil) fun _ => pure ()
+        withTempFileFor (ws.lakeCache.revisionPath pkg.cacheScope "probe") fun _ => pure ()
+    let available ← probe.toBaseIO
+    match available with
+    | .ok _ => return ws
+    | .error _ =>
+      return {ws with lakeCache := ws.lakeEnv.privateLakeCache?.getD ⟨ws.root.lakeDir / "cache"⟩}
+  else return ws
 
 /-- Updates the manifest for the loaded Lake workspace (see `updateAndMaterialize`). -/
 public def updateManifest

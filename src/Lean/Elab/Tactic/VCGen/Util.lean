@@ -127,14 +127,10 @@ public def numBindersToIntro : Expr → Nat
 constructor, no fields, no indices and no recursion, such as `PUnit` or `True`. The kernel
 identifies every value of `C ps` with `C.mk ps`: by eta for structures with no fields, and by proof
 irrelevance for `Prop`. -/
-public def unitValue? (type : Expr) : SymM (Option Expr) := do
-  let .const declName us := type.getAppFn | return none
-  let some (.inductInfo info) := (← getEnv).find? declName | return none
-  let [ctorName] := info.ctors | return none
-  unless info.numIndices == 0 && !info.isRec && type.getAppNumArgs == info.numParams do return none
-  let some (.ctorInfo ctor) := (← getEnv).find? ctorName | return none
-  unless ctor.numFields == 0 do return none
-  return some (← mkAppNS (← mkConstS ctorName us) type.getAppArgs)
+public def unitValue? (type : Expr) : SymM (Option Expr) :=
+  matchConstNonRecStructure type.getAppFn (fun _ => return none) fun info us ctor => do
+    unless ctor.numFields == 0 && type.getAppNumArgs == info.numParams do return none
+    return some (← mkAppNS (← mkConstS ctor.name us) type.getAppArgs)
 
 /-- Introduce the first `n` binders of `goal`, named by `mkFreshBinderNameForTactic`, which
 `tactic.hygienic` makes inaccessible: `∀ acc, acc % 2 = 0` introduces `acc✝`. A binder whose type

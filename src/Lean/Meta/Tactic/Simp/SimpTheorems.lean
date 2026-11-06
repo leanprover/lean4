@@ -8,6 +8,7 @@ prelude
 public import Lean.Meta.DiscrTree.Main
 public import Lean.Meta.Tactic.AuxLemma
 public import Lean.ImportedDeclMap
+public import Lean.ScopedEnvExtension.ModuleIndex
 public import Lean.DocString
 import Lean.Meta.AppBuilder
 import Lean.Meta.Eqns
@@ -743,7 +744,7 @@ def SimpTheorems.addSimpEntry (d : SimpTheorems) (e : SimpEntry) : SimpTheorems 
 
 /--
 The global simp entries of a module, preprocessed and stored in its olean so that importing them does
-not require adding each entry (see `ScopedEnvExtension.ModuleIndex`).
+not require adding each entry (see `registerSimpleScopedEnvExtensionWithIndex`).
 -/
 structure SimpModuleIndex where
   pre      : Array (DiscrTree.Key × DiscrTree.Trie SimpTheorem)
@@ -800,10 +801,6 @@ def SimpModuleIndex.addImported (d : SimpTheorems)
   let d := { d with lemmaNames := { imported } }
   return idxs.foldl (init := d) fun d idx => idx.rest.foldl SimpTheorems.addSimpEntry d
 
-/-- The `ScopedEnvExtension.ModuleIndex` of simp extensions, whose initial state is empty. -/
-def simpModuleIndex : ScopedEnvExtension.ModuleIndex SimpEntry SimpTheorems :=
-  .ofTyped SimpModuleIndex.ofEntries SimpModuleIndex.addImported
-
 /--
 `simp [foo]` should undo a previous `attribute @[-simp] foo`.
 (Note that `attribute @[simp] foo` does not undo a `attribute @[simp] foo`, see #5852)
@@ -839,7 +836,8 @@ def addSimpTheorem (ext : SimpExtension) (declName : Name) (post : Bool) (inv : 
 
 
 def mkSimpExt (name : Name := by exact decl_name%) : IO SimpExtension :=
-  registerSimpleScopedEnvExtension {
+  registerSimpleScopedEnvExtensionWithIndex (build := SimpModuleIndex.ofEntries)
+    (addImported := SimpModuleIndex.addImported) {
     name     := name
     initial  := {}
     addEntry := fun d e => d.addSimpEntry e
@@ -853,7 +851,6 @@ def mkSimpExt (name : Name := by exact decl_name%) : IO SimpExtension :=
         | .toUnfoldThms n _ => n
       if isPrivateName declName then ⟨none, none, some e⟩
       else .uniform (some e)
-    moduleIndex? := simpModuleIndex
   }
 
 abbrev SimpExtensionMap := Std.HashMap Name SimpExtension

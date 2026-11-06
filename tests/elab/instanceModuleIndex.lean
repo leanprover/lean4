@@ -29,13 +29,24 @@ def sameInstances (d₁ d₂ : Instances) : Bool :=
   d₁.instanceNames.isEmpty == d₂.instanceNames.isEmpty &&
   sortedNames d₁.erased.toList == sortedNames d₂.erased.toList
 
+/-- Whether module `i` stores a summary in the module index of `ext`. -/
+def hasSummary [Inhabited σ] (ext : ScopedEnvExtension α β σ) (env : Environment) (i : Nat) :
+    IO Bool := do
+  let some idx := (← persistentEnvExtensionsRef.get).find? (·.name == ext.ext.name ++ `moduleIndex)
+    | throw <| .userError s!"no module index for {ext.ext.name}"
+  return !(idx.getModuleEntries env (i : ModuleIdx)).isEmpty
+
 /--
-Whether all imported modules with global entries store a summary, without which the per-module data
-is not used (e.g. at stage 1, whose core library is exported by stage 0).
+Whether all imported modules with global entries of `ext` store a summary, without which the
+summaries are not used (e.g. at stage 1, whose core library is exported by stage 0).
 -/
-def allIndexed (entries : Array (Array (ScopedEnvExtension.Entry α))) : Bool :=
-  entries.all fun es =>
-    ((es[0]? : Option (ScopedEnvExtension.Entry α)) matches some (.index _)) || !es.any (· matches .global _)
+def allIndexed [Inhabited σ] (ext : ScopedEnvExtension α β σ) (env : Environment) : IO Bool := do
+  let entries := (ext.ext.toEnvExtension.getState env).importedEntries
+  let mut ok := true
+  for h : i in [0:entries.size] do
+    if entries[i].any (· matches .global _) && !(← hasSummary ext env i) then
+      ok := false
+  return ok
 
 #eval show CoreM Unit from do
   let env ← getEnv
@@ -43,6 +54,6 @@ def allIndexed (entries : Array (Array (ScopedEnvExtension.Entry α))) : Bool :=
   unless sameInstances d (sequentialInstances env) do
     throwError "instances differ from the sequentially built ones"
   unless d.discrTree.size > 5000 do throwError "too few instances: {d.discrTree.size}"
-  let indexed := allIndexed (instanceExtension.ext.toEnvExtension.getState env).importedEntries
+  let indexed ← allIndexed instanceExtension env
   unless d.instanceNames.imported.ownedKeys.isEmpty != indexed do
     throwError "unexpected representation of imported instance names"

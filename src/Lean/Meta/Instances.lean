@@ -9,6 +9,7 @@ public import Init.Data.Range.Polymorphic.Stream
 public import Lean.Meta.DiscrTree.Main
 public import Lean.Meta.CollectMVars
 public import Lean.ImportedDeclMap
+public import Lean.ScopedEnvExtension.ModuleIndex
 import Lean.Meta.PPBinder
 import Lean.Util.UnusedBinders
 import Lean.Meta.CollectFVars
@@ -124,7 +125,7 @@ def Instances.erase [Monad m] [MonadError m] (d : Instances) (declName : Name) :
 
 /--
 The global instance entries of a module, preprocessed and stored in its olean so that importing them
-does not require adding each entry (see `ScopedEnvExtension.ModuleIndex`).
+does not require adding each entry (see `registerSimpleScopedEnvExtensionWithIndex`).
 -/
 structure InstanceModuleIndex where
   roots   : Array (DiscrTree.Key × DiscrTree.Trie InstanceEntry)
@@ -164,7 +165,8 @@ def InstanceModuleIndex.addImported (d : Instances)
       (mods.map (·.1.map (·.owned) |>.getD (#[], #[]))) (idxs.map (·.foreign)) }
 
 builtin_initialize instanceExtension : SimpleScopedEnvExtension InstanceEntry Instances ←
-  registerSimpleScopedEnvExtension {
+  registerSimpleScopedEnvExtensionWithIndex (build := InstanceModuleIndex.ofEntries)
+      (addImported := InstanceModuleIndex.addImported) {
     initial  := {}
     addEntry := addInstanceEntry
     addImportedEntry := addImportedInstanceEntry
@@ -172,8 +174,6 @@ builtin_initialize instanceExtension : SimpleScopedEnvExtension InstanceEntry In
       if e.globalName?.any (!isPrivateName ·) then .uniform (some e)
       else ⟨none, none, some e⟩
     trackGen := true
-    moduleIndex? := ScopedEnvExtension.ModuleIndex.ofTyped InstanceModuleIndex.ofEntries
-      InstanceModuleIndex.addImported
   }
 
 private def mkInstanceKey (e : Expr) : MetaM (Array InstanceKey) := do

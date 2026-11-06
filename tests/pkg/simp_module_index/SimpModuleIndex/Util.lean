@@ -31,13 +31,24 @@ def sameState (d₁ d₂ : SimpTheorems) : Bool :=
   sortedNames d₁.toUnfold.toList == sortedNames d₂.toUnfold.toList &&
   sortedNames (d₁.toUnfoldThms.toList.map (·.1)) == sortedNames (d₂.toUnfoldThms.toList.map (·.1))
 
+/-- Whether module `i` stores a summary in the module index of `ext`. -/
+def hasSummary [Inhabited σ] (ext : ScopedEnvExtension α β σ) (env : Environment) (i : Nat) :
+    IO Bool := do
+  let some idx := (← persistentEnvExtensionsRef.get).find? (·.name == ext.ext.name ++ `moduleIndex)
+    | throw <| .userError s!"no module index for {ext.ext.name}"
+  return !(idx.getModuleEntries env (i : ModuleIdx)).isEmpty
+
 /--
-Whether all imported modules with global entries store a summary, without which the per-module data
-is not used (e.g. at stage 1, whose core library is exported by stage 0).
+Whether all imported modules with global entries of `ext` store a summary, without which the
+summaries are not used (e.g. at stage 1, whose core library is exported by stage 0).
 -/
-def allIndexed (entries : Array (Array (ScopedEnvExtension.Entry α))) : Bool :=
-  entries.all fun es =>
-    ((es[0]? : Option (ScopedEnvExtension.Entry α)) matches some (.index _)) || !es.any (· matches .global _)
+def allIndexed [Inhabited σ] (ext : ScopedEnvExtension α β σ) (env : Environment) : IO Bool := do
+  let entries := (ext.ext.toEnvExtension.getState env).importedEntries
+  let mut ok := true
+  for h : i in [0:entries.size] do
+    if entries[i].any (· matches .global _) && !(← hasSummary ext env i) then
+      ok := false
+  return ok
 
 def sequentialInstances (env : Environment) : Instances :=
   (instanceExtension.ext.toEnvExtension.getState env).importedEntries.foldl (init := {}) fun d es =>
@@ -61,13 +72,12 @@ def checkInstances (mods : List Name) : MetaM Unit := do
   let env ← getEnv
   for mod in mods do
     let some modIdx := env.getModuleIdx? mod | throwError "{mod} not imported"
-    let es := (instanceExtension.ext.toEnvExtension.getState env).importedEntries[modIdx.toNat]!
-    unless (es[0]? : Option (ScopedEnvExtension.Entry InstanceEntry)) matches some (.index _) do
+    unless ← hasSummary instanceExtension env modIdx.toNat do
       throwError "{mod} has no stored instance index"
   let d := instanceExtension.getState env
   unless sameInstances d (sequentialInstances env) do
     throwError "instances differ from the sequentially built ones"
-  let indexed := allIndexed (instanceExtension.ext.toEnvExtension.getState env).importedEntries
+  let indexed ← allIndexed instanceExtension env
   unless d.instanceNames.imported.ownedKeys.isEmpty != indexed do
     throwError "unexpected representation of imported instance names"
 
@@ -80,12 +90,11 @@ def checkSimpSets (mods : List Name) (perModule : Bool) : MetaM Unit := do
   let env ← getEnv
   for mod in mods do
     let some modIdx := env.getModuleIdx? mod | throwError "{mod} not imported"
-    let es := (simpExtension.ext.toEnvExtension.getState env).importedEntries[modIdx.toNat]!
-    unless (es[0]? : Option (ScopedEnvExtension.Entry SimpEntry)) matches some (.index _) do
+    unless ← hasSummary simpExtension env modIdx.toNat do
       throwError "{mod} has no stored index"
   for (attr, ext) in (← simpExtensionMapRef.get) do
     unless sameState (ext.getState env) (sequentialState ext env) do
       throwError "simp set `{attr}` differs from the sequentially built one"
-  let indexed := allIndexed (simpExtension.ext.toEnvExtension.getState env).importedEntries
+  let indexed ← allIndexed simpExtension env
   unless (← getSimpTheorems).lemmaNames.imported.ownedKeys.isEmpty != (perModule && indexed) do
     throwError "unexpected representation of imported lemma names"

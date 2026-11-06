@@ -95,7 +95,8 @@ public def registerJoinPoint (scope : Scope) (goal : MVarId) (jp : FVarId) (val 
     return none
   let goalTy ← goal.getType
   let_expr PartialOrder.rel α inst _ _ := goalTy | return none
-  let jpTy ← Sym.inferType (.fvar jp)
+  let jpFVar ← mkFVarS jp
+  let jpTy ← Sym.inferType jpFVar
   let numParams ← Lean.Elab.Tactic.Do.getNumJoinParams jpTy info.Prog
   -- `Assertion` is a class abbreviation: `instAL` is `Assertion.mk instCL`, where `instCL` is the
   -- lattice instance of every elaborated `⌜·⌝`, or it is a local instance.
@@ -103,29 +104,33 @@ public def registerJoinPoint (scope : Scope) (goal : MVarId) (jp : FVarId) (val 
     | Std.WP.Assertion.mk _ instCL => pure instCL
     | _ =>
       let lvls := (← Sym.inferType info.instAL).getAppFn.constLevels!
-      mkAppNS (mkConst ``Std.WP.Assertion.toCompleteLattice lvls) #[info.Pred, info.instAL]
+      mkAppNS (← mkConstS ``Std.WP.Assertion.toCompleteLattice lvls) #[info.Pred, info.instAL]
   let lctx ← getLCtx
   let localInsts ← getLocalInstances
   let some (hyp, top, specTy, rhsTy) ← forallBoundedTelescope jpTy numParams fun xs _ => do
       forallBoundedTelescope info.Pred info.excessArgs.size fun ss B => do
+    let xs ← xs.mapM (share ·)
+    let ss ← ss.mapM (share ·)
+    let B ← share B
     let some instB ← baseInstance? instCL ss | return none
     let some u := (← Sym.getLevel B).dec | throwError "vcgen +jp: `{B}` is not a type"
-    let top ← mkAppNS (mkConst ``Lean.Order.top [u]) #[B, instB]
-    let hyp ← mkFreshExprMVarAt lctx localInsts (← mkForallFVarsS (xs ++ ss) (mkSort .zero))
-      .syntheticOpaque
+    let top ← mkAppNS (← mkConstS ``Lean.Order.top [u]) #[B, instB]
+    let hyp ← share (← mkFreshExprMVarAt lctx localInsts
+      (← mkForallFVarsS (xs ++ ss) (← mkSortS .zero)) .syntheticOpaque)
     let entails (prog : Expr) : VCGenM Expr := do
       let wp ← mkAppNS (← mkAppNS info.head (info.args.set! 7 prog)) ss
-      let rel ← mkAppNS (mkConst ``PartialOrder.rel goalTy.getAppFn.constLevels!)
+      let rel ← mkAppNS (← mkConstS ``PartialOrder.rel goalTy.getAppFn.constLevels!)
         #[α, inst, top, wp]
       mkForallFVarsS (xs ++ ss) (← mkForallS `h .default (← mkAppNS hyp (xs ++ ss)) rel)
-    return some (hyp.mvarId!, top, ← entails (← mkAppNS (.fvar jp) xs), ← entails (← betaS val xs))
+    return some (hyp.mvarId!, top, ← entails (← mkAppNS jpFVar xs), ← entails (← betaS val xs))
     | return none
-  let rhs ← mkFreshExprSyntheticOpaqueMVar rhsTy (← goal.getTag)
+  let rhs ← share (← mkFreshExprSyntheticOpaqueMVar rhsTy (← goal.getTag))
   let goal ← goal.replaceTargetDefEqFast (← mkLetS `__do_jp_spec specTy rhs goalTy)
   let .goal decls goal ← Sym.introN goal 1
     | throwError "vcgen +jp: failed to introduce the proof of{indentExpr specTy}"
+  let spec ← mkFVarS decls[0]!
   let joinPoint : JoinPoint :=
-    { spec := .fvar decls[0]!, top, hyp, rhsGoal := rhs.mvarId!, numStates := info.excessArgs.size }
+    { spec, top, hyp, rhsGoal := rhs.mvarId!, numStates := info.excessArgs.size }
   modify fun s => { s with
     pendingJoinPoints := s.pendingJoinPoints.insert joinPoint.rhsGoal (joinPoint, #[]) }
   let scope := { scope with joinPoints := scope.joinPoints.insert jp joinPoint }
@@ -144,7 +149,7 @@ public def wpJump? (scope : Scope) (goal : MVarId) (info : WPApp) :
   unless info.excessArgs.size == jp.numStates do
     throwError "vcgen +jp: the jump{indentExpr info.prog}\ndoes not have {jp.numStates} states"
   let args ← (info.prog.getAppArgs ++ info.excessArgs).mapM (reduceHead ·)
-  let pf ← mkFreshExprSyntheticOpaqueMVar (← mkAppNS (.mvar jp.hyp) args)
+  let pf ← share (← mkFreshExprSyntheticOpaqueMVar (← mkAppNS (← mkMVarS jp.hyp) args))
   goal.assign (← mkAppNS jp.spec (args.push pf))
   modify fun s => { s with
     pendingJoinPoints := s.pendingJoinPoints.modify jp.rhsGoal fun (jp, jumps) =>

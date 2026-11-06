@@ -325,7 +325,8 @@ def simpHaveValue (goal : MVarId) (name : Name) (type val body : Expr) (nondep :
   let target ← goal.getType
   let relArgs := target.getAppArgs
   let rel ← mkAppNS target.getAppFn (relArgs.set! (relArgs.size - 1) body)
-  let target' ← mkAppNS target.getAppFn (relArgs.set! (relArgs.size - 1) (.letE name type val' body true))
+  let target' ← mkAppNS target.getAppFn
+    (relArgs.set! (relArgs.size - 1) (← mkHaveS name type val' body))
   let u ← Sym.getLevel type
   let h := mkApp6 (mkConst ``have_val_congr' [u, 1]) type (mkSort 0) val val' (.lam name type rel .default) h
   let .goal goal ← (Sym.Simp.Result.step target' h).toSimpGoalResult goal | return (goal, val)
@@ -468,7 +469,7 @@ def elabFrame (resourceTy : Expr) (entry : FrameEntry) (res : Sym.MatchUnifyResu
       let e ← Lean.Elab.Term.elabTermEnsuringType entry.frameStx (some resourceTy)
       Lean.Elab.Term.synthesizeSyntheticMVarsNoPostponing
       mkLetFVars fvs e
-    instantiateMVarsS frameExpr
+    shareCommon (← instantiateMVars frameExpr)
 
 /-- Find an unretired `frames` alternative matching the program (earliest source order wins),
 elaborate its frame at the resource type of `fp`'s operator, and retire it so it applies at most
@@ -498,9 +499,9 @@ def applySpecToFootprint (info : WPApp) (specRule : Sym.BackwardRule)
     (le W : Expr) (excessStates : Array Expr) (frame : MVarId)
     (splitLatticeOp? : MVarId → Grind.GrindM (Option (List MVarId))) :
     Grind.GrindM (Option (FrameGoal × List MVarId)) := do
-  let fp ← mkFreshExprMVar le.appFn!.appArg!
+  let fp ← share (← mkFreshExprMVar le.appFn!.appArg!)
   let rhs ← mkAppNS W excessStates
-  let target ← mkFreshExprSyntheticOpaqueMVar (← mkAppNS le #[fp, rhs])
+  let target ← share (← mkFreshExprSyntheticOpaqueMVar (← mkAppNS le #[fp, rhs]))
   let .goals sgs ← specRule.apply target.mvarId! | return none
   let some preVC ← sgs.findM? fun g => return (← g.getType).isAppOf ``Lean.Order.PartialOrder.rel
     | throwError "frame: spec rule left no precondition VC for{indentExpr info.prog}"

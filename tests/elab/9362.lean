@@ -1,5 +1,7 @@
 import Std.Tactic.Do
 
+set_option sym.debug true
+
 open Std.Do
 
 set_option linter.deprecated.syntax false

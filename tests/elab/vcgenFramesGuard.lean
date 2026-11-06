@@ -1,6 +1,8 @@
 import Lean
 import Std.WP
 
+set_option sym.debug true
+
 /-!
 `poke v` writes `v` at `mem ptr`, so it frames `fun s => s.mem 5 = 7` exactly in the states with
 `ptr ≠ 5`. The guard of the `WP.Frames` side goal fixes the state at `poke 1` to

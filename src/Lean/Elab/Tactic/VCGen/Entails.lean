@@ -159,9 +159,11 @@ def refoldHimpUpperAdjoint? (goal : MVarId) (rhs : Expr) :
     let some slice := args[2]? | return none
     unless slice.isAppOf ``Lean.Order.meet do return none
     let some Q := args[3]? | return none
-    let rhs' := mkAppN (← mkAppM ``Lean.Order.himp #[slice.appArg!, Q]) (args.extract 4 args.size)
+    let himp ← mkAppNS (← mkConstS ``Lean.Order.himp head.constLevels!)
+      #[args[0]!, args[1]!, slice.appArg!, Q]
+    let rhs' ← mkAppNS himp (args.extract 4 args.size)
     let target ← goal.getType
-    let newTarget := mkAppN target.getAppFn (target.getAppArgs.set! 3 rhs')
+    let newTarget ← mkAppNS target.getAppFn (target.getAppArgs.set! 3 rhs')
     return some (← goal.replaceTargetDefEqFast newTarget, rhs')
 
 /--

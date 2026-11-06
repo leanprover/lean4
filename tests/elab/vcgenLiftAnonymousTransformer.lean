@@ -1,5 +1,7 @@
 import Std.WP
 
+set_option sym.debug true
+
 /-!
 `liftMach` coerces the anonymous state transformer `fun s => match c s.machine with …` into
 `EStateM Unit Sys` by definitional unfolding alone: `EStateM` is a reducible function type, so

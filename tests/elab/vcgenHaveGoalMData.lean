@@ -1,5 +1,7 @@
 import Std.WP
 
+set_option sym.debug true
+
 /-! A tactic `have`/`let`/`suffices` wraps the goal in `noImplicitLambda` `mdata` (via
 `refine_lift no_implicit_lambda% …`). `vcgen` must read the program type through that annotation.
 Also checks that `⦃…⦄` elaborates with only `open Std.WP` (no `open Lean.Order`). -/

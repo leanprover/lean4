@@ -1,5 +1,8 @@
 import Lean
 import Std.Tactic.Do
+
+set_option sym.debug true
+
 open Std.WP
 set_option experimental.vcgen true
 

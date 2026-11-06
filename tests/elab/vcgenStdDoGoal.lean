@@ -1,5 +1,7 @@
 import Std.Tactic.Do
 
+set_option sym.debug true
+
 /-! `vcgen` explains how to migrate when the goal is a `Std.Do` triple and `Std.WP` is not
 imported (#15691). -/
 

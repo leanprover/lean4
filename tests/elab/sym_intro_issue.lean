@@ -12,6 +12,8 @@ Fix: guard `finalize` with `if fvars.isEmpty then return (#[], mvarId)`.
 -/
 import Lean
 
+set_option sym.debug true
+
 -- Demonstrate the bug by calling `Sym.intros` on a non-forall goal.
 -- With the fix in `introCore.finalize`, this prints "GOOD".
 -- Without the fix, it prints "BUG".

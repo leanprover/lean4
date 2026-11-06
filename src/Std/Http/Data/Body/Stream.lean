@@ -458,7 +458,7 @@ context is cancelled).
 -/
 partial def readAll
     [FromByteArray α]
-    [Monad m] [MonadExceptOf IO.Error m] [NextChunk m]
+    [Monad m] [MonadExceptOf IO.Error m] [MonadLiftT Async m] [NextChunk m]
     (stream : Stream)
     (maximumSize : Option UInt64 := none) :
     m α := do
@@ -470,6 +470,7 @@ partial def readAll
       let result := result ++ chunk.data
       if let some max := maximumSize then
         if result.size.toUInt64 > max then
+          (stream.close : Async Unit)
           throw (.userError s!"body exceeded maximum size of {max} bytes")
       loop result
 

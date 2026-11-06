@@ -353,10 +353,19 @@ private def getEndHeadersHead (events : Array (Event .receiving)) : Option Reque
 
 -- A chunk-size line cut inside an extension must report `.eof` so the machine waits for more data.
 #eval show IO Unit from do
-  for input in ["5;", "5 ", "5;a", "5;a=", "5;a=\"b"] do
+  for input in ["5", "5;", "5 ", "5;a", "5;a=", "5;a=b", "5;a=\"b"] do
     match parseChunkSize {} input.toUTF8.iter with
     | .error _ .eof => pure ()
     | _ => throw <| IO.userError s!"expected .eof for truncated chunk-size line {input.quote}"
+
+-- A chunk-size line that is still arriving is held to `maxChunkLineLength` by every byte read so
+-- far, including those of an extension the read cut off.
+#eval show IO Unit from do
+  let config : Protocol.H1.Config := { maxChunkLineLength := 16 }
+  let input := mkChunkedHead "/inc-chunk-line" ++ s!"5;{String.ofList (List.replicate 40 'a')}".toUTF8
+  let trace := runIncrementalReceiving #[input] config
+  ensure "Unfinished chunk-size line over the limit" (trace.machine.error == some .badMessage)
+    s!"expected badMessage, got {repr trace.machine.error}"
 
 -- The trailer section is consumed one field at a time: after a read that ends inside the second
 -- field, only that field is still buffered, so the next read does not parse the first one again.

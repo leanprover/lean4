@@ -129,7 +129,8 @@ structure Reader (dir : Direction) where
   messageCount : Nat := 0
 
   /--
-  Number of body bytes read for the current message.
+  Number of body bytes read for the current message. For a chunked body this includes the framing:
+  chunk-size lines, the line break after each chunk's data, and the trailer section.
   -/
   bodyBytesRead : Nat := 0
 

@@ -390,3 +390,17 @@ theorem modify_spec (f : St → St) (Q : Unit → St → Prop) :
 example (s₀ : St) (k : Nat) :
     ⦃fun s => s = s₀⦄ setX k ⦃fun _ s' => s'.m = { x := k, y := s₀.m.y }⦄ := by
   vcgen [setX, modify_spec]
+
+-- `vcgen` keeps the value of a `have` in the program as written, even if its simp set rewrites it.
+/--
+trace: case vc1
+k s✝ : Nat
+x : Nat := 0 + k
+⊢ x + x = k + k
+-/
+#guard_msgs (trace, drop warning) in
+example (k : Nat) :
+    ⦃fun _ => True⦄ (have x := 0 + k; pure (x + x) : StateM Nat Nat) ⦃fun r _ => r = k + k⦄ := by
+  vcgen simp [Nat.zero_add]
+  trace_state
+  all_goals sorry

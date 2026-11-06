@@ -1162,10 +1162,10 @@ def Module.recBuildElabArts (mod : Module) : FetchM (Job ModuleOutputArtifacts) 
     let arts ← adjustMTime arts mod.traceFile
     return arts
 where
-  fetchFromCacheCore? presetup savedTrace restoreAll : JobM ModuleFetchState := do
+  fetchFromCacheCore? savedTrace restoreAll : JobM (ModuleFetchState × Bool) := do
     let inputHash := (← getTrace).hash
     let some ltarOrArts ← getArtifacts? inputHash savedTrace mod.pkg
-      | return .incomplete savedTrace none
+      | return (.incomplete savedTrace none, false)
     match (ltarOrArts : ModuleOutputs) with
     | .ltar ltar =>
       updateAction .unpack
@@ -1179,17 +1179,10 @@ where
         -- On initial unpack from cache ensure all artifacts uniformly
         -- end up in the build directory and, if writable, the cache
         let arts ← mod.restoreAllArtifacts {arts with ltar? := some ltar}
-        if (← mod.pkg.isArtifactCacheWritable) then
-          let arts ← mod.cacheOutputArtifacts presetup.isModule restoreAll presetup.postponeCompile
-          -- Note: Cache service metadata is not preserved on an output update because it would
-          -- result in downloading module outputs that are not available on the remote.
-          (← getLakeCache).writeOutputs mod.pkg.cacheScope inputHash arts.descrs (overwrite := true)
-          return .complete arts
-        else
-          return .complete arts
+        return (.complete arts, true)
       else
         let ltar ← if restoreAll then restoreArtifact mod.ltarFile ltar else pure ltar
-        return .incomplete savedTrace (some ltar)
+        return (.incomplete savedTrace (some ltar), false)
     | .arts arts =>
       unless (← savedTrace.replayCachedIfUpToDate inputHash) do
         mod.clearOutputArtifacts
@@ -1203,17 +1196,24 @@ where
       if arts.ltar?.isNone then
         if (← mod.ltarFile.pathExists) then
           let ltar ← computeArtifact mod.ltarFile "ltar"
-          return .complete {arts with ltar? := some ltar}
-      return .complete arts
+          return (.complete {arts with ltar? := some ltar}, false)
+      return (.complete arts, false)
   fetchFromCache? presetup savedTrace restoreAll : JobM ModuleFetchState := do
-    try
-      fetchFromCacheCore? presetup savedTrace restoreAll
+    let (state, cacheRestored) ← try
+      fetchFromCacheCore? savedTrace restoreAll
     catch e =>
       let log ← takeLogFrom e
       logVerbose <| log.entries.foldl (s!"{·}\n- {·.message}")
         s!"could not restore module from cache; rebuilding: {mod.name}"
       mod.clearOutputArtifacts
-      return .incomplete .missing none
+      pure (.incomplete .missing none, false)
+    if let .complete _ := state then
+      if cacheRestored && (← mod.pkg.isArtifactCacheWritable) then
+        let arts ← mod.cacheOutputArtifacts presetup.isModule restoreAll presetup.postponeCompile
+        -- Keep cache-write failures outside restoration recovery.
+        (← getLakeCache).writeOutputs mod.pkg.cacheScope (← getTrace).hash arts.descrs (overwrite := true)
+        return .complete arts
+    return state
   fetchCore (presetup : ModulePreSetup) : JobM ModuleOutputArtifacts := do
     let depTrace ← getTrace
     have : GetMTime Module := ⟨(·.getMTime presetup.isModule presetup.postponeCompile)⟩

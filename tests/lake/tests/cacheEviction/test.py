@@ -131,6 +131,7 @@ os.execv(original, [original, *sys.argv[1:]])
         self.run_lake(third, "build", "Example")
         self.assertEqual((third / ".lake/build/lib/lean/Example.olean").read_bytes(), expected)
 
+    @unittest.skipIf(getattr(os, "geteuid", lambda: -1)() == 0, "root bypasses directory write permissions")
     def test_cache_write_errors_are_reported(self):
         artifacts = self.root / "cache/artifacts"
         artifacts.mkdir(parents=True)
@@ -143,6 +144,50 @@ os.execv(original, [original, *sys.argv[1:]])
         finally:
             artifacts.chmod(0o755)
 
+    @unittest.skipIf(getattr(os, "geteuid", lambda: -1)() == 0, "root bypasses file write permissions")
+    def test_cache_write_error_after_unpack_does_not_recompile(self):
+        mapping = self.root / "outputs.jsonl"
+        self.run_lake(self.first, "build", "+Example", "-o", str(mapping))
+        self.run_lake(self.first, "cache", "add", str(mapping))
+        unpacked = self.root / "unpacked"
+        compiled = self.root / "compiled"
+        wrapper = self.install / "bin/leantar"
+        wrapper.unlink()
+        wrapper.write_text(f'''#!{sys.executable}
+import os, pathlib, subprocess, sys
+original = {str(self.original.with_name("leantar"))!r}
+if "-x" in sys.argv and "-j" in sys.argv:
+    result = subprocess.run([original, *sys.argv[1:]], input=sys.stdin.buffer.read())
+    if result.returncode == 0:
+        outputs = pathlib.Path({str(self.root / "cache/outputs")!r})
+        for path in outputs.rglob("*"):
+            path.chmod(0o555 if path.is_dir() else 0o444)
+        pathlib.Path({str(unpacked)!r}).touch()
+    raise SystemExit(result.returncode)
+os.execv(original, [original, *sys.argv[1:]])
+''')
+        wrapper.chmod(0o755)
+        lean = self.install / "bin/lean"
+        lean.unlink()
+        lean.write_text(f'''#!{sys.executable}
+import os, pathlib, sys
+if "-o" in sys.argv:
+    pathlib.Path({str(compiled)!r}).touch()
+original = {str(self.original.with_name("lean"))!r}
+os.execv(original, [original, *sys.argv[1:]])
+''')
+        lean.chmod(0o755)
+        try:
+            result = subprocess.run([str(self.lake), "-v", "build", "Example"], cwd=self.second,
+                                    env=self.env, text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+            self.assertTrue(unpacked.exists(), result.stdout)
+            self.assertNotEqual(result.returncode, 0, result.stdout)
+            self.assertFalse(compiled.exists(), result.stdout)
+            self.assertNotIn("could not restore module", result.stdout)
+        finally:
+            for path in (self.root / "cache/outputs").rglob("*"):
+                path.chmod(0o755 if path.is_dir() else 0o644)
+
     @unittest.skipUnless(sys.platform.startswith("linux") and shutil.which("cc"), "link interposition needs Linux and cc")
     def test_eviction_after_lookup_is_a_recoverable_miss(self):
         self.eviction_after_lookup(clear_store=False)
@@ -153,7 +198,13 @@ os.execv(original, [original, *sys.argv[1:]])
 
     @unittest.skipUnless(sys.platform.startswith("linux") and shutil.which("cc"), "link interposition needs Linux and cc")
     def test_static_library_eviction_after_lookup_rebuilds(self):
+        self.env.pop("LAKE_RESTORE_ARTIFACTS")
         self.eviction_after_lookup(clear_store=False, target="Example:static", extension=".a")
+
+    @unittest.skipUnless(sys.platform.startswith("linux") and shutil.which("cc"), "link interposition needs Linux and cc")
+    def test_read_only_static_library_eviction_rebuilds(self):
+        self.env.pop("LAKE_RESTORE_ARTIFACTS")
+        self.eviction_after_lookup(clear_store=False, target="Example:static", extension=".a", read_only=True)
 
     @unittest.skipUnless(sys.platform.startswith("linux") and shutil.which("cc"), "link interposition needs Linux and cc")
     def test_read_only_cache_eviction_after_lookup_rebuilds(self):
@@ -218,11 +269,17 @@ os.execv(original, [original, *sys.argv[1:]])
             if extension == ".a":
                 return project / self.run_lake(project, "query", target).strip().splitlines()[-1]
             return project / ".lake/build/lib/lean/Example.olean"
-        self.assertEqual(artifact(self.second).read_bytes(), artifact(self.first).read_bytes())
+        def contents(project):
+            path = artifact(project)
+            if extension == ".a":
+                # Cached and local object filenames differ; compare archive member contents.
+                return subprocess.check_output([str(self.original.with_name("llvm-ar")), "p", str(path)])
+            return path.read_bytes()
+        self.assertEqual(contents(self.second), contents(self.first))
         # A third workspace must also consume the recovered cache mapping successfully.
         third = self.project("third")
         self.run_lake(third, "build", target)
-        self.assertEqual(artifact(third).read_bytes(), artifact(self.first).read_bytes())
+        self.assertEqual(contents(third), contents(self.first))
 
 if __name__ == "__main__":
     unittest.main()

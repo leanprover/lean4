@@ -8,6 +8,12 @@
 #include <string.h>
 #include <unistd.h>
 
+static int artifact_extension(const char *path, const char *extension) {
+    size_t n = strlen(path), m = strlen(extension);
+    return (n >= m && strcmp(path + n - m, extension) == 0) ||
+        (strcmp(extension, ".a") == 0 && n >= 9 && strcmp(path + n - 9, ".a.export") == 0);
+}
+
 int link(const char *source, const char *target) {
     int (*native_link)(const char *, const char *) = dlsym(RTLD_NEXT, "link");
     const char *prefix = getenv("TEST_CACHE_PREFIX");
@@ -15,19 +21,20 @@ int link(const char *source, const char *target) {
     const char *extension = getenv("TEST_ARTIFACT_EXTENSION");
     if (!extension) extension = ".olean";
     if (prefix && getenv("TEST_RESTORE_WRITE_FAIL") &&
-        strncmp(source, prefix, strlen(prefix)) == 0 && strstr(source, extension)) {
+        strncmp(source, prefix, strlen(prefix)) == 0 && artifact_extension(source, extension)) {
         errno = EXDEV;
         return -1;
     }
     if (prefix && directory && strncmp(source, prefix, strlen(prefix)) == 0 &&
-        strstr(source, extension) && strstr(target, extension)) {
+        artifact_extension(source, extension) && artifact_extension(target, extension)) {
         char marker[4096], release[4096];
         snprintf(marker, sizeof(marker), "%s/source", directory);
         snprintf(release, sizeof(release), "%s/release", directory);
         int descriptor = open(marker, O_WRONLY | O_CREAT | O_EXCL, 0600);
         if (descriptor >= 0) {
-            write(descriptor, source, strlen(source));
+            ssize_t written = write(descriptor, source, strlen(source));
             close(descriptor);
+            if (written < 0) return native_link(source, target);
             while (access(release, F_OK) != 0) usleep(1000);
         }
     }
@@ -43,7 +50,7 @@ size_t fwrite(const void *data, size_t size, size_t count, FILE *stream) {
     ssize_t length = readlink(descriptor, path, sizeof(path) - 1);
     if (length >= 0) path[length] = 0;
     if (marker && prefix && length >= 0 && strncmp(path, prefix, strlen(prefix)) == 0 &&
-        strstr(path, ".a") && size == 1 && count > 1) {
+        artifact_extension(path, ".a") && size == 1 && count > 1) {
         int fd = open(marker, O_WRONLY | O_CREAT | O_EXCL, 0600);
         if (fd >= 0) {
             close(fd);

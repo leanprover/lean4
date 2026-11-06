@@ -445,10 +445,7 @@ def writeOutputsCore
   createParentDirs file
   let out := {service?, scope? := remoteScope?, data := out : CacheOutput}
   let contents := (toJson out).pretty
-  if overwrite then
-    IO.FS.writeFile file contents
-  else
-    writeFileIfNew file contents
+  writeFileAtomic file contents overwrite
 
 /-- Cache the outputs corresponding to the given input for the package.  -/
 @[inline] public def writeOutputs
@@ -554,14 +551,19 @@ end CacheToolchain
 /-! ## Remote Cache Service -/
 
 /-- **For internal use only.** -/
-public def downloadArtifactCore (hash : Hash) (url : String) (path : FilePath) : LogIO Unit := do
-  download url path
-  let actualHash ← computeFileHash path
-  if actualHash != hash then
-    let errPos ← getLogPos
-    logError s!"{path}: downloaded artifact hash mismatch, got {actualHash}"
-    IO.FS.removeFile path
-    throw errPos
+def downloadArtifactCoreWith (hash : Hash) (url : String) (path : FilePath) (overwrite : Bool) : LogIO Unit :=
+  withTempFileFor path fun tmp => do
+    download url tmp
+    let actualHash ← computeFileHash tmp
+    if actualHash != hash then
+      error s!"{tmp}: downloaded artifact hash mismatch, got {actualHash}"
+    let r := {read := true, write := false, execution := false}
+    IO.setAccessRights tmp ⟨r, r, r⟩
+    if overwrite then replaceFile tmp path else publishFileIfNew tmp path
+
+/-- **For internal use only.** -/
+public def downloadArtifactCore (hash : Hash) (url : String) (path : FilePath) : LogIO Unit :=
+  downloadArtifactCoreWith hash url path false
 
 /-- Uploads a file to an online bucket using the Amazon S3 protocol. -/
 def uploadS3
@@ -686,7 +688,7 @@ public def downloadArtifact
   logInfo s!"{scope}: downloading artifact {descr.hash}\
     \n  local path: {path}\
     \n  remote URL: {url}"
-  downloadArtifactCore descr.hash url path
+  downloadArtifactCoreWith descr.hash url path force
 
 public def uploadArtifact
   (contentHash : Hash) (art : FilePath) (service : CacheService) (scope : CacheServiceScope)
@@ -711,6 +713,7 @@ structure TransferInfo where
   path : FilePath
   /-- Additional paths for a downloaded artifact. -/
   extraPaths : Array FilePath := #[]
+  temporaryPath : FilePath := ""
 
 @[inline] def TransferInfo.addPath (self : TransferInfo) (path : FilePath) (extra := true) : TransferInfo :=
   if extra then
@@ -757,9 +760,6 @@ structure TransferState where
   fix. A batch retries its unsettled transfers on its next attempt.
   -/
   settled : Std.HashSet Nat := {}
-
-@[inline] def tmpPath (path : FilePath) : FilePath :=
-  path.addExtension "tmp"
 
 /--
 The number of times a batch transfer is attempted: one initial attempt plus
@@ -844,27 +844,30 @@ where
       logError msg
       modify fun s => {s with settled := s.settled.insert i, didError := true}
   handleTransfer i info code out line : StateT TransferState LoggerIO Unit := do
-    let {url, hash, path, extraPaths} := info
+    let {url, hash, path, extraPaths, ..} := info
     match cfg.kind with
     | .get =>
       let logDownload :=
         logInfo s!"{cfg.scope}: downloaded artifact {hash}\
           \n  local path: {path}\
           \n  remote URL: {url}"
-      let tmpPath := tmpPath path
+      let tmpPath := info.temporaryPath
       match (← IO.FS.readBinFile tmpPath |>.toBaseIO) with
       | .ok contents =>
         logDownload
         let actualHash := Hash.ofByteArray contents
         if actualHash != hash then
           recordFailure i true s!"{tmpPath}: downloaded artifact hash mismatch, got {actualHash}"
-        else if let .error e ← IO.FS.rename tmpPath path |>.toBaseIO then
+        else if let .error e ← (do
+          let rights : IO.AccessRight := {read := true, write := false, execution := false}
+          IO.setAccessRights tmpPath ⟨rights, rights, rights⟩
+          publishFileIfNew tmpPath path) |>.toBaseIO then
           recordFailure i false s!"{path}: failed to persist temporary artifact: {e}"
         else
           unless extraPaths.isEmpty do
             -- Note: No intra-cache hard links (breaks permissions/pruning), so we copy
             for extraPath in extraPaths do
-              if let .error e ← IO.FS.writeBinFile extraPath contents |>.toBaseIO then
+              if let .error e ← writeBinFileAtomic extraPath contents (overwrite := false) (readOnly := true) |>.toBaseIO then
                 logError s!"{extraPath}: failed to copy artifact: {e}"
                 modify ({· with didError := true})
           recordSuccess i
@@ -890,7 +893,7 @@ where
       \n  remote URL: {info.url}"
     match cfg.kind with
     | .get =>
-      let tmpPath := tmpPath info.path
+      let tmpPath := info.temporaryPath
       unless code? matches .ok 404 do -- ignore response bodies on 404s
         if let .ok size := out.getAs Nat "size_download" then
           if size > 0 then
@@ -914,8 +917,7 @@ def runTransferAttempt
     match cfg.kind with
     | .get =>
       cfg.infos.forM fun info => do
-        let tmpPath := tmpPath info.path
-        removeFileIfExists tmpPath
+        let tmpPath := info.temporaryPath
         h.putStrLn s!"url = {info.url.quote}"
         h.putStrLn s!"-o {tmpPath.toString.quote}"
       h.flush
@@ -953,7 +955,7 @@ def runTransferAttempt
     logVerbose msg
   return s
 
-def transferArtifacts (cfg : TransferConfig) : LoggerIO Unit := do
+def transferArtifactsCore (cfg : TransferConfig) : LoggerIO Unit := do
   let action := match cfg.kind with | .get => "download" | .put => "upload"
   let mut didError := false
   let mut numSuccesses := 0
@@ -977,6 +979,20 @@ def transferArtifacts (cfg : TransferConfig) : LoggerIO Unit := do
     didError := true
   if didError then
     failure
+
+def transferArtifacts (cfg : TransferConfig) : LoggerIO Unit := do
+  let temporaryPaths ← IO.mkRef (#[] : Array FilePath)
+  try
+    let infos ← cfg.infos.mapM fun info => do
+      if cfg.kind matches .get then
+        let temporaryPath ← createTempFileFor info.path
+        temporaryPaths.modify (·.push temporaryPath)
+        return {info with temporaryPath}
+      else return info
+    transferArtifactsCore {cfg with infos}
+  finally
+    for path in (← temporaryPaths.get) do
+      removeFileIfExists path
 
 def reservoirArtifactsUrl (service : CacheService) (scope : CacheServiceScope) : String :=
   let endpoint :=
@@ -1026,7 +1042,7 @@ where
     -- Note: No intra-cache hard links (breaks permissions/pruning), so we copy
     let contents ← IO.FS.readBinFile path
     for extraPath in extraPaths do
-      IO.FS.writeBinFile extraPath contents
+      writeBinFileAtomic extraPath contents (overwrite := false) (readOnly := true)
   fetchUrls url infos := IO.FS.withTempFile fun h path => do
     let body := Json.arr <| infos.map (toJson ·.hash)
     h.putStr body.compress
@@ -1161,7 +1177,7 @@ public def downloadRevisionOutputs?
   let some contents := contents?
     | return none
   createParentDirs path
-  IO.FS.writeFile path contents
+  writeFileAtomic path contents
   CacheMap.load path platform.isNone
 
 public def uploadRevisionOutputs

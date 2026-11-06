@@ -3,8 +3,7 @@ source ../common.sh
 
 ./clean.sh
 
-# Test that caching a text artifact recovers from a temporary file
-# left behind by an interrupted write to the Lake artifact cache
+# Test that caching never reads or removes another publisher's temporary file
 
 TEST_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &> /dev/null && pwd)"
 CACHE_DIR="$(norm_path "$TEST_DIR")/.lake/cache"
@@ -15,7 +14,7 @@ test_run build text
 art=$("$LAKE" query text)
 test_exp "$(norm_dirname "$art")" = "$CACHE_DIR/artifacts"
 test_cmd diff -u fixtures/source.txt "$art"
-tmp="$art.copy.tmp"
+tmp="$CACHE_DIR/artifacts/.lake-cache-$$-1.tmp"
 
 # Plants the given file as the temporary file of a fresh save,
 # re-caches the artifact, and verifies the result
@@ -25,7 +24,8 @@ check_recovery() {
   cat "$1" > "$tmp"
   test_run build text
   test_cmd diff -u fixtures/source.txt "$art"
-  test_exp ! -e "$tmp"
+  test_cmd diff -u "$1" "$tmp"
+  rm -f "$tmp"
 }
 
 echo "# TEST: complete temporary file"

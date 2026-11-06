@@ -2,8 +2,7 @@ import Lake
 open System Lake DSL
 
 /-!
-Test how the Lake artifact cache recovers from
-a temporary file left by an interrupted write.
+Test that publication ignores temporary files owned by another publisher.
 -/
 
 package test where

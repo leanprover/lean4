@@ -7,6 +7,7 @@ module
 
 prelude
 public import Init.System.IO
+import Init.System.Platform
 
 open System
 
@@ -23,6 +24,64 @@ public def removeFileIfExists (path : FilePath) : IO Unit := do
   try IO.FS.removeFile path catch
     | .noFileOrDirectory .. => pure ()
     | e => throw e
+
+/-- Reserve a unique temporary pathname beside {lean}`path`. The caller owns its removal. -/
+public partial def createTempFileFor (path : FilePath) : IO FilePath := do
+  createParentDirs path
+  let pid ← IO.Process.getPID
+  let nonce ← IO.monoNanosNow
+  let tmp := path.parent.getD "." / (".lake-cache-" ++ toString pid ++ "-" ++ toString nonce ++ ".tmp")
+  try
+    discard <| IO.FS.Handle.mk tmp .writeNew
+    return tmp
+  catch
+    | .alreadyExists .. => createTempFileFor path
+    | e => throw e
+
+/-- Run an action with a unique temporary file on the destination filesystem. -/
+public def withTempFileFor
+  [Monad m] [MonadFinally m] [MonadLiftT IO m]
+  (path : FilePath) (f : FilePath → m α)
+: m α := do
+  let tmp ← createTempFileFor path
+  try f tmp finally removeFileIfExists tmp
+
+/-- Publish a completed file, keeping any winner already at the destination. -/
+public def publishFileIfNew (tmp path : FilePath) : IO Unit := do
+  try IO.FS.hardLink tmp path catch
+    | .alreadyExists .. => pure ()
+    | .unsupportedOperation .. =>
+      -- Shared-cache selection excludes this filesystem. Preserve private-cache behavior.
+      let contents ← IO.FS.readBinFile tmp
+      let handle ← try IO.FS.Handle.mk path .writeNew catch
+        | .alreadyExists .. => return
+        | e => throw e
+      handle.write contents
+    | e => throw e
+
+/-- Publish a completed temporary file, replacing the destination. -/
+public def replaceFile (tmp path : FilePath) : IO Unit := do
+  try IO.FS.rename tmp path catch e =>
+    if System.Platform.isWindows then
+      -- Windows cannot rename over a read-only cache entry. A missing entry is recoverable.
+      removeFileIfExists path
+      IO.FS.rename tmp path
+    else throw e
+
+/-- Publish complete bytes, or preserve an existing winner. Replacement is atomic on POSIX. -/
+public def writeBinFileAtomic
+  (path : FilePath) (contents : ByteArray) (overwrite := true) (readOnly exe := false)
+: IO Unit :=
+  withTempFileFor path fun tmp => do
+    IO.FS.writeBinFile tmp contents
+    if readOnly then
+      let rights := {read := true, write := false, execution := exe}
+      IO.setAccessRights tmp ⟨rights, rights, rights⟩
+    if overwrite then replaceFile tmp path else publishFileIfNew tmp path
+
+/-- Atomically replace a UTF-8 file, or preserve an existing winner. -/
+public def writeFileAtomic (path : FilePath) (contents : String) (overwrite := true) (readOnly := false) : IO Unit :=
+  writeBinFileAtomic path contents.toUTF8 overwrite readOnly
 
 /--
 Write the UTF-8 encoded string {lean}`content` to {lean}`path`.

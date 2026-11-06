@@ -566,9 +566,9 @@ protected def get : CliM PUnit := do
         return ws.defaultCacheService
     let map ← CacheMap.load file
     let localScope := pkg?.elim ws.root.cacheScope (·.cacheScope)
-    cache.writeMap localScope map service.name? (some remoteScope) overwrite
     let descrs ← map.collectOutputDescrs
     service.downloadArtifacts descrs cache remoteScope opts.forceDownload
+    cache.writeMap localScope map service.name? (some remoteScope) overwrite
   else
     let platform := opts.platform?.getD .system
     let toolchain := opts.toolchain?.getD ws.cacheToolchain
@@ -655,10 +655,10 @@ where
               if n = 0 || revs.size < n then "for any revision" else s!"in {n} revisions from HEAD"
             error s!"{remoteScope}: no outputs found {revisions}"
         return map
-    cache.writeMap pkg.cacheScope map service.name? (some remoteScope) overwrite
     unless opts.mappingsOnly do
       let descrs ← map.collectOutputDescrs
       service.downloadArtifacts descrs cache remoteScope opts.forceDownload
+    cache.writeMap pkg.cacheScope map service.name? (some remoteScope) overwrite
 
 def computeUploadService
   (service? : Option String) (lakeEnv : Env) (lakeCfg : LoadedLakeConfig)
@@ -831,13 +831,11 @@ protected def unstage : CliM PUnit := do
   let ok ← descrs.foldlM (init := true) fun ok descr => do
     let cachePath := artDir/ descr.relPath
     let stagingPath := stagingDir / descr.relPath
-    if (← cachePath.pathExists) then
-      if overwrite then
-        -- Cache artifacts are read-only, so the old artifact must be deleted first.
-        IO.FS.removeFile cachePath
-      else
-        return ok
-    match (← copyFile stagingPath cachePath |>.toBaseIO) with
+    if (← cachePath.pathExists) && !overwrite then return ok
+    let publish := do
+      let contents ← IO.FS.readBinFile stagingPath
+      writeBinFileAtomic cachePath contents overwrite (readOnly := true)
+    match (← publish |>.toBaseIO) with
     | .ok _ =>
       return ok
     | .error (.noFileOrDirectory ..) =>

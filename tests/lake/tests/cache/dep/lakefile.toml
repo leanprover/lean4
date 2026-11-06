@@ -2,3 +2,13 @@ name = "dep"
 
 [[lean_lib]]
 name = "Dep"
+
+[[cache_service]]
+name = "shared"
+kind = "reservoir"
+apiEndpoint = "https://example.com/api/v1"
+
+[[cache_service]]
+name = "dep-only"
+kind = "reservoir"
+apiEndpoint = "https://example.com/api/v1"

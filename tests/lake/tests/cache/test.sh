@@ -16,13 +16,17 @@ test_exp ! -d "$CACHE_DIR"
 test_run cache clean
 
 # Test `lake cache services`
-test_run resolve-deps
+# The system configuration shadows the root's `cdn`,
+# and the root shadows the dependency's `shared`
+test_run -f dep.toml resolve-deps
 LAKE_CONFIG=services.toml test_out_diff <(cat << EOF
 cdn
 bogus
 reservoir
+shared (from test)
+dep-only (from dep)
 EOF
-) cache services
+) -f dep.toml cache services
 
 # Verify packages without `enableArtifactCache` do not use the cache by default
 test_run build -f unset.toml Test:static

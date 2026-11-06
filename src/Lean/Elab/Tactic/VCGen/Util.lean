@@ -124,7 +124,8 @@ public def numBindersToIntro : Expr → Nat
   | _ => 0
 
 /-- Introduce the first `n` binders of `goal`, named by `mkFreshBinderNameForTactic`, which
-`tactic.hygienic` makes inaccessible: `∀ acc, acc % 2 = 0` introduces `acc✝`. -/
+`tactic.hygienic` makes inaccessible: `∀ acc, acc % 2 = 0` introduces `acc✝`. A binder over a unit
+type, such as `PUnit` or `True`, introduces no local (see `Sym.intros`). -/
 public def introsHygienicN (goal : MVarId) (n : Nat) : VCGenM MVarId :=
   goal.withContext do
     let rec collectBinders : Nat → Expr → Array Name → Array Name

@@ -297,7 +297,8 @@ def exfalso (mvarId : MVarId) : MetaM MVarId :=
 /--
 Apply the `n`-th constructor of the target type,
 checking that it is an inductive type,
-and that there are the expected number of constructors.
+that there are the expected number of constructors,
+and that the constructor is not a private one that is inaccessible in the current context.
 -/
 def nthConstructor
     (name : Name) (idx : Nat) (expected? : Option Nat := none) (goal : MVarId) :
@@ -311,7 +312,10 @@ def nthConstructor
           throwTacticEx name goal
             s!"{name} tactic works for inductive types with exactly {e} constructors"
         if h : idx < ival.ctors.length then
-          goal.apply <| mkConst ival.ctors[idx] us
+          let ctor := ival.ctors[idx]
+          if (← isInaccessiblePrivateName ctor) then
+            throwTacticEx name goal m!"constructor `{.ofConstName ctor}` is marked as private"
+          goal.apply <| mkConst ctor us
         else
           throwTacticEx name goal s!"index {idx} out of bounds, only {ival.ctors.length} constructors"
 

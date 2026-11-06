@@ -161,6 +161,17 @@ error: Invalid `⟨...⟩` notation: Constructor for `StructWithPrivateField` is
 #with_exporting
 #check (⟨1⟩ : StructWithPrivateField)
 
+#check (by constructor; exact 1 : StructWithPrivateCtor)
+
+/--
+error: Tactic `constructor` failed: constructor `StructWithPrivateCtor.mk✝` is marked as private
+
+⊢ StructWithPrivateCtor
+-/
+#guard_msgs in
+#with_exporting
+#check (by constructor; exact 1 : StructWithPrivateCtor)
+
 /-! #11715: `grind` should not fail to apply private matcher from imported module. -/
 
 attribute [local grind] func in

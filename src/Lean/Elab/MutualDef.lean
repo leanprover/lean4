@@ -1302,6 +1302,9 @@ this warning can be disabled with `set_option warn.classDefReducibility false`."
       else
         pure type
 
+      if env.header.isModule && isPrivateName declId.declName &&
+          (← ResolveName.backward.privateInPublic.getM) then
+        withRef header.declId <| checkPrivateInPublicExport declId.declName type
       async.commitSignature { name := header.declName, levelParams, type }
 
     -- attributes should be applied on the main thread; see below

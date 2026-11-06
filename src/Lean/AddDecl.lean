@@ -113,6 +113,26 @@ def recordOriginalConstKind (env : Environment) (declName : Name) (kind : Consta
     Environment :=
   privateConstKindsExt.insert env declName kind
 
+/--
+Checks that the exported form of the private declaration `declName`, exported because of
+`backward.privateInPublic`, refers only to constants that are themselves available in the public
+scope. `e` is the part of the declaration that is exported (its type, and possibly its value).
+-/
+def checkPrivateInPublicExport (declName : Name) (e : Expr) : CoreM Unit := do
+  let env ← getEnv
+  let publicEnv := env.setExporting true
+  for c in e.getUsedConstants do
+    if c == declName || publicEnv.contains c then continue
+    if isPrivateName c && (env.getModuleIdxFor? c).isNone then
+      logError m!"Private declaration `{privateToUserName declName}` is exported because \
+        `backward.privateInPublic` is enabled, but it refers to the private declaration \
+        `{MessageData.ofConstName c}`, which is not exported.\n\n\
+        Hint: Enable `backward.privateInPublic` for `{MessageData.ofConstName c}` as well."
+    else
+      logError m!"Private declaration `{privateToUserName declName}` is exported because \
+        `backward.privateInPublic` is enabled, but it refers to `{MessageData.ofConstName c}`, which \
+        is not accessible in the public scope."
+
 private def addDeclCore (decl : Declaration) (forceExpose : Bool) : CoreM Unit :=
   withTraceNode `addDecl (fun _ => return m!"adding declarations {decl.getNames}") do
   -- register namespaces for newly added constants; this used to be done by the kernel itself
@@ -153,6 +173,10 @@ private def addDeclCore (decl : Declaration) (forceExpose : Bool) : CoreM Unit :
   if decl.getTopLevelNames.all isPrivateName then
     if (← ResolveName.backward.privateInPublic.getM) then
       trace[addDecl] "private decl under `privateInPublic`, exporting as is"
+      if (← getEnv).header.isModule then
+        checkPrivateInPublicExport name info.type
+        if let some v := info.value? (allowOpaque := true) then
+          checkPrivateInPublicExport name v
       exportedInfo? := some info
     else
       trace[addDecl] "not exporting private declaration at all"

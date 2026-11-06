@@ -7,6 +7,7 @@ module
 
 prelude
 public import Lean.Compiler.LCNF.Internalize
+import Lean.Compiler.LCNF.Util
 
 public section
 
@@ -157,7 +158,7 @@ open FindUsed ReduceArity Internalize
 def Decl.reduceArity (decl : Decl .pure) : CompilerM (Array (Decl .pure)) := do
   match decl.value with
   | .code code =>
-    if decl.params.isEmpty then
+    if decl.params.isEmpty || isRuntimeBuiltinFunction decl.name then
       return #[decl]
     let used ← collectUsedParams decl
     if used.size == decl.params.size then

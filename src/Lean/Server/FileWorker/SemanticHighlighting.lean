@@ -863,34 +863,25 @@ partial def collectSyntaxBasedSemanticTokens (text : FileMap) : (stx : Syntax) �
       return tokens
     return emitSyntaxToken tokens stx (keywordSemanticTokenMap.getD val .keyword)
 
-private partial def forallBody : Expr → Expr
-  | .forallE _ _ body _ => forallBody body
-  | type => type
-
 private def typeForSortResult? (type : Expr) : Option SemanticTokenType :=
-  match forallBody type with
-  | .sort u =>
-    if u.isAlwaysZero then
-      some .enum
-    else
-      some .type
-  | _ => none
+  (Meta.typeFormerTypeLevelQuick type).map fun u =>
+    if u.isAlwaysZero then .enum else .type
 
-private partial def typeExprResult? (env : Environment) (lctx : LocalContext) (type : Expr) :
-    Option SemanticTokenType :=
-  match typeForSortResult? type with
-  | some tokenType => some tokenType
-  | none =>
-    match type.getAppFn with
-    | .const declName us =>
-      match env.find? declName with
-      | some info => typeForSortResult? (info.instantiateTypeLevelParams us)
-      | none => none
-    | .fvar fvarId =>
-      match lctx.find? fvarId with
-      | some localDecl => typeForSortResult? localDecl.type
-      | none => none
-    | _ => none
+private partial def typeExprResult? (env : Environment) (lctx : LocalContext) (type : Expr)
+    (bvarTypes : List Expr := []) : Option SemanticTokenType :=
+  match type.getAppFn with
+  | .sort _ => typeForSortResult? type
+  | .forallE _ domain body _ => typeExprResult? env lctx body (domain :: bvarTypes)
+  | .const declName us =>
+    match env.find? declName with
+    | some info => typeForSortResult? (info.instantiateTypeLevelParams us)
+    | none => none
+  | .fvar fvarId =>
+    match lctx.find? fvarId with
+    | some localDecl => typeForSortResult? localDecl.type
+    | none => none
+  | .bvar idx => bvarTypes[idx]?.bind typeForSortResult?
+  | _ => none
 
 private def classifyLocal (env : Environment) (ti : Elab.TermInfo) (localDecl : LocalDecl) :
     Option SemanticTokenType := Id.run do
@@ -915,24 +906,24 @@ private def classifyLocal (env : Environment) (ti : Elab.TermInfo) (localDecl : 
     return some .parameter
   return some .variable
 
-private def classifyConstant (env : Environment) (declName : Name) (info : ConstantInfo) (expr : Expr) :
+private def classifyConstant (env : Environment) (info : ConstantInfo) (us : List Level := []) :
     SemanticTokenType :=
-  if env.isProjectionFn declName then
+  if env.isProjectionFn info.name then
     .property
   else match info with
   | .ctorInfo _ => .enumMember
-  | .inductInfo info =>
+  | .inductInfo _ =>
     if isClass env info.name then
       .interface
     else if isStructure env info.name then
       .struct
-    else if let some tokenType := typeExprResult? env {} expr then
+    else if let some tokenType := typeForSortResult? (info.instantiateTypeLevelParams us) then
       tokenType
     else
       .type
   | .thmInfo _ | .recInfo _ => .function
   | _ =>
-    if let some tokenType := typeExprResult? env {} expr then
+    if let some tokenType := typeForSortResult? (info.instantiateTypeLevelParams us) then
       tokenType
     else
       .function
@@ -952,15 +943,15 @@ private def getSemanticTokenSyntax (stx : Syntax) : Syntax :=
   | _ => stx
 
 private def getAppFnSyntax? (stx : Syntax) : Option Syntax :=
-  if stx.isOfKind ``Parser.Term.app then
-    some stx[0]
-  else
-    none
+  if stx.isOfKind ``Parser.Term.app then some stx[0] else none
 
 private def collectTermInfoBasedSemanticToken (ctx : Elab.ContextInfo) (ti : Elab.TermInfo) :
     Option LeanSemanticToken := Id.run do
   let stx := getSemanticTokenSyntax ti.stx
   if ti.expr.isSort then
+    unless stx.isOfKind ``Parser.Term.type || stx.isOfKind ``Parser.Term.sort || stx.isOfKind ``Parser.Term.prop do
+      return none
+    let stx := stx[0]
     let .original .. := stx.getHeadInfo
       | return none
     return LeanSemanticToken.ofSyntax? stx .class
@@ -980,14 +971,19 @@ private def collectTermInfoBasedSemanticToken (ctx : Elab.ContextInfo) (ti : Ela
       | return none
     let `($_:ident) := stx
       | return none
+    if localDecl.isAuxDecl then
+      if let some declName := ti.lctx.auxDeclToFullName.get? fvarId then
+        let env := ctx.cmdEnv?.getD ctx.env
+        if let some info := env.find? declName then
+          return LeanSemanticToken.ofSyntax? stx (classifyConstant env info)
     return (classifyLocal ctx.env ti localDecl).bind (LeanSemanticToken.ofSyntax? stx ·)
-  | Expr.const declName .. =>
+  | Expr.const declName us =>
     let `($_:ident) := stx
       | return none
     let .original .. := stx.getHeadInfo
       | return none
     match findConstInfoWithEnv? ctx declName with
-    | some (env, info) => return LeanSemanticToken.ofSyntax? stx (classifyConstant env declName info ti.expr)
+    | some (env, info) => return LeanSemanticToken.ofSyntax? stx (classifyConstant env info us)
     | none => return none
   | _ => return none
 

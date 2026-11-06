@@ -169,7 +169,7 @@ class condition_variable {
 public:
     template<typename Lock> void wait(Lock const &) {}
     template<typename Lock, typename F> void wait(Lock const &, F) {}
-    template<typename Lock> void wait_for(Lock const &, chrono::milliseconds const &) {}
+    template<typename Lock, typename Rep, typename Period> void wait_for(Lock const &, chrono::duration<Rep, Period> const &) {}
     void notify_all() {}
     void notify_one() {}
 };

@@ -281,8 +281,18 @@ static void report_task_get_blocked_time(std::chrono::nanoseconds d) {
     }
 }
 
+#ifdef LEAN_EMSCRIPTEN
+// Emscripten's compiler-rt has bundled LLVM's profiling runtime since 4.0.11, and a main module links its system
+// libraries as whole archives, so the runtime's `atexit` hook writes `default.profraw` into the current directory of
+// every `lean.js` run (emscripten-core/emscripten#28123). Weak because older Emscripten versions do not have the symbol.
+extern "C" void __llvm_profile_set_filename(const char *) __attribute__((weak));
+#endif
+
 extern "C" LEAN_EXPORT int lean_main(int argc, char ** argv) {
 #ifdef LEAN_EMSCRIPTEN
+    if (__llvm_profile_set_filename) {
+        __llvm_profile_set_filename("/dev/null");
+    }
     // When running in command-line mode under Node.js, we make system directories available in the virtual filesystem.
     // This mode is used to compile 32-bit oleans.
     EM_ASM(

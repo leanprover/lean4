@@ -138,7 +138,7 @@ public def introsHygienicN (goal : MVarId) (n : Nat) : VCGenM MVarId :=
     let mut names := #[]
     for nm in binderNames do
       names := names.push (← Meta.mkFreshBinderNameForTactic nm)
-    let .goal _ goal ← Sym.intros goal names (elimUnitLike := true) | return goal
+    let .goal _ goal ← Sym.intros goal names | return goal
     return goal
 
 public def instantiateBinderDomains (goal : MVarId) : VCGenM MVarId := do

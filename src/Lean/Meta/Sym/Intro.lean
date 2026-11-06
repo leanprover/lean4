@@ -32,13 +32,13 @@ names are made inaccessible (fresh macro scopes); otherwise they are accessible 
 If the binders end at an assigned metavariable, e.g., `⊢ ?a` with `?a := p → q`, the binders of its
 value are introduced too.
 
-If `elimUnitLike` is `true`, a `∀` binder whose type `d` has the value `c := unitLikeValue? d`
-introduces no local declaration, and the new goal mentions `c` in place of the binder. The target
-`∀ (n : Nat) (u : PUnit), B n u` leaves the goal `B n PUnit.unit` with the local `n`, assigned by
-`fun n u => ?g`. `B n PUnit.unit` and `B n u` are definitionally equal by `unitLikeValue?`.
+A `∀` binder whose type `d` has the value `c := unitLikeValue? d` introduces no local declaration,
+and the new goal mentions `c` in place of the binder. The target `∀ (n : Nat) (u : PUnit), B n u`
+leaves the goal `B n PUnit.unit` with the local `n`, assigned by `fun n u => ?g`.
+`B n PUnit.unit` and `B n u` are definitionally equal by `unitLikeValue?`.
 -/
-partial def introCore (mvarId : MVarId) (max : Nat) (names : Array Name) (hygienic : Bool)
-    (elimUnitLike : Bool := true) : SymM (Array FVarId × MVarId) := do
+partial def introCore (mvarId : MVarId) (max : Nat) (names : Array Name) (hygienic : Bool) :
+    SymM (Array FVarId × MVarId) := do
   if max == 0 then return (#[], mvarId)
   let mvarDecl ← mvarId.getDecl
   /-
@@ -106,7 +106,7 @@ partial def introCore (mvarId : MVarId) (max : Nat) (names : Array Name) (hygien
     | .mdata _ type => visit i lctx localInsts fvars type
     | .forallE n type body bi =>
       let type ← instantiateRevS type fvars
-      if let some c ← (if elimUnitLike then unitLikeValue? type else pure none) then
+      if let some c ← unitLikeValue? type then
         visit (i+1) lctx localInsts (fvars.push c) body
       else
         let fvarId     ← mkFreshFVarId
@@ -142,7 +142,7 @@ partial def introCore (mvarId : MVarId) (max : Nat) (names : Array Name) (hygien
           else
             pure (← finalize lctx localInsts fvars type).2
           let (fvars', mvarId) ←
-            introCore mvarId (max - i) (names.extract i names.size) hygienic elimUnitLike
+            introCore mvarId (max - i) (names.extract i names.size) hygienic
           return (fvars.filter (·.isFVar) ++ fvars'.map mkFVar, mvarId)
       finalize lctx localInsts fvars type
   let (fvars, mvarId') ← visit 0 mvarDecl.lctx mvarDecl.localInstances #[] mvarDecl.type
@@ -159,19 +159,18 @@ Introduces leading binders (universal quantifiers and let-expressions) from the 
 
 If `names` is non-empty, introduces (at most) `names.size` binders using the provided names.
 If `names` is empty, introduces all leading binders using names derived from the binder names;
-`hygienic` then controls whether those names are inaccessible (see `introCore`). If
-`elimUnitLike` is `true`, a binder over a unit-like type such as `PUnit` or `True` introduces no
-local (see `introCore`).
+`hygienic` then controls whether those names are inaccessible (see `introCore`). A binder over
+a unit-like type such as `PUnit` or `True` introduces no local (see `introCore`).
 
 Returns `.goal newDecls mvarId` with new introduced free variable Ids and the updated goal.
 Returns `.failed` if no binder was introduced.
 -/
-public def intros (mvarId : MVarId) (names : Array Name := #[]) (hygienic : Bool := true)
-    (elimUnitLike : Bool := true) : SymM IntrosResult := do
+public def intros (mvarId : MVarId) (names : Array Name := #[]) (hygienic : Bool := true) :
+    SymM IntrosResult := do
   let result ← if names.isEmpty then
-    introCore mvarId hugeNat #[] hygienic elimUnitLike
+    introCore mvarId hugeNat #[] hygienic
   else
-    introCore mvarId names.size names hygienic elimUnitLike
+    introCore mvarId names.size names hygienic
   if result.1.isEmpty && result.2 == mvarId then
     return .failed
   return .goal result.1 result.2

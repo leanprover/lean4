@@ -95,9 +95,7 @@ def Message.Head.getSize (message : Message.Head dir) (allowEOFBody : Bool) : Op
 
   -- Single transfer-encoding header.
   | some #[header] =>
-    let te := Header.TransferEncoding.parse header
-
-    match Header.TransferEncoding.isChunked <$> te, contentLength with
+    match Header.TransferEncoding.finalCodingIsChunked? header, contentLength with
     | some true, none =>
         -- HTTP/1.0 does not define chunked transfer encoding (RFC 2068 §19.4.6).
         -- A server MUST NOT use chunked with an HTTP/1.0 peer; likewise, an

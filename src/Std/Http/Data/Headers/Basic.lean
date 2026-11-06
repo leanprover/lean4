@@ -163,14 +163,43 @@ def parse (v : Value) : Option TransferEncoding := do
     none
 
 /--
-Parses a comma-separated list of transfer codings without the chunked placement rules. A response's
-framing depends only on whether its final coding is `chunked` (RFC 9112 §6.3 rule 4), whatever the
-other codings are.
+Checks a transfer parameter: `token BWS "=" BWS ( token / quoted-string )` (RFC 9112 §7).
 -/
-def parseCodings? (v : Value) : Option (Array String) := do
-  let codings ← parseTokenList v
-  guard (codings.all isToken)
-  return codings
+private def isTransferParameter (param : String) : Bool :=
+  match param.split '=' |>.toStringList with
+  | name :: value@(_ :: _) =>
+    let value := ("=".intercalate value).trimAscii.toString
+    isToken name.trimAscii.toString && !value.isEmpty && (unquoteHttpString? value).isSome
+  | _ => false
+
+/--
+Parses a comma-separated list of transfer codings into their lowercased names, without the chunked
+placement rules of `parse`.
+
+Transfer parameters (`gzip;level=1`) are checked and dropped. `chunked` defines none, so a list in
+which `chunked` has one is rejected. A quoted parameter value that contains `,` or `;` is not
+supported.
+-/
+def parseCodings? (v : Value) : Option (Array String) :=
+  (v.value.split ',' |>.toStringList).toArray.mapM fun element => do
+    let name :: params := element.split ';' |>.toStringList | none
+    let name := name.trimAscii.toString.toLower
+    guard (isToken name && params.all isTransferParameter)
+    guard (params.isEmpty || name != "chunked")
+    return name
+
+/--
+Classifies a `Transfer-Encoding` value by its final coding, which decides how the message is framed
+(RFC 9112 §6.3): `some true` when it ends in `chunked` applied once, `some false` when it ends in
+another coding, and `none` when it is not a list of transfer codings (`parseCodings?`) or ends in a
+`chunked` applied more than once.
+-/
+def finalCodingIsChunked? (v : Value) : Option Bool := do
+  let codings ← parseCodings? v
+  if codings.back? != some "chunked" then
+    return false
+  guard (codings.count "chunked" == 1)
+  return true
 
 /--
 Serializes a transfer encoding back to a comma-separated header value.

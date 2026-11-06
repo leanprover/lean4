@@ -337,8 +337,7 @@ own and runs until the server closes the connection.
 private def hasCloseDelimitedCoding (message : Message.Head .sending) : Bool :=
   message.version == .v11 && !message.headers.contains Header.Name.contentLength &&
     match message.headers.getAll? Header.Name.transferEncoding with
-    | some #[value] =>
-      (Header.TransferEncoding.parseCodings? value).any (·.back? != some "chunked")
+    | some #[value] => Header.TransferEncoding.finalCodingIsChunked? value == some false
     | _ => false
 
 /--
@@ -390,7 +389,7 @@ The `Transfer-Encoding` value for a chunked message: the caller's own field when
 private def chunkedCodings (headers : Headers) : Header.Value :=
   match headers.getAll? Header.Name.transferEncoding with
   | some #[value] =>
-    if (Header.TransferEncoding.parse value).any (·.isChunked) then value else .mk "chunked"
+    if Header.TransferEncoding.finalCodingIsChunked? value == some true then value else .mk "chunked"
   | _ => .mk "chunked"
 
 /--
@@ -722,18 +721,25 @@ private def processHeaders (machine : Machine dir) : Machine dir :=
       advanceAfterHeaders machine state
 
 /--
-The connection options of a handler's `Connection` fields other than `close` and `keep-alive`, which
-the machine decides itself.
+The tokens of the `Connection` field the machine writes: the sender's own connection options, then
+`close` when the connection ends, or `keep-alive` when an HTTP/1.0 connection persists (RFC 2616
+§19.7.1). The sender's `close` and `keep-alive` are dropped, since the machine decides those itself;
+its other options are kept, such as the `upgrade` that RFC 9110 §7.8 requires next to `Upgrade`.
 -/
-private def handlerConnectionOptions (headers : Headers) : Array String :=
-  match headers.getAll? Header.Name.connection with
-  | none => #[]
-  | some values =>
-    values.foldl (init := #[]) fun acc value =>
-      match Header.Connection.parse value with
-      | some connection =>
-        acc ++ connection.tokens.filter (fun t => t != "close" && t != "keep-alive")
-      | none => acc
+private def connectionTokens (headers : Headers) (keepAlive : Bool) (version : Version) :
+    Array String :=
+  let options : Array String :=
+    match headers.getAll? Header.Name.connection with
+    | none => #[]
+    | some values =>
+      values.foldl (init := #[]) fun acc value =>
+        match Header.Connection.parse value with
+        | some connection =>
+          acc ++ connection.tokens.filter (fun t => t != "close" && t != "keep-alive")
+        | none => acc
+  if !keepAlive then options.push "close"
+  else if version == .v10 then options.push "keep-alive"
+  else options
 
 /--
 Encodes a server response head. The handler's fields are written in order without `Connection`,
@@ -757,22 +763,10 @@ private def encodeServerHead (head : Response.Head) (version : Version) (keepAli
       if head.headers.contains Header.Name.server then out
       else appendFieldLine out Header.Name.server server
     | none => out
-  -- RFC 9110 §7.8: a response that sends `Upgrade` must also send the `upgrade` connection option.
-  let options := handlerConnectionOptions head.headers
+  let tokens := connectionTokens head.headers keepAlive version
   let out : ByteArray :=
-    if !options.isEmpty then
-      let options :=
-        if !keepAlive then options.push "close"
-        else if version == .v10 then options.push "keep-alive"
-        else options
-      out ++ "Connection: " ++ ", ".intercalate options.toList ++ "\r\n"
-    else if !keepAlive then
-      out ++ "Connection: close\r\n"
-    else if version == .v10 then
-      -- RFC 2616 §19.7.1: HTTP/1.0 keep-alive responses must echo Connection: keep-alive
-      out ++ "Connection: keep-alive\r\n"
-    else
-      out
+    if tokens.isEmpty then out
+    else out ++ "Connection: " ++ ", ".intercalate tokens.toList ++ "\r\n"
   -- Framing fields are omitted for bodyless status codes (RFC 9110 §8.6, §15.4.5) and for
   -- HTTP/1.0 connection-close framing (RFC 7230 §3.3.1).
   let out : ByteArray :=
@@ -838,16 +832,12 @@ private def writeHead (messageHead : Message.Head dir.swap) (machine : Machine d
           else headers.insert Header.Name.userAgent userAgent
         | none => headers
 
-      -- Erase any user-supplied Connection value to avoid duplicate or conflicting headers.
+      -- The request's own version: the reader may already hold the next response's status line.
+      let tokens := connectionTokens headers keepAlive messageHead.version
       let headers := headers.erase Header.Name.connection
       let headers :=
-        if !keepAlive then
-          headers.insert Header.Name.connection (.mk "close")
-        -- The request's own version: the reader may already hold the next response's status line.
-        else if messageHead.version == .v10 then
-          headers.insert Header.Name.connection (.mk "keep-alive")
-        else
-          headers
+        if tokens.isEmpty then headers
+        else headers.insert Header.Name.connection (.ofString! (", ".intercalate tokens.toList))
       -- RFC 9110 §8.6: no `Content-Length` on a request without content whose method anticipates
       -- none, unless the caller set a framing field.
       let headers :=
@@ -1424,21 +1414,27 @@ private def parseFixedBody (machine : Machine dir) (size : Nat) :
 
 /--
 Parses next chunk-size line in chunked mode and transitions to chunk-data state.
+
+The line, like the line break after the data and the trailer section, counts toward `maxBodySize`,
+so the wire size of a chunked body stays bounded however small its chunks are.
 -/
 private def parseChunkSizeBody (machine : Machine dir) :
     Machine dir × Option PulledChunk × Bool :=
+  let start := machine.reader.input.remainingBytes
   let (machine, result) := parseWith machine
     (parseChunkSize machine.config)
     (limit := some machine.config.maxChunkLineLength)
 
   match result with
   | some (size, ext) =>
+    let lineBytes := start - machine.reader.input.remainingBytes
     if size > machine.config.maxChunkSize then
       bodyTooLarge machine
-    else if !fitsBodyLimit machine size then
+    else if !fitsBodyLimit machine (lineBytes + size) then
       bodyTooLarge machine
     else
-      (machine.setReaderState (.readBody (.chunkedBody ext size)), none, true)
+      (machine.addBodyBytes lineBytes |>.setReaderState (.readBody (.chunkedBody ext size)),
+        none, true)
   | none =>
     bodyNoProgress machine
 
@@ -1454,15 +1450,21 @@ private def parseTrailerState (machine : Machine dir)
   -- A server rejects every field forbidden in a request's trailers; a client, which discards
   -- trailers, only refuses those that would reframe the response.
   let strict := match dir with | .receiving => true | .sending => false
+  let start := machine.reader.input.remainingBytes
   let (machine, result) :=
     parseWith machine (parseTrailerHeader machine.config strict) (limit := none)
+  let lineBytes := start - machine.reader.input.remainingBytes
   match result with
   | some (some _) =>
     if count ≥ machine.config.maxTrailerHeaders then
       (machine.setFailure .badMessage, none, false)
+    else if !fitsBodyLimit machine lineBytes then
+      bodyTooLarge machine
     else
-      (machine.setReaderState (.readBody (.trailers ext (count + 1))), none, true)
-  | some none => emitBodyChunk machine .complete true false ext .empty (closeBody := true)
+      (machine.addBodyBytes lineBytes |>.setReaderState (.readBody (.trailers ext (count + 1))),
+        none, true)
+  | some none =>
+    emitBodyChunk (machine.addBodyBytes lineBytes) .complete true false ext .empty (closeBody := true)
   | none => bodyNoProgress machine
 
 /--
@@ -1473,10 +1475,12 @@ private def parseChunkedBodyState (machine : Machine dir)
     (ext : Array (Chunk.ExtensionName × Option Chunk.ExtensionValue))
     (size : Nat) :
     Machine dir × Option PulledChunk × Bool :=
+  let start := machine.reader.input.remainingBytes
   let (machine, result) := parseWith machine (parseChunkSizedData size) (limit := none) (some size)
   match result with
   | some (.complete body) =>
-    emitBodyChunk machine (.readBody .chunkedSize) false false ext body
+    let lineBreak := start - machine.reader.input.remainingBytes - body.size
+    emitBodyChunk (machine.addBodyBytes lineBreak) (.readBody .chunkedSize) false false ext body
   | some (.incomplete body remaining) =>
     emitBodyChunk machine (.readBody (.chunkedBody ext remaining)) false true ext body
   | none =>

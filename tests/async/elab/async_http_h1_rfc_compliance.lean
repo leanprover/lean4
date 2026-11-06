@@ -1,4 +1,5 @@
 import Std.Http
+import Std.Http.Test.Helpers
 
 open Std Http
 open Std.Http.Internal.Test
@@ -481,6 +482,18 @@ private def minimalGetRequest : Request.Head :=
     |>.feed "POST / HTTP/1.1\r\nHost: example.com\r\nTransfer-Encoding: identity\r\n\r\n"
     |>.step |>.assertFailedWith .badMessage |>.run
 
+  -- §7: transfer parameters on a coding before `chunked` leave the request chunked
+  MachineTester.receiving "§7: Transfer-Encoding: gzip;level=1, chunked request is chunked"
+    |>.feed ("POST / HTTP/1.1\r\nHost: example.com\r\nTransfer-Encoding: gzip;level=1, chunked\r\n\r\n" ++
+      "3\r\nabc\r\n0\r\n\r\n")
+    |>.step |>.assertNoError
+    |>.drainBody |>.assertNoError |>.assertPulledBody "abc".toUTF8 |>.assertLastChunkFinal |>.run
+
+  -- RFC 9112 §7.1: `chunked` defines no parameters
+  MachineTester.receiving "§7: Transfer-Encoding: chunked;x=1 request → badMessage"
+    |>.feed "POST / HTTP/1.1\r\nHost: example.com\r\nTransfer-Encoding: chunked;x=1\r\n\r\n0\r\n\r\n"
+    |>.step |>.assertFailedWith .badMessage |>.run
+
 #eval runGroup "RFC 9112 §6.3: body framing" do
   MachineTester.receiving "§6.3: no CL/TE → empty body"
     |>.feed (mkGet "/")
@@ -621,7 +634,7 @@ private def minimalGetRequest : Request.Head :=
     |>.step |>.assertNoError |>.assertReaderComplete |>.run
 
   -- §6.3 rule 4: a response whose final transfer coding is not chunked is read until the server closes
-  for coding in ["gzip", "chunked, gzip"] do
+  for coding in ["gzip", "chunked, gzip", "gzip;level=1", "gzip ; level = \"9\""] do
     MachineTester.sending s!"§6.3: Transfer-Encoding: {coding} response is close-delimited"
       |>.send minimalGetRequest |>.step
       |>.feed s!"HTTP/1.1 200 OK\r\nTransfer-Encoding: {coding}\r\n\r\nabc"
@@ -629,12 +642,33 @@ private def minimalGetRequest : Request.Head :=
       |>.noMoreInput |>.drainBody |>.assertNoError
       |>.assertPulledBody "abc".toUTF8 |>.assertLastChunkFinal |>.run
 
+  -- §7: transfer parameters do not change which coding is final
+  MachineTester.sending "§6.3: Transfer-Encoding: gzip;level=1, chunked response is chunked"
+    |>.send minimalGetRequest |>.step
+    |>.feed "HTTP/1.1 200 OK\r\nTransfer-Encoding: gzip;level=1, chunked\r\n\r\n3\r\nabc\r\n0\r\n\r\n"
+    |>.step |>.assertNoError |>.assertKeepAlive
+    |>.drainBody |>.assertNoError |>.assertPulledBody "abc".toUTF8 |>.assertLastChunkFinal |>.run
+
+  -- §7.1: chunked defines no parameters
+  for coding in ["chunked;x=1", "gzip;level, chunked", "gzip;=1, chunked"] do
+    MachineTester.sending s!"§7: Transfer-Encoding: {coding} → badMessage"
+      |>.send minimalGetRequest |>.step
+      |>.feed s!"HTTP/1.1 200 OK\r\nTransfer-Encoding: {coding}\r\n\r\n3\r\nabc\r\n0\r\n\r\n"
+      |>.step |>.assertFailedWith .badMessage |>.run
+
   -- §6.1: a chunked message keeps the transfer codings its body was coded with
   MachineTester.receiving "§6.1: server keeps the handler's Transfer-Encoding: gzip, chunked"
     |>.feed (mkGet "/") |>.step |>.assertIsWaitingMessage
     |>.send { status := .ok, headers := Headers.empty.insert! "Transfer-Encoding" "gzip, chunked" }
     |>.sendBytes "abc".toUTF8 |>.userClosedBody |>.step
     |>.assertOutputContains "Transfer-Encoding: gzip, chunked\r\n" "expected the handler's codings"
+    |>.assertOutputContains "3\r\nabc\r\n0\r\n\r\n" "expected a chunked body" |>.run
+
+  MachineTester.receiving "§6.1: server keeps the handler's Transfer-Encoding: gzip;level=1, chunked"
+    |>.feed (mkGet "/") |>.step |>.assertIsWaitingMessage
+    |>.send { status := .ok, headers := Headers.empty.insert! "Transfer-Encoding" "gzip;level=1, chunked" }
+    |>.sendBytes "abc".toUTF8 |>.userClosedBody |>.step
+    |>.assertOutputContains "Transfer-Encoding: gzip;level=1, chunked\r\n" "expected the handler's codings"
     |>.assertOutputContains "3\r\nabc\r\n0\r\n\r\n" "expected a chunked body" |>.run
 
   MachineTester.sending "§6.1: client keeps the caller's Transfer-Encoding: gzip, chunked"
@@ -772,6 +806,23 @@ private def minimalGetRequest : Request.Head :=
     |>.send (upgrade "upgrade, keep-alive")
     |>.setKnownSize (.fixed 0) |>.userClosedBody |>.step |>.assertKeepAlive
     |>.assertOutputContains "Connection: upgrade\r\n" "expected only the upgrade option" |>.run
+
+  -- RFC 9110 §7.8: a client that sends `Upgrade` also sends the `upgrade` connection option
+  MachineTester.sending "§7.8: client keeps the caller's Connection: upgrade"
+    |>.send { minimalGetRequest with
+      headers := minimalGetRequest.headers
+        |>.insert! "Connection" "Upgrade" |>.insert! "Upgrade" "websocket" }
+    |>.userClosedBody |>.step
+    |>.assertOutputContains "Connection: upgrade\r\n" "expected the caller's upgrade option"
+    |>.assertOutputContains "Upgrade: websocket\r\n" "expected the Upgrade field" |>.run
+
+  MachineTester.sending "§7.8: client appends close to the caller's connection options"
+    |>.send { minimalGetRequest with
+      headers := minimalGetRequest.headers
+        |>.insert! "Connection" "upgrade, close" |>.insert! "Upgrade" "websocket" }
+    |>.userClosedBody |>.step |>.assertNotKeepAlive
+    |>.assertOutputContains "Connection: upgrade, close\r\n" "expected the upgrade option, then close"
+    |>.run
 
 #eval runGroup "RFC 9110 §6–§7: header handling" do
   -- §6.3: custom application headers are preserved in the parsed head

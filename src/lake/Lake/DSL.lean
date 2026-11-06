@@ -7,6 +7,7 @@ module
 
 prelude
 public import Lake.DSL.Attributes
+public import Lake.DSL.CacheService
 public import Lake.DSL.Config
 public import Lake.DSL.DeclUtil
 public import Lake.DSL.Extensions

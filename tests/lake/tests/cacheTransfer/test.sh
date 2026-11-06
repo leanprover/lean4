@@ -114,9 +114,9 @@ test_err '`--mappings-only` is not supported' cache get --mappings-only bogus.js
 with_endpoints test_err '`--mappings-only` requires services' cache get --mappings-only
 
 # Verify `--service` validation
-test_err 'service `bogus` not found in system configuration' \
+test_err 'service not found `bogus`' \
   cache get --service='bogus'
-test_err 'service `bogus` not found in system configuration' \
+test_err 'service not found `bogus`' \
   cache put bogus.jsonl --scope='bogus' --service='bogus'
 
 # Verify `cache get` rejects bad configurations

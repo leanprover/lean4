@@ -20,6 +20,9 @@ public builtin_initialize packageDepAttr : OrderedTagAttribute ←
 public builtin_initialize postUpdateAttr : OrderedTagAttribute ←
   registerOrderedTagAttribute `post_update "mark a definition as a Lake package post-update hook"
 
+public builtin_initialize cacheServiceAttr : OrderedTagAttribute ←
+  registerOrderedTagAttribute `cache_service "mark a definition as a Lake cache service"
+
 public builtin_initialize scriptAttr : OrderedTagAttribute ←
   registerOrderedTagAttribute `script "mark a definition as a Lake script"
 

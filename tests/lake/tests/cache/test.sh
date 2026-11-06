@@ -16,6 +16,7 @@ test_exp ! -d "$CACHE_DIR"
 test_run cache clean
 
 # Test `lake cache services`
+test_run resolve-deps
 LAKE_CONFIG=services.toml test_out_diff <(cat << EOF
 cdn
 bogus

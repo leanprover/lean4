@@ -551,6 +551,34 @@ instance : ToString CacheToolchain := ⟨CacheToolchain.toString⟩
 
 end CacheToolchain
 
+/-! ## Cache Service Kind -/
+
+public inductive CacheServiceKind
+| undef
+| reservoir
+| s3
+deriving Inhabited, DecidableEq
+
+namespace CacheServiceKind
+
+@[inline_if_reduce]
+public def ofString? (s : String) : Option CacheServiceKind :=
+  match s with
+  | "reservoir" => some .reservoir
+  | "s3" => some .s3
+  | _ => none
+
+@[inline_if_reduce]
+public protected def toString (self : CacheServiceKind) : String :=
+  match self with
+  | .reservoir => "reservoir"
+  | .s3 => "s3"
+  | .undef => "<undef>"
+
+public instance : ToString CacheServiceKind := ⟨CacheServiceKind.toString⟩
+
+end CacheServiceKind
+
 /-! ## Remote Cache Service -/
 
 /-- **For internal use only.** -/
@@ -589,16 +617,15 @@ def uploadS3
     error s!"curl produced invalid JSON output: {e}; received:\n{out.stderr}"
 
 structure CacheServiceImpl where
-  mk ::
-    name? : Option CacheServiceName := none
-    /- S3 Bucket -/
-    key : String := ""
-    artifactEndpoint : String := ""
-    revisionEndpoint : String := ""
-    /- Reservoir -/
-    isReservoir : Bool := false
-    apiEndpoint : String := ""
-    deriving Nonempty
+  name? : Option CacheServiceName := none
+  /- S3 Bucket -/
+  key : String := ""
+  artifactEndpoint : String := ""
+  revisionEndpoint : String := ""
+  /- Reservoir -/
+  isReservoir : Bool := false
+  apiEndpoint : String := ""
+  deriving Nonempty
 
 /--
 Configuration of a remote cache service (e.g., Reservoir or an S3 bucket).
@@ -611,7 +638,7 @@ the desired functions by using `CacheService`'s smart constructors
 public structure CacheService where
   private mk ::
     private impl : CacheServiceImpl
-    deriving Nonempty
+    deriving Nonempty, TypeName
 
 namespace CacheService
 
@@ -619,15 +646,50 @@ namespace CacheService
 @[inline] public def name? (service : CacheService) : Option CacheServiceName :=
   service.impl.name?
 
+/-- Returns what kind of cache service this is. -/
+@[inline] public def kind (service : CacheService) : CacheServiceKind :=
+  if service.impl.isReservoir then .reservoir else .s3
+
+public theorem kind_ne_undef : kind s ≠ .undef := by
+  simp only [kind]
+  split <;> simp_all
+
 /-- Returns whether this is a Reservoir cache service configuration. -/
 @[inline] public def isReservoir (service : CacheService) : Bool :=
   service.impl.isReservoir
+
+public theorem kind_eq_iff_isReservoir : kind s = .reservoir ↔ isReservoir s := by
+  simp only [isReservoir, kind]
+  split <;> simp_all
+
+/-- Returns whether this is a Amazon S3-style cache service configuration. -/
+@[inline] public def isS3 (service : CacheService) : Bool :=
+  ¬ service.impl.isReservoir
+
+public theorem kind_eq_iff_isS3 : kind s = .s3 ↔ isS3 s :=  by
+  simp only [isS3, kind]
+  split <;> simp_all
+
+set_option linter.unusedVariables.funArgs false in
+/-- Returns the API endpoint of a Reservoir cache service. -/
+@[inline] public def apiEndpoint (service : CacheService) (h : service.isReservoir) : String :=
+  service.impl.apiEndpoint
+
+set_option linter.unusedVariables.funArgs false in
+/-- Returns the artifact endpoint of a S3-style cache service. -/
+@[inline] public def artifactEndpoint (service : CacheService) (h : service.isS3) : String :=
+  service.impl.artifactEndpoint
+
+set_option linter.unusedVariables.funArgs false in
+/-- Returns the revision endpoint of a S3-style  cache service. -/
+@[inline] public def revisionEndpoint (service : CacheService) (h : service.isS3) : String :=
+  service.impl.revisionEndpoint
 
 /-! ### Constructors -/
 
 /-- Constructs a `CacheService` for a Reservoir endpoint. -/
 @[inline] public def reservoirService
-  (apiEndpoint : String) (name? := some CacheServiceName.reservoir)
+  (apiEndpoint : String) (name? : Option CacheServiceName := none)
 : CacheService := .mk {name?, isReservoir := true, apiEndpoint}
 
 /-- Constructs a `CacheService` to upload artifacts and/or outputs to an S3 endpoint. -/
@@ -648,6 +710,14 @@ namespace CacheService
 /-- Reconfigures the cache service to use the provided key (for uploads).-/
 @[inline] public def withKey (service : CacheService) (key : String) : CacheService :=
   .mk {service.impl with key}
+
+/-- Returns the cache service under a new name. -/
+@[inline] public def withName (service : CacheService) (name : CacheServiceName) : CacheService :=
+  .mk {service.impl with name? := some name}
+
+/-- Names the cache service if it does not already have one.-/
+@[inline] public def withNameD (service : CacheService) (name : CacheServiceName) : CacheService :=
+  .mk {service.impl with name? := service.impl.name?.getD name}
 
 /-! ### Artifact Transfer -/
 

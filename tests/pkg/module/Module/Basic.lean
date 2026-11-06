@@ -568,6 +568,96 @@ Eq.refl five
 #guard_msgs in
 #print instA._proof_1
 
+/-! #16110: a hypothesis whose type is the expected type only up to unfolding `five` must be
+abstracted as well. -/
+
+public structure FiveEq where
+  a : five = 5
+  b : Nat
+
+@[expose] public def mkHyp (h : 5 = 5) : FiveEq := ⟨by exact h, 0⟩
+
+@[expose] public def mkHypFinally (h : 2 + 3 = 5) : FiveEq := ⟨?_, 0⟩
+where finally
+  exact h
+
+-- A hypothesis whose type is the expected type is used as is.
+@[expose] public def mkHypSame (h : five = 5) : FiveEq := ⟨by exact h, 0⟩
+
+@[expose] public def mkHypSameFinally (h : five = 5) : FiveEq := ⟨?_, 0⟩
+where finally
+  exact h
+
+-- So is one whose type is the expected type up to unfolding exposed definitions.
+@[expose] public def mkHypExposed (h : id five = 5) : FiveEq := ⟨by exact h, 0⟩
+
+-- A `let`-bound hypothesis is treated like any other.
+@[expose] public def mkHypLet : FiveEq := let h : 5 = 5 := rfl; ⟨by exact h, 0⟩
+
+-- A `where finally` proof whose own type is not the expected type is abstracted at the expected
+-- type, as `by` does (#11672).
+@[expose] public def mkRflFinally : FiveEq := ⟨?_, 0⟩
+where finally
+  exact rfl
+
+/--
+info: @[expose] def mkHyp : 5 = 5 → FiveEq :=
+fun h => { a := mkHyp._proof_1 h, b := 0 }
+-/
+#guard_msgs in
+set_option pp.proofs true in
+#print mkHyp
+
+/--
+info: @[expose] def mkHypFinally : 2 + 3 = 5 → FiveEq :=
+fun h => { a := mkHypFinally._proof_1 h, b := 0 }
+-/
+#guard_msgs in
+set_option pp.proofs true in
+#print mkHypFinally
+
+/--
+info: @[expose] def mkHypSame : five = 5 → FiveEq :=
+fun h => { a := h, b := 0 }
+-/
+#guard_msgs in
+set_option pp.proofs true in
+#print mkHypSame
+
+/--
+info: @[expose] def mkHypSameFinally : five = 5 → FiveEq :=
+fun h => { a := h, b := 0 }
+-/
+#guard_msgs in
+set_option pp.proofs true in
+#print mkHypSameFinally
+
+/--
+info: @[expose] def mkHypExposed : id five = 5 → FiveEq :=
+fun h => { a := h, b := 0 }
+-/
+#guard_msgs in
+set_option pp.proofs true in
+#print mkHypExposed
+
+-- The proofs of `five = 5` share `instA._proof_1`, as auxiliary theorems are cached by type.
+/--
+info: @[expose] def mkHypLet : FiveEq :=
+have h := mkHypLet._proof_1;
+{ a := instA._proof_1, b := 0 }
+-/
+#guard_msgs in
+set_option pp.proofs true in
+#print mkHypLet
+
+/--
+info: @[expose] def mkRflFinally : FiveEq :=
+{ a := instA._proof_1, b := 0 }
+-/
+#guard_msgs in
+set_option pp.proofs true in
+#print mkRflFinally
+
 /-- Setup for #11715. -/
 
 public structure OpOperand2 where

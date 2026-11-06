@@ -530,7 +530,7 @@ theorem getKeyₘ_eq_getKey [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable
 theorem getKey_eq_getKey [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable α] {m : Raw₀ α β}
     (hm : Raw.WFImp m.1) {a : α} {h : m.contains a} :
     m.getKey a h = List.getKey a (toListModel m.1.buckets) (contains_eq_containsKey hm ▸ h) := by
-  rw [getKey_eq_getKeyₘ, getKeyₘ_eq_getKey hm]
+  rw [getKey_eq_getKeyₘ, getKeyₘ_eq_getKey hm (h := h)]
 
 theorem getKey!ₘ_eq_getKey! [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable α] [Inhabited α]
     {m : Raw₀ α β} (hm : Raw.WFImp m.1) {a : α} :

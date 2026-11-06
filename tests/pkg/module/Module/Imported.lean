@@ -213,3 +213,12 @@ public meta def metaUsingNonMeta : Nat :=
 
 -- #11672
 example : instA = { instA with b := 0 } := rfl
+
+-- #16110: the equation lemmas are type-checked here, without the body of `five`
+example (h : 5 = 5) : (mkHyp h).b = 0 := by unfold mkHyp; rfl
+example (h : 2 + 3 = 5) : (mkHypFinally h).b = 0 := by unfold mkHypFinally; rfl
+example (h : five = 5) : (mkHypSame h).b = 0 := by unfold mkHypSame; rfl
+example (h : five = 5) : (mkHypSameFinally h).b = 0 := by unfold mkHypSameFinally; rfl
+example (h : id five = 5) : (mkHypExposed h).b = 0 := by unfold mkHypExposed; rfl
+example : mkHypLet.b = 0 := by unfold mkHypLet; rfl
+example : mkRflFinally.b = 0 := by unfold mkRflFinally; rfl

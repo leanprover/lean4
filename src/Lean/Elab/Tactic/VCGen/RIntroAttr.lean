@@ -28,7 +28,8 @@ conclusion, whose `∀` binders become `.arrow` keys over the binder type and th
 binder of the target, `vcgen` applies the first matching rule in priority order as a backward rule
 to the remaining target, and otherwise introduces the binder.
 
-`vcgen` always uses the rules `Prod.forall_intro`, `PUnit.forall_intro` and `True.forall_intro`.
+`vcgen` always uses the rule `Prod.forall_intro`. `Std.WP.Automation` also provides the rules
+`PUnit.forall_intro` and `True.forall_intro`.
 -/
 
 open Lean Meta Sym
@@ -50,7 +51,7 @@ instance : BEq RIntroEntry where
   beq e₁ e₂ := e₁.declName == e₂.declName
 
 /-- The rules `vcgen` uses without registration. -/
-def builtinRIntros : Array Name := #[`Prod.forall_intro, `PUnit.forall_intro, `True.forall_intro]
+def builtinRIntros : Array Name := #[`Prod.forall_intro]
 
 builtin_initialize rintroExt : SimpleScopedEnvExtension RIntroEntry (DiscrTree RIntroEntry) ←
   registerSimpleScopedEnvExtension {
@@ -76,13 +77,21 @@ def mkRIntroEntry (declName : Name) (prio : Nat) : MetaM RIntroEntry := do
   let rule ← mkBackwardRuleFromDecl declName (some numPremises)
   return { declName, numPremises, keys := rule.pattern.mkDiscrTreeKeys, prio }
 
+/-- The entries of the rules of `builtinRIntros`, computed once. -/
+builtin_initialize builtinRIntroEntries : IO.Ref (Std.HashMap Name RIntroEntry) ← IO.mkRef {}
+
 /-- The rules registered with `@[vcgen_rintro]`, and the rules of `builtinRIntros` that exist in
 the environment. -/
 def getRIntros : MetaM (DiscrTree RIntroEntry) := do
   let mut d := rintroExt.getState (← getEnv)
   for declName in builtinRIntros do
     if (← getEnv).contains declName then
-      let e ← mkRIntroEntry declName (eval_prio default)
+      let e ← match (← builtinRIntroEntries.get)[declName]? with
+        | some e => pure e
+        | none =>
+          let e ← mkRIntroEntry declName (eval_prio default)
+          builtinRIntroEntries.modify (·.insert declName e)
+          pure e
       d := d.insertKeyValue e.keys e
   return d
 

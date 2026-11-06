@@ -100,6 +100,27 @@ class Publication(unittest.TestCase):
             server.server_close()
             thread.join()
 
+    @unittest.skipUnless(sys.platform.startswith("linux") and shutil.which("cc"), "link interposition needs Linux and cc")
+    def test_publication_on_filesystem_rejecting_hard_links(self):
+        for mode in ("save", "save-text"):
+            with self.subTest(mode=mode), tempfile.TemporaryDirectory() as tmp:
+                root = pathlib.Path(tmp)
+                library = root / "deny-link.so"
+                subprocess.run(["cc", "-shared", "-fPIC", "-o", str(library),
+                                "pause_write.c", "-ldl"], check=True,
+                               env={k: v for k, v in os.environ.items() if k != "LD_LIBRARY_PATH"})
+                source = root / "source"
+                source.write_bytes(b"complete artifact bytes\n")
+                cache = root / "cache"
+                env = dict(os.environ, LD_PRELOAD=str(library), TEST_LINK_DENIED_PREFIX=str(cache))
+                result = subprocess.run([os.environ.get("LEAN", "lean"), "--run", "Probe.lean",
+                                         mode, str(cache), str(source)], env=env, capture_output=True, text=True)
+                self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+                target, = (cache / "artifacts").glob("*.art")
+                self.assertEqual(target.read_bytes(), source.read_bytes())
+                self.assertEqual(target.stat().st_mode & 0o222, 0)
+                self.assertEqual(list(cache.rglob(".lake-cache-*.tmp")), [])
+
     def paused_download(self, mode):
         body = b"a complete native artifact"
         started = threading.Event()

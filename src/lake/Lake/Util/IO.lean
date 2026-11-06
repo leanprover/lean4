@@ -50,14 +50,9 @@ public def withTempFileFor
 public def publishFileIfNew (tmp path : FilePath) : IO Unit := do
   try IO.FS.hardLink tmp path catch
     | .alreadyExists .. => pure ()
-    | .unsupportedOperation .. =>
-      -- Shared-cache selection excludes this filesystem. Preserve private-cache behavior.
-      let contents ← IO.FS.readBinFile tmp
-      let handle ← try IO.FS.Handle.mk path .writeNew catch
-        | .alreadyExists .. => return
-        | e => throw e
-      handle.write contents
-    | e => throw e
+    | _ =>
+      try IO.FS.renameIfNew tmp path catch e =>
+        unless (← path.pathExists) do throw e
 
 /-- Publish a completed temporary file, replacing the destination. -/
 public def replaceFile (tmp path : FilePath) : IO Unit := do

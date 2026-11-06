@@ -9,6 +9,11 @@
 #include <unistd.h>
 
 int link(const char *source, const char *target) {
+    const char *denied = getenv("TEST_LINK_DENIED_PREFIX");
+    if (denied && strncmp(target, denied, strlen(denied)) == 0) {
+        errno = EPERM;
+        return -1;
+    }
     const char *copy_source = getenv("TEST_COPY_SOURCE");
     const char *prefix = getenv("TEST_WRITE_PREFIX");
     if (copy_source && prefix && strcmp(source, copy_source) == 0 &&

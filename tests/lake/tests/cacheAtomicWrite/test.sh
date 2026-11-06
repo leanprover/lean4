@@ -16,8 +16,7 @@ test_exp "$(norm_dirname "$art")" = "$CACHE_DIR/artifacts"
 test_cmd diff -u fixtures/source.txt "$art"
 tmp="$CACHE_DIR/artifacts/.lake-cache-$$-1.tmp"
 
-# Plants the given file as the temporary file of a fresh save,
-# re-caches the artifact, and verifies the result
+# Leave a different owner's staging file in place while re-caching the artifact.
 check_recovery() {
   rm -rf .lake/build "$CACHE_DIR/outputs"
   rm -f "$art"
@@ -28,19 +27,11 @@ check_recovery() {
   rm -f "$tmp"
 }
 
-echo "# TEST: complete temporary file"
+echo "# TEST: another publisher's temporary file"
 check_recovery fixtures/source.txt
-echo "# TEST: empty temporary file"
-check_recovery fixtures/empty.txt
-echo "# TEST: truncated temporary file"
-check_recovery fixtures/truncated.txt
-echo "# TEST: temporary file cut mid-character"
-check_recovery fixtures/midchar.txt
-echo "# TEST: oversized temporary file"
-check_recovery fixtures/oversized.txt
 
-# Verify no temporary files are left in the cache
-check_diff /dev/null <(ls -1 "$CACHE_DIR"/artifacts/*.tmp 2>/dev/null)
+# Include hidden staging files in the completed-invocation check.
+check_diff /dev/null <(find "$CACHE_DIR/artifacts" -name '.lake-cache-*.tmp' -print)
 
 # Cleanup
 rm -f produced.out

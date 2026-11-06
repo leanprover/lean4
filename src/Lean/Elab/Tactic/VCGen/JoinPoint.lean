@@ -163,15 +163,12 @@ def jumpLocals (jp : JoinPoint) (jump : Jump) : MetaM (Array LocalDecl) := do
 `let` local, a `let` for any other `let` local, a conjunct `d.type ∧ φ` for a hypothesis that `φ`
 does not depend on, and `∃ d, φ` otherwise. -/
 def bindLocal (d : LocalDecl) (φ : Expr) : VCGenM Expr := do
-  -- `mkLambdaFVars`/`mkLetFVars` re-scope a metavariable whose local context contains `d`, such as
-  -- the invariant of a loop in the branch.
-  if d.value?.isSome then
-    let e ← mkLetFVars #[d.toExpr] φ (usedLetOnly := !d.isImplementationDetail)
-      (generalizeNondepLet := false)
+  -- `elimMVarDeps`/`mkLambdaFVars`/`mkLetFVars` re-scope a metavariable whose local context contains
+  -- `d`, such as the invariant of a loop in the branch.
+  if let some v := d.value? then
     if d.isImplementationDetail then
-      let .letE _ _ v b _ := e | throwError "vcgen +jp: expected a `let`{indentExpr e}"
-      return b.instantiate1 v
-    return e
+      return (← elimMVarDeps #[d.toExpr] φ).replaceFVar d.toExpr v
+    return ← mkLetFVars #[d.toExpr] φ (generalizeNondepLet := false)
   let lam ← mkLambdaFVars #[d.toExpr] φ
   -- A conjunct needs no instantiation in its proof, where each `∃` copies the rest.
   if (← Sym.inferType d.type).isProp && !lam.bindingBody!.hasLooseBVars then

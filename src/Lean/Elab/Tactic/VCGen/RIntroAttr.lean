@@ -28,8 +28,7 @@ conclusion, whose `∀` binders become `.arrow` keys over the binder type and th
 binder of the target, `vcgen` applies the first matching rule in priority order as a backward rule
 to the remaining target, and otherwise introduces the binder.
 
-`vcgen` always uses the rule `Prod.forall_intro`. `Std.WP.Automation` also provides the rules
-`PUnit.forall_intro` and `True.forall_intro`.
+`vcgen` always uses the rule `Prod.forall_intro`.
 -/
 
 open Lean Meta Sym

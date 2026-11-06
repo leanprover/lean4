@@ -360,7 +360,7 @@ example (G : Nat → Prop) :
   trace_state
   all_goals sorry
 
-/-! The built-in rule `Prod.forall_intro` destructures a binder over a pair. The rules
+/-! The built-in rule `Prod.forall_intro` destructures a binder over a pair. The registered rules
 `PUnit.forall_intro` and `True.forall_intro` destructure a binder over `Unit` or `True`. -/
 
 /--
@@ -378,7 +378,11 @@ example (G : Nat → Nat → Prop) :
   trace_state
   all_goals sorry
 
-attribute [vcgen_rintro] PUnit.forall_intro True.forall_intro
+@[vcgen_rintro] theorem PUnit.forall_intro {G : PUnit → Prop} (h : G ⟨⟩) : ∀ u, G u :=
+  fun ⟨⟩ => h
+
+@[vcgen_rintro] theorem True.forall_intro {G : True → Prop} (h : G trivial) : ∀ h, G h :=
+  fun ⟨⟩ => h
 
 /--
 trace: case vc1

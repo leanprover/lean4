@@ -7,10 +7,11 @@ open Std.Http.Protocol.H1
 
 /-!
 Tests a message head whose framing fields contradict the body length set for it, such as a handler
-response with `Content-Length: 3` and a streamed body. The server answers `500 Internal Server
-Error` and closes the connection instead of spinning in its connection loop, and a client ends the
-exchange. A response that carries no body (to `HEAD`, 204, 304) cannot contradict it: a HEAD
-response advertises the handler's `Content-Length`.
+response with `Content-Length: 3` and an empty body. The server answers `500 Internal Server Error`
+and closes the connection instead of spinning in its connection loop, and a client ends the
+exchange. A `Content-Length` gives the length of a streamed body, which has none of its own. A
+response that carries no body (to `HEAD`, 204, 304) cannot contradict it: a HEAD response
+advertises the handler's `Content-Length`.
 -/
 
 /--
@@ -48,8 +49,8 @@ def expect500 (name : String) (machine : Machine .receiving) : IO Unit := do
       out.contains "Content-Length: 0\r\n" && out.contains "Connection: close\r\n" &&
       !out.contains "abc" do
     throw <| IO.userError s!"[{name}] expected an empty 500, got:\n{out.quote}"
-  unless events.any (· matches .failed .badMessage) do
-    throw <| IO.userError s!"[{name}] no failure reported: {repr events}"
+  unless events.any (· matches .failed (.other _)) do
+    throw <| IO.userError s!"[{name}] no framing failure reported: {repr events}"
 
 /-- Runs `machine` to a halt and returns its output, failing on a reported failure. -/
 def expectOk (name : String) (machine : Machine .receiving) : IO String := do
@@ -60,11 +61,6 @@ def expectOk (name : String) (machine : Machine .receiving) : IO String := do
   return out
 
 #eval runGroup "server machine: contradictory framing" do
-  -- A streamed body with a handler's `Content-Length`.
-  expect500 "chunked body, Content-Length: 3" <| server get
-    |>.setKnownSize .chunked
-    |>.send { status := .ok, headers := headers [(Header.Name.contentLength, "3")] }
-
   -- An empty body with a handler's `Content-Length`.
   expect500 "empty body, Content-Length: 1234" <| server get
     |>.setKnownSize (.fixed 0)
@@ -83,6 +79,28 @@ def expectOk (name : String) (machine : Machine .receiving) : IO String := do
     |>.sendData abc |>.userClosedBody
   unless out.startsWith "HTTP/1.1 200 OK\r\n" && out.endsWith "\r\n\r\nabc" do
     throw <| IO.userError s!"matching Content-Length: got\n{out.quote}"
+
+#eval runGroup "server machine: Content-Length gives a streamed body its length" do
+  let close := "GET / HTTP/1.1\r\nHost: a\r\nConnection: close\r\n\r\n"
+  -- `Body.stream` sets `chunked` before its producer runs, and a producer may set the length
+  -- itself before the server reads it: the head's length wins over `chunked` and matches the other.
+  for size in [Body.Length.chunked, .fixed 3] do
+    let out ← expectOk s!"{repr size}, Content-Length: 3" <| server close
+      |>.setKnownSize size
+      |>.send { status := .ok, headers := headers [(Header.Name.contentLength, "3")] }
+      |>.sendData abc |>.userClosedBody
+    unless out.startsWith "HTTP/1.1 200 OK\r\n" && out.contains "Content-Length: 3\r\n" &&
+        !out.contains "Transfer-Encoding" && out.endsWith "\r\n\r\nabc" do
+      throw <| IO.userError s!"{repr size}, Content-Length: 3: got\n{out.quote}"
+
+  -- A stream longer than its `Content-Length` closes the connection without writing its bytes.
+  let some (out, events) := runToHalt (server close
+      |>.setKnownSize .chunked
+      |>.send { status := .ok, headers := headers [(Header.Name.contentLength, "3")] }
+      |>.sendData #[Chunk.ofByteArray "abcd".toUTF8] |>.userClosedBody)
+    | throw <| IO.userError "overlong stream: the server never halted"
+  unless out.endsWith "Content-Length: 3\r\n\r\n" && events.any (· matches .close) do
+    throw <| IO.userError s!"overlong stream: got {repr events}\n{out.quote}"
 
 #eval runGroup "server machine: bodyless responses keep the handler's length" do
   let head := "HEAD / HTTP/1.1\r\nHost: a\r\nConnection: close\r\n\r\n"
@@ -113,16 +131,44 @@ def expectOk (name : String) (machine : Machine .receiving) : IO String := do
     |>.sendData abc |>.userClosedBody
   let some (out, events) := runToHalt machine
     | throw <| IO.userError "the client never halted"
-  unless out.isEmpty && events.any (· matches .failed .badMessage) do
+  unless out.isEmpty && events.any (· matches .failed (.other _)) do
     throw <| IO.userError s!"client: expected a failure and no output, got {repr events}\n{out.quote}"
+
+  -- A streamed upload takes its length from the request's `Content-Length`.
+  let request : Request.Head :=
+    (Request.new |>.method .put |>.uri! "/upload" |>.header! "Host" "example.com"
+      |>.header! "Content-Length" "3").line
+  let machine := ({ config := {} } : Machine .sending)
+    |>.setKnownSize .chunked
+    |>.send request
+    |>.sendData abc |>.userClosedBody
+  let mut machine := machine
+  let mut out := ""
+  for _ in [0:8] do
+    let (next, step) := machine.step
+    machine := next
+    out := out ++ String.fromUTF8! step.output.toByteArray
+  unless out.contains "Content-Length: 3\r\n" && !out.contains "Transfer-Encoding" &&
+      out.endsWith "\r\n\r\nabc" && machine.error.isNone do
+    throw <| IO.userError s!"streamed upload: got {repr machine.error}\n{out.quote}"
 
 #eval runGroup "server: handler framing contradicts its body" do
   checkTimed "streamed body with Content-Length: 3"
-    (raw := get)
+    (raw := mkGetClose)
     (handler := fun _ => Response.ok |>.header! "Content-Length" "3"
       |>.stream fun s => s.send (Chunk.ofByteArray "abc".toUTF8))
     (expect := fun r => do
-      assertStatus r "HTTP/1.1 500 Internal Server Error"
+      assertStatus r "HTTP/1.1 200 OK"
+      assertContains r "Content-Length: 3\r\n"
+      assertAbsent r "Transfer-Encoding"
+      assertContains r "\r\n\r\nabc")
+
+  checkTimed "streamed body longer than its Content-Length: 3"
+    (raw := get)
+    (handler := fun _ => Response.ok |>.header! "Content-Length" "3"
+      |>.stream fun s => s.send (Chunk.ofByteArray "abcd".toUTF8))
+    (expect := fun r => do
+      assertStatus r "HTTP/1.1 200 OK"
       assertAbsent r "abc")
 
   checkTimed "empty body with Content-Length: 1234"

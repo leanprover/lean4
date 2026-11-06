@@ -575,9 +575,8 @@ state transitions.
 - On success, advances reader input.
 - On EOF with open input, emits `needMoreData`.
 - On EOF after `noMoreInput`, fails with `connectionClosed`.
-- On a size-limit breach, fails with `badMessage`. A hard parse error found at or past the limit
-  counts as a breach, so the outcome does not depend on how the input was split.
-- On other hard parse errors, fails with `onHardError`.
+- On a size-limit breach, fails with `badMessage`.
+- On hard parse errors, fails with `onHardError`.
 -/
 private def parseWith (machine : Machine dir) (parser : Parser α) (limit : Option Nat)
     (expect : Option Nat := none)
@@ -606,11 +605,8 @@ private def parseWith (machine : Machine dir) (parser : Parser α) (limit : Opti
         else (machine.addEvent (.needMoreData expect), none)
     else
       (machine.addEvent (.needMoreData expect), none)
-  | .error it err =>
-    if limit.any (remaining - it.remainingBytes ≥ ·) then
-      (machine.setFailure .badMessage, none)
-    else
-      (machine.setFailure (onHardError err), none)
+  | .error _ err =>
+    (machine.setFailure (onHardError err), none)
 
 -- Message Processing
 
@@ -918,25 +914,38 @@ def suppressOutgoingBody (machine : Machine dir) (forceZero : Bool := false) : M
 
 /--
 Reconciles the body length the caller set (`knownSize`) with the framing fields of the message head
-passed to `send`, adopting the fields' length when none was set. Returns `none` when the two
-contradict, or when the fields describe no length.
+passed to `send`. The fields' length is adopted when none was set, or when only `chunked` was, which
+leaves the length unknown (a `Body.stream` starts that way). Returns `none` when the two contradict,
+or when the fields describe no length.
 -/
 private def reconcileOutgoingFraming (machine : Machine dir)
     (headerSize : Option Body.Length) (framingInHeaders : Bool) : Option (Machine dir) :=
   match machine.writer.knownSize, headerSize with
-  | some explicit, some parsed => if explicit == parsed then some machine else none
+  | some explicit, some parsed =>
+    if explicit == parsed then some machine
+    -- The fixed-length writer closes the connection if the body then runs over or falls short.
+    else if explicit == .chunked then some (machine.setKnownSize parsed)
+    else none
   | none, some parsed => some (machine.setKnownSize parsed)
   | _, none => if framingInHeaders then none else some machine
 
 /--
+The failure `rejectOutgoingFraming` reports: a mistake of the sender's own code, not a malformed
+message from the peer. A server passes it to `Handler.onFailure`.
+-/
+private def framingMismatchError : H1.Error :=
+  .other "Content-Length or Transfer-Encoding contradicts the body"
+
+/--
 Handles a message head that `reconcileOutgoingFraming` rejected. None of that message is written:
 a server answers `500 Internal Server Error` without a body and closes the connection, and a client
-ends the exchange. Both report `.failed .badMessage`, and the machine halts once its output is taken.
+ends the exchange. Both report `framingMismatchError`, and the machine halts once its output is
+taken.
 -/
 private def rejectOutgoingFraming (machine : Machine dir) : Machine dir :=
   let machine := machine
-    |>.addEvent (.failed .badMessage)
-    |>.setError .badMessage
+    |>.addEvent (.failed framingMismatchError)
+    |>.setError framingMismatchError
     |>.disableKeepAlive
     |>.closeReader
     |>.setReaderState .closed
@@ -997,11 +1006,14 @@ request is HTTP/1.0; the writer stays in `waitingHeaders` so the application can
 interim responses or the final response. The reader state is not affected — use `canContinue` to
 resolve an `Expect: 100-continue` decision separately.
 
-A head whose `Content-Length` or `Transfer-Encoding` contradicts the length set with
+A `Content-Length` in the head gives the length of a body set as `chunked`, whose length is unknown.
+A head whose `Content-Length` or `Transfer-Encoding` otherwise contradicts the length set with
 `setKnownSize`, or describes no length, is not written: a server answers `500 Internal Server
-Error` and closes the connection, and a client ends the exchange, both reporting
-`.failed .badMessage`. A response without a body (to `HEAD`, or a 204 or 304) cannot contradict
-it, and a HEAD response advertises the `Content-Length` of its head.
+Error` and closes the connection, and a client ends the exchange. Both emit `.failed` with an
+`.other` error and set `error`, but the reader ends `.closed`, not failed, so the machine halts and
+`failed` stays `false`.
+A response without a body (to `HEAD`, or a 204 or 304) cannot contradict it, and a HEAD response
+advertises the `Content-Length` of its head.
 -/
 @[inline]
 def send (machine : Machine dir) (message : Message.Head dir.swap) : Machine dir :=

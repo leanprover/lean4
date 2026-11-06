@@ -433,6 +433,9 @@ static optional<pipe> setup_stdio(stdio cfg) {
 
 #ifdef __APPLE__
 extern "C" char **environ;
+// The child's environment when it does not inherit the parent's. It must not be `NULL`, because
+// macOS's `setenv` dereferences `environ` when it adds a variable.
+static char * empty_environ[] = { nullptr };
 #endif
 
 static obj_res spawn(string_ref const & proc_name, array_ref<string_ref> const & args, stdio stdin_mode, stdio stdout_mode,
@@ -455,7 +458,7 @@ static obj_res spawn(string_ref const & proc_name, array_ref<string_ref> const &
     if (pid == 0) {
         if (!inherit_env) {
 #ifdef __APPLE__
-            environ = NULL;
+            environ = empty_environ;
 #else
             clearenv();
 #endif

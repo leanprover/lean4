@@ -38,7 +38,7 @@ introduces no local declaration, and the new goal mentions `c` in place of the b
 `fun n u => ?g`. `B n PUnit.unit` and `B n u` are definitionally equal by `unitLikeValue?`.
 -/
 partial def introCore (mvarId : MVarId) (max : Nat) (names : Array Name) (hygienic : Bool)
-    (elimUnitLike : Bool := false) : SymM (Array FVarId × MVarId) := do
+    (elimUnitLike : Bool := true) : SymM (Array FVarId × MVarId) := do
   if max == 0 then return (#[], mvarId)
   let mvarDecl ← mvarId.getDecl
   /-
@@ -167,7 +167,7 @@ Returns `.goal newDecls mvarId` with new introduced free variable Ids and the up
 Returns `.failed` if no binder was introduced.
 -/
 public def intros (mvarId : MVarId) (names : Array Name := #[]) (hygienic : Bool := true)
-    (elimUnitLike : Bool := false) : SymM IntrosResult := do
+    (elimUnitLike : Bool := true) : SymM IntrosResult := do
   let result ← if names.isEmpty then
     introCore mvarId hugeNat #[] hygienic elimUnitLike
   else

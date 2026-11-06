@@ -2391,32 +2391,40 @@ def setInlineAttribute (declName : Name) (kind := Compiler.InlineAttributeKind.i
   | .ok env    => setEnv env
   | .error msg => throwError msg
 
-private partial def instantiateForallAux (ps : Array Expr) (i : Nat) (e : Expr) : MetaM Expr := do
-  if h : i < ps.size then
-    let p := ps[i]
-    match (← whnf e) with
-    | .forallE _ _ b _ => instantiateForallAux ps (i+1) (b.instantiate1 p)
-    | _                => throwError "invalid instantiateForall, too many parameters"
+private def instantiateForallAux (ps : Array Expr)
+    (start : Nat) (i : Nat) (e : Expr) : MetaM Expr := do
+  if i < ps.size then
+    match e with
+    | .forallE _ _ b _ => instantiateForallAux ps start (i + 1) b
+    | _ =>
+      let e := e.instantiateRevRange start i ps
+      match (← whnf e) with
+      | .forallE _ _ b _ => instantiateForallAux ps i (i+1) b
+      | _                => throwError "invalid instantiateForall, too many parameters"
   else
-    return e
+    return e.instantiateRevRange start i ps
 
 /-- Given `e` of the form `forall (a_1 : A_1) ... (a_n : A_n), B[a_1, ..., a_n]` and `p_1 : A_1, ... p_n : A_n`, return `B[p_1, ..., p_n]`. -/
 def instantiateForall (e : Expr) (ps : Array Expr) : MetaM Expr :=
-  instantiateForallAux ps 0 e
+  instantiateForallAux ps 0 0 e
 
-private partial def instantiateLambdaAux (ps : Array Expr) (i : Nat) (e : Expr) : MetaM Expr := do
-  if h : i < ps.size then
-    let p := ps[i]
-    match (← whnf e) with
-    | .lam _ _ b _ => instantiateLambdaAux ps (i+1) (b.instantiate1 p)
-    | _            => throwError "invalid instantiateLambda, too many parameters"
+private def instantiateLambdaAux (ps : Array Expr)
+    (start : Nat) (i : Nat) (e : Expr) : MetaM Expr := do
+  if i < ps.size then
+    match e with
+    | .lam _ _ b _ => instantiateLambdaAux ps start (i + 1) b
+    | _ =>
+      let e := e.instantiateRevRange start i ps
+      match (← whnf e) with
+      | .lam _ _ b _ => instantiateLambdaAux ps i (i+1) b
+      | _            => throwError "invalid instantiateLambda, too many parameters"
   else
-    return e
+    return e.instantiateRevRange start i ps
 
 /-- Given `e` of the form `fun (a_1 : A_1) ... (a_n : A_n) => t[a_1, ..., a_n]` and `p_1 : A_1, ... p_n : A_n`, return `t[p_1, ..., p_n]`.
    It uses `whnf` to reduce `e` if it is not a lambda -/
 def instantiateLambda (e : Expr) (ps : Array Expr) : MetaM Expr :=
-  instantiateLambdaAux ps 0 e
+  instantiateLambdaAux ps 0 0 e
 
 /--
 A simpler version of `ParamInfo` for information about the parameter of a forall or lambda.

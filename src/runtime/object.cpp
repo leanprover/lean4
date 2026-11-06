@@ -24,6 +24,11 @@ Author: Leonardo de Moura
 #include "runtime/io.h"
 #include "runtime/hash.h"
 
+#if !defined(LEAN_WINDOWS)
+#include <cerrno>
+#include <time.h>
+#endif
+
 #if defined(__GLIBC__) || defined(__APPLE__)
     #define LEAN_SUPPORTS_BACKTRACE 1
 #else
@@ -2938,8 +2943,26 @@ extern "C" LEAN_EXPORT object * lean_dbg_trace(obj_arg s, obj_arg fn) {
 }
 
 extern "C" LEAN_EXPORT object * lean_dbg_sleep(uint32 ms, obj_arg fn) {
-    chrono::milliseconds c(ms);
-    this_thread::sleep_for(c);
+#if defined(LEAN_WINDOWS)
+    this_thread::sleep_for(chrono::milliseconds(ms));
+#else
+    // Not `this_thread::sleep_for`: it restarts `nanosleep` with the remaining time the kernel reports,
+    // which on Linux includes the timer slack, so a thread interrupted by signals more often than the
+    // slack (50 us by default) would never finish sleeping (see BUGS in nanosleep(2)). The time left is
+    // recomputed from the monotonic clock instead; `clock_nanosleep` with `TIMER_ABSTIME` would do the
+    // same, but macOS does not provide it.
+    auto deadline = chrono::steady_clock::now() + chrono::milliseconds(ms);
+    for (auto left = deadline - chrono::steady_clock::now(); left > chrono::nanoseconds::zero();
+         left = deadline - chrono::steady_clock::now()) {
+        auto sec = chrono::duration_cast<chrono::seconds>(left);
+        struct timespec ts;
+        ts.tv_sec = static_cast<time_t>(sec.count());
+        ts.tv_nsec = static_cast<long>(chrono::duration_cast<chrono::nanoseconds>(left - sec).count());
+        if (nanosleep(&ts, nullptr) != 0 && errno != EINTR) {
+            break;
+        }
+    }
+#endif
     return lean_apply_1(fn, lean_box(0));
 }
 

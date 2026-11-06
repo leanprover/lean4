@@ -36,7 +36,7 @@ def checkConstantValF (ops : CheckerOps) (fe : FEnv) (cv : ConstantVal) (allowOp
     CheckCM Unit := do
   if (fe.find? cv.name).isSome then throw (.invalid s!"duplicate declaration {cv.name}")
   if reservedBasisNames.contains cv.name then throw (.invalid s!"reserved basis name {cv.name}")
-  if natOpName cv.name && !allowOp then
+  if natOpName cv.name && !allowOp && !fe.coreAxioms then
     throw (.invalid s!"a certified Nat operation's name, not a definition: {cv.name}")
   unless litShapeOk cv.name cv.levelParams cv.type do
     throw (.notImplemented s!"a declaration at a literal's name with another shape ({cv.name})")

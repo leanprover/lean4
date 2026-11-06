@@ -142,7 +142,9 @@ def checkConstantValC (fe : FEnv) (n : Name) (lps : List Name) (ty : Expr)
     (allowOp : Bool := false) : CheckCM Unit := do
   if (fe.env.find? n).isSome then throw (.invalid s!"duplicate declaration {n}")
   if reservedBasisNames.contains n then throw (.invalid s!"reserved basis name {n}")
-  if natOpName n && !allowOp then
+  -- the official kernel's policy (`coreAxioms`) admits any declaration at these names: the
+  -- elaborator adds a recursive definition as an axiom while it elaborates it (`addAsAxiom`)
+  if natOpName n && !allowOp && !fe.coreAxioms then
     throw (.invalid s!"a certified Nat operation's name, not a definition: {n}")
   unless litShapeOk n lps ty do
     throw (.notImplemented s!"a declaration at a literal's name with another shape ({n})")

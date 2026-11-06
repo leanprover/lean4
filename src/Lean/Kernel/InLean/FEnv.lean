@@ -60,7 +60,8 @@ structure FEnv where
   /-- **The axiom policy.**  `false`, con-leche's: `sorryAx` is not a
   constant (con-leche installs nothing for it, `declConstants`), so any use
   declines.  `true`, the official kernel's, what Lean needs for ordinary
-  use: `sorryAx` is the constant Lean stores. -/
+  use: `sorryAx` is the constant Lean stores, and a certified `Nat`
+  operation's name may hold any declaration. -/
   coreAxioms : Bool := false
 
 /-- Twin of `FEnv.find?`. -/

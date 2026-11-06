@@ -706,7 +706,7 @@ public def buildArtifactUnlessUpToDate
   let savedTrace ← readTraceFile traceFile
   if let some pkg ← getCurrPackage? then
     let inputHash := depTrace.hash
-    let fetchArt? restore := do
+    let fetchArt? restore := (do
       let some (art : XArtifact exe) ← getArtifacts? inputHash savedTrace pkg
         | return none
       unless (← savedTrace.replayCachedIfUpToDate inputHash) do
@@ -715,7 +715,7 @@ public def buildArtifactUnlessUpToDate
       if restore then
         some <$> restoreArtifact file art exe
       else
-        return some art
+        return some art) <|> pure none
     let art ← id do
       if (← pkg.isArtifactCacheWritable) then
         let restore := restore || (← pkg.restoreAllArtifacts)
@@ -726,9 +726,10 @@ public def buildArtifactUnlessUpToDate
           unless status.isUpToDate do
             discard <| doBuild depTrace traceFile
           if status.isCacheable then
-            let art ← cacheArtifact file ext text exe restore
-            (← getLakeCache).writeOutputs pkg.cacheScope inputHash art.descr
-            return art
+            (do
+              let art ← cacheArtifact file ext text exe restore
+              (← getLakeCache).writeOutputs pkg.cacheScope inputHash art.descr
+              return art) <|> computeArtifact file ext text
           else
             computeArtifact file ext text
       else if (← savedTrace.replayIfUpToDate file depTrace) then

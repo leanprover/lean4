@@ -199,42 +199,113 @@ def insertKeyValue [BEq α] (d : DiscrTree α) (keys : Array Key) (v : α) : Dis
     }
 
 /--
-Groups the given tries by key, keeping each group in the given order. Groups appear in the order in
-which their keys are last encountered.
+Termination measure of `mergeTries`: the number of nodes of a trie, counting each remaining key of a
+`suffix` as a node.
 -/
-private def groupByKey (ts : Array (Array (Key × Trie α))) : Array (Key × Array (Trie α)) := Id.run do
+private noncomputable def Trie.weight : Trie α → Nat
+  | .chain _ c => weight c + 1
+  | .node _ ⟨cs⟩ => weights cs + 1
+  | .lazy _ => 0
+  | .suffix ks i _ => ks.size - i + 1
+where
+  weights : List (Key × Trie α) → Nat
+    | [] => 0
+    | (_, c) :: cs => weight c + weights cs
+
+/-- The values and children of `t`, unfolding the first key of a `suffix`. -/
+private def Trie.unfold : Trie α → Array α × Array (Key × Trie α)
+  | .chain k c => (#[], #[(k, c)])
+  | .node vs cs => (vs, cs)
+  | .suffix ks i v =>
+    if h : i < ks.size then (#[], #[(ks[i], .suffix ks (i + 1) v)]) else (#[v], #[])
+  | .lazy _ => unreachable!
+
+private theorem Trie.weight_lt_of_mem_unfold {t : Trie α} (h : p ∈ t.unfold.2) :
+    p.2.weight < t.weight := by
+  match t with
+  | .chain k c => simp_all [unfold, weight]
+  | .node vs ⟨cs⟩ =>
+    simp only [unfold, List.mem_toArray] at h
+    simp only [weight]
+    suffices p.2.weight ≤ weight.weights cs by omega
+    induction cs with
+    | nil => simp at h
+    | cons q cs ih => cases List.mem_cons.1 h <;> simp_all [weight.weights] <;> omega
+  | .suffix ks i v => simp only [unfold] at h; split at h <;> simp_all [weight]; omega
+  | .lazy _ => simp [unfold, panicWithPosWithDecl, panic, panicCore, default, Array.empty] at h
+
+/-- Termination measure of `mergeTries`: the maximal weight of the given tries. -/
+private noncomputable def maxWeight (ts : Array (Trie α)) : Nat :=
+  ts.toList.foldr (fun t m => max t.weight m) 0
+
+private theorem weight_le_maxWeight {ts : Array (Trie α)} (h : t ∈ ts) :
+    t.weight ≤ maxWeight ts := by
+  rcases ts with ⟨ts⟩
+  simp only [maxWeight, List.mem_toArray] at *
+  induction ts with
+  | nil => simp at h
+  | cons t ts ih => cases List.mem_cons.1 h <;> simp_all <;> omega
+
+private theorem maxWeight_lt {g : Array (Trie α)} (hne : 0 < g.size) (h : ∀ c ∈ g, c.weight < n) :
+    maxWeight g < n := by
+  rcases g with ⟨g⟩
+  simp only [maxWeight, List.mem_toArray, List.size_toArray] at *
+  induction g with
+  | nil => simp at hne
+  | cons c g ih =>
+    cases g with
+    | nil => simp_all
+    | cons => simp_all; omega
+
+/--
+Groups the given tries by key, keeping each group in the given order. Groups appear in the order in
+which their keys are last encountered. Each group records that it is nonempty and that its tries
+satisfy `P`, for the termination of `mergeTries`.
+-/
+private def groupByKey (ts : Array (Array (Key × Trie α))) (P : Trie α → Prop)
+    (hP : ∀ cs ∈ ts, ∀ p ∈ cs, P p.2) :
+    Array (Key × {g : Array (Trie α) // 0 < g.size ∧ ∀ c ∈ g, P c}) := Id.run do
   let mut idx : Std.HashMap Key Nat := {}
-  let mut groups : Array (Key × Array (Trie α) × Nat) := #[]
+  let mut groups : Array (Key × {g : Array (Trie α) // 0 < g.size ∧ ∀ c ∈ g, P c} × Nat) := #[]
   let mut pos := 0
-  for cs in ts do
-    for (k, c) in cs do
-      match idx[k]? with
-      | some i => groups := groups.modify i fun (k, g, _) => (k, g.push c, pos)
+  for hcs : cs in ts do
+    for hp : p in cs do
+      have hc : P p.2 := hP cs hcs p hp
+      match idx[p.1]? with
+      | some i =>
+        groups := groups.modify i fun (k, ⟨g, hg⟩, _) =>
+          (k, ⟨g.push p.2, by simp, by simpa [or_imp, forall_and, hc] using hg.2⟩, pos)
       | none =>
-        idx := idx.insert k groups.size
-        groups := groups.push (k, #[c], pos)
+        idx := idx.insert p.1 groups.size
+        groups := groups.push (p.1, ⟨#[p.2], by simp, by simpa⟩, pos)
       pos := pos + 1
   return groups.qsort (·.2.2 < ·.2.2) |>.map fun (k, g, _) => (k, g)
 
 mutual
 /--
 Merges tries of several modules, given in module order, as if their entries had been inserted in
-this order. Only the root node is merged eagerly; see `mergeGroup`.
+this order. Only the root node is merged eagerly; see `mergeGroup`. The given tries must not contain
+`lazy` nodes.
 -/
-private partial def mergeTries [BEq α] (ts : Array (Trie α)) : Trie α :=
-  let nodes := ts.map fun t => match t.force with
-    | .chain k c => (#[], #[(k, c)])
-    | .node vs cs => (vs, cs)
-    | .lazy _ | .suffix .. => unreachable!
+private def mergeTries [BEq α] (ts : Array (Trie α)) : Trie α :=
+  let nodes := ts.map Trie.unfold
   -- `insertVal` replaces equal values in place, so the values of a single trie need no re-insertion
   let vs := nodes.foldl (init := #[]) fun vs (tvs, _) =>
     if vs.isEmpty then tvs else tvs.foldl insertVal vs
-  let cs := groupByKey (nodes.map (·.2)) |>.qsort (·.1 < ·.1) |>.map fun (k, g) => (k, mergeGroup g)
+  let cs := groupByKey (nodes.map (·.2)) (·.weight < maxWeight ts) (by
+      simp only [nodes, Array.map_map, Array.mem_map, Function.comp_apply]
+      rintro _ ⟨t, ht, rfl⟩ p hp
+      exact Nat.lt_of_lt_of_le (Trie.weight_lt_of_mem_unfold hp) (weight_le_maxWeight ht))
+    |>.qsort (·.1 < ·.1) |>.map fun kg => (kg.1, mergeGroup kg.2.1)
   if h : vs.isEmpty ∧ cs.size = 1 then .chain cs[0].1 cs[0].2 else .node vs cs
+termination_by (maxWeight ts, 0)
+decreasing_by exact Prod.Lex.left _ _ (maxWeight_lt kg.2.2.1 kg.2.2.2)
 
 /-- Merges the tries of a group on first access, sharing a trie that is alone in its group. -/
-private partial def mergeGroup [BEq α] (g : Array (Trie α)) : Trie α :=
+private def mergeGroup [BEq α] (g : Array (Trie α)) : Trie α :=
   if h : g.size = 1 then g[0] else .lazy (Thunk.mk fun _ => mergeTries g)
+termination_by (maxWeight g, 1)
+decreasing_by exact Prod.Lex.right _ (by decide)
 end
 
 /--
@@ -263,7 +334,8 @@ tries, and nodes occurring in several modules are merged on first access.
 def ofModuleRoots [BEq α] (mods : Array (Array (Key × Trie α))) : DiscrTree α :=
   -- `PersistentHashMap.alter` moves updated keys to the end of their collision node, so inserting
   -- root keys in order of last insertion reproduces the iteration order of `root`
-  { root := groupByKey mods |>.foldl (init := {}) fun root (k, g) => root.insert k (mergeGroup g) }
+  { root := groupByKey mods (fun _ => True) (by simp) |>.foldl (init := {}) fun root (k, g) =>
+      root.insert k (mergeGroup g.1) }
 
 @[deprecated insertKeyValue (since := "2026-01-02")]
 def insertCore [BEq α] (d : DiscrTree α) (keys : Array Key) (v : α) : DiscrTree α :=

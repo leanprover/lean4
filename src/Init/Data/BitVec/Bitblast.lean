@@ -1372,6 +1372,7 @@ theorem smulOverflow_eq {w : Nat} (x y : BitVec w) :
     simp only [Nat.add_one_sub_one] at h₁ h₂
     simp [h₁, h₂]
 
+
 /- ### umod -/
 
 theorem getElem_umod {n d : BitVec w} (hi : i < w) :
@@ -2225,12 +2226,23 @@ theorem uppcRec_true_iff (x : BitVec w) (s : Nat) (h : s < w) :
               simp [hbit, show k = 0 by omega] at hk
           · simp_all
 
+theorem uppcRec_zero_eq {w} (x : BitVec w)  (hs : 0 < w) :
+    uppcRec x 0 hs = x.msb := by
+  rfl
+
+theorem uppcRec_succ_eq {w} (x : BitVec w) (s : Nat) (hs : s + 1 < w) :
+    uppcRec x (s + 1) hs = (x[w - 1 - s] || uppcRec x s (by omega)) := by
+  rfl
+
 /--
   Conjunction for fast umulOverflow circuit
 -/
 def aandRec (x y : BitVec w) (s : Nat) (hs : s < w) : Bool :=
   y[s] && uppcRec x s (by omega)
 
+theorem aandRec_eq (x y : BitVec w) (s : Nat) (hs : s < w) :
+    aandRec x y s hs = (y[s] && uppcRec x s (by omega)) := by
+  rfl
 
 /--
   Preliminary overflow flag for fast umulOverflow circuit as introduced in
@@ -2244,6 +2256,14 @@ def resRec (x y : BitVec w) (s : Nat) (hs : s < w) (hslt : 0 < s) : Bool :=
     | 0 => aandRec x y 1 (by omega)
     | s'' + 1 =>
       (resRec x y s' (by omega) (by omega)) || (aandRec x y s (by omega))
+
+theorem resRec_zero_eq (x y : BitVec w) (hs : 1 < w) :
+    resRec x y 1 hs (by omega) = aandRec x y 1 (by omega) := by
+  rfl
+
+theorem resRec_succ_eq (x y : BitVec w) (s : Nat) (hs : s + 1 < w) (hs' : s + 1 + 1 < w) (hslt : 0 < s + 1) :
+    resRec x y (s + 1) hs hslt = (resRec x y (s + 1) (by omega) (by omega)) || (aandRec x y (s + 1 + 1) hs') := by
+  simp
 
 /-- The preliminary overflow flag is true for a certain `s` if and only if the conjunction returns true at
   any `k` smaller than or equal to `s`. -/
@@ -2321,7 +2341,7 @@ theorem resRec_of_clz_le {x y : BitVec w} (hw : 1 < w) (hx : x ≠ 0#w) (hy : y 
 /--
   Complete fast overflow detection circuit for unsigned multiplication.
 -/
-theorem fastUmulOverflow (x y : BitVec w) :
+theorem fastUmulOverflow_eq (x y : BitVec w) :
     umulOverflow x y = if hw : w ≤ 1 then false
       else (setWidth (w + 1) x * setWidth (w + 1) y)[w] || x.resRec y (w - 1) (by omega) (by omega) := by
   rcases w with _|_|w

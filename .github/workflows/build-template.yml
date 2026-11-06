@@ -85,6 +85,12 @@ jobs:
           version: 3.1.44
           actions-cache-folder: emsdk
         if: matrix.wasm
+      - name: Setup Node.js
+        # `lean.wasm` has more than 100'000 exports, which V8 only accepts from Node.js 24 on
+        uses: actions/setup-node@v7
+        with:
+          node-version: 26
+        if: matrix.wasm
       - name: Install 32bit c libs
         run: |
           sudo dpkg --add-architecture i386
@@ -382,7 +388,8 @@ jobs:
         if: always()
         run: ccache -s
       - name: Show stacktrace for coredumps
-        if: failure() && runner.os == 'Linux'
+        # `$GDB` comes from the Nix shell
+        if: failure() && runner.os == 'Linux' && !matrix.cmultilib
         run: |
           for c in $(find . -name core); do
             progbin="$(file $c | sed "s/.*execfn: '\([^']*\)'.*/\1/")"

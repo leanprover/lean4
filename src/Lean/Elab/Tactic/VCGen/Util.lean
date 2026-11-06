@@ -123,8 +123,22 @@ public def numBindersToIntro : Expr → Nat
   | .letE _ _ _ b _ => numBindersToIntro b + 1
   | _ => 0
 
+/-- The constructor application `C.mk ps` if `type` is `C ps` for an inductive type `C` with one
+constructor, no fields, no indices and no recursion, such as `PUnit` or `True`. The kernel
+identifies every value of `C ps` with `C.mk ps`: by eta for structures with no fields, and by proof
+irrelevance for `Prop`. -/
+public def unitValue? (type : Expr) : SymM (Option Expr) := do
+  let .const declName us := type.getAppFn | return none
+  let some (.inductInfo info) := (← getEnv).find? declName | return none
+  let [ctorName] := info.ctors | return none
+  unless info.numIndices == 0 && !info.isRec && type.getAppNumArgs == info.numParams do return none
+  let some (.ctorInfo ctor) := (← getEnv).find? ctorName | return none
+  unless ctor.numFields == 0 do return none
+  return some (← mkAppNS (← mkConstS ctorName us) type.getAppArgs)
+
 /-- Introduce the first `n` binders of `goal`, named by `mkFreshBinderNameForTactic`, which
-`tactic.hygienic` makes inaccessible: `∀ acc, acc % 2 = 0` introduces `acc✝`. -/
+`tactic.hygienic` makes inaccessible: `∀ acc, acc % 2 = 0` introduces `acc✝`. A binder whose type
+has a `unitValue?` introduces no local, and the goal mentions that value in place of the binder. -/
 public def introsHygienicN (goal : MVarId) (n : Nat) : VCGenM MVarId :=
   goal.withContext do
     let rec collectBinders : Nat → Expr → Array Name → Array Name
@@ -137,7 +151,7 @@ public def introsHygienicN (goal : MVarId) (n : Nat) : VCGenM MVarId :=
     let mut names := #[]
     for nm in binderNames do
       names := names.push (← Meta.mkFreshBinderNameForTactic nm)
-    let .goal _ goal ← Sym.intros goal names | return goal
+    let .goal _ goal ← Sym.intros goal names (canonical? := unitValue?) | return goal
     return goal
 
 public def instantiateBinderDomains (goal : MVarId) : VCGenM MVarId := do

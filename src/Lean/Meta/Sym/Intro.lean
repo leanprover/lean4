@@ -13,6 +13,15 @@ import Lean.Meta.Sym.AlphaShareBuilder
 import Lean.Meta.Sym.InstantiateMVarsS
 namespace Lean.Meta.Sym
 open Lean.Meta.Sym.Internal
+
+/-- The constructor application `C.mk ps` if `type` is `C ps` for an inductive type `C` with one
+constructor, no fields, no indices and no recursion, such as `PUnit` or `True`. The kernel
+identifies every value of `C ps` with `C.mk ps`: by eta for structures with no fields, and by proof
+irrelevance for `Prop`. -/
+def unitValue? (type : Expr) : SymM (Option Expr) :=
+  matchConstNonRecStructure type.getAppFn (fun _ => return none) fun info us ctor => do
+    unless ctor.numFields == 0 && type.getAppNumArgs == info.numParams do return none
+    return some (← mkAppNS (← mkConstS ctor.name us) type.getAppArgs)
 /--
 Efficient `intro` for symbolic simulation.
 
@@ -23,14 +32,13 @@ names are made inaccessible (fresh macro scopes); otherwise they are accessible 
 If the binders end at an assigned metavariable, e.g., `⊢ ?a` with `?a := p → q`, the binders of its
 value are introduced too.
 
-A `∀` binder whose type `d` has the value `c := canonical? d` introduces no local declaration, and
-the new goal mentions `c` in place of the binder. For example, if `canonical? PUnit = PUnit.unit`,
-the target `∀ (n : Nat) (u : PUnit), B n u` leaves the goal `B n PUnit.unit` with the local `n`,
-assigned by `fun n u => ?g`. `c` must be definitionally equal to every value of type `d`, so that
-`B n PUnit.unit` and `B n u` are definitionally equal, and `c` must not be a free variable.
+If `elimUnit` is `true`, a `∀` binder whose type `d` has the value `c := unitValue? d` introduces no
+local declaration, and the new goal mentions `c` in place of the binder. The target
+`∀ (n : Nat) (u : PUnit), B n u` leaves the goal `B n PUnit.unit` with the local `n`, assigned by
+`fun n u => ?g`. `B n PUnit.unit` and `B n u` are definitionally equal by `unitValue?`.
 -/
 partial def introCore (mvarId : MVarId) (max : Nat) (names : Array Name) (hygienic : Bool)
-    (canonical? : Expr → SymM (Option Expr) := fun _ => pure none) : SymM (Array FVarId × MVarId) := do
+    (elimUnit : Bool := false) : SymM (Array FVarId × MVarId) := do
   if max == 0 then return (#[], mvarId)
   let mvarDecl ← mvarId.getDecl
   /-
@@ -70,7 +78,7 @@ partial def introCore (mvarId : MVarId) (max : Nat) (names : Array Name) (hygien
     assignDelayedMVar auxMVar.mvarId! fvars mvarId'
     mvarId.assign val
   /-
-  `subst` holds, for each binder introduced so far, its free variable or its canonical value.
+  `subst` holds, for each binder introduced so far, its free variable or its `unitValue?`.
   -/
   let finalize (lctx : LocalContext) (localInsts : LocalInstances) (subst : Array Expr) (type : Expr) : SymM (Array Expr × MVarId) := do
     if subst.isEmpty then
@@ -98,7 +106,7 @@ partial def introCore (mvarId : MVarId) (max : Nat) (names : Array Name) (hygien
     | .mdata _ type => visit i lctx localInsts fvars type
     | .forallE n type body bi =>
       let type ← instantiateRevS type fvars
-      if let some c ← canonical? type then
+      if let some c ← (if elimUnit then unitValue? type else pure none) then
         visit (i+1) lctx localInsts (fvars.push c) body
       else
         let fvarId     ← mkFreshFVarId
@@ -134,7 +142,7 @@ partial def introCore (mvarId : MVarId) (max : Nat) (names : Array Name) (hygien
           else
             pure (← finalize lctx localInsts fvars type).2
           let (fvars', mvarId) ←
-            introCore mvarId (max - i) (names.extract i names.size) hygienic canonical?
+            introCore mvarId (max - i) (names.extract i names.size) hygienic elimUnit
           return (fvars.filter (·.isFVar) ++ fvars'.map mkFVar, mvarId)
       finalize lctx localInsts fvars type
   let (fvars, mvarId') ← visit 0 mvarDecl.lctx mvarDecl.localInstances #[] mvarDecl.type
@@ -151,17 +159,18 @@ Introduces leading binders (universal quantifiers and let-expressions) from the 
 
 If `names` is non-empty, introduces (at most) `names.size` binders using the provided names.
 If `names` is empty, introduces all leading binders using names derived from the binder names;
-`hygienic` then controls whether those names are inaccessible (see `introCore`).
+`hygienic` then controls whether those names are inaccessible (see `introCore`). If `elimUnit` is
+`true`, a binder over a unit type such as `PUnit` or `True` introduces no local (see `introCore`).
 
 Returns `.goal newDecls mvarId` with new introduced free variable Ids and the updated goal.
 Returns `.failed` if no binder was introduced.
 -/
 public def intros (mvarId : MVarId) (names : Array Name := #[]) (hygienic : Bool := true)
-    (canonical? : Expr → SymM (Option Expr) := fun _ => pure none) : SymM IntrosResult := do
+    (elimUnit : Bool := false) : SymM IntrosResult := do
   let result ← if names.isEmpty then
-    introCore mvarId hugeNat #[] hygienic canonical?
+    introCore mvarId hugeNat #[] hygienic elimUnit
   else
-    introCore mvarId names.size names hygienic canonical?
+    introCore mvarId names.size names hygienic elimUnit
   if result.1.isEmpty && result.2 == mvarId then
     return .failed
   return .goal result.1 result.2

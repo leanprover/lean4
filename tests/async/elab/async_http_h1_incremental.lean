@@ -277,6 +277,17 @@ private def assertFailedWith
   ensure "Buffered input cap triggers entityTooLarge" (machine1.error == some .entityTooLarge)
     s!"expected entityTooLarge failure, got {repr machine1.error}"
 
+-- Regression: a request-target longer than `maxUriLength` gets `uriTooLong` however the request
+-- line is split into reads, including reads that end between `maxStartLineLength` bytes and the
+-- parser's `maxUriLength` check.
+#eval show IO Unit from do
+  let request := s!"GET /{String.ofList (List.replicate 8193 'a')} HTTP/1.1\r\nHost: a\r\n\r\n".toUTF8
+  for k in [0, 8191, 8192, 8193, 8194, 8195, 8196, 8197] do
+    let parts := if k == 0 then #[request] else #[request.extract 0 k, request.extract k request.size]
+    let trace := runIncrementalReceiving parts
+    ensure s!"Overlong request-target, split at {k}" (trace.machine.error == some .uriTooLong)
+      s!"expected uriTooLong, got {repr trace.machine.error}"
+
 -- Property-style: randomized content-length body and randomized split boundaries.
 #eval show IO Unit from do
   let mut seed : Nat := 0x21436587

@@ -255,8 +255,12 @@ private def reduceNatEqExpr (x y : Expr) : SimpM (Option EqResult):= do
       let gtProof ← mkOfDecideEqTrue (mkGTNat yo x)
       applyEqLemma .false ``Nat.Simproc.eq_add_gt #[x, yb, yo, gtProof]
   | .offset xb xo xn, .offset yb yo yn => do
-    if xn ≤ yn then
-      let zb := (if xn = yn then yb else mkAddNat yb (toExpr (yn - xn)))
+    if xn = yn then
+      -- `xo` and `yo` are the same literal. We do not use `add_eq_add_le`: the kernel would have to
+      -- check `yb + (yo - xo) =?= yb`, and it may unfold `yb` instead of `+`.
+      applyEqLemma (.eq xb yb) ``Nat.Simproc.add_eq_add_cancel #[xb, yb, xo]
+    else if xn < yn then
+      let zb := mkAddNat yb (toExpr (yn - xn))
       let leProof ← mkOfDecideEqTrue (mkLENat xo yo)
       applyEqLemma (.eq xb zb) ``Nat.Simproc.add_eq_add_le #[xb, yb, xo, yo, leProof]
     else
@@ -349,8 +353,11 @@ private def reduceLTLE (nm : Name) (arity : Nat) (isLT : Bool) (e : Expr) : Simp
       let geProof ← mkOfDecideEqTrue (mkGENat x yo)
       applySimprocConst finExpr ``Nat.Simproc.le_add_ge #[x, yb, yo, geProof]
   | .offset xb xo xn, .offset yb yo yn => do
-    if xn ≤ yn then
-      let finExpr := mkLENat xb (if xn = yn then yb else mkAddNat yb (toExpr (yn - xn)))
+    if xn = yn then
+      -- See `reduceNatEqExpr`.
+      applySimprocConst (mkLENat xb yb) ``Nat.Simproc.add_le_add_cancel #[xb, yb, xo]
+    else if xn < yn then
+      let finExpr := mkLENat xb (mkAddNat yb (toExpr (yn - xn)))
       let leProof ← mkOfDecideEqTrue (mkLENat xo yo)
       applySimprocConst finExpr ``Nat.Simproc.add_le_add_le  #[xb, yb, xo, yo, leProof]
     else
@@ -376,8 +383,11 @@ builtin_simproc [simp, seval] reduceSubDiff ((_ - _ : Nat)) := fun e => do
     let finProof ← Meta.mkEqRefl finExpr
     return .done  { expr := finExpr, proof? := finProof, cache := true }
   | .offset pb po pn, .const n => do
-    if pn ≤ n then
-      let finExpr := if pn = n then pb else mkSubNat pb (toExpr (n - pn))
+    if pn = n then
+      -- See `reduceNatEqExpr`.
+      applySimprocConst pb ``Nat.add_sub_cancel #[pb, po]
+    else if pn < n then
+      let finExpr := mkSubNat pb (toExpr (n - pn))
       let leProof ← mkOfDecideEqTrue (mkLENat po q)
       applySimprocConst finExpr ``Nat.Simproc.add_sub_le  #[pb, po, q, leProof]
     else
@@ -388,8 +398,11 @@ builtin_simproc [simp, seval] reduceSubDiff ((_ - _ : Nat)) := fun e => do
       let finExpr := mkSubNat (toExpr (po - nn)) nb
       applySimprocConst finExpr ``Nat.Simproc.sub_add_eq_comm #[p, nb, no]
   | .offset pb po pn, .offset nb no nn => do
-    if pn ≤ nn then
-      let finExpr := mkSubNat pb (if pn = nn then nb else mkAddNat nb (toExpr (nn - pn)))
+    if pn = nn then
+      -- See `reduceNatEqExpr`.
+      applySimprocConst (mkSubNat pb nb) ``Nat.add_sub_add_right #[pb, po, nb]
+    else if pn < nn then
+      let finExpr := mkSubNat pb (mkAddNat nb (toExpr (nn - pn)))
       let leProof ← mkOfDecideEqTrue (mkLENat po no)
       applySimprocConst finExpr ``Nat.Simproc.add_sub_add_le #[pb, nb, po, no, leProof]
     else

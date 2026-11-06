@@ -30,9 +30,7 @@
                   (eagerReduce (Eq.refl true))))))
           (Classical.byContradiction
             (Lean.Grind.intro_with_eq (¬x + 1 ≤ 2 * z) (2 * z ≤ x) False
-              (Eq.trans (Nat.not_le_eq (x + 1) (2 * z))
-                (Nat.Simproc.add_le_add_le (2 * z) x (of_decide_eq_true (Eq.refl true))))
-              fun h_2 =>
+              (Eq.trans (Nat.not_le_eq (x + 1) (2 * z)) (Nat.Simproc.add_le_add_cancel (2 * z) x 1)) fun h_2 =>
               id
                 (let ctx :=
                   Lean.RArray.branch 1 (Lean.RArray.leaf ↑x)

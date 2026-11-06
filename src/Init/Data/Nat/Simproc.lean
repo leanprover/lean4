@@ -61,6 +61,9 @@ theorem add_eq_add_le (a c : Nat) {b d : Nat} (h : b ≤ d) : (a + b = c + d) = 
 theorem add_eq_add_ge (a c : Nat) {b d : Nat} (h : b ≥ d) : (a + b = c + d) = (a + (b - d) = c) := by
   rw [@Eq.comm _ (a + b) _, add_eq_add_le c a h, @Eq.comm _ _ c]
 
+theorem add_eq_add_cancel (a c b : Nat) : (a + b = c + b) = (a = c) :=
+  propext Nat.add_right_cancel_iff
+
 theorem add_eq_le (a : Nat) {b c : Nat} (h : b ≤ c) : (a + b = c) = (a = c - b) := by
   have r := add_eq_add_le a 0 h
   simp only [Nat.zero_add] at r
@@ -92,6 +95,9 @@ theorem add_le_add_le (a c : Nat) {b d : Nat} (h : b ≤ d) : (a + b ≤ c + d) 
 
 theorem add_le_add_ge (a c : Nat) {b d : Nat} (h : b ≥ d) : (a + b ≤ c + d) = (a + (b - d) ≤ c) := by
   rw [← Nat.add_sub_assoc h, Nat.sub_le_iff_le_add]
+
+theorem add_le_add_cancel (a c b : Nat) : (a + b ≤ c + b) = (a ≤ c) :=
+  propext Nat.add_le_add_iff_right
 
 theorem add_le_le (a : Nat) {b c : Nat} (h : b ≤ c) : (a + b ≤ c) = (a ≤ c - b) := by
   have r := add_le_add_le a 0 h

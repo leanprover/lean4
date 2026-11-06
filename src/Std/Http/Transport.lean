@@ -51,7 +51,19 @@ class Transport (α : Type) where
 
 instance : Transport Socket.Client where
   recv client expect := client.recv? expect
-  sendAll client data := client.sendAll data
+  sendAll client data := do
+    let promise ← client.native.send data
+    -- A finished send needs no await, and a pending one is mapped on the thread that completes it
+    -- instead of in a task of its own.
+    if ← IO.hasFinished promise.result? then
+      match promise.result?.get with
+      | some (.ok ()) => pure ()
+      | some (.error e) => throw e
+      | none => throw (IO.userError "the promise linked to the Async was dropped")
+    else
+      Async.ofAsyncTask <| promise.result?.map (sync := true) fun
+        | none => .error (IO.userError "the promise linked to the Async was dropped")
+        | some res => res
   recvSelector client expect := client.recvSelector expect
 
 namespace Internal

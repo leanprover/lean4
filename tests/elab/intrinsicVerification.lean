@@ -1,5 +1,8 @@
 import Std.WP
 import Std.Data.HashMap
+
+set_option sym.debug true
+
 -- `List.take_add` as `@[grind =]` exhausts the instance budget on these goals, see #16223.
 attribute [-grind] List.take_add
 

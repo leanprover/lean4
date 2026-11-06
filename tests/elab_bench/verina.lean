@@ -1,6 +1,8 @@
 import Std.WP
 import Std.Tactic.Do
 
+set_option sym.debug true
+
 /-!
 Benchmark for `vcgen`/`grind` over the Verina verification corpus. Each program states its own
 contract: the `requires`/`ensures` clauses of the definition give the Hoare triple `f.spec`, and

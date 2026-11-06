@@ -6,6 +6,8 @@ Authors: Sebastian Graf
 import Lean
 import Std.WP
 
+set_option sym.debug true
+
 set_option experimental.vcgen true
 set_option grind.warning false
 

@@ -2,6 +2,8 @@ import Lean
 import Std.WP
 import Std.Tactic.Do
 
+set_option sym.debug true
+
 /-! Tests for `vcgen +jp`. A shared tail after an `if` or a `match` makes the do-elaborator emit a
 join point `__do_jp`. `+jp` proves the tail once and closes each jump against that proof, instead of
 unfolding the tail at each jump. Ported from `mvcgenJPs.lean`. -/

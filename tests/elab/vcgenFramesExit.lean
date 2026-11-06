@@ -1,6 +1,8 @@
 import Lean
 import Std.WP
 
+set_option sym.debug true
+
 /-!
 Tests for framing the exception channel.
 

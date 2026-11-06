@@ -1212,7 +1212,7 @@ where
     let savedTrace ← readTraceFile mod.traceFile
     if (← mod.pkg.isArtifactCacheWritable) then
       let restore ← mod.pkg.restoreAllArtifacts
-      match (← fetchFromCache? presetup savedTrace restore) with
+      match (← fetchFromCache? presetup savedTrace restore <|> pure (.incomplete savedTrace none)) with
       | .complete arts =>
         return arts
       | .incomplete savedTrace ltar? =>
@@ -1229,10 +1229,11 @@ where
         else
           discard <| mod.buildLean presetup
         if status.isCacheable then
-          let arts ← mod.cacheOutputArtifacts presetup.isModule restore presetup.postponeCompile
-          let arts := {arts with ltar? := arts.ltar? <|> ltar?}
-          (← getLakeCache).writeOutputs mod.pkg.cacheScope depTrace.hash arts.descrs
-          return arts
+          (do
+            let arts ← mod.cacheOutputArtifacts presetup.isModule restore presetup.postponeCompile
+            let arts := {arts with ltar? := arts.ltar? <|> ltar?}
+            (← getLakeCache).writeOutputs mod.pkg.cacheScope depTrace.hash arts.descrs
+            return arts) <|> (do return ← mod.computeArtifacts presetup.isModule presetup.postponeCompile)
         else
           let arts ← mod.computeArtifacts presetup.isModule presetup.postponeCompile
           return {arts with ltar? := arts.ltar? <|> ltar?}

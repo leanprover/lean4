@@ -151,7 +151,7 @@ def mkFileProgressNotification (m : DocumentMeta) (processing : Array LeanFilePr
     JsonRpc.Notification Lsp.LeanFileProgressParams where
   method := "$/lean/fileProgress"
   param := {
-    textDocument := { uri := m.uri, version? := m.version }
+    textDocument := { uri := m.uri, version := m.version }
     processing
   }
 

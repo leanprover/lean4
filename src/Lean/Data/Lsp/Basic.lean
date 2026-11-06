@@ -142,12 +142,23 @@ structure TextDocumentIdentifier where
   uri : DocumentUri
   deriving ToJson, FromJson
 
+/--
+Identifies a text document, and optionally specifies a specific version of the document. Used both
+for LSP's `VersionedTextDocumentIdentifier`, whose `version` is always present, and for its
+`OptionalVersionedTextDocumentIdentifier` (e.g. in `TextDocumentEdit`), whose `version` is `null`
+when it is not known (for instance, because the document is not open in the editor or does not yet
+exist).
+
+[reference](https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#optionalVersionedTextDocumentIdentifier)
+-/
 structure VersionedTextDocumentIdentifier where
   uri : DocumentUri
-  version? : Option Nat := none
+  /-- The version of the document, if known. Serialized as `"version": null` when `none` (hence no
+  `?` in the field name), since `OptionalVersionedTextDocumentIdentifier` requires the field. -/
+  version : Option Nat := none
   deriving ToJson, FromJson
 
-/-- A batch of `TextEdit`s to perform on a versioned text document.
+/-- A batch of `TextEdit`s to perform on an optionally versioned text document.
 
 [reference](https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#textDocumentEdit) -/
 structure TextDocumentEdit where

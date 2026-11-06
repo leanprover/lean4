@@ -125,39 +125,22 @@ private def parseIPv6 : Parser Net.IPv6Addr := do
 
   return ipv6Addr
 
--- IPv4address = dec-octet "." dec-octet "." dec-octet "." dec-octet
-private def parseIPv4 : Parser Net.IPv4Addr := do
-  let result ← takeWhile1AtMost
-    (fun x => x = '.'.toUInt8 ∨ isDigitByte x)
-    256
-
-  let ipv4Str := String.fromUTF8! result.toByteArray
-  let some ipv4Addr := Std.Net.IPv4Addr.ofString ipv4Str
-    | fail s!"invalid IPv4 address: {ipv4Str}"
-
-  return ipv4Addr
-
 -- host = IP-literal / IPv4address / reg-name
--- Note: RFC 1123 allows domain labels to start with digits, so we must try IPv4
--- first and fall back to reg-name parsing if it fails. An IPv4 address followed
--- by more name bytes (`1.2.3.4-x.example`) is a reg-name (RFC 3986 §3.2.2).
 private def parseHost (config : URI.Config) : Parser URI.Host := do
   if (← peekWhen? (· == '['.toUInt8)).isSome then
     return .ipv6 (← parseIPv6)
   else
-    if (← peekWhen? isDigitByte).isSome then
-      if let some ipv4 ← tryOpt do
-          let ipv4 ← parseIPv4
-          if (← peekWhen? (fun x => isAlphaNum x ∨ x = '-'.toUInt8 ∨ x = '.'.toUInt8)).isSome then
-            fail "not an IPv4 address"
-          return ipv4 then
-        return .ipv4 ipv4
-
-    -- It needs to be a legal DNS label, so it differs from reg-name.
-    let some str := String.fromUTF8? (← takeWhile1AtMost
-      (fun x => isAlphaNum x ∨ x = '-'.toUInt8 ∨ x = '.'.toUInt8)
-      config.maxHostLength).toByteArray
+    -- reg-name = *( unreserved / pct-encoded / sub-delims ). Percent-escapes are decoded, and the
+    -- result must still be a name the resolver can look up, so sub-delims are never accepted.
+    let raw ← takeWhile1AtMost (fun x => isUnreserved x ∨ x = '%'.toUInt8) config.maxHostLength
+    let some str := (URI.EncodedString.ofByteArray? (r := isUnreserved) raw.toByteArray).bind
+        URI.EncodedString.decode
       | fail s!"invalid host"
+
+    -- Only a whole host that matches IPv4address after decoding is an IPv4 literal (RFC 3986
+    -- §3.2.2), so `1.2.3.4-x.example` is a name and `127.0.0.%31` is `127.0.0.1`.
+    if let some ipv4 := Net.IPv4Addr.ofString str then
+      return .ipv4 ipv4
 
     let lower := str.toLower
     if h : URI.IsValidDomainName lower ∧ ¬lower.isEmpty then
@@ -324,6 +307,10 @@ private def parseHierPart (config : URI.Config) : Parser (Option URI.Authority �
   if (← tryOpt (skipString "//")).isSome then
     let authority ← tryOpt (attempt (parseAuthority config))
     let path ← parsePath config true true  -- path-abempty (must start with "/" or be empty)
+    -- Without an authority the path cannot begin with "//" (RFC 3986 §3.3), or `http:////evil.com/x`
+    -- would print as `http://evil.com/x`.
+    if authority.isNone ∧ path.absolute ∧ (path.segments[0]?.map toString) = some "" then
+      fail "empty authority before a path that begins with \"//\""
     return (authority, path)
   else
     -- path-absolute / path-rootless / path-empty
@@ -335,6 +322,8 @@ Parses a URI (Uniform Resource Identifier).
 
 URI = scheme ":" hier-part [ "?" query ] [ "#" fragment ]
 hier-part = "//" authority path-abempty / path-absolute / path-rootless / path-empty
+
+The fragment is percent-decoded, with bytes that are not valid UTF-8 replaced by U+FFFD.
 -/
 def parseURI (config : URI.Config := {}) : Parser URI := do
   let scheme ← parseScheme config
@@ -344,10 +333,7 @@ def parseURI (config : URI.Config := {}) : Parser URI := do
 
   let query ← optional (skipByteChar '?' *> parseQuery config)
 
-  let fragment ← optional do
-    let some result := (← (skipByteChar '#' *> parseFragment config)) |>.decode
-      | fail "invalid fragment parse encoding"
-    return result
+  let fragment ← optional ((·.decodeLossy) <$> (skipByteChar '#' *> parseFragment config))
 
   return { scheme, authority, path, query, fragment }
 
@@ -377,8 +363,13 @@ where
     skipByte ':'.toUInt8
     let (auth, path) ← parseHierPart config
     let query ← optional (skipByteChar '?' *> parseQuery config)
-
+    requireHttpHost scheme auth
     return .absoluteForm { path, scheme, authority := auth, query, fragment := none }
+
+  -- A recipient must reject an http(s) URI with an empty host (RFC 9110 §4.2.1, §4.2.2).
+  requireHttpHost (scheme : URI.Scheme) (authority : Option URI.Authority) : Parser Unit := do
+    if (scheme.val = "http" || scheme.val = "https") && authority.isNone then
+      fail "empty host in an http(s) URI"
 
   -- Prefer absolute-form for explicit HTTP(S) scheme targets with a path or authority.
   -- This avoids misclassifying `http://host/path` as authority-form while still
@@ -390,6 +381,7 @@ where
       if ← peekIs (· == '/'.toUInt8) then
         let (authority, path) ← parseHierPart config
         let query ← optional (skipByteChar '?' *> parseQuery config)
+        requireHttpHost scheme authority
         return .absoluteForm { scheme, path, authority, query, fragment := none }
       else
         fail "not http absolute uri with path"
@@ -420,30 +412,32 @@ relative-part = "//" authority path-abempty
               / path-empty
 ```
 
-Tries a full URI first (requires a scheme). Falls back to a relative reference: authority-rooted
-(`//host/path`), absolute-path (`/path`), path-noscheme (`foo/bar`, `../baz`), query-only
-(`?q`), fragment-only (`#frag`), or empty.
+A leading `scheme ":"` commits to a full URI, and a leading `//` to an authority: neither falls back
+to being read as a path when the rest does not parse. Otherwise the reference is an absolute-path
+(`/path`), path-noscheme (`foo/bar`, `../baz`), query-only (`?q`), fragment-only (`#frag`), or empty.
+
+The fragment is percent-decoded, with bytes that are not valid UTF-8 replaced by U+FFFD.
 -/
-def parseURIReference (config : URI.Config := {}) : Parser Std.Http.URIReference :=
-  attempt uri <|> relative
+def parseURIReference (config : URI.Config := {}) : Parser Std.Http.URIReference := do
+  if let some scheme ← tryOpt (parseScheme config <* skipByte ':'.toUInt8) then
+    uri scheme
+  else if (← tryOpt (skipString "//")).isSome then
+    return .relative (← withAuthority)
+  else
+    return .relative (← withPath)
 where
   fragment : Parser String := do
-    let enc ← parseFragment config
-    let some dec := enc.decode | fail "invalid fragment encoding"
-    return dec
+    return (← parseFragment config).decodeLossy
 
   -- Full URI: scheme ":" hier-part [ "?" query ] [ "#" fragment ]
-  uri : Parser Std.Http.URIReference := attempt do
-    let scheme ← parseScheme config
-    skipByte ':'.toUInt8
+  uri (scheme : URI.Scheme) : Parser Std.Http.URIReference := do
     let (authority, path) ← parseHierPart config
     let query ← optional (skipByteChar '?' *> parseQuery config)
     let frag ← optional (skipByteChar '#' *> fragment)
     return .absolute { scheme, authority, path, query, fragment := frag }
 
-  -- relative-part "//" authority path-abempty
-  withAuthority : Parser Std.Http.URI.RelativeRef := attempt do
-    skipString "//"
+  -- relative-part "//" authority path-abempty, after the "//"
+  withAuthority : Parser Std.Http.URI.RelativeRef := do
     let authority ← parseAuthority config
     let path ← parsePath config true true
     let query ← optional (skipByteChar '?' *> parseQuery config)
@@ -452,15 +446,14 @@ where
 
   -- relative-part: path-absolute / path-noscheme / path-empty
   withPath : Parser Std.Http.URI.RelativeRef := do
-    -- path-absolute starts with "/"; path-noscheme starts with a non-colon pchar or is empty
     let path ← parsePath config false true
+    -- path-noscheme: the first segment of a relative path has no ":" (RFC 3986 §4.2), or it would
+    -- read as a scheme.
+    if !path.absolute && (path.segments[0]?.any (·.toByteArray.data.contains ':'.toUInt8)) then
+      fail "the first segment of a relative path cannot contain ':'"
     let query ← optional (skipByteChar '?' *> parseQuery config)
     let frag ← optional (skipByteChar '#' *> fragment)
     return { authority := none, path, query, fragment := frag }
-
-  relative : Parser Std.Http.URIReference := do
-    let ref ← withAuthority <|> withPath
-    return .relative ref
 
 /--
 Parses an HTTP `Host` header value.

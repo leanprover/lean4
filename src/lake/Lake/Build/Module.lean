@@ -1162,7 +1162,7 @@ def Module.recBuildElabArts (mod : Module) : FetchM (Job ModuleOutputArtifacts) 
     let arts ← adjustMTime arts mod.traceFile
     return arts
 where
-  fetchFromCache? presetup savedTrace restoreAll : JobM ModuleFetchState := do
+  fetchFromCacheCore? presetup savedTrace restoreAll : JobM ModuleFetchState := do
     let inputHash := (← getTrace).hash
     let some ltarOrArts ← getArtifacts? inputHash savedTrace mod.pkg
       | return .incomplete savedTrace none
@@ -1205,6 +1205,15 @@ where
           let ltar ← computeArtifact mod.ltarFile "ltar"
           return .complete {arts with ltar? := some ltar}
       return .complete arts
+  fetchFromCache? presetup savedTrace restoreAll : JobM ModuleFetchState := do
+    try
+      fetchFromCacheCore? presetup savedTrace restoreAll
+    catch e =>
+      let log ← takeLogFrom e
+      logVerbose <| log.entries.foldl (s!"{·}\n- {·.message}")
+        s!"could not restore module from cache; rebuilding: {mod.name}"
+      mod.clearOutputArtifacts
+      return .incomplete .missing none
   fetchCore (presetup : ModulePreSetup) : JobM ModuleOutputArtifacts := do
     let depTrace ← getTrace
     have : GetMTime Module := ⟨(·.getMTime presetup.isModule presetup.postponeCompile)⟩
@@ -1212,7 +1221,7 @@ where
     let savedTrace ← readTraceFile mod.traceFile
     if (← mod.pkg.isArtifactCacheWritable) then
       let restore ← mod.pkg.restoreAllArtifacts
-      match (← fetchFromCache? presetup savedTrace restore <|> pure (.incomplete savedTrace none)) with
+      match (← fetchFromCache? presetup savedTrace restore) with
       | .complete arts =>
         return arts
       | .incomplete savedTrace ltar? =>
@@ -1229,11 +1238,10 @@ where
         else
           discard <| mod.buildLean presetup
         if status.isCacheable then
-          (do
-            let arts ← mod.cacheOutputArtifacts presetup.isModule restore presetup.postponeCompile
-            let arts := {arts with ltar? := arts.ltar? <|> ltar?}
-            (← getLakeCache).writeOutputs mod.pkg.cacheScope depTrace.hash arts.descrs
-            return arts) <|> (do return ← mod.computeArtifacts presetup.isModule presetup.postponeCompile)
+          let arts ← mod.cacheOutputArtifacts presetup.isModule restore presetup.postponeCompile
+          let arts := {arts with ltar? := arts.ltar? <|> ltar?}
+          (← getLakeCache).writeOutputs mod.pkg.cacheScope depTrace.hash arts.descrs
+          return arts
         else
           let arts ← mod.computeArtifacts presetup.isModule presetup.postponeCompile
           return {arts with ltar? := arts.ltar? <|> ltar?}

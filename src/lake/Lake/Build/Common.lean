@@ -729,37 +729,43 @@ public def buildArtifactUnlessUpToDate
   let savedTrace ← readTraceFile traceFile
   if let some pkg ← getCurrPackage? then
     let inputHash := depTrace.hash
-    let fetchArt? restore := (do
-      let some (art : XArtifact exe) ← getArtifacts? inputHash savedTrace pkg
-        | return none
-      unless (← savedTrace.replayCachedIfUpToDate inputHash) do
+    let fetchArt? restore : JobM (Option (XArtifact exe) × SavedTrace) := do
+      try
+        let some (art : XArtifact exe) ← getArtifacts? inputHash savedTrace pkg
+          | return (none, savedTrace)
+        unless (← savedTrace.replayCachedIfUpToDate inputHash) do
+          removeFileIfExists file
+          writeFetchTrace traceFile inputHash (toJson art.descr)
+        let art ← if restore then restoreArtifact file art exe else pure art
+        return (some art, savedTrace)
+      catch e =>
+        let log ← takeLogFrom e
+        logVerbose <| log.entries.foldl (s!"{·}\n- {·.message}")
+          s!"could not restore artifact from cache; rebuilding: {file}"
         removeFileIfExists file
-        writeFetchTrace traceFile inputHash (toJson art.descr)
-      if restore then
-        some <$> restoreArtifact file art exe
-      else
-        return some art) <|> pure none
+        return (none, .missing)
     let art ← id do
       if (← pkg.isArtifactCacheWritable) then
         let restore := restore || (← pkg.restoreAllArtifacts)
-        if let some art ← fetchArt? restore then
+        let (art?, savedTrace) ← fetchArt? restore
+        if let some art := art? then
           return art
         else
           let status ← savedTrace.replayIfUpToDate' file depTrace
           unless status.isUpToDate do
             discard <| doBuild depTrace traceFile
           if status.isCacheable then
-            (do
-              let art ← cacheArtifact file ext text exe restore
-              (← getLakeCache).writeOutputs pkg.cacheScope inputHash art.descr
-              return art) <|> computeArtifact file ext text
+            let art ← cacheArtifact file ext text exe restore
+            (← getLakeCache).writeOutputs pkg.cacheScope inputHash art.descr
+            return art
           else
             computeArtifact file ext text
       else if (← savedTrace.replayIfUpToDate file depTrace) then
         computeArtifact file ext text
       else
         if (← pkg.isArtifactCacheReadable) then
-          if let some art ← fetchArt? (restore := true) then
+          let (art?, _) ← fetchArt? (restore := true)
+          if let some art := art? then
             return art
         doBuild depTrace traceFile
     if let some ref ← Internal.getOutputsRef? pkg then

@@ -859,6 +859,7 @@ inductive FieldHelperInfo (α : Type) where
 
 structure FieldProviderInput where
   classLParams : List Level
+  classParams : Array Expr
   typeApp : Expr
   fieldInfo : ConstantVal
   expectedType : Expr
@@ -1257,10 +1258,44 @@ def postprocessUsingCtor (usePartial : Bool) (predef : PreDefinition) : MetaM Pr
   }
 
 /--
+Default `computeClassApp` used for `InstanceInfo.usingCtor` that uses the `className` from the
+context. It checks that the type former has exactly one type parameter and instantiate it with the
+type application, setting level parameters appropriately.
+-/
+def computeClassAppDefault (typeApp : Expr) : DerivingM Expr := do
+  let className := (← read).className
+  let val ← getConstVal className
+  let levelParams := val.levelParams
+  unless levelParams.length ≤ 1 do
+    throwError "Invalid use of `{.ofConstName decl_name%}`, expected \
+      `{.ofConstName className}` to have at most one level parameter"
+  let .forallE _ (.sort univ) (.sort _) _ := val.type
+    | throwError "Invalid use of `{.ofConstName decl_name%}`, \
+        expected `{.ofConstName className}` to have a type of the shape `Sort _ → Sort _`,
+        i.e. to have exactly one type parameter"
+  let mut classLParams := []
+  if let [u] := levelParams then
+    if univ == .param u then
+      classLParams := [(← read).indLevel]
+    else if univ == .succ (.param u) then
+      classLParams := [← decLevel (← read).indLevel]
+    else
+      throwError "Invalid use of `{.ofConstName decl_name%}`, expected type parameter \
+        to be either fully universe polymorphic or `Type u`-polymorphic"
+  else
+    classLParams := []
+    unless univ.isEquiv (← read).indLevel do
+      throwError "Invalid use of `{.ofConstName decl_name%}`, incorrect level for inductive"
+  return .app (.const className classLParams) typeApp
+
+/--
 The building block for `makeInstancesUsingCtor`: `InstanceInfo.usingCtor` creates an `InstanceInfo`
 for use in `makeInstancesUsingMutualBlock` that constructs an instance of the class using its
 constructor and runs `perField` on every field given the name of the projection function of the
 field.
+
+The `computeClassApp` should compute the concrete type class application to generate an instance
+for, given an application of `induct` with indices.
 
 In most cases, the convenience function `makeInstancesUsingCtor` should be preferred over this one.
 In some cases you might however want more control over which inductives to generate helpers for to
@@ -1300,42 +1335,29 @@ meta initialize registerDerivingHandler ``TypeInfo deriveTypeInfo
 ```
 -/
 def InstanceInfo.usingCtor (perField : Name → FieldHelperProvider α)
-    (supportsRec : Bool := true) (induct : Name) :
-    DerivingM (InstanceInfo α) := do
-  let className := (← read).className
-  let classInfo ← getConstInfoInduct className
-  let levelParams := classInfo.levelParams
-  unless classInfo.numParams = 1 ∧ levelParams.length ≤ 1 do
-    throwError "Invalid use of `{.ofConstName decl_name%}`, expected \
-      `{.ofConstName className}` to have exactly one parameter and at most one level parameter"
-  let .forallE _ (.sort univ) _ _ ← whnf classInfo.type
-    | throwError "Invalid use of `{.ofConstName decl_name%}`, \
-        expected `{.ofConstName className}`'s parameter to be a type parameter"
-  let some structInfo := getStructureInfo? (← getEnv) className
-    | throwError "Invalid use of `{.ofConstName decl_name%}`, \
-        expected `{.ofConstName className}` to be a structure"
-  let [ctor] := classInfo.ctors | unreachable!
-  let mut classLParams := []
-  if let [u] := levelParams then
-    if univ == .param u then
-      classLParams := [(← read).indLevel]
-    else if univ == .succ (.param u) then
-      classLParams := [← decLevel (← read).indLevel]
-    else
-      throwError "Invalid use of `{.ofConstName decl_name%}`, expected type parameter \
-        to be either fully universe polymorphic or `Type u`-polymorphic"
-  else
-    classLParams := []
-    unless univ.isEquiv (← read).indLevel do
-      throwError "Invalid use of `{.ofConstName decl_name%}`, incorrect level for inductive"
+    (supportsRec : Bool := true)
+    (computeClassApp : (typeApp : Expr) → DerivingM Expr := computeClassAppDefault)
+    (induct : Name) : DerivingM (InstanceInfo α) := do
   let typeApp ← inductAppWithParams induct
   let indInfo ← getConstInfoInduct induct
   let usePartial := (← isNestedOrReflexive) || !supportsRec
   forallBoundedTelescope (whnfType := true) (← inferType typeApp) indInfo.numIndices fun indices body => do
     let .sort _ := body
-      | throwError "Unexpected inductive type type{indentExpr (← inferType typeApp)}"
+      | throwError "Unexpected inductive type type{indentExpr (← inferType typeApp)}\
+          \nfor {.ofConstName induct}"
     let typeApp := mkAppN typeApp indices
-    let type ← mkForallFVars indices <| .app (.const className classLParams) typeApp
+    let classApp ← computeClassApp typeApp
+    let classApp ← whnfR classApp -- unfold class `abbrev`s like `Std.ReflOrd`
+    classApp.withApp fun fn classParams => do
+    let .const className classLParams := fn
+      | throwError "Invalid use of `{.ofConstName decl_name%}`,{indentExpr classApp}\
+          \nis not a constant application"
+    let some structInfo := getStructureInfo? (← getEnv) className
+      | throwError "Invalid use of `{.ofConstName decl_name%}`, \
+          expected `{.ofConstName className}` to be a structure"
+    let classInfo ← getConstInfoInduct className
+    let [ctor] := classInfo.ctors | unreachable!
+    let type ← mkForallFVars indices classApp
     let mut fieldHelperInfos : Array (FieldHelperInfo α) := {}
     let mut helpers : Array (HelperInfo α) := #[]
     let indexDecls := (← indices.mapM (·.fvarId!.getDecl)).toList
@@ -1343,13 +1365,14 @@ def InstanceInfo.usingCtor (perField : Name → FieldHelperProvider α)
       let some projFn := structInfo.getProjFn? i | unreachable!
       let fieldInfo ← getConstVal projFn
       let expectedType ← Core.instantiateTypeLevelParams fieldInfo classLParams
-      let expectedType ← instantiateForall expectedType #[typeApp]
+      let expectedType ← instantiateForall expectedType classParams
       let .forallE _ _ expectedType _ := expectedType | unreachable!
       if expectedType.hasLooseBVars then
         throwError "Invalid use of `{.ofConstName decl_name%}`: This function can currently only \
           be used for non-dependent fields but `{.ofConstName projFn}` \
           depends on previous fields."
-      let fieldHelperInfo ← perField projFn { classLParams, typeApp, fieldInfo, expectedType }
+      let input := { classLParams, classParams, typeApp, fieldInfo, expectedType }
+      let fieldHelperInfo ← perField projFn input
       fieldHelperInfos := fieldHelperInfos.push fieldHelperInfo
       if let .usingHelper mkValue := fieldHelperInfo then
         helpers := helpers.push {
@@ -1365,7 +1388,7 @@ def InstanceInfo.usingCtor (perField : Name → FieldHelperProvider α)
       induct, type, helpers
       mkValue helpers := do
         withExistingLocalDecls indexDecls do
-          let mut ctorApp : Expr := .app (.const ctor classLParams) typeApp
+          let mut ctorApp : Expr := mkAppN (.const ctor classLParams) classParams
           let mut helperIdx := 0
           for info in fieldHelperInfos do
             match info with
@@ -1387,6 +1410,10 @@ termination, you should consider using `supportsRec := false`.
 You can also specify a one time computation at `preHelpers` which will be run before any of the
 helpers with all helpers in scope. The result of this computation is provided as an additional `α`
 argument to all `FieldHelperProvider` APIs.
+
+The `computeClassApp` function should compute the concrete type class application to generate an
+instance for, given an application of an inductive from the mutual block with indices. Per default,
+it returns an application of the class being derived with the inductive type application.
 
 Example:
 ```
@@ -1432,10 +1459,12 @@ provided to `deriving` for inherently non-recursive instances), you can use
 `InstanceInfo.usingCtor` directly.
 -/
 def makeInstancesUsingCtor (perField : Name → FieldHelperProvider α)
-    (supportsRec : Bool := true) (preHelpers : DerivingM α := by exact pure ()) :
+    (supportsRec : Bool := true) (preHelpers : DerivingM α := by exact pure ())
+    (computeClassApp : (typeApp : Expr) → DerivingM Expr := computeClassAppDefault) :
     DerivingM Unit := do
   makeInstancesUsingMutualBlock (preHelpers := preHelpers) <|
-    ← (← read).indInfo.all.toArray.mapM (InstanceInfo.usingCtor perField supportsRec)
+    ← (← read).indInfo.all.toArray.mapM
+      (InstanceInfo.usingCtor perField supportsRec computeClassApp)
 
 /--
 Derive an instance for a transformation type class by applying `perCtor` for each constructor
@@ -1489,8 +1518,7 @@ def deriveTransformationInstPerConstructor
       throwError "Invalid use of `{.ofConstName decl_name%}`, expected \
         `{.ofConstName (← read).className}` to have exactly one field but it has \
         {info.fieldNames.size} fields"
-  makeInstancesUsingMutualBlock <| ← (← read).indInfo.all.toArray.mapM <|
-    InstanceInfo.usingCtor (supportsRec := supportsRec)
+  makeInstancesUsingCtor (supportsRec := supportsRec)
       fun _ => .cases fun ival cval fields ctorApp _ => perCtor ival cval fields ctorApp
   return true
 

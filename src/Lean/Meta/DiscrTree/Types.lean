@@ -53,8 +53,10 @@ inductive Trie (α : Type) where
     -/
   | lazy (t : Thunk (Trie α)) : Trie α
     /--
-    The path of the single value `v` through the remaining keys `keys[i:]`, equivalent to `.chain`
-    nodes for these keys ending in `.node #[v] #[]`. `keys` is usually shared with `v`'s own keys.
+    Most paths end in a single value after the last branching point. The special-cased
+    `.suffix keys i v` node stands for the path of `v` through the remaining keys `keys[i:]`,
+    equivalent to `.chain` nodes for these keys ending in `.node #[v] #[]`, but takes a single node
+    instead of one per key, as `keys` is usually shared with `v`'s own keys.
     -/
   | suffix (keys : Array Key) (i : Nat) (v : α) : Trie α
 

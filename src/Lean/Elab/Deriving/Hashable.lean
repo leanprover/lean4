@@ -80,19 +80,21 @@ def mkHashFuncs (ctx : Context) : TermElabM Syntax := do
     auxDefs := auxDefs.push (← mkAuxFunction ctx i)
   `(mutual $auxDefs:command* end)
 
-private def mkHashableInstanceCmds (declName : Name) : TermElabM (Array Syntax) := do
-  let ctx ← mkContext ``Hashable "hash" declName
-  let cmds := #[← mkHashFuncs ctx] ++ (← mkInstanceCmds ctx `Hashable #[declName])
+/-- Builds one aux-function block for the mutual block of `declNames` and an instance for each. -/
+private def mkHashableInstanceCmds (declNames : Array Name) : TermElabM (Array Syntax) := do
+  let ctx ← mkContext ``Hashable "hash" declNames[0]!
+  let cmds := #[← mkHashFuncs ctx] ++ (← mkInstanceCmds ctx `Hashable declNames)
   trace[Elab.Deriving.hashable] "\n{cmds}"
   return cmds
 
 def mkHashableHandler (declNames : Array Name) : CommandElabM Bool := do
   withoutExporting do  -- This deriving handler handles visibility of generated decls syntactically
   if (← declNames.allM isInductive)  then
-    for declName in declNames do
-      withoutExposeFromCtors declName do
-        let cmds ← liftTermElabM <| mkHashableInstanceCmds declName
+    for block in ← liftCoreM <| groupByMutualBlock declNames do
+      let elabBlock := do
+        let cmds ← liftTermElabM <| mkHashableInstanceCmds block
         cmds.forM elabCommand
+      block.foldr withoutExposeFromCtors elabBlock
     return true
   else
     return false

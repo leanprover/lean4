@@ -422,7 +422,7 @@ def mkResult (params : Params) (failure? : Option Goal) : GrindM Result := do
         logInfo msg
   let rings := (← Sym.Arith.getArithState).rings
   let numBranches := (← get).numBranches
-  return { identity := params.identity, failure?, issues, config := params.config, counters, simp, splitDiags, ematchDiags, rings, numBranches }
+  return { identity := params.identity, failure?, issues, config := (← getConfig), counters, simp, splitDiags, ematchDiags, rings, numBranches }
 
 def GrindM.runAtGoal (mvarId : MVarId) (params : Params) (k : Goal → GrindM α) (evalTactic? : Option EvalTactic := none) : MetaM α := do
   let go : GrindM α := withGTransparency do

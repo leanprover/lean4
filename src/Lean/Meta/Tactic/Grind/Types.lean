@@ -80,6 +80,9 @@ inductive LitKind where
 /--
 Classifies the application `e`. For example, `BitVec` and `Fin` are parametric literals, but `Nat` is not.
 The types of nonparametric literals are reduced using `whnfD`, but `BitVec` and `Fin` must occur syntactically.
+The type of a negative literal `-n` must also occur syntactically because `internalize` does not visit `n`:
+the ring normalizer, used for `Int`, `Int8`, `Int16`, `Int32`, and `Int64`, treats `-n` as a constant, but
+`linarith` reifies `-n : α` for `def α := Int` as the negation of the variable `n`.
 `internalize` does not add literal applications to the congruence table.
 -/
 def getLitKind (e : Expr) : MetaM LitKind := do
@@ -99,7 +102,7 @@ def getLitKind (e : Expr) : MetaM LitKind := do
   | Neg.neg _ _ a =>
     let_expr OfNat.ofNat type n _ ← a | return .notLit
     unless n.consumeMData.isRawNatLit do return .notLit
-    let .const declName _ := (← whnfD type).getAppFn | return .notLit
+    let .const declName _ := type.consumeMData | return .notLit
     if declName == ``Int || declName == ``Int8 || declName == ``Int16 || declName == ``Int32 || declName == ``Int64 then
       return .nonParametric
     return .notLit

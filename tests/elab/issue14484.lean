@@ -30,6 +30,6 @@ theorem assumptionFreeFalse : False := opaqueFVarCacheFalse
 /-- info: 'opaqueFVarCacheFalse' depends on axioms: [opaqueFVarCacheFalse, sorryAx] -/
 #guard_msgs in
 #print axioms opaqueFVarCacheFalse
-/-- info: 'assumptionFreeFalse' depends on axioms: [assumptionFreeFalse] -/
+/-- info: 'assumptionFreeFalse' depends on axioms: [opaqueFVarCacheFalse, sorryAx] -/
 #guard_msgs in
 #print axioms assumptionFreeFalse

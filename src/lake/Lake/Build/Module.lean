@@ -1168,11 +1168,19 @@ where
       | return .incomplete savedTrace none
     match (ltarOrArts : ModuleOutputs) with
     | .ltar ltar =>
-      updateAction .unpack
-      mod.clearOutputArtifacts
-      mod.unpackLtar ltar.path inputHash
-      -- Note: This branch implies that only the ltar output is (validly) cached.
-      -- Thus, we use only the new trace unpacked from the ltar to resolve further artifacts.
+      -- Outputs may already be present for this input hash (e.g., after
+      -- `cache get --unpack`). Reuse them only with every required output present.
+      let prepared ← match savedTrace with
+        | .ok data =>
+          if data.depHash == inputHash then
+            mod.checkArtifactsExist presetup.isModule presetup.postponeCompile
+          else pure false
+        | _ => pure false
+      unless prepared do
+        updateAction .unpack
+        mod.clearOutputArtifacts
+        mod.unpackLtar ltar.path inputHash
+      -- Resolve further artifacts from the verified local trace.
       let savedTrace ← readTraceFile mod.traceFile
       let arts? ← getArtifactsUsingTrace? inputHash savedTrace mod.pkg
       if let some (arts : ModuleOutputArtifacts) := arts? then

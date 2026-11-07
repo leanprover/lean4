@@ -232,10 +232,12 @@ def mkBEqInstance (declNames : Array Name) : CommandElabM Unit := do
         mkBEqEnumCmd ctx declName
       else
         mkBEqInstanceCmds ctx declNames
+    -- `mkInstName` picks names still free, so compute them before adding the instances.
+    let instNames ← liftTermElabM <| declNames.mapM (mkInstName ``BEq)
     cmds.forM elabCommand
-    -- Without `partial`, the block is a single type, so `declNames` is `#[declName]`.
     unless ctx.usePartial do
-      elabCommand (← `(attribute [method_specs] $(mkIdent ctx.instName):ident))
+      for instName in instNames do
+        elabCommand (← `(attribute [method_specs] $(mkIdent instName):ident))
   declNames.foldr withoutExposeFromCtors elabBlock
 
 def mkBEqInstanceHandler (declNames : Array Name) : CommandElabM Bool := do

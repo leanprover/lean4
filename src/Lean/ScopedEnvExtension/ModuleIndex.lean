@@ -28,19 +28,25 @@ public def registerSimpleScopedEnvExtensionWithIndex {ι : Type}
     (descr : SimpleScopedEnvExtension.Descr α σ) (build : Environment → Array α → ι)
     (addImported : σ → Array (Option ι × Array (Entry α)) → ImportM σ) :
     IO (SimpleScopedEnvExtension α σ) := do
-  -- the summary extension needs the main extension and vice versa
-  let indexRef : IO.Ref (Option (PersistentEnvExtension ι Unit Unit)) ← IO.mkRef none
+  let indexName := descr.name ++ `moduleIndex
   let ext ← registerSimpleScopedEnvExtension { descr with
     importGlobals := fun as => do
-      let some indexExt ← indexRef.get | descr.importGlobals as
+      -- Looked up by name, as referencing the summary extension from here would create a cycle
+      -- through the export function below, which the compactor cannot save (e.g. in
+      -- `--incr-header-save` snapshots).
+      let some indexExt := (← persistentEnvExtensionsRef.get).find? (·.name == indexName)
+        | descr.importGlobals as
       let env := (← read).env
-      let mods := as.mapIdx fun i a => ((indexExt.getModuleEntries env (i : ModuleIdx))[0]?, a)
+      let mods := as.mapIdx fun i a =>
+        let summary? : Option EnvExtensionEntry :=
+          (indexExt.getModuleEntries env (i : ModuleIdx))[0]?
+        ((unsafe unsafeCast summary? : Option ι), a)
       if mods.all fun (summary?, a) => summary?.isSome || !a.any (· matches .global _) then
         addImported descr.initial mods
       else
         descr.importGlobals as }
-  let indexExt : PersistentEnvExtension ι Unit Unit ← registerPersistentEnvExtension {
-    name := descr.name ++ `moduleIndex
+  let _ : PersistentEnvExtension ι Unit Unit ← registerPersistentEnvExtension {
+    name := indexName
     mkInitial := pure ()
     addImportedFn := fun _ => pure ()
     addEntryFn := fun s _ => s
@@ -52,7 +58,6 @@ public def registerSimpleScopedEnvExtensionWithIndex {ι : Type}
       { exported := summarize es.exported, server := summarize es.server
         «private» := summarize es.private }
   }
-  indexRef.set indexExt
   return ext
 
 end Lean

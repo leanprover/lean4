@@ -185,7 +185,20 @@ private def addDeclCore (decl : Declaration) (forceExpose : Bool) : CoreM Unit :
 
   if Elab.async.get (← getOptions) then
     let cancelTk ← IO.CancelToken.new
-    let checkAct ← Core.wrapAsyncAsSnapshot (cancelTk? := cancelTk) fun _ => doAddAndCommit
+    let checkAct ← Core.wrapAsyncAsSnapshot (cancelTk? := cancelTk) fun _ =>
+      -- Kernel diagnostics are accumulated in the resulting kernel environment, so we need to keep it.
+      if Kernel.isDiagnosticsEnabled env then
+        doAddAndCommit
+      else do
+        setEnv async.asyncEnv
+        doAdd
+    if !Kernel.isDiagnosticsEnabled env then
+      -- Let the following declarations proceed without waiting for this check: add the
+      -- declaration unchecked, and check it against the same preceding environment in `checkAct`.
+      -- If adding fails, the check fails as well and reports it.
+      BaseIO.chainTask (sync := true) env.checked fun _ => do
+        let env' := async.asyncEnv.addDeclCore 0 0 decl none (doCheck := false) |>.toOption
+        discard <| async.commitCheckEnv (env'.getD async.asyncEnv) |>.toBaseIO
     let t ← BaseIO.mapTask checkAct env.checked
     -- Do not display reporting range; most uses of `addDecl` are for registering auxiliary decls
     -- users should not worry about and other callers can add a separate task with ranges

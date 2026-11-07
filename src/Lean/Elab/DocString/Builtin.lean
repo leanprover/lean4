@@ -936,7 +936,7 @@ def lean (name : Option Ident := none) (error warning : flag false) («show» : 
     let mut pstate : Parser.ModuleParserState := {
       pos
       recovering := false
-      hasLeading := false
+      leadingStartPos? := none
     }
     let mut cmds := #[]
     repeat

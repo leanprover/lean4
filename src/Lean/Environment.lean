@@ -634,7 +634,8 @@ structure Environment where
   /--
   Kernel environment task that is fulfilled when all asynchronously elaborated declarations are
   finished, containing the resulting environment. Also collects the environment extension state of
-  all environment branches that contributed contained declarations.
+  all environment branches that contributed contained declarations. Declarations may be added to it
+  before the kernel has finished checking them; `Lean.addDecl` reports check failures separately.
   -/
   checked             : Task Kernel.Environment := private_decl% (.pure base.private)
   /--

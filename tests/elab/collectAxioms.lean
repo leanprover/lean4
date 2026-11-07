@@ -30,3 +30,14 @@ theorem one_add_one : 1 + 1 = 2 := by
 /-- info: 'one_add_one' depends on axioms: [one_add_one._native.native_decide.ax_1_1] -/
 #guard_msgs in
 #print axioms one_add_one
+
+-- `collectAxiomsMany` is the batched form: entry `i` matches `collectAxioms decls[i]`.
+/-- info: #[#[`A0, `A1, `A2], #[`A0], #[`A1]] -/
+#guard_msgs in
+#eval Lean.collectAxiomsMany #[``A2, ``A0, ``A1]
+
+-- `except` filters the per-declaration results (here removing the `A0`/`A1` axioms),
+-- while the shared cache still records the full sets.
+/-- info: #[#[`A2], #[], #[]] -/
+#guard_msgs in
+#eval Lean.collectAxiomsMany #[``A2, ``A0, ``A1] (except := ({} : Lean.NameSet).insert ``A0 |>.insert ``A1)

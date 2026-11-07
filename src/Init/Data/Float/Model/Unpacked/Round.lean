@@ -9,6 +9,8 @@ prelude
 public import Init.Data.Float.Model.Unpacked.Basic
 public import Init.Data.Float.Model.Format.Basic
 public import Init.Data.Float.Model.Unpacked.Sign
+import Init.Data.Nat.Bitwise.Lemmas
+import Init.Data.Nat.Mod
 
 -- This file is part of the logical model for floats which authors of float libraries
 -- need to rely on.
@@ -102,8 +104,80 @@ def shiftRightOne (em : ExtendedMantissa) : ExtendedMantissa where
   roundBit := em.mantissa % 2 != 0
   stickyBit := em.roundBit || em.stickyBit
 
+/--
+Shifts the mantissa right by `n`, propagating information into the residual bits
+as required.
+
+This is `noncomputable` so that the only compiled implementation is `shiftRightFast`,
+installed via `@[csimp]`: shifting one place at a time takes time quadratic in the length
+of the mantissa.
+-/
+noncomputable def shiftRight (em : ExtendedMantissa) (n : Nat) : ExtendedMantissa :=
+  n.repeat shiftRightOne em
+
+theorem shiftRight_succ (em : ExtendedMantissa) (n : Nat) :
+    em.shiftRight (n + 1) = (em.shiftRight n).shiftRightOne := rfl
+
+/--
+Shifts the mantissa right by `n` in a single step, reading the residual bits off the bits
+that are shifted out.
+-/
+def shiftRightFast (em : ExtendedMantissa) : Nat → ExtendedMantissa
+  | 0 => em
+  | n + 1 => {
+    mantissa := em.mantissa >>> (n + 1)
+    roundBit := em.mantissa.testBit n
+    stickyBit := em.roundBit || em.stickyBit || em.mantissa >>> n <<< n != em.mantissa
+  }
+
+private theorem shiftRight_shiftLeft_bne (m n : Nat) :
+    (m >>> n <<< n != m) = (m % 2 ^ n != 0) := by
+  rw [Nat.shiftLeft_eq, Nat.shiftRight_eq_div_pow]
+  have h := Nat.div_add_mod m (2 ^ n)
+  rw [Nat.mul_comm] at h
+  generalize m / 2 ^ n * 2 ^ n = a at *
+  generalize m % 2 ^ n = r at *
+  subst h
+  cases r with
+  | zero => rw [Nat.add_zero, bne_self_eq_false, bne_self_eq_false]
+  | succ r =>
+    rw [bne_iff_ne.mpr (Nat.ne_of_lt (Nat.lt_add_of_pos_right (Nat.succ_pos r))),
+      bne_iff_ne.mpr (Nat.add_one_ne_zero r)]
+
+theorem shiftRightFast_succ (em : ExtendedMantissa) (n : Nat) :
+    em.shiftRightFast (n + 1) = (em.shiftRightFast n).shiftRightOne := by
+  cases n with
+  | zero =>
+    simp only [shiftRightFast, shiftRightOne]
+    rw [shiftRight_shiftLeft_bne]
+    simp only [Nat.shiftRight_succ, Nat.shiftRight_zero, Nat.testBit_zero, Nat.pow_zero,
+      Nat.mod_one]
+    congr 1
+    · cases Nat.mod_two_eq_zero_or_one em.mantissa <;> simp [*]
+    · simp
+  | succ n =>
+    simp only [shiftRightFast, shiftRightOne]
+    rw [shiftRight_shiftLeft_bne, shiftRight_shiftLeft_bne]
+    simp only [Nat.shiftRight_succ]
+    have hmod : em.mantissa % 2 ^ (n + 1) =
+        em.mantissa % 2 ^ n + 2 ^ n * (em.mantissa / 2 ^ n % 2) := Nat.mod_pow_succ
+    have hbit : ∀ i, em.mantissa.testBit i = decide (em.mantissa / 2 ^ i % 2 = 1) :=
+      fun _ => Nat.testBit_eq_decide_div_mod_eq
+    have hsh : ∀ i, em.mantissa >>> i = em.mantissa / 2 ^ i := Nat.shiftRight_eq_div_pow _
+    congr 1
+    · rw [← Nat.shiftRight_succ, hbit, hsh]
+      cases Nat.mod_two_eq_zero_or_one (em.mantissa / 2 ^ (n + 1)) <;> simp [*]
+    · rw [hmod, hbit]
+      cases Nat.mod_two_eq_zero_or_one (em.mantissa / 2 ^ n) <;> simp [*]
+
+@[csimp] theorem shiftRight_eq_shiftRightFast : @shiftRight = @shiftRightFast := by
+  funext em n
+  induction n with
+  | zero => rfl
+  | succ n ih => rw [shiftRight_succ, shiftRightFast_succ, ih]
+
 instance : HShiftRight ExtendedMantissa Nat ExtendedMantissa where
-  hShiftRight em n := n.repeat shiftRightOne em
+  hShiftRight := shiftRight
 
 end ExtendedMantissa
 

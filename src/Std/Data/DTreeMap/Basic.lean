@@ -958,6 +958,21 @@ def mergeWith [LawfulEqCmp cmp] (mergeFn : (a : α) → β a → β a → β a) 
     DTreeMap α β cmp :=
   letI : Ord α := ⟨cmp⟩; ⟨t₁.inner.mergeWith mergeFn t₂.inner t₁.wf.balanced |>.impl, t₁.wf.mergeWith⟩
 
+/--
+Merges `t₂` into `t₁`, applying `mergeFn` to collisions. Returning `none` removes the key;
+returning `some b` stores `b`. Entries present in only one map are preserved.
+
+The callback receives the key stored in `t₂`, the value from `t₁`, and the value from `t₂`,
+in that order. A retained collision uses the key representative from `t₂`.
+
+This function uses `t₁` linearly, including its values when `mergeFn` uses its second
+argument linearly. It always traverses `t₂`, taking `O(t₂.size * log (t₁.size + t₂.size))` time.
+-/
+@[inline]
+def mergeWith? [LawfulEqCmp cmp] (mergeFn : (a : α) → β a → β a → Option (β a)) (t₁ t₂ : DTreeMap α β cmp) :
+    DTreeMap α β cmp :=
+  letI : Ord α := ⟨cmp⟩; ⟨t₁.inner.mergeWith? mergeFn t₂.inner t₁.wf.balanced |>.impl, t₁.wf.mergeWith?⟩
+
 namespace Const
 
 variable {β : Type v}
@@ -1004,6 +1019,11 @@ def alter (t : DTreeMap α β cmp) (a : α) (f : Option β → Option β) : DTre
 def mergeWith (mergeFn : α → β → β → β) (t₁ t₂ : DTreeMap α β cmp) : DTreeMap α β cmp :=
   letI : Ord α := ⟨cmp⟩;
   ⟨Impl.Const.mergeWith mergeFn t₁.inner t₂.inner t₁.wf.balanced |>.impl, t₁.wf.constMergeWith⟩
+
+@[inline, inherit_doc DTreeMap.mergeWith?]
+def mergeWith? (mergeFn : α → β → β → Option β) (t₁ t₂ : DTreeMap α β cmp) : DTreeMap α β cmp :=
+  letI : Ord α := ⟨cmp⟩;
+  ⟨Impl.Const.mergeWith? mergeFn t₁.inner t₂.inner t₁.wf.balanced |>.impl, t₁.wf.constMergeWith?⟩
 
 end Const
 

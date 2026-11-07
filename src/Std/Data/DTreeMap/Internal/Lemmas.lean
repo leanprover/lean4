@@ -9335,6 +9335,18 @@ theorem mergeWith [TransOrd α] [LawfulEqOrd α]
   intro a ha c c' hc
   exact ⟨hc.1.alter, hc.2.1.alter, hc.2.2.alter hc.1 hc.2.1⟩
 
+theorem mergeWith? [TransOrd α] [LawfulEqOrd α]
+    (h : t₁ ~m t₂) (h' : t₃ ~m t₄)
+    (h₁ : t₁.WF) (h₂ : t₂.WF)
+    (h₃ : t₃.WF) (h₄ : t₄.WF)
+    {f : (a : α) → β a → β a → Option (β a)} :
+    (t₁.mergeWith? f t₃ h₁.balanced).impl ~m (t₂.mergeWith? f t₄ h₂.balanced).impl := by
+  simp only [Impl.mergeWith?, h'.foldl_eq h₃ h₄, foldl_eq_foldl]
+  refine (List.foldl_rel (r := fun a b : BalancedTree α β =>
+    a.impl.WF ∧ b.impl.WF ∧ a.impl ~m b.impl) ⟨h₁, h₂, h⟩ ?_).2.2
+  intro a ha c c' hc
+  exact ⟨hc.1.alter, hc.2.1.alter, hc.2.2.alter hc.1 hc.2.1⟩
+
 theorem mergeWith! [TransOrd α] [LawfulEqOrd α]
     (h : t₁ ~m t₂) (h' : t₃ ~m t₄)
     (h₁ : t₁.WF) (h₂ : t₂.WF)
@@ -9342,6 +9354,14 @@ theorem mergeWith! [TransOrd α] [LawfulEqOrd α]
     {f : (a : α) → β a → β a → β a} :
     t₁.mergeWith! f t₃ ~m t₂.mergeWith! f t₄ := by
   simpa only [mergeWith_eq_mergeWith!] using h.mergeWith h' h₁ h₂ h₃ h₄
+
+theorem mergeWith?! [TransOrd α] [LawfulEqOrd α]
+    (h : t₁ ~m t₂) (h' : t₃ ~m t₄)
+    (h₁ : t₁.WF) (h₂ : t₂.WF)
+    (h₃ : t₃.WF) (h₄ : t₄.WF)
+    {f : (a : α) → β a → β a → Option (β a)} :
+    t₁.mergeWith?! f t₃ ~m t₂.mergeWith?! f t₄ := by
+  simpa only [mergeWith?_eq_mergeWith?!] using h.mergeWith? h' h₁ h₂ h₃ h₄
 
 section Const
 
@@ -9548,6 +9568,18 @@ theorem constMergeWith [TransOrd α]
   intro a ha c c' hc
   exact ⟨hc.1.constAlter, hc.2.1.constAlter, hc.2.2.constAlter hc.1 hc.2.1⟩
 
+theorem constMergeWith? [TransOrd α]
+    (h : t₁ ~m t₂) (h' : t₃ ~m t₄)
+    (h₁ : t₁.WF) (h₂ : t₂.WF)
+    (h₃ : t₃.WF) (h₄ : t₄.WF)
+    {f : α → β → β → Option β} :
+    (Const.mergeWith? f t₁ t₃ h₁.balanced).impl ~m (Const.mergeWith? f t₂ t₄ h₂.balanced).impl := by
+  simp only [Impl.Const.mergeWith?, h'.foldl_eq h₃ h₄, foldl_eq_foldl]
+  refine (List.foldl_rel (r := fun a b : BalancedTree α β =>
+    a.impl.WF ∧ b.impl.WF ∧ a.impl ~m b.impl) ⟨h₁, h₂, h⟩ ?_).2.2
+  intro a ha c c' hc
+  exact ⟨hc.1.constAlter, hc.2.1.constAlter, hc.2.2.constAlter hc.1 hc.2.1⟩
+
 theorem constMergeWith! [TransOrd α]
     (h : t₁ ~m t₂) (h' : t₃ ~m t₄)
     (h₁ : t₁.WF) (h₂ : t₂.WF)
@@ -9555,6 +9587,14 @@ theorem constMergeWith! [TransOrd α]
     {f : α → β → β → β} :
     Const.mergeWith! f t₁ t₃ ~m Const.mergeWith! f t₂ t₄ := by
   simpa only [Const.mergeWith_eq_mergeWith!] using h.constMergeWith h' h₁ h₂ h₃ h₄
+
+theorem constMergeWith?! [TransOrd α]
+    (h : t₁ ~m t₂) (h' : t₃ ~m t₄)
+    (h₁ : t₁.WF) (h₂ : t₂.WF)
+    (h₃ : t₃.WF) (h₄ : t₄.WF)
+    {f : α → β → β → Option β} :
+    Const.mergeWith?! f t₁ t₃ ~m Const.mergeWith?! f t₂ t₄ := by
+  simpa only [Const.mergeWith?_eq_mergeWith?!] using h.constMergeWith? h' h₁ h₂ h₃ h₄
 
 end Const
 

@@ -6,6 +6,7 @@ Authors: Markus Himmel, Paul Reichert
 module
 
 prelude
+import Std.Data.TreeMap.Raw.WF
 import Std.Data.DTreeMap.Raw.Lemmas
 public import Std.Data.TreeMap.Raw.AdditionalOperations
 public import Init.Data.Array.Perm
@@ -4039,6 +4040,14 @@ theorem mergeWith [TransCmp cmp] [LawfulEqCmp cmp]
     t₁.mergeWith f t₃ ~m t₂.mergeWith f t₄ :=
   ⟨h.1.constMergeWith h₁.1 h₂.1 h₃.1 h₄.1 f h'.1⟩
 
+theorem mergeWith? [TransCmp cmp]
+    (h₁ : t₁.WF) (h₂ : t₂.WF)
+    (h₃ : t₃.WF) (h₄ : t₄.WF)
+    (f : α → β → β → Option β)
+    (h : t₁ ~m t₂) (h' : t₃ ~m t₄) :
+    t₁.mergeWith? f t₃ ~m t₂.mergeWith? f t₄ :=
+  ⟨h.1.constMergeWith? h₁.1 h₂.1 h₃.1 h₄.1 f h'.1⟩
+
 theorem values_eq [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) : t₁.values = t₂.values :=
   h.1.values_eq h₁.1 h₂.1
 
@@ -4703,4 +4712,67 @@ theorem toArray_keys : t.keys.toArray = t.keysArray :=
 theorem toList_keysArray : t.keysArray.toList = t.keys :=
   DTreeMap.Raw.toList_keysArray
 
+@[simp]
+theorem mergeWith?_some {f : α → β → β → β} {t₁ t₂ : Raw α β cmp} :
+    t₁.mergeWith? (fun a b₁ b₂ => some (f a b₁ b₂)) t₂ = t₁.mergeWith f t₂ := by
+  rfl
+
+
+theorem getElem?_mergeWith? [TransCmp cmp]
+    {f : α → β → β → Option β} {t₁ t₂ : Raw α β cmp}
+    (h₁ : t₁.WF) (h₂ : t₂.WF) {k : α} :
+    (t₁.mergeWith? f t₂)[k]? =
+      match t₂.getKey? k, t₂[k]? with
+      | some a, some b₂ => match t₁[k]? with
+        | none => some b₂
+        | some b₁ => f a b₁ b₂
+      | _, _ => t₁[k]? :=
+  DTreeMap.Raw.Const.get?_mergeWith? h₁.out h₂.out
+
+theorem contains_mergeWith? [TransCmp cmp]
+    {f : α → β → β → Option β} {t₁ t₂ : Raw α β cmp}
+    (h₁ : t₁.WF) (h₂ : t₂.WF) {k : α} :
+    (t₁.mergeWith? f t₂).contains k =
+      (match t₂.getKey? k, t₂[k]? with
+      | some a, some b₂ => match t₁[k]? with
+        | none => some b₂
+        | some b₁ => f a b₁ b₂
+      | _, _ => t₁[k]?).isSome := by
+  rw [contains_eq_isSome_getElem? (WF.mergeWith? h₁), getElem?_mergeWith? h₁ h₂]
+
+theorem getKey?_mergeWith? [TransCmp cmp]
+    {f : α → β → β → Option β} {t₁ t₂ : Raw α β cmp}
+    (h₁ : t₁.WF) (h₂ : t₂.WF) {k : α} :
+    (t₁.mergeWith? f t₂).getKey? k =
+      match t₂.getKey? k, t₂[k]? with
+      | some a, some b₂ =>
+        if (match t₁[k]? with | none => some b₂ | some b₁ => f a b₁ b₂).isSome then
+          some a
+        else none
+      | _, _ => t₁.getKey? k :=
+  DTreeMap.Raw.Const.getKey?_mergeWith? h₁.out h₂.out
+
+@[simp]
+theorem mergeWith?_empty_right
+    {f : α → β → β → Option β} {t : Raw α β cmp} :
+    t.mergeWith? f ∅ = t := by
+  cases t
+  rfl
+
+@[simp]
+theorem minEntry?_empty :
+    (∅ : Raw α β cmp).minEntry? = none := by
+  exact DTreeMap.Raw.Const.minEntry?_empty
+
+@[simp]
+theorem maxEntry?_empty :
+    (∅ : Raw α β cmp).maxEntry? = none := by
+  exact DTreeMap.Raw.Const.maxEntry?_empty
+
+
+theorem size_mergeWith?_le [TransCmp cmp]
+    {f : α → β → β → Option β} {t₁ t₂ : Raw α β cmp}
+    (h₁ : t₁.WF) (h₂ : t₂.WF) :
+    (t₁.mergeWith? f t₂).size ≤ t₁.size + t₂.size :=
+  DTreeMap.Raw.Const.size_mergeWith?_le h₁.out h₂.out
 end Std.TreeMap.Raw

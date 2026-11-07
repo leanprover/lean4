@@ -189,7 +189,7 @@ theorem take_add {l : List α} {i j : Nat} : l.take (i + j) = l.take i ++ (l.dro
 theorem take_one {l : List α} : l.take 1 = l.head?.toList := by
   induction l <;> simp
 
-theorem take_eq_append_getElem_of_pos {i} {l : List α} (h₁ : 0 < i) (h₂ : i < l.length) : l.take i = l.take (i - 1) ++ [l[i - 1]] :=
+theorem take_eq_append_getElem_of_pos {i} {l : List α} (h₁ : 0 < i) (h₂ : i ≤ l.length) : l.take i = l.take (i - 1) ++ [l[i - 1]] :=
   match i, h₁ with
   | i + 1, _ => take_succ_eq_append_getElem (by omega)
 

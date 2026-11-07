@@ -24,7 +24,15 @@ trace: [Meta.synthInstance] ❌️ Add String
   [Meta.synthInstance.apply] ✅️ apply @Lean.Grind.CommSemiring.toSemiring to Lean.Grind.Semiring String
     [Meta.synthInstance.tryResolve] ✅️ Lean.Grind.Semiring String ≟ Lean.Grind.Semiring String
     [Meta.synthInstance] ✅️ new goal Lean.Grind.CommSemiring String
-      [Meta.synthInstance.instances] #[@Lean.Grind.CommRing.toCommSemiring]
+      [Meta.synthInstance.instances] #[@Lean.Grind.CommRing.toCommSemiring, @Lean.Grind.Semifield.toCommSemiring]
+  [Meta.synthInstance.apply] ✅️ apply @Lean.Grind.Semifield.toCommSemiring to Lean.Grind.CommSemiring String
+    [Meta.synthInstance.tryResolve] ✅️ Lean.Grind.CommSemiring String ≟ Lean.Grind.CommSemiring String
+    [Meta.synthInstance] ✅️ new goal Lean.Grind.Semifield String
+      [Meta.synthInstance.instances] #[@Lean.Grind.Field.toSemifield]
+  [Meta.synthInstance.apply] ✅️ apply @Lean.Grind.Field.toSemifield to Lean.Grind.Semifield String
+    [Meta.synthInstance.tryResolve] ✅️ Lean.Grind.Semifield String ≟ Lean.Grind.Semifield String
+    [Meta.synthInstance] ✅️ no instances for Lean.Grind.Field String
+      [Meta.synthInstance.instances] #[]
   [Meta.synthInstance.apply] ✅️ apply @Lean.Grind.CommRing.toCommSemiring to Lean.Grind.CommSemiring String
     [Meta.synthInstance.tryResolve] ✅️ Lean.Grind.CommSemiring String ≟ Lean.Grind.CommSemiring String
     [Meta.synthInstance] ✅️ new goal Lean.Grind.CommRing String
@@ -81,7 +89,15 @@ trace: [Meta.synthInstance] ❌️ Add Bool
   [Meta.synthInstance.apply] ✅️ apply @Lean.Grind.CommSemiring.toSemiring to Lean.Grind.Semiring Bool
     [Meta.synthInstance.tryResolve] ✅️ Lean.Grind.Semiring Bool ≟ Lean.Grind.Semiring Bool
     [Meta.synthInstance] ✅️ new goal Lean.Grind.CommSemiring Bool
-      [Meta.synthInstance.instances] #[@Lean.Grind.CommRing.toCommSemiring]
+      [Meta.synthInstance.instances] #[@Lean.Grind.CommRing.toCommSemiring, @Lean.Grind.Semifield.toCommSemiring]
+  [Meta.synthInstance.apply] ✅️ apply @Lean.Grind.Semifield.toCommSemiring to Lean.Grind.CommSemiring Bool
+    [Meta.synthInstance.tryResolve] ✅️ Lean.Grind.CommSemiring Bool ≟ Lean.Grind.CommSemiring Bool
+    [Meta.synthInstance] ✅️ new goal Lean.Grind.Semifield Bool
+      [Meta.synthInstance.instances] #[@Lean.Grind.Field.toSemifield]
+  [Meta.synthInstance.apply] ✅️ apply @Lean.Grind.Field.toSemifield to Lean.Grind.Semifield Bool
+    [Meta.synthInstance.tryResolve] ✅️ Lean.Grind.Semifield Bool ≟ Lean.Grind.Semifield Bool
+    [Meta.synthInstance] ✅️ no instances for Lean.Grind.Field Bool
+      [Meta.synthInstance.instances] #[]
   [Meta.synthInstance.apply] ✅️ apply @Lean.Grind.CommRing.toCommSemiring to Lean.Grind.CommSemiring Bool
     [Meta.synthInstance.tryResolve] ✅️ Lean.Grind.CommSemiring Bool ≟ Lean.Grind.CommSemiring Bool
     [Meta.synthInstance] ✅️ new goal Lean.Grind.CommRing Bool

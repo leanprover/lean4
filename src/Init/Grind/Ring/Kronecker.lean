@@ -1787,7 +1787,7 @@ noncomputable def InvVars.lookup_k (invs : InvVars) (x : Var) : Option Nat :=
 noncomputable def InvVars.nonzero_k (invs : InvVars) : Bool :=
   List.rec true (fun p _ ih => Bool.rec false ih (Nat.blt 0 p.2)) invs
 
-theorem InvVars.lookup_k_spec {α} [Field α] (ctx : Context α) (invs : InvVars) (hok : invs.ok ctx)
+theorem InvVars.lookup_k_spec {α} [Semifield α] (ctx : Context α) (invs : InvVars) (hok : invs.ok ctx)
     (hnz : InvVars.nonzero_k invs = true) (x : Var) (c : Nat) (h : InvVars.lookup_k invs x = some c) :
     Var.denote ctx x = (c : α)⁻¹ ∧ c ≠ 0 := by
   induction invs with
@@ -1910,7 +1910,7 @@ theorem Expr.toPPQ_spec {α} [Field α] [IsCharP α 0] (f : Nat → α) (K B : N
       rw [e₁, e₂, e₃, e₄]
       refine ⟨?_, trivial, hc.2, rfl, rfl, Nat.le_refl _, rfl⟩
       show ((1 : Int) : α) = (c : α) * f x
-      rw [hc.1, intCast_one, Field.mul_inv_cancel (Field.natCast_ne_zero hc.2)]
+      rw [hc.1, intCast_one, Field.mul_inv_cancel (Semifield.natCast_ne_zero hc.2)]
     | none =>
       have e₁ : (Expr.var x).toPPQ B invs = (.add 1 1 (Nat.pow B x) (.num 0), 1) := by simp only [toPPQ, hx]
       have e₂ : (Expr.var x).kronQ_k K B invs = (Int.ofNat (Nat.pow 2 (Nat.mul K (Nat.pow B x))), 1) := by
@@ -2093,8 +2093,8 @@ theorem Expr.eq_of_kronQ {α} [Field α] [IsCharP α 0] (ctx : Context α) (K B 
       have h2 : ((2 ^ K : Nat) : Int) = (2 : Int) ^ K := Int.natCast_pow 2 K
       rw [← h2]; exact Int.ofNat_lt.mpr (by simpa using this))
   rw [mp.1, mq.1, a₁, b₁, intCast_natCast, intCast_natCast] at heq
-  have hs : (((a.toPPQ B invs).2) : α) ≠ 0 := Field.natCast_ne_zero a₃
-  have ht : (((b.toPPQ B invs).2) : α) ≠ 0 := Field.natCast_ne_zero b₃
+  have hs : (((a.toPPQ B invs).2) : α) ≠ 0 := Semifield.natCast_ne_zero a₃
+  have ht : (((b.toPPQ B invs).2) : α) ≠ 0 := Semifield.natCast_ne_zero b₃
   have : ((((b.toPPQ B invs).2) : α) * ((a.toPPQ B invs).2)) * (a.denoteF (Var.denote ctx) - b.denoteF (Var.denote ctx)) = 0 := by
     rw [sub_eq_add_neg, left_distrib, mul_neg, ← sub_eq_add_neg, AddCommGroup.sub_eq_zero_iff]
     calc (((b.toPPQ B invs).2) : α) * ((a.toPPQ B invs).2) * a.denoteF (Var.denote ctx)
@@ -2102,8 +2102,8 @@ theorem Expr.eq_of_kronQ {α} [Field α] [IsCharP α 0] (ctx : Context α) (K B 
       _ = (((a.toPPQ B invs).2) : α) * ((((b.toPPQ B invs).2) : α) * b.denoteF (Var.denote ctx)) := heq
       _ = (((b.toPPQ B invs).2) : α) * ((a.toPPQ B invs).2) * b.denoteF (Var.denote ctx) := by
         rw [← mul_assoc, CommSemiring.mul_comm (((a.toPPQ B invs).2) : α)]
-  rcases Field.of_mul_eq_zero this with h0 | h0
-  · rcases Field.of_mul_eq_zero h0 with h1 | h1
+  rcases Semifield.of_mul_eq_zero this with h0 | h0
+  · rcases Semifield.of_mul_eq_zero h0 with h1 | h1
     · exact absurd h1 ht
     · exact absurd h1 hs
   · rw [Expr.denote_eq_denoteF, Expr.denote_eq_denoteF]; exact AddCommGroup.sub_eq_zero_iff.mp h0
@@ -2226,7 +2226,7 @@ theorem Expr.evalQ_spec {α} [Field α] [IsCharP α 0] (f : Nat → α) (invs : 
       rw [e₁, e₃]
       refine ⟨?_, hc.2, Nat.le_refl _, rfl⟩
       show ((1 : Int) : α) = (c : α) * f x
-      rw [hc.1, intCast_one, Field.mul_inv_cancel (Field.natCast_ne_zero hc.2)]
+      rw [hc.1, intCast_one, Field.mul_inv_cancel (Semifield.natCast_ne_zero hc.2)]
     | none =>
       have : (Option.rec 1 (fun _ => 0) (InvVars.lookup_k invs x) : Nat) = 0 := h
       rw [hx] at this; cases this
@@ -2351,7 +2351,7 @@ theorem Expr.toLinQ_spec {α} [Field α] [IsCharP α 0] (f : Nat → α) (K : Na
       rw [e₁, e₂, e₃, hx]
       refine ⟨?_, hc.2, rfl, rfl, Nat.le_refl _, rfl⟩
       show ((1 : Int) : α) = (c : α) * f x
-      rw [hc.1, intCast_one, Field.mul_inv_cancel (Field.natCast_ne_zero hc.2)]
+      rw [hc.1, intCast_one, Field.mul_inv_cancel (Semifield.natCast_ne_zero hc.2)]
     | none =>
       have e₁ : (Expr.var x).toLinQ invs = (.add 1 1 (x + 1) (.num 0), 1) := by simp only [toLinQ, hx]
       rw [e₁, e₂, e₃, hx]
@@ -2560,12 +2560,12 @@ theorem Expr.eq_of_kronQLin {α} [Field α] [IsCharP α 0] (ctx : Context α) (K
   rw [hP, hQ] at hz
   have hc : (((b.toLinQ invs).2 : α) * ((a.toLinQ invs).2)) ≠ 0 := by
     intro h0
-    rcases Field.of_mul_eq_zero h0 with h1 | h1
-    · exact Field.natCast_ne_zero b₂ h1
-    · exact Field.natCast_ne_zero a₂ h1
+    rcases Semifield.of_mul_eq_zero h0 with h1 | h1
+    · exact Semifield.natCast_ne_zero b₂ h1
+    · exact Semifield.natCast_ne_zero a₂ h1
   have : (((b.toLinQ invs).2 : α) * ((a.toLinQ invs).2)) * (a.denoteF (Var.denote ctx) - b.denoteF (Var.denote ctx)) = 0 := by
     rw [sub_eq_add_neg, left_distrib, mul_neg, ← sub_eq_add_neg]; exact hz
-  rcases Field.of_mul_eq_zero this with h0 | h0
+  rcases Semifield.of_mul_eq_zero this with h0 | h0
   · exact absurd h0 hc
   · rw [Expr.denote_eq_denoteF, Expr.denote_eq_denoteF]; exact AddCommGroup.sub_eq_zero_iff.mp h0
 
@@ -2596,13 +2596,13 @@ theorem eq_of_kronQ_rel {α} [Field α] [IsCharP α 0] (ctx : Context α) (K B :
     (h : Expr.kronQEq_k K B invs ((lhs.sub rhs).mul (.num d)) (lhs'.sub rhs') = true) :
     (lhs.denote ctx = rhs.denote ctx) = (lhs'.denote ctx = rhs'.denote ctx) := by
   have h := Expr.sub_mul_eq_of_kronQ ctx K B invs hok hnz d lhs rhs lhs' rhs' hB hK h
-  have hd : (d : α) ≠ 0 := Field.natCast_ne_zero (Nat.pos_iff_ne_zero.mp (Nat.blt_eq.mp hd))
+  have hd : (d : α) ≠ 0 := Semifield.natCast_ne_zero (Nat.pos_iff_ne_zero.mp (Nat.blt_eq.mp hd))
   rw [← AddCommGroup.sub_eq_zero_iff (a := lhs.denote ctx) (b := rhs.denote ctx),
     ← AddCommGroup.sub_eq_zero_iff (a := lhs'.denote ctx) (b := rhs'.denote ctx), ← h]
   apply propext; constructor
   · intro h0; rw [h0, Semiring.zero_mul]
   · intro h0
-    rcases Field.of_mul_eq_zero h0 with h0 | h0
+    rcases Semifield.of_mul_eq_zero h0 with h0 | h0
     · exact h0
     · exact absurd h0 hd
 
@@ -2661,13 +2661,13 @@ theorem eq_of_kronQLin_rel {α} [Field α] [IsCharP α 0] (ctx : Context α) (K 
     (h : Expr.kronQLinEq_k K invs ((lhs.sub rhs).mul (.num d)) (lhs'.sub rhs') = true) :
     (lhs.denote ctx = rhs.denote ctx) = (lhs'.denote ctx = rhs'.denote ctx) := by
   have h := Expr.sub_mul_eq_of_kronQLin ctx K invs hok hnz d lhs rhs lhs' rhs' hl hK h
-  have hd : (d : α) ≠ 0 := Field.natCast_ne_zero (Nat.pos_iff_ne_zero.mp (Nat.blt_eq.mp hd))
+  have hd : (d : α) ≠ 0 := Semifield.natCast_ne_zero (Nat.pos_iff_ne_zero.mp (Nat.blt_eq.mp hd))
   rw [← AddCommGroup.sub_eq_zero_iff (a := lhs.denote ctx) (b := rhs.denote ctx),
     ← AddCommGroup.sub_eq_zero_iff (a := lhs'.denote ctx) (b := rhs'.denote ctx), ← h]
   apply propext; constructor
   · intro h0; rw [h0, Semiring.zero_mul]
   · intro h0
-    rcases Field.of_mul_eq_zero h0 with h0 | h0
+    rcases Semifield.of_mul_eq_zero h0 with h0 | h0
     · exact h0
     · exact absurd h0 hd
 

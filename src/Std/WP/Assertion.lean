@@ -33,7 +33,19 @@ attribute [scoped instance] Std.Internal.Order.instPartialOrderProp
 
 /-- An assertion type is equipped with a `CompleteLattice` structure,
 used as the carrier for pre- and postconditions. -/
-class abbrev Assertion (α : Type w) := CompleteLattice α
+class Assertion (α : Type w) extends CompleteLattice α
+
+/-- `Prop` is an assertion lattice, ordered by implication. -/
+scoped instance : Assertion Prop where
+
+/-- Assertions indexed by `x : α` are pointwise assertions. -/
+instance {α : Type u} {β : α → Type w} [∀ x, Assertion (β x)] : Assertion (∀ x, β x) where
+
+/-- A pair of assertions is an assertion, ordered componentwise. -/
+instance {α : Type u} {β : Type v} [Assertion α] [Assertion β] : Assertion (α × β) where
+
+/-- `Unit` is the trivial assertion lattice. -/
+instance : Assertion Unit where
 
 namespace Assertion
 

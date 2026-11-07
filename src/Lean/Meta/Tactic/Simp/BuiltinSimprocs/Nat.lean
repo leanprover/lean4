@@ -385,7 +385,7 @@ builtin_simproc [simp, seval] reduceSubDiff ((_ - _ : Nat)) := fun e => do
   | .offset pb po pn, .const n => do
     if pn = n then
       -- See `reduceNatEqExpr`.
-      applySimprocConst pb ``Nat.add_sub_cancel #[pb, po]
+      applySimprocConst pb ``Nat.Simproc.add_sub_cancel #[pb, po]
     else if pn < n then
       let finExpr := mkSubNat pb (toExpr (n - pn))
       let leProof ← mkOfDecideEqTrue (mkLENat po q)
@@ -400,7 +400,7 @@ builtin_simproc [simp, seval] reduceSubDiff ((_ - _ : Nat)) := fun e => do
   | .offset pb po pn, .offset nb no nn => do
     if pn = nn then
       -- See `reduceNatEqExpr`.
-      applySimprocConst (mkSubNat pb nb) ``Nat.add_sub_add_right #[pb, po, nb]
+      applySimprocConst (mkSubNat pb nb) ``Nat.Simproc.add_sub_add_cancel #[pb, nb, po]
     else if pn < nn then
       let finExpr := mkSubNat pb (mkAddNat nb (toExpr (nn - pn)))
       let leProof ← mkOfDecideEqTrue (mkLENat po no)

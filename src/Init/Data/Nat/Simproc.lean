@@ -45,6 +45,18 @@ theorem add_sub_le (a : Nat) {b c : Nat} (h : b ≤ c) : a + b - c = a - (c - b)
   simp only [Nat.zero_add] at p
   exact p
 
+/-
+Copies of `Nat.add_sub_cancel` and `Nat.add_sub_add_right` for `Nat.reduceSubDiff`. A simproc case
+fires only if its lemma is in the environment, so lemmas from this file keep the simproc off in
+modules that do not import `Init.Data.Nat.Simproc`.
+-/
+
+theorem add_sub_cancel (a b : Nat) : a + b - b = a :=
+  Nat.add_sub_cancel a b
+
+theorem add_sub_add_cancel (a c b : Nat) : a + b - (c + b) = a - c :=
+  Nat.add_sub_add_right a b c
+
 /- Eq proofs -/
 
 theorem add_eq_gt (a : Nat) {b c : Nat} (h : b > c) : (a + b = c) = False :=

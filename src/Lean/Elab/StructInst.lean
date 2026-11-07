@@ -443,7 +443,7 @@ Assumes field names are already atomic, having been split by `toFieldLHS`.
 
 Normalization is not done for the entire LHS; only the head of each field LHS is normalized.
 
-Validates that fields are indeed fields, and adds completion info.
+Validates that fields are indeed fields, checks deprecations, and adds completion info.
 On validation errors, errors are logged and the corresponding fields are omitted.
 
 Assumed invariant: parent projections and field names are disjoint sets. This is validated in the `structure` elaborator.
@@ -452,7 +452,7 @@ Resulting invariant: the field has a LHS that has one of these forms:
 - `.fieldName .. :: _`
 - `[.parentFieldName ..]`
 -/
-private partial def normalizeField (structName : Name) (fieldView : FieldView) : MetaM FieldView := do
+private partial def normalizeField (structName : Name) (fieldView : FieldView) : TermElabM FieldView := do
   let env ← getEnv
   match fieldView.lhs with
   | .fieldIndex ref idx :: rest =>
@@ -467,12 +467,19 @@ private partial def normalizeField (structName : Name) (fieldView : FieldView) :
     let name := ident.getId
     assert! name.isAtomic
     addCompletionInfo <| CompletionInfo.fieldId ident name (← getLCtx) structName
-    if let some parentName := findParentProjStruct? env structName name then
+    if let some parentInfo := findParentProjInfo? env structName name then
+      -- Check before the parent prefix is consumed or expanded into multiple fields.
+      withRef ident <| Term.checkDeprecatedCore parentInfo.projFn (allowSuggestion := false)
+      let parentName := parentInfo.structName
       if rest.isEmpty then
         return { fieldView with lhs := [.parentFieldName ident parentName name] }
       else
         normalizeField parentName { fieldView with lhs := rest }
-    else if (findField? env structName name).isSome then
+    else if let some fieldStructName := findField? env structName name then
+      -- Resolve the field while the explicitly selected parent is still known.
+      if let some fieldInfo := getFieldInfo? env fieldStructName name then
+        -- Projection names are not valid field-name replacements.
+        withRef ident <| Term.checkDeprecatedCore fieldInfo.projFn (allowSuggestion := false)
       return fieldView
     else
       throwErrorAt ident m!"`{name}` is not a field of structure `{.ofConstName structName}`"
@@ -519,7 +526,7 @@ private abbrev ExpandedFields := NameMap ExpandedField
 Normalizes and expands the field views.
 Validates that there are no duplicate fields.
 -/
-private def expandFields (structName : Name) (fieldViews : Array FieldView) (recover : Bool) : MetaM (Bool × ExpandedFields) := do
+private def expandFields (structName : Name) (fieldViews : Array FieldView) (recover : Bool) : TermElabM (Bool × ExpandedFields) := do
   let mut fields : ExpandedFields := {}
   let mut errors : Bool := false
   for fieldView in fieldViews do
@@ -735,7 +742,7 @@ private def addStructField (fieldView : ExpandedField) (e : Expr) : StructInstM 
   let env ← getEnv
   if let some structName := findField? env (← read).structName fieldName then
     if let some fieldInfo := getFieldInfo? env structName fieldName then
-      -- Nested fields may have multiple occurrences, which each need terminfo
+      -- Nested fields may have multiple occurrences, which each need terminfo.
       fieldView.forRefsM fun ref => do
         pushInfoLeaf <| Info.ofFieldInfo {
           projName := fieldInfo.projFn, fieldName, lctx := (← getLCtx), val := e, stx := ref
@@ -1050,7 +1057,10 @@ private def processField (loop : StructInstM α) (field : ExpandedField) (fieldT
     loop
   | .nested fields sources _ =>
     -- Nested field. Create synthetic structure instance notation with projected sources, then elaborate it like a `.term` field.
-    let sourceStxs : Array Term := sources.map (fun source => mkProjStx source.stx field.name)
+    -- These generated projections only copy fields; explicit references were checked during normalization.
+    let sourceStxs ← sources.mapM fun source => do
+      let proj : Term := ⟨mkProjStx source.stx field.name⟩
+      `(set_option linter.deprecated false in $proj)
     let fieldStxs := fields.map (fun field => field.toSyntax)
     let ellipsis := (← read).view.sources.implicit
     let stx ← `({ $sourceStxs,* with $fieldStxs,* $[..%$ellipsis]? })

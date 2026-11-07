@@ -262,7 +262,9 @@ where
         let mut synthesizedHandler := false
         -- If there's no exact key for this field yet, synthesize a handler
         if !hasExact then
-          let mut body ← `(pure { config with $(mkIdent key):ident := value })
+          -- Generated setters do not constitute explicit uses of deprecated fields.
+          let mut body ← `(pure (set_option linter.deprecated false in
+            { config with $(mkIdent key):ident := value }))
           if ← withReducible <| isDefEq fieldTy (mkConst ``Bool) then
             trace[Elab.ConfigEval] "field `{.ofConstName projFn}`, using {.ofConstName ``evalBoolItem}"
             body ← `(fun config item => evalBoolItem item >>= fun value => $body:term)

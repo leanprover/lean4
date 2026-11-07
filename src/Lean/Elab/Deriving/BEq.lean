@@ -225,7 +225,7 @@ open Command
 /-- Derives `BEq` for `declNames`, which must belong to the same mutual block. -/
 def mkBEqInstance (declNames : Array Name) : CommandElabM Unit := do
   let declName := declNames[0]!
-  let elabBlock := do
+  withoutExposeFromCtorsAll declNames do
     let ctx ← liftTermElabM <| mkContext ``BEq "beq" declName
     let cmds ← liftTermElabM <|
       if (← isEnumType declName) then
@@ -238,7 +238,6 @@ def mkBEqInstance (declNames : Array Name) : CommandElabM Unit := do
     unless ctx.usePartial do
       for instName in instNames do
         elabCommand (← `(attribute [method_specs] $(mkIdent instName):ident))
-  declNames.foldr withoutExposeFromCtors elabBlock
 
 def mkBEqInstanceHandler (declNames : Array Name) : CommandElabM Bool := do
   if (← declNames.allM isInductive) then

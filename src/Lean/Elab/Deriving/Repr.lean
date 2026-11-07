@@ -124,10 +124,9 @@ open Command
 def mkReprInstanceHandler (declNames : Array Name) : CommandElabM Bool := do
   if (← declNames.allM isInductive) then
     for block in ← liftCoreM <| groupByMutualBlock declNames do
-      let elabBlock := do
+      withoutExposeFromCtorsAll block do
         let cmds ← liftTermElabM <| mkReprInstanceCmds block
         cmds.forM elabCommand
-      block.foldr withoutExposeFromCtors elabBlock
     return true
   else
     return false

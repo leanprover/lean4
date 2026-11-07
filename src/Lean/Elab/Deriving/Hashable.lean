@@ -91,10 +91,9 @@ def mkHashableHandler (declNames : Array Name) : CommandElabM Bool := do
   withoutExporting do  -- This deriving handler handles visibility of generated decls syntactically
   if (← declNames.allM isInductive)  then
     for block in ← liftCoreM <| groupByMutualBlock declNames do
-      let elabBlock := do
+      withoutExposeFromCtorsAll block do
         let cmds ← liftTermElabM <| mkHashableInstanceCmds block
         cmds.forM elabCommand
-      block.foldr withoutExposeFromCtors elabBlock
     return true
   else
     return false

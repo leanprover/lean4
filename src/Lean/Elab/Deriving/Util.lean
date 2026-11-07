@@ -83,6 +83,10 @@ def withoutExposeFromCtors (typeName : Name) (cont : CommandElabM α) : CommandE
         attrs := sc.attrs.filter (!· matches `(Parser.Term.attrInstance| expose)) }) cont
   else cont
 
+/-- Runs `cont` under `withoutExposeFromCtors` for each of `typeNames`. -/
+def withoutExposeFromCtorsAll (typeNames : Array Name) (cont : CommandElabM α) : CommandElabM α :=
+  typeNames.foldr withoutExposeFromCtors cont
+
 structure Context where
   instName    : Name
   typeInfos   : Array InductiveVal

@@ -61,10 +61,14 @@ abbrev Expr.denote {α} [IntModule α] (ctx : Context α) : Expr → α
 /--
 `Expr.denote` for kernel reduction. The theorems that take hypotheses about user terms state them
 with `Expr.denote_k`, so that the kernel unfolds `Expr.rec` instead of `Expr.denote`'s `brecOn`.
+It is an `abbrev` so that the kernel's lazy delta reduction unfolds it before the user's terms.
 -/
-noncomputable def Expr.denote_k {α} [IntModule α] (ctx : Context α) (e : Expr) : α :=
+noncomputable abbrev Expr.denote_k {α} [IntModule α] (ctx : Context α) (e : Expr) : α :=
   Expr.rec 0 (fun v => v.denote ctx) (fun _ _ a b => a + b) (fun _ _ a b => a - b)
     (fun _ a => -a) (fun k _ a => k • a) (fun k _ a => k • a) e
+
+set_option allowUnsafeReducibility true in
+attribute [semireducible] Expr.denote_k
 
 @[simp] theorem Expr.denote_k_eq_denote {α} [IntModule α] (ctx : Context α) (e : Expr) :
     e.denote_k ctx = e.denote ctx := by

@@ -51,10 +51,13 @@ attribute [semireducible] Var.denote Expr.denote
 /--
 `Expr.denote` for kernel reduction. Theorems that take user hypotheses state them with
 `Expr.denote_k`, so that the kernel unfolds `Expr.rec` instead of `Expr.denote`'s `brecOn`.
+It is an `abbrev` so that the kernel's lazy delta reduction unfolds it before the user's terms.
 -/
-@[expose] noncomputable def Expr.denote_k (ctx : Context) (e : Expr) : Int :=
+noncomputable abbrev Expr.denote_k (ctx : Context) (e : Expr) : Int :=
   Expr.rec (fun k => k) (fun v => v.denote ctx) (fun _ _ a b => a + b) (fun _ _ a b => a - b)
     (fun _ a => -a) (fun k _ a => k * a) (fun _ k a => a * k) e
+
+attribute [semireducible] Expr.denote_k
 
 @[simp] theorem Expr.denote_k_eq_denote (ctx : Context) (e : Expr) : e.denote_k ctx = e.denote ctx := by
   induction e with

@@ -20,6 +20,7 @@ Port of the corresponding Rust code (see links below).
 #include <lean/lean.h>
 #include <initializer_list>
 #include "runtime/stack_overflow.h"
+#include "runtime/thread.h"
 
 namespace lean {
 // stack guard of the main thread
@@ -49,23 +50,41 @@ stack_guard::~stack_guard() {}
 // https://github.com/rust-lang/rust/blob/master/library/std/src/sys/pal/unix/stack_overflow.rs
 
 
+#ifndef __APPLE__
+// Lowest address of the current thread's stack, captured by `stack_guard`. Null on threads the
+// runtime did not create; those have no alternate signal stack either.
+static LEAN_THREAD_LOCAL char * g_stackaddr = nullptr;
+#endif
+// close enough; the actual guard might be bigger, but it's unlikely a Lean function will have stack frames that big
+static size_t g_guardsize;
+
 // https://github.com/rust-lang/rust/blob/7c8dbd969dd0ef2af6d8bab9e03ba7ce6cac41a2/src/libstd/sys/unix/thread.rs#L293
+static void capture_stack_bounds() {
+#ifndef __APPLE__
+    pthread_attr_t attr;
+    if (pthread_attr_init(&attr) != 0) return;
+    char * stackaddr;
+    size_t stacksize;
+    if (pthread_getattr_np(pthread_self(), &attr) == 0 &&
+        pthread_attr_getstack(&attr, reinterpret_cast<void **>(&stackaddr), &stacksize) == 0)
+        g_stackaddr = stackaddr;
+    pthread_attr_destroy(&attr);
+#endif
+}
+
+// Must be async-signal-safe: on glibc `pthread_getattr_np` allocates, and the interrupted frame may
+// hold the allocator lock.
 bool is_within_stack_guard(void * addr) {
     char * stackaddr;
 #ifdef __APPLE__
+    // does not allocate, unlike Mach-O `thread_local` on first access
     stackaddr = static_cast<char *>(pthread_get_stackaddr_np(pthread_self())) - pthread_get_stacksize_np(pthread_self());
 #else
-    pthread_attr_t attr;
-    if (pthread_attr_init(&attr) != 0) return false;
-    pthread_getattr_np(pthread_self(), &attr);
-    size_t stacksize;
-    pthread_attr_getstack(&attr, reinterpret_cast<void **>(&stackaddr), &stacksize);
-    pthread_attr_destroy(&attr);
+    stackaddr = g_stackaddr;
+    if (stackaddr == nullptr) return false;
 #endif
-    // close enough; the actual guard might be bigger, but it's unlikely a Lean function will have stack frames that big
-    size_t guardsize = static_cast<size_t>(sysconf(_SC_PAGESIZE));
     // the stack guard is *below* the stack
-    return stackaddr - guardsize <= addr && addr < stackaddr;
+    return stackaddr - g_guardsize <= addr && addr < stackaddr;
 }
 
 extern "C" LEAN_EXPORT void segv_handler(int signum, siginfo_t * info, void *) {
@@ -83,6 +102,7 @@ extern "C" LEAN_EXPORT void segv_handler(int signum, siginfo_t * info, void *) {
 }
 
 stack_guard::stack_guard() {
+    capture_stack_bounds();
     m_signal_stack.ss_sp = malloc(SIGSTKSZ);
     if (m_signal_stack.ss_sp == nullptr) return;
     m_signal_stack.ss_size = SIGSTKSZ;
@@ -99,6 +119,9 @@ stack_guard::~stack_guard() {
 #endif
 
 void initialize_stack_overflow() {
+#ifndef LEAN_WINDOWS
+    g_guardsize = static_cast<size_t>(sysconf(_SC_PAGESIZE));
+#endif
     g_stack_guard = new stack_guard();
 #ifdef LEAN_WINDOWS
     AddVectoredExceptionHandler(0, stack_overflow_handler);

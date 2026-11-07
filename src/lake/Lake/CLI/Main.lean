@@ -291,6 +291,13 @@ def parseLintersSpec (spec : String) : CliM PUnit := do
     { opts with runBuiltinLint := true, builtinLint.linterOverrides :=
         opts.builtinLint.linterOverrides ++ entries }
 
+def setShakeAddDownstream (opt : String) (isExported : Bool) : CliM PUnit := do
+  let mod ← takeOptArg opt "module to add"
+  if (← getThe LakeOptions).shake.addDownstream?.isSome then
+    error "at most one of `--add-downstream` and `--add-public-downstream` can be used, and only once"
+  modifyThe LakeOptions fun opts =>
+    {opts with shake.addDownstream? := some { module := mod.toName, isExported }}
+
 def lakeLongOption : (opt : String) → CliM PUnit
 | "--quiet"       => modifyThe LakeOptions ({· with verbosity := .quiet})
 | "--verbose"     => modifyThe LakeOptions ({· with verbosity := .verbose})
@@ -419,6 +426,8 @@ def lakeLongOption : (opt : String) → CliM PUnit
   let mod ← takeOptArg "--only" "minimize only this module"
   modifyThe LakeOptions fun opts =>
     {opts with shake.onlyMods := opts.shake.onlyMods.push mod.toName}
+| "--add-downstream" => setShakeAddDownstream "--add-downstream" (isExported := false)
+| "--add-public-downstream" => setShakeAddDownstream "--add-public-downstream" (isExported := true)
 -- Check and comparator options
 | "--config" => do
   let file ← takeOptArg "--config" "path"
@@ -501,13 +510,38 @@ namespace lake
 
 namespace cache
 
-def serviceNotFound (service : String) (configuredServices : Array CacheServiceConfig) : String :=
-  let msg := s!"service `{service}` not found in system configuration"
-  if configuredServices.isEmpty then
-    s!"{msg}; no services configured"
+@[inline] def findUploadCacheService (cfg : LoadedLakeConfig) (service : String) : LoggerIO CacheService := do
+  cfg.cacheServices.find? (.mkSimple service) |>.getDM do
+    error <| serviceNotFound service
+where serviceNotFound service :=
+  -- Note: skips suggesting the default Reservoir service as it does not support uploads
+  let services := cfg.config.cache.services
+  if services.isEmpty then
+    s!"service not found `{service}`; no upload services configured"
   else
-    let msg := s!"{msg}; configured services:\n"
-    configuredServices.foldl (· ++ s!"  {·.name}") msg
+    let msg := s!"service not found `{service}`; available services:"
+    services.foldl (init := msg) fun msg name _ =>
+      s!"{msg}\n  {name.toString (escape := false)}"
+
+def collectCacheServices (ws : Workspace) : OrdNameMap String :=
+  let map : OrdNameMap String := .empty
+  let map := ws.lakeConfig.cacheServices.foldl (init := map) fun map name _ =>
+    map.insert name (name.toString (escape := false))
+  ws.packages.foldl (init := map) fun map pkg =>
+    pkg.cacheServices.foldl (init := map) fun map name _ =>
+      map.insert name s!"{name.toString (escape := false)} (from {pkg.prettyName})"
+
+def serviceNotFound (ws : Workspace) (service : String) : String :=
+  let msg := s!"service not found `{service}`; configured services:"
+  collectCacheServices ws |>.foldl (init := msg) fun msg name =>
+    s!"{msg}\n  {name}"
+
+@[inline] def _root_.Lake.Workspace.findCacheService (ws : Workspace) (service : String) : LoggerIO CacheService := do
+  ws.findCacheService? service |>.getDM (error <| serviceNotFound ws service)
+
+@[inline] def _root_.Lake.Workspace.validateCacheService (ws : Workspace) (service : String) : LoggerIO Unit := do
+  unless (ws.findCacheService? service).isSome do
+    error (serviceNotFound ws service)
 
 @[inline] def cacheToolchain (pkg : Package) (toolchain : CacheToolchain) : CacheToolchain :=
   if pkg.fixedToolchain || pkg.bootstrap then .none else toolchain
@@ -547,9 +581,7 @@ protected def get : CliM PUnit := do
       | error "to use `cache get` with a mappings file, `--scope` or `--repo` must be set"
     let service : CacheService ← id do
       if let some service := opts.service? then
-        let some service := ws.findCacheService? service
-          | error (serviceNotFound service ws.lakeConfig.config.cache.services)
-        return service
+        ws.findCacheService service
       else if let some artifactEndpoint := ws.lakeEnv.cacheArtifactEndpoint? then
         logWarning endpointDeprecation
         return .downloadArtsService artifactEndpoint ws.lakeEnv.cacheService?
@@ -565,9 +597,7 @@ protected def get : CliM PUnit := do
     let toolchain := opts.toolchain?.getD ws.cacheToolchain
     let service : CacheService ← id do
       if let some service := opts.service? then
-        let some service := ws.findCacheService? service
-          | error (serviceNotFound service ws.lakeConfig.config.cache.services)
-        return service
+        ws.findCacheService service
       else
         match ws.lakeEnv.cacheArtifactEndpoint?, ws.lakeEnv.cacheRevisionEndpoint? with
         | some artifactEndpoint, some revisionEndpoint =>
@@ -651,14 +681,15 @@ where
       let descrs ← map.collectOutputDescrs
       service.downloadArtifacts descrs cache remoteScope opts.forceDownload
 
-private def computeUploadService
+def computeUploadService
   (service? : Option String) (lakeEnv : Env) (lakeCfg : LoadedLakeConfig)
 : CliStateM CacheService := do
   if let some service := service? then
-    let some service := lakeCfg.cacheServices.find? (.mkSimple service)
-      | error (serviceNotFound service lakeCfg.config.cache.services)
+    let service ← findUploadCacheService lakeCfg service
+    if service.isReservoir then
+      error unsupportedReservoirService
     let some key := lakeEnv.cacheKey?
-      | error "uploads require an authentication key configured through `LAKE_CACHE_KEY`"
+      | error missingLakeCacheKey
     return service.withKey key
   else
     match lakeEnv.cacheKey?, lakeEnv.cacheArtifactEndpoint?, lakeEnv.cacheRevisionEndpoint? with
@@ -666,14 +697,22 @@ private def computeUploadService
       return .uploadService key artifactEndpoint revisionEndpoint
     | key?, none, none =>
       if let some service := lakeCfg.defaultCacheUploadService? then
+        if service.isReservoir then
+          error unsupportedReservoirService
         let some key := key?
-          | error "uploads require an authentication key configured through `LAKE_CACHE_KEY`"
+          | error missingLakeCacheKey
         return service.withKey key
       else
-        error "no default upload service configured; the `--service` option must be set"
+        error noDefaultService
     | key?, artifactEndpoint?, revisionEndpoint? =>
       error (invalidEndpointConfig key? artifactEndpoint? revisionEndpoint?)
 where
+  unsupportedReservoirService :=
+    "Reservoir services do not support uploads"
+  missingLakeCacheKey :=
+    "uploads require an authentication key configured through `LAKE_CACHE_KEY`"
+  noDefaultService :=
+    "no default upload service configured; the `--service` option must be set"
   invalidEndpointConfig key? artifactEndpoint? revisionEndpoint? :=
     s!"invalid endpoint configuration:\
     \n  LAKE_CACHE_KEY is {if key?.isNone then "unset" else "set"}\
@@ -681,7 +720,7 @@ where
     \n  LAKE_CACHE_REVISION_ENDPOINT={revisionEndpoint?.getD ""}\n\
     To upload, these environment variables must be set to non-empty strings."
 
-private def computePackageRev (pkgDir : FilePath) : CliStateM String := do
+def computePackageRev (pkgDir : FilePath) : CliStateM String := do
   let repo := GitRepo.mk pkgDir
   if (← repo.hasDiff) then
     logWarning s!"package has changes; \
@@ -690,7 +729,7 @@ private def computePackageRev (pkgDir : FilePath) : CliStateM String := do
       exit 1
   repo.getHeadRevision
 
-private def putCore
+def putCore
   (rev : GitRev)  (outputs : FilePath) (artDir : FilePath)
   (service : CacheService) (scope : CacheServiceScope)
   (platform := CachePlatform.none) (toolchain := CacheToolchain.none)
@@ -748,14 +787,13 @@ protected def add : CliM PUnit := do
   let service? ← id do
     let some service := opts.service?
       | return none
-    unless (ws.findCacheService? service).isSome do
-      error (serviceNotFound service ws.lakeConfig.config.cache.services)
+    ws.validateCacheService service
     return some (.ofString service)
   let map ← CacheMap.load file
   let overwrite := opts.overwrite?.getD true
   ws.lakeCache.writeMap localScope map service? opts.scope? overwrite
 
-private def stagingOutputsFile := "outputs.jsonl"
+def stagingOutputsFile := "outputs.jsonl"
 
 protected def stage : CliM PUnit := do
   processOptions lakeOption
@@ -811,8 +849,7 @@ protected def unstage : CliM PUnit := do
   let service? ← id do
     let some service := opts.service?
       | return none
-    unless (ws.findCacheService? service).isSome do
-      error (serviceNotFound service ws.lakeConfig.config.cache.services)
+    ws.validateCacheService service
     return some (.ofString service)
   let map ← CacheMap.load (stagingDir / stagingOutputsFile)
   let descrs ← map.collectOutputDescrs
@@ -865,9 +902,14 @@ protected def services : CliM PUnit := do
   processOptions lakeOption
   let opts ← getThe LakeOptions
   noArgsRem do
-  let lakeEnv ← opts.computeEnv
-  let cfg  ← loadLakeConfig lakeEnv
-  cfg.config.cache.services.forM (IO.println ·.name)
+  let cfg ← mkLoadConfig opts
+  if (← configFileExists cfg.configFile) then
+    let ws ← loadWorkspace cfg
+    (collectCacheServices ws).forM (IO.println ·)
+  else
+    let cfg  ← loadLakeConfig cfg.lakeEnv
+    cfg.cacheServices.forM fun name _ =>
+      IO.println <| name.toString (escape := false)
 
 protected def clean : CliM PUnit := do
   processOptions lakeOption
@@ -1102,7 +1144,7 @@ protected def checkTest : CliM PUnit := do
   let pkg ← loadPackage (← mkLoadConfig (← getThe LakeOptions))
   noArgsRem do exit <| if pkg.testDriver.isEmpty then 1 else 0
 
-private def runBuiltinLint
+def runBuiltinLint
     (opts : LakeOptions) (ws : Workspace) (specifiedMods : Array Lean.Name)
     : CliM UInt32 := do
   let mods := if specifiedMods.isEmpty then ws.defaultTargetRoots else specifiedMods
@@ -1212,7 +1254,8 @@ protected def comparator : CliM PUnit := do
   let cfg ← mkLoadConfig opts
   exit <| ←
     Check.runComparator opts.comparatorConfig? opts.challengeFromExport? opts.solutionFromExport?
-      opts.paranoid opts.inadvisablyNoSandbox leanInstall lakeInstall cfg.wsDir
+      opts.paranoid opts.inadvisablyNoSandbox (opts.outFormat matches .json) leanInstall lakeInstall
+      cfg.wsDir
 
 /--
 The half of `lake check` that runs inside the sandbox, selected by `LAKE_CHECK_EXPORT`.
@@ -1244,7 +1287,7 @@ protected def check : CliM PUnit := do
     -- execution, and containing it is what the sandbox is for.
     let cfg ← mkLoadConfig opts
     exit <| ← Check.runCheck opts.checkFromExport? opts.paranoid opts.inadvisablyNoSandbox
-      leanInstall lakeInstall cfg.wsDir
+      (opts.outFormat matches .json) leanInstall lakeInstall cfg.wsDir
 
 protected def script : CliM PUnit := do
   if let some cmd ← takeArg? then

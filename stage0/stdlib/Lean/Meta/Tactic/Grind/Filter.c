@@ -288,6 +288,7 @@ v_a_99_ = lean_ctor_get(v___x_98_, 0);
 lean_inc(v_a_99_);
 lean_dec_ref_known(v___x_98_, 1);
 v___x_100_ = l_Lean_Expr_cleanupAnnotations(v_a_99_);
+lean_dec(v_a_99_);
 v___x_101_ = l_Lean_Expr_isApp(v___x_100_);
 if (v___x_101_ == 0)
 {
@@ -296,57 +297,60 @@ goto v___jp_92_;
 }
 else
 {
-lean_object* v_arg_102_; lean_object* v___x_103_; uint8_t v___x_104_; 
-v_arg_102_ = lean_ctor_get(v___x_100_, 1);
-lean_inc_ref(v_arg_102_);
-v___x_103_ = l_Lean_Expr_appFnCleanup___redArg(v___x_100_);
-v___x_104_ = l_Lean_Expr_isApp(v___x_103_);
-if (v___x_104_ == 0)
+lean_object* v___x_102_; uint8_t v___x_103_; 
+v___x_102_ = l_Lean_Expr_appFnCleanup___redArg(v___x_100_);
+v___x_103_ = l_Lean_Expr_isApp(v___x_102_);
+if (v___x_103_ == 0)
 {
-lean_dec_ref(v___x_103_);
-lean_dec_ref(v_arg_102_);
+lean_dec_ref(v___x_102_);
+lean_dec_ref(v___x_100_);
 goto v___jp_92_;
 }
 else
 {
-lean_object* v_arg_105_; lean_object* v___x_106_; uint8_t v___x_107_; 
-v_arg_105_ = lean_ctor_get(v___x_103_, 1);
-lean_inc_ref(v_arg_105_);
-v___x_106_ = l_Lean_Expr_appFnCleanup___redArg(v___x_103_);
-v___x_107_ = l_Lean_Expr_isApp(v___x_106_);
-if (v___x_107_ == 0)
+lean_object* v___x_104_; uint8_t v___x_105_; 
+v___x_104_ = l_Lean_Expr_appFnCleanup___redArg(v___x_102_);
+v___x_105_ = l_Lean_Expr_isApp(v___x_104_);
+if (v___x_105_ == 0)
 {
+lean_dec_ref(v___x_104_);
+lean_dec_ref(v___x_102_);
+lean_dec_ref(v___x_100_);
+goto v___jp_92_;
+}
+else
+{
+lean_object* v___x_106_; lean_object* v___x_107_; uint8_t v___x_108_; 
+v___x_106_ = l_Lean_Expr_appFnCleanup___redArg(v___x_104_);
+lean_dec_ref(v___x_104_);
+v___x_107_ = ((lean_object*)(l___private_Lean_Meta_Tactic_Grind_Filter_0__Lean_Meta_Grind_getGen___redArg___closed__1));
+v___x_108_ = l_Lean_Expr_isConstOf(v___x_106_, v___x_107_);
 lean_dec_ref(v___x_106_);
-lean_dec_ref(v_arg_105_);
-lean_dec_ref(v_arg_102_);
+if (v___x_108_ == 0)
+{
+lean_dec_ref(v___x_102_);
+lean_dec_ref(v___x_100_);
 goto v___jp_92_;
 }
 else
 {
-lean_object* v___x_108_; lean_object* v___x_109_; uint8_t v___x_110_; 
-v___x_108_ = l_Lean_Expr_appFnCleanup___redArg(v___x_106_);
-v___x_109_ = ((lean_object*)(l___private_Lean_Meta_Tactic_Grind_Filter_0__Lean_Meta_Grind_getGen___redArg___closed__1));
-v___x_110_ = l_Lean_Expr_isConstOf(v___x_108_, v___x_109_);
-lean_dec_ref(v___x_108_);
-if (v___x_110_ == 0)
-{
-lean_dec_ref(v_arg_105_);
-lean_dec_ref(v_arg_102_);
-goto v___jp_92_;
-}
-else
-{
-lean_object* v___x_111_; 
-v___x_111_ = l_Lean_Meta_Grind_getGeneration___redArg(v_arg_105_, v_a_89_);
-lean_dec_ref(v_arg_105_);
+lean_object* v_arg_109_; lean_object* v_arg_110_; lean_object* v___x_111_; 
+v_arg_109_ = lean_ctor_get(v___x_100_, 1);
+lean_inc_ref(v_arg_109_);
+lean_dec_ref(v___x_100_);
+v_arg_110_ = lean_ctor_get(v___x_102_, 1);
+lean_inc_ref(v_arg_110_);
+lean_dec_ref(v___x_102_);
+v___x_111_ = l_Lean_Meta_Grind_getGeneration___redArg(v_arg_110_, v_a_89_);
+lean_dec_ref(v_arg_110_);
 if (lean_obj_tag(v___x_111_) == 0)
 {
 lean_object* v_a_112_; lean_object* v___x_113_; 
 v_a_112_ = lean_ctor_get(v___x_111_, 0);
 lean_inc(v_a_112_);
 lean_dec_ref_known(v___x_111_, 1);
-v___x_113_ = l_Lean_Meta_Grind_getGeneration___redArg(v_arg_102_, v_a_89_);
-lean_dec_ref(v_arg_102_);
+v___x_113_ = l_Lean_Meta_Grind_getGeneration___redArg(v_arg_109_, v_a_89_);
+lean_dec_ref(v_arg_109_);
 if (lean_obj_tag(v___x_113_) == 0)
 {
 lean_object* v_a_114_; uint8_t v___x_115_; 
@@ -409,7 +413,7 @@ return v___x_113_;
 }
 else
 {
-lean_dec_ref(v_arg_102_);
+lean_dec_ref(v_arg_109_);
 return v___x_111_;
 }
 }

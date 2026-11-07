@@ -278,18 +278,11 @@ return v___x_75_;
 }
 else
 {
-if (v___x_75_ == 0)
-{
-return v___x_75_;
-}
-else
-{
 size_t v___x_76_; size_t v___x_77_; uint8_t v___x_78_; 
 v___x_76_ = ((size_t)0ULL);
 v___x_77_ = lean_usize_of_nat(v___x_74_);
 v___x_78_ = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00Array_contains___at___00Lean_Elab_Tactic_Conv_evalDelta_spec__2_spec__2(v_a_72_, v_as_71_, v___x_76_, v___x_77_);
 return v___x_78_;
-}
 }
 }
 }

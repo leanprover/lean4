@@ -106,12 +106,21 @@ expensive version of `mbtc`.
 
 private def isNonlinearTerm (e : Expr) : GoalM Bool :=
   match_expr e with
-  | HMul.hMul _ _ _ _ a b => return (← getIntValue? a <|> getIntValue? b).isNone
-  | HDiv.hDiv _ _ _ _ _ b => return (← getIntValue? b).isNone
-  | HMod.hMod _ _ _ _ _ b => return (← getIntValue? b).isNone
+  | HMul.hMul _ _ _ _ a b => notM (isNumeral a) <&&> notM (isNumeral b)
+  | HDiv.hDiv _ _ _ _ _ b => notM (isNumeral b)
+  | HMod.hMod _ _ _ _ _ b => notM (isNumeral b)
   | _ => return false
+where
+  isNumeral (e : Expr) : MetaM Bool :=
+    isIntValue e <||> isNatValue e
 
 private def isInterpreted (e : Expr) : GoalM Bool := do
+  /-
+  cutsat interprets `NatCast.natCast` only into the types it supports (e.g., not into `ZMod n`),
+  and never interprets `IntCast.intCast`, which is not in `isInterpretedTerm`.
+  -/
+  if e.isAppOfArity ``NatCast.natCast 3 then
+    return (← isSupportedType (e.getArg! 0))
   if isInterpretedTerm e then
     return !(← isNonlinearTerm e)
   let f := e.getAppFn

@@ -495,7 +495,7 @@ def unterminatedAtEnd (openPos openStop : String.Pos.Raw) (what : String)
   else s
 
 /-- The end of the sequence of `ch` that begins at `pos`. -/
-private partial def findCharSeqEnd (ictx : InputContext) (ch : Char) (pos : String.Pos.Raw) :
+partial def findCharSeqEnd (ictx : InputContext) (ch : Char) (pos : String.Pos.Raw) :
     String.Pos.Raw :=
   if ictx.atEnd pos || ictx.get pos != ch then pos else findCharSeqEnd ictx ch (ictx.next pos)
 
@@ -1448,12 +1448,14 @@ def blockSepFallback (base : Nat) : ParserFn := fun c s =>
   else wsFallback lineTailWsFn base c s
 
 /--
-Finds the minimum column of the first non-whitespace character on each non-empty content line
-between `startPos` and `endPos`, returning `init` if no such line exists.
+Finds the minimum column of the first non-whitespace character on each non-empty line between
+`startPos` and `endPos`, excluding the line that contains `startPos`.
+
+The result is `none` if no such line exists.
 -/
-def minContentIndent (text : FileMap) (startPos endPos : String.Pos.Raw)
-    (init : Nat) : Nat := Id.run do
-  let mut result := init
+public def minContentIndent? (text : FileMap) (startPos endPos : String.Pos.Raw) :
+    Option Nat := Id.run do
+  let mut result := none
   let mut thisLineCol := 0
   if h : endPos ≤ text.source.rawEndPos then
     let endPos := text.source.posGE endPos h
@@ -1468,10 +1470,27 @@ def minContentIndent (text : FileMap) (startPos endPos : String.Pos.Raw)
           afterNewline := true
           thisLineCol := 0
         else if afterNewline && c != ' ' then
-          result := min result thisLineCol
+          result := some <| if let some col := result then min col thisLineCol else thisLineCol
           afterNewline := false
         else thisLineCol:= thisLineCol + 1
   return result
+
+/--
+Computes the base column of a docstring whose opening delimiter is at `openPos` and whose content
+begins at `startPos`. `endPos` is the position of the `-` before the `/` in the closing delimiter.
+
+The base column is the minimum column among the opening delimiter, the closing delimiter, and the
+least-indented non-empty content line.
+-/
+public def docStringBaseColumn (text : FileMap) (openPos : String.Pos.Raw)
+    (startPos : String.Pos.Raw) (endPos : String.Pos.Raw) : Nat :=
+  let openCol := (text.toPosition openPos).column
+  let closeCol := (text.toPosition endPos).column
+  let delimCol := min openCol closeCol
+  if let some contentCol := minContentIndent? text startPos endPos then
+    min delimCol contentCol
+  else
+    delimCol
 
 /--
 Computes the `BlockCtxt` for parsing a docstring whose opening delimiter is at `openPos` and whose
@@ -1480,19 +1499,11 @@ alone. `endPos` is the position of the `-` before the `/` in the closing delimit
 
 When the docstring content starts mid-line (e.g. `/-! # Header -/`), the `docStartPosition` is set
 to the position after any leading spaces so that headers on the first line are recognized. For
-indented docstrings, `baseColumn` is computed as the minimum column among the opening delimiter, the
-closing delimiter, and the least-indented non-empty content line.
+indented docstrings, `baseColumn` is `docStringBaseColumn`.
 -/
 public def BlockCtxt.forDocString (text : FileMap) (openPos : String.Pos.Raw)
     (startPos : String.Pos.Raw) (endPos : String.Pos.Raw) : BlockCtxt :=
-  -- Compute baseColumn from the opening `/--` or `/-!` delimiter, the closing `-/` delimiter,
-  -- and the least-indented non-empty content line.
-  let openCol := (text.toPosition openPos).column
-  let closeCol := (text.toPosition endPos).column
-  let baseColumn := min openCol closeCol
-  -- Scan content lines to find the minimum indentation of any non-empty line.
-  -- We look for non-whitespace characters that appear after a newline and check their column.
-  let baseColumn := minContentIndent text startPos endPos baseColumn
+  let baseColumn := docStringBaseColumn text openPos startPos endPos
   let position := text.toPosition startPos
   if position.column ≤ baseColumn then { baseColumn }
   else
@@ -2152,7 +2163,7 @@ end
 Whether a Verso element may repeat `ch` to make one delimiter, so that a sequence of them is a
 single delimiter rather than several.
 -/
-private def isGrowableVersoDelimiter (ch : Char) : Bool :=
+def isGrowableVersoDelimiter (ch : Char) : Bool :=
   ch == '*' || ch == '_' || ch == '`' || ch == ':' || ch == '#'
 
 /--

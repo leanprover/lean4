@@ -7,7 +7,9 @@ module
 
 prelude
 public import Lean.Server.Requests
+public import Lean.Data.Markdown
 import Lean.DocString.View
+import Lean.DocString.Parser
 
 public section
 
@@ -41,14 +43,29 @@ def keywordSemanticTokenMap : Std.TreeMap String SemanticTokenType :=
     |>.insert "stop" .leanSorryLike
     |>.insert "#exit" .leanSorryLike
 
-/-- Semantic token information for a given `Syntax`. -/
+/-- Semantic token information for a source range. -/
 structure LeanSemanticToken where
-  /-- Syntax of the semantic token. -/
-  stx  : Syntax
+  /-- Source range of the semantic token. -/
+  range : Syntax.Range
   /-- Type of the semantic token. -/
   type : SemanticTokenType
   /-- In case of overlap, higher-priority tokens will take precedence -/
   priority : Nat := 5
+  /-- Modifiers of the semantic token. -/
+  modifiers : SemanticTokenModifiers := {}
+
+/-- The semantic token for the source range of `stx`, if it has one. -/
+def LeanSemanticToken.ofSyntax? (stx : Syntax) (tokenType : SemanticTokenType) (priority : Nat := 5)
+    (modifiers : SemanticTokenModifiers := {}) : Option LeanSemanticToken :=
+  stx.getRange?.map fun range => { range, type := tokenType, priority, modifiers }
+
+/-- Emits the semantic token for the source range of `stx`, if it has one. -/
+private def emitSyntaxToken (toks : Array LeanSemanticToken) (stx : Syntax)
+    (tokenType : SemanticTokenType) (priority : Nat := 5) (modifiers : SemanticTokenModifiers := {}) :
+    Array LeanSemanticToken :=
+  match LeanSemanticToken.ofSyntax? stx tokenType priority modifiers with
+  | some tok => toks.push tok
+  | none => toks
 
 /-- Semantic token information with absolute LSP positions. -/
 structure AbsoluteLspSemanticToken where
@@ -56,10 +73,12 @@ structure AbsoluteLspSemanticToken where
   pos     : Lsp.Position
   /-- End position of the semantic token. -/
   tailPos : Lsp.Position
-  /-- Start position of the semantic token. -/
+  /-- Type of the semantic token. -/
   type    : SemanticTokenType
-  /-- In case of overlap, higher-priority tokens will take precedence -/
+  /-- In case of overlap, higher-priority tokens will take precedence. -/
   priority : Nat := 5
+  /-- The token's modifiers. -/
+  modifiers : SemanticTokenModifiers := {}
   deriving BEq, Hashable, FromJson, ToJson
 
 /--
@@ -73,12 +92,17 @@ def computeAbsoluteLspSemanticTokens
     (tokens   : Array LeanSemanticToken) :
     Array AbsoluteLspSemanticToken :=
   tokens.filterMap fun tok => do
-    let (pos, tailPos) := (← tok.stx.getPos?, ← tok.stx.getTailPos?)
+    let ⟨pos, tailPos⟩ := tok.range
     guard <| beginPos <= pos && endPos?.all (pos < ·)
     -- Every token should be non-empty
     guard <| pos < tailPos
-    let (lspPos, lspTailPos) := (text.utf8PosToLspPos pos, text.utf8PosToLspPos tailPos)
-    return { tok with pos := lspPos, tailPos := lspTailPos }
+    return {
+      pos := text.utf8PosToLspPos pos
+      tailPos := text.utf8PosToLspPos tailPos
+      type := tok.type
+      priority := tok.priority
+      modifiers := tok.modifiers
+    }
 
 /--
 The state used to handle computing non-overlapping semantic tokens. See
@@ -261,10 +285,9 @@ words, it should be true that `∀ t ∈ tokens, t.pos < t.tailPos`.
 -/
 def handleOverlappingSemanticTokens (tokens : Array AbsoluteLspSemanticToken) :
     Array AbsoluteLspSemanticToken := Id.run do
-  -- `insertionSort` is used because a stable sort is needed here in order to allow the final
-  -- tiebreaker to be position in the input array
+  -- The sort must be stable so that the final tiebreaker is position in the input array.
   let count := tokens.size
-  let tokens := tokens.toList.mergeSort fun ⟨pos1, tailPos1, _, _⟩ ⟨pos2, tailPos2, _, _⟩ =>
+  let tokens := tokens.toList.mergeSort fun ⟨pos1, tailPos1, _, _, _⟩ ⟨pos2, tailPos2, _, _, _⟩ =>
     pos1 < pos2 || pos1 == pos2 && tailPos1 ≤ tailPos2
   let mut st : HandleOverlapState := {
     current? := none
@@ -284,35 +307,367 @@ token-relative positioning.
 See https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#textDocument_semanticTokens.
 -/
 def computeDeltaLspSemanticTokens (tokens : Array AbsoluteLspSemanticToken) : SemanticTokens := Id.run do
-  let tokens := tokens.qsort fun ⟨pos1, tailPos1, _, _⟩ ⟨pos2, tailPos2, _, _⟩ =>
+  let tokens := tokens.qsort fun ⟨pos1, tailPos1, _, _, _⟩ ⟨pos2, tailPos2, _, _, _⟩ =>
     pos1 < pos2 || pos1 == pos2 && tailPos1 <= tailPos2
   let mut data : Array Nat := Array.mkEmpty (5*tokens.size)
   let mut lastPos : Lsp.Position := ⟨0, 0⟩
-  for ⟨pos, tailPos, tokenType, _⟩ in tokens do
+  for ⟨pos, tailPos, tokenType, _, tokenModifiers⟩ in tokens do
     let deltaLine := pos.line - lastPos.line
     let deltaStart := pos.character - (if pos.line == lastPos.line then lastPos.character else 0)
     let length := tailPos.character - pos.character
     let tokenType := tokenType.toNat
-    let tokenModifiers := 0
-    data := data ++ #[deltaLine, deltaStart, length, tokenType, tokenModifiers]
+    data := data ++ #[deltaLine, deltaStart, length, tokenType, tokenModifiers.toBits]
     lastPos := pos
   return { data }
 
-open Lean.Doc in
-private partial def collectVersoTokens
-    (stx : Syntax) (getTokens : (stx : Syntax) → Array LeanSemanticToken) :
+/-!
+## Markdown highlighting
+
+Traverses the result of the full Markdown parse (`Lean.Markdown.parseDocument`,
+which runs both passes) and emits `LeanSemanticToken`s.
+-/
+
+namespace MarkupTokens
+
+variable {s : String.Slice}
+
+/-- The kind of the innermost heading, blockquote, or list item that contains a piece of text. -/
+private inductive MarkupBlockCtxt where
+  | none
+  | heading
+  | quote
+  | list
+
+/--
+The formatting that applies to a piece of text.
+
+It records whether the text is inside a bold or italic region as well as the innermost heading,
+blockquote, or list item that contains it. The block context determines the token type of the text
+and the emphasis determines its modifiers.
+-/
+private structure MarkupAttrs where
+  bold : Bool := false
+  italic : Bool := false
+  block : MarkupBlockCtxt := .none
+  /--
+  The token type used for text that's not in a block with its own text token.
+
+  This is used when `block` is `none`.
+  -/
+  text : SemanticTokenType := .markupDocText
+
+@[inline] private def MarkupAttrs.withBold (a : MarkupAttrs) : MarkupAttrs :=
+  { a with bold := true }
+
+@[inline] private def MarkupAttrs.withItalic (a : MarkupAttrs) : MarkupAttrs :=
+  { a with italic := true }
+
+@[inline] private def MarkupAttrs.withBlock (a : MarkupAttrs) (b : MarkupBlockCtxt) : MarkupAttrs :=
+  { a with block := b }
+
+/-- The token type of text with these attributes. -/
+private def MarkupAttrs.tokenType (a : MarkupAttrs) : SemanticTokenType :=
+  match a.block with
+  | .none => a.text
+  | .heading => .markupHeading
+  | .quote => .markupQuote
+  | .list => .markupList
+
+/-- The token modifiers of text with these attributes. -/
+private def MarkupAttrs.modifiers (a : MarkupAttrs) : SemanticTokenModifiers :=
+  (if a.bold then {.markupBold} else {}) ∪ (if a.italic then {.markupItalic} else {})
+
+/--
+The raw source range of `sub` in the underlying string, which the LSP layer converts to positions.
+-/
+@[inline] private def toSyntaxRange (sub : s.Subslice) : Syntax.Range :=
+  ⟨sub.startInclusive.str.offset, sub.endExclusive.str.offset⟩
+
+/--
+The priority of a markup token of type `k`, used by both Verso and Markdown semantic tokens.
+
+Code tokens are the default highlighting of code element contents, so anything more specific that
+elaboration finds in the code, such as a variable name, takes precedence over them. Every other
+markup token has the default priority.
+-/
+private def markupPriority (k : SemanticTokenType) : Nat :=
+  match k with
+  | .markupInlineCode | .markupCodeBlock => 3
+  | _ => 5
+
+/--
+Emits a `LeanSemanticToken` for `sub`, which is on a single source line. Does nothing when `sub` is
+empty.
+-/
+@[inline] private def emitTok (out : Array LeanSemanticToken) (sub : s.Subslice)
+    (tokenType : SemanticTokenType) (modifiers : SemanticTokenModifiers := {}) :
     Array LeanSemanticToken :=
-  go stx |>.run #[] |>.2
+  if sub.toSlice.isEmpty then out
+  else
+    out.push {
+      range := toSyntaxRange sub,
+      type := tokenType,
+      priority := markupPriority tokenType,
+      modifiers
+    }
+
+/-- Emits one `LeanSemanticToken` per line in `lines`. -/
+private def emitLines (out : Array LeanSemanticToken) (lines : Markdown.Lines s)
+    (tokenType : SemanticTokenType) : Array LeanSemanticToken :=
+  lines.toArray.foldl (init := out) fun out line => emitTok out line tokenType
+
+/-- Emits markup syntax as a `keyword` token with the `markupSyntax` modifier. -/
+@[inline] private def emitMarkupSyntax (out : Array LeanSemanticToken) (syn : s.Subslice) :
+    Array LeanSemanticToken :=
+  emitTok out syn .keyword (modifiers := {.markupSyntax})
+
+/-- Emits text with the type and modifiers of the attributes `a`. -/
+@[inline] private def emitText (out : Array LeanSemanticToken) (text : s.Subslice)
+    (a : MarkupAttrs) : Array LeanSemanticToken :=
+  emitTok out text a.tokenType (modifiers := a.modifiers)
+
+/--
+Emits a link title, with delimiters on its opener and closer and `string` on each line of its text.
+-/
+private def emitTitle (out : Array LeanSemanticToken) (t : Markdown.LinkTitle s) :
+    Array LeanSemanticToken := Id.run do
+  let mut out := out
+  out := emitMarkupSyntax out t.opener
+  out := emitLines out t.content .string
+  out := emitMarkupSyntax out t.closer
+  return out
+
+/-- Emits a destination, with keyword on its angle brackets, if any, and URL on the URL. -/
+private def emitDestination (out : Array LeanSemanticToken) (d : Markdown.LinkDestination s) :
+    Array LeanSemanticToken := Id.run do
+  let mut out := out
+  if let some (o, c) := d.angles? then
+    out := emitMarkupSyntax out o
+    out := emitMarkupSyntax out c
+  out := emitTok out d.url .markupUrl
+  return out
+
+private partial def emitInlines (a : MarkupAttrs)
+    (inlines : Array (Markdown.Inline s)) (out : Array LeanSemanticToken) :
+    Array LeanSemanticToken := Id.run do
+  let mut out := out
+  for i in inlines do
+    out := emitInline a i out
+  return out
 where
-  tok (tk : Syntax) (k : SemanticTokenType) : StateM (Array LeanSemanticToken) Unit :=
-    let priority :=
-      match k with
-      -- String tokens occur as the default highlighting of code element contents. They should be
-      -- overridden by anything more specific, like variable names, that occurs in these elements,
-      -- so they get a lower priority.
-      | .string => 3
-      | _ => 5
-    modify (·.push { stx := tk, type := k, priority })
+  emitInline (a : MarkupAttrs) (i : Markdown.Inline s)
+      (out : Array LeanSemanticToken) : Array LeanSemanticToken := Id.run do
+    let mut out := out
+    match i with
+    | .text r =>
+      out := emitText out r a
+    | .softBreak _ => pure ()
+    | .escape backslash char =>
+      out := emitMarkupSyntax out backslash
+      out := emitText out char a
+    | .entity r _ =>
+      out := emitText out r a
+    | .code openTicks content closeTicks =>
+      out := emitMarkupSyntax out openTicks
+      out := emitMarkupSyntax out closeTicks
+      out := emitLines out content.lines .markupInlineCode
+    | .italic openDelim content closeDelim =>
+      out := emitMarkupSyntax out openDelim
+      out := emitMarkupSyntax out closeDelim
+      out := emitInlines a.withItalic content out
+    | .bold openDelim content closeDelim =>
+      out := emitMarkupSyntax out openDelim
+      out := emitMarkupSyntax out closeDelim
+      out := emitInlines a.withBold content out
+    | .link openBracket inner closeBracket target =>
+      out := emitBracketed none openBracket inner closeBracket target out
+    | .image bang openBracket alt closeBracket target =>
+      out := emitBracketed (some bang) openBracket alt closeBracket target out
+    | .hardBreak marker _ =>
+      out := emitMarkupSyntax out marker
+    | .autolink openAngle url closeAngle _ =>
+      out := emitMarkupSyntax out openAngle
+      out := emitMarkupSyntax out closeAngle
+      out := emitTok out url .markupUrl
+    | .math .. =>
+      -- The server doesn't enable extensions
+      pure ()
+    | .html lines =>
+      out := emitLines out lines .markupInlineCode
+    return out
+
+  /--
+  Emits the tokens of a reference-style link's label and second bracket pair, if any.
+
+  The label gets one `markupCrossReference` token per line. In full form, the link's text is emitted
+  as ordinary inlines and the label is the interior of the second brackets. In collapsed and
+  shortcut form, the link's text *is* the label. The second brackets are delimiters.
+  -/
+  emitReferenceForm (a : MarkupAttrs) (out : Array LeanSemanticToken)
+      (inner : Array (Markdown.Inline s)) (label : Markdown.Lines s)
+      (form : Markdown.ReferenceLinkForm s) : Array LeanSemanticToken := Id.run do
+    let mut out := out
+    match form with
+    | .full openB closeB =>
+      out := emitInlines a inner out
+      out := emitMarkupSyntax out openB
+      out := emitMarkupSyntax out closeB
+    | .collapsed openB closeB =>
+      out := emitMarkupSyntax out openB
+      out := emitMarkupSyntax out closeB
+    | .shortcut => pure ()
+    out := emitLines out label .markupCrossReference
+    return out
+
+  /--
+  Emits the tokens shared by `[…]…` links and `![…]…` images.
+  -/
+  emitBracketed (bang? : Option (s.Subslice))
+      (openBracket : s.Subslice) (inner : Array (Markdown.Inline s))
+      (closeBracket : s.Subslice) (target : Markdown.LinkTarget s)
+      (out : Array LeanSemanticToken) : Array LeanSemanticToken := Id.run do
+    let mut out := out
+    if let some bang := bang? then
+      out := emitMarkupSyntax out bang
+    out := emitMarkupSyntax out openBracket
+    out := emitMarkupSyntax out closeBracket
+    match target with
+    | .inline openParen destination closeParen title? =>
+      out := emitInlines a inner out
+      out := emitMarkupSyntax out openParen
+      out := emitDestination out destination
+      if let some t := title? then out := emitTitle out t
+      out := emitMarkupSyntax out closeParen
+    | .reference _ label form =>
+      out := emitReferenceForm a out inner label form
+    return out
+
+/--
+Emits the structural tokens of a matched link reference definition:
+* keyword on the brackets, the colon, and the optional title's delimiters,
+* cross-reference on the label,
+* URL on the destination, and
+* string on the title's text.
+
+The label and the title get one token per source line.
+-/
+private def emitRefDef (out : Array LeanSemanticToken) (r : Markdown.RefDef s) :
+    Array LeanSemanticToken := Id.run do
+  let mut out := out
+  out := emitMarkupSyntax out r.openBracket
+  out := emitLines out r.label .markupCrossReference
+  out := emitMarkupSyntax out r.closeBracket
+  out := emitMarkupSyntax out r.colon
+  out := emitDestination out r.destination
+  if let some t := r.title? then out := emitTitle out t
+  return out
+
+private partial def emitBlocks (a : MarkupAttrs) (blocks : Array (Markdown.Block s))
+    (out : Array LeanSemanticToken) : Array LeanSemanticToken := Id.run do
+  let mut out := out
+  for b in blocks do
+    out := emitBlock a b out
+  return out
+where
+  emitBlock (a : MarkupAttrs) (b : Markdown.Block s)
+      (out : Array LeanSemanticToken) : Array LeanSemanticToken := Id.run do
+    let mut out := out
+    match b with
+    | .paragraph content =>
+      out := emitInlines a content out
+    | .atxHeading _ hashes content closeHashes? =>
+      out := emitMarkupSyntax out hashes
+      if let some c := closeHashes? then out := emitMarkupSyntax out c
+      out := emitInlines (a.withBlock .heading) content out
+    | .setextHeading _ content underline =>
+      out := emitInlines (a.withBlock .heading) content out
+      out := emitMarkupSyntax out underline
+    | .fencedCode info openFence closeFence? lines =>
+      out := emitMarkupSyntax out openFence
+      if let some c := closeFence? then out := emitMarkupSyntax out c
+      if let some tag := info.infoString? then
+        out := emitTok out tag .function
+      for line in lines do
+        out := emitTok out line.source .markupCodeBlock
+    | .indentedCode lines | .html lines =>
+      for line in lines do
+        out := emitTok out line.source .markupCodeBlock
+    | .blockquote markers children =>
+      for m in markers do
+        out := emitMarkupSyntax out m
+      out := emitBlocks (a.withBlock .quote) children out
+    | .list _ _ items =>
+      out := emitBlocks (a.withBlock .list) items out
+    | .listItem marker children =>
+      out := emitMarkupSyntax out marker
+      out := emitBlocks (a.withBlock .list) children out
+    | .linkRefDef m =>
+      out := emitRefDef out m
+    | .thematicBreak line =>
+      out := emitMarkupSyntax out line
+    return out
+
+end MarkupTokens
+
+/--
+Collects semantic tokens for a Markdown docstring. Markup syntax (bold/italic delimiters, `#`, `>`,
+list markers, fences) consists of `keyword` tokens with the `markupSyntax` modifier; URLs are
+`markupUrl`; code block contents are `markupCodeBlock`; and text is `markupDocText`,
+`markupHeading`, `markupQuote`, or `markupList` by its block context, with the `markupBold` and
+`markupItalic` modifiers for emphasis.
+-/
+def collectMarkdownTokens (text : FileMap) (startPos endPos : String.Pos.Raw) (indent : Nat := 0) :
+    Array LeanSemanticToken :=
+  let whole := text.source.toSlice
+  match whole.pos? startPos, whole.pos? endPos with
+  | some start, some stop =>
+    if h : start ≤ stop then
+      MarkupTokens.emitBlocks {} (Markdown.parseDocument (whole.slice start stop h) indent) #[]
+    else #[]
+  | _, _ => #[]
+
+open Lean.Doc MarkupTokens in
+/--
+Collects the semantic tokens of the Verso syntax `stx`.
+
+`text` is the default text token type, which is `markupDocText` in a documentation comment and
+`markupPlainText` elsewhere. `getTokens` collects the tokens of the Lean syntax contained in Verso
+metadata elements. `baseColumn` is the base column of the documentation comment, which is used to
+make tokens that include newline characters not emit tokens outside the docstring itself.
+-/
+private partial def collectVersoTokens
+    (stx : Syntax) (getTokens : (stx : Syntax) → Array LeanSemanticToken)
+    (text : SemanticTokenType) (baseColumn : Nat) : Array LeanSemanticToken :=
+  go { text } stx |>.run #[] |>.2
+where
+  tok (tk : Syntax) (k : SemanticTokenType) (modifiers : SemanticTokenModifiers := {}) :
+      StateM (Array LeanSemanticToken) Unit :=
+    modify (emitSyntaxToken · tk k (markupPriority k) modifiers)
+
+  /--
+  Emits a token for each real source line of the literal `lit`, which might possibly contain an
+  escaped newline. The indentation of each line after the first up to `baseColumn` is not part of
+  its token.
+  -/
+  tokLines (lit : Syntax) (k : SemanticTokenType) (modifiers : SemanticTokenModifiers := {}) :
+      StateM (Array LeanSemanticToken) Unit := do
+    let .node _ _ #[.atom _ val] := lit | tok lit k modifiers
+    let some pos := lit.getPos? | return
+    if !val.contains '\n' then return (← tok lit k modifiers)
+    let mut first := true
+    for line in val.split '\n' do
+      let mut line := line
+      if !first then
+        for _ in 0...baseColumn do
+          line := line.dropPrefix ' '
+      first := false
+      if !line.isEmpty then
+        let range := ⟨line.startInclusive.offset.offsetBy pos, line.endExclusive.offset.offsetBy pos⟩
+        tok (.ofRange range) k modifiers
+
+  /-- Emits markup syntax as a `keyword` token with the `markupSyntax` modifier. -/
+  delim (tk : Syntax) : StateM (Array LeanSemanticToken) Unit :=
+    tok tk .keyword {.markupSyntax}
 
   /--
   The region of a code block line to highlight. The line's final newline is omitted because some LSP
@@ -327,13 +682,13 @@ where
       StateM (Array LeanSemanticToken) Unit := do
     match ArgView.of arg with
     | some (.named _ parens x tk v) =>
-      if let some (o, _) := parens then tok o .keyword
+      if let some (o, _) := parens then delim o
       tok x.raw .property
-      tok tk .keyword
+      delim tk
       tok v.raw .parameter
-      if let some (_, c) := parens then tok c .keyword
+      if let some (_, c) := parens then delim c
     | some (.flag _ tk x _) =>
-      tok tk .keyword
+      delim tk
       tok x.raw .property
     | some (.anon _ v) => tok v.raw .parameter
     | none => pure ()
@@ -341,118 +696,119 @@ where
   goTarget (tgt : LinkTargetView) : StateM (Array LeanSemanticToken) Unit := do
     match tgt with
     | .ref _ tk1 name tk2 =>
-      tok tk1 .keyword
-      tok name.raw .property
-      tok tk2 .keyword
+      delim tk1
+      tok name.raw .markupCrossReference
+      delim tk2
     | .url _ tk1 url tk2 =>
-      tok tk1 .keyword
-      tok url.raw .string
-      tok tk2 .keyword
+      delim tk1
+      tokLines url.raw .markupUrl
+      delim tk2
 
   goCode (code : CodeView) : StateM (Array LeanSemanticToken) Unit := do
-    tok code.opener .keyword
+    delim code.opener
     for line in code.content.getVersoCodeLines do
-      if let some region := codeLine line.raw line.getVersoCodeLine then tok region .string
-    tok code.closer .keyword
+      if let some region := codeLine line.raw line.getVersoCodeLine then tok region .markupInlineCode
+    delim code.closer
 
-  goItem (marker : Syntax) (contents : TSyntaxArray ``Parser.block) :
+  goItem (a : MarkupAttrs) (marker : Syntax) (contents : TSyntaxArray ``Parser.block) :
       StateM (Array LeanSemanticToken) Unit := do
-    tok marker .keyword
-    for b in contents do go b.raw
+    delim marker
+    for b in contents do go a b.raw
 
-  goDelimited (opener closer : Syntax) (content : TSyntaxArray ``Parser.inline) :
+  goDelimited (a : MarkupAttrs) (opener closer : Syntax) (content : TSyntaxArray ``Parser.inline) :
       StateM (Array LeanSemanticToken) Unit := do
-    tok opener .keyword
-    for i in content do go i.raw
-    tok closer .keyword
+    delim opener
+    for i in content do go a i.raw
+    delim closer
 
-  goDesc (item : DescItemView) : StateM (Array LeanSemanticToken) Unit := do
-    tok item.marker .keyword
-    for i in item.term do go i.raw
-    for b in item.desc do go b.raw
+  goDesc (a : MarkupAttrs) (item : DescItemView) : StateM (Array LeanSemanticToken) Unit := do
+    delim item.marker
+    for i in item.term do go (a.withBlock .list) i.raw
+    for b in item.desc do go a b.raw
 
-  go (stx : Syntax) : StateM (Array LeanSemanticToken) Unit := do
+  go (a : MarkupAttrs) (stx : Syntax) : StateM (Array LeanSemanticToken) Unit := do
   if let some v := InlineView.of ⟨stx⟩ then
     match v with
-    | .text .. | .linebreak .. => pure ()
-    | .bold v => goDelimited v.opener v.closer v.content
-    | .emph v => goDelimited v.opener v.closer v.content
+    | .text v => tokLines v.content.raw a.tokenType a.modifiers
+    | .linebreak .. => pure ()
+    | .bold v => goDelimited a.withBold v.opener v.closer v.content
+    | .emph v => goDelimited a.withItalic v.opener v.closer v.content
     | .link v =>
-      goDelimited v.opener v.closer v.content
+      goDelimited a v.opener v.closer v.content
       goTarget v.target
     | .image v =>
-      tok v.opener .keyword
-      tok v.alt.raw .string
-      tok v.closer .keyword
+      delim v.opener
+      tokLines v.alt.raw .string
+      delim v.closer
       goTarget v.target
     | .footnote v =>
-      tok v.opener .keyword
-      tok v.name.raw .property
-      tok v.closer .keyword
+      delim v.opener
+      tok v.name.raw .markupCrossReference
+      delim v.closer
     | .code v =>
       goCode v
     | .role v =>
-      tok v.braceOpen .keyword
+      delim v.braceOpen
       tok v.name.raw .function
-      for a in v.args do goArg a
-      tok v.braceClose .keyword
-      if let some (o, _) := v.brackets then tok o .keyword
-      for i in v.content do go i.raw
-      if let some (_, c) := v.brackets then tok c .keyword
+      for arg in v.args do goArg arg
+      delim v.braceClose
+      if let some (o, _) := v.brackets then delim o
+      for i in v.content do go a i.raw
+      if let some (_, c) := v.brackets then delim c
     | .math v =>
-      tok v.marker .keyword
+      delim v.marker
       goCode v.code
   else if let some v := BlockView.of ⟨stx⟩ then
     match v with
     | .para v =>
-      for i in v.content do go i.raw
+      for i in v.content do go a i.raw
     | .codeblock v =>
-      tok v.openFence .keyword
+      delim v.openFence
       if let some x := v.name? then
         tok x.raw .function
-        for a in v.args do goArg a
+        for arg in v.args do goArg arg
       for line in v.content.getVersoCodeBlockLines do
-        if let some region := codeLine line.raw line.getVersoCodeLine then tok region .string
-      tok v.closeFence .keyword
+        if let some region := codeLine line.raw line.getVersoCodeLine then tok region .markupCodeBlock
+      delim v.closeFence
     | .directive v =>
-      tok v.opener .keyword
+      delim v.opener
       tok v.name.raw .function
-      for a in v.args do goArg a
-      for b in v.content do go b.raw
-      tok v.closer .keyword
+      for arg in v.args do goArg arg
+      for b in v.content do go a b.raw
+      delim v.closer
     | .command v =>
-      tok v.braceOpen .keyword
+      delim v.braceOpen
       tok v.name.raw .function
-      for a in v.args do goArg a
-      tok v.braceClose .keyword
+      for arg in v.args do goArg arg
+      delim v.braceClose
     | .metadata v =>
-      tok v.opener .keyword
+      delim v.opener
       modify (· ++ getTokens v.contents.raw)
-      tok v.closer .keyword
+      delim v.closer
     | .linkRef v =>
-      tok v.opener .keyword
-      tok v.name.raw .property
-      tok v.closer .keyword
-      tok v.url.raw .string
+      delim v.opener
+      tok v.name.raw .markupCrossReference
+      delim v.closer
+      tok v.url.raw .markupUrl
     | .footnoteRef v =>
-      tok v.opener .keyword
-      tok v.name.raw .property
-      tok v.closer .keyword
-      for i in v.content do go i.raw
+      delim v.opener
+      tok v.name.raw .markupCrossReference
+      delim v.closer
+      for i in v.content do go a i.raw
     | .header v =>
-      tok v.marker .keyword
-      for i in v.content do go i.raw
+      delim v.marker
+      for i in v.content do go (a.withBlock .heading) i.raw
     | .ul v =>
-      for item in v.items do goItem item.marker item.contents
+      for item in v.items do goItem (a.withBlock .list) item.marker item.contents
     | .ol v =>
-      for item in v.items do goItem item.marker item.contents
+      for item in v.items do goItem (a.withBlock .list) item.marker item.contents
     | .dl v =>
-      for item in v.items do goDesc item
+      for item in v.items do goDesc a item
     | .blockquote v =>
-      tok v.marker .keyword
-      for b in v.content do go b.raw
+      delim v.marker
+      for b in v.content do go (a.withBlock .quote) b.raw
   else
-    stx.getArgs.forM go
+    stx.getArgs.forM (go a)
 
 /--
 Collects all semantic tokens that can be deduced purely from `Syntax`
@@ -461,31 +817,50 @@ without elaboration information.
 partial def collectSyntaxBasedSemanticTokens (text : FileMap) : (stx : Syntax) → Array LeanSemanticToken
   | `($e.$id:ident)    =>
     let tokens := collectSyntaxBasedSemanticTokens text e
-    tokens.push { stx := id, type := SemanticTokenType.property }
+    emitSyntaxToken tokens id .property
   | `($e |>.$field:ident) =>
     let tokens := collectSyntaxBasedSemanticTokens text e
-    tokens.push { stx := field, type := SemanticTokenType.property }
+    emitSyntaxToken tokens field .property
   | stx => Id.run do
     if noHighlightKinds.contains stx.getKind then
       return #[]
+    let collect := collectSyntaxBasedSemanticTokens text
     if docKinds.contains stx.getKind then
-      -- Docs are only highlighted in Verso format.
       if stx[1].isOfKind ``Lean.Parser.Command.versoCommentBody then
-        return collectVersoTokens stx[1] (collectSyntaxBasedSemanticTokens text)
+        let baseColumn :=
+          if let .ok (openPos, startPos, endPos) := docStringRange ⟨stx⟩ then
+            Doc.Parser.docStringBaseColumn text openPos startPos endPos
+          else 0
+        return collectVersoTokens stx[1] collect .markupDocText baseColumn
+      else if stx[1].isOfKind ``Lean.Parser.Command.commentBody then
+        -- The text atom's range excludes the closing delimiter and the whitespace before it.
+        let some ⟨startPos, endPos⟩ := stx[1][0].getRange?
+          | return #[]
+        -- The indentation is the least indentation of the non-blank lines after the first, which
+        -- are stripped by `String.removeLeadingSpaces` while saving the docstring.
+        let indent := (Doc.Parser.minContentIndent? text startPos endPos).getD 0
+        return collectMarkdownTokens text startPos endPos indent
       else
         return #[]
+    -- Verso syntax outside a documentation comment, such as the body of a Verso document command,
+    -- get the markup tokens too. However, their plain text gets a different token so themes can
+    -- style Verso inside and outside of docstrings differently. The kinds of Verso syntax are in
+    -- the `Lean.Doc.Parser` namespace. The namespace check removes unnecessary comparisons.
+    if (`Lean.Doc.Parser).isPrefixOf stx.getKind then
+      if (Doc.BlockView.of ⟨stx⟩).isSome || (Doc.InlineView.of ⟨stx⟩).isSome then
+        return collectVersoTokens stx collect .markupPlainText 0
     let mut tokens :=
       if stx.isOfKind choiceKind then
         collectSyntaxBasedSemanticTokens text stx[0]
       else
-        stx.getArgs.map (collectSyntaxBasedSemanticTokens text) |>.flatten
+        stx.getArgs.map collect |>.flatten
     let Syntax.atom _ val := stx
       | return tokens
     let isRegularKeyword := val.front?.any isIdFirst
     let isHashKeyword := ((val.dropPrefix? '#').bind (·.front?)).any isIdFirst
     if ! isRegularKeyword && ! isHashKeyword then
       return tokens
-    return tokens.push { stx, type := keywordSemanticTokenMap.getD val .keyword }
+    return emitSyntaxToken tokens stx (keywordSemanticTokenMap.getD val .keyword)
 
 /-- Collects all semantic tokens from the given `Elab.InfoTree`. -/
 def collectInfoBasedSemanticTokens (i : Elab.InfoTree) : Array LeanSemanticToken :=
@@ -500,11 +875,11 @@ def collectInfoBasedSemanticTokens (i : Elab.InfoTree) : Array LeanSemanticToken
           -- Recall that `isAuxDecl` is an auxiliary declaration used to elaborate a recursive definition.
           if localDecl.isAuxDecl then
             if ti.isBinder then
-              return { stx := ti.stx, type := SemanticTokenType.function }
+              return (← LeanSemanticToken.ofSyntax? ti.stx .function)
           else if ! localDecl.isImplementationDetail then
-            return { stx := ti.stx, type := SemanticTokenType.variable }
+            return (← LeanSemanticToken.ofSyntax? ti.stx .variable)
     if ti.stx.getKind == Parser.Term.identProjKind then
-      return {stx := ti.stx, type := SemanticTokenType.property }
+      return (← LeanSemanticToken.ofSyntax? ti.stx .property)
     none
 
 /--
@@ -513,13 +888,15 @@ column.
 -/
 def dbgShowTokens (text : FileMap) (toks : Array LeanSemanticToken) : String := Id.run do
   let mut byLine : Std.HashMap Nat (Array (Nat × Nat × LeanSemanticToken)) := {}
-  for ⟨stx, tok, prio⟩ in toks do
-    if let some ⟨⟨l, c1⟩, ⟨_, c2⟩⟩ := text.lspRangeOfStx? stx then
-      byLine := byLine.alter l fun x? => some (x?.getD #[] |>.push (c1, c2, ⟨stx, tok, prio⟩))
+  for tok in toks do
+    let ⟨l, c1⟩ := text.utf8PosToLspPos tok.range.start
+    let ⟨_, c2⟩ := text.utf8PosToLspPos tok.range.stop
+    byLine := byLine.alter l fun x? => some (x?.getD #[] |>.push (c1, c2, tok))
   let mut out := ""
   for (l, vals) in byLine.toList.mergeSort (fun x y => x.1 ≤ y.1) do
     let vals := vals.toList.mergeSort fun x y => x.1 ≤ y.1
-    out := out ++ s!"{l}:\t{vals.map (fun (c1, c2, ⟨stx, tok, prio⟩) => (c1, c2, stx, toJson tok, prio))}\n"
+    out := out ++
+      s!"{l}:\t{vals.map (fun (c1, c2, tok) => (c1, c2, toJson tok.type, tok.priority, tok.modifiers.toArray.map toJson))}\n"
   out
 
 def computeSemanticTokens  (doc : EditableDocument) (beginPos : String.Pos.Raw)

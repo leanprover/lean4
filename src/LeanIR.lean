@@ -18,6 +18,14 @@ import Lean.Compiler.LCNF.EmitC
 import Lean.Language.Lean
 import Lean.Compiler.LCNF.PhaseExt
 import Lean.Compiler.LCNF.Main
+-- `leanir` uses `lean_initialize_minimal`, which leaves initializing the `Lean`
+-- modules to this module's import closure. These are the modules defining an `@[export]` whose
+-- `@[extern]` counterpart is in that closure but which the closure does not otherwise reach.
+import Lean.Meta.ExprDefEq
+import Lean.Meta.LevelDefEq
+import Lean.Meta.Match.MatchEqs
+import Lean.Elab.PreDefinition.Structural.Eqns
+import Lean.Parser
 
 /-! Lean codegen as a separate process. -/
 
@@ -96,7 +104,8 @@ public def main (args : List String) : IO UInt32 := do
   let initExt {α β σ} [Inhabited σ] (ext : PersistentEnvExtension α β σ) (env : Environment) : IO Environment := do
     let s := ext.toEnvExtension.getState env
     let newState ← ext.addImportedFn s.importedEntries { env := env, opts := {} }
-    return ext.toEnvExtension.setState (asyncMode := .sync) env { s with state := newState }
+    -- unlogged: nothing has been recorded against this environment yet
+    return ext.toEnvExtension.setState (asyncMode := .sync) (log := .unlogged) env { s with state := newState }
 
   let env ← initExt Lean.Compiler.CSimp.ext.ext env
   let env ← initExt Meta.instanceExtension.ext env

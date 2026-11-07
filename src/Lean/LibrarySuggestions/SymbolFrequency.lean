@@ -90,7 +90,7 @@ process.
 def importedRelevantConstants : CoreM (Array (Name × Array Name)) :=
   importedRelevantConstantsRef.getOrCompute <| withUncountedHeartbeats do
     let env ← getEnv
-    let names := env.constants.map₁.keysArray.filter fun name =>
+    let names := env.constants.map₁.foldl (fun cs n _ => cs.push n) #[] |>.filter fun name =>
       !isDeniedPremise env name && wasOriginallyTheorem env name
     let cancelTk? := (← readThe Core.Context).cancelTk?
     let visitChunk (chunk : Array Name) : CoreM (Array (Name × Array Name)) :=

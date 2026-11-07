@@ -45,7 +45,7 @@ extern "C" LEAN_EXPORT uint64_t lean_level_mk_data (uint64_t h, object * depth, 
     size_t d = unbox(depth);
     if (d > 16777215)
         lean_internal_panic("universe level depth is too big");
-    uint32_t h1 = h;
+    uint32_t h1 = static_cast<uint32_t>(h);
     return ((uint64_t) h1) + (((uint64_t) hasMVar) << 32) + (((uint64_t) hasParam) << 33) + (((uint64_t)d) << 40);
 }
 
@@ -393,13 +393,13 @@ void push_max_args(level const & l, buffer<level> & r) {
 
 level mk_max(buffer<level> const & args) {
     lean_assert(!args.empty());
-    unsigned nargs = args.size();
+    size_t nargs = args.size();
     if (nargs == 1) {
         return args[0];
     } else {
         lean_assert(nargs >= 2);
         level r = mk_max(args[nargs-2], args[nargs-1]);
-        unsigned i = nargs-2;
+        size_t i = nargs-2;
         while (i > 0) {
             --i;
             r = mk_max(args[i], r);
@@ -439,7 +439,7 @@ level normalize(level const & l) {
         std::sort(args.begin(), args.end(), is_norm_lt);
         buffer<level> & rargs = todo;
         rargs.clear();
-        unsigned i = 0;
+        size_t i = 0;
         if (is_explicit(args[i])) {
             // find max explicit univierse
             while (i+1 < args.size() && is_explicit(args[i+1]))
@@ -447,7 +447,7 @@ level normalize(level const & l) {
             lean_assert(is_explicit(args[i]));
             unsigned k = to_offset(args[i]).second;
             // an explicit universe k is subsumed by succ^k(l)
-            unsigned j = i+1;
+            size_t j = i+1;
             for (; j < args.size(); j++) {
                 if (to_offset(args[j]).second >= k)
                     break;

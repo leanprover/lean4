@@ -1,0 +1,355 @@
+import Lean
+import Std.WP
+import Std.Tactic.Do
+
+set_option sym.debug true
+
+/-! Tests for `vcgen +jp`. A shared tail after an `if` or a `match` makes the do-elaborator emit a
+join point `__do_jp`. `+jp` proves the tail once and closes each jump against that proof, instead of
+unfolding the tail at each jump. Ported from `mvcgenJPs.lean`. -/
+
+open Lean Order Meta Elab Tactic Sym Std WP
+
+set_option grind.warning false
+set_option experimental.vcgen true
+
+def ifs_pure (n : Nat) : Id Nat := do
+  let mut x := 0
+  if n > 0 then x := x + 1 else x := x + 2
+  if n > 1 then x := x + 3 else x := x + 4
+  if n > 2 then x := x + 1 else x := x + 2
+  if n > 3 then x := x + 1 else x := x + 2
+  if n > 4 then x := x + 1 else x := x + 2
+  if n > 5 then x := x + 1 else x := x + 2
+  return x
+
+theorem ifs_pure_triple : ⦃ True ⦄ ifs_pure n ⦃ fun r => r > 0 ⦄ := by
+  vcgen +jp [ifs_pure] with finish
+
+def difs_pure (n : Nat) : Id Nat := do
+  let mut x := 0
+  if h : n > 0 then x := x + 1 else x := x + 2
+  if h : n > 1 then x := x + 3 else x := x + 4
+  if h : n > 2 then x := x + 1 else x := x + 2
+  if h : n > 3 then x := x + 1 else x := x + 2
+  if h : n > 4 then x := x + 1 else x := x + 2
+  if h : n > 5 then x := x + 1 else x := x + 2
+  return x
+
+theorem difs_pure_triple : ⦃ True ⦄ difs_pure n ⦃ fun r => r > 0 ⦄ := by
+  vcgen +jp [difs_pure] with finish
+
+def matches_pure (f : Nat → Option Nat) : Id Nat := do
+  let mut x := 0
+  match f 0 with | some y => x := x + y + 1 | none => x := x + 2
+  match f 1 with | some y => x := x + y + 1 | none => x := x + 2
+  match f 2 with | some y => x := x + y + 1 | none => x := x + 2
+  match f 3 with | some y => x := x + y + 1 | none => x := x + 2
+  match f 4 with | some y => x := x + y + 1 | none => x := x + 2
+  match f 5 with | some y => x := x + y + 1 | none => x := x + 2
+  return x
+
+theorem matches_pure_triple : ⦃ True ⦄ matches_pure f ⦃ fun r => r > 0 ⦄ := by
+  vcgen +jp [matches_pure] with finish
+
+def dmatches_pure (f : Nat → Option Nat) : Id Nat := do
+  let mut x := 0
+  match h : f 0 with | some y => x := x + (cast (congrArg (fun _ => Nat) h) y) + 1 | none => x := x + 2
+  match h : f 1 with | some y => x := x + (cast (congrArg (fun _ => Nat) h) y) + 1 | none => x := x + 2
+  match h : f 2 with | some y => x := x + (cast (congrArg (fun _ => Nat) h) y) + 1 | none => x := x + 2
+  match h : f 3 with | some y => x := x + (cast (congrArg (fun _ => Nat) h) y) + 1 | none => x := x + 2
+  match h : f 4 with | some y => x := x + (cast (congrArg (fun _ => Nat) h) y) + 1 | none => x := x + 2
+  match h : f 5 with | some y => x := x + (cast (congrArg (fun _ => Nat) h) y) + 1 | none => x := x + 2
+  return x
+
+theorem dmatches_pure_triple : ⦃ True ⦄ dmatches_pure f ⦃ fun r => r > 0 ⦄ := by
+  vcgen +jp [dmatches_pure] with finish
+
+def mixed_matches_pure (f : Nat → Option Nat) : Id Nat := do
+  let mut x := 0
+  match h : f 0, f 10 with | some y, some z => x := x + (cast (congrArg (fun _ => Nat) h) y) + z + 1 | _, some _ => x := x + 2 | _, _ => x := x + 1
+  match h : f 1, f 11 with | some y, some z => x := x + (cast (congrArg (fun _ => Nat) h) y) + z + 1 | _, some _ => x := x + 2 | _, _ => x := x + 1
+  match h : f 2, f 12 with | some y, some z => x := x + (cast (congrArg (fun _ => Nat) h) y) + z + 1 | _, some _ => x := x + 2 | _, _ => x := x + 1
+  match h : f 3, f 13 with | some y, some z => x := x + (cast (congrArg (fun _ => Nat) h) y) + z + 1 | _, some _ => x := x + 2 | _, _ => x := x + 1
+  match h : f 4, f 14 with | some y, some z => x := x + (cast (congrArg (fun _ => Nat) h) y) + z + 1 | _, some _ => x := x + 2 | _, _ => x := x + 1
+  match h : f 5, f 15 with | some y, some z => x := x + (cast (congrArg (fun _ => Nat) h) y) + z + 1 | _, some _ => x := x + 2 | _, _ => x := x + 1
+  return x
+
+theorem mixed_matches_pure_triple : ⦃ True ⦄ mixed_matches_pure f ⦃ fun r => r > 0 ⦄ := by
+  vcgen +jp [mixed_matches_pure] with finish
+
+def if_state (f : Nat → Bool) : StateM Nat Nat := do
+  let mut x := 0
+  if f 0 then x := x + 1 else x := x + 2
+  if f 1 then x := x + 1 else x := x + 2
+  if f 2 then x := x + 1 else x := x + 2
+  if f 3 then x := x + 1 else x := x + 2
+  if f 4 then x := x + 1 else x := x + 2
+  if f 5 then x := x + 1 else x := x + 2
+  return x
+
+theorem if_state_triple : ⦃ fun _ => True ⦄ if_state f ⦃ fun r => ⌜r > 0⌝ ⦄ := by
+  vcgen +jp [if_state] with finish
+
+def matches_state (f : Nat → Option Nat) : StateM Nat Nat := do
+  let mut x := 0
+  match f 0 with | some y => x := x + y + 1 | none => x := x + 2
+  match f 1 with | some y => x := x + y + 1 | none => x := x + 2
+  match f 2 with | some y => x := x + y + 1 | none => x := x + 2
+  match f 3 with | some y => x := x + y + 1 | none => x := x + 2
+  match f 4 with | some y => x := x + y + 1 | none => x := x + 2
+  match f 5 with | some y => x := x + y + 1 | none => x := x + 2
+  return x
+
+theorem matches_state_triple : ⦃ fun _ => True ⦄ matches_state f ⦃ fun r => ⌜r > 0⌝ ⦄ := by
+  vcgen +jp [matches_state] with finish
+
+def set42 : StateM Nat Unit := set 42
+
+@[spec]
+theorem set42_triple : ⦃ fun _ => True ⦄ set42 ⦃ fun _ s => ⌜s > 13⌝ ⦄ := by
+  vcgen [set42]
+
+def mixed_matches_state (f : Nat → Option Nat) : StateM Nat Nat := do
+  set 42
+  let mut x := 0
+  match h : f 0, f 10 with
+  | some y, some z =>
+    set y
+    set42
+    x := x + (cast (congrArg (fun _ => Nat) h) y) + z + 1
+  | _, some _ =>
+    x := x + 2
+  | _, _ =>
+    x := x + (← get)
+  match h : f 1, f 11 with
+  | some y, some z =>
+    set y
+    x := x + (cast (congrArg (fun _ => Nat) h) y) + z + 1
+  | _, some _ =>
+    set42
+    x := x + 2
+  | _, _ =>
+    x := x + (← get)
+  return x
+
+theorem mixed_matches_state_triple : ⦃ fun _ => True ⦄ mixed_matches_state f ⦃ fun r => ⌜r > 0⌝ ⦄ := by
+  vcgen +jp [mixed_matches_state] with finish
+
+def early_return (f : Nat → Option Nat) : Id Nat := do
+  let mut x := 1
+  match f 0 with | some _ => return x | none => x := x + 1
+  match f 1 with | some y => x := x + y + 1 | none => return x
+  match f 2 with | some y => x := x + y + 1 | none => x := x + 1
+  return x
+
+theorem early_return_triple : ⦃ True ⦄ early_return f ⦃ fun r => r > 0 ⦄ := by
+  vcgen +jp [early_return] with finish
+
+-- Two mutable variables: the join carries several join-argument equalities.
+def multi_mut (f : Nat → Option Nat) : Id Nat := do
+  let mut x := 0
+  let mut y := 1
+  match f 0 with | some z => x := x + z; y := y + x | none => y := y + 2
+  match f 1 with | some z => x := x + z + y | none => x := x + y
+  return x + y
+
+theorem multi_mut_triple : ⦃ True ⦄ multi_mut f ⦃ fun r => r > 0 ⦄ := by
+  vcgen +jp [multi_mut] with finish
+
+-- The shared tail performs an effect, so the join RHS applies specs under the
+-- precondition hypothesis that the jumps provide.
+def monadic_tail (f : Nat → Option Nat) : StateM Nat Nat := do
+  let mut x := 1
+  match f 0 with | some y => x := x + y | none => x := x + 2
+  set x
+  match f 1 with | some y => x := x + y | none => x := x + 2
+  set x
+  return x
+
+theorem monadic_tail_triple : ⦃ fun _ => True ⦄ monadic_tail f ⦃ fun r => ⌜r > 0⌝ ⦄ := by
+  vcgen +jp [monadic_tail] with finish
+
+-- Literal and successor patterns produce a `Nat.casesOn`-shaped matcher.
+def literal_patterns (n m : Nat) : Id Nat := do
+  let mut x := 1
+  match n with | 0 => x := x + 1 | k+1 => x := x + k + 2
+  match m with | 0 => x := x + 1 | k+1 => x := x + k + 2
+  return x
+
+theorem literal_patterns_triple : ⦃ True ⦄ literal_patterns n m ⦃ fun r => r > 0 ⦄ := by
+  vcgen +jp [literal_patterns] with finish
+
+-- A split nested inside an alt: both branches of the inner `if` jump to the outer join point,
+-- so its precondition has one disjunct per branch of the inner `if`.
+def nested_split (f : Nat → Option Nat) : Id Nat := do
+  let mut x := 0
+  match f 0 with
+  | some y => if y > 0 then x := x + y else x := x + 1
+  | none => x := x + 2
+  match f 1 with
+  | some y => if y > 0 then x := x + y else x := x + 1
+  | none => x := x + 2
+  return x
+
+theorem nested_split_triple : ⦃ True ⦄ nested_split f ⦃ fun r => r > 0 ⦄ := by
+  vcgen +jp [nested_split] with finish
+
+-- The `none` alt throws: its jump is dead code behind `throw`, so the precondition of the join
+-- point has no disjunct for it.
+def throwing (f : Nat → Option Nat) : ExceptT String (StateM Nat) Nat := do
+  let mut x := 1
+  match f 0 with | some y => x := x + y | none => throw "none"
+  match f 1 with | some y => x := x + y | none => x := x + 2
+  return x
+
+theorem throwing_triple :
+    ⦃ fun _ => True ⦄ throwing f ⦃ fun r => ⌜r > 0⌝; estack⟨fun _ _ => True⟩ ⦄ := by
+  vcgen +jp [throwing] with finish
+
+-- A `for` loop inside an alt has a loop invariant whose local context contains the alt's `y`.
+-- The jump's payload closes over `y`, so it re-scopes the invariant over `y` as well.
+def loop_in_alt (f : Nat → Option Nat) : Id Nat := do
+  let mut x := 1
+  match f 0 with
+  | some y => for _ in [0:y] do x := x + 1
+  | none => x := x + 2
+  match f 1 with | some z => x := x + z | none => x := x + 2
+  return x
+
+theorem loop_in_alt_triple : ⦃ True ⦄ loop_in_alt f ⦃ fun r => r > 0 ⦄ := by
+  vcgen +jp [loop_in_alt] invariants
+  | inv1 y _ => fun _ _ x => ⌜x > 0 ∧ y ≤ y⌝
+  with finish
+
+-- The join RHS starts in the state of each jump: the payloads record `s = 5`, so the join RHS
+-- can use the `set 5` before the split.
+def set_before (b : Bool) : StateM Nat Nat := do
+  set 5
+  let mut x := 0
+  if b then x := 1 else x := 2
+  let s ← get
+  return s + x
+
+theorem set_before_triple : ⦃ fun _ => True ⦄ set_before b ⦃ fun r => ⌜r ≥ 6⌝ ⦄ := by
+  vcgen +jp [set_before] with finish
+
+-- The branches write different states, so each disjunct records its own state.
+def set_in_branch (b : Bool) : StateM Nat Nat := do
+  let mut x := 0
+  if b then set 1; x := 1 else set 2; x := 2
+  let s ← get
+  return s + x
+
+theorem set_in_branch_triple : ⦃ fun _ => True ⦄ set_in_branch b ⦃ fun r => ⌜r ≥ 2⌝ ⦄ := by
+  vcgen +jp [set_in_branch] with finish
+
+-- The precondition constrains the initial state, which is still the state at each jump.
+def read_after (b : Bool) : StateM Nat Nat := do
+  let mut x := 0
+  if b then x := 1 else x := 2
+  let s ← get
+  return s + x
+
+theorem read_after_triple : ⦃ fun s => ⌜s > 3⌝ ⦄ read_after b ⦃ fun r => ⌜r ≥ 5⌝ ⦄ := by
+  vcgen +jp [read_after] with finish
+
+-- One join point with five jumps: the `else if` chain disjoins five payloads in one `?H`.
+def wide (x : Nat) : StateM Nat Nat := do
+  let mut y := 0
+  if x = 0 then y := 2
+  else if x = 1 then y := 3
+  else if x = 2 then y := 4
+  else if x = 3 then y := 5
+  else y := 6
+  let s ← get
+  return y + s
+
+theorem wide_triple : ⦃ fun _ => True ⦄ wide x ⦃ fun r => ⌜r > 1⌝ ⦄ := by
+  vcgen +jp [wide] with finish
+
+-- The jump arguments are reduced, and the `__r : PUnit` parameter of the join point gets no
+-- equation.
+/--
+trace: case vc1
+b : Nat → Bool
+s₀ s✝¹ : Nat
+x✝ : PUnit
+s✝ : Nat
+h✝¹ : b 0 = true ∧ s✝ = s₀ + 1 ∨ ¬b 0 = true ∧ s✝ = s₀ + 2
+h✝ : b 1 = true
+⊢ s₀ + 2 ≤ s✝ + 1
+
+case vc2
+b : Nat → Bool
+s₀ s✝¹ : Nat
+x✝ : PUnit
+s✝ : Nat
+h✝¹ : b 0 = true ∧ s✝ = s₀ + 1 ∨ ¬b 0 = true ∧ s✝ = s₀ + 2
+h✝ : ¬b 1 = true
+⊢ s₀ + 2 ≤ s✝ + 2
+-/
+#guard_msgs in
+example (b : Nat → Bool) (s₀ : Nat) :
+    ⦃fun s => s = s₀⦄ (do
+      if b 0 then modify (· + 1) else modify (· + 2)
+      if b 1 then modify (· + 1) else modify (· + 2) : StateM Nat Unit)
+    ⦃fun _ s => s₀ + 2 ≤ s⦄ := by
+  vcgen +jp
+  trace_state
+  all_goals grind
+
+-- A join point nested in a branch of another one: the inner `__do_jp` and `__do_jp_spec` are
+-- `let`s in the context of the jumps to the outer join point.
+def nested (b c : Bool) : Id Nat := do
+  let mut y := 0
+  if b then
+    if c then y := 1 else y := 2
+    y := y + 1
+  else y := 5
+  return y
+
+theorem nested_triple : ⦃ True ⦄ nested b c ⦃ fun r => r > 0 ⦄ := by
+  vcgen +jp [nested] with finish
+
+-- A `match` join point nested in a `match` alternative, with state.
+def match_in_match (o p : Option Nat) : StateM Nat Nat := do
+  let mut y := 0
+  match o with
+  | some n =>
+    match p with
+    | some m => y := n + m + 1
+    | none => y := n + 1
+    modify (· + y)
+  | none => y := 5
+  let s ← get
+  return y + s
+
+theorem match_in_match_triple :
+    ⦃ fun _ => True ⦄ match_in_match o p ⦃ fun r => ⌜r > 0⌝ ⦄ := by
+  vcgen +jp [match_in_match] with finish
+
+-- The join point above a split `match` is kept by `root_match.eq_2` and shared by `vcgen +jp`.
+def root_match (x : Nat) (b : Bool) : StateM Nat Nat := do
+  let mut y := 0
+  match x with
+  | 0 => y := 1
+  | _ + 1 => if b then y := 2 else y := 3
+  let s ← get
+  return y + s
+
+/--
+trace: case vc1
+k : Nat
+b : Bool
+s✝ : Nat
+x✝¹ : PUnit
+x✝ s : Nat
+h✝ : b = true ∧ x✝ = 2 ∧ s = s✝ ∨ ¬b = true ∧ x✝ = 3 ∧ s = s✝
+⊢ 0 < x✝ + s
+-/
+#guard_msgs in
+example : ⦃fun _ => True⦄ root_match (k + 1) b ⦃fun r => ⌜r > 0⌝⦄ := by
+  vcgen +jp [root_match]
+  trace_state
+  all_goals grind

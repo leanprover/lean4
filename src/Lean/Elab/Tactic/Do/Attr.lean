@@ -245,7 +245,7 @@ open Lean Meta Std.WP Lean.Order
 /--
 The kind of a spec theorem.
 -/
-public inductive SpecTheoremKind where
+inductive SpecTheoremKind where
   /-- A Hoare triple spec: `⦃P⦄ prog ⦃Q⦄`. -/
   | triple
   /--

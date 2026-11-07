@@ -1,0 +1,3 @@
+# Only report diagnostics for open files: Lake's TOML parser tests contain many invalid files.
+[lsp]
+workspace-diagnostic.enabled = false

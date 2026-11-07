@@ -43,6 +43,7 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 #include <sys/stat.h>
 #include <uv.h>
 #include "util/io.h"
+#include "util/alloc.h"
 #include "runtime/alloc.h"
 #include "runtime/io.h"
 #include "runtime/utf8.h"
@@ -55,6 +56,13 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 #define S_ISDIR(mode) ((mode & _S_IFDIR) != 0)
 #else
 #include <dirent.h>
+#endif
+
+#ifndef LEAN_WINDOWS
+#ifndef __APPLE__
+#include <sys/syscall.h>
+#include <linux/fs.h> // RENAME_NOREPLACE
+#endif
 #endif
 
 namespace lean {
@@ -972,9 +980,20 @@ extern "C" LEAN_EXPORT obj_res lean_io_set_heartbeats(obj_arg count) {
     return box(0);
 }
 
+bool is_env_var_name(char const * name) {
+    if (name[0] == '\0') {
+        return false;
+    }
+#if defined(LEAN_WINDOWS)
+    // Windows keeps hidden variables whose names start with `=`, such as `=C:`.
+    name++;
+#endif
+    return strchr(name, '=') == nullptr;
+}
+
 extern "C" LEAN_EXPORT obj_res lean_io_getenv(b_obj_arg env_var) {
     const char* env_var_str = string_cstr(env_var);
-    if (strlen(env_var_str) != lean_string_size(env_var) - 1) {
+    if (strlen(env_var_str) != lean_string_size(env_var) - 1 || !is_env_var_name(env_var_str)) {
         return mk_option_none();
     }
 #if defined(LEAN_EMSCRIPTEN)
@@ -1236,6 +1255,39 @@ extern "C" LEAN_EXPORT obj_res lean_io_rename(b_obj_arg from, b_obj_arg to) {
     return io_result_mk_ok(box(0));
 }
 
+extern "C" LEAN_EXPORT obj_res lean_io_rename_if_new(b_obj_arg from, b_obj_arg to) {
+    const char* from_str = string_cstr(from);
+    if (strlen(from_str) != lean_string_size(from) - 1) {
+        return mk_embedded_nul_error(from);
+    }
+    const char* to_str = string_cstr(to);
+    if (strlen(to_str) != lean_string_size(to) - 1) {
+        return mk_embedded_nul_error(to);
+    }
+#ifdef LEAN_WINDOWS
+    bool ok = MoveFileEx(from_str, to_str, 0) != 0;
+    if (!ok) {
+        // TODO: actually produce the right type of IO error
+        return io_result_mk_error((sstream()
+            << "failed to rename '" << from_str << "' to '" << to_str << "': " << GetLastError()).str());
+    }
+#else
+#if defined(__APPLE__)
+    bool ok = renameatx_np(AT_FDCWD, from_str, AT_FDCWD, to_str, RENAME_EXCL) == 0;
+#else
+    // glibc 2.26 does not yet have `renameat2` (2.28+)
+    bool ok = syscall(SYS_renameat2, AT_FDCWD, from_str, AT_FDCWD, to_str, RENAME_NOREPLACE) == 0;
+#endif
+    if (!ok) {
+        std::ostringstream s;
+        s << from_str << " and/or " << to_str;
+        object_ref out{mk_string(s.str())};
+        return io_result_mk_error(decode_io_error(errno, out.raw()));
+    }
+#endif
+    return io_result_mk_ok(box(0));
+}
+
 /* hardLink (orig link : @& FilePath) : IO Unit */
 extern "C" LEAN_EXPORT obj_res lean_io_hard_link(b_obj_arg orig, b_obj_arg link) {
     const char* orig_str = string_cstr(orig);
@@ -1257,7 +1309,7 @@ extern "C" LEAN_EXPORT obj_res lean_io_hard_link(b_obj_arg orig, b_obj_arg link)
 }
 
 /* createTempFile : IO (Handle × FilePath) */
-extern "C" LEAN_EXPORT obj_res lean_io_create_tempfile(lean_object * /* w */) {
+extern "C" LEAN_EXPORT obj_res lean_io_create_tempfile() {
     char path[PATH_MAX];
     size_t base_len = PATH_MAX;
     int ret = uv_os_tmpdir(path, &base_len);
@@ -1303,7 +1355,7 @@ extern "C" LEAN_EXPORT obj_res lean_io_create_tempfile(lean_object * /* w */) {
 }
 
 /* createTempDir : IO FilePath */
-extern "C" LEAN_EXPORT obj_res lean_io_create_tempdir(lean_object * /* w */) {
+extern "C" LEAN_EXPORT obj_res lean_io_create_tempdir() {
     char path[PATH_MAX];
     size_t base_len = PATH_MAX;
     int ret = uv_os_tmpdir(path, &base_len);
@@ -1404,12 +1456,9 @@ extern "C" LEAN_EXPORT obj_res lean_io_app_path() {
     return io_result_mk_ok(appPathLean);
 #else
     // Linux version
-    char path[PATH_MAX];
     char dest[PATH_MAX];
     memset(dest, 0, PATH_MAX);
-    pid_t pid = getpid();
-    snprintf(path, PATH_MAX, "/proc/%d/exe", pid);
-    if (readlink(path, dest, PATH_MAX - 1) == -1) {
+    if (readlink("/proc/self/exe", dest, PATH_MAX - 1) == -1) {
         return io_result_mk_error("failed to locate application");
     } else {
         return io_result_mk_ok(mk_string(dest));
@@ -1616,6 +1665,159 @@ extern "C" LEAN_EXPORT obj_res lean_runtime_mark_multi_threaded(obj_arg a) {
 extern "C" LEAN_EXPORT obj_res lean_runtime_mark_persistent(obj_arg a) {
     lean_mark_persistent(a);
     return a;
+}
+
+/* def Runtime.deepCopy : {α : Type} → α → IO α := fun {α} a => pure a */
+extern "C" LEAN_EXPORT obj_res lean_runtime_deep_copy(b_obj_arg o) {
+    // We point at atomic and non-atomic slots from `todo`.
+    // The object we create is only used from this thread,
+    // but we also need atomic and ordinary pointer sizes to match.
+    static_assert(sizeof(std::atomic<object *>) == sizeof(object *));
+
+    object * root = lean_box(0);
+    // maps source objects to their copies so that sharing in the input graph is preserved
+    lean::unordered_map<object *, object *> copies;
+    // pairs of source object and destination slot to store its copy in
+    buffer<std::pair<object *, object **>> todo;
+    todo.push_back({o, &root});
+    // Returns a partial copy of `src` if `src` has finished, scheduling the value in `todo`.
+    // Returns `nullptr` if `src` has not finished.
+    auto copy_finished_task = [&](lean_task_object * src) -> object * {
+        object * v = src->m_value.load(std::memory_order_acquire);
+        if (!v) return nullptr;
+        object * new_t = lean_task_pure(lean_box(0));
+        todo.push_back({v, reinterpret_cast<object **>(&lean_to_task(new_t)->m_value)});
+        return new_t;
+    };
+    while (!todo.empty()) {
+        auto [src, slot] = todo.back();
+        todo.pop_back();
+        if (lean_is_scalar(src)) {
+            *slot = src;
+            continue;
+        }
+        auto it = copies.find(src);
+        if (it != copies.end()) {
+            lean_inc(it->second);
+            *slot = it->second;
+            continue;
+        }
+        object * new_o;
+        uint8_t tag = lean_ptr_tag(src);
+        if (tag <= LeanMaxCtorTag) {
+            size_t sz = lean_object_byte_size(src);
+            unsigned num_objs = lean_ctor_num_objs(src);
+            new_o = lean_alloc_ctor_memory(sz);
+            lean_set_st_header(new_o, tag, num_objs);
+            size_t scalars_off = sizeof(lean_ctor_object) + num_objs * sizeof(object *);
+            memcpy(reinterpret_cast<char *>(new_o) + scalars_off,
+                   reinterpret_cast<char *>(src) + scalars_off, sz - scalars_off);
+            object ** src_objs = lean_ctor_obj_cptr(src);
+            object ** new_objs = lean_ctor_obj_cptr(new_o);
+            for (unsigned i = 0; i < num_objs; i++) {
+                // keep the partial copy a valid object graph so it can be freed on error
+                new_objs[i] = lean_box(0);
+                todo.push_back({src_objs[i], &new_objs[i]});
+            }
+        } else {
+            switch (tag) {
+            case LeanArray: {
+                size_t sz = lean_array_size(src);
+                // shrinking the capacity does not violate the spec,
+                // as capacities are not observable by Lean code
+                new_o = lean_alloc_array(sz, sz);
+                object ** src_elems = lean_array_cptr(src);
+                object ** new_elems = lean_array_cptr(new_o);
+                for (size_t i = 0; i < sz; i++) {
+                    new_elems[i] = lean_box(0);
+                    todo.push_back({src_elems[i], &new_elems[i]});
+                }
+                break;
+            }
+            case LeanScalarArray: {
+                size_t sz = lean_sarray_size(src);
+                unsigned elem_sz = lean_sarray_elem_size(src);
+                new_o = lean_alloc_sarray(elem_sz, sz, sz);
+                memcpy(lean_sarray_cptr(new_o), lean_sarray_cptr(src), elem_sz * sz);
+                break;
+            }
+            case LeanString: {
+                size_t sz = lean_string_size(src);
+                new_o = lean_alloc_string(sz, sz, lean_string_len(src));
+                memcpy(lean_to_string(new_o)->m_data, lean_to_string(src)->m_data, sz);
+                break;
+            }
+            case LeanMPZ:
+                new_o = alloc_mpz(mpz_value(src));
+                break;
+            case LeanClosure: {
+                unsigned num_fixed = lean_closure_num_fixed(src);
+                // the code pointer `m_fun` is shared with the input; only captured values are copied
+                new_o = lean_alloc_closure(lean_closure_fun(src), lean_closure_arity(src), num_fixed);
+                object ** src_args = lean_closure_arg_cptr(src);
+                object ** new_args = lean_closure_arg_cptr(new_o);
+                for (unsigned i = 0; i < num_fixed; i++) {
+                    new_args[i] = lean_box(0);
+                    todo.push_back({src_args[i], &new_args[i]});
+                }
+                break;
+            }
+            case LeanExternal:
+                lean_dec(root);
+                return io_result_mk_error("external objects cannot be copied");
+            case LeanThunk: {
+                object * v = lean_to_thunk(src)->m_value.load(std::memory_order_acquire);
+                if (!v) {
+                    lean_dec(root);
+                    return io_result_mk_error("only evaluated Thunks can be copied");
+                }
+                new_o = lean_thunk_pure(lean_box(0));
+                todo.push_back({v, reinterpret_cast<object **>(&lean_to_thunk(new_o)->m_value)});
+                break;
+            }
+            case LeanTask:
+                new_o = copy_finished_task(lean_to_task(src));
+                if (!new_o) {
+                    lean_dec(root);
+                    return io_result_mk_error("only finished Tasks can be copied");
+                }
+                break;
+            case LeanPromise: {
+                // We must copy the nested task eagerly rather than leaving it to the next iteration,
+                // since a Promise object cannot have a lean_box(0) "hole" in the task slot
+                // (deallocation would crash if it did).
+                object * src_t = reinterpret_cast<object *>(lean_to_promise(src)->m_result);
+                object * new_t;
+                // The nested task may be shared in the object graph.
+                auto it_t = copies.find(src_t);
+                if (it_t != copies.end()) {
+                    new_t = it_t->second;
+                    lean_inc(new_t);
+                } else {
+                    new_t = copy_finished_task(lean_to_task(src_t));
+                    if (!new_t) {
+                        lean_dec(root);
+                        return io_result_mk_error("only resolved Promises can be copied");
+                    }
+                    copies.insert({src_t, new_t});
+                }
+
+                new_o = lean_alloc_small_object(sizeof(lean_promise_object));
+                lean_set_st_header(new_o, LeanPromise, 0);
+                lean_to_promise(new_o)->m_result = lean_to_task(new_t);
+                break;
+            }
+            case LeanRef:
+                lean_dec(root);
+                return io_result_mk_error("Refs cannot be copied");
+            default:
+                lean_internal_panic_unreachable();
+            }
+        }
+        copies.insert({src, new_o});
+        *slot = new_o;
+    }
+    return lean_io_result_mk_ok(root);
 }
 
 #if defined(__has_feature)

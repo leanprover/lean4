@@ -103,6 +103,26 @@ extern "C" LEAN_EXPORT uint8_t lean_cadical_solver_solve(b_lean_obj_arg s) {
     return to_status(to_solver(s)->solve());
 }
 
+class callback_terminator : public CaDiCaL::Terminator {
+    b_lean_obj_arg m_should_terminate;
+public:
+    explicit callback_terminator(b_lean_obj_arg should_terminate) : m_should_terminate(should_terminate) {}
+    bool terminate() override {
+        lean_inc(m_should_terminate);
+        return lean_unbox(lean_apply_1(m_should_terminate, lean_box(0)));
+    }
+};
+
+/* Solver.solveWithTerminator (s : @& Solver) (shouldTerminate : @& BaseIO Bool) : BaseIO Status */
+extern "C" LEAN_EXPORT uint8_t lean_cadical_solver_solve_with_terminator(b_lean_obj_arg s, b_lean_obj_arg should_terminate) {
+    callback_terminator terminator(should_terminate);
+    CaDiCaL::Solver * solver = to_solver(s);
+    solver->connect_terminator(&terminator);
+    int res = solver->solve();
+    solver->disconnect_terminator();
+    return to_status(res);
+}
+
 /* Solver.val (s : @& Solver) (lit : Int32) : BaseIO Int32 */
 extern "C" LEAN_EXPORT uint32_t lean_cadical_solver_val(b_lean_obj_arg s, uint32_t lit) {
     return to_int32(to_solver(s)->val(to_lit(lit)));
@@ -168,8 +188,7 @@ extern "C" LEAN_EXPORT uint32_t lean_cadical_solver_vars(b_lean_obj_arg s) {
 
 /* Solver.resize (s : @& Solver) (minMaxVar : Int32) : BaseIO Unit */
 extern "C" LEAN_EXPORT lean_obj_res lean_cadical_solver_resize(b_lean_obj_arg s, uint32_t min_max_var) {
-    // `reserve` was renamed to `resize` (with unchanged semantics) in CaDiCaL 2.2.
-    to_solver(s)->reserve(to_lit(min_max_var));
+    to_solver(s)->resize(to_lit(min_max_var));
     return unit();
 }
 
@@ -349,6 +368,7 @@ LEAN_CADICAL_UNREACHABLE(lean_obj_res, lean_cadical_solver_clause, b_lean_obj_ar
 LEAN_CADICAL_UNREACHABLE(uint8_t, lean_cadical_solver_inconsistent, b_lean_obj_arg)
 LEAN_CADICAL_UNREACHABLE(lean_obj_res, lean_cadical_solver_assume, b_lean_obj_arg, uint32_t)
 LEAN_CADICAL_UNREACHABLE(uint8_t, lean_cadical_solver_solve, b_lean_obj_arg)
+LEAN_CADICAL_UNREACHABLE(uint8_t, lean_cadical_solver_solve_with_terminator, b_lean_obj_arg, b_lean_obj_arg)
 LEAN_CADICAL_UNREACHABLE(uint32_t, lean_cadical_solver_val, b_lean_obj_arg, uint32_t)
 LEAN_CADICAL_UNREACHABLE(uint8_t, lean_cadical_solver_flip, b_lean_obj_arg, uint32_t)
 LEAN_CADICAL_UNREACHABLE(uint8_t, lean_cadical_solver_flippable, b_lean_obj_arg, uint32_t)

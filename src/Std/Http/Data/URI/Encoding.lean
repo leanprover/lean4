@@ -215,12 +215,11 @@ private theorem ByteArray.toList_toByteArray (ba : ByteArray) :
   | mk data =>
     simp [List.toByteArray]
     apply ByteArray.ext
-    simp [List.toByteArray_loop_eq, ByteArray.empty]
-    decide
+    simp [List.toByteArray_loop_eq]
 
 theorem isValidUTF8_of_isAsciiByte (ba : ByteArray) (s : ba.data.all isAsciiByte) : ByteArray.IsValidUTF8 ba := by
   refine ⟨ba.data.toList.map Char.ofUInt8, ?_⟩
-  rw [List.utf8Encode]
+  rw [List.utf8Encode_eq_toByteArray]
   simp only [List.flatMap_map]
   have is_ascii : ∀ (x : UInt8), x ∈ ba.data.toList → x < 128 := by
     let is_ascii := Array.all_eq_true_iff_forall_mem.mp s
@@ -256,7 +255,7 @@ namespace EncodedString
 Creates an empty encoded string.
 -/
 def empty : EncodedString r :=
-  ⟨.empty, by simp []; exact fun i h => by contradiction⟩
+  ⟨.empty, by simp⟩
 
 instance : Inhabited (EncodedString r) where
   default := EncodedString.empty
@@ -409,7 +408,7 @@ namespace EncodedQueryString
 Creates an empty encoded query string.
 -/
 def empty : EncodedQueryString r :=
-  ⟨.empty, by simp; intro a h; contradiction⟩
+  ⟨.empty, by simp⟩
 
 instance : Inhabited (EncodedQueryString r) where
   default := EncodedQueryString.empty
@@ -476,12 +475,15 @@ private def byteToHex (b : UInt8) (s : EncodedQueryString r) : EncodedQueryStrin
   ⟨ba, valid⟩
 
 /--
-Encodes a raw string into an `EncodedQueryString` with automatic proof construction. Unreserved characters
-are kept as-is, spaces are encoded as '+', and all other characters are percent-encoded.
+Encodes a raw string into an `EncodedQueryString` with automatic proof construction. ASCII characters
+accepted by `r` are kept as-is, except that literal '+' is always percent-encoded as "%2B".
+Spaces not accepted by `r` are encoded as '+', and all other characters are percent-encoded.
 -/
 def encode (s : String) (r : UInt8 → Bool := isQueryChar) : EncodedQueryString r :=
   s.toUTF8.foldl (init := EncodedQueryString.empty) fun acc c =>
-    if h : isAsciiByte c ∧ r c then
+    if c == '+'.toUInt8 then
+      byteToHex c acc
+    else if h : isAsciiByte c ∧ r c then
       acc.push c (by simp [isEncodedQueryChar, isEncodedChar]; exact Or.inl (And.intro h.left (Or.inl h.right)))
     else if _ : c = ' '.toUInt8 then
       acc.push '+'.toUInt8 (by simp [isEncodedQueryChar])

@@ -27,7 +27,7 @@ open DSL
 
 /-! ## General Helpers -/
 
-private local instance : BEq FilePath where
+local instance : BEq FilePath where
   beq a b := a.normalize == b.normalize
 
 /-- Like `Quote`, but with some custom Lake-specific instances. -/
@@ -156,7 +156,7 @@ protected def LeanVer.toLean (v : LeanVer) : Term := Unhygienic.run do
 
 instance : ToLean LeanVer := ⟨LeanVer.toLean⟩
 
-private def getEscapedNameParts? (acc : List String) : Name → Option (List String)
+def getEscapedNameParts? (acc : List String) : Name → Option (List String)
   | Name.anonymous => if acc.isEmpty then none else some acc
   | Name.str n s => do
     let s ← Name.escapePart s
@@ -180,7 +180,7 @@ protected def Glob.toLean (glob : Glob) : Term := Unhygienic.run do
 
 instance : ToLean Glob := ⟨Glob.toLean⟩
 
-@[inline] private def quoteSingleton? [ToLean? α] (name : Name) (a : α) : Option Term :=
+@[inline] def quoteSingleton? [ToLean? α] (name : Name) (a : α) : Option Term :=
   toLean? a |>.map fun a => Unhygienic.run `(.$(mkIdent name) $a)
 
 protected def Pattern.toLean? [ToLean? (PatternDescr α β)] (p : Pattern α β) : Option Term :=
@@ -281,9 +281,27 @@ def Dependency.mkRequire (cfg : Dependency) : RequireDecl := Unhygienic.run do
   `(requireDecl|require $[$scope? /]? $(mkIdent cfg.name):ident $[@ $ver?]?
     $[from $src?]? $[with $opts?]?)
 
+/-! ## Cache Service Encoders -/
+
+def mkCacheServiceCommand
+  (name : Name) (service : CacheService)
+: Command := Unhygienic.run do
+  let defn ← id do
+    match h:service.kind with
+    | .reservoir =>
+      let apiEndpoint := service.apiEndpoint (service.kind_eq_iff_isReservoir.mp h)
+      `(.reservoirService $(mkStrLit apiEndpoint))
+    | .s3 =>
+      let artifactEndpoint := service.artifactEndpoint (service.kind_eq_iff_isS3.mp h)
+      let revisionEndpoint := service.revisionEndpoint (service.kind_eq_iff_isS3.mp h)
+      `(.downloadService $(mkStrLit artifactEndpoint) $(mkStrLit revisionEndpoint))
+    | .undef =>
+      service.kind_ne_undef.elim h
+  `(cacheServiceCommand|cache_service $(mkIdent name):ident := $defn)
+
 /-! ## Package & Target Configuration Encoders -/
 
-private meta def genMkDeclFields
+meta def genMkDeclFields
   (cmds : Array Command)
   (tyName : Name) [info : ConfigInfo tyName]
   (exclude : Array Name := #[])
@@ -371,6 +389,7 @@ public def Package.mkLeanConfig (pkg : Package) : TSyntax ``module := Unhygienic
   open $(mkIdent `System) $(mkIdent `Lake) $(mkIdent `DSL)
   $(pkgConfig.mkCommand):command
   $[$(pkg.depConfigs.map (·.mkRequire)):command]*
+  $[$(pkg.cacheServices.foldl (·.push <| mkCacheServiceCommand · ·) #[]):command]*
   $[$(pkg.mkTargetCommands defaultTargets LeanLib.configKind LeanLibConfig.mkCommand):command]*
   $[$(pkg.mkTargetCommands defaultTargets LeanExe.configKind LeanExeConfig.mkCommand):command]*
   $[$(pkg.mkTargetCommands defaultTargets InputFile.configKind InputFileConfig.mkCommand):command]*

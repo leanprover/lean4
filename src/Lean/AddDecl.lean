@@ -19,17 +19,22 @@ public section
 
 namespace Lean
 
+/-- Converts `maxRecDepth` for the kernel, mapping values that do not fit in `USize` to `0` (unlimited). -/
+private def kernelMaxRecDepth (opts : Options) : USize :=
+  let max := maxRecDepth.get opts
+  if max < USize.size then max.toUSize else 0
+
 /-- Adds given declaration to the environment, respecting `debug.skipKernelTC`. -/
 def Kernel.Environment.addDecl (env : Environment) (opts : Options) (decl : Declaration)
     (cancelTk? : Option IO.CancelToken := none) : Except Exception Environment :=
   if debug.skipKernelTC.get opts then
     addDeclWithoutChecking env decl
   else
-    addDeclCore env (Core.getMaxHeartbeats opts).toUSize (maxRecDepth.get opts).toUSize decl cancelTk?
+    addDeclCore env (Core.getMaxHeartbeats opts).toUSize (kernelMaxRecDepth opts) decl cancelTk?
 
 private def Environment.addDeclAux (env : Environment) (opts : Options) (decl : Declaration)
     (cancelTk? : Option IO.CancelToken := none) : Except Kernel.Exception Environment :=
-  env.addDeclCore (Core.getMaxHeartbeats opts).toUSize (maxRecDepth.get opts).toUSize decl cancelTk?
+  env.addDeclCore (Core.getMaxHeartbeats opts).toUSize (kernelMaxRecDepth opts) decl cancelTk?
     (!debug.skipKernelTC.get opts)
 
 open Linter in
@@ -98,6 +103,16 @@ def warnIfUsesSorry (decl : Declaration) : CoreM Unit := do
 builtin_initialize
   registerTraceClass `addDecl
 
+/--
+Records that `declName` is about to be added as a declaration of kind `kind` that is exported as a
+different kind; see `getOriginalConstKind?`. `addDecl` does this by itself, so this function is
+needed only where `addDecl` is run on a different environment branch, in order to make the
+information available on the current branch early.
+-/
+def recordOriginalConstKind (env : Environment) (declName : Name) (kind : ConstantKind) :
+    Environment :=
+  privateConstKindsExt.insert env declName kind
+
 private def addDeclCore (decl : Declaration) (forceExpose : Bool) : CoreM Unit :=
   withTraceNode `addDecl (fun _ => return m!"adding declarations {decl.getNames}") do
   -- register namespaces for newly added constants; this used to be done by the kernel itself
@@ -145,7 +160,9 @@ private def addDeclCore (decl : Declaration) (forceExpose : Bool) : CoreM Unit :
   else
     -- preserve original constant kind in extension if different from exported one
     if exportedInfo?.isSome then
-      modifyEnv (privateConstKindsExt.insert · name kind)
+      -- may already have been done by `recordOriginalConstKind`
+      if (privateConstKindsExt.find? (asyncMode := .local) (← getEnv) name).isNone then
+        modifyEnv (privateConstKindsExt.insert · name kind)
     else
       trace[addDecl] "no matching exporting rules, exporting as is"
       exportedInfo? := some info

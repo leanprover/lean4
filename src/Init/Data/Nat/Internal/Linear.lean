@@ -466,9 +466,6 @@ theorem Expr.of_cancel_le (ctx : Context) (a b c d : Expr) (h : Poly.cancel a.to
 theorem Expr.of_cancel_lt (ctx : Context) (a b c d : Expr) (h : Poly.cancel a.inc.toNormPoly b.toNormPoly = (c.inc.toPoly, d.toPoly)) : (a.denote ctx < b.denote ctx) = (c.denote ctx < d.denote ctx) :=
   of_cancel_le ctx a.inc b c.inc d h
 
-theorem ExprCnstr.toPoly_norm_eq (c : ExprCnstr) : c.toPoly.norm = c.toNormPoly :=
-  rfl
-
 theorem ExprCnstr.denote_toPoly (ctx : Context) (c : ExprCnstr) : c.toPoly.denote ctx = c.denote ctx := by
   cases c; rename_i eq lhs rhs
   simp [ExprCnstr.denote, PolyCnstr.denote, ExprCnstr.toPoly];
@@ -538,6 +535,288 @@ theorem Expr.eq_of_toNormPoly_eq (ctx : Context) (e e' : Expr) (h : e.toNormPoly
   have h := congrArg (Poly.denote ctx) (eq_of_beq h)
   simp [Expr.toNormPoly, Poly.norm] at h
   assumption
+
+/-! Kernel-reduction variants for the certificates of `simp +arith` over `Nat`. -/
+
+noncomputable def Expr.denote_k (ctx : Context) (e : Expr) : Nat :=
+  Expr.rec (fun k => k) (fun v => v.denote ctx) (fun _ _ a b => Nat.add a b) (fun k _ a => Nat.mul k a)
+    (fun _ k a => Nat.mul a k) e
+
+theorem Expr.denote_k_eq_denote (ctx : Context) (e : Expr) : e.denote_k ctx = e.denote ctx := by
+  induction e with
+  | num => rfl
+  | var => rfl
+  | add a b iha ihb => show Nat.add (a.denote_k ctx) (b.denote_k ctx) = _; rw [iha, ihb]
+  | mulL k a ih => show Nat.mul k (a.denote_k ctx) = _; rw [ih]
+  | mulR a k ih => show Nat.mul (a.denote_k ctx) k = _; rw [ih]
+
+noncomputable def ExprCnstr.denote_k (ctx : Context) (c : ExprCnstr) : Prop :=
+  Bool.rec (c.lhs.denote_k ctx ≤ c.rhs.denote_k ctx) (c.lhs.denote_k ctx = c.rhs.denote_k ctx) c.eq
+
+theorem ExprCnstr.denote_k_eq_denote (ctx : Context) (c : ExprCnstr) : c.denote_k ctx = c.denote ctx := by
+  cases c with
+  | mk eq lhs rhs => cases eq <;> simp [denote_k, denote, Expr.denote_k_eq_denote]
+
+noncomputable def Poly.insert_k (k : Nat) (v : Var) (p : Poly) : Poly :=
+  List.rec [(k, v)]
+    (fun hd tl ih => Bool.rec (Bool.rec (hd :: ih) ((Nat.add k hd.1, hd.2) :: tl) (Nat.beq v hd.2)) ((k, v) :: hd :: tl) (Nat.blt v hd.2))
+    p
+
+theorem Poly.insert_k_eq (k : Nat) (v : Var) (p : Poly) : p.insert_k k v = p.insert k v := by
+  induction p with
+  | nil => rfl
+  | cons hd tl ih =>
+    cases hd; rename_i k' v'
+    show Bool.rec (motive := fun _ => Poly) (Bool.rec (motive := fun _ => Poly) ((k', v') :: Poly.insert_k k v tl) _ _) _ (Nat.blt v v') = _
+    rw [ih]; simp only [Poly.insert]
+    cases Nat.blt v v' <;> cases Nat.beq v v' <;> rfl
+
+noncomputable def Poly.norm_k (p : Poly) : Poly :=
+  List.rec (motive := fun _ => Poly → Poly) (fun r => r) (fun hd _ ih r => ih (r.insert_k hd.1 hd.2)) p []
+
+theorem Poly.norm_k_eq (p : Poly) : p.norm_k = p.norm := by
+  suffices h : ∀ r, List.rec (motive := fun _ => Poly → Poly) (fun r => r) (fun hd _ ih r => ih (r.insert_k hd.1 hd.2)) p r
+      = Poly.norm.go p r by exact h []
+  induction p with
+  | nil => intro r; rfl
+  | cons hd tl ih =>
+    intro r; cases hd; rename_i k v
+    show List.rec (motive := fun _ => Poly → Poly) _ _ tl _ = _; rw [ih, Poly.insert_k_eq]; rfl
+
+noncomputable def Poly.append_k (p q : Poly) : Poly :=
+  List.rec q (fun hd _ ih => hd :: ih) p
+
+theorem Poly.append_k_eq (p q : Poly) : p.append_k q = p ++ q := by
+  induction p with
+  | nil => rfl
+  | cons hd tl ih => show hd :: Poly.append_k tl q = _; rw [ih]; rfl
+
+noncomputable def Poly.reverse_k (p : Poly) : Poly :=
+  List.rec (motive := fun _ => Poly → Poly) (fun r => r) (fun hd _ ih r => ih (hd :: r)) p []
+
+theorem Poly.reverse_k_eq (p : Poly) : p.reverse_k = p.reverse := by
+  suffices h : ∀ r, List.rec (motive := fun _ => Poly → Poly) (fun r => r) (fun hd _ ih r => ih (hd :: r)) p r
+      = List.reverseAux p r by exact h []
+  induction p with
+  | nil => intro r; rfl
+  | cons hd tl ih => intro r; show List.rec (motive := fun _ => Poly → Poly) _ _ tl _ = _; rw [ih]; rfl
+
+/-- One step of `Poly.cancelAux`, with `rec` for the recursive calls. -/
+noncomputable def Poly.cancelStep (rec : Poly → Poly → Poly → Poly → Poly × Poly) (m₁ m₂ r₁ r₂ : Poly) : Poly × Poly :=
+  List.rec (motive := fun _ => Poly × Poly) (Poly.append_k (Poly.reverse_k r₁) m₁, Poly.reverse_k r₂)
+    (fun hd₂ tl₂ _ =>
+      List.rec (motive := fun _ => Poly × Poly) (Poly.reverse_k r₁, Poly.append_k (Poly.reverse_k r₂) m₂)
+        (fun hd₁ tl₁ _ =>
+          Bool.rec
+            (Bool.rec
+              (Bool.rec
+                (Bool.rec (rec tl₁ tl₂ r₁ r₂) (rec tl₁ tl₂ ((Nat.sub hd₁.1 hd₂.1, hd₁.2) :: r₁) r₂) (Nat.blt hd₂.1 hd₁.1))
+                (rec tl₁ tl₂ r₁ ((Nat.sub hd₂.1 hd₁.1, hd₁.2) :: r₂)) (Nat.blt hd₁.1 hd₂.1))
+              (rec m₁ tl₂ r₁ (hd₂ :: r₂)) (Nat.blt hd₂.2 hd₁.2))
+            (rec tl₁ m₂ (hd₁ :: r₁) r₂) (Nat.blt hd₁.2 hd₂.2))
+        m₁)
+    m₂
+
+noncomputable def Poly.cancelAux_k (fuel : Nat) : Poly → Poly → Poly → Poly → Poly × Poly :=
+  Nat.rec (motive := fun _ => Poly → Poly → Poly → Poly → Poly × Poly)
+    (fun m₁ m₂ r₁ r₂ => (Poly.append_k (Poly.reverse_k r₁) m₁, Poly.append_k (Poly.reverse_k r₂) m₂))
+    (fun _ ih => Poly.cancelStep ih) fuel
+
+theorem Poly.cancelAux_k_eq (fuel : Nat) (m₁ m₂ r₁ r₂ : Poly) :
+    Poly.cancelAux_k fuel m₁ m₂ r₁ r₂ = Poly.cancelAux fuel m₁ m₂ r₁ r₂ := by
+  induction fuel generalizing m₁ m₂ r₁ r₂ with
+  | zero =>
+    show (Poly.append_k (Poly.reverse_k r₁) m₁, Poly.append_k (Poly.reverse_k r₂) m₂) = _
+    simp only [cancelAux, append_k_eq, reverse_k_eq]
+  | succ fuel ih =>
+    have hrec : Poly.cancelAux_k fuel = Poly.cancelAux fuel := by funext a b c d; exact ih a b c d
+    show Poly.cancelStep (Poly.cancelAux_k fuel) m₁ m₂ r₁ r₂ = _
+    rw [hrec]
+    cases m₂ with
+    | nil => simp only [cancelStep, cancelAux, append_k_eq, reverse_k_eq]
+    | cons hd₂ tl₂ =>
+      cases m₁ with
+      | nil => simp only [cancelStep, cancelAux, append_k_eq, reverse_k_eq]
+      | cons hd₁ tl₁ =>
+        cases hd₁; cases hd₂; rename_i k₁ v₁ k₂ v₂
+        simp only [cancelStep, cancelAux, cond]
+        cases Nat.blt v₁ v₂ <;> cases Nat.blt v₂ v₁ <;> cases Nat.blt k₁ k₂ <;> cases Nat.blt k₂ k₁ <;> rfl
+
+noncomputable def Poly.cancel_k (p₁ p₂ : Poly) : Poly × Poly :=
+  Poly.cancelAux_k hugeFuel p₁ p₂ [] []
+
+theorem Poly.cancel_k_eq (p₁ p₂ : Poly) : Poly.cancel_k p₁ p₂ = Poly.cancel p₁ p₂ :=
+  Poly.cancelAux_k_eq _ _ _ _ _
+
+noncomputable def Expr.toPoly_k.go (e : Expr) : Nat → Poly → Poly :=
+  Expr.rec (motive := fun _ => Nat → Poly → Poly)
+    (fun k coeff acc => Bool.rec ((Nat.mul coeff k, fixedVar) :: acc) acc (Nat.beq k 0))
+    (fun i coeff acc => (coeff, i) :: acc)
+    (fun _ _ iha ihb coeff acc => iha coeff (ihb coeff acc))
+    (fun k _ iha coeff acc => Bool.rec (iha (Nat.mul coeff k) acc) acc (Nat.beq k 0))
+    (fun _ k iha coeff acc => Bool.rec (iha (Nat.mul coeff k) acc) acc (Nat.beq k 0))
+    e
+
+noncomputable def Expr.toPoly_k (e : Expr) : Poly :=
+  Expr.toPoly_k.go e 1 []
+
+theorem Expr.toPoly_k_eq (e : Expr) : e.toPoly_k = e.toPoly := by
+  suffices h : ∀ coeff acc, Expr.toPoly_k.go e coeff acc = Expr.toPoly.go coeff e acc by exact h 1 []
+  induction e with
+  | num k =>
+    intro coeff acc
+    show Bool.rec (motive := fun _ => Poly) _ _ (Nat.beq k 0) = _
+    simp only [Expr.toPoly.go, cond]
+    cases h : Nat.beq k 0
+    · have : (k == 0) = false := h
+      simp only [this]; rfl
+    · have : (k == 0) = true := h
+      simp only [this]; rfl
+  | var i => intro coeff acc; rfl
+  | add a b iha ihb => intro coeff acc; show Expr.toPoly_k.go a _ (Expr.toPoly_k.go b _ _) = _; rw [ihb, iha]; rfl
+  | mulL k a ih =>
+    intro coeff acc
+    show Bool.rec (motive := fun _ => Poly) (Expr.toPoly_k.go a _ _) _ (Nat.beq k 0) = _
+    simp only [Expr.toPoly.go, cond]
+    cases h : Nat.beq k 0
+    · have : (k == 0) = false := h
+      simp only [this]; exact ih _ _
+    · have : (k == 0) = true := h
+      simp only [this]; rfl
+  | mulR a k ih =>
+    intro coeff acc
+    show Bool.rec (motive := fun _ => Poly) (Expr.toPoly_k.go a _ _) _ (Nat.beq k 0) = _
+    simp only [Expr.toPoly.go, cond]
+    cases h : Nat.beq k 0
+    · have : (k == 0) = false := h
+      simp only [this]; exact ih _ _
+    · have : (k == 0) = true := h
+      simp only [this]; rfl
+
+noncomputable def Expr.toNormPoly_k (e : Expr) : Poly :=
+  Poly.norm_k e.toPoly_k
+
+theorem Expr.toNormPoly_k_eq (e : Expr) : e.toNormPoly_k = e.toNormPoly := by
+  simp only [toNormPoly_k, Expr.toNormPoly, Expr.toPoly_k_eq, Poly.norm_k_eq]
+
+noncomputable def ExprCnstr.toPoly_k (c : ExprCnstr) : PolyCnstr :=
+  { eq := c.eq, lhs := c.lhs.toPoly_k, rhs := c.rhs.toPoly_k }
+
+theorem ExprCnstr.toPoly_k_eq (c : ExprCnstr) : c.toPoly_k = c.toPoly := by
+  simp only [toPoly_k, ExprCnstr.toPoly, Expr.toPoly_k_eq]
+
+noncomputable def ExprCnstr.toNormPoly_k (c : ExprCnstr) : PolyCnstr :=
+  { eq := c.eq, lhs := (Poly.cancel_k c.lhs.toNormPoly_k c.rhs.toNormPoly_k).1,
+    rhs := (Poly.cancel_k c.lhs.toNormPoly_k c.rhs.toNormPoly_k).2 }
+
+theorem ExprCnstr.toNormPoly_k_eq (c : ExprCnstr) : c.toNormPoly_k = c.toNormPoly := by
+  simp only [toNormPoly_k, ExprCnstr.toNormPoly, Poly.cancel_k_eq, Expr.toNormPoly_k_eq]
+
+noncomputable def Poly.isZero_k (p : Poly) : Bool :=
+  List.rec true (fun _ _ _ => false) p
+
+theorem Poly.isZero_k_eq (p : Poly) : Poly.isZero_k p = p.isZero := by
+  cases p <;> rfl
+
+noncomputable def Poly.isNonZero_k (p : Poly) : Bool :=
+  List.rec false (fun hd _ ih => Bool.rec ih (Nat.blt 0 hd.1) (Nat.beq hd.2 fixedVar)) p
+
+theorem Poly.isNonZero_k_eq (p : Poly) : Poly.isNonZero_k p = p.isNonZero := by
+  induction p with
+  | nil => rfl
+  | cons hd tl ih =>
+    cases hd; rename_i k v
+    show Bool.rec (motive := fun _ => Bool) (Poly.isNonZero_k tl) (Nat.blt 0 k) (Nat.beq v fixedVar) = _
+    rw [ih]; simp only [Poly.isNonZero, cond]
+    cases h : Nat.beq v fixedVar
+    · have : (v == fixedVar) = false := h
+      simp only [this]
+    · have : (v == fixedVar) = true := h
+      simp only [this]
+      cases h' : Nat.blt 0 k
+      · have : ¬ 0 < k := by rw [← Nat.blt_eq, h']; simp
+        simp; exact Nat.eq_zero_of_not_pos this
+      · have : 0 < k := by rw [← Nat.blt_eq, h']
+        simp [this]
+
+noncomputable def PolyCnstr.isUnsat_k (c : PolyCnstr) : Bool :=
+  Bool.rec (Poly.isNonZero_k c.lhs && Poly.isZero_k c.rhs)
+    ((Poly.isZero_k c.lhs && Poly.isNonZero_k c.rhs) || (Poly.isNonZero_k c.lhs && Poly.isZero_k c.rhs)) c.eq
+
+theorem PolyCnstr.isUnsat_k_eq (c : PolyCnstr) : c.isUnsat_k = c.isUnsat := by
+  cases c with
+  | mk eq lhs rhs => cases eq <;> simp [isUnsat_k, PolyCnstr.isUnsat, Poly.isZero_k_eq, Poly.isNonZero_k_eq]
+
+noncomputable def PolyCnstr.isValid_k (c : PolyCnstr) : Bool :=
+  Bool.rec (Poly.isZero_k c.lhs) (Poly.isZero_k c.lhs && Poly.isZero_k c.rhs) c.eq
+
+theorem PolyCnstr.isValid_k_eq (c : PolyCnstr) : c.isValid_k = c.isValid := by
+  cases c with
+  | mk eq lhs rhs => cases eq <;> simp [isValid_k, PolyCnstr.isValid, Poly.isZero_k_eq]
+
+noncomputable def Poly.beq'_k (p : Poly) : Poly → Bool :=
+  List.rec (motive := fun _ => Poly → Bool) (fun q => List.rec true (fun _ _ _ => false) q)
+    (fun hd _ ih q => List.rec false
+      (fun hd' tl' _ => Bool.rec false (Bool.rec false (ih tl') (Nat.beq hd.2 hd'.2)) (Nat.beq hd.1 hd'.1)) q) p
+
+theorem Poly.beq'_k_eq (p q : Poly) : Poly.beq'_k p q = true ↔ p = q := by
+  induction p generalizing q with
+  | nil => cases q <;> simp [Poly.beq'_k]
+  | cons hd tl ih =>
+    cases hd; rename_i k v
+    cases q with
+    | nil => simp [Poly.beq'_k]
+    | cons hd' tl' =>
+      cases hd'; rename_i k' v'
+      show Bool.rec (motive := fun _ => Bool) false (Bool.rec (motive := fun _ => Bool) false (Poly.beq'_k tl tl') (Nat.beq v v')) (Nat.beq k k') = true ↔ _
+      cases h₁ : Nat.beq k k'
+      · have : k ≠ k' := Nat.ne_of_beq_eq_false h₁
+        simp [this]
+      · have : k = k' := Nat.eq_of_beq_eq_true h₁
+        subst this
+        cases h₂ : Nat.beq v v'
+        · have : v ≠ v' := Nat.ne_of_beq_eq_false h₂
+          simp [this]
+        · have : v = v' := Nat.eq_of_beq_eq_true h₂
+          subst this; simp [ih]
+
+noncomputable def PolyCnstr.beq'_k (c d : PolyCnstr) : Bool :=
+  Bool.rec false (Bool.rec false (Poly.beq'_k c.rhs d.rhs) (Poly.beq'_k c.lhs d.lhs))
+    (Bool.rec (Bool.rec true false d.eq) (Bool.rec false true d.eq) c.eq)
+
+theorem PolyCnstr.beq'_k_eq (c d : PolyCnstr) : c.beq'_k d = true → c = d := by
+  cases c with
+  | mk e₁ l₁ r₁ =>
+    cases d with
+    | mk e₂ l₂ r₂ =>
+      intro h
+      cases e₁ <;> cases e₂ <;>
+        simp only [beq'_k] at h <;> (try contradiction) <;>
+        cases h₁ : Poly.beq'_k l₁ l₂ <;> cases h₂ : Poly.beq'_k r₁ r₂ <;> simp_all [Poly.beq'_k_eq]
+
+theorem ExprCnstr.eq_false_of_isUnsat_k (ctx : Context) (c : ExprCnstr) (h : c.toNormPoly_k.isUnsat_k) :
+    c.denote_k ctx = False := by
+  rw [ExprCnstr.denote_k_eq_denote]
+  exact ExprCnstr.eq_false_of_isUnsat ctx c (by simpa only [ExprCnstr.toNormPoly_k_eq, PolyCnstr.isUnsat_k_eq] using h)
+
+theorem ExprCnstr.eq_true_of_isValid_k (ctx : Context) (c : ExprCnstr) (h : c.toNormPoly_k.isValid_k) :
+    c.denote_k ctx = True := by
+  rw [ExprCnstr.denote_k_eq_denote]
+  exact ExprCnstr.eq_true_of_isValid ctx c (by simpa only [ExprCnstr.toNormPoly_k_eq, PolyCnstr.isValid_k_eq] using h)
+
+theorem ExprCnstr.eq_of_toNormPoly_eq_k (ctx : Context) (c d : ExprCnstr) (h : c.toNormPoly_k.beq'_k d.toPoly_k) :
+    c.denote_k ctx = d.denote_k ctx := by
+  rw [ExprCnstr.denote_k_eq_denote, ExprCnstr.denote_k_eq_denote]
+  have h := PolyCnstr.beq'_k_eq _ _ h
+  rw [ExprCnstr.toNormPoly_k_eq, ExprCnstr.toPoly_k_eq] at h
+  exact ExprCnstr.eq_of_toNormPoly_eq ctx c d (by simp [h])
+
+theorem Expr.eq_of_toNormPoly_eq_k (ctx : Context) (e e' : Expr) (h : Poly.beq'_k e.toNormPoly_k e'.toPoly_k) :
+    e.denote_k ctx = e'.denote_k ctx := by
+  rw [Expr.denote_k_eq_denote, Expr.denote_k_eq_denote]
+  have h := (Poly.beq'_k_eq _ _).mp h
+  rw [Expr.toNormPoly_k_eq, Expr.toPoly_k_eq] at h
+  exact Expr.eq_of_toNormPoly_eq ctx e e' (by simp [h])
 
 end Internal.Linear
 

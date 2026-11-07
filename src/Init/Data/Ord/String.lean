@@ -6,10 +6,8 @@ Authors: Markus Himmel, Paul Reichert, Robin Arnez
 module
 
 prelude
-public import Init.Data.Order.Ord
-public import Init.Data.String.Basic
+public import Init.Data.String.Compare
 import Init.Data.Char.Lemmas
-import Init.Data.String.Lemmas.StringOrder
 
 public section
 
@@ -22,27 +20,6 @@ set_option autoImplicit false
 set_option linter.missingDocs true
 
 open Std
-
-namespace String
-
-/--
-Lexicographic comparison of strings
--/
-@[extern "lean_string_compare"]
-def compare (s₁ s₂ : @& String) : Ordering :=
-  compareOfLessAndEq s₁ s₂
-
-instance : Ord String where
-  compare := String.compare
-
-instance : TransOrd String :=
-  TransOrd.compareOfLessAndEq_of_antisymm_of_trans_of_total_of_not_le
-    String.le_antisymm String.le_trans String.le_total String.not_le
-
-instance : LawfulEqOrd String where
-  eq_of_compare h := compareOfLessAndEq_eq_eq String.le_refl String.not_le |>.mp h
-
-end String
 
 namespace Char
 

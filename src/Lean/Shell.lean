@@ -12,6 +12,7 @@ import Lean.Server.Watchdog
 import Lean.Server.FileWorker
 import Lean.Compiler.LCNF.EmitC
 import Init.System.Platform
+import Init.Data.String.Lossy
 import Lean.Compiler.Options
 import Std.Async.Process
 
@@ -20,17 +21,6 @@ import Std.Async.Process
 open System
 
 namespace Lean
-
-/--
-Decodes an array of bytes that encode a string as [UTF-8](https://en.wikipedia.org/wiki/UTF-8) into
-the corresponding string. Invalid UTF-8 characters in the byte array are replaced with `U+FFFD`
-(the unicode replacement character) in the resulting string.
-
-This is used instead of the standard `String` functions because Lean is expected to not immediately
-abort on files with invalid UTF-8.
--/
-@[extern "lean_decode_lossy_utf8"]
-opaque decodeLossyUTF8 (a : @& ByteArray) : String
 
 /- Runs the `main` function of the module with `args` using the Lean interpreter. -/
 @[extern "lean_eval_main"]
@@ -191,13 +181,13 @@ inductive ShellComponent
 | watchdog
 | worker
 
-private builtin_initialize maxMemory : Lean.Option Nat ←
+builtin_initialize maxMemory : Lean.Option Nat ←
   Lean.Option.register `max_memory {defValue := Internal.getDefaultMaxMemory ()}
 
-private builtin_initialize timeout : Lean.Option Nat ←
+builtin_initialize timeout : Lean.Option Nat ←
   Lean.Option.register `timeout {defValue := Internal.getDefaultMaxHeartbeat ()}
 
-private builtin_initialize verbose : Lean.Option Bool ←
+builtin_initialize verbose : Lean.Option Bool ←
   Lean.Option.register `verbose {defValue := Internal.getDefaultVerbose ()}
 
 /-- Returns any option overrides Lean was built with (i.e., those set in `stdlib_flags.h`). -/
@@ -512,7 +502,7 @@ def shellMain (args : List String) (opts : ShellOptions) : IO UInt32 := do
       IO.eprintln "Expected exactly one file name"
       displayHelp (useStderr := true)
       return 1
-  let contents ← decodeLossyUTF8 <$> do
+  let contents ← String.fromUTF8Lossy <$> do
     if opts.useStdin then
       (← IO.getStdin).readBinToEnd
     else

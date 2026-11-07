@@ -22,7 +22,7 @@ foreach(var ${vars})
   # NOTE: does not catch `-DFOO:BAR=` typed uses
   elseif(currentType STREQUAL "UNINITIALIZED")
     list(APPEND CL_ARGS "-D${var}=${${var}}")
-    if(var MATCHES "USE_GMP|CHECK_OLEAN_VERSION|LEAN_VERSION_.*|LEAN_SPECIAL_VERSION_DESC")
+    if(var MATCHES "USE_GMP|CHECK_OLEAN_VERSION")
       # must forward options that generate incompatible .olean format
       list(APPEND STAGE0_ARGS "-D${var}=${${var}}")
     elseif(var MATCHES "LLVM*|PKG_CONFIG|USE_LAKE|USE_MIMALLOC|FORCE_GMP")
@@ -83,7 +83,7 @@ if(NOT CMAKE_SYSTEM_NAME MATCHES "Emscripten")
       cadical
       PREFIX cadical
       GIT_REPOSITORY https://github.com/arminbiere/cadical
-      GIT_TAG rel-2.1.2
+      GIT_TAG rel-3.0.1
       CONFIGURE_COMMAND ""
       BUILD_COMMAND
         $(MAKE) -f ${CMAKE_SOURCE_DIR}/src/cadical.mk CMAKE_EXECUTABLE_SUFFIX=${CMAKE_EXECUTABLE_SUFFIX}
@@ -239,6 +239,10 @@ add_custom_target(update-stage0 COMMAND $(MAKE) -C stage1 update-stage0 DEPENDS 
 add_custom_target(update-stage0-commit COMMAND $(MAKE) -C stage1 update-stage0-commit DEPENDS stage1)
 
 add_custom_target(test COMMAND $(MAKE) -C stage1 test DEPENDS stage1)
+
+if(NOT CMAKE_SYSTEM_NAME MATCHES "Emscripten" AND NOT WIN32)
+  add_custom_target(lean-beam COMMAND $(MAKE) -C stage1 lean-beam DEPENDS stage1)
+endif()
 
 add_custom_target(
   bench

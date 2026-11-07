@@ -273,7 +273,7 @@ def controlInfoIdbg : ControlInfoHandler := fun _ => return default
 /-- Core elaboration logic shared by term and do-element forms.
 Elaborates `e`, wraps the result in `toString ∘ repr`, abstracts over all local declarations,
 and generates both the server-side TCP exchange and the runtime client loop code. -/
-private def elabIdbgCore (e : Syntax) (body : TSyntax `term) (ref : Syntax) (expectedType? : Option Expr) :
+def elabIdbgCore (e : Syntax) (body : TSyntax `term) (ref : Syntax) (expectedType? : Option Expr) :
     TermElabM Expr := do
   let fileName ← IO.FS.realPath (← getFileName)
   let siteId := toString (hash s!"{fileName}:{ref.getPos?.getD 0}")

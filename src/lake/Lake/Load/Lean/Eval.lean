@@ -76,7 +76,7 @@ def mkOrdTagMap
     return map.insert declName <| ← f declName
 
 /-- Load a `PackageDecl` from a configuration environment. -/
-private def PackageDecl.loadFromEnv
+def PackageDecl.loadFromEnv
   (env : Environment) (opts := Options.empty)
 : Except String PackageDecl := do
   let declName ←
@@ -125,6 +125,11 @@ public def LakefileConfig.loadFromEnv
   let defaultTargets ← defaultTargetAttr.getAllEntries env |>.mapM fun name =>
     if let some decl := constTargetMap.find? name then pure decl.name else
       error s!"{prettyName}: package is missing target '{name}' marked as a default"
+  let cacheServices ← (cacheServiceAttr.getAllEntries env).foldlM (init := {}) fun map declName => do
+    let service ← IO.ofExcept <| evalConstCheck env opts CacheService declName
+    let some name := service.name?
+      | error s!"{prettyName}: invalid cache service {declName}: missing name"
+    return map.insert (.mkSimple name.toString) service
   let scripts ← mkTagMap env scriptAttr fun scriptName => do
     let name := prettyName ++ "/" ++ scriptName.toString (escape := false)
     let fn ← IO.ofExcept <| evalConstCheck env opts ScriptFn scriptName
@@ -195,6 +200,7 @@ public def LakefileConfig.loadFromEnv
   return {
     pkgDecl, depConfigs, facetDecls,
     targetDecls, targetDeclMap, defaultTargets,
+    cacheServices,
     scripts, defaultScripts,
     testDriver, lintDriver,
     postUpdateHooks,

@@ -13,6 +13,7 @@ add_library(
   formatter.cpp
   elab_environment.cpp
   init_attribute.cpp
+  const_cache.cpp
   llvm.cpp
   ir_interpreter.cpp
   instantiate_mvars.cpp

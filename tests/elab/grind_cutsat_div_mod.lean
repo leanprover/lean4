@@ -18,7 +18,7 @@ trace: [grind.lia.model] x := 5
 #guard_msgs (trace) in
 set_option trace.grind.lia.model true in
 example (x y : Int) : x % 2 + y = 3 → x ≤ 5 → x > 4 → y = 1 := by
-  fail_if_success grind
+  fail_if_success grind +verbose
   sorry
 
 example (x y : Int) : x = y / 2 → y % 2 = 0 → y - 2*x = 0 := by

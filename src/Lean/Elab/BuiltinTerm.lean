@@ -200,20 +200,18 @@ def isEmptyByBlock (stx : Syntax) : Bool :=
   | some val => pure $ mkStrLit val
   | none     => throwIllFormedSyntax
 
-private def mkFreshTypeMVarFor (expectedType? : Option Expr) : TermElabM Expr := do
-  let typeMVar ← mkFreshTypeMVar MetavarKind.synthetic
+private def mkLitTypeFor (expectedType? : Option Expr) : TermElabM Expr := do
   match expectedType? with
-  | some expectedType => discard <| isDefEq expectedType typeMVar
-  | _                 => pure ()
-  return typeMVar
+  | some expectedType => return expectedType
+  | none => mkFreshTypeMVar MetavarKind.synthetic
 
 @[builtin_term_elab num] def elabNumLit : TermElab := fun stx expectedType? => do
   let val ← match stx.isNatLit? with
     | some val => pure val
     | none     => throwIllFormedSyntax
-  let typeMVar ← mkFreshTypeMVarFor expectedType?
+  let type ← mkLitTypeFor expectedType?
   let u ← try
-    getDecLevel typeMVar
+    getDecLevel type
   catch ex =>
     match expectedType? with
     | some expectedType =>
@@ -222,9 +220,9 @@ private def mkFreshTypeMVarFor (expectedType? : Option Expr) : TermElabM Expr :=
       else
         throwError m!"numerals are data in Lean, but the expected type is universe polymorphic and may be a proposition{indentExpr expectedType} : {← inferType expectedType}"
     | none => throw ex
-  let extraMsg := m!"numerals are polymorphic in Lean, but the numeral `{val}` cannot be used in a context where the expected type is{indentExpr typeMVar}\ndue to the absence of the instance above"
-  let mvar ← mkInstMVar (mkApp2 (Lean.mkConst ``OfNat [u]) typeMVar (mkRawNatLit val)) extraMsg
-  let r := mkApp3 (Lean.mkConst ``OfNat.ofNat [u]) typeMVar (mkRawNatLit val) mvar
+  let extraMsg := m!"numerals are polymorphic in Lean, but the numeral `{val}` cannot be used in a context where the expected type is{indentExpr type}\ndue to the absence of the instance above"
+  let mvar ← mkInstMVar (mkApp2 (Lean.mkConst ``OfNat [u]) type (mkRawNatLit val)) extraMsg
+  let r := mkApp3 (Lean.mkConst ``OfNat.ofNat [u]) type (mkRawNatLit val) mvar
   registerMVarErrorImplicitArgInfo mvar.mvarId! stx r
   return r
 
@@ -238,10 +236,10 @@ def elabScientificLit : TermElab := fun stx expectedType? => do
   match stx.isScientificLit? with
   | none        => throwIllFormedSyntax
   | some (m, sign, e) =>
-    let typeMVar ← mkFreshTypeMVarFor expectedType?
-    let u ← getDecLevel typeMVar
-    let mvar ← mkInstMVar (mkApp (Lean.mkConst ``OfScientific [u]) typeMVar)
-    let r := mkApp5 (Lean.mkConst ``OfScientific.ofScientific [u]) typeMVar mvar (mkRawNatLit m) (toExpr sign) (mkRawNatLit e)
+    let type ← mkLitTypeFor expectedType?
+    let u ← getDecLevel type
+    let mvar ← mkInstMVar (mkApp (Lean.mkConst ``OfScientific [u]) type)
+    let r := mkApp5 (Lean.mkConst ``OfScientific.ofScientific [u]) type mvar (mkRawNatLit m) (toExpr sign) (mkRawNatLit e)
     registerMVarErrorImplicitArgInfo mvar.mvarId! stx r
     return r
 

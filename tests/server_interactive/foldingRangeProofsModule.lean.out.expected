@@ -1,0 +1,6 @@
+{"textDocument": {"uri": "file:///foldingRangeProofsModule.lean"},
+ "position": {"line": 0, "character": 2}}
+[{"startLine": 14, "kind": "region", "endLine": 15},
+ {"startLine": 5, "kind": "proof", "endLine": 6},
+ {"startLine": 8, "kind": "proof", "endLine": 9},
+ {"startLine": 11, "kind": "proof", "endLine": 12}]

@@ -35,3 +35,12 @@ example (seen : HashSet Int) (xs : List Int) (x : Int) (h : ¬-x ∈ seen) :
     (∃ a, a ∈ seen.insert x ∧ ∃ b, b ∈ xs ∧ IsAddInv a b) ↔
     (∃ y, y ∈ xs ∧ IsAddInv x y) ∨ ∃ a, a ∈ seen ∧ ∃ b, b ∈ x :: xs ∧ IsAddInv a b := by
   grind
+
+-- The `Sym.simp` normalizer must also turn `¬∃ a, (x = a ∨ a ∈ seen) ∧ ∃ b, …` into two
+-- universally quantified facts, so that the `x = a` half gets the pattern `a + b`.
+set_option backward.grind.normalizer false in
+example (seen : HashSet Int) (xs : List Int) (x : Int) (h : ¬-x ∈ seen) :
+    (∃ a, a ∈ seen.insert x ∧ ∃ b, b ∈ xs ∧ a + b = 0) ↔
+    (∃ y, y ∈ xs ∧ x + y = 0) ∨ ∃ a, a ∈ seen ∧ ∃ b, b ∈ x :: xs ∧ a + b = 0 := by
+  simp only [HashSet.mem_insert]
+  grind

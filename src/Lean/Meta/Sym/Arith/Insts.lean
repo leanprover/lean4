@@ -17,14 +17,25 @@ Helpers for synthesizing the optional instances attached to a classified ring:
 `IsCharP`, `PowIdentity`, and `NoNatZeroDivisors`.
 -/
 
-/-- Returns the `IsCharP type semiringInst n` instance together with the evaluated `n`. -/
-def getIsCharInst? (u : Level) (type : Expr) (semiringInst : Expr) : SymM (Option (Expr × Nat)) := withNewMCtxDepth do
+/-- The `IsCharP` instance of a semiring, if any, and its characteristic when it is a numeral. -/
+structure CharInfo where
+  /-- The `IsCharP type semiringInst n` instance together with the evaluated `n`, if `n` is a numeral. -/
+  inst? : Option (Expr × Nat) := none
+  /-- `true` if an `IsCharP` instance exists but its characteristic is not a numeral, e.g. `2 ^ w` for `BitVec w`. -/
+  symbolic : Bool := false
+
+/-- Returns the `IsCharP type semiringInst n` instance together with the evaluated `n`. See `CharInfo`. -/
+def getCharInfo (u : Level) (type : Expr) (semiringInst : Expr) : SymM CharInfo := withNewMCtxDepth do
   let n ← mkFreshExprMVar (mkConst ``Nat)
   let charType := mkApp3 (mkConst ``Grind.IsCharP [u]) type semiringInst n
-  let some charInst ← synthInstance? charType | return none
+  let some charInst ← synthInstance? charType | return {}
   let n ← instantiateMVars n
-  let some n ← evalNat? n | return none
-  return some (charInst, n)
+  let some n ← evalNat? n | return { symbolic := true }
+  return { inst? := some (charInst, n) }
+
+/-- Returns the `IsCharP type semiringInst n` instance together with the evaluated `n`, if `n` is a numeral. -/
+def getIsCharInst? (u : Level) (type : Expr) (semiringInst : Expr) : SymM (Option (Expr × Nat)) :=
+  return (← getCharInfo u type semiringInst).inst?
 
 /--
 Returns the `PowIdentity` instance, the `CommSemiring` instance it was synthesized against,

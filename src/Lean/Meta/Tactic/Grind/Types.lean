@@ -8,6 +8,7 @@ prelude
 public import Init.Data.Queue
 public import Init.Grind.Config
 public import Lean.Meta.Sym.SymM
+public import Lean.Meta.Sym.ObjectPtr
 public import Lean.Meta.Tactic.Grind.Attr
 public import Lean.Meta.Tactic.Grind.CheckResult
 public import Lean.Meta.Sym.Canon
@@ -58,13 +59,102 @@ because of the symmetric case. By using `eqCongrSymmPlaceholderProof`, we retain
 -/
 def eqCongrSymmPlaceholderProof := mkConst (Name.mkSimple "[eq_congr_symm]")
 
+/-- Checks the signed magnitude range of a fixed-width literal, excluding negative zero. -/
+private def isSIntValueInRange (declName : Name) (v : Nat) (negative : Bool) : Bool :=
+  let limit :=
+    if declName == ``Int8 then 2 ^ 7
+    else if declName == ``Int16 then 2 ^ 15
+    else if declName == ``Int32 then 2 ^ 31
+    else if declName == ``Int64 then 2 ^ 63
+    else 0
+  if negative then 0 < v && v ≤ limit else v < limit
+
+/-- Literal applications that `internalize` handles specially. -/
+inductive LitKind where
+  | notLit
+  /-- A `Nat`, `Int`, `Char`, `UInt8`, `UInt16`, `UInt32`, `UInt64`, `Int8`, `Int16`, `Int32`, or `Int64` literal. -/
+  | nonParametric
+  /-- An `OfNat.ofNat` literal of type `BitVec _` or `Fin _`. -/
+  | ofNatFinBitVec
+
+/--
+Classifies the application `e`. For example, `BitVec` and `Fin` are parametric literals, but `Nat` is not.
+The types of nonparametric literals are reduced using `whnfD`, but `BitVec` and `Fin` must occur syntactically.
+`internalize` does not add literal applications to the congruence table.
+-/
+def getLitKind (e : Expr) : MetaM LitKind := do
+  match_expr e with
+  | OfNat.ofNat type n _ =>
+    unless n.consumeMData.isRawNatLit do return .notLit
+    match_expr type with
+    | BitVec w => return if (← isNatValue (← whnfD w)) then .ofNatFinBitVec else .notLit
+    | Fin k => return if (← isNonZeroNatValue (← whnfD k)) then .ofNatFinBitVec else .notLit
+    | _ =>
+      let .const declName _ := (← whnfD type).getAppFn | return .notLit
+      if declName == ``Nat || declName == ``Int
+          || declName == ``UInt8 || declName == ``UInt16 || declName == ``UInt32 || declName == ``UInt64
+          || declName == ``Int8 || declName == ``Int16 || declName == ``Int32 || declName == ``Int64 then
+        return .nonParametric
+      return .notLit
+  | Neg.neg _ _ a =>
+    let_expr OfNat.ofNat type n _ ← a | return .notLit
+    unless n.consumeMData.isRawNatLit do return .notLit
+    let .const declName _ := (← whnfD type).getAppFn | return .notLit
+    if declName == ``Int || declName == ``Int8 || declName == ``Int16 || declName == ``Int32 || declName == ``Int64 then
+      return .nonParametric
+    return .notLit
+  | Char.ofNat n => return if (← isNatValue n) then .nonParametric else .notLit
+  | _ => return .notLit
+
 /--
 Returns `true` if `e` is `True`, `False`, or a literal value.
 See `Lean.Meta.LitValues` for supported literals.
+`grind` assumes distinct interpreted terms denote distinct values, so a literal is interpreted
+only if it is in normal form, and in particular its type must be structurally a supported
+builtin type, with a numeral parameter for `Fin`/`BitVec`.
+`LitValues` recognizes literals up to `whnfD` on their types, e.g.
+`(1 : BitVec w)` for `def w := 32`, but the canonicalizer does not unfold `w`, and
+`(1 : BitVec w)` and `(1 : BitVec 32)` would be distinct interpreted terms denoting the same value.
+
+The type of a literal is read from `e` itself. For negated literals, both the outer and inner
+types must be the same normal type. `Rat`, `Float`, and `Float32` literals are never interpreted.
+A literal of a signed fixed-width type is interpreted only in the form produced by its `ToExpr`
+instance, i.e., when it is in range: the canonicalizer reduces `OfNat` numerals modulo `2^w`, but
+`(200 : Int8)` and `(-56 : Int8)` still denote the same value, as do `-0` and `0`.
+Assumes `e` has no assigned metavariables.
 -/
 def isInterpreted (e : Expr) : MetaM Bool := do
   if e.isTrue || e.isFalse then return true
-  isLitValue e
+  if let .lit (.strVal _) := e then return true
+  if e.consumeMData.isRawNatLit then return true
+  match_expr e with
+  | OfNat.ofNat type n _ =>
+    let .lit (.natVal v) := n.consumeMData | return false
+    match type.consumeMData with
+    | .const declName [] =>
+      return declName == ``Nat || declName == ``Int
+        || declName == ``UInt8 || declName == ``UInt16 || declName == ``UInt32 || declName == ``UInt64
+        || isSIntValueInRange declName v false
+    | .app (.const declName []) k =>
+      unless declName == ``Fin || declName == ``BitVec do return false
+      unless (← isNatValue k) do return false
+      let k ← whnfD k
+      if declName == ``Fin then
+        isNonZeroNatValue k
+      else
+        isNatValue k
+    | _ => return false
+  | Neg.neg type _ a =>
+    let_expr OfNat.ofNat innerType n _ := a | return false
+    let type := type.consumeMData
+    unless innerType.consumeMData == type do return false
+    let .const declName [] := type | return false
+    let .lit (.natVal v) := n.consumeMData | return false
+    return declName == ``Int || isSIntValueInRange declName v true
+  | Char.ofNat n => isNatValue n
+  | BitVec.ofNat w v => isNatValue w <&&> isNatValue v
+  | BitVec.ofNatLT w v _ => isNatValue w <&&> isNatValue v
+  | _ => return false
 
 register_builtin_option grind.debug : Bool := {
   defValue := false
@@ -79,6 +169,26 @@ register_builtin_option backward.grind.normalizer : Bool := {
 register_builtin_option grind.debug.proofs : Bool := {
   defValue := false
   descr    := "check proofs between the elements of all equivalence classes"
+}
+
+/-!
+The following options deliberately break the suggestions produced by `grind?`. They are for
+debugging and testing only, e.g., for testing that `grind?` reports suggestions that fail.
+-/
+
+register_builtin_option grind.debug.badAnchors : Bool := {
+  defValue := false
+  descr    := "(for debugging) replace the anchors in the suggestions of `grind?` with the invalid anchor `#0000`"
+}
+
+register_builtin_option grind.debug.dropParams : Bool := {
+  defValue := false
+  descr    := "(for debugging) omit the theorems from the `grind only` suggestions of `grind?`"
+}
+
+register_builtin_option grind.debug.dropSteps : Bool := {
+  defValue := false
+  descr    := "(for debugging) omit the last step of the tactic scripts generated by `grind?`"
 }
 
 register_builtin_option grind.warning : Bool := {
@@ -173,11 +283,22 @@ structure Context where
   /-- Methods of the `Sym.dsimp`-based normalizer. Unused when `backward.grind.normalizer` is set. -/
   symDSimpMethods : Sym.DSimp.Methods := {}
   config       : Grind.Config
+  /-- Name of the tactic running `grind`, e.g., `lia` or `grind_order`. Each tactic sets it at startup. -/
+  identity     : Name
+  /-- Ids of the solver extensions that `config` enables, see `SolverExtension.enabled`. -/
+  activeSolvers : Array Nat
   /--
   If `anchorRefs? := some anchorRefs`, then only local instances and case-splits in `anchorRefs`
   are considered.
   -/
   anchorRefs?  : Option (Array AnchorRef)
+  /--
+  `anchors := true` if anchors may be observed in this run: when generating tactic scripts,
+  restricting the search using `anchorRefs?`, or in interactive mode. Otherwise, `getAnchor`
+  returns `0` and local variable anchors are not assigned. It must not change during a run,
+  since local variable anchors are assigned when the variables are introduced.
+  -/
+  anchors      : Bool := false
   /--
   If `cheapCases` is `true`, `grind` only applies `cases` to types that contain
   at most one minor premise.
@@ -261,6 +382,64 @@ structure EMatchDiagInfo where
   target  : EMatchDiagNode
   deriving Inhabited
 
+/--
+A declaration hoisted to the goal of a case split, see `hoistDecl`: the proof of a fact, or a value
+such as the variable context of a solver. The subgoals of the split refer to it using `fvarId`, and
+`mkHoistedDecls` declares it in the proof of the split.
+-/
+structure HoistedDecl where
+  fvarId : FVarId
+  /-- Binder name of the declaration. -/
+  name   : Name := `h
+  type   : Expr
+  /-- `none` while the value is postponed, see `reserveHoistedDecl`. -/
+  value? : Option Expr
+  /-- `false` for a `let` whose value must be visible to the kernel, e.g., the variable context of a solver. -/
+  nondep : Bool := true
+
+/--
+Identifies a hoisted declaration, so that it is created only once and shared by all subgoals of a
+case split, see `hoistDecl`.
+-/
+inductive HoistKey where
+  | /--
+    A solver object, compared by address. The subgoals of a case split share the objects created
+    before it, so they also share the declaration associated with the object.
+    -/
+    ptr (obj : Sym.ObjectPtr)
+  | /--
+    The variable context of a solver with the given atoms, e.g., a cutsat `RArray`. Proofs that use
+    equal contexts share one `let` declaration, which keeps the kernel from checking copies of it.
+    -/
+    ctx (atoms : Array Expr)
+  deriving BEq, Hashable
+
+/--
+The declarations hoisted to the goal of a case split in progress, see `Action.splitCore`.
+They are shared by all subgoals of the split, and declared in the order `front.reverse ++ decls`.
+-/
+structure HoistedDecls where
+  /-- Declarations added at the front, see `hoistDecl`. The last one is declared first. -/
+  front : Array HoistedDecl := #[]
+  /-- Declarations in creation order. -/
+  decls : Array HoistedDecl := #[]
+  /-- Maps each key to the free variable of its declaration in `front` or `decls`. -/
+  keys  : Std.HashMap HoistKey FVarId := {}
+
+/--
+Summary of the instantiation of a proof, see `getProofInfo`: its free variables, and whether it
+contains a synthetic `sorry`.
+-/
+structure ProofInfo where
+  fvars    : FVarIdSet := {}
+  hasSorry : Bool := false
+  /--
+  Whether the proof contains an unassigned metavariable of `grind`'s depth, e.g., the goal of a
+  subgoal that is still open. Assigning it may change the summary.
+  -/
+  hasUnassigned : Bool := false
+  deriving Inhabited
+
 /-- State for the `GrindM` monad. -/
 structure State where
   /--
@@ -299,9 +478,27 @@ structure State where
   Cached anchors (aka stable hash codes) for terms in the `grind` state.
   -/
   anchors : PHashMap ExprPtr UInt64 := {}
+  /--
+  Anchors of the local variables introduced by `grind`. They are based on how each variable was
+  introduced instead of its name or position. See `registerFVarAnchor`.
+  -/
+  fvarAnchors : PHashMap FVarId UInt64 := {}
   /-- Accumulated E-matching instance map for precise unused lemma tracking.
   Only populated when `config.markInstances` is `true`. -/
   instanceMap : Std.HashMap Name EMatchTheorem := {}
+  /-- Declarations hoisted to the case splits in progress, indexed by the metavariable of the goal being split. -/
+  hoistedDecls : Std.HashMap MVarId HoistedDecls := {}
+  /--
+  Cache for `getProofInfo`: maps a metavariable to its assignment and the summary of the assignment's
+  instantiation. An entry is only valid while the metavariable is assigned to the same expression.
+  -/
+  proofInfos : Std.HashMap MVarId (Expr × ProofInfo) := {}
+  /--
+  Number of branches created by the case-splits performed so far, including the cases that have not
+  been explored yet, but not the ones skipped by non-chronological backtracking.
+  See `Grind.Config.branches` and `Action.splitCore`.
+  -/
+  numBranches : Nat := 0
 
 instance : Nonempty State :=
   .intro {}
@@ -368,6 +565,10 @@ abbrev withEmatchDiagSource [MonadControlT GrindM m] [Monad m] (ematchDiagSource
 def getConfig : GrindM Grind.Config :=
   return (← readThe Context).config
 
+/-- Returns the name of the tactic running `grind`. See `Context.identity`. -/
+def getIdentity : GrindM Name :=
+  return (← readThe Context).identity
+
 /-- Returns extension states associate with `grind` attributes in use -/
 def getExtensions : GrindM Grind.ExtensionStateArray :=
   return (← readThe Context).extensions
@@ -383,6 +584,10 @@ abbrev withGTransparency [MonadControlT MetaM n] [MonadLiftT GrindM n] [Monad n]
 /-- Returns the anchor references (if any) being used to restrict the search. -/
 def getAnchorRefs : GrindM (Option (Array AnchorRef)) := do
   return (← readThe Context).anchorRefs?
+
+/-- See `Context.anchors`. -/
+def anchorsEnabled : GrindM Bool :=
+  return (← readThe Context).anchors
 
 def resetAnchors : GrindM Unit := do
   modify fun s => { s with anchors := {} }
@@ -495,6 +700,11 @@ using these "marked" terms. The root of the equivalence class
 contains a list of representatives sorted by solver id. Note that many E-nodes
 do not have any solver terms attached to them.
 
+A solver has one representative per type in the equivalence class. A class contains
+terms of different types (e.g., `Fin n` and `Fin m`) only if it was merged via `HEq`
+(see `ENode.heqProofs`). Thus, the solvers are only notified about equalities and
+disequalities between terms of the same type.
+
 "Solver terms" are referenced as "theory variables" in the SMT literature.
 The SMT solver Z3 uses a similar representation.
 -/
@@ -575,6 +785,21 @@ inductive ToProcessElement where
   enclosing application are still being internalized.
   -/
   | propagateUp (e : Expr)
+  /--
+  Internalize only `rhs` (`lhs` must already be internalized), and then add `lhs = rhs`. Internalization
+  queues this when `rhs` may contain an application whose arguments are still being internalized.
+  -/
+  | internalizeRhsAddEq (lhs rhs proof : Expr) (generation : Nat)
+  /--
+  Run the `newEq` callback of the solver `solverId` on its terms `lhs` and `rhs`.
+  `SolverExtension.markTerm` queues this instead of running the callback eagerly. `markTerm`
+  runs inside the `internalize` hook of a solver, that is, while the enclosing applications of
+  the term being internalized may still have unvisited arguments. The callback may internalize
+  new terms containing such an application. See `GoalState.internalizing`.
+  -/
+  | solverEq (solverId : Nat) (lhs rhs : Expr)
+  /-- Run the `newDiseq` callback of the solver `solverId`. See `solverEq`. -/
+  | solverDiseq (solverId : Nat) (lhs rhs : Expr)
 
 -- This type should be considered opaque outside this module.
 @[expose]  -- for codegen
@@ -935,19 +1160,13 @@ structure SplitArg where
 
 /-- Case splitting related fields for the `grind` goal. -/
 structure Split.State where
-  /-- Number of splits performed to get to this goal. -/
-  num          : Nat := 0
   /-- Case-split candidates. -/
   candidates   : List SplitInfo := []
   /-- Case-splits that have been inserted at `candidates` at some point. -/
   added        : Std.HashSet SplitInfo := {}
   /-- Case-splits that have already been performed, or that do not have to be performed anymore. -/
   resolved     : PHashSet ExprPtr := {}
-  /--
-  Sequence of cases steps that generated this goal. We only use this information for diagnostics.
-  Remark: `casesTrace.length ≥ numSplits` because we don't increase the counter for `cases`
-  applications that generated only 1 subgoal.
-  -/
+  /-- Sequence of cases steps that generated this goal. We only use this information for diagnostics. -/
   trace        : List CaseTrace := []
   /-- Lookahead "case-splits". -/
   lookaheads   : List SplitInfo := []
@@ -1026,8 +1245,15 @@ structure GoalState where
   `appMap`'s domain. We use this collection during theorem activation.
   -/
   indicesFound : PHashSet HeadIndex := {}
-  /-- Pending work for `processToDo`: equalities, facts, and upward propagations. -/
+  /-- Pending work for `processToDo`: equalities, facts, upward propagations, and solver callbacks. -/
   toProcess    : Array ToProcessElement := #[]
+  /--
+  Applications whose `ENode` exists but whose arguments are still being visited, outermost
+  first. Maintained only when `isDebugEnabled` holds, and empty whenever no internalization is
+  in progress. The internalizer uses it to check that solver code never internalizes one of these
+  applications; see the section on re-entrant internalization in `Lean.Meta.Tactic.Grind.Internalize`.
+  -/
+  internalizing : Array Expr := #[]
   /-- `inconsistent := true` if `ENode`s for `True` and `False` are in the same equivalence class. -/
   inconsistent : Bool := false
   /-- Next unique index for creating ENodes -/
@@ -1048,6 +1274,20 @@ structure GoalState where
   clean        : Clean.State := {}
   /-- Solver states. -/
   sstates      : Array SolverExtensionState := #[]
+  /--
+  Goals of the enclosing case splits in progress, outermost first.
+  Its size is the split depth of the goal. See `hoistDecl`.
+  Remark: each case split copies the array when pushing its goal, but the split depth is small, and
+  hoisting needs constant-time access by depth.
+  -/
+  goalStack    : Array (MVarId × GoalState) := #[]
+  /--
+  Provenance of the local variables introduced next: the `numIntros`-th one gets anchor
+  `mixHash introBase (hash numIntros)`. Steps that introduce variables, such as case-splits,
+  reset it. See `registerFVarAnchor`.
+  -/
+  introBase    : UInt64 := 0
+  numIntros    : Nat := 0
   deriving Inhabited
 
 /--
@@ -1080,6 +1320,257 @@ abbrev GoalM := StateRefT Goal GrindM
 @[inline] def GoalM.run' (goal : Goal) (x : GoalM Unit) : GrindM Goal :=
   goal.mvarId.withContext do StateRefT'.run' (x *> get) goal
 
+/-- Returns the number of enclosing case splits. -/
+def getGoalStackDepth : GoalM Nat :=
+  return (← get).goalStack.size
+
+/--
+Returns the goal at split depth `depth`: the goal of the enclosing case split at `depth`, or the current
+goal if `depth` is its split depth.
+-/
+def getGoalAtDepth (depth : Nat) : GoalM Goal := do
+  let goal ← get
+  if depth == goal.goalStack.size then
+    return goal
+  let some (mvarId, s) := goal.goalStack[depth]?
+    | throwError "`grind` internal error, no case split at depth {depth}"
+  return { s with mvarId }
+
+/--
+Returns the free variable of the declaration registered for `key` in the goal of the enclosing case
+split at `depth`, if any.
+-/
+def findHoistedDecl? (depth : Nat) (key : HoistKey) : GoalM (Option FVarId) := do
+  let goal ← getGoalAtDepth depth
+  let some decls := (← getThe State).hoistedDecls[goal.mvarId]?
+    | throwError "`grind` internal error, case split at depth {depth} is not in progress"
+  return decls.keys[key]?
+
+/--
+Returns the free variable of the declaration `name : type := value` hoisted to the goal of the enclosing
+case split at `depth`. `value` is only executed if no declaration has been registered for `key` yet,
+and it must be valid in that goal.
+
+As with local declarations, hoisted declarations must be created in the right order: the value of a
+declaration may only use declarations created before it. If `front := true`, the declaration is
+added before the existing ones, and its value may only use declarations of enclosing case splits.
+This is useful for values that are known only after the declarations that use them are created,
+e.g., the variable context of a solver.
+-/
+def hoistDecl (depth : Nat) (key : HoistKey) (name : Name) (type : Expr) (value : GoalM Expr)
+    (nondep := true) (front := false) : GoalM FVarId := do
+  let goal ← getGoalAtDepth depth
+  let some decls := (← getThe State).hoistedDecls[goal.mvarId]?
+    | throwError "`grind` internal error, case split at depth {depth} is not in progress"
+  if let some fvarId := decls.keys[key]? then
+    return fvarId
+  let fvarId ← mkFreshFVarId
+  let decl := { fvarId, name, type, value? := some (← value), nondep }
+  modifyThe State fun s => { s with hoistedDecls := s.hoistedDecls.modify goal.mvarId fun decls =>
+    let decls := if front then { decls with front := decls.front.push decl } else { decls with decls := decls.decls.push decl }
+    { decls with keys := decls.keys.insert key fvarId }
+  }
+  return fvarId
+
+/--
+Similar to `hoistDecl`, but postpones the value. Returns the free variable of a new declaration of type
+`type` hoisted to the goal of the enclosing case split at `depth`, and its index in `HoistedDecls.decls`.
+No declaration may be registered for `key` yet (see `findHoistedDecl?`). The value must be provided with
+`setHoistedDeclValue` before the case split completes, and it may only use declarations created before
+this one.
+-/
+def reserveHoistedDecl (depth : Nat) (key : HoistKey) (type : Expr) : GoalM (FVarId × Nat) := do
+  let goal ← getGoalAtDepth depth
+  let some decls := (← getThe State).hoistedDecls[goal.mvarId]?
+    | throwError "`grind` internal error, case split at depth {depth} is not in progress"
+  let fvarId ← mkFreshFVarId
+  modifyThe State fun s => { s with hoistedDecls := s.hoistedDecls.modify goal.mvarId fun decls => { decls with
+    decls := decls.decls.push { fvarId, type, value? := none }
+    keys  := decls.keys.insert key fvarId
+  } }
+  return (fvarId, decls.decls.size)
+
+/--
+Sets the value of the postponed declaration at index `idx` of `HoistedDecls.decls` in the goal of the
+enclosing case split at `depth`, see `reserveHoistedDecl`.
+-/
+def setHoistedDeclValue (depth : Nat) (idx : Nat) (value : Expr) : GoalM Unit := do
+  let goal ← getGoalAtDepth depth
+  modifyThe State fun s => { s with hoistedDecls := s.hoistedDecls.modify goal.mvarId fun decls => { decls with
+    decls := decls.decls.modify idx ({ · with value? := some value })
+  } }
+
+/--
+Executes `k`, which proves `goal` using case splits, while declarations can be hoisted to `goal`,
+see `hoistDecl`. The subgoals of the split must include `goal` in their `goalStack`.
+-/
+def withHoistedDecls (goal : Goal) (k : GrindM α) : GrindM α := do
+  modify fun s => { s with hoistedDecls := s.hoistedDecls.insert goal.mvarId {} }
+  try k finally
+    modify fun s => { s with hoistedDecls := s.hoistedDecls.erase goal.mvarId }
+
+/-- Returns the declarations hoisted to `goal`, see `withHoistedDecls`. -/
+def getHoistedDecls (goal : Goal) : GrindM HoistedDecls :=
+  return (← get).hoistedDecls.getD goal.mvarId {}
+
+/--
+Similar to `instantiateMVars`, but also resolves the delayed assignments `?m #[xs] := ?pending`
+created inside the current `withNewMCtxDepth` block, which is entered by `grind` during its startup.
+`instantiateMVars` only resolves a delayed assignment when `?pending`'s assignment `val` is ground
+(no unassigned expression metavariables). This ground restriction exists because `val` may contain
+metavariables that have `xs` in their scope. For example, if `xs = #[x]` and `val = ?n + x` where `x`
+is in the scope of `?n`, then `mkLambda` creates `fun x => ?n + x`. If `?n` is later assigned to
+`f x`, the term becomes ill-formed with a dangling free variable.
+
+This scenario cannot occur here: in a `grind` proof, `val` only contains metavariables created
+before `withNewMCtxDepth`, and they cannot contain free variables created by `grind`, so the
+conversion is safe. Delayed assignments created before `withNewMCtxDepth` are left untouched,
+as they are meant to be resolved by other tactics.
+-/
+partial def instantiateMVarsResolvingDelayed (e : Expr) : MetaM Expr := do
+  if !e.hasMVar then return e
+  let mctx ← getMCtx
+  for mvarId in (e.collectMVars {}).result do
+    if let some decl := mctx.findDecl? mvarId then
+      if decl.depth == mctx.depth then
+        if let some { fvars, mvarIdPending } ← getDelayedMVarAssignment? mvarId then
+          if let some val ← getExprMVarAssignment? mvarIdPending then
+            let pendingDecl ← mvarIdPending.getDecl
+            let val ← instantiateMVarsResolvingDelayed (← instantiateMVars val)
+            mvarId.assign (pendingDecl.lctx.mkLambda fvars val)
+  instantiateMVars e
+
+private def ProofInfo.union (a b : ProofInfo) : ProofInfo :=
+  { fvars := b.fvars.union a.fvars
+    hasSorry := a.hasSorry || b.hasSorry
+    hasUnassigned := a.hasUnassigned || b.hasUnassigned }
+
+private structure ProofInfoState where
+  info    : ProofInfo := {}
+  visited : Std.HashSet ExprPtr := {}
+
+/--
+Returns a `ProofInfo` summary of `e` by following metavariable assignments without constructing
+the instantiated expression. Collects free variables and synthetic `sorry` occurrences, and
+reports whether the traversal encounters an unassigned metavariable at the current depth.
+
+For an ordinary metavariable application `?m as`, combines the summary of `?m`'s assignment,
+if any, with the summaries of all arguments `as`, including arguments the assignment ignores.
+For a delayed assignment `?d #[xs] := ?p`, summarizes `?p`'s assignment, removes `xs` from its
+free variables, and combines the result with the summaries of all arguments to `?d`.
+The local declarations of `xs` are not traversed, so dependencies in binder types that would
+remain after resolving a partially applied delayed assignment are not included.
+
+Unassigned metavariables contribute no free variables or synthetic `sorry` occurrences.
+Only those at the current depth set `hasUnassigned`. During `grind`'s protected
+`withNewMCtxDepth` block, outer-depth metavariables cannot be assigned, and their local contexts
+cannot contain free variables introduced by `grind`. Their eventual assignments may change
+the summary after the protected computation ends.
+
+Summaries of assigned metavariables with `hasUnassigned = false` are cached in `State.proofInfos`.
+A cached summary is reused only while the metavariable's assignment is the same expression.
+This avoids repeatedly traversing shared assignments, such as proofs used by nested case splits.
+-/
+partial def getProofInfo (e : Expr) : GrindM ProofInfo := do
+  let (_, s) ← (go e).run {}
+  return s.info
+where
+  add (info : ProofInfo) : StateT ProofInfoState GrindM Unit :=
+    modify fun s => { s with info := s.info.union info }
+  mvarInfo (mvarId : MVarId) : GrindM ProofInfo := do
+    let some val ← getExprMVarAssignment? mvarId
+      | return { hasUnassigned := (← mvarId.isAssignable) }
+    if let some (val', info) := (← get).proofInfos[mvarId]? then
+      if isSameExpr val val' then return info
+    let info ← getProofInfo val
+    unless info.hasUnassigned do
+      modify fun s => { s with proofInfos := s.proofInfos.insert mvarId (val, info) }
+    return info
+  goMVarApp (mvarId : MVarId) (args : Array Expr) : StateT ProofInfoState GrindM Unit := do
+    if let some { fvars, mvarIdPending } ← getDelayedMVarAssignment? mvarId then
+      let info ← mvarInfo mvarIdPending
+      add { info with fvars := fvars.foldl (init := info.fvars) fun s x => s.erase x.fvarId! }
+    else
+      add (← mvarInfo mvarId)
+    args.forM go
+  go (e : Expr) : StateT ProofInfoState GrindM Unit := do
+    if (← get).visited.contains { expr := e } then return
+    modify fun s => { s with visited := s.visited.insert { expr := e } }
+    if !e.hasFVar && !e.hasMVar then
+      if e.hasSyntheticSorry then modify fun s => { s with info.hasSorry := true }
+      return
+    match e with
+    | .fvar fvarId => modify fun s => { s with info.fvars := s.info.fvars.insert fvarId }
+    | .mvar mvarId => goMVarApp mvarId #[]
+    | .app .. => e.withApp fun f args => do
+      match f with
+      | .mvar mvarId => goMVarApp mvarId args
+      | .const ``sorryAx _ =>
+        if e.isSyntheticSorry then modify fun s => { s with info.hasSorry := true }
+        args.forM go
+      | _ => go f; args.forM go
+    | .lam _ d b _ | .forallE _ d b _ => go d; go b
+    | .letE _ t v b _ => go t; go v; go b
+    | .mdata _ b | .proj _ _ b => go b
+    | _ => return
+
+/--
+Wraps `e : type` in `let` bindings for selected hoisted declarations. The proof may refer to
+hoisted free variables, directly or through metavariable assignments, even when those variables
+are absent from the current local context.
+
+Declarations are ordered as `decls.front.reverse ++ decls.decls`. Using `getProofInfo`, selects
+declarations referenced by `e` and recursively by the values of selected declarations. Each value
+may depend only on earlier declarations in this order. If the summary of `e` has `hasUnassigned`,
+keeps all declarations; if the summary of a selected value has `hasUnassigned`, keeps all earlier
+declarations, since later assignments may introduce dependencies on them.
+
+Dependency selection does not inspect `type` or declaration types. Declaration types are copied
+unchanged into the `let` bindings, so they must not refer to the hoisted free variables being bound.
+Every selected declaration must have a value; otherwise, throws an internal error.
+
+The body of the `let` bindings is an application of a fresh delayed-assigned metavariable whose
+pending metavariable is assigned `e`. This postpones abstraction of the selected free variables
+in `e` until the delayed assignment is resolved, without instantiating `e` here.
+Returns `e` unchanged if no declarations are selected.
+-/
+def mkHoistedDecls (decls : HoistedDecls) (e type : Expr) : GrindM Expr := do
+  let all := decls.front.reverse ++ decls.decls
+  if all.isEmpty then return e
+  /-
+  A declaration only uses the ones before it, so a reverse scan finds the used declarations. If a proof
+  is incomplete, e.g., it contains the goal of a subgoal that is still open, we keep all declarations
+  before it.
+  -/
+  let info ← getProofInfo e
+  let mut used := info.fvars
+  let mut keepAll := info.hasUnassigned
+  let mut kept := #[]
+  for decl in all.reverse do
+    if keepAll || used.contains decl.fvarId then
+      let some value := decl.value?
+        | throwError "`grind` internal error, hoisted declaration has no value"
+      let valueInfo ← getProofInfo value
+      used := valueInfo.fvars.union used
+      keepAll := keepAll || valueInfo.hasUnassigned
+      kept := kept.push (decl, value)
+  if kept.isEmpty then return e
+  kept := kept.reverse
+  let xs := kept.map fun (decl, _) => mkFVar decl.fvarId
+  -- As in `intro`, `?pending` is declared in a context containing `xs` as local hypotheses.
+  let lctx := kept.foldl (init := ← getLCtx) fun lctx (decl, _) =>
+    lctx.mkLocalDecl decl.fvarId decl.name decl.type
+  let pending ← mkFreshExprMVarAt lctx (← getLocalInstances) type .syntheticOpaque
+  pending.mvarId!.assign e
+  let d ← mkFreshExprMVar (lctx.mkForall xs type) .syntheticOpaque
+  assignDelayedMVar d.mvarId! xs pending.mvarId!
+  let mut e := mkAppN d ((List.range kept.size).reverse.toArray.map mkBVar)
+  let mut i := kept.size
+  for (decl, value) in kept.reverse do
+    i := i - 1
+    e := .letE decl.name decl.type (value.abstractRange i xs) e decl.nondep
+  return e
+
 /--
 Sets `nextDeclIdx` to point past the last local declaration in the local context.
 
@@ -1103,6 +1594,37 @@ This is used to determine whether `grind` needs to internalize new hypotheses.
 def Goal.hasPendingLocalDecls (g : Goal) : MetaM Bool := do
   let mvarDecl ← g.mvarId.getDecl
   return g.nextDeclIdx < mvarDecl.lctx.decls.size
+
+/--
+Sets the provenance of the local variables introduced next in `goal`. See `GoalState.introBase`.
+-/
+def Goal.setIntroBase (goal : Goal) (base : UInt64) : Goal :=
+  { goal with introBase := base, numIntros := 0 }
+
+/-- Assigns the anchor of a local variable just introduced in the current goal. -/
+def registerFVarAnchor (fvarId : FVarId) : GoalM Unit := do
+  unless (← anchorsEnabled) do return
+  let goal ← get
+  let anchor := mixHash goal.introBase (hash goal.numIntros)
+  set { goal with numIntros := goal.numIntros + 1 }
+  modifyThe Grind.State fun s => { s with fvarAnchors := s.fvarAnchors.insert fvarId anchor }
+
+/--
+Assigns the anchors of the local variables in the initial local context of a goal. Variables are
+distinguished by their name and their rank among the variables with the same base name
+(i.e., without macro scopes), e.g., a hidden `x✝` or a shadowed `x`. Variables that already have
+an anchor keep it, since goals may be created during a run (e.g., by `vcgen`).
+-/
+def registerInitialFVarAnchors : GoalM Unit := do
+  unless (← anchorsEnabled) do return
+  let mut ranks : Std.HashMap Name Nat := {}
+  for decl in (← getLCtx) do
+    let baseName := decl.userName.eraseMacroScopes
+    let rank := ranks.getD baseName 0
+    ranks := ranks.insert baseName (rank + 1)
+    unless (← getThe Grind.State).fvarAnchors.contains decl.fvarId do
+      let anchor := mixHash (hash baseName) (hash rank)
+      modifyThe Grind.State fun s => { s with fvarAnchors := s.fvarAnchors.insert decl.fvarId anchor }
 
 def updateLastTag : GoalM Unit := do
   if (← isTracingEnabledFor `grind) then
@@ -1152,9 +1674,9 @@ def getNumTheoremInstances : GoalM Nat := do
 def checkMaxInstancesExceeded : GoalM Bool := do
   return (← get).ematch.numInstances >= (← getConfig).instances
 
-/-- Returns `true` if the maximum number of case-splits has been reached. -/
+/-- Returns `true` if the maximum number of branches has been reached. -/
 def checkMaxCaseSplit : GoalM Bool := do
-  return (← get).split.num >= (← getConfig).splits
+  return (← getThe State).numBranches >= (← getConfig).branches
 
 /-- Returns `true` if the maximum number of E-matching rounds has been reached. -/
 def checkMaxEmatchExceeded : GoalM Bool := do
@@ -1314,8 +1836,23 @@ def pushEqCore (lhs rhs proof : Expr) (isHEq : Bool) : GoalM Unit := do
 def hasSameType (a b : Expr) : MetaM Bool := do
   isDefEqD (← inferType a) (← inferType b)
 
+/--
+Similar to `hasSameType`, but uses `instances` transparency. `hasSameType` may be exponential when
+the types are equal only modulo the E-graph, e.g., `Fin (a.set! i v).size` and `Fin a.size`. Use
+`hasSameTypeI` where a `false` answer is acceptable, e.g., using `HEq`, missing a congruence, or
+not propagating an equality to a solver.
+-/
+def hasSameTypeI (a b : Expr) : MetaM Bool := do
+  isDefEqI (← inferType a) (← inferType b)
+
+/--
+Pushes `lhs = rhs` if `hasSameTypeI lhs rhs`, and `lhs ≍ rhs` otherwise. If the types are
+definitionally equal only with `default` transparency, we push `lhs ≍ rhs`. This is valid, but
+marks the equivalence class with `heqProofs`: its proofs use `HEq`, E-matching visits all its terms,
+and solvers only receive equalities between its terms whose types pass `hasSameTypeI`.
+-/
 @[inline] def pushEqHEq (lhs rhs proof : Expr) : GoalM Unit := do
-  if (← hasSameType lhs rhs) then
+  if (← hasSameTypeI lhs rhs) then
     pushEqCore lhs rhs proof (isHEq := false)
   else
     pushEqCore lhs rhs proof (isHEq := true)
@@ -1327,6 +1864,18 @@ def hasSameType (a b : Expr) : MetaM Bool := do
 /-- Queues the upward propagation of `e`. See `ToProcessElement.propagateUp`. -/
 def pushPropagateUp (e : Expr) : GoalM Unit :=
   modify fun s => { s with toProcess := s.toProcess.push <| .propagateUp e }
+
+/-- Queues the internalization of `rhs` and the equality `lhs = rhs`. See `ToProcessElement.internalizeRhsAddEq`. -/
+def pushInternalizeRhsAddEq (lhs rhs proof : Expr) (generation : Nat) : GoalM Unit :=
+  modify fun s => { s with toProcess := s.toProcess.push <| .internalizeRhsAddEq lhs rhs proof generation }
+
+/--
+Queues the fact `prop` with the given `proof`, without preprocessing it. `prop` is internalized
+when the fact is processed, so this is the way to assert a fact about a term that must not be
+internalized yet. See `GoalState.internalizing`.
+-/
+def pushNewFactCore (prop proof : Expr) (generation : Nat) : GoalM Unit :=
+  modify fun s => { s with toProcess := s.toProcess.push <| .fact prop proof generation }
 
 /-- Pushes `lhs ≍ rhs` with `proof` to `newEqs`. -/
 @[inline] def pushHEq (lhs rhs proof : Expr) : GoalM Unit :=
@@ -1881,6 +2430,11 @@ for this extension into each goal's extension state's array.
 structure SolverExtension (σ : Type) where private mk ::
   id          : Nat
   mkInitial   : IO σ
+  /--
+  Returns `true` if the configuration enables the solver. `grind` only invokes the methods of
+  enabled solvers. Every solver has a state, since other solvers may read it.
+  -/
+  enabled     : Grind.Config → Bool
   internalize : Expr → (parent? : Option Expr) → GoalM Unit
   newEq       : Expr → Expr → GoalM Unit
   newDiseq    : Expr → Expr → GoalM Unit
@@ -1904,6 +2458,7 @@ def registerSolverExtension {σ : Type} (mkInitial : IO σ) : IO (SolverExtensio
   let id := exts.size
   let ext : SolverExtension σ := {
     id, mkInitial
+    enabled := fun _ => true
     internalize := fun _ _ => return ()
     newEq := fun _ _ => return ()
     newDiseq := fun _ _ => return ()
@@ -1921,6 +2476,7 @@ Solver extension methods can only be registered during initialization.
 Reason: We do not use any synchronization primitive to access `solverExtensionsRef`.
 -/
 def SolverExtension.setMethods (ext : SolverExtension σ)
+    (enabled     : Grind.Config → Bool := fun _ => true)
     (internalize : Expr → (parent? : Option Expr) → GoalM Unit := fun _ _  => return ())
     (newEq       : Expr → Expr → GoalM Unit := fun _ _ => return ())
     (newDiseq    : Expr → Expr → GoalM Unit := fun _ _ => return ())
@@ -1934,13 +2490,17 @@ def SolverExtension.setMethods (ext : SolverExtension σ)
   unless ext.id < (← solverExtensionsRef.get).size do
     throw (IO.userError "failed to register `grind` solver methods, invalid solver id")
   solverExtensionsRef.modify fun exts => exts.modify ext.id fun s => { s with
-    internalize, newEq, newDiseq, mbtc, action, check, checkInv
+    enabled, internalize, newEq, newDiseq, mbtc, action, check, checkInv
   }
 
 /-- Returns initial state for registered solvers. -/
 def Solvers.mkInitialStates : IO (Array SolverExtensionState) := do
   let exts ← solverExtensionsRef.get
   exts.mapM fun ext => ext.mkInitial
+
+/-- Returns the ids of the solver extensions that `config` enables. -/
+def Solvers.activeIds (config : Grind.Config) : IO (Array Nat) := do
+  return (← solverExtensionsRef.get).filterMap fun ext => if ext.enabled config then some ext.id else none
 
 instance : Inhabited (GoalM σ) where
   default := throwError "<GoalM action default value>"
@@ -1962,25 +2522,30 @@ opaque SolverExtension.getStateCore (ext : SolverExtension σ) (goal : Goal) : I
 def SolverExtension.getState (ext : SolverExtension σ) : GoalM σ := do
   ext.getStateCore (← get)
 
-/-- Internalizes given expression in all registered solvers. -/
+/-- Internalizes given expression in all active solvers. -/
 def Solvers.internalize (e : Expr) (parent? : Option Expr) : GoalM Unit := do
-  (← solverExtensionsRef.get).forM fun ext => ext.internalize e parent?
+  let exts ← solverExtensionsRef.get
+  for id in (← readThe Context).activeSolvers do
+    exts[id]!.internalize e parent?
 
-/-- Checks invariants of all registered solvers. -/
+/-- Checks invariants of all active solvers. -/
 def Solvers.checkInvariants : GoalM Unit := do
-  (← solverExtensionsRef.get).forM fun ext => ext.checkInv
+  let exts ← solverExtensionsRef.get
+  for id in (← readThe Context).activeSolvers do
+    exts[id]!.checkInv
 
 /--
-Performs (expensive) satisfiability checks in all registered solvers,
+Performs (expensive) satisfiability checks in all active solvers,
 and returns the solver ids that made progress.
 -/
 def Solvers.check? : GoalM (Option (Array Nat)) := do
+  let exts ← solverExtensionsRef.get
   let mut result := #[]
-  for ext in (← solverExtensionsRef.get) do
+  for id in (← readThe Context).activeSolvers do
     if (← isInconsistent) then
       return some result
-    if (← ext.check) then
-      result := result.push ext.id
+    if (← exts[id]!.check) then
+      result := result.push id
   if !result.isEmpty then
     processToDo
     return some result
@@ -1990,11 +2555,12 @@ def Solvers.check? : GoalM (Option (Array Nat)) := do
 def Solvers.check : GoalM Bool := do
   return !(← check?).isNone
 
-/-- Invokes model-based theory combination extensions in all registered solvers. -/
+/-- Invokes model-based theory combination extensions in all active solvers. -/
 def Solvers.mbtc : GoalM Bool := do
+  let exts ← solverExtensionsRef.get
   let mut result := false
-  for ext in (← solverExtensionsRef.get) do
-    if (← ext.mbtc) then
+  for id in (← readThe Context).activeSolvers do
+    if (← exts[id]!.mbtc) then
       result := true
   return result
 
@@ -2008,27 +2574,49 @@ def Action.andAlso (x y : Action) : Action := fun goal kna kp => do
   x goal (fun goal => y goal kna kp) (fun goal => y goal kp kp)
 
 /--
-Combines all solver extensions into a single action using `Action.andAlso`.
+Combines the active solver extensions into a single action using `Action.andAlso`.
 Does not drain `newRawFacts`; use `Solvers.mkAction` (defined in `Intro.lean`) which
 wraps this with `assertAll`.
 -/
 def Solvers.mkActionCore : IO Action := do
   let exts ← solverExtensionsRef.get
-  let rec go (i : Nat) (acc : Action) : Action :=
-    if h : i < exts.size then
-      go (i+1) (acc.andAlso exts[i].action)
+  return fun goal kna kp => do
+    let action := (← readThe Context).activeSolvers.foldl (init := Action.notApplicable)
+      fun acc id => acc.andAlso exts[id]!.action
+    action goal kna kp
+
+/--
+Returns the representative of the solver `id` in `sTerms` whose type is the type of `e`.
+`checkType := false` if the equivalence class has no heterogeneous equalities. Then,
+all its terms have the same type, and the first representative of the solver is returned.
+The types are compared using `hasSameTypeI`. A representative whose type is definitionally equal
+only with `default` transparency is not found, and the solver does not receive the corresponding
+equality or disequality.
+-/
+private def findSolverTerm? (id : Nat) (e : Expr) (checkType : Bool) (sTerms : SolverTerms) : GoalM (Option Expr) := do
+  match sTerms with
+  | .nil => return none
+  | .next id' e' sTerms =>
+    if id == id' then
+      if (← pure !checkType <||> hasSameTypeI e e') then
+        return some e'
+      else
+        findSolverTerm? id e checkType sTerms
+    else if id < id' then
+      return none
     else
-      acc
-  if h : 0 < exts.size then
-    return go 1 exts[0].action
-  else
-    return Action.notApplicable
+      findSolverTerm? id e checkType sTerms
 
 /--
 Given a new disequality `lhs ≠ rhs`, propagates it to relevant theories.
 -/
 def Solvers.propagateDiseqs (lhs rhs : Expr) : GoalM Unit := do
-  go (← getRootENode lhs).sTerms (← getRootENode rhs).sTerms
+  let lhsRoot ← getRootENode lhs
+  let rhsRoot ← getRootENode rhs
+  if lhsRoot.heqProofs || rhsRoot.heqProofs then
+    goHEq lhsRoot rhsRoot none lhsRoot.sTerms
+  else
+    go lhsRoot.sTerms rhsRoot.sTerms
 where
   go (lhsTerms rhsTerms : SolverTerms) : GoalM Unit := do
     match lhsTerms, rhsTerms with
@@ -2043,35 +2631,111 @@ where
       else
         go (.next id₁ lhs lhsTerms) rhsTerms
 
-private def propagateDiseqOf (id : Nat) (lhs rhs : Expr) : GoalM Unit := do
-  visitLhs (← getRootENode lhs).sTerms
+  /--
+  Uses the representatives with the type of `lhs` and `rhs`. A solver may have many
+  representatives: `prevId?` is the solver of the previous one in `lhsRoot.sTerms`.
+  -/
+  goHEq (lhsRoot rhsRoot : ENode) (prevId? : Option Nat) (lhsTerms : SolverTerms) : GoalM Unit := do
+    match lhsTerms with
+    | .nil => return ()
+    | .next id _ lhsTermsRest =>
+      unless prevId? == some id do
+        -- `lhsTerms` starts with the first representative of the solver `id`
+        if let some lhsTerm ← findSolverTerm? id lhs lhsRoot.heqProofs lhsTerms then
+          if let some rhsTerm ← findSolverTerm? id rhs rhsRoot.heqProofs rhsRoot.sTerms then
+            (← solverExtensionsRef.get)[id]!.newDiseq lhsTerm rhsTerm
+      goHEq lhsRoot rhsRoot (some id) lhsTermsRest
+
+/--
+If both `lhs` and `rhs` have a term of the solver `id` with their type, runs `k` on these terms.
+-/
+@[specialize]
+private def withSolverTermsOf (id : Nat) (lhs rhs : Expr) (k : Expr → Expr → GoalM Unit) : GoalM Unit := do
+  let lhsRoot ← getRootENode lhs
+  if lhsRoot.heqProofs then
+    let some lhsTerm ← findSolverTerm? id lhs (checkType := true) lhsRoot.sTerms | return ()
+    visitRhs lhsTerm
+  else
+    visitLhs lhsRoot.sTerms
 where
   visitLhs (sTerms : SolverTerms) : GoalM Unit := do
     match sTerms with
     | .nil => return ()
     | .next id' e sTerms =>
       if id == id' then
-        visitRhs e (← getRootENode rhs).sTerms
+        visitRhs e
       else if id < id' then
         return ()
       else
         visitLhs sTerms
 
-  visitRhs (lhsTerm : Expr) (sTerms : SolverTerms) : GoalM Unit := do
+  visitRhs (lhsTerm : Expr) : GoalM Unit := do
+    let rhsRoot ← getRootENode rhs
+    if rhsRoot.heqProofs then
+      let some rhsTerm ← findSolverTerm? id rhs (checkType := true) rhsRoot.sTerms | return ()
+      k lhsTerm rhsTerm
+    else
+      visitRhsTerms lhsTerm rhsRoot.sTerms
+
+  visitRhsTerms (lhsTerm : Expr) (sTerms : SolverTerms) : GoalM Unit := do
     match sTerms with
     | .nil => return ()
     | .next id' e sTerms =>
       if id == id' then
-        let rhsTerm := e
-        (← solverExtensionsRef.get)[id]!.newDiseq lhsTerm rhsTerm
+        k lhsTerm e
       else if id < id' then
         return ()
       else
-        visitRhs lhsTerm sTerms
+        visitRhsTerms lhsTerm sTerms
+
+/-- Runs the `newDiseq` callback of the solver `id` if both `lhs` and `rhs` have a term of it. -/
+private def propagateDiseqOf (id : Nat) (lhs rhs : Expr) : GoalM Unit :=
+  withSolverTermsOf id lhs rhs fun lhsTerm rhsTerm => do
+    (← solverExtensionsRef.get)[id]!.newDiseq lhsTerm rhsTerm
+
+/-- Queues the `newDiseq` callback of the solver `id` if both `lhs` and `rhs` have a term of it. -/
+private def pushSolverDiseqOf (id : Nat) (lhs rhs : Expr) : GoalM Unit :=
+  withSolverTermsOf id lhs rhs fun lhsTerm rhsTerm =>
+    modify fun s => { s with toProcess := s.toProcess.push <| .solverDiseq id lhsTerm rhsTerm }
+
+/--
+Similar to `forEachDiseq`, but only for disequalities between terms of the type of `e`,
+where `e` is a new representative of a solver in an equivalence class containing terms
+of different types. The other disequalities were propagated when the other representatives
+were added. The types are compared using `hasSameTypeI`, so the solver does not receive
+disequalities between terms whose types are definitionally equal only with `default` transparency.
+-/
+@[inline] private def forEachDiseqOfType (parents : ParentSet) (e : Expr)
+    (k : Expr → Expr → GoalM Unit) : GoalM Unit :=
+  forEachDiseq parents fun lhs rhs => do
+    if (← hasSameTypeI e lhs) then
+      k lhs rhs
+
+/-- Runs the queued `newEq` callback. See `ToProcessElement.solverEq`. -/
+def Solvers.newEq (solverId : Nat) (lhs rhs : Expr) : GoalM Unit := do
+  (← solverExtensionsRef.get)[solverId]!.newEq lhs rhs
+
+/-- Runs the queued `newDiseq` callback. See `ToProcessElement.solverDiseq`. -/
+def Solvers.newDiseq (solverId : Nat) (lhs rhs : Expr) : GoalM Unit := do
+  (← solverExtensionsRef.get)[solverId]!.newDiseq lhs rhs
 
 def isSameSolverTerms (a b : SolverTerms) : Bool :=
   unsafe ptrEq a b
 
+/-- Inserts `e` as a representative of the solver `id`, after its existing representatives. -/
+private def SolverTerms.insert (sTerms : SolverTerms) (id : Nat) (e : Expr) : SolverTerms :=
+  match sTerms with
+  | .nil => .next id e .nil
+  | .next id' e' sTerms' => if id < id' then .next id e sTerms else .next id' e' (sTerms'.insert id e)
+
+/--
+Registers `e` as a term of the solver `ext`. If the equivalence class of `e` already has a term
+`e'` of this solver with the same type, the solver learns `e = e'`. Otherwise, `e` becomes a
+representative of the class, and if a class disequal to it has a term of this solver, the solver
+learns that disequality. These callbacks are queued, not run here: `markTerm`
+is called from `internalize` hooks, where the callbacks must not internalize new terms yet.
+See `ToProcessElement.solverEq` and `GoalState.internalizing`.
+-/
 def SolverExtension.markTerm (ext : SolverExtension σ) (e : Expr) : GoalM Unit := do
   let root ← getRootENode e
   let id := ext.id
@@ -2080,26 +2744,33 @@ def SolverExtension.markTerm (ext : SolverExtension σ) (e : Expr) : GoalM Unit 
     | .nil => return .next id e .nil
     | .next id' e' sTerms' =>
       if id == id' then
-        -- Skip if `e` and `e'` have different types (e.g., they were merged via `HEq` from `cast`).
-        -- This can happen when we have heterogeneous equalities in an equivalence class containing types such as `Fin n` and `Fin m`
-        if (← pure !root.heqProofs <||> hasSameType e e') then
-          (← solverExtensionsRef.get)[id]!.newEq e e'
-        return sTerms
+        if (← pure !root.heqProofs <||> hasSameTypeI e e') then
+          modify fun s => { s with toProcess := s.toProcess.push <| .solverEq id e e' }
+          return sTerms
+        /-
+        `e` and `e'` have different types. Keep searching for a representative with the type of `e`.
+        If the types are definitionally equal only with `default` transparency, `e` becomes another
+        representative, and the solver does not receive `e = e'`.
+        -/
       else if id < id' then
         return .next id e sTerms
+      let sTermsNew ← go sTerms'
+      if isSameSolverTerms sTermsNew sTerms' then
+        return sTerms
       else
-        let sTermsNew ← go sTerms'
-        if isSameSolverTerms sTermsNew sTerms' then
-          return sTerms
-        else
-          return .next id' e' sTermsNew
+        return .next id' e' sTermsNew
   let sTermsNew ← go root.sTerms
   unless isSameSolverTerms sTermsNew root.sTerms do
     setENode root.self { root with sTerms := sTermsNew }
-    forEachDiseq (← getParents root.self) (propagateDiseqOf id)
+    if root.heqProofs then
+      forEachDiseqOfType (← getParents root.self) e (pushSolverDiseqOf id)
+    else
+      forEachDiseq (← getParents root.self) (pushSolverDiseqOf id)
 
 /--
 Returns `some t` if `t` is the solver term for `ext` associated with `e`.
+If the equivalence class of `e` contains terms of different types, `t` is one of
+the representatives of `ext`.
 -/
 def SolverExtension.getTerm (ext : SolverExtension σ) (e : ENode) : Option Expr :=
   go ext.id e.sTerms
@@ -2123,12 +2794,21 @@ private inductive PendingSolverPropagationsData where
   | nil
   | eq (solverId : Nat) (lhs rhs : Expr) (rest : PendingSolverPropagationsData)
   | diseqs (solverId : Nat) (ps : ParentSet) (rest : PendingSolverPropagationsData)
+  /--
+  Similar to `diseqs`, but `e` is a new representative of the solver in an equivalence class
+  containing terms of different types. See `forEachDiseqOfType`.
+  -/
+  | diseqsOfType (solverId : Nat) (e : Expr) (ps : ParentSet) (rest : PendingSolverPropagationsData)
 
 structure PendingSolverPropagations where private mk ::
   private data : PendingSolverPropagationsData
 
-def Solvers.mergeTerms (rhsRoot lhsRoot : ENode) : GoalM PendingSolverPropagations := do
-  let (sTerms, data) ← go rhsRoot.sTerms lhsRoot.sTerms
+/--
+Merges the solver terms of `lhsRoot` into `rhsRoot`, the root of the merged class.
+`heqProofs := true` if the merged class contains heterogeneous equalities.
+-/
+def Solvers.mergeTerms (rhsRoot lhsRoot : ENode) (heqProofs : Bool) : GoalM PendingSolverPropagations := do
+  let (sTerms, data) ← if heqProofs then goHEq else go rhsRoot.sTerms lhsRoot.sTerms
   unless sTerms matches .nil do
     -- We have to retrieve the node because other fields have been updated
     let rhsRoot ← getENode rhsRoot.self
@@ -2156,6 +2836,34 @@ where
         let (s, p) ← go (.next id₁ rhs rhsTerms) lhsTerms
         return (.next id₂ lhs s, .diseqs id₂ (← getParents rhsRoot.self) p)
 
+  /-- Merges the representatives by solver and type. See `SolverTerms`. -/
+  goHEq : GoalM (SolverTerms × PendingSolverPropagationsData) := do
+    let (sTerms, p) ← goHEqLhs lhsRoot.sTerms rhsRoot.sTerms .nil
+    return (sTerms, ← goHEqRhs rhsRoot.sTerms p)
+
+  /--
+  Adds each representative in `lhsTerms` to `sTerms` unless `rhsRoot` has a representative of
+  the same solver and type. In this case, the solver learns that they are equal.
+  -/
+  goHEqLhs (lhsTerms sTerms : SolverTerms) (p : PendingSolverPropagationsData) : GoalM (SolverTerms × PendingSolverPropagationsData) := do
+    match lhsTerms with
+    | .nil => return (sTerms, p)
+    | .next id lhs lhsTerms =>
+      if let some rhs ← findSolverTerm? id lhs (checkType := true) rhsRoot.sTerms then
+        goHEqLhs lhsTerms sTerms (.eq id lhs rhs p)
+      else
+        goHEqLhs lhsTerms (sTerms.insert id lhs) (.diseqsOfType id lhs (← getParents rhsRoot.self) p)
+
+  /-- Representatives in `rhsTerms` without a representative of the same solver and type in `lhsRoot`. -/
+  goHEqRhs (rhsTerms : SolverTerms) (p : PendingSolverPropagationsData) : GoalM PendingSolverPropagationsData := do
+    match rhsTerms with
+    | .nil => return p
+    | .next id rhs rhsTerms =>
+      if (← findSolverTerm? id rhs (checkType := true) lhsRoot.sTerms).isSome then
+        goHEqRhs rhsTerms p
+      else
+        goHEqRhs rhsTerms (.diseqsOfType id rhs (← getParents lhsRoot.self) p)
+
 def PendingSolverPropagations.propagate (p : PendingSolverPropagations) : GoalM Unit := do
   go p.data
 where
@@ -2163,14 +2871,13 @@ where
     match p with
     | .nil => return ()
     | .eq solverId lhs rhs rest =>
-      -- Skip if `lhs` and `rhs` have different types (e.g., they were merged via `HEq` from `cast`).
-      -- This can happen when we have heterogeneous equalities in an equivalence class containing types such as `Fin n` and `Fin m`
-      let root ← getRootENode lhs
-      if (← pure !root.heqProofs <||> hasSameType lhs rhs) then
-        (← solverExtensionsRef.get)[solverId]!.newEq lhs rhs
+      (← solverExtensionsRef.get)[solverId]!.newEq lhs rhs
       go rest
     | .diseqs solverId parentSet rest =>
       forEachDiseq parentSet (propagateDiseqOf solverId)
+      go rest
+    | .diseqsOfType solverId e parentSet rest =>
+      forEachDiseqOfType parentSet e (propagateDiseqOf solverId)
       go rest
 
 def anchorPrefixToString (numDigits : Nat) (anchorPrefix : UInt64) : String :=

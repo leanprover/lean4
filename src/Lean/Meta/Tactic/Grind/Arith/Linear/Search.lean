@@ -186,7 +186,7 @@ def processVar (x : Var) : SearchM Unit := do
         if the order is partial.
         -- TODO: eliminate variables using equations eagerly like we do in the cutsat module.
         -/
-        if (← isLinearOrder) then
+        if (← isLinearOrder <&&> hasLawfulLT) then
           resolveLowerDiseqConflict c₁ d
         else
           -- TODO: if we have a partial order and `c₁.p == -c₂.p`,

@@ -11,6 +11,7 @@ import Lean.Meta.Sym.Simp.Simproc
 import Lean.Meta.Sym.Simp.App
 import Lean.Meta.Sym.Simp.Have
 import Lean.Meta.Sym.Simp.Forall
+import Lean.Meta.Sym.InstantiateMVarsS
 
 namespace Lean.Meta.Sym.Simp
 builtin_initialize registerTraceClass `sym.simp.debug.cache
@@ -22,7 +23,7 @@ Returns `true` if `e` is a numeral application whose arguments are not visited:
 `OfNat.ofNat _ n _`, `Char.ofNat n`, and `OfScientific.ofScientific _ _ m _ e` with raw
 literals `n`, `m`, `e`. Like `Meta.simp`, `simp` treats these as atoms; see `simpStep`.
 -/
-private def isLitApp (e : Expr) : Bool :=
+def isLitApp (e : Expr) : Bool :=
   (e.isAppOfArity ``OfNat.ofNat 3 && (e.getArg! 1).isRawNatLit) ||
   e.isCharLit ||
   (e.isAppOfArity ``OfScientific.ofScientific 5 && (e.getArg! 2).isRawNatLit && (e.getArg! 4).isRawNatLit)
@@ -44,7 +45,10 @@ def simpStep : Simproc := fun e => do
   | .lit (.natVal n) =>
     let e' ← share (mkNatLit n)
     return .step e' (← mkEqRefl e')
-  | .lit _ | .sort _ | .bvar _ | .const .. | .fvar _  | .mvar _ => return .rfl
+  | .lit _ | .sort _ | .bvar _ | .const .. | .fvar _ => return .rfl
+  | .mvar _ =>
+    let some e' ← instantiateAssignedMVarHeadS? e | return .rfl
+    return .step e' (← mkEqRefl e')
   | .proj .. =>
     throwError "unexpected kernel projection term during simplification{indentExpr e}\npre-process and fold them as projection applications"
   | .mdata m b =>

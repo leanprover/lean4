@@ -9,15 +9,6 @@ on:
       nightly:
         type: string
         required: true
-      LEAN_VERSION_MAJOR:
-        type: string
-        required: true
-      LEAN_VERSION_MINOR:
-        type: string
-        required: true
-      LEAN_VERSION_PATCH:
-        type: string
-        required: true
       LEAN_SPECIAL_VERSION_DESC:
         type: string
         required: true
@@ -118,12 +109,7 @@ jobs:
       - name: Set up env
         run: |
           echo "NPROC=$(nproc 2>/dev/null || sysctl -n hw.logicalcpu 2>/dev/null || echo 4)" >> $GITHUB_ENV
-          if ! diff src/stdlib_flags.h stage0/src/stdlib_flags.h; then
-            echo "src/stdlib_flags.h and stage0/src/stdlib_flags.h differ, will test and pack stage 2"
-            echo "TARGET_STAGE=stage2" >> $GITHUB_ENV
-          else
-            echo "TARGET_STAGE=stage1" >> $GITHUB_ENV
-          fi
+          echo "TARGET_STAGE=stage${{ matrix.target-stage || 1 }}" >> $GITHUB_ENV
       - name: Configure Build
         run: |
           ulimit -c unlimited  # coredumps
@@ -158,9 +144,6 @@ jobs:
             OPTIONS+=(-DLEAN_SPECIAL_VERSION_DESC=${{ inputs.nightly }})
           fi
           if [[ '${{ matrix.release }}' == true && -n '${{ inputs.RELEASE_TAG }}' ]]; then
-            OPTIONS+=(-DLEAN_VERSION_MAJOR=${{ inputs.LEAN_VERSION_MAJOR }})
-            OPTIONS+=(-DLEAN_VERSION_MINOR=${{ inputs.LEAN_VERSION_MINOR }})
-            OPTIONS+=(-DLEAN_VERSION_PATCH=${{ inputs.LEAN_VERSION_PATCH }})
             OPTIONS+=(-DLEAN_VERSION_IS_RELEASE=1)
             OPTIONS+=(-DLEAN_SPECIAL_VERSION_DESC=${{ inputs.LEAN_SPECIAL_VERSION_DESC }})
           fi
@@ -265,6 +248,15 @@ jobs:
           fi
           elan --version  # fails step if not found
           make -C build/$TARGET_STAGE lean4lean con-leche
+      - name: Build lean-beam
+        if: matrix.release && !matrix.wasm && runner.os != 'Windows'
+        run: |
+          if [ -d build/elan/bin ]; then
+            echo "$PWD/build/elan/bin" >> "$GITHUB_PATH"
+          fi
+          # Require Beam in the package test only when this job explicitly builds it.
+          echo 'LEAN_BEAM_REQUIRED=1' >> "$GITHUB_ENV"
+          make -C build/$TARGET_STAGE lean-beam
       - name: Build nanoda and con-ron
         if: matrix.release && !matrix.wasm
         run: |
@@ -385,7 +377,7 @@ jobs:
           # Updating `GITHUB_ENV` would only apply to future steps (which do not need it).
           export LEAN_GITHASH=$(cat build/stage1/lake-githash)
           time ctest --preset ${{ matrix.CMAKE_PRESET || 'release' }} --test-dir build/stage1 -j$NPROC
-        if: matrix.check-rebootstrap
+        if: matrix.check-rebootstrap && !matrix.release
       - name: CCache stats
         if: always()
         run: ccache -s

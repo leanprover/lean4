@@ -1,5 +1,7 @@
 import Std.WP
 
+set_option sym.debug true
+
 /-!
 Every form of the intrinsic verification syntax reports that it is experimental, at the keyword that
 introduces the form, and `set_option experimental.intrinsic true` silences those reports.

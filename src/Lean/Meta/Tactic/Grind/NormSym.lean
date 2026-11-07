@@ -15,6 +15,7 @@ import Lean.Meta.Sym.Simp.Main
 import Lean.Meta.Sym.Simp.Simproc
 import Lean.Meta.Sym.Simp.Rewrite
 import Lean.Meta.Sym.Simp.EvalGround
+import Lean.Meta.Sym.Simp.Forall
 import Lean.Meta.Sym.Simp.Arith
 import Lean.Meta.Sym.Simp.Discharger
 import Lean.Meta.Tactic.Grind.NormSymProcs
@@ -37,76 +38,23 @@ discrepancies can be collected as tests and fixed one by one.
 
 `grind_norm` and the `normLegacy`/`normSym` pair are debugging aids for this migration only.
 They will be deleted once `grind` runs on `Sym.simp`.
-
-The `Sym.simp` theorem set is derived from the legacy `normExt` set on demand, so both
-normalizers always see the same `[grind norm]` and `[grind unfold]` declarations.
 -/
 
-builtin_initialize registerTraceClass `grind.norm.sym
-
-/-- The `grind` normalization theorems as `Sym.simp` theorem sets. -/
-structure NormSymTheorems where
-  /-- Theorems applied before visiting subterms (`[grind norm ↓]`). -/
-  pre  : Sym.Simp.Theorems := {}
-  /-- Theorems applied after visiting subterms (`[grind norm]`), and the equational theorems
-  of the declarations to unfold (`[grind unfold]`). -/
-  post : Sym.Simp.Theorems := {}
-  /-- The `rfl`-theorems of `post` and the declarations to unfold, for `Sym.dsimp`. `grind` needs
-  `dsimp` in one place: the right-hand side of a generalized pattern (`mkGeneralizedPatternEqProof`)
-  must stay definitionally equal to the term it replaces, e.g. `Nat.succ x` becomes `x + 1`. -/
-  dsimp : Sym.DSimp.Decls := {}
-
-private def addNormSymTheorem (thms : Sym.Simp.Theorems) (thm : SimpTheorem) : MetaM Sym.Simp.Theorems := do
-  -- Global simp theorems, including the reversed ones (`[grind norm ←]`), are stored as
-  -- constants: `mkSimpTheoremFromConst` creates an auxiliary lemma when it has to adapt the
-  -- statement.
-  let .const declName _ := thm.proof
-    | trace[grind.norm.sym] "skipping `{thm.origin.key}`, not a global declaration"
-      return thms
-  try
-    return thms.insert (← Sym.Simp.mkTheoremFromDecl declName)
-  catch ex =>
-    trace[grind.norm.sym] "skipping `{.ofConstName declName}`: {ex.toMessageData}"
-    return thms
-
-/-- Builds the `Sym.simp` theorem sets from the legacy `grind` normalization theorem set. -/
-def mkNormSymTheorems : MetaM NormSymTheorems := do
-  let simpThms ← getNormTheorems
-  let mut pre : Sym.Simp.Theorems := {}
-  let mut post : Sym.Simp.Theorems := {}
-  for thm in simpThms.pre.values do
-    pre ← addNormSymTheorem pre thm
-  -- The legacy `pushNot` simproc builds `b + 1 ≤ a` from `¬a ≤ b` by hand; here the theorems
-  -- are rewrite rules, and `arith` normalizes the result.
-  for declName in [``Nat.not_le_eq, ``Int.not_le_eq] do
-    pre := pre.insert (← Sym.Simp.mkTheoremFromDecl declName)
-  let mut dsimp : Sym.DSimp.Decls := {}
-  for thm in simpThms.post.values do
-    post ← addNormSymTheorem post thm
-    if thm.rfl then
-      if let .const declName _ := thm.proof then
-        dsimp ← dsimp.add declName
-  for declName in simpThms.toUnfold.toList do
-    -- `Sym` preprocessing unfolds reducible declarations (e.g., `GE.ge`, `Ne`) eagerly.
-    if (← isReducible declName) then continue
-    try
-      for thm in (← Sym.Simp.mkTheoremsFromDecl declName) do
-        post := post.insert thm
-      dsimp ← dsimp.add declName
-    catch ex =>
-      trace[grind.norm.sym] "skipping unfold `{.ofConstName declName}`: {ex.toMessageData}"
-  return { pre, post, dsimp }
+/-- The `grind` normalization theorems as `Sym.simp` theorem sets (`normSymExt`). -/
+def getNormSymTheorems : CoreM NormSymTheorems :=
+  return normSymExt.getState (← getEnv)
 
 /-- `Sym.simp` methods approximating the legacy `grind` normalizer. -/
 def mkNormSymMethods (config : Grind.Config) (thms : NormSymTheorems) : Sym.Simp.Methods := Id.run do
   let d : Discharger := Sym.Simp.dischargeSimpSelf
   let mut pre : Simproc := NormSym.eraseMData >> NormSym.preMatchCond >> NormSym.simpMatchDiscrsOnly
-    >> Sym.Simp.beta >> Sym.Simp.reduceProj >> Sym.Simp.reduceControl
+    >> Sym.Simp.beta >> NormSym.etaReduce >> Sym.Simp.reduceProj >> Sym.Simp.reduceControl >> Sym.Simp.simpExistsPropDomain
   if config.zeta then pre := pre >> Sym.Simp.zeta
   if config.zetaDelta then pre := pre >> Sym.Simp.zetaDeltaAll
-  pre := pre >> NormSym.pushNot >> Sym.Simp.simpArith d (lhsOnly := true) >> thms.pre.rewrite d
+  pre := pre >> NormSym.pushNot >> Sym.Simp.simpArith d (lhsOnly := true) (distrib := config.distrib) (maxChar? := some config.maxChar) >> thms.pre.rewrite d
   -- `grind` keeps bit-vector literals in `OfNat.ofNat` form.
-  let post : Simproc := thms.post.rewrite d >> Sym.Simp.evalGround { bitVecOfNat := false } >> Sym.Simp.simpNatRel >> NormSym.simpEq >> NormSym.simpOr
+  let post : Simproc := thms.post.rewrite d >> Sym.Simp.evalGround { bitVecOfNat := false } >> Sym.Simp.simpNatRel
+    >> Sym.Simp.simpNatSub (distrib := config.distrib) >> NormSym.simpEq >> NormSym.simpOr
     >> NormSym.simpDIte >> NormSym.reduceCtorEq >> NormSym.simpForall >> NormSym.simpExists
   return { pre, post }
 
@@ -128,7 +76,7 @@ def normLegacy (e : Expr) : GrindM Simp.Result := do
 
 /-- Applies the `Sym.simp`-based normalization step (`symNorm`) to `e`. -/
 def normSym (e : Expr) : GrindM Simp.Result := do
-  let thms ← mkNormSymTheorems
+  let thms ← getNormSymTheorems
   let config ← getConfig
   let (r, _, _) ← symNorm e (mkNormSymMethods config thms) (mkNormSymDSimpMethods config thms) {} {}
   return r

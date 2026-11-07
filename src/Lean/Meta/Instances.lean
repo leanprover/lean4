@@ -77,14 +77,43 @@ structure Instances where
   discrTree     : InstanceTree := DiscrTree.empty
   instanceNames : PHashMap Name InstanceEntry := {}
   erased        : PHashSet Name := {}
+  /--
+  For each class, the changes of its instances since the import, newest first. Type class resolution
+  depends on the global instances only through the classes it consults, and records their changes
+  instead of the generation of the whole table (`RecordedDeps.instClassChanges`). Recorded changes are
+  only compared within the module that recorded them, i.e. against states with the same imported
+  instances, so equal changes mean equal instances of the class. Restoring an earlier state (e.g. at
+  the end of a section) restores the changes with it.
+  -/
+  classChanges : PHashMap Name (List InstanceChange) := {}
   deriving Inhabited
 
-def addInstanceEntry (d : Instances) (e : InstanceEntry) : Instances :=
+/-- The class an instance's key is rooted at; see `Instances.classChanges`. -/
+def InstanceEntry.keyClass (e : InstanceEntry) : Name :=
+  match e.keys[0]? with
+  | some (DiscrTree.Key.const c _) => c
+  | _ => panic! "instance key not rooted at a constant, which `addInstance` rejects"
+
+/-- The changes of the instances of `className` since the import; see `Instances.classChanges`. -/
+def Instances.getClassChanges (d : Instances) (className : Name) : List InstanceChange :=
+  d.classChanges.findD className []
+
+private def Instances.logChange (d : Instances) (className : Name) (c : InstanceChange) : Instances :=
+  { d with classChanges := d.classChanges.insert className (c :: d.getClassChanges className) }
+
+/-- Adds an imported instance, which is not a change; see `Instances.classChanges`. -/
+def addImportedInstanceEntry (d : Instances) (e : InstanceEntry) : Instances :=
   match e.globalName? with
   | some n => { d with discrTree := d.discrTree.insertKeyValue e.keys e, instanceNames := d.instanceNames.insert n e, erased := d.erased.erase n }
   | none   => { d with discrTree := d.discrTree.insertKeyValue e.keys e }
 
+def addInstanceEntry (d : Instances) (e : InstanceEntry) : Instances :=
+  addImportedInstanceEntry (d.logChange e.keyClass (.add e.val e.priority e.synthOrder)) e
+
 def Instances.eraseCore (d : Instances) (declName : Name) : Instances :=
+  let d := match d.instanceNames.find? declName with
+    | some e => d.logChange e.keyClass (.erase declName)
+    | none => d
   { d with erased := d.erased.insert declName, instanceNames := d.instanceNames.erase declName }
 
 def Instances.erase [Monad m] [MonadError m] (d : Instances) (declName : Name) : m Instances := do
@@ -96,6 +125,7 @@ builtin_initialize instanceExtension : SimpleScopedEnvExtension InstanceEntry In
   registerSimpleScopedEnvExtension {
     initial  := {}
     addEntry := addInstanceEntry
+    addImportedEntry := addImportedInstanceEntry
     exportEntry? := fun _ e =>
       if e.globalName?.any (!isPrivateName ·) then .uniform (some e)
       else ⟨none, none, some e⟩
@@ -302,6 +332,10 @@ this warning can be disabled with `set_option warn.classDefReducibility false`."
       logWarning m!"instance `{declName}` must be marked with `@[expose]`"
   let projInfo? ← getProjectionFnInfo? declName
   let synthOrder ← computeSynthOrder c projInfo?
+  -- Instance changes are tracked per class (`Instances.classChanges`), by the key's root constant.
+  unless keys[0]? matches some (DiscrTree.Key.const ..) do
+    throwError "invalid instance `{declName}`, its type does not reduce to an application of a \
+      constant at reducible transparency{indentExpr cinfo.type}"
   instanceExtension.add { keys, val := c, priority := prio, globalName? := declName, attrKind, synthOrder } attrKind
 
 /-
@@ -354,12 +388,18 @@ builtin_initialize
       modifyEnv fun env => instanceExtension.modifyState env fun _ => s
   }
 
--- `genRecorded := true` below: every resolution query records the instance-table generation when it
--- starts (`Lean.recordExtGenAccess` in `synthInstanceCore?`), which covers every read of the table
--- during the query.
+/-
+`genRecorded := true` below: resolution records the changes of the classes whose instances it
+reads (`Lean.recordInstClassChanges` in `SynthInstance.getInstances`); the other readers below are
+not called during resolution.
+-/
 
 def getGlobalInstancesIndex : CoreM (DiscrTree InstanceEntry) :=
   return Meta.instanceExtension.getState (genRecorded := true) (← getEnv) |>.discrTree
+
+/-- The changes of the global instances of `className`; see `Instances.classChanges`. -/
+def getInstanceClassChanges (env : Environment) (className : Name) : List InstanceChange :=
+  Meta.instanceExtension.getState (genRecorded := true) env |>.getClassChanges className
 
 def getErasedInstances : CoreM (PHashSet Name) :=
   return Meta.instanceExtension.getState (genRecorded := true) (← getEnv) |>.erased

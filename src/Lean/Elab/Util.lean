@@ -153,6 +153,9 @@ builtin_initialize macroAttribute : KeyedDeclsAttribute Macro ← mkMacroAttribu
 /--
 Try to expand macro at syntax tree root and return macro declaration name and new syntax if successful.
 Return none if all macros threw `Macro.Exception.unsupportedSyntax`.
+
+To elaborate the expansion in `TermElabM`, use `Lean.Elab.Term.expandMacroReportingDeprecated?`
+instead, which also reports deprecated syntax.
 -/
 def expandMacroImpl? (env : Environment) : Syntax → MacroM (Option (Name × Except Macro.Exception Syntax)) := fun stx => do
   for e in macroAttribute.getEntries env stx.getKind do
@@ -175,6 +178,10 @@ instance (m n) [MonadLift m n] [MonadQuotation n] [MonadMacroAdapter m] : MonadM
   getNextMacroScope := liftM (MonadMacroAdapter.getNextMacroScope : m _)
   setNextMacroScope := fun s => liftM (MonadMacroAdapter.setNextMacroScope s : m _)
 }
+
+instance : MonadMacroAdapter CoreM where
+  getNextMacroScope := return (← get).nextMacroScope
+  setNextMacroScope next := modify fun s => { s with nextMacroScope := next }
 
 def liftMacroM [Monad m] [MonadMacroAdapter m] [MonadEnv m] [MonadRecDepth m] [MonadError m] [MonadResolveName m] [MonadTrace m] [MonadOptions m] [AddMessageContext m] [MonadLiftT IO m] (x : MacroM α) : m α := do
   let env  ← getEnv
@@ -232,6 +239,26 @@ partial def mkUnusedBaseName (baseName : Name) : MacroM Name := do
     loop 1
   else
     return baseName
+
+/--
+Like `mkUnusedBaseName` but does not use the current namespace and accepts a custom predicate for
+which names to avoid.
+-/
+@[specialize]
+partial def findUnusedName [Monad m] [MonadEnv m] (name : Name)
+    (avoid : Environment → Name → Bool := fun env name => env.contains name) :
+    m Name := do
+  let env ← getEnv
+  if avoid env name then
+    let rec loop (idx : Nat) := do
+      let name := name.appendIndexAfter idx
+      if avoid env name then
+        loop (idx+1)
+      else
+        return name
+    loop 1
+  else
+    return name
 
 def logException [Monad m] [MonadLog m] [AddMessageContext m] [MonadOptions m] [MonadLiftT IO m] (ex : Exception) : m Unit := do
   match ex with

@@ -261,9 +261,11 @@ not always needed, so for now we live with the code duplication.
 -/
 @[export lean_get_congr_match_equations_for]
 def genMatchCongrEqnsImpl (matchDeclName : Name) : MetaM (Array Name) := do
+  let some matchInfo ← getMatcherInfo? matchDeclName | throwError "`{matchDeclName}` is not a matcher function"
+  if matchInfo.numAlts == 0 then
+    return #[]
   let firstEqnName := matchDeclName.str congrEqn1ThmSuffix
   realizeConst matchDeclName firstEqnName go
-  let some matchInfo ← getMatcherInfo? matchDeclName | throwError "`{matchDeclName}` is not a matcher function"
   let mut thmNames := #[]
   for i in *...matchInfo.numAlts do
     thmNames := thmNames.push <|(matchDeclName.str congrEqnThmSuffixBase).appendIndexAfter (i+1)

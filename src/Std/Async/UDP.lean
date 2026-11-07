@@ -61,6 +61,7 @@ def connect (s : Socket) (addr : SocketAddress) : IO Unit :=
 /--
 Sends multiple data buffers through an UDP socket. The `addr` parameter specifies the destination
 address. If `addr` is `none`, the data is sent to the default peer address set by `connect`.
+Throws an `IO.Error.invalidArgument` if a buffer is 4 GiB or larger.
 -/
 @[inline]
 def sendAll (s : Socket) (data : Array ByteArray) (addr : Option SocketAddress := none) : Async Unit :=
@@ -68,7 +69,8 @@ def sendAll (s : Socket) (data : Array ByteArray) (addr : Option SocketAddress :
 
 /--
 Sends data through an UDP socket. The `addr` parameter specifies the destination address. If `addr`
-is `none`, the data is sent to the default peer address set by `connect`.
+is `none`, the data is sent to the default peer address set by `connect`. Throws an
+`IO.Error.invalidArgument` if `data` is 4 GiB or larger.
 -/
 @[inline]
 def send (s : Socket) (data : ByteArray) (addr : Option SocketAddress := none) : Async Unit :=
@@ -84,6 +86,8 @@ Furthermore calling this function in parallel with `recvSelector` is not support
 A datagram larger than `size` is discarded in its entirety, and this throws an
 `IO.Error.resourceExhausted` instead of returning a truncated prefix. The socket stays usable, so a
 receive loop should catch the error per datagram.
+
+Throws an `IO.Error.invalidArgument` if `size` is 0 or at least 4 GiB.
 -/
 @[inline]
 def recv (s : Socket) (size : UInt64) : Async (ByteArray × Option SocketAddress) :=
@@ -96,7 +100,8 @@ automatically bound to `0.0.0.0` (all interfaces) with a random port.
 Calling this function does starts the data wait, only when it's used with `Selectable.one` or `combine`.
 It must not be called in parallel with `recv`.
 
-Fails with an `IO.Error.resourceExhausted` if the datagram is larger than `size`, like `recv`.
+Fails with an `IO.Error.resourceExhausted` if the datagram is larger than `size`, and with an
+`IO.Error.invalidArgument` if `size` is 0 or at least 4 GiB, like `recv`.
 -/
 def recvSelector (s : Socket) (size : UInt64) : Selector (ByteArray × Option SocketAddress) :=
  {

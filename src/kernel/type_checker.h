@@ -78,7 +78,7 @@ private:
 
     enum class reduction_status { Continue, DefUnknown, DefEqual, DefDiff };
     optional<expr> reduce_recursor(expr const & e, bool cheap_rec, bool cheap_proj);
-    optional<expr> reduce_proj_core(expr c, name const & sname, unsigned idx);
+    optional<expr> reduce_proj_core(expr c, name const & sname, size_t idx);
     optional<expr> reduce_proj(expr const & e, bool cheap_rec, bool cheap_proj);
     expr whnf_fvar(expr const & e, bool cheap_rec, bool cheap_proj);
     optional<constant_info> is_delta(expr const & e) const;
@@ -102,6 +102,7 @@ private:
     lbool try_string_lit_expansion(expr const & t, expr const & s);
     bool is_def_eq_app(expr const & t, expr const & s);
     lbool is_def_eq_proof_irrel(expr const & t, expr const & s);
+    bool is_unit_like(expr const & t);
     bool is_def_eq_unit_like(expr const & t, expr const & s);
     bool failed_before(expr const & t, expr const & s) const;
     void cache_failure(expr const & t, expr const & s);

@@ -135,7 +135,17 @@ where
       else addAsVar e
     | Int.neg a => return .neg (← toLinearExpr a)
     | Neg.neg _ i a =>
-      if (← DefEq.isInstNegInt i) then return .neg (← toLinearExpr a)
+      if (← DefEq.isInstNegInt i) then
+        /-
+        A negative numeral `-n` is reified as `.num (-n)` rather than `.neg (.num n)`.
+        `simpExpr?` and the other simprocs decide whether a term is already in normal form by
+        comparing its reification with `Poly.toExpr` of the normalized polynomial, which writes
+        negative constants as `.num k`. Both reifications denote to the same expression,
+        `Neg.neg Int Int.instNegInt (OfNat.ofNat Int n _)`, so with `.neg (.num n)` the comparison
+        would report a change for an unchanged term and produce a proof of `e = e`.
+        -/
+        if let some n ← getIntValue? e then return .num n
+        return .neg (← toLinearExpr a)
       else addAsVar e
     | Int.add a b => return .add (← toLinearExpr a) (← toLinearExpr b)
     | Add.add _ i a b =>
@@ -180,22 +190,27 @@ partial def leCnstr? (e : Expr) : M (Option (Int.Internal.Linear.Expr × Int.Int
     return (← toLinearExpr a, ← toLinearExpr b)
   | Int.lt a b =>
     return (.add (← toLinearExpr a) (.num 1), ← toLinearExpr b)
-  | LE.le _ i a b =>
+  | LE.le α i a b =>
+    let_expr Int ← α | failure
     guard (← DefEq.isInstLEInt i)
     return (← toLinearExpr a, ← toLinearExpr b)
-  | LT.lt _ i a b =>
+  | LT.lt α i a b =>
+    let_expr Int ← α | failure
     guard (← DefEq.isInstLTInt i)
     return (.add (← toLinearExpr a) (.num 1), ← toLinearExpr b)
-  | GE.ge _ i a b =>
+  | GE.ge α i a b =>
+    let_expr Int ← α | failure
     guard (← DefEq.isInstLEInt i)
     return (← toLinearExpr b, ← toLinearExpr a)
-  | GT.gt _ i a b =>
+  | GT.gt α i a b =>
+    let_expr Int ← α | failure
     guard (← DefEq.isInstLTInt i)
     return (.add (← toLinearExpr b) (.num 1), ← toLinearExpr a)
   | _ => failure
 
 partial def dvdCnstr? (e : Expr) : M (Option (Int × Int.Internal.Linear.Expr)) := OptionT.run do
-  let_expr Dvd.dvd _ inst k b ← e | failure
+  let_expr Dvd.dvd α inst k b ← e | failure
+  let_expr Int ← α | failure
   guard (← DefEq.isInstDvdInt inst)
   let some k ← getIntValue? k | failure
   return (k, ← toLinearExpr b)

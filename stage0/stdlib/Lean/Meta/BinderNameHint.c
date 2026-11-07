@@ -1345,14 +1345,14 @@ goto v___jp_417_;
 else
 {
 lean_dec(v_fst_440_);
-v___y_425_ = v___x_443_;
-goto v___jp_424_;
+lean_dec_ref_known(v_e_411_, 3);
+return v___x_443_;
 }
 }
 else
 {
-v___y_425_ = v___x_438_;
-goto v___jp_424_;
+lean_dec_ref_known(v_e_411_, 3);
+return v___x_438_;
 }
 }
 case 6:
@@ -1440,14 +1440,14 @@ goto v___jp_417_;
 else
 {
 lean_dec(v_fst_464_);
-v___y_425_ = v___x_467_;
-goto v___jp_424_;
+lean_dec_ref_known(v_e_411_, 3);
+return v___x_467_;
 }
 }
 else
 {
-v___y_425_ = v___x_462_;
-goto v___jp_424_;
+lean_dec_ref_known(v_e_411_, 3);
+return v___x_462_;
 }
 }
 case 8:
@@ -1550,21 +1550,21 @@ else
 {
 lean_dec(v_fst_493_);
 lean_dec(v_fst_489_);
-v___y_425_ = v___x_496_;
-goto v___jp_424_;
+lean_dec_ref_known(v_e_411_, 4);
+return v___x_496_;
 }
 }
 else
 {
 lean_dec(v_fst_489_);
-v___y_425_ = v___x_491_;
-goto v___jp_424_;
+lean_dec_ref_known(v_e_411_, 4);
+return v___x_491_;
 }
 }
 else
 {
-v___y_425_ = v___x_487_;
-goto v___jp_424_;
+lean_dec_ref_known(v_e_411_, 4);
+return v___x_487_;
 }
 }
 case 5:
@@ -1677,14 +1677,14 @@ goto v___jp_417_;
 else
 {
 lean_dec(v_fst_515_);
-v___y_425_ = v___x_517_;
-goto v___jp_424_;
+lean_dec_ref_known(v_e_411_, 2);
+return v___x_517_;
 }
 }
 else
 {
-v___y_425_ = v___x_513_;
-goto v___jp_424_;
+lean_dec_ref_known(v_e_411_, 2);
+return v___x_513_;
 }
 }
 case 10:
@@ -1769,8 +1769,8 @@ goto v___jp_417_;
 }
 else
 {
-v___y_425_ = v___x_540_;
-goto v___jp_424_;
+lean_dec_ref_known(v_e_411_, 2);
+return v___x_540_;
 }
 }
 case 11:
@@ -1857,8 +1857,8 @@ goto v___jp_417_;
 }
 else
 {
-v___y_425_ = v___x_560_;
-goto v___jp_424_;
+lean_dec_ref_known(v_e_411_, 3);
+return v___x_560_;
 }
 }
 default: 
@@ -2051,8 +2051,8 @@ else
 {
 lean_dec_ref(v_b_581_);
 lean_dec_ref(v_v_580_);
-v___y_425_ = v___x_583_;
-goto v___jp_424_;
+lean_dec_ref(v_e_411_);
+return v___x_583_;
 }
 }
 }

@@ -700,7 +700,7 @@ theorem set_append {s t : List α} :
     (s ++ t).set i x = if i < s.length then s.set i x ++ t else s ++ t.set (i - s.length) x := by
   induction s generalizing i with
   | nil => grind [-List.set_append]
-  | cons a as ih => cases i with grind (splits := 12) [-List.set_append]
+  | cons a as ih => cases i with grind [-List.set_append]
 
 theorem set_append_left {s t : List α} (i : Nat) (x : α) (h : i < s.length) :
     (s ++ t).set i x = s.set i x ++ t := by grind
@@ -914,7 +914,7 @@ theorem reverse_eq_append_iff {xs ys zs : List α} :
     xs.reverse = ys ++ zs ↔ xs = zs.reverse ++ ys.reverse := by grind
 
 theorem reverse_concat {l : List α} {a : α} : (l ++ [a]).reverse = a :: l.reverse := by
-  grind (ematch := 6)
+  grind
 
 theorem reverse_eq_concat {xs ys : List α} {a : α} :
     xs.reverse = ys ++ [a] ↔ xs = a :: ys.reverse := by grind
@@ -1012,7 +1012,7 @@ theorem foldr_hom (f : β₁ → β₂) {g₁ : α → β₁ → β₁} {g₂ : 
 theorem foldl_rel {l : List α} {f g : β → α → β} {a b : β} {r : β → β → Prop}
     (h : r a b) (h' : ∀ (a : α), a ∈ l → ∀ (c c' : β), r c c' → r (f c a) (g c' a)) :
     r (l.foldl (fun acc a => f acc a) a) (l.foldl (fun acc a => g acc a) b) := by
-  induction l generalizing a b with grind (ematch := 6)
+  induction l generalizing a b with grind
 
 theorem foldr_rel {l : List α} {f g : α → β → β} {a b : β} {r : β → β → Prop}
     (h : r a b) (h' : ∀ (a : α), a ∈ l → ∀ (c c' : β), r c c' → r (f a c) (g a c')) :
@@ -1087,7 +1087,7 @@ theorem map_dropLast {f : α → β} {l : List α} : l.dropLast.map f = (l.map f
 
 theorem dropLast_append {l₁ l₂ : List α} :
     (l₁ ++ l₂).dropLast = if l₂.isEmpty then l₁.dropLast else l₁ ++ l₂.dropLast := by
-  grind +extAll (splits := 12) [length_eq_zero_iff]
+  grind +extAll [length_eq_zero_iff]
 
 theorem dropLast_append_cons : dropLast (l₁ ++ b :: l₂) = l₁ ++ dropLast (b :: l₂) := by
   grind +extAll
@@ -1295,6 +1295,6 @@ end Hidden
 /-! Additional examples -/
 
 example {xs : List α} {i : Nat} (h : i < xs.length) : xs.take i ++ xs[i] :: xs.drop (i + 1) = xs := by
-  apply List.ext_getElem <;> grind (splits := 10)
+  apply List.ext_getElem <;> grind
 
 example : (List.range 1).sum = 0 := by grind

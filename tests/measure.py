@@ -7,6 +7,7 @@ import resource
 import subprocess
 import sys
 import tempfile
+import time
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -40,7 +41,6 @@ class Result:
 
 PERF_METRICS = {
     "task-clock": PerfMetric("task-clock", factor=1e-9, unit="s"),
-    "wall-clock": PerfMetric("duration_time", factor=1e-9, unit="s"),
     "instructions": PerfMetric("instructions:u"),
     "cycles": PerfMetric("cycles:u"),
 }
@@ -51,16 +51,21 @@ PERF_UNITS = {
 }
 
 RUSAGE_METRICS = {
-    "maxrss": RusageMetric("ru_maxrss", factor=1000, unit="B"),  # KiB on linux
+    "maxrss": RusageMetric("ru_maxrss", factor=1024, unit="B"),  # KiB on linux
 }
 
-ALL_METRICS = {**PERF_METRICS, **RUSAGE_METRICS}
+# Measured around the command instead of via perf's `duration_time` event, which `perf stat -j`
+# reports as 0 in some perf versions (e.g. 7.2.6).
+TIME_METRICS = {"wall-clock"}
+
+ALL_METRICS = {**PERF_METRICS, **RUSAGE_METRICS, **{m: None for m in TIME_METRICS}}
 DEFAULT_METRICS = set(ALL_METRICS.keys())
 
 
-def resolve_metrics(metrics: set[str]) -> tuple[set[str], set[str]]:
+def resolve_metrics(metrics: set[str]) -> tuple[set[str], set[str], set[str]]:
     perf = set()
     rusage = set()
+    timed = set()
     unknown = set()
 
     for metric in metrics:
@@ -68,13 +73,15 @@ def resolve_metrics(metrics: set[str]) -> tuple[set[str], set[str]]:
             perf.add(metric)
         elif metric in RUSAGE_METRICS:
             rusage.add(metric)
+        elif metric in TIME_METRICS:
+            timed.add(metric)
         else:
             unknown.add(metric)
 
     if unknown:
         raise SystemExit(f"unknown metrics: {', '.join(unknown)}")
 
-    return perf, rusage
+    return perf, rusage, timed
 
 
 @dataclass
@@ -89,6 +96,7 @@ type PerfResults = dict[str, PerfResult]
 @dataclass
 class MeasureResult:
     perf: PerfResults
+    wall_clock: float
     stdout: str
     stderr: str
 
@@ -112,9 +120,11 @@ def measure_perf(
         ]
 
         # Execute command
+        start = time.perf_counter()
         result = subprocess.run(
             cmd, env=env, capture_output=capture, encoding="utf-8", check=False
         )
+        wall_clock = time.perf_counter() - start
         if result.returncode != 0 and not allow_failure:
             if capture:
                 print(result.stdout, end="", file=sys.stdout)
@@ -133,6 +143,7 @@ def measure_perf(
 
         return MeasureResult(
             perf=perf,
+            wall_clock=wall_clock,
             stdout=result.stdout or "",
             stderr=result.stderr or "",
         )
@@ -166,7 +177,7 @@ def main(
     capture: bool = False,
     allow_failure: bool = False,
 ) -> tuple[str, str]:
-    perf_metrics, rusage_metrics = resolve_metrics(metrics)
+    perf_metrics, rusage_metrics, timed_metrics = resolve_metrics(metrics)
     perf_events = {PERF_METRICS[metric].event for metric in perf_metrics}
 
     measured = measure_perf(
@@ -180,6 +191,8 @@ def main(
         results.append(get_perf_result(perf, metric))
     for metric in rusage_metrics:
         results.append(get_rusage_result(rusage, metric))
+    if "wall-clock" in timed_metrics:
+        results.append(Result(category="wall-clock", value=measured.wall_clock, unit="s"))
 
     with open(output, "a" if append else "w") as f:
         for result in results:

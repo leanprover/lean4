@@ -15,6 +15,7 @@ public import Lean.Data.KVMap
 public import Lean.Data.LBool
 public import Lean.Data.LOption
 public import Lean.Data.Lsp
+public import Lean.Data.Markdown
 public import Lean.Data.Name
 public import Lean.Data.NameMap
 public import Lean.Data.OpenDecl
@@ -31,3 +32,4 @@ public import Lean.Data.RBTree -- deprecated_module: ignore
 public import Lean.Data.RBMap -- deprecated_module: ignore
 public import Lean.Data.RArray
 public import Lean.Data.Iterators
+public import Lean.Data.UnionFind

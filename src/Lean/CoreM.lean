@@ -221,6 +221,15 @@ def ofOptions (opts : Options) : OptionFlags :=
 end OptionFlags
 
 /--
+A change of the global instances of a class: an instance added, with the priority and synthesis order
+it was added with, or erased. See `RecordedDeps.instClassChanges`.
+-/
+inductive InstanceChange where
+  | add (val : Expr) (priority : Nat) (synthOrder : Array Nat)
+  | erase (declName : Name)
+  deriving BEq
+
+/--
 The dependencies observed by a recording computation, accumulated in `Core.State.recordedDeps`.
 A result cached by the computation stays valid as long as they give the same answers. Currently used
 by type class resolution, see `Lean.Meta.SynthInstance`.
@@ -257,6 +266,18 @@ structure RecordedDeps where
   recorded computation cannot have observed them.
   -/
   baseConstGen : Nat := 0
+  /--
+  The classes whose local instances type class resolution consulted (`SynthInstance.getInstances`
+  filters the local instances by class). A result depends on the local instances only through these
+  classes, so a cache entry can be shared by contexts that agree on their local instances.
+  -/
+  localInstClasses : Array Name := #[]
+  /--
+  The changes since the import of the global instances of the consulted classes, see
+  `Lean.Meta.Instances.classChanges`. Type class resolution depends on the global instances only
+  through these.
+  -/
+  instClassChanges : Array (Name × List InstanceChange) := #[]
   deriving Inhabited
 
 namespace Core
@@ -311,6 +332,19 @@ structure State where
   snapshotTasks : Array (Language.SnapshotTask Language.SnapshotTree) := #[]
   deriving Nonempty
 
+/-- Which uses of deprecated constants and syntax are reported. See `Context.checkDeprecated`. -/
+inductive DeprecationCheck where
+  /-- Report all uses. -/
+  | all
+  /--
+  Report only uses at syntax written by the user, i.e. with original source info. This is used for
+  the expansion of deprecated syntax, which is reported as a whole, while the user-written syntax
+  it contains is still checked.
+  -/
+  | userWritten
+  /-- Report nothing. -/
+  | none
+
 /--
 The pointer-typed fields of `Core.Context` that are not updated on a recursion or `withRef` step.
 
@@ -354,6 +388,11 @@ structure Context extends Context.Cold where
   errors; see also `logMessage` below.
   -/
   suppressElabErrors : Bool := false
+  /--
+  Which uses of deprecated constants (`Elab.Term.checkDeprecatedCore`) and syntax
+  (`Elab.checkDeprecatedSyntax`, `Elab.checkDeprecatedQuotedSyntax`) are reported.
+  -/
+  checkDeprecated : DeprecationCheck := .all
   /--
   Whether the current computation records its dependencies into `Core.State.recordedDeps`. While
   set, reading state that is not recorded panics, see instance `MonadOptions CoreM`.
@@ -712,6 +751,13 @@ instance : MonadLog CoreM where
     let msg := { msg with data := MessageData.withNamingContext { currNamespace := ctx.currNamespace, openDecls := ctx.openDecls } msg.data };
     modify fun s => { s with messages := s.messages.add msg }
 
+/-- Whether deprecated constants and syntax are reported at `ref`, see `Context.checkDeprecated`. -/
+def shouldCheckDeprecated (ref : Syntax) : CoreM Bool := do
+  return match (← read).checkDeprecated with
+    | .all => true
+    | .userWritten => (ref.getHeadInfo matches .original ..)
+    | .none => false
+
 /--
 Includes a given task (such as from `wrapAsyncAsSnapshot`) in the overall snapshot tree for this
 command's elaboration, making its result available to reporting and the language server. The
@@ -812,8 +858,10 @@ end Core
 
 export Core (CoreM mkFreshUserName checkSystem withCurrHeartbeats)
 
+/-- Runs a computation with `maxRecDepth` raised to at least `max`, keeping `0` (unlimited) unchanged. -/
 @[inline] def withAtLeastMaxRecDepth [MonadFunctorT CoreM m] (max : Nat) : m α → m α :=
-  monadMap (m := CoreM) <| withReader (fun ctx => { ctx with maxRecDepth := Nat.max max ctx.maxRecDepth })
+  monadMap (m := CoreM) <| withReader fun ctx =>
+    if ctx.maxRecDepth == 0 || max ≤ ctx.maxRecDepth then ctx else { ctx with maxRecDepth := max }
 
 /--
 Runs the given computation with the option `name` set to `v`. Unlike `withOptions`, this is allowed
@@ -956,6 +1004,22 @@ private def recordOptionAccess (name : Name) (value : Option DataValue) : CoreM 
     let d := (← get).recordedDeps
     if !d.options.contains name && d.base.find? name == value then
       Core.modifyRecordedDeps fun deps => { deps with options := deps.options.push name }
+
+/-- Records that the local instances of class `className` were consulted; see `RecordedDeps.localInstClasses`. -/
+def recordLocalInstClass (className : Name) : CoreM Unit := do
+  if !(← read).isRecordingDeps then
+    return
+  unless (← get).recordedDeps.localInstClasses.contains className do
+    Core.modifyRecordedDeps fun deps => { deps with localInstClasses := deps.localInstClasses.push className }
+
+/-- Records the changes of the global instances of `className`; see `RecordedDeps.instClassChanges`. -/
+def recordInstClassChanges (className : Name) (changes : List InstanceChange) : CoreM Unit := do
+  if !(← read).isRecordingDeps then
+    return
+  -- Keep the first list read, as `recordExtGenAccess` keeps the first generation.
+  unless (← get).recordedDeps.instClassChanges.any (·.1 == className) do
+    Core.modifyRecordedDeps fun deps =>
+      { deps with instClassChanges := deps.instClassChanges.push (className, changes) }
 
 /--
 Inside a recording computation, records the current generation of the generation-tracked extension

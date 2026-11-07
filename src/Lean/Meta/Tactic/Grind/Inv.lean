@@ -21,8 +21,9 @@ def checkEqc (root : ENode) : GoalM Unit := do
     size := size + 1
     -- The root of `curr` must be `root`
     assert! isSameExpr (← getRoot curr) root.self
-    -- Check congruence root
-    if curr.isApp then
+    -- Check congruence root. Literals are not in the congruence table: given `x = 1`, the term `-1`
+    -- is congruent to `-x`, but the satellite solvers are responsible for `-x = -1`.
+    if curr.isApp && (← getLitKind curr) matches .notLit then
       if let some { e } := (← get).congrTable.find? { e := curr } then
         if (← hasSameType e.getAppFn curr.getAppFn) then
           assert! isSameExpr e (← getCongrRoot curr)
@@ -50,6 +51,26 @@ def checkChild (e : Expr) (child : Expr) : GoalM Bool := do
   let some childRoot ← getRoot? child | return false
   return isSameExpr childRoot e
 
+/--
+Returns `true` if `e` is the root of a field of a constructor application in the equivalence class
+of `lhs` that the pattern `pat` constrains, or recursively of such a field.
+These are the parents registered by `isMatchCondFalseHyp` (see `MatchCond.lean`). Since equivalence classes only grow,
+we consider all constructor applications in the class, not only the root.
+-/
+partial def checkMatchCondNestedChild (e : Expr) (lhs pat : Expr) : GoalM Bool := do
+  let some patInfo ← isConstructorApp? pat | return false
+  let patArgs := pat.getAppArgs
+  for c in (← getEqc lhs) do
+    let some ctorInfo ← isConstructorApp? c | continue
+    let numArgs := ctorInfo.numParams + ctorInfo.numFields
+    unless ctorInfo.name == patInfo.name && pat.getAppNumArgs == numArgs do continue
+    let args := c.getAppArgs
+    for i in ctorInfo.numParams...numArgs do
+      if patArgs[i]!.getAppFn.isBVar then continue
+      if (← checkChild e args[i]! <||> checkMatchCondNestedChild e args[i]! patArgs[i]!) then
+        return true
+  return false
+
 def checkMatchCondParent (e : Expr) (parent : Expr) : GoalM Bool := do
   let_expr Grind.MatchCond parent ← parent | return false
   let mut curr := parent
@@ -57,8 +78,12 @@ def checkMatchCondParent (e : Expr) (parent : Expr) : GoalM Bool := do
     let .forallE _ d b _ := curr
       | return false
     match_expr d with
-    | Eq _ lhs _ => if (← checkChild e lhs) then return true -- found it
-    | HEq α lhs _ _ => if (← checkChild e α <||> checkChild e lhs) then return true -- found it
+    | Eq _ lhs rhs =>
+      if (← checkChild e lhs) then return true -- found it
+      if !lhs.hasLooseBVars && (← checkMatchCondNestedChild e lhs rhs) then return true
+    | HEq α lhs _ rhs =>
+      if (← checkChild e α <||> checkChild e lhs) then return true -- found it
+      if !lhs.hasLooseBVars && (← checkMatchCondNestedChild e lhs rhs) then return true
     | _ => pure ()
     curr := b
   return false

@@ -196,6 +196,8 @@ structure State where
   proofInstInfo : PHashMap Name (Option ProofInstInfo) := {}
   /-- `ProofInstInfo` of local declarations, see `getProofInstInfoOfExpr?`. -/
   proofInstInfoFVar : PHashMap FVarId (Option ProofInstInfo) := {}
+  /-- Maximally shared values of let-variables whose value in the local context is not, see `getLetValueS?`. -/
+  letValue : PHashMap FVarId Expr := {}
   /--
   Cache for `inferType` results, keyed by pointer equality.
   `SymM` uses a fixed configuration, so we can use a simpler key than `MetaM`.
@@ -235,7 +237,7 @@ abbrev SymM := ReaderT Context <| StateRefT State MetaM
 Auxiliary function for implementing `unfoldReducible` and `unfoldReducibleSimproc`.
 Performs a single step.
 -/
-public def unfoldReducibleStep (e : Expr) : MetaM TransformStep := do
+def unfoldReducibleStep (e : Expr) : MetaM TransformStep := do
   let .const declName _ := e.getAppFn | return .continue
   unless isUnfoldReducibleCandidate (← getEnv) declName do return .continue
   let some v ← unfoldDefinition? e | return .continue
@@ -253,7 +255,7 @@ def isUnfoldReducibleTarget (e : Expr) : CoreM Bool := do
 Unfolds all `reducible` declarations occurring in `e`.
 This is meant as a preprocessing step. It does **not** guarantee maximally shared terms
 -/
-public def unfoldReducible (e : Expr) : MetaM Expr := do
+def unfoldReducible (e : Expr) : MetaM Expr := do
   if !(← isUnfoldReducibleTarget e) then return e
   Meta.transform e (pre := unfoldReducibleStep)
 
@@ -262,7 +264,7 @@ Converts nested `Expr.proj`s into projection applications if possible.
 The structural simplifier and pattern matcher do not handle kernel projection
 terms; this preprocessing step folds them into projection function applications.
 -/
-public def foldProjs (e : Expr) : MetaM Expr := do
+def foldProjs (e : Expr) : MetaM Expr := do
   if Option.isNone <| e.find? fun e => e.isProj then return e
   let post (e : Expr) := do
     let .proj structName idx s := e | return .done e
@@ -399,6 +401,14 @@ def shareCommonWithoutChecks (e : Expr) (cache : AlphaShareCommon.Cache := {}) :
   | .error _ => unreachable!
 
 /--
+Returns `true` if `e` is in the table of maximally shared terms. Only the root is looked up: a term
+enters the table only after its subterms.
+-/
+def isMaxShared (e : Expr) : SymM Bool := do
+  let some prev := (← get).share.set.find? { expr := e } | return false
+  return isSameExpr prev.expr e
+
+/--
 Fallback used by `shareCommon` and `shareCommonInc` after a check violation:
 repairs the term and re-runs the full hash-consing pass with checks disabled, so
 this second pass always succeeds. In the exotic case where the repair does not
@@ -457,6 +467,18 @@ def shareCommonInc (e : Expr) : SymM Expr := do
     -- variant, so we fall back to the full `shareCommonAlpha` pass. The incremental
     -- variant does not use a cache, so there is nothing to reuse here.
     repairAndShare e {}
+
+/--
+Returns the value of the let-variable `fvarId`, maximally shared. A local context that `SymM` did
+not preprocess, e.g., the one of a `grind` goal, may contain values that are not.
+-/
+def getLetValueS? (fvarId : FVarId) : SymM (Option Expr) := do
+  let some v ← fvarId.getValue? | return none
+  if (← isMaxShared v) then return some v
+  if let some v := (← get).letValue.find? fvarId then return some v
+  let v ← shareCommon v
+  modify fun s => { s with letValue := s.letValue.insert fvarId v }
+  return some v
 
 @[inherit_doc shareCommonInc]
 abbrev share (e : Expr) : SymM Expr :=

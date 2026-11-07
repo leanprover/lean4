@@ -266,15 +266,10 @@ h_1 : p
 #guard_msgs (error) in
 set_option trace.grind.split true in
 example (p q : Prop) : (p ↔ q) → p → False := by
-  grind -- should not split on (p ↔ q)
+  grind +verbose -- should not split on (p ↔ q)
 
 /--
-error: `grind` failed
-case grind
-p q : Prop
-h : p = q
-h_1 : p
-⊢ False
+error: `grind` has failed, use `+verbose` to obtain diagnostic information
 -/
 #guard_msgs (error) in
 example (p q : Prop) : (p ↔ q) → p → False := by
@@ -302,7 +297,7 @@ h_1 : p
 #guard_msgs (error) in
 set_option trace.grind.split true in
 example (p q : Prop) : ¬(p ↔ q) → p → False := by
-  grind -- should not split on (p ↔ q)
+  grind +verbose -- should not split on (p ↔ q)
 
 example {a b : Nat} (h : a < b) : ¬ b < a := by
   grind
@@ -385,13 +380,13 @@ h_1 : b = true
 -/
 #guard_msgs (error) in
 example (b : Bool) : (if b then 10 else 20) = a → b = true → False := by
-  grind
+  grind +verbose
 
 -- Should not generate a trace message about canonicalization issues
 #guard_msgs (trace) in
 set_option trace.sym.issues true in
 example : (if n + 2 < m then a else b) = (if n + 1 < m then c else d) := by
-  fail_if_success grind (splits := 0)
+  fail_if_success grind (branches := 0)
   sorry
 
 example (f : Nat → Nat) : f (a + 1) = 1 → a = 0 → f 1 = 1 := by
@@ -410,7 +405,7 @@ example [Decidable p] : false = a → ¬p → decide p = a := by
   grind
 
 example (a : Nat) (p q r : Prop) (h₁ : if _ : a < 1 then p else q) (h₂ : r) : (if a < 1 then p else q) ↔ r := by
-  grind (splits := 0)
+  grind (branches := 0)
 
 example [BEq α] [LawfulBEq α] (a b : α) : a == b → a = b := by
   grind
@@ -427,13 +422,13 @@ def foo [BEq α] (a b : α) :=
   | false => 0
 
 example [BEq α] [LawfulBEq α] (a b : α) : a = b → foo a b = 1 := by
-  grind (splits := 0) [foo]
+  grind (branches := 0) [foo]
 
 example [BEq α] [LawfulBEq α] (a b : α) : a ≠ b → foo a b = 0 := by
   grind [foo]
 
 example [BEq α] [LawfulBEq α] (a b : α) : a ≠ b → foo a b = 0 := by
-  grind (splits := 0) [foo]
+  grind (branches := 0) [foo]
 
 @[simp] theorem getElem_concat_length {l : List α} {a : α} {i : Nat} (h : i = l.length) (w) :
     (l ++ [a])[i]'w = a := by

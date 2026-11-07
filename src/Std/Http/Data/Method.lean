@@ -355,6 +355,15 @@ Reference: https://httpwg.org/specs/rfc9110.html#safe.methods
 def isSafe (m : Method) : Bool :=
   m == .get || m == .head || m == .options || m == .trace
 
+/--
+Returns `false` for the methods whose semantics anticipate no request content: those RFC 9110 §8.6
+tells a user agent not to send `Content-Length` for when the request carries none.
+
+Reference: https://httpwg.org/specs/rfc9110.html#field.content-length
+-/
+def anticipatesContent (m : Method) : Bool :=
+  !(m == .get || m == .head || m == .delete || m == .options || m == .trace || m == .connect)
+
 instance : ToString Method where
   toString
     | .acl => "ACL"
@@ -399,6 +408,6 @@ instance : ToString Method where
     | .versionControl => "VERSION-CONTROL"
 
 instance : Encode .v11 Method where
-  encode buffer := buffer.writeString ∘ toString
+  encode out method := out ++ toString method
 
 end Std.Http.Method

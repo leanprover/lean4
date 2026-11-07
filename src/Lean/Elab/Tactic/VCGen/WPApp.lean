@@ -48,6 +48,8 @@ public def Value (info : WPApp) : Expr := info.args[1]!
 public def Pred (info : WPApp) : Expr := info.args[2]!
 /-- Exception postcondition type argument of `wp`. -/
 public def EPosts (info : WPApp) : Expr := info.args[3]!
+/-- `Assertion Pred` instance argument of `wp`. -/
+public def instAL (info : WPApp) : Expr := info.args[4]!
 /-- `WP` instance argument of `wp`. -/
 public def instWP (info : WPApp) : Expr := info.args[6]!
 /-- Program expression classified by VCGen. -/

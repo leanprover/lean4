@@ -157,7 +157,7 @@ expr type_checker::infer_pi(expr const & _e, bool infer_only) {
     e = instantiate_rev(e, fvars.size(), fvars.data());
     expr s  = ensure_sort_core(infer_type_core(e, infer_only), e);
     level r = sort_level(s);
-    unsigned i = fvars.size();
+    size_t i = fvars.size();
     while (i > 0) {
         --i;
         r = mk_imax(us[i], r);
@@ -189,9 +189,9 @@ expr type_checker::infer_app(expr const & e, bool infer_only) {
         buffer<expr> args;
         expr const & f = get_app_args(e, args);
         expr f_type    = infer_type_core(f, true);
-        unsigned j        = 0;
-        unsigned nargs    = args.size();
-        for (unsigned i = 0; i < nargs; i++) {
+        size_t j        = 0;
+        size_t nargs    = args.size();
+        for (size_t i = 0; i < nargs; i++) {
             if (is_pi(f_type)) {
                 f_type = binding_body(f_type);
             } else {
@@ -229,24 +229,17 @@ expr type_checker::infer_let(expr const & _e, bool infer_only) {
     return m_lctx.mk_pi(fvars, r, true);
 }
 
-/*
-Store the projection index in `result`, and return `false` if it does not fit.
-`nat::is_small` admits up to 63 bits, but projection indices are consumed as `unsigned`, so
-without the upper bound `.proj S 2^32 c` would be silently truncated into `.proj S 0 c`.
-*/
-static bool to_proj_idx(nat const & idx, unsigned & result) {
+/* Store the projection index in `result`, and return `false` if it does not fit. */
+static bool to_proj_idx(nat const & idx, size_t & result) {
     if (!idx.is_small())
         return false;
-    size_t v = idx.get_small_value();
-    if (v > std::numeric_limits<unsigned>::max())
-        return false;
-    result = static_cast<unsigned>(v);
+    result = idx.get_small_value();
     return true;
 }
 
 expr type_checker::infer_proj(expr const & e, bool infer_only) {
     expr type = whnf(infer_type_core(proj_expr(e), infer_only));
-    unsigned idx;
+    size_t idx;
     if (!to_proj_idx(proj_idx(e), idx))
         throw invalid_proj_exception(env(), m_lctx, e);
     buffer<expr> args;
@@ -265,14 +258,14 @@ expr type_checker::infer_proj(expr const & e, bool infer_only) {
 
     constant_info c_info = env().get(head(I_val.get_cnstrs()));
     expr r = instantiate_type_lparams(c_info, const_levels(I));
-    for (unsigned i = 0; i < I_val.get_nparams(); i++) {
+    for (size_t i = 0; i < I_val.get_nparams(); i++) {
         lean_assert(i < args.size());
         r = whnf(r);
         if (!is_pi(r)) throw invalid_proj_exception(env(), m_lctx, e);
         r = instantiate(binding_body(r), args[i]);
     }
     bool is_prop_type = is_prop(type);
-    for (unsigned i = 0; i < idx; i++) {
+    for (size_t i = 0; i < idx; i++) {
         r = whnf(r);
         if (!is_pi(r)) throw invalid_proj_exception(env(), m_lctx, e);
         if (has_loose_bvars(binding_body(r))) {
@@ -413,7 +406,7 @@ expr type_checker::whnf_fvar(expr const & e, bool cheap_rec, bool cheap_proj) {
 }
 
 /* Auxiliary method for `reduce_proj` */
-optional<expr> type_checker::reduce_proj_core(expr c, name const & sname, unsigned idx) {
+optional<expr> type_checker::reduce_proj_core(expr c, name const & sname, size_t idx) {
     if (is_string_lit(c))
         c = whnf(string_lit_to_constructor(c));
     buffer<expr> args;
@@ -429,7 +422,7 @@ optional<expr> type_checker::reduce_proj_core(expr c, name const & sname, unsign
        `infer_proj` rejects a `sname` that disagrees with the projected expression's type. */
     if (mk_val.get_induct() != sname)
         return none_expr();
-    unsigned nparams = mk_val.get_nparams();
+    size_t nparams = mk_val.get_nparams();
     if (nparams + idx < args.size())
         return some_expr(args[nparams + idx]);
     else
@@ -438,7 +431,7 @@ optional<expr> type_checker::reduce_proj_core(expr c, name const & sname, unsign
 
 /* If `cheap == true`, then we don't perform delta-reduction when reducing major premise. */
 optional<expr> type_checker::reduce_proj(expr const & e, bool cheap_rec, bool cheap_proj) {
-    unsigned idx;
+    size_t idx;
     if (!to_proj_idx(proj_idx(e), idx))
         return none_expr();
     expr c;
@@ -509,8 +502,8 @@ expr type_checker::whnf_core(expr const & e, bool cheap_rec, bool cheap_proj) {
         expr f0 = get_app_rev_args(e, args);
         expr f = whnf_core(f0, cheap_rec, cheap_proj);
         if (is_lambda(f)) {
-            unsigned m = 1;
-            unsigned num_args = args.size();
+            size_t m = 1;
+            size_t num_args = args.size();
             while (is_lambda(binding_body(f)) && m < num_args) {
                 f = binding_body(f);
                 m++;
@@ -562,7 +555,7 @@ optional<expr> type_checker::unfold_definition_core(expr const & e) {
     if (is_constant(e)) {
         if (auto d = is_delta(e)) {
             levels const & us = const_levels(e);
-            unsigned len = length(us);
+            size_t len = length(us);
             if (m_diag) {
                 m_diag->record_unfold(d->get_name());
             }
@@ -666,7 +659,7 @@ template<typename F> optional<expr> type_checker::reduce_bin_nat_pred(F const & 
 }
 
 optional<expr> type_checker::reduce_nat(expr const & e) {
-    unsigned nargs = get_app_num_args(e);
+    size_t nargs = get_app_num_args(e);
     if (nargs == 1) {
         expr const & f = app_fn(e);
         if (f == *g_nat_succ) {
@@ -849,19 +842,38 @@ bool type_checker::try_eta_expansion_core(expr const & t, expr const & s) {
 }
 
 /** \brief check whether \c s is of the form <tt>mk t.1 ... t.n</tt> */
-bool type_checker::try_eta_struct_core(expr const & t, expr const & s) {
-    expr f = get_app_fn(s);
-    if (!is_constant(f)) return false;
-    constant_info f_info = env().get(const_name(f));
-    if (!f_info.is_constructor()) return false;
-    constructor_val f_val = f_info.to_constructor_val();
-    if (get_app_num_args(s) != f_val.get_nparams() + f_val.get_nfields()) return false;
-    if (!is_non_rec_structure(env(), f_val.get_induct())) return false;
-    if (!is_def_eq(infer_type(t), infer_type(s))) return false;
+bool type_checker::try_eta_struct_core(expr const & t_, expr const & s_) {
+    expr t = t_;
+    expr s = s_;
+    expr sf = get_app_fn(s);
+    if (!is_constant(sf)) return false;
+    constant_info sf_info = env().get(const_name(sf));
+    if (!sf_info.is_constructor()) return false;
+    constructor_val sf_val = sf_info.to_constructor_val();
+    if (!is_non_rec_structure(env(), sf_val.get_induct())) return false;
+    expr t_type = infer_type(t);
+    expr s_type = infer_type(s);
+    if (!is_def_eq(t_type,s_type)) return false;
+    flet<local_ctx> save_lctx(m_lctx, m_lctx);
+    size_t num_ctor_args = sf_val.get_nparams() + sf_val.get_nfields();
+    lean_assert(get_app_num_args(s) <= num_ctor_args);
+    if (get_app_num_args(s) < num_ctor_args) {
+        buffer<expr> fvars;
+        /* note: `s` is a ctor application, its head's type must be of the form `As -> fields -> I As` where `As` are the structure's params, ad `fields` the constructor's fields. As such, no need to whnf its type here. If we were running the loop on `t_type` instead, whnfs would be necessary. */
+        while (is_pi(s_type)) {
+            expr hd = binding_domain(s_type);
+            expr x  = m_lctx.mk_local_decl(m_st->m_ngen, binding_name(s_type), hd, binding_info(s_type));
+            fvars.push_back(x);
+            s_type = instantiate(binding_body(s_type), x);
+        };
+        t = mk_app(t, fvars);
+        s = mk_app(s, fvars);
+    };
+    lean_assert(get_app_num_args(s) == num_ctor_args);
     buffer<expr> s_args;
     get_app_args(s, s_args);
-    for (unsigned i = f_val.get_nparams(); i < s_args.size(); i++) {
-        expr proj = mk_proj(f_val.get_induct(), i - f_val.get_nparams(), t);
+    for (size_t i = sf_val.get_nparams(); i < s_args.size(); i++) {
+        expr proj = mk_proj(sf_val.get_induct(), i - sf_val.get_nparams(), t);
         if (!is_def_eq(proj, s_args[i])) return false;
     }
     return true;
@@ -878,7 +890,7 @@ bool type_checker::is_def_eq_app(expr const & t, expr const & s) {
         expr t_fn = get_app_args(t, t_args);
         expr s_fn = get_app_args(s, s_args);
         if (is_def_eq(t_fn, s_fn) && t_args.size() == s_args.size()) {
-            unsigned i = 0;
+            size_t i = 0;
             for (; i < t_args.size(); i++) {
                 if (!is_def_eq(t_args[i], s_args[i]))
                     break;
@@ -1084,7 +1096,7 @@ bool type_checker::lazy_delta_proj_reduction(expr & t_n, expr & s_n, name const 
         case reduction_status::DefEqual:   return true;
         case reduction_status::DefUnknown:
         case reduction_status::DefDiff:
-            unsigned i;
+            size_t i;
             if (to_proj_idx(idx, i)) {
                 if (auto t = reduce_proj_core(t_n, sname, i)) {
                 if (auto s = reduce_proj_core(s_n, sname, i)) {
@@ -1112,15 +1124,54 @@ lbool type_checker::try_string_lit_expansion(expr const & t, expr const & s) {
     return try_string_lit_expansion_core(s, t);
 }
 
-/* Return `true` if the types of the given expressions is an inductive datatype with an inductive datatype with a single constructor with no fields. */
+/** Takes a type of the form `A1 -> ... -> An-> I As`, checks that `I` is a (non-recursive) structure, and that each (instantiated) fields is itself either a proposition or a unit-like type*/
+bool type_checker::is_unit_like(expr const & t) {
+    buffer<expr> args;
+    buffer<expr> fvars;
+    flet<local_ctx> save_lctx(m_lctx, m_lctx);
+
+    expr I = whnf(t);
+    // If type is an arrow-type, we check if the final codomain is unit-like
+    while (is_pi(I)) {
+        expr hd = binding_domain(I);
+        expr x  = m_lctx.mk_local_decl(m_st->m_ngen, binding_name(I), hd, binding_info(I));
+        fvars.push_back(x);
+        I       = whnf(instantiate(binding_body(I), x));
+    }
+    I = get_app_args(I, args);
+    if (!is_constant(I))
+        return false;
+    name I_name = const_name(I);
+    // same check as in try_eta_struct_core
+    if (!is_non_rec_structure(env(), I_name))
+        return false;
+    name ctor_name = head(env().get(I_name).to_inductive_val().get_cnstrs());
+    constant_val ctor_val = env().get(ctor_name).to_constructor_val().to_constant_val();
+    expr ctor_ty = ctor_val.get_type();
+    ctor_ty = instantiate_lparams(ctor_ty, ctor_val.get_lparams(), const_levels(I));
+    // `I` is a structure, and in particular has no indices. Furthermore, it is a type, so `args.size() = I_val.nparams()`
+    for (size_t i = 0; i < args.size(); i++)
+        ctor_ty = binding_body(ctor_ty);
+    ctor_ty = instantiate_rev(ctor_ty, args.size(), args.data());
+    // Check that every field (read, every domain) of the constructor are themselves unit-like
+    while (is_pi(ctor_ty)) {
+        expr hd = binding_domain(ctor_ty);
+        if (!is_prop(hd) && !is_unit_like(hd))
+            return false;
+        expr x  = m_lctx.mk_local_decl(m_st->m_ngen, binding_name(ctor_ty), hd, binding_info(ctor_ty));
+        fvars.push_back(x);
+        ctor_ty = whnf(instantiate(binding_body(ctor_ty), x));
+    }
+    return true;
+}
+
+/*
+  Return `true` if the types of the given expressions is a structure-like inductive datatype
+  with a single constructor for which all fields are unit-like or Prop types,
+  or a dependent arrow for which the final codomain is unit-like. */
 bool type_checker::is_def_eq_unit_like(expr const & t, expr const & s) {
     expr t_type = whnf(infer_type(t));
-    expr I = get_app_fn(t_type);
-    if (!is_constant(I) || !is_non_rec_structure(env(), const_name(I)))
-        return false;
-    name ctor_name = head(env().get(const_name(I)).to_inductive_val().get_cnstrs());
-    constructor_val ctor_val = env().get(ctor_name).to_constructor_val();
-    if (ctor_val.get_nfields() != 0)
+    if (!is_unit_like(t_type))
         return false;
     return is_def_eq_core(t_type, infer_type(s));
 }
@@ -1141,6 +1192,9 @@ bool type_checker::is_def_eq_core(expr const & t, expr const & s) {
         }
     }
 
+    r = is_def_eq_proof_irrel(t, s);
+    if (r != l_undef) return r == l_true;
+
     /*
       Apply whnf (without using delta-reduction or normalizer extensions), *and*
       without using `whnf` when reducing projections.
@@ -1155,9 +1209,6 @@ bool type_checker::is_def_eq_core(expr const & t, expr const & s) {
         r = quick_is_def_eq(t_n, s_n);
         if (r != l_undef) return r == l_true;
     }
-
-    r = is_def_eq_proof_irrel(t_n, s_n);
-    if (r != l_undef) return r == l_true;
 
     /* NB: `lazy_delta_reduction` updates `t_n` and `s_n` even when returning `l_undef`. */
     r = lazy_delta_reduction(t_n, s_n);

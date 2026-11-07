@@ -909,6 +909,12 @@ function](https://pubs.opengroup.org/onlinepubs/9699919799/functions/rename.html
 @[extern "lean_io_rename"] opaque rename (old new : @& FilePath) : IO Unit
 
 /--
+Moves a file or directory `old` to the new location `new`.
+Errors if `new` already exists.
+-/
+@[extern "lean_io_rename_if_new"] opaque renameIfNew (old new : @& FilePath) : IO Unit
+
+/--
 Creates a new hard link.
 
 The `link` path will be a link pointing to the `orig` path.
@@ -1521,7 +1527,7 @@ standard input is exhausted.
     IO (cfg.stdin.toHandleType × Child { cfg with stdin := Stdio.null })
 
 /-- Returns the operating system process id of the child process. -/
-@[extern "lean_io_process_child_pid"] opaque Child.pid {cfg : @& StdioConfig} : Child cfg → UInt32
+@[extern "lean_io_process_child_pid"] opaque Child.pid {cfg : @& StdioConfig} : @& Child cfg → UInt32
 
 /--
 The result of running a process to completion.
@@ -1858,3 +1864,21 @@ in the program. At runtime, this will be a no-op as the C compiler will optimize
 -/
 @[extern "lean_runtime_hold"]
 def Runtime.hold (a : @& α) : BaseIO Unit := return
+
+/-- Copy the entire object graph into new memory.
+Scalar values, inductives, arrays, strings, and closures can always be copied.
+External objects and `ST.Ref`s are not supported.
+`Thunk`s, `Task`s, and `Promise`s can only be copied after becoming immutable:
+already-evaluated `Thunk`s, finished `Task`s, and resolved `Promise`s.
+
+The result:
+- has no allocation in common with the input
+- is reference-counted (single-threaded) even when the input wasn't
+- does not contribute to the input's reference count
+- has the same sharing as the input
+- has array and string capacities shrunken to their size
+
+Warning: closures produced by the interpreter capture the whole `Environment`
+which cannot be copied. -/
+@[extern "lean_runtime_deep_copy"]
+def Runtime.deepCopy (a : @& α) : IO α := return a

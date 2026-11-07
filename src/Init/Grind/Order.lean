@@ -218,10 +218,6 @@ private theorem add_lt_add_of_le_of_lt {α} [LE α] [LT α] [Std.LawfulOrderLT �
     {a b c d : α} (hab : a ≤ b) (hcd : c < d) : a + c < b + d :=
   lt_le_trans (OrderedAdd.add_lt_right a hcd) (OrderedAdd.add_le_left hab d)
 
-private theorem add_lt_add_of_lt_of_le {α} [LE α] [LT α] [Std.LawfulOrderLT α] [Std.IsPreorder α] [Ring α] [OrderedRing α]
-    {a b c d : α} (hab : a < b) (hcd : c ≤ d) : a + c < b + d :=
-  le_lt_trans (OrderedAdd.add_le_right a hcd) (OrderedAdd.add_lt_left hab d)
-
 /-! Theorems for propagating constraints to `True` -/
 
 theorem le_eq_true_of_lt {α} [LE α] [LT α] [Std.LawfulOrderLT α]

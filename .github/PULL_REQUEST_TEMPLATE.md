@@ -1,9 +1,10 @@
 # Read this section before submitting
 
+**This repository only accepts PRs from the Lean FRO team and a small set of regular contributors; other PRs are closed automatically**. Please [open an issue](https://github.com/leanprover/lean4/issues/new/choose) instead. Maintainers may reopen PRs where appropriate.
+
 * Ensure your PR follows the [External Contribution Guidelines](https://github.com/leanprover/lean4/blob/master/CONTRIBUTING.md).
 * Please make sure the PR has excellent documentation and tests. If we label it `missing documentation` or `missing tests` then it needs fixing!
 * Include the link to your `RFC` or `bug` issue in the description.
-* If the issue does not already have approval from a developer, submit the PR as draft.
 * The PR title/description will become the commit message. Keep it up-to-date as the PR evolves.
 * For `feat/fix` PRs, the first paragraph starting with "This PR" must be present and will become a
   changelog entry unless the PR is labeled with `no-changelog`. If the PR does not have this label,

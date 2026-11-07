@@ -12,6 +12,8 @@ import Init.Classical
 
 public section
 
+namespace ST.Internal
+
 opaque Void.nonemptyType (σ : Type) : NonemptyType.{0}
 
 @[expose] def Void (σ : Type) : Type := Void.nonemptyType σ |>.type
@@ -22,16 +24,18 @@ instance Void.instNonempty : Nonempty (Void σ) :=
 @[extern "lean_void_mk", never_extract]
 opaque Void.mk (x : σ) : Void σ
 
+end ST.Internal
+
 structure ST.Out (σ : Type) (α : Type) where
   val : α
-  state : Void σ
+  state : ST.Internal.Void σ
 
 /--
 A restricted version of `IO` in which mutable state is the only side effect.
 
 It is possible to run `ST` computations in a non-monadic context using `runST`.
 -/
-@[expose] def ST (σ : Type) (α : Type) := Void σ → ST.Out σ α
+@[expose] def ST (σ : Type) (α : Type) := ST.Internal.Void σ → ST.Out σ α
 
 namespace ST
 
@@ -66,15 +70,15 @@ instance {σ : Type} : MonadAttach (ST σ) where
   attach x s := match h : x s with | ⟨a, s'⟩ => ⟨⟨a, s, s', h⟩, s'⟩
 
 inductive EST.Out (ε : Type) (σ : Type) (α : Type) where
-  | ok : α → Void σ → EST.Out ε σ α
-  | error : ε → Void σ → EST.Out ε σ α
+  | ok : α → ST.Internal.Void σ → EST.Out ε σ α
+  | error : ε → ST.Internal.Void σ → EST.Out ε σ α
 
 /--
 A restricted version of `IO` in which mutable state and exceptions are the only side effects.
 
 It is possible to run `EST` computations in a non-monadic context using `runEST`.
 -/
-@[expose] def EST (ε : Type) (σ : Type) (α : Type) : Type := Void σ → EST.Out ε σ α
+@[expose] def EST (ε : Type) (σ : Type) (α : Type) : Type := ST.Internal.Void σ → EST.Out ε σ α
 
 namespace EST
 
@@ -143,7 +147,7 @@ Runs an `EST` computation, in which mutable state and exceptions are the only si
 -/
 @[noinline, nospecialize]
 def runEST {ε α : Type} (x : (σ : Type) → EST ε σ α) : Except ε α :=
-  match x Unit (Void.mk ()) with
+  match x Unit (ST.Internal.Void.mk ()) with
   | .ok a _     => Except.ok a
   | .error ex _ => Except.error ex
 
@@ -152,7 +156,7 @@ Runs an `ST` computation, in which mutable state via `ST.Ref` is the only side e
 -/
 @[noinline, nospecialize]
 def runST {α : Type} (x : (σ : Type) → ST σ α) : α :=
-  match x Unit (Void.mk ()) with
+  match x Unit (ST.Internal.Void.mk ()) with
   | .mk a _ => a
 
 @[always_inline]

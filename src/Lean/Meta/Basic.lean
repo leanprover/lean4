@@ -8,6 +8,7 @@ module
 prelude
 public import Init.Control.Do
 public import Lean.Data.LOption
+public import Lean.Data.BudgetedCache
 public import Lean.Class
 public import Lean.ReducibilityAttrs
 public import Lean.Util.MonadBacktrack
@@ -15,7 +16,6 @@ public import Lean.Compiler.InlineAttrs
 public import Lean.Meta.TransparencyMode
 import Init.Data.Range.Polymorphic.Iterators
 import all Lean.Environment  -- for accessing `Environment.synthCacheRaw?`
-import all Lean.MetavarContext  -- for accessing `SynthNormMemoSlot.raw?`
 import Init.While
 
 public section
@@ -385,9 +385,9 @@ structure SynthInstanceCacheKey where
   isExporting       : Bool
   /--
   For a key whose free variables are normalized (see `Lean.Meta.SynthNorm`), these are the types of
-  the free variables `type` and `localInsts` mention, by canonical position. Free variables are
-  abstracted to loose bound variables, so that structurally identical queries in different local
-  contexts share an entry. Empty for other keys.
+  the free variables `type` mentions, by canonical position. Free variables are abstracted to loose
+  bound variables, so that structurally identical queries in different local contexts share an
+  entry. Empty for other keys.
   -/
   normFVarTypes     : Array Expr := #[]
   deriving Hashable, BEq
@@ -402,21 +402,60 @@ structure AbstractMVarsResult where
 def AbstractMVarsResult.numMVars (r : AbstractMVarsResult) : Nat :=
   r.mvars.size
 
+/--
+The local instances a cached type class resolution result depends on: the local instances of the
+consulted classes (`RecordedDeps.localInstClasses`), with free variables normalized jointly with the
+query type, together with the types of those free variables by canonical position.
+-/
+structure SynthInstanceRelevantLocalInsts where
+  /--
+  The classes whose local instances the search consulted. A context is matched by its local
+  instances of these classes, in order, and ignoring all others.
+  -/
+  classes         : Array Name
+  /--
+  The local instances of `classes` in the context of the search, with each free variable replaced by
+  a loose bound variable for its canonical position. The free variables of the query type come first,
+  so a position means the same in the key and here.
+  -/
+  canonLocalInsts : LocalInstances
+  /--
+  The type of each free variable by canonical position, abstracted over the preceding ones: those of
+  the query type, the local instances and, transitively, their types. Equal values mean the contexts
+  agree up to renaming of free variables.
+  -/
+  fvarTypes       : Array Expr
+  deriving BEq
+
 /-- A type class resolution result together with the dependencies it was computed under. -/
 structure SynthInstanceCacheEntry where
   deps    : RecordedDeps
   result? : Option AbstractMVarsResult
 
 /--
+An entry keyed by the query type alone (normalized over its own free variables): it is valid in a
+context whose local instances of `relevant.classes` normalize to `relevant.canonLocalInsts`.
+-/
+structure SynthInstanceSharedEntry extends SynthInstanceCacheEntry where
+  relevant : SynthInstanceRelevantLocalInsts
+
+/--
 Type class resolution cache. Each key holds one entry per observed set of dependencies: the search
 records what it observes as the entry's `RecordedDeps`, and a lookup only uses an entry whose
 recorded dependencies still hold in the current context. What the search never observes does not
 partition the cache. The recorded dependencies are the option lookups (`getRecordedOption`), the
-generations of the instance and unification-hint extensions read
+changes of the global instances of the consulted classes (`RecordedDeps.instClassChanges`), the
+generations of the other generation-tracked extensions read, i.e. unification hints
 (`PersistentEnvExtensionDescrCore.trackGen`), and the position in `Environment.declChangeLog`,
 against whose later changes of declaration-keyed state the entry is validated. The search runs with
 `Core.Context.isRecordingDeps` set, so an unrecorded read of an option or an environment extension
 panics.
+
+A result is stored in `raw` under its raw key, with the query type and all local instances, and in
+`shared` under the query type alone with its free variables normalized, for contexts whose local
+instances of the consulted classes agree (`SynthInstanceSharedEntry.relevant`). `shared` keeps only
+the `maxSharedEntries` most recent entries per key, bounding the scan on a lookup and the growth of
+the persistent tier.
 
 The cache has two tiers. The transient tier, `Meta.Cache.synthInstance`, lives as long as the
 current `Meta.State`. Context-free entries are also stored in the persistent tier,
@@ -436,88 +475,29 @@ As the cache survives rollbacks, custom metaprograms that roll back the environm
 without clearing the cache (e.g. through `liftCommandElabM`) should call `resetSynthInstanceCache`,
 as otherwise a stale entry can be revalidated.
 -/
-abbrev SynthInstanceCache :=
-  PersistentHashMap SynthInstanceCacheKey (List SynthInstanceCacheEntry)
-
-/-- The value stored in `Environment.synthCacheRaw?`. -/
-private structure PersistentSynthInstanceCache where
-  /-- `Environment.trackedGen` that `entries` were recorded at. -/
-  gen     : Nat
-  entries : SynthInstanceCache
+structure SynthInstanceCache where
+  raw    : PersistentHashMap SynthInstanceCacheKey (List SynthInstanceCacheEntry) := {}
+  shared : PersistentHashMap SynthInstanceCacheKey (List SynthInstanceSharedEntry) := {}
   deriving Inhabited
 
 /--
 Persistent tier of the type class resolution cache, which survives the current command. It holds
 only context-free entries (see `Lean.Meta.SynthInstance`), and as it is part of the environment, it
-rolls back together with the counters its entries are validated against.
-
-The entries are only kept until the instances or unification hints in effect change: the tier
-remembers the `Environment.trackedGen` its entries were recorded at, and this function returns an
-empty cache once the environment's value differs. Such a change invalidates almost every entry
-anyway, as almost every search depends on the instances, and dropping them all avoids keeping the
-invalidated entries in the environment until their query recurs.
+rolls back together with the counters its entries are validated against. A change of the instances
+in effect only invalidates the entries whose search consulted the class it affects
+(`RecordedDeps.instClassChanges`): an invalidated entry is rejected when it is looked up (see
+`RecordedDeps`), and replaced when its query is stored again.
 -/
 def _root_.Lean.Environment.synthCache (env : Environment) : SynthInstanceCache :=
   match env.synthCacheRaw? with
-  | some v =>
-    -- safety: only `setSynthCache` stores a value
-    let c : PersistentSynthInstanceCache := unsafe unsafeCast v
-    if c.gen == env.trackedGen then c.entries else {}
+  -- safety: only `setSynthCache` stores a value
+  | some v => unsafe unsafeCast v
   | none   => {}
 
 /-- Replaces the persistent tier of the type class resolution cache; see `Environment.synthCache`. -/
 def _root_.Lean.Environment.setSynthCache (env : Environment) (c : SynthInstanceCache) :
     Environment :=
-  let c : PersistentSynthInstanceCache := { gen := env.trackedGen, entries := c }
   { env with synthCacheRaw? := some (unsafe unsafeCast c) }
-
-/--
-The free-variable normalization of a local instance context (see `Lean.Meta.SynthNorm`): every free
-variable reachable from the local instances, transitively through their types, by canonical
-position, and the normalized types of these variables.
--/
-structure SynthNormClosure where
-  fvarSet  : PersistentHashSet FVarId
-  idx2fvar : Array Expr
-  types    : Array Expr
-
-/--
-The memoized result of normalizing the free variables of the local instances `localInsts`. It does
-not depend on the query, so every type class resolution query made under the same local instances
-shares it. One slot suffices, as the local instances change rarely relative to the number of
-queries made under them.
-
-The result depends on the local declarations of the variables it visited, and on the metavariable
-assignments through their types.
-* A local declaration can be replaced under the same `FVarId`, e.g. by `change … at`, so the memo
-  records the declarations it was computed from (`decls`) and is only used while the local context
-  still has them with the same types.
-* The memo is stored in the `MetavarContext`, so that it is reverted together with the assignments.
-  Assignments made after it was computed do not affect a `closure?`, whose types are fully
-  instantiated.
--/
-structure SynthNormClosureMemo where
-  localInsts : LocalInstances
-  /-- The local declarations visited by the normalization. -/
-  decls : Array LocalDecl
-  /-- `none` if the local instances cannot be normalized. -/
-  closure? : Option SynthNormClosure
-  /--
-  If the normalization failed on a variable whose type has an unassigned metavariable, that type.
-  The failure holds as long as the type still has an unassigned metavariable.
-  -/
-  stuckType? : Option Expr
-
-/-- The memo for the type class resolution cache key normalization; see `SynthNormClosureMemo`. -/
-def _root_.Lean.MetavarContext.synthNormMemo? (mctx : MetavarContext) :
-    Option SynthNormClosureMemo :=
-  -- safety: only `setSynthNormMemo` stores a value
-  unsafe unsafeCast mctx.synthNormMemo.raw?
-
-/-- Replaces the memo for the type class resolution cache key normalization. -/
-def _root_.Lean.MetavarContext.setSynthNormMemo (mctx : MetavarContext)
-    (memo : SynthNormClosureMemo) : MetavarContext :=
-  { mctx with synthNormMemo := { raw? := some (unsafe unsafeCast memo) } }
 
 -- Key for `InferType` and `WHNF` caches
 structure ExprConfigCacheKey where
@@ -534,9 +514,15 @@ instance : BEq ExprConfigCacheKey where
 instance : Hashable ExprConfigCacheKey where
   hash := private fun { expr, configKey } => mixHash (hash expr) (hash configKey)
 
-abbrev InferTypeCache := PersistentHashMap ExprConfigCacheKey Expr
-abbrev FunInfoCache   := PersistentHashMap InfoCacheKey FunInfo
-abbrev WhnfCache      := PersistentHashMap ExprConfigCacheKey Expr
+instance : BudgetedBEq ExprConfigCacheKey where
+  beq a b budget := do
+    if a.configKey != b.configKey then return .false
+    a.expr.equalBudgeted b.expr budget
+
+abbrev InferTypeCache  := BudgetedCache ExprConfigCacheKey Expr
+abbrev FunInfoCache    := PersistentHashMap InfoCacheKey FunInfo
+abbrev WhnfCache       := PersistentHashMap ExprConfigCacheKey Expr
+abbrev IsUnitLikeCache := PersistentHashMap ExprConfigCacheKey Bool
 
 structure DefEqCacheKey where
   private mk ::
@@ -556,6 +542,29 @@ We should also investigate the impact on memory consumption.
 abbrev DefEqCache := PersistentHashMap DefEqCacheKey Bool
 
 /--
+Maximum number of entries in each generation of `UnfoldCache`. On Mathlib, larger limits barely
+reduce the instruction count further but keep many more unfolded values alive.
+-/
+def unfoldCacheLimit : Nat := 1024
+
+/--
+Two-generation cache: entries are inserted into `new`; when it reaches `unfoldCacheLimit` entries,
+it becomes `old` and the previous `old` is dropped. A hit in `old` is copied back into `new`. This
+keeps recently used entries while bounding the cache to `2 * unfoldCacheLimit` entries.
+-/
+structure UnfoldCache where
+  new     : PersistentExprStructMap Expr := {}
+  old     : PersistentExprStructMap Expr := {}
+  newSize : Nat := 0
+  deriving Inhabited
+
+def UnfoldCache.insert (c : UnfoldCache) (k : ExprStructEq) (v : Expr) : UnfoldCache :=
+  if c.newSize < unfoldCacheLimit then
+    { c with new := c.new.insert k v, newSize := c.newSize + 1 }
+  else
+    { new := ({} : PersistentExprStructMap Expr).insert k v, old := c.new, newSize := 1 }
+
+/--
 Cache datastructures for type inference, type class resolution, whnf, and definitional equality.
 -/
 structure Cache where
@@ -565,6 +574,13 @@ structure Cache where
   whnf           : WhnfCache := {}
   defEqTrans     : DefEqCache := {} -- transient cache for terms containing mvars or using nonstandard configuration options, it is frequently reset.
   defEqPerm      : DefEqCache := {} -- permanent cache for terms not containing mvars and using standard configuration options
+  isUnitLike     : IsUnitLikeCache := {}
+  /--
+  Default unfoldings of applications of definitions (see `unfoldDefinition?`): the value of the head
+  constant at its universe levels, beta-reduced with the arguments. This only depends on the
+  application and the environment, whose existing constants never change.
+  -/
+  unfold         : UnfoldCache := {}
   deriving Inhabited
 
 /--
@@ -773,13 +789,17 @@ branch both only grow), and those recorded after constants it removes, as a cons
 name added later would count as unobserved (`Environment.checkDeclChangeLog`).
 -/
 def SynthInstanceCache.rollBack (c : SynthInstanceCache) (env : Environment) : SynthInstanceCache :=
-  c.foldl (init := c) fun c key entries =>
-    match entries.filter fun e =>
-        e.deps.baseTrackedGen ≤ env.trackedGen &&
-        e.deps.baseChangeLogPos ≤ env.declChangeLog.size &&
-        e.deps.baseConstGen ≤ env.constGen with
-    | []       => c.erase key
-    | entries' => if entries'.length == entries.length then c else c.insert key entries'
+  { raw := rollBackEntries (·.deps) c.raw, shared := rollBackEntries (·.deps) c.shared }
+where
+  rollBackEntries {α} (deps : α → RecordedDeps)
+      (m : PersistentHashMap SynthInstanceCacheKey (List α)) :=
+    m.foldl (init := m) fun m key entries =>
+      match entries.filter fun e =>
+          (deps e).baseTrackedGen ≤ env.trackedGen &&
+          (deps e).baseChangeLogPos ≤ env.declChangeLog.size &&
+          (deps e).baseConstGen ≤ env.constGen with
+      | []       => m.erase key
+      | entries' => if entries'.length == entries.length then m else m.insert key entries'
 
 /-- Restore backtrackable parts of the state. -/
 def SavedState.restore (b : SavedState) : MetaM Unit := do
@@ -859,13 +879,16 @@ def resetCache : MetaM Unit :=
   modifyCache fun _ => {}
 
 @[inline] def modifyInferTypeCache (f : InferTypeCache → InferTypeCache) : MetaM Unit :=
-  modifyCache fun ⟨ic, c1, c2, c3, c4, c5⟩ => ⟨f ic, c1, c2, c3, c4, c5⟩
+  modifyCache fun ⟨ic, c1, c2, c3, c4, c5, c6, c7⟩ => ⟨f ic, c1, c2, c3, c4, c5, c6, c7⟩
 
 @[inline] def modifyDefEqTransientCache (f : DefEqCache → DefEqCache) : MetaM Unit :=
-  modifyCache fun ⟨c1, c2, c3, c4, defeqTrans, c5⟩ => ⟨c1, c2, c3, c4, f defeqTrans, c5⟩
+  modifyCache fun ⟨c1, c2, c3, c4, defeqTrans, c5, c6, c7⟩ => ⟨c1, c2, c3, c4, f defeqTrans, c5, c6, c7⟩
 
 @[inline] def modifyDefEqPermCache (f : DefEqCache → DefEqCache) : MetaM Unit :=
-  modifyCache fun ⟨c1, c2, c3, c4, c5, defeqPerm⟩ => ⟨c1, c2, c3, c4, c5, f defeqPerm⟩
+  modifyCache fun ⟨c1, c2, c3, c4, c5, defeqPerm, c6, c7⟩ => ⟨c1, c2, c3, c4, c5, f defeqPerm, c6, c7⟩
+
+@[inline] def modifyUnfoldCache (f : UnfoldCache → UnfoldCache) : MetaM Unit :=
+  modifyCache fun ⟨c1, c2, c3, c4, c5, c6, c7, unfold⟩ => ⟨c1, c2, c3, c4, c5, c6, c7, f unfold⟩
 
 def mkExprConfigCacheKey (expr : Expr) : MetaM ExprConfigCacheKey :=
   return { expr, configKey := (← read).configKey }
@@ -2153,7 +2176,7 @@ def withLocalInstancesImp (decls : List LocalDecl) (k : MetaM α) : MetaM α := 
     unless decl.isImplementationDetail do
       if let some className ← isClass? decl.type then
         -- Ensure we don't add the same local instance multiple times.
-        unless localInsts.any fun localInst => localInst.fvar.fvarId! == decl.fvarId do
+        unless localInsts.any fun localInst => localInst.fvar.isFVarOf decl.fvarId do
           localInsts := localInsts.push { className, fvar := decl.toExpr }
   if localInsts.size == size then
     k
@@ -2237,7 +2260,7 @@ def withErasedFVars [MonadLCtx n] [MonadLiftT MetaM n] (fvarIds : Array FVarId) 
   let lctx ← getLCtx
   let localInsts ← getLocalInstances
   let lctx' := fvarIds.foldl (·.erase ·) lctx
-  let localInsts' := localInsts.filter (!fvarIds.contains ·.fvar.fvarId!)
+  let localInsts' := localInsts.eraseAll fvarIds.contains
   withLCtx lctx' localInsts' k
 
 /--
@@ -2737,9 +2760,13 @@ def isDefEqNoConstantApprox (t s : Expr) : MetaM Bool :=
 def isDefEqD (t s : Expr) : MetaM Bool :=
   withDefault <| isDefEq t s
 
-/-- Similar to `isDefEq`, but ensures that only reducible definitions and instances can be reduced. -/
+/--
+Similar to `isDefEq`, but uses `.implicit` transparency: only `[reducible]`, `[instance_reducible]`,
+and `[implicit_reducible]` definitions can be unfolded. This is the transparency `isDefEq` uses
+for instance-implicit arguments, so it is the right choice for comparing instances.
+-/
 def isDefEqI (t s : Expr) : MetaM Bool :=
-  withReducibleAndInstances <| isDefEq t s
+  withImplicit <| isDefEq t s
 
 set_option compiler.ignoreBorrowAnnotation true in
 /--

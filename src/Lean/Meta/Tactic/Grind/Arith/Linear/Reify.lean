@@ -34,8 +34,9 @@ def reportInstIssue (e : Expr) : GoalM Unit := do
 
 private def assertNatCastNonneg (a : Expr) : LinearM Unit := do
   let s ← getStruct
+  let some lawfulOrderLTInst := s.lawfulOrderLTInst? | return ()
   let h := mkApp8 (mkConst ``Grind.OrderedRing.natCast_nonneg [s.u]) s.type s.ringInst?.get!
-    s.leInst?.get! s.ltInst?.get! s.lawfulOrderLTInst?.get! s.isPreorderInst?.get! s.orderedRingInst?.get! a
+    s.leInst?.get! s.ltInst?.get! lawfulOrderLTInst s.isPreorderInst?.get! s.orderedRingInst?.get! a
   addNewRawFact h (← inferType h) (← getGeneration a) (.ematch (.decl ``Grind.OrderedRing.natCast_nonneg)) .other
 
 /--

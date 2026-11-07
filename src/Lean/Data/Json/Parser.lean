@@ -190,7 +190,10 @@ def exponent (value : JsonNumber) : Parser JsonNumber := do
       else
         if c = '+' then skip
         let n ← natMaybeZero
-        if n > USize.size then fail "exp too large"
+        -- `shiftl` currently consumes time/memory linear in n,
+        -- and panics in `Nat.pow` for sufficiently large n.
+        -- This could be improved by supporting positive exponents in `JsonNumber`.
+        if n > 100_000 then fail "exponent too large"
         return value.shiftl n
     else
       return value
@@ -199,10 +202,16 @@ def num : Parser JsonNumber := do
   let res : JsonNumber ← numWithDecimals
   exponent res
 
+/--
+The deepest nesting of arrays and objects that `Json.parse` accepts.  The parser recurses once per
+level, so the limit bounds its stack use.
+-/
+def maxDepth : Nat := 10000
+
 mutual
 
-  partial def arrayCore (acc : Array Json) : Parser (Array Json) := do
-    let hd ← anyCore
+  partial def arrayCore (depth : Nat) (acc : Array Json) : Parser (Array Json) := do
+    let hd ← anyCore depth
     let acc' := acc.push hd
     let c ← any
     if c == ']' then
@@ -210,36 +219,40 @@ mutual
       return acc'
     else if c == ',' then
       ws
-      arrayCore acc'
+      arrayCore depth acc'
     else
       fail "unexpected character in array"
 
-  partial def objectCore (kvs : Std.TreeMap.Raw String Json) :
+  partial def objectCore (depth : Nat) (kvs : Std.TreeMap.Raw String Json) :
       Parser (Std.TreeMap.Raw String Json) := do
     lookahead (fun c => c == '"') "\""; skip;
     let k ← str; ws
+    if kvs.contains k then fail s!"duplicate object key {k.quote}"
     lookahead (fun c => c == ':') ":"; skip; ws
-    let v ← anyCore
+    let v ← anyCore depth
     let c ← any
     if c == '}' then
       ws
       return kvs.insert k v
     else if c == ',' then
       ws
-      objectCore (kvs.insert k v)
+      objectCore depth (kvs.insert k v)
     else
       fail "unexpected character in object"
 
-  partial def anyCore : Parser Json := do
+  /-- A JSON value, with `depth` more levels of nesting allowed. -/
+  partial def anyCore (depth : Nat) : Parser Json := do
     let c ← peek!
-    if c == '[' then
+    if (c == '[' || c == '{') && depth == 0 then
+      fail s!"nesting deeper than {maxDepth} levels"
+    else if c == '[' then
       skip; ws
       let c ← peek!
       if c == ']' then
         skip; ws
         return Json.arr (Array.mkEmpty 0)
       else
-        let a ← arrayCore (Array.mkEmpty 4)
+        let a ← arrayCore (depth - 1) (Array.mkEmpty 4)
         return Json.arr a
     else if c == '{' then
       skip; ws
@@ -248,7 +261,7 @@ mutual
         skip; ws
         return Json.obj ∅
       else
-        let kvs ← objectCore ∅
+        let kvs ← objectCore (depth - 1) ∅
         return Json.obj kvs
     else if c == '\"' then
       skip
@@ -275,7 +288,7 @@ end
 
 def any : Parser Json := do
   ws
-  let res ← anyCore
+  let res ← anyCore maxDepth
   eof
   return res
 
@@ -283,6 +296,7 @@ end Json.Parser
 
 namespace Json
 
+/-- Parses a JSON value, surrounded by optional whitespace. Objects with duplicate keys are rejected. -/
 def parse (s : String) : Except String Lean.Json :=
   Parser.run Json.Parser.any s
 

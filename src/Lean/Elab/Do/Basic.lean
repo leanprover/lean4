@@ -10,6 +10,7 @@ meta import Init.Data.Erased
 public import Lean.Elab.Do.InferControlInfo
 public import Lean.Elab.Binders
 import Lean.Meta.ProdN
+import Lean.Elab.DeprecatedSyntax.Basic
 public import Lean.Parser
 meta import Lean.Parser.Do
 import Init.Omega
@@ -562,9 +563,7 @@ def DoElemCont.mkBindUnlessPure (dec : DoElemCont) (e : Expr) : DoElabM Expr := 
         return (isPure, isDuplicable)
       if isPure then
         if isDuplicable then
-          return ← mapLetDeclZeta (nondep := true) (kind := declKind) x eResultTy eRes fun _ => k
-        -- else -- would be too aggressive
-        --   return ← mapLetDecl (nondep := true) (kind := declKind) x eResultTy eRes fun _ => k ref
+          return ← body.replaceFVarsM #[xFVar] #[eRes]
 
     let body ← Term.ensureHasType (← mkMonadApp kResultTy) body
     let k ← mkLambdaFVars #[xFVar] body
@@ -1014,6 +1013,19 @@ private def elabDoElemFns (stx : DoElem) (cont : DoElemCont)
             throw ex
         | _ => throw ex
 
+/--
+Runs `x cont`, which elaborates the `do` element `stx` or its macro expansion, followed by `cont`,
+like `Term.withDeprecationContextForSyntax stx`. The rest of the block `cont` is not part of `stx`,
+so it is elaborated with the current deprecation checks.
+-/
+private def withDeprecationContextForDoElem (stx : Syntax) (cont : DoElemCont)
+    (x : DoElemCont → DoElabM Expr) : DoElabM Expr := do
+  unless isDeprecatedSyntax (← getEnv) stx.getKind do
+    return ← x cont
+  let checkDeprecated := (← readThe Core.Context).checkDeprecated
+  Term.withoutCheckDeprecatedSynthetic <|
+    x { cont with k := withTheReader Core.Context ({ · with checkDeprecated }) cont.k }
+
 private def DoElemCont.mkUnit (k : DoElabM Expr) : DoElabM DoElemCont := do
   let unit ← mkPUnit
   let r ← mkFreshUserName `__r
@@ -1033,20 +1045,21 @@ partial def elabDoElem (stx : DoElem) (cont : DoElemCont) (catchExPostpone : Boo
   if (← read).deadCode matches .deadSemantically then
     logWarningAt stx "This `do` element and its control-flow region are dead code. Consider refactoring your code to remove it."
   withDeadCode .alive do -- we have warned for this doElem. No need to warn for every element of the block
-  let env ← getEnv
-  if let some (decl, stxNew?) ← liftMacroM (expandMacroImpl? env stx) then
-    let stxNew ← liftMacroM <| liftExcept stxNew?
+  if let some (decl, stxNew) ← Term.expandMacroReportingDeprecated? stx then
     return ← withTermInfoContext' decl stx mγ <|
       Term.withMacroExpansion stx stxNew <|
-        withRef stxNew <| elabDoElem ⟨stxNew⟩ cont
+        withRef stxNew <| withDeprecationContextForDoElem stx cont (elabDoElem ⟨stxNew⟩ ·)
 
   let (doElems, stx) ← expandNestedActions stx
   if !doElems.isEmpty then
     return ← elabDoElems1 (doElems.push stx) cont
 
+  -- After `expandNestedActions`, as syntax with nested actions is elaborated again without them
+  Term.reportDeprecatedSyntax stx
   match doElemElabAttribute.getEntries (← getEnv) k with
   | []      => throwError "elaboration function for `{k}` has not been implemented{indentD stx}"
-  | elabFns => elabDoElemFns stx cont elabFns catchExPostpone
+  | elabFns =>
+    withDeprecationContextForDoElem stx cont (elabDoElemFns stx · elabFns catchExPostpone)
 
 partial def elabDoElems1 (doElems : Array DoElem) (cont : DoElemCont) (catchExPostpone : Bool := true) : DoElabM Expr := do
   if h : doElems.size = 0 then

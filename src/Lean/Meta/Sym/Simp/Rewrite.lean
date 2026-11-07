@@ -98,7 +98,7 @@ where
 Tries to rewrite `e` using the given `candidates`. `anyCD` is the context-dependency flag
 accumulated by previous attempts. Returns the result and the updated flag.
 -/
-private def rewriteUsing (candidates : Array (Theorem × Nat)) (e : Expr) (d : Discharger) (anyCD : Bool) : SimpM (Result × Bool) := do
+def rewriteUsing (candidates : Array (Theorem × Nat)) (e : Expr) (d : Discharger) (anyCD : Bool) : SimpM (Result × Bool) := do
   -- Track `cd` across all attempted theorems. If theorem A fails with cd=true
   -- and theorem B succeeds with cd=false, the result is still cd=true: in another
   -- context A might succeed (with higher priority) and produce a different result.

@@ -197,7 +197,7 @@ private partial def replaceRecApps (recArgInfos : Array RecArgInfo) (positions :
                   throwError "unexpected matcher application alternative{indentExpr alt}\nat application{indentExpr e}"
                 let belowForAlt := xs[numParams]!
                 mkLambdaFVars xs (← loop belowForAlt altBody)
-            pure { matcherApp with alts := altsNew }.toExpr
+            pure { matcherApp with alts := altsNew, discrs := (← matcherApp.discrs.mapM (loop below)) }.toExpr
           else
             trace[Elab.definition.structural] "`matcherApp.addArg?` failed"
             processApp e

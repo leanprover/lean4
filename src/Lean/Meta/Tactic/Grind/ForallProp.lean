@@ -178,7 +178,7 @@ private def isForallOrNot? (e : Expr) : Option (Name × Expr × Expr) :=
 
 /--
 Applies the following rewriting rules:
-- `Grind.imp_true_eq`
+- `implies_true`
 - `Grind.imp_false_eq`
 - `Grind.true_imp_eq`
 - `Grind.false_imp_eq`
@@ -197,7 +197,9 @@ builtin_simproc_decl simpForall ((a : _) → _) := fun e => do
     | False => if (← isProp b) then return .done { expr := mkConst ``True, proof? := mkApp (mkConst ``Grind.false_imp_eq) b }
     | _ =>
     match_expr b with
-    | True => if (← isProp d) then return .done { expr := mkConst ``True, proof? := mkApp (mkConst ``Grind.imp_true_eq) d }
+    | True =>
+      -- `d` may be a type, e.g. after the body of `∀ t : α, p t` has been simplified to `True`.
+      return .done { expr := mkConst ``True, proof? := mkApp (mkConst ``implies_true [← getLevel d]) d }
     | False => if (← isProp d) then return .visit { expr := mkNot d, proof? := mkApp (mkConst ``Grind.imp_false_eq) d }
     | _ => if (← isProp d <&&> isDefEq d b) then
       return .done { expr := mkConst ``True, proof? := mkApp (mkConst ``Grind.imp_self_eq) d }

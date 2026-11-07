@@ -65,4 +65,4 @@ trace: [grind.linarith.model] a := 0
 set_option trace.grind.linarith.model true in
 example [NatModule α] [AddRightCancel α] [LE α] [LT α] [LawfulOrderLT α] [IsLinearOrder α] [OrderedAdd α] (a b c d : α)
     : a ≤ b → a ≥ c + d → b = c → a = b := by
-  grind
+  grind +verbose

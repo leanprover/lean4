@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Char
-// Imports: public import Init.Data.Char.Basic public import Init.Data.Char.Lemmas public import Init.Data.Char.Order public import Init.Data.Char.Ordinal
+// Imports: public import Init.Data.Char.Basic public import Init.Data.Char.Lemmas public import Init.Data.Char.Order public import Init.Data.Char.Ordinal public import Init.Data.Char.Package
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -17,6 +17,7 @@ lean_object* runtime_initialize_Init_Data_Char_Basic(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Char_Lemmas(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Char_Order(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Char_Ordinal(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Char_Package(uint8_t builtin);
 void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Init_Data_Char(uint8_t builtin) {
@@ -36,6 +37,9 @@ lean_dec_ref(res);
 res = runtime_initialize_Init_Data_Char_Ordinal(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+res = runtime_initialize_Init_Data_Char_Package(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
 }
 static bool _G_meta_initialized = false;
@@ -49,6 +53,7 @@ lean_object* initialize_Init_Data_Char_Basic(uint8_t builtin);
 lean_object* initialize_Init_Data_Char_Lemmas(uint8_t builtin);
 lean_object* initialize_Init_Data_Char_Order(uint8_t builtin);
 lean_object* initialize_Init_Data_Char_Ordinal(uint8_t builtin);
+lean_object* initialize_Init_Data_Char_Package(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_Char(uint8_t builtin) {
 lean_object * res;
@@ -64,6 +69,9 @@ res = initialize_Init_Data_Char_Order(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Char_Ordinal(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Char_Package(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Init_Data_Char(builtin);

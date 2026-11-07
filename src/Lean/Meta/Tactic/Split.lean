@@ -10,6 +10,7 @@ public import Lean.Meta.Match.MatcherApp.Basic
 public import Lean.Meta.Tactic.Apply
 public import Lean.Meta.Tactic.Generalize
 public import Lean.Meta.Tactic.Simp.Types
+import Lean.Meta.Tactic.Contradiction
 import Lean.Meta.Tactic.Simp.Main
 import Lean.Meta.Tactic.SplitIf
 
@@ -249,7 +250,10 @@ private def substDiscrEqs (mvarId : MVarId) (fvarSubst : FVarSubst) (discrEqs : 
       | none => mvarId := mvarId'
   return mvarId
 
-def applyMatchSplitter (mvarId : MVarId) (matcherDeclName : Name) (us : Array Level) (params : Array Expr) (discrs : Array Expr) : MetaM (List MVarId) := do
+private def applyMatchSplitterCore (mvarId : MVarId) (matcherDeclName : Name) (us : Array Level)
+    (params : Array Expr) (discrs : Array Expr)
+    (generalize : MVarId → Expr → Array Expr → MetaM (Array FVarId × Array FVarId × MVarId)) :
+    MetaM (List MVarId) := do
   let some info ← getMatcherInfo? matcherDeclName | throwInternalMisuseError m!"Internal error in `split` tactic: `{matcherDeclName}` is not an auxiliary declaration used to encode `match`-expressions"
   let matchEqns ← Match.getEquationsFor matcherDeclName
   -- splitterPre does not have the correct universe elimination level, but this is fine, we only use it to compute the `motiveType`,
@@ -257,9 +261,7 @@ def applyMatchSplitter (mvarId : MVarId) (matcherDeclName : Name) (us : Array Le
   let splitterPre := mkAppN (mkConst matchEqns.splitterName us.toList) params
   let motiveType := (← whnfForall (← inferType splitterPre)).bindingDomain!
   trace[split.debug] "applyMatchSplitter\n{mvarId}"
-  let (discrs, mvarId) ← generalizeMatchPropDiscrs mvarId discrs
-  trace[split.debug] "after generalizeMatchPropDiscrs\n{mvarId}"
-  let (discrFVarIds, discrEqs, mvarId) ← generalizeMatchDiscrs mvarId matcherDeclName motiveType discrs
+  let (discrFVarIds, discrEqs, mvarId) ← generalize mvarId motiveType discrs
   trace[split.debug] "after generalizeMatchDiscrs\n{mvarId}"
   let mvarId ← generalizeTargetsEq mvarId motiveType (discrFVarIds.map mkFVar)
   mvarId.withContext do trace[split.debug] "discrEqs after generalizeTargetsEq: {discrEqs.map mkFVar}"
@@ -302,6 +304,40 @@ def applyMatchSplitter (mvarId : MVarId) (matcherDeclName : Name) (us : Array Le
         let mvarId ← substDiscrEqs mvarId fvarSubst discrEqs
         return (i+1, mvarId::mvarIds)
     return mvarIds.reverse
+
+def applyMatchSplitter (mvarId : MVarId) (matcherDeclName : Name) (us : Array Level) (params : Array Expr) (discrs : Array Expr) : MetaM (List MVarId) :=
+  applyMatchSplitterCore mvarId matcherDeclName us params discrs fun mvarId motiveType discrs => do
+    let (discrs, mvarId) ← generalizeMatchPropDiscrs mvarId discrs
+    trace[split.debug] "after generalizeMatchPropDiscrs\n{mvarId}"
+    generalizeMatchDiscrs mvarId matcherDeclName motiveType discrs
+
+/--
+Refines a goal into the cases of a matcher applied to `params` and `discrs`, without replacing
+matcher occurrences in the target. The arguments must be well-typed in the goal's context, but
+the matcher application need not occur in the target.
+
+Computed discriminants are linked to fresh variables by equalities. After splitting, these
+equalities specialize the goal where possible. Contradictory branches are closed; unresolved
+conditions remain as hypotheses. The target is not simplified.
+-/
+def refineMatch (mvarId : MVarId) (matcherDeclName : Name) (us : Array Level)
+    (params : Array Expr) (discrs : Array Expr) : MetaM (List MVarId) := mvarId.withContext do
+  let mvarIds ← applyMatchSplitterCore mvarId matcherDeclName us params discrs fun mvarId motiveType discrs =>
+    mvarId.withContext do
+      if ← discrs.allM fun discr => do
+        unless discr.isFVar do return false
+        return !(← discr.fvarId!.getDecl).isLet
+      then
+        return (discrs.map (·.fvarId!), #[], mvarId)
+      let mvarId ← generalizeTargetsEq mvarId motiveType discrs
+      let (discrFVarIds, mvarId) ← mvarId.introN discrs.size
+      let (discrEqs, mvarId) ← mvarId.introN discrs.size
+      return (discrFVarIds, discrEqs, mvarId)
+  /- Substitution can expose contradictions in the generalized discriminant equalities
+     (e.g. `0 = n.succ`) or overlap exclusions (e.g. `0 = 0 → False`). These hypotheses
+     are already in the local context, so `Cases.unifyEqs?` does not process them. -/
+  mvarIds.filterM fun mvarId => do
+    return !(← mvarId.contradictionCore { useDecide := false, emptyType := false, genDiseq := true })
 
 def mkDiscrGenErrorMsg (e : Expr) : MessageData :=
   m!"`split` tactic failed to generalize discriminant(s) at{indentExpr e}\nresulting expression was not type correct\npossible solution: generalize discriminant(s) manually before using `split`"

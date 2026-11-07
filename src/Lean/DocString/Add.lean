@@ -131,7 +131,7 @@ open Lean.Parser Command in
 The source positions a docstring is read from: its opening delimiter, the start of its content, and
 its closing delimiter.
 -/
-private def docStringRange (docComment : TSyntax [``docComment, ``moduleDoc]) :
+def docStringRange (docComment : TSyntax [``docComment, ``moduleDoc]) :
     Except MessageData (String.Pos.Raw × String.Pos.Raw × String.Pos.Raw) := do
   let ⟨.node _ _ #[opener, .node _ _ #[content, closer]]⟩ := docComment
     | throw m!"This documentation comment has an unexpected structure, so it cannot be parsed."
@@ -215,7 +215,7 @@ open Lean.Doc in
 The result of elaborating a Verso docstring, which consists of the docstring contents paired with a
 set of deferred checks.
 -/
-public structure VersoDocResult extends VersoDocString where
+structure VersoDocResult extends VersoDocString where
   /--
   Checks that cannot be carried out during elaboration, typically because they require information
   that is not yet available.

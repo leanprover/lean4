@@ -270,10 +270,11 @@ do not constitute a surrounding block in this sense;
 in supported editors, the corresponding `do` keyword of the surrounding block
 is highlighted when hovering over `return`.
 
-`return` not followed by a term starting on the same line is equivalent to `return ()`.
+The term `e` can start on a later line if it starts in a column to the right of `return`.
+`return` not followed by such a term is equivalent to `return ()`.
 -/
 @[builtin_doElem_parser] def doReturn    := leading_parser:leadPrec
-  withPosition ("return" >> optional (ppSpace >> checkLineEq >> termParser))
+  withPosition ("return" >> optional (ppSpace >> checkColGt >> termParser))
 /--
 `dbg_trace e` prints `e` (which can be an interpolated string literal) to stderr.
 It should only be used for debugging.
@@ -383,7 +384,7 @@ They expand into `do unless ...`, `do for ...`, `do try ...`, and `do return ...
 and thus is equivalent to `pure e`, but helps with avoiding parentheses.
 -/
 @[builtin_term_parser] def termReturn := leading_parser:leadPrec
-  withPosition ("return" >> optional (ppSpace >> checkLineEq >> termParser))
+  withPosition ("return" >> optional (ppSpace >> checkColGt >> termParser))
 
 end Term
 end Parser

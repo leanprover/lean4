@@ -8,10 +8,12 @@ module
 prelude
 import all Init.Data.Vector.Basic
 import all Init.Data.Array.Lex.Basic
-import Init.Data.Range.Polymorphic.Lemmas
 public import Init.Data.Array.Lex.Basic
 public import Init.Data.BEq
+public import Init.Data.Function
 public import Init.Data.Vector.Basic
+public import Init.Data.Order.Classes
+import Init.Data.Array.Bootstrap
 import Init.Data.Array.Lex.Lemmas
 import Init.Data.Vector.Lemmas
 
@@ -59,8 +61,10 @@ protected theorem not_le_iff_gt [LT α] {xs ys : Vector α n} :
 
 @[simp] theorem mk_lex_mk [BEq α] {lt : α → α → Bool} {xs ys : Array α} {n₁ : xs.size = n} {n₂ : ys.size = n} :
     (Vector.mk xs n₁).lex (Vector.mk ys n₂) lt = xs.lex ys lt := by
-  simp [Vector.lex, Array.lex, n₁, n₂, Std.Rco.forIn'_eq_forIn'_toList]
-  rfl
+  rw [Vector.lex, Array.lex, eq_comm]
+  suffices ∀ i, Array.lex.go xs ys lt i = Vector.lex.go (Vector.mk xs n₁) (Vector.mk ys n₂) lt i from this 0
+  intro i
+  fun_induction Vector.lex.go with (rw [Array.lex.go]; simp_all)
 
 @[simp, grind =] theorem lex_toArray [BEq α] {lt : α → α → Bool} {xs ys : Vector α n} :
     xs.toArray.lex ys.toArray lt = xs.lex ys lt := by
@@ -242,6 +246,10 @@ protected theorem le_iff_exists [LT α]
   rcases ys with ⟨ys, n₂⟩
   simp [Array.le_iff_exists, ← n₂]
 
+theorem lt_of_getElem_zero [LT α] {xs ys : Vector α n} (hn : 0 < n) (h : xs[0] < ys[0]) :
+    xs < ys :=
+  Array.lt_of_getElem_zero (by simpa using hn) (by simpa using hn) (by simpa using h)
+
 theorem append_left_lt [LT α] {xs : Vector α n} {ys ys' : Vector α m} (h : ys < ys') :
     xs ++ ys < xs ++ ys' := by
   simpa using! Array.append_left_lt h
@@ -250,8 +258,40 @@ theorem append_left_le [LT α]
     [Std.Asymm (· < · : α → α → Prop)]
     [Std.Trichotomous (· < · : α → α → Prop)]
     {xs : Vector α n} {ys ys' : Vector α m} (h : ys ≤ ys') :
-    xs ++ ys ≤ xs ++ ys' := by
-  simpa using! Array.append_left_le h
+    xs ++ ys ≤ xs ++ ys' :=
+  Array.append_left_le h
+
+@[simp]
+theorem append_left_lt_iff [LT α] [Std.Irrefl (· < · : α → α → Prop)] (xs : Vector α n)
+    {ys ys' : Vector α m} : xs ++ ys < xs ++ ys' ↔ ys < ys' := by
+  simp only [← lt_toArray, toArray_append, Array.append_left_lt_iff]
+
+@[simp]
+theorem append_left_le_iff [LT α] [Std.Irrefl (· < · : α → α → Prop)] (xs : Vector α n)
+    {ys ys' : Vector α m} : xs ++ ys ≤ xs ++ ys' ↔ ys ≤ ys' :=
+  not_congr (append_left_lt_iff xs)
+
+theorem append_lt_append_iff [LT α] {xs₁ xs₂ : Vector α n} {ys₁ ys₂ : Vector α m} :
+    xs₁ ++ ys₁ < xs₂ ++ ys₂ ↔ xs₁ < xs₂ ∨ (xs₁ = xs₂ ∧ ys₁ < ys₂) := by
+  rw [← lt_toArray, toArray_append, toArray_append,
+    Array.append_lt_append_iff_of_size_eq (by simp), lt_toArray, lt_toArray, toArray_inj]
+
+theorem append_le_append_iff [LT α] [Std.Asymm (· < · : α → α → Prop)]
+    [Std.Trichotomous (· < · : α → α → Prop)] {xs₁ xs₂ : Vector α n} {ys₁ ys₂ : Vector α m} :
+    xs₁ ++ ys₁ ≤ xs₂ ++ ys₂ ↔ xs₁ < xs₂ ∨ (xs₁ = xs₂ ∧ ys₁ ≤ ys₂) := by
+  rw [← le_toArray, toArray_append, toArray_append,
+    Array.append_le_append_iff_of_size_eq (by simp), lt_toArray, le_toArray, toArray_inj]
+
+@[simp]
+theorem append_right_lt_iff [LT α] [Std.Irrefl (· < · : α → α → Prop)] {xs₁ xs₂ : Vector α n}
+    (ys : Vector α m) : xs₁ ++ ys < xs₂ ++ ys ↔ xs₁ < xs₂ := by
+  rw [← lt_toArray, toArray_append, toArray_append,
+    Array.append_right_lt_iff_of_size_eq _ (by simp), lt_toArray]
+
+@[simp]
+theorem append_right_le_iff [LT α] [Std.Irrefl (· < · : α → α → Prop)] {xs₁ xs₂ : Vector α n}
+    (ys : Vector α m) : xs₁ ++ ys ≤ xs₂ ++ ys ↔ xs₁ ≤ xs₂ :=
+  not_congr (append_right_lt_iff ys)
 
 protected theorem map_lt [LT α] [LT β]
     {xs ys : Vector α n} {f : α → β} (w : ∀ x y, x < y → f x < f y) (h : xs < ys) :
@@ -266,5 +306,51 @@ protected theorem map_le [LT α] [LT β]
     {xs ys : Vector α n} {f : α → β} (w : ∀ x y, x < y → f x < f y) (h : xs ≤ ys) :
     map f xs ≤ map f ys := by
   simpa using! Array.map_le w h
+
+/-- See `map_lt_map_iff` for a variant with fewer proof obligations for `f` but with some mild
+assumptions on the order on `α` and `β`. -/
+theorem map_lt_map_iff_of_injective [LT α] [LT β] (f : α → β) (hf : ∀ a b, f a < f b ↔ a < b)
+    (hfinj : Function.Injective f) {xs ys : Vector α n} :
+    xs.map f < ys.map f ↔ xs < ys := by
+  rw [← lt_toArray, toArray_map, toArray_map, Array.map_lt_map_iff_of_injective f hf hfinj,
+    lt_toArray]
+
+/-- See `map_lt_map_iff_of_injective` for a variant which does not assume anything about the order
+on `α` and `β`, but with more assumptions on `f`. -/
+theorem map_lt_map_iff [LT α] [Std.Trichotomous (· < · : α → α → Prop)] [LT β]
+    [Std.Asymm (· < · : β → β → Prop)] (f : α → β) (hf : ∀ a b, a < b → f a < f b)
+    {xs ys : Vector α n} : xs.map f < ys.map f ↔ xs < ys := by
+  rw [← lt_toArray, toArray_map, toArray_map, Array.map_lt_map_iff f hf, lt_toArray]
+
+theorem map_le_map_iff_of_injective [LT α] [LT β] (f : α → β) (hf : ∀ a b, f a < f b ↔ a < b)
+    (hfinj : Function.Injective f) {xs ys : Vector α n} :
+    xs.map f ≤ ys.map f ↔ xs ≤ ys :=
+  not_congr (map_lt_map_iff_of_injective f hf hfinj)
+
+theorem map_le_map_iff [LT α] [Std.Trichotomous (· < · : α → α → Prop)] [LT β]
+    [Std.Asymm (· < · : β → β → Prop)] (f : α → β) (hf : ∀ a b, a < b → f a < f b)
+    {xs ys : Vector α n} : xs.map f ≤ ys.map f ↔ xs ≤ ys :=
+  not_congr (map_lt_map_iff f hf)
+
+theorem flatMap_lt_flatMap_iff [LT α] [Std.Trichotomous (· < · : α → α → Prop)] [LT β]
+    [Std.Asymm (· < · : β → β → Prop)] (f : α → Vector β m)
+    (hf : ∀ a b, a < b → f a < f b) (hm : 0 < m) {xs ys : Vector α n} :
+    xs.flatMap f < ys.flatMap f ↔ xs < ys := by
+  have hinj : ∀ a b, f a = f b → a = b := fun a b hab => by
+    obtain (h|rfl|h) := Std.lt_trichotomy a b
+    · exact absurd hab (Std.ne_of_lt (hf _ _ h))
+    · rfl
+    · exact absurd hab.symm (Std.ne_of_lt (hf _ _ h))
+  simp only [← lt_toArray, ← flatMap_toArray]
+  refine Array.flatMap_lt_flatMap_iff _ (fun a b h => hf a b h) (fun a b zs h => hinj a b ?_)
+    (fun a => by simpa [← Array.size_eq_zero_iff] using Nat.ne_of_gt hm)
+  obtain rfl : zs = #[] := by simpa [← Array.size_eq_zero_iff] using congrArg Array.size h
+  simpa [toArray_inj] using h
+
+theorem flatMap_le_flatMap_iff [LT α] [Std.Trichotomous (· < · : α → α → Prop)] [LT β]
+    [Std.Asymm (· < · : β → β → Prop)] (f : α → Vector β m)
+    (hf : ∀ a b, a < b → f a < f b) (hm : 0 < m) {xs ys : Vector α n} :
+    xs.flatMap f ≤ ys.flatMap f ↔ xs ≤ ys :=
+  not_congr (flatMap_lt_flatMap_iff f hf hm)
 
 end Vector

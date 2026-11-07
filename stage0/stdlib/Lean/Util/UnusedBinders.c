@@ -22,6 +22,7 @@ _start:
 {
 lean_object* v___x_3_; 
 v___x_3_ = l_Lean_Expr_cleanupAnnotations(v_e_2_);
+lean_dec_ref(v_e_2_);
 switch(lean_obj_tag(v___x_3_))
 {
 case 7:

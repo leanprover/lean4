@@ -42,7 +42,7 @@ register_builtin_option sat.solver : String := {
 declare_config_elab elabBVDecideConfig Lean.Elab.Tactic.BVDecide.BVDecideConfig
 
 open Elab.Tactic.BVDecide in
-public def isPotentialTypeAnalysisType (cfg : BVDecideConfig) (declName : Name) : CoreM Bool := do
+def isPotentialTypeAnalysisType (cfg : BVDecideConfig) (declName : Name) : CoreM Bool := do
   if ← pure cfg.enums <&&> isEnumType declName then
     return true
   let env ← getEnv

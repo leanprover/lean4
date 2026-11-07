@@ -222,7 +222,7 @@ def PreProcessContext.new (mode : Mode) (config : BVDecideConfig) (keepCaches : 
     keepCaches := keepCaches
   }
 
-public def _root_.Lean.Meta.Tactic.BVDecide.TacticContext.preProcessContext (ctx : TacticContext) : Normalize.PreProcessContext :=
+def _root_.Lean.Meta.Tactic.BVDecide.TacticContext.preProcessContext (ctx : TacticContext) : Normalize.PreProcessContext :=
   .new (.solve ctx.restrictedTypes) ctx.config
 
 /--
@@ -479,17 +479,24 @@ def forHyps [Monad m] [MonadLiftT PreProcessM m] [MonadError m] (f : Hyp → m U
   hyps.forM f
 
 /--
-Runs `Sym.Simp` on `hyp`, using the cache identified by `cacheId` and updating it in place.
+Runs `Sym.Simp` on `e`, using the cache identified by `cacheId` and updating it in place.
 -/
-def simpHyp (cacheId : SimpCacheId) (methods : Sym.Simp.Methods) (config : Sym.Simp.Config)
-    (hyp : Hyp) : PreProcessM Hyp := do
+def simpExpr (cacheId : SimpCacheId) (methods : Sym.Simp.Methods) (config : Sym.Simp.Config)
+    (e : Expr) : PreProcessM Sym.Simp.Result := do
   let caches ← getCaches
   let simpState := { persistentCache := cacheId.get caches }
   setCaches <| cacheId.set {} caches
   let (res, s) ← Sym.Simp.SimpM.run (methods := methods) (config := config) (s := simpState) do
-    Sym.Simp.simp hyp.type
+    Sym.Simp.simp e
   setCaches <| cacheId.set s.persistentCache (← getCaches)
-  hyp.applySimpResult res
+  return res
+
+/--
+Runs `Sym.Simp` on `hyp`, using the cache identified by `cacheId` and updating it in place.
+-/
+def simpHyp (cacheId : SimpCacheId) (methods : Sym.Simp.Methods) (config : Sym.Simp.Config)
+    (hyp : Hyp) : PreProcessM Hyp := do
+  hyp.applySimpResult (← simpExpr cacheId methods config hyp.type)
 
 /--
 Runs `Sym.DSimp` on `hyp`, using the cache identified by `cacheId` and updating it in place.

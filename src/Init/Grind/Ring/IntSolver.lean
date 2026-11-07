@@ -37,7 +37,7 @@ theorem denote_of_split_cert (ctx : Context Int) {p q : Poly} {k c : Int}
   simp [split_cert] at h
   obtain ⟨h₁, h₂⟩ := h
   refine ⟨h₁, ?_⟩
-  rw [h₂, Poly.addConst_k_eq_addConst, Poly.denote_addConst, Poly.denote_mulConst]
+  rw [h₂, Poly.denote_addConst, Poly.denote_mulConst]
   simp
 
 @[expose] noncomputable def eq_div_cert (lhs rhs lhs' rhs' : Expr) (k : Int) : Bool :=

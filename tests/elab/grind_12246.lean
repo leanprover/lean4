@@ -1,6 +1,8 @@
 import Std.Do
 import Std.Tactic.Do
 
+set_option sym.debug true
+
 def Matrix' (α β γ : Type) : Type := α → β → γ
 
 namespace Matrix'

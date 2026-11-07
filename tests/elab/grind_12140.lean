@@ -18,13 +18,7 @@ heterogeneous equalities (e.g., `0 : Fin 3` and `0 : Fin 2` merged via `HEq`),
 -/
 
 /--
-error: `grind` failed
-case grind.1
-n : Nat
-ih : (Foo.mk n).num = 0
-h : ¬(Foo.mk (n + 1)).num = 0
-h_1 : 1 = n + 1
-⊢ False
+error: `grind` has failed, use `+verbose` to obtain diagnostic information
 -/
 #guard_msgs in
 theorem foo (n : Nat) : (Foo.mk n).num = 0 := by

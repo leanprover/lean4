@@ -55,13 +55,15 @@ Remark: we use the map `discrCtorMap`.
 Remark: We use this method when simplifying projections and cases-constructor.
 -/
 def findCtor? (fvarId : FVarId) : DiscrM (Option CtorInfo) := do
+  if let some ctorInfo := (← read).discrCtorMap.get? fvarId then
+    return ctorInfo
   match (← findLetDecl? fvarId) with
   | some { value := .lit (.nat n), .. } =>
     return some <| .natVal n
   | some { value := .const declName _ args, .. } =>
     let some (.ctorInfo val) := (← getEnv).find? declName | return none
     return some <| .ctor val args
-  | _ => return (← read).discrCtorMap.get? fvarId
+  | _ => return none
 
 def findCtorName? (fvarId : FVarId) : DiscrM (Option Name) := do
   let some ctorInfo ← findCtor? fvarId | return none

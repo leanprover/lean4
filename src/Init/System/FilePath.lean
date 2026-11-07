@@ -8,6 +8,7 @@ module
 prelude
 import Init.Data.String.Modify
 import Init.Data.String.Search
+import Init.Data.String.Iterate
 public import Init.Data.ToString.Basic
 import Init.Data.Iterators.Consumers.Collect
 import Init.System.Platform

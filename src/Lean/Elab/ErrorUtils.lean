@@ -6,16 +6,27 @@ Authors: Rob Simmons
 module
 
 prelude
-import Lean.Message
+public import Lean.Message
 
-namespace Lean
+namespace Lean.Internal.ErrorUtils
+public section
+
+/-!
+# Error-writing utilities
+
+This module presents some convenience utilities for writing error and status messages in the Lean compiler.
+
+New operations on lists and strings are intended to operate through the dot-notation-respects-notation
+mechanism (https://juliahimmel.de/blog/an-underappreciated-lean-feature).
+To use `n.toOrdinal` in a module, first `open Lean.Internal.ErrorUtils`.
+-/
 
 /--
 Translate numbers (1, 2, 3, 212, 322 ...) to ordinals with appropriate English-language names for
 small ordinals (0 through 10 become "zeroth" through "tenth") and postfixes for other numbers
 (212 becomes "212th" and 1292 becomes "1292nd").
 -/
-def _root_.Nat.toOrdinal : Nat -> String
+def Nat.toOrdinal : Nat -> String
   | 0 => "zeroth"
   | 1 => "first"
   | 2 => "second"
@@ -61,12 +72,12 @@ Make an oxford-comma-separated list of strings.
  - `["eats", "shoots"].toOxford == "eats and shoots"`
  - `["eats", "shoots", "leaves"] == "eats, shoots, and leaves"`
 -/
-def _root_.List.toOxford [Append α] [HasOxfordStrings α] : List α -> α
+def List.toOxford [Append α] [HasOxfordStrings α] : List α -> α
   | [] => HasOxfordStrings.emp
   | [a] => a
   | [a, b] => a ++ HasOxfordStrings.and ++ b
   | [a, b, c] => a ++ HasOxfordStrings.comma ++ b  ++ HasOxfordStrings.commaAnd ++ c
-  | a :: as => a ++ HasOxfordStrings.comma ++ as.toOxford
+  | a :: as => a ++ HasOxfordStrings.comma ++ toOxford as
 
 class HasPluralDefaults α where
   singular : α
@@ -90,7 +101,7 @@ Give alternative forms of a string if the `count` is 1 or not.
  - `(1).plural "it" "they" == "it"`
  - `(2).plural "it" "they" == "they"`
 -/
-def _root_.Nat.plural [HasPluralDefaults α] (count : Nat)
+def Nat.plural [HasPluralDefaults α] (count : Nat)
     (singular : α := HasPluralDefaults.singular)
     (plural : α := HasPluralDefaults.plural singular) :=
   if count = 1 then

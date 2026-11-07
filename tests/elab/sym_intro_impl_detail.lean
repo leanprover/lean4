@@ -1,6 +1,8 @@
 import Std.WP
 import Std.Tactic.Do
 
+set_option sym.debug true
+
 /-!
 `sym => intro` introduces a binder whose name starts with `__` as an implementation-detail local,
 as the elaborator does for such binders, so the goal hides it. `vcgen` introduces the join point
@@ -68,6 +70,6 @@ h✝ : ¬0 < n
 open Std.WP in
 example : ⦃ True ⦄ f n ⦃ fun r => r > 1 ⦄ := by
   unfold f
-  vcgen
+  vcgen -simp
   all_goals trace_state
   all_goals omega

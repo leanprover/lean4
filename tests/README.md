@@ -24,6 +24,9 @@ When used, they should contain a short comment describing why.
 
 Benchmarks belonging to the old framework are not included in this description.
 
+- `async`:
+  Tests and benchmarks for `Std.Async`, `Std.Http`, `Std.Net`, `Std.Sync` and the libuv bindings.
+  Its `compile`, `compile_bench` and `elab` subdirectories are piles that work like the top-level piles of the same name.
 - `bench`:
   A bunch of benchmarks and benchmarking related files,
   most of which are not part of the test suite.

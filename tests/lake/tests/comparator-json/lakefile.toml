@@ -1,0 +1,17 @@
+name = "comparatorjson"
+version = "0.1.0"
+
+[[lean_lib]]
+name = "Solution"
+
+[[lean_lib]]
+name = "Challenge"
+
+[[lean_lib]]
+name = "Wrong"
+
+[[lean_lib]]
+name = "Broken"
+
+[[lean_lib]]
+name = "Axiom"

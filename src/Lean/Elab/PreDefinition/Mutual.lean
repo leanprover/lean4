@@ -36,6 +36,8 @@ def addPreDefsFromUnary (docCtx : LocalContext × LocalInstances) (preDefs : Arr
       addNonRec docCtx preDefNonRec (applyAttrAfterCompilation := false) (cacheProofs := cacheProofs)
         (isRecursive := true)
     else
+      -- The docstrings belong to the user-facing definitions, which are added below.
+      let preDefNonRec := { preDefNonRec with modifiers.docString? := none }
       withEnableInfoTree false do
         addNonRec docCtx preDefNonRec (applyAttrAfterCompilation := false) (cacheProofs := cacheProofs)
           (isRecursive := true)

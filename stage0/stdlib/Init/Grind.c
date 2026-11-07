@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Grind
-// Imports: public import Init.Grind.Norm public import Init.Grind.Tactics public import Init.Grind.Lemmas public import Init.Grind.Cases public import Init.Grind.Propagator public import Init.Grind.Util public import Init.Grind.Offset public import Init.Grind.PP public import Init.Grind.Ring public import Init.Grind.ToInt public import Init.Grind.Module public import Init.Grind.Ordered public import Init.Grind.Ext public import Init.Grind.Attr public import Init.Grind.AC public import Init.Grind.Injective public import Init.Grind.Order public import Init.Grind.Interactive public import Init.Grind.Lint public import Init.Grind.Annotated public import Init.Grind.FieldNormNum public import Init.Grind.Config public import Init.Grind.Homo
+// Imports: public import Init.Grind.Norm public import Init.Grind.Tactics public import Init.Grind.Lemmas public import Init.Grind.Cases public import Init.Grind.Propagator public import Init.Grind.Util public import Init.Grind.PP public import Init.Grind.Ring public import Init.Grind.ToInt public import Init.Grind.Module public import Init.Grind.Ordered public import Init.Grind.Ext public import Init.Grind.Attr public import Init.Grind.AC public import Init.Grind.Injective public import Init.Grind.Order public import Init.Grind.Interactive public import Init.Grind.Lint public import Init.Grind.Annotated public import Init.Grind.FieldNormNum public import Init.Grind.Config public import Init.Grind.Homo
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -19,7 +19,6 @@ lean_object* runtime_initialize_Init_Grind_Lemmas(uint8_t builtin);
 lean_object* runtime_initialize_Init_Grind_Cases(uint8_t builtin);
 lean_object* runtime_initialize_Init_Grind_Propagator(uint8_t builtin);
 lean_object* runtime_initialize_Init_Grind_Util(uint8_t builtin);
-lean_object* runtime_initialize_Init_Grind_Offset(uint8_t builtin);
 lean_object* runtime_initialize_Init_Grind_PP(uint8_t builtin);
 lean_object* runtime_initialize_Init_Grind_Ring(uint8_t builtin);
 lean_object* runtime_initialize_Init_Grind_ToInt(uint8_t builtin);
@@ -59,9 +58,6 @@ res = runtime_initialize_Init_Grind_Propagator(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Init_Grind_Util(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = runtime_initialize_Init_Grind_Offset(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Init_Grind_PP(builtin);
@@ -127,7 +123,6 @@ lean_object* initialize_Init_Grind_Lemmas(uint8_t builtin);
 lean_object* initialize_Init_Grind_Cases(uint8_t builtin);
 lean_object* initialize_Init_Grind_Propagator(uint8_t builtin);
 lean_object* initialize_Init_Grind_Util(uint8_t builtin);
-lean_object* initialize_Init_Grind_Offset(uint8_t builtin);
 lean_object* initialize_Init_Grind_PP(uint8_t builtin);
 lean_object* initialize_Init_Grind_Ring(uint8_t builtin);
 lean_object* initialize_Init_Grind_ToInt(uint8_t builtin);
@@ -165,9 +160,6 @@ res = initialize_Init_Grind_Propagator(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Grind_Util(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Grind_Offset(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Grind_PP(builtin);

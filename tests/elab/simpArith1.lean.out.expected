@@ -4,7 +4,7 @@ fun {a d b c} h =>
     (Eq.mp
       (Eq.trans gt_iff_lt._simp_1
         (id
-          (Nat.Internal.Linear.ExprCnstr.eq_false_of_isUnsat
+          (Nat.Internal.Linear.ExprCnstr.eq_false_of_isUnsat_k
             (Lean.RArray.branch 2 (Lean.RArray.branch 1 (Lean.RArray.leaf a) (Lean.RArray.leaf d))
               (Lean.RArray.branch 3 (Lean.RArray.leaf b) (Lean.RArray.leaf c)))
             { eq := false,
@@ -24,7 +24,7 @@ fun {a b} p h =>
   Eq.mp
     (congrArg p
       (id
-        (Nat.Internal.Linear.Expr.eq_of_toNormPoly_eq (Lean.RArray.branch 1 (Lean.RArray.leaf a) (Lean.RArray.leaf b))
+        (Nat.Internal.Linear.Expr.eq_of_toNormPoly_eq_k (Lean.RArray.branch 1 (Lean.RArray.leaf a) (Lean.RArray.leaf b))
           (((((Nat.Internal.Linear.Expr.var 0).add (Nat.Internal.Linear.Expr.num 1)).add
                     (Nat.Internal.Linear.Expr.var 0)).add
                 (Nat.Internal.Linear.Expr.num 2)).add

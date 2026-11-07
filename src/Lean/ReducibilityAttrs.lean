@@ -85,7 +85,7 @@ def getReducibilityStatusCore (env : Environment) (declName : Name) : Reducibili
     status
   else match env.getModuleIdxFor? declName with
   | some modIdx =>
-    match (reducibilityCoreExt.getModuleEntries env modIdx).binSearch (declName, .semireducible) (fun a b => Name.quickLt a.1 b.1) with
+    match findSortedByName? (reducibilityCoreExt.getModuleEntries env modIdx) declName with
     | some (_, status) => status
     | none => .semireducible
   | none => (reducibilityCoreExt.getState (asyncDecl := declName) env).find? declName |>.getD .semireducible

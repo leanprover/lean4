@@ -3313,6 +3313,24 @@ theorem isEmpty_inter_comm [EquivBEq α] [LawfulHashable α]
     (m₁.inter m₂).1.isEmpty = (m₂.inter m₁).1.isEmpty := by
   simp_to_model [inter, contains, isEmpty] using List.isEmpty_filter_containsKey_comm
 
+theorem isEmpty_union_inter [EquivBEq α] [LawfulHashable α] {m₃ : Raw₀ α β}
+    (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) (h₃ : m₃.val.WF) :
+    ((m₁.union m₂).inter m₃).1.isEmpty =
+      ((m₁.inter m₃).1.isEmpty && (m₂.inter m₃).1.isEmpty) := by
+  rw [Bool.eq_iff_iff, Bool.and_eq_true]
+  simp only [isEmpty_inter_iff (wf_union₀ h₁ h₂) h₃,
+    isEmpty_inter_iff h₁ h₃, isEmpty_inter_iff h₂ h₃, contains_union h₁ h₂, Bool.or_eq_true,
+    or_imp, forall_and]
+
+theorem isEmpty_inter_union [EquivBEq α] [LawfulHashable α] {m₃ : Raw₀ α β}
+    (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) (h₃ : m₃.val.WF) :
+    (m₁.inter (m₂.union m₃)).1.isEmpty =
+      ((m₁.inter m₂).1.isEmpty && (m₁.inter m₃).1.isEmpty) := by
+  rw [Bool.eq_iff_iff, Bool.and_eq_true]
+  simp only [isEmpty_inter_iff h₁ (wf_union₀ h₂ h₃),
+    isEmpty_inter_iff h₁ h₂, isEmpty_inter_iff h₁ h₃, contains_union h₂ h₃, Bool.or_eq_false_iff,
+    imp_and, forall_and]
+
 end Inter
 namespace Const
 

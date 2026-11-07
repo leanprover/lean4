@@ -112,10 +112,10 @@ private partial def isProofOrDecidableQuick (e : Expr) : MetaM QuickResult := do
     | .undef => return .undef
     | _ => return .no
   | .fvar fvarId => classifyResultType (← fvarId.getType)
-  | .const declName lvls => classifyResultType ((← getConstInfo declName).instantiateTypeLevelParams lvls)
+  | .const declName lvls => classifyResultType (← instantiateTypeLevelParams (← getConstVal declName) lvls)
   | .app .. =>
     match e.getAppFn with
-    | .const declName lvls => classifyArrow ((← getConstInfo declName).instantiateTypeLevelParams lvls) e.getAppArgs
+    | .const declName lvls => classifyArrow (← instantiateTypeLevelParams (← getConstVal declName) lvls) e.getAppArgs
     | .fvar fvarId => classifyArrow (← fvarId.getType) e.getAppArgs
     | _ => return .undef
 

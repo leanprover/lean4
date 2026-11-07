@@ -43,10 +43,16 @@ class Header (α : Type) where
   -/
   serialize : α → Header.Name × Header.Value
 
+/--
+Appends the field line `Name: value\r\n`.
+-/
+def Internal.appendFieldLine (out : ByteArray) (name : Header.Name) (value : Header.Value) : ByteArray :=
+  out ++ name ++ ": " ++ value ++ "\r\n"
+
 instance [h : Header α] : Encode .v11 α where
-  encode buffer a :=
+  encode out a :=
     let (name, value) := h.serialize a
-    buffer.writeString s!"{name}: {value}\r\n"
+    appendFieldLine out name value
 
 namespace Header
 
@@ -127,7 +133,7 @@ Reference: https://www.rfc-editor.org/rfc/rfc9112#section-6.1
 structure TransferEncoding where
 
   /--
-  The ordered list of transfer codings.
+  The ordered list of transfer coding names, lowercased and without their parameters.
   -/
   codings : Array String
 
@@ -147,14 +153,54 @@ def isChunked (te : TransferEncoding) : Bool :=
   te.codings.back? == some "chunked"
 
 /--
-Parses a comma-separated list of transfer codings from a header value, validating chunked placement.
+Checks a transfer parameter: `token BWS "=" BWS ( token / quoted-string )` (RFC 9112 §7).
+-/
+private def isTransferParameter (param : String) : Bool :=
+  match param.split '=' |>.toStringList with
+  | name :: value@(_ :: _) =>
+    let value := ("=".intercalate value).trimAscii.toString
+    isToken name.trimAscii.toString && !value.isEmpty && (unquoteHttpString? value).isSome
+  | _ => false
+
+/--
+Parses a comma-separated list of transfer codings into their lowercased names, without the chunked
+placement rules of `parse`.
+
+Transfer parameters (`gzip;level=1`) are checked and dropped. `chunked` defines none, so a list in
+which `chunked` has one is rejected. A quoted parameter value that contains `,` or `;` is not
+supported.
+-/
+def parseCodings? (v : Value) : Option (Array String) :=
+  (v.value.split ',' |>.toStringList).toArray.mapM fun element => do
+    let name :: params := element.split ';' |>.toStringList | none
+    let name := name.trimAscii.toString.toLower
+    guard (isToken name && params.all isTransferParameter)
+    guard (params.isEmpty || name != "chunked")
+    return name
+
+/--
+Parses a comma-separated list of transfer codings from a header value (`parseCodings?`), validating
+chunked placement. Transfer parameters are accepted and dropped.
 -/
 def parse (v : Value) : Option TransferEncoding := do
-  let codings ← parseTokenList v
+  let codings ← parseCodings? v
   if h : TransferEncoding.Validate codings then
     some ⟨codings, h⟩
   else
     none
+
+/--
+Classifies a `Transfer-Encoding` value by its final coding, which decides how the message is framed
+(RFC 9112 §6.3): `some true` when it ends in `chunked` applied once, `some false` when it ends in
+another coding, and `none` when it is not a list of transfer codings (`parseCodings?`) or ends in a
+`chunked` applied more than once.
+-/
+def finalCodingIsChunked? (v : Value) : Option Bool := do
+  let codings ← parseCodings? v
+  if codings.back? != some "chunked" then
+    return false
+  guard (codings.count "chunked" == 1)
+  return true
 
 /--
 Serializes a transfer encoding back to a comma-separated header value.

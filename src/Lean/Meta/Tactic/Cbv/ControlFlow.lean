@@ -17,7 +17,7 @@ import Lean.Meta.SynthInstance
 import Lean.Meta.WHNF
 import Lean.Meta.AppBuilder
 import Init.Sym.Lemmas
-import Lean.Meta.Tactic.Cbv.TheoremsLookup
+import Lean.Meta.Sym.Simp.TheoremsLookup
 import Lean.Meta.Tactic.Cbv.Opaque
 import Lean.Meta.Tactic.Cbv.CbvEvalExt
 import Lean.Compiler.NoncomputableAttr
@@ -428,7 +428,7 @@ end Lean.Meta.Sym.Simp
 namespace Lean.Meta.Tactic.Cbv
 open Lean.Meta.Sym.Simp
 
-builtin_cbv_simproc ↓ simpCbvCond (@cond _ _ _) := simpCond
+builtin_cbv_simproc ↓ simpCbvCond (@cond _ _ _ _) := simpCond
 
 public def reduceRecMatcher : Simproc := fun e => do
   if let some e' ← withCbvOpaqueGuard <| reduceRecMatcher? e then

@@ -88,19 +88,18 @@ extern "C" uint8 lean_expr_has_level_mvar(obj_arg e);
 bool has_univ_mvar_core(expr const & e) { return lean_expr_has_level_mvar(e.to_obj_arg()); }
 
 extern "C" uint8 lean_expr_has_level_param(obj_arg e);
-bool has_univ_param(expr const & e) { return lean_expr_has_level_param(e.to_obj_arg()); }
+bool has_univ_param_core(expr const & e) { return lean_expr_has_level_param(e.to_obj_arg()); }
 
 extern "C" unsigned lean_expr_loose_bvar_range(object * e);
-unsigned get_loose_bvar_range(expr const & e) { return lean_expr_loose_bvar_range(e.to_obj_arg()); }
+unsigned get_loose_bvar_range_core(expr const & e) { return lean_expr_loose_bvar_range(e.to_obj_arg()); }
 
-extern "C" LEAN_EXPORT uint64_t lean_expr_mk_data(uint64_t hash, object * bvarRange, uint32_t approxDepth, uint8_t hasFVar, uint8_t hasExprMVar, uint8_t hasLevelMVar, uint8_t hasLevelParam) {
+extern "C" LEAN_EXPORT uint64_t lean_expr_mk_data(uint32_t hash, object * bvarRange, uint32_t approxDepth, uint8_t hasFVar, uint8_t hasExprMVar, uint8_t hasLevelMVar, uint8_t hasLevelParam) {
     if (approxDepth > 255) approxDepth = 255;
     if (!is_scalar(bvarRange)) lean_internal_panic("too many bound variables");
     size_t range = unbox(bvarRange);
     if (range > 1048575) lean_internal_panic("too many bound variables");
     uint32_t r = range;
-    uint32_t h = hash;
-    return ((uint64_t) h) + (((uint64_t) approxDepth) << 32) + (((uint64_t) hasFVar) << 40)
+    return ((uint64_t) hash) + (((uint64_t) approxDepth) << 32) + (((uint64_t) hasFVar) << 40)
     + (((uint64_t) hasExprMVar) << 41) + (((uint64_t) hasLevelMVar) << 42) + (((uint64_t) hasLevelParam) << 43)
     + (((uint64_t) r) << 44);
 }
@@ -112,7 +111,7 @@ extern "C" LEAN_EXPORT uint64_t lean_expr_mk_app_data(uint64_t fData, uint64_t a
   uint16_t depth = std::max(get_approx_depth(fData), get_approx_depth(aData)) + 1;
   if (depth > 255) depth = 255;
   uint32_t range = std::max(get_bvar_range(fData), get_bvar_range(aData));
-  uint32_t h = hash(fData, aData);
+  uint32_t h = lean_uint32_mix_hash(static_cast<uint32_t>(fData), static_cast<uint32_t>(aData));
   return ((fData | aData) & (((uint64_t) 15) << 40)) | ((uint64_t) h) | (((uint64_t) depth) << 32) | (((uint64_t) range) << 44);
 }
 
@@ -374,18 +373,17 @@ expr lower_loose_bvars(expr const & e, unsigned s, unsigned d) {
     if (d == 0 || s >= get_loose_bvar_range(e))
         return e;
     lean_assert(s >= d);
-    return replace(e, [=](expr const & e, unsigned offset) -> optional<expr> {
+    return replace_tpl(e, [=](expr const & e, unsigned offset) -> optional<expr> {
             unsigned s1 = s + offset;
-            if (s1 < s)
-                return some_expr(e); // overflow, vidx can't be >= max unsigned
-            if (s1 >= get_loose_bvar_range(e))
-                return some_expr(e); // expression e does not contain bound variables with idx >= s1
             if (is_bvar(e) && bvar_idx(e) >= s1) {
                 lean_assert(bvar_idx(e) >= offset + d);
                 return some_expr(mk_bvar(bvar_idx(e) - nat(d)));
             } else {
                 return none_expr();
             }
+        }, true, [=](expr const & e, unsigned offset) {
+            unsigned s1 = s + offset;
+            return s1 < s || s1 >= get_loose_bvar_range(e);
         });
 }
 
@@ -404,17 +402,15 @@ extern "C" LEAN_EXPORT object * lean_expr_lower_loose_bvars(b_obj_arg e, b_obj_a
 expr lift_loose_bvars(expr const & e, unsigned s, unsigned d) {
     if (d == 0 || s >= get_loose_bvar_range(e))
         return e;
-    return replace(e, [=](expr const & e, unsigned offset) -> optional<expr> {
-            unsigned s1 = s + offset;
-            if (s1 < s)
-                return some_expr(e); // overflow, vidx can't be >= max unsigned
-            if (s1 >= get_loose_bvar_range(e))
-                return some_expr(e); // expression e does not contain bound variables with idx >= s1
+    return replace_tpl(e, [=](expr const & e, unsigned offset) -> optional<expr> {
             if (is_var(e) && bvar_idx(e) >= s + offset) {
                 return some_expr(mk_bvar(bvar_idx(e) + nat(d)));
             } else {
                 return none_expr();
             }
+        }, true, [=](expr const & e, unsigned offset) {
+            unsigned s1 = s + offset;
+            return s1 < s || s1 >= get_loose_bvar_range(e);
         });
 }
 

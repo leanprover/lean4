@@ -10,6 +10,7 @@ import Init.Grind.Propagator
 import Init.Grind.Injective
 import Lean.Meta.Tactic.Grind.PropagatorAttr
 import Lean.Meta.Tactic.Grind.Simp
+import Lean.Meta.Sym.AlphaShareBuilder
 namespace Lean.Meta.Grind
 
 def getInvFor? (f : Expr) (a : Expr) : GoalM (Option (Expr × Expr)) := do
@@ -34,7 +35,7 @@ in `(← get).inj.fns`, asserts `f⁻¹ (f a) = a`
 public def mkInjEq (e : Expr) : GoalM Unit := do
   let .app f a := e | return ()
   let some (inv, heq) ← getInvFor? f a | return ()
-  let invApp := mkApp inv e
+  let invApp ← Sym.Internal.mkAppS inv e
   internalize invApp (← getGeneration e)
   trace[grind.inj.assert] "{invApp}, {a}"
   pushEq invApp a <| mkApp heq a

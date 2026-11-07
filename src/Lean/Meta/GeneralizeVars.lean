@@ -17,7 +17,7 @@ namespace Lean.Meta
   Add to `forbidden` all a set of `FVarId`s containing `targets` and all variables they depend on.
 -/
 partial def mkGeneralizationForbiddenSet (targets : Array Expr) (forbidden : FVarIdSet := {}) : MetaM FVarIdSet := do
-  let mut s := { fvarSet := forbidden }
+  let mut s := CollectFVars.State.ofFVarSet forbidden
   let mut todo := #[]
   for target in targets do
     if target.isFVar then

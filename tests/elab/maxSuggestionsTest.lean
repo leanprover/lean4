@@ -65,7 +65,7 @@ h : ¬P 3
       [thm] p2 ↦ 1
 -/
 #guard_msgs in
-example : P 3 := by grind +suggestions (maxSuggestions := some 2)
+example : P 3 := by grind +verbose +suggestions (maxSuggestions := some 2)
 
 -- With maxSuggestions := some 3, grind gets p1, p2, p3, so it SUCCEEDS
 #guard_msgs in

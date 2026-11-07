@@ -151,9 +151,10 @@ where
     else
       return { discrs, alts := matchAltViews, isDep := false, matchType := expectedType }
 
-def expandMacrosInPatterns (matchAlts : Array (MatchAltView k)) : MacroM (Array (MatchAltView k)) := do
+def expandMacrosInPatterns (matchAlts : Array (MatchAltView k)) :
+    TermElabM (Array (MatchAltView k)) := do
   matchAlts.mapM fun matchAlt => do
-    let patterns ← matchAlt.patterns.mapM expandMacros
+    let patterns ← matchAlt.patterns.mapM (expandMacrosReportingDeprecated ·)
     pure { matchAlt with patterns := patterns }
 
 private def getMatchGeneralizing? : Syntax → Option Bool
@@ -787,7 +788,7 @@ private def withToClear (toClear : Array FVarId) (type : Expr) (k : TermElabM α
       if !(← dependsOn type fvarId) then
         if !(← lctx.anyM fun localDecl => pure (localDecl.fvarId != fvarId) <&&> localDeclDependsOn localDecl fvarId) then
           lctx := lctx.erase fvarId
-          localInsts := localInsts.filter fun localInst => localInst.fvar.fvarId! != fvarId
+          localInsts := localInsts.erase fvarId
     withLCtx lctx localInsts k
 
 /--
@@ -1123,7 +1124,7 @@ private def elabMatchAux (generalizing? : Option Bool) (discrStxs : Array Syntax
     generalizing? := some false
   let (discrs, matchType, altLHSS, isDep, rhss) ← commitIfDidNotPostpone do
     let ⟨discrs, matchType, isDep, altViews⟩ ← elabMatchTypeAndDiscrs discrStxs matchOptMotive altViews expectedType
-    let matchAlts ← liftMacroM <| expandMacrosInPatterns altViews
+    let matchAlts ← expandMacrosInPatterns altViews
     trace[Elab.match] "matchType: {matchType}"
     let (discrs, matchType, alts, refined) ← elabMatchAltViews generalizing? discrs matchType matchAlts
     let isDep := isDep || refined

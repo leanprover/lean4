@@ -102,8 +102,8 @@ Monotonicity and weakening consequences of the `WP` monotonicity axiom.
 
 namespace WP
 
-variable {Prog : Type u} {Value : Type v} [Assertion Pred] [Assertion EPosts]
-  [WP Prog Value Pred EPosts]
+variable {Prog : Type u} {Value : Type v} {Pred : Type w} {EPosts : Type z}
+  [Assertion Pred] [Assertion EPosts] [WP Prog Value Pred EPosts]
 
 theorem wp_monotone_post {x : Prog}
   {post post' : Value → Pred} {eposts : EPosts} (h : post ⊑ post') :

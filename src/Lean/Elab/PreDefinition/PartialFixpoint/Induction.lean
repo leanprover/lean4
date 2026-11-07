@@ -91,14 +91,14 @@ def unfoldPredRelMutual (eqnInfo : EqnInfo) (body : Expr) (reduceConclusion : Bo
 
 /-- `maskArray mask xs` keeps those `x` where the corresponding entry in `mask` is `true` -/
 -- Worth having in the standard library?
-private def maskArray {α} (mask : Array Bool) (xs : Array α) : Array α := Id.run do
+def maskArray {α} (mask : Array Bool) (xs : Array α) : Array α := Id.run do
   let mut ys := #[]
   for b in mask, x in xs do
     if b then ys := ys.push x
   return ys
 
 /-- Appends `_1` etc to `base` unless `n == 1` -/
-private def numberNames (n : Nat) (base : String) : Array Name :=
+def numberNames (n : Nat) (base : String) : Array Name :=
   .ofFn (n := n) fun ⟨i, _⟩ =>
     if n == 1 then .mkSimple base else .mkSimple s!"{base}_{i+1}"
 

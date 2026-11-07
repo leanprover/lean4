@@ -257,7 +257,7 @@ Adding {givenInstance}`Add _`, we mention {lean}`Nat.zero`.
 -- here so a future change is noticed.
 /--
 error: typeclass instance problem is stuck, it is often due to metavariables
-  HAdd Nat Nat ?m.10
+  HAdd Nat Nat ?m.9
 -/
 #guard_msgs in
 /-!

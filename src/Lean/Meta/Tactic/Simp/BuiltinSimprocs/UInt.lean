@@ -51,6 +51,16 @@ builtin_dsimproc [simp, seval] $(mkIdent `reduceSub):ident ((_ - _ : $typeName))
 builtin_dsimproc [simp, seval] $(mkIdent `reduceDiv):ident ((_ / _ : $typeName)) := reduceBin ``HDiv.hDiv 6 (· / ·)
 builtin_dsimproc [simp, seval] $(mkIdent `reduceMod):ident ((_ % _ : $typeName)) := reduceBin ``HMod.hMod 6 (· % ·)
 
+builtin_dsimproc [simp, seval] $(mkIdent `reduceAnd):ident ((_ &&& _ : $typeName)) := reduceBin ``HAnd.hAnd 6 (· &&& ·)
+builtin_dsimproc [simp, seval] $(mkIdent `reduceOr):ident ((_ ||| _ : $typeName)) := reduceBin ``HOr.hOr 6 (· ||| ·)
+builtin_dsimproc [simp, seval] $(mkIdent `reduceXor):ident ((_ ^^^ _ : $typeName)) := reduceBin ``HXor.hXor 6 (· ^^^ ·)
+builtin_dsimproc [simp, seval] $(mkIdent `reduceShiftLeft):ident ((_ <<< _ : $typeName)) := reduceBin ``HShiftLeft.hShiftLeft 6 (· <<< ·)
+builtin_dsimproc [simp, seval] $(mkIdent `reduceShiftRight):ident ((_ >>> _ : $typeName)) := reduceBin ``HShiftRight.hShiftRight 6 (· >>> ·)
+builtin_dsimproc [simp, seval] $(mkIdent `reduceNot):ident ((~~~ _ : $typeName)) := fun e => do
+  let_expr Complement.complement _ _ a ← e | return .continue
+  let some n ← ($fromExpr a) | return .continue
+  return .done <| toExpr (~~~ n)
+
 builtin_simproc [simp, seval] $(mkIdent `reduceLT):ident  (( _ : $typeName) < _)  := reduceBinPred ``LT.lt 4 (. < .)
 builtin_simproc [simp, seval] $(mkIdent `reduceLE):ident  (( _ : $typeName) ≤ _)  := reduceBinPred ``LE.le 4 (. ≤ .)
 builtin_simproc [simp, seval] $(mkIdent `reduceGT):ident  (( _ : $typeName) > _)  := reduceBinPred ``GT.gt 4 (. > .)

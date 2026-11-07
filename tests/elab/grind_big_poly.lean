@@ -7,4 +7,4 @@ trace: [sym.issues] maximum recursion depth has been reached
 #guard_msgs (drop error, trace) in
 set_option trace.sym.issues true in
 example (x y z w : Int) : (x + y + z + w)^5000 - 1 = 0 := by
-  grind -- should not crash
+  grind +verbose -- should not crash

@@ -11,8 +11,8 @@ def pad (e : Expr) (n : Nat) : Expr :=
   mkApp (mkLambda `x .default (mkConst ``Nat) e) (.lit (.natVal n))
 
 meta def build : CommandElabM Unit := do
-  let f := pad (mkConst ``Bool.false) 78670
-  let t := pad (mkConst ``Bool.true) 24083
+  let f := pad (mkConst ``Bool.false) 191605
+  let t := pad (mkConst ``Bool.true) 11697
   unless f.hash == t.hash && f.approxDepth == t.approxDepth do
     throwError "hash collision failed"
   let fw := mkApp (mkConst ``W.mk) (mkApp (mkConst ``P.mk) f)

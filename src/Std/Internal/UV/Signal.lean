@@ -7,7 +7,7 @@ module
 
 prelude
 public import Init.System.Promise
-public import Init.Data.SInt
+public import Init.Data.SInt.Basic
 public import Std.Net
 
 public section

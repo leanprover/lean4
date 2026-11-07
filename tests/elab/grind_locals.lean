@@ -25,7 +25,7 @@ h : ¬foo n = n + 1
     [assign] foo n := 2
 -/
 #guard_msgs in
-example (n : Nat) : foo n = n + 1 := by grind
+example (n : Nat) : foo n = n + 1 := by grind +verbose
 
 -- Test that grind +locals can use the equation `foo n = n + 1`
 example (n : Nat) : foo n = n + 1 := by grind +locals

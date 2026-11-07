@@ -11,3 +11,4 @@ public import Lean.Data.Html.CharRef
 public import Lean.Data.Html.Elab
 public import Lean.Data.Html.Printer
 public import Lean.Data.Html.Syntax
+public import Lean.Data.Html.Widget

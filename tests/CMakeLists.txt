@@ -285,7 +285,8 @@ set(PART2 "")
 # toolchain: requires elan to download toolchain
 # online: downloads remote repositories
 option(LAKE_CI "Enable full Lake test suite (use `lake-ci` label on PRs)" OFF)
-set(LAKE_TEST_GLOBS
+set(
+  LAKE_TEST_GLOBS
   "${LEAN_SOURCE_DIR}/../tests/lake/examples/test.sh"
   "${LEAN_SOURCE_DIR}/../tests/lake/tests/test.sh"
 )
@@ -316,24 +317,28 @@ endforeach(T)
 add_test(NAME lint.py COMMAND python3 lint.py WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
 
 add_test_pile(../doc/examples *.lean)
-add_test_pile(compile *.lean BENCH PART2)
-add_test_pile(compile_bench *.lean BENCH PART2)
-add_test_pile(docparse *.txt)
+add_test_pile(async/compile *.lean BENCH PART2)
+add_test_pile(async/compile_bench *.lean BENCH PART2)
 add_test_pile(
-  elab
+  async/elab
   *.lean
   EXCEPT
     async_select_channel.lean # Flaky
     sync_mutex.lean # Flaky
-  ${ELAB_FIXTURES}
+    ${ELAB_FIXTURES}
 )
-add_test_pile(elab_bench *.lean BENCH PART2 ${ELAB_FIXTURES})
+add_test_pile(compile *.lean BENCH PART2)
+add_test_pile(compile_bench *.lean BENCH PART2)
+add_test_pile(docparse *.txt)
+add_test_pile(elab *.lean ${ELAB_FIXTURES})
+add_test_pile(elab_bench *.lean BENCH PART1 ${ELAB_FIXTURES})
 add_test_pile(elab_fail *.lean ${ELAB_FIXTURES})
 add_test_pile(misc *.sh)
 add_test_pile(misc_bench *.sh BENCH PART2)
 add_test_pile(server *.lean)
 add_test_pile(server_interactive *.lean)
 
+add_test_dir(markdown_conformance)
 add_test_dir(../doc/examples/compiler)
 add_test_dir(bench/build BENCH PART1)
 add_test_dir(bench/vcgen BENCH PART2)

@@ -8,4 +8,4 @@
           id
             (Lean.Grind.false_of_not_eq_self
               (eq_of_heq (HEq.trans (HEq.trans (HEq.trans (HEq.symm (heq_of_eq h)) h₂) (HEq.symm h₁)) (heq_of_eq h₃)))))
-grind_pre.lean:171:0-171:7: warning: declaration uses `sorry`
+grind_pre.lean:175:0-175:7: warning: declaration uses `sorry`

@@ -9,15 +9,11 @@ prelude
 public import Lean.Meta.Eqns
 public import Lean.Meta.Tactic.Rfl
 public import Lean.Meta.Tactic.Intro
+import Lean.Elab.PreDefinition.EqnsUtils
 
 public section
 
 namespace Lean.Meta
-
-/-- Try to close goal using `rfl` with smart unfolding turned off. -/
-def tryURefl (mvarId : MVarId) : MetaM Bool :=
-  withOptions (smartUnfolding.set · false) do
-    try mvarId.refl; return true catch _ => return false
 
 /--
 Returns the "const unfold" theorem (`f.eq_unfold`) for the given declaration.
@@ -42,7 +38,7 @@ def getConstUnfoldEqnFor? (declName : Name) : MetaM (Option Name) := do
       return type
     let value ← withNewMCtxDepth do
       let main ← mkFreshExprSyntheticOpaqueMVar type
-      if (← tryURefl main.mvarId!) then -- try to make a rfl lemma if possible
+      if (← Elab.Eqns.tryURefl main.mvarId!) then -- try to make a rfl lemma if possible
         instantiateMVars main
       else forallTelescope info.type fun xs _eq => do
         let mut proof ← mkConstWithLevelParams unfoldEqnName

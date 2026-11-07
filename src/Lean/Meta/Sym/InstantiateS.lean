@@ -16,6 +16,7 @@ It assumes the input is maximally shared, and ensures the output is too.
 It assumes `beginIdx ≤ endIdx` and `endIdx ≤ subst.size`
 -/
 public def instantiateRevRangeS (e : Expr) (beginIdx endIdx : Nat) (subst : Array Expr) : SymM Expr :=
+  if !e.hasLooseBVars then pure e else
   if _ : beginIdx > endIdx then unreachable! else
   if _ : endIdx > subst.size then unreachable! else
   let s := beginIdx
@@ -87,7 +88,7 @@ public def instantiateS  (e : Expr) (subst : Array Expr) : SymM Expr :=
   liftBuilderM <| instantiateS' e subst
 
 /-- Internal variant of `betaRevS` that runs in `AlphaShareBuilderM`. -/
-private partial def betaRevS' (f : Expr) (revArgs : Array Expr) : AlphaShareBuilderM Expr :=
+partial def betaRevS' (f : Expr) (revArgs : Array Expr) : AlphaShareBuilderM Expr :=
   if revArgs.size == 0 then
     return f
   else

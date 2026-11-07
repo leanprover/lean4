@@ -25,7 +25,7 @@ theorem upper_bound
     (ha₁ : 0 ≤ a₁) (ha₂ : 0 ≤ a₂) (ha₃ : 0 ≤ a₃) (ha₄ : 0 ≤ a₄) (ha₅ : 0 ≤ a₅)
     (hα : α = a₁ + a₂ + a₃ + a₄ + a₅) :
     ν ≤ 9/10 := by
-  fail_if_success grind
+  fail_if_success grind +verbose
   sorry
 
 end Ex1
@@ -52,7 +52,7 @@ theorem upper_bound
     (ha₁ : 0 ≤ a₁) (ha₂ : 0 ≤ a₂) (ha₃ : 0 ≤ a₃) (ha₄ : 0 ≤ a₄) (ha₅ : 0 ≤ a₅)
     (hα : α = a₁ + a₂ + a₃ + a₄ + a₅) :
     ν ≤ 9/10 := by
-  fail_if_success grind
+  fail_if_success grind +verbose
   sorry
 
 end Ex2
@@ -65,7 +65,7 @@ trace: [grind.linarith.model] a := 0
 #guard_msgs in
 set_option trace.grind.linarith.model true in
 example [Field α] [LE α] [LT α] [Std.IsPreorder α] [OrderedRing α] (a b c : α) (h : a = b + c) : False := by
-  fail_if_success grind
+  fail_if_success grind +verbose
   sorry
 
 /--
@@ -76,5 +76,5 @@ trace: [grind.linarith.model] a := 0
 #guard_msgs in
 set_option trace.grind.linarith.model true in
 example (a b c : Rat) (h : a = b + c) : False := by
-  fail_if_success grind
+  fail_if_success grind +verbose
   sorry

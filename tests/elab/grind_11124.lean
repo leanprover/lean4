@@ -19,15 +19,7 @@ example (a b : List Nat)
   grind
 
 /--
-error: `grind` failed
-case grind
-p : Prop
-a b : List Nat
-h : a = []
-h_1 : b ≍ [1]
-h_2 : a = b ∨ p
-h_3 : ¬p
-⊢ False
+error: `grind` has failed, use `+verbose` to obtain diagnostic information
 -/
 #guard_msgs in
 example (a b : List Nat)
@@ -109,49 +101,7 @@ def Disjoint (s₁ s₂ : AList β) : Prop :=
   ∀ k ∈ s₁.keys, k ∉ s₂.keys
 
 /--
-error: `grind` failed
-case grind.1.1.2.2.1.1.1.1.1.1
-α : Type
-β : α → Type
-inst : DecidableEq α
-s₁ s₂ : AList β
-h : s₁.Disjoint s₂
-x : α
-y : β x
-h_1 : (y ∈ dlookup x (s₁.entries.kunion s₂.entries)) = ¬y ∈ dlookup x (s₂.entries.kunion s₁.entries)
-left : y ∈ dlookup x (s₁.entries.kunion s₂.entries)
-right : ¬y ∈ dlookup x (s₂.entries.kunion s₁.entries)
-left_1 : dlookup x (s₂.entries.kunion s₁.entries) = none
-right_1 : ¬x ∈ (s₂.entries.kunion s₁.entries).keys
-left_2 : ¬dlookup x (s₁.entries.kunion s₂.entries) = none
-right_2 : x ∈ (s₁.entries.kunion s₂.entries).keys
-w : β x
-h_5 : ⟨x, w⟩ ∈ s₁.entries.kunion s₂.entries
-left_3 : ¬find? (fun s => decide (x = s.fst)) (s₁.entries.kunion s₂.entries) = none
-w_1 : Sigma β
-left_4 : w_1 ∈ s₁.entries.kunion s₂.entries
-right_4 : x = w_1.fst
-w_2 : Sigma β
-left_5 : w_2 ∈ s₁.entries.kunion s₂.entries
-right_5 : x = w_2.fst
-w_3 : Sigma β
-left_6 : w_3 ∈ s₁.entries.kunion s₂.entries
-right_6 : w_1.fst = w_3.fst
-w_4 : Sigma β
-left_7 : w_4 ∈ s₁.entries.kunion s₂.entries
-right_7 : w_2.fst = w_4.fst
-w_5 : Sigma β
-left_8 : w_5 ∈ s₁.entries.kunion s₂.entries
-right_8 : w_4.fst = w_5.fst
-h_16 : (fun s => decide (w_2.fst = s.fst)) = fun s => decide (x = s.fst)
-h_17 : (fun s => decide (w_1.fst = s.fst)) = fun s => decide (w_2.fst = s.fst)
-h_18 : (fun s => decide (w_4.fst = s.fst)) = fun s => decide (w_2.fst = s.fst)
-left_9 : ⟨x, w⟩ ∈ w_2 :: s₂.entries.kunion s₁.entries
-right_9 : ⟨x, w⟩ = w_2 ∨ ⟨x, w⟩ ∈ s₂.entries.kunion s₁.entries
-h_20 : (fun s => decide (w_3.fst = s.fst)) = fun s => decide (x = s.fst)
-left_10 : ⟨x, cast ⋯ w_2.snd⟩ ∈ w_1 :: s₂.entries.kunion s₁.entries
-right_10 : ⟨x, cast ⋯ w_2.snd⟩ = w_1 ∨ ⟨x, cast ⋯ w_2.snd⟩ ∈ s₂.entries.kunion s₁.entries
-⊢ False
+error: `grind` has failed after reaching the threshold `(gen := 8)`, use `+verbose` to obtain diagnostic information
 -/
 #guard_msgs in
 theorem union_comm_of_disjoint {s₁ s₂ : AList β} (h : Disjoint s₁ s₂) :

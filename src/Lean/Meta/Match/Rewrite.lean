@@ -128,7 +128,9 @@ def rwMatcher (altIdx : Nat) (e : Expr) : MetaM Simp.Result := do
           else if hType.isEq then
             h.assumption <|> h.refl <|> throwError m!"Failed to resolve `{h}`"
           else if hType.isHEq then
-            h.assumption <|> h.hrefl <|> throwError m!"Failed to resolve `{h}`"
+            -- Splitting may provide an `Eq` hypothesis where the matcher equation requires `HEq`.
+            h.assumption <|> h.hrefl <|> (do (← h.heqOfEq).assumption) <|>
+              throwError m!"Failed to resolve `{h}`"
       let unassignedHyps ← hyps.filterM fun h => return !(← h.isAssigned)
       unless unassignedHyps.isEmpty do
         throwError m!"Not all hypotheses of `{.ofConstName eqnThm}` could be discharged: {unassignedHyps}"

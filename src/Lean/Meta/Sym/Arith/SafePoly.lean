@@ -140,6 +140,23 @@ private def mkPowVar (x : Var) (k : Nat) : PolyM Poly := do
       failure
   return .ofMon (.mult {x, k} .unit)
 
+/-- Mirror of the numeral cases (`.num`, `.natCast`, `.intCast`) of the `toPoly` functions. -/
+def numNode (n : Int) : PolyM Poly := do
+  if (← read).semiring then return .num n.natAbs else return .num (← applyChar n)
+
+/-- Mirror of the `.pow a k` case of the `toPoly` functions, given `pa`, the polynomial of `a`. -/
+def powNode (a : RingExpr) (pa : Poly) (k : Nat) : PolyM Poly := do
+  if k == 0 then return .num 1
+  match a with
+  | .num n | .intCast n => numPow n
+  | .natCast n => numPow n
+  | .var x => mkPowVar x k
+  | _ => pow pa k
+where
+  numPow (n : Int) : PolyM Poly := do
+    checkExp' k
+    if (← read).semiring then return .num (n.natAbs ^ k) else return .num (← applyChar (n ^ k))
+
 /-- Mirror of `Expr.toPoly`, `Expr.toPolyC`, `Expr.toPoly_nc`, `Expr.toPolyC_nc`. -/
 private partial def toPolyRing (e : RingExpr) : PolyM Poly := do
   match e with

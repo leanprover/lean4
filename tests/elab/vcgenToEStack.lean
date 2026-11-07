@@ -1,6 +1,8 @@
 import Std.Tactic.Do
 import Std.WP
 
+set_option sym.debug true
+
 /-!
 `vcgen` weakens a concrete exception postcondition of a spec with pointwise verification
 conditions: for a bare `ε → Prop` such as the one of `Except ε`, and for a type such as `Thrown`
@@ -21,13 +23,12 @@ def fails : Except String Nat := .error "x"
 
 /--
 trace: case vc1
-a✝¹ : String
-a✝ : a✝¹ = "x"
-⊢ a✝¹ = "x" ∨ a✝¹ = "y"
+a✝ : String
+⊢ "x" = "x" ∨ "x" = "y"
 -/
 #guard_msgs in
 example : ⦃True⦄ fails ⦃fun _ => False; fun e => e = "x" ∨ e = "y"⦄ := by
-  vcgen
+  vcgen -simp
   trace_state
   grind
 
@@ -82,13 +83,12 @@ def boom' : Prog Unit := .throw "boom"
 
 /--
 trace: case vc1
-a✝¹ : String
-a✝ : a✝¹ = "boom"
-⊢ a✝¹ = "boom" ∨ a✝¹ = "crash"
+a✝ : String
+⊢ "boom" = "boom" ∨ "boom" = "crash"
 -/
 #guard_msgs in
 example : ⦃True⦄ boom ⦃fun _ => True; { onThrow e := e = "boom" ∨ e = "crash" }⦄ := by
-  vcgen
+  vcgen -simp
   trace_state
   grind
 
@@ -138,4 +138,3 @@ def boomC : Prog Unit ensures _ => True throws e => e = "boom" := .throw "boom"
 
 example : ⦃True⦄ boomC ⦃fun _ => True; { onThrow e := e = "boom" ∨ e = "x" }⦄ := by
   vcgen
-  grind

@@ -11,6 +11,7 @@ prelude
 public import Lean.ProjFns
 public import Lean.Exception
 public import Init.While
+public import Init.Data.Range.Polymorphic.RangeIterator
 import Init.Data.Range.Polymorphic.Iterators
 
 public section

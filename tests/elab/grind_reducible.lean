@@ -47,13 +47,13 @@ example :
 example :
     (Equiv.sigmaCongrRight e).trans (Equiv.sigmaEquivProd α₁ β₂)
     = (Equiv.sigmaEquivProd α₁ β₁).trans (prodCongrRight e) := by
-  grind -reducible => cases #d592 <;> instantiate only [Equiv.congr_fun]
+  grind -reducible => cases #7916 <;> instantiate only [Equiv.congr_fun]
 
 /--
 info: Try these:
-  [apply] grind -reducible only [Equiv.congr_fun, #d592]
+  [apply] grind -reducible only [Equiv.congr_fun, #7916]
   [apply] grind -reducible only [Equiv.congr_fun]
-  [apply] grind -reducible => cases #d592 <;> instantiate only [Equiv.congr_fun]
+  [apply] grind -reducible => cases #7916 <;> instantiate only [Equiv.congr_fun]
 -/
 #guard_msgs in
 example :

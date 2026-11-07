@@ -18,7 +18,7 @@ is `Eq.refl` of the result, which the kernel accepts because the terms are defin
 -/
 
 /-- Turns the result of a `Sym.Reduce` step into a simproc result. -/
-private def ofReduce? (r : Option Expr) : SymM Result := do
+def ofReduce? (r : Option Expr) : SymM Result := do
   let some e' := r | return .rfl
   return .step e' (← mkEqRefl e')
 

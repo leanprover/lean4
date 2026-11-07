@@ -7,6 +7,7 @@ module
 
 prelude
 public import Init.Data.ToString
+public import Init.Data.LawfulHashable
 public import Std.Http.Internal
 import Init.Data.String.Search
 import Init.Data.String.Iter
@@ -128,6 +129,20 @@ def is (name : Name) (s : String) : Bool :=
 
 instance : ToString Name where
   toString name := name.toCanonical
+
+/--
+Appends the canonical spelling, the same bytes as `toCanonical`.
+-/
+instance : Encode .v11 Name where
+  encode out name :=
+    let rec go (i : Nat) (upper : Bool) (out : ByteArray) : ByteArray :=
+      if h : i < name.value.utf8ByteSize then
+        let b := name.value.getUTF8Byte ⟨i⟩ h
+        go (i + 1) (b == '-'.toUInt8) (out.push (if upper then b.toAsciiUpper else b))
+      else
+        out
+      termination_by name.value.utf8ByteSize - i
+    go 0 true out
 
 /--
 Standard Content-Type header name

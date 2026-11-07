@@ -11,35 +11,65 @@ Author: Sofia Rodrigues
 
 #ifndef LEAN_EMSCRIPTEN
 #include <uv.h>
+#include <atomic>
 #endif
 
 namespace lean {
 
-void initialize_libuv_loop();
-
 #ifndef LEAN_EMSCRIPTEN
-using namespace std;
 
-// Event loop structure for managing asynchronous events and synchronization across multiple threads.
-typedef struct {
-    uv_loop_t  * loop;      // The libuv event loop.
-    uv_mutex_t   mutex;     // Mutex for protecting `loop`.
-    uv_cond_t    cond_var;  // Condition variable for signaling that `loop` is free.
-    uv_async_t   async;     // Async handle to interrupt `loop`.
-    _Atomic(int) n_waiters; // Atomic counter for managing waiters for `loop`.
-} event_loop_t;
+class event_loop_guard;
 
-// The multithreaded event loop object for all tasks in the task manager.
-extern event_loop_t global_ev;
+// The libuv loop, shared by all threads. libuv is not thread-safe, so the loop thread and every other
+// thread take turns holding `m_mutex`, and every libuv call and handle field is accessed under it:
+//
+// - The loop thread holds it while it runs `uv_run`, so callbacks run with it held.
+//
+// - A thread that finds it taken counts itself in `m_waiters` and then sends on `m_async`, which makes
+//   `uv_run` return. Counting first means the loop thread sees the waiter when it takes the mutex again,
+//   and waits on `m_cond` instead of starting another iteration.
+//
+// - `unlock` signals `m_cond` only when no waiter is left. The last unlock always sees zero, so the loop
+//   thread is never left waiting.
+//
+// - The mutex is recursive, since callbacks call back into the bindings. The loop thread waits on
+//   `m_cond` only between iterations, at depth 1, where waiting fully releases the mutex.
+//
+class event_loop {
+public:
+    uv_loop_t * m_loop;
 
-// =======================================
-// Event loop manipulation functions.
-void event_loop_init(event_loop_t *event_loop);
-void event_loop_lock(event_loop_t *event_loop);
-void event_loop_unlock(event_loop_t *event_loop);
-void event_loop_run_loop(event_loop_t *event_loop);
-lean_obj_res lean_uv_recv_size_error(uint64_t size);
-lean_object * lean_uv_fit_read_buffer(lean_object * byte_array, size_t nread);
+    // Initializes the loop and starts the loop thread.
+    void start();
+
+    // Whether the loop has work other than `m_async`.
+    bool alive(event_loop_guard const &);
+
+private:
+    uv_mutex_t       m_mutex;
+    uv_cond_t        m_cond;
+    uv_async_t       m_async;   // Interrupts `uv_run` for a waiting thread.
+    std::atomic<int> m_waiters; // Threads waiting for `m_mutex`.
+
+    void lock();
+    void unlock();
+    void run();
+
+    friend class event_loop_guard;
+};
+
+extern event_loop global_ev;
+
+// Holds the `global_ev` lock for its scope. Must be a named local: a temporary would unlock
+// immediately. libuv callbacks already run under the lock and do not take it, but a finalizer or an FFI
+// call from a continuation they run inline does; the lock is recursive, so this nests.
+class event_loop_guard {
+public:
+    [[nodiscard]] event_loop_guard() { global_ev.lock(); }
+    ~event_loop_guard() { global_ev.unlock(); }
+    event_loop_guard(event_loop_guard const &) = delete;
+    event_loop_guard & operator=(event_loop_guard const &) = delete;
+};
 
 #endif
 
@@ -47,9 +77,5 @@ lean_object * lean_uv_fit_read_buffer(lean_object * byte_array, size_t nread);
 // Global event loop manipulation functions
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_event_loop_configure(b_obj_arg options);
 extern "C" LEAN_EXPORT uint8_t lean_uv_event_loop_alive();
-
-// Helpers
-
-void lean_promise_resolve_with_code(int status, b_obj_arg promise);
 
 }

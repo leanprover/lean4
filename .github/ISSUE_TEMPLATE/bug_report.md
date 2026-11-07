@@ -18,6 +18,9 @@ assignees: ''
 * [ ] Test your test case against the latest nightly release, for example on
       https://live.lean-lang.org/#project=lean-nightly
       (You can also use the settings there to switch to “Lean nightly”)
+* [ ] When reporting a perceived soundness bug: Does it affect `lake check --paranoid`?
+      If in doubt, please reach out on security@lean-fro.org for responsible disclosure.
+
 
 ### Description
 

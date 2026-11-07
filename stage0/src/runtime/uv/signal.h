@@ -7,6 +7,7 @@ Author: Sofia Rodrigues
 #pragma once
 #include <lean/lean.h>
 #include "runtime/uv/event_loop.h"
+#include "runtime/uv/util.h"
 
 #ifndef LEAN_EMSCRIPTEN
 #include <uv.h>
@@ -14,36 +15,41 @@ Author: Sofia Rodrigues
 
 namespace lean {
 
-static lean_external_class * g_uv_signal_external_class = NULL;
+inline lean_external_class * g_uv_signal_external_class = nullptr;
 void initialize_libuv_signal();
 
 #ifndef LEAN_EMSCRIPTEN
-using namespace std;
 
-enum uv_signal_state {
-    SIGNAL_STATE_INITIAL,
-    SIGNAL_STATE_RUNNING,
-    SIGNAL_STATE_FINISHED,
-};
+enum class signal_state { Initial, Running, Finished };
 
 // Structure for managing a single UV signal object, including promise handling, signal number, and
 // repeating behavior. The repeating behavior exists to "set" a handler and avoid it not getting signals
-// between the creation of oneshot signal handlers.
-typedef struct {
-    uv_signal_t *   m_uv_signal;   // LibUV signal handle.
-    lean_object *   m_promise;     // The associated promise for asynchronous results.
-    int             m_signum;      // Signal number to watch for.
-    int             m_lean_signum; // `m_signum` in the encoding of `Signal.toInt32`, reported to waiters.
-    bool            m_repeating;   // Flag indicating if the signal handler is repeating.
-    bool            m_received;    // Whether a repeating signal arrived while no promise was pending.
-    uv_signal_state m_state;       // The state of the signal.
-} lean_uv_signal_object;
+// between the creation of oneshot signal handlers. Allocated with `new`; the close callback deletes it.
+struct lean_uv_signal_object {
+    uv_signal_t     m_uv_signal;                        // LibUV signal handle.
+    owned_ref       m_promise;                          // The promise the next signal resolves.
+    int             m_signum = 0;                       // Signal number to watch for.
+    int             m_lean_signum = 0;                  // `m_signum` in the encoding of `Signal.toInt32`, reported to waiters.
+    bool            m_repeating = false;                // Flag indicating if the signal handler is repeating.
+    bool            m_received = false;                 // Whether a repeating signal arrived while no promise was pending.
+    signal_state    m_state = signal_state::Initial;    // The state of the signal.
 
-// `m_promise` may be NULL in any state: `stop` leaves a FINISHED signal without one, and `cancel`
-// leaves it RUNNING without one. A repeating signal also keeps its last
+    // The loop holds a reference to the signal while it is running with a promise.
+    unsigned loop_refs() const {
+        return m_state == signal_state::Running && m_promise.get() != nullptr;
+    }
+
+    // Every Lean reference the signal holds. The loop's reference to the signal itself is not one.
+    std::array<owned_ref *, 1> lean_refs() {
+        return {&m_promise};
+    }
+};
+
+// `m_promise` may be null in any state: `stop` leaves a finished signal without one, and `cancel`
+// leaves it running without one. A repeating signal also keeps its last
 // promise after resolving it, until `next` replaces it.
 //
-// The event loop holds a reference to the signal object exactly while it is RUNNING with a non-NULL
+// The event loop holds a reference to the signal object exactly while it is running with a non-null
 // `m_promise`.
 
 // =======================================

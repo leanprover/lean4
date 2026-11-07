@@ -24,7 +24,7 @@ namespace Lake
 
 /-! ## Build Lean & Static Lib -/
 
-private structure ModuleCollection where
+structure ModuleCollection where
   mods : Array Module := #[]
   modSet : ModuleSet := ∅
   hasErrors : Bool := false

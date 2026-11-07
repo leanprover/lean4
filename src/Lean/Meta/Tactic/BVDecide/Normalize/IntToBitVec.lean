@@ -41,16 +41,16 @@ structure SizeState where
   -/
   relevantHyps : Std.HashSet FVarId := {}
 
-private abbrev M := StateRefT SizeState MetaM
+abbrev M := StateRefT SizeState MetaM
 
 namespace M
 
 @[inline]
-private def addSizeTerm (e : Expr) : M Unit := do
+def addSizeTerm (e : Expr) : M Unit := do
   modify fun s => { s with relevantTerms := s.relevantTerms.insert e }
 
 @[inline]
-private def addSizeHyp (f : FVarId) : M Unit := do
+def addSizeHyp (f : FVarId) : M Unit := do
   modify fun s => { s with relevantHyps := s.relevantHyps.insert f }
 
 end M

@@ -11,7 +11,6 @@ public import Init.Grind.Lemmas
 public import Init.Grind.Cases
 public import Init.Grind.Propagator
 public import Init.Grind.Util
-public import Init.Grind.Offset
 public import Init.Grind.PP
 public import Init.Grind.Ring
 public import Init.Grind.ToInt

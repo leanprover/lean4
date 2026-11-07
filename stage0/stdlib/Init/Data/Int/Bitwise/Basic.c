@@ -38,6 +38,8 @@ LEAN_EXPORT lean_object* l_Int_shiftLeft___boxed(lean_object*, lean_object*);
 static const lean_closure_object l_Int_instHShiftLeftNat___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Int_shiftLeft___boxed, .m_arity = 2, .m_num_fixed = 0, .m_objs = {} };
 static const lean_object* l_Int_instHShiftLeftNat___closed__0 = (const lean_object*)&l_Int_instHShiftLeftNat___closed__0_value;
 LEAN_EXPORT const lean_object* l_Int_instHShiftLeftNat = (const lean_object*)&l_Int_instHShiftLeftNat___closed__0_value;
+lean_object* lean_int_trailing_zeros(lean_object*);
+LEAN_EXPORT lean_object* l_Int_trailingZeros___boxed(lean_object*);
 static lean_object* _init_l_Int_not___closed__0(void){
 _start:
 {
@@ -161,6 +163,15 @@ v_res_49_ = l_Int_shiftLeft(v_x_47_, v_x_48_);
 lean_dec(v_x_48_);
 lean_dec(v_x_47_);
 return v_res_49_;
+}
+}
+LEAN_EXPORT lean_object* l_Int_trailingZeros___boxed(lean_object* v_i_53_){
+_start:
+{
+lean_object* v_res_54_; 
+v_res_54_ = lean_int_trailing_zeros(v_i_53_);
+lean_dec(v_i_53_);
+return v_res_54_;
 }
 }
 lean_object* runtime_initialize_Init_Data_Int_Basic(uint8_t builtin);

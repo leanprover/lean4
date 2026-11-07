@@ -151,12 +151,14 @@ inline bool has_fvar(expr const & e) {
     lean_assert(r == has_fvar_core(e)); // ensure the C++ implementation matches the Lean one.
     return r;
 }
+/* This is the implementation in Lean */
 bool has_univ_param_core(expr const & e);
 inline bool has_univ_param(expr const & e) {
     bool r = ((get_data(e) >> 43) & 1) == 1;
     lean_assert(r == has_univ_param_core(e)); // ensure the C++ implementation matches the Lean one.
     return r;
 }
+/* This is the implementation in Lean */
 unsigned get_loose_bvar_range_core(expr const & e);
 inline unsigned get_loose_bvar_range(expr const & e) {
     unsigned r = static_cast<unsigned>(get_data(e) >> 44);
@@ -166,7 +168,7 @@ inline unsigned get_loose_bvar_range(expr const & e) {
 
 struct expr_hash { unsigned operator()(expr const & e) const { return hash(e); } };
 struct expr_pair_hash {
-    unsigned operator()(expr_pair const & p) const { return hash(hash(p.first), hash(p.second)); }
+    unsigned operator()(expr_pair const & p) const { return static_cast<unsigned>(hash(hash(p.first), hash(p.second))); }
 };
 struct expr_pair_eq {
     bool operator()(expr_pair const & p1, expr_pair const & p2) const { return p1.first == p2.first && p1.second == p2.second; }
@@ -200,22 +202,22 @@ bool is_arrow(expr const & t);
 expr mk_lit(literal const & lit);
 expr mk_mdata(kvmap const & d, expr const & e);
 expr mk_proj(name const & s, nat const & idx, expr const & e);
-inline expr mk_proj(name const & s, unsigned idx, expr const & e) { return mk_proj(s, nat(idx), e); }
+inline expr mk_proj(name const & s, size_t idx, expr const & e) { return mk_proj(s, nat(idx), e); }
 expr mk_bvar(nat const & idx);
-inline expr mk_bvar(unsigned idx) { return mk_bvar(nat(idx)); }
+inline expr mk_bvar(size_t idx) { return mk_bvar(nat(idx)); }
 expr mk_fvar(name const & n);
 expr mk_const(name const & n, levels const & ls);
 inline expr mk_const(name const & n) { return mk_const(n, levels()); }
 expr mk_app(expr const & f, expr const & a);
-expr mk_app(expr const & f, unsigned num_args, expr const * args);
-expr mk_app(unsigned num_args, expr const * args);
+expr mk_app(expr const & f, size_t num_args, expr const * args);
+expr mk_app(size_t num_args, expr const * args);
 inline expr mk_app(std::initializer_list<expr> const & l) { return mk_app(l.size(), l.begin()); }
 inline expr mk_app(buffer<expr> const & args) { return mk_app(args.size(), args.data()); }
 inline expr mk_app(expr const & f, buffer<expr> const & args) { return mk_app(f, args.size(), args.data()); }
 inline expr mk_app(expr const & e1, expr const & e2, expr const & e3) { return mk_app({e1, e2, e3}); }
 inline expr mk_app(expr const & e1, expr const & e2, expr const & e3, expr const & e4) { return mk_app({e1, e2, e3, e4}); }
 inline expr mk_app(expr const & e1, expr const & e2, expr const & e3, expr const & e4, expr const & e5) { return mk_app({e1, e2, e3, e4, e5}); }
-expr mk_rev_app(expr const & f, unsigned num_args, expr const * args);
+expr mk_rev_app(expr const & f, size_t num_args, expr const * args);
 inline expr mk_rev_app(expr const & f, buffer<expr> const & args) { return mk_rev_app(f, args.size(), args.data()); }
 expr mk_lambda(name const & n, expr const & t, expr const & e, binder_info bi = mk_binder_info());
 expr mk_pi(name const & n, expr const & t, expr const & e, binder_info bi = mk_binder_info());
@@ -241,7 +243,7 @@ inline name const &    proj_sname(expr const & e)            { lean_assert(is_pr
 inline nat const &     proj_idx(expr const & e)              { lean_assert(is_proj(e)); return static_cast<nat const &>(cnstr_get_ref(e, 1)); }
 inline expr const &    proj_expr(expr const & e)             { lean_assert(is_proj(e)); return static_cast<expr const &>(cnstr_get_ref(e, 2)); }
 inline nat const &     bvar_idx(expr const & e)              { lean_assert(is_bvar(e)); return static_cast<nat const &>(cnstr_get_ref(e, 0)); }
-inline bool            is_bvar(expr const & e, unsigned i)   { return is_bvar(e) && bvar_idx(e) == i; }
+inline bool            is_bvar(expr const & e, size_t i)     { return is_bvar(e) && bvar_idx(e) == i; }
 inline name const &    fvar_name_core(object * o)            { lean_assert(is_fvar_core(o)); return static_cast<name const &>(cnstr_get_ref(o, 0)); }
 inline name const &    fvar_name(expr const & e)             { lean_assert(is_fvar(e)); return static_cast<name const &>(cnstr_get_ref(e, 0)); }
 inline level const &   sort_level(expr const & e)            { lean_assert(is_sort(e)); return static_cast<level const &>(cnstr_get_ref(e, 0)); }
@@ -301,7 +303,7 @@ expr const & get_app_rev_args(expr const & e, buffer<expr> & args);
 /** \brief Given \c e of the form <tt>(...(f a_1) ... a_n)</tt>, return \c f. If \c e is not an application, then return \c e. */
 expr const & get_app_fn(expr const & e);
 /** \brief Given \c e of the form <tt>(...(f a_1) ... a_n)</tt>, return \c n. If \c e is not an application, then return 0. */
-unsigned get_app_num_args(expr const & e);
+size_t get_app_num_args(expr const & e);
 
 expr consume_type_annotations(expr const & e);
 
@@ -312,18 +314,18 @@ expr consume_type_annotations(expr const & e);
 inline bool has_loose_bvars(expr const & e) { return get_loose_bvar_range(e) > 0; }
 
 /** \brief Return true iff \c e contains the loose bound variable <tt>(var i)</tt>. */
-bool has_loose_bvar(expr const & e, unsigned i);
+bool has_loose_bvar(expr const & e, size_t i);
 
 /** \brief Lower the loose bound variables >= s in \c e by \c d. That is, a loose bound variable <tt>(var i)</tt> s.t.
     <tt>i >= s</tt> is mapped into <tt>(var i-d)</tt>.
 
     \pre s >= d */
-expr lower_loose_bvars(expr const & e, unsigned s, unsigned d);
-expr lower_loose_bvars(expr const & e, unsigned d);
+expr lower_loose_bvars(expr const & e, size_t s, size_t d);
+expr lower_loose_bvars(expr const & e, size_t d);
 
 /** \brief Lift loose bound variables >= s in \c e by d. */
-expr lift_loose_bvars(expr const & e, unsigned s, unsigned d);
-expr lift_loose_bvars(expr const & e, unsigned d);
+expr lift_loose_bvars(expr const & e, size_t s, size_t d);
+expr lift_loose_bvars(expr const & e, size_t d);
 // =======================================
 
 
@@ -353,7 +355,7 @@ inline bool has_univ_metavar(expr const & e) { return has_univ_mvar(e); }
 inline bool has_metavar(expr const & e) { return has_mvar(e); }
 inline bool has_param_univ(expr const & e) { return has_univ_param(e); }
 inline bool is_var(expr const & e) { return is_bvar(e); }
-inline bool is_var(expr const & e, unsigned idx) { return is_bvar(e, idx); }
+inline bool is_var(expr const & e, size_t idx) { return is_bvar(e, idx); }
 inline bool is_metavar(expr const & e) { return is_mvar(e); }
 inline expr mk_constant(name const & n, levels const & ls) { return mk_const(n, ls); }
 inline expr mk_constant(name const & n) { return mk_constant(n, levels()); }

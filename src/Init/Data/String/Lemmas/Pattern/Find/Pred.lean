@@ -6,10 +6,10 @@ Authors: Markus Himmel
 module
 
 prelude
-public import Init.Data.String.Slice
+public import Init.Data.String.Slice.Pattern
 public import Init.Data.String.Search
 public import Init.Data.String.Lemmas.Splits
-import all Init.Data.String.Slice
+import all Init.Data.String.Slice.Pattern
 import all Init.Data.String.Search
 import Init.Data.String.Lemmas.Pattern.Find.Basic
 import Init.Data.String.Lemmas.Pattern.Pred

@@ -115,7 +115,7 @@ def LeCnstr.assertImpl (c : LeCnstr) : GoalM Unit := do
   let .add a x _ := c.p | c.throwUnexpected
   if (← findEq c) then
     return ()
-  let c ← refineWithDiseq c
+  let c ← (← refineWithDiseq c).markStored
   trace[grind.lia.assert.store] "{← c.pp}"
   c.p.updateOccs
   if a < 0 then
@@ -124,18 +124,6 @@ def LeCnstr.assertImpl (c : LeCnstr) : GoalM Unit := do
     modify' fun s => { s with uppers := s.uppers.modify x (·.push c) }
   if (← c.satisfied) == .false then
     resetAssignmentFrom x
-
-private def reportNonNormalized (e : Expr) : GoalM Unit := do
-  reportIssue! "unexpected non normalized inequality constraint found{indentExpr e}"
-
-private def toPolyLe? (e : Expr) : GoalM (Option Poly) := do
-  let_expr LE.le _ inst a b ← e | return none
-  unless (← Structural.isInstLEInt inst) do return none
-  let some k ← getIntValue? b
-    | reportNonNormalized e; return none
-  unless k == 0 do
-    reportNonNormalized e; return none
-  return some (← toPoly a)
 
 /-- Asserts a constraint coming from the core. -/
 private def LeCnstr.assertCore (c : LeCnstr) : GoalM Unit := do
@@ -148,13 +136,29 @@ private def LeCnstr.assertCore (c : LeCnstr) : GoalM Unit := do
 /--
 Given an expression `e` that is in `True` (or `False` equivalence class), if `e` is an
 integer inequality, asserts it to the cutsat state.
+
+The `grind` preprocessor normalizes inequalities to `a ≤ 0` with `a` in normal form (see
+`toPoly?`). Inequalities in dependent positions may not be normalized, and we normalize them here.
 -/
 def propagateIntLe (e : Expr) (eqTrue : Bool) : GoalM Unit := do
-  let some p ← toPolyLe? e | return ()
-  let c ← if eqTrue then
-    pure { p, h := .core e : LeCnstr }
-  else
-    pure { p := p.mul (-1) |>.addConst 1, h := .coreNeg e p : LeCnstr }
+  let_expr LE.le _ inst a b ← e | return ()
+  unless (← Structural.isInstLEInt inst) do return ()
+  if let some 0 ← getIntValue? b then
+    if let some p ← toPoly? a then
+      trace[grind.debug.lia.norm] "normalized: {e}"
+      let c ← if eqTrue then
+        pure { p, h := .core e : LeCnstr }
+      else
+        pure { p := p.mul (-1) |>.addConst 1, h := .coreNeg e p : LeCnstr }
+      c.assertCore
+      return
+  trace[grind.debug.lia.norm] "not normalized: {e}"
+  let gen ← getGeneration e
+  let lhs ← toLinearExpr a gen
+  let rhs ← toLinearExpr b gen
+  let p := lhs.sub rhs |>.norm
+  let p := if eqTrue then p else p.mul (-1) |>.addConst 1
+  let c := { p, h := .coreExpr e eqTrue lhs rhs : LeCnstr }
   c.assertCore
 
 def propagateNatLe (e : Expr) (eqTrue : Bool) : GoalM Unit := do

@@ -84,6 +84,14 @@ inductive LitValue where
   -- TODO: add constructors for `Int`, `Float`, ...
   deriving Inhabited, BEq, Hashable
 
+def Nat.isPossibleRef (n : Nat) : Bool :=
+  n > 2^31 - 1
+
+def LitValue.isPossibleRef : LitValue → Bool
+  | .str .. => true
+  | .nat val => Nat.isPossibleRef val
+  | _ => false
+
 def LitValue.toExpr : LitValue → Expr
   | .nat v => .lit (.natVal v)
   | .str v => .lit (.strVal v)
@@ -162,9 +170,9 @@ def CtorInfo.type (info : CtorInfo) : Expr :=
 def CtorInfo.checkValid (info : CtorInfo) : CoreM Unit := do
   if info.cidx > maxCtorTag && info.isRef then
     throwError s!"tag for constructor '{info.name}' is too big, this is a limitation of the current runtime"
-  if !info.size < maxCtorFields then
-    throwError s!"constructor '{info.name}' has too many fields"
-  if !info.ssize + info.usize * usizeSize < maxCtorScalarsSize then
+  if info.size > maxCtorNumObjs then
+    throwError s!"constructor '{info.name}' has too many object fields"
+  if info.ssize + info.usize * usizeSize > maxCtorScalarsSize then
     throwError s!"constructor '{info.name}' has too many scalar fields"
 
 inductive LetValue (pu : Purity) where

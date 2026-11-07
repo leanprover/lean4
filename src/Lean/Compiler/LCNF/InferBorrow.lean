@@ -201,6 +201,8 @@ inductive OwnReason where
   | backwardProjectionProp (resultFVar : FVarId)
   /-- Result of a function application. -/
   | functionCallResult (resultFVar : FVarId)
+  /-- Literal that is allocated at runtime. -/
+  | literalResult (resultFVar : FVarId)
   /-- Argument to a function whose corresponding parameter is owned. -/
   | functionCallArg (resultFVar : FVarId)
   /-- Argument or callee in a call to a free variable. -/
@@ -225,6 +227,7 @@ def OwnReason.toString (reason : OwnReason) : CompilerM String := do
     | .forwardProjectionProp resultFVar => return s!"fwd projection propagation {← PP.ppFVar resultFVar}"
     | .backwardProjectionProp resultFVar => return s!"bkwd projection propagation {← PP.ppFVar resultFVar}"
     | .functionCallResult resultFVar => return s!"result of function call {← PP.ppFVar resultFVar}"
+    | .literalResult resultFVar => return s!"allocated literal {← PP.ppFVar resultFVar}"
     | .functionCallArg resultFVar => return s!"owned function argument {← PP.ppFVar resultFVar}"
     | .fvarCall resultFVar => return s!"argument to closure call {← PP.ppFVar resultFVar}"
     | .partialApplication resultFVar => return s!"argument to pap {← PP.ppFVar resultFVar}"
@@ -250,8 +253,8 @@ def OwnReason.isForced (reason : OwnReason) : Bool :=
   -- directly flows into a reset-reuse. However, the borrow annotation propagator ensures this
   -- situation never arises
   | .backwardProjectionProp .. => false
-  -- Results of functions and constructors are naturally owned.
-  | .constructorResult .. | .functionCallResult ..
+  -- Results of functions and constructors and allocated literals are naturally owned.
+  | .constructorResult .. | .functionCallResult .. | .literalResult ..
   -- We cannot pass borrowed values to reset or have borrow annotations destroy tail calls for
   -- correctness reasons.
   | .resetReuse .. | .tailCallPreservation .. | .jpTailCallPreservation ..
@@ -371,8 +374,9 @@ where
         if (← read).paramSet.contains x then
           ownFVar x (.constructorArg z)
 
-  collectLetValue (z : FVarId) (v : LetValue .impure) : InferM Unit := do
-    match v with
+  collectLetValue (decl : LetDecl .impure) : InferM Unit := do
+    let z := decl.fvarId
+    match decl.value with
     | .reset _ x => ownFVar z (.resetReuse z); ownFVar x (.resetReuse z)
     | .reuse x _ _ args => ownFVar z (.resetReuse z); ownFVar x (.resetReuse z); ownArgsIfParam z args
     | .oproj _ x _ =>
@@ -403,6 +407,7 @@ where
     | .fvar x args =>
       ownFVar z (.functionCallResult z); ownFVar x (.fvarCall z); ownArgs (.fvarCall z) args
     | .pap _ args => ownFVar z (.functionCallResult z); ownArgs (.partialApplication z) args
+    | .lit val => if val.isPossibleRef then ownFVar z (.literalResult z)
     | _ => return ()
 
   preserveTailCall (x : FVarId) (v : LetValue .impure) (k : Code .impure) : InferM Unit := do
@@ -425,7 +430,7 @@ where
       collectCode k
     | .let decl k =>
       collectCode k
-      collectLetValue decl.fvarId decl.value
+      collectLetValue decl
       preserveTailCall decl.fvarId decl.value k
     | .jmp jpId args =>
       let ctx ← read

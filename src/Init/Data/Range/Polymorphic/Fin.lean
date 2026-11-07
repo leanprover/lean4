@@ -109,4 +109,63 @@ instance : Rxi.LawfulHasSize (Fin n) where
 
 instance : Rxi.IsAlwaysFinite (Fin n) := inferInstance
 
+instance : DownwardEnumerable (Fin n) where
+  pred? x := x.subNat? 1
+  predMany? n x := x.subNat? n
+
+instance : LawfulDownwardEnumerable (Fin n) where
+  ne_of_lt := by
+    simp only [DownwardEnumerable.LT, DownwardEnumerable.predMany?, Fin.subNat?_eq_some_iff]
+    omega
+  predMany?_zero := by simp [DownwardEnumerable.predMany?]
+  predMany?_add_one n' a := by
+    simp only [DownwardEnumerable.predMany?, DownwardEnumerable.pred?, Fin.subNat?]
+    split <;> split <;> simp <;> omega
+
+instance : LawfulDownwardEnumerableLE (Fin n) where
+  le_iff x y := by
+    simp [DownwardEnumerable.LE, DownwardEnumerable.predMany?, Fin.subNat?_eq_some_iff]
+    constructor
+    · intro h; exists y - x; omega
+    · rintro ⟨n, h⟩; omega
+
+instance : LawfulUpwardEnumerableLT (Fin n) := inferInstance
+
+instance : Rcx.IsAlwaysFiniteRev (Fin n) where
+  finite init lo := ⟨init + 1, by
+    simp only [DownwardEnumerable.predMany?, Fin.subNat?, Nat.not_add_one_le_self, ite_false,
+      Option.elim_none]⟩
+
+instance : Rox.IsAlwaysFiniteRev (Fin n) where
+  finite init lo := ⟨init + 1, by
+    simp only [DownwardEnumerable.predMany?, Fin.subNat?, Nat.not_add_one_le_self, ite_false,
+      Option.elim_none]⟩
+
+instance : Rix.IsAlwaysFiniteRev (Fin n) where
+  finite init := ⟨init + 1, by
+    simp only [DownwardEnumerable.predMany?, Fin.subNat?, Nat.not_add_one_le_self, ite_false]⟩
+
+instance : Greatest? (Fin 0) where
+  greatest? := none
+
+instance : LawfulDownwardEnumerableGreatest? (Fin 0) where
+  le_greatest? a := False.elim (Nat.not_lt_zero _ a.isLt)
+
+@[simp]
+theorem greatest?_eq_of_zero : Greatest?.greatest? (α := Fin 0) = none := rfl
+
+instance [NeZero n] : Greatest? (Fin n) where
+  greatest? := some ⟨n - 1, by have h := NeZero.ne n; omega⟩
+
+instance [NeZero n] : LawfulDownwardEnumerableGreatest? (Fin n) where
+  le_greatest? a :=
+    let last := ⟨n - 1, by have h := NeZero.ne n; omega⟩
+    have h : a ≤ last := by rw [Fin.le_def]; simp [last]; omega
+    ⟨last, rfl,
+    (LawfulDownwardEnumerableLE.le_iff a last).1 h⟩
+
+@[simp]
+theorem greatest?_eq [NeZero n] :
+    Greatest?.greatest? (α := Fin n) = some ⟨n - 1, by have h := NeZero.ne n; omega⟩ := rfl
+
 end Fin

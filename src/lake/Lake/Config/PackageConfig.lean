@@ -109,6 +109,16 @@ public configuration PackageConfig (p : Name) (n : Name) extends WorkspaceConfig
   preferReleaseBuild : Bool := false
 
   /--
+  A cache service hosting build caches for this package.
+
+  If set, `lake cache get` will use this service by default when fetching build caches for this
+  package. During builds, Lake will automatically try to fetch output mappings from this service
+  at the start of a build. If successful, artifacts will then be downloaded from the service
+  on-demand during builds.
+  -/
+  downloadCacheService?, downloadCacheService : Option String := none
+
+  /--
   The name of the script, executable, or library by `lake test` when
   this package is the workspace root. To point to a definition in another
   package, use the syntax `<pkg>/<def>`.

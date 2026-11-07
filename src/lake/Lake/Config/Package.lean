@@ -275,6 +275,10 @@ public def id? (self : Package) : Option PkgId :=
 @[inline] public def preferReleaseBuild (self : Package) : Bool :=
   self.config.preferReleaseBuild
 
+/-- The package's `downloadCacheService`/`downloadCacheService?` configuration. -/
+@[inline] public def downloadCacheService? (self : Package) : Option CacheServiceName :=
+  self.config.downloadCacheService?.map .ofString
+
 /-- The package's `precompileModules` configuration. -/
 @[inline] public def precompileModules (self : Package) : Bool :=
   self.config.precompileModules
@@ -413,7 +417,7 @@ public def cacheScope (self : Package) : String :=
 def reservoirScope (self : Package) : CacheServiceScope :=
   .ofString s!"{self.scope}/{self.origName.toString (escape := false)}"
 
-/-- The cache scope used to identify the package on Reservoir (if the package is availa ble there). -/
+/-- The cache scope used to identify the package on Reservoir (if the package is available there). -/
 @[inline] public def reservoirScope? (self : Package) : Option CacheServiceScope :=
   if self.scope.isEmpty then none else some self.reservoirScope
 

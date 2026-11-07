@@ -298,6 +298,7 @@ end CacheServiceName
 /-! ## Cache Service Scope -/
 
 inductive CacheServiceScopeImpl
+| none
 | str (s : String)
 | repo (s : String)
 
@@ -308,11 +309,20 @@ public structure CacheServiceScope where
 
 namespace CacheServiceScope
 
+/-- An indicator that the cache service does not scope artifacts. -/
+@[inline] public def none : CacheServiceScope := ⟨.none⟩
+
 /-- Constructs a generic service scope from a user-provided string. -/
-public def ofString (s : String) : CacheServiceScope := ⟨.str s⟩
+@[inline] public def ofString (s : String) : CacheServiceScope := ⟨.str s⟩
 
 /-- Constructs a service scope from a GitHub repository name. -/
-public def ofRepo (fullName : String) : CacheServiceScope := ⟨.repo fullName⟩
+@[inline] public def ofRepo (fullName : String) : CacheServiceScope := ⟨.repo fullName⟩
+
+/-- Returns whether this is the `none` indicator. -/
+public protected def isNone (self : CacheServiceScope) : Bool :=
+  match self.impl with
+  | .none .. => true
+  | _ => false
 
 /-- Returns whether this is a repository scope. -/
 public protected def isRepo (self : CacheServiceScope) : Bool :=
@@ -323,6 +333,7 @@ public protected def isRepo (self : CacheServiceScope) : Bool :=
 /-- Returns a string representation of the scope. -/
 public protected def toString (self : CacheServiceScope) : String :=
   match self.impl with
+  | .none => ""
   | .str s => s
   | .repo s => s
 
@@ -331,6 +342,7 @@ public instance : ToString CacheServiceScope := ⟨CacheServiceScope.toString⟩
 /-- Returns a JSON representation of the scope. -/
 protected def toJson (self : CacheServiceScope) : Json :=
   match self.impl with
+  | .none => false
   | .str s => s
   | .repo s => s
 
@@ -378,8 +390,11 @@ public protected def fromJson? (json : Json) : Except String CacheOutput := do
       let scope? ← id do
         if let some repo := repo? then
           return some (.ofRepo repo)
-        else if let some scope ← obj.get? "scope" then
-          return some (.ofString scope)
+        else if let some scope := obj.getJson? "scope" then
+          match scope with
+          | false => return some .none
+          | .str s => return some (.ofString s)
+          | _ => .error "scope: expected string or false"
         else
           return none
       return {data, service?, scope?}
@@ -728,19 +743,27 @@ def appendScope (endpoint : String) (scope : String) : String :=
   scope.split '/' |>.fold (init := endpoint) fun s component =>
     uriEncode component.copy (s.push '/')
 
-def s3ArtifactUrl (contentHash : Hash) (service : CacheService) (scope : CacheServiceScope) : String :=
+def s3ArtifactUrl
+  (contentHash : Hash) (service : CacheService) (scope : CacheServiceScope)
+: String :=
+  let endpoint := service.impl.artifactEndpoint
   let endpoint :=
     match scope.impl with
-    | .repo scope => appendScope service.impl.artifactEndpoint scope
-    | .str scope => appendScope service.impl.artifactEndpoint scope
+    | .none => endpoint
+    | .repo scope => appendScope endpoint scope
+    | .str scope => appendScope endpoint scope
   s!"{endpoint}/{contentHash.hex}.art"
 
-public def artifactUrl (contentHash : Hash) (service : CacheService) (scope : CacheServiceScope) : String :=
+public def artifactUrl
+  (contentHash : Hash) (service : CacheService) (scope : CacheServiceScope)
+: String :=
   if service.isReservoir then
+    let endpoint := service.impl.apiEndpoint
     let endpoint :=
       match scope.impl with
-      | .repo scope => appendScope s!"{service.impl.apiEndpoint}/repositories" scope
-      | .str scope => appendScope s!"{service.impl.apiEndpoint}/packages" scope
+      | .none => endpoint
+      | .repo scope => appendScope s!"{endpoint}/repositories" scope
+      | .str scope => appendScope s!"{endpoint}/packages" scope
     s!"{endpoint}/artifacts/{contentHash.hex}.art"
   else
     service.s3ArtifactUrl contentHash scope
@@ -1049,10 +1072,12 @@ def transferArtifacts (cfg : TransferConfig) : LoggerIO Unit := do
     failure
 
 def reservoirArtifactsUrl (service : CacheService) (scope : CacheServiceScope) : String :=
+  let endpoint := service.impl.apiEndpoint
   let endpoint :=
     match scope.impl with
-    | .repo scope => appendScope s!"{service.impl.apiEndpoint}/repositories" scope
-    | .str scope => appendScope s!"{service.impl.apiEndpoint}/packages" scope
+    | .none => endpoint
+    | .repo scope => appendScope s!"{endpoint}/repositories" scope
+    | .str scope => appendScope s!"{endpoint}/packages" scope
   s!"{endpoint}/artifacts"
 
 public def downloadArtifacts
@@ -1182,26 +1207,34 @@ def s3RevisionUrl
   (rev : GitRev) (service : CacheService) (scope : CacheServiceScope)
   (platform := CachePlatform.none) (toolchain := CacheToolchain.none)
 : String :=
-  match scope.impl with
-  | .str s => appendScope service.impl.revisionEndpoint s ++ s!"/{rev}.jsonl"
-  | .repo s => Id.run do
-    let mut url := appendScope service.impl.revisionEndpoint s
+  let endpoint := service.impl.revisionEndpoint
+  let endpoint :=
+    match scope.impl with
+    | .none => appendBuildScopes endpoint platform toolchain
+    | .str s => appendScope endpoint s
+    | .repo s => appendBuildScopes (appendScope endpoint s) platform toolchain
+  s!"{endpoint}/{rev}.jsonl"
+where
+  appendBuildScopes url platform toolchain := Id.run do
+    let mut url := url
     unless platform.isNone do
       url := uriEncode platform.raw s!"{url}/pt/"
     unless toolchain.isNone do
       url := uriEncode (toolchain2Dir toolchain.raw).toString s!"{url}/tc/"
-    return s!"{url}/{rev}.jsonl"
+    return url
 
 public def revisionUrl
   (rev : GitRev) (service : CacheService) (scope : CacheServiceScope)
   (platform := CachePlatform.none) (toolchain := CacheToolchain.none)
 : String :=
   if service.isReservoir then Id.run do
-    let mut url :=
+    let endpoint := service.impl.apiEndpoint
+    let endpoint :=
       match scope.impl with
-      | .str s => appendScope s!"{service.impl.apiEndpoint}/packages" s
-      | .repo s => appendScope s!"{service.impl.apiEndpoint}/repositories" s
-    url := s!"{url}/build-outputs?rev={rev}"
+      | .none => endpoint
+      | .str s => appendScope s!"{endpoint}/packages" s
+      | .repo s => appendScope s!"{endpoint}/repositories" s
+    let mut url := s!"{endpoint}/build-outputs?rev={rev}"
     unless platform.isNone do
       url := uriEncode platform.raw s!"{url}&platform="
     unless toolchain.isNone do
@@ -1226,7 +1259,11 @@ public def downloadRevisionOutputs?
     \n  remote URL: {url}"
   let headers := if service.isReservoir then Reservoir.lakeHeaders else {}
   let contents? ← try getUrl? url headers catch e =>
-    logError s!"{remoteScope}: output lookup failed"
+    let caption :=
+      if remoteScope.isNone then
+        service.name?.elim localScope (·.toString)
+      else remoteScope.toString
+    logError s!"{caption}: output lookup failed"
     throw e
   let some contents := contents?
     | return none

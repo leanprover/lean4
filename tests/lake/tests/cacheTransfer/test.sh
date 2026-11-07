@@ -142,7 +142,7 @@ test_err 'the `--rev` option does nothing' \
   cache get bogus.jsonl --scope='bogus' --rev='bogus' --wfail
 test_err 'a custom endpoint must be set (not Reservoir)' cache get --scope='bogus'
 test_err 'unknown package `bogus`' cache get --package='bogus'
-test_err 'the `--rev` option is not supported for a multi-package Reservoir `cache get`' \
+test_err 'the `--rev` option is not supported for a multi-package `cache get`' \
   cache get --rev=bogus
 with_endpoints test_err 'the `--scope` or `--repo` option must be set' cache get
 LAKE_CACHE_ARTIFACT_ENDPOINT=bogus test_err 'both environment variables must be set' cache get

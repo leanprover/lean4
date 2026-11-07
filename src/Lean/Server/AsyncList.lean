@@ -54,7 +54,8 @@ def waitAll : AsyncList ε α → ServerTask (List α × Option ε) :=
 
 /-- Spawns a `Task` acting like `List.find?` but which will wait for tail evaluation
 when necessary to traverse the list. If the tail terminates before a matching element
-is found, the task throws the terminating value. -/
+is found, the task throws the terminating value. `p` runs in `sync` tasks when the tail
+becomes available, so it must not block, e.g. on tasks of an `Environment`. -/
 partial def waitFind? (p : α → Bool) : AsyncList ε α → ServerTask (Except ε (Option α))
   | nil => .pure <| .ok none
   | cons hd tl =>

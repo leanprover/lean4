@@ -1,0 +1,3 @@
+answer: 42
+doesNotExist: error -32601: No RPC method 'doesNotExist' found
+watchdog exit code: 0

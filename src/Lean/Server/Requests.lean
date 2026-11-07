@@ -206,7 +206,7 @@ def waitFindSnapAux (notFoundX : RequestM α) (x : Snapshot → RequestM α)
 
 /-- Create a task which waits for the first snapshot matching `p`, handles various errors,
 and if a matching snapshot was found executes `x` with it. If not found, the task executes
-`notFoundX`. -/
+`notFoundX`. `p` must not block, see `AsyncList.waitFind?`. -/
 def withWaitFindSnap (doc : EditableDocument) (p : Snapshot → Bool)
     (notFoundX : RequestM β)
     (x : Snapshot → RequestM β)

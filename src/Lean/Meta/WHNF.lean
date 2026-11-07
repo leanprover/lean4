@@ -125,7 +125,7 @@ private def getFirstCtor (d : Name) : MetaM (Option Name) := do
     return none
   return some ctor
 
-private def mkNullaryCtor (type : Expr) (nparams : Nat) : MetaM (Option Expr) := do
+def mkNullaryCtor (type : Expr) (nparams : Nat) : MetaM (Option Expr) := do
   let .const d lvls := type.getAppFn
     | return none
   let (some ctor) ← getFirstCtor d | pure none
@@ -240,7 +240,7 @@ private def cleanupNatOffsetMajor (e : Expr) : MetaM Expr := do
     return mkNatSucc (mkNatAdd e (toExpr (k - 1)))
 
 /-- Auxiliary function for reducing recursor applications. -/
-private def reduceRec (recVal : RecursorVal) (recLvls : List Level) (recArgs : Array Expr) (failK : Unit → MetaM α) (successK : Expr → MetaM α) : MetaM α :=
+def reduceRec (recVal : RecursorVal) (recLvls : List Level) (recArgs : Array Expr) (failK : Unit → MetaM α) (successK : Expr → MetaM α) : MetaM α :=
   let majorIdx := recVal.getMajorIdx
   if h : majorIdx < recArgs.size then do
     let major := recArgs[majorIdx]

@@ -2367,16 +2367,18 @@ private partial def isUnitLikeType (e : Expr) : MetaM LBool :=
         return isUnit
 
 /-- Takes a type of the form `A1 -> ... -> An-> I As`, checks that `I` is a (non-recursive) structure, and that each (instantiated) fields is itself either a proposition or a unit-like type-/
-private partial def isUnitLikeTypeCore (e : Expr) : MetaM LBool := do
-    if let some _ ← getStuckMVar? e then return .undef
-    let hd := e.getAppFn
+private partial def isUnitLikeTypeCore (e : Expr) : MetaM LBool :=
+  forallTelescopeReducing (whnfType := true) e fun _ tType => do
+    let tType ← instantiateMVars tType
+    if let some _ ← getStuckMVar? tType then return .undef
+    let hd := tType.getAppFn
     matchConstNonRecStructure hd (fun _ => pure .false) fun _ _ ctorVal => do
       unless ← useEtaStruct ctorVal.induct do
         return .false
       let ctorType := (← instantiateTypeLevelParams ctorVal.toConstantVal hd.constLevels!)
           -- `tType` is a structure, and in particular has no indices. Furthermore, it is a type, so `tType.getAppNumArgs = (← getConstInfoInduct ctorVal.induct).numParams`
-          |>.getForallBodyMaxDepth e.getAppNumArgs
-          |>.instantiateRev e.getAppArgs
+          |>.getForallBodyMaxDepth tType.getAppNumArgs
+          |>.instantiateRev tType.getAppArgs
       forallTelescope ctorType fun xs _ => do
         for e in xs do
           let ty ← e.fvarId!.getType

@@ -201,7 +201,7 @@ private def instFinitenessRelation :
 instance instFinite : Finite (Zipper α β) Id :=
   .of_finitenessRelation instFinitenessRelation
 
-@[always_inline, inline]
+@[always_inline]
 instance instIteratorLoop {n : Type _ → Type _} [Monad n] :
     IteratorLoop (Zipper α β) Id n :=
   .defaultImplementation

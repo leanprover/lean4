@@ -108,7 +108,7 @@ def Iter.Partial.atIdxSlow? {α β} [Iterator α Id β]
     (n : Nat) (it : Iter.Partial (α := α) β) : Option β :=
   it.it.atIdxSlow? n
 
-@[always_inline, inline, inherit_doc IterM.atIdx?]
+@[always_inline, inherit_doc IterM.atIdx?]
 def Iter.atIdx? {α β} [Iterator α Id β] [IteratorAccess α Id]
     (n : Nat) (it : Iter (α := α) β) : Option β :=
   match (IteratorAccess.nextAtIdx? it.toIterM n).run.val with

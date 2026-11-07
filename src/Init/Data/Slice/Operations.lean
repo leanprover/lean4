@@ -24,7 +24,7 @@ instance [ToIterator γ m α β] : ToIterator (Slice γ) m α β where
 Internal function to obtain an iterator from a slice. Users should import `Std.Data.Iterators`
 and use `Std.Slice.iter` instead.
 -/
-@[always_inline, inline]
+@[always_inline]
 def Internal.iter [ToIterator (Slice γ) Id α β] (s : Slice γ) :=
   ToIterator.iter s
 
@@ -51,24 +51,24 @@ Returns the number of elements with distinct indices in the given slice.
 
 Example: `#[1, 1, 1][0...2].size = 2`.
 -/
-@[expose, always_inline, inline, suggest_for Subarray.size]
+@[expose, always_inline, suggest_for Subarray.size]
 def size (s : Slice γ) [SliceSize γ] :=
   SliceSize.size s
 
 /-- Allocates a new array that contains the elements of the slice. -/
-@[always_inline, inline, suggest_for Subarray.toArray]
+@[always_inline, suggest_for Subarray.toArray]
 def toArray [ToIterator (Slice γ) Id α β] [Iterator α Id β]
     (s : Slice γ) : Array β :=
   Internal.iter s |>.toArray
 
 /-- Allocates a new list that contains the elements of the slice. -/
-@[always_inline, inline]
+@[always_inline]
 def toList [ToIterator (Slice γ) Id α β] [Iterator α Id β]
     (s : Slice γ) : List β :=
   Internal.iter s |>.toList
 
 /-- Allocates a new list that contains the elements of the slice in reverse order. -/
-@[always_inline, inline]
+@[always_inline]
 def toListRev [ToIterator (Slice γ) Id α β] [Iterator α Id β]
     (s : Slice γ) : List β :=
   Internal.iter s |>.toListRev
@@ -103,7 +103,7 @@ some "(3)red (5)green (4)blue "
 none
 ```
 -/
-@[always_inline, inline, suggest_for Subarray.foldlM]
+@[always_inline, suggest_for Subarray.foldlM]
 def foldlM {γ : Type u} {β : Type v}
     {δ : Type w} {m : Type w → Type w'} [Monad m] (f : δ → β → m δ) (init : δ)
     [ToIterator (Slice γ) Id α β] [Iterator α Id β]
@@ -119,7 +119,7 @@ Examples for the special case of subarrays:
  * `#["red", "green", "blue"].toSubarray.foldl (· + ·.length) 0 = 12`
  * `#["red", "green", "blue"].toSubarray.popFront.foldl (· + ·.length) 0 = 9`
 -/
-@[always_inline, inline, suggest_for Subarray.foldl]
+@[always_inline, suggest_for Subarray.foldl]
 def foldl {γ : Type u} {β : Type v}
     {δ : Type w} (f : δ → β → δ) (init : δ)
     [ToIterator (Slice γ) Id α β] [Iterator α Id β]

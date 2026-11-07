@@ -42,7 +42,7 @@ instance : Monad BaseIO := inferInstanceAs (Monad (ST IO.RealWorld))
 instance : MonadFinally BaseIO := inferInstanceAs (MonadFinally (ST IO.RealWorld))
 instance : MonadAttach BaseIO := inferInstanceAs (MonadAttach (ST IO.RealWorld))
 
-@[always_inline, inline]
+@[always_inline]
 def BaseIO.map (f : α → β) (x : BaseIO α) : BaseIO β :=
   f <$> x
 
@@ -67,7 +67,7 @@ Runs a `BaseIO` action, which cannot throw an exception, in any other `EIO` mona
 This function is usually used implicitly via [automatic monadic
 lifting](lean-manual://section/lifting-monads) rather being than called explicitly.
 -/
-@[always_inline, inline]
+@[always_inline]
 def BaseIO.toEIO (act : BaseIO α) : EIO ε α :=
   fun s => match act s with
   | .mk a s => .ok a s
@@ -78,7 +78,7 @@ instance : MonadLift BaseIO (EIO ε) := ⟨BaseIO.toEIO⟩
 Converts an `EIO ε` action that might throw an exception of type `ε` into an exception-free `BaseIO`
 action that returns an `Except` value.
 -/
-@[always_inline, inline]
+@[always_inline]
 def EIO.toBaseIO (act : EIO ε α) : BaseIO (Except ε α) :=
   fun s => match act s with
   | .ok a s     => .mk (.ok a) s
@@ -88,7 +88,7 @@ def EIO.toBaseIO (act : EIO ε α) : BaseIO (Except ε α) :=
 Handles any exception that might be thrown by an `EIO ε` action, transforming it into an
 exception-free `BaseIO` action.
 -/
-@[always_inline, inline]
+@[always_inline]
 def EIO.catchExceptions (act : EIO ε α) (h : ε → BaseIO α) : BaseIO α :=
   fun s => match act s with
   | .ok a s     => .mk a s
@@ -101,14 +101,14 @@ instance : MonadExceptOf ε (EIO ε) := inferInstanceAs (MonadExceptOf ε (EST �
 instance : OrElse (EIO ε α) := ⟨MonadExcept.orElse⟩
 instance [Inhabited ε] : Inhabited (EIO ε α) := inferInstanceAs (Inhabited (EST ε IO.RealWorld α))
 
-@[always_inline, inline]
+@[always_inline]
 def EIO.map (f : α → β) (x : EIO ε α) : EIO ε β :=
   f <$> x
 
-@[always_inline, inline]
+@[always_inline]
 protected def EIO.throw (e : ε) : EIO ε α := throw e
 
-@[always_inline, inline]
+@[always_inline]
 protected def EIO.tryCatch (x : EIO ε α) (handle : ε → EIO ε α) : EIO ε α :=
   MonadExceptOf.tryCatch x handle
 
@@ -118,19 +118,19 @@ Converts an `Except ε` action into an `EIO ε` action.
 If the `Except ε` action throws an exception, then the resulting `EIO ε` action throws the same
 exception. Otherwise, the value is returned.
 -/
-@[always_inline, inline]
+@[always_inline]
 def EIO.ofExcept (e : Except ε α) : EIO ε α :=
   match e with
   | Except.ok a    => pure a
   | Except.error e => throw e
 
-@[always_inline, inline]
+@[always_inline]
 def EIO.adapt (f : ε → ε') (m : EIO ε α) : EIO ε' α :=
   fun s => match m s with
   | .ok a s => .ok a s
   | .error e s => .error (f e) s
 
-@[deprecated EIO.adapt (since := "2025-09-29"), always_inline, inline]
+@[deprecated EIO.adapt (since := "2025-09-29"), always_inline]
 def EIO.adaptExcept (f : ε → ε') (m : EIO ε α) : EIO ε' α := EIO.adapt f m
 
 open IO (Error) in

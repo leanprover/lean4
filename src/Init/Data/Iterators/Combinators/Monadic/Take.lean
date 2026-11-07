@@ -65,7 +65,7 @@ it.take 3   ---a--⊥
 
 This combinator incurs an additional O(1) cost with each output of `it`.
 -/
-@[always_inline, inline]
+@[always_inline]
 def IterM.take [Iterator α m β] (n : Nat) (it : IterM (α := α) m β) :=
   (⟨Take.mk (n + 1) it (Or.inl <| Nat.zero_lt_succ _)⟩ : IterM m β)
 
@@ -91,7 +91,7 @@ it.toTake   ---a----b---c--d-e--⊥
 
 This combinator incurs an additional O(1) cost with each output of `it`.
 -/
-@[always_inline, inline]
+@[always_inline]
 def IterM.toTake [Iterator α m β] [Finite α m] (it : IterM (α := α) m β) :=
   (⟨Take.mk 0 it (Or.inr inferInstance)⟩ : IterM m β)
 
@@ -113,7 +113,7 @@ inductive Take.PlausibleStep [Iterator α m β] (it : IterM (α := Take α m) m 
   | depleted : it.internalState.countdown = 1 →
       PlausibleStep it .done
 
-@[always_inline, inline]
+@[always_inline]
 instance Take.instIterator [Monad m] [Iterator α m β] : Iterator (Take α m) m β where
   IsPlausibleStep := Take.PlausibleStep
   step it :=

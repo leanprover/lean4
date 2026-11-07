@@ -2,6 +2,11 @@
 source ../common.sh
 ./clean.sh
 
+if ! command -v jq > /dev/null; then
+  echo "Skipping test: jq not found"
+  exit 0
+fi
+
 # This test covers issue 15761
 # https://github.com/leanprover/lean4/issues/15761
 

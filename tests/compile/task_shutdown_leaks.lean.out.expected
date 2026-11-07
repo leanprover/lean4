@@ -1,0 +1,34 @@
+pure: child exited with code 0
+pure: child returns from main
+map: child exited with code 0
+map: child returns from main
+map: source ran
+map: dependent ran
+syncMap: child exited with code 0
+syncMap: child returns from main
+syncMap: source ran
+syncMap: dependent ran
+bind: child exited with code 0
+bind: child returns from main
+bind: source ran
+bind: continuation ran
+bindNested: child exited with code 0
+bindNested: child returns from main
+bindNested: nested ran
+bindNested: dependent ran
+prio: child exited with code 0
+prio: child returns from main
+prio: task ran
+promiseResolved: child exited with code 0
+promiseResolved: child returns from main
+promiseResolved: dependent ran
+promiseDropped: child exited with code 0
+promiseDropped: child returns from main
+promiseDropped: dependent ran
+waitedQueuesMore: child exited with code 0
+waitedQueuesMore: child returns from main
+waitedQueuesMore: inner ran
+dedicatedDependent: child exited with code 0
+dedicatedDependent: child returns from main
+dedicatedDependent: source ran
+dedicatedDependent: dependent ran

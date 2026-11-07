@@ -1,10 +1,45 @@
-import Lean
-
 /-!
 `deriving Repr` on a mutual block generates one block of auxiliary functions for the whole block
 instead of one per type, and still names each instance after its own type.
 -/
 
+/--
+trace: [Elab.Deriving.repr]
+    [mutual
+       @[no_expose✝]
+       partial def instReprA.repr_1 (x✝ : @A✝) (prec✝ : Nat✝) : Format✝ :=
+         let localinst✝ : Repr✝ (@A✝) := ⟨instReprA.repr_1⟩;
+         let localinst✝¹ : Repr✝ (@B✝) := ⟨instReprA.repr_2⟩;
+         match x✝ with
+         | @A.a a✝ =>
+           Repr.addAppParen✝
+             (Format.group✝
+               (Format.nest✝ (if prec✝ ≥ max_prec then 1 else 2) (Format.text✝ "A.a" ++ Format.line✝ ++ reprArg✝ a✝)))
+             prec✝
+         | @A.leaf =>
+           Repr.addAppParen✝ (Format.group✝ (Format.nest✝ (if prec✝ ≥ max_prec then 1 else 2) (Format.text✝ "A.leaf")))
+             prec✝
+       @[no_expose✝]
+       partial def instReprA.repr_2 (x✝¹ : @B✝) (prec✝ : Nat✝) : Format✝ :=
+         let localinst✝² : Repr✝ (@A✝) := ⟨instReprA.repr_1⟩;
+         let localinst✝³ : Repr✝ (@B✝) := ⟨instReprA.repr_2⟩;
+         match x✝¹ with
+         | @B.b a✝¹ =>
+           Repr.addAppParen✝
+             (Format.group✝
+               (Format.nest✝ (if prec✝ ≥ max_prec then 1 else 2) (Format.text✝ "B.b" ++ Format.line✝ ++ reprArg✝ a✝¹)))
+             prec✝
+         | @B.leaf =>
+           Repr.addAppParen✝ (Format.group✝ (Format.nest✝ (if prec✝ ≥ max_prec then 1 else 2) (Format.text✝ "B.leaf")))
+             prec✝
+     end,
+     instance instReprA : Repr✝ (@A✝) :=
+       ⟨instReprA.repr_1⟩,
+     instance instReprB : Repr✝ (@B✝) :=
+       ⟨instReprA.repr_2⟩]
+-/
+#guard_msgs (whitespace := lax) in
+set_option trace.Elab.Deriving.repr true in
 mutual
 inductive A where
   | a (b : B)
@@ -24,14 +59,6 @@ end
 
 example : Repr A := instReprA
 example : Repr B := instReprB
-
-open Lean in
-run_meta do
-  let env ← getEnv
-  for n in [`instReprA.repr_1, `instReprA.repr_2] do
-    unless env.contains n do throwError "missing {n}"
-  for n in [`instReprB.repr_1, `instReprB.repr_2] do
-    if env.contains n then throwError "unexpected duplicate aux function {n}"
 
 /-! Types from different mutual blocks in one `deriving instance` command. -/
 

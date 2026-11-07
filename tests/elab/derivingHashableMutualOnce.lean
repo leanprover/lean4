@@ -1,10 +1,31 @@
-import Lean
-
 /-!
 `deriving Hashable` on a mutual block generates one block of auxiliary functions for the whole
 block instead of one per type, and still names each instance after its own type.
 -/
 
+/--
+trace: [Elab.Deriving.hashable]
+    [mutual
+       partial def instHashableA.hash_1 (x✝ : @A✝) : UInt64✝ :=
+         let localinst✝ : Hashable✝ (@A✝) := ⟨instHashableA.hash_1⟩;
+         let localinst✝¹ : Hashable✝ (@B✝) := ⟨instHashableA.hash_2⟩;
+         match x✝ with
+         | @A.a a✝ => mixHash✝ 0 (instHashableA.hash_2 a✝)
+         | @A.leaf => 1
+       partial def instHashableA.hash_2 (x✝¹ : @B✝) : UInt64✝ :=
+         let localinst✝² : Hashable✝ (@A✝) := ⟨instHashableA.hash_1⟩;
+         let localinst✝³ : Hashable✝ (@B✝) := ⟨instHashableA.hash_2⟩;
+         match x✝¹ with
+         | @B.b a✝¹ => mixHash✝ 0 (instHashableA.hash_1 a✝¹)
+         | @B.leaf => 1
+     end,
+     instance instHashableA : Hashable✝ (@A✝) :=
+       ⟨instHashableA.hash_1⟩,
+     instance instHashableB : Hashable✝ (@B✝) :=
+       ⟨instHashableA.hash_2⟩]
+-/
+#guard_msgs (whitespace := lax) in
+set_option trace.Elab.Deriving.hashable true in
 mutual
 inductive A where
   | a (b : B)
@@ -22,14 +43,6 @@ end
 
 example : Hashable A := instHashableA
 example : Hashable B := instHashableB
-
-open Lean in
-run_meta do
-  let env ← getEnv
-  for n in [`instHashableA.hash_1, `instHashableA.hash_2] do
-    unless env.contains n do throwError "missing {n}"
-  for n in [`instHashableB.hash_1, `instHashableB.hash_2] do
-    if env.contains n then throwError "unexpected duplicate aux function {n}"
 
 /-! Types from different mutual blocks in one `deriving instance` command. -/
 

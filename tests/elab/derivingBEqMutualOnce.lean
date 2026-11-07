@@ -1,10 +1,34 @@
-import Lean
-
 /-!
 `deriving BEq` on a mutual block generates one block of auxiliary functions for the whole block
 instead of one per type, and still names each instance after its own type.
 -/
 
+/--
+trace: [Elab.Deriving.beq]
+    [mutual
+       set_option match.ignoreUnusedAlts✝ true
+       partial def instBEqA.beq_1 (x✝ : @A✝) (x✝¹ : @A✝) : Bool✝ :=
+         let localinst✝ : BEq✝ (@A✝) := ⟨instBEqA.beq_1⟩;
+         let localinst✝¹ : BEq✝ (@B✝) := ⟨instBEqA.beq_2⟩;
+         match x✝, x✝¹ with
+         | @A.a a✝, @A.a b✝ => a✝ == b✝
+         | @A.leaf, @A.leaf => true✝
+         | _, _ => false✝
+       partial def instBEqA.beq_2 (x✝² : @B✝) (x✝³ : @B✝) : Bool✝ :=
+         let localinst✝² : BEq✝ (@A✝) := ⟨instBEqA.beq_1⟩;
+         let localinst✝³ : BEq✝ (@B✝) := ⟨instBEqA.beq_2⟩;
+         match x✝², x✝³ with
+         | @B.b a✝¹, @B.b b✝¹ => a✝¹ == b✝¹
+         | @B.leaf, @B.leaf => true✝
+         | _, _ => false✝
+     end,
+     instance instBEqA : BEq✝ (@A✝) :=
+       ⟨instBEqA.beq_1⟩,
+     instance instBEqB : BEq✝ (@B✝) :=
+       ⟨instBEqA.beq_2⟩]
+-/
+#guard_msgs (whitespace := lax) in
+set_option trace.Elab.Deriving.beq true in
 mutual
 inductive A where
   | a (b : B)
@@ -23,14 +47,6 @@ end
 
 example : BEq A := instBEqA
 example : BEq B := instBEqB
-
-open Lean in
-run_meta do
-  let env ← getEnv
-  for n in [`instBEqA.beq_1, `instBEqA.beq_2] do
-    unless env.contains n do throwError "missing {n}"
-  for n in [`instBEqB.beq_1, `instBEqB.beq_2] do
-    if env.contains n then throwError "unexpected duplicate aux function {n}"
 
 /-! Types from different mutual blocks, and an enum, in one `deriving instance` command. -/
 

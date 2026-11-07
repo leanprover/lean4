@@ -267,7 +267,7 @@ rather than a state to introduce pointwise (which would destroy `∗`). The latt
 order transported from `Heap → Prop`. -/
 def HProp : Type := Heap → Prop
 
-instance : CompleteLattice HProp := inferInstanceAs (CompleteLattice (Heap → Prop))
+instance : Assertion HProp := inferInstanceAs (Assertion (Heap → Prop))
 
 /-- View an `HProp` as its underlying `Heap → Prop`, where the base `StateM Heap` proof reasons. -/
 def HProp.get (P : HProp) : Heap → Prop := P

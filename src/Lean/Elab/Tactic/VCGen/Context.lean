@@ -89,16 +89,16 @@ public def mkBackwardRules : MetaM BackwardRules := do
   return {
     tripleIntro := ← mkBackwardRuleFromDecl ``Std.WP.Triple.intro
     stateArgIntro := ← mkBackwardRuleFromDecl ``Lean.Order.le_of_forall_le
-    propPreIntro := ← mkBackwardRuleFromDecl ``Lean.Order.le_of_imp_top_le
+    propPreIntro := ← mkBackwardRuleFromDecl ``Std.WP.Assertion.le_of_imp_top_le
     ofPropPreIntro := ← mkBackwardRuleFromDecl ``Lean.Order.CompleteLattice.ofProp_le
     ofPropMeetPreIntro := ← mkBackwardRuleFromDecl ``Lean.Order.CompleteLattice.ofProp_meet_le
     iSupPreIntro := ← mkBackwardRuleFromDecl ``Lean.Order.iSup_le
-    truePreIntro := ← mkBackwardRuleFromDecl ``Lean.Order.true_le_of_top_le
-    elimPre := ← mkBackwardRuleFromDecl ``Lean.Order.top_le_prop
+    truePreIntro := ← mkBackwardRuleFromDecl ``Std.WP.Assertion.true_le_of_top_le
+    elimPre := ← mkBackwardRuleFromDecl ``Std.WP.Assertion.top_le_prop
     andIntro := ← mkBackwardRuleFromDecl ``And.intro
     refl := ← mkBackwardRuleFromDecl ``Lean.Order.PartialOrder.rel_refl
     meetTop := ← mkBackwardRuleFromDecl ``Lean.Order.meet_top_le_of_le
-    forallIntro := ← mkBackwardRuleFromDecl ``Lean.Order.le_forall
+    forallIntro := ← mkBackwardRuleFromDecl ``Std.WP.Assertion.le_forall
   }
 
 public structure Context where

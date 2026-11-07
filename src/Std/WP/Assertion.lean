@@ -31,15 +31,22 @@ The `Assertion` class and lattice capabilities such as total nondeterministic fu
 attribute [scoped instance] Std.Internal.Order.instPartialOrderProp
   Std.Internal.Order.instCompleteLatticeProp
 
-/-- An assertion type is equipped with a `CompleteLattice` structure,
-used as the carrier for pre- and postconditions. -/
-class Assertion (α : Type w) extends CompleteLattice α
+/-- An assertion type is a `CompleteLattice` that carries pre- and postconditions. An `Assertion α`
+instance opts `α` into the weakest precondition theory. Example: `σ → Prop` is an assertion type
+through `instAssertionForall`, and `CompleteLattice (σ → Prop)` resolves to
+`Assertion.toCompleteLattice (instAssertionForall …)`. -/
+class Assertion (α : Sort w) extends CompleteLattice α
+
+-- On an assertion type, the lattice instance comes from the `Assertion` instance, so that every
+-- lattice term over `α` uses one instance.
+attribute [-instance] Assertion.toCompleteLattice
+attribute [instance high] Assertion.toCompleteLattice
 
 /-- `Prop` is an assertion lattice, ordered by implication. -/
 scoped instance : Assertion Prop where
 
 /-- Assertions indexed by `x : α` are pointwise assertions. -/
-instance {α : Type u} {β : α → Type w} [∀ x, Assertion (β x)] : Assertion (∀ x, β x) where
+instance {α : Sort u} {β : α → Sort w} [∀ x, Assertion (β x)] : Assertion (∀ x, β x) where
 
 /-- A pair of assertions is an assertion, ordered componentwise. -/
 instance {α : Type u} {β : Type v} [Assertion α] [Assertion β] : Assertion (α × β) where

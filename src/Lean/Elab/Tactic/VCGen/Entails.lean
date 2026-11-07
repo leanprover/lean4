@@ -219,8 +219,16 @@ public def reduceTopAppliedPre? (goal : MVarId) (target pre : Expr) : SymM (Opti
   for x in args.extract 2 args.size do
     let .forallE _ σ τ _ ← instantiateMVarsIfMVarAppS curTy | return none
     if τ.hasLooseBVars then return none
-    unless curCL.isAppOf ``Lean.Order.instCompleteLatticePi do return none
-    let .lam _ _ τCL _ := curCL.appArg! | return none
+    let τCL ← match_expr curCL with
+      | Lean.Order.instCompleteLatticePi _ _ f =>
+        let .lam _ _ τCL _ := f | return none
+        pure τCL
+      | Std.WP.Assertion.toCompleteLattice _ a =>
+        let_expr Std.WP.instAssertionForall _ _ f := a | return none
+        let .lam _ _ τAL _ := f | return none
+        mkAppNS (← mkConstS ``Std.WP.Assertion.toCompleteLattice
+          curCL.getAppFn.constLevels!) #[τ, τAL]
+      | _ => return none
     let uσ ← Sym.getLevel σ
     let uτ ← Sym.getLevel τ
     -- `tfa : (⊤ : σ → τ) x = (⊤ : τ)`

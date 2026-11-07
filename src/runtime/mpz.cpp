@@ -16,6 +16,17 @@ Author: Leonardo de Moura
 #include "runtime/debug.h"
 
 namespace lean {
+// Accumulate into an arbitrary-precision result only when the machine counter
+// fills. This avoids narrowing on platforms where unsigned long is 32 bits.
+static void add_popcount(mpz & total, size_t & count, uint64 limb) {
+    unsigned bits = std::popcount(limb);
+    if (count > std::numeric_limits<size_t>::max() - bits) {
+        total += mpz::of_size_t(count);
+        count = 0;
+    }
+    count += bits;
+}
+
 /***** GMP VERSION ******/
 #ifdef LEAN_USE_GMP
 mpz::mpz() {
@@ -228,6 +239,15 @@ size_t mpz::log2() const {
     size_t r = mpz_sizeinbase(m_val, 2);
     lean_assert(r > 0);
     return r - 1;
+}
+
+mpz mpz::popcount() const {
+    lean_assert(is_nonneg());
+    mpz total(0);
+    size_t count = 0;
+    for (size_t i = 0; i < mpz_size(m_val); ++i)
+        add_popcount(total, count, mpz_getlimbn(m_val, i));
+    return total + mpz::of_size_t(count);
 }
 
 size_t mpz::size_in_bytes() const {
@@ -898,6 +918,15 @@ size_t mpz::trailing_zeros() const {
     size_t i = 0;
     while (m_digits[i] == 0) i++;
     return i * sizeof(mpn_digit) * 8 + std::countr_zero(m_digits[i]);
+}
+
+mpz mpz::popcount() const {
+    lean_assert(!m_sign);
+    mpz total(0);
+    size_t count = 0;
+    for (size_t i = 0; i < m_size; ++i)
+        add_popcount(total, count, m_digits[i]);
+    return total + mpz::of_size_t(count);
 }
 
 size_t mpz::size_in_bytes() const {

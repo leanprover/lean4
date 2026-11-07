@@ -206,27 +206,9 @@ namespace PlainDate
 Formats a `PlainDate` using a specific format and locale.
 -/
 def format (date : PlainDate) (format : String) (locale : DateFormat := .enUS) : String :=
-  let format : Except String (GenericFormat .any) := GenericFormat.spec format
-  match format with
+  match (GenericFormat.spec format { dateformat := locale } : Except String (GenericFormat .any)) with
   | .error err => s!"error: {err}"
-  | .ok res =>
-    let res := res.formatGeneric fun
-      | .G _ => some date.era
-      | .y _ => some date.year
-      | .u _ => some date.year
-      | .Y _ => some (date.weekYear locale.firstDayOfWeek locale.minimalDaysInFirstWeek)
-      | .D _ => some (Sigma.mk date.year.isLeap date.dayOfYear)
-      | .Q _ | .q _ => some date.quarter
-      | .w _ => some (date.weekOfYear locale.firstDayOfWeek locale.minimalDaysInFirstWeek)
-      | .W _ => some (date.weekOfMonth locale.firstDayOfWeek)
-      | .M _ | .L _ => some date.month
-      | .d _ => some date.day
-      | .E _ | .e _ | .c _ => some date.weekday
-      | .F _ => some date.alignedWeekOfMonth
-      | _ => none
-    match res with
-    | some res => res
-    | none => "invalid time"
+  | .ok res => res.formatParts (some date) none none |>.getD "invalid time"
 
 /--
 Parses a date string in the American format (`MM-dd-uuuu`) and returns a `PlainDate`.
@@ -285,28 +267,9 @@ namespace PlainTime
 Formats a `PlainTime` using a specific format.
 -/
 def format (time : PlainTime) (format : String) : String :=
-  let format : Except String (GenericFormat .any) := GenericFormat.spec format
-  match format with
+  match (GenericFormat.spec format : Except String (GenericFormat .any)) with
   | .error err => s!"error: {err}"
-  | .ok res =>
-    let res := res.formatGeneric fun
-      | .H _ => some time.hour
-      | .k _ => some (time.hour.shiftTo1BasedHour)
-      | .m _ => some time.minute
-      | .n _ => some time.nanosecond
-      | .s _ => some time.second
-      | .a _ => some (HourMarker.ofOrdinal time.hour)
-      | .b _ => some (classifyDayPeriod time.hour time.minute time.second)
-      | .B _ => some (classifyExtendedDayPeriod time.hour time.minute time.second)
-      | .h _ => some time.hour.toRelative
-      | .K _ => some (time.hour.emod 12 (by decide))
-      | .S _ => some time.nanosecond
-      | .A _ => some time.toMilliseconds
-      | .N _ => some time.toNanoseconds
-      | _ => none
-    match res with
-    | some res => res
-    | none => "invalid time"
+  | .ok res => res.formatParts none (some time) none |>.getD "invalid time"
 
 /--
 Parses a time string in the 24-hour format (`HH:mm:ss`) and returns a `PlainTime`.
@@ -350,11 +313,12 @@ def toTime12Hour (input : PlainTime) : String :=
   Formats.time12Hour.formatBuilder input.hour.toRelative input.minute input.second (if input.hour.val ≥ 12 then HourMarker.pm else HourMarker.am)
 
 /--
-Parses a `String` in the `Time12Hour` or `Time24Hour` format and returns a `PlainTime`.
+Parses a `String` in the `Time12Hour` or `Time24Hour` format, the latter with optional nanoseconds
+(`HH:mm:ss.SSSSSSSSS`), and returns a `PlainTime`.
 -/
 def parse (input : String) : Except String PlainTime :=
   fromTime12Hour input
-  <|> fromTime24Hour input
+  <|> fromLeanTime24Hour input
 
 instance : ToString PlainTime where
   toString := toLeanTime24Hour
@@ -491,40 +455,9 @@ namespace PlainDateTime
 Formats a `PlainDateTime` using a specific format and locale.
 -/
 def format (date : PlainDateTime) (format : String) (locale : DateFormat := .enUS) : String :=
-  let format : Except String (GenericFormat .any) := GenericFormat.spec format
-  match format with
+  match (GenericFormat.spec format { dateformat := locale } : Except String (GenericFormat .any)) with
   | .error err => s!"error: {err}"
-  | .ok res =>
-    let res := res.formatGeneric fun
-      | .G _ => some date.era
-      | .y _ => some date.year
-      | .u _ => some date.year
-      | .Y _ => some (date.weekYear locale.firstDayOfWeek locale.minimalDaysInFirstWeek)
-      | .D _ => some (Sigma.mk date.year.isLeap date.dayOfYear)
-      | .Q _ | .q _ => some date.quarter
-      | .w _ => some (date.weekOfYear locale.firstDayOfWeek locale.minimalDaysInFirstWeek)
-      | .W _ => some (date.weekOfMonth locale.firstDayOfWeek)
-      | .M _ | .L _ => some date.month
-      | .d _ => some date.day
-      | .E _ | .e _ | .c _ => some date.weekday
-      | .F _ => some date.alignedWeekOfMonth
-      | .H _ => some date.hour
-      | .k _ => some date.hour.shiftTo1BasedHour
-      | .m _ => some date.minute
-      | .n _ => some date.nanosecond
-      | .s _ => some date.time.second
-      | .a _ => some (HourMarker.ofOrdinal date.hour)
-      | .b _ => some (classifyDayPeriod date.hour date.minute date.time.second)
-      | .B _ => some (classifyExtendedDayPeriod date.hour date.minute date.time.second)
-      | .h _ => some date.hour.toRelative
-      | .K _ => some (date.hour.emod 12 (by decide))
-      | .S _ => some date.nanosecond
-      | .A _ => some date.time.toMilliseconds
-      | .N _ => some date.time.toNanoseconds
-      | _ => none
-    match res with
-    | some res => res
-    | none => "invalid time"
+  | .ok res => res.formatParts (some date.date) (some date.time) none |>.getD "invalid time"
 
 /--
 Parses a `String` in the `AscTime` format and returns a `PlainDateTime` object in the GMT time zone.

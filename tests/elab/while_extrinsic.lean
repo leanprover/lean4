@@ -2,6 +2,8 @@ module
 
 import Std
 
+set_option sym.debug true
+
 set_option linter.deprecated.syntax false
 
 open Std.Do

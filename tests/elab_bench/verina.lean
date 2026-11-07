@@ -1,6 +1,8 @@
 import Std.WP
 import Std.Tactic.Do
 
+set_option sym.debug true
+
 /-!
 Benchmark for `vcgen`/`grind` over the Verina verification corpus. Each program states its own
 contract: the `requires`/`ensures` clauses of the definition give the Hoare triple `f.spec`, and
@@ -134,7 +136,7 @@ def differenceMinMax (a : Array Int) : Id Int
     i := i + 1
   return (mx - mn)
 where finally
-  | spec => case vc2 => sorry
+  | spec => case vc6 => sorry
 
 end E_differenceMinMax
 
@@ -476,7 +478,7 @@ def findEvenNumbers (arr : Array Int) : Id (Array Int)
   return result
 where finally
   | spec =>
-    case vc6 => sorry
+    case vc14 => sorry
     all_goals grind [Array.count_push, getElem!_push, count_extract_succ,
       Array.extract_size_self, -Array.extract_eq_pop, -Nat.min_def]
 
@@ -579,7 +581,7 @@ def ifPowerOfFour (n : Nat) : Id Bool
     return current = 1
 where finally
   | spec =>
-    case vc5 => sorry
+    case vc7 => sorry
     all_goals grind [isPowerOfFour_iff_div_four, Nat.lt_pow_self, Nat.pow_succ,
       -Array.extract_eq_pop, -Nat.min_def]
 
@@ -745,10 +747,10 @@ def mergeSorted (a1 : Array Nat) (a2 : Array Nat) : Id (Array Nat)
   return result
 where finally
   | spec =>
-    case vc5 => sorry
-    case vc6 => sorry
-    case vc7 => sorry
-    case vc8 => sorry
+    case vc18 => sorry
+    case vc25 => sorry
+    case vc32 => sorry
+    case vc41 => sorry
     all_goals grind [isSorted_le, isSorted_push', push_all_le, count_extract_succ,
       Array.extract_size_self, Array.count_push, getElem!_push_lt, getElem!_push_eq,
       -Array.extract_eq_pop, -Nat.min_def]

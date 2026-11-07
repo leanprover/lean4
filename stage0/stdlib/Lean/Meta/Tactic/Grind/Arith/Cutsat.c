@@ -1273,7 +1273,7 @@ LEAN_EXPORT uint8_t l___private_Lean_Meta_Tactic_Grind_Arith_Cutsat_0__Lean_Meta
 _start:
 {
 uint8_t v_lia_601_; 
-v_lia_601_ = lean_ctor_get_uint8(v_x_600_, sizeof(void*)*17 + 24);
+v_lia_601_ = lean_ctor_get_uint8(v_x_600_, sizeof(void*)*18 + 24);
 return v_lia_601_;
 }
 }

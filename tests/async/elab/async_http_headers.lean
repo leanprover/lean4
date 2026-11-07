@@ -315,6 +315,22 @@ info: ("content-length", "42")
 #guard (Header.TransferEncoding.parse =<< (Value.ofString? "g zip")).isNone
 #guard (Header.TransferEncoding.parse =<< (Value.ofString? "\"chunked\"")).isNone
 
+-- Transfer parameters are checked and dropped, as by the machine's `parseCodings?`; `chunked` has none.
+#guard ((Header.TransferEncoding.parse =<< Value.ofString? "gzip;level=1, chunked").map (·.codings))
+  == some #["gzip", "chunked"]
+#guard ((Header.TransferEncoding.parse =<< Value.ofString? "GZIP ; q=\"a b\" , Chunked").map (·.codings))
+  == some #["gzip", "chunked"]
+#guard (Header.TransferEncoding.parse =<< (Value.ofString? "chunked;x=1")).isNone
+#guard (Header.TransferEncoding.parse =<< (Value.ofString? "gzip;level, chunked")).isNone
+#guard (Header.TransferEncoding.parse =<< (Value.ofString? "gzip;=1, chunked")).isNone
+
+-- Wherever `parse` accepts a value, it frames the message as the machine does.
+#guard ["chunked", "gzip, chunked", "gzip;level=1, chunked", "gzip", "x-custom;a=b"].all fun s =>
+  match Value.ofString? s with
+  | some v => (Header.TransferEncoding.parse v).map (·.isChunked) ==
+      Header.TransferEncoding.finalCodingIsChunked? v
+  | none => false
+
 /--
 info: ("transfer-encoding", "gzip,chunked")
 -/

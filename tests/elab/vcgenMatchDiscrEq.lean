@@ -1,6 +1,8 @@
 import Std.Tactic.Do
 import Std.WP
 
+set_option sym.debug true
+
 /-!
 Regression test for `vcgen` splitting a `match h : d with` whose alternatives bind an equality
 `h : d = pattern`. The split must not substitute the discriminant in the alternatives, since their

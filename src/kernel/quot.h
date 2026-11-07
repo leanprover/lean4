@@ -63,7 +63,7 @@ template<typename WHNF> optional<expr> quot_reduce_rec(expr const & e, WHNF cons
 
     expr const & f = args[arg_pos];
     expr r = mk_app(f, app_arg(mk));
-    unsigned elim_arity = mk_pos+1;
+    size_t elim_arity = mk_pos+1;
     if (args.size() > elim_arity)
         r = mk_app(r, args.size() - elim_arity, args.begin() + elim_arity);
     return some_expr(r);

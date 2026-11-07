@@ -148,18 +148,19 @@ The supported formats include:
 - `y`: Represents the year of the era.
   - `y`: Represents the year in its full form, without a fixed length. It can handle years of any size, (e.g., "1", "2025", or "12345678").
   - `yy`: Displays the year in a two-digit format, showing the last two digits (e.g., "04" for 2004).
-  - `yyyy`: Displays the year in a four-digit format (e.g., "2004").
+  - `yyyy`: Displays the year in a four-digit format (e.g., "2004"). A year with more digits gets a `+` sign (e.g., "+12345").
   - `yyyy+`: Extended format for years with more than four digits.
-- `Y`: Represents the week-based year (ISO-like behavior around year boundaries).
+- `Y`: Represents the week-based year (ISO-like behavior around year boundaries). Without `u` or `y`, parsing reads it with `w` and a weekday (`e`, `c` or `E`) as a week date, or with a month and day as the date whose week-based year it is. Near January 1st two dates can match, and parsing picks the one in that calendar year.
   - `Y`, `YYY`, `YYYY`: Displays the week-based year (e.g., "2017").
   - `YY`: Displays the last two digits of the week-based year (e.g., "17").
   - `YYYYY+`: Extended format for week-based years with more than four digits.
+  - Like `u`, it is signed, and `YYYY` writes a `+` sign for years above 9999.
 - `u`: Represents the year.
   - `u`: Represents the year in its full form, without a fixed length. It can handle years of any size, (e.g., "1", "2025", or "12345678").
   - `uu`: Two-digit year format, showing the last two digits (e.g., "04" for 2004).
-  - `uuuu`: Displays the year in a four-digit format (e.g., "2004" or "-1000").
+  - `uuuu`: Displays the year in a four-digit format (e.g., "2004" or "-1000"). A year above 9999 gets a `+` sign (e.g., "+12345").
   - `uuuu+`: Extended format for handling years with more than four digits (e.g., "12345" or "-12345"). Useful for historical dates far into the past or future!
-- `D`: Represents the day of the year.
+- `D`: Represents the day of the year. Without a month or day, parsing reads it with the year as an ordinal date.
 - `M`: Represents the month of the year, displayed as either a number or text.
   - `M`, `MM`: Displays the month as a number, with `MM` zero-padded (e.g., "7" for July, "07" for July with padding).
   - `MMM`: Displays the abbreviated month name (e.g., "Jul").
@@ -175,7 +176,7 @@ The supported formats include:
   - `QQQQQ` (narrow): Displays the quarter as a short number (e.g., "3").
 - `q`: Represents the standalone quarter of the year.
   - Supports the same widths as `Q`; in the current English data it formats the same values.
-- `w`: Represents the week of the week-based year, each week starts on Monday (e.g., "27").
+- `w`: Represents the week of the week-based year, with weeks as the `DateFormat` defines them (`enUS`: starting on Sunday, week 1 holds January 1st) (e.g., "27").
 - `W`: Represents the week of the month using the library's fixed Monday-first week model (e.g., "2").
 - `E`: Represents the day of the week as text.
   - `E`, `EE`, `EEE`: Displays the abbreviated weekday name (e.g., "Tue").
@@ -195,13 +196,16 @@ The supported formats include:
   - `a`, `aa`, `aaa`: Displays AM/PM (e.g., "PM").
   - `aaaa`: Displays the full form (e.g., "ante meridiem", "post meridiem").
   - `aaaaa`: Displays the narrow form (e.g., "a", "p").
-- `b`: Represents the day period, extending AM/PM with noon and midnight (TR35 §4, supported in Java 16+). The `B` symbol (flexible day periods) is not supported.
+- `b`: Represents the day period, extending AM/PM with noon and midnight (TR35 §4, supported in Java 16+).
   - `b`, `bb`, `bbb`: Displays a short form (e.g., "AM", "PM", "noon", "midnight").
   - `bbbb`: Displays a full form (e.g., "ante meridiem", "post meridiem", "noon", "midnight"); unlike `a`, the AM/PM spellings are lowercase here.
   - `bbbbb`: Displays a narrow form (e.g., "a", "p", "n", "mi").
-- `h`: Represents the hour of the AM/PM clock (1-12) (e.g., "12").
+- `B`: Represents the flexible day period (midnight, at night, in the morning, noon, in the afternoon, in the evening). "at night" covers 21:00 to 05:59, so parsing reads it as AM or PM from the hour.
+  - `B`, `BB`, `BBB`, `BBBB`: Displays the period (e.g., "in the morning", "at night").
+  - `BBBBB`: Displays a narrow form (e.g., "morning", "night", "mi").
+- `h`: Represents the hour of the AM/PM clock (1-12) (e.g., "12"). Parsing reads it with the `a`, `b` or `B` marker, or as an AM hour when the pattern has none of them.
   - `h`, `hh` are supported, matching Java.
-- `K`: Represents the hour of the AM/PM clock (0-11) (e.g., "0").
+- `K`: Represents the hour of the AM/PM clock (0-11) (e.g., "0"). Parsing reads it like `h`.
   - `K`, `KK` are supported, matching Java.
 - `k`: Represents the hour of the day in a 1-24 format (e.g., "24").
   - `k`, `kk` are supported, matching Java.
@@ -220,17 +224,18 @@ The supported formats include:
 - `N`: Represents the nanosecond of the day (e.g., "1234000000"). This is a Lean/Java extension, not a TR35 field.
   - One or more repetitions of the character sets a minimum width via zero-padding; the value is not truncated.
 - `V`: Time zone ID.
-  - `VV`: Displays the zone identifier/name.
+  - `VV`: Displays the zone identifier/name. Zones without a named identifier display as `GMT±hh:mm[:ss]`, which parsing reads back as that offset when the pattern has no offset field.
   - Other counts are unsupported, matching Java.
 - `z`: Represents the time zone name.
-  - `z`, `zz`, `zzz`: Shows a short zone name; for offset-only zones this is the numeric offset (e.g., "+09:00"), for UTC this is "UTC", otherwise the abbreviation (e.g., "PST").
-  - `zzzz`: Displays the full zone name; for offset-only zones this is the numeric offset (e.g., "+09:00"), for UTC this is "Coordinated Universal Time", otherwise the full zone name (e.g., "Pacific Standard Time").
+  - `z`, `zz`, `zzz`: Shows a short zone name; for offset-only zones this is the offset after `GMT` (e.g., "GMT+09:00"), for UTC this is "UTC", otherwise the abbreviation (e.g., "PST").
+  - `zzzz`: Displays the full zone name; for offset-only zones this is the offset after `GMT` (e.g., "GMT+09:00"), for UTC this is "Coordinated Universal Time", otherwise the full zone name (e.g., "Pacific Standard Time").
 - `v`: Generic time zone name.
-  - `v`: In the current Lean timezone data this displays the stored abbreviation; for offset-only zones this is the numeric offset (e.g., "+09:00"), and for UTC it is normalized to "UTC".
-  - `vvvv`: In the current Lean timezone data this displays the stored zone name/ID; for offset-only zones this is the numeric offset (e.g., "+09:00"), and for UTC it is normalized to "Coordinated Universal Time".
+  - `v`: In the current Lean timezone data this displays the stored abbreviation; for offset-only zones this is the offset after `GMT` (e.g., "GMT+09:00"), and for UTC it is normalized to "UTC".
+  - `vvvv`: In the current Lean timezone data this displays the stored zone name/ID; for offset-only zones this is the offset after `GMT` (e.g., "GMT+09:00"), and for UTC it is normalized to "Coordinated Universal Time".
 - `O`: Represents the localized zone offset in the format "GMT" followed by the time difference from UTC.
   - `O`: Displays the GMT offset in a short format (e.g., "GMT+8"), or "GMT" for UTC.
   - `OOOO`: Displays the full GMT offset with padded hour and minutes (e.g., "GMT+08:00"), or "GMT" for UTC.
+  - Both forms add seconds when they are non-zero (e.g., "GMT+1:30:15", "GMT+01:30:15").
 - `X`: Represents the zone offset. It uses 'Z' for UTC and can represent any offset (positive or negative).
   - `X`: Displays hour and optional minute offset (e.g., "-08", "-0830", or "Z").
   - `XX`: Displays the hour and minute offset without a colon (e.g., "-0830").
@@ -245,14 +250,13 @@ The supported formats include:
   - `xxxxx`: Displays the hour and minute offset with a colon, with optional seconds (e.g., "+08:30", "+08:30:45").
 - `Z`: Represents the zone offset in RFC/CLDR `Z` forms.
   - `Z`, `ZZ`, `ZZZ`: Displays hour and minute offset without colon, with optional seconds (e.g., "+0800", "+083045").
-  - `ZZZZ`: Displays localized GMT form (e.g., "GMT+08:00").
+  - `ZZZZ`: Displays localized GMT form, with seconds only when non-zero (e.g., "GMT+08:00", "GMT+01:30:15").
   - `ZZZZZ`: Displays hour and minute offset with a colon and optional seconds, and uses `"Z"` for UTC (e.g., "Z", "+08:30", "+08:30:45").
 # Runtime Parsing
 
-- `DateTime.parse` parses common zoned date-time formats with explicit offsets, but does not resolve timezone identifiers like `[Europe/Paris]`.
-- `DateTime.parseIO` resolves identifier-based inputs via the default timezone database.
+- `DateTime.parse` parses common zoned date-time formats with explicit offsets, but does not resolve timezone identifiers like `[Europe/Paris]`. Offset identifiers such as `[+01:00]` give their offset.
 - `DateTime.fromLeanDateTimeWithIdentifierString` is pure and does not perform timezone database resolution.
-- `DateTime.fromLeanDateTimeWithIdentifierStringIO` resolves identifiers using the default timezone database.
+- The `zoned("...[Europe/Paris]")` notation and `Database.defaultGetZoneRules` resolve identifiers using the default timezone database.
 
 # Macros
 

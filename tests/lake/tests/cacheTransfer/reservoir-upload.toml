@@ -1,0 +1,11 @@
+# A system configuration whose default upload service is a Reservoir service,
+# which Lake must reject for uploads.
+# `test.sh` replaces `%URL%` with the URL of the running mock server.
+
+[cache]
+defaultUploadService = "res"
+
+[[cache.service]]
+name = "res"
+type = "reservoir"
+apiEndpoint = "%URL%/ok/api/v1"

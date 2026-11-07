@@ -216,6 +216,10 @@ def mkMsb (e : Expr) (wExpr : Expr) : SimprocM Expr :=
   withCachedUnOp wExpr ``BitVec.msb e fun wExpr =>
     Sym.share <| mkApp (mkConst ``BitVec.msb) wExpr
 
+def mkCast (wExpr target : Expr) : Sym.SymM Expr :=
+  let hExpr := mkApp2 (mkConst ``Eq.refl [1]) (mkConst ``Nat) wExpr
+  Sym.share <| mkApp4 (mkConst ``BitVec.cast) wExpr wExpr hExpr target
+
 end BitVec
 
 namespace Bool
@@ -1296,10 +1300,11 @@ def bvShiftRightNat (α lhsExpr rhsExpr : Expr) : SimprocM (Sym.Simp.Result) := 
       let newLenExpr ← mkLit newLen
       let extract ← BitVec.mkExtractLsb' wExpr rhsExpr newLenExpr lhsExpr
       let expr ← BitVec.mkAppend zero extract (← mkLit rhs) newLenExpr (← mkLit (newLen + rhs))
+      let expr ← BitVec.mkCast wExpr expr
       let h := Nat.mkDecideProofLt rhsExpr wExpr
       let proof := mkApp4 (mkConst ``BitVec.ushiftRight_eq_extractLsb'_of_lt) wExpr lhsExpr rhsExpr h
       countRule `bvShiftRightNat.extract
-      return .step (← Sym.share expr) proof
+      return .step expr proof
     else
       let expr ← mkLit 0#w
       let h := Nat.mkDecideProofLe wExpr rhsExpr
@@ -1328,10 +1333,11 @@ def bvShiftLeftNat (α lhsExpr rhsExpr : Expr) : SimprocM (Sym.Simp.Result) := d
       let newLenExpr ← mkLit newLen
       let extract ← BitVec.mkExtractLsb' wExpr (← mkLit 0) newLenExpr lhsExpr
       let expr ← BitVec.mkAppend extract zero newLenExpr (← mkLit rhs) (← mkLit (newLen + rhs))
+      let expr ← BitVec.mkCast wExpr expr
       let h := Nat.mkDecideProofLt rhsExpr wExpr
       let proof := mkApp4 (mkConst ``BitVec.shiftLeft_eq_concat_of_lt) wExpr lhsExpr rhsExpr h
       countRule `bvShiftLeftNat.concat
-      return .step (← Sym.share expr) proof
+      return .step expr proof
     else
       let expr ← mkLit 0#w
       let h := Nat.mkDecideProofLe wExpr rhsExpr
@@ -1403,6 +1409,7 @@ def bvAppend (α β lhs rhs : Expr) : SimprocM (Sym.Simp.Result) := do
     let newLenExpr ← mkLit (llen + rlen)
     let extract ← BitVec.mkExtractLsb' wExpr rstartExpr newLenExpr lhsVal
     let expr ← BitVec.mkComplement extract newLenExpr
+    let expr ← BitVec.mkCast newLenExpr expr
     let proof :=
       mkApp7
         (mkConst ``BitVec.not_extractLsb'_append_not_extractLsb'_eq_not_extractLsb')
@@ -1413,7 +1420,7 @@ def bvAppend (α β lhs rhs : Expr) : SimprocM (Sym.Simp.Result) := do
         llenExpr
         lhsVal
         (← mkEqRefl lstartExpr)
-    return some <| .step (← Sym.share expr) proof
+    return some <| .step expr proof
 
   let appendConstLeft : SimprocM (Option Sym.Simp.Result) := tryRule `bvAppend.appendConstLeft do
     let_expr BitVec.ofNat _ a := lhs | return none
@@ -1428,10 +1435,11 @@ def bvAppend (α β lhs rhs : Expr) : SimprocM (Sym.Simp.Result) := do
     let inner1 ← BitVec.mkAppend lhs rlhs wlhs w2Expr w1w2
     let resWidth ← mkLit (w1 + w2 + w3)
     let expr ← BitVec.mkAppend inner1 rrhs w1w2 w3Expr resWidth
+    let expr ← BitVec.mkCast resWidth expr
     let proof :=
       mkApp6 (mkConst ``Std.Tactic.BVDecide.Normalize.BitVec.append_const_left)
         w3Expr wlhs a w2Expr b rrhs
-    return some <| .step (← Sym.share expr) proof
+    return some <| .step expr proof
 
   let appendConstRight : SimprocM (Option Sym.Simp.Result) := tryRule `bvAppend.appendConstRight do
     let_expr BitVec.ofNat _ c := rhs | return none
@@ -1446,10 +1454,11 @@ def bvAppend (α β lhs rhs : Expr) : SimprocM (Sym.Simp.Result) := do
     let inner1 ← BitVec.mkAppend lrhs rhs w2Expr wrhs w2w3
     let resWidth ← mkLit (w1 + w2 + w3)
     let expr ← BitVec.mkAppend llhs inner1 w1Expr w2w3 resWidth
+    let expr ← BitVec.mkCast resWidth expr
     let proof :=
       mkApp6 (mkConst ``Std.Tactic.BVDecide.Normalize.BitVec.append_const_right)
         w1Expr w2Expr b wrhs c llhs
-    return some <| .step (← Sym.share expr) proof
+    return some <| .step expr proof
 
   let appendZeroWidth : SimprocM (Option Sym.Simp.Result) := tryRule `bvAppend.appendZeroWidth do
     let some 0 := Sym.getNatValue? wrhs | return none
@@ -1459,8 +1468,9 @@ def bvAppend (α β lhs rhs : Expr) : SimprocM (Sym.Simp.Result) := do
   let zeroWidthAppend : SimprocM (Option Sym.Simp.Result) := tryRule `bvAppend.zeroWidthAppend do
     let some 0 := Sym.getNatValue? wlhs | return none
     let some _ := Sym.getNatValue? wrhs | return none
+    let expr ← BitVec.mkCast wrhs rhs
     let proof := mkApp3 (mkConst ``BitVec.zero_width_append) wrhs lhs rhs
-    return some <| .step rhs proof
+    return some <| .step expr proof
 
   if let some step ← concatExtract then return step
   if let some step ← concatNotExtract then return step
@@ -1493,6 +1503,7 @@ def setWidth (oldWidthExpr newWidthExpr targetExpr : Expr) : SimprocM (Sym.Simp.
       (← mkLit finalWidth)
       oldWidthExpr
       (← mkLit (finalWidth + oldWidth))
+    let expr ← BitVec.mkCast newWidthExpr expr
     let proof :=
       mkApp4
         (mkConst ``BitVec.setWidth_eq_append)
@@ -1533,6 +1544,7 @@ def signExtend (oldWidthExpr newWidthExpr targetExpr : Expr) : SimprocM (Sym.Sim
       finalWidthExpr
       oldWidthExpr
       (← mkLit (finalWidth + oldWidth))
+    let expr ← BitVec.mkCast newWidthExpr expr
     let proof :=
       mkApp4
         (mkConst ``Std.Tactic.BVDecide.Normalize.BitVec.signExtend_elim)

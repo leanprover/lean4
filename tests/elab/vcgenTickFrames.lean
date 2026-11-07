@@ -6,6 +6,8 @@ Authors: Sebastian Graf
 import Lean
 import Std.WP
 
+set_option sym.debug true
+
 set_option experimental.vcgen true
 set_option grind.warning false
 
@@ -260,7 +262,7 @@ def tickFrameProc : FrameInferenceProc := fun i => do
     let φ ← mkAppNS (← mkConstS ``Nat.le) #[shift, ticks]
     -- A nested `Grind.main` run on a probe metavariable can discharge the guard here. The demo
     -- keeps it as a subgoal.
-    let hle ← mkFreshExprSyntheticOpaqueMVar φ
+    let hle ← share (← mkFreshExprSyntheticOpaqueMVar φ)
     let hmeet ← mkAppNS (← mkConstS ``le_ofProp_meet_self us)
       #[costL, costInst, φ, ← mkAppNS goal.framedApp.wp #[shifted], hle]
     -- The pointwise order on functions lets `hmeet` apply to the state arguments directly.

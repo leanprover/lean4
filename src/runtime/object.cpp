@@ -173,10 +173,7 @@ static void print_backtrace(bool force_stderr) {
 #endif
 }
 
-// Morally, `{msg, size}` is an `std::string_view`.
-static void lean_panic_impl(char const * msg, size_t size, bool force_stderr = false) {
-    if (g_panic_messages) {
-        panic_eprintln(msg, size, force_stderr);
+static void lean_panic_print_backtrace(bool force_stderr) {
 #if LEAN_SUPPORTS_BACKTRACE
         char * bt_env = getenv("LEAN_BACKTRACE");
         if (!bt_env || strcmp(bt_env, "0") != 0) {
@@ -184,6 +181,13 @@ static void lean_panic_impl(char const * msg, size_t size, bool force_stderr = f
             print_backtrace(force_stderr);
         }
 #endif
+}
+
+// Morally, `{msg, size}` is an `std::string_view`.
+static void lean_panic_impl(char const * msg, size_t size, bool force_stderr = false) {
+    if (g_panic_messages) {
+        panic_eprintln(msg, size, force_stderr);
+        lean_panic_print_backtrace(force_stderr);
     }
 
     abort_on_panic();
@@ -260,7 +264,7 @@ extern "C" LEAN_EXPORT size_t lean_object_data_byte_size(lean_object * o) {
     }
 }
 
-static inline void lean_dealloc(lean_object * o, size_t sz) {
+extern "C" LEAN_EXPORT void lean_dealloc(void * o, size_t sz) {
 #ifdef LEAN_MIMALLOC
     mi_free_size(o, sz);
 #else
@@ -344,6 +348,18 @@ static inline void dec(lean_object * o, lean_object* & todo) {
     } else if (std::atomic_fetch_add_explicit(lean_get_rc_mt_addr(o), 1, std::memory_order_acq_rel) == -1) {
         push_back(todo, o);
     }
+}
+
+extern "C" LEAN_EXPORT void * lean_alloc_memory(size_t sz) {
+#ifdef LEAN_MIMALLOC
+    void * r = mi_malloc(sz);
+    if (r == nullptr) lean_internal_panic_out_of_memory();
+    return r;
+#else
+    void * r = malloc(sz);
+    if (r == nullptr) lean_internal_panic_out_of_memory();
+    return r;
+#endif
 }
 
 extern "C" LEAN_EXPORT lean_object * lean_alloc_object(size_t sz) {
@@ -2182,6 +2198,7 @@ static size_t mk_capacity(size_t sz) {
 
 static void check_string_linearity(b_obj_arg s) {
     if (lean_string_is_marked_linear(s) && should_abort_on_nonlinearity()) {
+        lean_panic_print_backtrace(true);
         lean_internal_panic("string marked by `String.markLinear` was used non-linearly");
     }
 }
@@ -2667,6 +2684,7 @@ extern "C" LEAN_EXPORT obj_res lean_copy_sarray(obj_arg a, size_t cap) {
 __attribute__((noinline))
 extern "C" LEAN_EXPORT obj_res lean_copy_sarray_nonlinear(obj_arg a, size_t cap) {
     if (lean_sarray_is_marked_linear(a) && should_abort_on_nonlinearity()) {
+        lean_panic_print_backtrace(true);
         lean_internal_panic("scalar array marked by `markLinear` was used non-linearly");
     }
     return lean_copy_sarray(a, cap);
@@ -2834,6 +2852,7 @@ extern "C" LEAN_EXPORT obj_res lean_copy_expand_array(obj_arg a, bool expand) {
 __attribute__((noinline))
 extern "C" LEAN_EXPORT obj_res lean_copy_expand_array_nonlinear(obj_arg a, bool expand) {
     if (lean_array_is_marked_linear(a) && should_abort_on_nonlinearity()) {
+        lean_panic_print_backtrace(true);
         lean_internal_panic("array marked by `Array.markLinear` was used non-linearly");
     }
     return lean_copy_expand_array(a, expand);

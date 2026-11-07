@@ -88,13 +88,16 @@ Otherwise, return the result in `some`.
 If either action errors, throw the concatenated errors.
 Otherwise, if no errors, combine the results with `f`.
 -/
-public def mergeErrors (x₁ : EDecodeM α) (x₂ : EDecodeM β) (f : α → β → γ) : EDecodeM γ := fun es =>
+@[inline] public def mergeErrors (x₁ : EDecodeM α) (x₂ : EDecodeM β) (f : α → β → γ) : EDecodeM γ := fun es =>
   match x₁ es with
   | .ok a es =>
     match x₂ es with
     | .ok b es => .ok (f a b) es
     | .error _ es => .error () es
-  | .error _ es => .error () es
+  | .error _ es =>
+    match x₂ es with
+    | .ok _ es => .error () es
+    | .error _ es => .error () es
 
 @[inline] public def logDecodeErrorAt (ref : Syntax) (msg : String) : DecodeM Unit :=
   fun es => .ok () (es.push {ref, msg})
@@ -104,8 +107,8 @@ public def mergeErrors (x₁ : EDecodeM α) (x₂ : EDecodeM β) (f : α → β 
 
 /-- Decode an array of TOML values, merging any errors from the elements into a single array. -/
 public def decodeArray [dec : DecodeToml α] (vs : Array Value) : EDecodeM (Array α) :=
-  vs.foldl (init := pure (.mkEmpty vs.size)) fun vs v =>
-    mergeErrors vs (dec.decode v) Array.push
+  ensureDecode <| vs.foldlM (init := (.mkEmpty vs.size)) fun vs v => tryDecodeD vs do
+    return vs.push (← dec.decode v)
 
 instance : DecodeToml Value := ⟨pure⟩
 

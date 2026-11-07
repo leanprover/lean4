@@ -9,7 +9,7 @@ prelude
 public import Std.Http.Internal.Char
 public import Std.Http.Internal.ChunkedBuffer
 public import Std.Http.Internal.LowerCase
-public import Std.Http.Internal.IndexMultiMap
+public import Std.Http.Internal.MultiMap
 public import Std.Http.Internal.Encode
 public import Std.Http.Internal.String
 public import Std.Http.Internal.Char

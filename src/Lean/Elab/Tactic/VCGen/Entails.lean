@@ -148,21 +148,6 @@ public def introPre (rule : BackwardRule) (goal : MVarId) : VCGenM (MVarId × Op
     pending := pending - 1
   return (goal, last?)
 
-/--
-Reduce a `Prod.fst` projection of a concrete tuple on the RHS of `pre ⊑ rhs` to the component it
-selects. An exception postcondition is a tuple with one component per exception layer, so the head
-layer of `pre ⊑ eposts.fst` is a `Prod.fst` projection. `reduceHead?` performs the reduction, so a
-`.snd` chain below the projection and excess state arguments reduce in the same pass. Returns
-`none` if the RHS head is not `Prod.fst` or does not reduce; a `⊥`/`⊤` tuple falls through to the
-`Prod.fst` lattice split in `splitLatticeOp?`.
--/
-public def headReduceFstRhs? (goal : MVarId) (target α inst pre rhs : Expr) :
-    VCGenM (Option MVarId) := do
-  unless rhs.isAppOf ``Prod.fst do return none
-  let some rhs' ← reduceHead? rhs | return none
-  let newTarget ← mkAppNS target.getAppFn #[α, inst, pre, rhs']
-  return some (← goal.replaceTargetDefEqFast newTarget)
-
 /-- Refold a meet upper adjoint `upperAdjoint (meet F) Q s⃗` on the RHS of `pre ⊑ rhs` to the Heyting
 implication `(F ⇨ Q) s⃗`, rewriting `goal` and returning it with its new RHS, so it decomposes through
 the clean pointwise `⇨` split instead of a generic frame for the excess state arguments. Returns `none` if the RHS is not a
@@ -174,9 +159,11 @@ def refoldHimpUpperAdjoint? (goal : MVarId) (rhs : Expr) :
     let some slice := args[2]? | return none
     unless slice.isAppOf ``Lean.Order.meet do return none
     let some Q := args[3]? | return none
-    let rhs' := mkAppN (← mkAppM ``Lean.Order.himp #[slice.appArg!, Q]) (args.extract 4 args.size)
+    let himp ← mkAppNS (← mkConstS ``Lean.Order.himp head.constLevels!)
+      #[args[0]!, args[1]!, slice.appArg!, Q]
+    let rhs' ← mkAppNS himp (args.extract 4 args.size)
     let target ← goal.getType
-    let newTarget := mkAppN target.getAppFn (target.getAppArgs.set! 3 rhs')
+    let newTarget ← mkAppNS target.getAppFn (target.getAppArgs.set! 3 rhs')
     return some (← goal.replaceTargetDefEqFast newTarget, rhs')
 
 /--

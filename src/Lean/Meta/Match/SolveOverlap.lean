@@ -66,6 +66,8 @@ def injectionAny (mvarId : MVarId) (forbidden : FVarIdSet := {}) : MetaM Injecti
       unless forbidden.contains localDecl.fvarId do
         if let some (lhs, rhs) ← injectionAnyCandidate? localDecl.type then
           unless (← isDefEq lhs rhs) do
+            if (← mvarId.closeIfDistinctFloatLits localDecl.toExpr lhs rhs) then
+              return .solved
             let lhs ← whnf lhs
             let rhs ← whnf rhs
             unless lhs.isRawNatLit && rhs.isRawNatLit do

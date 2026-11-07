@@ -1,6 +1,8 @@
 import Std.Data.TreeMap
 import Std.Tactic.Do
 
+set_option sym.debug true
+
 /-!
 This test is based on code by Bhavik Mehta.
 It demonstrates that much of the boilerplate that he was forced to write for his proof

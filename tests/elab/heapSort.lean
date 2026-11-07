@@ -4,6 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mario Carneiro
 -/
 
+/-! Tests heap operations, heap sorting, and their generated equation theorems. -/
+
 /-- A max-heap data structure. -/
 structure BinaryHeap (α) (lt : α → α → Bool) where
   arr : Array α
@@ -181,11 +183,10 @@ info: Array.heapSort.loop.eq_1 fun a b =>
     (a <
       b) : ∀ (a : BinaryHeap Nat fun y x => decide (x < y)) (out : Array Nat),
   Array.heapSort.loop (fun a b => decide (a < b)) a out =
+    let gt := fun y x => decide (x < y);
     match e : a.max with
     | none => out
-    | some x =>
-      have this := ⋯;
-      Array.heapSort.loop (fun a b => decide (a < b)) a.popMax (out.push x)
+    | some x => Array.heapSort.loop (fun a b => decide (a < b)) a.popMax (out.push x)
 -/
 #guard_msgs in
 #check Array.heapSort.loop.eq_1 (fun (a b : Nat) => a < b)

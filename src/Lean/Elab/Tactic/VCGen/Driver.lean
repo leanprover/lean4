@@ -80,9 +80,7 @@ def handleInvariantSubgoals (subgoals : List MVarId) : VCGenM (Array MVarId) := 
 def simpVC (goal : MVarId) : VCGenM Sym.SimpGoalResult := goal.withContext do
   let some methods := (← read).simpMethods | return .noProgress
   let target ← goal.getType
-  let (result, simpState') ← Sym.Simp.SimpM.run (Sym.Simp.simp target) methods {} (← get).simpState
-  modify fun s => { s with simpState := simpState' }
-  result.toSimpGoalResult goal
+  (← runSimp methods (Sym.Simp.simp target)).toSimpGoalResult goal
 
 /--
 Called when decomposing the goal further did not succeed; in this case we emit a VC for the goal.

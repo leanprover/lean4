@@ -11,6 +11,7 @@ public import Lean.Elab.Tactic.VCGen.SpecDB
 public import Lean.Elab.Tactic.VCGen.FrameProc
 public import Lean.Meta.Sym.Apply
 public import Lean.Meta.Sym.Simp.DiscrTree
+public import Lean.Elab.Tactic.VCGen.RIntroAttr
 public import Lean.Meta.Sym.Simp.SimpM
 public import Lean.Meta.Tactic.Grind.Types
 
@@ -106,6 +107,8 @@ public structure Context where
   /-- The `@[frameproc]` registry snapshot taken at frontend init. `solve` selects a procedure per
   program node by the node's monad. -/
   frameProcs : FrameProcs := {}
+  /-- The `@[vcgen_rintro]` rules, keyed by their conclusion. -/
+  rintros : DiscrTree RIntroEntry := .empty
   /-- The `Sym.simp` methods that rewrite hypotheses, state arguments and verification conditions
   with the `@[vcgen_simp]` theorems and those of the `simp [...]` clause. `none` when the `simp`
   config option is `false`. -/
@@ -201,6 +204,8 @@ public structure State where
   /-- Caches the frame rule (`meet_op_wp_upperAdjoint_le_wp`), keyed by the `WPMonad` instance
   and the number of excess state arguments. -/
   frameBackwardRuleCache : Std.HashMap (ExprPtr × Nat) FrameBackwardRule := {}
+  /-- Caches the backward rules of the `@[vcgen_rintro]` rules, keyed by declaration name. -/
+  rintroBackwardRuleCache : Std.HashMap Name BackwardRule := {}
   /-- The frame database from the `frames` clause. -/
   frameDB : FrameDB := {}
   /--
@@ -266,5 +271,12 @@ public def burnOne : VCGenM Unit :=
     | .limited (n+1) => .limited n
     | other => other }
 
+/-- Run `k` with `methods` on the persistent simp state `State.simpState`. The state is taken out of
+`VCGenM`'s state for the run, so `k` updates it in place. -/
+public def runSimp (methods : Sym.Simp.Methods) (k : Sym.Simp.SimpM α) : VCGenM α := do
+  let st ← modifyGet fun s => (s.simpState, { s with simpState := {} })
+  let (a, st) ← Sym.Simp.SimpM.run k methods {} st
+  modify fun s => { s with simpState := st }
+  return a
 
 end Lean.Elab.Tactic.VCGen

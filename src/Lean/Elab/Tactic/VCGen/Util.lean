@@ -116,10 +116,9 @@ public def processHypotheses (goal : Grind.Goal) : VCGenM Grind.Goal := do
 public def isProgramName (n : Name) : Bool :=
   !n.hasMacroScopes && !n.isImplementationDetail
 
-/-- The leading binders of `type`, stopping at a binder over a product: `∀ (n : Nat) (p : α × β)`
-counts one, because `solve` splits `p` into one binder per component first. -/
+/-- The number of leading `∀` and `let` binders of `type`. -/
 public def numBindersToIntro : Expr → Nat
-  | .forallE _ d b _ => if d.isAppOf ``Prod then 0 else numBindersToIntro b + 1
+  | .forallE _ _ b _ => numBindersToIntro b + 1
   | .letE _ _ _ b _ => numBindersToIntro b + 1
   | _ => 0
 
@@ -140,8 +139,19 @@ public def introsHygienicN (goal : MVarId) (n : Nat) : VCGenM MVarId :=
     let .goal _ goal ← Sym.intros goal names | return goal
     return goal
 
+public def instantiateBinderDomains (goal : MVarId) : VCGenM MVarId := do
+  let target ← goal.getType
+  let target' ← go target
+  if isSameExpr target' target then return goal else goal.replaceTargetDefEqFast target'
+where
+  go : Expr → SymM Expr
+  | e@(.forallE _ d b _) => do e.updateForallS! (← instantiateMVarsS d) (← go b)
+  | e@(.letE _ t v b _) => do e.updateLetS! (← instantiateMVarsS t) v (← go b)
+  | e => return e
+
 /-- `introsHygienicN` for every non-`Prod` binder the goal leads with. -/
 public def introsHygienic (goal : MVarId) : VCGenM MVarId := do
+  let goal ← instantiateBinderDomains goal
   introsHygienicN goal (numBindersToIntro (← goal.getType))
 
 /--
@@ -152,18 +162,16 @@ forwarded to the caller.
 public def simpGoalTelescope (goal : MVarId) : VCGenM Sym.SimpGoalResult := do
   let some methods := (← read).simpMethods | return .noProgress
   let target ← goal.getType
-  let (result, simpState') ←
-    Sym.Simp.SimpM.run (Sym.Simp.simpTelescope target) methods {} (← get).simpState
-  modify fun s => { s with simpState := simpState' }
-  result.toSimpGoalResult goal
+  (← runSimp methods (Sym.Simp.simpTelescope target)).toSimpGoalResult goal
 
 /--
 Introduce the excess state arguments of an entailment goal `pre ⊑ rhs` whose lattice type is a
 function type `σ₁ → … → σₙ → α`: repeatedly apply `stateArgIntro` (a backward rule for
 `Lean.Order.le_of_forall_le`) and introduce the new state binder, until the lattice type is
-no longer a function type. Returns `none` when the carrier is not a function type (nothing to
-introduce); throws when the carrier is a function type that `le_of_forall_le` cannot peel, such as a
-dependent function lattice `(a : α) → β a → …`.
+no longer a function type. A state binder that a `@[vcgen_rintro]` rule matches stays in the
+target for `solve` to destructure. Returns `none` when the carrier is not a function type (nothing
+to introduce); throws when the carrier is a function type that `le_of_forall_le` cannot peel, such
+as a dependent function lattice `(a : α) → β a → …`.
 -/
 public partial def introsExcessArgs (goal : MVarId) :
     VCGenM (Option MVarId) := goal.withContext do
@@ -172,6 +180,7 @@ public partial def introsExcessArgs (goal : MVarId) :
   unless α.isForall do return none
   let .goals [goal] ← (← read).backwardRules.stateArgIntro.applyChecked goal
     | throwError "failed to apply {.ofConstName ``Lean.Order.le_of_forall_le} to goal{indentExpr type}"
+  unless (Sym.getMatch (← getMCtx) (← read).rintros (← goal.getType)).isEmpty do return some goal
   let goal ← introsHygienic goal
   return (← introsExcessArgs goal) <|> some goal
 

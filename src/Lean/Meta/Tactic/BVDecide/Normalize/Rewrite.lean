@@ -23,49 +23,58 @@ namespace Lean.Meta.Tactic.BVDecide
 namespace Normalize
 
 /--
+Run `k` in the context of the target with the `dsimp` and `simp` configuration of the Bitwuzla style
+rewrite rules.
+-/
+public def withRewriteRules (k : Sym.DSimp.Methods → Sym.DSimp.Config → Sym.Simp.Methods →
+    Sym.Simp.Config → PreProcessM α) : PreProcessM α := do
+  let bvThms ← bvNormalizeExt.getTheorems
+  let cfg ← PreProcessM.getConfig
+  let simpConfig : Sym.Simp.Config := {
+    maxSteps := cfg.maxSteps
+  }
+  let discharger := Sym.Simp.mkDischargerFromSimproc Sym.Simp.evalGround
+  let cache ← ST.mkRef {}
+  let simpMethods : Sym.Simp.Methods := {
+    pre e := do
+      if e.isAppOfArity ``Std.Tactic.BVDecide.BitVec.ofProp 1 then return .rfl (done := true)
+      let res ← Sym.Simp.simpControl e
+      -- We invalidate `done` as we still want to rewrite in the arms, even if the discr cannot
+      -- be resolved.
+      match res with
+      | .rfl _ cd => return .rfl false cd
+      | .step e' proof _ cd => return .step e' proof false cd
+    post := Sym.Simp.evalGround >> Normalize.rewriteSimproc cache >> bvThms.rewrite (d := discharger)
+  }
+  let dsimpConfig : Sym.DSimp.Config := { simpConfig with instances := true }
+  let dsimpMethods : Sym.DSimp.Methods := {
+    pre := Sym.DSimp.evalGround
+      >> Sym.DSimp.zeta
+      >> Sym.DSimp.zetaDeltaAll
+      >> Sym.DSimp.beta
+      >> rewriteDsimproc
+  }
+
+  let goal ← PreProcessM.getTargetMVarId
+  let res ← goal.withContext do
+    k dsimpMethods dsimpConfig simpMethods simpConfig
+  if (← isTracingEnabledFor `Meta.Tactic.bv) then
+    let statistics := (← cache.get).statistics.toArray.qsort (fun a b => a.2 > b.2)
+    withTraceNode `Meta.Tactic.bv (fun _ => return "rewriteRules simproc statistics:") do
+      for (rule, hits) in statistics do
+        trace[Meta.Tactic.bv] m!"{rule}: {hits}"
+  return res
+
+/--
 Responsible for applying the Bitwuzla style rewrite rules.
 -/
 public def rewriteRulesPass : Pass where
   name := `rewriteRules
-  run' := do
-    let bvThms ← bvNormalizeExt.getTheorems
-    let cfg ← PreProcessM.getConfig
-    let simpConfig := {
-      maxSteps := cfg.maxSteps
-    }
-    let discharger := Sym.Simp.mkDischargerFromSimproc Sym.Simp.evalGround
-    let cache ← ST.mkRef {}
-    let simpMethods := {
-      pre e := do
-        if e.isAppOfArity ``Std.Tactic.BVDecide.BitVec.ofProp 1 then return .rfl (done := true)
-        let res ← Sym.Simp.simpControl e
-        -- We invalidate `done` as we still want to rewrite in the arms, even if the discr cannot
-        -- be resolved.
-        match res with
-        | .rfl _ cd => return .rfl false cd
-        | .step e' proof _ cd => return .step e' proof false cd
-      post := Sym.Simp.evalGround >> Normalize.rewriteSimproc cache >> bvThms.rewrite (d := discharger)
-    }
-    let dsimpConfig := { simpConfig with instances := true }
-    let dsimpMethods := {
-      pre := Sym.DSimp.evalGround
-        >> Sym.DSimp.zeta
-        >> Sym.DSimp.zetaDeltaAll
-        >> Sym.DSimp.beta
-        >> rewriteDsimproc
-    }
-
-    let goal ← PreProcessM.getTargetMVarId
-    let changed ← goal.withContext do
+  run' :=
+    withRewriteRules fun dsimpMethods dsimpConfig simpMethods simpConfig => do
       PreProcessM.mapHyps fun hyp => do
         let hyp ← PreProcessM.dsimpHyp .rewrite dsimpMethods dsimpConfig hyp
         PreProcessM.simpHyp .rewrite simpMethods simpConfig hyp
-    if (← isTracingEnabledFor `Meta.Tactic.bv) then
-      let statistics := (← cache.get).statistics.toArray.qsort (fun a b => a.2 > b.2)
-      withTraceNode `Meta.Tactic.bv (fun _ => return "rewriteRules simproc statistics:") do
-        for (rule, hits) in statistics do
-          trace[Meta.Tactic.bv] m!"{rule}: {hits}"
-    return changed
 
 end Normalize
 end Lean.Meta.Tactic.BVDecide

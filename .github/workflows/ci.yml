@@ -534,10 +534,14 @@ jobs:
 
   # This job creates nightly releases during the cron job.
   # It is responsible for creating the tag, and automatically generating a changelog.
+  # Only `Linux release`, `macOS aarch64` and `Windows` have to succeed; artifacts of other failed build jobs are left out.
   release-nightly:
     needs: [configure, build]
-    if: needs.configure.outputs.nightly
+    if: ${{ !cancelled() && needs.configure.outputs.nightly }}
     runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -550,6 +554,27 @@ jobs:
       - uses: actions/download-artifact@v8
         with:
           path: artifacts
+      - name: Drop Artifacts of Failed Builds
+        uses: actions/github-script@v9
+        with:
+          script: |
+            const fs = require('fs');
+            const jobs = await github.paginate(github.rest.actions.listJobsForWorkflowRun,
+              { ...context.repo, run_id: context.runId });
+            const builds = jobs.filter(j => j.name.startsWith('build / '));
+            const required = ['Linux release', 'macOS aarch64', 'Windows'];
+            const missing = required.filter(n =>
+              !builds.some(j => j.name === `build / ${n}` && j.conclusion === 'success'));
+            if (missing.length > 0) {
+              core.setFailed(`Not releasing nightly, required jobs did not succeed: ${missing.join(', ')}`);
+              return;
+            }
+            // Artifacts are uploaded before tests run, so failed jobs may have left some behind
+            for (const j of builds.filter(j => j.conclusion !== 'success')) {
+              const name = j.name.slice('build / '.length);
+              core.info(`Dropping artifacts of failed job '${name}'`);
+              fs.rmSync(`artifacts/build-${name}`, { recursive: true, force: true });
+            }
       - name: Prepare Nightly Release
         run: |
           git remote add nightly https://foo:'${{ secrets.PUSH_NIGHTLY_TOKEN }}'@github.com/${{ github.repository_owner }}/lean4-nightly.git

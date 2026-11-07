@@ -1,6 +1,8 @@
 import Lean
 import Std.WP
 
+set_option sym.debug true
+
 /-!
 `poke v` writes `v` at `mem ptr`, so it frames `fun s => s.mem 5 = 7` exactly in the states with
 `ptr ≠ 5`. The guard of the `WP.Frames` side goal fixes the state at `poke 1` to
@@ -69,7 +71,7 @@ end
 /--
 trace: s✝ : St
 a✝ : s✝.mem 5 = 7
-⊢ WP.Frames meet (Instr.poke 1) (fun s => s.mem 5 = 7) fun u => ⌜u = { ptr := 3, mem := s✝.mem }⌝ ⊓ ⊤
+⊢ WP.Frames meet (Instr.poke 1) (fun s => s.mem 5 = 7) fun u => u = { ptr := 3, mem := s✝.mem }
 -/
 #guard_msgs (trace) in
 theorem guard_frames_poke :

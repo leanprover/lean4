@@ -25,26 +25,29 @@ public def Cegar.processNewHyps : CegarM ProcessHypResult := do
   withTraceNode `Meta.Tactic.bv (fun _ => return m!"Processing new lemmas") do
     let hypQueue ← CegarM.drainNewHyps
     if hypQueue.isEmpty then return .none
-    let target := .mvarIdTarget (← read).goal
-    let ctx := (← CegarM.getTacticContext).preProcessContext
-    let ctx :=
-      .new
-        ctx.mode
-        { ctx.config with
-            enums := false,
-            structures := false,
-            fixedInt := false,
-            shortCircuit := false
-        }
-        true
-    let caches ← CegarM.takePreProcessCaches
-    let (solved, state) ←
-      Normalize.PreProcessM.run ctx target do
-        Normalize.PreProcessM.setCaches caches
-        Normalize.bvNormalize <| hypQueue.map (·.hyp)
-    if solved then return .solved
-    CegarM.setPreProcessCaches state.caches
-    let hypQueue := state.hypotheses
+    let (normalized, unnormalized) := hypQueue.partition (·.isNormalized)
+    let mut hypQueue := normalized.map (·.hyp)
+    unless unnormalized.isEmpty do
+      let target := .mvarIdTarget (← read).goal
+      let ctx := (← CegarM.getTacticContext).preProcessContext
+      let ctx :=
+        .new
+          ctx.mode
+          { ctx.config with
+              enums := false,
+              structures := false,
+              fixedInt := false,
+              shortCircuit := false
+          }
+          true
+      let caches ← CegarM.takePreProcessCaches
+      let (solved, state) ←
+        Normalize.PreProcessM.run ctx target do
+          Normalize.PreProcessM.setCaches caches
+          Normalize.bvNormalize <| unnormalized.map (·.hyp)
+      if solved then return .solved
+      CegarM.setPreProcessCaches state.caches
+      hypQueue := hypQueue ++ state.hypotheses
 
     let mut sats := #[]
     for hyp in hypQueue do

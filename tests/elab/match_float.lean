@@ -81,8 +81,13 @@ example (f : Float) : Bool :=
   | 6.0 => (h : True)
   | _ => false
 
--- no warning for overlaps due to lack of normalization for Float literals:
+-- Literals are compared by value, so `5` and `5.0` overlap (#16198):
 
+/--
+error: Redundant alternative: Any expression matching
+  5.0
+will match one of the preceding alternatives
+-/
 #guard_msgs in
 example : Float → Bool
   | 5 => true

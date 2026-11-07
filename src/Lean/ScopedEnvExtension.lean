@@ -52,6 +52,8 @@ structure Descr (α : Type) (β : Type) (σ : Type) where
   ofOLeanEntry   : σ → α → ImportM β
   toOLeanEntry   : β → α
   addEntry       : σ → β → σ
+  /-- Adds a global entry of an imported module. -/
+  addImportedEntry : σ → β → σ := addEntry
   finalizeImport : σ → σ := id
   exportEntry?   : Environment → α → OLeanEntries (Option α) := fun _ a => .uniform (some a)
   /-- See `PersistentEnvExtensionDescrCore.trackGen`. -/
@@ -107,7 +109,7 @@ def addImportedFn (descr : Descr α β σ) (as : Array (Array (Entry α))) : Imp
       match e with
       | Entry.global a =>
         let b ← descr.ofOLeanEntry s a
-        s := descr.addEntry s b
+        s := descr.addImportedEntry s b
       | Entry.scoped ns a =>
         let b ← descr.ofOLeanEntry s a
         scopedEntries := scopedEntries.insert ns b
@@ -335,6 +337,8 @@ abbrev SimpleScopedEnvExtension (α : Type) (σ : Type) := ScopedEnvExtension α
 structure SimpleScopedEnvExtension.Descr (α : Type) (σ : Type) where
   name           : Name := by exact decl_name%
   addEntry       : σ → α → σ
+  /-- See `ScopedEnvExtension.Descr.addImportedEntry`. -/
+  addImportedEntry : σ → α → σ := addEntry
   initial        : σ
   finalizeImport : σ → σ := id
   exportEntry?   : Environment → α → OLeanEntries (Option α) := fun _ a => .uniform (some a)
@@ -350,6 +354,7 @@ def registerSimpleScopedEnvExtension (descr : SimpleScopedEnvExtension.Descr α 
     name           := descr.name
     mkInitial      := return descr.initial
     addEntry       := descr.addEntry
+    addImportedEntry := descr.addImportedEntry
     toOLeanEntry   := id
     ofOLeanEntry   := fun _ a => return a
     finalizeImport := descr.finalizeImport

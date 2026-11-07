@@ -824,7 +824,7 @@ LEAN_EXPORT uint8_t l___private_Lean_Meta_Tactic_Grind_Arith_Linear_0__Lean_Meta
 _start:
 {
 uint8_t v_linarith_427_; 
-v_linarith_427_ = lean_ctor_get_uint8(v_x_426_, sizeof(void*)*17 + 23);
+v_linarith_427_ = lean_ctor_get_uint8(v_x_426_, sizeof(void*)*18 + 23);
 return v_linarith_427_;
 }
 }

@@ -65,6 +65,7 @@ theorem rootD_parent (self : UnionFind) (x : Nat) : self.rootD (self.parent x) =
   split
   · simp only [parentD, ↓reduceDIte, *]
     conv => rhs; rw [root]
+    dsimp only
     split
     · rw [root, dite_eq_left] <;> simp_all
     · simp

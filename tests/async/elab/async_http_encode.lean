@@ -6,7 +6,7 @@ open Std.Http
 open Std.Http.Internal
 
 private def encodeStr [Encode .v11 t] (v : t) : String :=
-  String.fromUTF8! (Encode.encode (v := .v11) ChunkedBuffer.empty v).toByteArray
+  String.fromUTF8! (Encode.encode (v := .v11) ByteArray.empty v)
 
 /-! ## Version encoding -/
 

@@ -8,6 +8,7 @@ prelude
 public import Lean.Meta.UnificationHint
 public import Lean.Util.OccursCheck
 import Lean.Meta.WHNF
+import Lean.Meta.LitValues
 public section
 namespace Lean.Meta
 
@@ -254,6 +255,26 @@ def isDefEqNat (s t : Expr) : MetaM LBool := do
     | some s, none   => isDefEq s t
     | none,   some t => isDefEq s t
     | none,   none   => pure LBool.undef
+
+/-- Cheap syntactic filter for `isDefEqFloatLit`. -/
+private def isFloatLitCandidate (e : Expr) : Bool :=
+  e.isApp &&
+  (e.isAppOf ``OfNat.ofNat || e.isAppOf ``OfScientific.ofScientific || e.isAppOf ``Neg.neg) &&
+    let type := e.getArg! 0
+    type.isConstOf ``Float || type.isConstOf ``Float32
+
+/--
+Support for constraints between `Float`/`Float32` literals, such as `5 =?= 1.0`, decided by
+comparing their values. Lazy delta reduction would unfold the float model on both sides in
+lockstep, which can take exponential time even though the kernel decides these quickly.
+Equal values are only reported as defeq at default transparency or above.
+-/
+def isDefEqFloatLit (s t : Expr) : MetaM LBool := do
+  unless isFloatLitCandidate s && isFloatLitCandidate t do return .undef
+  let some eq ← floatLitValuesEq? s t | return .undef
+  if !eq then return .false
+  if (← getTransparency) matches .default | .all then return .true
+  return .undef
 
 /-- Support for constraints of the form `("..." =?= String.ofList cs)` -/
 def isDefEqStringLit (s t : Expr) : MetaM LBool := do
@@ -2459,6 +2480,7 @@ private def isExprDefEqExpensive (t : Expr) (s : Expr) : MetaM Bool := do
   else
     whenUndefDo (isDefEqNat t s) do
     whenUndefDo (isDefEqOffset t s) do
+    whenUndefDo (isDefEqFloatLit t s) do
     whenUndefDo (isDefEqDelta t s) do
     -- We try structure eta *after* lazy delta reduction;
     -- otherwise we would end up applying it at every step of a reduction chain

@@ -1693,7 +1693,7 @@ _start:
 {
 lean_object* v___y_544_; lean_object* v___x_547_; uint8_t v_debug_548_; 
 v___x_547_ = lean_st_ref_get(v___y_537_);
-v_debug_548_ = lean_ctor_get_uint8(v___x_547_, sizeof(void*)*12);
+v_debug_548_ = lean_ctor_get_uint8(v___x_547_, sizeof(void*)*13);
 lean_dec(v___x_547_);
 if (v_debug_548_ == 0)
 {

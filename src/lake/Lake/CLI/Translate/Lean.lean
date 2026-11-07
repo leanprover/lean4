@@ -281,6 +281,24 @@ def Dependency.mkRequire (cfg : Dependency) : RequireDecl := Unhygienic.run do
   `(requireDecl|require $[$scope? /]? $(mkIdent cfg.name):ident $[@ $ver?]?
     $[from $src?]? $[with $opts?]?)
 
+/-! ## Cache Service Encoders -/
+
+def mkCacheServiceCommand
+  (name : Name) (service : CacheService)
+: Command := Unhygienic.run do
+  let defn ← id do
+    match h:service.kind with
+    | .reservoir =>
+      let apiEndpoint := service.apiEndpoint (service.kind_eq_iff_isReservoir.mp h)
+      `(.reservoirService $(mkStrLit apiEndpoint))
+    | .s3 =>
+      let artifactEndpoint := service.artifactEndpoint (service.kind_eq_iff_isS3.mp h)
+      let revisionEndpoint := service.revisionEndpoint (service.kind_eq_iff_isS3.mp h)
+      `(.downloadService $(mkStrLit artifactEndpoint) $(mkStrLit revisionEndpoint))
+    | .undef =>
+      service.kind_ne_undef.elim h
+  `(cacheServiceCommand|cache_service $(mkIdent name):ident := $defn)
+
 /-! ## Package & Target Configuration Encoders -/
 
 meta def genMkDeclFields
@@ -371,6 +389,7 @@ public def Package.mkLeanConfig (pkg : Package) : TSyntax ``module := Unhygienic
   open $(mkIdent `System) $(mkIdent `Lake) $(mkIdent `DSL)
   $(pkgConfig.mkCommand):command
   $[$(pkg.depConfigs.map (·.mkRequire)):command]*
+  $[$(pkg.cacheServices.foldl (·.push <| mkCacheServiceCommand · ·) #[]):command]*
   $[$(pkg.mkTargetCommands defaultTargets LeanLib.configKind LeanLibConfig.mkCommand):command]*
   $[$(pkg.mkTargetCommands defaultTargets LeanExe.configKind LeanExeConfig.mkCommand):command]*
   $[$(pkg.mkTargetCommands defaultTargets InputFile.configKind InputFileConfig.mkCommand):command]*

@@ -15,6 +15,11 @@ set_option compiler.ignoreBorrowAnnotation true in
 @[extern "lean_cutsat_propagate_nonlinear"]
 opaque propagateNonlinearTerm (y : Var) (x : Var) : GoalM Bool
 
+set_option compiler.ignoreBorrowAnnotation true in
+/-- Reactivates the inactive variable `x` (see `State.active`). -/
+@[extern "lean_grind_cutsat_reactivate_var"] -- forward definition
+opaque reactivateVar (x : Var) : GoalM Unit
+
 /-
 **Note**: It is safe to use (the more efficient) structural instances tests here because `grind` uses the canonicalizer.
 -/
@@ -63,10 +68,19 @@ where
         registerNonlinearOcc e x
     | _ => registerNonlinearOcc e x
 
+/-- Asserts the facts about the new variable `x` whose denotation is `e`. -/
+def assertVarFacts (e : Expr) (x : Var) : GoalM Unit := do
+  assertNatCast e x
+  assertNonneg e x
+  if (← isNonlinearTerm e) then
+    registerNonlinearOccsAt e x
+
 set_option compiler.ignoreBorrowAnnotation true in
 @[export lean_grind_cutsat_mk_var]
 def mkVarImpl (expr : Expr) : GoalM Var := do
   if let some var := (← get').varMap.find? { expr } then
+    unless (← get').active[var]! do
+      reactivateVar var
     return var
   let var : Var := (← get').vars.size
   trace[grind.debug.lia.internalize] "{expr} ↦ #{var}"
@@ -79,12 +93,10 @@ def mkVarImpl (expr : Expr) : GoalM Var := do
     diseqs    := s.diseqs.push {}
     occurs    := s.occurs.push {}
     elimEqs   := s.elimEqs.push none
+    active    := s.active.push true
   }
   cutsatExt.markTerm expr
-  assertNatCast expr var
-  assertNonneg expr var
-  if (← isNonlinearTerm expr) then
-    registerNonlinearOccsAt expr var
+  assertVarFacts expr var
   return var
 
 def isInt (e : Expr) : GoalM Bool := do

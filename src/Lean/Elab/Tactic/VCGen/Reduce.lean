@@ -41,6 +41,7 @@ no further progress is made:
 3. **Proj-reduction**: `⟨a, b, c⟩.1` → `a` (kernel `.proj` nodes)
 4. **Projection delta**: `Struct.field x` → `x.5` (unfolds projection *functions*,
    progress only if followed by proj-reduction)
+5. **Metavariable substitution**: `?m a₁ ... aₙ` → `v a₁ ... aₙ` for an assigned `?m := v`, then beta
 
 Returns `none` when no reduction was possible. Maintains maximal sharing via the `SymM`
 sharing builders and `shareCommonInc`, and the SymM no-exposed-reducibles invariant.
@@ -75,6 +76,10 @@ public partial def reduceHead? (e : Expr) : SymM (Option Expr) :=
           let e' ← mkAppRevS f' rargs
           go (some e') e'.getAppFn e'.getAppRevArgs
         | none    => pure lastReduction
+      | .mvar mvarId =>
+        let some v ← getExprMVarAssignment? mvarId | pure lastReduction
+        let e' ← betaRevS (← Sym.shareCommon v) rargs
+        go (some e') e'.getAppFn e'.getAppRevArgs
       | _ => pure lastReduction
 
 public def reduceHead (e : Expr) : SymM Expr :=

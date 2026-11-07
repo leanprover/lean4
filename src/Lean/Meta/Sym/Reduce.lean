@@ -57,7 +57,7 @@ simplifiers do not visit application heads. Beta-reduction of the exposed lambda
 public def reduceZetaDelta? (e : Expr) (unfold : FVarId → Bool := fun _ => true) : SymM (Option Expr) := do
   let .fvar fvarId := e.getAppFn | return none
   unless unfold fvarId do return none
-  let some value := (← fvarId.getDecl).value? | return none
+  let some value ← getLetValueS? fvarId | return none
   if e.isApp then
     return some (← mkAppNS value e.getAppArgs)
   else

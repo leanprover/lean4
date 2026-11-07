@@ -339,6 +339,31 @@ info: Std.Http.RequestTarget.authorityForm
   let result ← runParser parseRequestTarget "192.168.1.1:3000"
   IO.println (repr result)
 
+-- A host that begins with an IPv4 address and goes on is a name.
+/--
+info: Std.Http.RequestTarget.authorityForm
+  { userInfo := none, host := Std.Http.URI.Host.name "1.2.3.4-x.example", port := Std.Http.URI.Port.value 443 }
+-/
+#guard_msgs in
+#eval show IO _ from do
+  let result ← runParser parseRequestTarget "1.2.3.4-x.example:443"
+  IO.println (repr result)
+
+#guard
+  match (parseRequestTarget <* Std.Internal.Parsec.eof).run "http://1.2.3.4x.example/".toUTF8 with
+  | .ok (.absoluteForm uri) => uri.authority.any fun a => toString a.host == "1.2.3.4x.example"
+  | _ => false
+
+#guard
+  match (parseHostHeader <* Std.Internal.Parsec.eof).run "1.2.3.4-x.example:8080".toUTF8 with
+  | .ok (host, port) => toString host == "1.2.3.4-x.example" && port == .value 8080
+  | .error _ => false
+
+#guard
+  match (parseHostHeader <* Std.Internal.Parsec.eof).run "1.2.3.4".toUTF8 with
+  | .ok (.ipv4 _, .omitted) => true
+  | _ => false
+
 /--
 info: Std.Http.RequestTarget.authorityForm
   { userInfo := none, host := Std.Http.URI.Host.ipv6 ::1, port := Std.Http.URI.Port.value 8080 }
@@ -718,12 +743,13 @@ info: some (some "value")
   let result ← runParser parseRequestTarget "/api?key=value"
   IO.println (repr (result.query.find? "key"))
 
--- Raw lookup APIs should not alias with pre-encoded key spellings.
+-- `String`-keyed lookups match every spelling of a name; `*Encoded` lookups match exact bytes.
 #guard
   match (parseRequestTarget <* Std.Internal.Parsec.eof).run "/api?%61=1&a=2".toUTF8 with
   | .ok result =>
       let encodedA? := EncodedQueryParam.fromString? "%61"
-      ((result.query.find? "a" |>.bind id |>.bind EncodedQueryParam.decode) == some "2") &&
+      ((result.query.find? "a" |>.bind id |>.bind EncodedQueryParam.decode) == some "1") &&
+      (result.query.findAll "a").size == 2 &&
       (result.query.find? "%61").isNone &&
       result.query.contains "a" &&
       !result.query.contains "%61" &&
@@ -742,7 +768,7 @@ info: some (some "value")
           let erasedRaw := result.query.erase "a"
           let erasedEncoded := result.query.eraseEncoded encodedA
           !erasedRaw.contains "a" &&
-          erasedRaw.containsEncoded encodedA &&
+          !erasedRaw.containsEncoded encodedA &&
           !erasedEncoded.containsEncoded encodedA &&
           erasedEncoded.contains "a"
       | none => false
@@ -751,6 +777,25 @@ info: some (some "value")
 -- ============================================================================
 -- Query Operations
 -- ============================================================================
+
+-- #14934: a name a browser percent-encodes is found by its decoded spelling.
+def browserQuery : URI.Query :=
+  match EncodedQueryParam.fromString? "a%3Ab", EncodedQueryParam.fromString? "on" with
+  | some k, some v => URI.Query.empty.insertEncoded k (some v)
+  | _, _ => URI.Query.empty
+
+#guard browserQuery.get "a:b" == some "on"
+#guard browserQuery.getD "a:b" "off" == "on"
+#guard browserQuery.contains "a:b"
+#guard (browserQuery.findAll "a:b").size == 1
+#guard !browserQuery.contains "a%3Ab"
+#guard (browserQuery.erase "a:b").isEmpty
+#guard toString (browserQuery.set "a:b" "off") == "?a:b=off"
+#guard
+  match (parseRequestTarget <* Std.Internal.Parsec.eof).run "/consent?a%3Ab=on".toUTF8 with
+  | .ok result => result.query.get "a:b" == some "on"
+  | .error _ => false
+#guard (URI.parse? "https://example.com/consent?a%3Ab=on").bind (·.query.bind (·.get "a:b")) == some "on"
 
 #guard (URI.Query.empty.insert "a" "1" |>.contains "a") = true
 #guard (URI.Query.empty.contains "nonexistent") = false

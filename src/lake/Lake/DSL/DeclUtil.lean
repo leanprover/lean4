@@ -45,6 +45,14 @@ public def expandIdentOrStrAsIdent (stx : IdentOrStr) : Ident :=
   | `(identOrStr|$x:str) => mkIdentFrom x (Name.mkSimple x.getString)
   | _ => ⟨.missing⟩
 
+public def expandIdentOrStrAsStrLit (stx : IdentOrStr) : StrLit :=
+  match stx with
+  | `(identOrStr|$x:ident) =>
+    let strVal := x.getId.toString (escape := false)
+    Syntax.mkStrLit strVal (.fromRef x)
+  | `(identOrStr|$x:str) => x
+  | _ => ⟨.missing⟩
+
 /-- A field assignment in a declarative configuration. -/
 public syntax declField :=
   ident " := " term
@@ -128,10 +136,10 @@ public def mkConfigDeclIdent (stx? : Option IdentOrStr) : CommandElabM Ident := 
   | some stx => return expandIdentOrStrAsIdent stx
   | none => Elab.Term.mkFreshIdent (← getRef)
 
-public def elabConfig
+public def mkConfigDef
   (tyName : Name) [info : ConfigInfo tyName]
   (id : Ident) (ty : Term) (config : OptConfig)
-: CommandElabM PUnit := do
+: CommandElabM Command := do
   let mkCmd (whereInfo : SourceInfo) (fs : TSyntaxArray ``declField) wds? := do
     /-
     Quotation syntax produces synthetic source information.
@@ -142,8 +150,7 @@ public def elabConfig
     let whereTk := atom whereInfo "where"
     let fields ← mkConfigFields tyName info.fieldMap fs
     let whereStx := mkNode ``whereStructInst #[whereTk, fields, mkOptionalNode wds?]
-    let cmd ← `(def $id : $ty $whereStx:whereStructInst)
-    withMacroExpansion config cmd <| elabCommand cmd
+    `(def $id : $ty $whereStx:whereStructInst)
   match config with
   | `(optConfig| ) =>
     mkCmd .none #[] none
@@ -152,3 +159,10 @@ public def elabConfig
   | `(optConfig| {%$tk $fs;* } $[$wds?:whereDecls]?) =>
     mkCmd tk.getHeadInfo fs wds?
   | stx => throwErrorAt stx "ill-formed configuration syntax"
+
+@[inline] public def elabConfig
+  (tyName : Name) [info : ConfigInfo tyName]
+  (id : Ident) (ty : Term) (config : OptConfig)
+: CommandElabM PUnit := do
+  let cmd ← mkConfigDef tyName id ty config
+  withMacroExpansion config cmd <| elabCommand cmd

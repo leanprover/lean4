@@ -1,5 +1,7 @@
 import Std.WP
 
+set_option sym.debug true
+
 /-!
 `vcgen` rewrites hypotheses, state arguments and verification conditions with its simp set: the
 `@[vcgen_simp]` theorems, the theorems of the `simp [...]` clause, and the evaluation of ground
@@ -35,6 +37,52 @@ which the `@[vcgen_simp]` theorem `true_or` rewrites to `True`. -/
 
 example : ⦃ fun _ => True ⦄ (pure "x" : M String) ⦃ fun r _ => r = "x" ∨ r = "y" ⦄ := by
   vcgen
+
+/-! `decide` on a literal comparison decides the branch of an `if`. -/
+
+example : ⦃ fun _ => True ⦄ (if decide (1 < 2) then pure 3 else pure 4 : M Nat) ⦃ fun r _ => r = 3 ⦄ := by
+  vcgen
+
+/-! A reflexive entailment closes. -/
+
+example (P : Nat → Prop) : ⦃ P ⦄ (pure () : M Unit) ⦃ fun _ => P ⦄ := by
+  vcgen
+
+/-! Index elimination removes a supremum whose index an equation determines, with the equation on
+either side of `⊓`. -/
+
+example : ⦃ fun s => s = 3 ⦄ (pure () : M Unit) ⦃ fun _ s => ⨆ n : Nat, ⌜n = s⌝ ⊓ ⌜n < 5⌝ ⦄ := by
+  vcgen
+
+example : ⦃ fun s => s = 3 ⦄ (pure () : M Unit) ⦃ fun _ s => ⨆ n : Nat, ⌜s = n⌝ ⊓ ⌜n < 5⌝ ⦄ := by
+  vcgen
+
+example : ⦃ fun s => s = 3 ⦄ (pure () : M Unit) ⦃ fun _ s => ⨆ n : Nat, ⌜n < 5⌝ ⊓ ⌜n = s⌝ ⦄ := by
+  vcgen
+
+example : ⦃ fun s => s = 3 ⦄ (pure () : M Unit) ⦃ fun _ s => ⨆ n : Nat, ⌜n < 5⌝ ⊓ ⌜s = n⌝ ⦄ := by
+  vcgen
+
+example : ⦃ fun s => s = 3 ⦄ (pure () : M Unit) ⦃ fun _ => ⨆ n : Nat, ⌜n = 3⌝ ⊓ (fun s => s < n + 5) ⦄ := by
+  vcgen
+
+example : ⦃ fun s => s = 3 ⦄ (pure () : M Unit) ⦃ fun _ => ⨆ n : Nat, (fun s => s < n + 5) ⊓ ⌜n = 3⌝ ⦄ := by
+  vcgen
+
+/-! Without an equation on the index, the supremum becomes an `∃`. -/
+
+/--
+trace: case vc1
+s✝ : Nat
+⊢ ∃ n, n < 5
+---
+warning: declaration uses `sorry`
+-/
+#guard_msgs in
+example : ⦃ fun s => s = 3 ⦄ (pure () : M Unit) ⦃ fun _ _ => ⨆ n : Nat, ⌜n < 5⌝ ⦄ := by
+  vcgen
+  trace_state
+  all_goals sorry
 
 /-! The state argument `0 + s` rewrites to `s` with the clause theorem `Nat.zero_add`. -/
 
@@ -117,6 +165,16 @@ example (n : Nat) : ⦃ fun _ => True ⦄ (pure (wrap 8 n) : M Nat) ⦃ fun r _ 
 example (n : Nat) : ⦃ fun _ => True ⦄ (pure (0 + n) : M Nat) ⦃ fun r _ => r = n ⦄ := by
   vcgen
   simp
+
+/-! `vcgen` decides a `match` on a literal discriminant in a verification condition. -/
+
+example : ⦃ fun _ => True ⦄ (pure "done" : M String)
+    ⦃ fun r _ => match r with | "start" => False | "done" => True | _ => False ⦄ := by
+  vcgen
+
+example : ⦃ fun _ => True ⦄ (pure 2 : M Nat)
+    ⦃ fun r _ => (match r with | 1 => "a" | 2 => "b" | _ => "c") = "b" ⦄ := by
+  vcgen
 
 /-! Errors. -/
 

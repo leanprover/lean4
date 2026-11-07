@@ -6,6 +6,8 @@ https://markushimmel.de/blog/my-first-verified-imperative-program/
 import Std.Data.HashSet.Lemmas
 import Std.Tactic.Do
 
+set_option sym.debug true
+
 open Std Do
 
 /-!

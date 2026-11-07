@@ -1,5 +1,7 @@
 import Std.Tactic.Do
 
+set_option sym.debug true
+
 /-!
 `Sym.simp` rewrite theorems must preserve nondep `let`s (e.g. do-notation `__do_jp`
 join points) in their RHS. Previously `preprocessType` zeta-reduced the whole theorem

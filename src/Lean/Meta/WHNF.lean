@@ -244,16 +244,15 @@ private def isMajorProof (recVal : RecursorVal) (recLvls : List Level) (major : 
   match ← isProofQuick major with
     | .true => pure true
     | .false => pure false
-    | .undef => do
-      let indInfo ← getConstInfo recVal.getMajorInduct
-      -- TODO once the large elimination field exists in `inductiveVal`s, use that to short-circuit here.
-      let lvls := if indInfo.levelParams.length != recLvls.length then recLvls.tail! else recLvls
-      -- Panics if the head is a def which doesn't unfold at this transparency level, or worse, if it's a non-exposed one ! this is just for testing TODO fix if needed
-      withTransparency .default <| forallTelescopeReducing (whnfType := true) indInfo.type fun _ e => do
-        unless e.isSort do
-          return false
-        let u := e.sortLevel!.instantiateParams indInfo.levelParams lvls
-        return u.isAlwaysZero
+    | .undef =>
+      withTraceNodeBefore `Meta.whnf (fun _ => return m!"isMajorProof {major}") do
+      let indInfo ← getConstVal recVal.getMajorInduct
+      /- If the type doesn't have large elimination, it must be a proof.
+         TODO once the `isImpredicative` field exists in `inductiveVal`s, use that to cover more cases here. -/
+      if indInfo.levelParams.length = recLvls.length then
+        return true
+      let lvls := recLvls.tail!
+      isPropFormerType (← instantiateTypeLevelParams indInfo lvls)
 
 /-- Auxiliary function for reducing recursor applications. -/
 private def reduceRec (recVal : RecursorVal) (recLvls : List Level) (recArgs : Array Expr) (failK : Unit → MetaM α) (successK : Expr → MetaM α) : MetaM α :=

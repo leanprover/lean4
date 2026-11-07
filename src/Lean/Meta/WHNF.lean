@@ -239,6 +239,27 @@ private def cleanupNatOffsetMajor (e : Expr) : MetaM Expr := do
   else
     return mkNatSucc (mkNatAdd e (toExpr (k - 1)))
 
+/--
+Helper method for `reduceRec`.
+Returns `true` if `major`, the major premise of the recursor application `recVal.name recArgs`, is a proof.
+
+This is `isProof major`, but it reads the type of `major` off the recursor's signature instead of
+inferring it from `major`, which has not been reduced yet. Inferring the type of an unreduced
+major premise can take recursion depth proportional to its nesting of β-redexes. For example, in
+`decide` on a bounded quantifier the instance gains a β-redex at every step of the recursion
+(issue #16108).
+-/
+private def isRecMajorProof (recVal : RecursorVal) (recLvls : List Level) (recArgs : Array Expr) (major : Expr) : MetaM Bool := do
+  let majorIdx := recVal.getMajorIdx
+  if recLvls.length != recVal.levelParams.length || recArgs.size < majorIdx then
+    return (← isProof major)
+  let majorType := (go majorIdx recVal.type).instantiateLevelParams recVal.levelParams recLvls
+  isProp (majorType.instantiateRevRange 0 majorIdx recArgs)
+where
+  go : Nat → Expr → Expr
+    | 0, e => e.bindingDomain!
+    | n+1, e => go n e.bindingBody!
+
 /-- Auxiliary function for reducing recursor applications. -/
 private def reduceRec (recVal : RecursorVal) (recLvls : List Level) (recArgs : Array Expr) (failK : Unit → MetaM α) (successK : Expr → MetaM α) : MetaM α :=
   let majorIdx := recVal.getMajorIdx
@@ -250,7 +271,7 @@ private def reduceRec (recVal : RecursorVal) (recLvls : List Level) (recArgs : A
       -- We use this trick because we abstract nested proofs occurring in definitions.
       -- Alternative design: do not abstract nested proofs used to justify well-founded recursion.
       withTransparency .all <| whnf major
-    else if !(← isProof major) then
+    else if !(← isRecMajorProof recVal recLvls recArgs major) then
       whnf major
     else
       pure major

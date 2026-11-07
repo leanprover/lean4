@@ -83,7 +83,15 @@ def withoutExposeFromCtors (typeName : Name) (cont : CommandElabM α) : CommandE
         attrs := sc.attrs.filter (!· matches `(Parser.Term.attrInstance| expose)) }) cont
   else cont
 
+/-- Runs `cont` under `withoutExposeFromCtors` for each of `typeNames`. -/
+def withoutExposeFromCtorsAll (typeNames : Array Name) (cont : CommandElabM α) : CommandElabM α :=
+  typeNames.foldr withoutExposeFromCtors cont
+
 structure Context where
+  /--
+  The instance name for the type passed to `mkContext`, which also prefixes `auxFunNames`.
+  `mkInstanceCmds` names each instance after its own type instead.
+  -/
   instName    : Name
   typeInfos   : Array InductiveVal
   auxFunNames : Array Name
@@ -158,9 +166,23 @@ def mkInstanceCmds (ctx : Context) (className : Name) (typeNames : Array Name) (
       let mut val      := mkIdent auxFunName
       if useAnonCtor then
         val ← `(⟨$val⟩)
-      let instCmd ← `(instance $(mkIdent ctx.instName):ident $binders:implicitBinder* : $type := $val)
+      let instName     ← mkInstName className indVal.name
+      let instCmd ← `(instance $(mkIdent instName):ident $binders:implicitBinder* : $type := $val)
       instances := instances.push instCmd
   return instances
+
+/-- Groups inductive type names by mutual block, keeping the given order. -/
+def groupByMutualBlock (declNames : Array Name) : CoreM (Array (Array Name)) := do
+  let mut blocks : Array (Array Name) := #[]
+  let mut idxOfBlock : NameMap Nat := {}
+  for declName in declNames do
+    let head := (← getConstInfoInduct declName).all.head!
+    if let some i := idxOfBlock.find? head then
+      blocks := blocks.modify i (·.push declName)
+    else
+      idxOfBlock := idxOfBlock.insert head blocks.size
+      blocks := blocks.push #[declName]
+  return blocks
 
 def mkDiscr (varName : Name) : TermElabM (TSyntax ``Parser.Term.matchDiscr) :=
  `(Parser.Term.matchDiscr| $(mkIdent varName):term)

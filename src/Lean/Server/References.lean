@@ -100,7 +100,7 @@ def toLspRefInfo (i : RefInfo) : StateT Decls BaseIO Lsp.RefInfo := do
     if let some parentDeclNameString := parentDeclNameString? then
       if let some parentDeclInfo := parentDeclInfo? then
         modify (·.insert parentDeclNameString parentDeclInfo)
-    return .mk ref.range (parentDeclName?.map (·.toString))
+    return .mk ref.range parentDeclNameString?
   let definition? ← i.definition.mapM refToRefInfoLocation
   let usages ← i.usages.mapM refToRefInfoLocation
   return {

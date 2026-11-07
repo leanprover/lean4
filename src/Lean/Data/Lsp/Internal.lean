@@ -233,40 +233,51 @@ instance : ToJson RefInfo where
       ("usages", toJson $ i.usages.map locationToList)
     ]
 
+private def RefInfo.fromJsonWithParentDecls? (j : Json) :
+    StateT (Std.HashSet String) (Except String) RefInfo := do
+  let toLocation (a : Array Json) :
+      StateT (Std.HashSet String) (Except String) RefInfo.Location := do
+    if h : a.size ≠ 4 ∧ a.size ≠ 5 then
+      throw s!"Expected list of length 4 or 5, not {a.size}"
+    else
+      let startPosLine ← fromJson? a[0]
+      let startPosCharacter ← fromJson? a[1]
+      let endPosLine ← fromJson? a[2]
+      let endPosCharacter ← fromJson? a[3]
+      if h' : a.size = 5 then
+        let parentDecl : String ← fromJson? a[4]
+        let parentDecls ← get
+        let parentDecl ← match parentDecls.get? parentDecl with
+          | some existing => pure existing
+          | none =>
+            set (parentDecls.insert parentDecl)
+            pure parentDecl
+        return {
+          startPosLine
+          startPosCharacter
+          endPosLine
+          endPosCharacter
+          parentDecl
+        }
+      else
+        return {
+          startPosLine
+          startPosCharacter
+          endPosLine
+          endPosCharacter
+          parentDecl := ""
+        }
+  let definition? ← j.getObjValAs? (Option $ Array Json) "definition"
+  let definition? ← match definition? with
+    | none => pure none
+    | some array => some <$> toLocation array
+  let usages ← j.getObjValAs? (Array $ Array Json) "usages"
+  let usages ← usages.mapM toLocation
+  pure { definition?, usages }
+
 instance : FromJson RefInfo where
   -- This implementation is optimized to prevent redundant intermediate allocations.
-  fromJson? j := do
-    let toLocation (a : Array Json) : Except String RefInfo.Location := do
-      if h : a.size ≠ 4 ∧ a.size ≠ 5 then
-        .error s!"Expected list of length 4 or 5, not {a.size}"
-      else
-        let startPosLine ← fromJson? a[0]
-        let startPosCharacter ← fromJson? a[1]
-        let endPosLine ← fromJson? a[2]
-        let endPosCharacter ← fromJson? a[3]
-        if h' : a.size = 5 then
-          return {
-            startPosLine
-            startPosCharacter
-            endPosLine
-            endPosCharacter
-            parentDecl := ← fromJson? a[4]
-          }
-        else
-          return {
-            startPosLine
-            startPosCharacter
-            endPosLine
-            endPosCharacter
-            parentDecl := ""
-          }
-    let definition? ← j.getObjValAs? (Option $ Array Json) "definition"
-    let definition? ← match definition? with
-      | none => pure none
-      | some array => some <$> toLocation array
-    let usages ← j.getObjValAs? (Array $ Array Json) "usages"
-    let usages ← usages.mapM toLocation
-    pure { definition?, usages }
+  fromJson? j := (RefInfo.fromJsonWithParentDecls? j).run' ∅
 
 /-- References from a single module/file -/
 @[expose] def ModuleRefs := Std.TreeMap RefIdent RefInfo
@@ -288,11 +299,15 @@ instance : FromJson ModuleRefs where
     unless a.size % 2 = 0 do
       throw "expected even-length array"
     let mut m := {}
+    let mut parentDecls : Std.HashSet String := ∅
     for h : i in 0...(a.size / 2) do
       have : 2 * i + 1 < a.size := by
         have : i < a.size / 2 := h.2
         omega
-      m := m.insert (← RefIdent.fromJson? a[2 * i]) (← fromJson? a[2 * i + 1])
+      let ident ← RefIdent.fromJson? a[2 * i]
+      let (info, parentDecls') ← RefInfo.fromJsonWithParentDecls? a[2 * i + 1] parentDecls
+      parentDecls := parentDecls'
+      m := m.insert ident info
     return m
 
 /--

@@ -1212,6 +1212,21 @@ theorem wfImp_inter [BEq α] [EquivBEq α] [Hashable α] [LawfulHashable α]
     · apply wfImp_insert wf
     · apply wf
 
+theorem wfImp_mergeWith? [BEq α] [Hashable α] [LawfulBEq α]
+    {m₁ m₂ : Raw₀ α β} {f} (h : Raw.WFImp m₁.1) :
+    Raw.WFImp (Raw₀.mergeWith? f m₁ m₂).1 := by
+  unfold Raw₀.mergeWith?
+  exact Raw.fold_induction (P := fun out : Raw₀ α β => Raw.WFImp out.1) h
+    (fun out _ _ hwf => wfImp_alter (m := out) hwf)
+
+theorem Const.wfImp_mergeWith? [BEq α] [EquivBEq α] [Hashable α] [LawfulHashable α]
+    {β : Type v} {m₁ m₂ : Raw₀ α (fun _ => β)} {f} (h : Raw.WFImp m₁.1) :
+    Raw.WFImp (Raw₀.Const.mergeWith? f m₁ m₂).1 := by
+  unfold Raw₀.Const.mergeWith?
+  exact Raw.fold_induction (P := fun out : Raw₀ α (fun _ => β) => Raw.WFImp out.1) h
+    (fun out _ _ hwf => Const.wfImp_alter (m := out) hwf)
+
+
 end Raw₀
 
 namespace Raw
@@ -1233,6 +1248,8 @@ theorem WF.out [BEq α] [Hashable α] [i₁ : EquivBEq α] [i₂ : LawfulHashabl
   | constModify₀ _ h => exact Raw₀.Const.wfImp_modify (by apply h)
   | alter₀ _ h => exact Raw₀.wfImp_alter (by apply h)
   | constAlter₀ _ h => exact Raw₀.Const.wfImp_alter (by apply h)
+  | mergeWith?₀ _ h => exact Raw₀.wfImp_mergeWith? (by apply h)
+  | constMergeWith?₀ _ h => exact Raw₀.Const.wfImp_mergeWith? (by apply h)
   | inter₀ _ _ h _  => exact Raw₀.wfImp_inter (by apply h)
 
 end Raw

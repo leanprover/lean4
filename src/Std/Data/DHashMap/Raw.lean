@@ -492,6 +492,49 @@ only those mappings where the function returns `some` value.
   m.fold (fun acc k _ => acc.push k) (.emptyWithCapacity m.size)
 
 /--
+Merges `m₂` into `m₁`, applying `f` to collisions. Returning `none` removes the key;
+returning `some b` stores `b`. Entries present in only one map are preserved.
+
+The callback receives the key stored in `m₂`, the value from `m₁`, and the value from `m₂`,
+in that order. A retained collision uses the key representative from `m₂`.
+
+This function uses `m₁` linearly, including its values when `f` uses its second argument
+linearly. It scans the buckets of `m₂` and updates `m₁`. Each update takes expected constant
+time, with the usual amortized cost of growing the first map.
+-/
+@[inline] def mergeWith? [BEq α] [Hashable α] [LawfulBEq α]
+    (f : (a : α) → β a → β a → Option (β a)) (m₁ m₂ : Raw α β) : Raw α β :=
+  if h₁ : 0 < m₁.buckets.size then
+    if h₂ : 0 < m₂.buckets.size then
+      Raw₀.mergeWith? f ⟨m₁, h₁⟩ ⟨m₂, h₂⟩
+    else m₁
+  else m₂
+
+/--
+Merges `m₂` into `m₁`, applying `f` to collisions and preserving one-sided entries.
+The callback receives the right stored key, the left value, and the right value.
+The first map and its values are used linearly if `f` uses its second argument linearly.
+The operation scans the buckets of `m₂`. Each update takes expected constant time,
+with the usual amortized cost of growing the first map.
+-/
+@[inline] def mergeWith [BEq α] [Hashable α] [LawfulBEq α]
+    (f : (a : α) → β a → β a → β a) (m₁ m₂ : Raw α β) : Raw α β :=
+  mergeWith? (fun a b₁ b₂ => some (f a b₁ b₂)) m₁ m₂
+
+@[inline, inherit_doc Raw.mergeWith?] def Const.mergeWith? [BEq α] [Hashable α] {β : Type v}
+    (f : α → β → β → Option β) (m₁ m₂ : Raw α (fun _ => β)) : Raw α (fun _ => β) :=
+  if h₁ : 0 < m₁.buckets.size then
+    if h₂ : 0 < m₂.buckets.size then
+      Raw₀.Const.mergeWith? f ⟨m₁, h₁⟩ ⟨m₂, h₂⟩
+    else m₁
+  else m₂
+
+@[inline, inherit_doc Raw.mergeWith] def Const.mergeWith [BEq α] [Hashable α] {β : Type v}
+    (f : α → β → β → β) (m₁ m₂ : Raw α (fun _ => β)) : Raw α (fun _ => β) :=
+  Const.mergeWith? (fun a b₁ b₂ => some (f a b₁ b₂)) m₁ m₂
+
+
+/--
 Computes the union of the given hash maps. If a key appears in both maps, the entry contained in
 the second argument will appear in the result.
 
@@ -730,6 +773,15 @@ inductive WF : {α : Type u} → {β : α → Type v} → [BEq α] → [Hashable
   | constAlter₀ {α : _} {β : Type v} [BEq α] [Hashable α] {m : Raw α (fun _ => β)} {h a}
       {f : Option β → Option β} : WF m → WF (Raw₀.Const.alter ⟨m, h⟩ a f).1
   /-- Internal implementation detail of the hash map -/
+  | mergeWith?₀ {α β : _} [BEq α] [Hashable α] [LawfulBEq α]
+      {m₁ m₂ : Raw α β} {h₁ h₂ f} :
+      WF m₁ → WF (Raw₀.mergeWith? f ⟨m₁, h₁⟩ ⟨m₂, h₂⟩).1
+  /-- Internal implementation detail of the hash map -/
+  | constMergeWith?₀ {α : _} {β : Type v} [BEq α] [Hashable α]
+      {m₁ m₂ : Raw α (fun _ => β)} {h₁ h₂ f} :
+      WF m₁ → WF (Raw₀.Const.mergeWith? f ⟨m₁, h₁⟩ ⟨m₂, h₂⟩).1
+
+  /-- Internal implementation detail of the hash map -/
   | inter₀ {α β : _} [BEq α] [Hashable α] {m₁ m₂ : Raw α β} {h₁ h₂} : WF m₁ → WF m₂ → WF (Raw₀.inter ⟨m₁, h₁⟩ ⟨m₂, h₂⟩).1
 
 -- TODO: this needs to be deprecated, but there is a bootstrapping issue.
@@ -754,6 +806,8 @@ theorem WF.size_buckets_pos [BEq α] [Hashable α] (m : Raw α β) : WF m → 0 
   | constModify₀ _ => (Raw₀.Const.modify _ _ _).2
   | alter₀ _ => (Raw₀.alter _ _ _).2
   | constAlter₀ _ => (Raw₀.Const.alter _ _ _).2
+  | mergeWith?₀ _ => (Raw₀.mergeWith? _ _ _).2
+  | constMergeWith?₀ _ => (Raw₀.Const.mergeWith? _ _ _).2
   | inter₀ _ _ => (Raw₀.inter _ _).2
 
 @[simp] theorem WF.emptyWithCapacity [BEq α] [Hashable α] {c : Nat} : (Raw.emptyWithCapacity c : Raw α β).WF :=
@@ -833,6 +887,27 @@ theorem WF.Const.ofArray {β : Type v} [BEq α] [Hashable α] {a : Array (α × 
 theorem WF.Const.unitOfArray [BEq α] [Hashable α] {a : Array α} :
     (Const.unitOfArray a : Raw α (fun _ => Unit)).WF :=
   Const.insertManyIfNewUnit WF.empty
+
+theorem WF.mergeWith? [BEq α] [Hashable α] [LawfulBEq α]
+    {m₁ m₂ : Raw α β} {f} (h₁ : m₁.WF) (h₂ : m₂.WF) : (mergeWith? f m₁ m₂).WF := by
+  simpa only [Raw.mergeWith?, h₁.size_buckets_pos, h₂.size_buckets_pos, ↓reduceDIte] using
+    (WF.mergeWith?₀ h₁ : (Raw₀.mergeWith? f ⟨m₁, h₁.size_buckets_pos⟩ ⟨m₂, h₂.size_buckets_pos⟩).1.WF)
+
+theorem WF.mergeWith [BEq α] [Hashable α] [LawfulBEq α]
+    {m₁ m₂ : Raw α β} {f} (h₁ : m₁.WF) (h₂ : m₂.WF) : (mergeWith f m₁ m₂).WF :=
+  WF.mergeWith? h₁ h₂
+
+theorem WF.Const.mergeWith? [BEq α] [Hashable α] {β : Type v}
+    {m₁ m₂ : Raw α (fun _ => β)} {f} (h₁ : m₁.WF) (h₂ : m₂.WF) :
+    (Const.mergeWith? f m₁ m₂).WF := by
+  simpa only [Raw.Const.mergeWith?, h₁.size_buckets_pos, h₂.size_buckets_pos, ↓reduceDIte] using
+    (WF.constMergeWith?₀ h₁ : (Raw₀.Const.mergeWith? f ⟨m₁, h₁.size_buckets_pos⟩ ⟨m₂, h₂.size_buckets_pos⟩).1.WF)
+
+theorem WF.Const.mergeWith [BEq α] [Hashable α] {β : Type v}
+    {m₁ m₂ : Raw α (fun _ => β)} {f} (h₁ : m₁.WF) (h₂ : m₂.WF) :
+    (Const.mergeWith f m₁ m₂).WF :=
+  WF.Const.mergeWith? h₁ h₂
+
 
 theorem WF.union₀ [BEq α] [Hashable α] {m₁ m₂ : Raw α β} (h₁ : m₁.WF) (h₂ : m₂.WF) : (Raw₀.union ⟨m₁, h₁.size_buckets_pos⟩ ⟨m₂, h₂.size_buckets_pos⟩).val.WF := by
   simp only [Raw₀.union]

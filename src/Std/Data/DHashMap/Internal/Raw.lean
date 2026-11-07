@@ -240,6 +240,18 @@ theorem Const.modify_eq [BEq α] [EquivBEq α] [Hashable α] {m : Raw α (fun _ 
 
 end
 
+theorem mergeWith?_eq [BEq α] [Hashable α] [LawfulBEq α]
+    {m₁ m₂ : Raw α β} (h₁ : m₁.WF) (h₂ : m₂.WF) {f} :
+    Raw.mergeWith? f m₁ m₂ =
+      (Raw₀.mergeWith? f ⟨m₁, h₁.size_buckets_pos⟩ ⟨m₂, h₂.size_buckets_pos⟩).1 := by
+  simp only [Raw.mergeWith?, h₁.size_buckets_pos, h₂.size_buckets_pos, ↓reduceDIte]
+
+theorem Const.mergeWith?_eq [BEq α] [Hashable α] {β : Type v}
+    {m₁ m₂ : Raw α (fun _ => β)} (h₁ : m₁.WF) (h₂ : m₂.WF) {f} :
+    Raw.Const.mergeWith? f m₁ m₂ =
+      (Raw₀.Const.mergeWith? f ⟨m₁, h₁.size_buckets_pos⟩ ⟨m₂, h₂.size_buckets_pos⟩).1 := by
+  simp only [Raw.Const.mergeWith?, h₁.size_buckets_pos, h₂.size_buckets_pos, ↓reduceDIte]
+
 end Raw
 
 end Std.DHashMap.Internal

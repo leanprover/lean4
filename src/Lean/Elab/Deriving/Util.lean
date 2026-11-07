@@ -88,6 +88,10 @@ def withoutExposeFromCtorsAll (typeNames : Array Name) (cont : CommandElabM α) 
   typeNames.foldr withoutExposeFromCtors cont
 
 structure Context where
+  /--
+  The instance name for the type passed to `mkContext`, which also prefixes `auxFunNames`.
+  `mkInstanceCmds` names each instance after its own type instead.
+  -/
   instName    : Name
   typeInfos   : Array InductiveVal
   auxFunNames : Array Name

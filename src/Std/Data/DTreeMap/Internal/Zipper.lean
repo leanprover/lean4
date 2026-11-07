@@ -181,7 +181,8 @@ public def Zipper.toList : Zipper α β → List ((a : α) × β a)
 public def Zipper.Ordered [Ord α] (t : Zipper α β) : Prop :=
   t.toList.Pairwise (fun a b => compare a.1 b.1 = .lt)
 
-def Zipper.size : Zipper α β → Nat
+/-- Number of remaining entries, independent of cached subtree sizes. -/
+public def Zipper.size : Zipper α β → Nat
 | .done => 0
 | .cons _ _ tree next => 1 + tree.treeSize + next.size
 
@@ -320,7 +321,7 @@ theorem Zipper.ordered_of_ordered_cons [Ord α] [TransOrd α] {t : Impl α β}
   simp only [Ordered]
   exact List.Pairwise.sublist (List.sublist_append_right (⟨k, v⟩ :: t.toList) z.toList) hyp
 
-theorem Zipper.size_prependMap (t : Impl α β) (it : Zipper α β) :
+public theorem Zipper.size_prependMap (t : Impl α β) (it : Zipper α β) :
     (Zipper.prependMap t it).size = t.treeSize + it.size := by
   fun_induction Zipper.prependMap
   case case1 =>

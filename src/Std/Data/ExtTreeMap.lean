@@ -8,3 +8,4 @@ module
 prelude
 public import Std.Data.ExtTreeMap.Basic
 public import Std.Data.ExtTreeMap.Lemmas
+public import Std.Data.ExtTreeMap.Fold

@@ -215,7 +215,7 @@ def elabSimpVariant (variantName : Name) (extraThms : Array Theorem) : GrindTact
   ensureSym
   let `(grind| simp $[$variantId?]? $[[ $[$extraIds],* ]]?) := stx | throwUnsupportedSyntax
   -- Resolve variant
-  let variantName := variantId?.map (·.getId) |>.getD .anonymous
+  let variantName := variantId?.map (·.getId.eraseMacroScopes) |>.getD .anonymous
   -- Resolve extra theorems (local hypotheses first, then global constants)
   let (extras, thms) ← resolveExtraTheorems extraIds
   -- Cache lookup/creation

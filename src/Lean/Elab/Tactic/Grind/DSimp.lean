@@ -72,7 +72,7 @@ def elabDSimpVariant (variantName : Name) (args : DSimpArgs) : GrindTacticM (Sym
 @[builtin_grind_tactic Parser.Tactic.Grind.symDSimp] def evalSymDSimp : GrindTactic := fun stx => withMainContext do
   ensureSym
   let `(grind| dsimp $[$variantId?]? $[[ $[$args],* ]]?) := stx | throwUnsupportedSyntax
-  let variantName := variantId?.map (·.getId) |>.getD .anonymous
+  let variantName := variantId?.map (·.getId.eraseMacroScopes) |>.getD .anonymous
   let args ← elabDSimpArgs args
   let cacheKey : DSimpCacheKey := { variant := variantName, args }
   let dsimpState := (← get).cache.dsimpState[cacheKey]?.getD {}

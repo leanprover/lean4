@@ -13,10 +13,10 @@ public import Lean.Kernel.InLean.Push
 /-!
 # InLean's inductive check: the formers, the constructors, the tables
 
-Twins of the executed stages of `ConLeche/Kernel/Inductives/SumInstall.lean`,
-`SumInstallF.lean`, `StructParts.lean`, `StructInstallF.lean`,
-`BlockInstall.lean` and `BlockInstallF.lean`, and of
-`ConLeche/Kernel/DeclCheck.lean`'s `checkConstantValF`.
+Twins of the executed stages of `ConLeche.Kernel.Inductives.SumInstall`,
+`ConLeche.Kernel.Inductives.SumInstallF`, `ConLeche.Kernel.Inductives.StructParts`, `ConLeche.Kernel.Inductives.StructInstallF`,
+`ConLeche.Kernel.Inductives.BlockInstall` and `ConLeche.Kernel.Inductives.BlockInstallF`, and of
+`ConLeche.Kernel.DeclCheck`'s `checkConstantValF`.
 
 An environment push records a Lean entry: a former as an `InductiveVal`
 whose `all`, counts, constructors and `isRec` are the block's (what
@@ -31,12 +31,13 @@ namespace Lean.Kernel.InLean
 
 open Lean
 
-/-- Twin of `checkConstantValF`. -/
+/-- Twin of `checkConstantValF`; the name's freshness read off the environment
+itself, as official's `check_name` (`FEnv.find?` hides constants a check does
+not see). -/
 def checkConstantValF (ops : CheckerOps) (fe : FEnv) (cv : ConstantVal) (allowOp : Bool := false) :
     CheckCM Unit := do
-  if (fe.find? cv.name).isSome then throw (.invalid s!"duplicate declaration {cv.name}")
-  if reservedBasisNames.contains cv.name then throw (.invalid s!"reserved basis name {cv.name}")
-  if natOpName cv.name && !allowOp && !fe.coreAxioms then
+  if (fe.env.find? cv.name).isSome then throw (.invalid s!"duplicate declaration {cv.name}")
+  if natOpName cv.name && !allowOp then
     throw (.invalid s!"a certified Nat operation's name, not a definition: {cv.name}")
   unless litShapeOk cv.name cv.levelParams cv.type do
     throw (.notImplemented s!"a declaration at a literal's name with another shape ({cv.name})")
@@ -46,7 +47,7 @@ def checkConstantValF (ops : CheckerOps) (fe : FEnv) (cv : ConstantVal) (allowOp
   let stype ← ops.inferType fe 0 cv.type
   let _u ← ops.ensureSort fe 0 stype
 
-/-! ## Structure parts (twin of `StructParts.lean`) -/
+/-! ## Structure parts (twin of `ConLeche.Kernel.Inductives.StructParts`) -/
 
 /-- Twin of `structPsAt`. -/
 def structPsAt (o nP : Nat) : List Expr :=
@@ -58,19 +59,19 @@ def structElimLevel (elim : Name) (large : Bool) : Level :=
 
 /-- Twin of `structCtorResidOk`. -/
 def structCtorResidOk (T : Name) (lps : List Name) (nP o nIdx : Nat) (cbody : Expr) : Bool :=
-  cbody.getAppFn == .const T (lps.map .param) &&
-  cbody.getAppNumArgs == nP + nIdx &&
+  cbody.getAppFnT == .const T (lps.map .param) &&
+  cbody.getAppNumArgsT == nP + nIdx &&
   (appArgs cbody).take nP == structPsAt o nP
 
 /-- Twin of `Expr.mentionsConst`. -/
 def mentionsConst (T : Name) (e : Expr) : CheckCM Bool := mentionsAnyConst [T] e
 
-/-! ## Sums (twins of `SumInstall.lean`, `SumInstallF.lean`) -/
+/-! ## Sums (twins of `ConLeche.Kernel.Inductives.SumInstall`, `ConLeche.Kernel.Inductives.SumInstallF`) -/
 
 /-- Twin of `checkSumTele`. -/
 def checkSumTele (n : Nat) (cvTa₀ : ConstantVal) : CheckCM (ConstantVal × Level) :=
-  match stripPis n cvTa₀.type with
-  | some (_, .sort s) => pure (cvTa₀, s)
+  match (stripPis n cvTa₀.type).map (fun (p : List Expr × Expr) => EO.stripTop p.2) with
+  | some (.sort s) => pure (cvTa₀, s)
   | _ => throw (.invalid "direct sum: type former does not reduce to a sort after its \
       parameters and indices")
 
@@ -118,8 +119,8 @@ def checkSumCtorF (ops : CheckerOps) (fe₀ fe : FEnv) (T : Name) (lps : List Na
   checkStructDomsAtF ops fe 0 cq.1 (← tq.1.mapM fvarTypeD) nP
   let xq ← unwrapOr (← openPisAtFvars nF cq.2 nP)
     (.notImplemented "direct sum: constructor field telescope")
-  unless xq.2.getAppFn == Expr.const T (lps.map .param) &&
-      (appArgs xq.2).take nP == cq.1 && xq.2.getAppNumArgs == nP + nIdx do
+  unless xq.2.getAppFnT == Expr.const T (lps.map .param) &&
+      (appArgs xq.2).take nP == cq.1 && xq.2.getAppNumArgsT == nP + nIdx do
     throw (.notImplemented "direct sum: opened constructor residual")
   let fieldsOk ← xq.1.allM fun x => do constsResolveF fe₀ (← fvarTypeD x)
   unless fieldsOk do
@@ -146,7 +147,7 @@ def consSumCtorsF (T : Name) (nP : Nat) : Nat → List (ConstantVal × Nat) → 
       (fe.push (.ctorInfo { toConstantVal := c.1, induct := T, cidx := i, numParams := nP,
                             numFields := c.2, isUnsafe := false }))
 
-/-! ## Structures (twin of `StructInstallF.lean`) -/
+/-! ## Structures (twin of `ConLeche.Kernel.Inductives.StructInstallF`) -/
 
 /-- Twin of `StructWalkers`. -/
 structure StructWalkers where
@@ -170,10 +171,11 @@ def checkStructProjTableF (w : StructWalkers) (T : Name) (lps : List Name) (nP n
   unless (fe.find? T).isSome do
     throw (.internal "direct structure: projection table before its structure")
 
-/-! ## The block (twins of `BlockInstall.lean`, `BlockInstallF.lean`) -/
+/-! ## The block (twins of `ConLeche.Kernel.Inductives.BlockInstall`, `ConLeche.Kernel.Inductives.BlockInstallF`) -/
 
 /-- Twin of `Expr.piDomsMentionAny`. -/
 def piDomsMentionAny (names : List Name) : Expr → Bool
+  | .mdata _ e => piDomsMentionAny names e
   | .forallE _ ty b _ =>
     EO.any (fun | .const n _ => names.contains n | .proj s _ _ => names.contains s | _ => false) ty ||
       piDomsMentionAny names b
@@ -246,7 +248,16 @@ def consBlockIndsF (p₁ : BlockShape) (isRec : Bool) : List ConstantVal → Nat
         isReflexive := false }
     consBlockIndsF p₁ isRec rest (i + 1) (fe.push (.inductInfo v))
 
-/-- Twin of `checkBlockIndsF`. -/
+/-- The block's members as the job's environments mark them (`FEnv.pending`):
+each pushed former's name with its one constructor's field count, which
+`blockCapsAt` reads off the shape. -/
+def blockMarks (p : BlockShape) : List (Name × Nat) :=
+  p.members.map fun ms => (ms.declared.name, match ms.ctors with | [c] => c.2 | _ => 0)
+
+/-- Twin of `checkBlockIndsF`.  The formers are pushed onto `fe` marked with
+the block (`blockMarks`): from here to the end of the job InLean reads the
+members' capabilities and projection tables as master's staged
+environments hold them. -/
 def checkBlockIndsF (ops : CheckerOps) (fe : FEnv) (p : BlockShape) (isRec : Bool) :
     CheckCM (FEnv × BlockShape) :=
   match p.members with
@@ -256,7 +267,8 @@ def checkBlockIndsF (ops : CheckerOps) (fe : FEnv) (p : BlockShape) (isRec : Boo
     let cvs ← checkBlockTelesF ops fe p.nP rest
     checkBlockAgreeF ops fe p.nP cvTa0 s0 cvs
     let p₁ := p.withSort s0
-    pure (consBlockIndsF p₁ isRec (p.members.map (·.declared)) 0 fe, p₁)
+    pure (consBlockIndsF p₁ isRec (p.members.map (·.declared)) 0
+      { fe with pending := blockMarks p₁ ++ fe.pending }, p₁)
 
 /-- Twin of `checkBlockCtorsF`. -/
 def checkBlockCtorsF (ops : CheckerOps) (fe₀ fe : FEnv) (p : BlockShape) :

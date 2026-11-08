@@ -14,13 +14,12 @@ import all Init.Util
 /-!
 # InLean: the expression operations, in Lean
 
-Core's opaque
-C++ operations — `instantiate`, `instantiate1`, `instantiateRev(Range)`,
+Core's opaque C++ operations — `instantiate`, `instantiate1`, `instantiateRev(Range)`,
 `abstract(Range)`, `lift`/`lowerLooseBVars`, `hasLooseBVar`, and the
 `implemented_by` traversals (`Expr.replace`, `Expr.find?`,
 `collectFVars`, `getUsedConstants`, the level-parameter collector) — are
 replaced by Lean-defined, memoised structural walks: twins of
-`ConLeche/Cached/ExprOpsC.lean`'s substitutions (`instantiate1C`,
+`ConLeche.Cached.ExprOpsC`'s substitutions (`instantiate1C`,
 `instantiateListC`, `instantiateRev`, `abstract1C`, `abstractRangeC`,
 `instLevelParams`) over `Lean.Expr`'s six binder-bearing constructors.
 
@@ -28,17 +27,17 @@ replaced by Lean-defined, memoised structural walks: twins of
 reports shared (`withExclusive`, its one `unsafe`-implemented primitive);
 InLean may add no `unsafe` code, so every compound node is memoised, keyed
 by the node and the binder offset under the lawful pointer-first equality
-(`Lean/Kernel/InLean/ExprEq.lean`) — a structural recursion, no fuel needed.
+(`Lean.Kernel.InLean.ExprEq`) — a structural recursion, no fuel needed.
 
 **The cutoffs** read Lean's cached fields (`looseBVarRange`, `hasFVar`,
 `hasLevelParam`), as con-leche's read its computed `data` word.  Lean
-computes them in C; the Lean bodies of `Expr.mkData`, `Expr.mkAppData` and
-`Level.mkData` state what C computes.  Lean does not
+computes them in C (`Expr.mkData`, `Expr.mkAppData`, `Level.mkData`); the
+proof relates them to the term by what C computes, on terms in range.  Lean does not
 saturate the range: a node above `2^20 - 1` loose variables aborts the
 process ("too many bound variables").  So the one walk here that can grow
 indices past a term's own, `abstract`, writes `rangePoison` instead of an
 out-of-range `bvar`, and its checker call sites error on it in O(1)
-(`InLean.abstractChecked`, `State.lean`).
+(`abstractRangeM`, `Lean.Kernel.InLean.StateC`).
 -/
 
 @[expose] public section
@@ -90,8 +89,19 @@ end Lvl
 
 namespace EO
 
+/- The walks' memos compare nodes exactly: a walk's result keeps the binder
+names of its input (the generator's output must equal the official
+constants). -/
+attribute [local instance 2000] instBEqExprExact
+
 /-- The memo of a walk: node and offset to result. -/
 abbrev Memo := Std.HashMap (Expr × Nat) Expr
+
+/-- A walk's own empty memo, sized by the term's depth: an allocation of the
+walk's own, so its first insert writes in place (a closed `{}` is one
+shared constant, whose first insert copies the bucket array). -/
+@[inline] def freshFor {α β : Type} [BEq α] [Hashable α] (e : Expr) : Std.HashMap α β :=
+  Std.HashMap.emptyWithCapacity (e.approxDepth.toNat + 8)
 
 @[inline] def isCompound : Expr → Bool
   | .app .. | .lam .. | .forallE .. | .letE .. | .mdata .. | .proj .. => true
@@ -143,7 +153,7 @@ def liftLooseBVars (e : Expr) (s d : Nat) : Expr :=
     if x.looseBVarRange ≤ s + k then some x else
     match x with
     | .bvar i => some (.bvar (i + d))
-    | _ => none) e 0 {}).1
+    | _ => none) e 0 (freshFor e)).1
 
 /-- Twin of `Expr.lowerLooseBVars e s d`: loose `bvar i ≥ s` to `bvar (i - d)`. -/
 def lowerLooseBVars (e : Expr) (s d : Nat) : Expr :=
@@ -152,7 +162,7 @@ def lowerLooseBVars (e : Expr) (s d : Nat) : Expr :=
     if x.looseBVarRange ≤ s + k then some x else
     match x with
     | .bvar i => some (.bvar (i - d))
-    | _ => none) e 0 {}).1
+    | _ => none) e 0 (freshFor e)).1
 
 /-- Twin of `instantiateListC` (Lean's `instantiate`): `bvar (k + j)` to
 `subst[j]` lifted by `k`, above the substitution lowered by its size. -/
@@ -166,7 +176,7 @@ def instantiate (e : Expr) (subst : Array Expr) : Expr :=
       if i < k then some x
       else if i - k < n then some (liftLooseBVars (subst[i - k]!) 0 k)
       else some (.bvar (i - n))
-    | _ => none) e 0 {}).1
+    | _ => none) e 0 (freshFor e)).1
 
 /-- Twin of `instantiate1C`. -/
 @[inline] def instantiate1 (e v : Expr) : Expr := instantiate e #[v]
@@ -204,13 +214,13 @@ def abstract (e : Expr) (xs : Array Expr) : Expr :=
     | .fvar id => (idx[id]?).map fun j =>
       let i := k + n - 1 - j
       if i ≤ maxBVarIdx then .bvar i else rangePoison
-    | _ => none) e 0 {}).1
+    | _ => none) e 0 (freshFor e)).1
 
 /-- Lean's `abstractRange e n xs`. -/
 @[inline] def abstractRange (e : Expr) (n : Nat) (xs : Array Expr) : Expr :=
   abstract e (xs.extract 0 n)
 
-/-- The root of an interned free variable's name (`Lean/Kernel/InLean/StateC.lean`):
+/-- The root of an interned free variable's name (`Lean.Kernel.InLean.StateC`):
 the variable at depth `d` numbered `n` is named `fvRoot.d.n`. -/
 def fvRoot : Name := `_inlean_fv
 
@@ -236,24 +246,58 @@ def abstractDepthsFrom (e : Expr) (d k c₀ : Nat) : Expr :=
           some (if i ≤ maxBVarIdx then .bvar i else rangePoison)
         else some x
       | none => some x
-    | _ => none) e c₀ {}).1
+    | _ => none) e c₀ (freshFor e)).1
 
 /-- `abstractDepthsFrom` at binder offset `0` (con-leche's `abstractRangeC e d k`). -/
 @[inline] def abstractDepths (e : Expr) (d k : Nat) : Expr := abstractDepthsFrom e d k 0
 
+/-- The level depth C's `Level.mkData` accepts. -/
+def maxLevelDepth : Nat := 16777215
+
+/-- The deepest of `us`, by their cached depths. -/
+def maxDepthOf (us : List Level) : Nat := us.foldr (fun u m => max u.data.depth.toNat m) 0
+
+/-- Substituting levels at most `md` deep into `u` stays within C's bound,
+by `u`'s cached depth: the substitution adds at most `md`. -/
+@[inline] def depthFits (md : Nat) (u : Level) : Bool := u.data.depth.toNat + md ≤ maxLevelDepth
+
+/-- The `imax` chain `inferPisOutI stk v` builds stays within C's depth
+bound, by cached depths: each `imax` adds at most one to the deepest level.
+(`.succ u` is `depthFits 1 u`, one `imax u v` is `imaxChainFits [u] v`.) -/
+def imaxChainFits (stk : List Level) (v : Level) : Bool :=
+  maxDepthOf (v :: stk) + stk.length ≤ maxLevelDepth
+
 /-- Twin of `instLevelParams`: the level parameters `ps` to `us` in every
-`sort` and `const`, by con-leche's non-simplifying `Lvl.subst` (core's
-`Level.instantiateParams` compares by the opaque `Level.beq`). -/
+`sort` and `const`, by con-leche's non-simplifying `Lvl.subst` (core's `Level.instantiateParams` compares by the opaque `Level.beq`).  A
+node whose substituted level could pass C's depth bound becomes
+`rangePoison`, which the checker's call sites report (`instLevelParamsChecked?`). -/
 def instantiateLevelParams (e : Expr) (ps : List Name) (us : List Level) : Expr :=
   if ps.isEmpty || us.isEmpty || !e.hasLevelParam then e else
+  let md := maxDepthOf us
   (mapOff (fun x _ =>
     if !x.hasLevelParam then some x else
     match x with
-    | .sort u => some (x.updateSort! (Lvl.subst ps us u))
-    | .const _ ls => some (x.updateConst! (ls.map (Lvl.subst ps us)))
-    | _ => none) e 0 {}).1
+    | .sort u =>
+      some (if depthFits md u then x.updateSort! (Lvl.subst ps us u) else rangePoison)
+    | .const _ ls =>
+      some (if ls.all (depthFits md) then x.updateConst! (ls.map (Lvl.subst ps us))
+        else rangePoison)
+    | _ => none) e 0 (freshFor e)).1
 
-/-- The GENERATOR's level instantiation (unverified, `Lean/Kernel/InLean/IndGen.lean`):
+/-- `instantiateLevelParams`, `none` where it wrote `rangePoison` (a level
+past C's depth bound, where C's `Level.mkData` would abort).  Checker terms
+have no metavariable, so `hasExprMVar` reads the poison. -/
+def instLevelParamsChecked? (e : Expr) (ps : List Name) (us : List Level) : Option Expr :=
+  let r := instantiateLevelParams e ps us
+  if r.hasExprMVar then none else some r
+
+/-- `Lvl.subst` over a list of levels, `none` where a result could pass C's
+depth bound. -/
+def substLevelsChecked? (ps : List Name) (us : List Level) (ls : List Level) : Option (List Level) :=
+  let md := maxDepthOf us
+  if ls.all (depthFits md) then some (ls.map (Lvl.subst ps us)) else none
+
+/-- The GENERATOR's level instantiation (unverified, `Lean.Kernel.InLean.IndGen`):
 Lean's simplifying `Level.instantiateParams`, whose shapes the official
 constants carry. -/
 def instantiateLevelParamsGen (e : Expr) (ps : List Name) (us : List Level) : Expr :=
@@ -263,11 +307,11 @@ def instantiateLevelParamsGen (e : Expr) (ps : List Name) (us : List Level) : Ex
     match x with
     | .sort u => some (x.updateSort! (u.instantiateParams ps us))
     | .const _ ls => some (x.updateConst! (ls.map (·.instantiateParams ps us)))
-    | _ => none) e 0 {}).1
+    | _ => none) e 0 (freshFor e)).1
 
 /-- Generic memoised replacement (no offset; Lean's `Expr.replace`). -/
 @[inline] def replace (f : Expr → Option Expr) (e : Expr) : Expr :=
-  (mapOff (fun x _ => f x) e 0 {}).1
+  (mapOff (fun x _ => f x) e 0 (freshFor e)).1
 
 /-- The memoised fold of a `Bool` property over every node (shared nodes
 visited once): `some` stops the descent at a node. -/
@@ -303,11 +347,11 @@ def hasLooseBVar (e : Expr) (i : Nat) : Bool :=
     if x.looseBVarRange ≤ i + k then some false else
     match x with
     | .bvar j => some (j == i + k)
-    | _ => none) e 0 {}).1
+    | _ => none) e 0 (freshFor e)).1
 
 /-- Does some node satisfy `p` (Lean's `(e.find? p).isSome`, memoised)? -/
 def any (p : Expr → Bool) (e : Expr) : Bool :=
-  (anyNode (fun x _ => if p x then some true else none) e 0 {}).1
+  (anyNode (fun x _ => if p x then some true else none) e 0 (freshFor e)).1
 
 /-- **In range, by the term alone**: every `bvar` index and level
 depth below what C's `mkData` accepts, and no metavariable (so no
@@ -320,12 +364,12 @@ def inRange (e : Expr) : Bool :=
     | .mvar _ => some true
     | .sort u => some (16777215 < Lvl.depth u)
     | .const _ us => some (us.any fun u => 16777215 < Lvl.depth u)
-    | _ => none) e 0 {}).1
+    | _ => none) e 0 (freshFor e)).1
 
 /-- The memoised fold collecting values of the nodes `pick` selects
 (shared nodes visited once; `stop` cuts a subtree). -/
 def collect (stop : Expr → Bool) (pick : Expr → Option α) (e : Expr) : Array α :=
-  (go e ({} : Std.HashSet Expr) #[]).2
+  (go e (Std.HashSet.emptyWithCapacity (e.approxDepth.toNat + 8)) #[]).2
 where
   go (e : Expr) (seen : Std.HashSet Expr) (acc : Array α) : Std.HashSet Expr × Array α :=
     if stop e then (seen, acc) else
@@ -388,6 +432,27 @@ end Lean.Kernel.InLean
 
 namespace Lean.Expr
 open Lean.Kernel.InLean
+
+/-- The head of an application spine, `mdata` read through (as con-leche's
+`getAppFn` on the term without it). -/
+def getAppFnT : Expr → Expr
+  | .app f _ => getAppFnT f
+  | .mdata _ e => getAppFnT e
+  | e => e
+
+/-- The spine's arguments, `mdata` read through. -/
+def getAppArgsT (e : Expr) : Array Expr := (go e []).toArray
+where
+  go : Expr → List Expr → List Expr
+    | .app f a, acc => go f (a :: acc)
+    | .mdata _ e, acc => go e acc
+    | _, acc => acc
+
+/-- The spine's argument count, `mdata` read through. -/
+def getAppNumArgsT : Expr → Nat
+  | .app f _ => getAppNumArgsT f + 1
+  | .mdata _ e => getAppNumArgsT e
+  | _ => 0
 @[inline] def inst1I (e v : Expr) : Expr := EO.instantiate1 e v
 @[inline] def instI (e : Expr) (subst : Array Expr) : Expr := EO.instantiate e subst
 @[inline] def instRevI (e : Expr) (subst : Array Expr) : Expr := EO.instantiateRev e subst
@@ -413,6 +478,8 @@ end Lean.Expr
 namespace Lean.Kernel.InLean.EO
 
 open Lean
+
+attribute [local instance 2000] instBEqExprExact
 
 /-- The memo probe and write-back around one compound node's step. -/
 @[inline] def withMemo (e : Expr) (memo : Memo) (k : Memo → Expr × Memo) : Expr × Memo :=
@@ -445,7 +512,7 @@ def stripMDataGo : Expr → Memo → Expr × Memo
     (e.updateProj! x', memo)
   | e, memo => (e, memo)
 
-def stripMData (e : Expr) : Expr := (stripMDataGo e {}).1
+def stripMData (e : Expr) : Expr := (stripMDataGo e (freshFor e)).1
 
 /-- Twin of `Expr.depthGo` (memoised). -/
 def depthGo : Expr → Std.HashMap Expr Nat → Nat × Std.HashMap Expr Nat
@@ -474,44 +541,44 @@ def depthGo : Expr → Std.HashMap Expr Nat → Nat × Std.HashMap Expr Nat
         | _ => (1, memo)
       (r, memo.insert e r)
 
-def depth (e : Expr) : Nat := (depthGo e {}).1
+def depth (e : Expr) : Nat := (depthGo e (freshFor e)).1
+
+/-- The memo probe and write-back around one compound node's hash. -/
+@[inline] def withMemoH (e : Expr) (memo : Std.HashMap Expr UInt64)
+    (k : Std.HashMap Expr UInt64 → UInt64 × Std.HashMap Expr UInt64) :
+    UInt64 × Std.HashMap Expr UInt64 :=
+  match memo[e]? with
+  | some h => (h, memo)
+  | none => let (h, memo) := k memo; (h, memo.insert e h)
+
+/-- **A hash compatible with `Expr.clEq`**: binder names, infos, `nonDep` and
+`mdata` not read (Lean's cached hash reads all but `mdata`; a leaf has none
+and is hashed by it).  A memoised walk. -/
+def clHashGo : Expr → Std.HashMap Expr UInt64 → UInt64 × Std.HashMap Expr UInt64
+  | .mdata _ x, memo => clHashGo x memo
+  | e@(.app f a), memo => withMemoH e memo fun memo =>
+    let (h₁, memo) := clHashGo f memo
+    let (h₂, memo) := clHashGo a memo
+    (mixHash 5 (mixHash h₁ h₂), memo)
+  | e@(.lam _ t b _), memo => withMemoH e memo fun memo =>
+    let (h₁, memo) := clHashGo t memo
+    let (h₂, memo) := clHashGo b memo
+    (mixHash 6 (mixHash h₁ h₂), memo)
+  | e@(.forallE _ t b _), memo => withMemoH e memo fun memo =>
+    let (h₁, memo) := clHashGo t memo
+    let (h₂, memo) := clHashGo b memo
+    (mixHash 7 (mixHash h₁ h₂), memo)
+  | e@(.letE _ t v b _), memo => withMemoH e memo fun memo =>
+    let (h₁, memo) := clHashGo t memo
+    let (h₂, memo) := clHashGo v memo
+    let (h₃, memo) := clHashGo b memo
+    (mixHash 8 (mixHash h₁ (mixHash h₂ h₃)), memo)
+  | e@(.proj s i x), memo => withMemoH e memo fun memo =>
+    let (h₁, memo) := clHashGo x memo
+    (mixHash 11 (mixHash (hash s) (mixHash (hash i) h₁)), memo)
+  | e, memo => (hash e, memo)
+
+def clHash (e : Expr) : UInt64 := (clHashGo e (freshFor e)).1
 
 end Lean.Kernel.InLean.EO
 
-namespace Lean.Kernel.InLean.EO
-
-open Lean
-
-/-- **Alpha-equivalence** (binder names and infos, a `let`'s `nonDep`
-ignored; everything else exact): con-leche's expression equality, whose
-terms carry no binder names, and official's C++ `operator==`.  A
-memoised pair walk, pointer-first. -/
-def alphaEqGo : Expr → Expr → Std.HashMap (Expr × Expr) Bool → Bool × Std.HashMap (Expr × Expr) Bool
-  | a, b, memo =>
-    if Expr.beqI a b then (true, memo) else
-    match memo[(a, b)]? with
-    | some r => (r, memo)
-    | none =>
-      let (r, memo) : Bool × Std.HashMap (Expr × Expr) Bool := match a, b with
-        | .app f x, .app g y =>
-          let (r, memo) := alphaEqGo f g memo
-          if r then alphaEqGo x y memo else (false, memo)
-        | .lam _ t c _, .lam _ t' c' _ | .forallE _ t c _, .forallE _ t' c' _ =>
-          let (r, memo) := alphaEqGo t t' memo
-          if r then alphaEqGo c c' memo else (false, memo)
-        | .letE _ t v c _, .letE _ t' v' c' _ =>
-          let (r, memo) := alphaEqGo t t' memo
-          if !r then (false, memo) else
-          let (r, memo) := alphaEqGo v v' memo
-          if r then alphaEqGo c c' memo else (false, memo)
-        | .proj s i x, .proj s' i' x' =>
-          if s == s' && i == i' then alphaEqGo x x' memo else (false, memo)
-        | _, _ => (false, memo)
-      (r, memo.insert (a, b) r)
-
-/-- Alpha-equivalence up to `mdata` (both sides stripped first, so
-no `KVMap`/`Syntax` equality — core's `Syntax.structEq` is opaque — is
-consulted; con-leche's terms carry no `mdata`). -/
-def alphaEq (a b : Expr) : Bool := (alphaEqGo (stripMData a) (stripMData b) {}).1
-
-end Lean.Kernel.InLean.EO

@@ -13,9 +13,10 @@ public import Lean.Kernel.InLean.Basic
 /-!
 # InLean: the Nat-operation pin variants
 
-InLean embeds the **same dumps** con-leche splices (`pins/<toolchain>.json`, `ConLeche/Kernel/NatOpPins.lean`,
+InLean does not import ConLeche, so it embeds the **same dumps**
+con-leche splices (one JSON file per toolchain, `ConLeche.Kernel.NatOpPins`,
 in the same order) with `include_str`, and decodes their share tables
-(`ConLeche/PinGen/Dump.lean`'s encoding) into `Lean.Expr` when a
+(`ConLeche.PinGen.Dump`'s encoding) into `Lean.Expr` when a
 pin-certified operation is declared — eight times per run, so the decode
 is not memoised.  Binder names are anonymous: the pins are compared by
 definitional equality.  Nothing here is generated from the compiling
@@ -131,7 +132,7 @@ def pinSet (s : String) : Except String PinSet := do
 
 end PinDecode
 
-/-- The committed dumps, in con-leche's order (the repository toolchain's
+/-- The dumps, in con-leche's order (the dump of con-leche's toolchain
 first). -/
 def pinDumpTexts : Array String := #[
   include_str "pins/leanprover-lean4-nightly-nightly-2026-09-10.json",

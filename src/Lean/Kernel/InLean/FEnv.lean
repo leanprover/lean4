@@ -12,9 +12,9 @@ public import Lean.Kernel.InLean.StateC
 /-!
 # InLean: the environment, read at use
 
-Twin of `ConLeche/Kernel/FEnv.lean` over `Lean.Kernel.Environment`.  What
+Twin of `ConLeche.Kernel.FEnv` over `Lean.Kernel.Environment`.  What
 con-leche's install computes from a declaration group and stores beside
-the constants (`ConLeche/Kernel/Install.lean`: `IndCaps`, a recursor's
+the constants (`ConLeche.Kernel.Install`: `IndCaps`, a recursor's
 counts and the firing mode of its rules, the projection tables) is read
 here off Lean's own entry, when a check asks for it.  Nothing is stored
 and nothing is memoised:
@@ -37,10 +37,17 @@ and nothing is memoised:
   with no substitution, since substituting never makes or removes a
   binder.  The entry carries no body: only inference reads one, and builds
   just that field's (`projBodyAt`).
+* **What a check sees** (`FEnv.sees`): not `sorryAx`
+  at con-leche's axiom policy, and in the check of a safe declaration no
+  `unsafe` or `partial` constant.  Freshness is read off Lean's environment
+  itself, as official's `check_name`.
+* **The block being checked** (`FEnv.pending`): inside an inductive block's
+  job, a member reads as master's staged environments hold it (its
+  capabilities at the shape's field count, no projection table).
 * **The quotient package** (`Quot`, `Quot.mk`, `Quot.lift`, `Quot.ind`):
   con-leche stores its pins at the record's level names (`quotAt`); here
   Lean's own types, which the quotient's check compares with the pins, and
-  the pins' rules (`quotRuleRhs`, `Lean/Kernel/InLean/Pins.lean`'s twins).
+  the pins' rules (`quotRuleRhs`, `Lean.Kernel.InLean.Pins`'s twins).
 -/
 
 @[expose] public section
@@ -61,12 +68,58 @@ structure FEnv where
   constant (con-leche installs nothing for it, `declConstants`), so any use
   declines.  `true`, the official kernel's, what Lean needs for ordinary
   use: `sorryAx` is the constant Lean stores, and a certified `Nat`
-  operation's name may hold any declaration. -/
+  operation's name may hold an axiom (`checkAxiomC`). -/
   coreAxioms : Bool := false
+  /-- **The inductive block being checked** (empty outside its job): each
+  member's name with its one constructor's field count as the block's shape
+  reads it (`0` for a member with another number of constructors).  Master's
+  job runs its stages at environments built from the shape (`consBlockIndsF`
+  pushes each former at `blockCapsAt`; no projection table exists until the
+  block's install); InLean's at-use readers read a marked member as those
+  environments do: its capabilities at the shape's field count (`capsOf`), no
+  projection table (`findProj?`, `hasTable`, `tableFields?`).  Set where the
+  formers are pushed (`checkBlockIndsF`); the job's environments are dropped
+  with it, so the installed block is read off its entries. -/
+  pending : List (Name × Nat) := []
 
-/-- Twin of `FEnv.find?`. -/
+/-- Is a constant safe (neither `unsafe` nor `partial`)? -/
+def safeConst : ConstantInfo → Bool
+  | .defnInfo v => match v.safety with
+    | .safe => true
+    | _ => false
+  | ci => !ci.isUnsafe
+
+/-- **Does a check at `fe` see the constant `ci` stored at `n`?**  Not
+`sorryAx` unless `coreAxioms` (con-leche installs nothing for it); in the
+check of a safe declaration, no `unsafe` or `partial` constant (con-leche
+checks no such declaration, and official rejects a safe declaration using
+one: only the message differs, "unknown constant"). -/
+@[inline] def FEnv.sees (fe : FEnv) (n : Name) (ci : ConstantInfo) : Bool :=
+  !(n == sorryAxName && !fe.coreAxioms) &&
+    match fe.safety with
+    | .safe => safeConst ci
+    | _ => true
+
+/-- Twin of `FEnv.find?`: the constants the check sees (`FEnv.sees`).  A
+name's freshness is read off the environment itself (`fe.env.find?`), as
+official's. -/
 @[inline] def FEnv.find? (fe : FEnv) (n : Name) : Option ConstantInfo :=
-  if n == sorryAxName && !fe.coreAxioms then none else fe.env.find? n
+  match fe.env.find? n with
+  | some ci => if fe.sees n ci then some ci else none
+  | none => none
+
+/-- The field count a marked member's capabilities are read at
+(`FEnv.pending`). -/
+def FEnv.pendingFields? (fe : FEnv) (T : Name) : Option Nat :=
+  go fe.pending
+where
+  go : List (Name × Nat) → Option Nat
+    | [] => none
+    | (n, k) :: rest => if n == T then some k else go rest
+
+/-- Is `T` a member of the block being checked? -/
+@[inline] def FEnv.isPending (fe : FEnv) (T : Name) : Bool :=
+  (fe.pendingFields? T).isSome
 
 /-! ## Inductives -/
 
@@ -84,14 +137,23 @@ structure IndCaps where
   ctors : List Name := []
   deriving Inhabited
 
+/-- The field count of a former's one constructor `c`: the shape's for a
+member of the block being checked (`FEnv.pending`), else the stored
+constructor's. -/
+def FEnv.fieldsOf (fe : FEnv) (v : InductiveVal) (c : Name) : Nat :=
+  match fe.pendingFields? v.name with
+  | some nF => nF
+  | none =>
+    match fe.find? c with
+    | some (.ctorInfo cv) => cv.numFields
+    | _ => 0
+
 /-- **Twin of `blockCapsAt`**, read off the `InductiveVal` and its one
-constructor. -/
-def capsOf (env : Kernel.Environment) (v : InductiveVal) : IndCaps :=
+constructor's field count (`FEnv.fieldsOf`). -/
+def capsOf (fe : FEnv) (v : InductiveVal) : IndCaps :=
   match v.ctors with
   | [c] =>
-    let nF := match env.find? c with
-      | some (.ctorInfo cv) => cv.numFields
-      | _ => 0
+    let nF := fe.fieldsOf v c
     { eta := v.numIndices == 0 && !v.isRec
       etaCtor := c
       etaParams := v.numParams
@@ -108,7 +170,7 @@ def capsOf (env : Kernel.Environment) (v : InductiveVal) : IndCaps :=
 former and its capabilities, or `Quot` (the pin's empty capabilities). -/
 def FEnv.indView? (fe : FEnv) (n : Name) : Option (ConstantVal × IndCaps) :=
   match fe.find? n with
-  | some (.inductInfo v) => some (v.toConstantVal, capsOf fe.env v)
+  | some (.inductInfo v) => some (v.toConstantVal, capsOf fe v)
   | some (.quotInfo q) => if q.kind == .type then some (q.toConstantVal, {}) else none
   | _ => none
 
@@ -122,16 +184,16 @@ def FEnv.ctorView? (fe : FEnv) (n : Name) : Option (ConstantVal × Nat × Nat) :
 
 /-- Twin of `isCtorAppC`. -/
 def isCtorAppC (fe : FEnv) (e : Expr) : Bool :=
-  match e.getAppFn with
+  match e.getAppFnT with
   | .const cn _ => (fe.ctorView? cn).isSome
   | _ => false
 
 /-- Twin of `etaCtorShapeC`. -/
 def etaCtorShapeC (fe : FEnv) (e : Expr) : Bool :=
-  match e.getAppFn with
+  match e.getAppFnT with
   | .const c _ =>
     match fe.ctorView? c with
-    | some (_, cnP, cnF) => e.getAppNumArgs == cnP + cnF
+    | some (_, cnP, cnF) => e.getAppNumArgsT == cnP + cnF
     | none => false
   | _ => false
 
@@ -147,7 +209,7 @@ def etaCtorShapeC (fe : FEnv) (e : Expr) : Bool :=
 /-- Twin of `headHintC`.  con-leche's hints are `opaque`/`abbrev`/`regular
 h`, Lean's the same. -/
 def headHintC (fe : FEnv) (e : Expr) : ReducibilityHints :=
-  match e.getAppFn with
+  match e.getAppFnT with
   | .const nm _ =>
     match fe.defnView? nm with
     | some (_, _, hint) => hint
@@ -156,7 +218,7 @@ def headHintC (fe : FEnv) (e : Expr) : ReducibilityHints :=
 
 /-- Twin of `unfoldableHeadC`. -/
 def unfoldableHeadC (fe : FEnv) (e : Expr) : Bool :=
-  match e.getAppFn with
+  match e.getAppFnT with
   | .const nm us =>
     match fe.defnView? nm with
     | some (cv, _, _) => us.length == cv.levelParams.length
@@ -217,6 +279,7 @@ def FEnv.recView? (fe : FEnv) (quotRhs : QuotVal → Expr) (n : Name) : Option R
 def piBody? : Nat → Expr → Option Expr
   | 0, e => some e
   | n + 1, .forallE _ _ b _ => piBody? n b
+  | n + 1, .mdata _ e => piBody? (n + 1) e
   | _, _ => none
 
 /-- Twin of `Expr.dropVars`: `n` variables below a term's own, which do not
@@ -231,14 +294,14 @@ container, the parameters moved from under the index binders to the rule
 prefix; the quotient eliminators fire at their first level (`.levels`). -/
 def recFireAt (rv : RecursorVal) (isQuot : Bool) : RecRuleFire :=
   if isQuot then .levels [.param (rv.levelParams.headD .anonymous)] else
-  match piBody? (majorIdxOf rv) rv.type with
+  match (piBody? (majorIdxOf rv) rv.type).map EO.stripTop with
   | some (.forallE _ dom _ _) =>
-    match dom.getAppFn with
+    match dom.getAppFnT with
     | .const T us =>
       if rv.all.contains T then .plain
       else
         let nI := majorIdxOf rv - rulePrefixOf rv
-        let args := dom.getAppArgs.toList
+        let args := dom.getAppArgsT.toList
         .nested us ((args.take (args.length - nI)).map (dropVars nI))
     | _ => .plain
   | _ => .plain
@@ -272,15 +335,19 @@ structure ProjEntry where
 def hasPis : Nat → Expr → Bool
   | 0, _ => true
   | n + 1, .forallE _ _ b _ => hasPis n b
+  | n + 1, .mdata _ e => hasPis (n + 1) e
   | _, _ => false
 
 /-- **Twin of `FEnv.findProj?`**: the table of `T` exists exactly where
 con-leche's install stores one (`blockTables`: one constructor, no index,
 `structProjBodies` succeeds, i.e. the constructor's type binds the
-parameters and the fields), and field `i` is below the field count. -/
+parameters and the fields), and field `i` is below the field count; a
+member of the block being checked has none (`FEnv.pending`: master's job
+installs no table before the block's install). -/
 def FEnv.findProj? (fe : FEnv) (T : Name) (i : Nat) : Option ProjEntry :=
   match fe.find? T with
   | some (.inductInfo v) =>
+    if fe.isPending v.name then none else
     match v.ctors with
     | [c] =>
       if v.numIndices == 0 then
@@ -298,6 +365,7 @@ def FEnv.findProj? (fe : FEnv) (T : Name) (i : Nat) : Option ProjEntry :=
 def FEnv.hasTable (fe : FEnv) (T : Name) : Bool :=
   match fe.find? T with
   | some (.inductInfo v) =>
+    !fe.isPending v.name &&
     match v.ctors with
     | [c] =>
       v.numIndices == 0 &&
@@ -315,15 +383,17 @@ def projBodyAt (T : Name) (nP i : Nat) (cty : Expr) : Option Expr :=
   let rec params : Nat → Expr → Option Expr
     | k, e =>
       if k < nP then
-        match e with
+        match EO.stripTop (e) with
         | .forallE _ _ b _ => params (k + 1) (b.inst1I (.bvar (nP - k)))
         | _ => none
       else some e
     termination_by k => nP - k
   let rec fields : Nat → Expr → Option Expr
-    | j, .forallE _ d b _ =>
-      if j < i then fields (j + 1) (b.inst1I (.proj T j (.bvar 0))) else some d
-    | _, _ => none
+    | j, e =>
+      match EO.stripTop e with
+      | .forallE _ d b _ =>
+        if j < i then fields (j + 1) (b.inst1I (.proj T j (.bvar 0))) else some d
+      | _ => none
     termination_by j => i - j
   (params 0 cty).bind (fields 0)
 
@@ -334,17 +404,93 @@ def structProjBodies (T : Name) (nP nF : Nat) (cty : Expr) : Option (Array Expr)
     (List.range nF).toArray.mapM fun i => projBodyAt T nP i cty
   else none
 
+/-- **Every projection body of `T`'s table is in range** (`EO.inRange`), the
+table read as `findProj?` reads it.  Not a twin: `projBodyAt` instantiates
+the parameters by `bvar`s, lifted unchecked, so a constructor type in range
+can yield a body past C's bound (a binder nest about 10^6 deep); the
+inductive check refuses that as an internal error (`checkInductiveC`), as
+abstraction's range poison is one. -/
+def FEnv.projBodiesInRange (fe : FEnv) (T : Name) : Bool :=
+  match fe.find? T with
+  | some (.inductInfo v) =>
+    match v.ctors with
+    | [c] =>
+      if v.numIndices == 0 then
+        match fe.find? c with
+        | some (.ctorInfo cv) =>
+          if hasPis (v.numParams + cv.numFields) cv.type then
+            (List.range cv.numFields).all fun i =>
+              match projBodyAt T v.numParams i cv.type with
+              | some b => EO.inRange b
+              | none => true
+          else true
+        | _ => true
+      else true
+    | _ => true
+  | _ => true
+
+/-- Every input of `projBodyAt`'s parameter loop is in range (`EO.inRange`). -/
+def paramsOkB (nP : Nat) (k : Nat) (e : Expr) : Bool :=
+  EO.inRange e && (if k < nP then
+    match EO.stripTop e with
+    | .forallE _ _ b _ => paramsOkB nP (k + 1) (b.inst1I (.bvar (nP - k)))
+    | _ => true
+  else true)
+termination_by nP - k
+
+/-- Every input of `projBodyAt`'s field loop (towards field `i`) is in range. -/
+def fieldsOkB (T : Name) (i : Nat) (j : Nat) (e : Expr) : Bool :=
+  EO.inRange e && (match EO.stripTop e with
+    | .forallE _ _ b _ => if j < i then fieldsOkB T i (j + 1) (b.inst1I (.proj T j (.bvar 0)))
+      else true
+    | _ => true)
+termination_by i - j
+
+/-- **Every intermediate term of `projBodyAt T nP i cty` is in range**, and so
+is the largest parameter variable.  `projBodiesInRange` reads the final
+bodies only; an intermediate term can leave C's range while the final body
+is back in it (a parameter reference under `d` binders is `bvar (nP - k + d)`
+after its parameter's step and is lowered by each field step after it), and
+`mkData` aborts there.  The steps towards field `i` are a prefix of those
+towards any later field, so the last field's test covers them all. -/
+def projStepsOk (T : Name) (nP i : Nat) (cty : Expr) : Bool :=
+  decide (nP ≤ EO.maxBVarIdx) && paramsOkB nP 0 cty &&
+    match projBodyAt.params nP 0 cty with
+    | some r => fieldsOkB T i 0 r
+    | none => true
+
+/-- **`projStepsOk` for every structure of a generated block**: for each
+one-constructor former of `consts` and its constructor in `consts`, the
+steps towards the last field.  The inductive check refuses a block failing
+it as an internal error (`checkInductiveC`), beside `projBodiesInRange`. -/
+def projStepsAllOk (consts : Array ConstantInfo) : Bool :=
+  consts.all fun ci =>
+    match ci with
+    | .inductInfo v =>
+      match v.ctors with
+      | [c] =>
+        consts.all fun cj =>
+          match cj with
+          | .ctorInfo cv =>
+            cv.name != c || cv.numFields == 0 ||
+              projStepsOk v.name v.numParams (cv.numFields - 1) cv.type
+          | _ => true
+      | _ => true
+    | _ => true
+
 /-- Twin of `ProjEntry.typeAtI`: the body at the levels, the subject type's
 arguments and the subject. -/
 def ProjEntry.typeAtI (entry : ProjEntry) (us : List Level) (targs : List Expr) (pe : Expr) :
     Option Expr :=
-  (projBodyAt entry.structName entry.numParams entry.idx entry.ctorType).map fun body =>
-    (body.instLvlParamsI entry.levelParams us).instI (#[pe] ++ targs.toArray.reverse)
+  (projBodyAt entry.structName entry.numParams entry.idx entry.ctorType).bind fun body =>
+    (EO.instLevelParamsChecked? body entry.levelParams us).map
+      (·.instI (#[pe] ++ targs.toArray.reverse))
 
 /-- The field count of `T`'s table, where it has one. -/
 def FEnv.tableFields? (fe : FEnv) (T : Name) : Option Nat :=
   match fe.find? T with
   | some (.inductInfo v) =>
+    if fe.isPending v.name then none else
     match v.ctors with
     | [c] =>
       if v.numIndices == 0 then

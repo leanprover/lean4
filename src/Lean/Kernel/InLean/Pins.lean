@@ -13,12 +13,12 @@ public import Lean.Kernel.InLean.Basic
 # InLean: the pinned shapes
 
 Twins of con-leche's hand-written pins, spelled with the
-same builder (`ConLeche/Kernel/Basis/Builder.lean`), now producing
-`Lean.Expr`: the quotient block (`Basis/Quot.lean`), the `Nat` and `Bool`
-types (`Basis/Nat.lean`), the standard axioms
-(`StdAxioms.lean`), the compiler-trust family (`TrustAxioms.lean`,
-`TrustPins.lean`) and the Nat operations' certificate statements
-(`natOpEquations`, `divModCertStmts`, `Checker.lean`).  A pin is compared
+same builder (`ConLeche.Kernel.Basis.Builder`), now producing
+`Lean.Expr`: the quotient block (`ConLeche.Kernel.Basis.Quot`), the `Nat` and `Bool`
+types (`ConLeche.Kernel.Basis.Nat`), the standard axioms
+(`ConLeche.Kernel.StdAxioms`), the compiler-trust family (`ConLeche.Kernel.TrustAxioms`,
+`ConLeche.Kernel.TrustPins`) and the Nat operations' certificate statements
+(`natOpEquations`, `divModCertStmts`, `ConLeche.Kernel.Checker`).  A pin is compared
 with Lean's constant by `==`, alpha-equivalence (binder names and infos
 ignored), so the builder's binder names are for display only.
 -/
@@ -77,19 +77,29 @@ def canonAt (lps pinLps : List Name) (ty : Expr) : Expr :=
 /-- Twin of `ConstantVal.matchesPin` up to `canon`. -/
 def Pin.matches (p : Pin) (ci : ConstantInfo) : Bool :=
   ci.name == p.name && ci.levelParams.length == p.lps.length &&
-    EO.alphaEq (canonAt ci.levelParams p.lps ci.type) p.type
+    Expr.clEq (canonAt ci.levelParams p.lps ci.type) p.type
 
 /-- `Pin.matches` on a declaration's own name, levels and type. -/
 def Pin.matchesDecl (p : Pin) (n : Name) (lps : List Name) (ty : Expr) : Bool :=
-  n == p.name && lps.length == p.lps.length && EO.alphaEq (canonAt lps p.lps ty) p.type
+  n == p.name && lps.length == p.lps.length && Expr.clEq (canonAt lps p.lps ty) p.type
+
+/-- Twin of `ConstantVal.matchesPin` itself (the standard axioms' and the
+compiler-trust family's guards): the name, the level parameters *as named*, and
+the type (up to `mdata` and binder data, which con-leche's reading drops). -/
+def Pin.matchesDeclExact (p : Pin) (n : Name) (lps : List Name) (ty : Expr) : Bool :=
+  n == p.name && lps == p.lps && Expr.clEq ty p.type
+
+/-- `Pin.matchesDeclExact` on a stored constant. -/
+def Pin.matchesExact (p : Pin) (ci : ConstantInfo) : Bool :=
+  p.matchesDeclExact ci.name ci.levelParams ci.type
 
 /-! ## The `Nat` and `Bool` types the guards look up (the basis blocks are
-`Lean/Kernel/InLean/Inductives/Basis.lean`'s) -/
+`Lean.Kernel.InLean.Inductives.Basis`'s) -/
 
 def natPin : Pin := ⟨natName, [], type1⟩
 def boolPin : Pin := ⟨boolName, [], type1⟩
 
-/-! ## The quotient block (twin of `Basis/Quot.lean`) -/
+/-! ## The quotient block (twin of `ConLeche.Kernel.Basis.Quot`) -/
 
 def quotRel : Expr := piA (bv 0) (piA (bv 1) prop)
 
@@ -136,7 +146,15 @@ def quotSoundPin : Pin := ⟨quotSoundName, [uN],
     (ap3 (cnst quotMkName [u]) (bv 4) (bv 3) (bv 2))
     (ap3 (cnst quotMkName [u]) (bv 4) (bv 3) (bv 1))⟩
 
-/-! ## The standard axioms (twin of `StdAxioms.lean`) -/
+/-- Twin of `quotPinHit .sound`: one level parameter, and the type the pin's
+at that name (the pin instantiated at the declaration's levels, not the
+declaration's type at the pin's: that reading would accept a type mentioning
+an undeclared `u` beside its own parameter). -/
+def quotSoundHit (n : Name) (lps : List Name) (ty : Expr) : Bool :=
+  n == quotSoundName && lps.length == 1 &&
+    Expr.clEq ty (quotSoundPin.type.instLvlParamsI quotSoundPin.lps (lps.map .param))
+
+/-! ## The standard axioms (twin of `ConLeche.Kernel.StdAxioms`) -/
 
 def propextName : Name := `propext
 def choiceName : Name := `Classical.choice
@@ -173,7 +191,7 @@ def nonemptyRecPin : Pin := ⟨nonemptyRecName, [uN],
 def choicePin : Pin := ⟨choiceName, [uN],
   pi "α" (srt u) <| piA (.app (cnst nonemptyName [u]) (bv 0)) (bv 1)⟩
 
-/-! ## The compiler-trust family (twin of `TrustAxioms.lean`/`TrustPins.lean`) -/
+/-! ## The compiler-trust family (twin of `ConLeche.Kernel.TrustAxioms`/`ConLeche.Kernel.TrustPins`) -/
 
 def trueName : Name := `True
 def trueIntroName : Name := `True.intro

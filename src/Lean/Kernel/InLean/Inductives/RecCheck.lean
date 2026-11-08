@@ -12,9 +12,9 @@ public import Lean.Kernel.InLean.Inductives.ClassRead
 /-!
 # InLean's inductive check: the recursors' targets
 
-Twin of `ConLeche/Kernel/Inductives/RecCheck.lean` (each class's major, the
+Twin of `ConLeche.Kernel.Inductives.RecCheck` (each class's major, the
 recursor records' pins, the generated rules and K flag) and of
-`BlockRec.lean`'s `blockLargeElimAllowed`.
+`ConLeche.Kernel.Inductives.BlockRec`'s `blockLargeElimAllowed`.
 -/
 
 @[expose] public section
@@ -125,11 +125,11 @@ def targetOutsideInst (ops : CheckerOps) (fe : FEnv) (I : Name) (us : List Level
   let some (cvI, capsI) := fe.indView? I
     | throw (.invalid "target rec: the recursor's major is not a stored inductive")
   let tyI ← familyTelescope ops fe cvI capsI
-  let some ty := instPisWith ds (tyI.instLvlParamsI cvI.levelParams us)
+  let some ty := instPisWith ds (← instLevelParamsM cvI.levelParams us tyI)
     | throw (.invalid "target rec: the major's type former does not bind its parameters \
         (official: ill-formed inductive type)")
   let (ibs, s) := piBinders ty
-  let .sort s := s
+  let .sort s := EO.stripTop s
     | throw (.invalid "target rec: the major's type former is not a telescope ending in a \
         sort (official: type expected)")
   pure (ibs.length, s)
@@ -138,7 +138,7 @@ def targetOutsideInst (ops : CheckerOps) (fe : FEnv) (I : Name) (us : List Level
 def targetMajorOf (ops : CheckerOps) (fe : FEnv) (p : BlockShape) (pfvs fvs : List Expr)
     (mty : Expr) : CheckCM TargetMajor := do
   let args := appArgs mty
-  match mty.getAppFn with
+  match mty.getAppFnT with
   | .const I us =>
     match p.memberNames.findIdx? (· == I) with
     | some t => do
@@ -189,8 +189,8 @@ def targetRecPins (p : BlockShape) (block : List ConstantInfo) : CheckCM Unit :=
   unless blockRecLpsOk p do
     throw (.invalid "target rec: the recursor's level parameters are not the generated ones")
   unless blockRecNamesUnreserved p do
-    throw (.invalid "target rec: a recursor is named for a pinned basis constant, a literal \
-      guard's slot or a certified Nat operation")
+    throw (.invalid "target rec: a recursor is named for a literal guard's slot or a certified \
+      Nat operation")
   let own := p.recs.filter fun rc => rc.tgt < p.k
   let aux := p.recs.filter fun rc => !(rc.tgt < p.k)
   unless blockRecNameSetOk { p with recs := own } do
@@ -214,10 +214,10 @@ def targetRecPins (p : BlockShape) (block : List ConstantInfo) : CheckCM Unit :=
   | none => throw (.invalid "target rec: the block does not split")
 
 /-- Twin of `targetCtorAt`. -/
-def targetCtorAt (M : TargetMajor) (c : ConstantVal) : Expr :=
+def targetCtorAt (M : TargetMajor) (c : ConstantVal) : CheckCM Expr :=
   match M.member with
-  | some _ => c.type
-  | none => c.type.instLvlParamsI c.levelParams M.lvls
+  | some _ => pure c.type
+  | none => instLevelParamsM c.levelParams M.lvls c.type
 
 /-- Twin of `targetK53`. -/
 def targetK53 (ops : CheckerOps) (env : FEnv) (p : BlockShape) (formerTys : List Expr)
@@ -227,9 +227,9 @@ def targetK53 (ops : CheckerOps) (env : FEnv) (p : BlockShape) (formerTys : List
   | some (teleW, leafW) =>
     if (← teleW.mapM eraseFVarTys) != (← tele.mapM eraseFVarTys) then pure false
     else
-      match leafW.getAppFn, majDom.getAppFn with
+      match leafW.getAppFnT, majDom.getAppFnT with
       | .const I' us', .const I _ =>
-        if I' == I && leafW.getAppNumArgs == majDom.getAppNumArgs &&
+        if I' == I && leafW.getAppNumArgsT == majDom.getAppNumArgsT &&
             (← ((appArgs leafW).drop Mc.nPc).mapM eraseFVarTys)
               == (← ((appArgs majDom).drop Mc.nPc).mapM eraseFVarTys) &&
             nestOcc p.memberNames 0 0 (mkAppL (.const I' us') ((appArgs leafW).take Mc.nPc)) then
@@ -279,7 +279,7 @@ def isNeverZero : Level → Bool
   | .imax _ b => isNeverZero b
   | .param _ | .mvar _ => false
 
-/-- Twin of `blockLargeElimAllowed` (`BlockRec.lean`). -/
+/-- Twin of `blockLargeElimAllowed` (`ConLeche.Kernel.Inductives.BlockRec`). -/
 def blockLargeElimAllowed (p : BlockShape) (nested : Bool) : Bool :=
   isNeverZero p.resSort ||
     (p.large && p.k == 1 && !nested && (p.numCtors == 0 || p.numCtors == 1))

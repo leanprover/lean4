@@ -13,8 +13,8 @@ public import Lean.Kernel.InLean.CheckerC
 /-!
 # InLean's inductive check: the block job
 
-Twin of `ConLeche/Kernel/Inductives/BlockTail.lean` and of its cached
-instantiation in `ConLeche/Cached/CheckerC.lean` (`sharedOpsC`,
+Twin of `ConLeche.Kernel.Inductives.BlockTail` and of its cached
+instantiation in `ConLeche.Cached.CheckerC` (`sharedOpsC`,
 `shadowOpsC`, `checkBlockPassS`, `checkBlockTailS`, `reduceMembersS`,
 `checkBlockKS`): the members reduced, the formers and constructors checked,
 the classes read, nested positivity and its seeds, the index sorts, every

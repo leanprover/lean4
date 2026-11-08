@@ -14,10 +14,10 @@ public import Lean.Kernel.InLean.ExprOps
 # InLean: modes, errors, names, levels
 
 The fuel-free basics of con-leche's checker, ported onto
-`Lean.Level`/`Lean.Name`: the mode (`ConLeche/Kernel/Env.lean`'s
+`Lean.Level`/`Lean.Name`: the mode (`ConLeche.Kernel.Env`'s
 `CheckMode`), the error kinds (`CheckError`), the zero-ness datum
-(`ConLeche/Kernel/PropWhen.lean`) and the level operations
-(`ConLeche/Kernel/Level.lean`: `simplify`, the `leqCore` cascade,
+(`ConLeche.Kernel.PropWhen`) and the level operations
+(`ConLeche.Kernel.Level`: `simplify`, the `leqCore` cascade,
 `isEquiv`, `zeronessOf`, `substPW`).
 
 Level metavariables never reach the kernel (`addDecl` rejects them up
@@ -79,7 +79,7 @@ namespace PropWhen
   | .never => true
   | .ifAllZero _ => false
 
-/-- Twin of `PropWhen.isProp` (`ConLeche/Kernel/PropRead.lean`). -/
+/-- Twin of `PropWhen.isProp` (`ConLeche.Kernel.PropRead`). -/
 @[inline] def isProp : PropWhen → Bool
   | .ifAllZero [] => true
   | _ => false
@@ -99,7 +99,7 @@ def bindZ (f : Name → PropWhen) : PropWhen → PropWhen
 
 end PropWhen
 
-/-! ## Levels (twin of `ConLeche/Kernel/Level.lean`) -/
+/-! ## Levels (twin of `ConLeche.Kernel.Level`) -/
 
 namespace Lvl
 
@@ -280,7 +280,7 @@ def natDivModNames : List Name :=
   [natDivName, natModName, natGcdName, natLandName, natLorName,
    natXorName, natShiftLeftName, natShiftRightName]
 
-/-- Twin of `reservedBasisNames` (`ConLeche/Kernel/Basis/Names.lean`):
+/-- Twin of `reservedBasisNames` (`ConLeche.Kernel.Basis.Names`):
 the pinned basis blocks' constants. -/
 def reservedBasisNames : List Name :=
   [`Eq, `Eq.refl, `Eq.rec, `Nat, `Nat.zero, `Nat.succ, `Nat.rec,

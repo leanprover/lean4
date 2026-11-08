@@ -13,7 +13,7 @@ public import Lean.Kernel.InLean.ExprEq
 /-!
 # InLean: the per-declaration state and its operation wrappers
 
-Twin of `ConLeche/Cached/StateC.lean`: the memo caches of the five entry
+Twin of `ConLeche.Cached.StateC`: the memo caches of the five entry
 points (the plain tower's in their own fields, the eager tower's in
 `eagerMemos`), the stored-constant caches, the level-operation memos and
 the bulk-instantiation memo, each written in the linear-update discipline
@@ -24,10 +24,10 @@ con-leche's monad, `StateT CState CheckM`.
 its type, both in the node (`.fvar d ty`).  A `Lean.Expr` free variable is
 an id, so the pair is interned per declaration: the id's name is
 `fvRoot.d.n` — the depth `d` readable from the id alone, so scope checks
-stay pure (`Expr.wscopedBC`) — and `n` numbers the pair, whose type is
-`CState.fvTys[n]`.  Equal pairs give the same id, so a term opened twice at
-the same depth with the same type is the same term, as in con-leche, and
-the memos hit as they do there.
+stay pure (`Expr.wscopedBC`) — and `n` numbers the pair's class: types equal
+by `Expr.clEq` (what con-leche's type would be equal for) share it, and
+`CState.fvTys[n]` is the class's first type.  So a term opened twice at the
+same depth with the same type is the same term, as in con-leche.
 -/
 
 @[expose] public section
@@ -38,33 +38,36 @@ open Lean
 
 /-! ## The state -/
 
-/-- Twin of `ModeMemos`. -/
+/-- Twin of `ModeMemos` (keys by `Expr.keyEq`, `EKey`). -/
 structure ModeMemos where
-  whnfCoreC : Std.HashMap Expr Expr := {}
-  whnfCoreCheapC : Std.HashMap Expr Expr := {}
-  whnfC : Std.HashMap Expr Expr := {}
-  inferC : Std.HashMap Expr Expr := {}
-  inferIOC : Std.HashMap Expr Expr := {}
-  defeqC : Std.HashMap (Expr × Expr) Bool := {}
+  whnfCoreC : Std.HashMap EKey Expr := {}
+  whnfCoreCheapC : Std.HashMap EKey Expr := {}
+  whnfC : Std.HashMap EKey Expr := {}
+  inferC : Std.HashMap EKey Expr := {}
+  inferIOC : Std.HashMap EKey Expr := {}
+  defeqC : Std.HashMap (EKey × EKey) Bool := {}
 
 /-- Twin of `CState`, with the free-variable table. -/
 structure CState where
   constTyAt : Std.HashMap (Name × List Level) Expr := {}
   constValAt : Std.HashMap (Name × List Level) Expr := {}
   ruleRhsAt : Std.HashMap (Name × Name × List Level) Expr := {}
-  whnfCoreC : Std.HashMap Expr Expr := {}
-  whnfCoreCheapC : Std.HashMap Expr Expr := {}
-  whnfC : Std.HashMap Expr Expr := {}
-  inferC : Std.HashMap Expr Expr := {}
-  inferIOC : Std.HashMap Expr Expr := {}
-  defeqC : Std.HashMap (Expr × Expr) Bool := {}
+  whnfCoreC : Std.HashMap EKey Expr := {}
+  whnfCoreCheapC : Std.HashMap EKey Expr := {}
+  whnfC : Std.HashMap EKey Expr := {}
+  inferC : Std.HashMap EKey Expr := {}
+  inferIOC : Std.HashMap EKey Expr := {}
+  defeqC : Std.HashMap (EKey × EKey) Bool := {}
   lsimpC : Std.HashMap Level Level := {}
   eqvC : Std.HashMap (Level × Level) Bool := {}
-  instC : Std.HashMap (Expr × List Expr) Expr := {}
+  instC : Std.HashMap InstKey Expr := {}
   eagerMemos : ModeMemos := {}
-  /-- `(depth, type)` ↦ the pair's number. -/
-  fvTab : Std.HashMap (Nat × Expr) Nat := {}
-  /-- Per number: the free variable's type. -/
+  /-- `(depth, type)` ↦ the variable's number, by `keyEq` (the fast path). -/
+  fvSeen : Std.HashMap (Nat × EKey) Nat := {}
+  /-- `(depth, clHash type)` ↦ the numbers of that hash, each a distinct
+  `clEq`-class of types. -/
+  fvCls : Std.HashMap (Nat × UInt64) (List Nat) := {}
+  /-- Per number: the free variable's type (its class's first member). -/
   fvTys : Array Expr := #[]
 
 instance : Inhabited CState := ⟨{}⟩
@@ -92,17 +95,29 @@ def peelFuel : Nat := 16777216
   | _ => none
 
 /-- **Twin of the node `.fvar d ty`**: the interned free variable at depth
-`d` of type `ty`. -/
+`d` of type `ty`.  One number per depth and `Expr.clEq`-class of the type
+(con-leche's node `.fvar d ty` is one value per depth and type, and `clEq`
+equal types stand for one con-leche type): a `keyEq` hit is the fast path,
+a miss looks the class up under `EO.clHash`. -/
 def mkFVarM (d : Nat) (ty : Expr) : CheckCM Expr :=
   modifyGet fun s =>
-    match s.fvTab[(d, ty)]? with
+    match s.fvSeen[(d, EKey.mk ty)]? with
     | some n => (.fvar (fvId d n), s)
     | none =>
-      let n := s.fvTys.size
-      let tab := s.fvTab
+      let h := EO.clHash ty
+      let seen := s.fvSeen
+      let cls := s.fvCls
       let tys := s.fvTys
-      let s := { s with fvTab := {}, fvTys := #[] }
-      (.fvar (fvId d n), { s with fvTab := tab.insert (d, ty) n, fvTys := tys.push ty })
+      let s := { s with fvSeen := {}, fvCls := {}, fvTys := #[] }
+      let cands := cls.getD (d, h) []
+      match cands.find? (fun n => Expr.clEq (tys[n]?.getD ty) ty) with
+      | some n =>
+        (.fvar (fvId d n), { s with fvSeen := seen.insert (d, EKey.mk ty) n, fvCls := cls,
+                                    fvTys := tys })
+      | none =>
+        let n := tys.size
+        (.fvar (fvId d n), { s with fvSeen := seen.insert (d, EKey.mk ty) n,
+                                    fvCls := cls.insert (d, h) (n :: cands), fvTys := tys.push ty })
 
 /-- An interned free variable's type (con-leche reads it off the node). -/
 def fvarTypeM? (id : FVarId) : CheckCM (Option Expr) := do
@@ -124,14 +139,14 @@ def instListM (e : Expr) (vs : List Expr) : CheckCM Expr :=
   modifyGet fun s =>
     if !e.hasLooseBVars then (e, s)
     else
-      match s.instC[(e, vs)]? with
+      match s.instC[InstKey.mk e vs]? with
       | some r => (r, s)
       | none =>
         let mp := s.instC
         let s := { s with instC := {} }
         let mp := if mp.size < instCCapC then mp else {}
         let r := e.instI vs.toArray
-        (r, { s with instC := mp.insert (e, vs) r })
+        (r, { s with instC := mp.insert (InstKey.mk e vs) r })
 
 /-- Twin of `instListRevM`. -/
 @[inline] def instListRevM (e : Expr) (vs : Array Expr) : CheckCM Expr :=
@@ -152,14 +167,19 @@ def abstractRangeM (e : Expr) (d k : Nat) : CheckCM Expr := do
 @[inline] def mkAppNM (f : Expr) (args : List Expr) : CheckCM Expr :=
   pure (mkAppN f args.toArray)
 
-/-- Twin of `instLevelParamsM` (con-leche's non-simplifying substitution). -/
+/-- Twin of `instLevelParamsM` (con-leche's non-simplifying substitution).  A
+level past C's depth bound is an error, where C's `Level.mkData` would abort. -/
 @[inline] def instLevelParamsM (ks : List Name) (us : List Level) (e : Expr) : CheckCM Expr :=
-  pure (e.instLvlParamsI ks us)
+  match EO.instLevelParamsChecked? e ks us with
+  | some r => pure r
+  | none => throw (.internal "universe level too deep")
 
-/-- Twin of `substLevelTreesM`. -/
+/-- Twin of `substLevelTreesM` (the depth bound as `instLevelParamsM`'s). -/
 @[inline] def substLevelTreesM (ks : List Name) (us : List Level) (ls : List Level) :
     CheckCM (List Level) :=
-  pure (ls.map (Lvl.subst ks us))
+  match EO.substLevelsChecked? ks us ls with
+  | some r => pure r
+  | none => throw (.internal "universe level too deep")
 
 /-! ## Level operations -/
 

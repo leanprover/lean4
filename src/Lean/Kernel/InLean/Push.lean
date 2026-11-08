@@ -8,14 +8,16 @@ module
 prelude
 
 public import Lean.Kernel.InLean.FEnv
-/- The kernel adds checked constants with `Kernel.Environment.add` and `markQuotInit`, which are
-private to `Lean.Environment` so that nothing else bypasses the kernel. -/
+/- `Lean.Kernel.Environment.add` and `markQuotInit` are private to
+`Lean.Environment`, so that nothing else adds a constant past the kernel;
+`import all` makes them visible here.  The bodies that use them are
+therefore not exposed (`public section`, not `@[expose]`). -/
 import all Lean.Environment
 
 /-!
 # InLean: adding a constant
 
-The one place InLean writes a kernel environment: the private
+The one place InLean writes a kernel environment: core's private
 `Kernel.Environment.add` (`addConst`), and the twin of `FEnv.push`.
 -/
 
@@ -25,11 +27,12 @@ namespace Lean.Kernel.InLean
 
 open Lean
 
-/-- Add a constant to a kernel environment, unchecked (`Kernel.Environment.add`). -/
+/-- Add a constant to a kernel environment, unchecked (core's private
+`Kernel.Environment.add`). -/
 def addConst (env : Kernel.Environment) (ci : ConstantInfo) : Kernel.Environment :=
   env.add ci
 
-/-- Mark the quotient package as declared (the private `markQuotInit`). -/
+/-- Mark the quotient package as declared (core's private `markQuotInit`). -/
 def markQuot (env : Kernel.Environment) : Kernel.Environment :=
   env.markQuotInit
 

@@ -12,9 +12,9 @@ public import Lean.Kernel.InLean.Inductives.Install
 /-!
 # InLean's inductive check: positivity
 
-Twin of `ConLeche/Kernel/Inductives/Positivity.lean` (nested positivity, its
+Twin of `ConLeche.Kernel.Inductives.Positivity` (nested positivity, its
 container frames and seeds, the family telescopes) and of the positivity
-entry of `BlockInstall.lean` (`blockNestCtx`, `checkBlockPositivity`).
+entry of `ConLeche.Kernel.Inductives.BlockInstall` (`blockNestCtx`, `checkBlockPositivity`).
 Placeholder variables (`nestPhs`, the canonical substitution's) are interned
 before the pure walks that place them.
 -/
@@ -30,23 +30,28 @@ open Lean
 /-- Twin of `whnfTelescope`. -/
 def whnfTelescope (ops : CheckerOps) (env : FEnv) : Nat → Nat → Expr → CheckCM (List Expr × Level)
   | i, 0, e => do
-    match ← ops.whnf env i e with
+    match EO.stripTop (← ops.whnf env i e) with
     | .sort s => pure ([], s)
     | _ => throw (.invalid "direct sum: type former does not reduce to a sort \
         after its parameters and indices")
   | i, n + 1, e => do
-    match ← ops.whnf env i e with
+    match EO.stripTop (← ops.whnf env i e) with
     | .forallE _ dom body _ =>
       let (bs, s) ← whnfTelescope ops env (i + 1) n (body.inst1I (← mkFVarM i dom))
       pure (dom :: bs, s)
     | _ => throw (.invalid "direct sum: type former does not reduce to a telescope \
         of its parameters and indices")
 
-/-- Twin of `reducedFormer`. -/
+/-- Twin of `reducedFormer`.  The closing abstracts by depth
+(`EO.abstractDepthsFrom`), which writes `EO.rangePoison` where a bound index
+would pass C's bound: a reduct `EO.inRange` refuses is an error (as
+`abstractRangeM` reports the marker). -/
 def reducedFormer (ops : CheckerOps) (env : FEnv) (cv : ConstantVal) (n : Nat) :
     CheckCM ConstantVal := do
   let (bs, s) ← whnfTelescope ops env 0 n cv.type
-  pure { cv with type := closeTelescope bs 0 (.sort s) }
+  let ty := closeTelescope bs 0 (.sort s)
+  if EO.inRange ty then pure { cv with type := ty }
+  else throw (.internal "too many bound variables")
 
 /-- Twin of `familyTelescope`. -/
 def familyTelescope (ops : CheckerOps) (env : FEnv) (cv : ConstantVal) (caps : IndCaps) :
@@ -59,7 +64,7 @@ def familyTelescope (ops : CheckerOps) (env : FEnv) (cv : ConstantVal) (caps : I
 def checkSpineAt (ops : CheckerOps) (env : FEnv) (d : Nat) : Expr → List Expr → CheckCM Unit
   | _, [] => pure ()
   | t, a :: as =>
-    match t with
+    match EO.stripTop (t) with
     | .forallE _ ty body _ => do
       let ta ← ops.inferType env d a
       unless ← ops.isDefEq env d ta ty do
@@ -75,7 +80,7 @@ def familyKeyCheck (ops : CheckerOps) (env : FEnv) (d : Nat) (c : Name) (us : Li
     unless us.length = cv.levelParams.length do
       throw (.invalid "incorrect number of universe levels at a family's key")
     let ty ← familyTelescope ops env cv caps
-    checkSpineAt ops env d (ty.instLvlParamsI cv.levelParams us) ds
+    checkSpineAt ops env d (← instLevelParamsM cv.levelParams us ty) ds
   | none => throw (.invalid "a family's key is no stored family")
 
 /-! ## The nested walk's records -/
@@ -148,7 +153,7 @@ structure NestState where
 def nestCtorEntry (C : Name) (cv : ConstantVal) (nPc nF : Nat) : Option (ConstantVal × Nat × Nat) :=
   match stripPis (nPc + nF) cv.type with
   | some (_, body) =>
-    match body.getAppFn with
+    match body.getAppFnT with
     | .const n _ => if n == C then some (cv, nPc, nF) else none
     | _ => none
   | none => none
@@ -195,14 +200,18 @@ def nestHoleImg (ctx : NestCtx) : List NestHole → Nat → Option Expr
 /-- Twin of `Expr.phApp?`. -/
 def phApp? (b : Nat) : Expr → Nat → Option (Name × List Level)
   | .const c us, 0 => some (c, us)
-  | .app f (.fvar id), n + 1 => if EO.fvDepth? id == some (b + n) then phApp? b f n else none
+  | .mdata _ e, n => phApp? b e n
+  | .app f x, n + 1 =>
+    match EO.stripTop x with
+    | .fvar id => if EO.fvDepth? id == some (b + n) then phApp? b f n else none
+    | _ => none
   | _, _ => none
 
 /-- Twin of `Expr.replaceApps`: an application of a constant to the variables
 of depths `b … b + n - 1` replaced by `f`'s image. -/
 def replaceApps (f : Name → List Level → Option Expr) (b n : Nat) (e : Expr) : Expr :=
   EO.replace (fun x =>
-    match x with
+    match EO.stripTop (x) with
     | .app .. | .const .. => (phApp? b x n).bind fun p => f p.1 p.2
     | _ => none) e
 
@@ -248,7 +257,7 @@ def nestInstType (ctx : NestCtx) (ops : CheckerOps) (env : FEnv) (hi : Nat) (key
   unless (stripPis key.ds.length tyC).isSome do
     throw (.invalid "nested positivity: invalid nested inductive datatype, its type does \
       not bind its parameters (official: ill-formed inductive type)")
-  let ty ← unwrapOr (instPisWith key.ds (tyC.instLvlParamsI cvC.levelParams key.lvls))
+  let ty ← unwrapOr (instPisWith key.ds (← instLevelParamsM cvC.levelParams key.lvls tyC))
     (.invalid "nested positivity: invalid nested inductive datatype, its type does not bind \
       its parameters (official: ill-formed inductive type)")
   let s ← unwrapOr (match (piBinders ty).2 with
@@ -265,7 +274,7 @@ def nestInstType (ctx : NestCtx) (ops : CheckerOps) (env : FEnv) (hi : Nat) (key
   pure ((piBinders ty).1.length, ty)
 
 /-- Twin of `nestResHead`. -/
-def nestResHead (e : Expr) : Bool := e.getAppFn.isFVar
+def nestResHead (e : Expr) : Bool := e.getAppFnT.isFVar
 
 /-- The recursion a container's constructors are walked with. -/
 abbrev NestRec := List NestHole → Nat → Nat → Expr → NestState →
@@ -276,7 +285,7 @@ def nestFields (rec : NestRec) (prog : List NestHole) (base : Nat) (err : CheckE
     Nat → Nat → Expr → NestState → CheckCM (List NestFieldKind × List Expr × Expr × NestState)
   | 0, _, cur, st => pure ([], [], cur, st)
   | nF + 1, j, cur, st =>
-    match cur with
+    match EO.stripTop (cur) with
     | .forallE _ a b _ => do
       let (k, nd, st) ← rec prog (base + j) 0 a st
       let (ks, nds, res, st) ← nestFields rec prog base err nF (j + 1)
@@ -302,7 +311,7 @@ def nestCtors (ctx : NestCtx) (ops : CheckerOps) (env : FEnv) (rec : Expr → Ne
         has a duplicate universe level parameter (official: duplicate universe level \
         parameter)")
     let crest ← unwrapOr
-      (← nestCrest names us ds holes (cv.type.instLvlParamsI cv.levelParams us))
+      (← nestCrest names us ds holes (← instLevelParamsM cv.levelParams us cv.type))
       (.invalid "nested positivity: invalid nested inductive datatype, its constructor type \
         does not bind the parameters (official: ill-formed constructor)")
     let ty ← ops.inferType env hi crest
@@ -426,7 +435,7 @@ def nestPos (ops : CheckerOps) (env : FEnv) (ctx : NestCtx) : Nat → NestRec
     let w ← ops.whnf env dep e
     if !nestOcc ctx.names ctx.nP hi w then
       return (.ordinary, (if nestOcc ctx.names ctx.nP hi e then w else e), st)
-    match w with
+    match EO.stripTop (w) with
     | .forallE _ a b _ =>
       if nestOcc ctx.names ctx.nP hi a then
         throw (.invalid "nested positivity: non positive occurrence of the datatypes \
@@ -436,7 +445,7 @@ def nestPos (ops : CheckerOps) (env : FEnv) (ctx : NestCtx) : Nat → NestRec
       pure (k, .forallE .anonymous a (abstract1 nb dep 0) .default, st)
     | _ =>
       let args := appArgs w
-      match w.getAppFn with
+      match w.getAppFnT with
       | .fvar id =>
         let i := (EO.fvDepth? id).getD 0
         match nestHoleAt ctx prog i with
@@ -474,6 +483,7 @@ def nestRootCanon (ctx : NestCtx) (cv : ConstantVal) : CheckCM (Option Expr) :=
 def piDomsOcc (names : List Name) (lo hi : Nat) : Nat → Expr → Bool
   | 0, _ => false
   | n + 1, .forallE _ d b _ => nestOcc names lo hi d || piDomsOcc names lo hi n b
+  | n + 1, .mdata _ e => piDomsOcc names lo hi (n + 1) e
   | _ + 1, _ => false
 
 /-- Twin of `nestUniformOk`. -/
@@ -522,7 +532,7 @@ def nestSeeds (ops : CheckerOps) (env : FEnv) (ctx : NestCtx) :
       nPc cty st
     nestSeeds ops env ctx ks st
 
-/-! ## The block's positivity (twins of `BlockInstall.lean`'s) -/
+/-! ## The block's positivity (twins of `ConLeche.Kernel.Inductives.BlockInstall`'s) -/
 
 /-- Twin of `BlockShape.nestCtx`. -/
 def BlockShape.nestCtx (p : BlockShape) (fvsP : List Expr) (fe : FEnv) : NestCtx :=

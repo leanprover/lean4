@@ -14,17 +14,17 @@ public import Lean.Kernel.InLean.Push
 /-!
 # InLean: the declaration step
 
-Twin of `ConLeche/Cached/ParsedC.lean`'s `checkDeclC` over
+Twin of `ConLeche.Cached.ParsedC`'s `checkDeclC` over
 `Lean.Declaration`, with the shared checks it runs
-(`ConLeche/Kernel/CheckerBase.lean`'s `checkConstantVal`,
-`ConLeche/Kernel/DeclCheck.lean`'s guards and pins): the constant checks,
+(`ConLeche.Kernel.CheckerBase`'s `checkConstantVal`,
+`ConLeche.Kernel.DeclCheck`'s guards and pins): the constant checks,
 the value checks, the certified `Nat` operations (`certifyNatEqs`,
 `checkDivModPinF`), the compiler-trust opaques (`checkReducePinF`), the
 pinned axioms (`stdAxiomOkF`, `trustCompilerOkF`, `ofReduceAxOkF`) and the
 quotient package (`checkQuotRecordC`).
 
 What a declaration adds is returned, not pushed (`Added`); the caller adds
-it (`Lean/Kernel/InLean/AddDecl.lean`).  A value is checked in the environment before
+it (`Lean.Kernel.InLean.AddDecl`).  A value is checked in the environment before
 its declaration's constants, as con-leche's fold checks a record at the
 view below it.
 
@@ -48,7 +48,9 @@ structure Config where
   coreAxioms : Bool := false
   /-- **A pinned `Nat` operation whose certification declines is accepted**,
   and the fast path, which fires by name, then fires on it.  The prelude
-  is assumed good: the official kernel fires by name with no certificate.  `false` is con-leche's policy. -/
+  is assumed good: the official kernel fires by name with no certificate,
+  and in a replay in dependency order an operation can arrive before what
+  its certificates read.  `false` is con-leche's policy. -/
   uncertifiedNatOps : Bool := true
 
 /-- What a declaration adds: its constants, in order, and whether it is the
@@ -98,7 +100,7 @@ def checkTermWF (fe : FEnv) (what : String) (lps : List Name) (e : Expr) : Check
 /-! ## The literal names' shapes (twin of `litShapeOk`) -/
 
 /-- A stored type compared with a shape, `mdata` ignored. -/
-@[inline] def tyIs (ty shape : Expr) : Bool := EO.alphaEq ty shape
+@[inline] def tyIs (ty shape : Expr) : Bool := ty == shape
 
 def natTy : Expr := .const natName []
 def charTy : Expr := .const charName []
@@ -141,10 +143,7 @@ variable (mode : CheckMode)
 def checkConstantValC (fe : FEnv) (n : Name) (lps : List Name) (ty : Expr)
     (allowOp : Bool := false) : CheckCM Unit := do
   if (fe.env.find? n).isSome then throw (.invalid s!"duplicate declaration {n}")
-  if reservedBasisNames.contains n then throw (.invalid s!"reserved basis name {n}")
-  -- the official kernel's policy (`coreAxioms`) admits any declaration at these names: the
-  -- elaborator adds a recursive definition as an axiom while it elaborates it (`addAsAxiom`)
-  if natOpName n && !allowOp && !fe.coreAxioms then
+  if natOpName n && !allowOp then
     throw (.invalid s!"a certified Nat operation's name, not a definition: {n}")
   unless litShapeOk n lps ty do
     throw (.notImplemented s!"a declaration at a literal's name with another shape ({n})")
@@ -172,13 +171,15 @@ def natOpCod (fe : FEnv) (c : Name) (e : Expr) : Bool :=
 /-- Twin of `natOpTyPinnedF`. -/
 def natOpTyPinned (fe : FEnv) (c : Name) (ty : Expr) : Bool :=
   if c == natPredName then
-    match ty with
+    match EO.stripTop (ty) with
     | .forallE _ dom body _ => tyIs dom natTy && natOpCod fe c body
     | _ => false
   else
-    match ty with
-    | .forallE _ dom (.forallE _ dom2 body _) _ =>
-      tyIs dom natTy && tyIs dom2 natTy && natOpCod fe c body
+    match EO.stripTop (ty) with
+    | .forallE _ dom b _ =>
+      match EO.stripTop b with
+      | .forallE _ dom2 body _ => tyIs dom natTy && tyIs dom2 natTy && natOpCod fe c body
+      | _ => false
     | _ => false
 
 /-- Twin of `natOpStoredOkF`. -/
@@ -300,21 +301,42 @@ def checkDivModPin (fe fe2 : FEnv) (c : Name) (value' : Expr) : CheckCM Unit := 
 
 /-! ## The compiler-trust opaques and axioms -/
 
-def pinFound (fe : FEnv) (p : Pin) : Bool :=
+/-- A pinned family's inductive type, as master's guards read it: stored as
+an inductive (`some (.indInfo cv _)`) matching the pin. -/
+def pinFoundInd (fe : FEnv) (p : Pin) : Bool :=
   match fe.find? p.name with
-  | some ci => p.matches ci
-  | none => false
+  | some ci@(.inductInfo _) => p.matchesExact ci
+  | _ => false
 
-/-- Twin of `reduceElemOkF`. -/
+/-- A pinned family's constructor, as master's guards read it: stored as a
+constructor with the pinned counts (`some (.ctorInfo cv nP nF)`) matching the
+pin. -/
+def pinFoundCtor (fe : FEnv) (p : Pin) (nP nF : Nat) : Bool :=
+  match fe.find? p.name with
+  | some ci@(.ctorInfo v) => v.numParams == nP && v.numFields == nF && p.matchesExact ci
+  | _ => false
+
+/-- A pinned family's recursor, as master's guards read it: stored as a
+recursor with the pinned major index and rule prefix (`some (.recInfo cv mI rP _ _)`,
+the counts con-leche's record carries) matching the pin. -/
+def pinFoundRec (fe : FEnv) (p : Pin) (mI rP : Nat) : Bool :=
+  match fe.find? p.name with
+  | some ci@(.recInfo v) =>
+    v.numParams + v.numMotives + v.numMinors + v.numIndices == mI &&
+      v.numParams + v.numMotives + v.numMinors == rP && p.matchesExact ci
+  | _ => false
+
+/-- Twin of `reduceElemOkF`: `Nat` resp. `Bool` stored as an inductive
+matching its pin. -/
 def reduceElemOk (fe : FEnv) (c : Name) : Bool :=
-  if c == reduceNatName then natLitStoredF fe && pinFound fe natPin
-  else pinFound fe boolPin
+  if c == reduceNatName then pinFoundInd fe natPin
+  else pinFoundInd fe boolPin
 
 /-- Twin of `reduceStoredOkF` (Lean stores the opaque as an opaque). -/
 def reduceStoredOk (fe : FEnv) (c : Name) : Bool :=
   match fe.find? c with
-  | some ci@(.opaqueInfo _) => (reduceOpPin c).matches ci
-  | some ci@(.axiomInfo _) => (reduceOpPin c).matches ci
+  | some ci@(.opaqueInfo _) => (reduceOpPin c).matchesExact ci
+  | some ci@(.axiomInfo _) => (reduceOpPin c).matchesExact ci
   | _ => false
 
 /-- Twin of `checkReducePinF`. -/
@@ -330,26 +352,28 @@ def checkReducePin (fe fe2 : FEnv) (c : Name) (value : Expr) : CheckCM Unit := d
   unless ← opDefeq mode fe 1 (.app value x) x do
     throw (.internal s!"pinned compiler-trust opaque is not the identity ({c})")
 
-/-- Twin of `stdAxiomOkF`. -/
+/-- Twin of `stdAxiomOkF`: the families' kinds and counts read as master's. -/
 def stdAxiomOk (fe : FEnv) (n : Name) (lps : List Name) (ty : Expr) : Bool :=
-  let me : Pin → Bool := fun p => p.matchesDecl n lps ty
+  let me : Pin → Bool := fun p => p.matchesDeclExact n lps ty
   if n == propextName then
-    (fe.find? eqName).isSome && pinFound fe iffPin && pinFound fe iffIntroPin &&
-      pinFound fe iffRecPin && me propextPin
+    (fe.find? eqName).isSome && pinFoundInd fe iffPin && pinFoundCtor fe iffIntroPin 2 2 &&
+      pinFoundRec fe iffRecPin 4 4 && me propextPin
   else if n == choiceName then
-    pinFound fe nonemptyPin && pinFound fe nonemptyIntroPin && pinFound fe nonemptyRecPin &&
-      me choicePin
+    pinFoundInd fe nonemptyPin && pinFoundCtor fe nonemptyIntroPin 1 1 &&
+      pinFoundRec fe nonemptyRecPin 3 3 && me choicePin
   else false
 
-/-- Twin of `trustCompilerOkF`. -/
+/-- Twin of `trustCompilerOkF`: `True` an inductive, `True.intro` a constructor
+with no parameter and no field. -/
 def trustCompilerOk (fe : FEnv) (n : Name) (lps : List Name) (ty : Expr) : Bool :=
-  pinFound fe truePin && pinFound fe trueIntroPin && trustCompilerPin.matchesDecl n lps ty
+  pinFoundInd fe truePin && pinFoundCtor fe trueIntroPin 0 0 &&
+    trustCompilerPin.matchesDeclExact n lps ty
 
 /-- Twin of `ofReduceAxOkF`. -/
 def ofReduceAxOk (fe : FEnv) (n : Name) (lps : List Name) (ty : Expr) : Bool :=
   let c := ofReduceOp n
   (fe.find? eqName).isSome && reduceElemOk fe c && reduceStoredOk fe c &&
-    (ofReducePin n).matchesDecl n lps ty
+    (ofReducePin n).matchesDeclExact n lps ty
 
 /-! ## The quotient package -/
 
@@ -432,11 +456,19 @@ Lean's environment (the elaborator needs it), and is no constant unless
 def checkAxiomC (cfg : Config) (fe : FEnv) (v : AxiomVal) : CheckCM Added := do
   let ci := ConstantInfo.axiomInfo v
   if v.name == quotSoundName then
-    if (quotSoundPin.matches ci) && quotPredsOk fe && (fe.find? quotMkName).isSome then
-      return { consts := #[ci] }
-    else throw (.notImplemented "quotient soundness axiom mismatch")
+    -- twin of `checkQuotRecordC fe .sound`: the pin, what it needs, then
+    -- `installBasisDeclF`'s freshness (official's `check_name`)
+    unless quotSoundHit v.name v.levelParams v.type do
+      throw (.notImplemented "quotient soundness axiom mismatch")
+    unless quotPredsOk fe && (fe.find? quotName).isSome && (fe.find? quotMkName).isSome do
+      throw (.notImplemented "quotient declaration before what it needs")
+    if (fe.env.find? v.name).isSome then throw (.invalid s!"duplicate declaration {v.name}")
+    return { consts := #[ci] }
   let fe' := { fe with safety := if v.isUnsafe then .unsafe else .safe }
-  checkConstantValC mode fe' v.name v.levelParams v.type
+  -- the official policy (`coreAxioms`) admits an axiom at a certified `Nat`
+  -- operation's name: the elaborator adds a recursive definition as an axiom
+  -- while it elaborates it (`addAsAxiom`); any other declaration there is checked
+  checkConstantValC mode fe' v.name v.levelParams v.type (allowOp := fe.coreAxioms)
   if v.isUnsafe then return { consts := #[ci] }
   if stdAxiomOk fe v.name v.levelParams v.type then return { consts := #[ci] }
   if v.name == trustCompilerName then

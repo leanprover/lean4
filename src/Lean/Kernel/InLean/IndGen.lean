@@ -23,7 +23,7 @@ recursors `rec_1`, `rec_2`, … included, binder names and infos included
 (the elaborator reads a recursor's binder names).  It checks nothing
 beyond what generation needs to proceed; a declaration it cannot generate
 is an error, never an acceptance.  The checks are con-leche's
-(`Lean/Kernel/InLean/Inductives/*`), on these constants.
+(`Lean.Kernel.InLean.Inductives.*`), on these constants.
 
 It is a port of `src/kernel/inductive.cpp` (v4.35.0) with every validity
 check removed: `elim_nested_inductive_fn`, the generating half of
@@ -657,7 +657,7 @@ def Elim.replaceIfNested (el : Elim) (lctx : PCtx) (As : Array Expr) (e : Expr) 
   let np := iv.numParams
   let iAs := mkAppN fn (args.extract 0 np)
   let iParams := (iAs.abstractI As).instRevI el.params
-  if let some (_, auxI) := (← get).nestedAux.find? (EO.alphaEq ·.1 iParams) then
+  if let some (_, auxI) := (← get).nestedAux.find? (Expr.clEq ·.1 iParams) then
     return some (mkAppN (mkAppN (.const auxI el.lvls) As) (args.extract np))
   let mut result : Option Expr := none
   for jName in iv.all do

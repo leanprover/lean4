@@ -11,7 +11,7 @@ public import Init
 public import Lean.Expr
 /- `withPtrEq`/`withPtrAddr`/`withPtrEqDecEq` are public but not exposed;
 `Expr.beq_eq_beqMemo` needs their bodies (`k ()`, `k 0`), as con-leche's
-`ConLeche/Kernel/Expr.lean` does. -/
+`ConLeche.Kernel.Expr` does. -/
 import all Init.Util
 
 /-!
@@ -21,7 +21,7 @@ InLean is to be provable by a simulation onto con-leche's cached checker, so it
 does not use core's opaque externs.
 Core's `BEq Expr` is `Expr.eqv`, an `@[extern] opaque` (alpha-equivalence
 in C++).  InLean's executed equality is con-leche's design
-(`ConLeche/Kernel/Expr.lean`, `Expr.beq`/`beqMemo`): **the specification
+(`ConLeche.Kernel.Expr`, `Expr.beq`/`beqMemo`): **the specification
 is decidable equality**, `Expr.beqI a b = decide (a = b)`, so `LawfulBEq`
 holds by construction, and the executed function is the memoised,
 pointer-first descent `Expr.beqMemo`, proved equal to it
@@ -38,7 +38,7 @@ with its two lemmas.
 
 **Deviation from con-leche.**  con-leche probes and records only pairs
 whose two nodes are shared (`withExclusive`, its one `unsafe`-implemented
-primitive, `ConLeche/Kernel/Exclusive.lean`); InLean may add no
+primitive, `ConLeche.Kernel.Exclusive`); InLean may add no
 `unsafe` code, so every recursive pair is probed and recorded.
 
 The instance is `scoped` in `InLean`: every InLean module (all inside the
@@ -277,17 +277,331 @@ def Expr.beqI (a b : Expr) : Bool := decide (a = b)
   unfold Expr.beqI Expr.beqMemo withPtrEq
   congr 1
 
-/-- The scoped equality of expressions in InLean (memo keys included). -/
-scoped instance instBEqExprI : BEq Expr := ⟨Expr.beqI⟩
+/-- **Exact equality** as an instance, for the walks' memos and the
+generator (`Lean.Kernel.InLean.ExprOps`, `Lean.Kernel.InLean.IndGen`), whose results
+keep binder names. -/
+@[reducible] def instBEqExprExact : BEq Expr := ⟨Expr.beqI⟩
 
-scoped instance : LawfulBEq Expr where
-  eq_of_beq h := of_decide_eq_true h
-  rfl := by simp [BEq.beq, Expr.beqI]
+theorem instBEqExprExact_lawful : @LawfulBEq Expr instBEqExprExact := by
+  letI := instBEqExprExact
+  exact { eq_of_beq := fun h => of_decide_eq_true h, rfl := by simp [BEq.beq, Expr.beqI] }
 
-/-- Hashing is core's cached word (a read of the computed field: equal
-expressions have equal words, so `LawfulHashable` holds for the lawful
-equality). -/
-instance : LawfulHashable Expr where
-  hash_eq a b h := by rw [eq_of_beq h]
+/-! ## Equality up to what con-leche's terms do not have
+
+con-leche's expressions carry no binder names, no binder infos, no `let`'s
+`nonDep` flag and no `mdata`; its checker compares them by decidable
+equality.  InLean has two equalities:
+
+* **`Expr.clEq`, the checker's comparison** (the scoped `==`): equal after
+  erasing all four (`erase`), so two of its terms compare equal exactly when
+  the con-leche terms they stand for do.
+* **`Expr.keyEq`, the memo maps' key equality** (`EKey`): equal after
+  erasing binder names, infos and `nonDep` but not `mdata` (`eraseK`), none
+  of which Lean's cached hash reads, so the maps are lawful.  Two keys that
+  differ only in `mdata` are two entries: InLean may miss where con-leche
+  hits, never the converse.
+-/
+
+/-- Binder names, binder infos, `nonDep` and `mdata` erased, hereditarily:
+what `toCL` keeps. -/
+def erase : Expr → Expr
+  | .app f a => .app (erase f) (erase a)
+  | .lam _ t b _ => .lam .anonymous (erase t) (erase b) .default
+  | .forallE _ t b _ => .forallE .anonymous (erase t) (erase b) .default
+  | .letE _ t v b _ => .letE .anonymous (erase t) (erase v) (erase b) false
+  | .mdata _ e => erase e
+  | .proj s i e => .proj s i (erase e)
+  | e => e
+
+/-- Binder names, binder infos and `nonDep` erased, `mdata` kept. -/
+def eraseK : Expr → Expr
+  | .app f a => .app (eraseK f) (eraseK a)
+  | .lam _ t b _ => .lam .anonymous (eraseK t) (eraseK b) .default
+  | .forallE _ t b _ => .forallE .anonymous (eraseK t) (eraseK b) .default
+  | .letE _ t v b _ => .letE .anonymous (eraseK t) (eraseK v) (eraseK b) false
+  | .mdata m e => .mdata m (eraseK e)
+  | .proj s i e => .proj s i (eraseK e)
+  | e => e
+
+/-- `e` with its top-level `mdata` wrappers peeled (O(wrappers)): how the
+checker reads a node, as the official kernel's `whnf_core`/`infer` do,
+never rebuilding a term. -/
+def EO.stripTop : Expr → Expr
+  | .mdata _ x => EO.stripTop x
+  | e => e
+
+theorem erase_stripTop (e : Expr) : erase (EO.stripTop e) = erase e := by
+  induction e <;> simp_all [EO.stripTop, erase]
+
+/-- The constructor of a node. -/
+def ctorTag : Expr → Nat
+  | .bvar .. => 0 | .fvar .. => 1 | .mvar .. => 2 | .sort .. => 3 | .const .. => 4
+  | .app .. => 5 | .lam .. => 6 | .forallE .. => 7 | .letE .. => 8 | .lit .. => 9
+  | .mdata .. => 10 | .proj .. => 11
+
+theorem ctorTag_eraseK (e : Expr) : ctorTag (eraseK e) = ctorTag e := by
+  cases e <;> rfl
+
+/-- A memo entry of an erased comparison: a pair a completed descent proved
+equal after `er`, the addresses it was seen at, the proof. -/
+structure ClPair (er : Expr → Expr) where
+  fst : Expr
+  snd : Expr
+  pa : USize
+  pb : USize
+  eq : er fst = er snd
+
+abbrev ClMap (er : Expr → Expr) := Std.HashMap Nat (ClPair er)
+
+@[inline] def clProbeHit {er : Expr → Expr} (m : ClMap er) (key : Nat) (pa pb : USize)
+    (a b : Expr) : { h : Bool // h = true → er a = er b } :=
+  match m.get? key with
+  | some p =>
+    if p.pa == pa && p.pb == pb then
+      match ptrDec p.fst a, ptrDec p.snd b with
+      | isTrue h1, isTrue h2 => ⟨true, fun _ => h1 ▸ h2 ▸ p.eq⟩
+      | _, _ => ⟨false, fun h => Bool.noConfusion h⟩
+    else ⟨false, fun h => Bool.noConfusion h⟩
+  | none => ⟨false, fun h => Bool.noConfusion h⟩
+
+structure ClResX (er : Expr → Expr) (a b : Expr) where
+  dec : Decidable (er a = er b)
+  map : Option (ClMap er)
+
+abbrev ClOutX (er : Expr → Expr) (a b : Expr) := Squash (ClResX er a b)
+
+@[inline] def ClOutX.mk {er : Expr → Expr} {a b : Expr} (d : Decidable (er a = er b))
+    (map : Option (ClMap er)) : ClOutX er a b :=
+  Quot.mk _ ⟨d, map⟩
+
+@[inline] def ClMap.record {er : Expr → Expr} (mp : Option (ClMap er)) (key : Nat)
+    (p : ClPair er) : Option (ClMap er) :=
+  match mp with
+  | none => some ((Std.HashMap.emptyWithCapacity (key % 8 + 8) : ClMap er).insert key p)
+  | some m => some (m.insert key p)
+
+/-- Twin of `enterBeq` for an erased comparison. -/
+@[inline] def enterCl {er : Expr → Expr} (map : Option (ClMap er)) (a b : @& Expr)
+    (rec : Option (ClMap er) → ClOutX er a b) : ClOutX er a b :=
+  withAddr a fun pa => withAddr b fun pb =>
+  if pa == pb then
+    .mk (match ptrDec a b with
+      | isTrue h => isTrue (h ▸ rfl)
+      | isFalse _ => (inferInstance : DecidableEq Expr) (er a) (er b)) map
+  else if !beqRecursive a then rec map
+  else
+    let hit : { h : Bool // h = true → er a = er b } :=
+      match map with
+      | some m => clProbeHit m (beqKey pa pb) pa pb a b
+      | none => ⟨false, fun h => Bool.noConfusion h⟩
+    if hh : hit.1 then .mk (isTrue (hit.2 hh)) map
+    else Squash.lift (rec map) fun r =>
+      match r.dec with
+      | isTrue h => .mk (isTrue h) (ClMap.record r.map (beqKey pa pb) ⟨a, b, pa, pb, h⟩)
+      | d => .mk d r.map
+
+/-- The key comparison's descent (`eraseK`): names, infos and `nonDep` not
+compared, `mdata` compared; a pair of different constructors is unequal, a
+pair of leaves decided by their equality. -/
+def keyGoX (map : Option (ClMap eraseK)) (a b : @& Expr) : ClOutX eraseK a b :=
+  match a, b with
+  | .app f x, .app g y =>
+    Squash.lift (enterCl map f g fun m => keyGoX m f g) fun r₁ =>
+      match r₁.dec with
+      | isFalse h => .mk (isFalse (fun e => h (Expr.app.inj e).1)) r₁.map
+      | isTrue h => Squash.lift (enterCl r₁.map x y fun m => keyGoX m x y) fun r₂ =>
+        .mk (match r₂.dec with
+          | isTrue h' => isTrue (by simp only [eraseK, h, h'])
+          | isFalse h' => isFalse (fun e => h' (Expr.app.inj e).2))
+          r₂.map
+  | .lam _ t b _, .lam _ t' b' _ =>
+    Squash.lift (enterCl map t t' fun mp => keyGoX mp t t') fun r₁ =>
+      match r₁.dec with
+      | isFalse h₁ => .mk (isFalse (fun e => h₁ (Expr.lam.inj e).2.1)) r₁.map
+      | isTrue h₁ => Squash.lift (enterCl r₁.map b b' fun mp => keyGoX mp b b') fun r₂ =>
+        .mk (match r₂.dec with
+          | isTrue h₂ => isTrue (by simp only [eraseK, h₁, h₂])
+          | isFalse h₂ => isFalse (fun e => h₂ (Expr.lam.inj e).2.2.1))
+          r₂.map
+  | .forallE _ t b _, .forallE _ t' b' _ =>
+    Squash.lift (enterCl map t t' fun mp => keyGoX mp t t') fun r₁ =>
+      match r₁.dec with
+      | isFalse h₁ => .mk (isFalse (fun e => h₁ (Expr.forallE.inj e).2.1)) r₁.map
+      | isTrue h₁ => Squash.lift (enterCl r₁.map b b' fun mp => keyGoX mp b b') fun r₂ =>
+        .mk (match r₂.dec with
+          | isTrue h₂ => isTrue (by simp only [eraseK, h₁, h₂])
+          | isFalse h₂ => isFalse (fun e => h₂ (Expr.forallE.inj e).2.2.1))
+          r₂.map
+  | .letE _ t v b _, .letE _ t' v' b' _ =>
+    Squash.lift (enterCl map t t' fun mp => keyGoX mp t t') fun r₁ =>
+      match r₁.dec with
+      | isFalse h₁ => .mk (isFalse (fun e => h₁ (Expr.letE.inj e).2.1)) r₁.map
+      | isTrue h₁ => Squash.lift (enterCl r₁.map v v' fun mp => keyGoX mp v v') fun r₂ =>
+        match r₂.dec with
+        | isFalse h₂ => .mk (isFalse (fun e => h₂ (Expr.letE.inj e).2.2.1)) r₂.map
+        | isTrue h₂ => Squash.lift (enterCl r₂.map b b' fun mp => keyGoX mp b b') fun r₃ =>
+          .mk (match r₃.dec with
+            | isTrue h₃ => isTrue (by simp only [eraseK, h₁, h₂, h₃])
+            | isFalse h₃ => isFalse (fun e => h₃ (Expr.letE.inj e).2.2.2.1))
+            r₃.map
+  | .proj s i x, .proj s' i' x' =>
+    if hs : s = s' ∧ i = i' then
+      Squash.lift (enterCl map x x' fun mp => keyGoX mp x x') fun r =>
+        .mk (match r.dec with
+          | isTrue h => isTrue (by obtain ⟨rfl, rfl⟩ := hs; simp only [eraseK, h])
+          | isFalse h => isFalse (fun e => h (Expr.proj.inj e).2.2))
+          r.map
+    else .mk (isFalse (fun e => hs ⟨(Expr.proj.inj e).1, (Expr.proj.inj e).2.1⟩)) map
+  | .mdata d x, .mdata d' x' =>
+    if hd : d = d' then
+      Squash.lift (enterCl map x x' fun mp => keyGoX mp x x') fun r =>
+        .mk (match r.dec with
+          | isTrue h => isTrue (by subst hd; simp only [eraseK, h])
+          | isFalse h => isFalse (fun e => h (Expr.mdata.inj e).2))
+          r.map
+    else .mk (isFalse (fun e => hd (Expr.mdata.inj e).1)) map
+  | a, b =>
+    if hc : ctorTag a = ctorTag b then
+      -- same constructor, not one the arms above take: two leaves (O(1) `eraseK`)
+      .mk ((inferInstance : DecidableEq Expr) (eraseK a) (eraseK b)) map
+    else .mk (isFalse (fun e => hc (by rw [← ctorTag_eraseK a, ← ctorTag_eraseK b, e]))) map
+
+theorem erase_mdata (m : MData) (x : Expr) : erase (.mdata m x) = erase x := rfl
+
+theorem ctorTag_erase_of_ne (e : Expr) (h : ctorTag e ≠ 10) : ctorTag (erase e) = ctorTag e := by
+  cases e <;> first | rfl | exact absurd rfl h
+
+/-- The checker comparison's descent (`erase`): a `mdata` node is read
+through (no rebuilt term), then the constructor cases as `keyGoX`'s. -/
+def clGoX (map : Option (ClMap erase)) (a b : @& Expr) : ClOutX erase a b :=
+  match a, b with
+  | .mdata m x, b =>
+    Squash.lift (clGoX map x b) fun r => .mk (erase_mdata m x ▸ r.dec) r.map
+  | a, .mdata m y =>
+    Squash.lift (clGoX map a y) fun r => .mk (erase_mdata m y ▸ r.dec) r.map
+  | .app f x, .app g y =>
+    Squash.lift (enterCl map f g fun m => clGoX m f g) fun r₁ =>
+      match r₁.dec with
+      | isFalse h => .mk (isFalse (fun e => h (Expr.app.inj e).1)) r₁.map
+      | isTrue h => Squash.lift (enterCl r₁.map x y fun m => clGoX m x y) fun r₂ =>
+        .mk (match r₂.dec with
+          | isTrue h' => isTrue (by simp only [erase, h, h'])
+          | isFalse h' => isFalse (fun e => h' (Expr.app.inj e).2))
+          r₂.map
+  | .lam _ t b _, .lam _ t' b' _ =>
+    Squash.lift (enterCl map t t' fun mp => clGoX mp t t') fun r₁ =>
+      match r₁.dec with
+      | isFalse h₁ => .mk (isFalse (fun e => h₁ (Expr.lam.inj e).2.1)) r₁.map
+      | isTrue h₁ => Squash.lift (enterCl r₁.map b b' fun mp => clGoX mp b b') fun r₂ =>
+        .mk (match r₂.dec with
+          | isTrue h₂ => isTrue (by simp only [erase, h₁, h₂])
+          | isFalse h₂ => isFalse (fun e => h₂ (Expr.lam.inj e).2.2.1))
+          r₂.map
+  | .forallE _ t b _, .forallE _ t' b' _ =>
+    Squash.lift (enterCl map t t' fun mp => clGoX mp t t') fun r₁ =>
+      match r₁.dec with
+      | isFalse h₁ => .mk (isFalse (fun e => h₁ (Expr.forallE.inj e).2.1)) r₁.map
+      | isTrue h₁ => Squash.lift (enterCl r₁.map b b' fun mp => clGoX mp b b') fun r₂ =>
+        .mk (match r₂.dec with
+          | isTrue h₂ => isTrue (by simp only [erase, h₁, h₂])
+          | isFalse h₂ => isFalse (fun e => h₂ (Expr.forallE.inj e).2.2.1))
+          r₂.map
+  | .letE _ t v b _, .letE _ t' v' b' _ =>
+    Squash.lift (enterCl map t t' fun mp => clGoX mp t t') fun r₁ =>
+      match r₁.dec with
+      | isFalse h₁ => .mk (isFalse (fun e => h₁ (Expr.letE.inj e).2.1)) r₁.map
+      | isTrue h₁ => Squash.lift (enterCl r₁.map v v' fun mp => clGoX mp v v') fun r₂ =>
+        match r₂.dec with
+        | isFalse h₂ => .mk (isFalse (fun e => h₂ (Expr.letE.inj e).2.2.1)) r₂.map
+        | isTrue h₂ => Squash.lift (enterCl r₂.map b b' fun mp => clGoX mp b b') fun r₃ =>
+          .mk (match r₃.dec with
+            | isTrue h₃ => isTrue (by simp only [erase, h₁, h₂, h₃])
+            | isFalse h₃ => isFalse (fun e => h₃ (Expr.letE.inj e).2.2.2.1))
+            r₃.map
+  | .proj s i x, .proj s' i' x' =>
+    if hs : s = s' ∧ i = i' then
+      Squash.lift (enterCl map x x' fun mp => clGoX mp x x') fun r =>
+        .mk (match r.dec with
+          | isTrue h => isTrue (by obtain ⟨rfl, rfl⟩ := hs; simp only [erase, h])
+          | isFalse h => isFalse (fun e => h (Expr.proj.inj e).2.2))
+          r.map
+    else .mk (isFalse (fun e => hs ⟨(Expr.proj.inj e).1, (Expr.proj.inj e).2.1⟩)) map
+  | a, b =>
+    if hc : ctorTag a ≠ ctorTag b ∧ ctorTag a ≠ 10 ∧ ctorTag b ≠ 10 then
+      -- different constructors, neither `mdata` (the arms above took those),
+      -- which `erase` keeps
+      .mk (isFalse (fun e => hc.1 (by
+        rw [← ctorTag_erase_of_ne a hc.2.1, ← ctorTag_erase_of_ne b hc.2.2, e]))) map
+    else
+      -- two leaves of one constructor: `erase` is O(1) on them
+      .mk ((inferInstance : DecidableEq Expr) (erase a) (erase b)) map
+termination_by (sizeOf a + sizeOf b)
+
+/-- **The memo maps' key equality**: equal after `eraseK`. -/
+def Expr.keyEq (a b : Expr) : Bool := decide (eraseK a = eraseK b)
+
+def Expr.keyEqMemo (a b : Expr) : Bool :=
+  withPtrEq a b
+    (fun _ => @decide (eraseK a = eraseK b) (Squash.lift (keyGoX none a b) (fun r => r.dec)))
+    (fun h => by subst h; simp)
+
+@[csimp] theorem Expr.keyEq_eq_keyEqMemo : @Expr.keyEq = @Expr.keyEqMemo := by
+  funext a b
+  unfold Expr.keyEq Expr.keyEqMemo withPtrEq
+  congr 1
+
+/-- **InLean's checker equality**: equal after `erase` (the specification),
+executed by `Expr.clEqMemo`. -/
+def Expr.clEq (a b : Expr) : Bool := decide (erase a = erase b)
+
+def Expr.clEqMemo (a b : Expr) : Bool :=
+  withPtrEq a b
+    (fun _ => @decide (erase a = erase b) (Squash.lift (clGoX none a b) (fun r => r.dec)))
+    (fun h => by subst h; simp)
+
+@[csimp] theorem Expr.clEq_eq_clEqMemo : @Expr.clEq = @Expr.clEqMemo := by
+  funext a b
+  unfold Expr.clEq Expr.clEqMemo withPtrEq
+  congr 1
+
+/-- **The scoped equality of expressions in InLean's checker**: `Expr.clEq`. -/
+scoped instance instBEqExprI : BEq Expr := ⟨Expr.clEq⟩
+
+theorem Expr.clEq_iff (a b : Expr) : Expr.clEq a b = true ↔ erase a = erase b := by
+  simp [Expr.clEq]
+
+scoped instance : EquivBEq Expr where
+  rfl := by simp [BEq.beq, Expr.clEq]
+  symm h := by simp only [BEq.beq, Expr.clEq, decide_eq_true_eq] at *; exact h.symm
+  trans h₁ h₂ := by
+    simp only [BEq.beq, Expr.clEq, decide_eq_true_eq] at *; exact h₁.trans h₂
+
+/-- **A memo key**: an expression compared by `Expr.keyEq`, hashed by Lean's
+cached hash (which reads no binder name, info or `nonDep`). -/
+structure EKey where
+  e : Expr
+
+instance : BEq EKey := ⟨fun a b => Expr.keyEq a.e b.e⟩
+instance : Hashable EKey := ⟨fun a => hash a.e⟩
+
+instance : EquivBEq EKey where
+  rfl := by simp [BEq.beq, Expr.keyEq]
+  symm h := by simp only [BEq.beq, Expr.keyEq, decide_eq_true_eq] at *; exact h.symm
+  trans h₁ h₂ := by
+    simp only [BEq.beq, Expr.keyEq, decide_eq_true_eq] at *; exact h₁.trans h₂
+
+/-- The bulk-instantiation memo's key: a term and the values, each by
+`keyEq`. -/
+structure InstKey where
+  e : Expr
+  vs : List Expr
+
+def keyEqList : List Expr → List Expr → Bool
+  | [], [] => true
+  | a :: as, b :: bs => Expr.keyEq a b && keyEqList as bs
+  | _, _ => false
+
+instance : BEq InstKey := ⟨fun a b => Expr.keyEq a.e b.e && keyEqList a.vs b.vs⟩
+instance : Hashable InstKey := ⟨fun a => mixHash (hash a.e) (hash a.vs)⟩
 
 end Lean.Kernel.InLean

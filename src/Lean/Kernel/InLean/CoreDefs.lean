@@ -13,9 +13,9 @@ public import Lean.Kernel.InLean.FEnv
 # InLean: the core's helpers
 
 Twins of the fuel-free helpers the cached core calls, from
-`ConLeche/Kernel/CoreDefs.lean`, `ConLeche/Kernel/Core.lean` (the error
+`ConLeche.Kernel.CoreDefs`, `ConLeche.Kernel.Core` (the error
 choices, the small expression predicates) and
-`ConLeche/Kernel/PropRead.lean` (the head-symbol readers).
+`ConLeche.Kernel.PropRead` (the head-symbol readers).
 
 Two shapes differ from con-leche's because a `Lean.Expr` free variable is
 an id: where con-leche reads a variable's type off the node, the readers
@@ -70,6 +70,7 @@ def projMissError (fe : FEnv) (hasTable : Bool) (T sn : Name) (i nArgs : Nat) : 
 
 /-- Twin of `Expr.piResult`. -/
 def piResult : Expr → Expr
+  | .mdata _ e => piResult e
   | .forallE _ _ b _ => piResult b
   | e => e
 
@@ -77,10 +78,12 @@ def piResult : Expr → Expr
 def peelPis : Nat → Expr → Option Expr
   | 0, e => some e
   | k + 1, .forallE _ _ b _ => peelPis k b
+  | k + 1, .mdata _ e => peelPis (k + 1) e
   | _ + 1, _ => none
 
 /-- Twin of `Expr.binderDom`. -/
 def binderDom : Nat → Expr → Option Expr
+  | k, .mdata _ e => binderDom k e
   | 0, .forallE _ A _ _ => some A
   | k + 1, .forallE _ _ b _ => binderDom k b
   | _, _ => none
@@ -90,65 +93,77 @@ def teleArityOk (ty : Expr) (args : List Expr) : Bool := (peelPis args.length ty
 
 /-- Twin of `Expr.ioNeutral`. -/
 def Expr.ioNeutral (e : Expr) : Bool :=
-  match e.getAppFn with
+  match e.getAppFnT with
   | .lam .. | .letE .. | .bvar _ => false
   | _ => true
 
 /-- Twin of `Expr.headIsProj`. -/
 def Expr.headIsProj (e : Expr) : Bool :=
-  match e.getAppFn with
+  match e.getAppFnT with
   | .proj .. => true
   | _ => false
 
 /-- Twin of `Expr.isNatZero`. -/
 def Expr.isNatZero : Expr → Bool
+  | .mdata _ e => Expr.isNatZero e
   | .lit (.natVal 0) => true
   | .const c [] => c == natZeroName
   | _ => false
 
 /-- Twin of `Expr.isLit`. -/
 def Expr.isLitI : Expr → Bool
+  | .mdata _ e => Expr.isLitI e
   | .lit _ => true
   | _ => false
 
 /-- Twin of `Expr.isStrLit`. -/
 def Expr.isStrLitI : Expr → Bool
+  | .mdata _ e => Expr.isStrLitI e
   | .lit (.strVal _) => true
   | _ => false
 
 /-- Twin of `Expr.natPred?`. -/
 def Expr.natPred? : Expr → Option Expr
+  | .mdata _ e => Expr.natPred? e
   | .lit (.natVal (n + 1)) => some (.lit (.natVal n))
-  | .app (.const c []) x => if c == natSuccName then some x else none
+  | .app f x =>
+    match EO.stripTop f with
+    | .const c [] => if c == natSuccName then some x else none
+    | _ => none
   | _ => none
 
 /-- Twin of `Expr.isBoolTrue`. -/
 def Expr.isBoolTrue : Expr → Bool
+  | .mdata _ e => Expr.isBoolTrue e
   | .const c [] => c == boolTrueName
   | _ => false
 
 /-- Twin of `Expr.isEagerReduce`. -/
-def Expr.isEagerReduce : Expr → Bool
-  | .app (.app (.const c _) _) _ => c == eagerReduceName
-  | _ => false
+def Expr.isEagerReduce (e : Expr) : Bool :=
+  e.getAppNumArgsT == 2 &&
+    match e.getAppFnT with
+    | .const c _ => c == eagerReduceName
+    | _ => false
 
 /-- Twin of `Expr.lamPair?`. -/
 def Expr.lamPair? : Expr → Expr → Option (Expr × Expr × Expr × Expr)
+  | .mdata _ a, b => Expr.lamPair? a b
+  | a, .mdata _ b => Expr.lamPair? a b
   | .lam _ t₁ b₁ _, .lam _ t₂ b₂ _ => some (t₁, b₁, t₂, b₂)
   | _, _ => none
 
 /-- Twin of `rawNatLitC?`. -/
 def rawNatLitC? (e : Expr) : Option Nat :=
-  match e with
+  match EO.stripTop (e) with
   | .lit (.natVal n) => some n
   | .const c [] => if c == natZeroName then some 0 else none
   | _ => none
 
 /-- Twin of `sameConstHeadsC`. -/
 def sameConstHeadsC (a b : Expr) : Bool :=
-  match a, b with
+  match EO.stripTop a, EO.stripTop b with
   | .app f₁ _, .app f₂ _ =>
-    match f₁.getAppFn, f₂.getAppFn with
+    match f₁.getAppFnT, f₂.getAppFnT with
     | .const n₁ _, .const n₂ _ => n₁ == n₂
     | _, _ => false
   | _, _ => false
@@ -234,7 +249,7 @@ def natOpResult (c : Name) (a b : Nat) : Option Expr :=
 
 /-- Twin of `formerResSort`. -/
 def formerResSort (ty : Expr) : Option Level :=
-  match piResult ty with
+  match EO.stripTop (piResult ty) with
   | .sort s => some s
   | _ => none
 
@@ -253,7 +268,7 @@ def formerNeverZero (cvT : ConstantVal) (us : List Level) : Bool :=
 
 /-- Twin of `ctorFamily`. -/
 def ctorFamily (fe : FEnv) (cvj : ConstantVal) : Option (ConstantVal × IndCaps) :=
-  match (piResult cvj.type).getAppFn with
+  match EO.stripTop ((piResult cvj.type).getAppFnT) with
   | .const T _ => fe.indView? T
   | _ => none
 
@@ -267,6 +282,7 @@ def etaRescueOk (ctor : Name) (cvj cvT : ConstantVal) (caps : IndCaps) : Bool :=
 variables of depths `i, i + 1, …`. -/
 def openPisAtFvarsM : Nat → Expr → Nat → CheckCM (Option (List Expr × Expr))
   | 0, e, _ => pure (some ([], e))
+  | n + 1, .mdata _ e, i => openPisAtFvarsM (n + 1) e i
   | n + 1, .forallE _ dom body _, i => do
     let fv ← mkFVarM i dom
     match ← openPisAtFvarsM n (body.inst1I fv) (i + 1) with
@@ -280,19 +296,22 @@ def structUsedLater (cty : Expr) (nP j : Nat) : Bool :=
   | some rest => rest.hasLooseBVarI 0
   | none => false
 
-/-- Twin of `projGuardRowsAt`: the variables' types from the state. -/
-def projGuardRowsAtM (cty : Expr) (nP idx : Nat) (fvs : List Expr) :
-    CheckCM (List (Nat × Expr)) := do
-  let mut rows : Array (Nat × Expr) := #[]
-  for j in List.range (idx + 1) do
-    if j == idx || structUsedLater cty nP j then
-      match fvs[nP + j]? with
-      | some (.fvar id) =>
-        match ← fvarTypeM? id with
-        | some ty => rows := rows.push (nP + j, ty)
-        | none => pure ()
-      | _ => pure ()
-  return rows.toList
+/-- Twin of `projGuardRowsGo`: the field loop of the official `infer_proj`.
+`r` is the constructor telescope with its parameters and every field before
+the current one opened, the current field's variable at depth `d`; `k`
+fields remain before the projected one.  A field the rest uses is a row and
+is opened at its variable, one it does not use is stepped over. -/
+def projGuardRowsGoM : Nat → Nat → Expr → CheckCM (Option (List (Nat × Expr)))
+  | k, d, .mdata _ e => projGuardRowsGoM k d e
+  | 0, d, .forallE _ dom _ _ => pure (some [(d, dom)])
+  | k + 1, d, .forallE _ dom body _ =>
+    if body.hasLooseBVarI 0 then do
+      let fv ← mkFVarM d dom
+      match ← projGuardRowsGoM k (d + 1) (body.inst1I fv) with
+      | some rows => pure (some ((d, dom) :: rows))
+      | none => pure none
+    else projGuardRowsGoM k (d + 1) body
+  | _, _, _ => pure none
 
 /-- Twin of `Expr.leafGuard fab base`: the free variables of `fab` are among
 `base`'s, hereditarily through their types (con-leche's variable carries its
@@ -300,37 +319,49 @@ type, so its leaves include the annotations'). -/
 def leafGuardM (fab base : Expr) : CheckCM Bool := do
   if !fab.hasFVar then return true
   let tys := (← get).fvTys
-  let seen := closure tys (2 ^ 62) (EO.fvarIds base).toList {}
+  let seen := closure tys tys.size (EO.fvarIds base).toList {} {}
   return (EO.fvarIds fab).all seen.contains
 where
-  /-- The worklist, structural on a fuel of one step per item. -/
-  closure (tys : Array Expr) : Nat → List FVarId → Std.HashSet FVarId → Std.HashSet FVarId
-    | 0, _, seen => seen
-    | _, [], seen => seen
-    | fuel + 1, id :: todo, seen =>
-      if seen.contains id then closure tys fuel todo seen
-      else
-        let more : List FVarId := match fvParts? id with
-          | some (_, n) => match tys[n]? with
-            | some ty => (EO.fvarIds ty).toList
-            | none => []
-          | none => []
-        closure tys fuel (more ++ todo) (seen.insert id)
+  /-- The worklist: every id met goes into `seen`; a table number's type is
+  expanded once (`done`), and only an expansion spends fuel.  An expanded
+  number is a fresh index of `tys`, so the fuel `tys.size` never runs out. -/
+  closure (tys : Array Expr) (fuel : Nat) (todo : List FVarId) (seen : Std.HashSet FVarId)
+      (done : Std.HashSet Nat) : Std.HashSet FVarId :=
+    match todo with
+    | [] => seen
+    | id :: todo =>
+      let seen := seen.insert id
+      match fvParts? id with
+      | some (_, n) =>
+        match tys[n]? with
+        | some ty =>
+          if done.contains n then closure tys fuel todo seen done
+          else match fuel with
+            | 0 => seen
+            | fuel + 1 => closure tys fuel ((EO.fvarIds ty).toList ++ todo) seen (done.insert n)
+        | none => closure tys fuel todo seen done
+      | none => closure tys fuel todo seen done
+  termination_by (fuel, todo.length)
 
 /-- The free variables reachable from `e`, hereditarily through their types. -/
 def fvarClosureM (e : Expr) : CheckCM (Std.HashSet FVarId) := do
   if !e.hasFVar then return {}
-  return leafGuardM.closure (← get).fvTys (2 ^ 62) (EO.fvarIds e).toList {}
+  let tys := (← get).fvTys
+  return leafGuardM.closure tys tys.size (EO.fvarIds e).toList {} {}
 
-/-! ## The head-symbol readers (twin of `ConLeche/Kernel/PropRead.lean`) -/
+/-! ## The head-symbol readers (twin of `ConLeche.Kernel.PropRead`) -/
 
 /-- Twin of `residualPW`. -/
 def residualPW : Option Expr → Option PropWhen
-  | some (.sort u) => some (Lvl.zeronessOf u)
-  | _ => none
+  | some e =>
+    match EO.stripTop e with
+    | .sort u => some (Lvl.zeronessOf u)
+    | _ => none
+  | none => none
 
 /-- Twin of `lamProj?`. -/
 def lamProj? : Nat → Expr → Option (Nat × Nat)
+  | k, .mdata _ e => lamProj? k e
   | k, .lam _ _ b _ => lamProj? (k + 1) b
   | k, .bvar j => if j < k then some (k, j) else none
   | _, _ => none
@@ -339,13 +370,13 @@ def lamProj? : Nat → Expr → Option (Nat × Nat)
 def unwrapIdDefs (fe : FEnv) : Nat → Expr → Expr
   | 0, e => e
   | fuel + 1, e =>
-    match e.getAppFn with
+    match e.getAppFnT with
     | .const c _ =>
       match fe.defnView? c with
       | some (_, v, _) =>
         match lamProj? 0 v with
         | some (k, j) =>
-          let args := e.getAppArgs
+          let args := e.getAppArgsT
           if k ≤ args.size && args.size == k then
             unwrapIdDefs fe fuel (args.getD (k - 1 - j) e)
           else e
@@ -357,14 +388,16 @@ def unwrapIdDefs (fe : FEnv) : Nat → Expr → Expr
 def peelPisW (fe : FEnv) : Nat → Expr → Option Expr
   | 0, e => some (unwrapIdDefs fe 4 e)
   | k + 1, .forallE _ _ b _ => peelPisW fe k b
+  | k + 1, .mdata _ e => peelPisW fe (k + 1) e
   | k + 1, e =>
-    match unwrapIdDefs fe 4 e with
+    match EO.stripTop (unwrapIdDefs fe 4 e) with
     | .forallE _ _ b _ => peelPisW fe k b
     | _ => none
 
 /-- Twin of `headTypePW`. -/
 def headTypePW (fe : FEnv) (fvTy : FVarId → Option Expr) (root : Expr) (d : Nat) :
     Expr → Nat → Option PropWhen
+  | .mdata _ e, n => headTypePW fe fvTy root d e n
   | .const I us, n =>
     match fe.find? I with
     | some ci =>
@@ -387,9 +420,10 @@ def headTypePW (fe : FEnv) (fvTy : FVarId → Option Expr) (root : Expr) (d : Na
 /-- Twin of `typeSortPWGo`. -/
 def typeSortPWGo (fe : FEnv) (fvTy : FVarId → Option Expr) (root : Expr) :
     Expr → Nat → Option PropWhen
+  | .mdata _ e, d => typeSortPWGo fe fvTy root e d
   | .forallE _ _ b _, d => typeSortPWGo fe fvTy root b (d + 1)
   | .sort _, _ => some .never
-  | R, d => headTypePW fe fvTy root d R.getAppFn R.getAppNumArgs
+  | R, d => headTypePW fe fvTy root d R.getAppFnT R.getAppNumArgsT
 
 /-- Twin of `typeSortPW`. -/
 def typeSortPW (fe : FEnv) (fvTy : FVarId → Option Expr) (T : Expr) : Option PropWhen :=
@@ -398,6 +432,7 @@ def typeSortPW (fe : FEnv) (fvTy : FVarId → Option Expr) (T : Expr) : Option P
 /-- Twin of `headProofPW`; a projection head reads its field's body
 (`projBodyAt`). -/
 def headProofPW (fe : FEnv) (fvTy : FVarId → Option Expr) : Expr → Option PropWhen
+  | .mdata _ e => headProofPW fe fvTy e
   | .const c us =>
     match fe.find? c with
     | some ci =>

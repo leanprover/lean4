@@ -1,28 +1,10 @@
-/-
-Copyright (c) 2026 Lean FRO, LLC. All rights reserved.
-Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Sebastian Ullrich
--/
 module
 
-prelude
-public import Init.Data.Nat.Big
-public import Init.Data.Nat
-public import Init.Data.String
-public import Init.Data.List
-public import Init.Data.Array
-public import Init.Data.UInt
-public import Init.Data.Int
-public import Init.Data.ByteArray
-public import Init.Data.Fin
-import Init.Grind
-import Init.GrindInstances
-import Init.Omega
 import all Init.Data.ByteArray.Basic
 import all Init.Data.ByteArray.Extra
 import all Init.Data.UInt.Log2
 import all Init.Data.Fin.Log2
-public import Std.Data.Nat.Big.Algo
+public import Verif.Init.Data.Nat.Big.Algo
 
 /-! Correctness of decimal conversion. -/
 
@@ -275,11 +257,11 @@ public theorem toList_toString_uint32 (c : UInt32) : (toString c).toList = Nat.t
 
 public theorem toList_pushn (s : String) (c : Char) (n : Nat) :
     (s.pushn c n).toList = s.toList ++ List.replicate n c := by
+  rw [String.pushn_eq_iterate_push]
   induction n with
-  | zero => rw [String.pushn_eq_repeat_push]; simp [Nat.repeat]
+  | zero => simp [Nat.iterate]
   | succ n ih =>
-    rw [String.pushn_eq_repeat_push] at *
-    rw [Nat.repeat, String.toList_push, ih, List.replicate_succ', List.append_assoc]
+    rw [Nat.iterate, String.toList_push, ih, List.replicate_succ', List.append_assoc]
 
 /-- The digits of the chunks, most significant chunk first, padding all but the top one. -/
 @[expose] public def renderChunks : List UInt32 → List Char

@@ -36,7 +36,7 @@ itself, as official's `check_name` (`FEnv.find?` hides constants a check does
 not see). -/
 def checkConstantValF (ops : CheckerOps) (fe : FEnv) (cv : ConstantVal) (allowOp : Bool := false) :
     CheckCM Unit := do
-  if (fe.env.find? cv.name).isSome then throw (.invalid s!"duplicate declaration {cv.name}")
+  if (fe.env.find? cv.name).isSome then throw (alreadyDeclared cv.name)
   if natOpName cv.name && !allowOp then
     throw (.invalid s!"a certified Nat operation's name, not a definition: {cv.name}")
   unless litShapeOk cv.name cv.levelParams cv.type do

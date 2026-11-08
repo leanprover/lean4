@@ -52,6 +52,9 @@ structure Config where
   and in a replay in dependency order an operation can arrive before what
   its certificates read.  `false` is con-leche's policy. -/
   uncertifiedNatOps : Bool := true
+  /-- The official kernel's resource limits (`Limits`; by default none but
+  the numerals' size). -/
+  limits : Limits := {}
 
 /-- What a declaration adds: its constants, in order, and whether it is the
 quotient package (official's `quotInit` flag). -/
@@ -64,25 +67,30 @@ variable (mode : CheckMode)
 
 /-- The core's entry points at the plain tower (twin of `sharedOpsC`). -/
 @[inline] def opInfer (fe : FEnv) (d : Nat) (e : Expr) : CheckCM Expr :=
-  (coreKnotI mode false fe checkFuel).infer d e
+  (coreKnotI mode false fe (fe.limits.recDepth.getD checkFuel)).infer d e
 @[inline] def opDefeq (fe : FEnv) (d : Nat) (a b : Expr) : CheckCM Bool :=
-  (coreKnotI mode false fe checkFuel).defeq d a b
+  (coreKnotI mode false fe (fe.limits.recDepth.getD checkFuel)).defeq d a b
 @[inline] def opSort (fe : FEnv) (d : Nat) (e : Expr) : CheckCM Level :=
-  ensureSortI (coreKnotI mode false fe checkFuel) d e
+  ensureSortI (coreKnotI mode false fe (fe.limits.recDepth.getD checkFuel)) d e
 @[inline] def opWhnf (fe : FEnv) (d : Nat) (e : Expr) : CheckCM Expr :=
-  (coreKnotI mode false fe checkFuel).whnf d e
+  (coreKnotI mode false fe (fe.limits.recDepth.getD checkFuel)).whnf d e
 
 end
 
 /-! ## Syntactic guards -/
 
-/-- Twin of `unresolvedConstsErrorL`. -/
-def unresolvedConstsErrorL (strOk : Bool) (where_ : String) (e : Expr) : CheckError :=
+/-- Twin of `unresolvedConstsErrorL`; a constant the check does not see is
+named (`unseenConstError`). -/
+def unresolvedConstsErrorL (fe : FEnv) (strOk : Bool) (where_ : String) (e : Expr) : CheckError :=
   if !strOk && EO.any (fun x => match x with | .lit (.strVal _) => true | _ => false) e then
     .notImplemented "string literals before the String support declarations"
-  else if (EO.usedConstants e).contains sorryAxName then
-    .notImplemented s!"use of the sorryAx axiom in {where_}"
-  else .invalid s!"unknown constant in {where_}"
+  else
+    let cs := EO.usedConstants e
+    if cs.contains sorryAxName then
+      .notImplemented s!"use of the sorryAx axiom in {where_}"
+    else match cs.find? (fun c => (fe.find? c).isNone) with
+      | some c => unseenConstError fe c
+      | none => .invalid s!"unknown constant in {where_}"
 
 /-- Twin of `Expr.constsResolve` on a term without free variables: every
 constant and every projection's structure stored, a literal's support
@@ -106,7 +114,7 @@ def checkTermWF (fe : FEnv) (what : String) (lps : List Name) (e : Expr) : Check
     unless (EO.levelParams e).all lps.contains do
       throw (.invalid s!"undeclared universe parameter in {what}")
   unless constsResolve fe e do
-    throw (unresolvedConstsErrorL (strLitStoredF fe) what e)
+    throw (unresolvedConstsErrorL fe (strLitStoredF fe) what e)
 
 /-! ## The literal names' shapes (twin of `litShapeOk`) -/
 
@@ -153,7 +161,7 @@ variable (mode : CheckMode)
 /-- Twin of `checkConstantValC`. -/
 def checkConstantValC (fe : FEnv) (n : Name) (lps : List Name) (ty : Expr)
     (allowOp : Bool := false) : CheckCM Unit := do
-  if (fe.env.find? n).isSome then throw (.invalid s!"duplicate declaration {n}")
+  if (fe.env.find? n).isSome then throw (alreadyDeclared n)
   if natOpName n && !allowOp then
     throw (.invalid s!"a certified Nat operation's name, not a definition: {n}")
   unless litShapeOk n lps ty do
@@ -412,7 +420,7 @@ def checkQuotC (fe : FEnv) : CheckCM Added := do
   unless quotPredsOk fe do
     throw (.notImplemented "quotient declaration before what it needs")
   for p in [quotPin, quotMkPin, quotLiftPin, quotIndPin] do
-    if (fe.env.find? p.name).isSome then throw (.invalid s!"duplicate declaration {p.name}")
+    if (fe.env.find? p.name).isSome then throw (alreadyDeclared p.name)
   let mk (p : Pin) (k : QuotKind) : ConstantInfo :=
     .quotInfo { name := p.name, levelParams := p.lps, type := p.type, kind := k }
   return { consts := #[mk quotPin .type, mk quotMkPin .ctor, mk quotLiftPin .lift,
@@ -485,7 +493,7 @@ def checkAxiomC (cfg : Config) (fe : FEnv) (v : AxiomVal) : CheckCM Added := do
       throw (.notImplemented "quotient soundness axiom mismatch")
     unless quotPredsOk fe && (fe.find? quotName).isSome && (fe.find? quotMkName).isSome do
       throw (.notImplemented "quotient declaration before what it needs")
-    if (fe.env.find? v.name).isSome then throw (.invalid s!"duplicate declaration {v.name}")
+    if (fe.env.find? v.name).isSome then throw (alreadyDeclared v.name)
     return { consts := #[ci] }
   let fe' := { fe with safety := if v.isUnsafe then .unsafe else .safe }
   -- the official policy (`coreAxioms`) admits an axiom at a certified `Nat`

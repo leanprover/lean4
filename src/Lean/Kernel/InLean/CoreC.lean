@@ -32,8 +32,11 @@ What differs, and why:
 * Inference of a constant checks the declaration's safety against the
   constant's (official `infer_constant`); con-leche checks safe
   declarations only.
-* A `Nat` literal computation the official kernel refuses (`natOpRefusal`)
-  is an error here too.
+* A `Nat` literal computation the official kernel refuses (`natOpRefusal`,
+  `natResultRefused`) is an error here too, and so is the inference of a
+  literal past the size bound (`Limits.natMaxBytes`).
+* The official kernel's resource limits (`Limits`): the knot's fuel is the
+  recursion bound, and every body runs behind the poll (`pollC`).
 -/
 
 @[expose] public section
@@ -162,7 +165,18 @@ def ruleRhsAtM (fe : FEnv) (c j : Name) (us : List Level) : CheckCM Expr := do
 
 /-! ### Mode-free bodies -/
 
-/-- Twin of `unfoldDefinitionI`: a theorem never unfolds. -/
+/-- **The limits' poll** (`Limits.poll`) at an event, before `x`: a limit
+it answers is the error. -/
+@[inline] def pollC (fe : FEnv) (ev : Event) (x : CheckCM α) : CheckCM α :=
+  match fe.limits.poll with
+  | none => x
+  | some p =>
+    match p ev with
+    | some l => throw (.limit l)
+    | none => x
+
+/-- Twin of `unfoldDefinitionI`: a theorem never unfolds; the unfolding is
+reported to the poll (`Event.unfold`). -/
 def unfoldDefinitionI (fe : FEnv) (e : Expr) : CheckCM (Option Expr) := do
   match e.getAppFnT with
   | .const n us => do
@@ -171,7 +185,7 @@ def unfoldDefinitionI (fe : FEnv) (e : Expr) : CheckCM (Option Expr) := do
       if us.length = cv.levelParams.length then do
         let v ← constValAtM fe n us
         let r ← mkAppNM v (appArgs e)
-        pure (some r)
+        pollC fe (.unfold n) (pure (some r))
       else pure none
     | none => pure none
   | _ => pure none
@@ -197,7 +211,9 @@ def reduceNatI (r : CoreFnsI) (fe : FEnv) (depth : Nat) (e : Expr) :
         if c == natSuccName ∧ natLitStoredF fe then do
           let w ← r.whnf depth b
           match rawNatLitC? w with
-          | some n => pure (some (.lit (.natVal (n + 1))))
+          | some n =>
+            if natSizeBytes (n + 1) > fe.limits.natMaxBytes then throw (.invalid natTooBigMsg)
+            pure (some (.lit (.natVal (n + 1))))
           | none => pure none
         else pure none
     | .app f₂ a =>
@@ -219,8 +235,11 @@ def reduceNatI (r : CoreFnsI) (fe : FEnv) (depth : Nat) (e : Expr) :
               let w₂ ← r.whnf depth b
               match rawNatLitC? w₂ with
               | some n₂ =>
-                if let some msg := natOpRefusal cn n₁ n₂ then throw (.invalid msg)
-                pure (natOpResult cn n₁ n₂)
+                if let some msg := natOpRefusal fe.limits.natMaxBytes cn n₁ n₂ then
+                  throw (.invalid msg)
+                let res := natOpResult cn n₁ n₂
+                if natResultRefused fe.limits.natMaxBytes cn res then throw (.invalid natTooBigMsg)
+                pure res
               | none => pure none
             | none => pure none
           else if natOpWfNames.contains cn then do
@@ -892,7 +911,13 @@ def betaPeelI (r : CoreFnsI) (fe : FEnv) (depth : Nat) :
       let e' ← instListM t acc
       pure (.cont (← mkAppNM e' (a :: rest)))
 
-/-- Twin of `whnfAppI`. -/
+/-- The name of a term's head constant (`.anonymous` for another head). -/
+def headConstName (e : Expr) : Name :=
+  match e.getAppFnT with
+  | .const n _ => n
+  | _ => .anonymous
+
+/-- Twin of `whnfAppI`; a ι step is reported to the poll (`Event.unfold`). -/
 def whnfAppI (r : CoreFnsI) (fe : FEnv) (depth : Nat) : Expr → List Expr → CheckCM WhnfStep
   | v, [] => pure (.done v)
   | v, a :: rest => do
@@ -901,7 +926,9 @@ def whnfAppI (r : CoreFnsI) (fe : FEnv) (depth : Nat) : Expr → List Expr → C
     | _ => do
       let fa := Expr.app v a
       match ← (if iotaArityOk fe fa then iotaRecI mode r fe depth fa else pure none) with
-      | some e'' => pure (.cont (← mkAppNM e'' rest))
+      | some e'' =>
+        let e' ← mkAppNM e'' rest
+        pollC fe (.unfold (headConstName fa)) (pure (.cont e'))
       | none => whnfAppI r fe depth fa rest
 
 /-- Twin of `whnfCoreStepI`; `mdata` is looked through. -/
@@ -983,13 +1010,14 @@ def inferBodyI (r : CoreFnsI) (fe : FEnv) : Nat → Expr → CheckCM Expr :=
       | none => throw (.invalid "free variable out of scope")
     | .const n us => do
       match fe.find? n with
-      | none => throw (unknownConstError n)
+      | none => throw (unknownConstError fe n)
       | some ci =>
         unless us.length = ci.levelParams.length do
           throw (.invalid s!"incorrect number of universe levels for {n}")
         checkConstSafety fe n ci
         constTyAtM fe n us
-    | .lit (.natVal _) => do
+    | .lit (.natVal n) => do
+      if natSizeBytes n > fe.limits.natMaxBytes then throw (.invalid natTooBigMsg)
       if natLitStoredF fe then pure (.const natName [])
       else throw (.invalid "Nat literal without the Nat basis declarations")
     | .lit (.strVal _) => do
@@ -1307,32 +1335,34 @@ end
         { st with defeqC := mp.insert (EKey.mk a, EKey.mk b) r }
       pure r
 
-/-- Twin of `knotLevelI`. -/
+
+/-- Twin of `knotLevelI`; every body runs behind the poll (`pollC`). -/
 @[inline] def knotLevelI (mode : CheckMode) (eager : Bool) (fe : FEnv)
     (prev prevE : Unit → CoreFnsI) : CoreFnsI :=
   { whnfCore := fun c => if c then
         memoEI (·.whnfCoreCheapC) (fun st mp => { st with whnfCoreCheapC := mp })
-          (fun d e => whnfCoreBodyI mode (prev ()) fe true d e)
+          (fun d e => pollC fe (.body d) (whnfCoreBodyI mode (prev ()) fe true d e))
       else memoEI (·.whnfCoreC) (fun st mp => { st with whnfCoreC := mp })
-        (fun d e => whnfCoreBodyI mode (prev ()) fe false d e)
+        (fun d e => pollC fe (.body d) (whnfCoreBodyI mode (prev ()) fe false d e))
     whnf := memoEI (·.whnfC) (fun st mp => { st with whnfC := mp })
-      (fun d e => whnfBodyI (prev ()) fe d e)
+      (fun d e => pollC fe (.body d) (whnfBodyI (prev ()) fe d e))
     infer := memoEI (·.inferC) (fun st mp => { st with inferC := mp })
-      (fun d e => inferBodyI (prev ()) fe d e)
-    defeq := memoBI (fun d a b => defeqBodyI mode eager (prev ()) fe d a b)
+      (fun d e => pollC fe (.body d) (inferBodyI (prev ()) fe d e))
+    defeq := memoBI (fun d a b => pollC fe (.body d) (defeqBodyI mode eager (prev ()) fe d a b))
     defeqE := fun d a b => withEagerMemos eager
-      (memoBI (fun d a b => defeqBodyI mode true (prevE ()) fe d a b) d a b)
+      (memoBI (fun d a b => pollC fe (.body d) (defeqBodyI mode true (prevE ()) fe d a b)) d a b)
     inferIO := memoEI (·.inferIOC) (fun st mp => { st with inferIOC := mp })
-      (fun d e => inferBodyIOI (prev ()).ioView fe d e) }
+      (fun d e => pollC fe (.body d) (inferBodyIOI (prev ()).ioView fe d e)) }
 
-/-- Twin of `knotZeroI`. -/
+/-- Twin of `knotZeroI`: the fuel is the core's nesting depth, so running
+out of it is the recursion limit (`Limits.recDepth`). -/
 def knotZeroI : CoreFnsI :=
-  { whnfCore := fun _ _ _ => throw (.internal "fuel exhausted: whnfCore")
-    whnf := fun _ _ => throw (.internal "fuel exhausted: whnf")
-    infer := fun _ _ => throw (.internal "fuel exhausted: infer")
-    defeq := fun _ _ _ => throw (.internal "fuel exhausted: defeq")
-    defeqE := fun _ _ _ => throw (.internal "fuel exhausted: defeq")
-    inferIO := fun _ _ => throw (.internal "fuel exhausted: infer") }
+  { whnfCore := fun _ _ _ => throw (.limit .recDepth)
+    whnf := fun _ _ => throw (.limit .recDepth)
+    infer := fun _ _ => throw (.limit .recDepth)
+    defeq := fun _ _ _ => throw (.limit .recDepth)
+    defeqE := fun _ _ _ => throw (.limit .recDepth)
+    inferIO := fun _ _ => throw (.limit .recDepth) }
 
 /-- Twin of `knotEagerI`. -/
 def knotEagerI (mode : CheckMode) (fe : FEnv) : Nat → CoreFnsI

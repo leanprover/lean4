@@ -57,7 +57,7 @@ def recTyCheck (ops : CheckerOps) (w : StructWalkers) (fe : FEnv) (rec : Name)
   unless ← allLevelParamsDefined lps s do
     throw (.invalid s!"undeclared universe parameter in the type of the recursor {rec}")
   unless ← w.resolve fe s do
-    throw (unresolvedConstsErrorL true s!"the type of the recursor {rec}" s)
+    throw (unresolvedConstsErrorL fe true s!"the type of the recursor {rec}" s)
   let st ← ops.inferType fe 0 s
   let _ ← ops.ensureSort fe 0 st
   recTyOpened ops fe rec n (← openPisAtFvars n s 0) (← openPisAtFvars n g 0)
@@ -72,7 +72,7 @@ def ruleAgree (ops : CheckerOps) (w : StructWalkers) (fe : FEnv) (rec ctor : Nam
     throw (.invalid s!"the recursor {rec}'s rule for {ctor} has an undeclared universe \
       parameter")
   unless ← w.resolve fe s do
-    throw (unresolvedConstsErrorL true s!"the recursor {rec}'s rule for {ctor}" s)
+    throw (unresolvedConstsErrorL fe true s!"the recursor {rec}'s rule for {ctor}" s)
   let ts ← ops.inferType fe 0 s
   let tg ← ops.inferType fe 0 g
   unless ← ops.isDefEq fe 0 ts tg do

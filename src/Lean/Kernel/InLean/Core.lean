@@ -20,7 +20,13 @@ in `Lean.Environment`; those take owned arguments, as an `@[export]` function mu
 accepted and `sorryAx` may be used (`Config.coreAxioms`); the prelude is assumed good
 (`Config.uncertifiedNatOps`).
 
-Not honoured: `maxHeartbeats`, `maxRecDepth` and the cancellation token are accepted and ignored.
+`addDecl` runs under the official kernel's limits (`Limits`): the core's nesting depth is bounded
+by 16 times `maxRecDepth` (official `scope_rec_depth`), the numerals by `LEAN_NAT_MAX_SIZE`, and
+the core asks its poll at every body it runs whether the cancellation token is set or the
+heartbeats (allocations) since the kernel was entered exceed `maxHeartbeats` (`addDeclRuntime`).
+A limit of `0` is none.  The poll also counts the unfoldings for the kernel's diagnostics.
+`Kernel.whnf`, `Kernel.isDefEq` and `Kernel.check` run without the recursion and heartbeat
+limits, as the official kernel's do.
 -/
 
 public section
@@ -29,15 +35,84 @@ namespace Lean.Kernel.InLean
 
 open Lean
 
+/-- Official `read_nat_size_env("LEAN_NAT_MAX_SIZE", 128 MB)`: the size bound on numerals, read
+once at initialization; a value that is not a decimal numeral is the default. -/
+builtin_initialize natMaxSizeEnv : Nat ← do
+  let dflt := 128 * 1024 * 1024
+  match ← IO.getEnv "LEAN_NAT_MAX_SIZE" with
+  | some s => return s.toNat?.getD dflt
+  | none => return dflt
+
 /-- The configuration the kernel runs with inside core. -/
-def coreConfig : Config := { coreAxioms := true, uncertifiedNatOps := true }
+def coreConfig : Config :=
+  { coreAxioms := true, uncertifiedNatOps := true, limits := { natMaxBytes := natMaxSizeEnv } }
+
+/-- The configuration of one `addDecl` run: `coreConfig` under the elaborator's recursion limit
+(`0` is none) and the poll `poll`. -/
+def addDeclConfig (maxRecDepth : USize) (poll : Option (Event → Option Limit)) : Config :=
+  { coreConfig with
+    limits := { coreConfig.limits with
+      recDepth := if maxRecDepth == 0 then none else some (16 * maxRecDepth.toNat)
+      poll } }
+
+/-- **The poll on the runtime**: at a body, whether the cancellation token is set or the
+heartbeats since `start` exceed `maxHeartbeats` (`0` is no limit); at an unfolding, the
+diagnostics' count of the constant in `unfolds?`, when diagnostics are enabled. -/
+def pollIO (start maxHeartbeats : Nat) (cancelTk? : Option IO.CancelToken)
+    (unfolds? : Option (IO.Ref (Std.HashMap Name Nat))) : Event → BaseIO (Option Limit)
+  | .unfold n => do
+    if let some ref := unfolds? then
+      ref.modify fun m => m.insert n (m.getD n 0 + 1)
+    return none
+  | .body _ => do
+    if let some tk := cancelTk? then
+      if ← tk.isSet then return some .interrupted
+    if maxHeartbeats != 0 then
+      if (← IO.getNumHeartbeats) - start > maxHeartbeats then return some .heartbeats
+    return none
+
+/-- The diagnostics' unfold counter of `env` with the counts `unfolds` added (official
+`scoped_diagnostics::update`). -/
+def addUnfolds (env : Kernel.Environment) (unfolds : Std.HashMap Name Nat) : Kernel.Environment :=
+  let d := env.diagnostics
+  let counter := unfolds.fold (init := d.unfoldCounter) fun m n c =>
+    m.insert n ((m.find? n).getD 0 + c)
+  { env with diagnostics := { d with unfoldCounter := counter } }
+
+private unsafe def addDeclRuntimeUnsafe (env : Kernel.Environment) (maxHeartbeats : USize)
+    (maxRecDepth : USize) (decl : Declaration) (cancelTk? : Option IO.CancelToken) :
+    Except Kernel.Exception Kernel.Environment :=
+  let diag := env.diagnostics.enabled
+  if maxHeartbeats == 0 && cancelTk?.isNone && !diag then
+    addDecl env decl (addDeclConfig maxRecDepth none)
+  else unsafeBaseIO do
+    let start ← IO.getNumHeartbeats
+    let unfolds? ← if diag then some <$> IO.mkRef {} else pure none
+    let poll := fun ev => unsafeBaseIO (pollIO start maxHeartbeats.toNat cancelTk? unfolds? ev)
+    match addDecl env decl (addDeclConfig maxRecDepth (some poll)) with
+    | .ok env' =>
+      match unfolds? with
+      | some ref => return .ok (addUnfolds env' (← ref.get))
+      | none => return .ok env'
+    | .error e => return .error e
+
+/-- **`addDecl` under the elaborator's limits.**  In the logic there is no poll; compiled
+(`addDeclRuntimeUnsafe`) it reads the runtime (`pollIO`): the cancellation token and the heartbeat
+counter (from the kernel's entry), and it counts the unfoldings, which are then added to the new
+environment's diagnostics when they are enabled.  The checker's soundness holds for any poll, and
+the diagnostics are no constant. -/
+@[implemented_by addDeclRuntimeUnsafe]
+def addDeclRuntime (env : Kernel.Environment) (_maxHeartbeats : USize) (maxRecDepth : USize)
+    (decl : Declaration) (_cancelTk? : Option IO.CancelToken) :
+    Except Kernel.Exception Kernel.Environment :=
+  addDecl env decl (addDeclConfig maxRecDepth none)
 
 /-- `Kernel.Environment.addDeclCore` (`lean_add_decl`). -/
 @[export lean_add_decl]
-def addDeclExport (env : Kernel.Environment) (_maxHeartbeats : USize) (_maxRecDepth : USize)
-    (decl : Declaration) (_cancelTk? : Option IO.CancelToken) :
+def addDeclExport (env : Kernel.Environment) (maxHeartbeats : USize) (maxRecDepth : USize)
+    (decl : Declaration) (cancelTk? : Option IO.CancelToken) :
     Except Kernel.Exception Kernel.Environment :=
-  addDecl env decl coreConfig
+  addDeclRuntime env maxHeartbeats maxRecDepth decl cancelTk?
 
 /-- The constants a non-inductive, non-quotient declaration adds, unchecked. -/
 def declConsts : Declaration → Option (List ConstantInfo)
@@ -105,13 +180,14 @@ variables. -/
 def withLCtx (env : Lean.Environment) (lctx : LocalContext) (es : Array Expr)
     (k : FEnv → Nat → Array Expr → CheckCM α) (back : Array Expr → Array Expr → α → α) :
     Except Kernel.Exception α :=
-  let fe : FEnv := { env := env.toKernelEnv, coreAxioms := coreConfig.coreAxioms }
+  let fe : FEnv :=
+    { env := env.toKernelEnv, coreAxioms := coreConfig.coreAxioms, limits := coreConfig.limits }
   match runC (do
       let (origs, news, backFrom, backTo, d) ← openLCtx lctx
       let r ← k fe d (es.map (·.replaceFVars origs news))
       return back backFrom backTo r) with
   | .ok r => .ok r
-  | .error err => .error (.other err.toString)
+  | .error err => .error err.toKernelException
 
 /-- `Kernel.isDefEq` (`lean_kernel_is_def_eq`). -/
 @[export lean_kernel_is_def_eq]

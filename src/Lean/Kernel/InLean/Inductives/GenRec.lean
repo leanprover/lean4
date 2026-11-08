@@ -285,7 +285,7 @@ itself (`checkConstantValF`).  The generated type was closed by depth
 (`EO.abstractDepthsFrom`), which may write `EO.rangePoison`: a type
 `EO.inRange` refuses is an error, as in `reducedFormer`. -/
 def classConstOk (ops : CheckerOps) (fe : FEnv) (cv : ConstantVal) : CheckCM Unit := do
-  if (fe.env.find? cv.name).isSome then throw (.invalid s!"duplicate declaration {cv.name}")
+  if (fe.env.find? cv.name).isSome then throw (alreadyDeclared cv.name)
   unless litShapeOk cv.name cv.levelParams cv.type do
     throw (.notImplemented s!"a declaration at a literal's name with another shape ({cv.name})")
   unless namesNodup cv.levelParams do
@@ -298,7 +298,7 @@ def classConstOk (ops : CheckerOps) (fe : FEnv) (cv : ConstantVal) : CheckCM Uni
   unless ← allLevelParamsDefined cv.levelParams cv.type do
     throw (.invalid s!"undeclared universe parameter in type of {cv.name}")
   unless ← constsResolveF fe cv.type do
-    throw (unresolvedConstsErrorL true s!"type of {cv.name}" cv.type)
+    throw (unresolvedConstsErrorL fe true s!"type of {cv.name}" cv.type)
   let stype ← ops.inferType fe 0 cv.type
   let _u ← ops.ensureSort fe 0 stype
 
@@ -344,13 +344,13 @@ def classRuleCheck (ops : CheckerOps) (w : StructWalkers) (feT feR : FEnv) (cvR 
     throw (.internal s!"generated recursor: a rule of {cvR.name} names an undeclared universe \
       parameter")
   unless ← w.resolve feR gen do
-    throw (unresolvedConstsErrorL true s!"generated rule of {cvR.name}" gen)
+    throw (unresolvedConstsErrorL feR true s!"generated rule of {cvR.name}" gen)
   let _ ← ops.inferType feR 0 gen
   let (rbs, _) ← unwrapOr (stripLams n gen)
     (.internal s!"generated recursor: a rule of {cvR.name} is not a λ-telescope over the \
       recursor's prefix and the constructor's fields")
   unless ← rbs.allM (w.resolve feT) do
-    throw (unresolvedConstsErrorL true s!"the domains of a generated rule of {cvR.name}" gen)
+    throw (unresolvedConstsErrorL feT true s!"the domains of a generated rule of {cvR.name}" gen)
 
 /-- Twin of `classRuleOk`. -/
 def classRuleOk (ops : CheckerOps) (w : StructWalkers) (feT feR : FEnv) (cvR : ConstantVal)

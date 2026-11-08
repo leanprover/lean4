@@ -88,7 +88,7 @@ kind's checks and the reserved names'), returning what it adds; at con-leche's
 axiom policy, no constant but the axiom at `sorryAx`'s name (`sorryAxSquat`). -/
 def checkDecl (cfg : Config) (env : Kernel.Environment) (decl : Declaration) :
     Except CheckError Added :=
-  let fe : FEnv := { env, coreAxioms := cfg.coreAxioms }
+  let fe : FEnv := { env, coreAxioms := cfg.coreAxioms, limits := cfg.limits }
   if !andPinOk decl then .error (.invalid "`And` must be the standard `And`") else
   runC do
     let a ← checkDeclKindC cfg.mode cfg fe decl
@@ -101,27 +101,28 @@ def checkDecl (cfg : Config) (env : Kernel.Environment) (decl : Declaration) :
 /-- **Check `decl` and add the constants it declares** — the twin of
 `Lean.Kernel.Environment.addDeclCore`.  A reject, a decline and an error
 are each `Kernel.Exception.other`, the message prefixed `(InLean)` and, for a
-decline, `declined:`. -/
+decline, `declined:`; a resource limit is its own exception
+(`CheckError.toKernelException`). -/
 def addDecl (env : Kernel.Environment) (decl : Declaration) (cfg : Config := {}) :
     Except Kernel.Exception Kernel.Environment :=
   match checkDecl cfg env decl with
   | .ok a =>
     let env := a.consts.foldl addConst env
     .ok (if a.quot then markQuot env else env)
-  | .error e => .error (.other e.toString)
+  | .error e => .error e.toKernelException
 
 /-- The twin of `Kernel.whnf` (a closed term; full reduction). -/
 def kernelWhnf (env : Kernel.Environment) (e : Expr) (cfg : Config := {}) :
     Except Kernel.Exception Expr :=
-  match runC (opWhnf cfg.mode { env, coreAxioms := cfg.coreAxioms } 0 e) with
+  match runC (opWhnf cfg.mode { env, coreAxioms := cfg.coreAxioms, limits := cfg.limits } 0 e) with
   | .ok r => .ok r
-  | .error err => .error (.other err.toString)
+  | .error err => .error err.toKernelException
 
 /-- The twin of `Kernel.isDefEq` (closed terms). -/
 def kernelIsDefEq (env : Kernel.Environment) (a b : Expr) (cfg : Config := {}) :
     Except Kernel.Exception Bool :=
-  match runC (opDefeq cfg.mode { env, coreAxioms := cfg.coreAxioms } 0 a b) with
+  match runC (opDefeq cfg.mode { env, coreAxioms := cfg.coreAxioms, limits := cfg.limits } 0 a b) with
   | .ok r => .ok r
-  | .error err => .error (.other err.toString)
+  | .error err => .error err.toKernelException
 
 end Lean.Kernel.InLean

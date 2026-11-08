@@ -48,20 +48,49 @@ inductive CheckMode where
 
 /-! ## Errors -/
 
+/-- **A resource limit the official kernel honours**, each reported as
+its `Kernel.Exception`: the heartbeat budget (`deterministicTimeout`), the
+cancellation token (`interrupted`) and the recursion depth
+(`deepRecursion`). -/
+inductive Limit where
+  | heartbeats
+  | interrupted
+  | recDepth
+  deriving Inhabited, BEq
+
 /-- Twin of `ConLeche.CheckError`: `invalid` is a reject (the official
 kernel rejects too), `notImplemented` a positively detected unsupported
-feature (a decline), `internal` an error of unclear cause. -/
+feature (a decline), `internal` an error of unclear cause.  Beyond
+con-leche: `limit`, a resource limit reached (con-leche has none). -/
 inductive CheckError where
   | notImplemented (what : String)
   | invalid (msg : String)
   | internal (msg : String)
+  | limit (l : Limit)
   deriving Inhabited
 
-/-- The message `addDecl` reports, prefixed `(InLean)`. -/
+/-- The message `addDecl` reports, prefixed `(InLean)` (a limit is
+reported as its `Kernel.Exception`, `CheckError.toKernelException`). -/
 def CheckError.toString : CheckError → String
   | .invalid m => s!"(InLean) {m}"
   | .notImplemented m => s!"(InLean) declined: {m}"
   | .internal m => s!"(InLean) internal error: {m}"
+  | .limit .heartbeats => "(InLean) deterministic timeout"
+  | .limit .interrupted => "(InLean) interrupted"
+  | .limit .recDepth => "(InLean) deep recursion detected"
+
+/-- The official kernel's reject of a name already declared
+(`Kernel.Exception.alreadyDeclared`'s wording). -/
+def alreadyDeclared (n : Name) : CheckError :=
+  .invalid s!"constant has already been declared '{n}'"
+
+/-- The kernel exception of an error: a limit as the official kernel
+reports it, anything else `Kernel.Exception.other` with the message. -/
+def CheckError.toKernelException : CheckError → Kernel.Exception
+  | .limit .heartbeats => .deterministicTimeout
+  | .limit .interrupted => .interrupted
+  | .limit .recDepth => .deepRecursion
+  | e => .other e.toString
 
 /-- Twin of `ConLeche.CheckM`. -/
 abbrev CheckM := Except CheckError

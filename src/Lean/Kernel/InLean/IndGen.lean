@@ -60,9 +60,11 @@ structure Ctx where
   env : Kernel.Environment
   safety : DefinitionSafety := .safe
   coreAxioms : Bool := false
+  limits : Limits := {}
 
 /-- The context's environment for the core. -/
-def Ctx.fe (c : Ctx) : FEnv := { env := c.env, safety := c.safety, coreAxioms := c.coreAxioms }
+def Ctx.fe (c : Ctx) : FEnv :=
+  { env := c.env, safety := c.safety, coreAxioms := c.coreAxioms, limits := c.limits }
 
 /-- The generator's local context: its depth (one local per depth), each
 local's binder name and info, and a counter for fresh names. -/
@@ -144,12 +146,14 @@ def appendIdx (n : Name) (i : Nat) : Name := n.appendIndexAfter i
 /-- C++ `mk_rec_name`. -/
 def mkRecName (I : Name) : Name := .str I "rec"
 
-/-- Prefix an error raised by `x` with the installer stage that raised it. -/
+/-- Suffix a decline or an internal error raised by `x` with the installer
+stage that raised it (a reject's message is the official kernel's). -/
 def withStage (stage : String) (x : M α) : M α :=
   tryCatch x fun
-    | .invalid m => throw (.invalid s!"{m} [{stage}]")
+    | .invalid m => throw (.invalid m)
     | .notImplemented m => throw (.notImplemented s!"{m} [{stage}]")
     | .internal m => throw (.internal s!"{m} [{stage}]")
+    | .limit l => throw (.limit l)
 
 /-! ## The generator's local context -/
 
@@ -312,6 +316,14 @@ def AI.getIIndices (a : AI) (t : Expr) : M (Nat × Array Expr) := do
   match a.isValidIndApp t with
   | some i => return (i, t.getAppArgs.extract a.nparams)
   | none => throwInternal "inductive: get_I_indices on a non-inductive application"
+
+/-- C++ `get_I_indices` on a constructor's result type: a constructor whose
+type does not end in a valid application of a type being declared is
+rejected as `check_constructors` does. -/
+def AI.ctorResultIndices (a : AI) (cn : Name) (t : Expr) : M (Nat × Array Expr) := do
+  match a.isValidIndApp t with
+  | some i => return (i, t.getAppArgs.extract a.nparams)
+  | none => throwInvalid s!"invalid return type for '{cn}'"
 
 /-- The fields of a constructor type, params instantiated (`b_u`), and the
 recursive ones (`u`), at fresh locals. -/
@@ -490,7 +502,7 @@ def addInductiveFn (μ : CheckMode)
       let it := types[dIdx]
       for (cn, ct) in it.ctors do
         let (bu, u, t) ← a.ctorFields ct
-        let (itIdx, itIndices) ← a.getIIndices t
+        let (itIdx, itIndices) ← a.ctorResultIndices cn t
         let introApp := mkAppN (mkAppN (.const cn levels) params) bu
         let cApp := mkApp (mkAppN infos[itIdx]!.C itIndices) introApp
         let mut v : Array Expr := #[]
@@ -701,6 +713,49 @@ partial def Elim.replaceAllNested (el : Elim) (lctx : PCtx) (As : Array Expr) (e
     return r
   (go e).run' {}
 
+/-- C++ `check_no_nested_aux`: does `e` name a constant, or a projection's
+structure, under the reserved prefix `_nested` of the nested pass's
+auxiliary types? -/
+def usesNestedPrefix (e : Expr) : Bool :=
+  (e.findI? fun t => match t with
+    | .const n _ => (`_nested).isPrefixOf n
+    | .proj s _ _ => (`_nested).isPrefixOf s
+    | _ => false).isSome
+
+/-- C++ `check_uniform_ind_occs` on one constructor type: the first
+occurrence of a type being declared (one of `names`) that is not applied to
+the parameters (the constructor's first `np` binders, as bound variables)
+at the declaration's levels `lvls`, if any.  An application to more
+arguments is descended into (its indices are checked too); `for_each`'s
+cache is the visited set. -/
+partial def nonUniformOcc (names : Array Name) (lvls : List Level) (np : Nat) (e : Expr) :
+    Option Name :=
+  let rec go (e : Expr) (off : Nat) : StateM (Std.HashSet (EKey × Nat)) (Option Name) := do
+    if (← get).contains (EKey.mk e, off) then return none
+    modify (·.insert (EKey.mk e, off))
+    let args := e.getAppArgs
+    match e.getAppFn with
+    | .const c us =>
+      if names.contains c && args.size ≤ np then
+        let ok := args.size == np && off ≥ np && us == lvls &&
+          (List.range np).all fun i => args[i]! == .bvar (off - 1 - i)
+        return if ok then none else some c
+    | _ => pure ()
+    match e with
+    | .app f x => do
+      if let some c ← go f off then return some c
+      go x off
+    | .forallE _ d b _ | .lam _ d b _ => do
+      if let some c ← go d off then return some c
+      go b (off + 1)
+    | .letE _ t v b _ => do
+      if let some c ← go t off then return some c
+      if let some c ← go v off then return some c
+      go b (off + 1)
+    | .mdata _ b | .proj _ _ b => go b off
+    | _ => return none
+  (go e 0).run' {}
+
 /-- The result of the nested pass (`elim_nested_inductive_result`). -/
 structure ElimRes where
   params : Array Expr
@@ -806,10 +861,23 @@ def genInductive (μ : CheckMode)
   let env ← read <&> (·.env)
   let types : Array IT := types0.toArray.map fun it =>
     { name := it.name, type := it.type, ctors := (it.ctors.map fun c => (c.name, c.type)).toArray }
+  -- `add_inductive`'s checks before generation: no metavariable, free
+  -- variable or reserved auxiliary name (`check_no_metavar_no_fvar`,
+  -- `check_no_nested_aux`), the types being declared applied uniformly
+  -- (`check_uniform_ind_occs`)
   for it in types do
     for (n, e) in #[(it.name, it.type)] ++ it.ctors do
-      if e.hasMVar then throwInvalid s!"unexpected metavariable in {n}"
-      if e.hasFVar then throwInvalid s!"unexpected free variable in {n}"
+      if e.hasMVar then throwInvalid s!"declaration has metavariables '{n}'"
+      if e.hasFVar then throwInvalid s!"declaration has free variables '{n}'"
+      if usesNestedPrefix e then
+        throwInvalid s!"invalid declaration '{n}', it uses the reserved prefix '_nested'"
+  let names := types.map (·.name)
+  let lvls := lps.map Level.param
+  for it in types do
+    for (_, ct) in it.ctors do
+      if let some c := nonUniformOcc names lvls nparams ct then
+        throwInvalid s!"invalid occurrence of datatype '{c}' being declared: it must be applied \
+          to the parameters and universe levels of the mutual declaration"
   let res ← elimNested env lps nparams types
   let nnested := res.aux2nested.size
   let out ← withStage "inductive generator" <|

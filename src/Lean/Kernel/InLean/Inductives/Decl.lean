@@ -122,7 +122,7 @@ def checkInductiveC (fe : FEnv) (lps : List Name) (nparams : Nat) (types : List 
     (isUnsafe : Bool) : CheckCM Added := do
   -- the generator runs in a state of its own
   let gen ← StateT.lift ((((Ind.genInductive mode lps nparams types isUnsafe).run
-      { env := fe.env, coreAxioms := fe.coreAxioms }).run' {}).run' {})
+      { env := fe.env, coreAxioms := fe.coreAxioms, limits := fe.limits }).run' {}).run' {})
   unless gen.consts.all isBlockConst do
     throw (.internal "inductive generator: a constant outside the block")
   unless gen.consts.all constInRange do
@@ -136,10 +136,12 @@ def checkInductiveC (fe : FEnv) (lps : List Name) (nparams : Nat) (types : List 
   -- auxiliary constants' are tested here)
   unless gen.consts.all (fun ci => (fe.env.find? ci.name).isNone) do
     let dup := gen.consts.find? (fun ci => (fe.env.find? ci.name).isSome)
-    throw (.invalid s!"duplicate declaration {(dup.map (·.name)).getD .anonymous}")
+    throw (alreadyDeclared ((dup.map (·.name)).getD .anonymous))
   -- and distinct among themselves, as official's one-by-one additions
   unless namesNodup (gen.consts.toList.map (·.name)) do
-    throw (.invalid "duplicate declaration in an inductive block")
+    let names := gen.consts.toList.map (·.name)
+    let dup := (names.zipIdx.find? fun (n, i) => (names.take i).contains n).map (·.1)
+    throw (alreadyDeclared (dup.getD .anonymous))
   -- a safe block's constants are safe (the generator is not verified)
   unless isUnsafe || gen.consts.all safeConst do
     throw (.internal "inductive generator: an unsafe constant in a safe block")
@@ -147,8 +149,8 @@ def checkInductiveC (fe : FEnv) (lps : List Name) (nparams : Nat) (types : List 
   let feN : FEnv := { fe with env := gen.consts.foldl addConst fe.env }
   unless gen.consts.all fun ci => feN.projBodiesInRange ci.name do
     throw (.internal "too many bound variables in a projection body")
-  -- and so is every intermediate term building them
-  unless projStepsAllOk gen.consts do
+  -- and so is every body of the block's structures, as the block check builds them
+  unless projBodiesAllOk gen.consts do
     throw (.internal "too many bound variables in a projection body")
   -- the block check starts from the empty state
   set ({} : CState)
